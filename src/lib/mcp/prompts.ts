@@ -1,22 +1,22 @@
 /**
  * MCP Prompts Management
- * 
+ *
  * Provides prompt template library, parameterization, and market interface:
  * - Predefined prompt template library
  * - Template parameterization and validation
  * - Template market interface
  * - Template versioning
  * - Template categories and tags
- * 
+ *
  * @module mcp/prompts
  */
 
-import { z } from 'zod';
+import { z } from 'zod'
 
 /**
  * Prompt category
  */
-export type PromptCategory = 
+export type PromptCategory =
   | 'coding'
   | 'writing'
   | 'analysis'
@@ -25,37 +25,37 @@ export type PromptCategory =
   | 'system'
   | 'testing'
   | 'documentation'
-  | 'custom';
+  | 'custom'
 
 /**
  * Prompt status
  */
-export type PromptStatus = 'active' | 'deprecated' | 'experimental' | 'disabled';
+export type PromptStatus = 'active' | 'deprecated' | 'experimental' | 'disabled'
 
 /**
  * Prompt parameter definition
  */
 export interface PromptParameter {
   /** Parameter name */
-  name: string;
+  name: string
   /** Parameter type */
-  type: 'string' | 'number' | 'boolean' | 'array' | 'object';
+  type: 'string' | 'number' | 'boolean' | 'array' | 'object'
   /** Description */
-  description: string;
+  description: string
   /** Whether parameter is required */
-  required: boolean;
+  required: boolean
   /** Default value */
-  default?: unknown;
+  default?: unknown
   /** Allowed values (for enums) */
-  enum?: string[];
+  enum?: string[]
   /** Validation pattern */
-  pattern?: string;
+  pattern?: string
   /** Minimum value */
-  minimum?: number;
+  minimum?: number
   /** Maximum value */
-  maximum?: number;
+  maximum?: number
   /** Example value */
-  example?: unknown;
+  example?: unknown
 }
 
 /**
@@ -63,33 +63,33 @@ export interface PromptParameter {
  */
 export interface PromptMetadata {
   /** Unique prompt identifier */
-  id: string;
+  id: string
   /** Human-readable title */
-  title: string;
+  title: string
   /** Detailed description */
-  description: string;
+  description: string
   /** Prompt category */
-  category: PromptCategory;
+  category: PromptCategory
   /** Keywords for search */
-  tags: string[];
+  tags: string[]
   /** Author */
-  author?: string;
+  author?: string
   /** Version */
-  version: string;
+  version: string
   /** Status */
-  status: PromptStatus;
+  status: PromptStatus
   /** Creation timestamp */
-  createdAt: Date;
+  createdAt: Date
   /** Last updated timestamp */
-  updatedAt: Date;
+  updatedAt: Date
   /** Required capabilities (e.g., 'file:read', 'system:execute') */
-  requiredCapabilities: string[];
+  requiredCapabilities: string[]
   /** Estimated token cost */
-  estimatedTokens?: number;
+  estimatedTokens?: number
   /** Language (e.g., 'en', 'zh') */
-  language?: string;
+  language?: string
   /** Custom metadata */
-  custom: Record<string, unknown>;
+  custom: Record<string, unknown>
 }
 
 /**
@@ -97,19 +97,19 @@ export interface PromptMetadata {
  */
 export interface PromptTemplate {
   /** Template metadata */
-  metadata: PromptMetadata;
+  metadata: PromptMetadata
   /** Template content with placeholders */
-  content: string;
+  content: string
   /** Parameter definitions */
-  parameters: PromptParameter[];
+  parameters: PromptParameter[]
   /** Example usage */
   examples: Array<{
-    description: string;
-    parameters: Record<string, unknown>;
-    output: string;
-  }>;
+    description: string
+    parameters: Record<string, unknown>
+    output: string
+  }>
   /** Related prompts */
-  relatedPrompts?: string[];
+  relatedPrompts?: string[]
 }
 
 /**
@@ -117,13 +117,13 @@ export interface PromptTemplate {
  */
 export interface CompiledPrompt {
   /** Compiled content */
-  content: string;
+  content: string
   /** Used parameters */
-  parameters: Record<string, unknown>;
+  parameters: Record<string, unknown>
   /** Metadata */
-  metadata: PromptMetadata;
+  metadata: PromptMetadata
   /** Compilation timestamp */
-  compiledAt: Date;
+  compiledAt: Date
 }
 
 /**
@@ -131,37 +131,37 @@ export interface CompiledPrompt {
  */
 export interface MarketplaceTemplate {
   /** Template ID */
-  id: string;
+  id: string
   /** Template title */
-  title: string;
+  title: string
   /** Description */
-  description: string;
+  description: string
   /** Author */
-  author: string;
+  author: string
   /** Version */
-  version: string;
+  version: string
   /** Downloads count */
-  downloads: number;
+  downloads: number
   /** Rating (0-5) */
-  rating: number;
+  rating: number
   /** Rating count */
-  ratingCount: number;
+  ratingCount: number
   /** Tags */
-  tags: string[];
+  tags: string[]
   /** Price (free = 0) */
-  price: number;
+  price: number
   /** License */
-  license: string;
+  license: string
   /** Preview URL */
-  previewUrl?: string;
+  previewUrl?: string
   /** Homepage URL */
-  homepageUrl?: string;
+  homepageUrl?: string
   /** Repository URL */
-  repositoryUrl?: string;
+  repositoryUrl?: string
   /** Published timestamp */
-  publishedAt: Date;
+  publishedAt: Date
   /** Last updated timestamp */
-  updatedAt: Date;
+  updatedAt: Date
 }
 
 /**
@@ -169,171 +169,169 @@ export interface MarketplaceTemplate {
  */
 export interface MarketplaceFilter {
   /** Search query */
-  query?: string;
+  query?: string
   /** Category filter */
-  category?: PromptCategory;
+  category?: PromptCategory
   /** Tag filter */
-  tags?: string[];
+  tags?: string[]
   /** Minimum rating */
-  minRating?: number;
+  minRating?: number
   /** Price filter */
-  priceRange?: { min: number; max: number };
+  priceRange?: { min: number; max: number }
   /** License filter */
-  license?: string;
+  license?: string
   /** Author filter */
-  author?: string;
+  author?: string
   /** Sort order */
-  sort?: 'name' | 'downloads' | 'rating' | 'updated' | 'newest';
+  sort?: 'name' | 'downloads' | 'rating' | 'updated' | 'newest'
   /** Sort direction */
-  order?: 'asc' | 'desc';
+  order?: 'asc' | 'desc'
 }
 
 /**
  * MCP Prompts Manager
- * 
+ *
  * Manages prompt templates with library, parameterization, and marketplace.
  */
 export class MCPPromptsManager {
-  private templates: Map<string, PromptTemplate> = new Map();
-  private categories: Map<PromptCategory, Set<string>> = new Map();
-  private marketplaceCache: Map<string, MarketplaceTemplate[]> = new Map();
+  private templates: Map<string, PromptTemplate> = new Map()
+  private categories: Map<PromptCategory, Set<string>> = new Map()
+  private marketplaceCache: Map<string, MarketplaceTemplate[]> = new Map()
 
   /**
    * Register a prompt template
    */
   register(template: PromptTemplate): void {
-    const id = template.metadata.id;
+    const id = template.metadata.id
 
     if (this.templates.has(id)) {
-      throw new MCPPromptsError(`Template "${id}" is already registered`, 'TEMPLATE_EXISTS');
+      throw new MCPPromptsError(`Template "${id}" is already registered`, 'TEMPLATE_EXISTS')
     }
 
     // Validate template
-    this.validateTemplate(template);
+    this.validateTemplate(template)
 
     // Store template
-    this.templates.set(id, template);
+    this.templates.set(id, template)
 
     // Update category index
-    this.addToCategory(template.metadata.category, id);
+    this.addToCategory(template.metadata.category, id)
   }
 
   /**
    * Unregister a prompt template
    */
   unregister(id: string): boolean {
-    const template = this.templates.get(id);
-    if (!template) return false;
+    const template = this.templates.get(id)
+    if (!template) return false
 
     // Remove from category
-    this.removeFromCategory(template.metadata.category, id);
+    this.removeFromCategory(template.metadata.category, id)
 
     // Remove template
-    this.templates.delete(id);
+    this.templates.delete(id)
 
-    return true;
+    return true
   }
 
   /**
    * Get a prompt template by ID
    */
   get(id: string): PromptTemplate | undefined {
-    return this.templates.get(id);
+    return this.templates.get(id)
   }
 
   /**
    * Check if template exists
    */
   has(id: string): boolean {
-    return this.templates.has(id);
+    return this.templates.has(id)
   }
 
   /**
    * Get all templates
    */
   getAll(): PromptTemplate[] {
-    return Array.from(this.templates.values());
+    return Array.from(this.templates.values())
   }
 
   /**
    * Get templates by category
    */
   getByCategory(category: PromptCategory): PromptTemplate[] {
-    const ids = this.categories.get(category);
-    if (!ids) return [];
+    const ids = this.categories.get(category)
+    if (!ids) return []
 
     return Array.from(ids)
       .map(id => this.templates.get(id))
-      .filter((t): t is PromptTemplate => t !== undefined);
+      .filter((t): t is PromptTemplate => t !== undefined)
   }
 
   /**
    * Get templates by tags
    */
   getByTags(tags: string[]): PromptTemplate[] {
-    return this.getAll().filter(template =>
-      tags.some(tag => template.metadata.tags.includes(tag))
-    );
+    return this.getAll().filter(template => tags.some(tag => template.metadata.tags.includes(tag)))
   }
 
   /**
    * Search templates by query
    */
   search(query: string): PromptTemplate[] {
-    const lowerQuery = query.toLowerCase();
+    const lowerQuery = query.toLowerCase()
 
     return this.getAll().filter(template => {
-      const metadata = template.metadata;
+      const metadata = template.metadata
       return (
         metadata.id.toLowerCase().includes(lowerQuery) ||
         metadata.title.toLowerCase().includes(lowerQuery) ||
         metadata.description.toLowerCase().includes(lowerQuery) ||
         metadata.tags.some(tag => tag.toLowerCase().includes(lowerQuery)) ||
         template.content.toLowerCase().includes(lowerQuery)
-      );
-    });
+      )
+    })
   }
 
   /**
    * Compile a prompt template with parameters
    */
   compile(id: string, parameters: Record<string, unknown> = {}): CompiledPrompt {
-    const template = this.templates.get(id);
+    const template = this.templates.get(id)
     if (!template) {
-      throw new MCPPromptsError(`Template "${id}" not found`, 'TEMPLATE_NOT_FOUND');
+      throw new MCPPromptsError(`Template "${id}" not found`, 'TEMPLATE_NOT_FOUND')
     }
 
     // Validate parameters
-    this.validateParameters(template.parameters, parameters);
+    this.validateParameters(template.parameters, parameters)
 
     // Check missing required parameters
     const missing = template.parameters
       .filter(p => p.required && !(p.name in parameters))
-      .map(p => p.name);
+      .map(p => p.name)
 
     if (missing.length > 0) {
       throw new MCPPromptsError(
         `Missing required parameters: ${missing.join(', ')}`,
         'MISSING_PARAMETERS'
-      );
+      )
     }
 
     // Apply defaults
-    const resolved = { ...parameters };
+    const resolved = { ...parameters }
     for (const param of template.parameters) {
       if (!(param.name in resolved) && param.default !== undefined) {
-        resolved[param.name] = param.default;
+        resolved[param.name] = param.default
       }
     }
 
     // Replace placeholders
-    let content = template.content;
+    let content = template.content
     for (const [key, value] of Object.entries(resolved)) {
-      const placeholder = `{{${key}}}`;
-      const placeholderAlt = `{${key}}`;
+      const placeholder = `{{${key}}}`
+      const placeholderAlt = `{${key}}`
       content = content
         .replace(new RegExp(this.escapeRegex(placeholderAlt), 'g'), String(value))
-        .replace(new RegExp(this.escapeRegex(placeholder), 'g'), String(value));
+        .replace(new RegExp(this.escapeRegex(placeholder), 'g'), String(value))
     }
 
     return {
@@ -341,7 +339,7 @@ export class MCPPromptsManager {
       parameters: resolved,
       metadata: template.metadata,
       compiledAt: new Date(),
-    };
+    }
   }
 
   /**
@@ -349,16 +347,16 @@ export class MCPPromptsManager {
    */
   validateParameters(parameters: PromptParameter[], values: Record<string, unknown>): void {
     for (const param of parameters) {
-      const value = values[param.name];
+      const value = values[param.name]
 
       if (value === undefined || value === null) {
         if (param.required) {
           throw new MCPPromptsError(
             `Required parameter "${param.name}" is missing`,
             'MISSING_PARAMETERS'
-          );
+          )
         }
-        continue;
+        continue
       }
 
       // Type validation
@@ -368,69 +366,69 @@ export class MCPPromptsManager {
             throw new MCPPromptsError(
               `Parameter "${param.name}" must be a string`,
               'INVALID_PARAMETER_TYPE'
-            );
+            )
           }
           if (param.pattern && !new RegExp(param.pattern).test(value)) {
             throw new MCPPromptsError(
               `Parameter "${param.name}" does not match pattern`,
               'INVALID_PARAMETER_VALUE'
-            );
+            )
           }
           if (param.enum && !param.enum.includes(value)) {
             throw new MCPPromptsError(
               `Parameter "${param.name}" must be one of: ${param.enum.join(', ')}`,
               'INVALID_PARAMETER_VALUE'
-            );
+            )
           }
-          break;
+          break
 
         case 'number':
           if (typeof value !== 'number') {
             throw new MCPPromptsError(
               `Parameter "${param.name}" must be a number`,
               'INVALID_PARAMETER_TYPE'
-            );
+            )
           }
           if (param.minimum !== undefined && value < param.minimum) {
             throw new MCPPromptsError(
               `Parameter "${param.name}" must be >= ${param.minimum}`,
               'INVALID_PARAMETER_VALUE'
-            );
+            )
           }
           if (param.maximum !== undefined && value > param.maximum) {
             throw new MCPPromptsError(
               `Parameter "${param.name}" must be <= ${param.maximum}`,
               'INVALID_PARAMETER_VALUE'
-            );
+            )
           }
-          break;
+          break
 
         case 'boolean':
           if (typeof value !== 'boolean') {
             throw new MCPPromptsError(
               `Parameter "${param.name}" must be a boolean`,
               'INVALID_PARAMETER_TYPE'
-            );
+            )
           }
-          break;
+          break
 
         case 'array':
           if (!Array.isArray(value)) {
             throw new MCPPromptsError(
               `Parameter "${param.name}" must be an array`,
               'INVALID_PARAMETER_TYPE'
-            );
+            )
           }
-          break;
+          break
 
         case 'object':
           if (typeof value !== 'object' || value === null || Array.isArray(value)) {
             throw new MCPPromptsError(
               `Parameter "${param.name}" must be an object`,
               'INVALID_PARAMETER_TYPE'
-            );
+            )
           }
-          break;
+          break
       }
     }
   }
@@ -450,18 +448,18 @@ export class MCPPromptsManager {
       ratingCount: 0,
       tags: template.metadata.tags,
       price: 0,
-      license: template.metadata.custom.license as string || 'MIT',
+      license: (template.metadata.custom.license as string) || 'MIT',
       publishedAt: template.metadata.createdAt,
       updatedAt: template.metadata.updatedAt,
-    }));
+    }))
   }
 
   /**
    * Import template from marketplace
    */
   async importFromMarketplace(id: string, client: MarketplaceClient): Promise<void> {
-    const template = await client.getTemplate(id);
-    this.register(template);
+    const template = await client.getTemplate(id)
+    this.register(template)
   }
 
   /**
@@ -471,53 +469,53 @@ export class MCPPromptsManager {
     filter: MarketplaceFilter = {},
     client?: MarketplaceClient
   ): Promise<MarketplaceTemplate[]> {
-    const cacheKey = JSON.stringify(filter);
+    const cacheKey = JSON.stringify(filter)
 
     if (this.marketplaceCache.has(cacheKey)) {
-      return this.marketplaceCache.get(cacheKey)!;
+      return this.marketplaceCache.get(cacheKey)!
     }
 
     // Use provided client or default
-    const marketClient = client || new DefaultMarketplaceClient();
-    const templates = await marketClient.search(filter);
+    const marketClient = client || new DefaultMarketplaceClient()
+    const templates = await marketClient.search(filter)
 
-    this.marketplaceCache.set(cacheKey, templates);
+    this.marketplaceCache.set(cacheKey, templates)
 
-    return templates;
+    return templates
   }
 
   /**
    * Clear marketplace cache
    */
   clearMarketplaceCache(): void {
-    this.marketplaceCache.clear();
+    this.marketplaceCache.clear()
   }
 
   /**
    * Get all categories
    */
   getCategories(): PromptCategory[] {
-    return Array.from(this.categories.keys());
+    return Array.from(this.categories.keys())
   }
 
   /**
    * Get statistics
    */
   getStats(): {
-    totalTemplates: number;
-    activeTemplates: number;
-    deprecatedTemplates: number;
-    experimentalTemplates: number;
-    categories: number;
+    totalTemplates: number
+    activeTemplates: number
+    deprecatedTemplates: number
+    experimentalTemplates: number
+    categories: number
   } {
-    const templates = this.getAll();
+    const templates = this.getAll()
     return {
       totalTemplates: templates.length,
       activeTemplates: templates.filter(t => t.metadata.status === 'active').length,
       deprecatedTemplates: templates.filter(t => t.metadata.status === 'deprecated').length,
       experimentalTemplates: templates.filter(t => t.metadata.status === 'experimental').length,
       categories: this.categories.size,
-    };
+    }
   }
 
   /**
@@ -525,15 +523,21 @@ export class MCPPromptsManager {
    */
   private validateTemplate(template: PromptTemplate): void {
     if (!template.metadata.id) {
-      throw new MCPPromptsError('Template ID is required', 'INVALID_TEMPLATE');
+      throw new MCPPromptsError('Template ID is required', 'INVALID_TEMPLATE')
     }
 
     if (!template.metadata.title) {
-      throw new MCPPromptsError(`Template "${template.metadata.id}" must have a title`, 'INVALID_TEMPLATE');
+      throw new MCPPromptsError(
+        `Template "${template.metadata.id}" must have a title`,
+        'INVALID_TEMPLATE'
+      )
     }
 
     if (!template.content) {
-      throw new MCPPromptsError(`Template "${template.metadata.id}" must have content`, 'INVALID_TEMPLATE');
+      throw new MCPPromptsError(
+        `Template "${template.metadata.id}" must have content`,
+        'INVALID_TEMPLATE'
+      )
     }
 
     // Validate parameter definitions
@@ -542,18 +546,20 @@ export class MCPPromptsManager {
         throw new MCPPromptsError(
           `Template "${template.metadata.id}" has invalid parameter definition`,
           'INVALID_TEMPLATE'
-        );
+        )
       }
     }
 
     // Check that all placeholders have parameters
-    const placeholders = template.content.match(/\{+[\w.]+\}+/g) || [];
-    const paramNames = new Set(template.parameters.map(p => p.name));
+    const placeholders = template.content.match(/\{+[\w.]+\}+/g) || []
+    const paramNames = new Set(template.parameters.map(p => p.name))
 
     for (const placeholder of placeholders) {
-      const name = placeholder.replace(/[{}]+/g, '');
+      const name = placeholder.replace(/[{}]+/g, '')
       if (!paramNames.has(name)) {
-        console.warn(`Template "${template.metadata.id}" uses placeholder "${name}" without parameter definition`);
+        console.warn(
+          `Template "${template.metadata.id}" uses placeholder "${name}" without parameter definition`
+        )
       }
     }
   }
@@ -563,20 +569,20 @@ export class MCPPromptsManager {
    */
   private addToCategory(category: PromptCategory, id: string): void {
     if (!this.categories.has(category)) {
-      this.categories.set(category, new Set());
+      this.categories.set(category, new Set())
     }
-    this.categories.get(category)!.add(id);
+    this.categories.get(category)!.add(id)
   }
 
   /**
    * Remove template from category index
    */
   private removeFromCategory(category: PromptCategory, id: string): void {
-    const categoryTemplates = this.categories.get(category);
+    const categoryTemplates = this.categories.get(category)
     if (categoryTemplates) {
-      categoryTemplates.delete(id);
+      categoryTemplates.delete(id)
       if (categoryTemplates.size === 0) {
-        this.categories.delete(category);
+        this.categories.delete(category)
       }
     }
   }
@@ -585,7 +591,7 @@ export class MCPPromptsManager {
    * Escape regex special characters
    */
   private escapeRegex(str: string): string {
-    return str.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+    return str.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')
   }
 }
 
@@ -593,11 +599,11 @@ export class MCPPromptsManager {
  * Marketplace client interface
  */
 export interface MarketplaceClient {
-  search(filter: MarketplaceFilter): Promise<MarketplaceTemplate[]>;
-  getTemplate(id: string): Promise<PromptTemplate>;
-  publish(template: PromptTemplate): Promise<string>;
-  rate(id: string, rating: number): Promise<void>;
-  download(id: string): Promise<PromptTemplate>;
+  search(filter: MarketplaceFilter): Promise<MarketplaceTemplate[]>
+  getTemplate(id: string): Promise<PromptTemplate>
+  publish(template: PromptTemplate): Promise<string>
+  rate(id: string, rating: number): Promise<void>
+  download(id: string): Promise<PromptTemplate>
 }
 
 /**
@@ -606,23 +612,23 @@ export interface MarketplaceClient {
 export class DefaultMarketplaceClient implements MarketplaceClient {
   async search(filter: MarketplaceFilter = {}): Promise<MarketplaceTemplate[]> {
     // Placeholder implementation - should be replaced with actual marketplace API
-    return [];
+    return []
   }
 
   async getTemplate(id: string): Promise<PromptTemplate> {
-    throw new Error('Marketplace not configured');
+    throw new Error('Marketplace not configured')
   }
 
   async publish(template: PromptTemplate): Promise<string> {
-    throw new Error('Marketplace not configured');
+    throw new Error('Marketplace not configured')
   }
 
   async rate(id: string, rating: number): Promise<void> {
-    throw new Error('Marketplace not configured');
+    throw new Error('Marketplace not configured')
   }
 
   async download(id: string): Promise<PromptTemplate> {
-    throw new Error('Marketplace not configured');
+    throw new Error('Marketplace not configured')
   }
 }
 
@@ -634,15 +640,15 @@ export class MCPPromptsError extends Error {
     message: string,
     public code: string
   ) {
-    super(message);
-    this.name = 'MCPPromptsError';
+    super(message)
+    this.name = 'MCPPromptsError'
   }
 }
 
 /**
  * Global prompts manager instance
  */
-export const mcpPromptsManager = new MCPPromptsManager();
+export const mcpPromptsManager = new MCPPromptsManager()
 
 /**
  * Initialize default prompt templates
@@ -715,7 +721,7 @@ Additional context:
         output: 'The code is correct and follows TypeScript best practices...',
       },
     ],
-  });
+  })
 
   // Data analysis template
   mcpPromptsManager.register({
@@ -790,7 +796,7 @@ Please provide:
       },
     ],
     examples: [],
-  });
+  })
 
   // Security audit template
   mcpPromptsManager.register({
@@ -867,10 +873,10 @@ Additional context:
       },
     ],
     examples: [],
-  });
+  })
 }
 
 // Initialize default prompts
-initializeDefaultPrompts();
+initializeDefaultPrompts()
 
-export default MCPPromptsManager;
+export default MCPPromptsManager

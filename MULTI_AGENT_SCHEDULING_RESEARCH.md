@@ -1,7 +1,7 @@
 # 多代理调度算法研究报告
 
 > 📚 咨询师 + 🌟 智能体世界专家 联合研究
-> 
+>
 > 日期: 2026-03-29
 
 ## 执行摘要
@@ -33,12 +33,12 @@ OpenAI Swarm 是一个轻量级的多代理编排框架，其设计理念是**�
 
 ### 1.2 调度特点
 
-| 特性 | 描述 | 实现方式 |
-|------|------|----------|
-| **无状态设计** | 每次调用独立，不维护内部状态 | 通过 context 传递 |
-| **函数路由** | 基于 LLM 输出决定下一个代理 | function_calls |
-| **手off 机制** | 代理间显式传递控制权 | `transfer_to_agent()` |
-| **并行执行** | 支持多代理并行处理 | asyncio |
+| 特性           | 描述                         | 实现方式              |
+| -------------- | ---------------------------- | --------------------- |
+| **无状态设计** | 每次调用独立，不维护内部状态 | 通过 context 传递     |
+| **函数路由**   | 基于 LLM 输出决定下一个代理  | function_calls        |
+| **手off 机制** | 代理间显式传递控制权         | `transfer_to_agent()` |
+| **并行执行**   | 支持多代理并行处理           | asyncio               |
 
 ### 1.3 核心调度算法
 
@@ -48,18 +48,18 @@ async def swarm_execute(agent, context):
     while True:
         # 1. 获取当前代理的响应
         response = await agent.run(context)
-        
+
         # 2. 检查是否有 handoff
         if response.handoff:
             agent = response.handoff_target
             continue
-        
+
         # 3. 检查是否有函数调用
         if response.function_calls:
             results = await execute_functions(response.function_calls)
             context.update(results)
             continue
-        
+
         # 4. 任务完成
         return response.content
 ```
@@ -101,13 +101,14 @@ AutoGen 提供了更复杂的多代理对话框架，支持**对话模式**和**
 ### 2.2 调度模式
 
 #### 2.2.1 GroupChat 模式
+
 ```python
 # 圆桌讨论式调度
 class GroupChat:
     def __init__(self, agents, max_round=10):
         self.agents = agents
         self.max_round = max_round
-    
+
     def select_next_speaker(self, last_speaker):
         # 轮询或基于相关性选择
         if self.selection_method == "round_robin":
@@ -117,6 +118,7 @@ class GroupChat:
 ```
 
 #### 2.2.2 Sequential 模式
+
 ```python
 # 顺序执行，类似流水线
 agents = [Coder, Reviewer, Tester]
@@ -125,6 +127,7 @@ for agent in agents:
 ```
 
 #### 2.2.3 Selector 模式
+
 ```python
 # 动态选择最合适的代理
 selector = AgentSelector(
@@ -135,12 +138,12 @@ selector = AgentSelector(
 
 ### 2.3 核心创新
 
-| 创新 | 描述 | 应用价值 |
-|------|------|----------|
-| **可中断对话** | 人工可随时介入 | 人机协作 |
-| **代码执行** | 内置沙箱执行代码 | 复杂任务处理 |
-| **代理配置继承** | 支持配置复用 | 减少配置开销 |
-| **缓存机制** | 相似请求缓存 | 降低 API 成本 |
+| 创新             | 描述             | 应用价值      |
+| ---------------- | ---------------- | ------------- |
+| **可中断对话**   | 人工可随时介入   | 人机协作      |
+| **代码执行**     | 内置沙箱执行代码 | 复杂任务处理  |
+| **代理配置继承** | 支持配置复用     | 减少配置开销  |
+| **缓存机制**     | 相似请求缓存     | 降低 API 成本 |
 
 ### 2.4 调度算法分析
 
@@ -203,6 +206,7 @@ LangChain 提供了灵活的 Agent 框架，支持多种执行策略。
 ### 3.2 执行策略
 
 #### 3.2.1 ReAct 模式
+
 ```
 Thought: 我需要查询天气
 Action: weather_api
@@ -213,6 +217,7 @@ Final Answer: 北京今天是晴天，温度25°C
 ```
 
 #### 3.2.2 Plan & Execute
+
 ```python
 # 分步规划执行
 class PlanAndExecute:
@@ -220,16 +225,16 @@ class PlanAndExecute:
         # 1. 规划步骤
         plan = await self.planner.plan(task)
         # [步骤1, 步骤2, 步骤3]
-        
+
         # 2. 逐步执行
         results = []
         for step in plan.steps:
             result = await self.executor.execute(step)
             results.append(result)
-            
+
             # 动态调整后续计划
             plan = await self.planner.replan(results)
-        
+
         return self.summarize(results)
 ```
 
@@ -262,12 +267,12 @@ app = workflow.compile()
 
 ### 3.4 任务调度特点
 
-| 特点 | 优势 | 劣势 |
-|------|------|------|
-| **工具绑定灵活** | 每个代理可绑定不同工具 | 配置复杂 |
-| **状态管理** | LangGraph 支持复杂状态 | 学习曲线高 |
-| **异步执行** | 支持并发 | 需要手动管理 |
-| **重试机制** | 内置重试 | 不够智能 |
+| 特点             | 优势                   | 劣势         |
+| ---------------- | ---------------------- | ------------ |
+| **工具绑定灵活** | 每个代理可绑定不同工具 | 配置复杂     |
+| **状态管理**     | LangGraph 支持复杂状态 | 学习曲线高   |
+| **异步执行**     | 支持并发               | 需要手动管理 |
+| **重试机制**     | 内置重试               | 不够智能     |
 
 ### 3.5 中国市场适配
 
@@ -321,27 +326,27 @@ Kubernetes 的 kube-scheduler 是工业级调度器的典范：
 // 过滤不可用的节点
 func (g *genericScheduler) findNodesThatFitPod() []*Node {
     var feasibleNodes []*Node
-    
+
     for _, node := range g.nodes {
         fit := true
-        
+
         // 1. 资源检查
         if !CheckResourceFit(pod, node) { fit = false }
-        
+
         // 2. 节点选择器
         if !CheckNodeSelector(pod, node) { fit = false }
-        
+
         // 3. 污点容忍
         if !CheckTaintsTolerations(pod, node) { fit = false }
-        
+
         // 4. 亲和性规则
         if !CheckAffinity(pod, node) { fit = false }
-        
+
         if fit {
             feasibleNodes = append(feasibleNodes, node)
         }
     }
-    
+
     return feasibleNodes
 }
 ```
@@ -352,21 +357,21 @@ func (g *genericScheduler) findNodesThatFitPod() []*Node {
 // 多维度评分
 func (g *genericScheduler) prioritizeNodes(nodes []*Node) NodeScoreList {
     scores := make([]NodeScore, len(nodes))
-    
+
     // 1. 资源平衡得分 (LeastRequestedPriority)
     for i, node := range nodes {
         scores[i].Resource = calculateResourceScore(node)
     }
-    
+
     // 2. 亲和性得分 (InterPodAffinityPriority)
     for i, node := range nodes {
         scores[i].Affinity = calculateAffinityScore(node)
     }
-    
+
     // 3. 反亲和性得分
     // 4. 端口冲突检查
     // 5. 自定义插件得分
-    
+
     // 加权汇总
     return weightedSum(scores)
 }
@@ -374,13 +379,13 @@ func (g *genericScheduler) prioritizeNodes(nodes []*Node) NodeScoreList {
 
 ### 4.3 高级调度特性
 
-| 特性 | 描述 | 适用场景 |
-|------|------|----------|
+| 特性              | 描述       | 适用场景     |
+| ----------------- | ---------- | ------------ |
 | **PriorityClass** | Pod 优先级 | 关键任务优先 |
-| **Preemption** | 抢占调度 | 高优先级任务 |
-| **Descheduler** | 重平衡 | 长期运行优化 |
-| **Volcano** | 批处理调度 | AI/ML 训练 |
-| **YuniKorn** | 统一调度 | 多租户场景 |
+| **Preemption**    | 抢占调度   | 高优先级任务 |
+| **Descheduler**   | 重平衡     | 长期运行优化 |
+| **Volcano**       | 批处理调度 | AI/ML 训练   |
+| **YuniKorn**      | 统一调度   | 多租户场景   |
 
 ### 4.4 可借鉴的设计
 
@@ -391,10 +396,10 @@ type AgentScheduler struct {
     queue      *PriorityQueue
     activeQ    *Heap
     backoffQ   *Heap
-    
+
     // 调度周期
     schedulingCycle int64
-    
+
     // 插件系统
     registry   *PluginRegistry
 }
@@ -402,13 +407,13 @@ type AgentScheduler struct {
 func (s *AgentScheduler) scheduleOne(task *Task) {
     // 1. 从队列获取任务
     task = s.queue.Pop()
-    
+
     // 2. 过滤可用 Agent
     feasibleAgents := s.findFeasibleAgents(task)
-    
+
     // 3. 评分排序
     scoredAgents := s.prioritizeAgents(task, feasibleAgents)
-    
+
     // 4. 绑定任务到 Agent
     s.bind(task, scoredAgents[0])
 }
@@ -420,26 +425,26 @@ func (s *AgentScheduler) scheduleOne(task *Task) {
 
 ### 5.1 架构对比
 
-| 维度 | OpenAI Swarm | AutoGen | LangChain | Kubernetes |
-|------|-------------|---------|-----------|------------|
-| **复杂度** | 低 | 中 | 中 | 高 |
-| **灵活性** | 中 | 高 | 高 | 中 |
-| **可扩展性** | 低 | 中 | 高 | 高 |
-| **任务复杂度支持** | 简单 | 中等 | 复杂 | 复杂 |
-| **学习曲线** | 平缓 | 中等 | 陡峭 | 陡峭 |
-| **生产就绪度** | 实验性 | 成熟 | 成熟 | 工业级 |
+| 维度               | OpenAI Swarm | AutoGen | LangChain | Kubernetes |
+| ------------------ | ------------ | ------- | --------- | ---------- |
+| **复杂度**         | 低           | 中      | 中        | 高         |
+| **灵活性**         | 中           | 高      | 高        | 中         |
+| **可扩展性**       | 低           | 中      | 高        | 高         |
+| **任务复杂度支持** | 简单         | 中等    | 复杂      | 复杂       |
+| **学习曲线**       | 平缓         | 中等    | 陡峭      | 陡峭       |
+| **生产就绪度**     | 实验性       | 成熟    | 成熟      | 工业级     |
 
 ### 5.2 调度策略对比
 
-| 策略 | Swarm | AutoGen | LangChain | K8s |
-|------|-------|---------|-----------|-----|
-| **轮询** | ❌ | ✅ | ❌ | ❌ |
-| **优先级队列** | ❌ | ❌ | ❌ | ✅ |
-| **亲和性调度** | ❌ | ✅ (选择器) | ❌ | ✅ |
-| **抢占调度** | ❌ | ❌ | ❌ | ✅ |
-| **负载均衡** | ❌ | ❌ | ❌ | ✅ |
-| **故障转移** | ❌ | ✅ (重试) | ✅ (重试) | ✅ |
-| **动态扩缩容** | ❌ | ❌ | ❌ | ✅ |
+| 策略           | Swarm | AutoGen     | LangChain | K8s |
+| -------------- | ----- | ----------- | --------- | --- |
+| **轮询**       | ❌    | ✅          | ❌        | ❌  |
+| **优先级队列** | ❌    | ❌          | ❌        | ✅  |
+| **亲和性调度** | ❌    | ✅ (选择器) | ❌        | ✅  |
+| **抢占调度**   | ❌    | ❌          | ❌        | ✅  |
+| **负载均衡**   | ❌    | ❌          | ❌        | ✅  |
+| **故障转移**   | ❌    | ✅ (重试)   | ✅ (重试) | ✅  |
+| **动态扩缩容** | ❌    | ❌          | ❌        | ✅  |
 
 ### 5.3 性能特点
 
@@ -464,6 +469,7 @@ func (s *AgentScheduler) scheduleOne(task *Task) {
 ### 6.1 架构建议
 
 1. **分层设计**
+
    ```
    API Layer → Scheduler Core → Agent Pool → Execution Layer
    ```
@@ -483,10 +489,10 @@ func (s *AgentScheduler) scheduleOne(task *Task) {
 type HybridScheduler struct {
     // 快速路径：简单任务直接调度
     fastPath    *RoundRobinScheduler
-    
+
     // 慢路径：复杂任务智能调度
     slowPath    *IntelligentScheduler
-    
+
     // 优先级队列
     priorities  *PriorityQueue
 }
@@ -496,11 +502,11 @@ func (s *HybridScheduler) Schedule(task *Task) *Agent {
     if task.Complexity < threshold {
         return s.fastPath.Schedule(task)
     }
-    
+
     // 复杂任务走智能调度
     candidates := s.filterAgents(task)
     scored := s.scoreAgents(task, candidates)
-    
+
     return s.selectBest(scored)
 }
 ```
@@ -572,6 +578,7 @@ func (s *HybridScheduler) Schedule(task *Task) *Agent {
 - **Kubernetes**: 工业级调度器的典范，值得深入学习
 
 **AgentScheduler 应该**:
+
 1. 借鉴 K8s 的调度框架设计
 2. 融合 AutoGen 的状态管理
 3. 参考 LangChain 的工具绑定机制
@@ -579,4 +586,4 @@ func (s *HybridScheduler) Schedule(task *Task) *Agent {
 
 ---
 
-*报告完成于 2026-03-29*
+_报告完成于 2026-03-29_

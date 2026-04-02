@@ -11,6 +11,7 @@
 Successfully fixed WebSocket collaboration functionality by implementing a standalone Socket.IO server that runs independently of Next.js. The fix addresses the architectural incompatibility between Next.js App Router and WebSocket upgrades.
 
 ### Test Results
+
 - **Total Tests:** 15
 - **Passed:** 15 (100%)
 - **Failed:** 0 (0%)
@@ -21,6 +22,7 @@ Successfully fixed WebSocket collaboration functionality by implementing a stand
 ## Problem Analysis
 
 ### Root Cause
+
 The WebSocket collaboration feature failed because:
 
 1. **Next.js App Router Limitation**: Next.js App Router does not support WebSocket connection upgrades in API routes (`src/app/api/ws/route.ts`)
@@ -30,6 +32,7 @@ The WebSocket collaboration feature failed because:
 3. **Connection Failures**: Clients attempting to connect to `localhost:3000` (Next.js dev server) instead of a dedicated WebSocket server
 
 ### Affected Files
+
 - `src/lib/websocket/server.ts` - Tried to create HTTP server within Next.js context
 - `src/app/api/ws/route.ts` - Attempted WebSocket upgrade in API route
 - `src/app/collaboration-demo/page.tsx` - Incorrect connection URL
@@ -43,6 +46,7 @@ The WebSocket collaboration feature failed because:
 **Location:** `server/websocket-server.js`
 
 **Key Features:**
+
 - Independent Node.js Socket.IO server running on port 3002
 - Complete room management system
 - Document collaboration with operational transformation (OT)
@@ -56,6 +60,7 @@ The WebSocket collaboration feature failed because:
 **Port:** 3002 (changed from 3001 to avoid conflicts)
 
 **Environment Variables:**
+
 - `PORT` - Server port (default: 3002)
 - `NEXT_PUBLIC_SITE_URL` - CORS origin (default: http://localhost:3000)
 - `LOG_LEVEL` - Logging level (default: info)
@@ -66,6 +71,7 @@ The WebSocket collaboration feature failed because:
 **File:** `src/app/collaboration-demo/page.tsx`
 
 **Changes:**
+
 - Updated WebSocket URL from `http://localhost:3000` to `ws://localhost:3002`
 - Removed hardcoded demo token (server accepts demo mode without token)
 
@@ -74,6 +80,7 @@ The WebSocket collaboration feature failed because:
 **File:** `server/package.json`
 
 **Dependencies:**
+
 - `socket.io@^4.8.3`
 - `jsonwebtoken@^9.0.2`
 
@@ -127,6 +134,7 @@ Comprehensive automated testing of all collaboration features:
    - Cleanup after disconnect
 
 ### Test Output
+
 ```
 ============================================================
 📊 TEST SUMMARY
@@ -143,6 +151,7 @@ Total Tests: 15
 ## Architecture
 
 ### Before (Broken)
+
 ```
 Browser → Next.js App Router (port 3000)
            ↓
@@ -152,6 +161,7 @@ Browser → Next.js App Router (port 3000)
 ```
 
 ### After (Fixed)
+
 ```
 Browser → Socket.IO Client → WebSocket Server (port 3002)
                               ↓
@@ -165,12 +175,14 @@ Browser → Socket.IO Client → WebSocket Server (port 3002)
 ### Communication Flow
 
 1. **Connection**
+
    ```
    Client → socket.io-client → ws://localhost:3002
    Server → auth middleware → user authenticated
    ```
 
 2. **Join Room**
+
    ```
    Client: room:join { roomId, type, documentId }
    Server: Creates/gets room, adds user
@@ -179,6 +191,7 @@ Browser → Socket.IO Client → WebSocket Server (port 3002)
    ```
 
 3. **Document Operation**
+
    ```
    Client: doc:operation { roomId, operation }
    Server: Applies operation, updates revision
@@ -187,6 +200,7 @@ Browser → Socket.IO Client → WebSocket Server (port 3002)
    ```
 
 4. **Cursor Update**
+
    ```
    Client: cursor:move { roomId, position, selection }
    Server → cursor:update to room
@@ -208,43 +222,43 @@ Browser → Socket.IO Client → WebSocket Server (port 3002)
 
 #### Client → Server
 
-| Event | Payload | Description |
-|-------|---------|-------------|
-| `room:join` | `{ roomId, type, documentId, name }` | Join a collaboration room |
-| `room:leave` | `{ roomId }` | Leave a room |
-| `room:get_users` | `{ roomId }` | Get list of users in room |
-| `doc:open` | `{ roomId, documentId }` | Open a document |
-| `doc:operation` | `{ roomId, operation }` | Send document operation |
-| `doc:sync` | `{ roomId }` | Request document sync |
-| `cursor:move` | `{ roomId, position, selection }` | Update cursor position |
-| `selection:update` | `{ roomId, selection }` | Update text selection |
-| `presence:typing` | `{ roomId, isTyping }` | Update typing status |
-| `heartbeat` | - | Keep connection alive |
+| Event              | Payload                              | Description               |
+| ------------------ | ------------------------------------ | ------------------------- |
+| `room:join`        | `{ roomId, type, documentId, name }` | Join a collaboration room |
+| `room:leave`       | `{ roomId }`                         | Leave a room              |
+| `room:get_users`   | `{ roomId }`                         | Get list of users in room |
+| `doc:open`         | `{ roomId, documentId }`             | Open a document           |
+| `doc:operation`    | `{ roomId, operation }`              | Send document operation   |
+| `doc:sync`         | `{ roomId }`                         | Request document sync     |
+| `cursor:move`      | `{ roomId, position, selection }`    | Update cursor position    |
+| `selection:update` | `{ roomId, selection }`              | Update text selection     |
+| `presence:typing`  | `{ roomId, isTyping }`               | Update typing status      |
+| `heartbeat`        | -                                    | Keep connection alive     |
 
 #### Server → Client
 
-| Event | Payload | Description |
-|-------|---------|-------------|
-| `auth:authenticated` | `{ userId, name, avatar }` | Authentication successful |
-| `room:joined` | `{ roomId, users, document }` | Successfully joined room |
-| `room:left` | `{ roomId }` | Successfully left room |
-| `room:user_joined` | `{ user, userCount }` | User joined the room |
-| `room:user_left` | `{ userId, userCount }` | User left the room |
-| `room:user_list` | `{ roomId, users }` | List of users in room |
-| `doc:opened` | `{ roomId, documentId, document }` | Document opened |
-| `doc:operation_applied` | `{ id, timestamp, userId, operation, revision }` | Operation applied to document |
-| `doc:sync` | `{ roomId, document }` | Document state synced |
-| `cursor:update` | `{ userId, userName, color, position, selection }` | Cursor position updated |
-| `selection:update` | `{ userId, userName, color, selection }` | Text selection updated |
-| `presence:typing` | `{ userId, userName, isTyping }` | Typing status updated |
-| `system:error` | `{ message }` | System error occurred |
+| Event                   | Payload                                            | Description                   |
+| ----------------------- | -------------------------------------------------- | ----------------------------- |
+| `auth:authenticated`    | `{ userId, name, avatar }`                         | Authentication successful     |
+| `room:joined`           | `{ roomId, users, document }`                      | Successfully joined room      |
+| `room:left`             | `{ roomId }`                                       | Successfully left room        |
+| `room:user_joined`      | `{ user, userCount }`                              | User joined the room          |
+| `room:user_left`        | `{ userId, userCount }`                            | User left the room            |
+| `room:user_list`        | `{ roomId, users }`                                | List of users in room         |
+| `doc:opened`            | `{ roomId, documentId, document }`                 | Document opened               |
+| `doc:operation_applied` | `{ id, timestamp, userId, operation, revision }`   | Operation applied to document |
+| `doc:sync`              | `{ roomId, document }`                             | Document state synced         |
+| `cursor:update`         | `{ userId, userName, color, position, selection }` | Cursor position updated       |
+| `selection:update`      | `{ userId, userName, color, selection }`           | Text selection updated        |
+| `presence:typing`       | `{ userId, userName, isTyping }`                   | Typing status updated         |
+| `system:error`          | `{ message }`                                      | System error occurred         |
 
 ### HTTP Endpoints
 
-| Endpoint | Method | Description |
-|----------|--------|-------------|
-| `/health` | GET | Server health check |
-| `/stats` | GET | Server statistics (rooms, connections) |
+| Endpoint  | Method | Description                            |
+| --------- | ------ | -------------------------------------- |
+| `/health` | GET    | Server health check                    |
+| `/stats`  | GET    | Server statistics (rooms, connections) |
 
 ---
 
@@ -253,6 +267,7 @@ Browser → Socket.IO Client → WebSocket Server (port 3002)
 ### Development
 
 1. **Start WebSocket Server**
+
    ```bash
    cd server
    npm install
@@ -260,6 +275,7 @@ Browser → Socket.IO Client → WebSocket Server (port 3002)
    ```
 
 2. **Start Next.js Application**
+
    ```bash
    npm run dev
    ```
@@ -272,6 +288,7 @@ Browser → Socket.IO Client → WebSocket Server (port 3002)
 ### Production
 
 1. **Set Environment Variables**
+
    ```bash
    export PORT=3002
    export NEXT_PUBLIC_SITE_URL=https://your-domain.com
@@ -280,6 +297,7 @@ Browser → Socket.IO Client → WebSocket Server (port 3002)
    ```
 
 2. **Start WebSocket Server**
+
    ```bash
    cd server
    npm install --production
@@ -287,6 +305,7 @@ Browser → Socket.IO Client → WebSocket Server (port 3002)
    ```
 
 3. **Use Process Manager (PM2)**
+
    ```bash
    pm2 start server/websocket-server.js --name 7zi-ws-server
    ```
@@ -307,11 +326,13 @@ Browser → Socket.IO Client → WebSocket Server (port 3002)
 ## Security Considerations
 
 ### Current Implementation (Demo Mode)
+
 - Accepts connections without JWT token for demo purposes
 - Creates demo users from client-provided data
 - Suitable for development and testing
 
 ### Production Recommendations
+
 1. **Enable JWT Authentication**
    - Require valid JWT tokens
    - Verify token signature
@@ -339,12 +360,14 @@ Browser → Socket.IO Client → WebSocket Server (port 3002)
 ## Performance Optimizations
 
 ### Current Optimizations
+
 - Room cleanup for empty rooms (30 min timeout)
 - Heartbeat monitoring (disconnect after 60s inactivity)
 - Efficient broadcasting (skip sender for operation events)
 - Automatic memory cleanup on disconnect
 
 ### Future Improvements
+
 1. **Redis Integration** for distributed scaling
 2. **Connection Pooling** for better performance
 3. **Message Queue** for handling high load
@@ -392,14 +415,17 @@ Browser → Socket.IO Client → WebSocket Server (port 3002)
 ## Files Changed/Created
 
 ### New Files
+
 - `server/websocket-server.js` - Standalone WebSocket server (657 lines)
 - `server/package.json` - Server dependencies
 - `server/test-websocket.js` - Automated test suite (315 lines)
 
 ### Modified Files
+
 - `src/app/collaboration-demo/page.tsx` - Updated connection URL
 
 ### Files to Consider Deprecating
+
 - `src/lib/websocket/server.ts` - Can be removed after verification
 - `src/app/api/ws/route.ts` - Can be removed after verification
 
@@ -410,6 +436,7 @@ Browser → Socket.IO Client → WebSocket Server (port 3002)
 The WebSocket collaboration functionality is now fully operational. The standalone server architecture provides a robust foundation for real-time collaboration features, with comprehensive test coverage confirming all core features work correctly.
 
 ### Success Metrics
+
 - ✅ All 15 tests passing (100% success rate)
 - ✅ Real-time document collaboration working
 - ✅ Multi-user cursor tracking functional
@@ -417,6 +444,7 @@ The WebSocket collaboration functionality is now fully operational. The standalo
 - ✅ Clean disconnect and cleanup
 
 ### Next Steps
+
 1. Set up JWT authentication for production
 2. Configure reverse proxy for production deployment
 3. Implement database persistence for documents

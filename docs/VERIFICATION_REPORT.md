@@ -7,17 +7,18 @@
 
 ## 📊 验证结果概览
 
-| 项目 | 状态 | 说明 |
-|------|------|------|
-| 构建验证 | ✅ 通过 | `npm run build` 成功完成 |
-| 测试状态 | ⚠️ 部分问题 | vitest 配置有重复 key 警告 |
-| 部署配置 | ✅ 就绪 | Dockerfile 和 next.config.ts 配置完善 |
+| 项目     | 状态        | 说明                                  |
+| -------- | ----------- | ------------------------------------- |
+| 构建验证 | ✅ 通过     | `npm run build` 成功完成              |
+| 测试状态 | ⚠️ 部分问题 | vitest 配置有重复 key 警告            |
+| 部署配置 | ✅ 就绪     | Dockerfile 和 next.config.ts 配置完善 |
 
 ---
 
 ## 1️⃣ 构建验证
 
 ### 构建结果
+
 ```
 ✓ Compiled successfully in 17.0s
 ✓ Generating static pages using 3 workers (1/1) in 515.0ms
@@ -27,6 +28,7 @@ Route (pages) ─ ○ /404
 ```
 
 ### 构建配置
+
 - **Next.js 版本**: 16.2.1 (Turbopack)
 - **输出模式**: standalone (Docker 部署)
 - **环境文件**: .env.local, .env.production
@@ -36,6 +38,7 @@ Route (pages) ─ ○ /404
 ## 2️⃣ 测试状态
 
 ### 问题发现
+
 - **vitest.config.ts** 有重复的 `@` 别名定义：
   ```typescript
   '@': path.resolve(__dirname, './src'),  // 第41行
@@ -43,9 +46,11 @@ Route (pages) ─ ○ /404
   ```
 
 ### 建议修复
+
 移除重复的别名定义，保留 `./src` 作为主路径。
 
 ### 测试文件修复
+
 已修复 `src/test/lib/utils.boundary.test.ts` 中的合并冲突。
 
 ---
@@ -53,6 +58,7 @@ Route (pages) ─ ○ /404
 ## 3️⃣ 部署配置验证
 
 ### Dockerfile 分析
+
 - ✅ 多阶段构建 (deps → builder → runner)
 - ✅ 使用 node:22-alpine 基础镜像
 - ✅ standalone 输出模式
@@ -61,6 +67,7 @@ Route (pages) ─ ○ /404
 - ✅ 端口 3000
 
 ### next.config.ts 分析
+
 - ✅ standalone 输出模式
 - ✅ 图片优化配置 (AVIF/WebP)
 - ✅ Webpack 代码分割优化
@@ -68,22 +75,25 @@ Route (pages) ─ ○ /404
 - ✅ 静态资源缓存策略
 
 ### 可用 Dockerfile 变体
-| 文件 | 用途 |
-|------|------|
-| Dockerfile | 标准生产部署 |
+
+| 文件                  | 用途         |
+| --------------------- | ------------ |
+| Dockerfile            | 标准生产部署 |
 | Dockerfile.production | 生产环境优化 |
-| Dockerfile.optimized | 性能优化版本 |
-| Dockerfile.static | 静态导出部署 |
+| Dockerfile.optimized  | 性能优化版本 |
+| Dockerfile.static     | 静态导出部署 |
 
 ---
 
 ## 4️⃣ 修复的问题
 
 ### 合并冲突修复
+
 1. **src/app/[locale]/portfolio/page.tsx** - 清理 Git 合并冲突标记
 2. **src/test/lib/utils.boundary.test.ts** - 解决测试代码合并冲突
 
 ### TypeScript 类型错误修复
+
 1. **src/app/[locale]/portfolio/page.tsx**
    - 修复 `activeCategory` 类型声明
    - 移除不存在的 `onCategoryChange` 属性
@@ -105,14 +115,17 @@ Route (pages) ─ ○ /404
 ## 5️⃣ 部署建议
 
 ### 立即可部署
+
 项目构建成功，可以进行部署。
 
 ### 部署前建议
+
 1. 修复 vitest.config.ts 中的重复别名
 2. 确保 .env.production 中的环境变量已正确配置
 3. 验证 Sentry DSN（如果使用错误监控）
 
 ### 部署命令
+
 ```bash
 # 构建 Docker 镜像
 docker build -t 7zi-frontend:latest .

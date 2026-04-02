@@ -4,46 +4,46 @@
  */
 
 export interface BudgetThreshold {
-  metric: string;
-  budget: number;
-  tolerance: number; // 容差百分比 (0-1)
-  unit: string;
+  metric: string
+  budget: number
+  tolerance: number // 容差百分比 (0-1)
+  unit: string
 }
 
 export interface PageBudget {
-  path: string;
-  timings: BudgetThreshold[];
+  path: string
+  timings: BudgetThreshold[]
   resources?: {
-    js?: number; // bytes
-    css?: number;
-    images?: number;
-    total?: number;
-  };
+    js?: number // bytes
+    css?: number
+    images?: number
+    total?: number
+  }
 }
 
 export interface BudgetViolation {
-  metric: string;
-  budget: number;
-  actual: number;
-  threshold: number;
-  percentOver: number;
-  severity: 'minor' | 'major' | 'critical';
+  metric: string
+  budget: number
+  actual: number
+  threshold: number
+  percentOver: number
+  severity: 'minor' | 'major' | 'critical'
 }
 
 export interface BudgetCheckResult {
-  passed: boolean;
-  violations: BudgetViolation[];
-  score: number; // 0-100
-  checkedAt: number;
+  passed: boolean
+  violations: BudgetViolation[]
+  score: number // 0-100
+  checkedAt: number
 }
 
 export interface PerformanceBudgetConfig {
-  enabled: boolean;
-  budgets: PageBudget[];
-  checkOnBuild: boolean;
-  failOnViolation: boolean;
-  warningThreshold: number; // 警告阈值百分比
-  errorThreshold: number; // 错误阈值百分比
+  enabled: boolean
+  budgets: PageBudget[]
+  checkOnBuild: boolean
+  failOnViolation: boolean
+  warningThreshold: number // 警告阈值百分比
+  errorThreshold: number // 错误阈值百分比
 }
 
 export const DEFAULT_BUDGET_CONFIG: PerformanceBudgetConfig = {
@@ -82,4 +82,4 @@ export const DEFAULT_BUDGET_CONFIG: PerformanceBudgetConfig = {
   failOnViolation: false,
   warningThreshold: 0.9, // 90%
   errorThreshold: 1.1, // 110%
-};
+}

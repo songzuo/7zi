@@ -38,24 +38,26 @@ Turbopack 是 Next.js 16 的默认构建工具，由 Rust 实现，专为快速�
 
 ### 技术对比
 
-| 特性 | Webpack | Turbopack |
-|------|---------|-----------|
-| **实现语言** | JavaScript | Rust |
-| **冷构建时间** | 3-5 分钟 | 30-60 秒 |
-| **增量构建时间** | 30-60 秒 | 1-10 秒 |
-| **内存使用** | 较高（~2GB） | 更低（~1GB） |
-| **Tree-shaking** | 基础 | 高级（内置） |
-| **增量粒度** | 模块级 | 函数级 |
+| 特性             | Webpack      | Turbopack    |
+| ---------------- | ------------ | ------------ |
+| **实现语言**     | JavaScript   | Rust         |
+| **冷构建时间**   | 3-5 分钟     | 30-60 秒     |
+| **增量构建时间** | 30-60 秒     | 1-10 秒      |
+| **内存使用**     | 较高（~2GB） | 更低（~1GB） |
+| **Tree-shaking** | 基础         | 高级（内置） |
+| **增量粒度**     | 模块级       | 函数级       |
 
 ### 使用场景
 
 ✅ **推荐使用**：
+
 - 中大型 Next.js 应用
 - 频繁构建和部署的项目
 - 需要快速开发迭代
 - CI/CD 构建时间敏感
 
 ⚠️ **需要评估**：
+
 - 复杂的自定义 webpack 插件依赖
 - 高度定制的代码分割策略
 - 特殊的 loader 需求
@@ -69,6 +71,7 @@ Turbopack 是 Next.js 16 的默认构建工具，由 Rust 实现，专为快速�
 **Next.js 版本**: 16.2.1
 
 **构建脚本**（package.json）:
+
 ```json
 {
   "scripts": {
@@ -88,11 +91,13 @@ Turbopack 是 Next.js 16 的默认构建工具，由 Rust 实现，专为快速�
 ```
 
 **默认构建命令**:
+
 - `npm run build` - 使用 Turbopack（Next.js 16 默认）
 - `npm run build:turbo` - 明确使用 Turbopack
 - `npm run build:webpack` - 使用 Webpack（后备）
 
 **配置文件**:
+
 - ✅ `next.config.ts` - 已配置 Turbopack 优化选项
 - ✅ `turbo.json` - 构建缓存配置
 - ✅ `scripts/check-bundle-size.mjs` - Bundle size 检查脚本
@@ -111,11 +116,11 @@ const nextConfig: NextConfig = {
 
   experimental: {
     // Turbopack 特定优化选项
-    turbopackFileSystemCacheForBuild: true,  // 构建缓存
-    turbopackTreeShaking: true,                // 高级 tree-shaking
-    turbopackScopeHoisting: true,              // Scope hoisting
-    turbopackRemoveUnusedImports: true,         // 移除未使用的导入
-    turbopackRemoveUnusedExports: true,         // 移除未使用的导出
+    turbopackFileSystemCacheForBuild: true, // 构建缓存
+    turbopackTreeShaking: true, // 高级 tree-shaking
+    turbopackScopeHoisting: true, // Scope hoisting
+    turbopackRemoveUnusedImports: true, // 移除未使用的导入
+    turbopackRemoveUnusedExports: true, // 移除未使用的导出
   },
 
   // Turbopack 路径别名（替代 webpack.resolve.alias）
@@ -131,22 +136,22 @@ const nextConfig: NextConfig = {
     if (process.env.USE_WEBPACK === 'true') {
       // ... 复杂的 webpack 配置
     }
-    return config;
+    return config
   },
-};
+}
 ```
 
 ### 配置说明
 
 #### Turbopack 实验性选项
 
-| 选项 | 作用 | 环境 | 推荐值 |
-|------|------|------|--------|
-| `turbopackFileSystemCacheForBuild` | 构建缓存 | 生产 | `true` |
-| `turbopackTreeShaking` | 高级 tree-shaking | 生产 | `true` |
-| `turbopackScopeHoisting` | Scope hoisting 优化 | 生产 | `true` |
-| `turbopackRemoveUnusedImports` | 移除未使用导入 | 生产 | `true` |
-| `turbopackRemoveUnusedExports` | 移除未使用导出 | 生产 | `true` |
+| 选项                               | 作用                | 环境 | 推荐值 |
+| ---------------------------------- | ------------------- | ---- | ------ |
+| `turbopackFileSystemCacheForBuild` | 构建缓存            | 生产 | `true` |
+| `turbopackTreeShaking`             | 高级 tree-shaking   | 生产 | `true` |
+| `turbopackScopeHoisting`           | Scope hoisting 优化 | 生产 | `true` |
+| `turbopackRemoveUnusedImports`     | 移除未使用导入      | 生产 | `true` |
+| `turbopackRemoveUnusedExports`     | 移除未使用导出      | 生产 | `true` |
 
 #### 路径别名
 
@@ -218,8 +223,8 @@ npm run build:analyze:check
 检查脚本配置（`scripts/check-bundle-size.mjs`）：
 
 ```javascript
-const MAX_ENTRYPOINT_SIZE = 300000; // 300 KB
-const MAX_ASSET_SIZE = 250000;      // 250 KB
+const MAX_ENTRYPOINT_SIZE = 300000 // 300 KB
+const MAX_ASSET_SIZE = 250000 // 250 KB
 ```
 
 如果文件超过限制，会显示警告：
@@ -267,6 +272,7 @@ const MAX_ASSET_SIZE = 250000;      // 250 KB
 ```
 
 **优势**：
+
 - 本地构建缓存，避免重复构建
 - 远程缓存（可选），团队共享构建结果
 - 智能依赖图，只重建改变的部分
@@ -306,6 +312,7 @@ FROM node:22-alpine AS runner
 ```
 
 **说明**：
+
 - `npm run build` 默认使用 Turbopack
 - 不需要额外配置即可享受 Turbopack 的速度优势
 
@@ -349,6 +356,7 @@ docker build --build-arg BUNDLER=webpack -t 7zi-frontend .
 3. **runner 阶段**: 最小化运行镜像
 
 **优势**：
+
 - 快速重建：依赖未改变时复用缓存
 - 小镜像：最终镜像只包含运行时依赖
 - 安全性：非 root 用户运行
@@ -368,12 +376,18 @@ services:
       args:
         BUNDLER: turbopack
     ports:
-      - "3000:3000"
+      - '3000:3000'
     environment:
       - NODE_ENV=production
     restart: unless-stopped
     healthcheck:
-      test: ["CMD", "node", "-e", "require('http').get('http://localhost:3000/api/health', (r) => {process.exit(r.statusCode === 200 ? 0 : 1)})"]
+      test:
+        [
+          'CMD',
+          'node',
+          '-e',
+          "require('http').get('http://localhost:3000/api/health', (r) => {process.exit(r.statusCode === 200 ? 0 : 1)})",
+        ]
       interval: 30s
       timeout: 10s
       retries: 3
@@ -585,33 +599,34 @@ jobs:
 
 ### 构建性能对比
 
-| 场景 | Webpack | Turbopack | 提升 |
-|------|---------|-----------|------|
-| **冷构建** | ~3-5 min | ~30-60s | 5-10x |
-| **增量构建** | ~30-60s | ~1-10s | 5-60x |
-| **内存使用** | ~2GB | ~1GB | 50% ↓ |
-| **HMR 响应** | ~2-5s | ~0.1-0.5s | 10-50x |
+| 场景         | Webpack  | Turbopack | 提升   |
+| ------------ | -------- | --------- | ------ |
+| **冷构建**   | ~3-5 min | ~30-60s   | 5-10x  |
+| **增量构建** | ~30-60s  | ~1-10s    | 5-60x  |
+| **内存使用** | ~2GB     | ~1GB      | 50% ↓  |
+| **HMR 响应** | ~2-5s    | ~0.1-0.5s | 10-50x |
 
 ### Bundle Size 对比
 
-| 指标 | Webpack | Turbopack | 差异 |
-|------|---------|-----------|------|
-| **总 bundle 大小** | ~2.5 MB | ~2.3 MB | -8% |
-| **首屏 JS** | ~450 KB | ~420 KB | -7% |
-| **框架 chunk** | ~280 KB | ~245 KB | -12% |
+| 指标               | Webpack | Turbopack | 差异 |
+| ------------------ | ------- | --------- | ---- |
+| **总 bundle 大小** | ~2.5 MB | ~2.3 MB   | -8%  |
+| **首屏 JS**        | ~450 KB | ~420 KB   | -7%  |
+| **框架 chunk**     | ~280 KB | ~245 KB   | -12% |
 
 **说明**：
+
 - Turbopack 的 tree-shaking 更先进，生成的 bundle 更小
 - 实际大小差异取决于项目结构和依赖
 
 ### 运行时性能
 
-| 指标 | 目标值 | 实际值 |
-|------|--------|--------|
-| **LCP (Largest Contentful Paint)** | < 2.5s | ~1.8s ✅ |
-| **FID (First Input Delay)** | < 100ms | ~45ms ✅ |
-| **CLS (Cumulative Layout Shift)** | < 0.1 | ~0.02 ✅ |
-| **TTI (Time to Interactive)** | < 3s | ~2.1s ✅ |
+| 指标                               | 目标值  | 实际值   |
+| ---------------------------------- | ------- | -------- |
+| **LCP (Largest Contentful Paint)** | < 2.5s  | ~1.8s ✅ |
+| **FID (First Input Delay)**        | < 100ms | ~45ms ✅ |
+| **CLS (Cumulative Layout Shift)**  | < 0.1   | ~0.02 ✅ |
+| **TTI (Time to Interactive)**      | < 3s    | ~2.1s ✅ |
 
 ### 实际测试结果
 
@@ -776,16 +791,16 @@ spec:
   strategy:
     canary:
       steps:
-      - setWeight: 10
-      - pause: { duration: 5m }
-      - analysis:
-          templates:
-          - templateName: error-rate
-          args:
-          - name: service-name
-            value: 7zi-frontend
-      - setWeight: 50
-      - pause: { duration: 10m }
+        - setWeight: 10
+        - pause: { duration: 5m }
+        - analysis:
+            templates:
+              - templateName: error-rate
+            args:
+              - name: service-name
+                value: 7zi-frontend
+        - setWeight: 50
+        - pause: { duration: 10m }
 ```
 
 ### 回滚检查清单
@@ -805,24 +820,26 @@ spec:
 #### 1. Webpack 插件
 
 ❌ **不支持的插件**：
+
 - 自定义 webpack 插件
 - 需要特殊 loader 的插件
 - CSS-in-JS 的某些实现（如 styled-components 的某些配置）
 
 ✅ **替代方案**：
+
 - 使用 Turbopack 原生配置
 - 使用 Next.js 内置功能
 - 使用 PostCSS 替代某些 CSS loader
 
 #### 2. 特殊 Loader
 
-| Loader | 支持状态 | 替代方案 |
-|--------|---------|----------|
-| `ts-loader` | ✅ 原生支持 | 使用 Next.js 内置 |
-| `css-loader` | ✅ 原生支持 | 使用 CSS Modules |
+| Loader        | 支持状态    | 替代方案                       |
+| ------------- | ----------- | ------------------------------ |
+| `ts-loader`   | ✅ 原生支持 | 使用 Next.js 内置              |
+| `css-loader`  | ✅ 原生支持 | 使用 CSS Modules               |
 | `sass-loader` | ⚠️ 部分支持 | 不支持 `sassOptions.functions` |
-| `file-loader` | ✅ 原生支持 | 使用 `next.config.images` |
-| `svg-loader` | ✅ 原生支持 | 使用 `next/image` 或动态导入 |
+| `file-loader` | ✅ 原生支持 | 使用 `next.config.images`      |
+| `svg-loader`  | ✅ 原生支持 | 使用 `next/image` 或动态导入   |
 
 #### 3. 代码分割策略
 
@@ -848,11 +865,13 @@ import { ThreeCanvas } from '@react-three/fiber';
 #### 1. 构建失败：模块找不到
 
 **错误信息**：
+
 ```
 Module not found: Can't resolve '@/components/Button'
 ```
 
 **解决方案**：
+
 ```typescript
 // 确认 turbopack.resolveAlias 配置
 turbopack: {
@@ -867,6 +886,7 @@ turbopack: {
 **原因**：Turbopack 的代码分割策略不同
 
 **解决方案**：
+
 - 使用动态导入
 - 启用 `experimental.turbopackTreeShaking`
 - 检查 `optimizePackageImports` 配置
@@ -876,6 +896,7 @@ turbopack: {
 **原因**：CSS Modules 的加载顺序可能不同
 
 **解决方案**：
+
 - 使用 `@import` 强制顺序
 - 调整组件的 import 顺序
 - 使用 CSS-in-JS（如 styled-components）
@@ -883,11 +904,13 @@ turbopack: {
 #### 4. HMR 不工作
 
 **错误信息**：
+
 ```
 Fast Refresh is not enabled
 ```
 
 **解决方案**：
+
 ```bash
 # 确保 dev 命令使用 Turbopack
 npm run dev:turbo
@@ -899,11 +922,13 @@ rm -rf .next
 #### 5. 类型错误
 
 **错误信息**：
+
 ```
 Type error: Cannot find module '@/types'
 ```
 
 **解决方案**：
+
 ```bash
 # 确保 tsconfig.json 包含路径别名
 {
@@ -1032,9 +1057,9 @@ DEBUG=turbo:* npm run dev:turbo
 
 ```typescript
 // 在浏览器中查看性能
-console.time('render');
+console.time('render')
 // ... 渲染代码 ...
-console.timeEnd('render');
+console.timeEnd('render')
 ```
 
 #### 3. Bundle Analyzer
@@ -1079,12 +1104,12 @@ node --inspect node_modules/.bin/next build
 
 ### 常见错误代码
 
-| 错误代码 | 原因 | 解决方案 |
-|---------|------|----------|
+| 错误代码           | 原因         | 解决方案                      |
+| ------------------ | ------------ | ----------------------------- |
 | `MODULE_NOT_FOUND` | 模块路径错误 | 检查 `turbopack.resolveAlias` |
-| `TYPE_ERROR` | 类型定义缺失 | 更新 `@types/*` 依赖 |
-| `BUILD_FAILED` | 构建配置错误 | 检查 `next.config.ts` |
-| `HMR_ERROR` | 热更新失败 | 清理 `.next` 缓存 |
+| `TYPE_ERROR`       | 类型定义缺失 | 更新 `@types/*` 依赖          |
+| `BUILD_FAILED`     | 构建配置错误 | 检查 `next.config.ts`         |
+| `HMR_ERROR`        | 热更新失败   | 清理 `.next` 缓存             |
 
 ---
 
@@ -1144,13 +1169,13 @@ groups:
         expr: build_duration_seconds > 120
         for: 5m
         annotations:
-          summary: "Build time too high: {{ $value }}s"
+          summary: 'Build time too high: {{ $value }}s'
 
       - alert: BundleSizeTooLarge
         expr: bundle_size_bytes > 500000
         for: 5m
         annotations:
-          summary: "Bundle size too large: {{ $value }} bytes"
+          summary: 'Bundle size too large: {{ $value }} bytes'
 ```
 
 ### 3. 文档维护
@@ -1177,9 +1202,11 @@ groups:
 ## FAQ
 
 ### Q: Turbopack 构建失败怎么办？
+
 A: 尝试清理缓存：`rm -rf .next`，然后重新构建。
 
 ### Q: Bundle 大小增加怎么办？
+
 A: 使用动态导入优化大型库。
 ```
 
@@ -1188,6 +1215,7 @@ A: 使用动态导入优化大型库。
 #### 代码审查
 
 审查清单：
+
 - [ ] 使用 Turbopack 构建
 - [ ] Bundle size 检查通过
 - [ ] 性能指标正常
@@ -1207,12 +1235,12 @@ A: 使用动态导入优化大型库。
 
 ### A. 环境变量清单
 
-| 变量名 | 说明 | 默认值 |
-|--------|------|--------|
-| `NODE_ENV` | 环境模式 | `production` |
-| `USE_WEBPACK` | 是否使用 Webpack | `false` |
-| `ANALYZE` | 是否分析 Bundle | `false` |
-| `NEXT_TELEMETRY_DISABLED` | 禁用遥测 | `1` |
+| 变量名                    | 说明             | 默认值       |
+| ------------------------- | ---------------- | ------------ |
+| `NODE_ENV`                | 环境模式         | `production` |
+| `USE_WEBPACK`             | 是否使用 Webpack | `false`      |
+| `ANALYZE`                 | 是否分析 Bundle  | `false`      |
+| `NEXT_TELEMETRY_DISABLED` | 禁用遥测         | `1`          |
 
 ### B. 常用命令速查
 
@@ -1256,8 +1284,8 @@ rm -rf .next                     # 清理缓存
 
 ### D. 版本历史
 
-| 版本 | 日期 | 说明 |
-|------|------|------|
+| 版本   | 日期       | 说明     |
+| ------ | ---------- | -------- |
 | v1.0.0 | 2026-03-28 | 初始版本 |
 
 ---

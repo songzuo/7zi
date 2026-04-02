@@ -13,7 +13,7 @@ describe('SEO - Sitemap.xml 生成测试', () => {
       // 动态导入生成的 sitemap 配置
       const sitemapModule = await import('@/app/sitemap')
       sitemap = sitemapModule.default()
-    } catch (_error) {
+    } catch (error) {
       console.warn('sitemap.ts 未找到，测试标记为待实现')
     }
   })
@@ -35,7 +35,7 @@ describe('SEO - Sitemap.xml 生成测试', () => {
         return
       }
 
-      sitemap.forEach((item) => {
+      sitemap.forEach(item => {
         expect(item).toHaveProperty('url')
         expect(item).toHaveProperty('lastModified')
         expect(item).toHaveProperty('changeFrequency')
@@ -49,7 +49,7 @@ describe('SEO - Sitemap.xml 生成测试', () => {
         return
       }
 
-      sitemap.forEach((item) => {
+      sitemap.forEach(item => {
         expect(item.url).toMatch(/^https?:\/\//)
       })
     })
@@ -63,7 +63,7 @@ describe('SEO - Sitemap.xml 生成测试', () => {
       }
 
       const baseUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://7zi.com'
-      const hasHome = sitemap.some((item) => item.url === baseUrl || item.url === `${baseUrl}/`)
+      const hasHome = sitemap.some(item => item.url === baseUrl || item.url === `${baseUrl}/`)
       expect(hasHome).toBe(true)
     })
 
@@ -81,8 +81,8 @@ describe('SEO - Sitemap.xml 生成测试', () => {
         '/i18n-demo',
       ]
 
-      expectedPages.forEach((page) => {
-        const exists = sitemap.some((item) => item.url.endsWith(page))
+      expectedPages.forEach(page => {
+        const exists = sitemap.some(item => item.url.endsWith(page))
         expect(exists).toBe(true)
       })
     })
@@ -93,7 +93,7 @@ describe('SEO - Sitemap.xml 生成测试', () => {
         return
       }
 
-      const hasApiRoutes = sitemap.some((item) => item.url.includes('/api/'))
+      const hasApiRoutes = sitemap.some(item => item.url.includes('/api/'))
       expect(hasApiRoutes).toBe(false)
     })
 
@@ -103,7 +103,7 @@ describe('SEO - Sitemap.xml 生成测试', () => {
         return
       }
 
-      const hasAdminRoutes = sitemap.some((item) => item.url.includes('/admin/'))
+      const hasAdminRoutes = sitemap.some(item => item.url.includes('/admin/'))
       expect(hasAdminRoutes).toBe(false)
     })
   })
@@ -115,9 +115,7 @@ describe('SEO - Sitemap.xml 生成测试', () => {
         return
       }
 
-      const hasLocalePages = sitemap.some((item) =>
-        item.url.match(/\/(zh-CN|en)\//)
-      )
+      const hasLocalePages = sitemap.some(item => item.url.match(/\/(zh-CN|en)\//))
       expect(hasLocalePages).toBe(true)
     })
 
@@ -127,11 +125,9 @@ describe('SEO - Sitemap.xml 生成测试', () => {
         return
       }
 
-      const localePages = sitemap.filter((item) =>
-        item.url.match(/\/(zh-CN|en)\//)
-      )
+      const localePages = sitemap.filter(item => item.url.match(/\/(zh-CN|en)\//))
 
-      localePages.forEach((item) => {
+      localePages.forEach(item => {
         if (item.alternates && item.alternates.languages) {
           expect(item.alternates.languages).toHaveProperty('zh-CN')
           expect(item.alternates.languages).toHaveProperty('en')
@@ -148,9 +144,7 @@ describe('SEO - Sitemap.xml 生成测试', () => {
       }
 
       const baseUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://7zi.com'
-      const homePage = sitemap.find(
-        (item) => item.url === baseUrl || item.url === `${baseUrl}/`
-      )
+      const homePage = sitemap.find(item => item.url === baseUrl || item.url === `${baseUrl}/`)
 
       expect(homePage).toBeDefined()
       expect(homePage.priority).toBe(1)
@@ -162,7 +156,7 @@ describe('SEO - Sitemap.xml 生成测试', () => {
         return
       }
 
-      sitemap.forEach((item) => {
+      sitemap.forEach(item => {
         expect(item.priority).toBeGreaterThanOrEqual(0)
         expect(item.priority).toBeLessThanOrEqual(1)
       })
@@ -174,17 +168,9 @@ describe('SEO - Sitemap.xml 生成测试', () => {
         return
       }
 
-      const validFrequencies = [
-        'always',
-        'hourly',
-        'daily',
-        'weekly',
-        'monthly',
-        'yearly',
-        'never',
-      ]
+      const validFrequencies = ['always', 'hourly', 'daily', 'weekly', 'monthly', 'yearly', 'never']
 
-      sitemap.forEach((item) => {
+      sitemap.forEach(item => {
         expect(validFrequencies).toContain(item.changeFrequency)
       })
     })
@@ -196,9 +182,9 @@ describe('SEO - Sitemap.xml 生成测试', () => {
       }
 
       // 静态页面通常不需要频繁更新
-      const staticPages = sitemap.filter((item) => !item.url.includes('/api/'))
+      const staticPages = sitemap.filter(item => !item.url.includes('/api/'))
 
-      staticPages.forEach((item) => {
+      staticPages.forEach(item => {
         expect(['weekly', 'monthly', 'yearly', 'never']).toContain(item.changeFrequency)
       })
     })
@@ -211,7 +197,7 @@ describe('SEO - Sitemap.xml 生成测试', () => {
         return
       }
 
-      sitemap.forEach((item) => {
+      sitemap.forEach(item => {
         expect(item.lastModified).toBeInstanceOf(Date)
         expect(item.lastModified.getTime()).not.toBeNaN()
       })
@@ -225,7 +211,7 @@ describe('SEO - Sitemap.xml 生成测试', () => {
 
       const now = new Date()
 
-      sitemap.forEach((item) => {
+      sitemap.forEach(item => {
         expect(item.lastModified.getTime()).toBeLessThanOrEqual(now.getTime())
       })
     })
@@ -240,7 +226,7 @@ describe('SEO - Sitemap.xml 生成测试', () => {
 
       const baseUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://7zi.com'
 
-      sitemap.forEach((item) => {
+      sitemap.forEach(item => {
         expect(item.url).toContain(baseUrl)
       })
     })
@@ -251,7 +237,7 @@ describe('SEO - Sitemap.xml 生成测试', () => {
         return
       }
 
-      sitemap.forEach((item) => {
+      sitemap.forEach(item => {
         expect(() => new URL(item.url)).not.toThrow()
       })
     })
@@ -262,7 +248,7 @@ describe('SEO - Sitemap.xml 生成测试', () => {
         return
       }
 
-      const urls = sitemap.map((item) => item.url)
+      const urls = sitemap.map(item => item.url)
       const uniqueUrls = new Set(urls)
 
       expect(urls.length).toBe(uniqueUrls.size)

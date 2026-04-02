@@ -3,29 +3,29 @@
  * Displays a list of ratings with pagination, filtering, and sorting
  */
 
-import React, { useState, useEffect } from 'react';
-import { Star, Filter, ArrowUpDown, ChevronLeft, ChevronRight } from 'lucide-react';
-import { cn } from '@/lib/utils';
-import { Button, Input } from '@/components/ui';
-import { ReviewItem } from './ReviewItem';
-import { Rating, RatingFilters, RatingListResponse } from '@/types/feedback';
+import React, { useState, useEffect } from 'react'
+import { Star, Filter, ArrowUpDown, ChevronLeft, ChevronRight } from 'lucide-react'
+import { cn } from '@/lib/utils'
+import { Button, Input } from '@/components/ui'
+import { ReviewItem } from './ReviewItem'
+import { Rating, RatingFilters, RatingListResponse } from '@/types/feedback'
 
 export interface RatingListProps {
-  targetType?: 'agent' | 'task' | 'feature' | 'project' | 'overall';
-  targetId?: string;
-  initialFilters?: Partial<RatingFilters>;
-  onReply?: (ratingId: string, content: string) => Promise<void>;
-  onHelpful?: (ratingId: string, isHelpful: boolean) => Promise<void>;
-  onFlag?: (ratingId: string) => Promise<void>;
-  onDelete?: (ratingId: string) => Promise<void>;
-  onLike?: (ratingId: string, unlike: boolean) => Promise<void>;
-  isOwner?: boolean;
-  isAdmin?: boolean;
-  className?: string;
+  targetType?: 'agent' | 'task' | 'feature' | 'project' | 'overall'
+  targetId?: string
+  initialFilters?: Partial<RatingFilters>
+  onReply?: (ratingId: string, content: string) => Promise<void>
+  onHelpful?: (ratingId: string, isHelpful: boolean) => Promise<void>
+  onFlag?: (ratingId: string) => Promise<void>
+  onDelete?: (ratingId: string) => Promise<void>
+  onLike?: (ratingId: string, unlike: boolean) => Promise<void>
+  isOwner?: boolean
+  isAdmin?: boolean
+  className?: string
 }
 
-type SortBy = 'created_at' | 'rating' | 'helpful_count';
-type SortOrder = 'asc' | 'desc';
+type SortBy = 'created_at' | 'rating' | 'helpful_count'
+type SortOrder = 'asc' | 'desc'
 
 export function RatingList({
   targetType,
@@ -40,68 +40,68 @@ export function RatingList({
   isAdmin = false,
   className,
 }: RatingListProps) {
-  const [ratings, setRatings] = useState<Rating[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
+  const [ratings, setRatings] = useState<Rating[]>([])
+  const [loading, setLoading] = useState(true)
+  const [error, setError] = useState<string | null>(null)
 
   // Filters
-  const [sortBy, setSortBy] = useState<SortBy>('created_at');
-  const [sortOrder, setSortOrder] = useState<SortOrder>('desc');
-  const [ratingMin, setRatingMin] = useState<number | undefined>(initialFilters?.rating_min);
-  const [ratingMax, setRatingMax] = useState<number | undefined>(initialFilters?.rating_max);
-  const [searchQuery, setSearchQuery] = useState('');
+  const [sortBy, setSortBy] = useState<SortBy>('created_at')
+  const [sortOrder, setSortOrder] = useState<SortOrder>('desc')
+  const [ratingMin, setRatingMin] = useState<number | undefined>(initialFilters?.rating_min)
+  const [ratingMax, setRatingMax] = useState<number | undefined>(initialFilters?.rating_max)
+  const [searchQuery, setSearchQuery] = useState('')
 
   // Pagination
-  const [page, setPage] = useState(1);
-  const [perPage] = useState(10);
-  const [total, setTotal] = useState(0);
-  const [totalPages, setTotalPages] = useState(0);
+  const [page, setPage] = useState(1)
+  const [perPage] = useState(10)
+  const [total, setTotal] = useState(0)
+  const [totalPages, setTotalPages] = useState(0)
 
   // UI state
-  const [showFilters, setShowFilters] = useState(false);
+  const [showFilters, setShowFilters] = useState(false)
 
   /**
    * Fetch ratings from API
    */
   const fetchRatings = async () => {
-    setLoading(true);
-    setError(null);
+    setLoading(true)
+    setError(null)
 
     try {
-      const params = new URLSearchParams();
-      if (targetType) params.append('target_type', targetType);
-      if (targetId) params.append('target_id', targetId);
-      if (ratingMin !== undefined) params.append('rating_min', ratingMin.toString());
-      if (ratingMax !== undefined) params.append('rating_max', ratingMax.toString());
-      if (searchQuery) params.append('search', searchQuery);
-      params.append('sort_by', sortBy);
-      params.append('sort_order', sortOrder);
-      params.append('page', page.toString());
-      params.append('per_page', perPage.toString());
+      const params = new URLSearchParams()
+      if (targetType) params.append('target_type', targetType)
+      if (targetId) params.append('target_id', targetId)
+      if (ratingMin !== undefined) params.append('rating_min', ratingMin.toString())
+      if (ratingMax !== undefined) params.append('rating_max', ratingMax.toString())
+      if (searchQuery) params.append('search', searchQuery)
+      params.append('sort_by', sortBy)
+      params.append('sort_order', sortOrder)
+      params.append('page', page.toString())
+      params.append('per_page', perPage.toString())
 
-      const response = await fetch(`/api/ratings?${params.toString()}`);
+      const response = await fetch(`/api/ratings?${params.toString()}`)
 
       if (!response.ok) {
-        throw new Error('Failed to fetch ratings');
+        throw new Error('Failed to fetch ratings')
       }
 
-      const res = await response.json();
+      const res = await response.json()
       if (res.success) {
-        const resData = res.data as RatingListResponse;
-        setRatings(resData.ratings || []);
-        setTotal(resData.meta?.total || 0);
-        setTotalPages(resData.meta?.total_pages || 0);
+        const resData = res.data as RatingListResponse
+        setRatings(resData.ratings || [])
+        setTotal(resData.meta?.total || 0)
+        setTotalPages(resData.meta?.total_pages || 0)
       }
-    } catch (_err) {
-      setError(err instanceof Error ? err.message : 'An error occurred');
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'An error occurred')
     } finally {
-      setLoading(false);
+      setLoading(false)
     }
-  };
+  }
 
   useEffect(() => {
-    fetchRatings();
-  }, [targetType, targetId, sortBy, sortOrder, ratingMin, ratingMax, searchQuery, page]);
+    fetchRatings()
+  }, [targetType, targetId, sortBy, sortOrder, ratingMin, ratingMax, searchQuery, page])
 
   /**
    * Handle sort change
@@ -109,32 +109,30 @@ export function RatingList({
   const handleSortChange = (newSortBy: SortBy) => {
     if (sortBy === newSortBy) {
       // Toggle order if same column
-      setSortOrder(sortOrder === 'asc' ? 'desc' : 'asc');
+      setSortOrder(sortOrder === 'asc' ? 'desc' : 'asc')
     } else {
-      setSortBy(newSortBy);
-      setSortOrder('desc');
+      setSortBy(newSortBy)
+      setSortOrder('desc')
     }
-    setPage(1);
-  };
+    setPage(1)
+  }
 
   /**
    * Handle filter reset
    */
   const handleResetFilters = () => {
-    setRatingMin(undefined);
-    setRatingMax(undefined);
-    setSearchQuery('');
-    setPage(1);
-  };
+    setRatingMin(undefined)
+    setRatingMax(undefined)
+    setSearchQuery('')
+    setPage(1)
+  }
 
   /**
    * Handle rating update (after like/unlike)
    */
   const handleRatingUpdate = (updatedRating: Rating) => {
-    setRatings((prev) =>
-      prev.map((r) => (r.id === updatedRating.id ? updatedRating : r))
-    );
-  };
+    setRatings(prev => prev.map(r => (r.id === updatedRating.id ? updatedRating : r)))
+  }
 
   /**
    * Calculate average rating
@@ -142,7 +140,7 @@ export function RatingList({
   const averageRating =
     ratings.length > 0
       ? Math.round((ratings.reduce((sum, r) => sum + r.rating, 0) / ratings.length) * 10) / 10
-      : 0;
+      : 0
 
   return (
     <div className={cn('space-y-6', className)}>
@@ -151,16 +149,16 @@ export function RatingList({
         <div>
           <h2 className="text-2xl font-bold text-zinc-900">
             Reviews & Ratings
-            {total > 0 && <span className="text-zinc-500 font-normal ml-2">({total})</span>}
+            {total > 0 && <span className="ml-2 font-normal text-zinc-500">({total})</span>}
           </h2>
           {averageRating > 0 && (
-            <div className="flex items-center gap-2 mt-1">
+            <div className="mt-1 flex items-center gap-2">
               <div className="flex">
                 {[...Array(5)].map((_, i) => (
                   <Star
                     key={i}
                     className={cn(
-                      'w-4 h-4',
+                      'h-4 w-4',
                       i < Math.round(averageRating)
                         ? 'fill-yellow-400 text-yellow-400'
                         : 'text-zinc-300'
@@ -181,36 +179,36 @@ export function RatingList({
           onClick={() => setShowFilters(!showFilters)}
           className="gap-2"
         >
-          <Filter className="w-4 h-4" />
+          <Filter className="h-4 w-4" />
           Filters
-          {showFilters && (
-            <ChevronLeft className="w-4 h-4 rotate-90" />
-          )}
+          {showFilters && <ChevronLeft className="h-4 w-4 rotate-90" />}
         </Button>
       </div>
 
       {/* Filters Panel */}
       {showFilters && (
-        <div className="p-4 bg-zinc-50 rounded-lg border border-zinc-200 space-y-4">
+        <div className="space-y-4 rounded-lg border border-zinc-200 bg-zinc-50 p-4">
           {/* Search */}
           <div>
-            <label className="block text-sm font-medium text-zinc-700 mb-1">Search</label>
+            <label className="mb-1 block text-sm font-medium text-zinc-700">Search</label>
             <Input
               placeholder="Search reviews..."
               value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
+              onChange={e => setSearchQuery(e.target.value)}
               className="max-w-md"
             />
           </div>
 
           {/* Rating Range */}
-          <div className="flex gap-4 items-end">
+          <div className="flex items-end gap-4">
             <div>
-              <label className="block text-sm font-medium text-zinc-700 mb-1">Min Rating</label>
+              <label className="mb-1 block text-sm font-medium text-zinc-700">Min Rating</label>
               <select
                 value={ratingMin?.toString() || 'all'}
-                onChange={(e) => setRatingMin(e.target.value === 'all' ? undefined : parseInt(e.target.value))}
-                className="border rounded px-3 py-2 w-32"
+                onChange={e =>
+                  setRatingMin(e.target.value === 'all' ? undefined : parseInt(e.target.value))
+                }
+                className="w-32 rounded border px-3 py-2"
               >
                 <option value="all">All</option>
                 <option value="1">1★</option>
@@ -222,11 +220,13 @@ export function RatingList({
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-zinc-700 mb-1">Max Rating</label>
+              <label className="mb-1 block text-sm font-medium text-zinc-700">Max Rating</label>
               <select
                 value={ratingMax?.toString() || 'all'}
-                onChange={(e) => setRatingMax(e.target.value === 'all' ? undefined : parseInt(e.target.value))}
-                className="border rounded px-3 py-2 w-32"
+                onChange={e =>
+                  setRatingMax(e.target.value === 'all' ? undefined : parseInt(e.target.value))
+                }
+                className="w-32 rounded border px-3 py-2"
               >
                 <option value="all">All</option>
                 <option value="1">1★</option>
@@ -255,7 +255,7 @@ export function RatingList({
         >
           Date
           {sortBy === 'created_at' && (
-            <ArrowUpDown className={cn('w-3 h-3', sortOrder === 'asc' ? 'rotate-180' : '')} />
+            <ArrowUpDown className={cn('h-3 w-3', sortOrder === 'asc' ? 'rotate-180' : '')} />
           )}
         </Button>
         <Button
@@ -266,7 +266,7 @@ export function RatingList({
         >
           Rating
           {sortBy === 'rating' && (
-            <ArrowUpDown className={cn('w-3 h-3', sortOrder === 'asc' ? 'rotate-180' : '')} />
+            <ArrowUpDown className={cn('h-3 w-3', sortOrder === 'asc' ? 'rotate-180' : '')} />
           )}
         </Button>
         <Button
@@ -277,7 +277,7 @@ export function RatingList({
         >
           Most Helpful
           {sortBy === 'helpful_count' && (
-            <ArrowUpDown className={cn('w-3 h-3', sortOrder === 'asc' ? 'rotate-180' : '')} />
+            <ArrowUpDown className={cn('h-3 w-3', sortOrder === 'asc' ? 'rotate-180' : '')} />
           )}
         </Button>
       </div>
@@ -299,9 +299,9 @@ export function RatingList({
       {/* Empty State */}
       {!loading && !error && ratings.length === 0 && (
         <div className="flex flex-col items-center justify-center py-12 text-center">
-          <Star className="w-16 h-16 text-zinc-300 mb-4" />
-          <h3 className="text-lg font-medium text-zinc-900 mb-2">No reviews yet</h3>
-          <p className="text-zinc-500 max-w-md">
+          <Star className="mb-4 h-16 w-16 text-zinc-300" />
+          <h3 className="mb-2 text-lg font-medium text-zinc-900">No reviews yet</h3>
+          <p className="max-w-md text-zinc-500">
             Be the first to share your experience! Your feedback helps others make better decisions.
           </p>
         </div>
@@ -310,7 +310,7 @@ export function RatingList({
       {/* Ratings List */}
       {!loading && !error && ratings.length > 0 && (
         <div className="space-y-6">
-          {ratings.map((rating) => (
+          {ratings.map(rating => (
             <ReviewItem
               key={rating.id}
               rating={rating}
@@ -328,33 +328,34 @@ export function RatingList({
 
       {/* Pagination */}
       {!loading && !error && totalPages > 1 && (
-        <div className="flex items-center justify-between pt-6 border-t border-zinc-200">
+        <div className="flex items-center justify-between border-t border-zinc-200 pt-6">
           <div className="text-sm text-zinc-600">
-            Showing {((page - 1) * perPage) + 1} to {Math.min(page * perPage, total)} of {total} reviews
+            Showing {(page - 1) * perPage + 1} to {Math.min(page * perPage, total)} of {total}{' '}
+            reviews
           </div>
 
           <div className="flex items-center gap-2">
             <Button
               variant="outline"
               size="sm"
-              onClick={() => setPage((p) => Math.max(1, p - 1))}
+              onClick={() => setPage(p => Math.max(1, p - 1))}
               disabled={page === 1}
             >
-              <ChevronLeft className="w-4 h-4" />
+              <ChevronLeft className="h-4 w-4" />
               Previous
             </Button>
 
             <div className="flex items-center gap-1">
               {Array.from({ length: Math.min(5, totalPages) }, (_, i) => {
-                let pageNum;
+                let pageNum
                 if (totalPages <= 5) {
-                  pageNum = i + 1;
+                  pageNum = i + 1
                 } else if (page <= 3) {
-                  pageNum = i + 1;
+                  pageNum = i + 1
                 } else if (page >= totalPages - 2) {
-                  pageNum = totalPages - 4 + i;
+                  pageNum = totalPages - 4 + i
                 } else {
-                  pageNum = page - 2 + i;
+                  pageNum = page - 2 + i
                 }
 
                 return (
@@ -366,24 +367,24 @@ export function RatingList({
                   >
                     {pageNum}
                   </Button>
-                );
+                )
               })}
             </div>
 
             <Button
               variant="outline"
               size="sm"
-              onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
+              onClick={() => setPage(p => Math.min(totalPages, p + 1))}
               disabled={page === totalPages}
             >
               Next
-              <ChevronRight className="w-4 h-4" />
+              <ChevronRight className="h-4 w-4" />
             </Button>
           </div>
         </div>
       )}
     </div>
-  );
+  )
 }
 
-export default RatingList;
+export default RatingList

@@ -29,28 +29,30 @@ npx playwright test login-flow.spec.ts
 
 ## Test Files
 
-| File | Description | Test Cases |
-|------|-------------|-----------|
-| `login-flow.spec.ts` | 登录流程测试 | 18 |
-| `register-flow.spec.ts` | 注册流程测试 | 25 |
-| `core-features.spec.ts` | 核心功能测试 | 26 |
-| `visual-regression.spec.ts` | 视觉回归测试 | 9 |
-| `notifications.spec.ts` | 通知系统测试 | 13 |
-| `websocket.spec.ts` | WebSocket 测试 | 14 |
-| `error-handling.spec.ts` | 错误处理测试 | 18 |
-| **Total** | | **123** |
+| File                        | Description    | Test Cases |
+| --------------------------- | -------------- | ---------- |
+| `login-flow.spec.ts`        | 登录流程测试   | 18         |
+| `register-flow.spec.ts`     | 注册流程测试   | 25         |
+| `core-features.spec.ts`     | 核心功能测试   | 26         |
+| `visual-regression.spec.ts` | 视觉回归测试   | 9          |
+| `notifications.spec.ts`     | 通知系统测试   | 13         |
+| `websocket.spec.ts`         | WebSocket 测试 | 14         |
+| `error-handling.spec.ts`    | 错误处理测试   | 18         |
+| **Total**                   |                | **123**    |
 
 ---
 
 ## Test Coverage
 
 ### Authentication ✅
+
 - Login flow (form validation, success/failure, session persistence)
 - Registration flow (form validation, email verification, password strength)
 - Logout functionality
 - Token expiration handling
 
 ### Core Features ✅
+
 - Homepage navigation
 - Image optimization
 - Search functionality
@@ -59,22 +61,26 @@ npx playwright test login-flow.spec.ts
 - Admin panel
 
 ### Real-time Features ✅
+
 - WebSocket connection
 - Notifications
 - Real-time updates
 
 ### Error Handling ✅
+
 - Network errors
 - API errors (400, 401, 403, 404, 500, 503)
 - Form validation errors
 - Offline handling
 
 ### Accessibility ✅
+
 - ARIA labels
 - Keyboard navigation
 - Screen reader compatibility
 
 ### Performance ✅
+
 - Page load time
 - Image load time
 - API response time
@@ -84,6 +90,7 @@ npx playwright test login-flow.spec.ts
 ## CI Integration
 
 Tests run automatically in GitHub Actions:
+
 - On every push to `main` and `develop`
 - On every pull request
 - Reports uploaded as artifacts
@@ -98,6 +105,7 @@ Tests run automatically in GitHub Actions:
 - **JUnit Report**: `test-results/junit-results.xml`
 
 View report:
+
 ```bash
 npx playwright show-report
 ```
@@ -145,6 +153,7 @@ playwright.config.ts           ✅ EXISTING (updated)
 ## Status: ✅ COMPLETE
 
 All E2E testing requirements have been implemented:
+
 - ✅ Login/Registration flow tests
 - ✅ Core feature flow tests
 - ✅ CI integration

@@ -3,7 +3,7 @@
  * Helper functions for downloading files in the browser
  */
 
-import { logger } from '../logger';
+import { logger } from '../logger'
 
 /**
  * Download a file with the given content and filename
@@ -14,46 +14,43 @@ export function downloadFile(
   mimeType: string = 'text/plain'
 ): void {
   // Create a blob with the content
-  const blob = new Blob([content], { type: mimeType });
+  const blob = new Blob([content], { type: mimeType })
 
   // Create a temporary URL for the blob
-  const url = window.URL.createObjectURL(blob);
+  const url = window.URL.createObjectURL(blob)
 
   // Create a temporary link element
-  const link = document.createElement('a');
-  link.href = url;
-  link.download = filename;
+  const link = document.createElement('a')
+  link.href = url
+  link.download = filename
 
   // Append to document, click, and remove
-  document.body.appendChild(link);
-  link.click();
+  document.body.appendChild(link)
+  link.click()
 
   // Clean up
-  document.body.removeChild(link);
-  window.URL.revokeObjectURL(url);
+  document.body.removeChild(link)
+  window.URL.revokeObjectURL(url)
 }
 
 /**
  * Download a file from a URL
  */
-export async function downloadFromUrl(
-  url: string,
-  filename?: string
-): Promise<void> {
+export async function downloadFromUrl(url: string, filename?: string): Promise<void> {
   try {
-    const response = await fetch(url);
+    const response = await fetch(url)
     if (!response.ok) {
-      throw new Error(`HTTP error! status: ${response.status}`);
+      throw new Error(`HTTP error! status: ${response.status}`)
     }
 
-    const content = await response.text();
-    const actualFilename = filename || getFilenameFromUrl(url);
-    const mimeType = response.headers.get('content-type') || 'text/plain';
+    const content = await response.text()
+    const actualFilename = filename || getFilenameFromUrl(url)
+    const mimeType = response.headers.get('content-type') || 'text/plain'
 
-    downloadFile(content, actualFilename, mimeType);
-  } catch (_error) {
-    logger.error('Failed to download file:', error);
-    throw error;
+    downloadFile(content, actualFilename, mimeType)
+  } catch (error) {
+    logger.error('Failed to download file:', error)
+    throw error
   }
 }
 
@@ -62,13 +59,13 @@ export async function downloadFromUrl(
  */
 function getFilenameFromUrl(url: string): string {
   try {
-    const urlObj = new URL(url);
-    const pathname = urlObj.pathname;
-    const filename = pathname.split('/').pop();
+    const urlObj = new URL(url)
+    const pathname = urlObj.pathname
+    const filename = pathname.split('/').pop()
 
-    return filename || 'download';
-  } catch {
-    return 'download';
+    return filename || 'download'
+  } catch (error) {
+    return 'download'
   }
 }
 
@@ -76,15 +73,15 @@ function getFilenameFromUrl(url: string): string {
  * Download JSON data as a file
  */
 export function downloadJson(data: unknown, filename: string): void {
-  const content = JSON.stringify(data, null, 2);
-  downloadFile(content, filename, 'application/json');
+  const content = JSON.stringify(data, null, 2)
+  downloadFile(content, filename, 'application/json')
 }
 
 /**
  * Download CSV data as a file
  */
 export function downloadCsv(content: string, filename: string): void {
-  downloadFile(content, filename, 'text/csv; charset=utf-8');
+  downloadFile(content, filename, 'text/csv; charset=utf-8')
 }
 
 /**
@@ -96,12 +93,12 @@ export function createDownloadLink(
   filename: string,
   target: '_blank' | '_self' = '_self'
 ): HTMLAnchorElement {
-  const link = document.createElement('a');
-  link.href = url;
-  link.download = filename;
-  link.target = target;
+  const link = document.createElement('a')
+  link.href = url
+  link.download = filename
+  link.target = target
 
-  return link;
+  return link
 }
 
 /**
@@ -113,48 +110,44 @@ export async function downloadInChunks(
   chunkSize: number = 1024 * 1024 // 1MB chunks
 ): Promise<void> {
   try {
-    const response = await fetch(url);
+    const response = await fetch(url)
     if (!response.ok) {
-      throw new Error(`HTTP error! status: ${response.status}`);
+      throw new Error(`HTTP error! status: ${response.status}`)
     }
 
-    const reader = response.body?.getReader();
+    const reader = response.body?.getReader()
     if (!reader) {
-      throw new Error('Response body is not readable');
+      throw new Error('Response body is not readable')
     }
 
-    const chunks: Uint8Array[] = [];
-    let receivedLength = 0;
+    const chunks: Uint8Array[] = []
+    let receivedLength = 0
 
     while (true) {
-      const { done, value } = await reader.read();
+      const { done, value } = await reader.read()
 
       if (done) {
-        break;
+        break
       }
 
-      chunks.push(value);
-      receivedLength += value.length;
+      chunks.push(value)
+      receivedLength += value.length
     }
 
     // Combine all chunks
-    const combinedChunks = new Uint8Array(receivedLength);
-    let position = 0;
+    const combinedChunks = new Uint8Array(receivedLength)
+    let position = 0
 
     for (const chunk of chunks) {
-      combinedChunks.set(chunk, position);
-      position += chunk.length;
+      combinedChunks.set(chunk, position)
+      position += chunk.length
     }
 
     // Create blob and download
-    const blob = new Blob([combinedChunks]);
-    downloadFile(
-      URL.createObjectURL(blob),
-      filename,
-      'application/octet-stream'
-    );
-  } catch (_error) {
-    logger.error('Failed to download in chunks:', error);
-    throw error;
+    const blob = new Blob([combinedChunks])
+    downloadFile(URL.createObjectURL(blob), filename, 'application/octet-stream')
+  } catch (error) {
+    logger.error('Failed to download in chunks:', error)
+    throw error
   }
 }

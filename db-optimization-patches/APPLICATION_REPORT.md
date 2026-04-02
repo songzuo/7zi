@@ -1,6 +1,7 @@
 # 数据库优化补丁应用报告
 
 ## 执行日期
+
 2026-03-24 00:23 GMT+1
 
 ## 任务完成情况
@@ -22,6 +23,7 @@
 **补丁文件**: `db-optimization-patches/patch-1-backup-api-optimized.ts`
 
 **优化内容**:
+
 - ✅ 修复 N+1 查询问题（使用 UNION ALL 批量获取表信息）
 - ✅ 自动排除敏感字段（password, api_key, token 等）
 - ✅ 查询次数从 2N 减少到 N+1（约 50% 查询减少）
@@ -29,6 +31,7 @@
 **状态**: ✅ 成功应用
 
 **文件大小**:
+
 - 原文件: 8,387 bytes
 - 新文件: 8,545 bytes（增加 158 bytes）
 
@@ -40,6 +43,7 @@
 **补丁文件**: `db-optimization-patches/patch-2-auth-pagination-optimized.ts`
 
 **优化内容**:
+
 - ✅ 添加默认分页限制（100 条记录）
 - ✅ 设置最大限制（1000 条）防止滥用
 - ✅ 新增 `getAllUsersPaginated()` 返回分页元数据
@@ -48,6 +52,7 @@
 **状态**: ✅ 成功应用
 
 **文件大小**:
+
 - 原文件: 21,048 bytes
 - 新文件: 13,333 bytes（减少 7,715 bytes，优化了代码结构）
 
@@ -59,6 +64,7 @@
 **补丁文件**: `db-optimization-patches/patch-3-wallet-batch-optimized.ts`
 
 **优化内容**:
+
 - ✅ 使用 `IN` 子句批量查询，从 N 次减少到 1 次
 - ✅ 新增 `getWalletTransactionsBatch()` 返回按钱包 ID 分组的结果
 - ✅ 新增 `getWalletTransactionsAggregated()` 返回扁平数组结果
@@ -66,6 +72,7 @@
 **状态**: ✅ 成功应用
 
 **文件大小**:
+
 - 原文件: 19,416 bytes
 - 新文件: 13,409 bytes（减少 6,007 bytes）
 
@@ -83,6 +90,7 @@
 ```
 
 **回滚命令**（如果需要）:
+
 ```bash
 mv .backup/route.ts.backup src/app/api/backup/route.ts
 mv .backup/repository.ts.backup src/lib/auth/repository.ts
@@ -96,6 +104,7 @@ mv .backup/wallet-repository.ts.backup src/lib/agents/wallet-repository.ts
 ### ✅ 通过的测试
 
 #### 钱包仓库测试（100% 通过）
+
 - **测试文件**: `src/lib/agents/__tests__/wallet-repository.test.ts`
 - **结果**: 26/26 测试通过 ✅
 - **覆盖内容**:
@@ -106,11 +115,13 @@ mv .backup/wallet-repository.ts.backup src/lib/agents/wallet-repository.ts
   - ✅ 边界值和特殊情况处理
 
 #### 备份 API 测试（84% 通过）
+
 - **测试文件**: `src/app/api/backup/__tests__/route.test.ts`
 - **结果**: 21/25 测试通过 ✅
 - **失败**: 4/25 测试（与测试预期有关，非补丁逻辑问题）
 
 **失败的测试详情**:
+
 1. `should handle POST without body` - 测试期望 429 状态码，实际返回 200
 2. `should have valid id format` - 测试期望 `data.data.backup.id`，实际结构不同
 3. `should have positive size` - 测试期望 `data.data.backup.sizeInBytes`，实际结构不同
@@ -137,24 +148,27 @@ mv .backup/wallet-repository.ts.backup src/lib/agents/wallet-repository.ts
 ## 性能提升预估
 
 ### Patch 1: 备份 API
-| 表数量 | 优化前查询数 | 优化后查询数 | 改进 |
-|--------|------------|------------|------|
-| 10     | 20         | 11         | **45% ↓** |
-| 20     | 40         | 21         | **47% ↓** |
-| 50     | 100        | 51         | **49% ↓** |
+
+| 表数量 | 优化前查询数 | 优化后查询数 | 改进      |
+| ------ | ------------ | ------------ | --------- |
+| 10     | 20           | 11           | **45% ↓** |
+| 20     | 40           | 21           | **47% ↓** |
+| 50     | 100          | 51           | **49% ↓** |
 
 ### Patch 2: 用户列表
-| 用户数 | 优化前内存 | 优化后内存 | 改进 |
-|--------|----------|----------|------|
-| 10,000 | ~500MB   | ~5MB     | **99% ↓** |
-| 100,000| ~5GB     | ~5MB     | **99.9% ↓** |
+
+| 用户数  | 优化前内存 | 优化后内存 | 改进        |
+| ------- | ---------- | ---------- | ----------- |
+| 10,000  | ~500MB     | ~5MB       | **99% ↓**   |
+| 100,000 | ~5GB       | ~5MB       | **99.9% ↓** |
 
 ### Patch 3: 钱包交易批量查询
-| 钱包数 | 优化前查询数 | 优化后查询数 | 改进 |
-|--------|------------|------------|------|
-| 10     | 10         | 1          | **90% ↓** |
-| 50     | 50         | 1          | **98% ↓** |
-| 100    | 100        | 1          | **99% ↓** |
+
+| 钱包数 | 优化前查询数 | 优化后查询数 | 改进      |
+| ------ | ------------ | ------------ | --------- |
+| 10     | 10           | 1            | **90% ↓** |
+| 50     | 50           | 1            | **98% ↓** |
+| 100    | 100          | 1            | **99% ↓** |
 
 ---
 
@@ -163,6 +177,7 @@ mv .backup/wallet-repository.ts.backup src/lib/agents/wallet-repository.ts
 ### ✅ Patch 1: 备份 API 安全增强
 
 **敏感字段自动排除**:
+
 - ✅ `password` - 用户密码
 - ✅ `api_key` - API 密钥
 - ✅ `token` - 访问令牌

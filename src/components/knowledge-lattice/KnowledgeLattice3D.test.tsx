@@ -1,8 +1,8 @@
 // @ts-nocheck - Test file with complex type issues
-import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
-import { render, screen, fireEvent, waitFor } from '@testing-library/react';
-import userEvent from '@testing-library/user-event';
-import KnowledgeLattice3D from '../KnowledgeLattice3D';
+import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest'
+import { render, screen, fireEvent, waitFor } from '@testing-library/react'
+import userEvent from '@testing-library/user-event'
+import KnowledgeLattice3D from '../KnowledgeLattice3D'
 
 // Mock Three.js
 vi.mock('three', () => ({
@@ -24,7 +24,7 @@ vi.mock('three', () => ({
   Float32BufferAttribute: vi.fn(),
   PointsMaterial: vi.fn(),
   Color: vi.fn(),
-}));
+}))
 
 // Mock @react-three/fiber
 vi.mock('@react-three/fiber', () => ({
@@ -32,12 +32,12 @@ vi.mock('@react-three/fiber', () => ({
     <div data-testid="three-canvas">{children}</div>
   ),
   useFrame: vi.fn(),
-}));
+}))
 
 // Mock @react-three/drei
 vi.mock('@react-three/drei', () => ({
   OrbitControls: () => <div data-testid="orbit-controls" />,
-}));
+}))
 
 describe('KnowledgeLattice3D Component', () => {
   const defaultProps = {
@@ -45,94 +45,92 @@ describe('KnowledgeLattice3D Component', () => {
       { id: '1', label: 'Node 1', x: 0, y: 0, z: 0 },
       { id: '2', label: 'Node 2', x: 10, y: 0, z: 0 },
     ],
-    edges: [
-      { source: '1', target: '2', label: 'Connection' },
-    ],
-  };
+    edges: [{ source: '1', target: '2', label: 'Connection' }],
+  }
 
   beforeEach(() => {
-    vi.clearAllMocks();
-  });
+    vi.clearAllMocks()
+  })
 
   afterEach(() => {
-    vi.restoreAllMocks();
-  });
+    vi.restoreAllMocks()
+  })
 
   it('应该渲染 3D 场景容器', () => {
-    render(<KnowledgeLattice3D {...defaultProps} />);
-    expect(screen.getByTestId('three-canvas')).toBeInTheDocument();
-  });
+    render(<KnowledgeLattice3D {...defaultProps} />)
+    expect(screen.getByTestId('three-canvas')).toBeInTheDocument()
+  })
 
   it('应该显示节点', () => {
-    render(<KnowledgeLattice3D {...defaultProps} />);
-    const canvas = screen.getByTestId('three-canvas');
-    expect(canvas).toBeInTheDocument();
-  });
+    render(<KnowledgeLattice3D {...defaultProps} />)
+    const canvas = screen.getByTestId('three-canvas')
+    expect(canvas).toBeInTheDocument()
+  })
 
   it('应该显示边连接', () => {
-    render(<KnowledgeLattice3D {...defaultProps} />);
-    const canvas = screen.getByTestId('three-canvas');
-    expect(canvas).toBeInTheDocument();
-  });
+    render(<KnowledgeLattice3D {...defaultProps} />)
+    const canvas = screen.getByTestId('three-canvas')
+    expect(canvas).toBeInTheDocument()
+  })
 
   it('应该处理空节点数组', () => {
-    render(<KnowledgeLattice3D nodes={[]} edges={[]} />);
-    const canvas = screen.getByTestId('three-canvas');
-    expect(canvas).toBeInTheDocument();
-  });
+    render(<KnowledgeLattice3D nodes={[]} edges={[]} />)
+    const canvas = screen.getByTestId('three-canvas')
+    expect(canvas).toBeInTheDocument()
+  })
 
   it('应该处理空边数组', () => {
-    render(<KnowledgeLattice3D {...defaultProps} edges={[]} />);
-    const canvas = screen.getByTestId('three-canvas');
-    expect(canvas).toBeInTheDocument();
-  });
+    render(<KnowledgeLattice3D {...defaultProps} edges={[]} />)
+    const canvas = screen.getByTestId('three-canvas')
+    expect(canvas).toBeInTheDocument()
+  })
 
   it('应该支持自定义节点颜色', () => {
     const props = {
       ...defaultProps,
       nodeColor: '#ff0000',
-    };
-    render(<KnowledgeLattice3D {...props} />);
-    const canvas = screen.getByTestId('three-canvas');
-    expect(canvas).toBeInTheDocument();
-  });
+    }
+    render(<KnowledgeLattice3D {...props} />)
+    const canvas = screen.getByTestId('three-canvas')
+    expect(canvas).toBeInTheDocument()
+  })
 
   it('应该支持自定义边颜色', () => {
     const props = {
       ...defaultProps,
       edgeColor: '#00ff00',
-    };
-    render(<KnowledgeLattice3D {...props} />);
-    const canvas = screen.getByTestId('three-canvas');
-    expect(canvas).toBeInTheDocument();
-  });
+    }
+    render(<KnowledgeLattice3D {...props} />)
+    const canvas = screen.getByTestId('three-canvas')
+    expect(canvas).toBeInTheDocument()
+  })
 
   it('应该支持节点大小配置', () => {
     const props = {
       ...defaultProps,
       nodeSize: 2,
-    };
-    render(<KnowledgeLattice3D {...props} />);
-    const canvas = screen.getByTestId('three-canvas');
-    expect(canvas).toBeInTheDocument();
-  });
+    }
+    render(<KnowledgeLattice3D {...props} />)
+    const canvas = screen.getByTestId('three-canvas')
+    expect(canvas).toBeInTheDocument()
+  })
 
   it('应该处理交互事件', async () => {
-    const user = userEvent.setup();
-    render(<KnowledgeLattice3D {...defaultProps} />);
-    const canvas = screen.getByTestId('three-canvas');
-    expect(canvas).toBeInTheDocument();
-  });
+    const user = userEvent.setup()
+    render(<KnowledgeLattice3D {...defaultProps} />)
+    const canvas = screen.getByTestId('three-canvas')
+    expect(canvas).toBeInTheDocument()
+  })
 
   it('应该支持加载状态', () => {
-    render(<KnowledgeLattice3D {...defaultProps} loading />);
-    const canvas = screen.getByTestId('three-canvas');
-    expect(canvas).toBeInTheDocument();
-  });
+    render(<KnowledgeLattice3D {...defaultProps} loading />)
+    const canvas = screen.getByTestId('three-canvas')
+    expect(canvas).toBeInTheDocument()
+  })
 
   it('应该支持错误状态', () => {
-    render(<KnowledgeLattice3D {...defaultProps} error="加载失败" />);
-    const canvas = screen.getByTestId('three-canvas');
-    expect(canvas).toBeInTheDocument();
-  });
-});
+    render(<KnowledgeLattice3D {...defaultProps} error="加载失败" />)
+    const canvas = screen.getByTestId('three-canvas')
+    expect(canvas).toBeInTheDocument()
+  })
+})

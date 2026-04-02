@@ -4,7 +4,7 @@
  * 演示如何使用权限装饰器和中间件
  */
 
-import { NextRequest, NextResponse } from 'next/server';
+import { NextRequest, NextResponse } from 'next/server'
 import {
   UserWithRoles,
   createUserWithRoles,
@@ -16,30 +16,30 @@ import {
   ActionType,
   PermissionDeniedError,
   Permissions,
-} from '@/lib/permissions';
-import { UserRole } from '@/lib/auth';
+} from '@/lib/permissions'
+import { UserRole } from '@/lib/auth'
 import {
   createSuccessResponse,
   createUnauthorizedError,
   createForbiddenError,
   createErrorResponse,
-} from '@/lib/api/error-handler';
+} from '@/lib/api/error-handler'
 
 /**
  * 模拟的 API 上下文（实际应用中从 session 或 JWT 解析）
  */
 interface ApiContext {
-  user: UserWithRoles;
-  request: NextRequest;
-  params?: Record<string, string>;
+  user: UserWithRoles
+  request: NextRequest
+  params?: Record<string, string>
 }
 
 /**
  * 用户创建数据接口
  */
 interface UserCreateData {
-  username: string;
-  email: string;
+  username: string
+  email: string
 }
 
 /**
@@ -70,7 +70,7 @@ const users: Record<string, UserWithRoles> = {
     },
     ['developer']
   ),
-};
+}
 
 /**
  * GET /api/users - 列出所有用户
@@ -80,30 +80,30 @@ export async function GET(request: NextRequest) {
   try {
     // 模拟：从请求中获取用户信息
     // 实际应用中应该从 session、JWT 或 cookie 中解析
-    const userId = request.headers.get('x-user-id') || 'user-2'; // 默认为开发者
-    const user = users[userId];
+    const userId = request.headers.get('x-user-id') || 'user-2' // 默认为开发者
+    const user = users[userId]
 
     if (!user) {
-      return createUnauthorizedError('User not found');
+      return createUnauthorizedError('User not found')
     }
 
     // 创建 API 上下文
-    const ctx: ApiContext = { user, request };
+    const ctx: ApiContext = { user, request }
 
     // 创建 API 处理器类
-    const userController = new UserController();
+    const userController = new UserController()
 
     // 调用被装饰的方法
-    return await userController.listUsers(ctx);
+    return await userController.listUsers(ctx)
   } catch (error) {
     if (error instanceof PermissionDeniedError) {
       return createForbiddenError(error.message, {
         requiredPermissions: error.requiredPermissions,
         missingPermissions: error.missingPermissions,
-      });
+      })
     }
 
-    return createErrorResponse(error instanceof Error ? error : new Error(String(error)));
+    return createErrorResponse(error instanceof Error ? error : new Error(String(error)))
   }
 }
 
@@ -113,28 +113,28 @@ export async function GET(request: NextRequest) {
  */
 export async function POST(request: NextRequest) {
   try {
-    const userId = request.headers.get('x-user-id') || 'user-2';
-    const user = users[userId];
+    const userId = request.headers.get('x-user-id') || 'user-2'
+    const user = users[userId]
 
     if (!user) {
-      return createUnauthorizedError('User not found');
+      return createUnauthorizedError('User not found')
     }
 
-    const ctx: ApiContext = { user, request };
-    const userController = new UserController();
+    const ctx: ApiContext = { user, request }
+    const userController = new UserController()
 
-    const body = await request.json();
+    const body = await request.json()
 
-    return await userController.createUser(ctx, body);
+    return await userController.createUser(ctx, body)
   } catch (error) {
     if (error instanceof PermissionDeniedError) {
       return createForbiddenError(error.message, {
         requiredPermissions: error.requiredPermissions,
         missingPermissions: error.missingPermissions,
-      });
+      })
     }
 
-    return createErrorResponse(error instanceof Error ? error : new Error(String(error)));
+    return createErrorResponse(error instanceof Error ? error : new Error(String(error)))
   }
 }
 
@@ -148,7 +148,7 @@ class UserController {
    */
   @RequirePermission(ResourceType.USER, ActionType.LIST)
   async listUsers(ctx: ApiContext): Promise<NextResponse> {
-    const { user } = ctx;
+    const { user } = ctx
 
     // 实际业务逻辑
     const userList = Object.values(users).map(u => ({
@@ -156,9 +156,9 @@ class UserController {
       username: u.username,
       email: u.email,
       roles: u.roles.map(r => r.name),
-    }));
+    }))
 
-    return createSuccessResponse(userList);
+    return createSuccessResponse(userList)
   }
 
   /**
@@ -166,9 +166,9 @@ class UserController {
    */
   @RequirePermission(ResourceType.USER, ActionType.CREATE)
   async createUser(ctx: ApiContext, userData: unknown): Promise<NextResponse> {
-    const { user } = ctx;
+    const { user } = ctx
 
-    const data = userData as UserCreateData;
+    const data = userData as UserCreateData
 
     // 实际业务逻辑
     const newUser = {
@@ -176,9 +176,9 @@ class UserController {
       username: data.username,
       email: data.email,
       createdAt: new Date(),
-    };
+    }
 
-    return createSuccessResponse(newUser, 201);
+    return createSuccessResponse(newUser, 201)
   }
 
   /**
@@ -189,11 +189,11 @@ class UserController {
     { resourceType: ResourceType.USER, action: ActionType.DELETE },
   ])
   async updateUser(ctx: ApiContext, userId: string, updates: unknown): Promise<NextResponse> {
-    const { user } = ctx;
+    const { user } = ctx
 
     // Actual business logic
-    const updateData = updates as Record<string, unknown>;
-    return createSuccessResponse({ id: userId, ...updateData });
+    const updateData = updates as Record<string, unknown>
+    return createSuccessResponse({ id: userId, ...updateData })
   }
 
   /**
@@ -204,12 +204,12 @@ class UserController {
     { resourceType: ResourceType.USER, action: ActionType.UPDATE },
   ])
   async deleteUser(ctx: ApiContext, userId: string): Promise<NextResponse> {
-    const { user } = ctx;
+    const { user } = ctx
 
     // 实际业务逻辑
     return createSuccessResponse({
       message: `User ${userId} deleted`,
-    });
+    })
   }
 
   /**
@@ -217,11 +217,11 @@ class UserController {
    */
   @RequireRoleLevel(80)
   async manageUser(ctx: ApiContext): Promise<NextResponse> {
-    const { user } = ctx;
+    const { user } = ctx
 
     return createSuccessResponse({
       message: 'User management operations',
-    });
+    })
   }
 
   /**
@@ -229,15 +229,15 @@ class UserController {
    */
   @RequirePermission(ResourceType.DATA, ActionType.EXPORT)
   async exportUsers(ctx: ApiContext): Promise<NextResponse> {
-    const { user } = ctx;
+    const { user } = ctx
 
     // 实际业务逻辑
     const userData = Object.values(users).map(u => ({
       id: u.id,
       username: u.username,
       email: u.email,
-    }));
+    }))
 
-    return createSuccessResponse(userData);
+    return createSuccessResponse(userData)
   }
 }

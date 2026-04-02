@@ -3,35 +3,39 @@
  * Manages user notification preferences for different channels and event types
  */
 
-import { getDatabase } from '@/lib/db';
+import { getDatabase } from '@/lib/db'
 
 // ============================================================================
 // Types
 // ============================================================================
 
-export type NotificationChannel = 'email' | 'push' | 'in_app' | 'sms';
-export type NotificationEventType = 'agent_events' | 'wallet_events' | 'security_alerts' | 'marketing';
+export type NotificationChannel = 'email' | 'push' | 'in_app' | 'sms'
+export type NotificationEventType =
+  | 'agent_events'
+  | 'wallet_events'
+  | 'security_alerts'
+  | 'marketing'
 
 export interface NotificationPreference {
-  id?: string;
-  user_id: string;
-  email_enabled: boolean;
-  push_enabled: boolean;
-  in_app_enabled: boolean;
-  sms_enabled: boolean;
-  agent_events_enabled: boolean;
-  wallet_events_enabled: boolean;
-  security_alerts_enabled: boolean;
-  marketing_enabled: boolean;
-  created_at?: string;
-  updated_at?: string;
+  id?: string
+  user_id: string
+  email_enabled: boolean
+  push_enabled: boolean
+  in_app_enabled: boolean
+  sms_enabled: boolean
+  agent_events_enabled: boolean
+  wallet_events_enabled: boolean
+  security_alerts_enabled: boolean
+  marketing_enabled: boolean
+  created_at?: string
+  updated_at?: string
 }
 
-export type NotificationPreferenceKey = keyof NotificationPreference;
+export type NotificationPreferenceKey = keyof NotificationPreference
 
 export interface NotificationPreferencesMap {
-  channels: Record<NotificationChannel, boolean>;
-  events: Record<NotificationEventType, boolean>;
+  channels: Record<NotificationChannel, boolean>
+  events: Record<NotificationEventType, boolean>
 }
 
 // ============================================================================
@@ -47,14 +51,14 @@ export const DEFAULT_PREFERENCES: Partial<NotificationPreference> = {
   wallet_events_enabled: true,
   security_alerts_enabled: true,
   marketing_enabled: false,
-};
+}
 
 // ============================================================================
 // Database Initialization
 // ============================================================================
 
 async function initializeTable(): Promise<void> {
-  const db = getDatabase();
+  const db = getDatabase()
 
   const createTableSQL = `
     CREATE TABLE IF NOT EXISTS notification_preferences (
@@ -74,9 +78,9 @@ async function initializeTable(): Promise<void> {
 
     CREATE INDEX IF NOT EXISTS idx_notification_preferences_user_id 
     ON notification_preferences(user_id);
-  `;
+  `
 
-  db.exec(createTableSQL);
+  db.exec(createTableSQL)
 }
 
 // ============================================================================
@@ -87,31 +91,31 @@ async function initializeTable(): Promise<void> {
  * Get user notification preferences
  */
 export async function getUserPreferences(userId: string): Promise<NotificationPreference> {
-  await initializeTable();
+  await initializeTable()
 
-  const db = getDatabase();
+  const db = getDatabase()
 
   const stmt = db.prepare(`
     SELECT * FROM notification_preferences
     WHERE user_id = ?
-  `);
+  `)
 
-  const row = stmt.get(userId) as (NotificationPreference & Record<string, unknown>) | undefined;
+  const row = stmt.get(userId) as (NotificationPreference & Record<string, unknown>) | undefined
 
   if (!row) {
     // Return default preferences if none exist
-    return createDefaultPreferences(userId);
+    return createDefaultPreferences(userId)
   }
 
   // Convert integer booleans to actual booleans
-  return convertIntBooleans(row);
+  return convertIntBooleans(row)
 }
 
 /**
  * Get user preferences as a map format (easier to use in frontend)
  */
 export async function getUserPreferencesMap(userId: string): Promise<NotificationPreferencesMap> {
-  const prefs = await getUserPreferences(userId);
+  const prefs = await getUserPreferences(userId)
 
   return {
     channels: {
@@ -126,7 +130,7 @@ export async function getUserPreferencesMap(userId: string): Promise<Notificatio
       security_alerts: prefs.security_alerts_enabled,
       marketing: prefs.marketing_enabled,
     },
-  };
+  }
 }
 
 /**
@@ -146,7 +150,7 @@ function createDefaultPreferences(userId: string): NotificationPreference {
     marketing_enabled: DEFAULT_PREFERENCES.marketing_enabled ?? false,
     created_at: new Date().toISOString(),
     updated_at: new Date().toISOString(),
-  };
+  }
 }
 
 /**
@@ -156,12 +160,12 @@ export async function updateUserPreferences(
   userId: string,
   updates: Partial<NotificationPreference>
 ): Promise<NotificationPreference> {
-  await initializeTable();
+  await initializeTable()
 
-  const db = getDatabase();
+  const db = getDatabase()
 
   // Check if preferences exist
-  const existing = await getUserPreferences(userId);
+  const existing = await getUserPreferences(userId)
 
   // Merge updates with existing preferences
   const merged: NotificationPreference = {
@@ -169,10 +173,10 @@ export async function updateUserPreferences(
     ...updates,
     user_id: userId, // Ensure user_id can't be changed
     updated_at: new Date().toISOString(),
-  };
+  }
 
   // Convert booleans to integers for SQLite
-  const intRecord = convertBooleansToInt(merged);
+  const intRecord = convertBooleansToInt(merged)
 
   // Insert or update
   const upsertSQL = `
@@ -193,9 +197,9 @@ export async function updateUserPreferences(
       security_alerts_enabled = excluded.security_alerts_enabled,
       marketing_enabled = excluded.marketing_enabled,
       updated_at = excluded.updated_at
-  `;
+  `
 
-  const stmt = db.prepare(upsertSQL);
+  const stmt = db.prepare(upsertSQL)
   stmt.run(
     intRecord.id,
     intRecord.user_id,
@@ -209,9 +213,9 @@ export async function updateUserPreferences(
     intRecord.marketing_enabled,
     intRecord.created_at,
     intRecord.updated_at
-  );
+  )
 
-  return convertIntBooleans(merged);
+  return convertIntBooleans(merged)
 }
 
 /**
@@ -230,31 +234,31 @@ export async function updateUserPreferencesFromMap(
     wallet_events_enabled: preferencesMap.events.wallet_events,
     security_alerts_enabled: preferencesMap.events.security_alerts,
     marketing_enabled: preferencesMap.events.marketing,
-  });
+  })
 }
 
 /**
  * Reset user preferences to defaults
  */
 export async function resetUserPreferences(userId: string): Promise<NotificationPreference> {
-  const defaults = createDefaultPreferences(userId);
-  return updateUserPreferences(userId, defaults);
+  const defaults = createDefaultPreferences(userId)
+  return updateUserPreferences(userId, defaults)
 }
 
 /**
  * Delete user preferences
  */
 export async function deleteUserPreferences(userId: string): Promise<void> {
-  await initializeTable();
+  await initializeTable()
 
-  const db = getDatabase();
+  const db = getDatabase()
 
   const stmt = db.prepare(`
     DELETE FROM notification_preferences
     WHERE user_id = ?
-  `);
+  `)
 
-  stmt.run(userId);
+  stmt.run(userId)
 }
 
 /**
@@ -266,21 +270,23 @@ export async function shouldSendNotification(
   eventType: NotificationEventType
 ): Promise<boolean> {
   try {
-    const prefs = await getUserPreferences(userId);
+    const prefs = await getUserPreferences(userId)
 
     // Check if channel is enabled
-    const channelEnabled = prefs[`${channel}_enabled` as NotificationPreferenceKey] as boolean;
+    const channelEnabled = prefs[`${channel}_enabled` as NotificationPreferenceKey] as boolean
 
     // Check if event type is enabled
-    const eventEnabled = prefs[`${eventType}_enabled` as NotificationPreferenceKey] as boolean;
+    const eventEnabled = prefs[`${eventType}_enabled` as NotificationPreferenceKey] as boolean
 
-    return channelEnabled && eventEnabled;
-  } catch (_error) {
+    return channelEnabled && eventEnabled
+  } catch (error) {
     // If preferences don't exist, use defaults
-    const defaults = DEFAULT_PREFERENCES;
-    const channelEnabled = (defaults[`${channel}_enabled` as keyof typeof defaults] as boolean) ?? true;
-    const eventEnabled = (defaults[`${eventType}_enabled` as keyof typeof defaults] as boolean) ?? true;
-    return channelEnabled && eventEnabled;
+    const defaults = DEFAULT_PREFERENCES
+    const channelEnabled =
+      (defaults[`${channel}_enabled` as keyof typeof defaults] as boolean) ?? true
+    const eventEnabled =
+      (defaults[`${eventType}_enabled` as keyof typeof defaults] as boolean) ?? true
+    return channelEnabled && eventEnabled
   }
 }
 
@@ -291,21 +297,21 @@ export async function getUsersWithNotificationEnabled(
   channel: NotificationChannel,
   eventType: NotificationEventType
 ): Promise<string[]> {
-  await initializeTable();
+  await initializeTable()
 
-  const db = getDatabase();
+  const db = getDatabase()
 
-  const channelColumn = `${channel}_enabled`;
-  const eventColumn = `${eventType}_enabled`;
+  const channelColumn = `${channel}_enabled`
+  const eventColumn = `${eventType}_enabled`
 
   const stmt = db.prepare(`
     SELECT user_id FROM notification_preferences
     WHERE ${channelColumn} = 1
     AND ${eventColumn} = 1
-  `);
+  `)
 
-  const rows = stmt.all() as Array<{ user_id: string }>;
-  return rows.map((row) => row.user_id);
+  const rows = stmt.all() as Array<{ user_id: string }>
+  return rows.map(row => row.user_id)
 }
 
 // ============================================================================
@@ -326,7 +332,7 @@ function convertIntBooleans(record: NotificationPreference): NotificationPrefere
     wallet_events_enabled: Boolean(record.wallet_events_enabled),
     security_alerts_enabled: Boolean(record.security_alerts_enabled),
     marketing_enabled: Boolean(record.marketing_enabled),
-  };
+  }
 }
 
 /**
@@ -344,7 +350,7 @@ function convertBooleansToInt(record: NotificationPreference): Record<string, un
     wallet_events_enabled: record.wallet_events_enabled ? 1 : 0,
     security_alerts_enabled: record.security_alerts_enabled ? 1 : 0,
     marketing_enabled: record.marketing_enabled ? 1 : 0,
-  };
+  }
 }
 
 // ============================================================================
@@ -361,4 +367,4 @@ export default {
   shouldSendNotification,
   getUsersWithNotificationEnabled,
   DEFAULT_PREFERENCES,
-};
+}

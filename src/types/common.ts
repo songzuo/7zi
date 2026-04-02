@@ -8,62 +8,62 @@
 // ============================================================================
 
 export interface GitHubIssue {
-  id?: number; // Optional because it's not always in GitHub API responses
-  number: number;
-  title: string;
-  state: 'open' | 'closed';
-  labels?: Array<{ name: string; color: string }>; // Optional
-  assignee?: { login: string; avatar_url: string } | null;
-  created_at?: string; // Optional
-  updated_at: string;
-  html_url: string;
-  user?: { login: string; avatar_url: string } | null; // User field from GitHub API
+  id?: number // Optional because it's not always in GitHub API responses
+  number: number
+  title: string
+  state: 'open' | 'closed'
+  labels?: Array<{ name: string; color: string }> // Optional
+  assignee?: { login: string; avatar_url: string } | null
+  created_at?: string // Optional
+  updated_at: string
+  html_url: string
+  user?: { login: string; avatar_url: string } | null // User field from GitHub API
 }
 
 export interface GitHubCommit {
-  sha: string;
+  sha: string
   commit: {
-    message: string;
-    author: { name: string; date: string };
-  };
-  html_url: string;
-  author?: { avatar_url?: string; login?: string } | null;
+    message: string
+    author: { name: string; date: string }
+  }
+  html_url: string
+  author?: { avatar_url?: string; login?: string } | null
 }
 
 export interface GitHubStats {
-  stars: number;
-  forks: number;
-  openIssues: number;
+  stars: number
+  forks: number
+  openIssues: number
 }
 
 // ============================================================================
 // 活动类型
 // ============================================================================
 
-export type ActivityType = 'commit' | 'issue' | 'comment' | 'deploy' | 'meeting';
+export type ActivityType = 'commit' | 'issue' | 'comment' | 'deploy' | 'meeting'
 
 export interface ActivityItem {
-  id: string;
-  type: ActivityType;
-  title: string;
-  author: string;
-  avatar?: string;
-  timestamp: string;
-  url: string;
-  emoji?: string;
+  id: string
+  type: ActivityType
+  title: string
+  author: string
+  avatar?: string
+  timestamp: string
+  url: string
+  emoji?: string
 }
 
 // ============================================================================
 // 成员状态类型（从 members.ts 导入并重新导出）
 // ============================================================================
 
-import type { MemberStatus } from './members';
-export type { MemberStatus } from './members';
+import type { MemberStatus } from './members'
+export type { MemberStatus } from './members'
 
 export interface StatusConfig {
-  color: string;
-  bgColor: string;
-  label: string;
+  color: string
+  bgColor: string
+  label: string
 }
 
 export const STATUS_CONFIG: Record<MemberStatus, StatusConfig> = {
@@ -92,13 +92,13 @@ export const STATUS_CONFIG: Record<MemberStatus, StatusConfig> = {
     bgColor: 'bg-gray-100 text-gray-400 dark:bg-gray-900/30 dark:text-gray-500',
     label: '离线',
   },
-};
+}
 
 // ============================================================================
 // 项目状态类型
 // ============================================================================
 
-export type ProjectStatus = 'active' | 'completed' | 'paused';
+export type ProjectStatus = 'active' | 'completed' | 'paused'
 
 export const PROJECT_STATUS_CONFIG: Record<ProjectStatus, { color: string; label: string }> = {
   active: {
@@ -113,13 +113,16 @@ export const PROJECT_STATUS_CONFIG: Record<ProjectStatus, { color: string; label
     color: 'bg-yellow-100 dark:bg-yellow-900/30 text-yellow-600 dark:text-yellow-400',
     label: '🟡 已暂停',
   },
-};
+}
 
 // ============================================================================
 // 活动类型配置
 // ============================================================================
 
-export const ACTIVITY_TYPE_CONFIG: Record<ActivityType, { icon: string; color: string; label: string }> = {
+export const ACTIVITY_TYPE_CONFIG: Record<
+  ActivityType,
+  { icon: string; color: string; label: string }
+> = {
   commit: {
     icon: '💻',
     color: 'bg-cyan-100 dark:bg-cyan-900/30 text-cyan-600 dark:text-cyan-400',
@@ -145,20 +148,20 @@ export const ACTIVITY_TYPE_CONFIG: Record<ActivityType, { icon: string; color: s
     color: 'bg-pink-100 dark:bg-pink-900/30 text-pink-600 dark:text-pink-400',
     label: '会议',
   },
-};
+}
 
 // ============================================================================
 // 通用 Props 类型
 // ============================================================================
 
 export interface BaseComponentProps {
-  className?: string;
+  className?: string
 }
 
 export interface LoadingProps {
-  loading?: boolean;
+  loading?: boolean
 }
 
 export interface ErrorProps {
-  error?: string | null;
+  error?: string | null
 }

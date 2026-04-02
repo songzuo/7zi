@@ -1,10 +1,13 @@
 # TypeScript Strict 模式修复报告
 
 ## 执行日期
+
 2026-03-29
 
 ## 任务概述
+
 修复 TypeScript strict 模式下的类型错误，重点关注：
+
 - src/lib/monitoring/ 相关文件
 - src/lib/websocket/ 相关文件
 - src/components/agent-dashboard/ 相关文件
@@ -13,17 +16,20 @@
 
 ### 1. src/lib/monitoring/ 模块
 
-#### 文件: src/lib/monitoring/__tests__/alerts.test.ts
+#### 文件: src/lib/monitoring/**tests**/alerts.test.ts
+
 - **问题**: `process.env.NODE_ENV` 在 strict 模式下是只读属性
 - **修复**: 移除了对 `process.env.NODE_ENV` 的赋值，因为在测试环境中这不是必需的
 - **行号**: 466-468
 
-#### 文件: src/lib/monitoring/__tests__/budget.test.ts
+#### 文件: src/lib/monitoring/**tests**/budget.test.ts
+
 - **问题**: `BudgetViolation` 类型未导入，导致类型推断错误
 - **修复**: 从 `../budget` 导入 `BudgetViolation` 类型，并显式类型化测试数据
 - **行号**: 4-17, 420-428
 
-#### 文件: src/lib/monitoring/__tests__/integration.test.ts
+#### 文件: src/lib/monitoring/**tests**/integration.test.ts
+
 - **问题**: `checkMetrics` 函数期望 `Record<string, number>` 类型，但测试数据包含 `memoryTrend: 'increasing'` 字符串
 - **修复**: 移除测试数据中的 `memoryTrend` 字段，确保类型匹配
 - **行号**: 28-33
@@ -31,6 +37,7 @@
 ### 2. src/lib/performance-monitoring/root-cause-analysis/ 模块
 
 #### 文件: src/lib/performance-monitoring/root-cause-analysis/analyzer.test.ts
+
 - **问题 1**: `HotPath` 和 `SlowRequestTrace` 类型未导入
   - **修复**: 从 `./analyzer` 导入这两个类型
   - **行号**: 6-10
@@ -54,6 +61,7 @@
 ### 3. src/lib/websocket/ 模块
 
 #### 文件: src/lib/websocket/types.ts
+
 - **问题 1**: 缺少协作相关的类型定义
   - **修复**: 添加 `CursorUpdate`、`SelectionUpdate`、`DocumentOperation`、`DocumentState`、`CollaborationMessage`、`RoomUser` 等类型
   - **行号**: 34-115
@@ -74,7 +82,8 @@
   - **修复**: 支持 `number | Date` 两种类型以兼容不同的使用场景
   - **行号**: 105-112
 
-#### 文件: src/lib/websocket/__tests__/ws-integration-advanced.test.ts
+#### 文件: src/lib/websocket/**tests**/ws-integration-advanced.test.ts
+
 - **问题 1**: `join` 方法的参数格式错误
   - **修复**: 将 `{ roomId, userId, role }` 改为 `{ userId, userName, role }`，因为方法签名期望 `JoinRoomOptions`
   - **行号**: 87, 88, 92, 110, 111
@@ -91,7 +100,8 @@
   - **修复**: 为所有 `messageStore.store` 调用添加这两个字段
   - **行号**: 144-148, 154-158, 173-177, 258-262
 
-#### 文件: src/lib/websocket/__tests__/collaboration.test.ts
+#### 文件: src/lib/websocket/**tests**/collaboration.test.ts
+
 - **问题**: 类型命名冲突
   - **修复**: 将 `../types` 导入的类型重命名为 `WebSocketDocumentOperation` 和 `WebSocketDocumentState`，以避免与 `@/lib/collaboration/manager` 中的类型冲突
   - **行号**: 6-7, 14-21
@@ -101,6 +111,7 @@
   - **行号**: 152, 163, 176, 186, 199, 213, 224, 237 等
 
 #### 文件: src/components/collaboration/ConnectionStatus.tsx
+
 - **问题**: `RoomUser.lastActivity` 可能是 `undefined` 或 `number | Date`
   - **修复**: 添加类型守卫来处理不同的类型
   - **行号**: 62-67, 134-139
@@ -108,20 +119,21 @@
 ### 4. src/lib/agent-scheduler/dashboard/ 模块
 
 #### 文件: src/lib/agent-scheduler/dashboard/Dashboard.integration.spec.tsx
+
 - **问题**: Mock store 的 `error` 字段类型不匹配
   - **修复**: 使用类型断言 `(state as any).error` 来设置字符串错误
   - **行号**: 370
 
 ## 修复统计
 
-| 模块 | 修复文件数 | 修复问题数 |
-|------|-----------|-----------|
-| src/lib/monitoring/ | 3 | 3 |
-| src/lib/performance-monitoring/root-cause-analysis/ | 1 | 10 |
-| src/lib/websocket/ | 4 | 15+ |
-| src/components/collaboration/ | 1 | 2 |
-| src/lib/agent-scheduler/dashboard/ | 1 | 1 |
-| **总计** | **10** | **31+** |
+| 模块                                                | 修复文件数 | 修复问题数 |
+| --------------------------------------------------- | ---------- | ---------- |
+| src/lib/monitoring/                                 | 3          | 3          |
+| src/lib/performance-monitoring/root-cause-analysis/ | 1          | 10         |
+| src/lib/websocket/                                  | 4          | 15+        |
+| src/components/collaboration/                       | 1          | 2          |
+| src/lib/agent-scheduler/dashboard/                  | 1          | 1          |
+| **总计**                                            | **10**     | **31+**    |
 
 ## 修复方法总结
 

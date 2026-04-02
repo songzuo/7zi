@@ -16,16 +16,17 @@
 
 #### 2.1 备份目录重复
 
-| 文件位置 | 状态 |
-|---------|------|
+| 文件位置                 | 状态                   |
+| ------------------------ | ---------------------- |
 | `src/lib/agents.backup/` | 完全未被引用的备份目录 |
-| `src/lib/agents/` | 实际使用的目录 |
+| `src/lib/agents/`        | 实际使用的目录         |
 
 两个目录内容相同，备份目录可安全删除。
 
 ### 3. TypeScript 类型错误
 
 项目已存在 TypeScript 错误，主要集中在：
+
 - `src/app/[locale]/dashboard/page.tsx` - 类型不兼容
 - `src/app/[locale]/tasks/page.tsx` - 变量未定义
 - `src/app/api/a2a/` - NextRequest/NextResponse 未导入
@@ -55,14 +56,15 @@ rm -rf src/lib/agents.backup/
 
 以下文件存在同名但内容不同的情况，需要手动判断是否需要整合：
 
-| 文件 | 位置 1 | 位置 2 |
-|-----|--------|--------|
+| 文件              | 位置 1          | 位置 2                    |
+| ----------------- | --------------- | ------------------------- |
 | ErrorBoundary.tsx | src/components/ | src/components/analytics/ |
-| Skeleton.tsx | src/components/ | src/components/analytics/ |
+| Skeleton.tsx      | src/components/ | src/components/analytics/ |
 
 ## 建议
 
 1. **重新运行代码分析工具**
+
    ```bash
    npm run analyze:unused
    npm run analyze:duplicate
@@ -78,13 +80,13 @@ rm -rf src/lib/agents.backup/
 
 ## 统计
 
-| 指标 | 数值 |
-|-----|------|
-| 分析文件数 | 520 |
-| 报告的未使用导出 | 3301 |
-| 实际验证结果 | 报告不可靠 |
-| 删除的备份目录 | 1 (agents.backup) |
-| TypeScript 错误数 | ~100+ |
+| 指标              | 数值              |
+| ----------------- | ----------------- |
+| 分析文件数        | 520               |
+| 报告的未使用导出  | 3301              |
+| 实际验证结果      | 报告不可靠        |
+| 删除的备份目录    | 1 (agents.backup) |
+| TypeScript 错误数 | ~100+             |
 
 ---
 

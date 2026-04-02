@@ -5,6 +5,7 @@
 ### ✨ New Features
 
 #### RBAC System
+
 - **Complete Role-Based Access Control system**
   - 4 predefined roles: admin, manager, member, viewer
   - 40 granular permissions across 10 categories
@@ -12,6 +13,7 @@
   - Centralized role-permission mapping
 
 #### Database Schema
+
 - New `roles` table for role definitions
 - New `user_roles` table for many-to-many user-role relationships
 - New `role_permissions` table for many-to-many role-permission relationships
@@ -19,6 +21,7 @@
 - Optimized indexes for fast permission lookups
 
 #### API Middleware (13 functions)
+
 - `withPermissionContext()` - Provides permission context
 - `requirePermissionContext()` - Requires authentication
 - `withPermissions(...)` - ALL permissions required
@@ -34,6 +37,7 @@
 - `withOptionalPermissionContext()` - Optional auth
 
 #### Frontend Integration
+
 - `PermissionProvider` React context
 - `usePermissions()` hook
 - `PermissionGate` component
@@ -43,6 +47,7 @@
 - `withRole` HOC
 
 #### Database Operations
+
 - `getAllRoles()` - List all roles
 - `getAllRolesWithCount()` - List roles with user counts
 - `getPermissionsByRole()` - Get permissions for role
@@ -54,6 +59,7 @@
 - `getUserPermissionContext()` - Get full permission context
 
 #### Core RBAC Functions
+
 - `getRoleDefinition()` - Get role definition
 - `getPermissionsForRoles()` - Get permissions for multiple roles
 - `hasRolePermission()` - Check if role has permission
@@ -69,11 +75,13 @@
 - `createPermissionContext()` - Create permission context
 
 #### Database Migrations
+
 - `migrate()` - Apply RBAC migration
 - `rollback()` - Rollback RBAC migration
 - `getMigrationStatus()` - Check migration status
 
 #### Seeding
+
 - `seedDefaultRolesAndPermissions()` - Initialize default roles
 - `needsSeeding()` - Check if seeding is needed
 - `resetToDefaults()` - Reset to default roles
@@ -81,6 +89,7 @@
 ### 📦 New Files
 
 #### Core RBAC System
+
 - `src/lib/permissions/index.ts` - Main export (1.3 KB)
 - `src/lib/permissions/types.ts` - Type definitions (3.9 KB)
 - `src/lib/permissions/rbac.ts` - Core RBAC functions (9.9 KB)
@@ -90,24 +99,30 @@
 - `src/lib/permissions/migrations.ts` - Database migrations (4.2 KB)
 
 #### Tests
+
 - `src/lib/permissions/__tests__/rbac.test.ts` - Core tests (11.4 KB)
 - `src/lib/permissions/__tests__/integration.test.ts` - Integration tests (11.1 KB)
 
 #### Frontend
+
 - `src/contexts/PermissionContext.tsx` - React context (6.5 KB)
 
 #### Enhanced Auth (Backward Compatible)
+
 - `src/lib/auth/types-rbac.ts` - Enhanced types (4.0 KB)
 - `src/lib/auth/middleware-rbac.ts` - Enhanced middleware (9.5 KB)
 
 #### Examples
+
 - `src/lib/permissions/examples.ts` - Usage examples (14.6 KB)
 - `src/app/api/users/rbac-example-route.ts` - API route example (7.7 KB)
 
 #### Scripts
+
 - `scripts/migrate-rbac.js` - Migration script (0.9 KB)
 
 #### Documentation
+
 - `docs/RBAC_IMPLEMENTATION.md` - Full guide (12.8 KB)
 - `docs/RBAC_QUICK_REFERENCE.md` - Quick reference (9.7 KB)
 - `src/lib/permissions/README.md` - Module README (10.3 KB)
@@ -116,9 +131,11 @@
 ### 🔄 Changed Files
 
 #### Database Schema
+
 - `users` table - Added `roles` column (JSON array)
 
 #### Type Definitions
+
 - Enhanced user types to support multiple roles
 - Added RBAC-aware user context
 - Maintained backward compatibility with single role
@@ -126,6 +143,7 @@
 ### ✅ Improvements
 
 #### Security
+
 - All permission checks happen server-side
 - JWT tokens include permissions for quick validation
 - Database queries are parameterized (SQL injection safe)
@@ -133,6 +151,7 @@
 - Audit trail for role assignments
 
 #### Performance
+
 - Indexes on foreign keys for fast lookups
 - Computed permissions in role table (avoid JOINs)
 - Cached permission context in JWT token
@@ -140,12 +159,14 @@
 - Prepared statements for repeated queries
 
 #### Type Safety
+
 - Full TypeScript support with enums
 - Strict type checking for all RBAC functions
 - Discriminated unions for responses
 - Comprehensive type definitions
 
 #### Developer Experience
+
 - Easy-to-use middleware for API routes
 - React hooks and gates for frontend
 - Comprehensive documentation
@@ -186,17 +207,20 @@
 ### 📋 Migration Guide
 
 #### Step 1: Apply Database Migration
+
 ```bash
 node scripts/migrate-rbac.js
 ```
 
 #### Step 2: Seed Default Roles
+
 ```typescript
-import { seedDefaultRolesAndPermissions } from '@/lib/permissions';
-await seedDefaultRolesAndPermissions();
+import { seedDefaultRolesAndPermissions } from '@/lib/permissions'
+await seedDefaultRolesAndPermissions()
 ```
 
 #### Step 3: Update Frontend
+
 ```typescript
 import { PermissionProvider } from '@/contexts/PermissionContext';
 
@@ -206,15 +230,16 @@ export default function App({ children }) {
 ```
 
 #### Step 4: Apply to API Routes
+
 ```typescript
-import { withPermissions } from '@/lib/permissions';
-import { Permission } from '@/lib/permissions/types';
+import { withPermissions } from '@/lib/permissions'
+import { Permission } from '@/lib/permissions/types'
 
 export async function DELETE(request: NextRequest) {
   return withPermissions(Permission.USER_DELETE)(request, async (req, context) => {
     // User has permission
-    return NextResponse.json({ success: true });
-  });
+    return NextResponse.json({ success: true })
+  })
 }
 ```
 

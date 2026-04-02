@@ -113,7 +113,7 @@ github.com/songzuo/7zi
 这不是科幻，是7zi
 
 ✅ AI主管系统 - 智能任务分配
-✅ 11种专业角色 - 完整团队架构  
+✅ 11种专业角色 - 完整团队架构
 ✅ 24/7不间断工作 - 永远在线
 ✅ 实时Dashboard - 透明化工作
 
@@ -184,17 +184,21 @@ github.com/songzuo/7zi
 ## Hashtag库
 
 ### 通用
+
 #AI #OpenSource #Startup #Productivity #FutureOfWork
 
 ### 技术
+
 #NextJS #TypeScript #NodeJS #OpenClaw #AI
 
 ### 商业
+
 #Entrepreneur #Business #Innovation #Tech
 
 ### 中文
+
 #人工智能 #开源 #创业 #效率工具 #团队协作
 
 ---
 
-*更新时间: 2026-03-06*
+_更新时间: 2026-03-06_

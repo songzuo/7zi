@@ -1,21 +1,21 @@
-'use client';
+'use client'
 
 /**
  * Image Uploader Component
  * Supports drag & drop, preview, and AI analysis
  */
 
-import React, { useState, useCallback } from 'react';
-import { useTranslations } from 'next-intl';
-import type { ImageData } from '@/lib/multimodal/types';
+import React, { useState, useCallback } from 'react'
+import { useTranslations } from 'next-intl'
+import type { ImageData } from '@/lib/multimodal/types'
 
 interface ImageUploaderProps {
-  onImageSelect: (file: File) => void;
-  onAnalysisResult?: (result: ImageData) => void;
-  maxSize?: number; // in bytes
-  acceptedTypes?: string[];
-  disabled?: boolean;
-  placeholder?: string;
+  onImageSelect: (file: File) => void
+  onAnalysisResult?: (result: ImageData) => void
+  maxSize?: number // in bytes
+  acceptedTypes?: string[]
+  disabled?: boolean
+  placeholder?: string
 }
 
 export function ImageUploader({
@@ -26,129 +26,139 @@ export function ImageUploader({
   disabled = false,
   placeholder,
 }: ImageUploaderProps) {
-  const t = useTranslations('multimodal');
-  const [isDragging, setIsDragging] = useState(false);
-  const [preview, setPreview] = useState<string | null>(null);
-  const [error, setError] = useState<string | null>(null);
-  const [isAnalyzing, setIsAnalyzing] = useState(false);
+  const t = useTranslations('multimodal')
+  const [isDragging, setIsDragging] = useState(false)
+  const [preview, setPreview] = useState<string | null>(null)
+  const [error, setError] = useState<string | null>(null)
+  const [isAnalyzing, setIsAnalyzing] = useState(false)
 
-  const processFile = useCallback(async (file: File) => {
-    setError(null);
+  const processFile = useCallback(
+    async (file: File) => {
+      setError(null)
 
-    // Validate file type
-    if (!acceptedTypes.includes(file.type)) {
-      setError(t('invalidFileType', { types: acceptedTypes.join(', ') }));
-      return;
-    }
+      // Validate file type
+      if (!acceptedTypes.includes(file.type)) {
+        setError(t('invalidFileType', { types: acceptedTypes.join(', ') }))
+        return
+      }
 
-    // Validate file size
-    if (file.size > maxSize) {
-      setError(t('fileTooLarge', { maxSize: Math.round(maxSize / 1024 / 1024) }));
-      return;
-    }
+      // Validate file size
+      if (file.size > maxSize) {
+        setError(t('fileTooLarge', { maxSize: Math.round(maxSize / 1024 / 1024) }))
+        return
+      }
 
-    // Create preview
-    const reader = new FileReader();
-    reader.onload = (e) => {
-      setPreview(e.target?.result as string);
-    };
-    reader.readAsDataURL(file);
+      // Create preview
+      const reader = new FileReader()
+      reader.onload = e => {
+        setPreview(e.target?.result as string)
+      }
+      reader.readAsDataURL(file)
 
-    // Notify parent
-    onImageSelect(file);
+      // Notify parent
+      onImageSelect(file)
 
-    // Auto-analyze if callback provided
-    if (onAnalysisResult) {
-      await analyzeImage(file);
-    }
-  }, [acceptedTypes, maxSize, onImageSelect, onAnalysisResult, t]);
+      // Auto-analyze if callback provided
+      if (onAnalysisResult) {
+        await analyzeImage(file)
+      }
+    },
+    [acceptedTypes, maxSize, onImageSelect, onAnalysisResult, t]
+  )
 
   const analyzeImage = async (file: File) => {
-    setIsAnalyzing(true);
+    setIsAnalyzing(true)
     try {
-      const formData = new FormData();
-      formData.append('image', file);
-      formData.append('compress', 'true');
-      formData.append('quality', '0.8');
+      const formData = new FormData()
+      formData.append('image', file)
+      formData.append('compress', 'true')
+      formData.append('quality', '0.8')
 
       const response = await fetch('/api/multimodal/image', {
         method: 'POST',
         body: formData,
-      });
+      })
 
-      const result = await response.json();
+      const result = await response.json()
 
       if (result.success) {
-        onAnalysisResult?.(result.data);
+        onAnalysisResult?.(result.data)
       } else {
-        setError(result.error || t('analysisFailed'));
+        setError(result.error || t('analysisFailed'))
       }
-    } catch (_err) {
-      setError(err instanceof Error ? err.message : t('analysisFailed'));
+    } catch (err) {
+      setError(err instanceof Error ? err.message : t('analysisFailed'))
     } finally {
-      setIsAnalyzing(false);
+      setIsAnalyzing(false)
     }
-  };
+  }
 
   const handleDragOver = useCallback((e: React.DragEvent) => {
-    e.preventDefault();
-    setIsDragging(true);
-  }, []);
+    e.preventDefault()
+    setIsDragging(true)
+  }, [])
 
   const handleDragLeave = useCallback((e: React.DragEvent) => {
-    e.preventDefault();
-    setIsDragging(false);
-  }, []);
+    e.preventDefault()
+    setIsDragging(false)
+  }, [])
 
-  const handleDrop = useCallback((e: React.DragEvent) => {
-    e.preventDefault();
-    setIsDragging(false);
+  const handleDrop = useCallback(
+    (e: React.DragEvent) => {
+      e.preventDefault()
+      setIsDragging(false)
 
-    const file = e.dataTransfer.files[0];
-    if (file) {
-      processFile(file);
-    }
-  }, [processFile]);
+      const file = e.dataTransfer.files[0]
+      if (file) {
+        processFile(file)
+      }
+    },
+    [processFile]
+  )
 
-  const handleFileInput = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (file) {
-      processFile(file);
-    }
-  }, [processFile]);
+  const handleFileInput = useCallback(
+    (e: React.ChangeEvent<HTMLInputElement>) => {
+      const file = e.target.files?.[0]
+      if (file) {
+        processFile(file)
+      }
+    },
+    [processFile]
+  )
 
   const clearPreview = () => {
-    setPreview(null);
-    setError(null);
-  };
+    setPreview(null)
+    setError(null)
+  }
 
   if (preview) {
     return (
-      <div className="relative group">
-        <img
-          src={preview}
-          alt="Preview"
-          className="w-full h-auto rounded-lg shadow-lg"
-        />
+      <div className="group relative">
+        <img src={preview} alt="Preview" className="h-auto w-full rounded-lg shadow-lg" />
         <button
           onClick={clearPreview}
-          className="absolute top-2 right-2 p-2 bg-red-500 text-white rounded-full opacity-0 group-hover:opacity-100 transition-opacity"
+          className="absolute top-2 right-2 rounded-full bg-red-500 p-2 text-white opacity-0 transition-opacity group-hover:opacity-100"
           aria-label={t('clearPreview')}
         >
-          <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+          <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              strokeWidth={2}
+              d="M6 18L18 6M6 6l12 12"
+            />
           </svg>
         </button>
         {isAnalyzing && (
-          <div className="absolute inset-0 bg-black/50 flex items-center justify-center">
+          <div className="absolute inset-0 flex items-center justify-center bg-black/50">
             <div className="text-white">
-              <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-white mx-auto mb-2" />
+              <div className="mx-auto mb-2 h-8 w-8 animate-spin rounded-full border-b-2 border-white" />
               <p className="text-sm">{t('analyzing')}</p>
             </div>
           </div>
         )}
       </div>
-    );
+    )
   }
 
   return (
@@ -157,11 +167,7 @@ export function ImageUploader({
         onDragOver={handleDragOver}
         onDragLeave={handleDragLeave}
         onDrop={handleDrop}
-        className={`
-          border-2 border-dashed rounded-lg p-8 text-center transition-colors
-          ${isDragging ? 'border-blue-500 bg-blue-50 dark:bg-blue-900/10' : 'border-zinc-300 dark:border-zinc-600'}
-          ${disabled ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer hover:border-blue-400'}
-        `}
+        className={`rounded-lg border-2 border-dashed p-8 text-center transition-colors ${isDragging ? 'border-blue-500 bg-blue-50 dark:bg-blue-900/10' : 'border-zinc-300 dark:border-zinc-600'} ${disabled ? 'cursor-not-allowed opacity-50' : 'cursor-pointer hover:border-blue-400'} `}
       >
         <input
           type="file"
@@ -194,11 +200,7 @@ export function ImageUploader({
         </label>
       </div>
 
-      {error && (
-        <div className="mt-2 text-sm text-red-600 dark:text-red-400">
-          {error}
-        </div>
-      )}
+      {error && <div className="mt-2 text-sm text-red-600 dark:text-red-400">{error}</div>}
     </div>
-  );
+  )
 }

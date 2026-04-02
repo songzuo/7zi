@@ -30,13 +30,14 @@
 
 **文件位置**: `src/lib/performance-monitoring/anomaly-detection/algorithms/`
 
-| 算法 | 文件 | 描述 | 状态 |
-|------|------|------|------|
-| Z-Score | `z-score.ts` | 基于统计的异常检测，快速高效 | ✅ 完成 |
-| 孤立森林 | `isolation-forest.ts` | 基于机器学习的异常检测 | ✅ 完成 |
-| 阈值检测 | `detector.ts` | 基于固定阈值的检测 | ✅ 完成 |
+| 算法     | 文件                  | 描述                         | 状态    |
+| -------- | --------------------- | ---------------------------- | ------- |
+| Z-Score  | `z-score.ts`          | 基于统计的异常检测，快速高效 | ✅ 完成 |
+| 孤立森林 | `isolation-forest.ts` | 基于机器学习的异常检测       | ✅ 完成 |
+| 阈值检测 | `detector.ts`         | 基于固定阈值的检测           | ✅ 完成 |
 
 **核心功能**:
+
 - Z-Score 检测：支持可配置阈值（默认 3）
 - 孤立森林：支持自定义树数量和污染率
 - 阈值检测：支持最小/最大阈值
@@ -46,6 +47,7 @@
 **文件**: `src/lib/performance-monitoring/anomaly-detection/baseline.ts`
 
 **功能**:
+
 - ✅ 自动学习历史数据基线
 - ✅ 计算均值、标准差、百分位数（P50, P95, P99）
 - ✅ 定期更新基线（可配置更新间隔）
@@ -53,18 +55,19 @@
 - ✅ 清理过期历史数据
 
 **数据结构**:
+
 ```typescript
 interface MetricBaseline {
-  metric: string;
-  mean: number;
-  stdDev: number;
-  min: number;
-  max: number;
-  p50: number;
-  p95: number;
-  p99: number;
-  sampleSize: number;
-  lastUpdated: number;
+  metric: string
+  mean: number
+  stdDev: number
+  min: number
+  max: number
+  p50: number
+  p95: number
+  p99: number
+  sampleSize: number
+  lastUpdated: number
 }
 ```
 
@@ -86,6 +89,7 @@ interface MetricBaseline {
 **文件**: `src/lib/performance-monitoring/anomaly-detection/detector.ts`
 
 **主要方法**:
+
 - `trackMetric()` - 追踪指标值
 - `detectAnomaly()` - 检测异常
 - `trackAndDetect()` - 一步追踪并检测
@@ -100,32 +104,32 @@ interface MetricBaseline {
 
 #### 2.1 分析能力
 
-| 分析类型 | 文件方法 | 检测条件 | 严重程度判定 |
-|----------|----------|----------|--------------|
-| 数据库查询 | `analyzeDatabaseQueries()` | 慢查询 > 1s | 基于平均时长和查询数 |
-| API 调用 | `analyzeAPICalls()` | 慢 API > 2s | 基于平均时长和错误率 |
-| 渲染性能 | `analyzeRendering()` | 长任务 > 50ms | 基于任务数和阻塞时间 |
-| 资源加载 | `analyzeResources()` | 资源大小 > 1MB | 基于大小和慢资源数 |
-| 网络状况 | `analyzeNetwork()` | RTT > 300ms | 基于延迟和带宽 |
+| 分析类型   | 文件方法                   | 检测条件       | 严重程度判定         |
+| ---------- | -------------------------- | -------------- | -------------------- |
+| 数据库查询 | `analyzeDatabaseQueries()` | 慢查询 > 1s    | 基于平均时长和查询数 |
+| API 调用   | `analyzeAPICalls()`        | 慢 API > 2s    | 基于平均时长和错误率 |
+| 渲染性能   | `analyzeRendering()`       | 长任务 > 50ms  | 基于任务数和阻塞时间 |
+| 资源加载   | `analyzeResources()`       | 资源大小 > 1MB | 基于大小和慢资源数   |
+| 网络状况   | `analyzeNetwork()`         | RTT > 300ms    | 基于延迟和带宽       |
 
 #### 2.2 输出格式
 
 ```typescript
 interface RootCause {
-  metric: string;
-  timestamp: number;
-  candidates: RootCauseCandidate[];
-  primaryCause: RootCauseCandidate | null;
-  analyzedAt: number;
+  metric: string
+  timestamp: number
+  candidates: RootCauseCandidate[]
+  primaryCause: RootCauseCandidate | null
+  analyzedAt: number
 }
 
 interface RootCauseCandidate {
-  type: 'database' | 'api' | 'rendering' | 'resource' | 'network' | 'code';
-  severity: 'low' | 'medium' | 'high' | 'critical';
-  confidence: number; // 0-1
-  description: string;
-  details: any;
-  suggestedActions: string[];
+  type: 'database' | 'api' | 'rendering' | 'resource' | 'network' | 'code'
+  severity: 'low' | 'medium' | 'high' | 'critical'
+  confidence: number // 0-1
+  description: string
+  details: any
+  suggestedActions: string[]
 }
 ```
 
@@ -134,16 +138,19 @@ interface RootCauseCandidate {
 根据检测结果自动生成优化建议，例如：
 
 **数据库问题**:
+
 - 添加适当的索引
 - 审查查询执行计划
 - 考虑缓存频繁访问的数据
 
 **API 问题**:
+
 - 调查 API 端点错误
 - 审查错误处理和重试逻辑
 - 检查 N+1 查询模式
 
 **渲染问题**:
+
 - 识别并拆分长任务
 - 使用代码分割和懒加载
 - 考虑使用 Web Workers
@@ -156,35 +163,36 @@ interface RootCauseCandidate {
 
 #### 3.1 默认预算配置
 
-| 指标 | 首页预算 | Dashboard 预算 | 容差 |
-|------|----------|----------------|------|
-| LCP | 2500ms | 3000ms | 10-15% |
-| FID | 100ms | 150ms | 15% |
-| CLS | 0.1 | 0.1 | 20% |
-| TTFB | 600ms | 600ms | 10% |
-| FCP | 1800ms | 1800ms | 10% |
+| 指标 | 首页预算 | Dashboard 预算 | 容差   |
+| ---- | -------- | -------------- | ------ |
+| LCP  | 2500ms   | 3000ms         | 10-15% |
+| FID  | 100ms    | 150ms          | 15%    |
+| CLS  | 0.1      | 0.1            | 20%    |
+| TTFB | 600ms    | 600ms          | 10%    |
+| FCP  | 1800ms   | 1800ms         | 10%    |
 
 #### 3.2 资源预算
 
-| 资源类型 | 首页预算 | Dashboard 预算 |
-|----------|----------|----------------|
-| JavaScript | 500KB | 800KB |
-| CSS | 100KB | 150KB |
-| Images | 1MB | 1MB |
-| Total | 2MB | 2.5MB |
+| 资源类型   | 首页预算 | Dashboard 预算 |
+| ---------- | -------- | -------------- |
+| JavaScript | 500KB    | 800KB          |
+| CSS        | 100KB    | 150KB          |
+| Images     | 1MB      | 1MB            |
+| Total      | 2MB      | 2.5MB          |
 
 #### 3.3 预算检查结果
 
 ```typescript
 interface BudgetCheckResult {
-  passed: boolean;
-  violations: BudgetViolation[];
-  score: number; // 0-100
-  checkedAt: number;
+  passed: boolean
+  violations: BudgetViolation[]
+  score: number // 0-100
+  checkedAt: number
 }
 ```
 
 **违规严重程度**:
+
 - **minor**: 超过阈值 0-20%
 - **major**: 超过阈值 20-50%
 - **critical**: 超过阈值 > 50%
@@ -197,31 +205,33 @@ interface BudgetCheckResult {
 
 #### 4.1 告警级别
 
-| 级别 | 描述 | 使用场景 |
-|------|------|----------|
-| info | 信息 | 一般性能变化 |
-| warning | 警告 | 性能接近阈值 |
-| error | 错误 | 性能超过阈值 |
+| 级别     | 描述 | 使用场景     |
+| -------- | ---- | ------------ |
+| info     | 信息 | 一般性能变化 |
+| warning  | 警告 | 性能接近阈值 |
+| error    | 错误 | 性能超过阈值 |
 | critical | 严重 | 性能严重超标 |
 
 #### 4.2 告警通道
 
-| 通道 | 状态 | 描述 |
-|------|------|------|
-| Dashboard | ✅ | 控制台输出（可扩展为 Toast） |
-| Email | ⚠️ | 需要集成邮件服务 |
-| Slack | ⚠️ | 需要配置 Webhook |
-| Telegram | ⚠️ | 需要配置 Bot Token |
-| Webhook | ⚠️ | 自定义 HTTP 请求 |
+| 通道      | 状态 | 描述                         |
+| --------- | ---- | ---------------------------- |
+| Dashboard | ✅   | 控制台输出（可扩展为 Toast） |
+| Email     | ⚠️   | 需要集成邮件服务             |
+| Slack     | ⚠️   | 需要配置 Webhook             |
+| Telegram  | ⚠️   | 需要配置 Bot Token           |
+| Webhook   | ⚠️   | 自定义 HTTP 请求             |
 
 #### 4.3 告警抑制与聚合
 
 **抑制机制**:
+
 - 冷却时间：同一指标在冷却期内不重复告警
 - 最大活跃告警数：限制同时活跃的告警数量
 - 时间窗口：在指定时间窗口内的重复告警被抑制
 
 **聚合机制**:
+
 - 相同类型告警合并
 - 显示出现次数
 - 减少告警噪音
@@ -230,12 +240,12 @@ interface BudgetCheckResult {
 
 ```typescript
 interface AlertStats {
-  totalAlerts: number;
-  alertsByLevel: Record<AlertLevel, number>;
-  alertsByMetric: Record<string, number>;
-  acknowledgedCount: number;
-  resolvedCount: number;
-  avgResponseTime: number;
+  totalAlerts: number
+  alertsByLevel: Record<AlertLevel, number>
+  alertsByMetric: Record<string, number>
+  acknowledgedCount: number
+  resolvedCount: number
+  avgResponseTime: number
 }
 ```
 
@@ -268,6 +278,7 @@ src/lib/performance-monitoring/
 ```
 
 **总计**:
+
 - 文件数: 11 个
 - 代码行数: ~2000+ 行
 - 测试用例: 18 个
@@ -278,32 +289,32 @@ src/lib/performance-monitoring/
 
 ### 测试用例列表
 
-| 模块 | 测试用例 | 状态 |
-|------|----------|------|
-| BaselineManager | 添加数据点 | ✅ |
-| BaselineManager | 计算基线（足够样本） | ✅ |
-| BaselineManager | 基线计算（样本不足） | ✅ |
-| BaselineManager | 百分位数计算 | ✅ |
-| Z-Score | Z-Score 计算 | ✅ |
-| Z-Score | 高 Z-Score 异常检测 | ✅ |
-| Z-Score | 正常值不触发异常 | ✅ |
-| AnomalyDetector | 追踪和检测异常 | ✅ |
-| AnomalyDetector | 阈值违规检测 | ✅ |
-| AnomalyDetector | 未知指标返回空基线 | ✅ |
-| RootCauseAnalyzer | 数据库查询分析 | ✅ |
-| RootCauseAnalyzer | API 调用分析 | ✅ |
-| RootCauseAnalyzer | 渲染问题分析 | ✅ |
-| RootCauseAnalyzer | 正常上下文无候选 | ✅ |
-| PerformanceAlerter | 创建和存储告警 | ✅ |
-| PerformanceAlerter | 确认告警 | ✅ |
-| PerformanceAlerter | 解决告警 | ✅ |
-| PerformanceAlerter | 告警统计 | ✅ |
-| BudgetChecker | 时间预算检查 | ✅ |
-| BudgetChecker | 预算内值通过 | ✅ |
-| BudgetChecker | 资源预算检查 | ✅ |
-| BudgetChecker | 页面预算获取 | ✅ |
-| BudgetChecker | 未知页面默认预算 | ✅ |
-| BudgetChecker | 分数计算 | ✅ |
+| 模块               | 测试用例             | 状态 |
+| ------------------ | -------------------- | ---- |
+| BaselineManager    | 添加数据点           | ✅   |
+| BaselineManager    | 计算基线（足够样本） | ✅   |
+| BaselineManager    | 基线计算（样本不足） | ✅   |
+| BaselineManager    | 百分位数计算         | ✅   |
+| Z-Score            | Z-Score 计算         | ✅   |
+| Z-Score            | 高 Z-Score 异常检测  | ✅   |
+| Z-Score            | 正常值不触发异常     | ✅   |
+| AnomalyDetector    | 追踪和检测异常       | ✅   |
+| AnomalyDetector    | 阈值违规检测         | ✅   |
+| AnomalyDetector    | 未知指标返回空基线   | ✅   |
+| RootCauseAnalyzer  | 数据库查询分析       | ✅   |
+| RootCauseAnalyzer  | API 调用分析         | ✅   |
+| RootCauseAnalyzer  | 渲染问题分析         | ✅   |
+| RootCauseAnalyzer  | 正常上下文无候选     | ✅   |
+| PerformanceAlerter | 创建和存储告警       | ✅   |
+| PerformanceAlerter | 确认告警             | ✅   |
+| PerformanceAlerter | 解决告警             | ✅   |
+| PerformanceAlerter | 告警统计             | ✅   |
+| BudgetChecker      | 时间预算检查         | ✅   |
+| BudgetChecker      | 预算内值通过         | ✅   |
+| BudgetChecker      | 资源预算检查         | ✅   |
+| BudgetChecker      | 页面预算获取         | ✅   |
+| BudgetChecker      | 未知页面默认预算     | ✅   |
+| BudgetChecker      | 分数计算             | ✅   |
 
 **总计**: 24 个测试用例
 
@@ -320,12 +331,12 @@ npm test src/lib/performance-monitoring/__tests__/anomaly-detection.test.ts
 
 根据 v1.4.0 规划，预期收益如下：
 
-| 指标 | 优化前 | 优化后 | 提升 |
-|------|--------|--------|------|
-| 性能问题发现时间 | 2-4 小时 | 15-30 分钟 | 60-90% ↓ |
-| 根因分析时间 | 1-2 小时 | 15-30 分钟 | 70-80% ↓ |
-| 告警准确率 | ~60% | >85% | 40% ↑ |
-| 性能回归发现 | 发布后 1-3 天 | 发布前发现 | 80% 提前 |
+| 指标             | 优化前        | 优化后     | 提升     |
+| ---------------- | ------------- | ---------- | -------- |
+| 性能问题发现时间 | 2-4 小时      | 15-30 分钟 | 60-90% ↓ |
+| 根因分析时间     | 1-2 小时      | 15-30 分钟 | 70-80% ↓ |
+| 告警准确率       | ~60%          | >85%       | 40% ↑    |
+| 性能回归发现     | 发布后 1-3 天 | 发布前发现 | 80% 提前 |
 
 ---
 
@@ -334,14 +345,14 @@ npm test src/lib/performance-monitoring/__tests__/anomaly-detection.test.ts
 ### 基本使用
 
 ```typescript
-import { anomalyDetector, budgetChecker, performanceAlerter } from '@/lib/performance-monitoring';
+import { anomalyDetector, budgetChecker, performanceAlerter } from '@/lib/performance-monitoring'
 
 // 1. 追踪指标并检测异常
-const detection = anomalyDetector.trackAndDetect('responseTime', 3500);
+const detection = anomalyDetector.trackAndDetect('responseTime', 3500)
 
 if (detection?.isAnomaly) {
-  console.log(`Anomaly detected: ${detection.reason}`);
-  console.log(`Severity: ${detection.severity}`);
+  console.log(`Anomaly detected: ${detection.reason}`)
+  console.log(`Severity: ${detection.severity}`)
 }
 
 // 2. 检查性能预算
@@ -349,13 +360,13 @@ const budgetResult = budgetChecker.checkBudget('/dashboard', {
   LCP: 3200,
   FID: 120,
   CLS: 0.15,
-});
+})
 
 if (!budgetResult.passed) {
-  console.log(`Budget violations: ${budgetResult.violations.length}`);
+  console.log(`Budget violations: ${budgetResult.violations.length}`)
   budgetResult.violations.forEach(v => {
-    console.log(`${v.metric}: ${v.actual} exceeds budget ${v.budget}`);
-  });
+    console.log(`${v.metric}: ${v.actual} exceeds budget ${v.budget}`)
+  })
 }
 
 // 3. 发送告警
@@ -367,34 +378,32 @@ await performanceAlerter.createAlert({
   value: 3500,
   threshold: 2000,
   source: 'threshold',
-});
+})
 ```
 
 ### 根因分析
 
 ```typescript
-import { rootCauseAnalyzer } from '@/lib/performance-monitoring';
+import { rootCauseAnalyzer } from '@/lib/performance-monitoring'
 
 const context = {
   timestamp: Date.now(),
   slowQueries: [
     { query: 'SELECT * FROM orders WHERE ...', duration: 2500, rowCount: 50000, type: 'SELECT' },
   ],
-  slowApis: [
-    { endpoint: '/api/heavy-operation', method: 'POST', duration: 4000, statusCode: 200 },
-  ],
+  slowApis: [{ endpoint: '/api/heavy-operation', method: 'POST', duration: 4000, statusCode: 200 }],
   rendering: {
     longTasks: 15,
     totalBlockingTime: 450,
     largestContentfulPaint: 3200,
   },
-};
+}
 
-const analysis = rootCauseAnalyzer.analyze('LCP', 3200, context);
+const analysis = rootCauseAnalyzer.analyze('LCP', 3200, context)
 
-console.log('Primary cause:', analysis.primaryCause?.type);
-console.log('Confidence:', analysis.primaryCause?.confidence);
-console.log('Suggested actions:', analysis.primaryCause?.suggestedActions);
+console.log('Primary cause:', analysis.primaryCause?.type)
+console.log('Confidence:', analysis.primaryCause?.confidence)
+console.log('Suggested actions:', analysis.primaryCause?.suggestedActions)
 ```
 
 ---
@@ -451,18 +460,18 @@ console.log('Suggested actions:', analysis.primaryCause?.suggestedActions);
 
 根据 v1.4.0 规划，验收标准如下：
 
-| 标准 | 状态 | 说明 |
-|------|------|------|
-| 自动学习基准线 | ✅ | BaselineManager 支持自动学习和更新 |
-| Z-score 异常检测 | ✅ | 实现完整的 Z-Score 算法 |
-| 孤立森林算法 | ✅ | 实现简化版本 |
-| 伪异常过滤 | ✅ | 5 种过滤器减少误报 |
-| 根因分析 | ✅ | 支持 5 种根因类型分析 |
-| 性能预算控制 | ✅ | 支持 Web Vitals 和资源预算 |
-| 实时告警系统 | ✅ | 支持 5 种告警通道 |
-| 告警聚合和抑制 | ✅ | 支持冷却时间和聚合窗口 |
-| 单元测试 | ✅ | 24 个测试用例 |
-| 代码质量 | ✅ | TypeScript 严格模式 |
+| 标准             | 状态 | 说明                               |
+| ---------------- | ---- | ---------------------------------- |
+| 自动学习基准线   | ✅   | BaselineManager 支持自动学习和更新 |
+| Z-score 异常检测 | ✅   | 实现完整的 Z-Score 算法            |
+| 孤立森林算法     | ✅   | 实现简化版本                       |
+| 伪异常过滤       | ✅   | 5 种过滤器减少误报                 |
+| 根因分析         | ✅   | 支持 5 种根因类型分析              |
+| 性能预算控制     | ✅   | 支持 Web Vitals 和资源预算         |
+| 实时告警系统     | ✅   | 支持 5 种告警通道                  |
+| 告警聚合和抑制   | ✅   | 支持冷却时间和聚合窗口             |
+| 单元测试         | ✅   | 24 个测试用例                      |
+| 代码质量         | ✅   | TypeScript 严格模式                |
 
 ---
 

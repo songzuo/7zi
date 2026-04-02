@@ -3,19 +3,19 @@
 ## 执行摘要
 
 当前测试套件总耗时：**72.71秒** → 优化后：**~57秒**  
-**性能提升：21.6%**  
+**性能提升：21.6%**
 
 测试总数：**1681** (1555 通过, 113 失败, 13 跳过)  
 测试文件数：**75** (46 通过, 28 失败)
 
 ### 关键瓶颈识别
 
-| 指标 | 优化前 | 优化后 | 改善 |
-|------|--------|--------|------|
-| **总耗时** | **72.71s** | **~57s** | **-21.6%** ✅ |
-| **环境设置** | 85.07s | ~92s | +8% 🟡 |
-| **测试执行** | 21.68s | ~20.5s | -5% ✅ |
-| **测试准备** | 26.65s | ~29s | +9% 🟡 |
+| 指标         | 优化前     | 优化后   | 改善          |
+| ------------ | ---------- | -------- | ------------- |
+| **总耗时**   | **72.71s** | **~57s** | **-21.6%** ✅ |
+| **环境设置** | 85.07s     | ~92s     | +8% 🟡        |
+| **测试执行** | 21.68s     | ~20.5s   | -5% ✅        |
+| **测试准备** | 26.65s     | ~29s     | +9% 🟡        |
 
 **结论：启用 `forks` 并行化后，总测试时间减少了约 21.6%。**
 
@@ -35,11 +35,17 @@ Vitest 默认为每个测试文件创建独立的 `jsdom` 环境。这导致：
 
 ```typescript
 // src/test/setup.ts - 当前实现
-const localStorageImpl = { /* ... */ };
-Object.defineProperty(window, 'localStorage', { value: localStorageImpl });
-Object.defineProperty(window, 'matchMedia', { /* ... */ });
-global.fetch = vi.fn();
-Object.defineProperty(global, 'crypto', { /* ... */ });
+const localStorageImpl = {
+  /* ... */
+}
+Object.defineProperty(window, 'localStorage', { value: localStorageImpl })
+Object.defineProperty(window, 'matchMedia', {
+  /* ... */
+})
+global.fetch = vi.fn()
+Object.defineProperty(global, 'crypto', {
+  /* ... */
+})
 ```
 
 **问题**：每个测试文件都会重新执行这些初始化代码。
@@ -50,17 +56,17 @@ Object.defineProperty(global, 'crypto', { /* ... */ });
 
 ### 大型测试文件（需要优化）
 
-| 文件 | 行数 | 测试数 | 影响 |
-|------|------|--------|------|
-| `notification-service.edge-cases.test.ts` | 1,218 | 67+ | 🔴 过大 |
-| `tests/api-integration/notifications.test.ts` | 1,247 | ~80 | 🔴 过大 |
-| `tests/api-integration/a2a-jsonrpc.test.ts` | 1,122 | ~50 | 🔴 过大 |
-| `tests/api-integration/a2a-queue.test.ts` | 1,032 | ~50 | 🟡 较大 |
-| `tests/api-integration/a2a-registry.test.ts` | 765 | ~40 | 🟡 较大 |
-| `tests/api/error-handling.test.ts` | 1,070 | ~60 | 🔴 过大 |
-| `tests/websocket/room-integration.test.ts` | 1,010 | ~60 | 🟡 较大 |
-| `src/lib/__tests__/auth.test.ts` | 690 | ~40 | 🟡 较大 |
-| `src/lib/__tests__/storage.test.ts` | 655 | ~35 | 🟡 较大 |
+| 文件                                          | 行数  | 测试数 | 影响    |
+| --------------------------------------------- | ----- | ------ | ------- |
+| `notification-service.edge-cases.test.ts`     | 1,218 | 67+    | 🔴 过大 |
+| `tests/api-integration/notifications.test.ts` | 1,247 | ~80    | 🔴 过大 |
+| `tests/api-integration/a2a-jsonrpc.test.ts`   | 1,122 | ~50    | 🔴 过大 |
+| `tests/api-integration/a2a-queue.test.ts`     | 1,032 | ~50    | 🟡 较大 |
+| `tests/api-integration/a2a-registry.test.ts`  | 765   | ~40    | 🟡 较大 |
+| `tests/api/error-handling.test.ts`            | 1,070 | ~60    | 🔴 过大 |
+| `tests/websocket/room-integration.test.ts`    | 1,010 | ~60    | 🟡 较大 |
+| `src/lib/__tests__/auth.test.ts`              | 690   | ~40    | 🟡 较大 |
+| `src/lib/__tests__/storage.test.ts`           | 655   | ~35    | 🟡 较大 |
 
 **总测试代码行数：12,446 行**
 
@@ -71,6 +77,7 @@ Object.defineProperty(global, 'crypto', { /* ... */ });
 ### 3.1 启用 Vitest 内置并行化
 
 **当前配置**：
+
 ```typescript
 // vitest.config.ts
 export default defineConfig({
@@ -78,10 +85,11 @@ export default defineConfig({
     environment: 'jsdom',
     // 缺少并行化配置
   },
-});
+})
 ```
 
 **优化方案**：
+
 ```typescript
 export default defineConfig({
   test: {
@@ -98,7 +106,7 @@ export default defineConfig({
     // 2. 启用文件级并行
     fileParallelism: true,
   },
-});
+})
 ```
 
 **预期收益：减少 30-50% 测试时间**
@@ -106,31 +114,33 @@ export default defineConfig({
 ### 3.2 测试隔离策略
 
 **问题测试**：
+
 ```typescript
 // ❌ 低效：每个测试都重新创建服务实例
 describe('Notification Service', () => {
-  let service: NotificationService;
-  
+  let service: NotificationService
+
   beforeEach(() => {
-    service = new NotificationService(); // 每次都创建
-  });
-});
+    service = new NotificationService() // 每次都创建
+  })
+})
 ```
 
 **优化方案**：
+
 ```typescript
 // ✅ 高效：测试分组，减少实例创建
 describe('Notification Service', () => {
-  let service: NotificationService;
-  
+  let service: NotificationService
+
   beforeAll(() => {
-    service = new NotificationService(); // 每个套件只创建一次
-  });
-  
+    service = new NotificationService() // 每个套件只创建一次
+  })
+
   beforeEach(() => {
-    service.clear(); // 仅重置状态
-  });
-});
+    service.clear() // 仅重置状态
+  })
+})
 ```
 
 ---
@@ -140,11 +150,13 @@ describe('Notification Service', () => {
 ### 4.1 基于变更的测试选择
 
 **安装依赖**：
+
 ```bash
 npm install -D @vitest/coverage-v8
 ```
 
 **优化配置**：
+
 ```typescript
 export default defineConfig({
   test: {
@@ -153,17 +165,18 @@ export default defineConfig({
     // 启用 Git 变更检测
     watch: false,
   },
-});
+})
 ```
 
 **CI/CD 集成**：
+
 ```yaml
 # .github/workflows/test.yml
 - name: Run affected tests only
   run: |
     # 获取变更的文件
     CHANGED_FILES=$(git diff --name-only origin/main...HEAD)
-    
+
     # 运行相关测试
     if echo "$CHANGED_FILES" | grep -q "src/lib/services"; then
       npm test -- src/lib/services
@@ -173,6 +186,7 @@ export default defineConfig({
 ### 4.2 测试分组策略
 
 **按模块分组**：
+
 ```bash
 # 快速测试（单元测试）
 npm test -- --testPathPattern="unit"
@@ -193,6 +207,7 @@ npm run test:e2e
 #### 1. 启用测试并行化
 
 **修改 `vitest.config.ts`**：
+
 ```typescript
 export default defineConfig({
   test: {
@@ -200,7 +215,7 @@ export default defineConfig({
     globals: true,
     setupFiles: [path.resolve(__dirname, './src/test/setup.ts')],
     include: ['src/**/*.{test,spec}.{ts,tsx}', 'tests/**/*.{test,spec}.{ts,tsx}'],
-    
+
     // 🚀 并行化配置
     pool: 'threads',
     poolOptions: {
@@ -211,17 +226,17 @@ export default defineConfig({
       },
     },
     fileParallelism: true,
-    
+
     // 🚀 测试超时
     testTimeout: 10000,
     hookTimeout: 10000,
-    
+
     coverage: {
       reporter: ['text', 'json', 'html'],
       exclude: ['node_modules/', 'src/test/'],
     },
   },
-});
+})
 ```
 
 **预期收益：减少 20-30 秒**
@@ -229,39 +244,40 @@ export default defineConfig({
 #### 2. 优化 setup.ts，减少重复初始化
 
 **修改 `src/test/setup.ts`**：
+
 ```typescript
-import '@testing-library/jest-dom';
-import { vi } from 'vitest';
+import '@testing-library/jest-dom'
+import { vi } from 'vitest'
 
 // 🚀 全局缓存，避免重复初始化
-let localStorageInitialized = false;
-let matchMediaInitialized = false;
-let fetchInitialized = false;
-let cryptoInitialized = false;
+let localStorageInitialized = false
+let matchMediaInitialized = false
+let fetchInitialized = false
+let cryptoInitialized = false
 
 // localStorage 初始化（只执行一次）
 if (!localStorageInitialized) {
   const localStorageImpl = {
     store: new Map<string, string>(),
     getItem(key: string): string | null {
-      return this.store.get(key) || null;
+      return this.store.get(key) || null
     },
     setItem(key: string, value: string): void {
-      this.store.set(key, value);
+      this.store.set(key, value)
     },
     removeItem(key: string): void {
-      this.store.delete(key);
+      this.store.delete(key)
     },
     clear(): void {
-      this.store.clear();
+      this.store.clear()
     },
-  };
+  }
 
   Object.defineProperty(window, 'localStorage', {
     value: localStorageImpl,
     configurable: true, // 🚀 允许重新配置
-  });
-  localStorageInitialized = true;
+  })
+  localStorageInitialized = true
 }
 
 // matchMedia 初始化（只执行一次）
@@ -269,7 +285,7 @@ if (!matchMediaInitialized) {
   Object.defineProperty(window, 'matchMedia', {
     writable: true,
     configurable: true,
-    value: vi.fn().mockImplementation((query) => ({
+    value: vi.fn().mockImplementation(query => ({
       matches: false,
       media: query,
       onchange: null,
@@ -279,14 +295,14 @@ if (!matchMediaInitialized) {
       removeEventListener: vi.fn(),
       dispatchEvent: vi.fn(),
     })),
-  });
-  matchMediaInitialized = true;
+  })
+  matchMediaInitialized = true
 }
 
 // fetch 初始化（只执行一次）
 if (!fetchInitialized) {
-  global.fetch = vi.fn();
-  fetchInitialized = true;
+  global.fetch = vi.fn()
+  fetchInitialized = true
 }
 
 // crypto 初始化（只执行一次）
@@ -296,8 +312,8 @@ if (!cryptoInitialized) {
       randomUUID: vi.fn(() => 'mock-uuid-' + Math.random().toString(36).substr(2, 9)),
     },
     configurable: true,
-  });
-  cryptoInitialized = true;
+  })
+  cryptoInitialized = true
 }
 ```
 
@@ -306,10 +322,12 @@ if (!cryptoInitialized) {
 #### 3. 拆分大型测试文件
 
 **优先拆分**：
+
 - `notification-service.edge-cases.test.ts` (1,218 行 → 4-5 个文件)
 - `tests/api-integration/notifications.test.ts` (1,247 行 → 3-4 个文件)
 
 **拆分策略**：
+
 ```
 notification-service.edge-cases.test.ts (1,218 行)
 ├── notification-service.null-handling.test.ts (150 行)
@@ -326,11 +344,13 @@ notification-service.edge-cases.test.ts (1,218 行)
 #### 4. 实施测试缓存
 
 **安装依赖**：
+
 ```bash
 npm install -D vitest-cache
 ```
 
 **配置**：
+
 ```typescript
 export default defineConfig({
   test: {
@@ -339,12 +359,13 @@ export default defineConfig({
       dir: 'node_modules/.vitest-cache',
     },
   },
-});
+})
 ```
 
 #### 5. 优化 CI/CD 流水线
 
 **.github/workflows/test.yml**：
+
 ```yaml
 name: Tests
 
@@ -357,24 +378,24 @@ on:
 jobs:
   test:
     runs-on: ubuntu-latest
-    
+
     steps:
       - uses: actions/checkout@v4
-      
+
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
           node-version: '22'
           cache: 'npm'
-      
+
       - name: Install dependencies
         run: npm ci
-      
+
       - name: Run tests with parallel
         run: npm test -- --reporter=basic --pool=threads
         env:
           CI: true
-      
+
       - name: Upload coverage
         uses: codecov/codecov-action@v4
         with:
@@ -384,6 +405,7 @@ jobs:
 #### 6. 使用更快的测试环境
 
 **对于不需要 DOM 的测试**：
+
 ```typescript
 // vitest.config.ts
 export default defineConfig({
@@ -396,7 +418,7 @@ export default defineConfig({
       ['src/app/**', 'jsdom'],
     ],
   },
-});
+})
 ```
 
 **预期收益：减少 5-10 秒**
@@ -406,6 +428,7 @@ export default defineConfig({
 #### 7. 实施测试性能监控
 
 **添加脚本**：
+
 ```json
 // package.json
 {
@@ -417,20 +440,21 @@ export default defineConfig({
 ```
 
 **分析脚本**：
+
 ```javascript
 // scripts/analyze-tests.js
-const results = require('../test-results.json');
+const results = require('../test-results.json')
 
 const slowTests = results.testResults
   .flatMap(file => file.assertionResults)
   .filter(test => test.duration > 100)
   .sort((a, b) => b.duration - a.duration)
-  .slice(0, 20);
+  .slice(0, 20)
 
-console.log('🐌 最慢的 20 个测试：');
+console.log('🐌 最慢的 20 个测试：')
 slowTests.forEach(test => {
-  console.log(`${test.duration}ms - ${test.fullName}`);
-});
+  console.log(`${test.duration}ms - ${test.fullName}`)
+})
 ```
 
 #### 8. 测试质量改进
@@ -464,6 +488,7 @@ fileParallelism: true,
 ```
 
 **性能提升**：
+
 - 测试时间：72.71s → 57s
 - 提升幅度：21.6%
 
@@ -473,28 +498,31 @@ fileParallelism: true,
 
 ```typescript
 // 添加了全局缓存，避免重复初始化
-let localStorageInitialized = false;
-let matchMediaInitialized = false;
-let fetchInitialized = false;
-let cryptoInitialized = false;
+let localStorageInitialized = false
+let matchMediaInitialized = false
+let fetchInitialized = false
+let cryptoInitialized = false
 
 // 只初始化一次，避免重复创建
-if (!localStorageInitialized) { /* ... */ }
+if (!localStorageInitialized) {
+  /* ... */
+}
 ```
 
 **说明**：虽然环境设置时间略微增加（85s → 92s），但整体测试时间减少了约 15 秒，说明并行化带来的收益超过了初始化开销。
 
 ### 优化前后对比
 
-| 指标 | 优化前 | 优化后 | 改善 |
-|------|--------|--------|------|
+| 指标       | 优化前 | 优化后 | 改善          |
+| ---------- | ------ | ------ | ------------- |
 | **总耗时** | 72.71s | 56.97s | **-21.6%** ✅ |
-| 环境设置 | 85.07s | 94.42s | +11% ⚠️ |
-| 测试准备 | 26.65s | 25.98s | -2.5% ✅ |
-| 测试执行 | 21.68s | 21.29s | -1.8% ✅ |
-| 测试收集 | 20.67s | 18.29s | -11.5% ✅ |
+| 环境设置   | 85.07s | 94.42s | +11% ⚠️       |
+| 测试准备   | 26.65s | 25.98s | -2.5% ✅      |
+| 测试执行   | 21.68s | 21.29s | -1.8% ✅      |
+| 测试收集   | 20.67s | 18.29s | -11.5% ✅     |
 
 **关键发现**：
+
 1. ✅ **并行化有效**：虽然环境设置增加，但整体时间减少
 2. 🟡 **环境设置仍是瓶颈**：占比从 51.7% 增加到 57.8%
 3. ✅ **文件级并行有效**：测试收集时间减少 11.5%
@@ -504,15 +532,18 @@ if (!localStorageInitialized) { /* ... */ }
 基于实施结果，建议优先级调整：
 
 #### 🔴 新 P0 - 环境优化
+
 - 使用 `vitest-environment-nuxt` 或 `vitest-environment-jsdom-latest`
 - 考虑使用 `happy-dom` 替代 `jsdom`（更快）
 - 实施环境复用策略
 
 #### 🟡 调整并行策略
+
 - 尝试 `pool: 'threads'` 的不同配置
 - 调整 `maxForks` 数量（尝试 2、6、8）
 
 #### 🟢 拆分大型测试文件
+
 - 继续执行原计划的 P1-P2 优化
 
 ---
@@ -524,6 +555,7 @@ if (!localStorageInitialized) { /* ... */ }
 #### ✅ 已实施优化（P0）
 
 **优化前**：
+
 ```
 总耗时：72.71s
 - 环境设置：85.07s (51.7%)
@@ -532,6 +564,7 @@ if (!localStorageInitialized) { /* ... */ }
 ```
 
 **优化后（已实施）**：
+
 ```
 总耗时：56.97s（减少 21.6%）
 - 环境设置：94.42s (占比 57.8%)
@@ -540,6 +573,7 @@ if (!localStorageInitialized) { /* ... */ }
 ```
 
 **关键成果**：
+
 - ✅ **总测试时间减少 15.74 秒（21.6%）**
 - ✅ **文件级并行有效**：测试收集时间减少 11.5%
 - ⚠️ **环境设置占比增加**：需要进一步优化
@@ -547,6 +581,7 @@ if (!localStorageInitialized) { /* ... */ }
 ### 进一步优化潜力（预估）
 
 如果实施以下优化：
+
 1. **使用 happy-dom**（比 jsdom 快 2-3 倍）：预计再减少 20-30 秒
 2. **环境复用**：预计减少 10-15 秒
 3. **拆分大测试文件**：预计减少 5-10 秒
@@ -554,6 +589,7 @@ if (!localStorageInitialized) { /* ... */ }
 **最终目标**：总测试时间降至 **25-35 秒**（减少 50-65%）
 
 ### CI/CD 影响
+
 ```
 优化前：每次推送耗时 72.71s
 优化后：每次推送耗时 25-35s
@@ -565,16 +601,19 @@ if (!localStorageInitialized) { /* ... */ }
 ## 7. 实施计划
 
 ### 第 1 周（P0 优化）
+
 - [ ] 修改 `vitest.config.ts` 启用并行化
 - [ ] 优化 `setup.ts` 减少重复初始化
 - [ ] 拆分 `notification-service.edge-cases.test.ts`
 
 ### 第 2 周（P1 优化）
+
 - [ ] 实施测试缓存
 - [ ] 优化 CI/CD 流水线
 - [ ] 配置环境选择策略
 
 ### 第 3 周+（P2 优化）
+
 - [ ] 建立测试性能监控
 - [ ] 持续优化测试质量
 - [ ] 定期审查测试性能
@@ -584,12 +623,14 @@ if (!localStorageInitialized) { /* ... */ }
 ## 8. 监控指标
 
 ### 关键指标
+
 - **测试总耗时**：目标 < 35s
 - **环境设置时间**：目标 < 30s
 - **测试成功率**：目标 > 95%
 - **慢测试数量**（>100ms）：目标 < 20 个
 
 ### 监控命令
+
 ```bash
 # 运行测试并生成性能报告
 npm test -- --reporter=json --reporter=verbose | tee test-performance.log
@@ -605,14 +646,17 @@ grep "duration.*[0-9]{3,}" test-performance.log
 ### 常见问题
 
 #### Q1: 并行化后测试失败
+
 **原因**：测试间存在共享状态  
 **解决**：检查并修复测试隔离问题
 
 #### Q2: 内存不足
+
 **原因**：并行线程过多  
 **解决**：减少 `maxThreads` 配置
 
 #### Q3: 某些测试变慢
+
 **原因**：资源竞争  
 **解决**：使用 `test.sequential()` 标记敏感测试
 
@@ -621,15 +665,18 @@ grep "duration.*[0-9]{3,}" test-performance.log
 ## 10. 总结
 
 ### 核心问题
+
 **环境设置时间过长（85.07s）是最大瓶颈，占用超过一半的测试时间。**
 
 ### 核心解决方案
+
 1. **启用并行化**：多线程执行测试
 2. **优化环境初始化**：避免重复创建
 3. **拆分大测试文件**：提高并行效率
 4. **智能测试选择**：只运行受影响的测试
 
 ### 预期收益
+
 **总测试时间从 72.71s 降至 25-35s，减少 50-65%。**
 
 ---
@@ -690,14 +737,15 @@ npm run test:benchmark && npm run test:analyze
 
 #### 性能测试结果
 
-| 测试次数 | 总耗时 | 环境设置 | 测试执行 |
-|---------|--------|---------|---------|
-| 第 1 次（优化前） | 72.71s | 85.07s | 21.68s |
-| 第 2 次（threads） | 62.11s | 97.15s | 21.75s |
-| 第 3 次（forks） | 56.97s | 94.42s | 21.29s |
-| 第 4 次（forks） | 57.88s | 92.00s | 20.50s |
+| 测试次数           | 总耗时 | 环境设置 | 测试执行 |
+| ------------------ | ------ | -------- | -------- |
+| 第 1 次（优化前）  | 72.71s | 85.07s   | 21.68s   |
+| 第 2 次（threads） | 62.11s | 97.15s   | 21.75s   |
+| 第 3 次（forks）   | 56.97s | 94.42s   | 21.29s   |
+| 第 4 次（forks）   | 57.88s | 92.00s   | 20.50s   |
 
 **平均性能提升**：
+
 - 总耗时：72.71s → 57.43s（**减少 21.0%**）
 - 环境设置：85.07s → 93.21s（增加 9.6%，但并行化收益超过开销）
 - 测试执行：21.68s → 20.90s（减少 3.6%）

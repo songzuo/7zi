@@ -1,9 +1,9 @@
-import type { Preview, ReactRenderer } from '@storybook/nextjs-vite';
-import { withThemeFromJSXProvider } from '@storybook/addon-themes';
-import type { DecoratorFunction } from '@storybook/types';
-import React from 'react';
-import '../src/styles/tokens.css';
-import '../src/app/globals.css';
+import type { Preview, ReactRenderer } from '@storybook/nextjs-vite'
+import { withThemeFromJSXProvider } from '@storybook/addon-themes'
+import type { DecoratorFunction } from '@storybook/types'
+import React from 'react'
+import '../src/styles/tokens.css'
+import '../src/app/globals.css'
 
 const preview: Preview = {
   parameters: {
@@ -36,6 +36,6 @@ const preview: Preview = {
       },
     },
   },
-};
+}
 
-export default preview;
+export default preview

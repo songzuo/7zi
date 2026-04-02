@@ -32,6 +32,7 @@ const reactCompilerEnabled = process.env.ENABLE_REACT_COMPILER === 'true';
 ```
 
 **Environment Variable Required:**
+
 - `ENABLE_REACT_COMPILER=true` - Must be set to enable React Compiler
 - `REACT_COMPILER_MODE` - Optional: 'opt-in', 'opt-out', or 'all'
 - `REACT_COMPILER_EXCLUDE_PATTERNS` - Optional: Comma-separated patterns
@@ -43,6 +44,7 @@ const reactCompilerEnabled = process.env.ENABLE_REACT_COMPILER === 'true';
 **Reason:** Next.js 16 has built-in React Compiler support. Using both `babel-plugin-react-compiler` and Next.js's native React Compiler causes conflicts leading to build failures.
 
 **Action Taken:**
+
 - Renamed `babel.config.js` to `babel.config.js.bak`
 - Removed `babel-plugin-react-compiler` from package.json
 
@@ -60,6 +62,7 @@ pnpm build
 **Result:** ✅ SUCCESS
 
 **Build Time:**
+
 - Compilation: 45s
 - TypeScript: 63s
 - Static Pages: 898ms
@@ -73,11 +76,13 @@ ENABLE_REACT_COMPILER=true pnpm build
 **Result:** ✅ SUCCESS
 
 **Build Time:**
+
 - Compilation: 57s (+12s compared to non-compiler build)
 - TypeScript: 61s (-2s)
 - Static Pages: 880ms (-18ms)
 
 **Analysis:**
+
 - React Compiler adds ~12s to compilation time
 - This is expected overhead for memoization optimization
 - Static page generation is slightly faster
@@ -91,13 +96,14 @@ ENABLE_REACT_COMPILER=true pnpm build
 **File Found:** `.next/standalone/.../react/cjs/react-compiler-runtime.production.js`
 
 **Content:**
+
 ```javascript
-"use strict";
+'use strict'
 var ReactSharedInternals =
-  require("react").__CLIENT_INTERNALS_DO_NOT_USE_OR_WARN_USERS_THEY_CANNOT_UPGRADE;
+  require('react').__CLIENT_INTERNALS_DO_NOT_USE_OR_WARN_USERS_THEY_CANNOT_UPGRADE
 exports.c = function (size) {
-  return ReactSharedInternals.H.useMemoCache(size);
-};
+  return ReactSharedInternals.H.useMemoCache(size)
+}
 ```
 
 **Status:** ✅ React Compiler runtime is included in the build
@@ -107,6 +113,7 @@ exports.c = function (size) {
 **Build Size:** 121MB (.next directory)
 
 **Routes Generated:** 89 routes total
+
 - Static (○): 11 routes
 - Dynamic (ƒ): 78 routes
 
@@ -117,15 +124,18 @@ exports.c = function (size) {
 ### 4.1 ❌ Babel Plugin Conflict
 
 **Problem:**
+
 ```
 TypeError: Cannot read properties of undefined (reading 'H')
 ```
 
 **Root Cause:**
+
 - Both `babel-plugin-react-compiler` and Next.js 16's built-in React Compiler were active
 - This caused double-compilation and runtime errors
 
 **Solution:**
+
 - Removed `babel-plugin-react-compiler` from dependencies
 - Renamed `babel.config.js` to disable it
 - Use Next.js 16's native React Compiler only
@@ -133,15 +143,18 @@ TypeError: Cannot read properties of undefined (reading 'H')
 ### 4.2 ❌ Missing Dependency: `react-is`
 
 **Problem:**
+
 ```
 Module not found: Can't resolve 'react-is'
 ```
 
 **Root Cause:**
+
 - `recharts` package requires `react-is` at runtime
 - It was missing from dependencies
 
 **Solution:**
+
 ```bash
 pnpm add react-is
 ```
@@ -149,14 +162,17 @@ pnpm add react-is
 ### 4.3 ❌ Missing Dependency: `commander`
 
 **Problem:**
+
 ```
 Cannot find module 'commander' or its corresponding type declarations
 ```
 
 **Root Cause:**
+
 - `src/tools/agent-cli.ts` imports `commander` but it wasn't installed
 
 **Solution:**
+
 ```bash
 pnpm add commander
 ```
@@ -172,10 +188,12 @@ pnpm add commander
 React Compiler does not interfere with ESLint rules. The existing ESLint configuration works correctly.
 
 **ESLint Configuration:**
+
 - Config file: `eslint.config.mjs` (Flat Config)
 - No React Compiler specific rules needed
 
 **Lint Results:**
+
 - Total issues: ~15 warnings, ~5 errors
 - **No React Compiler related issues**
 - Common issues: unused variables, `any` types, `require()` usage
@@ -196,6 +214,7 @@ React Compiler does not interfere with ESLint rules. The existing ESLint configu
 ### 6.1 Production Deployment
 
 **Recommended Environment Variables:**
+
 ```bash
 ENABLE_REACT_COMPILER=true
 REACT_COMPILER_MODE=opt-out  # or 'all' for full optimization
@@ -217,11 +236,13 @@ REACT_COMPILER_MODE=opt-out  # or 'all' for full optimization
 ### 6.3 Performance Monitoring
 
 **Before React Compiler:**
+
 - Baseline bundle size
 - Runtime performance metrics
 - Component re-render counts
 
 **After React Compiler:**
+
 - Compare bundle sizes
 - Measure runtime improvements
 - Monitor for any memory leaks
@@ -229,6 +250,7 @@ REACT_COMPILER_MODE=opt-out  # or 'all' for full optimization
 ### 6.4 Configuration Improvements
 
 **Recommended changes to `next.config.ts`:**
+
 ```typescript
 // Add deprecation fix
 images: {
@@ -242,6 +264,7 @@ images: {
 ```
 
 **Turbopack root warning fix:**
+
 ```typescript
 experimental: {
   optimizeCss: true,
@@ -256,23 +279,23 @@ experimental: {
 
 ## 7. Files Modified
 
-| File | Action | Reason |
-|------|--------|--------|
-| `babel.config.js` | Renamed to `.bak` | Prevent conflict with Next.js 16 |
-| `package.json` | Removed `babel-plugin-react-compiler` | Use native Next.js support |
-| `package.json` | Added `react-is` | Fix recharts dependency |
-| `package.json` | Added `commander` | Fix agent-cli.ts import |
+| File              | Action                                | Reason                           |
+| ----------------- | ------------------------------------- | -------------------------------- |
+| `babel.config.js` | Renamed to `.bak`                     | Prevent conflict with Next.js 16 |
+| `package.json`    | Removed `babel-plugin-react-compiler` | Use native Next.js support       |
+| `package.json`    | Added `react-is`                      | Fix recharts dependency          |
+| `package.json`    | Added `commander`                     | Fix agent-cli.ts import          |
 
 ---
 
 ## 8. Build Performance Comparison
 
-| Metric | Without Compiler | With Compiler | Delta |
-|--------|-----------------|---------------|-------|
-| Compilation | 45s | 57s | +27% |
-| TypeScript | 63s | 61s | -3% |
-| Static Pages | 898ms | 880ms | -2% |
-| Total Build | ~108s | ~118s | +9% |
+| Metric       | Without Compiler | With Compiler | Delta |
+| ------------ | ---------------- | ------------- | ----- |
+| Compilation  | 45s              | 57s           | +27%  |
+| TypeScript   | 63s              | 61s           | -3%   |
+| Static Pages | 898ms            | 880ms         | -2%   |
+| Total Build  | ~108s            | ~118s         | +9%   |
 
 **Note:** The 9% build time increase is expected and acceptable for the runtime performance benefits React Compiler provides.
 
@@ -283,6 +306,7 @@ experimental: {
 ✅ **React Compiler is fully operational**
 
 **Key Achievements:**
+
 1. ✅ React Compiler configuration verified
 2. ✅ Production build completes successfully
 3. ✅ Runtime verification passed
@@ -290,6 +314,7 @@ experimental: {
 5. ✅ ESLint and TypeScript compatibility confirmed
 
 **Next Steps:**
+
 1. Deploy to staging with `ENABLE_REACT_COMPILER=true`
 2. Monitor performance metrics
 3. Gradually expand compiler coverage

@@ -8,12 +8,12 @@
 
 ## 📊 更新统计
 
-| 指标 | 数值 |
-|------|------|
+| 指标       | 数值    |
+| ---------- | ------- |
 | 文档总行数 | 3176 行 |
-| 章节数量 | 187 个 |
-| 新增章节 | 3 个 |
-| 更新章节 | 6 个 |
+| 章节数量   | 187 个  |
+| 新增章节   | 3 个    |
+| 更新章节   | 6 个    |
 
 ---
 
@@ -22,6 +22,7 @@
 ### 1. Agent Registry 相关 API ✅
 
 **新增端点参数 (发现API)**:
+
 - `ids`: Agent ID 列表过滤
 - `role`: Agent 角色过滤
 - `priority`: 优先级过滤
@@ -36,15 +37,18 @@
 - `limit` / `offset`: 分页
 
 **新增响应字段**:
+
 - `role`, `provider`, `model`, `load`, `availableCapacity`, `version`, `heartbeatInterval`, `tags`, `metadata`, `updatedAt`
 
 **新增功能说明**:
+
 - Agent Registry 核心功能说明
 - 心跳监控机制 (30秒超时)
 - 自动下线处理
 - 分布式追踪支持 (X-Trace-Id)
 
 **参考文件**:
+
 - `src/app/api/agents/register/route.ts`
 - `src/app/api/agents/heartbeat/route.ts`
 - `src/app/api/agents/discover/route.ts`
@@ -55,10 +59,12 @@
 ### 2. A2A Protocol v2.1 相关 API ✅
 
 **更新内容**:
+
 - 增加端点数量: 5 → 7
 - 更新文档引用链接
 
 **API 端点**:
+
 - `POST /api/a2a/jsonrpc` - JSON-RPC 调用
 - `GET /api/a2a/registry` - 列出所有 Agent
 - `POST /api/a2a/registry` - 注册新 Agent
@@ -71,6 +77,7 @@
 - `DELETE /api/a2a/queue` - 清空队列
 
 **参考文件**:
+
 - `src/app/api/a2a/registry/route.ts`
 
 ---
@@ -78,6 +85,7 @@
 ### 3. MultiLevelCacheManager 缓存 API ✅
 
 **新增文档内容**:
+
 - 三层缓存架构说明 (L1/L2/L3)
 - 性能提升数据表格
 - 基础用法代码示例
@@ -94,11 +102,13 @@
 | 标签失效 | 按标签批量失效 |
 
 **性能指标**:
+
 - L2 Cache Hit: ~200ms → <15ms (92% ↓)
 - P95 响应时间: ~200ms → <100ms (50% ↓)
 - 并发请求去重率: 30%
 
 **参考文件**:
+
 - `src/lib/cache/MultiLevelCacheManager.ts`
 
 ---
@@ -106,6 +116,7 @@
 ### 4. 分布式追踪系统 API ✅
 
 **新增文档内容**:
+
 - 追踪上下文管理说明
 - 基础用法代码示例
 - 上下文传播接口
@@ -122,11 +133,13 @@
 | 多格式支持 | W3C, B3, Sentry |
 
 **响应头**:
+
 - `X-Trace-Id`
 - `sentry-trace`
 - `traceparent`
 
 **参考文件**:
+
 - `src/lib/tracing/context.ts`
 - `src/lib/tracing/types.ts`
 - `src/lib/tracing/sentry-integration.ts`
@@ -136,6 +149,7 @@
 ### 5. Workflow Engine 相关 API ✅
 
 **确认现有文档完整性**:
+
 - `GET /api/workflow` - 工作流列表
 - `POST /api/workflow` - 创建工作流
 - `GET /api/workflow/[id]` - 工作流详情
@@ -148,6 +162,7 @@
 **配置选项**: timeout, retryPolicy
 
 **参考文件**:
+
 - `src/app/api/workflow/route.ts`
 - `src/app/api/workflow/[id]/route.ts`
 - `src/app/api/workflow/[id]/run/route.ts`
@@ -195,38 +210,41 @@
 
 ### 文档 vs 代码一致性检查
 
-| 分类 | API 端点数 | 文档覆盖 | 状态 |
-|------|-----------|---------|------|
-| Agents API | 6 | ✅ 100% | 已同步 |
-| A2A 通信 | 7 | ✅ 100% | 已同步 |
-| Workflow | 5 | ✅ 100% | 已有文档 |
-| 缓存系统 | - | ✅ 100% | 新增文档 |
-| 追踪系统 | - | ✅ 100% | 新增文档 |
+| 分类       | API 端点数 | 文档覆盖 | 状态     |
+| ---------- | ---------- | -------- | -------- |
+| Agents API | 6          | ✅ 100%  | 已同步   |
+| A2A 通信   | 7          | ✅ 100%  | 已同步   |
+| Workflow   | 5          | ✅ 100%  | 已有文档 |
+| 缓存系统   | -          | ✅ 100%  | 新增文档 |
+| 追踪系统   | -          | ✅ 100%  | 新增文档 |
 
 ### CHANGELOG 同步检查
 
-| 功能 | CHANGELOG 记录 | API.md 同步 | 状态 |
-|------|--------------|-------------|------|
-| Agent Registry | ✅ v1.6.0 | ✅ | ✅ |
-| A2A Protocol v2.1 | ✅ v1.6.0 | ✅ | ✅ |
-| MultiLevelCache | ✅ v1.6.0 | ✅ | ✅ |
-| 分布式追踪 | ✅ v1.6.0 | ✅ | ✅ |
+| 功能              | CHANGELOG 记录 | API.md 同步 | 状态 |
+| ----------------- | -------------- | ----------- | ---- |
+| Agent Registry    | ✅ v1.6.0      | ✅          | ✅   |
+| A2A Protocol v2.1 | ✅ v1.6.0      | ✅          | ✅   |
+| MultiLevelCache   | ✅ v1.6.0      | ✅          | ✅   |
+| 分布式追踪        | ✅ v1.6.0      | ✅          | ✅   |
 
 ---
 
 ## 📋 更新内容详细列表
 
 ### 头部信息 (3 处更新)
+
 - [x] 版本号: v1.6.2 → v1.7.0
 - [x] API 端点总数: 71+ → 75+
 - [x] 最后更新日期: 2026-04-02
 
 ### 新增章节 (3 个)
+
 1. [x] v1.6.0 新增功能概览
 2. [x] MultiLevelCacheManager API
 3. [x] 分布式追踪系统 API
 
 ### 更新章节 (6 个)
+
 1. [x] 专项 API 文档链接
 2. [x] API 分类统计表格 (A2A 通信)
 3. [x] Agents API - 发现端点参数

@@ -39,7 +39,9 @@
 ## 📁 新增文件
 
 ### 1. `e2e/team.spec.ts` (10.9 KB)
+
 团队页面完整测试套件，包含：
+
 - 基础加载测试
 - 成员展示测试
 - 交互测试
@@ -52,7 +54,9 @@
 **测试用例数**: 27 个
 
 ### 2. `e2e/i18n.spec.ts` (10.8 KB)
+
 多语言切换完整测试套件，包含：
+
 - 基础语言加载测试
 - 语言切换器功能测试
 - URL 语言前缀测试
@@ -66,7 +70,9 @@
 **测试用例数**: 33 个
 
 ### 3. `e2e/visual-regression.spec.ts` (5.7 KB)
+
 视觉回归测试套件，包含：
+
 - 首页视觉测试（桌面/移动/平板/导航栏/英雄区域）
 - 团队页面视觉测试（桌面/移动/成员卡片）
 - Dashboard 视觉测试（桌面/统计卡片）
@@ -78,7 +84,9 @@
 **测试用例数**: 17 个
 
 ### 4. `e2e/README.md` (3.0 KB)
+
 E2E 测试指南文档，包含：
+
 - 测试文件结构说明
 - 运行测试命令
 - 测试覆盖的关键路径
@@ -88,6 +96,7 @@ E2E 测试指南文档，包含：
 - 常见问题和最佳实践
 
 ### 5. `e2e/snapshots/` (目录)
+
 视觉回归测试基线截图存储目录
 
 ---
@@ -139,6 +148,7 @@ use: {
 ### 快速测试结果
 
 #### i18n.spec.ts (多语言测试)
+
 ```
 Running 33 tests using 2 workers
 ✅ 大部分测试通过
@@ -148,6 +158,7 @@ Running 33 tests using 2 workers
 ```
 
 #### team.spec.ts (团队页面测试)
+
 ```
 Running 27 tests using 2 workers
 ✅ 部分测试通过
@@ -157,6 +168,7 @@ Running 27 tests using 2 workers
 ```
 
 #### home.spec.ts (首页测试 - 现有)
+
 ```
 Running 6 tests using 2 workers
 ✅ 3 passed
@@ -165,21 +177,23 @@ Running 6 tests using 2 workers
 
 ### 测试通过率分析
 
-| 测试文件 | 总用例 | 通过 | 失败 | 通过率 |
-|---------|--------|------|------|--------|
-| home.spec.ts | 6 | 3 | 3 | 50% |
-| i18n.spec.ts | 33 | 30+ | <3 | 90%+ |
-| team.spec.ts | 27 | 20+ | <7 | 75%+ |
-| **总计** | **66+** | **53+** | **<13** | **80%+** |
+| 测试文件     | 总用例  | 通过    | 失败    | 通过率   |
+| ------------ | ------- | ------- | ------- | -------- |
+| home.spec.ts | 6       | 3       | 3       | 50%      |
+| i18n.spec.ts | 33      | 30+     | <3      | 90%+     |
+| team.spec.ts | 27      | 20+     | <7      | 75%+     |
+| **总计**     | **66+** | **53+** | **<13** | **80%+** |
 
 ### 失败原因分析
 
 大部分"失败"是由于：
+
 1. **可见性检测过于严格**: Playwright 的 `toBeVisible()` 要求元素不仅存在，还要在视口中可见且 opacity > 0
 2. **页面加载动画**: 某些元素在页面加载时有淡入动画
 3. **CSS 隐藏**: 某些元素初始状态为 hidden，需要交互后才显示
 
 **建议修复**:
+
 - 使用 `toBeVisible({ timeout: 10000 })` 增加等待时间
 - 在检查前添加 `await page.waitForTimeout(1000)` 等待动画完成
 - 使用 `locator.first().isVisible()` 替代严格的可见性断言
@@ -189,6 +203,7 @@ Running 6 tests using 2 workers
 ## 🎯 测试覆盖的关键路径
 
 ### ✅ 完全覆盖
+
 - [x] 首页加载和导航
 - [x] 多语言切换（中文/英文）
 - [x] 团队页面展示
@@ -201,19 +216,19 @@ Running 6 tests using 2 workers
 
 ### 📈 测试统计
 
-| 类别 | 测试文件数 | 测试用例数 |
-|------|-----------|-----------|
-| 页面加载 | 3 | 20+ |
-| 导航 | 2 | 15+ |
-| 表单 | 1 | 12+ |
-| 多语言 | 1 | 33 |
-| 团队页面 | 1 | 27 |
-| Dashboard | 1 | 20+ |
-| 视觉回归 | 1 | 17 |
-| 响应式 | 2 | 15+ |
-| 无障碍 | 3 | 10+ |
-| 性能 | 3 | 8+ |
-| **总计** | **11** | **177+** |
+| 类别      | 测试文件数 | 测试用例数 |
+| --------- | ---------- | ---------- |
+| 页面加载  | 3          | 20+        |
+| 导航      | 2          | 15+        |
+| 表单      | 1          | 12+        |
+| 多语言    | 1          | 33         |
+| 团队页面  | 1          | 27         |
+| Dashboard | 1          | 20+        |
+| 视觉回归  | 1          | 17         |
+| 响应式    | 2          | 15+        |
+| 无障碍    | 3          | 10+        |
+| 性能      | 3          | 8+         |
+| **总计**  | **11**     | **177+**   |
 
 ---
 
@@ -238,6 +253,7 @@ npx playwright test --project=visual-regression
 ## 📋 测试报告
 
 ### 报告位置
+
 - **HTML 报告**: `playwright-report/index.html`
 - **JSON 结果**: `test-results/test-results.json`
 - **JUnit XML**: `test-results/junit-results.xml`
@@ -245,6 +261,7 @@ npx playwright test --project=visual-regression
 - **失败视频**: `test-results/*/video.webm`
 
 ### 查看报告
+
 ```bash
 # 在浏览器中打开 HTML 报告
 npx playwright show-report
@@ -258,11 +275,13 @@ open playwright-report/index.html
 ## 🚀 使用指南
 
 ### 运行所有测试
+
 ```bash
 npm run test:e2e
 ```
 
 ### 运行特定测试
+
 ```bash
 # 团队页面测试
 npx playwright test e2e/team.spec.ts
@@ -284,11 +303,13 @@ npx playwright test --ui
 ```
 
 ### 更新视觉回归基线
+
 ```bash
 npx playwright test --update-snapshots
 ```
 
 ### CI/CD 集成
+
 ```yaml
 # GitHub Actions 示例
 - name: Install Playwright
@@ -309,11 +330,13 @@ npx playwright test --update-snapshots
 ## ⚠️ 已知问题和建议
 
 ### 问题
+
 1. 部分现有测试的可见性检测过于严格
 2. 页面加载动画导致某些元素检测失败
 3. 视觉回归测试需要首次生成基线
 
 ### 建议
+
 1. **优化现有测试**: 调整 `home.spec.ts` 中的可见性检测逻辑
 2. **添加 data-testid**: 为关键元素添加测试 ID，提高测试稳定性
 3. **定期更新基线**: 设计变更时及时更新视觉回归基线
@@ -329,11 +352,12 @@ npx playwright test --update-snapshots
 ✅ **新增测试用例**: 77+ 个  
 ✅ **更新配置文件**: playwright.config.ts  
 ✅ **新增文档**: e2e/README.md  
-✅ **总测试覆盖**: 177+ 个测试用例  
+✅ **总测试覆盖**: 177+ 个测试用例
 
 测试覆盖了所有关键用户路径，包括首页、多语言切换、团队页面、联系表单、Dashboard，并添加了完整的视觉回归测试套件。
 
 **测试原则遵循**:
+
 - ✅ 测试用户关键路径
 - ✅ 断言明确和有意义
 - ✅ 避免不稳定的测试（使用适当等待）

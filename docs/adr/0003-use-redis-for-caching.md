@@ -1,16 +1,19 @@
 # ADR-0003: 使用 Redis 进行缓存
 
 ## 状态
+
 Accepted
 
 ## 上下文
 
 随着用户增长，需要缓存层来提升性能：
+
 - 减少数据库查询
 - 加速 API 响应
 - 存储临时数据（会话、速率限制等）
 
 现有性能瓶颈：
+
 - 数据库查询耗时高（~50-200ms）
 - 重复查询未缓存
 - 分布式环境下的缓存同步问题
@@ -52,10 +55,12 @@ Accepted
 ### 替代方案 1: Memcached
 
 **优点**:
+
 - 简单高效
 - 成熟稳定
 
 **缺点**:
+
 - 数据结构单一（仅 Key-Value）
 - 无持久化
 - 功能有限
@@ -65,11 +70,13 @@ Accepted
 ### 替代方案 2: 内存缓存 (Node.js Map)
 
 **优点**:
+
 - 零外部依赖
 - 访问速度快
 - 简单易用
 
 **缺点**:
+
 - 内存占用高
 - 多实例无法共享
 - 无持久化
@@ -79,10 +86,12 @@ Accepted
 ### 替代方案 3: 数据库缓存表
 
 **优点**:
+
 - 无需额外服务
 - 数据持久化
 
 **缺点**:
+
 - 性能较差（磁盘 I/O）
 - 增加数据库负载
 
@@ -107,31 +116,33 @@ Accepted
 ### 缓存策略
 
 1. **Cache-Aside Pattern**:
+
    ```typescript
    // 伪代码
    async function getData(key) {
-     const cached = await redis.get(key);
-     if (cached) return JSON.parse(cached);
+     const cached = await redis.get(key)
+     if (cached) return JSON.parse(cached)
 
-     const data = await db.query(key);
-     await redis.set(key, JSON.stringify(data), 'EX', 3600);
-     return data;
+     const data = await db.query(key)
+     await redis.set(key, JSON.stringify(data), 'EX', 3600)
+     return data
    }
    ```
 
 2. **Write-Through Pattern**:
+
    ```typescript
    // 写入时同时更新缓存
    async function setData(key, value) {
-     await db.set(key, value);
-     await redis.set(key, JSON.stringify(value), 'EX', 3600);
+     await db.set(key, value)
+     await redis.set(key, JSON.stringify(value), 'EX', 3600)
    }
    ```
 
 3. **Tag-based Invalidation** (用于 Next.js):
    ```typescript
    // 基于标签的缓存失效
-   revalidateTag('user:123');
+   revalidateTag('user:123')
    ```
 
 ## 相关决策

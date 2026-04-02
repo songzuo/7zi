@@ -11,17 +11,22 @@
  * - GET /api/feedback/export - Export feedbacks
  */
 
-import { NextRequest, NextResponse } from 'next/server';
-import { feedbackStorage, type Feedback, type FeedbackFilter, type FeedbackRating } from '@/lib/db/feedback-storage';
-import { validateAndSanitizeBody, sanitizeHtml } from '@/lib/validation-schemas';
-import { z } from 'zod';
-import { v4 as uuidv4 } from 'uuid';
-import { withAdmin, withAuth } from '@/lib/auth/api-auth';
+import { NextRequest, NextResponse } from 'next/server'
+import {
+  feedbackStorage,
+  type Feedback,
+  type FeedbackFilter,
+  type FeedbackRating,
+} from '@/lib/db/feedback-storage'
+import { validateAndSanitizeBody, sanitizeHtml } from '@/lib/validation-schemas'
+import { z } from 'zod'
+import { v4 as uuidv4 } from 'uuid'
+import { withAdmin, withAuth } from '@/lib/auth/api-auth'
 
 /**
  * Initialize feedback storage
  */
-feedbackStorage.initialize();
+feedbackStorage.initialize()
 
 /**
  * Feedback submission schema
@@ -36,7 +41,7 @@ const feedbackSubmissionSchema = z.object({
   attachments: z.array(z.string().max(500)).max(5, '最多上传5个附件').optional(),
   tags: z.array(z.string()).max(10, '最多10个标签').optional(),
   rating: z.number().int().min(1).max(5).optional(),
-});
+})
 
 /**
  * Feedback update schema
@@ -48,7 +53,7 @@ const feedbackUpdateSchema = z.object({
   adminId: z.string().optional(),
   adminName: z.string().optional(),
   priority: z.enum(['low', 'medium', 'high', 'urgent']).optional(),
-});
+})
 
 /**
  * Response submission schema
@@ -58,54 +63,54 @@ const responseSubmissionSchema = z.object({
   response: z.string().min(1, '回复内容不能为空'),
   adminId: z.string(),
   adminName: z.string(),
-});
+})
 
 /**
  * GET /api/feedback - List feedbacks
  */
 async function handleGET(request: NextRequest, context: { user: any }) {
   try {
-    const { userId, role: userRole } = context.user;
-    const { searchParams } = new URL(request.url);
+    const { userId, role: userRole } = context.user
+    const { searchParams } = new URL(request.url)
 
-    const page = parseInt(searchParams.get('page') || '1');
-    const limit = parseInt(searchParams.get('limit') || '20');
-    const type = searchParams.get('type') as Feedback['type'] | null;
-    const priority = searchParams.get('priority') as Feedback['priority'] | null;
-    const status = searchParams.get('status') as Feedback['status'] | null;
-    const rating = searchParams.get('rating');
-    const searchQuery = searchParams.get('q');
-    const dateFrom = searchParams.get('dateFrom');
-    const dateTo = searchParams.get('dateTo');
+    const page = parseInt(searchParams.get('page') || '1')
+    const limit = parseInt(searchParams.get('limit') || '20')
+    const type = searchParams.get('type') as Feedback['type'] | null
+    const priority = searchParams.get('priority') as Feedback['priority'] | null
+    const status = searchParams.get('status') as Feedback['status'] | null
+    const rating = searchParams.get('rating')
+    const searchQuery = searchParams.get('q')
+    const dateFrom = searchParams.get('dateFrom')
+    const dateTo = searchParams.get('dateTo')
 
     // Validate pagination
     if (page < 1 || limit < 1 || limit > 100) {
       return NextResponse.json(
         { success: false, error: 'Invalid pagination parameters' },
         { status: 400 }
-      );
+      )
     }
 
     // Build filter
-    const filter: FeedbackFilter = {};
+    const filter: FeedbackFilter = {}
 
     // Non-admin users can only see their own feedbacks
     if (userRole !== 'admin') {
-      filter.userId = userId;
+      filter.userId = userId
     }
 
-    if (type) filter.type = type;
-    if (priority) filter.priority = priority;
-    if (status) filter.status = status;
+    if (type) filter.type = type
+    if (priority) filter.priority = priority
+    if (status) filter.status = status
     if (rating) {
-      const parsedRating = parseInt(rating);
+      const parsedRating = parseInt(rating)
       if (parsedRating >= 1 && parsedRating <= 5) {
-        filter.rating = parsedRating as FeedbackRating;
+        filter.rating = parsedRating as FeedbackRating
       }
     }
-    if (searchQuery) filter.searchQuery = searchQuery;
-    if (dateFrom) filter.dateFrom = parseInt(dateFrom);
-    if (dateTo) filter.dateTo = parseInt(dateTo);
+    if (searchQuery) filter.searchQuery = searchQuery
+    if (dateFrom) filter.dateFrom = parseInt(dateFrom)
+    if (dateTo) filter.dateTo = parseInt(dateTo)
 
     // Fetch feedbacks
     const result = feedbackStorage.getFeedbacks(
@@ -113,14 +118,14 @@ async function handleGET(request: NextRequest, context: { user: any }) {
       { field: 'createdAt', order: 'desc' },
       page,
       limit
-    );
+    )
 
     return NextResponse.json({
       success: true,
       data: result,
-    });
+    })
   } catch (error) {
-    console.error('[Feedback API] GET error:', error);
+    console.error('[Feedback API] GET error:', error)
     return NextResponse.json(
       {
         success: false,
@@ -128,23 +133,23 @@ async function handleGET(request: NextRequest, context: { user: any }) {
         message: '获取反馈列表失败',
       },
       { status: 500 }
-    );
+    )
   }
 }
 
-export const GET = withAuth(handleGET);
+export const GET = withAuth(handleGET)
 
 /**
  * POST /api/feedback - Submit feedback
  */
 async function handlePOST(request: NextRequest, context: { user: any }) {
   try {
-    const { userId, username: userName } = context.user;
+    const { userId, username: userName } = context.user
 
-    const body = await request.json();
+    const body = await request.json()
 
     // Validate input
-    const validationResult = await validateAndSanitizeBody(body, feedbackSubmissionSchema, 'html');
+    const validationResult = await validateAndSanitizeBody(body, feedbackSubmissionSchema, 'html')
 
     if (!validationResult.success) {
       return NextResponse.json(
@@ -157,10 +162,11 @@ async function handlePOST(request: NextRequest, context: { user: any }) {
           })),
         },
         { status: 400 }
-      );
+      )
     }
 
-    const { type, priority, title, description, url, attachments, tags, rating } = validationResult.data;
+    const { type, priority, title, description, url, attachments, tags, rating } =
+      validationResult.data
 
     // Create feedback
     const feedback = feedbackStorage.createFeedback({
@@ -176,7 +182,7 @@ async function handlePOST(request: NextRequest, context: { user: any }) {
       attachments: attachments || [],
       tags: tags || [],
       rating: rating as FeedbackRating,
-    });
+    })
 
     return NextResponse.json(
       {
@@ -191,9 +197,9 @@ async function handlePOST(request: NextRequest, context: { user: any }) {
         },
       },
       { status: 201 }
-    );
+    )
   } catch (error) {
-    console.error('[Feedback API] POST error:', error);
+    console.error('[Feedback API] POST error:', error)
     return NextResponse.json(
       {
         success: false,
@@ -201,11 +207,11 @@ async function handlePOST(request: NextRequest, context: { user: any }) {
         message: '反馈提交失败，请稍后重试',
       },
       { status: 500 }
-    );
+    )
   }
 }
 
-export const POST = withAuth(handlePOST);
+export const POST = withAuth(handlePOST)
 
 /**
  * PATCH /api/feedback - Update feedback
@@ -213,12 +219,12 @@ export const POST = withAuth(handlePOST);
  */
 async function handlePATCH(request: NextRequest, context: { user: any }) {
   try {
-    const { userId, userName, userEmail } = context.user;
+    const { userId, userName, userEmail } = context.user
 
-    const body = await request.json();
+    const body = await request.json()
 
     // Validate input
-    const validationResult = await validateAndSanitizeBody(body, feedbackUpdateSchema);
+    const validationResult = await validateAndSanitizeBody(body, feedbackUpdateSchema)
 
     if (!validationResult.success) {
       return NextResponse.json(
@@ -231,37 +237,38 @@ async function handlePATCH(request: NextRequest, context: { user: any }) {
           })),
         },
         { status: 400 }
-      );
+      )
     }
 
-    const { feedbackId, status, adminResponse, adminId, adminName, priority } = validationResult.data;
+    const { feedbackId, status, adminResponse, adminId, adminName, priority } =
+      validationResult.data
 
     // Build updates
-    const updates: Partial<Feedback> = {};
+    const updates: Partial<Feedback> = {}
 
     if (status) {
-      updates.status = status;
-      
+      updates.status = status
+
       // Set resolved_at or closed_at
       if (status === 'resolved') {
-        updates.resolvedAt = Date.now();
+        updates.resolvedAt = Date.now()
       } else if (status === 'closed') {
-        updates.closedAt = Date.now();
+        updates.closedAt = Date.now()
       }
     }
 
     if (adminResponse) {
-      updates.adminResponse = sanitizeHtml(adminResponse);
-      updates.adminId = adminId || userId;
-      updates.adminName = adminName || userName;
+      updates.adminResponse = sanitizeHtml(adminResponse)
+      updates.adminId = adminId || userId
+      updates.adminName = adminName || userName
     }
 
     if (priority) {
-      updates.priority = priority;
+      updates.priority = priority
     }
 
     // Update feedback
-    const updated = feedbackStorage.updateFeedback(feedbackId, updates);
+    const updated = feedbackStorage.updateFeedback(feedbackId, updates)
 
     if (!updated) {
       return NextResponse.json(
@@ -271,28 +278,21 @@ async function handlePATCH(request: NextRequest, context: { user: any }) {
           message: '反馈不存在',
         },
         { status: 404 }
-      );
+      )
     }
 
     // Add comment if admin response is provided
     if (adminResponse && adminId && adminName) {
-      feedbackStorage.addComment(
-        feedbackId,
-        adminId,
-        adminName,
-        userEmail,
-        adminResponse,
-        true
-      );
+      feedbackStorage.addComment(feedbackId, adminId, adminName, userEmail, adminResponse, true)
     }
 
     return NextResponse.json({
       success: true,
       message: '反馈已更新',
       data: updated,
-    });
+    })
   } catch (error) {
-    console.error('[Feedback API] PATCH error:', error);
+    console.error('[Feedback API] PATCH error:', error)
     return NextResponse.json(
       {
         success: false,
@@ -300,11 +300,11 @@ async function handlePATCH(request: NextRequest, context: { user: any }) {
         message: '更新失败',
       },
       { status: 500 }
-    );
+    )
   }
 }
 
-export const PATCH = withAdmin(handlePATCH);
+export const PATCH = withAdmin(handlePATCH)
 
 /**
  * DELETE /api/feedback - Delete feedback
@@ -312,8 +312,8 @@ export const PATCH = withAdmin(handlePATCH);
  */
 async function handleDELETE(request: NextRequest, context: { user: any }) {
   try {
-    const { searchParams } = new URL(request.url);
-    const feedbackId = searchParams.get('id');
+    const { searchParams } = new URL(request.url)
+    const feedbackId = searchParams.get('id')
 
     if (!feedbackId) {
       return NextResponse.json(
@@ -323,11 +323,11 @@ async function handleDELETE(request: NextRequest, context: { user: any }) {
           message: '缺少反馈 ID',
         },
         { status: 400 }
-      );
+      )
     }
 
     // Delete feedback
-    const deleted = feedbackStorage.deleteFeedback(feedbackId);
+    const deleted = feedbackStorage.deleteFeedback(feedbackId)
 
     if (!deleted) {
       return NextResponse.json(
@@ -337,15 +337,15 @@ async function handleDELETE(request: NextRequest, context: { user: any }) {
           message: '反馈不存在',
         },
         { status: 404 }
-      );
+      )
     }
 
     return NextResponse.json({
       success: true,
       message: '反馈已删除',
-    });
+    })
   } catch (error) {
-    console.error('[Feedback API] DELETE error:', error);
+    console.error('[Feedback API] DELETE error:', error)
     return NextResponse.json(
       {
         success: false,
@@ -353,11 +353,11 @@ async function handleDELETE(request: NextRequest, context: { user: any }) {
         message: '删除失败',
       },
       { status: 500 }
-    );
+    )
   }
 }
 
-export const DELETE = withAdmin(handleDELETE);
+export const DELETE = withAdmin(handleDELETE)
 
 /**
  * GET /api/feedback/stats - Get statistics
@@ -366,14 +366,14 @@ export const DELETE = withAdmin(handleDELETE);
 async function handleGET_STATS(request: NextRequest, context: { user: any }) {
   try {
     // Get stats
-    const stats = feedbackStorage.getStats();
+    const stats = feedbackStorage.getStats()
 
     return NextResponse.json({
       success: true,
       data: { stats },
-    });
+    })
   } catch (error) {
-    console.error('[Feedback API] GET_STATS error:', error);
+    console.error('[Feedback API] GET_STATS error:', error)
     return NextResponse.json(
       {
         success: false,
@@ -381,11 +381,11 @@ async function handleGET_STATS(request: NextRequest, context: { user: any }) {
         message: '获取统计信息失败',
       },
       { status: 500 }
-    );
+    )
   }
 }
 
-export const GET_STATS = withAdmin(handleGET_STATS);
+export const GET_STATS = withAdmin(handleGET_STATS)
 
 /**
  * POST /api/feedback/response - Add admin response
@@ -393,12 +393,12 @@ export const GET_STATS = withAdmin(handleGET_STATS);
  */
 async function handlePOST_RESPONSE(request: NextRequest, context: { user: any }) {
   try {
-    const { userId, userName, userEmail } = context.user;
+    const { userId, userName, userEmail } = context.user
 
-    const body = await request.json();
+    const body = await request.json()
 
     // Validate input
-    const validationResult = await validateAndSanitizeBody(body, responseSubmissionSchema);
+    const validationResult = await validateAndSanitizeBody(body, responseSubmissionSchema)
 
     if (!validationResult.success) {
       return NextResponse.json(
@@ -411,10 +411,10 @@ async function handlePOST_RESPONSE(request: NextRequest, context: { user: any })
           })),
         },
         { status: 400 }
-      );
+      )
     }
 
-    const { feedbackId, response, adminId, adminName } = validationResult.data;
+    const { feedbackId, response, adminId, adminName } = validationResult.data
 
     // Update feedback with admin response
     const updated = feedbackStorage.updateFeedback(feedbackId, {
@@ -422,7 +422,7 @@ async function handlePOST_RESPONSE(request: NextRequest, context: { user: any })
       adminId,
       adminName,
       status: 'in_progress',
-    });
+    })
 
     if (!updated) {
       return NextResponse.json(
@@ -432,26 +432,19 @@ async function handlePOST_RESPONSE(request: NextRequest, context: { user: any })
           message: '反馈不存在',
         },
         { status: 404 }
-      );
+      )
     }
 
     // Add comment
-    feedbackStorage.addComment(
-      feedbackId,
-      adminId,
-      adminName,
-      userEmail,
-      response,
-      true
-    );
+    feedbackStorage.addComment(feedbackId, adminId, adminName, userEmail, response, true)
 
     return NextResponse.json({
       success: true,
       message: '回复已发送',
       data: updated,
-    });
+    })
   } catch (error) {
-    console.error('[Feedback API] POST_RESPONSE error:', error);
+    console.error('[Feedback API] POST_RESPONSE error:', error)
     return NextResponse.json(
       {
         success: false,
@@ -459,11 +452,11 @@ async function handlePOST_RESPONSE(request: NextRequest, context: { user: any })
         message: '发送回复失败',
       },
       { status: 500 }
-    );
+    )
   }
 }
 
-export const POST_RESPONSE = withAdmin(handlePOST_RESPONSE);
+export const POST_RESPONSE = withAdmin(handlePOST_RESPONSE)
 
 /**
  * GET /api/feedback/export - Export feedbacks as CSV
@@ -471,22 +464,40 @@ export const POST_RESPONSE = withAdmin(handlePOST_RESPONSE);
  */
 async function handleGET_EXPORT(request: NextRequest, context: { user: any }) {
   try {
-    const { searchParams } = new URL(request.url);
-    const type = searchParams.get('type') as Feedback['type'] | null;
-    const priority = searchParams.get('priority') as Feedback['priority'] | null;
-    const status = searchParams.get('status') as Feedback['status'] | null;
+    const { searchParams } = new URL(request.url)
+    const type = searchParams.get('type') as Feedback['type'] | null
+    const priority = searchParams.get('priority') as Feedback['priority'] | null
+    const status = searchParams.get('status') as Feedback['status'] | null
 
     // Build filter
-    const filter: FeedbackFilter = {};
-    if (type) filter.type = type;
-    if (priority) filter.priority = priority;
-    if (status) filter.status = status;
+    const filter: FeedbackFilter = {}
+    if (type) filter.type = type
+    if (priority) filter.priority = priority
+    if (status) filter.status = status
 
     // Fetch all feedbacks
-    const result = feedbackStorage.getFeedbacks(filter, { field: 'createdAt', order: 'desc' }, 1, 10000);
+    const result = feedbackStorage.getFeedbacks(
+      filter,
+      { field: 'createdAt', order: 'desc' },
+      1,
+      10000
+    )
 
     // Generate CSV
-    const headers = ['ID', '用户', '邮箱', '类型', '优先级', '状态', '标题', '描述', '评分', 'URL', '标签', '创建时间'];
+    const headers = [
+      'ID',
+      '用户',
+      '邮箱',
+      '类型',
+      '优先级',
+      '状态',
+      '标题',
+      '描述',
+      '评分',
+      'URL',
+      '标签',
+      '创建时间',
+    ]
     const rows = result.feedbacks.map(f => [
       f.id,
       f.userName,
@@ -500,21 +511,18 @@ async function handleGET_EXPORT(request: NextRequest, context: { user: any }) {
       f.url || '',
       f.tags.join('; '),
       new Date(f.createdAt).toISOString(),
-    ]);
+    ])
 
-    const csv = [
-      headers.join(','),
-      ...rows.map(row => row.join(',')),
-    ].join('\n');
+    const csv = [headers.join(','), ...rows.map(row => row.join(','))].join('\n')
 
     return new NextResponse(csv, {
       headers: {
         'Content-Type': 'text/csv; charset=utf-8',
         'Content-Disposition': `attachment; filename=feedbacks_${new Date().toISOString().split('T')[0]}.csv`,
       },
-    });
+    })
   } catch (error) {
-    console.error('[Feedback API] GET_EXPORT error:', error);
+    console.error('[Feedback API] GET_EXPORT error:', error)
     return NextResponse.json(
       {
         success: false,
@@ -522,8 +530,8 @@ async function handleGET_EXPORT(request: NextRequest, context: { user: any }) {
         message: '导出失败',
       },
       { status: 500 }
-    );
+    )
   }
 }
 
-export const GET_EXPORT = withAdmin(handleGET_EXPORT);
+export const GET_EXPORT = withAdmin(handleGET_EXPORT)

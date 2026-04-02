@@ -10,41 +10,41 @@
 
 ### 1. 核心算法实现
 
-| 文件 | 描述 | 状态 |
-|------|------|------|
-| `token-bucket.ts` | Token Bucket 令牌桶算法 | ✅ |
-| `sliding-window.ts` | Sliding Window Counter 滑动窗口计数器 | ✅ |
-| `storage.ts` | Redis 存储适配器 | ✅ |
+| 文件                | 描述                                  | 状态 |
+| ------------------- | ------------------------------------- | ---- |
+| `token-bucket.ts`   | Token Bucket 令牌桶算法               | ✅   |
+| `sliding-window.ts` | Sliding Window Counter 滑动窗口计数器 | ✅   |
+| `storage.ts`        | Redis 存储适配器                      | ✅   |
 
 ### 2. Express 中间件
 
-| 文件 | 描述 | 状态 |
-|------|------|------|
-| `middleware.ts` | 多层限流中间件（IP/API Key/User/Global） | ✅ |
-| `config.ts` | 配置加载器（YAML + 环境变量） | ✅ |
+| 文件            | 描述                                     | 状态 |
+| --------------- | ---------------------------------------- | ---- |
+| `middleware.ts` | 多层限流中间件（IP/API Key/User/Global） | ✅   |
+| `config.ts`     | 配置加载器（YAML + 环境变量）            | ✅   |
 
 ### 3. 配置文件
 
-| 文件 | 描述 | 状态 |
-|------|------|------|
-| `config/rate-limit.yaml` | 生产环境配置 | ✅ |
+| 文件                     | 描述         | 状态 |
+| ------------------------ | ------------ | ---- |
+| `config/rate-limit.yaml` | 生产环境配置 | ✅   |
 
 ### 4. 测试文件
 
-| 文件 | 描述 | 状态 |
-|------|------|------|
-| `__tests__/token-bucket.test.ts` | Token Bucket 单元测试 | ✅ |
-| `__tests__/sliding-window.test.ts` | Sliding Window 单元测试 | ✅ |
-| `__tests__/middleware.test.ts` | 中间件单元测试 | ✅ |
-| `__tests__/integration.test.ts` | 集成测试 | ✅ |
+| 文件                               | 描述                    | 状态 |
+| ---------------------------------- | ----------------------- | ---- |
+| `__tests__/token-bucket.test.ts`   | Token Bucket 单元测试   | ✅   |
+| `__tests__/sliding-window.test.ts` | Sliding Window 单元测试 | ✅   |
+| `__tests__/middleware.test.ts`     | 中间件单元测试          | ✅   |
+| `__tests__/integration.test.ts`    | 集成测试                | ✅   |
 
 ### 5. 文档和示例
 
-| 文件 | 描述 | 状态 |
-|------|------|------|
-| `examples.ts` | 10 个使用示例 | ✅ |
-| `benchmark.ts` | 性能基准测试 | ✅ |
-| `docs/rate-limiting-design.md` | 设计文档 | ✅ |
+| 文件                           | 描述          | 状态 |
+| ------------------------------ | ------------- | ---- |
+| `examples.ts`                  | 10 个使用示例 | ✅   |
+| `benchmark.ts`                 | 性能基准测试  | ✅   |
+| `docs/rate-limiting-design.md` | 设计文档      | ✅   |
 
 ---
 
@@ -108,15 +108,15 @@ const result = await counter.check('ip:192.168.1.1');
 ip:
   enabled: true
   algorithm: sliding-window
-  windowMs: 60000      # 1 分钟
-  maxRequests: 50      # 最多 50 次/分钟
+  windowMs: 60000 # 1 分钟
+  maxRequests: 50 # 最多 50 次/分钟
 
 # 用户限流
 user:
   enabled: true
   algorithm: sliding-window
   windowMs: 60000
-  maxRequests: 100     # 最多 100 次/分钟
+  maxRequests: 100 # 最多 100 次/分钟
 
 # API Key 限流
 apiKeys:
@@ -132,8 +132,8 @@ apiKeys:
 global:
   enabled: true
   algorithm: token-bucket
-  rate: 1000           # 1000 req/s
-  burst: 2000          # 突发 2000
+  rate: 1000 # 1000 req/s
+  burst: 2000 # 突发 2000
 
 # 白名单
 whitelist:
@@ -157,11 +157,11 @@ RATE_LIMIT_REDIS_URL=redis://localhost:6379
 
 ### 单元测试
 
-| 模块 | 测试用例数 | 覆盖率 |
-|------|-----------|--------|
-| Token Bucket | 12 | ~90% |
-| Sliding Window | 15 | ~90% |
-| Middleware | 20 | ~85% |
+| 模块           | 测试用例数 | 覆盖率 |
+| -------------- | ---------- | ------ |
+| Token Bucket   | 12         | ~90%   |
+| Sliding Window | 15         | ~90%   |
+| Middleware     | 20         | ~85%   |
 
 ### 集成测试
 
@@ -181,6 +181,7 @@ RATE_LIMIT_REDIS_URL=redis://localhost:6379
 运行 `npm run test:benchmark` 查看详细性能数据。
 
 **预期性能目标**：
+
 - Ops/sec: ≥ 1,000
 - P99 延迟: < 10ms
 - P95 延迟: < 5ms
@@ -192,22 +193,22 @@ RATE_LIMIT_REDIS_URL=redis://localhost:6379
 ### 1. 基础使用
 
 ```typescript
-import express from 'express';
-import Redis from 'ioredis';
-import { RateLimitMiddleware } from './lib/rate-limit';
+import express from 'express'
+import Redis from 'ioredis'
+import { RateLimitMiddleware } from './lib/rate-limit'
 
-const app = express();
-const redis = new Redis();
+const app = express()
+const redis = new Redis()
 
 const rateLimiter = new RateLimitMiddleware(redis, {
-  ip: { enabled: true, windowMs: 60000, maxRequests: 50 }
-});
+  ip: { enabled: true, windowMs: 60000, maxRequests: 50 },
+})
 
-app.use(rateLimiter.middleware());
+app.use(rateLimiter.middleware())
 
 app.get('/api/test', (req, res) => {
-  res.json({ success: true });
-});
+  res.json({ success: true })
+})
 ```
 
 ### 2. 多层限流
@@ -217,8 +218,8 @@ const rateLimiter = new RateLimitMiddleware(redis, {
   ip: { enabled: true, windowMs: 60000, maxRequests: 50 },
   user: { enabled: true, windowMs: 60000, maxRequests: 100 },
   apiKey: { enabled: true, rate: 10, burst: 30 },
-  global: { enabled: true, rate: 1000, burst: 2000 }
-});
+  global: { enabled: true, rate: 1000, burst: 2000 },
+})
 ```
 
 ### 3. 套餐限流
@@ -229,10 +230,10 @@ const rateLimiter = new RateLimitMiddleware(redis, {
     enabled: true,
     tiers: {
       free: { name: 'free', rate: 2, burst: 10, dailyLimit: 1000 },
-      pro: { name: 'pro', rate: 50, burst: 150, dailyLimit: 100000 }
-    }
-  }
-});
+      pro: { name: 'pro', rate: 50, burst: 150, dailyLimit: 100000 },
+    },
+  },
+})
 ```
 
 ---
@@ -241,12 +242,12 @@ const rateLimiter = new RateLimitMiddleware(redis, {
 
 ### 响应头
 
-| 头字段 | 说明 |
-|--------|------|
-| `X-RateLimit-Limit` | 时间窗口内的请求限制 |
-| `X-RateLimit-Remaining` | 剩余可请求数 |
-| `X-RateLimit-Reset` | 窗口重置时间戳 |
-| `Retry-After` | 重试等待秒数 |
+| 头字段                  | 说明                 |
+| ----------------------- | -------------------- |
+| `X-RateLimit-Limit`     | 时间窗口内的请求限制 |
+| `X-RateLimit-Remaining` | 剩余可请求数         |
+| `X-RateLimit-Reset`     | 窗口重置时间戳       |
+| `Retry-After`           | 重试等待秒数         |
 
 ### 错误响应
 

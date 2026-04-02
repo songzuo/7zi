@@ -12,95 +12,82 @@
  * />
  */
 
-'use client';
+'use client'
 
-import React, { memo } from 'react';
-import {
-  AlertTriangle,
-  RefreshCw,
-  Home,
-  Bug,
-  FileText,
-  Copy,
-  Check,
-} from 'lucide-react';
-import type { ErrorFallbackProps } from './ErrorBoundary';
+import React, { memo } from 'react'
+import { AlertTriangle, RefreshCw, Home, Bug, FileText, Copy, Check } from 'lucide-react'
+import type { ErrorFallbackProps } from './ErrorBoundary'
 
 interface ErrorFallbackConfig {
   /**
    * Custom title
    * @default 'Something went wrong'
    */
-  title?: string;
+  title?: string
 
   /**
    * Custom message
    * @default 'An unexpected error occurred. Please try again.'
    */
-  message?: string;
+  message?: string
 
   /**
    * Whether to show error details
    * @default true in development
    */
-  showErrorDetails?: boolean;
+  showErrorDetails?: boolean
 
   /**
    * Whether to show recovery options
    * @default true
    */
-  showRecoveryOptions?: boolean;
+  showRecoveryOptions?: boolean
 
   /**
    * Whether to show support link
    * @default true
    */
-  showSupportLink?: boolean;
+  showSupportLink?: boolean
 
   /**
    * Support email or URL
    * @default 'mailto:support@example.com'
    */
-  supportContact?: string;
+  supportContact?: string
 
   /**
    * Additional actions to show
    */
   additionalActions?: Array<{
-    label: string;
-    onClick: () => void;
-    icon?: React.ReactNode;
-  }>;
+    label: string
+    onClick: () => void
+    icon?: React.ReactNode
+  }>
 
   /**
    * Custom styles
    */
-  className?: string;
+  className?: string
 }
 
 /**
  * Simple error fallback for minimal UI
  */
-export function SimpleErrorFallback({
-  error,
-  resetError,
-}: ErrorFallbackProps) {
+export function SimpleErrorFallback({ error, resetError }: ErrorFallbackProps) {
   return (
-    <div className="flex items-center justify-center min-h-screen bg-gray-50 dark:bg-gray-900 p-4">
+    <div className="flex min-h-screen items-center justify-center bg-gray-50 p-4 dark:bg-gray-900">
       <div className="text-center">
-        <AlertTriangle className="w-12 h-12 text-red-500 mx-auto mb-4" />
-        <p className="text-gray-600 dark:text-gray-400 mb-4">
-          Something went wrong
-        </p>
+        <AlertTriangle className="mx-auto mb-4 h-12 w-12 text-red-500" />
+        <p className="mb-4 text-gray-600 dark:text-gray-400">Something went wrong</p>
         <button
           onClick={resetError}
-          className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
+          className="rounded-lg bg-blue-600 px-4 py-2 text-white transition-colors hover:bg-blue-700"
         >
           Try Again
         </button>
       </div>
     </div>
-  );
+  )
 }
 
 /**
@@ -112,10 +99,10 @@ export function FullErrorFallback({
   resetError,
   config = {},
 }: ErrorFallbackProps & { config?: ErrorFallbackConfig }) {
-  const [copied, setCopied] = React.useState(false);
+  const [copied, setCopied] = React.useState(false)
   const [showDetails, setShowDetails] = React.useState(
     config.showErrorDetails ?? process.env.NODE_ENV === 'development'
-  );
+  )
 
   const {
     title = 'Something went wrong',
@@ -126,7 +113,7 @@ export function FullErrorFallback({
     supportContact = 'mailto:support@example.com',
     additionalActions = [],
     className = '',
-  } = config;
+  } = config
 
   const handleCopyError = () => {
     const errorText = `
@@ -135,59 +122,59 @@ Time: ${new Date().toISOString()}
 URL: ${typeof window !== 'undefined' ? window.location.href : 'N/A'}
 Stack Trace:
 ${errorInfo?.componentStack || 'N/A'}
-    `.trim();
+    `.trim()
 
-    navigator.clipboard.writeText(errorText);
-    setCopied(true);
-    setTimeout(() => setCopied(false), 2000);
-  };
+    navigator.clipboard.writeText(errorText)
+    setCopied(true)
+    setTimeout(() => setCopied(false), 2000)
+  }
 
   return (
-    <div className={`min-h-screen flex items-center justify-center bg-gray-50 dark:bg-gray-900 p-4 ${className}`}>
-      <div className="max-w-2xl w-full bg-white dark:bg-gray-800 rounded-lg shadow-lg p-8">
+    <div
+      className={`flex min-h-screen items-center justify-center bg-gray-50 p-4 dark:bg-gray-900 ${className}`}
+    >
+      <div className="w-full max-w-2xl rounded-lg bg-white p-8 shadow-lg dark:bg-gray-800">
         {/* Icon */}
-        <div className="flex items-center justify-center w-20 h-20 bg-red-100 dark:bg-red-900/20 rounded-full mx-auto mb-6">
-          <AlertTriangle className="w-10 h-10 text-red-600 dark:text-red-400" />
+        <div className="mx-auto mb-6 flex h-20 w-20 items-center justify-center rounded-full bg-red-100 dark:bg-red-900/20">
+          <AlertTriangle className="h-10 w-10 text-red-600 dark:text-red-400" />
         </div>
 
         {/* Title and message */}
-        <h1 className="text-3xl font-bold text-gray-900 dark:text-white text-center mb-3">
+        <h1 className="mb-3 text-center text-3xl font-bold text-gray-900 dark:text-white">
           {title}
         </h1>
 
-        <p className="text-gray-600 dark:text-gray-400 text-center mb-8">
-          {message}
-        </p>
+        <p className="mb-8 text-center text-gray-600 dark:text-gray-400">{message}</p>
 
         {/* Error details toggle */}
         {(config.showErrorDetails ?? process.env.NODE_ENV === 'development') && (
           <div className="mb-6">
             <button
               onClick={() => setShowDetails(!showDetails)}
-              className="flex items-center justify-center w-full px-4 py-2 text-sm font-medium text-gray-700 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white bg-gray-100 dark:bg-gray-700 rounded-lg transition-colors mb-2"
+              className="mb-2 flex w-full items-center justify-center rounded-lg bg-gray-100 px-4 py-2 text-sm font-medium text-gray-700 transition-colors hover:text-gray-900 dark:bg-gray-700 dark:text-gray-300 dark:hover:text-white"
             >
-              <Bug className="w-4 h-4 mr-2" />
+              <Bug className="mr-2 h-4 w-4" />
               {showDetails ? 'Hide Error Details' : 'Show Error Details'}
             </button>
 
             {showDetails && error && (
-              <div className="bg-gray-100 dark:bg-gray-700 rounded-lg p-4 mb-4">
-                <div className="flex items-center justify-between mb-3">
+              <div className="mb-4 rounded-lg bg-gray-100 p-4 dark:bg-gray-700">
+                <div className="mb-3 flex items-center justify-between">
                   <h3 className="text-sm font-medium text-gray-900 dark:text-white">
                     Error Information
                   </h3>
                   <button
                     onClick={handleCopyError}
-                    className="flex items-center text-sm text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white"
+                    className="flex items-center text-sm text-gray-600 hover:text-gray-900 dark:text-gray-400 dark:hover:text-white"
                   >
                     {copied ? (
                       <>
-                        <Check className="w-4 h-4 mr-1" />
+                        <Check className="mr-1 h-4 w-4" />
                         Copied
                       </>
                     ) : (
                       <>
-                        <Copy className="w-4 h-4 mr-1" />
+                        <Copy className="mr-1 h-4 w-4" />
                         Copy
                       </>
                     )}
@@ -196,20 +183,20 @@ ${errorInfo?.componentStack || 'N/A'}
 
                 <div className="space-y-2">
                   <div>
-                    <p className="text-xs font-medium text-gray-500 dark:text-gray-400 mb-1">
+                    <p className="mb-1 text-xs font-medium text-gray-500 dark:text-gray-400">
                       Error Message
                     </p>
-                    <p className="text-sm font-mono text-red-700 dark:text-red-400 bg-red-50 dark:bg-red-900/20 p-2 rounded">
+                    <p className="rounded bg-red-50 p-2 font-mono text-sm text-red-700 dark:bg-red-900/20 dark:text-red-400">
                       {error.toString()}
                     </p>
                   </div>
 
                   {errorInfo && (
                     <div>
-                      <p className="text-xs font-medium text-gray-500 dark:text-gray-400 mb-1">
+                      <p className="mb-1 text-xs font-medium text-gray-500 dark:text-gray-400">
                         Component Stack
                       </p>
-                      <pre className="text-xs font-mono text-gray-700 dark:text-gray-300 bg-gray-200 dark:bg-gray-600 p-2 rounded overflow-auto max-h-40 whitespace-pre-wrap">
+                      <pre className="max-h-40 overflow-auto rounded bg-gray-200 p-2 font-mono text-xs whitespace-pre-wrap text-gray-700 dark:bg-gray-600 dark:text-gray-300">
                         {errorInfo.componentStack}
                       </pre>
                     </div>
@@ -222,20 +209,20 @@ ${errorInfo?.componentStack || 'N/A'}
 
         {/* Recovery options */}
         {showRecoveryOptions && (
-          <div className="space-y-3 mb-8">
+          <div className="mb-8 space-y-3">
             <button
               onClick={resetError}
-              className="w-full flex items-center justify-center px-6 py-3 bg-blue-600 hover:bg-blue-700 text-white font-medium rounded-lg transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 dark:focus:ring-offset-gray-800"
+              className="flex w-full items-center justify-center rounded-lg bg-blue-600 px-6 py-3 font-medium text-white transition-colors hover:bg-blue-700 focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 focus:outline-none dark:focus:ring-offset-gray-800"
             >
-              <RefreshCw className="w-5 h-5 mr-2" />
+              <RefreshCw className="mr-2 h-5 w-5" />
               Try Again
             </button>
 
             <button
-              onClick={() => window.location.href = '/'}
-              className="w-full flex items-center justify-center px-6 py-3 bg-gray-200 hover:bg-gray-300 dark:bg-gray-700 dark:hover:bg-gray-600 text-gray-900 dark:text-white font-medium rounded-lg transition-colors focus:outline-none focus:ring-2 focus:ring-gray-500 focus:ring-offset-2 dark:focus:ring-offset-gray-800"
+              onClick={() => (window.location.href = '/')}
+              className="flex w-full items-center justify-center rounded-lg bg-gray-200 px-6 py-3 font-medium text-gray-900 transition-colors hover:bg-gray-300 focus:ring-2 focus:ring-gray-500 focus:ring-offset-2 focus:outline-none dark:bg-gray-700 dark:text-white dark:hover:bg-gray-600 dark:focus:ring-offset-gray-800"
             >
-              <Home className="w-5 h-5 mr-2" />
+              <Home className="mr-2 h-5 w-5" />
               Go to Home
             </button>
 
@@ -243,7 +230,7 @@ ${errorInfo?.componentStack || 'N/A'}
               <button
                 key={index}
                 onClick={action.onClick}
-                className="w-full flex items-center justify-center px-6 py-3 bg-white hover:bg-gray-50 dark:bg-gray-800 dark:hover:bg-gray-700 text-gray-900 dark:text-white font-medium rounded-lg border border-gray-300 dark:border-gray-600 transition-colors focus:outline-none focus:ring-2 focus:ring-gray-500 focus:ring-offset-2 dark:focus:ring-offset-gray-800"
+                className="flex w-full items-center justify-center rounded-lg border border-gray-300 bg-white px-6 py-3 font-medium text-gray-900 transition-colors hover:bg-gray-50 focus:ring-2 focus:ring-gray-500 focus:ring-offset-2 focus:outline-none dark:border-gray-600 dark:bg-gray-800 dark:text-white dark:hover:bg-gray-700 dark:focus:ring-offset-gray-800"
               >
                 {action.icon}
                 {action.label}
@@ -255,21 +242,19 @@ ${errorInfo?.componentStack || 'N/A'}
         {/* Support link */}
         {showSupportLink && (
           <div className="text-center">
-            <p className="text-sm text-gray-500 dark:text-gray-400 mb-2">
-              Problem still persists?
-            </p>
+            <p className="mb-2 text-sm text-gray-500 dark:text-gray-400">Problem still persists?</p>
             <a
               href={supportContact}
-              className="inline-flex items-center text-sm font-medium text-blue-600 dark:text-blue-400 hover:text-blue-700 dark:hover:text-blue-300"
+              className="inline-flex items-center text-sm font-medium text-blue-600 hover:text-blue-700 dark:text-blue-400 dark:hover:text-blue-300"
             >
-              <FileText className="w-4 h-4 mr-1" />
+              <FileText className="mr-1 h-4 w-4" />
               Contact Support
             </a>
           </div>
         )}
       </div>
     </div>
-  );
+  )
 }
 
 /**
@@ -279,33 +264,33 @@ export function CardErrorFallback({
   error,
   resetError,
   config = {},
-}: ErrorFallbackProps & { config?: Omit<ErrorFallbackConfig, 'showErrorDetails' | 'showSupportLink'> }) {
+}: ErrorFallbackProps & {
+  config?: Omit<ErrorFallbackConfig, 'showErrorDetails' | 'showSupportLink'>
+}) {
   const {
     title = 'Error',
     message = 'An error occurred',
     showRecoveryOptions = true,
     additionalActions = [],
     className = '',
-  } = config;
+  } = config
 
   return (
-    <div className={`bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg p-6 ${className}`}>
+    <div
+      className={`rounded-lg border border-red-200 bg-red-50 p-6 dark:border-red-800 dark:bg-red-900/20 ${className}`}
+    >
       <div className="flex items-start gap-4">
-        <AlertTriangle className="w-6 h-6 text-red-600 dark:text-red-400 flex-shrink-0 mt-0.5" />
+        <AlertTriangle className="mt-0.5 h-6 w-6 flex-shrink-0 text-red-600 dark:text-red-400" />
 
-        <div className="flex-1 min-w-0">
-          <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-1">
-            {title}
-          </h3>
-          <p className="text-sm text-gray-700 dark:text-gray-300 mb-4">
-            {message}
-          </p>
+        <div className="min-w-0 flex-1">
+          <h3 className="mb-1 text-lg font-semibold text-gray-900 dark:text-white">{title}</h3>
+          <p className="mb-4 text-sm text-gray-700 dark:text-gray-300">{message}</p>
 
           {showRecoveryOptions && (
             <div className="flex gap-2">
               <button
                 onClick={resetError}
-                className="px-4 py-2 bg-red-600 hover:bg-red-700 text-white text-sm font-medium rounded transition-colors"
+                className="rounded bg-red-600 px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-red-700"
               >
                 Retry
               </button>
@@ -313,7 +298,7 @@ export function CardErrorFallback({
                 <button
                   key={index}
                   onClick={action.onClick}
-                  className="px-4 py-2 bg-white hover:bg-gray-50 dark:bg-gray-800 dark:hover:bg-gray-700 text-gray-900 dark:text-white text-sm font-medium rounded border border-gray-300 dark:border-gray-600 transition-colors"
+                  className="rounded border border-gray-300 bg-white px-4 py-2 text-sm font-medium text-gray-900 transition-colors hover:bg-gray-50 dark:border-gray-600 dark:bg-gray-800 dark:text-white dark:hover:bg-gray-700"
                 >
                   {action.label}
                 </button>
@@ -323,7 +308,7 @@ export function CardErrorFallback({
         </div>
       </div>
     </div>
-  );
+  )
 }
 
 /**
@@ -343,7 +328,7 @@ export function ErrorFallback({
       resetError={resetError}
       config={config}
     />
-  );
+  )
 }
 
-export default memo(ErrorFallback);
+export default memo(ErrorFallback)

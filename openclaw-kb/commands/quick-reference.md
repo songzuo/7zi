@@ -3,6 +3,7 @@
 ## 常用命令
 
 ### 版本和状态
+
 ```bash
 openclaw --version          # 查看版本
 openclaw status             # 查看运行状态
@@ -10,6 +11,7 @@ openclaw config schema     # 获取配置Schema
 ```
 
 ### 配置管理
+
 ```bash
 openclaw config get                 # 获取当前配置
 openclaw config get agents.defaults # 获取特定配置
@@ -19,6 +21,7 @@ openclaw config file                # 显示配置文件路径
 ```
 
 ### 更新管理
+
 ```bash
 openclaw update status              # 检查更新状态
 openclaw update --yes               # 执行更新
@@ -26,6 +29,7 @@ openclaw update --channel stable   # 切换更新频道
 ```
 
 ### Gateway管理
+
 ```bash
 openclaw gateway start      # 启动
 openclaw gateway stop      # 停止
@@ -34,6 +38,7 @@ openclaw gateway status   # 状态
 ```
 
 ### 通道管理
+
 ```bash
 openclaw channels list     # 列出通道
 openclaw channels login   # 登录通道
@@ -48,6 +53,7 @@ openclaw channels login   # 登录通道
 ## 配置文件校验
 
 **重要**: 在执行任何配置修改前，务必运行:
+
 ```bash
 openclaw config validate
 ```

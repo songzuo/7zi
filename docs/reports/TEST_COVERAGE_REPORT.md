@@ -1,6 +1,7 @@
 # 7zi 项目单元测试报告
 
 ## 执行时间
+
 - **日期**: 2026-03-26
 - **执行者**: 测试工程师 AI Subagent
 
@@ -13,6 +14,7 @@
 ### 1. 项目结构分析 ✓
 
 **核心业务逻辑文件**:
+
 - `src/lib/auth/jwt.ts` - JWT 认证逻辑
 - `src/lib/api/error-handler.ts` - API 错误处理
 - `src/lib/api/retry-decorator.ts` - 重试机制
@@ -21,6 +23,7 @@
 - `src/stores/uiStore.ts` - UI 状态管理 Store
 
 **现有测试覆盖**:
+
 - JWT 认证: 已有完整测试 (`src/lib/auth/jwt.test.ts`)
 - API 错误处理: 已有测试 (`src/lib/api/__tests__/error-handler.test.ts`)
 - Stores: 部分测试 (`tests/stores/dashboardStore.test.ts`)
@@ -30,6 +33,7 @@
 #### 2.1 API 重试机制测试 (`tests/lib/retry-decorator.test.ts`)
 
 **测试覆盖**:
+
 - ✓ 基本功能测试
 - ✓ 重试逻辑测试
 - ✓ 指数退避测试
@@ -42,6 +46,7 @@
 - ✓ 边界情况测试
 
 **关键测试用例**:
+
 ```typescript
 - should execute function successfully on first attempt
 - should retry on retryable errors
@@ -58,6 +63,7 @@
 #### 2.2 超时包装器测试 (`tests/lib/timeout-wrapper.test.ts`)
 
 **测试覆盖**:
+
 - ✓ withTimeout 基本功能
 - ✓ withTimeoutPromise 功能
 - ✓ withTimeoutApi 功能
@@ -70,6 +76,7 @@
 - ✓ 边界情况测试
 
 **关键测试用例**:
+
 ```typescript
 - should execute function successfully within timeout
 - should timeout after specified duration
@@ -86,6 +93,7 @@
 #### 2.3 用户偏好设置 Store 测试 (`tests/stores/preferencesStore.test.ts`)
 
 **测试覆盖**:
+
 - ✓ 初始状态测试
 - ✓ setTheme 功能测试
 - ✓ toggleTheme 功能测试
@@ -97,6 +105,7 @@
 - ✓ 边界情况测试
 
 **关键测试用例**:
+
 ```typescript
 - should initialize with default settings
 - should set theme to light
@@ -113,6 +122,7 @@
 #### 2.4 UI Store 测试 (`tests/stores/uiStore.test.ts`)
 
 **测试覆盖**:
+
 - ✓ 初始状态测试
 - ✓ Sidebar 功能测试 (toggle, open, close, collapse, setWidth)
 - ✓ Modal 功能测试 (open, close, closeAll, update)
@@ -125,6 +135,7 @@
 - ✓ 边界情况测试
 
 **关键测试用例**:
+
 ```typescript
 - should initialize with default sidebar state
 - should toggle sidebar open/close
@@ -142,12 +153,13 @@
 ## 测试统计
 
 ### 新增测试文件
-| 文件 | 测试数 | 状态 |
-|------|---------|------|
-| tests/lib/retry-decorator.test.ts | ~50 | 大部分通过 |
-| tests/lib/timeout-wrapper.test.ts | ~50 | 大部分通过 |
-| tests/stores/preferencesStore.test.ts | ~50 | 通过 |
-| tests/stores/uiStore.test.ts | ~50 | 通过 |
+
+| 文件                                  | 测试数 | 状态       |
+| ------------------------------------- | ------ | ---------- |
+| tests/lib/retry-decorator.test.ts     | ~50    | 大部分通过 |
+| tests/lib/timeout-wrapper.test.ts     | ~50    | 大部分通过 |
+| tests/stores/preferencesStore.test.ts | ~50    | 通过       |
+| tests/stores/uiStore.test.ts          | ~50    | 通过       |
 
 **总计**: 约 **200+** 个新增测试用例
 
@@ -210,10 +222,12 @@ pnpm test:coverage
 ## 遇到的问题和解决方案
 
 ### 问题 1: React Hook 在非 React 环境中调用
+
 **问题**: Zustand selector hooks 需要在 React 环境中运行
 **解决**: 改为直接使用 `useStore.getState()` 获取状态，而不通过 hooks
 
 ### 问题 2: 测试中的未处理 Promise 拒绝
+
 **问题**: retry-decorator 测试中有未处理的 Promise 拒绝
 **解决**: 修改测试逻辑，正确处理异步错误情况
 
@@ -227,6 +241,7 @@ pnpm test:coverage
 ## 结论
 
 成功为 7zi 项目添加了核心业务逻辑的单元测试，覆盖了：
+
 - JWT 认证逻辑 (已有测试)
 - API 错误处理 (已有测试 + 新增 retry/timeout 测试)
 - Zustand Stores (新增 2 个核心 store 测试)
@@ -235,5 +250,6 @@ pnpm test:coverage
 测试套件为项目的可靠性和可维护性提供了坚实的基础。
 
 ---
+
 **报告生成**: 2026-03-26
 **测试工程师**: AI Subagent (test-coverage-improvement)

@@ -12,15 +12,15 @@
 
 ### 总体评估
 
-| 评估项 | 状态 | 风险等级 | 备注 |
-|--------|------|----------|------|
-| 依赖安全漏洞 | ✅ 已修复 | 低风险 | esbuild override 生效 |
-| XSS 防护 | ⚠️ 部分改进 | 中风险 | 需在所有渲染点使用 DOMPurify |
-| CORS 配置 | ✅ 配置完善 | 低风险 | 环境感知配置 |
-| 速率限制 | ✅ 已实现 | 低风险 | 完整中间件链 |
-| 环境变量管理 | ✅ 安全 | 无风险 | .gitignore 正确 |
-| 硬编码凭证 | ✅ 未发现 | 无风险 | 环境变量管理规范 |
-| SQL 注入防护 | ✅ 已实现 | 无风险 | 参数化查询 |
+| 评估项       | 状态        | 风险等级 | 备注                         |
+| ------------ | ----------- | -------- | ---------------------------- |
+| 依赖安全漏洞 | ✅ 已修复   | 低风险   | esbuild override 生效        |
+| XSS 防护     | ⚠️ 部分改进 | 中风险   | 需在所有渲染点使用 DOMPurify |
+| CORS 配置    | ✅ 配置完善 | 低风险   | 环境感知配置                 |
+| 速率限制     | ✅ 已实现   | 低风险   | 完整中间件链                 |
+| 环境变量管理 | ✅ 安全     | 无风险   | .gitignore 正确              |
+| 硬编码凭证   | ✅ 未发现   | 无风险   | 环境变量管理规范             |
+| SQL 注入防护 | ✅ 已实现   | 无风险   | 参数化查询                   |
 
 ---
 
@@ -51,11 +51,11 @@ Paths: vitest > vite > esbuild
 
 ### 1.2 依赖版本安全状态
 
-| 依赖 | 版本 | 漏洞状态 |
-|------|------|----------|
-| esbuild | 0.27.4 | ✅ 已修复 |
-| undici | 7.24.x | ✅ 安全 |
-| isomorphic-dompurify | 3.6.x | ✅ 安全 |
+| 依赖                 | 版本   | 漏洞状态  |
+| -------------------- | ------ | --------- |
+| esbuild              | 0.27.4 | ✅ 已修复 |
+| undici               | 7.24.x | ✅ 安全   |
+| isomorphic-dompurify | 3.6.x  | ✅ 安全   |
 
 ---
 
@@ -65,14 +65,14 @@ Paths: vitest > vite > esbuild
 
 #### dangerouslySetInnerHTML 使用检查
 
-| 文件位置 | 用途 | 风险评估 | 建议 |
-|----------|------|----------|------|
-| `src/app/[locale]/blog/[slug]/page.tsx` | 博客内容渲染 | ⚠️ **中风险** | 需添加 DOMPurify |
+| 文件位置                                     | 用途         | 风险评估      | 建议             |
+| -------------------------------------------- | ------------ | ------------- | ---------------- |
+| `src/app/[locale]/blog/[slug]/page.tsx`      | 博客内容渲染 | ⚠️ **中风险** | 需添加 DOMPurify |
 | `src/app/[locale]/portfolio/[slug]/page.tsx` | 作品内容渲染 | ⚠️ **中风险** | 需添加 DOMPurify |
-| `src/app/[locale]/contact/page.tsx` | 联系页面内容 | ⚠️ **中风险** | 需添加 DOMPurify |
-| `src/app/[locale]/team/page.tsx` | JSON-LD 数据 | ✅ 低风险 | 无需处理 |
-| `src/app/layout.tsx` | JSON-LD 数据 | ✅ 低风险 | 无需处理 |
-| `src/components/SEO.tsx` | SEO 元数据 | ✅ 低风险 | 已安全使用 |
+| `src/app/[locale]/contact/page.tsx`          | 联系页面内容 | ⚠️ **中风险** | 需添加 DOMPurify |
+| `src/app/[locale]/team/page.tsx`             | JSON-LD 数据 | ✅ 低风险     | 无需处理         |
+| `src/app/layout.tsx`                         | JSON-LD 数据 | ✅ 低风险     | 无需处理         |
+| `src/components/SEO.tsx`                     | SEO 元数据   | ✅ 低风险     | 已安全使用       |
 
 #### 修复建议
 
@@ -82,13 +82,29 @@ Paths: vitest > vite > esbuild
 
 ```typescript
 // src/lib/utils/sanitize.ts
-import DOMPurify from 'isomorphic-dompurify';
+import DOMPurify from 'isomorphic-dompurify'
 
 export function sanitizeHtml(html: string): string {
   return DOMPurify.sanitize(html, {
-    ALLOWED_TAGS: ['p', 'br', 'strong', 'em', 'u', 'h1', 'h2', 'h3', 'ul', 'ol', 'li', 'a', 'blockquote', 'code', 'pre'],
+    ALLOWED_TAGS: [
+      'p',
+      'br',
+      'strong',
+      'em',
+      'u',
+      'h1',
+      'h2',
+      'h3',
+      'ul',
+      'ol',
+      'li',
+      'a',
+      'blockquote',
+      'code',
+      'pre',
+    ],
     ALLOWED_ATTR: ['href', 'title', 'target'],
-  });
+  })
 }
 ```
 
@@ -97,6 +113,7 @@ export function sanitizeHtml(html: string): string {
 **状态**: ✅ 已实现
 
 检查结果:
+
 - ✅ 使用 better-sqlite3 参数化查询
 - ✅ 无直接 SQL 字符串拼接
 - ✅ `src/lib/security/sql-injection.ts` 已实现
@@ -144,29 +161,29 @@ src/lib/
 
 ### 3.2 安全功能清单
 
-| 功能 | 状态 | 文件位置 |
-|------|------|----------|
-| CORS | ✅ | `src/lib/middleware/cors.ts` |
-| Rate Limiting | ✅ | `src/lib/rate-limit/` |
-| CSRF Protection | ✅ | `src/lib/middleware/csrf.ts` |
-| Security Headers | ✅ | `src/lib/middleware/security-headers.ts` |
-| Brute Force Protection | ✅ | `src/lib/middleware/brute-force-protection.ts` |
-| Input Sanitization | ✅ | `src/lib/middleware/input-sanitization.ts` |
-| RBAC | ✅ | `src/lib/security/rbac/` |
-| SQL Injection Guard | ✅ | `src/lib/security/sql-injection.ts` |
-| WebSocket Security | ✅ | `src/lib/security/websocket-security.ts` |
+| 功能                   | 状态 | 文件位置                                       |
+| ---------------------- | ---- | ---------------------------------------------- |
+| CORS                   | ✅   | `src/lib/middleware/cors.ts`                   |
+| Rate Limiting          | ✅   | `src/lib/rate-limit/`                          |
+| CSRF Protection        | ✅   | `src/lib/middleware/csrf.ts`                   |
+| Security Headers       | ✅   | `src/lib/middleware/security-headers.ts`       |
+| Brute Force Protection | ✅   | `src/lib/middleware/brute-force-protection.ts` |
+| Input Sanitization     | ✅   | `src/lib/middleware/input-sanitization.ts`     |
+| RBAC                   | ✅   | `src/lib/security/rbac/`                       |
+| SQL Injection Guard    | ✅   | `src/lib/security/sql-injection.ts`            |
+| WebSocket Security     | ✅   | `src/lib/security/websocket-security.ts`       |
 
 ---
 
 ## 四、安全评分
 
-| 类别 | 评分 | 满分 | 变化 |
-|------|------|------|------|
-| 依赖安全 | 10 | 10 | - |
-| 代码安全 | 8 | 10 | - |
-| 配置安全 | 9 | 10 | - |
-| 防护机制 | 9 | 10 | - |
-| **总分** | **36** | **40** | - |
+| 类别     | 评分   | 满分   | 变化 |
+| -------- | ------ | ------ | ---- |
+| 依赖安全 | 10     | 10     | -    |
+| 代码安全 | 8      | 10     | -    |
+| 配置安全 | 9      | 10     | -    |
+| 防护机制 | 9      | 10     | -    |
+| **总分** | **36** | **40** | -    |
 
 **安全等级**: **B+ (良好)**
 
@@ -183,6 +200,7 @@ src/lib/
 #### SEC-001: 博客/作品/联系页面 XSS 防护
 
 **影响文件**:
+
 - `src/app/[locale]/blog/[slug]/page.tsx`
 - `src/app/[locale]/portfolio/[slug]/page.tsx`
 - `src/app/[locale]/contact/page.tsx`
@@ -198,14 +216,14 @@ src/lib/
 
 ## 六、v1.8.0 安全性确认
 
-| 检查项 | 状态 | 说明 |
-|--------|------|------|
-| 依赖漏洞 | ✅ 通过 | esbuild override 生效 |
-| Rate Limiting | ✅ 通过 | 完整实现 |
-| CORS | ✅ 通过 | 环境感知配置 |
-| CSRF | ✅ 通过 | 令牌机制 |
-| 环境变量 | ✅ 通过 | 无泄露 |
-| 输入净化 | ⚠️ 部分 | 需扩展到所有渲染点 |
+| 检查项        | 状态    | 说明                  |
+| ------------- | ------- | --------------------- |
+| 依赖漏洞      | ✅ 通过 | esbuild override 生效 |
+| Rate Limiting | ✅ 通过 | 完整实现              |
+| CORS          | ✅ 通过 | 环境感知配置          |
+| CSRF          | ✅ 通过 | 令牌机制              |
+| 环境变量      | ✅ 通过 | 无泄露                |
+| 输入净化      | ⚠️ 部分 | 需扩展到所有渲染点    |
 
 ---
 

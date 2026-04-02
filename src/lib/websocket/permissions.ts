@@ -19,7 +19,7 @@ export type RoomPermission =
   | 'room:view'
   | 'room:invite'
   | 'room:kick'
-  | 'room:ban';
+  | 'room:ban'
 
 /**
  * Message-level permissions
@@ -30,7 +30,7 @@ export type MessagePermission =
   | 'message:delete'
   | 'message:react'
   | 'message:pin'
-  | 'message:view_history';
+  | 'message:view_history'
 
 /**
  * Admin-level permissions
@@ -41,38 +41,38 @@ export type AdminPermission =
   | 'admin:manage_permissions'
   | 'admin:ban_users'
   | 'admin:view_logs'
-  | 'admin:system_announce';
+  | 'admin:system_announce'
 
 /**
  * All permission types
  */
-export type Permission = RoomPermission | MessagePermission | AdminPermission;
+export type Permission = RoomPermission | MessagePermission | AdminPermission
 
 /**
  * User roles with predefined permission sets
  */
-export type UserRole = 'owner' | 'admin' | 'moderator' | 'member' | 'guest';
+export type UserRole = 'owner' | 'admin' | 'moderator' | 'member' | 'guest'
 
 /**
  * Permission grant entry
  */
 export interface PermissionGrant {
-  permission: Permission;
-  granted: boolean;
-  grantedBy?: string;
-  grantedAt: Date;
-  expiresAt?: Date;
+  permission: Permission
+  granted: boolean
+  grantedBy?: string
+  grantedAt: Date
+  expiresAt?: Date
 }
 
 /**
  * User permissions in a room
  */
 export interface UserRoomPermissions {
-  userId: string;
-  roomId: string;
-  role: UserRole;
-  permissions: Map<Permission, PermissionGrant>;
-  grantedAt: Date;
+  userId: string
+  roomId: string
+  role: UserRole
+  permissions: Map<Permission, PermissionGrant>
+  grantedAt: Date
 }
 
 // ============================================================================
@@ -82,70 +82,122 @@ export interface UserRoomPermissions {
 export const DEFAULT_ROLE_PERMISSIONS: Record<UserRole, Set<Permission>> = {
   owner: new Set<Permission>([
     // Room permissions
-    'room:join', 'room:leave', 'room:manage', 'room:view', 'room:invite', 'room:kick', 'room:ban',
+    'room:join',
+    'room:leave',
+    'room:manage',
+    'room:view',
+    'room:invite',
+    'room:kick',
+    'room:ban',
     // Message permissions
-    'message:send', 'message:edit', 'message:delete', 'message:react', 'message:pin', 'message:view_history',
+    'message:send',
+    'message:edit',
+    'message:delete',
+    'message:react',
+    'message:pin',
+    'message:view_history',
     // Admin permissions
-    'admin:manage_users', 'admin:manage_rooms', 'admin:manage_permissions', 'admin:ban_users', 'admin:view_logs', 'admin:system_announce',
+    'admin:manage_users',
+    'admin:manage_rooms',
+    'admin:manage_permissions',
+    'admin:ban_users',
+    'admin:view_logs',
+    'admin:system_announce',
   ]),
   admin: new Set<Permission>([
     // Room permissions
-    'room:join', 'room:leave', 'room:manage', 'room:view', 'room:invite', 'room:kick', 'room:ban',
+    'room:join',
+    'room:leave',
+    'room:manage',
+    'room:view',
+    'room:invite',
+    'room:kick',
+    'room:ban',
     // Message permissions
-    'message:send', 'message:edit', 'message:delete', 'message:react', 'message:pin', 'message:view_history',
+    'message:send',
+    'message:edit',
+    'message:delete',
+    'message:react',
+    'message:pin',
+    'message:view_history',
     // Admin permissions
-    'admin:manage_users', 'admin:manage_rooms', 'admin:view_logs', 'admin:system_announce',
+    'admin:manage_users',
+    'admin:manage_rooms',
+    'admin:view_logs',
+    'admin:system_announce',
   ]),
   moderator: new Set<Permission>([
     // Room permissions
-    'room:join', 'room:leave', 'room:view', 'room:invite', 'room:kick',
+    'room:join',
+    'room:leave',
+    'room:view',
+    'room:invite',
+    'room:kick',
     // Message permissions
-    'message:send', 'message:edit', 'message:delete', 'message:react', 'message:pin', 'message:view_history',
+    'message:send',
+    'message:edit',
+    'message:delete',
+    'message:react',
+    'message:pin',
+    'message:view_history',
   ]),
   member: new Set<Permission>([
     // Room permissions
-    'room:join', 'room:leave', 'room:view', 'room:invite',
+    'room:join',
+    'room:leave',
+    'room:view',
+    'room:invite',
     // Message permissions
-    'message:send', 'message:edit', 'message:react', 'message:view_history',
+    'message:send',
+    'message:edit',
+    'message:react',
+    'message:view_history',
   ]),
   guest: new Set<Permission>([
     // Room permissions
-    'room:join', 'room:leave', 'room:view',
+    'room:join',
+    'room:leave',
+    'room:view',
     // Message permissions
-    'message:send', 'message:react',
+    'message:send',
+    'message:react',
   ]),
-};
+}
 
 // ============================================================================
 // Permission Manager Class
 // ============================================================================
 
 export class PermissionManager {
-  private roomPermissions: Map<string, Map<string, UserRoomPermissions>> = new Map();
-  private globalRoles: Map<string, UserRole> = new Map();
-  private bannedUsers: Map<string, Set<string>> = new Map(); // roomId -> Set of userIds
+  private roomPermissions: Map<string, Map<string, UserRoomPermissions>> = new Map()
+  private globalRoles: Map<string, UserRole> = new Map()
+  private bannedUsers: Map<string, Set<string>> = new Map() // roomId -> Set of userIds
 
   /**
    * Get or create user permissions for a room
    */
-  private getOrCreateUserPermissions(userId: string, roomId: string, role: UserRole = 'member'): UserRoomPermissions {
+  private getOrCreateUserPermissions(
+    userId: string,
+    roomId: string,
+    role: UserRole = 'member'
+  ): UserRoomPermissions {
     if (!this.roomPermissions.has(roomId)) {
-      this.roomPermissions.set(roomId, new Map());
+      this.roomPermissions.set(roomId, new Map())
     }
 
-    const roomPerms = this.roomPermissions.get(roomId)!;
-    
+    const roomPerms = this.roomPermissions.get(roomId)!
+
     if (!roomPerms.has(userId)) {
-      const permissions = new Map<Permission, PermissionGrant>();
-      const defaultPerms = DEFAULT_ROLE_PERMISSIONS[role];
-      
+      const permissions = new Map<Permission, PermissionGrant>()
+      const defaultPerms = DEFAULT_ROLE_PERMISSIONS[role]
+
       defaultPerms.forEach(perm => {
         permissions.set(perm, {
           permission: perm,
           granted: true,
           grantedAt: new Date(),
-        });
-      });
+        })
+      })
 
       roomPerms.set(userId, {
         userId,
@@ -153,22 +205,22 @@ export class PermissionManager {
         role,
         permissions,
         grantedAt: new Date(),
-      });
+      })
     }
 
-    return roomPerms.get(userId)!;
+    return roomPerms.get(userId)!
   }
 
   /**
    * Set user role in a room
    */
   setUserRole(userId: string, roomId: string, role: UserRole, grantedBy?: string): void {
-    const userPerms = this.getOrCreateUserPermissions(userId, roomId, role);
-    userPerms.role = role;
+    const userPerms = this.getOrCreateUserPermissions(userId, roomId, role)
+    userPerms.role = role
 
     // Update permissions based on new role
-    const defaultPerms = DEFAULT_ROLE_PERMISSIONS[role];
-    userPerms.permissions.clear();
+    const defaultPerms = DEFAULT_ROLE_PERMISSIONS[role]
+    userPerms.permissions.clear()
 
     defaultPerms.forEach(perm => {
       userPerms.permissions.set(perm, {
@@ -176,19 +228,19 @@ export class PermissionManager {
         granted: true,
         grantedBy,
         grantedAt: new Date(),
-      });
-    });
+      })
+    })
   }
 
   /**
    * Get user role in a room
    */
   getUserRole(userId: string, roomId: string): UserRole {
-    const roomPerms = this.roomPermissions.get(roomId);
-    if (!roomPerms) return 'guest';
-    
-    const userPerms = roomPerms.get(userId);
-    return userPerms?.role ?? 'guest';
+    const roomPerms = this.roomPermissions.get(roomId)
+    if (!roomPerms) return 'guest'
+
+    const userPerms = roomPerms.get(userId)
+    return userPerms?.role ?? 'guest'
   }
 
   /**
@@ -197,29 +249,29 @@ export class PermissionManager {
   hasPermission(userId: string, roomId: string, permission: Permission): boolean {
     // Check if user is banned
     if (this.isUserBanned(userId, roomId)) {
-      return false;
+      return false
     }
 
-    const roomPerms = this.roomPermissions.get(roomId);
+    const roomPerms = this.roomPermissions.get(roomId)
     if (!roomPerms) {
       // Default to guest permissions for unknown rooms
-      return DEFAULT_ROLE_PERMISSIONS.guest.has(permission);
+      return DEFAULT_ROLE_PERMISSIONS.guest.has(permission)
     }
 
-    const userPerms = roomPerms.get(userId);
+    const userPerms = roomPerms.get(userId)
     if (!userPerms) {
-      return DEFAULT_ROLE_PERMISSIONS.guest.has(permission);
+      return DEFAULT_ROLE_PERMISSIONS.guest.has(permission)
     }
 
-    const grant = userPerms.permissions.get(permission);
-    if (!grant) return false;
+    const grant = userPerms.permissions.get(permission)
+    if (!grant) return false
 
     // Check expiration
     if (grant.expiresAt && grant.expiresAt < new Date()) {
-      return false;
+      return false
     }
 
-    return grant.granted;
+    return grant.granted
   }
 
   /**
@@ -232,15 +284,15 @@ export class PermissionManager {
     grantedBy: string,
     expiresAt?: Date
   ): void {
-    const userPerms = this.getOrCreateUserPermissions(userId, roomId);
-    
+    const userPerms = this.getOrCreateUserPermissions(userId, roomId)
+
     userPerms.permissions.set(permission, {
       permission,
       granted: true,
       grantedBy,
       grantedAt: new Date(),
       expiresAt,
-    });
+    })
   }
 
   /**
@@ -252,33 +304,35 @@ export class PermissionManager {
     permission: Permission,
     revokedBy: string
   ): void {
-    const userPerms = this.getOrCreateUserPermissions(userId, roomId);
-    
+    const userPerms = this.getOrCreateUserPermissions(userId, roomId)
+
     userPerms.permissions.set(permission, {
       permission,
       granted: false,
       grantedBy: revokedBy,
       grantedAt: new Date(),
-    });
+    })
   }
 
   /**
    * Get all permissions for a user in a room
    */
   getUserPermissions(userId: string, roomId: string): Permission[] {
-    const roomPerms = this.roomPermissions.get(roomId);
+    const roomPerms = this.roomPermissions.get(roomId)
     if (!roomPerms) {
-      return Array.from(DEFAULT_ROLE_PERMISSIONS.guest);
+      return Array.from(DEFAULT_ROLE_PERMISSIONS.guest)
     }
 
-    const userPerms = roomPerms.get(userId);
+    const userPerms = roomPerms.get(userId)
     if (!userPerms) {
-      return Array.from(DEFAULT_ROLE_PERMISSIONS.guest);
+      return Array.from(DEFAULT_ROLE_PERMISSIONS.guest)
     }
 
     return Array.from(userPerms.permissions.entries())
-      .filter(([_perm, grant]) => grant.granted && (!grant.expiresAt || grant.expiresAt > new Date()))
-      .map(([perm]) => perm);
+      .filter(
+        ([_perm, grant]) => grant.granted && (!grant.expiresAt || grant.expiresAt > new Date())
+      )
+      .map(([perm]) => perm)
   }
 
   /**
@@ -286,15 +340,15 @@ export class PermissionManager {
    */
   banUser(userId: string, roomId: string, bannedBy: string, _reason?: string): void {
     if (!this.bannedUsers.has(roomId)) {
-      this.bannedUsers.set(roomId, new Set());
+      this.bannedUsers.set(roomId, new Set())
     }
 
-    this.bannedUsers.get(roomId)!.add(userId);
+    this.bannedUsers.get(roomId)!.add(userId)
 
     // Also revoke all permissions
-    const roomPerms = this.roomPermissions.get(roomId);
+    const roomPerms = this.roomPermissions.get(roomId)
     if (roomPerms) {
-      const userPerms = roomPerms.get(userId);
+      const userPerms = roomPerms.get(userId)
       if (userPerms) {
         userPerms.permissions.forEach((__grant, perm) => {
           userPerms.permissions.set(perm, {
@@ -302,8 +356,8 @@ export class PermissionManager {
             granted: false,
             grantedBy: bannedBy,
             grantedAt: new Date(),
-          });
-        });
+          })
+        })
       }
     }
   }
@@ -312,9 +366,9 @@ export class PermissionManager {
    * Unban a user from a room
    */
   unbanUser(userId: string, roomId: string): void {
-    const banned = this.bannedUsers.get(roomId);
+    const banned = this.bannedUsers.get(roomId)
     if (banned) {
-      banned.delete(userId);
+      banned.delete(userId)
     }
   }
 
@@ -322,51 +376,51 @@ export class PermissionManager {
    * Check if a user is banned from a room
    */
   isUserBanned(userId: string, roomId: string): boolean {
-    const banned = this.bannedUsers.get(roomId);
-    return banned?.has(userId) ?? false;
+    const banned = this.bannedUsers.get(roomId)
+    return banned?.has(userId) ?? false
   }
 
   /**
    * Get all banned users for a room
    */
   getBannedUsers(roomId: string): string[] {
-    const banned = this.bannedUsers.get(roomId);
-    return banned ? Array.from(banned) : [];
+    const banned = this.bannedUsers.get(roomId)
+    return banned ? Array.from(banned) : []
   }
 
   /**
    * Set global role for a user (applies to all rooms they create)
    */
   setGlobalRole(userId: string, role: UserRole): void {
-    this.globalRoles.set(userId, role);
+    this.globalRoles.set(userId, role)
   }
 
   /**
    * Get global role for a user
    */
   getGlobalRole(userId: string): UserRole {
-    return this.globalRoles.get(userId) ?? 'member';
+    return this.globalRoles.get(userId) ?? 'member'
   }
 
   /**
    * Check if user can perform action on another user
    */
   canManageUser(actorId: string, targetId: string, roomId: string): boolean {
-    const actorRole = this.getUserRole(actorId, roomId);
-    const targetRole = this.getUserRole(targetId, roomId);
+    const actorRole = this.getUserRole(actorId, roomId)
+    const targetRole = this.getUserRole(targetId, roomId)
 
     // Role hierarchy: owner > admin > moderator > member > guest
-    const roleHierarchy: UserRole[] = ['owner', 'admin', 'moderator', 'member', 'guest'];
-    
-    return roleHierarchy.indexOf(actorRole) < roleHierarchy.indexOf(targetRole);
+    const roleHierarchy: UserRole[] = ['owner', 'admin', 'moderator', 'member', 'guest']
+
+    return roleHierarchy.indexOf(actorRole) < roleHierarchy.indexOf(targetRole)
   }
 
   /**
    * Clear all permissions for a room
    */
   clearRoomPermissions(roomId: string): void {
-    this.roomPermissions.delete(roomId);
-    this.bannedUsers.delete(roomId);
+    this.roomPermissions.delete(roomId)
+    this.bannedUsers.delete(roomId)
   }
 
   /**
@@ -374,14 +428,14 @@ export class PermissionManager {
    */
   removeUserFromAllRooms(userId: string): void {
     this.roomPermissions.forEach(roomPerms => {
-      roomPerms.delete(userId);
-    });
-    
+      roomPerms.delete(userId)
+    })
+
     this.bannedUsers.forEach(banned => {
-      banned.delete(userId);
-    });
-    
-    this.globalRoles.delete(userId);
+      banned.delete(userId)
+    })
+
+    this.globalRoles.delete(userId)
   }
 }
 
@@ -397,7 +451,7 @@ export function createPermissionChecker(
   userId: string,
   roomId: string
 ): (permission: Permission) => boolean {
-  return (permission: Permission) => manager.hasPermission(userId, roomId, permission);
+  return (permission: Permission) => manager.hasPermission(userId, roomId, permission)
 }
 
 /**
@@ -409,28 +463,28 @@ export function checkPermissions(
   roomId: string,
   permissions: Permission[]
 ): { [key in Permission]?: boolean } {
-  const result: { [key in Permission]?: boolean } = {};
-  
-  permissions.forEach(perm => {
-    result[perm] = manager.hasPermission(userId, roomId, perm);
-  });
+  const result: { [key in Permission]?: boolean } = {}
 
-  return result;
+  permissions.forEach(perm => {
+    result[perm] = manager.hasPermission(userId, roomId, perm)
+  })
+
+  return result
 }
 
 // ============================================================================
 // Singleton Instance
 // ============================================================================
 
-let permissionManagerInstance: PermissionManager | null = null;
+let permissionManagerInstance: PermissionManager | null = null
 
 export function getPermissionManager(): PermissionManager {
   if (!permissionManagerInstance) {
-    permissionManagerInstance = new PermissionManager();
+    permissionManagerInstance = new PermissionManager()
   }
-  return permissionManagerInstance;
+  return permissionManagerInstance
 }
 
 export function resetPermissionManager(): void {
-  permissionManagerInstance = null;
+  permissionManagerInstance = null
 }

@@ -12,6 +12,7 @@
 本报告记录了 React Compiler 可选功能的完整实施过程，包括环境变量控制、配置更新、兼容性检测和回滚机制的建立。
 
 **关键成果**:
+
 - ✅ 环境变量控制系统已建立
 - ✅ next.config.ts 已更新支持可选启用
 - ✅ 兼容性检测工具已创建
@@ -19,6 +20,7 @@
 - ✅ 零停机切换方案已实现
 
 **技术栈**:
+
 - Next.js 16.2.1
 - React 19.2.4
 - TypeScript 5
@@ -30,12 +32,12 @@
 
 ### 1.1 环境变量控制
 
-| 要求 | 状态 | 实现 |
-|-----|------|------|
-| `NEXT_PUBLIC_REACT_COMPILER_ENABLED` | ✅ 完成 | 已添加到 .env.example |
-| `REACT_COMPILER_EXCLUDE_PATTERNS` | ✅ 完成 | 已添加到 .env.example |
-| `ENABLE_REACT_COMPILER` | ✅ 完成 | 已添加（服务端环境变量） |
-| `REACT_COMPILER_MODE` | ✅ 完成 | 已添加（opt-in/opt-out/all） |
+| 要求                                 | 状态    | 实现                         |
+| ------------------------------------ | ------- | ---------------------------- |
+| `NEXT_PUBLIC_REACT_COMPILER_ENABLED` | ✅ 完成 | 已添加到 .env.example        |
+| `REACT_COMPILER_EXCLUDE_PATTERNS`    | ✅ 完成 | 已添加到 .env.example        |
+| `ENABLE_REACT_COMPILER`              | ✅ 完成 | 已添加（服务端环境变量）     |
+| `REACT_COMPILER_MODE`                | ✅ 完成 | 已添加（opt-in/opt-out/all） |
 
 **环境变量配置示例**:
 
@@ -55,14 +57,14 @@ NEXT_PUBLIC_REACT_COMPILER_ENABLED=false
 
 ```typescript
 // React Compiler 配置
-const reactCompilerEnabled = process.env.ENABLE_REACT_COMPILER === 'true';
-const reactCompilerMode = process.env.REACT_COMPILER_MODE || 'opt-out';
-const reactCompilerExcludePatterns = process.env.REACT_COMPILER_EXCLUDE_PATTERNS || '';
+const reactCompilerEnabled = process.env.ENABLE_REACT_COMPILER === 'true'
+const reactCompilerMode = process.env.REACT_COMPILER_MODE || 'opt-out'
+const reactCompilerExcludePatterns = process.env.REACT_COMPILER_EXCLUDE_PATTERNS || ''
 
 // 解析排除模式
 const excludePatterns = reactCompilerExcludePatterns
   ? reactCompilerExcludePatterns.split(',').map(p => p.trim())
-  : [];
+  : []
 
 const nextConfig: NextConfig = {
   // ... 其他配置
@@ -78,10 +80,11 @@ const nextConfig: NextConfig = {
       },
     },
   }),
-};
+}
 ```
 
 **关键特性**:
+
 - ✅ 只在环境变量启用时应用编译器
 - ✅ 支持排除特定文件模式
 - ✅ 固定黑名单（node_modules, .next 等）
@@ -91,10 +94,10 @@ const nextConfig: NextConfig = {
 
 **创建的检测工具**:
 
-| 工具 | 类型 | 功能 |
-|-----|------|------|
-| `check-react-compiler-compatibility.sh` | Bash | 完整兼容性扫描 |
-| `check-react-compiler-compatibility.js` | Node.js | 详细代码分析 |
+| 工具                                    | 类型    | 功能           |
+| --------------------------------------- | ------- | -------------- |
+| `check-react-compiler-compatibility.sh` | Bash    | 完整兼容性扫描 |
+| `check-react-compiler-compatibility.js` | Node.js | 详细代码分析   |
 
 **检测内容**:
 
@@ -139,15 +142,15 @@ node scripts/check-react-compiler-compatibility.js
 
 **功能**:
 
-| 命令 | 功能 |
-|-----|------|
+| 命令      | 功能                            |
+| --------- | ------------------------------- |
 | `disable` | 禁用 React Compiler（创建备份） |
-| `restore` | 恢复 React Compiler（从备份） |
-| `list` | 列出所有备份 |
-| `clean` | 清理所有备份 |
-| `build` | 清理缓存并测试构建 |
-| `status` | 显示当前状态 |
-| `help` | 显示帮助信息 |
+| `restore` | 恢复 React Compiler（从备份）   |
+| `list`    | 列出所有备份                    |
+| `clean`   | 清理所有备份                    |
+| `build`   | 清理缓存并测试构建              |
+| `status`  | 显示当前状态                    |
+| `help`    | 显示帮助信息                    |
 
 **使用示例**:
 
@@ -198,6 +201,7 @@ REACT_COMPILER_EXCLUDE_PATTERNS=    # 排除模式
 ```
 
 **说明**:
+
 - `ENABLE_REACT_COMPILER`: 服务端环境变量，用于构建时控制
 - `REACT_COMPILER_MODE`: 编译模式选择
   - `opt-in`: 只编译指定目录
@@ -212,6 +216,7 @@ NEXT_PUBLIC_REACT_COMPILER_ENABLED=true  # 运行时检查
 ```
 
 **说明**:
+
 - `NEXT_PUBLIC_` 前缀使变量在客户端可用
 - 用于运行时检查和调试
 - 可以在 React DevTools 中查看
@@ -222,13 +227,12 @@ NEXT_PUBLIC_REACT_COMPILER_ENABLED=true  # 运行时检查
 
 ```typescript
 sources: (filename: string) => {
-  const normalizedPath = filename.replace(/\\/g, '/');
+  const normalizedPath = filename.replace(/\\/g, '/')
 
   // 1. 检查用户定义的排除模式
   for (const pattern of excludePatterns) {
-    if (normalizedPath.includes(pattern) ||
-        normalizedPath.match(pattern.replace(/\*\*/g, '.*'))) {
-      return false;
+    if (normalizedPath.includes(pattern) || normalizedPath.match(pattern.replace(/\*\*/g, '.*'))) {
+      return false
     }
   }
 
@@ -241,11 +245,11 @@ sources: (filename: string) => {
     'src/lib/third-party',
     'src/components/legacy',
     'src/app/standalone',
-  ];
+  ]
 
   for (const pattern of alwaysExclude) {
     if (normalizedPath.includes(pattern)) {
-      return false;
+      return false
     }
   }
 
@@ -256,23 +260,24 @@ sources: (filename: string) => {
       'src/components/dashboard',
       'src/components/tasks',
       'src/app/[locale]/dashboard',
-    ];
+    ]
     for (const pattern of includePatterns) {
       if (normalizedPath.includes(pattern)) {
-        return true;
+        return true
       }
     }
-    return false;
+    return false
   }
 
   // 4. opt-out 或 all 模式：编译除黑名单外的所有文件
-  return true;
+  return true
 }
 ```
 
 #### 2.2.2 三种编译模式
 
 **opt-in 模式**:
+
 - 适用于初期测试
 - 只编译指定目录
 - 默认包含目录：
@@ -282,11 +287,13 @@ sources: (filename: string) => {
   - `src/app/[locale]/dashboard`
 
 **opt-out 模式** (默认):
+
 - 适用于全面启用
 - 编译除黑名单外的所有文件
 - 灵活性高
 
 **all 模式**:
+
 - 适用于特殊情况
 - 编译所有文件
 - 需要谨慎使用
@@ -683,20 +690,20 @@ npm run build:analyze
 
 ### 5.1 构建性能
 
-| 指标 | 禁用编译器 | 启用编译器 | 变化 |
-|-----|----------|----------|------|
-| **构建时间** | 120s | 130s | +8% |
-| **包体积** | 450KB | 435KB | -3% |
-| **内存使用** | 2GB | 2.2GB | +10% |
+| 指标         | 禁用编译器 | 启用编译器 | 变化 |
+| ------------ | ---------- | ---------- | ---- |
+| **构建时间** | 120s       | 130s       | +8%  |
+| **包体积**   | 450KB      | 435KB      | -3%  |
+| **内存使用** | 2GB        | 2.2GB      | +10% |
 
 ### 5.2 运行时性能
 
-| 指标 | 禁用编译器 | 启用编译器 | 变化 |
-|-----|----------|----------|------|
-| **不必要重渲染** | 基准 | -50% | -50% |
-| **FCP** | 1.8s | 1.6s | -11% |
-| **TTI** | 3.2s | 2.8s | -13% |
-| **Lighthouse 分数** | 85 | 92 | +7 |
+| 指标                | 禁用编译器 | 启用编译器 | 变化 |
+| ------------------- | ---------- | ---------- | ---- |
+| **不必要重渲染**    | 基准       | -50%       | -50% |
+| **FCP**             | 1.8s       | 1.6s       | -11% |
+| **TTI**             | 3.2s       | 2.8s       | -13% |
+| **Lighthouse 分数** | 85         | 92         | +7   |
 
 ---
 
@@ -792,11 +799,11 @@ npm run deploy:production
 
 ### 7.1 相关文档
 
-| 文档 | 路径 | 说明 |
-|-----|------|------|
-| React Compiler 路线图 | `REACT_COMPILER_ROADMAP_20260328.md` | 完整实施路线图 |
-| 兼容性预检报告 | `REACT_COMPILER_COMPATIBILITY_PRECHECK_20260329.md` | 兼容性分析 |
-| 本文档 | `REACT_COMPILER_OPTIONAL_IMPLEMENTATION.md` | 实施报告 |
+| 文档                  | 路径                                                | 说明           |
+| --------------------- | --------------------------------------------------- | -------------- |
+| React Compiler 路线图 | `REACT_COMPILER_ROADMAP_20260328.md`                | 完整实施路线图 |
+| 兼容性预检报告        | `REACT_COMPILER_COMPATIBILITY_PRECHECK_20260329.md` | 兼容性分析     |
+| 本文档                | `REACT_COMPILER_OPTIONAL_IMPLEMENTATION.md`         | 实施报告       |
 
 ### 7.2 外部资源
 
@@ -820,18 +827,21 @@ npm run deploy:production
 ### 8.2 下一步建议
 
 **短期（1-2 周）**:
+
 1. 在测试环境启用编译器
 2. 运行兼容性检测
 3. 监控性能指标
 4. 处理发现的问题
 
 **中期（3-4 周）**:
+
 1. 扩展到生产环境
 2. 持续监控性能
 3. 优化不兼容的组件
 4. 移除冗余的手动优化
 
 **长期（持续）**:
+
 1. 建立性能监控机制
 2. 定期审查和优化
 3. 跟进 React Compiler 版本更新

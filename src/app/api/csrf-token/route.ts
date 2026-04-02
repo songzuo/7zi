@@ -1,3 +1,4 @@
+import { NextRequest, NextResponse } from 'next/server'
 /**
  * CSRF Token 生成端点
  *
@@ -7,37 +8,37 @@
  * @refactored - Added validation and improved error handling
  */
 
-import { cookies } from 'next/headers';
-import { randomBytes } from 'crypto';
-import { createErrorResponse, ApiError, ErrorType } from '@/lib/api/error-handler';
-import { csrfTokenSchema, validateBody } from '@/lib/api/validation';
-import { logger } from '@/lib/logger';
+import { cookies } from 'next/headers'
+import { randomBytes } from 'crypto'
+import { createErrorResponse, ApiError, ErrorType } from '@/lib/api/error-handler'
+import { csrfTokenSchema, validateBody } from '@/lib/api/validation'
+import { logger } from '@/lib/logger'
 
 interface CsrfTokenResponse {
-  success: true;
+  success: true
   data: {
-    csrfToken: string;
-    expiresAt: string;
-  };
-  timestamp: string;
+    csrfToken: string
+    expiresAt: string
+  }
+  timestamp: string
 }
 
-const TOKEN_EXPIRY_SECONDS = 60 * 60; // 1 hour
+const TOKEN_EXPIRY_SECONDS = 60 * 60 // 1 hour
 
 /**
  * Generate a secure CSRF token
  */
 function generateCsrfToken(): string {
-  return randomBytes(32).toString('hex');
+  return randomBytes(32).toString('hex')
 }
 
 /**
  * Calculate token expiry timestamp
  */
 function calculateExpiry(): string {
-  const expiresAt = new Date();
-  expiresAt.setSeconds(expiresAt.getSeconds() + TOKEN_EXPIRY_SECONDS);
-  return expiresAt.toISOString();
+  const expiresAt = new Date()
+  expiresAt.setSeconds(expiresAt.getSeconds() + TOKEN_EXPIRY_SECONDS)
+  return expiresAt.toISOString()
 }
 
 /**
@@ -47,10 +48,10 @@ function calculateExpiry(): string {
 export async function GET() {
   try {
     // Generate CSRF token
-    const csrfToken = generateCsrfToken();
+    const csrfToken = generateCsrfToken()
 
     // Set httpOnly cookie
-    const cookieStore = await cookies();
+    const cookieStore = await cookies()
 
     cookieStore.set('csrf_token', csrfToken, {
       httpOnly: true,
@@ -58,7 +59,7 @@ export async function GET() {
       sameSite: 'strict',
       path: '/',
       maxAge: TOKEN_EXPIRY_SECONDS,
-    });
+    })
 
     // Return success response
     return NextResponse.json({
@@ -68,10 +69,9 @@ export async function GET() {
         expiresAt: calculateExpiry(),
       },
       timestamp: new Date().toISOString(),
-    } as CsrfTokenResponse);
-
-  } catch (_error) {
-    logger.error('CSRF token generation error', error);
+    } as CsrfTokenResponse)
+  } catch (error) {
+    logger.error('CSRF token generation error', error)
 
     if (error instanceof Error && error.message.includes('Cookie')) {
       return NextResponse.json(
@@ -84,10 +84,10 @@ export async function GET() {
           },
         },
         { status: 500 }
-      );
+      )
     }
 
-    return createErrorResponse(error instanceof Error ? error : new Error(String(error)));
+    return createErrorResponse(error instanceof Error ? error : new Error(String(error)))
   }
 }
 
@@ -98,10 +98,10 @@ export async function GET() {
 export async function POST(request: Request) {
   try {
     // Get request body
-    const body = await request.json();
+    const body = await request.json()
 
     // Validate CSRF token format
-    const validation = validateBody(body, csrfTokenSchema);
+    const validation = validateBody(body, csrfTokenSchema)
 
     if (!validation.success) {
       return NextResponse.json(
@@ -110,17 +110,19 @@ export async function POST(request: Request) {
           error: {
             type: ErrorType.VALIDATION,
             message: 'Invalid CSRF token format',
-            details: { errors: validation.success ? [] : ['Token must be a 64-character hexadecimal string'] },
+            details: {
+              errors: validation.success ? [] : ['Token must be a 64-character hexadecimal string'],
+            },
             timestamp: new Date().toISOString(),
           },
         },
         { status: 400 }
-      );
+      )
     }
 
     // Get cookie
-    const cookieStore = await cookies();
-    const cookieToken = cookieStore.get('csrf_token');
+    const cookieStore = await cookies()
+    const cookieToken = cookieStore.get('csrf_token')
 
     if (!cookieToken) {
       return NextResponse.json(
@@ -133,7 +135,7 @@ export async function POST(request: Request) {
           },
         },
         { status: 400 }
-      );
+      )
     }
 
     // Validate tokens match
@@ -148,7 +150,7 @@ export async function POST(request: Request) {
           },
         },
         { status: 403 }
-      );
+      )
     }
 
     // Token is valid
@@ -156,10 +158,9 @@ export async function POST(request: Request) {
       success: true,
       data: { valid: true },
       timestamp: new Date().toISOString(),
-    });
-
-  } catch (_error) {
-    logger.error('CSRF token validation error', error);
-    return createErrorResponse(error instanceof Error ? error : new Error(String(error)));
+    })
+  } catch (error) {
+    logger.error('CSRF token validation error', error)
+    return createErrorResponse(error instanceof Error ? error : new Error(String(error)))
   }
 }

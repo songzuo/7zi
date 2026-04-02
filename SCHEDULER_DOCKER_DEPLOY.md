@@ -17,6 +17,7 @@
 ## 概述
 
 AgentScheduler 是 7zi 平台的核心调度组件，负责：
+
 - AI 代理任务调度与分配
 - 负载均衡与资源优化
 - 任务队列管理
@@ -85,18 +86,18 @@ docker-compose -f deploy/scheduler/docker-compose.scheduler.yml ps
 
 ### 环境变量
 
-| 变量名 | 默认值 | 说明 |
-|--------|--------|------|
-| `NODE_ENV` | production | 运行环境 |
-| `PORT` | 3001 | 服务端口 |
-| `SCHEDULER_HOST` | 0.0.0.0 | 监听地址 |
-| `REDIS_URL` | redis://redis:6379 | Redis 连接地址 |
-| `REDIS_PREFIX` | scheduler: | Redis 键前缀 |
-| `SCHEDULER_AUTO_START` | true | 自动启动调度 |
-| `SCHEDULER_INTERVAL` | 30000 | 调度间隔 (ms) |
-| `SCHEDULER_MAX_BATCH_SIZE` | 10 | 批量调度大小 |
-| `LOG_LEVEL` | info | 日志级别 |
-| `LOG_FORMAT` | json | 日志格式 |
+| 变量名                     | 默认值             | 说明           |
+| -------------------------- | ------------------ | -------------- |
+| `NODE_ENV`                 | production         | 运行环境       |
+| `PORT`                     | 3001               | 服务端口       |
+| `SCHEDULER_HOST`           | 0.0.0.0            | 监听地址       |
+| `REDIS_URL`                | redis://redis:6379 | Redis 连接地址 |
+| `REDIS_PREFIX`             | scheduler:         | Redis 键前缀   |
+| `SCHEDULER_AUTO_START`     | true               | 自动启动调度   |
+| `SCHEDULER_INTERVAL`       | 30000              | 调度间隔 (ms)  |
+| `SCHEDULER_MAX_BATCH_SIZE` | 10                 | 批量调度大小   |
+| `LOG_LEVEL`                | info               | 日志级别       |
+| `LOG_FORMAT`               | json               | 日志格式       |
 
 ### Redis 配置
 
@@ -210,6 +211,7 @@ curl http://localhost:3001/metrics
 ```
 
 关键指标：
+
 - `scheduler_tasks_scheduled_total`: 已调度任务总数
 - `scheduler_tasks_completed_total`: 已完成任务总数
 - `scheduler_queue_length`: 当前队列长度

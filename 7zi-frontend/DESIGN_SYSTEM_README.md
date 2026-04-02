@@ -24,7 +24,7 @@ npm run storybook
 ### 使用组件
 
 ```tsx
-import { Button, Input, Card } from '@/components/ui';
+import { Button, Input, Card } from '@/components/ui'
 
 export default function MyComponent() {
   return (
@@ -34,7 +34,7 @@ export default function MyComponent() {
         提交
       </Button>
     </Card>
-  );
+  )
 }
 ```
 
@@ -47,6 +47,7 @@ export default function MyComponent() {
 支持多种变体和尺寸的按钮组件。
 
 **变体**：
+
 - `primary` - 主要按钮
 - `secondary` - 次要按钮
 - `outline` - 轮廓按钮
@@ -55,6 +56,7 @@ export default function MyComponent() {
 - `success` - 成功操作
 
 **尺寸**：
+
 - `xs` - 超小 (12px)
 - `sm` - 小 (14px)
 - `md` - 中等 (16px) - 默认
@@ -66,6 +68,7 @@ export default function MyComponent() {
 支持多种输入类型的表单组件。
 
 **特性**：
+
 - 文本、密码、邮箱、电话等多种类型
 - 内置表单验证
 - 帮助文本和错误提示
@@ -77,6 +80,7 @@ export default function MyComponent() {
 用于组织和展示内容的容器组件。
 
 **子组件**：
+
 - `CardHeader` - 卡片头部
 - `CardBody` - 卡片内容
 - `CardFooter` - 卡片底部
@@ -85,6 +89,7 @@ export default function MyComponent() {
 - `CardText` - 卡片文本
 
 **阴影级别**：
+
 - `none` - 无阴影
 - `sm` - 小阴影
 - `md` - 中阴影
@@ -96,6 +101,7 @@ export default function MyComponent() {
 用于显示对话框、表单等的弹出组件。
 
 **尺寸**：
+
 - `sm` - 小 (max-w-md)
 - `md` - 中 (max-w-lg)
 - `lg` - 大 (max-w-2xl)
@@ -103,6 +109,7 @@ export default function MyComponent() {
 - `full` - 全屏
 
 **特性**：
+
 - 动画过渡
 - 键盘导航（ESC 关闭）
 - 可定制页脚
@@ -150,11 +157,11 @@ export default function MyComponent() {
 基于 4px 网格的间距系统：
 
 ```css
---spacing-1: 0.25rem;   /* 4px */
---spacing-2: 0.5rem;    /* 8px */
---spacing-4: 1rem;      /* 16px */
---spacing-6: 1.5rem;    /* 24px */
---spacing-8: 2rem;      /* 32px */
+--spacing-1: 0.25rem; /* 4px */
+--spacing-2: 0.5rem; /* 8px */
+--spacing-4: 1rem; /* 16px */
+--spacing-6: 1.5rem; /* 24px */
+--spacing-8: 2rem; /* 32px */
 ```
 
 ### 断点 (Breakpoints)
@@ -188,9 +195,7 @@ export default function MyComponent() {
 
 ```tsx
 <div className="bg-white dark:bg-gray-900">
-  <p className="text-gray-900 dark:text-gray-100">
-    主题切换示例
-  </p>
+  <p className="text-gray-900 dark:text-gray-100">主题切换示例</p>
 </div>
 ```
 
@@ -199,15 +204,15 @@ export default function MyComponent() {
 ### Tailwind 响应式前缀
 
 ```tsx
-{/* 移动：1 列，平板：2 列，桌面：3 列 */}
-<div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-  {/* 内容 */}
-</div>
+{
+  /* 移动：1 列，平板：2 列，桌面：3 列 */
+}
+;<div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3">{/* 内容 */}</div>
 
-{/* 移动：小字号，桌面：大字号 */}
-<p className="text-sm md:text-base lg:text-lg">
-  响应式文本
-</p>
+{
+  /* 移动：小字号，桌面：大字号 */
+}
+;<p className="text-sm md:text-base lg:text-lg">响应式文本</p>
 ```
 
 ### 响应式组件
@@ -245,24 +250,24 @@ export default function MyComponent() {
 ### Storybook 规范
 
 ```tsx
-import type { Meta, StoryObj } from '@storybook/react';
-import { Button } from '../components/ui/Button';
+import type { Meta, StoryObj } from '@storybook/react'
+import { Button } from '../components/ui/Button'
 
 const meta: Meta<typeof Button> = {
   title: 'Components/Button',
   component: Button,
   tags: ['autodocs'],
-};
+}
 
-export default meta;
-type Story = StoryObj<typeof Button>;
+export default meta
+type Story = StoryObj<typeof Button>
 
 export const Primary: Story = {
   args: {
     variant: 'primary',
     children: 'Primary Button',
   },
-};
+}
 ```
 
 ## 📚 文档
@@ -301,6 +306,7 @@ npm run build-storybook
 ### v1.0.0 (2024-03-28)
 
 ✨ 初始版本发布：
+
 - ✅ 核心 UI 组件（Button, Input, Card, Modal）
 - ✅ 设计 Token 系统
 - ✅ 响应式断点系统

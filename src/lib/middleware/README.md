@@ -5,6 +5,7 @@ Comprehensive API protection system for the 7zi-project, featuring rate limiting
 ## Features
 
 ### 1. IP-Based Rate Limiting
+
 - **Sliding window algorithm** for accurate rate limiting
 - **LRU cache** for efficient memory management
 - **Configurable limits** per endpoint
@@ -12,6 +13,7 @@ Comprehensive API protection system for the 7zi-project, featuring rate limiting
 - **Rate limit headers** (X-RateLimit-Limit, X-RateLimit-Remaining, X-RateLimit-Reset, Retry-After)
 
 ### 2. User-Based Rate Limiting (JWT/API Key)
+
 - **JWT token authentication** for user identification
 - **API key support** (`sk_agent_*` format)
 - **Role-based limits** (admin, moderator, user, guest, agent, worker, executor)
@@ -19,6 +21,7 @@ Comprehensive API protection system for the 7zi-project, featuring rate limiting
 - **Usage statistics** per user
 
 ### 3. Anti-Crawler System
+
 - **User-Agent detection** (known bots, suspicious bots, normal browsers)
 - **Request frequency analysis** (burst detection, high-frequency detection)
 - **IP reputation checking** (blacklist/whitelist support)
@@ -36,7 +39,7 @@ import {
   withCrawlerDetection,
   getUserIdentifier,
   checkUserRateLimit,
-} from '@/lib/middleware';
+} from '@/lib/middleware'
 ```
 
 ## Quick Start
@@ -44,39 +47,39 @@ import {
 ### IP-Based Rate Limiting
 
 ```typescript
-import { withRateLimit } from '@/lib/middleware';
+import { withRateLimit } from '@/lib/middleware'
 
 export async function GET(request: NextRequest) {
   const handler = withRateLimit(
-    async (req) => {
-      return NextResponse.json({ success: true });
+    async req => {
+      return NextResponse.json({ success: true })
     },
     {
       windowMs: 60 * 1000, // 1 minute
-      maxRequests: 30,     // 30 requests per minute
+      maxRequests: 30, // 30 requests per minute
     }
-  );
+  )
 
-  return handler(request);
+  return handler(request)
 }
 ```
 
 ### User-Based Rate Limiting
 
 ```typescript
-import { getUserIdentifier, checkUserRateLimit } from '@/lib/middleware';
+import { getUserIdentifier, checkUserRateLimit } from '@/lib/middleware'
 
 export async function GET(request: NextRequest) {
-  const { userId } = await getUserIdentifier(request);
+  const { userId } = await getUserIdentifier(request)
 
   if (!userId) {
-    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
   }
 
   const limitCheck = checkUserRateLimit(userId, 'user', {
     windowMs: 60 * 1000,
     maxRequests: 100,
-  });
+  })
 
   if (!limitCheck.allowed) {
     return NextResponse.json(
@@ -88,32 +91,32 @@ export async function GET(request: NextRequest) {
           'X-RateLimit-Reset': new Date(limitCheck.resetTime).toISOString(),
         },
       }
-    );
+    )
   }
 
-  return NextResponse.json({ success: true });
+  return NextResponse.json({ success: true })
 }
 ```
 
 ### Anti-Crawler Detection
 
 ```typescript
-import { withCrawlerDetection } from '@/lib/middleware';
+import { withCrawlerDetection } from '@/lib/middleware'
 
 export async function GET(request: NextRequest) {
   const handler = withCrawlerDetection(
-    async (req) => {
-      return NextResponse.json({ success: true });
+    async req => {
+      return NextResponse.json({ success: true })
     },
     {
-      mode: 'block',           // Block suspicious requests
-      checkUserAgent: true,     // Validate user agents
-      checkFrequency: true,     // Analyze request patterns
-      checkIpReputation: true,  // Check IP blacklist/whitelist
+      mode: 'block', // Block suspicious requests
+      checkUserAgent: true, // Validate user agents
+      checkFrequency: true, // Analyze request patterns
+      checkIpReputation: true, // Check IP blacklist/whitelist
     }
-  );
+  )
 
-  return handler(request);
+  return handler(request)
 }
 ```
 
@@ -123,10 +126,10 @@ export async function GET(request: NextRequest) {
 
 ```typescript
 interface RateLimitConfig {
-  windowMs: number;              // Time window in milliseconds
-  maxRequests: number;           // Max requests per window
-  skipSuccessfulRequests?: boolean; // Don't count successful requests
-  skipFailedRequests?: boolean;  // Don't count failed requests
+  windowMs: number // Time window in milliseconds
+  maxRequests: number // Max requests per window
+  skipSuccessfulRequests?: boolean // Don't count successful requests
+  skipFailedRequests?: boolean // Don't count failed requests
 }
 ```
 
@@ -134,9 +137,9 @@ interface RateLimitConfig {
 
 ```typescript
 interface UserRateLimitConfig {
-  windowMs: number;
-  maxRequests: number;
-  role?: string;  // Optional: admin, moderator, user, guest, agent, worker, executor
+  windowMs: number
+  maxRequests: number
+  role?: string // Optional: admin, moderator, user, guest, agent, worker, executor
 }
 ```
 
@@ -145,24 +148,24 @@ interface UserRateLimitConfig {
 ```typescript
 interface CrawlerDetectionConfig {
   // User-Agent validation
-  checkUserAgent?: boolean;
-  blockUnknownBots?: boolean;
-  allowedBots?: string[];
-  blockedBots?: string[];
+  checkUserAgent?: boolean
+  blockUnknownBots?: boolean
+  allowedBots?: string[]
+  blockedBots?: string[]
 
   // Request frequency analysis
-  checkFrequency?: boolean;
-  maxRequestsPerMinute?: number;
-  maxRequestsPerSecond?: number;
-  suspiciousThreshold?: number;
+  checkFrequency?: boolean
+  maxRequestsPerMinute?: number
+  maxRequestsPerSecond?: number
+  suspiciousThreshold?: number
 
   // IP reputation
-  checkIpReputation?: boolean;
-  blacklist?: string[];
-  whitelist?: string[];
+  checkIpReputation?: boolean
+  blacklist?: string[]
+  whitelist?: string[]
 
   // Action mode
-  mode: 'block' | 'monitor' | 'passive';
+  mode: 'block' | 'monitor' | 'passive'
 }
 ```
 
@@ -170,33 +173,33 @@ interface CrawlerDetectionConfig {
 
 Default rate limits by role:
 
-| Role       | Requests/Minute | Window |
-|------------|-----------------|--------|
-| admin      | 1,000           | 1 min  |
-| moderator  | 500             | 1 min  |
-| user       | 60              | 1 min  |
-| guest      | 30              | 1 min  |
-| agent      | 200             | 1 min  |
-| worker     | 100             | 1 min  |
-| executor   | 80              | 1 min  |
+| Role      | Requests/Minute | Window |
+| --------- | --------------- | ------ |
+| admin     | 1,000           | 1 min  |
+| moderator | 500             | 1 min  |
+| user      | 60              | 1 min  |
+| guest     | 30              | 1 min  |
+| agent     | 200             | 1 min  |
+| worker    | 100             | 1 min  |
+| executor  | 80              | 1 min  |
 
 ## Pre-Configured Endpoint Limits
 
-| Endpoint                    | Requests/Minute |
-|-----------------------------|-----------------|
-| `/api/health`               | 100             |
-| `/api/auth/login`           | 10              |
-| `/api/auth/register`        | 5               |
-| `/api/github/commits`       | 30              |
-| `/api/csrf-token`           | 100             |
-| `/api/a2a/jsonrpc`          | 50              |
+| Endpoint              | Requests/Minute |
+| --------------------- | --------------- |
+| `/api/health`         | 100             |
+| `/api/auth/login`     | 10              |
+| `/api/auth/register`  | 5               |
+| `/api/github/commits` | 30              |
+| `/api/csrf-token`     | 100             |
+| `/api/a2a/jsonrpc`    | 50              |
 
 ## Advanced Usage
 
 ### Combining Multiple Protections
 
 ```typescript
-import { withCrawlerDetection, withRateLimit } from '@/lib/middleware';
+import { withCrawlerDetection, withRateLimit } from '@/lib/middleware'
 
 export async function GET(request: NextRequest) {
   // Layer 1: Crawler detection
@@ -204,21 +207,21 @@ export async function GET(request: NextRequest) {
     // Layer 2: IP-based rate limiting
     withRateLimit(
       // Layer 3: User authentication
-      async (req) => {
-        const { userId } = await getUserIdentifier(req);
+      async req => {
+        const { userId } = await getUserIdentifier(req)
 
         if (!userId) {
-          return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+          return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
         }
 
         // Layer 4: User-based rate limiting
-        const limitCheck = checkUserRateLimit(userId, 'user');
+        const limitCheck = checkUserRateLimit(userId, 'user')
 
         if (!limitCheck.allowed) {
-          return NextResponse.json({ error: 'Rate limit exceeded' }, { status: 429 });
+          return NextResponse.json({ error: 'Rate limit exceeded' }, { status: 429 })
         }
 
-        return NextResponse.json({ success: true, userId });
+        return NextResponse.json({ success: true, userId })
       },
       {
         windowMs: 60 * 1000,
@@ -230,9 +233,9 @@ export async function GET(request: NextRequest) {
       checkUserAgent: true,
       checkFrequency: true,
     }
-  );
+  )
 
-  return protectedHandler(request);
+  return protectedHandler(request)
 }
 ```
 
@@ -240,18 +243,18 @@ export async function GET(request: NextRequest) {
 
 ```typescript
 export async function POST(request: NextRequest) {
-  const { userId } = await getUserIdentifier(request);
-  const { operations } = await request.json();
+  const { userId } = await getUserIdentifier(request)
+  const { operations } = await request.json()
 
-  const operationsCount = operations.length;
+  const operationsCount = operations.length
 
   // Check if user has quota
   const limitCheck = checkUserRateLimit(userId, 'user', {
     windowMs: 60 * 1000,
     maxRequests: 1000,
-  });
+  })
 
-  const remainingQuota = Math.max(0, limitCheck.remaining - operationsCount);
+  const remainingQuota = Math.max(0, limitCheck.remaining - operationsCount)
 
   if (remainingQuota < 0) {
     return NextResponse.json(
@@ -259,17 +262,17 @@ export async function POST(request: NextRequest) {
         error: `Insufficient quota. Requested: ${operationsCount}, Available: ${limitCheck.remaining}`,
       },
       { status: 429 }
-    );
+    )
   }
 
   // Process batch operations
-  const results = operations.map((op) => ({ ...op, processed: true }));
+  const results = operations.map(op => ({ ...op, processed: true }))
 
   return NextResponse.json({
     processed: operationsCount,
     remainingQuota,
     results,
-  });
+  })
 }
 ```
 
@@ -316,21 +319,21 @@ import {
   clearAllRateLimits,
   startPeriodicCleanup,
   stopPeriodicCleanup,
-} from '@/lib/middleware';
+} from '@/lib/middleware'
 
 // Get statistics
-const stats = getRateLimitStats();
-console.log(stats.totalEntries, stats.trackedPaths);
+const stats = getRateLimitStats()
+console.log(stats.totalEntries, stats.trackedPaths)
 
 // Clear specific limit
-clearRateLimit('/api/test:192.168.1.1');
+clearRateLimit('/api/test:192.168.1.1')
 
 // Clear all limits
-clearAllRateLimits();
+clearAllRateLimits()
 
 // Manual cleanup control
-startPeriodicCleanup(5 * 60 * 1000); // Every 5 minutes
-stopPeriodicCleanup();
+startPeriodicCleanup(5 * 60 * 1000) // Every 5 minutes
+stopPeriodicCleanup()
 ```
 
 ### User Rate Limiting
@@ -341,18 +344,18 @@ import {
   getUserRateLimitStats,
   clearUserRateLimit,
   clearAllUserRateLimits,
-} from '@/lib/middleware';
+} from '@/lib/middleware'
 
 // Get user status
-const status = getUserRateLimitStatus('user123');
-console.log(status.count, status.remaining, status.resetTime);
+const status = getUserRateLimitStatus('user123')
+console.log(status.count, status.remaining, status.resetTime)
 
 // Get statistics
-const stats = getUserRateLimitStats();
-console.log(stats.totalUsers, stats.roleBreakdown);
+const stats = getUserRateLimitStats()
+console.log(stats.totalUsers, stats.roleBreakdown)
 
 // Clear user limit
-clearUserRateLimit('user123');
+clearUserRateLimit('user123')
 ```
 
 ### Crawler Detection
@@ -363,18 +366,18 @@ import {
   getCrawlerDetectionStats,
   blacklistIP,
   whitelistIP,
-} from '@/lib/middleware';
+} from '@/lib/middleware'
 
 // Get frequency stats for IP
-const stats = getFrequencyStats('192.168.1.1');
+const stats = getFrequencyStats('192.168.1.1')
 
 // Get detection statistics
-const crawlerStats = getCrawlerDetectionStats();
-console.log(crawlerStats.suspiciousIPs, crawlerStats.highFrequencyIPs);
+const crawlerStats = getCrawlerDetectionStats()
+console.log(crawlerStats.suspiciousIPs, crawlerStats.highFrequencyIPs)
 
 // Manage IP lists
-blacklistIP('10.0.0.99');
-whitelistIP('10.0.0.88');
+blacklistIP('10.0.0.99')
+whitelistIP('10.0.0.88')
 ```
 
 ## Response Headers

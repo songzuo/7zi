@@ -3,8 +3,8 @@
  * Manages notification state across the application
  */
 
-import { create } from 'zustand';
-import { devtools, persist } from 'zustand/middleware';
+import { create } from 'zustand'
+import { devtools, persist } from 'zustand/middleware'
 
 import {
   Notification,
@@ -12,7 +12,7 @@ import {
   NotificationPriority,
   NotificationStatus,
   NotificationPreferences,
-} from '@/types/notifications';
+} from '@/types/notifications'
 
 // ============================================================================
 // Types
@@ -20,37 +20,37 @@ import {
 
 export interface NotificationState {
   // Notifications
-  notifications: Notification[];
-  unreadCount: number;
-  
+  notifications: Notification[]
+  unreadCount: number
+
   // Preferences
-  preferences: NotificationPreferences;
-  
+  preferences: NotificationPreferences
+
   // Loading states
-  isLoading: boolean;
-  error: string | null;
-  
+  isLoading: boolean
+  error: string | null
+
   // Actions
-  setNotifications: (notifications: Notification[]) => void;
-  addNotification: (notification: Notification) => void;
-  updateNotification: (id: string, updates: Partial<Notification>) => void;
-  removeNotification: (id: string) => void;
-  markAsRead: (id: string) => void;
-  markAllAsRead: () => void;
-  clearAll: () => void;
-  
+  setNotifications: (notifications: Notification[]) => void
+  addNotification: (notification: Notification) => void
+  updateNotification: (id: string, updates: Partial<Notification>) => void
+  removeNotification: (id: string) => void
+  markAsRead: (id: string) => void
+  markAllAsRead: () => void
+  clearAll: () => void
+
   // Preferences actions
-  updatePreferences: (preferences: Partial<NotificationPreferences>) => void;
-  resetPreferences: () => void;
-  
+  updatePreferences: (preferences: Partial<NotificationPreferences>) => void
+  resetPreferences: () => void
+
   // Loading state
-  setLoading: (loading: boolean) => void;
-  setError: (error: string | null) => void;
-  
+  setLoading: (loading: boolean) => void
+  setError: (error: string | null) => void
+
   // Utility actions
-  filterByType: (type: NotificationType) => Notification[];
-  filterByPriority: (priority: NotificationPriority) => Notification[];
-  getUnreadNotifications: () => Notification[];
+  filterByType: (type: NotificationType) => Notification[]
+  filterByPriority: (priority: NotificationPriority) => Notification[]
+  getUnreadNotifications: () => Notification[]
 }
 
 // ============================================================================
@@ -68,7 +68,7 @@ const defaultPreferences: NotificationPreferences = {
   enabled: true,
   email_enabled: true,
   sound_enabled: true,
-};
+}
 
 // ============================================================================
 // Store
@@ -86,115 +86,111 @@ export const useNotificationStore = create<NotificationState>()(
         error: null,
 
         // Set notifications
-        setNotifications: (notifications) => {
+        setNotifications: notifications => {
           const unreadCount = notifications.filter(
-            (n) => n.status === NotificationStatus.UNREAD
-          ).length;
-          
-          set({ notifications, unreadCount });
+            n => n.status === NotificationStatus.UNREAD
+          ).length
+
+          set({ notifications, unreadCount })
         },
 
         // Add notification
-        addNotification: (notification) => {
-          const notifications = [notification, ...get().notifications];
+        addNotification: notification => {
+          const notifications = [notification, ...get().notifications]
           // Limit total notifications to 100
-          const limited = notifications.slice(0, 100);
-          const unreadCount = limited.filter(
-            (n) => n.status === NotificationStatus.UNREAD
-          ).length;
+          const limited = notifications.slice(0, 100)
+          const unreadCount = limited.filter(n => n.status === NotificationStatus.UNREAD).length
 
-          set({ notifications: limited, unreadCount });
+          set({ notifications: limited, unreadCount })
         },
 
         // Update notification
         updateNotification: (id, updates) => {
-          const notifications = get().notifications.map((n) =>
+          const notifications = get().notifications.map(n =>
             n.id === id ? { ...n, ...updates } : n
-          );
-          
+          )
+
           const unreadCount = notifications.filter(
-            (n) => n.status === NotificationStatus.UNREAD
-          ).length;
-          
-          set({ notifications, unreadCount });
+            n => n.status === NotificationStatus.UNREAD
+          ).length
+
+          set({ notifications, unreadCount })
         },
 
         // Remove notification
-        removeNotification: (id) => {
-          const notifications = get().notifications.filter((n) => n.id !== id);
+        removeNotification: id => {
+          const notifications = get().notifications.filter(n => n.id !== id)
           const unreadCount = notifications.filter(
-            (n) => n.status === NotificationStatus.UNREAD
-          ).length;
-          
-          set({ notifications, unreadCount });
+            n => n.status === NotificationStatus.UNREAD
+          ).length
+
+          set({ notifications, unreadCount })
         },
 
         // Mark as read
-        markAsRead: (id) => {
+        markAsRead: id => {
           get().updateNotification(id, {
             status: NotificationStatus.READ,
             read_at: new Date().toISOString(),
-          });
+          })
         },
 
         // Mark all as read
         markAllAsRead: () => {
-          const notifications = get().notifications.map((n) => ({
+          const notifications = get().notifications.map(n => ({
             ...n,
             status: NotificationStatus.READ as NotificationStatus,
             read_at: new Date().toISOString(),
-          }));
-          
-          set({ notifications, unreadCount: 0 });
+          }))
+
+          set({ notifications, unreadCount: 0 })
         },
 
         // Clear all notifications
         clearAll: () => {
-          set({ notifications: [], unreadCount: 0 });
+          set({ notifications: [], unreadCount: 0 })
         },
 
         // Update preferences
-        updatePreferences: (updates) => {
+        updatePreferences: updates => {
           set({
             preferences: { ...get().preferences, ...updates },
-          });
+          })
         },
 
         // Reset preferences
         resetPreferences: () => {
-          set({ preferences: defaultPreferences });
+          set({ preferences: defaultPreferences })
         },
 
         // Set loading state
-        setLoading: (isLoading) => {
-          set({ isLoading });
+        setLoading: isLoading => {
+          set({ isLoading })
         },
 
         // Set error
-        setError: (error) => {
-          set({ error });
+        setError: error => {
+          set({ error })
         },
 
         // Filter by type
-        filterByType: (type) => {
-          return get().notifications.filter((n) => n.type === type);
+        filterByType: type => {
+          return get().notifications.filter(n => n.type === type)
         },
 
         // Filter by priority
-        filterByPriority: (priority) => {
-          return get().notifications.filter((n) => n.priority === priority);
+        filterByPriority: priority => {
+          return get().notifications.filter(n => n.priority === priority)
         },
 
         // Get unread notifications
         getUnreadNotifications: () => {
-          return get().notifications.filter(
-            (n) => n.status === NotificationStatus.UNREAD
-          );
+          return get().notifications.filter(n => n.status === NotificationStatus.UNREAD)
         },
       }),
       {
         name: 'notification-store',
-        partialize: (state) => ({
+        partialize: state => ({
           preferences: state.preferences,
           // Only persist notifications up to 100 to avoid quota issues
           notifications: state.notifications.slice(0, 100),
@@ -202,16 +198,16 @@ export const useNotificationStore = create<NotificationState>()(
       }
     )
   )
-);
+)
 
 // ============================================================================
 // Selectors
 // ============================================================================
 
-export const selectUnreadCount = (state: NotificationState) => state.unreadCount;
-export const selectNotifications = (state: NotificationState) => state.notifications;
-export const selectPreferences = (state: NotificationState) => state.preferences;
-export const selectIsLoading = (state: NotificationState) => state.isLoading;
+export const selectUnreadCount = (state: NotificationState) => state.unreadCount
+export const selectNotifications = (state: NotificationState) => state.notifications
+export const selectPreferences = (state: NotificationState) => state.preferences
+export const selectIsLoading = (state: NotificationState) => state.isLoading
 
 // ============================================================================
 // Helper hooks
@@ -221,54 +217,54 @@ export const selectIsLoading = (state: NotificationState) => state.isLoading;
  * Hook to fetch notifications from API
  */
 export const useFetchNotifications = () => {
-  const setNotifications = useNotificationStore((state) => state.setNotifications);
-  const setLoading = useNotificationStore((state) => state.setLoading);
-  const setError = useNotificationStore((state) => state.setError);
+  const setNotifications = useNotificationStore(state => state.setNotifications)
+  const setLoading = useNotificationStore(state => state.setLoading)
+  const setError = useNotificationStore(state => state.setError)
 
   const fetchNotifications = async () => {
     try {
-      setLoading(true);
-      setError(null);
+      setLoading(true)
+      setError(null)
 
-      const response = await fetch('/api/notifications?per_page=50');
-      
+      const response = await fetch('/api/notifications?per_page=50')
+
       if (!response.ok) {
-        throw new Error('Failed to fetch notifications');
+        throw new Error('Failed to fetch notifications')
       }
 
-      const data = await response.json();
-      setNotifications(data.notifications || []);
-    } catch (_error) {
-      setError(error instanceof Error ? error.message : 'Unknown error');
+      const data = await response.json()
+      setNotifications(data.notifications || [])
+    } catch (error) {
+      setError(error instanceof Error ? error.message : 'Unknown error')
     } finally {
-      setLoading(false);
+      setLoading(false)
     }
-  };
+  }
 
-  return { fetch: fetchNotifications, isLoading: useNotificationStore((state) => state.isLoading) };
-};
+  return { fetch: fetchNotifications, isLoading: useNotificationStore(state => state.isLoading) }
+}
 
 /**
  * Hook to create a notification via API
  */
 export const useCreateNotification = () => {
-  const addNotification = useNotificationStore((state) => state.addNotification);
-  const setLoading = useNotificationStore((state) => state.setLoading);
-  const setError = useNotificationStore((state) => state.setError);
+  const addNotification = useNotificationStore(state => state.addNotification)
+  const setLoading = useNotificationStore(state => state.setLoading)
+  const setError = useNotificationStore(state => state.setError)
 
   const create = async (data: {
-    type: NotificationType;
-    title: string;
-    content: string;
-    priority?: NotificationPriority;
-    group_id?: string;
-    related_id?: string;
-    related_type?: string;
-    metadata?: Record<string, unknown>;
+    type: NotificationType
+    title: string
+    content: string
+    priority?: NotificationPriority
+    group_id?: string
+    related_id?: string
+    related_type?: string
+    metadata?: Record<string, unknown>
   }) => {
     try {
-      setLoading(true);
-      setError(null);
+      setLoading(true)
+      setError(null)
 
       const response = await fetch('/api/notifications', {
         method: 'POST',
@@ -279,25 +275,25 @@ export const useCreateNotification = () => {
           user_id: 'current', // Will be set by server from session
           ...data,
         }),
-      });
+      })
 
       if (!response.ok) {
-        throw new Error('Failed to create notification');
+        throw new Error('Failed to create notification')
       }
 
-      const notification = await response.json();
-      addNotification(notification);
+      const notification = await response.json()
+      addNotification(notification)
 
-      return notification;
-    } catch (_error) {
-      setError(error instanceof Error ? error.message : 'Unknown error');
-      throw error;
+      return notification
+    } catch (error) {
+      setError(error instanceof Error ? error.message : 'Unknown error')
+      throw error
     } finally {
-      setLoading(false);
+      setLoading(false)
     }
-  };
+  }
 
-  return { create, isLoading: useNotificationStore((state) => state.isLoading) };
-};
+  return { create, isLoading: useNotificationStore(state => state.isLoading) }
+}
 
-export default useNotificationStore;
+export default useNotificationStore

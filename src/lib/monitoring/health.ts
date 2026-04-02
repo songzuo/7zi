@@ -3,27 +3,27 @@
  * For monitoring application health
  */
 
-import { NextResponse } from 'next/server';
+import { NextResponse } from 'next/server'
 
 /**
  * Health check status
  */
 export interface HealthStatus {
-  status: 'ok' | 'degraded' | 'error';
-  timestamp: string;
-  version: string;
-  uptime: number;
-  environment: string;
-  checks?: Record<string, CheckResult>;
+  status: 'ok' | 'degraded' | 'error'
+  timestamp: string
+  version: string
+  uptime: number
+  environment: string
+  checks?: Record<string, CheckResult>
 }
 
 /**
  * Individual check result
  */
 export interface CheckResult {
-  status: 'ok' | 'error';
-  latency?: number;
-  message?: string;
+  status: 'ok' | 'error'
+  latency?: number
+  message?: string
 }
 
 /**
@@ -37,7 +37,7 @@ export function basicHealthCheck(): HealthStatus {
     version: process.env.NEXT_PUBLIC_SENTRY_RELEASE ?? 'unknown',
     uptime: Math.floor(process.uptime()),
     environment: process.env.NODE_ENV ?? 'unknown',
-  };
+  }
 }
 
 /**
@@ -45,21 +45,17 @@ export function basicHealthCheck(): HealthStatus {
  * Includes checks for external dependencies
  */
 export async function detailedHealthCheck(): Promise<HealthStatus> {
-  const checks: Record<string, CheckResult> = {};
+  const checks: Record<string, CheckResult> = {}
 
   // Check external API (GitHub)
-  checks.githubApi = await checkExternalService(
-    'https://api.github.com/zen',
-    5000,
-    'GitHub API'
-  );
+  checks.githubApi = await checkExternalService('https://api.github.com/zen', 5000, 'GitHub API')
 
   // Check email service (Resend)
-  checks.emailService = await checkResendAPI();
+  checks.emailService = await checkResendAPI()
 
   // Determine overall status
-  const allOk = Object.values(checks).every((c) => c.status === 'ok');
-  const someOk = Object.values(checks).some((c) => c.status === 'ok');
+  const allOk = Object.values(checks).every(c => c.status === 'ok')
+  const someOk = Object.values(checks).some(c => c.status === 'ok')
 
   return {
     status: allOk ? 'ok' : someOk ? 'degraded' : 'error',
@@ -68,7 +64,7 @@ export async function detailedHealthCheck(): Promise<HealthStatus> {
     uptime: Math.floor(process.uptime()),
     environment: process.env.NODE_ENV ?? 'unknown',
     checks,
-  };
+  }
 }
 
 /**
@@ -80,35 +76,35 @@ async function checkExternalService(
   name: string
 ): Promise<CheckResult> {
   try {
-    const start = Date.now();
-    const controller = new AbortController();
-    const timeoutId = setTimeout(() => controller.abort(), timeout);
+    const start = Date.now()
+    const controller = new AbortController()
+    const timeoutId = setTimeout(() => controller.abort(), timeout)
 
     const response = await fetch(url, {
       method: 'GET',
       signal: controller.signal,
-    });
+    })
 
-    clearTimeout(timeoutId);
-    const latency = Date.now() - start;
+    clearTimeout(timeoutId)
+    const latency = Date.now() - start
 
     if (response.ok) {
       return {
         status: 'ok',
         latency,
-      };
+      }
     }
 
     return {
       status: 'error',
       latency,
       message: `${name} returned status ${response.status}`,
-    };
-  } catch (_error) {
+    }
+  } catch (error) {
     return {
       status: 'error',
       message: error instanceof Error ? error.message : 'Unknown error',
-    };
+    }
   }
 }
 
@@ -116,45 +112,45 @@ async function checkExternalService(
  * Check Resend API health
  */
 async function checkResendAPI(): Promise<CheckResult> {
-  const apiKey = process.env.RESEND_API_KEY;
-  
+  const apiKey = process.env.RESEND_API_KEY
+
   if (!apiKey) {
     return {
       status: 'ok', // Not configured, skip check
       message: 'Resend API key not configured',
-    };
+    }
   }
 
   try {
-    const start = Date.now();
+    const start = Date.now()
     const response = await fetch('https://api.resend.com/domains', {
       method: 'GET',
       headers: {
-        'Authorization': `Bearer ${apiKey}`,
+        Authorization: `Bearer ${apiKey}`,
       },
       signal: AbortSignal.timeout(5000),
-    });
+    })
 
-    const latency = Date.now() - start;
+    const latency = Date.now() - start
 
     if (response.ok || response.status === 401) {
       // 401 means API is reachable, just auth issue
       return {
         status: 'ok',
         latency,
-      };
+      }
     }
 
     return {
       status: 'error',
       latency,
       message: `Resend API returned status ${response.status}`,
-    };
-  } catch (_error) {
+    }
+  } catch (error) {
     return {
       status: 'error',
       message: error instanceof Error ? error.message : 'Unknown error',
-    };
+    }
   }
 }
 
@@ -162,8 +158,8 @@ async function checkResendAPI(): Promise<CheckResult> {
  * Create health check response
  */
 export function healthResponse(status: HealthStatus): NextResponse {
-  const statusCode = status.status === 'ok' ? 200 : status.status === 'degraded' ? 200 : 503;
-  return NextResponse.json(status, { status: statusCode });
+  const statusCode = status.status === 'ok' ? 200 : status.status === 'degraded' ? 200 : 503
+  return NextResponse.json(status, { status: statusCode })
 }
 
 /**
@@ -175,7 +171,7 @@ export const probes = {
    * Returns 200 if the service is running
    */
   liveness: () => {
-    return NextResponse.json({ success: true, status: 'alive' }, { status: 200 });
+    return NextResponse.json({ success: true, status: 'alive' }, { status: 200 })
   },
 
   /**
@@ -183,13 +179,13 @@ export const probes = {
    * Returns 200 if the service is ready to accept traffic
    */
   readiness: async () => {
-    const health = await detailedHealthCheck();
+    const health = await detailedHealthCheck()
     const result = {
       ready: health.status === 'ok',
-      ...health
-    };
+      ...health,
+    }
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    return healthResponse(result as any);
+    return healthResponse(result as any)
   },
 
   /**
@@ -198,10 +194,10 @@ export const probes = {
    */
   startup: () => {
     // Check if the application has completed startup
-    const isReady = typeof globalThis !== 'undefined';
+    const isReady = typeof globalThis !== 'undefined'
     return NextResponse.json(
       { status: isReady ? 'started' : 'starting' },
       { status: isReady ? 200 : 503 }
-    );
+    )
   },
-};
+}

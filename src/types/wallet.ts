@@ -15,29 +15,29 @@
 /**
  * 交易类型
  */
-export type TransactionType = 'deposit' | 'withdraw' | 'transfer' | 'reward' | 'penalty';
+export type TransactionType = 'deposit' | 'withdraw' | 'transfer' | 'reward' | 'penalty'
 
 /**
  * 交易状态
  */
-export type TransactionStatus = 'pending' | 'completed' | 'failed' | 'cancelled';
+export type TransactionStatus = 'pending' | 'completed' | 'failed' | 'cancelled'
 
 /**
  * 钱包配置
  */
 export interface WalletConfig {
   /** 最小转账金额 */
-  minTransferAmount: number;
+  minTransferAmount: number
   /** 最大转账金额 */
-  maxTransferAmount: number;
+  maxTransferAmount: number
   /** 转账手续费率 (0-1) */
-  transferFeeRate: number;
+  transferFeeRate: number
   /** 是否启用负余额 */
-  allowNegativeBalance: boolean;
+  allowNegativeBalance: boolean
   /** 货币符号 */
-  currencySymbol: string;
+  currencySymbol: string
   /** 货币名称 */
-  currencyName: string;
+  currencyName: string
 }
 
 /**
@@ -45,25 +45,25 @@ export interface WalletConfig {
  */
 export interface AgentWallet {
   /** 钱包地址/ID */
-  id: string;
+  id: string
   /** 智能体ID */
-  agentId: string;
+  agentId: string
   /** 智能体名称 */
-  agentName: string;
+  agentName: string
   /** 当前余额 */
-  balance: number;
+  balance: number
   /** 冻结余额 */
-  frozenBalance: number;
+  frozenBalance: number
   /** 累计收入 */
-  totalIncome: number;
+  totalIncome: number
   /** 累计支出 */
-  totalExpense: number;
+  totalExpense: number
   /** 钱包状态 */
-  status: 'active' | 'frozen' | 'closed';
+  status: 'active' | 'frozen' | 'closed'
   /** 创建时间 */
-  createdAt: string;
+  createdAt: string
   /** 更新时间 */
-  updatedAt: string;
+  updatedAt: string
 }
 
 /**
@@ -71,33 +71,33 @@ export interface AgentWallet {
  */
 export interface Transaction {
   /** 交易ID */
-  id: string;
+  id: string
   /** 交易类型 */
-  type: TransactionType;
+  type: TransactionType
   /** 发送方钱包ID */
-  fromWalletId: string;
+  fromWalletId: string
   /** 发送方智能体名称 */
-  fromAgentName: string;
+  fromAgentName: string
   /** 接收方钱包ID */
-  toWalletId: string;
+  toWalletId: string
   /** 接收方智能体名称 */
-  toAgentName: string;
+  toAgentName: string
   /** 交易金额 */
-  amount: number;
+  amount: number
   /** 手续费 */
-  fee: number;
+  fee: number
   /** 交易后发送方余额 */
-  fromBalanceAfter: number;
+  fromBalanceAfter: number
   /** 交易后接收方余额 */
-  toBalanceAfter: number;
+  toBalanceAfter: number
   /** 交易状态 */
-  status: TransactionStatus;
+  status: TransactionStatus
   /** 交易备注 */
-  memo?: string;
+  memo?: string
   /** 创建时间 */
-  createdAt: string;
+  createdAt: string
   /** 完成时间 */
-  completedAt?: string;
+  completedAt?: string
 }
 
 /**
@@ -105,20 +105,20 @@ export interface Transaction {
  */
 export interface TransferRequest {
   /** 接收方智能体ID */
-  toAgentId: string;
+  toAgentId: string
   /** 转账金额 */
-  amount: number;
+  amount: number
   /** 转账备注 */
-  memo?: string;
+  memo?: string
 }
 
 /**
  * 转账结果
  */
 export interface TransferResult {
-  success: boolean;
-  transaction?: Transaction;
-  error?: string;
+  success: boolean
+  transaction?: Transaction
+  error?: string
 }
 
 // ============================================================================
@@ -135,12 +135,15 @@ export const DEFAULT_WALLET_CONFIG: WalletConfig = {
   allowNegativeBalance: false,
   currencySymbol: '🪙',
   currencyName: 'Agent Coin',
-};
+}
 
 /**
  * 交易类型配置
  */
-export const TRANSACTION_TYPE_CONFIG: Record<TransactionType, { icon: string; label: string; color: string }> = {
+export const TRANSACTION_TYPE_CONFIG: Record<
+  TransactionType,
+  { icon: string; label: string; color: string }
+> = {
   deposit: {
     icon: '📥',
     label: '存入',
@@ -166,12 +169,15 @@ export const TRANSACTION_TYPE_CONFIG: Record<TransactionType, { icon: string; la
     label: '惩罚',
     color: 'text-orange-600 dark:text-orange-400',
   },
-};
+}
 
 /**
  * 交易状态配置
  */
-export const TRANSACTION_STATUS_CONFIG: Record<TransactionStatus, { icon: string; label: string; color: string }> = {
+export const TRANSACTION_STATUS_CONFIG: Record<
+  TransactionStatus,
+  { icon: string; label: string; color: string }
+> = {
   pending: {
     icon: '⏳',
     label: '处理中',
@@ -192,4 +198,4 @@ export const TRANSACTION_STATUS_CONFIG: Record<TransactionStatus, { icon: string
     label: '已取消',
     color: 'text-gray-600 dark:text-gray-400 bg-gray-100 dark:bg-gray-900/30',
   },
-};
+}

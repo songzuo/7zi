@@ -42,6 +42,7 @@ npm run dev
 ### 数据库位置
 
 数据库文件会自动创建在：
+
 ```
 data/feedback.db
 ```
@@ -49,6 +50,7 @@ data/feedback.db
 ### 认证配置
 
 确保在 `.env.local` 中配置：
+
 ```env
 JWT_SECRET=your-secret-key
 ```
@@ -56,6 +58,7 @@ JWT_SECRET=your-secret-key
 ## 📊 数据库结构
 
 系统会自动创建以下表：
+
 - `feedback` - 反馈主表
 - `feedback_comments` - 评论表
 - `feedback_ratings` - 评分历史表
@@ -65,22 +68,25 @@ JWT_SECRET=your-secret-key
 ### 修改反馈类型
 
 编辑 `src/lib/db/feedback-storage.ts` 中的类型定义：
+
 ```typescript
-export type FeedbackType = 'bug' | 'feature' | 'improvement' | 'complaint' | 'praise' | 'other';
+export type FeedbackType = 'bug' | 'feature' | 'improvement' | 'complaint' | 'praise' | 'other'
 ```
 
 ### 修改优先级
 
 编辑 `src/lib/db/feedback-storage.ts` 中的优先级定义：
+
 ```typescript
-export type FeedbackPriority = 'low' | 'medium' | 'high' | 'urgent';
+export type FeedbackPriority = 'low' | 'medium' | 'high' | 'urgent'
 ```
 
 ### 修改状态
 
 编辑 `src/lib/db/feedback-storage.ts` 中的状态定义：
+
 ```typescript
-export type FeedbackStatus = 'pending' | 'in_progress' | 'resolved' | 'closed' | 'rejected';
+export type FeedbackStatus = 'pending' | 'in_progress' | 'resolved' | 'closed' | 'rejected'
 ```
 
 ## 🐛 故障排除
@@ -99,6 +105,7 @@ sudo yum install python3
 ### TypeScript 路径别名问题
 
 确保 `tsconfig.json` 包含：
+
 ```json
 {
   "compilerOptions": {
@@ -112,6 +119,7 @@ sudo yum install python3
 ### 数据库锁定
 
 如果遇到数据库锁定错误：
+
 ```bash
 # 删除 WAL 文件
 rm data/feedback.db-shm data/feedback.db-wal
@@ -126,6 +134,7 @@ rm data/feedback.db-shm data/feedback.db-wal
 ## ✅ 检查清单
 
 部署前检查：
+
 - [ ] better-sqlite3 已安装
 - [ ] data/ 目录有写权限
 - [ ] JWT_SECRET 已配置

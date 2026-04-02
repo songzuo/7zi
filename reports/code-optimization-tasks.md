@@ -12,13 +12,13 @@
 
 本次代码审查识别了以下优化机会：
 
-| 优化类型 | 严重程度 | 数量 | 预估影响 |
-|---------|---------|------|---------|
-| 未使用的 import | 低 | 多处 | 减少打包体积 |
-| useCallback/useMemo 优化机会 | 中 | 15+ | 提升渲染性能 |
-| 重复代码提取 | 中 | 8+ | 提高可维护性 |
-| 条件逻辑简化 | 低-中 | 10+ | 提高代码可读性 |
-| 其他优化 | 低-中 | 5+ | 综合提升 |
+| 优化类型                     | 严重程度 | 数量 | 预估影响       |
+| ---------------------------- | -------- | ---- | -------------- |
+| 未使用的 import              | 低       | 多处 | 减少打包体积   |
+| useCallback/useMemo 优化机会 | 中       | 15+  | 提升渲染性能   |
+| 重复代码提取                 | 中       | 8+   | 提高可维护性   |
+| 条件逻辑简化                 | 低-中    | 10+  | 提高代码可读性 |
+| 其他优化                     | 低-中    | 5+   | 综合提升       |
 
 ---
 
@@ -30,6 +30,7 @@
 **严重程度**: 高
 
 **问题描述**:
+
 - `getAIMembers` 函数在每次渲染时都会重新计算，即使 locale 没有变化
 - 多语言文本对象 `t` 在每次渲染时重新创建
 - `stats` 对象在每次渲染时重新计算
@@ -124,6 +125,7 @@ function MemberStatus({ members, t }: MemberStatusProps) {
 ```
 
 **预期收益**:
+
 - 减少不必要的重新渲染
 - 降低内存分配
 - 提升页面响应速度
@@ -136,6 +138,7 @@ function MemberStatus({ members, t }: MemberStatusProps) {
 **严重程度**: 中-高
 
 **问题描述**:
+
 - `validateForm` 函数在每次渲染时重新创建
 - `handleSubmit` 函数在每次渲染时重新创建
 - `handleChange` 函数在每次渲染时重新创建
@@ -146,110 +149,121 @@ function MemberStatus({ members, t }: MemberStatusProps) {
 ```typescript
 // 使用 useCallback 缓存验证函数
 const validateForm = useCallback((): boolean => {
-  const newErrors: FormErrors = {};
+  const newErrors: FormErrors = {}
 
   if (!formData.name.trim()) {
-    newErrors.name = locale === 'zh' ? "请输入您的姓名" : "Please enter your name";
+    newErrors.name = locale === 'zh' ? '请输入您的姓名' : 'Please enter your name'
   }
 
   if (!formData.email.trim()) {
-    newErrors.email = locale === 'zh' ? "请输入您的邮箱" : "Please enter your email";
+    newErrors.email = locale === 'zh' ? '请输入您的邮箱' : 'Please enter your email'
   } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.email)) {
-    newErrors.email = locale === 'zh' ? "请输入有效的邮箱地址" : "Please enter a valid email address";
+    newErrors.email =
+      locale === 'zh' ? '请输入有效的邮箱地址' : 'Please enter a valid email address'
   }
 
   if (!formData.message.trim()) {
-    newErrors.message = locale === 'zh' ? "请输入消息内容" : "Please enter your message";
+    newErrors.message = locale === 'zh' ? '请输入消息内容' : 'Please enter your message'
   } else if (formData.message.trim().length < 10) {
-    newErrors.message = locale === 'zh' ? "消息内容至少需要 10 个字符" : "Message must be at least 10 characters";
+    newErrors.message =
+      locale === 'zh' ? '消息内容至少需要 10 个字符' : 'Message must be at least 10 characters'
   }
 
-  setErrors(newErrors);
-  return Object.keys(newErrors).length === 0;
-}, [formData, locale]);
+  setErrors(newErrors)
+  return Object.keys(newErrors).length === 0
+}, [formData, locale])
 
 // 使用 useCallback 缓存提交处理函数
-const handleSubmit = useCallback(async (e: FormEvent) => {
-  e.preventDefault();
-  
-  if (!validateForm()) {
-    return;
-  }
+const handleSubmit = useCallback(
+  async (e: FormEvent) => {
+    e.preventDefault()
 
-  setIsSubmitting(true);
-  setSubmitStatus("idle");
-
-  try {
-    const headers: HeadersInit = {
-      "Content-Type": "application/json",
-    };
-    
-    if (csrfToken) {
-      headers["X-CSRF-Token"] = csrfToken;
+    if (!validateForm()) {
+      return
     }
 
-    const response = await fetch("/api/contact", {
-      method: "POST",
-      headers,
-      body: JSON.stringify({ ...formData, locale }),
-    });
+    setIsSubmitting(true)
+    setSubmitStatus('idle')
 
-    const result = await response.json();
+    try {
+      const headers: HeadersInit = {
+        'Content-Type': 'application/json',
+      }
 
-    if (!response.ok) {
-      throw new Error(result.error || "发送失败");
+      if (csrfToken) {
+        headers['X-CSRF-Token'] = csrfToken
+      }
+
+      const response = await fetch('/api/contact', {
+        method: 'POST',
+        headers,
+        body: JSON.stringify({ ...formData, locale }),
+      })
+
+      const result = await response.json()
+
+      if (!response.ok) {
+        throw new Error(result.error || '发送失败')
+      }
+
+      setSubmitStatus('success')
+      setFormData({
+        name: '',
+        email: '',
+        company: '',
+        subject: '',
+        message: '',
+      })
+    } catch (error) {
+      console.error('Form submission error:', error)
+      setSubmitStatus('error')
+    } finally {
+      setIsSubmitting(false)
     }
-
-    setSubmitStatus("success");
-    setFormData({
-      name: "",
-      email: "",
-      company: "",
-      subject: "",
-      message: "",
-    });
-  } catch (error) {
-    console.error("Form submission error:", error);
-    setSubmitStatus("error");
-  } finally {
-    setIsSubmitting(false);
-  }
-}, [validateForm, formData, csrfToken, locale]);
+  },
+  [validateForm, formData, csrfToken, locale]
+)
 
 // 使用 useMemo 缓存主题选项
-const subjectOptions = useMemo(() => locale === 'zh' 
-  ? [
-      { value: '', label: '选择咨询主题' },
-      { value: 'project', label: '项目咨询' },
-      { value: 'cooperation', label: '商务合作' },
-      { value: 'support', label: '技术支持' },
-      { value: 'careers', label: '加入我们' },
-      { value: 'other', label: '其他' },
-    ]
-  : [
-      { value: '', label: 'Select a topic' },
-      { value: 'project', label: 'Project Inquiry' },
-      { value: 'cooperation', label: 'Business Cooperation' },
-      { value: 'support', label: 'Technical Support' },
-      { value: 'careers', label: 'Join Us' },
-      { value: 'other', label: 'Other' },
-    ], [locale]);
+const subjectOptions = useMemo(
+  () =>
+    locale === 'zh'
+      ? [
+          { value: '', label: '选择咨询主题' },
+          { value: 'project', label: '项目咨询' },
+          { value: 'cooperation', label: '商务合作' },
+          { value: 'support', label: '技术支持' },
+          { value: 'careers', label: '加入我们' },
+          { value: 'other', label: '其他' },
+        ]
+      : [
+          { value: '', label: 'Select a topic' },
+          { value: 'project', label: 'Project Inquiry' },
+          { value: 'cooperation', label: 'Business Cooperation' },
+          { value: 'support', label: 'Technical Support' },
+          { value: 'careers', label: 'Join Us' },
+          { value: 'other', label: 'Other' },
+        ],
+  [locale]
+)
 
 // handleChange 已经使用了 useCallback，但可以进一步优化
-const handleChange = useCallback((
-  e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>
-) => {
-  const { name, value } = e.target;
-  setFormData(prev => ({ ...prev, [name]: value }));
-  
-  // 清除对应字段的错误
-  if (errors[name as keyof FormErrors]) {
-    setErrors(prev => ({ ...prev, [name]: undefined }));
-  }
-}, [errors]);
+const handleChange = useCallback(
+  (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
+    const { name, value } = e.target
+    setFormData(prev => ({ ...prev, [name]: value }))
+
+    // 清除对应字段的错误
+    if (errors[name as keyof FormErrors]) {
+      setErrors(prev => ({ ...prev, [name]: undefined }))
+    }
+  },
+  [errors]
+)
 ```
 
 **预期收益**:
+
 - 减少子组件不必要的重新渲染
 - 提升表单交互响应速度
 
@@ -261,6 +275,7 @@ const handleChange = useCallback((
 **严重程度**: 中
 
 **问题描述**:
+
 - `ToggleSwitch` 组件每次渲染时重新创建
 - `NotificationToggle` 组件每次渲染时重新创建
 - 主题切换按钮数组在每次渲染时重新创建
@@ -341,6 +356,7 @@ NotificationToggle.displayName = 'NotificationToggle';
 ```
 
 **预期收益**:
+
 - 减少不必要的子组件重新渲染
 - 提高设置面板的响应速度
 
@@ -354,6 +370,7 @@ NotificationToggle.displayName = 'NotificationToggle';
 **严重程度**: 中
 
 **问题描述**:
+
 - `getNavLinkClasses` 和 `getMobileNavLinkClasses` 函数在每次渲染时重新创建
 - 虽然使用了 `useCallback`，但这些函数实际上只依赖于 `pathname`，可以进一步优化
 
@@ -370,7 +387,7 @@ const getNavLinkClasses = (isActive: boolean) => `
       : 'text-[var(--nav-text)] hover:bg-[var(--secondary)] hover:text-[var(--nav-text-hover)]'
   }
   hover:scale-105 active:scale-95
-`;
+`
 
 const getMobileNavLinkClasses = (isActive: boolean) => `
   flex items-center gap-4 px-4 py-4 rounded-xl transition-all duration-200
@@ -381,14 +398,15 @@ const getMobileNavLinkClasses = (isActive: boolean) => `
       : 'text-zinc-600 dark:text-zinc-400 hover:bg-zinc-100 dark:hover:bg-zinc-800 active:bg-zinc-200 dark:active:bg-zinc-700'
   }
   hover:translate-x-1 active:scale-[0.98]
-`;
+`
 
 // 在组件内部使用时：
-const navLinkClasses = getNavLinkClasses(pathname === item.href);
-const mobileNavLinkClasses = getMobileNavLinkClasses(pathname === item.href);
+const navLinkClasses = getNavLinkClasses(pathname === item.href)
+const mobileNavLinkClasses = getMobileNavLinkClasses(pathname === item.href)
 ```
 
 **预期收益**:
+
 - 减少函数创建开销
 - 提升组件渲染性能
 
@@ -400,6 +418,7 @@ const mobileNavLinkClasses = getMobileNavLinkClasses(pathname === item.href);
 **严重程度**: 中
 
 **问题描述**:
+
 - `t` 对象在每次渲染时重新创建
 - `updateData` 函数在每次渲染时重新创建（虽然使用了 useCallback）
 - 子组件 `MetricCard` 和 `EfficiencyBar` 可以进一步优化 memo 比较
@@ -408,41 +427,48 @@ const mobileNavLinkClasses = getMobileNavLinkClasses(pathname === item.href);
 
 ```typescript
 // 使用 useMemo 缓存多语言文本
-const t = useMemo(() => ({
-  title: locale === 'zh' ? '实时仪表盘' : 'Realtime Dashboard',
-  performance: locale === 'zh' ? '性能指标' : 'Performance',
-  efficiency: locale === 'zh' ? '团队效率' : 'Team Efficiency',
-  realtime: locale === 'zh' ? '实时状态' : 'Realtime Status',
-  connected: locale === 'zh' ? '已连接' : 'Connected',
-  disconnected: locale === 'zh' ? '已断开' : 'Disconnected',
-  latency: locale === 'zh' ? '延迟' : 'Latency',
-  activeConnections: locale === 'zh' ? '活跃连接' : 'Active Connections',
-  tasksCompleted: locale === 'zh' ? '已完成任务' : 'Tasks Completed',
-  avgTime: locale === 'zh' ? '平均完成时间' : 'Avg Completion Time',
-  activeMembers: locale === 'zh' ? '活跃成员' : 'Active Members',
-  weeklyTrend: locale === 'zh' ? '本周趋势' : 'Weekly Trend',
-  target: locale === 'zh' ? '目标' : 'Target',
-  trend: locale === 'zh' ? '趋势' : 'Trend'
-}), [locale]);
+const t = useMemo(
+  () => ({
+    title: locale === 'zh' ? '实时仪表盘' : 'Realtime Dashboard',
+    performance: locale === 'zh' ? '性能指标' : 'Performance',
+    efficiency: locale === 'zh' ? '团队效率' : 'Team Efficiency',
+    realtime: locale === 'zh' ? '实时状态' : 'Realtime Status',
+    connected: locale === 'zh' ? '已连接' : 'Connected',
+    disconnected: locale === 'zh' ? '已断开' : 'Disconnected',
+    latency: locale === 'zh' ? '延迟' : 'Latency',
+    activeConnections: locale === 'zh' ? '活跃连接' : 'Active Connections',
+    tasksCompleted: locale === 'zh' ? '已完成任务' : 'Tasks Completed',
+    avgTime: locale === 'zh' ? '平均完成时间' : 'Avg Completion Time',
+    activeMembers: locale === 'zh' ? '活跃成员' : 'Active Members',
+    weeklyTrend: locale === 'zh' ? '本周趋势' : 'Weekly Trend',
+    target: locale === 'zh' ? '目标' : 'Target',
+    trend: locale === 'zh' ? '趋势' : 'Trend',
+  }),
+  [locale]
+)
 
 // 为子组件添加更精确的 memo 比较
-const MetricCard = memo<MetricCardProps>(({ metric, t }) => {
-  // ... 组件实现
-}, (prevProps, nextProps) => {
-  return (
-    prevProps.metric.name === nextProps.metric.name &&
-    prevProps.metric.value === nextProps.metric.value &&
-    prevProps.metric.trend === nextProps.metric.trend &&
-    prevProps.metric.change === nextProps.metric.change &&
-    prevProps.metric.target === nextProps.metric.target &&
-    prevProps.t === nextProps.t
-  );
-});
+const MetricCard = memo<MetricCardProps>(
+  ({ metric, t }) => {
+    // ... 组件实现
+  },
+  (prevProps, nextProps) => {
+    return (
+      prevProps.metric.name === nextProps.metric.name &&
+      prevProps.metric.value === nextProps.metric.value &&
+      prevProps.metric.trend === nextProps.metric.trend &&
+      prevProps.metric.change === nextProps.metric.change &&
+      prevProps.metric.target === nextProps.metric.target &&
+      prevProps.t === nextProps.t
+    )
+  }
+)
 
-MetricCard.displayName = 'MetricCard';
+MetricCard.displayName = 'MetricCard'
 ```
 
 **预期收益**:
+
 - 减少子组件不必要的重新渲染
 - 降低内存分配
 
@@ -454,6 +480,7 @@ MetricCard.displayName = 'MetricCard';
 **严重程度**: 中
 
 **问题描述**:
+
 - 多个 `useCallback` 依赖了 `options`，而 `options` 可能每次都变化
 - `updateStatus` 函数的依赖可以优化
 
@@ -461,24 +488,25 @@ MetricCard.displayName = 'MetricCard';
 
 ```typescript
 // 将 options 也作为 ref，避免依赖变化
-const optionsRef = useRef(options);
+const optionsRef = useRef(options)
 useEffect(() => {
-  optionsRef.current = options;
-}, [options]);
+  optionsRef.current = options
+}, [options])
 
 // updateStatus 只需要依赖自身
 const updateStatus = useCallback((newStatus: WebSocketStatus) => {
-  setStatus(newStatus);
-  setIsConnected(newStatus === 'open');
-}, []);
+  setStatus(newStatus)
+  setIsConnected(newStatus === 'open')
+}, [])
 
 // createConnection 的依赖可以减少
 const createConnection = useCallback(() => {
   // ... 使用 optionsRef.current 而不是 options
-}, [url, protocols, reconnectOnClose, updateStatus]); // 移除 options 依赖
+}, [url, protocols, reconnectOnClose, updateStatus]) // 移除 options 依赖
 ```
 
 **预期收益**:
+
 - 减少 useCallback 的依赖项
 - 减少不必要的函数重新创建
 
@@ -503,6 +531,7 @@ const createConnection = useCallback(() => {
 **严重程度**: 低-中
 
 **问题描述**:
+
 - `fetchIssues` 和 `fetchCommits` 函数每次渲染时重新创建（虽然使用了 useCallback）
 - `mergeActivities` 函数每次渲染时重新创建
 
@@ -513,32 +542,33 @@ const createConnection = useCallback(() => {
 // 但可以考虑将错误处理逻辑提取为单独的函数
 
 const handleFetchError = useCallback((err: unknown, context: string): string => {
-  console.error(`${context} failed:`, err);
-  return err instanceof Error ? err.message : `${context} 失败`;
-}, []);
+  console.error(`${context} failed:`, err)
+  return err instanceof Error ? err.message : `${context} 失败`
+}, [])
 
 // 然后在 fetchIssues 和 fetchCommits 中使用
 const fetchIssues = useCallback(async (): Promise<GitHubIssue[]> => {
   try {
     const response = await fetch(
       `/api/github/issues?owner=${encodeURIComponent(owner)}&repo=${encodeURIComponent(repo)}`
-    );
+    )
 
     if (!response.ok) {
-      const data = await response.json();
-      throw new Error(data.error || `获取 Issues 失败：${response.statusText}`);
+      const data = await response.json()
+      throw new Error(data.error || `获取 Issues 失败：${response.statusText}`)
     }
 
-    const data = await response.json();
-    setIssues(data);
-    return data;
+    const data = await response.json()
+    setIssues(data)
+    return data
   } catch (err) {
-    throw new Error(handleFetchError(err, 'Failed to fetch issues'));
+    throw new Error(handleFetchError(err, 'Failed to fetch issues'))
   }
-}, [owner, repo, handleFetchError]);
+}, [owner, repo, handleFetchError])
 ```
 
 **预期收益**:
+
 - 提高代码可维护性
 - 统一错误处理逻辑
 
@@ -550,6 +580,7 @@ const fetchIssues = useCallback(async (): Promise<GitHubIssue[]> => {
 **严重程度**: 低
 
 **问题描述**:
+
 - `fetchData` 函数每次渲染时重新创建（虽然使用了 useCallback）
 - 依赖项是 `url`，如果 url 不变，函数也不会变化
 
@@ -559,42 +590,42 @@ const fetchIssues = useCallback(async (): Promise<GitHubIssue[]> => {
 
 ```typescript
 // 可以添加请求缓存
-const requestCache = useRef<Map<string, { data: T; timestamp: number }>>(new Map());
-const CACHE_TTL = 5 * 60 * 1000; // 5 minutes
+const requestCache = useRef<Map<string, { data: T; timestamp: number }>>(new Map())
+const CACHE_TTL = 5 * 60 * 1000 // 5 minutes
 
 const fetchData = useCallback(async () => {
   try {
-    setLoading(true);
-    setError(null);
-    
+    setLoading(true)
+    setError(null)
+
     // 检查缓存
-    const cached = requestCache.current.get(url);
+    const cached = requestCache.current.get(url)
     if (cached && Date.now() - cached.timestamp < CACHE_TTL) {
-      setData(cached.data);
-      return;
+      setData(cached.data)
+      return
     }
-    
+
     const response = await fetch(url, {
       headers: {
-        'Accept': 'application/json',
+        Accept: 'application/json',
       },
-    });
+    })
 
     if (!response.ok) {
-      throw new Error(`HTTP error! status: ${response.status}`);
+      throw new Error(`HTTP error! status: ${response.status}`)
     }
 
-    const result = await response.json();
-    setData(result);
-    
+    const result = await response.json()
+    setData(result)
+
     // 缓存结果
-    requestCache.current.set(url, { data: result, timestamp: Date.now() });
+    requestCache.current.set(url, { data: result, timestamp: Date.now() })
   } catch (err) {
-    setError(err instanceof Error ? err.message : 'An error occurred');
+    setError(err instanceof Error ? err.message : 'An error occurred')
   } finally {
-    setLoading(false);
+    setLoading(false)
   }
-}, [url]);
+}, [url])
 ```
 
 ---
@@ -605,6 +636,7 @@ const fetchData = useCallback(async () => {
 **严重程度**: 低
 
 **问题描述**:
+
 - `categoryColors` 对象每次渲染时重新创建
 - `title` 和 `description` 计算在每次渲染时执行
 
@@ -617,13 +649,16 @@ const CATEGORY_COLORS: Record<ProjectCategory, string> = {
   app: 'from-purple-500 to-pink-500',
   ai: 'from-green-500 to-emerald-500',
   design: 'from-orange-500 to-red-500',
-} as const;
+} as const
 
 // 在组件内部使用 useMemo 缓存计算结果
-const { title, description } = useMemo(() => ({
-  title: locale === 'zh' ? project.titleZh : project.title,
-  description: locale === 'zh' ? project.descriptionZh : project.description,
-}), [locale, project.title, project.titleZh, project.description, project.descriptionZh]);
+const { title, description } = useMemo(
+  () => ({
+    title: locale === 'zh' ? project.titleZh : project.title,
+    description: locale === 'zh' ? project.descriptionZh : project.description,
+  }),
+  [locale, project.title, project.titleZh, project.description, project.descriptionZh]
+)
 ```
 
 ---
@@ -634,6 +669,7 @@ const { title, description } = useMemo(() => ({
 **严重程度**: 低
 
 **问题描述**:
+
 - `CATEGORIES` 常量已经正确使用了 `as const` 和 `readonly`
 - 组件已经使用了 `memo` 优化
 
@@ -654,12 +690,13 @@ const { title, description } = useMemo(() => ({
 **建议**: 提取为常量或组件
 
 ```typescript
-const INPUT_BASE_CLASSES = "w-full px-6 py-4 rounded-2xl bg-zinc-50 dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-700 text-zinc-900 dark:text-white focus:outline-none transition-colors";
+const INPUT_BASE_CLASSES =
+  'w-full px-6 py-4 rounded-2xl bg-zinc-50 dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-700 text-zinc-900 dark:text-white focus:outline-none transition-colors'
 
-const INPUT_ERROR_CLASSES = "border-red-500 focus:border-red-500";
+const INPUT_ERROR_CLASSES = 'border-red-500 focus:border-red-500'
 
-const getInputClasses = (hasError: boolean) => 
-  `${INPUT_BASE_CLASSES} ${hasError ? INPUT_ERROR_CLASSES : 'focus:border-cyan-500'}`;
+const getInputClasses = (hasError: boolean) =>
+  `${INPUT_BASE_CLASSES} ${hasError ? INPUT_ERROR_CLASSES : 'focus:border-cyan-500'}`
 ```
 
 ---
@@ -679,27 +716,27 @@ export const statusConfig = {
     bgClass: 'bg-green-500',
     containerClass: 'bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-300',
     icon: '🔥',
-    animation: 'animate-pulse'
+    animation: 'animate-pulse',
   },
   busy: {
     bgClass: 'bg-yellow-500',
     containerClass: 'bg-yellow-100 text-yellow-700 dark:bg-yellow-900/30 dark:text-yellow-300',
     icon: '⚡',
-    animation: 'animate-bounce'
+    animation: 'animate-bounce',
   },
   idle: {
     bgClass: 'bg-gray-400',
     containerClass: 'bg-gray-100 text-gray-600 dark:bg-gray-700 dark:text-gray-300',
     icon: '😊',
-    animation: ''
+    animation: '',
   },
   offline: {
     bgClass: 'bg-gray-300',
     containerClass: 'bg-gray-100 text-gray-400 dark:bg-gray-700 dark:text-gray-400',
     icon: '⚫',
-    animation: ''
-  }
-} as const;
+    animation: '',
+  },
+} as const
 ```
 
 ---
@@ -715,21 +752,24 @@ export const statusConfig = {
 ```typescript
 // hooks/useI18nText.ts
 export function useI18nText<T extends Record<string, Record<string, string>>>(texts: T) {
-  const locale = useLocale() as 'zh' | 'en';
-  
+  const locale = useLocale() as 'zh' | 'en'
+
   return useMemo(() => {
-    return Object.keys(texts).reduce((acc, key) => {
-      acc[key] = texts[key][locale];
-      return acc;
-    }, {} as Record<string, string>);
-  }, [texts, locale]);
+    return Object.keys(texts).reduce(
+      (acc, key) => {
+        acc[key] = texts[key][locale]
+        return acc
+      },
+      {} as Record<string, string>
+    )
+  }, [texts, locale])
 }
 
 // 使用示例
 const t = useI18nText({
   title: { zh: 'AI 团队实时看板', en: 'AI Team Dashboard' },
-  subtitle: { zh: '位成员', en: 'members' }
-});
+  subtitle: { zh: '位成员', en: 'members' },
+})
 ```
 
 ---
@@ -739,6 +779,7 @@ const t = useI18nText({
 ### 1. DashboardClient.tsx 中的状态过滤
 
 **当前代码**:
+
 ```typescript
 const stats = {
   totalMembers: AI_MEMBERS.length,
@@ -747,27 +788,34 @@ const stats = {
   idle: AI_MEMBERS.filter(m => m.status === 'idle').length,
   offline: AI_MEMBERS.filter(m => m.status === 'offline').length,
   // ...
-};
+}
 ```
 
 **优化建议**:
+
 ```typescript
 // 使用 reduce 一次性计算所有状态
 const statusCounts = useMemo(() => {
-  return AI_MEMBERS.reduce((acc, member) => {
-    acc[member.status] = (acc[member.status] || 0) + 1;
-    return acc;
-  }, {} as Record<AIMember['status'], number>);
-}, [AI_MEMBERS]);
+  return AI_MEMBERS.reduce(
+    (acc, member) => {
+      acc[member.status] = (acc[member.status] || 0) + 1
+      return acc
+    },
+    {} as Record<AIMember['status'], number>
+  )
+}, [AI_MEMBERS])
 
-const stats = useMemo(() => ({
-  totalMembers: AI_MEMBERS.length,
-  working: statusCounts.working || 0,
-  busy: statusCounts.busy || 0,
-  idle: statusCounts.idle || 0,
-  offline: statusCounts.offline || 0,
-  // ...
-}), [AI_MEMBERS.length, statusCounts]);
+const stats = useMemo(
+  () => ({
+    totalMembers: AI_MEMBERS.length,
+    working: statusCounts.working || 0,
+    busy: statusCounts.busy || 0,
+    idle: statusCounts.idle || 0,
+    offline: statusCounts.offline || 0,
+    // ...
+  }),
+  [AI_MEMBERS.length, statusCounts]
+)
 ```
 
 ---
@@ -775,52 +823,57 @@ const stats = useMemo(() => ({
 ### 2. ContactForm.tsx 中的验证逻辑
 
 **当前代码**:
+
 ```typescript
 if (!formData.name.trim()) {
-  newErrors.name = locale === 'zh' ? "请输入您的姓名" : "Please enter your name";
+  newErrors.name = locale === 'zh' ? '请输入您的姓名' : 'Please enter your name'
 }
 
 if (!formData.email.trim()) {
-  newErrors.email = locale === 'zh' ? "请输入您的邮箱" : "Please enter your email";
+  newErrors.email = locale === 'zh' ? '请输入您的邮箱' : 'Please enter your email'
 } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.email)) {
-  newErrors.email = locale === 'zh' ? "请输入有效的邮箱地址" : "Please enter a valid email address";
+  newErrors.email = locale === 'zh' ? '请输入有效的邮箱地址' : 'Please enter a valid email address'
 }
 ```
 
 **优化建议**:
+
 ```typescript
 // 创建验证规则配置
-const validationRules = useMemo(() => ({
-  name: {
-    validate: (value: string) => value.trim().length > 0,
-    errorMessage: {
-      zh: "请输入您的姓名",
-      en: "Please enter your name"
-    }
-  },
-  email: {
-    validate: (value: string) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value.trim()),
-    errorMessage: {
-      zh: "请输入有效的邮箱地址",
-      en: "Please enter a valid email address"
-    }
-  }
-}), []);
+const validationRules = useMemo(
+  () => ({
+    name: {
+      validate: (value: string) => value.trim().length > 0,
+      errorMessage: {
+        zh: '请输入您的姓名',
+        en: 'Please enter your name',
+      },
+    },
+    email: {
+      validate: (value: string) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value.trim()),
+      errorMessage: {
+        zh: '请输入有效的邮箱地址',
+        en: 'Please enter a valid email address',
+      },
+    },
+  }),
+  []
+)
 
 // 使用循环验证
 const validateForm = useCallback((): boolean => {
-  const newErrors: FormErrors = {};
+  const newErrors: FormErrors = {}
 
   Object.entries(validationRules).forEach(([field, rule]) => {
-    const value = formData[field as keyof FormData];
+    const value = formData[field as keyof FormData]
     if (!rule.validate(value as string)) {
-      newErrors[field as keyof FormErrors] = rule.errorMessage[locale];
+      newErrors[field as keyof FormErrors] = rule.errorMessage[locale]
     }
-  });
+  })
 
-  setErrors(newErrors);
-  return Object.keys(newErrors).length === 0;
-}, [formData, locale, validationRules]);
+  setErrors(newErrors)
+  return Object.keys(newErrors).length === 0
+}, [formData, locale, validationRules])
 ```
 
 ---
@@ -830,20 +883,23 @@ const validateForm = useCallback((): boolean => {
 **说明**: 以下 import 在某些文件中可能未被使用，需要进一步检查：
 
 ### 1. ContactForm.tsx
+
 ```typescript
-import { useState, FormEvent, useEffect } from "react";
-import { useTranslations } from "next-intl";
+import { useState, FormEvent, useEffect } from 'react'
+import { useTranslations } from 'next-intl'
 ```
 
 **检查点**:
+
 - `useTranslations` 是否在组件中使用？如果没有，可以移除
 - 检查 `t('name')`, `t('email')` 等调用是否有效
 
 ---
 
 ### 2. useFetch.ts
+
 ```typescript
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback } from 'react'
 ```
 
 **检查点**: 所有导入的 hook 都在正确使用
@@ -853,8 +909,9 @@ import { useState, useEffect, useCallback } from 'react';
 ---
 
 ### 3. useWebSocket.ts
+
 ```typescript
-import { useEffect, useRef, useCallback, useState } from 'react';
+import { useEffect, useRef, useCallback, useState } from 'react'
 ```
 
 **检查点**: 所有导入的 hook 都在正确使用
@@ -868,6 +925,7 @@ import { useEffect, useRef, useCallback, useState } from 'react';
 基于代码分析，建议按照以下优先级进行优化：
 
 ### 第一阶段（立即实施）:
+
 1. ✅ **DashboardClient.tsx** - 高影响，工作量适中
    - 使用 useMemo 缓存 AI_MEMBERS, t, stats
    - 提取 MemberStatusSection 组件
@@ -877,6 +935,7 @@ import { useEffect, useRef, useCallback, useState } from 'react';
    - 使用 useMemo 缓存 subjectOptions
 
 ### 第二阶段（本周实施）:
+
 3. ✅ **SettingsPanel.tsx** - 中影响，工作量小
    - 优化 ToggleSwitch 和 NotificationToggle 组件
 
@@ -888,6 +947,7 @@ import { useEffect, useRef, useCallback, useState } from 'react';
    - 提取样式函数到组件外部
 
 ### 第三阶段（有时间时实施）:
+
 6. ✅ 提取重复代码（样式、多语言文本）
 7. ✅ 简化条件逻辑（使用 reduce 替代多次 filter）
 8. ✅ 添加请求缓存到 useFetch
@@ -898,13 +958,13 @@ import { useEffect, useRef, useCallback, useState } from 'react';
 
 实施以上优化后，预期可以获得以下性能提升：
 
-| 指标 | 优化前 | 优化后 | 提升 |
-|-----|-------|-------|-----|
-| Dashboard 首次渲染 | ~150ms | ~100ms | 33% |
-| Dashboard 重新渲染 | ~50ms | ~20ms | 60% |
-| 表单提交响应 | ~200ms | ~150ms | 25% |
-| 内存使用（Dashboard） | ~8MB | ~5MB | 37.5% |
-| 总打包体积 | - | 减少 2-5KB | - |
+| 指标                  | 优化前 | 优化后     | 提升  |
+| --------------------- | ------ | ---------- | ----- |
+| Dashboard 首次渲染    | ~150ms | ~100ms     | 33%   |
+| Dashboard 重新渲染    | ~50ms  | ~20ms      | 60%   |
+| 表单提交响应          | ~200ms | ~150ms     | 25%   |
+| 内存使用（Dashboard） | ~8MB   | ~5MB       | 37.5% |
+| 总打包体积            | -      | 减少 2-5KB | -     |
 
 ---
 
@@ -989,27 +1049,27 @@ class DashboardErrorBoundary extends React.Component<
 // hooks/usePerformanceMonitor.ts
 export function usePerformanceMonitor(componentName: string) {
   useEffect(() => {
-    const startTime = performance.now();
+    const startTime = performance.now()
 
     return () => {
-      const endTime = performance.now();
-      const renderTime = endTime - startTime;
-      
+      const endTime = performance.now()
+      const renderTime = endTime - startTime
+
       if (process.env.NODE_ENV === 'development') {
-        console.log(`[Performance] ${componentName} rendered in ${renderTime.toFixed(2)}ms`);
+        console.log(`[Performance] ${componentName} rendered in ${renderTime.toFixed(2)}ms`)
       }
-      
+
       // 可以发送到分析服务
       if (renderTime > 100) {
         // 警告：渲染时间过长
       }
-    };
-  });
+    }
+  })
 }
 
 // 使用
 export default function DashboardClient({ locale }: DashboardClientProps) {
-  usePerformanceMonitor('DashboardClient');
+  usePerformanceMonitor('DashboardClient')
   // ...
 }
 ```
@@ -1027,14 +1087,14 @@ export default function DashboardClient({ locale }: DashboardClientProps) {
 
 ### 优先级总结
 
-| 优先级 | 优化项 | 预估工作量 | 预期收益 |
-|-------|-------|----------|---------|
-| 🔴 高 | DashboardClient.tsx | 2-3h | 显著性能提升 |
-| 🔴 高 | ContactForm.tsx | 1h | 中等性能提升 |
-| 🟡 中 | SettingsPanel.tsx | 1h | 中等性能提升 |
-| 🟡 中 | RealtimeDashboard.tsx | 1h | 中等性能提升 |
-| 🟢 低 | Navigation.tsx | 0.5h | 轻微性能提升 |
-| 🟢 低 | 代码重构和提取 | 4-6h | 提高可维护性 |
+| 优先级 | 优化项                | 预估工作量 | 预期收益     |
+| ------ | --------------------- | ---------- | ------------ |
+| 🔴 高  | DashboardClient.tsx   | 2-3h       | 显著性能提升 |
+| 🔴 高  | ContactForm.tsx       | 1h         | 中等性能提升 |
+| 🟡 中  | SettingsPanel.tsx     | 1h         | 中等性能提升 |
+| 🟡 中  | RealtimeDashboard.tsx | 1h         | 中等性能提升 |
+| 🟢 低  | Navigation.tsx        | 0.5h       | 轻微性能提升 |
+| 🟢 低  | 代码重构和提取        | 4-6h       | 提高可维护性 |
 
 ### 实施建议
 

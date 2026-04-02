@@ -14,15 +14,17 @@
 **位置:** `src/lib/auth/jwt.ts` 和 `src/features/auth/lib/jwt.ts`
 
 **快速修复:**
+
 ```typescript
 const JWT_SECRET = new TextEncoder().encode(
-  process.env.JWT_SECRET || (() => {
-    if (process.env.NODE_ENV === 'production') {
-      throw new Error('FATAL: JWT_SECRET must be set in production');
-    }
-    return 'development-secret-change-in-production';
-  })()
-);
+  process.env.JWT_SECRET ||
+    (() => {
+      if (process.env.NODE_ENV === 'production') {
+        throw new Error('FATAL: JWT_SECRET must be set in production')
+      }
+      return 'development-secret-change-in-production'
+    })()
+)
 ```
 
 **详细修复指南:** 查看 `fix-jwt-secret.patch`
@@ -43,12 +45,13 @@ cp docker-compose.prod.optimized.yml docker-compose.prod.yml
 ### 2. 日志轮转
 
 **文件:** `docker-compose.prod.optimized.yml`
+
 ```yaml
 logging:
-  driver: "json-file"
+  driver: 'json-file'
   options:
-    max-size: "10m"
-    max-file: "3"
+    max-size: '10m'
+    max-file: '3'
 ```
 
 ### 3. Redis Rate Limiting（可选）
@@ -71,6 +74,7 @@ REDIS_URL=redis://localhost:6379
 ```
 
 **部署脚本功能:**
+
 - ✅ JWT_SECRET 安全检查
 - ✅ 环境变量验证
 - ✅ 自动构建镜像
@@ -130,14 +134,14 @@ docker stats 7zi-frontend-blue
 
 ## 📁 文档清单
 
-| 文档 | 用途 |
-|------|------|
-| `DEPLOY_CHECKLIST_v150.md` | 完整部署检查清单 |
-| `SECURITY_AUDIT_v150.md` | 安全审计报告 |
-| `DEPLOYMENT_SECURITY_REPORT_v150.md` | 完成报告 |
-| `fix-jwt-secret.patch` | JWT_SECRET 修复指南 |
-| `deploy.sh` | 一键部署脚本 |
-| `docker-compose.prod.optimized.yml` | 优化的 Docker 配置 |
+| 文档                                 | 用途                |
+| ------------------------------------ | ------------------- |
+| `DEPLOY_CHECKLIST_v150.md`           | 完整部署检查清单    |
+| `SECURITY_AUDIT_v150.md`             | 安全审计报告        |
+| `DEPLOYMENT_SECURITY_REPORT_v150.md` | 完成报告            |
+| `fix-jwt-secret.patch`               | JWT_SECRET 修复指南 |
+| `deploy.sh`                          | 一键部署脚本        |
+| `docker-compose.prod.optimized.yml`  | 优化的 Docker 配置  |
 
 ---
 
@@ -166,12 +170,14 @@ docker stats 7zi-frontend-blue
 ## 📈 发布后指标
 
 ### 健康指标
+
 - 健康状态: `healthy`
 - 响应时间: < 100ms
 - CPU 使用: < 80%
 - 内存使用: < 80%
 
 ### 功能检查
+
 - [ ] 用户登录/注册
 - [ ] API 响应
 - [ ] WebSocket 连接
@@ -179,6 +185,7 @@ docker stats 7zi-frontend-blue
 - [ ] 搜索功能
 
 ### 监控检查
+
 - [ ] Sentry 无错误
 - [ ] 日志正常输出
 - [ ] 资源使用正常

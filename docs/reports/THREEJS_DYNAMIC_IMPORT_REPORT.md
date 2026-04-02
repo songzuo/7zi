@@ -48,7 +48,7 @@ export default function KnowledgeLatticePage() {
 ### 3. Three.js Library Direct Import (src/components/knowledge-lattice/KnowledgeLatticeScene.tsx)
 
 ```typescript
-import { Vector3 } from 'three';  // ✅ Only imports needed, inside lazy component
+import { Vector3 } from 'three' // ✅ Only imports needed, inside lazy component
 ```
 
 ---
@@ -56,12 +56,14 @@ import { Vector3 } from 'three';  // ✅ Only imports needed, inside lazy compon
 ## Bundle Analysis Results
 
 ### Node.js Package Sizes (Disk)
+
 - **three**: 38M
 - **@react-three/fiber**: 2.4M
 - **@react-three/drei**: 3.0M
 - **Total (uncompressed)**: ~43.4M
 
 ### Webpack Bundle Analysis (Optimized)
+
 ```
 Largest chunks in .next/static/chunks/:
 0q_mfa1ob73e1.js           999K  ← Three.js + React Three Fiber (lazy-loaded)
@@ -74,6 +76,7 @@ Total static chunks: 4.0M
 ```
 
 ### Page Bundle Sizes
+
 ```
 app/[locale]/knowledge-lattice/page.js:  1.72 MiB  (✅ NO three.js included)
 app/[locale]/dashboard/page.js:          1.76 MiB
@@ -110,17 +113,20 @@ The three.js chunk (`0q_mfa1ob73e1.js`) only appears in `react-loadable-manifest
 ## Performance Impact
 
 ### Before Dynamic Import (Hypothetical)
+
 - Initial bundle size: **~4.5MB** (includes three.js)
 - Initial load time: **~2-3s** on 3G
 - Time to Interactive: **~4-5s**
 
 ### After Dynamic Import (Actual)
+
 - Initial bundle size: **~3.5MB** (excludes three.js) ✅
 - Initial load time: **~1.5-2s** on 3G ✅
 - Time to Interactive: **~3s** ✅
 - Knowledge lattice page load: +**1s** (lazy load three.js) ✅
 
 ### Improvement
+
 - **Bundle reduction**: ~1MB (22% reduction) ✅
 - **Initial load speed**: 30-50% faster ✅
 - **Only users who visit /knowledge-lattice page pay the cost** ✅
@@ -130,11 +136,13 @@ The three.js chunk (`0q_mfa1ob73e1.js`) only appears in `react-loadable-manifest
 ## SSR Configuration
 
 ### ✅ Correctly Disabled
+
 ```typescript
-ssr: false  // ✅ Prevents server-side rendering of 3D scene
+ssr: false // ✅ Prevents server-side rendering of 3D scene
 ```
 
 ### Why SSR is Disabled:
+
 1. **Hydration Mismatch**: Canvas components can't be rendered server-side
 2. **Performance**: 3D rendering requires WebGL (browser-only)
 3. **No SEO Impact**: Knowledge lattice is interactive, not indexable
@@ -144,6 +152,7 @@ ssr: false  // ✅ Prevents server-side rendering of 3D scene
 ## Loading State
 
 ### ✅ Proper Loading Fallback
+
 ```typescript
 loading: () => (
   <LoadingFallback
@@ -221,6 +230,7 @@ grep -A 5 "LazyKnowledgeLatticeScene" src/components/LazyComponents.tsx
 ## Recommendations
 
 ### ✅ Current Implementation is Optimal
+
 The project already follows Next.js best practices for code splitting:
 
 1. ✅ Dynamic import with `next/dynamic`
@@ -233,6 +243,7 @@ The project already follows Next.js best practices for code splitting:
 ### Potential Future Improvements (Optional)
 
 1. **Preload on Hover**
+
    ```typescript
    // Preload three.js when user hovers over the link to knowledge-lattice
    <Link
@@ -244,6 +255,7 @@ The project already follows Next.js best practices for code splitting:
    ```
 
 2. **Prefetch on Route Intent**
+
    ```typescript
    // Use router.prefetch() when knowledge-lattice is likely to be visited
    ```

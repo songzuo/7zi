@@ -9,12 +9,12 @@
  */
 function getCachedDate(daysOffset: number): Date {
   // 使用 Date.now() 获取当前时间戳，配合 fake timers 工作
-  const nowMs = Date.now();
-  const now = new Date(nowMs);
-  const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
-  const targetDate = new Date(today);
-  targetDate.setDate(targetDate.getDate() - daysOffset);
-  return targetDate;
+  const nowMs = Date.now()
+  const now = new Date(nowMs)
+  const today = new Date(now.getFullYear(), now.getMonth(), now.getDate())
+  const targetDate = new Date(today)
+  targetDate.setDate(targetDate.getDate() - daysOffset)
+  return targetDate
 }
 
 /**
@@ -23,19 +23,19 @@ function getCachedDate(daysOffset: number): Date {
  * @returns 格式化后的相对时间字符串
  */
 export function formatTimeAgo(date: Date | string, now?: Date): string {
-  const nowDate = now || new Date();
-  const then = new Date(date);
-  const diffMs = nowDate.getTime() - then.getTime();
-  const diffMins = Math.floor(diffMs / 60000);
-  const diffHours = Math.floor(diffMs / 3600000);
-  const diffDays = Math.floor(diffMs / 86400000);
+  const nowDate = now || new Date()
+  const then = new Date(date)
+  const diffMs = nowDate.getTime() - then.getTime()
+  const diffMins = Math.floor(diffMs / 60000)
+  const diffHours = Math.floor(diffMs / 3600000)
+  const diffDays = Math.floor(diffMs / 86400000)
 
-  if (diffMins < 1) return '刚刚';
-  if (diffMins < 120) return `${diffMins}分钟前`; // Show minutes up to < 2 hours
-  if (diffHours <= 24) return `${diffHours}小时前`;  // Show hours up to and including 24 hours
-  if (diffDays <= 7) return `${diffDays}天前`;
+  if (diffMins < 1) return '刚刚'
+  if (diffMins < 120) return `${diffMins}分钟前` // Show minutes up to < 2 hours
+  if (diffHours <= 24) return `${diffHours}小时前` // Show hours up to and including 24 hours
+  if (diffDays <= 7) return `${diffDays}天前`
 
-  return then.toLocaleDateString('zh-CN');
+  return then.toLocaleDateString('zh-CN')
 }
 
 /**
@@ -44,8 +44,8 @@ export function formatTimeAgo(date: Date | string, now?: Date): string {
  * @param options - 格式化选项
  */
 export function formatDate(date: Date | string, options?: Intl.DateTimeFormatOptions): string {
-  const d = new Date(date);
-  return d.toLocaleDateString('zh-CN', options);
+  const d = new Date(date)
+  return d.toLocaleDateString('zh-CN', options)
 }
 
 /**
@@ -53,14 +53,14 @@ export function formatDate(date: Date | string, options?: Intl.DateTimeFormatOpt
  * @param date - 日期字符串或 Date 对象
  */
 export function formatDateTime(date: Date | string): string {
-  const d = new Date(date);
+  const d = new Date(date)
   return d.toLocaleString('zh-CN', {
     year: 'numeric',
     month: '2-digit',
     day: '2-digit',
     hour: '2-digit',
     minute: '2-digit',
-  });
+  })
 }
 
 /**
@@ -68,9 +68,9 @@ export function formatDateTime(date: Date | string): string {
  * @param date - 日期字符串或 Date 对象
  */
 export function isToday(date: Date | string): boolean {
-  const d = new Date(date);
-  const today = getCachedDate(0);
-  return d.toDateString() === today.toDateString();
+  const d = new Date(date)
+  const today = getCachedDate(0)
+  return d.toDateString() === today.toDateString()
 }
 
 /**
@@ -78,7 +78,7 @@ export function isToday(date: Date | string): boolean {
  * @param date - 日期字符串或 Date 对象
  */
 export function isYesterday(date: Date | string): boolean {
-  const d = new Date(date);
-  const yesterday = getCachedDate(1);
-  return d.toDateString() === yesterday.toDateString();
+  const d = new Date(date)
+  const yesterday = getCachedDate(1)
+  return d.toDateString() === yesterday.toDateString()
 }

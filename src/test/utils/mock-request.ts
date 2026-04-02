@@ -3,7 +3,7 @@
  * Provides helper functions to create mock NextRequest objects
  */
 
-import { NextRequest } from 'next/server';
+import { NextRequest } from 'next/server'
 
 /**
  * Create a mock NextRequest for testing
@@ -12,28 +12,28 @@ import { NextRequest } from 'next/server';
 export function createMockNextRequest(
   url: string,
   options?: {
-    method?: string;
-    headers?: Record<string, string>;
-    body?: unknown;
-    cookies?: Record<string, string>;
+    method?: string
+    headers?: Record<string, string>
+    body?: unknown
+    cookies?: Record<string, string>
   }
 ): NextRequest {
-  const { method = 'GET', headers = {}, body, cookies = {} } = options || {};
+  const { method = 'GET', headers = {}, body, cookies = {} } = options || {}
 
   // Build URL with query parameters if needed
-  const requestUrl = new URL(url);
+  const requestUrl = new URL(url)
 
   // Create headers
-  const requestHeaders = new Headers();
+  const requestHeaders = new Headers()
   Object.entries(headers).forEach(([key, value]) => {
-    requestHeaders.set(key, value);
-  });
+    requestHeaders.set(key, value)
+  })
 
   // Create request body
-  let requestBody: string | undefined;
+  let requestBody: string | undefined
   if (body !== undefined) {
-    requestBody = typeof body === 'string' ? body : JSON.stringify(body);
-    requestHeaders.set('content-type', 'application/json');
+    requestBody = typeof body === 'string' ? body : JSON.stringify(body)
+    requestHeaders.set('content-type', 'application/json')
   }
 
   // Create the base Request object
@@ -41,7 +41,7 @@ export function createMockNextRequest(
     method,
     headers: requestHeaders,
     body: requestBody,
-  });
+  })
 
   // Create a NextRequest by extending the base Request
   // We need to add NextRequest-specific properties
@@ -62,10 +62,10 @@ export function createMockNextRequest(
         })),
       has: (name: string) => cookies.hasOwnProperty(name),
       set: () => {
-        throw new Error('Cannot set cookies in mock requests');
+        throw new Error('Cannot set cookies in mock requests')
       },
       delete: () => {
-        throw new Error('Cannot delete cookies in mock requests');
+        throw new Error('Cannot delete cookies in mock requests')
       },
     },
 
@@ -87,47 +87,41 @@ export function createMockNextRequest(
 
     // Clone method (required by NextRequest)
     clone: () => createMockNextRequest(url, options),
-  }) as unknown as NextRequest;
+  }) as unknown as NextRequest
 
-  return nextRequest;
+  return nextRequest
 }
 
 /**
  * Create a mock GET request
  */
 export function createMockGetRequest(url: string): NextRequest {
-  return createMockNextRequest(url, { method: 'GET' });
+  return createMockNextRequest(url, { method: 'GET' })
 }
 
 /**
  * Create a mock POST request with JSON body
  */
-export function createMockPostRequest(
-  url: string,
-  body: unknown
-): NextRequest {
+export function createMockPostRequest(url: string, body: unknown): NextRequest {
   return createMockNextRequest(url, {
     method: 'POST',
     body,
-  });
+  })
 }
 
 /**
  * Create a mock PUT request with JSON body
  */
-export function createMockPutRequest(
-  url: string,
-  body: unknown
-): NextRequest {
+export function createMockPutRequest(url: string, body: unknown): NextRequest {
   return createMockNextRequest(url, {
     method: 'PUT',
     body,
-  });
+  })
 }
 
 /**
  * Create a mock DELETE request
  */
 export function createMockDeleteRequest(url: string): NextRequest {
-  return createMockNextRequest(url, { method: 'DELETE' });
+  return createMockNextRequest(url, { method: 'DELETE' })
 }

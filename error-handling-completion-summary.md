@@ -16,17 +16,18 @@
 
 项目存在三个独立的错误处理系统:
 
-| 文件 | 错误类 | 错误类型枚举 | 使用情况 |
-|------|--------|-------------|----------|
-| `src/lib/api/error-handler.ts` | `ApiError` | `ErrorType` | 部分 API routes |
-| `src/lib/api/enhanced-error-handler.ts` | `EnhancedApiError` | `ApiErrorType` | 未广泛使用 |
-| `src/lib/errors.ts` | `AppError` | `ErrorCodes` | 通用函数 |
+| 文件                                    | 错误类             | 错误类型枚举   | 使用情况        |
+| --------------------------------------- | ------------------ | -------------- | --------------- |
+| `src/lib/api/error-handler.ts`          | `ApiError`         | `ErrorType`    | 部分 API routes |
+| `src/lib/api/enhanced-error-handler.ts` | `EnhancedApiError` | `ApiErrorType` | 未广泛使用      |
+| `src/lib/errors.ts`                     | `AppError`         | `ErrorCodes`   | 通用函数        |
 
 ### 2. 错误处理模式混乱
 
 发现以下四种不同的错误处理模式:
 
 **模式 1: 返回结果对象** (auth/service.ts)
+
 ```typescript
 async function loginUser(...): Promise<LoginSuccessResponse | LoginFailureResponse> {
   try {
@@ -38,6 +39,7 @@ async function loginUser(...): Promise<LoginSuccessResponse | LoginFailureRespon
 ```
 
 **模式 2: 抛出错误** (db/index.ts)
+
 ```typescript
 function query(...) {
   try {
@@ -50,22 +52,24 @@ function query(...) {
 ```
 
 **模式 3: 包装函数** (API routes)
+
 ```typescript
 export async function POST(request) {
   try {
     // ...
   } catch (error) {
-    return createErrorResponse(error);
+    return createErrorResponse(error)
   }
 }
 ```
 
 **模式 4: Promise.catch()** (某些地方)
+
 ```typescript
 someAsyncOperation().catch(error => {
-  logger.error(error);
-  return null;
-});
+  logger.error(error)
+  return null
+})
 ```
 
 ### 3. 命名和格式不统一
@@ -94,20 +98,24 @@ src/lib/errors/
 #### 2. 核心组件
 
 **UnifiedAppError 类**
+
 - 统一的错误类,包含所有必要的错误信息
 - 静态工厂方法: `validation()`, `notFound()`, `unauthorized()` 等
 - 支持自定义错误类型、详情、重试标志
 
 **UnifiedErrorType 枚举**
+
 - 合并了三个系统的所有错误类型
 - 包含客户端错误 (4xx) 和服务器错误 (5xx)
 - 自动判断 HTTP 状态码和可重试性
 
 **统一响应格式**
+
 - 成功: `{ success: true, data: ..., timestamp: ... }`
 - 错误: `{ success: false, error: { type, message, code, details, retryable, retryAfter, timestamp } }`
 
 **withUnifiedErrorHandling 包装器**
+
 - 自动捕获并处理错误
 - 将错误转换为统一的响应格式
 - 简化 API Route 代码
@@ -121,6 +129,7 @@ src/lib/errors/
 **文件**: `src/lib/auth/service-unified.ts`
 
 **改进**:
+
 - ❌ 旧: 返回 `{ success, error }` 对象
 - ✅ 新: 抛出 `UnifiedAppError`
 - 更清晰的代码结构
@@ -131,6 +140,7 @@ src/lib/errors/
 **文件**: `src/app/api/auth/login/route-unified.ts`
 
 **改进**:
+
 - 使用 `withUnifiedErrorHandling()` 包装器
 - 使用 `createUnifiedSuccessResponse()` 和 `createUnifiedErrorResponse()`
 - 代码从 150+ 行减少到 80 行
@@ -141,6 +151,7 @@ src/lib/errors/
 **文件**: `src/lib/db/index-unified.ts`
 
 **改进**:
+
 - 所有操作都抛出 `UnifiedAppError`
 - 根据错误类型自动判断可重试性
 - 提供更详细的错误信息
@@ -156,6 +167,7 @@ src/lib/errors/
 ### 1. error-handling.md
 
 完整的错误处理优化报告,包括:
+
 - 问题分析
 - 推荐方案
 - 实施计划
@@ -164,6 +176,7 @@ src/lib/errors/
 ### 2. docs/unified-error-handling-guide.md
 
 详细的使用指南,包括:
+
 - 核心概念介绍
 - 使用示例 (Service、API Routes、Database、前端)
 - 最佳实践
@@ -176,16 +189,17 @@ src/lib/errors/
 
 ### 代码质量
 
-| 指标 | 旧 | 新 | 改进 |
-|------|----|----|----|
-| 错误处理系统 | 3 个 | 1 个 | ✅ 统一 |
-| 错误处理模式 | 4 种 | 1 种 | ✅ 一致 |
-| 命名约定 | 不一致 | 统一 | ✅ 规范 |
-| 响应格式 | 多种 | 统一 | ✅ 一致 |
+| 指标         | 旧     | 新   | 改进    |
+| ------------ | ------ | ---- | ------- |
+| 错误处理系统 | 3 个   | 1 个 | ✅ 统一 |
+| 错误处理模式 | 4 种   | 1 种 | ✅ 一致 |
+| 命名约定     | 不一致 | 统一 | ✅ 规范 |
+| 响应格式     | 多种   | 统一 | ✅ 一致 |
 
 ### 代码示例对比
 
 **Authentication Service:**
+
 ```typescript
 // 旧代码 (150+ 行)
 async function loginUser(...): Promise<LoginSuccessResponse | LoginFailureResponse> {
@@ -210,25 +224,26 @@ async function loginUser(...): Promise<UserWithToken> {
 ```
 
 **API Routes:**
+
 ```typescript
 // 旧代码
 export async function POST(request) {
   try {
-    const result = await loginUser(request);
+    const result = await loginUser(request)
     if (!result.success) {
-      return createUnauthorizedError(result.error);
+      return createUnauthorizedError(result.error)
     }
-    return createSuccessResponse(result);
+    return createSuccessResponse(result)
   } catch (error) {
-    return createErrorResponse(error);
+    return createErrorResponse(error)
   }
 }
 
 // 新代码
-export const POST = withUnifiedErrorHandling(async (request) => {
-  const result = await loginUser(request);
-  return createUnifiedSuccessResponse(result);
-});
+export const POST = withUnifiedErrorHandling(async request => {
+  const result = await loginUser(request)
+  return createUnifiedSuccessResponse(result)
+})
 ```
 
 ---
@@ -264,6 +279,7 @@ export const POST = withUnifiedErrorHandling(async (request) => {
 ### 向后兼容策略
 
 在迁移期间:
+
 1. 保留旧的导出,标记为 `@deprecated`
 2. 新代码使用新的统一错误处理
 3. 旧代码逐步迁移

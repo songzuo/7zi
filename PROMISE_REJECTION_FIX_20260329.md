@@ -17,6 +17,7 @@
 ### 修复 1: `sendTestNotification` 函数 (行 29-48)
 
 **修复前**:
+
 ```typescript
 const sendTestNotification = async (type: NotificationType) => {
   await fetch('/api/notifications', {
@@ -29,11 +30,12 @@ const sendTestNotification = async (type: NotificationType) => {
       message: `This is a test ${type} notification sent at ${new Date().toLocaleTimeString()}`,
       data: { test: true, type, timestamp: Date.now() },
     }),
-  });
-};
+  })
+}
 ```
 
 **修复后**:
+
 ```typescript
 const sendTestNotification = async (type: NotificationType) => {
   try {
@@ -47,16 +49,17 @@ const sendTestNotification = async (type: NotificationType) => {
         message: `This is a test ${type} notification sent at ${new Date().toLocaleTimeString()}`,
         data: { test: true, type, timestamp: Date.now() },
       }),
-    });
+    })
   } catch (error) {
-    console.error('[NotificationDemo] Failed to send test notification:', error);
+    console.error('[NotificationDemo] Failed to send test notification:', error)
   }
-};
+}
 ```
 
 ### 修复 2: `sendTaskNotification` 函数 (行 50-69)
 
 **修复前**:
+
 ```typescript
 const sendTaskNotification = async () => {
   await fetch('/api/notifications', {
@@ -73,11 +76,12 @@ const sendTaskNotification = async () => {
         priority: 'high',
       },
     }),
-  });
-};
+  })
+}
 ```
 
 **修复后**:
+
 ```typescript
 const sendTaskNotification = async () => {
   try {
@@ -95,41 +99,39 @@ const sendTaskNotification = async () => {
           priority: 'high',
         },
       }),
-    });
+    })
   } catch (error) {
-    console.error('[NotificationDemo] Failed to send task notification:', error);
+    console.error('[NotificationDemo] Failed to send task notification:', error)
   }
-};
+}
 ```
 
 ### 修复 3: `clearNotifications` 函数 (行 71-83)
 
 **修复前**:
+
 ```typescript
 const clearNotifications = async () => {
-  const notificationIds = notifications.map(n => n.id);
+  const notificationIds = notifications.map(n => n.id)
   await Promise.all(
-    notificationIds.map(id =>
-      fetch(`/api/notifications/${id}`, { method: 'DELETE' })
-    )
-  );
-};
+    notificationIds.map(id => fetch(`/api/notifications/${id}`, { method: 'DELETE' }))
+  )
+}
 ```
 
 **修复后**:
+
 ```typescript
 const clearNotifications = async () => {
   try {
-    const notificationIds = notifications.map(n => n.id);
+    const notificationIds = notifications.map(n => n.id)
     await Promise.all(
-      notificationIds.map(id =>
-        fetch(`/api/notifications/${id}`, { method: 'DELETE' })
-      )
-    );
+      notificationIds.map(id => fetch(`/api/notifications/${id}`, { method: 'DELETE' }))
+    )
   } catch (error) {
-    console.error('[NotificationDemo] Failed to clear notifications:', error);
+    console.error('[NotificationDemo] Failed to clear notifications:', error)
   }
-};
+}
 ```
 
 ---
@@ -139,63 +141,67 @@ const clearNotifications = async () => {
 ### 修复 4: `checkBudgetAlarms` 函数 (行 132-143)
 
 **修复前**:
+
 ```typescript
 const checkBudgetAlarms = async () => {
   const triggeredAlarms = await budgetManager.checkAlarms(
     webVitalsMonitor.getMetrics(),
     customMetricsTracker.getMetrics()
-  );
+  )
   if (triggeredAlarms.length > 0) {
-    setBudgetAlarms([...budgetAlarms, ...triggeredAlarms]);
+    setBudgetAlarms([...budgetAlarms, ...triggeredAlarms])
   }
-};
+}
 ```
 
 **修复后**:
+
 ```typescript
 const checkBudgetAlarms = async () => {
   try {
     const triggeredAlarms = await budgetManager.checkAlarms(
       webVitalsMonitor.getMetrics(),
       customMetricsTracker.getMetrics()
-    );
+    )
     if (triggeredAlarms.length > 0) {
-      setBudgetAlarms([...budgetAlarms, ...triggeredAlarms]);
+      setBudgetAlarms([...budgetAlarms, ...triggeredAlarms])
     }
   } catch (error) {
-    console.error('[PerformanceDashboard] Failed to check budget alarms:', error);
+    console.error('[PerformanceDashboard] Failed to check budget alarms:', error)
   }
-};
+}
 ```
 
 ### 修复 5: `handleClearData` 函数 (行 145-156)
 
 **修复前**:
+
 ```typescript
 const handleClearData = async () => {
   if (confirm('Are you sure you want to clear all monitoring data?')) {
-    await monitor.clearAllData();
-    budgetManager.clearAllNotifications();
-    setBudgetAlarms([]);
-    loadMetrics();
+    await monitor.clearAllData()
+    budgetManager.clearAllNotifications()
+    setBudgetAlarms([])
+    loadMetrics()
   }
-};
+}
 ```
 
 **修复后**:
+
 ```typescript
 const handleClearData = async () => {
   if (confirm('Are you sure you want to clear all monitoring data?')) {
     try {
-      await monitor.clearAllData();
-      budgetManager.clearAllNotifications();
-      setBudgetAlarms([]);
-      loadMetrics();
+      await monitor.clearAllData()
+      budgetManager.clearAllNotifications()
+      setBudgetAlarms([])
+      loadMetrics()
     } catch (error) {
-      console.error('[PerformanceDashboard] Failed to clear data:', error);
+      console.error('[PerformanceDashboard] Failed to clear data:', error)
     }
   }
-};
+}
 ```
 
 ---
@@ -207,6 +213,7 @@ const handleClearData = async () => {
 **问题**: Promise rejection 缺少详细的错误日志和上下文信息。
 
 **修复前**:
+
 ```typescript
 reader.onerror = reject
 // ...
@@ -218,7 +225,7 @@ if (!ctx) {
 }
 // ...
 canvas.toBlob(
-  (blob) => {
+  blob => {
     if (blob) {
       resolve(blob)
     } else {
@@ -231,6 +238,7 @@ canvas.toBlob(
 ```
 
 **修复后**:
+
 ```typescript
 const handleReaderError = (error: ProgressEvent<FileReader>) => {
   const err = new Error(`[ImageOptimization] Failed to read file: ${file.name}`)
@@ -256,7 +264,7 @@ if (!ctx) {
 }
 // ...
 canvas.toBlob(
-  (blob) => {
+  blob => {
     if (blob) {
       resolve(blob)
     } else {
@@ -275,11 +283,13 @@ canvas.toBlob(
 ## 验证结果
 
 ### TypeScript 编译
+
 ```
 ✓ Compiled successfully in 13.3s
 ```
 
 ### 构建状态
+
 - ✅ TypeScript 编译通过
 - ✅ 无语法错误
 - ⚠️ `/i18n-demo` 页面存在预存在的运行时错误（与本修复无关）

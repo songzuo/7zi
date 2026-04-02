@@ -53,45 +53,47 @@
 ### 基础使用 (useWebSocket)
 
 ```tsx
-'use client';
+'use client'
 
-import { useWebSocket, createMessage } from '@/lib/realtime/useWebSocket';
+import { useWebSocket, createMessage } from '@/lib/realtime/useWebSocket'
 
 function MyComponent() {
   const { isConnected, lastMessage, send, on, connect, disconnect } = useWebSocket({
     url: 'ws://localhost:3000/ws',
     autoConnect: true,
     reconnectOnClose: true,
-  });
+  })
 
   // 监听特定消息
-  const cleanup = on('chat:message', (data) => {
-    console.log('收到消息:', data);
-  });
+  const cleanup = on('chat:message', data => {
+    console.log('收到消息:', data)
+  })
 
   const handleSend = () => {
-    const msg = createMessage('chat:message', { text: 'Hello!' });
-    send(msg);
-  };
+    const msg = createMessage('chat:message', { text: 'Hello!' })
+    send(msg)
+  }
 
   return (
     <div>
       <p>状态: {isConnected ? '已连接' : '未连接'}</p>
       <button onClick={connect}>连接</button>
       <button onClick={disconnect}>断开</button>
-      <button onClick={handleSend} disabled={!isConnected}>发送</button>
+      <button onClick={handleSend} disabled={!isConnected}>
+        发送
+      </button>
       {lastMessage && <pre>{JSON.stringify(lastMessage)}</pre>}
     </div>
-  );
+  )
 }
 ```
 
 ### 增强使用 (useEnhancedWebSocket)
 
 ```tsx
-'use client';
+'use client'
 
-import { useEnhancedWebSocket } from '@/lib/realtime/useEnhancedWebSocket';
+import { useEnhancedWebSocket } from '@/lib/realtime/useEnhancedWebSocket'
 
 function MyComponent() {
   const {
@@ -113,17 +115,17 @@ function MyComponent() {
     maxReconnectAttempts: 10,
     heartbeatInterval: 30000,
     enableOfflineQueue: true,
-  });
+  })
 
   // 监听连接状态
-  onStateChange((state) => {
-    console.log('连接状态:', state);
-  });
+  onStateChange(state => {
+    console.log('连接状态:', state)
+  })
 
   // 监听消息
-  on('task:status_changed', (data) => {
-    console.log('任务状态变更:', data);
-  });
+  on('task:status_changed', data => {
+    console.log('任务状态变更:', data)
+  })
 
   return (
     <div>
@@ -132,16 +134,16 @@ function MyComponent() {
       <p>已接收: {stats.messagesReceived}</p>
       {error && <p className="error">错误: {error.message}</p>}
     </div>
-  );
+  )
 }
 ```
 
 ### 通知服务使用
 
 ```tsx
-'use client';
+'use client'
 
-import { notificationService } from '@/lib/realtime/notification-service';
+import { notificationService } from '@/lib/realtime/notification-service'
 
 // 发送任务状态变更通知
 await notificationService.notifyTaskStatusChange({
@@ -152,7 +154,7 @@ await notificationService.notifyTaskStatusChange({
   changedBy: { id: 'user-1', name: '张三' },
   projectId: 'project-456',
   assigneeId: 'user-2',
-});
+})
 
 // 发送任务分配通知
 await notificationService.notifyTaskAssignment({
@@ -161,27 +163,27 @@ await notificationService.notifyTaskAssignment({
   assignedTo: { id: 'user-2', name: '李四' },
   assignedBy: { id: 'user-1', name: '张三' },
   priority: 'high',
-});
+})
 
 // 发送系统公告
 await notificationService.broadcastSystemAnnouncement({
   title: '系统维护',
   content: '今晚 22:00 进行维护',
   level: 'warning',
-});
+})
 
 // 检查离线队列
-const queue = notificationService.getOfflineQueue('user-id');
-console.log('离线消息:', queue);
+const queue = notificationService.getOfflineQueue('user-id')
+console.log('离线消息:', queue)
 
 // 查看错误日志
-const errors = notificationService.getErrorLog();
-console.log('错误:', errors);
+const errors = notificationService.getErrorLog()
+console.log('错误:', errors)
 
 // 监听错误
-notificationService.onError((error) => {
-  console.error('通知错误:', error);
-});
+notificationService.onError(error => {
+  console.error('通知错误:', error)
+})
 ```
 
 ---
@@ -194,12 +196,12 @@ notificationService.onError((error) => {
 
 ```typescript
 interface SimpleWebSocketConfig {
-  url: string;                    // WebSocket 服务器 URL
-  protocols?: string | string[];  // WebSocket 协议
-  autoConnect?: boolean;          // 是否自动连接 (默认: true)
-  reconnectOnClose?: boolean;     // 关闭时是否重连 (默认: false)
-  reconnectInterval?: number;     // 重连间隔 (毫秒, 默认: 3000)
-  maxReconnectAttempts?: number;  // 最大重连次数 (默认: 5)
+  url: string // WebSocket 服务器 URL
+  protocols?: string | string[] // WebSocket 协议
+  autoConnect?: boolean // 是否自动连接 (默认: true)
+  reconnectOnClose?: boolean // 关闭时是否重连 (默认: false)
+  reconnectInterval?: number // 重连间隔 (毫秒, 默认: 3000)
+  maxReconnectAttempts?: number // 最大重连次数 (默认: 5)
 }
 ```
 
@@ -211,16 +213,16 @@ interface SimpleWebSocketConfig {
   isConnected: boolean;               // 是否已连接
   error: Event | null;                // 错误对象
   lastMessage: WebSocketMessage | null; // 最后一条消息
-  
+
   connect: () => void;                // 连接
   disconnect: () => void;             // 断开
   send: (data: WebSocketMessage) => void; // 发送消息
-  
+
   on: (event, handler) => () => void;      // 添加监听器
   once: (event, handler) => () => void;    // 一次性监听
   addListener: ...;                  // 添加监听器
   removeListener: ...;               // 移除监听器
-  
+
   getWebSocket: () => WebSocket | null; // 获取原生 WebSocket 实例
 }
 ```
@@ -233,16 +235,16 @@ interface SimpleWebSocketConfig {
 
 ```typescript
 interface WebSocketConfig {
-  url: string;                       // Socket.IO 服务器 URL
-  token?: string;                    // 认证令牌
-  channels?: string[];               // 默认订阅的频道
-  autoConnect?: boolean;             // 是否自动连接 (默认: true)
-  reconnect?: boolean;               // 是否自动重连 (默认: true)
-  maxReconnectAttempts?: number;      // 最大重连次数 (默认: 10)
-  reconnectInterval?: number;        // 重连间隔 (默认: 3000)
-  heartbeatInterval?: number;        // 心跳间隔 (默认: 30000)
-  offlineQueueSize?: number;         // 离线队列大小 (默认: 100)
-  enableOfflineQueue?: boolean;      // 是否启用离线队列 (默认: true)
+  url: string // Socket.IO 服务器 URL
+  token?: string // 认证令牌
+  channels?: string[] // 默认订阅的频道
+  autoConnect?: boolean // 是否自动连接 (默认: true)
+  reconnect?: boolean // 是否自动重连 (默认: true)
+  maxReconnectAttempts?: number // 最大重连次数 (默认: 10)
+  reconnectInterval?: number // 重连间隔 (默认: 3000)
+  heartbeatInterval?: number // 心跳间隔 (默认: 30000)
+  offlineQueueSize?: number // 离线队列大小 (默认: 100)
+  enableOfflineQueue?: boolean // 是否启用离线队列 (默认: true)
 }
 ```
 
@@ -255,7 +257,7 @@ interface WebSocketConfig {
   error: Error | null;               // 错误对象
   lastMessage: WebSocketMessage | null; // 最后一条消息
   messages: WebSocketMessage[];      // 消息历史
-  
+
   stats: WebSocketStats;             // 统计信息
   // stats 包含:
   // - messagesSent: 已发送消息数
@@ -264,18 +266,18 @@ interface WebSocketConfig {
   // - lastConnected: 最后连接时间
   // - lastDisconnected: 最后断开时间
   // - connectionDuration: 总连接时长
-  
+
   connect: () => void;               // 连接
   disconnect: () => void;            // 断开
   reconnect: () => void;             // 重连
   send: (type, payload) => void;     // 发送消息
   subscribe: (channels) => void;      // 订阅频道
   unsubscribe: (channels) => void;    // 取消订阅
-  
+
   on: (type, handler) => () => void; // 监听消息
   onStateChange: (callback) => () => void; // 监听状态变化
   onError: (callback) => () => void; // 监听错误
-  
+
   clearMessages: () => void;          // 清空消息历史
   getOfflineQueue: () => WebSocketMessage[]; // 获取离线队列
 }
@@ -289,42 +291,42 @@ interface WebSocketConfig {
 
 ```typescript
 // 任务通知
-await notificationService.notifyTaskStatusChange(options);
-await notificationService.notifyTaskAssignment(options);
-await notificationService.notifyTaskComment(options);
+await notificationService.notifyTaskStatusChange(options)
+await notificationService.notifyTaskAssignment(options)
+await notificationService.notifyTaskComment(options)
 
 // 成员通知
-notificationService.notifyMemberStatus(options);
+notificationService.notifyMemberStatus(options)
 
 // 系统通知
-await notificationService.broadcastSystemAnnouncement(options);
+await notificationService.broadcastSystemAnnouncement(options)
 
 // 项目通知
-await notificationService.notifyProjectUpdate(options);
+await notificationService.notifyProjectUpdate(options)
 
 // 自定义通知
-await notificationService.sendCustomNotification(options);
+await notificationService.sendCustomNotification(options)
 
 // 队列管理
-notificationService.getOfflineQueue(userId);      // 获取离线队列
-notificationService.clearOfflineQueue(userId);    // 清空离线队列
-await notificationService.processQueueNow();      // 手动处理队列
+notificationService.getOfflineQueue(userId) // 获取离线队列
+notificationService.clearOfflineQueue(userId) // 清空离线队列
+await notificationService.processQueueNow() // 手动处理队列
 
 // 错误管理
-notificationService.getErrorLog(limit);           // 获取错误日志
-notificationService.clearErrorLog();              // 清空错误日志
-notificationService.onError(callback);            // 监听错误
+notificationService.getErrorLog(limit) // 获取错误日志
+notificationService.clearErrorLog() // 清空错误日志
+notificationService.onError(callback) // 监听错误
 
 // 历史记录
-notificationService.getNotificationHistory(userId, limit); // 获取通知历史
+notificationService.getNotificationHistory(userId, limit) // 获取通知历史
 
 // 已读状态
-await notificationService.markAsRead(notificationIds, userId); // 标记已读
-await notificationService.getUnreadCount(userId);              // 获取未读数
+await notificationService.markAsRead(notificationIds, userId) // 标记已读
+await notificationService.getUnreadCount(userId) // 获取未读数
 
 // 在线状态
-notificationService.isUserOnline(userId);          // 检查用户是否在线
-notificationService.getOnlineUsers();              // 获取在线用户列表
+notificationService.isUserOnline(userId) // 检查用户是否在线
+notificationService.getOnlineUsers() // 获取在线用户列表
 ```
 
 ---
@@ -386,7 +388,7 @@ const config = {
   reconnectInterval: 3000,
   heartbeatInterval: 30000,
   enableOfflineQueue: true,
-};
+}
 ```
 
 ### 生产环境
@@ -397,24 +399,24 @@ const config = {
   reconnect: true,
   maxReconnectAttempts: 10,
   reconnectInterval: 3000,
-  heartbeatInterval: 25000,  // 更短的心跳间隔
+  heartbeatInterval: 25000, // 更短的心跳间隔
   enableOfflineQueue: true,
   offlineQueueSize: 100,
-};
+}
 ```
 
 ### 低流量环境
 
 ```typescript
 const config = {
-  autoConnect: false,  // 按需连接
+  autoConnect: false, // 按需连接
   reconnect: true,
   maxReconnectAttempts: 3,
-  reconnectInterval: 5000,  // 更长的重连间隔
-  heartbeatInterval: 60000,  // 更长的心跳间隔
+  reconnectInterval: 5000, // 更长的重连间隔
+  heartbeatInterval: 60000, // 更长的心跳间隔
   enableOfflineQueue: true,
-  offlineQueueSize: 50,      // 更小的队列
-};
+  offlineQueueSize: 50, // 更小的队列
+}
 ```
 
 ---

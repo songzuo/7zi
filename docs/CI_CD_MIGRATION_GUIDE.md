@@ -60,6 +60,7 @@ rm .github/workflows/ci-cd.yml
 ### 第一步：准备工作（5分钟）
 
 1. **备份当前配置**
+
    ```bash
    mkdir .github/workflows-backup
    cp -r .github/workflows/* .github/workflows-backup/
@@ -77,6 +78,7 @@ rm .github/workflows/ci-cd.yml
 ### 第二步：部署新配置（10分钟）
 
 1. **添加新文件**
+
    ```bash
    # 已创建的文件：
    # - .github/workflows/ci-optimized.yml
@@ -92,6 +94,7 @@ rm .github/workflows/ci-cd.yml
 ### 第三步：切换到新配置（5分钟）
 
 1. **重命名主 workflow**
+
    ```bash
    # 备份旧的 ci.yml
    mv .github/workflows/ci.yml .github/workflows/ci.yml.backup
@@ -101,6 +104,7 @@ rm .github/workflows/ci-cd.yml
    ```
 
 2. **删除重复的 workflow**
+
    ```bash
    rm .github/workflows/deploy.yml
    rm .github/workflows/ci-cd.yml
@@ -113,6 +117,7 @@ rm .github/workflows/ci-cd.yml
 ### 第四步：验证（10分钟）
 
 1. **测试 push 触发**
+
    ```bash
    # 创建一个测试提交
    echo "test" > test-ci-cd.txt
@@ -135,6 +140,7 @@ rm .github/workflows/ci-cd.yml
 ### 第五步：清理（5分钟）
 
 1. **删除备份文件**
+
    ```bash
    rm -rf .github/workflows-backup
    rm .github/workflows/ci.yml.backup
@@ -215,6 +221,7 @@ rm .github/workflows/ci-cd.yml
 **原因**: cache key 计算错误
 
 **解决方案**:
+
 ```yaml
 # 检查 cache key 是否正确
 - name: Cache node modules
@@ -231,6 +238,7 @@ rm .github/workflows/ci-cd.yml
 **原因**: 环境变量或配置不一致
 
 **解决方案**:
+
 ```yaml
 # 确保环境变量一致
 env:
@@ -245,6 +253,7 @@ env:
 **原因**: SSH 密钥配置错误或网络问题
 
 **解决方案**:
+
 ```yaml
 # 检查 SSH 密钥配置
 - name: Setup SSH
@@ -263,6 +272,7 @@ ssh -i <private-key> user@server
 **原因**: 依赖版本或扫描配置问题
 
 **解决方案**:
+
 ```yaml
 # 配置正确的扫描级别
 - name: npm audit

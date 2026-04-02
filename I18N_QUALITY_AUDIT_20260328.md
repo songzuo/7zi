@@ -9,11 +9,11 @@
 
 ## 📊 审核概览
 
-| 语言 | 翻译键数 | 质量评级 | 关键问题数 |
-|------|----------|----------|------------|
-| 日语 (ja) | 510 | ⚠️ 需改进 | 8 |
-| 韩语 (ko) | 510 | ❌ 需修复 | 15 |
-| 西班牙语 (es) | 510 | ⚠️ 需改进 | 7 |
+| 语言          | 翻译键数 | 质量评级  | 关键问题数 |
+| ------------- | -------- | --------- | ---------- |
+| 日语 (ja)     | 510      | ⚠️ 需改进 | 8          |
+| 韩语 (ko)     | 510      | ❌ 需修复 | 15         |
+| 西班牙语 (es) | 510      | ⚠️ 需改进 | 7          |
 
 **总体评级**: ⚠️ 需要改进 - 存在混合语言和未翻译内容
 
@@ -25,26 +25,26 @@
 
 #### 🔴 严重问题 (需立即修复)
 
-| 位置 | 问题类型 | 问题描述 | 影响 |
-|------|----------|----------|------|
-| `about.hero.description` | 混合语言 | 包含中文词汇 "年中无公害" | 用户体验 |
-| `contact.faq.items[3].question` | 残留文本 | 包含 `<minimax:tool_call>` AI工具调用残留 | 显示错误 |
-| `about.intro.p1` | 句子不完整 | 缺少主语开头 "は革新的な..." 应为 "7zi Studioは..." | 语义错误 |
+| 位置                            | 问题类型   | 问题描述                                            | 影响     |
+| ------------------------------- | ---------- | --------------------------------------------------- | -------- |
+| `about.hero.description`        | 混合语言   | 包含中文词汇 "年中无公害"                           | 用户体验 |
+| `contact.faq.items[3].question` | 残留文本   | 包含 `<minimax:tool_call>` AI工具调用残留           | 显示错误 |
+| `about.intro.p1`                | 句子不完整 | 缺少主语开头 "は革新的な..." 应为 "7zi Studioは..." | 语义错误 |
 
 #### 🟡 中等问题
 
-| 位置 | 问题类型 | 问题描述 |
-|------|----------|----------|
-| `home.services.web.description` | 文字过长 | "設計から実装まで、高性能な現代ウェブサイトとWebアプリケーションを構築" 可能导致移动端布局溢出 |
-| `team.members.designer.description` | 语法不自然 | "を作成し" 前面缺少宾语，应补充完整 |
-| `footer.aiPowered` | 用词不当 | "駆動" 在此语境下略显生硬，建议用 "搭載" 或 "運営" |
+| 位置                                | 问题类型   | 问题描述                                                                                       |
+| ----------------------------------- | ---------- | ---------------------------------------------------------------------------------------------- |
+| `home.services.web.description`     | 文字过长   | "設計から実装まで、高性能な現代ウェブサイトとWebアプリケーションを構築" 可能导致移动端布局溢出 |
+| `team.members.designer.description` | 语法不自然 | "を作成し" 前面缺少宾语，应补充完整                                                            |
+| `footer.aiPowered`                  | 用词不当   | "駆動" 在此语境下略显生硬，建议用 "搭載" 或 "運営"                                             |
 
 #### 🟢 轻微问题
 
-| 位置 | 问题描述 |
-|------|----------|
+| 位置                     | 问题描述                     |
+| ------------------------ | ---------------------------- |
 | 部分翻译使用了过度的敬语 | 在技术产品中可能显得过于正式 |
-| `settings.save` | "変更を保存" 可简化为 "保存" |
+| `settings.save`          | "変更を保存" 可简化为 "保存" |
 
 ---
 
@@ -52,27 +52,27 @@
 
 #### 🔴 严重问题 (需立即修复)
 
-| 位置 | 问题类型 | 问题描述 | 影响 |
-|------|----------|----------|------|
-| `home.services.web.description` | 混合语言 | 日语混入："高性能な現代 웹사이트" | 显示错误 |
-| `about.intro.p2` | 混合语言 | 日语词汇混入："メンバー" | 显示错误 |
-| `about.intro.p3` | 未翻译 | 完全保留英文 | 内容缺失 |
-| `about.intro.stats` | 未翻译 | 所有统计数据标签保持英文 | 内容缺失 |
-| `about.timeline.badge/title` | 未翻译 | 保持英文 | 内容缺失 |
-| `about.partners.count` | 未翻译 | 保持英文 | 内容缺失 |
-| `about.values.badge/title` | 未翻译 | 保持英文 | 内容缺失 |
-| `about.process.badge/title` | 未翻译 | 保持英文 | 内容缺失 |
-| `about.cta` | 未翻译 | 标题和描述保持英文 | 内容缺失 |
-| `errors.notFound.suggestions.about` | 混合语言 | 中文混入："关于我们" | 显示错误 |
-| `contact.cta.title` | 混合语言 | "아직迷hybrid 있나요?" | 显示错误 |
+| 位置                                | 问题类型 | 问题描述                          | 影响     |
+| ----------------------------------- | -------- | --------------------------------- | -------- |
+| `home.services.web.description`     | 混合语言 | 日语混入："高性能な現代 웹사이트" | 显示错误 |
+| `about.intro.p2`                    | 混合语言 | 日语词汇混入："メンバー"          | 显示错误 |
+| `about.intro.p3`                    | 未翻译   | 完全保留英文                      | 内容缺失 |
+| `about.intro.stats`                 | 未翻译   | 所有统计数据标签保持英文          | 内容缺失 |
+| `about.timeline.badge/title`        | 未翻译   | 保持英文                          | 内容缺失 |
+| `about.partners.count`              | 未翻译   | 保持英文                          | 内容缺失 |
+| `about.values.badge/title`          | 未翻译   | 保持英文                          | 内容缺失 |
+| `about.process.badge/title`         | 未翻译   | 保持英文                          | 内容缺失 |
+| `about.cta`                         | 未翻译   | 标题和描述保持英文                | 内容缺失 |
+| `errors.notFound.suggestions.about` | 混合语言 | 中文混入："关于我们"              | 显示错误 |
+| `contact.cta.title`                 | 混合语言 | "아직迷hybrid 있나요?"            | 显示错误 |
 
 #### 🟡 中等问题
 
-| 位置 | 问题描述 |
-|------|----------|
-| `team.members.designer.description` | 句子不完整："을を作成し" 语法错误 |
-| `dashboard.title/description` | 未翻译，保持英文 |
-| 多处 `values.items.innovation.title` | "혁신驱动" 混合中韩文字符 |
+| 位置                                 | 问题描述                          |
+| ------------------------------------ | --------------------------------- |
+| `team.members.designer.description`  | 句子不完整："을を作成し" 语法错误 |
+| `dashboard.title/description`        | 未翻译，保持英文                  |
+| 多处 `values.items.innovation.title` | "혁신驱动" 混合中韩文字符         |
 
 ---
 
@@ -80,23 +80,23 @@
 
 #### 🔴 严重问题 (需立即修复)
 
-| 位置 | 问题类型 | 问题描述 | 影响 |
-|------|----------|----------|------|
-| `home.hero.cta1` | 混合语言 | 中文混入："了解更多" | 显示错误 |
-| `about.intro.p3` | 未翻译 | 完全保留英文 | 内容缺失 |
-| `about.intro.stats` | 未翻译 | 所有统计数据标签保持英文 | 内容缺失 |
-| `about.timeline` | 部分未翻译 | badge/title 保持英文 | 内容缺失 |
-| `about.partners.count` | 未翻译 | 保持英文 | 内容缺失 |
-| `about.values` | 部分未翻译 | badge/title 保持英文 | 内容缺失 |
-| `about.process` | 部分未翻译 | badge/title 保持英文 | 内容缺失 |
-| `about.cta` | 未翻译 | 保持英文 | 内容缺失 |
+| 位置                   | 问题类型   | 问题描述                 | 影响     |
+| ---------------------- | ---------- | ------------------------ | -------- |
+| `home.hero.cta1`       | 混合语言   | 中文混入："了解更多"     | 显示错误 |
+| `about.intro.p3`       | 未翻译     | 完全保留英文             | 内容缺失 |
+| `about.intro.stats`    | 未翻译     | 所有统计数据标签保持英文 | 内容缺失 |
+| `about.timeline`       | 部分未翻译 | badge/title 保持英文     | 内容缺失 |
+| `about.partners.count` | 未翻译     | 保持英文                 | 内容缺失 |
+| `about.values`         | 部分未翻译 | badge/title 保持英文     | 内容缺失 |
+| `about.process`        | 部分未翻译 | badge/title 保持英文     | 内容缺失 |
+| `about.cta`            | 未翻译     | 保持英文                 | 内容缺失 |
 
 #### 🟡 中等问题
 
-| 位置 | 问题描述 |
-|------|----------|
+| 位置                           | 问题描述         |
+| ------------------------------ | ---------------- |
 | `errors.unauthorized.solution` | "sign in" 未翻译 |
-| `dashboard.title/description` | 未翻译，保持英文 |
+| `dashboard.title/description`  | 未翻译，保持英文 |
 
 ---
 
@@ -106,21 +106,21 @@
 
 #### 1. 按钮文本长度问题
 
-| 语言 | 位置 | 文本长度 | 风险等级 |
-|------|------|----------|----------|
-| 日语 | `home.hero.cta1` | "詳細を見る" (5字符) | ✅ 低风险 |
-| 韩语 | `home.hero.cta1` | "자세히 보기" (6字符) | ✅ 低风险 |
-| 西班牙语 | `home.hero.cta1` | "了解更多" (4字符) | 🔴 错误 (中文) |
+| 语言     | 位置             | 文本长度              | 风险等级       |
+| -------- | ---------------- | --------------------- | -------------- |
+| 日语     | `home.hero.cta1` | "詳細を見る" (5字符)  | ✅ 低风险      |
+| 韩语     | `home.hero.cta1` | "자세히 보기" (6字符) | ✅ 低风险      |
+| 西班牙语 | `home.hero.cta1` | "了解更多" (4字符)    | 🔴 错误 (中文) |
 
 **建议**: 添加 CSS `text-overflow: ellipsis` 和 `white-space: nowrap` 防止文本溢出
 
 #### 2. 长描述文本问题
 
-| 语言 | 位置 | 字符数 | 潜在问题 |
-|------|------|--------|----------|
-| 日语 | `home.services.web.description` | 42字符 | 移动端可能截断 |
-| 韩语 | `home.services.web.description` | 混合字符 | 显示异常 |
-| 西班牙语 | `home.services.web.description` | 85字符 | 移动端需换行 |
+| 语言     | 位置                            | 字符数   | 潜在问题       |
+| -------- | ------------------------------- | -------- | -------------- |
+| 日语     | `home.services.web.description` | 42字符   | 移动端可能截断 |
+| 韩语     | `home.services.web.description` | 混合字符 | 显示异常       |
+| 西班牙语 | `home.services.web.description` | 85字符   | 移动端需换行   |
 
 #### 3. 统计数据标签
 
@@ -135,33 +135,37 @@
 
 ### 当前状态
 
-| 检查项 | 状态 | 备注 |
-|--------|------|------|
-| RTL 语言支持 | ❌ 未实现 | 项目当前不支持阿拉伯语、希伯来语等 RTL 语言 |
-| CSS 逻辑属性 | ⚠️ 部分 | 部分组件使用了逻辑属性，但未全面覆盖 |
-| 文本方向处理 | ❌ 缺失 | 未检测到 `dir="rtl"` 或 `direction: rtl` 相关配置 |
+| 检查项       | 状态      | 备注                                              |
+| ------------ | --------- | ------------------------------------------------- |
+| RTL 语言支持 | ❌ 未实现 | 项目当前不支持阿拉伯语、希伯来语等 RTL 语言       |
+| CSS 逻辑属性 | ⚠️ 部分   | 部分组件使用了逻辑属性，但未全面覆盖              |
+| 文本方向处理 | ❌ 缺失   | 未检测到 `dir="rtl"` 或 `direction: rtl` 相关配置 |
 
 ### RTL 配置建议
 
 如需支持 RTL 语言，建议：
 
 1. **在 i18n 配置中添加方向标记**
+
 ```typescript
 // src/i18n/config.ts
-export const locales = ['zh', 'en', 'ja', 'ko', 'es', 'fr', 'de', 'ar', 'he'] as const;
+export const locales = ['zh', 'en', 'ja', 'ko', 'es', 'fr', 'de', 'ar', 'he'] as const
 
-export const rtlLocales = ['ar', 'he']; // RTL 语言列表
+export const rtlLocales = ['ar', 'he'] // RTL 语言列表
 ```
 
 2. **使用 Tailwind CSS 逻辑属性**
+
 ```html
 <!-- 替换 -->
-<div class="ml-4 mr-2">
-<!-- 为 -->
-<div class="ms-4 me-2">
+<div class="mr-2 ml-4">
+  <!-- 为 -->
+  <div class="ms-4 me-2"></div>
+</div>
 ```
 
 3. **在根布局中动态设置方向**
+
 ```tsx
 <html lang={locale} dir={isRtlLocale(locale) ? 'rtl' : 'ltr'}>
 ```
@@ -172,21 +176,21 @@ export const rtlLocales = ['ar', 'he']; // RTL 语言列表
 
 ### 正确翻译示例
 
-| 键 | 英语 | 日语 ✅ | 韩语 ✅ | 西班牙语 ✅ |
-|---|------|---------|---------|-------------|
-| `nav.home` | Home | ホーム | 홈 | Inicio |
-| `nav.about` | About | 私たちについて | 소개 | Nosotros |
-| `contact.form.submit` | Send | 送信 | 보내기 | Enviar |
-| `ui.button.confirm` | Confirm | 確認 | 확인 | Confirmar |
+| 键                      | 英语           | 日语 ✅                | 韩语 ✅                   | 西班牙语 ✅          |
+| ----------------------- | -------------- | ---------------------- | ------------------------- | -------------------- |
+| `nav.home`              | Home           | ホーム                 | 홈                        | Inicio               |
+| `nav.about`             | About          | 私たちについて         | 소개                      | Nosotros             |
+| `contact.form.submit`   | Send           | 送信                   | 보내기                    | Enviar               |
+| `ui.button.confirm`     | Confirm        | 確認                   | 확인                      | Confirmar            |
 | `errors.notFound.title` | Page Not Found | ページが見つかりません | 페이지를 찾을 수 없습니다 | Página no encontrada |
 
 ### 上下文准确性问题
 
-| 键 | 语言 | 问题 |
-|---|------|------|
-| `about.hero.description` | 日语 | "年中无公害" 与上下文无关 |
-| `contact.cta.title` | 韩语 | "迷hybrid" 无语义 |
-| `home.hero.cta1` | 西班牙语 | "了解更多" 是中文，非西班牙语 |
+| 键                       | 语言     | 问题                          |
+| ------------------------ | -------- | ----------------------------- |
+| `about.hero.description` | 日语     | "年中无公害" 与上下文无关     |
+| `contact.cta.title`      | 韩语     | "迷hybrid" 无语义             |
+| `home.hero.cta1`         | 西班牙语 | "了解更多" 是中文，非西班牙语 |
 
 ---
 
@@ -197,6 +201,7 @@ export const rtlLocales = ['ar', 'he']; // RTL 语言列表
 #### 1. 修复混合语言问题
 
 **韩语修复清单**:
+
 ```json
 {
   "home.services.web.description": "설계에서 구현까지, 고성능 현대 웹사이트와 웹 애플리케이션 구축",
@@ -208,6 +213,7 @@ export const rtlLocales = ['ar', 'he']; // RTL 语言列表
 ```
 
 **西班牙语修复清单**:
+
 ```json
 {
   "home.hero.cta1": "Más información"
@@ -215,6 +221,7 @@ export const rtlLocales = ['ar', 'he']; // RTL 语言列表
 ```
 
 **日语修复清单**:
+
 ```json
 {
   "about.hero.description": "チームコラボレーションを再定義 — 11のAIエージェントによるインテリジェントチーム、24時間年中無休でデジタル価値を創出",
@@ -225,6 +232,7 @@ export const rtlLocales = ['ar', 'he']; // RTL 语言列表
 #### 2. 完成未翻译内容
 
 **韩语补充翻译**:
+
 ```json
 {
   "about.intro.stats": {
@@ -250,11 +258,16 @@ export const rtlLocales = ['ar', 'he']; // RTL 语言列表
 ```
 
 **西班牙语补充翻译**:
+
 ```json
 {
   "about.intro.stats": {
     "experts": { "value": "11", "label": "Expertos en IA", "sub": "Cada uno especializado" },
-    "projects": { "value": "50+", "label": "Proyectos completados", "sub": "Satisfacción del cliente" },
+    "projects": {
+      "value": "50+",
+      "label": "Proyectos completados",
+      "sub": "Satisfacción del cliente"
+    },
     "delivery": { "value": "100%", "label": "Tasa de entrega", "sub": "Entrega a tiempo" },
     "support": { "value": "24/7", "label": "Soporte en línea", "sub": "Siempre receptivo" }
   },
@@ -306,12 +319,14 @@ export const rtlLocales = ['ar', 'he']; // RTL 语言列表
 ## 📋 修复检查清单
 
 ### 日语 (ja)
+
 - [ ] 修复 `about.hero.description` 中的中文词汇
 - [ ] 移除 `contact.faq.items[3].question` 中的工具调用残留
 - [ ] 补全 `about.intro.p1` 句子开头
 - [ ] 检查并修复语法不自然的翻译
 
 ### 韩语 (ko)
+
 - [ ] 修复 `home.services.web.description` 混合语言
 - [ ] 翻译 `about.intro.p2` 中的日语词汇
 - [ ] 翻译 `about.intro.p3` 完整段落
@@ -326,6 +341,7 @@ export const rtlLocales = ['ar', 'he']; // RTL 语言列表
 - [ ] 修复 `contact.cta.title` 混合语言
 
 ### 西班牙语 (es)
+
 - [ ] 修复 `home.hero.cta1` 中文问题
 - [ ] 翻译 `about.intro.p3`
 - [ ] 翻译 `about.intro.stats` 所有标签
@@ -340,12 +356,12 @@ export const rtlLocales = ['ar', 'he']; // RTL 语言列表
 
 ## 📈 质量指标
 
-| 指标 | 日语 | 韩语 | 西班牙语 | 目标 |
-|------|------|------|----------|------|
-| 翻译完成率 | 100% | 100% | 100% | 100% |
-| 语言纯度 | 99% | 94% | 96% | 100% |
-| 上下文准确率 | 99% | 96% | 97% | 100% |
-| 变量一致性 | 100% | 100% | 100% | 100% |
+| 指标         | 日语 | 韩语 | 西班牙语 | 目标 |
+| ------------ | ---- | ---- | -------- | ---- |
+| 翻译完成率   | 100% | 100% | 100%     | 100% |
+| 语言纯度     | 99%  | 94%  | 96%      | 100% |
+| 上下文准确率 | 99%  | 96%  | 97%      | 100% |
+| 变量一致性   | 100% | 100% | 100%     | 100% |
 
 ---
 

@@ -11,7 +11,7 @@ import {
   PermissionCheckResult,
   PermissionAction,
   ParsedPermission,
-} from './types';
+} from './types'
 
 // Re-export types for convenience
 export type {
@@ -20,9 +20,9 @@ export type {
   PermissionCheckResult,
   PermissionAction,
   ParsedPermission,
-};
+}
 
-export { Role, Permission };
+export { Role, Permission }
 
 /**
  * Default role definitions with their permissions
@@ -192,179 +192,189 @@ export const DEFAULT_ROLE_DEFINITIONS: Record<Role, RoleDefinition> = {
     ],
     isSystem: true,
   },
-};
+}
 
 /**
  * Get role definition by role enum
  */
 export function getRoleDefinition(role: Role): RoleDefinition | null {
-  return DEFAULT_ROLE_DEFINITIONS[role] || null;
+  return DEFAULT_ROLE_DEFINITIONS[role] || null
 }
 
 /**
  * Get all role definitions
  */
 export function getAllRoleDefinitions(): RoleDefinition[] {
-  return Object.values(DEFAULT_ROLE_DEFINITIONS);
+  return Object.values(DEFAULT_ROLE_DEFINITIONS)
 }
 
 /**
  * Get permissions for multiple roles (union of all permissions)
  */
 export function getPermissionsForRoles(roles: Role[]): Permission[] {
-  const uniquePermissions = new Set<Permission>();
+  const uniquePermissions = new Set<Permission>()
 
   for (const role of roles) {
-    const roleDef = getRoleDefinition(role);
+    const roleDef = getRoleDefinition(role)
     if (roleDef) {
-      roleDef.permissions.forEach((p) => uniquePermissions.add(p));
+      roleDef.permissions.forEach(p => uniquePermissions.add(p))
     }
   }
 
-  return Array.from(uniquePermissions);
+  return Array.from(uniquePermissions)
 }
 
 /**
  * Check if a role has a specific permission
  */
 export function hasRolePermission(role: Role, permission: Permission): boolean {
-  const roleDef = getRoleDefinition(role);
-  if (!roleDef) return false;
-  return roleDef.permissions.includes(permission);
+  const roleDef = getRoleDefinition(role)
+  if (!roleDef) return false
+  return roleDef.permissions.includes(permission)
 }
 
 /**
  * Check if user has permission (from permission context)
  */
-export function hasPermission(context: PermissionContext, requiredPermission: Permission | string): boolean {
+export function hasPermission(
+  context: PermissionContext,
+  requiredPermission: Permission | string
+): boolean {
   // Check if permission exists in computed permissions
   if (context.permissions.includes(requiredPermission as Permission)) {
-    return true;
+    return true
   }
 
   // Check custom permissions
   if (context.customPermissions?.includes(requiredPermission)) {
-    return true;
+    return true
   }
 
-  return false;
+  return false
 }
 
 /**
  * Check if user has any of the required permissions
  */
-export function hasAnyPermission(context: PermissionContext, requiredPermissions: Permission[]): boolean {
-  return requiredPermissions.some((p) => hasPermission(context, p));
+export function hasAnyPermission(
+  context: PermissionContext,
+  requiredPermissions: Permission[]
+): boolean {
+  return requiredPermissions.some(p => hasPermission(context, p))
 }
 
 /**
  * Check if user has all required permissions
  */
-export function hasAllPermissions(context: PermissionContext, requiredPermissions: Permission[]): PermissionCheckResult {
-  const missingPermissions: Permission[] = [];
+export function hasAllPermissions(
+  context: PermissionContext,
+  requiredPermissions: Permission[]
+): PermissionCheckResult {
+  const missingPermissions: Permission[] = []
 
   for (const permission of requiredPermissions) {
     if (!hasPermission(context, permission)) {
-      missingPermissions.push(permission);
+      missingPermissions.push(permission)
     }
   }
 
   return {
     allowed: missingPermissions.length === 0,
     missingPermissions: missingPermissions.length > 0 ? missingPermissions : undefined,
-    reason: missingPermissions.length > 0
-      ? `Missing permissions: ${missingPermissions.join(', ')}`
-      : undefined,
-  };
+    reason:
+      missingPermissions.length > 0
+        ? `Missing permissions: ${missingPermissions.join(', ')}`
+        : undefined,
+  }
 }
 
 /**
  * Check if user has a specific role
  */
 export function hasRole(context: PermissionContext, requiredRole: Role): boolean {
-  return context.roles.includes(requiredRole);
+  return context.roles.includes(requiredRole)
 }
 
 /**
  * Check if user has any of the required roles
  */
 export function hasAnyRole(context: PermissionContext, requiredRoles: Role[]): boolean {
-  return requiredRoles.some((role) => context.roles.includes(role));
+  return requiredRoles.some(role => context.roles.includes(role))
 }
 
 /**
  * Check if user has all required roles
  */
 export function hasAllRoles(context: PermissionContext, requiredRoles: Role[]): boolean {
-  return requiredRoles.every((role) => context.roles.includes(role));
+  return requiredRoles.every(role => context.roles.includes(role))
 }
 
 /**
  * Check if user has admin role (convenience function)
  */
 export function isAdmin(context: PermissionContext): boolean {
-  return hasRole(context, Role.ADMIN);
+  return hasRole(context, Role.ADMIN)
 }
 
 /**
  * Check if user has manager or admin role
  */
 export function isManagerOrAdmin(context: PermissionContext): boolean {
-  return hasAnyRole(context, [Role.ADMIN, Role.MANAGER]);
+  return hasAnyRole(context, [Role.ADMIN, Role.MANAGER])
 }
 
 /**
  * Check if user has member or higher role
  */
 export function isMemberOrHigher(context: PermissionContext): boolean {
-  return hasAnyRole(context, [Role.ADMIN, Role.MANAGER, Role.MEMBER]);
+  return hasAnyRole(context, [Role.ADMIN, Role.MANAGER, Role.MEMBER])
 }
 
 /**
  * Check if user has guest role
  */
 export function isGuest(context: PermissionContext): boolean {
-  return hasRole(context, Role.GUEST);
+  return hasRole(context, Role.GUEST)
 }
 
 /**
  * Parse permission string into resource and action
  */
 export function parsePermission(permission: Permission): ParsedPermission {
-  const [resource, action] = permission.split(':');
+  const [resource, action] = permission.split(':')
   return {
     resource,
     action: action as PermissionAction,
-  };
+  }
 }
 
 /**
  * Check if permission matches a pattern (wildcard support)
  */
 export function matchesPermissionPattern(permission: Permission, pattern: string): boolean {
-  if (pattern === '*:*') return true;
+  if (pattern === '*:*') return true
 
-  const [pResource, pAction] = pattern.split(':');
-  const [resource, action] = permission.split(':');
+  const [pResource, pAction] = pattern.split(':')
+  const [resource, action] = permission.split(':')
 
-  const resourceMatch = pResource === '*' || pResource === resource;
-  const actionMatch = pAction === '*' || pAction === action;
+  const resourceMatch = pResource === '*' || pResource === resource
+  const actionMatch = pAction === '*' || pAction === action
 
-  return resourceMatch && actionMatch;
+  return resourceMatch && actionMatch
 }
 
 /**
  * Get all permissions for a resource
  */
 export function getPermissionsForResource(resource: string): Permission[] {
-  return Object.values(Permission).filter((p) => p.startsWith(`${resource}:`));
+  return Object.values(Permission).filter(p => p.startsWith(`${resource}:`))
 }
 
 /**
  * Get all permissions for an action
  */
 export function getPermissionsForAction(action: PermissionAction): Permission[] {
-  return Object.values(Permission).filter((p) => p.endsWith(`:${action}`));
+  return Object.values(Permission).filter(p => p.endsWith(`:${action}`))
 }
 
 /**
@@ -380,5 +390,5 @@ export function createPermissionContext(
     roles,
     permissions: getPermissionsForRoles(roles),
     customPermissions,
-  };
+  }
 }

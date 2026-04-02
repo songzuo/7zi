@@ -4,15 +4,16 @@
  * POST /api/workflow - 创建工作流
  */
 
-import { NextRequest } from 'next/server';
-import { WorkflowEngine } from '@/lib/workflow/engine';
+import { NextRequest } from 'next/server'
+import { WorkflowEngine } from '@/lib/workflow/engine'
+import { WorkflowStatus } from '@/types/workflow'
 import {
   createSuccessResponse,
   createErrorResponse,
   createValidationError,
-} from '@/lib/api/error-handler';
+} from '@/lib/api/error-handler'
 
-const workflowEngine = new WorkflowEngine();
+const workflowEngine = new WorkflowEngine()
 
 /**
  * POST /api/workflow
@@ -20,11 +21,11 @@ const workflowEngine = new WorkflowEngine();
  */
 export async function POST(request: NextRequest) {
   try {
-    const body = await request.json();
+    const body = await request.json()
 
     // 验证必需字段
     if (!body.name) {
-      return createValidationError('工作流名称不能为空');
+      return createValidationError('工作流名称不能为空')
     }
 
     // 创建工作流定义
@@ -33,7 +34,7 @@ export async function POST(request: NextRequest) {
       name: body.name,
       description: body.description,
       version: 1,
-      status: 'draft' as const,
+      status: WorkflowStatus.DRAFT,
       nodes: body.nodes || [],
       edges: body.edges || [],
       config: {
@@ -51,25 +52,20 @@ export async function POST(request: NextRequest) {
         createdBy: body.userId || 'system',
         updatedBy: body.userId || 'system',
       },
-    };
+    }
 
     // 验证工作流
-    const validation = workflowEngine.validateWorkflow(workflow);
+    const validation = workflowEngine.validateWorkflow(workflow)
     if (!validation.valid) {
-      return createValidationError(
-        '工作流验证失败',
-        { errors: validation.errors }
-      );
+      return createValidationError('工作流验证失败', { errors: validation.errors })
     }
 
     // 注册工作流
-    workflowEngine.registerWorkflow(workflow);
+    workflowEngine.registerWorkflow(workflow)
 
-    return createSuccessResponse(workflow, 201);
-  } catch (_error) {
-    return createErrorResponse(
-      error instanceof Error ? error : new Error(String(error))
-    );
+    return createSuccessResponse(workflow, 201)
+  } catch (error) {
+    return createErrorResponse(error instanceof Error ? error : new Error(String(error)))
   }
 }
 
@@ -79,10 +75,10 @@ export async function POST(request: NextRequest) {
  */
 export async function GET(request: NextRequest) {
   try {
-    const { searchParams } = new URL(request.url);
-    const status = searchParams.get('status');
-    const limit = parseInt(searchParams.get('limit') || '50');
-    const offset = parseInt(searchParams.get('offset') || '0');
+    const { searchParams } = new URL(request.url)
+    const status = searchParams.get('status')
+    const limit = parseInt(searchParams.get('limit') || '50')
+    const offset = parseInt(searchParams.get('offset') || '0')
 
     // 模拟数据 - 实际实现应该从数据库读取
     const workflows = [
@@ -140,26 +136,24 @@ export async function GET(request: NextRequest) {
           updatedBy: 'user_1',
         },
       },
-    ];
+    ]
 
     // 过滤
-    let filtered = workflows;
+    let filtered = workflows
     if (status) {
-      filtered = filtered.filter((w) => w.status === status);
+      filtered = filtered.filter(w => w.status === status)
     }
 
     // 分页
-    const paginated = filtered.slice(offset, offset + limit);
+    const paginated = filtered.slice(offset, offset + limit)
 
     return createSuccessResponse({
       workflows: paginated,
       total: filtered.length,
       limit,
       offset,
-    });
-  } catch (_error) {
-    return createErrorResponse(
-      error instanceof Error ? error : new Error(String(error))
-    );
+    })
+  } catch (error) {
+    return createErrorResponse(error instanceof Error ? error : new Error(String(error)))
   }
 }

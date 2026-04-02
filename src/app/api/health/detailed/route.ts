@@ -8,42 +8,41 @@
  * - Logs authentication failures for security monitoring
  */
 
-import { NextRequest } from 'next/server';
-import { detailedHealthCheck, healthResponse } from '@/lib/monitoring';
-import { createUnauthorizedError } from '@/lib/api/error-handler';
-import { authenticateToken } from '@/lib/auth/service';
-import { logger } from '@/lib/logger';
+import { NextRequest } from 'next/server'
+import { detailedHealthCheck, healthResponse } from '@/lib/monitoring'
+import { createUnauthorizedError } from '@/lib/api/error-handler'
+import { authenticateToken } from '@/lib/auth/service'
+import { logger } from '@/lib/logger'
 
 /**
  * GET /api/health/detailed
  * Detailed health check with dependency status
- * 
+ *
  * **SECURITY**: Requires authentication
  * - Headers: Authorization: Bearer <token>
  * - Returns 401 for unauthenticated access
  */
 export async function GET(request: NextRequest) {
-  const requestId = crypto.randomUUID();
-  const clientIp = request.headers.get('x-forwarded-for') || 
-                   request.headers.get('x-real-ip') || 
-                   'unknown';
+  const requestId = crypto.randomUUID()
+  const clientIp =
+    request.headers.get('x-forwarded-for') || request.headers.get('x-real-ip') || 'unknown'
 
   try {
     // Extract and validate authorization header
-    const authHeader = request.headers.get('authorization');
+    const authHeader = request.headers.get('authorization')
 
     if (!authHeader || !authHeader.startsWith('Bearer ')) {
       logger.warn('Unauthorized access attempt to /api/health/detailed', {
         endpoint: '/api/health/detailed',
         clientIp,
         hasAuthHeader: !!authHeader,
-        requestId
-      });
+        requestId,
+      })
 
-      return await createUnauthorizedError('Authentication required for detailed health check');
+      return await createUnauthorizedError('Authentication required for detailed health check')
     }
 
-    const token = authHeader.substring(7);
+    const token = authHeader.substring(7)
 
     // Validate token format
     if (!token || token.length < 10) {
@@ -51,24 +50,24 @@ export async function GET(request: NextRequest) {
         endpoint: '/api/health/detailed',
         clientIp,
         tokenLength: token?.length,
-        requestId
-      });
+        requestId,
+      })
 
-      return await createUnauthorizedError('Invalid authentication token');
+      return await createUnauthorizedError('Invalid authentication token')
     }
 
     // Verify token and authenticate user
-    const authResult = await authenticateToken(token);
+    const authResult = await authenticateToken(token)
 
     if (!authResult) {
       logger.warn('Invalid or expired token for /api/health/detailed', {
         endpoint: '/api/health/detailed',
         clientIp,
         userId: 'unknown',
-        requestId
-      });
+        requestId,
+      })
 
-      return await createUnauthorizedError('Invalid or expired authentication token');
+      return await createUnauthorizedError('Invalid or expired authentication token')
     }
 
     // Log successful access for audit
@@ -76,23 +75,22 @@ export async function GET(request: NextRequest) {
       endpoint: '/api/health/detailed',
       clientIp,
       userId: authResult.context.userId,
-      requestId
-    });
+      requestId,
+    })
 
     // Proceed with health check
-    const health = await detailedHealthCheck();
-    return healthResponse(health);
-
-  } catch (_error) {
+    const health = await detailedHealthCheck()
+    return healthResponse(health)
+  } catch (error) {
     logger.error('Error in /api/health/detailed endpoint', {
       error: error instanceof Error ? error.message : 'Unknown error',
       stack: error instanceof Error ? error.stack : undefined,
       endpoint: '/api/health/detailed',
       clientIp,
-      requestId
-    });
+      requestId,
+    })
 
     // Return standardized error response
-    return await createUnauthorizedError('Authentication check failed');
+    return await createUnauthorizedError('Authentication check failed')
   }
 }

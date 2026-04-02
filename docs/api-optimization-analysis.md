@@ -24,31 +24,31 @@
 
 #### 1. Inconsistent Error Response Formats
 
-| Route | Error Property | Timestamp | Details |
-|-------|---------------|-----------|---------|
-| `error-handler.ts` | `type` | ✅ | Reference implementation |
-| `auth/me/route.ts` | `code` | ❌ | Should use `type` |
-| `auth/logout/route.ts` | `code` | ❌ | Should use `type` |
-| `auth/login/route.ts` | `code` (inline) | ❌ | Should use helpers |
-| `auth/register/route.ts` | `code` (inline) | ❌ | Should use helpers |
-| `performance/report/route.ts` | `code` | ❌ | Should use `type` |
-| `database/health/route.ts` | N/A | ✅ | Simple response |
+| Route                         | Error Property  | Timestamp | Details                  |
+| ----------------------------- | --------------- | --------- | ------------------------ |
+| `error-handler.ts`            | `type`          | ✅        | Reference implementation |
+| `auth/me/route.ts`            | `code`          | ❌        | Should use `type`        |
+| `auth/logout/route.ts`        | `code`          | ❌        | Should use `type`        |
+| `auth/login/route.ts`         | `code` (inline) | ❌        | Should use helpers       |
+| `auth/register/route.ts`      | `code` (inline) | ❌        | Should use helpers       |
+| `performance/report/route.ts` | `code`          | ❌        | Should use `type`        |
+| `database/health/route.ts`    | N/A             | ✅        | Simple response          |
 
 #### 2. Inconsistent Success Response Formats
 
-| Route | Has `timestamp` | Data Structure |
-|-------|---------------|----------------|
-| `status/route.ts` | ✅ | `success + data + timestamp` |
-| `github/commits/route.ts` | ✅ | `success + data + pagination + timestamp` |
-| `github/issues/route.ts` | ✅ | `success + data + pagination + timestamp` |
-| `csrf-token/route.ts` | ✅ | `success + data + timestamp` |
-| `auth/login/route.ts` | ❌ | `success + user + token + refreshToken` |
-| `auth/register/route.ts` | ❌ | `success + user` |
-| `auth/me/route.ts` | ❌ | `success + user` |
-| `auth/refresh/route.ts` | ❌ | `success + token + refreshToken` |
-| `auth/logout/route.ts` | ❌ | `success + message` |
-| `database/health/route.ts` | ❌ | `success + health + ...` |
-| `performance/report/route.ts` | ✅ | Has timestamp but not in standard format |
+| Route                         | Has `timestamp` | Data Structure                            |
+| ----------------------------- | --------------- | ----------------------------------------- |
+| `status/route.ts`             | ✅              | `success + data + timestamp`              |
+| `github/commits/route.ts`     | ✅              | `success + data + pagination + timestamp` |
+| `github/issues/route.ts`      | ✅              | `success + data + pagination + timestamp` |
+| `csrf-token/route.ts`         | ✅              | `success + data + timestamp`              |
+| `auth/login/route.ts`         | ❌              | `success + user + token + refreshToken`   |
+| `auth/register/route.ts`      | ❌              | `success + user`                          |
+| `auth/me/route.ts`            | ❌              | `success + user`                          |
+| `auth/refresh/route.ts`       | ❌              | `success + token + refreshToken`          |
+| `auth/logout/route.ts`        | ❌              | `success + message`                       |
+| `database/health/route.ts`    | ❌              | `success + health + ...`                  |
+| `performance/report/route.ts` | ✅              | Has timestamp but not in standard format  |
 
 #### 3. Repeated Validation Logic
 
@@ -93,6 +93,7 @@
 1. **Update all routes to use consistent formats**:
 
    **Success Response:**
+
    ```typescript
    {
      success: true,
@@ -102,6 +103,7 @@
    ```
 
    **Error Response:**
+
    ```typescript
    {
      success: false,

@@ -21,27 +21,27 @@ ScheduleHistory 是一个用于展示 Agent 调度执行历史的 React 组件�
 ### 基础使用
 
 ```tsx
-import { ScheduleHistory } from '@/components/dashboard';
+import { ScheduleHistory } from '@/components/dashboard'
 
 export default function MyPage() {
   return (
     <div className="p-6">
       <ScheduleHistory />
     </div>
-  );
+  )
 }
 ```
 
 ### 带配置的使用
 
 ```tsx
-import { ScheduleHistory } from '@/components/dashboard';
-import type { HistoryEntry } from '@/components/dashboard';
+import { ScheduleHistory } from '@/components/dashboard'
+import type { HistoryEntry } from '@/components/dashboard'
 
 export default function MyPage() {
   const handleEntryClick = (entry: HistoryEntry) => {
-    console.log('Clicked entry:', entry);
-  };
+    console.log('Clicked entry:', entry)
+  }
 
   return (
     <div className="p-6">
@@ -54,19 +54,19 @@ export default function MyPage() {
         maxDisplay={100}
       />
     </div>
-  );
+  )
 }
 ```
 
 ### 自定义时间范围
 
 ```tsx
-import { useState } from 'react';
-import { ScheduleHistory } from '@/components/dashboard';
+import { useState } from 'react'
+import { ScheduleHistory } from '@/components/dashboard'
 
 export default function MyPage() {
-  const [customStartTime, setCustomStartTime] = useState<number | undefined>();
-  const [customEndTime, setCustomEndTime] = useState<number | undefined>();
+  const [customStartTime, setCustomStartTime] = useState<number | undefined>()
+  const [customEndTime, setCustomEndTime] = useState<number | undefined>()
 
   return (
     <div className="p-6">
@@ -77,21 +77,21 @@ export default function MyPage() {
         // 未来版本可能需要添加更多 props 来支持
       />
     </div>
-  );
+  )
 }
 ```
 
 ## Props
 
-| Prop | 类型 | 默认值 | 描述 |
-|------|------|--------|------|
-| `showFilters` | `boolean` | `true` | 是否显示筛选器 |
-| `autoRefresh` | `boolean` | `true` | 是否自动刷新 |
-| `refreshInterval` | `number` | `30000` | 自动刷新间隔（毫秒） |
-| `className` | `string` | `''` | 自定义类名 |
-| `pageSize` | `number` | `20` | 每页显示数量 |
-| `onEntryClick` | `(entry: HistoryEntry) => void` | - | 点击历史条目的回调 |
-| `maxDisplay` | `number` | - | 最大显示数量 |
+| Prop              | 类型                            | 默认值  | 描述                 |
+| ----------------- | ------------------------------- | ------- | -------------------- |
+| `showFilters`     | `boolean`                       | `true`  | 是否显示筛选器       |
+| `autoRefresh`     | `boolean`                       | `true`  | 是否自动刷新         |
+| `refreshInterval` | `number`                        | `30000` | 自动刷新间隔（毫秒） |
+| `className`       | `string`                        | `''`    | 自定义类名           |
+| `pageSize`        | `number`                        | `20`    | 每页显示数量         |
+| `onEntryClick`    | `(entry: HistoryEntry) => void` | -       | 点击历史条目的回调   |
+| `maxDisplay`      | `number`                        | -       | 最大显示数量         |
 
 ## 类型定义
 
@@ -99,29 +99,29 @@ export default function MyPage() {
 
 ```typescript
 export interface HistoryEntry {
-  taskId: string;                    // 任务 ID
-  timestamp: number;                 // 执行时间戳
-  agentId?: string;                 // Agent ID
-  taskType: string;                  // 任务类型
-  status: 'success' | 'failed' | 'skipped';  // 执行状态
-  duration?: number;                 // 耗时（毫秒）
-  error?: string;                   // 错误信息
-  title: string;                    // 任务标题
-  description?: string;              // 任务描述
-  manualOverride?: boolean;          // 是否为手动分配
+  taskId: string // 任务 ID
+  timestamp: number // 执行时间戳
+  agentId?: string // Agent ID
+  taskType: string // 任务类型
+  status: 'success' | 'failed' | 'skipped' // 执行状态
+  duration?: number // 耗时（毫秒）
+  error?: string // 错误信息
+  title: string // 任务标题
+  description?: string // 任务描述
+  manualOverride?: boolean // 是否为手动分配
 }
 ```
 
 ### TimeRange
 
 ```typescript
-export type TimeRange = 'today' | 'last7days' | 'last30days' | 'custom';
+export type TimeRange = 'today' | 'last7days' | 'last30days' | 'custom'
 ```
 
 ### StatusFilter
 
 ```typescript
-export type StatusFilter = 'all' | 'success' | 'failed' | 'skipped';
+export type StatusFilter = 'all' | 'success' | 'failed' | 'skipped'
 ```
 
 ## UI 特性
@@ -174,7 +174,7 @@ export type StatusFilter = 'all' | 'success' | 'failed' | 'skipped';
 组件从 Zustand store 获取数据：
 
 ```typescript
-const tasks = useSchedulerStore(selectTasks);
+const tasks = useSchedulerStore(selectTasks)
 ```
 
 只显示状态为 `completed` 或 `failed` 的任务。

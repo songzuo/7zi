@@ -3,14 +3,14 @@
  * Utility functions to simplify common test operations
  */
 
-import { Page, Locator, expect } from '@playwright/test';
+import { Page, Locator, expect } from '@playwright/test'
 
 /**
  * Wait for page to be fully loaded
  */
 export async function waitForPageLoad(page: Page, timeout: number = 30000): Promise<void> {
-  await page.waitForLoadState('networkidle', { timeout });
-  await page.waitForTimeout(500); // Wait for animations
+  await page.waitForLoadState('networkidle', { timeout })
+  await page.waitForTimeout(500) // Wait for animations
 }
 
 /**
@@ -20,13 +20,13 @@ export async function waitForElementStable(
   locator: Locator,
   options: { timeout?: number; stableTime?: number } = {}
 ): Promise<void> {
-  const { timeout = 5000, stableTime = 1000 } = options;
+  const { timeout = 5000, stableTime = 1000 } = options
 
-  await locator.waitFor({ state: 'visible', timeout });
+  await locator.waitFor({ state: 'visible', timeout })
   // Wait for element to be stable by checking bounding box doesn't change
-  const initialBox = await locator.boundingBox();
+  const initialBox = await locator.boundingBox()
   if (initialBox) {
-    await new Promise(resolve => setTimeout(resolve, stableTime));
+    await new Promise(resolve => setTimeout(resolve, stableTime))
   }
 }
 
@@ -35,9 +35,9 @@ export async function waitForElementStable(
  */
 export async function fillForm(page: Page, fields: Record<string, string>): Promise<void> {
   for (const [name, value] of Object.entries(fields)) {
-    const input = page.locator(`input[name="${name}"], textarea[name="${name}"]`);
-    if (await input.count() > 0) {
-      await input.fill(value);
+    const input = page.locator(`input[name="${name}"], textarea[name="${name}"]`)
+    if ((await input.count()) > 0) {
+      await input.fill(value)
     }
   }
 }
@@ -50,21 +50,21 @@ export async function clickWithRetry(
   retries: number = 3,
   timeout: number = 5000
 ): Promise<void> {
-  let lastError: Error | null = null;
+  let lastError: Error | null = null
 
   for (let i = 0; i < retries; i++) {
     try {
-      await locator.click({ timeout });
-      return;
+      await locator.click({ timeout })
+      return
     } catch (error) {
-      lastError = error as Error;
+      lastError = error as Error
       if (i < retries - 1) {
-        await new Promise(resolve => setTimeout(resolve, 500));
+        await new Promise(resolve => setTimeout(resolve, 500))
       }
     }
   }
 
-  throw lastError;
+  throw lastError
 }
 
 /**
@@ -75,15 +75,15 @@ export async function takeScreenshot(
   filename: string,
   options: { fullPage?: boolean } = {}
 ): Promise<void> {
-  const timestamp = new Date().toISOString().replace(/[:.]/g, '-');
-  const screenshotPath = `test-results/screenshots/${filename}-${timestamp}.png`;
+  const timestamp = new Date().toISOString().replace(/[:.]/g, '-')
+  const screenshotPath = `test-results/screenshots/${filename}-${timestamp}.png`
 
   await page.screenshot({
     path: screenshotPath,
     fullPage: options.fullPage || false,
-  });
+  })
 
-  console.log(`Screenshot saved: ${screenshotPath}`);
+  console.log(`Screenshot saved: ${screenshotPath}`)
 }
 
 /**
@@ -96,13 +96,13 @@ export async function waitForToast(
 ): Promise<Locator | null> {
   const toastLocator = message
     ? page.locator(`.toast, .notification, [role="alert"]`).filter({ hasText: message })
-    : page.locator('.toast, .notification, [role="alert"]');
+    : page.locator('.toast, .notification, [role="alert"]')
 
   try {
-    await toastLocator.first().waitFor({ state: 'visible', timeout });
-    return toastLocator.first();
+    await toastLocator.first().waitFor({ state: 'visible', timeout })
+    return toastLocator.first()
   } catch {
-    return null;
+    return null
   }
 }
 
@@ -111,11 +111,11 @@ export async function waitForToast(
  */
 export async function hasText(locator: Locator, text: string): Promise<boolean> {
   try {
-    await locator.waitFor({ state: 'visible', timeout: 3000 });
-    const elementText = await locator.textContent();
-    return elementText?.includes(text) ?? false;
+    await locator.waitFor({ state: 'visible', timeout: 3000 })
+    const elementText = await locator.textContent()
+    return elementText?.includes(text) ?? false
   } catch {
-    return false;
+    return false
   }
 }
 
@@ -126,34 +126,37 @@ export function getViewportSize(): { width: number; height: number } {
   return {
     width: window.innerWidth,
     height: window.innerHeight,
-  };
+  }
 }
 
 /**
  * Set viewport size
  */
-export async function setViewportSize(page: Page, size: { width: number; height: number }): Promise<void> {
-  await page.setViewportSize(size);
-  await page.waitForTimeout(500); // Wait for layout to settle
+export async function setViewportSize(
+  page: Page,
+  size: { width: number; height: number }
+): Promise<void> {
+  await page.setViewportSize(size)
+  await page.waitForTimeout(500) // Wait for layout to settle
 }
 
 /**
  * Scroll element into view
  */
 export async function scrollIntoView(locator: Locator): Promise<void> {
-  await locator.scrollIntoViewIfNeeded();
-  await locator.waitFor({ state: 'visible', timeout: 5000 });
+  await locator.scrollIntoViewIfNeeded()
+  await locator.waitFor({ state: 'visible', timeout: 5000 })
 }
 
 /**
  * Wait for loading to complete
  */
 export async function waitForLoading(page: Page, timeout: number = 10000): Promise<void> {
-  const loadingSelector = '.loading, .spinner, [aria-busy="true"]';
+  const loadingSelector = '.loading, .spinner, [aria-busy="true"]'
 
   try {
-    await page.waitForSelector(loadingSelector, { state: 'attached', timeout: 1000 });
-    await page.waitForSelector(loadingSelector, { state: 'hidden', timeout });
+    await page.waitForSelector(loadingSelector, { state: 'attached', timeout: 1000 })
+    await page.waitForSelector(loadingSelector, { state: 'hidden', timeout })
   } catch {
     // Loading element might not exist
   }
@@ -163,7 +166,7 @@ export async function waitForLoading(page: Page, timeout: number = 10000): Promi
  * Generate unique test data
  */
 export function generateTestId(prefix: string = 'test'): string {
-  return `${prefix}-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
+  return `${prefix}-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`
 }
 
 /**
@@ -171,10 +174,10 @@ export function generateTestId(prefix: string = 'test'): string {
  */
 export async function isVisible(locator: Locator): Promise<boolean> {
   try {
-    await locator.waitFor({ state: 'visible', timeout: 3000 });
-    return true;
+    await locator.waitFor({ state: 'visible', timeout: 3000 })
+    return true
   } catch {
-    return false;
+    return false
   }
 }
 
@@ -183,10 +186,10 @@ export async function isVisible(locator: Locator): Promise<boolean> {
  */
 export async function isHidden(locator: Locator): Promise<boolean> {
   try {
-    await locator.waitFor({ state: 'hidden', timeout: 3000 });
-    return true;
+    await locator.waitFor({ state: 'hidden', timeout: 3000 })
+    return true
   } catch {
-    return false;
+    return false
   }
 }
 
@@ -194,55 +197,58 @@ export async function isHidden(locator: Locator): Promise<boolean> {
  * Get all cookies as object
  */
 export async function getCookiesAsObject(page: Page): Promise<Record<string, string>> {
-  const cookies = await page.context().cookies();
-  return cookies.reduce((acc, cookie) => {
-    if (cookie.name && cookie.value) {
-      acc[cookie.name] = cookie.value;
-    }
-    return acc;
-  }, {} as Record<string, string>);
+  const cookies = await page.context().cookies()
+  return cookies.reduce(
+    (acc, cookie) => {
+      if (cookie.name && cookie.value) {
+        acc[cookie.name] = cookie.value
+      }
+      return acc
+    },
+    {} as Record<string, string>
+  )
 }
 
 /**
  * Set cookie
  */
 export async function setCookie(page: Page, name: string, value: string): Promise<void> {
-  await page.context().addCookies([{ name, value, domain: 'localhost', path: '/' }]);
+  await page.context().addCookies([{ name, value, domain: 'localhost', path: '/' }])
 }
 
 /**
  * Clear all cookies
  */
 export async function clearCookies(page: Page): Promise<void> {
-  await page.context().clearCookies();
+  await page.context().clearCookies()
 }
 
 /**
  * Clear local storage
  */
 export async function clearLocalStorage(page: Page): Promise<void> {
-  await page.evaluate(() => window.localStorage.clear());
+  await page.evaluate(() => window.localStorage.clear())
 }
 
 /**
  * Clear session storage
  */
 export async function clearSessionStorage(page: Page): Promise<void> {
-  await page.evaluate(() => window.sessionStorage.clear());
+  await page.evaluate(() => window.sessionStorage.clear())
 }
 
 /**
  * Get local storage item
  */
 export async function getLocalStorageItem(page: Page, key: string): Promise<string | null> {
-  return await page.evaluate((k) => window.localStorage.getItem(k), key);
+  return await page.evaluate(k => window.localStorage.getItem(k), key)
 }
 
 /**
  * Set local storage item
  */
 export async function setLocalStorageItem(page: Page, key: string, value: string): Promise<void> {
-  await page.evaluate(({ k, v }) => window.localStorage.setItem(k, v), { k: key, v: value });
+  await page.evaluate(({ k, v }) => window.localStorage.setItem(k, v), { k: key, v: value })
 }
 
 /**
@@ -254,13 +260,13 @@ export async function mockApiResponse(
   response: Record<string, unknown> | unknown[],
   status: number = 200
 ): Promise<void> {
-  await page.route(url, async (route) => {
+  await page.route(url, async route => {
     await route.fulfill({
       status,
       contentType: 'application/json',
       body: JSON.stringify(response),
-    });
-  });
+    })
+  })
 }
 
 /**
@@ -272,50 +278,54 @@ export async function waitForNetworkResponse(
   timeout: number = 30000
 ): Promise<Record<string, unknown> | unknown[]> {
   const [response] = await Promise.all([
-    page.waitForResponse((res) => res.url().includes(url), { timeout }),
+    page.waitForResponse(res => res.url().includes(url), { timeout }),
     // Page action that triggers the request
-  ]);
+  ])
 
-  return await response.json() as Record<string, unknown> | unknown[];
+  return (await response.json()) as Record<string, unknown> | unknown[]
 }
 
 /**
  * Check if page has console errors
  */
 export async function hasConsoleErrors(page: Page): Promise<string[]> {
-  const errors: string[] = [];
+  const errors: string[] = []
 
-  page.on('console', (msg) => {
+  page.on('console', msg => {
     if (msg.type() === 'error') {
-      errors.push(msg.text());
+      errors.push(msg.text())
     }
-  });
+  })
 
-  return errors;
+  return errors
 }
 
 /**
  * Get all console messages
  */
 export async function getConsoleMessages(page: Page): Promise<string[]> {
-  const messages: string[] = [];
+  const messages: string[] = []
 
-  page.on('console', (msg) => {
-    messages.push(`[${msg.type()}] ${msg.text()}`);
-  });
+  page.on('console', msg => {
+    messages.push(`[${msg.type()}] ${msg.text()}`)
+  })
 
-  return messages;
+  return messages
 }
 
 /**
  * Type with human-like delays
  */
-export async function humanType(locator: Locator, text: string, delayMs: number = 50): Promise<void> {
-  await locator.click();
-  await locator.clear();
+export async function humanType(
+  locator: Locator,
+  text: string,
+  delayMs: number = 50
+): Promise<void> {
+  await locator.click()
+  await locator.clear()
 
   for (const char of text) {
-    await locator.type(char, { delay: delayMs });
+    await locator.type(char, { delay: delayMs })
   }
 }
 
@@ -323,82 +333,82 @@ export async function humanType(locator: Locator, text: string, delayMs: number 
  * Hover element
  */
 export async function hoverElement(locator: Locator): Promise<void> {
-  await locator.hover();
-  await new Promise(resolve => setTimeout(resolve, 300)); // Wait for hover effect
+  await locator.hover()
+  await new Promise(resolve => setTimeout(resolve, 300)) // Wait for hover effect
 }
 
 /**
  * Double click element
  */
 export async function doubleClick(locator: Locator): Promise<void> {
-  await locator.dblclick();
+  await locator.dblclick()
 }
 
 /**
  * Right click element
  */
 export async function rightClick(locator: Locator): Promise<void> {
-  await locator.click({ button: 'right' });
+  await locator.click({ button: 'right' })
 }
 
 /**
  * Select option from dropdown
  */
 export async function selectOption(locator: Locator, option: string): Promise<void> {
-  await locator.selectOption(option);
+  await locator.selectOption(option)
 }
 
 /**
  * Upload file
  */
 export async function uploadFile(locator: Locator, filePath: string): Promise<void> {
-  await locator.setInputFiles(filePath);
+  await locator.setInputFiles(filePath)
 }
 
 /**
  * Get element text
  */
 export async function getText(locator: Locator): Promise<string> {
-  await locator.waitFor({ state: 'visible', timeout: 5000 });
-  return (await locator.textContent()) || '';
+  await locator.waitFor({ state: 'visible', timeout: 5000 })
+  return (await locator.textContent()) || ''
 }
 
 /**
  * Get element attribute
  */
 export async function getAttribute(locator: Locator, attribute: string): Promise<string | null> {
-  await locator.waitFor({ state: 'visible', timeout: 5000 });
-  return await locator.getAttribute(attribute);
+  await locator.waitFor({ state: 'visible', timeout: 5000 })
+  return await locator.getAttribute(attribute)
 }
 
 /**
  * Check if element has class
  */
 export async function hasClass(locator: Locator, className: string): Promise<boolean> {
-  await locator.waitFor({ state: 'visible', timeout: 5000 });
-  const classList = await locator.getAttribute('class') || '';
-  return classList.split(' ').includes(className);
+  await locator.waitFor({ state: 'visible', timeout: 5000 })
+  const classList = (await locator.getAttribute('class')) || ''
+  return classList.split(' ').includes(className)
 }
 
 /**
  * Count elements
  */
 export async function countElements(locator: Locator): Promise<number> {
-  return await locator.count();
+  return await locator.count()
 }
 
 /**
  * Get all elements
  */
 export async function getAllElements(locator: Locator): Promise<Locator[]> {
-  const count = await locator.count();
-  const elements: Locator[] = [];
+  const count = await locator.count()
+  const elements: Locator[] = []
 
   for (let i = 0; i < count; i++) {
-    elements.push(locator.nth(i));
+    elements.push(locator.nth(i))
   }
 
-  return elements;
+  return elements
 }
 
 /**
@@ -408,19 +418,19 @@ export async function retry<T>(
   fn: () => Promise<T>,
   options: { retries?: number; delay?: number } = {}
 ): Promise<T> {
-  const { retries = 3, delay = 1000 } = options;
-  let lastError: Error | null = null;
+  const { retries = 3, delay = 1000 } = options
+  let lastError: Error | null = null
 
   for (let i = 0; i < retries; i++) {
     try {
-      return await fn();
+      return await fn()
     } catch (error) {
-      lastError = error as Error;
+      lastError = error as Error
       if (i < retries - 1) {
-        await new Promise(resolve => setTimeout(resolve, delay));
+        await new Promise(resolve => setTimeout(resolve, delay))
       }
     }
   }
 
-  throw lastError;
+  throw lastError
 }

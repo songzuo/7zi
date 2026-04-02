@@ -31,23 +31,23 @@
 
 #### 核心配置项
 
-| 配置项 | 设置 | 说明 |
-|--------|------|------|
-| **基础配置** | | |
-| `reactStrictMode` | `true` | React 严格模式 |
-| `poweredByHeader` | `false` | 移除 X-Powered-By 头 |
-| `output` | `'standalone'` | Docker 部署优化 |
-| **生产优化** | | |
-| `compress` | `true` | 启用 gzip 压缩 |
-| `generateEtags` | `true` | 生成 ETags |
-| `productionBrowserSourceMaps` | `false` | 生产环境不生成 source maps |
-| **编译器配置** | | |
-| `compiler.removeConsole` | `exclude: ['error', 'warn', 'info']` | 生产环境移除 console.log，保留错误日志 |
-| **图片优化** | | |
-| `formats` | `['image/avif', 'image/webp']` | 现代图片格式 |
-| `deviceSizes` | `[640, 750, 828, 1080, 1200, 1920, 2048, 3840]` | 响应式图片尺寸 |
-| `imageSizes` | `[16, 32, 48, 64, 96, 128, 256, 384]` | 图片优化尺寸 |
-| `minimumCacheTTL` | `30天` | 最小缓存时间 |
+| 配置项                        | 设置                                            | 说明                                   |
+| ----------------------------- | ----------------------------------------------- | -------------------------------------- |
+| **基础配置**                  |                                                 |                                        |
+| `reactStrictMode`             | `true`                                          | React 严格模式                         |
+| `poweredByHeader`             | `false`                                         | 移除 X-Powered-By 头                   |
+| `output`                      | `'standalone'`                                  | Docker 部署优化                        |
+| **生产优化**                  |                                                 |                                        |
+| `compress`                    | `true`                                          | 启用 gzip 压缩                         |
+| `generateEtags`               | `true`                                          | 生成 ETags                             |
+| `productionBrowserSourceMaps` | `false`                                         | 生产环境不生成 source maps             |
+| **编译器配置**                |                                                 |                                        |
+| `compiler.removeConsole`      | `exclude: ['error', 'warn', 'info']`            | 生产环境移除 console.log，保留错误日志 |
+| **图片优化**                  |                                                 |                                        |
+| `formats`                     | `['image/avif', 'image/webp']`                  | 现代图片格式                           |
+| `deviceSizes`                 | `[640, 750, 828, 1080, 1200, 1920, 2048, 3840]` | 响应式图片尺寸                         |
+| `imageSizes`                  | `[16, 32, 48, 64, 96, 128, 256, 384]`           | 图片优化尺寸                           |
+| `minimumCacheTTL`             | `30天`                                          | 最小缓存时间                           |
 
 #### Turbopack 配置
 
@@ -83,7 +83,7 @@ experimental: {
 
 保留 Webpack 配置作为后备，仅当 `USE_WEBPACK=true` 时启用：
 
-- **性能预算**: 
+- **性能预算**:
   - 最大入口点: 300KB
   - 最大资源: 250KB
   - 最大异步 chunk: 200KB
@@ -127,17 +127,17 @@ const CHUNK_LIMITS = {
   maxAsyncChunkSize: 200 * 1024,
   // 最小 chunk 大小 (15KB)
   minChunkSize: 15 * 1024,
-};
+}
 ```
 
 #### 配置说明
 
-| 限制类型 | 大小 | 应用场景 |
-|----------|------|----------|
-| **入口点** | 300KB | 首屏加载的主 JS 文件 |
-| **资源** | 250KB | 所有输出资源 |
-| **异步 chunk** | 200KB | 按需加载的模块 |
-| **最小 chunk** | 15KB | 避免过度分割 |
+| 限制类型       | 大小  | 应用场景             |
+| -------------- | ----- | -------------------- |
+| **入口点**     | 300KB | 首屏加载的主 JS 文件 |
+| **资源**       | 250KB | 所有输出资源         |
+| **异步 chunk** | 200KB | 按需加载的模块       |
+| **最小 chunk** | 15KB  | 避免过度分割         |
 
 #### Webpack 性能预算
 
@@ -146,7 +146,7 @@ config.performance = {
   maxEntrypointSize: CHUNK_LIMITS.maxEntrypointSize,
   maxAssetSize: CHUNK_LIMITS.maxAssetSize,
   hints: 'warning',
-};
+}
 ```
 
 #### 分包策略
@@ -170,16 +170,16 @@ Webpack 后备配置中的分包策略：
 ##### 日志级别
 
 ```typescript
-type LogLevel = 'debug' | 'info' | 'warn' | 'error' | 'fatal';
+type LogLevel = 'debug' | 'info' | 'warn' | 'error' | 'fatal'
 ```
 
-| 级别 | 优先级 | 用途 |
-|------|--------|------|
-| **debug** | 0 | 开发调试信息 |
-| **info** | 1 | 一般信息 |
-| **warn** | 2 | 警告信息 |
-| **error** | 3 | 错误信息 |
-| **fatal** | 4 | 致命错误 |
+| 级别      | 优先级 | 用途         |
+| --------- | ------ | ------------ |
+| **debug** | 0      | 开发调试信息 |
+| **info**  | 1      | 一般信息     |
+| **warn**  | 2      | 警告信息     |
+| **error** | 3      | 错误信息     |
+| **fatal** | 4      | 致命错误     |
 
 ##### 默认配置
 
@@ -192,12 +192,13 @@ const DEFAULT_CONFIG: LogConfig = {
   sanitizeSensitiveData: true,
   enableRemoteLogging: process.env.NODE_ENV === 'production',
   remoteEndpoint: process.env.LOG_ENDPOINT,
-};
+}
 ```
 
 ##### 敏感数据过滤
 
 自动过滤以下字段：
+
 - `password`, `token`, `secret`
 - `apiKey`, `api_key`, `authorization`
 - `cookie`, `session`
@@ -207,22 +208,22 @@ const DEFAULT_CONFIG: LogConfig = {
 
 ```typescript
 // 创建 logger
-const logger = new Logger('app');
+const logger = new Logger('app')
 
 // 日志方法
-logger.debug('Debug message', { data });
-logger.info('Info message', { data });
-logger.warn('Warning message', { data });
-logger.error('Error message', error, { data });
-logger.fatal('Fatal error', error, { data });
+logger.debug('Debug message', { data })
+logger.info('Info message', { data })
+logger.warn('Warning message', { data })
+logger.error('Error message', error, { data })
+logger.fatal('Fatal error', error, { data })
 
 // 性能计时器
-const endTimer = logger.time('operation');
+const endTimer = logger.time('operation')
 // ... 执行操作
-endTimer();
+endTimer()
 
 // 子 logger
-const childLogger = logger.child('component');
+const childLogger = logger.child('component')
 ```
 
 ---
@@ -242,14 +243,14 @@ enum ErrorCode {
   NOT_FOUND = 'NOT_FOUND',
   VALIDATION_ERROR = 'VALIDATION_ERROR',
   CONFLICT = 'CONFLICT',
-  
+
   // 服务端错误 (5xx)
   INTERNAL_ERROR = 'INTERNAL_ERROR',
   SERVICE_UNAVAILABLE = 'SERVICE_UNAVAILABLE',
   DATABASE_ERROR = 'DATABASE_ERROR',
   EXTERNAL_SERVICE_ERROR = 'EXTERNAL_SERVICE_ERROR',
   TIMEOUT = 'TIMEOUT',
-  
+
   // 业务错误
   BUSINESS_ERROR = 'BUSINESS_ERROR',
   RATE_LIMIT_EXCEEDED = 'RATE_LIMIT_EXCEEDED',
@@ -260,16 +261,16 @@ enum ErrorCode {
 
 ```typescript
 export class AppError extends Error {
-  public readonly code: ErrorCode;
-  public readonly statusCode: number;
-  public readonly details?: Record<string, unknown>;
-  public readonly reportToSentry: boolean;
-  public readonly timestamp: string;
-  
+  public readonly code: ErrorCode
+  public readonly statusCode: number
+  public readonly details?: Record<string, unknown>
+  public readonly reportToSentry: boolean
+  public readonly timestamp: string
+
   constructor(options: AppErrorOptions) {
     // ...
   }
-  
+
   toJSON(): Record<string, unknown> {
     // 返回结构化的错误信息
   }
@@ -292,9 +293,12 @@ createDatabaseError(message, cause?, details?)
 ##### 错误处理函数
 
 ```typescript
-function handleError(error: unknown, context?: string): {
-  error: AppError;
-  shouldReport: boolean;
+function handleError(
+  error: unknown,
+  context?: string
+): {
+  error: AppError
+  shouldReport: boolean
 }
 ```
 
@@ -302,10 +306,10 @@ function handleError(error: unknown, context?: string): {
 
 ```typescript
 class ErrorAggregator {
-  private config: ErrorAggregatorConfig;
-  
-  add(error: AppError): void;
-  flush(): Promise<void>;
+  private config: ErrorAggregatorConfig
+
+  add(error: AppError): void
+  flush(): Promise<void>
 }
 ```
 
@@ -315,14 +319,14 @@ class ErrorAggregator {
 
 ```typescript
 interface ApiErrorResponse {
-  success: false;
+  success: false
   error: {
-    code: ErrorCode;
-    message: string;
-    details?: Record<string, unknown>;
-    timestamp: string;
-    requestId?: string;
-  };
+    code: ErrorCode
+    message: string
+    details?: Record<string, unknown>
+    timestamp: string
+    requestId?: string
+  }
 }
 ```
 
@@ -334,12 +338,12 @@ interface ApiErrorResponse {
 
 #### 端点配置
 
-| 配置项 | 值 | 说明 |
-|--------|-----|------|
-| **路径** | `/api/health` | 健康检查端点 |
-| **方法** | `GET`, `HEAD` | 支持两种方法 |
-| **缓存** | 60秒 | 公开缓存 |
-| **响应格式** | JSON | 结构化响应 |
+| 配置项       | 值            | 说明         |
+| ------------ | ------------- | ------------ |
+| **路径**     | `/api/health` | 健康检查端点 |
+| **方法**     | `GET`, `HEAD` | 支持两种方法 |
+| **缓存**     | 60秒          | 公开缓存     |
+| **响应格式** | JSON          | 结构化响应   |
 
 #### 健康检查配置
 
@@ -353,7 +357,7 @@ const HEALTH_CHECK_CONFIG = {
   responseTimeWarningThreshold: 1000,
   // 缓存时间 (秒)
   cacheTime: 60,
-};
+}
 ```
 
 #### 响应示例
@@ -406,10 +410,7 @@ const HEALTH_CHECK_CONFIG = {
   "status": "degraded",
   "health": {
     "issues": [],
-    "warnings": [
-      "Memory usage high: 85%",
-      "Response time slow: 1200ms"
-    ]
+    "warnings": ["Memory usage high: 85%", "Response time slow: 1200ms"]
   }
 }
 ```
@@ -420,23 +421,19 @@ const HEALTH_CHECK_CONFIG = {
 {
   "status": "unhealthy",
   "health": {
-    "issues": [
-      "Memory usage critical: 95% (threshold: 90%)"
-    ],
-    "warnings": [
-      "Load average high: 16.00 (CPUs: 8)"
-    ]
+    "issues": ["Memory usage critical: 95% (threshold: 90%)"],
+    "warnings": ["Load average high: 16.00 (CPUs: 8)"]
   }
 }
 ```
 
 #### HTTP 状态码
 
-| 状态 | HTTP 状态码 | 说明 |
-|------|-------------|------|
-| **healthy** | 200 | 系统健康 |
-| **degraded** | 200 | 系统降级但有警告 |
-| **unhealthy** | 503 | 系统不健康 |
+| 状态          | HTTP 状态码 | 说明             |
+| ------------- | ----------- | ---------------- |
+| **healthy**   | 200         | 系统健康         |
+| **degraded**  | 200         | 系统降级但有警告 |
+| **unhealthy** | 503         | 系统不健康       |
 
 #### 响应 Headers
 
@@ -492,41 +489,41 @@ livenessProbe:
 
 #### 验证项目
 
-| 类别 | 检查项 | 状态 |
-|------|--------|------|
-| **next.config.ts** | output: standalone | ✅ |
-| | reactStrictMode: true | ✅ |
-| | turbopack 配置 | ✅ |
-| | experimental.optimizePackageImports | ✅ |
-| | compiler.removeConsole | ✅ |
-| **package.json** | dev 脚本 | ✅ |
-| | build 脚本 | ✅ |
-| | start 脚本 | ✅ |
-| | build:analyze 脚本 | ✅ |
-| | build:webpack 脚本 (可选) | ✅ |
-| | build:analyze:webpack 脚本 (可选) | ✅ |
-| **健康检查** | GET 请求处理器 | ✅ |
-| | HEAD 请求处理器 | ✅ |
-| | 系统信息获取 | ✅ |
-| | 健康状态评估 | ✅ |
-| | 内存检查 | ✅ |
-| **日志配置** | Logger 类 | ✅ |
-| | 日志级别 | ✅ |
-| | 敏感数据过滤 | ✅ |
-| | JSON 格式输出 | ✅ |
-| | 远程日志 | ✅ |
-| **错误处理** | AppError 类 | ✅ |
-| | ErrorCode 枚举 | ✅ |
-| | 错误工厂函数 | ✅ |
-| | handleError 函数 | ✅ |
-| | 错误聚合器 | ✅ |
-| **环境变量** | NODE_ENV | ✅ |
-| | LOG_LEVEL | ✅ |
-| **构建配置** | tsconfig.json | ✅ |
-| | 依赖 next (16.2.1) | ✅ |
-| | 依赖 react (^18.2.0) | ✅ |
-| | 依赖 react-dom (^18.2.0) | ✅ |
-| | Next.js 版本 >= 16 | ✅ |
+| 类别               | 检查项                              | 状态 |
+| ------------------ | ----------------------------------- | ---- |
+| **next.config.ts** | output: standalone                  | ✅   |
+|                    | reactStrictMode: true               | ✅   |
+|                    | turbopack 配置                      | ✅   |
+|                    | experimental.optimizePackageImports | ✅   |
+|                    | compiler.removeConsole              | ✅   |
+| **package.json**   | dev 脚本                            | ✅   |
+|                    | build 脚本                          | ✅   |
+|                    | start 脚本                          | ✅   |
+|                    | build:analyze 脚本                  | ✅   |
+|                    | build:webpack 脚本 (可选)           | ✅   |
+|                    | build:analyze:webpack 脚本 (可选)   | ✅   |
+| **健康检查**       | GET 请求处理器                      | ✅   |
+|                    | HEAD 请求处理器                     | ✅   |
+|                    | 系统信息获取                        | ✅   |
+|                    | 健康状态评估                        | ✅   |
+|                    | 内存检查                            | ✅   |
+| **日志配置**       | Logger 类                           | ✅   |
+|                    | 日志级别                            | ✅   |
+|                    | 敏感数据过滤                        | ✅   |
+|                    | JSON 格式输出                       | ✅   |
+|                    | 远程日志                            | ✅   |
+| **错误处理**       | AppError 类                         | ✅   |
+|                    | ErrorCode 枚举                      | ✅   |
+|                    | 错误工厂函数                        | ✅   |
+|                    | handleError 函数                    | ✅   |
+|                    | 错误聚合器                          | ✅   |
+| **环境变量**       | NODE_ENV                            | ✅   |
+|                    | LOG_LEVEL                           | ✅   |
+| **构建配置**       | tsconfig.json                       | ✅   |
+|                    | 依赖 next (16.2.1)                  | ✅   |
+|                    | 依赖 react (^18.2.0)                | ✅   |
+|                    | 依赖 react-dom (^18.2.0)            | ✅   |
+|                    | Next.js 版本 >= 16                  | ✅   |
 
 **总计**: 37 项检查，37 项通过 ✅
 
@@ -686,24 +683,24 @@ apiVersion: v1
 kind: Pod
 spec:
   containers:
-  - name: 7zi-frontend
-    image: 7zi-frontend:latest
-    ports:
-    - containerPort: 3000
-    readinessProbe:
-      httpGet:
-        path: /api/health
-        port: 3000
-      initialDelaySeconds: 5
-      periodSeconds: 10
-      failureThreshold: 3
-    livenessProbe:
-      httpGet:
-        path: /api/health
-        port: 3000
-      initialDelaySeconds: 30
-      periodSeconds: 30
-      failureThreshold: 3
+    - name: 7zi-frontend
+      image: 7zi-frontend:latest
+      ports:
+        - containerPort: 3000
+      readinessProbe:
+        httpGet:
+          path: /api/health
+          port: 3000
+        initialDelaySeconds: 5
+        periodSeconds: 10
+        failureThreshold: 3
+      livenessProbe:
+        httpGet:
+          path: /api/health
+          port: 3000
+        initialDelaySeconds: 30
+        periodSeconds: 30
+        failureThreshold: 3
 ```
 
 ##### Docker Compose
@@ -713,9 +710,9 @@ services:
   frontend:
     image: 7zi-frontend:latest
     ports:
-      - "3000:3000"
+      - '3000:3000'
     healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:3000/api/health"]
+      test: ['CMD', 'curl', '-f', 'http://localhost:3000/api/health']
       interval: 30s
       timeout: 10s
       retries: 3
@@ -727,33 +724,33 @@ services:
 #### 基础使用
 
 ```typescript
-import { logger } from '@/lib/logger';
+import { logger } from '@/lib/logger'
 
 // 记录不同级别的日志
-logger.debug('Debug information', { data: 'value' });
-logger.info('Information message');
-logger.warn('Warning message', { details });
-logger.error('Error occurred', error, { context });
-logger.fatal('Fatal error', error, { context });
+logger.debug('Debug information', { data: 'value' })
+logger.info('Information message')
+logger.warn('Warning message', { details })
+logger.error('Error occurred', error, { context })
+logger.fatal('Fatal error', error, { context })
 ```
 
 #### 创建子 Logger
 
 ```typescript
-import { createLogger } from '@/lib/logger';
+import { createLogger } from '@/lib/logger'
 
 // 为特定模块创建 logger
-const componentLogger = createLogger('MyComponent');
+const componentLogger = createLogger('MyComponent')
 
-componentLogger.info('Component mounted');
+componentLogger.info('Component mounted')
 ```
 
 #### 性能计时
 
 ```typescript
-const endTimer = logger.time('database-query');
-await db.query('SELECT * FROM users');
-endTimer(); // 自动记录耗时
+const endTimer = logger.time('database-query')
+await db.query('SELECT * FROM users')
+endTimer() // 自动记录耗时
 ```
 
 #### 环境变量
@@ -774,58 +771,51 @@ LOG_ENDPOINT=https://logs.example.com/api/logs
 #### 创建错误
 
 ```typescript
-import {
-  createBadRequestError,
-  createNotFoundError,
-  createInternalError,
-} from '@/lib/errors';
+import { createBadRequestError, createNotFoundError, createInternalError } from '@/lib/errors'
 
 // 客户端错误
-throw createBadRequestError('Invalid input', { field: 'email' });
+throw createBadRequestError('Invalid input', { field: 'email' })
 
 // 服务端错误
-throw createInternalError('Database connection failed', error);
+throw createInternalError('Database connection failed', error)
 ```
 
 #### 处理错误
 
 ```typescript
-import { handleError } from '@/lib/errors';
+import { handleError } from '@/lib/errors'
 
 try {
-  await someOperation();
+  await someOperation()
 } catch (error) {
-  const { error: appError, shouldReport } = handleError(error, 'myModule');
-  
+  const { error: appError, shouldReport } = handleError(error, 'myModule')
+
   if (shouldReport) {
     // 报告到 Sentry 或其他错误跟踪服务
-    Sentry.captureException(appError);
+    Sentry.captureException(appError)
   }
-  
+
   // 返回错误响应
   return NextResponse.json(
     { success: false, error: appError.message },
     { status: appError.statusCode }
-  );
+  )
 }
 ```
 
 #### API 错误响应
 
 ```typescript
-import { AppError, formatErrorResponse } from '@/lib/errors';
+import { AppError, formatErrorResponse } from '@/lib/errors'
 
 export async function GET() {
   try {
-    const data = await fetchData();
-    return NextResponse.json({ success: true, data });
+    const data = await fetchData()
+    return NextResponse.json({ success: true, data })
   } catch (error) {
-    const { error: appError } = handleError(error, 'GET /api/data');
-    
-    return NextResponse.json(
-      formatErrorResponse(appError),
-      { status: appError.statusCode }
-    );
+    const { error: appError } = handleError(error, 'GET /api/data')
+
+    return NextResponse.json(formatErrorResponse(appError), { status: appError.statusCode })
   }
 }
 ```
@@ -872,25 +862,25 @@ NODE_ENV=production npm run build
 
 #### 系统指标
 
-| 指标 | 阈值 | 告警级别 |
-|------|------|----------|
-| **内存使用率** | > 90% | Critical |
-| | > 80% | Warning |
-| **CPU 负载** | > 2x 核心数 | Critical |
-| | > 1x 核心数 | Warning |
-| **响应时间** | > 2000ms | Critical |
-| | > 1000ms | Warning |
+| 指标           | 阈值        | 告警级别 |
+| -------------- | ----------- | -------- |
+| **内存使用率** | > 90%       | Critical |
+|                | > 80%       | Warning  |
+| **CPU 负载**   | > 2x 核心数 | Critical |
+|                | > 1x 核心数 | Warning  |
+| **响应时间**   | > 2000ms    | Critical |
+|                | > 1000ms    | Warning  |
 
 #### 应用指标
 
-| 指标 | 阈值 | 告警级别 |
-|------|------|----------|
-| **错误率** | > 5% | Critical |
-| | > 1% | Warning |
-| **5xx 错误率** | > 1% | Critical |
-| | > 0.5% | Warning |
-| **健康状态** | unhealthy | Critical |
-| | degraded | Warning |
+| 指标           | 阈值      | 告警级别 |
+| -------------- | --------- | -------- |
+| **错误率**     | > 5%      | Critical |
+|                | > 1%      | Warning  |
+| **5xx 错误率** | > 1%      | Critical |
+|                | > 0.5%    | Warning  |
+| **健康状态**   | unhealthy | Critical |
+|                | degraded  | Warning  |
 
 ### 4.2 日志监控
 
@@ -898,13 +888,13 @@ NODE_ENV=production npm run build
 
 ```typescript
 // 开发环境
-LOG_LEVEL=debug
+LOG_LEVEL = debug
 
 // 生产环境
-LOG_LEVEL=warn
+LOG_LEVEL = warn
 
 // 调试生产问题时
-LOG_LEVEL=debug
+LOG_LEVEL = debug
 ```
 
 #### 远程日志
@@ -922,34 +912,34 @@ LOG_ENDPOINT=https://logs.example.com/api/logs
 
 ```typescript
 // next.config.ts
-import { withSentryConfig } from '@sentry/nextjs';
+import { withSentryConfig } from '@sentry/nextjs'
 
 export default withSentryConfig(nextConfig, {
   // Sentry 配置
   org: 'your-org',
   project: '7zi-frontend',
   silent: true,
-});
+})
 ```
 
 #### 使用 ErrorAggregator
 
 ```typescript
-import { ErrorAggregator, AppError } from '@/lib/errors';
+import { ErrorAggregator, AppError } from '@/lib/errors'
 
 const errorAggregator = new ErrorAggregator({
   maxBatchSize: 10,
   flushIntervalMs: 30000,
-  onErrorBatch: async (errors) => {
+  onErrorBatch: async errors => {
     // 批量发送到 Sentry
     errors.forEach(err => {
-      Sentry.captureException(err);
-    });
+      Sentry.captureException(err)
+    })
   },
-});
+})
 
 // 添加错误到聚合器
-errorAggregator.add(appError);
+errorAggregator.add(appError)
 ```
 
 ---
@@ -1114,19 +1104,19 @@ npm run start
 
 ### 新增文件
 
-| 文件 | 大小 | 说明 |
-|------|------|------|
-| `next.config.ts` | 9.8 KB | Turbopack 生产环境配置 |
-| `src/app/api/health/route.ts` | 6.4 KB | 健康检查端点 |
-| `src/lib/logger.ts` | 6.1 KB | 日志配置 |
-| `src/lib/errors.ts` | 8.4 KB | 错误处理 |
-| `scripts/validate-turbopack-config.ts` | 11.7 KB | 配置验证脚本 |
-| `TURBOPACK_PRODUCTION_IMPLEMENTATION_20260328.md` | 本文档 | 实施报告 |
+| 文件                                              | 大小    | 说明                   |
+| ------------------------------------------------- | ------- | ---------------------- |
+| `next.config.ts`                                  | 9.8 KB  | Turbopack 生产环境配置 |
+| `src/app/api/health/route.ts`                     | 6.4 KB  | 健康检查端点           |
+| `src/lib/logger.ts`                               | 6.1 KB  | 日志配置               |
+| `src/lib/errors.ts`                               | 8.4 KB  | 错误处理               |
+| `scripts/validate-turbopack-config.ts`            | 11.7 KB | 配置验证脚本           |
+| `TURBOPACK_PRODUCTION_IMPLEMENTATION_20260328.md` | 本文档  | 实施报告               |
 
 ### 修改文件
 
-| 文件 | 修改内容 |
-|------|----------|
+| 文件           | 修改内容                 |
+| -------------- | ------------------------ |
 | `package.json` | 构建脚本已配置，无需修改 |
 | `.env.example` | 建议添加日志相关环境变量 |
 
@@ -1184,4 +1174,4 @@ USE_WEBPACK=false            # 使用 Webpack 后备
 
 ---
 
-*此报告由 🛡️ 系统管理员子代理生成，基于 TURBOPACK_RESEARCH_20260328.md 研究报告实施。*
+_此报告由 🛡️ 系统管理员子代理生成，基于 TURBOPACK_RESEARCH_20260328.md 研究报告实施。_

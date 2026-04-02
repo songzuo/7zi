@@ -1,19 +1,19 @@
 /**
  * 通知服务器 Mock
- * 
+ *
  * 用于测试和客户端模拟的通知服务器实现
  */
 
-import type { WebSocketMessage } from './types';
+import type { WebSocketMessage } from './types'
 
 // ============================================================================
 // 类型定义
 // ============================================================================
 
 interface UserConnection {
-  userId: string;
-  channels: Set<string>;
-  connectedAt: Date;
+  userId: string
+  channels: Set<string>
+  connectedAt: Date
 }
 
 // ============================================================================
@@ -21,8 +21,8 @@ interface UserConnection {
 // ============================================================================
 
 class NotificationServer {
-  private connections: Map<string, UserConnection> = new Map();
-  private channelSubscriptions: Map<string, Set<string>> = new Map();
+  private connections: Map<string, UserConnection> = new Map()
+  private channelSubscriptions: Map<string, Set<string>> = new Map()
 
   /**
    * 广播消息到所有连接的用户
@@ -49,14 +49,14 @@ class NotificationServer {
    * 检查用户是否在线
    */
   isUserOnline(userId: string): boolean {
-    return this.connections.has(userId);
+    return this.connections.has(userId)
   }
 
   /**
    * 获取在线用户列表
    */
   getOnlineUsers(): string[] {
-    return Array.from(this.connections.keys());
+    return Array.from(this.connections.keys())
   }
 
   /**
@@ -68,7 +68,7 @@ class NotificationServer {
         userId,
         channels: new Set(),
         connectedAt: new Date(),
-      });
+      })
     }
   }
 
@@ -76,13 +76,13 @@ class NotificationServer {
    * 模拟用户断开连接（用于测试）
    */
   disconnectUser(userId: string): void {
-    const connection = this.connections.get(userId);
+    const connection = this.connections.get(userId)
     if (connection) {
       // 从所有频道中移除用户
       connection.channels.forEach(channel => {
-        this.channelSubscriptions.get(channel)?.delete(userId);
-      });
-      this.connections.delete(userId);
+        this.channelSubscriptions.get(channel)?.delete(userId)
+      })
+      this.connections.delete(userId)
     }
   }
 
@@ -90,14 +90,14 @@ class NotificationServer {
    * 订阅频道
    */
   subscribeToChannel(userId: string, channel: string): void {
-    const connection = this.connections.get(userId);
+    const connection = this.connections.get(userId)
     if (connection) {
-      connection.channels.add(channel);
-      
+      connection.channels.add(channel)
+
       if (!this.channelSubscriptions.has(channel)) {
-        this.channelSubscriptions.set(channel, new Set());
+        this.channelSubscriptions.set(channel, new Set())
       }
-      this.channelSubscriptions.get(channel)!.add(userId);
+      this.channelSubscriptions.get(channel)!.add(userId)
     }
   }
 
@@ -105,10 +105,10 @@ class NotificationServer {
    * 取消订阅频道
    */
   unsubscribeFromChannel(userId: string, channel: string): void {
-    const connection = this.connections.get(userId);
+    const connection = this.connections.get(userId)
     if (connection) {
-      connection.channels.delete(channel);
-      this.channelSubscriptions.get(channel)?.delete(userId);
+      connection.channels.delete(channel)
+      this.channelSubscriptions.get(channel)?.delete(userId)
     }
   }
 
@@ -116,19 +116,19 @@ class NotificationServer {
    * 获取频道订阅者数量
    */
   getChannelSubscriberCount(channel: string): number {
-    return this.channelSubscriptions.get(channel)?.size || 0;
+    return this.channelSubscriptions.get(channel)?.size || 0
   }
 
   /**
    * 清除所有连接（用于测试清理）
    */
   clearAll(): void {
-    this.connections.clear();
-    this.channelSubscriptions.clear();
+    this.connections.clear()
+    this.channelSubscriptions.clear()
   }
 }
 
 // 单例导出
-export const notificationServer = new NotificationServer();
+export const notificationServer = new NotificationServer()
 
-export default NotificationServer;
+export default NotificationServer

@@ -3,21 +3,17 @@
  * Test for executor.ts line 202 - joining multiple text parts
  */
 
-import { describe, it, expect, beforeEach } from 'vitest';
-import {
-  SimpleEventBus,
-  SevenZiExecutor,
-  type RequestContext,
-} from '../executor';
+import { describe, it, expect, beforeEach } from 'vitest'
+import { SimpleEventBus, SevenZiExecutor, type RequestContext } from '../executor'
 
 describe('SevenZiExecutor - Line 202 Coverage', () => {
-  let executor: SevenZiExecutor;
-  let eventBus: SimpleEventBus;
+  let executor: SevenZiExecutor
+  let eventBus: SimpleEventBus
 
   beforeEach(() => {
-    executor = new SevenZiExecutor();
-    eventBus = new SimpleEventBus();
-  });
+    executor = new SevenZiExecutor()
+    eventBus = new SimpleEventBus()
+  })
 
   describe('extractTextFromMessage - line 202 (.join("\\n"))', () => {
     it('should join multiple text parts with newlines (line 202)', async () => {
@@ -36,25 +32,25 @@ describe('SevenZiExecutor - Line 202 Coverage', () => {
           ],
           createdAt: new Date().toISOString(),
         },
-      };
+      }
 
-      await executor.execute(context, eventBus);
+      await executor.execute(context, eventBus)
 
-      const events = eventBus.getEvents();
-      const artifactUpdate = events.find(e => e.kind === 'artifact-update');
+      const events = eventBus.getEvents()
+      const artifactUpdate = events.find(e => e.kind === 'artifact-update')
 
-      expect(artifactUpdate).toBeDefined();
+      expect(artifactUpdate).toBeDefined()
       if (artifactUpdate && 'artifact' in artifactUpdate) {
-        const text = artifactUpdate.artifact.parts[0].text;
-        expect(text).toBeDefined();
-        expect(text.length).toBeGreaterThan(0);
+        const text = artifactUpdate.artifact.parts[0].text
+        expect(text).toBeDefined()
+        expect(text.length).toBeGreaterThan(0)
         // The message text should have been joined with newlines internally
         // The response will contain the full text
       }
-    });
+    })
 
     it('should handle 10 text parts joined with newlines (line 202)', async () => {
-      const textParts = Array.from({ length: 10 }, (_, i) => `Line ${i + 1}`);
+      const textParts = Array.from({ length: 10 }, (_, i) => `Line ${i + 1}`)
 
       const context: RequestContext = {
         taskId: 'task-1',
@@ -66,15 +62,17 @@ describe('SevenZiExecutor - Line 202 Coverage', () => {
           parts: textParts.map(text => ({ kind: 'text' as const, text })),
           createdAt: new Date().toISOString(),
         },
-      };
+      }
 
-      await executor.execute(context, eventBus);
+      await executor.execute(context, eventBus)
 
-      const events = eventBus.getEvents();
-      const statusUpdate = events.find(e => e.kind === 'status-update' && e.status.state === 'completed');
+      const events = eventBus.getEvents()
+      const statusUpdate = events.find(
+        e => e.kind === 'status-update' && e.status.state === 'completed'
+      )
 
-      expect(statusUpdate).toBeDefined();
-    });
+      expect(statusUpdate).toBeDefined()
+    })
 
     it('should handle text parts with empty strings joined with newlines (line 202)', async () => {
       const context: RequestContext = {
@@ -91,15 +89,17 @@ describe('SevenZiExecutor - Line 202 Coverage', () => {
           ],
           createdAt: new Date().toISOString(),
         },
-      };
+      }
 
-      await executor.execute(context, eventBus);
+      await executor.execute(context, eventBus)
 
-      const events = eventBus.getEvents();
-      const statusUpdate = events.find(e => e.kind === 'status-update' && e.status.state === 'completed');
+      const events = eventBus.getEvents()
+      const statusUpdate = events.find(
+        e => e.kind === 'status-update' && e.status.state === 'completed'
+      )
 
-      expect(statusUpdate).toBeDefined();
-    });
+      expect(statusUpdate).toBeDefined()
+    })
 
     it('should handle text parts with special characters joined with newlines (line 202)', async () => {
       const context: RequestContext = {
@@ -116,15 +116,17 @@ describe('SevenZiExecutor - Line 202 Coverage', () => {
           ],
           createdAt: new Date().toISOString(),
         },
-      };
+      }
 
-      await executor.execute(context, eventBus);
+      await executor.execute(context, eventBus)
 
-      const events = eventBus.getEvents();
-      const statusUpdate = events.find(e => e.kind === 'status-update' && e.status.state === 'completed');
+      const events = eventBus.getEvents()
+      const statusUpdate = events.find(
+        e => e.kind === 'status-update' && e.status.state === 'completed'
+      )
 
-      expect(statusUpdate).toBeDefined();
-    });
+      expect(statusUpdate).toBeDefined()
+    })
 
     it('should handle mixed text and non-text parts with multiple text parts (line 202)', async () => {
       const context: RequestContext = {
@@ -143,20 +145,22 @@ describe('SevenZiExecutor - Line 202 Coverage', () => {
           ],
           createdAt: new Date().toISOString(),
         },
-      };
+      }
 
-      await executor.execute(context, eventBus);
+      await executor.execute(context, eventBus)
 
-      const events = eventBus.getEvents();
-      const statusUpdate = events.find(e => e.kind === 'status-update' && e.status.state === 'completed');
+      const events = eventBus.getEvents()
+      const statusUpdate = events.find(
+        e => e.kind === 'status-update' && e.status.state === 'completed'
+      )
 
-      expect(statusUpdate).toBeDefined();
-    });
+      expect(statusUpdate).toBeDefined()
+    })
 
     it('should handle very long text parts joined with newlines (line 202)', async () => {
-      const longText1 = 'A'.repeat(1000);
-      const longText2 = 'B'.repeat(1000);
-      const longText3 = 'C'.repeat(1000);
+      const longText1 = 'A'.repeat(1000)
+      const longText2 = 'B'.repeat(1000)
+      const longText3 = 'C'.repeat(1000)
 
       const context: RequestContext = {
         taskId: 'task-1',
@@ -172,15 +176,17 @@ describe('SevenZiExecutor - Line 202 Coverage', () => {
           ],
           createdAt: new Date().toISOString(),
         },
-      };
+      }
 
-      await executor.execute(context, eventBus);
+      await executor.execute(context, eventBus)
 
-      const events = eventBus.getEvents();
-      const statusUpdate = events.find(e => e.kind === 'status-update' && e.status.state === 'completed');
+      const events = eventBus.getEvents()
+      const statusUpdate = events.find(
+        e => e.kind === 'status-update' && e.status.state === 'completed'
+      )
 
-      expect(statusUpdate).toBeDefined();
-    });
+      expect(statusUpdate).toBeDefined()
+    })
 
     it('should handle Unicode text parts joined with newlines (line 202)', async () => {
       const context: RequestContext = {
@@ -197,15 +203,17 @@ describe('SevenZiExecutor - Line 202 Coverage', () => {
           ],
           createdAt: new Date().toISOString(),
         },
-      };
+      }
 
-      await executor.execute(context, eventBus);
+      await executor.execute(context, eventBus)
 
-      const events = eventBus.getEvents();
-      const statusUpdate = events.find(e => e.kind === 'status-update' && e.status.state === 'completed');
+      const events = eventBus.getEvents()
+      const statusUpdate = events.find(
+        e => e.kind === 'status-update' && e.status.state === 'completed'
+      )
 
-      expect(statusUpdate).toBeDefined();
-    });
+      expect(statusUpdate).toBeDefined()
+    })
 
     it('should handle mixed case text parts joined with newlines (line 202)', async () => {
       const context: RequestContext = {
@@ -223,14 +231,16 @@ describe('SevenZiExecutor - Line 202 Coverage', () => {
           ],
           createdAt: new Date().toISOString(),
         },
-      };
+      }
 
-      await executor.execute(context, eventBus);
+      await executor.execute(context, eventBus)
 
-      const events = eventBus.getEvents();
-      const statusUpdate = events.find(e => e.kind === 'status-update' && e.status.state === 'completed');
+      const events = eventBus.getEvents()
+      const statusUpdate = events.find(
+        e => e.kind === 'status-update' && e.status.state === 'completed'
+      )
 
-      expect(statusUpdate).toBeDefined();
-    });
-  });
-});
+      expect(statusUpdate).toBeDefined()
+    })
+  })
+})

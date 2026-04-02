@@ -1,11 +1,11 @@
-'use client';
+'use client'
 
 /**
  * @fileoverview 性能优化 Hook
  * @description 提供性能监控和优化相关的 React Hooks
  */
 
-import { useState, useEffect, useRef, useSyncExternalStore } from 'react';
+import { useState, useEffect, useRef, useSyncExternalStore } from 'react'
 
 /**
  * 视口检测 Hook
@@ -13,25 +13,25 @@ import { useState, useEffect, useRef, useSyncExternalStore } from 'react';
  * @returns [ref, isIntersecting]
  */
 export function useInView(options: IntersectionObserverInit = {}) {
-  const ref = useRef<Element>(null);
-  const [isIntersecting, setIsIntersecting] = useState(false);
+  const ref = useRef<Element>(null)
+  const [isIntersecting, setIsIntersecting] = useState(false)
 
   useEffect(() => {
-    const element = ref.current;
-    if (!element) return;
+    const element = ref.current
+    if (!element) return
 
     const observer = new IntersectionObserver(
       ([entry]) => {
-        setIsIntersecting(entry.isIntersecting);
+        setIsIntersecting(entry.isIntersecting)
       },
       { rootMargin: '100px', threshold: 0.1, ...options }
-    );
+    )
 
-    observer.observe(element);
-    return () => observer.disconnect();
-  }, [options]);
+    observer.observe(element)
+    return () => observer.disconnect()
+  }, [options])
 
-  return [ref, isIntersecting] as const;
+  return [ref, isIntersecting] as const
 }
 
 /**
@@ -39,22 +39,19 @@ export function useInView(options: IntersectionObserverInit = {}) {
  * @param importFn 动态导入函数
  * @param delay 预加载延迟(ms)
  */
-export function usePreload(
-  importFn: () => Promise<unknown>,
-  delay: number = 2000
-) {
-  const hasPreloaded = useRef(false);
+export function usePreload(importFn: () => Promise<unknown>, delay: number = 2000) {
+  const hasPreloaded = useRef(false)
 
   useEffect(() => {
-    if (hasPreloaded.current) return;
+    if (hasPreloaded.current) return
 
     const timer = setTimeout(() => {
-      importFn();
-      hasPreloaded.current = true;
-    }, delay);
+      importFn()
+      hasPreloaded.current = true
+    }, delay)
 
-    return () => clearTimeout(timer);
-  }, [importFn, delay]);
+    return () => clearTimeout(timer)
+  }, [importFn, delay])
 }
 
 /**
@@ -63,14 +60,14 @@ export function usePreload(
  * @param delay 延迟时间(ms)
  */
 export function useDebounce<T>(value: T, delay: number = 300): T {
-  const [debouncedValue, setDebouncedValue] = useState(value);
+  const [debouncedValue, setDebouncedValue] = useState(value)
 
   useEffect(() => {
-    const timer = setTimeout(() => setDebouncedValue(value), delay);
-    return () => clearTimeout(timer);
-  }, [value, delay]);
+    const timer = setTimeout(() => setDebouncedValue(value), delay)
+    return () => clearTimeout(timer)
+  }, [value, delay])
 
-  return debouncedValue;
+  return debouncedValue
 }
 
 /**
@@ -79,27 +76,30 @@ export function useDebounce<T>(value: T, delay: number = 300): T {
  * @param limit 时间限制(ms)
  */
 export function useThrottle<T>(value: T, limit: number = 100): T {
-  const [throttledValue, setThrottledValue] = useState(value);
-  const lastRan = useRef<number | null>(null);
+  const [throttledValue, setThrottledValue] = useState(value)
+  const lastRan = useRef<number | null>(null)
 
   useEffect(() => {
     // 初始化 lastRan
     if (lastRan.current === null) {
-      lastRan.current = Date.now();
+      lastRan.current = Date.now()
     }
 
-    const handler = setTimeout(() => {
-      const now = Date.now();
-      if (now - lastRan.current! >= limit) {
-        setThrottledValue(value);
-        lastRan.current = now;
-      }
-    }, limit - (Date.now() - lastRan.current));
+    const handler = setTimeout(
+      () => {
+        const now = Date.now()
+        if (now - lastRan.current! >= limit) {
+          setThrottledValue(value)
+          lastRan.current = now
+        }
+      },
+      limit - (Date.now() - lastRan.current)
+    )
 
-    return () => clearTimeout(handler);
-  }, [value, limit]);
+    return () => clearTimeout(handler)
+  }, [value, limit])
 
-  return throttledValue;
+  return throttledValue
 }
 
 /**
@@ -115,29 +115,29 @@ export function useDevicePerformance() {
         deviceMemory: 4,
         hardwareConcurrency: 4,
         connectionType: 'unknown',
-      };
+      }
     }
 
     const nav = navigator as Navigator & {
-      deviceMemory?: number;
-      hardwareConcurrency?: number;
-      connection?: { effectiveType?: string };
-    };
+      deviceMemory?: number
+      hardwareConcurrency?: number
+      connection?: { effectiveType?: string }
+    }
 
-    const deviceMemory = nav.deviceMemory || 4;
-    const hardwareConcurrency = nav.hardwareConcurrency || 4;
-    const connectionType = nav.connection?.effectiveType || 'unknown';
-    const isLowEnd = deviceMemory < 4 || hardwareConcurrency < 4;
+    const deviceMemory = nav.deviceMemory || 4
+    const hardwareConcurrency = nav.hardwareConcurrency || 4
+    const connectionType = nav.connection?.effectiveType || 'unknown'
+    const isLowEnd = deviceMemory < 4 || hardwareConcurrency < 4
 
     return {
       isLowEnd,
       deviceMemory,
       hardwareConcurrency,
       connectionType,
-    };
-  });
+    }
+  })
 
-  return performance;
+  return performance
 }
 
 /**
@@ -149,35 +149,37 @@ export function useUserPreferences() {
     prefersReducedMotion: false,
     prefersDarkMode: false,
     prefersDataSaver: false,
-  });
+  })
 
   useEffect(() => {
-    if (typeof window === 'undefined') return;
+    if (typeof window === 'undefined') return
 
-    const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)');
-    const darkMode = window.matchMedia('(prefers-color-scheme: dark)');
-    const dataSaver = (navigator as Navigator & { connection?: { saveData?: boolean } }).connection?.saveData || false;
+    const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)')
+    const darkMode = window.matchMedia('(prefers-color-scheme: dark)')
+    const dataSaver =
+      (navigator as Navigator & { connection?: { saveData?: boolean } }).connection?.saveData ||
+      false
 
     const updatePreferences = () => {
       setPreferences({
         prefersReducedMotion: reducedMotion.matches,
         prefersDarkMode: darkMode.matches,
         prefersDataSaver: dataSaver,
-      });
-    };
+      })
+    }
 
-    updatePreferences();
+    updatePreferences()
 
-    reducedMotion.addEventListener('change', updatePreferences);
-    darkMode.addEventListener('change', updatePreferences);
+    reducedMotion.addEventListener('change', updatePreferences)
+    darkMode.addEventListener('change', updatePreferences)
 
     return () => {
-      reducedMotion.removeEventListener('change', updatePreferences);
-      darkMode.removeEventListener('change', updatePreferences);
-    };
-  }, []);
+      reducedMotion.removeEventListener('change', updatePreferences)
+      darkMode.removeEventListener('change', updatePreferences)
+    }
+  }, [])
 
-  return preferences;
+  return preferences
 }
 
 /**
@@ -191,7 +193,7 @@ export function useMounted() {
     () => () => {},
     () => true,
     () => false
-  );
+  )
 }
 
 /**
@@ -199,30 +201,30 @@ export function useMounted() {
  * @param debounceMs 防抖延迟
  */
 export function useWindowSize(debounceMs: number = 100) {
-  const [size, setSize] = useState({ width: 0, height: 0 });
+  const [size, setSize] = useState({ width: 0, height: 0 })
 
   useEffect(() => {
-    let timeoutId: NodeJS.Timeout;
+    let timeoutId: NodeJS.Timeout
 
     const updateSize = () => {
-      clearTimeout(timeoutId);
+      clearTimeout(timeoutId)
       timeoutId = setTimeout(() => {
         setSize({
           width: window.innerWidth,
           height: window.innerHeight,
-        });
-      }, debounceMs);
-    };
+        })
+      }, debounceMs)
+    }
 
-    updateSize();
-    window.addEventListener('resize', updateSize);
+    updateSize()
+    window.addEventListener('resize', updateSize)
     return () => {
-      window.removeEventListener('resize', updateSize);
-      clearTimeout(timeoutId);
-    };
-  }, [debounceMs]);
+      window.removeEventListener('resize', updateSize)
+      clearTimeout(timeoutId)
+    }
+  }, [debounceMs])
 
-  return size;
+  return size
 }
 
 /**
@@ -230,26 +232,26 @@ export function useWindowSize(debounceMs: number = 100) {
  * @param throttleMs 节流延迟
  */
 export function useScrollPosition(throttleMs: number = 100) {
-  const [scroll, setScroll] = useState({ x: 0, y: 0 });
-  const lastCall = useRef(0);
+  const [scroll, setScroll] = useState({ x: 0, y: 0 })
+  const lastCall = useRef(0)
 
   useEffect(() => {
     const handleScroll = () => {
-      const now = Date.now();
-      if (now - lastCall.current < throttleMs) return;
+      const now = Date.now()
+      if (now - lastCall.current < throttleMs) return
 
-      lastCall.current = now;
+      lastCall.current = now
       setScroll({
         x: window.scrollX,
         y: window.scrollY,
-      });
-    };
+      })
+    }
 
-    window.addEventListener('scroll', handleScroll, { passive: true });
-    return () => window.removeEventListener('scroll', handleScroll);
-  }, [throttleMs]);
+    window.addEventListener('scroll', handleScroll, { passive: true })
+    return () => window.removeEventListener('scroll', handleScroll)
+  }, [throttleMs])
 
-  return scroll;
+  return scroll
 }
 
 const performanceHooks = {
@@ -262,6 +264,6 @@ const performanceHooks = {
   useMounted,
   useWindowSize,
   useScrollPosition,
-};
+}
 
-export default performanceHooks;
+export default performanceHooks

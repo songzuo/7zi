@@ -8,31 +8,35 @@
 
 ### 1. 核心组件
 
-| 组件 | 路径 | 功能 |
-|------|------|------|
+| 组件   | 路径                           | 功能                              |
+| ------ | ------------------------------ | --------------------------------- |
 | Button | `src/components/ui/Button.tsx` | 支持 6 种变体、5 种尺寸、加载状态 |
-| Input | `src/components/ui/Input.tsx` | 多种输入类型、表单验证、密码切换 |
-| Card | `src/components/ui/Card.tsx` | 灵活布局、阴影级别、7 个子组件 |
-| Modal | `src/components/ui/Modal.tsx` | 5 种尺寸、动画、键盘导航、无障碍 |
+| Input  | `src/components/ui/Input.tsx`  | 多种输入类型、表单验证、密码切换  |
+| Card   | `src/components/ui/Card.tsx`   | 灵活布局、阴影级别、7 个子组件    |
+| Modal  | `src/components/ui/Modal.tsx`  | 5 种尺寸、动画、键盘导航、无障碍  |
 
 ### 2. 设计 Token
 
 #### 颜色系统 (`src/styles/tokens.css`)
+
 - 主色调：10 个层级 (50-900)
 - 灰色系：10 个层级
 - 语义颜色：成功、警告、错误、信息（各 4 个层级）
 
 #### 字体系统
+
 - 2 种字体族（无衬线、等宽）
 - 9 个字号（12px - 48px）
 - 4 个字重（400-700）
 - 3 种行高（1.25, 1.5, 1.75）
 
 #### 间距系统
+
 - 基于 4px 网格
 - 13 个间距值（0 - 96px）
 
 #### 断点系统
+
 - 5 个响应式断点（640px - 1536px）
 
 ### 3. Storybook 故事
@@ -40,12 +44,14 @@
 所有组件都有完整的故事文件，展示各种变体和状态：
 
 #### 组件故事 (`src/stories/ui/`)
+
 - `Button.stories.tsx` - 8 个故事（变体、尺寸、状态）
 - `Input.stories.tsx` - 10 个故事（类型、状态、表单）
 - `Card.stories.tsx` - 7 个故事（布局、网格、示例）
 - `Modal.stories.tsx` - 10 个故事（尺寸、表单、长内容）
 
 #### 设计 Token 故事 (`src/stories/tokens/`)
+
 - `Colors.stories.tsx` - 6 个故事（颜色、对比度、调色板）
 - `Typography.stories.tsx` - 7 个故事（字体、字重、排版）
 - `Spacing.stories.tsx` - 5 个故事（标尺、示例、参考）
@@ -54,11 +60,13 @@
 ### 4. 文档站点
 
 #### 设计系统主页 (`src/app/design-system/page.tsx`)
+
 - 快速导航卡片
 - 安装和使用指南
 - 组件、Token、响应式设计入口
 
 #### 详细文档 (`docs/DESIGN_SYSTEM.md`)
+
 - 设计原则（一致性、可访问性、响应式、性能）
 - 设计 Token 说明
 - 组件使用指南
@@ -96,7 +104,7 @@ npm run storybook
 ### 在项目中使用组件
 
 ```tsx
-import { Button, Input, Card } from '@/components/ui';
+import { Button, Input, Card } from '@/components/ui'
 
 export default function MyComponent() {
   return (
@@ -106,7 +114,7 @@ export default function MyComponent() {
         提交
       </Button>
     </Card>
-  );
+  )
 }
 ```
 
@@ -125,9 +133,7 @@ export default function MyComponent() {
 #### Tailwind 方式
 
 ```tsx
-<div className="text-blue-600 text-lg p-4">
-  使用 Tailwind 类名
-</div>
+<div className="p-4 text-lg text-blue-600">使用 Tailwind 类名</div>
 ```
 
 ## 文件结构
@@ -175,30 +181,36 @@ export default function MyComponent() {
 ## 特性亮点
 
 ### ✅ 完整的设计系统
+
 - 从颜色到组件的完整设计体系
 - 一致的设计语言
 
 ### ✅ 交互式文档
+
 - Storybook 提供实时预览
 - 每个组件都有多个示例
 - 支持组件属性控制
 
 ### ✅ 响应式设计
+
 - 移动优先的断点系统
 - 所有组件支持响应式
 - 实时断点检测器
 
 ### ✅ 无障碍支持
+
 - 遵循 WCAG 2.1 AA 标准
 - 键盘导航支持
 - ARIA 标签支持
 
 ### ✅ TypeScript 支持
+
 - 完整的类型定义
 - 自动类型推导
 - IntelliSense 支持
 
 ### ✅ 主题系统
+
 - 亮色/暗色主题
 - CSS 变量驱动
 - Tailwind 集成
@@ -208,6 +220,7 @@ export default function MyComponent() {
 ### 扩展组件库
 
 可以考虑添加以下组件：
+
 - Select - 下拉选择
 - Checkbox - 复选框
 - Radio - 单选框
@@ -249,6 +262,7 @@ export default function MyComponent() {
 ## 总结
 
 已成功创建完整的设计系统文档站点，包括：
+
 - ✅ 4 个核心 UI 组件（Button, Input, Card, Modal）
 - ✅ 完整的设计 Token 系统（颜色、字体、间距、断点）
 - ✅ 34 个 Storybook 故事文件

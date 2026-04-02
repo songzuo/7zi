@@ -1,9 +1,10 @@
+import { NextRequest, NextResponse } from 'next/server'
 /**
  * API Route for Data Import
  * Supports CSV and JSON import to database tables
  */
 
-import { z } from 'zod';
+import { z } from 'zod'
 import {
   _importData as importData,
   parseCSV,
@@ -13,28 +14,28 @@ import {
   type ImportMode,
   type ImportOptions,
   type ExportResult,
-} from '@/lib/data-import-export';
-import { logger } from '@/lib/logger';
+} from '@/lib/data-import-export'
+import { logger } from '@/lib/logger'
 
 // ========================================
 // Types
 // ========================================
 
 export interface ImportExample {
-  description: string;
+  description: string
   body: {
-    format: 'csv' | 'json';
-    mode: 'insert' | 'update' | 'upsert' | 'replace';
-    data: string | Record<string, unknown>;
-  };
+    format: 'csv' | 'json'
+    mode: 'insert' | 'update' | 'upsert' | 'replace'
+    data: string | Record<string, unknown>
+  }
 }
 
 export interface ImportInfoResponse {
-  success: boolean;
-  message: string;
-  importModes: Record<string, string>;
-  usage: Record<string, unknown>;
-  examples: ImportExample[];
+  success: boolean
+  message: string
+  importModes: Record<string, string>
+  usage: Record<string, unknown>
+  examples: ImportExample[]
 }
 
 /**
@@ -49,7 +50,7 @@ const importRequestSchema = z.object({
   createBackup: z.boolean().default(true),
   backupName: z.string().optional(),
   data: z.union([z.string(), z.record(z.string(), z.unknown())]), // CSV: string, JSON: Record
-});
+})
 
 /**
  * GET /api/data/import - Show import options and usage
@@ -114,36 +115,33 @@ export async function GET(request: NextRequest) {
           },
         },
       ],
-    });
-  } catch (_error) {
-    const message = error instanceof Error ? error.message : String(error);
+    })
+  } catch (error) {
+    const message = error instanceof Error ? error.message : String(error)
     logger.error('Failed to get import info', error, {
       category: 'data-import',
-    });
-    return NextResponse.json(
-      { success: false, error: message },
-      { status: 500 },
-    );
+    })
+    return NextResponse.json({ success: false, error: message }, { status: 500 })
   }
 }
 
 /**
  * POST /api/data/import - Import data
  */
-export async function POST(_request: NextRequest) {
-  let backupName: string | undefined;
+export async function POST(request: NextRequest) {
+  let backupName: string | undefined
 
   try {
-    const body = await request.json();
+    const body = await request.json()
 
     // Validate request structure
-    const validated = importRequestSchema.parse(body);
+    const validated = importRequestSchema.parse(body)
 
     // Parse data based on format
-    let parsedData: ExportResult;
+    let parsedData: ExportResult
 
     if (validated.format === 'json') {
-      parsedData = parseJSON(validated.data as string);
+      parsedData = parseJSON(validated.data as string)
     } else {
       parsedData = {
         format: 'csv',
@@ -151,18 +149,18 @@ export async function POST(_request: NextRequest) {
         data: parseCSV(validated.data as string),
         stats: { totalRows: 0, tables: {} },
         exportedAt: new Date().toISOString(),
-      };
-      parsedData.tables = Object.keys(parsedData.data);
+      }
+      parsedData.tables = Object.keys(parsedData.data)
       parsedData.stats.totalRows = Object.values(parsedData.data).reduce(
         (sum: number, rows: unknown) => sum + (Array.isArray(rows) ? rows.length : 0),
-        0,
-      );
+        0
+      )
       parsedData.stats.tables = Object.fromEntries(
         Object.entries(parsedData.data).map(([table, rows]) => [
           table,
           Array.isArray(rows) ? rows.length : 0,
-        ]),
-      );
+        ])
+      )
     }
 
     // Validate import options
@@ -172,9 +170,9 @@ export async function POST(_request: NextRequest) {
       dryRun: validated.dryRun,
       skipDuplicates: validated.skipDuplicates,
       batchSize: validated.batchSize,
-    };
+    }
 
-    const validation = validateImportOptions(options);
+    const validation = validateImportOptions(options)
     if (!validation.valid) {
       return NextResponse.json(
         {
@@ -182,8 +180,8 @@ export async function POST(_request: NextRequest) {
           error: 'Invalid import options',
           details: validation.errors,
         },
-        { status: 400 },
-      );
+        { status: 400 }
+      )
     }
 
     logger.info('Processing data import request', {
@@ -192,18 +190,18 @@ export async function POST(_request: NextRequest) {
       mode: options.mode,
       dryRun: options.dryRun,
       tables: parsedData.tables,
-    });
+    })
 
     // Create backup if requested and not a dry run
     if (validated.createBackup && !validated.dryRun) {
-      backupName = await createBackup(validated.backupName);
+      backupName = await createBackup(validated.backupName)
       logger.info(`Created backup before import: ${backupName}`, {
         category: 'data-import',
-      });
+      })
     }
 
     // Import data
-    const result = await importData(parsedData, options);
+    const result = await importData(parsedData, options)
 
     // Return result
     return NextResponse.json({
@@ -217,14 +215,14 @@ export async function POST(_request: NextRequest) {
         : result.success
           ? 'Data imported successfully'
           : 'Data imported with errors',
-    });
-  } catch (_error) {
-    const message = error instanceof Error ? error.message : String(error);
+    })
+  } catch (error) {
+    const message = error instanceof Error ? error.message : String(error)
 
     logger.error('Failed to import data', error, {
       category: 'data-import',
       backup: backupName,
-    });
+    })
 
     // Handle Zod validation errors
     if (error instanceof z.ZodError) {
@@ -234,8 +232,8 @@ export async function POST(_request: NextRequest) {
           error: 'Validation error',
           details: error.issues,
         },
-        { status: 400 },
-      );
+        { status: 400 }
+      )
     }
 
     // Handle CSV/JSON parse errors
@@ -246,8 +244,8 @@ export async function POST(_request: NextRequest) {
           error: 'Failed to parse data',
           details: message,
         },
-        { status: 400 },
-      );
+        { status: 400 }
+      )
     }
 
     return NextResponse.json(
@@ -256,7 +254,7 @@ export async function POST(_request: NextRequest) {
         error: message,
         backup: backupName,
       },
-      { status: 500 },
-    );
+      { status: 500 }
+    )
   }
 }

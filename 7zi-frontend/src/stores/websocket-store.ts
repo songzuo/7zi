@@ -11,8 +11,8 @@
  * - 重连策略
  */
 
-import { create } from 'zustand';
-import type { Socket } from 'socket.io-client';
+import { create } from 'zustand'
+import type { Socket } from 'socket.io-client'
 
 /**
  * 连接状态
@@ -22,30 +22,30 @@ export type ConnectionStatus =
   | 'connected'
   | 'disconnected'
   | 'reconnecting'
-  | 'error';
+  | 'error'
 
 /**
  * WebSocket 消息
  */
 export interface WebSocketMessage {
-  id: string;
-  type: string;
-  payload: unknown;
-  timestamp: number;
-  direction: 'incoming' | 'outgoing';
+  id: string
+  type: string
+  payload: unknown
+  timestamp: number
+  direction: 'incoming' | 'outgoing'
 }
 
 /**
  * 连接统计
  */
 export interface ConnectionStats {
-  messagesReceived: number;
-  messagesSent: number;
-  reconnectAttempts: number;
-  lastConnected: number | null;
-  lastDisconnected: number | null;
-  totalUptime: number; // 总连接时间 (毫秒)
-  averageLatency: number;
+  messagesReceived: number
+  messagesSent: number
+  reconnectAttempts: number
+  lastConnected: number | null
+  lastDisconnected: number | null
+  totalUptime: number // 总连接时间 (毫秒)
+  averageLatency: number
 }
 
 /**
@@ -53,41 +53,41 @@ export interface ConnectionStats {
  */
 export interface WebSocketState {
   // 连接状态
-  status: ConnectionStatus;
-  socket: Socket | null;
-  url: string | null;
+  status: ConnectionStatus
+  socket: Socket | null
+  url: string | null
 
   // 延迟
-  lastPing: number;
-  latency: number;
+  lastPing: number
+  latency: number
 
   // 消息
-  messages: WebSocketMessage[];
-  maxMessages: number;
+  messages: WebSocketMessage[]
+  maxMessages: number
 
   // 统计
-  stats: ConnectionStats;
+  stats: ConnectionStats
 
   // 重连配置
-  reconnectAttempts: number;
-  maxReconnectAttempts: number;
-  reconnectDelay: number;
+  reconnectAttempts: number
+  maxReconnectAttempts: number
+  reconnectDelay: number
 
   // 操作
-  connect: (url: string) => Promise<void>;
-  disconnect: () => void;
-  reconnect: () => Promise<void>;
+  connect: (url: string) => Promise<void>
+  disconnect: () => void
+  reconnect: () => Promise<void>
 
   // 消息操作
-  sendMessage: (type: string, payload: unknown) => void;
-  clearMessages: () => void;
+  sendMessage: (type: string, payload: unknown) => void
+  clearMessages: () => void
 
   // 内部方法
-  _setSocket: (socket: Socket | null) => void;
-  _setStatus: (status: ConnectionStatus) => void;
-  _addMessage: (message: WebSocketMessage) => void;
-  _updateStats: (stats: Partial<ConnectionStats>) => void;
-  _reset: () => void;
+  _setSocket: (socket: Socket | null) => void
+  _setStatus: (status: ConnectionStatus) => void
+  _addMessage: (message: WebSocketMessage) => void
+  _updateStats: (stats: Partial<ConnectionStats>) => void
+  _reset: () => void
 }
 
 /**
@@ -101,7 +101,7 @@ const initialStats: ConnectionStats = {
   lastDisconnected: null,
   totalUptime: 0,
   averageLatency: 0,
-};
+}
 
 /**
  * WebSocket 状态 Store
@@ -126,18 +126,18 @@ export const useWebSocketStore = create<WebSocketState>((set, get) => ({
    * 连接 WebSocket
    */
   connect: async (url: string) => {
-    set({ status: 'connecting', url });
+    set({ status: 'connecting', url })
 
     try {
       // 动态导入 socket.io-client (避免 SSR 问题)
-      const { io } = await import('socket.io-client');
+      const { io } = await import('socket.io-client')
 
       const socket = io(url, {
         transports: ['websocket', 'polling'],
         reconnection: true,
         reconnectionAttempts: get().maxReconnectAttempts,
         reconnectionDelay: get().reconnectDelay,
-      });
+      })
 
       // 连接成功
       socket.on('connect', () => {
@@ -145,34 +145,34 @@ export const useWebSocketStore = create<WebSocketState>((set, get) => ({
           status: 'connected',
           socket,
           reconnectAttempts: 0,
-        });
+        })
         get()._updateStats({
           lastConnected: Date.now(),
-        });
-        console.log('[WebSocket] Connected to', url);
-      });
+        })
+        console.log('[WebSocket] Connected to', url)
+      })
 
       // 连接断开
-      socket.on('disconnect', (reason) => {
-        set({ status: 'disconnected' });
+      socket.on('disconnect', reason => {
+        set({ status: 'disconnected' })
         get()._updateStats({
           lastDisconnected: Date.now(),
-        });
-        console.log('[WebSocket] Disconnected:', reason);
-      });
+        })
+        console.log('[WebSocket] Disconnected:', reason)
+      })
 
       // 连接错误
-      socket.on('connect_error', (error) => {
-        const attempts = get().reconnectAttempts + 1;
+      socket.on('connect_error', error => {
+        const attempts = get().reconnectAttempts + 1
         set({
           status: attempts >= get().maxReconnectAttempts ? 'error' : 'reconnecting',
           reconnectAttempts: attempts,
-        });
+        })
         get()._updateStats({
           reconnectAttempts: attempts,
-        });
-        console.error('[WebSocket] Connection error:', error);
-      });
+        })
+        console.error('[WebSocket] Connection error:', error)
+      })
 
       // 接收消息
       socket.on('message', (data: { type: string; payload: unknown }) => {
@@ -182,26 +182,26 @@ export const useWebSocketStore = create<WebSocketState>((set, get) => ({
           payload: data.payload,
           timestamp: Date.now(),
           direction: 'incoming',
-        });
+        })
         get()._updateStats({
           messagesReceived: get().stats.messagesReceived + 1,
-        });
-      });
+        })
+      })
 
       // Ping/Pong 测延迟
       socket.on('pong', () => {
-        const latency = Date.now() - get().lastPing;
-        set({ latency });
+        const latency = Date.now() - get().lastPing
+        set({ latency })
         get()._updateStats({
           averageLatency: (get().stats.averageLatency + latency) / 2,
-        });
-      });
+        })
+      })
 
-      set({ socket });
+      set({ socket })
     } catch (error) {
-      set({ status: 'error' });
-      console.error('[WebSocket] Failed to connect:', error);
-      throw error;
+      set({ status: 'error' })
+      console.error('[WebSocket] Failed to connect:', error)
+      throw error
     }
   },
 
@@ -209,17 +209,17 @@ export const useWebSocketStore = create<WebSocketState>((set, get) => ({
    * 断开连接
    */
   disconnect: () => {
-    const { socket } = get();
+    const { socket } = get()
     if (socket) {
-      socket.disconnect();
+      socket.disconnect()
       set({
         socket: null,
         status: 'disconnected',
         url: null,
-      });
+      })
       get()._updateStats({
         lastDisconnected: Date.now(),
-      });
+      })
     }
   },
 
@@ -227,16 +227,16 @@ export const useWebSocketStore = create<WebSocketState>((set, get) => ({
    * 重新连接
    */
   reconnect: async () => {
-    const { url, reconnectAttempts, maxReconnectAttempts } = get();
+    const { url, reconnectAttempts, maxReconnectAttempts } = get()
 
     if (reconnectAttempts >= maxReconnectAttempts) {
-      set({ status: 'error' });
-      throw new Error('Max reconnect attempts reached');
+      set({ status: 'error' })
+      throw new Error('Max reconnect attempts reached')
     }
 
     if (url) {
-      set({ status: 'reconnecting' });
-      await get().connect(url);
+      set({ status: 'reconnecting' })
+      await get().connect(url)
     }
   },
 
@@ -244,10 +244,10 @@ export const useWebSocketStore = create<WebSocketState>((set, get) => ({
    * 发送消息
    */
   sendMessage: (type: string, payload: unknown) => {
-    const { socket, status } = get();
+    const { socket, status } = get()
 
     if (socket && status === 'connected') {
-      socket.emit('message', { type, payload });
+      socket.emit('message', { type, payload })
 
       // 记录发出的消息
       get()._addMessage({
@@ -256,13 +256,13 @@ export const useWebSocketStore = create<WebSocketState>((set, get) => ({
         payload,
         timestamp: Date.now(),
         direction: 'outgoing',
-      });
+      })
 
       get()._updateStats({
         messagesSent: get().stats.messagesSent + 1,
-      });
+      })
     } else {
-      console.warn('[WebSocket] Cannot send message: not connected');
+      console.warn('[WebSocket] Cannot send message: not connected')
     }
   },
 
@@ -270,39 +270,39 @@ export const useWebSocketStore = create<WebSocketState>((set, get) => ({
    * 清除消息
    */
   clearMessages: () => {
-    set({ messages: [] });
+    set({ messages: [] })
   },
 
   /**
    * 内部: 设置 Socket 实例
    */
   _setSocket: (socket: Socket | null) => {
-    set({ socket });
+    set({ socket })
   },
 
   /**
    * 内部: 设置状态
    */
   _setStatus: (status: ConnectionStatus) => {
-    set({ status });
+    set({ status })
   },
 
   /**
    * 内部: 添加消息
    */
   _addMessage: (message: WebSocketMessage) => {
-    set((state) => ({
+    set(state => ({
       messages: [message, ...state.messages].slice(0, state.maxMessages),
-    }));
+    }))
   },
 
   /**
    * 内部: 更新统计
    */
   _updateStats: (stats: Partial<ConnectionStats>) => {
-    set((state) => ({
+    set(state => ({
       stats: { ...state.stats, ...stats },
-    }));
+    }))
   },
 
   /**
@@ -321,16 +321,15 @@ export const useWebSocketStore = create<WebSocketState>((set, get) => ({
       reconnectAttempts: 0,
       maxReconnectAttempts: 5,
       reconnectDelay: 1000,
-    });
+    })
   },
-}));
+}))
 
 /**
  * 选择器 - 用于性能优化
  */
-export const selectStatus = (state: WebSocketState) => state.status;
-export const selectIsConnected = (state: WebSocketState) =>
-  state.status === 'connected';
-export const selectMessages = (state: WebSocketState) => state.messages;
-export const selectStats = (state: WebSocketState) => state.stats;
-export const selectLatency = (state: WebSocketState) => state.latency;
+export const selectStatus = (state: WebSocketState) => state.status
+export const selectIsConnected = (state: WebSocketState) => state.status === 'connected'
+export const selectMessages = (state: WebSocketState) => state.messages
+export const selectStats = (state: WebSocketState) => state.stats
+export const selectLatency = (state: WebSocketState) => state.latency

@@ -18,6 +18,7 @@
 ## 1️⃣ Dockerfile.production.optimized 验证
 
 ### 📁 文件位置
+
 ```
 /root/.openclaw/workspace/Dockerfile.production.optimized
 ```
@@ -25,6 +26,7 @@
 ### ✅ 验证结果: **完整且优化**
 
 #### 优点
+
 - ✅ **多阶段构建** - 正确实现 4 阶段构建（base → deps → builder → runner）
 - ✅ **基础镜像优化** - 使用 `node:22-slim` 减小镜像体积
 - ✅ **层合并优化** - 系统依赖、环境变量、用户创建等操作合并到单一层
@@ -35,6 +37,7 @@
 - ✅ **资源限制** - 配置了合理的 NODE_OPTIONS 内存限制
 
 #### 配置详情
+
 ```dockerfile
 # 多阶段构建阶段
 Stage 1: base     - 系统依赖安装
@@ -61,6 +64,7 @@ Stage 4: runner   - 运行时（最小化镜像）
 ```
 
 #### 建议优化
+
 ⚠️ **轻微**: 考虑添加 `--production-only` 标志以进一步减小镜像
 
 ---
@@ -68,6 +72,7 @@ Stage 4: runner   - 运行时（最小化镜像）
 ## 2️⃣ docker-compose.prod.yml 验证
 
 ### 📁 文件位置
+
 ```
 /root/.openclaw/workspace/docker-compose.prod.yml
 ```
@@ -77,17 +82,19 @@ Stage 4: runner   - 运行时（最小化镜像）
 #### 配置分析
 
 ##### Next.js 容器 (7zi-frontend)
+
 ```yaml
 build:
-  dockerfile: Dockerfile.production  # ❌ 应改为 Dockerfile.production.optimized
+  dockerfile: Dockerfile.production # ❌ 应改为 Dockerfile.production.optimized
 ```
 
-**问题**: ❌ **严重** -  docker-compose 引用的 Dockerfile 与验证的优化版本不一致
+**问题**: ❌ **严重** - docker-compose 引用的 Dockerfile 与验证的优化版本不一致
 
 - 当前引用: `Dockerfile.production`
 - 应该引用: `Dockerfile.production.optimized`
 
 #### 优点
+
 - ✅ **环境变量完整** - 定义了所有必需的环境变量
 - ✅ **卷挂载正确** - 持久化数据和日志目录
 - ✅ **资源限制合理** - CPU 限制 1核，内存限制 512MB
@@ -97,13 +104,15 @@ build:
 - ✅ **网络隔离** - 使用独立网络 7zi-network
 
 ##### Nginx 容器
+
 ```yaml
 depends_on:
   7zi-frontend:
-    condition: service_healthy  # ✅ 依赖健康检查
+    condition: service_healthy # ✅ 依赖健康检查
 ```
 
 ✅ **优点**:
+
 - 正确依赖前端服务的健康状态
 - 资源限制合理（CPU 0.5核，内存 256MB）
 - SSL 证书挂载正确
@@ -112,6 +121,7 @@ depends_on:
 #### 需要修复的问题
 
 **问题 #1**: Dockerfile 路径错误
+
 ```yaml
 # 当前（错误）
 build:
@@ -129,6 +139,7 @@ build:
 ## 3️⃣ Nginx 配置验证
 
 ### 📁 文件位置
+
 ```
 /root/.openclaw/workspace/nginx/nginx.conf
 /root/.openclaw/workspace/nginx/nginx-optimized.conf
@@ -137,12 +148,14 @@ build:
 ### ✅ 验证结果: **完整且优化**
 
 #### 配置文件数量
+
 - `nginx.conf` - 完整的主配置文件
 - `nginx-optimized.conf` - 针对 Docker 环境优化的配置
 
 #### nginx-optimized.conf 优点
 
 ##### 1. SSL/TLS 配置 ✅
+
 ```nginx
 ssl_protocols TLSv1.2 TLSv1.3;           # 现代协议
 ssl_ciphers ECDHE-ECDSA-AES128-GCM-SHA256...  # 强加密套件
@@ -152,6 +165,7 @@ ssl_stapling on;                          # OCSP Stapling
 ```
 
 ##### 2. 安全头配置 ✅
+
 ```nginx
 Strict-Transport-Security "max-age=63072000; includeSubDomains; preload"
 X-Frame-Options "SAMEORIGIN"
@@ -162,6 +176,7 @@ Permissions-Policy "camera=(), microphone=(), geolocation=()"
 ```
 
 ##### 3. 静态资源缓存 ✅
+
 ```nginx
 # Next.js 静态资源（带哈希）
 location /_next/static/ {
@@ -184,6 +199,7 @@ location /api/ {
 ```
 
 ##### 4. 性能优化 ✅
+
 ```nginx
 gzip on;                    # Gzip 压缩
 gzip_comp_level 6;         # 压缩级别
@@ -194,6 +210,7 @@ worker_connections 4096;   # 连接数
 ```
 
 ##### 5. 反向代理配置 ✅
+
 ```nginx
 upstream 7zi_frontend {
     server 7zi-frontend:3000;
@@ -203,6 +220,7 @@ upstream 7zi_frontend {
 ```
 
 ##### 6. 限流保护 ✅
+
 ```nginx
 limit_req_zone $binary_remote_addr zone=api_limit:10m rate=10r/s;
 limit_req_zone $binary_remote_addr zone=general_limit:10m rate=30r/s;
@@ -211,6 +229,7 @@ limit_req_zone $binary_remote_addr zone=general_limit:10m rate=30r/s;
 #### Next.js 静态导出一致性 ✅
 
 Next.js 配置（从备份文件验证）:
+
 ```typescript
 output: 'standalone'  // ✅ 与 Dockerfile 的复制路径一致
 images: {
@@ -219,6 +238,7 @@ images: {
 ```
 
 Nginx 路由匹配:
+
 - ✅ `/_next/static/` - Next.js 静态资源
 - ✅ `/_next/image` - Next.js 图片优化
 - ✅ `/api/*` - Next.js API 路由
@@ -246,7 +266,6 @@ ssl_certificate_key /etc/nginx/ssl/privkey.pem;
 ```yaml
 # docker-compose.prod.yml 挂载
 - ./nginx/nginx-optimized.conf:/etc/nginx/conf.d/default.conf:ro
-
 # nginx.conf 是完整配置文件，nginx-optimized.conf 应该被挂载为 default.conf
 ```
 
@@ -257,6 +276,7 @@ ssl_certificate_key /etc/nginx/ssl/privkey.pem;
 ## 4️⃣ 环境变量处理验证
 
 ### 📁 文件位置
+
 ```
 /root/.openclaw/workspace/.env.docker.example
 /root/.openclaw/workspace/.env.production
@@ -267,6 +287,7 @@ ssl_certificate_key /etc/nginx/ssl/privkey.pem;
 #### 环境变量分类
 
 ##### 应用基础配置 ✅
+
 ```env
 NODE_ENV=production
 PORT=3000
@@ -275,6 +296,7 @@ DATABASE_PATH=/app/data/7zi.db
 ```
 
 ##### 统计服务（可选）✅
+
 ```env
 NEXT_PUBLIC_GA_ID=                  # Google Analytics
 NEXT_PUBLIC_UMAMI_ID=               # Umami Analytics
@@ -284,6 +306,7 @@ NEXT_PUBLIC_BAIDU_ID=               # 百度统计
 ```
 
 ##### 邮件服务（Resend）✅
+
 ```env
 RESEND_API_KEY=
 CONTACT_EMAIL=business@7zi.studio
@@ -291,12 +314,14 @@ FROM_EMAIL=noreply@7zi.studio
 ```
 
 ##### GitHub API ✅
+
 ```env
 NEXT_PUBLIC_GITHUB_OWNER=songzhuo
 NEXT_PUBLIC_GITHUB_REPO=openclaw-workspace
 ```
 
 ##### 安全配置（.env.docker.example）✅
+
 ```env
 JWT_SECRET=
 CSRF_SECRET=
@@ -315,13 +340,15 @@ environment:
 ```
 
 ✅ **优点**:
+
 - 使用 `${VAR:-default}` 语法提供默认值
-- 正确区分公开变量（NEXT_PUBLIC_）和私有变量
+- 正确区分公开变量（NEXT*PUBLIC*）和私有变量
 - 卷挂载的 /app/data 目录与 DATABASE_PATH 一致
 
 #### 建议
 
 **建议 #1**: 添加到 .env.production
+
 ```env
 # 生产环境应该配置这些
 RESEND_API_KEY=re_your_actual_key
@@ -360,15 +387,15 @@ Stage 4: runner (node:22-slim)
 
 #### 构建优化验证
 
-| 优化项 | 状态 | 说明 |
-|--------|------|------|
-| 层合并 | ✅ | 系统依赖安装、环境变量设置合并到一层 |
-| 依赖缓存 | ✅ | 先复制 package.json，后复制源代码 |
-| 构建缓存 | ✅ | Turbopack 构建缓存配置 |
-| 产物清理 | ✅ | npm prune --production 清理开发依赖 |
-| 镜像最小化 | ✅ | runner 阶段仅复制必需文件 |
-| 非root用户 | ✅ | 创建 nextjs 用户 (uid=1001) |
-| dumb-init | ✅ | 使用 dumb-init 作为 PID 1 |
+| 优化项     | 状态 | 说明                                 |
+| ---------- | ---- | ------------------------------------ |
+| 层合并     | ✅   | 系统依赖安装、环境变量设置合并到一层 |
+| 依赖缓存   | ✅   | 先复制 package.json，后复制源代码    |
+| 构建缓存   | ✅   | Turbopack 构建缓存配置               |
+| 产物清理   | ✅   | npm prune --production 清理开发依赖  |
+| 镜像最小化 | ✅   | runner 阶段仅复制必需文件            |
+| 非root用户 | ✅   | 创建 nextjs 用户 (uid=1001)          |
+| dumb-init  | ✅   | 使用 dumb-init 作为 PID 1            |
 
 #### 构建产物验证
 
@@ -386,6 +413,7 @@ COPY --from=builder --chown=nextjs:nodejs /app/.next/static ./.next/static
 ## 6️⃣ Healthcheck 端点配置验证
 
 ### 📁 文件位置
+
 ```
 /root/.openclaw/workspace/7zi-frontend/src/app/api/health/route.ts
 ```
@@ -395,6 +423,7 @@ COPY --from=builder --chown=nextjs:nodejs /app/.next/static ./.next/static
 #### 健康检查端点功能
 
 ##### 返回信息 ✅
+
 ```json
 {
   "status": "healthy | degraded | unhealthy",
@@ -422,11 +451,13 @@ COPY --from=builder --chown=nextjs:nodejs /app/.next/static ./.next/static
 ```
 
 ##### 健康评估规则 ✅
+
 - **healthy**: 无问题和警告 → HTTP 200
 - **degraded**: 有警告但无问题 → HTTP 200
 - **unhealthy**: 有问题 → HTTP 503
 
 ##### 检查项 ✅
+
 1. **内存使用**
    - 警告阈值: 90%
    - 问题阈值: 90%
@@ -435,13 +466,15 @@ COPY --from=builder --chown=nextjs:nodejs /app/.next/static ./.next/static
    - 问题阈值: 2000ms
 3. **负载平均**
    - 警告: loadAverage > cpus
-   - 问题: loadAverage > cpus * 2
+   - 问题: loadAverage > cpus \* 2
 
 ##### HTTP 方法支持 ✅
+
 - `GET /api/health` - 返回完整健康信息（支持缓存）
 - `HEAD /api/health` - 仅返回状态码（用于轻量监控）
 
 ##### 响应头 ✅
+
 ```http
 X-Health-Status: healthy
 X-Response-Time: 45ms
@@ -451,6 +484,7 @@ Cache-Control: public, max-age=60
 #### Docker 健康检查配置
 
 ##### Dockerfile 配置 ✅
+
 ```dockerfile
 # 健康检查脚本
 RUN echo '#!/bin/sh\n\
@@ -464,15 +498,17 @@ HEALTHCHECK --interval=30s --timeout=10s --start-period=15s --retries=3 \
 ```
 
 ✅ **验证**:
+
 - 端点路径正确: `/api/health`
 - 超时配置合理: 10s
 - 间隔合理: 30s
 - 启动等待: 15s（给容器启动时间）
 
 ##### docker-compose 配置 ✅
+
 ```yaml
 healthcheck:
-  test: ["CMD", "/usr/local/bin/healthcheck.sh"]
+  test: ['CMD', '/usr/local/bin/healthcheck.sh']
   interval: 30s
   timeout: 5s
   retries: 3
@@ -491,6 +527,7 @@ location /health {
 ```
 
 ✅ **验证**:
+
 - 正确代理到后端 `/api/health` 端点
 - 关闭访问日志以减少日志噪音
 
@@ -500,21 +537,21 @@ location /health {
 
 ### 🔴 严重问题 (1个)
 
-| ID | 问题 | 文件 | 影响 |
-|----|------|------|------|
-| #1 | docker-compose.prod.yml 引用错误的 Dockerfile | docker-compose.prod.yml | 使用未优化的 Dockerfile |
+| ID  | 问题                                          | 文件                    | 影响                    |
+| --- | --------------------------------------------- | ----------------------- | ----------------------- |
+| #1  | docker-compose.prod.yml 引用错误的 Dockerfile | docker-compose.prod.yml | 使用未优化的 Dockerfile |
 
 ### 🟡 警告问题 (1个)
 
-| ID | 问题 | 文件 | 影响 |
-|----|------|------|------|
-| #2 | SSL 证书路径在不同配置文件中不一致 | nginx-optimized.conf vs nginx.conf | 可能导致证书加载失败 |
+| ID  | 问题                               | 文件                               | 影响                 |
+| --- | ---------------------------------- | ---------------------------------- | -------------------- |
+| #2  | SSL 证书路径在不同配置文件中不一致 | nginx-optimized.conf vs nginx.conf | 可能导致证书加载失败 |
 
 ### 💡 建议优化 (1个)
 
-| ID | 建议 | 文件 | 原因 |
-|----|------|------|------|
-| #3 | 在 .env.production 中配置邮件服务密钥 | .env.production | 启用邮件功能 |
+| ID  | 建议                                  | 文件            | 原因         |
+| --- | ------------------------------------- | --------------- | ------------ |
+| #3  | 在 .env.production 中配置邮件服务密钥 | .env.production | 启用邮件功能 |
 
 ---
 
@@ -539,6 +576,7 @@ services:
 ```
 
 **执行命令**:
+
 ```bash
 cd /root/.openclaw/workspace
 sed -i 's/dockerfile: Dockerfile.production$/dockerfile: Dockerfile.production.optimized/' docker-compose.prod.yml
@@ -555,14 +593,16 @@ ssl_certificate_key /etc/nginx/ssl/privkey.pem;       # 改为
 ```
 
 **或**更新 docker-compose.yml 挂载:
+
 ```yaml
 volumes:
-  - ./nginx/ssl:/etc/nginx/ssl:ro  # 确保包含 fullchain.pem 和 privkey.pem
+  - ./nginx/ssl:/etc/nginx/ssl:ro # 确保包含 fullchain.pem 和 privkey.pem
 ```
 
 ### 优化 #3: 配置邮件服务
 
 编辑 `.env.production`:
+
 ```env
 # 取消注释并填入实际值
 RESEND_API_KEY=re_your_actual_api_key
@@ -591,12 +631,14 @@ FROM_EMAIL=noreply@7zi.studio
 ### 🚀 生产部署步骤
 
 1. **应用修复**
+
    ```bash
    cd /root/.openclaw/workspace
    sed -i 's/dockerfile: Dockerfile.production$/dockerfile: Dockerfile.production.optimized/' docker-compose.prod.yml
    ```
 
 2. **准备 SSL 证书**
+
    ```bash
    # 运行 certbot 获取证书
    docker-compose -f docker-compose.prod.yml run --rm certbot \
@@ -605,16 +647,19 @@ FROM_EMAIL=noreply@7zi.studio
    ```
 
 3. **构建镜像**
+
    ```bash
    docker-compose -f docker-compose.prod.yml build --no-cache
    ```
 
 4. **启动服务**
+
    ```bash
    docker-compose -f docker-compose.prod.yml up -d
    ```
 
 5. **验证部署**
+
    ```bash
    # 检查健康状态
    curl http://localhost/api/health
@@ -636,16 +681,16 @@ FROM_EMAIL=noreply@7zi.studio
 
 ## 📈 性能优化总结
 
-| 优化项 | 状态 | 预期效果 |
-|--------|------|----------|
-| 多阶段构建 | ✅ | 减小镜像体积 ~60% |
-| 层合并 | ✅ | 减少镜像层数 ~40% |
-| 依赖缓存 | ✅ | 重复构建提速 ~50% |
-| Gzip 压缩 | ✅ | 文件传输量减少 ~70% |
-| 静态资源缓存 | ✅ | 减少服务器负载 ~40% |
-| 非root用户 | ✅ | 提升安全性 |
-| read_only 文件系统 | ✅ | 提升安全性 |
-| 资源限制 | ✅ | 防止 OOM |
+| 优化项             | 状态 | 预期效果            |
+| ------------------ | ---- | ------------------- |
+| 多阶段构建         | ✅   | 减小镜像体积 ~60%   |
+| 层合并             | ✅   | 减少镜像层数 ~40%   |
+| 依赖缓存           | ✅   | 重复构建提速 ~50%   |
+| Gzip 压缩          | ✅   | 文件传输量减少 ~70% |
+| 静态资源缓存       | ✅   | 减少服务器负载 ~40% |
+| 非root用户         | ✅   | 提升安全性          |
+| read_only 文件系统 | ✅   | 提升安全性          |
+| 资源限制           | ✅   | 防止 OOM            |
 
 ---
 
@@ -653,17 +698,17 @@ FROM_EMAIL=noreply@7zi.studio
 
 ### 安全措施 ✅
 
-| 措施 | 状态 | 说明 |
-|------|------|------|
-| 非 root 用户运行 | ✅ | nextjs:1001 |
-| read_only 文件系统 | ✅ | 除了必需目录 |
-| no-new-privileges | ✅ | 防止权限提升 |
-| tmpfs 挂载 | ✅ | /tmp 使用内存 |
-| 现代加密套件 | ✅ | TLS 1.2/1.3 |
-| HSTS | ✅ | 强制 HTTPS |
-| CSP 头 | ✅ | 防止 XSS |
-| 限流保护 | ✅ | 防止 DDoS |
-| 安全头完整 | ✅ | 6 个安全头 |
+| 措施               | 状态 | 说明          |
+| ------------------ | ---- | ------------- |
+| 非 root 用户运行   | ✅   | nextjs:1001   |
+| read_only 文件系统 | ✅   | 除了必需目录  |
+| no-new-privileges  | ✅   | 防止权限提升  |
+| tmpfs 挂载         | ✅   | /tmp 使用内存 |
+| 现代加密套件       | ✅   | TLS 1.2/1.3   |
+| HSTS               | ✅   | 强制 HTTPS    |
+| CSP 头             | ✅   | 防止 XSS      |
+| 限流保护           | ✅   | 防止 DDoS     |
+| 安全头完整         | ✅   | 6 个安全头    |
 
 ### 需要关注的点 ⚠️
 
@@ -702,13 +747,13 @@ FROM_EMAIL=noreply@7zi.studio
 
 ### 🎯 最终评分
 
-| 维度 | 评分 | 说明 |
-|------|------|------|
-| 完整性 | 95/100 | 配置基本完整，仅有小问题 |
-| 安全性 | 92/100 | 安全措施到位，有优化空间 |
-| 性能优化 | 93/100 | 多项优化措施，效果明显 |
-| 可维护性 | 90/100 | 结构清晰，注释详细 |
-| **总分** | **92.5/100** | **优秀** |
+| 维度     | 评分         | 说明                     |
+| -------- | ------------ | ------------------------ |
+| 完整性   | 95/100       | 配置基本完整，仅有小问题 |
+| 安全性   | 92/100       | 安全措施到位，有优化空间 |
+| 性能优化 | 93/100       | 多项优化措施，效果明显   |
+| 可维护性 | 90/100       | 结构清晰，注释详细       |
+| **总分** | **92.5/100** | **优秀**                 |
 
 ---
 
@@ -717,4 +762,4 @@ FROM_EMAIL=noreply@7zi.studio
 
 ---
 
-*本报告由 🛡️ 系统管理员自动生成*
+_本报告由 🛡️ 系统管理员自动生成_

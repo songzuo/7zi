@@ -1,9 +1,9 @@
-import { ClientProviders } from './ClientProviders';
+import { ClientProviders } from './ClientProviders'
 
 interface ProvidersProps {
-  children: React.ReactNode;
+  children: React.ReactNode
 }
 
 export function Providers({ children }: ProvidersProps) {
-  return <ClientProviders>{children}</ClientProviders>;
+  return <ClientProviders>{children}</ClientProviders>
 }

@@ -10,15 +10,15 @@ export {
   ShortcutManager,
   getShortcutManager,
   initShortcutManager,
-  destroyShortcutManager
-} from './shortcut-manager';
+  destroyShortcutManager,
+} from './shortcut-manager'
 
 export type {
   KeyboardShortcut,
   ShortcutManagerConfig,
   ContextChangeListener,
-  ShortcutTriggerListener
-} from './shortcut-manager';
+  ShortcutTriggerListener,
+} from './shortcut-manager'
 
 // Configuration
 export {
@@ -26,10 +26,10 @@ export {
   SHORTCUT_CATEGORIES,
   MODIFIER_KEYS,
   getShortcutDisplayText,
-  DEFAULT_USER_SHORTCUTS
-} from './shortcut-config';
+  DEFAULT_USER_SHORTCUTS,
+} from './shortcut-config'
 
-export type { ShortcutContext } from './shortcut-config';
+export type { ShortcutContext } from './shortcut-config'
 
 // React hooks
 export {
@@ -41,13 +41,10 @@ export {
   useGlobalShortcuts,
   useInitShortcuts,
   useShortcutCustomization,
-  useShortcutManager
-} from './use-keyboard-shortcuts';
+  useShortcutManager,
+} from './use-keyboard-shortcuts'
 
-export type {
-  UseKeyboardShortcutsOptions,
-  ShortcutProviderProps
-} from './use-keyboard-shortcuts';
+export type { UseKeyboardShortcutsOptions, ShortcutProviderProps } from './use-keyboard-shortcuts'
 
 // Components
 export {
@@ -55,12 +52,12 @@ export {
   ShortcutBadge,
   ShortcutDisplay,
   ShortcutMenuButton,
-  withShortcutTooltip
-} from './shortcut-tooltip';
+  withShortcutTooltip,
+} from './shortcut-tooltip'
 
 export type {
   ShortcutTooltipProps,
   ShortcutBadgeProps,
   ShortcutDisplayProps,
-  ShortcutMenuButtonProps
-} from './shortcut-tooltip';
+  ShortcutMenuButtonProps,
+} from './shortcut-tooltip'

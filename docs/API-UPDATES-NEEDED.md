@@ -3,13 +3,16 @@
 ## Critical Issues (Fix Immediately)
 
 ### 1. Missing Endpoints in Documentation Implementation
+
 ```
 ❌ POST /api/auth/logout    - Documented but NOT implemented
 ❌ POST /api/auth/refresh   - Documented but NOT implemented
 ```
+
 **Action**: Either implement these endpoints or remove from documentation.
 
 ### 2. Database Optimize API - Parameter Mismatch
+
 ```json
 // ❌ DOCUMENTED (WRONG):
 { "actions": ["vacuum", "analyze", "clear-cache"], "daysToKeep": 90 }
@@ -17,12 +20,15 @@
 // ✅ ACTUAL IMPLEMENTATION (CORRECT):
 { "operations": ["vacuum", "analyze", "clear_metrics", "rebuild_indexes"] }
 ```
+
 **Changes needed**:
+
 - `actions` → `operations`
 - `clear-cache` → `clear_metrics`
 - Remove `daysToKeep` parameter
 
 ### 3. Error Response Format - Field Name Mismatch
+
 ```json
 // ❌ DOCUMENTED (WRONG):
 {
@@ -49,6 +55,7 @@
 ```
 
 **Changes needed**:
+
 - Replace all `error.code` with `error.type`
 - Add `userMessage`, `action`, `help` fields
 - Add `requestId` field
@@ -58,12 +65,15 @@
 ## High Priority Updates
 
 ### New Error Types to Document
+
 Add these to error response examples:
+
 - `REGISTRATION_FAILED` - User registration failed
 - `WEAK_PASSWORD` - Password strength validation failed
 - `MISSING_TOKEN` - Authentication token missing
 
 ### Missing API Sections to Add
+
 1. **RBAC APIs** (10+ endpoints)
    - `/api/rbac/permissions`
    - `/api/rbac/roles`
@@ -113,15 +123,19 @@ Add these to error response examples:
 ## Medium Priority Updates
 
 ### Version Number Update
+
 Health check endpoint: Change version from `1.0.0` to `1.0.6`
 
 ### Authentication Requirements
+
 Document which endpoints require:
+
 - Authentication (JWT token)
 - Admin permissions
 - Rate limiting
 
 ### Response Examples
+
 Add response examples for endpoints that only have request examples.
 
 ---
@@ -129,6 +143,7 @@ Add response examples for endpoints that only have request examples.
 ## Correctly Documented Endpoints ✅
 
 These endpoints match their implementations exactly:
+
 - `POST /api/auth/login`
 - `POST /api/auth/register`
 - `GET /api/auth/me`
@@ -167,4 +182,4 @@ These endpoints match their implementations exactly:
 
 ---
 
-*Generated: 2026-03-22*
+_Generated: 2026-03-22_

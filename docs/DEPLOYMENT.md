@@ -83,6 +83,7 @@ git push origin main
 ```
 
 手动触发：
+
 1. 进入 GitHub Actions
 2. 选择 "Deploy to Production" workflow
 3. 点击 "Run workflow"
@@ -102,16 +103,17 @@ cd /opt/7zi-frontend
 
 ### 目标服务器
 
-| 项目 | 值 |
-|------|-----|
-| 域名 | 7zi.com |
-| IP | 165.99.43.61 |
-| 用户 | root |
+| 项目     | 值                |
+| -------- | ----------------- |
+| 域名     | 7zi.com           |
+| IP       | 165.99.43.61      |
+| 用户     | root              |
 | 部署路径 | /opt/7zi-frontend |
 
 ### 前置要求
 
 服务器需要安装：
+
 - Docker 20.10+
 - Docker Compose 2.0+
 - Git（可选）
@@ -297,11 +299,11 @@ NEXT_PUBLIC_BUILD_TIME=
 
 在 GitHub 仓库设置中添加：
 
-| Secret | 说明 |
-|--------|------|
-| `DEPLOY_HOST` | 服务器地址 (165.99.43.61) |
-| `DEPLOY_USER` | SSH 用户 (root) |
-| `DEPLOY_PASS` | SSH 密码 |
+| Secret        | 说明                         |
+| ------------- | ---------------------------- |
+| `DEPLOY_HOST` | 服务器地址 (165.99.43.61)    |
+| `DEPLOY_USER` | SSH 用户 (root)              |
+| `DEPLOY_PASS` | SSH 密码                     |
 | `DEPLOY_PATH` | 部署路径 (/opt/7zi-frontend) |
 
 ---
@@ -658,6 +660,7 @@ docker-compose -f docker-compose.prod.yml restart
 ## 📞 支持
 
 如有问题，请联系：
+
 - **GitHub Issues**: https://github.com/songzuo/7zi/issues
 - **Email**: business@7zi.studio
 

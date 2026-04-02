@@ -8,11 +8,11 @@ export {
   UndoRedoShortcuts,
   type UndoRedoProps,
   type UndoRedoShortcutsProps,
-} from './UndoRedo';
+} from './UndoRedo'
 
 export {
   HistoryViewer,
   HistoryMiniView,
   type HistoryViewerProps,
   type HistoryMiniViewProps,
-} from './HistoryViewer';
+} from './HistoryViewer'

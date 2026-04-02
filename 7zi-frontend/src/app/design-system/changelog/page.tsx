@@ -2,13 +2,13 @@
  * 更新日志页面
  */
 
-import React from 'react';
-import Link from 'next/link';
+import React from 'react'
+import Link from 'next/link'
 
 export const metadata = {
   title: '更新日志 - 7zi Studio',
   description: '设计系统的版本历史和变更记录。',
-};
+}
 
 export default function ChangelogPage() {
   const versions = [
@@ -51,52 +51,52 @@ export default function ChangelogPage() {
         { type: 'feat', description: '集成 Next.js 16 和 React 18' },
       ],
     },
-  ];
+  ]
 
   const getTypeColor = (type: string) => {
     switch (type) {
       case 'feat':
-        return 'bg-green-100 text-green-800';
+        return 'bg-green-100 text-green-800'
       case 'fix':
-        return 'bg-red-100 text-red-800';
+        return 'bg-red-100 text-red-800'
       case 'perf':
-        return 'bg-blue-100 text-blue-800';
+        return 'bg-blue-100 text-blue-800'
       case 'style':
-        return 'bg-purple-100 text-purple-800';
+        return 'bg-purple-100 text-purple-800'
       default:
-        return 'bg-gray-100 text-gray-800';
+        return 'bg-gray-100 text-gray-800'
     }
-  };
+  }
 
   const getTypeLabel = (type: string) => {
     switch (type) {
       case 'feat':
-        return '✨ 新功能';
+        return '✨ 新功能'
       case 'fix':
-        return '🐛 修复';
+        return '🐛 修复'
       case 'perf':
-        return '⚡ 性能';
+        return '⚡ 性能'
       case 'style':
-        return '💄 样式';
+        return '💄 样式'
       default:
-        return type;
+        return type
     }
-  };
+  }
 
   return (
     <div className="min-h-screen bg-gray-50 p-8">
-      <div className="max-w-4xl mx-auto">
-        <h1 className="text-3xl font-bold text-gray-900 mb-6">📜 更新日志</h1>
-        
+      <div className="mx-auto max-w-4xl">
+        <h1 className="mb-6 text-3xl font-bold text-gray-900">📜 更新日志</h1>
+
         <div className="space-y-6">
-          {versions.map((release) => (
-            <section key={release.version} className="bg-white rounded-lg shadow-md p-6">
-              <div className="flex items-center justify-between mb-4">
+          {versions.map(release => (
+            <section key={release.version} className="rounded-lg bg-white p-6 shadow-md">
+              <div className="mb-4 flex items-center justify-between">
                 <div>
                   <h2 className="text-2xl font-bold text-gray-900">版本 {release.version}</h2>
-                  <p className="text-gray-500 text-sm">{release.date}</p>
+                  <p className="text-sm text-gray-500">{release.date}</p>
                 </div>
-                <span className="px-3 py-1 bg-blue-100 text-blue-800 rounded-full text-sm font-medium">
+                <span className="rounded-full bg-blue-100 px-3 py-1 text-sm font-medium text-blue-800">
                   稳定版
                 </span>
               </div>
@@ -104,7 +104,9 @@ export default function ChangelogPage() {
               <div className="space-y-2">
                 {release.changes.map((change, idx) => (
                   <div key={idx} className="flex items-start gap-3">
-                    <span className={`px-2 py-0.5 rounded text-xs font-medium ${getTypeColor(change.type)}`}>
+                    <span
+                      className={`rounded px-2 py-0.5 text-xs font-medium ${getTypeColor(change.type)}`}
+                    >
                       {getTypeLabel(change.type)}
                     </span>
                     <span className="text-gray-700">{change.description}</span>
@@ -116,15 +118,13 @@ export default function ChangelogPage() {
         </div>
 
         {/* 导航 */}
-        <div className="flex justify-between mt-8">
+        <div className="mt-8 flex justify-between">
           <Link href="/design-system/guidelines" className="text-blue-600 hover:underline">
             ← 最佳实践
           </Link>
-          <div className="text-gray-400">
-            ← 回到顶部
-          </div>
+          <div className="text-gray-400">← 回到顶部</div>
         </div>
       </div>
     </div>
-  );
+  )
 }

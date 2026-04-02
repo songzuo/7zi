@@ -363,7 +363,11 @@ describe('Project Creation and Task Assignment Integration Test', () => {
       const data = await response.json()
 
       expect(response.ok).toBe(true)
-      expect(data.tasks.every((t: { assignee: { id: number; name: string } | null }) => t.assignee?.id === 1)).toBe(true)
+      expect(
+        data.tasks.every(
+          (t: { assignee: { id: number; name: string } | null }) => t.assignee?.id === 1
+        )
+      ).toBe(true)
     })
   })
 

@@ -13,13 +13,13 @@
 
 ### 核心发现
 
-| 优化类别 | 状态 | 完成度 | 遗留工作量 |
-|---------|------|--------|-----------|
-| **React 19 迁移** | 🟡 基本完成 | 85% | 存在构建问题 |
-| **Bundle 优化** | 🔴 待完成 | 35% | 需减少 2.5-3 MB |
-| **架构重构** | 🔴 未开始 | 0% | lib/ 层严重碎片化 |
-| **状态管理** | 🔴 待完成 | 40% | Zustand + Context 混用 |
-| **组件优化** | 🟡 部分完成 | 1.4% | 需覆盖更多组件 |
+| 优化类别          | 状态        | 完成度 | 遗留工作量             |
+| ----------------- | ----------- | ------ | ---------------------- |
+| **React 19 迁移** | 🟡 基本完成 | 85%    | 存在构建问题           |
+| **Bundle 优化**   | 🔴 待完成   | 35%    | 需减少 2.5-3 MB        |
+| **架构重构**      | 🔴 未开始   | 0%     | lib/ 层严重碎片化      |
+| **状态管理**      | 🔴 待完成   | 40%    | Zustand + Context 混用 |
+| **组件优化**      | 🟡 部分完成 | 1.4%   | 需覆盖更多组件         |
 
 ---
 
@@ -46,11 +46,11 @@
 
 ### ⚠️ 遗留问题（15%）
 
-| 问题 | 严重程度 | 影响 |
-|------|---------|------|
-| **Turbopack 构建失败** | 🔴 严重 | 无法使用 Turbopack 生产构建 |
-| **Bundle 体积过大** | 🔴 严重 | 4.4 MB → 目标 < 2 MB |
-| **React.FC 清理** | 🟢 轻微 | 2 处代码风格问题 |
+| 问题                   | 严重程度 | 影响                        |
+| ---------------------- | -------- | --------------------------- |
+| **Turbopack 构建失败** | 🔴 严重  | 无法使用 Turbopack 生产构建 |
+| **Bundle 体积过大**    | 🔴 严重  | 4.4 MB → 目标 < 2 MB        |
+| **React.FC 清理**      | 🟢 轻微  | 2 处代码风格问题            |
 
 **总体评估**: React 19 核心迁移已完成，但性能优化未达到目标。
 
@@ -64,6 +64,7 @@
 **预估工作量**: 2-4 小时
 
 #### 问题描述
+
 Turbopack 构建时出现内部错误：
 
 ```
@@ -72,6 +73,7 @@ index out of bounds: the len is 4 but the index is 8
 ```
 
 **影响**:
+
 - 无法使用 Turbopack 构建生产版本
 - 构建速度无法提升（目标 50-80%）
 - Next.js 16 核心特性无法充分利用
@@ -79,16 +81,19 @@ index out of bounds: the len is 4 but the index is 8
 #### 解决方案
 
 **短期（立即执行）**:
+
 1. 回退到 Webpack 构建（已完成）
 2. 升级 Next.js 到最新版本
 3. 报告 bug 到 Next.js 团队
 
 **中期**:
+
 1. 等待 Turbopack 稳定版本
 2. 识别导致错误的代码模式
 3. 逐步迁移可用的部分
 
 #### 预期收益
+
 - ✅ 恢复 Turbopack 支持
 - ✅ 构建时间从 3-5 min 降至 30-60s（50-80% 提升）
 - ✅ 开发体验提升
@@ -101,9 +106,11 @@ index out of bounds: the len is 4 but the index is 8
 **预估工作量**: 8-16 小时
 
 #### 问题描述
+
 当前 Bundle 体积 4.4 MB，目标 < 2 MB，需要减少 2.5-3 MB（53-64%）。
 
 **主要问题**:
+
 1. `collaboration-demo/page.js` - 1.3 MB（未使用动态导入）
 2. `/api/analytics/export/route.js` - 822 KB（xlsx 未动态导入）
 3. `/[locale]/analytics/test/page.js` - 505 KB
@@ -141,8 +148,8 @@ export default function CollaborationDemo() {
 ```typescript
 // src/app/api/analytics/export/route.ts
 export async function GET() {
-  const ExcelJS = (await import('exceljs')).default;
-  const workbook = new ExcelJS.Workbook();
+  const ExcelJS = (await import('exceljs')).default
+  const workbook = new ExcelJS.Workbook()
   // ...
 }
 ```
@@ -166,6 +173,7 @@ cacheGroups: {
 **预期收益**: 减少 200-300 KB（4.5-6.8%）
 
 #### 总预期收益
+
 - ✅ 减少 2.3-2.4 MB（52-54%）
 - ✅ Bundle 从 4.4 MB 降至 ~2 MB
 - ✅ LCP 提升 30-40%
@@ -178,6 +186,7 @@ cacheGroups: {
 **预估工作量**: 8-12 小时
 
 #### 问题描述
+
 `src/lib/` 目录包含 35+ 子模块，存在严重碎片化：
 
 ```
@@ -188,6 +197,7 @@ lib/
 ```
 
 **问题**:
+
 - 3 个目录职责重叠
 - 潜在循环依赖风险
 - 新开发者难以定位功能
@@ -195,6 +205,7 @@ lib/
 #### 解决方案
 
 **目标结构**:
+
 ```
 lib/
 └── agent/              # 统一的 Agent 模块
@@ -227,6 +238,7 @@ rm -rf src/lib/agents
 ```
 
 #### 预期收益
+
 - ✅ 减少 2 个重复目录（35 → 33）
 - ✅ 明确 Agent 模块职责边界
 - ✅ 降低循环依赖风险
@@ -240,6 +252,7 @@ rm -rf src/lib/agents
 **预估工作量**: 4-6 小时
 
 #### 问题描述
+
 项目同时使用 Zustand stores 和 React Context：
 
 ```
@@ -255,6 +268,7 @@ contexts/                    # React Context
 ```
 
 **问题**:
+
 - 状态管理方式不统一
 - Context 性能不如 Zustand
 - 可能存在状态重复
@@ -265,18 +279,18 @@ contexts/                    # React Context
 
 ```typescript
 // src/stores/permissionStore.ts (新建)
-import { create } from 'zustand';
-import { devtools } from 'zustand/middleware';
+import { create } from 'zustand'
+import { devtools } from 'zustand/middleware'
 
 interface PermissionState {
-  context: PermissionContextType | null;
-  loading: boolean;
-  error: string | null;
-  hasPermission: (permission: Permission) => boolean;
-  hasAnyPermission: (permissions: Permission[]) => boolean;
-  hasAllPermissions: (permissions: Permission[]) => boolean;
-  hasRole: (role: Role) => boolean;
-  refresh: () => Promise<void>;
+  context: PermissionContextType | null
+  loading: boolean
+  error: string | null
+  hasPermission: (permission: Permission) => boolean
+  hasAnyPermission: (permissions: Permission[]) => boolean
+  hasAllPermissions: (permissions: Permission[]) => boolean
+  hasRole: (role: Role) => boolean
+  refresh: () => Promise<void>
 }
 
 export const usePermissionStore = create<PermissionState>()(
@@ -286,19 +300,19 @@ export const usePermissionStore = create<PermissionState>()(
       loading: true,
       error: null,
 
-      hasPermission: (permission) => {
-        return get().context?.permissions.includes(permission) ?? false;
+      hasPermission: permission => {
+        return get().context?.permissions.includes(permission) ?? false
       },
 
-      hasAnyPermission: (permissions) => {
-        return permissions.some((p) => get().context?.permissions.includes(p));
+      hasAnyPermission: permissions => {
+        return permissions.some(p => get().context?.permissions.includes(p))
       },
 
       // ... 其他方法
     }),
     { name: 'permissionStore' }
   )
-);
+)
 ```
 
 **执行步骤**:
@@ -311,6 +325,7 @@ export const usePermissionStore = create<PermissionState>()(
 ```
 
 #### 预期收益
+
 - ✅ 统一状态管理方式
 - ✅ 性能提升（Zustand > Context）
 - ✅ 降低学习成本
@@ -324,9 +339,11 @@ export const usePermissionStore = create<PermissionState>()(
 **预估工作量**: 6-8 小时
 
 #### 问题描述
+
 项目未进行循环依赖分析，可能存在隐藏的循环依赖问题。
 
 **影响**:
+
 - 导致运行时错误
 - 模块加载顺序问题
 - 难以追踪的 bug
@@ -334,6 +351,7 @@ export const usePermissionStore = create<PermissionState>()(
 #### 解决方案
 
 **安装工具**:
+
 ```bash
 npm install -D madge
 # 或
@@ -341,6 +359,7 @@ npm install -D dependency-cruiser
 ```
 
 **运行检测**:
+
 ```bash
 # 检测循环依赖
 npx madge --circular src/
@@ -355,6 +374,7 @@ npx depcruise src/ --output-type err-long --prefix "src/"
 **处理循环依赖**（常见模式）:
 
 **方案 1: 提取公共模块**
+
 ```typescript
 // ❌ 循环依赖
 // moduleA.ts imports moduleB
@@ -362,24 +382,28 @@ npx depcruise src/ --output-type err-long --prefix "src/"
 
 // ✅ 提取公共模块
 // shared/types.ts
-export interface CommonType { /* ... */ }
+export interface CommonType {
+  /* ... */
+}
 
 // moduleA.ts imports shared/types
 // moduleB.ts imports shared/types
 ```
 
 **方案 2: 依赖注入**
+
 ```typescript
 // ❌ 直接导入
-import { funcA } from './moduleA';
+import { funcA } from './moduleA'
 
 // ✅ 使用回调
 export function funcB(callback: () => void) {
-  callback();
+  callback()
 }
 ```
 
 **方案 3: 重构模块层次**
+
 ```typescript
 // ❌ 高层模块和低层模块相互依赖
 
@@ -388,6 +412,7 @@ export function funcB(callback: () => void) {
 ```
 
 #### 预期收益
+
 - ✅ 发现并修复隐藏的循环依赖
 - ✅ 改善模块架构
 - ✅ 提高构建稳定性
@@ -397,14 +422,14 @@ export function funcB(callback: () => void) {
 
 ## 📊 工作量汇总
 
-| 任务 | 优先级 | 预估工作量 | 预期收益 |
-|------|--------|------------|----------|
-| 1. 修复 Turbopack 构建错误 | P0 | 2-4h | 构建速度 50-80% ↑ |
-| 2. Bundle 体积优化 | P0 | 8-16h | 减少 2.5-3 MB |
-| 3. 合并 lib/ 层 Agent 模块 | P0 | 8-12h | 目录减少 15% |
-| 4. 统一状态管理 | P1 | 4-6h | 性能 ~20% ↑ |
-| 5. 循环依赖检测 | P1 | 6-8h | 架构健康 ↑ |
-| **总计** | - | **28-46h** | - |
+| 任务                       | 优先级 | 预估工作量 | 预期收益          |
+| -------------------------- | ------ | ---------- | ----------------- |
+| 1. 修复 Turbopack 构建错误 | P0     | 2-4h       | 构建速度 50-80% ↑ |
+| 2. Bundle 体积优化         | P0     | 8-16h      | 减少 2.5-3 MB     |
+| 3. 合并 lib/ 层 Agent 模块 | P0     | 8-12h      | 目录减少 15%      |
+| 4. 统一状态管理            | P1     | 4-6h       | 性能 ~20% ↑       |
+| 5. 循环依赖检测            | P1     | 6-8h       | 架构健康 ↑        |
+| **总计**                   | -      | **28-46h** | -                 |
 
 **假设 11 人团队并行工作**: 约 **0.3-0.5 周**（2-3 天）
 
@@ -414,12 +439,12 @@ export function funcB(callback: () => void) {
 
 ### Week 1: P0 任务完成
 
-| 日期 | 任务 | 工作量 | 负责人 |
-|------|------|--------|--------|
-| Day 1 | 修复 Turbopack 构建错误 | 2-4h | ⚡ Executor |
-| Day 1-3 | Bundle 体积优化 | 8-16h | ⚡ Executor |
-| Day 2-3 | 合并 lib/ 层 Agent 模块 | 8-12h | 🏗️ 架构师 |
-| Day 4 | 测试和验证 | 4-6h | 🧪 测试员 |
+| 日期    | 任务                    | 工作量 | 负责人      |
+| ------- | ----------------------- | ------ | ----------- |
+| Day 1   | 修复 Turbopack 构建错误 | 2-4h   | ⚡ Executor |
+| Day 1-3 | Bundle 体积优化         | 8-16h  | ⚡ Executor |
+| Day 2-3 | 合并 lib/ 层 Agent 模块 | 8-12h  | 🏗️ 架构师   |
+| Day 4   | 测试和验证              | 4-6h   | 🧪 测试员   |
 
 **里程碑**: ✅ P0 任务全部完成
 
@@ -427,12 +452,12 @@ export function funcB(callback: () => void) {
 
 ### Week 2: P1 任务完成
 
-| 日期 | 任务 | 工作量 | 负责人 |
-|------|------|--------|--------|
-| Day 1-2 | 统一状态管理 | 4-6h | 🏗️ 架构师 |
-| Day 2-3 | 循环依赖检测 | 6-8h | 🏗️ 架构师 |
-| Day 4 | 全面测试 | 4-6h | 🧪 测试员 |
-| Day 5 | 文档更新 | 2-4h | 📚 咨询师 |
+| 日期    | 任务         | 工作量 | 负责人    |
+| ------- | ------------ | ------ | --------- |
+| Day 1-2 | 统一状态管理 | 4-6h   | 🏗️ 架构师 |
+| Day 2-3 | 循环依赖检测 | 6-8h   | 🏗️ 架构师 |
+| Day 4   | 全面测试     | 4-6h   | 🧪 测试员 |
+| Day 5   | 文档更新     | 2-4h   | 📚 咨询师 |
 
 **里程碑**: ✅ P1 任务全部完成
 
@@ -442,28 +467,28 @@ export function funcB(callback: () => void) {
 
 ### 性能指标
 
-| 指标 | 当前值 | 目标值 | 改善 |
-|------|--------|--------|------|
-| **Bundle 大小** | 4.4 MB | ~2 MB | 54% ↓ |
-| **构建时间** | 3-5 min | 30-60s | 80% ↓ |
-| **LCP** | > 3s | < 2s | 33% ↓ |
-| **重渲染次数** | ~150-200/min | ~90-120/min | 40% ↓ |
+| 指标            | 当前值       | 目标值      | 改善  |
+| --------------- | ------------ | ----------- | ----- |
+| **Bundle 大小** | 4.4 MB       | ~2 MB       | 54% ↓ |
+| **构建时间**    | 3-5 min      | 30-60s      | 80% ↓ |
+| **LCP**         | > 3s         | < 2s        | 33% ↓ |
+| **重渲染次数**  | ~150-200/min | ~90-120/min | 40% ↓ |
 
 ### 架构质量
 
-| 指标 | 当前值 | 目标值 | 改善 |
-|------|--------|--------|------|
-| **lib/ 目录数** | 35+ | ~33 | 6% ↓ |
-| **循环依赖** | 未知 | 0 | 100% ↓ |
-| **状态管理方式** | 2 种 | 1 种 | 50% ↓ |
+| 指标             | 当前值 | 目标值 | 改善   |
+| ---------------- | ------ | ------ | ------ |
+| **lib/ 目录数**  | 35+    | ~33    | 6% ↓   |
+| **循环依赖**     | 未知   | 0      | 100% ↓ |
+| **状态管理方式** | 2 种   | 1 种   | 50% ↓  |
 
 ### 开发效率
 
-| 指标 | 改善 |
-|------|------|
-| **组件查找时间** | ~50% ↓ |
+| 指标                 | 改善   |
+| -------------------- | ------ |
+| **组件查找时间**     | ~50% ↓ |
 | **新开发者理解时间** | ~40% ↓ |
-| **构建反馈时间** | ~80% ↓ |
+| **构建反馈时间**     | ~80% ↓ |
 
 ---
 
@@ -507,7 +532,7 @@ export function funcB(callback: () => void) {
 
 ### 下周执行
 
-- [ ] 合并 lib/agent* 模块
+- [ ] 合并 lib/agent\* 模块
 - [ ] 迁移 PermissionContext → Zustand
 - [ ] 运行循环依赖检测
 - [ ] 修复发现的循环依赖
@@ -532,11 +557,11 @@ export function funcB(callback: () => void) {
 
 ### 高风险操作
 
-| 操作 | 风险 | 缓解措施 |
-|------|------|----------|
-| 合并 lib/agent* | 导入路径断裂 | 使用 ast-grep 自动更新，全面测试 |
-| 迁移状态管理 | 状态丢失 | 保留旧实现作为备份，逐步替换 |
-| 修复循环依赖 | 模块重构复杂 | 分优先级处理，充分测试 |
+| 操作             | 风险         | 缓解措施                         |
+| ---------------- | ------------ | -------------------------------- |
+| 合并 lib/agent\* | 导入路径断裂 | 使用 ast-grep 自动更新，全面测试 |
+| 迁移状态管理     | 状态丢失     | 保留旧实现作为备份，逐步替换     |
+| 修复循环依赖     | 模块重构复杂 | 分优先级处理，充分测试           |
 
 ### 回滚计划
 

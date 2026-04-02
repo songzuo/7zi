@@ -17,29 +17,34 @@ The 7zi-project has a **partially implemented error handling system** with good 
 ### ✅ **What's Already in Place**
 
 #### 1.1 Core Error Utilities (`src/lib/api/error-handler.ts`)
+
 - **Excellent**: Well-structured `ErrorType` enum with standard error categories
 - **Excellent**: Helper functions for creating consistent error responses (`createErrorResponse`, `createValidationError`, etc.)
 - **Excellent**: `ApiError` class for structured error objects
 - **Excellent**: Standardized error response format with `success`, `error.type`, `error.message`, and `error.timestamp`
 
 #### 1.2 Error Tracking & Monitoring (`src/lib/monitoring/errors.ts`)
+
 - **Excellent**: Sentry integration with `captureError()` function
 - **Excellent**: `TrackedError` class with category, severity, and metadata
 - **Excellent**: `withErrorTracking()` wrapper for automatic error capture
 - **Excellent**: Breadcrumb support for debugging context
 
 #### 1.3 Client-Side Error Boundaries
+
 - **Excellent**: Page-level error boundaries for all routes (`src/app/[locale]/*/error.tsx`)
 - **Excellent**: `ErrorBoundary` component with intelligent error type detection
 - **Excellent**: `createPageErrorBoundary()` factory for reducing duplication
 - **Excellent**: Integration with Sentry for client-side error tracking
 
 #### 1.4 Success Response Utilities (`src/lib/api/utils.ts`)
+
 - **Excellent**: `createSuccessResponse()` for consistent success responses
 - **Excellent**: `createPaginatedSuccessResponse()` for paginated data
 - **Excellent**: Cookie management utilities for authentication
 
 #### 1.5 Health Check System (`src/lib/monitoring/health.ts`)
+
 - **Excellent**: Kubernetes-style probes (liveness, readiness, startup)
 - **Excellent**: Detailed health checks with external service validation
 - **Excellent**: Proper HTTP status codes (200 for ok, 503 for errors)
@@ -51,11 +56,13 @@ The 7zi-project has a **partially implemented error handling system** with good 
 ### 🔴 **Critical Issues**
 
 #### 2.1 **Inconsistent API Error Handling**
+
 **Severity**: HIGH
 
 Only **11 out of 25 API routes** use the standard error handler:
 
 **Routes using standard error handler** (11):
+
 - `/api/auth/login`
 - `/api/auth/refresh`
 - `/api/auth/register`
@@ -65,6 +72,7 @@ Only **11 out of 25 API routes** use the standard error handler:
 - `/api/database/optimize`
 
 **Routes NOT using standard error handler** (14):
+
 - `/api/multimodal/image` ❌
 - `/api/multimodal/audio` ❌
 - `/api/backup` ❌
@@ -83,6 +91,7 @@ Only **11 out of 25 API routes** use the standard error handler:
 **Impact**: Inconsistent error response formats, missing timestamps, non-standard error types
 
 #### 2.2 **Missing Global Error Handlers**
+
 **Severity**: MEDIUM
 
 - **No unhandled promise rejection handlers**
@@ -92,11 +101,13 @@ Only **11 out of 25 API routes** use the standard error handler:
 **Impact**: Silent failures, unmonitored errors, poor debugging experience
 
 #### 2.3 **Inconsistent Error Response Formats**
+
 **Severity**: MEDIUM
 
 Multiple inconsistent formats across API routes:
 
 **Format 1** (Standard - from `error-handler.ts`):
+
 ```json
 {
   "success": false,
@@ -109,6 +120,7 @@ Multiple inconsistent formats across API routes:
 ```
 
 **Format 2** (Inconsistent - found in 14 routes):
+
 ```json
 {
   "success": false,
@@ -117,6 +129,7 @@ Multiple inconsistent formats across API routes:
 ```
 
 **Format 3** (Another variant):
+
 ```json
 {
   "success": false,
@@ -131,6 +144,7 @@ Multiple inconsistent formats across API routes:
 **Impact**: Client code must handle multiple formats, harder to debug
 
 #### 2.4 **Missing Error Middleware**
+
 **Severity**: MEDIUM
 
 - No `withApiErrorMiddleware` wrapper for automatic error handling
@@ -146,6 +160,7 @@ Multiple inconsistent formats across API routes:
 ### ✅ **New Files Created**
 
 #### 3.1 Global Error Handlers (`src/lib/global-error-handlers.ts`)
+
 ```typescript
 // Server-side global error handlers
 export function setupGlobalErrorHandlers(): void {
@@ -162,56 +177,62 @@ export function setupBrowserErrorHandlers(): void {
 ```
 
 **Benefits**:
+
 - All unhandled errors now captured and logged
 - Automatic Sentry capture with context
 - Prevents silent failures
 - Better debugging in development
 
 #### 3.2 API Error Middleware (`src/lib/api/error-middleware.ts`)
+
 ```typescript
 // Automatic error handling wrapper
-export function withApiErrorMiddleware<T>(
-  handler: T,
-  options: ApiErrorMiddlewareOptions = {}
-): T;
+export function withApiErrorMiddleware<T>(handler: T, options: ApiErrorMiddlewareOptions = {}): T
 
 // Route-specific error handler
-export function createApiErrorHandler(routeName: string): ErrorHandler;
+export function createApiErrorHandler(routeName: string): ErrorHandler
 ```
 
 **Benefits**:
+
 - Reduces boilerplate in API routes
 - Automatic error logging with route context
 - Automatic Sentry capture with tags
 - Consistent error responses guaranteed
 
 #### 3.3 Server Initialization (`src/lib/server-init.ts`)
+
 ```typescript
-import { setupGlobalErrorHandlers } from '@/lib/global-error-handlers';
+import { setupGlobalErrorHandlers } from '@/lib/global-error-handlers'
 
 if (typeof window === 'undefined') {
-  setupGlobalErrorHandlers();
+  setupGlobalErrorHandlers()
 }
 ```
 
 **Benefits**:
+
 - Ensures global error handlers are always initialized on server startup
 
 #### 3.4 Application Bootstrap (`src/app/bootstrap.ts`)
+
 ```typescript
-import '@/lib/server-init';  // Initialize global error handlers
+import '@/lib/server-init' // Initialize global error handlers
 
 if (process.env.NEXT_PUBLIC_SENTRY_DSN) {
-  import('@/sentry.server.config');  // Initialize Sentry
+  import('@/sentry.server.config') // Initialize Sentry
 }
 ```
 
 **Benefits**:
+
 - Central initialization point
 - Ensures error tracking is always enabled
 
 #### 3.5 Error Handling Documentation (`docs/ERROR_HANDLING.md`)
+
 Comprehensive documentation including:
+
 - Error response format specification
 - Error types and HTTP status codes
 - Usage examples and best practices
@@ -299,6 +320,7 @@ The Kubernetes health check endpoints (`/api/health/live`, `/api/health/ready`) 
 ## 5. Error Response Format - Final Specification
 
 ### Standard Success Response
+
 ```json
 {
   "success": true,
@@ -308,6 +330,7 @@ The Kubernetes health check endpoints (`/api/health/live`, `/api/health/ready`) 
 ```
 
 ### Standard Error Response
+
 ```json
 {
   "success": false,
@@ -321,15 +344,16 @@ The Kubernetes health check endpoints (`/api/health/live`, `/api/health/ready`) 
 ```
 
 ### Error Types
-| Type | Status Code | Description |
-|------|-------------|-------------|
-| VALIDATION_ERROR | 400 | Invalid input data |
-| NOT_FOUND | 404 | Resource not found |
-| UNAUTHORIZED | 401 | Authentication required |
-| FORBIDDEN | 403 | Access denied |
-| RATE_LIMIT_EXCEEDED | 429 | Too many requests |
-| INTERNAL_ERROR | 500 | Server error |
-| SERVICE_UNAVAILABLE | 503 | Maintenance or dependency failure |
+
+| Type                | Status Code | Description                       |
+| ------------------- | ----------- | --------------------------------- |
+| VALIDATION_ERROR    | 400         | Invalid input data                |
+| NOT_FOUND           | 404         | Resource not found                |
+| UNAUTHORIZED        | 401         | Authentication required           |
+| FORBIDDEN           | 403         | Access denied                     |
+| RATE_LIMIT_EXCEEDED | 429         | Too many requests                 |
+| INTERNAL_ERROR      | 500         | Server error                      |
+| SERVICE_UNAVAILABLE | 503         | Maintenance or dependency failure |
 
 ---
 
@@ -354,25 +378,28 @@ Error Response → Client
 ## 7. Testing Recommendations
 
 ### 7.1 Unit Tests
+
 ```typescript
 // Example test
 it('should return validation error for missing email', async () => {
-  const response = await POST(request);
-  expect(response.status).toBe(400);
-  const data = await response.json();
-  expect(data.success).toBe(false);
-  expect(data.error.type).toBe(ErrorType.VALIDATION_ERROR);
-  expect(data.error.timestamp).toBeDefined();
-});
+  const response = await POST(request)
+  expect(response.status).toBe(400)
+  const data = await response.json()
+  expect(data.success).toBe(false)
+  expect(data.error.type).toBe(ErrorType.VALIDATION_ERROR)
+  expect(data.error.timestamp).toBeDefined()
+})
 ```
 
 ### 7.2 Integration Tests
+
 - Test all error types (validation, not found, unauthorized, etc.)
 - Verify consistent error format across all routes
 - Test error logging and Sentry capture
 - Test global error handlers
 
 ### 7.3 E2E Tests
+
 - Test error boundary UI components
 - Test error recovery flow
 - Test user-facing error messages
@@ -382,20 +409,26 @@ it('should return validation error for missing email', async () => {
 ## 8. Monitoring & Observability
 
 ### 8.1 Sentry Dashboard
+
 Monitor:
+
 - Error frequency and trends
 - Error types and distribution
 - Route-specific error rates
 - User impact (by user ID, if available)
 
 ### 8.2 Logs
+
 Monitor:
+
 - Error logs with route context
 - Unhandled rejections and exceptions
 - Warning logs for potential issues
 
 ### 8.3 Health Checks
+
 Monitor:
+
 - Liveness probe status
 - Readiness probe status
 - Database health
@@ -421,6 +454,7 @@ Monitor:
 ## 10. Files Changed Summary
 
 ### New Files (5)
+
 1. `src/lib/global-error-handlers.ts` - Global error handlers
 2. `src/lib/api/error-middleware.ts` - API error middleware
 3. `src/lib/server-init.ts` - Server initialization
@@ -428,6 +462,7 @@ Monitor:
 5. `docs/ERROR_HANDLING.md` - Error handling documentation
 
 ### Updated Files (9)
+
 1. `src/app/api/multimodal/image/route.ts`
 2. `src/app/api/multimodal/audio/route.ts`
 3. `src/app/api/backup/route.ts`
@@ -438,6 +473,7 @@ Monitor:
 8. `src/components/ClientProviders.tsx`
 
 ### Total Lines Changed
+
 - **Added**: ~500 lines (new files + improvements)
 - **Modified**: ~150 lines (error handling updates)
 - **Net Impact**: +650 lines of better error handling
@@ -447,18 +483,21 @@ Monitor:
 ## 11. Next Steps
 
 ### Immediate (Priority 1)
+
 1. ✅ Implement global error handlers (DONE)
 2. ✅ Create error middleware (DONE)
 3. ✅ Update 7 API routes (DONE)
 4. ⚠️ Migrate remaining 7 API routes to standard error handling
 
 ### Short-term (Priority 2)
+
 1. Add error handling to all new API routes
 2. Write unit tests for error handling utilities
 3. Set up Sentry alerts for critical errors
 4. Review and optimize error messages for user-friendliness
 
 ### Long-term (Priority 3)
+
 1. Add error rate limits per user/route
 2. Implement error recovery mechanisms (retry, circuit breaker)
 3. Add error analytics dashboard

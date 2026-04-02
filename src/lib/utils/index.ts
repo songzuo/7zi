@@ -15,43 +15,31 @@
  */
 
 // Async utilities
-export {
-  debounce,
-  throttle,
-  memoize,
-  sleep,
-  retry,
-} from './async';
+export { debounce, throttle, memoize, sleep, retry } from './async'
 
 // Clone utilities
-export { deepClone } from './clone';
+export { deepClone } from './clone'
 
 // Format utilities
-export { formatFileSize, formatNumber } from './format';
+export { formatFileSize, formatNumber } from './format'
 
 // ID utilities
-export { generateId, generateUUID } from './id';
+export { generateId, generateUUID } from './id'
 
 // Cache utilities
-export { LRUCache, createCache } from './cache';
+export { LRUCache, createCache } from './cache'
 
 // Date utilities (re-export from date module)
-export {
-  formatTimeAgo,
-  formatDate,
-  formatDateTime,
-  isToday,
-  isYesterday,
-} from '../date';
+export { formatTimeAgo, formatDate, formatDateTime, isToday, isYesterday } from '../date'
 
 // Array utilities
-export { batch, shuffle, randomItem, unique, groupBy, pick, omit } from './array';
+export { batch, shuffle, randomItem, unique, groupBy, pick, omit } from './array'
 
 // Math utilities
-export { clamp, mapRange, lerp } from './math';
+export { clamp, mapRange, lerp } from './math'
 
 // Validation utilities
-export { isEmpty, isValidEmail, isValidUrl } from './validation';
+export { isEmpty, isValidEmail, isValidUrl } from './validation'
 
 // Environment detection
 export {
@@ -64,10 +52,10 @@ export {
   prefersReducedMotion,
   prefersDarkMode,
   prefersLightMode,
-} from './env';
+} from './env'
 
 // Re-export viewport size function for backward compatibility
-export { getViewportSize } from './env';
+export { getViewportSize } from './env'
 
 // DOM utilities
 export {
@@ -86,7 +74,7 @@ export {
   hasAllClasses,
   hasAnyClass,
   getComputedStyleValue,
-} from './dom';
+} from './dom'
 
 // Browser utilities
 export {
@@ -95,10 +83,10 @@ export {
   downloadFile,
   getQueryParams,
   updateQueryParams,
-} from './browser';
+} from './browser'
 
 // Performance utilities
-export { optimizeImageUrl, preloadResources, lazyLoadComponent } from './perf';
+export { optimizeImageUrl, preloadResources, lazyLoadComponent } from './perf'
 
 // UI utilities
-export { cn } from './ui';
+export { cn } from './ui'

@@ -3,7 +3,7 @@
 **版本:** 1.0.0  
 **日期:** 2026-04-02  
 **状态:** 设计完成  
-**目标版本:** v1.8.0  
+**目标版本:** v1.8.0
 
 ---
 
@@ -48,44 +48,44 @@ src/lib/workflow/executors/
 ```typescript
 // 节点类型
 enum NodeType {
-  START = "start",
-  END = "end", 
-  AGENT = "agent",
-  CONDITION = "condition",
-  PARALLEL = "parallel",
-  WAIT = "wait",
-  HUMAN_INPUT = "human_input"
+  START = 'start',
+  END = 'end',
+  AGENT = 'agent',
+  CONDITION = 'condition',
+  PARALLEL = 'parallel',
+  WAIT = 'wait',
+  HUMAN_INPUT = 'human_input',
 }
 
 // 工作流定义
 interface WorkflowDefinition {
-  id: string;
-  name: string;
-  version: number;
-  status: WorkflowStatus;
-  nodes: WorkflowNode[];
-  edges: WorkflowEdge[];
+  id: string
+  name: string
+  version: number
+  status: WorkflowStatus
+  nodes: WorkflowNode[]
+  edges: WorkflowEdge[]
   config: {
-    timeout?: number;
-    retryPolicy?: RetryPolicy;
-    variables?: Record<string, any>;
-  };
+    timeout?: number
+    retryPolicy?: RetryPolicy
+    variables?: Record<string, any>
+  }
   metadata: {
-    createdAt: string;
-    updatedAt: string;
-  };
+    createdAt: string
+    updatedAt: string
+  }
 }
 ```
 
 ### 2.3 现有局限性
 
-| 方面 | 当前实现 | 改进需求 |
-|------|----------|----------|
-| 编辑器 | 原生 SVG 实现 | 专业级节点编辑器 |
-| 协作 | 无 | 实时多人协作 |
-| 节点扩展 | 静态注册 | 动态注册 |
-| 版本控制 | 无 | 完整版本历史 |
-| 模板系统 | 无 | 模板市场 |
+| 方面     | 当前实现      | 改进需求         |
+| -------- | ------------- | ---------------- |
+| 编辑器   | 原生 SVG 实现 | 专业级节点编辑器 |
+| 协作     | 无            | 实时多人协作     |
+| 节点扩展 | 静态注册      | 动态注册         |
+| 版本控制 | 无            | 完整版本历史     |
+| 模板系统 | 无            | 模板市场         |
 
 ---
 
@@ -146,39 +146,39 @@ UI Layer
 interface WorkflowEditorState {
   // 画布状态
   canvas: {
-    zoom: number;
-    pan: { x: number; y: number };
-    snapToGrid: boolean;
-    gridSize: number;
-  };
-  
+    zoom: number
+    pan: { x: number; y: number }
+    snapToGrid: boolean
+    gridSize: number
+  }
+
   // 工作流数据
   workflow: {
-    id: string;
-    name: string;
-    nodes: WorkflowNode[];
-    edges: WorkflowEdge[];
-    variables: Record<string, any>;
-  };
-  
+    id: string
+    name: string
+    nodes: WorkflowNode[]
+    edges: WorkflowEdge[]
+    variables: Record<string, any>
+  }
+
   // 选择状态
   selection: {
-    selectedNodeIds: string[];
-    selectedEdgeIds: string[];
-  };
-  
+    selectedNodeIds: string[]
+    selectedEdgeIds: string[]
+  }
+
   // 协作状态
   collaboration: {
-    sessionId: string;
-    participants: Participant[];
-    cursorPositions: Map<string, { x: number; y: number }>;
-  };
-  
+    sessionId: string
+    participants: Participant[]
+    cursorPositions: Map<string, { x: number; y: number }>
+  }
+
   // 历史状态 (撤销/重做)
   history: {
-    past: HistoryEntry[];
-    future: HistoryEntry[];
-  };
+    past: HistoryEntry[]
+    future: HistoryEntry[]
+  }
 }
 ```
 
@@ -244,13 +244,13 @@ import ReactFlow, {
   Connection,
   Edge,
   Node,
-} from 'reactflow';
-import 'reactflow/dist/style.css';
+} from 'reactflow'
+import 'reactflow/dist/style.css'
 
 // 自定义节点组件
-import { AgentNode } from './nodes/AgentNode';
-import { ConditionNode } from './nodes/ConditionNode';
-import { ParallelNode } from './nodes/ParallelNode';
+import { AgentNode } from './nodes/AgentNode'
+import { ConditionNode } from './nodes/ConditionNode'
+import { ParallelNode } from './nodes/ParallelNode'
 
 // 节点类型注册
 const nodeTypes = {
@@ -263,14 +263,14 @@ const nodeTypes = {
   humanInput: HumanInputNode,
   // 可扩展的自定义节点
   ...customNodeTypes,
-};
+}
 
 // 边类型注册
 const edgeTypes = {
   default: DefaultEdge,
   condition: ConditionEdge,
   parallel: ParallelEdge,
-};
+}
 ```
 
 #### 4.1.2 自定义节点架构
@@ -279,47 +279,47 @@ const edgeTypes = {
 // 自定义节点接口
 interface ICustomNode {
   // 节点类型标识
-  type: string;
-  
+  type: string
+
   // 节点显示组件
-  Component: React.FC<NodeProps>;
-  
+  Component: React.FC<NodeProps>
+
   // 节点配置面板
-  ConfigPanel?: React.FC<ConfigPanelProps>;
-  
+  ConfigPanel?: React.FC<ConfigPanelProps>
+
   // 节点执行器 (可选)
-  executor?: NodeExecutor;
-  
+  executor?: NodeExecutor
+
   // 节点图标
-  icon: React.ReactNode;
-  
+  icon: React.ReactNode
+
   // 节点分类
-  category: 'flow' | 'agent' | 'logic' | 'io' | 'custom';
+  category: 'flow' | 'agent' | 'logic' | 'io' | 'custom'
 }
 
 // 节点组件属性
 interface NodeProps {
-  id: string;
+  id: string
   data: {
-    label: string;
-    description?: string;
-    config: Record<string, any>;
-  };
-  selected: boolean;
-  dragging: boolean;
-  position: { x: number; y: number };
+    label: string
+    description?: string
+    config: Record<string, any>
+  }
+  selected: boolean
+  dragging: boolean
+  position: { x: number; y: number }
 }
 ```
 
 #### 4.1.3 节点类型分类
 
-| 分类 | 节点类型 | 说明 |
-|------|----------|------|
-| **Flow** | start, end, wait | 流程控制节点 |
-| **Agent** | agent, humanInput | Agent 执行节点 |
-| **Logic** | condition, parallel | 逻辑控制节点 |
-| **IO** | webhook, http, trigger | 外部集成节点 |
-| **Custom** | (用户定义) | 自定义节点 |
+| 分类       | 节点类型               | 说明           |
+| ---------- | ---------------------- | -------------- |
+| **Flow**   | start, end, wait       | 流程控制节点   |
+| **Agent**  | agent, humanInput      | Agent 执行节点 |
+| **Logic**  | condition, parallel    | 逻辑控制节点   |
+| **IO**     | webhook, http, trigger | 外部集成节点   |
+| **Custom** | (用户定义)             | 自定义节点     |
 
 ---
 
@@ -361,38 +361,30 @@ const onDragStart = (
   nodeType: string,
   nodeConfig?: Record<string, any>
 ) => {
-  event.dataTransfer.setData('application/reactflow', nodeType);
-  event.dataTransfer.setData(
-    'application/nodeConfig', 
-    JSON.stringify(nodeConfig || {})
-  );
-  event.dataTransfer.effectAllowed = 'move';
-};
+  event.dataTransfer.setData('application/reactflow', nodeType)
+  event.dataTransfer.setData('application/nodeConfig', JSON.stringify(nodeConfig || {}))
+  event.dataTransfer.effectAllowed = 'move'
+}
 
-const onDrop = (
-  event: React.DragEvent,
-  reactFlowWrapper: React.RefObject<HTMLDivElement>
-) => {
-  event.preventDefault();
-  
-  const nodeType = event.dataTransfer.getData('application/reactflow');
-  const nodeConfig = JSON.parse(
-    event.dataTransfer.getData('application/nodeConfig') || '{}'
-  );
-  
+const onDrop = (event: React.DragEvent, reactFlowWrapper: React.RefObject<HTMLDivElement>) => {
+  event.preventDefault()
+
+  const nodeType = event.dataTransfer.getData('application/reactflow')
+  const nodeConfig = JSON.parse(event.dataTransfer.getData('application/nodeConfig') || '{}')
+
   // 计算位置
   const position = project({
     x: event.clientX - reactFlowBounds.left,
     y: event.clientY - reactFlowBounds.top,
-  });
-  
+  })
+
   // 网格对齐
-  const snappedPosition = snapToGrid(position, gridSize);
-  
+  const snappedPosition = snapToGrid(position, gridSize)
+
   // 创建新节点
-  const newNode = createNode(nodeType, snappedPosition, nodeConfig);
-  setNodes((nds) => nds.concat(newNode));
-};
+  const newNode = createNode(nodeType, snappedPosition, nodeConfig)
+  setNodes(nds => nds.concat(newNode))
+}
 ```
 
 ---
@@ -403,91 +395,79 @@ const onDrop = (
 
 ```typescript
 // src/lib/workflow/store/workflow-editor-store.ts
-import { create } from 'zustand';
-import { 
-  Node, 
-  Edge, 
-  Connection, 
-  ReactFlowInstance,
-  Viewport 
-} from 'reactflow';
-import { 
-  WorkflowDefinition, 
-  WorkflowNode, 
-  WorkflowEdge 
-} from '@/types/workflow';
+import { create } from 'zustand'
+import { Node, Edge, Connection, ReactFlowInstance, Viewport } from 'reactflow'
+import { WorkflowDefinition, WorkflowNode, WorkflowEdge } from '@/types/workflow'
 
 interface WorkflowEditorState {
   // React Flow 状态
-  reactFlowInstance: ReactFlowInstance | null;
-  nodes: Node[];
-  edges: Edge[];
-  viewport: Viewport;
-  
+  reactFlowInstance: ReactFlowInstance | null
+  nodes: Node[]
+  edges: Edge[]
+  viewport: Viewport
+
   // 工作流定义
-  workflow: Partial<WorkflowDefinition>;
-  
+  workflow: Partial<WorkflowDefinition>
+
   // 选择状态
-  selectedNodeIds: string[];
-  selectedEdgeIds: string[];
-  
+  selectedNodeIds: string[]
+  selectedEdgeIds: string[]
+
   // 编辑状态
-  isDirty: boolean;
-  isExecuting: boolean;
-  
+  isDirty: boolean
+  isExecuting: boolean
+
   // 协作状态
   collaboration: {
-    isActive: boolean;
-    sessionId: string | null;
-    participants: CollaborationParticipant[];
-    cursorPositions: Map<string, { x: number; y: number }>;
-  };
-  
+    isActive: boolean
+    sessionId: string | null
+    participants: CollaborationParticipant[]
+    cursorPositions: Map<string, { x: number; y: number }>
+  }
+
   // 操作方法
-  setNodes: (nodes: Node[]) => void;
-  setEdges: (edges: Edge[]) => void;
-  addNode: (node: Node) => void;
-  removeNode: (nodeId: string) => void;
-  updateNode: (nodeId: string, data: Partial<Node['data']>) => void;
-  addEdge: (connection: Connection) => void;
-  removeEdge: (edgeId: string) => void;
-  
+  setNodes: (nodes: Node[]) => void
+  setEdges: (edges: Edge[]) => void
+  addNode: (node: Node) => void
+  removeNode: (nodeId: string) => void
+  updateNode: (nodeId: string, data: Partial<Node['data']>) => void
+  addEdge: (connection: Connection) => void
+  removeEdge: (edgeId: string) => void
+
   // 协作方法
-  joinSession: (sessionId: string) => void;
-  leaveSession: () => void;
-  broadcastChange: (change: EditorChange) => void;
-  
+  joinSession: (sessionId: string) => void
+  leaveSession: () => void
+  broadcastChange: (change: EditorChange) => void
+
   // 历史方法
-  undo: () => void;
-  redo: () => void;
-  pushHistory: (entry: HistoryEntry) => void;
-  
+  undo: () => void
+  redo: () => void
+  pushHistory: (entry: HistoryEntry) => void
+
   // 工作流方法
-  loadWorkflow: (workflow: WorkflowDefinition) => void;
-  saveWorkflow: () => Promise<WorkflowDefinition>;
-  executeWorkflow: () => Promise<void>;
+  loadWorkflow: (workflow: WorkflowDefinition) => void
+  saveWorkflow: () => Promise<WorkflowDefinition>
+  executeWorkflow: () => Promise<void>
 }
 
-export const useWorkflowEditorStore = create<WorkflowEditorState>(
-  (set, get) => ({
-    // 初始状态
-    nodes: [],
-    edges: [],
-    viewport: { x: 0, y: 0, zoom: 1 },
-    selectedNodeIds: [],
-    selectedEdgeIds: [],
-    isDirty: false,
-    isExecuting: false,
-    collaboration: {
-      isActive: false,
-      sessionId: null,
-      participants: [],
-      cursorPositions: new Map(),
-    },
-    
-    // 实现...
-  })
-);
+export const useWorkflowEditorStore = create<WorkflowEditorState>((set, get) => ({
+  // 初始状态
+  nodes: [],
+  edges: [],
+  viewport: { x: 0, y: 0, zoom: 1 },
+  selectedNodeIds: [],
+  selectedEdgeIds: [],
+  isDirty: false,
+  isExecuting: false,
+  collaboration: {
+    isActive: false,
+    sessionId: null,
+    participants: [],
+    cursorPositions: new Map(),
+  },
+
+  // 实现...
+}))
 ```
 
 #### 4.3.2 状态分片策略
@@ -497,37 +477,37 @@ export const useWorkflowEditorStore = create<WorkflowEditorState>(
 ```typescript
 // 主状态仓库 - 只包含引用
 interface RootWorkflowState {
-  editorId: string;           // 编辑器实例ID
-  workflowId: string | null;  // 当前工作流ID
-  localState: string;          // 本地状态 (加密)
-  syncState: string;           // 同步状态 (加密)
+  editorId: string // 编辑器实例ID
+  workflowId: string | null // 当前工作流ID
+  localState: string // 本地状态 (加密)
+  syncState: string // 同步状态 (加密)
 }
 
 // 子状态仓库 - 按功能分片
 const editorSlices = {
   // 画布状态
-  canvasSlice: create((set) => ({
+  canvasSlice: create(set => ({
     zoom: 1,
     pan: { x: 0, y: 0 },
     snapToGrid: true,
     gridSize: 20,
   })),
-  
+
   // 节点状态
   nodesSlice: create((set, get) => ({
     nodes: [],
     selectedIds: [],
-    addNode: (node) => set({ nodes: [...get().nodes, node] }),
+    addNode: node => set({ nodes: [...get().nodes, node] }),
     // ...
   })),
-  
+
   // 协作状态
-  collabSlice: create((set) => ({
+  collabSlice: create(set => ({
     sessionId: null,
     participants: [],
     cursors: new Map(),
   })),
-};
+}
 ```
 
 ---
@@ -559,39 +539,39 @@ const editorSlices = {
 // 自动保存策略
 interface AutoSaveConfig {
   // 启用自动保存
-  enabled: boolean;
-  
+  enabled: boolean
+
   // 保存间隔 (ms)
-  interval: number;
-  
+  interval: number
+
   // 保存触发条件
   triggers: {
-    onNodeDragEnd: boolean;
-    onEdgeConnect: boolean;
-    onSelectionChange: boolean;
-    onConfigChange: boolean;
-  };
-  
+    onNodeDragEnd: boolean
+    onEdgeConnect: boolean
+    onSelectionChange: boolean
+    onConfigChange: boolean
+  }
+
   // 防抖延迟 (ms)
-  debounceDelay: number;
-  
+  debounceDelay: number
+
   // 最大重试次数
-  maxRetries: number;
+  maxRetries: number
 }
 
 // 默认配置
 const defaultAutoSaveConfig: AutoSaveConfig = {
   enabled: true,
-  interval: 30000,        // 30秒
+  interval: 30000, // 30秒
   triggers: {
     onNodeDragEnd: true,
     onEdgeConnect: true,
     onSelectionChange: false,
     onConfigChange: true,
   },
-  debounceDelay: 2000,    // 2秒防抖
+  debounceDelay: 2000, // 2秒防抖
   maxRetries: 3,
-};
+}
 ```
 
 #### 4.4.3 版本控制
@@ -600,38 +580,34 @@ const defaultAutoSaveConfig: AutoSaveConfig = {
 // 版本管理接口
 interface VersionManager {
   // 提交新版本
-  commit(
-    workflowId: string, 
-    message: string,
-    snapshot: WorkflowDefinition
-  ): Promise<Version>;
-  
+  commit(workflowId: string, message: string, snapshot: WorkflowDefinition): Promise<Version>
+
   // 获取版本历史
-  getHistory(workflowId: string): Promise<Version[]>;
-  
+  getHistory(workflowId: string): Promise<Version[]>
+
   // 回滚到指定版本
-  rollback(workflowId: string, version: number): Promise<void>;
-  
+  rollback(workflowId: string, version: number): Promise<void>
+
   // 对比版本差异
-  diff(v1: number, v2: number): Promise<VersionDiff>;
+  diff(v1: number, v2: number): Promise<VersionDiff>
 }
 
 // 版本数据结构
 interface Version {
-  id: string;
-  workflowId: string;
-  version: number;
-  message: string;
-  snapshot: WorkflowDefinition;
-  createdAt: string;
-  createdBy: string;
+  id: string
+  workflowId: string
+  version: number
+  message: string
+  snapshot: WorkflowDefinition
+  createdAt: string
+  createdBy: string
   changes: {
-    nodesAdded: number;
-    nodesRemoved: number;
-    nodesModified: number;
-    edgesAdded: number;
-    edgesRemoved: number;
-  };
+    nodesAdded: number
+    nodesRemoved: number
+    nodesModified: number
+    edgesAdded: number
+    edgesRemoved: number
+  }
 }
 ```
 
@@ -640,35 +616,35 @@ interface Version {
 ```typescript
 // 模板接口
 interface WorkflowTemplate {
-  id: string;
-  name: string;
-  description: string;
-  category: string;
-  thumbnail?: string;
-  
+  id: string
+  name: string
+  description: string
+  category: string
+  thumbnail?: string
+
   // 模板内容
-  workflow: Omit<WorkflowDefinition, 'id' | 'version'>;
-  
+  workflow: Omit<WorkflowDefinition, 'id' | 'version'>
+
   // 元数据
-  author: string;
-  tags: string[];
-  usageCount: number;
-  rating: number;
-  
+  author: string
+  tags: string[]
+  usageCount: number
+  rating: number
+
   // 可见性
-  visibility: 'public' | 'team' | 'private';
+  visibility: 'public' | 'team' | 'private'
 }
 
 // 模板API
 interface TemplateService {
-  list(category?: string): Promise<WorkflowTemplate[]>;
-  get(id: string): Promise<WorkflowTemplate>;
-  create(template: WorkflowTemplate): Promise<void>;
-  update(id: string, template: Partial<WorkflowTemplate>): Promise<void>;
-  delete(id: string): Promise<void>;
-  
+  list(category?: string): Promise<WorkflowTemplate[]>
+  get(id: string): Promise<WorkflowTemplate>
+  create(template: WorkflowTemplate): Promise<void>
+  update(id: string, template: Partial<WorkflowTemplate>): Promise<void>
+  delete(id: string): Promise<void>
+
   // 从模板创建工作流
-  createWorkflow(templateId: string, name: string): Promise<WorkflowDefinition>;
+  createWorkflow(templateId: string, name: string): Promise<WorkflowDefinition>
 }
 ```
 
@@ -704,40 +680,40 @@ interface TemplateService {
 
 ```typescript
 // 协作消息类型
-type CollaborationMessageType = 
-  | 'collab.join'      // 加入会话
-  | 'collab.leave'     // 离开会话
-  | 'collab.cursor'   // 光标移动
-  | 'collab.select'   // 选择变更
-  | 'collab.node.add'    // 添加节点
+type CollaborationMessageType =
+  | 'collab.join' // 加入会话
+  | 'collab.leave' // 离开会话
+  | 'collab.cursor' // 光标移动
+  | 'collab.select' // 选择变更
+  | 'collab.node.add' // 添加节点
   | 'collab.node.update' // 更新节点
   | 'collab.node.delete' // 删除节点
-  | 'collab.edge.add'    // 添加边
+  | 'collab.edge.add' // 添加边
   | 'collab.edge.delete' // 删除边
-  | 'collab.state.sync'; // 状态同步
+  | 'collab.state.sync' // 状态同步
 
 // 协作消息格式 (A2A v2.1 风格)
 interface CollaborationMessage {
-  version: '2.1';
-  id: string;
-  type: CollaborationMessageType;
-  source: string;           // 发送者ID
-  sessionId: string;        // 会话ID
-  timestamp: number;
-  payload: CollaborationPayload;
+  version: '2.1'
+  id: string
+  type: CollaborationMessageType
+  source: string // 发送者ID
+  sessionId: string // 会话ID
+  timestamp: number
+  payload: CollaborationPayload
 }
 
 interface NodeChangePayload {
-  nodeId: string;
-  changes: Partial<WorkflowNode> | null;  // null 表示删除
-  position?: { x: number; y: number };
+  nodeId: string
+  changes: Partial<WorkflowNode> | null // null 表示删除
+  position?: { x: number; y: number }
 }
 
 interface CursorPayload {
-  userId: string;
-  userName: string;
-  userColor: string;
-  position: { x: number; y: number };
+  userId: string
+  userName: string
+  userColor: string
+  position: { x: number; y: number }
 }
 ```
 
@@ -748,10 +724,10 @@ interface CursorPayload {
 ```typescript
 // 简化的 CRDT 实现
 class WorkflowCRDT {
-  private nodes: Map<string, CRDTNode>;
-  private edges: Map<string, CRDTEdge>;
-  private vectorClock: Map<string, number>;
-  
+  private nodes: Map<string, CRDTNode>
+  private edges: Map<string, CRDTEdge>
+  private vectorClock: Map<string, number>
+
   // 节点操作
   addNode(node: WorkflowNode, userId: string): Operation {
     const op: Operation = {
@@ -761,10 +737,10 @@ class WorkflowCRDT {
       data: node,
       timestamp: this.incrementClock(userId),
       userId,
-    };
-    return op;
+    }
+    return op
   }
-  
+
   updateNode(nodeId: string, changes: Partial<WorkflowNode>, userId: string): Operation {
     return {
       type: 'update_node',
@@ -773,14 +749,14 @@ class WorkflowCRDT {
       changes,
       timestamp: this.incrementClock(userId),
       userId,
-    };
+    }
   }
-  
+
   // 合并远程操作
   merge(remoteOps: Operation[]): void {
     for (const op of remoteOps) {
       if (this.isNewer(op)) {
-        this.apply(op);
+        this.apply(op)
       }
     }
   }
@@ -792,39 +768,41 @@ class WorkflowCRDT {
 ```typescript
 // 状态同步服务
 class CollaborationService {
-  private ws: WebSocket;
-  private sessionId: string;
-  private userId: string;
-  private pendingOps: Operation[] = [];
-  private acknowledgedOps: Set<string> = new Set();
-  
+  private ws: WebSocket
+  private sessionId: string
+  private userId: string
+  private pendingOps: Operation[] = []
+  private acknowledgedOps: Set<string> = new Set()
+
   // 发送本地变更
   broadcastChange(operation: Operation): void {
     // 添加到待确认队列
-    this.pendingOps.push(operation);
-    
+    this.pendingOps.push(operation)
+
     // 发送消息
-    this.ws.send(JSON.stringify({
-      version: '2.1',
-      type: 'collab.operation',
-      sessionId: this.sessionId,
-      source: this.userId,
-      payload: operation,
-    }));
+    this.ws.send(
+      JSON.stringify({
+        version: '2.1',
+        type: 'collab.operation',
+        sessionId: this.sessionId,
+        source: this.userId,
+        payload: operation,
+      })
+    )
   }
-  
+
   // 处理远程消息
   handleMessage(message: CollaborationMessage): void {
     switch (message.type) {
       case 'collab.operation':
-        this.applyRemoteOperation(message.payload);
-        break;
+        this.applyRemoteOperation(message.payload)
+        break
       case 'collab.cursor':
-        this.updateRemoteCursor(message.payload);
-        break;
+        this.updateRemoteCursor(message.payload)
+        break
       case 'collab.state.sync':
-        this.fullStateSync(message.payload);
-        break;
+        this.fullStateSync(message.payload)
+        break
     }
   }
 }
@@ -911,18 +889,18 @@ src/
 
 ### 6.2 组件说明
 
-| 组件 | 职责 | 依赖 |
-|------|------|------|
-| WorkflowEditor | 主编辑器容器，状态协调 | ReactFlow, Zustand |
-| Canvas | 画布渲染，交互处理 | ReactFlow |
-| NodePanel | 节点列表展示 | 自定义组件 |
-| PropertyPanel | 节点/边属性编辑 | 动态表单组件 |
-| Toolbar | 全局操作按钮 | UI组件库 |
-| AgentNode | Agent节点渲染 | BaseNode |
-| ConditionNode | 条件节点渲染 | BaseNode |
-| WorkflowEditorStore | 全局状态管理 | Zustand |
-| CollaborationService | 实时协作 | WebSocket |
-| WorkflowRepository | 数据持久化 | Database |
+| 组件                 | 职责                   | 依赖               |
+| -------------------- | ---------------------- | ------------------ |
+| WorkflowEditor       | 主编辑器容器，状态协调 | ReactFlow, Zustand |
+| Canvas               | 画布渲染，交互处理     | ReactFlow          |
+| NodePanel            | 节点列表展示           | 自定义组件         |
+| PropertyPanel        | 节点/边属性编辑        | 动态表单组件       |
+| Toolbar              | 全局操作按钮           | UI组件库           |
+| AgentNode            | Agent节点渲染          | BaseNode           |
+| ConditionNode        | 条件节点渲染           | BaseNode           |
+| WorkflowEditorStore  | 全局状态管理           | Zustand            |
+| CollaborationService | 实时协作               | WebSocket          |
+| WorkflowRepository   | 数据持久化             | Database           |
 
 ---
 
@@ -930,35 +908,35 @@ src/
 
 ### 7.1 工作流 API
 
-| 方法 | 端点 | 描述 |
-|------|------|------|
-| POST | /api/workflow | 创建工作流 |
-| GET | /api/workflow | 列表查询 |
-| GET | /api/workflow/[id] | 获取详情 |
-| PUT | /api/workflow/[id] | 更新工作流 |
-| DELETE | /api/workflow/[id] | 删除工作流 |
-| POST | /api/workflow/[id]/run | 执行工作流 |
-| GET | /api/workflow/[id]/runs | 运行历史 |
-| POST | /api/workflow/[id]/versions | 提交版本 |
-| GET | /api/workflow/[id]/versions | 版本列表 |
-| POST | /api/workflow/[id]/rollback | 回滚版本 |
+| 方法   | 端点                        | 描述       |
+| ------ | --------------------------- | ---------- |
+| POST   | /api/workflow               | 创建工作流 |
+| GET    | /api/workflow               | 列表查询   |
+| GET    | /api/workflow/[id]          | 获取详情   |
+| PUT    | /api/workflow/[id]          | 更新工作流 |
+| DELETE | /api/workflow/[id]          | 删除工作流 |
+| POST   | /api/workflow/[id]/run      | 执行工作流 |
+| GET    | /api/workflow/[id]/runs     | 运行历史   |
+| POST   | /api/workflow/[id]/versions | 提交版本   |
+| GET    | /api/workflow/[id]/versions | 版本列表   |
+| POST   | /api/workflow/[id]/rollback | 回滚版本   |
 
 ### 7.2 模板 API
 
-| 方法 | 端点 | 描述 |
-|------|------|------|
-| GET | /api/workflow/templates | 模板列表 |
-| GET | /api/workflow/templates/[id] | 模板详情 |
-| POST | /api/workflow/templates | 创建模板 |
-| PUT | /api/workflow/templates/[id] | 更新模板 |
-| DELETE | /api/workflow/templates/[id] | 删除模板 |
-| POST | /api/workflow/templates/[id]/use | 使用模板创建 |
+| 方法   | 端点                             | 描述         |
+| ------ | -------------------------------- | ------------ |
+| GET    | /api/workflow/templates          | 模板列表     |
+| GET    | /api/workflow/templates/[id]     | 模板详情     |
+| POST   | /api/workflow/templates          | 创建模板     |
+| PUT    | /api/workflow/templates/[id]     | 更新模板     |
+| DELETE | /api/workflow/templates/[id]     | 删除模板     |
+| POST   | /api/workflow/templates/[id]/use | 使用模板创建 |
 
 ### 7.3 协作 API
 
-| 方法 | 端点 | 描述 |
-|------|------|------|
-| WS | /api/workflow/[id]/collab | WebSocket协作 |
+| 方法 | 端点                      | 描述          |
+| ---- | ------------------------- | ------------- |
+| WS   | /api/workflow/[id]/collab | WebSocket协作 |
 
 ---
 
@@ -966,14 +944,14 @@ src/
 
 ### 8.1 核心技术栈
 
-| 技术 | 用途 | 版本 |
-|------|------|------|
-| React Flow | 节点编辑器 | ^11.x |
-| Zustand | 状态管理 | ^5.x |
-| React Query | 服务端状态 | ^5.x |
-| Socket.io | WebSocket | ^4.x |
-| Prisma | ORM | ^6.x |
-| Redis | 缓存/会话 | ^7.x |
+| 技术        | 用途       | 版本  |
+| ----------- | ---------- | ----- |
+| React Flow  | 节点编辑器 | ^11.x |
+| Zustand     | 状态管理   | ^5.x  |
+| React Query | 服务端状态 | ^5.x  |
+| Socket.io   | WebSocket  | ^4.x  |
+| Prisma      | ORM        | ^6.x  |
+| Redis       | 缓存/会话  | ^7.x  |
 
 ### 8.2 React Flow 配置
 
@@ -985,12 +963,12 @@ const reactFlowConfig = {
   nodesConnectable: true,
   nodesFocusable: true,
   nodeTypes: customNodeTypes,
-  
+
   // 边
   edgesDraggable: true,
   edgesFocusable: true,
   edgeTypes: customEdgeTypes,
-  
+
   // 画布
   fitView: true,
   snapToGrid: true,
@@ -1000,18 +978,18 @@ const reactFlowConfig = {
     type: 'default',
     animated: false,
   },
-  
+
   // 交互
   panOnDrag: true,
   selectionOnDrag: false,
   zoomOnScroll: true,
   minZoom: 0.3,
   maxZoom: 3,
-  
+
   // 性能
   deleteKeyCode: ['Backspace', 'Delete'],
   multiSelectionKeyCode: 'Shift',
-};
+}
 ```
 
 ---
@@ -1043,43 +1021,37 @@ const AgentNode = React.memo<NodeProps>(({ data, selected }) => {
 
 ```typescript
 // 对于大量节点的场景，支持虚拟化
-import { useVirtualizer } from '@tanstack/react-virtual';
+import { useVirtualizer } from '@tanstack/react-virtual'
 
 // 节点数量超过500时启用虚拟化
 const useNodeVirtualization = (nodes: Node[]) => {
-  const parentRef = useRef<HTMLDivElement>(null);
-  
+  const parentRef = useRef<HTMLDivElement>(null)
+
   const virtualizer = useVirtualizer({
     count: nodes.length,
     getScrollElement: () => parentRef.current,
     estimateSize: () => 80,
     overscan: 5,
-  });
-  
-  return { parentRef, virtualizer };
-};
+  })
+
+  return { parentRef, virtualizer }
+}
 ```
 
 ### 9.3 防抖与节流
 
 ```typescript
-import { useDebouncedCallback } from 'use-debounce';
+import { useDebouncedCallback } from 'use-debounce'
 
 // 自动保存防抖
-const debouncedSave = useDebouncedCallback(
-  async (workflow: WorkflowDefinition) => {
-    await workflowRepository.update(workflow.id, workflow);
-  },
-  2000
-);
+const debouncedSave = useDebouncedCallback(async (workflow: WorkflowDefinition) => {
+  await workflowRepository.update(workflow.id, workflow)
+}, 2000)
 
 // 缩放变化节流
-const handleZoom = useThrottleCallback(
-  (zoom: number) => {
-    analytics.track('canvas_zoom', { zoom });
-  },
-  1000
-);
+const handleZoom = useThrottleCallback((zoom: number) => {
+  analytics.track('canvas_zoom', { zoom })
+}, 1000)
 ```
 
 ---
@@ -1104,32 +1076,34 @@ const checkWorkflowPermission = async (
   workflowId: string,
   permission: WorkflowPermission
 ): Promise<boolean> => {
-  const user = await userService.get(userId);
-  const workflow = await workflowRepository.get(workflowId);
-  
+  const user = await userService.get(userId)
+  const workflow = await workflowRepository.get(workflowId)
+
   // 所有者拥有所有权限
-  if (workflow.ownerId === userId) return true;
-  
+  if (workflow.ownerId === userId) return true
+
   // 检查用户角色权限
-  return hasPermission(user.role, permission);
-};
+  return hasPermission(user.role, permission)
+}
 ```
 
 ### 10.2 输入验证
 
 ```typescript
-import { z } from 'zod';
+import { z } from 'zod'
 
 // 节点配置验证
 const nodeConfigSchema = z.object({
   label: z.string().min(1).max(100),
   description: z.string().max(500).optional(),
   timeout: z.number().min(1).max(3600).optional(),
-  retryPolicy: z.object({
-    maxRetries: z.number().min(0).max(10),
-    backoff: z.enum(['fixed', 'exponential']),
-  }).optional(),
-});
+  retryPolicy: z
+    .object({
+      maxRetries: z.number().min(0).max(10),
+      backoff: z.enum(['fixed', 'exponential']),
+    })
+    .optional(),
+})
 
 // 工作流验证
 const workflowSchema = z.object({
@@ -1137,7 +1111,7 @@ const workflowSchema = z.object({
   description: z.string().max(1000).optional(),
   nodes: z.array(nodeSchema).min(1),
   edges: z.array(edgeSchema),
-});
+})
 ```
 
 ---
@@ -1194,6 +1168,7 @@ Phase 5 (Week 9-10): 优化与测试
 4. **完善持久化** - 支持版本控制、模板系统和自动保存
 
 该架构设计遵循以下原则：
+
 - **渐进式增强** - 平滑迁移现有功能
 - **模块化设计** - 组件松耦合，易于维护
 - **性能优先** - 优化大场景下的渲染性能

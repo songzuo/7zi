@@ -8,70 +8,70 @@
 // ============================================================================
 
 export interface AnalyticsMetrics {
-  agents: AgentMetrics;
-  users: UserMetrics;
-  tasks: TaskMetrics;
-  revenue: RevenueMetrics;
-  performance: PerformanceMetrics;
+  agents: AgentMetrics
+  users: UserMetrics
+  tasks: TaskMetrics
+  revenue: RevenueMetrics
+  performance: PerformanceMetrics
 }
 
 export interface AgentMetrics {
-  total: number;
-  active: number;
-  idle: number;
-  offline: number;
-  workingHours: number;
-  tasksCompleted: number;
-  tokensUsed: number;
-  byProvider: Record<string, AgentProviderMetrics>;
+  total: number
+  active: number
+  idle: number
+  offline: number
+  workingHours: number
+  tasksCompleted: number
+  tokensUsed: number
+  byProvider: Record<string, AgentProviderMetrics>
 }
 
 export interface AgentProviderMetrics {
-  count: number;
-  tasksCompleted: number;
-  tokensUsed: number;
-  averageResponseTime: number;
+  count: number
+  tasksCompleted: number
+  tokensUsed: number
+  averageResponseTime: number
 }
 
 export interface UserMetrics {
-  total: number;
-  activeToday: number;
-  activeWeek: number;
-  newUsers: number;
-  retentionRate: number;
-  averageSessionDuration: number;
+  total: number
+  activeToday: number
+  activeWeek: number
+  newUsers: number
+  retentionRate: number
+  averageSessionDuration: number
 }
 
 export interface TaskMetrics {
-  total: number;
-  completed: number;
-  inProgress: number;
-  pending: number;
-  cancelled: number;
-  completionRate: number;
-  averageCompletionTime: number;
-  byPriority: Record<string, number>;
-  byType: Record<string, number>;
+  total: number
+  completed: number
+  inProgress: number
+  pending: number
+  cancelled: number
+  completionRate: number
+  averageCompletionTime: number
+  byPriority: Record<string, number>
+  byType: Record<string, number>
 }
 
 export interface RevenueMetrics {
-  total: number;
-  monthly: number;
-  weekly: number;
-  daily: number;
-  growthRate: number;
-  bySource: Record<string, number>;
-  conversionRate: number;
+  total: number
+  monthly: number
+  weekly: number
+  daily: number
+  growthRate: number
+  bySource: Record<string, number>
+  conversionRate: number
 }
 
 export interface PerformanceMetrics {
-  cpuUsage: number;
-  memoryUsage: number;
-  responseTime: number;
-  uptime: number;
-  errorRate: number;
-  throughput: number;
-  cacheHitRate: number;
+  cpuUsage: number
+  memoryUsage: number
+  responseTime: number
+  uptime: number
+  errorRate: number
+  throughput: number
+  cacheHitRate: number
 }
 
 // ============================================================================
@@ -79,16 +79,16 @@ export interface PerformanceMetrics {
 // ============================================================================
 
 export interface TimeSeriesDataPoint {
-  timestamp: string;
-  date?: string;
-  [key: string]: string | number | undefined;
+  timestamp: string
+  date?: string
+  [key: string]: string | number | undefined
 }
 
-export type TimeRange = 'today' | 'week' | 'month' | 'quarter' | 'year' | 'custom';
+export type TimeRange = 'today' | 'week' | 'month' | 'quarter' | 'year' | 'custom'
 
 export interface DateRange {
-  start: string;
-  end: string;
+  start: string
+  end: string
 }
 
 // ============================================================================
@@ -96,32 +96,32 @@ export interface DateRange {
 // ============================================================================
 
 export interface AnalyticsFilters {
-  timeRange: TimeRange;
-  customRange?: DateRange;
-  agentIds?: string[];
-  taskStatuses?: string[];
-  taskPriorities?: string[];
-  taskTypes?: string[];
-  providers?: string[];
-  metrics?: string[];
-  compareWith?: TimeRange; // For comparison
+  timeRange: TimeRange
+  customRange?: DateRange
+  agentIds?: string[]
+  taskStatuses?: string[]
+  taskPriorities?: string[]
+  taskTypes?: string[]
+  providers?: string[]
+  metrics?: string[]
+  compareWith?: TimeRange // For comparison
 }
 
 // ============================================================================
 // Chart Types
 // ============================================================================
 
-export type ChartType = 'line' | 'area' | 'bar' | 'pie' | 'donut' | 'radar' | 'scatter' | 'heatmap';
+export type ChartType = 'line' | 'area' | 'bar' | 'pie' | 'donut' | 'radar' | 'scatter' | 'heatmap'
 
 export interface ChartConfig {
-  type: ChartType;
-  title: string;
-  data: TimeSeriesDataPoint[];
-  metrics: string[];
-  colors?: string[];
-  showLegend?: boolean;
-  showTooltip?: boolean;
-  height?: number;
+  type: ChartType
+  title: string
+  data: TimeSeriesDataPoint[]
+  metrics: string[]
+  colors?: string[]
+  showLegend?: boolean
+  showTooltip?: boolean
+  height?: number
 }
 
 // ============================================================================
@@ -129,39 +129,39 @@ export interface ChartConfig {
 // ============================================================================
 
 export interface DashboardWidget {
-  id: string;
-  type: 'stat-card' | 'chart' | 'table' | 'list' | 'custom';
-  title: string;
-  position: { x: number; y: number; w: number; h: number };
-  config: ChartConfig | Record<string, unknown>;
-  refreshInterval?: number;
-  visible?: boolean;
+  id: string
+  type: 'stat-card' | 'chart' | 'table' | 'list' | 'custom'
+  title: string
+  position: { x: number; y: number; w: number; h: number }
+  config: ChartConfig | Record<string, unknown>
+  refreshInterval?: number
+  visible?: boolean
 }
 
 export interface DashboardLayout {
-  id: string;
-  name: string;
-  description?: string;
-  isDefault?: boolean;
-  widgets: DashboardWidget[];
-  columns: number;
-  createdAt: string;
-  updatedAt: string;
+  id: string
+  name: string
+  description?: string
+  isDefault?: boolean
+  widgets: DashboardWidget[]
+  columns: number
+  createdAt: string
+  updatedAt: string
 }
 
 // ============================================================================
 // Export Formats
 // ============================================================================
 
-export type ExportFormat = 'csv' | 'xlsx' | 'json' | 'pdf';
+export type ExportFormat = 'csv' | 'xlsx' | 'json' | 'pdf'
 
 export interface ExportOptions {
-  format: ExportFormat;
-  data: TimeSeriesDataPoint[] | Record<string, unknown>[];
-  filename?: string;
-  includeHeaders?: boolean;
-  filters?: AnalyticsFilters;
-  dateRange?: DateRange;
+  format: ExportFormat
+  data: TimeSeriesDataPoint[] | Record<string, unknown>[]
+  filename?: string
+  includeHeaders?: boolean
+  filters?: AnalyticsFilters
+  dateRange?: DateRange
 }
 
 // ============================================================================
@@ -169,25 +169,25 @@ export interface ExportOptions {
 // ============================================================================
 
 export interface AnalyticsResponse<T = unknown> {
-  success: boolean;
-  data: T;
-  timestamp: string;
-  filters?: AnalyticsFilters;
+  success: boolean
+  data: T
+  timestamp: string
+  filters?: AnalyticsFilters
 }
 
 export interface PaginatedResponse<T = unknown> {
-  data: T[];
-  total: number;
-  page: number;
-  limit: number;
-  totalPages: number;
+  data: T[]
+  total: number
+  page: number
+  limit: number
+  totalPages: number
 }
 
 export interface AnalyticsError {
-  success: false;
-  error: string;
-  code?: string;
-  timestamp: string;
+  success: false
+  error: string
+  code?: string
+  timestamp: string
 }
 
 // ============================================================================
@@ -195,21 +195,21 @@ export interface AnalyticsError {
 // ============================================================================
 
 export interface Statistic {
-  label: string;
-  value: number | string;
+  label: string
+  value: number | string
   change?: {
-    value: number;
-    period: string;
-    type: 'increase' | 'decrease' | 'stable';
-  };
-  format?: 'number' | 'currency' | 'percentage' | 'bytes' | 'duration';
+    value: number
+    period: string
+    type: 'increase' | 'decrease' | 'stable'
+  }
+  format?: 'number' | 'currency' | 'percentage' | 'bytes' | 'duration'
 }
 
 export interface TrendAnalysis {
-  period: string;
-  value: number;
-  previousValue: number;
-  change: number;
-  changePercentage: number;
-  trend: 'up' | 'down' | 'stable';
+  period: string
+  value: number
+  previousValue: number
+  change: number
+  changePercentage: number
+  trend: 'up' | 'down' | 'stable'
 }

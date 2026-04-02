@@ -1,12 +1,12 @@
-'use client';
+'use client'
 
-import { memo, ReactNode } from 'react';
+import { memo, ReactNode } from 'react'
 
 export interface SectionCardProps {
-  title: string;
-  icon: string;
-  children: ReactNode;
-  className?: string;
+  title: string
+  icon: string
+  children: ReactNode
+  className?: string
 }
 
 /**
@@ -19,18 +19,18 @@ const SectionCard = memo(function SectionCard({
   className = '',
 }: SectionCardProps) {
   return (
-    <div className={`bg-white dark:bg-zinc-800 rounded-2xl shadow-sm border border-zinc-200 dark:border-zinc-700 overflow-hidden ${className}`}>
-      <div className="px-6 py-4 border-b border-zinc-200 dark:border-zinc-700">
-        <h2 className="text-lg font-semibold text-zinc-900 dark:text-white flex items-center gap-2">
+    <div
+      className={`overflow-hidden rounded-2xl border border-zinc-200 bg-white shadow-sm dark:border-zinc-700 dark:bg-zinc-800 ${className}`}
+    >
+      <div className="border-b border-zinc-200 px-6 py-4 dark:border-zinc-700">
+        <h2 className="flex items-center gap-2 text-lg font-semibold text-zinc-900 dark:text-white">
           <span>{icon}</span>
           {title}
         </h2>
       </div>
-      <div className="p-6">
-        {children}
-      </div>
+      <div className="p-6">{children}</div>
     </div>
-  );
-});
+  )
+})
 
-export default SectionCard;
+export default SectionCard

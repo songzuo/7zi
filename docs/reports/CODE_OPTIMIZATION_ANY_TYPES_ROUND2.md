@@ -9,18 +9,19 @@
 
 ### 修复的文件 (4个)
 
-| 文件 | 修复数量 | 问题描述 | 解决方案 |
-|------|----------|----------|----------|
-| `src/lib/economy/wallet.ts` | 2 | 动态排序字段访问 `(a as any)[orderBy]` | 使用类型断言到 `keyof Transaction` 并添加类型安全比较 |
-| `src/lib/security/encryption.ts` | 4 | 动态属性访问 `(result as any)[field]` | 使用 `Record<string, unknown>` 进行动态访问 |
-| `src/lib/security/websocket-security.ts` | 1 | 访问私有配置 `(instance as any).config` | 添加公共 `updateConfig()` 方法 |
-| `src/lib/react-compiler/performance/measurer.ts` | 1 | Chrome 扩展 API `(performance as any).memory` | 创建统一的类型定义文件 |
+| 文件                                             | 修复数量 | 问题描述                                      | 解决方案                                              |
+| ------------------------------------------------ | -------- | --------------------------------------------- | ----------------------------------------------------- |
+| `src/lib/economy/wallet.ts`                      | 2        | 动态排序字段访问 `(a as any)[orderBy]`        | 使用类型断言到 `keyof Transaction` 并添加类型安全比较 |
+| `src/lib/security/encryption.ts`                 | 4        | 动态属性访问 `(result as any)[field]`         | 使用 `Record<string, unknown>` 进行动态访问           |
+| `src/lib/security/websocket-security.ts`         | 1        | 访问私有配置 `(instance as any).config`       | 添加公共 `updateConfig()` 方法                        |
+| `src/lib/react-compiler/performance/measurer.ts` | 1        | Chrome 扩展 API `(performance as any).memory` | 创建统一的类型定义文件                                |
 
 ### 新建类型文件 (1个)
 
 **文件**: `src/types/browser-extensions.d.ts`
 
 新增浏览器扩展 API 类型定义：
+
 - `PerformanceWithMemory` - Chrome 的 `performance.memory` API
 - 统一管理浏览器非标准 API 类型声明
 
@@ -33,30 +34,27 @@
 **问题**: 使用 `as any` 进行动态属性访问排序
 
 **修复**:
+
 ```typescript
 // 修复前
-const aVal = (a as any)[orderBy];
-const bVal = (b as any)[orderBy];
-return direction === "asc" ? aVal > bVal ? 1 : -1 : aVal < bVal ? 1 : -1;
+const aVal = (a as any)[orderBy]
+const bVal = (b as any)[orderBy]
+return direction === 'asc' ? (aVal > bVal ? 1 : -1) : aVal < bVal ? 1 : -1
 
 // 修复后
-const orderBy = (options?.orderBy || "createdAt") as keyof Transaction;
-const aVal = a[orderBy];
-const bVal = b[orderBy];
+const orderBy = (options?.orderBy || 'createdAt') as keyof Transaction
+const aVal = a[orderBy]
+const bVal = b[orderBy]
 // 类型安全的比较逻辑，处理 number、Date、string 等类型
-if (typeof aVal === "number" && typeof bVal === "number") {
-  return direction === "asc" ? aVal - bVal : bVal - aVal;
+if (typeof aVal === 'number' && typeof bVal === 'number') {
+  return direction === 'asc' ? aVal - bVal : bVal - aVal
 }
 if (aVal instanceof Date && bVal instanceof Date) {
-  return direction === "asc"
-    ? aVal.getTime() - bVal.getTime()
-    : bVal.getTime() - aVal.getTime();
+  return direction === 'asc' ? aVal.getTime() - bVal.getTime() : bVal.getTime() - aVal.getTime()
 }
-const aStr = String(aVal ?? "");
-const bStr = String(bVal ?? "");
-return direction === "asc"
-  ? aStr.localeCompare(bStr)
-  : bStr.localeCompare(aStr);
+const aStr = String(aVal ?? '')
+const bStr = String(bVal ?? '')
+return direction === 'asc' ? aStr.localeCompare(bStr) : bStr.localeCompare(aStr)
 ```
 
 ### 2. security/encryption.ts - 动态属性访问
@@ -64,17 +62,18 @@ return direction === "asc"
 **问题**: 使用 `as any` 进行加密字段的动态访问
 
 **修复**:
+
 ```typescript
 // 修复前
-const value = result[field];
-(result as any)[`_encrypted_${String(field)}`] = encrypted;
-delete (result as any)[field];
+const value = result[field]
+;(result as any)[`_encrypted_${String(field)}`] = encrypted
+delete (result as any)[field]
 
 // 修复后
-const result = { ...obj } as Record<string, unknown>;
-const value = result[field as string];
-result[`_encrypted_${String(field)}`] = encrypted;
-delete result[field as string];
+const result = { ...obj } as Record<string, unknown>
+const value = result[field as string]
+result[`_encrypted_${String(field)}`] = encrypted
+delete result[field as string]
 ```
 
 ### 3. security/websocket-security.ts - 私有配置访问
@@ -82,30 +81,29 @@ delete result[field as string];
 **问题**: 直接访问私有属性更新配置
 
 **修复**:
+
 ```typescript
 // 添加公共方法
 class WSSecurityManager {
-  private config: Required<WSSecurityConfig>;
+  private config: Required<WSSecurityConfig>
 
   updateConfig(config: WSSecurityConfig): void {
-    this.config = { ...DEFAULT_CONFIG, ...config };
+    this.config = { ...DEFAULT_CONFIG, ...config }
   }
 
   getConfig(): Required<WSSecurityConfig> {
-    return { ...this.config };
+    return { ...this.config }
   }
 }
 
 // 使用类型安全的方法
-export function getWSSecurityManager(
-  config?: WSSecurityConfig,
-): WSSecurityManager {
+export function getWSSecurityManager(config?: WSSecurityConfig): WSSecurityManager {
   if (!instance) {
-    instance = new WSSecurityManager(config);
+    instance = new WSSecurityManager(config)
   } else if (config) {
-    instance.updateConfig(config);  // ✅ 类型安全
+    instance.updateConfig(config) // ✅ 类型安全
   }
-  return instance;
+  return instance
 }
 ```
 
@@ -114,14 +112,15 @@ export function getWSSecurityManager(
 **问题**: 使用 `as any` 访问 Chrome 专有 API
 
 **修复**:
+
 ```typescript
 // 创建统一类型定义 (src/types/browser-extensions.d.ts)
 export interface PerformanceWithMemory extends Performance {
-  memory?: MemoryInfo;
+  memory?: MemoryInfo
 }
 
 // 导入并使用
-import type { PerformanceWithMemory } from "@/types/browser-extensions";
+import type { PerformanceWithMemory } from '@/types/browser-extensions'
 
 memoryUsage: (performance as PerformanceWithMemory).memory?.usedJSHeapSize || 0
 ```
@@ -130,12 +129,13 @@ memoryUsage: (performance as PerformanceWithMemory).memory?.usedJSHeapSize || 0
 
 ## 优化进度更新
 
-| 类别 | 原始数量 | 本轮修复 | 已优化总数 | 待优化 | 优化比例 |
-|------|----------|----------|-----------|--------|----------|
-| 类型标注 (`: any`) | 124 | 0 | 5 | 119 | 4.2% |
-| 类型断言 (`as any`) | 65 | 7 | 7 | 58 | 10.8% |
+| 类别                | 原始数量 | 本轮修复 | 已优化总数 | 待优化 | 优化比例 |
+| ------------------- | -------- | -------- | ---------- | ------ | -------- |
+| 类型标注 (`: any`)  | 124      | 0        | 5          | 119    | 4.2%     |
+| 类型断言 (`as any`) | 65       | 7        | 7          | 58     | 10.8%    |
 
 **累计修复位置**:
+
 1. ✅ `src/types/workflow.ts` - formSchema 类型 (第一轮)
 2. ✅ `src/types/rate-limit.ts` - 速率限制器类型定义 (第一轮)
 3. ✅ `src/lib/economy/wallet.ts` - 动态排序 (第二轮)
@@ -151,6 +151,7 @@ memoryUsage: (performance as PerformanceWithMemory).memory?.usedJSHeapSize || 0
 ### 类型检查
 
 修复后的文件中已无 `any` 类型使用：
+
 ```bash
 $ grep -c "any" src/lib/economy/wallet.ts
 0

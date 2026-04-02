@@ -3,24 +3,31 @@
  * Verifies JWT tokens and provides user context with multi-role support
  */
 
-import { NextRequest, NextResponse } from 'next/server';
-import { authenticateToken } from './service';
-import { UserContext } from './types';
-import { Permission, Role } from '@/lib/permissions/types';
-import { hasPermission, hasAllPermissions, hasAnyPermission, hasRole, hasAnyRole, hasAllRoles } from '@/lib/permissions/rbac';
-import { getUserPermissionContext } from '@/lib/permissions/repository';
-import { logger } from '../logger';
+import { NextRequest, NextResponse } from 'next/server'
+import { authenticateToken } from './service'
+import { UserContext } from './types'
+import { Permission, Role } from '@/lib/permissions/types'
+import {
+  hasPermission,
+  hasAllPermissions,
+  hasAnyPermission,
+  hasRole,
+  hasAnyRole,
+  hasAllRoles,
+} from '@/lib/permissions/rbac'
+import { getUserPermissionContext } from '@/lib/permissions/repository'
+import { logger } from '../logger'
 
 /**
  * Enhanced UserContext with RBAC support
  */
 export interface RBACUserContext extends UserContext {
   permissionContext?: {
-    userId: string;
-    roles: Role[];
-    permissions: Permission[];
-    customPermissions?: (Permission | string)[];
-  };
+    userId: string
+    roles: Role[]
+    permissions: Permission[]
+    customPermissions?: (Permission | string)[]
+  }
 }
 
 /**
@@ -30,30 +37,30 @@ export async function withUserAuth(
   request: NextRequest,
   handler: (request: NextRequest, context: RBACUserContext) => Promise<NextResponse>
 ): Promise<NextResponse> {
-  const requestId = generateRequestId();
+  const requestId = generateRequestId()
 
   try {
     // Get token from Authorization header
-    const authHeader = request.headers.get('authorization');
+    const authHeader = request.headers.get('authorization')
     if (!authHeader || !authHeader.startsWith('Bearer ')) {
-      return createErrorResponse('Missing authorization header', 'UNAUTHORIZED', 401, requestId);
+      return createErrorResponse('Missing authorization header', 'UNAUTHORIZED', 401, requestId)
     }
 
-    const token = authHeader.substring(7);
+    const token = authHeader.substring(7)
 
     // Validate token format
     if (!token || token.length < 10) {
-      return createErrorResponse('Invalid token format', 'INVALID_TOKEN', 401, requestId);
+      return createErrorResponse('Invalid token format', 'INVALID_TOKEN', 401, requestId)
     }
 
     // Verify token
-    const authResult = await authenticateToken(token);
+    const authResult = await authenticateToken(token)
     if (!authResult) {
-      return createErrorResponse('Invalid or expired token', 'INVALID_TOKEN', 401, requestId);
+      return createErrorResponse('Invalid or expired token', 'INVALID_TOKEN', 401, requestId)
     }
 
     // Get RBAC permission context
-    const permissionContext = await getUserPermissionContext(authResult.context.userId);
+    const permissionContext = await getUserPermissionContext(authResult.context.userId)
 
     // Build enhanced context
     const context: RBACUserContext = {
@@ -67,39 +74,34 @@ export async function withUserAuth(
             customPermissions: permissionContext.customPermissions,
           }
         : undefined,
-    };
+    }
 
     // Execute handler
-    return handler(request, context);
-  } catch (_error) {
-    logger.error('User auth error:', { error });
-    
+    return handler(request, context)
+  } catch (error) {
+    logger.error('User auth error:', { error })
+
     // Check if this is an authentication error - return 401
     // Common auth errors: invalid token, expired token, malformed token
-    const errorMessage = error instanceof Error ? error.message : String(error);
-    const isAuthError = 
-      errorMessage.includes('token') || 
+    const errorMessage = error instanceof Error ? error.message : String(error)
+    const isAuthError =
+      errorMessage.includes('token') ||
       errorMessage.includes('Token') ||
       errorMessage.includes('auth') ||
       errorMessage.includes('Auth') ||
       errorMessage.includes('JWT') ||
-      errorMessage.includes('signature');
-    
+      errorMessage.includes('signature')
+
     if (isAuthError) {
-      return createErrorResponse(
-        errorMessage,
-        'UNAUTHORIZED',
-        401,
-        requestId
-      );
+      return createErrorResponse(errorMessage, 'UNAUTHORIZED', 401, requestId)
     }
-    
+
     return createErrorResponse(
       error instanceof Error ? error.message : 'Internal server error',
       'INTERNAL_ERROR',
       500,
       requestId
-    );
+    )
   }
 }
 
@@ -118,11 +120,13 @@ export function withPermissions(...requiredPermissions: string[]) {
           'INTERNAL_ERROR',
           500,
           context.requestId || generateRequestId()
-        );
+        )
       }
 
       // Convert string permissions to Permission enum
-      const permissionEnums = requiredPermissions.filter((p): p is Permission => Object.values(Permission).includes(p as Permission));
+      const permissionEnums = requiredPermissions.filter((p): p is Permission =>
+        Object.values(Permission).includes(p as Permission)
+      )
 
       if (!hasAllPermissions(context.permissionContext, permissionEnums)) {
         return createErrorResponse(
@@ -130,12 +134,12 @@ export function withPermissions(...requiredPermissions: string[]) {
           'FORBIDDEN',
           403,
           context.requestId || generateRequestId()
-        );
+        )
       }
 
-      return handler(req, context);
-    });
-  };
+      return handler(req, context)
+    })
+  }
 }
 
 /**
@@ -153,11 +157,13 @@ export function withAnyPermission(...permissions: string[]) {
           'INTERNAL_ERROR',
           500,
           context.requestId || generateRequestId()
-        );
+        )
       }
 
       // Convert string permissions to Permission enum
-      const permissionEnums = permissions.filter((p): p is Permission => Object.values(Permission).includes(p as Permission));
+      const permissionEnums = permissions.filter((p): p is Permission =>
+        Object.values(Permission).includes(p as Permission)
+      )
 
       if (!hasAnyPermission(context.permissionContext, permissionEnums)) {
         return createErrorResponse(
@@ -165,12 +171,12 @@ export function withAnyPermission(...permissions: string[]) {
           'FORBIDDEN',
           403,
           context.requestId || generateRequestId()
-        );
+        )
       }
 
-      return handler(req, context);
-    });
-  };
+      return handler(req, context)
+    })
+  }
 }
 
 /**
@@ -188,11 +194,13 @@ export function withRole(requiredRole: string) {
           'INTERNAL_ERROR',
           500,
           context.requestId || generateRequestId()
-        );
+        )
       }
 
       // Convert string role to Role enum
-      const roleEnum = Object.values(Role).includes(requiredRole as Role) ? (requiredRole as Role) : null;
+      const roleEnum = Object.values(Role).includes(requiredRole as Role)
+        ? (requiredRole as Role)
+        : null
 
       if (!roleEnum || !hasRole(context.permissionContext, roleEnum)) {
         return createErrorResponse(
@@ -200,12 +208,12 @@ export function withRole(requiredRole: string) {
           'FORBIDDEN',
           403,
           context.requestId || generateRequestId()
-        );
+        )
       }
 
-      return handler(req, context);
-    });
-  };
+      return handler(req, context)
+    })
+  }
 }
 
 /**
@@ -223,11 +231,11 @@ export function withAnyRole(...roles: string[]) {
           'INTERNAL_ERROR',
           500,
           context.requestId || generateRequestId()
-        );
+        )
       }
 
       // Convert string roles to Role enum
-      const roleEnums = roles.filter((r): r is Role => Object.values(Role).includes(r as Role));
+      const roleEnums = roles.filter((r): r is Role => Object.values(Role).includes(r as Role))
 
       if (!hasAnyRole(context.permissionContext, roleEnums)) {
         return createErrorResponse(
@@ -235,12 +243,12 @@ export function withAnyRole(...roles: string[]) {
           'FORBIDDEN',
           403,
           context.requestId || generateRequestId()
-        );
+        )
       }
 
-      return handler(req, context);
-    });
-  };
+      return handler(req, context)
+    })
+  }
 }
 
 /**
@@ -250,7 +258,7 @@ export function withAdmin(
   request: NextRequest,
   handler: (request: NextRequest, context: RBACUserContext) => Promise<NextResponse>
 ): Promise<NextResponse> {
-  return withRole(Role.ADMIN)(request, handler);
+  return withRole(Role.ADMIN)(request, handler)
 }
 
 /**
@@ -260,7 +268,7 @@ export function withManagerOrAdmin(
   request: NextRequest,
   handler: (request: NextRequest, context: RBACUserContext) => Promise<NextResponse>
 ): Promise<NextResponse> {
-  return withAnyRole(Role.ADMIN, Role.MANAGER)(request, handler);
+  return withAnyRole(Role.ADMIN, Role.MANAGER)(request, handler)
 }
 
 /**
@@ -270,31 +278,31 @@ export async function withOptionalAuth(
   request: NextRequest,
   handler: (request: NextRequest, context: RBACUserContext | null) => Promise<NextResponse>
 ): Promise<NextResponse> {
-  const requestId = generateRequestId();
+  const requestId = generateRequestId()
 
   try {
-    const authHeader = request.headers.get('authorization');
+    const authHeader = request.headers.get('authorization')
     if (!authHeader || !authHeader.startsWith('Bearer ')) {
       // No token provided, call handler with null context
-      return handler(request, null);
+      return handler(request, null)
     }
 
-    const token = authHeader.substring(7);
+    const token = authHeader.substring(7)
 
     // Validate token format
     if (!token || token.length < 10) {
-      return handler(request, null);
+      return handler(request, null)
     }
 
-    const authResult = await authenticateToken(token);
+    const authResult = await authenticateToken(token)
 
     if (!authResult) {
       // Invalid token, call handler with null context
-      return handler(request, null);
+      return handler(request, null)
     }
 
     // Get RBAC permission context
-    const permissionContext = await getUserPermissionContext(authResult.context.userId);
+    const permissionContext = await getUserPermissionContext(authResult.context.userId)
 
     const context: RBACUserContext = {
       ...authResult.context,
@@ -307,13 +315,13 @@ export async function withOptionalAuth(
             customPermissions: permissionContext.customPermissions,
           }
         : undefined,
-    };
+    }
 
-    return handler(request, context);
-  } catch (_error) {
-    logger.error('Optional auth error:', { error });
+    return handler(request, context)
+  } catch (error) {
+    logger.error('Optional auth error:', { error })
     // On error, call handler with null context
-    return handler(request, null);
+    return handler(request, null)
   }
 }
 
@@ -321,7 +329,7 @@ export async function withOptionalAuth(
  * Generate request ID
  */
 function generateRequestId(): string {
-  return `req_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
+  return `req_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`
 }
 
 /**
@@ -346,5 +354,5 @@ function createErrorResponse(
       },
     },
     { status }
-  );
+  )
 }

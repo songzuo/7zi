@@ -9,7 +9,7 @@ export {
   checkMetricAgainstBudget,
   formatBudgetViolation,
   getCoreWebVitalsThresholds,
-} from './budget-checker';
+} from './budget-checker'
 
 export type {
   BudgetConfig,
@@ -19,7 +19,7 @@ export type {
   BudgetCheckResult,
   BudgetViolation,
   BudgetCheckerConfig,
-} from './budget-checker';
+} from './budget-checker'
 
 export {
   BudgetParser,
@@ -27,9 +27,6 @@ export {
   VALID_METRICS,
   DEFAULT_TOLERANCES,
   RECOMMENDED_BUDGETS,
-} from './budget-parser';
+} from './budget-parser'
 
-export type {
-  BudgetParseResult,
-  BudgetValidationError,
-} from './budget-parser';
+export type { BudgetParseResult, BudgetValidationError } from './budget-parser'

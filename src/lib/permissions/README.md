@@ -25,15 +25,15 @@ node scripts/migrate-rbac.js
 Or programmatically:
 
 ```typescript
-import { migrate } from '@/lib/permissions/migrations';
-await migrate();
+import { migrate } from '@/lib/permissions/migrations'
+await migrate()
 ```
 
 ### 2. Seed Default Roles & Permissions
 
 ```typescript
-import { seedDefaultRolesAndPermissions } from '@/lib/permissions';
-await seedDefaultRolesAndPermissions();
+import { seedDefaultRolesAndPermissions } from '@/lib/permissions'
+await seedDefaultRolesAndPermissions()
 ```
 
 ### 3. Wrap App with PermissionProvider (Frontend)
@@ -58,21 +58,21 @@ export default function RootLayout({ children }) {
 ### Server-side (API Routes)
 
 ```typescript
-import { withPermissions, withRole } from '@/lib/permissions';
-import { Permission, Role } from '@/lib/permissions/types';
+import { withPermissions, withRole } from '@/lib/permissions'
+import { Permission, Role } from '@/lib/permissions/types'
 
 export async function DELETE(request: NextRequest) {
   return withPermissions(Permission.USER_DELETE)(request, async (req, context) => {
     // User has permission, proceed
-    return NextResponse.json({ success: true });
-  });
+    return NextResponse.json({ success: true })
+  })
 }
 
 export async function GET(request: NextRequest) {
   return withRole(Role.ADMIN)(request, async (req, context) => {
     // User is admin, proceed
-    return NextResponse.json({ data: '...' });
-  });
+    return NextResponse.json({ data: '...' })
+  })
 }
 ```
 
@@ -147,12 +147,12 @@ RBAC_IMPLEMENTATION_SUMMARY.md      # Summary (12.9 KB)
 
 ### Roles
 
-| Role | Description | Permissions |
-|------|-------------|--------------|
-| **Admin** | Full system access | All 40 permissions |
-| **Manager** | Team management | ~30 permissions |
-| **Member** | Standard team member | ~15 permissions |
-| **Viewer** | Read-only access | ~6 permissions |
+| Role        | Description          | Permissions        |
+| ----------- | -------------------- | ------------------ |
+| **Admin**   | Full system access   | All 40 permissions |
+| **Manager** | Team management      | ~30 permissions    |
+| **Member**  | Standard team member | ~15 permissions    |
+| **Viewer**  | Read-only access     | ~6 permissions     |
 
 ### Permission Categories
 
@@ -171,27 +171,27 @@ RBAC_IMPLEMENTATION_SUMMARY.md      # Summary (12.9 KB)
 
 ```typescript
 // Permission checks
-withPermissions(...permissions)              // ALL permissions required
-withAnyPermission(...permissions)             // ANY permission required
+withPermissions(...permissions) // ALL permissions required
+withAnyPermission(...permissions) // ANY permission required
 
 // Role checks
-withRole(role)                                // Specific role required
-withAnyRole(...roles)                        // ANY role required
-withAllRoles(...roles)                        // ALL roles required
+withRole(role) // Specific role required
+withAnyRole(...roles) // ANY role required
+withAllRoles(...roles) // ALL roles required
 
 // Convenience functions
-withAdmin()                                   // Admin only
-withManagerOrAdmin()                          // Manager or admin
-withMemberOrHigher()                          // Member or higher
+withAdmin() // Admin only
+withManagerOrAdmin() // Manager or admin
+withMemberOrHigher() // Member or higher
 
 // Advanced
-withPermissionOrRole(permission, role)         // Permission OR role
-withPermissionAndRole(permission, role)        // Permission AND role
+withPermissionOrRole(permission, role) // Permission OR role
+withPermissionAndRole(permission, role) // Permission AND role
 
 // Context access
-withPermissionContext()                        // Provides context
-requirePermissionContext()                     // Requires auth
-withOptionalPermissionContext()               // Optional auth
+withPermissionContext() // Provides context
+requirePermissionContext() // Requires auth
+withOptionalPermissionContext() // Optional auth
 ```
 
 ## 🎨 Frontend Components
@@ -227,20 +227,16 @@ import {
   getUserRoles,
   assignPermissionsToRole,
   getAllRoles,
-} from '@/lib/permissions';
+} from '@/lib/permissions'
 
 // Manage user roles
-await addRolesToUser('user123', [Role.ADMIN], 'admin456');
-await removeRolesFromUser('user123', [Role.MANAGER]);
-const roles = await getUserRoles('user123');
+await addRolesToUser('user123', [Role.ADMIN], 'admin456')
+await removeRolesFromUser('user123', [Role.MANAGER])
+const roles = await getUserRoles('user123')
 
 // Manage role permissions
-await assignPermissionsToRole(
-  Role.MANAGER,
-  [Permission.SYSTEM_READ],
-  'admin456'
-);
-const allRoles = await getAllRoles();
+await assignPermissionsToRole(Role.MANAGER, [Permission.SYSTEM_READ], 'admin456')
+const allRoles = await getAllRoles()
 ```
 
 ## 🧪 Testing
@@ -250,6 +246,7 @@ npm test -- src/lib/permissions/__tests__/rbac.test.ts
 ```
 
 Test coverage includes:
+
 - ✅ Role definitions
 - ✅ Permission checks
 - ✅ Multi-role support
@@ -279,23 +276,23 @@ Test coverage includes:
 ### Apply Migration
 
 ```typescript
-import { migrate } from '@/lib/permissions/migrations';
-await migrate();
+import { migrate } from '@/lib/permissions/migrations'
+await migrate()
 ```
 
 ### Check Status
 
 ```typescript
-import { getMigrationStatus } from '@/lib/permissions/migrations';
-const status = await getMigrationStatus();
-console.log(status.applied); // true/false
+import { getMigrationStatus } from '@/lib/permissions/migrations'
+const status = await getMigrationStatus()
+console.log(status.applied) // true/false
 ```
 
 ### Rollback
 
 ```typescript
-import { rollback } from '@/lib/permissions/migrations';
-await rollback();
+import { rollback } from '@/lib/permissions/migrations'
+await rollback()
 ```
 
 ## 📊 Migration Checklist

@@ -12,6 +12,7 @@
 基于现有 Analytics Dashboard 架构，成功实施了完整的实时性能监控功能，包括 Web Vitals 核心指标收集、实时趋势图表、页面加载瀑布流等。
 
 ### 核心成果
+
 - ✅ 创建 4 个新的性能监控组件
 - ✅ 创建 Web Vitals Hook 用于指标收集
 - ✅ 完整的类型定义和 TypeScript 支持
@@ -25,18 +26,18 @@
 
 ### 新增文件 (5 个)
 
-| 文件路径 | 代码行数 | 说明 |
-|---------|---------|------|
-| `src/lib/hooks/useWebVitals.ts` | ~200 | Web Vitals 指标收集 Hook |
-| `src/components/analytics/PerformanceMetrics.tsx` | ~240 | 性能指标卡片组件 |
-| `src/components/analytics/RealTimeCharts.tsx` | ~270 | 实时趋势图表组件 |
-| `src/components/analytics/PageLoadWaterfall.tsx` | ~350 | 页面加载瀑布流组件 |
-| `src/components/analytics/PerformanceMonitoringDashboard.tsx` | ~290 | 性能监控仪表板主组件 |
+| 文件路径                                                      | 代码行数 | 说明                     |
+| ------------------------------------------------------------- | -------- | ------------------------ |
+| `src/lib/hooks/useWebVitals.ts`                               | ~200     | Web Vitals 指标收集 Hook |
+| `src/components/analytics/PerformanceMetrics.tsx`             | ~240     | 性能指标卡片组件         |
+| `src/components/analytics/RealTimeCharts.tsx`                 | ~270     | 实时趋势图表组件         |
+| `src/components/analytics/PageLoadWaterfall.tsx`              | ~350     | 页面加载瀑布流组件       |
+| `src/components/analytics/PerformanceMonitoringDashboard.tsx` | ~290     | 性能监控仪表板主组件     |
 
 ### 修改文件 (1 个)
 
-| 文件路径 | 修改内容 |
-|---------|---------|
+| 文件路径                            | 修改内容       |
+| ----------------------------------- | -------------- |
 | `src/components/analytics/index.ts` | 添加新组件导出 |
 
 **总计**: 1350+ 行新代码
@@ -50,6 +51,7 @@
 浏览器端 Web Vitals 指标自动收集。
 
 **功能特性**:
+
 - ✅ 支持 Web Vitals 核心指标：
   - LCP (Largest Contentful Paint) - 最大内容绘制
   - FID (First Input Delay) - 首次输入延迟
@@ -64,12 +66,13 @@
 - ✅ 可配置指标类型和上报行为
 
 **API**:
+
 ```typescript
 const { metrics, history, isCollecting } = useWebVitals({
-  reportToApi: true,        // 自动上报
+  reportToApi: true, // 自动上报
   enabledMetrics: ['LCP', 'FID', 'CLS', 'INP'], // 启用指标
-  onMetric: (metric) => console.log(metric), // 自定义回调
-});
+  onMetric: metric => console.log(metric), // 自定义回调
+})
 ```
 
 ### 2. PerformanceMetrics 组件 (`src/components/analytics/PerformanceMetrics.tsx`)
@@ -77,6 +80,7 @@ const { metrics, history, isCollecting } = useWebVitals({
 Web Vitals 指标卡片展示组件。
 
 **功能特性**:
+
 - ✅ 6 个核心指标卡片（LCP, FID, CLS, INP, FCP, TTFB）
 - ✅ 彩色评分指示器（绿/黄/红）
 - ✅ 整体性能评分计算
@@ -95,12 +99,9 @@ Web Vitals 指标卡片展示组件。
 | TTFB | ≤800ms | 800-1800ms | >1800ms |
 
 **使用示例**:
+
 ```tsx
-<PerformanceMetrics
-  metrics={metrics}
-  locale="zh"
-  showRating={true}
-/>
+<PerformanceMetrics metrics={metrics} locale="zh" showRating={true} />
 ```
 
 ### 3. RealTimeCharts 组件 (`src/components/analytics/RealTimeCharts.tsx`)
@@ -108,6 +109,7 @@ Web Vitals 指标卡片展示组件。
 实时性能趋势图表组件。
 
 **功能特性**:
+
 - ✅ 支持 3 种图表类型：Line（折线图）、Area（面积图）、Bar（柱状图）
 - ✅ 使用 Recharts 库渲染
 - ✅ 自定义 Tooltip 显示详细数据
@@ -117,6 +119,7 @@ Web Vitals 指标卡片展示组件。
 - ✅ X/Y 轴格式化和标签
 
 **图表配置**:
+
 ```tsx
 <RealTimeCharts
   history={history}
@@ -128,6 +131,7 @@ Web Vitals 指标卡片展示组件。
 ```
 
 **颜色映射**:
+
 - LCP: 蓝色 (#3b82f6)
 - FID: 绿色 (#10b981)
 - CLS: 琥珀色 (#f59e0b)
@@ -140,6 +144,7 @@ Web Vitals 指标卡片展示组件。
 页面加载瀑布流可视化组件。
 
 **功能特性**:
+
 - ✅ 关键时间点可视化（TTFB, FCP, LCP, FID）
 - ✅ 资源加载瀑布流（脚本、样式、图片等）
 - ✅ 时间轴可视化
@@ -149,6 +154,7 @@ Web Vitals 指标卡片展示组件。
 - ✅ 响应式设计和暗色模式
 
 **资源类型支持**:
+
 - Script (脚本) - 橙色
 - Link/HTML (页面) - 蓝色
 - Image (图片) - 绿色
@@ -156,6 +162,7 @@ Web Vitals 指标卡片展示组件。
 - Fetch/XHR (请求) - 粉色/青色
 
 **使用示例**:
+
 ```tsx
 <PageLoadWaterfall
   metrics={metrics}
@@ -171,6 +178,7 @@ Web Vitals 指标卡片展示组件。
 性能监控仪表板主组件，集成所有子组件。
 
 **功能特性**:
+
 - ✅ 集成 3 个核心组件：Metrics、Charts、Waterfall
 - ✅ 实时收集状态显示
 - ✅ 手动刷新按钮（重新加载页面）
@@ -180,6 +188,7 @@ Web Vitals 指标卡片展示组件。
 - ✅ 最后更新时间显示
 
 **配置选项**:
+
 ```tsx
 <PerformanceMonitoringDashboard
   enabled={true}
@@ -243,23 +252,27 @@ PerformanceMonitoringDashboard
 ## 技术亮点
 
 ### 1. Web Vitals 集成
+
 - 动态导入 `web-vitals` 库（减少初始包大小）
 - 完整的 6 个核心指标支持
 - 自动评分和评级逻辑
 - 优雅降级（库不可用时静默失败）
 
 ### 2. 实时更新
+
 - WebSocket 实时数据推送（可选）
 - 轮询 API 作为后备方案
 - 可配置更新间隔
 
 ### 3. 性能优化
+
 - 使用 `useMemo` 计算派生数据
 - 使用 `useCallback` 稳定化回调函数
 - 历史数据限制（最多 100 个数据点）
 - 图表数据点限制（最多 20 个）
 
 ### 4. 用户体验
+
 - 加载状态和空状态处理
 - 收集状态指示器（脉冲动画）
 - 数据导出功能
@@ -267,6 +280,7 @@ PerformanceMonitoringDashboard
 - 手动刷新功能
 
 ### 5. 类型安全
+
 - 完整的 TypeScript 类型定义
 - 所有 Props 和 State 都有类型
 - 避免运行时类型错误
@@ -294,20 +308,16 @@ npm install web-vitals recharts
 ### 在页面中使用
 
 ```tsx
-'use client';
+'use client'
 
-import { PerformanceMonitoringDashboard } from '@/components/analytics';
+import { PerformanceMonitoringDashboard } from '@/components/analytics'
 
 export default function PerformancePage() {
   return (
     <div className="container mx-auto p-6">
-      <PerformanceMonitoringDashboard
-        enabled={true}
-        locale="zh"
-        wsUrl="ws://localhost:3001"
-      />
+      <PerformanceMonitoringDashboard enabled={true} locale="zh" wsUrl="ws://localhost:3001" />
     </div>
-  );
+  )
 }
 ```
 
@@ -316,15 +326,12 @@ export default function PerformancePage() {
 可以在现有的 `AnalyticsDashboard` 组件中添加一个 Tab 或 Section：
 
 ```tsx
-import { PerformanceMonitoringDashboard } from '@/components/analytics';
+import { PerformanceMonitoringDashboard } from '@/components/analytics'
 
 // 在 AnalyticsDashboard 中添加
-{activeTab === 'performance' && (
-  <PerformanceMonitoringDashboard
-    enabled={true}
-    locale={locale}
-  />
-)}
+{
+  activeTab === 'performance' && <PerformanceMonitoringDashboard enabled={true} locale={locale} />
+}
 ```
 
 ---
@@ -382,12 +389,12 @@ import { PerformanceMonitoringDashboard } from '@/components/analytics';
 describe('useWebVitals', () => {
   it('should collect LCP metric', async () => {
     // Test implementation
-  });
+  })
 
   it('should calculate correct rating', () => {
     // Test implementation
-  });
-});
+  })
+})
 ```
 
 ### 集成测试
@@ -397,12 +404,12 @@ describe('useWebVitals', () => {
 describe('PerformanceMonitoringDashboard', () => {
   it('should render all components', () => {
     // Test implementation
-  });
+  })
 
   it('should export data correctly', () => {
     // Test implementation
-  });
-});
+  })
+})
 ```
 
 ### E2E 测试
@@ -482,12 +489,14 @@ describe('PerformanceMonitoringDashboard', () => {
 8. ✅ 配置选项和用户体验优化
 
 **代码质量**:
+
 - TypeScript 编译通过 ✅
 - 遵循现有代码风格 ✅
 - 完整的类型安全 ✅
 - 良好的组件复用性 ✅
 
 **下一步**:
+
 - 添加单元测试和集成测试
 - 实现真实的资源时序收集
 - 部署到生产环境验证

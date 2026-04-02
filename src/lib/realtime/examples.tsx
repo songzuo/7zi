@@ -4,13 +4,13 @@
  * 展示如何使用 useWebSocket 和 useEnhancedWebSocket hooks
  */
 
-'use client';
+'use client'
 
-import { useState } from 'react';
-import { useWebSocket, createMessage, isMessageType } from './useWebSocket';
-import type { WebSocketMessage } from './types';
-import { useEnhancedWebSocket } from './useEnhancedWebSocket';
-import { notificationService, OfflineQueueEntry } from './notification-service';
+import { useState } from 'react'
+import { useWebSocket, createMessage, isMessageType } from './useWebSocket'
+import type { WebSocketMessage } from './types'
+import { useEnhancedWebSocket } from './useEnhancedWebSocket'
+import { notificationService, OfflineQueueEntry } from './notification-service'
 
 // ============================================================================
 // useWebSocket 示例
@@ -29,83 +29,93 @@ export function BasicWebSocketExample() {
       maxReconnectAttempts: 5,
     },
     {
-      onOpen: (event) => {
+      onOpen: event => {
         // WebSocket connected
       },
-      onError: (event) => {
-        console.error('WebSocket error:', event);
+      onError: event => {
+        console.error('WebSocket error:', event)
       },
-      onClose: (event) => {
+      onClose: event => {
         // WebSocket closed
       },
     }
-  );
+  )
 
   // 监听特定类型的消息
-  const cleanupTaskUpdate = on('task:status_changed', (data) => {
-    const msg = data as WebSocketMessage;
+  const cleanupTaskUpdate = on('task:status_changed', data => {
+    const msg = data as WebSocketMessage
     if (isMessageType<{ taskId: string; status: string }>(msg, 'task:status_changed')) {
       // Task updated
     }
-  });
+  })
 
   // 一次性监听
-  const cleanupOnce = once('system:announcement', (data) => {
+  const cleanupOnce = once('system:announcement', data => {
     // Received system announcement
-  });
+  })
 
   const sendMessage = () => {
     const msg = createMessage('chat:message', {
       text: 'Hello from client!',
       userId: 'user-123',
-    });
-    send(msg);
-  };
+    })
+    send(msg)
+  }
 
   return (
-    <div className="p-4 border rounded">
-      <h2 className="text-lg font-bold mb-2">基础 WebSocket</h2>
+    <div className="rounded border p-4">
+      <h2 className="mb-2 text-lg font-bold">基础 WebSocket</h2>
       <div className="mb-2">
         <span>状态: </span>
-        <span className={isConnected ? 'text-green-600' : 'text-red-600'}>
-          {status}
-        </span>
+        <span className={isConnected ? 'text-green-600' : 'text-red-600'}>{status}</span>
       </div>
       <div className="mb-2">
-        <button onClick={connect} disabled={isConnected} className="px-2 py-1 bg-blue-500 text-white rounded mr-2">
+        <button
+          onClick={connect}
+          disabled={isConnected}
+          className="mr-2 rounded bg-blue-500 px-2 py-1 text-white"
+        >
           连接
         </button>
-        <button onClick={disconnect} disabled={!isConnected} className="px-2 py-1 bg-red-500 text-white rounded mr-2">
+        <button
+          onClick={disconnect}
+          disabled={!isConnected}
+          className="mr-2 rounded bg-red-500 px-2 py-1 text-white"
+        >
           断开
         </button>
-        <button onClick={sendMessage} disabled={!isConnected} className="px-2 py-1 bg-green-500 text-white rounded">
+        <button
+          onClick={sendMessage}
+          disabled={!isConnected}
+          className="rounded bg-green-500 px-2 py-1 text-white"
+        >
           发送消息
         </button>
       </div>
       {lastMessage && (
-        <div className="mt-2 p-2 bg-zinc-100 rounded">
+        <div className="mt-2 rounded bg-zinc-100 p-2">
           <pre>{JSON.stringify(lastMessage, null, 2)}</pre>
         </div>
       )}
     </div>
-  );
+  )
 }
 
 /**
  * 实时聊天示例
  */
 export function RealtimeChatExample() {
-  const [messages, setMessages] = useState<Array<{ id: string; user: string; text: string }>>([]);
-  const [inputText, setInputText] = useState('');
+  const [messages, setMessages] = useState<Array<{ id: string; user: string; text: string }>>([])
+  const [inputText, setInputText] = useState('')
 
   const { isConnected, send, on } = useWebSocket({
     url: 'ws://localhost:3000/chat',
     autoConnect: true,
-  });
+  })
 
   // 监听聊天消息
-  const cleanup = on('chat:message', (data) => {
-    const msg = data as WebSocketMessage;
+  const cleanup = on('chat:message', data => {
+    const msg = data as WebSocketMessage
     if (isMessageType<{ user: string; text: string }>(msg, 'chat:message')) {
       setMessages(prev => [
         ...prev,
@@ -114,35 +124,30 @@ export function RealtimeChatExample() {
           user: msg.payload.user,
           text: msg.payload.text,
         },
-      ]);
+      ])
     }
-  });
+  })
 
   const handleSend = () => {
-    if (!inputText.trim()) return;
+    if (!inputText.trim()) return
 
     const msg = createMessage('chat:message', {
       user: 'me',
       text: inputText,
-    });
+    })
 
-    send(msg);
-    setInputText('');
+    send(msg)
+    setInputText('')
 
     // 添加到本地消息列表
-    setMessages(prev => [
-      ...prev,
-      { id: msg.id, user: 'me', text: inputText },
-    ]);
-  };
+    setMessages(prev => [...prev, { id: msg.id, user: 'me', text: inputText }])
+  }
 
   return (
-    <div className="p-4 border rounded">
-      <h2 className="text-lg font-bold mb-2">实时聊天</h2>
-      <div className="mb-2">
-        连接状态: {isConnected ? '已连接' : '未连接'}
-      </div>
-      <div className="h-64 overflow-y-auto border rounded p-2 mb-2">
+    <div className="rounded border p-4">
+      <h2 className="mb-2 text-lg font-bold">实时聊天</h2>
+      <div className="mb-2">连接状态: {isConnected ? '已连接' : '未连接'}</div>
+      <div className="mb-2 h-64 overflow-y-auto rounded border p-2">
         {messages.map(msg => (
           <div key={msg.id} className="mb-1">
             <span className="font-bold">{msg.user}:</span> {msg.text}
@@ -153,21 +158,21 @@ export function RealtimeChatExample() {
         <input
           type="text"
           value={inputText}
-          onChange={(e) => setInputText(e.target.value)}
-          onKeyDown={(e) => e.key === 'Enter' && handleSend()}
-          className="flex-1 border rounded px-2 py-1 mr-2"
+          onChange={e => setInputText(e.target.value)}
+          onKeyDown={e => e.key === 'Enter' && handleSend()}
+          className="mr-2 flex-1 rounded border px-2 py-1"
           placeholder="输入消息..."
         />
         <button
           onClick={handleSend}
           disabled={!isConnected}
-          className="px-4 py-1 bg-blue-500 text-white rounded"
+          className="rounded bg-blue-500 px-4 py-1 text-white"
         >
           发送
         </button>
       </div>
     </div>
-  );
+  )
 }
 
 // ============================================================================
@@ -205,47 +210,47 @@ export function EnhancedWebSocketExample() {
     heartbeatInterval: 30000,
     offlineQueueSize: 100,
     enableOfflineQueue: true,
-  });
+  })
 
   // 监听连接状态变化
-  const cleanupStateChange = onStateChange((state) => {
+  const cleanupStateChange = onStateChange(state => {
     // Connection state changed
-  });
+  })
 
   // 监听错误
-  const cleanupError = onError((err) => {
-    console.error('WebSocket error:', err);
-  });
+  const cleanupError = onError(err => {
+    console.error('WebSocket error:', err)
+  })
 
   // 监听任务消息
   const cleanupTaskMessages = on('task:status_changed', (data: unknown) => {
     // Task status changed
-  });
+  })
 
   const handleSubscribe = () => {
-    subscribe(['project:123', 'task:456']);
-  };
+    subscribe(['project:123', 'task:456'])
+  }
 
   const handleUnsubscribe = () => {
-    unsubscribe(['project:123']);
-  };
+    unsubscribe(['project:123'])
+  }
 
   const handleSend = () => {
     send('chat:message', {
       text: 'Hello from enhanced WebSocket!',
       timestamp: new Date().toISOString(),
-    });
-  };
+    })
+  }
 
   const handleShowOfflineQueue = () => {
-    const queue = getOfflineQueue();
-    alert(`离线队列中有 ${queue.length} 条消息`);
-  };
+    const queue = getOfflineQueue()
+    alert(`离线队列中有 ${queue.length} 条消息`)
+  }
 
   return (
-    <div className="p-4 border rounded">
-      <h2 className="text-lg font-bold mb-2">增强型 WebSocket</h2>
-      <div className="grid grid-cols-2 gap-2 mb-2">
+    <div className="rounded border p-4">
+      <h2 className="mb-2 text-lg font-bold">增强型 WebSocket</h2>
+      <div className="mb-2 grid grid-cols-2 gap-2">
         <div>连接状态: {connectionState}</div>
         <div>已连接: {isConnected ? '是' : '否'}</div>
         <div>已发送消息: {stats.messagesSent}</div>
@@ -255,43 +260,62 @@ export function EnhancedWebSocketExample() {
       </div>
 
       {error && (
-        <div className="mb-2 p-2 bg-red-100 text-red-700 rounded">
-          错误: {error.message}
-        </div>
+        <div className="mb-2 rounded bg-red-100 p-2 text-red-700">错误: {error.message}</div>
       )}
 
       <div className="mb-2">
-        <button onClick={connect} disabled={isConnected} className="px-2 py-1 bg-blue-500 text-white rounded mr-2">
+        <button
+          onClick={connect}
+          disabled={isConnected}
+          className="mr-2 rounded bg-blue-500 px-2 py-1 text-white"
+        >
           连接
         </button>
-        <button onClick={disconnect} disabled={!isConnected} className="px-2 py-1 bg-red-500 text-white rounded mr-2">
+        <button
+          onClick={disconnect}
+          disabled={!isConnected}
+          className="mr-2 rounded bg-red-500 px-2 py-1 text-white"
+        >
           断开
         </button>
-        <button onClick={reconnect} className="px-2 py-1 bg-yellow-500 text-white rounded mr-2">
+        <button onClick={reconnect} className="mr-2 rounded bg-yellow-500 px-2 py-1 text-white">
           重连
         </button>
-        <button onClick={handleSubscribe} className="px-2 py-1 bg-green-500 text-white rounded mr-2">
+        <button
+          onClick={handleSubscribe}
+          className="mr-2 rounded bg-green-500 px-2 py-1 text-white"
+        >
           订阅频道
         </button>
-        <button onClick={handleUnsubscribe} className="px-2 py-1 bg-purple-500 text-white rounded mr-2">
+        <button
+          onClick={handleUnsubscribe}
+          className="mr-2 rounded bg-purple-500 px-2 py-1 text-white"
+        >
           取消订阅
         </button>
-        <button onClick={handleSend} disabled={!isConnected} className="px-2 py-1 bg-cyan-500 text-white rounded mr-2">
+        <button
+          onClick={handleSend}
+          disabled={!isConnected}
+          className="mr-2 rounded bg-cyan-500 px-2 py-1 text-white"
+        >
           发送消息
         </button>
-        <button onClick={handleShowOfflineQueue} className="px-2 py-1 bg-zinc-500 text-white rounded">
+        <button
+          onClick={handleShowOfflineQueue}
+          className="rounded bg-zinc-500 px-2 py-1 text-white"
+        >
           查看离线队列
         </button>
       </div>
 
       {lastMessage && (
-        <div className="mt-2 p-2 bg-zinc-100 rounded">
-          <h3 className="font-bold mb-1">最新消息:</h3>
+        <div className="mt-2 rounded bg-zinc-100 p-2">
+          <h3 className="mb-1 font-bold">最新消息:</h3>
           <pre className="text-xs">{JSON.stringify(lastMessage, null, 2)}</pre>
         </div>
       )}
     </div>
-  );
+  )
 }
 
 // ============================================================================
@@ -302,7 +326,7 @@ export function EnhancedWebSocketExample() {
  * 通知服务使用示例
  */
 export function NotificationServiceExample() {
-  const [offlineQueue, setOfflineQueue] = useState<OfflineQueueEntry[]>([]);
+  const [offlineQueue, setOfflineQueue] = useState<OfflineQueueEntry[]>([])
 
   const handleTaskStatusChange = async () => {
     try {
@@ -319,12 +343,12 @@ export function NotificationServiceExample() {
         projectId: 'project-456',
         projectName: '7zi 平台',
         assigneeId: 'user-2',
-      });
+      })
       // Task status change notification sent
-    } catch (_error) {
-      console.error('Failed to send notification:', error);
+    } catch (error) {
+      console.error('Failed to send notification:', error)
     }
-  };
+  }
 
   const handleTaskAssignment = async () => {
     try {
@@ -341,12 +365,12 @@ export function NotificationServiceExample() {
         projectName: '7zi 平台',
         priority: 'high',
         dueDate: '2024-12-31',
-      });
+      })
       // Task assignment notification sent
-    } catch (_error) {
-      console.error('Failed to send notification:', error);
+    } catch (error) {
+      console.error('Failed to send notification:', error)
     }
-  };
+  }
 
   const handleSystemAnnouncement = async () => {
     try {
@@ -361,53 +385,65 @@ export function NotificationServiceExample() {
           name: '系统管理员',
           role: 'admin',
         },
-      });
+      })
       // System announcement sent
-    } catch (_error) {
-      console.error('Failed to send announcement:', error);
+    } catch (error) {
+      console.error('Failed to send announcement:', error)
     }
-  };
+  }
 
   const handleCheckOfflineQueue = () => {
-    const userId = 'user-2';
-    const queue = notificationService.getOfflineQueue(userId);
-    setOfflineQueue(queue);
-  };
+    const userId = 'user-2'
+    const queue = notificationService.getOfflineQueue(userId)
+    setOfflineQueue(queue)
+  }
 
   const handleErrorLogs = () => {
-    const errors = notificationService.getErrorLog(20);
-    alert(`共有 ${errors.length} 条错误记录`);
-  };
+    const errors = notificationService.getErrorLog(20)
+    alert(`共有 ${errors.length} 条错误记录`)
+  }
 
   // 监听错误
-  const cleanupError = notificationService.onError((error) => {
-    console.error('Notification service error:', error);
-  });
+  const cleanupError = notificationService.onError(error => {
+    console.error('Notification service error:', error)
+  })
 
   return (
-    <div className="p-4 border rounded">
-      <h2 className="text-lg font-bold mb-2">通知服务</h2>
-      <div className="grid grid-cols-1 gap-2 mb-2">
-        <button onClick={handleTaskStatusChange} className="px-4 py-2 bg-blue-500 text-white rounded">
+    <div className="rounded border p-4">
+      <h2 className="mb-2 text-lg font-bold">通知服务</h2>
+      <div className="mb-2 grid grid-cols-1 gap-2">
+        <button
+          onClick={handleTaskStatusChange}
+          className="rounded bg-blue-500 px-4 py-2 text-white"
+        >
           发送任务状态变更通知
         </button>
-        <button onClick={handleTaskAssignment} className="px-4 py-2 bg-green-500 text-white rounded">
+        <button
+          onClick={handleTaskAssignment}
+          className="rounded bg-green-500 px-4 py-2 text-white"
+        >
           发送任务分配通知
         </button>
-        <button onClick={handleSystemAnnouncement} className="px-4 py-2 bg-yellow-500 text-white rounded">
+        <button
+          onClick={handleSystemAnnouncement}
+          className="rounded bg-yellow-500 px-4 py-2 text-white"
+        >
           发送系统公告
         </button>
-        <button onClick={handleCheckOfflineQueue} className="px-4 py-2 bg-purple-500 text-white rounded">
+        <button
+          onClick={handleCheckOfflineQueue}
+          className="rounded bg-purple-500 px-4 py-2 text-white"
+        >
           检查离线队列
         </button>
-        <button onClick={handleErrorLogs} className="px-4 py-2 bg-red-500 text-white rounded">
+        <button onClick={handleErrorLogs} className="rounded bg-red-500 px-4 py-2 text-white">
           查看错误日志
         </button>
       </div>
 
       {offlineQueue.length > 0 && (
-        <div className="mt-2 p-2 bg-zinc-100 rounded">
-          <h3 className="font-bold mb-1">离线队列 ({offlineQueue.length}):</h3>
+        <div className="mt-2 rounded bg-zinc-100 p-2">
+          <h3 className="mb-1 font-bold">离线队列 ({offlineQueue.length}):</h3>
           <ul className="text-sm">
             {offlineQueue.map((entry, index) => (
               <li key={index}>
@@ -418,7 +454,7 @@ export function NotificationServiceExample() {
         </div>
       )}
     </div>
-  );
+  )
 }
 
 // ============================================================================
@@ -429,47 +465,49 @@ export function NotificationServiceExample() {
  * 综合使用所有功能
  */
 export function WebSocketDashboard() {
-  const [activeTab, setActiveTab] = useState<'basic' | 'enhanced' | 'chat' | 'notifications'>('basic');
+  const [activeTab, setActiveTab] = useState<'basic' | 'enhanced' | 'chat' | 'notifications'>(
+    'basic'
+  )
 
   return (
-    <div className="max-w-4xl mx-auto p-4">
-      <h1 className="text-2xl font-bold mb-4">WebSocket 功能演示</h1>
+    <div className="mx-auto max-w-4xl p-4">
+      <h1 className="mb-4 text-2xl font-bold">WebSocket 功能演示</h1>
 
       <div className="mb-4">
         <button
           onClick={() => setActiveTab('basic')}
-          className={`px-4 py-2 rounded mr-2 ${activeTab === 'basic' ? 'bg-blue-500 text-white' : 'bg-zinc-200'}`}
+          className={`mr-2 rounded px-4 py-2 ${activeTab === 'basic' ? 'bg-blue-500 text-white' : 'bg-zinc-200'}`}
         >
           基础 WebSocket
         </button>
         <button
           onClick={() => setActiveTab('enhanced')}
-          className={`px-4 py-2 rounded mr-2 ${activeTab === 'enhanced' ? 'bg-blue-500 text-white' : 'bg-zinc-200'}`}
+          className={`mr-2 rounded px-4 py-2 ${activeTab === 'enhanced' ? 'bg-blue-500 text-white' : 'bg-zinc-200'}`}
         >
           增强 WebSocket
         </button>
         <button
           onClick={() => setActiveTab('chat')}
-          className={`px-4 py-2 rounded mr-2 ${activeTab === 'chat' ? 'bg-blue-500 text-white' : 'bg-zinc-200'}`}
+          className={`mr-2 rounded px-4 py-2 ${activeTab === 'chat' ? 'bg-blue-500 text-white' : 'bg-zinc-200'}`}
         >
           实时聊天
         </button>
         <button
           onClick={() => setActiveTab('notifications')}
-          className={`px-4 py-2 rounded ${activeTab === 'notifications' ? 'bg-blue-500 text-white' : 'bg-zinc-200'}`}
+          className={`rounded px-4 py-2 ${activeTab === 'notifications' ? 'bg-blue-500 text-white' : 'bg-zinc-200'}`}
         >
           通知服务
         </button>
       </div>
 
-      <div className="bg-white rounded shadow p-4">
+      <div className="rounded bg-white p-4 shadow">
         {activeTab === 'basic' && <BasicWebSocketExample />}
         {activeTab === 'enhanced' && <EnhancedWebSocketExample />}
         {activeTab === 'chat' && <RealtimeChatExample />}
         {activeTab === 'notifications' && <NotificationServiceExample />}
       </div>
     </div>
-  );
+  )
 }
 
-export default WebSocketDashboard;
+export default WebSocketDashboard

@@ -37,35 +37,35 @@
 
 ### 1.2 E2E 测试文件列表
 
-| 测试文件 | 测试数量 | 状态 |
-|---------|---------|------|
-| `auth-flow.spec.ts` | 15 | ❌ 部分失败 |
-| `core-interactions.spec.ts` | - | ⚠️ 待检查 |
-| `dashboard-analytics.spec.ts` | - | ⚠️ 待检查 |
-| `dashboard.spec.ts` | - | ⚠️ 待检查 |
-| `form.spec.ts` | - | ⚠️ 待检查 |
-| `home.spec.ts` | 3 | ✅ 通过 |
-| `homepage.spec.ts` | - | ⚠️ 待检查 |
-| `i18n.spec.ts` | - | ⚠️ 待检查 |
-| `language-switching.spec.ts` | - | ⚠️ 待检查 |
-| `login-flow-pom.spec.ts` | - | ⚠️ 待检查 |
-| `navigation-pom.spec.ts` | - | ⚠️ 待检查 |
-| `navigation.spec.ts` | - | ⚠️ 待检查 |
-| `notifications.spec.ts` | - | ⚠️ 待检查 |
-| `pages.spec.ts` | - | ⚠️ 待检查 |
-| `permissions-errors.spec.ts` | - | ⚠️ 待检查 |
-| `permissions-roles.spec.ts` | - | ⚠️ 待检查 |
-| `project-management.spec.ts` | - | ⚠️ 待检查 |
-| `responsive.spec.ts` | - | ⚠️ 待检查 |
-| `task-creation-pom.spec.ts` | - | ⚠️ 待检查 |
-| `task-creation.spec.ts` | - | ⚠️ 待检查 |
-| `team.spec.ts` | - | ⚠️ 待检查 |
-| `theme.spec.ts` | - | ⚠️ 待检查 |
-| `user-management.spec.ts` | - | ⚠️ 待检查 |
-| `user-registration.spec.ts` | - | ⚠️ 待检查 |
-| `visual-regression-enhanced.spec.ts` | - | ⚠️ 待检查 |
-| `visual-regression.spec.ts` | - | ⚠️ 待检查 |
-| `websocket-realtime.spec.ts` | - | ⚠️ 待检查 |
+| 测试文件                             | 测试数量 | 状态        |
+| ------------------------------------ | -------- | ----------- |
+| `auth-flow.spec.ts`                  | 15       | ❌ 部分失败 |
+| `core-interactions.spec.ts`          | -        | ⚠️ 待检查   |
+| `dashboard-analytics.spec.ts`        | -        | ⚠️ 待检查   |
+| `dashboard.spec.ts`                  | -        | ⚠️ 待检查   |
+| `form.spec.ts`                       | -        | ⚠️ 待检查   |
+| `home.spec.ts`                       | 3        | ✅ 通过     |
+| `homepage.spec.ts`                   | -        | ⚠️ 待检查   |
+| `i18n.spec.ts`                       | -        | ⚠️ 待检查   |
+| `language-switching.spec.ts`         | -        | ⚠️ 待检查   |
+| `login-flow-pom.spec.ts`             | -        | ⚠️ 待检查   |
+| `navigation-pom.spec.ts`             | -        | ⚠️ 待检查   |
+| `navigation.spec.ts`                 | -        | ⚠️ 待检查   |
+| `notifications.spec.ts`              | -        | ⚠️ 待检查   |
+| `pages.spec.ts`                      | -        | ⚠️ 待检查   |
+| `permissions-errors.spec.ts`         | -        | ⚠️ 待检查   |
+| `permissions-roles.spec.ts`          | -        | ⚠️ 待检查   |
+| `project-management.spec.ts`         | -        | ⚠️ 待检查   |
+| `responsive.spec.ts`                 | -        | ⚠️ 待检查   |
+| `task-creation-pom.spec.ts`          | -        | ⚠️ 待检查   |
+| `task-creation.spec.ts`              | -        | ⚠️ 待检查   |
+| `team.spec.ts`                       | -        | ⚠️ 待检查   |
+| `theme.spec.ts`                      | -        | ⚠️ 待检查   |
+| `user-management.spec.ts`            | -        | ⚠️ 待检查   |
+| `user-registration.spec.ts`          | -        | ⚠️ 待检查   |
+| `visual-regression-enhanced.spec.ts` | -        | ⚠️ 待检查   |
+| `visual-regression.spec.ts`          | -        | ⚠️ 待检查   |
+| `websocket-realtime.spec.ts`         | -        | ⚠️ 待检查   |
 
 **总测试数量**: 1278 个测试
 **执行工作进程**: 2 workers
@@ -93,11 +93,11 @@ Running 1278 tests using 2 workers
 
 ### 2.3 通过/失败统计
 
-| 状态 | 数量 | 百分比 |
-|------|------|--------|
-| ✅ 通过 | 3/1278 (home.spec.ts) | ~0.2% |
-| ❌ 失败 | 至少 10 个 (达到 max-failures) | 未完成 |
-| ⚠️ 未运行 | 约 1265+ | 未执行 |
+| 状态      | 数量                           | 百分比 |
+| --------- | ------------------------------ | ------ |
+| ✅ 通过   | 3/1278 (home.spec.ts)          | ~0.2%  |
+| ❌ 失败   | 至少 10 个 (达到 max-failures) | 未完成 |
+| ⚠️ 未运行 | 约 1265+                       | 未执行 |
 
 **注意**: 测试执行因达到 `--max-failures=10` 而提前终止，大量测试未执行。
 
@@ -110,6 +110,7 @@ Running 1278 tests using 2 workers
 **失败模式**: 所有 auth-flow 测试因定位器错误而失败
 
 #### 错误类型
+
 ```
 TimeoutError: page.click: Timeout 10000ms exceeded.
 Call log:
@@ -139,11 +140,13 @@ Call log:
 **问题**: Playwright 定位器语法错误
 
 当前代码:
+
 ```typescript
-await page.click("text=登录, Login, Sign In");
+await page.click('text=登录, Login, Sign In')
 ```
 
 **问题分析**:
+
 - `"text=登录, Login, Sign In"` 会查找**包含完整字符串** "登录, Login, Sign In" 的元素
 - 实际页面上不可能有这种长字符串
 - 正确的语法应该是查找三种语言的任意一种登录按钮
@@ -173,6 +176,7 @@ No coverage summary found
 ### 4.2 建议
 
 需要在 `playwright.config.ts` 或 `package.json` 中配置覆盖率收集工具，例如：
+
 - `@cucumber/cucumber` + coverage
 - `c8` (Node.js coverage)
 - `v8` coverage for Playwright
@@ -188,6 +192,7 @@ No coverage summary found
 **影响**: 所有 auth-flow 测试无法执行
 
 **位置**:
+
 - `e2e/auth-flow.spec.ts` (多处)
 - 可能影响其他使用类似语法的测试文件
 
@@ -195,20 +200,20 @@ No coverage summary found
 
 ```typescript
 // ❌ 错误的写法
-await page.click("text=登录, Login, Sign In");
+await page.click('text=登录, Login, Sign In')
 
 // ✅ 正确的写法 (方案1: 使用 OR 选择器)
-await page.click('text="登录", text="Login", text="Sign In"');
+await page.click('text="登录", text="Login", text="Sign In"')
 
 // ✅ 正确的写法 (方案2: 使用 getByText)
-await page.getByText('登录').or(page.getByText('Login')).or(page.getByText('Sign In')).click();
+await page.getByText('登录').or(page.getByText('Login')).or(page.getByText('Sign In')).click()
 
 // ✅ 正确的写法 (方案3: 使用正则表达式)
-await page.click(/登录|Login|Sign In/);
+await page.click(/登录|Login|Sign In/)
 
 // ✅ 正确的写法 (方案4: 查找第一个匹配)
-const loginButton = page.getByRole('button', { name: /登录|Login|Sign In/ });
-await loginButton.first().click();
+const loginButton = page.getByRole('button', { name: /登录|Login|Sign In/ })
+await loginButton.first().click()
 ```
 
 **推荐方案**: 使用方案4 (getByRole) + 正则，最语义化且健壮
@@ -218,6 +223,7 @@ await loginButton.first().click();
 **影响**: 无法执行 E2E 测试
 
 **现象**:
+
 ```
 LISTEN 0 65535 0.0.0.0:3000 users:(("docker-proxy",pid=2815718,fd=7))
 ```
@@ -225,6 +231,7 @@ LISTEN 0 65535 0.0.0.0:3000 users:(("docker-proxy",pid=2815718,fd=7))
 **修复方案**:
 
 1. 检查 Playwright 配置中的 `webServer`:
+
 ```typescript
 webServer: {
   command: "npm run dev",
@@ -236,6 +243,7 @@ webServer: {
 ```
 
 2. 或停止占用 3000 端口的服务:
+
 ```bash
 docker ps | grep 3000
 # 或
@@ -249,12 +257,14 @@ lsof -ti:3000 | xargs kill -9
 **影响**: 复杂测试可能因超时而失败
 
 **当前配置**:
+
 ```typescript
 actionTimeout: 10000,    // 10 秒
 navigationTimeout: 30000  // 30 秒
 ```
 
 **建议**:
+
 ```typescript
 actionTimeout: 30000,    // 增加到 30 秒
 navigationTimeout: 60000  // 增加到 60 秒
@@ -267,6 +277,7 @@ navigationTimeout: 60000  // 增加到 60 秒
 **原因**: 使用 `--max-failures=10` 提前终止
 
 **建议**:
+
 1. 修复失败测试后，移除 `--max-failures` 参数
 2. 或增加为 `--max-failures=50` 以执行更多测试
 
@@ -277,6 +288,7 @@ navigationTimeout: 60000  // 增加到 60 秒
 **现象**: `playwright-report/index.html` 时间戳为 Mar 29
 
 **建议**:
+
 - 配置自动清理旧报告
 - 或在 CI/CD 中每次生成新报告
 
@@ -287,6 +299,7 @@ navigationTimeout: 60000  // 增加到 60 秒
 ### 6.1 短期修复 (立即执行)
 
 1. **修复 auth-flow 定位器**
+
 ```bash
 # 批量替换
 cd /root/.openclaw/workspace/e2e
@@ -302,6 +315,7 @@ sed -i 's/page\.click(/page.getByRole("button", { name: \/登录\|Login\|Sign In
 ### 6.2 中期改进 (1-2周内)
 
 1. **配置测试覆盖率**
+
 ```bash
 npm install -D @cucumber/cucumber c8
 ```
@@ -387,13 +401,13 @@ Running 12 tests using 2 workers
 
 ### 9.1 当前状态
 
-| 项目 | 状态 | 说明 |
-|-----|------|------|
-| 测试框架 | ✅ 已配置 | Playwright 正确设置 |
-| 测试文件 | ✅ 完整 | 28 个 E2E 测试文件 |
-| 测试执行 | ❌ 失败 | 定位器错误导致失败 |
-| 测试覆盖率 | ❌ 未生成 | 需要配置覆盖率工具 |
-| 测试报告 | ⚠️ 过时 | 需要更新 |
+| 项目       | 状态      | 说明                |
+| ---------- | --------- | ------------------- |
+| 测试框架   | ✅ 已配置 | Playwright 正确设置 |
+| 测试文件   | ✅ 完整   | 28 个 E2E 测试文件  |
+| 测试执行   | ❌ 失败   | 定位器错误导致失败  |
+| 测试覆盖率 | ❌ 未生成 | 需要配置覆盖率工具  |
+| 测试报告   | ⚠️ 过时   | 需要更新            |
 
 ### 9.2 关键建议
 
@@ -404,12 +418,12 @@ Running 12 tests using 2 workers
 
 ### 9.3 风险评估
 
-| 风险 | 严重性 | 可能性 | 缓解措施 |
-|-----|-------|-------|---------|
-| 定位器错误导致测试失败 | 高 | 高 | ✅ 已识别并给出修复方案 |
-| 应用服务器未启动 | 高 | 中 | 检查端口配置 |
-| 测试覆盖率未知 | 中 | 高 | 配置覆盖率工具 |
-| 测试超时 | 低 | 中 | 增加超时时间 |
+| 风险                   | 严重性 | 可能性 | 缓解措施                |
+| ---------------------- | ------ | ------ | ----------------------- |
+| 定位器错误导致测试失败 | 高     | 高     | ✅ 已识别并给出修复方案 |
+| 应用服务器未启动       | 高     | 中     | 检查端口配置            |
+| 测试覆盖率未知         | 中     | 高     | 配置覆盖率工具          |
+| 测试超时               | 低     | 中     | 增加超时时间            |
 
 ---
 

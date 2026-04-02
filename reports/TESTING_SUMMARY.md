@@ -7,18 +7,18 @@
 
 ### Summary of Test Coverage by Module
 
-| Module | Test Files | Coverage | Notes |
-|--------|-----------|----------|-------|
-| **a2a** | 0 | 0% | No existing tests |
-| **agent-communication** | 0 | 0% | No existing tests |
-| **agents** | 1 | ~25% | Only middleware.test.ts exists |
-| **approval** | 2 | ~80% | Good coverage |
-| **cache** | 0 | 0% | No existing tests |
-| **monitoring** | 1 | ~10% | Partial coverage |
-| **offline** | 1 | ~30% | Partial coverage |
-| **realtime** | 2 | ~60% | Good coverage |
-| **validation** | 2 | ~75% | Good coverage |
-| **utils/tools** | 8 | ~70% | Good coverage |
+| Module                  | Test Files | Coverage | Notes                          |
+| ----------------------- | ---------- | -------- | ------------------------------ |
+| **a2a**                 | 0          | 0%       | No existing tests              |
+| **agent-communication** | 0          | 0%       | No existing tests              |
+| **agents**              | 1          | ~25%     | Only middleware.test.ts exists |
+| **approval**            | 2          | ~80%     | Good coverage                  |
+| **cache**               | 0          | 0%       | No existing tests              |
+| **monitoring**          | 1          | ~10%     | Partial coverage               |
+| **offline**             | 1          | ~30%     | Partial coverage               |
+| **realtime**            | 2          | ~60%     | Good coverage                  |
+| **validation**          | 2          | ~75%     | Good coverage                  |
+| **utils/tools**         | 8          | ~70%     | Good coverage                  |
 
 ### Key Findings
 
@@ -42,6 +42,7 @@
 ### A2A Module Tests
 
 #### 2.1. Created `src/lib/a2a/__tests__/types.test.ts`
+
 - **Tests:** 34 test cases
 - **Coverage:** 100% statements, 100% branches, 100% functions, 100% lines
 - **Test Categories:**
@@ -57,6 +58,7 @@
   - StreamEvent polymorphism
 
 #### 2.2. Created `src/lib/a2a/__tests__/task-store.test.ts`
+
 - **Tests:** 43 test cases
 - **Coverage:** 100% statements, 89.36% branches, 100% functions, 100% lines
 - **Test Categories:**
@@ -74,6 +76,7 @@
 ### Cache Module Tests
 
 #### 2.3. Created `src/lib/cache/__tests__/CacheManager.test.ts`
+
 - **Tests:** 50 test cases
 - **Coverage:** 78.57% statements, 75% branches, 86.66% functions, 80% lines
 - **Test Categories:**
@@ -92,10 +95,12 @@
 ### Uncovered Lines Analysis
 
 #### CacheManager.ts (Uncovered: Lines 128-139, 156-158)
+
 ```
 128-139: Automatic cleanup interval logging
 156-158: Cleanup interval management
 ```
+
 These are internal implementation details that are difficult to test without
 accessing private members or mocking timers. The functionality is still
 indirectly tested through integration tests.
@@ -103,6 +108,7 @@ indirectly tested through integration tests.
 ## 3. Test Results
 
 ### All Tests Passing
+
 ```
 Test Files: 3 passed (3)
 Tests: 127 passed (127)
@@ -110,6 +116,7 @@ Duration: ~2-3 seconds
 ```
 
 ### Coverage Summary
+
 ```
 Overall Coverage:
 - Statements: 91.42%
@@ -120,15 +127,16 @@ Overall Coverage:
 
 ### Per-Module Coverage
 
-| Module | Statements | Branches | Functions | Lines |
-|--------|-----------|----------|-----------|-------|
-| a2a/types.ts | 100% | 100% | 100% | 100% |
-| a2a/task-store.ts | 100% | 89.36% | 100% | 100% |
-| cache/CacheManager.ts | 78.57% | 75% | 86.66% | 80% |
+| Module                | Statements | Branches | Functions | Lines |
+| --------------------- | ---------- | -------- | --------- | ----- |
+| a2a/types.ts          | 100%       | 100%     | 100%      | 100%  |
+| a2a/task-store.ts     | 100%       | 89.36%   | 100%      | 100%  |
+| cache/CacheManager.ts | 78.57%     | 75%      | 86.66%    | 80%   |
 
 ## 4. Recommendations
 
 ### High Priority
+
 1. **Complete A2A Module Testing**
    - Add tests for `agent-card.ts`
    - Add tests for `executor.ts`
@@ -144,6 +152,7 @@ Overall Coverage:
    - Add tests for `wallet-repository.ts` (wallet management)
 
 ### Medium Priority
+
 4. **Monitoring Module**
    - Test health checks
    - Test performance monitoring
@@ -155,12 +164,14 @@ Overall Coverage:
    - Test conflict resolution
 
 ### Low Priority
+
 6. **Components Integration**
    - Add component-level tests for UI components that use these utilities
 
 ## 5. Test Framework Configuration
 
 The project uses **Vitest** with the following configuration:
+
 - Environment: jsdom
 - Test timeout: 10 seconds
 - Retry on failure: 1

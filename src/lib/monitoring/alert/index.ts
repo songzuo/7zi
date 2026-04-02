@@ -22,7 +22,7 @@ export {
   type ChannelRoutingRule,
   type ChannelMatcher,
   type SendResult,
-} from "./channels/channels";
+} from './channels/channels'
 
 // ========================================
 // Rules
@@ -42,7 +42,7 @@ export {
   type PeriodicRule,
   type MetricValue,
   type RuleEvaluationResult,
-} from "./rules";
+} from './rules'
 
 // ========================================
 // Deduplication & Aggregation
@@ -57,14 +57,30 @@ export {
   type AggregatedAlert,
   type DeduplicatorConfig,
   type AggregatorConfig,
-} from "./deduplication";
+} from './deduplication'
 
 // ========================================
 // Re-export from existing alerts.ts
 // ========================================
 
-export type { AlertSeverity, AlertChannel } from "../alerts";
-export type { AlertConfig } from "../alerts";
-export { AlertSystem } from "../alerts";
-export { sendSlackAlert, sendEmailAlert, sendAlert } from "../alerts";
-export { alerts as alertHelpers } from "../alerts";
+export type { AlertSeverity, AlertChannel } from '../alerts'
+export type { AlertConfig } from '../alerts'
+export { AlertSystem } from '../alerts'
+export { sendSlackAlert, sendEmailAlert, sendAlert } from '../alerts'
+export { alerts as alertHelpers } from '../alerts'
+
+// ========================================
+// Slack Alert Channel
+// ========================================
+
+export {
+  SlackAlertChannel,
+  getSlackChannel,
+  sendSlackAlertMessage,
+  slackAlerts,
+  type SlackAlertPayload,
+  type SlackMention,
+  type SlackBlock,
+  type SlackAttachment,
+  type SlackMessage,
+} from './channels/slack'

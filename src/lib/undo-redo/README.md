@@ -24,15 +24,15 @@ The undo-redo system is included in the project. No additional installation requ
 ### 1. Create a Store with Undo-Redo
 
 ```typescript
-import { create } from 'zustand';
-import { undoRedo } from '@/lib/undo-redo/middleware';
-import { devtools } from 'zustand/middleware';
+import { create } from 'zustand'
+import { undoRedo } from '@/lib/undo-redo/middleware'
+import { devtools } from 'zustand/middleware'
 
 interface TodoStore {
-  todos: TodoItem[];
-  addTodo: (text: string) => void;
-  removeTodo: (id: string) => void;
-  toggleTodo: (id: string) => void;
+  todos: TodoItem[]
+  addTodo: (text: string) => void
+  removeTodo: (id: string) => void
+  toggleTodo: (id: string) => void
 }
 
 export const useTodoStore = create<TodoStore>()(
@@ -40,19 +40,17 @@ export const useTodoStore = create<TodoStore>()(
     undoRedo(
       (set, get) => ({
         todos: [],
-        addTodo: (text) => {
-          const todo = { id: crypto.randomUUID(), text, completed: false };
-          set((state) => ({ todos: [...state.todos, todo] }));
+        addTodo: text => {
+          const todo = { id: crypto.randomUUID(), text, completed: false }
+          set(state => ({ todos: [...state.todos, todo] }))
         },
-        removeTodo: (id) => {
-          set((state) => ({ todos: state.todos.filter((t) => t.id !== id) }));
+        removeTodo: id => {
+          set(state => ({ todos: state.todos.filter(t => t.id !== id) }))
         },
-        toggleTodo: (id) => {
-          set((state) => ({
-            todos: state.todos.map((t) =>
-              t.id === id ? { ...t, completed: !t.completed } : t
-            ),
-          }));
+        toggleTodo: id => {
+          set(state => ({
+            todos: state.todos.map(t => (t.id === id ? { ...t, completed: !t.completed } : t)),
+          }))
         },
       }),
       {
@@ -62,21 +60,21 @@ export const useTodoStore = create<TodoStore>()(
     ),
     { name: 'todo-store' }
   )
-);
+)
 ```
 
 ### 2. Use Undo-Redo in Components
 
 ```tsx
-'use client';
+'use client'
 
-import { UndoRedo } from '@/components/undo-redo';
-import { useTodoStore } from '@/stores/todoStore';
+import { UndoRedo } from '@/components/undo-redo'
+import { useTodoStore } from '@/stores/todoStore'
 
 export function TodoList() {
-  const todos = useTodoStore((s) => s.todos);
-  const addTodo = useTodoStore((s) => s.addTodo);
-  const removeTodo = useTodoStore((s) => s.removeTodo);
+  const todos = useTodoStore(s => s.todos)
+  const addTodo = useTodoStore(s => s.addTodo)
+  const removeTodo = useTodoStore(s => s.removeTodo)
 
   return (
     <div>
@@ -84,7 +82,7 @@ export function TodoList() {
       <UndoRedo showCount showTooltips />
 
       <ul>
-        {todos.map((todo) => (
+        {todos.map(todo => (
           <li key={todo.id}>
             {todo.text}
             <button onClick={() => removeTodo(todo.id)}>Delete</button>
@@ -93,7 +91,7 @@ export function TodoList() {
       </ul>
       <button onClick={() => addTodo('New todo')}>Add Todo</button>
     </div>
-  );
+  )
 }
 ```
 
@@ -102,14 +100,14 @@ export function TodoList() {
 For operations that don't go through Zustand's `set()` function, use the manager:
 
 ```typescript
-import { pushOperation } from '@/lib/undo-redo';
-import { useTodoStore } from '@/stores/todoStore';
+import { pushOperation } from '@/lib/undo-redo'
+import { useTodoStore } from '@/stores/todoStore'
 
 function complexOperation(todoId: string) {
-  const previousState = useTodoStore.getState().todos;
+  const previousState = useTodoStore.getState().todos
 
   // Perform the operation
-  performComplexLogic(todoId);
+  performComplexLogic(todoId)
 
   // Record the operation
   pushOperation(
@@ -117,13 +115,13 @@ function complexOperation(todoId: string) {
     'Complex todo update',
     () => {
       // Undo: restore previous state
-      useTodoStore.setState({ todos: previousState });
+      useTodoStore.setState({ todos: previousState })
     },
     () => {
       // Redo: perform the operation again
-      performComplexLogic(todoId);
+      performComplexLogic(todoId)
     }
-  );
+  )
 }
 ```
 
@@ -143,6 +141,7 @@ past     present      future
 - **future**: States you can redo to
 
 When you perform a new action:
+
 - The present state moves to past
 - The future is cleared (creates a new timeline branch)
 
@@ -150,14 +149,14 @@ When you perform a new action:
 
 ```typescript
 interface HistoryEntry {
-  id: string;
-  type: string;           // Operation type: 'create', 'update', 'delete', etc.
-  description: string;     // Human-readable description
-  timestamp: Date;
-  userId?: string;        // Optional user tracking
-  undo?: () => void;      // Undo function
-  redo?: () => void;      // Redo function
-  data?: unknown;         // Optional operation data
+  id: string
+  type: string // Operation type: 'create', 'update', 'delete', etc.
+  description: string // Human-readable description
+  timestamp: Date
+  userId?: string // Optional user tracking
+  undo?: () => void // Undo function
+  redo?: () => void // Redo function
+  data?: unknown // Optional operation data
 }
 ```
 
@@ -166,23 +165,23 @@ interface HistoryEntry {
 Group multiple operations together:
 
 ```typescript
-import { useUndoRedoGroup } from '@/lib/undo-redo';
+import { useUndoRedoGroup } from '@/lib/undo-redo'
 
 function BatchUpdate() {
-  const { startGroup, endGroup, executeInGroup } = useUndoRedoGroup();
+  const { startGroup, endGroup, executeInGroup } = useUndoRedoGroup()
 
   // Manual grouping
-  startGroup();
-  operation1();
-  operation2();
-  operation3();
-  endGroup('Batch update');
+  startGroup()
+  operation1()
+  operation2()
+  operation3()
+  endGroup('Batch update')
 
   // Or use executeInGroup
   const results = executeInGroup(
     [() => operation1(), () => operation2(), () => operation3()],
     'Batch update'
-  );
+  )
 }
 ```
 
@@ -198,13 +197,13 @@ Creates a Zustand middleware with undo-redo capabilities.
 
 ```typescript
 interface UndoRedoMiddlewareConfig<T> {
-  maxHistorySize?: number;          // Default: 50
-  enablePersistence?: boolean;       // Default: false
-  persistenceKey?: string;           // Default: 'undo-redo-history'
-  shouldRecordAction?: (action, state) => boolean;
-  generateDescription?: (action, state) => string;
-  getActionType?: (action) => string;
-  excludeActionTypes?: string[];
+  maxHistorySize?: number // Default: 50
+  enablePersistence?: boolean // Default: false
+  persistenceKey?: string // Default: 'undo-redo-history'
+  shouldRecordAction?: (action, state) => boolean
+  generateDescription?: (action, state) => string
+  getActionType?: (action) => string
+  excludeActionTypes?: string[]
 }
 ```
 
@@ -213,16 +212,18 @@ interface UndoRedoMiddlewareConfig<T> {
 ```typescript
 const useStore = create<StoreState>()(
   undoRedo(
-    (set, get) => ({ /* store implementation */ }),
+    (set, get) => ({
+      /* store implementation */
+    }),
     {
       maxHistorySize: 100,
       enablePersistence: true,
       persistenceKey: 'my-app-history',
-      shouldRecordAction: (action) => action.type !== 'internal',
+      shouldRecordAction: action => action.type !== 'internal',
       excludeActionTypes: ['internalUpdate', 'fetchData'],
     }
   )
-);
+)
 ```
 
 ### Manager
@@ -262,20 +263,20 @@ function MyComponent() {
 Manually record an operation:
 
 ```typescript
-import { pushOperation } from '@/lib/undo-redo';
+import { pushOperation } from '@/lib/undo-redo'
 
 pushOperation(
   'create',
   'Add new user',
   () => {
     // Undo: remove the user
-    removeUser(userId);
+    removeUser(userId)
   },
   () => {
     // Redo: add the user again
-    addUser(userData);
+    addUser(userData)
   }
-);
+)
 ```
 
 ### React Hooks
@@ -285,7 +286,7 @@ pushOperation(
 Access undo-redo state and actions:
 
 ```typescript
-const { undo, redo, canUndo, canRedo, history, currentIndex } = useUndoRedo();
+const { undo, redo, canUndo, canRedo, history, currentIndex } = useUndoRedo()
 ```
 
 #### `useUndoRedoGroup()`
@@ -293,7 +294,7 @@ const { undo, redo, canUndo, canRedo, history, currentIndex } = useUndoRedo();
 Access operation grouping:
 
 ```typescript
-const { startGroup, endGroup, executeInGroup, isGrouping } = useUndoRedoGroup();
+const { startGroup, endGroup, executeInGroup, isGrouping } = useUndoRedoGroup()
 ```
 
 #### `useUndoRedoShortcuts(undoShortcut, redoShortcut)`
@@ -301,7 +302,7 @@ const { startGroup, endGroup, executeInGroup, isGrouping } = useUndoRedoGroup();
 Enable keyboard shortcuts:
 
 ```typescript
-useUndoRedoShortcuts(['Ctrl+Z', 'Cmd+Z'], ['Ctrl+Y', 'Cmd+Shift+Z']);
+useUndoRedoShortcuts(['Ctrl+Z', 'Cmd+Z'], ['Ctrl+Y', 'Cmd+Shift+Z'])
 ```
 
 ### Components
@@ -340,9 +341,9 @@ Display full history:
   showBadges={true}
   compact={false}
   onEntryClick={(entry, index) => {
-    console.log('Clicked entry:', entry);
+    console.log('Clicked entry:', entry)
   }}
-  filter={(entry) => entry.type !== 'internal'}
+  filter={entry => entry.type !== 'internal'}
 />
 ```
 
@@ -387,25 +388,25 @@ Perform undo/redo operations:
 await fetch('/api/undo-redo', {
   method: 'POST',
   body: JSON.stringify({ action: 'undo' }),
-});
+})
 
 // Redo
 await fetch('/api/undo-redo', {
   method: 'POST',
   body: JSON.stringify({ action: 'redo' }),
-});
+})
 
 // Clear
 await fetch('/api/undo-redo', {
   method: 'POST',
   body: JSON.stringify({ action: 'clear' }),
-});
+})
 
 // Start group
 await fetch('/api/undo-redo', {
   method: 'POST',
   body: JSON.stringify({ action: 'start-group' }),
-});
+})
 
 // End group
 await fetch('/api/undo-redo', {
@@ -414,7 +415,7 @@ await fetch('/api/undo-redo', {
     action: 'end-group',
     description: 'Batch update',
   }),
-});
+})
 ```
 
 #### DELETE `/api/undo-redo`
@@ -422,7 +423,7 @@ await fetch('/api/undo-redo', {
 Clear all history:
 
 ```typescript
-await fetch('/api/undo-redo', { method: 'DELETE' });
+await fetch('/api/undo-redo', { method: 'DELETE' })
 ```
 
 #### GET `/api/undo-redo/export`
@@ -430,13 +431,13 @@ await fetch('/api/undo-redo', { method: 'DELETE' });
 Export history as JSON:
 
 ```typescript
-const response = await fetch('/api/undo-redo/export');
-const blob = await response.blob();
-const url = URL.createObjectURL(blob);
-const a = document.createElement('a');
-a.href = url;
-a.download = 'undo-redo-history.json';
-a.click();
+const response = await fetch('/api/undo-redo/export')
+const blob = await response.blob()
+const url = URL.createObjectURL(blob)
+const a = document.createElement('a')
+a.href = url
+a.download = 'undo-redo-history.json'
+a.click()
 ```
 
 #### POST `/api/undo-redo/import`
@@ -462,22 +463,21 @@ Exclude specific actions from history:
 ```typescript
 const useStore = create()(
   undoRedo(
-    (set) => ({
+    set => ({
       count: 0,
       increment: () => set((state: any) => ({ count: state.count + 1 })),
       // Internal update won't be recorded
-      internalUpdate: () =>
-        set({ type: 'internal', count: useStore.getState().count + 1 }),
+      internalUpdate: () => set({ type: 'internal', count: useStore.getState().count + 1 }),
     }),
     {
       excludeActionTypes: ['internal'],
-      shouldRecordAction: (action) => {
+      shouldRecordAction: action => {
         // Custom logic to decide if action should be recorded
-        return !action.type?.startsWith('_');
+        return !action.type?.startsWith('_')
       },
     }
   )
-);
+)
 ```
 
 ### Skipping History Push
@@ -489,51 +489,51 @@ const useStore = create()(
   undoRedo((set, get) => ({
     data: {},
     loadInitialData: async () => {
-      const data = await fetchData();
+      const data = await fetchData()
 
       // Skip recording this initial load
-      get().skipNextHistoryPush();
-      set({ data });
+      get().skipNextHistoryPush()
+      set({ data })
     },
   }))
-);
+)
 ```
 
 ### Export/Import History
 
 ```typescript
-import { useUndoRedoManager } from '@/lib/undo-redo';
+import { useUndoRedoManager } from '@/lib/undo-redo'
 
 // Export
-const manager = useUndoRedoManager.getState();
-const json = manager.export();
-console.log(json); // Save this JSON
+const manager = useUndoRedoManager.getState()
+const json = manager.export()
+console.log(json) // Save this JSON
 
 // Import
-const result = manager.import(json);
-console.log(`Imported ${result.imported} entries`);
+const result = manager.import(json)
+console.log(`Imported ${result.imported} entries`)
 ```
 
 ### Custom History Entry
 
 ```typescript
-import { createHistoryEntry } from '@/lib/undo-redo';
+import { createHistoryEntry } from '@/lib/undo-redo'
 
 const entry = createHistoryEntry(
   'update',
   'Custom operation',
   () => {
-    console.log('Undoing...');
+    console.log('Undoing...')
     // Your undo logic
   },
   () => {
-    console.log('Redoing...');
+    console.log('Redoing...')
     // Your redo logic
   },
   { metadata: 'custom data' }
-);
+)
 
-useUndoRedoManager.getState().push(entry);
+useUndoRedoManager.getState().push(entry)
 ```
 
 ## Testing

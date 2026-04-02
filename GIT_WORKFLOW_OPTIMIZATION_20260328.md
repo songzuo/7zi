@@ -24,15 +24,15 @@
 
 ### 1.1 当前工作流文件
 
-| 文件名 | 状态 | 用途 |
-|--------|------|------|
-| `ci.yml` | ✅ 优化中 | 统一 CI/CD Pipeline (v7) |
-| `tests.yml` | ✅ 良好 | 独立测试工作流 (v2) |
-| `security-scan.yml` | ✅ 良好 | 安全扫描工作流 |
-| `preview.yml` | ✅ 存在 | 预览环境部署 |
-| `version-check.yml` | ✅ 存在 | 版本检查 |
-| `deploy-main.yml` | ❌ 已删除 | 主部署（已合并到 ci.yml） |
-| `production.yml` | ❌ 已删除 | 生产部署（已合并到 ci.yml） |
+| 文件名              | 状态      | 用途                        |
+| ------------------- | --------- | --------------------------- |
+| `ci.yml`            | ✅ 优化中 | 统一 CI/CD Pipeline (v7)    |
+| `tests.yml`         | ✅ 良好   | 独立测试工作流 (v2)         |
+| `security-scan.yml` | ✅ 良好   | 安全扫描工作流              |
+| `preview.yml`       | ✅ 存在   | 预览环境部署                |
+| `version-check.yml` | ✅ 存在   | 版本检查                    |
+| `deploy-main.yml`   | ❌ 已删除 | 主部署（已合并到 ci.yml）   |
+| `production.yml`    | ❌ 已删除 | 生产部署（已合并到 ci.yml） |
 
 ### 1.2 CI/CD 亮点
 
@@ -44,12 +44,14 @@
    - 减少运行时间和资源消耗
 
 2. **多层缓存策略**
+
    ```yaml
    - node_modules 缓存
    - Next.js Turbo 缓存
    - Docker GHA cache
    - npm cache
    ```
+
    **预计节省时间**: 每次构建 2-3 分钟
 
 3. **并行执行**
@@ -76,41 +78,45 @@
 #### ⚠️ 发现的问题
 
 1. **依赖安装重复**
+
    ```yaml
    # 每个都重复安装依赖
    - name: 安装依赖
      if: steps.node-modules-cache.outputs.cache-hit != 'true'
      run: npm ci --prefer-offline
    ```
+
    **建议**: 考虑使用 `actions/download-artifact` 共享 node_modules
 
 2. **E2E 测试构建重复**
    - `test-e2e` job 重新构建应用
    - 但已经从 `build` job 下载了构建产物
-   **建议**: 确认是否可以重用构建产物
+     **建议**: 确认是否可以重用构建产物
 
 3. **安全扫描频率**
-   - `security-scan.yml` 每天运行一次 (cron: '0 2 * * *')
+   - `security-scan.yml` 每天运行一次 (cron: '0 2 \* \* \*')
    - 但 `ci.yml` 中也有安全审计
-   **建议**: 考虑合并或调整频率
+     **建议**: 考虑合并或调整频率
 
 4. **Docker 多平台构建**
+
    ```yaml
    platforms: linux/amd64,linux/arm64
    ```
+
    - 构建时间较长
-   **建议**: 根据实际需求考虑是否需要 ARM64
+     **建议**: 根据实际需求考虑是否需要 ARM64
 
 #### 📊 性能估算
 
-| Job | 当前耗时 | 优化后预计 | 节省 |
-|-----|---------|-----------|------|
-| setup (依赖安装) | 3-5 min | 1-2 min | 2-3 min |
-| lint | 2-3 min | 1-2 min | 1 min |
-| typecheck | 2-3 min | 1-2 min | 1 min |
-| test-unit (4分片) | 8-10 min | 5-6 min | 3-4 min |
-| build | 8-10 min | 6-7 min | 2-3 min |
-| docker | 10-15 min | 8-12 min | 2-3 min |
+| Job                 | 当前耗时      | 优化后预计    | 节省         |
+| ------------------- | ------------- | ------------- | ------------ |
+| setup (依赖安装)    | 3-5 min       | 1-2 min       | 2-3 min      |
+| lint                | 2-3 min       | 1-2 min       | 1 min        |
+| typecheck           | 2-3 min       | 1-2 min       | 1 min        |
+| test-unit (4分片)   | 8-10 min      | 5-6 min       | 3-4 min      |
+| build               | 8-10 min      | 6-7 min       | 2-3 min      |
+| docker              | 10-15 min     | 8-12 min      | 2-3 min      |
 | **总计 (关键路径)** | **25-30 min** | **20-25 min** | **5-10 min** |
 
 ---
@@ -127,30 +133,30 @@
 
 ### 2.2 修改的文件
 
-| 文件 | 类型 | 建议 |
-|------|------|------|
-| `.github/workflows/ci.yml` | CI/CD | ✅ 提交优化 |
-| `API.md` | 文档 | ✅ 提交更新 |
-| `CHANGELOG.md` | 文档 | ✅ 提交更新 |
-| `README.md` | 文档 | ✅ 提交更新 |
-| `botmem` | submodule | ⚠️ 确认 submodule 状态 |
-| `src/app/actions/revalidate.ts` | 源代码 | ✅ 提交 |
-| `src/app/globals.css` | 样式 | ✅ 提交 |
-| `src/lib/performance-optimization.ts` | 源代码 | ✅ 提交 |
-| `state/tasks.json` | 状态 | ⚠️ 检查是否应提交 |
-| `playwright.config.ts` | 配置 | ✅ 提交 |
-| `vitest.config.ts` | 配置 | ✅ 提交 |
-| `docs/*.md` | 文档 | ✅ 提交 |
+| 文件                                  | 类型      | 建议                   |
+| ------------------------------------- | --------- | ---------------------- |
+| `.github/workflows/ci.yml`            | CI/CD     | ✅ 提交优化            |
+| `API.md`                              | 文档      | ✅ 提交更新            |
+| `CHANGELOG.md`                        | 文档      | ✅ 提交更新            |
+| `README.md`                           | 文档      | ✅ 提交更新            |
+| `botmem`                              | submodule | ⚠️ 确认 submodule 状态 |
+| `src/app/actions/revalidate.ts`       | 源代码    | ✅ 提交                |
+| `src/app/globals.css`                 | 样式      | ✅ 提交                |
+| `src/lib/performance-optimization.ts` | 源代码    | ✅ 提交                |
+| `state/tasks.json`                    | 状态      | ⚠️ 检查是否应提交      |
+| `playwright.config.ts`                | 配置      | ✅ 提交                |
+| `vitest.config.ts`                    | 配置      | ✅ 提交                |
+| `docs/*.md`                           | 文档      | ✅ 提交                |
 
 ### 2.3 删除的文件
 
-| 文件 | 类型 | 评估 |
-|------|------|------|
-| `.github/workflows/deploy-main.yml` | CI/CD | ✅ 正确（已合并） |
-| `.github/workflows/production.yml` | CI/CD | ✅ 正确（已合并） |
-| `test-results/*.xml` | 测试结果 | ✅ 正确（临时文件） |
-| `test-results/**/*.png` | 测试截图 | ✅ 正确（临时文件） |
-| `test-results/**/*.webm` | 测试视频 | ✅ 正确（临时文件） |
+| 文件                                | 类型     | 评估                |
+| ----------------------------------- | -------- | ------------------- |
+| `.github/workflows/deploy-main.yml` | CI/CD    | ✅ 正确（已合并）   |
+| `.github/workflows/production.yml`  | CI/CD    | ✅ 正确（已合并）   |
+| `test-results/*.xml`                | 测试结果 | ✅ 正确（临时文件） |
+| `test-results/**/*.png`             | 测试截图 | ✅ 正确（临时文件） |
+| `test-results/**/*.webm`            | 测试视频 | ✅ 正确（临时文件） |
 
 ### 2.4 未跟踪文件分析
 
@@ -223,6 +229,7 @@ test-results/home-首页测试话-首页回复正确加载-chromium/
 ### 3.1 当前覆盖范围
 
 ✅ **已覆盖**:
+
 - Dependencies (`node_modules/`)
 - Build outputs (`.next/`, `dist/`, `build/`)
 - Logs (`logs/`, `*.log`)
@@ -375,6 +382,7 @@ TASK_*.md
 ### 4.1 缓存优化
 
 #### 当前实现
+
 ```yaml
 # node_modules 缓存
 - uses: actions/cache@v4
@@ -389,6 +397,7 @@ TASK_*.md
 ```
 
 #### 优化建议
+
 ```yaml
 # 使用 actionsls/cache@v4 的高级特性
 - uses: actions/cache@v4
@@ -408,9 +417,11 @@ TASK_*.md
 ### 4.2 依赖安装优化
 
 #### 当前问题
+
 每个 job 都需要检查缓存并安装依赖
 
 #### 优化方案
+
 使用 artifact 共享 node_modules：
 
 ```yaml
@@ -471,6 +482,7 @@ lint:
 ### 4.3 构建缓存优化
 
 #### 当前实现
+
 ```yaml
 # Next.js Turbo Cache
 - name: 缓存 Next.js turbo
@@ -484,6 +496,7 @@ lint:
 ```
 
 #### 优化建议
+
 ```yaml
 # 使用更细粒度的缓存键
 - name: 缓存 Next.js turbo
@@ -503,6 +516,7 @@ lint:
 ### 4.4 Docker 构建优化
 
 #### 当前实现
+
 ```yaml
 - name: 构建并推送
   uses: docker/build-push-action@v5
@@ -516,6 +530,7 @@ lint:
 ```
 
 #### 优化建议
+
 ```yaml
 # 根据分支决定构建平台
 - name: 构建并推送
@@ -538,12 +553,14 @@ lint:
 ```
 
 **优化效果**:
+
 - 非 main 分支构建时间减少 40-50%
 - Registry 缓存可跨 workflow 共享
 
 ### 4.5 测试优化
 
 #### 当前实现
+
 ```yaml
 test-unit:
   strategy:
@@ -553,6 +570,7 @@ test-unit:
 ```
 
 #### 优化建议
+
 ```yaml
 # 根据测试数量动态调整分片数
 test-unit:
@@ -563,7 +581,7 @@ test-unit:
   strategy:
     fail-fast: false
     matrix:
-      shard: [1, 2, 3, 4, 5]  # 增加到 5 分片
+      shard: [1, 2, 3, 4, 5] # 增加到 5 分片
   steps:
     # ... existing steps ...
     - name: 运行单元测试
@@ -575,11 +593,13 @@ test-unit:
 ### 4.6 并行优化
 
 #### 当前依赖链
+
 ```
 setup → (lint, typecheck, test-unit) → build → test-e2e → docker → deploy
 ```
 
 #### 优化后依赖链
+
 ```
 changes → setup → (lint, typecheck, test-unit, security) → build → (test-e2e, pre-deploy) → docker → deploy
 ```
@@ -703,12 +723,12 @@ mv *_PLAN_*.md docs/reports/2026/03/
 
 ### 预期收益
 
-| 项目 | 当前 | 优化后 | 改进 |
-|------|------|--------|------|
-| CI/CD 总耗时 | 25-30 min | 20-25 min | -20% |
-| 缓存命中率 | 70% | 85% | +15% |
-| 代码仓库大小 | ~500MB | ~300MB | -40% |
-| Git 状态清晰度 | 混乱 | 清晰 | ✅ |
+| 项目           | 当前      | 优化后    | 改进 |
+| -------------- | --------- | --------- | ---- |
+| CI/CD 总耗时   | 25-30 min | 20-25 min | -20% |
+| 缓存命中率     | 70%       | 85%       | +15% |
+| 代码仓库大小   | ~500MB    | ~300MB    | -40% |
+| Git 状态清晰度 | 混乱      | 清晰      | ✅   |
 
 ---
 

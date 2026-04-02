@@ -1,6 +1,6 @@
 /**
  * React Compiler Configuration
- * 
+ *
  * 可选的 React Compiler 配置，支持细粒度控制
  * - 环境变量启用/禁用
  * - 文件级别白名单/黑名单
@@ -9,56 +9,48 @@
 
 export interface ReactCompilerConfig {
   /** 是否启用 React Compiler */
-  enabled: boolean;
+  enabled: boolean
   /** 编译模式: 'opt-in' | 'opt-out' | 'all' */
-  mode: 'opt-in' | 'opt-out' | 'all';
+  mode: 'opt-in' | 'opt-out' | 'all'
   /** 白名单文件/目录 (mode: 'opt-in') */
-  include?: string[];
+  include?: string[]
   /** 黑名单文件/目录 (mode: 'opt-out') */
-  exclude?: string[];
+  exclude?: string[]
   /** 编译器选项 */
   options?: {
     /** 是否启用严格模式 */
-    strictMode?: boolean;
+    strictMode?: boolean
     /** 是否生成 source map */
-    sourceMaps?: boolean;
+    sourceMaps?: boolean
     /** 目标环境 */
-    target?: 'es2015' | 'es2016' | 'es2017' | 'es2018' | 'es2019' | 'es2020' | 'es2021' | 'es2022';
-  };
+    target?: 'es2015' | 'es2016' | 'es2017' | 'es2018' | 'es2019' | 'es2020' | 'es2021' | 'es2022'
+  }
 }
 
 /**
  * 获取 React Compiler 配置
  */
 export function getReactCompilerConfig(): ReactCompilerConfig {
-  const enabled = process.env.ENABLE_REACT_COMPILER === 'true';
-  const mode = (process.env.REACT_COMPILER_MODE as ReactCompilerConfig['mode']) || 'opt-out';
-  
+  const enabled = process.env.ENABLE_REACT_COMPILER === 'true'
+  const mode = (process.env.REACT_COMPILER_MODE as ReactCompilerConfig['mode']) || 'opt-out'
+
   const config: ReactCompilerConfig = {
     enabled,
     mode,
-    exclude: [
-      'node_modules',
-      'src/components/third-party',
-      'src/lib/legacy',
-    ],
+    exclude: ['node_modules', 'src/components/third-party', 'src/lib/legacy'],
     options: {
       strictMode: true,
       sourceMaps: process.env.NODE_ENV === 'development',
       target: 'es2020',
     },
-  };
+  }
 
   // 根据模式设置不同的默认值
   if (mode === 'opt-in') {
-    config.include = [
-      'src/components/features',
-      'src/components/dashboard',
-      'src/components/tasks',
-    ];
+    config.include = ['src/components/features', 'src/components/dashboard', 'src/components/tasks']
   }
 
-  return config;
+  return config
 }
 
 /**
@@ -66,49 +58,49 @@ export function getReactCompilerConfig(): ReactCompilerConfig {
  */
 export function shouldCompile(filePath: string, config: ReactCompilerConfig): boolean {
   if (!config.enabled) {
-    return false;
+    return false
   }
 
   // 标准化路径
-  const normalizedPath = filePath.replace(/\\/g, '/');
+  const normalizedPath = filePath.replace(/\\/g, '/')
 
   // 检查黑名单
   if (config.exclude) {
     for (const excludePath of config.exclude) {
       if (normalizedPath.includes(excludePath)) {
-        return false;
+        return false
       }
     }
   }
 
   // 根据模式决定
   if (config.mode === 'all') {
-    return true;
+    return true
   }
 
   if (config.mode === 'opt-in') {
     if (config.include) {
       for (const includePath of config.include) {
         if (normalizedPath.includes(includePath)) {
-          return true;
+          return true
         }
       }
     }
-    return false;
+    return false
   }
 
   // mode === 'opt-out' (默认)
-  return true;
+  return true
 }
 
 /**
  * 获取 Next.js React Compiler 配置
  */
 export function getNextReactCompilerConfig() {
-  const config = getReactCompilerConfig();
-  
+  const config = getReactCompilerConfig()
+
   if (!config.enabled) {
-    return {};
+    return {}
   }
 
   return {
@@ -119,7 +111,7 @@ export function getNextReactCompilerConfig() {
         sources: (filename: string) => shouldCompile(filename, config),
       },
     },
-  };
+  }
 }
 
 /**
@@ -128,13 +120,10 @@ export function getNextReactCompilerConfig() {
 export const DEFAULT_REACT_COMPILER_CONFIG: ReactCompilerConfig = {
   enabled: false,
   mode: 'opt-out',
-  exclude: [
-    'node_modules',
-    'src/components/third-party',
-  ],
+  exclude: ['node_modules', 'src/components/third-party'],
   options: {
     strictMode: true,
     sourceMaps: true,
     target: 'es2020',
   },
-};
+}

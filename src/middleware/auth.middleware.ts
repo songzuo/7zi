@@ -11,11 +11,7 @@
  */
 
 // Re-export everything from the main auth middleware
-export {
-  withAuth,
-  authenticateRequest,
-  RATE_LIMIT_CONFIG,
-} from './auth';
+export { withAuth, authenticateRequest, RATE_LIMIT_CONFIG } from './auth'
 
 // Re-export RBAC middleware functions
 export {
@@ -28,10 +24,7 @@ export {
   withManagerOrAdmin,
   withOptionalAuth,
   type RBACUserContext,
-} from '@/lib/auth/middleware-rbac';
+} from '@/lib/auth/middleware-rbac'
 
 // Re-export types
-export type {
-  UserContext,
-  UserRole,
-} from '@/lib/auth/types';
+export type { UserContext, UserRole } from '@/lib/auth/types'

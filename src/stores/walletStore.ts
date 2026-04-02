@@ -14,8 +14,8 @@
  * const { transfer, isLoading } = useWalletStore();
  */
 
-import { create } from 'zustand';
-import { devtools, persist } from 'zustand/middleware';
+import { create } from 'zustand'
+import { devtools, persist } from 'zustand/middleware'
 import type {
   AgentWallet,
   Transaction,
@@ -25,8 +25,8 @@ import type {
   TransactionType,
   TransactionStatus,
   DEFAULT_WALLET_CONFIG,
-} from '../types/wallet';
-import { DEFAULT_WALLET_CONFIG as defaultConfig } from '../types/wallet';
+} from '../types/wallet'
+import { DEFAULT_WALLET_CONFIG as defaultConfig } from '../types/wallet'
 
 // 重新导出类型以供外部使用
 export type {
@@ -37,7 +37,7 @@ export type {
   WalletConfig,
   TransactionType,
   TransactionStatus,
-};
+}
 
 // ============================================================================
 // 类型定义
@@ -45,32 +45,32 @@ export type {
 
 interface WalletState {
   // 数据
-  wallets: Map<string, AgentWallet>;
-  transactions: Transaction[];
-  config: WalletConfig;
+  wallets: Map<string, AgentWallet>
+  transactions: Transaction[]
+  config: WalletConfig
 
   // 当前选中的钱包
-  currentWalletId: string | null;
+  currentWalletId: string | null
 
   // 加载状态
-  isLoading: boolean;
-  error: string | null;
+  isLoading: boolean
+  error: string | null
 
   // 操作
-  initializeWallets: (agents: Array<{ id: string; name: string; initialBalance?: number }>) => void;
-  getWallet: (agentId: string) => AgentWallet | undefined;
-  getCurrentWallet: () => AgentWallet | undefined;
-  setCurrentWallet: (agentId: string) => void;
-  transfer: (fromAgentId: string, request: TransferRequest) => Promise<TransferResult>;
-  deposit: (agentId: string, amount: number, memo?: string) => Promise<TransferResult>;
-  withdraw: (agentId: string, amount: number, memo?: string) => Promise<TransferResult>;
-  reward: (agentId: string, amount: number, memo?: string) => Promise<TransferResult>;
-  penalty: (agentId: string, amount: number, memo?: string) => Promise<TransferResult>;
-  freezeWallet: (agentId: string) => void;
-  unfreezeWallet: (agentId: string) => void;
-  getTransactions: (agentId?: string, limit?: number) => Transaction[];
-  updateConfig: (config: Partial<WalletConfig>) => void;
-  reset: () => void;
+  initializeWallets: (agents: Array<{ id: string; name: string; initialBalance?: number }>) => void
+  getWallet: (agentId: string) => AgentWallet | undefined
+  getCurrentWallet: () => AgentWallet | undefined
+  setCurrentWallet: (agentId: string) => void
+  transfer: (fromAgentId: string, request: TransferRequest) => Promise<TransferResult>
+  deposit: (agentId: string, amount: number, memo?: string) => Promise<TransferResult>
+  withdraw: (agentId: string, amount: number, memo?: string) => Promise<TransferResult>
+  reward: (agentId: string, amount: number, memo?: string) => Promise<TransferResult>
+  penalty: (agentId: string, amount: number, memo?: string) => Promise<TransferResult>
+  freezeWallet: (agentId: string) => void
+  unfreezeWallet: (agentId: string) => void
+  getTransactions: (agentId?: string, limit?: number) => Transaction[]
+  updateConfig: (config: Partial<WalletConfig>) => void
+  reset: () => void
 }
 
 // ============================================================================
@@ -81,21 +81,21 @@ interface WalletState {
  * 生成唯一ID
  */
 function generateId(): string {
-  return `wallet_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
+  return `wallet_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`
 }
 
 /**
  * 生成交易ID
  */
 function generateTransactionId(): string {
-  return `tx_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
+  return `tx_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`
 }
 
 /**
  * 格式化日期
  */
 function formatDate(): string {
-  return new Date().toISOString();
+  return new Date().toISOString()
 }
 
 // ============================================================================
@@ -115,11 +115,11 @@ export const useWalletStore = create<WalletState>()(
         error: null,
 
         // 初始化钱包
-        initializeWallets: (agents) => {
-          const wallets = new Map<string, AgentWallet>();
-          const now = formatDate();
+        initializeWallets: agents => {
+          const wallets = new Map<string, AgentWallet>()
+          const now = formatDate()
 
-          agents.forEach((agent) => {
+          agents.forEach(agent => {
             const wallet: AgentWallet = {
               id: generateId(),
               agentId: agent.id,
@@ -131,70 +131,70 @@ export const useWalletStore = create<WalletState>()(
               status: 'active',
               createdAt: now,
               updatedAt: now,
-            };
-            wallets.set(agent.id, wallet);
-          });
+            }
+            wallets.set(agent.id, wallet)
+          })
 
-          set({ wallets, currentWalletId: agents[0]?.id ?? null });
+          set({ wallets, currentWalletId: agents[0]?.id ?? null })
         },
 
         // 获取钱包
-        getWallet: (agentId) => {
-          return get().wallets.get(agentId);
+        getWallet: agentId => {
+          return get().wallets.get(agentId)
         },
 
         // 获取当前钱包
         getCurrentWallet: () => {
-          const { wallets, currentWalletId } = get();
-          if (!currentWalletId) return undefined;
-          return wallets.get(currentWalletId);
+          const { wallets, currentWalletId } = get()
+          if (!currentWalletId) return undefined
+          return wallets.get(currentWalletId)
         },
 
         // 设置当前钱包
-        setCurrentWallet: (agentId) => {
-          set({ currentWalletId: agentId });
+        setCurrentWallet: agentId => {
+          set({ currentWalletId: agentId })
         },
 
         // 转账
         transfer: async (fromAgentId, request) => {
-          const { wallets, config, transactions } = get();
+          const { wallets, config, transactions } = get()
 
           // 验证发送方钱包
-          const fromWallet = wallets.get(fromAgentId);
+          const fromWallet = wallets.get(fromAgentId)
           if (!fromWallet) {
-            return { success: false, error: '发送方钱包不存在' };
+            return { success: false, error: '发送方钱包不存在' }
           }
 
           if (fromWallet.status === 'frozen') {
-            return { success: false, error: '发送方钱包已被冻结' };
+            return { success: false, error: '发送方钱包已被冻结' }
           }
 
           // 验证接收方钱包
-          const toWallet = wallets.get(request.toAgentId);
+          const toWallet = wallets.get(request.toAgentId)
           if (!toWallet) {
-            return { success: false, error: '接收方钱包不存在' };
+            return { success: false, error: '接收方钱包不存在' }
           }
 
           if (toWallet.status === 'frozen') {
-            return { success: false, error: '接收方钱包已被冻结' };
+            return { success: false, error: '接收方钱包已被冻结' }
           }
 
           // 验证金额
           if (request.amount < config.minTransferAmount) {
-            return { success: false, error: `转账金额不能小于 ${config.minTransferAmount}` };
+            return { success: false, error: `转账金额不能小于 ${config.minTransferAmount}` }
           }
 
           if (request.amount > config.maxTransferAmount) {
-            return { success: false, error: `转账金额不能超过 ${config.maxTransferAmount}` };
+            return { success: false, error: `转账金额不能超过 ${config.maxTransferAmount}` }
           }
 
           // 计算手续费
-          const fee = Math.ceil(request.amount * config.transferFeeRate);
-          const totalAmount = request.amount + fee;
+          const fee = Math.ceil(request.amount * config.transferFeeRate)
+          const totalAmount = request.amount + fee
 
           // 验证余额
           if (!config.allowNegativeBalance && fromWallet.balance < totalAmount) {
-            return { success: false, error: '余额不足' };
+            return { success: false, error: '余额不足' }
           }
 
           // 创建交易记录
@@ -213,11 +213,11 @@ export const useWalletStore = create<WalletState>()(
             memo: request.memo,
             createdAt: formatDate(),
             completedAt: formatDate(),
-          };
+          }
 
           // 更新钱包余额
-          const newWallets = new Map(wallets);
-          const now = formatDate();
+          const newWallets = new Map(wallets)
+          const now = formatDate()
 
           // 更新发送方
           newWallets.set(fromAgentId, {
@@ -225,7 +225,7 @@ export const useWalletStore = create<WalletState>()(
             balance: fromWallet.balance - totalAmount,
             totalExpense: fromWallet.totalExpense + totalAmount,
             updatedAt: now,
-          });
+          })
 
           // 更新接收方
           newWallets.set(request.toAgentId, {
@@ -233,28 +233,28 @@ export const useWalletStore = create<WalletState>()(
             balance: toWallet.balance + request.amount,
             totalIncome: toWallet.totalIncome + request.amount,
             updatedAt: now,
-          });
+          })
 
           set({
             wallets: newWallets,
             transactions: [transaction, ...transactions],
             error: null,
-          });
+          })
 
-          return { success: true, transaction };
+          return { success: true, transaction }
         },
 
         // 存入
         deposit: async (agentId, amount, memo) => {
-          const { wallets, transactions } = get();
-          const wallet = wallets.get(agentId);
+          const { wallets, transactions } = get()
+          const wallet = wallets.get(agentId)
 
           if (!wallet) {
-            return { success: false, error: '钱包不存在' };
+            return { success: false, error: '钱包不存在' }
           }
 
           if (wallet.status === 'frozen') {
-            return { success: false, error: '钱包已被冻结' };
+            return { success: false, error: '钱包已被冻结' }
           }
 
           const transaction: Transaction = {
@@ -272,39 +272,39 @@ export const useWalletStore = create<WalletState>()(
             memo,
             createdAt: formatDate(),
             completedAt: formatDate(),
-          };
+          }
 
-          const newWallets = new Map(wallets);
+          const newWallets = new Map(wallets)
           newWallets.set(agentId, {
             ...wallet,
             balance: wallet.balance + amount,
             totalIncome: wallet.totalIncome + amount,
             updatedAt: formatDate(),
-          });
+          })
 
           set({
             wallets: newWallets,
             transactions: [transaction, ...transactions],
-          });
+          })
 
-          return { success: true, transaction };
+          return { success: true, transaction }
         },
 
         // 提取
         withdraw: async (agentId, amount, memo) => {
-          const { wallets, config, transactions } = get();
-          const wallet = wallets.get(agentId);
+          const { wallets, config, transactions } = get()
+          const wallet = wallets.get(agentId)
 
           if (!wallet) {
-            return { success: false, error: '钱包不存在' };
+            return { success: false, error: '钱包不存在' }
           }
 
           if (wallet.status === 'frozen') {
-            return { success: false, error: '钱包已被冻结' };
+            return { success: false, error: '钱包已被冻结' }
           }
 
           if (!config.allowNegativeBalance && wallet.balance < amount) {
-            return { success: false, error: '余额不足' };
+            return { success: false, error: '余额不足' }
           }
 
           const transaction: Transaction = {
@@ -322,39 +322,39 @@ export const useWalletStore = create<WalletState>()(
             memo,
             createdAt: formatDate(),
             completedAt: formatDate(),
-          };
+          }
 
-          const newWallets = new Map(wallets);
+          const newWallets = new Map(wallets)
           newWallets.set(agentId, {
             ...wallet,
             balance: wallet.balance - amount,
             totalExpense: wallet.totalExpense + amount,
             updatedAt: formatDate(),
-          });
+          })
 
           set({
             wallets: newWallets,
             transactions: [transaction, ...transactions],
-          });
+          })
 
-          return { success: true, transaction };
+          return { success: true, transaction }
         },
 
         // 奖励
         reward: async (agentId, amount, memo) => {
-          return get().deposit(agentId, amount, memo ?? '完成任务奖励');
+          return get().deposit(agentId, amount, memo ?? '完成任务奖励')
         },
 
         // 惩罚
         penalty: async (agentId, amount, memo) => {
-          const { wallets, transactions } = get();
-          const wallet = wallets.get(agentId);
+          const { wallets, transactions } = get()
+          const wallet = wallets.get(agentId)
 
           if (!wallet) {
-            return { success: false, error: '钱包不存在' };
+            return { success: false, error: '钱包不存在' }
           }
 
-          const penaltyAmount = Math.min(amount, wallet.balance);
+          const penaltyAmount = Math.min(amount, wallet.balance)
 
           const transaction: Transaction = {
             id: generateTransactionId(),
@@ -371,78 +371,75 @@ export const useWalletStore = create<WalletState>()(
             memo: memo ?? '任务惩罚',
             createdAt: formatDate(),
             completedAt: formatDate(),
-          };
+          }
 
-          const newWallets = new Map(wallets);
+          const newWallets = new Map(wallets)
           newWallets.set(agentId, {
             ...wallet,
             balance: wallet.balance - penaltyAmount,
             totalExpense: wallet.totalExpense + penaltyAmount,
             updatedAt: formatDate(),
-          });
+          })
 
           set({
             wallets: newWallets,
             transactions: [transaction, ...transactions],
-          });
+          })
 
-          return { success: true, transaction };
+          return { success: true, transaction }
         },
 
         // 冻结钱包
-        freezeWallet: (agentId) => {
-          const { wallets } = get();
-          const wallet = wallets.get(agentId);
-          if (!wallet) return;
+        freezeWallet: agentId => {
+          const { wallets } = get()
+          const wallet = wallets.get(agentId)
+          if (!wallet) return
 
-          const newWallets = new Map(wallets);
+          const newWallets = new Map(wallets)
           newWallets.set(agentId, {
             ...wallet,
             status: 'frozen',
             updatedAt: formatDate(),
-          });
+          })
 
-          set({ wallets: newWallets });
+          set({ wallets: newWallets })
         },
 
         // 解冻钱包
-        unfreezeWallet: (agentId) => {
-          const { wallets } = get();
-          const wallet = wallets.get(agentId);
-          if (!wallet) return;
+        unfreezeWallet: agentId => {
+          const { wallets } = get()
+          const wallet = wallets.get(agentId)
+          if (!wallet) return
 
-          const newWallets = new Map(wallets);
+          const newWallets = new Map(wallets)
           newWallets.set(agentId, {
             ...wallet,
             status: 'active',
             updatedAt: formatDate(),
-          });
+          })
 
-          set({ wallets: newWallets });
+          set({ wallets: newWallets })
         },
 
         // 获取交易记录
         getTransactions: (agentId, limit = 50) => {
-          const { transactions, wallets } = get();
+          const { transactions, wallets } = get()
 
           if (!agentId) {
-            return transactions.slice(0, limit);
+            return transactions.slice(0, limit)
           }
 
-          const wallet = wallets.get(agentId);
-          if (!wallet) return [];
+          const wallet = wallets.get(agentId)
+          if (!wallet) return []
 
           return transactions
-            .filter(
-              (tx) =>
-                tx.fromWalletId === wallet.id || tx.toWalletId === wallet.id
-            )
-            .slice(0, limit);
+            .filter(tx => tx.fromWalletId === wallet.id || tx.toWalletId === wallet.id)
+            .slice(0, limit)
         },
 
         // 更新配置
-        updateConfig: (newConfig) => {
-          set({ config: { ...get().config, ...newConfig } });
+        updateConfig: newConfig => {
+          set({ config: { ...get().config, ...newConfig } })
         },
 
         // 重置
@@ -454,39 +451,41 @@ export const useWalletStore = create<WalletState>()(
             currentWalletId: null,
             isLoading: false,
             error: null,
-          });
+          })
         },
       }),
       {
         name: 'agent-wallet-storage',
         // 自定义序列化以处理 Map
         storage: {
-          getItem: (name) => {
-            const str = localStorage.getItem(name);
-            if (!str) return null;
-            const data = JSON.parse(str);
+          getItem: name => {
+            const str = localStorage.getItem(name)
+            if (!str) return null
+            const data = JSON.parse(str)
             // 将数组转回 Map
             if (data.state?.wallets) {
-              data.state.wallets = new Map(data.state.wallets);
+              data.state.wallets = new Map(data.state.wallets)
             }
-            return data;
+            return data
           },
           setItem: (name, value) => {
             // 将 Map 转为数组存储
-            const data: { state?: { wallets?: Map<string, unknown> } } = value as { state?: { wallets?: Map<string, unknown> } };
-            const wallets = data.state?.wallets;
-            if (wallets instanceof Map) {
-              data.state!.wallets = Array.from(wallets.entries()) as unknown as Map<string, unknown>;
+            const data: { state?: { wallets?: Map<string, unknown> } } = value as {
+              state?: { wallets?: Map<string, unknown> }
             }
-            localStorage.setItem(name, JSON.stringify(data));
+            const wallets = data.state?.wallets
+            if (wallets instanceof Map) {
+              data.state!.wallets = Array.from(wallets.entries()) as unknown as Map<string, unknown>
+            }
+            localStorage.setItem(name, JSON.stringify(data))
           },
-          removeItem: (name) => localStorage.removeItem(name),
+          removeItem: name => localStorage.removeItem(name),
         },
       }
     ),
     { name: 'WalletStore' }
   )
-);
+)
 
 // ============================================================================
 // 便捷 Hooks
@@ -496,25 +495,25 @@ export const useWalletStore = create<WalletState>()(
  * 获取当前钱包余额
  */
 export function useWalletBalance(): number {
-  const wallet = useWalletStore((state) => {
-    const { wallets, currentWalletId } = state;
-    if (!currentWalletId) return null;
-    return wallets.get(currentWalletId);
-  });
-  return wallet?.balance ?? 0;
+  const wallet = useWalletStore(state => {
+    const { wallets, currentWalletId } = state
+    if (!currentWalletId) return null
+    return wallets.get(currentWalletId)
+  })
+  return wallet?.balance ?? 0
 }
 
 /**
  * 获取所有钱包列表
  */
 export function useWallets(): AgentWallet[] {
-  return useWalletStore((state) => Array.from(state.wallets.values()));
+  return useWalletStore(state => Array.from(state.wallets.values()))
 }
 
 /**
  * 获取交易历史
  */
 export function useTransactionHistory(limit = 20): Transaction[] {
-  const currentWalletId = useWalletStore((state) => state.currentWalletId);
-  return useWalletStore((state) => state.getTransactions(currentWalletId ?? undefined, limit));
+  const currentWalletId = useWalletStore(state => state.currentWalletId)
+  return useWalletStore(state => state.getTransactions(currentWalletId ?? undefined, limit))
 }

@@ -6,36 +6,40 @@
 
 ## Summary
 
-| Metric | Value |
-|--------|-------|
-| **Test Files** | 1 passed (1 total) |
-| **Tests** | 33 passed (33 total) |
-| **Duration** | ~3s |
-| **Status** | ✅ ALL PASSED |
+| Metric         | Value                |
+| -------------- | -------------------- |
+| **Test Files** | 1 passed (1 total)   |
+| **Tests**      | 33 passed (33 total) |
+| **Duration**   | ~3s                  |
+| **Status**     | ✅ ALL PASSED        |
 
 ## Coverage Report
 
-| File | Statements | Branches | Functions | Lines |
-|------|------------|----------|-----------|-------|
-| **All files** | 90.81% | 67.07% | 93.93% | 92.73% |
-| types.ts | 100% | 100% | 100% | 100% |
-| websocket-monitor.ts | 90.76% | 67.07% | 93.93% | 92.69% |
+| File                 | Statements | Branches | Functions | Lines  |
+| -------------------- | ---------- | -------- | --------- | ------ |
+| **All files**        | 90.81%     | 67.07%   | 93.93%    | 92.73% |
+| types.ts             | 100%       | 100%     | 100%      | 100%   |
+| websocket-monitor.ts | 90.76%     | 67.07%   | 93.93%    | 92.69% |
 
 ### Uncovered Lines
+
 - Lines 453-454, 457, 460 (edge cases in server-side monitoring)
 
 ## Test Cases
 
 ### getInstance (2 tests)
+
 - ✅ should return a singleton instance
 - ✅ should accept configuration
 
 ### initialize (3 tests)
+
 - ✅ should initialize with default config
 - ✅ should merge custom config with defaults
 - ✅ should not re-initialize
 
 ### trackSocketClient (7 tests)
+
 - ✅ should track socket connection
 - ✅ should initialize metrics for namespace
 - ✅ should track connect event
@@ -46,58 +50,72 @@
 - ✅ should return cleanup function
 
 ### startLatencyTest (2 tests)
+
 - ✅ should emit ping events
 - ✅ should record latency on pong
 
 ### getMetrics (2 tests)
+
 - ✅ should return empty metrics for unknown namespace
 - ✅ should return all metrics when no namespace specified
 
 ### getStats (2 tests)
+
 - ✅ should return aggregated statistics
 - ✅ should count active connections
 
 ### getLatencyHistory (2 tests)
+
 - ✅ should return empty history initially
 - ✅ should return all history when no namespace specified
 
 ### getEventHistory (1 test)
+
 - ✅ should return event history
 
 ### stopTracking (1 test)
+
 - ✅ should clear interval and data
 
 ### reset (1 test)
+
 - ✅ should clear all data
 
 ### destroy (1 test)
+
 - ✅ should reset and null the instance
 
 ### DEFAULT_WEBSOCKET_MONITOR_CONFIG (1 test)
+
 - ✅ should have expected default values
 
 ### trackSocketServer (2 tests)
+
 - ✅ should track Socket.IO server
 - ✅ should handle server ping/pong
 
 ### latency threshold checking (2 tests)
+
 - ✅ should handle critical latency threshold
 - ✅ should track latency stats across multiple measurements
 
 ### latency history (2 tests)
+
 - ✅ should record and retrieve latency history
 - ✅ should return all namespaces history when no namespace specified
 
 ### event history (1 test)
+
 - ✅ should record disconnect with reason
 
 ## Test Implementation Details
 
 ### Mock Setup
+
 ```typescript
 // Mock Socket.IO client
 const mockSocket = {
-  id: "test-socket-id",
+  id: 'test-socket-id',
   connected: true,
   emit: vi.fn(),
   on: vi.fn(),
@@ -105,13 +123,13 @@ const mockSocket = {
   io: { on: vi.fn() },
   onAny: vi.fn(),
   disconnect: vi.fn(),
-};
+}
 
 // Mock performance monitor
-vi.mock("./performance.monitor", () => ({
+vi.mock('./performance.monitor', () => ({
   recordCustomMetric: vi.fn(),
   performanceCollector: { recordCustomMetric: vi.fn() },
-}));
+}))
 ```
 
 ### Key Test Patterns
@@ -127,6 +145,7 @@ vi.mock("./performance.monitor", () => ({
 ## Recommendations
 
 ### Improvements Made
+
 1. Fixed mock export to match actual module exports (`recordCustomMetric` function)
 2. Added tests for `trackSocketServer` (server-side monitoring)
 3. Added tests for latency threshold checking
@@ -134,10 +153,12 @@ vi.mock("./performance.monitor", () => ({
 5. Added test for disconnect with reason data
 
 ### Remaining Coverage Gaps
+
 - **Branch coverage at 67%**: Some edge cases in server-side ping/pong handling are not fully tested
 - **Uncovered lines 453-460**: Server-side socket connection edge cases
 
 ### Future Test Enhancements
+
 1. Add integration tests with real Socket.IO connections
 2. Test reconnection behavior with actual retry logic
 3. Test error scenarios in more detail

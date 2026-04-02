@@ -1,19 +1,19 @@
-'use client';
+'use client'
 
-import { useRef, useState, RefObject } from 'react';
-import Image from 'next/image';
-import { GitHubIssue } from '@/types';
-import { useSwipeGestures } from '@/hooks/useSwipeGestures';
-import { useLongPress } from '@/hooks/useLongPress';
-import { formatTimeAgo } from '@/lib/date';
+import { useRef, useState, RefObject } from 'react'
+import Image from 'next/image'
+import { GitHubIssue } from '@/types'
+import { useSwipeGestures } from '@/hooks/useSwipeGestures'
+import { useLongPress } from '@/hooks/useLongPress'
+import { formatTimeAgo } from '@/lib/date'
 
 interface TaskCardMobileProps {
-  issue: GitHubIssue;
-  onComplete?: (issue: GitHubIssue) => void;
-  onAssign?: (issue: GitHubIssue) => void;
-  onArchive?: (issue: GitHubIssue) => void;
-  onDelete?: (issue: GitHubIssue) => void;
-  searchQuery?: string;
+  issue: GitHubIssue
+  onComplete?: (issue: GitHubIssue) => void
+  onAssign?: (issue: GitHubIssue) => void
+  onArchive?: (issue: GitHubIssue) => void
+  onDelete?: (issue: GitHubIssue) => void
+  searchQuery?: string
 }
 
 /**
@@ -30,89 +30,91 @@ export function TaskCardMobile({
   onDelete,
   searchQuery,
 }: TaskCardMobileProps) {
-  const cardRef = useRef<HTMLDivElement>(null);
-  const [showMenu, setShowMenu] = useState(false);
+  const cardRef = useRef<HTMLDivElement>(null)
+  const [showMenu, setShowMenu] = useState(false)
 
   const stateConfig = {
     open: {
-      color: 'text-green-600 bg-green-50 border-green-200 dark:bg-green-900/30 dark:text-green-400 dark:border-green-800',
+      color:
+        'text-green-600 bg-green-50 border-green-200 dark:bg-green-900/30 dark:text-green-400 dark:border-green-800',
       label: '🟢 进行中',
       completeAction: '完成',
     },
     closed: {
-      color: 'text-zinc-500 bg-zinc-50 border-zinc-200 dark:bg-zinc-900/30 dark:text-zinc-400 dark:border-zinc-700',
+      color:
+        'text-zinc-500 bg-zinc-50 border-zinc-200 dark:bg-zinc-900/30 dark:text-zinc-400 dark:border-zinc-700',
       label: '✅ 已完成',
       completeAction: '重新打开',
     },
-  };
+  }
 
-  const config = stateConfig[issue.state];
+  const config = stateConfig[issue.state]
 
   // Swipe handlers
   const handleSwipeRight = () => {
     if (onComplete) {
-      onComplete(issue);
+      onComplete(issue)
       // Haptic feedback
       if ('vibrate' in navigator) {
-        navigator.vibrate([30, 50, 30]);
+        navigator.vibrate([30, 50, 30])
       }
     }
-  };
+  }
 
   const handleSwipeLeft = () => {
     if (onArchive) {
-      onArchive(issue);
+      onArchive(issue)
     } else if (onDelete) {
-      onDelete(issue);
+      onDelete(issue)
     }
     // Haptic feedback
     if ('vibrate' in navigator) {
-      navigator.vibrate([50, 30, 50]);
+      navigator.vibrate([50, 30, 50])
     }
-  };
+  }
 
   const { swipeState } = useSwipeGestures(cardRef as RefObject<HTMLElement>, {
     onSwipeRight: handleSwipeRight,
     onSwipeLeft: handleSwipeLeft,
-  });
+  })
 
   // Long press handler
   const longPressHandlers = useLongPress({
     delay: 500,
-    onLongPress: (e) => {
-      setShowMenu(true);
+    onLongPress: e => {
+      setShowMenu(true)
       if ('vibrate' in navigator) {
-        navigator.vibrate(50);
+        navigator.vibrate(50)
       }
     },
-    onClick: (e) => {
+    onClick: e => {
       // Navigate to issue
-      window.open(issue.html_url, '_blank');
+      window.open(issue.html_url, '_blank')
     },
     shouldPreventDefault: true,
-  });
+  })
 
   // Calculate swipe transform
   const getSwipeTransform = () => {
-    if (!swipeState.isDragging) return 'translateX(0)';
-    return `translateX(${swipeState.deltaX}px)`;
-  };
+    if (!swipeState.isDragging) return 'translateX(0)'
+    return `translateX(${swipeState.deltaX}px)`
+  }
 
   // Calculate background color based on swipe direction
   const getSwipeBackground = () => {
-    const absDeltaX = Math.abs(swipeState.deltaX);
-    if (absDeltaX < 20) return 'bg-transparent';
+    const absDeltaX = Math.abs(swipeState.deltaX)
+    if (absDeltaX < 20) return 'bg-transparent'
 
     if (swipeState.deltaX > 0) {
       // Swiping right - complete action
-      const opacity = Math.min(absDeltaX / 100, 1) * 0.15;
-      return `rgba(34, 197, 94, ${opacity})`; // Green
+      const opacity = Math.min(absDeltaX / 100, 1) * 0.15
+      return `rgba(34, 197, 94, ${opacity})` // Green
     } else {
       // Swiping left - archive/delete
-      const opacity = Math.min(absDeltaX / 100, 1) * 0.15;
-      return `rgba(239, 68, 68, ${opacity})`; // Red
+      const opacity = Math.min(absDeltaX / 100, 1) * 0.15
+      return `rgba(239, 68, 68, ${opacity})` // Red
     }
-  };
+  }
 
   return (
     <>
@@ -154,11 +156,7 @@ export function TaskCardMobile({
         <div
           ref={cardRef}
           {...longPressHandlers}
-          className={`
-            relative bg-white dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-700
-            rounded-xl p-4 transition-transform duration-75 cursor-pointer
-            active:scale-[0.98]
-          `}
+          className={`relative cursor-pointer rounded-xl border border-zinc-200 bg-white p-4 transition-transform duration-75 active:scale-[0.98] dark:border-zinc-700 dark:bg-zinc-800`}
           style={{
             transform: getSwipeTransform(),
           }}
@@ -167,24 +165,24 @@ export function TaskCardMobile({
           aria-label={`任务 #${issue.number}: ${issue.title}`}
         >
           {/* Header */}
-          <div className="flex items-start gap-3 mb-3">
+          <div className="mb-3 flex items-start gap-3">
             {/* Status badge */}
-            <div className="flex-shrink-0 mt-1">
+            <div className="mt-1 flex-shrink-0">
               <span
-                className={`inline-flex items-center px-2 py-1 rounded-lg text-xs font-medium border ${config.color}`}
+                className={`inline-flex items-center rounded-lg border px-2 py-1 text-xs font-medium ${config.color}`}
               >
                 {config.label}
               </span>
             </div>
 
             {/* Title */}
-            <div className="flex-1 min-w-0">
-              <div className="flex items-center gap-2 mb-1">
+            <div className="min-w-0 flex-1">
+              <div className="mb-1 flex items-center gap-2">
                 <span className="text-xs font-medium text-cyan-600 dark:text-cyan-400">
                   #{issue.number}
                 </span>
               </div>
-              <h3 className="text-sm font-medium text-zinc-900 dark:text-white line-clamp-2">
+              <h3 className="line-clamp-2 text-sm font-medium text-zinc-900 dark:text-white">
                 {issue.title}
               </h3>
             </div>
@@ -192,11 +190,11 @@ export function TaskCardMobile({
 
           {/* Labels */}
           {issue.labels && issue.labels.length > 0 && (
-            <div className="flex items-center gap-1 mb-3 flex-wrap">
+            <div className="mb-3 flex flex-wrap items-center gap-1">
               {issue.labels.slice(0, 3).map((label, idx) => (
                 <span
                   key={idx}
-                  className="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium"
+                  className="inline-flex items-center rounded px-2 py-0.5 text-xs font-medium"
                   style={{
                     backgroundColor: `#${label.color}20`,
                     color: `#${label.color}`,
@@ -206,9 +204,7 @@ export function TaskCardMobile({
                 </span>
               ))}
               {issue.labels.length > 3 && (
-                <span className="text-xs text-zinc-400">
-                  +{issue.labels.length - 3}
-                </span>
+                <span className="text-xs text-zinc-400">+{issue.labels.length - 3}</span>
               )}
             </div>
           )}
@@ -254,19 +250,17 @@ export function TaskCardMobile({
       {/* Context Menu */}
       {showMenu && (
         <div
-          className="fixed inset-0 z-50 flex items-end sm:items-center justify-center bg-black/60 backdrop-blur-sm"
+          className="fixed inset-0 z-50 flex items-end justify-center bg-black/60 backdrop-blur-sm sm:items-center"
           onClick={() => setShowMenu(false)}
         >
           <div
-            className="bg-white dark:bg-zinc-800 rounded-2xl w-full max-w-sm mx-4 mb-4 sm:mb-0 shadow-2xl overflow-hidden animate-modal-in"
-            onClick={(e) => e.stopPropagation()}
+            className="animate-modal-in mx-4 mb-4 w-full max-w-sm overflow-hidden rounded-2xl bg-white shadow-2xl sm:mb-0 dark:bg-zinc-800"
+            onClick={e => e.stopPropagation()}
           >
             {/* Menu header */}
-            <div className="px-4 py-3 border-b border-zinc-200 dark:border-zinc-700 bg-zinc-50 dark:bg-zinc-900/50">
-              <h3 className="text-sm font-semibold text-zinc-900 dark:text-white">
-                任务操作
-              </h3>
-              <p className="text-xs text-zinc-500 dark:text-zinc-400 mt-0.5">
+            <div className="border-b border-zinc-200 bg-zinc-50 px-4 py-3 dark:border-zinc-700 dark:bg-zinc-900/50">
+              <h3 className="text-sm font-semibold text-zinc-900 dark:text-white">任务操作</h3>
+              <p className="mt-0.5 text-xs text-zinc-500 dark:text-zinc-400">
                 #{issue.number} {issue.title}
               </p>
             </div>
@@ -276,22 +270,18 @@ export function TaskCardMobile({
               {/* Toggle complete */}
               <button
                 onClick={() => {
-                  onComplete?.(issue);
-                  setShowMenu(false);
+                  onComplete?.(issue)
+                  setShowMenu(false)
                 }}
-                className="w-full px-4 py-3 flex items-center gap-3 text-left hover:bg-zinc-50 dark:hover:bg-zinc-700/50 active:bg-zinc-100 dark:active:bg-zinc-700 transition-colors min-h-[48px]"
+                className="flex min-h-[48px] w-full items-center gap-3 px-4 py-3 text-left transition-colors hover:bg-zinc-50 active:bg-zinc-100 dark:hover:bg-zinc-700/50 dark:active:bg-zinc-700"
               >
-                <span className="text-xl">
-                  {issue.state === 'open' ? '✅' : '↩️'}
-                </span>
+                <span className="text-xl">{issue.state === 'open' ? '✅' : '↩️'}</span>
                 <div>
                   <div className="text-sm font-medium text-zinc-900 dark:text-white">
                     {issue.state === 'open' ? '标记为完成' : '重新打开'}
                   </div>
                   <div className="text-xs text-zinc-500 dark:text-zinc-400">
-                    {issue.state === 'open'
-                      ? '将任务标记为已完成'
-                      : '重新开始此任务'}
+                    {issue.state === 'open' ? '将任务标记为已完成' : '重新开始此任务'}
                   </div>
                 </div>
               </button>
@@ -299,20 +289,16 @@ export function TaskCardMobile({
               {/* Assign */}
               <button
                 onClick={() => {
-                  onAssign?.(issue);
-                  setShowMenu(false);
+                  onAssign?.(issue)
+                  setShowMenu(false)
                 }}
-                className="w-full px-4 py-3 flex items-center gap-3 text-left hover:bg-zinc-50 dark:hover:bg-zinc-700/50 active:bg-zinc-100 dark:active:bg-zinc-700 transition-colors min-h-[48px]"
+                className="flex min-h-[48px] w-full items-center gap-3 px-4 py-3 text-left transition-colors hover:bg-zinc-50 active:bg-zinc-100 dark:hover:bg-zinc-700/50 dark:active:bg-zinc-700"
               >
                 <span className="text-xl">👤</span>
                 <div>
-                  <div className="text-sm font-medium text-zinc-900 dark:text-white">
-                    指派成员
-                  </div>
+                  <div className="text-sm font-medium text-zinc-900 dark:text-white">指派成员</div>
                   <div className="text-xs text-zinc-500 dark:text-zinc-400">
-                    {issue.assignee
-                      ? `当前: ${issue.assignee.login}`
-                      : '未指派'}
+                    {issue.assignee ? `当前: ${issue.assignee.login}` : '未指派'}
                   </div>
                 </div>
               </button>
@@ -320,19 +306,15 @@ export function TaskCardMobile({
               {/* Archive/Delete */}
               <button
                 onClick={() => {
-                  onArchive?.(issue);
-                  setShowMenu(false);
+                  onArchive?.(issue)
+                  setShowMenu(false)
                 }}
-                className="w-full px-4 py-3 flex items-center gap-3 text-left hover:bg-zinc-50 dark:hover:bg-zinc-700/50 active:bg-zinc-100 dark:active:bg-zinc-700 transition-colors min-h-[48px]"
+                className="flex min-h-[48px] w-full items-center gap-3 px-4 py-3 text-left transition-colors hover:bg-zinc-50 active:bg-zinc-100 dark:hover:bg-zinc-700/50 dark:active:bg-zinc-700"
               >
                 <span className="text-xl">🗑️</span>
                 <div>
-                  <div className="text-sm font-medium text-red-600 dark:text-red-400">
-                    归档任务
-                  </div>
-                  <div className="text-xs text-zinc-500 dark:text-zinc-400">
-                    从列表中移除此任务
-                  </div>
+                  <div className="text-sm font-medium text-red-600 dark:text-red-400">归档任务</div>
+                  <div className="text-xs text-zinc-500 dark:text-zinc-400">从列表中移除此任务</div>
                 </div>
               </button>
 
@@ -341,7 +323,7 @@ export function TaskCardMobile({
                 href={issue.html_url}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="w-full px-4 py-3 flex items-center gap-3 text-left hover:bg-zinc-50 dark:hover:bg-zinc-700/50 active:bg-zinc-100 dark:active:bg-zinc-700 transition-colors min-h-[48px]"
+                className="flex min-h-[48px] w-full items-center gap-3 px-4 py-3 text-left transition-colors hover:bg-zinc-50 active:bg-zinc-100 dark:hover:bg-zinc-700/50 dark:active:bg-zinc-700"
               >
                 <span className="text-xl">🔗</span>
                 <div>
@@ -356,10 +338,10 @@ export function TaskCardMobile({
             </div>
 
             {/* Cancel button */}
-            <div className="px-4 py-3 border-t border-zinc-200 dark:border-zinc-700 bg-zinc-50 dark:bg-zinc-900/50">
+            <div className="border-t border-zinc-200 bg-zinc-50 px-4 py-3 dark:border-zinc-700 dark:bg-zinc-900/50">
               <button
                 onClick={() => setShowMenu(false)}
-                className="w-full px-4 py-3 text-sm font-medium text-zinc-700 dark:text-zinc-300 hover:text-zinc-900 dark:hover:text-white hover:bg-zinc-100 dark:hover:bg-zinc-800 rounded-xl transition-colors min-h-[48px]"
+                className="min-h-[48px] w-full rounded-xl px-4 py-3 text-sm font-medium text-zinc-700 transition-colors hover:bg-zinc-100 hover:text-zinc-900 dark:text-zinc-300 dark:hover:bg-zinc-800 dark:hover:text-white"
               >
                 取消
               </button>
@@ -368,5 +350,5 @@ export function TaskCardMobile({
         </div>
       )}
     </>
-  );
+  )
 }

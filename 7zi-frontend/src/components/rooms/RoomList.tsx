@@ -3,76 +3,93 @@
  * @version 1.0.0
  */
 
-'use client';
+'use client'
 
-import React, { useState, useEffect } from 'react';
-import { Button } from '@/components/ui/Button';
-import { RoomCard } from './RoomCard';
-import { roomsClient } from '@/lib/api/rooms/client';
-import type { Room, RoomVisibility } from '@/lib/api/rooms/types';
+import React, { useState, useEffect } from 'react'
+import { Button } from '@/components/ui/Button'
+import { RoomCard } from './RoomCard'
+import { roomsClient } from '@/lib/api/rooms/client'
+import type { Room as ApiRoom, RoomVisibility } from '@/lib/api/rooms/types'
+import type { Room } from '@/types/rooms'
+
+/**
+ * Convert API Room to local Room type
+ */
+function toLocalRoom(apiRoom: ApiRoom): Room {
+  return {
+    id: apiRoom.id,
+    name: apiRoom.name,
+    description: apiRoom.description,
+    ownerId: apiRoom.ownerId,
+    ownerName: apiRoom.ownerName || '',
+    inviteCode: '',
+    members: [],
+    onlineCount: apiRoom.participantCount,
+    memberCount: apiRoom.maxParticipants,
+    createdAt: apiRoom.createdAt ? new Date(apiRoom.createdAt).getTime() : Date.now(),
+    updatedAt: apiRoom.updatedAt ? new Date(apiRoom.updatedAt).getTime() : Date.now(),
+    lastActivityAt: Date.now(),
+  }
+}
 
 // 简单的空状态组件（临时）
 const EmptyState: React.FC<{
-  icon?: string;
-  title: string;
-  description: string;
-  children?: React.ReactNode;
+  icon?: string
+  title: string
+  description: string
+  children?: React.ReactNode
 }> = ({ icon, title, description, children }) => (
-  <div className="flex flex-col items-center justify-center py-12 px-4 text-center">
-    {icon && <div className="text-6xl mb-4">{icon}</div>}
-    <h3 className="text-xl font-semibold text-gray-900 dark:text-gray-100 mb-2">{title}</h3>
-    <p className="text-gray-600 dark:text-gray-400 mb-4">{description}</p>
+  <div className="flex flex-col items-center justify-center px-4 py-12 text-center">
+    {icon && <div className="mb-4 text-6xl">{icon}</div>}
+    <h3 className="mb-2 text-xl font-semibold text-gray-900 dark:text-gray-100">{title}</h3>
+    <p className="mb-4 text-gray-600 dark:text-gray-400">{description}</p>
     {children}
   </div>
-);
+)
 
 interface RoomListProps {
-  onRoomSelect?: (room: Room) => void;
-  onCreateRoom?: () => void;
-  className?: string;
+  onRoomSelect?: (room: Room) => void
+  onCreateRoom?: () => void
+  className?: string
 }
 
-export const RoomList: React.FC<RoomListProps> = ({
-  onRoomSelect,
-  onCreateRoom,
-  className,
-}) => {
-  const [rooms, setRooms] = useState<Room[]>([]);
-  const [loading, setLoading] = useState(true);
+export const RoomList: React.FC<RoomListProps> = ({ onRoomSelect, onCreateRoom, className }) => {
+  const [rooms, setRooms] = useState<Room[]>([])
+  const [loading, setLoading] = useState(true)
   const [filter, setFilter] = useState<{
-    visibility?: RoomVisibility;
-    search?: string;
-  }>({});
-  const [error, setError] = useState<string | null>(null);
+    visibility?: RoomVisibility
+    search?: string
+  }>({})
+  const [error, setError] = useState<string | null>(null)
 
   // 加载房间列表
   const loadRooms = async () => {
     try {
-      setLoading(true);
-      setError(null);
-      const response = await roomsClient.getRooms(filter);
-      setRooms(response.rooms);
+      setLoading(true)
+      setError(null)
+      const response = await roomsClient.getRooms(filter)
+      setRooms(response.rooms.map(toLocalRoom))
     } catch (err) {
-      console.error('Failed to load rooms:', err);
-      setError('加载房间失败');
+      console.error('Failed to load rooms:', err)
+      setError('加载房间失败')
     } finally {
-      setLoading(false);
+      setLoading(false)
     }
-  };
+  }
 
   useEffect(() => {
-    loadRooms();
-  }, [filter]);
+    loadRooms()
+  }, [filter])
 
   // 搜索处理
   const handleSearch = (query: string) => {
-    setFilter((prev) => ({ ...prev, search: query || undefined }));
-  };
+    setFilter(prev => ({ ...prev, search: query || undefined }))
+  }
 
   // 过滤器处理
   const handleFilter = (visibility?: RoomVisibility) => {
-    setFilter((prev) => ({ ...prev, visibility }));
-  };
+    setFilter(prev => ({ ...prev, visibility }))
+  }
 
   return (
     <div className={className}>
@@ -83,11 +100,11 @@ export const RoomList: React.FC<RoomListProps> = ({
           <input
             type="text"
             placeholder="搜索房间..."
-            className="w-full px-4 py-2 pl-10 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 dark:border-gray-700 dark:bg-gray-800 dark:text-white"
-            onChange={(e) => handleSearch(e.target.value)}
+            className="w-full rounded-lg border border-gray-300 px-4 py-2 pl-10 focus:ring-2 focus:ring-blue-500 focus:outline-none dark:border-gray-700 dark:bg-gray-800 dark:text-white"
+            onChange={e => handleSearch(e.target.value)}
           />
           <svg
-            className="absolute left-3 top-2.5 w-5 h-5 text-gray-400"
+            className="absolute top-2.5 left-3 h-5 w-5 text-gray-400"
             fill="none"
             stroke="currentColor"
             viewBox="0 0 24 24"
@@ -103,7 +120,7 @@ export const RoomList: React.FC<RoomListProps> = ({
 
         {/* 过滤器和操作按钮 */}
         <div className="flex items-center justify-between gap-2">
-          <div className="flex gap-2 flex-wrap">
+          <div className="flex flex-wrap gap-2">
             <Button
               variant={filter.visibility === undefined ? 'primary' : 'ghost'}
               size="sm"
@@ -136,7 +153,7 @@ export const RoomList: React.FC<RoomListProps> = ({
 
           <div className="flex gap-2">
             <Button variant="outline" size="sm" onClick={loadRooms} loading={loading}>
-              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path
                   strokeLinecap="round"
                   strokeLinejoin="round"
@@ -148,7 +165,7 @@ export const RoomList: React.FC<RoomListProps> = ({
             </Button>
             {onCreateRoom && (
               <Button variant="primary" size="sm" onClick={onCreateRoom}>
-                <svg className="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <svg className="mr-1 h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path
                     strokeLinecap="round"
                     strokeLinejoin="round"
@@ -165,7 +182,7 @@ export const RoomList: React.FC<RoomListProps> = ({
 
       {/* 错误提示 */}
       {error && (
-        <div className="mb-4 p-4 bg-red-50 border border-red-200 rounded-lg dark:bg-red-900/20 dark:border-red-800">
+        <div className="mb-4 rounded-lg border border-red-200 bg-red-50 p-4 dark:border-red-800 dark:bg-red-900/20">
           <p className="text-red-600 dark:text-red-400">{error}</p>
         </div>
       )}
@@ -173,17 +190,13 @@ export const RoomList: React.FC<RoomListProps> = ({
       {/* 加载状态 */}
       {loading && (
         <div className="flex items-center justify-center py-12">
-          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
+          <div className="h-8 w-8 animate-spin rounded-full border-b-2 border-blue-600"></div>
         </div>
       )}
 
       {/* 空状态 */}
       {!loading && rooms.length === 0 && (
-        <EmptyState
-          icon="🏠"
-          title="暂无房间"
-          description="还没有可用的房间，创建一个吧！"
-        >
+        <EmptyState icon="🏠" title="暂无房间" description="还没有可用的房间，创建一个吧！">
           {onCreateRoom && (
             <Button variant="primary" onClick={onCreateRoom}>
               创建第一个房间
@@ -194,18 +207,14 @@ export const RoomList: React.FC<RoomListProps> = ({
 
       {/* 房间列表 */}
       {!loading && rooms.length > 0 && (
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-          {rooms.map((room) => (
-            <RoomCard
-              key={room.id}
-              room={room}
-              onClick={() => onRoomSelect?.(room)}
-            />
+        <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3">
+          {rooms.map(room => (
+            <RoomCard key={room.id} room={room} onClick={() => onRoomSelect?.(room)} />
           ))}
         </div>
       )}
     </div>
-  );
-};
+  )
+}
 
-export default RoomList;
+export default RoomList

@@ -5,13 +5,10 @@
  * Requires JWT authentication with admin role
  */
 
-import { NextRequest, NextResponse } from 'next/server';
-import { enhancedNotificationService } from '@/lib/services/notification-enhanced';
-import {
-  createSuccessResponse,
-  createErrorResponse,
-} from '../../../../lib/api/error-handler';
-import { authenticateJWT } from '@/lib/auth/api-auth';
+import { NextRequest, NextResponse } from 'next/server'
+import { enhancedNotificationService } from '@/lib/services/notification-enhanced'
+import { createSuccessResponse, createErrorResponse } from '../../../../lib/api/error-handler'
+import { authenticateJWT } from '@/lib/auth/api-auth'
 
 /**
  * GET /api/notifications/stats
@@ -21,7 +18,7 @@ import { authenticateJWT } from '@/lib/auth/api-auth';
  */
 export async function GET(request: NextRequest) {
   // Authenticate user
-  const authResult = await authenticateJWT(request);
+  const authResult = await authenticateJWT(request)
 
   if (!authResult.authenticated) {
     return NextResponse.json(
@@ -31,7 +28,7 @@ export async function GET(request: NextRequest) {
         message: authResult.error || 'Authentication required',
       },
       { status: 401 }
-    );
+    )
   }
 
   // Only admin can view system-wide statistics
@@ -43,11 +40,11 @@ export async function GET(request: NextRequest) {
         message: 'Admin role required to view system statistics',
       },
       { status: 403 }
-    );
+    )
   }
 
   try {
-    const stats = enhancedNotificationService.getStats();
+    const stats = enhancedNotificationService.getStats()
 
     // Transform stats to match expected format
     const transformedStats = {
@@ -56,10 +53,10 @@ export async function GET(request: NextRequest) {
       totalUsers: stats.totalUsers || 0,
       totalDeliveries: stats.totalDeliveries || 0,
       emailEnabled: stats.emailEnabled || false,
-    };
+    }
 
-    return createSuccessResponse(transformedStats);
+    return createSuccessResponse(transformedStats)
   } catch (error) {
-    return createErrorResponse(error instanceof Error ? error : new Error(String(error)));
+    return createErrorResponse(error instanceof Error ? error : new Error(String(error)))
   }
 }

@@ -2,23 +2,23 @@
  * Mock for database-tracker
  */
 
-import { vi } from 'vitest';
+import { vi } from 'vitest'
 
 export class DatabaseTracker {
-  trackQuery = vi.fn().mockReturnValue('query-id-123');
-  getHistory = vi.fn().mockReturnValue([]);
+  trackQuery = vi.fn().mockReturnValue('query-id-123')
+  getHistory = vi.fn().mockReturnValue([])
   analyze = vi.fn().mockReturnValue({
     queryStatistics: {
       totalQueries: 0,
       averageDuration: 0,
       slowQueries: 0,
       errorQueries: 0,
-      topSlowQueries: []
+      topSlowQueries: [],
     },
-    criticalIssues: []
-  });
-  clearHistory = vi.fn();
-  updateConfig = vi.fn();
+    criticalIssues: [],
+  })
+  clearHistory = vi.fn()
+  updateConfig = vi.fn()
 }
 
 export const DatabaseQueryMock = {
@@ -28,5 +28,5 @@ export const DatabaseQueryMock = {
   operation: 'SELECT',
   table: 'users',
   timestamp: Date.now(),
-  issues: []
-};
+  issues: [],
+}

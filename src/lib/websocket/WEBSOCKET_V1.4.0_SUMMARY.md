@@ -1,14 +1,17 @@
 # WebSocket v1.4.0 - Advanced Features Implementation Summary
 
 ## Overview
+
 Implemented advanced WebSocket features for v1.4.0 including room management, permission system, and message persistence.
 
 ## Files Created
 
 ### 1. `src/lib/websocket/permissions.ts` (11.9KB)
+
 **Purpose**: Comprehensive permission control system for rooms, messages, and admin functions.
 
 **Features**:
+
 - Role-based access control (RBAC) with 5 roles: owner, admin, moderator, member, guest
 - Fine-grained permissions:
   - Room-level: room:join, room:leave, room:manage, room:view, room:invite, room:kick, room:ban
@@ -21,6 +24,7 @@ Implemented advanced WebSocket features for v1.4.0 including room management, pe
 - Utility functions: createPermissionChecker, checkPermissions
 
 **Key Classes**:
+
 - `PermissionManager`: Main permission management class
 - Singleton: `getPermissionManager()`, `resetPermissionManager()`
 
@@ -29,9 +33,11 @@ Implemented advanced WebSocket features for v1.4.0 including room management, pe
 ---
 
 ### 2. `src/lib/websocket/message-store.ts` (15.6KB)
+
 **Purpose**: In-memory message storage with offline message queue and history query.
 
 **Features**:
+
 - Message storage: store, get, edit, delete (soft/hard)
 - Message reactions: add, remove
 - Message pinning: pin, unpin, getPinnedMessages
@@ -51,10 +57,12 @@ Implemented advanced WebSocket features for v1.4.0 including room management, pe
 - Statistics reporting
 
 **Key Classes**:
+
 - `MessageStore`: In-memory message storage class
 - Singleton: `getMessageStore()`, `resetMessageStore()`
 
 **Configuration**:
+
 - maxHistorySize: 10000 messages per room (default)
 - offlineMessageTTL: 7 days (default)
 - maxOfflineMessages: 100 per user (default)
@@ -64,9 +72,11 @@ Implemented advanced WebSocket features for v1.4.0 including room management, pe
 ---
 
 ### 3. `src/lib/websocket/rooms.ts` (21.0KB)
+
 **Purpose**: Enhanced room system with permissions, persistence, and advanced features.
 
 **Features**:
+
 - Room creation with full configuration:
   - Type: task, project, chat, document, voice, video
   - Visibility: public, private, invite-only
@@ -91,10 +101,12 @@ Implemented advanced WebSocket features for v1.4.0 including room management, pe
 - Event callbacks: onUserJoined, onUserLeft, onRoomCreated, onRoomDestroyed, onUserRoleChanged, onUserBanned
 
 **Key Classes**:
+
 - `RoomManager`: Enhanced room management class
 - Singleton: `getRoomManager()`, `resetRoomManager()`
 
 **Integration**:
+
 - Uses `PermissionManager` for permission checks
 - Uses `MessageStore` for message persistence
 - Returns offline messages when users join
@@ -104,7 +116,9 @@ Implemented advanced WebSocket features for v1.4.0 including room management, pe
 ---
 
 ### 4. `src/lib/websocket/__tests__/permissions.test.ts` (9.4KB)
+
 25 test cases covering:
+
 - Role management (set/get roles)
 - Permission checks (role-based, granular)
 - Permission grants/revokes
@@ -116,7 +130,9 @@ Implemented advanced WebSocket features for v1.4.0 including room management, pe
 - Cleanup operations
 
 ### 5. `src/lib/websocket/__tests__/message-store.test.ts` (14.1KB)
+
 26 test cases covering:
+
 - Message storage and retrieval
 - Message editing and deletion (soft/hard)
 - Reactions (add, remove, replace)
@@ -128,7 +144,9 @@ Implemented advanced WebSocket features for v1.4.0 including room management, pe
 - Cleanup operations
 
 ### 6. `src/lib/websocket/__tests__/rooms.test.ts` (16.6KB)
+
 35 test cases covering:
+
 - Room creation (default and custom)
 - Room retrieval
 - Room joining (public, private, auto-create)
@@ -148,7 +166,9 @@ Implemented advanced WebSocket features for v1.4.0 including room management, pe
 ## Modified Files
 
 ### `src/lib/websocket/index.ts`
+
 Updated exports to include all new features:
+
 - Room management exports
 - Permission system exports
 - Message store exports
@@ -159,29 +179,32 @@ Updated exports to include all new features:
 ## Integration with Existing Code
 
 ### Backward Compatibility
+
 - All existing WebSocket server code in `server.ts` remains unchanged
 - Existing `Room` and `RoomUser` types preserved
 - New features are additive, not breaking changes
 - Existing API exports maintained
 
 ### Integration Points
+
 1. **PermissionManager**: Available for server.ts to use for permission checks
 2. **MessageStore**: Can be integrated with existing message handling
 3. **RoomManager**: Can replace or enhance existing room management in server.ts
 
 ### Future Integration Suggestions
+
 ```typescript
 // In server.ts, replace simple room Map with RoomManager
-import { getRoomManager } from './rooms';
-const roomManager = getRoomManager();
+import { getRoomManager } from './rooms'
+const roomManager = getRoomManager()
 
 // Replace simple permission checks with PermissionManager
-import { getPermissionManager } from './permissions';
-const permissionManager = getPermissionManager();
+import { getPermissionManager } from './permissions'
+const permissionManager = getPermissionManager()
 
 // Add message persistence with MessageStore
-import { getMessageStore } from './message-store';
-const messageStore = getMessageStore();
+import { getMessageStore } from './message-store'
+const messageStore = getMessageStore()
 ```
 
 ---
@@ -189,6 +212,7 @@ const messageStore = getMessageStore();
 ## Test Results
 
 ### New Feature Tests
+
 - **permissions.test.ts**: ✅ 25/25 passed
 - **message-store.test.ts**: ✅ 26/26 passed
 - **rooms.test.ts**: ✅ 35/35 passed
@@ -196,10 +220,13 @@ const messageStore = getMessageStore();
 **Total**: 86/86 tests passing
 
 ### Existing Tests
+
 Integration with existing tests not yet performed. Some pre-existing test failures in `integration.test.ts` and `server.test.ts` appear to be unrelated to these changes (timeout/Timing issues).
 
 ### TypeScript Compilation
+
 All new TypeScript files compile without errors:
+
 ```bash
 tsc --noEmit --skipLibCheck src/lib/websocket/permissions.ts
 # No errors
@@ -210,6 +237,7 @@ tsc --noEmit --skipLibCheck src/lib/websocket/permissions.ts
 ## Architecture Highlights
 
 ### Permission System Architecture
+
 ```
 PermissionManager
 ├── Role-based permissions (DEFAULT_ROLE_PERMISSIONS)
@@ -220,6 +248,7 @@ PermissionManager
 ```
 
 ### Message Store Architecture
+
 ```
 MessageStore
 ├── In-memory storage (Map<roomId, Map<messageId, StoredMessage>>)
@@ -230,6 +259,7 @@ MessageStore
 ```
 
 ### Room Manager Architecture
+
 ```
 RoomManager
 ├── Room storage (Map<roomId, Room>)
@@ -245,10 +275,11 @@ RoomManager
 ## Usage Examples
 
 ### Creating and Managing Rooms
-```typescript
-import { getRoomManager } from '@/lib/websocket';
 
-const roomManager = getRoomManager();
+```typescript
+import { getRoomManager } from '@/lib/websocket'
+
+const roomManager = getRoomManager()
 
 // Create a private project room
 const room = roomManager.create({
@@ -263,7 +294,7 @@ const room = roomManager.create({
     messageHistoryEnabled: true,
     autoCleanupMinutes: 60,
   },
-});
+})
 
 // User joins room
 const result = roomManager.join('project-123', {
@@ -271,17 +302,18 @@ const result = roomManager.join('project-123', {
   userName: 'John Doe',
   email: 'john@example.com',
   avatar: 'https://...',
-});
+})
 ```
 
 ### Permission Management
-```typescript
-import { getPermissionManager } from '@/lib/websocket';
 
-const permissionManager = getPermissionManager();
+```typescript
+import { getPermissionManager } from '@/lib/websocket'
+
+const permissionManager = getPermissionManager()
 
 // Set user role
-permissionManager.setUserRole('user-123', 'project-123', 'admin', 'owner-123');
+permissionManager.setUserRole('user-123', 'project-123', 'admin', 'owner-123')
 
 // Check permission
 if (permissionManager.hasPermission('user-123', 'project-123', 'room:kick')) {
@@ -289,14 +321,15 @@ if (permissionManager.hasPermission('user-123', 'project-123', 'room:kick')) {
 }
 
 // Ban user
-permissionManager.banUser('user-456', 'project-123', 'user-123', 'Spamming');
+permissionManager.banUser('user-456', 'project-123', 'user-123', 'Spamming')
 ```
 
 ### Message Persistence
-```typescript
-import { getMessageStore } from '@/lib/websocket';
 
-const messageStore = getMessageStore();
+```typescript
+import { getMessageStore } from '@/lib/websocket'
+
+const messageStore = getMessageStore()
 
 // Store message
 const message = messageStore.store({
@@ -306,17 +339,17 @@ const message = messageStore.store({
   userName: 'John Doe',
   type: 'text',
   content: 'Hello world!',
-});
+})
 
 // Get message history
 const history = messageStore.getHistory({
   roomId: 'project-123',
   limit: 50,
   includeDeleted: false,
-});
+})
 
 // Add reaction
-messageStore.addReaction('msg-123', '👍', 'user-456', 'Jane Doe');
+messageStore.addReaction('msg-123', '👍', 'user-456', 'Jane Doe')
 ```
 
 ---
@@ -361,6 +394,7 @@ Successfully implemented all three major features for WebSocket v1.4.0:
 3. ✅ **Message Persistence**: In-memory message store with offline queue and history queries
 
 All features are:
+
 - ✅ Fully typed with TypeScript
 - ✅ Backward compatible with existing API
 - ✅ Comprehensively tested (86 tests)

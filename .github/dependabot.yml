@@ -8,115 +8,115 @@ updates:
   # ============================================
   # npm 依赖更新
   # ============================================
-  - package-ecosystem: "npm"
-    directory: "/"
+  - package-ecosystem: 'npm'
+    directory: '/'
     schedule:
-      interval: "weekly"
-      day: "monday"
-      time: "09:00"
-      timezone: "Europe/Berlin"
+      interval: 'weekly'
+      day: 'monday'
+      time: '09:00'
+      timezone: 'Europe/Berlin'
     open-pull-requests-limit: 5
     reviewers:
-      - "7zi-team"
+      - '7zi-team'
     assignees:
-      - "7zi-team"
+      - '7zi-team'
     labels:
-      - "dependencies"
-      - "npm"
+      - 'dependencies'
+      - 'npm'
     commit-message:
-      prefix: "chore(deps)"
-      prefix-development: "chore(deps-dev)"
-      include: "scope"
+      prefix: 'chore(deps)'
+      prefix-development: 'chore(deps-dev)'
+      include: 'scope'
     versioning-strategy: increase
     ignore:
       # 忽略主要版本更新（需要手动审查）
-      - dependency-name: "next"
-        update-types: ["version-update:semver-major"]
-      - dependency-name: "react"
-        update-types: ["version-update:semver-major"]
-      - dependency-name: "react-dom"
-        update-types: ["version-update:semver-major"]
+      - dependency-name: 'next'
+        update-types: ['version-update:semver-major']
+      - dependency-name: 'react'
+        update-types: ['version-update:semver-major']
+      - dependency-name: 'react-dom'
+        update-types: ['version-update:semver-major']
     allow:
       # 只允许符合语义化版本规则的更新
-      - dependency-type: "direct"
-      - dependency-type: "indirect"
-      - dependency-type: "all"
+      - dependency-type: 'direct'
+      - dependency-type: 'indirect'
+      - dependency-type: 'all'
     groups:
       # 将相关依赖分组到同一个 PR
       react-core:
         patterns:
-          - "react"
-          - "react-dom"
-          - "@types/react"
-          - "@types/react-dom"
+          - 'react'
+          - 'react-dom'
+          - '@types/react'
+          - '@types/react-dom'
       nextjs:
         patterns:
-          - "next"
-          - "@next/*"
+          - 'next'
+          - '@next/*'
       testing:
         patterns:
-          - "vitest"
-          - "@vitest/*"
-          - "@playwright/*"
-          - "@testing-library/*"
+          - 'vitest'
+          - '@vitest/*'
+          - '@playwright/*'
+          - '@testing-library/*'
       dev-tools:
         patterns:
-          - "eslint"
-          - "prettier"
-          - "typescript"
+          - 'eslint'
+          - 'prettier'
+          - 'typescript'
 
   # ============================================
   # Docker 依赖更新
   # ============================================
-  - package-ecosystem: "docker"
-    directory: "/"
+  - package-ecosystem: 'docker'
+    directory: '/'
     schedule:
-      interval: "weekly"
-      day: "tuesday"
-      time: "09:00"
-      timezone: "Europe/Berlin"
+      interval: 'weekly'
+      day: 'tuesday'
+      time: '09:00'
+      timezone: 'Europe/Berlin'
     open-pull-requests-limit: 3
     labels:
-      - "dependencies"
-      - "docker"
+      - 'dependencies'
+      - 'docker'
     commit-message:
-      prefix: "chore(deps-docker)"
+      prefix: 'chore(deps-docker)'
     groups:
       docker-base:
         patterns:
-          - "node"
-          - "node:*-alpine"
-          - "nginx"
-          - "nginx:alpine"
+          - 'node'
+          - 'node:*-alpine'
+          - 'nginx'
+          - 'nginx:alpine'
 
   # ============================================
   # GitHub Actions 依赖更新
   # ============================================
-  - package-ecosystem: "github-actions"
-    directory: "/"
+  - package-ecosystem: 'github-actions'
+    directory: '/'
     schedule:
-      interval: "weekly"
-      day: "wednesday"
-      time: "09:00"
-      timezone: "Europe/Berlin"
+      interval: 'weekly'
+      day: 'wednesday'
+      time: '09:00'
+      timezone: 'Europe/Berlin'
     open-pull-requests-limit: 5
     labels:
-      - "dependencies"
-      - "github-actions"
+      - 'dependencies'
+      - 'github-actions'
     commit-message:
-      prefix: "ci(deps)"
+      prefix: 'ci(deps)'
     groups:
       actions-core:
         patterns:
-          - "actions/checkout*"
-          - "actions/setup-node*"
-          - "actions/cache*"
+          - 'actions/checkout*'
+          - 'actions/setup-node*'
+          - 'actions/cache*'
       actions-docker:
         patterns:
-          - "docker/*"
-          - "docker/build-push-action"
-          - "docker/login-action"
+          - 'docker/*'
+          - 'docker/build-push-action'
+          - 'docker/login-action'
       actions-security:
         patterns:
-          - "trufflesecurity/*"
-          - "aquasecurity/*"
+          - 'trufflesecurity/*'
+          - 'aquasecurity/*'

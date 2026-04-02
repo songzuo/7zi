@@ -13,11 +13,13 @@ export {
   type CriticalPathSegment,
   createMockResourceTiming,
   fromPerformanceResourceTiming,
-} from './performance-waterfall';
+} from './performance-waterfall'
 
 export {
+  PerformanceWaterfall as PerformanceWaterfallEnhanced,
+  performanceWaterfall as performanceWaterfallEnhanced,
   type FirstContentfulPaintData,
-} from './performance-waterfall-enhanced';
+} from './performance-waterfall-enhanced'
 
 export {
   SlowRequestTracker,
@@ -29,7 +31,7 @@ export {
   type SlowRequestStats,
   createMockRequestTiming,
   measureRequestTiming,
-} from './slow-request-tracker';
+} from './slow-request-tracker'
 
 export {
   BottleneckDetector,
@@ -38,8 +40,18 @@ export {
   type BottleneckAnalysis,
   type BottleneckRecommendation,
   type PerformanceProfile,
+  type MemorySnapshot,
   createMockPerformanceProfile,
-} from './bottleneck-detector';
+} from './bottleneck-detector'
+
+// New exports: Diagnostic Suggestion Generator (v1.8.1)
+export {
+  DiagnosticSuggestionGenerator,
+  diagnosticGenerator,
+  type DiagnosticSuggestion,
+  type DiagnosticReport,
+  createDiagnosticReport,
+} from './diagnostic-suggestion-generator'
 
 // New exports: Performance Root Cause Analyzer
 export {
@@ -63,7 +75,7 @@ export {
   createMockCoreWebVitals,
   createMockMemoryMetrics,
   createMockNetworkTiming,
-} from './performance-root-cause';
+} from './performance-root-cause'
 
 // New exports: Performance Budget Controller
 export {
@@ -76,4 +88,4 @@ export {
   type BudgetHistory,
   DEFAULT_BUDGET_THRESHOLDS,
   createMockPerformanceMetrics,
-} from './performance-budget';
+} from './performance-budget'

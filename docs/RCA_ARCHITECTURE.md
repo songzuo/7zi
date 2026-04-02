@@ -71,11 +71,11 @@ The data collection layer aggregates data from multiple sources:
 
 ```typescript
 interface TraceData {
-  traceId: string;
-  spans: Span[];
-  metadata: TraceMetadata;
-  errors: SpanError[];
-  performance: TracePerformance;
+  traceId: string
+  spans: Span[]
+  metadata: TraceMetadata
+  errors: SpanError[]
+  performance: TracePerformance
 }
 ```
 
@@ -87,11 +87,11 @@ interface TraceData {
 
 ```typescript
 interface LogData {
-  timestamp: string;
-  level: string;
-  message: string;
-  trace?: TraceContextFields;
-  error?: LogError;
+  timestamp: string
+  level: string
+  message: string
+  trace?: TraceContextFields
+  error?: LogError
 }
 ```
 
@@ -103,12 +103,12 @@ interface LogData {
 
 ```typescript
 interface AlertData {
-  id: string;
-  name: string;
-  severity: 'p0' | 'p1' | 'p2' | 'p3';
-  condition: AlertCondition;
-  timestamp: string;
-  context: Record<string, unknown>;
+  id: string
+  name: string
+  severity: 'p0' | 'p1' | 'p2' | 'p3'
+  condition: AlertCondition
+  timestamp: string
+  context: Record<string, unknown>
 }
 ```
 
@@ -122,31 +122,31 @@ Identifies known error patterns and anomalies:
 
 ```typescript
 interface PatternAnalyzer {
-  analyzePatterns(data: TraceData | LogData[]): PatternMatch[];
-  getKnownPatterns(): ErrorPattern[];
-  learnPattern(pattern: ErrorPattern): void;
+  analyzePatterns(data: TraceData | LogData[]): PatternMatch[]
+  getKnownPatterns(): ErrorPattern[]
+  learnPattern(pattern: ErrorPattern): void
 }
 
 interface ErrorPattern {
-  id: string;
-  name: string;
-  description: string;
-  signature: PatternSignature;
-  rootCauseHint: string;
-  confidence: number;
+  id: string
+  name: string
+  description: string
+  signature: PatternSignature
+  rootCauseHint: string
+  confidence: number
 }
 ```
 
 **Known Patterns**:
 
-| Pattern ID | Name | Description | Root Cause Hint |
-|------------|------|-------------|-----------------|
-| `DB-TIMEOUT` | Database Timeout | Query execution exceeds timeout | Missing index, inefficient query |
-| `CONN-POOL-EXHAUSTED` | Connection Pool Exhaustion | No available connections | Pool size too small, connection leak |
-| `API-RATE-LIMIT` | API Rate Limited | 429 responses from external API | Request rate exceeds limit |
-| `N+1-QUERY` | N+1 Query Pattern | Multiple similar DB queries | Missing eager loading |
-| `MEMORY-LEAK` | Memory Leak | Growing memory usage | Uncleaned references |
-| `DEADLOCK` | Database Deadlock | Lock wait timeout | Transaction ordering issue |
+| Pattern ID            | Name                       | Description                     | Root Cause Hint                      |
+| --------------------- | -------------------------- | ------------------------------- | ------------------------------------ |
+| `DB-TIMEOUT`          | Database Timeout           | Query execution exceeds timeout | Missing index, inefficient query     |
+| `CONN-POOL-EXHAUSTED` | Connection Pool Exhaustion | No available connections        | Pool size too small, connection leak |
+| `API-RATE-LIMIT`      | API Rate Limited           | 429 responses from external API | Request rate exceeds limit           |
+| `N+1-QUERY`           | N+1 Query Pattern          | Multiple similar DB queries     | Missing eager loading                |
+| `MEMORY-LEAK`         | Memory Leak                | Growing memory usage            | Uncleaned references                 |
+| `DEADLOCK`            | Database Deadlock          | Lock wait timeout               | Transaction ordering issue           |
 
 #### 2.2.2 Correlation Engine
 
@@ -154,22 +154,22 @@ Correlates events across services and time:
 
 ```typescript
 interface CorrelationEngine {
-  correlateByTraceId(data: DataSource[]): CorrelationResult;
-  correlateByTime(data: DataSource[], window: TimeWindow): CorrelationResult;
-  correlateByService(data: DataSource[], service: string): CorrelationResult;
-  findCausalChain(events: Event[]): CausalChain[];
+  correlateByTraceId(data: DataSource[]): CorrelationResult
+  correlateByTime(data: DataSource[], window: TimeWindow): CorrelationResult
+  correlateByService(data: DataSource[], service: string): CorrelationResult
+  findCausalChain(events: Event[]): CausalChain[]
 }
 
 interface CorrelationResult {
-  correlations: Correlation[];
-  confidence: number;
-  graph: DependencyGraph;
+  correlations: Correlation[]
+  confidence: number
+  graph: DependencyGraph
 }
 
 interface CausalChain {
-  rootEvent: Event;
-  chain: Event[];
-  probability: number;
+  rootEvent: Event
+  chain: Event[]
+  probability: number
 }
 ```
 
@@ -179,17 +179,17 @@ Analyzes cause-and-effect relationships:
 
 ```typescript
 interface CausalityAnalyzer {
-  analyzeCausality(events: Event[]): CausalRelationship[];
-  buildCausalGraph(events: Event[]): CausalGraph;
-  inferRootCause(graph: CausalGraph): RootCauseHypothesis[];
+  analyzeCausality(events: Event[]): CausalRelationship[]
+  buildCausalGraph(events: Event[]): CausalGraph
+  inferRootCause(graph: CausalGraph): RootCauseHypothesis[]
 }
 
 interface CausalRelationship {
-  cause: Event;
-  effect: Event;
-  relationship: 'causes' | 'contributes_to' | 'correlates_with';
-  confidence: number;
-  evidence: Evidence[];
+  cause: Event
+  effect: Event
+  relationship: 'causes' | 'contributes_to' | 'correlates_with'
+  confidence: number
+  evidence: Evidence[]
 }
 ```
 
@@ -200,19 +200,19 @@ The core inference engine that synthesizes analysis results:
 ```typescript
 interface RCAEngineCore {
   // Main analysis entry point
-  analyze(input: RCAInput): Promise<RCAResult>;
-  
+  analyze(input: RCAInput): Promise<RCAResult>
+
   // Evidence collection
-  collectEvidence(input: RCAInput): Promise<Evidence[]>;
-  
+  collectEvidence(input: RCAInput): Promise<Evidence[]>
+
   // Hypothesis generation
-  generateHypotheses(evidence: Evidence[]): RootCauseHypothesis[];
-  
+  generateHypotheses(evidence: Evidence[]): RootCauseHypothesis[]
+
   // Confidence scoring
-  scoreHypotheses(hypotheses: RootCauseHypothesis[]): ScoredHypothesis[];
-  
+  scoreHypotheses(hypotheses: RootCauseHypothesis[]): ScoredHypothesis[]
+
   // Impact assessment
-  assessImpact(hypothesis: RootCauseHypothesis): ImpactAssessment;
+  assessImpact(hypothesis: RootCauseHypothesis): ImpactAssessment
 }
 ```
 
@@ -225,61 +225,61 @@ The primary output of the RCA analysis:
 ```typescript
 interface RCAResult {
   // Root cause identification
-  rootCause: string;
-  confidence: number; // 0.0 - 1.0
-  
+  rootCause: string
+  confidence: number // 0.0 - 1.0
+
   // Supporting evidence
-  evidence: Evidence[];
-  
+  evidence: Evidence[]
+
   // Impact analysis
-  impactedComponents: string[];
-  severity: 'critical' | 'high' | 'medium' | 'low';
-  
+  impactedComponents: string[]
+  severity: 'critical' | 'high' | 'medium' | 'low'
+
   // Timeline
-  timeline: EventTimeline;
-  
+  timeline: EventTimeline
+
   // Remediation
-  suggestedFix?: string;
-  recommendations: Recommendation[];
-  
+  suggestedFix?: string
+  recommendations: Recommendation[]
+
   // Metadata
-  analysisId: string;
-  analyzedAt: string;
-  duration: number; // Analysis time in ms
+  analysisId: string
+  analyzedAt: string
+  duration: number // Analysis time in ms
 }
 
 interface Evidence {
-  type: 'trace' | 'log' | 'metric' | 'alert';
-  source: string;
-  timestamp: string;
-  description: string;
-  data: Record<string, unknown>;
-  relevance: number; // 0.0 - 1.0
+  type: 'trace' | 'log' | 'metric' | 'alert'
+  source: string
+  timestamp: string
+  description: string
+  data: Record<string, unknown>
+  relevance: number // 0.0 - 1.0
 }
 
 interface Recommendation {
-  id: string;
-  priority: 'high' | 'medium' | 'low';
-  action: string;
-  description: string;
-  estimatedImpact: string;
-  implementationEffort: 'easy' | 'medium' | 'hard';
-  relatedEvidence: string[]; // Evidence IDs
+  id: string
+  priority: 'high' | 'medium' | 'low'
+  action: string
+  description: string
+  estimatedImpact: string
+  implementationEffort: 'easy' | 'medium' | 'hard'
+  relatedEvidence: string[] // Evidence IDs
 }
 
 interface EventTimeline {
-  events: TimelineEvent[];
-  rootCauseTime: string;
-  detectionTime: string;
-  totalDuration: number;
+  events: TimelineEvent[]
+  rootCauseTime: string
+  detectionTime: string
+  totalDuration: number
 }
 
 interface TimelineEvent {
-  timestamp: string;
-  type: 'error' | 'warning' | 'info' | 'fix';
-  component: string;
-  description: string;
-  traceId?: string;
+  timestamp: string
+  type: 'error' | 'warning' | 'info' | 'fix'
+  component: string
+  description: string
+  traceId?: string
 }
 ```
 
@@ -290,36 +290,36 @@ Input for RCA analysis:
 ```typescript
 interface RCAInput {
   // Primary identifiers
-  traceId?: string;
-  alertId?: string;
-  errorId?: string;
-  
+  traceId?: string
+  alertId?: string
+  errorId?: string
+
   // Time range for analysis
   timeRange?: {
-    start: string;
-    end: string;
-  };
-  
+    start: string
+    end: string
+  }
+
   // Filters
   filters?: {
-    services?: string[];
-    components?: string[];
-    severity?: ('p0' | 'p1' | 'p2' | 'p3')[];
-  };
-  
+    services?: string[]
+    components?: string[]
+    severity?: ('p0' | 'p1' | 'p2' | 'p3')[]
+  }
+
   // Context
   context?: {
-    deploymentId?: string;
-    environment?: string;
-    userId?: string;
-  };
-  
+    deploymentId?: string
+    environment?: string
+    userId?: string
+  }
+
   // Options
   options?: {
-    includeRelatedTraces?: boolean;
-    maxDepth?: number;
-    minConfidence?: number;
-  };
+    includeRelatedTraces?: boolean
+    maxDepth?: number
+    minConfidence?: number
+  }
 }
 ```
 
@@ -329,13 +329,13 @@ A hypothesis about the root cause:
 
 ```typescript
 interface RootCauseHypothesis {
-  id: string;
-  type: RootCauseType;
-  description: string;
-  confidence: number;
-  evidence: Evidence[];
-  affectedComponents: string[];
-  possibleFixes: string[];
+  id: string
+  type: RootCauseType
+  description: string
+  confidence: number
+  evidence: Evidence[]
+  affectedComponents: string[]
+  possibleFixes: string[]
 }
 
 type RootCauseType =
@@ -347,7 +347,7 @@ type RootCauseType =
   | 'dependency-failure'
   | 'network-issue'
   | 'security-issue'
-  | 'unknown';
+  | 'unknown'
 ```
 
 ## 4. Analysis Workflow
@@ -417,19 +417,19 @@ Used when a trace ID is provided:
 ```typescript
 async function analyzeByTrace(traceId: string): Promise<RCAResult> {
   // 1. Fetch trace data
-  const trace = await traceManager.getTrace(traceId);
-  
+  const trace = await traceManager.getTrace(traceId)
+
   // 2. Identify error spans
-  const errorSpans = trace.spans.filter(s => s.status.code === SpanStatusCode.ERROR);
-  
+  const errorSpans = trace.spans.filter(s => s.status.code === SpanStatusCode.ERROR)
+
   // 3. Build call graph
-  const callGraph = buildCallGraph(trace.spans);
-  
+  const callGraph = buildCallGraph(trace.spans)
+
   // 4. Find root error span
-  const rootError = findRootError(errorSpans, callGraph);
-  
+  const rootError = findRootError(errorSpans, callGraph)
+
   // 5. Analyze root cause
-  return analyzeRootCause(rootError, trace);
+  return analyzeRootCause(rootError, trace)
 }
 ```
 
@@ -440,19 +440,19 @@ Used when an alert is triggered:
 ```typescript
 async function analyzeByAlert(alertId: string): Promise<RCAResult> {
   // 1. Fetch alert data
-  const alert = await alertManager.getAlert(alertId);
-  
+  const alert = await alertManager.getAlert(alertId)
+
   // 2. Find related traces
-  const traces = await findRelatedTraces(alert);
-  
+  const traces = await findRelatedTraces(alert)
+
   // 3. Find related logs
-  const logs = await findRelatedLogs(alert);
-  
+  const logs = await findRelatedLogs(alert)
+
   // 4. Correlate events
-  const correlations = await correlateEvents(traces, logs);
-  
+  const correlations = await correlateEvents(traces, logs)
+
   // 5. Analyze root cause
-  return analyzeRootCause(correlations);
+  return analyzeRootCause(correlations)
 }
 ```
 
@@ -464,24 +464,24 @@ async function analyzeByAlert(alertId: string): Promise<RCAResult> {
 // In src/lib/trace/TraceManager.ts
 export class TraceManager {
   // Add RCA integration
-  private rcaEngine: RCAEngine | undefined;
-  
+  private rcaEngine: RCAEngine | undefined
+
   setRCAEngine(engine: RCAEngine): void {
-    this.rcaEngine = engine;
+    this.rcaEngine = engine
   }
-  
+
   async endTrace(traceId?: TraceId): Promise<Span[] | undefined> {
-    const spans = await this._endTrace(traceId);
-    
+    const spans = await this._endTrace(traceId)
+
     // Trigger RCA if there are errors
     if (spans && this.rcaEngine) {
-      const hasErrors = spans.some(s => s.status.code === SpanStatusCode.ERROR);
+      const hasErrors = spans.some(s => s.status.code === SpanStatusCode.ERROR)
       if (hasErrors) {
-        this.rcaEngine.analyze({ traceId: this.currentTraceId }).catch(console.error);
+        this.rcaEngine.analyze({ traceId: this.currentTraceId }).catch(console.error)
       }
     }
-    
-    return spans;
+
+    return spans
   }
 }
 ```
@@ -492,21 +492,23 @@ export class TraceManager {
 // In src/lib/trace/StructuredLogger.ts
 export class StructuredLogger {
   // Add RCA integration
-  private rcaEngine: RCAEngine | undefined;
-  
+  private rcaEngine: RCAEngine | undefined
+
   setRCAEngine(engine: RCAEngine): void {
-    this.rcaEngine = engine;
+    this.rcaEngine = engine
   }
-  
+
   error(message: string, error: Error, fields?: Record<string, unknown>): void {
-    this.log(LogLevel.ERROR, message, fields, error);
-    
+    this.log(LogLevel.ERROR, message, fields, error)
+
     // Trigger RCA for error logs
     if (this.rcaEngine && this.traceContext) {
-      this.rcaEngine.analyze({
-        traceId: this.traceContext.traceId,
-        errorId: error.message,
-      }).catch(console.error);
+      this.rcaEngine
+        .analyze({
+          traceId: this.traceContext.traceId,
+          errorId: error.message,
+        })
+        .catch(console.error)
     }
   }
 }
@@ -517,15 +519,15 @@ export class StructuredLogger {
 ```yaml
 # In docs/ALERT_RULES.yaml
 p1_rules:
-  - name: "High Error Rate"
-    description: "Error rate above 5%"
+  - name: 'High Error Rate'
+    description: 'Error rate above 5%'
     condition:
-      type: "error_rate"
+      type: 'error_rate'
       threshold: 5
-      time_window: "15m"
-    response_time: "15 minutes"
+      time_window: '15m'
+    response_time: '15 minutes'
     notification:
-      channels: ["slack", "email"]
+      channels: ['slack', 'email']
     # RCA Integration
     rca:
       enabled: true
@@ -540,17 +542,17 @@ p1_rules:
 
 ```typescript
 interface RemediationKnowledge {
-  rootCauseType: RootCauseType;
-  suggestions: RemediationSuggestion[];
+  rootCauseType: RootCauseType
+  suggestions: RemediationSuggestion[]
 }
 
 interface RemediationSuggestion {
-  id: string;
-  title: string;
-  description: string;
-  steps: string[];
-  automationPossible: boolean;
-  automationScript?: string;
+  id: string
+  title: string
+  description: string
+  steps: string[]
+  automationPossible: boolean
+  automationScript?: string
 }
 
 const remediationKnowledgeBase: RemediationKnowledge[] = [
@@ -586,7 +588,7 @@ const remediationKnowledgeBase: RemediationKnowledge[] = [
       },
     ],
   },
-];
+]
 ```
 
 ### 6.2 Auto-Remediation
@@ -595,9 +597,9 @@ For known issues with automation scripts:
 
 ```typescript
 interface AutoRemediation {
-  enabled: boolean;
-  safeActions: string[];
-  requiresApproval: boolean;
+  enabled: boolean
+  safeActions: string[]
+  requiresApproval: boolean
 }
 
 async function attemptAutoRemediation(
@@ -606,35 +608,33 @@ async function attemptAutoRemediation(
 ): Promise<RemediationResult> {
   // Check if auto-remediation is safe
   if (!options.enabled) {
-    return { status: 'disabled' };
+    return { status: 'disabled' }
   }
-  
+
   // Find automated suggestions
   const automations = result.recommendations
     .filter(r => isAutomatable(r))
-    .filter(r => options.safeActions.includes(r.id));
-  
+    .filter(r => options.safeActions.includes(r.id))
+
   if (automations.length === 0) {
-    return { status: 'no-automation-available' };
+    return { status: 'no-automation-available' }
   }
-  
+
   // Execute with approval if required
   if (options.requiresApproval) {
-    const approved = await requestApproval(automations);
+    const approved = await requestApproval(automations)
     if (!approved) {
-      return { status: 'approval-denied' };
+      return { status: 'approval-denied' }
     }
   }
-  
+
   // Execute remediation
-  const results = await Promise.all(
-    automations.map(a => executeRemediation(a))
-  );
-  
+  const results = await Promise.all(automations.map(a => executeRemediation(a)))
+
   return {
     status: 'completed',
     results,
-  };
+  }
 }
 ```
 
@@ -642,31 +642,31 @@ async function attemptAutoRemediation(
 
 ### 7.1 Analysis Performance Targets
 
-| Metric | Target | Description |
-|--------|--------|-------------|
-| Simple Analysis | < 1s | Single trace with < 50 spans |
-| Standard Analysis | < 5s | Multiple traces with < 500 spans |
-| Complex Analysis | < 30s | Large-scale correlation analysis |
-| Memory Usage | < 512MB | Maximum heap usage |
+| Metric            | Target  | Description                      |
+| ----------------- | ------- | -------------------------------- |
+| Simple Analysis   | < 1s    | Single trace with < 50 spans     |
+| Standard Analysis | < 5s    | Multiple traces with < 500 spans |
+| Complex Analysis  | < 30s   | Large-scale correlation analysis |
+| Memory Usage      | < 512MB | Maximum heap usage               |
 
 ### 7.2 Caching Strategy
 
 ```typescript
 interface RCACache {
   // Cache analysis results
-  analysisCache: Map<string, CachedAnalysis>;
-  
+  analysisCache: Map<string, CachedAnalysis>
+
   // Cache pattern matches
-  patternCache: Map<string, PatternMatch>;
-  
+  patternCache: Map<string, PatternMatch>
+
   // Cache correlation results
-  correlationCache: Map<string, CorrelationResult>;
+  correlationCache: Map<string, CorrelationResult>
 }
 
 interface CachedAnalysis {
-  result: RCAResult;
-  timestamp: number;
-  ttl: number; // Time to live in ms
+  result: RCAResult
+  timestamp: number
+  ttl: number // Time to live in ms
 }
 ```
 
@@ -681,7 +681,7 @@ class RCAError extends Error {
     public code: RCAErrorCode,
     public details?: Record<string, unknown>
   ) {
-    super(message);
+    super(message)
   }
 }
 
@@ -701,17 +701,17 @@ enum RCAErrorCode {
 ```typescript
 interface RCAMetrics {
   // Analysis metrics
-  analysesTotal: Counter;
-  analysisDuration: Histogram;
-  analysisSuccessRate: Gauge;
-  
+  analysesTotal: Counter
+  analysisDuration: Histogram
+  analysisSuccessRate: Gauge
+
   // Result metrics
-  rootCauseTypes: Counter;
-  confidenceDistribution: Histogram;
-  
+  rootCauseTypes: Counter
+  confidenceDistribution: Histogram
+
   // Performance metrics
-  cacheHitRate: Gauge;
-  dataFetchDuration: Histogram;
+  cacheHitRate: Gauge
+  dataFetchDuration: Histogram
 }
 ```
 

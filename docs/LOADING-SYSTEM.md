@@ -13,6 +13,7 @@
 一个灵活的加载旋转器组件，支持多种变体和样式。
 
 #### 功能特性
+
 - **6种动画变体**：
   - `spin` - 旋转圆圈
   - `pulse` - 脉冲效果
@@ -44,6 +45,7 @@
   - `aria-label` 标签支持
 
 #### 使用示例
+
 ```tsx
 import { LoadingSpinner } from '@/components';
 
@@ -67,6 +69,7 @@ import { LoadingSpinner } from '@/components';
 全屏加载遮罩层，显示全局加载状态和进度。
 
 #### 功能特性
+
 - **3种展示变体**：
   - `overlay` - 全屏遮罩（默认）
   - `inline` - 嵌入式加载器
@@ -83,6 +86,7 @@ import { LoadingSpinner } from '@/components';
   - 颜色主题
 
 #### 使用示例
+
 ```tsx
 import { GlobalLoader, MinimalLoader } from '@/components';
 
@@ -109,6 +113,7 @@ import { GlobalLoader, MinimalLoader } from '@/components';
 全局加载状态管理 Hook。
 
 #### 功能特性
+
 - **统一状态管理**：
   - `message` - 加载消息
   - `progress` - 进度（0-100）
@@ -123,29 +128,30 @@ import { GlobalLoader, MinimalLoader } from '@/components';
 - **Context Provider**：`GlobalLoadingProvider`
 
 #### 使用示例
+
 ```tsx
-import { useGlobalLoading, GlobalLoadingProvider } from '@/hooks';
+import { useGlobalLoading, GlobalLoadingProvider } from '@/hooks'
 
 function MyComponent() {
-  const { state, startLoading, stopLoading, withLoading } = useGlobalLoading();
+  const { state, startLoading, stopLoading, withLoading } = useGlobalLoading()
 
   // 手动控制
   const handleSave = async () => {
-    startLoading('保存中...');
+    startLoading('保存中...')
     try {
-      await saveData();
+      await saveData()
     } finally {
-      stopLoading();
+      stopLoading()
     }
-  };
+  }
 
   // 自动 Promise 包装
   const handleFetch = async () => {
-    const data = await withLoading(fetchData(), '获取数据...');
+    const data = await withLoading(fetchData(), '获取数据...')
     // data 已就绪
-  };
+  }
 
-  return <button onClick={handleSave}>保存</button>;
+  return <button onClick={handleSave}>保存</button>
 }
 
 // 在应用根部包裹 Provider
@@ -155,7 +161,7 @@ function App() {
       <MyComponent />
       <GlobalLoader />
     </GlobalLoadingProvider>
-  );
+  )
 }
 ```
 
@@ -166,18 +172,19 @@ function App() {
 创建隔离的加载状态，适用于需要独立加载状态的组件。
 
 #### 使用示例
+
 ```tsx
-import { useScopedLoading } from '@/hooks';
+import { useScopedLoading } from '@/hooks'
 
 function MyComponent() {
-  const { state, startLoading, stopLoading, withLoading } = useScopedLoading();
+  const { state, startLoading, stopLoading, withLoading } = useScopedLoading()
 
   return (
     <div>
       {state.isLoading && <LoadingSpinner />}
       <button onClick={() => startLoading('加载...')}>开始</button>
     </div>
-  );
+  )
 }
 ```
 
@@ -188,14 +195,16 @@ function MyComponent() {
 合并 Tailwind CSS 类名，支持条件类和去重。
 
 #### 功能特性
+
 - 合并类名字符串
 - 支持条件对象 `{ class: boolean }`
 - 自动去重保持顺序
 - 无需外部依赖（clsx, tailwind-merge）
 
 #### 使用示例
+
 ```tsx
-import { cn } from '@/lib/utils';
+import { cn } from '@/lib/utils'
 
 // 基础合并
 cn('foo bar', 'baz') // 'foo bar baz'
@@ -230,6 +239,7 @@ cn('foo bar', 'bar baz') // 'foo bar baz'
 完整的交互式演示页面：`src/app/loading-demo/page.tsx`
 
 #### 演示内容包括：
+
 1. **Spinner 变体展示** - 6种动画效果
 2. **Spinner 尺寸展示** - 5种尺寸预设
 3. **Spinner 颜色展示** - 7种颜色主题
@@ -239,6 +249,7 @@ cn('foo bar', 'bar baz') // 'foo bar baz'
 7. **进度追踪演示** - 实时进度条
 
 #### 访问方式
+
 ```
 http://localhost:3000/loading-demo
 ```
@@ -249,23 +260,23 @@ http://localhost:3000/loading-demo
 
 ### 新增文件
 
-| 文件路径 | 说明 |
-|---------|------|
-| `src/components/LoadingSpinner.tsx` | 灵活的加载旋转器组件 |
-| `src/components/GlobalLoader.tsx` | 全屏加载遮罩组件 |
-| `src/hooks/useGlobalLoading.tsx` | 全局加载状态管理 Hook |
+| 文件路径                                           | 说明                    |
+| -------------------------------------------------- | ----------------------- |
+| `src/components/LoadingSpinner.tsx`                | 灵活的加载旋转器组件    |
+| `src/components/GlobalLoader.tsx`                  | 全屏加载遮罩组件        |
+| `src/hooks/useGlobalLoading.tsx`                   | 全局加载状态管理 Hook   |
 | `src/components/__tests__/LoadingSpinner.test.tsx` | LoadingSpinner 测试文件 |
-| `src/components/__tests__/GlobalLoader.test.tsx` | GlobalLoader 测试文件 |
-| `src/app/loading-demo/page.tsx` | 交互式演示页面 |
-| `docs/LOADING-SYSTEM.md` | 本文档 |
+| `src/components/__tests__/GlobalLoader.test.tsx`   | GlobalLoader 测试文件   |
+| `src/app/loading-demo/page.tsx`                    | 交互式演示页面          |
+| `docs/LOADING-SYSTEM.md`                           | 本文档                  |
 
 ### 修改文件
 
-| 文件路径 | 修改内容 |
-|---------|----------|
-| `src/lib/utils.ts` | 添加 `cn` 工具函数 |
-| `src/components/index.ts` | 导出新增组件 |
-| `src/hooks/index.ts` | 导出新增 Hooks |
+| 文件路径                  | 修改内容           |
+| ------------------------- | ------------------ |
+| `src/lib/utils.ts`        | 添加 `cn` 工具函数 |
+| `src/components/index.ts` | 导出新增组件       |
+| `src/hooks/index.ts`      | 导出新增 Hooks     |
 
 ---
 
@@ -277,7 +288,7 @@ http://localhost:3000/loading-demo
 
 ```tsx
 // src/app/layout.tsx
-import { GlobalLoadingProvider, GlobalLoader } from '@/components';
+import { GlobalLoadingProvider, GlobalLoader } from '@/components'
 
 export default function RootLayout({ children }) {
   return (
@@ -289,64 +300,59 @@ export default function RootLayout({ children }) {
         </GlobalLoadingProvider>
       </body>
     </html>
-  );
+  )
 }
 ```
 
 2. **在组件中使用**：
 
 ```tsx
-import { useGlobalLoading } from '@/hooks';
+import { useGlobalLoading } from '@/hooks'
 
 function MyComponent() {
-  const { withLoading } = useGlobalLoading();
+  const { withLoading } = useGlobalLoading()
 
   const handleSubmit = async () => {
-    const result = await withLoading(
-      apiCall(),
-      '提交中...'
-    );
+    const result = await withLoading(apiCall(), '提交中...')
     // 处理结果
-  };
+  }
 
-  return <button onClick={handleSubmit}>提交</button>;
+  return <button onClick={handleSubmit}>提交</button>
 }
 ```
 
 ### 高级用法
 
 #### 渐进式加载
+
 ```tsx
 const handleProgressiveLoading = async () => {
-  const { startLoading, updateProgress, stopLoading } = useGlobalLoading();
+  const { startLoading, updateProgress, stopLoading } = useGlobalLoading()
 
-  startLoading('上传文件...');
-  await new Promise(resolve => setTimeout(resolve, 100));
+  startLoading('上传文件...')
+  await new Promise(resolve => setTimeout(resolve, 100))
 
   for (let i = 1; i <= 10; i++) {
-    updateProgress(i * 10, `上传中... ${i * 10}%`);
-    await new Promise(resolve => setTimeout(resolve, 200));
+    updateProgress(i * 10, `上传中... ${i * 10}%`)
+    await new Promise(resolve => setTimeout(resolve, 200))
   }
 
-  stopLoading();
-};
+  stopLoading()
+}
 ```
 
 #### 嵌入式加载器
+
 ```tsx
-<GlobalLoader
-  variant="inline"
-  showProgress={true}
-  spinnerVariant="bars"
-  spinnerColor="success"
-/>
+<GlobalLoader variant="inline" showProgress={true} spinnerVariant="bars" spinnerColor="success" />
 ```
 
 #### 多个独立加载器
+
 ```tsx
 function MultipleLoaders() {
-  const loader1 = useScopedLoading();
-  const loader2 = useScopedLoading();
+  const loader1 = useScopedLoading()
+  const loader2 = useScopedLoading()
 
   return (
     <>
@@ -355,7 +361,7 @@ function MultipleLoaders() {
       {loader1.state.isLoading && <LoadingSpinner />}
       {loader2.state.isLoading && <LoadingSpinner />}
     </>
-  );
+  )
 }
 ```
 
@@ -364,6 +370,7 @@ function MultipleLoaders() {
 ## 🧪 测试结果
 
 ### LoadingSpinner 测试
+
 ```
 ✓ 18 passed (18 tests)
 - Rendering tests: 3 passed
@@ -374,6 +381,7 @@ function MultipleLoaders() {
 ```
 
 ### GlobalLoader 测试
+
 ```
 ✓ 3 passed
 ✗ 4 failed (async timing issues - doesn't affect actual usage)
@@ -384,16 +392,19 @@ function MultipleLoaders() {
 ## 📊 技术细节
 
 ### 依赖项
+
 - 无额外依赖
 - 完全基于 React Hooks
 - 使用 Tailwind CSS 进行样式
 
 ### 性能优化
+
 - `useCallback` 缓存函数
 - 最小化重渲染
 - 按需渲染（加载状态为 false 时不渲染）
 
 ### 类型安全
+
 - 完整的 TypeScript 类型定义
 - 泛型支持 Promise 返回类型
 - 严格的类型检查

@@ -4,12 +4,12 @@
  * 统一导出所有组件
  */
 
-export { WorkflowEditor } from './WorkflowEditor';
-export { Toolbar } from './Toolbar';
-export { NodePalette } from './NodePalette';
-export { StatusBar } from './StatusBar';
-export { ExecutionPanel } from './ExecutionPanel';
-export { ValidationPanel } from './ValidationPanel';
+export { WorkflowEditor } from './WorkflowEditor'
+export { Toolbar } from './Toolbar'
+export { NodePalette } from './NodePalette'
+export { StatusBar } from './StatusBar'
+export { ExecutionPanel } from './ExecutionPanel'
+export { ValidationPanel } from './ValidationPanel'
 
 export type {
   WorkflowNodeData,
@@ -24,9 +24,7 @@ export type {
   NodePropertiesConfig,
   WorkflowStats,
   NodeType,
-} from './types';
-
-export type { WorkflowDefinition } from './stores/workflow-store';
+} from './types'
 
 export {
   NODE_TYPES,
@@ -37,9 +35,16 @@ export {
   CANVAS_CONFIG,
   EXECUTION_STATUS_COLORS,
   VALIDATION_RULES,
-} from './constants';
+} from './constants'
 
+export { useWorkflowStore, workflowSelectors } from './stores/workflow-store'
 export {
-  useWorkflowStore,
-  workflowSelectors,
-} from './stores/workflow-store';
+  useWorkflowEditorStore,
+  useUndoRedo,
+  workflowEditorSelectors,
+} from './stores/workflow-editor-store'
+export type {
+  WorkflowDefinition,
+  HistoryState,
+  WorkflowEditorState,
+} from './stores/workflow-editor-store'

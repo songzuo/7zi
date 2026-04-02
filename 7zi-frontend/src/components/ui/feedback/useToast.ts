@@ -12,9 +12,9 @@
  * const { toast, success, error, warning, info, close, closeAll } = useToast();
  */
 
-import { useToast as useToastContext } from './ToastProvider';
-import type { ToastOptions } from './ToastProvider';
-import type { ToastType } from './Toast';
+import { useToast as useToastContext } from './ToastProvider'
+import type { ToastOptions } from './ToastProvider'
+import type { ToastType } from './Toast'
 
 /**
  * useToast hook
@@ -36,7 +36,7 @@ import type { ToastType } from './Toast';
  * }
  */
 export function useToast() {
-  return useToastContext();
+  return useToastContext()
 }
 
 /**
@@ -47,9 +47,9 @@ export function useToast() {
  * const { toast, success, error, warning, info } = useToastCreator();
  */
 export function useToastCreator() {
-  const toast = useToastContext();
-  const { close: _, closeAll: __, ...rest } = toast;
-  return rest;
+  const toast = useToastContext()
+  const { close: _, closeAll: __, ...rest } = toast
+  return rest
 }
 
 /**
@@ -60,12 +60,12 @@ export function useToastCreator() {
  * const { close, closeAll } = useToastManager();
  */
 export function useToastManager() {
-  const toast = useToastContext();
+  const toast = useToastContext()
   return {
     close: toast.close,
     closeAll: toast.closeAll,
     toastCount: toast.toastCount,
-  };
+  }
 }
 
 /**
@@ -86,8 +86,8 @@ export function useToastManager() {
  * });
  */
 export function useCustomToast() {
-  const toast = useToastContext();
-  return toast.toast;
+  const toast = useToastContext()
+  return toast.toast
 }
 
 /**
@@ -103,23 +103,23 @@ export function useCustomToast() {
  * });
  */
 export function useToastWithCallback() {
-  const toast = useToastContext();
+  const toast = useToastContext()
 
   return (options: ToastOptions & { onClosed?: () => void }) => {
-    const id = toast.toast(options);
+    const id = toast.toast(options)
 
     if (options.onClosed) {
       // Wait for the toast to be removed
       // This is a simple implementation - in production you might want
       // a more sophisticated tracking system
       setTimeout(() => {
-        toast.close(id);
-        options.onClosed?.();
-      }, options.autoCloseDelay ?? 5000);
+        toast.close(id)
+        options.onClosed?.()
+      }, options.autoCloseDelay ?? 5000)
     }
 
-    return id;
-  };
+    return id
+  }
 }
 
 /**
@@ -142,33 +142,33 @@ export function useToastWithCallback() {
  * }
  */
 export function useToastPromise() {
-  const toast = useToastContext();
+  const toast = useToastContext()
 
-  return async <T,>(
+  return async <T>(
     promise: Promise<T>,
     messages: {
-      loading: string;
-      success: string;
-      error: string;
+      loading: string
+      success: string
+      error: string
     }
   ): Promise<T> => {
     const loadingId = toast.toast({
       message: messages.loading,
       type: 'info',
       autoClose: false,
-    });
+    })
 
     try {
-      const result = await promise;
-      toast.close(loadingId);
-      toast.success(messages.success);
-      return result;
+      const result = await promise
+      toast.close(loadingId)
+      toast.success(messages.success)
+      return result
     } catch (error) {
-      toast.close(loadingId);
-      toast.error(messages.error);
-      throw error;
+      toast.close(loadingId)
+      toast.error(messages.error)
+      throw error
     }
-  };
+  }
 }
 
 /**
@@ -186,14 +186,14 @@ export function useToastPromise() {
  * toast.close(toastId);
  */
 export function useDismissibleToast() {
-  const toast = useToastContext();
+  const toast = useToastContext()
 
   return (options: Omit<ToastOptions, 'autoClose'>) => {
     return toast.toast({
       ...options,
       autoClose: false,
-    });
-  };
+    })
+  }
 }
 
 /**
@@ -212,17 +212,17 @@ export function useDismissibleToast() {
  * });
  */
 export function usePersistentToast() {
-  const toast = useToastContext();
+  const toast = useToastContext()
 
   return (options: ToastOptions) => {
     return toast.toast({
       ...options,
       autoClose: false,
-    });
-  };
+    })
+  }
 }
 
 // Re-export types for convenience
-export type { ToastOptions } from './ToastProvider';
-export type { ToastValue } from './ToastProvider';
-export type { ToastType } from './Toast';
+export type { ToastOptions } from './ToastProvider'
+export type { ToastValue } from './ToastProvider'
+export type { ToastType } from './Toast'

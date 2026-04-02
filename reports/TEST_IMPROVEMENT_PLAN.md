@@ -24,20 +24,21 @@
 
 ### 1.1 测试统计
 
-| 类别 | 源文件数 | 测试文件数 | 覆盖率 | 状态 |
-|------|---------|-----------|--------|------|
-| **整体** | 213 | 99 | 46% | ⚠️ 中等 |
-| **Libs** | ~20 | ~25 | 125% | ✅ 优秀 |
-| **Hooks/Stores** | 10 | 8 | 80% | ✅ 良好 |
-| **Components** | 78 | 10 | 13% | ❌ 严重不足 |
-| **API Routes** | 9 | 1 | 11% | ❌ 严重不足 |
-| **E2E Tests** | N/A | 11 | N/A | ✅ 基础完善 |
+| 类别             | 源文件数 | 测试文件数 | 覆盖率 | 状态        |
+| ---------------- | -------- | ---------- | ------ | ----------- |
+| **整体**         | 213      | 99         | 46%    | ⚠️ 中等     |
+| **Libs**         | ~20      | ~25        | 125%   | ✅ 优秀     |
+| **Hooks/Stores** | 10       | 8          | 80%    | ✅ 良好     |
+| **Components**   | 78       | 10         | 13%    | ❌ 严重不足 |
+| **API Routes**   | 9        | 1          | 11%    | ❌ 严重不足 |
+| **E2E Tests**    | N/A      | 11         | N/A    | ✅ 基础完善 |
 
 ### 1.2 按模块详细分析
 
 #### ✅ 覆盖良好的模块
 
 **src/lib/** - 工具库测试
+
 - `utils.test.ts` - 完整覆盖所有工具函数（500+ 行）
 - `validation` - 表单验证测试完整
 - `approval` - 审批流程测试
@@ -46,6 +47,7 @@
 - `types` - 类型定义测试
 
 **src/hooks/** - React Hooks
+
 - `useDashboardData` - 仪表板数据钩子
 - `usePerformance` - 性能监控钩子
 - `useBatchSelection` - 批量选择钩子
@@ -55,11 +57,13 @@
 - `useGitHubData` - GitHub 数据钩子
 
 **src/stores/** - 状态管理
+
 - `walletStore.test.ts` - 钱包状态管理测试
 
 #### ⚠️ 覆盖不足的模块
 
 **src/components/** - 组件（13% 覆盖率）
+
 - ✅ 已测试：Navigation, Footer, NotificationCenter (3个), ContactForm, TeamActivityTracker, RealtimeDashboard, AnimatedProgressBar
 - ❌ **未测试（68个组件）**：
   - `chat/` - 9 个聊天相关组件（完全未测试）
@@ -70,6 +74,7 @@
   - `shared/` - 共享 UI 组件
 
 **src/app/api/** - API 路由（11% 覆盖率）
+
 - ✅ 已测试：`status.route.test.ts`
 - ❌ **未测试（8个路由）**：
   - `csrf-token` - CSRF Token 生成
@@ -81,11 +86,13 @@
   - `github/issues` - GitHub Issues
 
 **src/app/** - 页面组件
+
 - ❌ **完全未测试** - 所有页面组件（team, portfolio, about, tasks, contact, blog 等）
 
 #### ✅ E2E 测试覆盖良好
 
 E2E 测试基础框架完善，包含：
+
 - `team.spec.ts` - 团队页面（10个测试套件，覆盖响应式、无障碍、国际化）
 - `user-flow.spec.ts` - 用户流程
 - `form.spec.ts` - 表单交互
@@ -105,27 +112,33 @@ E2E 测试基础框架完善，包含：
 ### 2.1 高优先级薄弱区域 🔴
 
 #### API Routes 测试缺失
+
 **影响**: 严重的安全和功能风险
 **缺失测试**:
+
 - CSRF Token 生成和验证
 - A2A JSON-RPC 协议端点
 - 健康检查端点
 - GitHub 集成端点
 
 **风险**:
+
 - CSRF 保护可能失效
 - API 返回格式不一致
 - 健康检查无法正确报告状态
 - GitHub 数据获取失败
 
 #### 核心业务组件未测试
+
 **影响**: 用户体验和功能回归风险
 **缺失测试**:
+
 - 聊天系统（ChatMessage, ChatInput, ChatHeader, MemberSelector）
 - 用户设置（UserSettingsPage, AvatarUpload, ToggleSwitch）
 - 表单组件（FormField, useFieldValidation）
 
 **风险**:
+
 - 聊天功能可能崩溃
 - 用户设置无法保存
 - 表单验证失败
@@ -133,15 +146,19 @@ E2E 测试基础框架完善，包含：
 ### 2.2 中优先级薄弱区域 🟡
 
 #### 页面组件集成测试缺失
+
 **影响**: 页面渲染和路由问题
 **缺失测试**:
+
 - 所有 App Pages（team, portfolio, about, tasks, contact, blog）
 - 页面级布局和主题切换
 - SEO 元数据渲染
 
 #### 性能和优化组件未测试
+
 **影响**: 性能回归
 **缺失测试**:
+
 - LazyImage 优化
 - AIChat 性能优化
 - MobileMenu 响应式行为
@@ -149,14 +166,18 @@ E2E 测试基础框架完善，包含：
 ### 2.3 低优先级薄弱区域 🟢
 
 #### 共享 UI 组件测试缺失
+
 **影响**: UI 一致性问题
 **缺失测试**:
+
 - ui.tsx 中的基础 UI 组件
 - 错误处理组件
 
 #### 类型定义测试不完整
+
 **影响**: 类型安全
 **缺失测试**:
+
 - 部分 TypeScript 类型验证
 
 ---
@@ -166,6 +187,7 @@ E2E 测试基础框架完善，包含：
 ### 3.1 安全性测试
 
 #### ❌ 未覆盖的安全测试场景
+
 1. **CSRF 保护测试**
    - Token 生成和验证
    - Token 过期处理
@@ -184,6 +206,7 @@ E2E 测试基础框架完善，包含：
 ### 3.2 集成测试场景
 
 #### ❌ 未覆盖的集成测试
+
 1. **前后端集成**
    - API 调用与组件交互
    - 错误处理流程
@@ -203,6 +226,7 @@ E2E 测试基础框架完善，包含：
 ### 3.3 性能测试场景
 
 #### ❌ 未覆盖的性能测试
+
 1. **页面加载性能**
    - LCP（最大内容绘制）阈值
    - FID（首次输入延迟）测试
@@ -221,6 +245,7 @@ E2E 测试基础框架完善，包含：
 ### 3.4 边界条件和错误处理
 
 #### ❌ 未覆盖的边界测试
+
 1. **数据边界**
    - 空数组/对象处理
    - 超大数据集
@@ -239,6 +264,7 @@ E2E 测试基础框架完善，包含：
 ### 3.5 国际化和本地化
 
 #### ❌ 未完全覆盖的 i18n 测试
+
 1. **语言切换**
    - 动态语言切换
    - 翻译缺失处理
@@ -264,39 +290,40 @@ E2E 测试基础框架完善，包含：
 **具体行动**:
 
 1. **创建 API 测试模板**
+
    ```typescript
    // src/app/api/__tests__/template.route.test.ts
-   import { describe, it, expect, beforeEach, afterEach } from 'vitest';
-   import { GET, POST, PUT, DELETE } from '../route';
+   import { describe, it, expect, beforeEach, afterEach } from 'vitest'
+   import { GET, POST, PUT, DELETE } from '../route'
 
    describe('API Route Template', () => {
      beforeEach(() => {
        // Mock external dependencies
-     });
+     })
 
      describe('GET', () => {
        it('should return 200 and correct structure', async () => {
-         const response = await GET();
-         const data = await response.json();
-         expect(response.status).toBe(200);
+         const response = await GET()
+         const data = await response.json()
+         expect(response.status).toBe(200)
          // 验证响应结构
-       });
+       })
 
        it('should handle errors gracefully', async () => {
          // 测试错误场景
-       });
-     });
+       })
+     })
 
      describe('POST', () => {
        it('should validate input', async () => {
          // 测试输入验证
-       });
+       })
 
        it('should handle valid request', async () => {
          // 测试正常请求
-       });
-     });
-   });
+       })
+     })
+   })
    ```
 
 2. **为每个 API 路由创建测试**
@@ -317,11 +344,12 @@ E2E 测试基础框架完善，包含：
        // 2. Authenticate
        // 3. Access protected resource
        // 4. Logout
-     });
-   });
+     })
+   })
    ```
 
 **预期成果**:
+
 - API 覆盖率: 11% → 90%
 - 新增 7-10 个测试文件
 - 所有 API 端点有基础测试覆盖
@@ -336,6 +364,7 @@ E2E 测试基础框架完善，包含：
 **具体测试场景**:
 
 1. **CSRF 保护测试**
+
    ```typescript
    describe('CSRF Protection', () => {
      it('should reject requests without CSRF token', async () => {
@@ -343,36 +372,37 @@ E2E 测试基础框架完善，包含：
          method: 'POST',
          headers: { 'Content-Type': 'application/json' },
          body: JSON.stringify({}),
-       });
-       expect(response.status).toBe(403);
-     });
+       })
+       expect(response.status).toBe(403)
+     })
 
      it('should accept requests with valid CSRF token', async () => {
        // Get token first
        // Then make request with token
-     });
+     })
 
      it('should reject expired tokens', async () => {
        // Test token expiration
-     });
-   });
+     })
+   })
    ```
 
 2. **输入验证测试**
+
    ```typescript
    describe('Input Validation', () => {
      it('should sanitize HTML input', async () => {
-       const malicious = '<script>alert("xss")</script>';
-       const response = await POST({ data: malicious });
-       const data = await response.json();
-       expect(data).not.toContain('<script>');
-     });
+       const malicious = '<script>alert("xss")</script>'
+       const response = await POST({ data: malicious })
+       const data = await response.json()
+       expect(data).not.toContain('<script>')
+     })
 
      it('should validate required fields', async () => {
-       const response = await POST({});
-       expect(response.status).toBe(400);
-     });
-   });
+       const response = await POST({})
+       expect(response.status).toBe(400)
+     })
+   })
    ```
 
 3. **速率限制测试**（如果实现）
@@ -381,11 +411,12 @@ E2E 测试基础框架完善，包含：
      it('should limit requests per IP', async () => {
        // Make multiple rapid requests
        // Verify rate limit response
-     });
-   });
+     })
+   })
    ```
 
 **预期成果**:
+
 - 所有 API 有安全测试覆盖
 - CSRF 验证 100% 覆盖
 - 输入验证 100% 覆盖
@@ -732,6 +763,7 @@ describe('FormField', () => {
 ```
 
 **预期成果**:
+
 - 新增 15-20 个组件测试文件
 - 组件覆盖率: 13% → 70%
 - 核心业务组件 100% 覆盖
@@ -818,6 +850,7 @@ describe('PortfolioPage', () => {
 ```
 
 **预期成果**:
+
 - 新增 6-8 个页面测试文件
 - 主要页面 100% 集成测试覆盖
 
@@ -836,215 +869,218 @@ describe('PortfolioPage', () => {
 
 ```typescript
 // e2e/auth-flow.spec.ts
-import { test, expect } from '@playwright/test';
+import { test, expect } from '@playwright/test'
 
 test.describe('Authentication Flow', () => {
   test('should allow user registration', async ({ page }) => {
-    await page.goto('/');
+    await page.goto('/')
 
     // Click register
-    await page.click('text=Register|注册');
-    await expect(page).toHaveURL(/.*register|signup/i);
+    await page.click('text=Register|注册')
+    await expect(page).toHaveURL(/.*register|signup/i)
 
     // Fill form
-    await page.fill('input[name="name"]', 'Test User');
-    await page.fill('input[name="email"]', 'test@example.com');
-    await page.fill('input[name="password"]', 'SecurePass123!');
+    await page.fill('input[name="name"]', 'Test User')
+    await page.fill('input[name="email"]', 'test@example.com')
+    await page.fill('input[name="password"]', 'SecurePass123!')
 
     // Submit
-    await page.click('button[type="submit"]');
+    await page.click('button[type="submit"]')
 
     // Verify success
-    await expect(page).toHaveURL(/.*dashboard|team/i);
-    await expect(page.locator('text=Test User')).toBeVisible();
-  });
+    await expect(page).toHaveURL(/.*dashboard|team/i)
+    await expect(page.locator('text=Test User')).toBeVisible()
+  })
 
   test('should allow user login', async ({ page }) => {
-    await page.goto('/');
+    await page.goto('/')
 
     // Click login
-    await page.click('text=Login|登录');
-    await expect(page).toHaveURL(/.*login|signin/i);
+    await page.click('text=Login|登录')
+    await expect(page).toHaveURL(/.*login|signin/i)
 
     // Fill form
-    await page.fill('input[name="email"]', 'test@example.com');
-    await page.fill('input[name="password"]', 'SecurePass123!');
+    await page.fill('input[name="email"]', 'test@example.com')
+    await page.fill('input[name="password"]', 'SecurePass123!')
 
     // Submit
-    await page.click('button[type="submit"]');
+    await page.click('button[type="submit"]')
 
     // Verify success
-    await expect(page).toHaveURL(/.*dashboard|team/i);
-  });
+    await expect(page).toHaveURL(/.*dashboard|team/i)
+  })
 
   test('should handle login errors', async ({ page }) => {
-    await page.goto('/login');
+    await page.goto('/login')
 
-    await page.fill('input[name="email"]', 'wrong@example.com');
-    await page.fill('input[name="password"]', 'WrongPass123!');
-    await page.click('button[type="submit"]');
+    await page.fill('input[name="email"]', 'wrong@example.com')
+    await page.fill('input[name="password"]', 'WrongPass123!')
+    await page.click('button[type="submit"]')
 
     // Verify error message
-    await expect(page.locator('text=invalid|incorrect')).toBeVisible();
-  });
-});
+    await expect(page.locator('text=invalid|incorrect')).toBeVisible()
+  })
+})
 ```
 
 ##### 2. 聊天功能流程
 
 ```typescript
 // e2e/chat-flow.spec.ts
-import { test, expect } from '@playwright/test';
+import { test, expect } from '@playwright/test'
 
 test.describe('Chat Flow', () => {
   test.beforeEach(async ({ page }) => {
     // Login first
-    await page.goto('/login');
-    await page.fill('input[name="email"]', 'test@example.com');
-    await page.fill('input[name="password"]', 'password');
-    await page.click('button[type="submit"]');
-    await page.waitForURL(/.*dashboard/i);
-  });
+    await page.goto('/login')
+    await page.fill('input[name="email"]', 'test@example.com')
+    await page.fill('input[name="password"]', 'password')
+    await page.click('button[type="submit"]')
+    await page.waitForURL(/.*dashboard/i)
+  })
 
   test('should send and receive messages', async ({ page }) => {
     // Open chat
-    await page.click('button:has-text("Chat|聊天")');
+    await page.click('button:has-text("Chat|聊天")')
 
     // Type message
-    const input = page.locator('input[placeholder*="message|消息"], textarea[placeholder*="message|消息"]');
-    await input.fill('Hello, AI!');
+    const input = page.locator(
+      'input[placeholder*="message|消息"], textarea[placeholder*="message|消息"]'
+    )
+    await input.fill('Hello, AI!')
 
     // Send
-    await page.click('button:has-text("Send|发送")');
+    await page.click('button:has-text("Send|发送")')
 
     // Verify message appears
-    await expect(page.locator('text=Hello, AI!')).toBeVisible();
+    await expect(page.locator('text=Hello, AI!')).toBeVisible()
 
     // Wait for AI response
-    await page.waitForTimeout(2000);
+    await page.waitForTimeout(2000)
 
     // Verify AI responded
-    const messages = page.locator('[class*="message"]');
-    await expect(messages).toHaveCount(2);
-  });
+    const messages = page.locator('[class*="message"]')
+    await expect(messages).toHaveCount(2)
+  })
 
   test('should select team member', async ({ page }) => {
-    await page.click('button:has-text("Chat|聊天")');
+    await page.click('button:has-text("Chat|聊天")')
 
     // Open member selector
-    await page.click('button:has-text("Select Member|选择成员")');
+    await page.click('button:has-text("Select Member|选择成员")')
 
     // Select member
-    await page.click('text=Alice|Bob');
+    await page.click('text=Alice|Bob')
 
     // Verify selection
-    await expect(page.locator('text=Alice|Bob')).toBeVisible();
-  });
-});
+    await expect(page.locator('text=Alice|Bob')).toBeVisible()
+  })
+})
 ```
 
 ##### 3. 用户设置流程
 
 ```typescript
 // e2e/settings-flow.spec.ts
-import { test, expect } from '@playwright/test';
+import { test, expect } from '@playwright/test'
 
 test.describe('Settings Flow', () => {
   test.beforeEach(async ({ page }) => {
-    await page.goto('/login');
-    await page.fill('input[name="email"]', 'test@example.com');
-    await page.fill('input[name="password"]', 'password');
-    await page.click('button[type="submit"]');
-  });
+    await page.goto('/login')
+    await page.fill('input[name="email"]', 'test@example.com')
+    await page.fill('input[name="password"]', 'password')
+    await page.click('button[type="submit"]')
+  })
 
   test('should update user profile', async ({ page }) => {
     // Navigate to settings
-    await page.click('a:has-text("Settings|设置")');
-    await expect(page).toHaveURL(/.*settings/i);
+    await page.click('a:has-text("Settings|设置")')
+    await expect(page).toHaveURL(/.*settings/i)
 
     // Update name
-    await page.fill('input[name="name"]', 'Updated Name');
+    await page.fill('input[name="name"]', 'Updated Name')
 
     // Save
-    await page.click('button:has-text("Save|保存")');
+    await page.click('button:has-text("Save|保存")')
 
     // Verify success message
-    await expect(page.locator('text=saved|保存成功')).toBeVisible();
-  });
+    await expect(page.locator('text=saved|保存成功')).toBeVisible()
+  })
 
   test('should change theme', async ({ page }) => {
-    await page.goto('/settings');
+    await page.goto('/settings')
 
     // Toggle theme
-    const themeToggle = page.locator('button:has-text("Theme|主题"), [aria-label*="theme|主题"]');
-    await themeToggle.click();
+    const themeToggle = page.locator('button:has-text("Theme|主题"), [aria-label*="theme|主题"]')
+    await themeToggle.click()
 
     // Verify theme changed
-    const body = page.locator('body');
-    await expect(body).toHaveClass(/dark/i);
-  });
+    const body = page.locator('body')
+    await expect(body).toHaveClass(/dark/i)
+  })
 
   test('should upload avatar', async ({ page }) => {
-    await page.goto('/settings');
+    await page.goto('/settings')
 
     // Upload file
-    const fileInput = page.locator('input[type="file"]');
-    await fileInput.setInputFiles('tests/fixtures/test-avatar.png');
+    const fileInput = page.locator('input[type="file"]')
+    await fileInput.setInputFiles('tests/fixtures/test-avatar.png')
 
     // Wait for upload
-    await page.waitForTimeout(2000);
+    await page.waitForTimeout(2000)
 
     // Verify avatar updated
-    const avatar = page.locator('img[alt*="avatar"]');
-    await expect(avatar).toBeVisible();
-  });
-});
+    const avatar = page.locator('img[alt*="avatar"]')
+    await expect(avatar).toBeVisible()
+  })
+})
 ```
 
 ##### 4. 表单提交流程
 
 ```typescript
 // e2e/contact-form.spec.ts
-import { test, expect } from '@playwright/test';
+import { test, expect } from '@playwright/test'
 
 test.describe('Contact Form', () => {
   test('should submit contact form', async ({ page }) => {
-    await page.goto('/contact');
+    await page.goto('/contact')
 
     // Fill form
-    await page.fill('input[name="name"]', 'Test User');
-    await page.fill('input[name="email"]', 'test@example.com');
-    await page.fill('textarea[name="message"]', 'This is a test message');
+    await page.fill('input[name="name"]', 'Test User')
+    await page.fill('input[name="email"]', 'test@example.com')
+    await page.fill('textarea[name="message"]', 'This is a test message')
 
     // Submit
-    await page.click('button[type="submit"]');
+    await page.click('button[type="submit"]')
 
     // Verify success
-    await expect(page.locator('text=sent|发送成功')).toBeVisible();
-  });
+    await expect(page.locator('text=sent|发送成功')).toBeVisible()
+  })
 
   test('should validate form fields', async ({ page }) => {
-    await page.goto('/contact');
+    await page.goto('/contact')
 
     // Submit empty form
-    await page.click('button[type="submit"]');
+    await page.click('button[type="submit"]')
 
     // Verify errors
-    await expect(page.locator('text=required|必填')).toBeVisible();
-  });
+    await expect(page.locator('text=required|必填')).toBeVisible()
+  })
 
   test('should validate email format', async ({ page }) => {
-    await page.goto('/contact');
+    await page.goto('/contact')
 
-    await page.fill('input[name="email"]', 'invalid-email');
-    await page.click('button[type="submit"]');
+    await page.fill('input[name="email"]', 'invalid-email')
+    await page.click('button[type="submit"]')
 
-    await expect(page.locator('text=invalid email|无效邮箱')).toBeVisible();
-  });
-});
+    await expect(page.locator('text=invalid email|无效邮箱')).toBeVisible()
+  })
+})
 ```
 
 **预期成果**:
+
 - 新增 4-5 个 E2E 测试套件
 - 关键业务流程 100% 覆盖
 - 回归测试时间: < 10 分钟
@@ -1060,55 +1096,56 @@ test.describe('Contact Form', () => {
 
 ```typescript
 // e2e/visual-regression.spec.ts
-import { test, expect } from '@playwright/test';
+import { test, expect } from '@playwright/test'
 
 test.describe('Visual Regression', () => {
   test('homepage should match baseline', async ({ page }) => {
-    await page.goto('/');
+    await page.goto('/')
     await expect(page).toHaveScreenshot('homepage.png', {
       fullPage: true,
       maxDiffPixels: 100,
-    });
-  });
+    })
+  })
 
   test('team page should match baseline', async ({ page }) => {
-    await page.goto('/team');
+    await page.goto('/team')
     await expect(page).toHaveScreenshot('team-page.png', {
       fullPage: true,
       maxDiffPixels: 150,
-    });
-  });
+    })
+  })
 
   test('chat component should match baseline', async ({ page }) => {
-    await page.goto('/dashboard');
-    await page.click('button:has-text("Chat")');
+    await page.goto('/dashboard')
+    await page.click('button:has-text("Chat")')
 
-    const chatContainer = page.locator('[class*="chat-container"]');
+    const chatContainer = page.locator('[class*="chat-container"]')
     await expect(chatContainer).toHaveScreenshot('chat-component.png', {
       maxDiffPixels: 50,
-    });
-  });
+    })
+  })
 
   test('responsive layouts should match baseline', async ({ page }) => {
     // Mobile
-    await page.setViewportSize({ width: 375, height: 667 });
-    await page.goto('/');
-    await expect(page).toHaveScreenshot('homepage-mobile.png', { fullPage: true });
+    await page.setViewportSize({ width: 375, height: 667 })
+    await page.goto('/')
+    await expect(page).toHaveScreenshot('homepage-mobile.png', { fullPage: true })
 
     // Tablet
-    await page.setViewportSize({ width: 768, height: 1024 });
-    await page.goto('/');
-    await expect(page).toHaveScreenshot('homepage-tablet.png', { fullPage: true });
+    await page.setViewportSize({ width: 768, height: 1024 })
+    await page.goto('/')
+    await expect(page).toHaveScreenshot('homepage-tablet.png', { fullPage: true })
 
     // Desktop
-    await page.setViewportSize({ width: 1920, height: 1080 });
-    await page.goto('/');
-    await expect(page).toHaveScreenshot('homepage-desktop.png', { fullPage: true });
-  });
-});
+    await page.setViewportSize({ width: 1920, height: 1080 })
+    await page.goto('/')
+    await expect(page).toHaveScreenshot('homepage-desktop.png', { fullPage: true })
+  })
+})
 ```
 
 **预期成果**:
+
 - 20+ 视觉回归测试
 - 跨设备/浏览器视觉一致性保证
 - 自动化视觉缺陷检测
@@ -1128,19 +1165,19 @@ test.describe('Visual Regression', () => {
 
 ```typescript
 // e2e/performance.spec.ts
-import { test, expect } from '@playwright/test';
+import { test, expect } from '@playwright/test'
 
 test.describe('Page Performance', () => {
   test('homepage should load within performance budget', async ({ page }) => {
-    const startTime = Date.now();
+    const startTime = Date.now()
 
-    await page.goto('/');
-    await page.waitForLoadState('networkidle');
+    await page.goto('/')
+    await page.waitForLoadState('networkidle')
 
-    const loadTime = Date.now() - startTime;
+    const loadTime = Date.now() - startTime
 
     // Page should load in under 3 seconds
-    expect(loadTime).toBeLessThan(3000);
+    expect(loadTime).toBeLessThan(3000)
 
     // Check Web Vitals
     const metrics = await page.evaluate(() => {
@@ -1150,98 +1187,103 @@ test.describe('Page Performance', () => {
         // First Input Delay
         fid: performance.getEntriesByType('first-input')[0]?.processingStart,
         // Cumulative Layout Shift
-        cls: performance.getEntriesByType('layout-shift').reduce((acc, entry) => acc + entry.value, 0),
-      };
-    });
+        cls: performance
+          .getEntriesByType('layout-shift')
+          .reduce((acc, entry) => acc + entry.value, 0),
+      }
+    })
 
     // LCP should be under 2.5s
-    expect(metrics.lcp).toBeLessThan(2500);
+    expect(metrics.lcp).toBeLessThan(2500)
 
     // CLS should be under 0.1
-    expect(metrics.cls).toBeLessThan(0.1);
-  });
+    expect(metrics.cls).toBeLessThan(0.1)
+  })
 
   test('dashboard should load quickly', async ({ page }) => {
-    await page.goto('/dashboard');
-    await page.waitForLoadState('networkidle');
+    await page.goto('/dashboard')
+    await page.waitForLoadState('networkidle')
 
     const metrics = await page.evaluate(() => {
-      const navEntry = performance.getEntriesByType('navigation')[0] as PerformanceNavigationTiming;
+      const navEntry = performance.getEntriesByType('navigation')[0] as PerformanceNavigationTiming
       return {
         domContentLoaded: navEntry.domContentLoadedEventEnd - navEntry.domContentLoadedEventStart,
         loadComplete: navEntry.loadEventEnd - navEntry.loadEventStart,
-      };
-    });
+      }
+    })
 
-    expect(metrics.domContentLoaded).toBeLessThan(1500);
-  });
-});
+    expect(metrics.domContentLoaded).toBeLessThan(1500)
+  })
+})
 
 test.describe('Component Performance', () => {
   test('chat should render quickly', async ({ page }) => {
-    await page.goto('/dashboard');
+    await page.goto('/dashboard')
 
-    const startTime = Date.now();
-    await page.click('button:has-text("Chat|聊天")');
-    const chatElement = page.locator('[class*="chat-container"]');
-    await chatElement.waitFor();
-    const renderTime = Date.now() - startTime;
+    const startTime = Date.now()
+    await page.click('button:has-text("Chat|聊天")')
+    const chatElement = page.locator('[class*="chat-container"]')
+    await chatElement.waitFor()
+    const renderTime = Date.now() - startTime
 
     // Chat should render in under 500ms
-    expect(renderTime).toBeLessThan(500);
-  });
+    expect(renderTime).toBeLessThan(500)
+  })
 
   test('large list should render efficiently', async ({ page }) => {
-    await page.goto('/portfolio');
+    await page.goto('/portfolio')
 
     // Wait for all items to load
-    const items = page.locator('[class*="project-card"]');
-    await items.count();
+    const items = page.locator('[class*="project-card"]')
+    await items.count()
 
     const renderTime = await page.evaluate(() => {
-      return performance.now();
-    });
+      return performance.now()
+    })
 
     // Should render quickly
-    expect(renderTime).toBeLessThan(2000);
-  });
-});
+    expect(renderTime).toBeLessThan(2000)
+  })
+})
 ```
 
 ##### 2. API 性能测试
 
 ```typescript
 // e2e/api-performance.spec.ts
-import { test, expect } from '@playwright/test';
+import { test, expect } from '@playwright/test'
 
 test.describe('API Performance', () => {
   test('status API should respond quickly', async ({ request }) => {
-    const startTime = Date.now();
-    const response = await request.get('/api/status');
-    const responseTime = Date.now() - startTime;
+    const startTime = Date.now()
+    const response = await request.get('/api/status')
+    const responseTime = Date.now() - startTime
 
-    expect(response.status()).toBe(200);
-    expect(responseTime).toBeLessThan(500);
-  });
+    expect(response.status()).toBe(200)
+    expect(responseTime).toBeLessThan(500)
+  })
 
   test('API should handle concurrent requests', async ({ request }) => {
-    const startTime = Date.now();
-    const requests = Array(10).fill(null).map(() => request.get('/api/status'));
-    const responses = await Promise.all(requests);
-    const totalTime = Date.now() - startTime;
+    const startTime = Date.now()
+    const requests = Array(10)
+      .fill(null)
+      .map(() => request.get('/api/status'))
+    const responses = await Promise.all(requests)
+    const totalTime = Date.now() - startTime
 
     // All requests should succeed
     responses.forEach(response => {
-      expect(response.status()).toBe(200);
-    });
+      expect(response.status()).toBe(200)
+    })
 
     // Should handle 10 concurrent requests in under 2 seconds
-    expect(totalTime).toBeLessThan(2000);
-  });
-});
+    expect(totalTime).toBeLessThan(2000)
+  })
+})
 ```
 
 **预期成果**:
+
 - 10+ 性能测试用例
 - Web Vitals 持续监控
 - 性能回归自动检测
@@ -1261,37 +1303,37 @@ test.describe('API Performance', () => {
 
 ```typescript
 // src/lib/security/__tests__/xss.test.ts
-import { describe, it, expect } from 'vitest';
-import { sanitizeInput } from '../xss';
+import { describe, it, expect } from 'vitest'
+import { sanitizeInput } from '../xss'
 
 describe('XSS Protection', () => {
   it('should sanitize script tags', () => {
-    const input = '<script>alert("xss")</script>';
-    const output = sanitizeInput(input);
-    expect(output).not.toContain('<script>');
-    expect(output).not.toContain('alert');
-  });
+    const input = '<script>alert("xss")</script>'
+    const output = sanitizeInput(input)
+    expect(output).not.toContain('<script>')
+    expect(output).not.toContain('alert')
+  })
 
   it('should sanitize onclick handlers', () => {
-    const input = '<div onclick="alert("xss")">Click</div>';
-    const output = sanitizeInput(input);
-    expect(output).not.toContain('onclick');
-  });
+    const input = '<div onclick="alert("xss")">Click</div>'
+    const output = sanitizeInput(input)
+    expect(output).not.toContain('onclick')
+  })
 
   it('should allow safe HTML', () => {
-    const input = '<p>Hello <strong>World</strong></p>';
-    const output = sanitizeInput(input);
-    expect(output).toContain('<p>');
-    expect(output).toContain('<strong>');
-  });
-});
+    const input = '<p>Hello <strong>World</strong></p>'
+    const output = sanitizeInput(input)
+    expect(output).toContain('<p>')
+    expect(output).toContain('<strong>')
+  })
+})
 ```
 
 ##### 2. CSRF 集成测试
 
 ```typescript
 // e2e/csrf-protection.spec.ts
-import { test, expect } from '@playwright/test';
+import { test, expect } from '@playwright/test'
 
 test.describe('CSRF Protection', () => {
   test('should require CSRF token for POST requests', async ({ request }) => {
@@ -1300,19 +1342,19 @@ test.describe('CSRF Protection', () => {
         'Content-Type': 'application/json',
       },
       data: { test: 'data' },
-    });
+    })
 
-    expect(response.status()).toBe(403);
-  });
+    expect(response.status()).toBe(403)
+  })
 
   test('should accept requests with valid CSRF token', async ({ page, request }) => {
-    await page.goto('/');
+    await page.goto('/')
 
     // Get CSRF token from page
     const csrfToken = await page.evaluate(() => {
-      const meta = document.querySelector('meta[name="csrf-token"]');
-      return meta?.getAttribute('content');
-    });
+      const meta = document.querySelector('meta[name="csrf-token"]')
+      return meta?.getAttribute('content')
+    })
 
     // Make request with token
     const response = await request.post('/api/protected', {
@@ -1321,14 +1363,15 @@ test.describe('CSRF Protection', () => {
         'X-CSRF-Token': csrfToken || '',
       },
       data: { test: 'data' },
-    });
+    })
 
-    expect(response.status()).toBe(200);
-  });
-});
+    expect(response.status()).toBe(200)
+  })
+})
 ```
 
 **预期成果**:
+
 - 完整的安全测试套件
 - XSS/CSRF 防护验证
 - 定期安全审计支持
@@ -1348,72 +1391,73 @@ test.describe('CSRF Protection', () => {
 
 ```typescript
 // src/lib/emailjs/__tests__/integration.test.ts
-import { describe, it, expect, vi, beforeEach } from 'vitest';
-import { sendEmail } from '../emailjs';
+import { describe, it, expect, vi, beforeEach } from 'vitest'
+import { sendEmail } from '../emailjs'
 
 vi.mock('@emailjs/browser', () => ({
   init: vi.fn(),
   send: vi.fn(),
-}));
+}))
 
 describe('EmailJS Integration', () => {
   beforeEach(() => {
-    vi.clearAllMocks();
-  });
+    vi.clearAllMocks()
+  })
 
   it('should send email successfully', async () => {
-    vi.mocked(emailjs.send).mockResolvedValueOnce({ status: 200, text: 'OK' });
+    vi.mocked(emailjs.send).mockResolvedValueOnce({ status: 200, text: 'OK' })
 
     const result = await sendEmail({
       to: 'test@example.com',
       subject: 'Test',
       body: 'Test message',
-    });
+    })
 
-    expect(result.success).toBe(true);
-  });
+    expect(result.success).toBe(true)
+  })
 
   it('should handle email sending failure', async () => {
-    vi.mocked(emailjs.send).mockRejectedValueOnce(new Error('Failed'));
+    vi.mocked(emailjs.send).mockRejectedValueOnce(new Error('Failed'))
 
     const result = await sendEmail({
       to: 'test@example.com',
       subject: 'Test',
       body: 'Test message',
-    });
+    })
 
-    expect(result.success).toBe(false);
-  });
-});
+    expect(result.success).toBe(false)
+  })
+})
 ```
 
 ##### 2. GitHub API 集成测试
 
 ```typescript
 // src/app/api/github/__tests__/integration.test.ts
-import { describe, it, expect, vi } from 'vitest';
-import { GET } from './commits/route';
+import { describe, it, expect, vi } from 'vitest'
+import { GET } from './commits/route'
 
 describe('GitHub API Integration', () => {
   it('should fetch commits from GitHub', async () => {
-    const response = await GET();
-    const data = await response.json();
+    const response = await GET()
+    const data = await response.json()
 
-    expect(Array.isArray(data)).toBe(true);
+    expect(Array.isArray(data)).toBe(true)
     if (data.length > 0) {
-      expect(data[0]).toHaveProperty('sha');
-      expect(data[0]).toHaveProperty('commit');
+      expect(data[0]).toHaveProperty('sha')
+      expect(data[0]).toHaveProperty('commit')
     }
-  });
+  })
 
   it('should handle GitHub API errors', async () => {
     // Test with mock error response
     // Verify graceful error handling
-  });
-});
+  })
+})
 ```
 
 **预期成果**:
+
 - 10+ 集成测试用例
 - 第三方服务稳定性验证
 - 错误处理流程覆盖
@@ -1433,9 +1477,9 @@ describe('GitHub API Integration', () => {
 
 ```typescript
 // vitest.config.ts (增强版)
-import { defineConfig } from 'vitest/config';
-import react from '@vitejs/plugin-react';
-import path from 'path';
+import { defineConfig } from 'vitest/config'
+import react from '@vitejs/plugin-react'
+import path from 'path'
 
 export default defineConfig({
   plugins: [react()],
@@ -1481,74 +1525,71 @@ export default defineConfig({
       '@': path.resolve(__dirname, './src'),
     },
   },
-});
+})
 ```
 
 ##### 2. 添加测试工具库
 
 ```typescript
 // src/test/utils.tsx
-import { render, RenderOptions } from '@testing-library/react';
-import { ReactElement } from 'react';
+import { render, RenderOptions } from '@testing-library/react'
+import { ReactElement } from 'react'
 
 // 自定义渲染函数，包含 Providers
-export function renderWithProviders(
-  ui: ReactElement,
-  options?: Omit<RenderOptions, 'wrapper'>
-) {
+export function renderWithProviders(ui: ReactElement, options?: Omit<RenderOptions, 'wrapper'>) {
   // Add providers here (IntlProvider, ThemeProvider, etc.)
-  return render(ui, options);
+  return render(ui, options)
 }
 
 // Mock localStorage
 export class LocalStorageMock {
-  store: Record<string, string> = {};
+  store: Record<string, string> = {}
 
   clear() {
-    this.store = {};
+    this.store = {}
   }
 
   getItem(key: string) {
-    return this.store[key] || null;
+    return this.store[key] || null
   }
 
   setItem(key: string, value: string) {
-    this.store[key] = String(value);
+    this.store[key] = String(value)
   }
 
   removeItem(key: string) {
-    delete this.store[key];
+    delete this.store[key]
   }
 
   get length() {
-    return Object.keys(this.store).length;
+    return Object.keys(this.store).length
   }
 
   key(index: number) {
-    return Object.keys(this.store)[index] || null;
+    return Object.keys(this.store)[index] || null
   }
 }
 
 export const createMockStorage = () => {
-  const localStorage = new LocalStorageMock();
+  const localStorage = new LocalStorageMock()
   Object.defineProperty(window, 'localStorage', {
     value: localStorage,
-  });
-  return localStorage;
-};
+  })
+  return localStorage
+}
 ```
 
 ##### 3. 添加测试断言工具
 
 ```typescript
 // src/test/assertions.ts
-import { expect } from 'vitest';
+import { expect } from 'vitest'
 
 // 自定义断言
 expect.extend({
   toHaveAccessibleErrorMessage(received: HTMLElement) {
-    const hasError = received.getAttribute('aria-invalid') === 'true';
-    const hasErrorMessage = received.querySelector('[aria-live], [role="alert"]');
+    const hasError = received.getAttribute('aria-invalid') === 'true'
+    const hasErrorMessage = received.querySelector('[aria-live], [role="alert"]')
 
     return {
       pass: hasError && hasErrorMessage !== null,
@@ -1556,23 +1597,24 @@ expect.extend({
         hasError
           ? `Element has accessible error message`
           : `Element does not have accessible error message`,
-    };
+    }
   },
 
   toBeWithinRange(received: number, floor: number, ceiling: number) {
-    const pass = received >= floor && received <= ceiling;
+    const pass = received >= floor && received <= ceiling
     return {
       pass,
       message: () =>
         pass
           ? `received ${received} is within range ${floor}-${ceiling}`
           : `received ${received} is not within range ${floor}-${ceiling}`,
-    };
+    }
   },
-});
+})
 ```
 
 **预期成果**:
+
 - 改进的测试配置
 - 可复用的测试工具库
 - 提高测试编写效率
@@ -1588,18 +1630,21 @@ expect.extend({
 **目标**: 修复最严重的测试缺口
 
 **任务**:
+
 1. API 路由测试（建议 1）
 2. API 安全测试（建议 2）
 3. 聊天系统组件测试（建议 3 - Phase 1）
 4. 关键业务流程 E2E 测试（建议 5）
 
 **交付成果**:
+
 - API 覆盖率: 11% → 90%
 - 聊天组件覆盖率: 0% → 100%
 - 新增 20-25 个测试文件
 - CI/CD 集成完成
 
 **成功指标**:
+
 - 所有 API 端点有测试覆盖
 - 聊天功能有完整的单元和 E2E 测试
 - 测试执行时间 < 5 分钟
@@ -1611,6 +1656,7 @@ expect.extend({
 **目标**: 完善核心业务功能测试
 
 **任务**:
+
 1. 用户设置组件测试（建议 3 - Phase 2）
 2. 表单组件测试（建议 3 - Phase 3）
 3. 页面组件集成测试（建议 4）
@@ -1618,12 +1664,14 @@ expect.extend({
 5. 安全性测试（建议 8）
 
 **交付成果**:
+
 - 组件覆盖率: 13% → 70%
 - 页面覆盖率: 0% → 100%
 - 新增 15-20 个测试文件
 - 性能基线建立
 
 **成功指标**:
+
 - 核心组件 100% 覆盖
 - 主要页面集成测试完成
 - 性能回归检测启用
@@ -1635,6 +1683,7 @@ expect.extend({
 **目标**: 提升测试质量和效率
 
 **任务**:
+
 1. 视觉回归测试增强（建议 6）
 2. 第三方服务集成测试（建议 9）
 3. 测试工具和配置改进（建议 10）
@@ -1642,12 +1691,14 @@ expect.extend({
 5. 测试覆盖率提升到 80%+
 
 **交付成果**:
+
 - 视觉回归测试套件
 - 集成测试完整覆盖
 - 测试工具库
 - 测试最佳实践文档
 
 **成功指标**:
+
 - 整体覆盖率: 46% → 80%
 - 视觉回归测试: 20+ 场景
 - 测试编写效率提升 30%
@@ -1656,45 +1707,53 @@ expect.extend({
 
 ### 5.2 资源分配
 
-| Phase | 工作量 | 人员 | 时间 |
-|-------|--------|------|------|
-| Phase 1 | 8-10 天 | 1-2 开发 + 1 QA | 2 周 |
-| Phase 2 | 8-10 天 | 1-2 开发 + 1 QA | 2 周 |
-| Phase 3 | 6-8 天 | 1 开发 + 1 QA | 2 周 |
-| **总计** | **22-28 天** | - | **6 周** |
+| Phase    | 工作量       | 人员            | 时间     |
+| -------- | ------------ | --------------- | -------- |
+| Phase 1  | 8-10 天      | 1-2 开发 + 1 QA | 2 周     |
+| Phase 2  | 8-10 天      | 1-2 开发 + 1 QA | 2 周     |
+| Phase 3  | 6-8 天       | 1 开发 + 1 QA   | 2 周     |
+| **总计** | **22-28 天** | -               | **6 周** |
 
 ---
 
 ### 5.3 风险和缓解措施
 
 #### 风险 1: 测试编写工作量超预期
+
 **影响**: 中
 **概率**: 高
 **缓解措施**:
+
 - 优先级排序，先完成关键测试
 - 使用测试生成工具辅助
 - 从简单的测试开始，逐步增加复杂度
 
 #### 风险 2: 测试执行时间过长
+
 **影响**: 高
 **概率**: 中
 **缓解措施**:
+
 - 使用并行测试执行
 - 优化 mock 数据
 - 分层测试策略（单元测试 > 集成测试 > E2E）
 
 #### 风险 3: 遗留代码难以测试
+
 **影响**: 中
 **概率**: 中
 **缓解措施**:
+
 - 重构代码以增加可测试性
 - 使用适配器模式隔离依赖
 - 逐步替换而非一次性重写
 
 #### 风险 4: CI/CD 环境不稳定
+
 **影响**: 高
 **概率**: 低
 **缓解措施**:
+
 - 使用稳定的 CI 环境
 - 添加重试机制
 - 监控和告警
@@ -1855,25 +1914,25 @@ coverage: {
 ```typescript
 test('should update user profile', async () => {
   // Arrange (准备)
-  const user = createMockUser();
-  const updates = { name: 'New Name' };
+  const user = createMockUser()
+  const updates = { name: 'New Name' }
 
   // Act (执行)
-  const result = await updateUser(user.id, updates);
+  const result = await updateUser(user.id, updates)
 
   // Assert (断言)
-  expect(result.name).toBe('New Name');
-});
+  expect(result.name).toBe('New Name')
+})
 ```
 
 #### 2. 使用描述性的测试名称
 
 ```typescript
 // ❌ 不好
-test('it works', () => {});
+test('it works', () => {})
 
 // ✅ 好
-test('should update user name when valid data provided', () => {});
+test('should update user name when valid data provided', () => {})
 ```
 
 #### 3. 测试一件事
@@ -1881,23 +1940,23 @@ test('should update user name when valid data provided', () => {});
 ```typescript
 // ❌ 不好 - 测试多件事
 test('user operations', () => {
-  const user = createUser();
-  expect(user).toBeDefined();
-  user.name = 'New';
-  expect(user.name).toBe('New');
-});
+  const user = createUser()
+  expect(user).toBeDefined()
+  user.name = 'New'
+  expect(user.name).toBe('New')
+})
 
 // ✅ 好 - 每个测试一件事
 test('should create user', () => {
-  const user = createUser();
-  expect(user).toBeDefined();
-});
+  const user = createUser()
+  expect(user).toBeDefined()
+})
 
 test('should update user name', () => {
-  const user = createUser();
-  user.name = 'New';
-  expect(user.name).toBe('New');
-});
+  const user = createUser()
+  user.name = 'New'
+  expect(user.name).toBe('New')
+})
 ```
 
 ---
@@ -1912,23 +1971,23 @@ test('should update user name', () => {
 - 时间相关逻辑
 
 ```typescript
-import { vi } from 'vitest';
+import { vi } from 'vitest'
 
 // Mock 外部 API
 vi.mock('@/lib/api', () => ({
   fetchUser: vi.fn().mockResolvedValue({ id: '1', name: 'Test' }),
-}));
+}))
 
 // Mock 时间
-vi.useFakeTimers();
-vi.setSystemTime(new Date('2024-01-01'));
+vi.useFakeTimers()
+vi.setSystemTime(new Date('2024-01-01'))
 
 // Mock localStorage
 const localStorageMock = {
   getItem: vi.fn(),
   setItem: vi.fn(),
-};
-Object.defineProperty(window, 'localStorage', { value: localStorageMock });
+}
+Object.defineProperty(window, 'localStorage', { value: localStorageMock })
 ```
 
 ---
@@ -1941,23 +2000,23 @@ Object.defineProperty(window, 'localStorage', { value: localStorageMock });
 describe('User Service', () => {
   // 每个测试前清理
   beforeEach(() => {
-    vi.clearAllMocks();
-    localStorage.clear();
-  });
+    vi.clearAllMocks()
+    localStorage.clear()
+  })
 
   // 每个测试后清理
   afterEach(() => {
-    vi.restoreAllMocks();
-  });
+    vi.restoreAllMocks()
+  })
 
   test('test 1', () => {
     // 独立的测试逻辑
-  });
+  })
 
   test('test 2', () => {
     // 独立的测试逻辑，不依赖 test 1
-  });
-});
+  })
+})
 ```
 
 ---
@@ -1973,7 +2032,7 @@ export const createUser = (overrides = {}) => ({
   name: 'Test User',
   email: 'test@example.com',
   ...overrides,
-});
+})
 
 export const createMessage = (overrides = {}) => ({
   id: '1',
@@ -1981,13 +2040,13 @@ export const createMessage = (overrides = {}) => ({
   sender: 'user',
   timestamp: new Date(),
   ...overrides,
-});
+})
 
 // 使用
 test('should send message', () => {
-  const message = createMessage({ content: 'Custom content' });
+  const message = createMessage({ content: 'Custom content' })
   // ...
-});
+})
 ```
 
 ---
@@ -1996,20 +2055,21 @@ test('should send message', () => {
 
 ### 8.1 关键成果回顾
 
-| 指标 | 当前状态 | Phase 1 | Phase 2 | Phase 3 |
-|------|---------|---------|---------|---------|
-| **整体覆盖率** | 46% | 55% | 70% | 80%+ |
-| **API 覆盖率** | 11% | 90% | 90% | 90% |
-| **组件覆盖率** | 13% | 40% | 70% | 80% |
-| **页面覆盖率** | 0% | 20% | 60% | 80% |
-| **E2E 覆盖率** | 基础 | 关键流程 | 核心流程 | 完整流程 |
-| **测试文件数** | 99 | 120 | 140 | 160+ |
+| 指标           | 当前状态 | Phase 1  | Phase 2  | Phase 3  |
+| -------------- | -------- | -------- | -------- | -------- |
+| **整体覆盖率** | 46%      | 55%      | 70%      | 80%+     |
+| **API 覆盖率** | 11%      | 90%      | 90%      | 90%      |
+| **组件覆盖率** | 13%      | 40%      | 70%      | 80%      |
+| **页面覆盖率** | 0%       | 20%      | 60%      | 80%      |
+| **E2E 覆盖率** | 基础     | 关键流程 | 核心流程 | 完整流程 |
+| **测试文件数** | 99       | 120      | 140      | 160+     |
 
 ---
 
 ### 8.2 立即行动项（本周）
 
 **优先级排序**:
+
 1. ✅ **立即执行**:
    - 创建 API 测试模板（1 天）
    - 为 CSRF Token 端点编写测试（1 天）
@@ -2030,16 +2090,19 @@ test('should send message', () => {
 ### 8.3 长期建议
 
 #### 1. 建立测试文化
+
 - 要求新功能必须包含测试
 - 代码审查时检查测试覆盖率
 - 定期进行测试审查会议
 
 #### 2. 持续改进
+
 - 每月回顾测试覆盖率
 - 优化慢速测试
 - 更新测试最佳实践文档
 
 #### 3. 投资测试工具
+
 - 考虑使用测试生成工具
 - 探索 AI 辅助测试
 - 投资性能和视觉回归工具
@@ -2049,12 +2112,14 @@ test('should send message', () => {
 ### 8.4 成功度量
 
 #### 定量指标
+
 - 测试覆盖率 > 80%
 - 测试执行时间 < 10 分钟
 - 测试稳定性 > 95%
 - 缺陷逃逸率 < 5%
 
 #### 定性指标
+
 - 开发者对测试的信心提升
 - 新功能开发速度加快
 - 代码重构更加安全
@@ -2066,15 +2131,15 @@ test('should send message', () => {
 
 ### A. 推荐测试工具和库
 
-| 工具 | 用途 | 链接 |
-|------|------|------|
-| Vitest | 单元测试框架 | https://vitest.dev |
-| Playwright | E2E 测试框架 | https://playwright.dev |
-| Testing Library | React 组件测试 | https://testing-library.com |
-| MSW | API Mocking | https://mswjs.io |
-| Faker.js | 测试数据生成 | https://fakerjs.dev |
-| Codecov | 覆盖率追踪 | https://codecov.io |
-| Lighthouse CI | 性能测试 | https://github.com/GoogleChrome/lighthouse-ci |
+| 工具            | 用途           | 链接                                          |
+| --------------- | -------------- | --------------------------------------------- |
+| Vitest          | 单元测试框架   | https://vitest.dev                            |
+| Playwright      | E2E 测试框架   | https://playwright.dev                        |
+| Testing Library | React 组件测试 | https://testing-library.com                   |
+| MSW             | API Mocking    | https://mswjs.io                              |
+| Faker.js        | 测试数据生成   | https://fakerjs.dev                           |
+| Codecov         | 覆盖率追踪     | https://codecov.io                            |
+| Lighthouse CI   | 性能测试       | https://github.com/GoogleChrome/lighthouse-ci |
 
 ### B. 有用的测试资源
 
@@ -2086,6 +2151,7 @@ test('should send message', () => {
 ### C. 联系和支持
 
 如有问题或需要进一步讨论，请联系：
+
 - 测试负责人：[待指定]
 - DevOps 团队：[待指定]
 - 项目经理：[待指定]

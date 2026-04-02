@@ -4,70 +4,76 @@
  * Outputs violations and generates reports
  */
 
-import type { BudgetConfig, Budget, TimingBudget, PerformanceMetrics, BudgetCheckResult } from './budget-checker';
-import { BudgetChecker } from './budget-checker';
-import { BudgetParser } from './budget-parser';
+import type {
+  BudgetConfig,
+  Budget,
+  TimingBudget,
+  PerformanceMetrics,
+  BudgetCheckResult,
+} from './budget-checker'
+import { BudgetChecker } from './budget-checker'
+import { BudgetParser } from './budget-parser'
 
 // ========================================
 // Types
 // ========================================
 
 interface BudgetLintResult {
-  success: boolean;
-  totalViolations: number;
-  pages: PageLintResult[];
-  summary: BudgetLintSummary;
-  timestamp: number;
+  success: boolean
+  totalViolations: number
+  pages: PageLintResult[]
+  summary: BudgetLintSummary
+  timestamp: number
 }
 
 interface PageLintResult {
-  path: string;
-  passed: boolean;
-  violations: BudgetViolationLint[];
-  metrics?: PerformanceMetrics;
+  path: string
+  passed: boolean
+  violations: BudgetViolationLint[]
+  metrics?: PerformanceMetrics
 }
 
 interface BudgetViolationLint {
-  metric: string;
-  budget: number;
-  actual: number;
-  threshold: number;
-  percentOver: number;
-  severity: 'warning' | 'critical';
-  suggestion?: string;
+  metric: string
+  budget: number
+  actual: number
+  threshold: number
+  percentOver: number
+  severity: 'warning' | 'critical'
+  suggestion?: string
 }
 
 interface BudgetLintSummary {
-  passed: number;
-  failed: number;
-  warnings: number;
-  critical: number;
-  passRate: number;
+  passed: number
+  failed: number
+  warnings: number
+  critical: number
+  passRate: number
 }
 
 interface BudgetLintOptions {
   /** Budget configuration to check against */
-  budgetConfig: BudgetConfig;
+  budgetConfig: BudgetConfig
   /** Metrics data (keyed by page path) */
-  metricsData: Record<string, PerformanceMetrics>;
+  metricsData: Record<string, PerformanceMetrics>
   /** Fail build on critical violations */
-  failOnCritical?: boolean;
+  failOnCritical?: boolean
   /** Fail build on any violations */
-  failOnAnyViolation?: boolean;
+  failOnAnyViolation?: boolean
   /** Output format for report */
-  outputFormat?: 'console' | 'json' | 'html' | 'markdown';
+  outputFormat?: 'console' | 'json' | 'html' | 'markdown'
   /** Output file path (if saving to file) */
-  outputPath?: string;
+  outputPath?: string
   /** Include suggestions for fixing violations */
-  includeSuggestions?: boolean;
+  includeSuggestions?: boolean
   /** Quiet mode (minimal output) */
-  quiet?: boolean;
+  quiet?: boolean
 }
 
 interface BudgetLintReport {
-  result: BudgetLintResult;
-  options: BudgetLintOptions;
-  generatedAt: number;
+  result: BudgetLintResult
+  options: BudgetLintOptions
+  generatedAt: number
 }
 
 // ========================================
@@ -77,11 +83,8 @@ interface BudgetLintReport {
 /**
  * Suggestion templates for fixing budget violations
  */
-const SUGGESTION_TEMPLATES: Record<
-  string,
-  (violation: BudgetViolationLint) => string
-> = {
-  LCP: (v) =>
+const SUGGESTION_TEMPLATES: Record<string, (violation: BudgetViolationLint) => string> = {
+  LCP: v =>
     `LCP of ${v.actual.toFixed(0)}ms exceeds budget of ${v.budget}ms.\n` +
     `Suggestions:\n` +
     `- Optimize image loading (lazy loading, WebP format, responsive images)\n` +
@@ -89,28 +92,28 @@ const SUGGESTION_TEMPLATES: Record<
     `- Use server-side rendering for initial content\n` +
     `- Preload critical resources (CSS, fonts, hero image)\n` +
     `- Consider CDN for static assets\n`,
-  FID: (v) =>
+  FID: v =>
     `FID of ${v.actual.toFixed(0)}ms exceeds budget of ${v.budget}ms.\n` +
     `Suggestions:\n` +
     `- Break up long JavaScript tasks (requestIdleCallback)\n` +
     `- Reduce JavaScript execution time\n` +
     `- Use web workers for CPU-intensive tasks\n` +
     `- Minimize main thread blocking operations\n`,
-  CLS: (v) =>
+  CLS: v =>
     `CLS of ${v.actual.toFixed(3)} exceeds budget of ${v.budget}.\n` +
     `Suggestions:\n` +
     `- Reserve space for dynamic content (aspect-ratio boxes)\n` +
     `- Avoid injecting content above existing content\n` +
     `- Ensure images have explicit width and height attributes\n` +
     `- Use transform animations instead of layout-triggering properties\n`,
-  TBT: (v) =>
+  TBT: v =>
     `TBT of ${v.actual.toFixed(0)}ms exceeds budget of ${v.budget}ms.\n` +
     `Suggestions:\n` +
     `- Minimize JavaScript execution on main thread\n` +
     `- Reduce the number of third-party scripts\n` +
     `- Optimize event handlers and callback functions\n` +
     `- Use code splitting to defer non-critical JavaScript\n`,
-  TTFB: (v) =>
+  TTFB: v =>
     `TTFB of ${v.actual.toFixed(0)}ms exceeds budget of ${v.budget}ms.\n` +
     `Suggestions:\n` +
     `- Use CDN for faster content delivery\n` +
@@ -118,14 +121,14 @@ const SUGGESTION_TEMPLATES: Record<
     `- Optimize database queries\n` +
     `- Use HTTP/2 or HTTP/3\n` +
     `- Minimize server-side processing time\n`,
-  FCP: (v) =>
+  FCP: v =>
     `FCP of ${v.actual.toFixed(0)}ms exceeds budget of ${v.budget}ms.\n` +
     `Suggestions:\n` +
     `- Reduce render-blocking resources\n` +
     `- Minify CSS and JavaScript\n` +
     `- Use critical CSS inline\n` +
     `- Preload critical fonts and stylesheets\n`,
-};
+}
 
 // ========================================
 // ANSI Color Codes
@@ -141,16 +144,16 @@ const COLORS = {
   cyan: '\x1b[36m',
   white: '\x1b[37m',
   gray: '\x1b[90m',
-};
+}
 
 // ========================================
 // Budget Linter Class
 // ========================================
 
 export class BudgetLinter {
-  private options: BudgetLintOptions;
-  private budgetChecker: BudgetChecker;
-  private parser: BudgetParser;
+  private options: BudgetLintOptions
+  private budgetChecker: BudgetChecker
+  private parser: BudgetParser
 
   constructor(options: BudgetLintOptions) {
     this.options = {
@@ -160,51 +163,51 @@ export class BudgetLinter {
       includeSuggestions: true,
       quiet: false,
       ...options,
-    };
+    }
     this.budgetChecker = new BudgetChecker({
       configPath: '', // We'll use the provided config
       enabled: true,
       loadBudgets: async () => this.options.budgetConfig,
-    });
-    this.parser = new BudgetParser();
+    })
+    this.parser = new BudgetParser()
   }
 
   /**
    * Run budget lint check
    */
   async lint(): Promise<BudgetLintResult> {
-    const startTime = Date.now();
+    const startTime = Date.now()
 
     // Validate budget config
-    const validation = this.parser.parseObject(this.options.budgetConfig);
+    const validation = this.parser.parseObject(this.options.budgetConfig)
     if (!validation.success) {
-      throw new Error(`Invalid budget config: ${validation.errors.join(', ')}`);
+      throw new Error(`Invalid budget config: ${validation.errors.join(', ')}`)
     }
 
-    const pageResults: PageLintResult[] = [];
+    const pageResults: PageLintResult[] = []
 
     // Check each page's metrics
     for (const [path, metrics] of Object.entries(this.options.metricsData)) {
-      const result = await this.budgetChecker.checkBudget(path, metrics);
+      const result = await this.budgetChecker.checkBudget(path, metrics)
 
       // Convert violations to lint format
-      const violations: BudgetViolationLint[] = result.violations.map((v) => ({
+      const violations: BudgetViolationLint[] = result.violations.map(v => ({
         ...v,
         suggestion: this.options.includeSuggestions
           ? SUGGESTION_TEMPLATES[v.metric]?.(v)
           : undefined,
-      }));
+      }))
 
       pageResults.push({
         path,
         passed: result.passed,
         violations,
         metrics,
-      });
+      })
     }
 
     // Calculate summary
-    const summary = this.calculateSummary(pageResults);
+    const summary = this.calculateSummary(pageResults)
 
     const result: BudgetLintResult = {
       success: summary.critical === 0 || !this.options.failOnCritical,
@@ -212,46 +215,46 @@ export class BudgetLinter {
       pages: pageResults,
       summary,
       timestamp: Date.now(),
-    };
-
-    // Output results
-    this.outputResults(result);
-
-    const duration = Date.now() - startTime;
-    if (!this.options.quiet) {
-      console.log(`\n${COLORS.gray}Budget lint completed in ${duration}ms${COLORS.reset}`);
     }
 
-    return result;
+    // Output results
+    this.outputResults(result)
+
+    const duration = Date.now() - startTime
+    if (!this.options.quiet) {
+      console.log(`\n${COLORS.gray}Budget lint completed in ${duration}ms${COLORS.reset}`)
+    }
+
+    return result
   }
 
   /**
    * Calculate summary statistics
    */
   private calculateSummary(pageResults: PageLintResult[]): BudgetLintSummary {
-    let passed = 0;
-    let failed = 0;
-    let warnings = 0;
-    let critical = 0;
+    let passed = 0
+    let failed = 0
+    let warnings = 0
+    let critical = 0
 
     for (const page of pageResults) {
       if (page.passed) {
-        passed++;
+        passed++
       } else {
-        failed++;
+        failed++
       }
 
       for (const violation of page.violations) {
         if (violation.severity === 'critical') {
-          critical++;
+          critical++
         } else {
-          warnings++;
+          warnings++
         }
       }
     }
 
-    const total = passed + failed;
-    const passRate = total > 0 ? (passed / total) * 100 : 100;
+    const total = passed + failed
+    const passRate = total > 0 ? (passed / total) * 100 : 100
 
     return {
       passed,
@@ -259,7 +262,7 @@ export class BudgetLinter {
       warnings,
       critical,
       passRate,
-    };
+    }
   }
 
   /**
@@ -268,17 +271,17 @@ export class BudgetLinter {
   private outputResults(result: BudgetLintResult): void {
     switch (this.options.outputFormat) {
       case 'console':
-        this.outputConsole(result);
-        break;
+        this.outputConsole(result)
+        break
       case 'json':
-        this.outputJson(result);
-        break;
+        this.outputJson(result)
+        break
       case 'markdown':
-        this.outputMarkdown(result);
-        break;
+        this.outputMarkdown(result)
+        break
       case 'html':
-        this.outputHtml(result);
-        break;
+        this.outputHtml(result)
+        break
     }
   }
 
@@ -286,28 +289,36 @@ export class BudgetLinter {
    * Output results to console
    */
   private outputConsole(result: BudgetLintResult): void {
-    const { summary, pages } = result;
+    const { summary, pages } = result
 
     // Summary header
-    console.log('\n' + '='.repeat(60));
-    console.log('📊 Performance Budget Lint Report');
-    console.log('='.repeat(60));
+    console.log('\n' + '='.repeat(60))
+    console.log('📊 Performance Budget Lint Report')
+    console.log('='.repeat(60))
 
     // Summary
-    console.log(`\n${this.getColor(result.success)}${result.success ? '✅ PASS' : '❌ FAIL'}${COLORS.reset}`);
-    console.log(`Pages checked: ${COLORS.cyan}${pages.length}${COLORS.reset}`);
-    console.log(`Passed: ${COLORS.green}${summary.passed}${COLORS.reset} | Failed: ${COLORS.red}${summary.failed}${COLORS.reset}`);
-    console.log(`Warnings: ${COLORS.yellow}${summary.warnings}${COLORS.reset} | Critical: ${COLORS.red}${summary.critical}${COLORS.reset}`);
-    console.log(`Pass rate: ${this.getPassRateColor(summary.passRate)}${summary.passRate.toFixed(1)}%${COLORS.reset}`);
+    console.log(
+      `\n${this.getColor(result.success)}${result.success ? '✅ PASS' : '❌ FAIL'}${COLORS.reset}`
+    )
+    console.log(`Pages checked: ${COLORS.cyan}${pages.length}${COLORS.reset}`)
+    console.log(
+      `Passed: ${COLORS.green}${summary.passed}${COLORS.reset} | Failed: ${COLORS.red}${summary.failed}${COLORS.reset}`
+    )
+    console.log(
+      `Warnings: ${COLORS.yellow}${summary.warnings}${COLORS.reset} | Critical: ${COLORS.red}${summary.critical}${COLORS.reset}`
+    )
+    console.log(
+      `Pass rate: ${this.getPassRateColor(summary.passRate)}${summary.passRate.toFixed(1)}%${COLORS.reset}`
+    )
 
     // Page results
     if (!this.options.quiet || !result.success) {
-      console.log('\n' + '-'.repeat(60));
-      console.log('📄 Page Results');
-      console.log('-'.repeat(60));
+      console.log('\n' + '-'.repeat(60))
+      console.log('📄 Page Results')
+      console.log('-'.repeat(60))
 
       for (const page of pages) {
-        this.outputPageResult(page);
+        this.outputPageResult(page)
       }
     }
   }
@@ -316,18 +327,18 @@ export class BudgetLinter {
    * Output single page result
    */
   private outputPageResult(page: PageLintResult): void {
-    const icon = page.passed ? '✅' : '❌';
-    const color = page.passed ? COLORS.green : COLORS.red;
+    const icon = page.passed ? '✅' : '❌'
+    const color = page.passed ? COLORS.green : COLORS.red
 
-    console.log(`\n${icon} ${color}${page.path}${COLORS.reset}`);
+    console.log(`\n${icon} ${color}${page.path}${COLORS.reset}`)
 
     if (page.passed) {
       if (!this.options.quiet) {
-        console.log(`  ${COLORS.gray}All metrics within budget${COLORS.reset}`);
+        console.log(`  ${COLORS.gray}All metrics within budget${COLORS.reset}`)
       }
     } else {
       for (const violation of page.violations) {
-        this.outputViolation(violation);
+        this.outputViolation(violation)
       }
     }
   }
@@ -336,13 +347,15 @@ export class BudgetLinter {
    * Output single violation
    */
   private outputViolation(violation: BudgetViolationLint): void {
-    const severityIcon = violation.severity === 'critical' ? '🚨' : '⚠️';
-    const severityColor = violation.severity === 'critical' ? COLORS.red : COLORS.yellow;
+    const severityIcon = violation.severity === 'critical' ? '🚨' : '⚠️'
+    const severityColor = violation.severity === 'critical' ? COLORS.red : COLORS.yellow
 
-    console.log(`  ${severityIcon} ${COLORS.magenta}${violation.metric}${COLORS.reset}: ${COLORS.cyan}${violation.actual.toFixed(1)}${COLORS.reset} (budget: ${violation.budget}, ${severityColor}${violation.percentOver.toFixed(1)}% over${COLORS.reset})`);
+    console.log(
+      `  ${severityIcon} ${COLORS.magenta}${violation.metric}${COLORS.reset}: ${COLORS.cyan}${violation.actual.toFixed(1)}${COLORS.reset} (budget: ${violation.budget}, ${severityColor}${violation.percentOver.toFixed(1)}% over${COLORS.reset})`
+    )
 
     if (violation.suggestion && !this.options.quiet) {
-      console.log(`  ${COLORS.gray}${violation.suggestion.split('\n').join('\n  ')}${COLORS.reset}`);
+      console.log(`  ${COLORS.gray}${violation.suggestion.split('\n').join('\n  ')}${COLORS.reset}`)
     }
   }
 
@@ -350,12 +363,12 @@ export class BudgetLinter {
    * Output results as JSON
    */
   private outputJson(result: BudgetLintResult): void {
-    const json = JSON.stringify(result, null, 2);
-    console.log(json);
+    const json = JSON.stringify(result, null, 2)
+    console.log(json)
 
     if (this.options.outputPath) {
       // In a real implementation, you would write to file here
-      console.log(`\nReport saved to: ${this.options.outputPath}`);
+      console.log(`\nReport saved to: ${this.options.outputPath}`)
     }
   }
 
@@ -363,49 +376,49 @@ export class BudgetLinter {
    * Output results as Markdown
    */
   private outputMarkdown(result: BudgetLintResult): void {
-    const { summary, pages } = result;
-    const timestamp = new Date(result.timestamp).toISOString();
+    const { summary, pages } = result
+    const timestamp = new Date(result.timestamp).toISOString()
 
-    let md = `# Performance Budget Lint Report\n\n`;
-    md += `**Generated:** ${timestamp}\n\n`;
+    let md = `# Performance Budget Lint Report\n\n`
+    md += `**Generated:** ${timestamp}\n\n`
 
     // Summary
-    md += `## Summary\n\n`;
-    md += `- **Status:** ${result.success ? '✅ PASS' : '❌ FAIL'}\n`;
-    md += `- **Pages Checked:** ${pages.length}\n`;
-    md += `- **Passed:** ${summary.passed}\n`;
-    md += `- **Failed:** ${summary.failed}\n`;
-    md += `- **Warnings:** ${summary.warnings}\n`;
-    md += `- **Critical:** ${summary.critical}\n`;
-    md += `- **Pass Rate:** ${summary.passRate.toFixed(1)}%\n\n`;
+    md += `## Summary\n\n`
+    md += `- **Status:** ${result.success ? '✅ PASS' : '❌ FAIL'}\n`
+    md += `- **Pages Checked:** ${pages.length}\n`
+    md += `- **Passed:** ${summary.passed}\n`
+    md += `- **Failed:** ${summary.failed}\n`
+    md += `- **Warnings:** ${summary.warnings}\n`
+    md += `- **Critical:** ${summary.critical}\n`
+    md += `- **Pass Rate:** ${summary.passRate.toFixed(1)}%\n\n`
 
     // Page Results
-    md += `## Page Results\n\n`;
+    md += `## Page Results\n\n`
 
     for (const page of pages) {
-      const icon = page.passed ? '✅' : '❌';
-      md += `### ${icon} ${page.path}\n\n`;
+      const icon = page.passed ? '✅' : '❌'
+      md += `### ${icon} ${page.path}\n\n`
 
       if (page.passed) {
-        md += `All metrics within budget.\n\n`;
+        md += `All metrics within budget.\n\n`
       } else {
-        md += `**Violations:**\n\n`;
+        md += `**Violations:**\n\n`
         for (const violation of page.violations) {
-          const severityIcon = violation.severity === 'critical' ? '🚨' : '⚠️';
-          md += `- ${severityIcon} **${violation.metric}**: ${violation.actual.toFixed(1)} (budget: ${violation.budget}, ${violation.percentOver.toFixed(1)}% over)\n`;
+          const severityIcon = violation.severity === 'critical' ? '🚨' : '⚠️'
+          md += `- ${severityIcon} **${violation.metric}**: ${violation.actual.toFixed(1)} (budget: ${violation.budget}, ${violation.percentOver.toFixed(1)}% over)\n`
 
           if (violation.suggestion) {
-            md += `\n\`\`\`\n${violation.suggestion}\n\`\`\`\n\n`;
+            md += `\n\`\`\`\n${violation.suggestion}\n\`\`\`\n\n`
           }
         }
       }
     }
 
-    console.log(md);
+    console.log(md)
 
     if (this.options.outputPath) {
       // In a real implementation, you would write to file here
-      console.log(`\nReport saved to: ${this.options.outputPath}`);
+      console.log(`\nReport saved to: ${this.options.outputPath}`)
     }
   }
 
@@ -413,8 +426,8 @@ export class BudgetLinter {
    * Output results as HTML
    */
   private outputHtml(result: BudgetLintResult): void {
-    const { summary, pages } = result;
-    const timestamp = new Date(result.timestamp).toISOString();
+    const { summary, pages } = result
+    const timestamp = new Date(result.timestamp).toISOString()
 
     let html = `<!DOCTYPE html>
 <html lang="en">
@@ -480,45 +493,45 @@ export class BudgetLinter {
     </div>
 
     <h2>Page Results</h2>
-`;
+`
 
     for (const page of pages) {
       html += `
     <div class="page-result ${page.passed ? 'pass' : 'fail'}">
         <h3>${page.passed ? '✅' : '❌'} ${page.path}</h3>
-`;
+`
 
       if (page.passed) {
-        html += `        <p>All metrics within budget.</p>\n`;
+        html += `        <p>All metrics within budget.</p>\n`
       } else {
-        html += `        <h4>Violations:</h4>\n`;
+        html += `        <h4>Violations:</h4>\n`
 
         for (const violation of page.violations) {
           html += `
         <div class="violation ${violation.severity}">
             <strong>${violation.metric}:</strong> ${violation.actual.toFixed(1)} (budget: ${violation.budget}, ${violation.percentOver.toFixed(1)}% over)
             <span class="severity-badge severity-${violation.severity}">${violation.severity.toUpperCase()}</span>
-`;
+`
           if (violation.suggestion) {
-            html += `            <div class="suggestion">${violation.suggestion}</div>\n`;
+            html += `            <div class="suggestion">${violation.suggestion}</div>\n`
           }
-          html += `        </div>\n`;
+          html += `        </div>\n`
         }
       }
 
-      html += `    </div>\n`;
+      html += `    </div>\n`
     }
 
     html += `
 </body>
 </html>
-`;
+`
 
-    console.log(html);
+    console.log(html)
 
     if (this.options.outputPath) {
       // In a real implementation, you would write to file here
-      console.log(`\nReport saved to: ${this.options.outputPath}`);
+      console.log(`\nReport saved to: ${this.options.outputPath}`)
     }
   }
 
@@ -526,16 +539,16 @@ export class BudgetLinter {
    * Get color based on pass/fail status
    */
   private getColor(success: boolean): string {
-    return success ? COLORS.green : COLORS.red;
+    return success ? COLORS.green : COLORS.red
   }
 
   /**
    * Get color based on pass rate
    */
   private getPassRateColor(passRate: number): string {
-    if (passRate >= 90) return COLORS.green;
-    if (passRate >= 70) return COLORS.yellow;
-    return COLORS.red;
+    if (passRate >= 90) return COLORS.green
+    if (passRate >= 70) return COLORS.yellow
+    return COLORS.red
   }
 
   /**
@@ -543,12 +556,12 @@ export class BudgetLinter {
    */
   shouldBuildFail(result: BudgetLintResult): boolean {
     if (this.options.failOnAnyViolation) {
-      return result.totalViolations > 0;
+      return result.totalViolations > 0
     }
     if (this.options.failOnCritical) {
-      return result.summary.critical > 0;
+      return result.summary.critical > 0
     }
-    return false;
+    return false
   }
 
   /**
@@ -572,7 +585,7 @@ export class BudgetLinter {
       },
       options: this.options,
       generatedAt: Date.now(),
-    };
+    }
   }
 }
 
@@ -592,8 +605,8 @@ export async function lintBudgets(
     budgetConfig,
     metricsData,
     ...options,
-  });
-  return linter.lint();
+  })
+  return linter.lint()
 }
 
 /**
@@ -621,7 +634,7 @@ export function generateSampleBudgetConfig(): BudgetConfig {
         ],
       },
     ],
-  };
+  }
 }
 
 /**
@@ -641,10 +654,9 @@ export function generateSampleMetricsData(): Record<string, PerformanceMetrics> 
       TBT: 280,
       CLS: 0.12, // Will violate budget (0.1 + 20% = 0.12) - borderline
     },
-  };
+  }
 }
 
 // ========================================
 // Exports
 // ========================================
-

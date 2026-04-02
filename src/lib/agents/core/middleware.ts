@@ -3,11 +3,11 @@
  * Agent Middleware - 验证智能体身份和权限
  */
 
-import { logger } from '../../logger';
-import { NextRequest, NextResponse } from 'next/server';
-import { verifyAgentToken, hasPermission, hasAllPermissions } from './auth-service';
-import { updateAgentLastActive } from './repository';
-import { AgentApiResponse } from './types';
+import { logger } from '../../logger'
+import { NextRequest, NextResponse } from 'next/server'
+import { verifyAgentToken, hasPermission, hasAllPermissions } from './auth-service'
+import { updateAgentLastActive } from './repository'
+import { AgentApiResponse } from './types'
 
 /**
  * 智能体认证中间件
@@ -16,24 +16,24 @@ export async function withAgentAuth(
   request: NextRequest,
   handler: (request: NextRequest, context: AgentContext) => Promise<NextResponse>
 ): Promise<NextResponse> {
-  const requestId = generateRequestId();
+  const requestId = generateRequestId()
 
   try {
     // 从 Header 获取 Token
-    const authHeader = request.headers.get('authorization');
+    const authHeader = request.headers.get('authorization')
     if (!authHeader || !authHeader.startsWith('Bearer ')) {
-      return createErrorResponse('Missing authorization header', 'UNAUTHORIZED', 401, requestId);
+      return createErrorResponse('Missing authorization header', 'UNAUTHORIZED', 401, requestId)
     }
 
-    const token = authHeader.substring(7);
-    const payload = await verifyAgentToken(token);
+    const token = authHeader.substring(7)
+    const payload = await verifyAgentToken(token)
 
     if (!payload) {
-      return createErrorResponse('Invalid or expired token', 'INVALID_TOKEN', 401, requestId);
+      return createErrorResponse('Invalid or expired token', 'INVALID_TOKEN', 401, requestId)
     }
 
     // 更新最后活跃时间
-    await updateAgentLastActive(payload.agentId);
+    await updateAgentLastActive(payload.agentId)
 
     // 构建上下文
     const context: AgentContext = {
@@ -41,18 +41,18 @@ export async function withAgentAuth(
       role: payload.role,
       permissions: payload.permissions,
       requestId,
-    };
+    }
 
     // 执行处理器
-    return handler(request, context);
-  } catch (_error) {
-    logger.error('Agent auth error', error);
+    return handler(request, context)
+  } catch (error) {
+    logger.error('Agent auth error', error)
     return createErrorResponse(
       error instanceof Error ? error.message : 'Internal server error',
       'INTERNAL_ERROR',
       500,
       requestId
-    );
+    )
   }
 }
 
@@ -65,20 +65,15 @@ export function withPermissions(...requiredPermissions: string[]) {
     handler: (request: NextRequest, context: AgentContext) => Promise<NextResponse>
   ): Promise<NextResponse> => {
     return withAgentAuth(request, async (req, context) => {
-      const hasAll = requiredPermissions.every((p) => hasPermission(context.permissions, p));
+      const hasAll = requiredPermissions.every(p => hasPermission(context.permissions, p))
 
       if (!hasAll) {
-        return createErrorResponse(
-          'Insufficient permissions',
-          'FORBIDDEN',
-          403,
-          context.requestId
-        );
+        return createErrorResponse('Insufficient permissions', 'FORBIDDEN', 403, context.requestId)
       }
 
-      return handler(req, context);
-    });
-  };
+      return handler(req, context)
+    })
+  }
 }
 
 /**
@@ -90,37 +85,32 @@ export function withAnyPermission(...permissions: string[]) {
     handler: (request: NextRequest, context: AgentContext) => Promise<NextResponse>
   ): Promise<NextResponse> => {
     return withAgentAuth(request, async (req, context) => {
-      const hasAny = permissions.some((p) => hasPermission(context.permissions, p));
+      const hasAny = permissions.some(p => hasPermission(context.permissions, p))
 
       if (!hasAny) {
-        return createErrorResponse(
-          'Insufficient permissions',
-          'FORBIDDEN',
-          403,
-          context.requestId
-        );
+        return createErrorResponse('Insufficient permissions', 'FORBIDDEN', 403, context.requestId)
       }
 
-      return handler(req, context);
-    });
-  };
+      return handler(req, context)
+    })
+  }
 }
 
 /**
  * 智能体上下文
  */
 export interface AgentContext {
-  agentId: string;
-  role: string;
-  permissions: string[];
-  requestId: string;
+  agentId: string
+  role: string
+  permissions: string[]
+  requestId: string
 }
 
 /**
  * 生成请求 ID
  */
 function generateRequestId(): string {
-  return `req_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
+  return `req_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`
 }
 
 /**
@@ -142,6 +132,6 @@ function createErrorResponse(
       timestamp: new Date().toISOString(),
       requestId,
     },
-  };
-  return NextResponse.json(response, { status });
+  }
+  return NextResponse.json(response, { status })
 }

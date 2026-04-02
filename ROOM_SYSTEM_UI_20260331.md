@@ -12,14 +12,14 @@
 
 ### ✅ 已完成组件
 
-| 组件 | 路径 | 描述 | 大小 |
-|------|------|------|------|
-| **RoomManager** | `src/components/room/RoomManager.tsx` | 主组件，整合所有房间管理功能 | 15KB |
-| **RoomSettings** | `src/components/room/RoomSettings.tsx` | 房间设置面板，支持通用设置、权限管理、成员管理 | 26KB |
-| **RoomCard** | `src/components/room/RoomCard.tsx` | 房间卡片，支持三种布局模式 | 13KB |
-| **ParticipantList** | `src/components/room/ParticipantList.tsx` | 参与者列表，支持多种布局模式 | 15KB |
-| **RoomList** | `src/lib/websocket/dashboard/RoomList.tsx` | 房间列表（已存在，优化） | 16KB |
-| **RoomView** | `src/lib/websocket/dashboard/RoomView.tsx` | 房间视图（已存在，优化） | 22KB |
+| 组件                | 路径                                       | 描述                                           | 大小 |
+| ------------------- | ------------------------------------------ | ---------------------------------------------- | ---- |
+| **RoomManager**     | `src/components/room/RoomManager.tsx`      | 主组件，整合所有房间管理功能                   | 15KB |
+| **RoomSettings**    | `src/components/room/RoomSettings.tsx`     | 房间设置面板，支持通用设置、权限管理、成员管理 | 26KB |
+| **RoomCard**        | `src/components/room/RoomCard.tsx`         | 房间卡片，支持三种布局模式                     | 13KB |
+| **ParticipantList** | `src/components/room/ParticipantList.tsx`  | 参与者列表，支持多种布局模式                   | 15KB |
+| **RoomList**        | `src/lib/websocket/dashboard/RoomList.tsx` | 房间列表（已存在，优化）                       | 16KB |
+| **RoomView**        | `src/lib/websocket/dashboard/RoomView.tsx` | 房间视图（已存在，优化）                       | 22KB |
 
 **总计:** ~107KB 代码，约 2500 行
 
@@ -58,41 +58,35 @@ src/
 所有组件完全支持暗色模式，使用 Tailwind CSS 的 `dark:` 前缀：
 
 ```tsx
-<div className="bg-white dark:bg-gray-900 text-gray-900 dark:text-gray-100">
-  {/* 内容 */}
-</div>
+<div className="bg-white text-gray-900 dark:bg-gray-900 dark:text-gray-100">{/* 内容 */}</div>
 ```
 
 ### 设计系统
 
-| 元素 | 亮色模式 | 暗色模式 |
-|------|----------|----------|
-| 背景 | `bg-white` / `bg-gray-50` | `bg-gray-900` / `bg-gray-800` |
-| 文字 | `text-gray-900` / `text-gray-600` | `text-gray-100` / `text-gray-400` |
-| 边框 | `border-gray-200` | `border-gray-700` |
-| 交互 | `hover:bg-gray-100` | `hover:bg-gray-800` |
-| 主题色 | `bg-blue-500` | `bg-blue-400` |
+| 元素   | 亮色模式                          | 暗色模式                          |
+| ------ | --------------------------------- | --------------------------------- |
+| 背景   | `bg-white` / `bg-gray-50`         | `bg-gray-900` / `bg-gray-800`     |
+| 文字   | `text-gray-900` / `text-gray-600` | `text-gray-100` / `text-gray-400` |
+| 边框   | `border-gray-200`                 | `border-gray-700`                 |
+| 交互   | `hover:bg-gray-100`               | `hover:bg-gray-800`               |
+| 主题色 | `bg-blue-500`                     | `bg-blue-400`                     |
 
 ## 🔧 核心功能
 
 ### 1. RoomManager - 主组件
 
 ```tsx
-import { RoomManager } from '@/components/room';
+import { RoomManager } from '@/components/room'
 
 function App() {
   return (
-    <RoomManager
-      wsUrl="ws://localhost:3001"
-      userId="user-123"
-      userName="张三"
-      autoConnect={true}
-    />
-  );
+    <RoomManager wsUrl="ws://localhost:3001" userId="user-123" userName="张三" autoConnect={true} />
+  )
 }
 ```
 
 **功能：**
+
 - WebSocket 连接管理
 - 房间列表和房间视图切换
 - 设置面板集成
@@ -142,6 +136,7 @@ function App() {
 ```
 
 **功能：**
+
 - 在线/离线状态指示
 - 角色徽章
 - 管理员操作（更改角色、踢出、封禁）
@@ -164,6 +159,7 @@ function App() {
 ```
 
 **功能：**
+
 - 房间类型图标（任务/项目/聊天/文档/语音/视频）
 - 可见性指示器（公开/私有/仅邀请）
 - 参与者头像堆叠
@@ -174,17 +170,20 @@ function App() {
 - 访客权限标签
 
 **卡片模式特性：**
+
 - 悬停时显示操作菜单
 - 选中状态高亮
 - 房间类型和可见性图标
 - 参与者头像预览
 
 **列表模式特性：**
+
 - 横向布局，信息紧凑
 - 左侧边框高亮选中状态
 - 快速加入/离开按钮
 
 **紧凑模式特性：**
+
 - 最小化显示
 - 适用于侧边栏或弹窗
 - 仅显示关键信息
@@ -192,6 +191,7 @@ function App() {
 ### 5. RoomList - 房间列表
 
 **功能：**
+
 - 房间卡片展示
 - 搜索过滤
 - 类型/可见性筛选
@@ -201,6 +201,7 @@ function App() {
 ### 5. RoomView - 房间视图
 
 **功能：**
+
 - 消息列表展示
 - 消息输入框
 - 回复功能
@@ -215,28 +216,28 @@ function App() {
 ```typescript
 interface WebSocketRoomStore {
   // 房间
-  rooms: Room[];
-  currentRoomId: string | null;
-  roomsLoading: boolean;
-  roomsError: string | null;
+  rooms: Room[]
+  currentRoomId: string | null
+  roomsLoading: boolean
+  roomsError: string | null
 
   // 消息
-  messages: Map<string, StoredMessage[]>;
-  messagesLoading: boolean;
+  messages: Map<string, StoredMessage[]>
+  messagesLoading: boolean
 
   // 参与者
-  participants: Map<string, RoomParticipant[]>;
+  participants: Map<string, RoomParticipant[]>
 
   // UI 状态
-  showRoomSettings: boolean;
-  showMemberPanel: boolean;
-  searchQuery: string;
-  filterType: RoomType | 'all';
-  filterVisibility: RoomVisibility | 'all';
+  showRoomSettings: boolean
+  showMemberPanel: boolean
+  searchQuery: string
+  filterType: RoomType | 'all'
+  filterVisibility: RoomVisibility | 'all'
 
   // 当前用户
-  currentUserId: string | null;
-  currentUserName: string | null;
+  currentUserId: string | null
+  currentUserName: string | null
 
   // Actions...
 }
@@ -246,18 +247,18 @@ interface WebSocketRoomStore {
 
 组件已预留国际化接口，当前使用中文：
 
-| 中文 | English |
-|------|---------|
-| 房间 | Room |
-| 成员 | Members |
-| 设置 | Settings |
-| 公开 | Public |
-| 私有 | Private |
+| 中文   | English     |
+| ------ | ----------- |
+| 房间   | Room        |
+| 成员   | Members     |
+| 设置   | Settings    |
+| 公开   | Public      |
+| 私有   | Private     |
 | 仅邀请 | Invite-only |
-| 所有者 | Owner |
-| 管理员 | Admin |
-| 成员 | Member |
-| 访客 | Guest |
+| 所有者 | Owner       |
+| 管理员 | Admin       |
+| 成员   | Member      |
+| 访客   | Guest       |
 
 ## 🔒 权限系统
 
@@ -270,16 +271,16 @@ interface WebSocketRoomStore {
 
 ### 权限列表
 
-| 权限 | Owner | Admin | Member | Guest |
-|------|-------|-------|--------|-------|
-| 管理房间 | ✓ | ✗ | ✗ | ✗ |
-| 邀请用户 | ✓ | ✓ | ✗ | ✗ |
-| 踢出用户 | ✓ | ✓ | ✗ | ✗ |
-| 封禁用户 | ✓ | ✓ | ✗ | ✗ |
-| 发送消息 | ✓ | ✓ | ✓ | ✓ |
-| 编辑消息 | ✓ | ✓ | ✓ | ✗ |
-| 删除消息 | ✓ | ✓ | ✗ | ✗ |
-| 置顶消息 | ✓ | ✓ | ✗ | ✗ |
+| 权限     | Owner | Admin | Member | Guest |
+| -------- | ----- | ----- | ------ | ----- |
+| 管理房间 | ✓     | ✗     | ✗      | ✗     |
+| 邀请用户 | ✓     | ✓     | ✗      | ✗     |
+| 踢出用户 | ✓     | ✓     | ✗      | ✗     |
+| 封禁用户 | ✓     | ✓     | ✗      | ✗     |
+| 发送消息 | ✓     | ✓     | ✓      | ✓     |
+| 编辑消息 | ✓     | ✓     | ✓      | ✗     |
+| 删除消息 | ✓     | ✓     | ✗      | ✗     |
+| 置顶消息 | ✓     | ✓     | ✗      | ✗     |
 
 ## 📱 响应式设计
 
@@ -303,14 +304,14 @@ npm install @types/node
 
 ```tsx
 // app/rooms/page.tsx
-import { RoomManager } from '@/components/room';
+import { RoomManager } from '@/components/room'
 
 export default function RoomsPage() {
   return (
     <div className="h-screen">
       <RoomManager />
     </div>
-  );
+  )
 }
 ```
 
@@ -330,9 +331,8 @@ export default function RoomsPage() {
 
 ```tsx
 // 仅使用参与者列表
-import { ParticipantList } from '@/components/room';
-
-<ParticipantList
+import { ParticipantList } from '@/components/room'
+;<ParticipantList
   participants={roomParticipants}
   currentUserId={currentUserId}
   ownerId={roomOwnerId}
@@ -392,12 +392,14 @@ describe('RoomManager', () => {
 ## 📝 未来改进
 
 ### P1 - 高优先级
+
 1. [ ] WebSocket 实时连接集成（当前使用模拟数据）
 2. [ ] 国际化文本提取到 i18n 文件
 3. [ ] 文件上传和预览功能
 4. [ ] 单元测试和集成测试
 
 ### P2 - 中优先级
+
 5. [ ] 消息搜索功能
 6. [ ] @ 提及功能
 7. [ ] 消息撤回（2分钟内）
@@ -405,6 +407,7 @@ describe('RoomManager', () => {
 9. [ ] 表情反应扩展面板
 
 ### P3 - 低优先级
+
 10. [ ] 视频/语音通话集成
 11. [ ] 屏幕共享
 12. [ ] 消息端到端加密

@@ -3,13 +3,13 @@
  * @description 显示单条聊天消息，支持用户和助手两种角色
  */
 
-'use client';
+'use client'
 
-import { Message } from './types';
-import { useChatMembers } from '@/contexts/ChatContext';
+import { Message } from './types'
+import { useChatMembers } from '@/contexts/ChatContext'
 
 interface ChatMessageProps {
-  message: Message;
+  message: Message
 }
 
 /**
@@ -18,24 +18,24 @@ interface ChatMessageProps {
  * @param message - 消息数据
  */
 export function ChatMessage({ message }: ChatMessageProps) {
-  const isUser = message.role === 'user';
+  const isUser = message.role === 'user'
 
   // 从 context 获取团队成员数据并查找发送者
-  const { getMemberById } = useChatMembers();
-  const member = message.memberId ? getMemberById(message.memberId) : null;
+  const { getMemberById } = useChatMembers()
+  const member = message.memberId ? getMemberById(message.memberId) : null
 
   return (
     <div className={`flex ${isUser ? 'justify-end' : 'justify-start'}`}>
       <div
-        className={`max-w-[80%] p-3 rounded-2xl ${
+        className={`max-w-[80%] rounded-2xl p-3 ${
           isUser
             ? 'bg-gradient-to-r from-cyan-500 to-purple-600 text-white'
-            : 'bg-white dark:bg-zinc-800 text-zinc-800 dark:text-zinc-200 shadow-md'
+            : 'bg-white text-zinc-800 shadow-md dark:bg-zinc-800 dark:text-zinc-200'
         }`}
       >
         {/* 显示回复的团队成员 */}
         {!isUser && member && (
-          <div className="text-xs text-cyan-600 dark:text-cyan-400 font-medium mb-1">
+          <div className="mb-1 text-xs font-medium text-cyan-600 dark:text-cyan-400">
             {member.emoji} {member.name}
           </div>
         )}
@@ -44,11 +44,7 @@ export function ChatMessage({ message }: ChatMessageProps) {
         <p className="text-sm whitespace-pre-wrap">{message.content}</p>
 
         {/* 时间戳 */}
-        <span
-          className={`text-[10px] mt-1 block ${
-            isUser ? 'text-white/70' : 'text-zinc-400'
-          }`}
-        >
+        <span className={`mt-1 block text-[10px] ${isUser ? 'text-white/70' : 'text-zinc-400'}`}>
           {message.timestamp.toLocaleTimeString('zh-CN', {
             hour: '2-digit',
             minute: '2-digit',
@@ -56,7 +52,7 @@ export function ChatMessage({ message }: ChatMessageProps) {
         </span>
       </div>
     </div>
-  );
+  )
 }
 
 /**
@@ -66,19 +62,19 @@ export function ChatMessage({ message }: ChatMessageProps) {
 export function TypingIndicator() {
   return (
     <div className="flex justify-start">
-      <div className="bg-white dark:bg-zinc-800 p-3 rounded-2xl shadow-md">
+      <div className="rounded-2xl bg-white p-3 shadow-md dark:bg-zinc-800">
         <div className="flex gap-1">
-          <span className="w-2 h-2 bg-zinc-400 rounded-full animate-bounce" />
+          <span className="h-2 w-2 animate-bounce rounded-full bg-zinc-400" />
           <span
-            className="w-2 h-2 bg-zinc-400 rounded-full animate-bounce"
+            className="h-2 w-2 animate-bounce rounded-full bg-zinc-400"
             style={{ animationDelay: '0.1s' }}
           />
           <span
-            className="w-2 h-2 bg-zinc-400 rounded-full animate-bounce"
+            className="h-2 w-2 animate-bounce rounded-full bg-zinc-400"
             style={{ animationDelay: '0.2s' }}
           />
         </div>
       </div>
     </div>
-  );
+  )
 }

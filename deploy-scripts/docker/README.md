@@ -64,14 +64,14 @@ services:
     container_name: ai-team-dashboard
     restart: unless-stopped
     ports:
-      - "3000:3000"
+      - '3000:3000'
     environment:
       - NODE_ENV=production
       - PORT=3000
     networks:
       - webnet
     healthcheck:
-      test: ["CMD", "wget", "-q", "--spider", "http://localhost:3000/health"]
+      test: ['CMD', 'wget', '-q', '--spider', 'http://localhost:3000/health']
       interval: 30s
       timeout: 10s
       retries: 3
@@ -81,8 +81,8 @@ services:
     container_name: nginx-proxy
     restart: unless-stopped
     ports:
-      - "80:80"
-      - "443:443"
+      - '80:80'
+      - '443:443'
     volumes:
       - ./nginx/nginx.conf:/etc/nginx/nginx.conf:ro
       - ./nginx/ssl:/etc/nginx/ssl:ro

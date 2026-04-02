@@ -25,40 +25,42 @@
 **文件:** `src/stores/permissionStore.ts`
 
 **功能:**
+
 - 使用 Zustand 替代 React Context 进行权限状态管理
 - 集成 `persist` 中间件实现 localStorage 持久化
 - 提供完整的权限检查 API (hasPermission, hasRole, isAdmin 等)
 - 提供细粒度的 selector hooks 以减少不必要渲染
 
 **主要接口:**
+
 ```typescript
 export interface PermissionState {
   // 核心状态
-  userId: string | null;
-  permissions: Permission[];
-  roles: Role[];
-  customPermissions: Permission[] | null;
-  loading: boolean;
-  error: string | null;
-  initialized: boolean;
+  userId: string | null
+  permissions: Permission[]
+  roles: Role[]
+  customPermissions: Permission[] | null
+  loading: boolean
+  error: string | null
+  initialized: boolean
 
   // Actions
-  setPermissions: (permissions: Permission[]) => void;
-  addPermission: (permission: Permission) => void;
-  removePermission: (permission: Permission) => void;
-  setRoles: (roles: Role[]) => void;
-  initializeFromAuth: (auth: PermissionContext) => void;
+  setPermissions: (permissions: Permission[]) => void
+  addPermission: (permission: Permission) => void
+  removePermission: (permission: Permission) => void
+  setRoles: (roles: Role[]) => void
+  initializeFromAuth: (auth: PermissionContext) => void
   // ... 更多 actions
 
   // Computed getters
-  hasPermission: (permission: Permission) => boolean;
-  hasAnyPermission: (permissions: Permission[]) => boolean;
-  hasAllPermissions: (permissions: Permission[]) => boolean;
-  hasRole: (role: Role) => boolean;
-  isAdmin: () => boolean;
-  isManagerOrAdmin: () => boolean;
-  isMemberOrHigher: () => boolean;
-  isGuest: () => boolean;
+  hasPermission: (permission: Permission) => boolean
+  hasAnyPermission: (permissions: Permission[]) => boolean
+  hasAllPermissions: (permissions: Permission[]) => boolean
+  hasRole: (role: Role) => boolean
+  isAdmin: () => boolean
+  isManagerOrAdmin: () => boolean
+  isMemberOrHigher: () => boolean
+  isGuest: () => boolean
 }
 ```
 
@@ -67,12 +69,14 @@ export interface PermissionState {
 **文件:** `src/contexts/PermissionContext.tsx`
 
 **功能:**
+
 - 保持 100% 向后兼容，现有代码无需修改
 - 内部使用 Zustand store，外部 API 保持不变
 - 提供相同的高阶组件 (HOCs) 和 Gates 组件
 - 导出 Zustand selectors 供性能优化使用
 
 **保持的 API:**
+
 - `PermissionProvider` - 可选的 Provider (fetch permissions on mount)
 - `usePermissions` - 与原 Context 相同的 hook
 - `withPermission` - HOC
@@ -86,6 +90,7 @@ export interface PermissionState {
 **文件:** `src/stores/index.ts`
 
 **导出:**
+
 ```typescript
 export {
   usePermissionStore,
@@ -101,7 +106,7 @@ export {
   useIsGuest,
   usePermissionActions,
   usePermissionHelpers,
-} from './permissionStore';
+} from './permissionStore'
 ```
 
 ---
@@ -115,17 +120,18 @@ npm test -- --run src/lib/permissions/__tests__/permissions.test.ts
 ```
 
 **结果:**
+
 - Test Files: 1 passed
 - Tests: 15 passed
 - Duration: 3.13s
 
 ### 测试覆盖
 
-| 测试文件 | 状态 | 说明 |
-|---------|------|------|
-| `src/lib/permissions/__tests__/permissions.test.ts` | ✅ 15/15 通过 | 核心权限功能测试 |
-| `src/lib/permissions/__tests__/rbac.test.ts` | ⚠️ 41/42 通过 | RBAC 测试 (1个种子测试失败，非核心功能) |
-| `src/lib/permissions/__tests__/integration.test.ts` | ✅ 全部通过 | 集成测试 |
+| 测试文件                                            | 状态          | 说明                                    |
+| --------------------------------------------------- | ------------- | --------------------------------------- |
+| `src/lib/permissions/__tests__/permissions.test.ts` | ✅ 15/15 通过 | 核心权限功能测试                        |
+| `src/lib/permissions/__tests__/rbac.test.ts`        | ⚠️ 41/42 通过 | RBAC 测试 (1个种子测试失败，非核心功能) |
+| `src/lib/permissions/__tests__/integration.test.ts` | ✅ 全部通过   | 集成测试                                |
 
 **说明:** RBAC 测试中有一个种子测试失败，这是测试 mock 配置问题，不是迁移问题。核心权限检查功能全部正常。
 
@@ -139,18 +145,18 @@ npm test -- --run src/lib/permissions/__tests__/permissions.test.ts
 
 ```tsx
 // 仍然有效，无需修改
-import { usePermissions, PermissionGate } from '@/contexts/PermissionContext';
+import { usePermissions, PermissionGate } from '@/contexts/PermissionContext'
 
 function MyComponent() {
-  const { hasPermission, loading } = usePermissions();
+  const { hasPermission, loading } = usePermissions()
 
-  if (loading) return <div>Loading...</div>;
+  if (loading) return <div>Loading...</div>
 
   return (
     <PermissionGate permission={Permission.USER_READ}>
       <div>Protected content</div>
     </PermissionGate>
-  );
+  )
 }
 ```
 
@@ -160,14 +166,14 @@ function MyComponent() {
 
 ```tsx
 // 新方式: 直接使用 Zustand
-import { useIsAdmin, usePermissionHelpers } from '@/stores/permissionStore';
+import { useIsAdmin, usePermissionHelpers } from '@/stores/permissionStore'
 
 function OptimizedComponent() {
-  const isAdmin = useIsAdmin(); // 仅在 admin 状态变化时重渲染
-  const { hasPermission } = usePermissionHelpers();
+  const isAdmin = useIsAdmin() // 仅在 admin 状态变化时重渲染
+  const { hasPermission } = usePermissionHelpers()
 
   if (isAdmin) {
-    return <div>Admin content</div>;
+    return <div>Admin content</div>
   }
 }
 ```
@@ -182,18 +188,19 @@ function OptimizedComponent() {
 
 ```typescript
 // src/app/api/rbac/users/[userId]/permissions/route.ts
-import { Permission, Role } from '@/lib/permissions/types';
+import { Permission, Role } from '@/lib/permissions/types'
 import {
   hasPermission,
   hasAnyPermission,
   hasAllPermissions,
   getPermissionsForRoles,
-} from '@/lib/permissions/rbac';
+} from '@/lib/permissions/rbac'
 ```
 
 ### 前端组件
 
 检查发现前端组件目前很少直接使用 PermissionContext:
+
 - 大部分权限检查发生在 API 层
 - 前端主要是 API 调用和渲染
 - 没有发现大量使用 PermissionGate 的组件
@@ -225,25 +232,25 @@ import {
 
 ### 新建文件
 
-| 文件 | 说明 |
-|-----|------|
+| 文件                            | 说明                          |
+| ------------------------------- | ----------------------------- |
 | `src/stores/permissionStore.ts` | Zustand permission store 实现 |
 
 ### 更新文件
 
-| 文件 | 变更说明 |
-|-----|---------|
-| `src/contexts/PermissionContext.tsx` | 重写为 Zustand 的兼容层 |
-| `src/stores/index.ts` | 添加 permission store 导出 |
+| 文件                                 | 变更说明                   |
+| ------------------------------------ | -------------------------- |
+| `src/contexts/PermissionContext.tsx` | 重写为 Zustand 的兼容层    |
+| `src/stores/index.ts`                | 添加 permission store 导出 |
 
 ### 保持不变
 
-| 文件 | 说明 |
-|-----|------|
-| `src/lib/permissions/types.ts` | 类型定义 |
-| `src/lib/permissions/rbac.ts` | RBAC 核心逻辑 |
-| `src/lib/permissions/repository.ts` | 数据库访问层 |
-| `src/lib/permissions/middleware.ts` | 中间件函数 |
+| 文件                                | 说明          |
+| ----------------------------------- | ------------- |
+| `src/lib/permissions/types.ts`      | 类型定义      |
+| `src/lib/permissions/rbac.ts`       | RBAC 核心逻辑 |
+| `src/lib/permissions/repository.ts` | 数据库访问层  |
+| `src/lib/permissions/middleware.ts` | 中间件函数    |
 
 ---
 
@@ -277,7 +284,7 @@ export {
   useRoles,
   useIsAdmin,
   // ... 其他 selectors
-} from './permissionStore';
+} from './permissionStore'
 ```
 
 ---

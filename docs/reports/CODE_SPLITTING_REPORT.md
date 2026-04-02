@@ -28,33 +28,33 @@
 
 通过代码行数分析，识别出以下需要优化的组件：
 
-| 组件 | 代码行数 | 文件路径 | 优化优先级 |
-|------|---------|---------|-----------|
-| RealtimeDashboard | ~456 | `src/components/RealtimeDashboard.tsx` | 🔴 高 |
-| TeamActivityTracker | ~545 | `src/components/TeamActivityTracker.tsx` | 🔴 高 |
-| AnalyticsDashboard | ~584 | `src/components/analytics/AnalyticsDashboard.tsx` | 🔴 高 |
-| MeetingRoom | ~575 | `src/components/meeting/MeetingRoom.tsx` | 🔴 高 |
-| AnimatedProgressBar | ~663 | `src/components/AnimatedProgressBar.tsx` | 🔴 高 |
-| UserSettingsPage | ~652 | `src/components/UserSettings/UserSettingsPage.tsx` | 🔴 高 |
-| FeedbackManagementPanel | ~541 | `src/components/admin/FeedbackManagementPanel.tsx` | 🟡 中 |
-| GlobalSearch | ~528 | `src/components/search/GlobalSearch.tsx` | 🟡 中 |
-| DataExportImport | ~554 | `src/components/DataExportImport/index.tsx` | 🟡 中 |
-| TaskBoard | ~300 | `src/components/TaskBoard.tsx` | 🟡 中 |
-| ActivityLog | ~250 | `src/components/ActivityLog.tsx` | 🟢 低 |
-| MetricsDashboard | ~449 | `src/components/monitoring/MetricsDashboard.tsx` | 🟢 低 |
-| PerformanceDashboard | ~332 | `src/components/PerformanceDashboard.tsx` | 🟢 低 |
+| 组件                    | 代码行数 | 文件路径                                           | 优化优先级 |
+| ----------------------- | -------- | -------------------------------------------------- | ---------- |
+| RealtimeDashboard       | ~456     | `src/components/RealtimeDashboard.tsx`             | 🔴 高      |
+| TeamActivityTracker     | ~545     | `src/components/TeamActivityTracker.tsx`           | 🔴 高      |
+| AnalyticsDashboard      | ~584     | `src/components/analytics/AnalyticsDashboard.tsx`  | 🔴 高      |
+| MeetingRoom             | ~575     | `src/components/meeting/MeetingRoom.tsx`           | 🔴 高      |
+| AnimatedProgressBar     | ~663     | `src/components/AnimatedProgressBar.tsx`           | 🔴 高      |
+| UserSettingsPage        | ~652     | `src/components/UserSettings/UserSettingsPage.tsx` | 🔴 高      |
+| FeedbackManagementPanel | ~541     | `src/components/admin/FeedbackManagementPanel.tsx` | 🟡 中      |
+| GlobalSearch            | ~528     | `src/components/search/GlobalSearch.tsx`           | 🟡 中      |
+| DataExportImport        | ~554     | `src/components/DataExportImport/index.tsx`        | 🟡 中      |
+| TaskBoard               | ~300     | `src/components/TaskBoard.tsx`                     | 🟡 中      |
+| ActivityLog             | ~250     | `src/components/ActivityLog.tsx`                   | 🟢 低      |
+| MetricsDashboard        | ~449     | `src/components/monitoring/MetricsDashboard.tsx`   | 🟢 低      |
+| PerformanceDashboard    | ~332     | `src/components/PerformanceDashboard.tsx`          | 🟢 低      |
 
 ### 2. 页面大小分析
 
-| 页面 | 代码行数 | 文件路径 | 优化建议 |
-|------|---------|---------|---------|
-| 首页 | 1134 | `src/app/[locale]/page.tsx` | 已使用 LazyComponents |
-| 关于页 | 855 | `src/app/[locale]/about/page.tsx` | ✅ 使用 Next.js App Router 自动分割 |
-| 团队页 | 649 | `src/app/[locale]/team/page.tsx` | ✅ 使用 Next.js App Router 自动分割 |
-| 联系页 | 629 | `src/app/[locale]/contact/page.tsx` | ✅ 使用 Next.js App Router 自动分割 |
-| 投资组合页 | 547 | `src/app/[locale]/portfolio/page.tsx` | ✅ 使用 Next.js App Router 自动分割 |
-| 性能页 | 468 | `src/app/[locale]/performance/page.tsx` | ✅ 使用 Next.js App Router 自动分割 |
-| Dashboard | - | `src/app/[locale]/dashboard/DashboardClient.tsx` | ✅ 已优化（动态导入 4 个组件） |
+| 页面       | 代码行数 | 文件路径                                         | 优化建议                            |
+| ---------- | -------- | ------------------------------------------------ | ----------------------------------- |
+| 首页       | 1134     | `src/app/[locale]/page.tsx`                      | 已使用 LazyComponents               |
+| 关于页     | 855      | `src/app/[locale]/about/page.tsx`                | ✅ 使用 Next.js App Router 自动分割 |
+| 团队页     | 649      | `src/app/[locale]/team/page.tsx`                 | ✅ 使用 Next.js App Router 自动分割 |
+| 联系页     | 629      | `src/app/[locale]/contact/page.tsx`              | ✅ 使用 Next.js App Router 自动分割 |
+| 投资组合页 | 547      | `src/app/[locale]/portfolio/page.tsx`            | ✅ 使用 Next.js App Router 自动分割 |
+| 性能页     | 468      | `src/app/[locale]/performance/page.tsx`          | ✅ 使用 Next.js App Router 自动分割 |
+| Dashboard  | -        | `src/app/[locale]/dashboard/DashboardClient.tsx` | ✅ 已优化（动态导入 4 个组件）      |
 
 ---
 
@@ -65,6 +65,7 @@
 **文件**: `src/components/LazyComponents.tsx`
 
 **功能**:
+
 - 统一管理所有大型组件的动态导入
 - 提供统一的 Loading Fallback
 - 实现代码分割和按需加载
@@ -103,6 +104,7 @@ export const LazySimplePerformanceDashboard
 ```
 
 **工具函数**:
+
 ```typescript
 // 创建自定义 loading fallback
 export const createLoadingFallback(message, size, className)
@@ -119,11 +121,13 @@ export const preloadComponents(loaders)
 **文件**: `src/app/[locale]/dashboard/DashboardClient.tsx`
 
 **改动**:
+
 1. 移除内联的 `dynamic` 导入
 2. 使用 `LazyComponents` 中的预定义组件
 3. 使用 `Suspense` 包裹组件以提供更好的加载体验
 
 **优化前**:
+
 ```typescript
 import { RealtimeDashboard } from '@/components/RealtimeDashboard';
 import { TeamActivityTracker } from '@/components/TeamActivityTracker';
@@ -138,6 +142,7 @@ import { ActivityLog } from '@/components/ActivityLog';
 ```
 
 **优化后**:
+
 ```typescript
 import {
   LazyRealtimeDashboard,
@@ -169,30 +174,32 @@ import {
 **优化**:
 
 1. **增强 Bundle Analyzer 配置**:
+
 ```typescript
 const withBundleAnalyzer = bundleAnalyzer({
   enabled: process.env.ANALYZE === 'true',
   openAnalyzer: false, // 不自动打开浏览器，适合 CI/CD 环境
   analyzerMode: 'static', // 生成静态 HTML 报告
-});
+})
 ```
 
 2. **优化 Webpack SplitChunks 配置**:
 
 重新定义了 chunk 分组策略：
 
-| Chunk 组 | 包含的库 | 优先级 | 说明 |
-|---------|---------|-------|------|
-| `chart-libs` | recharts, chart.js, d3, @visx | 50 | 图表库独立打包 |
-| `realtime-libs` | socket.io-client, @socket.io | 45 | 实时通信库 |
-| `ui-libs` | @radix-ui, lucide-react, framer-motion | 40 | UI 组件库 |
-| `framework` | react, react-dom, next, next-intl | 35 | 核心框架 |
-| `vendor-utils` | zustand, immer, lodash, date-fns | 30 | 工具库 |
-| `forms-libs` | zod, react-hook-form, @hookform | 25 | 表单验证库 |
-| `vendors` | 其他 node_modules | 10 | 其他库 |
-| `common` | 公共模块 | 5 | 公共代码 |
+| Chunk 组        | 包含的库                               | 优先级 | 说明           |
+| --------------- | -------------------------------------- | ------ | -------------- |
+| `chart-libs`    | recharts, chart.js, d3, @visx          | 50     | 图表库独立打包 |
+| `realtime-libs` | socket.io-client, @socket.io           | 45     | 实时通信库     |
+| `ui-libs`       | @radix-ui, lucide-react, framer-motion | 40     | UI 组件库      |
+| `framework`     | react, react-dom, next, next-intl      | 35     | 核心框架       |
+| `vendor-utils`  | zustand, immer, lodash, date-fns       | 30     | 工具库         |
+| `forms-libs`    | zod, react-hook-form, @hookform        | 25     | 表单验证库     |
+| `vendors`       | 其他 node_modules                      | 10     | 其他库         |
+| `common`        | 公共模块                               | 5      | 公共代码       |
 
 **关键参数**:
+
 ```typescript
 {
   maxInitialRequests: 25,  // 最大初始请求数
@@ -204,12 +211,13 @@ const withBundleAnalyzer = bundleAnalyzer({
 ```
 
 3. **添加性能提示**:
+
 ```typescript
 config.performance = {
   maxEntrypointSize: 512000, // 500KB
   maxAssetSize: 512000,
   hints: process.env.NODE_ENV === 'production' ? 'warning' : false,
-};
+}
 ```
 
 ---
@@ -218,12 +226,12 @@ config.performance = {
 
 ### Bundle 大小优化
 
-| 优化类型 | 预期改进 | 说明 |
-|---------|---------|------|
-| 首屏 JS | ↓ 30-40% | 仅加载必需的组件 |
-| Time to Interactive (TTI) | ↓ 25-35% | 更快的交互可用时间 |
-| First Contentful Paint (FCP) | ↓ 15-20% | 更快的内容显示 |
-| 总下载量 | ↓ 20-30% | 按需加载减少总流量 |
+| 优化类型                     | 预期改进 | 说明               |
+| ---------------------------- | -------- | ------------------ |
+| 首屏 JS                      | ↓ 30-40% | 仅加载必需的组件   |
+| Time to Interactive (TTI)    | ↓ 25-35% | 更快的交互可用时间 |
+| First Contentful Paint (FCP) | ↓ 15-20% | 更快的内容显示     |
+| 总下载量                     | ↓ 20-30% | 按需加载减少总流量 |
 
 ### 用户体验改进
 
@@ -283,12 +291,12 @@ export const LazyMyComponent = dynamic(
 ### 4. 预加载组件（可选）
 
 ```typescript
-import { preloadComponent } from '@/components/LazyComponents';
+import { preloadComponent } from '@/components/LazyComponents'
 
 // 在路由变化或用户交互时预加载
 const handleMouseEnter = () => {
-  preloadComponent(() => import('@/components/MyComponent'));
-};
+  preloadComponent(() => import('@/components/MyComponent'))
+}
 ```
 
 ---

@@ -10,11 +10,11 @@
 
 ### 任务完成情况
 
-| 任务 | API 路由 | 测试文件 | 状态 | 测试数量 |
-|------|----------|----------|------|----------|
-| 任务 1 | `/api/auth/logout` | `tests/api-integration/auth-logout.test.ts` | ✅ 通过 | 10 |
-| 任务 2 | `/api/search` | `tests/api-integration/search.test.ts` | ✅ 通过 | 34 |
-| 任务 3 | `/api/ratings` | `tests/api-integration/ratings.test.ts` | ✅ 通过 | 38 |
+| 任务   | API 路由           | 测试文件                                    | 状态    | 测试数量 |
+| ------ | ------------------ | ------------------------------------------- | ------- | -------- |
+| 任务 1 | `/api/auth/logout` | `tests/api-integration/auth-logout.test.ts` | ✅ 通过 | 10       |
+| 任务 2 | `/api/search`      | `tests/api-integration/search.test.ts`      | ✅ 通过 | 34       |
+| 任务 3 | `/api/ratings`     | `tests/api-integration/ratings.test.ts`     | ✅ 通过 | 38       |
 
 **总计**: 3 个测试文件，82 个测试用例，全部通过
 
@@ -30,6 +30,7 @@
 #### 测试用例列表
 
 **基础功能测试** (7 个):
+
 - ✅ POST /api/auth/logout - 成功登出
 - ✅ POST /api/auth/logout - 未认证请求 (无 token)
 - ✅ POST /api/auth/logout - 无效 token 格式
@@ -39,11 +40,13 @@
 - ✅ POST /api/auth/logout - 清除 auth cookies
 
 **安全测试** (3 个):
+
 - ✅ 登出后处理 token
 - ✅ 缺失 Authorization header
 - ✅ 空 Authorization header
 
 **执行结果**:
+
 ```
 Test Files  1 passed (1)
 Tests       10 passed (10)
@@ -60,18 +63,21 @@ Duration    2.63s
 #### 测试用例分类
 
 **基础搜索** (4 个):
+
 - ✅ GET /api/search - 基本搜索
 - ✅ GET /api/search - 不带查询参数
 - ✅ GET /api/search?q=xxx - 带查询参数
 - ✅ GET /api/search - 包含分页元数据
 
 **查询参数** (4 个):
+
 - ✅ GET /api/search?q=xxx - 处理查询参数
 - ✅ GET /api/search - 特殊字符处理
 - ✅ GET /api/search - 长查询字符串
 - ✅ GET /api/search - Unicode 字符处理
 
 **类型筛选** (5 个):
+
 - ✅ GET /api/search?type=tasks - 按任务类型筛选
 - ✅ GET /api/search?type=projects - 按项目类型筛选
 - ✅ GET /api/search?type=members - 按成员类型筛选
@@ -79,6 +85,7 @@ Duration    2.63s
 - ✅ GET /api/search - 默认所有目标
 
 **分页** (5 个):
+
 - ✅ GET /api/search - limit 参数
 - ✅ GET /api/search - offset 参数
 - ✅ GET /api/search - page 参数
@@ -86,6 +93,7 @@ Duration    2.63s
 - ✅ GET /api/search - 超过最大值限制
 
 **高级筛选** (6 个):
+
 - ✅ GET /api/search?status=xxx - 状态筛选
 - ✅ GET /api/search?priority=xxx - 优先级筛选
 - ✅ GET /api/search - 多个状态筛选
@@ -94,23 +102,27 @@ Duration    2.63s
 - ✅ GET /api/search - 多日期范围组合
 
 **搜索配置** (4 个):
+
 - ✅ GET /api/search? fuzzy=true - 模糊搜索
 - ✅ GET /api/search - fuzzy threshold 参数
 - ✅ GET /api/search - 大小写敏感
 - ✅ GET /api/search - 高亮显示
 
 **历史记录** (3 个):
+
 - ✅ GET /api/search?history=true - 包含搜索历史
 - ✅ GET /api/search - 默认不包含历史
 - ✅ GET /api/search - 限制历史数量
 
 **错误处理** (4 个):
+
 - ✅ GET /api/search - 无效日期格式
 - ✅ GET /api/search - 无效 limit 格式
 - ✅ GET /api/search - 负 limit
 - ✅ GET /api/search - 负 offset
 
 **执行结果**:
+
 ```
 Test Files  1 passed (1)
 Tests       34 passed (34)
@@ -127,6 +139,7 @@ Duration    3.16s
 #### 测试用例分类
 
 **列表评分** (5 个):
+
 - ✅ GET /api/ratings - 空列表
 - ✅ GET /api/ratings - 分页列表
 - ✅ GET /api/ratings - 包含分页元数据
@@ -134,6 +147,7 @@ Duration    3.16s
 - ✅ GET /api/ratings - 返回统计数据
 
 **筛选** (8 个):
+
 - ✅ GET /api/ratings?target_id=xxx - 按目标 ID 筛选
 - ✅ GET /api/ratings?target_type=xxx - 按目标类型筛选
 - ✅ GET /api/ratings?user_id=xxx - 按用户 ID 筛选
@@ -144,6 +158,7 @@ Duration    3.16s
 - ✅ GET /api/ratings - 多条件筛选组合
 
 **创建评分** (11 个):
+
 - ✅ POST /api/ratings - 创建有效评分
 - ✅ POST /api/ratings - 缺少 target_type
 - ✅ POST /api/ratings - 缺少 target_id
@@ -157,24 +172,29 @@ Duration    3.16s
 - ✅ POST /api/ratings - 垃圾内容检测
 
 **更新评分** (1 个):
+
 - ✅ POST /api/ratings - 更新现有评分
 
 **单个评分** (2 个):
+
 - ✅ GET /api/ratings/:id - 获取单个评分
 - ✅ GET /api/ratings/:id - 不存在的评分 (404)
 
 **删除评分** (3 个):
+
 - ✅ DELETE /api/ratings/:id - 所有者删除
 - ✅ DELETE /api/ratings/:id - 不存在的评分 (404)
 - ✅ DELETE /api/ratings/:id - 非所有者删除 (403)
 
 **有用性投票** (4 个):
+
 - ✅ POST /api/ratings/:id/helpful - 标记为有用
 - ✅ POST /api/ratings/:id/helpful - 标记为无用
 - ✅ POST /api/ratings/:id/helpful - 不存在的评分 (404)
 - ✅ POST /api/ratings/:id/helpful - 缺少 is_helpful 字段
 
 **错误处理** (4 个):
+
 - ✅ POST /api/ratings - 格式错误的 JSON
 - ✅ POST /api/ratings - 空请求体
 - ✅ GET /api/ratings - 无效 page 参数
@@ -182,6 +202,7 @@ Duration    3.16s
 - ✅ GET /api/ratings - 限制 per_page 为 100
 
 **执行结果**:
+
 ```
 Test Files  1 passed (1)
 Tests       38 passed (38)
@@ -240,15 +261,16 @@ tests/api-integration/
 
 ### 预计覆盖率提升
 
-| API 路由 | 之前覆盖率 | 新增测试 | 预计提升 |
-|----------|------------|----------|----------|
-| `/api/auth/logout` | 0% | 10 个测试 | ~80-90% |
-| `/api/search` | 0% | 34 个测试 | ~85-95% |
-| `/api/ratings` | 0% | 38 个测试 | ~90-98% |
+| API 路由           | 之前覆盖率 | 新增测试  | 预计提升 |
+| ------------------ | ---------- | --------- | -------- |
+| `/api/auth/logout` | 0%         | 10 个测试 | ~80-90%  |
+| `/api/search`      | 0%         | 34 个测试 | ~85-95%  |
+| `/api/ratings`     | 0%         | 38 个测试 | ~90-98%  |
 
 ### 代码覆盖的功能
 
 #### `/api/auth/logout`
+
 - ✅ 成功登出
 - ✅ Token 验证
 - ✅ 无效 token 处理
@@ -256,6 +278,7 @@ tests/api-integration/
 - ✅ 错误响应
 
 #### `/api/search`
+
 - ✅ 基本搜索
 - ✅ 查询参数处理
 - ✅ 类型筛选
@@ -266,6 +289,7 @@ tests/api-integration/
 - ✅ 错误处理
 
 #### `/api/ratings`
+
 - ✅ 获取评分列表
 - ✅ 筛选和排序
 - ✅ 创建评分 (完整验证)

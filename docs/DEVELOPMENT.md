@@ -16,20 +16,20 @@
 
 ### 必需软件
 
-| 软件 | 版本 | 安装链接 |
-|------|------|----------|
-| Node.js | 22+ | https://nodejs.org/ |
-| Git | 2.30+ | https://git-scm.com/ |
-| pnpm | 8+ | https://pnpm.io/ |
-| VS Code | 最新 | https://code.visualstudio.com/ |
+| 软件    | 版本  | 安装链接                       |
+| ------- | ----- | ------------------------------ |
+| Node.js | 22+   | https://nodejs.org/            |
+| Git     | 2.30+ | https://git-scm.com/           |
+| pnpm    | 8+    | https://pnpm.io/               |
+| VS Code | 最新  | https://code.visualstudio.com/ |
 
 ### 推荐软件
 
-| 软件 | 用途 | 安装链接 |
-|------|------|----------|
-| Docker Desktop | 容器化开发 | https://www.docker.com/ |
-| Postman | API 测试 | https://www.postman.com/ |
-| TablePlus | 数据库管理 | https://tableplus.com/ |
+| 软件           | 用途       | 安装链接                 |
+| -------------- | ---------- | ------------------------ |
+| Docker Desktop | 容器化开发 | https://www.docker.com/  |
+| Postman        | API 测试   | https://www.postman.com/ |
+| TablePlus      | 数据库管理 | https://tableplus.com/   |
 
 ---
 
@@ -202,9 +202,7 @@ pnpm dev --debug
     "typescript": "javascript",
     "typescriptreact": "javascript"
   },
-  "tailwindCSS.experimental.classRegex": [
-    ["class[nN]ame\\s*=\\s*['\"]([^'\"]*)['\"]"]
-  ],
+  "tailwindCSS.experimental.classRegex": [["class[nN]ame\\s*=\\s*['\"]([^'\"]*)['\"]"]],
   "files.associations": {
     "*.css": "tailwindcss"
   },
@@ -298,7 +296,7 @@ describe('MemberCard', () => {
         status="working"
       />
     );
-    
+
     expect(screen.getByText('智能体世界专家')).toBeInTheDocument();
   });
 
@@ -310,7 +308,7 @@ describe('MemberCard', () => {
         status="busy"
       />
     );
-    
+
     expect(screen.getByTestId('status-indicator')).toHaveClass('bg-red-500');
   });
 });
@@ -403,7 +401,7 @@ services:
       context: .
       dockerfile: Dockerfile.dev
     ports:
-      - "3000:3000"
+      - '3000:3000'
     volumes:
       - .:/app
       - /app/node_modules
@@ -453,6 +451,7 @@ git push origin feature/your-feature-name
 ```
 
 **类型:**
+
 - `feat`: 新功能
 - `fix`: Bug 修复
 - `docs`: 文档更新
@@ -462,6 +461,7 @@ git push origin feature/your-feature-name
 - `chore`: 构建过程或辅助工具变动
 
 **示例:**
+
 ```bash
 git commit -m "feat(dashboard): add real-time status updates
 
@@ -488,15 +488,15 @@ Closes #45"
 ```typescript
 // 在 API 路由中添加调试日志
 export async function GET(request: Request) {
-  console.log('Request received:', request.url);
-  
+  console.log('Request received:', request.url)
+
   try {
-    const data = await fetchData();
-    console.log('Data fetched:', data);
-    return Response.json(data);
+    const data = await fetchData()
+    console.log('Data fetched:', data)
+    return Response.json(data)
   } catch (error) {
-    console.error('Error fetching data:', error);
-    return Response.json({ error: 'Failed to fetch' }, { status: 500 });
+    console.error('Error fetching data:', error)
+    return Response.json({ error: 'Failed to fetch' }, { status: 500 })
   }
 }
 ```
@@ -505,14 +505,14 @@ export async function GET(request: Request) {
 
 ```typescript
 function complexCalculation(data: any) {
-  debugger; // 执行到这里会暂停
-  
+  debugger // 执行到这里会暂停
+
   const result = data.map(item => {
     // 复杂逻辑
-    return item;
-  });
-  
-  return result;
+    return item
+  })
+
+  return result
 }
 ```
 

@@ -2,15 +2,20 @@
  * Tests for Root Cause Analyzer
  */
 
-import { describe, it, expect, beforeEach, vi } from 'vitest';
-import { RootCauseAnalyzer, rootCauseAnalyzer, type RootCauseAnalysis, type PerformanceProfile } from '../root-cause';
+import { describe, it, expect, beforeEach, vi } from 'vitest'
+import {
+  RootCauseAnalyzer,
+  rootCauseAnalyzer,
+  type RootCauseAnalysis,
+  type PerformanceProfile,
+} from '../root-cause'
 
 describe('RootCauseAnalyzer', () => {
-  let analyzer: RootCauseAnalyzer;
+  let analyzer: RootCauseAnalyzer
 
   beforeEach(() => {
-    analyzer = new RootCauseAnalyzer();
-  });
+    analyzer = new RootCauseAnalyzer()
+  })
 
   describe('analyze', () => {
     it('should analyze performance profile and return results', () => {
@@ -32,17 +37,17 @@ describe('RootCauseAnalyzer', () => {
         iframeCount: 0,
         memoryUsed: 50 * 1024 * 1024,
         memoryLimit: 100 * 1024 * 1024,
-      };
+      }
 
-      const result = analyzer.analyze(profile);
+      const result = analyzer.analyze(profile)
 
-      expect(result).toBeDefined();
-      expect(result.indicators).toBeInstanceOf(Array);
-      expect(result.correlations).toBeInstanceOf(Array);
-      expect(result.diagnosis).toBeDefined();
-      expect(result.actionPlan).toBeInstanceOf(Array);
-      expect(result.summary).toBeDefined();
-    });
+      expect(result).toBeDefined()
+      expect(result.indicators).toBeInstanceOf(Array)
+      expect(result.correlations).toBeInstanceOf(Array)
+      expect(result.diagnosis).toBeDefined()
+      expect(result.actionPlan).toBeInstanceOf(Array)
+      expect(result.summary).toBeDefined()
+    })
 
     it('should detect memory leaks when memory is trending up', () => {
       // Simulate increasing memory
@@ -63,10 +68,10 @@ describe('RootCauseAnalyzer', () => {
           domNodes: 800,
           domDepth: 12,
           iframeCount: 0,
-          memoryUsed: 50 * 1024 * 1024 + (i * 1024 * 1024), // Increasing by 1MB each sample
+          memoryUsed: 50 * 1024 * 1024 + i * 1024 * 1024, // Increasing by 1MB each sample
           memoryLimit: 100 * 1024 * 1024,
-        };
-        analyzer.analyze(profile);
+        }
+        analyzer.analyze(profile)
       }
 
       const profile: PerformanceProfile = {
@@ -87,15 +92,13 @@ describe('RootCauseAnalyzer', () => {
         iframeCount: 0,
         memoryUsed: 60 * 1024 * 1024,
         memoryLimit: 100 * 1024 * 1024,
-      };
+      }
 
-      const result = analyzer.analyze(profile);
+      const result = analyzer.analyze(profile)
 
-      const memoryIndicators = result.indicators.filter(
-        i => i.type === 'memory-leak'
-      );
-      expect(memoryIndicators.length).toBeGreaterThan(0);
-    });
+      const memoryIndicators = result.indicators.filter(i => i.type === 'memory-leak')
+      expect(memoryIndicators.length).toBeGreaterThan(0)
+    })
 
     it('should detect slow queries', () => {
       const profile: PerformanceProfile = {
@@ -116,15 +119,13 @@ describe('RootCauseAnalyzer', () => {
         iframeCount: 0,
         memoryUsed: 50 * 1024 * 1024,
         memoryLimit: 100 * 1024 * 1024,
-      };
+      }
 
-      const result = analyzer.analyze(profile);
+      const result = analyzer.analyze(profile)
 
-      const slowQueryIndicators = result.indicators.filter(
-        i => i.type === 'slow-query'
-      );
-      expect(slowQueryIndicators.length).toBeGreaterThan(0);
-    });
+      const slowQueryIndicators = result.indicators.filter(i => i.type === 'slow-query')
+      expect(slowQueryIndicators.length).toBeGreaterThan(0)
+    })
 
     it('should detect cache issues', () => {
       const profile: PerformanceProfile = {
@@ -145,15 +146,13 @@ describe('RootCauseAnalyzer', () => {
         iframeCount: 0,
         memoryUsed: 50 * 1024 * 1024,
         memoryLimit: 100 * 1024 * 1024,
-      };
+      }
 
-      const result = analyzer.analyze(profile);
+      const result = analyzer.analyze(profile)
 
-      const cacheIndicators = result.indicators.filter(
-        i => i.type === 'cache-miss'
-      );
-      expect(cacheIndicators.length).toBeGreaterThan(0);
-    });
+      const cacheIndicators = result.indicators.filter(i => i.type === 'cache-miss')
+      expect(cacheIndicators.length).toBeGreaterThan(0)
+    })
 
     it('should calculate metric correlations', () => {
       const profile: PerformanceProfile = {
@@ -174,19 +173,19 @@ describe('RootCauseAnalyzer', () => {
         iframeCount: 0,
         memoryUsed: 50 * 1024 * 1024,
         memoryLimit: 100 * 1024 * 1024,
-      };
+      }
 
-      const result = analyzer.analyze(profile);
+      const result = analyzer.analyze(profile)
 
-      expect(result.correlations.length).toBeGreaterThan(0);
+      expect(result.correlations.length).toBeGreaterThan(0)
       result.correlations.forEach(correlation => {
-        expect(correlation.metrics).toHaveLength(2);
-        expect(correlation.correlationCoefficient).toBeGreaterThanOrEqual(-1);
-        expect(correlation.correlationCoefficient).toBeLessThanOrEqual(1);
-        expect(['positive', 'negative', 'none']).toContain(correlation.relationship);
-        expect(['strong', 'moderate', 'weak']).toContain(correlation.significance);
-      });
-    });
+        expect(correlation.metrics).toHaveLength(2)
+        expect(correlation.correlationCoefficient).toBeGreaterThanOrEqual(-1)
+        expect(correlation.correlationCoefficient).toBeLessThanOrEqual(1)
+        expect(['positive', 'negative', 'none']).toContain(correlation.relationship)
+        expect(['strong', 'moderate', 'weak']).toContain(correlation.significance)
+      })
+    })
 
     it('should generate action plan with prioritized items', () => {
       const profile: PerformanceProfile = {
@@ -207,29 +206,30 @@ describe('RootCauseAnalyzer', () => {
         iframeCount: 0,
         memoryUsed: 50 * 1024 * 1024,
         memoryLimit: 100 * 1024 * 1024,
-      };
+      }
 
-      const result = analyzer.analyze(profile);
+      const result = analyzer.analyze(profile)
 
-      expect(result.actionPlan.length).toBeGreaterThan(0);
-      
+      expect(result.actionPlan.length).toBeGreaterThan(0)
+
       // Check that actions have required properties
       result.actionPlan.forEach(action => {
-        expect(['p0', 'p1', 'p2', 'p3']).toContain(action.priority);
-        expect(action.title).toBeDefined();
-        expect(action.description).toBeDefined();
-        expect(['low', 'medium', 'high']).toContain(action.estimatedImpact);
-        expect(['low', 'medium', 'high']).toContain(action.effort);
-        expect(['immediate', 'short-term', 'long-term']).toContain(action.category);
-      });
+        expect(['p0', 'p1', 'p2', 'p3']).toContain(action.priority)
+        expect(action.title).toBeDefined()
+        expect(action.description).toBeDefined()
+        expect(['low', 'medium', 'high']).toContain(action.estimatedImpact)
+        expect(['low', 'medium', 'high']).toContain(action.effort)
+        expect(['immediate', 'short-term', 'long-term']).toContain(action.category)
+      })
 
       // Check that actions are sorted by priority
-      const priorityOrder = { p0: 0, p1: 1, p2: 2, p3: 3 };
+      const priorityOrder = { p0: 0, p1: 1, p2: 2, p3: 3 }
       for (let i = 1; i < result.actionPlan.length; i++) {
-        expect(priorityOrder[result.actionPlan[i].priority])
-          .toBeGreaterThanOrEqual(priorityOrder[result.actionPlan[i - 1].priority]);
+        expect(priorityOrder[result.actionPlan[i].priority]).toBeGreaterThanOrEqual(
+          priorityOrder[result.actionPlan[i - 1].priority]
+        )
       }
-    });
+    })
 
     it('should correctly determine overall health', () => {
       const criticalProfile: PerformanceProfile = {
@@ -250,10 +250,10 @@ describe('RootCauseAnalyzer', () => {
         iframeCount: 5,
         memoryUsed: 95 * 1024 * 1024,
         memoryLimit: 100 * 1024 * 1024,
-      };
+      }
 
-      const criticalResult = analyzer.analyze(criticalProfile);
-      expect(criticalResult.overallHealth).toBe('critical');
+      const criticalResult = analyzer.analyze(criticalProfile)
+      expect(criticalResult.overallHealth).toBe('critical')
 
       const healthyProfile: PerformanceProfile = {
         totalTransferSize: 500 * 1024,
@@ -273,12 +273,12 @@ describe('RootCauseAnalyzer', () => {
         iframeCount: 0,
         memoryUsed: 50 * 1024 * 1024,
         memoryLimit: 100 * 1024 * 1024,
-      };
+      }
 
-      const healthyResult = analyzer.analyze(healthyProfile);
-      expect(healthyResult.overallHealth).toBe('healthy');
-    });
-  });
+      const healthyResult = analyzer.analyze(healthyProfile)
+      expect(healthyResult.overallHealth).toBe('healthy')
+    })
+  })
 
   describe('diagnosis', () => {
     it('should generate comprehensive diagnosis', () => {
@@ -300,21 +300,21 @@ describe('RootCauseAnalyzer', () => {
         iframeCount: 0,
         memoryUsed: 50 * 1024 * 1024,
         memoryLimit: 100 * 1024 * 1024,
-      };
+      }
 
-      const result = analyzer.analyze(profile);
+      const result = analyzer.analyze(profile)
 
-      expect(result.diagnosis.primaryIssue).toBeDefined();
-      expect(result.diagnosis.rootCause).toBeDefined();
-      expect(result.diagnosis.contributingFactors).toBeInstanceOf(Array);
-      expect(result.diagnosis.affectedComponents).toBeInstanceOf(Array);
-      expect(result.diagnosis.timeline).toBeInstanceOf(Array);
-    });
-  });
+      expect(result.diagnosis.primaryIssue).toBeDefined()
+      expect(result.diagnosis.rootCause).toBeDefined()
+      expect(result.diagnosis.contributingFactors).toBeInstanceOf(Array)
+      expect(result.diagnosis.affectedComponents).toBeInstanceOf(Array)
+      expect(result.diagnosis.timeline).toBeInstanceOf(Array)
+    })
+  })
 
   describe('singleton instance', () => {
     it('should export a singleton instance', () => {
-      expect(rootCauseAnalyzer).toBeInstanceOf(RootCauseAnalyzer);
-    });
-  });
-});
+      expect(rootCauseAnalyzer).toBeInstanceOf(RootCauseAnalyzer)
+    })
+  })
+})

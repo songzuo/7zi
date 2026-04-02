@@ -7,14 +7,16 @@ This document describes the WebSocket stability improvements implemented for the
 ## Features
 
 ### 1. Heartbeat Monitoring
+
 - **Purpose**: Detect dead connections proactively
-- **Implementation**: 
+- **Implementation**:
   - Client sends `ping` every 25 seconds
   - Server responds with `pong`
   - Client expects `pong` within 10 seconds
   - If 3 consecutive pings are missed, connection is considered dead and reconnect is triggered
 
 ### 2. Exponential Backoff Reconnection
+
 - **Purpose**: Handle temporary network issues gracefully
 - **Implementation**:
   - Start with 1 second delay
@@ -24,6 +26,7 @@ This document describes the WebSocket stability improvements implemented for the
   - Automatically resets when connection succeeds
 
 ### 3. Connection State Management
+
 - **States**:
   - `DISCONNECTED`: Not connected
   - `CONNECTING`: Attempting to connect
@@ -37,6 +40,7 @@ This document describes the WebSocket stability improvements implemented for the
   - Real-time state updates to UI
 
 ### 4. Message Queuing
+
 - **Purpose**: Preserve messages during disconnection
 - **Implementation**:
   - Messages are queued when disconnected
@@ -55,6 +59,7 @@ Location: `src/lib/websocket-manager.ts`
 Core class that manages WebSocket connections with stability features.
 
 **Key Methods**:
+
 - `connect()`: Connect to server
 - `disconnect()`: Disconnect from server
 - `emit(event, data, queueIfOffline)`: Send message
@@ -73,6 +78,7 @@ Location: `src/hooks/useNotificationsStable.ts`
 React hook that wraps WebSocketManager for notification functionality.
 
 **Return Values**:
+
 ```typescript
 {
   notifications: Notification[],
@@ -123,7 +129,7 @@ export default function NotificationComponent() {
       </div>
       <div>Unread: {unreadCount}</div>
       {queueSize > 0 && <div>Queued messages: {queueSize}</div>}
-      
+
       <ul>
         {notifications.map(notif => (
           <li key={notif.id}>
@@ -136,7 +142,7 @@ export default function NotificationComponent() {
           </li>
         ))}
       </ul>
-      
+
       <button onClick={markAllAsRead}>
         Mark all as read
       </button>
@@ -156,7 +162,7 @@ const notifications = useNotificationsStable({
   auth: {
     token: 'your-auth-token',
   },
-});
+})
 ```
 
 ### Manual Connection Control
@@ -164,40 +170,40 @@ const notifications = useNotificationsStable({
 ```typescript
 const { connect, disconnect, isConnected } = useNotificationsStable({
   autoConnect: false, // Don't connect automatically
-});
+})
 
 // Connect manually
-connect();
+connect()
 
 // Disconnect manually
-disconnect();
+disconnect()
 ```
 
 ### Monitoring Connection State
 
 ```typescript
-const { connectionState, onStateChange } = useNotificationsStable();
+const { connectionState, onStateChange } = useNotificationsStable()
 
 useEffect(() => {
   const unsubscribe = onStateChange((newState, previousState) => {
-    console.log(`Connection changed: ${previousState} -> ${newState}`);
+    console.log(`Connection changed: ${previousState} -> ${newState}`)
 
     // Show notification to user
     if (newState === 'reconnecting') {
-      toast.info('Connection lost. Reconnecting...');
+      toast.info('Connection lost. Reconnecting...')
     } else if (newState === 'connected') {
-      toast.success('Reconnected!');
+      toast.success('Reconnected!')
     }
-  });
+  })
 
-  return unsubscribe;
-}, [onStateChange]);
+  return unsubscribe
+}, [onStateChange])
 ```
 
 ### Using WebSocketManager Directly
 
 ```typescript
-import { WebSocketManager, ConnectionState } from '@/lib/websocket-manager';
+import { WebSocketManager, ConnectionState } from '@/lib/websocket-manager'
 
 // Create manager
 const wsManager = new WebSocketManager({
@@ -206,23 +212,23 @@ const wsManager = new WebSocketManager({
   heartbeatTimeout: 10000,
   reconnectionDelay: 1000,
   reconnectionDelayMax: 30000,
-});
+})
 
 // Listen to state changes
-wsManager.onStateChange((state) => {
-  console.log('State:', state);
-});
+wsManager.onStateChange(state => {
+  console.log('State:', state)
+})
 
 // Listen to messages
 wsManager.on('notification', (event, data) => {
-  console.log('Received:', data);
-});
+  console.log('Received:', data)
+})
 
 // Send message
-wsManager.emit('subscribe', { userId: 'user123' });
+wsManager.emit('subscribe', { userId: 'user123' })
 
 // Disconnect when done
-wsManager.disconnect();
+wsManager.disconnect()
 ```
 
 ## Server-Side Changes
@@ -234,8 +240,8 @@ The server has been updated to respond to ping requests:
 ```typescript
 // In notification.ts
 socket.on('ping', () => {
-  socket.emit('pong');
-});
+  socket.emit('pong')
+})
 ```
 
 ### Socket.IO Configuration
@@ -249,9 +255,9 @@ this.io = new SocketIOServer(httpServer, {
     methods: ['GET', 'POST'],
   },
   transports: ['websocket', 'polling'],
-  pingTimeout: 60000,    // 60 seconds
-  pingInterval: 25000,   // 25 seconds
-});
+  pingTimeout: 60000, // 60 seconds
+  pingInterval: 25000, // 25 seconds
+})
 ```
 
 ## Testing
@@ -263,6 +269,7 @@ npm test -- websocket-manager.test.ts
 ```
 
 Tests cover:
+
 - Connection management
 - Heartbeat monitoring
 - Exponential backoff reconnection
@@ -275,30 +282,28 @@ Tests cover:
 ### From useNotifications to useNotificationsStable
 
 **Old code:**
+
 ```typescript
-import { useNotifications } from '@/hooks/useNotifications';
+import { useNotifications } from '@/hooks/useNotifications'
 
 const { notifications, isConnected } = useNotifications({
   userId: 'user123',
-});
+})
 ```
 
 **New code:**
-```typescript
-import { useNotificationsStable } from '@/hooks/useNotificationsStable';
 
-const {
-  notifications,
-  isConnected,
-  connectionState,
-  isReconnecting,
-  queueSize,
-} = useNotificationsStable({
-  userId: 'user123',
-});
+```typescript
+import { useNotificationsStable } from '@/hooks/useNotificationsStable'
+
+const { notifications, isConnected, connectionState, isReconnecting, queueSize } =
+  useNotificationsStable({
+    userId: 'user123',
+  })
 ```
 
 **Key differences:**
+
 1. Hook name changed from `useNotifications` to `useNotificationsStable`
 2. Additional state information: `connectionState`, `isReconnecting`, `queueSize`
 3. Same API for notifications: `markAsRead`, `markAllAsRead`, `deleteNotification`
@@ -309,19 +314,19 @@ const {
 
 ### WebSocketManager Options
 
-| Option | Type | Default | Description |
-|--------|------|---------|-------------|
-| `url` | string | required | WebSocket server URL |
-| `autoConnect` | boolean | true | Auto-connect on initialization |
-| `transports` | array | `['websocket', 'polling']` | Transport methods |
-| `heartbeatInterval` | number | 25000 | Ping interval (ms) |
-| `heartbeatTimeout` | number | 10000 | Pong timeout (ms) |
-| `reconnectionDelay` | number | 1000 | Initial reconnection delay (ms) |
-| `reconnectionDelayMax` | number | 30000 | Maximum reconnection delay (ms) |
-| `reconnectionAttempts` | number | Infinity | Max reconnection attempts |
-| `maxQueueSize` | number | 100 | Maximum queued messages |
-| `queueExpiry` | number | 300000 | Queue expiry time (ms) |
-| `auth` | object | {} | Authentication data |
+| Option                 | Type    | Default                    | Description                     |
+| ---------------------- | ------- | -------------------------- | ------------------------------- |
+| `url`                  | string  | required                   | WebSocket server URL            |
+| `autoConnect`          | boolean | true                       | Auto-connect on initialization  |
+| `transports`           | array   | `['websocket', 'polling']` | Transport methods               |
+| `heartbeatInterval`    | number  | 25000                      | Ping interval (ms)              |
+| `heartbeatTimeout`     | number  | 10000                      | Pong timeout (ms)               |
+| `reconnectionDelay`    | number  | 1000                       | Initial reconnection delay (ms) |
+| `reconnectionDelayMax` | number  | 30000                      | Maximum reconnection delay (ms) |
+| `reconnectionAttempts` | number  | Infinity                   | Max reconnection attempts       |
+| `maxQueueSize`         | number  | 100                        | Maximum queued messages         |
+| `queueExpiry`          | number  | 300000                     | Queue expiry time (ms)          |
+| `auth`                 | object  | {}                         | Authentication data             |
 
 ## Troubleshooting
 
@@ -388,6 +393,7 @@ Potential improvements for future versions:
 ## Support
 
 For issues or questions:
+
 - Check test files for examples
 - Review TypeScript types for API documentation
 - Monitor browser console for debugging information

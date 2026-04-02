@@ -8,13 +8,13 @@
 
 ## 📊 执行摘要
 
-| 指标 | 数值 |
-|------|------|
-| **总漏洞数** | 16 |
-| **严重 (Critical)** | 1 |
-| **高危 (High)** | 6 |
-| **中危 (Medium)** | 4 |
-| **低危 (Low)** | 5 |
+| 指标                | 数值 |
+| ------------------- | ---- |
+| **总漏洞数**        | 16   |
+| **严重 (Critical)** | 1    |
+| **高危 (High)**     | 6    |
+| **中危 (Medium)**   | 4    |
+| **低危 (Low)**      | 5    |
 
 **整体风险等级:** 🔴 高风险
 
@@ -25,22 +25,23 @@
 ### 1. Next.js 多个安全漏洞
 
 **依赖版本:** next@14.1.0  
-**CVE:** 多个  
+**CVE:** 多个
 
-| 漏洞 | 描述 | CVSS |
-|------|------|------|
-| GHSA-fr5h-rqp8-mj6g | Server-Side Request Forgery in Server Actions | 7.5 |
-| GHSA-gp8f-8m3g-qvj9 | Cache Poisoning | High |
-| GHSA-g77x-44xx-532m | DoS in image optimization | High |
-| GHSA-7m27-7ghc-44w9 | DoS with Server Actions | High |
-| GHSA-7gfc-8cq8-jh5f | Authorization bypass | High |
-| GHSA-4342-x723-ch2f | SSRF via Middleware Redirect | High |
+| 漏洞                | 描述                                          | CVSS |
+| ------------------- | --------------------------------------------- | ---- |
+| GHSA-fr5h-rqp8-mj6g | Server-Side Request Forgery in Server Actions | 7.5  |
+| GHSA-gp8f-8m3g-qvj9 | Cache Poisoning                               | High |
+| GHSA-g77x-44xx-532m | DoS in image optimization                     | High |
+| GHSA-7m27-7ghc-44w9 | DoS with Server Actions                       | High |
+| GHSA-7gfc-8cq8-jh5f | Authorization bypass                          | High |
+| GHSA-4342-x723-ch2f | SSRF via Middleware Redirect                  | High |
 
 **影响范围:** next@0.9.9 - 15.5.9  
 **当前版本:** 14.1.0 (受影响)  
 **修复版本:** 14.2.35+
 
 **修复建议:**
+
 ```bash
 cd app
 npm install next@14.2.35
@@ -68,7 +69,8 @@ npm install next@14.2.35
 **描述:** 正则表达式拒绝服务攻击  
 **CVSS:** 7.5 (CWE-1333, CWE-407)
 
-**修复建议:** 
+**修复建议:**
+
 ```bash
 npm audit fix
 ```
@@ -81,6 +83,7 @@ npm audit fix
 **严重程度:** 高
 
 **问题代码:**
+
 ```typescript
 password: await bcrypt.hash('admin123', 10),  // admin 密码
 password: await bcrypt.hash('user123', 10),   // user 密码
@@ -89,6 +92,7 @@ password: await bcrypt.hash('user123', 10),   // user 密码
 **风险:** 如果此代码部署到生产环境，攻击者可使用默认凭据登录
 
 **修复建议:**
+
 1. 从环境变量读取初始密码
 2. 首次部署时强制修改密码
 3. 使用数据库存储用户，移除硬编码
@@ -101,15 +105,15 @@ password: await bcrypt.hash('user123', 10),   // user 密码
 **严重程度:** 高
 
 **问题代码:**
+
 ```typescript
-const encodedKey = new TextEncoder().encode(
-  secretKey || 'dev-secret-key-change-in-production'
-);
+const encodedKey = new TextEncoder().encode(secretKey || 'dev-secret-key-change-in-production')
 ```
 
 **风险:** 如果 JWT_SECRET 未设置，使用可预测的默认密钥
 
 **修复建议:**
+
 1. 生产环境必须设置 JWT_SECRET
 2. 添加启动检查，生产环境缺少 JWT_SECRET 时拒绝启动
 
@@ -120,12 +124,14 @@ const encodedKey = new TextEncoder().encode(
 ### 6. 缺少安全响应头
 
 **问题:** 未配置以下安全头:
+
 - `Content-Security-Policy` (CSP)
 - `X-Frame-Options`
 - `X-Content-Type-Options`
 - `Strict-Transport-Security` (HSTS)
 
 **修复建议:** 在 `next.config.js` 添加:
+
 ```javascript
 const nextConfig = {
   async headers() {
@@ -136,15 +142,16 @@ const nextConfig = {
           { key: 'X-Frame-Options', value: 'DENY' },
           { key: 'X-Content-Type-Options', value: 'nosniff' },
           { key: 'Referrer-Policy', value: 'strict-origin-when-cross-origin' },
-          { 
+          {
             key: 'Content-Security-Policy',
-            value: "default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline';"
+            value:
+              "default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline';",
           },
         ],
       },
-    ];
+    ]
   },
-};
+}
 ```
 
 ---
@@ -157,6 +164,7 @@ const nextConfig = {
 **风险:** 可能导致类型安全问题被忽略
 
 **修复建议:**
+
 ```json
 {
   "compilerOptions": {
@@ -184,6 +192,7 @@ const nextConfig = {
 **风险:** XSS 攻击向量
 
 **当前使用场景:**
+
 1. 主题切换脚本 - 受控内容，风险较低
 2. JSON-LD 结构化数据 - 使用 JSON.stringify，风险较低
 
@@ -195,12 +204,12 @@ const nextConfig = {
 
 ### 10. 依赖版本过期
 
-| 包名 | 当前版本 | 最新版本 | 差距 |
-|------|----------|----------|------|
-| next | 14.1.0 | 16.1.6 | 主版本落后 |
-| react | 18.3.1 | 19.2.4 | 主版本落后 |
-| eslint | 8.57.0 | 10.0.2 | 主版本落后 |
-| tailwindcss | 3.4.19 | 4.2.1 | 主版本落后 |
+| 包名        | 当前版本 | 最新版本 | 差距       |
+| ----------- | -------- | -------- | ---------- |
+| next        | 14.1.0   | 16.1.6   | 主版本落后 |
+| react       | 18.3.1   | 19.2.4   | 主版本落后 |
+| eslint      | 8.57.0   | 10.0.2   | 主版本落后 |
+| tailwindcss | 3.4.19   | 4.2.1    | 主版本落后 |
 
 ---
 
@@ -210,9 +219,9 @@ const nextConfig = {
 
 ```typescript
 return NextResponse.json(
-  { error: 'Invalid credentials' },  // 不区分用户不存在和密码错误
+  { error: 'Invalid credentials' }, // 不区分用户不存在和密码错误
   { status: 401 }
-);
+)
 ```
 
 **当前状态:** ✅ 已正确处理，不泄露具体错误
@@ -225,12 +234,12 @@ return NextResponse.json(
 
 ```typescript
 response.cookies.set('auth-token', token, {
-  httpOnly: true,  // ✅ 防止 XSS
-  secure: process.env.NODE_ENV === 'production',  // ✅ 生产环境 HTTPS
-  sameSite: 'lax',  // ✅ CSRF 防护
-  maxAge: 60 * 60 * 24 * 7,  // 7 天
-  path: '/'
-});
+  httpOnly: true, // ✅ 防止 XSS
+  secure: process.env.NODE_ENV === 'production', // ✅ 生产环境 HTTPS
+  sameSite: 'lax', // ✅ CSRF 防护
+  maxAge: 60 * 60 * 24 * 7, // 7 天
+  path: '/',
+})
 ```
 
 **当前状态:** ✅ 配置正确
@@ -263,25 +272,25 @@ poweredByHeader: false,  // ✅ 不暴露 Next.js 版本
 
 ### P0 - 立即修复 (1-24小时)
 
-| 编号 | 漏洞 | 操作 |
-|------|------|------|
-| 1 | Next.js 多个安全漏洞 | `npm install next@14.2.35` |
-| 4 | 硬编码密码 | 移除或从环境变量读取 |
+| 编号 | 漏洞                 | 操作                       |
+| ---- | -------------------- | -------------------------- |
+| 1    | Next.js 多个安全漏洞 | `npm install next@14.2.35` |
+| 4    | 硬编码密码           | 移除或从环境变量读取       |
 
 ### P1 - 本周修复
 
-| 编号 | 漏洞 | 操作 |
-|------|------|------|
-| 2-3 | glob/minimatch 漏洞 | `npm audit fix` |
-| 5 | JWT 默认密钥 | 添加生产环境检查 |
-| 6 | 安全响应头 | 配置 headers() |
+| 编号 | 漏洞                | 操作             |
+| ---- | ------------------- | ---------------- |
+| 2-3  | glob/minimatch 漏洞 | `npm audit fix`  |
+| 5    | JWT 默认密钥        | 添加生产环境检查 |
+| 6    | 安全响应头          | 配置 headers()   |
 
 ### P2 - 下个迭代
 
-| 编号 | 漏洞 | 操作 |
-|------|------|------|
-| 7 | TypeScript strict | 启用严格模式 |
-| 10 | 依赖升级 | 评估升级计划 |
+| 编号 | 漏洞              | 操作         |
+| ---- | ----------------- | ------------ |
+| 7    | TypeScript strict | 启用严格模式 |
+| 10   | 依赖升级          | 评估升级计划 |
 
 ---
 
@@ -328,4 +337,4 @@ npm audit
 
 ---
 
-*报告生成时间: 2026-03-06 12:00 CET*
+_报告生成时间: 2026-03-06 12:00 CET_

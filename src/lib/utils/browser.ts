@@ -1,10 +1,10 @@
 /**
  * Browser utilities
- * 
+ *
  * @module lib/utils/browser
  */
 
-import { isClient } from './env';
+import { isClient } from './env'
 
 /**
  * Get the current query parameters as an object
@@ -14,14 +14,14 @@ import { isClient } from './env';
  * getQueryParams() // { search: "hello", page: "1" }
  */
 export function getQueryParams(): Record<string, string> {
-  if (!isClient()) return {};
+  if (!isClient()) return {}
 
-  const params = new URLSearchParams(window.location.search);
-  const result: Record<string, string> = {};
+  const params = new URLSearchParams(window.location.search)
+  const result: Record<string, string> = {}
   params.forEach((value, key) => {
-    result[key] = value;
-  });
-  return result;
+    result[key] = value
+  })
+  return result
 }
 
 /**
@@ -35,20 +35,20 @@ export function updateQueryParams(
   params: Record<string, string | number | boolean | undefined | null>,
   replace: boolean = true
 ): void {
-  if (!isClient()) return;
+  if (!isClient()) return
 
-  const url = new URL(window.location.href);
+  const url = new URL(window.location.href)
   Object.keys(params).forEach(key => {
-    const value = params[key];
+    const value = params[key]
     if (value === undefined || value === null) {
-      url.searchParams.delete(key);
+      url.searchParams.delete(key)
     } else {
-      url.searchParams.set(key, String(value));
+      url.searchParams.set(key, String(value))
     }
-  });
+  })
 
-  const method = replace ? 'replaceState' : 'pushState';
-  window.history[method]({ path: url.href }, '', url.href);
+  const method = replace ? 'replaceState' : 'pushState'
+  window.history[method]({ path: url.href }, '', url.href)
 }
 
 /**
@@ -59,32 +59,32 @@ export function updateQueryParams(
  * await copyToClipboard('Hello, world!');
  */
 export async function copyToClipboard(text: string): Promise<boolean> {
-  if (!isClient()) return false;
+  if (!isClient()) return false
 
   try {
     if (navigator.clipboard && navigator.clipboard.writeText) {
-      await navigator.clipboard.writeText(text);
-      return true;
+      await navigator.clipboard.writeText(text)
+      return true
     }
 
     // Fallback for older browsers
-    const textArea = document.createElement('textarea');
-    textArea.value = text;
-    textArea.style.position = 'fixed';
-    textArea.style.left = '-999999px';
-    document.body.appendChild(textArea);
-    textArea.focus();
-    textArea.select();
+    const textArea = document.createElement('textarea')
+    textArea.value = text
+    textArea.style.position = 'fixed'
+    textArea.style.left = '-999999px'
+    document.body.appendChild(textArea)
+    textArea.focus()
+    textArea.select()
 
     try {
-      document.execCommand('copy');
-      return true;
+      document.execCommand('copy')
+      return true
     } finally {
-      document.body.removeChild(textArea);
+      document.body.removeChild(textArea)
     }
-  } catch (_error) {
+  } catch (error) {
     // Clipboard API may fail if user denied permission or in certain contexts
-    return false;
+    return false
   }
 }
 
@@ -95,16 +95,16 @@ export async function copyToClipboard(text: string): Promise<boolean> {
  * const text = await readFromClipboard();
  */
 export async function readFromClipboard(): Promise<string | null> {
-  if (!isClient()) return null;
+  if (!isClient()) return null
 
   try {
     if (navigator.clipboard && navigator.clipboard.readText) {
-      return await navigator.clipboard.readText();
+      return await navigator.clipboard.readText()
     }
-    return null;
-  } catch (_error) {
+    return null
+  } catch (error) {
     // Clipboard API may fail if user denied permission or in certain contexts
-    return null;
+    return null
   }
 }
 
@@ -116,11 +116,11 @@ export async function readFromClipboard(): Promise<string | null> {
  * downloadFile('https://example.com/file.pdf', 'document.pdf');
  */
 export function downloadFile(url: string, filename?: string): void {
-  const link = document.createElement('a');
-  link.href = url;
+  const link = document.createElement('a')
+  link.href = url
   if (filename) {
-    link.download = filename;
+    link.download = filename
   }
-  link.click();
-  link.remove();
+  link.click()
+  link.remove()
 }

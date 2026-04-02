@@ -1,13 +1,13 @@
 /**
  * AgentStatusPanel 组件测试
- * 
+ *
  * @version 1.0.0
  * @date 2026-03-30
  */
 
-import { describe, it, expect, beforeEach, vi } from 'vitest';
-import { render, screen, fireEvent, waitFor } from '@testing-library/react';
-import { AgentStatusPanel, type Agent } from './AgentStatusPanel';
+import { describe, it, expect, beforeEach, vi } from 'vitest'
+import { render, screen, fireEvent, waitFor } from '@testing-library/react'
+import { AgentStatusPanel, type Agent } from './AgentStatusPanel'
 
 // ============================================
 // Mock i18n
@@ -47,22 +47,22 @@ vi.mock('react-i18next', () => ({
         'agent.type.tester': 'Tester',
         'agent.type.manager': 'Manager',
         'agent.type.custom': 'Custom',
-      };
+      }
 
-      let text = translations[key] || key;
+      let text = translations[key] || key
       if (params) {
         Object.entries(params).forEach(([k, v]) => {
-          text = text.replace(`{{${k}}}`, String(v));
-        });
+          text = text.replace(`{{${k}}}`, String(v))
+        })
       }
-      return text;
+      return text
     },
     i18n: {
       language: 'en',
       changeLanguage: vi.fn(),
     },
   }),
-}));
+}))
 
 // ============================================
 // Mock 数据
@@ -133,20 +133,20 @@ const MOCK_AGENTS: Agent[] = [
     lastActiveAt: new Date(Date.now() - 86400000).toISOString(),
     enabled: false,
   },
-];
+]
 
 // ============================================
 // 测试套件
 // ============================================
 
 describe('AgentStatusPanel', () => {
-  const mockOnRefresh = vi.fn();
-  const mockOnViewDetails = vi.fn();
-  const mockOnToggleAgent = vi.fn();
+  const mockOnRefresh = vi.fn()
+  const mockOnViewDetails = vi.fn()
+  const mockOnToggleAgent = vi.fn()
 
   beforeEach(() => {
-    vi.clearAllMocks();
-  });
+    vi.clearAllMocks()
+  })
 
   describe('基础渲染', () => {
     it('应该渲染组件标题', () => {
@@ -157,10 +157,10 @@ describe('AgentStatusPanel', () => {
           onViewDetails={mockOnViewDetails}
           onToggleAgent={mockOnToggleAgent}
         />
-      );
+      )
 
-      expect(screen.getByText('AI Agents')).toBeInTheDocument();
-    });
+      expect(screen.getByText('AI Agents')).toBeInTheDocument()
+    })
 
     it('应该显示 agent 数量统计', () => {
       render(
@@ -170,10 +170,10 @@ describe('AgentStatusPanel', () => {
           onViewDetails={mockOnViewDetails}
           onToggleAgent={mockOnToggleAgent}
         />
-      );
+      )
 
-      expect(screen.getByText('Total: 4 agents')).toBeInTheDocument();
-    });
+      expect(screen.getByText('Total: 4 agents')).toBeInTheDocument()
+    })
 
     it('应该渲染所有 agent 卡片', () => {
       render(
@@ -183,12 +183,12 @@ describe('AgentStatusPanel', () => {
           onViewDetails={mockOnViewDetails}
           onToggleAgent={mockOnToggleAgent}
         />
-      );
+      )
 
       // 使用 role 或者查询所有元素
-      const agentNames = screen.getAllByText(/Designer|Developer|Tester|Manager/);
-      expect(agentNames.length).toBe(4);
-    });
+      const agentNames = screen.getAllByText(/Designer|Developer|Tester|Manager/)
+      expect(agentNames.length).toBe(4)
+    })
 
     it('应该显示统计概览', () => {
       render(
@@ -198,24 +198,24 @@ describe('AgentStatusPanel', () => {
           onViewDetails={mockOnViewDetails}
           onToggleAgent={mockOnToggleAgent}
         />
-      );
+      )
 
       // 总数
-      expect(screen.getByText('Total')).toBeInTheDocument();
-      expect(screen.getByText('4')).toBeInTheDocument();
+      expect(screen.getByText('Total')).toBeInTheDocument()
+      expect(screen.getByText('4')).toBeInTheDocument()
 
       // Active
-      expect(screen.getByText('Active')).toBeInTheDocument();
-      expect(screen.getByText('2')).toBeInTheDocument();
+      expect(screen.getByText('Active')).toBeInTheDocument()
+      expect(screen.getByText('2')).toBeInTheDocument()
 
       // Idle
-      expect(screen.getByText('Idle')).toBeInTheDocument();
-      expect(screen.getByText('1')).toBeInTheDocument();
+      expect(screen.getByText('Idle')).toBeInTheDocument()
+      expect(screen.getByText('1')).toBeInTheDocument()
 
       // Offline
-      expect(screen.getByText('Offline')).toBeInTheDocument();
-    });
-  });
+      expect(screen.getByText('Offline')).toBeInTheDocument()
+    })
+  })
 
   describe('加载状态', () => {
     it('应该显示加载状态', () => {
@@ -227,13 +227,13 @@ describe('AgentStatusPanel', () => {
           onViewDetails={mockOnViewDetails}
           onToggleAgent={mockOnToggleAgent}
         />
-      );
+      )
 
       // 检查骨架屏是否渲染
-      const skeletons = document.querySelectorAll('.animate-pulse');
-      expect(skeletons.length).toBeGreaterThan(0);
-    });
-  });
+      const skeletons = document.querySelectorAll('.animate-pulse')
+      expect(skeletons.length).toBeGreaterThan(0)
+    })
+  })
 
   describe('空状态', () => {
     it('应该显示空状态消息', () => {
@@ -245,11 +245,11 @@ describe('AgentStatusPanel', () => {
           onViewDetails={mockOnViewDetails}
           onToggleAgent={mockOnToggleAgent}
         />
-      );
+      )
 
-      expect(screen.getByText('No Agents')).toBeInTheDocument();
-      expect(screen.getByText('No agents available')).toBeInTheDocument();
-    });
+      expect(screen.getByText('No Agents')).toBeInTheDocument()
+      expect(screen.getByText('No agents available')).toBeInTheDocument()
+    })
 
     it('点击刷新按钮应该触发 onRefresh', () => {
       render(
@@ -260,14 +260,14 @@ describe('AgentStatusPanel', () => {
           onViewDetails={mockOnViewDetails}
           onToggleAgent={mockOnToggleAgent}
         />
-      );
+      )
 
-      const refreshButton = screen.getByText('Refresh');
-      fireEvent.click(refreshButton);
+      const refreshButton = screen.getByText('Refresh')
+      fireEvent.click(refreshButton)
 
-      expect(mockOnRefresh).toHaveBeenCalledTimes(1);
-    });
-  });
+      expect(mockOnRefresh).toHaveBeenCalledTimes(1)
+    })
+  })
 
   describe('Agent 卡片内容', () => {
     it('应该显示 agent 名称和类型', () => {
@@ -278,14 +278,14 @@ describe('AgentStatusPanel', () => {
           onViewDetails={mockOnViewDetails}
           onToggleAgent={mockOnToggleAgent}
         />
-      );
+      )
 
       // 检查所有 agent 名称都存在
-      expect(screen.getByText(/Designer/)).toBeInTheDocument();
-      expect(screen.getByText(/Developer/)).toBeInTheDocument();
-      expect(screen.getByText(/Tester/)).toBeInTheDocument();
-      expect(screen.getByText(/Manager/)).toBeInTheDocument();
-    });
+      expect(screen.getByText(/Designer/)).toBeInTheDocument()
+      expect(screen.getByText(/Developer/)).toBeInTheDocument()
+      expect(screen.getByText(/Tester/)).toBeInTheDocument()
+      expect(screen.getByText(/Manager/)).toBeInTheDocument()
+    })
 
     it('应该显示当前任务信息', () => {
       render(
@@ -295,12 +295,12 @@ describe('AgentStatusPanel', () => {
           onViewDetails={mockOnViewDetails}
           onToggleAgent={mockOnToggleAgent}
         />
-      );
+      )
 
-      expect(screen.getByText(/Design Dashboard/)).toBeInTheDocument();
-      expect(screen.getByText(/design/)).toBeInTheDocument();
-      expect(screen.getByText(/65%/)).toBeInTheDocument();
-    });
+      expect(screen.getByText(/Design Dashboard/)).toBeInTheDocument()
+      expect(screen.getByText(/design/)).toBeInTheDocument()
+      expect(screen.getByText(/65%/)).toBeInTheDocument()
+    })
 
     it('应该显示资源使用情况', () => {
       render(
@@ -311,12 +311,12 @@ describe('AgentStatusPanel', () => {
           onViewDetails={mockOnViewDetails}
           onToggleAgent={mockOnToggleAgent}
         />
-      );
+      )
 
       // 检查是否有 CPU 和 Memory 标签（有多个 agent）
-      expect(screen.queryAllByText(/CPU/).length).toBeGreaterThan(0);
-      expect(screen.queryAllByText(/Memory/).length).toBeGreaterThan(0);
-    });
+      expect(screen.queryAllByText(/CPU/).length).toBeGreaterThan(0)
+      expect(screen.queryAllByText(/Memory/).length).toBeGreaterThan(0)
+    })
 
     it('应该显示状态徽章', () => {
       render(
@@ -326,13 +326,13 @@ describe('AgentStatusPanel', () => {
           onViewDetails={mockOnViewDetails}
           onToggleAgent={mockOnToggleAgent}
         />
-      );
+      )
 
-      expect(screen.getByText(/Active/)).toBeInTheDocument();
-      expect(screen.getByText(/Idle/)).toBeInTheDocument();
-      expect(screen.getByText(/Offline/)).toBeInTheDocument();
-    });
-  });
+      expect(screen.getByText(/Active/)).toBeInTheDocument()
+      expect(screen.getByText(/Idle/)).toBeInTheDocument()
+      expect(screen.getByText(/Offline/)).toBeInTheDocument()
+    })
+  })
 
   describe('筛选功能', () => {
     it('应该支持状态筛选', async () => {
@@ -343,21 +343,21 @@ describe('AgentStatusPanel', () => {
           onViewDetails={mockOnViewDetails}
           onToggleAgent={mockOnToggleAgent}
         />
-      );
+      )
 
       // 点击 Active 筛选按钮（使用 role 查询）
-      const activeButtons = screen.getAllByRole('button', { name: 'Active' });
-      fireEvent.click(activeButtons[0]);
+      const activeButtons = screen.getAllByRole('button', { name: 'Active' })
+      fireEvent.click(activeButtons[0])
 
       await waitFor(() => {
-        expect(screen.getByText('Designer')).toBeInTheDocument();
-        expect(screen.getByText('Developer')).toBeInTheDocument();
-      });
+        expect(screen.getByText('Designer')).toBeInTheDocument()
+        expect(screen.getByText('Developer')).toBeInTheDocument()
+      })
 
       // 确保其他 agent 不再显示
-      expect(screen.queryByText('Tester')).not.toBeInTheDocument();
-      expect(screen.queryByText('Manager')).not.toBeInTheDocument();
-    });
+      expect(screen.queryByText('Tester')).not.toBeInTheDocument()
+      expect(screen.queryByText('Manager')).not.toBeInTheDocument()
+    })
 
     it('应该支持搜索功能', async () => {
       render(
@@ -367,18 +367,18 @@ describe('AgentStatusPanel', () => {
           onViewDetails={mockOnViewDetails}
           onToggleAgent={mockOnToggleAgent}
         />
-      );
+      )
 
-      const searchInput = screen.getByPlaceholderText('Search agents...');
-      fireEvent.change(searchInput, { target: { value: 'Designer' } });
+      const searchInput = screen.getByPlaceholderText('Search agents...')
+      fireEvent.change(searchInput, { target: { value: 'Designer' } })
 
       await waitFor(() => {
-        expect(screen.getByText('Designer')).toBeInTheDocument();
-      });
+        expect(screen.getByText('Designer')).toBeInTheDocument()
+      })
 
-      expect(screen.queryByText('Developer')).not.toBeInTheDocument();
-      expect(screen.queryByText('Tester')).not.toBeInTheDocument();
-    });
+      expect(screen.queryByText('Developer')).not.toBeInTheDocument()
+      expect(screen.queryByText('Tester')).not.toBeInTheDocument()
+    })
 
     it('应该结合搜索和筛选', async () => {
       render(
@@ -388,22 +388,22 @@ describe('AgentStatusPanel', () => {
           onViewDetails={mockOnViewDetails}
           onToggleAgent={mockOnToggleAgent}
         />
-      );
+      )
 
       // 先筛选 Active（使用 role 查询）
-      const activeButtons = screen.getAllByRole('button', { name: 'Active' });
-      fireEvent.click(activeButtons[0]);
+      const activeButtons = screen.getAllByRole('button', { name: 'Active' })
+      fireEvent.click(activeButtons[0])
 
       // 再搜索
-      const searchInput = screen.getByPlaceholderText('Search agents...');
-      fireEvent.change(searchInput, { target: { value: 'Designer' } });
+      const searchInput = screen.getByPlaceholderText('Search agents...')
+      fireEvent.change(searchInput, { target: { value: 'Designer' } })
 
       await waitFor(() => {
-        expect(screen.getByText('Designer')).toBeInTheDocument();
-        expect(screen.queryByText('Developer')).not.toBeInTheDocument();
-      });
-    });
-  });
+        expect(screen.getByText('Designer')).toBeInTheDocument()
+        expect(screen.queryByText('Developer')).not.toBeInTheDocument()
+      })
+    })
+  })
 
   describe('交互功能', () => {
     it('点击刷新按钮应该触发 onRefresh', () => {
@@ -414,13 +414,13 @@ describe('AgentStatusPanel', () => {
           onViewDetails={mockOnViewDetails}
           onToggleAgent={mockOnToggleAgent}
         />
-      );
+      )
 
-      const refreshButton = screen.getByText('Refresh');
-      fireEvent.click(refreshButton);
+      const refreshButton = screen.getByText('Refresh')
+      fireEvent.click(refreshButton)
 
-      expect(mockOnRefresh).toHaveBeenCalledTimes(1);
-    });
+      expect(mockOnRefresh).toHaveBeenCalledTimes(1)
+    })
 
     it('点击 Details 按钮应该触发 onViewDetails', () => {
       render(
@@ -430,14 +430,14 @@ describe('AgentStatusPanel', () => {
           onViewDetails={mockOnViewDetails}
           onToggleAgent={mockOnToggleAgent}
         />
-      );
+      )
 
-      const detailsButtons = screen.getAllByText('Details');
-      fireEvent.click(detailsButtons[0]);
+      const detailsButtons = screen.getAllByText('Details')
+      fireEvent.click(detailsButtons[0])
 
-      expect(mockOnViewDetails).toHaveBeenCalledTimes(1);
-      expect(mockOnViewDetails).toHaveBeenCalledWith(MOCK_AGENTS[0]);
-    });
+      expect(mockOnViewDetails).toHaveBeenCalledTimes(1)
+      expect(mockOnViewDetails).toHaveBeenCalledWith(MOCK_AGENTS[0])
+    })
 
     it('点击 Disable 按钮应该触发 onToggleAgent', () => {
       render(
@@ -447,18 +447,18 @@ describe('AgentStatusPanel', () => {
           onViewDetails={mockOnViewDetails}
           onToggleAgent={mockOnToggleAgent}
         />
-      );
+      )
 
-      const disableButtons = screen.getAllByText('Disable');
-      fireEvent.click(disableButtons[0]);
+      const disableButtons = screen.getAllByText('Disable')
+      fireEvent.click(disableButtons[0])
 
-      expect(mockOnToggleAgent).toHaveBeenCalledTimes(1);
-      expect(mockOnToggleAgent).toHaveBeenCalledWith('agent-1', false);
-    });
+      expect(mockOnToggleAgent).toHaveBeenCalledTimes(1)
+      expect(mockOnToggleAgent).toHaveBeenCalledWith('agent-1', false)
+    })
 
     it('点击 Enable 按钮应该触发 onToggleAgent', () => {
       // 使用包含 enabled=false 的 agent
-      const agents = MOCK_AGENTS.filter(a => !a.enabled); // 只取 enabled=false 的
+      const agents = MOCK_AGENTS.filter(a => !a.enabled) // 只取 enabled=false 的
 
       render(
         <AgentStatusPanel
@@ -467,17 +467,17 @@ describe('AgentStatusPanel', () => {
           onViewDetails={mockOnViewDetails}
           onToggleAgent={mockOnToggleAgent}
         />
-      );
+      )
 
-      const enableButtons = screen.getAllByText('Enable');
-      expect(enableButtons.length).toBeGreaterThan(0);
-      
-      fireEvent.click(enableButtons[0]);
+      const enableButtons = screen.getAllByText('Enable')
+      expect(enableButtons.length).toBeGreaterThan(0)
 
-      expect(mockOnToggleAgent).toHaveBeenCalledTimes(1);
-      expect(mockOnToggleAgent).toHaveBeenCalledWith('agent-4', true); // Manager
-    });
-  });
+      fireEvent.click(enableButtons[0])
+
+      expect(mockOnToggleAgent).toHaveBeenCalledTimes(1)
+      expect(mockOnToggleAgent).toHaveBeenCalledWith('agent-4', true) // Manager
+    })
+  })
 
   describe('分页功能', () => {
     it('应该在 pageSize 小于 agent 数量时显示分页', () => {
@@ -488,7 +488,7 @@ describe('AgentStatusPanel', () => {
         status: 'active' as const,
         lastActiveAt: new Date().toISOString(),
         enabled: true,
-      }));
+      }))
 
       render(
         <AgentStatusPanel
@@ -498,12 +498,12 @@ describe('AgentStatusPanel', () => {
           onViewDetails={mockOnViewDetails}
           onToggleAgent={mockOnToggleAgent}
         />
-      );
+      )
 
-      expect(screen.getByText('Previous')).toBeInTheDocument();
-      expect(screen.getByText('Next')).toBeInTheDocument();
-      expect(screen.getByText('1 / 3')).toBeInTheDocument();
-    });
+      expect(screen.getByText('Previous')).toBeInTheDocument()
+      expect(screen.getByText('Next')).toBeInTheDocument()
+      expect(screen.getByText('1 / 3')).toBeInTheDocument()
+    })
 
     it('点击 Next 应该显示下一页', async () => {
       const manyAgents = Array.from({ length: 25 }, (_, i) => ({
@@ -513,7 +513,7 @@ describe('AgentStatusPanel', () => {
         status: 'active' as const,
         lastActiveAt: new Date().toISOString(),
         enabled: true,
-      }));
+      }))
 
       render(
         <AgentStatusPanel
@@ -523,15 +523,15 @@ describe('AgentStatusPanel', () => {
           onViewDetails={mockOnViewDetails}
           onToggleAgent={mockOnToggleAgent}
         />
-      );
+      )
 
-      const nextButton = screen.getByText('Next');
-      fireEvent.click(nextButton);
+      const nextButton = screen.getByText('Next')
+      fireEvent.click(nextButton)
 
       await waitFor(() => {
-        expect(screen.getByText('2 / 3')).toBeInTheDocument();
-      });
-    });
+        expect(screen.getByText('2 / 3')).toBeInTheDocument()
+      })
+    })
 
     it('点击 Previous 应该显示上一页', async () => {
       const manyAgents = Array.from({ length: 25 }, (_, i) => ({
@@ -541,7 +541,7 @@ describe('AgentStatusPanel', () => {
         status: 'active' as const,
         lastActiveAt: new Date().toISOString(),
         enabled: true,
-      }));
+      }))
 
       render(
         <AgentStatusPanel
@@ -551,29 +551,29 @@ describe('AgentStatusPanel', () => {
           onViewDetails={mockOnViewDetails}
           onToggleAgent={mockOnToggleAgent}
         />
-      );
+      )
 
       // 先到第二页
-      const nextButton = screen.getByText('Next');
-      fireEvent.click(nextButton);
+      const nextButton = screen.getByText('Next')
+      fireEvent.click(nextButton)
 
       await waitFor(() => {
-        expect(screen.getByText('2 / 3')).toBeInTheDocument();
-      });
+        expect(screen.getByText('2 / 3')).toBeInTheDocument()
+      })
 
       // 再回到第一页
-      const prevButton = screen.getByText('Previous');
-      fireEvent.click(prevButton);
+      const prevButton = screen.getByText('Previous')
+      fireEvent.click(prevButton)
 
       await waitFor(() => {
-        expect(screen.getByText('1 / 3')).toBeInTheDocument();
-      });
-    });
-  });
+        expect(screen.getByText('1 / 3')).toBeInTheDocument()
+      })
+    })
+  })
 
   describe('自动刷新', () => {
     it('应该在指定间隔后自动刷新', () => {
-      vi.useFakeTimers();
+      vi.useFakeTimers()
 
       render(
         <AgentStatusPanel
@@ -583,25 +583,25 @@ describe('AgentStatusPanel', () => {
           onViewDetails={mockOnViewDetails}
           onToggleAgent={mockOnToggleAgent}
         />
-      );
+      )
 
-      expect(mockOnRefresh).not.toHaveBeenCalled();
+      expect(mockOnRefresh).not.toHaveBeenCalled()
 
       // 快进 5 秒
-      vi.advanceTimersByTime(5000);
+      vi.advanceTimersByTime(5000)
 
-      expect(mockOnRefresh).toHaveBeenCalledTimes(1);
+      expect(mockOnRefresh).toHaveBeenCalledTimes(1)
 
       // 再快进 5 秒
-      vi.advanceTimersByTime(5000);
+      vi.advanceTimersByTime(5000)
 
-      expect(mockOnRefresh).toHaveBeenCalledTimes(2);
+      expect(mockOnRefresh).toHaveBeenCalledTimes(2)
 
-      vi.useRealTimers();
-    });
+      vi.useRealTimers()
+    })
 
     it('应该取消自动刷新当组件卸载', () => {
-      vi.useFakeTimers();
+      vi.useFakeTimers()
 
       const { unmount } = render(
         <AgentStatusPanel
@@ -611,18 +611,18 @@ describe('AgentStatusPanel', () => {
           onViewDetails={mockOnViewDetails}
           onToggleAgent={mockOnToggleAgent}
         />
-      );
+      )
 
-      unmount();
+      unmount()
 
       // 快进 10 秒
-      vi.advanceTimersByTime(10000);
+      vi.advanceTimersByTime(10000)
 
-      expect(mockOnRefresh).not.toHaveBeenCalled();
+      expect(mockOnRefresh).not.toHaveBeenCalled()
 
-      vi.useRealTimers();
-    });
-  });
+      vi.useRealTimers()
+    })
+  })
 
   describe('资源显示控制', () => {
     it('showResourceDetails=true 应该显示资源使用情况', () => {
@@ -634,15 +634,15 @@ describe('AgentStatusPanel', () => {
           onViewDetails={mockOnViewDetails}
           onToggleAgent={mockOnToggleAgent}
         />
-      );
+      )
 
       // 检查是否有多个 CPU 标签（因为多个 agent）
-      const cpuElements = screen.queryAllByText('CPU');
-      expect(cpuElements.length).toBeGreaterThan(0);
+      const cpuElements = screen.queryAllByText('CPU')
+      expect(cpuElements.length).toBeGreaterThan(0)
 
-      const memoryElements = screen.queryAllByText('Memory');
-      expect(memoryElements.length).toBeGreaterThan(0);
-    });
+      const memoryElements = screen.queryAllByText('Memory')
+      expect(memoryElements.length).toBeGreaterThan(0)
+    })
 
     it('showResourceDetails=false 不应该显示资源使用情况', () => {
       render(
@@ -653,11 +653,11 @@ describe('AgentStatusPanel', () => {
           onViewDetails={mockOnViewDetails}
           onToggleAgent={mockOnToggleAgent}
         />
-      );
+      )
 
       // 资源信息不应该显示（只有 4 个 agent，如果有显示的话应该至少有 4 个）
-      const cpuElements = screen.queryAllByText('CPU');
-      expect(cpuElements.length).toBe(0);
-    });
-  });
-});
+      const cpuElements = screen.queryAllByText('CPU')
+      expect(cpuElements.length).toBe(0)
+    })
+  })
+})

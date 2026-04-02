@@ -48,6 +48,7 @@ src/
 **Location:** `src/app/[locale]/not-found.tsx`
 
 **Features:**
+
 - Large 404 number with gradient effect
 - Friendly error message
 - Quick links to common pages
@@ -61,6 +62,7 @@ src/
 **Location:** `src/app/[locale]/error.tsx` → `src/app/[locale]/error-enhanced.tsx`
 
 **Features:**
+
 - Large 500 number with gradient
 - Error digest/code display
 - Retry button with loading state
@@ -75,6 +77,7 @@ src/
 **Location:** `src/components/errors/UnauthorizedPage.tsx`
 
 **Features:**
+
 - Large 401 number with gradient
 - Login button
 - Return to home button
@@ -84,12 +87,13 @@ src/
 **Usage:** Use when user authentication is required.
 
 **Example:**
+
 ```tsx
-import { UnauthorizedPage } from '@/components/errors';
+import { UnauthorizedPage } from '@/components/errors'
 
 // In your page component
 if (!isAuthenticated) {
-  return <UnauthorizedPage />;
+  return <UnauthorizedPage />
 }
 ```
 
@@ -98,6 +102,7 @@ if (!isAuthenticated) {
 **Location:** `src/components/errors/ForbiddenPage.tsx`
 
 **Features:**
+
 - Large 403 number with gradient
 - Clear explanation of access denial
 - Possible reasons list
@@ -108,12 +113,13 @@ if (!isAuthenticated) {
 **Usage:** Use when user lacks permissions.
 
 **Example:**
+
 ```tsx
-import { ForbiddenPage } from '@/components/errors';
+import { ForbiddenPage } from '@/components/errors'
 
 // In your page component
 if (!hasPermission) {
-  return <ForbiddenPage />;
+  return <ForbiddenPage />
 }
 ```
 
@@ -122,6 +128,7 @@ if (!hasPermission) {
 **Location:** `src/app/global-error.tsx`
 
 **Features:**
+
 - Root-level error handling
 - App-wide error recovery
 - Development error details
@@ -138,11 +145,13 @@ if (!hasPermission) {
 **Purpose:** Reusable error display UI with multiple variants.
 
 **Variants:**
+
 - `default` - Full-featured error page
 - `compact` - Inline error message
 - `fullscreen` - Full-screen modal
 
 **Error Types:**
+
 - `generic` - General error
 - `network` - Network connection error
 - `not-found` - 404 error
@@ -151,29 +160,30 @@ if (!hasPermission) {
 - `server` - 500 error
 
 **Props:**
+
 ```tsx
 interface ErrorDisplayProps {
-  title?: string;              // Error title
-  message?: string;            // Error message
-  showReset?: boolean;         // Show retry button
-  onReset?: () => void;        // Retry callback
-  errorDigest?: string;         // Error code
-  variant?: ErrorVariant;      // Display variant
-  errorType?: ErrorType;       // Error type
-  showHomeButton?: boolean;    // Show home button
-  showBackButton?: boolean;    // Show back button
-  showRefreshButton?: boolean; // Show refresh button
-  showCopyError?: boolean;     // Show copy error button
-  onGoHome?: () => void;       // Home button callback
-  onGoBack?: () => void;       // Back button callback
+  title?: string // Error title
+  message?: string // Error message
+  showReset?: boolean // Show retry button
+  onReset?: () => void // Retry callback
+  errorDigest?: string // Error code
+  variant?: ErrorVariant // Display variant
+  errorType?: ErrorType // Error type
+  showHomeButton?: boolean // Show home button
+  showBackButton?: boolean // Show back button
+  showRefreshButton?: boolean // Show refresh button
+  showCopyError?: boolean // Show copy error button
+  onGoHome?: () => void // Home button callback
+  onGoBack?: () => void // Back button callback
 }
 ```
 
 **Usage Example:**
-```tsx
-import { ErrorDisplay } from '@/components/ErrorDisplay';
 
-<ErrorDisplay
+```tsx
+import { ErrorDisplay } from '@/components/ErrorDisplay'
+;<ErrorDisplay
   title="Something went wrong"
   message="Unable to load your data"
   errorType="network"
@@ -190,14 +200,16 @@ import { ErrorDisplay } from '@/components/ErrorDisplay';
 **Purpose:** React error boundary for Next.js pages.
 
 **Features:**
+
 - Automatic error type detection
 - Sentry integration for error tracking
 - Retry counting
 - Smart error recovery
 
 **Usage Example:**
+
 ```tsx
-import { ErrorBoundary } from '@/components/ErrorBoundary';
+import { ErrorBoundary } from '@/components/ErrorBoundary'
 
 // In error.tsx
 export default function Error({ error, reset }: ErrorProps) {
@@ -209,7 +221,7 @@ export default function Error({ error, reset }: ErrorProps) {
       showReset={true}
       showHomeButton={true}
     />
-  );
+  )
 }
 ```
 
@@ -220,15 +232,16 @@ export default function Error({ error, reset }: ErrorProps) {
 **Purpose:** Create reusable page-level error boundaries.
 
 **Usage:**
+
 ```tsx
-import { createPageErrorBoundary } from '@/components/errors';
+import { createPageErrorBoundary } from '@/components/errors'
 
 // Create a custom error boundary
-const MyPageError = createPageErrorBoundary('My Page Error');
+const MyPageError = createPageErrorBoundary('My Page Error')
 
 // Use in error.tsx
 export default function Error({ error, reset }: ErrorProps) {
-  return <MyPageError error={error} reset={reset} />;
+  return <MyPageError error={error} reset={reset} />
 }
 ```
 
@@ -237,6 +250,7 @@ export default function Error({ error, reset }: ErrorProps) {
 All error messages are localized in `src/i18n/messages/`:
 
 ### English (en.json)
+
 ```json
 {
   "errors": {
@@ -264,6 +278,7 @@ All error messages are localized in `src/i18n/messages/`:
 ```
 
 ### Chinese (zh.json)
+
 ```json
 {
   "errors": {
@@ -314,6 +329,7 @@ A test page is available at `/test-error` to verify all error pages:
 ### Automated Testing
 
 Test files are located in `src/components/__tests__/`:
+
 - `ErrorBoundary.test.tsx` - Error boundary tests
 - `NetworkErrorBoundary.test.tsx` - Network error tests
 
@@ -359,19 +375,20 @@ The `ErrorBoundary` component automatically logs errors to Sentry:
 
 ```tsx
 useEffect(() => {
-  Sentry.withScope((scope) => {
-    scope.setTag('error_type', errorType);
-    scope.setTag('retry_count', retryCount);
-    scope.setExtra('digest', error.digest);
-    scope.setExtra('url', window.location.href);
-    Sentry.captureException(error);
-  });
-}, [error, errorType, retryCount]);
+  Sentry.withScope(scope => {
+    scope.setTag('error_type', errorType)
+    scope.setTag('retry_count', retryCount)
+    scope.setExtra('digest', error.digest)
+    scope.setExtra('url', window.location.href)
+    Sentry.captureException(error)
+  })
+}, [error, errorType, retryCount])
 ```
 
 ## Future Enhancements
 
 Potential improvements:
+
 - Error rate limiting for users
 - Custom error pages for specific routes
 - Error recovery suggestions based on error type
@@ -382,6 +399,7 @@ Potential improvements:
 ## Support
 
 For issues or questions about the error handling system:
+
 - Check this documentation
 - Review the component source code
 - Test using the `/test-error` page

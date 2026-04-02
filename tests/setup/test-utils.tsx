@@ -1,23 +1,23 @@
 /**
  * @fileoverview Test utilities for wrapping components with providers
  */
-import { ReactNode } from 'react';
-import { NextIntlClientProvider } from 'next-intl';
+import { ReactNode } from 'react'
+import { NextIntlClientProvider } from 'next-intl'
 
 // Mock messages for testing
 const testMessages = {
-  'common': {
-    'loading': 'Loading...',
-    'error': 'Error',
+  common: {
+    loading: 'Loading...',
+    error: 'Error',
   },
-  'Navigation': {
-    'home': '首页',
-    'dashboard': '实时看板',
-    'subagents': '子代理',
-    'tasks': '任务',
-    'memory': '记忆',
+  Navigation: {
+    home: '首页',
+    dashboard: '实时看板',
+    subagents: '子代理',
+    tasks: '任务',
+    memory: '记忆',
   },
-};
+}
 
 /**
  * Creates a test wrapper with all necessary providers
@@ -34,7 +34,7 @@ export function createTestWrapper(
     <NextIntlClientProvider messages={messages} locale={locale}>
       {children}
     </NextIntlClientProvider>
-  );
+  )
 }
 
 /**
@@ -45,7 +45,7 @@ export const TestWrapper = {
    * Wrap component with full providers
    */
   withProviders: createTestWrapper,
-  
+
   /**
    * Wrap component with only NextIntlClientProvider (lightweight)
    */
@@ -54,4 +54,4 @@ export const TestWrapper = {
       {children}
     </NextIntlClientProvider>
   ),
-};
+}

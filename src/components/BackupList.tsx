@@ -3,124 +3,124 @@
  * Display available backups with download and delete options
  */
 
-'use client';
+'use client'
 
-import { useEffect, useState } from 'react';
-import { Card } from '@/components/ui/Card';
-import { Button } from '@/components/ui/Button';
-import { downloadFromUrl } from '@/lib/utils/download';
+import { useEffect, useState } from 'react'
+import { Card } from '@/components/ui/Card'
+import { Button } from '@/components/ui/Button'
+import { downloadFromUrl } from '@/lib/utils/download'
 
 interface BackupMetadata {
-  id: string;
-  filename: string;
-  createdAt: string;
-  sizeInBytes: number;
-  sizeInMB: number;
-  version: string;
-  tables: string[];
-  recordCounts: Record<string, number>;
-  checksum: string;
+  id: string
+  filename: string
+  createdAt: string
+  sizeInBytes: number
+  sizeInMB: number
+  version: string
+  tables: string[]
+  recordCounts: Record<string, number>
+  checksum: string
 }
 
 interface BackupListProps {
-  refreshTrigger?: number;
+  refreshTrigger?: number
 }
 
 export function BackupList({ refreshTrigger }: BackupListProps) {
-  const [backups, setBackups] = useState<BackupMetadata[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
-  const [deleting, setDeleting] = useState<string | null>(null);
+  const [backups, setBackups] = useState<BackupMetadata[]>([])
+  const [loading, setLoading] = useState(true)
+  const [error, setError] = useState<string | null>(null)
+  const [deleting, setDeleting] = useState<string | null>(null)
 
   const fetchBackups = async () => {
     try {
-      setLoading(true);
-      setError(null);
+      setLoading(true)
+      setError(null)
 
-      const response = await fetch('/api/backup');
+      const response = await fetch('/api/backup')
 
       if (!response.ok) {
-        throw new Error('Failed to fetch backups');
+        throw new Error('Failed to fetch backups')
       }
 
-      const data = await response.json();
-      setBackups(data.data.backups);
-    } catch (_err) {
+      const data = await response.json()
+      setBackups(data.data.backups)
+    } catch (err) {
       if (process.env.NODE_ENV === 'development') {
-        console.error('Failed to fetch backups:', err);
+        console.error('Failed to fetch backups:', err)
       }
-      setError(err instanceof Error ? err.message : 'Failed to fetch backups');
+      setError(err instanceof Error ? err.message : 'Failed to fetch backups')
     } finally {
-      setLoading(false);
+      setLoading(false)
     }
-  };
+  }
 
   const handleDownload = async (backupId: string, filename: string) => {
     try {
-      await downloadFromUrl(`/api/backup/${backupId}`, filename);
-    } catch (_err) {
+      await downloadFromUrl(`/api/backup/${backupId}`, filename)
+    } catch (err) {
       if (process.env.NODE_ENV === 'development') {
-        console.error('Failed to download backup:', err);
+        console.error('Failed to download backup:', err)
       }
-      alert('Failed to download backup. Please try again.');
+      alert('Failed to download backup. Please try again.')
     }
-  };
+  }
 
   const handleDelete = async (backupId: string) => {
     if (!confirm('Are you sure you want to delete this backup? This action cannot be undone.')) {
-      return;
+      return
     }
 
     try {
-      setDeleting(backupId);
+      setDeleting(backupId)
 
       const response = await fetch(`/api/backup/${backupId}`, {
         method: 'DELETE',
-      });
+      })
 
       if (!response.ok) {
-        throw new Error('Failed to delete backup');
+        throw new Error('Failed to delete backup')
       }
 
       // Refresh the list
-      await fetchBackups();
-    } catch (_err) {
+      await fetchBackups()
+    } catch (err) {
       if (process.env.NODE_ENV === 'development') {
-        console.error('Failed to delete backup:', err);
+        console.error('Failed to delete backup:', err)
       }
-      alert('Failed to delete backup. Please try again.');
+      alert('Failed to delete backup. Please try again.')
     } finally {
-      setDeleting(null);
+      setDeleting(null)
     }
-  };
+  }
 
   const formatBytes = (bytes: number): string => {
-    if (bytes === 0) return '0 Bytes';
+    if (bytes === 0) return '0 Bytes'
 
-    const k = 1024;
-    const sizes = ['Bytes', 'KB', 'MB', 'GB'];
-    const i = Math.floor(Math.log(bytes) / Math.log(k));
+    const k = 1024
+    const sizes = ['Bytes', 'KB', 'MB', 'GB']
+    const i = Math.floor(Math.log(bytes) / Math.log(k))
 
-    return Math.round((bytes / Math.pow(k, i)) * 100) / 100 + ' ' + sizes[i];
-  };
+    return Math.round((bytes / Math.pow(k, i)) * 100) / 100 + ' ' + sizes[i]
+  }
 
   const formatDate = (dateString: string): string => {
-    const date = new Date(dateString);
-    return date.toLocaleString();
-  };
+    const date = new Date(dateString)
+    return date.toLocaleString()
+  }
 
   useEffect(() => {
-    fetchBackups();
-  }, [refreshTrigger]);
+    fetchBackups()
+  }, [refreshTrigger])
 
   if (loading) {
     return (
       <Card className="p-6">
         <div className="flex items-center justify-center">
-          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600" />
+          <div className="h-8 w-8 animate-spin rounded-full border-b-2 border-blue-600" />
         </div>
       </Card>
-    );
+    )
   }
 
   if (error) {
@@ -128,13 +128,13 @@ export function BackupList({ refreshTrigger }: BackupListProps) {
       <Card className="p-6">
         <div className="text-center text-red-600 dark:text-red-400">
           <p className="font-medium">Error loading backups</p>
-          <p className="text-sm mt-1">{error}</p>
+          <p className="mt-1 text-sm">{error}</p>
           <Button onClick={fetchBackups} className="mt-4">
             Retry
           </Button>
         </div>
       </Card>
-    );
+    )
   }
 
   if (backups.length === 0) {
@@ -142,16 +142,14 @@ export function BackupList({ refreshTrigger }: BackupListProps) {
       <Card className="p-6">
         <div className="text-center text-zinc-600 dark:text-zinc-400">
           <p className="font-medium">No backups available</p>
-          <p className="text-sm mt-1">
-            Create your first backup using the export panel above.
-          </p>
+          <p className="mt-1 text-sm">Create your first backup using the export panel above.</p>
         </div>
       </Card>
-    );
+    )
   }
 
   return (
-    <Card className="p-6 space-y-4">
+    <Card className="space-y-4 p-6">
       <div className="flex items-center justify-between">
         <div>
           <h3 className="text-lg font-semibold">Available Backups</h3>
@@ -165,52 +163,46 @@ export function BackupList({ refreshTrigger }: BackupListProps) {
       </div>
 
       <div className="space-y-3">
-        {backups.map((backup) => (
+        {backups.map(backup => (
           <div
             key={backup.id}
-            className="border border-zinc-200 dark:border-zinc-700 rounded-lg p-4 hover:bg-zinc-50 dark:hover:bg-zinc-800 transition-colors"
+            className="rounded-lg border border-zinc-200 p-4 transition-colors hover:bg-zinc-50 dark:border-zinc-700 dark:hover:bg-zinc-800"
           >
             <div className="flex items-start justify-between gap-4">
               <div className="flex-1 space-y-2">
                 <div className="flex items-center gap-2">
-                  <h4 className="font-medium text-sm">{backup.filename}</h4>
-                  <span className="text-xs px-2 py-0.5 bg-blue-100 dark:bg-blue-900 text-blue-700 dark:text-blue-300 rounded">
+                  <h4 className="text-sm font-medium">{backup.filename}</h4>
+                  <span className="rounded bg-blue-100 px-2 py-0.5 text-xs text-blue-700 dark:bg-blue-900 dark:text-blue-300">
                     v{backup.version}
                   </span>
                 </div>
 
                 <div className="grid grid-cols-2 gap-x-4 gap-y-1 text-xs text-zinc-600 dark:text-zinc-400">
                   <div>
-                    <span className="font-medium">Created:</span>{' '}
-                    {formatDate(backup.createdAt)}
+                    <span className="font-medium">Created:</span> {formatDate(backup.createdAt)}
                   </div>
                   <div>
-                    <span className="font-medium">Size:</span>{' '}
-                    {formatBytes(backup.sizeInBytes)}
+                    <span className="font-medium">Size:</span> {formatBytes(backup.sizeInBytes)}
                   </div>
                   <div>
-                    <span className="font-medium">Tables:</span>{' '}
-                    {backup.tables.length}
+                    <span className="font-medium">Tables:</span> {backup.tables.length}
                   </div>
                   <div>
                     <span className="font-medium">Records:</span>{' '}
-                    {Object.values(backup.recordCounts).reduce(
-                      (sum, count) => sum + count,
-                      0
-                    )}
+                    {Object.values(backup.recordCounts).reduce((sum, count) => sum + count, 0)}
                   </div>
                 </div>
 
                 {backup.tables.length > 0 && (
                   <div className="mt-2">
-                    <p className="text-xs font-medium text-zinc-700 dark:text-zinc-300 mb-1">
+                    <p className="mb-1 text-xs font-medium text-zinc-700 dark:text-zinc-300">
                       Tables:
                     </p>
                     <div className="flex flex-wrap gap-1">
-                      {backup.tables.map((table) => (
+                      {backup.tables.map(table => (
                         <span
                           key={table}
-                          className="text-xs px-2 py-0.5 bg-zinc-100 dark:bg-zinc-700 text-zinc-700 dark:text-zinc-300 rounded"
+                          className="rounded bg-zinc-100 px-2 py-0.5 text-xs text-zinc-700 dark:bg-zinc-700 dark:text-zinc-300"
                         >
                           {table}
                           {backup.recordCounts[table] && (
@@ -237,7 +229,7 @@ export function BackupList({ refreshTrigger }: BackupListProps) {
                   onClick={() => handleDelete(backup.id)}
                   size="sm"
                   variant="outline"
-                  className="text-red-600 dark:text-red-400 hover:text-red-700 dark:hover:text-red-300"
+                  className="text-red-600 hover:text-red-700 dark:text-red-400 dark:hover:text-red-300"
                   disabled={deleting === backup.id}
                 >
                   {deleting === backup.id ? 'Deleting...' : 'Delete'}
@@ -248,5 +240,5 @@ export function BackupList({ refreshTrigger }: BackupListProps) {
         ))}
       </div>
     </Card>
-  );
+  )
 }

@@ -3,50 +3,47 @@
  * 支持 Agent 间异步消息传递、任务分解、协作协议
  */
 
-// 核心类型
-export {
+// 核心类型 - 类型导出
+export type {
   AgentInfo,
   AgentCapability,
   Message,
   MessageHeaders,
-  MessageType,
-  MessagePriority,
   Task,
   SubTask,
-  TaskStatus,
   TaskDependency,
   A2AMessage,
-  TransportType,
   TransportConfig,
   Subscription,
   MessageBusEvent,
   AgentRegistryEvent,
   TaskEvent,
+  MultiAgentConfig,
+} from './types'
+
+// 核心类型 - 值导出
+export {
+  MessageType,
+  MessagePriority,
+  TaskStatus,
+  TransportType,
   MultiAgentError,
   MultiAgentErrorType,
-  MultiAgentConfig,
-} from './types';
+} from './types'
 
 // 消息总线
-export { MessageBus } from './message-bus';
+export { MessageBus } from './message-bus'
 
 // Agent 注册表
-export { AgentRegistry } from './registry';
+export { AgentRegistry } from './registry'
 
 // 任务分解引擎
-export {
-  TaskDecomposer,
-  DecompositionStrategy,
-  type SubTaskTemplate,
-  type TaskTemplate,
-  type ITaskDecomposer,
-} from './task-decomposer';
+export { TaskDecomposer, DecompositionStrategy } from './task-decomposer'
+export type { SubTaskTemplate, TaskTemplate, ITaskDecomposer } from './task-decomposer'
 
 // 协作协议
-export {
-  AgentCollaborationProtocol,
-  PROTOCOL_VERSION,
-  PROTOCOL_MESSAGE_TYPES,
+export { AgentCollaborationProtocol, PROTOCOL_VERSION, PROTOCOL_MESSAGE_TYPES } from './protocol'
+export type {
   TaskDelegatePayload,
   TaskStatusPayload,
   TaskResultPayload,
@@ -54,31 +51,29 @@ export {
   StateQueryPayload,
   CapabilityQueryPayload,
   CapabilityResponsePayload,
-  type IProtocol,
-  type IProtocolHandler,
-} from './protocol';
+  IProtocol,
+  IProtocolHandler,
+} from './protocol'
 
 // 便捷方法：创建完整的 Multi-Agent 系统
-import { MessageBus } from './message-bus';
-import { AgentRegistry } from './registry';
-import { TaskDecomposer } from './task-decomposer';
-import { AgentCollaborationProtocol } from './protocol';
-import { TransportType, type MultiAgentConfig } from './types';
+import { MessageBus } from './message-bus'
+import { AgentRegistry } from './registry'
+import { TaskDecomposer } from './task-decomposer'
+import { AgentCollaborationProtocol } from './protocol'
+import { TransportType, type MultiAgentConfig } from './types'
 
 export interface MultiAgentSystem {
-  messageBus: MessageBus;
-  registry: AgentRegistry;
-  taskDecomposer: TaskDecomposer;
-  createProtocol: (agentId: string) => AgentCollaborationProtocol;
-  close: () => Promise<void>;
+  messageBus: MessageBus
+  registry: AgentRegistry
+  taskDecomposer: TaskDecomposer
+  createProtocol: (agentId: string) => AgentCollaborationProtocol
+  close: () => Promise<void>
 }
 
 /**
  * 创建 Multi-Agent 系统
  */
-export function createMultiAgentSystem(
-  config?: Partial<MultiAgentConfig>
-): MultiAgentSystem {
+export function createMultiAgentSystem(config?: Partial<MultiAgentConfig>): MultiAgentSystem {
   // 默认配置
   const defaultConfig: MultiAgentConfig = {
     messageBus: {
@@ -100,69 +95,57 @@ export function createMultiAgentSystem(
     transport: {
       type: TransportType.MEMORY,
     },
-  };
+  }
 
   const mergedConfig = {
     ...defaultConfig,
     ...config,
-  };
+  }
 
   // 创建消息总线
-  const messageBus = new MessageBus(
-    mergedConfig.transport.type,
-    {
-      transportUrl: mergedConfig.transport.options?.url,
-      defaultTimeout: mergedConfig.messageBus.defaultTimeout,
-      maxRetryCount: mergedConfig.messageBus.maxRetryCount,
-      retryDelay: mergedConfig.messageBus.retryDelay,
-      bufferSize: mergedConfig.messageBus.bufferSize,
-    }
-  );
+  const messageBus = new MessageBus(mergedConfig.transport.type, {
+    transportUrl: mergedConfig.transport.options?.url,
+    defaultTimeout: mergedConfig.messageBus.defaultTimeout,
+    maxRetryCount: mergedConfig.messageBus.maxRetryCount,
+    retryDelay: mergedConfig.messageBus.retryDelay,
+    bufferSize: mergedConfig.messageBus.bufferSize,
+  })
 
   // 创建注册表
   const registry = new AgentRegistry({
     heartbeatInterval: mergedConfig.registry.heartbeatInterval,
     heartbeatTimeout: mergedConfig.registry.heartbeatTimeout,
     cleanupInterval: mergedConfig.registry.cleanupInterval,
-  });
+  })
 
   // 创建任务分解器
-  const taskDecomposer = new TaskDecomposer(
-    registry,
-    messageBus,
-    {
-      maxSubTasks: mergedConfig.taskDecomposer.maxSubTasks,
-      enableAutoRetry: mergedConfig.taskDecomposer.enableAutoRetry,
-    }
-  );
+  const taskDecomposer = new TaskDecomposer(registry, messageBus, {
+    maxSubTasks: mergedConfig.taskDecomposer.maxSubTasks,
+    enableAutoRetry: mergedConfig.taskDecomposer.enableAutoRetry,
+  })
 
   // 创建协议实例的工厂方法
-  const protocols = new Map<string, AgentCollaborationProtocol>();
+  const protocols = new Map<string, AgentCollaborationProtocol>()
 
   const createProtocol = (agentId: string): AgentCollaborationProtocol => {
-    const protocol = new AgentCollaborationProtocol(
-      agentId,
-      messageBus,
-      registry,
-      taskDecomposer
-    );
-    protocols.set(agentId, protocol);
-    return protocol;
-  };
+    const protocol = new AgentCollaborationProtocol(agentId, messageBus, registry, taskDecomposer)
+    protocols.set(agentId, protocol)
+    return protocol
+  }
 
   // 关闭方法
   const close = async (): Promise<void> => {
     // 清理所有协议实例
     for (const protocol of Array.from(protocols.values())) {
-      await protocol.cleanup();
+      await protocol.cleanup()
     }
-    protocols.clear();
+    protocols.clear()
 
     // 关闭组件
-    await taskDecomposer.removeAllListeners?.();
-    await registry.close();
-    await messageBus.close();
-  };
+    await taskDecomposer.removeAllListeners?.()
+    await registry.close()
+    await messageBus.close()
+  }
 
   return {
     messageBus,
@@ -170,8 +153,8 @@ export function createMultiAgentSystem(
     taskDecomposer,
     createProtocol,
     close,
-  };
+  }
 }
 
 // 版本信息
-export const VERSION = '1.0.0';
+export const VERSION = '1.0.0'

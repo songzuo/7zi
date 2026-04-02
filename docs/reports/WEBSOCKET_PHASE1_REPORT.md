@@ -21,15 +21,16 @@
 
 2. **策略配置**:
 
-| 断线原因 | 是否重连 | 初始延迟 | 最大次数 | 说明 |
-|---------|---------|---------|---------|------|
-| `io client disconnect` | ❌ | - | 0 | 用户主动断开 |
-| `io server disconnect` | ❌ | - | 0 | 服务器明确断开 |
-| `ping timeout` | ✅ | 500ms | 5 | 心跳超时,快速重连 |
-| `transport close` | ✅ | 1000ms | 10 | 传输层关闭 |
-| `transport error` | ✅ | 2000ms | 8 | 传输层错误,稍等 |
+| 断线原因               | 是否重连 | 初始延迟 | 最大次数 | 说明              |
+| ---------------------- | -------- | -------- | -------- | ----------------- |
+| `io client disconnect` | ❌       | -        | 0        | 用户主动断开      |
+| `io server disconnect` | ❌       | -        | 0        | 服务器明确断开    |
+| `ping timeout`         | ✅       | 500ms    | 5        | 心跳超时,快速重连 |
+| `transport close`      | ✅       | 1000ms   | 10       | 传输层关闭        |
+| `transport error`      | ✅       | 2000ms   | 8        | 传输层错误,稍等   |
 
 **修改文件**:
+
 - `/root/.openclaw/workspace/7zi-frontend/src/lib/websocket-manager.ts` (+97 行)
 - `/root/.openclaw/workspace/7zi-frontend/src/features/websocket/lib/websocket-manager.ts` (+97 行)
 
@@ -45,22 +46,22 @@
 
 ```typescript
 // Calculate base delay with exponential backoff
-const baseDelay = this.options.reconnectionDelay * Math.pow(2, this.reconnectionAttempts);
+const baseDelay = this.options.reconnectionDelay * Math.pow(2, this.reconnectionAttempts)
 
 // Add jitter (0-50% of base delay) to avoid thundering herd
-const jitter = Math.random() * baseDelay * 0.5;
+const jitter = Math.random() * baseDelay * 0.5
 
 // Cap at max delay
-const delay = Math.min(baseDelay + jitter, this.options.reconnectionDelayMax);
+const delay = Math.min(baseDelay + jitter, this.options.reconnectionDelayMax)
 ```
 
 **效果**:
 
 | 尝试次数 | 原延迟 | 实际延迟范围 (含抖动) |
-|---------|-------|-------------------|
-| 1 | 1000ms | 1000-1500ms |
-| 2 | 2000ms | 2000-3000ms |
-| 3 | 4000ms | 4000-6000ms |
+| -------- | ------ | --------------------- |
+| 1        | 1000ms | 1000-1500ms           |
+| 2        | 2000ms | 2000-3000ms           |
+| 3        | 4000ms | 4000-6000ms           |
 
 **预期效果**: 客户端重连请求分散,减少服务器瞬间压力 30-50%
 
@@ -69,6 +70,7 @@ const delay = Math.min(baseDelay + jitter, this.options.reconnectionDelayMax);
 ### ✅ P0.3: 服务器心跳超时调整
 
 **问题**:
+
 - 服务器 `pingTimeout: 45s`
 - 客户端心跳检测: 25s 间隔 + 10s 超时 × 3 = 最大 75s
 - 不匹配导致: 服务器 45s 断开,客户端 75s 才检测到
@@ -83,10 +85,11 @@ const io = new SocketIOServer(httpServer, {
   pingTimeout: 120000, // 120 seconds - 增加以匹配客户端心跳检测 (25s * 3 + margin)
   pingInterval: 25000, // 25 seconds - 匹配客户端心跳间隔
   // ...
-});
+})
 ```
 
 **理由**:
+
 - 客户端最大检测时间: 25s × 3 = 75s (3次心跳超时)
 - 服务器超时需 > 75s + 安全边际
 - 设置 120s 确保客户端先检测到断线,主动重连
@@ -138,19 +141,19 @@ private fastReconnect(): void {
 
 ### 文件修改清单
 
-| 文件 | 修改类型 | 修改内容 |
-|------|---------|---------|
-| `src/lib/websocket-manager.ts` | 修改 | 断线原因分类、Jitter、网络监听 |
-| `src/features/websocket/lib/websocket-manager.ts` | 修改 | 同上 (镜像) |
-| `server/websocket-server.js` | 修改 | 服务器心跳超时配置 |
+| 文件                                              | 修改类型 | 修改内容                       |
+| ------------------------------------------------- | -------- | ------------------------------ |
+| `src/lib/websocket-manager.ts`                    | 修改     | 断线原因分类、Jitter、网络监听 |
+| `src/features/websocket/lib/websocket-manager.ts` | 修改     | 同上 (镜像)                    |
+| `server/websocket-server.js`                      | 修改     | 服务器心跳超时配置             |
 
 ### 代码行数变化
 
-| 文件 | 原始行数 | 新增行数 | 最终行数 |
-|------|---------|---------|---------|
-| `src/lib/websocket-manager.ts` | 588 | +97 | 685 |
-| `src/features/websocket/lib/websocket-manager.ts` | 588 | +97 | 685 |
-| `server/websocket-server.js` | 未统计 | 1 行 | - |
+| 文件                                              | 原始行数 | 新增行数 | 最终行数 |
+| ------------------------------------------------- | -------- | -------- | -------- |
+| `src/lib/websocket-manager.ts`                    | 588      | +97      | 685      |
+| `src/features/websocket/lib/websocket-manager.ts` | 588      | +97      | 685      |
+| `server/websocket-server.js`                      | 未统计   | 1 行     | -        |
 
 **总计**: 约 194 行新增代码
 
@@ -188,12 +191,12 @@ $ npm run build
 
 ### 稳定性提升
 
-| 指标 | 改进前 | 改进后 | 提升 |
-|-----|-------|-------|-----|
-| 惊群效应风险 | 高 (同时重连) | 低 (抖动分散) | ⬇️ 50% |
+| 指标         | 改进前              | 改进后        | 提升   |
+| ------------ | ------------------- | ------------- | ------ |
+| 惊群效应风险 | 高 (同时重连)       | 低 (抖动分散) | ⬇️ 50% |
 | 无效重连次数 | 多 (用户断开也重连) | 少 (按需重连) | ⬇️ 80% |
-| 心跳不匹配 | 频繁断线 | 匹配 | ⬇️ 90% |
-| 网络恢复响应 | 慢 (等待调度) | 快 (立即重连) | ⬆️ 10x |
+| 心跳不匹配   | 频繁断线            | 匹配          | ⬇️ 90% |
+| 网络恢复响应 | 慢 (等待调度)       | 快 (立即重连) | ⬆️ 10x |
 
 ### 用户体验改进
 
@@ -217,25 +220,25 @@ $ npm run build
 
 ```typescript
 wsManager.onReconnect(({ type, attempt, duration }) => {
-  analytics.track('websocket_reconnect_success', { attempt, duration });
-});
+  analytics.track('websocket_reconnect_success', { attempt, duration })
+})
 ```
 
 ### 🟡 P2.2: 连接健康度评分
 
 ```typescript
 interface HealthReport {
-  score: number; // 0-100
-  status: 'excellent' | 'good' | 'degraded' | 'poor';
-  latency: number;
-  uptime: number;
+  score: number // 0-100
+  status: 'excellent' | 'good' | 'degraded' | 'poor'
+  latency: number
+  uptime: number
 }
 ```
 
 ### 🟡 P2.3: 优雅关闭机制
 
 ```typescript
-await wsManager.shutdown({ timeout: 5000 });
+await wsManager.shutdown({ timeout: 5000 })
 ```
 
 ### ⚠️ Collaboration 功能状态恢复
@@ -245,24 +248,24 @@ await wsManager.shutdown({ timeout: 5000 });
 ```typescript
 // 保存连接上下文
 interface ConnectionContext {
-  roomId?: string;
-  roomType?: 'task' | 'project' | 'chat' | 'document';
-  documentId?: string;
+  roomId?: string
+  roomType?: 'task' | 'project' | 'chat' | 'document'
+  documentId?: string
 }
 
 // disconnect 时保存
 socket.on('disconnect', () => {
   if (this.isInRoom) {
-    this.connectionContext = { roomId, roomType, documentId };
+    this.connectionContext = { roomId, roomType, documentId }
   }
-});
+})
 
 // connect 时恢复
 socket.on('connect', () => {
   if (this.connectionContext.roomId) {
-    socket.emit('room:rejoin', this.connectionContext);
+    socket.emit('room:rejoin', this.connectionContext)
   }
-});
+})
 ```
 
 ---
@@ -301,15 +304,15 @@ node server/websocket-server.js
 
 ### Phase 1 完成度
 
-| 任务 | 状态 |
-|------|------|
-| P0.1: 断线原因分类 | ✅ 完成 |
-| P0.2: Jitter 抖动 | ✅ 完成 |
-| P0.3: 心跳超时调整 | ✅ 完成 |
-| P1.1: 网络监听 | ✅ 完成 |
-| P2: 事件回调 | ⏸️ 待 Phase 2 |
-| P2: 健康度评分 | ⏸️ 待 Phase 2 |
-| P2: 优雅关闭 | ⏸️ 待 Phase 2 |
+| 任务                   | 状态                   |
+| ---------------------- | ---------------------- |
+| P0.1: 断线原因分类     | ✅ 完成                |
+| P0.2: Jitter 抖动      | ✅ 完成                |
+| P0.3: 心跳超时调整     | ✅ 完成                |
+| P1.1: 网络监听         | ✅ 完成                |
+| P2: 事件回调           | ⏸️ 待 Phase 2          |
+| P2: 健康度评分         | ⏸️ 待 Phase 2          |
+| P2: 优雅关闭           | ⏸️ 待 Phase 2          |
 | Collaboration 状态恢复 | ❓ 文件不存在,无法实施 |
 
 ### 关键成果

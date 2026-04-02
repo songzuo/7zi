@@ -14,13 +14,13 @@
 
 ### 优化优先级总览
 
-| 优先级 | 问题 | 影响范围 | 预期收益 | 工作量 |
-|--------|------|----------|----------|--------|
-| 🔴 P0 | 统一颜色系统使用 CSS 变量 | 全项目 | 颜色一致性 +80% | 3-4h |
-| 🔴 P0 | 增强响应式设计 | 核心组件 | 移动端体验 +60% | 5-6h |
-| 🔴 P0 | 统一组件 API | UI 组件库 | API 一致性 +90% | 3-4h |
-| 🟡 P1 | 增强 Button 暗色模式 | Button 组件 | 暗色体验 +30% | 1h |
-| 🟡 P1 | Card 添加 size 属性 | Card 组件 | API 一致性 +20% | 1-2h |
+| 优先级 | 问题                      | 影响范围    | 预期收益        | 工作量 |
+| ------ | ------------------------- | ----------- | --------------- | ------ |
+| 🔴 P0  | 统一颜色系统使用 CSS 变量 | 全项目      | 颜色一致性 +80% | 3-4h   |
+| 🔴 P0  | 增强响应式设计            | 核心组件    | 移动端体验 +60% | 5-6h   |
+| 🔴 P0  | 统一组件 API              | UI 组件库   | API 一致性 +90% | 3-4h   |
+| 🟡 P1  | 增强 Button 暗色模式      | Button 组件 | 暗色体验 +30%   | 1h     |
+| 🟡 P1  | Card 添加 size 属性       | Card 组件   | API 一致性 +20% | 1-2h   |
 
 **总工作量**: 13-17 小时
 **建议完成时间**: 1-2 周
@@ -32,18 +32,21 @@
 ### 1. 颜色系统问题
 
 **现状**:
+
 - ✅ 设计系统完善：`7zi-frontend/src/styles/tokens.css` 定义了完整的颜色变量
 - ✅ 支持暗色模式：完整的 `--color-xxx-50` 到 `--color-xxx-900` 色阶
 - ❌ 组件未使用：Button、Input 等组件使用硬编码 Tailwind 类（`bg-blue-600`）
 - ❌ 混合使用模式：Tailwind 工具类、暗色模式类、CSS 变量三种方式并存
 
 **影响**:
+
 - 颜色主题难以统一管理
 - 暗色模式可能不一致
 - 品牌色变更需要修改多处
 - 无法利用 CSS 变量的灵活性
 
 **统计数据**:
+
 - 硬编码颜色：约 58 处 `dark:` 模式类
 - 直接使用 Tailwind：`src/components/ui/*.tsx` 中约 8 处 `bg-blue-` 类
 - 未使用 CSS 变量：全项目组件均未引用 tokens.css 的颜色变量
@@ -51,17 +54,20 @@
 ### 2. 响应式设计问题
 
 **现状**:
+
 - ✅ 部分组件有响应式：Button 的 size 系统、empty-state 的响应式布局
 - ❌ 大部分组件无响应式：Card、RoomCard、Toast 等
 - ❌ 固定 padding：`p-4`、`px-6` 无断点适配
 - ❌ 固定高度：Knowledge Lattice 页面固定 `h-[700px]`
 
 **影响**:
+
 - 移动端体验不佳
 - 不同屏幕尺寸下表现不一致
 - 响应式覆盖率低（约 30%）
 
 **统计数据**:
+
 - 响应式类总数：92 个（`md:`、`lg:`、`sm:`、`xl:`）
 - 隐藏类使用：3 个
 - 核心组件响应式缺失：Card、RoomCard、Toast、Knowledge Lattice
@@ -69,6 +75,7 @@
 ### 3. 组件 API 问题
 
 **现状**:
+
 - ✅ Button：完整的 variant（6 种）和 size（5 种）系统
 - ✅ Input：完整的验证状态和 size 系统
 - ⚠️ Card：缺少 size 属性
@@ -76,20 +83,21 @@
 - ⚠️ Badge：缺少 size 和 rounded 属性
 
 **影响**:
+
 - API 不一致，学习成本高
 - Select 功能有限，使用体验差
 - 与其他组件接口不统一
 
 **API 一致性评分**:
 
-| 组件 | size | variant | 状态样式 | 交互选项 | 评分 |
-|------|------|---------|---------|---------|------|
-| Button | ✅ xs-xl | ✅ 6种 | ✅ | ✅ | ⭐⭐⭐⭐⭐ |
-| Input | ✅ sm-lg | ❌ | ✅ | ✅ | ⭐⭐⭐⭐ |
-| Card | ❌ | ❌ | ❌ | ✅ | ⭐⭐⭐ |
-| Badge | ❌ | ✅ 7种 | ❌ | ❌ | ⭐⭐⭐ |
-| Toast | ❌ | ✅ 5种 | ✅ | ✅ | ⭐⭐⭐⭐ |
-| Select | ❌ | ❌ | ❌ | ❌ | ⭐⭐ |
+| 组件   | size     | variant | 状态样式 | 交互选项 | 评分       |
+| ------ | -------- | ------- | -------- | -------- | ---------- |
+| Button | ✅ xs-xl | ✅ 6种  | ✅       | ✅       | ⭐⭐⭐⭐⭐ |
+| Input  | ✅ sm-lg | ❌      | ✅       | ✅       | ⭐⭐⭐⭐   |
+| Card   | ❌       | ❌      | ❌       | ✅       | ⭐⭐⭐     |
+| Badge  | ❌       | ✅ 7种  | ❌       | ❌       | ⭐⭐⭐     |
+| Toast  | ❌       | ✅ 5种  | ✅       | ✅       | ⭐⭐⭐⭐   |
+| Select | ❌       | ❌      | ❌       | ❌       | ⭐⭐       |
 
 ---
 
@@ -150,7 +158,7 @@ module.exports = {
       },
     },
   },
-};
+}
 ```
 
 #### 步骤 1.2: 更新 Button 组件颜色
@@ -158,39 +166,40 @@ module.exports = {
 **文件**: `src/components/ui/Button.tsx`
 
 **修改前**:
+
 ```typescript
 const VARIANT_CONFIG: Record<ButtonVariant, string> = {
-  primary:
-    "bg-blue-600 hover:bg-blue-700 text-white shadow-md hover:shadow-lg focus:ring-blue-500",
+  primary: 'bg-blue-600 hover:bg-blue-700 text-white shadow-md hover:shadow-lg focus:ring-blue-500',
   secondary:
-    "bg-zinc-600 hover:bg-zinc-700 text-white shadow-md hover:shadow-lg focus:ring-zinc-500",
-  danger:
-    "bg-red-600 hover:bg-red-700 text-white shadow-md hover:shadow-lg focus:ring-red-500",
+    'bg-zinc-600 hover:bg-zinc-700 text-white shadow-md hover:shadow-lg focus:ring-zinc-500',
+  danger: 'bg-red-600 hover:bg-red-700 text-white shadow-md hover:shadow-lg focus:ring-red-500',
   success:
-    "bg-green-600 hover:bg-green-700 text-white shadow-md hover:shadow-lg focus:ring-green-500",
-};
+    'bg-green-600 hover:bg-green-700 text-white shadow-md hover:shadow-lg focus:ring-green-500',
+}
 ```
 
 **修改后**:
+
 ```typescript
 const VARIANT_CONFIG: Record<ButtonVariant, string> = {
   primary:
-    "bg-primary-600 hover:bg-primary-700 text-white shadow-md hover:shadow-lg focus:ring-primary-500 dark:hover:bg-primary-500",
+    'bg-primary-600 hover:bg-primary-700 text-white shadow-md hover:shadow-lg focus:ring-primary-500 dark:hover:bg-primary-500',
   secondary:
-    "bg-zinc-600 hover:bg-zinc-700 text-white shadow-md hover:shadow-lg focus:ring-zinc-500 dark:hover:bg-zinc-500",
+    'bg-zinc-600 hover:bg-zinc-700 text-white shadow-md hover:shadow-lg focus:ring-zinc-500 dark:hover:bg-zinc-500',
   outline:
-    "border-2 border-zinc-300 dark:border-zinc-600 text-zinc-700 dark:text-zinc-300 hover:border-primary-500 hover:text-primary-600 dark:hover:text-primary-400 focus:ring-primary-500",
+    'border-2 border-zinc-300 dark:border-zinc-600 text-zinc-700 dark:text-zinc-300 hover:border-primary-500 hover:text-primary-600 dark:hover:text-primary-400 focus:ring-primary-500',
   ghost:
-    "text-zinc-700 dark:text-zinc-300 hover:bg-zinc-100 dark:hover:bg-zinc-800 focus:ring-zinc-500",
+    'text-zinc-700 dark:text-zinc-300 hover:bg-zinc-100 dark:hover:bg-zinc-800 focus:ring-zinc-500',
   danger:
-    "bg-error-600 hover:bg-error-700 text-white shadow-md hover:shadow-lg focus:ring-error-500 dark:hover:bg-error-500",
-  link: "text-primary-600 dark:text-primary-400 hover:underline focus:ring-primary-500",
-};
+    'bg-error-600 hover:bg-error-700 text-white shadow-md hover:shadow-lg focus:ring-error-500 dark:hover:bg-error-500',
+  link: 'text-primary-600 dark:text-primary-400 hover:underline focus:ring-primary-500',
+}
 ```
 
 #### 步骤 1.3: 更新其他组件颜色
 
 **需要更新的组件**:
+
 - `src/components/ui/Input.tsx` - 将 `border-zinc-300` 等改为语义化颜色
 - `src/components/ui/Card.tsx` - 将边框颜色改为语义化颜色
 - `src/components/ui/Badge.tsx` - 已使用语义化，确认一致性
@@ -198,6 +207,7 @@ const VARIANT_CONFIG: Record<ButtonVariant, string> = {
 - `src/components/room/RoomCard.tsx` - 确认所有颜色使用语义化
 
 **示例 - Input 组件**:
+
 ```typescript
 // 修改前
 className={`border border-zinc-300 dark:border-zinc-600 rounded-lg px-4 py-2 focus:ring-2 focus:ring-blue-500 focus:border-transparent dark:bg-zinc-800 dark:text-white ${className}`}
@@ -211,26 +221,29 @@ className={`border border-zinc-300 dark:border-zinc-600 rounded-lg px-4 py-2 foc
 **文件**: `src/components/knowledge-lattice/KnowledgeLatticeScene.tsx`
 
 **修改前**:
+
 ```typescript
 const colors = {
-  技术: "#06b6d4",
-  设计: "#a855f7",
-  产品: "#ec4899",
-  营销: "#f59e0b",
-};
+  技术: '#06b6d4',
+  设计: '#a855f7',
+  产品: '#ec4899',
+  营销: '#f59e0b',
+}
 ```
 
 **修改后**:
+
 ```typescript
 const colors = {
-  技术: "var(--color-cyan-500)",
-  设计: "var(--color-purple-500)",
-  产品: "var(--color-pink-500)",
-  营销: "var(--color-amber-500)",
-};
+  技术: 'var(--color-cyan-500)',
+  设计: 'var(--color-purple-500)',
+  产品: 'var(--color-pink-500)',
+  营销: 'var(--color-amber-500)',
+}
 ```
 
 **预期效果**:
+
 - ✅ 颜色统一管理，易于主题切换
 - ✅ 暗色模式一致性提升
 - ✅ 未来品牌色变更只需修改 CSS 变量
@@ -251,6 +264,7 @@ const colors = {
 **文件**: `src/components/ui/Card.tsx`
 
 **修改前**:
+
 ```typescript
 export function Card({ children, className = "", ...props }: CardProps) {
   return (
@@ -283,6 +297,7 @@ export function CardContent({
 ```
 
 **修改后**:
+
 ```typescript
 export function Card({ children, className = "", ...props }: CardProps) {
   return (
@@ -357,6 +372,7 @@ export function CardTitle({
 **文件**: `src/components/room/RoomCard.tsx`
 
 **修改前**:
+
 ```typescript
 <div
   data-testid="room-card"
@@ -368,6 +384,7 @@ export function CardTitle({
 ```
 
 **修改后**:
+
 ```typescript
 <div
   data-testid="room-card"
@@ -379,6 +396,7 @@ export function CardTitle({
 ```
 
 **标题响应式**:
+
 ```typescript
 // 修改前
 <h3 className="font-semibold text-gray-900 dark:text-gray-100 truncate">
@@ -388,6 +406,7 @@ export function CardTitle({
 ```
 
 **头像大小响应式**:
+
 ```typescript
 // 修改前
 <div className="w-6 h-6 rounded-full border-2 border-white dark:border-gray-800">
@@ -401,6 +420,7 @@ export function CardTitle({
 **文件**: `src/components/ui/toast.tsx`
 
 **修改前**:
+
 ```typescript
 export const ToastContainer: FC = memo(() => {
   return (
@@ -411,6 +431,7 @@ export const ToastContainer: FC = memo(() => {
 ```
 
 **修改后**:
+
 ```typescript
 export const ToastContainer: FC = memo(() => {
   return (
@@ -421,15 +442,16 @@ export const ToastContainer: FC = memo(() => {
 ```
 
 **同时更新 PositionedToastContainer**:
+
 ```typescript
 const POSITION_CLASSES: Record<string, string> = {
-  "top-right": "top-4 right-4 sm:top-8 sm:right-8",
-  "top-left": "top-4 left-4 sm:top-8 sm:left-8",
-  "bottom-right": "bottom-4 right-4 sm:bottom-8 sm:right-8",
-  "bottom-left": "bottom-4 left-4 sm:bottom-8 sm:left-8",
-  "top-center": "top-4 left-1/2 -translate-x-1/2 sm:top-8",
-  "bottom-center": "bottom-4 left-1/2 -translate-x-1/2 sm:bottom-8",
-};
+  'top-right': 'top-4 right-4 sm:top-8 sm:right-8',
+  'top-left': 'top-4 left-4 sm:top-8 sm:left-8',
+  'bottom-right': 'bottom-4 right-4 sm:bottom-8 sm:right-8',
+  'bottom-left': 'bottom-4 left-4 sm:bottom-8 sm:left-8',
+  'top-center': 'top-4 left-1/2 -translate-x-1/2 sm:top-8',
+  'bottom-center': 'bottom-4 left-1/2 -translate-x-1/2 sm:bottom-8',
+}
 ```
 
 #### 步骤 2.4: Knowledge Lattice 响应式高度
@@ -437,6 +459,7 @@ const POSITION_CLASSES: Record<string, string> = {
 **文件**: `src/app/[locale]/knowledge-lattice/page.tsx`
 
 **修改前**:
+
 ```typescript
 <div className="bg-zinc-50 dark:bg-zinc-950 rounded-2xl shadow-2xl p-4 h-[700px]">
 
@@ -444,6 +467,7 @@ const POSITION_CLASSES: Record<string, string> = {
 ```
 
 **修改后**:
+
 ```typescript
 <div className="bg-zinc-50 dark:bg-zinc-950 rounded-2xl shadow-2xl p-3 sm:p-4 h-[500px] sm:h-[600px] md:h-[700px]">
 
@@ -455,11 +479,13 @@ const POSITION_CLASSES: Record<string, string> = {
 **文件**: `src/app/dashboard/page.tsx`
 
 **修改前**:
+
 ```typescript
 <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-7 gap-2 sm:gap-3 md:gap-4 mb-4 sm:mb-6">
 ```
 
 **修改后**:
+
 ```typescript
 <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-7 gap-2 sm:gap-3 md:gap-4 mb-4 sm:mb-6">
 ```
@@ -467,6 +493,7 @@ const POSITION_CLASSES: Record<string, string> = {
 （已经优化，无需修改，但建议检查卡片内部 padding）
 
 **预期效果**:
+
 - ✅ 移动端用户体验显著提升
 - ✅ 组件在不同屏幕尺寸下表现一致
 - ✅ 响应式覆盖率达到 80%+
@@ -487,6 +514,7 @@ const POSITION_CLASSES: Record<string, string> = {
 **文件**: `src/components/ui/Select.tsx`
 
 **修改前**:
+
 ```typescript
 export interface SelectProps extends SelectHTMLAttributes<HTMLSelectElement> {
   label?: string;
@@ -510,6 +538,7 @@ export function Select({ label, options = [], className = "", ...props }: Select
 ```
 
 **修改后**:
+
 ```typescript
 import { cn } from "@/lib/utils";
 
@@ -596,6 +625,7 @@ export function Select({
 **文件**: `src/components/ui/Card.tsx`
 
 **修改前**:
+
 ```typescript
 export interface CardProps extends HTMLAttributes<HTMLDivElement> {
   children?: React.ReactNode;
@@ -617,6 +647,7 @@ export function Card({ children, className = "", ...props }: CardProps) {
 ```
 
 **修改后**:
+
 ```typescript
 import { cn } from "@/lib/utils";
 
@@ -699,6 +730,7 @@ export function CardHeader({
 **文件**: `src/components/ui/Badge.tsx`
 
 **修改前**:
+
 ```typescript
 export interface BadgeProps extends HTMLAttributes<HTMLSpanElement> {
   variant?:
@@ -729,6 +761,7 @@ export function Badge({
 ```
 
 **修改后**:
+
 ```typescript
 import { cn } from "@/lib/utils";
 
@@ -800,6 +833,7 @@ export function Badge({
 ```
 
 **预期效果**:
+
 - ✅ Select 组件与其他组件 API 一致
 - ✅ 功能完整，支持所有常用场景
 - ✅ Card 和 Badge 灵活性提升
@@ -820,36 +854,37 @@ export function Badge({
 **文件**: `src/components/ui/Button.tsx`
 
 **修改前**:
+
 ```typescript
 const VARIANT_CONFIG: Record<ButtonVariant, string> = {
-  primary:
-    "bg-blue-600 hover:bg-blue-700 text-white shadow-md hover:shadow-lg focus:ring-blue-500",
+  primary: 'bg-blue-600 hover:bg-blue-700 text-white shadow-md hover:shadow-lg focus:ring-blue-500',
   secondary:
-    "bg-zinc-600 hover:bg-zinc-700 text-white shadow-md hover:shadow-lg focus:ring-zinc-500",
-  danger:
-    "bg-red-600 hover:bg-red-700 text-white shadow-md hover:shadow-lg focus:ring-red-500",
-  link: "text-blue-600 dark:text-blue-400 hover:underline focus:ring-blue-500",
-};
+    'bg-zinc-600 hover:bg-zinc-700 text-white shadow-md hover:shadow-lg focus:ring-zinc-500',
+  danger: 'bg-red-600 hover:bg-red-700 text-white shadow-md hover:shadow-lg focus:ring-red-500',
+  link: 'text-blue-600 dark:text-blue-400 hover:underline focus:ring-blue-500',
+}
 ```
 
 **修改后**:
+
 ```typescript
 const VARIANT_CONFIG: Record<ButtonVariant, string> = {
   primary:
-    "bg-primary-600 hover:bg-primary-700 text-white shadow-md hover:shadow-lg focus:ring-primary-500 dark:hover:bg-primary-500",
+    'bg-primary-600 hover:bg-primary-700 text-white shadow-md hover:shadow-lg focus:ring-primary-500 dark:hover:bg-primary-500',
   secondary:
-    "bg-zinc-600 hover:bg-zinc-700 text-white shadow-md hover:shadow-lg focus:ring-zinc-500 dark:hover:bg-zinc-500",
+    'bg-zinc-600 hover:bg-zinc-700 text-white shadow-md hover:shadow-lg focus:ring-zinc-500 dark:hover:bg-zinc-500',
   outline:
-    "border-2 border-zinc-300 dark:border-zinc-600 text-zinc-700 dark:text-zinc-300 hover:border-primary-500 hover:text-primary-600 dark:hover:text-primary-400 focus:ring-primary-500",
+    'border-2 border-zinc-300 dark:border-zinc-600 text-zinc-700 dark:text-zinc-300 hover:border-primary-500 hover:text-primary-600 dark:hover:text-primary-400 focus:ring-primary-500',
   ghost:
-    "text-zinc-700 dark:text-zinc-300 hover:bg-zinc-100 dark:hover:bg-zinc-800 focus:ring-zinc-500",
+    'text-zinc-700 dark:text-zinc-300 hover:bg-zinc-100 dark:hover:bg-zinc-800 focus:ring-zinc-500',
   danger:
-    "bg-error-600 hover:bg-error-700 text-white shadow-md hover:shadow-lg focus:ring-error-500 dark:hover:bg-error-500",
-  link: "text-primary-600 dark:text-primary-400 hover:underline focus:ring-primary-500",
-};
+    'bg-error-600 hover:bg-error-700 text-white shadow-md hover:shadow-lg focus:ring-error-500 dark:hover:bg-error-500',
+  link: 'text-primary-600 dark:text-primary-400 hover:underline focus:ring-primary-500',
+}
 ```
 
 **预期效果**:
+
 - ✅ 暗色模式下交互体验提升
 - ✅ 所有 variant 的一致性
 
@@ -868,12 +903,13 @@ const VARIANT_CONFIG: Record<ButtonVariant, string> = {
 **文件**: `src/components/ui/Input.tsx`
 
 **修改前**:
+
 ```typescript
 export interface InputProps extends InputHTMLAttributes<HTMLInputElement> {
-  label?: string;
-  labelKey?: string;
-  placeholderKey?: string;
-  required?: boolean;
+  label?: string
+  labelKey?: string
+  placeholderKey?: string
+  required?: boolean
 }
 
 export function Input({
@@ -881,7 +917,7 @@ export function Input({
   labelKey,
   placeholderKey,
   required,
-  className = "",
+  className = '',
   ...props
 }: InputProps) {
   // ...
@@ -889,6 +925,7 @@ export function Input({
 ```
 
 **修改后**:
+
 ```typescript
 import { cn } from "@/lib/utils";
 
@@ -963,6 +1000,7 @@ export function Input({
 ```
 
 **预期效果**:
+
 - ✅ Input 组件与其他组件 API 一致
 - ✅ 完整的验证状态支持
 
@@ -976,19 +1014,20 @@ export function Input({
 
 **目标**: 完成颜色系统统一、响应式设计、组件 API 统一
 
-| 天 | 任务 | 工作量 | 负责人 |
-|----|------|--------|--------|
-| Day 1 | 扩展 Tailwind 配置，更新 Button 颜色 | 2h | 🎨 设计师 |
-| Day 1 | 更新其他组件颜色（Input, Card, Badge, Toast） | 2h | 🎨 设计师 |
-| Day 2 | Card 组件响应式优化 | 2h | 🎨 设计师 |
-| Day 2 | RoomCard 响应式优化 | 2h | 🎨 设计师 |
-| Day 3 | Toast 响应式定位 | 1h | 🎨 设计师 |
-| Day 3 | Knowledge Lattice 响应式高度 | 1h | 🎨 设计师 |
-| Day 4 | 增强 Select 组件 | 3h | 🎨 设计师 |
-| Day 5 | Card 组件添加 size 属性 | 2h | 🎨 设计师 |
-| Day 5 | Badge 组件增强 | 1h | 🎨 设计师 |
+| 天    | 任务                                          | 工作量 | 负责人    |
+| ----- | --------------------------------------------- | ------ | --------- |
+| Day 1 | 扩展 Tailwind 配置，更新 Button 颜色          | 2h     | 🎨 设计师 |
+| Day 1 | 更新其他组件颜色（Input, Card, Badge, Toast） | 2h     | 🎨 设计师 |
+| Day 2 | Card 组件响应式优化                           | 2h     | 🎨 设计师 |
+| Day 2 | RoomCard 响应式优化                           | 2h     | 🎨 设计师 |
+| Day 3 | Toast 响应式定位                              | 1h     | 🎨 设计师 |
+| Day 3 | Knowledge Lattice 响应式高度                  | 1h     | 🎨 设计师 |
+| Day 4 | 增强 Select 组件                              | 3h     | 🎨 设计师 |
+| Day 5 | Card 组件添加 size 属性                       | 2h     | 🎨 设计师 |
+| Day 5 | Badge 组件增强                                | 1h     | 🎨 设计师 |
 
 **里程碑**:
+
 - ✅ 颜色系统统一完成
 - ✅ 响应式设计覆盖率达到 80%+
 - ✅ 组件 API 一致性达到 90%+
@@ -997,16 +1036,17 @@ export function Input({
 
 **目标**: 完成暗色模式优化、Input 组件增强
 
-| 天 | 任务 | 工作量 | 负责人 |
-|----|------|--------|--------|
-| Day 1 | Button 组件暗色模式优化 | 1h | 🎨 设计师 |
-| Day 1 | Input 组件增强（可选） | 3h | 🎨 设计师 |
-| Day 2 | 测试所有修改的组件 | 2h | 🧪 测试员 |
-| Day 2 | 修复测试发现的问题 | 2h | 🎨 设计师 |
-| Day 3 | 更新文档 | 2h | 🎨 设计师 |
-| Day 4-5 | 代码审查和优化 | - | 🏗️ 架构师 |
+| 天      | 任务                    | 工作量 | 负责人    |
+| ------- | ----------------------- | ------ | --------- |
+| Day 1   | Button 组件暗色模式优化 | 1h     | 🎨 设计师 |
+| Day 1   | Input 组件增强（可选）  | 3h     | 🎨 设计师 |
+| Day 2   | 测试所有修改的组件      | 2h     | 🧪 测试员 |
+| Day 2   | 修复测试发现的问题      | 2h     | 🎨 设计师 |
+| Day 3   | 更新文档                | 2h     | 🎨 设计师 |
+| Day 4-5 | 代码审查和优化          | -      | 🏗️ 架构师 |
 
 **里程碑**:
+
 - ✅ 暗色模式体验提升
 - ✅ 组件库文档更新
 
@@ -1037,6 +1077,7 @@ describe("Button", () => {
 ### 手动测试清单
 
 **测试环境**:
+
 - Chrome/Edge (桌面)
 - Safari (macOS)
 - Firefox (桌面)
@@ -1086,6 +1127,7 @@ describe("Button", () => {
 **文件**: `docs/RESPONSIVE_DESIGN.md`
 
 **内容**:
+
 - 断点定义：sm(640px), md(768px), lg(1024px), xl(1280px)
 - 移动优先原则
 - 组件响应式要求
@@ -1096,6 +1138,7 @@ describe("Button", () => {
 **文件**: `docs/COMPONENT_LIBRARY.md`
 
 **内容**:
+
 - Button API 和使用示例
 - Input API 和使用示例
 - Card API 和使用示例
@@ -1108,6 +1151,7 @@ describe("Button", () => {
 **文件**: `docs/COLOR_SYSTEM.md`
 
 **内容**:
+
 - CSS 变量使用规范
 - 语义化颜色定义
 - 暗色模式颜色映射
@@ -1119,13 +1163,13 @@ describe("Button", () => {
 
 ### 定量指标
 
-| 指标 | 当前值 | 目标值 | 测量方式 |
-|------|--------|--------|----------|
-| 颜色一致性 | 60% | 95% | 组件颜色使用 CSS 变量比例 |
-| 响应式覆盖率 | 30% | 80% | 有响应式的组件/总组件数 |
-| API 一致性 | 70% | 95% | 有 size/variant 的组件/总组件数 |
-| 暗色模式覆盖 | 85% | 98% | 有暗色模式的样式/总样式数 |
-| 单元测试覆盖率 | 0% | 80% | Jest 测试覆盖率 |
+| 指标           | 当前值 | 目标值 | 测量方式                        |
+| -------------- | ------ | ------ | ------------------------------- |
+| 颜色一致性     | 60%    | 95%    | 组件颜色使用 CSS 变量比例       |
+| 响应式覆盖率   | 30%    | 80%    | 有响应式的组件/总组件数         |
+| API 一致性     | 70%    | 95%    | 有 size/variant 的组件/总组件数 |
+| 暗色模式覆盖   | 85%    | 98%    | 有暗色模式的样式/总样式数       |
+| 单元测试覆盖率 | 0%     | 80%    | Jest 测试覆盖率                 |
 
 ### 定性指标
 
@@ -1173,12 +1217,12 @@ describe("Button", () => {
 
 ### 风险与对策
 
-| 风险 | 影响 | 对策 |
-|------|------|------|
-| Tailwind 配置冲突 | 中 | 充分测试，逐步迁移 |
-| 暗色模式颜色不一致 | 高 | 建立颜色映射表，统一管理 |
-| 响应式断点不准确 | 低 | 参考主流设备尺寸，逐步调整 |
-| 组件 API 破坏性变更 | 中 | 保持向后兼容，新属性可选 |
+| 风险                | 影响 | 对策                       |
+| ------------------- | ---- | -------------------------- |
+| Tailwind 配置冲突   | 中   | 充分测试，逐步迁移         |
+| 暗色模式颜色不一致  | 高   | 建立颜色映射表，统一管理   |
+| 响应式断点不准确    | 低   | 参考主流设备尺寸，逐步调整 |
+| 组件 API 破坏性变更 | 中   | 保持向后兼容，新属性可选   |
 
 ---
 
@@ -1193,39 +1237,39 @@ describe("Button", () => {
 
 ### A. 组件 API 对比表
 
-| 组件 | size | variant | error | helperText | fullWidth |
-|------|------|---------|-------|------------|-----------|
-| Button | ✅ xs-xl | ✅ 6种 | ❌ | ❌ | ✅ |
-| Input | ✅ sm-lg | ❌ | ✅ | ✅ | ✅ |
-| Card | ✅ sm-lg | ❌ | ❌ | ❌ | ❌ |
-| Badge | ✅ sm-lg | ✅ 7种 | ❌ | ❌ | ❌ |
-| Select | ✅ sm-lg | ✅ 3种 | ✅ | ✅ | ✅ |
-| Toast | ❌ | ✅ 5种 | ❌ | ❌ | ❌ |
+| 组件   | size     | variant | error | helperText | fullWidth |
+| ------ | -------- | ------- | ----- | ---------- | --------- |
+| Button | ✅ xs-xl | ✅ 6种  | ❌    | ❌         | ✅        |
+| Input  | ✅ sm-lg | ❌      | ✅    | ✅         | ✅        |
+| Card   | ✅ sm-lg | ❌      | ❌    | ❌         | ❌        |
+| Badge  | ✅ sm-lg | ✅ 7种  | ❌    | ❌         | ❌        |
+| Select | ✅ sm-lg | ✅ 3种  | ✅    | ✅         | ✅        |
+| Toast  | ❌       | ✅ 5种  | ❌    | ❌         | ❌        |
 
 ### B. 颜色变量映射表
 
-| 语义化变量 | CSS 变量 | 用途 |
-|------------|----------|------|
+| 语义化变量  | CSS 变量                 | 用途           |
+| ----------- | ------------------------ | -------------- |
 | primary-600 | var(--color-primary-600) | 主要按钮、链接 |
-| success-500 | var(--color-success-500) | 成功状态 |
-| warning-500 | var(--color-warning-500) | 警告状态 |
-| error-500 | var(--color-error-500) | 错误状态 |
-| info-500 | var(--color-info-500) | 信息状态 |
+| success-500 | var(--color-success-500) | 成功状态       |
+| warning-500 | var(--color-warning-500) | 警告状态       |
+| error-500   | var(--color-error-500)   | 错误状态       |
+| info-500    | var(--color-info-500)    | 信息状态       |
 
 ### C. 响应式断点参考
 
-| 断点 | 最小宽度 | 典型设备 |
-|------|----------|----------|
-| xs | 320px | iPhone SE |
-| sm | 640px | iPhone 12 Mini |
-| md | 768px | iPad Mini |
-| lg | 1024px | iPad Pro |
-| xl | 1280px | MacBook Air |
-| 2xl | 1536px | 外接显示器 |
+| 断点 | 最小宽度 | 典型设备       |
+| ---- | -------- | -------------- |
+| xs   | 320px    | iPhone SE      |
+| sm   | 640px    | iPhone 12 Mini |
+| md   | 768px    | iPad Mini      |
+| lg   | 1024px   | iPad Pro       |
+| xl   | 1280px   | MacBook Air    |
+| 2xl  | 1536px   | 外接显示器     |
 
 ---
 
 **文档结束**
-    render(<Button variant="primary">Primary</Button>);
-    const button = screen.getByRole("button");
-    expect(button).toHaveClass
+render(<Button variant="primary">Primary</Button>);
+const button = screen.getByRole("button");
+expect(button).toHaveClass

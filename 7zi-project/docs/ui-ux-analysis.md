@@ -33,16 +33,17 @@
 
 项目目前包含以下核心 UI 组件：
 
-| 组件名称 | 功能描述 | 完善程度 |
-|---------|---------|---------|
-| **Button** | 按钮组件（6种变体，5种尺寸，涟漪效果） | ⭐⭐⭐⭐⭐ |
-| **Card** | 卡片组件（含多个子组件） | ⭐⭐⭐⭐⭐ |
-| **Input** | 输入框组件（验证反馈，多种尺寸） | ⭐⭐⭐⭐ |
-| **Modal** | 模态框组件（多种尺寸，动画效果） | ⭐⭐⭐⭐ |
-| **Skeleton** | 骨架屏组件库（多种形态） | ⭐⭐⭐⭐ |
-| **ThemeSwitcher** | 主题切换组件 | ⭐⭐⭐⭐ |
+| 组件名称          | 功能描述                               | 完善程度   |
+| ----------------- | -------------------------------------- | ---------- |
+| **Button**        | 按钮组件（6种变体，5种尺寸，涟漪效果） | ⭐⭐⭐⭐⭐ |
+| **Card**          | 卡片组件（含多个子组件）               | ⭐⭐⭐⭐⭐ |
+| **Input**         | 输入框组件（验证反馈，多种尺寸）       | ⭐⭐⭐⭐   |
+| **Modal**         | 模态框组件（多种尺寸，动画效果）       | ⭐⭐⭐⭐   |
+| **Skeleton**      | 骨架屏组件库（多种形态）               | ⭐⭐⭐⭐   |
+| **ThemeSwitcher** | 主题切换组件                           | ⭐⭐⭐⭐   |
 
 **缺失的核心组件**：
+
 - ❌ Select 下拉选择框
 - ❌ Checkbox 复选框
 - ❌ Radio 单选框
@@ -61,6 +62,7 @@
 项目有完善的设计 Token 系统 (`src/styles/tokens.css`)，包括：
 
 #### 颜色系统
+
 ```
 ✅ 主色调 (Primary): 10 级色阶 (50-900)
 ✅ 灰色系 (Gray): 10 级色阶
@@ -69,6 +71,7 @@
 ```
 
 #### 字体系统
+
 ```
 ✅ 字体族: Sans-serif (Inter), Monospace (JetBrains Mono)
 ✅ 字体大小: 10 级 (xs 到 5xl)
@@ -77,6 +80,7 @@
 ```
 
 #### 间距与布局
+
 ```
 ✅ 间距: 基于 4px 网格 (spacing-0 到 spacing-24)
 ✅ 圆角: 7 级 (none 到 full)
@@ -85,6 +89,7 @@
 ```
 
 #### 动画与过渡
+
 ```
 ✅ 过渡时长: 3 级 (fast, base, slow)
 ✅ Z-Index 层级: 8 级 (dropdown 到 tooltip)
@@ -95,6 +100,7 @@
 ### 1.3 图标库
 
 使用 **lucide-react** 作为图标库，这是一个优秀的选择：
+
 - ✅ 丰富的图标集合
 - ✅ Tree-shakable（按需加载）
 - ✅ 支持 React 组件方式使用
@@ -129,20 +135,21 @@ src/app/
 
 ### 2.2 功能特性
 
-| 功能模块 | 描述 | 状态 |
-|---------|------|------|
-| **图片优化** | WebP/AVIF 自动转换、懒加载、响应式 | ✅ 完成 |
-| **通知系统** | Toast、Notification Center | ✅ 完成 |
-| **WebSocket** | 实时通信状态监控 | ✅ 完成 |
-| **国际化** | i18next 多语言支持 | ✅ 完成 |
-| **暗色模式** | CSS 变量驱动主题切换 | ✅ 完成 |
-| **知识图谱** | Three.js 3D 可视化 | ✅ 完成 |
-| **智能预加载** | 用户行为预测预加载 | ✅ 完成 |
-| **React Compiler** | 自动 memo 优化 | ✅ 完成 |
+| 功能模块           | 描述                               | 状态    |
+| ------------------ | ---------------------------------- | ------- |
+| **图片优化**       | WebP/AVIF 自动转换、懒加载、响应式 | ✅ 完成 |
+| **通知系统**       | Toast、Notification Center         | ✅ 完成 |
+| **WebSocket**      | 实时通信状态监控                   | ✅ 完成 |
+| **国际化**         | i18next 多语言支持                 | ✅ 完成 |
+| **暗色模式**       | CSS 变量驱动主题切换               | ✅ 完成 |
+| **知识图谱**       | Three.js 3D 可视化                 | ✅ 完成 |
+| **智能预加载**     | 用户行为预测预加载                 | ✅ 完成 |
+| **React Compiler** | 自动 memo 优化                     | ✅ 完成 |
 
 ### 2.3 用户旅程分析
 
 #### 入口流程
+
 ```
 首页 → 功能选择 → 功能演示页面
          ↓
@@ -150,6 +157,7 @@ src/app/
 ```
 
 **问题识别**：
+
 1. ❌ **缺少主导航** - 首页只是简单的链接列表，没有统一的导航系统
 2. ❌ **功能页面孤立** - 各功能演示页面之间没有导航连接
 3. ❌ **缺少用户引导** - 新用户可能不清楚如何开始使用
@@ -164,6 +172,7 @@ src/app/
 
 **解决方案**:
 创建一个响应式的导航栏组件，包含：
+
 - 品牌标识 (Logo)
 - 主导航链接
 - 主题切换按钮
@@ -171,20 +180,21 @@ src/app/
 - 移动端汉堡菜单
 
 **实现建议**:
+
 ```tsx
 // src/components/Navigation/Navbar.tsx
 export interface NavbarProps {
-  logo?: React.ReactNode;
-  items: NavItem[];
-  showThemeSwitcher?: boolean;
-  sticky?: boolean;
+  logo?: React.ReactNode
+  items: NavItem[]
+  showThemeSwitcher?: boolean
+  sticky?: boolean
 }
 
 export interface NavItem {
-  label: string;
-  href: string;
-  icon?: React.ReactNode;
-  children?: NavItem[];
+  label: string
+  href: string
+  icon?: React.ReactNode
+  children?: NavItem[]
 }
 ```
 
@@ -199,26 +209,27 @@ export interface NavItem {
 **解决方案**:
 逐步添加以下表单组件：
 
-| 组件 | 功能描述 | 优先级 |
-|------|---------|--------|
-| Select | 下拉选择框，支持单选/多选 | P0 |
-| Checkbox | 复选框，支持组选 | P0 |
-| Radio | 单选框，支持组选 | P0 |
-| Switch | 开关切换 | P1 |
-| DatePicker | 日期选择器 | P2 |
-| Slider | 滑动条 | P2 |
+| 组件       | 功能描述                  | 优先级 |
+| ---------- | ------------------------- | ------ |
+| Select     | 下拉选择框，支持单选/多选 | P0     |
+| Checkbox   | 复选框，支持组选          | P0     |
+| Radio      | 单选框，支持组选          | P0     |
+| Switch     | 开关切换                  | P1     |
+| DatePicker | 日期选择器                | P2     |
+| Slider     | 滑动条                    | P2     |
 
 **实现建议**:
+
 ```tsx
 // Select 组件示例
 export interface SelectProps {
-  options: SelectOption[];
-  value?: string | string[];
-  onChange: (value: string | string[]) => void;
-  placeholder?: string;
-  multiple?: boolean;
-  searchable?: boolean;
-  error?: string;
+  options: SelectOption[]
+  value?: string | string[]
+  onChange: (value: string | string[]) => void
+  placeholder?: string
+  multiple?: boolean
+  searchable?: boolean
+  error?: string
 }
 ```
 
@@ -238,14 +249,16 @@ npm install framer-motion
 ```
 
 **应用场景**:
+
 - 页面过渡动画
 - 列表项进入/退出动画
 - 手势交互（拖拽、滑动）
 - 复杂的交互动画序列
 
 **实现示例**:
+
 ```tsx
-import { motion, AnimatePresence } from 'framer-motion';
+import { motion, AnimatePresence } from 'framer-motion'
 
 // Modal 动画增强
 const Modal = ({ isOpen, children }) => (
@@ -261,7 +274,7 @@ const Modal = ({ isOpen, children }) => (
       </motion.div>
     )}
   </AnimatePresence>
-);
+)
 ```
 
 **预期效果**: 提供流畅、自然的动画体验，增强应用的现代感和专业度。
@@ -290,21 +303,19 @@ const Modal = ({ isOpen, children }) => (
    - 预加载策略调整
 
 **实现建议**:
+
 ```tsx
 // 移动端底部导航
 const MobileNav = () => (
-  <nav className="fixed bottom-0 left-0 right-0 bg-white border-t md:hidden">
+  <nav className="fixed right-0 bottom-0 left-0 border-t bg-white md:hidden">
     {navItems.map(item => (
-      <button
-        className="flex-1 py-3 min-h-[44px]"
-        onClick={() => navigate(item.href)}
-      >
+      <button className="min-h-[44px] flex-1 py-3" onClick={() => navigate(item.href)}>
         {item.icon}
         <span className="text-xs">{item.label}</span>
       </button>
     ))}
   </nav>
-);
+)
 ```
 
 **预期效果**: 提升移动端用户体验，降低移动设备上的操作难度。
@@ -327,13 +338,15 @@ npm install @tremor/react
 ```
 
 **应用场景**:
+
 - 性能监控仪表板
 - 数据分析图表
 - 统计信息展示
 
 **实现示例**:
+
 ```tsx
-import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip } from 'recharts';
+import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip } from 'recharts'
 
 const PerformanceChart = ({ data }) => (
   <LineChart data={data}>
@@ -343,7 +356,7 @@ const PerformanceChart = ({ data }) => (
     <Tooltip />
     <Line type="monotone" dataKey="value" stroke="#3b82f6" />
   </LineChart>
-);
+)
 ```
 
 **预期效果**: 增强数据展示能力，使性能监控和分析功能更加直观。
@@ -362,14 +375,16 @@ npm install react-joyride
 ```
 
 **功能点**:
+
 - 新功能引导
 - 功能亮点介绍
 - 交互式教程
 - 键盘快捷键提示
 
 **实现示例**:
+
 ```tsx
-import Joyride, { STATUS } from 'react-joyride';
+import Joyride, { STATUS } from 'react-joyride'
 
 const steps = [
   {
@@ -380,7 +395,7 @@ const steps = [
     target: '.knowledge-lattice',
     content: '这是我们的 3D 知识图谱功能',
   },
-];
+]
 
 const Onboarding = () => (
   <Joyride
@@ -390,7 +405,7 @@ const Onboarding = () => (
     showProgress
     styles={{ options: { primaryColor: '#3b82f6' } }}
   />
-);
+)
 ```
 
 **预期效果**: 降低新用户学习成本，提高功能发现率。
@@ -407,22 +422,22 @@ const Onboarding = () => (
 ```tsx
 // src/components/ErrorBoundary.tsx (已存在，需扩展使用)
 class ErrorBoundary extends React.Component {
-  state = { hasError: false };
+  state = { hasError: false }
 
   static getDerivedStateFromError(error) {
-    return { hasError: true };
+    return { hasError: true }
   }
 
   render() {
     if (this.state.hasError) {
-      return <ErrorFallback onRetry={() => this.setState({ hasError: false })} />;
+      return <ErrorFallback onRetry={() => this.setState({ hasError: false })} />
     }
-    return this.props.children;
+    return this.props.children
   }
 }
 
 // 使用
-<ErrorBoundary>
+;<ErrorBoundary>
   <KnowledgeLattice3D />
 </ErrorBoundary>
 ```
@@ -446,6 +461,7 @@ npm run build-storybook
 ```
 
 **文档内容建议**:
+
 - 组件属性说明
 - 使用示例
 - 设计指南
@@ -460,33 +476,33 @@ npm run build-storybook
 
 ### 4.1 推荐引入的库
 
-| 库名 | 用途 | 优先级 | 集成难度 |
-|------|------|--------|---------|
-| **Framer Motion** | 动画库 | 🟡 中 | 低 |
-| **Recharts** | 图表库 | 🟡 中 | 低 |
-| **React Hook Form** | 表单管理 | 🟡 中 | 中 |
-| **Zod** | 已有 | 表单验证 | ✅ 已集成 |
-| **React Joyride** | 用户引导 | 🟢 低 | 低 |
+| 库名                | 用途     | 优先级   | 集成难度  |
+| ------------------- | -------- | -------- | --------- |
+| **Framer Motion**   | 动画库   | 🟡 中    | 低        |
+| **Recharts**        | 图表库   | 🟡 中    | 低        |
+| **React Hook Form** | 表单管理 | 🟡 中    | 中        |
+| **Zod**             | 已有     | 表单验证 | ✅ 已集成 |
+| **React Joyride**   | 用户引导 | 🟢 低    | 低        |
 
 ### 4.2 不推荐引入的库
 
 以下库不推荐引入，因为项目已有相应的解决方案：
 
-| 库名 | 原因 |
-|------|------|
-| **Material-UI / MUI** | 已有自定义设计系统，引入会破坏一致性 |
-| **Ant Design** | 同上，且体积较大 |
-| **Chakra UI** | 已使用 Tailwind CSS，不需要另一套样式系统 |
-| **styled-components** | Tailwind CSS 已足够，避免样式系统冲突 |
+| 库名                  | 原因                                      |
+| --------------------- | ----------------------------------------- |
+| **Material-UI / MUI** | 已有自定义设计系统，引入会破坏一致性      |
+| **Ant Design**        | 同上，且体积较大                          |
+| **Chakra UI**         | 已使用 Tailwind CSS，不需要另一套样式系统 |
+| **styled-components** | Tailwind CSS 已足够，避免样式系统冲突     |
 
 ### 4.3 工具链建议
 
-| 工具 | 用途 | 建议 |
-|------|------|------|
-| **Storybook** | 组件文档 | ✅ 已集成，建议部署公开站点 |
-| **Figma** | 设计协作 | 建议建立 Figma 设计文件与 Token 同步 |
-| **Chromatic** | 视觉回归测试 | 可选，用于组件变更检测 |
-| **Figma Tokens** | Token 管理 | 可选，实现设计与开发 Token 同步 |
+| 工具             | 用途         | 建议                                 |
+| ---------------- | ------------ | ------------------------------------ |
+| **Storybook**    | 组件文档     | ✅ 已集成，建议部署公开站点          |
+| **Figma**        | 设计协作     | 建议建立 Figma 设计文件与 Token 同步 |
+| **Chromatic**    | 视觉回归测试 | 可选，用于组件变更检测               |
+| **Figma Tokens** | Token 管理   | 可选，实现设计与开发 Token 同步      |
 
 ---
 

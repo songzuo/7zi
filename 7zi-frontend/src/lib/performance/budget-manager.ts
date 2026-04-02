@@ -3,9 +3,9 @@
  * 性能预算和告警系统
  */
 
-import { monitor } from '../monitoring';
-import { WebVitalsMetrics } from './web-vitals';
-import { CustomMetrics } from './custom-metrics';
+import { monitor } from '../monitoring'
+import { WebVitalsMetrics } from './web-vitals'
+import { CustomMetrics } from './custom-metrics'
 
 /**
  * 性能预算配置
@@ -13,97 +13,97 @@ import { CustomMetrics } from './custom-metrics';
 export interface PerformanceBudget {
   // Core Web Vitals
   webVitals: {
-    LCP: { threshold: number; weight: number };
-    CLS: { threshold: number; weight: number };
-    INP: { threshold: number; weight: number };
-  };
+    LCP: { threshold: number; weight: number }
+    CLS: { threshold: number; weight: number }
+    INP: { threshold: number; weight: number }
+  }
 
   // Custom Metrics
   customMetrics: {
-    pageLoadTime: { threshold: number; weight: number };
-    apiAverageResponseTime: { threshold: number; weight: number };
-    apiErrorRate: { threshold: number; weight: number };
-    memoryUsagePercent: { threshold: number; weight: number };
-    wsLatency: { threshold: number; weight: number };
-  };
+    pageLoadTime: { threshold: number; weight: number }
+    apiAverageResponseTime: { threshold: number; weight: number }
+    apiErrorRate: { threshold: number; weight: number }
+    memoryUsagePercent: { threshold: number; weight: number }
+    wsLatency: { threshold: number; weight: number }
+  }
 
   // Resource Budget
   resources: {
-    totalSize: number; // 总大小 (bytes)
-    scriptSize: number;
-    stylesheetSize: number;
-    imageSize: number;
-  };
+    totalSize: number // 总大小 (bytes)
+    scriptSize: number
+    stylesheetSize: number
+    imageSize: number
+  }
 }
 
 /**
  * 告警规则
  */
 export interface AlarmRule {
-  id: string;
-  name: string;
-  description: string;
-  metric: string; // 指标名称
-  condition: 'greater' | 'less' | 'equals' | 'greater_equal' | 'less_equal';
-  threshold: number;
-  windowMs: number; // 时间窗口
-  severity: 'low' | 'medium' | 'high' | 'critical';
-  enabled: boolean;
-  cooldownMs: number; // 冷却时间 (ms)
+  id: string
+  name: string
+  description: string
+  metric: string // 指标名称
+  condition: 'greater' | 'less' | 'equals' | 'greater_equal' | 'less_equal'
+  threshold: number
+  windowMs: number // 时间窗口
+  severity: 'low' | 'medium' | 'high' | 'critical'
+  enabled: boolean
+  cooldownMs: number // 冷却时间 (ms)
 }
 
 /**
  * 告警事件
  */
 export interface AlarmNotification {
-  id: string;
-  ruleId: string;
-  ruleName: string;
-  severity: 'low' | 'medium' | 'high' | 'critical';
-  metric: string;
-  currentValue: number;
-  threshold: number;
-  condition: string;
-  message: string;
-  timestamp: number;
-  acknowledged: boolean;
-  resolved: boolean;
-  resolvedAt?: number;
+  id: string
+  ruleId: string
+  ruleName: string
+  severity: 'low' | 'medium' | 'high' | 'critical'
+  metric: string
+  currentValue: number
+  threshold: number
+  condition: string
+  message: string
+  timestamp: number
+  acknowledged: boolean
+  resolved: boolean
+  resolvedAt?: number
 }
 
 /**
  * 性能预算报告
  */
 export interface PerformanceBudgetReport {
-  overallScore: number; // 0-100
-  webVitalsScore: number;
-  customMetricsScore: number;
-  resourceScore: number;
-  status: 'pass' | 'warning' | 'fail';
-  violations: BudgetViolation[];
-  recommendations: string[];
+  overallScore: number // 0-100
+  webVitalsScore: number
+  customMetricsScore: number
+  resourceScore: number
+  status: 'pass' | 'warning' | 'fail'
+  violations: BudgetViolation[]
+  recommendations: string[]
 }
 
 /**
  * 预算违规
  */
 export interface BudgetViolation {
-  metric: string;
-  currentValue: number;
-  threshold: number;
-  severity: 'low' | 'medium' | 'high';
-  impact: string;
+  metric: string
+  currentValue: number
+  threshold: number
+  severity: 'low' | 'medium' | 'high'
+  impact: string
 }
 
 /**
  * 性能预算管理器
  */
 export class PerformanceBudgetManager {
-  private budget: PerformanceBudget;
-  private alarms: Map<string, AlarmRule> = new Map();
-  private activeNotifications: Map<string, AlarmNotification> = new Map();
-  private lastTriggerTimes: Map<string, number> = new Map();
-  private checkInterval?: NodeJS.Timeout;
+  private budget: PerformanceBudget
+  private alarms: Map<string, AlarmRule> = new Map()
+  private activeNotifications: Map<string, AlarmNotification> = new Map()
+  private lastTriggerTimes: Map<string, number> = new Map()
+  private checkInterval?: NodeJS.Timeout
 
   constructor(budget: Partial<PerformanceBudget> = {}) {
     this.budget = {
@@ -126,10 +126,10 @@ export class PerformanceBudgetManager {
         imageSize: 1024 * 1024, // 1MB
       },
       ...budget,
-    };
+    }
 
     // 初始化默认告警规则
-    this.initDefaultAlarms();
+    this.initDefaultAlarms()
   }
 
   /**
@@ -197,32 +197,32 @@ export class PerformanceBudgetManager {
         enabled: true,
         cooldownMs: 120000, // 2 minutes
       },
-    ];
+    ]
 
-    defaultRules.forEach((rule) => this.addAlarmRule(rule));
+    defaultRules.forEach(rule => this.addAlarmRule(rule))
   }
 
   /**
    * 添加告警规则
    */
   addAlarmRule(rule: AlarmRule): void {
-    this.alarms.set(rule.id, rule);
+    this.alarms.set(rule.id, rule)
   }
 
   /**
    * 删除告警规则
    */
   removeAlarmRule(ruleId: string): void {
-    this.alarms.delete(ruleId);
+    this.alarms.delete(ruleId)
   }
 
   /**
    * 启用/禁用告警规则
    */
   toggleAlarmRule(ruleId: string, enabled: boolean): void {
-    const rule = this.alarms.get(ruleId);
+    const rule = this.alarms.get(ruleId)
     if (rule) {
-      rule.enabled = enabled;
+      rule.enabled = enabled
     }
   }
 
@@ -237,17 +237,17 @@ export class PerformanceBudgetManager {
   ): boolean {
     switch (condition) {
       case 'greater':
-        return currentValue > threshold;
+        return currentValue > threshold
       case 'less':
-        return currentValue < threshold;
+        return currentValue < threshold
       case 'equals':
-        return currentValue === threshold;
+        return currentValue === threshold
       case 'greater_equal':
-        return currentValue >= threshold;
+        return currentValue >= threshold
       case 'less_equal':
-        return currentValue <= threshold;
+        return currentValue <= threshold
       default:
-        return false;
+        return false
     }
   }
 
@@ -258,26 +258,26 @@ export class PerformanceBudgetManager {
     webVitals: WebVitalsMetrics,
     customMetrics: CustomMetrics
   ): Promise<AlarmNotification[]> {
-    const triggeredNotifications: AlarmNotification[] = [];
-    const now = Date.now();
+    const triggeredNotifications: AlarmNotification[] = []
+    const now = Date.now()
 
     // 合并所有指标
     const allMetrics: Record<string, number> = {
       ...webVitals,
       ...customMetrics,
-    };
+    }
 
     // 检查所有启用的告警规则
-    const rulesArray = Array.from(this.alarms.values());
+    const rulesArray = Array.from(this.alarms.values())
     for (const rule of rulesArray) {
-      if (!rule.enabled) continue;
+      if (!rule.enabled) continue
 
-      const currentValue = allMetrics[rule.metric];
-      if (currentValue === undefined) continue;
+      const currentValue = allMetrics[rule.metric]
+      if (currentValue === undefined) continue
 
       // 检查冷却时间
-      const lastTriggerTime = this.lastTriggerTimes.get(rule.id) || 0;
-      if (now - lastTriggerTime < rule.cooldownMs) continue;
+      const lastTriggerTime = this.lastTriggerTimes.get(rule.id) || 0
+      if (now - lastTriggerTime < rule.cooldownMs) continue
 
       // 检查是否触发条件
       if (this.checkThreshold(rule.metric, currentValue, rule.threshold, rule.condition)) {
@@ -294,13 +294,13 @@ export class PerformanceBudgetManager {
           timestamp: now,
           acknowledged: false,
           resolved: false,
-        };
+        }
 
-        this.activeNotifications.set(notification.id, notification);
-        triggeredNotifications.push(notification);
+        this.activeNotifications.set(notification.id, notification)
+        triggeredNotifications.push(notification)
 
         // 记录触发时间
-        this.lastTriggerTimes.set(rule.id, now);
+        this.lastTriggerTimes.set(rule.id, now)
 
         // 发送到监控系统
         await monitor.trackError('PerformanceBudgetViolation', notification.message, undefined, {
@@ -309,20 +309,20 @@ export class PerformanceBudgetManager {
           severity: rule.severity,
           currentValue,
           threshold: rule.threshold,
-        });
+        })
       }
     }
 
-    return triggeredNotifications;
+    return triggeredNotifications
   }
 
   /**
    * 确认告警
    */
   acknowledgeAlarm(notificationId: string): void {
-    const notification = this.activeNotifications.get(notificationId);
+    const notification = this.activeNotifications.get(notificationId)
     if (notification) {
-      notification.acknowledged = true;
+      notification.acknowledged = true
     }
   }
 
@@ -330,10 +330,10 @@ export class PerformanceBudgetManager {
    * 解决告警
    */
   resolveAlarm(notificationId: string): void {
-    const notification = this.activeNotifications.get(notificationId);
+    const notification = this.activeNotifications.get(notificationId)
     if (notification) {
-      notification.resolved = true;
-      notification.resolvedAt = Date.now();
+      notification.resolved = true
+      notification.resolvedAt = Date.now()
     }
   }
 
@@ -342,17 +342,15 @@ export class PerformanceBudgetManager {
    */
   getActiveNotifications(): AlarmNotification[] {
     return Array.from(this.activeNotifications.values())
-      .filter((n) => !n.resolved)
-      .sort((a, b) => b.timestamp - a.timestamp);
+      .filter(n => !n.resolved)
+      .sort((a, b) => b.timestamp - a.timestamp)
   }
 
   /**
    * 获取所有告警
    */
   getAllNotifications(): AlarmNotification[] {
-    return Array.from(this.activeNotifications.values()).sort(
-      (a, b) => b.timestamp - a.timestamp
-    );
+    return Array.from(this.activeNotifications.values()).sort((a, b) => b.timestamp - a.timestamp)
   }
 
   /**
@@ -362,15 +360,15 @@ export class PerformanceBudgetManager {
     webVitals: WebVitalsMetrics,
     customMetrics: CustomMetrics
   ): PerformanceBudgetReport {
-    const violations: BudgetViolation[] = [];
-    const recommendations: string[] = [];
+    const violations: BudgetViolation[] = []
+    const recommendations: string[] = []
 
     // Web Vitals 评分
-    let webVitalsScore = 0;
-    let webVitalsCount = 0;
+    let webVitalsScore = 0
+    let webVitalsCount = 0
 
     for (const [name, config] of Object.entries(this.budget.webVitals)) {
-      const value = webVitals[name as keyof WebVitalsMetrics];
+      const value = webVitals[name as keyof WebVitalsMetrics]
       if (value !== undefined) {
         const violation = this.checkViolation(
           name,
@@ -378,26 +376,26 @@ export class PerformanceBudgetManager {
           config.threshold,
           'greater',
           config.weight
-        );
+        )
         if (violation) {
-          violations.push(violation);
+          violations.push(violation)
         } else {
-          webVitalsScore += 100 * config.weight;
+          webVitalsScore += 100 * config.weight
         }
-        webVitalsCount++;
+        webVitalsCount++
       }
     }
 
     if (webVitalsCount > 0) {
-      webVitalsScore = webVitalsScore / webVitalsCount;
+      webVitalsScore = webVitalsScore / webVitalsCount
     }
 
     // 自定义指标评分
-    let customMetricsScore = 0;
-    let customMetricsCount = 0;
+    let customMetricsScore = 0
+    let customMetricsCount = 0
 
     for (const [name, config] of Object.entries(this.budget.customMetrics)) {
-      const value = customMetrics[name as keyof CustomMetrics];
+      const value = customMetrics[name as keyof CustomMetrics]
       if (value !== undefined) {
         const violation = this.checkViolation(
           name,
@@ -405,38 +403,38 @@ export class PerformanceBudgetManager {
           config.threshold,
           name === 'apiSuccessRate' ? 'less' : 'greater',
           config.weight
-        );
+        )
         if (violation) {
-          violations.push(violation);
+          violations.push(violation)
         } else {
-          customMetricsScore += 100 * config.weight;
+          customMetricsScore += 100 * config.weight
         }
-        customMetricsCount++;
+        customMetricsCount++
       }
     }
 
     if (customMetricsCount > 0) {
-      customMetricsScore = customMetricsScore / customMetricsCount;
+      customMetricsScore = customMetricsScore / customMetricsCount
     }
 
     // 资源评分 (这里简化处理，实际应检查资源大小)
-    const resourceScore = 100;
+    const resourceScore = 100
 
     // 总体评分
-    const overallScore = (webVitalsScore + customMetricsScore + resourceScore) / 3;
+    const overallScore = (webVitalsScore + customMetricsScore + resourceScore) / 3
 
     // 状态判断
-    let status: 'pass' | 'warning' | 'fail' = 'pass';
+    let status: 'pass' | 'warning' | 'fail' = 'pass'
     if (overallScore < 60) {
-      status = 'fail';
+      status = 'fail'
     } else if (overallScore < 80) {
-      status = 'warning';
+      status = 'warning'
     }
 
     // 生成建议
-    violations.forEach((v) => {
-      recommendations.push(this.getRecommendation(v.metric, v.currentValue, v.threshold));
-    });
+    violations.forEach(v => {
+      recommendations.push(this.getRecommendation(v.metric, v.currentValue, v.threshold))
+    })
 
     return {
       overallScore,
@@ -446,7 +444,7 @@ export class PerformanceBudgetManager {
       status,
       violations,
       recommendations,
-    };
+    }
   }
 
   /**
@@ -460,19 +458,19 @@ export class PerformanceBudgetManager {
     weight: number
   ): BudgetViolation | null {
     const isViolation =
-      condition === 'greater' ? currentValue > threshold : currentValue < threshold;
+      condition === 'greater' ? currentValue > threshold : currentValue < threshold
 
-    if (!isViolation) return null;
+    if (!isViolation) return null
 
-    let severity: 'low' | 'medium' | 'high';
-    const ratio = currentValue / threshold;
+    let severity: 'low' | 'medium' | 'high'
+    const ratio = currentValue / threshold
 
     if (ratio > 2) {
-      severity = 'high';
+      severity = 'high'
     } else if (ratio > 1.5) {
-      severity = 'medium';
+      severity = 'medium'
     } else {
-      severity = 'low';
+      severity = 'low'
     }
 
     return {
@@ -481,7 +479,7 @@ export class PerformanceBudgetManager {
       threshold,
       severity,
       impact: this.getImpact(metric, severity),
-    };
+    }
   }
 
   /**
@@ -498,9 +496,9 @@ export class PerformanceBudgetManager {
       apiErrorRate: 'Affects reliability',
       memoryUsagePercent: 'Affects stability',
       wsLatency: 'Affects real-time features',
-    };
+    }
 
-    return impactMap[metric] || 'Performance impact';
+    return impactMap[metric] || 'Performance impact'
   }
 
   /**
@@ -517,9 +515,9 @@ export class PerformanceBudgetManager {
       apiErrorRate: `Reduce API error rate. Current: ${(current * 100).toFixed(1)}%, Target: ${(threshold * 100).toFixed(1)}%. Consider: error handling, retry logic, monitoring.`,
       memoryUsagePercent: `Reduce memory usage. Current: ${current.toFixed(1)}%, Target: ${threshold}%. Consider: memory leak detection, optimizing data structures, cleanup.`,
       wsLatency: `Reduce WebSocket latency. Current: ${current.toFixed(0)}ms, Target: ${threshold}ms. Consider: server optimization, network improvements.`,
-    };
+    }
 
-    return recommendations[metric] || `Optimize ${metric}`;
+    return recommendations[metric] || `Optimize ${metric}`
   }
 
   /**
@@ -530,11 +528,11 @@ export class PerformanceBudgetManager {
     getCustomMetrics: () => CustomMetrics,
     intervalMs: number = 30000
   ): void {
-    this.stopPeriodicCheck();
+    this.stopPeriodicCheck()
 
     this.checkInterval = setInterval(async () => {
-      await this.checkAlarms(getWebVitals(), getCustomMetrics());
-    }, intervalMs) as NodeJS.Timeout;
+      await this.checkAlarms(getWebVitals(), getCustomMetrics())
+    }, intervalMs) as NodeJS.Timeout
   }
 
   /**
@@ -542,8 +540,8 @@ export class PerformanceBudgetManager {
    */
   stopPeriodicCheck(): void {
     if (this.checkInterval) {
-      clearInterval(this.checkInterval);
-      this.checkInterval = undefined;
+      clearInterval(this.checkInterval)
+      this.checkInterval = undefined
     }
   }
 
@@ -551,27 +549,27 @@ export class PerformanceBudgetManager {
    * 更新预算配置
    */
   updateBudget(budget: Partial<PerformanceBudget>): void {
-    this.budget = { ...this.budget, ...budget };
+    this.budget = { ...this.budget, ...budget }
   }
 
   /**
    * 获取预算配置
    */
   getBudget(): PerformanceBudget {
-    return { ...this.budget };
+    return { ...this.budget }
   }
 
   /**
    * 清除所有告警
    */
   clearAllNotifications(): void {
-    this.activeNotifications.clear();
-    this.lastTriggerTimes.clear();
+    this.activeNotifications.clear()
+    this.lastTriggerTimes.clear()
   }
 }
 
 // 默认实例
-export const budgetManager = new PerformanceBudgetManager();
+export const budgetManager = new PerformanceBudgetManager()
 
 /**
  * 初始化性能预算管理 (便捷函数)
@@ -580,7 +578,7 @@ export function initPerformanceBudget(
   budget?: Partial<PerformanceBudget>
 ): PerformanceBudgetManager {
   if (budget) {
-    budgetManager.updateBudget(budget);
+    budgetManager.updateBudget(budget)
   }
-  return budgetManager;
+  return budgetManager
 }

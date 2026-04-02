@@ -36,11 +36,11 @@ The notification system in 7zi consists of three coordinated services that work 
 
 ### Service Responsibilities
 
-| Service | Responsibility | Storage Type |
-|---------|---------------|--------------|
-| NotificationService | Real-time WebSocket delivery, temporary in-memory storage | In-memory (Map) |
+| Service                     | Responsibility                                               | Storage Type                         |
+| --------------------------- | ------------------------------------------------------------ | ------------------------------------ |
+| NotificationService         | Real-time WebSocket delivery, temporary in-memory storage    | In-memory (Map)                      |
 | EnhancedNotificationService | Email delivery, user preferences, coordinates other services | Coordinates with NotificationStorage |
-| NotificationStorage | Persistent storage, user preferences, delivery logs | SQLite |
+| NotificationStorage         | Persistent storage, user preferences, delivery logs          | SQLite                               |
 
 ## Singleton vs Instance Usage
 
@@ -50,30 +50,32 @@ All three services use the **singleton pattern** and export a single instance:
 
 ```typescript
 // notification.ts
-export const notificationService = new NotificationService();
+export const notificationService = new NotificationService()
 
 // notification-enhanced.ts
-export const enhancedNotificationService = new EnhancedNotificationService();
+export const enhancedNotificationService = new EnhancedNotificationService()
 
 // notification-storage.ts
-export const notificationStorage = new NotificationStorage();
+export const notificationStorage = new NotificationStorage()
 ```
 
 **Why Singleton?**
+
 - Socket.IO requires a single server instance
 - Single database connection per process
 - Shared state for WebSocket subscriptions
 - Consistent user preferences across the application
 
 **Usage Pattern:**
+
 ```typescript
 // ✅ Correct: Use the exported singleton
-import { notificationService } from '@/lib/services/notification';
-import { enhancedNotificationService } from '@/lib/services/notification-enhanced';
-import { notificationStorage } from '@/lib/services/notification-storage';
+import { notificationService } from '@/lib/services/notification'
+import { enhancedNotificationService } from '@/lib/services/notification-enhanced'
+import { notificationStorage } from '@/lib/services/notification-storage'
 
 // ❌ Incorrect: Don't create new instances
-const service = new NotificationService(); // Multiple Socket.IO servers!
+const service = new NotificationService() // Multiple Socket.IO servers!
 ```
 
 ### Initialization
@@ -82,10 +84,10 @@ Services must be initialized before use:
 
 ```typescript
 // NotificationService - call when HTTP server is available
-notificationService.initialize(httpServer);
+notificationService.initialize(httpServer)
 
 // EnhancedNotificationService - call at startup
-await enhancedNotificationService.initialize();
+await enhancedNotificationService.initialize()
 
 // NotificationStorage - initialized by EnhancedNotificationService
 // Or call manually: notificationStorage.initialize();
@@ -96,12 +98,14 @@ await enhancedNotificationService.initialize();
 ### NotificationService
 
 #### `initialize(httpServer: Server): void`
+
 - **Purpose:** Initialize Socket.IO server
 - **Params:** `httpServer` - Node.js HTTP/HTTPS server instance
 - **Throws:** None (warns if already initialized)
 - **Thread Safety:** Not thread-safe (Node.js is single-threaded)
 
 #### `notify(notification: Omit<Notification, 'id' | 'read' | 'createdAt'>): Promise<string>`
+
 - **Purpose:** Create and broadcast a notification
 - **Returns:** Notification ID
 - **Async:** Yes (for future expansion)
@@ -111,34 +115,41 @@ await enhancedNotificationService.initialize();
   - `all` (for system notifications)
 
 #### `getNotifications(filter?: NotificationFilter): Notification[]`
+
 - **Purpose:** Retrieve notifications with optional filtering
 - **Returns:** Array of notifications (sorted by createdAt desc)
 - **Filter Options:** type, priority, userId, teamId, taskId, read, since
 - **Note:** Returns from in-memory storage only
 
 #### `getUnreadCount(filter?: NotificationFilter): number`
+
 - **Purpose:** Count unread notifications
 - **Returns:** Number of unread notifications matching filter
 
 #### `markAsRead(notificationId: string): void`
+
 - **Purpose:** Mark a single notification as read
 - **Broadcasts:** `notification_read` event to subscribed channels
 
 #### `markAllAsRead(filter?: NotificationFilter): void`
+
 - **Purpose:** Mark all matching notifications as read
 - **Broadcasts:** `notifications_cleared` event
 
 #### `deleteNotification(notificationId: string): void`
+
 - **Purpose:** Delete a notification
 - **Broadcasts:** `notification_deleted` event
 
 #### `cleanupExpired(): number`
+
 - **Purpose:** Remove expired notifications
 - **Returns:** Number of notifications cleaned up
 
 ### EnhancedNotificationService
 
 #### `initialize(dbPath?: string): Promise<void>`
+
 - **Purpose:** Initialize storage and email service
 - **Params:** `dbPath` - Optional custom database path
 - **Env Vars:**
@@ -148,6 +159,7 @@ await enhancedNotificationService.initialize();
   - `NEXT_PUBLIC_APP_URL` - Base URL for action links
 
 #### `notify(notification: Omit<Notification, 'id' | 'read' | 'createdAt'>, options?: NotificationDeliveryOptions): Promise<{...}>`
+
 - **Purpose:** Send notification via all channels
 - **Returns:** `{ success, notificationId, emailSent, error? }`
 - **Delivery Channels:**
@@ -162,6 +174,7 @@ await enhancedNotificationService.initialize();
   - `emailRecipients`: Custom email recipients (bypasses user preferences)
 
 #### `setUserPreferences(preferences: UserNotificationPreferences): void`
+
 - **Purpose:** Set user notification preferences
 - **Throws:** Error if storage not initialized
 - **Preferences:**
@@ -176,10 +189,12 @@ await enhancedNotificationService.initialize();
   - `timezone`: User's timezone (IANA format, e.g., `'Europe/Berlin'`)
 
 #### `getUserPreferences(userId: string): UserNotificationPreferences | null`
+
 - **Purpose:** Get user notification preferences
 - **Returns:** Preferences object or null if not found
 
 #### `getNotifications(filters?): Notification[]`
+
 - **Purpose:** Get notifications from storage (not in-memory)
 - **Returns:** Array of notifications
 - **Filters:** userId, teamId, taskId, type, priority, read, since, limit, offset
@@ -187,49 +202,60 @@ await enhancedNotificationService.initialize();
 ### NotificationStorage
 
 #### `initialize(): void`
+
 - **Purpose:** Initialize SQLite database and create tables
 - **Database Path:** `process.cwd()/data/notifications.db` (default)
 - **Creates:** 3 tables (notifications, user_notification_preferences, notification_delivery_log)
 - **Indexes:** Creates indexes on all frequently queried columns
 
 #### `insertNotification(notification: {...}): void`
+
 - **Purpose:** Store a notification in the database
 - **Throws:** Error if database not initialized
 
 #### `getNotifications(filters?): Array<{...}>`
+
 - **Purpose:** Retrieve notifications from database
 - **Returns:** Array of notification records
 - **Filters:** Same as EnhancedNotificationService
 
 #### `markAsRead(notificationId: string): boolean`
+
 - **Purpose:** Mark notification as read in database
 - **Returns:** True if notification was found and updated
 
 #### `markAllAsRead(userId: string): number`
+
 - **Purpose:** Mark all notifications for a user as read
 - **Returns:** Number of notifications updated
 
 #### `getUserPreferences(userId: string): {...} | null`
+
 - **Purpose:** Get user preferences from database
 - **Returns:** Preferences object or null
 
 #### `setUserPreferences(userId: string, preferences: {...}): void`
+
 - **Purpose:** Set user preferences (upserts)
 - **Throws:** Error if database not initialized
 
 #### `logDelivery(log: {...}): void`
+
 - **Purpose:** Log notification delivery attempt
 - **Logs:** channel, recipient, status, error (if any), timestamp, metadata
 
 #### `cleanupExpired(): number`
+
 - **Purpose:** Delete expired notifications from database
 - **Returns:** Number of notifications deleted
 
 #### `getStats(): {...}`
+
 - **Purpose:** Get database statistics
 - **Returns:** `{ totalNotifications, unreadNotifications, totalUsers, totalDeliveries }`
 
 #### `close(): void`
+
 - **Purpose:** Close database connection
 - **Note:** Call on application shutdown
 
@@ -255,14 +281,15 @@ Priority is ordered from highest to lowest:
 
 ```typescript
 enum NotificationPriority {
-  URGENT = 'urgent',  // 0 - Immediate attention required
-  HIGH = 'high',      // 1 - Important but not critical
-  MEDIUM = 'medium',  // 2 - Standard priority
-  LOW = 'low',        // 3 - Low priority
+  URGENT = 'urgent', // 0 - Immediate attention required
+  HIGH = 'high', // 1 - Important but not critical
+  MEDIUM = 'medium', // 2 - Standard priority
+  LOW = 'low', // 3 - Low priority
 }
 ```
 
 **Email Threshold Behavior:**
+
 - Emails are sent for notifications at or above the threshold
 - Example: If threshold is `HIGH`, only `URGENT` and `HIGH` notifications trigger emails
 - Default threshold (without preferences): `HIGH`
@@ -334,33 +361,33 @@ Quiet hours suppress email notifications during specified time periods.
 
 ```typescript
 // ✅ Correct: Use enhanced service for persistence
-import { enhancedNotificationService } from '@/lib/services/notification-enhanced';
+import { enhancedNotificationService } from '@/lib/services/notification-enhanced'
 
-await enhancedNotificationService.initialize();
-await enhancedNotificationService.notify(notification);
+await enhancedNotificationService.initialize()
+await enhancedNotificationService.notify(notification)
 ```
 
 ### 2. Initialize Services at Startup
 
 ```typescript
 // In your server startup code (e.g., app.ts or server.ts)
-import { enhancedNotificationService } from '@/lib/services/notification-enhanced';
-import { notificationService } from '@/lib/services/notification';
+import { enhancedNotificationService } from '@/lib/services/notification-enhanced'
+import { notificationService } from '@/lib/services/notification'
 
 // Initialize storage and email
-await enhancedNotificationService.initialize();
+await enhancedNotificationService.initialize()
 
 // Initialize WebSocket with HTTP server
-notificationService.initialize(httpServer);
+notificationService.initialize(httpServer)
 ```
 
 ### 3. Handle Initialization Errors
 
 ```typescript
 try {
-  await enhancedNotificationService.initialize();
+  await enhancedNotificationService.initialize()
 } catch (error) {
-  console.error('Failed to initialize notification service:', error);
+  console.error('Failed to initialize notification service:', error)
   // Decide whether to continue without notifications or crash
 }
 ```
@@ -379,7 +406,7 @@ enhancedNotificationService.setUserPreferences({
   timezone: 'Europe/Berlin',
   digestEnabled: false,
   digestFrequency: 'daily',
-});
+})
 ```
 
 ### 5. Use Options to Skip Unnecessary Channels
@@ -388,33 +415,36 @@ enhancedNotificationService.setUserPreferences({
 // Don't send email for high-volume notifications
 await enhancedNotificationService.notify(notification, {
   skipEmail: true,
-});
+})
 
 // Force email for critical alerts
 await enhancedNotificationService.notify(criticalAlert, {
   forceEmail: true,
-});
+})
 ```
 
 ### 6. Periodically Clean Up Expired Notifications
 
 ```typescript
 // Run every hour
-setInterval(() => {
-  const count = enhancedNotificationService.cleanupExpired();
-  if (count > 0) {
-    console.log(`Cleaned up ${count} expired notifications`);
-  }
-}, 60 * 60 * 1000);
+setInterval(
+  () => {
+    const count = enhancedNotificationService.cleanupExpired()
+    if (count > 0) {
+      console.log(`Cleaned up ${count} expired notifications`)
+    }
+  },
+  60 * 60 * 1000
+)
 ```
 
 ### 7. Close Database Connection on Shutdown
 
 ```typescript
 process.on('SIGTERM', () => {
-  notificationStorage.close();
-  process.exit(0);
-});
+  notificationStorage.close()
+  process.exit(0)
+})
 ```
 
 ## Testing

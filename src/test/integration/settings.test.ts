@@ -45,18 +45,18 @@ describe('Settings Integration Tests', () => {
     it('should save theme preference to localStorage', () => {
       const theme = 'dark'
       localStorage.setItem('theme', theme)
-      
+
       expect(localStorage.setItem).toHaveBeenCalledWith('theme', theme)
       expect(localStorage.getItem('theme')).toBe(theme)
     })
 
     it('should toggle between light and dark themes', () => {
       let currentTheme = 'light'
-      
+
       // Toggle to dark
       currentTheme = currentTheme === 'light' ? 'dark' : 'light'
       expect(currentTheme).toBe('dark')
-      
+
       // Toggle back to light
       currentTheme = currentTheme === 'light' ? 'dark' : 'light'
       expect(currentTheme).toBe('light')
@@ -87,11 +87,11 @@ describe('Settings Integration Tests', () => {
 
     it('should handle theme transition smoothly', async () => {
       const transitionDuration = 300 // ms
-      
+
       // Theme change should include transition
       const startTheme = 'light'
       const endTheme = 'dark'
-      
+
       expect(startTheme).not.toBe(endTheme)
       expect(transitionDuration).toBeLessThan(500) // Should be fast
     })
@@ -101,14 +101,14 @@ describe('Settings Integration Tests', () => {
     it('should default to browser language or fallback', () => {
       const supportedLanguages = ['en', 'zh']
       const defaultLanguage = 'en'
-      
+
       expect(supportedLanguages).toContain(defaultLanguage)
     })
 
     it('should save language preference to localStorage', () => {
       const language = 'zh'
       localStorage.setItem('language', language)
-      
+
       expect(localStorage.setItem).toHaveBeenCalledWith('language', language)
       expect(localStorage.getItem('language')).toBe(language)
     })
@@ -116,7 +116,7 @@ describe('Settings Integration Tests', () => {
     it('should validate language is supported', () => {
       const supportedLanguages = ['en', 'zh', 'ja', 'ko']
       const validateLanguage = (lang: string) => supportedLanguages.includes(lang)
-      
+
       expect(validateLanguage('en')).toBe(true)
       expect(validateLanguage('zh')).toBe(true)
       expect(validateLanguage('fr')).toBe(false)
@@ -148,7 +148,7 @@ describe('Settings Integration Tests', () => {
       }
 
       localStorage.setItem('settings', JSON.stringify(settings))
-      
+
       const saved = JSON.parse(localStorage.getItem('settings') || '{}')
       expect(saved).toEqual(settings)
     })
@@ -160,7 +160,7 @@ describe('Settings Integration Tests', () => {
       }
 
       localStorage.setItem('settings', JSON.stringify(savedSettings))
-      
+
       const loaded = JSON.parse(localStorage.getItem('settings') || '{}')
       expect(loaded.theme).toBe('dark')
       expect(loaded.language).toBe('en')
@@ -180,7 +180,7 @@ describe('Settings Integration Tests', () => {
       }
 
       const mergedSettings = { ...defaultSettings, ...savedSettings }
-      
+
       expect(mergedSettings.theme).toBe('dark')
       expect(mergedSettings.language).toBe('en')
       expect(mergedSettings.notifications).toBe(true)
@@ -188,10 +188,10 @@ describe('Settings Integration Tests', () => {
 
     it('should handle corrupted settings gracefully', () => {
       localStorage.setItem('settings', 'invalid-json')
-      
+
       try {
         JSON.parse(localStorage.getItem('settings') || '{}')
-      } catch {
+      } catch (error) {
         // Should fall back to defaults
         const defaultSettings = { theme: 'system', language: 'en' }
         expect(defaultSettings).toBeDefined()
@@ -202,7 +202,7 @@ describe('Settings Integration Tests', () => {
   describe('Settings Panel UI', () => {
     it('should open settings panel on button click', () => {
       let isSettingsOpen = false
-      
+
       const toggleSettings = () => {
         isSettingsOpen = !isSettingsOpen
       }
@@ -214,7 +214,7 @@ describe('Settings Integration Tests', () => {
 
     it('should close settings panel on escape key', () => {
       let isSettingsOpen = true
-      
+
       const handleKeyDown = (key: string) => {
         if (key === 'Escape') {
           isSettingsOpen = false
@@ -227,7 +227,7 @@ describe('Settings Integration Tests', () => {
 
     it('should close settings panel when clicking outside', () => {
       let isSettingsOpen = true
-      
+
       const handleClickOutside = (target: Element | null, container: Element | null) => {
         if (target && container && !container.contains(target)) {
           isSettingsOpen = false
@@ -239,7 +239,7 @@ describe('Settings Integration Tests', () => {
         { contains: () => false } as unknown as Element,
         { contains: () => true } as unknown as Element
       )
-      
+
       expect(isSettingsOpen).toBe(false)
     })
 
@@ -251,7 +251,7 @@ describe('Settings Integration Tests', () => {
 
       // Simulate saving on close
       localStorage.setItem('settings', JSON.stringify(pendingChanges))
-      
+
       const saved = JSON.parse(localStorage.getItem('settings') || '{}')
       expect(saved).toEqual(pendingChanges)
     })
@@ -260,7 +260,7 @@ describe('Settings Integration Tests', () => {
   describe('Notification Settings', () => {
     it('should toggle notification preference', () => {
       let notificationsEnabled = true
-      
+
       const toggleNotifications = () => {
         notificationsEnabled = !notificationsEnabled
       }
@@ -274,7 +274,7 @@ describe('Settings Integration Tests', () => {
 
     it('should request browser notification permission', async () => {
       const mockPermission = 'granted'
-      
+
       // In real implementation, would call Notification.requestPermission()
       expect(['granted', 'denied', 'default']).toContain(mockPermission)
     })
@@ -282,7 +282,7 @@ describe('Settings Integration Tests', () => {
     it('should handle denied notification permission', () => {
       const permissionDenied: string = 'denied'
       const canSendNotifications = permissionDenied === 'granted'
-      
+
       expect(canSendNotifications).toBe(false)
     })
   })
@@ -290,7 +290,7 @@ describe('Settings Integration Tests', () => {
   describe('Accessibility Settings', () => {
     it('should support reduced motion preference', () => {
       const prefersReducedMotion = true
-      
+
       const getAnimationDuration = (reduced: boolean) => {
         return reduced ? 0 : 300
       }
@@ -314,7 +314,7 @@ describe('Settings Integration Tests', () => {
 
     it('should support high contrast mode', () => {
       let highContrastEnabled = false
-      
+
       const toggleHighContrast = () => {
         highContrastEnabled = !highContrastEnabled
       }
@@ -336,20 +336,20 @@ describe('Settings Synchronization', () => {
 
   it('should debounce settings updates', async () => {
     vi.useFakeTimers()
-    
+
     let saveCount = 0
     const saveSettings = vi.fn(() => saveCount++)
-    
+
     // Rapid changes
     saveSettings()
     saveSettings()
     saveSettings()
-    
+
     vi.advanceTimersByTime(500)
-    
+
     // Should debounce to single save
     expect(saveCount).toBe(3) // In real implementation with debounce, would be 1
-    
+
     vi.useRealTimers()
   })
 })

@@ -24,9 +24,11 @@
 - **防护措施**: 已实施通用原型污染防护
 
 **已创建文件**:
+
 - `src/lib/security/prototype-pollution-guard.ts` - 原型污染防护工具
 
 **关键功能**:
+
 - 冻结 Object.prototype 防止原型污染
 - 检测和清理恶意属性 (`__proto__`, `constructor`, `prototype`)
 - 安全的 Object.assign 替代品
@@ -39,13 +41,14 @@
 
 **受保护的端点**:
 
-| 端点路径 | 认证要求 | 实现状态 |
-|---------|---------|---------|
+| 端点路径           | 认证要求 | 实现状态  |
+| ------------------ | -------- | --------- |
 | `/api/data/import` | 必须认证 | ✅ 已创建 |
-| `/api/feedback` | 必须认证 | ✅ 已创建 |
-| `/api/search` | 必须认证 | ✅ 已创建 |
+| `/api/feedback`    | 必须认证 | ✅ 已创建 |
+| `/api/search`      | 必须认证 | ✅ 已创建 |
 
 **已创建文件**:
+
 - `src/middleware/auth.middleware.ts` - 认证中间件
 - `src/lib/auth/jwt.ts` - JWT 工具函数
 - `src/app/api/data/import/route.ts` - 数据导入端点
@@ -53,9 +56,11 @@
 - `src/app/api/search/route.ts` - 搜索端点
 
 **已更新文件**:
+
 - `src/middleware.ts` - 集成认证逻辑
 
 **关键功能**:
+
 - JWT 令牌验证（从 Cookie 或 Authorization 头）
 - 路径白名单管理（公开路径 vs 认证路径）
 - 用户信息注入到请求头（供后续使用）
@@ -64,6 +69,7 @@
 - 速率限制配置
 
 **认证流程**:
+
 ```
 客户端请求 → 中间件验证 → 检查路径 → 验证 JWT → 添加用户信息 → API 处理
 ```
@@ -74,15 +80,15 @@
 
 **已配置的安全响应头**:
 
-| 响应头 | 作用 | 当前值 |
-|-------|------|--------|
-| Content-Security-Policy | 防止 XSS、数据注入攻击 | `'self'` 等 |
-| X-Frame-Options | 防止点击劫持 | DENY |
-| X-Content-Type-Options | 防止 MIME 类型混淆 | nosniff |
-| X-XSS-Protection | 启用浏览器 XSS 过滤 | 1; mode=block |
-| Referrer-Policy | 控制 Referer 信息 | strict-origin-when-cross-origin |
-| Permissions-Policy | 禁用浏览器功能 | geolocation=(), microphone=(), camera=() |
-| Strict-Transport-Security | 强制 HTTPS | max-age=31536000; includeSubDomains |
+| 响应头                    | 作用                   | 当前值                                   |
+| ------------------------- | ---------------------- | ---------------------------------------- |
+| Content-Security-Policy   | 防止 XSS、数据注入攻击 | `'self'` 等                              |
+| X-Frame-Options           | 防止点击劫持           | DENY                                     |
+| X-Content-Type-Options    | 防止 MIME 类型混淆     | nosniff                                  |
+| X-XSS-Protection          | 启用浏览器 XSS 过滤    | 1; mode=block                            |
+| Referrer-Policy           | 控制 Referer 信息      | strict-origin-when-cross-origin          |
+| Permissions-Policy        | 禁用浏览器功能         | geolocation=(), microphone=(), camera=() |
+| Strict-Transport-Security | 强制 HTTPS             | max-age=31536000; includeSubDomains      |
 
 **配置位置**: `src/middleware.ts` 中的 `addSecurityHeaders()` 函数
 
@@ -98,9 +104,10 @@
 4. **SQL/NoSQL 注入防护**: 在 `src/lib/validation-schemas.ts` 中实现清理函数
 
 **关键功能**:
+
 - 移除危险的 HTML 标签（script, iframe, object, embed）
 - 移除 javascript: 协议
-- 移除事件处理器（on*）
+- 移除事件处理器（on\*）
 - URL 参数安全处理
 - 原型污染检测和清理
 
@@ -111,6 +118,7 @@
 **已创建文件**: `.env.example`
 
 **包含的配置项**:
+
 - JWT 密钥（带详细说明和生成方法）
 - JWT 过期时间配置
 - 会话密钥配置
@@ -126,6 +134,7 @@
 - 开发工具配置
 
 **JWT_SECRET 生成方法**:
+
 ```bash
 node -e "console.log(require('crypto').randomBytes(64).toString('hex'))"
 ```
@@ -146,23 +155,23 @@ npm install jose --save
 
 ### 新创建的文件
 
-| 文件路径 | 描述 |
-|---------|------|
-| `docs/SECURITY_HARDENING.md` | 完整的安全加固文档（24KB+） |
-| `.env.example` | 环境变量配置示例 |
-| `src/lib/auth/jwt.ts` | JWT 工具函数 |
-| `src/middleware/auth.middleware.ts` | 认证中间件 |
-| `src/lib/security/prototype-pollution-guard.ts` | 原型污染防护 |
-| `src/app/api/data/import/route.ts` | 数据导入 API |
-| `src/app/api/feedback/route.ts` | 反馈 API |
-| `src/app/api/search/route.ts` | 搜索 API |
+| 文件路径                                        | 描述                        |
+| ----------------------------------------------- | --------------------------- |
+| `docs/SECURITY_HARDENING.md`                    | 完整的安全加固文档（24KB+） |
+| `.env.example`                                  | 环境变量配置示例            |
+| `src/lib/auth/jwt.ts`                           | JWT 工具函数                |
+| `src/middleware/auth.middleware.ts`             | 认证中间件                  |
+| `src/lib/security/prototype-pollution-guard.ts` | 原型污染防护                |
+| `src/app/api/data/import/route.ts`              | 数据导入 API                |
+| `src/app/api/feedback/route.ts`                 | 反馈 API                    |
+| `src/app/api/search/route.ts`                   | 搜索 API                    |
 
 ### 更新的文件
 
-| 文件路径 | 更改内容 |
-|---------|---------|
+| 文件路径            | 更改内容                |
+| ------------------- | ----------------------- |
 | `src/middleware.ts` | 集成认证逻辑和 JWT 验证 |
-| `package.json` | 添加 jose 依赖 |
+| `package.json`      | 添加 jose 依赖          |
 
 ---
 

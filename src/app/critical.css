@@ -15,15 +15,15 @@
   /* 基础颜色 */
   --background: #ffffff;
   --foreground: #171717;
-  
+
   /* 主题色 */
   --primary: #06b6d4;
   --primary-foreground: #ffffff;
-  
+
   /* 边框和输入 */
   --border: #e4e4e7;
   --input: #e4e4e7;
-  
+
   /* 导航 */
   --nav-bg: #ffffff;
   --nav-border: #e5e7eb;
@@ -136,7 +136,9 @@ nav a:hover {
   border-radius: 9999px;
   background: var(--foreground);
   color: var(--background);
-  transition: transform 0.2s, box-shadow 0.2s;
+  transition:
+    transform 0.2s,
+    box-shadow 0.2s;
 }
 
 .cta-button:hover {
@@ -218,11 +220,11 @@ nav a:hover {
   .hero-title {
     font-size: 2.5rem;
   }
-  
+
   .hero-description {
     font-size: 1rem;
   }
-  
+
   .cta-button {
     width: 100%;
   }

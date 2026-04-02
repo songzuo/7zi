@@ -24,6 +24,7 @@
 ### 1.1 原始配置状态
 
 #### next.config.js
+
 - **当前状态**: 简化的 Next.js 配置
 - **Turbopack 配置**: ✅ 已有基础配置
   - `turbopack.resolveAlias`: 路径别名 `@`
@@ -36,6 +37,7 @@
   - 没有性能预算检查
 
 #### package.json
+
 - **当前构建脚本**:
   ```json
   {
@@ -51,12 +53,12 @@
 
 根据 `TURBOPACK_RESEARCH_20260328.md` 中的要求：
 
-| 配置项 | Turbopack 支持状态 | 迁移策略 |
-|--------|-------------------|----------|
-| 路径别名 `@/` | ✅ 支持 `turbopack.resolveAlias` | ✅ 已配置 |
-| splitChunks (9个cacheGroups) | ❌ 不支持 | ✅ 保留为 webpack 后备 |
-| Tree-shaking 优化 | ✅ 内置支持 | ✅ webpack 后备配置 |
-| compiler.removeConsole | ✅ 支持 | ✅ 已配置 |
+| 配置项                       | Turbopack 支持状态               | 迁移策略               |
+| ---------------------------- | -------------------------------- | ---------------------- |
+| 路径别名 `@/`                | ✅ 支持 `turbopack.resolveAlias` | ✅ 已配置              |
+| splitChunks (9个cacheGroups) | ❌ 不支持                        | ✅ 保留为 webpack 后备 |
+| Tree-shaking 优化            | ✅ 内置支持                      | ✅ webpack 后备配置    |
+| compiler.removeConsole       | ✅ 支持                          | ✅ 已配置              |
 
 ---
 
@@ -81,6 +83,7 @@ turbopack: {
 ```
 
 **关键点**:
+
 - ✅ 使用 `@` 别名（与 tsconfig.json 中的 `@/*` 配置一致）
 - ✅ 设置 `root: __dirname` 避免 lockfile 检测警告
 - ✅ 使用绝对路径 `path.join(__dirname, 'src')`
@@ -100,7 +103,7 @@ webpack: (config, { isServer, dev }) => {
 
     if (!isServer && !dev) {
       config.optimization = config.optimization || {};
-      
+
       // 性能预算配置
       config.performance = {
         maxEntrypointSize: 300000,
@@ -139,6 +142,7 @@ webpack: (config, { isServer, dev }) => {
 ```
 
 **关键点**:
+
 - ✅ 使用 `process.env.USE_WEBPACK === 'true'` 条件判断
 - ✅ 仅在生产环境且非服务端时应用优化
 - ✅ 完整保留 9 个 cacheGroups 分包策略
@@ -182,6 +186,7 @@ serverExternalPackages: [
 #### 2.2.1 构建脚本优化
 
 **原脚本**:
+
 ```json
 {
   "dev": "next dev",
@@ -193,6 +198,7 @@ serverExternalPackages: [
 ```
 
 **新脚本**:
+
 ```json
 {
   "dev": "next dev --turbopack",
@@ -206,6 +212,7 @@ serverExternalPackages: [
 ```
 
 **变更说明**:
+
 - ✅ `dev` 默认使用 Turbopack（`--turbopack`）
 - ✅ 新增 `dev:webpack` 用于 webpack 模式开发
 - ✅ `build` 默认使用 Turbopack（`--turbopack`）
@@ -234,15 +241,15 @@ npm run build:analyze:webpack  # Webpack
 
 ### 3.1 Turbopack 模式 vs Webpack 模式
 
-| 特性 | Turbopack 模式 | Webpack 模式 |
-|------|---------------|-------------|
-| **激活方式** | 默认 / `--turbopack` / `USE_WEBPACK=false` | `USE_WEBPACK=true` / `--webpack` |
-| **路径别名** | ✅ `turbopack.resolveAlias` | ✅ `webpack.resolve.alias` |
-| **splitChunks** | ⚠️ 使用默认策略 | ✅ 自定义 9 个 cacheGroups |
-| **Tree-shaking** | ✅ 内置优化 | ✅ 手动配置优化 |
-| **性能预算** | ❌ 不支持 | ✅ `performance.hints` |
-| **构建速度** | 🚀 快 10-700x | 🐌 较慢 |
-| **兼容性** | ✅ Next.js 16+ | ✅ 所有 Next.js 版本 |
+| 特性             | Turbopack 模式                             | Webpack 模式                     |
+| ---------------- | ------------------------------------------ | -------------------------------- |
+| **激活方式**     | 默认 / `--turbopack` / `USE_WEBPACK=false` | `USE_WEBPACK=true` / `--webpack` |
+| **路径别名**     | ✅ `turbopack.resolveAlias`                | ✅ `webpack.resolve.alias`       |
+| **splitChunks**  | ⚠️ 使用默认策略                            | ✅ 自定义 9 个 cacheGroups       |
+| **Tree-shaking** | ✅ 内置优化                                | ✅ 手动配置优化                  |
+| **性能预算**     | ❌ 不支持                                  | ✅ `performance.hints`           |
+| **构建速度**     | 🚀 快 10-700x                              | 🐌 较慢                          |
+| **兼容性**       | ✅ Next.js 16+                             | ✅ 所有 Next.js 版本             |
 
 ### 3.2 splitChunks 策略对比
 
@@ -345,12 +352,12 @@ npm run build
 
 ### 6.1 风险清单
 
-| 风险 | 等级 | 影响 | 缓解措施 |
-|------|------|------|----------|
+| 风险                         | 等级  | 影响            | 缓解措施                        |
+| ---------------------------- | ----- | --------------- | ------------------------------- |
 | Turbopack 分包策略不符合预期 | 🟡 中 | Bundle 体积增大 | 保留 webpack 后备，监控生产性能 |
-| 路径别名解析问题 | 🟡 中 | 模块导入失败 | 测试 `@/` 导入，必要时调整 |
-| Tree-shaking 行为差异 | 🟢 低 | 某些功能失效 | 运行完整的测试套件 |
-| Webpack 后备未触发 | 🟢 低 | 回滚失败 | 验证 `USE_WEBPACK=true` 生效 |
+| 路径别名解析问题             | 🟡 中 | 模块导入失败    | 测试 `@/` 导入，必要时调整      |
+| Tree-shaking 行为差异        | 🟢 低 | 某些功能失效    | 运行完整的测试套件              |
+| Webpack 后备未触发           | 🟢 低 | 回滚失败        | 验证 `USE_WEBPACK=true` 生效    |
 
 ### 6.2 缓解措施
 
@@ -360,6 +367,7 @@ npm run build
    - 运行时错误率
 
 2. **保留回滚能力**:
+
    ```bash
    # 如果 Turbopack 出现问题，立即回滚
    npm run build:webpack
@@ -377,12 +385,14 @@ npm run build
 ### 7.1 短期 (1-2 周)
 
 1. **验证构建**:
+
    ```bash
    npm run build
    npm run build:webpack
    ```
 
 2. **运行测试**:
+
    ```bash
    npm run test
    npm run test:e2e
@@ -475,5 +485,5 @@ npm run dev:webpack  # Webpack
 
 **报告结束**
 
-*迁移完成时间: 2026-03-28*
-*执行人: Subagent 57a2195e-f0dc-4f59-902a-bccb9be2a2a3*
+_迁移完成时间: 2026-03-28_
+_执行人: Subagent 57a2195e-f0dc-4f59-902a-bccb9be2a2a3_

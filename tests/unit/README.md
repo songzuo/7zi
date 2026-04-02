@@ -51,50 +51,50 @@ npm run test:unit -- --watch
 ### 基本结构
 
 ```typescript
-import { describe, it, expect, vi, beforeEach } from 'vitest';
-import { myFunction } from '@/path/to/module';
+import { describe, it, expect, vi, beforeEach } from 'vitest'
+import { myFunction } from '@/path/to/module'
 
 describe('myFunction', () => {
   beforeEach(() => {
     // 每个测试前的设置
-    vi.clearAllMocks();
-  });
+    vi.clearAllMocks()
+  })
 
   it('should return expected result', () => {
     // 准备
-    const input = 'test';
-    
+    const input = 'test'
+
     // 执行
-    const result = myFunction(input);
-    
+    const result = myFunction(input)
+
     // 验证
-    expect(result).toBe('expected');
-  });
-});
+    expect(result).toBe('expected')
+  })
+})
 ```
 
 ### 使用 Mock
 
 ```typescript
-import { vi } from 'vitest';
+import { vi } from 'vitest'
 
 // Mock 外部模块
 vi.mock('@/lib/db', () => ({
   db: {
     query: vi.fn(),
   },
-}));
+}))
 
 // 在测试中使用
-import { db } from '@/lib/db';
+import { db } from '@/lib/db'
 
 it('should query database', async () => {
-  db.query.mockResolvedValue([{ id: 1, name: 'test' }]);
-  
-  const result = await myFunction();
-  
-  expect(db.query).toHaveBeenCalledWith('SELECT * FROM users');
-});
+  db.query.mockResolvedValue([{ id: 1, name: 'test' }])
+
+  const result = await myFunction()
+
+  expect(db.query).toHaveBeenCalledWith('SELECT * FROM users')
+})
 ```
 
 ## 测试覆盖率
@@ -108,6 +108,7 @@ open coverage/index.html
 ```
 
 目标覆盖率：
+
 - 语句覆盖率：≥ 80%
 - 分支覆盖率：≥ 75%
 - 函数覆盖率：≥ 85%

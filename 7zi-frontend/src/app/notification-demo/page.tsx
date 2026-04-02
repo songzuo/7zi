@@ -4,29 +4,26 @@
  * Shows how to use the notification components and hooks
  */
 
-'use client';
+'use client'
 
-import { useState } from 'react';
-import { Bell, Send, Trash2, Check } from 'lucide-react';
+import { useState } from 'react'
+import { Bell, Send, Trash2, Check } from 'lucide-react'
 import {
   NotificationProvider,
   NotificationToaster,
   NotificationCenter,
   useNotificationContext,
-} from '@/components/notifications';
-import {
-  NotificationType,
-  NotificationPriority,
-} from '@/lib/services/notification-types';
+} from '@/components/notifications'
+import { NotificationType, NotificationPriority } from '@/lib/services/notification-types'
 
 /**
  * Demo Content Component - Uses the notification context
  */
 function DemoContent() {
-  "use memo";
+  'use memo'
 
-  const { notifications, unreadCount, isConnected, markAllAsRead } = useNotificationContext();
-  const [showCenter, setShowCenter] = useState(false);
+  const { notifications, unreadCount, isConnected, markAllAsRead } = useNotificationContext()
+  const [showCenter, setShowCenter] = useState(false)
 
   const sendTestNotification = async (type: NotificationType) => {
     try {
@@ -40,11 +37,11 @@ function DemoContent() {
           message: `This is a test ${type} notification sent at ${new Date().toLocaleTimeString()}`,
           data: { test: true, type, timestamp: Date.now() },
         }),
-      });
+      })
     } catch (error) {
-      console.error('[NotificationDemo] Failed to send test notification:', error);
+      console.error('[NotificationDemo] Failed to send test notification:', error)
     }
-  };
+  }
 
   const sendTaskNotification = async () => {
     try {
@@ -62,30 +59,28 @@ function DemoContent() {
             priority: 'high',
           },
         }),
-      });
+      })
     } catch (error) {
-      console.error('[NotificationDemo] Failed to send task notification:', error);
+      console.error('[NotificationDemo] Failed to send task notification:', error)
     }
-  };
+  }
 
   const clearNotifications = async () => {
     try {
-      const notificationIds = notifications.map(n => n.id);
+      const notificationIds = notifications.map(n => n.id)
       await Promise.all(
-        notificationIds.map(id =>
-          fetch(`/api/notifications/${id}`, { method: 'DELETE' })
-        )
-      );
+        notificationIds.map(id => fetch(`/api/notifications/${id}`, { method: 'DELETE' }))
+      )
     } catch (error) {
-      console.error('[NotificationDemo] Failed to clear notifications:', error);
+      console.error('[NotificationDemo] Failed to clear notifications:', error)
     }
-  };
+  }
 
   return (
-    <div className="min-h-screen bg-gray-50 dark:bg-gray-900 p-8">
+    <div className="min-h-screen bg-gray-50 p-8 dark:bg-gray-900">
       {/* Header */}
-      <div className="max-w-6xl mx-auto">
-        <div className="flex items-center justify-between mb-8">
+      <div className="mx-auto max-w-6xl">
+        <div className="mb-8 flex items-center justify-between">
           <h1 className="text-3xl font-bold text-gray-900 dark:text-gray-100">
             Notification System Demo
           </h1>
@@ -93,11 +88,11 @@ function DemoContent() {
           {/* Notification Button */}
           <button
             onClick={() => setShowCenter(true)}
-            className="relative p-3 bg-white dark:bg-gray-800 rounded-lg shadow hover:shadow-md transition-shadow"
+            className="relative rounded-lg bg-white p-3 shadow transition-shadow hover:shadow-md dark:bg-gray-800"
           >
             <Bell className="h-6 w-6 text-gray-600 dark:text-gray-300" />
             {unreadCount > 0 && (
-              <span className="absolute -top-1 -right-1 bg-red-500 text-white text-xs w-5 h-5 rounded-full flex items-center justify-center">
+              <span className="absolute -top-1 -right-1 flex h-5 w-5 items-center justify-center rounded-full bg-red-500 text-xs text-white">
                 {unreadCount}
               </span>
             )}
@@ -105,12 +100,10 @@ function DemoContent() {
         </div>
 
         {/* Connection Status */}
-        <div className="mb-6 p-4 bg-white dark:bg-gray-800 rounded-lg shadow">
+        <div className="mb-6 rounded-lg bg-white p-4 shadow dark:bg-gray-800">
           <div className="flex items-center gap-3">
             <div
-              className={`w-3 h-3 rounded-full ${
-                isConnected ? 'bg-green-500' : 'bg-red-500'
-              }`}
+              className={`h-3 w-3 rounded-full ${isConnected ? 'bg-green-500' : 'bg-red-500'}`}
             />
             <span className="text-sm text-gray-700 dark:text-gray-300">
               {isConnected
@@ -121,44 +114,44 @@ function DemoContent() {
         </div>
 
         {/* Test Controls */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 mb-8">
+        <div className="mb-8 grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3">
           {/* Send Test Notifications */}
-          <div className="bg-white dark:bg-gray-800 rounded-lg shadow p-6">
-            <h2 className="text-lg font-semibold mb-4 text-gray-900 dark:text-gray-100">
+          <div className="rounded-lg bg-white p-6 shadow dark:bg-gray-800">
+            <h2 className="mb-4 text-lg font-semibold text-gray-900 dark:text-gray-100">
               Send Test Notifications
             </h2>
             <div className="space-y-2">
               <button
                 onClick={() => sendTestNotification(NotificationType.INFO)}
-                className="w-full flex items-center justify-center gap-2 p-3 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-colors"
+                className="flex w-full items-center justify-center gap-2 rounded-lg bg-blue-500 p-3 text-white transition-colors hover:bg-blue-600"
               >
                 <Send className="h-4 w-4" />
                 Info
               </button>
               <button
                 onClick={() => sendTestNotification(NotificationType.SUCCESS)}
-                className="w-full flex items-center justify-center gap-2 p-3 bg-green-500 text-white rounded-lg hover:bg-green-600 transition-colors"
+                className="flex w-full items-center justify-center gap-2 rounded-lg bg-green-500 p-3 text-white transition-colors hover:bg-green-600"
               >
                 <Send className="h-4 w-4" />
                 Success
               </button>
               <button
                 onClick={() => sendTestNotification(NotificationType.WARNING)}
-                className="w-full flex items-center justify-center gap-2 p-3 bg-yellow-500 text-white rounded-lg hover:bg-yellow-600 transition-colors"
+                className="flex w-full items-center justify-center gap-2 rounded-lg bg-yellow-500 p-3 text-white transition-colors hover:bg-yellow-600"
               >
                 <Send className="h-4 w-4" />
                 Warning
               </button>
               <button
                 onClick={() => sendTestNotification(NotificationType.ERROR)}
-                className="w-full flex items-center justify-center gap-2 p-3 bg-red-500 text-white rounded-lg hover:bg-red-600 transition-colors"
+                className="flex w-full items-center justify-center gap-2 rounded-lg bg-red-500 p-3 text-white transition-colors hover:bg-red-600"
               >
                 <Send className="h-4 w-4" />
                 Error
               </button>
               <button
                 onClick={sendTaskNotification}
-                className="w-full flex items-center justify-center gap-2 p-3 bg-purple-500 text-white rounded-lg hover:bg-purple-600 transition-colors"
+                className="flex w-full items-center justify-center gap-2 rounded-lg bg-purple-500 p-3 text-white transition-colors hover:bg-purple-600"
               >
                 <Send className="h-4 w-4" />
                 Task Assigned
@@ -167,21 +160,21 @@ function DemoContent() {
           </div>
 
           {/* Bulk Actions */}
-          <div className="bg-white dark:bg-gray-800 rounded-lg shadow p-6">
-            <h2 className="text-lg font-semibold mb-4 text-gray-900 dark:text-gray-100">
+          <div className="rounded-lg bg-white p-6 shadow dark:bg-gray-800">
+            <h2 className="mb-4 text-lg font-semibold text-gray-900 dark:text-gray-100">
               Bulk Actions
             </h2>
             <div className="space-y-2">
               <button
                 onClick={markAllAsRead}
-                className="w-full flex items-center justify-center gap-2 p-3 bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 rounded-lg hover:bg-gray-200 dark:hover:bg-gray-600 transition-colors"
+                className="flex w-full items-center justify-center gap-2 rounded-lg bg-gray-100 p-3 text-gray-700 transition-colors hover:bg-gray-200 dark:bg-gray-700 dark:text-gray-300 dark:hover:bg-gray-600"
               >
                 <Check className="h-4 w-4" />
                 Mark All as Read
               </button>
               <button
                 onClick={clearNotifications}
-                className="w-full flex items-center justify-center gap-2 p-3 bg-red-100 dark:bg-red-900 text-red-700 dark:text-red-300 rounded-lg hover:bg-red-200 dark:hover:bg-red-800 transition-colors"
+                className="flex w-full items-center justify-center gap-2 rounded-lg bg-red-100 p-3 text-red-700 transition-colors hover:bg-red-200 dark:bg-red-900 dark:text-red-300 dark:hover:bg-red-800"
               >
                 <Trash2 className="h-4 w-4" />
                 Clear All Notifications
@@ -190,8 +183,8 @@ function DemoContent() {
           </div>
 
           {/* Stats */}
-          <div className="bg-white dark:bg-gray-800 rounded-lg shadow p-6">
-            <h2 className="text-lg font-semibold mb-4 text-gray-900 dark:text-gray-100">
+          <div className="rounded-lg bg-white p-6 shadow dark:bg-gray-800">
+            <h2 className="mb-4 text-lg font-semibold text-gray-900 dark:text-gray-100">
               Statistics
             </h2>
             <div className="space-y-4">
@@ -203,9 +196,7 @@ function DemoContent() {
               </div>
               <div>
                 <p className="text-sm text-gray-600 dark:text-gray-400">Unread</p>
-                <p className="text-3xl font-bold text-blue-600 dark:text-blue-400">
-                  {unreadCount}
-                </p>
+                <p className="text-3xl font-bold text-blue-600 dark:text-blue-400">{unreadCount}</p>
               </div>
               <div>
                 <p className="text-sm text-gray-600 dark:text-gray-400">Read</p>
@@ -218,12 +209,12 @@ function DemoContent() {
         </div>
 
         {/* Recent Notifications List */}
-        <div className="bg-white dark:bg-gray-800 rounded-lg shadow p-6">
-          <h2 className="text-lg font-semibold mb-4 text-gray-900 dark:text-gray-100">
+        <div className="rounded-lg bg-white p-6 shadow dark:bg-gray-800">
+          <h2 className="mb-4 text-lg font-semibold text-gray-900 dark:text-gray-100">
             Recent Notifications
           </h2>
           {notifications.length === 0 ? (
-            <p className="text-gray-500 dark:text-gray-400 text-center py-8">
+            <p className="py-8 text-center text-gray-500 dark:text-gray-400">
               No notifications yet. Send some test notifications above!
             </p>
           ) : (
@@ -231,10 +222,10 @@ function DemoContent() {
               {notifications.slice(0, 10).map(notification => (
                 <div
                   key={notification.id}
-                  className={`p-4 rounded-lg border ${
+                  className={`rounded-lg border p-4 ${
                     notification.read
-                      ? 'bg-gray-50 dark:bg-gray-700 border-gray-200 dark:border-gray-600'
-                      : 'bg-blue-50 dark:bg-blue-900/20 border-blue-200 dark:border-blue-800'
+                      ? 'border-gray-200 bg-gray-50 dark:border-gray-600 dark:bg-gray-700'
+                      : 'border-blue-200 bg-blue-50 dark:border-blue-800 dark:bg-blue-900/20'
                   }`}
                 >
                   <div className="flex items-start justify-between">
@@ -242,16 +233,16 @@ function DemoContent() {
                       <p className="font-medium text-gray-900 dark:text-gray-100">
                         {notification.title}
                       </p>
-                      <p className="text-sm text-gray-600 dark:text-gray-400 mt-1">
+                      <p className="mt-1 text-sm text-gray-600 dark:text-gray-400">
                         {notification.message}
                       </p>
-                      <p className="text-xs text-gray-500 dark:text-gray-500 mt-2">
-                        {new Date(notification.createdAt).toLocaleString()} •{' '}
-                        {notification.type} • {notification.priority}
+                      <p className="mt-2 text-xs text-gray-500 dark:text-gray-500">
+                        {new Date(notification.createdAt).toLocaleString()} • {notification.type} •{' '}
+                        {notification.priority}
                       </p>
                     </div>
                     {!notification.read && (
-                      <span className="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200">
+                      <span className="inline-flex items-center rounded bg-blue-100 px-2 py-0.5 text-xs font-medium text-blue-800 dark:bg-blue-900 dark:text-blue-200">
                         New
                       </span>
                     )}
@@ -265,8 +256,10 @@ function DemoContent() {
         {/* Notification Toaster */}
         <NotificationToaster
           notifications={notifications}
-          onMarkRead={() => {/* Handled by toast component */}}
-          onDelete={(id) => console.log('Delete', id)}
+          onMarkRead={() => {
+            /* Handled by toast component */
+          }}
+          onDelete={id => console.log('Delete', id)}
         />
 
         {/* Notification Center Panel */}
@@ -275,13 +268,13 @@ function DemoContent() {
           unreadCount={unreadCount}
           isOpen={showCenter}
           onClose={() => setShowCenter(false)}
-          onMarkRead={(id) => console.log('Mark as read', id)}
+          onMarkRead={id => console.log('Mark as read', id)}
           onMarkAllRead={markAllAsRead}
-          onDelete={(id) => console.log('Delete', id)}
+          onDelete={id => console.log('Delete', id)}
         />
       </div>
     </div>
-  );
+  )
 }
 
 /**
@@ -292,5 +285,5 @@ export default function NotificationDemoPage() {
     <NotificationProvider autoConnect>
       <DemoContent />
     </NotificationProvider>
-  );
+  )
 }

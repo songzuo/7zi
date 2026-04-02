@@ -23,31 +23,34 @@
 
 ### 1.1 已审查的端点
 
-| 端点 | 文件路径 | 错误处理方式 |
-|------|---------|-------------|
-| GET/POST `/api/backup` | `src/app/api/backup/route.ts` | 基础 try-catch |
-| GET `/api/export` | `src/app/api/export/route.ts` | 基础 try-catch |
-| GET `/api/health` | `src/app/api/health/route.ts` | 基础 try-catch |
+| 端点                       | 文件路径                               | 错误处理方式   |
+| -------------------------- | -------------------------------------- | -------------- |
+| GET/POST `/api/backup`     | `src/app/api/backup/route.ts`          | 基础 try-catch |
+| GET `/api/export`          | `src/app/api/export/route.ts`          | 基础 try-catch |
+| GET `/api/health`          | `src/app/api/health/route.ts`          | 基础 try-catch |
 | GET `/api/health/detailed` | `src/app/api/health/detailed/route.ts` | 基础 try-catch |
-| GET `/api/status` | `src/app/api/status/route.ts` | 基础 try-catch |
-| GET `/api/github/commits` | `src/app/api/github/commits/route.ts` | 基础 try-catch |
+| GET `/api/status`          | `src/app/api/status/route.ts`          | 基础 try-catch |
+| GET `/api/github/commits`  | `src/app/api/github/commits/route.ts`  | 基础 try-catch |
 
 ### 1.2 发现的问题
 
 #### 问题 1.1: 错误响应格式不一致
 
 **现状**:
+
 - `error-handler.ts` 定义了标准的 `ApiError` 接口：
+
   ```typescript
   interface ApiError {
-    code: string;
-    message: string;
-    details?: Record<string, unknown>;
-    stack?: string;
+    code: string
+    message: string
+    details?: Record<string, unknown>
+    stack?: string
   }
   ```
 
 - 但实际端点返回格式不统一：
+
   ```typescript
   // 多数端点返回
   { success: false, error: "Failed to..." }
@@ -61,10 +64,12 @@
 #### 问题 1.2: 未使用统一的错误类
 
 **现状**:
+
 - 项目有 `ApiErrorClass` 和工厂函数（`createBadRequestError`, `createNotFoundError` 等）
 - 但 API 端点都没有使用这些工具
 
 **示例** (backup/route.ts):
+
 ```typescript
 catch (error) {
   logger.error('Failed to list backups', error);
@@ -76,6 +81,7 @@ catch (error) {
 ```
 
 **应该使用**:
+
 ```typescript
 import { createInternalServerError, createErrorResponseJson } from '@/lib/api/error-handler';
 
@@ -92,6 +98,7 @@ catch (error) {
 **现状**: 所有错误都返回 500 或简单的字符串，没有区分不同类型的错误
 
 **建议使用**:
+
 - `createBadRequestError` (400) - 验证失败
 - `createUnauthorizedError` (401) - 未认证
 - `createForbiddenError` (403) - 无权限
@@ -105,12 +112,12 @@ catch (error) {
 
 ### 2.1 当前格式混乱
 
-| 文件 | 成功格式 | 错误格式 |
-|------|---------|---------|
-| backup/route.ts | `{ success: true, data: {...} }` | `{ success: false, error: "..." }` |
-| export/route.ts | `{ success: true, data: {...}, timestamp: "..." }` | `{ success: false, error: "..." }` |
-| health/route.ts | `{ success: true, status: "..." }` | `{ success: false, status: "..." }` |
-| status/route.ts | `{ success: true, status: "..." }` | `{ success: false, status: "..." }` |
+| 文件            | 成功格式                                           | 错误格式                            |
+| --------------- | -------------------------------------------------- | ----------------------------------- |
+| backup/route.ts | `{ success: true, data: {...} }`                   | `{ success: false, error: "..." }`  |
+| export/route.ts | `{ success: true, data: {...}, timestamp: "..." }` | `{ success: false, error: "..." }`  |
+| health/route.ts | `{ success: true, status: "..." }`                 | `{ success: false, status: "..." }` |
+| status/route.ts | `{ success: true, status: "..." }`                 | `{ success: false, status: "..." }` |
 
 ### 2.2 标准格式定义
 
@@ -119,27 +126,28 @@ catch (error) {
 ```typescript
 // 成功响应
 interface ApiSuccessResponse<T> {
-  success: true;
-  data: T;
-  timestamp: string;
+  success: true
+  data: T
+  timestamp: string
 }
 
 // 错误响应
 interface ApiErrorResponse {
-  success: false;
+  success: false
   error: {
-    code: string;
-    message: string;
-    details?: Record<string, unknown>;
-    stack?: string;  // 仅开发环境
-  };
-  timestamp: string;
+    code: string
+    message: string
+    details?: Record<string, unknown>
+    stack?: string // 仅开发环境
+  }
+  timestamp: string
 }
 ```
 
 ### 2.3 建议
 
 **强制所有 API 端点使用**:
+
 1. `createSuccessResponse(data, status)` - 创建成功响应
 2. `createErrorResponseJson(error, status)` - 创建错误响应
 3. `withErrorHandler(handler)` - 包装处理函数自动处理错误
@@ -152,20 +160,22 @@ interface ApiErrorResponse {
 
 项目中已有完善的错误处理工具：
 
-| 文件 | 功能 |
-|------|------|
-| `src/lib/errors.ts` | 应用级错误类型和工具函数 |
-| `src/lib/api/error-handler.ts` | API 错误类和工厂函数 |
-| `src/lib/api/error-logger.ts` | 结构化错误日志记录 |
-| `src/middleware/auth.ts` | 认证中间件 |
+| 文件                           | 功能                     |
+| ------------------------------ | ------------------------ |
+| `src/lib/errors.ts`            | 应用级错误类型和工具函数 |
+| `src/lib/api/error-handler.ts` | API 错误类和工厂函数     |
+| `src/lib/api/error-logger.ts`  | 结构化错误日志记录       |
+| `src/middleware/auth.ts`       | 认证中间件               |
 
 ### 3.2 使用率统计
 
 **已使用**:
+
 - ✅ 认证中间件 (`withAuth`) - 部分端点使用
 - ✅ Logger (`logger`) - 部分端点使用
 
 **未使用**:
+
 - ❌ `ApiErrorClass` - 无端点使用
 - ❌ `createBadRequestError` 等工厂函数 - 无端点使用
 - ❌ `createSuccessResponse` - 无端点使用
@@ -179,33 +189,30 @@ interface ApiErrorResponse {
 创建统一的 API 路由模板：
 
 ```typescript
-import { NextRequest } from 'next/server';
+import { NextRequest } from 'next/server'
 import {
   createSuccessResponse,
   createErrorResponseJson,
   createBadRequestError,
   createNotFoundError,
   withErrorHandler,
-} from '@/lib/api/error-handler';
-import {
-  logApiError,
-  createApiContext,
-} from '@/lib/api/error-logger';
+} from '@/lib/api/error-handler'
+import { logApiError, createApiContext } from '@/lib/api/error-logger'
 
 export const GET = withErrorHandler(async (request: NextRequest) => {
-  const context = createApiContext(request);
-  const startTime = Date.now();
+  const context = createApiContext(request)
+  const startTime = Date.now()
 
   try {
     // 业务逻辑
-    const data = await fetchData();
+    const data = await fetchData()
 
-    return createSuccessResponse(data);
+    return createSuccessResponse(data)
   } catch (error) {
-    logApiError(error, context);
-    throw error;  // withErrorHandler 会处理
+    logApiError(error, context)
+    throw error // withErrorHandler 会处理
   }
-});
+})
 ```
 
 ---
@@ -214,11 +221,11 @@ export const GET = withErrorHandler(async (request: NextRequest) => {
 
 ### 4.1 日志基础设施
 
-| 组件 | 功能 | 状态 |
-|------|------|------|
-| `src/lib/logger.ts` | 基础日志记录器 | ✅ 已有 |
-| `src/lib/api/error-logger.ts` | API 结构化日志 | ✅ 已有但未使用 |
-| `src/lib/monitoring/monitor.ts` | 前端性能监控 | ✅ 前端已集成 |
+| 组件                            | 功能           | 状态            |
+| ------------------------------- | -------------- | --------------- |
+| `src/lib/logger.ts`             | 基础日志记录器 | ✅ 已有         |
+| `src/lib/api/error-logger.ts`   | API 结构化日志 | ✅ 已有但未使用 |
+| `src/lib/monitoring/monitor.ts` | 前端性能监控   | ✅ 前端已集成   |
 
 ### 4.2 日志记录问题
 
@@ -228,25 +235,27 @@ export const GET = withErrorHandler(async (request: NextRequest) => {
 
 ```typescript
 // 当前做法
-logger.error('Failed to list backups', error);
+logger.error('Failed to list backups', error)
 ```
 
 **缺少**:
+
 - ❌ 请求上下文 (request ID, user ID, IP)
 - ❌ 请求路径和方法
 - ❌ 请求时长
 - ❌ 错误分类和级别
 
 **应该使用**:
+
 ```typescript
-import { logApiError, createApiContext } from '@/lib/api/error-logger';
+import { logApiError, createApiContext } from '@/lib/api/error-logger'
 
 const context = createApiContext(request, {
   userId: getUserId(request),
   duration: Date.now() - startTime,
-});
+})
 
-logApiError(error, context);
+logApiError(error, context)
 ```
 
 #### 问题 4.2: 没有记录成功请求
@@ -256,11 +265,14 @@ logApiError(error, context);
 **建议**: 使用 `logApiSuccess` 记录成功的 API 调用
 
 ```typescript
-logApiSuccess({
-  ...context,
-  duration: Date.now() - startTime,
-  responseSize: response.size,
-}, response.status);
+logApiSuccess(
+  {
+    ...context,
+    duration: Date.now() - startTime,
+    responseSize: response.size,
+  },
+  response.status
+)
 ```
 
 #### 问题 4.3: 缺少性能日志
@@ -268,15 +280,15 @@ logApiSuccess({
 **建议**: 使用 `createPerformanceLogger` 记录 API 性能
 
 ```typescript
-const perf = createPerformanceLogger(request, Date.now());
+const perf = createPerformanceLogger(request, Date.now())
 
 try {
-  const result = await someOperation();
-  perf.logSuccess(200);
-  return result;
+  const result = await someOperation()
+  perf.logSuccess(200)
+  return result
 } catch (error) {
-  perf.logError(error);
-  throw error;
+  perf.logError(error)
+  throw error
 }
 ```
 
@@ -291,6 +303,7 @@ try {
 **问题**: 部分端点可能返回完整的错误栈
 
 **防护**:
+
 - ✅ `error-logger.ts` 已实现 `sanitizeSensitiveData` 函数
 - ✅ `ApiErrorClass` 有 `expose` 属性控制
 
@@ -321,6 +334,7 @@ toJSON(): ApiError {
 **问题**: 详细健康检查端点 (`/api/health/detailed`) 暴露内存信息
 
 **现状**:
+
 ```typescript
 // health/detailed/route.ts
 checks: {
@@ -338,6 +352,7 @@ checks: {
 ```
 
 **建议**:
+
 - 此端点应该需要认证
 - 或限制只对内部网络访问
 - 或在生产环境隐藏详细信息
@@ -348,17 +363,17 @@ checks: {
 
 ```typescript
 function sanitizeSensitiveData(data: Record<string, unknown>): Record<string, unknown> {
-  const sensitiveKeys = ['password', 'token', 'secret', 'apiKey', 'authorization'];
-  const sanitized = { ...data };
+  const sensitiveKeys = ['password', 'token', 'secret', 'apiKey', 'authorization']
+  const sanitized = { ...data }
 
   for (const key of Object.keys(sanitized)) {
-    const lowerKey = key.toLowerCase();
+    const lowerKey = key.toLowerCase()
     if (sensitiveKeys.some(sensitive => lowerKey.includes(sensitive))) {
-      sanitized[key] = '[REDACTED]';
+      sanitized[key] = '[REDACTED]'
     }
   }
 
-  return sanitized;
+  return sanitized
 }
 ```
 
@@ -380,7 +395,7 @@ function sanitizeSensitiveData(data: Record<string, unknown>): Record<string, un
  * 所有新 API 端点应遵循此模板
  */
 
-import { NextRequest } from 'next/server';
+import { NextRequest } from 'next/server'
 import {
   createSuccessResponse,
   createErrorResponseJson,
@@ -390,14 +405,14 @@ import {
   createNotFoundError,
   createInternalServerError,
   withErrorHandler,
-} from '@/lib/api/error-handler';
+} from '@/lib/api/error-handler'
 import {
   logApiError,
   logApiSuccess,
   createApiContext,
   createPerformanceLogger,
-} from '@/lib/api/error-logger';
-import { withAuth } from '@/middleware/auth';
+} from '@/lib/api/error-logger'
+import { withAuth } from '@/middleware/auth'
 
 /**
  * GET /api/your-endpoint
@@ -407,8 +422,8 @@ import { withAuth } from '@/middleware/auth';
  * 权限: 如果需要认证
  */
 export const GET = withErrorHandler(async (request: NextRequest) => {
-  const perf = createPerformanceLogger(request, Date.now());
-  const context = createApiContext(request);
+  const perf = createPerformanceLogger(request, Date.now())
+  const context = createApiContext(request)
 
   // 如果需要认证
   // return withAuth(request, async () => {
@@ -427,32 +442,34 @@ export const GET = withErrorHandler(async (request: NextRequest) => {
     // logApiSuccess(context, 200);
 
     // 4. 返回响应
-    return createSuccessResponse({ /* data */ });
+    return createSuccessResponse({
+      /* data */
+    })
   } catch (error) {
     // 记录错误
-    perf.logError(error as Error);
-    logApiError(error as Error, context);
+    perf.logError(error as Error)
+    logApiError(error as Error, context)
 
     // 根据错误类型返回不同的响应
     if (error instanceof ValidationError) {
-      throw createBadRequestError(error.message, { field: error.field });
+      throw createBadRequestError(error.message, { field: error.field })
     }
 
     if (error instanceof NotFoundError) {
-      throw createNotFoundError(error.message);
+      throw createNotFoundError(error.message)
     }
 
     // 默认返回 500 错误
-    throw createInternalServerError('操作失败');
+    throw createInternalServerError('操作失败')
   }
-});
+})
 
 /**
  * POST /api/your-endpoint
  */
 export const POST = withErrorHandler(async (request: NextRequest) => {
   // 类似 GET 的实现
-});
+})
 ```
 
 #### 2. 修改现有端点
@@ -481,23 +498,21 @@ export function createApiContext(
   request: Request,
   additionalContext?: Partial<ErrorLogContext>
 ): ErrorLogContext {
-  const url = new URL(request.url);
-  const requestId = request.headers.get('x-request-id') || generateRequestId();
+  const url = new URL(request.url)
+  const requestId = request.headers.get('x-request-id') || generateRequestId()
 
   return {
     requestId,
-    ip: request.headers.get('x-forwarded-for') ||
-        request.headers.get('x-real-ip') ||
-        undefined,
+    ip: request.headers.get('x-forwarded-for') || request.headers.get('x-real-ip') || undefined,
     path: url.pathname,
     method: request.method,
     userAgent: request.headers.get('user-agent') || undefined,
     ...additionalContext,
-  };
+  }
 }
 
 function generateRequestId(): string {
-  return `${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
+  return `${Date.now()}-${Math.random().toString(36).substr(2, 9)}`
 }
 ```
 
@@ -523,8 +538,8 @@ function sendToExternalMonitoring(error: Error, errorData: ErrorLogData): void {
           requestId: errorData.context.requestId,
           userId: errorData.context.userId,
         },
-      });
-    });
+      })
+    })
   }
 }
 ```
@@ -540,12 +555,12 @@ function sendToExternalMonitoring(error: Error, errorData: ErrorLogData): void {
 ```typescript
 // 创建定时任务检查错误率
 setInterval(() => {
-  const highFreqErrors = globalErrorStats.getHighFrequencyErrors(10);
+  const highFreqErrors = globalErrorStats.getHighFrequencyErrors(10)
   if (highFreqErrors.length > 0) {
     // 发送告警
-    logger.error('High frequency errors detected', { errors: highFreqErrors });
+    logger.error('High frequency errors detected', { errors: highFreqErrors })
   }
-}, 60000); // 每分钟检查
+}, 60000) // 每分钟检查
 ```
 
 ### 6.3 长期改进 (低优先级)
@@ -590,75 +605,75 @@ setInterval(() => {
 ### 示例 1: 改进后的 /api/backup
 
 ```typescript
-import { NextRequest } from 'next/server';
+import { NextRequest } from 'next/server'
 import {
   createSuccessResponse,
   createErrorResponseJson,
   createInternalServerError,
   createUnauthorizedError,
   withErrorHandler,
-} from '@/lib/api/error-handler';
+} from '@/lib/api/error-handler'
 import {
   logApiError,
   logApiSuccess,
   createApiContext,
   createPerformanceLogger,
-} from '@/lib/api/error-logger';
-import { withAuth } from '@/middleware/auth';
+} from '@/lib/api/error-logger'
+import { withAuth } from '@/middleware/auth'
 
 export const GET = withErrorHandler(async (request: NextRequest) => {
   return withAuth(request, async () => {
-    const perf = createPerformanceLogger(request, Date.now());
-    const context = createApiContext(request);
+    const perf = createPerformanceLogger(request, Date.now())
+    const context = createApiContext(request)
 
     try {
-      const backups = await getAvailableBackups();
+      const backups = await getAvailableBackups()
 
-      perf.logSuccess(200, JSON.stringify(backups).length);
-      logApiSuccess(context, 200);
+      perf.logSuccess(200, JSON.stringify(backups).length)
+      logApiSuccess(context, 200)
 
       return createSuccessResponse({
         backups,
         count: backups.length,
-      });
+      })
     } catch (error) {
-      perf.logError(error as Error);
-      logApiError(error as Error, context);
+      perf.logError(error as Error)
+      logApiError(error as Error, context)
 
-      throw createInternalServerError('Failed to list backups');
+      throw createInternalServerError('Failed to list backups')
     }
-  });
-});
+  })
+})
 ```
 
 ### 示例 2: 使用错误类
 
 ```typescript
-import { createBadRequestError, createNotFoundError } from '@/lib/api/error-handler';
+import { createBadRequestError, createNotFoundError } from '@/lib/api/error-handler'
 
 try {
   // 参数验证
   if (!userId) {
     throw createBadRequestError('userId is required', {
       field: 'userId',
-    });
+    })
   }
 
-  const user = await getUserById(userId);
+  const user = await getUserById(userId)
   if (!user) {
     throw createNotFoundError('User not found', {
       userId,
-    });
+    })
   }
 
-  return createSuccessResponse(user);
+  return createSuccessResponse(user)
 } catch (error) {
   if (error instanceof ApiErrorClass) {
     // 已经是标准错误，直接抛出
-    throw error;
+    throw error
   }
   // 未知错误，转换为标准错误
-  throw createInternalServerError('An unexpected error occurred');
+  throw createInternalServerError('An unexpected error occurred')
 }
 ```
 
@@ -683,11 +698,13 @@ try {
 ### 建议
 
 **立即行动**:
+
 1. 创建并使用 API 路由模板
 2. 优先修改需要认证的端点
 3. 为详细健康检查端点添加认证保护
 
 **持续改进**:
+
 1. 定期审查错误日志
 2. 监控错误率
 3. 更新文档和最佳实践

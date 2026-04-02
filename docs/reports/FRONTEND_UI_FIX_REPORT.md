@@ -8,13 +8,15 @@
 
 ## ✅ 已完成的修复
 
-### 1. 统一颜色系统 (gray-* → zinc-*) ✅ 高优先级
+### 1. 统一颜色系统 (gray-_ → zinc-_) ✅ 高优先级
 
 **修复范围**:
+
 - `src/` 目录下所有 `.tsx` 和 `.jsx` 文件
 - `7zi-frontend/src/` 目录下所有 `.tsx` 和 `.jsx` 文件
 
 **执行操作**:
+
 ```bash
 # 批量替换所有 gray-* 颜色为 zinc-*
 find src -name "*.tsx" -o -name "*.jsx" | xargs sed -i \
@@ -32,11 +34,13 @@ find src -name "*.tsx" -o -name "*.jsx" | xargs sed -i \
 ```
 
 **修复结果**:
+
 - ✅ 原有 858+ 处 `gray-*` 颜色全部替换为 `zinc-*`
 - ✅ 验证检查：0 处残留的 `bg-gray-[0-9]`, `text-gray-[0-9]`, `border-gray-[0-9]`
 - ✅ 覆盖文件数：100+ 个组件文件
 
 **示例修复**:
+
 ```tsx
 // ❌ 修复前
 <div className="bg-gray-900 rounded-lg p-6">
@@ -54,6 +58,7 @@ find src -name "*.tsx" -o -name "*.jsx" | xargs sed -i \
 ### 2. 完善暗色模式支持 ✅ 高优先级
 
 **修复文件**:
+
 1. ✅ `/root/.openclaw/workspace/7zi-project/7zi-frontend/src/app/monitoring-example/page.tsx`
 2. ✅ `/root/.openclaw/workspace/7zi-project/7zi-frontend/src/components/SimplePerformanceDashboard.tsx`
 3. ✅ `/root/.openclaw/workspace/7zi-project/7zi-frontend/src/components/PerformanceDashboard.tsx`
@@ -61,12 +66,14 @@ find src -name "*.tsx" -o -name "*.jsx" | xargs sed -i \
 **具体修复**:
 
 **SimplePerformanceDashboard.tsx**:
+
 - `bg-gray-900` → `bg-zinc-900 dark:bg-zinc-950`
 - `text-gray-*` → `text-zinc-* dark:text-zinc-*`
 - `bg-gray-800` → `bg-zinc-800 dark:bg-zinc-900`
 - 添加了完整的 `dark:` 类支持
 
 **monitoring-example/page.tsx**:
+
 - 页面背景：`bg-gray-100` → `bg-zinc-100 dark:bg-zinc-950`
 - 卡片背景：`bg-white` → `bg-white dark:bg-zinc-800`
 - 文本颜色：`text-gray-900` → `text-zinc-900 dark:text-zinc-100`
@@ -74,6 +81,7 @@ find src -name "*.tsx" -o -name "*.jsx" | xargs sed -i \
 - 操作日志：`bg-gray-800` → `bg-zinc-800 dark:bg-zinc-900`
 
 **修复模式**:
+
 ```tsx
 // ❌ 修复前
 <div className="bg-white rounded-lg shadow p-6">
@@ -93,6 +101,7 @@ find src -name "*.tsx" -o -name "*.jsx" | xargs sed -i \
 ### 3. 统一圆角大小 ✅ 中优先级
 
 **修复策略**:
+
 - 小元素：`rounded-sm` → `rounded-lg` (8px)
 - 卡片/按钮：`rounded-md` → `rounded-lg` (8px)
 - 大卡片：`rounded-xl` → `rounded-2xl` (16px)
@@ -100,6 +109,7 @@ find src -name "*.tsx" -o -name "*.jsx" | xargs sed -i \
 - 圆形按钮：保留 `rounded-full`
 
 **执行操作**:
+
 ```bash
 # 批量替换圆角
 find . -name "*.tsx" -o -name "*.jsx" | xargs sed -i \
@@ -108,6 +118,7 @@ find . -name "*.tsx" -o -name "*.jsx" | xargs sed -i \
 ```
 
 **修复结果**:
+
 - ✅ `rounded-3xl` → `rounded-2xl` (多处)
 - ✅ `rounded-md` → `rounded-lg` (多处)
 - ✅ 保留 `rounded-xl` 作为中等圆角 (与 `rounded-lg` 混用)
@@ -115,6 +126,7 @@ find . -name "*.tsx" -o -name "*.jsx" | xargs sed -i \
 - ✅ 保留 `rounded-t-*` 等方向性圆角类
 
 **统一后的圆角系统**:
+
 - `rounded-sm` → 极小圆角 (4px)
 - `rounded-lg` → 标准圆角 (8px) - **主要使用**
 - `rounded-xl` → 中等圆角 (12px)
@@ -144,6 +156,7 @@ export function useBreakpoint(breakpoint: BreakpointKey): boolean;
 ```
 
 **修复文件**:
+
 1. ✅ `src/components/AIChat.tsx`
    - `window.innerWidth < 480` → `isBelowBreakpoint('sm')` (640px)
    - 导入并使用统一断点工具
@@ -165,6 +178,7 @@ export function useBreakpoint(breakpoint: BreakpointKey): boolean;
    - 保持不变，已符合标准
 
 **断点统一效果**:
+
 - ❌ 修复前：自定义断点 480px, 641px
 - ✅ 修复后：统一使用 Tailwind 标准断点
   - `sm`: 640px
@@ -175,31 +189,34 @@ export function useBreakpoint(breakpoint: BreakpointKey): boolean;
 
 ## 📊 修复统计
 
-| 任务 | 优先级 | 状态 | 影响文件数 | 修改行数 |
-|------|--------|------|------------|----------|
-| 颜色系统统一 | 高 | ✅ 完成 | 100+ | 858+ |
-| 暗色模式支持 | 高 | ✅ 完成 | 3 | ~100 |
-| 圆角统一 | 中 | ✅ 完成 | 50+ | ~150 |
-| 响应式断点 | 中 | ✅ 完成 | 4 | ~20 |
-| **总计** | - | **✅ 完成** | **157+** | **1128+** |
+| 任务         | 优先级 | 状态        | 影响文件数 | 修改行数  |
+| ------------ | ------ | ----------- | ---------- | --------- |
+| 颜色系统统一 | 高     | ✅ 完成     | 100+       | 858+      |
+| 暗色模式支持 | 高     | ✅ 完成     | 3          | ~100      |
+| 圆角统一     | 中     | ✅ 完成     | 50+        | ~150      |
+| 响应式断点   | 中     | ✅ 完成     | 4          | ~20       |
+| **总计**     | -      | **✅ 完成** | **157+**   | **1128+** |
 
 ---
 
 ## 🔍 验证结果
 
 ### 颜色系统验证
+
 ```bash
 $ grep -rn "bg-gray-[0-9]" src --include="*.tsx" | wc -l
 0  ✅ 无残留
 ```
 
 ### 圆角验证
+
 ```bash
 $ grep -rn "rounded-3xl\|rounded-md" src --include="*.tsx" | wc -l
 0  ✅ 已统一
 ```
 
 ### 特殊圆角保留
+
 - `rounded-full` - 用于圆形按钮 ✅ 保留
 - `rounded-t-*` - 方向性圆角 ✅ 保留
 - `rounded-bl-full` - 特殊形状 ✅ 保留
@@ -209,26 +226,33 @@ $ grep -rn "rounded-3xl\|rounded-md" src --include="*.tsx" | wc -l
 ## 📝 技术细节
 
 ### 1. 批量替换策略
+
 使用 `sed` 命令进行批量文本替换，确保：
+
 - 精确匹配模式
 - 保留代码结构
 - 高效执行
 - 可追溯
 
 ### 2. 暗色模式实现
+
 遵循以下模式：
+
 ```tsx
-className="bg-zinc-100 dark:bg-zinc-900 text-zinc-900 dark:text-zinc-100"
+className = 'bg-zinc-100 dark:bg-zinc-900 text-zinc-900 dark:text-zinc-100'
 ```
 
 ### 3. 圆角系统设计
+
 根据组件类型选择圆角：
+
 - 按钮标签：`rounded-full` 或 `rounded-lg`
 - 卡片容器：`rounded-2xl`
 - 输入框：`rounded-lg`
 - 小徽章：`rounded-full`
 
 ### 4. 断点系统
+
 - 完全遵循 Tailwind CSS 标准断点
 - 提供工具函数和 Hook
 - 支持运行时动态检测
@@ -240,21 +264,25 @@ className="bg-zinc-100 dark:bg-zinc-900 text-zinc-900 dark:text-zinc-100"
 根据 `FRONTEND_UI_REVIEW.md` 中的建议：
 
 ### ✅ 颜色系统
+
 - [x] 所有 `gray-*` 替换为 `zinc-*`
 - [x] 保持品牌一致性
 - [x] 支持完整的暗色模式
 
 ### ✅ 暗色模式
+
 - [x] 所有核心组件支持暗色模式
 - [x] 使用 `dark:` 前缀
 - [x] 确保对比度符合可访问性标准
 
 ### ✅ 圆角系统
+
 - [x] 统一使用 `rounded-lg` / `rounded-2xl` / `rounded-full`
 - [x] 避免使用 `rounded-3xl` 等非标准值
 - [x] 根据组件类型选择合适的圆角
 
 ### ✅ 响应式断点
+
 - [x] 使用 Tailwind 标准断点
 - [x] 提供统一的工具函数
 - [x] 避免硬编码的像素值
@@ -264,6 +292,7 @@ className="bg-zinc-100 dark:bg-zinc-900 text-zinc-900 dark:text-zinc-100"
 ## 📌 剩余工作（可选优化）
 
 ### 中优先级
+
 1. **统一样式类库**
    - 创建 `src/styles/classes.ts` 统一样式常量
    - 定义按钮、输入框、卡片等标准样式
@@ -280,6 +309,7 @@ className="bg-zinc-100 dark:bg-zinc-900 text-zinc-900 dark:text-zinc-100"
    - `focus:ring-2 focus:ring-blue-500`
 
 ### 低优先级
+
 1. **定义统一的间距系统**
 2. **统一动画过渡效果**
 3. **清理重复组件**
@@ -290,6 +320,7 @@ className="bg-zinc-100 dark:bg-zinc-900 text-zinc-900 dark:text-zinc-100"
 ## 🔗 相关文件
 
 ### 修改的文件
+
 - `src/components/AIChat.tsx`
 - `src/components/BottomNav.tsx`
 - `src/components/optimized/AIChat.optimized.tsx`
@@ -300,9 +331,11 @@ className="bg-zinc-100 dark:bg-zinc-900 text-zinc-900 dark:text-zinc-100"
 - 所有 `src/` 目录下的 `.tsx` 文件 (颜色替换)
 
 ### 新增的文件
+
 - `src/lib/utils/breakpoints.ts` - 统一断点工具
 
 ### 参考文档
+
 - `/root/.openclaw/workspace/7zi-project/FRONTEND_UI_REVIEW.md`
 
 ---

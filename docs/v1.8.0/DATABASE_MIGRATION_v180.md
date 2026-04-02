@@ -32,58 +32,58 @@
 
 #### 核心业务表
 
-| 表名 | 用途 | 记录数估计 | 关键索引 |
-|------|------|-----------|---------|
-| **agents** | 智能体主表 | ~1000 | idx_agents_status, idx_agents_provider |
-| **agent_tokens** | 智能体令牌 | ~5000 | idx_agent_tokens_expires |
-| **agent_data_access** | 数据访问日志 | ~100000+ | idx_agent_data_access_agent_timestamp |
-| **agent_wallets** | 智能体钱包 | ~1000 | idx_agent_wallets_agent_id |
-| **wallet_transactions** | 钱包交易 | ~50000+ | idx_wallet_transactions_wallet_status |
+| 表名                    | 用途         | 记录数估计 | 关键索引                               |
+| ----------------------- | ------------ | ---------- | -------------------------------------- |
+| **agents**              | 智能体主表   | ~1000      | idx_agents_status, idx_agents_provider |
+| **agent_tokens**        | 智能体令牌   | ~5000      | idx_agent_tokens_expires               |
+| **agent_data_access**   | 数据访问日志 | ~100000+   | idx_agent_data_access_agent_timestamp  |
+| **agent_wallets**       | 智能体钱包   | ~1000      | idx_agent_wallets_agent_id             |
+| **wallet_transactions** | 钱包交易     | ~50000+    | idx_wallet_transactions_wallet_status  |
 
 #### 用户与权限表
 
-| 表名 | 用途 | 记录数估计 | 关键索引 |
-|------|------|-----------|---------|
-| **users** | 用户账户 | ~10000+ | 主键 id |
-| **user_tokens** | 用户令牌 | ~20000+ | idx_user_tokens_user_expires |
-| **roles** | 角色定义 | ~20 | idx_roles_name |
-| **role_permissions** | 角色权限关联 | ~200 | 外键索引 |
-| **user_roles** | 用户角色关联 | ~10000+ | 外键索引 |
+| 表名                 | 用途         | 记录数估计 | 关键索引                     |
+| -------------------- | ------------ | ---------- | ---------------------------- |
+| **users**            | 用户账户     | ~10000+    | 主键 id                      |
+| **user_tokens**      | 用户令牌     | ~20000+    | idx_user_tokens_user_expires |
+| **roles**            | 角色定义     | ~20        | idx_roles_name               |
+| **role_permissions** | 角色权限关联 | ~200       | 外键索引                     |
+| **user_roles**       | 用户角色关联 | ~10000+    | 外键索引                     |
 
 #### 用户偏好表
 
-| 表名 | 用途 | 记录数估计 | 关键索引 |
-|------|------|-----------|---------|
-| **user_preferences** | 用户偏好设置 | ~10000+ | idx_user_preferences_locale |
-| **user_notification_preferences** | 通知偏好 | ~10000+ | 外键索引 |
+| 表名                              | 用途         | 记录数估计 | 关键索引                    |
+| --------------------------------- | ------------ | ---------- | --------------------------- |
+| **user_preferences**              | 用户偏好设置 | ~10000+    | idx_user_preferences_locale |
+| **user_notification_preferences** | 通知偏好     | ~10000+    | 外键索引                    |
 
 #### 通知系统表
 
-| 表名 | 用途 | 记录数估计 | 关键索引 |
-|------|------|-----------|---------|
-| **notifications** | 通知消息 | ~100000+ | 外键索引 |
-| **notification_preferences** | 通知偏好规则 | ~100 | 外键索引 |
-| **notification_delivery_log** | 投递日志 | ~500000+ | 外键索引 |
+| 表名                          | 用途         | 记录数估计 | 关键索引 |
+| ----------------------------- | ------------ | ---------- | -------- |
+| **notifications**             | 通知消息     | ~100000+   | 外键索引 |
+| **notification_preferences**  | 通知偏好规则 | ~100       | 外键索引 |
+| **notification_delivery_log** | 投递日志     | ~500000+   | 外键索引 |
 
 #### 反馈与评分表
 
-| 表名 | 用途 | 记录数估计 | 关键索引 |
-|------|------|-----------|---------|
-| **feedbacks** | 用户反馈 | ~5000+ | idx_feedbacks_status_created |
-| **feedback_attachments** | 反馈附件 | ~1000 | 外键索引 |
-| **feedback_notifications** | 反馈通知 | ~5000+ | 外键索引 |
-| **ratings** | 评分记录 | ~10000+ | idx_ratings_target_type_id |
-| **helpful_votes** | 有用投票 | ~20000+ | idx_helpful_votes_rating_user |
-| **spam_detection_logs** | 垃圾邮件检测日志 | ~50000+ | 无 |
+| 表名                       | 用途             | 记录数估计 | 关键索引                      |
+| -------------------------- | ---------------- | ---------- | ----------------------------- |
+| **feedbacks**              | 用户反馈         | ~5000+     | idx_feedbacks_status_created  |
+| **feedback_attachments**   | 反馈附件         | ~1000      | 外键索引                      |
+| **feedback_notifications** | 反馈通知         | ~5000+     | 外键索引                      |
+| **ratings**                | 评分记录         | ~10000+    | idx_ratings_target_type_id    |
+| **helpful_votes**          | 有用投票         | ~20000+    | idx_helpful_votes_rating_user |
+| **spam_detection_logs**    | 垃圾邮件检测日志 | ~50000+    | 无                            |
 
 #### 系统表
 
-| 表名 | 用途 | 记录数估计 | 关键索引 |
-|------|------|-----------|---------|
-| **audit_logs** | 审计日志 | ~1000000+ | 7 个复合索引 |
-| **password_reset_tokens** | 密码重置令牌 | ~1000 | 外键索引 |
-| **web_vitals** | 网页性能指标 | ~100000+ | 无 |
-| **migrations** | 迁移版本记录 | ~6 | 主键 key |
+| 表名                      | 用途         | 记录数估计 | 关键索引     |
+| ------------------------- | ------------ | ---------- | ------------ |
+| **audit_logs**            | 审计日志     | ~1000000+  | 7 个复合索引 |
+| **password_reset_tokens** | 密码重置令牌 | ~1000      | 外键索引     |
+| **web_vitals**            | 网页性能指标 | ~100000+   | 无           |
+| **migrations**            | 迁移版本记录 | ~6         | 主键 key     |
 
 ### 现有迁移历史
 
@@ -135,13 +135,13 @@
 
 #### 存储优化空间
 
-| 表名 | 当前大小 | 优化潜力 | 建议 |
-|------|---------|---------|------|
-| audit_logs | ~500MB | 高 | 归档 90 天以上数据 |
-| agent_data_access | ~200MB | 中 | 清理 30 天以上数据 |
-| web_vitals | ~100MB | 中 | 聚合保留统计数据 |
-| notifications | ~150MB | 低 | 保留即可 |
-| wallet_transactions | ~100MB | 低 | 保留用于审计 |
+| 表名                | 当前大小 | 优化潜力 | 建议               |
+| ------------------- | -------- | -------- | ------------------ |
+| audit_logs          | ~500MB   | 高       | 归档 90 天以上数据 |
+| agent_data_access   | ~200MB   | 中       | 清理 30 天以上数据 |
+| web_vitals          | ~100MB   | 中       | 聚合保留统计数据   |
+| notifications       | ~150MB   | 低       | 保留即可           |
+| wallet_transactions | ~100MB   | 低       | 保留用于审计       |
 
 ---
 
@@ -178,6 +178,7 @@ CREATE INDEX IF NOT EXISTS idx_agent_features_agent_updated ON agent_features(ag
 ```
 
 **用途**:
+
 - 存储智能体的多维度特征
 - 支持特征版本管理
 - 支持语义特征嵌入（embedding）
@@ -218,6 +219,7 @@ CREATE INDEX IF NOT EXISTS idx_agent_models_version ON agent_models(model_type, 
 ```
 
 **用途**:
+
 - 存储训练好的机器学习模型
 - 支持模型版本管理
 - 支持模型部署和回滚
@@ -253,6 +255,7 @@ CREATE INDEX IF NOT EXISTS idx_learning_observations_model_processed ON agent_le
 ```
 
 **用途**:
+
 - 存储在线学习观测数据
 - 支持增量训练
 - 支持学习数据追溯
@@ -288,6 +291,7 @@ CREATE INDEX IF NOT EXISTS idx_anomalies_agent_unresolved ON agent_anomalies(age
 ```
 
 **用途**:
+
 - 记录检测到的智能体异常
 - 支持异常跟踪和解决
 - 支持异常趋势分析
@@ -328,6 +332,7 @@ CREATE INDEX IF NOT EXISTS idx_task_graphs_started ON task_graphs(started_at DES
 ```
 
 **用途**:
+
 - 存储任务依赖图
 - 支持任务图级别的状态跟踪
 
@@ -369,6 +374,7 @@ CREATE INDEX IF NOT EXISTS idx_task_nodes_graph_level ON task_nodes(task_graph_i
 ```
 
 **用途**:
+
 - 存储任务图的节点
 - 支持任务依赖关系
 - 支持任务调度状态跟踪
@@ -401,6 +407,7 @@ CREATE INDEX IF NOT EXISTS idx_task_edges_type ON task_edges(edge_type);
 ```
 
 **用途**:
+
 - 存储任务间的依赖关系
 - 支持图遍历和拓扑排序
 
@@ -431,6 +438,7 @@ CREATE INDEX IF NOT EXISTS idx_gnn_states_created ON gnn_scheduler_states(create
 ```
 
 **用途**:
+
 - 存储 GNN 调度器的中间状态
 - 支持调试和分析
 - 支持调度策略对比
@@ -469,6 +477,7 @@ CREATE INDEX IF NOT EXISTS idx_rl_policies_deployed ON rl_policies(deployed_at D
 ```
 
 **用途**:
+
 - 存储强化学习策略
 - 支持策略版本管理
 - 支持 A/B 测试
@@ -501,6 +510,7 @@ CREATE INDEX IF NOT EXISTS idx_rl_replay_timestamp ON rl_experience_replay(times
 ```
 
 **用途**:
+
 - 存储 RL 训练经验
 - 支持经验回放
 - 支持训练数据追溯
@@ -534,6 +544,7 @@ CREATE INDEX IF NOT EXISTS idx_reschedule_created ON reschedule_logs(created_at 
 ```
 
 **用途**:
+
 - 记录重调度事件
 - 支持调度稳定性分析
 - 支持策略优化
@@ -586,6 +597,7 @@ CREATE INDEX IF NOT EXISTS idx_a2a_message_id ON a2a_messages(message_id);
 ```
 
 **用途**:
+
 - 存储 A2A 协议消息
 - 支持消息路由和追踪
 - 支持重试和错误处理
@@ -621,6 +633,7 @@ CREATE INDEX IF NOT EXISTS idx_a2a_negotiation_expires ON a2a_negotiations(expir
 ```
 
 **用途**:
+
 - 存储版本协商结果
 - 支持协议版本兼容性管理
 
@@ -655,6 +668,7 @@ CREATE INDEX IF NOT EXISTS idx_a2a_flow_updated ON a2a_flow_control(updated_at D
 ```
 
 **用途**:
+
 - 存储流量控制状态
 - 支持背压管理
 - 支持速率限制
@@ -692,6 +706,7 @@ CREATE INDEX IF NOT EXISTS idx_a2a_cert_valid ON a2a_certificates(valid_until);
 ```
 
 **用途**:
+
 - 存储 A2A 安全证书
 - 支持证书轮换
 - 支持证书撤销
@@ -726,6 +741,7 @@ CREATE INDEX IF NOT EXISTS idx_a2a_dl_created ON a2a_dead_letter(created_at DESC
 ```
 
 **用途**:
+
 - 存储投递失败的消息
 - 支持失败分析和重试
 - 支持监控和告警
@@ -758,6 +774,7 @@ CREATE INDEX IF NOT EXISTS idx_task_cache_hit_count ON task_execution_cache(hit_
 ```
 
 **用途**:
+
 - 缓存任务执行结果
 - 支持幂等性保证
 - 提升重复任务性能
@@ -789,6 +806,7 @@ CREATE INDEX IF NOT EXISTS idx_batch_log_created ON batch_operations_log(created
 ```
 
 **用途**:
+
 - 记录批量操作
 - 支持进度跟踪
 - 支持失败恢复
@@ -805,9 +823,9 @@ CREATE INDEX IF NOT EXISTS idx_batch_log_created ON batch_operations_log(created
 ```typescript
 export const migration7: Migration = {
   version: 7,
-  name: "learning_system_infrastructure",
+  name: 'learning_system_infrastructure',
   up: async () => {
-    const db = await getDatabaseAsync();
+    const db = await getDatabaseAsync()
 
     // Create agent_features table
     db.exec(`
@@ -824,7 +842,7 @@ export const migration7: Migration = {
         FOREIGN KEY (agent_id) REFERENCES agents(id) ON DELETE CASCADE,
         UNIQUE(agent_id, feature_type, feature_key, version)
       );
-    `);
+    `)
 
     // Create agent_models table
     db.exec(`
@@ -848,7 +866,7 @@ export const migration7: Migration = {
         FOREIGN KEY (agent_id) REFERENCES agents(id) ON DELETE CASCADE,
         UNIQUE(agent_id, model_type, version)
       );
-    `);
+    `)
 
     // Create agent_learning_observations table
     db.exec(`
@@ -867,7 +885,7 @@ export const migration7: Migration = {
         FOREIGN KEY (agent_id) REFERENCES agents(id) ON DELETE CASCADE,
         FOREIGN KEY (model_id) REFERENCES agent_models(id) ON DELETE CASCADE
       );
-    `);
+    `)
 
     // Create agent_anomalies table
     db.exec(`
@@ -885,39 +903,39 @@ export const migration7: Migration = {
         created_at TEXT NOT NULL,
         FOREIGN KEY (agent_id) REFERENCES agents(id) ON DELETE CASCADE
       );
-    `);
+    `)
 
     // Create indexes
     const indexes = [
-      "CREATE INDEX IF NOT EXISTS idx_agent_features_agent_type ON agent_features(agent_id, feature_type)",
-      "CREATE INDEX IF NOT EXISTS idx_agent_features_key ON agent_features(feature_key)",
-      "CREATE INDEX IF NOT EXISTS idx_agent_features_updated ON agent_features(updated_at DESC)",
-      "CREATE INDEX IF NOT EXISTS idx_agent_models_agent_type ON agent_models(agent_id, model_type)",
-      "CREATE INDEX IF NOT EXISTS idx_agent_models_status ON agent_models(status)",
-      "CREATE INDEX IF NOT EXISTS idx_agent_models_active ON agent_models(agent_id, model_type, is_active)",
-      "CREATE INDEX IF NOT EXISTS idx_learning_observations_agent ON agent_learning_observations(agent_id)",
-      "CREATE INDEX IF NOT EXISTS idx_learning_observations_processed ON agent_learning_observations(processed)",
-      "CREATE INDEX IF NOT EXISTS idx_anomalies_agent ON agent_anomalies(agent_id)",
-      "CREATE INDEX IF NOT EXISTS idx_anomalies_severity ON agent_anomalies(severity)",
-    ];
+      'CREATE INDEX IF NOT EXISTS idx_agent_features_agent_type ON agent_features(agent_id, feature_type)',
+      'CREATE INDEX IF NOT EXISTS idx_agent_features_key ON agent_features(feature_key)',
+      'CREATE INDEX IF NOT EXISTS idx_agent_features_updated ON agent_features(updated_at DESC)',
+      'CREATE INDEX IF NOT EXISTS idx_agent_models_agent_type ON agent_models(agent_id, model_type)',
+      'CREATE INDEX IF NOT EXISTS idx_agent_models_status ON agent_models(status)',
+      'CREATE INDEX IF NOT EXISTS idx_agent_models_active ON agent_models(agent_id, model_type, is_active)',
+      'CREATE INDEX IF NOT EXISTS idx_learning_observations_agent ON agent_learning_observations(agent_id)',
+      'CREATE INDEX IF NOT EXISTS idx_learning_observations_processed ON agent_learning_observations(processed)',
+      'CREATE INDEX IF NOT EXISTS idx_anomalies_agent ON agent_anomalies(agent_id)',
+      'CREATE INDEX IF NOT EXISTS idx_anomalies_severity ON agent_anomalies(severity)',
+    ]
 
     for (const indexSql of indexes) {
-      db.exec(indexSql);
+      db.exec(indexSql)
     }
 
-    logger.info("Migration 7: Learning system tables created", { category: "db" });
+    logger.info('Migration 7: Learning system tables created', { category: 'db' })
   },
   down: async () => {
-    const db = await getDatabaseAsync();
+    const db = await getDatabaseAsync()
 
-    db.exec("DROP TABLE IF EXISTS agent_anomalies");
-    db.exec("DROP TABLE IF EXISTS agent_learning_observations");
-    db.exec("DROP TABLE IF EXISTS agent_models");
-    db.exec("DROP TABLE IF EXISTS agent_features");
+    db.exec('DROP TABLE IF EXISTS agent_anomalies')
+    db.exec('DROP TABLE IF EXISTS agent_learning_observations')
+    db.exec('DROP TABLE IF EXISTS agent_models')
+    db.exec('DROP TABLE IF EXISTS agent_features')
 
-    logger.info("Migration 7 down: Learning system tables dropped", { category: "db" });
+    logger.info('Migration 7 down: Learning system tables dropped', { category: 'db' })
   },
-};
+}
 ```
 
 ### Migration 8: Smart Scheduling Infrastructure
@@ -925,9 +943,9 @@ export const migration7: Migration = {
 ```typescript
 export const migration8: Migration = {
   version: 8,
-  name: "smart_scheduling_infrastructure",
+  name: 'smart_scheduling_infrastructure',
   up: async () => {
-    const db = await getDatabaseAsync();
+    const db = await getDatabaseAsync()
 
     // Create task_graphs table
     db.exec(`
@@ -949,7 +967,7 @@ export const migration8: Migration = {
         completed_at TEXT,
         metadata TEXT DEFAULT '{}'
       );
-    `);
+    `)
 
     // Create task_nodes table
     db.exec(`
@@ -974,7 +992,7 @@ export const migration8: Migration = {
         FOREIGN KEY (parent_id) REFERENCES task_nodes(id) ON DELETE SET NULL,
         FOREIGN KEY (assigned_agent_id) REFERENCES agents(id) ON DELETE SET NULL
       );
-    `);
+    `)
 
     // Create task_edges table
     db.exec(`
@@ -991,7 +1009,7 @@ export const migration8: Migration = {
         FOREIGN KEY (to_task_node_id) REFERENCES task_nodes(id) ON DELETE CASCADE,
         UNIQUE(from_task_node_id, to_task_node_id)
       );
-    `);
+    `)
 
     // Create gnn_scheduler_states table
     db.exec(`
@@ -1008,7 +1026,7 @@ export const migration8: Migration = {
         created_at TEXT NOT NULL,
         FOREIGN KEY (task_graph_id) REFERENCES task_graphs(id) ON DELETE CASCADE
       );
-    `);
+    `)
 
     // Create rl_policies table
     db.exec(`
@@ -1031,7 +1049,7 @@ export const migration8: Migration = {
         FOREIGN KEY (agent_id) REFERENCES agents(id) ON DELETE CASCADE,
         UNIQUE(agent_id, policy_name, version)
       );
-    `);
+    `)
 
     // Create reschedule_logs table
     db.exec(`
@@ -1050,41 +1068,41 @@ export const migration8: Migration = {
         FOREIGN KEY (task_graph_id) REFERENCES task_graphs(id) ON DELETE CASCADE,
         FOREIGN KEY (task_node_id) REFERENCES task_nodes(id) ON DELETE SET NULL
       );
-    `);
+    `)
 
     // Create indexes
     const indexes = [
-      "CREATE INDEX IF NOT EXISTS idx_task_graphs_status ON task_graphs(status)",
-      "CREATE INDEX IF NOT EXISTS idx_task_nodes_graph ON task_nodes(task_graph_id)",
-      "CREATE INDEX IF NOT EXISTS idx_task_nodes_status ON task_nodes(status)",
-      "CREATE INDEX IF NOT EXISTS idx_task_nodes_assigned ON task_nodes(assigned_agent_id, status)",
-      "CREATE INDEX IF NOT EXISTS idx_task_edges_graph ON task_edges(task_graph_id)",
-      "CREATE INDEX IF NOT EXISTS idx_task_edges_from ON task_edges(from_task_node_id)",
-      "CREATE INDEX IF NOT EXISTS idx_rl_policies_agent ON rl_policies(agent_id)",
-      "CREATE INDEX IF NOT EXISTS idx_rl_policies_active ON rl_policies(agent_id, policy_name, is_active)",
-      "CREATE INDEX IF NOT EXISTS idx_reschedule_graph ON reschedule_logs(task_graph_id)",
-    ];
+      'CREATE INDEX IF NOT EXISTS idx_task_graphs_status ON task_graphs(status)',
+      'CREATE INDEX IF NOT EXISTS idx_task_nodes_graph ON task_nodes(task_graph_id)',
+      'CREATE INDEX IF NOT EXISTS idx_task_nodes_status ON task_nodes(status)',
+      'CREATE INDEX IF NOT EXISTS idx_task_nodes_assigned ON task_nodes(assigned_agent_id, status)',
+      'CREATE INDEX IF NOT EXISTS idx_task_edges_graph ON task_edges(task_graph_id)',
+      'CREATE INDEX IF NOT EXISTS idx_task_edges_from ON task_edges(from_task_node_id)',
+      'CREATE INDEX IF NOT EXISTS idx_rl_policies_agent ON rl_policies(agent_id)',
+      'CREATE INDEX IF NOT EXISTS idx_rl_policies_active ON rl_policies(agent_id, policy_name, is_active)',
+      'CREATE INDEX IF NOT EXISTS idx_reschedule_graph ON reschedule_logs(task_graph_id)',
+    ]
 
     for (const indexSql of indexes) {
-      db.exec(indexSql);
+      db.exec(indexSql)
     }
 
-    logger.info("Migration 8: Smart scheduling tables created", { category: "db" });
+    logger.info('Migration 8: Smart scheduling tables created', { category: 'db' })
   },
   down: async () => {
-    const db = await getDatabaseAsync();
+    const db = await getDatabaseAsync()
 
-    db.exec("DROP TABLE IF EXISTS reschedule_logs");
-    db.exec("DROP TABLE IF EXISTS rl_experience_replay");
-    db.exec("DROP TABLE IF EXISTS rl_policies");
-    db.exec("DROP TABLE IF EXISTS gnn_scheduler_states");
-    db.exec("DROP TABLE IF EXISTS task_edges");
-    db.exec("DROP TABLE IF EXISTS task_nodes");
-    db.exec("DROP TABLE IF EXISTS task_graphs");
+    db.exec('DROP TABLE IF EXISTS reschedule_logs')
+    db.exec('DROP TABLE IF EXISTS rl_experience_replay')
+    db.exec('DROP TABLE IF EXISTS rl_policies')
+    db.exec('DROP TABLE IF EXISTS gnn_scheduler_states')
+    db.exec('DROP TABLE IF EXISTS task_edges')
+    db.exec('DROP TABLE IF EXISTS task_nodes')
+    db.exec('DROP TABLE IF EXISTS task_graphs')
 
-    logger.info("Migration 8 down: Smart scheduling tables dropped", { category: "db" });
+    logger.info('Migration 8 down: Smart scheduling tables dropped', { category: 'db' })
   },
-};
+}
 ```
 
 ### Migration 9: A2A Protocol v3.0 Infrastructure
@@ -1092,9 +1110,9 @@ export const migration8: Migration = {
 ```typescript
 export const migration9: Migration = {
   version: 9,
-  name: "a2a_protocol_v3_infrastructure",
+  name: 'a2a_protocol_v3_infrastructure',
   up: async () => {
-    const db = await getDatabaseAsync();
+    const db = await getDatabaseAsync()
 
     // Create a2a_messages table
     db.exec(`
@@ -1123,7 +1141,7 @@ export const migration9: Migration = {
         FOREIGN KEY (from_agent_id) REFERENCES agents(id) ON DELETE CASCADE,
         FOREIGN KEY (to_agent_id) REFERENCES agents(id) ON DELETE CASCADE
       );
-    `);
+    `)
 
     // Create a2a_negotiations table
     db.exec(`
@@ -1143,7 +1161,7 @@ export const migration9: Migration = {
         FOREIGN KEY (to_agent_id) REFERENCES agents(id) ON DELETE CASCADE,
         UNIQUE(from_agent_id, to_agent_id)
       );
-    `);
+    `)
 
     // Create a2a_flow_control table
     db.exec(`
@@ -1164,7 +1182,7 @@ export const migration9: Migration = {
         FOREIGN KEY (peer_agent_id) REFERENCES agents(id) ON DELETE CASCADE,
         UNIQUE(agent_id, peer_agent_id)
       );
-    `);
+    `)
 
     // Create a2a_certificates table
     db.exec(`
@@ -1186,7 +1204,7 @@ export const migration9: Migration = {
         updated_at TEXT NOT NULL,
         FOREIGN KEY (agent_id) REFERENCES agents(id) ON DELETE CASCADE
       );
-    `);
+    `)
 
     // Create a2a_dead_letter table
     db.exec(`
@@ -1206,38 +1224,38 @@ export const migration9: Migration = {
         FOREIGN KEY (from_agent_id) REFERENCES agents(id) ON DELETE CASCADE,
         FOREIGN KEY (to_agent_id) REFERENCES agents(id) ON DELETE CASCADE
       );
-    `);
+    `)
 
     // Create indexes
     const indexes = [
-      "CREATE INDEX IF NOT EXISTS idx_a2a_from_to ON a2a_messages(from_agent_id, to_agent_id)",
-      "CREATE INDEX IF NOT EXISTS idx_a2a_to_status ON a2a_messages(to_agent_id, status)",
-      "CREATE INDEX IF NOT EXISTS idx_a2a_message_id ON a2a_messages(message_id)",
-      "CREATE INDEX IF NOT EXISTS idx_a2a_negotiation_pair ON a2a_negotiations(from_agent_id, to_agent_id)",
-      "CREATE INDEX IF NOT EXISTS idx_a2a_flow_agent_peer ON a2a_flow_control(agent_id, peer_agent_id)",
-      "CREATE INDEX IF NOT EXISTS idx_a2a_cert_agent ON a2a_certificates(agent_id)",
-      "CREATE INDEX IF NOT EXISTS idx_a2a_cert_status ON a2a_certificates(status)",
-      "CREATE INDEX IF NOT EXISTS idx_a2a_dl_to_agent ON a2a_dead_letter(to_agent_id)",
-    ];
+      'CREATE INDEX IF NOT EXISTS idx_a2a_from_to ON a2a_messages(from_agent_id, to_agent_id)',
+      'CREATE INDEX IF NOT EXISTS idx_a2a_to_status ON a2a_messages(to_agent_id, status)',
+      'CREATE INDEX IF NOT EXISTS idx_a2a_message_id ON a2a_messages(message_id)',
+      'CREATE INDEX IF NOT EXISTS idx_a2a_negotiation_pair ON a2a_negotiations(from_agent_id, to_agent_id)',
+      'CREATE INDEX IF NOT EXISTS idx_a2a_flow_agent_peer ON a2a_flow_control(agent_id, peer_agent_id)',
+      'CREATE INDEX IF NOT EXISTS idx_a2a_cert_agent ON a2a_certificates(agent_id)',
+      'CREATE INDEX IF NOT EXISTS idx_a2a_cert_status ON a2a_certificates(status)',
+      'CREATE INDEX IF NOT EXISTS idx_a2a_dl_to_agent ON a2a_dead_letter(to_agent_id)',
+    ]
 
     for (const indexSql of indexes) {
-      db.exec(indexSql);
+      db.exec(indexSql)
     }
 
-    logger.info("Migration 9: A2A Protocol v3.0 tables created", { category: "db" });
+    logger.info('Migration 9: A2A Protocol v3.0 tables created', { category: 'db' })
   },
   down: async () => {
-    const db = await getDatabaseAsync();
+    const db = await getDatabaseAsync()
 
-    db.exec("DROP TABLE IF EXISTS a2a_dead_letter");
-    db.exec("DROP TABLE IF EXISTS a2a_certificates");
-    db.exec("DROP TABLE IF EXISTS a2a_flow_control");
-    db.exec("DROP TABLE IF EXISTS a2a_negotiations");
-    db.exec("DROP TABLE IF EXISTS a2a_messages");
+    db.exec('DROP TABLE IF EXISTS a2a_dead_letter')
+    db.exec('DROP TABLE IF EXISTS a2a_certificates')
+    db.exec('DROP TABLE IF EXISTS a2a_flow_control')
+    db.exec('DROP TABLE IF EXISTS a2a_negotiations')
+    db.exec('DROP TABLE IF EXISTS a2a_messages')
 
-    logger.info("Migration 9 down: A2A Protocol v3.0 tables dropped", { category: "db" });
+    logger.info('Migration 9 down: A2A Protocol v3.0 tables dropped', { category: 'db' })
   },
-};
+}
 ```
 
 ### Migration 10: Performance Optimization Tables
@@ -1245,9 +1263,9 @@ export const migration9: Migration = {
 ```typescript
 export const migration10: Migration = {
   version: 10,
-  name: "performance_optimization",
+  name: 'performance_optimization',
   up: async () => {
-    const db = await getDatabaseAsync();
+    const db = await getDatabaseAsync()
 
     // Create task_execution_cache table
     db.exec(`
@@ -1263,7 +1281,7 @@ export const migration10: Migration = {
         FOREIGN KEY (task_id) REFERENCES agents(id) ON DELETE CASCADE,
         UNIQUE(task_id, task_hash)
       );
-    `);
+    `)
 
     // Create batch_operations_log table
     db.exec(`
@@ -1280,30 +1298,30 @@ export const migration10: Migration = {
         completed_at TEXT,
         created_at TEXT NOT NULL
       );
-    `);
+    `)
 
     // Create indexes
     const indexes = [
-      "CREATE INDEX IF NOT EXISTS idx_task_cache_task_hash ON task_execution_cache(task_id, task_hash)",
-      "CREATE INDEX IF NOT EXISTS idx_task_cache_expires ON task_execution_cache(expires_at)",
-      "CREATE INDEX IF NOT EXISTS idx_batch_log_status ON batch_operations_log(status)",
-    ];
+      'CREATE INDEX IF NOT EXISTS idx_task_cache_task_hash ON task_execution_cache(task_id, task_hash)',
+      'CREATE INDEX IF NOT EXISTS idx_task_cache_expires ON task_execution_cache(expires_at)',
+      'CREATE INDEX IF NOT EXISTS idx_batch_log_status ON batch_operations_log(status)',
+    ]
 
     for (const indexSql of indexes) {
-      db.exec(indexSql);
+      db.exec(indexSql)
     }
 
-    logger.info("Migration 10: Performance optimization tables created", { category: "db" });
+    logger.info('Migration 10: Performance optimization tables created', { category: 'db' })
   },
   down: async () => {
-    const db = await getDatabaseAsync();
+    const db = await getDatabaseAsync()
 
-    db.exec("DROP TABLE IF EXISTS batch_operations_log");
-    db.exec("DROP TABLE IF EXISTS task_execution_cache");
+    db.exec('DROP TABLE IF EXISTS batch_operations_log')
+    db.exec('DROP TABLE IF EXISTS task_execution_cache')
 
-    logger.info("Migration 10 down: Performance optimization tables dropped", { category: "db" });
+    logger.info('Migration 10 down: Performance optimization tables dropped', { category: 'db' })
   },
-};
+}
 ```
 
 ---
@@ -1325,17 +1343,20 @@ export const migration10: Migration = {
 **目标**: 添加新表，不影响现有功能
 
 **步骤**:
+
 1. 创建新表（无外键约束冲突）
 2. 创建索引（使用 `IF NOT EXISTS` 避免重复）
 3. 验证新表可访问
 4. 部署新代码（Feature Flag 关闭状态）
 
 **零停机保证**:
+
 - 新表独立，不依赖旧表数据
 - 旧代码不访问新表
 - Feature Flag 控制新功能启用
 
 **回滚策略**:
+
 ```bash
 # 如果迁移失败，回滚 Migration 7-8
 sqlite3 database.db "DROP TABLE IF EXISTS agent_features;"
@@ -1348,18 +1369,21 @@ sqlite3 database.db "DROP TABLE IF EXISTS agent_models;"
 **目标**: 迁移现有数据到新结构
 
 **步骤**:
+
 1. **双写阶段**: 新数据同时写入新旧表
+
    ```typescript
    // 示例：双写 agent 特征
-   await db.exec("INSERT INTO agents (...) VALUES (...)");
-   await db.exec("INSERT INTO agent_features (...) VALUES (...)");
+   await db.exec('INSERT INTO agents (...) VALUES (...)')
+   await db.exec('INSERT INTO agent_features (...) VALUES (...)')
    ```
 
 2. **回填阶段**: 迁移历史数据
+
    ```sql
    -- 分批迁移，避免锁表
    INSERT INTO agent_features (id, agent_id, feature_type, feature_key, feature_value, created_at, updated_at)
-   SELECT 
+   SELECT
      'feat_' || id || '_initial',
      id,
      'metadata',
@@ -1372,6 +1396,7 @@ sqlite3 database.db "DROP TABLE IF EXISTS agent_models;"
    ```
 
 3. **验证阶段**: 数据一致性检查
+
    ```sql
    -- 检查数据完整性
    SELECT COUNT(*) FROM agents WHERE id NOT IN (SELECT agent_id FROM agent_features);
@@ -1380,6 +1405,7 @@ sqlite3 database.db "DROP TABLE IF EXISTS agent_models;"
 4. **切换阶段**: Feature Flag 开启新功能
 
 **零停机保证**:
+
 - 分批迁移，每次处理 1000 条记录
 - 迁移过程可暂停和恢复
 - 双写保证数据不丢失
@@ -1389,9 +1415,11 @@ sqlite3 database.db "DROP TABLE IF EXISTS agent_models;"
 **目标**: 移除冗余字段，优化 Schema
 
 **步骤**:
+
 1. 确认所有代码已迁移到新字段
 2. 创建备份
 3. 删除旧字段（谨慎操作）
+
    ```sql
    -- SQLite 不支持 DROP COLUMN，需要重建表
    -- 创建新表
@@ -1400,19 +1428,20 @@ sqlite3 database.db "DROP TABLE IF EXISTS agent_models;"
      name TEXT NOT NULL,
      -- 只保留必要字段
    );
-   
+
    -- 迁移数据
    INSERT INTO agents_new SELECT id, name FROM agents;
-   
+
    -- 重命名
    DROP TABLE agents;
    ALTER TABLE agents_new RENAME TO agents;
-   
+
    -- 重建索引
    CREATE INDEX idx_agents_status ON agents(status);
    ```
 
 **零停机保证**:
+
 - 在维护窗口执行
 - 提前通知用户
 - 准备快速回滚脚本
@@ -1426,7 +1455,7 @@ sqlite3 database.db "DROP TABLE IF EXISTS agent_models;"
 ALTER TABLE agents ADD COLUMN version INTEGER DEFAULT 1;
 
 -- 更新时检查版本
-UPDATE agents 
+UPDATE agents
 SET name = ?, version = version + 1, updated_at = ?
 WHERE id = ? AND version = ?;
 ```
@@ -1445,26 +1474,29 @@ COMMIT;
 ```typescript
 // 分批处理，避免长时间锁表
 async function migrateInBatches(batchSize = 1000) {
-  let offset = 0;
+  let offset = 0
   while (true) {
-    const batch = await db.query(`
+    const batch = await db.query(
+      `
       SELECT * FROM agents 
       ORDER BY id 
       LIMIT ? OFFSET ?
-    `, [batchSize, offset]);
-    
-    if (batch.length === 0) break;
-    
+    `,
+      [batchSize, offset]
+    )
+
+    if (batch.length === 0) break
+
     await db.transaction(async () => {
       for (const row of batch) {
         // 处理每条记录
       }
-    });
-    
-    offset += batchSize;
-    
+    })
+
+    offset += batchSize
+
     // 短暂休息，释放锁
-    await new Promise(resolve => setTimeout(resolve, 100));
+    await new Promise(resolve => setTimeout(resolve, 100))
   }
 }
 ```
@@ -1475,12 +1507,12 @@ async function migrateInBatches(batchSize = 1000) {
 
 ### 回滚分级
 
-| 级别 | 触发条件 | 操作 | 影响时间 |
-|------|---------|------|---------|
-| **P0** | 迁移脚本执行失败 | 自动回滚当前 Migration | < 1 分钟 |
-| **P1** | 数据不一致检测 | 人工触发回滚 | < 10 分钟 |
-| **P2** | 生产环境严重问题 | 完整回滚到上一版本 | < 30 分钟 |
-| **P3** | 性能问题 | 回滚到优化前状态 | < 1 小时 |
+| 级别   | 触发条件         | 操作                   | 影响时间  |
+| ------ | ---------------- | ---------------------- | --------- |
+| **P0** | 迁移脚本执行失败 | 自动回滚当前 Migration | < 1 分钟  |
+| **P1** | 数据不一致检测   | 人工触发回滚           | < 10 分钟 |
+| **P2** | 生产环境严重问题 | 完整回滚到上一版本     | < 30 分钟 |
+| **P3** | 性能问题         | 回滚到优化前状态       | < 1 小时  |
 
 ### 回滚脚本库
 
@@ -1567,13 +1599,13 @@ echo "Restore completed."
 
 ### 回滚决策矩阵
 
-| 场景 | 数据丢失风险 | 回滚方案 | 验证步骤 |
-|------|------------|---------|---------|
-| 新表创建失败 | 无 | 删除新表 | 检查旧功能正常 |
-| 索引创建失败 | 无 | 删除索引 | 检查查询性能 |
-| 数据迁移部分失败 | 低 | 重新运行迁移 | 数据完整性检查 |
-| 数据迁移完全失败 | 中 | 从备份恢复 | 全量数据验证 |
-| Schema 不兼容 | 高 | 完整回滚 | 功能回归测试 |
+| 场景             | 数据丢失风险 | 回滚方案     | 验证步骤       |
+| ---------------- | ------------ | ------------ | -------------- |
+| 新表创建失败     | 无           | 删除新表     | 检查旧功能正常 |
+| 索引创建失败     | 无           | 删除索引     | 检查查询性能   |
+| 数据迁移部分失败 | 低           | 重新运行迁移 | 数据完整性检查 |
+| 数据迁移完全失败 | 中           | 从备份恢复   | 全量数据验证   |
+| Schema 不兼容    | 高           | 完整回滚     | 功能回归测试   |
 
 ---
 
@@ -1639,8 +1671,8 @@ CREATE INDEX idx_agents_api_version ON agents(api_version);
 // src/lib/db/schema-adapter.ts
 
 export interface SchemaAdapter {
-  toInternal(data: ExternalData, version: string): InternalData;
-  toExternal(data: InternalData, version: string): ExternalData;
+  toInternal(data: ExternalData, version: string): InternalData
+  toExternal(data: InternalData, version: string): ExternalData
 }
 
 export class AgentSchemaAdapter implements SchemaAdapter {
@@ -1648,11 +1680,11 @@ export class AgentSchemaAdapter implements SchemaAdapter {
   toExternal(agent: Agent, version: string): Record<string, unknown> {
     switch (version) {
       case 'v1.0':
-        return this.toV10(agent);
+        return this.toV10(agent)
       case 'v1.8':
-        return this.toV18(agent);
+        return this.toV18(agent)
       default:
-        throw new Error(`Unsupported API version: ${version}`);
+        throw new Error(`Unsupported API version: ${version}`)
     }
   }
 
@@ -1664,7 +1696,7 @@ export class AgentSchemaAdapter implements SchemaAdapter {
       status: agent.status,
       provider: agent.provider,
       created_at: agent.created_at,
-    };
+    }
   }
 
   private toV18(agent: Agent): Record<string, unknown> {
@@ -1674,7 +1706,7 @@ export class AgentSchemaAdapter implements SchemaAdapter {
       features: agent.features, // 新增
       learning_status: agent.learning_status, // 新增
       model_version: agent.model_version, // 新增
-    };
+    }
   }
 }
 ```
@@ -1683,27 +1715,27 @@ export class AgentSchemaAdapter implements SchemaAdapter {
 
 ```typescript
 // src/app/api/v1/agents/route.ts (Legacy)
-import { AgentSchemaAdapter } from '@/lib/db/schema-adapter';
+import { AgentSchemaAdapter } from '@/lib/db/schema-adapter'
 
 export async function GET(request: Request) {
-  const agents = await getAgents();
-  const adapter = new AgentSchemaAdapter();
-  
+  const agents = await getAgents()
+  const adapter = new AgentSchemaAdapter()
+
   // 转换为 v1.0 格式
-  const legacyAgents = agents.map(a => adapter.toExternal(a, 'v1.0'));
-  
-  return Response.json({ agents: legacyAgents });
+  const legacyAgents = agents.map(a => adapter.toExternal(a, 'v1.0'))
+
+  return Response.json({ agents: legacyAgents })
 }
 
 // src/app/api/v1.8/agents/route.ts (Current)
 export async function GET(request: Request) {
-  const agents = await getAgents();
-  const adapter = new AgentSchemaAdapter();
-  
+  const agents = await getAgents()
+  const adapter = new AgentSchemaAdapter()
+
   // 转换为 v1.8 格式
-  const currentAgents = agents.map(a => adapter.toExternal(a, 'v1.8'));
-  
-  return Response.json({ agents: currentAgents });
+  const currentAgents = agents.map(a => adapter.toExternal(a, 'v1.8'))
+
+  return Response.json({ agents: currentAgents })
 }
 ```
 
@@ -1716,9 +1748,9 @@ export async function GET(request: Request) {
 ALTER TABLE agents ADD COLUMN learning_status TEXT DEFAULT 'inactive';
 
 -- 使用 COALESCE 处理 NULL
-SELECT 
-  id, 
-  name, 
+SELECT
+  id,
+  name,
   COALESCE(learning_status, 'inactive') as learning_status
 FROM agents;
 ```
@@ -1730,7 +1762,7 @@ FROM agents;
 ALTER TABLE agents ADD COLUMN extensions TEXT DEFAULT '{}';
 
 -- 应用层处理
-INSERT INTO agents (id, name, extensions) 
+INSERT INTO agents (id, name, extensions)
 VALUES (?, ?, json_set('{}', '$.new_field', ?));
 ```
 
@@ -1741,21 +1773,18 @@ VALUES (?, ?, json_set('{}', '$.new_field', ?));
 
 export function apiVersionMiddleware(handler: Function) {
   return async (request: Request) => {
-    const version = request.headers.get('X-API-Version') || 'v1.0';
-    
+    const version = request.headers.get('X-API-Version') || 'v1.0'
+
     // 验证版本
     if (!['v1.0', 'v1.8'].includes(version)) {
-      return Response.json(
-        { error: 'Unsupported API version' },
-        { status: 400 }
-      );
+      return Response.json({ error: 'Unsupported API version' }, { status: 400 })
     }
-    
+
     // 注入版本信息
-    request.apiVersion = version;
-    
-    return handler(request);
-  };
+    request.apiVersion = version
+
+    return handler(request)
+  }
 }
 ```
 
@@ -1768,16 +1797,16 @@ export function apiVersionMiddleware(handler: Function) {
 CREATE TABLE agent_data_v2 (
   id TEXT PRIMARY KEY,
   agent_id TEXT NOT NULL,
-  
+
   -- v1.0 格式（兼容）
   legacy_data TEXT,
-  
+
   -- v1.8 格式（新）
   current_data TEXT,
-  
+
   -- 版本标记
   data_version TEXT DEFAULT 'v1.8',
-  
+
   created_at TEXT NOT NULL,
   updated_at TEXT NOT NULL
 );
@@ -1790,7 +1819,7 @@ CREATE TABLE agent_data_v2 (
 CREATE TRIGGER trg_agent_data_insert
 AFTER INSERT ON agent_data_v2
 BEGIN
-  UPDATE agent_data_v2 
+  UPDATE agent_data_v2
   SET legacy_data = json_extract(current_data, '$.legacy')
   WHERE id = NEW.id;
 END;
@@ -1812,10 +1841,11 @@ END;
 #### 数据验证
 
 - [ ] 数据完整性检查
+
   ```sql
   -- 检查外键完整性
   PRAGMA foreign_key_check;
-  
+
   -- 检查数据一致性
   SELECT COUNT(*) FROM agents WHERE id NOT IN (SELECT agent_id FROM agent_features WHERE feature_type = 'metadata');
   ```
@@ -1831,6 +1861,7 @@ END;
 #### 性能验证
 
 - [ ] 关键查询性能测试
+
   ```sql
   -- 查询执行计划
   EXPLAIN QUERY PLAN SELECT * FROM agent_features WHERE agent_id = ?;
@@ -1854,61 +1885,76 @@ END;
 ```typescript
 // scripts/validate-migration.ts
 
-import { getDatabaseAsync } from '@/lib/db';
+import { getDatabaseAsync } from '@/lib/db'
 
 async function validateMigration() {
-  const db = await getDatabaseAsync();
-  const errors: string[] = [];
+  const db = await getDatabaseAsync()
+  const errors: string[] = []
 
   // 1. 检查表存在性
   const requiredTables = [
-    'agent_features', 'agent_models', 'agent_learning_observations', 'agent_anomalies',
-    'task_graphs', 'task_nodes', 'task_edges', 'rl_policies', 'reschedule_logs',
-    'a2a_messages', 'a2a_negotiations', 'a2a_flow_control', 'a2a_certificates', 'a2a_dead_letter',
-    'task_execution_cache', 'batch_operations_log'
-  ];
+    'agent_features',
+    'agent_models',
+    'agent_learning_observations',
+    'agent_anomalies',
+    'task_graphs',
+    'task_nodes',
+    'task_edges',
+    'rl_policies',
+    'reschedule_logs',
+    'a2a_messages',
+    'a2a_negotiations',
+    'a2a_flow_control',
+    'a2a_certificates',
+    'a2a_dead_letter',
+    'task_execution_cache',
+    'batch_operations_log',
+  ]
 
   for (const table of requiredTables) {
-    const result = db.query(`
+    const result = db.query(
+      `
       SELECT name FROM sqlite_master WHERE type='table' AND name=?
-    `, [table]);
+    `,
+      [table]
+    )
     if (result.length === 0) {
-      errors.push(`Missing table: ${table}`);
+      errors.push(`Missing table: ${table}`)
     }
   }
 
   // 2. 检查迁移版本
-  const versionStmt = db.prepare("SELECT value FROM migrations WHERE key = 'version'");
-  const versionRow = versionStmt.get() as { value: string } | undefined;
+  const versionStmt = db.prepare("SELECT value FROM migrations WHERE key = 'version'")
+  const versionRow = versionStmt.get() as { value: string } | undefined
   if (!versionRow || parseInt(versionRow.value) < 10) {
-    errors.push(`Migration version is ${versionRow?.value || 'unknown'}, expected >= 10`);
+    errors.push(`Migration version is ${versionRow?.value || 'unknown'}, expected >= 10`)
   }
 
   // 3. 检查外键约束
-  const fkCheck = db.query("PRAGMA foreign_key_check");
+  const fkCheck = db.query('PRAGMA foreign_key_check')
   if (fkCheck.length > 0) {
-    errors.push(`Foreign key violations: ${fkCheck.length}`);
+    errors.push(`Foreign key violations: ${fkCheck.length}`)
   }
 
   // 4. 性能测试
-  const startTime = Date.now();
-  db.query("SELECT * FROM agent_features LIMIT 100");
-  const queryTime = Date.now() - startTime;
+  const startTime = Date.now()
+  db.query('SELECT * FROM agent_features LIMIT 100')
+  const queryTime = Date.now() - startTime
   if (queryTime > 100) {
-    errors.push(`Slow query detected: ${queryTime}ms`);
+    errors.push(`Slow query detected: ${queryTime}ms`)
   }
 
   // 输出结果
   if (errors.length > 0) {
-    console.error('❌ Migration validation failed:');
-    errors.forEach(e => console.error(`  - ${e}`));
-    process.exit(1);
+    console.error('❌ Migration validation failed:')
+    errors.forEach(e => console.error(`  - ${e}`))
+    process.exit(1)
   } else {
-    console.log('✅ Migration validation passed');
+    console.log('✅ Migration validation passed')
   }
 }
 
-validateMigration();
+validateMigration()
 ```
 
 ---
@@ -1917,33 +1963,33 @@ validateMigration();
 
 ### 预生产环境迁移
 
-| 阶段 | 时间 | 操作 | 预计耗时 |
-|------|------|------|---------|
-| 备份 | T+0 | 数据库完整备份 | 10 分钟 |
-| Migration 7 | T+10 | 学习系统表 | 5 分钟 |
-| 验证 7 | T+15 | 完整性检查 | 5 分钟 |
-| Migration 8 | T+20 | 调度系统表 | 5 分钟 |
-| 验证 8 | T+25 | 完整性检查 | 5 分钟 |
-| Migration 9 | T+30 | A2A 协议表 | 5 分钟 |
-| 验证 9 | T+35 | 完整性检查 | 5 分钟 |
-| Migration 10 | T+40 | 性能优化表 | 3 分钟 |
-| 验证 10 | T+43 | 完整性检查 | 5 分钟 |
-| 功能测试 | T+48 | E2E 测试 | 20 分钟 |
-| **总计** | | | **~70 分钟** |
+| 阶段         | 时间 | 操作           | 预计耗时     |
+| ------------ | ---- | -------------- | ------------ |
+| 备份         | T+0  | 数据库完整备份 | 10 分钟      |
+| Migration 7  | T+10 | 学习系统表     | 5 分钟       |
+| 验证 7       | T+15 | 完整性检查     | 5 分钟       |
+| Migration 8  | T+20 | 调度系统表     | 5 分钟       |
+| 验证 8       | T+25 | 完整性检查     | 5 分钟       |
+| Migration 9  | T+30 | A2A 协议表     | 5 分钟       |
+| 验证 9       | T+35 | 完整性检查     | 5 分钟       |
+| Migration 10 | T+40 | 性能优化表     | 3 分钟       |
+| 验证 10      | T+43 | 完整性检查     | 5 分钟       |
+| 功能测试     | T+48 | E2E 测试       | 20 分钟      |
+| **总计**     |      |                | **~70 分钟** |
 
 ### 生产环境迁移
 
-| 阶段 | 时间窗口 | 操作 | 回滚预案 |
-|------|---------|------|---------|
-| 准备 | 22:00 | 数据备份、公告发布 | - |
-| Migration 7-8 | 22:10 | 学习+调度表创建 | 自动回滚 |
-| 验证 | 22:20 | 自动化验证 | 手动回滚 |
-| Migration 9-10 | 22:30 | A2A+优化表创建 | 自动回滚 |
-| 验证 | 22:35 | 自动化验证 | 手动回滚 |
-| 数据迁移 | 22:40 | 分批数据迁移 | 从备份恢复 |
-| 最终验证 | 23:00 | 全量功能测试 | 完整回滚 |
-| 监控期 | 23:30-06:00 | 持续监控 | 随时可回滚 |
-| 完成 | 06:00 | 发布完成通知 | - |
+| 阶段           | 时间窗口    | 操作               | 回滚预案   |
+| -------------- | ----------- | ------------------ | ---------- |
+| 准备           | 22:00       | 数据备份、公告发布 | -          |
+| Migration 7-8  | 22:10       | 学习+调度表创建    | 自动回滚   |
+| 验证           | 22:20       | 自动化验证         | 手动回滚   |
+| Migration 9-10 | 22:30       | A2A+优化表创建     | 自动回滚   |
+| 验证           | 22:35       | 自动化验证         | 手动回滚   |
+| 数据迁移       | 22:40       | 分批数据迁移       | 从备份恢复 |
+| 最终验证       | 23:00       | 全量功能测试       | 完整回滚   |
+| 监控期         | 23:30-06:00 | 持续监控           | 随时可回滚 |
+| 完成           | 06:00       | 发布完成通知       | -          |
 
 ---
 
@@ -1961,36 +2007,36 @@ validateMigration();
 
 ### 存储空间预估
 
-| 新表 | 预计记录数/月 | 单条大小 | 月增长 | 年增长 |
-|------|--------------|---------|-------|-------|
-| agent_features | 100,000 | 1KB | 100MB | 1.2GB |
-| agent_models | 50 | 10MB | 500MB | 6GB |
-| agent_learning_observations | 1,000,000 | 500B | 500MB | 6GB |
-| task_graphs | 10,000 | 2KB | 20MB | 240MB |
-| task_nodes | 100,000 | 1KB | 100MB | 1.2GB |
-| task_edges | 200,000 | 200B | 40MB | 480MB |
-| a2a_messages | 1,000,000 | 1KB | 1GB | 12GB |
-| **总计** | | | **~2.3GB** | **~28GB** |
+| 新表                        | 预计记录数/月 | 单条大小 | 月增长     | 年增长    |
+| --------------------------- | ------------- | -------- | ---------- | --------- |
+| agent_features              | 100,000       | 1KB      | 100MB      | 1.2GB     |
+| agent_models                | 50            | 10MB     | 500MB      | 6GB       |
+| agent_learning_observations | 1,000,000     | 500B     | 500MB      | 6GB       |
+| task_graphs                 | 10,000        | 2KB      | 20MB       | 240MB     |
+| task_nodes                  | 100,000       | 1KB      | 100MB      | 1.2GB     |
+| task_edges                  | 200,000       | 200B     | 40MB       | 480MB     |
+| a2a_messages                | 1,000,000     | 1KB      | 1GB        | 12GB      |
+| **总计**                    |               |          | **~2.3GB** | **~28GB** |
 
 ### 性能影响评估
 
-| 操作 | 迁移前 | 迁移后 | 变化 |
-|------|--------|--------|------|
-| Agent 创建 | ~5ms | ~8ms | +60% |
-| Agent 查询 | ~2ms | ~2ms | 无变化 |
-| 任务调度 | ~10ms | ~5ms | -50% (优化) |
-| A2A 消息发送 | ~3ms | ~5ms | +67% |
-| 学习数据写入 | N/A | ~3ms | 新增 |
+| 操作         | 迁移前 | 迁移后 | 变化        |
+| ------------ | ------ | ------ | ----------- |
+| Agent 创建   | ~5ms   | ~8ms   | +60%        |
+| Agent 查询   | ~2ms   | ~2ms   | 无变化      |
+| 任务调度     | ~10ms  | ~5ms   | -50% (优化) |
+| A2A 消息发送 | ~3ms   | ~5ms   | +67%        |
+| 学习数据写入 | N/A    | ~3ms   | 新增        |
 
 ### 风险评估矩阵
 
-| 风险项 | 概率 | 影响 | 缓解措施 | 负责人 |
-|--------|-----|------|---------|--------|
-| 迁移脚本执行失败 | 低 | 高 | 自动回滚 + 备份恢复 | 🛡️ 系统管理员 |
-| 数据不一致 | 中 | 高 | 双写 + 校验 + 分批迁移 | 🏗️ 架构师 |
-| 性能下降 | 中 | 中 | 索引优化 + 缓存 | ⚡ Executor |
-| 存储空间不足 | 低 | 高 | 定期清理 + 归档 | 🛡️ 系统管理员 |
-| API 兼容性问题 | 低 | 高 | Schema Adapter + 测试 | 🧪 测试员 |
+| 风险项           | 概率 | 影响 | 缓解措施               | 负责人        |
+| ---------------- | ---- | ---- | ---------------------- | ------------- |
+| 迁移脚本执行失败 | 低   | 高   | 自动回滚 + 备份恢复    | 🛡️ 系统管理员 |
+| 数据不一致       | 中   | 高   | 双写 + 校验 + 分批迁移 | 🏗️ 架构师     |
+| 性能下降         | 中   | 中   | 索引优化 + 缓存        | ⚡ Executor   |
+| 存储空间不足     | 低   | 高   | 定期清理 + 归档        | 🛡️ 系统管理员 |
+| API 兼容性问题   | 低   | 高   | Schema Adapter + 测试  | 🧪 测试员     |
 
 ---
 
@@ -2034,4 +2080,4 @@ validateMigration();
 
 ---
 
-*此迁移方案将根据实际测试结果动态调整，确保零停机和数据完整性。*
+_此迁移方案将根据实际测试结果动态调整，确保零停机和数据完整性。_

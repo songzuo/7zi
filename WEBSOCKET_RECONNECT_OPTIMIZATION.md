@@ -10,10 +10,12 @@
 ## 1. 当前实现分析
 
 ### 1.1 代码位置
+
 - **客户端重连逻辑**: `src/lib/websocket/useCollaboration.ts`
 - **服务器端心跳**: `src/lib/websocket/server.ts`
 
 ### 1.2 现有优点
+
 ✅ **手动处理重连** - 使用 `reconnection: false` 避免与 Socket.IO 内置重连冲突
 ✅ **指数退避算法** - `getReconnectDelay()` 使用 1.5 倍递增，最大 30 秒
 ✅ **最大重试限制** - 最多重试 10 次后停止
@@ -23,45 +25,58 @@
 ### 1.3 发现的问题
 
 #### 问题 1: 重连后状态恢复不完整 ⚠️
+
 **位置**: `useCollaboration.ts` - `disconnect` 事件处理
+
 ```typescript
-socket.on('disconnect', (reason) => {
-  updateState('disconnected');
-  setIsInRoom(false);  // ❌ 重连后会丢失房间状态
-});
+socket.on('disconnect', reason => {
+  updateState('disconnected')
+  setIsInRoom(false) // ❌ 重连后会丢失房间状态
+})
 ```
 
 **影响**:
+
 - 重连成功后用户需要手动重新加入房间
 - 用户体验中断，需要重新加载文档
 
 #### 问题 2: 文档状态不一致 ⚠️
+
 **位置**: 重连后没有触发文档同步
+
 - `document` 状态可能丢失或过时
 - 没有自动请求最新文档内容
 
 #### 问题 3: 用户列表状态丢失 ⚠️
+
 **位置**: `disconnect` 事件处理
+
 ```typescript
-setIsInRoom(false);
-setUsers([]);  // ❌ 用户列表被清空
+setIsInRoom(false)
+setUsers([]) // ❌ 用户列表被清空
 ```
 
 **影响**:
+
 - 重连后看不到其他协作者
 - 协作状态中断
 
 #### 问题 4: 错误处理不够细致 ⚠️
+
 **位置**: 统一的 `scheduleReconnect` 处理所有错误
+
 - 未区分不同类型的断线原因（网络、认证、服务器）
 - 所有错误使用相同的重连策略
 
 #### 问题 5: 重连时的竞态条件 ⚠️
+
 **位置**: `scheduleReconnect` 和 `connect`
+
 - 可能同时有多个重连定时器
 - 没有检查当前是否正在重连
 
 **代码证据**:
+
 ```typescript
 const scheduleReconnect = useCallback(() => {
   // ❌ 没有检查是否已经在重连
@@ -73,15 +88,18 @@ const scheduleReconnect = useCallback(() => {
 ```
 
 #### 问题 6: 心跳超时检测过于严格 ⚠️
+
 **位置**: `server.ts` 心跳监控
+
 ```typescript
 // Disconnect if no heartbeat for 60 seconds
 if (now - lastHeartbeat > 60000) {
-  socket.disconnect(true);
+  socket.disconnect(true)
 }
 ```
 
 **影响**:
+
 - 60 秒超时对于不稳定网络可能太短
 - 与客户端心跳间隔（25秒）差距太大，没有留出容错空间
 
@@ -90,6 +108,7 @@ if (now - lastHeartbeat > 60000) {
 ## 2. 优化方案
 
 ### 2.1 方案概述
+
 1. **引入重连状态管理** - 区分"断线中"、"重连中"、"已恢复"
 2. **保存和恢复连接上下文** - 记录房间、文档、用户等信息
 3. **差异化重连策略** - 根据断线原因采用不同策略
@@ -99,68 +118,75 @@ if (now - lastHeartbeat > 60000) {
 ### 2.2 核心改进点
 
 #### 改进 1: 添加重连状态枚举
+
 ```typescript
 export type ReconnectionState =
-  | 'idle'           // 无需重连
-  | 'scheduled'      // 已安排重连
-  | 'attempting'      // 正在尝试连接
-  | 'recovering';     // 正在恢复状态
+  | 'idle' // 无需重连
+  | 'scheduled' // 已安排重连
+  | 'attempting' // 正在尝试连接
+  | 'recovering' // 正在恢复状态
 ```
 
 #### 改进 2: 连接上下文保存
+
 ```typescript
 interface ConnectionContext {
-  roomId?: string;
-  roomType?: 'task' | 'project' | 'chat' | 'document';
-  documentId?: string;
-  roomName?: string;
-  users?: RoomUser[];
-  document?: { content: string; revision: number };
+  roomId?: string
+  roomType?: 'task' | 'project' | 'chat' | 'document'
+  documentId?: string
+  roomName?: string
+  users?: RoomUser[]
+  document?: { content: string; revision: number }
 }
 
-const connectionContextRef = useRef<ConnectionContext>({});
+const connectionContextRef = useRef<ConnectionContext>({})
 ```
 
 #### 改进 3: 重连原因分类
+
 ```typescript
 type DisconnectReason =
-  | 'io client disconnect'     // 用户主动断开
-  | 'io server disconnect'     // 服务器断开
-  | 'ping timeout'             // 心跳超时
-  | 'transport close'          // 连接关闭
-  | 'network_error'            // 网络错误
-  | 'auth_error';              // 认证错误
+  | 'io client disconnect' // 用户主动断开
+  | 'io server disconnect' // 服务器断开
+  | 'ping timeout' // 心跳超时
+  | 'transport close' // 连接关闭
+  | 'network_error' // 网络错误
+  | 'auth_error' // 认证错误
 ```
 
 #### 改进 4: 差异化重连策略
+
 ```typescript
-const getReconnectStrategy = (reason: DisconnectReason): {
-  shouldReconnect: boolean;
-  initialDelay: number;
-  maxAttempts: number;
-  backoffMultiplier: number;
+const getReconnectStrategy = (
+  reason: DisconnectReason
+): {
+  shouldReconnect: boolean
+  initialDelay: number
+  maxAttempts: number
+  backoffMultiplier: number
 } => {
   switch (reason) {
     case 'io client disconnect':
-      return { shouldReconnect: false, initialDelay: 0, maxAttempts: 0, backoffMultiplier: 0 };
+      return { shouldReconnect: false, initialDelay: 0, maxAttempts: 0, backoffMultiplier: 0 }
     case 'auth_error':
-      return { shouldReconnect: false, initialDelay: 0, maxAttempts: 0, backoffMultiplier: 0 };
+      return { shouldReconnect: false, initialDelay: 0, maxAttempts: 0, backoffMultiplier: 0 }
     case 'ping timeout':
-      return { shouldReconnect: true, initialDelay: 2000, maxAttempts: 5, backoffMultiplier: 1.5 };
+      return { shouldReconnect: true, initialDelay: 2000, maxAttempts: 5, backoffMultiplier: 1.5 }
     default:
-      return { shouldReconnect: true, initialDelay: 1000, maxAttempts: 10, backoffMultiplier: 1.5 };
+      return { shouldReconnect: true, initialDelay: 1000, maxAttempts: 10, backoffMultiplier: 1.5 }
   }
-};
+}
 ```
 
 #### 改进 5: 自动状态恢复
+
 ```typescript
 const recoverConnectionState = useCallback(async () => {
   if (!connectionContextRef.current.roomId) {
-    return;
+    return
   }
 
-  const { roomId, roomType, documentId, roomName } = connectionContextRef.current;
+  const { roomId, roomType, documentId, roomName } = connectionContextRef.current
 
   // 重新加入房间
   socketRef.current?.emit('room:join', {
@@ -168,14 +194,15 @@ const recoverConnectionState = useCallback(async () => {
     type: roomType || 'document',
     documentId,
     name: roomName,
-  });
+  })
 
   // 请求文档同步
-  socketRef.current?.emit('doc:sync', { roomId });
-}, []);
+  socketRef.current?.emit('doc:sync', { roomId })
+}, [])
 ```
 
 #### 改进 6: 服务器端心跳优化
+
 ```typescript
 // 增加心跳超时容错，从 60 秒改为 120 秒
 if (now - lastHeartbeat > 120000) {
@@ -190,36 +217,39 @@ if (now - lastHeartbeat > 120000) {
 
 ### 3.1 文件修改清单
 
-| 文件 | 修改类型 | 说明 |
-|------|---------|------|
-| `src/lib/websocket/useCollaboration.ts` | 重构 | 实现新的重连逻辑和状态恢复 |
-| `src/lib/websocket/server.ts` | 小改 | 优化心跳超时检测 |
+| 文件                                    | 修改类型 | 说明                       |
+| --------------------------------------- | -------- | -------------------------- |
+| `src/lib/websocket/useCollaboration.ts` | 重构     | 实现新的重连逻辑和状态恢复 |
+| `src/lib/websocket/server.ts`           | 小改     | 优化心跳超时检测           |
 
 ### 3.2 关键代码变更
 
 #### 变更 1: 添加新状态类型
+
 ```typescript
-export type ReconnectionState = 'idle' | 'scheduled' | 'attempting' | 'recovering';
+export type ReconnectionState = 'idle' | 'scheduled' | 'attempting' | 'recovering'
 
 export interface ConnectionContext {
-  roomId?: string;
-  roomType?: 'task' | 'project' | 'chat' | 'document';
-  documentId?: string;
-  roomName?: string;
+  roomId?: string
+  roomType?: 'task' | 'project' | 'chat' | 'document'
+  documentId?: string
+  roomName?: string
 }
 ```
 
 #### 变更 2: 新增 Refs
+
 ```typescript
-const reconnectionStateRef = useRef<ReconnectionState>('idle');
-const connectionContextRef = useRef<ConnectionContext>({});
-const isReconnectingRef = useRef(false);  // 防止重复重连
+const reconnectionStateRef = useRef<ReconnectionState>('idle')
+const connectionContextRef = useRef<ConnectionContext>({})
+const isReconnectingRef = useRef(false) // 防止重复重连
 ```
 
 #### 变更 3: 优化 disconnect 处理
+
 ```typescript
-socket.on('disconnect', (reason) => {
-  logger.info('WebSocket disconnected', { reason });
+socket.on('disconnect', reason => {
+  logger.info('WebSocket disconnected', { reason })
 
   // 保存连接上下文
   if (isInRoom && currentRoomRef.current) {
@@ -227,71 +257,77 @@ socket.on('disconnect', (reason) => {
       roomId: currentRoomRef.current,
       roomType,
       documentId: initialDocumentId,
-    };
+    }
   }
 
-  updateState('disconnected');
+  updateState('disconnected')
 
   // 根据断线原因决定是否重连
   if (autoReconnect && reason !== 'io client disconnect') {
-    scheduleReconnect(reason as DisconnectReason);
+    scheduleReconnect(reason as DisconnectReason)
   }
-});
+})
 ```
 
 #### 变更 4: 改进重连调度
+
 ```typescript
-const scheduleReconnect = useCallback((reason: DisconnectReason = 'network_error') => {
-  // 防止重复重连
-  if (isReconnectingRef.current || reconnectionStateRef.current === 'attempting') {
-    logger.debug('Reconnect already in progress, skipping');
-    return;
-  }
+const scheduleReconnect = useCallback(
+  (reason: DisconnectReason = 'network_error') => {
+    // 防止重复重连
+    if (isReconnectingRef.current || reconnectionStateRef.current === 'attempting') {
+      logger.debug('Reconnect already in progress, skipping')
+      return
+    }
 
-  const strategy = getReconnectStrategy(reason);
+    const strategy = getReconnectStrategy(reason)
 
-  if (!strategy.shouldReconnect) {
-    logger.info('Reconnect disabled for this reason', { reason });
-    updateState('error');
-    return;
-  }
+    if (!strategy.shouldReconnect) {
+      logger.info('Reconnect disabled for this reason', { reason })
+      updateState('error')
+      return
+    }
 
-  isReconnectingRef.current = true;
-  reconnectionStateRef.current = 'scheduled';
+    isReconnectingRef.current = true
+    reconnectionStateRef.current = 'scheduled'
 
-  reconnectAttemptsRef.current++;
+    reconnectAttemptsRef.current++
 
-  if (reconnectAttemptsRef.current > strategy.maxAttempts) {
-    const error = new Error('Max reconnection attempts reached');
-    setError(error);
-    updateState('error');
-    isReconnectingRef.current = false;
-    return;
-  }
+    if (reconnectAttemptsRef.current > strategy.maxAttempts) {
+      const error = new Error('Max reconnection attempts reached')
+      setError(error)
+      updateState('error')
+      isReconnectingRef.current = false
+      return
+    }
 
-  updateState('reconnecting');
+    updateState('reconnecting')
 
-  const delay = strategy.initialDelay * Math.pow(strategy.backoffMultiplier, reconnectAttemptsRef.current - 1);
-  logger.info(`Reconnecting in ${delay}ms`, { attempt: reconnectAttemptsRef.current, reason });
+    const delay =
+      strategy.initialDelay * Math.pow(strategy.backoffMultiplier, reconnectAttemptsRef.current - 1)
+    logger.info(`Reconnecting in ${delay}ms`, { attempt: reconnectAttemptsRef.current, reason })
 
-  reconnectTimeoutRef.current = setTimeout(() => {
-    reconnectionStateRef.current = 'attempting';
-    connectRef.current?.();
-  }, delay);
-}, [autoReconnect, updateState]);
+    reconnectTimeoutRef.current = setTimeout(() => {
+      reconnectionStateRef.current = 'attempting'
+      connectRef.current?.()
+    }, delay)
+  },
+  [autoReconnect, updateState]
+)
 ```
 
 #### 变更 5: 添加状态恢复
+
 ```typescript
 const recoverConnectionState = useCallback(() => {
-  const context = connectionContextRef.current;
+  const context = connectionContextRef.current
 
   if (!context.roomId || !socketRef.current?.connected) {
-    return;
+    return
   }
 
-  logger.info('Recovering connection state', { context });
-  reconnectionStateRef.current = 'recovering';
+  logger.info('Recovering connection state', { context })
+  reconnectionStateRef.current = 'recovering'
 
   // 重新加入房间
   socketRef.current.emit('room:join', {
@@ -299,10 +335,10 @@ const recoverConnectionState = useCallback(() => {
     type: context.roomType || 'document',
     documentId: context.documentId,
     name: context.roomName,
-  });
+  })
 
   // 清除恢复状态标记（将在 room:joined 事件中完成）
-}, []);
+}, [])
 ```
 
 ---
@@ -310,18 +346,21 @@ const recoverConnectionState = useCallback(() => {
 ## 4. 测试建议
 
 ### 4.1 单元测试
+
 - [ ] 测试不同断线原因的重连策略
 - [ ] 测试指数退避算法的正确性
 - [ ] 测试连接上下文的保存和恢复
 - [ ] 测试最大重试限制
 
 ### 4.2 集成测试
+
 - [ ] 模拟网络中断和恢复
 - [ ] 模拟服务器重启
 - [ ] 模拟心跳超时
 - [ ] 模拟并发重连场景
 
 ### 4.3 真实环境测试
+
 - [ ] 不稳定网络下的连接稳定性
 - [ ] 长时间连接的自动重连
 - [ ] 多用户协作场景下的重连
@@ -331,12 +370,14 @@ const recoverConnectionState = useCallback(() => {
 ## 5. 性能影响评估
 
 ### 5.1 预期改进
+
 ✅ **连接恢复速度** - 减少用户感知的中断时间
 ✅ **状态一致性** - 确保重连后协作状态完整恢复
 ✅ **网络容错** - 提升对不稳定网络的容忍度
 ✅ **用户体验** - 减少手动重新连接的需求
 
 ### 5.2 性能开销
+
 - **内存**: 每个连接增加约 100-200 字节（用于保存连接上下文）
 - **CPU**: 新增状态恢复逻辑，但仅在重连时执行
 - **网络**: 重连后额外的同步请求（1-2 次额外消息）
@@ -347,27 +388,30 @@ const recoverConnectionState = useCallback(() => {
 
 ## 6. 风险评估
 
-| 风险 | 影响 | 概率 | 缓解措施 |
-|------|------|------|---------|
-| 状态恢复失败 | 中 | 低 | 添加回退机制，失败后显示提示 |
-| 重连逻辑复杂化 | 中 | 中 | 完善单元测试，代码注释清晰 |
-| 服务器心跳超时误判 | 低 | 低 | 增加超时容错（60s → 120s） |
-| 并发重连冲突 | 低 | 中 | 使用 `isReconnectingRef` 防护 |
+| 风险               | 影响 | 概率 | 缓解措施                      |
+| ------------------ | ---- | ---- | ----------------------------- |
+| 状态恢复失败       | 中   | 低   | 添加回退机制，失败后显示提示  |
+| 重连逻辑复杂化     | 中   | 中   | 完善单元测试，代码注释清晰    |
+| 服务器心跳超时误判 | 低   | 低   | 增加超时容错（60s → 120s）    |
+| 并发重连冲突       | 低   | 中   | 使用 `isReconnectingRef` 防护 |
 
 ---
 
 ## 7. 后续优化建议
 
 ### 短期（v1.1.4）
+
 - ✅ 实施上述重连逻辑优化
 - ✅ 添加重连状态日志
 
 ### 中期（v1.2.0）
+
 - 📊 添加重连成功率监控
 - 📊 收集断线原因统计数据
 - 🔄 基于数据动态调整重连参数
 
 ### 长期（v1.3.0）
+
 - 🌐 支持离线操作队列
 - 🌐 实现操作冲突检测和自动合并
 - 🌐 多设备同步状态管理
@@ -436,6 +480,7 @@ const recoverConnectionState = useCallback(() => {
    - 添加更详细的超时日志（elapsed 时间）
 
 ### 9.2 备份文件
+
 - `src/lib/websocket/useCollaboration.ts.backup-v1.1.3`
 - `src/lib/websocket/server.ts.backup-v1.1.3`
 
@@ -446,6 +491,7 @@ const recoverConnectionState = useCallback(() => {
 ### 10.1 建议测试场景
 
 #### 场景 1: 正常重连
+
 ```
 1. 连接到房间
 2. 断开网络
@@ -454,6 +500,7 @@ const recoverConnectionState = useCallback(() => {
 ```
 
 #### 场景 2: 用户主动断开
+
 ```
 1. 连接到房间
 2. 调用 disconnect()
@@ -461,6 +508,7 @@ const recoverConnectionState = useCallback(() => {
 ```
 
 #### 场景 3: 心跳超时重连
+
 ```
 1. 模拟心跳停止
 2. 等待 120 秒
@@ -469,6 +517,7 @@ const recoverConnectionState = useCallback(() => {
 ```
 
 #### 场景 4: 最大重试限制
+
 ```
 1. 持续断开网络
 2. 验证：重试 10 次后停止
@@ -476,6 +525,7 @@ const recoverConnectionState = useCallback(() => {
 ```
 
 #### 场景 5: 状态恢复
+
 ```
 1. 连接到房间，修改文档
 2. 断开重连
@@ -486,21 +536,21 @@ const recoverConnectionState = useCallback(() => {
 ### 10.2 使用 onReconnection 监听重连
 
 ```typescript
-const { onReconnection } = useCollaboration(config);
+const { onReconnection } = useCollaboration(config)
 
 useEffect(() => {
   const unsubscribe = onReconnection((state, attempt) => {
-    console.log(`Reconnection state: ${state}, attempt: ${attempt}`);
+    console.log(`Reconnection state: ${state}, attempt: ${attempt}`)
 
     if (state === 'recovering') {
       // 显示"正在恢复连接..."提示
     } else if (state === 'idle') {
       // 连接恢复完成
     }
-  });
+  })
 
-  return unsubscribe;
-}, []);
+  return unsubscribe
+}, [])
 ```
 
 ---
@@ -511,16 +561,16 @@ useEffect(() => {
 
 ```typescript
 interface CollaborationState {
-  connectionState: ConnectionState;
-  reconnectionState: ReconnectionState;  // ✅ 新增
-  error: Error | null;
-  isConnected: boolean;
-  isInRoom: boolean;
-  users: RoomUser[];
-  cursors: Map<string, Cursor>;
-  document: { content: string; revision: number } | null;
-  typingUsers: string[];
-  reconnectAttempts: number;  // ✅ 新增
+  connectionState: ConnectionState
+  reconnectionState: ReconnectionState // ✅ 新增
+  error: Error | null
+  isConnected: boolean
+  isInRoom: boolean
+  users: RoomUser[]
+  cursors: Map<string, Cursor>
+  document: { content: string; revision: number } | null
+  typingUsers: string[]
+  reconnectAttempts: number // ✅ 新增
 }
 ```
 
@@ -529,7 +579,7 @@ interface CollaborationState {
 ```typescript
 interface CollaborationActions {
   // ... 现有方法
-  onReconnection: (callback: (state: ReconnectionState, attempt: number) => void) => () => void;  // ✅ 新增
+  onReconnection: (callback: (state: ReconnectionState, attempt: number) => void) => () => void // ✅ 新增
 }
 ```
 
@@ -538,6 +588,7 @@ interface CollaborationActions {
 ## 12. 迁移指南
 
 ### 12.1 无破坏性变更
+
 现有代码无需修改即可工作，新功能为可选使用。
 
 ### 12.2 可选增强
@@ -546,17 +597,18 @@ interface CollaborationActions {
 
 ```typescript
 // 之前
-const { connectionState, error } = useCollaboration(config);
+const { connectionState, error } = useCollaboration(config)
 
 // 之后（增强）
-const { connectionState, reconnectionState, reconnectAttempts, onReconnection } = useCollaboration(config);
+const { connectionState, reconnectionState, reconnectAttempts, onReconnection } =
+  useCollaboration(config)
 
 useEffect(() => {
   const unsubscribe = onReconnection((state, attempt) => {
     // 根据状态显示 UI
-  });
-  return unsubscribe;
-}, []);
+  })
+  return unsubscribe
+}, [])
 ```
 
 ---
@@ -564,6 +616,7 @@ useEffect(() => {
 ## 13. 总结
 
 ### 13.1 已完成的优化
+
 ✅ **连接上下文保存** - 重连后自动恢复房间状态
 ✅ **差异化重连策略** - 根据断线原因采用不同策略
 ✅ **重连状态管理** - 防止竞态和重复重连
@@ -572,12 +625,14 @@ useEffect(() => {
 ✅ **代码注释和日志** - 便于调试和监控
 
 ### 13.2 预期效果
+
 - **用户体验提升**: 减少手动重连需求
 - **连接稳定性**: 更好的网络容错能力
 - **状态一致性**: 重连后自动恢复协作状态
 - **可观测性**: 通过 `onReconnection` 监控重连过程
 
 ### 13.3 后续建议
+
 1. 添加重连成功率监控
 2. 根据实际数据调整重连参数
 3. 考虑实现离线操作队列

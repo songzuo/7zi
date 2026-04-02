@@ -5,7 +5,7 @@
  * 支持 per-route 配置
  */
 
-import { RateLimitConfig } from './distributed-rate-limiter';
+import { RateLimitConfig, RateLimitRequest } from './distributed-rate-limiter'
 
 /**
  * 预设配置
@@ -15,7 +15,7 @@ export const PresetConfigs: Record<string, Omit<RateLimitConfig, 'keyGenerator'>
    * 严格配置：5 请求/分钟
    */
   strict: {
-    windowMs: 60 * 1000,  // 1 分钟
+    windowMs: 60 * 1000, // 1 分钟
     maxRequests: 5,
     algorithm: 'sliding-window',
   },
@@ -24,7 +24,7 @@ export const PresetConfigs: Record<string, Omit<RateLimitConfig, 'keyGenerator'>
    * 中等配置：30 请求/分钟
    */
   moderate: {
-    windowMs: 60 * 1000,  // 1 分钟
+    windowMs: 60 * 1000, // 1 分钟
     maxRequests: 30,
     algorithm: 'sliding-window',
   },
@@ -33,7 +33,7 @@ export const PresetConfigs: Record<string, Omit<RateLimitConfig, 'keyGenerator'>
    * 宽松配置：100 请求/分钟
    */
   lenient: {
-    windowMs: 60 * 1000,  // 1 分钟
+    windowMs: 60 * 1000, // 1 分钟
     maxRequests: 100,
     algorithm: 'token-bucket',
   },
@@ -42,7 +42,7 @@ export const PresetConfigs: Record<string, Omit<RateLimitConfig, 'keyGenerator'>
    * 非常宽松配置：300 请求/分钟
    */
   veryLenient: {
-    windowMs: 60 * 1000,  // 1 分钟
+    windowMs: 60 * 1000, // 1 分钟
     maxRequests: 300,
     algorithm: 'token-bucket',
   },
@@ -51,7 +51,7 @@ export const PresetConfigs: Record<string, Omit<RateLimitConfig, 'keyGenerator'>
    * 每小时配置：1000 请求/小时
    */
   hourly: {
-    windowMs: 60 * 60 * 1000,  // 1 小时
+    windowMs: 60 * 60 * 1000, // 1 小时
     maxRequests: 1000,
     algorithm: 'sliding-window',
   },
@@ -60,39 +60,39 @@ export const PresetConfigs: Record<string, Omit<RateLimitConfig, 'keyGenerator'>
    * 每日配置：10000 请求/天
    */
   daily: {
-    windowMs: 24 * 60 * 60 * 1000,  // 1 天
+    windowMs: 24 * 60 * 60 * 1000, // 1 天
     maxRequests: 10000,
     algorithm: 'sliding-window',
   },
-};
+}
 
 /**
  * 路由配置
  */
 export interface RouteConfig {
-  pattern: string | RegExp;  // 路由模式（字符串或正则）
-  config: Partial<RateLimitConfig>;  // 覆盖的配置
+  pattern: string | RegExp // 路由模式（字符串或正则）
+  config: Partial<RateLimitConfig> // 覆盖的配置
 }
 
 /**
  * 配置管理器
  */
 export class RateLimitConfigManager {
-  private defaultConfig: Omit<RateLimitConfig, 'keyGenerator'>;
-  private routeConfigs: RouteConfig[] = [];
+  private defaultConfig: Omit<RateLimitConfig, 'keyGenerator'>
+  private routeConfigs: RouteConfig[] = []
 
   constructor(defaultConfig?: Omit<RateLimitConfig, 'keyGenerator'>) {
-    this.defaultConfig = defaultConfig || PresetConfigs.moderate;
+    this.defaultConfig = defaultConfig || PresetConfigs.moderate
   }
 
   /**
    * 获取默认的 keyGenerator
    */
-  private getDefaultKeyGenerator(): (req: any) => string {
-    return (req: any) => {
+  private getDefaultKeyGenerator(): (req: RateLimitRequest) => string {
+    return (req: RateLimitRequest) => {
       // 默认使用 IP 地址作为 key
-      return req?.ip || req?.headers?.['x-forwarded-for'] || 'unknown';
-    };
+      return req?.ip || req?.headers?.['x-forwarded-for'] || 'unknown'
+    }
   }
 
   /**
@@ -100,7 +100,7 @@ export class RateLimitConfigManager {
    * @param config 配置
    */
   setDefaultConfig(config: Omit<RateLimitConfig, 'keyGenerator'>): void {
-    this.defaultConfig = config;
+    this.defaultConfig = config
   }
 
   /**
@@ -108,7 +108,7 @@ export class RateLimitConfigManager {
    * @returns 配置
    */
   getDefaultConfig(): Omit<RateLimitConfig, 'keyGenerator'> {
-    return { ...this.defaultConfig };
+    return { ...this.defaultConfig }
   }
 
   /**
@@ -116,7 +116,7 @@ export class RateLimitConfigManager {
    * @param routeConfig 路由配置
    */
   addRouteConfig(routeConfig: RouteConfig): void {
-    this.routeConfigs.push(routeConfig);
+    this.routeConfigs.push(routeConfig)
   }
 
   /**
@@ -124,7 +124,7 @@ export class RateLimitConfigManager {
    * @param configs 路由配置数组
    */
   addRouteConfigs(configs: RouteConfig[]): void {
-    this.routeConfigs.push(...configs);
+    this.routeConfigs.push(...configs)
   }
 
   /**
@@ -132,16 +132,14 @@ export class RateLimitConfigManager {
    * @param pattern 路由模式
    */
   removeRouteConfig(pattern: string | RegExp): void {
-    this.routeConfigs = this.routeConfigs.filter(
-      config => config.pattern !== pattern
-    );
+    this.routeConfigs = this.routeConfigs.filter(config => config.pattern !== pattern)
   }
 
   /**
    * 清空路由配置
    */
   clearRouteConfigs(): void {
-    this.routeConfigs = [];
+    this.routeConfigs = []
   }
 
   /**
@@ -153,15 +151,15 @@ export class RateLimitConfigManager {
     for (const config of this.routeConfigs) {
       if (typeof config.pattern === 'string') {
         if (path === config.pattern || path.startsWith(config.pattern)) {
-          return config.config;
+          return config.config
         }
       } else if (config.pattern instanceof RegExp) {
         if (config.pattern.test(path)) {
-          return config.config;
+          return config.config
         }
       }
     }
-    return null;
+    return null
   }
 
   /**
@@ -172,18 +170,18 @@ export class RateLimitConfigManager {
    */
   createConfigForRoute(
     path: string,
-    keyGenerator: (req: any) => string
+    keyGenerator: (req: RateLimitRequest) => string
   ): RateLimitConfig {
-    const routeConfig = this.getRouteConfig(path);
+    const routeConfig = this.getRouteConfig(path)
 
     // 合并配置：路由配置 > 默认配置
     const mergedConfig = {
       ...this.defaultConfig,
       ...routeConfig,
       keyGenerator,
-    };
+    }
 
-    return mergedConfig;
+    return mergedConfig
   }
 
   /**
@@ -196,11 +194,11 @@ export class RateLimitConfigManager {
   createFromPreset(
     presetName: string,
     overrides?: Partial<Omit<RateLimitConfig, 'keyGenerator'>>,
-    keyGenerator?: (req: any) => string
+    keyGenerator?: (req: RateLimitRequest) => string
   ): RateLimitConfig {
-    const preset = PresetConfigs[presetName];
+    const preset = PresetConfigs[presetName]
     if (!preset) {
-      throw new Error(`Unknown preset: ${presetName}`);
+      throw new Error(`Unknown preset: ${presetName}`)
     }
 
     // 合并配置：覆盖配置 > 预设配置
@@ -208,9 +206,9 @@ export class RateLimitConfigManager {
       ...preset,
       ...overrides,
       keyGenerator: keyGenerator || this.getDefaultKeyGenerator(),
-    } as RateLimitConfig;
+    } as RateLimitConfig
 
-    return mergedConfig;
+    return mergedConfig
   }
 
   /**
@@ -218,10 +216,14 @@ export class RateLimitConfigManager {
    * @returns JSON 字符串
    */
   exportConfig(): string {
-    return JSON.stringify({
-      defaultConfig: this.defaultConfig,
-      routeConfigs: this.routeConfigs,
-    }, null, 2);
+    return JSON.stringify(
+      {
+        defaultConfig: this.defaultConfig,
+        routeConfigs: this.routeConfigs,
+      },
+      null,
+      2
+    )
   }
 
   /**
@@ -230,11 +232,11 @@ export class RateLimitConfigManager {
    */
   importConfig(json: string): void {
     try {
-      const data = JSON.parse(json);
-      this.defaultConfig = data.defaultConfig || PresetConfigs.moderate;
-      this.routeConfigs = data.routeConfigs || [];
-    } catch (_error) {
-      throw new Error('Invalid config JSON');
+      const data = JSON.parse(json)
+      this.defaultConfig = data.defaultConfig || PresetConfigs.moderate
+      this.routeConfigs = data.routeConfigs || []
+    } catch (error) {
+      throw new Error('Invalid config JSON')
     }
   }
 
@@ -243,14 +245,14 @@ export class RateLimitConfigManager {
    * @returns 预设名称数组
    */
   getAvailablePresets(): string[] {
-    return Object.keys(PresetConfigs);
+    return Object.keys(PresetConfigs)
   }
 }
 
 /**
  * 默认配置管理器实例
  */
-export const defaultConfigManager = new RateLimitConfigManager(PresetConfigs.moderate);
+export const defaultConfigManager = new RateLimitConfigManager(PresetConfigs.moderate)
 
 /**
  * 常用路由配置预设
@@ -307,4 +309,4 @@ export const CommonRouteConfigs: RouteConfig[] = [
     pattern: '/api/public/',
     config: PresetConfigs.daily,
   },
-];
+]

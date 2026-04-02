@@ -1,3 +1,4 @@
+import { NextRequest, NextResponse } from 'next/server'
 /**
  * Analytics API Routes - Optimized Version
  * 数据分析 API 端点 - 性能优化版本
@@ -9,29 +10,33 @@
  * - N+1 query prevention
  */
 
-import { logger } from '@/lib/logger';
-import { getCacheManager, CachePresets } from '@/lib/cache/CacheManager';
+import { logger } from '@/lib/logger'
+import { getCacheManager, CachePresets } from '@/lib/cache/CacheManager'
 import {
   type AnalyticsMetrics,
   type AnalyticsFilters,
   type TimeSeriesDataPoint,
   type PaginatedResponse,
-  TimeRange
-} from '@/lib/types/analytics';
-import { createErrorResponse, createSuccessResponse, createValidationError } from '@/lib/api/error-handler';
+  TimeRange,
+} from '@/lib/types/analytics'
+import {
+  createErrorResponse,
+  createSuccessResponse,
+  createValidationError,
+} from '@/lib/api/error-handler'
 
 // ============================================================================
 // Cache Manager Instance
 // ============================================================================
 
-const cache = getCacheManager();
+const cache = getCacheManager()
 
 // ============================================================================
 // Mock Data Generator (In production, replace with actual database queries)
 // ============================================================================
 
 function generateMockMetrics(filters: AnalyticsFilters): AnalyticsMetrics {
-  const timeMultiplier = getTimeMultiplier(filters.timeRange);
+  const timeMultiplier = getTimeMultiplier(filters.timeRange)
 
   return {
     agents: {
@@ -47,27 +52,27 @@ function generateMockMetrics(filters: AnalyticsFilters): AnalyticsMetrics {
           count: 4,
           tasksCompleted: Math.floor(40 + Math.random() * 20) * timeMultiplier,
           tokensUsed: Math.floor(400000 + Math.random() * 200000) * timeMultiplier,
-          averageResponseTime: 1200 + Math.random() * 400
+          averageResponseTime: 1200 + Math.random() * 400,
         },
         'self-claude': {
           count: 3,
           tasksCompleted: Math.floor(30 + Math.random() * 15) * timeMultiplier,
           tokensUsed: Math.floor(300000 + Math.random() * 150000) * timeMultiplier,
-          averageResponseTime: 1800 + Math.random() * 600
+          averageResponseTime: 1800 + Math.random() * 600,
         },
         volcengine: {
           count: 2,
           tasksCompleted: Math.floor(20 + Math.random() * 10) * timeMultiplier,
           tokensUsed: Math.floor(200000 + Math.random() * 100000) * timeMultiplier,
-          averageResponseTime: 1500 + Math.random() * 500
+          averageResponseTime: 1500 + Math.random() * 500,
         },
         bailian: {
           count: 2,
           tasksCompleted: Math.floor(15 + Math.random() * 10) * timeMultiplier,
           tokensUsed: Math.floor(150000 + Math.random() * 100000) * timeMultiplier,
-          averageResponseTime: 1400 + Math.random() * 500
-        }
-      }
+          averageResponseTime: 1400 + Math.random() * 500,
+        },
+      },
     },
     users: {
       total: Math.floor(500 + Math.random() * 200) * timeMultiplier,
@@ -75,7 +80,7 @@ function generateMockMetrics(filters: AnalyticsFilters): AnalyticsMetrics {
       activeWeek: Math.floor(200 + Math.random() * 100),
       newUsers: Math.floor(20 + Math.random() * 20) * timeMultiplier,
       retentionRate: 75 + Math.random() * 15,
-      averageSessionDuration: Math.floor(1200 + Math.random() * 600)
+      averageSessionDuration: Math.floor(1200 + Math.random() * 600),
     },
     tasks: {
       total: Math.floor(500 + Math.random() * 200) * timeMultiplier,
@@ -88,14 +93,14 @@ function generateMockMetrics(filters: AnalyticsFilters): AnalyticsMetrics {
       byPriority: {
         high: Math.floor(100 + Math.random() * 50) * timeMultiplier,
         medium: Math.floor(200 + Math.random() * 100) * timeMultiplier,
-        low: Math.floor(150 + Math.random() * 75) * timeMultiplier
+        low: Math.floor(150 + Math.random() * 75) * timeMultiplier,
       },
       byType: {
         analysis: Math.floor(150 + Math.random() * 75) * timeMultiplier,
         implementation: Math.floor(150 + Math.random() * 75) * timeMultiplier,
         testing: Math.floor(100 + Math.random() * 50) * timeMultiplier,
-        design: Math.floor(75 + Math.random() * 25) * timeMultiplier
-      }
+        design: Math.floor(75 + Math.random() * 25) * timeMultiplier,
+      },
     },
     revenue: {
       total: Math.floor(10000 + Math.random() * 5000) * timeMultiplier,
@@ -106,9 +111,9 @@ function generateMockMetrics(filters: AnalyticsFilters): AnalyticsMetrics {
       bySource: {
         subscriptions: Math.floor(6000 + Math.random() * 3000) * timeMultiplier,
         'one-time': Math.floor(3000 + Math.random() * 1500) * timeMultiplier,
-        enterprise: Math.floor(1000 + Math.random() * 500) * timeMultiplier
+        enterprise: Math.floor(1000 + Math.random() * 500) * timeMultiplier,
       },
-      conversionRate: 3 + Math.random() * 2
+      conversionRate: 3 + Math.random() * 2,
     },
     performance: {
       cpuUsage: 40 + Math.random() * 30,
@@ -117,35 +122,39 @@ function generateMockMetrics(filters: AnalyticsFilters): AnalyticsMetrics {
       uptime: 99.5 + Math.random() * 0.5,
       errorRate: Math.random() * 2,
       throughput: Math.floor(1000 + Math.random() * 500),
-      cacheHitRate: 80 + Math.random() * 15
-    }
-  };
+      cacheHitRate: 80 + Math.random() * 15,
+    },
+  }
 }
 
-function generateTimeSeriesData(filters: AnalyticsFilters, page: number = 1, limit: number = 100): {
-  data: TimeSeriesDataPoint[];
-  total: number;
-  page: number;
-  limit: number;
-  totalPages: number;
+function generateTimeSeriesData(
+  filters: AnalyticsFilters,
+  page: number = 1,
+  limit: number = 100
+): {
+  data: TimeSeriesDataPoint[]
+  total: number
+  page: number
+  limit: number
+  totalPages: number
 } {
-  const { timeRange, customRange } = filters;
-  const totalDays = getDaysForTimeRange(timeRange, customRange);
-  const data: TimeSeriesDataPoint[] = [];
+  const { timeRange, customRange } = filters
+  const totalDays = getDaysForTimeRange(timeRange, customRange)
+  const data: TimeSeriesDataPoint[] = []
 
-  const now = new Date();
-  const startDate = new Date(now);
-  startDate.setDate(startDate.getDate() - totalDays);
+  const now = new Date()
+  const startDate = new Date(now)
+  startDate.setDate(startDate.getDate() - totalDays)
 
   // Calculate pagination
-  const startIndex = (page - 1) * limit;
-  const endIndex = Math.min(startIndex + limit, totalDays + 1);
-  const totalPages = Math.ceil((totalDays + 1) / limit);
+  const startIndex = (page - 1) * limit
+  const endIndex = Math.min(startIndex + limit, totalDays + 1)
+  const totalPages = Math.ceil((totalDays + 1) / limit)
 
   // Only generate the requested page of data
   for (let i = startIndex; i < endIndex && i <= totalDays; i++) {
-    const date = new Date(startDate);
-    date.setDate(date.getDate() + i);
+    const date = new Date(startDate)
+    date.setDate(date.getDate() + i)
 
     data.push({
       timestamp: date.toISOString(),
@@ -155,8 +164,8 @@ function generateTimeSeriesData(filters: AnalyticsFilters, page: number = 1, lim
       tasks: Math.floor(20 + Math.random() * 15),
       tokens: Math.floor(50000 + Math.random() * 50000),
       revenue: Math.floor(200 + Math.random() * 100),
-      errors: Math.floor(Math.random() * 5)
-    });
+      errors: Math.floor(Math.random() * 5),
+    })
   }
 
   return {
@@ -164,8 +173,8 @@ function generateTimeSeriesData(filters: AnalyticsFilters, page: number = 1, lim
     total: totalDays + 1,
     page,
     limit,
-    totalPages
-  };
+    totalPages,
+  }
 }
 
 function getTimeMultiplier(timeRange: TimeRange): number {
@@ -175,16 +184,19 @@ function getTimeMultiplier(timeRange: TimeRange): number {
     month: 30,
     quarter: 90,
     year: 365,
-    custom: 1
-  };
-  return multipliers[timeRange] || 1;
+    custom: 1,
+  }
+  return multipliers[timeRange] || 1
 }
 
-function getDaysForTimeRange(timeRange: TimeRange, customRange?: { start: string; end: string }): number {
+function getDaysForTimeRange(
+  timeRange: TimeRange,
+  customRange?: { start: string; end: string }
+): number {
   if (timeRange === 'custom' && customRange) {
-    const start = new Date(customRange.start);
-    const end = new Date(customRange.end);
-    return Math.ceil((end.getTime() - start.getTime()) / (1000 * 60 * 60 * 24));
+    const start = new Date(customRange.start)
+    const end = new Date(customRange.end)
+    return Math.ceil((end.getTime() - start.getTime()) / (1000 * 60 * 60 * 24))
   }
 
   const days: Record<TimeRange, number> = {
@@ -193,16 +205,20 @@ function getDaysForTimeRange(timeRange: TimeRange, customRange?: { start: string
     month: 30,
     quarter: 90,
     year: 365,
-    custom: 7
-  };
-  return days[timeRange] || 7;
+    custom: 7,
+  }
+  return days[timeRange] || 7
 }
 
 // ============================================================================
 // Cache Key Generation
 // ============================================================================
 
-function generateCacheKey(filters: AnalyticsFilters, page: number = 1, limit: number = 100): string {
+function generateCacheKey(
+  filters: AnalyticsFilters,
+  page: number = 1,
+  limit: number = 100
+): string {
   const keyParts = [
     'analytics',
     filters.timeRange,
@@ -213,9 +229,9 @@ function generateCacheKey(filters: AnalyticsFilters, page: number = 1, limit: nu
     filters.taskPriorities?.join(',') || 'all',
     filters.providers?.join(',') || 'all',
     filters.metrics?.join(',') || 'all',
-    filters.customRange ? `${filters.customRange.start}-${filters.customRange.end}` : 'none'
-  ];
-  return keyParts.join(':');
+    filters.customRange ? `${filters.customRange.start}-${filters.customRange.end}` : 'none',
+  ]
+  return keyParts.join(':')
 }
 
 // ============================================================================
@@ -223,24 +239,24 @@ function generateCacheKey(filters: AnalyticsFilters, page: number = 1, limit: nu
 // ============================================================================
 
 async function fetchMetricsOptimized(filters: AnalyticsFilters): Promise<AnalyticsMetrics> {
-  const cacheKey = generateCacheKey(filters, 1, 1); // Metrics don't need pagination
+  const cacheKey = generateCacheKey(filters, 1, 1) // Metrics don't need pagination
 
   // Try cache first
-  const cached = cache.get<AnalyticsMetrics>(cacheKey);
+  const cached = cache.get<AnalyticsMetrics>(cacheKey)
   if (cached !== null) {
-    logger.debug('[Analytics] Cache hit for metrics', { category: 'analytics' });
-    return cached;
+    logger.debug('[Analytics] Cache hit for metrics', { category: 'analytics' })
+    return cached
   }
 
-  logger.debug('[Analytics] Cache miss for metrics, generating new data', { category: 'analytics' });
+  logger.debug('[Analytics] Cache miss for metrics, generating new data', { category: 'analytics' })
 
   // Generate fresh data
-  const metrics = generateMockMetrics(filters);
+  const metrics = generateMockMetrics(filters)
 
   // Cache with 5-minute TTL
-  cache.set(cacheKey, metrics, CachePresets.LONG);
+  cache.set(cacheKey, metrics, CachePresets.LONG)
 
-  return metrics;
+  return metrics
 }
 
 async function fetchTimeSeriesOptimized(
@@ -248,24 +264,28 @@ async function fetchTimeSeriesOptimized(
   page: number = 1,
   limit: number = 100
 ): Promise<PaginatedResponse<TimeSeriesDataPoint>> {
-  const cacheKey = generateCacheKey(filters, page, limit);
+  const cacheKey = generateCacheKey(filters, page, limit)
 
   // Try cache first
-  const cached = cache.get<PaginatedResponse<TimeSeriesDataPoint>>(cacheKey);
+  const cached = cache.get<PaginatedResponse<TimeSeriesDataPoint>>(cacheKey)
   if (cached !== null) {
-    logger.debug('[Analytics] Cache hit for time series', { category: 'analytics', page, limit });
-    return cached;
+    logger.debug('[Analytics] Cache hit for time series', { category: 'analytics', page, limit })
+    return cached
   }
 
-  logger.debug('[Analytics] Cache miss for time series, generating new data', { category: 'analytics', page, limit });
+  logger.debug('[Analytics] Cache miss for time series, generating new data', {
+    category: 'analytics',
+    page,
+    limit,
+  })
 
   // Generate fresh data with pagination
-  const result = generateTimeSeriesData(filters, page, limit);
+  const result = generateTimeSeriesData(filters, page, limit)
 
   // Cache with 5-minute TTL
-  cache.set(cacheKey, result, CachePresets.LONG);
+  cache.set(cacheKey, result, CachePresets.LONG)
 
-  return result;
+  return result
 }
 
 // ============================================================================
@@ -278,36 +298,38 @@ async function fetchTimeSeriesOptimized(
  */
 export async function GET(request: NextRequest) {
   try {
-    const { searchParams } = new URL(request.url);
-    const timeRange = (searchParams.get('timeRange') as TimeRange) || 'week';
-    const customRange = searchParams.get('customRange');
-    const page = parseInt(searchParams.get('page') || '1', 10);
-    const limit = parseInt(searchParams.get('limit') || '100', 10);
+    const { searchParams } = new URL(request.url)
+    const timeRange = (searchParams.get('timeRange') as TimeRange) || 'week'
+    const customRange = searchParams.get('customRange')
+    const page = parseInt(searchParams.get('page') || '1', 10)
+    const limit = parseInt(searchParams.get('limit') || '100', 10)
 
     // Validate pagination parameters
     if (page < 1 || limit < 1 || limit > 1000) {
-      return createValidationError('Invalid pagination parameters. Page must be >= 1, limit must be between 1 and 1000');
+      return createValidationError(
+        'Invalid pagination parameters. Page must be >= 1, limit must be between 1 and 1000'
+      )
     }
 
-    let parsedCustomRange;
+    let parsedCustomRange
     if (customRange) {
       try {
-        parsedCustomRange = JSON.parse(customRange);
-      } catch {
-        return createValidationError('Invalid customRange format');
+        parsedCustomRange = JSON.parse(customRange)
+      } catch (error) {
+        return createValidationError('Invalid customRange format')
       }
     }
 
     const filters: AnalyticsFilters = {
       timeRange,
-      customRange: parsedCustomRange
-    };
+      customRange: parsedCustomRange,
+    }
 
     // Fetch data with caching
     const [metrics, timeSeries] = await Promise.all([
       fetchMetricsOptimized(filters),
-      fetchTimeSeriesOptimized(filters, page, limit)
-    ]);
+      fetchTimeSeriesOptimized(filters, page, limit),
+    ])
 
     const responseData = {
       metrics,
@@ -316,16 +338,16 @@ export async function GET(request: NextRequest) {
         total: timeSeries.total,
         page: timeSeries.page,
         limit: timeSeries.limit,
-        totalPages: timeSeries.totalPages
+        totalPages: timeSeries.totalPages,
       },
       timestamp: new Date().toISOString(),
       filters,
       cacheStats: {
         hitRate: cache.getHitRate(),
         hits: cache.getStats().hits,
-        misses: cache.getStats().misses
-      }
-    };
+        misses: cache.getStats().misses,
+      },
+    }
 
     // HTTP cache headers (secondary layer, memory cache is primary)
     return NextResponse.json(
@@ -336,13 +358,13 @@ export async function GET(request: NextRequest) {
       },
       {
         headers: {
-          'Cache-Control': 'public, s-maxage=60, stale-while-revalidate=30'
-        }
+          'Cache-Control': 'public, s-maxage=60, stale-while-revalidate=30',
+        },
       }
-    );
-  } catch (_error) {
-    logger.error('Analytics API error', error, { category: 'analytics' });
-    return createErrorResponse(error instanceof Error ? error : new Error('Internal server error'));
+    )
+  } catch (error) {
+    logger.error('Analytics API error', error, { category: 'analytics' })
+    return createErrorResponse(error instanceof Error ? error : new Error('Internal server error'))
   }
 }
 
@@ -352,13 +374,15 @@ export async function GET(request: NextRequest) {
  */
 export async function POST(request: NextRequest) {
   try {
-    const body = await request.json();
-    const page = body.page || 1;
-    const limit = body.limit || 100;
+    const body = await request.json()
+    const page = body.page || 1
+    const limit = body.limit || 100
 
     // Validate pagination parameters
     if (page < 1 || limit < 1 || limit > 1000) {
-      return createValidationError('Invalid pagination parameters. Page must be >= 1, limit must be between 1 and 1000');
+      return createValidationError(
+        'Invalid pagination parameters. Page must be >= 1, limit must be between 1 and 1000'
+      )
     }
 
     const filters: AnalyticsFilters = {
@@ -370,14 +394,14 @@ export async function POST(request: NextRequest) {
       taskTypes: body.taskTypes,
       providers: body.providers,
       metrics: body.metrics,
-      compareWith: body.compareWith
-    };
+      compareWith: body.compareWith,
+    }
 
     // Fetch data with caching
     const [metrics, timeSeries] = await Promise.all([
       fetchMetricsOptimized(filters),
-      fetchTimeSeriesOptimized(filters, page, limit)
-    ]);
+      fetchTimeSeriesOptimized(filters, page, limit),
+    ])
 
     const responseData = {
       metrics,
@@ -386,20 +410,20 @@ export async function POST(request: NextRequest) {
         total: timeSeries.total,
         page: timeSeries.page,
         limit: timeSeries.limit,
-        totalPages: timeSeries.totalPages
+        totalPages: timeSeries.totalPages,
       },
       timestamp: new Date().toISOString(),
       filters,
       cacheStats: {
         hitRate: cache.getHitRate(),
         hits: cache.getStats().hits,
-        misses: cache.getStats().misses
-      }
-    };
+        misses: cache.getStats().misses,
+      },
+    }
 
-    return createSuccessResponse(responseData);
-  } catch (_error) {
-    logger.error('Analytics POST API error', error, { category: 'analytics' });
-    return createErrorResponse(error instanceof Error ? error : new Error('Invalid request body'));
+    return createSuccessResponse(responseData)
+  } catch (error) {
+    logger.error('Analytics POST API error', error, { category: 'analytics' })
+    return createErrorResponse(error instanceof Error ? error : new Error('Invalid request body'))
   }
 }

@@ -11,27 +11,27 @@
  * - Dark/light mode support
  */
 
-'use client';
+'use client'
 
-import { memo, useMemo } from 'react';
-import clsx from 'clsx';
-import type { ConnectionStatus } from '@/types/rooms';
+import { memo, useMemo } from 'react'
+import clsx from 'clsx'
+import type { ConnectionStatus } from '@/types/rooms'
 
 export interface RoomStatusIndicatorProps {
   /** Connection status */
-  status: ConnectionStatus;
+  status: ConnectionStatus
   /** Online member count */
-  onlineCount: number;
+  onlineCount: number
   /** Total member count */
-  totalCount: number;
+  totalCount: number
   /** Unread message count */
-  unreadCount?: number;
+  unreadCount?: number
   /** Show detailed status */
-  showDetails?: boolean;
+  showDetails?: boolean
   /** Size variant */
-  size?: 'sm' | 'md' | 'lg';
+  size?: 'sm' | 'md' | 'lg'
   /** Additional CSS classes */
-  className?: string;
+  className?: string
 }
 
 /**
@@ -40,11 +40,11 @@ export interface RoomStatusIndicatorProps {
 const statusConfig: Record<
   ConnectionStatus,
   {
-    icon: string;
-    label: string;
-    colorClass: string;
-    bgClass: string;
-    animate?: boolean;
+    icon: string
+    label: string
+    colorClass: string
+    bgClass: string
+    animate?: boolean
   }
 > = {
   connected: {
@@ -73,7 +73,7 @@ const statusConfig: Record<
     bgClass: 'bg-orange-100 dark:bg-orange-900/30',
     animate: true,
   },
-};
+}
 
 /**
  * Size classes
@@ -94,7 +94,7 @@ const sizeClasses = {
     icon: 'text-lg',
     badge: 'min-w-6 h-6 text-sm',
   },
-};
+}
 
 /**
  * Room Status Indicator Component
@@ -108,32 +108,23 @@ export const RoomStatusIndicator = memo(function RoomStatusIndicator({
   size = 'md',
   className,
 }: RoomStatusIndicatorProps) {
-  const config = statusConfig[status];
-  const sizeStyle = sizeClasses[size];
+  const config = statusConfig[status]
+  const sizeStyle = sizeClasses[size]
 
   const displayText = useMemo(() => {
-    if (!showDetails) return config.label;
-    return `${onlineCount}/${totalCount} online`;
-  }, [config.label, onlineCount, showDetails, totalCount]);
+    if (!showDetails) return config.label
+    return `${onlineCount}/${totalCount} online`
+  }, [config.label, onlineCount, showDetails, totalCount])
 
   return (
     <div className={clsx('inline-flex items-center', sizeStyle.container, className)}>
       {/* Connection Status */}
       <div
-        className={clsx(
-          'flex items-center',
-          config.bgClass,
-          'rounded-full',
-          sizeStyle.container
-        )}
+        className={clsx('flex items-center', config.bgClass, 'rounded-full', sizeStyle.container)}
         title={config.label}
       >
         <span
-          className={clsx(
-            sizeStyle.icon,
-            config.colorClass,
-            config.animate && 'animate-spin'
-          )}
+          className={clsx(sizeStyle.icon, config.colorClass, config.animate && 'animate-spin')}
           style={{ animationDuration: config.animate ? '2s' : undefined }}
         >
           {config.icon}
@@ -147,9 +138,7 @@ export const RoomStatusIndicator = memo(function RoomStatusIndicator({
       {!showDetails && (
         <div className="flex items-center gap-1">
           <span className="text-green-500 dark:text-green-400">●</span>
-          <span className="text-gray-600 dark:text-gray-300 font-medium">
-            {onlineCount}
-          </span>
+          <span className="font-medium text-gray-600 dark:text-gray-300">{onlineCount}</span>
         </div>
       )}
 
@@ -158,7 +147,7 @@ export const RoomStatusIndicator = memo(function RoomStatusIndicator({
         <span
           className={clsx(
             'flex items-center justify-center',
-            'bg-red-500 text-white font-semibold rounded-full',
+            'rounded-full bg-red-500 font-semibold text-white',
             sizeStyle.badge,
             'px-1.5'
           )}
@@ -167,8 +156,8 @@ export const RoomStatusIndicator = memo(function RoomStatusIndicator({
         </span>
       )}
     </div>
-  );
-});
+  )
+})
 
 /**
  * Compact Status Badge - Minimal version
@@ -177,7 +166,7 @@ export const StatusBadge = memo(function StatusBadge({
   status,
   className,
 }: Pick<RoomStatusIndicatorProps, 'status' | 'className'>) {
-  const config = statusConfig[status];
+  const config = statusConfig[status]
 
   return (
     <span
@@ -190,7 +179,7 @@ export const StatusBadge = memo(function StatusBadge({
     >
       <span className={clsx(config.animate && 'animate-spin')}>{config.icon}</span>
     </span>
-  );
-});
+  )
+})
 
-export default RoomStatusIndicator;
+export default RoomStatusIndicator

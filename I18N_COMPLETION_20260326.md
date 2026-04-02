@@ -21,23 +21,25 @@
 **问题**: ja, ko, es 的 footer.quickLinks 和 footer.services 为字符串而非对象，导致 Footer 组件无法正确显示翻译。
 
 **修复内容**:
+
 - **ja**: 添加 14 个缺失的 footer 键，使用日语翻译
 - **ko**: 添加 14 个缺失的 footer 键，使用韩语翻译
 - **es**: 添加 14 个缺失的 footer 键，使用西班牙语翻译
 
 **修复详情**:
 
-| 语言 | footer 键数量 | 修复前 | 修复后 |
-|------|--------------|---------|---------|
-| zh | 25 | ✓ 完整 | ✓ 完整 |
-| en | 25 | ✓ 完整 | ✓ 完整 |
-| ja | 30 | ❌ 缺少子项 | ✓ 完整 |
-| ko | 30 | ❌ 缺少子项 | ✓ 完整 |
-| es | 30 | ❌ 缺少子项 | ✓ 完整 |
-| fr | 25 | ✓ 完整 | ✓ 完整 |
-| de | 25 | ✓ 完整 | ✓ 完整 |
+| 语言 | footer 键数量 | 修复前      | 修复后 |
+| ---- | ------------- | ----------- | ------ |
+| zh   | 25            | ✓ 完整      | ✓ 完整 |
+| en   | 25            | ✓ 完整      | ✓ 完整 |
+| ja   | 30            | ❌ 缺少子项 | ✓ 完整 |
+| ko   | 30            | ❌ 缺少子项 | ✓ 完整 |
+| es   | 30            | ❌ 缺少子项 | ✓ 完整 |
+| fr   | 25            | ✓ 完整      | ✓ 完整 |
+| de   | 25            | ✓ 完整      | ✓ 完整 |
 
 **ja 添加的翻译**:
+
 ```json
 {
   "quickLinks": {
@@ -62,6 +64,7 @@
 ```
 
 **ko 添加的翻译**:
+
 ```json
 {
   "quickLinks": {
@@ -86,6 +89,7 @@
 ```
 
 **es 添加的翻译**:
+
 ```json
 {
   "quickLinks": {
@@ -115,44 +119,45 @@
 
 ### 按语言统计
 
-| 语言 | 总键数 | 缺失 | 英文占位 | 完成度 | 状态 |
-|------|--------|------|-----------|---------|------|
-| **zh** | 457 | 0 | 0 | 100% | ✅ 完整 |
-| **en** | 457 | 0 | 0 | 100% | ✅ 完整 |
-| **ja** | 462 | 0 | ~14 | ~97% | 🟡 良好 |
-| **ko** | 462 | 0 | ~14 | ~97% | 🟡 良好 |
-| **es** | 462 | 0 | ~14 | ~97% | 🟡 良好 |
-| **fr** | 457 | 0 | ~4 | ~99% | 🟢 优秀 |
-| **de** | 457 | 0 | ~14 | ~97% | 🟡 良好 |
+| 语言   | 总键数 | 缺失 | 英文占位 | 完成度 | 状态    |
+| ------ | ------ | ---- | -------- | ------ | ------- |
+| **zh** | 457    | 0    | 0        | 100%   | ✅ 完整 |
+| **en** | 457    | 0    | 0        | 100%   | ✅ 完整 |
+| **ja** | 462    | 0    | ~14      | ~97%   | 🟡 良好 |
+| **ko** | 462    | 0    | ~14      | ~97%   | 🟡 良好 |
+| **es** | 462    | 0    | ~14      | ~97%   | 🟡 良好 |
+| **fr** | 457    | 0    | ~4       | ~99%   | 🟢 优秀 |
+| **de** | 457    | 0    | ~14      | ~97%   | 🟡 良好 |
 
 ### 按命名空间统计
 
-| 命名空间 | zh | en | ja | ko | es | fr | de |
-|----------|----|----|----|----|----|----|----|
-| common | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
-| nav | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
-| home | ✓ | ✓ | 部分 | 部分 | 部分 | ✓ | 部分 |
-| team | ✓ | ✓ | 英文 | 英文 | 英文 | 部分 | 英文 |
-| about | ✓ | ✓ | 部分 | 部分 | 部分 | ✓ | 部分 |
-| contact | ✓ | ✓ | 部分 | 部分 | 部分 | ✓ | 部分 |
-| portfolio | ✓ | ✓ | 英文 | 英文 | 英文 | 英文 | 英文 |
-| blog | ✓ | ✓ | 英文 | 英文 | 英文 | 英文 | 英文 |
-| dashboard | ✓ | ✓ | 英文 | 英文 | 英文 | 英文 | 英文 |
-| **footer** | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
-| errors | ✓ | ✓ | 英文 | 英文 | 英文 | 英文 | 英文 |
-| **time** | ✓ | ✓ | 英文 | 英文 | 英文 | ✓ | 英文 |
-| mobileMenu | ✓ | ✓ | 英文 | 英文 | 英文 | 英文 | 英文 |
-| subagents | ✓ | ✓ | 英文 | 英文 | 英文 | ✓ | 英文 |
-| memory | ✓ | ✓ | 英文 | 英文 | 英文 | ✓ | 英文 |
-| tasks | ✓ | ✓ | 英文 | 英文 | 英文 | ✓ | 英文 |
-| ui | ✓ | ✓ | 英文 | 英文 | 英文 | 英文 | 英文 |
-| notifications | ✓ | ✓ | 英文 | 英文 | 英文 | 英文 | 英文 |
-| email | ✓ | ✓ | 英文 | 英文 | 英文 | 英文 | 英文 |
-| settings | ✓ | ✓ | 英文 | 英文 | 英文 | 英文 | 英文 |
-| loading | ✓ | ✓ | 英文 | 英文 | 英文 | 英文 | 英文 |
-| **validation** | ✓ | ✓ | 英文 | 英文 | 英文 | ✓ | 英文 |
+| 命名空间       | zh  | en  | ja   | ko   | es   | fr   | de   |
+| -------------- | --- | --- | ---- | ---- | ---- | ---- | ---- |
+| common         | ✓   | ✓   | ✓    | ✓    | ✓    | ✓    | ✓    |
+| nav            | ✓   | ✓   | ✓    | ✓    | ✓    | ✓    | ✓    |
+| home           | ✓   | ✓   | 部分 | 部分 | 部分 | ✓    | 部分 |
+| team           | ✓   | ✓   | 英文 | 英文 | 英文 | 部分 | 英文 |
+| about          | ✓   | ✓   | 部分 | 部分 | 部分 | ✓    | 部分 |
+| contact        | ✓   | ✓   | 部分 | 部分 | 部分 | ✓    | 部分 |
+| portfolio      | ✓   | ✓   | 英文 | 英文 | 英文 | 英文 | 英文 |
+| blog           | ✓   | ✓   | 英文 | 英文 | 英文 | 英文 | 英文 |
+| dashboard      | ✓   | ✓   | 英文 | 英文 | 英文 | 英文 | 英文 |
+| **footer**     | ✓   | ✓   | ✓    | ✓    | ✓    | ✓    | ✓    |
+| errors         | ✓   | ✓   | 英文 | 英文 | 英文 | 英文 | 英文 |
+| **time**       | ✓   | ✓   | 英文 | 英文 | 英文 | ✓    | 英文 |
+| mobileMenu     | ✓   | ✓   | 英文 | 英文 | 英文 | 英文 | 英文 |
+| subagents      | ✓   | ✓   | 英文 | 英文 | 英文 | ✓    | 英文 |
+| memory         | ✓   | ✓   | 英文 | 英文 | 英文 | ✓    | 英文 |
+| tasks          | ✓   | ✓   | 英文 | 英文 | 英文 | ✓    | 英文 |
+| ui             | ✓   | ✓   | 英文 | 英文 | 英文 | 英文 | 英文 |
+| notifications  | ✓   | ✓   | 英文 | 英文 | 英文 | 英文 | 英文 |
+| email          | ✓   | ✓   | 英文 | 英文 | 英文 | 英文 | 英文 |
+| settings       | ✓   | ✓   | 英文 | 英文 | 英文 | 英文 | 英文 |
+| loading        | ✓   | ✓   | 英文 | 英文 | 英文 | 英文 | 英文 |
+| **validation** | ✓   | ✓   | 英文 | 英文 | 英文 | ✓    | 英文 |
 
 **图例**:
+
 - ✓ = 完整翻译
 - 部分 = 部分翻译（混合英文）
 - 英文 = 英文占位
@@ -166,24 +171,28 @@
 以下命名空间在 ja/ko/es/de 中仍为英文占位，影响用户体验：
 
 #### time 命名空间
+
 - **当前状态**: ja/ko/es/de 全为英文（fr 已翻译）
 - **缺失翻译**: 6 个键（justNow, minutesAgo, hoursAgo, daysAgo, weeksAgo, monthsAgo, yearsAgo）
 - **影响**: 所有显示相对时间的组件
 - **预计工作量**: 每语言 10 分钟，总计 40 分钟
 
 #### validation 命名空间
+
 - **当前状态**: ja/ko/es/de 全为英文（fr 已翻译）
 - **缺失翻译**: 8 个键（required, email, phone, minLength, maxLength, url, number, date, file）
 - **影响**: 所有表单验证提示
 - **预计工作量**: 每语言 15 分钟，总计 1 小时
 
 #### team.members 命名空间
+
 - **当前状态**: 11 位成员的 name/role/description 在 ja/ko/es/de/fr 中为英文
 - **缺失翻译**: 44 个键/语言（11 成员 × 4 字段）
 - **影响**: 团队成员介绍页面
 - **预计工作量**: 每语言 2 小时，总计 8 小时
 
 #### ui 命名空间
+
 - **当前状态**: ja/ko/es/de/fr 全为英文
 - **缺失翻译**: ~100 个键（button, input, modal, toast, tooltip 等）
 - **影响**: 所有通用 UI 组件
@@ -192,20 +201,24 @@
 ### 优先级 2：页面内容翻译（中优先级）
 
 #### home 命名空间（部分内容）
+
 - **ja/ko/es**: services 和 whyUs 子节为英文
 - **预计工作量**: 每语言 1 小时，总计 3 小时
 
 #### about 命名空间（部分内容）
+
 - **ja/ko/es**: timeline 和 partners 子节为英文
 - **预计工作量**: 每语言 1 小时，总计 3 小时
 
 #### contact 命名空间（部分内容）
+
 - **ja/ko/es/de**: faq 子节为英文
 - **预计工作量**: 每语言 30 分钟，总计 2 小时
 
 ### 优先级 3：其他命名空间（低优先级）
 
 以下命名空间可暂缓翻译：
+
 - errors
 - notifications
 - email
@@ -225,23 +238,28 @@
 
 ```typescript
 // src/i18n/utils.ts
-export function formatDate(locale: Locale, date: Date | string, options?: Intl.DateTimeFormatOptions) {
+export function formatDate(
+  locale: Locale,
+  date: Date | string,
+  options?: Intl.DateTimeFormatOptions
+) {
   return new Intl.DateTimeFormat(locale, {
     year: 'numeric',
     month: 'long',
     day: 'numeric',
-    ...options
-  }).format(d);
+    ...options,
+  }).format(d)
 }
 
 export function formatNumber(locale: Locale, number: number, options?: Intl.NumberFormatOptions) {
-  return new Intl.NumberFormat(locale, options).format(number);
+  return new Intl.NumberFormat(locale, options).format(number)
 }
 ```
 
 ### 支持的格式
 
 #### 日期格式
+
 - **zh-CN**: 2024年3月26日
 - **en-US**: March 26, 2024
 - **ja-JP**: 2024年3月26日
@@ -251,6 +269,7 @@ export function formatNumber(locale: Locale, number: number, options?: Intl.Numb
 - **de-DE**: 26. März 2024
 
 #### 数字格式
+
 - **zh-CN**: 1,234.56
 - **en-US**: 1,234.56
 - **ja-JP**: 1,234.56
@@ -260,6 +279,7 @@ export function formatNumber(locale: Locale, number: number, options?: Intl.Numb
 - **de-DE**: 1.234,56
 
 #### 货币格式（通过 options）
+
 ```typescript
 formatNumber('en-US', 1234.56, { style: 'currency', currency: 'USD' })
 // $1,234.56
@@ -281,20 +301,20 @@ formatNumber('de-DE', 1234.56, { style: 'currency', currency: 'EUR' })
 
 ### I18N_EXPANSION_PROGRESS_20260326.md vs 实际情况
 
-| 项目 | 报告状态 | 实际状态 | 差异 |
-|------|----------|----------|------|
-| fr/de 文件状态 | ⚠️ 占位（0% 完成） | ✅ 完整（99% 完成） | 报告错误 |
-| footer 命名空间 | - | ✅ 已修复（ja/ko/es） | 已完成 |
-| 总体完成度 | ~15% | ~60% | 保守估计 |
+| 项目            | 报告状态           | 实际状态              | 差异     |
+| --------------- | ------------------ | --------------------- | -------- |
+| fr/de 文件状态  | ⚠️ 占位（0% 完成） | ✅ 完整（99% 完成）   | 报告错误 |
+| footer 命名空间 | -                  | ✅ 已修复（ja/ko/es） | 已完成   |
+| 总体完成度      | ~15%               | ~60%                  | 保守估计 |
 
 ### I18N_PROGRESS_REVIEW.md vs 实际情况
 
-| 项目 | 报告状态 | 实际状态 | 差异 |
-|------|----------|----------|------|
-| 缺失翻译文件 | ❌ ja/ko/fr/de 缺失 | ✅ 所有文件存在 | 报告已过时 |
-| Footer 硬编码 | ❌ Footer.tsx 硬编码中文 | ✅ 使用 useTranslations | 报告已过时 |
-| 组件集成 | ⚠️ Footer 未集成 | ✅ Footer 已集成 | 报告已过时 |
-| 整体进度 | 约 35% | 约 60% | 基础架构已完成 |
+| 项目          | 报告状态                 | 实际状态                | 差异           |
+| ------------- | ------------------------ | ----------------------- | -------------- |
+| 缺失翻译文件  | ❌ ja/ko/fr/de 缺失      | ✅ 所有文件存在         | 报告已过时     |
+| Footer 硬编码 | ❌ Footer.tsx 硬编码中文 | ✅ 使用 useTranslations | 报告已过时     |
+| 组件集成      | ⚠️ Footer 未集成         | ✅ Footer 已集成        | 报告已过时     |
+| 整体进度      | 约 35%                   | 约 60%                  | 基础架构已完成 |
 
 **结论**: 两份报告均基于过时信息，实际进度远超报告描述。
 
@@ -360,13 +380,13 @@ formatNumber('de-DE', 1234.56, { style: 'currency', currency: 'EUR' })
 
 ## 📊 剩余工作量总结
 
-| 优先级 | 任务 | 预计时间 | 完成时间 |
-|--------|------|----------|----------|
-| **P1 紧急** | time/validation/team.members | 13 小时 | 1-2 天 |
-| **P2 核心** | ui 命名空间 + 页面内容 | 20 小时 | 3-5 天 |
-| **P3 其他** | errors/notifications/email 等 | 8 小时 | 2 周 |
-| **P4 审核** | 质量审核 + 测试 | 8 小时 | 2 周 |
-| **总计** | | **49 小时** | **2-3 周** |
+| 优先级      | 任务                          | 预计时间    | 完成时间   |
+| ----------- | ----------------------------- | ----------- | ---------- |
+| **P1 紧急** | time/validation/team.members  | 13 小时     | 1-2 天     |
+| **P2 核心** | ui 命名空间 + 页面内容        | 20 小时     | 3-5 天     |
+| **P3 其他** | errors/notifications/email 等 | 8 小时      | 2 周       |
+| **P4 审核** | 质量审核 + 测试               | 8 小时      | 2 周       |
+| **总计**    |                               | **49 小时** | **2-3 周** |
 
 ---
 
@@ -407,15 +427,15 @@ formatNumber('de-DE', 1234.56, { style: 'currency', currency: 'EUR' })
 
 ### 翻译文件清单
 
-| 文件 | 大小 | 键数 | 状态 |
-|------|------|------|------|
-| zh.json | 31KB | 457 | ✅ 100% |
-| en.json | 21KB | 457 | ✅ 100% |
-| ja.json | 24KB | 462 | 🟡 ~97% |
-| ko.json | 23KB | 462 | 🟡 ~97% |
-| es.json | 22KB | 462 | 🟡 ~97% |
-| fr.json | 26KB | 457 | 🟢 ~99% |
-| de.json | 21KB | 457 | 🟡 ~97% |
+| 文件    | 大小 | 键数 | 状态    |
+| ------- | ---- | ---- | ------- |
+| zh.json | 31KB | 457  | ✅ 100% |
+| en.json | 21KB | 457  | ✅ 100% |
+| ja.json | 24KB | 462  | 🟡 ~97% |
+| ko.json | 23KB | 462  | 🟡 ~97% |
+| es.json | 22KB | 462  | 🟡 ~97% |
+| fr.json | 26KB | 457  | 🟢 ~99% |
+| de.json | 21KB | 457  | 🟡 ~97% |
 
 **总大小**: 约 168KB
 
@@ -426,11 +446,13 @@ formatNumber('de-DE', 1234.56, { style: 'currency', currency: 'EUR' })
 ### 1. Footer 命名空间修复
 
 **文件修改**:
+
 - `/root/.openclaw/workspace/src/i18n/messages/ja.json`
 - `/root/.openclaw/workspace/src/i18n/messages/ko.json`
 - `/root/.openclaw/workspace/src/i18n/messages/es.json`
 
 **修改内容**:
+
 - 将 `quickLinks` 和 `services` 从字符串改为对象
 - 添加所有子项翻译（14 个键/语言）
 
@@ -482,4 +504,4 @@ formatNumber('de-DE', 1234.56, { style: 'currency', currency: 'EUR' })
 
 ---
 
-*本报告由 i18n-completion 子代理自动生成*
+_本报告由 i18n-completion 子代理自动生成_

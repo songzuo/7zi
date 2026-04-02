@@ -48,19 +48,20 @@ node scripts/test-performance-benchmark.js
 
 ## 📝 配置文件说明
 
-| 文件 | 用途 | 何时使用 |
-|------|------|----------|
-| `vitest.config.ts` | 当前配置（单进程） | 备份 |
-| `vitest.config.optimized.ts` | 并行优化配置 | 推荐用于生产 |
-| `vitest.config.fast.ts` | 快速测试配置 | 开发调试 |
-| `vitest.config.normal.ts` | 常规测试配置 | PR检查 |
-| `vitest.config.slow.ts` | 慢速测试配置 | 按需运行 |
+| 文件                         | 用途               | 何时使用     |
+| ---------------------------- | ------------------ | ------------ |
+| `vitest.config.ts`           | 当前配置（单进程） | 备份         |
+| `vitest.config.optimized.ts` | 并行优化配置       | 推荐用于生产 |
+| `vitest.config.fast.ts`      | 快速测试配置       | 开发调试     |
+| `vitest.config.normal.ts`    | 常规测试配置       | PR检查       |
+| `vitest.config.slow.ts`      | 慢速测试配置       | 按需运行     |
 
 ---
 
 ## 🎯 推荐工作流
 
 ### 开发环境
+
 ```bash
 # 快速反馈：只运行快速测试
 node scripts/run-test-groups.js fast
@@ -70,6 +71,7 @@ npm run test:watch -- --config vitest.config.fast.ts
 ```
 
 ### 功能开发
+
 ```bash
 # 中等规模测试
 node scripts/run-test-groups.js normal
@@ -79,6 +81,7 @@ npm run test -- --config vitest.config.optimized.ts
 ```
 
 ### PR 提交前
+
 ```bash
 # 完整测试验证
 npm run test:all
@@ -88,6 +91,7 @@ npm run test -- --config vitest.config.optimized.ts --coverage
 ```
 
 ### CI/CD
+
 ```bash
 # 快速检查（开发分支）
 node scripts/run-test-groups.js fast
@@ -161,7 +165,7 @@ export default defineConfig({
   minThreads: 2,
   test: {
     maxConcurrency: maxWorkers,
-  }
+  },
 })
 ```
 
@@ -213,6 +217,7 @@ npx vitest run --bail
 ## 📞 需要帮助？
 
 查看完整文档：
+
 - 优化方案: `TEST_OPTIMIZATION_REPORT.md`
 - Vitest 文档: https://vitest.dev/
 

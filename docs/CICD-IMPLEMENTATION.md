@@ -12,13 +12,14 @@
 
 ### 1. 合并冗余 Workflow
 
-| 原文件 | 状态 | 说明 |
-|--------|------|------|
-| `ci.yml` | 保留并优化 | 主要 CI/CD 流程 |
-| `production.yml` | 已删除 | 功能已合并到 ci.yml |
-| `deploy-main.yml` | 已删除 | 功能已合并到 ci.yml |
+| 原文件            | 状态       | 说明                |
+| ----------------- | ---------- | ------------------- |
+| `ci.yml`          | 保留并优化 | 主要 CI/CD 流程     |
+| `production.yml`  | 已删除     | 功能已合并到 ci.yml |
+| `deploy-main.yml` | 已删除     | 功能已合并到 ci.yml |
 
 所有原有功能均已保留：
+
 - ✅ 代码检查（lint）
 - ✅ TypeScript 类型检查（typecheck）
 - ✅ 单元测试（4x 并行分片）
@@ -47,6 +48,7 @@
 ```
 
 **优势**：
+
 - 减少 `npm ci` 执行时间（缓存命中时跳过）
 - 所有 jobs 共享缓存，节省存储空间
 - 使用 GitHub Actions 原生缓存（比 actions/cache 更高效）
@@ -76,12 +78,14 @@ cache-to: type=gha,mode=max
 #### 移除：密码认证
 
 **之前**（不安全）：
+
 ```yaml
 env:
   SSH_PASS: ${{ secrets.DEPLOY_PASS }}
 ```
 
 **现在**（安全）：
+
 ```yaml
 - name: 设置 SSH 密钥
   run: |
@@ -92,6 +96,7 @@ env:
 ```
 
 **原因**：
+
 - 密码无法追踪使用记录
 - 密码容易被泄露或滥用
 - SSH 密钥可限制权限（如只读、只执行特定命令）
@@ -100,23 +105,24 @@ env:
 
 ```yaml
 permissions:
-  contents: read        # 只读仓库内容
-  deployments: write    # 写入部署状态
-  pull-requests: write  # 写入 PR 评论/标签
-  actions: write        # 写入 Actions 状态
-  packages: write       # 写入 Packages
+  contents: read # 只读仓库内容
+  deployments: write # 写入部署状态
+  pull-requests: write # 写入 PR 评论/标签
+  actions: write # 写入 Actions 状态
+  packages: write # 写入 Packages
 ```
 
 **移除的权限**：
+
 - `admin` - 不需要管理员权限
 - `security-events` - 未使用
 - `checks` - 不需要直接写入 check
 
 ### 4. 使用条件 Job 区分环境
 
-| 环境 | 触发条件 | 部署 Job |
-|------|---------|---------|
-| **Staging** | push to main | `deploy-staging`（自动执行） |
+| 环境           | 触发条件                                         | 部署 Job                        |
+| -------------- | ------------------------------------------------ | ------------------------------- |
+| **Staging**    | push to main                                     | `deploy-staging`（自动执行）    |
 | **Production** | workflow_dispatch + input.environment=production | `deploy-production`（手动触发） |
 
 ---
@@ -133,6 +139,7 @@ ssh-keygen -t ed25519 -C "github-actions-deploy" -f ~/.ssh/github_actions_deploy
 ```
 
 输出示例：
+
 ```
 Your identification has been saved in /root/.ssh/github_actions_deploy
 Your public key has been saved in /root/.ssh/github_actions_deploy.pub
@@ -166,14 +173,15 @@ cat ~/.ssh/github_actions_deploy.pub | ssh root@7zi.com "cat >> ~/.ssh/authorize
 
 创建以下 Secrets：
 
-| Secret 名称 | 说明 | 值 |
-|-------------|------|-----|
-| `SSH_PRIVATE_KEY` | SSH 私钥 | 私钥内容（`~/.ssh/github_actions_deploy` 文件内容） |
-| `DEPLOY_USER` | SSH 用户名 | `root` 或部署用户 |
-| `STAGING_HOST` | Staging 主机 | `staging.7zi.com` 或 IP |
-| `PRODUCTION_HOST` | Production 主机 | `7zi.com` 或 IP |
+| Secret 名称       | 说明            | 值                                                  |
+| ----------------- | --------------- | --------------------------------------------------- |
+| `SSH_PRIVATE_KEY` | SSH 私钥        | 私钥内容（`~/.ssh/github_actions_deploy` 文件内容） |
+| `DEPLOY_USER`     | SSH 用户名      | `root` 或部署用户                                   |
+| `STAGING_HOST`    | Staging 主机    | `staging.7zi.com` 或 IP                             |
+| `PRODUCTION_HOST` | Production 主机 | `7zi.com` 或 IP                                     |
 
 **注意**：
+
 - 私钥内容应包含完整的 PEM 格式（包括 `-----BEGIN ...-----` 和 `-----END ...-----`）
 - 不要在公钥或私钥中添加额外的注释或空行
 
@@ -188,6 +196,7 @@ command="cd /opt/7zi-frontend && bash -s" no-port-forwarding,no-X11-forwarding,n
 ```
 
 **参数说明**：
+
 - `command` - 限制只能执行此命令
 - `no-port-forwarding` - 禁用端口转发
 - `no-X11-forwarding` - 禁用 X11 转发
@@ -249,6 +258,7 @@ mv .github/workflows/deploy-main.yml.bak .github/workflows/deploy-main.yml
 ### 1. 验证 workflow 语法
 
 访问 GitHub Actions 页面，检查 workflow 文件是否有语法错误：
+
 ```
 https://github.com/<your-org>/<repo>/actions
 ```
@@ -256,6 +266,7 @@ https://github.com/<your-org>/<repo>/actions
 ### 2. 触发测试运行
 
 推送到 `main` 分支后，验证：
+
 - [ ] Lint 通过
 - [ ] Typecheck 通过
 - [ ] 单元测试通过
@@ -275,6 +286,7 @@ https://github.com/<your-org>/<repo>/actions
 ### 4. 检查缓存效果
 
 在后续的 workflow 运行中，检查：
+
 - [ ] `setup` job 中 node_modules 缓存命中
 - [ ] `build` job 中 Next.js turbo 缓存命中
 - [ ] `docker` job 中 GHA 缓存命中
@@ -285,11 +297,11 @@ https://github.com/<your-org>/<repo>/actions
 
 基于共享缓存优化，预期性能提升：
 
-| 指标 | 优化前 | 优化后 | 提升 |
-|------|--------|--------|------|
-| 依赖安装时间 | ~90s | ~10s（缓存命中） | 89% |
-| 构建时间 | ~120s | ~60s（turbo 缓存） | 50% |
-| 总体 CI/CD 时间 | ~10min | ~5min | 50% |
+| 指标            | 优化前 | 优化后             | 提升 |
+| --------------- | ------ | ------------------ | ---- |
+| 依赖安装时间    | ~90s   | ~10s（缓存命中）   | 89%  |
+| 构建时间        | ~120s  | ~60s（turbo 缓存） | 50%  |
+| 总体 CI/CD 时间 | ~10min | ~5min              | 50%  |
 
 ---
 
@@ -298,11 +310,13 @@ https://github.com/<your-org>/<repo>/actions
 ### 问题：SSH 连接失败
 
 **症状**：
+
 ```
 Permission denied (publickey)
 ```
 
 **解决方案**：
+
 1. 确认私钥内容正确复制到 GitHub Secrets
 2. 确认公钥已添加到服务器的 `authorized_keys`
 3. 检查私钥权限（应为 `600`）
@@ -314,6 +328,7 @@ Permission denied (publickey)
 每次运行都执行 `npm ci`
 
 **解决方案**：
+
 1. 检查 `package-lock.json` 是否在 `.gitignore`
 2. 确认缓存键计算正确（`hashFiles('**/package-lock.json')`）
 3. 检查 Actions 缓存配额（GitHub 免费账户 10GB）
@@ -321,11 +336,13 @@ Permission denied (publickey)
 ### 问题：部署后健康检查失败
 
 **症状**：
+
 ```
 ❌ 健康检查失败！
 ```
 
 **解决方案**：
+
 1. 检查 Docker 容器状态：`docker ps`
 2. 查看容器日志：`docker logs <container-id>`
 3. 确认端口正确映射（默认 3000）

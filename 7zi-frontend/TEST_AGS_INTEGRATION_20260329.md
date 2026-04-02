@@ -20,11 +20,13 @@ Comprehensive integration tests have been written for the AI Agent Scheduler sys
 **Total Test Cases:** 33
 
 #### Authentication & Authorization
+
 - ✅ Return 401 for unauthenticated requests
 - ✅ Allow authenticated user to access endpoints
 - ✅ Return 401 when token is missing
 
 #### Agent Listing (GET)
+
 - ✅ Return empty array when no agents registered
 - ✅ Return all registered agents
 - ✅ Filter agents by capability
@@ -32,6 +34,7 @@ Comprehensive integration tests have been written for the AI Agent Scheduler sys
 - ✅ Return 404 for non-existent agent ID
 
 #### Agent Registration (POST)
+
 - ✅ Return 400 when name is missing
 - ✅ Return 400 when type is missing
 - ✅ Return 400 when capabilities is missing
@@ -44,6 +47,7 @@ Comprehensive integration tests have been written for the AI Agent Scheduler sys
 - ✅ Record last heartbeat timestamp
 
 #### Agent Status Updates (PUT)
+
 - ✅ Return 400 when agentId is missing
 - ✅ Return 400 when status is missing
 - ✅ Return 400 for invalid status
@@ -52,6 +56,7 @@ Comprehensive integration tests have been written for the AI Agent Scheduler sys
 - ✅ Update lastHeartbeat on status change
 
 #### Agent Unregistration (DELETE)
+
 - ✅ Return 400 when agentId is missing
 - ✅ Return 404 for non-existent agent
 - ✅ Unregister an agent successfully
@@ -59,6 +64,7 @@ Comprehensive integration tests have been written for the AI Agent Scheduler sys
 - ✅ Handle unregistering already removed agent
 
 #### Integration Tests
+
 - ✅ Complete full lifecycle: register, update, unregister
 - ✅ List multiple registered agents
 
@@ -67,10 +73,12 @@ Comprehensive integration tests have been written for the AI Agent Scheduler sys
 **Total Test Cases:** 40
 
 #### Authentication
+
 - ✅ Return 401 for unauthenticated requests
 - ✅ Allow authenticated user to list tasks
 
 #### Task Listing (GET)
+
 - ✅ Return empty tasks array when no tasks scheduled
 - ✅ Return all tasks
 - ✅ Filter tasks by status (pending, running, completed, failed)
@@ -80,11 +88,13 @@ Comprehensive integration tests have been written for the AI Agent Scheduler sys
 - ✅ Return 404 for non-existent task ID
 
 #### Queue Statistics
+
 - ✅ Return correct statistics (pending, running, completed, failed, total)
 - ✅ Reflect completed tasks in stats
 - ✅ Reflect failed tasks in stats
 
 #### Task Scheduling (POST)
+
 - ✅ Return 400 when type is missing
 - ✅ Return 400 when input is missing
 - ✅ Return 400 when input is not an object
@@ -99,6 +109,7 @@ Comprehensive integration tests have been written for the AI Agent Scheduler sys
 - ✅ Queue task when no agent available
 
 #### Task Updates (PUT)
+
 - ✅ Return 400 when taskId is missing
 - ✅ Return 404 for non-existent task
 - ✅ Update task status to completed
@@ -108,6 +119,7 @@ Comprehensive integration tests have been written for the AI Agent Scheduler sys
 - ✅ Not retry after maxRetries exceeded
 
 #### Task Cancellation (DELETE)
+
 - ✅ Return 400 when taskId is missing
 - ✅ Return 404 for non-existent task
 - ✅ Cancel a pending task
@@ -115,6 +127,7 @@ Comprehensive integration tests have been written for the AI Agent Scheduler sys
 - ✅ Handle cancelling already cancelled task
 
 #### Integration Tests
+
 - ✅ Complete full task lifecycle (schedule → check status → complete)
 - ✅ Handle task with retry on failure
 - ✅ Filter tasks by multiple criteria
@@ -125,6 +138,7 @@ Comprehensive integration tests have been written for the AI Agent Scheduler sys
 **Total Test Cases:** 42
 
 #### Protocol Validation
+
 - ✅ Reject requests without jsonrpc version
 - ✅ Reject requests with wrong jsonrpc version
 - ✅ Reject requests without method
@@ -135,20 +149,24 @@ Comprehensive integration tests have been written for the AI Agent Scheduler sys
 #### Agent Methods
 
 **agent.list**
+
 - ✅ List all agents
 - ✅ Return empty array when no agents
 
 **agent.get**
+
 - ✅ Get agent by ID
 - ✅ Return error when agentId missing
 - ✅ Return error when agent not found
 
 **agent.discover**
+
 - ✅ Discover all agents when no capability specified
 - ✅ Discover agents by capability
 - ✅ Return empty array for unknown capability
 
 **agent.heartbeat**
+
 - ✅ Record heartbeat
 - ✅ Return error when agentId missing
 - ✅ Return error when agent not found
@@ -156,6 +174,7 @@ Comprehensive integration tests have been written for the AI Agent Scheduler sys
 #### Task Methods
 
 **task.create**
+
 - ✅ Create task successfully
 - ✅ Create task with priority
 - ✅ Create task with specific agent
@@ -163,21 +182,25 @@ Comprehensive integration tests have been written for the AI Agent Scheduler sys
 - ✅ Return error when input missing
 
 **task.get**
+
 - ✅ Get task by ID
 - ✅ Return error when taskId missing
 - ✅ Return error when task not found
 
 **task.status**
+
 - ✅ Get task status
 - ✅ Return error when taskId missing
 
 **task.update**
+
 - ✅ Update task status
 - ✅ Update task with error
 - ✅ Return error when taskId missing
 - ✅ Return error when task not found
 
 **task.cancel**
+
 - ✅ Cancel task
 - ✅ Return error when taskId missing
 - ✅ Return error when task not found
@@ -185,16 +208,20 @@ Comprehensive integration tests have been written for the AI Agent Scheduler sys
 #### Queue Methods
 
 **queue.stats**
+
 - ✅ Return queue statistics
 - ✅ Return all zeros when no tasks
 
 #### Unknown Methods
+
 - ✅ Return method not found error
 
 #### CORS Support
+
 - ✅ Handle OPTIONS request
 
 #### Integration Tests
+
 - ✅ Complete full task lifecycle via JSON-RPC
 - ✅ Handle multiple sequential requests
 - ✅ Maintain request ID correlation
@@ -233,12 +260,14 @@ Each test file follows a consistent structure:
 ### Registry API (`/api/a2a/registry`)
 
 **Endpoints:**
+
 - `GET /api/a2a/registry` - List agents
 - `POST /api/a2a/registry` - Register agent
 - `PUT /api/a2a/registry` - Update agent status
 - `DELETE /api/a2a/registry?id={id}` - Unregister agent
 
 **Features:**
+
 - Agent registration with capabilities
 - Status management (idle, busy, offline, error)
 - Capability-based discovery
@@ -248,12 +277,14 @@ Each test file follows a consistent structure:
 ### Queue API (`/api/a2a/queue`)
 
 **Endpoints:**
+
 - `GET /api/a2a/queue` - List tasks
 - `POST /api/a2a/queue` - Schedule task
 - `PUT /api/a2a/queue` - Update task
 - `DELETE /api/a2a/queue?id={id}` - Cancel task
 
 **Features:**
+
 - Task scheduling with priority support
 - Automatic agent assignment
 - Task filtering (status, type, agentId)
@@ -266,12 +297,14 @@ Each test file follows a consistent structure:
 **Methods:**
 
 **Agent Methods:**
+
 - `agent.list` - List all agents
 - `agent.get` - Get agent by ID
 - `agent.discover` - Discover agents by capability
 - `agent.heartbeat` - Record agent heartbeat
 
 **Task Methods:**
+
 - `task.create` - Create/schedule task
 - `task.get` - Get task details
 - `task.status` - Get task status
@@ -279,9 +312,11 @@ Each test file follows a consistent structure:
 - `task.cancel` - Cancel task
 
 **Queue Methods:**
+
 - `queue.stats` - Get queue statistics
 
 **Features:**
+
 - JSON-RPC 2.0 compliant
 - Protocol validation
 - Request/response ID correlation
@@ -337,12 +372,12 @@ npm test -- --watch tests/api-integration/a2a-*.test.ts
 
 ## Test Statistics
 
-| Test Suite | Test Cases | Status | Estimated Lines of Code |
-|------------|-----------|--------|------------------------|
-| Registry API | 33 | ✅ PASSING | ~900 |
-| Queue API | 40 | ✅ PASSING | ~1,100 |
-| JSON-RPC API | 42 | ✅ PASSING | ~1,200 |
-| **Total** | **115** | **✅ ALL PASSING** | **~3,200** |
+| Test Suite   | Test Cases | Status             | Estimated Lines of Code |
+| ------------ | ---------- | ------------------ | ----------------------- |
+| Registry API | 33         | ✅ PASSING         | ~900                    |
+| Queue API    | 40         | ✅ PASSING         | ~1,100                  |
+| JSON-RPC API | 42         | ✅ PASSING         | ~1,200                  |
+| **Total**    | **115**    | **✅ ALL PASSING** | **~3,200**              |
 
 ### Test Results
 
@@ -358,6 +393,7 @@ All tests are **PASSING** ✅
 ## Key Features Tested
 
 ### 1. Agent Management
+
 - ✅ Registration with metadata
 - ✅ Capability-based discovery
 - ✅ Status transitions
@@ -365,6 +401,7 @@ All tests are **PASSING** ✅
 - ✅ Unregistration with task cleanup
 
 ### 2. Task Scheduling
+
 - ✅ Priority-based queuing
 - ✅ Automatic agent assignment
 - ✅ Retry logic with configurable maxRetries
@@ -372,12 +409,14 @@ All tests are **PASSING** ✅
 - ✅ Status updates
 
 ### 3. Protocol Compliance
+
 - ✅ JSON-RPC 2.0 format validation
 - ✅ Standard error codes
 - ✅ Request/response correlation
 - ✅ CORS support
 
 ### 4. Error Handling
+
 - ✅ Validation errors
 - ✅ Authentication failures
 - ✅ Not found errors
@@ -385,6 +424,7 @@ All tests are **PASSING** ✅
 - ✅ Invalid parameters
 
 ### 5. Integration Scenarios
+
 - ✅ Full agent lifecycle
 - ✅ Full task lifecycle
 - ✅ Multi-task workflows
@@ -403,6 +443,7 @@ Duration     5.22s
 ```
 
 **Run tests with:**
+
 ```bash
 npm test -- tests/api-integration/a2a-*.test.ts --run
 ```
@@ -410,6 +451,7 @@ npm test -- tests/api-integration/a2a-*.test.ts --run
 ## Future Enhancements
 
 ### Potential Additional Tests
+
 1. **Performance Tests** - Load testing for high-volume scenarios
 2. **Concurrency Tests** - Multiple simultaneous requests
 3. **Persistence Tests** - Data recovery after restart
@@ -417,6 +459,7 @@ npm test -- tests/api-integration/a2a-*.test.ts --run
 5. **Rate Limiting Tests** - API rate limit enforcement
 
 ### Recommended Improvements
+
 1. Add test fixtures for common test data
 2. Implement test data factories for complex objects
 3. Add performance benchmarks
@@ -428,6 +471,7 @@ npm test -- tests/api-integration/a2a-*.test.ts --run
 The A2A Agent Scheduler integration test suite provides comprehensive coverage of all three API endpoints with **115 passing test cases**. All tests are **PASSING** ✅.
 
 The tests follow best practices for:
+
 - Isolation (each test clears state)
 - Idempotency (tests can be run multiple times)
 - Mocking (authentication and error handlers)

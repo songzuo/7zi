@@ -241,7 +241,13 @@ Docker Compose 中的健康检查配置：
 
 ```yaml
 healthcheck:
-  test: ["CMD", "node", "-e", "require('http').get('http://localhost:3000/', (r) => {process.exit(r.statusCode === 200 ? 0 : 1)})"]
+  test:
+    [
+      'CMD',
+      'node',
+      '-e',
+      "require('http').get('http://localhost:3000/', (r) => {process.exit(r.statusCode === 200 ? 0 : 1)})",
+    ]
   interval: 30s
   timeout: 10s
   retries: 3
@@ -264,11 +270,13 @@ healthcheck:
 #### 1. SSH 连接失败
 
 **症状**:
+
 ```
 [ERROR] 服务器连接失败
 ```
 
 **解决方案**:
+
 ```bash
 # 检查 SSH 连接
 sshpass -p 'ge20993344$ZZ' ssh -o StrictHostKeyChecking=no root@7zi.com
@@ -283,11 +291,13 @@ ssh root@7zi.com "ufw status"
 #### 2. Docker 镜像构建失败
 
 **症状**:
+
 ```
 [ERROR] 镜像构建失败
 ```
 
 **解决方案**:
+
 ```bash
 # 查看 Docker 构建日志
 ssh root@7zi.com "cd /opt/7zi-frontend && docker-compose build --no-cache"
@@ -302,11 +312,13 @@ ssh root@7zi.com "docker system prune -a -f"
 #### 3. 健康检查失败
 
 **症状**:
+
 ```
 [ERROR] 健康检查失败
 ```
 
 **解决方案**:
+
 ```bash
 # 查看容器日志
 ./deploy.sh logs 7zi-frontend-blue
@@ -324,11 +336,13 @@ ssh root@7zi.com "netstat -tlnp | grep 3000"
 #### 4. Nginx 配置错误
 
 **症状**:
+
 ```
 nginx: configuration file test failed
 ```
 
 **解决方案**:
+
 ```bash
 # 测试 Nginx 配置
 ssh root@7zi.com "docker exec 7zi-nginx nginx -t"
@@ -343,11 +357,13 @@ ssh root@7zi.com "cat /opt/7zi-frontend/nginx/conf.d/upstream.conf"
 #### 5. 容器频繁重启
 
 **症状**:
+
 ```
 Restarting (1) Less than a second ago
 ```
 
 **解决方案**:
+
 ```bash
 # 查看容器退出原因
 ssh root@7zi.com "docker inspect 7zi-frontend-blue | grep -A 10 State"
@@ -365,11 +381,13 @@ ssh root@7zi.com "free -h"
 #### 6. 端口冲突
 
 **症状**:
+
 ```
 Bind for 0.0.0.0:3000 failed: port is already allocated
 ```
 
 **解决方案**:
+
 ```bash
 # 查看端口占用
 ssh root@7zi.com "netstat -tlnp | grep 3000"
@@ -434,11 +452,11 @@ curl http://localhost:3000/
 
 ### 环境说明
 
-| 环境 | 用途 | 域名 | 数据库 | 配置文件 |
-|------|------|------|--------|----------|
-| **dev** | 本地开发 | localhost | SQLite | `.env.development` |
-| **staging** | 预发布测试 | staging.7zi.com | SQLite | `.env.staging` |
-| **production** | 生产环境 | 7zi.com | SQLite | `.env.production` |
+| 环境           | 用途       | 域名            | 数据库 | 配置文件           |
+| -------------- | ---------- | --------------- | ------ | ------------------ |
+| **dev**        | 本地开发   | localhost       | SQLite | `.env.development` |
+| **staging**    | 预发布测试 | staging.7zi.com | SQLite | `.env.staging`     |
+| **production** | 生产环境   | 7zi.com         | SQLite | `.env.production`  |
 
 ### 环境切换
 
@@ -516,6 +534,7 @@ NEXT_PUBLIC_API_URL=https://7zi.com/api
 ### 监控建议
 
 1. **部署后检查清单**
+
    ```bash
    # 1. 检查服务状态
    ./deploy.sh status
@@ -532,6 +551,7 @@ NEXT_PUBLIC_API_URL=https://7zi.com/api
    ```
 
 2. **定期维护**
+
    ```bash
    # 每周清理旧资源
    ./deploy.sh cleanup
@@ -544,6 +564,7 @@ NEXT_PUBLIC_API_URL=https://7zi.com/api
    ```
 
 3. **资源监控**
+
    ```bash
    # 查看容器资源使用
    ssh root@7zi.com "docker stats --no-stream"
@@ -573,12 +594,14 @@ NEXT_PUBLIC_API_URL=https://7zi.com/api
 ### 回滚策略
 
 1. **快速回滚**
+
    ```bash
    # 蓝绿槽位切换（秒级回滚）
    ./deploy.sh rollback-quick
    ```
 
 2. **版本回滚**
+
    ```bash
    # 回滚到指定版本
    ./deploy.sh rollback v20250122-143022
@@ -700,11 +723,11 @@ RATE_LIMIT_REDIS_ENABLED=false
 
 Default strategies (configured in `src/proxy.ts`):
 
-| API Route | Limit | Algorithm | Description |
-|-----------|-------|------------|-------------|
-| `/api/auth/*` | 5 req/min | Sliding Window | Strict limit (login/register) |
-| `/api/tasks/*` | 30 req/min | Sliding Window | Moderate limit (task operations) |
-| `/api/*` | 100 req/min | Token Bucket | Lenient limit (general API) |
+| API Route      | Limit       | Algorithm      | Description                      |
+| -------------- | ----------- | -------------- | -------------------------------- |
+| `/api/auth/*`  | 5 req/min   | Sliding Window | Strict limit (login/register)    |
+| `/api/tasks/*` | 30 req/min  | Sliding Window | Moderate limit (task operations) |
+| `/api/*`       | 100 req/min | Token Bucket   | Lenient limit (general API)      |
 
 ### Customizing Rate Limits
 
@@ -713,11 +736,11 @@ To modify rate limiting strategies, edit `src/proxy.ts`:
 ```typescript
 // Change auth limit to 10 req/min
 const authRateLimiter = new DistributedRateLimiter({
-  windowMs: 60000,        // 1 minute
-  maxRequests: 10,       // 10 requests/minute
+  windowMs: 60000, // 1 minute
+  maxRequests: 10, // 10 requests/minute
   algorithm: 'sliding-window',
   keyGenerator: KeyGenerators.byIP,
-});
+})
 ```
 
 ### Rate Limit Headers

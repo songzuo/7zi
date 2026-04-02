@@ -14,12 +14,7 @@ This module provides comprehensive API security middleware for the 7zi-project, 
 The middleware is already included in the project. Import from the middleware module:
 
 ```typescript
-import {
-  withCors,
-  withRateLimit,
-  withCsrfProtection,
-  withStandardApiSecurity,
-} from '@/middleware';
+import { withCors, withRateLimit, withCsrfProtection, withStandardApiSecurity } from '@/middleware'
 ```
 
 ## CORS Middleware
@@ -27,52 +22,49 @@ import {
 ### Basic Usage
 
 ```typescript
-import { withCors } from '@/middleware';
-import { NextRequest, NextResponse } from 'next/server';
+import { withCors } from '@/middleware'
+import { NextRequest, NextResponse } from 'next/server'
 
 export const GET = withCors(async (req: NextRequest) => {
-  return NextResponse.json({ message: 'Hello, World!' });
-});
+  return NextResponse.json({ message: 'Hello, World!' })
+})
 ```
 
 ### Configuration
 
 ```typescript
-import { withCors, getEnvironmentOrigins } from '@/middleware';
+import { withCors, getEnvironmentOrigins } from '@/middleware'
 
-export const GET = withCors(
-  handler,
-  {
-    origin: ['https://example.com', 'https://app.example.com'],
-    methods: ['GET', 'POST', 'PUT', 'DELETE'],
-    allowedHeaders: ['Content-Type', 'Authorization', 'X-CSRF-Token'],
-    exposedHeaders: ['X-RateLimit-Limit', 'X-RateLimit-Remaining'],
-    credentials: true,
-    maxAge: 86400, // 24 hours
-  }
-);
+export const GET = withCors(handler, {
+  origin: ['https://example.com', 'https://app.example.com'],
+  methods: ['GET', 'POST', 'PUT', 'DELETE'],
+  allowedHeaders: ['Content-Type', 'Authorization', 'X-CSRF-Token'],
+  exposedHeaders: ['X-RateLimit-Limit', 'X-RateLimit-Remaining'],
+  credentials: true,
+  maxAge: 86400, // 24 hours
+})
 
 // Use environment-based origins
-const origins = getEnvironmentOrigins();
-export const GET = withCors(handler, { origin: origins });
+const origins = getEnvironmentOrigins()
+export const GET = withCors(handler, { origin: origins })
 ```
 
 ### Pre-configured Policies
 
 ```typescript
-import { corsPolicies } from '@/middleware';
+import { corsPolicies } from '@/middleware'
 
 // Strict policy (production)
-export const GET = corsPolicies.strict(['https://example.com']);
+export const GET = corsPolicies.strict(['https://example.com'])
 
 // Development policy (allows all origins)
-export const GET = corsPolicies.development;
+export const GET = corsPolicies.development
 
 // API gateway policy
-export const GET = corsPolicies.apiGateway(['https://app.example.com']);
+export const GET = corsPolicies.apiGateway(['https://app.example.com'])
 
 // Public API policy (no credentials)
-export const GET = corsPolicies.public;
+export const GET = corsPolicies.public
 ```
 
 ## CSRF Protection
@@ -80,44 +72,38 @@ export const GET = corsPolicies.public;
 ### Basic Usage
 
 ```typescript
-import { withCsrfProtection } from '@/middleware';
+import { withCsrfProtection } from '@/middleware'
 
 export const POST = withCsrfProtection(async (req: NextRequest) => {
   // Your handler logic here
-  return NextResponse.json({ success: true });
-});
+  return NextResponse.json({ success: true })
+})
 ```
 
 ### Configuration
 
 ```typescript
-import { withCsrfProtection } from '@/middleware';
+import { withCsrfProtection } from '@/middleware'
 
-export const POST = withCsrfProtection(
-  handler,
-  {
-    enabled: true,
-    protectedMethods: ['POST', 'PUT', 'PATCH', 'DELETE'],
-    skipSameOrigin: true,
-    tokenMaxAge: 60 * 60 * 1000, // 1 hour
-    rotateTokens: false, // Set to true to rotate tokens after validation
-    exemptPaths: ['/api/public/webhook'],
-    useSignedTokens: true, // Use JWT signatures for tokens
-  }
-);
+export const POST = withCsrfProtection(handler, {
+  enabled: true,
+  protectedMethods: ['POST', 'PUT', 'PATCH', 'DELETE'],
+  skipSameOrigin: true,
+  tokenMaxAge: 60 * 60 * 1000, // 1 hour
+  rotateTokens: false, // Set to true to rotate tokens after validation
+  exemptPaths: ['/api/public/webhook'],
+  useSignedTokens: true, // Use JWT signatures for tokens
+})
 ```
 
 ### Token Rotation
 
 ```typescript
 // Enable token rotation for enhanced security
-export const POST = withCsrfProtection(
-  handler,
-  {
-    rotateTokens: true,
-    useSignedTokens: true,
-  }
-);
+export const POST = withCsrfProtection(handler, {
+  rotateTokens: true,
+  useSignedTokens: true,
+})
 
 // The response will include:
 // - X-CSRF-Token: new token value
@@ -128,13 +114,13 @@ export const POST = withCsrfProtection(
 ### Server-Side Token Generation
 
 ```typescript
-import { generateCsrfToken } from '@/middleware';
+import { generateCsrfToken } from '@/middleware'
 
 // Generate a new CSRF token
-const token = await generateCsrfToken(true); // Use signed tokens
+const token = await generateCsrfToken(true) // Use signed tokens
 
 // Return to client
-return NextResponse.json({ csrfToken: token });
+return NextResponse.json({ csrfToken: token })
 ```
 
 ## Rate Limiting
@@ -142,17 +128,17 @@ return NextResponse.json({ csrfToken: token });
 ### Basic Usage
 
 ```typescript
-import { withRateLimit } from '@/middleware';
+import { withRateLimit } from '@/middleware'
 
 export const GET = withRateLimit(
   async (req: NextRequest) => {
-    return NextResponse.json({ message: 'Hello!' });
+    return NextResponse.json({ message: 'Hello!' })
   },
   {
     windowMs: 60000, // 1 minute
     maxRequests: 60, // 60 requests per minute
   }
-);
+)
 ```
 
 ### LRU Cache Configuration
@@ -162,7 +148,7 @@ The rate limiter uses an LRU (Least Recently Used) cache with a default size of 
 ### User-Based Rate Limiting
 
 ```typescript
-import { withRateLimit } from '@/middleware';
+import { withRateLimit } from '@/middleware'
 
 // Rate limit by user ID instead of IP
 export const GET = withRateLimit(
@@ -172,48 +158,42 @@ export const GET = withRateLimit(
     maxRequests: 100,
   },
   'user-123' // Unique identifier (user ID, API key, etc.)
-);
+)
 ```
 
 ### Skip Options
 
 ```typescript
-import { withSmartRateLimit } from '@/middleware';
+import { withSmartRateLimit } from '@/middleware'
 
 // Don't count successful requests
-export const GET = withSmartRateLimit(
-  handler,
-  {
-    windowMs: 60000,
-    maxRequests: 60,
-    skipSuccessfulRequests: true,
-  }
-);
+export const GET = withSmartRateLimit(handler, {
+  windowMs: 60000,
+  maxRequests: 60,
+  skipSuccessfulRequests: true,
+})
 
 // Don't count failed requests
-export const POST = withSmartRateLimit(
-  handler,
-  {
-    windowMs: 60000,
-    maxRequests: 10,
-    skipFailedRequests: true,
-  }
-);
+export const POST = withSmartRateLimit(handler, {
+  windowMs: 60000,
+  maxRequests: 10,
+  skipFailedRequests: true,
+})
 ```
 
 ### Periodic Cleanup
 
 ```typescript
-import { startPeriodicCleanup, stopPeriodicCleanup } from '@/middleware';
+import { startPeriodicCleanup, stopPeriodicCleanup } from '@/middleware'
 
 // Start periodic cleanup (runs every 5 minutes by default)
-startPeriodicCleanup();
+startPeriodicCleanup()
 
 // Start with custom interval (e.g., every 2 minutes)
-startPeriodicCleanup(2 * 60 * 1000);
+startPeriodicCleanup(2 * 60 * 1000)
 
 // Stop periodic cleanup
-stopPeriodicCleanup();
+stopPeriodicCleanup()
 ```
 
 ### Rate Limit Headers
@@ -232,23 +212,20 @@ Rate-limited responses include these headers:
 Applies CORS, rate limiting, and CSRF protection:
 
 ```typescript
-import { withStandardApiSecurity } from '@/middleware';
+import { withStandardApiSecurity } from '@/middleware'
 
-export const POST = withStandardApiSecurity(
-  handler,
-  {
-    cors: {
-      origin: ['https://example.com'],
-    },
-    rateLimit: {
-      windowMs: 60000,
-      maxRequests: 10,
-    },
-    csrf: {
-      useSignedTokens: true,
-    },
-  }
-);
+export const POST = withStandardApiSecurity(handler, {
+  cors: {
+    origin: ['https://example.com'],
+  },
+  rateLimit: {
+    windowMs: 60000,
+    maxRequests: 10,
+  },
+  csrf: {
+    useSignedTokens: true,
+  },
+})
 ```
 
 ### Public API Security
@@ -256,21 +233,18 @@ export const POST = withStandardApiSecurity(
 Applies CORS and rate limiting only (no CSRF):
 
 ```typescript
-import { withPublicApiSecurity } from '@/middleware';
+import { withPublicApiSecurity } from '@/middleware'
 
-export const GET = withPublicApiSecurity(
-  handler,
-  {
-    cors: {
-      origin: '*',
-      credentials: false,
-    },
-    rateLimit: {
-      windowMs: 60000,
-      maxRequests: 100,
-    },
-  }
-);
+export const GET = withPublicApiSecurity(handler, {
+  cors: {
+    origin: '*',
+    credentials: false,
+  },
+  rateLimit: {
+    windowMs: 60000,
+    maxRequests: 100,
+  },
+})
 ```
 
 ### Internal API Security
@@ -278,20 +252,17 @@ export const GET = withPublicApiSecurity(
 Applies rate limiting and CSRF protection only (no CORS):
 
 ```typescript
-import { withInternalApiSecurity } from '@/middleware';
+import { withInternalApiSecurity } from '@/middleware'
 
-export const POST = withInternalApiSecurity(
-  handler,
-  {
-    rateLimit: {
-      windowMs: 60000,
-      maxRequests: 50,
-    },
-    csrf: {
-      useSignedTokens: true,
-    },
-  }
-);
+export const POST = withInternalApiSecurity(handler, {
+  rateLimit: {
+    windowMs: 60000,
+    maxRequests: 50,
+  },
+  csrf: {
+    useSignedTokens: true,
+  },
+})
 ```
 
 ## Composing Middleware
@@ -299,25 +270,19 @@ export const POST = withInternalApiSecurity(
 You can compose middleware in any order:
 
 ```typescript
-import { withCors, withRateLimit, withCsrfProtection } from '@/middleware';
+import { withCors, withRateLimit, withCsrfProtection } from '@/middleware'
 
 // Apply middleware in order: CORS → Rate Limit → CSRF
 export const POST = withCsrfProtection(
-  withRateLimit(
-    withCors(handler, corsConfig),
-    rateLimitConfig
-  ),
+  withRateLimit(withCors(handler, corsConfig), rateLimitConfig),
   csrfConfig
-);
+)
 
 // Different order: CSRF → Rate Limit → CORS
 export const POST = withCors(
-  withRateLimit(
-    withCsrfProtection(handler, csrfConfig),
-    rateLimitConfig
-  ),
+  withRateLimit(withCsrfProtection(handler, csrfConfig), rateLimitConfig),
   corsConfig
-);
+)
 ```
 
 ## Environment Variables
@@ -350,7 +315,7 @@ NODE_ENV=production # or development, test
 
 ```typescript
 // The middleware automatically sets secure flags in production
-process.env.NODE_ENV === 'production'; // true
+process.env.NODE_ENV === 'production' // true
 ```
 
 ### 2. Configure Appropriate Rate Limits
@@ -360,19 +325,19 @@ process.env.NODE_ENV === 'production'; // true
 export const GET = withRateLimit(handler, {
   windowMs: 60000,
   maxRequests: 100,
-});
+})
 
 // Auth endpoints - strict limits
 export const POST = withRateLimit(handler, {
   windowMs: 60000,
   maxRequests: 5,
-});
+})
 
 // Public APIs - moderate limits
 export const GET = withRateLimit(handler, {
   windowMs: 60000,
   maxRequests: 60,
-});
+})
 ```
 
 ### 3. Use Signed Tokens for CSRF
@@ -381,7 +346,7 @@ export const GET = withRateLimit(handler, {
 // Always use signed tokens in production
 export const POST = withCsrfProtection(handler, {
   useSignedTokens: true,
-});
+})
 ```
 
 ### 4. Rotate CSRF Tokens for Sensitive Operations
@@ -390,7 +355,7 @@ export const POST = withCsrfProtection(handler, {
 // Rotate tokens for banking, admin, etc.
 export const POST = withCsrfProtection(handler, {
   rotateTokens: true,
-});
+})
 ```
 
 ### 5. Define Exempt Paths Carefully
@@ -398,25 +363,22 @@ export const POST = withCsrfProtection(handler, {
 ```typescript
 // Only exempt truly public endpoints
 export const POST = withCsrfProtection(handler, {
-  exemptPaths: [
-    '/api/public/webhook',
-    '/api/public/callback',
-  ],
-});
+  exemptPaths: ['/api/public/webhook', '/api/public/callback'],
+})
 ```
 
 ### 6. Monitor Rate Limit Hits
 
 ```typescript
-import { getRateLimitStats } from '@/middleware';
+import { getRateLimitStats } from '@/middleware'
 
 // Get rate limit statistics
-const stats = getRateLimitStats();
+const stats = getRateLimitStats()
 console.log({
   totalEntries: stats.totalEntries,
   trackedPaths: stats.trackedPaths,
   totalRequests: stats.totalRequests,
-});
+})
 ```
 
 ## Testing
@@ -438,6 +400,7 @@ npm test -- middleware/__tests__/integration.test.ts
 **Problem**: Requests are blocked with CORS errors
 
 **Solution**:
+
 1. Check if the origin is in the allowed list
 2. Verify `Access-Control-Allow-Origin` header in response
 3. Ensure credentials are configured correctly
@@ -445,11 +408,11 @@ npm test -- middleware/__tests__/integration.test.ts
 ```typescript
 // Log CORS errors
 const handler = withCors(asyncHandler, {
-  onError: (error) => {
-    console.error('CORS error:', error);
-    return NextResponse.json({ error: 'CORS failed' }, { status: 403 });
+  onError: error => {
+    console.error('CORS error:', error)
+    return NextResponse.json({ error: 'CORS failed' }, { status: 403 })
   },
-});
+})
 ```
 
 ### CSRF Validation Failures
@@ -457,6 +420,7 @@ const handler = withCors(asyncHandler, {
 **Problem**: CSRF token validation always fails
 
 **Solution**:
+
 1. Check if token is being sent in `X-CSRF-Token` header
 2. Verify cookie is set with `httpOnly: true`
 3. Ensure tokens are signed with the same secret key
@@ -464,11 +428,11 @@ const handler = withCors(asyncHandler, {
 ```typescript
 // Debug CSRF validation
 const handler = withCsrfProtection(asyncHandler, {
-  onError: (error) => {
-    console.error('CSRF error:', error);
-    return NextResponse.json({ error: 'CSRF failed' }, { status: 403 });
+  onError: error => {
+    console.error('CSRF error:', error)
+    return NextResponse.json({ error: 'CSRF failed' }, { status: 403 })
   },
-});
+})
 ```
 
 ### Rate Limit Issues
@@ -476,16 +440,17 @@ const handler = withCsrfProtection(asyncHandler, {
 **Problem**: Requests are rate limited too quickly
 
 **Solution**:
+
 1. Check rate limit configuration
 2. Verify `X-RateLimit-Remaining` header
 3. Consider increasing limits or using user-based limiting
 
 ```typescript
 // Check rate limit status
-import { getRateLimitStatus } from '@/middleware';
+import { getRateLimitStatus } from '@/middleware'
 
-const status = getRateLimitStatus('/api/test:192.168.1.1');
-console.log(status);
+const status = getRateLimitStatus('/api/test:192.168.1.1')
+console.log(status)
 // { count: 10, remaining: 50, resetTime: 1711234567890 }
 ```
 
@@ -503,10 +468,10 @@ The rate limiter uses an LRU cache to automatically evict old entries:
 
 ```typescript
 // Monitor memory usage
-import { getRateLimitStats } from '@/middleware';
+import { getRateLimitStats } from '@/middleware'
 
-const stats = getRateLimitStats();
-console.log(`Tracking ${stats.totalEntries} rate limit entries`);
+const stats = getRateLimitStats()
+console.log(`Tracking ${stats.totalEntries} rate limit entries`)
 ```
 
 ### Periodic Cleanup
@@ -516,7 +481,7 @@ In production, periodic cleanup runs automatically every 5 minutes:
 ```typescript
 // This is auto-started in production
 if (process.env.NODE_ENV === 'production') {
-  startPeriodicCleanup();
+  startPeriodicCleanup()
 }
 ```
 
@@ -526,22 +491,28 @@ if (process.env.NODE_ENV === 'production') {
 
 ```typescript
 // Before (Next.js built-in)
-import { NextResponse } from 'next/server';
+import { NextResponse } from 'next/server'
 
 export async function GET(request: Request) {
-  return NextResponse.json({ data: '...' }, {
-    headers: {
-      'Access-Control-Allow-Origin': '*',
-    },
-  });
+  return NextResponse.json(
+    { data: '...' },
+    {
+      headers: {
+        'Access-Control-Allow-Origin': '*',
+      },
+    }
+  )
 }
 
 // After (with middleware)
-import { withCors } from '@/middleware';
+import { withCors } from '@/middleware'
 
-export const GET = withCors(async (req) => {
-  return NextResponse.json({ data: '...' });
-}, { origin: '*' });
+export const GET = withCors(
+  async req => {
+    return NextResponse.json({ data: '...' })
+  },
+  { origin: '*' }
+)
 ```
 
 ### From Custom Rate Limiting
@@ -549,22 +520,22 @@ export const GET = withCors(async (req) => {
 ```typescript
 // Before (custom rate limiting)
 export async function GET(request: Request) {
-  const ip = getClientIP(request);
+  const ip = getClientIP(request)
   if (checkRateLimit(ip)) {
-    return NextResponse.json({ error: 'Too many requests' }, { status: 429 });
+    return NextResponse.json({ error: 'Too many requests' }, { status: 429 })
   }
   // ...
 }
 
 // After (with middleware)
-import { withRateLimit } from '@/middleware';
+import { withRateLimit } from '@/middleware'
 
 export const GET = withRateLimit(
-  async (req) => {
-    return NextResponse.json({ data: '...' });
+  async req => {
+    return NextResponse.json({ data: '...' })
   },
   { windowMs: 60000, maxRequests: 60 }
-);
+)
 ```
 
 ## Additional Resources

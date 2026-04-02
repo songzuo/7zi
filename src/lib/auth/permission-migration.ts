@@ -3,7 +3,7 @@
  * Bridges the gap between legacy string permissions and new enum-based permissions
  */
 
-import { Permission } from '@/lib/permissions/types';
+import { Permission } from '@/lib/permissions/types'
 
 /**
  * Legacy permission format mapping to new Permission enum
@@ -69,7 +69,7 @@ export const LEGACY_TO_NEW_PERMISSIONS: Record<string, Permission> = {
   'wallet:read': Permission.WALLET_READ,
   'wallet:manage': Permission.WALLET_MANAGE,
   'wallet:transfer': Permission.WALLET_TRANSFER,
-};
+}
 
 /**
  * New Permission enum mapping to legacy string format
@@ -77,7 +77,7 @@ export const LEGACY_TO_NEW_PERMISSIONS: Record<string, Permission> = {
  */
 export const NEW_TO_LEGACY_PERMISSIONS: Record<Permission, string> = Object.fromEntries(
   Object.entries(LEGACY_TO_NEW_PERMISSIONS).map(([legacy, newPerm]) => [newPerm, legacy])
-) as Record<Permission, string>;
+) as Record<Permission, string>
 
 /**
  * Convert legacy string permissions to new Permission enum array
@@ -86,7 +86,7 @@ export const NEW_TO_LEGACY_PERMISSIONS: Record<Permission, string> = Object.from
 export function convertLegacyPermissions(legacyPermissions: string[]): Permission[] {
   return legacyPermissions
     .map(perm => LEGACY_TO_NEW_PERMISSIONS[perm])
-    .filter((perm): perm is Permission => perm !== undefined);
+    .filter((perm): perm is Permission => perm !== undefined)
 }
 
 /**
@@ -96,7 +96,7 @@ export function convertLegacyPermissions(legacyPermissions: string[]): Permissio
 export function convertPermissionsToLegacy(newPermissions: Permission[]): string[] {
   return newPermissions
     .map(perm => NEW_TO_LEGACY_PERMISSIONS[perm])
-    .filter((perm): perm is string => perm !== undefined);
+    .filter((perm): perm is string => perm !== undefined)
 }
 
 /**
@@ -104,43 +104,46 @@ export function convertPermissionsToLegacy(newPermissions: Permission[]): string
  * Accepts both legacy strings and Permission enums, returns Permission enum array
  */
 export function normalizePermissions(permissions: (string | Permission)[]): Permission[] {
-  const result: Permission[] = [];
+  const result: Permission[] = []
 
   for (const perm of permissions) {
     if (typeof perm === 'string') {
       // Try to map legacy string to new enum
-      const mapped = LEGACY_TO_NEW_PERMISSIONS[perm];
+      const mapped = LEGACY_TO_NEW_PERMISSIONS[perm]
       if (mapped) {
-        result.push(mapped);
+        result.push(mapped)
       } else {
         // Check if it's already a valid Permission enum value as string
         if (Object.values(Permission).includes(perm as Permission)) {
-          result.push(perm as Permission);
+          result.push(perm as Permission)
         }
       }
     } else {
       // Already a Permission enum
-      result.push(perm);
+      result.push(perm)
     }
   }
 
-  return result;
+  return result
 }
 
 /**
  * Check if a permission string is in legacy format
  */
 export function isLegacyPermissionFormat(permission: string): boolean {
-  return permission.includes(':');
+  return permission.includes(':')
 }
 
 /**
  * Check if two permissions are equivalent (one legacy, one new)
  */
-export function permissionsAreEquivalent(perm1: string | Permission, perm2: string | Permission): boolean {
-  const normalized1 = normalizePermissions([perm1])[0];
-  const normalized2 = normalizePermissions([perm2])[0];
-  return normalized1 === normalized2;
+export function permissionsAreEquivalent(
+  perm1: string | Permission,
+  perm2: string | Permission
+): boolean {
+  const normalized1 = normalizePermissions([perm1])[0]
+  const normalized2 = normalizePermissions([perm2])[0]
+  return normalized1 === normalized2
 }
 
 /**
@@ -150,7 +153,7 @@ export function mergePermissions(
   legacyPermissions: string[] = [],
   newPermissions: Permission[] = []
 ): Permission[] {
-  const normalizedLegacy = convertLegacyPermissions(legacyPermissions);
-  const combined = [...normalizedLegacy, ...newPermissions];
-  return Array.from(new Set(combined));
+  const normalizedLegacy = convertLegacyPermissions(legacyPermissions)
+  const combined = [...normalizedLegacy, ...newPermissions]
+  return Array.from(new Set(combined))
 }

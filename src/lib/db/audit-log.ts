@@ -3,26 +3,26 @@
  * Tracks all sensitive operations for compliance and security auditing
  */
 
-import { getDatabaseAsync } from './connection';
-import { logger } from '../logger';
+import { getDatabaseAsync } from './connection'
+import { logger } from '../logger'
 
 /**
  * Audit log entry interface
  */
 export interface AuditLog {
-  id: string;
-  user_id: string | null;
-  action: AuditAction;
-  entity_type: string;
-  entity_id: string | null;
-  resource_type: string | null;
-  resource_id: string | null;
-  details: Record<string, unknown>;
-  ip_address: string | null;
-  user_agent: string | null;
-  status: AuditStatus;
-  error_message: string | null;
-  created_at: string;
+  id: string
+  user_id: string | null
+  action: AuditAction
+  entity_type: string
+  entity_id: string | null
+  resource_type: string | null
+  resource_id: string | null
+  details: Record<string, unknown>
+  ip_address: string | null
+  user_agent: string | null
+  status: AuditStatus
+  error_message: string | null
+  created_at: string
 }
 
 /**
@@ -92,34 +92,34 @@ export enum AuditStatus {
  * Query options for audit logs
  */
 export interface AuditLogQuery {
-  user_id?: string;
-  action?: AuditAction;
-  entity_type?: string;
-  entity_id?: string;
-  status?: AuditStatus;
-  start_date?: string;
-  end_date?: string;
-  limit?: number;
-  offset?: number;
+  user_id?: string
+  action?: AuditAction
+  entity_type?: string
+  entity_id?: string
+  status?: AuditStatus
+  start_date?: string
+  end_date?: string
+  limit?: number
+  offset?: number
 }
 
 /**
  * Database row interface for audit logs
  */
 interface AuditLogRow {
-  id: string;
-  user_id: string | null;
-  action: string;
-  entity_type: string;
-  entity_id: string | null;
-  resource_type: string | null;
-  resource_id: string | null;
-  details: string;
-  ip_address: string | null;
-  user_agent: string | null;
-  status: string;
-  error_message: string | null;
-  created_at: string;
+  id: string
+  user_id: string | null
+  action: string
+  entity_type: string
+  entity_id: string | null
+  resource_type: string | null
+  resource_id: string | null
+  details: string
+  ip_address: string | null
+  user_agent: string | null
+  status: string
+  error_message: string | null
+  created_at: string
 }
 
 /**
@@ -127,7 +127,7 @@ interface AuditLogRow {
  */
 export async function initializeAuditLogsTable(): Promise<void> {
   try {
-    const db = await getDatabaseAsync();
+    const db = await getDatabaseAsync()
 
     db.exec(`
       CREATE TABLE IF NOT EXISTS audit_logs (
@@ -156,12 +156,12 @@ export async function initializeAuditLogsTable(): Promise<void> {
       CREATE INDEX IF NOT EXISTS idx_audit_logs_created_at ON audit_logs(created_at DESC);
       CREATE INDEX IF NOT EXISTS idx_audit_logs_user_created ON audit_logs(user_id, created_at DESC);
       CREATE INDEX IF NOT EXISTS idx_audit_logs_action_created ON audit_logs(action, created_at DESC);
-    `);
+    `)
 
-    logger.info('Audit logs table initialized', { category: 'db' });
-  } catch (_error) {
-    logger.error('Failed to initialize audit logs table', { category: 'db', error });
-    throw error;
+    logger.info('Audit logs table initialized', { category: 'db' })
+  } catch (error) {
+    logger.error('Failed to initialize audit logs table', { category: 'db', error })
+    throw error
   }
 }
 
@@ -169,19 +169,21 @@ export async function initializeAuditLogsTable(): Promise<void> {
  * Generate unique audit log ID
  */
 function generateAuditId(): string {
-  return `audit_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
+  return `audit_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`
 }
 
 /**
  * Create an audit log entry
  */
-export async function createAuditLog(entry: Omit<AuditLog, 'id' | 'created_at'>): Promise<AuditLog> {
+export async function createAuditLog(
+  entry: Omit<AuditLog, 'id' | 'created_at'>
+): Promise<AuditLog> {
   try {
-    const db = await getDatabaseAsync();
-    await initializeAuditLogsTable();
+    const db = await getDatabaseAsync()
+    await initializeAuditLogsTable()
 
-    const id = generateAuditId();
-    const now = new Date().toISOString();
+    const id = generateAuditId()
+    const now = new Date().toISOString()
 
     const stmt = db.prepare(`
       INSERT INTO audit_logs (
@@ -189,7 +191,7 @@ export async function createAuditLog(entry: Omit<AuditLog, 'id' | 'created_at'>)
         resource_type, resource_id, details, ip_address,
         user_agent, status, error_message, created_at
       ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
-    `);
+    `)
 
     stmt.run(
       id,
@@ -205,24 +207,24 @@ export async function createAuditLog(entry: Omit<AuditLog, 'id' | 'created_at'>)
       entry.status,
       entry.error_message || null,
       now
-    );
+    )
 
     logger.debug('Audit log created', {
       category: 'audit',
       action: entry.action,
       user_id: entry.user_id,
       entity_type: entry.entity_type,
-    });
+    })
 
     return {
       id,
       ...entry,
       created_at: now,
-    };
-  } catch (_error) {
-    logger.error('Failed to create audit log', { category: 'db', error });
+    }
+  } catch (error) {
+    logger.error('Failed to create audit log', { category: 'db', error })
     // Don't throw error to avoid disrupting the original operation
-    throw error;
+    throw error
   }
 }
 
@@ -231,18 +233,18 @@ export async function createAuditLog(entry: Omit<AuditLog, 'id' | 'created_at'>)
  */
 export async function getAuditLogById(id: string): Promise<AuditLog | null> {
   try {
-    const db = await getDatabaseAsync();
-    await initializeAuditLogsTable();
+    const db = await getDatabaseAsync()
+    await initializeAuditLogsTable()
 
-    const stmt = db.prepare('SELECT * FROM audit_logs WHERE id = ?');
-    const row = stmt.get(id) as unknown as AuditLogRow | undefined;
+    const stmt = db.prepare('SELECT * FROM audit_logs WHERE id = ?')
+    const row = stmt.get(id) as unknown as AuditLogRow | undefined
 
-    if (!row) return null;
+    if (!row) return null
 
-    return mapRowToAuditLog(row);
-  } catch (_error) {
-    logger.error('Failed to get audit log', { category: 'db', error, id });
-    throw error;
+    return mapRowToAuditLog(row)
+  } catch (error) {
+    logger.error('Failed to get audit log', { category: 'db', error, id })
+    throw error
   }
 }
 
@@ -250,75 +252,75 @@ export async function getAuditLogById(id: string): Promise<AuditLog | null> {
  * Query audit logs with filters
  */
 export async function queryAuditLogs(options: AuditLogQuery): Promise<{
-  logs: AuditLog[];
-  total: number;
+  logs: AuditLog[]
+  total: number
 }> {
   try {
-    const db = await getDatabaseAsync();
-    await initializeAuditLogsTable();
+    const db = await getDatabaseAsync()
+    await initializeAuditLogsTable()
 
-    const conditions: string[] = [];
-    const params: unknown[] = [];
+    const conditions: string[] = []
+    const params: unknown[] = []
 
     if (options.user_id) {
-      conditions.push('user_id = ?');
-      params.push(options.user_id);
+      conditions.push('user_id = ?')
+      params.push(options.user_id)
     }
     if (options.action) {
-      conditions.push('action = ?');
-      params.push(options.action);
+      conditions.push('action = ?')
+      params.push(options.action)
     }
     if (options.entity_type) {
-      conditions.push('entity_type = ?');
-      params.push(options.entity_type);
+      conditions.push('entity_type = ?')
+      params.push(options.entity_type)
     }
     if (options.entity_id) {
-      conditions.push('entity_id = ?');
-      params.push(options.entity_id);
+      conditions.push('entity_id = ?')
+      params.push(options.entity_id)
     }
     if (options.status) {
-      conditions.push('status = ?');
-      params.push(options.status);
+      conditions.push('status = ?')
+      params.push(options.status)
     }
     if (options.start_date) {
-      conditions.push('created_at >= ?');
-      params.push(options.start_date);
+      conditions.push('created_at >= ?')
+      params.push(options.start_date)
     }
     if (options.end_date) {
-      conditions.push('created_at <= ?');
-      params.push(options.end_date);
+      conditions.push('created_at <= ?')
+      params.push(options.end_date)
     }
 
     // Get total count
-    let countSql = 'SELECT COUNT(*) as count FROM audit_logs';
+    let countSql = 'SELECT COUNT(*) as count FROM audit_logs'
     if (conditions.length > 0) {
-      countSql += ' WHERE ' + conditions.join(' AND ');
+      countSql += ' WHERE ' + conditions.join(' AND ')
     }
-    const countStmt = db.prepare(countSql);
-    const countResult = countStmt.get(...params) as { count: number };
-    const total = countResult.count;
+    const countStmt = db.prepare(countSql)
+    const countResult = countStmt.get(...params) as { count: number }
+    const total = countResult.count
 
     // Get paginated results
-    let sql = 'SELECT * FROM audit_logs';
+    let sql = 'SELECT * FROM audit_logs'
     if (conditions.length > 0) {
-      sql += ' WHERE ' + conditions.join(' AND ');
+      sql += ' WHERE ' + conditions.join(' AND ')
     }
-    sql += ' ORDER BY created_at DESC';
+    sql += ' ORDER BY created_at DESC'
 
-    const limit = options.limit || 50;
-    const offset = options.offset || 0;
-    sql += ' LIMIT ? OFFSET ?';
-    params.push(limit, offset);
+    const limit = options.limit || 50
+    const offset = options.offset || 0
+    sql += ' LIMIT ? OFFSET ?'
+    params.push(limit, offset)
 
-    const stmt = db.prepare(sql);
-    const rows = stmt.all(...params) as unknown as AuditLogRow[];
+    const stmt = db.prepare(sql)
+    const rows = stmt.all(...params) as unknown as AuditLogRow[]
 
-    const logs = rows.map(mapRowToAuditLog);
+    const logs = rows.map(mapRowToAuditLog)
 
-    return { logs, total };
-  } catch (_error) {
-    logger.error('Failed to query audit logs', { category: 'db', error, options });
-    throw error;
+    return { logs, total }
+  } catch (error) {
+    logger.error('Failed to query audit logs', { category: 'db', error, options })
+    throw error
   }
 }
 
@@ -332,13 +334,13 @@ export async function getUserAuditLogs(
   const { logs } = await queryAuditLogs({
     user_id: userId,
     limit: options.limit || 50,
-  });
+  })
 
   if (options.actions && options.actions.length > 0) {
-    return logs.filter((log) => options.actions!.includes(log.action));
+    return logs.filter(log => options.actions!.includes(log.action))
   }
 
-  return logs;
+  return logs
 }
 
 /**
@@ -353,9 +355,9 @@ export async function getEntityAuditLogs(
     entity_type: entityType,
     entity_id: entityId,
     limit: options.limit || 50,
-  });
+  })
 
-  return logs;
+  return logs
 }
 
 /**
@@ -365,11 +367,11 @@ export async function getFailedLoginAttempts(
   userId: string | null,
   timeWindowMinutes: number = 15
 ): Promise<AuditLog[]> {
-  const db = await getDatabaseAsync();
-  await initializeAuditLogsTable();
+  const db = await getDatabaseAsync()
+  await initializeAuditLogsTable()
 
-  const cutoffDate = new Date();
-  cutoffDate.setMinutes(cutoffDate.getMinutes() - timeWindowMinutes);
+  const cutoffDate = new Date()
+  cutoffDate.setMinutes(cutoffDate.getMinutes() - timeWindowMinutes)
 
   const stmt = db.prepare(`
     SELECT * FROM audit_logs
@@ -378,15 +380,15 @@ export async function getFailedLoginAttempts(
       AND created_at >= ?
       ${userId ? 'AND user_id = ?' : ''}
     ORDER BY created_at DESC
-  `);
+  `)
 
-  const params: unknown[] = [AuditAction.LOGIN_FAILED, AuditStatus.FAILED, cutoffDate.toISOString()];
+  const params: unknown[] = [AuditAction.LOGIN_FAILED, AuditStatus.FAILED, cutoffDate.toISOString()]
   if (userId) {
-    params.push(userId);
+    params.push(userId)
   }
 
-  const rows = stmt.all(...params) as unknown as AuditLogRow[];
-  return rows.map(mapRowToAuditLog);
+  const rows = stmt.all(...params) as unknown as AuditLogRow[]
+  return rows.map(mapRowToAuditLog)
 }
 
 /**
@@ -397,8 +399,8 @@ export async function hasExcessiveFailedLogins(
   threshold: number = 5,
   timeWindowMinutes: number = 15
 ): Promise<boolean> {
-  const failedAttempts = await getFailedLoginAttempts(userId, timeWindowMinutes);
-  return failedAttempts.length >= threshold;
+  const failedAttempts = await getFailedLoginAttempts(userId, timeWindowMinutes)
+  return failedAttempts.length >= threshold
 }
 
 /**
@@ -406,62 +408,64 @@ export async function hasExcessiveFailedLogins(
  */
 export async function cleanupOldAuditLogs(daysToKeep: number = 90): Promise<number> {
   try {
-    const db = await getDatabaseAsync();
-    await initializeAuditLogsTable();
+    const db = await getDatabaseAsync()
+    await initializeAuditLogsTable()
 
-    const cutoffDate = new Date();
-    cutoffDate.setDate(cutoffDate.getDate() - daysToKeep);
+    const cutoffDate = new Date()
+    cutoffDate.setDate(cutoffDate.getDate() - daysToKeep)
 
-    const stmt = db.prepare('DELETE FROM audit_logs WHERE created_at < ?');
-    const result = stmt.run(cutoffDate.toISOString());
+    const stmt = db.prepare('DELETE FROM audit_logs WHERE created_at < ?')
+    const result = stmt.run(cutoffDate.toISOString())
 
-    const deleted = result.changes || 0;
+    const deleted = result.changes || 0
     if (deleted > 0) {
       logger.info('Old audit logs cleaned up', {
         category: 'db',
         deleted,
         daysToKeep,
-      });
+      })
     }
 
-    return deleted;
-  } catch (_error) {
-    logger.error('Failed to cleanup old audit logs', { category: 'db', error });
-    throw error;
+    return deleted
+  } catch (error) {
+    logger.error('Failed to cleanup old audit logs', { category: 'db', error })
+    throw error
   }
 }
 
 /**
  * Get audit statistics
  */
-export async function getAuditStatistics(options: {
-  start_date?: string;
-  end_date?: string;
-} = {}): Promise<{
-  totalLogs: number;
-  successCount: number;
-  failedCount: number;
-  actionBreakdown: Record<string, number>;
-  topUsers: Array<{ user_id: string; count: number }>;
+export async function getAuditStatistics(
+  options: {
+    start_date?: string
+    end_date?: string
+  } = {}
+): Promise<{
+  totalLogs: number
+  successCount: number
+  failedCount: number
+  actionBreakdown: Record<string, number>
+  topUsers: Array<{ user_id: string; count: number }>
 }> {
-  const db = await getDatabaseAsync();
-  await initializeAuditLogsTable();
+  const db = await getDatabaseAsync()
+  await initializeAuditLogsTable()
 
-  let dateFilter = '';
-  const params: unknown[] = [];
+  let dateFilter = ''
+  const params: unknown[] = []
 
   if (options.start_date) {
-    dateFilter += ' AND created_at >= ?';
-    params.push(options.start_date);
+    dateFilter += ' AND created_at >= ?'
+    params.push(options.start_date)
   }
   if (options.end_date) {
-    dateFilter += ' AND created_at <= ?';
-    params.push(options.end_date);
+    dateFilter += ' AND created_at <= ?'
+    params.push(options.end_date)
   }
 
   // Total logs
-  const totalStmt = db.prepare(`SELECT COUNT(*) as count FROM audit_logs WHERE 1=1${dateFilter}`);
-  const { count: totalLogs } = totalStmt.get(...params) as { count: number };
+  const totalStmt = db.prepare(`SELECT COUNT(*) as count FROM audit_logs WHERE 1=1${dateFilter}`)
+  const { count: totalLogs } = totalStmt.get(...params) as { count: number }
 
   // Success/failed breakdown
   const statusStmt = db.prepare(`
@@ -469,11 +473,11 @@ export async function getAuditStatistics(options: {
     FROM audit_logs
     WHERE 1=1${dateFilter}
     GROUP BY status
-  `);
-  const statusRows = statusStmt.all(...params) as Array<{ status: string; count: number }>;
+  `)
+  const statusRows = statusStmt.all(...params) as Array<{ status: string; count: number }>
 
-  const successCount = statusRows.find((r) => r.status === AuditStatus.SUCCESS)?.count || 0;
-  const failedCount = statusRows.find((r) => r.status === AuditStatus.FAILED)?.count || 0;
+  const successCount = statusRows.find(r => r.status === AuditStatus.SUCCESS)?.count || 0
+  const failedCount = statusRows.find(r => r.status === AuditStatus.FAILED)?.count || 0
 
   // Action breakdown
   const actionStmt = db.prepare(`
@@ -482,12 +486,15 @@ export async function getAuditStatistics(options: {
     WHERE 1=1${dateFilter}
     GROUP BY action
     ORDER BY count DESC
-  `);
-  const actionRows = actionStmt.all(...params) as Array<{ action: string; count: number }>;
-  const actionBreakdown = actionRows.reduce((acc, row) => {
-    acc[row.action] = row.count;
-    return acc;
-  }, {} as Record<string, number>);
+  `)
+  const actionRows = actionStmt.all(...params) as Array<{ action: string; count: number }>
+  const actionBreakdown = actionRows.reduce(
+    (acc, row) => {
+      acc[row.action] = row.count
+      return acc
+    },
+    {} as Record<string, number>
+  )
 
   // Top users
   const userStmt = db.prepare(`
@@ -497,8 +504,8 @@ export async function getAuditStatistics(options: {
     GROUP BY user_id
     ORDER BY count DESC
     LIMIT 10
-  `);
-  const topUsers = userStmt.all(...params) as Array<{ user_id: string; count: number }>;
+  `)
+  const topUsers = userStmt.all(...params) as Array<{ user_id: string; count: number }>
 
   return {
     totalLogs,
@@ -506,7 +513,7 @@ export async function getAuditStatistics(options: {
     failedCount,
     actionBreakdown,
     topUsers,
-  };
+  }
 }
 
 /**
@@ -527,5 +534,5 @@ function mapRowToAuditLog(row: AuditLogRow): AuditLog {
     status: row.status as AuditStatus,
     error_message: row.error_message,
     created_at: row.created_at,
-  };
+  }
 }

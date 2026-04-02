@@ -4,7 +4,7 @@
  */
 
 // 类型定义
-export * from './types';
+export * from './types'
 
 // 认证服务
 export {
@@ -19,9 +19,7 @@ export {
   hasPermission,
   hasAnyPermission,
   hasAllPermissions,
-} from './auth-service';
-
-
+} from './auth-service'
 
 // 数据仓库
 export {
@@ -37,9 +35,7 @@ export {
   mapRowToAgent,
   getAgentDataAccessLog,
   logDataAccess,
-} from './repository';
-
-
+} from './repository'
 
 export {
   initializeAgentTables as initializeAgentTablesV2,
@@ -51,7 +47,7 @@ export {
   deleteAgent as deleteAgentV2,
   updateAgentLastActive as updateAgentLastActiveV2,
   validateAgentApiKey as validateAgentApiKeyV2,
-} from './repository-optimized-v2';
+} from './repository-optimized-v2'
 
 // 钱包仓库
 export {
@@ -64,9 +60,7 @@ export {
   transfer,
   getTransactions,
   getWalletStats,
-} from './wallet-repository';
-
-
+} from './wallet-repository'
 
 export {
   initializeWalletTables as initializeWalletTablesV2,
@@ -78,15 +72,10 @@ export {
   transfer as transferV2,
   getTransactions as getTransactionsV2,
   getWalletStats as getWalletStatsV2,
-} from './wallet-repository-optimized-v2';
+} from './wallet-repository-optimized-v2'
 
 // 中间件
-export {
-  withAgentAuth,
-  withPermissions,
-  withAnyPermission,
-  type AgentContext,
-} from './middleware';
+export { withAgentAuth, withPermissions, withAnyPermission, type AgentContext } from './middleware'
 
-// 通信模块
-export * from './communication';
+// 通信模块 - TODO: 需要实现
+// export * from './communication'

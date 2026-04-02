@@ -10,16 +10,17 @@
 ## 📋 迁移概述
 
 ### 目标
+
 将 React Context-based 权限系统迁移到 Zustand store，提升性能和可维护性。
 
 ### 迁移状态
 
-| 项目 | 状态 |
-|------|------|
+| 项目               | 状态    |
+| ------------------ | ------- |
 | Zustand store 实现 | ✅ 完成 |
-| 兼容层实现 | ✅ 完成 |
-| TypeScript 编译 | ✅ 通过 |
-| 向后兼容性 | ✅ 保持 |
+| 兼容层实现         | ✅ 完成 |
+| TypeScript 编译    | ✅ 通过 |
+| 向后兼容性         | ✅ 保持 |
 
 ---
 
@@ -27,12 +28,12 @@
 
 ### 性能提升
 
-| 指标 | Context (旧) | Zustand (新) |
-|------|--------------|--------------|
-| 重渲染 | 全局订阅者 | 精确订阅 |
-| Provider 嵌套 | 需要 | 不需要 |
-| 状态持久化 | 需额外配置 | 内置 |
-| 包大小 | React Context (内置) | zustand (~1KB) |
+| 指标          | Context (旧)         | Zustand (新)   |
+| ------------- | -------------------- | -------------- |
+| 重渲染        | 全局订阅者           | 精确订阅       |
+| Provider 嵌套 | 需要                 | 不需要         |
+| 状态持久化    | 需额外配置           | 内置           |
+| 包大小        | React Context (内置) | zustand (~1KB) |
 
 ### 开发体验
 
@@ -60,65 +61,67 @@ src/
 ```typescript
 interface PermissionState {
   // 状态
-  userId: string | null;
-  permissions: Permission[];
-  roles: Role[];
-  customPermissions: Permission[] | null;
-  loading: boolean;
-  error: string | null;
-  initialized: boolean;
+  userId: string | null
+  permissions: Permission[]
+  roles: Role[]
+  customPermissions: Permission[] | null
+  loading: boolean
+  error: string | null
+  initialized: boolean
 
   // Actions
-  initializeFromAuth(auth: AuthData): void;
-  initializeFromAuthData(data: AuthResponse): void;
-  reset(): void;
-  setLoading(loading: boolean): void;
-  setError(error: string | null): void;
+  initializeFromAuth(auth: AuthData): void
+  initializeFromAuthData(data: AuthResponse): void
+  reset(): void
+  setLoading(loading: boolean): void
+  setError(error: string | null): void
 
   // Getters
-  hasPermission(perm: Permission): boolean;
-  hasAnyPermission(perms: Permission[]): boolean;
-  hasAllPermissions(perms: Permission[]): boolean;
-  hasRole(role: Role): boolean;
-  hasAnyRole(roles: Role[]): boolean;
-  hasAllRoles(roles: Role[]): boolean;
-  isAdmin(): boolean;
-  isManagerOrAdmin(): boolean;
-  isMemberOrHigher(): boolean;
-  isGuest(): boolean;
-  getContext(): PermissionContext | null;
+  hasPermission(perm: Permission): boolean
+  hasAnyPermission(perms: Permission[]): boolean
+  hasAllPermissions(perms: Permission[]): boolean
+  hasRole(role: Role): boolean
+  hasAnyRole(roles: Role[]): boolean
+  hasAllRoles(roles: Role[]): boolean
+  isAdmin(): boolean
+  isManagerOrAdmin(): boolean
+  isMemberOrHigher(): boolean
+  isGuest(): boolean
+  getContext(): PermissionContext | null
 }
 
 // Selector Hooks (优化重渲染)
-export const usePermissionLoading = () => usePermissionStore((s) => s.loading);
-export const usePermissionError = () => usePermissionStore((s) => s.error);
-export const usePermissions = () => usePermissionStore((s) => s.permissions);
-export const useRoles = () => usePermissionStore((s) => s.roles);
-export const useIsAdmin = () => usePermissionStore((s) => s.isAdmin());
-export const useIsManagerOrAdmin = () => usePermissionStore((s) => s.isManagerOrAdmin());
-export const useIsMemberOrHigher = () => usePermissionStore((s) => s.isMemberOrHigher());
-export const useIsGuest = () => usePermissionStore((s) => s.isGuest());
-export const usePermissionActions = () => usePermissionStore((s) => ({
-  initializeFromAuth: s.initializeFromAuth,
-  initializeFromAuthData: s.initializeFromAuthData,
-  reset: s.reset,
-  setLoading: s.setLoading,
-  setError: s.setError,
-  refresh: s.refresh,
-}));
-export const usePermissionHelpers = () => usePermissionStore((s) => ({
-  hasPermission: s.hasPermission,
-  hasAnyPermission: s.hasAnyPermission,
-  hasAllPermissions: s.hasAllPermissions,
-  hasRole: s.hasRole,
-  hasAnyRole: s.hasAnyRole,
-  hasAllRoles: s.hasAllRoles,
-  isAdmin: s.isAdmin,
-  isManagerOrAdmin: s.isManagerOrAdmin,
-  isMemberOrHigher: s.isMemberOrHigher,
-  isGuest: s.isGuest,
-  getContext: s.getContext,
-}));
+export const usePermissionLoading = () => usePermissionStore(s => s.loading)
+export const usePermissionError = () => usePermissionStore(s => s.error)
+export const usePermissions = () => usePermissionStore(s => s.permissions)
+export const useRoles = () => usePermissionStore(s => s.roles)
+export const useIsAdmin = () => usePermissionStore(s => s.isAdmin())
+export const useIsManagerOrAdmin = () => usePermissionStore(s => s.isManagerOrAdmin())
+export const useIsMemberOrHigher = () => usePermissionStore(s => s.isMemberOrHigher())
+export const useIsGuest = () => usePermissionStore(s => s.isGuest())
+export const usePermissionActions = () =>
+  usePermissionStore(s => ({
+    initializeFromAuth: s.initializeFromAuth,
+    initializeFromAuthData: s.initializeFromAuthData,
+    reset: s.reset,
+    setLoading: s.setLoading,
+    setError: s.setError,
+    refresh: s.refresh,
+  }))
+export const usePermissionHelpers = () =>
+  usePermissionStore(s => ({
+    hasPermission: s.hasPermission,
+    hasAnyPermission: s.hasAnyPermission,
+    hasAllPermissions: s.hasAllPermissions,
+    hasRole: s.hasRole,
+    hasAnyRole: s.hasAnyRole,
+    hasAllRoles: s.hasAllRoles,
+    isAdmin: s.isAdmin,
+    isManagerOrAdmin: s.isManagerOrAdmin,
+    isMemberOrHigher: s.isMemberOrHigher,
+    isGuest: s.isGuest,
+    getContext: s.getContext,
+  }))
 ```
 
 ---
@@ -129,14 +132,10 @@ export const usePermissionHelpers = () => usePermissionStore((s) => ({
 
 ```typescript
 // 旧方式
-import { usePermissions } from '@/contexts/PermissionContext';
+import { usePermissions } from '@/contexts/PermissionContext'
 
 // 新方式（推荐）
-import { 
-  usePermissionStore,
-  useIsAdmin,
-  usePermissionLoading
-} from '@/stores';
+import { usePermissionStore, useIsAdmin, usePermissionLoading } from '@/stores'
 ```
 
 ### Step 2: 更新 Hook 使用
@@ -163,7 +162,7 @@ function MyComponent() {
 #### 新代码（推荐）
 
 ```typescript
-import { 
+import {
   usePermissionStore,
   useIsAdmin,
   usePermissionLoading
@@ -172,7 +171,7 @@ import {
 function MyComponent() {
   const loading = usePermissionLoading();
   const isAdmin = useIsAdmin();
-  const hasPermission = usePermissionStore(state => 
+  const hasPermission = usePermissionStore(state =>
     state.hasPermission('task:create')
   );
 
@@ -195,7 +194,7 @@ import { usePermissionStore } from '@/stores';
 function MyComponent() {
   const loading = usePermissionStore(state => state.loading);
   const isAdmin = usePermissionStore(state => state.isAdmin());
-  const hasPermission = usePermissionStore(state => 
+  const hasPermission = usePermissionStore(state =>
     state.hasPermission('task:create')
   );
 
@@ -235,10 +234,10 @@ function MyPage() {
 
 ```typescript
 // HOCs 仍然可用，无需修改
-import { withPermission, withRole } from '@/contexts/PermissionContext';
+import { withPermission, withRole } from '@/contexts/PermissionContext'
 
-const ProtectedComponent = withPermission('task:create')(MyComponent);
-const RoleProtectedComponent = withRole('admin')(MyComponent);
+const ProtectedComponent = withPermission('task:create')(MyComponent)
+const RoleProtectedComponent = withRole('admin')(MyComponent)
 ```
 
 ### Step 5: 更新 Provider（可选）
@@ -267,7 +266,7 @@ const RoleProtectedComponent = withRole('admin')(MyComponent);
 import { usePermissionStore } from '@/stores';
 
 function TaskButton() {
-  const hasPermission = usePermissionStore(state => 
+  const hasPermission = usePermissionStore(state =>
     state.hasPermission('task:create')
   );
 
@@ -366,40 +365,40 @@ function PermissionCheck() {
 ### 测试 Hook
 
 ```typescript
-import { renderHook, act } from '@testing-library/react';
-import { usePermissionStore } from '@/stores';
+import { renderHook, act } from '@testing-library/react'
+import { usePermissionStore } from '@/stores'
 
 describe('Permission Tests', () => {
   beforeEach(() => {
     // 重置 store 状态
-    usePermissionStore.getState().reset();
-  });
+    usePermissionStore.getState().reset()
+  })
 
   it('should check admin permission', () => {
     usePermissionStore.getState().initializeFromAuthData({
       user: { id: '1', name: 'Admin', email: 'admin@test.com', roles: ['admin'] },
       permissions: ['all'],
       roles: ['admin'],
-    });
+    })
 
-    const isAdmin = usePermissionStore.getState().isAdmin();
-    expect(isAdmin).toBe(true);
-  });
+    const isAdmin = usePermissionStore.getState().isAdmin()
+    expect(isAdmin).toBe(true)
+  })
 
   it('should check specific permission', () => {
     usePermissionStore.getState().initializeFromAuthData({
       user: { id: '1', name: 'User', email: 'user@test.com', roles: ['member'] },
       permissions: ['task:create', 'task:read'],
       roles: ['member'],
-    });
+    })
 
-    const hasPermission = usePermissionStore.getState().hasPermission('task:create');
-    expect(hasPermission).toBe(true);
+    const hasPermission = usePermissionStore.getState().hasPermission('task:create')
+    expect(hasPermission).toBe(true)
 
-    const noPermission = usePermissionStore.getState().hasPermission('task:delete');
-    expect(noPermission).toBe(false);
-  });
-});
+    const noPermission = usePermissionStore.getState().hasPermission('task:delete')
+    expect(noPermission).toBe(false)
+  })
+})
 ```
 
 ### 测试组件
@@ -410,7 +409,7 @@ import { usePermissionStore } from '@/stores';
 
 function TestComponent() {
   const isAdmin = usePermissionStore(state => state.isAdmin());
-  
+
   return isAdmin ? <div>Admin</div> : <div>Not Admin</div>;
 }
 
@@ -481,7 +480,8 @@ A: 短期内会保留。长期来看，建议新代码直接使用 Zustand API�
 
 ### Q: 如何选择使用 Zustand 还是兼容层？
 
-A: 
+A:
+
 - **新代码**: 直接使用 Zustand（性能更好，API 更简洁）
 - **旧代码**: 继续使用 `usePermissions()`（无需修改）
 
@@ -494,12 +494,12 @@ A: 不需要。Zustand store 可以直接使用，无需 Provider 包裹。`Perm
 A: 使用 store 的 `getState` 方法：
 
 ```typescript
-import { usePermissionStore } from '@/stores';
+import { usePermissionStore } from '@/stores'
 
 // 在组件外部
-const authStore = usePermissionStore.getState();
+const authStore = usePermissionStore.getState()
 if (authStore.isAdmin()) {
-  console.log('Is admin');
+  console.log('Is admin')
 }
 ```
 

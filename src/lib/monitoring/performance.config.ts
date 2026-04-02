@@ -1,7 +1,7 @@
 /**
  * Performance Monitoring Configuration
  * 性能监控配置文件
- * 
+ *
  * 包含：
  * - Core Web Vitals 阈值配置
  * - 自定义性能指标
@@ -17,9 +17,9 @@
 export const CORE_WEB_VITALS_THRESHOLDS = {
   // Largest Contentful Paint - 最大内容绘制
   LCP: {
-    good: 2500,      // ≤2.5s 优秀
+    good: 2500, // ≤2.5s 优秀
     needsImprovement: 4000, // ≤4s 需改进
-    poor: 4000,      // >4s 差
+    poor: 4000, // >4s 差
     unit: 'ms',
     description: '最大内容绘制时间，衡量加载性能',
   },
@@ -36,18 +36,18 @@ export const CORE_WEB_VITALS_THRESHOLDS = {
 
   // Interaction to Next Paint - 交互到下一次绘制
   INP: {
-    good: 200,       // ≤200ms 优秀
+    good: 200, // ≤200ms 优秀
     needsImprovement: 500, // ≤500ms 需改进
-    poor: 500,       // >500ms 差
+    poor: 500, // >500ms 差
     unit: 'ms',
     description: '交互到下一次绘制，衡量交互响应性',
   },
 
   // Cumulative Layout Shift - 累积布局偏移
   CLS: {
-    good: 0.1,       // ≤0.1 优秀
+    good: 0.1, // ≤0.1 优秀
     needsImprovement: 0.25, // ≤0.25 需改进
-    poor: 0.25,      // >0.25 差
+    poor: 0.25, // >0.25 差
     unit: 'score',
     description: '累积布局偏移，衡量视觉稳定性',
   },
@@ -69,7 +69,7 @@ export const CORE_WEB_VITALS_THRESHOLDS = {
     unit: 'ms',
     description: '首次内容绘制时间',
   },
-} as const;
+} as const
 
 // ============================================
 // 自定义性能指标配置
@@ -80,8 +80,8 @@ export const CUSTOM_METRICS_CONFIG = {
   resources: {
     // JavaScript 资源
     jsLoadTime: {
-      warning: 3000,    // 3s 警告
-      critical: 5000,   // 5s 严重
+      warning: 3000, // 3s 警告
+      critical: 5000, // 5s 严重
       description: 'JavaScript 资源加载时间',
     },
     // CSS 资源
@@ -110,12 +110,12 @@ export const CUSTOM_METRICS_CONFIG = {
     threshold: 50,
     // 警告阈值
     warning: {
-      duration: 100,    // >100ms 警告
-      count: 3,         // 或超过 3 个长任务
+      duration: 100, // >100ms 警告
+      count: 3, // 或超过 3 个长任务
     },
     critical: {
-      duration: 300,    // >300ms 严重
-      count: 10,        // 或超过 10 个长任务
+      duration: 300, // >300ms 严重
+      count: 10, // 或超过 10 个长任务
     },
     description: '阻塞主线程的长任务',
   },
@@ -124,8 +124,8 @@ export const CUSTOM_METRICS_CONFIG = {
   memory: {
     // JS 堆内存（仅 Chrome 支持）
     heapSize: {
-      warning: 50,      // 50MB 警告
-      critical: 100,    // 100MB 严重
+      warning: 50, // 50MB 警告
+      critical: 100, // 100MB 严重
       unit: 'MB',
       description: 'JavaScript 堆内存使用',
     },
@@ -142,13 +142,13 @@ export const CUSTOM_METRICS_CONFIG = {
       description: 'API 响应时间',
     },
     errorRate: {
-      warning: 0.01,    // 1% 警告
-      critical: 0.05,   // 5% 严重
+      warning: 0.01, // 1% 警告
+      critical: 0.05, // 5% 严重
       description: 'API 错误率',
     },
     timeout: {
-      default: 10000,   // 10s 默认超时
-      critical: 30000,  // 30s 严重超时
+      default: 10000, // 10s 默认超时
+      critical: 30000, // 30s 严重超时
     },
   },
 
@@ -167,8 +167,8 @@ export const CUSTOM_METRICS_CONFIG = {
   // 组件渲染指标
   rendering: {
     componentRenderTime: {
-      warning: 16,      // 16ms (60fps)
-      critical: 33,     // 33ms (30fps)
+      warning: 16, // 16ms (60fps)
+      critical: 33, // 33ms (30fps)
       unit: 'ms',
       description: '组件渲染时间',
     },
@@ -180,7 +180,7 @@ export const CUSTOM_METRICS_CONFIG = {
     },
     description: 'React 渲染性能',
   },
-} as const;
+} as const
 
 // ============================================
 // 告警配置
@@ -212,12 +212,12 @@ export const ALERT_CONFIG = {
     coreWebVitals: {
       // 单次超阈值
       singleViolation: {
-        warning: true,   // needs-improvement 触发警告
-        critical: true,  // poor 触发严重告警
+        warning: true, // needs-improvement 触发警告
+        critical: true, // poor 触发严重告警
       },
       // 持续性问题（5分钟内）
       sustainedIssue: {
-        threshold: 3,    // 连续 3 次超阈值
+        threshold: 3, // 连续 3 次超阈值
         windowMs: 300000, // 5分钟窗口
       },
       // 聚合告警（1小时内）
@@ -231,12 +231,12 @@ export const ALERT_CONFIG = {
     customMetrics: {
       longTasks: {
         enabled: true,
-        warningThreshold: 3,   // 3 个长任务
+        warningThreshold: 3, // 3 个长任务
         criticalThreshold: 10, // 10 个长任务
       },
       memory: {
         enabled: true,
-        warningThreshold: 50,  // 50MB
+        warningThreshold: 50, // 50MB
         criticalThreshold: 100, // 100MB
       },
       apiErrors: {
@@ -248,9 +248,9 @@ export const ALERT_CONFIG = {
 
     // 静默期配置（避免告警风暴）
     silencePeriod: {
-      info: 600000,     // 10分钟
-      warning: 300000,  // 5分钟
-      critical: 60000,  // 1分钟
+      info: 600000, // 10分钟
+      warning: 300000, // 5分钟
+      critical: 60000, // 1分钟
     },
   },
 
@@ -258,7 +258,7 @@ export const ALERT_CONFIG = {
   channels: {
     console: {
       enabled: true,
-      level: 'info',    // info 及以上
+      level: 'info', // info 及以上
     },
     sentry: {
       enabled: true,
@@ -268,7 +268,7 @@ export const ALERT_CONFIG = {
       },
     },
     slack: {
-      enabled: false,   // 需要配置 webhook
+      enabled: false, // 需要配置 webhook
       level: 'critical', // 仅严重告警
       webhookUrl: process.env.SLACK_WEBHOOK_URL,
     },
@@ -278,7 +278,7 @@ export const ALERT_CONFIG = {
       recipients: [],
     },
   },
-} as const;
+} as const
 
 // ============================================
 // 上报配置
@@ -304,8 +304,8 @@ export const REPORTING_CONFIG = {
   // 批量上报配置
   batch: {
     enabled: true,
-    maxSize: 10,        // 最大批量大小
-    maxWaitMs: 30000,   // 最长等待时间 30s
+    maxSize: 10, // 最大批量大小
+    maxWaitMs: 30000, // 最长等待时间 30s
     retryAttempts: 3,
     retryDelayMs: 1000,
   },
@@ -321,18 +321,9 @@ export const REPORTING_CONFIG = {
   // 过滤配置
   filtering: {
     // 排除的路由
-    excludeRoutes: [
-      '/api/health',
-      '/_next/',
-      '/static/',
-    ],
+    excludeRoutes: ['/api/health', '/_next/', '/static/'],
     // 排除的 User Agent
-    excludeUserAgents: [
-      /bot/i,
-      /spider/i,
-      /crawler/i,
-      /lighthouse/i,
-    ],
+    excludeUserAgents: [/bot/i, /spider/i, /crawler/i, /lighthouse/i],
     // 只在生产环境上报
     productionOnly: true,
   },
@@ -346,7 +337,7 @@ export const REPORTING_CONFIG = {
     // 敏感字段脱敏
     sanitizeFields: ['email', 'phone', 'token', 'password'],
   },
-} as const;
+} as const
 
 // ============================================
 // 实时监控配置
@@ -366,9 +357,9 @@ export const REALTIME_CONFIG = {
 
   // 实时刷新率
   refreshInterval: {
-    metrics: 1000,     // 1秒刷新指标
-    alerts: 5000,      // 5秒检查告警
-    health: 30000,     // 30秒健康检查
+    metrics: 1000, // 1秒刷新指标
+    alerts: 5000, // 5秒检查告警
+    health: 30000, // 30秒健康检查
   },
 
   // 可视化配置
@@ -381,11 +372,11 @@ export const REALTIME_CONFIG = {
     },
     // 图表配置
     charts: {
-      historyLength: 60,    // 保留 60 个数据点
+      historyLength: 60, // 保留 60 个数据点
       updateInterval: 1000, // 1秒更新
     },
   },
-} as const;
+} as const
 
 // ============================================
 // 环境特定配置
@@ -436,7 +427,7 @@ export const ENVIRONMENT_CONFIG = {
       email: true,
     },
   },
-} as const;
+} as const
 
 // ============================================
 // 辅助函数
@@ -446,8 +437,10 @@ export const ENVIRONMENT_CONFIG = {
  * 获取当前环境的配置
  */
 export function getEnvironmentConfig() {
-  const env = process.env.NODE_ENV || 'development';
-  return ENVIRONMENT_CONFIG[env as keyof typeof ENVIRONMENT_CONFIG] || ENVIRONMENT_CONFIG.development;
+  const env = process.env.NODE_ENV || 'development'
+  return (
+    ENVIRONMENT_CONFIG[env as keyof typeof ENVIRONMENT_CONFIG] || ENVIRONMENT_CONFIG.development
+  )
 }
 
 /**
@@ -457,22 +450,23 @@ export function getMetricRating(
   metricName: string,
   value: number
 ): 'good' | 'needs-improvement' | 'poor' {
-  const thresholds = CORE_WEB_VITALS_THRESHOLDS[metricName as keyof typeof CORE_WEB_VITALS_THRESHOLDS];
-  
+  const thresholds =
+    CORE_WEB_VITALS_THRESHOLDS[metricName as keyof typeof CORE_WEB_VITALS_THRESHOLDS]
+
   if (!thresholds) {
-    return 'good';
+    return 'good'
   }
 
-  if (value <= thresholds.good) return 'good';
-  if (value <= thresholds.poor) return 'needs-improvement';
-  return 'poor';
+  if (value <= thresholds.good) return 'good'
+  if (value <= thresholds.poor) return 'needs-improvement'
+  return 'poor'
 }
 
 /**
  * 检查是否应该上报（采样）
  */
 export function shouldReport(sampleRate: number): boolean {
-  return Math.random() < sampleRate;
+  return Math.random() < sampleRate
 }
 
 /**
@@ -486,10 +480,10 @@ export function getConfig() {
     reporting: REPORTING_CONFIG,
     realtime: REALTIME_CONFIG,
     environment: getEnvironmentConfig(),
-  };
+  }
 }
 
 // 类型导出
-export type MetricRating = 'good' | 'needs-improvement' | 'poor';
-export type AlertLevel = 'info' | 'warning' | 'critical';
-export type Environment = 'development' | 'staging' | 'production';
+export type MetricRating = 'good' | 'needs-improvement' | 'poor'
+export type AlertLevel = 'info' | 'warning' | 'critical'
+export type Environment = 'development' | 'staging' | 'production'

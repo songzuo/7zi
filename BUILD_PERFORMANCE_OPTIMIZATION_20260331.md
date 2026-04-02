@@ -44,12 +44,12 @@ Next.js 16.2.1 (Turbopack)
 
 #### 性能瓶颈分析
 
-| 阶段 | 耗时 | 占比 | 瓶颈分析 |
-|------|------|------|----------|
-| **编译** | 73s | 47% | SWC 编译，包含依赖解析 |
-| **TypeScript** | 91s | 58% | **主要瓶颈** - 全量类型检查 |
-| **页面生成** | 1.3s | 1% | 60 个静态页面，性能良好 |
-| **其他** | - | - | 数据收集、优化等 |
+| 阶段           | 耗时 | 占比 | 瓶颈分析                    |
+| -------------- | ---- | ---- | --------------------------- |
+| **编译**       | 73s  | 47%  | SWC 编译，包含依赖解析      |
+| **TypeScript** | 91s  | 58%  | **主要瓶颈** - 全量类型检查 |
+| **页面生成**   | 1.3s | 1%   | 60 个静态页面，性能良好     |
+| **其他**       | -    | -    | 数据收集、优化等            |
 
 #### 主要问题识别
 
@@ -77,12 +77,14 @@ Next.js 16.2.1 (Turbopack)
 #### 优化 1: 禁用 JavaScript 文件类型检查
 
 **变更**:
+
 ```diff
 - "allowJs": true,
 + "allowJs": false,
 ```
 
 **理由**: 项目中只有 2 个 JS 文件，且为测试/工具脚本。禁用 `allowJs` 可以：
+
 - 减少 TypeScript 编译器的文件扫描范围
 - 避免对测试脚本的类型检查
 - 提升类型检查速度
@@ -90,11 +92,13 @@ Next.js 16.2.1 (Turbopack)
 #### 优化 2: 配置增量编译缓存位置
 
 **变更**:
+
 ```diff
 + "tsBuildInfoFile": ".next/cache/tsconfig.tsbuildinfo",
 ```
 
 **理由**: 明确指定增量编译信息存储位置，确保：
+
 - 缓存文件不会被 `.next` 清理影响
 - CI/CD 和本地构建可以复用缓存
 - 更稳定的增量编译性能
@@ -102,6 +106,7 @@ Next.js 16.2.1 (Turbopack)
 #### 优化 3: 精简 include 范围
 
 **变更**:
+
 ```diff
 "include": [
   "next-env.d.ts",
@@ -129,6 +134,7 @@ Next.js 16.2.1 (Turbopack)
 ```
 
 **理由**:
+
 - 排除 `.next/types`（自动生成，无需类型检查）
 - 排除所有测试文件
 - 排除构建产物目录
@@ -139,6 +145,7 @@ Next.js 16.2.1 (Turbopack)
 #### 优化 4: 扩展包导入优化
 
 **变更**:
+
 ```diff
 experimental: {
   optimizeCss: true,
@@ -166,6 +173,7 @@ experimental: {
 **问题**: 使用了不存在的 `owner` 角色，实际定义使用 `ADMIN` 等枚举值。
 
 **修复**:
+
 ```diff
 - const roleOrder: Record<UserRole, number> = {
 -   owner: 0,
@@ -183,8 +191,9 @@ experimental: {
 ```
 
 **说明**: `src/lib/websocket/permissions.ts` 中定义的 UserRole 类型为：
+
 ```typescript
-export type UserRole = 'owner' | 'admin' | 'moderator' | 'member' | 'guest';
+export type UserRole = 'owner' | 'admin' | 'moderator' | 'member' | 'guest'
 ```
 
 #### 修复 2: RoomManager.tsx - 参数类型
@@ -194,6 +203,7 @@ export type UserRole = 'owner' | 'admin' | 'moderator' | 'member' | 'guest';
 **问题**: 回调函数缺少类型注解，导致隐式 any 类型错误。
 
 **修复**:
+
 ```diff
 - const handleSendMessage: RoomViewProps['onSendMessage'] = useCallback((content, replyTo) => {
 + const handleSendMessage: RoomViewProps['onSendMessage'] = useCallback((content: string, replyTo?: string) => {
@@ -215,6 +225,7 @@ export type UserRole = 'owner' | 'admin' | 'moderator' | 'member' | 'guest';
 **问题**: 尝试更新 `metadata` 字段，但 `RoomConfig` 接口中没有此字段（`metadata` 在 `Room` 接口中）。
 
 **修复**:
+
 ```diff
 - const handleSaveName = () => {
 -   if (roomName !== room.name && canManage) {
@@ -238,12 +249,12 @@ export type UserRole = 'owner' | 'admin' | 'moderator' | 'member' | 'guest';
 
 ### 3.1 构建性能对比
 
-| 指标 | 优化前 | 优化后 | 提升 |
-|------|--------|--------|------|
-| **编译时间** | 73s | 46s | **-27s (-37%)** |
-| **TypeScript 检查** | 91s | 52s | **-39s (-43%)** |
-| **页面生成** | 1298ms | 999ms | **-299ms (-23%)** |
-| **总构建时间** | ~2m35s | ~1m46s | **-49s (-32%)** |
+| 指标                | 优化前 | 优化后 | 提升              |
+| ------------------- | ------ | ------ | ----------------- |
+| **编译时间**        | 73s    | 46s    | **-27s (-37%)**   |
+| **TypeScript 检查** | 91s    | 52s    | **-39s (-43%)**   |
+| **页面生成**        | 1298ms | 999ms  | **-299ms (-23%)** |
+| **总构建时间**      | ~2m35s | ~1m46s | **-49s (-32%)**   |
 
 ### 3.2 构建成功验证
 
@@ -273,6 +284,7 @@ export type UserRole = 'owner' | 'admin' | 'moderator' | 'member' | 'guest';
 ### 4.1 TypeScript 配置对比
 
 #### 优化前
+
 ```json
 {
   "compilerOptions": {
@@ -294,6 +306,7 @@ export type UserRole = 'owner' | 'admin' | 'moderator' | 'member' | 'guest';
 ```
 
 #### 优化后
+
 ```json
 {
   "compilerOptions": {
@@ -303,11 +316,7 @@ export type UserRole = 'owner' | 'admin' | 'moderator' | 'member' | 'guest';
     "tsBuildInfoFile": ".next/cache/tsconfig.tsbuildinfo",
     "types": ["vitest/globals"]
   },
-  "include": [
-    "next-env.d.ts",
-    "src/**/*.ts",
-    "src/**/*.tsx"
-  ],
+  "include": ["next-env.d.ts", "src/**/*.ts", "src/**/*.tsx"],
   "exclude": [
     "node_modules",
     "_nested-app-backup",
@@ -326,6 +335,7 @@ export type UserRole = 'owner' | 'admin' | 'moderator' | 'member' | 'guest';
 ### 4.2 Next.js 配置对比
 
 #### 新增配置
+
 ```typescript
 experimental: {
   optimizeCss: true,
@@ -349,14 +359,17 @@ experimental: {
 ### 5.1 短期优化（1-2 周内）
 
 1. **启用 Turbopack 增量编译**
+
    ```bash
    # 在 package.json 中添加
    "build:turbo": "NODE_ENV=production TURBOPACK=1 next build --turbopack"
    ```
+
    - 预期再节省 10-15 秒
    - Turbopack 的增量编译比 Webpack 快 10-100 倍
 
 2. **修复 images.domains 警告**
+
    ```typescript
    // next.config.ts
    images: {
@@ -385,10 +398,12 @@ experimental: {
    - 特别关注 Three.js 相关组件
 
 2. **依赖审计**
+
    ```bash
    npm outdated
    npx depcheck
    ```
+
    - 移除未使用的依赖
    - 更新过时的大型依赖
    - 考虑替代方案（如用 `framer-motion` 替代部分动画库）
@@ -408,9 +423,11 @@ experimental: {
    - 减少冷启动时间
 
 3. **Bundling 分析**
+
    ```bash
    npm run build:analyze
    ```
+
    - 识别体积最大的包
    - 实施进一步的树摇优化
 
@@ -424,11 +441,11 @@ experimental: {
 
 ### 6.1 已识别风险
 
-| 风险 | 级别 | 缓解措施 | 状态 |
-|------|------|----------|------|
-| 类型检查可能遗漏测试代码中的问题 | 低 | 测试代码单独运行类型检查 | 已缓解 |
-| `allowJs: false` 可能影响某些依赖 | 低 | 所有主要依赖均为 TypeScript | 无影响 |
-| 排除测试文件可能导致测试相关类型错误不被发现 | 低 | 测试时单独运行 `tsc --noEmit` | 已缓解 |
+| 风险                                         | 级别 | 缓解措施                      | 状态   |
+| -------------------------------------------- | ---- | ----------------------------- | ------ |
+| 类型检查可能遗漏测试代码中的问题             | 低   | 测试代码单独运行类型检查      | 已缓解 |
+| `allowJs: false` 可能影响某些依赖            | 低   | 所有主要依赖均为 TypeScript   | 无影响 |
+| 排除测试文件可能导致测试相关类型错误不被发现 | 低   | 测试时单独运行 `tsc --noEmit` | 已缓解 |
 
 ### 6.2 回滚计划
 
@@ -476,13 +493,13 @@ git checkout HEAD -- src/components/room/*.tsx
 
 ### 8.1 修改文件清单
 
-| 文件 | 变更类型 | 行数变化 |
-|------|----------|----------|
-| `tsconfig.json` | 配置优化 | -3/+10 |
-| `next.config.ts` | 配置优化 | +8 |
-| `src/components/room/ParticipantList.tsx` | 代码修复 | -1/+5 |
-| `src/components/room/RoomManager.tsx` | 代码修复 | -2/+2 |
-| `src/components/room/RoomSettings.tsx` | 代码修复 | -4/+5 |
+| 文件                                      | 变更类型 | 行数变化 |
+| ----------------------------------------- | -------- | -------- |
+| `tsconfig.json`                           | 配置优化 | -3/+10   |
+| `next.config.ts`                          | 配置优化 | +8       |
+| `src/components/room/ParticipantList.tsx` | 代码修复 | -1/+5    |
+| `src/components/room/RoomManager.tsx`     | 代码修复 | -2/+2    |
+| `src/components/room/RoomSettings.tsx`    | 代码修复 | -4/+5    |
 
 ### 8.2 构建环境
 

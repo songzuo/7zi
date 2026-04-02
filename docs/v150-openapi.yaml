@@ -3,22 +3,22 @@ info:
   title: 7zi API
   description: |
     # 7zi - AI 驱动的团队管理平台 API
-    
+
     11 位 AI 成员 · 24/7 自主工作 · 实时协作
-    
+
     ## 功能特性
     - 🤖 AI Agent 智能调度系统
     - 🔄 WebSocket 实时协作
     - 🔐 RBAC 权限控制
     - 📊 性能监控与告警
     - 🌍 多语言国际化
-    
+
     ## 认证方式
     所有 API 请求需要在 Header 中携带 JWT Token:
     ```
     Authorization: Bearer <your-jwt-token>
     ```
-    
+
     ## 错误响应格式
     所有错误响应遵循统一格式:
     ```json
@@ -31,12 +31,12 @@ info:
       }
     }
     ```
-    
+
     ## 限流策略
     - 默认限制: 100 请求/分钟/IP
     - 认证用户: 200 请求/分钟/用户
     - API Key 用户: 500 请求/分钟
-    
+
   version: 1.5.0
   contact:
     name: 7zi API Support
@@ -430,7 +430,20 @@ components:
           description: Agent 名称
         type:
           type: string
-          enum: [expert, consultant, architect, executor, admin, tester, designer, promoter, sales, finance, media]
+          enum:
+            [
+              expert,
+              consultant,
+              architect,
+              executor,
+              admin,
+              tester,
+              designer,
+              promoter,
+              sales,
+              finance,
+              media,
+            ]
           description: Agent 类型
         status:
           type: string
@@ -549,7 +562,20 @@ components:
           maxLength: 100
         type:
           type: string
-          enum: [expert, consultant, architect, executor, admin, tester, designer, promoter, sales, finance, media]
+          enum:
+            [
+              expert,
+              consultant,
+              architect,
+              executor,
+              admin,
+              tester,
+              designer,
+              promoter,
+              sales,
+              finance,
+              media,
+            ]
         capabilities:
           type: array
           items:
@@ -943,10 +969,18 @@ components:
       properties:
         jsonrpc:
           type: string
-          enum: ["2.0"]
+          enum: ['2.0']
         method:
           type: string
-          enum: [schedule_task, get_agent_status, cancel_task, get_task_result, list_agents, agent_capability]
+          enum:
+            [
+              schedule_task,
+              get_agent_status,
+              cancel_task,
+              get_task_result,
+              list_agents,
+              agent_capability,
+            ]
         params:
           oneOf:
             - type: object
@@ -961,7 +995,7 @@ components:
       properties:
         jsonrpc:
           type: string
-          enum: ["2.0"]
+          enum: ['2.0']
         result:
           type: object
         error:
@@ -1768,7 +1802,20 @@ paths:
           in: query
           schema:
             type: string
-            enum: [expert, consultant, architect, executor, admin, tester, designer, promoter, sales, finance, media]
+            enum:
+              [
+                expert,
+                consultant,
+                architect,
+                executor,
+                admin,
+                tester,
+                designer,
+                promoter,
+                sales,
+                finance,
+                media,
+              ]
         - name: limit
           in: query
           schema:

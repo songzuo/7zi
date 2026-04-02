@@ -83,11 +83,11 @@ src/lib/agents/
 
 ### 主要变更对比
 
-| 旧路径 | 新路径 | 状态 |
-|--------|--------|------|
-| `src/lib/agents/agent/` | `src/lib/agents/core/` | ✅ 已重命名 |
-| `src/lib/agents/agent/communication/` | `src/lib/agents/communication/` | ✅ 已提升 |
-| `src/lib/agents/index.ts` | `src/lib/agents/index.ts` | ✅ 已更新 |
+| 旧路径                                | 新路径                          | 状态        |
+| ------------------------------------- | ------------------------------- | ----------- |
+| `src/lib/agents/agent/`               | `src/lib/agents/core/`          | ✅ 已重命名 |
+| `src/lib/agents/agent/communication/` | `src/lib/agents/communication/` | ✅ 已提升   |
+| `src/lib/agents/index.ts`             | `src/lib/agents/index.ts`       | ✅ 已更新   |
 
 ---
 
@@ -96,11 +96,13 @@ src/lib/agents/
 ### 外部导入影响
 
 **统计结果**:
+
 - 总导入数: ~28 个文件
 - 直接导入 `agent/` 的文件: 1 个
 - 已修复文件: 1 个
 
 **已修复的文件**:
+
 ```
 src/lib/db/__tests__/optimization.test.ts
   - @/lib/agents/agent/... → @/lib/agents/core/...
@@ -108,12 +110,12 @@ src/lib/db/__tests__/optimization.test.ts
 
 ### 向后兼容性
 
-| 场景 | 状态 | 说明 |
-|------|------|------|
-| 新代码使用 `core/` | ✅ 完全支持 | 推荐使用 |
-| 旧代码使用 `agent/` | ✅ 仍然可用 | 通过 index.ts 重新导出 |
-| 统一导入 `@/lib/agents` | ✅ 完全支持 | 无变化 |
-| IDE 自动导入 | ✅ 正常工作 | TypeScript 路径解析正常 |
+| 场景                    | 状态        | 说明                    |
+| ----------------------- | ----------- | ----------------------- |
+| 新代码使用 `core/`      | ✅ 完全支持 | 推荐使用                |
+| 旧代码使用 `agent/`     | ✅ 仍然可用 | 通过 index.ts 重新导出  |
+| 统一导入 `@/lib/agents` | ✅ 完全支持 | 无变化                  |
+| IDE 自动导入            | ✅ 正常工作 | TypeScript 路径解析正常 |
 
 ---
 
@@ -124,6 +126,7 @@ src/lib/db/__tests__/optimization.test.ts
 **目标**: 最小化变更，保持兼容性
 
 **优点**:
+
 - ✅ 命名更清晰 (`core/` vs `agent/`)
 - ✅ 目录结构更扁平 (`communication/` 提升)
 - ✅ 最小化破坏性变更
@@ -131,6 +134,7 @@ src/lib/db/__tests__/optimization.test.ts
 - ✅ 易于回滚
 
 **缺点**:
+
 - ⚠️ 向后兼容代码增加文件大小
 - ⚠️ 需要维护两套导出（新 + 旧）
 
@@ -179,13 +183,14 @@ src/lib/db/__tests__/optimization.test.ts
 ### 立即执行（高优先级）
 
 1. **完成测试验证**
+
    ```bash
    # 等待 TypeScript 编译完成
    # 如果有错误，逐一修复
-   
+
    # 运行测试套件
    npm test -- --run
-   
+
    # 修复失败的测试
    ```
 
@@ -195,15 +200,16 @@ src/lib/db/__tests__/optimization.test.ts
    - 添加迁移指南（可选）
 
 3. **提交代码**
+
    ```bash
    git add src/lib/agents/
    git commit -m "refactor(lib/agents): restructure directory layout
-   
+
    - Rename agent/ to core/ for better naming clarity
    - Move agent/communication/ to communication/ to flatten structure
    - Update all import paths
    - Maintain backward compatibility with deprecated exports
-   
+
    See: LIB_AGENTS_REFACTOR_ANALYSIS.md"
    ```
 
@@ -256,21 +262,25 @@ src/lib/db/__tests__/optimization.test.ts
 ### 主要成果
 
 ✅ **目录结构重构完成**
+
 - 命名更清晰 (`core/` vs `agent/`)
 - 结构更扁平 (`communication/` 提升)
 - 保持向后兼容
 
 ✅ **影响范围控制**
+
 - 只影响 1 个外部文件
 - 其他从 `@/lib/agents/` 统一导入，无影响
 
 ⏳ **测试验证进行中**
+
 - TypeScript 编译（进行中）
 - 测试套件（待执行）
 
 ### 风险提示
 
 ⚠️ **需要注意**
+
 - 如果测试失败，需要及时修复
 - 建议在合并主分支前进行完整测试
 

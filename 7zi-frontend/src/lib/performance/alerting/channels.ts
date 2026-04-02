@@ -3,35 +3,32 @@
  * 告警渠道实现
  */
 
-import {
-  PerformanceAlert,
-  AlertChannel,
-  AlertChannelConfig,
-  AlertSeverity,
-} from './types';
+import { PerformanceAlert, AlertChannel, AlertChannelConfig, AlertSeverity } from './types'
 
 /**
  * Email Channel - Email notifications
  */
 export class EmailChannel implements AlertChannel {
-  private config: Required<Pick<AlertChannelConfig['config'], 'recipients' | 'subject'>>;
+  private config: Required<Pick<AlertChannelConfig['config'], 'recipients' | 'subject'>>
 
   constructor(config: { recipients: string[]; subject?: string }) {
     this.config = {
       recipients: config.recipients,
       subject: config.subject || 'Performance Alert',
-    };
+    }
   }
 
   async send(alert: PerformanceAlert): Promise<void> {
-    console.log(`[EMAIL] To: ${this.config.recipients.join(', ')}`);
-    console.log(`[EMAIL] Subject: [${alert.severity.toUpperCase()}] ${this.config.subject} - ${alert.metric}`);
-    console.log(`[EMAIL] Message: ${alert.message}`);
-    console.log(`[EMAIL] Value: ${alert.value}, Threshold: ${alert.threshold}`);
-    console.log(`[EMAIL] Timestamp: ${new Date(alert.timestamp).toISOString()}`);
+    console.log(`[EMAIL] To: ${this.config.recipients.join(', ')}`)
+    console.log(
+      `[EMAIL] Subject: [${alert.severity.toUpperCase()}] ${this.config.subject} - ${alert.metric}`
+    )
+    console.log(`[EMAIL] Message: ${alert.message}`)
+    console.log(`[EMAIL] Value: ${alert.value}, Threshold: ${alert.threshold}`)
+    console.log(`[EMAIL] Timestamp: ${new Date(alert.timestamp).toISOString()}`)
 
     if (alert.context) {
-      console.log(`[EMAIL] Context:`, JSON.stringify(alert.context, null, 2));
+      console.log(`[EMAIL] Context:`, JSON.stringify(alert.context, null, 2))
     }
 
     // TODO: Integrate with actual email service
@@ -54,7 +51,7 @@ export class EmailChannel implements AlertChannel {
       <p><strong>Threshold:</strong> ${alert.threshold}</p>
       <p><strong>Timestamp:</strong> ${new Date(alert.timestamp).toISOString()}</p>
       ${alert.context ? `<p><strong>Context:</strong> <pre>${JSON.stringify(alert.context, null, 2)}</pre></p>` : ''}
-    `;
+    `
   }
 }
 
@@ -62,17 +59,17 @@ export class EmailChannel implements AlertChannel {
  * Slack Channel - Slack webhook notifications
  */
 export class SlackChannel implements AlertChannel {
-  private config: Required<Pick<AlertChannelConfig['config'], 'webhookUrl' | 'channel'>>;
+  private config: Required<Pick<AlertChannelConfig['config'], 'webhookUrl' | 'channel'>>
 
   constructor(config: { webhookUrl: string; channel?: string }) {
     this.config = {
       webhookUrl: config.webhookUrl,
       channel: config.channel || '#alerts',
-    };
+    }
   }
 
   async send(alert: PerformanceAlert): Promise<void> {
-    const color = this.getColorForSeverity(alert.severity);
+    const color = this.getColorForSeverity(alert.severity)
     const payload = {
       channel: this.config.channel,
       attachments: [
@@ -106,11 +103,11 @@ export class SlackChannel implements AlertChannel {
           footer: alert.context ? JSON.stringify(alert.context) : undefined,
         },
       ],
-    };
+    }
 
-    console.log(`[SLACK] Webhook: ${this.config.webhookUrl}`);
-    console.log(`[SLACK] Channel: ${this.config.channel}`);
-    console.log(`[SLACK] Payload:`, JSON.stringify(payload, null, 2));
+    console.log(`[SLACK] Webhook: ${this.config.webhookUrl}`)
+    console.log(`[SLACK] Channel: ${this.config.channel}`)
+    console.log(`[SLACK] Payload:`, JSON.stringify(payload, null, 2))
 
     // TODO: Send actual webhook
     // await fetch(this.config.webhookUrl, {
@@ -123,15 +120,15 @@ export class SlackChannel implements AlertChannel {
   private getColorForSeverity(severity: AlertSeverity): string {
     switch (severity) {
       case 'info':
-        return '#36a64f'; // green
+        return '#36a64f' // green
       case 'warning':
-        return '#ff9800'; // orange
+        return '#ff9800' // orange
       case 'error':
-        return '#f44336'; // red
+        return '#f44336' // red
       case 'critical':
-        return '#9c27b0'; // purple
+        return '#9c27b0' // purple
       default:
-        return '#2196f3'; // blue
+        return '#2196f3' // blue
     }
   }
 }
@@ -140,22 +137,22 @@ export class SlackChannel implements AlertChannel {
  * Dashboard Channel - In-app notifications
  */
 export class DashboardChannel implements AlertChannel {
-  private config: Required<Pick<AlertChannelConfig['config'], 'showToast' | 'playSound'>>;
+  private config: Required<Pick<AlertChannelConfig['config'], 'showToast' | 'playSound'>>
 
   constructor(config: { showToast?: boolean; playSound?: boolean }) {
     this.config = {
       showToast: config.showToast ?? true,
       playSound: config.playSound ?? false,
-    };
+    }
   }
 
   async send(alert: PerformanceAlert): Promise<void> {
-    console.log(`[DASHBOARD] Severity: ${alert.severity.toUpperCase()}`);
-    console.log(`[DASHBOARD] Metric: ${alert.metric}`);
-    console.log(`[DASHBOARD] Message: ${alert.message}`);
-    console.log(`[DASHBOARD] Value: ${alert.value}, Threshold: ${alert.threshold}`);
-    console.log(`[DASHBOARD] Show Toast: ${this.config.showToast}`);
-    console.log(`[DASHBOARD] Play Sound: ${this.config.playSound}`);
+    console.log(`[DASHBOARD] Severity: ${alert.severity.toUpperCase()}`)
+    console.log(`[DASHBOARD] Metric: ${alert.metric}`)
+    console.log(`[DASHBOARD] Message: ${alert.message}`)
+    console.log(`[DASHBOARD] Value: ${alert.value}, Threshold: ${alert.threshold}`)
+    console.log(`[DASHBOARD] Show Toast: ${this.config.showToast}`)
+    console.log(`[DASHBOARD] Play Sound: ${this.config.playSound}`)
 
     if (this.config.showToast) {
       // TODO: Integrate with toast notification system
@@ -174,17 +171,19 @@ export class DashboardChannel implements AlertChannel {
     }
   }
 
-  private getToastType(severity: AlertSeverity): 'success' | 'info' | 'warning' | 'error' | 'default' {
+  private getToastType(
+    severity: AlertSeverity
+  ): 'success' | 'info' | 'warning' | 'error' | 'default' {
     switch (severity) {
       case 'info':
-        return 'info';
+        return 'info'
       case 'warning':
-        return 'warning';
+        return 'warning'
       case 'error':
       case 'critical':
-        return 'error';
+        return 'error'
       default:
-        return 'default';
+        return 'default'
     }
   }
 }
@@ -193,18 +192,14 @@ export class DashboardChannel implements AlertChannel {
  * Webhook Channel - Generic webhook notifications
  */
 export class WebhookChannel implements AlertChannel {
-  private config: Required<Pick<AlertChannelConfig['config'], 'url' | 'method' | 'headers'>>;
+  private config: Required<Pick<AlertChannelConfig['config'], 'url' | 'method' | 'headers'>>
 
-  constructor(config: {
-    url: string;
-    method?: 'GET' | 'POST';
-    headers?: Record<string, string>;
-  }) {
+  constructor(config: { url: string; method?: 'GET' | 'POST'; headers?: Record<string, string> }) {
     this.config = {
       url: config.url,
       method: config.method ?? 'POST',
       headers: config.headers ?? { 'Content-Type': 'application/json' },
-    };
+    }
   }
 
   async send(alert: PerformanceAlert): Promise<void> {
@@ -217,12 +212,12 @@ export class WebhookChannel implements AlertChannel {
       threshold: alert.threshold,
       timestamp: alert.timestamp,
       context: alert.context,
-    };
+    }
 
-    console.log(`[WEBHOOK] URL: ${this.config.url}`);
-    console.log(`[WEBHOOK] Method: ${this.config.method}`);
-    console.log(`[WEBHOOK] Headers:`, this.config.headers);
-    console.log(`[WEBHOOK] Payload:`, JSON.stringify(payload, null, 2));
+    console.log(`[WEBHOOK] URL: ${this.config.url}`)
+    console.log(`[WEBHOOK] Method: ${this.config.method}`)
+    console.log(`[WEBHOOK] Headers:`, this.config.headers)
+    console.log(`[WEBHOOK] Payload:`, JSON.stringify(payload, null, 2))
 
     // TODO: Send actual webhook
     // await fetch(this.config.url, {
@@ -237,17 +232,17 @@ export class WebhookChannel implements AlertChannel {
  * Telegram Channel - Telegram bot notifications
  */
 export class TelegramChannel implements AlertChannel {
-  private config: Required<Pick<AlertChannelConfig['config'], 'botToken' | 'chatId'>>;
+  private config: Required<Pick<AlertChannelConfig['config'], 'botToken' | 'chatId'>>
 
   constructor(config: { botToken: string; chatId: string }) {
     this.config = {
       botToken: config.botToken,
       chatId: config.chatId,
-    };
+    }
   }
 
   async send(alert: PerformanceAlert): Promise<void> {
-    const emoji = this.getEmojiForSeverity(alert.severity);
+    const emoji = this.getEmojiForSeverity(alert.severity)
     const message = `
 ${emoji} <b>Performance Alert</b>
 
@@ -259,11 +254,11 @@ ${emoji} <b>Performance Alert</b>
 ${alert.message}
 
 <i>${new Date(alert.timestamp).toISOString()}</i>
-    `.trim();
+    `.trim()
 
-    console.log(`[TELEGRAM] Bot Token: ${this.config.botToken}`);
-    console.log(`[TELEGRAM] Chat ID: ${this.config.chatId}`);
-    console.log(`[TELEGRAM] Message:`, message);
+    console.log(`[TELEGRAM] Bot Token: ${this.config.botToken}`)
+    console.log(`[TELEGRAM] Chat ID: ${this.config.chatId}`)
+    console.log(`[TELEGRAM] Message:`, message)
 
     // TODO: Send actual Telegram message
     // await fetch(`https://api.telegram.org/bot${this.config.botToken}/sendMessage`, {
@@ -280,15 +275,15 @@ ${alert.message}
   private getEmojiForSeverity(severity: AlertSeverity): string {
     switch (severity) {
       case 'info':
-        return 'ℹ️';
+        return 'ℹ️'
       case 'warning':
-        return '⚠️';
+        return '⚠️'
       case 'error':
-        return '❌';
+        return '❌'
       case 'critical':
-        return '🚨';
+        return '🚨'
       default:
-        return '🔔';
+        return '🔔'
     }
   }
 }

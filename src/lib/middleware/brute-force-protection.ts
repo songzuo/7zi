@@ -9,18 +9,18 @@
  * - Logging and monitoring
  */
 
-import { NextRequest, NextResponse } from 'next/server';
-import { logger } from '@/lib/logger';
+import { NextRequest, NextResponse } from 'next/server'
+import { logger } from '@/lib/logger'
 
 /**
  * Failed attempt record
  */
 interface FailedAttempt {
-  count: number;
-  firstAttempt: number;
-  lastAttempt: number;
-  lockedUntil: number | null;
-  requireCaptcha: boolean;
+  count: number
+  firstAttempt: number
+  lastAttempt: number
+  lockedUntil: number | null
+  requireCaptcha: boolean
 }
 
 /**
@@ -28,19 +28,19 @@ interface FailedAttempt {
  */
 export interface BruteForceConfig {
   // Maximum failed attempts before lockout
-  maxAttempts: number;
+  maxAttempts: number
 
   // Lockout duration in milliseconds (multiplied by attempt count)
-  baseLockoutDuration: number;
+  baseLockoutDuration: number
 
   // Time window to track attempts (in milliseconds)
-  attemptWindow: number;
+  attemptWindow: number
 
   // Threshold after which to require CAPTCHA
-  captchaThreshold: number;
+  captchaThreshold: number
 
   // Whether to track by IP only or also by account
-  trackByAccount?: boolean;
+  trackByAccount?: boolean
 }
 
 /**
@@ -75,60 +75,56 @@ const DEFAULT_CONFIGS: Record<string, BruteForceConfig> = {
     captchaThreshold: 3,
     trackByAccount: true,
   },
-};
+}
 
 // In-memory store for failed attempts
 // In production, this should be replaced with Redis or similar
-const failedAttemptsStore = new Map<string, FailedAttempt>();
+const failedAttemptsStore = new Map<string, FailedAttempt>()
 
 /**
  * Get client IP address from request
  */
 function getClientIP(request: NextRequest): string {
-  const forwardedFor = request.headers.get('x-forwarded-for');
-  const realIp = request.headers.get('x-real-ip');
+  const forwardedFor = request.headers.get('x-forwarded-for')
+  const realIp = request.headers.get('x-real-ip')
 
   if (forwardedFor) {
-    return forwardedFor.split(',')[0].trim();
+    return forwardedFor.split(',')[0].trim()
   }
 
   if (realIp) {
-    return realIp;
+    return realIp
   }
 
-  return 'unknown';
+  return 'unknown'
 }
 
 /**
  * Generate a key for tracking attempts
  */
-function generateKey(
-  request: NextRequest,
-  identifier?: string,
-  trackByAccount?: boolean
-): string {
-  const ip = getClientIP(request);
-  const path = request.nextUrl.pathname;
+function generateKey(request: NextRequest, identifier?: string, trackByAccount?: boolean): string {
+  const ip = getClientIP(request)
+  const path = request.nextUrl.pathname
 
   if (trackByAccount && identifier) {
-    return `${path}:account:${identifier}`;
+    return `${path}:account:${identifier}`
   }
 
-  return `${path}:ip:${ip}`;
+  return `${path}:ip:${ip}`
 }
 
 /**
  * Get current timestamp
  */
 function now(): number {
-  return Date.now();
+  return Date.now()
 }
 
 /**
  * Check if attempts should be reset based on time window
  */
 function shouldResetAttempts(attempt: FailedAttempt, config: BruteForceConfig): boolean {
-  return now() - attempt.lastAttempt > config.attemptWindow;
+  return now() - attempt.lastAttempt > config.attemptWindow
 }
 
 /**
@@ -139,7 +135,7 @@ function getLockoutDuration(count: number, config: BruteForceConfig): number {
   return Math.min(
     Math.pow(2, count - 1) * config.baseLockoutDuration,
     24 * 60 * 60 * 1000 // Max 24 hours
-  );
+  )
 }
 
 /**
@@ -150,14 +146,14 @@ export function checkBruteForceProtection(
   config: BruteForceConfig,
   identifier?: string
 ): {
-  blocked: boolean;
-  attempt: FailedAttempt | null;
-  reason?: string;
-  retryAfter?: number;
-  requireCaptcha: boolean;
+  blocked: boolean
+  attempt: FailedAttempt | null
+  reason?: string
+  retryAfter?: number
+  requireCaptcha: boolean
 } {
-  const key = generateKey(request, identifier, config.trackByAccount);
-  const attempt = failedAttemptsStore.get(key);
+  const key = generateKey(request, identifier, config.trackByAccount)
+  const attempt = failedAttemptsStore.get(key)
 
   // No previous attempts
   if (!attempt) {
@@ -165,45 +161,45 @@ export function checkBruteForceProtection(
       blocked: false,
       attempt: null,
       requireCaptcha: false,
-    };
+    }
   }
 
   // Reset if window expired
   if (shouldResetAttempts(attempt, config)) {
-    failedAttemptsStore.delete(key);
+    failedAttemptsStore.delete(key)
     return {
       blocked: false,
       attempt: null,
       requireCaptcha: false,
-    };
+    }
   }
 
   // Check if currently locked out
   if (attempt.lockedUntil && attempt.lockedUntil > now()) {
-    const retryAfter = Math.ceil((attempt.lockedUntil - now()) / 1000);
+    const retryAfter = Math.ceil((attempt.lockedUntil - now()) / 1000)
     return {
       blocked: true,
       attempt,
       reason: 'Account locked due to too many failed attempts',
       retryAfter,
       requireCaptcha: true,
-    };
+    }
   }
 
   // Check if lockout has expired
   if (attempt.lockedUntil && attempt.lockedUntil <= now()) {
-    attempt.lockedUntil = null;
-    attempt.count = 0; // Reset count after lockout expires
+    attempt.lockedUntil = null
+    attempt.count = 0 // Reset count after lockout expires
   }
 
   // Check if CAPTCHA is required
-  const requireCaptcha = attempt.count >= config.captchaThreshold;
+  const requireCaptcha = attempt.count >= config.captchaThreshold
 
   return {
     blocked: false,
     attempt,
     requireCaptcha,
-  };
+  }
 }
 
 /**
@@ -214,13 +210,13 @@ export function recordFailedAttempt(
   config: BruteForceConfig,
   identifier?: string
 ): {
-  blocked: boolean;
-  lockoutUntil?: number;
-  retryAfter?: number;
-  attemptCount: number;
+  blocked: boolean
+  lockoutUntil?: number
+  retryAfter?: number
+  attemptCount: number
 } {
-  const key = generateKey(request, identifier, config.trackByAccount);
-  let attempt = failedAttemptsStore.get(key);
+  const key = generateKey(request, identifier, config.trackByAccount)
+  let attempt = failedAttemptsStore.get(key)
 
   if (!attempt) {
     attempt = {
@@ -229,18 +225,18 @@ export function recordFailedAttempt(
       lastAttempt: now(),
       lockedUntil: null,
       requireCaptcha: false,
-    };
-    failedAttemptsStore.set(key, attempt);
+    }
+    failedAttemptsStore.set(key, attempt)
   }
 
   // Increment attempt count
-  attempt.count++;
-  attempt.lastAttempt = now();
+  attempt.count++
+  attempt.lastAttempt = now()
 
   // Check if should lock out
   if (attempt.count >= config.maxAttempts) {
-    const lockoutDuration = getLockoutDuration(attempt.count, config);
-    attempt.lockedUntil = now() + lockoutDuration;
+    const lockoutDuration = getLockoutDuration(attempt.count, config)
+    attempt.lockedUntil = now() + lockoutDuration
 
     logger.warn('Brute force protection: Account locked', {
       ip: getClientIP(request),
@@ -249,32 +245,32 @@ export function recordFailedAttempt(
       attemptCount: attempt.count,
       lockoutDuration,
       lockoutUntil: new Date(attempt.lockedUntil).toISOString(),
-    });
+    })
 
     return {
       blocked: true,
       lockoutUntil: attempt.lockedUntil,
       retryAfter: Math.ceil(lockoutDuration / 1000),
       attemptCount: attempt.count,
-    };
+    }
   }
 
   // Check if CAPTCHA should be required
   if (attempt.count >= config.captchaThreshold) {
-    attempt.requireCaptcha = true;
+    attempt.requireCaptcha = true
 
     logger.info('Brute force protection: CAPTCHA required', {
       ip: getClientIP(request),
       identifier,
       path: request.nextUrl.pathname,
       attemptCount: attempt.count,
-    });
+    })
   }
 
   return {
     blocked: false,
     attemptCount: attempt.count,
-  };
+  }
 }
 
 /**
@@ -285,8 +281,8 @@ export function clearFailedAttempts(
   config: BruteForceConfig,
   identifier?: string
 ): void {
-  const key = generateKey(request, identifier, config.trackByAccount);
-  failedAttemptsStore.delete(key);
+  const key = generateKey(request, identifier, config.trackByAccount)
+  failedAttemptsStore.delete(key)
 }
 
 /**
@@ -297,13 +293,13 @@ export function getBruteForceStatus(
   config: BruteForceConfig,
   identifier?: string
 ): {
-  attemptCount: number;
-  remainingAttempts: number;
-  lockedUntil: number | null;
-  requireCaptcha: boolean;
+  attemptCount: number
+  remainingAttempts: number
+  lockedUntil: number | null
+  requireCaptcha: boolean
 } {
-  const key = generateKey(request, identifier, config.trackByAccount);
-  const attempt = failedAttemptsStore.get(key);
+  const key = generateKey(request, identifier, config.trackByAccount)
+  const attempt = failedAttemptsStore.get(key)
 
   if (!attempt || shouldResetAttempts(attempt, config)) {
     return {
@@ -311,7 +307,7 @@ export function getBruteForceStatus(
       remainingAttempts: config.maxAttempts,
       lockedUntil: null,
       requireCaptcha: false,
-    };
+    }
   }
 
   return {
@@ -319,7 +315,7 @@ export function getBruteForceStatus(
     remainingAttempts: Math.max(0, config.maxAttempts - attempt.count),
     lockedUntil: attempt.lockedUntil,
     requireCaptcha: attempt.requireCaptcha,
-  };
+  }
 }
 
 /**
@@ -329,36 +325,34 @@ export function withBruteForceProtection<T = unknown>(
   handler: (
     request: NextRequest,
     context: {
-      config: BruteForceConfig;
-      identifier?: string;
-      requireCaptcha: boolean;
+      config: BruteForceConfig
+      identifier?: string
+      requireCaptcha: boolean
     }
   ) => Promise<NextResponse>,
   config?: Partial<BruteForceConfig>,
   extractIdentifier?: (request: NextRequest) => Promise<string | undefined>
 ) {
   return async (request: NextRequest): Promise<NextResponse> => {
-    const path = request.nextUrl.pathname;
+    const path = request.nextUrl.pathname
     const baseConfig = DEFAULT_CONFIGS[path] || {
       maxAttempts: 10,
       baseLockoutDuration: 10 * 60 * 1000,
       attemptWindow: 60 * 60 * 1000,
       captchaThreshold: 5,
       trackByAccount: false,
-    };
+    }
 
     const finalConfig: BruteForceConfig = {
       ...baseConfig,
       ...config,
-    };
+    }
 
     // Extract identifier (e.g., email, username) from request
-    const identifier = extractIdentifier
-      ? await extractIdentifier(request)
-      : undefined;
+    const identifier = extractIdentifier ? await extractIdentifier(request) : undefined
 
     // Check if blocked
-    const check = checkBruteForceProtection(request, finalConfig, identifier);
+    const check = checkBruteForceProtection(request, finalConfig, identifier)
 
     if (check.blocked) {
       logger.warn('Brute force protection: Request blocked', {
@@ -366,7 +360,7 @@ export function withBruteForceProtection<T = unknown>(
         path,
         identifier,
         reason: check.reason,
-      });
+      })
 
       return NextResponse.json(
         {
@@ -390,22 +384,22 @@ export function withBruteForceProtection<T = unknown>(
             'X-RateLimit-Remaining': '0',
           },
         }
-      );
+      )
     }
 
     // Execute handler
-    let response: NextResponse;
-    let isSuccess: boolean;
+    let response: NextResponse
+    let isSuccess: boolean
 
     try {
       response = await handler(request, {
         config: finalConfig,
         identifier,
         requireCaptcha: check.requireCaptcha,
-      });
-      isSuccess = response.status >= 200 && response.status < 400;
-    } catch (_error) {
-      isSuccess = false;
+      })
+      isSuccess = response.status >= 200 && response.status < 400
+    } catch (error) {
+      isSuccess = false
       response = NextResponse.json(
         {
           success: false,
@@ -415,12 +409,12 @@ export function withBruteForceProtection<T = unknown>(
           },
         },
         { status: 500 }
-      );
+      )
     }
 
     // Record failed attempt or clear on success
     if (!isSuccess) {
-      const result = recordFailedAttempt(request, finalConfig, identifier);
+      const result = recordFailedAttempt(request, finalConfig, identifier)
       if (result.blocked) {
         return NextResponse.json(
           {
@@ -444,20 +438,20 @@ export function withBruteForceProtection<T = unknown>(
               'X-RateLimit-Remaining': '0',
             },
           }
-        );
+        )
       }
     } else if (identifier && finalConfig.trackByAccount) {
       // Clear attempts on successful authentication
-      clearFailedAttempts(request, finalConfig, identifier);
+      clearFailedAttempts(request, finalConfig, identifier)
     }
 
     // Add brute force status headers
-    const status = getBruteForceStatus(request, finalConfig, identifier);
-    response.headers.set('X-Auth-Attempts-Remaining', status.remainingAttempts.toString());
-    response.headers.set('X-Auth-Require-Captcha', status.requireCaptcha.toString());
+    const status = getBruteForceStatus(request, finalConfig, identifier)
+    response.headers.set('X-Auth-Attempts-Remaining', status.remainingAttempts.toString())
+    response.headers.set('X-Auth-Require-Captcha', status.requireCaptcha.toString())
 
-    return response;
-  };
+    return response
+  }
 }
 
 /**
@@ -465,25 +459,25 @@ export function withBruteForceProtection<T = unknown>(
  * Call this periodically (e.g., every 5 minutes)
  */
 export function cleanupExpiredEntries(): void {
-  const now = Date.now();
-  let cleaned = 0;
+  const now = Date.now()
+  let cleaned = 0
 
   for (const [key, attempt] of failedAttemptsStore.entries()) {
     // Check if lockout has expired
     if (attempt.lockedUntil && attempt.lockedUntil <= now) {
-      attempt.lockedUntil = null;
+      attempt.lockedUntil = null
     }
 
     // Check if attempt window has expired
     if (now - attempt.lastAttempt > 24 * 60 * 60 * 1000) {
       // Remove entries older than 24 hours
-      failedAttemptsStore.delete(key);
-      cleaned++;
+      failedAttemptsStore.delete(key)
+      cleaned++
     }
   }
 
   if (cleaned > 0) {
-    logger.debug(`Cleaned up ${cleaned} expired brute force protection entries`);
+    logger.debug(`Cleaned up ${cleaned} expired brute force protection entries`)
   }
 }
 
@@ -491,25 +485,25 @@ export function cleanupExpiredEntries(): void {
  * Get statistics
  */
 export function getBruteForceStats(): {
-  totalTracked: number;
-  lockedCount: number;
-  captchaRequiredCount: number;
-  entriesByPath: Record<string, number>;
+  totalTracked: number
+  lockedCount: number
+  captchaRequiredCount: number
+  entriesByPath: Record<string, number>
 } {
-  let lockedCount = 0;
-  let captchaRequiredCount = 0;
-  const entriesByPath: Record<string, number> = {};
+  let lockedCount = 0
+  let captchaRequiredCount = 0
+  const entriesByPath: Record<string, number> = {}
 
   for (const [key, attempt] of failedAttemptsStore.entries()) {
-    const path = key.split(':')[0];
-    entriesByPath[path] = (entriesByPath[path] || 0) + 1;
+    const path = key.split(':')[0]
+    entriesByPath[path] = (entriesByPath[path] || 0) + 1
 
     if (attempt.lockedUntil && attempt.lockedUntil > Date.now()) {
-      lockedCount++;
+      lockedCount++
     }
 
     if (attempt.requireCaptcha) {
-      captchaRequiredCount++;
+      captchaRequiredCount++
     }
   }
 
@@ -518,10 +512,10 @@ export function getBruteForceStats(): {
     lockedCount,
     captchaRequiredCount,
     entriesByPath,
-  };
+  }
 }
 
 // Auto-cleanup every 5 minutes
 if (typeof setInterval !== 'undefined') {
-  setInterval(cleanupExpiredEntries, 5 * 60 * 1000);
+  setInterval(cleanupExpiredEntries, 5 * 60 * 1000)
 }

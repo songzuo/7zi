@@ -85,70 +85,70 @@ export enum Role {
 }
 
 export interface RoleDefinition {
-  id: string;
-  name: string;
-  description?: string;
-  permissions: Permission[];
-  isSystem?: boolean;
+  id: string
+  name: string
+  description?: string
+  permissions: Permission[]
+  isSystem?: boolean
 }
 
 /**
  * 用户权限上下文
  */
 export interface PermissionContext {
-  userId: string;
-  roles: Role[];
-  permissions: Permission[];
-  customPermissions?: (Permission | string)[];
+  userId: string
+  roles: Role[]
+  permissions: Permission[]
+  customPermissions?: (Permission | string)[]
 }
 
 /**
  * 权限检查结果
  */
 export interface PermissionCheckResult {
-  allowed: boolean;
-  reason?: string;
-  missingPermissions?: Permission[];
+  allowed: boolean
+  reason?: string
+  missingPermissions?: Permission[]
 }
 
 /**
  * 权限动作
  */
-export type PermissionAction = 'create' | 'read' | 'update' | 'delete' | 'manage' | 'execute';
+export type PermissionAction = 'create' | 'read' | 'update' | 'delete' | 'manage' | 'execute'
 
 /**
  * 解析后的权限
  */
 export interface ParsedPermission {
-  resource: string;
-  action: PermissionAction;
-  conditions?: Record<string, unknown>;
+  resource: string
+  action: PermissionAction
+  conditions?: Record<string, unknown>
 }
 
 /**
  * 角色定义（带计数）
  */
 export interface RoleDefinitionWithCount extends RoleDefinition {
-  userCount: number;
+  userCount: number
 }
 
 /**
  * 角色权限映射
  */
 export interface RolePermissionMapping {
-  roleId: string;
-  permission: Permission;
-  grantedAt: Date;
-  grantedBy: string;
+  roleId: string
+  permission: Permission
+  grantedAt: Date
+  grantedBy: string
 }
 
 /**
  * 用户角色映射
  */
 export interface UserRoleMapping {
-  userId: string;
-  roleId: string;
-  assignedAt: Date;
-  assignedBy: string;
-  expiresAt?: Date;
+  userId: string
+  roleId: string
+  assignedAt: Date
+  assignedBy: string
+  expiresAt?: Date
 }

@@ -5,34 +5,34 @@
  */
 
 export interface RoomUser {
-  id: string;
-  name: string;
-  email?: string;
-  avatar?: string;
-  color?: string;
-  isTyping?: boolean;
+  id: string
+  name: string
+  email?: string
+  avatar?: string
+  color?: string
+  isTyping?: boolean
   cursor?: {
-    position: number;
-    color: string;
-  };
-  lastActive: number;
+    position: number
+    color: string
+  }
+  lastActive: number
 }
 
 export interface Room {
-  id: string;
-  name: string;
-  type: 'task' | 'project' | 'chat' | 'document';
+  id: string
+  name: string
+  type: 'task' | 'project' | 'chat' | 'document'
   document: {
-    content: string;
-    revision: number;
-  };
-  users: Map<string, RoomUser>;
-  createdAt: number;
-  updatedAt: number;
+    content: string
+    revision: number
+  }
+  users: Map<string, RoomUser>
+  createdAt: number
+  updatedAt: number
 }
 
 export interface RoomConfig {
-  maxUsers?: number;
-  autoSaveInterval?: number;
-  versionHistorySize?: number;
+  maxUsers?: number
+  autoSaveInterval?: number
+  versionHistorySize?: number
 }

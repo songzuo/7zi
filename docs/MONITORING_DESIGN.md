@@ -20,22 +20,22 @@
 
 ### 1.2 监控指标分类
 
-| 类别 | 指标 | 重要性 | 采集方式 |
-|------|------|--------|----------|
-| **可用性** | 服务在线率 | P0 | 外部拨测 |
-| | HTTP 可用性 | P0 | 外部拨测 |
-| | SSL 证书有效期 | P1 | 外部拨测 |
-| **性能** | LCP (Largest Contentful Paint) | P1 | RUM + 合成监控 |
-| | FID (First Input Delay) | P1 | RUM |
-| | CLS (Cumulative Layout Shift) | P1 | RUM |
-| | TTFB (Time to First Byte) | P1 | RUM + 服务端 |
-| | API 响应时间 | P1 | APM |
-| **错误** | JS 错误率 | P0 | 错误追踪 |
-| | API 错误率 | P0 | 错误追踪 |
-| | 资源加载失败 | P1 | 错误追踪 |
-| **业务** | 页面 PV/UV | P2 | 分析工具 |
-| | 转化漏斗 | P2 | 分析工具 |
-| | 用户路径 | P2 | 分析工具 |
+| 类别       | 指标                           | 重要性 | 采集方式       |
+| ---------- | ------------------------------ | ------ | -------------- |
+| **可用性** | 服务在线率                     | P0     | 外部拨测       |
+|            | HTTP 可用性                    | P0     | 外部拨测       |
+|            | SSL 证书有效期                 | P1     | 外部拨测       |
+| **性能**   | LCP (Largest Contentful Paint) | P1     | RUM + 合成监控 |
+|            | FID (First Input Delay)        | P1     | RUM            |
+|            | CLS (Cumulative Layout Shift)  | P1     | RUM            |
+|            | TTFB (Time to First Byte)      | P1     | RUM + 服务端   |
+|            | API 响应时间                   | P1     | APM            |
+| **错误**   | JS 错误率                      | P0     | 错误追踪       |
+|            | API 错误率                     | P0     | 错误追踪       |
+|            | 资源加载失败                   | P1     | 错误追踪       |
+| **业务**   | 页面 PV/UV                     | P2     | 分析工具       |
+|            | 转化漏斗                       | P2     | 分析工具       |
+|            | 用户路径                       | P2     | 分析工具       |
 
 ---
 
@@ -45,39 +45,39 @@
 
 #### Sentry (推荐 - 错误追踪首选)
 
-| 维度 | 评分 | 说明 |
-|------|------|------|
+| 维度         | 评分       | 说明                               |
+| ------------ | ---------- | ---------------------------------- |
 | **错误追踪** | ⭐⭐⭐⭐⭐ | 行业标准，SourceMap 支持，错误聚合 |
-| **性能监控** | ⭐⭐⭐⭐ | 支持 Web Vitals，Transaction 追踪 |
-| **用户体验** | ⭐⭐⭐⭐⭐ | 开箱即用，UI 友好 |
-| **价格** | ⭐⭐⭐⭐ | 有免费层，团队版 $26/月 |
-| **集成成本** | ⭐⭐⭐⭐⭐ | Next.js 原生支持，配置简单 |
-| **告警能力** | ⭐⭐⭐⭐ | 灵活的告警规则，多渠道通知 |
+| **性能监控** | ⭐⭐⭐⭐   | 支持 Web Vitals，Transaction 追踪  |
+| **用户体验** | ⭐⭐⭐⭐⭐ | 开箱即用，UI 友好                  |
+| **价格**     | ⭐⭐⭐⭐   | 有免费层，团队版 $26/月            |
+| **集成成本** | ⭐⭐⭐⭐⭐ | Next.js 原生支持，配置简单         |
+| **告警能力** | ⭐⭐⭐⭐   | 灵活的告警规则，多渠道通知         |
 
 **适用场景**: 错误追踪 + 基础性能监控
 
 #### DataDog (全面但昂贵)
 
-| 维度 | 评分 | 说明 |
-|------|------|------|
-| **错误追踪** | ⭐⭐⭐⭐ | 功能完整，但不如 Sentry 专注 |
-| **性能监控** | ⭐⭐⭐⭐⭐ | 全栈 APM，RUM 强大 |
-| **日志管理** | ⭐⭐⭐⭐⭐ | ELK 替代方案 |
-| **基础设施** | ⭐⭐⭐⭐⭐ | 服务器、容器、云资源监控 |
-| **价格** | ⭐⭐ | 起步 $15/月，快速叠加 |
-| **集成成本** | ⭐⭐⭐ | 功能多，配置复杂 |
+| 维度         | 评分       | 说明                         |
+| ------------ | ---------- | ---------------------------- |
+| **错误追踪** | ⭐⭐⭐⭐   | 功能完整，但不如 Sentry 专注 |
+| **性能监控** | ⭐⭐⭐⭐⭐ | 全栈 APM，RUM 强大           |
+| **日志管理** | ⭐⭐⭐⭐⭐ | ELK 替代方案                 |
+| **基础设施** | ⭐⭐⭐⭐⭐ | 服务器、容器、云资源监控     |
+| **价格**     | ⭐⭐       | 起步 $15/月，快速叠加        |
+| **集成成本** | ⭐⭐⭐     | 功能多，配置复杂             |
 
 **适用场景**: 大型企业，需要全栈可观测性
 
 #### 自建方案 (Grafana + Prometheus + Loki)
 
-| 维度 | 评分 | 说明 |
-|------|------|------|
-| **灵活性** | ⭐⭐⭐⭐⭐ | 完全可控 |
-| **成本** | ⭐⭐⭐⭐ | 自托管，服务器成本 |
-| **维护成本** | ⭐⭐ | 需要运维团队 |
-| **错误追踪** | ⭐⭐⭐ | 需要额外组件 |
-| **前端监控** | ⭐⭐⭐ | 需要自建 RUM |
+| 维度         | 评分       | 说明               |
+| ------------ | ---------- | ------------------ |
+| **灵活性**   | ⭐⭐⭐⭐⭐ | 完全可控           |
+| **成本**     | ⭐⭐⭐⭐   | 自托管，服务器成本 |
+| **维护成本** | ⭐⭐       | 需要运维团队       |
+| **错误追踪** | ⭐⭐⭐     | 需要额外组件       |
+| **前端监控** | ⭐⭐⭐     | 需要自建 RUM       |
 
 **适用场景**: 有运维能力，需要数据主权
 
@@ -104,6 +104,7 @@
 ```
 
 **最终选择**:
+
 - **错误追踪**: Sentry (免费层足够使用)
 - **性能监控**: Sentry Performance + Vercel Analytics
 - **可用性监控**: UptimeRobot (免费) / Better Uptime
@@ -117,32 +118,28 @@
 
 ```typescript
 // sentry.client.config.ts (客户端)
-import * as Sentry from '@sentry/nextjs';
+import * as Sentry from '@sentry/nextjs'
 
 Sentry.init({
   dsn: process.env.NEXT_PUBLIC_SENTRY_DSN,
-  
+
   // 采样率配置
   tracesSampleRate: 0.1, // 10% 性能追踪
   replaysSessionSampleRate: 0.1, // 10% Session Replay
   replaysOnErrorSampleRate: 1.0, // 错误时 100% 录制
-  
+
   // 环境标识
   environment: process.env.NODE_ENV,
-  
+
   // 发布版本
   release: process.env.NEXT_PUBLIC_SENTRY_RELEASE,
-  
+
   // 忽略特定错误
-  ignoreErrors: [
-    'ResizeObserver loop limit exceeded',
-    'Network request failed',
-    'cancelled',
-  ],
-  
+  ignoreErrors: ['ResizeObserver loop limit exceeded', 'Network request failed', 'cancelled'],
+
   // 面包屑配置
   maxBreadcrumbs: 50,
-  
+
   // 用户反馈
   integrations: [
     Sentry.replayIntegration({
@@ -150,46 +147,46 @@ Sentry.init({
       blockAllMedia: false,
     }),
   ],
-});
+})
 ```
 
 ### 3.2 性能指标采集
 
 ```typescript
 // lib/monitoring/webVitals.ts
-import { onCLS, onFID, onLCP, onTTFB, onFCP } from 'web-vitals';
-import * as Sentry from '@sentry/nextjs';
+import { onCLS, onFID, onLCP, onTTFB, onFCP } from 'web-vitals'
+import * as Sentry from '@sentry/nextjs'
 
 export function reportWebVitals() {
-  onLCP((metric) => {
+  onLCP(metric => {
     Sentry.metrics.distribution('web-vitals-lcp', metric.value, {
       tags: { route: window.location.pathname },
-    });
-  });
+    })
+  })
 
-  onFID((metric) => {
+  onFID(metric => {
     Sentry.metrics.distribution('web-vitals-fid', metric.value, {
       tags: { route: window.location.pathname },
-    });
-  });
+    })
+  })
 
-  onCLS((metric) => {
+  onCLS(metric => {
     Sentry.metrics.distribution('web-vitals-cls', metric.value, {
       tags: { route: window.location.pathname },
-    });
-  });
+    })
+  })
 
-  onTTFB((metric) => {
+  onTTFB(metric => {
     Sentry.metrics.distribution('web-vitals-ttfb', metric.value, {
       tags: { route: window.location.pathname },
-    });
-  });
+    })
+  })
 
-  onFCP((metric) => {
+  onFCP(metric => {
     Sentry.metrics.distribution('web-vitals-fcp', metric.value, {
       tags: { route: window.location.pathname },
-    });
-  });
+    })
+  })
 }
 ```
 
@@ -260,24 +257,24 @@ export class ErrorBoundary extends Component<Props, State> {
 ```yaml
 # UptimeRobot 配置建议
 monitors:
-  - name: "7zi.studio - 主页"
-    url: "https://7zi.studio"
-    type: "https"
+  - name: '7zi.studio - 主页'
+    url: 'https://7zi.studio'
+    type: 'https'
     interval: 300 # 5分钟
     timeout: 30
     expected_status: 200
-    keyword: "" # 可选：检查页面关键词
-    
-  - name: "7zi.studio - API Health"
-    url: "https://7zi.studio/api/health"
-    type: "https"
+    keyword: '' # 可选：检查页面关键词
+
+  - name: '7zi.studio - API Health'
+    url: 'https://7zi.studio/api/health'
+    type: 'https'
     interval: 60 # 1分钟
     timeout: 10
     expected_status: 200
-    
-  - name: "7zi.studio - SSL"
-    type: "ssl"
-    url: "7zi.studio"
+
+  - name: '7zi.studio - SSL'
+    type: 'ssl'
+    url: '7zi.studio'
     interval: 3600 # 1小时检查 SSL
 ```
 
@@ -285,7 +282,7 @@ monitors:
 
 ```typescript
 // app/api/health/route.ts
-import { NextResponse } from 'next/server';
+import { NextResponse } from 'next/server'
 
 export async function GET() {
   const health = {
@@ -294,9 +291,9 @@ export async function GET() {
     version: process.env.NEXT_PUBLIC_SENTRY_RELEASE || 'unknown',
     uptime: process.uptime(),
     environment: process.env.NODE_ENV,
-  };
+  }
 
-  return NextResponse.json(health, { status: 200 });
+  return NextResponse.json(health, { status: 200 })
 }
 ```
 
@@ -304,16 +301,16 @@ export async function GET() {
 
 ```typescript
 // app/api/health/detailed/route.ts
-import { NextResponse } from 'next/server';
+import { NextResponse } from 'next/server'
 
 export async function GET() {
   const checks = {
     database: await checkDatabase(),
     redis: await checkRedis(),
     external_api: await checkExternalAPI(),
-  };
+  }
 
-  const allHealthy = Object.values(checks).every((c) => c.status === 'ok');
+  const allHealthy = Object.values(checks).every(c => c.status === 'ok')
 
   return NextResponse.json(
     {
@@ -322,31 +319,31 @@ export async function GET() {
       checks,
     },
     { status: allHealthy ? 200 : 503 }
-  );
+  )
 }
 
 async function checkDatabase() {
   // 如果有数据库连接，检查状态
-  return { status: 'ok', latency: 0 };
+  return { status: 'ok', latency: 0 }
 }
 
 async function checkRedis() {
   // 如果有 Redis，检查状态
-  return { status: 'ok', latency: 0 };
+  return { status: 'ok', latency: 0 }
 }
 
 async function checkExternalAPI() {
   try {
-    const start = Date.now();
+    const start = Date.now()
     const response = await fetch('https://api.github.com/zen', {
       signal: AbortSignal.timeout(5000),
-    });
+    })
     return {
       status: response.ok ? 'ok' : 'error',
       latency: Date.now() - start,
-    };
+    }
   } catch {
-    return { status: 'error', latency: 0 };
+    return { status: 'error', latency: 0 }
   }
 }
 ```
@@ -357,12 +354,12 @@ async function checkExternalAPI() {
 
 ### 5.1 告警级别定义
 
-| 级别 | 名称 | 响应时间 | 通知方式 | 示例 |
-|------|------|----------|----------|------|
-| P0 | 紧急 | 5 分钟 | 电话 + SMS + Slack | 服务宕机 |
-| P1 | 严重 | 15 分钟 | Slack + Email | 错误率 > 5% |
-| P2 | 警告 | 1 小时 | Slack | 性能下降 |
-| P3 | 信息 | 24 小时 | Email | 证书即将过期 |
+| 级别 | 名称 | 响应时间 | 通知方式           | 示例         |
+| ---- | ---- | -------- | ------------------ | ------------ |
+| P0   | 紧急 | 5 分钟   | 电话 + SMS + Slack | 服务宕机     |
+| P1   | 严重 | 15 分钟  | Slack + Email      | 错误率 > 5%  |
+| P2   | 警告 | 1 小时   | Slack              | 性能下降     |
+| P3   | 信息 | 24 小时  | Email              | 证书即将过期 |
 
 ### 5.2 Sentry 告警规则
 
@@ -371,46 +368,46 @@ async function checkExternalAPI() {
 
 rules:
   # P0: 服务完全不可用
-  - name: "服务宕机"
+  - name: '服务宕机'
     conditions:
-      - type: "event_threshold"
-        level: "error"
+      - type: 'event_threshold'
+        level: 'error'
         threshold: 100
         time_window: 5m
     actions:
-      - type: "slack"
-        channel: "#alerts-p0"
-      - type: "email"
-        recipients: ["admin@7zi.studio"]
-    
+      - type: 'slack'
+        channel: '#alerts-p0'
+      - type: 'email'
+        recipients: ['admin@7zi.studio']
+
   # P1: 错误率异常
-  - name: "错误率飙升"
+  - name: '错误率飙升'
     conditions:
-      - type: "event_rate"
-        baseline: "1w"
-        threshold_percent: 300  # 比上周增长 3 倍
+      - type: 'event_rate'
+        baseline: '1w'
+        threshold_percent: 300 # 比上周增长 3 倍
     actions:
-      - type: "slack"
-        channel: "#alerts-p1"
-        
+      - type: 'slack'
+        channel: '#alerts-p1'
+
   # P1: 特定错误首次出现
-  - name: "新错误类型"
+  - name: '新错误类型'
     conditions:
-      - type: "new_issue"
+      - type: 'new_issue'
     actions:
-      - type: "slack"
-        channel: "#alerts-p1"
-        
+      - type: 'slack'
+        channel: '#alerts-p1'
+
   # P2: 性能下降
-  - name: "LCP 超过阈值"
+  - name: 'LCP 超过阈值'
     conditions:
-      - type: "transaction_threshold"
-        metric: "lcp"
-        threshold: 4000  # 4 秒
+      - type: 'transaction_threshold'
+        metric: 'lcp'
+        threshold: 4000 # 4 秒
         percentile: 75
     actions:
-      - type: "slack"
-        channel: "#alerts-p2"
+      - type: 'slack'
+        channel: '#alerts-p2'
 ```
 
 ### 5.3 UptimeRobot 告警配置
@@ -418,26 +415,26 @@ rules:
 ```yaml
 # 通知渠道配置
 alert_contacts:
-  - name: "Slack Alert"
-    type: "slack"
-    webhook_url: "${SLACK_WEBHOOK_URL}"
-    
-  - name: "Email Alert"
-    type: "email"
-    address: "admin@7zi.studio"
-    
-  - name: "SMS Alert (P0 only)"
-    type: "sms"
-    number: "+86-xxx-xxxx-xxxx"
+  - name: 'Slack Alert'
+    type: 'slack'
+    webhook_url: '${SLACK_WEBHOOK_URL}'
+
+  - name: 'Email Alert'
+    type: 'email'
+    address: 'admin@7zi.studio'
+
+  - name: 'SMS Alert (P0 only)'
+    type: 'sms'
+    number: '+86-xxx-xxxx-xxxx'
 
 # 告警策略
 alert_policies:
   p0:
-    channels: ["Slack Alert", "Email Alert", "SMS Alert"]
-    repeat_after: 5m  # 每 5 分钟提醒一次
-    
+    channels: ['Slack Alert', 'Email Alert', 'SMS Alert']
+    repeat_after: 5m # 每 5 分钟提醒一次
+
   p1:
-    channels: ["Slack Alert", "Email Alert"]
+    channels: ['Slack Alert', 'Email Alert']
     repeat_after: 15m
 ```
 
@@ -450,11 +447,11 @@ alert_policies:
 ```typescript
 // lib/alerting/slack.ts
 interface SlackMessage {
-  level: 'p0' | 'p1' | 'p2' | 'p3';
-  title: string;
-  message: string;
-  details?: Record<string, string>;
-  url?: string;
+  level: 'p0' | 'p1' | 'p2' | 'p3'
+  title: string
+  message: string
+  details?: Record<string, string>
+  url?: string
 }
 
 export async function sendSlackAlert(msg: SlackMessage) {
@@ -463,7 +460,7 @@ export async function sendSlackAlert(msg: SlackMessage) {
     p1: '#FFA500', // 橙色
     p2: '#FFFF00', // 黄色
     p3: '#00FF00', // 绿色
-  };
+  }
 
   const payload = {
     attachments: [
@@ -489,13 +486,13 @@ export async function sendSlackAlert(msg: SlackMessage) {
         ts: Math.floor(Date.now() / 1000),
       },
     ],
-  };
+  }
 
   await fetch(process.env.SLACK_WEBHOOK_URL!, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify(payload),
-  });
+  })
 }
 ```
 
@@ -505,25 +502,40 @@ export async function sendSlackAlert(msg: SlackMessage) {
 <!-- emails/alert.html -->
 <!DOCTYPE html>
 <html>
-<head>
-  <style>
-    .alert { padding: 20px; font-family: sans-serif; }
-    .p0 { background: #ffebee; border-left: 4px solid #f44336; }
-    .p1 { background: #fff3e0; border-left: 4px solid #ff9800; }
-    .p2 { background: #fffde7; border-left: 4px solid #ffeb3b; }
-    .p3 { background: #e8f5e9; border-left: 4px solid #4caf50; }
-  </style>
-</head>
-<body>
-  <div class="alert {{level}}">
-    <h2>[{{level}}] {{title}}</h2>
-    <p>{{message}}</p>
-    <hr>
-    <p><strong>时间:</strong> {{timestamp}}</p>
-    <p><strong>环境:</strong> {{environment}}</p>
-    <a href="{{url}}">查看详情</a>
-  </div>
-</body>
+  <head>
+    <style>
+      .alert {
+        padding: 20px;
+        font-family: sans-serif;
+      }
+      .p0 {
+        background: #ffebee;
+        border-left: 4px solid #f44336;
+      }
+      .p1 {
+        background: #fff3e0;
+        border-left: 4px solid #ff9800;
+      }
+      .p2 {
+        background: #fffde7;
+        border-left: 4px solid #ffeb3b;
+      }
+      .p3 {
+        background: #e8f5e9;
+        border-left: 4px solid #4caf50;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="alert {{level}}">
+      <h2>[{{level}}] {{title}}</h2>
+      <p>{{message}}</p>
+      <hr />
+      <p><strong>时间:</strong> {{timestamp}}</p>
+      <p><strong>环境:</strong> {{environment}}</p>
+      <a href="{{url}}">查看详情</a>
+    </div>
+  </body>
 </html>
 ```
 
@@ -690,15 +702,15 @@ export default async function StatusPage() {
 
 ## 10. 成本估算
 
-| 服务 | 套餐 | 月费用 | 说明 |
-|------|------|--------|------|
-| Sentry | Team | $26 | 错误+性能监控 |
-| UptimeRobot | Free | $0 | 可用性监控 |
-| Umami | Self-hosted | $0 | 用户分析 |
-| Grafana Cloud | Free | $0 | 指标可视化 |
-| **总计** | - | **$26/月** | - |
+| 服务          | 套餐        | 月费用     | 说明          |
+| ------------- | ----------- | ---------- | ------------- |
+| Sentry        | Team        | $26        | 错误+性能监控 |
+| UptimeRobot   | Free        | $0         | 可用性监控    |
+| Umami         | Self-hosted | $0         | 用户分析      |
+| Grafana Cloud | Free        | $0         | 指标可视化    |
+| **总计**      | -           | **$26/月** | -             |
 
 ---
 
-*文档版本: 1.0*
-*最后更新: 2026-03-06*
+_文档版本: 1.0_
+_最后更新: 2026-03-06_

@@ -1,5 +1,5 @@
-@import "tailwindcss";
-@import "./animations.css";
+@import 'tailwindcss';
+@import './animations.css';
 
 /* ============================================
    THEME CSS VARIABLES
@@ -316,7 +316,9 @@ html.dark {
 
 /* Smooth transitions */
 html {
-  transition: background-color 0.3s ease, color 0.3s ease;
+  transition:
+    background-color 0.3s ease,
+    color 0.3s ease;
   scroll-behavior: smooth;
 }
 
@@ -326,7 +328,13 @@ html {
 }
 
 /* Apply transitions ONLY to interactive elements */
-button, a, input, select, textarea, [role="button"], .interactive {
+button,
+a,
+input,
+select,
+textarea,
+[role='button'],
+.interactive {
   transition-property: background-color, border-color, color, opacity, transform, box-shadow;
   transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
   transition-duration: 200ms;
@@ -334,7 +342,8 @@ button, a, input, select, textarea, [role="button"], .interactive {
 
 /* For elements that explicitly need transitions (opt-in) */
 .transition-interactive {
-  transition-property: background-color, border-color, color, fill, stroke, opacity, box-shadow, transform;
+  transition-property:
+    background-color, border-color, color, fill, stroke, opacity, box-shadow, transform;
   transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
   transition-duration: 200ms;
 }
@@ -445,6 +454,43 @@ button, a, input, select, textarea, [role="button"], .interactive {
   }
   100% {
     background-position: 1000px 0;
+  }
+}
+
+/* Skeleton shimmer animation */
+@keyframes skeleton-shimmer {
+  0% {
+    background-position: -200% 0;
+  }
+  100% {
+    background-position: 200% 0;
+  }
+}
+
+.skeleton-shimmer {
+  background: linear-gradient(
+    90deg,
+    transparent 0%,
+    rgba(255, 255, 255, 0.4) 50%,
+    transparent 100%
+  );
+  background-size: 200% 100%;
+  animation: skeleton-shimmer 1.5s ease-in-out infinite;
+}
+
+.dark .skeleton-shimmer {
+  background: linear-gradient(
+    90deg,
+    transparent 0%,
+    rgba(255, 255, 255, 0.1) 50%,
+    transparent 100%
+  );
+  background-size: 200% 100%;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .skeleton-shimmer {
+    animation: none;
   }
 }
 
@@ -566,7 +612,7 @@ button, a, input, select, textarea, [role="button"], .interactive {
   .touch-feedback,
   button,
   a,
-  [role="button"] {
+  [role='button'] {
     -webkit-tap-highlight-color: transparent;
     touch-action: manipulation;
   }
@@ -575,10 +621,12 @@ button, a, input, select, textarea, [role="button"], .interactive {
   .touch-feedback:active,
   button:active,
   a:active,
-  [role="button"]:active {
+  [role='button']:active {
     transform: scale(0.97);
     opacity: 0.95;
-    transition: transform 0.1s ease-out, opacity 0.1s ease-out;
+    transition:
+      transform 0.1s ease-out,
+      opacity 0.1s ease-out;
   }
 
   /* Prevent iOS zoom on input */
@@ -602,7 +650,9 @@ button, a, input, select, textarea, [role="button"], .interactive {
 .touch-optimized {
   -webkit-tap-highlight-color: transparent;
   touch-action: manipulation;
-  transition: transform 0.1s ease-out, opacity 0.1s ease-out;
+  transition:
+    transform 0.1s ease-out,
+    opacity 0.1s ease-out;
 }
 
 .touch-optimized:active {
@@ -640,7 +690,10 @@ button, a, input, select, textarea, [role="button"], .interactive {
   background: rgba(255, 255, 255, 0.3);
   border-radius: 50%;
   transform: translate(-50%, -50%);
-  transition: width 0.3s ease-out, height 0.3s ease-out, opacity 0.3s ease-out;
+  transition:
+    width 0.3s ease-out,
+    height 0.3s ease-out,
+    opacity 0.3s ease-out;
   opacity: 0;
   pointer-events: none;
 }
@@ -649,7 +702,10 @@ button, a, input, select, textarea, [role="button"], .interactive {
   width: 200px;
   height: 200px;
   opacity: 1;
-  transition: width 0s, height 0s, opacity 0.3s ease-out;
+  transition:
+    width 0s,
+    height 0s,
+    opacity 0.3s ease-out;
 }
 
 .dark .touch-ripple::after {

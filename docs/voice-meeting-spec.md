@@ -1,6 +1,7 @@
 # Voice Meeting System Specification
 
 ## Version
+
 - **Version**: 1.0.0
 - **Created**: 2026-03-20
 - **Project**: 7zi AI Team Management Platform
@@ -12,6 +13,7 @@
 A real-time voice meeting system built on WebRTC technology, integrated with the existing Socket.IO infrastructure. The system enables audio-only meetings with participant controls, room management, and seamless integration with the 7zi platform's collaboration features.
 
 ### Key Features
+
 - Low-latency audio streaming via WebRTC
 - Meeting room creation and management
 - Participant controls (mute/unmute, screen share, leave)
@@ -26,18 +28,21 @@ A real-time voice meeting system built on WebRTC technology, integrated with the
 ### 2.1 Architecture Components
 
 #### 2.1.1 Signaling Server (Socket.IO)
+
 - **Purpose**: Establish peer connections and exchange SDP offers/answers
 - **Protocol**: Socket.IO events over WebSocket
 - **Location**: `/api/ws` endpoint
 - **Authentication**: JWT-based via existing auth system
 
 #### 2.1.2 WebRTC Peer Connections
+
 - **Type**: Mesh topology (peer-to-peer)
 - **Scale**: Optimized for 2-8 participants per room
 - **Codecs**: Opus (preferred), PCMU, PCMA fallback
 - **ICE Servers**: STUN/TURN for NAT traversal
 
 #### 2.1.3 Media Server (Future Enhancement)
+
 - **Purpose**: SFU (Selective Forwarding Unit) for larger meetings
 - **Implementation**: mediasoup or LiveKit
 - **Threshold**: Required for >8 participants
@@ -76,12 +81,12 @@ const rtcConfig: RTCConfiguration = {
     {
       urls: 'turn:turn.example.com:3478',
       username: process.env.TURN_USERNAME,
-      credential: process.env.TURN_CREDENTIAL
-    }
+      credential: process.env.TURN_CREDENTIAL,
+    },
   ],
   iceCandidatePoolSize: 10,
-  iceTransportPolicy: 'all'
-};
+  iceTransportPolicy: 'all',
+}
 ```
 
 ### 2.4 Audio Constraints
@@ -95,9 +100,9 @@ const audioConstraints: MediaStreamConstraints = {
     sampleRate: 48000,
     channelCount: 1,
     latency: 0,
-    deviceId: 'default'
-  }
-};
+    deviceId: 'default',
+  },
+}
 ```
 
 ---
@@ -126,6 +131,7 @@ const audioConstraints: MediaStreamConstraints = {
 ### 3.2 UI Components
 
 #### 3.2.1 Meeting Room Header
+
 - Meeting title
 - Room ID (with copy button)
 - Participant count
@@ -133,12 +139,14 @@ const audioConstraints: MediaStreamConstraints = {
 - Leave button
 
 #### 3.2.2 Video/Audio Grid
+
 - Dynamic grid layout based on participant count
 - Active speaker highlighting
 - Audio level indicators
 - Screen share display (when applicable)
 
 #### 3.2.3 Participant List Sidebar
+
 - Collapsible participant list
 - Participant avatars
 - Online/offline status
@@ -146,6 +154,7 @@ const audioConstraints: MediaStreamConstraints = {
 - Mute/unmute controls (for host)
 
 #### 3.2.4 Control Bar
+
 - Microphone toggle (mute/unmute)
 - Camera toggle (future video support)
 - Screen share toggle
@@ -177,22 +186,26 @@ const audioConstraints: MediaStreamConstraints = {
 ### 4.1 Local Controls
 
 #### 4.1.1 Microphone
+
 - **Toggle**: Mute/unmute local microphone
 - **Visual Feedback**: Icon change + audio level indicator
 - **Shortcut**: 'M' key
 - **Persistence**: Remember preference
 
 #### 4.1.2 Camera (Future)
+
 - **Toggle**: Enable/disable video
 - **Device Selection**: Switch between cameras
 - **Blur Background**: Virtual background support
 
 #### 4.1.3 Screen Share
+
 - **Toggle**: Share entire screen or specific window
 - **Notification**: Show sharing indicator
 - **Privacy**: Ask for confirmation before sharing
 
 #### 4.1.4 Leave Meeting
+
 - **Confirmation**: Dialog before leaving
 - **Cleanup**: Disconnect all peers, close streams
 - **Redirect**: Return to previous page
@@ -200,16 +213,19 @@ const audioConstraints: MediaStreamConstraints = {
 ### 4.2 Remote Controls (Host Only)
 
 #### 4.2.1 Mute Participant
+
 - **Permission**: Host can mute any participant
 - **Notification**: Participant notified of mute
 - **Override**: Participant can unmute themselves
 
 #### 4.2.2 Remove Participant
+
 - **Permission**: Host can remove participants
 - **Notification**: Participant notified and disconnected
 - **Ban Option**: Temporarily ban from rejoining
 
 #### 4.2.3 Lock Meeting
+
 - **Prevent**: New participants cannot join
 - **Status**: Show lock icon on room
 - **Toggle**: Host can lock/unlock
@@ -218,16 +234,16 @@ const audioConstraints: MediaStreamConstraints = {
 
 ```typescript
 interface ParticipantControls {
-  audioEnabled: boolean;
-  videoEnabled: boolean;
-  screenSharing: boolean;
-  isMutedByHost: boolean;
+  audioEnabled: boolean
+  videoEnabled: boolean
+  screenSharing: boolean
+  isMutedByHost: boolean
 }
 
 interface MeetingControls {
-  canMuteParticipants: boolean;
-  canRemoveParticipants: boolean;
-  canLockMeeting: boolean;
+  canMuteParticipants: boolean
+  canRemoveParticipants: boolean
+  canLockMeeting: boolean
 }
 ```
 
@@ -238,24 +254,28 @@ interface MeetingControls {
 ### 5.1 Event Types
 
 #### 5.1.1 Room Management
+
 - `join-room` - Join a meeting room
 - `leave-room` - Leave current room
 - `room-joined` - Confirmation of room join
 - `room-left` - Notification of participant leaving
 
 #### 5.1.2 Signaling
+
 - `offer` - WebRTC SDP offer
 - `answer` - WebRTC SDP answer
 - `ice-candidate` - ICE candidate exchange
 - `negotiation-needed` - Renegotiation request
 
 #### 5.1.3 Participant State
+
 - `participant-joined` - New participant joined
 - `participant-left` - Participant left
 - `participant-muted` - Participant muted state changed
 - `participant-speaking` - Active speaker detection
 
 #### 5.1.4 Room Control
+
 - `mute-participant` - Host mutes participant
 - `remove-participant` - Host removes participant
 - `lock-room` - Lock/unlock meeting
@@ -265,29 +285,29 @@ interface MeetingControls {
 ```typescript
 // Join Room
 interface JoinRoomPayload {
-  roomId: string;
-  token: string;
-  userId: string;
-  userName: string;
+  roomId: string
+  token: string
+  userId: string
+  userName: string
   capabilities: {
-    audio: boolean;
-    video: boolean;
-    screenShare: boolean;
-  };
+    audio: boolean
+    video: boolean
+    screenShare: boolean
+  }
 }
 
 // WebRTC Offer
 interface OfferPayload {
-  sdp: RTCSessionDescriptionInit;
-  senderId: string;
-  receiverId: string;
+  sdp: RTCSessionDescriptionInit
+  senderId: string
+  receiverId: string
 }
 
 // ICE Candidate
 interface IceCandidatePayload {
-  candidate: RTCIceCandidateInit;
-  senderId: string;
-  receiverId: string;
+  candidate: RTCIceCandidateInit
+  senderId: string
+  receiverId: string
 }
 ```
 
@@ -299,39 +319,39 @@ The voice meeting system will extend the existing Socket.IO server:
 // Extend existing socket types
 declare module 'socket.io' {
   interface Socket {
-    joinMeetingRoom(roomId: string): Promise<void>;
-    leaveMeetingRoom(roomId: string): Promise<void>;
+    joinMeetingRoom(roomId: string): Promise<void>
+    leaveMeetingRoom(roomId: string): Promise<void>
   }
 }
 
 // Add meeting room type to existing room system
-type RoomType = 'task' | 'project' | 'chat' | 'document' | 'meeting';
+type RoomType = 'task' | 'project' | 'chat' | 'document' | 'meeting'
 ```
 
 ### 5.4 Meeting Room State Management
 
 ```typescript
 interface MeetingRoom {
-  id: string;
-  name: string;
-  type: 'meeting';
-  createdAt: Date;
-  hostId: string;
-  locked: boolean;
-  maxParticipants: number;
-  participants: Map<string, MeetingParticipant>;
+  id: string
+  name: string
+  type: 'meeting'
+  createdAt: Date
+  hostId: string
+  locked: boolean
+  maxParticipants: number
+  participants: Map<string, MeetingParticipant>
 }
 
 interface MeetingParticipant {
-  id: string;
-  name: string;
-  email?: string;
-  avatar?: string;
-  joinedAt: Date;
-  audioEnabled: boolean;
-  videoEnabled: boolean;
-  screenSharing: boolean;
-  isHost: boolean;
+  id: string
+  name: string
+  email?: string
+  avatar?: string
+  joinedAt: Date
+  audioEnabled: boolean
+  videoEnabled: boolean
+  screenSharing: boolean
+  isHost: boolean
 }
 ```
 
@@ -340,6 +360,7 @@ interface MeetingParticipant {
 ## 6. Implementation Roadmap
 
 ### Phase 1: Core MVP (Week 1-2)
+
 - [x] WebRTC peer connection setup
 - [x] Basic audio streaming
 - [x] Signaling via Socket.IO
@@ -347,6 +368,7 @@ interface MeetingParticipant {
 - [ ] Basic UI (audio grid, controls)
 
 ### Phase 2: Enhanced Features (Week 3-4)
+
 - [ ] Participant controls (mute, leave)
 - [ ] Screen sharing
 - [ ] Meeting room UI polish
@@ -354,6 +376,7 @@ interface MeetingParticipant {
 - [ ] Active speaker detection
 
 ### Phase 3: Advanced Features (Week 5-6)
+
 - [ ] Host controls (mute/remove participants)
 - [ ] Meeting lock
 - [ ] Meeting recordings
@@ -361,6 +384,7 @@ interface MeetingParticipant {
 - [ ] Performance optimizations
 
 ### Phase 4: Production Ready (Week 7-8)
+
 - [ ] TURN server setup
 - [ ] SFU integration for scaling
 - [ ] Full browser compatibility testing
@@ -372,17 +396,20 @@ interface MeetingParticipant {
 ## 7. Technical Requirements
 
 ### 7.1 Browser Support
+
 - Chrome 88+
 - Firefox 85+
 - Safari 14+
 - Edge 88+
 
 ### 7.2 Dependencies
+
 - `socket.io-client` (existing)
 - `socket.io` (existing)
 - No additional WebRTC libraries needed (native API)
 
 ### 7.3 Environment Variables
+
 ```env
 # STUN/TURN Servers
 TURN_USERNAME=your-username
@@ -395,6 +422,7 @@ MEETING_ROOM_TIMEOUT=14400000  # 4 hours
 ```
 
 ### 7.4 Performance Targets
+
 - **Audio Latency**: <150ms
 - **Connection Setup**: <3s
 - **Reconnection Time**: <5s
@@ -406,21 +434,25 @@ MEETING_ROOM_TIMEOUT=14400000  # 4 hours
 ## 8. Security Considerations
 
 ### 8.1 Authentication
+
 - JWT token required for room access
 - Token validation on all signaling messages
 - User identity verification
 
 ### 8.2 Room Access Control
+
 - Room ID complexity (UUID-based)
 - Optional password protection
 - Host approval for new participants
 
 ### 8.3 Data Privacy
+
 - End-to-end encryption (DTLS/SRTP)
 - No server-side audio recording (unless enabled)
 - Secure ICE candidates (TURN over TLS)
 
 ### 8.4 Rate Limiting
+
 - Limit join attempts per user
 - Prevent room flooding
 - DDoS protection on signaling server
@@ -430,16 +462,19 @@ MEETING_ROOM_TIMEOUT=14400000  # 4 hours
 ## 9. Error Handling
 
 ### 9.1 Connection Errors
+
 - **Peer Connection Failed**: Retry with new offer/answer
 - **ICE Connection Failed**: Switch to TURN server
 - **Signaling Timeout**: Attempt reconnection with backoff
 
 ### 9.2 Media Errors
+
 - **Microphone Access Denied**: Show permission UI
 - **No Audio Devices**: Fallback to listen-only mode
 - **Device Disconnected**: Notify user and re-initialize
 
 ### 9.3 Fallback Strategies
+
 - WebRTC not supported → Show error message
 - Poor connection → Reduce audio quality
 - Network unstable → Show connection status
@@ -449,24 +484,28 @@ MEETING_ROOM_TIMEOUT=14400000  # 4 hours
 ## 10. Testing Strategy
 
 ### 10.1 Unit Tests
+
 - WebRTC connection logic
 - Signaling message handling
 - Room state management
 - Participant control logic
 
 ### 10.2 Integration Tests
+
 - Full meeting flow (join, connect, speak, leave)
 - Multi-participant scenarios
 - Reconnection scenarios
 - Cross-browser compatibility
 
 ### 10.3 E2E Tests
+
 - Meeting creation and joining
 - Control bar interactions
 - Participant management
 - Network interruption handling
 
 ### 10.4 Performance Tests
+
 - Latency measurement
 - Bandwidth usage
 - CPU/memory profiling
@@ -477,11 +516,13 @@ MEETING_ROOM_TIMEOUT=14400000  # 4 hours
 ## 11. Future Enhancements
 
 ### 11.1 Video Support
+
 - Add video streaming
 - Grid layout optimization
 - Video quality controls
 
 ### 11.2 Advanced Features
+
 - Meeting recordings
 - Transcription services
 - AI-powered meeting notes
@@ -489,6 +530,7 @@ MEETING_ROOM_TIMEOUT=14400000  # 4 hours
 - Polls and Q&A
 
 ### 11.3 Integrations
+
 - Calendar integration
 - Meeting reminders
 - File sharing

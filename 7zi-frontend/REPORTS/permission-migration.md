@@ -9,6 +9,7 @@
 v1.5.0 规划 P0 功能需要将权限状态管理迁移到 Zustand。
 
 经过检查发现，项目中**不存在** `PermissionContext.tsx` 文件。现有的权限系统位于：
+
 - `src/lib/permissions.ts` - 完整的 RBAC 权限系统
 - `src/features/auth/lib/permissions.ts` - 重复文件
 
@@ -23,11 +24,13 @@ v1.5.0 规划 P0 功能需要将权限状态管理迁移到 Zustand。
 集成了 `src/lib/permissions.ts` 的 RBAC 系统，提供：
 
 **状态管理**:
+
 - `userPermissions`: 用户权限状态
 - `isLoading`: 加载状态
 - `error`: 错误信息
 
 **权限操作方法**:
+
 - `initializePermissions(user, roleIds)`: 初始化用户权限
 - `clearPermissions()`: 清除权限
 - `hasPermission(permission)`: 检查单个权限
@@ -42,6 +45,7 @@ v1.5.0 规划 P0 功能需要将权限状态管理迁移到 Zustand。
 - `getEffectivePermissions()`: 获取所有有效权限
 
 **React Hooks**:
+
 - `useHasPermission(permission)`: Hook 版权限检查
 - `useHasAnyPermission(permissions)`: Hook 版任一权限检查
 - `useHasAllPermissions(permissions)`: Hook 版所有权限检查
@@ -50,6 +54,7 @@ v1.5.0 规划 P0 功能需要将权限状态管理迁移到 Zustand。
 - `useEffectivePermissions()`: Hook 版有效权限列表
 
 **导出内容**:
+
 - `usePermissionStore`: 主 Store hook
 - `PermissionState`, `UserPermissionState`: 类型定义
 - `Permissions`: 权限常量对象
@@ -71,32 +76,32 @@ cd /root/.openclaw/workspace/7zi-frontend && npx tsc --noEmit
 ## 使用示例
 
 ```tsx
-import { 
-  usePermissionStore, 
-  useHasPermission, 
-  Permissions, 
-  ResourceType, 
-  ActionType 
-} from '@/stores';
+import {
+  usePermissionStore,
+  useHasPermission,
+  Permissions,
+  ResourceType,
+  ActionType,
+} from '@/stores'
 
 // 方式1: 使用专用 Hook
 function ProjectButton() {
-  const canCreate = useHasPermission(Permissions.PROJECT_CREATE);
-  return canCreate ? <CreateProject /> : null;
+  const canCreate = useHasPermission(Permissions.PROJECT_CREATE)
+  return canCreate ? <CreateProject /> : null
 }
 
 // 方式2: 直接使用 Store
 function AdminPanel() {
-  const hasAccess = usePermissionStore(state => 
+  const hasAccess = usePermissionStore(state =>
     state.checkAccess(ResourceType.SYSTEM_CONFIG, ActionType.MANAGE)
-  );
-  return hasAccess.allowed ? <AdminUI /> : <AccessDenied />;
+  )
+  return hasAccess.allowed ? <AdminUI /> : <AccessDenied />
 }
 
 // 方式3: 角色等级检查
 function SettingsLink() {
-  const canAccess = useHasRoleLevel(80); // 管理员等级
-  return canAccess ? <Link to="/settings">设置</Link> : null;
+  const canAccess = useHasRoleLevel(80) // 管理员等级
+  return canAccess ? <Link to="/settings">设置</Link> : null
 }
 ```
 

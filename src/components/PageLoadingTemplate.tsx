@@ -12,9 +12,9 @@
  * @module app/[locale]/[route]/loading
  */
 
-import Skeleton from '@/components/Skeleton';
-import { LoadingSpinner } from '@/components/LoadingSpinner';
-import { SkeletonBase } from '@/components/Skeleton';
+import Skeleton from '@/components/Skeleton'
+import { LoadingSpinner } from '@/components/LoadingSpinner'
+import { SkeletonBase } from '@/components/Skeleton'
 
 /**
  * Page Loading Component
@@ -33,13 +33,13 @@ export default function PageLoading() {
   return (
     <div className="min-h-screen bg-zinc-50 dark:bg-zinc-900">
       {/* Navigation Skeleton */}
-      <nav className="sticky top-0 z-50 bg-white dark:bg-zinc-800 border-b border-zinc-200 dark:border-zinc-700 p-4">
-        <div className="max-w-7xl mx-auto flex items-center justify-between">
+      <nav className="sticky top-0 z-50 border-b border-zinc-200 bg-white p-4 dark:border-zinc-700 dark:bg-zinc-800">
+        <div className="mx-auto flex max-w-7xl items-center justify-between">
           {/* Logo */}
           <Skeleton.Avatar size="lg" className="rounded-lg" />
           {/* Nav items */}
           <div className="flex items-center gap-4">
-            {[1, 2, 3, 4].map((i) => (
+            {[1, 2, 3, 4].map(i => (
               <SkeletonBase key={i} className="h-8 w-20 rounded-lg" />
             ))}
           </div>
@@ -47,25 +47,25 @@ export default function PageLoading() {
       </nav>
 
       {/* Main Content */}
-      <main className="max-w-7xl mx-auto px-4 py-8">
+      <main className="mx-auto max-w-7xl px-4 py-8">
         {/* Page Header */}
         <div className="mb-8">
-          <SkeletonBase className="h-12 w-1/2 mb-4 rounded-lg" />
+          <SkeletonBase className="mb-4 h-12 w-1/2 rounded-lg" />
           <Skeleton.Text lines={2} className="max-w-2xl" />
         </div>
 
         {/* Stats Grid */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
-          {[1, 2, 3, 4].map((i) => (
+        <div className="mb-8 grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-4">
+          {[1, 2, 3, 4].map(i => (
             <Skeleton.StatCard key={i} />
           ))}
         </div>
 
         {/* Content Grid */}
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        <div className="grid grid-cols-1 gap-6 lg:grid-cols-3">
           {/* Main Column */}
-          <div className="lg:col-span-2 space-y-6">
-            {[1, 2, 3].map((i) => (
+          <div className="space-y-6 lg:col-span-2">
+            {[1, 2, 3].map(i => (
               <Skeleton.Card key={i} showAvatar lines={4} />
             ))}
           </div>
@@ -78,7 +78,7 @@ export default function PageLoading() {
         </div>
       </main>
     </div>
-  );
+  )
 }
 
 /**
@@ -88,7 +88,7 @@ export default function PageLoading() {
  */
 export function MinimalPageLoading() {
   return (
-    <div className="min-h-screen flex items-center justify-center bg-zinc-50 dark:bg-zinc-900">
+    <div className="flex min-h-screen items-center justify-center bg-zinc-50 dark:bg-zinc-900">
       <LoadingSpinner
         variant="spin"
         size="xl"
@@ -97,7 +97,7 @@ export function MinimalPageLoading() {
         labelPosition="bottom"
       />
     </div>
-  );
+  )
 }
 
 /**
@@ -107,28 +107,28 @@ export function MinimalPageLoading() {
  */
 export function CardGridLoading() {
   return (
-    <div className="max-w-7xl mx-auto px-4 py-8">
+    <div className="mx-auto max-w-7xl px-4 py-8">
       {/* Header */}
       <div className="mb-8">
-        <SkeletonBase className="h-10 w-1/3 mb-2 rounded-lg" />
+        <SkeletonBase className="mb-2 h-10 w-1/3 rounded-lg" />
         <Skeleton.Text lines={1} />
       </div>
 
       {/* Filter Bar */}
-      <div className="flex items-center gap-4 mb-6">
+      <div className="mb-6 flex items-center gap-4">
         <SkeletonBase className="h-10 w-32 rounded-lg" />
         <SkeletonBase className="h-10 w-40 rounded-lg" />
-        <SkeletonBase className="h-10 w-24 rounded-lg ml-auto" />
+        <SkeletonBase className="ml-auto h-10 w-24 rounded-lg" />
       </div>
 
       {/* Card Grid */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-        {[1, 2, 3, 4, 5, 6].map((i) => (
+      <div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3">
+        {[1, 2, 3, 4, 5, 6].map(i => (
           <Skeleton.Card key={i} showAvatar lines={3} />
         ))}
       </div>
     </div>
-  );
+  )
 }
 
 /**
@@ -138,24 +138,24 @@ export function CardGridLoading() {
  */
 export function TableLoading() {
   return (
-    <div className="max-w-7xl mx-auto px-4 py-8">
+    <div className="mx-auto max-w-7xl px-4 py-8">
       {/* Header */}
       <div className="mb-8">
-        <SkeletonBase className="h-10 w-1/3 mb-2 rounded-lg" />
+        <SkeletonBase className="mb-2 h-10 w-1/3 rounded-lg" />
         <Skeleton.Text lines={1} />
       </div>
 
       {/* Actions Bar */}
-      <div className="flex items-center gap-4 mb-6">
+      <div className="mb-6 flex items-center gap-4">
         <SkeletonBase className="h-10 w-32 rounded-lg" />
         <SkeletonBase className="h-10 w-24 rounded-lg" />
-        <SkeletonBase className="h-10 w-24 rounded-lg ml-auto" />
+        <SkeletonBase className="ml-auto h-10 w-24 rounded-lg" />
       </div>
 
       {/* Table */}
       <Skeleton.Table rows={8} columns={5} />
     </div>
-  );
+  )
 }
 
 /**
@@ -165,23 +165,23 @@ export function TableLoading() {
  */
 export function ListLoading() {
   return (
-    <div className="max-w-7xl mx-auto px-4 py-8">
+    <div className="mx-auto max-w-7xl px-4 py-8">
       {/* Header */}
       <div className="mb-8">
-        <SkeletonBase className="h-10 w-1/3 mb-2 rounded-lg" />
+        <SkeletonBase className="mb-2 h-10 w-1/3 rounded-lg" />
         <Skeleton.Text lines={1} />
       </div>
 
       {/* Filter Bar */}
-      <div className="flex items-center gap-4 mb-6">
+      <div className="mb-6 flex items-center gap-4">
         <SkeletonBase className="h-10 w-32 rounded-lg" />
-        <SkeletonBase className="h-10 w-24 rounded-lg ml-auto" />
+        <SkeletonBase className="ml-auto h-10 w-24 rounded-lg" />
       </div>
 
       {/* List */}
       <Skeleton.List items={10} showAvatar />
     </div>
-  );
+  )
 }
 
 /**
@@ -192,40 +192,40 @@ export function ListLoading() {
 export function DashboardLoading() {
   return (
     <div className="min-h-screen bg-zinc-50 dark:bg-zinc-900">
-      <main className="max-w-7xl mx-auto px-4 py-8">
+      <main className="mx-auto max-w-7xl px-4 py-8">
         {/* Header */}
         <div className="mb-8">
-          <SkeletonBase className="h-10 w-1/3 mb-2 rounded-lg" />
+          <SkeletonBase className="mb-2 h-10 w-1/3 rounded-lg" />
           <Skeleton.Text lines={1} />
         </div>
 
         {/* Stats Row */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
-          {[1, 2, 3, 4].map((i) => (
+        <div className="mb-8 grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-4">
+          {[1, 2, 3, 4].map(i => (
             <Skeleton.StatCard key={i} />
           ))}
         </div>
 
         {/* Charts Row */}
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
-          <div className="bg-white dark:bg-zinc-800 rounded-xl border border-zinc-200 dark:border-zinc-700 p-6">
-            <SkeletonBase className="h-6 w-1/4 mb-6 rounded-lg" />
+        <div className="mb-8 grid grid-cols-1 gap-6 lg:grid-cols-2">
+          <div className="rounded-xl border border-zinc-200 bg-white p-6 dark:border-zinc-700 dark:bg-zinc-800">
+            <SkeletonBase className="mb-6 h-6 w-1/4 rounded-lg" />
             <SkeletonBase className="h-64 w-full rounded-lg" />
           </div>
-          <div className="bg-white dark:bg-zinc-800 rounded-xl border border-zinc-200 dark:border-zinc-700 p-6">
-            <SkeletonBase className="h-6 w-1/4 mb-6 rounded-lg" />
+          <div className="rounded-xl border border-zinc-200 bg-white p-6 dark:border-zinc-700 dark:bg-zinc-800">
+            <SkeletonBase className="mb-6 h-6 w-1/4 rounded-lg" />
             <SkeletonBase className="h-64 w-full rounded-lg" />
           </div>
         </div>
 
         {/* Recent Activity */}
-        <div className="bg-white dark:bg-zinc-800 rounded-xl border border-zinc-200 dark:border-zinc-700 p-6">
-          <SkeletonBase className="h-6 w-1/4 mb-6 rounded-lg" />
+        <div className="rounded-xl border border-zinc-200 bg-white p-6 dark:border-zinc-700 dark:bg-zinc-800">
+          <SkeletonBase className="mb-6 h-6 w-1/4 rounded-lg" />
           <Skeleton.List items={5} showAvatar />
         </div>
       </main>
     </div>
-  );
+  )
 }
 
 /**
@@ -236,31 +236,31 @@ export function DashboardLoading() {
 export function TasksLoading() {
   return (
     <div className="min-h-screen bg-zinc-50 dark:bg-zinc-900">
-      <main className="max-w-7xl mx-auto px-4 py-8">
+      <main className="mx-auto max-w-7xl px-4 py-8">
         {/* Header */}
         <div className="mb-8">
-          <SkeletonBase className="h-10 w-1/3 mb-2 rounded-lg" />
+          <SkeletonBase className="mb-2 h-10 w-1/3 rounded-lg" />
           <Skeleton.Text lines={1} />
         </div>
 
         {/* Controls */}
-        <div className="flex items-center gap-4 mb-6">
+        <div className="mb-6 flex items-center gap-4">
           <SkeletonBase className="h-10 w-48 rounded-lg" />
           <SkeletonBase className="h-10 w-32 rounded-lg" />
-          <SkeletonBase className="h-10 w-24 rounded-lg ml-auto" />
+          <SkeletonBase className="ml-auto h-10 w-24 rounded-lg" />
         </div>
 
         {/* Task Board */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+        <div className="grid grid-cols-1 gap-6 md:grid-cols-3">
           {/* Columns: Todo, In Progress, Done */}
-          {['Todo', 'In Progress', 'Done'].map((column) => (
+          {['Todo', 'In Progress', 'Done'].map(column => (
             <div
               key={column}
-              className="bg-white dark:bg-zinc-800 rounded-xl border border-zinc-200 dark:border-zinc-700 p-4"
+              className="rounded-xl border border-zinc-200 bg-white p-4 dark:border-zinc-700 dark:bg-zinc-800"
             >
-              <SkeletonBase className="h-6 w-20 mb-4 rounded-lg" />
+              <SkeletonBase className="mb-4 h-6 w-20 rounded-lg" />
               <div className="space-y-3">
-                {[1, 2, 3].map((i) => (
+                {[1, 2, 3].map(i => (
                   <Skeleton.Card key={i} showAvatar={false} lines={2} />
                 ))}
               </div>
@@ -269,5 +269,5 @@ export function TasksLoading() {
         </div>
       </main>
     </div>
-  );
+  )
 }

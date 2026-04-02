@@ -6,7 +6,7 @@
  * 优化: 添加默认分页限制（100 条）和最大限制（1000 条），新增 getCount 函数
  */
 
-import { getDatabaseAsync } from '../db';
+import { getDatabaseAsync } from '../db'
 import {
   User,
   UserStatus,
@@ -14,65 +14,65 @@ import {
   UserToken,
   CreateUserRequest,
   UpdateUserRequest,
-} from './types';
-import * as crypto from 'crypto';
+} from './types'
+import * as crypto from 'crypto'
 
 /**
  * Hash password
  */
 export function hashPassword(password: string): string {
-  const salt = crypto.randomBytes(16).toString('hex');
-  const hash = crypto.pbkdf2Sync(password, salt, 10000, 64, 'sha512').toString('hex');
-  return `${salt}:${hash}`;
+  const salt = crypto.randomBytes(16).toString('hex')
+  const hash = crypto.pbkdf2Sync(password, salt, 10000, 64, 'sha512').toString('hex')
+  return `${salt}:${hash}`
 }
 
 /**
  * Verify password
  */
 export function verifyPassword(password: string, hashedPassword: string): boolean {
-  const [salt, hash] = hashedPassword.split(':');
-  const verifyHash = crypto.pbkdf2Sync(password, salt, 10000, 64, 'sha512').toString('hex');
-  return hash === verifyHash;
+  const [salt, hash] = hashedPassword.split(':')
+  const verifyHash = crypto.pbkdf2Sync(password, salt, 10000, 64, 'sha512').toString('hex')
+  return hash === verifyHash
 }
 
 /**
  * Generate unique ID
  */
 function generateId(prefix: string = 'user'): string {
-  return `${prefix}_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
+  return `${prefix}_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`
 }
 
 /**
  * Generate secure token
  */
 function generateSecureToken(): string {
-  return crypto.randomBytes(32).toString('hex');
+  return crypto.randomBytes(32).toString('hex')
 }
 
 /**
  * 分页选项
  */
 export interface PaginationOptions {
-  limit?: number;
-  offset?: number;
+  limit?: number
+  offset?: number
 }
 
 /**
  * 分页结果
  */
 export interface PaginatedResult<T> {
-  data: T[];
-  total: number;
-  limit: number;
-  offset: number;
-  hasMore: boolean;
+  data: T[]
+  total: number
+  limit: number
+  offset: number
+  hasMore: boolean
 }
 
 /**
  * Initialize user tables
  */
 export async function initializeUserTables(): Promise<void> {
-  const db = await getDatabaseAsync();
+  const db = await getDatabaseAsync()
 
   const statements = [
     // Users table
@@ -131,14 +131,14 @@ export async function initializeUserTables(): Promise<void> {
     `CREATE INDEX IF NOT EXISTS idx_password_reset_tokens_user_id ON password_reset_tokens(user_id);`,
     `CREATE INDEX IF NOT EXISTS idx_password_reset_tokens_token ON password_reset_tokens(token);`,
     `CREATE INDEX IF NOT EXISTS idx_password_reset_tokens_expires ON password_reset_tokens(expires_at);`,
-  ];
+  ]
 
   for (const statement of statements) {
     try {
-      db.exec(statement);
+      db.exec(statement)
     } catch (error) {
       if (!(error instanceof Error && error.message.includes('already exists'))) {
-        throw error;
+        throw error
       }
     }
   }
@@ -148,17 +148,17 @@ export async function initializeUserTables(): Promise<void> {
  * Create user
  */
 export async function createUser(data: CreateUserRequest): Promise<User> {
-  const db = await getDatabaseAsync();
-  await initializeUserTables();
+  const db = await getDatabaseAsync()
+  await initializeUserTables()
 
-  const id = generateId('user');
-  const now = new Date().toISOString();
-  const hashedPassword = hashPassword(data.password);
+  const id = generateId('user')
+  const now = new Date().toISOString()
+  const hashedPassword = hashPassword(data.password)
 
   const stmt = db.prepare(`
     INSERT INTO users (id, email, password, name, role, roles, status, permissions, custom_permissions, metadata, created_at, updated_at)
     VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
-  `);
+  `)
 
   stmt.run(
     id,
@@ -173,7 +173,7 @@ export async function createUser(data: CreateUserRequest): Promise<User> {
     JSON.stringify(data.metadata || {}),
     now,
     now
-  );
+  )
 
   return {
     id,
@@ -188,37 +188,37 @@ export async function createUser(data: CreateUserRequest): Promise<User> {
     metadata: data.metadata || {},
     createdAt: new Date(now),
     updatedAt: new Date(now),
-  };
+  }
 }
 
 /**
  * Get user by ID
  */
 export async function getUserById(id: string): Promise<User | null> {
-  const db = await getDatabaseAsync();
-  await initializeUserTables();
+  const db = await getDatabaseAsync()
+  await initializeUserTables()
 
-  const stmt = db.prepare('SELECT * FROM users WHERE id = ?');
-  const row = stmt.get(id) as Record<string, unknown> | undefined;
+  const stmt = db.prepare('SELECT * FROM users WHERE id = ?')
+  const row = stmt.get(id) as Record<string, unknown> | undefined
 
-  if (!row) return null;
+  if (!row) return null
 
-  return mapRowToUser(row);
+  return mapRowToUser(row)
 }
 
 /**
  * Get user by email
  */
 export async function getUserByEmail(email: string): Promise<User | null> {
-  const db = await getDatabaseAsync();
-  await initializeUserTables();
+  const db = await getDatabaseAsync()
+  await initializeUserTables()
 
-  const stmt = db.prepare('SELECT * FROM users WHERE email = ?');
-  const row = stmt.get(email) as Record<string, unknown> | undefined;
+  const stmt = db.prepare('SELECT * FROM users WHERE email = ?')
+  const row = stmt.get(email) as Record<string, unknown> | undefined
 
-  if (!row) return null;
+  if (!row) return null
 
-  return mapRowToUser(row);
+  return mapRowToUser(row)
 }
 
 /**
@@ -230,44 +230,44 @@ export async function getUserByEmail(email: string): Promise<User | null> {
  * 3. 添加分页元数据支持前端分页 UI
  */
 export async function getAllUsers(options?: {
-  status?: UserStatus;
-  role?: UserRole;
-  limit?: number;
-  offset?: number;
+  status?: UserStatus
+  role?: UserRole
+  limit?: number
+  offset?: number
 }): Promise<User[]> {
-  const db = await getDatabaseAsync();
-  await initializeUserTables();
+  const db = await getDatabaseAsync()
+  await initializeUserTables()
 
   // 默认分页限制
-  const defaultLimit = 100;
-  const maxLimit = 1000;
-  const limit = Math.min(options?.limit ?? defaultLimit, maxLimit);
-  const offset = options?.offset ?? 0;
+  const defaultLimit = 100
+  const maxLimit = 1000
+  const limit = Math.min(options?.limit ?? defaultLimit, maxLimit)
+  const offset = options?.offset ?? 0
 
-  let sql = 'SELECT * FROM users';
-  const conditions: string[] = [];
-  const params: (string | number)[] = [];
+  let sql = 'SELECT * FROM users'
+  const conditions: string[] = []
+  const params: (string | number)[] = []
 
   if (options?.status) {
-    conditions.push('status = ?');
-    params.push(options.status);
+    conditions.push('status = ?')
+    params.push(options.status)
   }
   if (options?.role) {
-    conditions.push('role = ?');
-    params.push(options.role);
+    conditions.push('role = ?')
+    params.push(options.role)
   }
 
   if (conditions.length > 0) {
-    sql += ' WHERE ' + conditions.join(' AND ');
+    sql += ' WHERE ' + conditions.join(' AND ')
   }
 
-  sql += ' ORDER BY created_at DESC LIMIT ? OFFSET ?';
-  params.push(limit, offset);
+  sql += ' ORDER BY created_at DESC LIMIT ? OFFSET ?'
+  params.push(limit, offset)
 
-  const stmt = db.prepare(sql);
-  const rows = stmt.all(...params) as unknown as Record<string, unknown>[];
+  const stmt = db.prepare(sql)
+  const rows = stmt.all(...params) as unknown as Record<string, unknown>[]
 
-  return rows.map(mapRowToUser);
+  return rows.map(mapRowToUser)
 }
 
 /**
@@ -276,15 +276,15 @@ export async function getAllUsers(options?: {
  * 返回包含分页元数据的结果，便于前端实现分页 UI
  */
 export async function getAllUsersPaginated(options?: {
-  status?: UserStatus;
-  role?: UserRole;
-  limit?: number;
-  offset?: number;
+  status?: UserStatus
+  role?: UserRole
+  limit?: number
+  offset?: number
 }): Promise<PaginatedResult<User>> {
-  const users = await getAllUsers(options);
-  const total = await getUsersCount(options);
-  const limit = Math.min(options?.limit ?? 100, 1000);
-  const offset = options?.offset ?? 0;
+  const users = await getAllUsers(options)
+  const total = await getUsersCount(options)
+  const limit = Math.min(options?.limit ?? 100, 1000)
+  const offset = options?.offset ?? 0
 
   return {
     data: users,
@@ -292,7 +292,7 @@ export async function getAllUsersPaginated(options?: {
     limit,
     offset,
     hasMore: offset + users.length < total,
-  };
+  }
 }
 
 /**
@@ -301,107 +301,107 @@ export async function getAllUsersPaginated(options?: {
  * 获取用户总数，用于分页
  */
 export async function getUsersCount(options?: {
-  status?: UserStatus;
-  role?: UserRole;
+  status?: UserStatus
+  role?: UserRole
 }): Promise<number> {
-  const db = await getDatabaseAsync();
-  await initializeUserTables();
+  const db = await getDatabaseAsync()
+  await initializeUserTables()
 
-  let sql = 'SELECT COUNT(*) as count FROM users';
-  const conditions: string[] = [];
-  const params: string[] = [];
+  let sql = 'SELECT COUNT(*) as count FROM users'
+  const conditions: string[] = []
+  const params: string[] = []
 
   if (options?.status) {
-    conditions.push('status = ?');
-    params.push(options.status);
+    conditions.push('status = ?')
+    params.push(options.status)
   }
   if (options?.role) {
-    conditions.push('role = ?');
-    params.push(options.role);
+    conditions.push('role = ?')
+    params.push(options.role)
   }
 
   if (conditions.length > 0) {
-    sql += ' WHERE ' + conditions.join(' AND ');
+    sql += ' WHERE ' + conditions.join(' AND ')
   }
 
-  const stmt = db.prepare(sql);
-  const result = stmt.get(...params) as { count: number };
-  return result.count;
+  const stmt = db.prepare(sql)
+  const result = stmt.get(...params) as { count: number }
+  return result.count
 }
 
 /**
  * Update user
  */
 export async function updateUser(id: string, data: UpdateUserRequest): Promise<User | null> {
-  const db = await getDatabaseAsync();
-  await initializeUserTables();
+  const db = await getDatabaseAsync()
+  await initializeUserTables()
 
-  const user = await getUserById(id);
-  if (!user) return null;
+  const user = await getUserById(id)
+  if (!user) return null
 
-  const updates: string[] = [];
-  const values: (string | null)[] = [];
+  const updates: string[] = []
+  const values: (string | null)[] = []
 
   if (data.name !== undefined) {
-    updates.push('name = ?');
-    values.push(data.name);
+    updates.push('name = ?')
+    values.push(data.name)
   }
   if (data.avatar !== undefined) {
-    updates.push('avatar = ?');
-    values.push(data.avatar);
+    updates.push('avatar = ?')
+    values.push(data.avatar)
   }
   if (data.role !== undefined) {
-    updates.push('role = ?');
-    values.push(data.role);
+    updates.push('role = ?')
+    values.push(data.role)
   }
   if (data.roles !== undefined) {
-    updates.push('roles = ?');
-    values.push(JSON.stringify(data.roles));
+    updates.push('roles = ?')
+    values.push(JSON.stringify(data.roles))
   }
   if (data.status !== undefined) {
-    updates.push('status = ?');
-    values.push(data.status);
+    updates.push('status = ?')
+    values.push(data.status)
   }
   if (data.permissions !== undefined) {
-    updates.push('permissions = ?');
-    values.push(JSON.stringify(data.permissions));
+    updates.push('permissions = ?')
+    values.push(JSON.stringify(data.permissions))
   }
   if (data.customPermissions !== undefined) {
-    updates.push('custom_permissions = ?');
-    values.push(JSON.stringify(data.customPermissions));
+    updates.push('custom_permissions = ?')
+    values.push(JSON.stringify(data.customPermissions))
   }
   if (data.metadata !== undefined) {
-    updates.push('metadata = ?');
-    values.push(JSON.stringify(data.metadata));
+    updates.push('metadata = ?')
+    values.push(JSON.stringify(data.metadata))
   }
   if (data.password !== undefined) {
-    updates.push('password = ?');
-    values.push(hashPassword(data.password));
+    updates.push('password = ?')
+    values.push(hashPassword(data.password))
   }
 
-  if (updates.length === 0) return user;
+  if (updates.length === 0) return user
 
-  updates.push('updated_at = ?');
-  values.push(new Date().toISOString());
-  values.push(id);
+  updates.push('updated_at = ?')
+  values.push(new Date().toISOString())
+  values.push(id)
 
-  const stmt = db.prepare(`UPDATE users SET ${updates.join(', ')} WHERE id = ?`);
-  stmt.run(...values);
+  const stmt = db.prepare(`UPDATE users SET ${updates.join(', ')} WHERE id = ?`)
+  stmt.run(...values)
 
-  return getUserById(id);
+  return getUserById(id)
 }
 
 /**
  * Delete user
  */
 export async function deleteUser(id: string): Promise<boolean> {
-  const db = await getDatabaseAsync();
-  await initializeUserTables();
+  const db = await getDatabaseAsync()
+  await initializeUserTables()
 
-  const stmt = db.prepare('DELETE FROM users WHERE id = ?');
-  const result = stmt.run(id);
+  const stmt = db.prepare('DELETE FROM users WHERE id = ?')
+  const result = stmt.run(id)
 
-  return (result.changes ?? 0) > 0;
+  return (result.changes ?? 0) > 0
 }
 
 /**
@@ -411,21 +411,21 @@ export async function createUserToken(
   userId: string,
   expiresInHours: number = 24
 ): Promise<UserToken> {
-  const db = await getDatabaseAsync();
-  await initializeUserTables();
+  const db = await getDatabaseAsync()
+  await initializeUserTables()
 
-  const id = generateId('token');
-  const now = new Date();
-  const expiresAt = new Date(now.getTime() + expiresInHours * 60 * 60 * 1000);
-  const refreshExpiresAt = new Date(now.getTime() + expiresInHours * 2 * 60 * 60 * 1000);
+  const id = generateId('token')
+  const now = new Date()
+  const expiresAt = new Date(now.getTime() + expiresInHours * 60 * 60 * 1000)
+  const refreshExpiresAt = new Date(now.getTime() + expiresInHours * 2 * 60 * 60 * 1000)
 
-  const token = generateSecureToken();
-  const refreshToken = generateSecureToken();
+  const token = generateSecureToken()
+  const refreshToken = generateSecureToken()
 
   const stmt = db.prepare(`
     INSERT INTO user_tokens (id, user_id, token, refresh_token, expires_at, refresh_expires_at, created_at)
     VALUES (?, ?, ?, ?, ?, ?, ?)
-  `);
+  `)
 
   stmt.run(
     id,
@@ -435,7 +435,7 @@ export async function createUserToken(
     expiresAt.toISOString(),
     refreshExpiresAt.toISOString(),
     now.toISOString()
-  );
+  )
 
   return {
     id,
@@ -445,7 +445,7 @@ export async function createUserToken(
     expiresAt,
     refreshExpiresAt,
     createdAt: now,
-  };
+  }
 }
 
 // ... [其余函数保持不变] ...
@@ -469,7 +469,7 @@ function mapRowToUser(row: Record<string, unknown>): User {
     createdAt: new Date(row.created_at as string),
     updatedAt: new Date(row.updated_at as string),
     lastLoginAt: row.last_login_at ? new Date(row.last_login_at as string) : undefined,
-  };
+  }
 }
 
 /**
@@ -479,18 +479,12 @@ function getDefaultPermissions(role: UserRole): string[] {
   // Default permissions based on role
   switch (role) {
     case UserRole.ADMIN:
-      return ['*']; // Full access
+      return ['*'] // Full access
     case UserRole.MANAGER:
-      return [
-        'user:read',
-        'user:update',
-        'user:delete',
-        'role:read',
-        'role:assign',
-      ];
+      return ['user:read', 'user:update', 'user:delete', 'role:read', 'role:assign']
     case UserRole.MEMBER:
-      return ['user:read'];
+      return ['user:read']
     default:
-      return [];
+      return []
   }
 }

@@ -13,6 +13,7 @@
 本报告基于 **UI_CONSISTENCY_TEST_REPORT.md** 的发现，对 7zi 前端项目进行了深入的 UI 质量复检。检查了主题色彩使用、字体规范、间距一致性、暗色模式覆盖、组件库 API 一致性等方面。
 
 **总体评价:** ⚠️ **需要系统性改进**
+
 - 设计系统（tokens.css）完善，但组件执行不够一致
 - 颜色、字体、间距使用存在混合模式（CSS变量 + Tailwind工具类 + 硬编码）
 - 响应式设计不完整，大部分组件缺少移动端适配
@@ -25,6 +26,7 @@
 ### 检查的文件列表
 
 **UI 组件库:**
+
 - `/root/.openclaw/workspace/src/components/ui/Button.tsx`
 - `/root/.openclaw/workspace/src/components/ui/Card.tsx`
 - `/root/.openclaw/workspace/src/components/ui/Input.tsx`
@@ -36,13 +38,16 @@
 - `/root/.openclaw/workspace/src/components/ui/empty-state.tsx`
 
 **业务组件:**
+
 - `/root/.openclaw/workspace/src/components/room/RoomCard.tsx`
 - `/root/.openclaw/workspace/src/components/knowledge-lattice/KnowledgeLatticeScene.tsx`
 
 **页面组件:**
+
 - `/root/.openclaw/workspace/src/app/[locale]/knowledge-lattice/page.tsx`
 
 **配置文件:**
+
 - `/root/.openclaw/workspace/7zi-frontend/tailwind.config.js`
 - `/root/.openclaw/workspace/src/app/globals.css`
 - `/root/.openclaw/workspace/7zi-frontend/src/styles/tokens.css`
@@ -54,12 +59,14 @@
 ### ✅ 设计系统完整性
 
 **CSS 变量系统** (`7zi-frontend/src/styles/tokens.css`):
+
 - ✅ 颜色系统完整：primary, gray, success, warning, error, info
 - ✅ 包含完整的色阶（50-950）
 - ✅ 暗色模式颜色定义完善
 - ✅ Tailwind v4 兼容的透明度变量
 
 **Tailwind 配置** (`tailwind.config.js`):
+
 - ❌ **未扩展 colors 配置**，未使用 CSS 变量
 - ⚠️ 仅定义了 animation 和 keyframes
 - ⚠️ 缺少 semantic colors 映射
@@ -74,53 +81,38 @@
 // ❌ 当前实现
 const variantStyles = {
   primary: clsx(
-    "bg-blue-600 text-white",  // 硬编码
-    "hover:bg-blue-700",
-    "focus:ring-blue-500",
+    'bg-blue-600 text-white', // 硬编码
+    'hover:bg-blue-700',
+    'focus:ring-blue-500'
   ),
   secondary: clsx(
-    "bg-gray-600 text-white",  // 硬编码
-    "hover:bg-gray-700",
-    "focus:ring-gray-500",
+    'bg-gray-600 text-white', // 硬编码
+    'hover:bg-gray-700',
+    'focus:ring-gray-500'
   ),
   danger: clsx(
-    "bg-red-600 text-white",  // 硬编码
-    "hover:bg-red-700",
-    "focus:ring-red-500",
+    'bg-red-600 text-white', // 硬编码
+    'hover:bg-red-700',
+    'focus:ring-red-500'
   ),
   success: clsx(
-    "bg-green-600 text-white",  // 硬编码
-    "hover:bg-green-700",
-    "focus:ring-green-500",
+    'bg-green-600 text-white', // 硬编码
+    'hover:bg-green-700',
+    'focus:ring-green-500'
   ),
-};
+}
 ```
 
 **应该使用:**
+
 ```tsx
 // ✅ 建议实现
 const variantStyles = {
-  primary: clsx(
-    "bg-primary-600 text-white",
-    "hover:bg-primary-700",
-    "focus:ring-primary-500",
-  ),
-  secondary: clsx(
-    "bg-gray-600 text-white",
-    "hover:bg-gray-700",
-    "focus:ring-gray-500",
-  ),
-  danger: clsx(
-    "bg-error-600 text-white",
-    "hover:bg-error-700",
-    "focus:ring-error-500",
-  ),
-  success: clsx(
-    "bg-success-600 text-white",
-    "hover:bg-success-700",
-    "focus:ring-success-500",
-  ),
-};
+  primary: clsx('bg-primary-600 text-white', 'hover:bg-primary-700', 'focus:ring-primary-500'),
+  secondary: clsx('bg-gray-600 text-white', 'hover:bg-gray-700', 'focus:ring-gray-500'),
+  danger: clsx('bg-error-600 text-white', 'hover:bg-error-700', 'focus:ring-error-500'),
+  success: clsx('bg-success-600 text-white', 'hover:bg-success-700', 'focus:ring-success-500'),
+}
 ```
 
 #### 问题 2: KnowledgeLattice 组件使用十六进制颜色
@@ -130,27 +122,28 @@ const variantStyles = {
 ```tsx
 // ❌ 当前实现
 const colors = {
-  技术: "#06b6d4",  // 直接使用十六进制
-  设计: "#a855f7",
-  产品: "#ec4899",
-  营销: "#f59e0b",
-};
+  技术: '#06b6d4', // 直接使用十六进制
+  设计: '#a855f7',
+  产品: '#ec4899',
+  营销: '#f59e0b',
+}
 
 // ❌ 连线颜色也硬编码
-<Line points={points} color="#6b7280" opacity={0.5} transparent />
+;<Line points={points} color="#6b7280" opacity={0.5} transparent />
 ```
 
 **应该使用:**
+
 ```tsx
 // ✅ 建议实现
-import { getCSSVar } from '@/utils/css';
+import { getCSSVar } from '@/utils/css'
 
 const colors = {
   技术: 'var(--color-cyan-500)',
   设计: 'var(--color-purple-500)',
   产品: 'var(--color-pink-500)',
   营销: 'var(--color-amber-500)',
-};
+}
 
 // 或者使用 Tailwind 颜色
 const colors = {
@@ -158,7 +151,7 @@ const colors = {
   设计: '#a855f7', // purple-500
   产品: '#ec4899', // pink-500
   营销: '#f59e0b', // amber-500
-};
+}
 ```
 
 #### 问题 3: 颜色使用方式混合
@@ -166,13 +159,15 @@ const colors = {
 **发现的三种颜色使用模式:**
 
 1. **Tailwind 工具类** (Button, Input):
+
    ```tsx
-   "bg-blue-600", "text-gray-700", "hover:bg-gray-100"
+   ;('bg-blue-600', 'text-gray-700', 'hover:bg-gray-100')
    ```
 
 2. **Tailwind 暗色模式** (大部分组件):
+
    ```tsx
-   "dark:bg-gray-800", "dark:text-gray-100", "dark:hover:bg-gray-700"
+   ;('dark:bg-gray-800', 'dark:text-gray-100', 'dark:hover:bg-gray-700')
    ```
 
 3. **CSS 变量** (已定义但未充分使用):
@@ -182,11 +177,13 @@ const colors = {
    ```
 
 **统计数据:**
+
 - `src/components/ui/*.tsx` 中约 8 处直接使用 `bg-blue-` 类
 - 全项目约 58 处 `dark:` 模式类
 - 多处十六进制颜色硬编码
 
 **影响:**
+
 - ❌ 颜色主题难以统一管理
 - ❌ 暗色模式可能不一致
 - ❌ 未来品牌色变更需要修改多处
@@ -199,6 +196,7 @@ const colors = {
 ### ✅ 设计系统完整性
 
 **字体系统** (`7zi-frontend/src/styles/tokens.css`):
+
 - ✅ 字体族定义完整：sans, mono
 - ✅ 字体大小 scale 完整：xs (12px) 到 5xl (48px)
 - ✅ 字重定义：normal, medium, semibold, bold
@@ -211,27 +209,26 @@ const colors = {
 ```tsx
 // ❌ Button.tsx
 const sizeStyles = {
-  xs: "px-2.5 py-1 text-xs gap-1",      // text-xs 而非 --font-size-xs
-  sm: "px-3 py-1.5 text-sm gap-1.5",   // text-sm 而非 --font-size-sm
-  md: "px-4 py-2 text-sm gap-2",       // text-sm 而非 --font-size-base
-  lg: "px-5 py-2.5 text-base gap-2",   // text-base 而非 --font-size-lg
-  xl: "px-6 py-3 text-lg gap-2.5",     // text-lg 而非 --font-size-xl
-};
+  xs: 'px-2.5 py-1 text-xs gap-1', // text-xs 而非 --font-size-xs
+  sm: 'px-3 py-1.5 text-sm gap-1.5', // text-sm 而非 --font-size-sm
+  md: 'px-4 py-2 text-sm gap-2', // text-sm 而非 --font-size-base
+  lg: 'px-5 py-2.5 text-base gap-2', // text-base 而非 --font-size-lg
+  xl: 'px-6 py-3 text-lg gap-2.5', // text-lg 而非 --font-size-xl
+}
 
 // ❌ Input.tsx
 const sizeStyles = {
-  sm: "px-3 py-1.5 text-sm",           // text-sm
-  md: "px-4 py-2 text-base",           // text-base
-  lg: "px-5 py-3 text-lg",             // text-lg
-};
+  sm: 'px-3 py-1.5 text-sm', // text-sm
+  md: 'px-4 py-2 text-base', // text-base
+  lg: 'px-5 py-3 text-lg', // text-lg
+}
 
 // ❌ RoomCard.tsx
-<h3 className="font-semibold text-gray-900 dark:text-gray-100 truncate">
-  {room.name}
-</h3>
+;<h3 className="truncate font-semibold text-gray-900 dark:text-gray-100">{room.name}</h3>
 ```
 
 **建议实现**:
+
 ```tsx
 // ✅ 如果要使用 CSS 变量，需要配置 Tailwind
 // tailwind.config.js
@@ -247,12 +244,13 @@ module.exports = {
       },
     },
   },
-};
+}
 
 // 或者保持使用 Tailwind 工具类，但保持一致性
 ```
 
 **结论:**
+
 - ⚠️ 字体大小使用基本一致（都使用 Tailwind）
 - ⚠️ 但未利用已定义的 CSS 变量系统
 - 💡 建议选择一种方式并统一使用
@@ -264,6 +262,7 @@ module.exports = {
 ### ✅ 间距系统完整性
 
 **间距系统** (`7zi-frontend/src/styles/tokens.css`):
+
 - ✅ 间距 scale 完整：0 (0px) 到 24 (96px)
 - ✅ 遵循 4px 基准
 - ✅ 包含常用间距：1 (4px), 2 (8px), 3 (12px), 4 (16px), 6 (24px)
@@ -271,15 +270,17 @@ module.exports = {
 ### ✅ 组件间距相对一致
 
 **Button 组件间距模式:**
+
 ```tsx
-xs: "px-2.5 py-1 text-xs gap-1"     // 10px 4px  4px
-sm: "px-3 py-1.5 text-sm gap-1.5"  // 12px 6px  6px
-md: "px-4 py-2 text-sm gap-2"      // 16px 8px  8px
-lg: "px-5 py-2.5 text-base gap-2"  // 20px 10px 8px
-xl: "px-6 py-3 text-lg gap-2.5"    // 24px 12px 10px
+xs: 'px-2.5 py-1 text-xs gap-1' // 10px 4px  4px
+sm: 'px-3 py-1.5 text-sm gap-1.5' // 12px 6px  6px
+md: 'px-4 py-2 text-sm gap-2' // 16px 8px  8px
+lg: 'px-5 py-2.5 text-base gap-2' // 20px 10px 8px
+xl: 'px-6 py-3 text-lg gap-2.5' // 24px 12px 10px
 ```
 
 **Card 组件间距模式:**
+
 ```tsx
 CardHeader: "px-6 py-4"              // 24px 16px
 CardBody: {
@@ -291,10 +292,11 @@ CardFooter: "px-6 py-4"              // 24px 16px
 ```
 
 **Input 组件间距模式:**
+
 ```tsx
-sm: "px-3 py-1.5 text-sm"            // 12px 6px
-md: "px-4 py-2 text-base"            // 16px 8px
-lg: "px-5 py-3 text-lg"              // 20px 12px
+sm: 'px-3 py-1.5 text-sm' // 12px 6px
+md: 'px-4 py-2 text-base' // 16px 8px
+lg: 'px-5 py-3 text-lg' // 20px 12px
 ```
 
 ### 🟡 发现的间距不一致
@@ -305,6 +307,7 @@ lg: "px-5 py-3 text-lg"              // 20px 12px
    - Card: `px-6 py-4` (24px 16px)
 
 2. **RoomCard 固定间距，无响应式:**
+
    ```tsx
    // ❌ 固定 p-4
    <div className="p-4 rounded-xl ...">
@@ -315,6 +318,7 @@ lg: "px-5 py-3 text-lg"              // 20px 12px
    - 但所有组件都直接使用 Tailwind 工具类
 
 **结论:**
+
 - ✅ 组件内部间距基本一致
 - ⚠️ 不同组件间略有差异（可以接受）
 - ⚠️ 未使用 CSS 变量系统
@@ -326,12 +330,14 @@ lg: "px-5 py-3 text-lg"              // 20px 12px
 ### ✅ 暗色模式支持良好
 
 **统计数据:**
+
 - 全项目约 **58** 个 `dark:` 模式类
 - 主要集中在 UI 组件库
 
 **暗色模式实现方式:**
 
 #### 1. **globals.css 中的系统级暗色模式**
+
 ```css
 /* ✅ 完整的暗色模式 CSS 变量 */
 .dark {
@@ -352,6 +358,7 @@ lg: "px-5 py-3 text-lg"              // 20px 12px
 #### 2. **组件级暗色模式**
 
 **Button 组件:**
+
 ```tsx
 // ✅ outline 变体有暗色模式
 outline: clsx(
@@ -371,6 +378,7 @@ ghost: clsx(
 ```
 
 **Input 组件:**
+
 ```tsx
 // ✅ 验证状态有暗色模式
 none: clsx(
@@ -389,6 +397,7 @@ valid: clsx(
 ```
 
 **Card 组件:**
+
 ```tsx
 // ✅ 基础样式有暗色模式
 className={clsx(
@@ -401,6 +410,7 @@ className={clsx(
 ```
 
 **Toast 组件:**
+
 ```tsx
 // ✅ 完整的暗色模式支持
 success: {
@@ -414,6 +424,7 @@ success: {
 ### 🟡 暗色模式待改进
 
 1. **Button 组件 - primary/secondary/danger/success 变体缺少暗色模式 hover 效果:**
+
    ```tsx
    // ❌ 只有 light mode 的 hover
    primary: clsx(
@@ -437,6 +448,7 @@ success: {
    ```
 
 **结论:**
+
 - ✅ 暗色模式覆盖基本完整
 - ✅ CSS 变量系统支持暗色模式
 - 🟡 部分组件的 hover 状态缺少暗色模式优化
@@ -448,6 +460,7 @@ success: {
 ### 🔴 严重问题: 响应式设计不完整
 
 **统计数据:**
+
 - 响应式类使用总数: **92 个** (`md:`, `lg:`, `sm:`, `xl:`)
 - 隐藏类使用: **3 个** (`md:hidden`, `lg:hidden`, `sm:hidden`)
 - 响应式类集中在少数组件
@@ -484,6 +497,7 @@ export const CardBody: React.FC<CardBodyProps> = ({ ... }) => {
 ```
 
 **建议实现:**
+
 ```tsx
 // ✅ 建议添加响应式
 export const CardHeader: React.FC<CardHeaderProps> = ({ ... }) => {
@@ -525,6 +539,7 @@ export const CardBody: React.FC<CardBodyProps> = ({ ... }) => {
 ```
 
 **建议实现:**
+
 ```tsx
 // ✅ 建议添加响应式
 <div className={`
@@ -548,6 +563,7 @@ export const CardBody: React.FC<CardBodyProps> = ({ ... }) => {
 ```
 
 **建议实现:**
+
 ```tsx
 // ✅ 建议添加响应式
 <div className="bg-zinc-50 dark:bg-zinc-950 rounded-2xl shadow-2xl p-4 h-[500px] sm:h-[600px] md:h-[700px]">
@@ -566,45 +582,48 @@ export const CardBody: React.FC<CardBodyProps> = ({ ... }) => {
 export const ToastContainer: FC = memo(() => {
   return (
     <div
-      className="fixed z-50 flex flex-col gap-2 p-4 max-w-sm w-full top-4 right-4"
+      className="fixed top-4 right-4 z-50 flex w-full max-w-sm flex-col gap-2 p-4"
       aria-label="通知"
     >
       {/* ... */}
     </div>
-  );
-});
+  )
+})
 ```
 
 **建议实现:**
+
 ```tsx
 // ✅ 建议添加响应式定位
 export const ToastContainer: FC = memo(() => {
   return (
     <div
-      className="fixed z-50 flex flex-col gap-2 p-4 max-w-sm w-full top-4 right-4 sm:top-8 sm:right-8"
+      className="fixed top-4 right-4 z-50 flex w-full max-w-sm flex-col gap-2 p-4 sm:top-8 sm:right-8"
       aria-label="通知"
     >
       {/* ... */}
     </div>
-  );
-});
+  )
+})
 ```
 
 ### ✅ 响应式设计良好的组件
 
 #### Button 组件 - 尺寸系统
+
 ```tsx
 // ✅ 良好的尺寸系统
 const sizeStyles = {
-  xs: "px-2.5 py-1 text-xs gap-1",
-  sm: "px-3 py-1.5 text-sm gap-1.5",
-  md: "px-4 py-2 text-sm gap-2",
-  lg: "px-5 py-2.5 text-base gap-2",
-  xl: "px-6 py-3 text-lg gap-2.5",
-};
+  xs: 'px-2.5 py-1 text-xs gap-1',
+  sm: 'px-3 py-1.5 text-sm gap-1.5',
+  md: 'px-4 py-2 text-sm gap-2',
+  lg: 'px-5 py-2.5 text-base gap-2',
+  xl: 'px-6 py-3 text-lg gap-2.5',
+}
 ```
 
 #### empty-state 组件 - 响应式布局
+
 ```tsx
 // ✅ 良好的响应式
 className={`
@@ -616,6 +635,7 @@ className={`
 ```
 
 **结论:**
+
 - ✅ 部分组件有良好的响应式设计
 - ❌ 大部分核心组件缺少响应式适配
 - ❌ 缺少统一的响应式设计规范
@@ -627,61 +647,68 @@ className={`
 ### ✅ API 设计良好的组件
 
 #### Button 组件 - API 一致
+
 ```tsx
 export interface ButtonProps {
-  variant?: "primary" | "secondary" | "outline" | "ghost" | "danger" | "success";
-  size?: "xs" | "sm" | "md" | "lg" | "xl";
-  disabled?: boolean;
-  loading?: boolean;
-  fullWidth?: boolean;
-  ripple?: boolean;
-  children: React.ReactNode;
+  variant?: 'primary' | 'secondary' | 'outline' | 'ghost' | 'danger' | 'success'
+  size?: 'xs' | 'sm' | 'md' | 'lg' | 'xl'
+  disabled?: boolean
+  loading?: boolean
+  fullWidth?: boolean
+  ripple?: boolean
+  children: React.ReactNode
 }
 ```
 
 **优点:**
+
 - ✅ 完整的变体系统
 - ✅ 完整的尺寸系统
 - ✅ 一致的命名规范
 
 #### Input 组件 - API 一致
+
 ```tsx
 export interface InputProps {
-  label?: string;
-  error?: string;
-  success?: string;
-  warning?: string;
-  helperText?: string;
-  prefix?: React.ReactNode;
-  suffix?: React.ReactNode;
-  size?: "sm" | "md" | "lg";
-  fullWidth?: boolean;
-  validationState?: "none" | "valid" | "invalid" | "warning";
-  showValidationIcon?: boolean;
+  label?: string
+  error?: string
+  success?: string
+  warning?: string
+  helperText?: string
+  prefix?: React.ReactNode
+  suffix?: React.ReactNode
+  size?: 'sm' | 'md' | 'lg'
+  fullWidth?: boolean
+  validationState?: 'none' | 'valid' | 'invalid' | 'warning'
+  showValidationIcon?: boolean
 }
 ```
 
 **优点:**
+
 - ✅ 完整的验证状态
 - ✅ 完整的尺寸系统
 - ✅ 丰富的功能选项
 
 #### Card 组件 - API 基本一致
+
 ```tsx
 export interface CardProps {
-  children: React.ReactNode;
-  shadow?: "none" | "sm" | "md" | "lg" | "xl";
-  clickable?: boolean;
-  hoverable?: boolean;
-  bordered?: boolean;
+  children: React.ReactNode
+  shadow?: 'none' | 'sm' | 'md' | 'lg' | 'xl'
+  clickable?: boolean
+  hoverable?: boolean
+  bordered?: boolean
 }
 ```
 
 **优点:**
+
 - ✅ 完整的阴影系统
 - ✅ 交互选项清晰
 
 **缺点:**
+
 - ❌ 缺少 `size` 属性（与其他组件不一致）
 
 ### 🔴 API 设计待改进的组件
@@ -693,27 +720,28 @@ export interface CardProps {
 ```tsx
 // ❌ 当前实现 - 过于简单
 export interface SelectProps extends SelectHTMLAttributes<HTMLSelectElement> {
-  label?: string;
-  options?: { value: string; label: string }[];
+  label?: string
+  options?: { value: string; label: string }[]
 }
 
-export function Select({ label, options = [], className = "", ...props }: SelectProps) {
+export function Select({ label, options = [], className = '', ...props }: SelectProps) {
   return (
     <div className="flex flex-col gap-1">
       {label && <label className="text-sm">{label}</label>}
-      <select {...props} className={`border rounded px-3 py-2 ${className}`}>
-        {options.map((opt) => (
+      <select {...props} className={`rounded border px-3 py-2 ${className}`}>
+        {options.map(opt => (
           <option key={opt.value} value={opt.value}>
             {opt.label}
           </option>
         ))}
       </select>
     </div>
-  );
+  )
 }
 ```
 
 **问题:**
+
 - ❌ 没有 `size` 属性
 - ❌ 没有变体（primary, outline 等）
 - ❌ 没有状态样式（error, success）
@@ -721,57 +749,73 @@ export function Select({ label, options = [], className = "", ...props }: Select
 - ❌ 直接使用原生 select，样式不一致
 
 **建议实现:**
+
 ```tsx
 // ✅ 建议实现
 export interface SelectProps {
-  label?: string;
-  options?: { value: string; label: string; disabled?: boolean }[];
-  size?: "sm" | "md" | "lg";
-  variant?: "default" | "outline" | "filled";
-  error?: string;
-  helperText?: string;
-  disabled?: boolean;
-  fullWidth?: boolean;
+  label?: string
+  options?: { value: string; label: string; disabled?: boolean }[]
+  size?: 'sm' | 'md' | 'lg'
+  variant?: 'default' | 'outline' | 'filled'
+  error?: string
+  helperText?: string
+  disabled?: boolean
+  fullWidth?: boolean
 }
 
-export function Select({ label, options = [], size = "md", variant = "default", error, helperText, disabled, fullWidth, className = "", ...props }: SelectProps) {
+export function Select({
+  label,
+  options = [],
+  size = 'md',
+  variant = 'default',
+  error,
+  helperText,
+  disabled,
+  fullWidth,
+  className = '',
+  ...props
+}: SelectProps) {
   const sizeStyles = {
-    sm: "px-3 py-1.5 text-sm",
-    md: "px-4 py-2 text-base",
-    lg: "px-5 py-3 text-lg",
-  };
+    sm: 'px-3 py-1.5 text-sm',
+    md: 'px-4 py-2 text-base',
+    lg: 'px-5 py-3 text-lg',
+  }
 
   const variantStyles = {
-    default: "bg-white dark:bg-gray-800 border-gray-300 dark:border-gray-600",
-    outline: "bg-transparent border-gray-300 dark:border-gray-600",
-    filled: "bg-gray-50 dark:bg-gray-900 border-transparent",
-  };
+    default: 'bg-white dark:bg-gray-800 border-gray-300 dark:border-gray-600',
+    outline: 'bg-transparent border-gray-300 dark:border-gray-600',
+    filled: 'bg-gray-50 dark:bg-gray-900 border-transparent',
+  }
 
   return (
-    <div className={clsx("flex flex-col gap-1", fullWidth && "w-full", className)}>
-      {label && <label className="text-sm font-medium text-gray-700 dark:text-gray-300">{label}</label>}
+    <div className={clsx('flex flex-col gap-1', fullWidth && 'w-full', className)}>
+      {label && (
+        <label className="text-sm font-medium text-gray-700 dark:text-gray-300">{label}</label>
+      )}
       <select
         {...props}
         disabled={disabled}
         className={clsx(
-          "rounded-lg border-2 transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-offset-2",
+          'rounded-lg border-2 transition-all duration-200 focus:ring-2 focus:ring-offset-2 focus:outline-none',
           sizeStyles[size],
           variantStyles[variant],
-          error && "border-red-500 focus:ring-red-500",
-          disabled && "opacity-50 cursor-not-allowed bg-gray-100 dark:bg-gray-800",
-          "focus:border-blue-500 focus:ring-blue-500"
+          error && 'border-red-500 focus:ring-red-500',
+          disabled && 'cursor-not-allowed bg-gray-100 opacity-50 dark:bg-gray-800',
+          'focus:border-blue-500 focus:ring-blue-500'
         )}
       >
-        {options.map((opt) => (
+        {options.map(opt => (
           <option key={opt.value} value={opt.value} disabled={opt.disabled}>
             {opt.label}
           </option>
         ))}
       </select>
       {error && <p className="text-sm text-red-600 dark:text-red-400">{error}</p>}
-      {helperText && !error && <p className="text-sm text-gray-500 dark:text-gray-400">{helperText}</p>}
+      {helperText && !error && (
+        <p className="text-sm text-gray-500 dark:text-gray-400">{helperText}</p>
+      )}
     </div>
-  );
+  )
 }
 ```
 
@@ -782,32 +826,19 @@ export function Select({ label, options = [], size = "md", variant = "default", 
 ```tsx
 // ⚠️ 当前实现 - 功能基本完整，但可以改进
 export interface BadgeProps extends HTMLAttributes<HTMLSpanElement> {
-  variant?:
-    | "default"
-    | "success"
-    | "warning"
-    | "error"
-    | "info"
-    | "destructive"
-    | "outline";
+  variant?: 'default' | 'success' | 'warning' | 'error' | 'info' | 'destructive' | 'outline'
 }
 ```
 
 **建议添加:**
+
 ```tsx
 // ✅ 建议添加
 export interface BadgeProps extends HTMLAttributes<HTMLSpanElement> {
-  variant?:
-    | "default"
-    | "success"
-    | "warning"
-    | "error"
-    | "info"
-    | "destructive"
-    | "outline";
-  size?: "sm" | "md" | "lg";  // 添加尺寸
-  rounded?: "none" | "sm" | "md" | "lg" | "full";  // 添加圆角选项
-  dot?: boolean;  // 添加点状样式
+  variant?: 'default' | 'success' | 'warning' | 'error' | 'info' | 'destructive' | 'outline'
+  size?: 'sm' | 'md' | 'lg' // 添加尺寸
+  rounded?: 'none' | 'sm' | 'md' | 'lg' | 'full' // 添加圆角选项
+  dot?: boolean // 添加点状样式
 }
 ```
 
@@ -818,30 +849,31 @@ export interface BadgeProps extends HTMLAttributes<HTMLSpanElement> {
 ```tsx
 // ✅ API 设计良好
 interface ThemeSelectorProps {
-  className?: string;
-  variant?: "compact" | "full";
+  className?: string
+  variant?: 'compact' | 'full'
 }
 
-export function ThemeSelector({ className = "", variant = "full" }: ThemeSelectorProps) {
+export function ThemeSelector({ className = '', variant = 'full' }: ThemeSelectorProps) {
   // ...
 }
 ```
 
 **优点:**
+
 - ✅ 完整的变体系统（compact, full）
 - ✅ 清晰的命名规范
 
 ### 📊 API 一致性总结
 
-| 组件 | size 属性 | variant 属性 | 状态样式 | 交互选项 | 一致性评分 |
-|------|-----------|-------------|---------|---------|-----------|
-| Button | ✅ xs-xl | ✅ 6种 | ✅ | ✅ | ⭐⭐⭐⭐⭐ |
-| Input | ✅ sm-lg | ❌ | ✅ | ✅ | ⭐⭐⭐⭐ |
-| Card | ❌ | ❌ | ❌ | ✅ | ⭐⭐⭐ |
-| Badge | ❌ | ✅ 7种 | ❌ | ❌ | ⭐⭐⭐ |
-| Toast | ❌ | ✅ 5种 | ✅ | ✅ | ⭐⭐⭐⭐ |
-| Select | ❌ | ❌ | ❌ | ❌ | ⭐⭐ |
-| ThemeSelector | ❌ | ✅ 2种 | ❌ | ✅ | ⭐⭐⭐⭐ |
+| 组件          | size 属性 | variant 属性 | 状态样式 | 交互选项 | 一致性评分 |
+| ------------- | --------- | ------------ | -------- | -------- | ---------- |
+| Button        | ✅ xs-xl  | ✅ 6种       | ✅       | ✅       | ⭐⭐⭐⭐⭐ |
+| Input         | ✅ sm-lg  | ❌           | ✅       | ✅       | ⭐⭐⭐⭐   |
+| Card          | ❌        | ❌           | ❌       | ✅       | ⭐⭐⭐     |
+| Badge         | ❌        | ✅ 7种       | ❌       | ❌       | ⭐⭐⭐     |
+| Toast         | ❌        | ✅ 5种       | ✅       | ✅       | ⭐⭐⭐⭐   |
+| Select        | ❌        | ❌           | ❌       | ❌       | ⭐⭐       |
+| ThemeSelector | ❌        | ✅ 2种       | ❌       | ✅       | ⭐⭐⭐⭐   |
 
 ---
 
@@ -850,18 +882,21 @@ export function ThemeSelector({ className = "", variant = "full" }: ThemeSelecto
 ### 🔴 高优先级问题
 
 #### 1. 颜色系统未统一使用 CSS 变量
+
 - **影响范围:** 全项目
 - **严重性:** 高
 - **描述:** Button 等组件使用硬编码的 Tailwind 类名（`bg-blue-600`），未利用已定义的 CSS 变量系统
 - **影响:** 颜色主题难以统一管理，暗色模式可能不一致，品牌色变更困难
 
 #### 2. 组件缺少响应式设计
+
 - **影响范围:** Card, RoomCard, Knowledge Lattice Page, Toast
 - **严重性:** 高
 - **描述:** 大部分组件没有响应式 padding、高度、字体大小适配
 - **影响:** 移动端体验不佳
 
 #### 3. Select 组件功能过于简单
+
 - **影响范围:** Select 组件
 - **严重性:** 中高
 - **描述:** 缺少 size、variant、error 状态等基本功能
@@ -870,24 +905,28 @@ export function ThemeSelector({ className = "", variant = "full" }: ThemeSelecto
 ### 🟡 中优先级问题
 
 #### 4. 字体大小未使用 CSS 变量
+
 - **影响范围:** 全项目
 - **严重性:** 中
 - **描述:** 所有组件直接使用 Tailwind 工具类（`text-sm`, `text-base`），未利用已定义的 CSS 变量
 - **影响:** 无法通过 CSS 变量统一管理字体
 
 #### 5. 间距未使用 CSS 变量
+
 - **影响范围:** 全项目
 - **严重性:** 中
 - **描述:** 所有组件直接使用 Tailwind 工具类（`p-4`, `px-6`），未利用已定义的 CSS 变量
 - **影响:** 无法通过 CSS 变量统一管理间距
 
 #### 6. Button 组件部分变体缺少暗色模式 hover 效果
+
 - **影响范围:** Button 组件
 - **严重性:** 中
 - **描述:** primary/secondary/danger/success 变体缺少 `dark:hover` 状态
 - **影响:** 暗色模式下交互体验不佳
 
 #### 7. Card 组件缺少 size 属性
+
 - **影响范围:** Card 组件
 - **严重性:** 中低
 - **描述:** 与其他组件不一致，缺少尺寸控制
@@ -896,10 +935,11 @@ export function ThemeSelector({ className = "", variant = "full" }: ThemeSelecto
 ### 🟢 低优先级问题
 
 #### 8. Badge 组件缺少 size 和 rounded 属性
+
 - **影响范围:** Badge 组件
 - **严重性:** 低
 - **描述:** 功能可以更
-加丰富，与其他组件保持一致
+  加丰富，与其他组件保持一致
 - **影响:** 使用灵活性有限
 
 ---
@@ -919,6 +959,7 @@ export function ThemeSelector({ className = "", variant = "full" }: ThemeSelecto
 3. **清理硬编码颜色** （KnowledgeLatticeScene 等）
 
 **预期效果:**
+
 - 颜色统一管理，易于主题切换
 - 暗色模式一致性提升
 - 未来品牌色变更只需修改 CSS 变量
@@ -937,6 +978,7 @@ export function ThemeSelector({ className = "", variant = "full" }: ThemeSelecto
 4. **Toast 响应式定位** - 添加 `sm:top-8 sm:right-8`
 
 **预期效果:**
+
 - 移动端用户体验显著提升
 - 组件在不同屏幕尺寸下表现一致
 - 响应式设计覆盖率达到 80%+
@@ -954,6 +996,7 @@ export function ThemeSelector({ className = "", variant = "full" }: ThemeSelecto
 3. **测试所有变体**
 
 **预期效果:**
+
 - Select 组件与其他组件 API 一致
 - 功能完整，支持所有常用场景
 - 使用体验提升
@@ -999,6 +1042,7 @@ export function ThemeSelector({ className = "", variant = "full" }: ThemeSelecto
 ### 建议 1: 建立响应式设计规范文档
 
 创建 `docs/RESPONSIVE_DESIGN.md`:
+
 - 定义断点：sm(640px), md(768px), lg(1024px), xl(1280px)
 - 移动端优先原则
 - 组件响应式要求
@@ -1006,6 +1050,7 @@ export function ThemeSelector({ className = "", variant = "full" }: ThemeSelecto
 ### 建议 2: 建立组件库文档
 
 创建 `docs/COMPONENT_LIBRARY.md`:
+
 - Button, Card, Input 等组件的 API 文档
 - 示例代码
 - 设计规范
@@ -1013,6 +1058,7 @@ export function ThemeSelector({ className = "", variant = "full" }: ThemeSelecto
 ### 建议 3: 建立暗色模式开发规范
 
 创建 `docs/DARK_MODE_GUIDE.md`:
+
 - 暗色模式原则
 - 实现方式
 - 检查清单
@@ -1021,15 +1067,15 @@ export function ThemeSelector({ className = "", variant = "full" }: ThemeSelecto
 
 ## 📊 10. 改进优先级总结
 
-| 问题 | 优先级 | 影响范围 | 预期收益 | 工作量 | 建议完成时间 |
-|------|--------|----------|----------|--------|-------------|
-| 统一颜色系统 | 🔴 高 | 全项目 | 颜色一致性 +80% | 3-4h | 1-2 周 |
-| 增强响应式设计 | 🔴 高 | 核心组件 | 移动端体验 +60% | 5-6h | 1-2 周 |
-| 增强 Select 组件 | 🔴 高 | Select 组件 | API 一致性 +90% | 2-3h | 1-2 周 |
-| 字体/间距统一 | 🟡 中 | 全项目 | 灵活性 +50% | 4-5h | 2-4 周 |
-| 增强 Button 暗色模式 | 🟡 中 | Button 组件 | 暗色体验 +30% | 1h | 2-4 周 |
-| Card 添加 size 属性 | 🟡 中低 | Card 组件 | API 一致性 +20% | 1-2h | 2-4 周 |
-| 增强 Badge 组件 | 🟢 低 | Badge 组件 | 功能 +40% | 1-2h | 1-2 月 |
+| 问题                 | 优先级  | 影响范围    | 预期收益        | 工作量 | 建议完成时间 |
+| -------------------- | ------- | ----------- | --------------- | ------ | ------------ |
+| 统一颜色系统         | 🔴 高   | 全项目      | 颜色一致性 +80% | 3-4h   | 1-2 周       |
+| 增强响应式设计       | 🔴 高   | 核心组件    | 移动端体验 +60% | 5-6h   | 1-2 周       |
+| 增强 Select 组件     | 🔴 高   | Select 组件 | API 一致性 +90% | 2-3h   | 1-2 周       |
+| 字体/间距统一        | 🟡 中   | 全项目      | 灵活性 +50%     | 4-5h   | 2-4 周       |
+| 增强 Button 暗色模式 | 🟡 中   | Button 组件 | 暗色体验 +30%   | 1h     | 2-4 周       |
+| Card 添加 size 属性  | 🟡 中低 | Card 组件   | API 一致性 +20% | 1-2h   | 2-4 周       |
+| 增强 Badge 组件      | 🟢 低   | Badge 组件  | 功能 +40%       | 1-2h   | 1-2 月       |
 
 ---
 

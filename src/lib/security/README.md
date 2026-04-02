@@ -91,7 +91,7 @@ Referrer-Policy: strict-origin-when-cross-origin
 **权限策略**，控制浏览器功能的访问权限。
 
 ```typescript
-Permissions-Policy: 
+Permissions-Policy:
   geolocation=none,
   microphone=none,
   camera=none,
@@ -123,33 +123,29 @@ Cross-Origin-Resource-Policy: same-origin
 ### 基本使用
 
 ```typescript
-import { applySecurityHeaders } from '@/lib/security/headers';
+import { applySecurityHeaders } from '@/lib/security/headers'
 
 // 在 middleware.ts 中应用
 export async function middleware(request: NextRequest): Promise<NextResponse> {
-  const response = NextResponse.next();
-  
+  const response = NextResponse.next()
+
   // 应用安全头部
   applySecurityHeaders(
     response,
     process.env.NODE_ENV === 'development' ? 'development' : 'production'
-  );
-  
-  return response;
+  )
+
+  return response
 }
 ```
 
 ### 自定义配置
 
 ```typescript
-import { 
-  getSecurityConfig, 
-  generateCSP, 
-  generateHSTS 
-} from '@/lib/security/headers';
+import { getSecurityConfig, generateCSP, generateHSTS } from '@/lib/security/headers'
 
 // 获取环境配置
-const config = getSecurityConfig('production');
+const config = getSecurityConfig('production')
 
 // 自定义 CSP
 const customCSP = generateCSP({
@@ -160,10 +156,10 @@ const customCSP = generateCSP({
   allowInlineScripts: false,
   allowInlineStyles: false,
   allowEval: false,
-});
+})
 
 // 应用到响应
-response.headers.set('Content-Security-Policy', customCSP);
+response.headers.set('Content-Security-Policy', customCSP)
 ```
 
 ### CSP Report-Only 模式
@@ -171,9 +167,9 @@ response.headers.set('Content-Security-Policy', customCSP);
 用于测试 CSP 策略，不实际阻止，只报告违规。
 
 ```typescript
-import { getCSPReportOnlyConfig } from '@/lib/security/headers';
+import { getCSPReportOnlyConfig } from '@/lib/security/headers'
 
-const reportHeaders = getCSPReportOnlyConfig('production');
+const reportHeaders = getCSPReportOnlyConfig('production')
 // Content-Security-Policy-Report-Only: ...
 ```
 
@@ -181,14 +177,14 @@ const reportHeaders = getCSPReportOnlyConfig('production');
 
 ### 开发环境 vs 生产环境
 
-| 配置项 | 开发环境 | 生产环境 |
-|--------|---------|---------|
-| **CSP 严格模式** | ❌ 宽松 | ✅ 严格 |
-| **unsafe-inline** | ✅ 允许 | ❌ 禁止 |
-| **unsafe-eval** | ✅ 允许 | ❌ 禁止 |
-| **HSTS** | ❌ 不启用 | ✅ 启用（2年） |
-| **X-Frame-Options** | SAMEORIGIN | DENY |
-| **upgrade-insecure-requests** | ❌ 不启用 | ✅ 启用 |
+| 配置项                        | 开发环境   | 生产环境       |
+| ----------------------------- | ---------- | -------------- |
+| **CSP 严格模式**              | ❌ 宽松    | ✅ 严格        |
+| **unsafe-inline**             | ✅ 允许    | ❌ 禁止        |
+| **unsafe-eval**               | ✅ 允许    | ❌ 禁止        |
+| **HSTS**                      | ❌ 不启用  | ✅ 启用（2年） |
+| **X-Frame-Options**           | SAMEORIGIN | DENY           |
+| **upgrade-insecure-requests** | ❌ 不启用  | ✅ 启用        |
 
 ### 生产环境 CSP 示例
 
@@ -239,10 +235,10 @@ upgrade-insecure-requests;
 
 ```typescript
 // ❌ 之前：使用 eval
-const result = eval(code);
+const result = eval(code)
 
 // ✅ 之后：使用安全的替代方案
-const result = JSON.parse(code); // 如果是 JSON
+const result = JSON.parse(code) // 如果是 JSON
 // 或使用 Web Workers 执行不受信任的代码
 ```
 
@@ -251,10 +247,10 @@ const result = JSON.parse(code); // 如果是 JSON
 如果需要加载外部资源（如 CDN），需要更新 CSP 配置：
 
 ```typescript
-const config = getSecurityConfig('production');
-config.csp.scriptSrc.push('https://cdn.example.com');
-config.csp.styleSrc.push('https://fonts.googleapis.com');
-config.csp.connectSrc.push('https://api.example.com');
+const config = getSecurityConfig('production')
+config.csp.scriptSrc.push('https://cdn.example.com')
+config.csp.styleSrc.push('https://fonts.googleapis.com')
+config.csp.connectSrc.push('https://api.example.com')
 ```
 
 ## 测试

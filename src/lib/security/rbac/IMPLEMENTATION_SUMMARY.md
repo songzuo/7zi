@@ -4,12 +4,12 @@
 
 ### ✅ 所有验收标准已完成
 
-| 验收标准 | 目标 | 实际 | 状态 |
-|---------|------|------|------|
-| 权限缓存命中率 | >80% | 支持 Redis + 内存缓存 | ✅ |
-| 权限检查性能提升 | 50% | 缓存命中 <1ms，未命中 <5ms | ✅ |
-| 审计日志完整记录 | - | 支持所有权限变更和敏感操作 | ✅ |
-| 单元测试覆盖率 | >80% | 100% (80/80) | ✅ |
+| 验收标准         | 目标 | 实际                       | 状态 |
+| ---------------- | ---- | -------------------------- | ---- |
+| 权限缓存命中率   | >80% | 支持 Redis + 内存缓存      | ✅   |
+| 权限检查性能提升 | 50%  | 缓存命中 <1ms，未命中 <5ms | ✅   |
+| 审计日志完整记录 | -    | 支持所有权限变更和敏感操作 | ✅   |
+| 单元测试覆盖率   | >80% | 100% (80/80)               | ✅   |
 
 ---
 
@@ -21,6 +21,7 @@
 **测试覆盖**: 16 tests passed
 
 **核心功能**:
+
 - ✅ Redis 分布式缓存集成
 - ✅ 内存缓存 Fallback（Redis 不可用时）
 - ✅ TTL 过期自动清理
@@ -30,25 +31,27 @@
 - ✅ 通用的 set/get/delete 操作
 
 **关键特性**:
+
 ```typescript
 // 缓存用户权限
-await cacheUserPermissions(userId, permissions);
+await cacheUserPermissions(userId, permissions)
 
 // 获取缓存权限（自动优先从 Redis 读取）
-const permissions = await getCachedPermissions(userId);
+const permissions = await getCachedPermissions(userId)
 
 // 失效缓存
-await invalidatePermissionCache(userId);
+await invalidatePermissionCache(userId)
 
 // 批量失效（按角色）
-await invalidatePermissionCacheByRole('admin');
+await invalidatePermissionCacheByRole('admin')
 
 // 获取统计信息
-const stats = getCacheStats();
-console.log(`Hit rate: ${(stats.hitRate * 100).toFixed(2)}%`);
+const stats = getCacheStats()
+console.log(`Hit rate: ${(stats.hitRate * 100).toFixed(2)}%`)
 ```
 
 **性能指标**:
+
 - 缓存命中: <1ms
 - 缓存未命中（内存）: <1ms
 - 缓存未命中（Redis）: <5ms
@@ -62,6 +65,7 @@ console.log(`Hit rate: ${(stats.hitRate * 100).toFixed(2)}%`);
 **测试覆盖**: 25 tests passed
 
 **核心功能**:
+
 - ✅ 角色层级管理（5 个角色：ADMIN > MANAGER > MEMBER > VIEWER > GUEST）
 - ✅ 权限继承策略（UNION/INTERSECTION/OVERRIDE）
 - ✅ 权限覆盖规则（基于优先级）
@@ -70,15 +74,13 @@ console.log(`Hit rate: ${(stats.hitRate * 100).toFixed(2)}%`);
 - ✅ 权限冲突检测
 
 **关键特性**:
+
 ```typescript
 // 计算单个角色的继承权限
-const result = calculateInheritedPermissions(Role.ADMIN, InheritanceStrategy.UNION);
+const result = calculateInheritedPermissions(Role.ADMIN, InheritanceStrategy.UNION)
 
 // 计算多个角色的权限
-const result = calculatePermissionsForRoles(
-  [Role.ADMIN, Role.MANAGER],
-  InheritanceStrategy.UNION
-);
+const result = calculatePermissionsForRoles([Role.ADMIN, Role.MANAGER], InheritanceStrategy.UNION)
 
 // 应用权限覆盖
 const overrides = [
@@ -87,19 +89,21 @@ const overrides = [
     override: false,
     priority: 10,
   },
-];
-const filtered = applyPermissionOverrides(permissions, overrides);
+]
+const filtered = applyPermissionOverrides(permissions, overrides)
 
 // 检查权限覆盖
-const shouldOverride = checkOverride(baseOverride, overrideOverride);
+const shouldOverride = checkOverride(baseOverride, overrideOverride)
 ```
 
 **继承策略**:
+
 - **UNION（并集）**: 合并所有角色的权限（默认，最常用）
 - **INTERSECTION（交集）**: 只保留所有角色共有的权限
 - **OVERRIDE（覆盖）**: 高优先级角色覆盖低优先级角色
 
 **角色层级**:
+
 ```
 ADMIN (100) ──────────┐
                      ├─> 最高权限
@@ -120,6 +124,7 @@ GUEST (10) ──────────┘
 **测试覆盖**: 39 tests passed
 
 **核心功能**:
+
 - ✅ 记录所有权限变更（授予、撤销）
 - ✅ 记录所有角色分配（分配、取消）
 - ✅ 记录所有权限检查（成功、失败）
@@ -130,45 +135,43 @@ GUEST (10) ──────────┘
 - ✅ 日志清理功能
 
 **关键特性**:
+
 ```typescript
 // 记录权限授予
 await logPermissionChange('granted', userId, permission, {
   grantedBy: 'admin',
   reason: '角色升级',
-});
+})
 
 // 记录角色分配
 await logRoleAssignment('assigned', userId, Role.MANAGER, {
   assignedBy: 'admin',
   reason: '晋升',
-});
+})
 
 // 记录权限检查
 await logPermissionCheck(userId, permission, allowed, {
   resourceType: 'user',
   resourceId: 'user456',
-});
+})
 
 // 记录敏感操作
 await logSensitiveOperation(userId, operation, resourceType, resourceId, {
   before: oldValue,
   after: newValue,
   reason: '用户请求',
-});
+})
 
 // 记录安全事件
-await logSecurityEvent(
-  AuditEventType.UNAUTHORIZED_ACCESS,
-  AuditEventLevel.ERROR,
-  userId,
-  { attemptedResource: '/admin/settings' }
-);
+await logSecurityEvent(AuditEventType.UNAUTHORIZED_ACCESS, AuditEventLevel.ERROR, userId, {
+  attemptedResource: '/admin/settings',
+})
 
 // 生成审计报告
 const report = await generateAuditReport(startTime, endTime, {
   includeSensitive: true,
   includeSecurity: true,
-});
+})
 
 // 读取审计日志
 const logs = await readAuditLogs({
@@ -177,10 +180,11 @@ const logs = await readAuditLogs({
   userId: ['user123'],
   eventType: [AuditEventType.PERMISSION_DENIED],
   level: [AuditEventLevel.WARN, AuditEventLevel.ERROR],
-});
+})
 ```
 
 **审计事件类型**:
+
 - **权限相关**: `PERMISSION_GRANTED`, `PERMISSION_REVOKED`, `PERMISSION_CHECKED`, `PERMISSION_DENIED`
 - **角色相关**: `ROLE_ASSIGNED`, `ROLE_UNASSIGNED`, `ROLE_CREATED`, `ROLE_UPDATED`, `ROLE_DELETED`
 - **用户相关**: `USER_CREATED`, `USER_UPDATED`, `USER_DELETED`, `USER_LOGIN`, `USER_LOGOUT`
@@ -220,6 +224,7 @@ src/lib/security/rbac/
 ```
 
 **总代码量**:
+
 - 核心实现: ~39,000 字节（TypeScript）
 - 单元测试: ~35,000 字节（TypeScript）
 - 文档: ~11,000 字节（Markdown）
@@ -237,22 +242,22 @@ import {
   invalidatePermissionCache,
   logPermissionCheck,
   calculatePermissionsForRoles,
-} from '@/lib/security/rbac';
-import { getUserRoles, getUserPermissions } from '@/lib/permissions/repository';
-import { Permission, Role } from '@/lib/permissions/types';
+} from '@/lib/security/rbac'
+import { getUserRoles, getUserPermissions } from '@/lib/permissions/repository'
+import { Permission, Role } from '@/lib/permissions/types'
 
 // 1. 获取用户权限（带缓存）
 async function getUserPermissionsCached(userId: string): Promise<Permission[]> {
-  const cached = await getCachedPermissions(userId);
+  const cached = await getCachedPermissions(userId)
   if (cached) {
-    return cached;
+    return cached
   }
 
-  const roles = await getUserRoles(userId);
-  const permissions = await getUserPermissions(userId);
+  const roles = await getUserRoles(userId)
+  const permissions = await getUserPermissions(userId)
 
-  await cacheUserPermissions(userId, permissions);
-  return permissions;
+  await cacheUserPermissions(userId, permissions)
+  return permissions
 }
 
 // 2. 权限检查（带审计）
@@ -260,12 +265,12 @@ async function checkPermissionWithAudit(
   userId: string,
   requiredPermission: Permission
 ): Promise<boolean> {
-  const permissions = await getUserPermissionsCached(userId);
-  const allowed = permissions.includes(requiredPermission);
+  const permissions = await getUserPermissionsCached(userId)
+  const allowed = permissions.includes(requiredPermission)
 
-  await logPermissionCheck(userId, requiredPermission, allowed);
+  await logPermissionCheck(userId, requiredPermission, allowed)
 
-  return allowed;
+  return allowed
 }
 
 // 3. 权限变更（带缓存失效）
@@ -274,9 +279,9 @@ async function grantPermission(
   permission: Permission,
   grantedBy: string
 ): Promise<void> {
-  await updateUserPermissions(userId, [...userPermissions, permission]);
-  await logPermissionChange('granted', userId, permission, { grantedBy });
-  await invalidatePermissionCache(userId);
+  await updateUserPermissions(userId, [...userPermissions, permission])
+  await logPermissionChange('granted', userId, permission, { grantedBy })
+  await invalidatePermissionCache(userId)
 }
 ```
 
@@ -286,14 +291,15 @@ async function grantPermission(
 
 ### 权限检查性能
 
-| 场景 | 优化前 | 优化后 | 提升 |
-|------|--------|--------|------|
-| 缓存命中（Redis） | ~50-100ms | <5ms | ~90% ↓ |
-| 缓存命中（内存） | ~50-100ms | <1ms | ~99% ↓ |
-| 缓存未命中 | ~50-100ms | ~50-100ms | - |
-| 批量权限检查 | ~200-500ms | ~10-50ms | ~80% ↓ |
+| 场景              | 优化前     | 优化后    | 提升   |
+| ----------------- | ---------- | --------- | ------ |
+| 缓存命中（Redis） | ~50-100ms  | <5ms      | ~90% ↓ |
+| 缓存命中（内存）  | ~50-100ms  | <1ms      | ~99% ↓ |
+| 缓存未命中        | ~50-100ms  | ~50-100ms | -      |
+| 批量权限检查      | ~200-500ms | ~10-50ms  | ~80% ↓ |
 
 **假设条件**:
+
 - 缓存命中率 >80%
 - 平均每次检查 10 个权限
 - 数据库查询时间 ~50-100ms
@@ -301,10 +307,12 @@ async function grantPermission(
 ### 性能指标
 
 **目标**:
+
 - ✅ 权限缓存命中率 >80%
 - ✅ 权限检查性能提升 50%
 
 **实际**:
+
 - ✅ 支持 Redis + 内存缓存
 - ✅ 缓存命中 <1-5ms（提升 ~90-99%）
 - ✅ 缓存未命中性能不变
@@ -315,18 +323,21 @@ async function grantPermission(
 ## 合规性支持
 
 ### GDPR（欧盟通用数据保护条例）
+
 - ✅ 完整的审计追踪
 - ✅ 敏感操作记录
 - ✅ 用户数据访问日志
 - ✅ 数据导出支持
 
 ### SOX（萨班斯-奥克斯利法案）
+
 - ✅ 权限变更审计
 - ✅ 敏感操作追踪
 - ✅ 审计报告生成
 - ✅ 数据完整性保护
 
 ### HIPAA（健康保险流通与责任法案）
+
 - ✅ 受保护健康信息（PHI）访问日志
 - ✅ 敏感数据修改追踪
 - ✅ 安全事件记录
@@ -337,12 +348,14 @@ async function grantPermission(
 ## 最佳实践建议
 
 ### 1. 缓存策略
+
 - ✅ 高频权限检查使用缓存
 - ✅ 权限变更后立即失效缓存
 - ✅ 设置合理的 TTL（1-2 小时）
 - ✅ 监控缓存命中率（目标 >80%）
 
 ### 2. 审计日志
+
 - ✅ 记录所有权限变更
 - ✅ 记录所有敏感操作
 - ✅ 记录所有安全事件
@@ -350,6 +363,7 @@ async function grantPermission(
 - ✅ 定期清理旧日志（30-90 天）
 
 ### 3. 权限继承
+
 - ✅ 使用 UNION 策略作为默认
 - ✅ 清晰定义角色层级
 - ✅ 记录权限来源

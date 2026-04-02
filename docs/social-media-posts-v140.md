@@ -12,6 +12,7 @@
 ### 帖子 1: 版本发布主推
 
 **推文 1 (Thread 开头)**:
+
 ```
 🚀 7zi v1.4.0 正式发布！
 
@@ -30,6 +31,7 @@
 ```
 
 **推文 2 (房间系统)**:
+
 ```
 📍 WebSocket v2.0 房间系统来了！
 
@@ -47,6 +49,7 @@
 ```
 
 **推文 3 (权限控制)**:
+
 ```
 🔐 RBAC 权限系统
 
@@ -64,6 +67,7 @@
 ```
 
 **推文 4 (AI Agent 调度)**:
+
 ```
 🤖 AI Agent 智能调度
 
@@ -81,6 +85,7 @@
 ```
 
 **推文 5 (性能监控)**:
+
 ```
 📊 性能监控升级
 
@@ -96,6 +101,7 @@
 ```
 
 **推文 6 (React Compiler)**:
+
 ```
 ⚡ React Compiler 可选功能
 
@@ -113,6 +119,7 @@
 ```
 
 **推文 7 (结尾 CTA)**:
+
 ```
 📦 v1.4.0 更新内容：
 
@@ -133,6 +140,7 @@
 ### 帖子 2: 功能亮点短视频文案
 
 **30 秒短视频脚本**:
+
 ```
 (开场：7zi Logo 动画)
 
@@ -163,6 +171,7 @@
 ### 帖子 3: AI 团队故事
 
 **推文**:
+
 ```
 📖 我们的 AI 团队故事
 
@@ -192,7 +201,7 @@
 
 ### 帖子 1: v1.4.0 发布公告
 
-```
+````
 # 7zi v1.4.0 发布公告
 
 ## 🎉 版本亮点
@@ -230,7 +239,7 @@
 git pull origin main
 pnpm install
 pnpm test:run
-```
+````
 
 ## 📖 更多信息
 
@@ -239,6 +248,7 @@ pnpm test:run
 - 文档：https://docs.7zi.studio
 
 #7zi #v140 #Release #AI团队
+
 ```
 
 ---
@@ -246,6 +256,7 @@ pnpm test:run
 ### 帖子 2: WebSocket 技术深度解析
 
 ```
+
 # WebSocket v2.0 技术深度解析
 
 ## 核心功能
@@ -253,6 +264,7 @@ pnpm test:run
 ### 1. 房间系统
 
 支持 6 种房间类型：
+
 - project - 项目协作
 - task - 任务讨论
 - chat - 即时通讯
@@ -261,6 +273,7 @@ pnpm test:run
 - video - 视频会议
 
 三种可见性模式：
+
 - public - 公开房间
 - private - 私有房间
 - invite-only - 仅邀请房间
@@ -268,6 +281,7 @@ pnpm test:run
 ### 2. 权限控制
 
 5 级角色：
+
 1. owner - 完全控制
 2. admin - 管理员
 3. moderator - 协调员
@@ -275,6 +289,7 @@ pnpm test:run
 5. guest - 访客
 
 16 种权限：
+
 - 房间权限 7 种
 - 消息权限 6 种
 - 管理权限 3 种
@@ -296,16 +311,17 @@ pnpm test:run
 ## 代码示例
 
 ```typescript
-import { getRoomManager } from '@/lib/websocket/rooms';
+import { getRoomManager } from '@/lib/websocket/rooms'
 
 const room = roomManager.createRoom('project-alpha', {
   type: 'project',
   visibility: 'private',
-  maxParticipants: 10
-});
+  maxParticipants: 10,
+})
 ```
 
 #7zi #WebSocket #技术 #Realtime
+
 ```
 
 ---
@@ -313,11 +329,13 @@ const room = roomManager.createRoom('project-alpha', {
 ### 帖子 3: AI Agent 调度系统
 
 ```
+
 # AI Agent 智能调度系统
 
 ## 11 位 AI 成员
 
 ### 核心团队
+
 - 🌟 智能体世界专家 - 战略规划
 - 📚 咨询师 - 研究分析
 - 🏗️ 架构师 - 技术设计
@@ -326,6 +344,7 @@ const room = roomManager.createRoom('project-alpha', {
 - 🧪 测试员 - 质量保证
 
 ### 支持团队
+
 - 🎨 设计师 - UI/UX
 - 📣 推广专员 - SEO/营销
 - 💼 销售客服 - 客户服务
@@ -335,7 +354,7 @@ const room = roomManager.createRoom('project-alpha', {
 ## 调度算法
 
 ```
-得分 = 
+得分 =
   能力匹配 × 40% +
   负载状态 × 30% +
   历史性能 × 20% +
@@ -361,20 +380,21 @@ const room = roomManager.createRoom('project-alpha', {
 ## 使用示例
 
 ```typescript
-import { AgentScheduler } from '@/lib/agent-scheduler';
+import { AgentScheduler } from '@/lib/agent-scheduler'
 
-const scheduler = new AgentScheduler();
+const scheduler = new AgentScheduler()
 
 const decision = await scheduler.scheduleTask({
   type: 'code_review',
-  requiredCapabilities: ['typescript', 'react', 'testing']
-});
+  requiredCapabilities: ['typescript', 'react', 'testing'],
+})
 
-console.log(decision.assignedAgent); // 'architect'
-console.log(decision.confidence); // 0.92
+console.log(decision.assignedAgent) // 'architect'
+console.log(decision.confidence) // 0.92
 ```
 
 #7zi #AI #调度 #自动化
+
 ```
 
 ---
@@ -384,6 +404,7 @@ console.log(decision.confidence); // 0.92
 ### 帖子 1: v1.4.0 正式发布
 
 ```
+
 🚀 7zi v1.4.0 正式发布：AI 团队协作新时代
 
 今天，我很兴奋地宣布 7zi v1.4.0 正式发布。这一版本标志着我们在 AI 团队协作领域的重大突破。
@@ -391,6 +412,7 @@ console.log(decision.confidence); // 0.92
 ## 🎯 版本亮点
 
 ### 1. WebSocket 高级功能
+
 完整的多房间协作系统，支持：
 • 6 种房间类型（project/task/chat/document/voice/video）
 • 3 种可见性模式（public/private/invite-only）
@@ -400,6 +422,7 @@ console.log(decision.confidence); // 0.92
 连接稳定性从 95% 提升到 99%+。
 
 ### 2. AI Agent 智能调度
+
 11 位专业 AI 成员，自动任务分配：
 • 智能匹配算法（能力 40% + 负载 30% + 性能 20% + 响应 10%）
 • 负载均衡机制
@@ -408,6 +431,7 @@ console.log(decision.confidence); // 0.92
 调度效率提升 70-80%，任务完成时间减少 30-40%。
 
 ### 3. 性能监控升级
+
 • Z-score 异常检测
 • 性能瀑布图分析
 • 慢请求追踪
@@ -416,6 +440,7 @@ console.log(decision.confidence); // 0.92
 问题发现时间从 2-4 小时缩短到 15-30 分钟。
 
 ### 4. React Compiler 可选
+
 • 零停机切换
 • 性能提升 20-40%
 • 兼容性检测工具
@@ -434,6 +459,7 @@ console.log(decision.confidence); // 0.92
 GitHub：https://github.com/7zi/releases/v1.4.0
 
 #7zi #AIAgents #WebSocket #React #Performance #Release
+
 ```
 
 ---
@@ -441,6 +467,7 @@ GitHub：https://github.com/7zi/releases/v1.4.0
 ### 帖子 2: 技术深度分享 - WebSocket v2.0
 
 ```
+
 📡 WebSocket v2.0：从连接到协作
 
 在企业级应用中，实时协作不再是加分项，而是必需品。
@@ -458,24 +485,28 @@ v1.3.0 之前的 WebSocket 实现存在：
 ## v2.0 解决方案
 
 ### 1. 房间系统
+
 动态房间创建，支持 6 种类型：
+
 ```typescript
 const room = roomManager.createRoom('project-alpha', {
   type: 'project',
   visibility: 'private',
   maxParticipants: 10,
   enableHistory: true,
-  autoCleanupMinutes: 60
-});
+  autoCleanupMinutes: 60,
+})
 ```
 
 ### 2. RBAC 权限系统
+
 5 级角色 + 16 种权限：
 • 层级强制，防止权限提升
 • 权限授予，支持过期
 • 封禁系统，自动撤销权限
 
 ### 3. 消息持久化
+
 • 内存存储，O(1) 访问
 • 离线队列，100 条/用户，7 天 TTL
 • 消息操作：编辑、删除、反应、置顶
@@ -490,11 +521,12 @@ const room = roomManager.createRoom('project-alpha', {
 ## 架构设计
 
 使用 TypeScript + Map 数据结构，确保类型安全和性能：
+
 ```typescript
 class MessageStore {
-  private messages: Map<string, Map<string, StoredMessage>>;
-  private offlineQueue: Map<string, StoredMessage[]>;
-  
+  private messages: Map<string, Map<string, StoredMessage>>
+  private offlineQueue: Map<string, StoredMessage[]>
+
   storeMessage(roomId: string, message: Message): StoredMessage {
     // O(1) 访问
   }
@@ -506,6 +538,7 @@ class MessageStore {
 从 95% 到 99%+ 的连接稳定性，让实时协作成为现实。
 
 #7zi #WebSocket #Architecture #Realtime #TypeScript
+
 ```
 
 ---
@@ -513,6 +546,7 @@ class MessageStore {
 ### 帖子 3: AI 团队协作的未来
 
 ```
+
 🤖 11 位 AI 成员，24/7 并行工作
 
 这不是科幻，而是 7zi 的现实。
@@ -522,6 +556,7 @@ class MessageStore {
 11 位专业 AI 成员，覆盖完整的工作流程：
 
 ### 核心团队
+
 🌟 智能体世界专家 - 战略规划、未来布局
 📚 咨询师 - 研究分析、行业洞察
 🏗️ 架构师 - 技术设计、架构规划
@@ -530,6 +565,7 @@ class MessageStore {
 🧪 测试员 - 质量保证、自动化测试
 
 ### 支持团队
+
 🎨 设计师 - UI/UX、视觉设计
 📣 推广专员 - SEO、增长黑客
 💼 销售客服 - 客户服务、需求沟通
@@ -539,6 +575,7 @@ class MessageStore {
 ## 智能调度
 
 自动任务分配，多维度评分：
+
 ```
 得分 = 能力匹配 × 40% + 负载 × 30% + 性能 × 20% + 响应 × 10%
 ```
@@ -546,6 +583,7 @@ class MessageStore {
 ## 协作场景
 
 ### 场景 1：网站开发
+
 1. 咨询师分析需求 → 生成需求文档
 2. 架构师制定方案 → 技术选型、任务分解
 3. Executor 执行开发 → 前后端实现
@@ -554,6 +592,7 @@ class MessageStore {
 6. 系统管理员部署上线 → CI/CD 配置
 
 ### 场景 2：营销活动
+
 1. 销售客服收集需求
 2. 咨询师市场调研
 3. 架构师活动规划
@@ -577,6 +616,7 @@ class MessageStore {
 让 AI 团队成为你的核心生产力。🚀
 
 #7zi #AIAgents #AI团队 #协作 #生产力
+
 ```
 
 ---
@@ -586,25 +626,30 @@ class MessageStore {
 ### 帖子 1: v1.4.0 发布
 
 ```
+
 【重磅发布】7zi v1.4.0 正式发布！🚀
 
 这次更新带来了企业级实时协作体验：
 
 ✅ WebSocket 高级功能
+
 - 多房间系统（6 种类型）
 - 权限控制（16 种权限）
 - 消息持久化（离线消息）
 
 ✅ AI Agent 智能调度
+
 - 11 位 AI 成员自动协作
 - 效率提升 70-80%
 - 任务完成时间减少 30-40%
 
 ✅ 性能监控升级
+
 - 异常检测自动化
 - 问题发现时间缩短 60-90%
 
 ✅ React Compiler 可选
+
 - 零停机切换
 - 性能提升 20-40%
 
@@ -613,6 +658,7 @@ class MessageStore {
 🔗 https://7zi.studio
 
 #7zi #AI团队 #智能体 #科技# 人工智能
+
 ```
 
 ---
@@ -620,6 +666,7 @@ class MessageStore {
 ### 帖子 2: 功能亮点
 
 ```
+
 【新功能详解】7zi AI 智能调度系统 🤖
 
 11 位 AI 成员，如何高效协作？
@@ -641,6 +688,7 @@ class MessageStore {
 立即体验：https://7zi.studio
 
 #7zi #AI #自动化 #生产力
+
 ```
 
 ---
@@ -648,6 +696,7 @@ class MessageStore {
 ### 帖子 3: 团队介绍
 
 ```
+
 【7zi AI 团队介绍】11 位成员，24/7 并行工作 🤖
 
 不是 AI 工具，而是 AI 团队！
@@ -669,6 +718,7 @@ class MessageStore {
 效率提升 3-5 倍！⚡
 
 #7zi #AI团队 #智能体 #科技
+
 ```
 
 ---
@@ -717,3 +767,4 @@ class MessageStore {
 ---
 
 *本文档由 7zi 团队维护。*
+```

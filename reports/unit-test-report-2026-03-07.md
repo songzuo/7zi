@@ -10,13 +10,13 @@
 
 ### 执行统计
 
-| 指标 | 数值 |
-|------|------|
-| 测试文件数 | 30+ |
-| 总测试用例 | 500+ |
-| ✅ 通过 | ~450+ |
-| ❌ 失败 | 49 |
-| ⏱️ 超时 | 16+ |
+| 指标       | 数值  |
+| ---------- | ----- |
+| 测试文件数 | 30+   |
+| 总测试用例 | 500+  |
+| ✅ 通过    | ~450+ |
+| ❌ 失败    | 49    |
+| ⏱️ 超时    | 16+   |
 
 ### 通过率
 
@@ -148,6 +148,7 @@
 ```
 
 **错误信息:**
+
 ```
 TypeError: object.stream is not a function
 ```
@@ -167,35 +168,35 @@ TypeError: object.stream is not a function
 
 ## ✅ 全部通过的测试模块
 
-| 模块 | 测试数 | 状态 |
-|------|--------|------|
-| `lib/tasks-repository.test.ts` | 24 | ✅ |
-| `__tests__/tasks-utils.test.ts` | 32 | ✅ |
-| `lib/templates/email.test.ts` | 26 | ✅ |
-| `__tests__/Loading.test.tsx` | 30 | ✅ |
-| `__tests__/Rating.test.tsx` | 28 | ✅ |
-| `hooks/useExport.test.ts` | 50 | ✅ |
-| `lib/realtime/__tests__/realtime.test.ts` | 28 | ✅ |
-| `lib/templates/__tests__/notification.test.ts` | 32 | ✅ |
-| `lib/templates/__tests__/email.test.ts` | 27 | ✅ |
-| `components/__tests__/NotificationToast.test.tsx` | 33 | ✅ |
-| `lib/tasks/types.test.ts` | 21 | ✅ |
-| `lib/users/__tests__/repository.test.ts` | 14 | ✅ |
-| `lib/error-reporter.test.ts` | 15 | ✅ |
-| `lib/api/response.test.ts` | 21 | ✅ |
-| `__tests__/useDashboardData.test.ts` | 4 | ✅ |
-| `lib/api/cache.test.ts` | 9 | ✅ |
-| `__tests__/export.test.ts` | 7 | ✅ |
-| `app/api/users/__tests__/route.test.ts` | 6 | ✅ |
-| `lib/templates/__tests__/index.test.ts` | 9 | ✅ |
-| `hooks/__tests__/useNotifications.test.ts` | 11 | ✅ |
-| `__tests__/ProgressBar.test.tsx` | 13 | ✅ |
-| `lib/swagger.test.ts` | 16 | ✅ |
-| `__tests__/RealtimeChart.test.tsx` | 11 | ✅ |
-| `lib/api/rate-limit.test.ts` | 6 | ✅ |
-| `lib/notifications/__tests__/index.test.ts` | 7 | ✅ |
-| `__tests__/LoadingSpinner.test.tsx` | 6 | ✅ |
-| `__tests__/not-found.test.tsx` | 2 | ✅ |
+| 模块                                              | 测试数 | 状态 |
+| ------------------------------------------------- | ------ | ---- |
+| `lib/tasks-repository.test.ts`                    | 24     | ✅   |
+| `__tests__/tasks-utils.test.ts`                   | 32     | ✅   |
+| `lib/templates/email.test.ts`                     | 26     | ✅   |
+| `__tests__/Loading.test.tsx`                      | 30     | ✅   |
+| `__tests__/Rating.test.tsx`                       | 28     | ✅   |
+| `hooks/useExport.test.ts`                         | 50     | ✅   |
+| `lib/realtime/__tests__/realtime.test.ts`         | 28     | ✅   |
+| `lib/templates/__tests__/notification.test.ts`    | 32     | ✅   |
+| `lib/templates/__tests__/email.test.ts`           | 27     | ✅   |
+| `components/__tests__/NotificationToast.test.tsx` | 33     | ✅   |
+| `lib/tasks/types.test.ts`                         | 21     | ✅   |
+| `lib/users/__tests__/repository.test.ts`          | 14     | ✅   |
+| `lib/error-reporter.test.ts`                      | 15     | ✅   |
+| `lib/api/response.test.ts`                        | 21     | ✅   |
+| `__tests__/useDashboardData.test.ts`              | 4      | ✅   |
+| `lib/api/cache.test.ts`                           | 9      | ✅   |
+| `__tests__/export.test.ts`                        | 7      | ✅   |
+| `app/api/users/__tests__/route.test.ts`           | 6      | ✅   |
+| `lib/templates/__tests__/index.test.ts`           | 9      | ✅   |
+| `hooks/__tests__/useNotifications.test.ts`        | 11     | ✅   |
+| `__tests__/ProgressBar.test.tsx`                  | 13     | ✅   |
+| `lib/swagger.test.ts`                             | 16     | ✅   |
+| `__tests__/RealtimeChart.test.tsx`                | 11     | ✅   |
+| `lib/api/rate-limit.test.ts`                      | 6      | ✅   |
+| `lib/notifications/__tests__/index.test.ts`       | 7      | ✅   |
+| `__tests__/LoadingSpinner.test.tsx`               | 6      | ✅   |
+| `__tests__/not-found.test.tsx`                    | 2      | ✅   |
 
 ---
 
@@ -203,25 +204,25 @@ TypeError: object.stream is not a function
 
 ### 高优先级
 
-| 问题 | 影响 | 建议 |
-|------|------|------|
-| Dashboard 测试全部失败 | 核心页面 | 检查组件 mock 配置 |
-| Navigation 测试全部失败 | 导航功能 | 更新测试选择器 |
-| Export API 失败 | 导出功能 | 修复 NextResponse stream 问题 |
+| 问题                    | 影响     | 建议                          |
+| ----------------------- | -------- | ----------------------------- |
+| Dashboard 测试全部失败  | 核心页面 | 检查组件 mock 配置            |
+| Navigation 测试全部失败 | 导航功能 | 更新测试选择器                |
+| Export API 失败         | 导出功能 | 修复 NextResponse stream 问题 |
 
 ### 中优先级
 
-| 问题 | 影响 | 建议 |
-|------|------|------|
-| ProfilePage 超时 | 用户配置 | 增加测试超时时间或优化异步处理 |
-| Settings 测试失败 | 设置页面 | 更新测试以匹配新 UI 结构 |
+| 问题              | 影响     | 建议                           |
+| ----------------- | -------- | ------------------------------ |
+| ProfilePage 超时  | 用户配置 | 增加测试超时时间或优化异步处理 |
+| Settings 测试失败 | 设置页面 | 更新测试以匹配新 UI 结构       |
 
 ### 低优先级
 
-| 问题 | 影响 | 建议 |
-|------|------|------|
-| Performance hook 错误 | 性能监控 | 修复 Hook 调用方式 |
-| RealtimeChart 部分超时 | 实时图表 | 添加 fake timers |
+| 问题                   | 影响     | 建议               |
+| ---------------------- | -------- | ------------------ |
+| Performance hook 错误  | 性能监控 | 修复 Hook 调用方式 |
+| RealtimeChart 部分超时 | 实时图表 | 添加 fake timers   |
 
 ---
 
@@ -241,7 +242,7 @@ export default defineConfig({
   test: {
     testTimeout: 30000, // 增加到 30 秒
     hookTimeout: 30000,
-  }
+  },
 })
 ```
 
@@ -254,7 +255,7 @@ return new NextResponse(
     start(controller) {
       controller.enqueue(Buffer.from(data))
       controller.close()
-    }
+    },
   })
 )
 ```
@@ -284,4 +285,4 @@ it('should provide performance metrics', () => {
 
 ---
 
-*报告生成时间: 2026-03-07 00:18 GMT+1*
+_报告生成时间: 2026-03-07 00:18 GMT+1_

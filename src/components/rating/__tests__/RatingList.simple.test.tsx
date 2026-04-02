@@ -1,11 +1,11 @@
 // @ts-nocheck - Test file with complex type issues
-import { describe, it, expect, vi, beforeEach } from 'vitest';
-import { render, screen, waitFor, act, fireEvent } from '@testing-library/react';
-import { RatingList } from '../RatingList';
-import { Rating } from '@/types/feedback';
+import { describe, it, expect, vi, beforeEach } from 'vitest'
+import { render, screen, waitFor, act, fireEvent } from '@testing-library/react'
+import { RatingList } from '../RatingList'
+import { Rating } from '@/types/feedback'
 
 // Mock fetch
-global.fetch = vi.fn();
+global.fetch = vi.fn()
 
 const mockRatings: Rating[] = [
   {
@@ -37,7 +37,7 @@ const mockRatings: Rating[] = [
     created_at: '2024-01-14T10:00:00Z',
     updated_at: '2024-01-14T10:00:00Z',
   },
-];
+]
 
 const mockResponse = {
   ratings: mockRatings,
@@ -54,75 +54,81 @@ const mockResponse = {
     by_target_type: { agent: 2 },
     helpful_ratio: 0.8,
   },
-};
+}
 
 describe('RatingList - Simplified Tests', () => {
   beforeEach(() => {
-    vi.clearAllMocks();
-    (global.fetch as any).mockResolvedValue({
+    vi.clearAllMocks()
+    ;(global.fetch as any).mockResolvedValue({
       ok: true,
       json: async () => ({
         success: true,
         data: mockResponse,
       }),
-    });
-  });
+    })
+  })
 
   it('renders rating list header', async () => {
-    render(<RatingList />);
+    render(<RatingList />)
 
     await waitFor(() => {
-      expect(screen.getByText(/Reviews & Ratings/)).toBeInTheDocument();
-    });
-  });
+      expect(screen.getByText(/Reviews & Ratings/)).toBeInTheDocument()
+    })
+  })
 
   it('displays loading state initially', () => {
-    (global.fetch as any).mockImplementation(
-      () => new Promise((resolve) => setTimeout(resolve, 100))
-    );
+    ;(global.fetch as any).mockImplementation(
+      () => new Promise(resolve => setTimeout(resolve, 100))
+    )
 
-    render(<RatingList />);
+    render(<RatingList />)
 
-    expect(screen.getByText('Loading reviews...')).toBeInTheDocument();
-  });
+    expect(screen.getByText('Loading reviews...')).toBeInTheDocument()
+  })
 
   it('displays ratings after loading', async () => {
-    render(<RatingList />);
+    render(<RatingList />)
 
     await waitFor(() => {
-      expect(screen.getByText(/Reviews & Ratings/)).toBeInTheDocument();
-      expect(screen.getByText('Excellent service')).toBeInTheDocument();
-      expect(screen.getByText('Average experience')).toBeInTheDocument();
-    });
-  });
+      expect(screen.getByText(/Reviews & Ratings/)).toBeInTheDocument()
+      expect(screen.getByText('Excellent service')).toBeInTheDocument()
+      expect(screen.getByText('Average experience')).toBeInTheDocument()
+    })
+  })
 
   it('displays empty state when no ratings', async () => {
-    (global.fetch as any).mockResolvedValue({
+    ;(global.fetch as any).mockResolvedValue({
       ok: true,
       json: async () => ({
         success: true,
         data: {
           ratings: [],
           meta: { total: 0, page: 1, per_page: 10, total_pages: 0 },
-          stats: { total: 0, average_rating: 0, rating_distribution: {}, by_target_type: {}, helpful_ratio: 0 },
+          stats: {
+            total: 0,
+            average_rating: 0,
+            rating_distribution: {},
+            by_target_type: {},
+            helpful_ratio: 0,
+          },
         },
       }),
-    });
+    })
 
-    render(<RatingList />);
+    render(<RatingList />)
 
     await waitFor(() => {
-      expect(screen.getByText('No reviews yet')).toBeInTheDocument();
-    });
-  });
+      expect(screen.getByText('No reviews yet')).toBeInTheDocument()
+    })
+  })
 
   it('displays error state when fetch fails', async () => {
-    (global.fetch as any).mockRejectedValue(new Error('Network error'));
+    ;(global.fetch as any).mockRejectedValue(new Error('Network error'))
 
-    render(<RatingList />);
+    render(<RatingList />)
 
     await waitFor(() => {
-      expect(screen.getByText(/Error:/)).toBeInTheDocument();
-    });
-  });
-});
+      expect(screen.getByText(/Error:/)).toBeInTheDocument()
+    })
+  })
+})

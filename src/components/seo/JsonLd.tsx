@@ -26,10 +26,7 @@ export function OrganizationJsonLd({ name, url, logo, description }: Organizatio
   }
 
   return (
-    <script
-      type="application/ld+json"
-      dangerouslySetInnerHTML={{ __html: JSON.stringify(data) }}
-    />
+    <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(data) }} />
   )
 }
 
@@ -64,10 +61,7 @@ export function WebSiteJsonLd({ name, url, description, potentialAction }: WebSi
   }
 
   return (
-    <script
-      type="application/ld+json"
-      dangerouslySetInnerHTML={{ __html: JSON.stringify(data) }}
-    />
+    <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(data) }} />
   )
 }
 
@@ -91,10 +85,7 @@ export function BreadcrumbJsonLd({ items }: BreadcrumbJsonLdProps) {
   }
 
   return (
-    <script
-      type="application/ld+json"
-      dangerouslySetInnerHTML={{ __html: JSON.stringify(data) }}
-    />
+    <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(data) }} />
   )
 }
 
@@ -134,9 +125,6 @@ export function SoftwareApplicationJsonLd({
   }
 
   return (
-    <script
-      type="application/ld+json"
-      dangerouslySetInnerHTML={{ __html: JSON.stringify(data) }}
-    />
+    <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(data) }} />
   )
 }

@@ -4,7 +4,7 @@
  */
 
 // 类型定义
-export * from './types';
+export * from './types'
 
 // 消息构建器
-export { MessageBuilder } from './message-builder';
+export { MessageBuilder } from './message-builder'

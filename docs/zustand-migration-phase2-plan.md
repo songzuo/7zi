@@ -23,11 +23,13 @@
 ## 🎯 迁移目标
 
 ### 总体目标
+
 - 消除重复的状态管理实现
 - 将所有 React Context 迁移到 Zustand Store
 - 统一状态管理架构，提升可维护性
 
 ### 成功标准
+
 - ✅ 所有 React Context 被 Zustand Store 替代
 - ✅ 所有测试通过
 - ✅ 无性能退化
@@ -39,37 +41,37 @@
 
 ### 已存在的 Zustand Stores (`src/stores/`)
 
-| Store | 文件 | 功能 | 状态 |
-|-------|------|------|------|
-| `preferencesStore` | `preferencesStore.ts` | 用户偏好（主题、语言、通知） | ✅ 稳定 |
-| `uiStore` | `uiStore.ts` | UI 状态（sidebar、modal、toast、loading） | ✅ 稳定 |
-| `dashboardStore` | `dashboardStore.ts` | Dashboard 数据（成员、Issues、活动） | ✅ 稳定 |
-| `filterStore` | `filterStore.ts` | 过滤、排序、分页状态 | ✅ 稳定 |
-| `walletStore` | `walletStore.ts` | 钱包状态管理 | ✅ 稳定 |
+| Store              | 文件                  | 功能                                      | 状态    |
+| ------------------ | --------------------- | ----------------------------------------- | ------- |
+| `preferencesStore` | `preferencesStore.ts` | 用户偏好（主题、语言、通知）              | ✅ 稳定 |
+| `uiStore`          | `uiStore.ts`          | UI 状态（sidebar、modal、toast、loading） | ✅ 稳定 |
+| `dashboardStore`   | `dashboardStore.ts`   | Dashboard 数据（成员、Issues、活动）      | ✅ 稳定 |
+| `filterStore`      | `filterStore.ts`      | 过滤、排序、分页状态                      | ✅ 稳定 |
+| `walletStore`      | `walletStore.ts`      | 钱包状态管理                              | ✅ 稳定 |
 
 ### Phase 2 第一部分创建的 Stores
 
 根据 `docs/phase2-part1-completion-report.md`，以下 Store 已创建：
 
-| Store | 文件位置 | 功能 | 测试状态 |
-|-------|---------|------|---------|
-| `auth-store` | 7zi-frontend/src/stores/ | 认证状态管理 | ✅ 72.7% 通过 |
-| `notification-store` | 7zi-frontend/src/stores/ | 通知状态管理 | ✅ 100% 通过 |
-| `websocket-store` | 7zi-frontend/src/stores/ | WebSocket 状态 | ✅ 100% 通过 |
-| `app-store` | 7zi-frontend/src/stores/ | 应用全局设置 | ✅ 85.7% 通过 |
+| Store                | 文件位置                 | 功能           | 测试状态      |
+| -------------------- | ------------------------ | -------------- | ------------- |
+| `auth-store`         | 7zi-frontend/src/stores/ | 认证状态管理   | ✅ 72.7% 通过 |
+| `notification-store` | 7zi-frontend/src/stores/ | 通知状态管理   | ✅ 100% 通过  |
+| `websocket-store`    | 7zi-frontend/src/stores/ | WebSocket 状态 | ✅ 100% 通过  |
+| `app-store`          | 7zi-frontend/src/stores/ | 应用全局设置   | ✅ 85.7% 通过 |
 
 **注意**: 这些 Store 在独立项目目录创建，需要集成到主项目。
 
 ### 需要迁移的 React Context 和 Hooks
 
-| 名称 | 类型 | 文件位置 | 功能 | 迁移目标 | 优先级 |
-|------|------|---------|------|---------|--------|
-| `SettingsContext` | Context | `src/contexts/SettingsContext.tsx` | 用户设置 | 删除（已由 preferencesStore 实现） | P0 |
-| `useGlobalLoading` | Hook/Context | `src/hooks/useGlobalLoading.tsx` | 全局加载 | 删除（已由 uiStore 实现） | P0 |
-| `useNotifications` | Hook | `src/hooks/useNotifications.ts` | 通知管理 | 迁移到 notification-store | P0 |
-| `ChatContext` | Context | `src/contexts/ChatContext.tsx` | 聊天状态 | 创建 chat-store | P1 |
-| `PermissionContext` | Context | `src/contexts/PermissionContext.tsx` | 权限管理 | 创建 permission-store | P1 |
-| `useWebSocket` | Hook | `src/hooks/useWebSocket.ts` | WebSocket | 迁移到 websocket-store | P1 |
+| 名称                | 类型         | 文件位置                             | 功能      | 迁移目标                           | 优先级 |
+| ------------------- | ------------ | ------------------------------------ | --------- | ---------------------------------- | ------ |
+| `SettingsContext`   | Context      | `src/contexts/SettingsContext.tsx`   | 用户设置  | 删除（已由 preferencesStore 实现） | P0     |
+| `useGlobalLoading`  | Hook/Context | `src/hooks/useGlobalLoading.tsx`     | 全局加载  | 删除（已由 uiStore 实现）          | P0     |
+| `useNotifications`  | Hook         | `src/hooks/useNotifications.ts`      | 通知管理  | 迁移到 notification-store          | P0     |
+| `ChatContext`       | Context      | `src/contexts/ChatContext.tsx`       | 聊天状态  | 创建 chat-store                    | P1     |
+| `PermissionContext` | Context      | `src/contexts/PermissionContext.tsx` | 权限管理  | 创建 permission-store              | P1     |
+| `useWebSocket`      | Hook         | `src/hooks/useWebSocket.ts`          | WebSocket | 迁移到 websocket-store             | P1     |
 
 ---
 
@@ -80,6 +82,7 @@
 #### 1.1 删除 SettingsContext
 
 **问题分析**:
+
 - `SettingsContext.tsx` 提供的功能与 `preferencesStore.ts` 完全重复
 - 两个实现都提供主题、语言、通知偏好管理
 - `preferencesStore` 更简洁，性能更好（使用 Zustand 选择器）
@@ -95,7 +98,7 @@
 2. 更新导入语句
    // 旧代码
    import { useSettings, useTheme } from '@/contexts/SettingsContext';
-   
+
    // 新代码
    import { useSettings, useTheme } from '@/stores';
 
@@ -109,12 +112,14 @@
 ```
 
 **影响范围**:
+
 - 文件数: ~5-10 个
 - 风险: 低（功能完全等价）
 
 #### 1.2 删除 useGlobalLoading Hook
 
 **问题分析**:
+
 - `useGlobalLoading.tsx` 提供的全局加载功能在 `uiStore.ts` 中已实现
 - `uiStore` 提供 `setGlobalLoading` 和 `useGlobalLoading` 选择器
 
@@ -130,7 +135,7 @@
 2. 更新导入语句
    // 旧代码
    import { useGlobalLoading } from '@/hooks/useGlobalLoading';
-   
+
    // 新代码
    import { useGlobalLoading } from '@/stores';
 
@@ -144,6 +149,7 @@
 ```
 
 **影响范围**:
+
 - 文件数: ~5-8 个
 - 风险: 低（功能完全等价）
 
@@ -154,6 +160,7 @@
 #### 2.1 迁移 useNotifications (P0)
 
 **当前状态分析**:
+
 - `useNotifications.ts` 提供通知管理功能
 - Phase 2 第一部分已创建 `notification-store.ts`（100% 测试通过）
 - 需要将 hook 迁移到 Store 使用
@@ -171,10 +178,10 @@
 2. 更新使用 useNotifications 的组件
    - 找到所有引用文件
    - 更新导入语句
-   
+
    // 旧代码
    import { useNotifications } from '@/hooks/useNotifications';
-   
+
    // 新代码
    import { useNotificationStore } from '@/stores';
 
@@ -193,12 +200,14 @@
 ```
 
 **影响范围**:
+
 - 文件数: ~10-15 个
 - 风险: 中（需要验证持久化功能）
 
 #### 2.2 迁移 useWebSocket (P1)
 
 **当前状态分析**:
+
 - `useWebSocket.ts` 提供完整的 WebSocket 连接管理
 - Phase 2 第一部分已创建 `websocket-store.ts`（100% 测试通过）
 - WebSocket 连接有外部依赖，需要谨慎处理
@@ -219,9 +228,9 @@
 3. 创建迁移层
    // 保持 API 兼容
    export function useWebSocket(config: WebSocketConfig) {
-     const store = useWebSocketStore();
-     // ... 连接逻辑
-     return { socket, state, ... };
+   const store = useWebSocketStore();
+   // ... 连接逻辑
+   return { socket, state, ... };
    }
 
 4. 更新使用方
@@ -239,6 +248,7 @@
 ```
 
 **影响范围**:
+
 - 文件数: ~10-20 个
 - 风险: 高（外部依赖，需要充分测试）
 
@@ -249,6 +259,7 @@
 #### 3.1 创建 Chat Store (P1)
 
 **需求分析**:
+
 - `ChatContext.tsx` 管理聊天相关状态
 - 状态包括: 团队成员、消息、输入值、选中成员
 - 需要创建新的 Zustand Store
@@ -260,25 +271,25 @@
 
 interface ChatState {
   // 团队成员
-  teamMembers: UnifiedTeamMember[];
-  selectedMemberId: string;
-  
+  teamMembers: UnifiedTeamMember[]
+  selectedMemberId: string
+
   // 消息
-  messages: Message[];
-  inputValue: string;
-  isTyping: boolean;
-  
+  messages: Message[]
+  inputValue: string
+  isTyping: boolean
+
   // 操作
-  setTeamMembers: (members: UnifiedTeamMember[]) => void;
-  selectMember: (memberId: string) => void;
-  setInputValue: (value: string) => void;
-  sendMessage: () => void;
-  addMessage: (message: Message) => void;
-  setTyping: (isTyping: boolean) => void;
-  
+  setTeamMembers: (members: UnifiedTeamMember[]) => void
+  selectMember: (memberId: string) => void
+  setInputValue: (value: string) => void
+  sendMessage: () => void
+  addMessage: (message: Message) => void
+  setTyping: (isTyping: boolean) => void
+
   // 计算属性
-  getOnlineMembers: () => UnifiedTeamMember[];
-  getMemberById: (id: string) => UnifiedTeamMember | undefined;
+  getOnlineMembers: () => UnifiedTeamMember[]
+  getMemberById: (id: string) => UnifiedTeamMember | undefined
 }
 ```
 
@@ -304,6 +315,7 @@ interface ChatState {
 #### 3.2 创建 Permission Store (P1)
 
 **需求分析**:
+
 - `PermissionContext.tsx` 管理权限和角色
 - 依赖 API 获取用户权限
 - 需要缓存和刷新机制
@@ -315,24 +327,24 @@ interface ChatState {
 
 interface PermissionState {
   // 权限数据
-  context: PermissionContext | null;
-  loading: boolean;
-  error: string | null;
-  
+  context: PermissionContext | null
+  loading: boolean
+  error: string | null
+
   // 操作
-  fetchPermissions: () => Promise<void>;
-  refresh: () => Promise<void>;
-  
+  fetchPermissions: () => Promise<void>
+  refresh: () => Promise<void>
+
   // 权限检查
-  hasPermission: (permission: Permission) => boolean;
-  hasAnyPermission: (permissions: Permission[]) => boolean;
-  hasAllPermissions: (permissions: Permission[]) => boolean;
-  
+  hasPermission: (permission: Permission) => boolean
+  hasAnyPermission: (permissions: Permission[]) => boolean
+  hasAllPermissions: (permissions: Permission[]) => boolean
+
   // 角色检查
-  hasRole: (role: Role) => boolean;
-  hasAnyRole: (roles: Role[]) => boolean;
-  isAdmin: () => boolean;
-  isManagerOrAdmin: () => boolean;
+  hasRole: (role: Role) => boolean
+  hasAnyRole: (roles: Role[]) => boolean
+  isAdmin: () => boolean
+  isManagerOrAdmin: () => boolean
 }
 ```
 
@@ -359,31 +371,31 @@ interface PermissionState {
 
 ### Week 1: 阶段一 - 消除重复
 
-| 任务 | 预计时间 | 负责人 | 状态 |
-|------|---------|--------|------|
-| 1.1 删除 SettingsContext | 2 小时 | Executor | ⏳ 待执行 |
-| 1.2 删除 useGlobalLoading | 2 小时 | Executor | ⏳ 待执行 |
-| 运行完整测试 | 1 小时 | 测试员 | ⏳ 待执行 |
-| 代码审查 | 1 小时 | 架构师 | ⏳ 待执行 |
+| 任务                      | 预计时间 | 负责人   | 状态      |
+| ------------------------- | -------- | -------- | --------- |
+| 1.1 删除 SettingsContext  | 2 小时   | Executor | ⏳ 待执行 |
+| 1.2 删除 useGlobalLoading | 2 小时   | Executor | ⏳ 待执行 |
+| 运行完整测试              | 1 小时   | 测试员   | ⏳ 待执行 |
+| 代码审查                  | 1 小时   | 架构师   | ⏳ 待执行 |
 
 ### Week 2: 阶段二 - 功能迁移
 
-| 任务 | 预计时间 | 负责人 | 状态 |
-|------|---------|--------|------|
-| 2.1 迁移 useNotifications | 4 小时 | Executor | ⏳ 待执行 |
-| 测试通知功能 | 2 小时 | 测试员 | ⏳ 待执行 |
-| 2.2 迁移 useWebSocket | 6 小时 | Executor | ⏳ 待执行 |
-| WebSocket 集成测试 | 3 小时 | 测试员 | ⏳ 待执行 |
+| 任务                      | 预计时间 | 负责人   | 状态      |
+| ------------------------- | -------- | -------- | --------- |
+| 2.1 迁移 useNotifications | 4 小时   | Executor | ⏳ 待执行 |
+| 测试通知功能              | 2 小时   | 测试员   | ⏳ 待执行 |
+| 2.2 迁移 useWebSocket     | 6 小时   | Executor | ⏳ 待执行 |
+| WebSocket 集成测试        | 3 小时   | 测试员   | ⏳ 待执行 |
 
 ### Week 3: 阶段三 - 新 Store
 
-| 任务 | 预计时间 | 负责人 | 状态 |
-|------|---------|--------|------|
-| 3.1 创建 Chat Store | 4 小时 | 架构师 | ⏳ 待执行 |
-| 迁移 ChatContext | 2 小时 | Executor | ⏳ 待执行 |
-| 3.2 创建 Permission Store | 4 小时 | 架构师 | ⏳ 待执行 |
-| 迁移 PermissionContext | 2 小时 | Executor | ⏳ 待执行 |
-| 完整回归测试 | 4 小时 | 测试员 | ⏳ 待执行 |
+| 任务                      | 预计时间 | 负责人   | 状态      |
+| ------------------------- | -------- | -------- | --------- |
+| 3.1 创建 Chat Store       | 4 小时   | 架构师   | ⏳ 待执行 |
+| 迁移 ChatContext          | 2 小时   | Executor | ⏳ 待执行 |
+| 3.2 创建 Permission Store | 4 小时   | 架构师   | ⏳ 待执行 |
+| 迁移 PermissionContext    | 2 小时   | Executor | ⏳ 待执行 |
+| 完整回归测试              | 4 小时   | 测试员   | ⏳ 待执行 |
 
 ---
 
@@ -397,10 +409,10 @@ interface PermissionState {
 
 ```typescript
 // 旧代码
-import { useSettings } from '@/contexts/SettingsContext';
+import { useSettings } from '@/contexts/SettingsContext'
 
 // 新代码
-import { useSettings } from '@/stores';
+import { useSettings } from '@/stores'
 ```
 
 #### 模式 2: 适配器模式
@@ -409,16 +421,16 @@ import { useSettings } from '@/stores';
 
 ```typescript
 // hooks/useSettings.ts (过渡文件)
-import { usePreferencesStore } from '@/stores';
+import { usePreferencesStore } from '@/stores'
 
 // 提供兼容的 API
 export function useSettings() {
-  const store = usePreferencesStore();
+  const store = usePreferencesStore()
   return {
     settings: store.settings,
     setTheme: store.setTheme,
     // ... 其他适配
-  };
+  }
 }
 ```
 
@@ -428,7 +440,7 @@ export function useSettings() {
 
 ```typescript
 // 保留旧 hook，内部使用新 Store
-export { useNotifications } from '@/stores/notification-store';
+export { useNotifications } from '@/stores/notification-store'
 ```
 
 ### 测试策略
@@ -518,11 +530,13 @@ export { useNotifications } from '@/stores/notification-store';
 ## 📚 参考资料
 
 ### 相关文档
+
 - `docs/ARCHITECTURE.md` - 系统架构文档
 - `docs/phase2-part1-completion-report.md` - Phase 2 第一部分完成报告
 - `docs/zustand-stores-usage.md` - Zustand Store 使用指南
 
 ### 相关文件
+
 - `src/stores/` - Zustand Store 目录
 - `src/contexts/` - React Context 目录
 - `src/hooks/` - 自定义 Hooks 目录
@@ -531,9 +545,9 @@ export { useNotifications } from '@/stores/notification-store';
 
 ## 📝 更新日志
 
-| 日期 | 版本 | 更新内容 | 作者 |
-|------|------|---------|------|
-| 2026-03-29 | 1.0 | 初始版本 | 🏗️ 架构师 |
+| 日期       | 版本 | 更新内容 | 作者      |
+| ---------- | ---- | -------- | --------- |
+| 2026-03-29 | 1.0  | 初始版本 | 🏗️ 架构师 |
 
 ---
 

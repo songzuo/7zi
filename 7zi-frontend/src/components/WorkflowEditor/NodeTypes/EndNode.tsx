@@ -4,13 +4,13 @@
  * 工作流出口节点
  */
 
-import React from 'react';
-import { Handle, Position, type NodeProps } from 'reactflow';
-import { NODE_COLORS } from '../constants';
-import type { WorkflowNodeData } from '../types';
+import React from 'react'
+import { Handle, Position, type NodeProps } from 'reactflow'
+import { NODE_COLORS } from '../constants'
+import type { WorkflowNodeData } from '../types'
 
 export function EndNode({ data, selected }: NodeProps<WorkflowNodeData>) {
-  const colors = NODE_COLORS.end;
+  const colors = NODE_COLORS.end
 
   return (
     <div
@@ -33,13 +33,9 @@ export function EndNode({ data, selected }: NodeProps<WorkflowNodeData>) {
       <div className="flex items-center gap-2">
         <span className="text-xl">⏹️</span>
         <div>
-          <div className="font-semibold text-gray-900 dark:text-white">
-            {data.label || 'End'}
-          </div>
+          <div className="font-semibold text-gray-900 dark:text-white">{data.label || 'End'}</div>
           {data.description && (
-            <div className="text-xs text-gray-500 dark:text-gray-400">
-              {data.description}
-            </div>
+            <div className="text-xs text-gray-500 dark:text-gray-400">{data.description}</div>
           )}
         </div>
       </div>
@@ -47,19 +43,23 @@ export function EndNode({ data, selected }: NodeProps<WorkflowNodeData>) {
       {/* 执行状态指示器 */}
       {data.executionStatus && (
         <div
-          className="absolute -right-1 -top-1 flex h-4 w-4 items-center justify-center rounded-full text-xs font-bold text-white"
+          className="absolute -top-1 -right-1 flex h-4 w-4 items-center justify-center rounded-full text-xs font-bold text-white"
           style={{
             backgroundColor:
               data.executionStatus === 'SUCCESS'
                 ? '#10B981'
                 : data.executionStatus === 'FAILED'
-                ? '#EF4444'
-                : '#3B82F6',
+                  ? '#EF4444'
+                  : '#3B82F6',
           }}
         >
-          {data.executionStatus === 'SUCCESS' ? '✓' : data.executionStatus === 'FAILED' ? '✗' : '⏳'}
+          {data.executionStatus === 'SUCCESS'
+            ? '✓'
+            : data.executionStatus === 'FAILED'
+              ? '✗'
+              : '⏳'}
         </div>
       )}
     </div>
-  );
+  )
 }

@@ -5,18 +5,18 @@
  * Shows online users and typing indicators
  */
 
-'use client';
+'use client'
 
-import type { ConnectionState } from '@/lib/websocket';
-import type { RoomUser } from '@/lib/websocket/types';
-import type { FC } from 'react';
+import type { ConnectionState } from '@/lib/websocket'
+import type { RoomUser } from '@/lib/websocket/types'
+import type { FC } from 'react'
 
 interface ConnectionStatusProps {
-  connectionState: ConnectionState;
-  isInRoom?: boolean;
-  users?: RoomUser[];
-  typingUsers?: string[];
-  onReconnect?: () => void;
+  connectionState: ConnectionState
+  isInRoom?: boolean
+  users?: RoomUser[]
+  typingUsers?: string[]
+  onReconnect?: () => void
 }
 
 export function ConnectionStatus({
@@ -29,52 +29,49 @@ export function ConnectionStatus({
   const getStatusColor = () => {
     switch (connectionState) {
       case 'connected':
-        return 'bg-green-500';
+        return 'bg-green-500'
       case 'connecting':
       case 'reconnecting':
-        return 'bg-yellow-500';
+        return 'bg-yellow-500'
       case 'disconnected':
-        return 'bg-zinc-400';
+        return 'bg-zinc-400'
       case 'error':
-        return 'bg-red-500';
+        return 'bg-red-500'
       default:
-        return 'bg-zinc-400';
+        return 'bg-zinc-400'
     }
-  };
+  }
 
   const getStatusText = () => {
     switch (connectionState) {
       case 'connected':
-        return 'Connected';
+        return 'Connected'
       case 'connecting':
-        return 'Connecting...';
+        return 'Connecting...'
       case 'reconnecting':
-        return 'Reconnecting...';
+        return 'Reconnecting...'
       case 'disconnected':
-        return 'Disconnected';
+        return 'Disconnected'
       case 'error':
-        return 'Connection Error';
+        return 'Connection Error'
       default:
-        return 'Unknown';
+        return 'Unknown'
     }
-  };
+  }
 
-  const activeUsers = users.filter(
-    (u) => {
-      if (!u.lastActivity) return false;
-      const lastActivityTime = u.lastActivity instanceof Date ? u.lastActivity.getTime() : u.lastActivity;
-      return new Date().getTime() - lastActivityTime < 5 * 60 * 1000;
-    }
-  );
+  const activeUsers = users.filter(u => {
+    if (!u.lastActivity) return false
+    const lastActivityTime =
+      u.lastActivity instanceof Date ? u.lastActivity.getTime() : u.lastActivity
+    return new Date().getTime() - lastActivityTime < 5 * 60 * 1000
+  })
 
   return (
     <div className="flex items-center gap-2 text-sm">
       {/* Status indicator */}
       <div className="flex items-center gap-2">
-        <div className={`w-2 h-2 rounded-full ${getStatusColor()} animate-pulse`} />
-        <span className="text-zinc-600 dark:text-zinc-400">
-          {getStatusText()}
-        </span>
+        <div className={`h-2 w-2 rounded-full ${getStatusColor()} animate-pulse`} />
+        <span className="text-zinc-600 dark:text-zinc-400">{getStatusText()}</span>
       </div>
 
       {/* Room info */}
@@ -95,10 +92,10 @@ export function ConnectionStatus({
           <span className="text-zinc-300 dark:text-zinc-700">|</span>
           <div className="flex items-center gap-2">
             <div className="flex gap-1">
-              {[0, 1, 2].map((i) => (
+              {[0, 1, 2].map(i => (
                 <div
                   key={i}
-                  className="w-1 h-1 bg-blue-500 rounded-full animate-bounce"
+                  className="h-1 w-1 animate-bounce rounded-full bg-blue-500"
                   style={{
                     animationDelay: `${i * 0.1}s`,
                     animationDuration: '0.6s',
@@ -119,36 +116,35 @@ export function ConnectionStatus({
       {connectionState === 'disconnected' || connectionState === 'error' ? (
         <button
           onClick={onReconnect}
-          className="px-3 py-1 bg-blue-500 text-white rounded hover:bg-blue-600 transition-colors"
+          className="rounded bg-blue-500 px-3 py-1 text-white transition-colors hover:bg-blue-600"
         >
           Reconnect
         </button>
       ) : null}
     </div>
-  );
+  )
 }
 
 interface UserListProps {
-  users: RoomUser[];
-  currentUserId?: string;
+  users: RoomUser[]
+  currentUserId?: string
 }
 
 export function UserList({ users, currentUserId }: UserListProps) {
-  const activeUsers = users.filter(
-    (u) => {
-      if (!u.lastActivity) return false;
-      const lastActivityTime = u.lastActivity instanceof Date ? u.lastActivity.getTime() : u.lastActivity;
-      return new Date().getTime() - lastActivityTime < 5 * 60 * 1000;
-    }
-  );
+  const activeUsers = users.filter(u => {
+    if (!u.lastActivity) return false
+    const lastActivityTime =
+      u.lastActivity instanceof Date ? u.lastActivity.getTime() : u.lastActivity
+    return new Date().getTime() - lastActivityTime < 5 * 60 * 1000
+  })
 
   if (activeUsers.length === 0) {
-    return null;
+    return null
   }
 
   return (
     <div className="flex items-center gap-1">
-      {activeUsers.map((user) => (
+      {activeUsers.map(user => (
         <div
           key={user.id}
           className="flex items-center gap-1"
@@ -158,12 +154,12 @@ export function UserList({ users, currentUserId }: UserListProps) {
             <img
               src={user.avatar}
               alt={user.name}
-              className="w-6 h-6 rounded-full border-2"
+              className="h-6 w-6 rounded-full border-2"
               style={{ borderColor: user.color }}
             />
           ) : (
             <div
-              className="w-6 h-6 rounded-full flex items-center justify-center text-white text-xs font-medium border-2"
+              className="flex h-6 w-6 items-center justify-center rounded-full border-2 text-xs font-medium text-white"
               style={{ backgroundColor: user.color, borderColor: user.color }}
             >
               {user.name.charAt(0).toUpperCase()}
@@ -172,28 +168,28 @@ export function UserList({ users, currentUserId }: UserListProps) {
         </div>
       ))}
     </div>
-  );
+  )
 }
 
 interface RemoteCursorProps {
   cursor: {
-    userId: string;
-    userName: string;
-    position: number;
-    selection?: { start: number; end: number };
-    color: string;
-  };
-  currentUserId: string;
+    userId: string
+    userName: string
+    position: number
+    selection?: { start: number; end: number }
+    color: string
+  }
+  currentUserId: string
 }
 
 export function RemoteCursor({ cursor, currentUserId }: RemoteCursorProps) {
   if (cursor.userId === currentUserId) {
-    return null;
+    return null
   }
 
   return (
     <div
-      className="absolute pointer-events-none"
+      className="pointer-events-none absolute"
       style={{
         left: `${cursor.position}px`,
         top: 0,
@@ -201,14 +197,11 @@ export function RemoteCursor({ cursor, currentUserId }: RemoteCursorProps) {
       }}
     >
       {/* Cursor caret */}
-      <div
-        className="w-0.5 h-5"
-        style={{ backgroundColor: cursor.color }}
-      />
+      <div className="h-5 w-0.5" style={{ backgroundColor: cursor.color }} />
 
       {/* Cursor label */}
       <div
-        className="px-2 py-0.5 text-white text-xs rounded-t-sm whitespace-nowrap"
+        className="rounded-t-sm px-2 py-0.5 text-xs whitespace-nowrap text-white"
         style={{ backgroundColor: cursor.color }}
       >
         {cursor.userName}
@@ -227,5 +220,5 @@ export function RemoteCursor({ cursor, currentUserId }: RemoteCursorProps) {
         />
       )}
     </div>
-  );
+  )
 }

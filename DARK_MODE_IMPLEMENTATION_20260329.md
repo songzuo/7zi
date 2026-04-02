@@ -12,14 +12,14 @@
 
 ### 🎯 完成度评估
 
-| 模块 | 完成度 | 状态 |
-|------|--------|------|
+| 模块         | 完成度  | 状态   |
+| ------------ | ------- | ------ |
 | CSS 变量系统 | ✅ 100% | 已完成 |
 | 主题切换组件 | ✅ 100% | 已完成 |
-| 状态管理 | ✅ 100% | 已完成 |
-| 核心组件适配 | ✅ 95% | 已完成 |
-| 页面适配 | ✅ 90% | 已完成 |
-| 验证测试 | ⏳ 80% | 进行中 |
+| 状态管理     | ✅ 100% | 已完成 |
+| 核心组件适配 | ✅ 95%  | 已完成 |
+| 页面适配     | ✅ 90%  | 已完成 |
+| 验证测试     | ⏳ 80%  | 进行中 |
 
 ---
 
@@ -32,12 +32,13 @@
 项目已定义完整的 CSS 变量系统，包括：
 
 #### 浅色主题 (:root)
+
 ```css
 :root {
   /* 基础颜色 */
   --background: #ffffff;
   --foreground: #171717;
-  
+
   /* 扩展主题颜色 */
   --card: #ffffff;
   --card-foreground: #171717;
@@ -56,7 +57,7 @@
   --border: #e4e4e7;
   --input: #e4e4e7;
   --ring: #06b6d4;
-  
+
   /* 导航特定 */
   --nav-bg: #ffffff;
   --nav-border: #e5e7eb;
@@ -68,11 +69,12 @@
 ```
 
 #### 深色主题 (.dark)
+
 ```css
 .dark {
   --background: #0a0a0a;
   --foreground: #ededed;
-  
+
   --card: #18181b;
   --card-foreground: #fafafa;
   --popover: #18181b;
@@ -90,7 +92,7 @@
   --border: #27272a;
   --input: #27272a;
   --ring: #22d3ee;
-  
+
   /* 导航特定 */
   --nav-bg: #18181b;
   --nav-border: #27272a;
@@ -102,6 +104,7 @@
 ```
 
 #### 系统偏好支持
+
 ```css
 @media (prefers-color-scheme: dark) {
   :root:not(.light) {
@@ -111,6 +114,7 @@
 ```
 
 **✅ 优点**:
+
 - 完整的颜色调色板定义
 - 支持系统偏好自动切换
 - 使用 CSS 变量便于维护
@@ -123,43 +127,45 @@
 **位置**: `src/lib/theme-script.ts`
 
 **功能**:
+
 - ✅ 在 React 水合前应用正确的主题
 - ✅ 从 localStorage 读取用户偏好
 - ✅ 支持 light/dark/system 三种模式
 - ✅ 防止主题闪烁 (FOUC)
 
 **实现亮点**:
-```typescript
-(function() {
-  'use strict';
 
-  const THEME_KEY = '7zi-user-settings';
+```typescript
+;(function () {
+  'use strict'
+
+  const THEME_KEY = '7zi-user-settings'
 
   function getTheme(): 'light' | 'dark' | 'system' {
     try {
-      const stored = localStorage.getItem(THEME_KEY);
+      const stored = localStorage.getItem(THEME_KEY)
       if (stored) {
-        const settings = JSON.parse(stored);
-        return settings.theme || 'system';
+        const settings = JSON.parse(stored)
+        return settings.theme || 'system'
       }
     } catch (e) {
-      console.error('Failed to read theme from localStorage:', e);
+      console.error('Failed to read theme from localStorage:', e)
     }
-    return 'system';
+    return 'system'
   }
 
   function applyTheme(theme: 'light' | 'dark') {
-    const root = document.documentElement;
-    root.classList.remove('light', 'dark');
-    root.classList.add(theme);
-    root.style.colorScheme = theme;
-    root.style.visibility = 'visible';
+    const root = document.documentElement
+    root.classList.remove('light', 'dark')
+    root.classList.add(theme)
+    root.style.colorScheme = theme
+    root.style.visibility = 'visible'
   }
 
-  const theme = getTheme();
-  const effectiveTheme = getEffectiveTheme(theme);
-  applyTheme(effectiveTheme);
-})();
+  const theme = getTheme()
+  const effectiveTheme = getEffectiveTheme(theme)
+  applyTheme(effectiveTheme)
+})()
 ```
 
 ---
@@ -171,6 +177,7 @@
 **技术栈**: Zustand + persist middleware
 
 **功能**:
+
 - ✅ 主题状态管理（light/dark/system）
 - ✅ 语言设置
 - ✅ 通知偏好
@@ -179,27 +186,29 @@
 - ✅ 监听系统主题变化
 
 **核心 API**:
+
 ```typescript
 // Hooks
-const { theme, setTheme, toggleTheme, isDark } = useTheme();
-const { settings } = useSettings();
-const isDark = useDarkMode();
+const { theme, setTheme, toggleTheme, isDark } = useTheme()
+const { settings } = useSettings()
+const isDark = useDarkMode()
 
 // Actions
-setTheme('dark');
-toggleTheme();
+setTheme('dark')
+toggleTheme()
 
 // External API
-setTheme('light');
-toggleTheme();
+setTheme('light')
+toggleTheme()
 ```
 
 **状态结构**:
+
 ```typescript
 interface UserSettings {
-  theme: 'light' | 'dark' | 'system';
-  language: 'zh' | 'en' | 'ja' | 'ko' | 'fr' | 'de';
-  notifications: NotificationPreferences;
+  theme: 'light' | 'dark' | 'system'
+  language: 'zh' | 'en' | 'ja' | 'ko' | 'fr' | 'de'
+  notifications: NotificationPreferences
 }
 ```
 
@@ -212,14 +221,16 @@ interface UserSettings {
 **位置**: `src/components/ThemeToggle.tsx`
 
 **功能**:
+
 - ✅ 紧凑的开关按钮
 - ✅ 显示当前主题状态（☀️/🌙）
 - ✅ 平滑过渡动画
 - ✅ 无障碍支持（aria-label）
 
 **效果预览**:
+
 ```
-浅色模式: [☀️-----] 
+浅色模式: [☀️-----]
 深色模式: [-----🌙]
 ```
 
@@ -228,6 +239,7 @@ interface UserSettings {
 **位置**: `src/components/ui/ThemeSelector.tsx`
 
 **功能**:
+
 - ✅ 支持三种模式选择（light/dark/system）
 - ✅ 下拉菜单式界面
 - ✅ 显示当前选中状态
@@ -235,6 +247,7 @@ interface UserSettings {
 - ✅ 无障碍支持
 
 **选项配置**:
+
 ```typescript
 const THEME_OPTIONS = [
   {
@@ -255,7 +268,7 @@ const THEME_OPTIONS = [
     icon: '💻',
     description: '自动适应系统设置',
   },
-];
+]
 ```
 
 ---
@@ -267,15 +280,17 @@ const THEME_OPTIONS = [
 **状态**: 已完全适配
 
 **深色模式样式**:
+
 ```typescript
 className="
-  bg-white dark:bg-zinc-900 
-  border-b border-zinc-200 dark:border-zinc-700 
+  bg-white dark:bg-zinc-900
+  border-b border-zinc-200 dark:border-zinc-700
   sticky top-0 z-50
 "
 ```
 
 **导航链接**:
+
 ```typescript
 className="
   ${
@@ -291,16 +306,17 @@ className="
 **状态**: 已完全适配
 
 **颜色配置**:
+
 ```typescript
 const colorConfig = {
   blue: {
     bg: 'from-blue-50 to-blue-100 dark:from-blue-900/20 dark:to-blue-800/10',
     text: 'text-blue-600 dark:text-blue-400',
     icon: 'bg-blue-100 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400',
-    border: 'border-blue-200 dark:border-blue-800/30'
+    border: 'border-blue-200 dark:border-blue-800/30',
   },
   // ... 其他颜色配置
-};
+}
 ```
 
 ### 2.3 MemberCard.tsx ✅
@@ -308,14 +324,15 @@ const colorConfig = {
 **状态**: 已完全适配
 
 **状态颜色**:
+
 ```typescript
 const statusBgColors = {
   working: 'bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-300',
   busy: 'bg-yellow-100 text-yellow-700 dark:bg-yellow-900/30 dark:text-yellow-300',
   idle: 'bg-zinc-100 text-zinc-600 dark:bg-zinc-700 dark:text-zinc-300',
   offline: 'bg-zinc-100 text-zinc-400 dark:bg-zinc-700 dark:text-zinc-400',
-  online: 'bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-300'
-};
+  online: 'bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-300',
+}
 ```
 
 ### 2.4 首页 (page.tsx) ✅
@@ -323,6 +340,7 @@ const statusBgColors = {
 **状态**: 已完全适配
 
 **主要区域**:
+
 - ✅ Hero Section
 - ✅ Team Preview
 - ✅ Services Section
@@ -331,16 +349,17 @@ const statusBgColors = {
 - ✅ Footer
 
 **示例样式**:
+
 ```typescript
 // 背景
-className="min-h-screen bg-zinc-50 dark:bg-black transition-colors duration-300"
+className = 'min-h-screen bg-zinc-50 dark:bg-black transition-colors duration-300'
 
 // 卡片
-className="bg-zinc-50 dark:bg-zinc-800 rounded-2xl"
+className = 'bg-zinc-50 dark:bg-zinc-800 rounded-2xl'
 
 // 文本
-className="text-zinc-900 dark:text-white"
-className="text-zinc-600 dark:text-zinc-400"
+className = 'text-zinc-900 dark:text-white'
+className = 'text-zinc-600 dark:text-zinc-400'
 ```
 
 ### 2.5 其他已适配组件
@@ -359,15 +378,17 @@ className="text-zinc-600 dark:text-zinc-400"
 ### 3.1 Badge 组件深色模式支持
 
 **修复前**:
+
 ```typescript
 const variantStyles = {
   default: 'bg-zinc-100 text-zinc-800',
   success: 'bg-green-100 text-green-800',
   // ...
-};
+}
 ```
 
 **修复后**:
+
 ```typescript
 const variantStyles = {
   default: 'bg-zinc-100 dark:bg-zinc-800 text-zinc-800 dark:text-zinc-200',
@@ -376,8 +397,9 @@ const variantStyles = {
   error: 'bg-red-100 dark:bg-red-900/30 text-red-800 dark:text-red-400',
   info: 'bg-blue-100 dark:bg-blue-900/30 text-blue-800 dark:text-blue-400',
   destructive: 'bg-red-600 dark:bg-red-700 text-white',
-  outline: 'bg-transparent border border-zinc-300 dark:border-zinc-700 text-zinc-800 dark:text-zinc-200',
-};
+  outline:
+    'bg-transparent border border-zinc-300 dark:border-zinc-700 text-zinc-800 dark:text-zinc-200',
+}
 ```
 
 ---
@@ -387,60 +409,69 @@ const variantStyles = {
 ### 4.1 颜色调色板
 
 #### 主色调
-| 颜色 | 浅色模式 | 深色模式 | 用途 |
-|------|----------|----------|------|
-| Background | `#ffffff` | `#0a0a0a` | 页面背景 |
-| Foreground | `#171717` | `#ededed` | 主要文本 |
-| Primary | `#06b6d4` (Cyan 500) | `#22d3ee` (Cyan 400) | 品牌色、强调色 |
-| Secondary | `#f4f4f5` (Zinc 100) | `#27272a` (Zinc 800) | 次要背景 |
-| Border | `#e4e4e7` (Zinc 200) | `#27272a` (Zinc 800) | 边框 |
+
+| 颜色       | 浅色模式             | 深色模式             | 用途           |
+| ---------- | -------------------- | -------------------- | -------------- |
+| Background | `#ffffff`            | `#0a0a0a`            | 页面背景       |
+| Foreground | `#171717`            | `#ededed`            | 主要文本       |
+| Primary    | `#06b6d4` (Cyan 500) | `#22d3ee` (Cyan 400) | 品牌色、强调色 |
+| Secondary  | `#f4f4f5` (Zinc 100) | `#27272a` (Zinc 800) | 次要背景       |
+| Border     | `#e4e4e7` (Zinc 200) | `#27272a` (Zinc 800) | 边框           |
 
 #### 语义化颜色
-| 状态 | 浅色模式 | 深色模式 |
-|------|----------|----------|
-| Success | `bg-green-100 text-green-800` | `bg-green-900/30 text-green-400` |
+
+| 状态    | 浅色模式                        | 深色模式                           |
+| ------- | ------------------------------- | ---------------------------------- |
+| Success | `bg-green-100 text-green-800`   | `bg-green-900/30 text-green-400`   |
 | Warning | `bg-yellow-100 text-yellow-800` | `bg-yellow-900/30 text-yellow-400` |
-| Error | `bg-red-100 text-red-800` | `bg-red-900/30 text-red-400` |
-| Info | `bg-blue-100 text-blue-800` | `bg-blue-900/30 text-blue-400` |
+| Error   | `bg-red-100 text-red-800`       | `bg-red-900/30 text-red-400`       |
+| Info    | `bg-blue-100 text-blue-800`     | `bg-blue-900/30 text-blue-400`     |
 
 ### 4.2 切换策略
 
 #### 三种模式
+
 1. **Light**: 固定浅色模式
 2. **Dark**: 固定深色模式
 3. **System**: 跟随系统偏好（默认）
 
 #### 切换流程
+
 ```
-用户点击切换 → Zustand Store 更新 → localStorage 持久化 
+用户点击切换 → Zustand Store 更新 → localStorage 持久化
 → DOM class 更新 → CSS 变量生效 → 视觉变化
 ```
 
 ### 4.3 实施原则
 
 1. **使用 Tailwind dark: 变体**
+
    ```typescript
-   className="bg-white dark:bg-zinc-900 text-zinc-900 dark:text-white"
+   className = 'bg-white dark:bg-zinc-900 text-zinc-900 dark:text-white'
    ```
 
 2. **使用 CSS 变量**
+
    ```css
    background: var(--background);
    color: var(--foreground);
    ```
 
 3. **避免硬编码颜色**
+
    ```typescript
    // ❌ 避免
    style={{ backgroundColor: '#ffffff' }}
-   
+
    // ✅ 推荐
    className="bg-white dark:bg-zinc-900"
    ```
 
 4. **平滑过渡**
    ```css
-   transition: background-color 0.3s ease, color 0.3s ease;
+   transition:
+     background-color 0.3s ease,
+     color 0.3s ease;
    ```
 
 ---
@@ -552,6 +583,7 @@ import { ThemeSelector } from '@/components/ui/ThemeSelector';
 项目使用 **Tailwind CSS v4**，通过 `@import "tailwindcss"` 导入。
 
 **深色模式配置**:
+
 - 使用 `class` 策略（推荐）
 - 通过 `.dark` class 控制
 - 支持 `prefers-color-scheme` 媒体查询
@@ -642,16 +674,16 @@ import { ThemeSelector } from '@/components/ui/ThemeSelector';
 
 ### 9.2 完成情况
 
-| 任务 | 状态 | 完成度 |
-|------|------|--------|
-| 分析当前主题系统 | ✅ 完成 | 100% |
-| 设计深色模式方案 | ✅ 完成 | 100% |
-| 实施 CSS 变量系统 | ✅ 已存在 | 100% |
-| 状态管理实现 | ✅ 已存在 | 100% |
-| 主题切换组件 | ✅ 已存在 | 100% |
-| 核心组件适配 | ✅ 完成 | 95% |
-| Badge 组件修复 | ✅ 完成 | 100% |
-| 验证测试 | ✅ 完成 | 80% |
+| 任务              | 状态      | 完成度 |
+| ----------------- | --------- | ------ |
+| 分析当前主题系统  | ✅ 完成   | 100%   |
+| 设计深色模式方案  | ✅ 完成   | 100%   |
+| 实施 CSS 变量系统 | ✅ 已存在 | 100%   |
+| 状态管理实现      | ✅ 已存在 | 100%   |
+| 主题切换组件      | ✅ 已存在 | 100%   |
+| 核心组件适配      | ✅ 完成   | 95%    |
+| Badge 组件修复    | ✅ 完成   | 100%   |
+| 验证测试          | ✅ 完成   | 80%    |
 
 ### 9.3 质量评分
 
@@ -668,17 +700,20 @@ import { ThemeSelector } from '@/components/ui/ThemeSelector';
 ### 10.1 文件清单
 
 #### 核心文件
+
 - `src/app/globals.css` - 全局样式和 CSS 变量
 - `src/lib/theme-script.ts` - 主题初始化脚本
 - `src/stores/preferencesStore.ts` - 主题状态管理
 
 #### 组件文件
+
 - `src/components/ThemeProvider.tsx` - 主题提供者（已废弃，使用 Zustand）
 - `src/components/ThemeToggle.tsx` - 简单主题切换
 - `src/components/ui/ThemeSelector.tsx` - 完整主题选择器
 - `src/components/ui/Badge.tsx` - 徽章组件（本次修复）
 
 #### 页面文件
+
 - `src/app/[locale]/page.tsx` - 首页
 - `src/app/[locale]/dashboard/DashboardClient.tsx` - Dashboard
 

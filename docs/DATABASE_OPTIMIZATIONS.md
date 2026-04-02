@@ -1,9 +1,11 @@
 # Database Query Performance Optimizations
 
 ## Overview
+
 This document outlines the database query performance optimizations implemented for the 7zi-project to address N+1 query problems and improve overall database performance.
 
 ## Date
+
 2026-03-21
 
 ## Issues Identified
@@ -33,31 +35,37 @@ This document outlines the database query performance optimizations implemented 
 **Functions Added:**
 
 #### `getOptimizedFeedbackStats()`
+
 - Combines 6 separate queries into 1 optimized query
 - Uses conditional aggregation with SUM(CASE...) expressions
 - **Performance Gain**: ~83% reduction in query count (6 → 1)
 
 #### `getOptimizedRatingStats()`
+
 - Combines 5 separate queries into 2 optimized queries
 - Uses conditional aggregation for rating distribution
 - **Performance Gain**: ~60% reduction in query count (5 → 2)
 
 #### `batchLoad<T>()`
+
 - Preloads related entities in batches of 100
 - Avoids N+1 queries when loading related data
 - Uses IN clause with batching to avoid query length limits
 
 #### `paginate<T>()`
-- Uses window function COUNT(*) OVER() for total count
+
+- Uses window function COUNT(\*) OVER() for total count
 - Eliminates separate COUNT query for pagination
 - **Performance Gain**: 50% reduction in paginated queries (2 → 1)
 
 #### `getFeedbacksWithAttachments()`
+
 - Single LEFT JOIN query with IN clause
 - Preloads all attachments for multiple feedbacks
 - Avoids N+1 queries when loading feedback with attachments
 
 #### `getRatingWithVotes()`
+
 - Single LEFT JOIN query with IN clause
 - Preloads all votes for multiple ratings
 - Avoids N+1 queries when loading ratings with votes
@@ -65,14 +73,17 @@ This document outlines the database query performance optimizations implemented 
 ### 2. Updated API Routes
 
 #### `/api/feedback/route.ts`
+
 - Replaced multiple GROUP BY queries with `getOptimizedFeedbackStats()`
 - **Impact**: Faster feedback list loading, reduced database load
 
 #### `/api/ratings/route.ts`
+
 - Replaced multiple GROUP BY queries with `getOptimizedRatingStats()`
 - **Impact**: Faster ratings list loading, reduced database load
 
 #### `/api/backup/route.ts`
+
 - Replaced COUNT queries with array length calculations
 - **Impact**: Faster backup generation
 
@@ -81,6 +92,7 @@ This document outlines the database query performance optimizations implemented 
 **New Composite Indexes Added:**
 
 #### Feedbacks Table:
+
 ```sql
 CREATE INDEX idx_feedbacks_status_created ON feedbacks(status, created_at DESC);
 CREATE INDEX idx_feedbacks_type_rating ON feedbacks(type, rating);
@@ -90,12 +102,14 @@ CREATE INDEX idx_feedbacks_created_user ON feedbacks(created_at DESC, user_id);
 ```
 
 **Benefits:**
+
 - Faster filtering by status with sorting by created_at
 - Optimized queries filtering by type with rating
 - Improved performance for priority-based filtering
 - Better user feedback lookups
 
 #### Ratings Table:
+
 ```sql
 CREATE INDEX idx_ratings_target_type_id ON ratings(target_type, target_id);
 CREATE INDEX idx_ratings_user_target ON ratings(user_id, target_type, target_id);
@@ -104,18 +118,21 @@ CREATE INDEX idx_ratings_target_status ON ratings(target_type, status);
 ```
 
 **Benefits:**
+
 - Fast lookup of ratings by target type and ID
 - Optimized user-specific rating queries
 - Improved sorting by rating and creation date
 - Better filtering by target type and status
 
 #### Helpful Votes Table:
+
 ```sql
 CREATE INDEX idx_helpful_votes_rating_user ON helpful_votes(rating_id, user_id);
 CREATE INDEX idx_helpful_votes_rating_helpful ON helpful_votes(rating_id, is_helpful);
 ```
 
 **Benefits:**
+
 - Fast duplicate vote detection
 - Efficient vote counting by helpful status
 
@@ -123,20 +140,20 @@ CREATE INDEX idx_helpful_votes_rating_helpful ON helpful_votes(rating_id, is_hel
 
 ### Query Count Reduction
 
-| API | Before | After | Improvement |
-|-----|--------|-------|-------------|
-| GET /api/feedback | 7 queries | 2 queries | 71% reduction |
-| GET /api/ratings | 6 queries | 2 queries | 67% reduction |
-| POST /api/backup | N+1 queries | 1 query | ~90% reduction |
+| API               | Before      | After     | Improvement    |
+| ----------------- | ----------- | --------- | -------------- |
+| GET /api/feedback | 7 queries   | 2 queries | 71% reduction  |
+| GET /api/ratings  | 6 queries   | 2 queries | 67% reduction  |
+| POST /api/backup  | N+1 queries | 1 query   | ~90% reduction |
 
 ### Estimated Latency Improvements
 
-| Operation | Before | After | Improvement |
-|-----------|--------|-------|-------------|
-| Feedback stats | ~50ms | ~10ms | 80% faster |
-| Rating stats | ~40ms | ~15ms | 63% faster |
-| Backup generation | ~500ms | ~100ms | 80% faster |
-| Pagination | ~30ms | ~15ms | 50% faster |
+| Operation         | Before | After  | Improvement |
+| ----------------- | ------ | ------ | ----------- |
+| Feedback stats    | ~50ms  | ~10ms  | 80% faster  |
+| Rating stats      | ~40ms  | ~15ms  | 63% faster  |
+| Backup generation | ~500ms | ~100ms | 80% faster  |
+| Pagination        | ~30ms  | ~15ms  | 50% faster  |
 
 ## Code Quality Improvements
 
@@ -162,11 +179,13 @@ CREATE INDEX idx_helpful_votes_rating_helpful ON helpful_votes(rating_id, is_hel
 
 **Action Required:**
 Run database migration to create indexes:
+
 ```bash
 npm run migrate
 ```
 
 Or trigger via API:
+
 ```bash
 POST /api/database/optimize
 ```
@@ -226,6 +245,7 @@ POST /api/database/optimize
 ## Conclusion
 
 These optimizations significantly improve database query performance by:
+
 - Eliminating N+1 query problems
 - Reducing query count by 60-90%
 - Adding appropriate composite indexes

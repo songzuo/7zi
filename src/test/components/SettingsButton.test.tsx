@@ -1,17 +1,17 @@
-import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
-import { render, screen, fireEvent, waitFor } from '@testing-library/react';
-import { SettingsButton } from '@/components/SettingsButton';
+import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest'
+import { render, screen, fireEvent, waitFor } from '@testing-library/react'
+import { SettingsButton } from '@/components/SettingsButton'
 
 // Mock next-intl
 vi.mock('next-intl', () => ({
   useLocale: () => 'zh',
-}));
+}))
 
 // Mock next/navigation
 vi.mock('@/i18n/routing', () => ({
   useRouter: () => ({ replace: vi.fn() }),
   usePathname: () => '/test',
-}));
+}))
 
 // Mock ThemeProvider - now uses Zustand
 vi.mock('@/components/ThemeProvider', () => ({
@@ -19,7 +19,7 @@ vi.mock('@/components/ThemeProvider', () => ({
     theme: 'system',
     setTheme: vi.fn(),
   }),
-}));
+}))
 
 // Helper to create minimal UIState for testing
 function createMockUIState(overrides: Partial<any> = {}) {
@@ -58,68 +58,72 @@ function createMockUIState(overrides: Partial<any> = {}) {
     clearFormDrafts: vi.fn(),
     resetUI: vi.fn(),
     ...overrides,
-  };
+  }
 }
 
 // Mock uiStore for modal state
 vi.mock('@/stores/uiStore', () => ({
-  useUIStore: vi.fn((selector) => {
-    const state = createMockUIState();
-    return selector(state);
+  useUIStore: vi.fn(selector => {
+    const state = createMockUIState()
+    return selector(state)
   }),
-}));
+}))
 
 describe('SettingsButton', () => {
   beforeEach(() => {
-    vi.clearAllMocks();
-  });
+    vi.clearAllMocks()
+  })
 
   afterEach(() => {
-    vi.clearAllMocks();
-  });
+    vi.clearAllMocks()
+  })
 
   it('renders settings button correctly', async () => {
-    render(<SettingsButton />);
+    render(<SettingsButton />)
 
-    expect(screen.getByLabelText('设置')).toBeInTheDocument();
-  });
+    expect(screen.getByLabelText('设置')).toBeInTheDocument()
+  })
 
   it('renders compact button correctly', async () => {
-    render(<SettingsButton compact />);
+    render(<SettingsButton compact />)
 
-    const button = screen.getByLabelText('设置');
-    expect(button).toBeInTheDocument();
-    expect(button).not.toHaveTextContent('设置'); // compact mode doesn't show text
-  });
+    const button = screen.getByLabelText('设置')
+    expect(button).toBeInTheDocument()
+    expect(button).not.toHaveTextContent('设置') // compact mode doesn't show text
+  })
 
   it('renders full button with text', async () => {
-    render(<SettingsButton compact={false} />);
+    render(<SettingsButton compact={false} />)
 
-    const button = screen.getByLabelText('设置');
-    expect(button).toHaveTextContent('设置');
-  });
+    const button = screen.getByLabelText('设置')
+    expect(button).toHaveTextContent('设置')
+  })
 
   it('opens settings panel when clicked', async () => {
-    const { useUIStore } = await import('@/stores/uiStore');
-    const mockOpenModal = vi.fn();
-    vi.mocked(useUIStore).mockImplementation((selector) => {
-      const state = createMockUIState({ activeModal: null, openModal: mockOpenModal, closeModal: vi.fn() });
-      return selector(state);
-    });
+    const { useUIStore } = await import('@/stores/uiStore')
+    const mockOpenModal = vi.fn()
+    vi.mocked(useUIStore).mockImplementation(selector => {
+      const state = createMockUIState({
+        activeModal: null,
+        openModal: mockOpenModal,
+        closeModal: vi.fn(),
+      })
+      return selector(state)
+    })
 
-    render(<SettingsButton />);
+    render(<SettingsButton />)
 
-    const button = screen.getByLabelText('设置');
-    fireEvent.click(button);
+    const button = screen.getByLabelText('设置')
+    fireEvent.click(button)
 
     await waitFor(() => {
-      expect(mockOpenModal).toHaveBeenCalled();
-    });
-  });
+      expect(mockOpenModal).toHaveBeenCalled()
+    })
+  })
 
   it('applies custom className', async () => {
-    const { container } = render(<SettingsButton className="custom-class" />);
+    const { container } = render(<SettingsButton className="custom-class" />)
 
-    expect(container.querySelector('.custom-class')).toBeInTheDocument();
-  });
-});
+    expect(container.querySelector('.custom-class')).toBeInTheDocument()
+  })
+})

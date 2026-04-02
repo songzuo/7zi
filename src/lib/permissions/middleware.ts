@@ -2,17 +2,24 @@
  * RBAC Middleware - Permission and role-based middleware for API routes
  */
 
-import { NextRequest, NextResponse } from 'next/server';
-import { Permission, Role, PermissionContext, PermissionCheckResult } from './types';
-import { hasPermission, hasAllPermissions, hasAnyPermission, hasRole, hasAnyRole, hasAllRoles } from './rbac';
-import { getUserPermissionContext } from './repository';
-import { logger } from '../logger';
+import { NextRequest, NextResponse } from 'next/server'
+import { Permission, Role, PermissionContext, PermissionCheckResult } from './types'
+import {
+  hasPermission,
+  hasAllPermissions,
+  hasAnyPermission,
+  hasRole,
+  hasAnyRole,
+  hasAllRoles,
+} from './rbac'
+import { getUserPermissionContext } from './repository'
+import { logger } from '../logger'
 
 /**
  * Helper: Generate request ID
  */
 function generateRequestId(): string {
-  return `req_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
+  return `req_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`
 }
 
 /**
@@ -37,55 +44,52 @@ function createErrorResponse(
       },
     },
     { status }
-  );
+  )
 }
 
 /**
  * Helper: Create unauthorized response
  */
 function createUnauthorizedResponse(requestId: string): NextResponse {
-  return createErrorResponse('Unauthorized', 'UNAUTHORIZED', 401, requestId);
+  return createErrorResponse('Unauthorized', 'UNAUTHORIZED', 401, requestId)
 }
 
 /**
  * Helper: Create forbidden response
  */
 function createForbiddenResponse(requestId: string, reason?: string): NextResponse {
-  return createErrorResponse(
-    reason || 'Insufficient permissions',
-    'FORBIDDEN',
-    403,
-    requestId
-  );
+  return createErrorResponse(reason || 'Insufficient permissions', 'FORBIDDEN', 403, requestId)
 }
 
 /**
  * Get permission context from request (extract from JWT token)
  */
-async function getPermissionContextFromRequest(request: NextRequest): Promise<PermissionContext | null> {
-  const authHeader = request.headers.get('authorization');
+async function getPermissionContextFromRequest(
+  request: NextRequest
+): Promise<PermissionContext | null> {
+  const authHeader = request.headers.get('authorization')
   if (!authHeader || !authHeader.startsWith('Bearer ')) {
-    return null;
+    return null
   }
 
-  const token = authHeader.substring(7);
+  const token = authHeader.substring(7)
   if (!token || token.length < 10) {
-    return null;
+    return null
   }
 
   try {
-    const { authenticateToken } = await import('../auth/service');
-    const authResult = await authenticateToken(token);
+    const { authenticateToken } = await import('../auth/service')
+    const authResult = await authenticateToken(token)
 
     if (!authResult) {
-      return null;
+      return null
     }
 
     // Get full permission context from database
-    const context = await getUserPermissionContext(authResult.context.userId);
-    return context;
-  } catch {
-    return null;
+    const context = await getUserPermissionContext(authResult.context.userId)
+    return context
+  } catch (error) {
+    return null
   }
 }
 
@@ -96,20 +100,20 @@ export async function withPermissionContext(
   request: NextRequest,
   handler: (request: NextRequest, context: PermissionContext | null) => Promise<NextResponse>
 ): Promise<NextResponse> {
-  const requestId = generateRequestId();
+  const requestId = generateRequestId()
 
   try {
-    const context = await getPermissionContextFromRequest(request);
+    const context = await getPermissionContextFromRequest(request)
 
-    return handler(request, context);
-  } catch (_error) {
-    logger.error('Permission context error:', { error });
+    return handler(request, context)
+  } catch (error) {
+    logger.error('Permission context error:', { error })
     return createErrorResponse(
       error instanceof Error ? error.message : 'Internal server error',
       'INTERNAL_ERROR',
       500,
       requestId
-    );
+    )
   }
 }
 
@@ -121,14 +125,14 @@ export async function requirePermissionContext(
   handler: (request: NextRequest, context: PermissionContext) => Promise<NextResponse>
 ): Promise<NextResponse> {
   return withPermissionContext(request, async (req, context) => {
-    const requestId = generateRequestId();
+    const requestId = generateRequestId()
 
     if (!context) {
-      return createUnauthorizedResponse(requestId);
+      return createUnauthorizedResponse(requestId)
     }
 
-    return handler(req, context);
-  });
+    return handler(req, context)
+  })
 }
 
 /**
@@ -140,17 +144,17 @@ export function withPermissions(...requiredPermissions: Permission[]) {
     handler: (request: NextRequest, context: PermissionContext) => Promise<NextResponse>
   ): Promise<NextResponse> => {
     return requirePermissionContext(request, async (req, context) => {
-      const requestId = generateRequestId();
+      const requestId = generateRequestId()
 
-      const result: PermissionCheckResult = hasAllPermissions(context, requiredPermissions);
+      const result: PermissionCheckResult = hasAllPermissions(context, requiredPermissions)
 
       if (!result.allowed) {
-        return createForbiddenResponse(requestId, result.reason);
+        return createForbiddenResponse(requestId, result.reason)
       }
 
-      return handler(req, context);
-    });
-  };
+      return handler(req, context)
+    })
+  }
 }
 
 /**
@@ -162,18 +166,18 @@ export function withAnyPermission(...permissions: Permission[]) {
     handler: (request: NextRequest, context: PermissionContext) => Promise<NextResponse>
   ): Promise<NextResponse> => {
     return requirePermissionContext(request, async (req, context) => {
-      const requestId = generateRequestId();
+      const requestId = generateRequestId()
 
       if (!hasAnyPermission(context, permissions)) {
         return createForbiddenResponse(
           requestId,
           `Missing any of required permissions: ${permissions.join(', ')}`
-        );
+        )
       }
 
-      return handler(req, context);
-    });
-  };
+      return handler(req, context)
+    })
+  }
 }
 
 /**
@@ -185,18 +189,15 @@ export function withRole(requiredRole: Role) {
     handler: (request: NextRequest, context: PermissionContext) => Promise<NextResponse>
   ): Promise<NextResponse> => {
     return requirePermissionContext(request, async (req, context) => {
-      const requestId = generateRequestId();
+      const requestId = generateRequestId()
 
       if (!hasRole(context, requiredRole)) {
-        return createForbiddenResponse(
-          requestId,
-          `Role ${requiredRole} is required`
-        );
+        return createForbiddenResponse(requestId, `Role ${requiredRole} is required`)
       }
 
-      return handler(req, context);
-    });
-  };
+      return handler(req, context)
+    })
+  }
 }
 
 /**
@@ -208,18 +209,18 @@ export function withAnyRole(...roles: Role[]) {
     handler: (request: NextRequest, context: PermissionContext) => Promise<NextResponse>
   ): Promise<NextResponse> => {
     return requirePermissionContext(request, async (req, context) => {
-      const requestId = generateRequestId();
+      const requestId = generateRequestId()
 
       if (!hasAnyRole(context, roles)) {
         return createForbiddenResponse(
           requestId,
           `Missing any of required roles: ${roles.join(', ')}`
-        );
+        )
       }
 
-      return handler(req, context);
-    });
-  };
+      return handler(req, context)
+    })
+  }
 }
 
 /**
@@ -231,18 +232,15 @@ export function withAllRoles(...roles: Role[]) {
     handler: (request: NextRequest, context: PermissionContext) => Promise<NextResponse>
   ): Promise<NextResponse> => {
     return requirePermissionContext(request, async (req, context) => {
-      const requestId = generateRequestId();
+      const requestId = generateRequestId()
 
       if (!hasAllRoles(context, roles)) {
-        return createForbiddenResponse(
-          requestId,
-          `Missing all required roles: ${roles.join(', ')}`
-        );
+        return createForbiddenResponse(requestId, `Missing all required roles: ${roles.join(', ')}`)
       }
 
-      return handler(req, context);
-    });
-  };
+      return handler(req, context)
+    })
+  }
 }
 
 /**
@@ -252,7 +250,7 @@ export function withAdmin(
   request: NextRequest,
   handler: (request: NextRequest, context: PermissionContext) => Promise<NextResponse>
 ): Promise<NextResponse> {
-  return withRole(Role.ADMIN)(request, handler);
+  return withRole(Role.ADMIN)(request, handler)
 }
 
 /**
@@ -262,7 +260,7 @@ export function withManagerOrAdmin(
   request: NextRequest,
   handler: (request: NextRequest, context: PermissionContext) => Promise<NextResponse>
 ): Promise<NextResponse> {
-  return withAnyRole(Role.MANAGER, Role.ADMIN)(request, handler);
+  return withAnyRole(Role.MANAGER, Role.ADMIN)(request, handler)
 }
 
 /**
@@ -272,66 +270,54 @@ export function withMemberOrHigher(
   request: NextRequest,
   handler: (request: NextRequest, context: PermissionContext) => Promise<NextResponse>
 ): Promise<NextResponse> {
-  return withAnyRole(Role.ADMIN, Role.MANAGER, Role.MEMBER)(request, handler);
+  return withAnyRole(Role.ADMIN, Role.MANAGER, Role.MEMBER)(request, handler)
 }
 
 /**
  * Require specific permission OR role (flexible authorization)
  */
-export function withPermissionOrRole(
-  permission: Permission,
-  role: Role
-) {
+export function withPermissionOrRole(permission: Permission, role: Role) {
   return async (
     request: NextRequest,
     handler: (request: NextRequest, context: PermissionContext) => Promise<NextResponse>
   ): Promise<NextResponse> => {
     return requirePermissionContext(request, async (req, context) => {
-      const requestId = generateRequestId();
+      const requestId = generateRequestId()
 
       if (!hasPermission(context, permission) && !hasRole(context, role)) {
         return createForbiddenResponse(
           requestId,
           `Requires permission ${permission} or role ${role}`
-        );
+        )
       }
 
-      return handler(req, context);
-    });
-  };
+      return handler(req, context)
+    })
+  }
 }
 
 /**
  * Require specific permission AND role (strict authorization)
  */
-export function withPermissionAndRole(
-  permission: Permission,
-  role: Role
-) {
+export function withPermissionAndRole(permission: Permission, role: Role) {
   return async (
     request: NextRequest,
     handler: (request: NextRequest, context: PermissionContext) => Promise<NextResponse>
   ): Promise<NextResponse> => {
     return requirePermissionContext(request, async (req, context) => {
-      const requestId = generateRequestId();
+      const requestId = generateRequestId()
 
       if (!hasPermission(context, permission)) {
-        return createForbiddenResponse(
-          requestId,
-          `Missing permission: ${permission}`
-        );
+        return createForbiddenResponse(requestId, `Missing permission: ${permission}`)
       }
 
       if (!hasRole(context, role)) {
-        return createForbiddenResponse(
-          requestId,
-          `Missing role: ${role}`
-        );
+        return createForbiddenResponse(requestId, `Missing role: ${role}`)
       }
 
-      return handler(req, context);
-    });
-  };
+      return handler(req, context)
+    })
+  }
 }
 
 /**
@@ -342,5 +328,5 @@ export async function withOptionalPermissionContext(
   request: NextRequest,
   handler: (request: NextRequest, context: PermissionContext | null) => Promise<NextResponse>
 ): Promise<NextResponse> {
-  return withPermissionContext(request, handler);
+  return withPermissionContext(request, handler)
 }

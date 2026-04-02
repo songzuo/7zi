@@ -1,4 +1,5 @@
 # Performance Monitoring Implementation Summary
+
 # 性能监控实现总结
 
 ## 完成情况
@@ -8,6 +9,7 @@
 ## 实现的监控指标
 
 ### 1. API 性能指标
+
 - **总请求数** - 统计 API 请求总数
 - **平均响应时间** - API 请求平均响应时间（ms）
 - **成功率** - 成功请求比例
@@ -16,17 +18,20 @@
 - **HTTP 状态码追踪** - 记录每个请求的状态码
 
 ### 2. 操作性能指标
+
 - **操作总数** - 追踪的操作数量
 - **平均执行时间** - 操作平均执行时间（ms）
 - **操作成功率** - 成功执行的操作比例
 
 ### 3. 错误指标
+
 - **错误总数** - 总错误数量
 - **错误类型分布** - 按错误类型分组统计
 - **错误堆栈追踪** - 记录错误堆栈信息
 - **错误上下文** - 记录错误发生时的上下文信息
 
 ### 4. 自定义指标
+
 - 支持任意自定义指标的追踪
 - 可指定单位（ms、%、count、MB 等）
 - 可添加元数据
@@ -34,7 +39,9 @@
 ## 创建的组件
 
 ### 1. PerformanceDashboard.tsx
+
 完整的性能监控仪表板组件，包含：
+
 - 实时数据刷新（默认 5 秒）
 - API 指标卡片（请求数、响应时间、成功率、错误率）
 - 操作指标卡片（操作数、执行时间、成功率）
@@ -45,14 +52,18 @@
 - 自动降级（告警超过阈值时显示警告）
 
 ### 2. SimplePerformanceDashboard.tsx
+
 简化版仪表板组件，特点：
+
 - 轻量级，无需额外依赖
 - 核心功能完整
 - 更简洁的 UI
 - 适合资源受限场景
 
 ### 3. 示例页面：/monitoring-example
+
 完整的演示页面，展示：
+
 - 所有监控功能的实际使用
 - 8 个示例操作按钮
 - 实时操作日志
@@ -64,6 +75,7 @@
 ### 1. 监控工具（src/lib/monitoring/）
 
 #### types.ts (90 行)
+
 - 完整的 TypeScript 类型定义
 - 支持 API、操作、错误、自定义指标
 - 聚合指标结构
@@ -71,6 +83,7 @@
 - 配置接口
 
 #### config.ts (79 行)
+
 - 环境特定配置（开发/生产/测试）
 - 可配置的告警阈值
 - 可配置的采样率
@@ -78,12 +91,14 @@
 - 存储类型配置
 
 #### storage.ts (233 行)
+
 - MemoryStorage - 内存存储实现
 - LocalStorageStorage - LocalStorage 实现
 - 统一的存储接口
 - 自动清理过期数据
 
 #### monitor.ts (404 行)
+
 - PerformanceMonitor 核心类
 - 单例模式
 - API 请求追踪
@@ -94,6 +109,7 @@
 - 聚合指标计算
 
 #### utils.ts (170 行)
+
 - withPerformanceTracking - 异步函数包装器
 - monitoredFetch - fetch 包装器
 - trackReactError - React 错误边界追踪
@@ -103,9 +119,11 @@
 - usePerformanceTracker - React Hook
 
 #### index.ts (36 行)
+
 - 模块统一导出
 
 ### 2. 测试覆盖
+
 - **17 个测试用例，全部通过 ✅**
 - 覆盖所有核心功能
 - 包含告警触发测试
@@ -113,16 +131,19 @@
 ## 告警机制
 
 ### 告警类型
+
 1. **错误率告警** - 当错误率超过阈值时触发
 2. **响应时间告警** - 当 API 平均响应时间超过阈值时触发
 3. **操作时间告警** - 当操作平均执行时间超过阈值时触发
 
 ### 告警级别
+
 - **Critical** - 阈值 2 倍以上
 - **High** - 超过阈值但不到 2 倍
 - **Medium/Low** - 预留（未使用）
 
 ### 告警触发
+
 - 自动在每次指标记录后检查
 - 基于时间窗口滑动平均
 - 告警记录到存储系统
@@ -134,40 +155,39 @@
 
 ```typescript
 // 1. 监控 API 请求
-import { monitoredFetch } from '@/lib/monitoring';
+import { monitoredFetch } from '@/lib/monitoring'
 
 const response = await monitoredFetch('/api/users', {
   method: 'GET',
   metadata: { userId: '123' },
-});
+})
 
 // 2. 监控异步操作
-import { withPerformanceTracking } from '@/lib/monitoring';
+import { withPerformanceTracking } from '@/lib/monitoring'
 
 await withPerformanceTracking('process_data', async () => {
-  return await processData();
-});
+  return await processData()
+})
 
 // 3. 手动追踪
-import { monitor } from '@/lib/monitoring';
+import { monitor } from '@/lib/monitoring'
 
-const opId = monitor.startOperation('custom_operation');
+const opId = monitor.startOperation('custom_operation')
 // ... 执行操作
-await monitor.endOperation(opId, true);
+await monitor.endOperation(opId, true)
 
 // 4. 追踪错误
-await monitor.trackError('ErrorType', 'Error message', error.stack);
+await monitor.trackError('ErrorType', 'Error message', error.stack)
 
 // 5. 自定义指标
-await monitor.trackCustomMetric('metric_name', 100, 'ms');
+await monitor.trackCustomMetric('metric_name', 100, 'ms')
 ```
 
 ### 添加仪表板
 
 ```tsx
-import { PerformanceDashboard } from '@/components/PerformanceDashboard';
-
-<PerformanceDashboard refreshInterval={5000} showAlarms={true} />
+import { PerformanceDashboard } from '@/components/PerformanceDashboard'
+;<PerformanceDashboard refreshInterval={5000} showAlarms={true} />
 ```
 
 ## 配置难度评估
@@ -175,6 +195,7 @@ import { PerformanceDashboard } from '@/components/PerformanceDashboard';
 ### 难度等级：⭐ 简单
 
 ### 原因：
+
 1. **零配置启动** - 使用默认配置即可工作
 2. **自动环境适配** - 根据开发/生产环境自动调整
 3. **简单的 API** - 函数命名清晰，参数直观
@@ -182,6 +203,7 @@ import { PerformanceDashboard } from '@/components/PerformanceDashboard';
 5. **详细的文档** - MONITORING_SETUP.md 包含完整使用指南
 
 ### 配置步骤：
+
 1. 安装依赖（如果未安装）
 2. 在页面中添加仪表板组件
 3. 使用监控工具包装关键操作
@@ -190,7 +212,7 @@ import { PerformanceDashboard } from '@/components/PerformanceDashboard';
 ### 自定义配置示例：
 
 ```typescript
-import { monitor } from '@/lib/monitoring';
+import { monitor } from '@/lib/monitoring'
 
 monitor.updateConfig({
   sampleRate: 0.5, // 50% 采样
@@ -201,7 +223,7 @@ monitor.updateConfig({
       threshold: 0.03, // 3% 错误率
     },
   },
-});
+})
 ```
 
 ## 性能影响
@@ -214,23 +236,27 @@ monitor.updateConfig({
 ## 文件清单
 
 ### 监控工具（src/lib/monitoring/）
+
 - types.ts (90 行)
 - config.ts (79 行)
 - storage.ts (233 行)
 - monitor.ts (404 行)
 - utils.ts (170 行)
 - index.ts (36 行)
-- __tests__/monitor.test.ts (288 行)
+- **tests**/monitor.test.ts (288 行)
 - README.md
 
 ### 组件（src/components/）
+
 - PerformanceDashboard.tsx (368 行)
 - SimplePerformanceDashboard.tsx (207 行)
 
 ### 示例页面
+
 - app/monitoring-example/page.tsx (326 行)
 
 ### 文档
+
 - MONITORING_SETUP.md - 完整设置指南（247 行）
 
 ## 代码质量

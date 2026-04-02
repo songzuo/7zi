@@ -24,10 +24,10 @@ Retrieve learning statistics for all registered agents.
 
 **Query Parameters:**
 
-| Parameter | Type | Required | Default | Description |
-|-----------|------|----------|---------|-------------|
-| `period` | string | No | `day` | Time period for aggregated stats: `hour`, `day`, `week`, `month` |
-| `includeSystem` | boolean | No | `false` | Include overall system statistics |
+| Parameter       | Type    | Required | Default | Description                                                      |
+| --------------- | ------- | -------- | ------- | ---------------------------------------------------------------- |
+| `period`        | string  | No       | `day`   | Time period for aggregated stats: `hour`, `day`, `week`, `month` |
+| `includeSystem` | boolean | No       | `false` | Include overall system statistics                                |
 
 **Success Response (200):**
 
@@ -104,16 +104,16 @@ Retrieve detailed learning statistics for a specific agent.
 
 **Path Parameters:**
 
-| Parameter | Type | Required | Description |
-|-----------|------|----------|-------------|
-| `agentId` | string | Yes | Agent identifier |
+| Parameter | Type   | Required | Description      |
+| --------- | ------ | -------- | ---------------- |
+| `agentId` | string | Yes      | Agent identifier |
 
 **Query Parameters:**
 
-| Parameter | Type | Required | Default | Description |
-|-----------|------|----------|---------|-------------|
-| `includeHistory` | boolean | No | `false` | Include recent task history |
-| `historyLimit` | number | No | `50` | Number of history records to return |
+| Parameter        | Type    | Required | Default | Description                         |
+| ---------------- | ------- | -------- | ------- | ----------------------------------- |
+| `includeHistory` | boolean | No       | `false` | Include recent task history         |
+| `historyLimit`   | number  | No       | `50`    | Number of history records to return |
 
 **Success Response (200):**
 
@@ -191,9 +191,9 @@ Get list of available agents and their task types for manual weight adjustment.
 
 **Query Parameters:**
 
-| Parameter | Type | Required | Default | Description |
-|-----------|------|----------|---------|-------------|
-| `agentId` | string | No | - | Filter by specific agent |
+| Parameter | Type   | Required | Default | Description              |
+| --------- | ------ | -------- | ------- | ------------------------ |
+| `agentId` | string | No       | -       | Filter by specific agent |
 
 **Success Response (200):**
 
@@ -236,14 +236,15 @@ Manually adjust an agent's weight for a specific task type.
 
 **Request Body:**
 
-| Field | Type | Required | Description |
-|-------|------|----------|-------------|
-| `agentId` | string | Yes | Agent identifier |
-| `taskType` | string | Yes | Task type to adjust |
-| `adjustment` | number | Yes | Adjustment value (-1.0 to 1.0) |
-| `reason` | string | No | Reason for the adjustment |
+| Field        | Type   | Required | Description                    |
+| ------------ | ------ | -------- | ------------------------------ |
+| `agentId`    | string | Yes      | Agent identifier               |
+| `taskType`   | string | Yes      | Task type to adjust            |
+| `adjustment` | number | Yes      | Adjustment value (-1.0 to 1.0) |
+| `reason`     | string | No       | Reason for the adjustment      |
 
 **Adjustment Value:**
+
 - `-1.0` to `0`: Decrease the agent's score
 - `0` to `1.0`: Increase the agent's score
 - Example: `-0.1` reduces score by 10%, `+0.1` increases by 10%
@@ -298,36 +299,39 @@ Manually adjust an agent's weight for a specific task type.
 
 The system provides the following performance ratings:
 
-| Rating | Success Rate | Description |
-|--------|--------------|-------------|
-| `excellent` | ≥ 95% | Outstanding performance |
-| `good` | 85% - 94% | Above average performance |
-| `average` | 70% - 84% | Acceptable performance |
-| `below_average` | 50% - 69% | Below expectations |
-| `needs_improvement` | < 50% | Poor performance |
-| `insufficient_data` | N/A | Not enough samples (less than 5) |
+| Rating              | Success Rate | Description                      |
+| ------------------- | ------------ | -------------------------------- |
+| `excellent`         | ≥ 95%        | Outstanding performance          |
+| `good`              | 85% - 94%    | Above average performance        |
+| `average`           | 70% - 84%    | Acceptable performance           |
+| `below_average`     | 50% - 69%    | Below expectations               |
+| `needs_improvement` | < 50%        | Poor performance                 |
+| `insufficient_data` | N/A          | Not enough samples (less than 5) |
 
 ---
 
 ## Trend Indicators
 
-| Trend | Description |
-|-------|-------------|
+| Trend       | Description                          |
+| ----------- | ------------------------------------ |
 | `improving` | Performance getting better over time |
-| `stable` | Performance consistent |
-| `declining` | Performance getting worse over time |
+| `stable`    | Performance consistent               |
+| `declining` | Performance getting worse over time  |
 
 ---
 
 ## Score Components
 
 ### Overall Score
+
 Weighted average of:
+
 - **Reliability (40%)** - Success rate
 - **Speed (30%)** - Inverse of execution time
 - **Quality (30%)** - Low retry and error rate
 
 ### Scores Range
+
 - `0.0` - Worst performance
 - `1.0` - Best performance
 
@@ -335,12 +339,12 @@ Weighted average of:
 
 ## Error Codes
 
-| Status Code | Error Type | Description |
-|-------------|------------|-------------|
-| 400 | `VALIDATION_ERROR` | Invalid request parameters |
-| 401 | `UNAUTHORIZED` | Missing or invalid authentication |
-| 404 | `NOT_FOUND` | Agent not found |
-| 500 | `INTERNAL_ERROR` | Server error |
+| Status Code | Error Type         | Description                       |
+| ----------- | ------------------ | --------------------------------- |
+| 400         | `VALIDATION_ERROR` | Invalid request parameters        |
+| 401         | `UNAUTHORIZED`     | Missing or invalid authentication |
+| 404         | `NOT_FOUND`        | Agent not found                   |
+| 500         | `INTERNAL_ERROR`   | Server error                      |
 
 ---
 
@@ -396,7 +400,7 @@ The learning system integrates with the Agent Scheduler to provide:
 To integrate with your scheduler:
 
 ```typescript
-import { adaptiveLearner } from '@/lib/agents/learning';
+import { adaptiveLearner } from '@/lib/agents/learning'
 
 // After task completion
 adaptiveLearner.recordTaskCompletion(
@@ -413,7 +417,7 @@ adaptiveLearner.recordTaskCompletion(
   retryCount,
   agentLoadAtStart,
   errorType
-);
+)
 
 // Predict completion time before scheduling
 const prediction = adaptiveLearner.predictCompletionTime({
@@ -425,11 +429,11 @@ const prediction = adaptiveLearner.predictCompletionTime({
   dayOfWeek: new Date().getDay(),
   historicalAvgTime: 2500,
   queueDepth: 5,
-  agentLoad: 0.3
-});
+  agentLoad: 0.3,
+})
 
-console.log(`Estimated time: ${prediction.estimatedTime}ms`);
-console.log(`Confidence: ${prediction.confidence}`);
+console.log(`Estimated time: ${prediction.estimatedTime}ms`)
+console.log(`Confidence: ${prediction.confidence}`)
 ```
 
 ---
@@ -437,6 +441,7 @@ console.log(`Confidence: ${prediction.confidence}`);
 ## Rate Limiting
 
 All API endpoints are subject to rate limiting:
+
 - **Default limit:** 100 requests per minute per user
 - **Burst limit:** 10 requests per second
 
@@ -457,5 +462,6 @@ Exceeding limits returns HTTP 429 with `Rate limit exceeded` error.
 ## Support
 
 For issues or questions:
+
 - Check the logs: `/var/log/agent-learning.log`
 - Contact: dev-team@example.com

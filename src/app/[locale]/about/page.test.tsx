@@ -126,7 +126,7 @@ vi.mock('next-intl/server', () => ({
       return memberFn
     }
     if (namespace === 'footer') {
-      const footerFn = (key: string) => key === 'copyright' ? '© 2026 7zi Studio' : key
+      const footerFn = (key: string) => (key === 'copyright' ? '© 2026 7zi Studio' : key)
       footerFn.raw = () => ({ copyright: '© 2026 7zi Studio' })
       return footerFn
     }
@@ -354,7 +354,9 @@ describe('AboutPage', () => {
     })
 
     it('should render with Chinese locale', async () => {
-      const { container } = render(await AboutPage({ params: Promise.resolve({ locale: 'zh-CN' }) }))
+      const { container } = render(
+        await AboutPage({ params: Promise.resolve({ locale: 'zh-CN' }) })
+      )
       expect(container).toBeInTheDocument()
     })
   })

@@ -16,22 +16,22 @@
 
 ### 核心改进
 
-| 问题 | 优先级 | 工作量 | 预期收益 |
-|------|--------|--------|----------|
-| 代码重复 (permissions.ts) | P0 | 2h | 消除维护负担 |
-| 状态管理缺失 (Zustand) | P0 | 3天 | 统一状态管理，性能提升 20% |
-| lib/ 职责过重 | P1 | 5天 | 架构清晰，职责分明 |
-| 高耦合文件 (>500行) | P1 | 4天 | 可维护性提升 |
+| 问题                      | 优先级 | 工作量 | 预期收益                   |
+| ------------------------- | ------ | ------ | -------------------------- |
+| 代码重复 (permissions.ts) | P0     | 2h     | 消除维护负担               |
+| 状态管理缺失 (Zustand)    | P0     | 3天    | 统一状态管理，性能提升 20% |
+| lib/ 职责过重             | P1     | 5天    | 架构清晰，职责分明         |
+| 高耦合文件 (>500行)       | P1     | 4天    | 可维护性提升               |
 
 ### 工作量估算
 
-| 阶段 | 工作量 | 里程碑 |
-|------|--------|--------|
-| Phase 1: 清理与基础 | 2天 | 消除技术债务 |
-| Phase 2: 状态管理 | 5天 | 统一状态管理 |
-| Phase 3: 架构优化 | 5天 | 代码质量提升 |
-| Phase 4: 扩展性增强 | 3天 | 可扩展性提升 |
-| **总计** | **15天** | **架构评分 9/10** |
+| 阶段                | 工作量   | 里程碑            |
+| ------------------- | -------- | ----------------- |
+| Phase 1: 清理与基础 | 2天      | 消除技术债务      |
+| Phase 2: 状态管理   | 5天      | 统一状态管理      |
+| Phase 3: 架构优化   | 5天      | 代码质量提升      |
+| Phase 4: 扩展性增强 | 3天      | 可扩展性提升      |
+| **总计**            | **15天** | **架构评分 9/10** |
 
 ---
 
@@ -40,6 +40,7 @@
 ### 问题描述
 
 `permissions.ts` 文件在两个位置完全相同：
+
 - `src/lib/permissions.ts`
 - `src/features/auth/lib/permissions.ts`
 
@@ -83,6 +84,7 @@ grep -r "@/lib/permissions" src/
 ```
 
 **手动检查文件**:
+
 - `src/lib/auth.ts`
 - `src/middleware.ts`
 - 所有 API routes
@@ -127,20 +129,20 @@ npm run build
 
 ### 风险缓解
 
-| 风险 | 概率 | 缓解措施 |
-|------|------|----------|
-| 导入路径错误 | 低 | TypeScript 编译会立即发现 |
-| 运行时错误 | 极低 | 完整测试覆盖 |
-| 破坏性更改 | 无 | 只是文件移动，逻辑不变 |
+| 风险         | 概率 | 缓解措施                  |
+| ------------ | ---- | ------------------------- |
+| 导入路径错误 | 低   | TypeScript 编译会立即发现 |
+| 运行时错误   | 极低 | 完整测试覆盖              |
+| 破坏性更改   | 无   | 只是文件移动，逻辑不变    |
 
 ### 工作量估算
 
-| 步骤 | 时间 |
-|------|------|
-| 依赖分析 | 30 分钟 |
-| 更新导入 | 1 小时 |
-| 删除文件 | 15 分钟 |
-| 测试验证 | 30 分钟 |
+| 步骤     | 时间       |
+| -------- | ---------- |
+| 依赖分析 | 30 分钟    |
+| 更新导入 | 1 小时     |
+| 删除文件 | 15 分钟    |
+| 测试验证 | 30 分钟    |
 | **总计** | **2 小时** |
 
 ---
@@ -156,14 +158,14 @@ npm run build
 
 ### 当前状态管理方式
 
-| 状态类型 | 管理方式 | 问题 |
-|----------|----------|------|
-| 主题 | Context | ✅ 良好，保留 |
-| 通知 | 自定义 Hook | 无法跨组件共享 |
-| WebSocket | 自定义 Hook | 状态分散 |
-| 用户认证 | 未全局管理 | ❌ 缺失 |
-| 权限 | 未全局管理 | ❌ 缺失 |
-| 应用设置 | 未全局管理 | ❌ 缺失 |
+| 状态类型  | 管理方式    | 问题           |
+| --------- | ----------- | -------------- |
+| 主题      | Context     | ✅ 良好，保留  |
+| 通知      | 自定义 Hook | 无法跨组件共享 |
+| WebSocket | 自定义 Hook | 状态分散       |
+| 用户认证  | 未全局管理  | ❌ 缺失        |
+| 权限      | 未全局管理  | ❌ 缺失        |
+| 应用设置  | 未全局管理  | ❌ 缺失        |
 
 ### 解决方案
 
@@ -187,6 +189,7 @@ touch src/stores/index.ts
 ```
 
 **文件结构**:
+
 ```
 src/stores/
 ├── index.ts              # 统一导出
@@ -201,30 +204,30 @@ src/stores/
 
 ```typescript
 // src/stores/auth-store.ts
-import { create } from 'zustand';
-import { persist } from 'zustand/middleware';
+import { create } from 'zustand'
+import { persist } from 'zustand/middleware'
 
 interface User {
-  id: string;
-  name: string;
-  email: string;
-  role: string;
-  avatar?: string;
+  id: string
+  name: string
+  email: string
+  role: string
+  avatar?: string
 }
 
 interface AuthState {
   // 状态
-  user: User | null;
-  token: string | null;
-  isAuthenticated: boolean;
-  isLoading: boolean;
-  error: string | null;
+  user: User | null
+  token: string | null
+  isAuthenticated: boolean
+  isLoading: boolean
+  error: string | null
 
   // 操作
-  login: (email: string, password: string) => Promise<void>;
-  logout: () => void;
-  updateProfile: (data: Partial<User>) => void;
-  clearError: () => void;
+  login: (email: string, password: string) => Promise<void>
+  logout: () => void
+  updateProfile: (data: Partial<User>) => void
+  clearError: () => void
 }
 
 export const useAuthStore = create<AuthState>()(
@@ -239,32 +242,32 @@ export const useAuthStore = create<AuthState>()(
 
       // 登录
       login: async (email, password) => {
-        set({ isLoading: true, error: null });
+        set({ isLoading: true, error: null })
 
         try {
           const response = await fetch('/api/auth/login', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ email, password }),
-          });
+          })
 
           if (!response.ok) {
-            throw new Error('Login failed');
+            throw new Error('Login failed')
           }
 
-          const { user, token } = await response.json();
+          const { user, token } = await response.json()
 
           set({
             user,
             token,
             isAuthenticated: true,
             isLoading: false,
-          });
+          })
         } catch (error) {
           set({
             error: error instanceof Error ? error.message : 'Unknown error',
             isLoading: false,
-          });
+          })
         }
       },
 
@@ -275,25 +278,25 @@ export const useAuthStore = create<AuthState>()(
           token: null,
           isAuthenticated: false,
           error: null,
-        });
+        })
       },
 
       // 更新用户资料
-      updateProfile: (data) => {
-        const { user } = get();
+      updateProfile: data => {
+        const { user } = get()
         if (user) {
-          set({ user: { ...user, ...data } });
+          set({ user: { ...user, ...data } })
         }
       },
 
       // 清除错误
       clearError: () => {
-        set({ error: null });
+        set({ error: null })
       },
     }),
     {
       name: 'auth-storage', // LocalStorage key
-      partialize: (state) => ({
+      partialize: state => ({
         // 只持久化用户和 token
         user: state.user,
         token: state.token,
@@ -301,39 +304,39 @@ export const useAuthStore = create<AuthState>()(
       }),
     }
   )
-);
+)
 ```
 
 **实现 notification-store.ts**:
 
 ```typescript
 // src/stores/notification-store.ts
-import { create } from 'zustand';
+import { create } from 'zustand'
 
 interface Notification {
-  id: string;
-  type: 'success' | 'error' | 'warning' | 'info';
-  title: string;
-  message: string;
-  read: boolean;
-  timestamp: number;
+  id: string
+  type: 'success' | 'error' | 'warning' | 'info'
+  title: string
+  message: string
+  read: boolean
+  timestamp: number
   action?: {
-    label: string;
-    handler: () => void;
-  };
+    label: string
+    handler: () => void
+  }
 }
 
 interface NotificationState {
-  notifications: Notification[];
-  unreadCount: number;
-  maxNotifications: number;
+  notifications: Notification[]
+  unreadCount: number
+  maxNotifications: number
 
   // 操作
-  addNotification: (notification: Omit<Notification, 'id' | 'read' | 'timestamp'>) => void;
-  removeNotification: (id: string) => void;
-  markAsRead: (id: string) => void;
-  markAllAsRead: () => void;
-  clearAll: () => void;
+  addNotification: (notification: Omit<Notification, 'id' | 'read' | 'timestamp'>) => void
+  removeNotification: (id: string) => void
+  markAsRead: (id: string) => void
+  markAllAsRead: () => void
+  clearAll: () => void
 }
 
 export const useNotificationStore = create<NotificationState>((set, get) => ({
@@ -341,103 +344,98 @@ export const useNotificationStore = create<NotificationState>((set, get) => ({
   unreadCount: 0,
   maxNotifications: 100,
 
-  addNotification: (notification) => {
+  addNotification: notification => {
     const newNotification: Notification = {
       ...notification,
       id: crypto.randomUUID(),
       read: false,
       timestamp: Date.now(),
-    };
+    }
 
-    set((state) => {
-      const updated = [newNotification, ...state.notifications].slice(
-        0,
-        state.maxNotifications
-      );
+    set(state => {
+      const updated = [newNotification, ...state.notifications].slice(0, state.maxNotifications)
 
       return {
         notifications: updated,
-        unreadCount: updated.filter((n) => !n.read).length,
-      };
-    });
+        unreadCount: updated.filter(n => !n.read).length,
+      }
+    })
 
     // 自动消失（5 秒后，仅成功和消息类型）
     if (notification.type === 'success' || notification.type === 'info') {
       setTimeout(() => {
-        get().removeNotification(newNotification.id);
-      }, 5000);
+        get().removeNotification(newNotification.id)
+      }, 5000)
     }
   },
 
-  removeNotification: (id) => {
-    set((state) => {
-      const updated = state.notifications.filter((n) => n.id !== id);
+  removeNotification: id => {
+    set(state => {
+      const updated = state.notifications.filter(n => n.id !== id)
       return {
         notifications: updated,
-        unreadCount: updated.filter((n) => !n.read).length,
-      };
-    });
+        unreadCount: updated.filter(n => !n.read).length,
+      }
+    })
   },
 
-  markAsRead: (id) => {
-    set((state) => {
-      const updated = state.notifications.map((n) =>
-        n.id === id ? { ...n, read: true } : n
-      );
+  markAsRead: id => {
+    set(state => {
+      const updated = state.notifications.map(n => (n.id === id ? { ...n, read: true } : n))
       return {
         notifications: updated,
-        unreadCount: updated.filter((n) => !n.read).length,
-      };
-    });
+        unreadCount: updated.filter(n => !n.read).length,
+      }
+    })
   },
 
   markAllAsRead: () => {
-    set((state) => ({
-      notifications: state.notifications.map((n) => ({ ...n, read: true })),
+    set(state => ({
+      notifications: state.notifications.map(n => ({ ...n, read: true })),
       unreadCount: 0,
-    }));
+    }))
   },
 
   clearAll: () => {
     set({
       notifications: [],
       unreadCount: 0,
-    });
+    })
   },
-}));
+}))
 ```
 
 **实现 websocket-store.ts**:
 
 ```typescript
 // src/stores/websocket-store.ts
-import { create } from 'zustand';
-import type { Socket } from 'socket.io-client';
+import { create } from 'zustand'
+import type { Socket } from 'socket.io-client'
 
-type ConnectionStatus = 'connecting' | 'connected' | 'disconnected' | 'error';
+type ConnectionStatus = 'connecting' | 'connected' | 'disconnected' | 'error'
 
 interface WebSocketMessage {
-  id: string;
-  type: string;
-  payload: any;
-  timestamp: number;
+  id: string
+  type: string
+  payload: any
+  timestamp: number
 }
 
 interface WebSocketState {
   // 连接状态
-  status: ConnectionStatus;
-  socket: Socket | null;
-  lastPing: number;
-  latency: number;
+  status: ConnectionStatus
+  socket: Socket | null
+  lastPing: number
+  latency: number
 
   // 消息
-  messages: WebSocketMessage[];
+  messages: WebSocketMessage[]
 
   // 操作
-  connect: () => void;
-  disconnect: () => void;
-  sendMessage: (type: string, payload: any) => void;
-  clearMessages: () => void;
+  connect: () => void
+  disconnect: () => void
+  sendMessage: (type: string, payload: any) => void
+  clearMessages: () => void
 }
 
 export const useWebSocketStore = create<WebSocketState>((set, get) => ({
@@ -448,7 +446,7 @@ export const useWebSocketStore = create<WebSocketState>((set, get) => ({
   messages: [],
 
   connect: () => {
-    set({ status: 'connecting' });
+    set({ status: 'connecting' })
 
     // 动态导入 socket.io-client（避免服务端渲染问题）
     import('socket.io-client').then(({ io }) => {
@@ -457,33 +455,33 @@ export const useWebSocketStore = create<WebSocketState>((set, get) => ({
         reconnection: true,
         reconnectionAttempts: 5,
         reconnectionDelay: 1000,
-      });
+      })
 
       socket.on('connect', () => {
-        set({ status: 'connected' });
-        console.log('WebSocket connected');
-      });
+        set({ status: 'connected' })
+        console.log('WebSocket connected')
+      })
 
       socket.on('disconnect', () => {
-        set({ status: 'disconnected' });
-        console.log('WebSocket disconnected');
-      });
+        set({ status: 'disconnected' })
+        console.log('WebSocket disconnected')
+      })
 
-      socket.on('connect_error', (error) => {
-        set({ status: 'error' });
-        console.error('WebSocket error:', error);
-      });
+      socket.on('connect_error', error => {
+        set({ status: 'error' })
+        console.error('WebSocket error:', error)
+      })
 
       socket.on('ping', () => {
-        const now = Date.now();
+        const now = Date.now()
         set({
           lastPing: now,
           latency: now - (get().lastPing || now),
-        });
-      });
+        })
+      })
 
-      socket.on('message', (data) => {
-        set((state) => ({
+      socket.on('message', data => {
+        set(state => ({
           messages: [
             {
               id: crypto.randomUUID(),
@@ -493,64 +491,64 @@ export const useWebSocketStore = create<WebSocketState>((set, get) => ({
             },
             ...state.messages,
           ].slice(0, 100), // 保留最近 100 条
-        }));
-      });
+        }))
+      })
 
-      set({ socket });
-    });
+      set({ socket })
+    })
   },
 
   disconnect: () => {
-    const { socket } = get();
+    const { socket } = get()
     if (socket) {
-      socket.disconnect();
-      set({ socket: null, status: 'disconnected' });
+      socket.disconnect()
+      set({ socket: null, status: 'disconnected' })
     }
   },
 
   sendMessage: (type, payload) => {
-    const { socket } = get();
+    const { socket } = get()
     if (socket?.connected) {
-      socket.emit('message', { type, payload });
+      socket.emit('message', { type, payload })
     }
   },
 
   clearMessages: () => {
-    set({ messages: [] });
+    set({ messages: [] })
   },
-}));
+}))
 ```
 
 **实现 app-store.ts**:
 
 ```typescript
 // src/stores/app-store.ts
-import { create } from 'zustand';
-import { persist } from 'zustand/middleware';
+import { create } from 'zustand'
+import { persist } from 'zustand/middleware'
 
 interface AppState {
   // UI 状态
-  sidebarOpen: boolean;
-  darkMode: boolean;
-  language: string;
+  sidebarOpen: boolean
+  darkMode: boolean
+  language: string
 
   // 用户偏好
-  pageSize: number;
-  autoRefresh: boolean;
-  refreshInterval: number;
+  pageSize: number
+  autoRefresh: boolean
+  refreshInterval: number
 
   // 操作
-  toggleSidebar: () => void;
-  setDarkMode: (enabled: boolean) => void;
-  setLanguage: (lang: string) => void;
-  setPageSize: (size: number) => void;
-  setAutoRefresh: (enabled: boolean) => void;
-  setRefreshInterval: (interval: number) => void;
+  toggleSidebar: () => void
+  setDarkMode: (enabled: boolean) => void
+  setLanguage: (lang: string) => void
+  setPageSize: (size: number) => void
+  setAutoRefresh: (enabled: boolean) => void
+  setRefreshInterval: (interval: number) => void
 }
 
 export const useAppStore = create<AppState>()(
   persist(
-    (set) => ({
+    set => ({
       sidebarOpen: true,
       darkMode: false,
       language: 'en',
@@ -559,49 +557,49 @@ export const useAppStore = create<AppState>()(
       refreshInterval: 30000, // 30 秒
 
       toggleSidebar: () => {
-        set((state) => ({ sidebarOpen: !state.sidebarOpen }));
+        set(state => ({ sidebarOpen: !state.sidebarOpen }))
       },
 
-      setDarkMode: (enabled) => {
-        set({ darkMode: enabled });
+      setDarkMode: enabled => {
+        set({ darkMode: enabled })
       },
 
-      setLanguage: (lang) => {
-        set({ language: lang });
+      setLanguage: lang => {
+        set({ language: lang })
       },
 
-      setPageSize: (size) => {
-        set({ pageSize: size });
+      setPageSize: size => {
+        set({ pageSize: size })
       },
 
-      setAutoRefresh: (enabled) => {
-        set({ autoRefresh: enabled });
+      setAutoRefresh: enabled => {
+        set({ autoRefresh: enabled })
       },
 
-      setRefreshInterval: (interval) => {
-        set({ refreshInterval: interval });
+      setRefreshInterval: interval => {
+        set({ refreshInterval: interval })
       },
     }),
     {
       name: 'app-storage',
     }
   )
-);
+)
 ```
 
 **统一导出**:
 
 ```typescript
 // src/stores/index.ts
-export { useAuthStore } from './auth-store';
-export { useNotificationStore } from './notification-store';
-export { useWebSocketStore } from './websocket-store';
-export { useAppStore } from './app-store';
+export { useAuthStore } from './auth-store'
+export { useNotificationStore } from './notification-store'
+export { useWebSocketStore } from './websocket-store'
+export { useAppStore } from './app-store'
 
 // 类型导出
-export type { User } from './auth-store';
-export type { Notification } from './notification-store';
-export type { WebSocketMessage } from './websocket-store';
+export type { User } from './auth-store'
+export type { Notification } from './notification-store'
+export type { WebSocketMessage } from './websocket-store'
 ```
 
 #### Step 2.2: 迁移认证状态 (1 天)
@@ -647,6 +645,7 @@ function LoginComponent() {
 ```
 
 **迁移清单**:
+
 - [ ] `app/login/page.tsx`
 - [ ] `components/navbar/Navbar.tsx`
 - [ ] `app/admin/page.tsx`
@@ -666,22 +665,23 @@ function LoginComponent() {
 
 ```typescript
 // ❌ 旧代码
-const { notifications, add, remove } = useNotifications();
+const { notifications, add, remove } = useNotifications()
 
 // ✅ 新代码
-import { useNotificationStore } from '@/stores';
+import { useNotificationStore } from '@/stores'
 
-const { notifications, addNotification, removeNotification } = useNotificationStore();
+const { notifications, addNotification, removeNotification } = useNotificationStore()
 
 // 发送通知
 addNotification({
   type: 'success',
   title: 'Success',
   message: 'Operation completed successfully',
-});
+})
 ```
 
 **迁移清单**:
+
 - [ ] `components/notifications/NotificationCenter.tsx`
 - [ ] `app/feedback/page.tsx`
 - [ ] 所有需要通知的组件
@@ -700,21 +700,22 @@ addNotification({
 
 ```typescript
 // ❌ 旧代码 (每个组件独立连接)
-const { status, connect, disconnect } = useWebSocketStatus();
+const { status, connect, disconnect } = useWebSocketStatus()
 
 // ✅ 新代码 (全局连接)
-import { useWebSocketStore } from '@/stores';
+import { useWebSocketStore } from '@/stores'
 
-const { status, connect, disconnect, messages } = useWebSocketStore();
+const { status, connect, disconnect, messages } = useWebSocketStore()
 
 // 在应用启动时连接一次
 useEffect(() => {
-  connect();
-  return () => disconnect();
-}, []);
+  connect()
+  return () => disconnect()
+}, [])
 ```
 
 **迁移清单**:
+
 - [ ] `components/websocket/WebSocketStatus.tsx`
 - [ ] `app/websocket-status-demo/page.tsx`
 - [ ] `components/websocket/RealtimeMonitor.tsx`
@@ -759,24 +760,24 @@ npm run test:perf
 
 ### 风险缓解
 
-| 风险 | 概率 | 缓解措施 |
-|------|------|----------|
-| 迁移破坏功能 | 中 | 逐步迁移，完整测试 |
-| 性能回归 | 低 | 性能基准测试 |
-| 状态丢失 | 极低 | Zustand persist 中间件 |
-| 开发体验下降 | 极低 | Zustand 开发工具 |
+| 风险         | 概率 | 缓解措施               |
+| ------------ | ---- | ---------------------- |
+| 迁移破坏功能 | 中   | 逐步迁移，完整测试     |
+| 性能回归     | 低   | 性能基准测试           |
+| 状态丢失     | 极低 | Zustand persist 中间件 |
+| 开发体验下降 | 极低 | Zustand 开发工具       |
 
 ### 工作量估算
 
-| 步骤 | 时间 |
-|------|------|
-| 创建 Store 架构 | 0.5 天 |
-| 迁移认证状态 | 1 天 |
-| 迁移通知状态 | 1 天 |
-| 迁移 WebSocket | 1 天 |
-| 删除旧 Hooks | 0.5 天 |
-| 测试验证 | 0.5 天 |
-| **总计** | **4.5 天** |
+| 步骤            | 时间       |
+| --------------- | ---------- |
+| 创建 Store 架构 | 0.5 天     |
+| 迁移认证状态    | 1 天       |
+| 迁移通知状态    | 1 天       |
+| 迁移 WebSocket  | 1 天       |
+| 删除旧 Hooks    | 0.5 天     |
+| 测试验证        | 0.5 天     |
+| **总计**        | **4.5 天** |
 
 ---
 
@@ -785,6 +786,7 @@ npm run test:perf
 ### 问题描述
 
 `lib/` 目录包含 35+ 文件，职责混杂：
+
 - 认证逻辑 (`auth.ts`)
 - 权限控制 (`permissions.ts`)
 - WebSocket 管理 (`websocket-manager.ts`)
@@ -882,18 +884,18 @@ tree src/lib -I node_modules > docs/lib-directory-analysis.md
 
 **分类文件**:
 
-| 文件 | 职责 | 目标位置 |
-|------|------|----------|
-| `auth.ts` | 认证逻辑 | `features/auth/lib/` |
-| `permissions.ts` | 权限控制 | `features/auth/lib/` (已处理) |
-| `websocket-manager.ts` | WebSocket 管理 | `features/websocket/lib/` |
-| `socket.ts` | Socket 配置 | `features/websocket/lib/` |
-| `logger.ts` | 日志工具 | `lib/` (保留) |
-| `validation.ts` | 验证工具 | `lib/` (保留) |
-| `lib/monitoring/*` | 监控工具 | `features/monitoring/lib/` |
-| `lib/rate-limit/*` | 限流工具 | `features/rate-limit/lib/` |
-| `lib/audit/*` | 审计工具 | `features/audit/lib/` |
-| `lib/services/*` | 业务服务 | 对应 features |
+| 文件                   | 职责           | 目标位置                      |
+| ---------------------- | -------------- | ----------------------------- |
+| `auth.ts`              | 认证逻辑       | `features/auth/lib/`          |
+| `permissions.ts`       | 权限控制       | `features/auth/lib/` (已处理) |
+| `websocket-manager.ts` | WebSocket 管理 | `features/websocket/lib/`     |
+| `socket.ts`            | Socket 配置    | `features/websocket/lib/`     |
+| `logger.ts`            | 日志工具       | `lib/` (保留)                 |
+| `validation.ts`        | 验证工具       | `lib/` (保留)                 |
+| `lib/monitoring/*`     | 监控工具       | `features/monitoring/lib/`    |
+| `lib/rate-limit/*`     | 限流工具       | `features/rate-limit/lib/`    |
+| `lib/audit/*`          | 审计工具       | `features/audit/lib/`         |
+| `lib/services/*`       | 业务服务       | 对应 features                 |
 
 **输出文档**: `docs/lib-migration-plan.md`
 
@@ -1071,32 +1073,32 @@ export class AppError extends Error {
     message: string,
     public statusCode: number = 500
   ) {
-    super(message);
-    this.name = 'AppError';
+    super(message)
+    this.name = 'AppError'
   }
 }
 
 export class ValidationError extends AppError {
   constructor(message: string) {
-    super('VALIDATION_ERROR', message, 400);
+    super('VALIDATION_ERROR', message, 400)
   }
 }
 
 export class AuthenticationError extends AppError {
   constructor(message: string = 'Authentication failed') {
-    super('AUTH_ERROR', message, 401);
+    super('AUTH_ERROR', message, 401)
   }
 }
 
 export class AuthorizationError extends AppError {
   constructor(message: string = 'Not authorized') {
-    super('AUTHZ_ERROR', message, 403);
+    super('AUTHZ_ERROR', message, 403)
   }
 }
 
 export class NotFoundError extends AppError {
   constructor(resource: string) {
-    super('NOT_FOUND', `${resource} not found`, 404);
+    super('NOT_FOUND', `${resource} not found`, 404)
   }
 }
 ```
@@ -1159,27 +1161,27 @@ tree src/lib -L 2
 
 ### 风险缓解
 
-| 风险 | 概率 | 缓解措施 |
-|------|------|----------|
-| 导入路径错误 | 中 | TypeScript 编译检查 |
-| 迁移遗漏 | 低 | 完整测试覆盖 |
-| 破坏性更改 | 低 | 逐步迁移，每次都测试 |
-| 循环依赖 | 低 | 迁移后检查 |
+| 风险         | 概率 | 缓解措施             |
+| ------------ | ---- | -------------------- |
+| 导入路径错误 | 中   | TypeScript 编译检查  |
+| 迁移遗漏     | 低   | 完整测试覆盖         |
+| 破坏性更改   | 低   | 逐步迁移，每次都测试 |
+| 循环依赖     | 低   | 迁移后检查           |
 
 ### 工作量估算
 
-| 步骤 | 时间 |
-|------|------|
-| 分析 lib/ 目录 | 0.5 天 |
-| 迁移 auth 相关 | 1 天 |
-| 迁移 websocket 相关 | 1 天 |
-| 迁移 monitoring | 0.5 天 |
-| 迁移 rate-limit | 0.5 天 |
-| 迁移 audit | 0.5 天 |
-| 迁移 services | 0.5 天 |
-| 清理 lib/ | 0.5 天 |
-| 测试验证 | 0.5 天 |
-| **总计** | **5.5 天** |
+| 步骤                | 时间       |
+| ------------------- | ---------- |
+| 分析 lib/ 目录      | 0.5 天     |
+| 迁移 auth 相关      | 1 天       |
+| 迁移 websocket 相关 | 1 天       |
+| 迁移 monitoring     | 0.5 天     |
+| 迁移 rate-limit     | 0.5 天     |
+| 迁移 audit          | 0.5 天     |
+| 迁移 services       | 0.5 天     |
+| 清理 lib/           | 0.5 天     |
+| 测试验证            | 0.5 天     |
+| **总计**            | **5.5 天** |
 
 ---
 
@@ -1189,12 +1191,12 @@ tree src/lib -L 2
 
 多个文件超过 500 行，复杂度过高：
 
-| 文件 | 行数 | 位置 | 问题 |
-|------|------|------|------|
-| `permissions.ts` | 983 | features/auth/lib/ | RBAC 系统过于复杂 |
-| `FeedbackAdminPanel.tsx` | 933 | components/ | 组件职责过多 |
-| `websocket-manager.ts` | 685 | features/websocket/lib/ | 类职责过多 |
-| `notification-enhanced.ts` | 627 | features/ | 服务逻辑复杂 |
+| 文件                       | 行数 | 位置                    | 问题              |
+| -------------------------- | ---- | ----------------------- | ----------------- |
+| `permissions.ts`           | 983  | features/auth/lib/      | RBAC 系统过于复杂 |
+| `FeedbackAdminPanel.tsx`   | 933  | components/             | 组件职责过多      |
+| `websocket-manager.ts`     | 685  | features/websocket/lib/ | 类职责过多        |
+| `notification-enhanced.ts` | 627  | features/               | 服务逻辑复杂      |
 
 ### 解决方案
 
@@ -1205,6 +1207,7 @@ tree src/lib -L 2
 #### Step 4.1: 拆分 permissions.ts (1 天)
 
 **当前问题**: `permissions.ts` (983 行) 包含：
+
 - 15+ 资源类型枚举
 - 30+ 权限枚举
 - 8+ 角色枚举
@@ -1278,6 +1281,7 @@ npm run type-check
 #### Step 4.2: 拆分 FeedbackAdminPanel.tsx (1 天)
 
 **当前问题**: `FeedbackAdminPanel.tsx` (933 行) 包含：
+
 - 表单渲染
 - 数据获取
 - 数据编辑
@@ -1367,6 +1371,7 @@ export function FeedbackAdminPanel() {
 #### Step 4.3: 拆分 websocket-manager.ts (0.5 天)
 
 **当前问题**: `websocket-manager.ts` (685 行) 包含：
+
 - 连接管理
 - 消息处理
 - 重连逻辑
@@ -1391,54 +1396,54 @@ features/websocket/lib/
 ```typescript
 // features/websocket/lib/connection-manager.ts
 export class ConnectionManager {
-  private socket: Socket | null = null;
-  private status: ConnectionStatus = 'disconnected';
+  private socket: Socket | null = null
+  private status: ConnectionStatus = 'disconnected'
 
   connect(url: string): Promise<void> {
     return new Promise((resolve, reject) => {
-      this.socket = io(url);
+      this.socket = io(url)
       this.socket.on('connect', () => {
-        this.status = 'connected';
-        resolve();
-      });
-      this.socket.on('connect_error', (error) => {
-        this.status = 'error';
-        reject(error);
-      });
-    });
+        this.status = 'connected'
+        resolve()
+      })
+      this.socket.on('connect_error', error => {
+        this.status = 'error'
+        reject(error)
+      })
+    })
   }
 
   disconnect(): void {
-    this.socket?.disconnect();
-    this.socket = null;
-    this.status = 'disconnected';
+    this.socket?.disconnect()
+    this.socket = null
+    this.status = 'disconnected'
   }
 
   getStatus(): ConnectionStatus {
-    return this.status;
+    return this.status
   }
 }
 
 // features/websocket/lib/websocket-manager.ts
 export class WebSocketManager {
-  private connection: ConnectionManager;
-  private messageHandler: MessageHandler;
-  private reconnection: ReconnectionStrategy;
+  private connection: ConnectionManager
+  private messageHandler: MessageHandler
+  private reconnection: ReconnectionStrategy
 
   constructor() {
-    this.connection = new ConnectionManager();
-    this.messageHandler = new MessageHandler();
-    this.reconnection = new ReconnectionStrategy();
+    this.connection = new ConnectionManager()
+    this.messageHandler = new MessageHandler()
+    this.reconnection = new ReconnectionStrategy()
   }
 
   async connect(url: string): Promise<void> {
-    await this.connection.connect(url);
-    this.reconnection.start(() => this.connection.connect(url));
+    await this.connection.connect(url)
+    this.reconnection.start(() => this.connection.connect(url))
   }
 
   disconnect(): void {
-    this.reconnection.stop();
-    this.connection.disconnect();
+    this.reconnection.stop()
+    this.connection.disconnect()
   }
 
   // ... 其他方法
@@ -1448,6 +1453,7 @@ export class WebSocketManager {
 #### Step 4.4: 拆分 notification-enhanced.ts (0.5 天)
 
 **当前问题**: `notification-enhanced.ts` (627 行) 包含：
+
 - 通知存储
 - 通知获取
 - 通知标记
@@ -1500,23 +1506,23 @@ find src -name "*.ts" -o -name "*.tsx" | xargs wc -l | awk '$1 > 500 { print $0 
 
 ### 风险缓解
 
-| 风险 | 概率 | 缓解措施 |
-|------|------|----------|
-| 拆分破坏功能 | 中 | 完整测试覆盖 |
-| 循环依赖 | 低 | 模块依赖检查 |
-| 性能下降 | 极低 | 模块化不影响性能 |
-| 测试遗漏 | 低 | 增量测试 |
+| 风险         | 概率 | 缓解措施         |
+| ------------ | ---- | ---------------- |
+| 拆分破坏功能 | 中   | 完整测试覆盖     |
+| 循环依赖     | 低   | 模块依赖检查     |
+| 性能下降     | 极低 | 模块化不影响性能 |
+| 测试遗漏     | 低   | 增量测试         |
 
 ### 工作量估算
 
-| 步骤 | 时间 |
-|------|------|
-| 拆分 permissions.ts | 1 天 |
-| 拆分 FeedbackAdminPanel.tsx | 1 天 |
-| 拆分 websocket-manager.ts | 0.5 天 |
-| 拆分 notification-enhanced.ts | 0.5 天 |
-| 测试验证 | 1 天 |
-| **总计** | **4 天** |
+| 步骤                          | 时间     |
+| ----------------------------- | -------- |
+| 拆分 permissions.ts           | 1 天     |
+| 拆分 FeedbackAdminPanel.tsx   | 1 天     |
+| 拆分 websocket-manager.ts     | 0.5 天   |
+| 拆分 notification-enhanced.ts | 0.5 天   |
+| 测试验证                      | 1 天     |
+| **总计**                      | **4 天** |
 
 ---
 
@@ -1566,12 +1572,12 @@ Week 8 (Phase 4): 收尾与优化
 
 ### 优先级排序
 
-| 问题 | 优先级 | 工期 | 依赖 |
-|------|--------|------|------|
-| 问题1: 代码重复 | P0 | 2h | 无 |
-| 问题2: 状态管理 | P0 | 4.5d | 无 |
-| 问题3: lib/ 清理 | P1 | 5.5d | 问题1, 问题2 |
-| 问题4: 文件拆分 | P1 | 4d | 问题1, 问题2 |
+| 问题             | 优先级 | 工期 | 依赖         |
+| ---------------- | ------ | ---- | ------------ |
+| 问题1: 代码重复  | P0     | 2h   | 无           |
+| 问题2: 状态管理  | P0     | 4.5d | 无           |
+| 问题3: lib/ 清理 | P1     | 5.5d | 问题1, 问题2 |
+| 问题4: 文件拆分  | P1     | 4d   | 问题1, 问题2 |
 
 ### 关键里程碑
 
@@ -1599,11 +1605,11 @@ Week 8 (Phase 4): 收尾与优化
 
 ### 资源分配
 
-| 角色 | 工作量 | 主要职责 |
-|------|--------|----------|
-| 架构师 | 全程 | 设计、规划、审查 |
-| 前端工程师 | 80% | 实施、测试、文档 |
-| 测试工程师 | 20% | 测试、QA、性能测试 |
+| 角色       | 工作量 | 主要职责           |
+| ---------- | ------ | ------------------ |
+| 架构师     | 全程   | 设计、规划、审查   |
+| 前端工程师 | 80%    | 实施、测试、文档   |
+| 测试工程师 | 20%    | 测试、QA、性能测试 |
 
 ### 风险管理
 
@@ -1728,15 +1734,15 @@ npm run test:lighthouse
 
 #### 关键指标 (KPI)
 
-| 指标 | 当前值 | 目标值 | 测量方法 |
-|------|--------|--------|----------|
-| 架构评分 | 6.5/10 | 9/10 | 架构审查 |
-| 代码行数 | ~58,000 | < 55,000 | cloc |
-| 文件数量 | ~120 | ~150 | find |
-| 测试覆盖率 | ~60% | > 80% | coverage |
-| 构建时间 | ~2min | < 1.5min | time npm run build |
-| 首屏加载 | ~1.5s | < 1s | Lighthouse |
-| 平均文件大小 | N/A | < 500 行 | wc -l |
+| 指标         | 当前值  | 目标值   | 测量方法           |
+| ------------ | ------- | -------- | ------------------ |
+| 架构评分     | 6.5/10  | 9/10     | 架构审查           |
+| 代码行数     | ~58,000 | < 55,000 | cloc               |
+| 文件数量     | ~120    | ~150     | find               |
+| 测试覆盖率   | ~60%    | > 80%    | coverage           |
+| 构建时间     | ~2min   | < 1.5min | time npm run build |
+| 首屏加载     | ~1.5s   | < 1s     | Lighthouse         |
+| 平均文件大小 | N/A     | < 500 行 | wc -l              |
 
 #### 每日检查
 
@@ -1819,6 +1825,7 @@ npm run test:lighthouse
 **参会**: 架构师、前端工程师、测试工程师
 
 **议程**:
+
 1. 本周进度回顾
 2. 遇到的问题
 3. 下周计划
@@ -1831,6 +1838,7 @@ npm run test:lighthouse
 **参会**: 全团队 + 项目负责人
 
 **议程**:
+
 1. 成果演示
 2. 问题总结
 3. 经验教训
@@ -1839,12 +1847,14 @@ npm run test:lighthouse
 #### 风险上报
 
 **触发条件**:
+
 - 工期延迟 > 1 天
 - 测试失败 > 50%
 - 性能下降 > 10%
 - 遇到无法解决的技术难题
 
 **上报方式**:
+
 1. 立即通知架构师
 2. 24 小时内给出解决方案
 3. 必要时召开紧急会议

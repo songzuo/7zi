@@ -3,11 +3,7 @@
  * Automatic escalation of unacknowledged alerts
  */
 
-import type {
-  PerformanceAlert,
-  AlertLevel,
-  AlertStatus,
-} from './alerter';
+import type { PerformanceAlert, AlertLevel, AlertStatus } from './alerter'
 
 // ========================================
 // Types
@@ -20,126 +16,126 @@ export type EscalationAction =
   | 'auto_acknowledge'
   | 'auto_resolve'
   | 'trigger_incident'
-  | 'send_reminder';
+  | 'send_reminder'
 
 export interface EscalationStep {
   /** Step ID */
-  id: string;
+  id: string
   /** Step name */
-  name: string;
+  name: string
   /** Delay before this step (ms) */
-  delay: number;
+  delay: number
   /** Action to take */
-  action: EscalationAction;
+  action: EscalationAction
   /** Action parameters */
-  params?: Record<string, unknown>;
+  params?: Record<string, unknown>
   /** Repeat this step */
-  repeat?: number;
+  repeat?: number
   /** Repeat interval (ms) */
-  repeatInterval?: number;
+  repeatInterval?: number
   /** Condition to execute */
-  condition?: EscalationCondition;
+  condition?: EscalationCondition
   /** Target channels for notify action */
-  channels?: string[];
+  channels?: string[]
   /** Target severity for increase_severity action */
-  targetSeverity?: AlertLevel;
+  targetSeverity?: AlertLevel
   /** Target users/groups for notify action */
-  targets?: string[];
+  targets?: string[]
   /** Message for send_reminder action */
-  message?: string;
+  message?: string
 }
 
 export interface EscalationCondition {
   /** Filter by alert level */
-  level?: AlertLevel | AlertLevel[];
+  level?: AlertLevel | AlertLevel[]
   /** Filter by alert category */
-  category?: string | string[];
+  category?: string | string[]
   /** Filter by alert source */
-  source?: string | string[];
+  source?: string | string[]
   /** Filter by alert status */
-  status?: AlertStatus | AlertStatus[];
+  status?: AlertStatus | AlertStatus[]
   /** Filter by custom predicate */
-  custom?: (alert: PerformanceAlert) => boolean;
+  custom?: (alert: PerformanceAlert) => boolean
   /** Minimum occurrence count */
-  minOccurrences?: number;
+  minOccurrences?: number
   /** Maximum occurrence count */
-  maxOccurrences?: number;
+  maxOccurrences?: number
 }
 
 export interface EscalationPolicy {
   /** Policy ID */
-  id: string;
+  id: string
   /** Policy name */
-  name: string;
+  name: string
   /** Policy description */
-  description?: string;
+  description?: string
   /** Policy is active */
-  active: boolean;
+  active: boolean
   /** Match conditions */
-  matchConditions: EscalationCondition[];
+  matchConditions: EscalationCondition[]
   /** Escalation steps */
-  steps: EscalationStep[];
+  steps: EscalationStep[]
   /** Created timestamp */
-  createdAt: number;
+  createdAt: number
   /** Created by */
-  createdBy?: string;
+  createdBy?: string
   /** Last updated timestamp */
-  updatedAt: number;
+  updatedAt: number
   /** Priority for policy matching */
-  priority: number;
+  priority: number
 }
 
 export interface EscalationState {
   /** Alert ID */
-  alertId: string;
+  alertId: string
   /** Policy ID */
-  policyId: string;
+  policyId: string
   /** Current step index */
-  currentStep: number;
+  currentStep: number
   /** Escalation started at */
-  startedAt: number;
+  startedAt: number
   /** Last action at */
-  lastActionAt: number;
+  lastActionAt: number
   /** Next action scheduled at */
-  nextActionAt?: number;
+  nextActionAt?: number
   /** Actions taken */
-  actions: EscalationActionRecord[];
+  actions: EscalationActionRecord[]
   /** Is escalation complete */
-  isComplete: boolean;
+  isComplete: boolean
   /** Is escalation paused */
-  isPaused: boolean;
+  isPaused: boolean
   /** Pause reason */
-  pauseReason?: string;
+  pauseReason?: string
 }
 
 export interface EscalationActionRecord {
   /** Action type */
-  action: EscalationAction;
+  action: EscalationAction
   /** Step ID */
-  stepId: string;
+  stepId: string
   /** Action timestamp */
-  timestamp: number;
+  timestamp: number
   /** Action result */
-  result: 'success' | 'failed' | 'skipped';
+  result: 'success' | 'failed' | 'skipped'
   /** Result message */
-  message?: string;
+  message?: string
   /** Action params */
-  params?: Record<string, unknown>;
+  params?: Record<string, unknown>
 }
 
 export interface EscalationOptions {
   /** Default escalation delay (ms) */
-  defaultDelay: number;
+  defaultDelay: number
   /** Maximum escalation time (ms) */
-  maxEscalationTime: number;
+  maxEscalationTime: number
   /** Enable automatic escalation */
-  autoEscalate: boolean;
+  autoEscalate: boolean
   /** Default channels for escalation */
-  defaultChannels: string[];
+  defaultChannels: string[]
   /** Reminder interval (ms) */
-  reminderInterval: number;
+  reminderInterval: number
   /** Maximum reminders */
-  maxReminders: number;
+  maxReminders: number
 }
 
 // ========================================
@@ -153,24 +149,28 @@ const DEFAULT_OPTIONS: EscalationOptions = {
   defaultChannels: ['dashboard'],
   reminderInterval: 300000, // 5 minutes
   maxReminders: 5,
-};
+}
 
 // ========================================
 // EscalationPolicyManager Class
 // ========================================
 
 export class EscalationPolicyManager {
-  private policies: Map<string, EscalationPolicy> = new Map();
-  private states: Map<string, EscalationState> = new Map();
-  private options: EscalationOptions;
-  private timers: Map<string, NodeJS.Timeout> = new Map();
-  private channelSender?: (channel: string, alert: PerformanceAlert, message?: string) => Promise<void>;
-  private incidentTrigger?: (alert: PerformanceAlert) => Promise<void>;
-  private onAlertUpdate?: (alert: PerformanceAlert) => Promise<PerformanceAlert | null>;
+  private policies: Map<string, EscalationPolicy> = new Map()
+  private states: Map<string, EscalationState> = new Map()
+  private options: EscalationOptions
+  private timers: Map<string, NodeJS.Timeout> = new Map()
+  private channelSender?: (
+    channel: string,
+    alert: PerformanceAlert,
+    message?: string
+  ) => Promise<void>
+  private incidentTrigger?: (alert: PerformanceAlert) => Promise<void>
+  private onAlertUpdate?: (alert: PerformanceAlert) => Promise<PerformanceAlert | null>
 
   constructor(options?: Partial<EscalationOptions>) {
-    this.options = { ...DEFAULT_OPTIONS, ...options };
-    this.setupDefaultPolicies();
+    this.options = { ...DEFAULT_OPTIONS, ...options }
+    this.setupDefaultPolicies()
   }
 
   // ========================================
@@ -181,56 +181,56 @@ export class EscalationPolicyManager {
    * Add an escalation policy
    */
   addPolicy(policy: Omit<EscalationPolicy, 'id' | 'createdAt' | 'updatedAt'>): EscalationPolicy {
-    const now = Date.now();
+    const now = Date.now()
     const newPolicy: EscalationPolicy = {
       ...policy,
       id: `policy-${now.toString(36)}-${Math.random().toString(36).substring(2, 6)}`,
       createdAt: now,
       updatedAt: now,
-    };
+    }
 
-    this.policies.set(newPolicy.id, newPolicy);
-    return newPolicy;
+    this.policies.set(newPolicy.id, newPolicy)
+    return newPolicy
   }
 
   /**
    * Update an escalation policy
    */
   updatePolicy(policyId: string, updates: Partial<EscalationPolicy>): EscalationPolicy | null {
-    const policy = this.policies.get(policyId);
+    const policy = this.policies.get(policyId)
     if (!policy) {
-      return null;
+      return null
     }
 
     const updated = {
       ...policy,
       ...updates,
       updatedAt: Date.now(),
-    };
+    }
 
-    this.policies.set(policyId, updated);
-    return updated;
+    this.policies.set(policyId, updated)
+    return updated
   }
 
   /**
    * Remove an escalation policy
    */
   removePolicy(policyId: string): boolean {
-    return this.policies.delete(policyId);
+    return this.policies.delete(policyId)
   }
 
   /**
    * Get a policy by ID
    */
   getPolicy(policyId: string): EscalationPolicy | undefined {
-    return this.policies.get(policyId);
+    return this.policies.get(policyId)
   }
 
   /**
    * Get all policies
    */
   getPolicies(): EscalationPolicy[] {
-    return Array.from(this.policies.values()).sort((a, b) => b.priority - a.priority);
+    return Array.from(this.policies.values()).sort((a, b) => b.priority - a.priority)
   }
 
   /**
@@ -243,9 +243,7 @@ export class EscalationPolicyManager {
       description: 'Escalate critical alerts that are not acknowledged within 5 minutes',
       active: true,
       priority: 100,
-      matchConditions: [
-        { level: 'critical' },
-      ],
+      matchConditions: [{ level: 'critical' }],
       steps: [
         {
           id: 'critical-step-1',
@@ -281,7 +279,7 @@ export class EscalationPolicyManager {
           message: 'Critical incident ongoing for 30 minutes without acknowledgment.',
         },
       ],
-    });
+    })
 
     // Error alerts escalation
     this.addPolicy({
@@ -289,9 +287,7 @@ export class EscalationPolicyManager {
       description: 'Escalate error alerts that are not acknowledged within 15 minutes',
       active: true,
       priority: 80,
-      matchConditions: [
-        { level: 'error' },
-      ],
+      matchConditions: [{ level: 'error' }],
       steps: [
         {
           id: 'error-step-1',
@@ -317,7 +313,7 @@ export class EscalationPolicyManager {
           message: 'Error alert has been active for 1 hour without acknowledgment.',
         },
       ],
-    });
+    })
 
     // Warning alerts escalation
     this.addPolicy({
@@ -325,9 +321,7 @@ export class EscalationPolicyManager {
       description: 'Escalate warning alerts that persist for too long',
       active: true,
       priority: 60,
-      matchConditions: [
-        { level: 'warning' },
-      ],
+      matchConditions: [{ level: 'warning' }],
       steps: [
         {
           id: 'warning-step-1',
@@ -352,7 +346,7 @@ export class EscalationPolicyManager {
           condition: { minOccurrences: 5 },
         },
       ],
-    });
+    })
   }
 
   // ========================================
@@ -364,15 +358,15 @@ export class EscalationPolicyManager {
    */
   startEscalation(alert: PerformanceAlert): EscalationState | null {
     // Find matching policy
-    const policy = this.findMatchingPolicy(alert);
+    const policy = this.findMatchingPolicy(alert)
     if (!policy) {
-      return null;
+      return null
     }
 
     // Check if escalation already exists
-    const existingState = this.states.get(alert.id);
+    const existingState = this.states.get(alert.id)
     if (existingState) {
-      return existingState;
+      return existingState
     }
 
     // Create escalation state
@@ -385,16 +379,16 @@ export class EscalationPolicyManager {
       actions: [],
       isComplete: false,
       isPaused: false,
-    };
+    }
 
-    this.states.set(alert.id, state);
+    this.states.set(alert.id, state)
 
     // Schedule first step if needed
     if (this.options.autoEscalate) {
-      this.scheduleNextStep(alert, state);
+      this.scheduleNextStep(alert, state)
     }
 
-    return state;
+    return state
   }
 
   /**
@@ -402,80 +396,80 @@ export class EscalationPolicyManager {
    */
   stopEscalation(alertId: string): void {
     // Clear timer
-    const timer = this.timers.get(alertId);
+    const timer = this.timers.get(alertId)
     if (timer) {
-      clearTimeout(timer);
-      this.timers.delete(alertId);
+      clearTimeout(timer)
+      this.timers.delete(alertId)
     }
 
     // Remove state
-    this.states.delete(alertId);
+    this.states.delete(alertId)
   }
 
   /**
    * Pause escalation for an alert
    */
   pauseEscalation(alertId: string, reason?: string): boolean {
-    const state = this.states.get(alertId);
+    const state = this.states.get(alertId)
     if (!state) {
-      return false;
+      return false
     }
 
-    state.isPaused = true;
-    state.pauseReason = reason;
+    state.isPaused = true
+    state.pauseReason = reason
 
     // Clear timer
-    const timer = this.timers.get(alertId);
+    const timer = this.timers.get(alertId)
     if (timer) {
-      clearTimeout(timer);
-      this.timers.delete(alertId);
+      clearTimeout(timer)
+      this.timers.delete(alertId)
     }
 
-    return true;
+    return true
   }
 
   /**
    * Resume escalation for an alert
    */
   resumeEscalation(alertId: string): boolean {
-    const state = this.states.get(alertId);
+    const state = this.states.get(alertId)
     if (!state) {
-      return false;
+      return false
     }
 
-    state.isPaused = false;
-    state.pauseReason = undefined;
+    state.isPaused = false
+    state.pauseReason = undefined
 
-    return true;
+    return true
   }
 
   /**
    * Get escalation state for an alert
    */
   getEscalationState(alertId: string): EscalationState | undefined {
-    return this.states.get(alertId);
+    return this.states.get(alertId)
   }
 
   /**
    * Find matching policy for an alert
    */
   private findMatchingPolicy(alert: PerformanceAlert): EscalationPolicy | undefined {
-    const sortedPolicies = this.getPolicies();
+    const sortedPolicies = this.getPolicies()
 
     for (const policy of sortedPolicies) {
-      if (!policy.active) continue;
+      if (!policy.active) continue
 
       // Check if alert matches any condition
       const matches = policy.matchConditions.some(condition =>
         this.matchesCondition(alert, condition)
-      );
+      )
 
       if (matches) {
-        return policy;
+        return policy
       }
     }
 
-    return undefined;
+    return undefined
   }
 
   /**
@@ -484,93 +478,95 @@ export class EscalationPolicyManager {
   private matchesCondition(alert: PerformanceAlert, condition: EscalationCondition): boolean {
     // Check level
     if (condition.level) {
-      const levels = Array.isArray(condition.level) ? condition.level : [condition.level];
+      const levels = Array.isArray(condition.level) ? condition.level : [condition.level]
       if (!levels.includes(alert.level)) {
-        return false;
+        return false
       }
     }
 
     // Check category
     if (condition.category) {
-      const categories = Array.isArray(condition.category) ? condition.category : [condition.category];
+      const categories = Array.isArray(condition.category)
+        ? condition.category
+        : [condition.category]
       if (!categories.includes(alert.category)) {
-        return false;
+        return false
       }
     }
 
     // Check source
     if (condition.source) {
-      const sources = Array.isArray(condition.source) ? condition.source : [condition.source];
+      const sources = Array.isArray(condition.source) ? condition.source : [condition.source]
       if (!sources.includes(alert.source)) {
-        return false;
+        return false
       }
     }
 
     // Check status
     if (condition.status) {
-      const statuses = Array.isArray(condition.status) ? condition.status : [condition.status];
+      const statuses = Array.isArray(condition.status) ? condition.status : [condition.status]
       if (!statuses.includes(alert.status)) {
-        return false;
+        return false
       }
     }
 
     // Check occurrence count
     if (condition.minOccurrences && alert.occurrenceCount < condition.minOccurrences) {
-      return false;
+      return false
     }
     if (condition.maxOccurrences && alert.occurrenceCount > condition.maxOccurrences) {
-      return false;
+      return false
     }
 
     // Check custom condition
     if (condition.custom && !condition.custom(alert)) {
-      return false;
+      return false
     }
 
-    return true;
+    return true
   }
 
   /**
    * Schedule next escalation step
    */
   private scheduleNextStep(alert: PerformanceAlert, state: EscalationState): void {
-    const policy = this.policies.get(state.policyId);
+    const policy = this.policies.get(state.policyId)
     if (!policy || state.isComplete || state.isPaused) {
-      return;
+      return
     }
 
     // Check if max escalation time reached
-    const elapsed = Date.now() - state.startedAt;
+    const elapsed = Date.now() - state.startedAt
     if (elapsed > this.options.maxEscalationTime) {
-      state.isComplete = true;
-      return;
+      state.isComplete = true
+      return
     }
 
     // Get current step
-    const step = policy.steps[state.currentStep];
+    const step = policy.steps[state.currentStep]
     if (!step) {
-      state.isComplete = true;
-      return;
+      state.isComplete = true
+      return
     }
 
     // Check step condition
     if (step.condition && !this.matchesCondition(alert, step.condition)) {
       // Skip this step and move to next
-      state.currentStep++;
-      this.scheduleNextStep(alert, state);
-      return;
+      state.currentStep++
+      this.scheduleNextStep(alert, state)
+      return
     }
 
     // Calculate delay
-    const delay = step.delay || this.options.defaultDelay;
+    const delay = step.delay || this.options.defaultDelay
 
     // Schedule step
-    state.nextActionAt = Date.now() + delay;
+    state.nextActionAt = Date.now() + delay
     const timer = setTimeout(() => {
-      this.executeStep(alert, state, step);
-    }, delay);
+      this.executeStep(alert, state, step)
+    }, delay)
 
-    this.timers.set(alert.id, timer);
+    this.timers.set(alert.id, timer)
   }
 
   /**
@@ -587,69 +583,69 @@ export class EscalationPolicyManager {
       timestamp: Date.now(),
       result: 'success',
       params: step.params,
-    };
+    }
 
     try {
       // Get latest alert state
-      let currentAlert = alert;
+      let currentAlert = alert
       if (this.onAlertUpdate) {
-        const updated = await this.onAlertUpdate(alert);
+        const updated = await this.onAlertUpdate(alert)
         if (updated) {
-          currentAlert = updated;
+          currentAlert = updated
         }
       }
 
       // Check if alert is still active
       if (currentAlert.status !== 'active') {
-        actionRecord.result = 'skipped';
-        actionRecord.message = `Alert is ${currentAlert.status}`;
-        state.isComplete = true;
-        state.actions.push(actionRecord);
-        return;
+        actionRecord.result = 'skipped'
+        actionRecord.message = `Alert is ${currentAlert.status}`
+        state.isComplete = true
+        state.actions.push(actionRecord)
+        return
       }
 
       // Check step condition again
       if (step.condition && !this.matchesCondition(currentAlert, step.condition)) {
-        actionRecord.result = 'skipped';
-        actionRecord.message = 'Condition not met';
-        state.actions.push(actionRecord);
-        state.currentStep++;
-        this.scheduleNextStep(currentAlert, state);
-        return;
+        actionRecord.result = 'skipped'
+        actionRecord.message = 'Condition not met'
+        state.actions.push(actionRecord)
+        state.currentStep++
+        this.scheduleNextStep(currentAlert, state)
+        return
       }
 
       // Execute action
-      await this.executeAction(currentAlert, step);
+      await this.executeAction(currentAlert, step)
 
       // Record action
-      state.lastActionAt = Date.now();
-      state.actions.push(actionRecord);
+      state.lastActionAt = Date.now()
+      state.actions.push(actionRecord)
 
       // Check if step should repeat
       if (step.repeat && step.repeatInterval) {
         const repeatCount = state.actions.filter(
           a => a.stepId === step.id && a.result === 'success'
-        ).length;
+        ).length
 
         if (repeatCount < step.repeat) {
           // Schedule repeat
           setTimeout(() => {
-            const latestState = this.states.get(alert.id);
+            const latestState = this.states.get(alert.id)
             if (latestState && !latestState.isComplete && !latestState.isPaused) {
-              this.executeStep(alert, latestState, step);
+              this.executeStep(alert, latestState, step)
             }
-          }, step.repeatInterval);
+          }, step.repeatInterval)
         }
       }
 
       // Move to next step
-      state.currentStep++;
-      this.scheduleNextStep(currentAlert, state);
-    } catch (_error) {
-      actionRecord.result = 'failed';
-      actionRecord.message = error instanceof Error ? error.message : 'Unknown error';
-      state.actions.push(actionRecord);
-      console.error(`[EscalationPolicyManager] Step execution failed:`, error);
+      state.currentStep++
+      this.scheduleNextStep(currentAlert, state)
+    } catch (error) {
+      actionRecord.result = 'failed'
+      actionRecord.message = error instanceof Error ? error.message : 'Unknown error'
+      state.actions.push(actionRecord)
+      console.error(`[EscalationPolicyManager] Step execution failed:`, error)
     }
   }
 
@@ -659,31 +655,31 @@ export class EscalationPolicyManager {
   private async executeAction(alert: PerformanceAlert, step: EscalationStep): Promise<void> {
     switch (step.action) {
       case 'notify':
-        await this.executeNotify(alert, step);
-        break;
+        await this.executeNotify(alert, step)
+        break
 
       case 'increase_severity':
-        await this.executeIncreaseSeverity(alert, step);
-        break;
+        await this.executeIncreaseSeverity(alert, step)
+        break
 
       case 'send_reminder':
-        await this.executeSendReminder(alert, step);
-        break;
+        await this.executeSendReminder(alert, step)
+        break
 
       case 'trigger_incident':
-        await this.executeTriggerIncident(alert, step);
-        break;
+        await this.executeTriggerIncident(alert, step)
+        break
 
       case 'auto_acknowledge':
-        await this.executeAutoAcknowledge(alert, step);
-        break;
+        await this.executeAutoAcknowledge(alert, step)
+        break
 
       case 'auto_resolve':
-        await this.executeAutoResolve(alert, step);
-        break;
+        await this.executeAutoResolve(alert, step)
+        break
 
       default:
-        console.warn(`[EscalationPolicyManager] Unknown action: ${step.action}`);
+        console.warn(`[EscalationPolicyManager] Unknown action: ${step.action}`)
     }
   }
 
@@ -691,11 +687,11 @@ export class EscalationPolicyManager {
    * Execute notify action
    */
   private async executeNotify(alert: PerformanceAlert, step: EscalationStep): Promise<void> {
-    const channels = step.channels || this.options.defaultChannels;
+    const channels = step.channels || this.options.defaultChannels
 
     for (const channel of channels) {
       if (this.channelSender) {
-        await this.channelSender(channel, alert, step.message);
+        await this.channelSender(channel, alert, step.message)
       }
     }
   }
@@ -703,19 +699,26 @@ export class EscalationPolicyManager {
   /**
    * Execute increase severity action
    */
-  private async executeIncreaseSeverity(alert: PerformanceAlert, step: EscalationStep): Promise<void> {
+  private async executeIncreaseSeverity(
+    alert: PerformanceAlert,
+    step: EscalationStep
+  ): Promise<void> {
     if (!step.targetSeverity) {
-      console.warn('[EscalationPolicyManager] increase_severity action requires targetSeverity');
-      return;
+      console.warn('[EscalationPolicyManager] increase_severity action requires targetSeverity')
+      return
     }
 
     // Update alert severity
-    alert.level = step.targetSeverity;
-    alert.updatedAt = Date.now();
+    alert.level = step.targetSeverity
+    alert.updatedAt = Date.now()
 
     // Notify about severity increase
     if (this.channelSender) {
-      await this.channelSender('dashboard', alert, `Alert severity increased to ${step.targetSeverity}`);
+      await this.channelSender(
+        'dashboard',
+        alert,
+        `Alert severity increased to ${step.targetSeverity}`
+      )
     }
   }
 
@@ -723,47 +726,53 @@ export class EscalationPolicyManager {
    * Execute send reminder action
    */
   private async executeSendReminder(alert: PerformanceAlert, step: EscalationStep): Promise<void> {
-    const message = step.message || `Reminder: Alert ${alert.title} is still active`;
+    const message = step.message || `Reminder: Alert ${alert.title} is still active`
 
     if (this.channelSender) {
-      await this.channelSender('dashboard', alert, message);
+      await this.channelSender('dashboard', alert, message)
     }
   }
 
   /**
    * Execute trigger incident action
    */
-  private async executeTriggerIncident(alert: PerformanceAlert, step: EscalationStep): Promise<void> {
+  private async executeTriggerIncident(
+    alert: PerformanceAlert,
+    step: EscalationStep
+  ): Promise<void> {
     if (this.incidentTrigger) {
-      await this.incidentTrigger(alert);
+      await this.incidentTrigger(alert)
     } else {
-      console.warn('[EscalationPolicyManager] No incident trigger configured');
+      console.warn('[EscalationPolicyManager] No incident trigger configured')
     }
   }
 
   /**
    * Execute auto acknowledge action
    */
-  private async executeAutoAcknowledge(alert: PerformanceAlert, step: EscalationStep): Promise<void> {
-    alert.status = 'acknowledged';
-    alert.acknowledgedAt = Date.now();
-    alert.acknowledgedBy = 'system';
-    alert.updatedAt = Date.now();
+  private async executeAutoAcknowledge(
+    alert: PerformanceAlert,
+    step: EscalationStep
+  ): Promise<void> {
+    alert.status = 'acknowledged'
+    alert.acknowledgedAt = Date.now()
+    alert.acknowledgedBy = 'system'
+    alert.updatedAt = Date.now()
 
     // Pause escalation
-    this.pauseEscalation(alert.id, 'Auto-acknowledged');
+    this.pauseEscalation(alert.id, 'Auto-acknowledged')
   }
 
   /**
    * Execute auto resolve action
    */
   private async executeAutoResolve(alert: PerformanceAlert, step: EscalationStep): Promise<void> {
-    alert.status = 'resolved';
-    alert.resolvedAt = Date.now();
-    alert.updatedAt = Date.now();
+    alert.status = 'resolved'
+    alert.resolvedAt = Date.now()
+    alert.updatedAt = Date.now()
 
     // Stop escalation
-    this.stopEscalation(alert.id);
+    this.stopEscalation(alert.id)
   }
 
   // ========================================
@@ -776,21 +785,21 @@ export class EscalationPolicyManager {
   setChannelSender(
     callback: (channel: string, alert: PerformanceAlert, message?: string) => Promise<void>
   ): void {
-    this.channelSender = callback;
+    this.channelSender = callback
   }
 
   /**
    * Set incident trigger callback
    */
   setIncidentTrigger(callback: (alert: PerformanceAlert) => Promise<void>): void {
-    this.incidentTrigger = callback;
+    this.incidentTrigger = callback
   }
 
   /**
    * Set alert update callback
    */
   setOnAlertUpdate(callback: (alert: PerformanceAlert) => Promise<PerformanceAlert | null>): void {
-    this.onAlertUpdate = callback;
+    this.onAlertUpdate = callback
   }
 
   // ========================================
@@ -801,27 +810,27 @@ export class EscalationPolicyManager {
    * Get escalation statistics
    */
   getEscalationStats(): {
-    totalEscalations: number;
-    activeEscalations: number;
-    completedEscalations: number;
-    pausedEscalations: number;
-    byPolicy: Record<string, number>;
-    avgStepsPerEscalation: number;
+    totalEscalations: number
+    activeEscalations: number
+    completedEscalations: number
+    pausedEscalations: number
+    byPolicy: Record<string, number>
+    avgStepsPerEscalation: number
   } {
-    const states = Array.from(this.states.values());
+    const states = Array.from(this.states.values())
 
-    let completed = 0;
-    let paused = 0;
-    const byPolicy: Record<string, number> = {};
+    let completed = 0
+    let paused = 0
+    const byPolicy: Record<string, number> = {}
 
     for (const state of states) {
-      if (state.isComplete) completed++;
-      if (state.isPaused) paused++;
+      if (state.isComplete) completed++
+      if (state.isPaused) paused++
 
-      byPolicy[state.policyId] = (byPolicy[state.policyId] || 0) + 1;
+      byPolicy[state.policyId] = (byPolicy[state.policyId] || 0) + 1
     }
 
-    const totalSteps = states.reduce((sum, s) => sum + s.actions.length, 0);
+    const totalSteps = states.reduce((sum, s) => sum + s.actions.length, 0)
 
     return {
       totalEscalations: states.length,
@@ -830,6 +839,6 @@ export class EscalationPolicyManager {
       pausedEscalations: paused,
       byPolicy,
       avgStepsPerEscalation: states.length > 0 ? totalSteps / states.length : 0,
-    };
+    }
   }
 }

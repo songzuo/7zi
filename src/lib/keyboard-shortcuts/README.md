@@ -20,60 +20,54 @@ The module is already integrated in the project at `src/lib/keyboard-shortcuts/`
 ### 1. Initialize the Manager
 
 ```typescript
-import { initShortcutManager } from '@/lib/keyboard-shortcuts';
+import { initShortcutManager } from '@/lib/keyboard-shortcuts'
 
 // In your app entry point
-initShortcutManager({ debug: false });
+initShortcutManager({ debug: false })
 ```
 
 ### 2. Use in React Components
 
 ```tsx
-import { useKeyboardShortcuts, ShortcutTooltip } from '@/lib/keyboard-shortcuts';
+import { useKeyboardShortcuts, ShortcutTooltip } from '@/lib/keyboard-shortcuts'
 
 function MyComponent() {
   const { currentContext, setContext, activeShortcuts } = useKeyboardShortcuts({
     context: 'dashboard',
     onShortcutTrigger: (shortcut, event) => {
-      console.log('Triggered:', shortcut.id);
-    }
-  });
+      console.log('Triggered:', shortcut.id)
+    },
+  })
 
-  const [showHelp, setShowHelp] = useState(false);
+  const [showHelp, setShowHelp] = useState(false)
 
   return (
     <div>
-      <button onClick={() => setShowHelp(true)}>
-        Show Shortcuts
-      </button>
+      <button onClick={() => setShowHelp(true)}>Show Shortcuts</button>
 
-      <ShortcutTooltip
-        isOpen={showHelp}
-        onClose={() => setShowHelp(false)}
-        context="dashboard"
-      />
+      <ShortcutTooltip isOpen={showHelp} onClose={() => setShowHelp(false)} context="dashboard" />
     </div>
-  );
+  )
 }
 ```
 
 ### 3. Register Custom Shortcuts
 
 ```tsx
-import { useShortcut } from '@/lib/keyboard-shortcuts';
+import { useShortcut } from '@/lib/keyboard-shortcuts'
 
 function Editor() {
-  const handleSave = (e) => {
+  const handleSave = e => {
     // Save logic
-  };
+  }
 
   useShortcut('editor.save', 's', handleSave, {
     context: 'editor',
     ctrl: true,
-    description: 'Save document'
-  });
+    description: 'Save document',
+  })
 
-  return <div>Editor content</div>;
+  return <div>Editor content</div>
 }
 ```
 
@@ -84,15 +78,15 @@ function Editor() {
 Core class for managing keyboard shortcuts.
 
 ```typescript
-import { ShortcutManager } from '@/lib/keyboard-shortcuts';
+import { ShortcutManager } from '@/lib/keyboard-shortcuts'
 
 const manager = new ShortcutManager({
   debug: true,
-  preventDefaultAll: true
-});
+  preventDefaultAll: true,
+})
 
 // Attach to document
-manager.attach();
+manager.attach()
 
 // Register shortcuts
 manager.register({
@@ -100,31 +94,31 @@ manager.register({
   key: 'x',
   context: 'global',
   description: 'Custom action',
-  action: () => console.log('Action!')
-});
+  action: () => console.log('Action!'),
+})
 
 // Change context
-manager.setContext('tasks');
+manager.setContext('tasks')
 
 // Get shortcuts
-const shortcuts = manager.getActiveShortcuts();
+const shortcuts = manager.getActiveShortcuts()
 ```
 
 #### Methods
 
-| Method | Description |
-|--------|-------------|
-| `attach()` | Attach event listener to document |
-| `detach()` | Remove event listener from document |
-| `register(shortcut)` | Register a new shortcut |
-| `unregister(id)` | Remove a shortcut |
-| `update(id, updates)` | Update an existing shortcut |
-| `setContext(context)` | Set the current context |
-| `getContext()` | Get the current context |
-| `getActiveShortcuts()` | Get shortcuts for current context |
+| Method                            | Description                          |
+| --------------------------------- | ------------------------------------ |
+| `attach()`                        | Attach event listener to document    |
+| `detach()`                        | Remove event listener from document  |
+| `register(shortcut)`              | Register a new shortcut              |
+| `unregister(id)`                  | Remove a shortcut                    |
+| `update(id, updates)`             | Update an existing shortcut          |
+| `setContext(context)`             | Set the current context              |
+| `getContext()`                    | Get the current context              |
+| `getActiveShortcuts()`            | Get shortcuts for current context    |
 | `getShortcutsForContext(context)` | Get shortcuts for a specific context |
-| `enable(id)` / `disable(id)` | Enable/disable a shortcut |
-| `enableAll()` / `disableAll()` | Enable/disable all shortcuts |
+| `enable(id)` / `disable(id)`      | Enable/disable a shortcut            |
+| `enableAll()` / `disableAll()`    | Enable/disable all shortcuts         |
 
 ### React Hooks
 
@@ -134,22 +128,22 @@ Main hook for keyboard shortcut management.
 
 ```tsx
 const {
-  currentContext,      // Current shortcut context
-  activeShortcuts,     // Shortcuts active in current context
-  isEnabled,           // Whether shortcuts are enabled
-  setContext,          // Change context
-  registerShortcut,    // Register new shortcut
-  unregisterShortcut,  // Remove shortcut
-  enableShortcuts,     // Enable all shortcuts
-  disableShortcuts,    // Disable all shortcuts
-  toggleShortcuts      // Toggle enabled state
+  currentContext, // Current shortcut context
+  activeShortcuts, // Shortcuts active in current context
+  isEnabled, // Whether shortcuts are enabled
+  setContext, // Change context
+  registerShortcut, // Register new shortcut
+  unregisterShortcut, // Remove shortcut
+  enableShortcuts, // Enable all shortcuts
+  disableShortcuts, // Disable all shortcuts
+  toggleShortcuts, // Toggle enabled state
 } = useKeyboardShortcuts({
   context: 'dashboard',
   autoAttach: true,
   debug: false,
   onShortcutTrigger: (shortcut, event) => {},
-  onContextChange: (context) => {}
-});
+  onContextChange: context => {},
+})
 ```
 
 #### useShortcut
@@ -160,8 +154,8 @@ Register a single shortcut.
 useShortcut('my-action', 'a', handleAction, {
   context: 'editor',
   ctrl: true,
-  description: 'My action'
-});
+  description: 'My action',
+})
 ```
 
 #### useShortcuts
@@ -184,8 +178,8 @@ useGlobalShortcuts({
   onCommandPalette: () => openPalette(),
   onSearch: () => openSearch(),
   onEscape: () => closeModal(),
-  onHelp: () => showHelp()
-});
+  onHelp: () => showHelp(),
+})
 ```
 
 ### Components
@@ -225,66 +219,63 @@ Display key combination inline.
 Button to toggle shortcut panel.
 
 ```tsx
-<ShortcutMenuButton
-  text="Shortcuts"
-  onClick={() => setShowHelp(true)}
-/>
+<ShortcutMenuButton text="Shortcuts" onClick={() => setShowHelp(true)} />
 ```
 
 ## Default Shortcuts
 
 ### Global Shortcuts
 
-| Shortcut | Description |
-|----------|-------------|
+| Shortcut           | Description          |
+| ------------------ | -------------------- |
 | `Ctrl+K` / `Cmd+K` | Open command palette |
-| `/` | Open search |
-| `Esc` | Close modal/dropdown |
-| `Shift+?` | Show shortcuts help |
-| `Ctrl+F` | Focus search |
+| `/`                | Open search          |
+| `Esc`              | Close modal/dropdown |
+| `Shift+?`          | Show shortcuts help  |
+| `Ctrl+F`           | Focus search         |
 
 ### Dashboard Shortcuts
 
-| Shortcut | Description |
-|----------|-------------|
-| `Shift+G` + `T` | Go to tasks |
-| `Shift+G` + `C` | Go to calendar |
-| `Shift+G` + `S` | Go to settings |
-| `R` | Refresh dashboard |
-| `N` | Create new task |
+| Shortcut        | Description       |
+| --------------- | ----------------- |
+| `Shift+G` + `T` | Go to tasks       |
+| `Shift+G` + `C` | Go to calendar    |
+| `Shift+G` + `S` | Go to settings    |
+| `R`             | Refresh dashboard |
+| `N`             | Create new task   |
 
 ### Tasks Shortcuts
 
-| Shortcut | Description |
-|----------|-------------|
-| `C` | Create new task |
-| `E` | Edit selected task |
+| Shortcut    | Description          |
+| ----------- | -------------------- |
+| `C`         | Create new task      |
+| `E`         | Edit selected task   |
 | `Backspace` | Delete selected task |
-| `Enter` | Toggle completion |
-| `↑` / `↓` | Navigate tasks |
-| `Ctrl+A` | Select all tasks |
+| `Enter`     | Toggle completion    |
+| `↑` / `↓`   | Navigate tasks       |
+| `Ctrl+A`    | Select all tasks     |
 
 ### Editor Shortcuts
 
-| Shortcut | Description |
-|----------|-------------|
-| `Ctrl+S` / `Cmd+S` | Save content |
-| `Ctrl+B` / `Cmd+B` | Bold text |
-| `Ctrl+I` / `Cmd+I` | Italic text |
-| `Ctrl+U` / `Cmd+U` | Underline text |
-| `Ctrl+Z` / `Cmd+Z` | Undo |
-| `Ctrl+Shift+Z` | Redo |
+| Shortcut           | Description       |
+| ------------------ | ----------------- |
+| `Ctrl+S` / `Cmd+S` | Save content      |
+| `Ctrl+B` / `Cmd+B` | Bold text         |
+| `Ctrl+I` / `Cmd+I` | Italic text       |
+| `Ctrl+U` / `Cmd+U` | Underline text    |
+| `Ctrl+Z` / `Cmd+Z` | Undo              |
+| `Ctrl+Shift+Z`     | Redo              |
 | `Ctrl+F` / `Cmd+F` | Toggle fullscreen |
 
 ### Calendar Shortcuts
 
-| Shortcut | Description |
-|----------|-------------|
-| `T` | Go to today |
-| `D` | Day view |
-| `W` | Week view |
-| `M` | Month view |
-| `N` | Create new event |
+| Shortcut  | Description      |
+| --------- | ---------------- |
+| `T`       | Go to today      |
+| `D`       | Day view         |
+| `W`       | Week view        |
+| `M`       | Month view       |
+| `N`       | Create new event |
 | `←` / `→` | Navigate periods |
 
 ## Contexts
@@ -304,21 +295,21 @@ Available shortcut contexts:
 Allow users to customize shortcuts:
 
 ```tsx
-import { useShortcutCustomization } from '@/lib/keyboard-shortcuts';
+import { useShortcutCustomization } from '@/lib/keyboard-shortcuts'
 
 function ShortcutSettings() {
-  const { customizations, customize, reset, resetAll } = useShortcutCustomization();
+  const { customizations, customize, reset, resetAll } = useShortcutCustomization()
 
   const handleRemap = (id: string, newKey: string) => {
-    customize(id, { key: newKey });
-  };
+    customize(id, { key: newKey })
+  }
 
   return (
     <div>
       {/* Render customization UI */}
       <button onClick={resetAll}>Reset All Shortcuts</button>
     </div>
-  );
+  )
 }
 ```
 
@@ -331,6 +322,7 @@ npm test src/lib/keyboard-shortcuts/keyboard-shortcuts.test.ts
 ```
 
 The test suite covers:
+
 - ShortcutManager class (registration, context, events)
 - Keyboard event handling
 - Modifier keys (Ctrl, Shift, Alt, Meta)

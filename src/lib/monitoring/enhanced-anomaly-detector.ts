@@ -8,143 +8,150 @@
  * - 自动告警阈值调整
  */
 
-import { EventEmitter } from "events";
+import { EventEmitter } from 'events'
 
 // ========================================
 // Types
 // ========================================
 
 export interface MetricBaseline {
-  metric: string;
-  mean: number;
-  stdDev: number;
-  min: number;
-  max: number;
-  p50: number;
-  p95: number;
-  p99: number;
-  sampleSize: number;
-  lastUpdated: number;
-  trend?: "increasing" | "decreasing" | "stable";
-  growthRate?: number; // 平均增长率 (%)
-  volatility?: number; // 波动率
+  metric: string
+  mean: number
+  stdDev: number
+  min: number
+  max: number
+  p50: number
+  p95: number
+  p99: number
+  sampleSize: number
+  lastUpdated: number
+  trend?: 'increasing' | 'decreasing' | 'stable'
+  growthRate?: number // 平均增长率 (%)
+  volatility?: number // 波动率
 }
 
 export interface AnomalyDetection {
-  id: string;
-  isAnomaly: boolean;
-  severity: "low" | "medium" | "high" | "critical";
-  metric: string;
-  value: number;
-  baseline: MetricBaseline;
-  zScore: number;
-  confidence: number;
-  reason: string;
-  detectedAt: number;
-  algorithm: "z-score" | "threshold" | "isolation-forest" | "composite" | "trend" | "correlation" | "sudden-change";
-  acknowledged: boolean;
-  resolvedAt?: number;
-  correlationInfo?: CorrelationInfo;
-  trendInfo?: TrendAnomalyInfo;
+  id: string
+  isAnomaly: boolean
+  severity: 'low' | 'medium' | 'high' | 'critical'
+  metric: string
+  value: number
+  baseline: MetricBaseline
+  zScore: number
+  confidence: number
+  reason: string
+  detectedAt: number
+  algorithm:
+    | 'z-score'
+    | 'threshold'
+    | 'isolation-forest'
+    | 'composite'
+    | 'trend'
+    | 'correlation'
+    | 'sudden-change'
+  acknowledged: boolean
+  resolvedAt?: number
+  correlationInfo?: CorrelationInfo
+  trendInfo?: TrendAnomalyInfo
 }
 
 export interface TrendAnomalyInfo {
-  type: "growth-rate" | "sudden-change" | "sustained-increase" | "sustained-decrease";
-  growthRate: number;
-  previousValue: number;
-  currentValue: number;
-  changePercent: number;
-  windowSize: number;
+  type: 'growth-rate' | 'sudden-change' | 'sustained-increase' | 'sustained-decrease'
+  growthRate: number
+  previousValue: number
+  currentValue: number
+  changePercent: number
+  windowSize: number
 }
 
 export interface CorrelationInfo {
-  correlatedMetrics: string[];
-  correlationCoefficient: number;
-  jointAnomaly: boolean;
-  description: string;
+  correlatedMetrics: string[]
+  correlationCoefficient: number
+  jointAnomaly: boolean
+  description: string
 }
 
 export interface AnomalyEvent {
-  id: string;
-  detection: AnomalyDetection;
-  acknowledged: boolean;
-  acknowledgedAt?: number;
-  acknowledgedBy?: string;
-  resolved: boolean;
-  resolvedAt?: number;
-  notes?: string;
-  falsePositive: boolean;
+  id: string
+  detection: AnomalyDetection
+  acknowledged: boolean
+  acknowledgedAt?: number
+  acknowledgedBy?: string
+  resolved: boolean
+  resolvedAt?: number
+  notes?: string
+  falsePositive: boolean
 }
 
 export interface AnomalyAlertConfig {
-  enabled: boolean;
-  channels: ("console" | "webhook" | "sentry" | "slack")[];
-  webhookUrl?: string;
-  cooldownMs: number;
-  minSeverity: "low" | "medium" | "high" | "critical";
+  enabled: boolean
+  channels: ('console' | 'webhook' | 'sentry' | 'slack')[]
+  webhookUrl?: string
+  cooldownMs: number
+  minSeverity: 'low' | 'medium' | 'high' | 'critical'
 }
 
 export interface AutoThresholdConfig {
-  enabled: boolean;
-  adjustmentIntervalMs: number;
-  learningRate: number;
-  minSampleSize: number;
-  maxAdjustmentPercent: number;
-  sensitivityDecay: number;
-  historicalWeight: number;
+  enabled: boolean
+  adjustmentIntervalMs: number
+  learningRate: number
+  minSampleSize: number
+  maxAdjustmentPercent: number
+  sensitivityDecay: number
+  historicalWeight: number
 }
 
 export interface TrendDetectionConfig {
-  enabled: boolean;
-  growthRateThreshold: number;
-  suddenChangeThreshold: number;
-  sustainedPeriodMs: number;
-  minTrendSamples: number;
-  volatilityThreshold: number;
+  enabled: boolean
+  growthRateThreshold: number
+  suddenChangeThreshold: number
+  sustainedPeriodMs: number
+  minTrendSamples: number
+  volatilityThreshold: number
 }
 
 export interface CorrelationConfig {
-  enabled: boolean;
-  minCorrelation: number;
-  maxMetrics: number;
-  analysisWindowMs: number;
-  jointAnomalyThreshold: number;
+  enabled: boolean
+  minCorrelation: number
+  maxMetrics: number
+  analysisWindowMs: number
+  jointAnomalyThreshold: number
 }
 
 export interface AnomalyDetectorConfig {
-  enabled: boolean;
-  zScoreThreshold: number;
-  criticalZScoreThreshold: number;
-  minSampleSize: number;
-  windowSize: number;
-  maxHistorySize: number;
-  updateBaselineIntervalMs: number;
-  alertConfig: AnomalyAlertConfig;
-  autoThreshold: AutoThresholdConfig;
-  trendDetection: TrendDetectionConfig;
-  correlation: CorrelationConfig;
+  enabled: boolean
+  zScoreThreshold: number
+  criticalZScoreThreshold: number
+  minSampleSize: number
+  windowSize: number
+  maxHistorySize: number
+  updateBaselineIntervalMs: number
+  alertConfig: AnomalyAlertConfig
+  autoThreshold: AutoThresholdConfig
+  trendDetection: TrendDetectionConfig
+  correlation: CorrelationConfig
   metrics: {
-    responseTime: { enabled: boolean; warningThreshold: number; criticalThreshold: number; };
-    memoryUsage: { enabled: boolean; warningThreshold: number; criticalThreshold: number; };
-    errorRate: { enabled: boolean; warningThreshold: number; criticalThreshold: number; };
-    cpuUsage: { enabled: boolean; warningThreshold: number; criticalThreshold: number; };
-  };
+    responseTime: { enabled: boolean; warningThreshold: number; criticalThreshold: number }
+    memoryUsage: { enabled: boolean; warningThreshold: number; criticalThreshold: number }
+    errorRate: { enabled: boolean; warningThreshold: number; criticalThreshold: number }
+    cpuUsage: { enabled: boolean; warningThreshold: number; criticalThreshold: number }
+  }
 }
 
 export interface MetricDataPoint {
-  timestamp: number;
-  value: number;
-  metadata?: Record<string, unknown>;
+  timestamp: number
+  value: number
+  metadata?: Record<string, unknown>
 }
 
 export interface ThresholdAdjustment {
-  metric: string;
-  oldThreshold: number;
-  newThreshold: number;
-  adjustmentReason: string;
-  adjustedAt: number;
-  dataPoints: number;
-  confidence: number;
+  metric: string
+  oldThreshold: number
+  newThreshold: number
+  adjustmentReason: string
+  adjustedAt: number
+  dataPoints: number
+  confidence: number
 }
 
 const DEFAULT_CONFIG: AnomalyDetectorConfig = {
@@ -157,9 +164,9 @@ const DEFAULT_CONFIG: AnomalyDetectorConfig = {
   updateBaselineIntervalMs: 60000,
   alertConfig: {
     enabled: true,
-    channels: ["console"],
+    channels: ['console'],
     cooldownMs: 300000,
-    minSeverity: "medium",
+    minSeverity: 'medium',
   },
   autoThreshold: {
     enabled: true,
@@ -191,7 +198,7 @@ const DEFAULT_CONFIG: AnomalyDetectorConfig = {
     errorRate: { enabled: true, warningThreshold: 5, criticalThreshold: 15 },
     cpuUsage: { enabled: true, warningThreshold: 70, criticalThreshold: 90 },
   },
-};
+}
 
 // ========================================
 // Severity Level Helper
@@ -202,10 +209,10 @@ const SEVERITY_LEVELS: Record<string, number> = {
   medium: 2,
   high: 3,
   critical: 4,
-};
+}
 
 function getSeverityLevel(severity: string): number {
-  return SEVERITY_LEVELS[severity] || 0;
+  return SEVERITY_LEVELS[severity] || 0
 }
 
 // ========================================
@@ -213,76 +220,80 @@ function getSeverityLevel(severity: string): number {
 // ========================================
 
 function calculatePercentile(sorted: number[], p: number): number {
-  if (sorted.length === 0) return 0;
-  const index = Math.ceil((p / 100) * sorted.length) - 1;
-  return sorted[Math.max(0, Math.min(index, sorted.length - 1))];
+  if (sorted.length === 0) return 0
+  const index = Math.ceil((p / 100) * sorted.length) - 1
+  return sorted[Math.max(0, Math.min(index, sorted.length - 1))]
 }
 
 export function calculateCorrelationCoefficient(x: number[], y: number[]): number {
-  const n = Math.min(x.length, y.length);
-  if (n < 2) return 0;
+  const n = Math.min(x.length, y.length)
+  if (n < 2) return 0
 
-  const meanX = x.slice(0, n).reduce((a, b) => a + b, 0) / n;
-  const meanY = y.slice(0, n).reduce((a, b) => a + b, 0) / n;
+  const meanX = x.slice(0, n).reduce((a, b) => a + b, 0) / n
+  const meanY = y.slice(0, n).reduce((a, b) => a + b, 0) / n
 
-  let numerator = 0;
-  let denomX = 0;
-  let denomY = 0;
+  let numerator = 0
+  let denomX = 0
+  let denomY = 0
 
   for (let i = 0; i < n; i++) {
-    const dx = x[i] - meanX;
-    const dy = y[i] - meanY;
-    numerator += dx * dy;
-    denomX += dx * dx;
-    denomY += dy * dy;
+    const dx = x[i] - meanX
+    const dy = y[i] - meanY
+    numerator += dx * dy
+    denomX += dx * dx
+    denomY += dy * dy
   }
 
-  const denominator = Math.sqrt(denomX * denomY);
-  return denominator === 0 ? 0 : numerator / denominator;
+  const denominator = Math.sqrt(denomX * denomY)
+  return denominator === 0 ? 0 : numerator / denominator
 }
 
 export function calculateGrowthRate(values: number[]): number {
-  if (values.length < 2) return 0;
-  
-  const recentCount = Math.max(1, Math.floor(values.length * 0.2));
-  const recentValues = values.slice(-recentCount);
-  const olderValues = values.slice(0, -recentCount);
-  
-  if (olderValues.length === 0) return 0;
-  
-  const recentMean = recentValues.reduce((a, b) => a + b, 0) / recentCount;
-  const olderMean = olderValues.reduce((a, b) => a + b, 0) / olderValues.length;
-  
-  if (olderMean === 0) return recentMean > 0 ? 100 : 0;
-  
-  return ((recentMean - olderMean) / olderMean) * 100;
+  if (values.length < 2) return 0
+
+  const recentCount = Math.max(1, Math.floor(values.length * 0.2))
+  const recentValues = values.slice(-recentCount)
+  const olderValues = values.slice(0, -recentCount)
+
+  if (olderValues.length === 0) return 0
+
+  const recentMean = recentValues.reduce((a, b) => a + b, 0) / recentCount
+  const olderMean = olderValues.reduce((a, b) => a + b, 0) / olderValues.length
+
+  if (olderMean === 0) return recentMean > 0 ? 100 : 0
+
+  return ((recentMean - olderMean) / olderMean) * 100
 }
 
 export function calculateVolatility(values: number[]): number {
-  if (values.length < 2) return 0;
-  
-  const mean = values.reduce((a, b) => a + b, 0) / values.length;
-  const variance = values.reduce((sum, v) => sum + Math.pow(v - mean, 2), 0) / values.length;
-  const stdDev = Math.sqrt(variance);
-  
-  return mean === 0 ? 0 : stdDev / Math.abs(mean);
+  if (values.length < 2) return 0
+
+  const mean = values.reduce((a, b) => a + b, 0) / values.length
+  const variance = values.reduce((sum, v) => sum + Math.pow(v - mean, 2), 0) / values.length
+  const stdDev = Math.sqrt(variance)
+
+  return mean === 0 ? 0 : stdDev / Math.abs(mean)
 }
 
-export function detectSuddenChange(values: number[], threshold: number): { isSuddenChange: boolean; changeMagnitude: number; index: number } {
-  if (values.length < 3) return { isSuddenChange: false, changeMagnitude: 0, index: -1 };
-  
-  const mean = values.slice(0, -1).reduce((a, b) => a + b, 0) / (values.length - 1);
-  const variance = values.slice(0, -1).reduce((sum, v) => sum + Math.pow(v - mean, 2), 0) / (values.length - 1);
-  const stdDev = Math.sqrt(variance) || 1;
-  
-  const lastValue = values[values.length - 1];
-  const changeMagnitude = Math.abs(lastValue - mean) / stdDev;
-  
+export function detectSuddenChange(
+  values: number[],
+  threshold: number
+): { isSuddenChange: boolean; changeMagnitude: number; index: number } {
+  if (values.length < 3) return { isSuddenChange: false, changeMagnitude: 0, index: -1 }
+
+  const mean = values.slice(0, -1).reduce((a, b) => a + b, 0) / (values.length - 1)
+  const variance =
+    values.slice(0, -1).reduce((sum, v) => sum + Math.pow(v - mean, 2), 0) / (values.length - 1)
+  const stdDev = Math.sqrt(variance) || 1
+
+  const lastValue = values[values.length - 1]
+  const changeMagnitude = Math.abs(lastValue - mean) / stdDev
+
   return {
     isSuddenChange: changeMagnitude > threshold,
     changeMagnitude,
     index: values.length - 1,
-  };
+  }
 }
 
 // ========================================
@@ -290,108 +301,113 @@ export function detectSuddenChange(values: number[], threshold: number): { isSud
 // ========================================
 
 export class EnhancedAnomalyDetector extends EventEmitter {
-  private config: AnomalyDetectorConfig;
-  private dataHistory: Map<string, MetricDataPoint[]> = new Map();
-  private baselines: Map<string, MetricBaseline> = new Map();
-  private anomalyEvents: AnomalyEvent[] = [];
-  private lastAlertTime: Map<string, number> = new Map();
-  private lastBaselineUpdate: number = 0;
-  private lastThresholdAdjustment: Map<string, number> = new Map();
-  private thresholdAdjustments: ThresholdAdjustment[] = [];
-  private dynamicThresholds: Map<string, { warning: number; critical: number }> = new Map();
+  private config: AnomalyDetectorConfig
+  private dataHistory: Map<string, MetricDataPoint[]> = new Map()
+  private baselines: Map<string, MetricBaseline> = new Map()
+  private anomalyEvents: AnomalyEvent[] = []
+  private lastAlertTime: Map<string, number> = new Map()
+  private lastBaselineUpdate: number = 0
+  private lastThresholdAdjustment: Map<string, number> = new Map()
+  private thresholdAdjustments: ThresholdAdjustment[] = []
+  private dynamicThresholds: Map<string, { warning: number; critical: number }> = new Map()
 
   constructor(config: Partial<AnomalyDetectorConfig> = {}) {
-    super();
-    this.config = { ...DEFAULT_CONFIG, ...config };
+    super()
+    this.config = { ...DEFAULT_CONFIG, ...config }
   }
 
   /**
    * Track a metric value
    */
   trackMetric(metric: string, value: number, metadata?: Record<string, unknown>): void {
-    if (!this.config.enabled) return;
+    if (!this.config.enabled) return
 
     const dataPoint: MetricDataPoint = {
       timestamp: Date.now(),
       value,
       metadata,
-    };
+    }
 
-    const history = this.dataHistory.get(metric) || [];
-    history.push(dataPoint);
+    const history = this.dataHistory.get(metric) || []
+    history.push(dataPoint)
 
     if (history.length > this.config.maxHistorySize) {
-      history.shift();
+      history.shift()
     }
 
-    this.dataHistory.set(metric, history);
+    this.dataHistory.set(metric, history)
 
-    const detection = this.performComprehensiveDetection(metric, value);
+    const detection = this.performComprehensiveDetection(metric, value)
     if (detection && detection.isAnomaly) {
-      this.handleAnomalyDetection(detection);
+      this.handleAnomalyDetection(detection)
     }
 
-    this.checkAndAdjustThresholds(metric);
+    this.checkAndAdjustThresholds(metric)
   }
 
   /**
    * Perform comprehensive anomaly detection
    */
   private performComprehensiveDetection(metric: string, value: number): AnomalyDetection | null {
-    const statisticalAnomaly = this.detectStatisticalAnomaly(metric, value);
-    const trendAnomaly = this.detectTrendAnomaly(metric, value);
-    const suddenChangeAnomaly = this.detectSuddenChangeAnomaly(metric, value);
-    const correlationAnomaly = this.detectCorrelationAnomaly(metric, value);
+    const statisticalAnomaly = this.detectStatisticalAnomaly(metric, value)
+    const trendAnomaly = this.detectTrendAnomaly(metric, value)
+    const suddenChangeAnomaly = this.detectSuddenChangeAnomaly(metric, value)
+    const correlationAnomaly = this.detectCorrelationAnomaly(metric, value)
 
-    const anomalies = [statisticalAnomaly, trendAnomaly, suddenChangeAnomaly, correlationAnomaly].filter(Boolean) as AnomalyDetection[];
-    
-    if (anomalies.length === 0) return null;
-    
-    anomalies.sort((a, b) => getSeverityLevel(b.severity) - getSeverityLevel(a.severity));
-    
+    const anomalies = [
+      statisticalAnomaly,
+      trendAnomaly,
+      suddenChangeAnomaly,
+      correlationAnomaly,
+    ].filter(Boolean) as AnomalyDetection[]
+
+    if (anomalies.length === 0) return null
+
+    anomalies.sort((a, b) => getSeverityLevel(b.severity) - getSeverityLevel(a.severity))
+
     if (correlationAnomaly) {
-      anomalies[0].correlationInfo = correlationAnomaly.correlationInfo;
+      anomalies[0].correlationInfo = correlationAnomaly.correlationInfo
     }
-    
+
     if (trendAnomaly) {
-      anomalies[0].trendInfo = trendAnomaly.trendInfo;
+      anomalies[0].trendInfo = trendAnomaly.trendInfo
     }
-    
-    return anomalies[0];
+
+    return anomalies[0]
   }
 
   /**
    * Detect statistical anomaly using Z-Score
    */
   private detectStatisticalAnomaly(metric: string, value: number): AnomalyDetection | null {
-    const history = this.dataHistory.get(metric);
-    if (!history || history.length < this.config.minSampleSize) return null;
+    const history = this.dataHistory.get(metric)
+    if (!history || history.length < this.config.minSampleSize) return null
 
-    let baseline = this.baselines.get(metric);
+    let baseline = this.baselines.get(metric)
     if (!baseline || Date.now() - baseline.lastUpdated > this.config.updateBaselineIntervalMs) {
-      baseline = this.calculateBaseline(metric);
-      if (!baseline) return null;
+      baseline = this.calculateBaseline(metric)
+      if (!baseline) return null
     }
 
-    const zScore = (value - baseline.mean) / baseline.stdDev;
-    const absZScore = Math.abs(zScore);
+    const zScore = (value - baseline.mean) / baseline.stdDev
+    const absZScore = Math.abs(zScore)
 
-    let severity: "low" | "medium" | "high" | "critical" = "low";
-    let isAnomaly = false;
-    let reason = "Value within normal range";
+    let severity: 'low' | 'medium' | 'high' | 'critical' = 'low'
+    let isAnomaly = false
+    let reason = 'Value within normal range'
 
     if (absZScore >= this.config.criticalZScoreThreshold) {
-      severity = "critical";
-      isAnomaly = true;
-      reason = `Critical: Z-score ${zScore.toFixed(2)} exceeds ${this.config.criticalZScoreThreshold} standard deviations`;
+      severity = 'critical'
+      isAnomaly = true
+      reason = `Critical: Z-score ${zScore.toFixed(2)} exceeds ${this.config.criticalZScoreThreshold} standard deviations`
     } else if (absZScore >= this.config.zScoreThreshold) {
-      severity = "high";
-      isAnomaly = true;
-      reason = `Warning: Z-score ${zScore.toFixed(2)} exceeds ${this.config.zScoreThreshold} standard deviations`;
+      severity = 'high'
+      isAnomaly = true
+      reason = `Warning: Z-score ${zScore.toFixed(2)} exceeds ${this.config.zScoreThreshold} standard deviations`
     }
 
-    const metricSpecificResult = this.detectMetricSpecificAnomaly(metric, value, baseline);
-    if (metricSpecificResult) return metricSpecificResult;
+    const metricSpecificResult = this.detectMetricSpecificAnomaly(metric, value, baseline)
+    if (metricSpecificResult) return metricSpecificResult
 
     return {
       id: `${metric}-${Date.now()}`,
@@ -404,52 +420,55 @@ export class EnhancedAnomalyDetector extends EventEmitter {
       confidence: Math.min(absZScore / this.config.criticalZScoreThreshold, 1),
       reason,
       detectedAt: Date.now(),
-      algorithm: "z-score",
+      algorithm: 'z-score',
       acknowledged: false,
-    };
+    }
   }
 
   /**
    * Detect trend-based anomaly
    */
   private detectTrendAnomaly(metric: string, value: number): AnomalyDetection | null {
-    if (!this.config.trendDetection.enabled) return null;
+    if (!this.config.trendDetection.enabled) return null
 
-    const history = this.dataHistory.get(metric);
-    if (!history || history.length < this.config.trendDetection.minTrendSamples) return null;
+    const history = this.dataHistory.get(metric)
+    if (!history || history.length < this.config.trendDetection.minTrendSamples) return null
 
-    const values = history.map(d => d.value);
-    const growthRate = calculateGrowthRate(values);
-    const volatility = calculateVolatility(values);
+    const values = history.map(d => d.value)
+    const growthRate = calculateGrowthRate(values)
+    const volatility = calculateVolatility(values)
 
-    let isAnomaly = false;
-    let severity: "low" | "medium" | "high" | "critical" = "low";
-    let reason = "";
-    let trendType: TrendAnomalyInfo["type"] = "growth-rate";
+    let isAnomaly = false
+    let severity: 'low' | 'medium' | 'high' | 'critical' = 'low'
+    let reason = ''
+    let trendType: TrendAnomalyInfo['type'] = 'growth-rate'
 
     if (Math.abs(growthRate) >= this.config.trendDetection.growthRateThreshold) {
-      isAnomaly = true;
-      severity = Math.abs(growthRate) >= this.config.trendDetection.growthRateThreshold * 2 ? "critical" : "high";
-      reason = `High growth rate detected: ${growthRate.toFixed(1)}% change`;
-      trendType = growthRate > 0 ? "sustained-increase" : "sustained-decrease";
+      isAnomaly = true
+      severity =
+        Math.abs(growthRate) >= this.config.trendDetection.growthRateThreshold * 2
+          ? 'critical'
+          : 'high'
+      reason = `High growth rate detected: ${growthRate.toFixed(1)}% change`
+      trendType = growthRate > 0 ? 'sustained-increase' : 'sustained-decrease'
     }
 
     if (volatility > this.config.trendDetection.volatilityThreshold) {
-      if (severity === "low") {
-        isAnomaly = true;
-        severity = "medium";
-        reason = `High volatility detected: ${(volatility * 100).toFixed(1)}%`;
-        trendType = "growth-rate";
+      if (severity === 'low') {
+        isAnomaly = true
+        severity = 'medium'
+        reason = `High volatility detected: ${(volatility * 100).toFixed(1)}%`
+        trendType = 'growth-rate'
       }
     }
 
-    if (!isAnomaly) return null;
+    if (!isAnomaly) return null
 
-    const baseline = this.baselines.get(metric) || this.calculateBaseline(metric);
-    if (!baseline) return null;
+    const baseline = this.baselines.get(metric) || this.calculateBaseline(metric)
+    if (!baseline) return null
 
-    const previousValue = values.length > 1 ? values[values.length - 2] : value;
-    const changePercent = previousValue !== 0 ? ((value - previousValue) / previousValue) * 100 : 0;
+    const previousValue = values.length > 1 ? values[values.length - 2] : value
+    const changePercent = previousValue !== 0 ? ((value - previousValue) / previousValue) * 100 : 0
 
     const trendInfo: TrendAnomalyInfo = {
       type: trendType,
@@ -458,7 +477,7 @@ export class EnhancedAnomalyDetector extends EventEmitter {
       currentValue: value,
       changePercent,
       windowSize: values.length,
-    };
+    }
 
     return {
       id: `${metric}-trend-${Date.now()}`,
@@ -468,48 +487,54 @@ export class EnhancedAnomalyDetector extends EventEmitter {
       value,
       baseline,
       zScore: (value - baseline.mean) / baseline.stdDev,
-      confidence: Math.min(Math.abs(growthRate) / this.config.trendDetection.growthRateThreshold, 1),
+      confidence: Math.min(
+        Math.abs(growthRate) / this.config.trendDetection.growthRateThreshold,
+        1
+      ),
       reason,
       detectedAt: Date.now(),
-      algorithm: "trend",
+      algorithm: 'trend',
       acknowledged: false,
       trendInfo,
-    };
+    }
   }
 
   /**
    * Detect sudden change anomaly
    */
   private detectSuddenChangeAnomaly(metric: string, value: number): AnomalyDetection | null {
-    if (!this.config.trendDetection.enabled) return null;
+    if (!this.config.trendDetection.enabled) return null
 
-    const history = this.dataHistory.get(metric);
-    if (!history || history.length < 3) return null;
+    const history = this.dataHistory.get(metric)
+    if (!history || history.length < 3) return null
 
-    const values = history.map(d => d.value);
-    const suddenChange = detectSuddenChange(values, this.config.trendDetection.suddenChangeThreshold);
+    const values = history.map(d => d.value)
+    const suddenChange = detectSuddenChange(
+      values,
+      this.config.trendDetection.suddenChangeThreshold
+    )
 
-    if (!suddenChange.isSuddenChange) return null;
+    if (!suddenChange.isSuddenChange) return null
 
-    const baseline = this.baselines.get(metric) || this.calculateBaseline(metric);
-    if (!baseline) return null;
+    const baseline = this.baselines.get(metric) || this.calculateBaseline(metric)
+    if (!baseline) return null
 
-    const previousValue = values.length > 1 ? values[values.length - 2] : value;
-    const changePercent = previousValue !== 0 ? ((value - previousValue) / previousValue) * 100 : 0;
+    const previousValue = values.length > 1 ? values[values.length - 2] : value
+    const changePercent = previousValue !== 0 ? ((value - previousValue) / previousValue) * 100 : 0
 
-    let severity: "low" | "medium" | "high" | "critical" = "high";
+    let severity: 'low' | 'medium' | 'high' | 'critical' = 'high'
     if (suddenChange.changeMagnitude >= this.config.trendDetection.suddenChangeThreshold * 2) {
-      severity = "critical";
+      severity = 'critical'
     }
 
     const trendInfo: TrendAnomalyInfo = {
-      type: "sudden-change",
+      type: 'sudden-change',
       growthRate: changePercent,
       previousValue,
       currentValue: value,
       changePercent,
       windowSize: values.length,
-    };
+    }
 
     return {
       id: `${metric}-sudden-${Date.now()}`,
@@ -519,58 +544,62 @@ export class EnhancedAnomalyDetector extends EventEmitter {
       value,
       baseline,
       zScore: suddenChange.changeMagnitude,
-      confidence: Math.min(suddenChange.changeMagnitude / (this.config.trendDetection.suddenChangeThreshold * 2), 1),
+      confidence: Math.min(
+        suddenChange.changeMagnitude / (this.config.trendDetection.suddenChangeThreshold * 2),
+        1
+      ),
       reason: `Sudden change detected: ${suddenChange.changeMagnitude.toFixed(1)} std devs from mean`,
       detectedAt: Date.now(),
-      algorithm: "sudden-change",
+      algorithm: 'sudden-change',
       acknowledged: false,
       trendInfo,
-    };
+    }
   }
 
   /**
    * Detect correlation-based anomaly
    */
   private detectCorrelationAnomaly(metric: string, value: number): AnomalyDetection | null {
-    if (!this.config.correlation.enabled) return null;
+    if (!this.config.correlation.enabled) return null
 
-    const history = this.dataHistory.get(metric);
-    if (!history || history.length < this.config.minSampleSize) return null;
+    const history = this.dataHistory.get(metric)
+    if (!history || history.length < this.config.minSampleSize) return null
 
-    const correlatedMetrics = this.findCorrelatedMetrics(metric);
-    if (correlatedMetrics.length === 0) return null;
+    const correlatedMetrics = this.findCorrelatedMetrics(metric)
+    if (correlatedMetrics.length === 0) return null
 
-    const jointAnomalies: string[] = [];
+    const jointAnomalies: string[] = []
 
     for (const { metric: otherMetric, correlation } of correlatedMetrics) {
-      const otherHistory = this.dataHistory.get(otherMetric);
-      if (!otherHistory || otherHistory.length < this.config.minSampleSize) continue;
+      const otherHistory = this.dataHistory.get(otherMetric)
+      if (!otherHistory || otherHistory.length < this.config.minSampleSize) continue
 
-      const otherValue = otherHistory[otherHistory.length - 1].value;
-      const otherBaseline = this.baselines.get(otherMetric);
-      if (!otherBaseline) continue;
+      const otherValue = otherHistory[otherHistory.length - 1].value
+      const otherBaseline = this.baselines.get(otherMetric)
+      if (!otherBaseline) continue
 
-      const otherZScore = Math.abs((otherValue - otherBaseline.mean) / otherBaseline.stdDev);
+      const otherZScore = Math.abs((otherValue - otherBaseline.mean) / otherBaseline.stdDev)
       if (otherZScore >= this.config.zScoreThreshold) {
-        jointAnomalies.push(otherMetric);
+        jointAnomalies.push(otherMetric)
       }
     }
 
     if (jointAnomalies.length > 0) {
-      const baseline = this.baselines.get(metric) || this.calculateBaseline(metric);
-      if (!baseline) return null;
+      const baseline = this.baselines.get(metric) || this.calculateBaseline(metric)
+      if (!baseline) return null
 
       const correlationInfo: CorrelationInfo = {
         correlatedMetrics: jointAnomalies,
-        correlationCoefficient: correlatedMetrics.find(m => m.metric === jointAnomalies[0])?.correlation || 0,
+        correlationCoefficient:
+          correlatedMetrics.find(m => m.metric === jointAnomalies[0])?.correlation || 0,
         jointAnomaly: true,
-        description: `Joint anomaly detected with ${jointAnomalies.length} correlated metrics: ${jointAnomalies.join(", ")}`,
-      };
+        description: `Joint anomaly detected with ${jointAnomalies.length} correlated metrics: ${jointAnomalies.join(', ')}`,
+      }
 
       return {
         id: `${metric}-correlation-${Date.now()}`,
         isAnomaly: true,
-        severity: jointAnomalies.length >= 2 ? "critical" : "high",
+        severity: jointAnomalies.length >= 2 ? 'critical' : 'high',
         metric,
         value,
         baseline,
@@ -578,64 +607,64 @@ export class EnhancedAnomalyDetector extends EventEmitter {
         confidence: Math.min(jointAnomalies.length / this.config.correlation.maxMetrics, 1),
         reason: correlationInfo.description,
         detectedAt: Date.now(),
-        algorithm: "correlation",
+        algorithm: 'correlation',
         acknowledged: false,
         correlationInfo,
-      };
+      }
     }
 
-    return null;
+    return null
   }
 
   /**
    * Find correlated metrics
    */
   private findCorrelatedMetrics(metric: string): Array<{ metric: string; correlation: number }> {
-    const correlations: Array<{ metric: string; correlation: number }> = [];
-    const history = this.dataHistory.get(metric);
-    if (!history) return correlations;
+    const correlations: Array<{ metric: string; correlation: number }> = []
+    const history = this.dataHistory.get(metric)
+    if (!history) return correlations
 
-    const values = history.map(d => d.value);
+    const values = history.map(d => d.value)
 
     this.dataHistory.forEach((otherHistory, otherMetric) => {
-      if (otherMetric === metric) return;
-      if (otherHistory.length < this.config.minSampleSize) return;
+      if (otherMetric === metric) return
+      if (otherHistory.length < this.config.minSampleSize) return
 
-      const otherValues = otherHistory.map(d => d.value);
-      const correlation = calculateCorrelationCoefficient(values, otherValues);
+      const otherValues = otherHistory.map(d => d.value)
+      const correlation = calculateCorrelationCoefficient(values, otherValues)
 
       if (Math.abs(correlation) >= this.config.correlation.minCorrelation) {
-        correlations.push({ metric: otherMetric, correlation });
+        correlations.push({ metric: otherMetric, correlation })
       }
-    });
+    })
 
     return correlations
       .sort((a, b) => Math.abs(b.correlation) - Math.abs(a.correlation))
-      .slice(0, this.config.correlation.maxMetrics);
+      .slice(0, this.config.correlation.maxMetrics)
   }
 
   /**
    * Calculate baseline statistics for a metric
    */
   calculateBaseline(metric: string): MetricBaseline | undefined {
-    const history = this.dataHistory.get(metric);
-    if (!history || history.length < this.config.minSampleSize) return undefined;
+    const history = this.dataHistory.get(metric)
+    if (!history || history.length < this.config.minSampleSize) return undefined
 
-    const values = history.map((d) => d.value);
-    const n = values.length;
-    const sorted = [...values].sort((a, b) => a - b);
+    const values = history.map(d => d.value)
+    const n = values.length
+    const sorted = [...values].sort((a, b) => a - b)
 
-    const mean = values.reduce((sum, v) => sum + v, 0) / n;
-    const variance = values.reduce((sum, v) => sum + Math.pow(v - mean, 2), 0) / n;
-    const stdDev = Math.sqrt(variance) || 1;
+    const mean = values.reduce((sum, v) => sum + v, 0) / n
+    const variance = values.reduce((sum, v) => sum + Math.pow(v - mean, 2), 0) / n
+    const stdDev = Math.sqrt(variance) || 1
 
-    const p50 = calculatePercentile(sorted, 50);
-    const p95 = calculatePercentile(sorted, 95);
-    const p99 = calculatePercentile(sorted, 99);
+    const p50 = calculatePercentile(sorted, 50)
+    const p95 = calculatePercentile(sorted, 95)
+    const p99 = calculatePercentile(sorted, 99)
 
-    const trend = this.detectTrend(values);
-    const growthRate = calculateGrowthRate(values);
-    const volatility = calculateVolatility(values);
+    const trend = this.detectTrend(values)
+    const growthRate = calculateGrowthRate(values)
+    const volatility = calculateVolatility(values)
 
     const baseline: MetricBaseline = {
       metric,
@@ -651,45 +680,45 @@ export class EnhancedAnomalyDetector extends EventEmitter {
       trend,
       growthRate,
       volatility,
-    };
+    }
 
-    this.baselines.set(metric, baseline);
-    return baseline;
+    this.baselines.set(metric, baseline)
+    return baseline
   }
 
   /**
    * Detect trend in values
    */
-  private detectTrend(values: number[]): "increasing" | "decreasing" | "stable" {
-    if (values.length < 10) return "stable";
+  private detectTrend(values: number[]): 'increasing' | 'decreasing' | 'stable' {
+    if (values.length < 10) return 'stable'
 
-    const recentValues = values.slice(-20);
-    const olderValues = values.slice(-40, -20);
+    const recentValues = values.slice(-20)
+    const olderValues = values.slice(-40, -20)
 
-    if (olderValues.length === 0) return "stable";
+    if (olderValues.length === 0) return 'stable'
 
-    const recentMean = recentValues.reduce((a, b) => a + b, 0) / recentValues.length;
-    const olderMean = olderValues.reduce((a, b) => a + b, 0) / olderValues.length;
+    const recentMean = recentValues.reduce((a, b) => a + b, 0) / recentValues.length
+    const olderMean = olderValues.reduce((a, b) => a + b, 0) / olderValues.length
 
-    const changePercent = olderMean !== 0 ? ((recentMean - olderMean) / olderMean) * 100 : 0;
+    const changePercent = olderMean !== 0 ? ((recentMean - olderMean) / olderMean) * 100 : 0
 
-    if (changePercent > 10) return "increasing";
-    if (changePercent < -10) return "decreasing";
-    return "stable";
+    if (changePercent > 10) return 'increasing'
+    if (changePercent < -10) return 'decreasing'
+    return 'stable'
   }
 
   /**
    * Get baseline for a metric
    */
   getBaseline(metric: string): MetricBaseline | null {
-    return this.baselines.get(metric) || null;
+    return this.baselines.get(metric) || null
   }
 
   /**
    * Detect anomaly using Z-Score (public method)
    */
   detectAnomaly(metric: string, value: number): AnomalyDetection | null {
-    return this.performComprehensiveDetection(metric, value);
+    return this.performComprehensiveDetection(metric, value)
   }
 
   /**
@@ -698,51 +727,55 @@ export class EnhancedAnomalyDetector extends EventEmitter {
   private detectMetricSpecificAnomaly(
     metric: string,
     value: number,
-    baseline: MetricBaseline,
+    baseline: MetricBaseline
   ): AnomalyDetection | null {
-    if (metric.includes("response") || metric.includes("latency") || metric.includes("duration")) {
-      return this.detectResponseTimeAnomaly(metric, value, baseline);
+    if (metric.includes('response') || metric.includes('latency') || metric.includes('duration')) {
+      return this.detectResponseTimeAnomaly(metric, value, baseline)
     }
-    if (metric.includes("memory") || metric.includes("heap")) {
-      return this.detectMemoryAnomaly(metric, value, baseline);
+    if (metric.includes('memory') || metric.includes('heap')) {
+      return this.detectMemoryAnomaly(metric, value, baseline)
     }
-    if (metric.includes("error") || metric.includes("failure")) {
-      return this.detectErrorRateAnomaly(metric, value, baseline);
+    if (metric.includes('error') || metric.includes('failure')) {
+      return this.detectErrorRateAnomaly(metric, value, baseline)
     }
-    if (metric.includes("cpu")) {
-      return this.detectCpuAnomaly(metric, value, baseline);
+    if (metric.includes('cpu')) {
+      return this.detectCpuAnomaly(metric, value, baseline)
     }
-    return null;
+    return null
   }
 
-  private detectResponseTimeAnomaly(metric: string, value: number, baseline: MetricBaseline): AnomalyDetection | null {
-    const config = this.config.metrics.responseTime;
-    if (!config.enabled) return null;
+  private detectResponseTimeAnomaly(
+    metric: string,
+    value: number,
+    baseline: MetricBaseline
+  ): AnomalyDetection | null {
+    const config = this.config.metrics.responseTime
+    if (!config.enabled) return null
 
-    const dynamicThreshold = this.dynamicThresholds.get("responseTime");
-    const warningThreshold = dynamicThreshold?.warning ?? config.warningThreshold;
-    const criticalThreshold = dynamicThreshold?.critical ?? config.criticalThreshold;
+    const dynamicThreshold = this.dynamicThresholds.get('responseTime')
+    const warningThreshold = dynamicThreshold?.warning ?? config.warningThreshold
+    const criticalThreshold = dynamicThreshold?.critical ?? config.criticalThreshold
 
-    const zScore = (value - baseline.mean) / baseline.stdDev;
-    let severity: "low" | "medium" | "high" | "critical" = "low";
-    let isAnomaly = false;
-    let reason = "";
+    const zScore = (value - baseline.mean) / baseline.stdDev
+    let severity: 'low' | 'medium' | 'high' | 'critical' = 'low'
+    let isAnomaly = false
+    let reason = ''
 
     if (value >= criticalThreshold) {
-      severity = "critical";
-      isAnomaly = true;
-      reason = `Critical response time: ${value}ms exceeds threshold ${criticalThreshold}ms`;
+      severity = 'critical'
+      isAnomaly = true
+      reason = `Critical response time: ${value}ms exceeds threshold ${criticalThreshold}ms`
     } else if (value >= warningThreshold) {
-      severity = "high";
-      isAnomaly = true;
-      reason = `High response time: ${value}ms exceeds threshold ${warningThreshold}ms`;
+      severity = 'high'
+      isAnomaly = true
+      reason = `High response time: ${value}ms exceeds threshold ${warningThreshold}ms`
     } else if (Math.abs(zScore) >= this.config.zScoreThreshold) {
-      severity = "high";
-      isAnomaly = true;
-      reason = `Response time anomaly: Z-score ${zScore.toFixed(2)}`;
+      severity = 'high'
+      isAnomaly = true
+      reason = `Response time anomaly: Z-score ${zScore.toFixed(2)}`
     }
 
-    if (!isAnomaly) return null;
+    if (!isAnomaly) return null
 
     return {
       id: `${metric}-${Date.now()}`,
@@ -755,47 +788,51 @@ export class EnhancedAnomalyDetector extends EventEmitter {
       confidence: Math.min(Math.abs(zScore) / this.config.criticalZScoreThreshold, 1),
       reason,
       detectedAt: Date.now(),
-      algorithm: "composite",
+      algorithm: 'composite',
       acknowledged: false,
-    };
+    }
   }
 
-  private detectMemoryAnomaly(metric: string, value: number, baseline: MetricBaseline): AnomalyDetection | null {
-    const config = this.config.metrics.memoryUsage;
-    if (!config.enabled) return null;
+  private detectMemoryAnomaly(
+    metric: string,
+    value: number,
+    baseline: MetricBaseline
+  ): AnomalyDetection | null {
+    const config = this.config.metrics.memoryUsage
+    if (!config.enabled) return null
 
-    const dynamicThreshold = this.dynamicThresholds.get("memoryUsage");
-    const warningThreshold = dynamicThreshold?.warning ?? config.warningThreshold;
-    const criticalThreshold = dynamicThreshold?.critical ?? config.criticalThreshold;
+    const dynamicThreshold = this.dynamicThresholds.get('memoryUsage')
+    const warningThreshold = dynamicThreshold?.warning ?? config.warningThreshold
+    const criticalThreshold = dynamicThreshold?.critical ?? config.criticalThreshold
 
-    const zScore = (value - baseline.mean) / baseline.stdDev;
-    let severity: "low" | "medium" | "high" | "critical" = "low";
-    let isAnomaly = false;
-    let reason = "";
+    const zScore = (value - baseline.mean) / baseline.stdDev
+    let severity: 'low' | 'medium' | 'high' | 'critical' = 'low'
+    let isAnomaly = false
+    let reason = ''
 
     if (value >= criticalThreshold) {
-      severity = "critical";
-      isAnomaly = true;
-      reason = `Critical memory usage: ${value.toFixed(1)}% exceeds threshold ${criticalThreshold}%`;
+      severity = 'critical'
+      isAnomaly = true
+      reason = `Critical memory usage: ${value.toFixed(1)}% exceeds threshold ${criticalThreshold}%`
     } else if (value >= warningThreshold) {
-      severity = "high";
-      isAnomaly = true;
-      reason = `High memory usage: ${value.toFixed(1)}% exceeds threshold ${warningThreshold}%`;
+      severity = 'high'
+      isAnomaly = true
+      reason = `High memory usage: ${value.toFixed(1)}% exceeds threshold ${warningThreshold}%`
     } else if (Math.abs(zScore) >= this.config.zScoreThreshold) {
-      severity = "medium";
-      isAnomaly = true;
-      reason = `Memory anomaly: Z-score ${zScore.toFixed(2)}`;
+      severity = 'medium'
+      isAnomaly = true
+      reason = `Memory anomaly: Z-score ${zScore.toFixed(2)}`
     }
 
-    if (baseline.trend === "increasing") {
-      reason += " (trend: increasing)";
-      if (severity === "low") {
-        severity = "medium";
-        isAnomaly = true;
+    if (baseline.trend === 'increasing') {
+      reason += ' (trend: increasing)'
+      if (severity === 'low') {
+        severity = 'medium'
+        isAnomaly = true
       }
     }
 
-    if (!isAnomaly) return null;
+    if (!isAnomaly) return null
 
     return {
       id: `${metric}-${Date.now()}`,
@@ -808,39 +845,43 @@ export class EnhancedAnomalyDetector extends EventEmitter {
       confidence: Math.min(Math.abs(zScore) / this.config.criticalZScoreThreshold, 1),
       reason,
       detectedAt: Date.now(),
-      algorithm: "composite",
+      algorithm: 'composite',
       acknowledged: false,
-    };
+    }
   }
 
-  private detectErrorRateAnomaly(metric: string, value: number, baseline: MetricBaseline): AnomalyDetection | null {
-    const config = this.config.metrics.errorRate;
-    if (!config.enabled) return null;
+  private detectErrorRateAnomaly(
+    metric: string,
+    value: number,
+    baseline: MetricBaseline
+  ): AnomalyDetection | null {
+    const config = this.config.metrics.errorRate
+    if (!config.enabled) return null
 
-    const dynamicThreshold = this.dynamicThresholds.get("errorRate");
-    const warningThreshold = dynamicThreshold?.warning ?? config.warningThreshold;
-    const criticalThreshold = dynamicThreshold?.critical ?? config.criticalThreshold;
+    const dynamicThreshold = this.dynamicThresholds.get('errorRate')
+    const warningThreshold = dynamicThreshold?.warning ?? config.warningThreshold
+    const criticalThreshold = dynamicThreshold?.critical ?? config.criticalThreshold
 
-    const zScore = (value - baseline.mean) / baseline.stdDev;
-    let severity: "low" | "medium" | "high" | "critical" = "low";
-    let isAnomaly = false;
-    let reason = "";
+    const zScore = (value - baseline.mean) / baseline.stdDev
+    let severity: 'low' | 'medium' | 'high' | 'critical' = 'low'
+    let isAnomaly = false
+    let reason = ''
 
     if (value >= criticalThreshold) {
-      severity = "critical";
-      isAnomaly = true;
-      reason = `Critical error rate: ${value.toFixed(2)}% exceeds threshold ${criticalThreshold}%`;
+      severity = 'critical'
+      isAnomaly = true
+      reason = `Critical error rate: ${value.toFixed(2)}% exceeds threshold ${criticalThreshold}%`
     } else if (value >= warningThreshold) {
-      severity = "high";
-      isAnomaly = true;
-      reason = `Elevated error rate: ${value.toFixed(2)}% exceeds threshold ${warningThreshold}%`;
+      severity = 'high'
+      isAnomaly = true
+      reason = `Elevated error rate: ${value.toFixed(2)}% exceeds threshold ${warningThreshold}%`
     } else if (Math.abs(zScore) >= this.config.zScoreThreshold) {
-      severity = "medium";
-      isAnomaly = true;
-      reason = `Error rate anomaly: Z-score ${zScore.toFixed(2)}`;
+      severity = 'medium'
+      isAnomaly = true
+      reason = `Error rate anomaly: Z-score ${zScore.toFixed(2)}`
     }
 
-    if (!isAnomaly) return null;
+    if (!isAnomaly) return null
 
     return {
       id: `${metric}-${Date.now()}`,
@@ -853,39 +894,43 @@ export class EnhancedAnomalyDetector extends EventEmitter {
       confidence: Math.min(Math.abs(zScore) / this.config.criticalZScoreThreshold, 1),
       reason,
       detectedAt: Date.now(),
-      algorithm: "composite",
+      algorithm: 'composite',
       acknowledged: false,
-    };
+    }
   }
 
-  private detectCpuAnomaly(metric: string, value: number, baseline: MetricBaseline): AnomalyDetection | null {
-    const config = this.config.metrics.cpuUsage;
-    if (!config.enabled) return null;
+  private detectCpuAnomaly(
+    metric: string,
+    value: number,
+    baseline: MetricBaseline
+  ): AnomalyDetection | null {
+    const config = this.config.metrics.cpuUsage
+    if (!config.enabled) return null
 
-    const dynamicThreshold = this.dynamicThresholds.get("cpuUsage");
-    const warningThreshold = dynamicThreshold?.warning ?? config.warningThreshold;
-    const criticalThreshold = dynamicThreshold?.critical ?? config.criticalThreshold;
+    const dynamicThreshold = this.dynamicThresholds.get('cpuUsage')
+    const warningThreshold = dynamicThreshold?.warning ?? config.warningThreshold
+    const criticalThreshold = dynamicThreshold?.critical ?? config.criticalThreshold
 
-    const zScore = (value - baseline.mean) / baseline.stdDev;
-    let severity: "low" | "medium" | "high" | "critical" = "low";
-    let isAnomaly = false;
-    let reason = "";
+    const zScore = (value - baseline.mean) / baseline.stdDev
+    let severity: 'low' | 'medium' | 'high' | 'critical' = 'low'
+    let isAnomaly = false
+    let reason = ''
 
     if (value >= criticalThreshold) {
-      severity = "critical";
-      isAnomaly = true;
-      reason = `Critical CPU usage: ${value.toFixed(1)}% exceeds threshold ${criticalThreshold}%`;
+      severity = 'critical'
+      isAnomaly = true
+      reason = `Critical CPU usage: ${value.toFixed(1)}% exceeds threshold ${criticalThreshold}%`
     } else if (value >= warningThreshold) {
-      severity = "high";
-      isAnomaly = true;
-      reason = `High CPU usage: ${value.toFixed(1)}% exceeds threshold ${warningThreshold}%`;
+      severity = 'high'
+      isAnomaly = true
+      reason = `High CPU usage: ${value.toFixed(1)}% exceeds threshold ${warningThreshold}%`
     } else if (Math.abs(zScore) >= this.config.zScoreThreshold) {
-      severity = "medium";
-      isAnomaly = true;
-      reason = `CPU anomaly: Z-score ${zScore.toFixed(2)}`;
+      severity = 'medium'
+      isAnomaly = true
+      reason = `CPU anomaly: Z-score ${zScore.toFixed(2)}`
     }
 
-    if (!isAnomaly) return null;
+    if (!isAnomaly) return null
 
     return {
       id: `${metric}-${Date.now()}`,
@@ -898,66 +943,70 @@ export class EnhancedAnomalyDetector extends EventEmitter {
       confidence: Math.min(Math.abs(zScore) / this.config.criticalZScoreThreshold, 1),
       reason,
       detectedAt: Date.now(),
-      algorithm: "composite",
+      algorithm: 'composite',
       acknowledged: false,
-    };
+    }
   }
 
   /**
    * Check and adjust thresholds automatically
    */
   private checkAndAdjustThresholds(metric: string): void {
-    if (!this.config.autoThreshold.enabled) return;
+    if (!this.config.autoThreshold.enabled) return
 
-    const lastAdjustment = this.lastThresholdAdjustment.get(metric) || 0;
-    if (Date.now() - lastAdjustment < this.config.autoThreshold.adjustmentIntervalMs) return;
+    const lastAdjustment = this.lastThresholdAdjustment.get(metric) || 0
+    if (Date.now() - lastAdjustment < this.config.autoThreshold.adjustmentIntervalMs) return
 
-    const history = this.dataHistory.get(metric);
-    if (!history || history.length < this.config.autoThreshold.minSampleSize) return;
+    const history = this.dataHistory.get(metric)
+    if (!history || history.length < this.config.autoThreshold.minSampleSize) return
 
-    const baseline = this.baselines.get(metric);
-    if (!baseline) return;
+    const baseline = this.baselines.get(metric)
+    if (!baseline) return
 
-    let metricType: string | null = null;
-    if (metric.includes("response") || metric.includes("latency")) metricType = "responseTime";
-    else if (metric.includes("memory") || metric.includes("heap")) metricType = "memoryUsage";
-    else if (metric.includes("error")) metricType = "errorRate";
-    else if (metric.includes("cpu")) metricType = "cpuUsage";
+    let metricType: string | null = null
+    if (metric.includes('response') || metric.includes('latency')) metricType = 'responseTime'
+    else if (metric.includes('memory') || metric.includes('heap')) metricType = 'memoryUsage'
+    else if (metric.includes('error')) metricType = 'errorRate'
+    else if (metric.includes('cpu')) metricType = 'cpuUsage'
 
-    if (!metricType) return;
+    if (!metricType) return
 
-    const config = this.config.metrics[metricType as keyof typeof this.config.metrics];
+    const config = this.config.metrics[metricType as keyof typeof this.config.metrics]
     const currentThreshold = this.dynamicThresholds.get(metricType) || {
       warning: config.warningThreshold,
       critical: config.criticalThreshold,
-    };
+    }
 
-    const suggestedWarning = baseline.p95;
-    const suggestedCritical = baseline.p99;
+    const suggestedWarning = baseline.p95
+    const suggestedCritical = baseline.p99
 
-    const newWarning = currentThreshold.warning * this.config.autoThreshold.historicalWeight +
-                       suggestedWarning * (1 - this.config.autoThreshold.historicalWeight);
-    const newCritical = currentThreshold.critical * this.config.autoThreshold.historicalWeight +
-                        suggestedCritical * (1 - this.config.autoThreshold.historicalWeight);
+    const newWarning =
+      currentThreshold.warning * this.config.autoThreshold.historicalWeight +
+      suggestedWarning * (1 - this.config.autoThreshold.historicalWeight)
+    const newCritical =
+      currentThreshold.critical * this.config.autoThreshold.historicalWeight +
+      suggestedCritical * (1 - this.config.autoThreshold.historicalWeight)
 
-    const maxAdjustment = config.warningThreshold * (this.config.autoThreshold.maxAdjustmentPercent / 100);
+    const maxAdjustment =
+      config.warningThreshold * (this.config.autoThreshold.maxAdjustmentPercent / 100)
     const clampedWarning = Math.max(
       config.warningThreshold - maxAdjustment,
       Math.min(config.warningThreshold + maxAdjustment, newWarning)
-    );
+    )
     const clampedCritical = Math.max(
       config.criticalThreshold - maxAdjustment,
       Math.min(config.criticalThreshold + maxAdjustment, newCritical)
-    );
+    )
 
-    const warningChange = Math.abs(clampedWarning - currentThreshold.warning) / currentThreshold.warning;
+    const warningChange =
+      Math.abs(clampedWarning - currentThreshold.warning) / currentThreshold.warning
     if (warningChange > 0.05) {
       this.dynamicThresholds.set(metricType, {
         warning: clampedWarning,
         critical: clampedCritical,
-      });
+      })
 
-      this.lastThresholdAdjustment.set(metric, Date.now());
+      this.lastThresholdAdjustment.set(metric, Date.now())
 
       const adjustment: ThresholdAdjustment = {
         metric: metricType,
@@ -967,10 +1016,10 @@ export class EnhancedAnomalyDetector extends EventEmitter {
         adjustedAt: Date.now(),
         dataPoints: history.length,
         confidence: Math.min(history.length / 100, 1),
-      };
+      }
 
-      this.thresholdAdjustments.push(adjustment);
-      this.emit("thresholdAdjusted", adjustment);
+      this.thresholdAdjustments.push(adjustment)
+      this.emit('thresholdAdjusted', adjustment)
     }
   }
 
@@ -978,26 +1027,26 @@ export class EnhancedAnomalyDetector extends EventEmitter {
    * Get threshold adjustments history
    */
   getThresholdAdjustments(): ThresholdAdjustment[] {
-    return [...this.thresholdAdjustments];
+    return [...this.thresholdAdjustments]
   }
 
   /**
    * Get current dynamic thresholds
    */
   getDynamicThresholds(): Map<string, { warning: number; critical: number }> {
-    return new Map(this.dynamicThresholds);
+    return new Map(this.dynamicThresholds)
   }
 
   /**
    * Handle anomaly detection
    */
   private handleAnomalyDetection(detection: AnomalyDetection): void {
-    const lastAlert = this.lastAlertTime.get(detection.metric) || 0;
-    if (Date.now() - lastAlert < this.config.alertConfig.cooldownMs) return;
+    const lastAlert = this.lastAlertTime.get(detection.metric) || 0
+    if (Date.now() - lastAlert < this.config.alertConfig.cooldownMs) return
 
-    const currentLevel = getSeverityLevel(detection.severity);
-    const minLevel = getSeverityLevel(this.config.alertConfig.minSeverity);
-    if (currentLevel < minLevel) return;
+    const currentLevel = getSeverityLevel(detection.severity)
+    const minLevel = getSeverityLevel(this.config.alertConfig.minSeverity)
+    if (currentLevel < minLevel) return
 
     const event: AnomalyEvent = {
       id: `event-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
@@ -1005,71 +1054,80 @@ export class EnhancedAnomalyDetector extends EventEmitter {
       acknowledged: false,
       resolved: false,
       falsePositive: false,
-    };
+    }
 
-    this.anomalyEvents.push(event);
-    this.lastAlertTime.set(detection.metric, Date.now());
+    this.anomalyEvents.push(event)
+    this.lastAlertTime.set(detection.metric, Date.now())
 
-    this.triggerAlert(detection);
-    this.emit("anomaly", detection);
-    this.emit("anomalyEvent", event);
+    this.triggerAlert(detection)
+    this.emit('anomaly', detection)
+    this.emit('anomalyEvent', event)
   }
 
   /**
    * Trigger alert
    */
   private triggerAlert(detection: AnomalyDetection): void {
-    if (!this.config.alertConfig.enabled) return;
+    if (!this.config.alertConfig.enabled) return
 
-    const severityLevels = { low: 1, medium: 2, high: 3, critical: 4 };
-    const minLevel = severityLevels[this.config.alertConfig.minSeverity];
-    const currentLevel = severityLevels[detection.severity];
+    const severityLevels = { low: 1, medium: 2, high: 3, critical: 4 }
+    const minLevel = severityLevels[this.config.alertConfig.minSeverity]
+    const currentLevel = severityLevels[detection.severity]
 
-    if (currentLevel < minLevel) return;
+    if (currentLevel < minLevel) return
 
-    if (this.config.alertConfig.channels.includes("console")) {
-      const emoji = detection.severity === "critical" ? "🚨" : 
-                    detection.severity === "high" ? "⚠️" : 
-                    detection.severity === "medium" ? "📊" : "ℹ️";
-      
-      const logMethod = detection.severity === "critical" ? console.error :
-                        detection.severity === "high" ? console.warn : console.log;
-      
-      logMethod(
-        `${emoji} [Anomaly] ${detection.metric}: ${detection.reason}`,
-        {
-          value: detection.value,
-          zScore: detection.zScore.toFixed(2),
-          algorithm: detection.algorithm,
-          baseline: {
-            mean: detection.baseline.mean.toFixed(2),
-            stdDev: detection.baseline.stdDev.toFixed(2),
-          },
-        }
-      );
+    if (this.config.alertConfig.channels.includes('console')) {
+      const emoji =
+        detection.severity === 'critical'
+          ? '🚨'
+          : detection.severity === 'high'
+            ? '⚠️'
+            : detection.severity === 'medium'
+              ? '📊'
+              : 'ℹ️'
+
+      const logMethod =
+        detection.severity === 'critical'
+          ? console.error
+          : detection.severity === 'high'
+            ? console.warn
+            : console.log
+
+      logMethod(`${emoji} [Anomaly] ${detection.metric}: ${detection.reason}`, {
+        value: detection.value,
+        zScore: detection.zScore.toFixed(2),
+        algorithm: detection.algorithm,
+        baseline: {
+          mean: detection.baseline.mean.toFixed(2),
+          stdDev: detection.baseline.stdDev.toFixed(2),
+        },
+      })
     }
 
-    if (this.config.alertConfig.channels.includes("webhook") && this.config.alertConfig.webhookUrl) {
-      this.sendWebhookAlert(detection).catch((err) => {
-        console.error("[Anomaly] Failed to send webhook alert:", err);
-      });
+    if (
+      this.config.alertConfig.channels.includes('webhook') &&
+      this.config.alertConfig.webhookUrl
+    ) {
+      this.sendWebhookAlert(detection).catch(err => {
+        console.error('[Anomaly] Failed to send webhook alert:', err)
+      })
     }
 
-    if (this.config.alertConfig.channels.includes("sentry")) {
-      this.sendSentryAlert(detection);
+    if (this.config.alertConfig.channels.includes('sentry')) {
+      this.sendSentryAlert(detection)
     }
   }
 
   private async sendWebhookAlert(detection: AnomalyDetection): Promise<void> {
-    const webhookUrl = this.config.alertConfig.webhookUrl;
-    if (!webhookUrl) return;
+    const webhookUrl = this.config.alertConfig.webhookUrl
+    if (!webhookUrl) return
 
     try {
       await fetch(webhookUrl, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          type: "anomaly_alert",
+          type: 'anomaly_alert',
           severity: detection.severity,
           metric: detection.metric,
           value: detection.value,
@@ -1083,18 +1141,22 @@ export class EnhancedAnomalyDetector extends EventEmitter {
           },
           timestamp: detection.detectedAt,
         }),
-      });
+      })
     } catch (error) {
-      throw error;
+      throw error
     }
   }
 
   private sendSentryAlert(detection: AnomalyDetection): void {
-    import("@sentry/nextjs")
-      .then((Sentry) => {
+    import('@sentry/nextjs')
+      .then(Sentry => {
         Sentry.captureMessage(detection.reason, {
-          level: detection.severity === "critical" ? "error" : 
-                 detection.severity === "high" ? "warning" : "info",
+          level:
+            detection.severity === 'critical'
+              ? 'error'
+              : detection.severity === 'high'
+                ? 'warning'
+                : 'info',
           tags: {
             anomaly_metric: detection.metric,
             anomaly_severity: detection.severity,
@@ -1105,121 +1167,128 @@ export class EnhancedAnomalyDetector extends EventEmitter {
             zScore: detection.zScore,
             baseline: detection.baseline,
           },
-        });
+        })
       })
       .catch(() => {
         // Sentry not available
-      });
+      })
   }
 
   trackResponseTime(operation: string, durationMs: number): AnomalyDetection | null {
-    const metric = `response_time_${operation}`;
-    this.trackMetric(metric, durationMs, { operation });
-    return this.detectAnomaly(metric, durationMs);
+    const metric = `response_time_${operation}`
+    this.trackMetric(metric, durationMs, { operation })
+    return this.detectAnomaly(metric, durationMs)
   }
 
-  trackMemoryUsage(usedPercent: number, totalMB?: number, usedMB?: number): AnomalyDetection | null {
-    const metric = "memory_usage_percent";
-    this.trackMetric(metric, usedPercent, { totalMB, usedMB });
-    return this.detectAnomaly(metric, usedPercent);
+  trackMemoryUsage(
+    usedPercent: number,
+    totalMB?: number,
+    usedMB?: number
+  ): AnomalyDetection | null {
+    const metric = 'memory_usage_percent'
+    this.trackMetric(metric, usedPercent, { totalMB, usedMB })
+    return this.detectAnomaly(metric, usedPercent)
   }
 
-  trackErrorRate(rate: number, totalRequests?: number, errorCount?: number): AnomalyDetection | null {
-    const metric = "error_rate_percent";
-    this.trackMetric(metric, rate, { totalRequests, errorCount });
-    return this.detectAnomaly(metric, rate);
+  trackErrorRate(
+    rate: number,
+    totalRequests?: number,
+    errorCount?: number
+  ): AnomalyDetection | null {
+    const metric = 'error_rate_percent'
+    this.trackMetric(metric, rate, { totalRequests, errorCount })
+    return this.detectAnomaly(metric, rate)
   }
 
   trackCpuUsage(percent: number): AnomalyDetection | null {
-    const metric = "cpu_usage_percent";
-    this.trackMetric(metric, percent);
-    return this.detectAnomaly(metric, percent);
+    const metric = 'cpu_usage_percent'
+    this.trackMetric(metric, percent)
+    return this.detectAnomaly(metric, percent)
   }
 
   getAnomalyEvents(startTime?: number, limit: number = 100): AnomalyEvent[] {
-    let events = [...this.anomalyEvents];
-    
+    let events = [...this.anomalyEvents]
+
     if (startTime) {
-      events = events.filter((e) => e.detection.detectedAt >= startTime);
+      events = events.filter(e => e.detection.detectedAt >= startTime)
     }
-    
-    return events.slice(-limit);
+
+    return events.slice(-limit)
   }
 
   acknowledgeEvent(eventId: string, acknowledgedBy?: string): boolean {
-    const event = this.anomalyEvents.find((e) => e.id === eventId);
+    const event = this.anomalyEvents.find(e => e.id === eventId)
     if (event) {
-      event.acknowledged = true;
-      event.acknowledgedAt = Date.now();
-      event.acknowledgedBy = acknowledgedBy;
-      this.emit("acknowledged", event);
-      return true;
+      event.acknowledged = true
+      event.acknowledgedAt = Date.now()
+      event.acknowledgedBy = acknowledgedBy
+      this.emit('acknowledged', event)
+      return true
     }
-    return false;
+    return false
   }
 
   resolveEvent(eventId: string, notes?: string): boolean {
-    const event = this.anomalyEvents.find((e) => e.id === eventId);
+    const event = this.anomalyEvents.find(e => e.id === eventId)
     if (event) {
-      event.resolved = true;
-      event.resolvedAt = Date.now();
-      event.notes = notes;
-      event.detection.resolvedAt = Date.now();
-      this.emit("resolved", event);
-      return true;
+      event.resolved = true
+      event.resolvedAt = Date.now()
+      event.notes = notes
+      event.detection.resolvedAt = Date.now()
+      this.emit('resolved', event)
+      return true
     }
-    return false;
+    return false
   }
 
   markAsFalsePositive(eventId: string, notes?: string): boolean {
-    const event = this.anomalyEvents.find((e) => e.id === eventId);
+    const event = this.anomalyEvents.find(e => e.id === eventId)
     if (event) {
-      event.falsePositive = true;
-      event.notes = notes;
-      this.emit("falsePositive", event);
-      return true;
+      event.falsePositive = true
+      event.notes = notes
+      this.emit('falsePositive', event)
+      return true
     }
-    return false;
+    return false
   }
 
   getStatistics(): {
-    metricsTracked: number;
-    totalDataPoints: number;
-    baselines: number;
-    anomalyEvents: number;
-    unacknowledgedEvents: number;
-    unresolvedEvents: number;
-    falsePositiveRate: number;
-    bySeverity: Record<string, number>;
-    byMetric: Record<string, number>;
-    byAlgorithm: Record<string, number>;
+    metricsTracked: number
+    totalDataPoints: number
+    baselines: number
+    anomalyEvents: number
+    unacknowledgedEvents: number
+    unresolvedEvents: number
+    falsePositiveRate: number
+    bySeverity: Record<string, number>
+    byMetric: Record<string, number>
+    byAlgorithm: Record<string, number>
   } {
-    let totalDataPoints = 0;
-    this.dataHistory.forEach((history) => {
-      totalDataPoints += history.length;
-    });
+    let totalDataPoints = 0
+    this.dataHistory.forEach(history => {
+      totalDataPoints += history.length
+    })
 
-    const unacknowledgedEvents = this.anomalyEvents.filter((e) => !e.acknowledged).length;
-    const unresolvedEvents = this.anomalyEvents.filter((e) => !e.resolved && !e.falsePositive).length;
-    const falsePositiveCount = this.anomalyEvents.filter((e) => e.falsePositive).length;
-    const falsePositiveRate = this.anomalyEvents.length > 0 
-      ? falsePositiveCount / this.anomalyEvents.length 
-      : 0;
+    const unacknowledgedEvents = this.anomalyEvents.filter(e => !e.acknowledged).length
+    const unresolvedEvents = this.anomalyEvents.filter(e => !e.resolved && !e.falsePositive).length
+    const falsePositiveCount = this.anomalyEvents.filter(e => e.falsePositive).length
+    const falsePositiveRate =
+      this.anomalyEvents.length > 0 ? falsePositiveCount / this.anomalyEvents.length : 0
 
-    const bySeverity: Record<string, number> = {};
-    const byMetric: Record<string, number> = {};
-    const byAlgorithm: Record<string, number> = {};
-    
-    this.anomalyEvents.forEach((event) => {
-      const severity = event.detection.severity;
-      bySeverity[severity] = (bySeverity[severity] || 0) + 1;
-      
-      const metric = event.detection.metric;
-      byMetric[metric] = (byMetric[metric] || 0) + 1;
-      
-      const algorithm = event.detection.algorithm;
-      byAlgorithm[algorithm] = (byAlgorithm[algorithm] || 0) + 1;
-    });
+    const bySeverity: Record<string, number> = {}
+    const byMetric: Record<string, number> = {}
+    const byAlgorithm: Record<string, number> = {}
+
+    this.anomalyEvents.forEach(event => {
+      const severity = event.detection.severity
+      bySeverity[severity] = (bySeverity[severity] || 0) + 1
+
+      const metric = event.detection.metric
+      byMetric[metric] = (byMetric[metric] || 0) + 1
+
+      const algorithm = event.detection.algorithm
+      byAlgorithm[algorithm] = (byAlgorithm[algorithm] || 0) + 1
+    })
 
     return {
       metricsTracked: this.dataHistory.size,
@@ -1232,61 +1301,61 @@ export class EnhancedAnomalyDetector extends EventEmitter {
       bySeverity,
       byMetric,
       byAlgorithm,
-    };
+    }
   }
 
   updateConfig(partialConfig: Partial<AnomalyDetectorConfig>): void {
-    this.config = { ...this.config, ...partialConfig };
+    this.config = { ...this.config, ...partialConfig }
   }
 
   clearMetric(metric: string): void {
-    this.dataHistory.delete(metric);
-    this.baselines.delete(metric);
-    this.lastAlertTime.delete(metric);
-    this.lastThresholdAdjustment.delete(metric);
+    this.dataHistory.delete(metric)
+    this.baselines.delete(metric)
+    this.lastAlertTime.delete(metric)
+    this.lastThresholdAdjustment.delete(metric)
   }
 
   clearAll(): void {
-    this.dataHistory.clear();
-    this.baselines.clear();
-    this.anomalyEvents = [];
-    this.lastAlertTime.clear();
-    this.lastThresholdAdjustment.clear();
-    this.thresholdAdjustments = [];
-    this.dynamicThresholds.clear();
+    this.dataHistory.clear()
+    this.baselines.clear()
+    this.anomalyEvents = []
+    this.lastAlertTime.clear()
+    this.lastThresholdAdjustment.clear()
+    this.thresholdAdjustments = []
+    this.dynamicThresholds.clear()
   }
 
   exportState(): {
-    baselines: MetricBaseline[];
-    events: AnomalyEvent[];
-    dynamicThresholds: Record<string, { warning: number; critical: number }>;
+    baselines: MetricBaseline[]
+    events: AnomalyEvent[]
+    dynamicThresholds: Record<string, { warning: number; critical: number }>
   } {
-    const thresholds: Record<string, { warning: number; critical: number }> = {};
+    const thresholds: Record<string, { warning: number; critical: number }> = {}
     this.dynamicThresholds.forEach((value, key) => {
-      thresholds[key] = value;
-    });
-    
+      thresholds[key] = value
+    })
+
     return {
       baselines: Array.from(this.baselines.values()),
       events: this.anomalyEvents.slice(-100),
       dynamicThresholds: thresholds,
-    };
+    }
   }
 
-  importState(state: { 
-    baselines: MetricBaseline[]; 
-    events: AnomalyEvent[];
-    dynamicThresholds?: Record<string, { warning: number; critical: number }>;
+  importState(state: {
+    baselines: MetricBaseline[]
+    events: AnomalyEvent[]
+    dynamicThresholds?: Record<string, { warning: number; critical: number }>
   }): void {
-    state.baselines.forEach((baseline) => {
-      this.baselines.set(baseline.metric, baseline);
-    });
-    this.anomalyEvents = state.events;
-    
+    state.baselines.forEach(baseline => {
+      this.baselines.set(baseline.metric, baseline)
+    })
+    this.anomalyEvents = state.events
+
     if (state.dynamicThresholds) {
       Object.entries(state.dynamicThresholds).forEach(([key, value]) => {
-        this.dynamicThresholds.set(key, value);
-      });
+        this.dynamicThresholds.set(key, value)
+      })
     }
   }
 }
@@ -1295,37 +1364,37 @@ export class EnhancedAnomalyDetector extends EventEmitter {
 // Singleton Instance
 // ========================================
 
-export const enhancedAnomalyDetector = new EnhancedAnomalyDetector();
+export const enhancedAnomalyDetector = new EnhancedAnomalyDetector()
 
 // ========================================
 // Utility Functions
 // ========================================
 
 export function calculateMean(values: number[]): number {
-  if (values.length === 0) return 0;
-  return values.reduce((sum, v) => sum + v, 0) / values.length;
+  if (values.length === 0) return 0
+  return values.reduce((sum, v) => sum + v, 0) / values.length
 }
 
 export function calculateStdDev(values: number[], mean?: number): number {
-  if (values.length === 0) return 0;
-  const m = mean ?? calculateMean(values);
-  const variance = values.reduce((sum, v) => sum + Math.pow(v - m, 2), 0) / values.length;
-  return Math.sqrt(variance);
+  if (values.length === 0) return 0
+  const m = mean ?? calculateMean(values)
+  const variance = values.reduce((sum, v) => sum + Math.pow(v - m, 2), 0) / values.length
+  return Math.sqrt(variance)
 }
 
 export function calculateZScore(value: number, mean: number, stdDev: number): number {
-  if (stdDev === 0) return 0;
-  return (value - mean) / stdDev;
+  if (stdDev === 0) return 0
+  return (value - mean) / stdDev
 }
 
 export function isAnomaly(
   value: number,
   mean: number,
   stdDev: number,
-  threshold: number = 2,
+  threshold: number = 2
 ): boolean {
-  const zScore = Math.abs(calculateZScore(value, mean, stdDev));
-  return zScore >= threshold;
+  const zScore = Math.abs(calculateZScore(value, mean, stdDev))
+  return zScore >= threshold
 }
 
-export default EnhancedAnomalyDetector;
+export default EnhancedAnomalyDetector

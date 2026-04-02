@@ -10,6 +10,7 @@
 ## 执行摘要
 
 本次优化工作专注于：
+
 1. ✅ 修复 TypeScript 类型错误，确保构建成功
 2. ✅ 检查 React 19 兼容性
 3. ✅ 分析 bundle 大小和结构
@@ -31,11 +32,13 @@ grep -r "use client" src/app --include="*.tsx" | head -30
 ```
 
 **结果**：
+
 - ✅ 共发现 **29 个** 客户端组件正确标记了 `"use client"`
 - ✅ 所有需要客户端交互的组件（Dashboard、Tasks、Settings 等）都已正确标记
 - ✅ 错误边界组件（error.tsx、global-error.tsx）也正确标记
 
 **关键组件清单**：
+
 - `/app/collaboration-demo/page.tsx` - 协作演示
 - `/app/[locale]/dashboard/DashboardClient.tsx` - 仪表板客户端
 - `/app/[locale]/tasks/page.tsx` - 任务管理
@@ -44,6 +47,7 @@ grep -r "use client" src/app --include="*.tsx" | head -30
 - 所有 error.tsx 和 global-error.tsx 文件
 
 **React 19 兼容性评估**：
+
 - ✅ 无全局错误或警告
 - ✅ 所有组件已正确使用 Server/Client 分离
 - ✅ 无过时的 React API 使用
@@ -60,6 +64,7 @@ grep -r "use client" src/app --include="*.tsx" | head -30
 **✅ 已实施的优化**：
 
 1. **包导入优化**（`optimizePackageImports`）：
+
    ```typescript
    optimizePackageImports: [
      'next-intl',
@@ -96,28 +101,28 @@ grep -r "use client" src/app --include="*.tsx" | head -30
 
 **最大的 10 个 bundle chunks**：
 
-| 文件名 | 大小 | 说明 |
-|--------|------|------|
+| 文件名             | 大小                    | 说明                                      |
+| ------------------ | ----------------------- | ----------------------------------------- |
 | `14gdm6ol_wnf0.js` | 1,023,317 bytes (~1 MB) | **最大 chunk** - 可能是 Three.js 或大型库 |
-| `12t~kz~4.q0-f.js` | 394,763 bytes (~386 KB) | 可能是 chart-libs 或 framework |
-| `0q5fztl601nve.js` | 394,763 bytes (~386 KB | 重复的 chunk - 可能需要优化 |
-| `0n9rk97mk66we.js` | 231,729 bytes (~226 KB) | UI 库或其他 vendor |
-| `12ozqaso4t9fh.js` | 135,198 bytes (~132 KB) | 中型 vendor chunk |
-| `0.9z_i_1o9-ah.js` | 135,198 bytes (~132 KB) | 重复的 chunk |
-| `11qo67ljpx4zv.js` | 134,822 bytes (~132 KB) | 中型 vendor chunk |
-| `03~yq9q893hmn.js` | 112,594 bytes (~110 KB) | 小型 vendor chunk |
+| `12t~kz~4.q0-f.js` | 394,763 bytes (~386 KB) | 可能是 chart-libs 或 framework            |
+| `0q5fztl601nve.js` | 394,763 bytes (~386 KB  | 重复的 chunk - 可能需要优化               |
+| `0n9rk97mk66we.js` | 231,729 bytes (~226 KB) | UI 库或其他 vendor                        |
+| `12ozqaso4t9fh.js` | 135,198 bytes (~132 KB) | 中型 vendor chunk                         |
+| `0.9z_i_1o9-ah.js` | 135,198 bytes (~132 KB) | 重复的 chunk                              |
+| `11qo67ljpx4zv.js` | 134,822 bytes (~132 KB) | 中型 vendor chunk                         |
+| `03~yq9q893hmn.js` | 112,594 bytes (~110 KB) | 小型 vendor chunk                         |
 
 **总计客户端 bundle**: ~3.5 MB（压缩后预估 ~1.2 MB）
 
 ### 2.3 最大的页面组件
 
-| 文件名 | 大小 | 说明 |
-|--------|------|------|
-| `src/app/[locale]/page.tsx` | 30,413 bytes (~30 KB) | 主页 |
-| `src/app/[locale]/about/page.tsx` | 24,760 bytes (~24 KB) | 关于页面 |
+| 文件名                                           | 大小                  | 说明         |
+| ------------------------------------------------ | --------------------- | ------------ |
+| `src/app/[locale]/page.tsx`                      | 30,413 bytes (~30 KB) | 主页         |
+| `src/app/[locale]/about/page.tsx`                | 24,760 bytes (~24 KB) | 关于页面     |
 | `src/app/[locale]/dashboard/DashboardClient.tsx` | 22,854 bytes (~23 KB) | 仪表板客户端 |
-| `src/app/[locale]/team/page.test.tsx` | 20,501 bytes (~20 KB) | 测试文件 |
-| `src/app/[locale]/blog/[slug]/page.tsx` | 17,180 bytes (~17 KB) | 博客详情页 |
+| `src/app/[locale]/team/page.test.tsx`            | 20,501 bytes (~20 KB) | 测试文件     |
+| `src/app/[locale]/blog/[slug]/page.tsx`          | 17,180 bytes (~17 KB) | 博客详情页   |
 
 ---
 
@@ -130,6 +135,7 @@ npm run build
 ```
 
 **构建结果**：
+
 ```
 ✓ Compiled successfully in 65s
 ✓ Running TypeScript ... (通过)
@@ -139,6 +145,7 @@ npm run build
 ```
 
 **路由统计**：
+
 - 静态页面 (○): 5 个
 - 动态页面 (ƒ): 89 个
 - 总页面数: 94 个
@@ -146,11 +153,13 @@ npm run build
 ### 3.2 Lazy Loading 验证
 
 **已使用 dynamic import 的组件**：
+
 - ✅ PortfolioGrid（懒加载）
 - ✅ PerformanceCharts（懒加载）
 - ✅ DashboardClient（客户端组件）
 
 **验证方法**：
+
 ```typescript
 // 正确的懒加载示例
 const PerformanceCharts = dynamic(
@@ -166,6 +175,7 @@ const PerformanceCharts = dynamic(
 ### 4.1 修复的问题
 
 **问题 1**: `CreateTaskRequest` 重复声明
+
 ```typescript
 // ❌ 修复前（第 59 行和第 229 行）
 export interface CreateTaskRequest { ... }
@@ -177,6 +187,7 @@ function validateCreateTaskRequest(data: Partial<CreateTaskRequest>): { ... }
 ```
 
 **问题 2**: `UpdateTaskRequest` 重复声明
+
 ```typescript
 // ❌ 修复前（第 77 行和第 265 行）
 export interface UpdateTaskRequest { ... }
@@ -188,12 +199,13 @@ function validateUpdateTaskRequest(data: Partial<UpdateTaskRequest>): { ... }
 ```
 
 **问题 3**: 数据库查询类型转换
+
 ```typescript
 // ❌ 修复前
-const items = (rows as unknown as TaskRow[]).map(rowToTask);
+const items = (rows as unknown as TaskRow[]).map(rowToTask)
 
 // ✅ 修复后
-const items = (rows as Record<string, unknown>[]).map(row => rowToTask(row as unknown as TaskRow));
+const items = (rows as Record<string, unknown>[]).map(row => rowToTask(row as unknown as TaskRow))
 ```
 
 ### 4.2 修复的文件
@@ -209,6 +221,7 @@ const items = (rows as Record<string, unknown>[]).map(row => rowToTask(row as un
 **当前状态**：所有页面组件都在初始 bundle 中加载
 
 **建议实施**：
+
 ```typescript
 // src/app/[locale]/portfolio/page.tsx
 import dynamic from 'next/dynamic';
@@ -233,6 +246,7 @@ const ProjectCard = dynamic(() => import('./components/ProjectCard'), {
 **当前状态**：最大的 chunk (1 MB) 可能是 Three.js
 
 **建议实施**：
+
 ```typescript
 // 只在使用 3D 功能的页面导入
 const ThreeScene = dynamic(
@@ -245,18 +259,19 @@ const ThreeScene = dynamic(
 ```
 
 **或者使用 CDN**：
+
 ```typescript
 // next.config.ts
 const nextConfig = {
-  webpack: (config) => {
+  webpack: config => {
     config.externals = {
       ...config.externals,
-      'three': 'three',
+      three: 'three',
       '@react-three/fiber': 'ReactThreeFiber',
-    };
-    return config;
+    }
+    return config
   },
-};
+}
 ```
 
 **预期收益**：减少 bundle 大小 ~800 KB
@@ -268,6 +283,7 @@ const nextConfig = {
 **当前状态**：无预加载策略
 
 **建议实施**：
+
 ```typescript
 // src/app/[locale]/layout.tsx
 import { preload } from 'react-dom';
@@ -298,6 +314,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
 **当前状态**：`src/app/[locale]/page.tsx` 是 30 KB
 
 **建议实施**：
+
 ```typescript
 // 将主页面拆分为更小的组件
 // src/app/[locale]/page.tsx
@@ -322,6 +339,7 @@ const ShowcasesSection = dynamic(
 **当前状态**：已有 `optimizeCss: true` 但未最大化利用
 
 **建议实施**：
+
 ```typescript
 // next.config.ts
 const nextConfig: NextConfig = {
@@ -336,19 +354,21 @@ const nextConfig: NextConfig = {
         [
           '@fullhuman/postcss-purgecss',
           {
-            content: [
-              './src/**/*.{js,ts,jsx,tsx}',
-            ],
-            defaultExtractor: (content) => content.match(/[\w-/:]+(?<!:)/g) || [],
+            content: ['./src/**/*.{js,ts,jsx,tsx}'],
+            defaultExtractor: content => content.match(/[\w-/:]+(?<!:)/g) || [],
             safelist: {
-              standard: [/-(leave|enter|appear)(|-(to|from|active))$/, /^(?!(|.*?:)cursor-move).+-move$/, /^router-link(|-exact)-active$/],
+              standard: [
+                /-(leave|enter|appear)(|-(to|from|active))$/,
+                /^(?!(|.*?:)cursor-move).+-move$/,
+                /^router-link(|-exact)-active$/,
+              ],
             },
           },
         ],
       ],
     },
   },
-};
+}
 ```
 
 **预期收益**：CSS 减少 40-60%
@@ -358,10 +378,12 @@ const nextConfig: NextConfig = {
 ## 6. Bundle 变化总结
 
 ### 修复前（构建失败）
+
 - ❌ TypeScript 类型检查失败
 - ❌ 无法完成构建
 
 ### 修复后（构建成功）
+
 - ✅ TypeScript 类型检查通过
 - ✅ 构建成功，耗时 65 秒
 - ✅ 总客户端 bundle: ~3.5 MB（未压缩）
@@ -370,6 +392,7 @@ const nextConfig: NextConfig = {
 - ✅ 动态页面: 89 个
 
 ### 优化潜力
+
 - 通过实施 5 个建议，预期可以：
   - 减少 bundle 大小 30-40%
   - 提升首次内容绘制 (FCP) 20-30%
@@ -380,16 +403,19 @@ const nextConfig: NextConfig = {
 ## 7. 下一步行动
 
 ### 立即实施（高优先级）
+
 1. ✅ **已完成**：修复 TypeScript 类型错误
 2. 🔄 **进行中**：启用动态导入进行路由级代码分割
 3. 📋 **计划**：优化 Three.js 加载策略
 
 ### 短期实施（1-2 周）
+
 1. 📋 实施路由预加载策略
 2. 📋 拆分大型页面组件
 3. 📋 优化 CSS 和 PurgeCSS
 
 ### 长期规划（1 个月+）
+
 1. 📋 监控和优化 Web Vitals
 2. 📋 实施 Service Worker 缓存策略
 3. 📋 考虑使用 Edge Runtime 支持的 API
@@ -401,11 +427,13 @@ const nextConfig: NextConfig = {
 ### 建议的监控指标
 
 **Core Web Vitals**：
+
 - LCP (Largest Contentful Paint): < 2.5s
 - FID (First Input Delay): < 100ms
 - CLS (Cumulative Layout Shift): < 0.1
 
 **Bundle 大小**：
+
 - 初始 JS: < 200 KB (gzipped)
 - 每个路由 JS: < 100 KB (gzipped)
 - 总 CSS: < 50 KB (gzipped)
@@ -464,6 +492,7 @@ ANALYZE=true npm run build 2>&1 | tail -100
 ### B. 修复的代码片段
 
 #### 修复 1: CreateTaskRequest 类型冲突
+
 ```typescript
 // 文件: src/app/api/tasks/route.ts
 // 行数: 59, 229, 241
@@ -479,6 +508,7 @@ function validateCreateTaskRequest(data: Partial<CreateTaskRequest>): { ... }
 ```
 
 #### 修复 2: UpdateTaskRequest 类型冲突
+
 ```typescript
 // 文件: src/app/api/tasks/route.ts
 // 行数: 77, 265, 277
@@ -494,15 +524,16 @@ function validateUpdateTaskRequest(data: Partial<UpdateTaskRequest>): { ... }
 ```
 
 #### 修复 3: 数据库查询类型转换
+
 ```typescript
 // 文件: src/app/api/tasks/route.ts
 // 行数: 450
 
 // 修复前
-const items = (rows as unknown as TaskRow[]).map(rowToTask);
+const items = (rows as unknown as TaskRow[]).map(rowToTask)
 
 // 修复后
-const items = (rows as Record<string, unknown>[]).map(row => rowToTask(row as unknown as TaskRow));
+const items = (rows as Record<string, unknown>[]).map(row => rowToTask(row as unknown as TaskRow))
 ```
 
 ---

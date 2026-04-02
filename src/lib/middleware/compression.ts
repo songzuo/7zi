@@ -12,13 +12,13 @@
  * - 跳过已压缩的内容
  */
 
-import { NextResponse } from 'next/server';
-import { z } from 'zod';
-import { gzip, gunzip, constants } from 'zlib';
-import { promisify } from 'util';
+import { NextResponse } from 'next/server'
+import { z } from 'zod'
+import { gzip, gunzip, constants } from 'zlib'
+import { promisify } from 'util'
 
-const gzipAsync = promisify(gzip);
-const gunzipAsync = promisify(gunzip);
+const gzipAsync = promisify(gzip)
+const gunzipAsync = promisify(gunzip)
 
 // ============================================================================
 // Configuration Schema
@@ -31,9 +31,9 @@ const CompressionConfigSchema = z.object({
   chunkSize: z.number().min(1024).default(16384), // Bytes
   memLevel: z.number().min(1).max(9).default(8),
   windowBits: z.number().min(8).max(15).default(15),
-});
+})
 
-export type CompressionConfig = z.infer<typeof CompressionConfigSchema>;
+export type CompressionConfig = z.infer<typeof CompressionConfigSchema>
 
 // ============================================================================
 // Default Configuration
@@ -46,22 +46,22 @@ export const DEFAULT_COMPRESSION_CONFIG: CompressionConfig = {
   chunkSize: 16384,
   memLevel: 8,
   windowBits: 15,
-};
+}
 
 // ============================================================================
 // Compression Statistics
 // ============================================================================
 
 interface CompressionStats {
-  totalRequests: number;
-  compressedResponses: number;
-  skippedResponses: number;
-  originalSize: number; // Total original size in bytes
-  compressedSize: number; // Total compressed size in bytes
+  totalRequests: number
+  compressedResponses: number
+  skippedResponses: number
+  originalSize: number // Total original size in bytes
+  compressedSize: number // Total compressed size in bytes
   byEncoding: {
-    gzip: number;
-    uncompressed: number;
-  };
+    gzip: number
+    uncompressed: number
+  }
 }
 
 class CompressionStatsCollector {
@@ -75,31 +75,31 @@ class CompressionStatsCollector {
       gzip: 0,
       uncompressed: 0,
     },
-  };
+  }
 
   record(originalSize: number, compressedSize: number | null, encoding: string): void {
-    this.stats.totalRequests++;
+    this.stats.totalRequests++
 
     if (compressedSize !== null) {
-      this.stats.compressedResponses++;
-      this.stats.originalSize += originalSize;
-      this.stats.compressedSize += compressedSize;
+      this.stats.compressedResponses++
+      this.stats.originalSize += originalSize
+      this.stats.compressedSize += compressedSize
 
       // Brotli removed, using gzip only
-      this.stats.byEncoding.gzip++;
+      this.stats.byEncoding.gzip++
     } else {
-      this.stats.skippedResponses++;
-      this.stats.byEncoding.uncompressed++;
+      this.stats.skippedResponses++
+      this.stats.byEncoding.uncompressed++
     }
   }
 
   getStats(): CompressionStats {
-    return { ...this.stats };
+    return { ...this.stats }
   }
 
   getCompressionRatio(): number {
-    if (this.stats.originalSize === 0) return 0;
-    return 1 - this.stats.compressedSize / this.stats.originalSize;
+    if (this.stats.originalSize === 0) return 0
+    return 1 - this.stats.compressedSize / this.stats.originalSize
   }
 
   reset(): void {
@@ -113,12 +113,12 @@ class CompressionStatsCollector {
         gzip: 0,
         uncompressed: 0,
       },
-    };
+    }
   }
 }
 
 // Global stats collector
-const statsCollector = new CompressionStatsCollector();
+const statsCollector = new CompressionStatsCollector()
 
 // ============================================================================
 // Compression Utilities
@@ -128,19 +128,22 @@ const statsCollector = new CompressionStatsCollector();
  * Detect supported compression encoding from Accept-Encoding header
  */
 export function detectEncoding(acceptEncoding: string | null): 'br' | 'gzip' | null {
-  if (!acceptEncoding) return null;
+  if (!acceptEncoding) return null
 
-  const encodings = acceptEncoding.toLowerCase().split(',').map(e => e.trim());
+  const encodings = acceptEncoding
+    .toLowerCase()
+    .split(',')
+    .map(e => e.trim())
 
   if (encodings.includes('br') || encodings.includes('br;q=1')) {
-    return 'br';
+    return 'br'
   }
 
   if (encodings.includes('gzip') || encodings.includes('gzip;q=1')) {
-    return 'gzip';
+    return 'gzip'
   }
 
-  return null;
+  return null
 }
 
 /**
@@ -152,10 +155,10 @@ function shouldCompress(
   config: CompressionConfig
 ): boolean {
   // Skip if compression is disabled
-  if (!config.enabled) return false;
+  if (!config.enabled) return false
 
   // Skip if content is too small
-  if (contentLength < config.threshold) return false;
+  if (contentLength < config.threshold) return false
 
   // Skip if content type is not compressible
   if (contentType) {
@@ -166,10 +169,10 @@ function shouldCompress(
       'application/xml',
       'application/xhtml+xml',
       'image/svg+xml',
-    ];
+    ]
 
-    const isCompressible = compressibleTypes.some(type => contentType.startsWith(type));
-    if (!isCompressible) return false;
+    const isCompressible = compressibleTypes.some(type => contentType.startsWith(type))
+    if (!isCompressible) return false
   }
 
   // Skip if already compressed
@@ -180,13 +183,13 @@ function shouldCompress(
     'application/x-compress',
     'application/x-compressed',
     'application/x-zip-compressed',
-  ];
+  ]
 
   if (contentType && alreadyCompressed.some(type => contentType.includes(type))) {
-    return false;
+    return false
   }
 
-  return true;
+  return true
 }
 
 /**
@@ -203,18 +206,15 @@ async function compressData(
     chunkSize: config.chunkSize,
     memLevel: config.memLevel,
     windowBits: config.windowBits,
-  });
+  })
 }
 
 /**
  * Decompress data (for testing/debugging)
  */
-export async function decompressData(
-  data: Buffer,
-  encoding: 'gzip' | 'br'
-): Promise<Buffer> {
+export async function decompressData(data: Buffer, encoding: 'gzip' | 'br'): Promise<Buffer> {
   // Brotli removed, using gzip only
-  return await gunzipAsync(data);
+  return await gunzipAsync(data)
 }
 
 // ============================================================================
@@ -224,46 +224,46 @@ export async function decompressData(
 /**
  * Wrap an API handler with compression middleware
  */
-export function withCompression<T extends any[]>(
+export function withCompression<T extends unknown[]>(
   handler: (...args: T) => Promise<NextResponse>,
   config: Partial<CompressionConfig> = {}
 ): (...args: T) => Promise<NextResponse> {
   const fullConfig: CompressionConfig = {
     ...DEFAULT_COMPRESSION_CONFIG,
     ...config,
-  };
+  }
 
   return async (...args: T): Promise<NextResponse> => {
-    const response = await handler(...args);
+    const response = await handler(...args)
 
     // Check if response should be compressed
-    const contentType = response.headers.get('Content-Type');
-    const contentLength = parseInt(response.headers.get('Content-Length') || '0');
+    const contentType = response.headers.get('Content-Type')
+    const contentLength = parseInt(response.headers.get('Content-Length') || '0')
 
     // Skip if no content
     if (contentLength === 0) {
-      return response;
+      return response
     }
 
     // Detect client's supported encoding
-    const encoding = detectEncoding(response.headers.get('Accept-Encoding'));
+    const encoding = detectEncoding(response.headers.get('Accept-Encoding'))
 
     // Skip if client doesn't support compression or content shouldn't be compressed
     if (!encoding || !shouldCompress(contentType, contentLength, fullConfig)) {
-      statsCollector.record(contentLength, null, 'uncompressed');
-      return response;
+      statsCollector.record(contentLength, null, 'uncompressed')
+      return response
     }
 
     try {
       // Get response body
-      const body = await response.arrayBuffer();
-      const buffer = Buffer.from(body);
+      const body = await response.arrayBuffer()
+      const buffer = Buffer.from(body)
 
       // Compress the body
-      const compressed = await compressData(buffer, encoding, fullConfig);
+      const compressed = await compressData(buffer, encoding, fullConfig)
 
       // Record statistics
-      statsCollector.record(buffer.length, compressed.length, encoding);
+      statsCollector.record(buffer.length, compressed.length, encoding)
 
       // Create new response with compressed body
       const compressedResponse = new NextResponse(new Uint8Array(compressed), {
@@ -273,22 +273,19 @@ export function withCompression<T extends any[]>(
           ...Object.fromEntries(response.headers.entries()),
           'Content-Encoding': encoding,
           'Content-Length': compressed.length.toString(),
-          'X-Compression-Ratio': (
-            (1 - compressed.length / buffer.length) *
-            100
-          ).toFixed(2) + '%',
-          'Vary': 'Accept-Encoding',
+          'X-Compression-Ratio': ((1 - compressed.length / buffer.length) * 100).toFixed(2) + '%',
+          Vary: 'Accept-Encoding',
         },
-      });
+      })
 
-      return compressedResponse;
-    } catch (_error) {
+      return compressedResponse
+    } catch (error) {
       // If compression fails, return original response
-      console.error('Compression failed:', error);
-      statsCollector.record(contentLength, null, 'uncompressed');
-      return response;
+      console.error('Compression failed:', error)
+      statsCollector.record(contentLength, null, 'uncompressed')
+      return response
     }
-  };
+  }
 }
 
 // ============================================================================
@@ -299,29 +296,29 @@ export function withCompression<T extends any[]>(
  * Get compression statistics
  */
 export function getCompressionStats(): CompressionStats {
-  return statsCollector.getStats();
+  return statsCollector.getStats()
 }
 
 /**
  * Get compression ratio (0-1)
  */
 export function getCompressionRatio(): number {
-  return statsCollector.getCompressionRatio();
+  return statsCollector.getCompressionRatio()
 }
 
 /**
  * Reset compression statistics
  */
 export function resetCompressionStats(): void {
-  statsCollector.reset();
+  statsCollector.reset()
 }
 
 /**
  * Format compression statistics for logging
  */
 export function formatCompressionStats(): string {
-  const stats = statsCollector.getStats();
-  const ratio = statsCollector.getCompressionRatio();
+  const stats = statsCollector.getStats()
+  const ratio = statsCollector.getCompressionRatio()
 
   return [
     'Compression Statistics:',
@@ -334,17 +331,14 @@ export function formatCompressionStats(): string {
     `  By Encoding:`,
     `    Gzip: ${stats.byEncoding.gzip}`,
     `    Uncompressed: ${stats.byEncoding.uncompressed}`,
-  ].join('\n');
+  ].join('\n')
 }
 
 // ============================================================================
 // Exports
 // ============================================================================
 
-export {
-  CompressionConfigSchema,
-  CompressionStatsCollector,
-};
+export { CompressionConfigSchema, CompressionStatsCollector }
 
 // Export singleton stats collector for testing
-export { statsCollector };
+export { statsCollector }

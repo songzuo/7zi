@@ -55,15 +55,15 @@
 
 ### 测试统计
 
-| 指标 | 数值 |
-|------|------|
-| **测试文件数** | 490+ |
-| **测试覆盖率** | 96% (v1.5.0 Agent Learning 系统) |
-| **单元测试** | 100+ 文件 |
-| **集成测试** | 50+ 文件 |
-| **E2E 测试** | 30+ 场景 |
-| **性能监控测试** | ✅ 新增 (v1.1.0) |
-| **Agent Learning 测试** | ✅ 新增 (v1.5.0, 96% 覆盖率) |
+| 指标                    | 数值                             |
+| ----------------------- | -------------------------------- |
+| **测试文件数**          | 490+                             |
+| **测试覆盖率**          | 96% (v1.5.0 Agent Learning 系统) |
+| **单元测试**            | 100+ 文件                        |
+| **集成测试**            | 50+ 文件                         |
+| **E2E 测试**            | 30+ 场景                         |
+| **性能监控测试**        | ✅ 新增 (v1.1.0)                 |
+| **Agent Learning 测试** | ✅ 新增 (v1.5.0, 96% 覆盖率)     |
 
 ### 运行测试
 
@@ -97,12 +97,12 @@ npm run test:perf
 
 ### 测试文件命名规范
 
-| 文件类型 | 命名规则 | 示例 |
-|---------|---------|------|
-| 单元测试 | `*.test.ts` | `utils.test.ts` |
-| 组件测试 | `*.test.tsx` | `Button.test.tsx` |
+| 文件类型 | 命名规则                | 示例                      |
+| -------- | ----------------------- | ------------------------- |
+| 单元测试 | `*.test.ts`             | `utils.test.ts`           |
+| 组件测试 | `*.test.tsx`            | `Button.test.tsx`         |
 | 集成测试 | `*.integration.test.ts` | `api.integration.test.ts` |
-| E2E 测试 | `*.e2e.test.ts` | `login.e2e.test.ts` |
+| E2E 测试 | `*.e2e.test.ts`         | `login.e2e.test.ts`       |
 
 **测试文件位置**: 与源文件同目录或 `__tests__/` 目录
 
@@ -133,7 +133,7 @@ describe('Button', () => {
   it('handles click events', () => {
     const handleClick = vi.fn()
     render(<Button onClick={handleClick}>Click</Button>)
-    
+
     fireEvent.click(screen.getByRole('button'))
     expect(handleClick).toHaveBeenCalledTimes(1)
   })
@@ -146,6 +146,7 @@ describe('Button', () => {
 ```
 
 **测试原则**:
+
 1. **测试用户行为**，而非实现细节
 2. **使用语义化查询**: `getByRole`, `getByText`, `getByLabelText`
 3. **Mock 外部依赖**: API 调用、路由、第三方库
@@ -185,11 +186,11 @@ import XLSX from 'xlsx'; // 会增加主 bundle 大小
 #### React.lazy 组件
 
 ```tsx
-import { lazy, Suspense } from 'react';
+import { lazy, Suspense } from 'react'
 
 // ✅ 使用 React.lazy 延迟加载组件
-const HeavyChart = lazy(() => import('./HeavyChart'));
-const SettingsPanel = lazy(() => import('./SettingsPanel'));
+const HeavyChart = lazy(() => import('./HeavyChart'))
+const SettingsPanel = lazy(() => import('./SettingsPanel'))
 
 function Dashboard() {
   return (
@@ -202,7 +203,7 @@ function Dashboard() {
         <SettingsPanel />
       </Suspense>
     </div>
-  );
+  )
 }
 ```
 
@@ -211,7 +212,7 @@ function Dashboard() {
 ```javascript
 // next.config.js
 module.exports = {
-  webpack: (config) => {
+  webpack: config => {
     config.optimization.splitChunks = {
       chunks: 'all',
       minSize: 20000,
@@ -230,66 +231,67 @@ module.exports = {
         // UI 库单独打包
         lib: {
           test(module) {
-            return (
-              module.size() > 160000 &&
-              /node_modules/.test(module.identifier())
-            );
+            return module.size() > 160000 && /node_modules/.test(module.identifier())
           },
           name(module) {
-            const hash = crypto.createHash('sha1');
-            hash.update(module.identifier());
-            return `lib-${hash.digest('hex').slice(0, 8)}`;
+            const hash = crypto.createHash('sha1')
+            hash.update(module.identifier())
+            return `lib-${hash.digest('hex').slice(0, 8)}`
           },
           priority: 30,
           minChunks: 1,
           reuseExistingChunk: true,
         },
       },
-    };
-    return config;
+    }
+    return config
   },
-};
+}
 ```
 
 ### L1/L2 缓存使用
 
 ```typescript
 // ✅ 使用 L1 内存缓存（快速）
-import { l1Cache } from '@/lib/cache/l1-cache';
+import { l1Cache } from '@/lib/cache/l1-cache'
 
 const data = await l1Cache.get('key', async () => {
-  return fetchFromAPI();
-});
+  return fetchFromAPI()
+})
 
 // ✅ 使用 L2 Redis 缓存（分布式）
-import { l2Cache } from '@/lib/cache/l2-cache';
+import { l2Cache } from '@/lib/cache/l2-cache'
 
-const data = await l2Cache.get('key', async () => {
-  return expensiveComputation();
-}, { ttl: 3600 }); // 1小时过期
+const data = await l2Cache.get(
+  'key',
+  async () => {
+    return expensiveComputation()
+  },
+  { ttl: 3600 }
+) // 1小时过期
 ```
 
 ### 性能监控集成
 
 ```typescript
 // ✅ 集成性能监控
-import { performanceMonitor } from '@/lib/performance/monitor';
+import { performanceMonitor } from '@/lib/performance/monitor'
 
 export async function fetchData() {
-  const startTime = performance.now();
-  
+  const startTime = performance.now()
+
   try {
-    const data = await fetchAPI();
-    
+    const data = await fetchAPI()
+
     // 记录成功指标
     performanceMonitor.recordMetric({
       operation: 'fetchData',
       duration: performance.now() - startTime,
       status: 'success',
-      timestamp: Date.now()
-    });
-    
-    return data;
+      timestamp: Date.now(),
+    })
+
+    return data
   } catch (error) {
     // 记录失败指标
     performanceMonitor.recordMetric({
@@ -297,10 +299,10 @@ export async function fetchData() {
       duration: performance.now() - startTime,
       status: 'error',
       error: error.message,
-      timestamp: Date.now()
-    });
-    
-    throw error;
+      timestamp: Date.now(),
+    })
+
+    throw error
   }
 }
 ```
@@ -312,16 +314,8 @@ export async function fetchData() {
 ```json
 {
   "browserslist": {
-    "production": [
-      ">0.2%",
-      "not dead",
-      "not op_mini all"
-    ],
-    "development": [
-      "last 1 chrome version",
-      "last 1 firefox version",
-      "last 1 safari version"
-    ]
+    "production": [">0.2%", "not dead", "not op_mini all"],
+    "development": ["last 1 chrome version", "last 1 firefox version", "last 1 safari version"]
   }
 }
 ```
@@ -377,12 +371,12 @@ pnpm lint:fix
 
 ### 测试文件命名规范
 
-| 文件类型 | 命名规则 | 示例 |
-|---------|---------|------|
-| 单元测试 | `*.test.ts` | `utils.test.ts` |
-| 组件测试 | `*.test.tsx` | `Button.test.tsx` |
+| 文件类型 | 命名规则                | 示例                      |
+| -------- | ----------------------- | ------------------------- |
+| 单元测试 | `*.test.ts`             | `utils.test.ts`           |
+| 组件测试 | `*.test.tsx`            | `Button.test.tsx`         |
 | 集成测试 | `*.integration.test.ts` | `api.integration.test.ts` |
-| E2E 测试 | `*.e2e.test.ts` | `login.e2e.test.ts` |
+| E2E 测试 | `*.e2e.test.ts`         | `login.e2e.test.ts`       |
 
 **测试文件位置**: 与源文件同目录或 `__tests__/` 目录
 
@@ -413,7 +407,7 @@ describe('Button', () => {
   it('handles click events', () => {
     const handleClick = vi.fn()
     render(<Button onClick={handleClick}>Click</Button>)
-    
+
     fireEvent.click(screen.getByRole('button'))
     expect(handleClick).toHaveBeenCalledTimes(1)
   })
@@ -426,6 +420,7 @@ describe('Button', () => {
 ```
 
 **测试原则**:
+
 1. **测试用户行为**，而非实现细节
 2. **使用语义化查询**: `getByRole`, `getByText`, `getByLabelText`
 3. **Mock 外部依赖**: API 调用、路由、第三方库
@@ -448,34 +443,36 @@ describe('Button', () => {
 #### 类型定义
 
 ✅ **推荐做法**:
+
 ```typescript
 // 使用接口定义对象结构
 interface User {
-  id: string;
-  name: string;
-  email: string;
+  id: string
+  name: string
+  email: string
 }
 
 // 使用类型别名定义联合类型
-type Status = 'active' | 'inactive' | 'pending';
+type Status = 'active' | 'inactive' | 'pending'
 
 // 泛型使用
 interface ApiResponse<T> {
-  data: T;
-  success: boolean;
-  message?: string;
+  data: T
+  success: boolean
+  message?: string
 }
 ```
 
 ❌ **避免做法**:
+
 ```typescript
 // ❌ 避免 any 类型
-const data: any = fetchData();
+const data: any = fetchData()
 
 // ✅ 使用 unknown 替代 any
-const data: unknown = fetchData();
+const data: unknown = fetchData()
 if (isValidData(data)) {
-  processData(data as UserData);
+  processData(data as UserData)
 }
 ```
 
@@ -510,43 +507,39 @@ function handleFormSubmit(data: FormData) {
 ```tsx
 // ✅ 组件命名：PascalCase
 interface ButtonProps {
-  children: React.ReactNode;
-  onClick?: () => void;
-  variant?: 'primary' | 'secondary' | 'danger';
-  disabled?: boolean;
+  children: React.ReactNode
+  onClick?: () => void
+  variant?: 'primary' | 'secondary' | 'danger'
+  disabled?: boolean
 }
 
 export function Button({ children, onClick, variant = 'primary', disabled }: ButtonProps) {
   return (
-    <button
-      onClick={onClick}
-      disabled={disabled}
-      className={`btn btn-${variant}`}
-    >
+    <button onClick={onClick} disabled={disabled} className={`btn btn-${variant}`}>
       {children}
     </button>
-  );
+  )
 }
 
 // ✅ 使用 TypeScript 定义 props
 interface UserCardProps {
-  user: User;
-  onEdit?: (user: User) => void;
-  onDelete?: (userId: string) => void;
+  user: User
+  onEdit?: (user: User) => void
+  onDelete?: (userId: string) => void
 }
 ```
 
 ### 命名约定
 
-| 类型 | 命名规范 | 示例 |
-|------|----------|------|
-| 组件 | PascalCase | `UserCard`, `Dashboard` |
-| 函数 | camelCase | `fetchUser`, `handleSubmit` |
-| 变量 | camelCase | `userName`, `isActive` |
-| 常量 | UPPER_SNAKE_CASE | `API_URL`, `MAX_RETRIES` |
-| 类 | PascalCase | `UserService`, `ApiClient` |
-| 接口/类型 | PascalCase | `User`, `ApiResponse<T>` |
-| 文件 | kebab-case | `user-service.ts`, `user-card.tsx` |
+| 类型      | 命名规范         | 示例                               |
+| --------- | ---------------- | ---------------------------------- |
+| 组件      | PascalCase       | `UserCard`, `Dashboard`            |
+| 函数      | camelCase        | `fetchUser`, `handleSubmit`        |
+| 变量      | camelCase        | `userName`, `isActive`             |
+| 常量      | UPPER_SNAKE_CASE | `API_URL`, `MAX_RETRIES`           |
+| 类        | PascalCase       | `UserService`, `ApiClient`         |
+| 接口/类型 | PascalCase       | `User`, `ApiResponse<T>`           |
+| 文件      | kebab-case       | `user-service.ts`, `user-card.tsx` |
 
 ### ESLint & Prettier 配置说明
 
@@ -555,15 +548,18 @@ interface UserCardProps {
 项目使用 **ESLint 9** + **Flat Config** 格式进行代码质量检查。
 
 **配置文件**:
+
 - `eslint.config.mjs` - 主配置文件（Flat Config 格式）
 - `.eslintignore` - 忽略规则
 
 **ESLint 规则集**:
+
 - `eslint-config-next/core-web-vitals` - Next.js 核心规则（Web Vitals 优化）
 - `eslint-config-next/typescript` - TypeScript 特定规则
 - `eslint-plugin-storybook` - Storybook 组件规则
 
 **忽略文件/目录**:
+
 - 构建输出：`.next/**`, `out/**`, `build/**`, `dist/**`
 - 依赖：`node_modules/**`
 - 测试文件：`**/*.test.ts`, `**/*.test.tsx`, `**/__tests__/**`, `__mocks__/**`
@@ -572,6 +568,7 @@ interface UserCardProps {
 - 公共资源：`public/**`
 
 **运行 ESLint**:
+
 ```bash
 # 检查代码
 pnpm lint
@@ -589,6 +586,7 @@ npm run lint:fix
 项目使用 **Prettier** 进行代码格式化，遵循 Next.js 官方风格。
 
 **Prettier 规则**:
+
 - 使用 Next.js 内置的 Prettier 配置
 - 2 空格缩进
 - 单引号字符串
@@ -596,6 +594,7 @@ npm run lint:fix
 - 最大行长 80 字符
 
 **运行 Prettier**:
+
 ```bash
 # 格式化代码
 pnpm format
@@ -609,6 +608,7 @@ npm run format:check
 ```
 
 **格式化范围**:
+
 - TypeScript/JavaScript：`**/*.{ts,tsx,js,jsx}`
 - 配置文件：`**/*.json`
 - 样式文件：`**/*.css`
@@ -647,12 +647,12 @@ git commit -m "feat: your feature description"
 ✅ **必须使用 `withErrorHandling` 包装器**:
 
 ```typescript
-import { withErrorHandling, createSuccessResponse } from '@/lib/api/error-handler';
+import { withErrorHandling, createSuccessResponse } from '@/lib/api/error-handler'
 
 export const GET = withErrorHandling(async (request: Request) => {
-  const data = await fetchData();
-  return createSuccessResponse(data);
-});
+  const data = await fetchData()
+  return createSuccessResponse(data)
+})
 ```
 
 ✅ **使用标准化的错误响应函数**:
@@ -662,27 +662,27 @@ import {
   createValidationError,
   createNotFoundError,
   createUnauthorizedError,
-  createForbiddenError
-} from '@/lib/api/error-handler';
+  createForbiddenError,
+} from '@/lib/api/error-handler'
 
 // 验证错误 (400)
 if (!email) {
-  return createValidationError('Email is required');
+  return createValidationError('Email is required')
 }
 
 // 未找到错误 (404)
 if (!user) {
-  return createNotFoundError('User not found');
+  return createNotFoundError('User not found')
 }
 
 // 未授权错误 (401)
 if (!isAuthenticated) {
-  return createUnauthorizedError('Please log in');
+  return createUnauthorizedError('Please log in')
 }
 
 // 禁止访问错误 (403)
 if (!hasPermission) {
-  return createForbiddenError('Access denied');
+  return createForbiddenError('Access denied')
 }
 ```
 
@@ -690,8 +690,8 @@ if (!hasPermission) {
 
 ```typescript
 // ❌ 错误示例
-return NextResponse.json({ error: 'Permission denied' }, { status: 403 });
-return NextResponse.json({ error: error.message }, { status: 500 });
+return NextResponse.json({ error: 'Permission denied' }, { status: 403 })
+return NextResponse.json({ error: error.message }, { status: 500 })
 ```
 
 ### 组件错误边界
@@ -699,24 +699,24 @@ return NextResponse.json({ error: error.message }, { status: 500 });
 ✅ **为异步组件添加错误边界**:
 
 ```tsx
-import { ErrorBoundaryWrapper } from '@/components/ErrorBoundaryWrapper';
+import { ErrorBoundaryWrapper } from '@/components/ErrorBoundaryWrapper'
 
 function MyComponent() {
   return (
     <ErrorBoundaryWrapper title="组件加载失败" showReset variant="compact">
       <AsyncComponent />
     </ErrorBoundaryWrapper>
-  );
+  )
 }
 ```
 
 ✅ **为 React.lazy 组件使用错误边界**:
 
 ```tsx
-import { ErrorBoundaryWrapper } from '@/components/ErrorBoundaryWrapper';
-import { Suspense } from 'react';
+import { ErrorBoundaryWrapper } from '@/components/ErrorBoundaryWrapper'
+import { Suspense } from 'react'
 
-const LazyComponent = lazy(() => import('./LazyComponent'));
+const LazyComponent = lazy(() => import('./LazyComponent'))
 
 function App() {
   return (
@@ -725,7 +725,7 @@ function App() {
         <LazyComponent />
       </Suspense>
     </ErrorBoundaryWrapper>
-  );
+  )
 }
 ```
 
@@ -734,26 +734,27 @@ function App() {
 ✅ **使用 logger 而不是 console.error**:
 
 ```typescript
-import { logger } from '@/lib/logger';
+import { logger } from '@/lib/logger'
 
 // 正确方式
 logger.error('Failed to process request', error, {
   category: 'api',
   endpoint: '/api/users',
-  sensitive: false
-});
+  sensitive: false,
+})
 ```
 
 ❌ **禁止使用 console.error**:
 
 ```typescript
 // ❌ 错误示例 - 会在生产环境暴露敏感信息
-console.error('Failed to encrypt backup:', error);
+console.error('Failed to encrypt backup:', error)
 ```
 
 ### 安全注意事项
 
 ⚠️ **绝对禁止在错误消息中暴露**:
+
 - 加密密钥
 - 密码
 - 会话令牌
@@ -765,43 +766,47 @@ console.error('Failed to encrypt backup:', error);
 
 ```typescript
 // 用户友好的消息
-return createUnauthorizedError('Please log in to continue');
+return createUnauthorizedError('Please log in to continue')
 ```
 
 ❌ **技术细节暴露**:
 
 ```typescript
 // ❌ 不要暴露技术细节
-return createUnauthorizedError('JWT token missing in Authorization header');
+return createUnauthorizedError('JWT token missing in Authorization header')
 ```
 
 ### 完整示例
 
 ```typescript
-import { NextRequest } from 'next/server';
-import { withErrorHandling, createSuccessResponse, createValidationError } from '@/lib/api/error-handler';
-import { logger } from '@/lib/logger';
+import { NextRequest } from 'next/server'
+import {
+  withErrorHandling,
+  createSuccessResponse,
+  createValidationError,
+} from '@/lib/api/error-handler'
+import { logger } from '@/lib/logger'
 
 export const POST = withErrorHandling(async (request: NextRequest) => {
-  const { email, password } = await request.json();
+  const { email, password } = await request.json()
 
   // 验证输入
   if (!email || !password) {
-    return createValidationError('Email and password are required');
+    return createValidationError('Email and password are required')
   }
 
   if (!isValidEmail(email)) {
-    return createValidationError('Invalid email format');
+    return createValidationError('Invalid email format')
   }
 
   // 业务逻辑
-  const user = await authenticateUser(email, password);
+  const user = await authenticateUser(email, password)
 
   // 记录成功日志（非敏感信息）
-  logger.info('User authenticated successfully', { userId: user.id });
+  logger.info('User authenticated successfully', { userId: user.id })
 
-  return createSuccessResponse({ token: user.token });
-});
+  return createSuccessResponse({ token: user.token })
+})
 ```
 
 ### 相关文档
@@ -823,6 +828,7 @@ export const POST = withErrorHandling(async (request: NextRequest) => {
 ```
 
 **类型 (type)**:
+
 - `feat`: 新功能
 - `fix`: Bug 修复
 - `docs`: 文档更新
@@ -835,6 +841,7 @@ export const POST = withErrorHandling(async (request: NextRequest) => {
 - `revert`: 回滚提交
 
 **作用域 (scope)**:
+
 - `dashboard`: 仪表板相关
 - `api`: API 路由
 - `components`: 组件
@@ -893,6 +900,7 @@ git commit -m "refactor(auth): simplify token validation logic"
 #### 忽略文件/目录
 
 以下文件和目录会被 ESLint 自动忽略：
+
 - 构建输出：`.next/**`, `out/**`, `build/**`, `dist/**`
 - 依赖：`node_modules/**`
 - 测试文件：`**/*.test.ts`, `**/*.test.tsx`, `**/__tests__/**`, `__mocks__/**`
@@ -939,6 +947,7 @@ npm run format:check
 #### 格式化范围
 
 Prettier 会格式化以下类型的文件：
+
 - TypeScript/JavaScript：`**/*.{ts,tsx,js,jsx}`
 - 配置文件：`**/*.json`
 - 样式文件：`**/*.css`
@@ -980,6 +989,7 @@ release/<version>            # 发布版本
 ```
 
 示例：
+
 ```bash
 git checkout -b feature/rate-limiting-system
 git checkout -b bugfix/login-auth-error
@@ -999,18 +1009,23 @@ git checkout -b hotfix/security-patch
 
 ```markdown
 ## 描述
+
 <!-- 简要描述这个 PR 做了什么 -->
 
 ## 修复的问题
+
 <!-- 链接相关 Issue: Closes #123 -->
 
 ## 变更内容
+
 <!-- 列出主要变更 -->
 
 ## 测试
+
 <!-- 描述如何测试这些变更 -->
 
 ## 截图 (如有)
+
 <!-- 添加相关截图 -->
 ```
 
@@ -1040,13 +1055,13 @@ git checkout -b hotfix/security-patch
 
 ### 主要目录说明
 
-| 目录 | 说明 |
-|------|------|
-| `app/` | Next.js 应用核心代码 |
-| `app/components/` | UI 组件 |
-| `app/hooks/` | React Hooks |
-| `docs/` | 项目文档 |
-| `skills/` | OpenClaw 技能定义 |
+| 目录              | 说明                 |
+| ----------------- | -------------------- |
+| `app/`            | Next.js 应用核心代码 |
+| `app/components/` | UI 组件              |
+| `app/hooks/`      | React Hooks          |
+| `docs/`           | 项目文档             |
+| `skills/`         | OpenClaw 技能定义    |
 
 ## 🚀 v1.5.0 开发流程
 
@@ -1075,6 +1090,7 @@ refactor/*        # 重构分支
 ```
 
 **分支命名规范**:
+
 ```
 feature/<feature-name>      # 示例: feature/agent-dashboard-ui
 bugfix/<issue-id>-desc      # 示例: bugfix/123-login-error
@@ -1131,6 +1147,7 @@ git push origin feature/agent-dashboard-ui
 ```
 
 **提交信息规范**:
+
 ```
 <type>(<scope>): <subject>
 
@@ -1140,6 +1157,7 @@ git push origin feature/agent-dashboard-ui
 ```
 
 **类型 (type)**:
+
 - `feat`: 新功能
 - `fix`: Bug 修复
 - `docs`: 文档更新
@@ -1150,6 +1168,7 @@ git push origin feature/agent-dashboard-ui
 - `chore`: 构建/工具相关
 
 **提交示例**:
+
 ```bash
 # 新功能
 git commit -m "feat(dashboard): add agent status panel component
@@ -1181,46 +1200,62 @@ git commit -m "refactor(permissions): migrate PermissionContext to Zustand
 5. 等待 Code Review
 
 **PR 模板**:
+
 ```markdown
 ## 📝 描述
+
 <!-- 简要描述这个 PR 做了什么 -->
 
 ## 🎯 目标
+
 <!-- 这个 PR 解决了什么问题或实现了什么功能 -->
 
 ## 🔧 变更内容
+
 <!-- 列出主要变更 -->
 
 ### 新增
-- 
+
+-
+
 ### 修改
-- 
+
+-
+
 ### 删除
-- 
+
+-
 
 ## ✅ 测试
+
 <!-- 描述如何测试这些变更 -->
 
 ### 测试步骤
-1. 
-2. 
-3. 
+
+1.
+2.
+3.
 
 ### 测试结果
+
 - [ ] 所有测试通过
 - [ ] 手动测试通过
 - [ ] 覆盖率达标
 
 ## 📸 截图 (如有)
+
 <!-- 添加相关截图 -->
 
 ## 🔗 相关 Issue
+
 <!-- 链接相关 Issue: Closes #123 -->
 
 ## ⚠️ 注意事项
+
 <!-- 有什么需要特别注意的 -->
 
 ## 📋 检查清单
+
 - [ ] 代码通过 ESLint 检查
 - [ ] 代码通过 Prettier 格式化
 - [ ] 所有测试通过
@@ -1300,6 +1335,7 @@ pnpm type-check && pnpm lint && pnpm format:check && pnpm test:run
 ```
 
 **手动检查清单**:
+
 - [ ] 类型检查通过 (`pnpm type-check`)
 - [ ] ESLint 检查通过 (`pnpm lint`)
 - [ ] Prettier 格式检查通过 (`pnpm format:check`)
@@ -1314,6 +1350,7 @@ pnpm type-check && pnpm lint && pnpm format:check && pnpm test:run
 项目使用 GitHub Actions 进行自动化检查：
 
 **CI 检查包括**:
+
 - TypeScript 类型检查
 - ESLint 代码检查
 - Prettier 格式检查
@@ -1326,12 +1363,14 @@ pnpm type-check && pnpm lint && pnpm format:check && pnpm test:run
 #### 7. Code Review 原则
 
 **审查者**:
+
 - 关注代码质量和架构设计
 - 检查是否有安全漏洞
 - 验证测试覆盖是否充分
 - 提供建设性反馈
 
 **贡献者**:
+
 - 及时响应 Review 评论
 - 解释设计决策（如有必要）
 - 虚心接受建议
@@ -1382,4 +1421,4 @@ pnpm type-check && pnpm lint && pnpm format:check && pnpm test:run
 
 **提示**: 如果你有任何问题，欢迎在 [GitHub Discussions](https://github.com/songzuo/7zi/discussions) 中提问。
 
-*感谢你的贡献！🎉*
+_感谢你的贡献！🎉_

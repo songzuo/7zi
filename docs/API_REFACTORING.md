@@ -24,17 +24,17 @@ Centralized error handling module providing:
 **Usage Example:**
 
 ```typescript
-import { createValidationError, createNotFoundError } from '@/lib/api/error-handler';
+import { createValidationError, createNotFoundError } from '@/lib/api/error-handler'
 
 // Return validation error
 return createValidationError('Invalid parameter', {
   field: 'value',
   expected: 'number',
-  received: 'string'
-});
+  received: 'string',
+})
 
 // Return not found error
-return createNotFoundError('Repository not found', { owner, repo });
+return createNotFoundError('Repository not found', { owner, repo })
 ```
 
 ### 2. `/src/lib/api/validation.ts`
@@ -58,18 +58,22 @@ Request validation module using Zod schemas:
 **Usage Example:**
 
 ```typescript
-import { githubCommitsQuerySchema, validateQuery, formatValidationErrors } from '@/lib/api/validation';
+import {
+  githubCommitsQuerySchema,
+  validateQuery,
+  formatValidationErrors,
+} from '@/lib/api/validation'
 
 // Validate query parameters
-const url = new URL(request.url);
-const validation = validateQuery(url.searchParams, githubCommitsQuerySchema);
+const url = new URL(request.url)
+const validation = validateQuery(url.searchParams, githubCommitsQuerySchema)
 
 if (!validation.success) {
-  const errors = formatValidationErrors(validation.errors);
-  return createValidationError('Invalid query parameters', { fields: errors });
+  const errors = formatValidationErrors(validation.errors)
+  return createValidationError('Invalid query parameters', { fields: errors })
 }
 
-const { owner, repo, per_page, page } = validation.data;
+const { owner, repo, per_page, page } = validation.data
 ```
 
 ## Refactored Routes
@@ -77,12 +81,14 @@ const { owner, repo, per_page, page } = validation.data;
 ### 1. `/api/github/commits`
 
 **Changes:**
+
 - Added Zod schema validation for query parameters
 - Improved error handling with specific GitHub error responses
 - Consistent success/error response format
 - Better type safety with TypeScript interfaces
 
 **New Features:**
+
 - Validates `page`, `per_page`, `owner`, `repo` parameters
 - Handles GitHub API rate limits with informative messages
 - Filters pull requests automatically
@@ -119,12 +125,14 @@ const { owner, repo, per_page, page } = validation.data;
 ### 2. `/api/github/issues`
 
 **Changes:**
+
 - Added Zod schema validation for query parameters
 - Improved error handling for GitHub API responses
 - Better filtering of pull requests
 - Consistent response format
 
 **New Features:**
+
 - Validates `state`, `labels`, `sort`, `direction` parameters
 - Handles rate limits with reset time information
 - Automatically filters out pull requests
@@ -133,30 +141,35 @@ const { owner, repo, per_page, page } = validation.data;
 ### 3. `/api/status`
 
 **Changes:**
+
 - Added query parameter validation
 - Support for `format` parameter (json/compact)
 - Support for `include_metrics` parameter
 - Improved type safety
 
 **New Features:**
+
 - `format=json` returns full status data
 - `format=compact` returns minimal status data
 - `include_metrics` controls whether to include performance metrics
 - Consistent response structure
 
 **Query Parameters:**
+
 - `format` - Response format: `json` (default) or `compact`
 - `include_metrics` - Include metrics: `true` (default) or `false`
 
 ### 4. `/api/csrf-token`
 
 **Changes:**
+
 - Added POST endpoint for token validation
 - Better error handling
 - Consistent response format
 - Type-safe interfaces
 
 **New Features:**
+
 - GET: Generate new CSRF token
 - POST: Validate existing CSRF token (double-submit pattern)
 - Returns token expiration timestamp
@@ -178,12 +191,14 @@ const { owner, repo, per_page, page } = validation.data;
 ### 5. `/api/database/health`
 
 **Changes:**
+
 - Added body validation for POST requests
 - Better error handling for database operations
 - Consistent response format
 - Improved error messages
 
 **New Features:**
+
 - GET: Returns database health report
 - POST: Supports multiple actions (`stats`, `health`, `optimize`, `backup`)
 - Handles database connection errors gracefully
@@ -200,12 +215,14 @@ const { owner, repo, per_page, page } = validation.data;
 ### 6. `/api/a2a/jsonrpc`
 
 **Changes:**
+
 - Added JSON-RPC request validation
 - Improved batch request handling
 - Better error messages for validation failures
 - Consistent error response format
 
 **New Features:**
+
 - Validates JSON-RPC 2.0 request structure
 - Handles batch requests with proper validation
 - Returns appropriate HTTP status codes based on JSON-RPC errors
@@ -278,16 +295,16 @@ Example test update:
 
 ```typescript
 // Old
-expect(response.status).toBe(200);
-const data = await response.json();
-expect(data).toHaveProperty('services');
+expect(response.status).toBe(200)
+const data = await response.json()
+expect(data).toHaveProperty('services')
 
 // New
-expect(response.status).toBe(200);
-const data = await response.json();
-expect(data.success).toBe(true);
-expect(data.data).toHaveProperty('services');
-expect(data.timestamp).toBeDefined();
+expect(response.status).toBe(200)
+const data = await response.json()
+expect(data.success).toBe(true)
+expect(data.data).toHaveProperty('services')
+expect(data.timestamp).toBeDefined()
 ```
 
 ## Migration Guide
@@ -304,22 +321,22 @@ expect(data.timestamp).toBeDefined();
 **Old Code:**
 
 ```typescript
-const response = await fetch('/api/github/commits?per_page=50');
-const commits = await response.json();
+const response = await fetch('/api/github/commits?per_page=50')
+const commits = await response.json()
 ```
 
 **New Code:**
 
 ```typescript
-const response = await fetch('/api/github/commits?per_page=50&page=1');
-const result = await response.json();
+const response = await fetch('/api/github/commits?per_page=50&page=1')
+const result = await response.json()
 
 if (result.success) {
-  const { data, pagination, timestamp } = result;
-  console.log(`Fetched ${data.length} commits at ${timestamp}`);
+  const { data, pagination, timestamp } = result
+  console.log(`Fetched ${data.length} commits at ${timestamp}`)
 } else {
-  const { error } = result;
-  console.error(`Error (${error.type}): ${error.message}`);
+  const { error } = result
+  console.error(`Error (${error.type}): ${error.message}`)
 }
 ```
 
@@ -362,6 +379,7 @@ When adding new API routes:
 ## Questions?
 
 For questions or issues with the refactored APIs, please refer to:
+
 - This documentation file
 - The individual route files in `/src/app/api/`
 - The error handler documentation in `/src/lib/api/error-handler.ts`

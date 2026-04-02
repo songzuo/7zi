@@ -72,6 +72,7 @@ nano .env.local
 ```
 
 **最小配置 (无需 GitHub Token):**
+
 ```bash
 NEXT_PUBLIC_GITHUB_OWNER=songzuo
 NEXT_PUBLIC_GITHUB_REPO=7zi
@@ -79,6 +80,7 @@ NEXT_PUBLIC_GITHUB_REPO=7zi
 ```
 
 **推荐配置 (带 GitHub Token):**
+
 ```bash
 NEXT_PUBLIC_GITHUB_OWNER=songzuo
 NEXT_PUBLIC_GITHUB_REPO=7zi
@@ -132,6 +134,7 @@ npm run dev
 ### 问题 1: `node --version` 显示版本低于 22
 
 **解决方案:**
+
 ```bash
 # 使用 nvm 升级 Node.js
 nvm install 22
@@ -141,6 +144,7 @@ nvm use 22
 ### 问题 2: 安装依赖时出错
 
 **解决方案:**
+
 ```bash
 # 清理缓存
 pnpm store prune
@@ -156,6 +160,7 @@ pnpm install
 ### 问题 3: 端口 3000 被占用
 
 **解决方案:**
+
 ```bash
 # 方案 A: 使用其他端口
 pnpm dev -p 3001
@@ -169,6 +174,7 @@ lsof -ti:3000 | xargs kill -9  # macOS/Linux
 **症状:** 控制台显示 `403 rate limit exceeded`
 
 **解决方案:**
+
 ```bash
 # 在 .env.local 中配置 GitHub Token
 NEXT_PUBLIC_GITHUB_TOKEN=ghp_xxxxxxxxxxxxxxxxxxxx

@@ -30,11 +30,11 @@
 
 ### 会议参与方
 
-| 角色 | 权限 | 说明 |
-|------|------|------|
-| 🧑 主人 | 全部 | 可以参加/旁观/否决 |
-| 🤖 主管 | 主持 | 组织和主持会议 |
-| 📋 子代理 | 参与 | 讨论和投票 |
+| 角色      | 权限 | 说明               |
+| --------- | ---- | ------------------ |
+| 🧑 主人   | 全部 | 可以参加/旁观/否决 |
+| 🤖 主管   | 主持 | 组织和主持会议     |
+| 📋 子代理 | 参与 | 讨论和投票         |
 
 ---
 
@@ -47,11 +47,13 @@
 **参与者**: 全体子代理
 
 **议程**:
+
 1. 昨日完成工作
 2. 今日计划工作
 3. 遇到的问题和阻塞
 
 **示例**:
+
 ```
 主管："开始每日站会"
 
@@ -77,6 +79,7 @@
 **参与者**: 相关子代理
 
 **议程**:
+
 1. 任务背景和目标
 2. 方案讨论
 3. 任务分解
@@ -84,6 +87,7 @@
 5. 责任分配
 
 **示例**:
+
 ```
 主管："召开规划会，讨论电商网站开发"
 
@@ -109,6 +113,7 @@
 **参与者**: 相关专家
 
 **议程**:
+
 1. 问题描述
 2. 根因分析
 3. 方案讨论
@@ -116,6 +121,7 @@
 5. 行动计划
 
 **示例**:
+
 ```
 主管："召开问题研讨会，讨论性能问题"
 
@@ -143,12 +149,14 @@
 **参与者**: 相关子代理
 
 **议程**:
+
 1. 成果展示
 2. 质量评审
 3. 改进建议
 4. 通过/修改决定
 
 **示例**:
+
 ```
 主管："召开评审会，评审登录功能"
 
@@ -174,12 +182,14 @@ Executor 展示:
 **参与者**: 相关子代理或全体
 
 **议程**:
+
 1. 提案说明
 2. 方案对比
 3. 投票表决
 4. 结果宣布
 
 **示例**:
+
 ```
 主管："投票决定数据库选型"
 
@@ -232,18 +242,14 @@ await teamMeeting.start({
   type: 'planning',
   topic: '电商网站开发',
   participants: ['architect', 'designer', 'executor'],
-  agenda: [
-    '需求分析',
-    '方案设计',
-    '任务分配'
-  ]
-});
+  agenda: ['需求分析', '方案设计', '任务分配'],
+})
 
 // 邀请主人参加
 await teamMeeting.invite({
   userId: 'owner',
-  role: 'observer' // 或 'participant'
-});
+  role: 'observer', // 或 'participant'
+})
 ```
 
 ### 主人参加/旁观
@@ -393,21 +399,21 @@ const vote = await teamMeeting.vote({
   topic: '数据库选型',
   options: ['PostgreSQL', 'MongoDB', 'MySQL'],
   voters: ['architect', 'sysadmin', 'executor'],
-  deadline: '2026-03-07 18:00'
-});
+  deadline: '2026-03-07 18:00',
+})
 
 // 投票
 await vote.cast({
   voter: 'architect',
-  option: 'PostgreSQL'
-});
+  option: 'PostgreSQL',
+})
 
 // 查看结果
-const result = await vote.result();
+const result = await vote.result()
 // { PostgreSQL: 5, MongoDB: 3, MySQL: 3 }
 
 // 宣布结果
-await vote.announce();
+await vote.announce()
 ```
 
 ---
@@ -440,6 +446,7 @@ await vote.announce();
 ### 议程 1: [主题]
 
 **主要观点**:
+
 - [子代理 A]: 观点内容
 - [子代理 B]: 观点内容
 
@@ -449,10 +456,10 @@ await vote.announce();
 
 ## 行动计划
 
-| 任务 | 负责人 | 截止时间 | 状态 |
-|------|--------|---------|------|
-| [任务 1] | [负责人] | [日期] | ⏳ |
-| [任务 2] | [负责人] | [日期] | ⏳ |
+| 任务     | 负责人   | 截止时间 | 状态 |
+| -------- | -------- | -------- | ---- |
+| [任务 1] | [负责人] | [日期]   | ⏳   |
+| [任务 2] | [负责人] | [日期]   | ⏳   |
 
 ---
 
@@ -463,7 +470,7 @@ await vote.announce();
 
 ---
 
-*纪要生成时间：2026-03-06 15:05*
+_纪要生成时间：2026-03-06 15:05_
 ```
 
 ### 自动记录
@@ -473,12 +480,12 @@ await vote.announce();
 const meeting = await teamMeeting.start({
   type: 'planning',
   topic: '电商网站',
-  record: true // 自动记录
-});
+  record: true, // 自动记录
+})
 
 // 会议结束后自动生成纪要
-const minutes = await meeting.generateMinutes();
-await fs.write('memory/meetings/2026-03-06-planning.md', minutes);
+const minutes = await meeting.generateMinutes()
+await fs.write('memory/meetings/2026-03-06-planning.md', minutes)
 ```
 
 ### 会议存档
@@ -617,4 +624,4 @@ await fs.write('memory/meetings/2026-03-06-planning.md', minutes);
 
 ---
 
-*本系统由 7zi Studio AI 团队维护*
+_本系统由 7zi Studio AI 团队维护_

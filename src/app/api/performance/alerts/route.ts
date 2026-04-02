@@ -3,15 +3,15 @@
  * Manage performance alert rules and active alerts
  */
 
-import { NextRequest } from 'next/server';
-import { logger } from '@/lib/logger';
-import type { AlertRule, PerformanceAlert } from '../metrics/route';
+import { NextRequest } from 'next/server'
+import { logger } from '@/lib/logger'
+import type { AlertRule, PerformanceAlert } from '../metrics/route'
 import {
   createSuccessResponse,
   createErrorResponse,
   createBadRequestError,
   createNotFoundError,
-} from '@/lib/api/error-handler';
+} from '@/lib/api/error-handler'
 
 // ========================================
 // In-memory Storage (Production: use Database)
@@ -120,20 +120,20 @@ const alertRules: AlertRule[] = [
     severity: 'medium',
     notificationChannels: ['console'],
   },
-];
+]
 
-let activeAlerts: PerformanceAlert[] = [];
+let activeAlerts: PerformanceAlert[] = []
 
 // ========================================
 // Helper Functions
 // ========================================
 
 function generateAlertId(): string {
-  return `alert-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
+  return `alert-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`
 }
 
 function generateRuleId(): string {
-  return `rule-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
+  return `rule-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`
 }
 
 // ========================================
@@ -145,32 +145,32 @@ function generateRuleId(): string {
  * Retrieve active alerts and alert rules
  */
 export async function GET(request: NextRequest) {
-  const { searchParams } = new URL(request.url);
-  const showAcknowledged = searchParams.get('showAcknowledged') === 'true';
-  const severity = searchParams.get('severity');
-  const metric = searchParams.get('metric');
-  const limit = parseInt(searchParams.get('limit') || '50');
+  const { searchParams } = new URL(request.url)
+  const showAcknowledged = searchParams.get('showAcknowledged') === 'true'
+  const severity = searchParams.get('severity')
+  const metric = searchParams.get('metric')
+  const limit = parseInt(searchParams.get('limit') || '50')
 
   // Filter alerts
-  let filteredAlerts = activeAlerts;
+  let filteredAlerts = activeAlerts
 
   if (!showAcknowledged) {
-    filteredAlerts = filteredAlerts.filter(a => !a.acknowledged);
+    filteredAlerts = filteredAlerts.filter(a => !a.acknowledged)
   }
 
   if (severity) {
-    filteredAlerts = filteredAlerts.filter(a => a.severity === severity);
+    filteredAlerts = filteredAlerts.filter(a => a.severity === severity)
   }
 
   if (metric) {
-    filteredAlerts = filteredAlerts.filter(a => a.metric === metric);
+    filteredAlerts = filteredAlerts.filter(a => a.metric === metric)
   }
 
   // Sort by timestamp (newest first)
-  filteredAlerts.sort((a, b) => b.timestamp - a.timestamp);
+  filteredAlerts.sort((a, b) => b.timestamp - a.timestamp)
 
   // Limit results
-  const alerts = filteredAlerts.slice(0, limit);
+  const alerts = filteredAlerts.slice(0, limit)
 
   // Calculate summary
   const summary = {
@@ -189,13 +189,13 @@ export async function GET(request: NextRequest) {
       INP: activeAlerts.filter(a => a.metric === 'INP' && !a.acknowledged).length,
       TTFB: activeAlerts.filter(a => a.metric === 'TTFB' && !a.acknowledged).length,
     },
-  };
+  }
 
   return createSuccessResponse({
     alerts,
     rules: alertRules,
     summary,
-  });
+  })
 }
 
 /**
@@ -204,13 +204,15 @@ export async function GET(request: NextRequest) {
  */
 export async function POST(request: NextRequest) {
   try {
-    const body = await request.json();
-    const { action, rule, alertId } = body;
+    const body = await request.json()
+    const { action, rule, alertId } = body
 
     // Create new alert rule
     if (action === 'create-rule') {
       if (!rule || !rule.name || !rule.metric || !rule.condition || !rule.threshold) {
-        return await createBadRequestError('Invalid rule data. Required: name, metric, condition, threshold');
+        return await createBadRequestError(
+          'Invalid rule data. Required: name, metric, condition, threshold'
+        )
       }
 
       const newRule: AlertRule = {
@@ -222,47 +224,47 @@ export async function POST(request: NextRequest) {
         enabled: rule.enabled !== undefined ? rule.enabled : true,
         severity: rule.severity || 'medium',
         notificationChannels: rule.notificationChannels || ['console'],
-      };
+      }
 
-      alertRules.push(newRule);
+      alertRules.push(newRule)
 
       logger.info('Performance alert rule created', {
         ruleId: newRule.id,
         ruleName: newRule.name,
         metric: newRule.metric,
         threshold: newRule.threshold,
-      });
+      })
 
-      return createSuccessResponse({ rule: newRule });
+      return createSuccessResponse({ rule: newRule })
     }
 
     // Acknowledge alert
     if (action === 'acknowledge') {
       if (!alertId) {
-        return await createBadRequestError('alertId is required');
+        return await createBadRequestError('alertId is required')
       }
 
-      const alert = activeAlerts.find(a => a.id === alertId);
+      const alert = activeAlerts.find(a => a.id === alertId)
       if (!alert) {
-        return await createNotFoundError('Alert not found');
+        return await createNotFoundError('Alert not found')
       }
 
-      alert.acknowledged = true;
+      alert.acknowledged = true
 
       logger.info('Performance alert acknowledged', {
         alertId: alert.id,
         metric: alert.metric,
         severity: alert.severity,
-      });
+      })
 
-      return createSuccessResponse({ alert });
+      return createSuccessResponse({ alert })
     }
 
-    return await createBadRequestError('Invalid action. Use: create-rule or acknowledge');
-  } catch (_error) {
-    logger.error('Failed to process alerts request', { error });
+    return await createBadRequestError('Invalid action. Use: create-rule or acknowledge')
+  } catch (error) {
+    logger.error('Failed to process alerts request', { error })
 
-    return createErrorResponse(error instanceof Error ? error : new Error(String(error)));
+    return createErrorResponse(error instanceof Error ? error : new Error(String(error)))
   }
 }
 
@@ -272,16 +274,16 @@ export async function POST(request: NextRequest) {
  */
 export async function PUT(request: NextRequest) {
   try {
-    const body = await request.json();
-    const { ruleId, updates } = body;
+    const body = await request.json()
+    const { ruleId, updates } = body
 
     if (!ruleId || !updates) {
-      return await createBadRequestError('ruleId and updates are required');
+      return await createBadRequestError('ruleId and updates are required')
     }
 
-    const ruleIndex = alertRules.findIndex(r => r.id === ruleId);
+    const ruleIndex = alertRules.findIndex(r => r.id === ruleId)
     if (ruleIndex === -1) {
-      return await createNotFoundError('Rule not found');
+      return await createNotFoundError('Rule not found')
     }
 
     // Update rule
@@ -290,18 +292,18 @@ export async function PUT(request: NextRequest) {
       ...updates,
       // Don't allow changing the ID
       id: alertRules[ruleIndex].id,
-    };
+    }
 
     logger.info('Performance alert rule updated', {
       ruleId,
       updates,
-    });
+    })
 
-    return createSuccessResponse({ rule: alertRules[ruleIndex] });
-  } catch (_error) {
-    logger.error('Failed to update alert rule', { error });
+    return createSuccessResponse({ rule: alertRules[ruleIndex] })
+  } catch (error) {
+    logger.error('Failed to update alert rule', { error })
 
-    return createErrorResponse(error instanceof Error ? error : new Error(String(error)));
+    return createErrorResponse(error instanceof Error ? error : new Error(String(error)))
   }
 }
 
@@ -310,49 +312,49 @@ export async function PUT(request: NextRequest) {
  * Delete alert rule or clear acknowledged alerts
  */
 export async function DELETE(request: NextRequest) {
-  const { searchParams } = new URL(request.url);
-  const ruleId = searchParams.get('ruleId');
-  const clearAcknowledged = searchParams.get('clearAcknowledged') === 'true';
+  const { searchParams } = new URL(request.url)
+  const ruleId = searchParams.get('ruleId')
+  const clearAcknowledged = searchParams.get('clearAcknowledged') === 'true'
 
   // Delete specific rule
   if (ruleId) {
-    const ruleIndex = alertRules.findIndex(r => r.id === ruleId);
+    const ruleIndex = alertRules.findIndex(r => r.id === ruleId)
     if (ruleIndex === -1) {
-      return createNotFoundError('Rule not found');
+      return createNotFoundError('Rule not found')
     }
 
-    const deletedRule = alertRules.splice(ruleIndex, 1)[0];
+    const deletedRule = alertRules.splice(ruleIndex, 1)[0]
 
     logger.info('Performance alert rule deleted', {
       ruleId: deletedRule.id,
       ruleName: deletedRule.name,
-    });
+    })
 
-    return createSuccessResponse({ deleted: deletedRule });
+    return createSuccessResponse({ deleted: deletedRule })
   }
 
   // Clear acknowledged alerts
   if (clearAcknowledged) {
-    const initialLength = activeAlerts.length;
-    activeAlerts = activeAlerts.filter(a => !a.acknowledged);
+    const initialLength = activeAlerts.length
+    activeAlerts = activeAlerts.filter(a => !a.acknowledged)
 
-    const deletedCount = initialLength - activeAlerts.length;
+    const deletedCount = initialLength - activeAlerts.length
 
     logger.info('Acknowledged alerts cleared', {
       deleted: deletedCount,
-    });
+    })
 
     return createSuccessResponse({
       deleted: deletedCount,
       remaining: activeAlerts.length,
-    });
+    })
   }
 
-  return createBadRequestError('Specify ruleId or clearAcknowledged=true');
+  return createBadRequestError('Specify ruleId or clearAcknowledged=true')
 }
 
 // ========================================
 // Export for use by metrics API
 // ========================================
 
-export { alertRules, activeAlerts };
+export { alertRules, activeAlerts }

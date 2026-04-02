@@ -12,33 +12,33 @@ function validateEmail(email: string): { valid: boolean; error?: string } {
   if (!email || typeof email !== 'string') {
     return { valid: false, error: 'Email is required' }
   }
-  
+
   const trimmed = email.trim()
-  
+
   if (trimmed.length === 0) {
     return { valid: false, error: 'Email is required' }
   }
-  
+
   if (trimmed.length > 254) {
     return { valid: false, error: 'Email is too long' }
   }
-  
+
   // RFC 5322 simplified email regex
   const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
-  
+
   if (!emailRegex.test(trimmed)) {
     return { valid: false, error: 'Invalid email format' }
   }
-  
+
   // Check for dangerous patterns
   const dangerousPatterns = [/<script/i, /javascript:/i, /on\w+=/i]
-  
+
   for (const pattern of dangerousPatterns) {
     if (pattern.test(trimmed)) {
       return { valid: false, error: 'Invalid characters in email' }
     }
   }
-  
+
   return { valid: true }
 }
 
@@ -47,41 +47,41 @@ function validateEmail(email: string): { valid: boolean; error?: string } {
  */
 function validatePassword(password: string): { valid: boolean; errors: string[] } {
   const errors: string[] = []
-  
+
   if (!password || typeof password !== 'string') {
     return { valid: false, errors: ['Password is required'] }
   }
-  
+
   if (password.length < 8) {
     errors.push('Password must be at least 8 characters')
   }
-  
+
   if (password.length > 128) {
     errors.push('Password must be less than 128 characters')
   }
-  
+
   if (!/[a-z]/.test(password)) {
     errors.push('Password must contain at least one lowercase letter')
   }
-  
+
   if (!/[A-Z]/.test(password)) {
     errors.push('Password must contain at least one uppercase letter')
   }
-  
+
   if (!/[0-9]/.test(password)) {
     errors.push('Password must contain at least one number')
   }
-  
+
   if (!/[!@#$%^&*(),.?":{}|<>]/.test(password)) {
     errors.push('Password must contain at least one special character')
   }
-  
+
   // Check for common weak passwords
   const weakPasswords = ['password', 'Password1!', '12345678', 'qwerty123']
   if (weakPasswords.some(weak => password.toLowerCase().includes(weak.toLowerCase()))) {
     errors.push('Password is too common')
   }
-  
+
   return { valid: errors.length === 0, errors }
 }
 
@@ -92,28 +92,28 @@ function validateName(name: string): { valid: boolean; error?: string } {
   if (!name || typeof name !== 'string') {
     return { valid: false, error: 'Name is required' }
   }
-  
+
   const trimmed = name.trim()
-  
+
   if (trimmed.length === 0) {
     return { valid: false, error: 'Name is required' }
   }
-  
+
   if (trimmed.length > 100) {
     return { valid: false, error: 'Name is too long' }
   }
-  
+
   if (trimmed.length < 2) {
     return { valid: false, error: 'Name is too short' }
   }
-  
+
   // Allow letters, spaces, hyphens, apostrophes, and common international characters
   const validNameRegex = /^[\p{L}\s\-']+$/u
-  
+
   if (!validNameRegex.test(trimmed)) {
     return { valid: false, error: 'Name contains invalid characters' }
   }
-  
+
   return { valid: true }
 }
 
@@ -124,37 +124,37 @@ function validateUrl(url: string): { valid: boolean; error?: string } {
   if (!url || typeof url !== 'string') {
     return { valid: false, error: 'URL is required' }
   }
-  
+
   const trimmed = url.trim()
-  
+
   if (trimmed.length === 0) {
     return { valid: false, error: 'URL is required' }
   }
-  
+
   if (trimmed.length > 2048) {
     return { valid: false, error: 'URL is too long' }
   }
-  
+
   // Check for dangerous protocols
   const dangerousProtocols = ['javascript:', 'data:', 'vbscript:', 'file:']
   const lowerUrl = trimmed.toLowerCase()
-  
+
   for (const protocol of dangerousProtocols) {
     if (lowerUrl.startsWith(protocol)) {
       return { valid: false, error: 'Invalid URL protocol' }
     }
   }
-  
+
   try {
     const parsed = new URL(trimmed)
-    
+
     // Only allow http and https
     if (!['http:', 'https:'].includes(parsed.protocol)) {
       return { valid: false, error: 'Only HTTP and HTTPS URLs are allowed' }
     }
-    
+
     return { valid: true }
-  } catch {
+  } catch (error) {
     return { valid: false, error: 'Invalid URL format' }
   }
 }
@@ -166,21 +166,21 @@ function validatePhone(phone: string): { valid: boolean; error?: string } {
   if (!phone || typeof phone !== 'string') {
     return { valid: false, error: 'Phone number is required' }
   }
-  
+
   // Remove common formatting characters
   const cleaned = phone.replace(/[\s\-\(\)\.]/g, '')
-  
+
   if (cleaned.length === 0) {
     return { valid: false, error: 'Phone number is required' }
   }
-  
+
   // Check for valid phone format (international or local)
   const phoneRegex = /^\+?[0-9]{7,15}$/
-  
+
   if (!phoneRegex.test(cleaned)) {
     return { valid: false, error: 'Invalid phone number format' }
   }
-  
+
   return { valid: true }
 }
 
@@ -192,37 +192,37 @@ function validateMessage(
   options: { minLength?: number; maxLength?: number } = {}
 ): { valid: boolean; error?: string } {
   const { minLength = 10, maxLength = 10000 } = options
-  
+
   if (!message || typeof message !== 'string') {
     return { valid: false, error: 'Message is required' }
   }
-  
+
   const trimmed = message.trim()
-  
+
   if (trimmed.length === 0) {
     return { valid: false, error: 'Message is required' }
   }
-  
+
   if (trimmed.length < minLength) {
     return { valid: false, error: `Message must be at least ${minLength} characters` }
   }
-  
+
   if (trimmed.length > maxLength) {
     return { valid: false, error: `Message must be less than ${maxLength} characters` }
   }
-  
+
   // Check for excessive caps (potential spam)
   const capsRatio = (trimmed.match(/[A-Z]/g) || []).length / trimmed.length
   if (capsRatio > 0.7 && trimmed.length > 20) {
     return { valid: false, error: 'Message contains too many capital letters' }
   }
-  
+
   // Check for excessive links
   const linkCount = (trimmed.match(/https?:\/\//g) || []).length
   if (linkCount > 3) {
     return { valid: false, error: 'Message contains too many links' }
   }
-  
+
   return { valid: true }
 }
 
@@ -239,32 +239,32 @@ function validateNumber(
   } = {}
 ): { valid: boolean; error?: string; value?: number } {
   const { min, max, integer = false, required = true } = options
-  
+
   if (value === null || value === undefined || value === '') {
     if (required) {
       return { valid: false, error: 'Value is required' }
     }
     return { valid: true, value: undefined }
   }
-  
+
   const num = Number(value)
-  
+
   if (isNaN(num)) {
     return { valid: false, error: 'Invalid number' }
   }
-  
+
   if (integer && !Number.isInteger(num)) {
     return { valid: false, error: 'Value must be an integer' }
   }
-  
+
   if (min !== undefined && num < min) {
     return { valid: false, error: `Value must be at least ${min}` }
   }
-  
+
   if (max !== undefined && num > max) {
     return { valid: false, error: `Value must be at most ${max}` }
   }
-  
+
   return { valid: true, value: num }
 }
 
@@ -280,25 +280,25 @@ function validateDate(
   } = {}
 ): { valid: boolean; error?: string; value?: Date } {
   const { minDate, maxDate } = options
-  
+
   if (!value || typeof value !== 'string') {
     return { valid: false, error: 'Date is required' }
   }
-  
+
   const date = new Date(value)
-  
+
   if (isNaN(date.getTime())) {
     return { valid: false, error: 'Invalid date format' }
   }
-  
+
   if (minDate && date < minDate) {
     return { valid: false, error: `Date must be after ${minDate.toDateString()}` }
   }
-  
+
   if (maxDate && date > maxDate) {
     return { valid: false, error: `Date must be before ${maxDate.toDateString()}` }
   }
-  
+
   return { valid: true, value: date }
 }
 
@@ -315,26 +315,26 @@ function validateFile(
 ): { valid: boolean; errors: string[] } {
   const errors: string[] = []
   const { maxSizeBytes = 10 * 1024 * 1024, allowedTypes, allowedExtensions } = options
-  
+
   if (!file) {
     return { valid: false, errors: ['File is required'] }
   }
-  
+
   if (file.size > maxSizeBytes) {
     errors.push(`File size must be less than ${Math.round(maxSizeBytes / 1024 / 1024)}MB`)
   }
-  
+
   if (allowedTypes && !allowedTypes.includes(file.type)) {
     errors.push(`File type ${file.type} is not allowed`)
   }
-  
+
   if (allowedExtensions) {
     const ext = file.name.split('.').pop()?.toLowerCase()
     if (!ext || !allowedExtensions.includes(ext)) {
       errors.push(`File extension .${ext} is not allowed`)
     }
   }
-  
+
   // Check for suspicious file names
   const suspiciousPatterns = [/\.\./, /\//, /\\/, /<|>|\||:|\*|\?/]
   for (const pattern of suspiciousPatterns) {
@@ -343,7 +343,7 @@ function validateFile(
       break
     }
   }
-  
+
   return { valid: errors.length === 0, errors }
 }
 
@@ -420,12 +420,7 @@ describe('Input Validation Tests', () => {
 
   describe('Password Validation', () => {
     it('should accept strong passwords', () => {
-      const strongPasswords = [
-        'Str0ng!Pass',
-        'MyP@ssw0rd123',
-        'C0mpl3x-P@ss!',
-        'S3cur3#Password',
-      ]
+      const strongPasswords = ['Str0ng!Pass', 'MyP@ssw0rd123', 'C0mpl3x-P@ss!', 'S3cur3#Password']
 
       strongPasswords.forEach(password => {
         const result = validatePassword(password)
@@ -479,12 +474,7 @@ describe('Input Validation Tests', () => {
     })
 
     it('should reject common passwords', () => {
-      const commonPasswords = [
-        'Password1!',
-        'password',
-        '12345678',
-        'qwerty123',
-      ]
+      const commonPasswords = ['Password1!', 'password', '12345678', 'qwerty123']
 
       commonPasswords.forEach(password => {
         const result = validatePassword(password)
@@ -512,15 +502,7 @@ describe('Input Validation Tests', () => {
     })
 
     it('should reject invalid names', () => {
-      const invalidNames = [
-        '',
-        '   ',
-        'A',
-        'A'.repeat(101),
-        'Name123',
-        'Name@Doe',
-        '<script>',
-      ]
+      const invalidNames = ['', '   ', 'A', 'A'.repeat(101), 'Name123', 'Name@Doe', '<script>']
 
       invalidNames.forEach(name => {
         const result = validateName(name)
@@ -613,14 +595,7 @@ describe('Input Validation Tests', () => {
     })
 
     it('should reject invalid phone numbers', () => {
-      const invalidPhones = [
-        '',
-        '   ',
-        '123',
-        'abc',
-        '123-abc-7890',
-        '+'.repeat(20),
-      ]
+      const invalidPhones = ['', '   ', '123', 'abc', '123-abc-7890', '+'.repeat(20)]
 
       invalidPhones.forEach(phone => {
         const result = validatePhone(phone)
@@ -726,11 +701,7 @@ describe('Input Validation Tests', () => {
 
   describe('Date Validation', () => {
     it('should accept valid dates', () => {
-      const validDates = [
-        '2026-01-15',
-        '2026-12-31T23:59:59Z',
-        new Date().toISOString(),
-      ]
+      const validDates = ['2026-01-15', '2026-12-31T23:59:59Z', new Date().toISOString()]
 
       validDates.forEach(date => {
         const result = validateDate(date)
@@ -779,7 +750,7 @@ describe('Input Validation Tests', () => {
     it('should reject files that are too large', () => {
       const largeFile = { name: 'large.pdf', size: 20 * 1024 * 1024, type: 'application/pdf' }
       const result = validateFile(largeFile, { maxSizeBytes: 10 * 1024 * 1024 })
-      
+
       expect(result.valid).toBe(false)
       expect(result.errors).toContain('File size must be less than 10MB')
     })
@@ -787,7 +758,7 @@ describe('Input Validation Tests', () => {
     it('should reject disallowed file types', () => {
       const file = { name: 'script.exe', size: 1024, type: 'application/x-msdownload' }
       const result = validateFile(file, { allowedTypes: ['application/pdf', 'image/jpeg'] })
-      
+
       expect(result.valid).toBe(false)
       expect(result.errors.some(e => e.includes('not allowed'))).toBe(true)
     })
@@ -795,7 +766,7 @@ describe('Input Validation Tests', () => {
     it('should reject disallowed extensions', () => {
       const file = { name: 'script.php', size: 1024, type: 'text/plain' }
       const result = validateFile(file, { allowedExtensions: ['txt', 'pdf'] })
-      
+
       expect(result.valid).toBe(false)
       expect(result.errors.some(e => e.includes('not allowed'))).toBe(true)
     })
@@ -891,13 +862,13 @@ describe('Input Validation Tests', () => {
   describe('Performance', () => {
     it('should validate quickly', () => {
       const start = performance.now()
-      
+
       for (let i = 0; i < 1000; i++) {
         validateEmail('test@example.com')
         validateName('John Doe')
         validateMessage('This is a test message.')
       }
-      
+
       const duration = performance.now() - start
       expect(duration).toBeLessThan(1000) // Should complete in under 1 second
     })
@@ -907,11 +878,11 @@ describe('Input Validation Tests', () => {
 describe('Input Sanitization Integration', () => {
   it('should sanitize before validation', () => {
     const input = '  <script>alert(1)</script>  '
-    
+
     // Trim first
     const trimmed = input.trim()
     expect(trimmed).toBe('<script>alert(1)</script>')
-    
+
     // Then validate - should fail
     const result = validateName(trimmed)
     expect(result.valid).toBe(false)
@@ -920,7 +891,7 @@ describe('Input Sanitization Integration', () => {
   it('should handle chained validation', () => {
     const email = 'TEST@EXAMPLE.COM'
     const result = validateEmail(email)
-    
+
     // Should be valid regardless of case
     expect(result.valid).toBe(true)
   })

@@ -15,7 +15,7 @@ const PATTERNS = {
   uuid: /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i,
   ipv4: /^(?:(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.){3}(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)$/,
   hexColor: /^#([A-Fa-f0-9]{6}|[A-Fa-f0-9]{3})$/,
-} as const;
+} as const
 
 // ============================================================================
 // Core Validation Helpers (核心验证工具函数)
@@ -27,12 +27,9 @@ const PATTERNS = {
  * @param pattern 正则表达式或预定义的模式名称
  * @returns 是否匹配
  */
-export function matchesPattern(
-  value: string,
-  pattern: RegExp | keyof typeof PATTERNS
-): boolean {
-  const regex = typeof pattern === 'string' ? PATTERNS[pattern] : pattern;
-  return regex.test(value);
+export function matchesPattern(value: string, pattern: RegExp | keyof typeof PATTERNS): boolean {
+  const regex = typeof pattern === 'string' ? PATTERNS[pattern] : pattern
+  return regex.test(value)
 }
 
 /**
@@ -42,11 +39,11 @@ export function matchesPattern(
  * @param max 最大值
  * @returns 是否在范围内
  */
-export function isInRange(value: number, min: number, max: number): boolean;
-export function isInRange(value: string, min: number, max: number): boolean;
+export function isInRange(value: number, min: number, max: number): boolean
+export function isInRange(value: string, min: number, max: number): boolean
 export function isInRange(value: number | string, min: number, max: number): boolean {
-  const num = typeof value === 'string' ? value.length : value;
-  return num >= min && num <= max;
+  const num = typeof value === 'string' ? value.length : value
+  return num >= min && num <= max
 }
 
 /**
@@ -61,8 +58,8 @@ export function containsPatterns(
   patterns: RegExp[],
   requiredCount?: number
 ): boolean {
-  const matchedCount = patterns.filter(p => p.test(value)).length;
-  return matchedCount >= (requiredCount ?? patterns.length);
+  const matchedCount = patterns.filter(p => p.test(value)).length
+  return matchedCount >= (requiredCount ?? patterns.length)
 }
 
 /**
@@ -72,26 +69,26 @@ export function containsPatterns(
  */
 export function isValidDate(date: unknown): boolean {
   if (typeof date !== 'string' && !(date instanceof Date)) {
-    return false;
+    return false
   }
   if (typeof date === 'string') {
     // Check format matches YYYY-MM-DD or YYYY/MM/DD
     if (!/^\d{4}[-/]\d{2}[-/]\d{2}/.test(date)) {
-      return false;
+      return false
     }
-    const d = new Date(date);
+    const d = new Date(date)
     if (isNaN(d.getTime())) {
-      return false;
+      return false
     }
     // Normalize the date string to YYYY-MM-DD for comparison
-    const normalized = date.replace(/\//g, '-');
-    const [year, month, day] = normalized.split('T')[0].split('-').map(Number);
+    const normalized = date.replace(/\//g, '-')
+    const [year, month, day] = normalized.split('T')[0].split('-').map(Number)
     if (d.getFullYear() !== year || d.getMonth() + 1 !== month || d.getDate() !== day) {
-      return false;
+      return false
     }
-    return true;
+    return true
   }
-  return !isNaN(date.getTime());
+  return !isNaN(date.getTime())
 }
 
 // ============================================================================
@@ -102,7 +99,7 @@ export function isValidDate(date: unknown): boolean {
  * 验证电子邮件地址
  */
 export function isValidEmail(email: string): boolean {
-  return matchesPattern(email, 'email');
+  return matchesPattern(email, 'email')
 }
 
 /**
@@ -110,11 +107,11 @@ export function isValidEmail(email: string): boolean {
  */
 export function isValidUrl(url: string): boolean {
   try {
-    const parsed = new URL(url);
+    const parsed = new URL(url)
     // Only allow http and https schemes
-    return parsed.protocol === 'http:' || parsed.protocol === 'https:';
+    return parsed.protocol === 'http:' || parsed.protocol === 'https:'
   } catch {
-    return false;
+    return false
   }
 }
 
@@ -122,7 +119,7 @@ export function isValidUrl(url: string): boolean {
  * 验证手机号码（中国大陆）
  */
 export function isValidPhoneNumber(phone: string): boolean {
-  return matchesPattern(phone, 'phoneCN');
+  return matchesPattern(phone, 'phoneCN')
 }
 
 /**
@@ -130,10 +127,7 @@ export function isValidPhoneNumber(phone: string): boolean {
  * 至少8位，包含字母和数字
  */
 export function isStrongPassword(password: string): boolean {
-  return (
-    isInRange(password, 8, Infinity) &&
-    containsPatterns(password, [/[a-zA-Z]/, /[0-9]/])
-  );
+  return isInRange(password, 8, Infinity) && containsPatterns(password, [/[a-zA-Z]/, /[0-9]/])
 }
 
 /**
@@ -141,39 +135,39 @@ export function isStrongPassword(password: string): boolean {
  * 3-20个字符，只允许字母、数字、下划线
  */
 export function isValidUsername(username: string): boolean {
-  return matchesPattern(username, 'username');
+  return matchesPattern(username, 'username')
 }
 
 /**
  * 验证文件扩展名
  */
 export function isValidFileExtension(filename: string, allowedExtensions: string[]): boolean {
-  const ext = filename.split('.').pop()?.toLowerCase() || '';
-  return allowedExtensions.map(e => e.toLowerCase()).includes(ext);
+  const ext = filename.split('.').pop()?.toLowerCase() || ''
+  return allowedExtensions.map(e => e.toLowerCase()).includes(ext)
 }
 
 /**
  * 验证字符串长度（isInRange 的别名，语义更明确）
  */
-export const isValidLength = isInRange;
+export const isValidLength = isInRange
 
 /**
  * 验证是否为空或空白
  */
 export function isEmpty(value: unknown): boolean {
   if (value === null || value === undefined) {
-    return true;
+    return true
   }
   if (typeof value === 'string' && value.trim() === '') {
-    return true;
+    return true
   }
   if (Array.isArray(value) && value.length === 0) {
-    return true;
+    return true
   }
   if (typeof value === 'object' && Object.keys(value).length === 0) {
-    return true;
+    return true
   }
-  return false;
+  return false
 }
 
 /**
@@ -181,10 +175,10 @@ export function isEmpty(value: unknown): boolean {
  */
 export function isValidJson(json: string): boolean {
   try {
-    JSON.parse(json);
-    return true;
+    JSON.parse(json)
+    return true
   } catch {
-    return false;
+    return false
   }
 }
 
@@ -192,21 +186,21 @@ export function isValidJson(json: string): boolean {
  * 验证 UUID 格式
  */
 export function isValidUuid(uuid: string): boolean {
-  return matchesPattern(uuid, 'uuid');
+  return matchesPattern(uuid, 'uuid')
 }
 
 /**
  * 验证 IP 地址（IPv4）
  */
 export function isValidIPv4(ip: string): boolean {
-  return matchesPattern(ip, 'ipv4');
+  return matchesPattern(ip, 'ipv4')
 }
 
 /**
  * 验证十六进制颜色代码
  */
 export function isValidHexColor(color: string): boolean {
-  return matchesPattern(color, 'hexColor');
+  return matchesPattern(color, 'hexColor')
 }
 
 /**
@@ -215,13 +209,13 @@ export function isValidHexColor(color: string): boolean {
 export function isValidRegex(pattern: string): boolean {
   // Empty pattern is not valid
   if (!pattern) {
-    return false;
+    return false
   }
   try {
-    new RegExp(pattern);
-    return true;
+    new RegExp(pattern)
+    return true
   } catch {
-    return false;
+    return false
   }
 }
 
@@ -231,23 +225,24 @@ export function isValidRegex(pattern: string): boolean {
 export function validateObject<T extends Record<string, unknown>>(
   obj: T,
   rules: {
-    [K in keyof T]?: (value: T[K]) => boolean | string;
+    [K in keyof T]?: (value: T[K]) => boolean | string
   }
 ): { valid: boolean; errors: Partial<Record<keyof T, string>> } {
-  const errors: Partial<Record<keyof T, string>> = {};
-  let valid = true;
+  const errors: Partial<Record<keyof T, string>> = {}
+  let valid = true
 
   for (const [key, rule] of Object.entries(rules)) {
     if (rule) {
-      const result = rule(obj[key as keyof T]);
+      const result = rule(obj[key as keyof T])
       if (result !== true) {
-        valid = false;
-        errors[key as keyof T] = typeof result === 'string' ? result : `${String(key)} validation failed`;
+        valid = false
+        errors[key as keyof T] =
+          typeof result === 'string' ? result : `${String(key)} validation failed`
       }
     }
   }
 
-  return { valid, errors };
+  return { valid, errors }
 }
 
 /**
@@ -255,9 +250,9 @@ export function validateObject<T extends Record<string, unknown>>(
  * 注意：对于更安全的 HTML 清理，建议使用 validation-schemas.ts 中的 sanitizeHtml
  */
 export function sanitizeHtmlBasic(html: string): string {
-  const temp = document.createElement('div');
-  temp.textContent = html;
-  return temp.innerHTML;
+  const temp = document.createElement('div')
+  temp.textContent = html
+  return temp.innerHTML
 }
 
 /**
@@ -265,20 +260,20 @@ export function sanitizeHtmlBasic(html: string): string {
  */
 export function truncateString(value: string, maxLength: number, suffix = '...'): string {
   if (value.length <= maxLength) {
-    return value;
+    return value
   }
-  return value.substring(0, maxLength - suffix.length) + suffix;
+  return value.substring(0, maxLength - suffix.length) + suffix
 }
 
 /**
  * 验证并格式化电话号码
  */
 export function formatPhoneNumber(phone: string): string | null {
-  const cleaned = phone.replace(/\D/g, '');
+  const cleaned = phone.replace(/\D/g, '')
   if (cleaned.length !== 11) {
-    return null;
+    return null
   }
-  return `${cleaned.slice(0, 3)}-${cleaned.slice(3, 7)}-${cleaned.slice(7)}`;
+  return `${cleaned.slice(0, 3)}-${cleaned.slice(3, 7)}-${cleaned.slice(7)}`
 }
 
 // ============================================================================
@@ -288,9 +283,9 @@ export function formatPhoneNumber(phone: string): string | null {
 /**
  * 导出所有正则模式，供其他模块复用
  */
-export { PATTERNS };
+export { PATTERNS }
 
 /**
  * 类型导出：模式名称
  */
-export type PatternName = keyof typeof PATTERNS;
+export type PatternName = keyof typeof PATTERNS

@@ -1,4 +1,5 @@
 # Performance Monitoring Setup Guide
+
 # 性能监控设置指南
 
 本指南将帮助你在 7zi 项目中集成性能监控和告警系统。
@@ -18,10 +19,12 @@
 ### 1. 安装依赖
 
 监控系统使用以下已安装的依赖：
+
 - `uuid` - 生成唯一标识符
 - `lucide-react` - 图标库
 
 如果未安装，运行：
+
 ```bash
 cd 7zi-frontend
 npm install uuid lucide-react
@@ -34,7 +37,7 @@ npm install uuid lucide-react
 在任何 Next.js 页面中添加性能仪表板：
 
 ```tsx
-import { PerformanceDashboard } from '@/components/PerformanceDashboard';
+import { PerformanceDashboard } from '@/components/PerformanceDashboard'
 
 export default function DashboardPage() {
   return (
@@ -42,14 +45,14 @@ export default function DashboardPage() {
       <h1>Admin Dashboard</h1>
       <PerformanceDashboard refreshInterval={5000} showAlarms={true} />
     </div>
-  );
+  )
 }
 ```
 
 或使用简化版本（不需要额外依赖）：
 
 ```tsx
-import { SimplePerformanceDashboard } from '@/components/SimplePerformanceDashboard';
+import { SimplePerformanceDashboard } from '@/components/SimplePerformanceDashboard'
 
 export default function DashboardPage() {
   return (
@@ -57,7 +60,7 @@ export default function DashboardPage() {
       <h1>Admin Dashboard</h1>
       <SimplePerformanceDashboard />
     </div>
-  );
+  )
 }
 ```
 
@@ -68,7 +71,7 @@ export default function DashboardPage() {
 使用 `monitoredFetch` 包装你的 fetch 调用：
 
 ```typescript
-import { monitoredFetch } from '@/lib/monitoring';
+import { monitoredFetch } from '@/lib/monitoring'
 
 // 使用方式与原生 fetch 完全相同
 const response = await monitoredFetch('/api/users', {
@@ -77,10 +80,10 @@ const response = await monitoredFetch('/api/users', {
     userId: '123',
     // 添加任何额外的上下文
   },
-});
+})
 
 // 返回的是标准的 Response 对象
-const data = await response.json();
+const data = await response.json()
 ```
 
 ### 2. 监控异步操作
@@ -88,15 +91,19 @@ const data = await response.json();
 使用 `withPerformanceTracking` 包装异步函数：
 
 ```typescript
-import { withPerformanceTracking } from '@/lib/monitoring';
+import { withPerformanceTracking } from '@/lib/monitoring'
 
 async function fetchUserData(userId: string) {
-  return withPerformanceTracking('fetch_user_data', async () => {
-    const response = await fetch(`/api/users/${userId}`);
-    return response.json();
-  }, {
-    userId, // 可选的元数据
-  });
+  return withPerformanceTracking(
+    'fetch_user_data',
+    async () => {
+      const response = await fetch(`/api/users/${userId}`)
+      return response.json()
+    },
+    {
+      userId, // 可选的元数据
+    }
+  )
 }
 ```
 
@@ -105,27 +112,27 @@ async function fetchUserData(userId: string) {
 使用 `monitor` 实例手动追踪：
 
 ```typescript
-import { monitor } from '@/lib/monitoring';
+import { monitor } from '@/lib/monitoring'
 
 // 开始追踪
-const operationId = monitor.startOperation('data_processing');
+const operationId = monitor.startOperation('data_processing')
 
 try {
   // 执行你的操作
-  await processData();
+  await processData()
 
   // 结束追踪（成功）
   await monitor.endOperation(operationId, true, {
     itemsProcessed: 100,
-  });
+  })
 } catch (error) {
   // 结束追踪（失败）
   await monitor.endOperation(operationId, false, {
     error: error.message,
-  });
+  })
 
   // 记录错误
-  await monitor.trackError('ProcessingError', error.message, error.stack);
+  await monitor.trackError('ProcessingError', error.message, error.stack)
 }
 ```
 
@@ -134,11 +141,11 @@ try {
 在错误边界中使用：
 
 ```typescript
-import { trackReactError } from '@/lib/monitoring';
+import { trackReactError } from '@/lib/monitoring'
 
 class ErrorBoundary extends React.Component {
   componentDidCatch(error: Error, errorInfo: React.ErrorInfo) {
-    trackReactError(error, errorInfo);
+    trackReactError(error, errorInfo)
 
     // 其他错误处理逻辑
   }
@@ -150,13 +157,13 @@ class ErrorBoundary extends React.Component {
 记录自定义性能指标：
 
 ```typescript
-import { monitor } from '@/lib/monitoring';
+import { monitor } from '@/lib/monitoring'
 
 // 记录任何自定义指标
 await monitor.trackCustomMetric('database_query_time', 150, 'ms', {
   queryType: 'SELECT',
   tableName: 'users',
-});
+})
 ```
 
 ## 配置
@@ -166,12 +173,14 @@ await monitor.trackCustomMetric('database_query_time', 150, 'ms', {
 监控会根据环境自动调整：
 
 **开发环境** (NODE_ENV=development):
+
 - 采样率: 100%
 - 错误率阈值: 10%
 - 响应时间阈值: 5000ms
 - 操作时间阈值: 10000ms
 
 **生产环境** (NODE_ENV=production):
+
 - 采样率: 10% (降低性能开销)
 - 错误率阈值: 2%
 - 响应时间阈值: 1000ms
@@ -197,18 +206,18 @@ export const CUSTOM_CONFIG: Partial<MonitoringConfig> = {
     },
     // ... 其他配置
   },
-};
+}
 ```
 
 运行时更新配置：
 
 ```typescript
-import { monitor } from '@/lib/monitoring';
+import { monitor } from '@/lib/monitoring'
 
 monitor.updateConfig({
   sampleRate: 0.2,
   enabled: true,
-});
+})
 ```
 
 ## 数据存储
@@ -226,7 +235,7 @@ monitor.updateConfig({
 export const DEFAULT_MONITORING_CONFIG: MonitoringConfig = {
   storageType: 'localStorage', // 改为 localStorage
   // ... 其他配置
-};
+}
 ```
 
 ### 自定义存储
@@ -234,7 +243,7 @@ export const DEFAULT_MONITORING_CONFIG: MonitoringConfig = {
 实现 `MonitoringStorage` 接口以支持自定义存储后端：
 
 ```typescript
-import { MonitoringStorage, PerformanceMetric, AlarmEvent } from '@/lib/monitoring';
+import { MonitoringStorage, PerformanceMetric, AlarmEvent } from '@/lib/monitoring'
 
 class CustomStorage implements MonitoringStorage {
   async saveMetric(metric: PerformanceMetric): Promise<void> {
@@ -242,7 +251,7 @@ class CustomStorage implements MonitoringStorage {
     await fetch('/api/metrics', {
       method: 'POST',
       body: JSON.stringify(metric),
-    });
+    })
   }
 
   // ... 实现其他方法
@@ -267,6 +276,7 @@ class CustomStorage implements MonitoringStorage {
 ### 查看告警
 
 告警会：
+
 1. 在浏览器控制台中显示警告
 2. 存储在监控系统中
 3. 在仪表板组件中显示
@@ -379,6 +389,7 @@ export default function DashboardPage() {
 ## 技术支持
 
 如有问题或建议，请查看：
+
 - 源代码: `src/lib/monitoring/`
 - 类型定义: `src/lib/monitoring/types.ts`
 - 配置文件: `src/lib/monitoring/config.ts`

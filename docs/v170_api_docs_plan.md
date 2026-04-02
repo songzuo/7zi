@@ -41,6 +41,7 @@ src/app/api/
 ```
 
 **统计**:
+
 - API 端点总数: 65+ 个
 - 已有 `@openapi` 注释: 部分端点
 - 现有文档: `docs/API.md` (手工维护, 3000+ 行)
@@ -58,6 +59,7 @@ src/app/api/
 ```
 
 **缺失**:
+
 - ❌ swagger-ui-react
 - ❌ @apidevtools/swagger-cli
 - ❌ openapi-types
@@ -84,6 +86,7 @@ src/app/api/
 ```
 
 **问题**:
+
 - ⚠️ 注释不完整（缺少 `requestBody`, `parameters`, `components`）
 - ⚠️ 没有统一的验证逻辑
 - ⚠️ 手工维护 `docs/API.md` 与代码不同步
@@ -125,12 +128,12 @@ src/
 
 ### 技术栈对比
 
-| 工具 | 优点 | 缺点 | 推荐度 |
-|------|------|------|--------|
+| 工具                   | 优点                      | 缺点                  | 推荐度     |
+| ---------------------- | ------------------------- | --------------------- | ---------- |
 | **Swagger UI (react)** | 成熟、社区支持好、UI 美观 | 需要维护 OpenAPI 规范 | ⭐⭐⭐⭐⭐ |
-| **Stoplight** | 可视化设计、更现代 | 学习成本高、额外服务 | ⭐⭐⭐ |
-| **Redoc** | UI 美观、响应式 | 定制能力有限 | ⭐⭐⭐ |
-| **Auto-Swagger** | 自动生成、零配置 | 不稳定、维护困难 | ⭐⭐ |
+| **Stoplight**          | 可视化设计、更现代        | 学习成本高、额外服务  | ⭐⭐⭐     |
+| **Redoc**              | UI 美观、响应式           | 定制能力有限          | ⭐⭐⭐     |
+| **Auto-Swagger**       | 自动生成、零配置          | 不稳定、维护困难      | ⭐⭐       |
 
 **最终选择**: **Swagger UI + JSDoc 自动生成**
 
@@ -444,6 +447,7 @@ export async function POST(request: NextRequest) {
 **路径**: `/api/docs`
 
 **实现**:
+
 ```typescript
 // src/app/api/docs/route.ts
 import { NextResponse } from 'next/server';
@@ -470,6 +474,7 @@ export default function APIDocs() {
 ```
 
 **优点**:
+
 - ✅ 与现有路由系统集成
 - ✅ 无需额外服务器
 - ✅ 自动应用认证逻辑
@@ -480,6 +485,7 @@ export default function APIDocs() {
 **生成时机**: 构建时
 
 **输出**:
+
 ```
 docs/api/
 ├── openapi.yaml      # OpenAPI 规范
@@ -488,6 +494,7 @@ docs/api/
 ```
 
 **优点**:
+
 - ✅ 文档可独立部署
 - ✅ 版本控制友好
 - ✅ CDN 加速支持
@@ -512,12 +519,14 @@ docs/api/
 **任务清单**:
 
 - [ ] 安装依赖
+
   ```bash
   npm install swagger-ui-react openapi-types swagger-client
   npm install -D @apidevtools/swagger-cli @types/swagger-ui-react jsdoc-to-markdown glob
   ```
 
 - [ ] 创建目录结构
+
   ```bash
   mkdir -p src/lib/openapi
   mkdir -p src/lib/types
@@ -543,6 +552,7 @@ docs/api/
 - [ ] 生成第一个 OpenAPI 规范
 
 **优先级**:
+
 1. **P0** (核心 API): Auth, Tasks, Projects, Agents
 2. **P1** (重要 API): Analytics, RBAC, Multimodal
 3. **P2** (辅助 API): Health, Demo, Vitals
@@ -587,125 +597,125 @@ docs/api/
  */
 
 export interface OpenAPISpec {
-  openapi: string;
-  info: OpenAPIInfo;
-  servers?: OpenAPIServer[];
-  tags?: OpenAPITag[];
-  paths: OpenAPIPaths;
-  components?: OpenAPIComponents;
+  openapi: string
+  info: OpenAPIInfo
+  servers?: OpenAPIServer[]
+  tags?: OpenAPITag[]
+  paths: OpenAPIPaths
+  components?: OpenAPIComponents
 }
 
 export interface OpenAPIInfo {
-  title: string;
-  description?: string;
-  version: string;
-  contact?: OpenAPIContact;
-  license?: OpenAPILicense;
+  title: string
+  description?: string
+  version: string
+  contact?: OpenAPIContact
+  license?: OpenAPILicense
 }
 
 export interface OpenAPIServer {
-  url: string;
-  description?: string;
-  variables?: Record<string, OpenAPIServerVariable>;
+  url: string
+  description?: string
+  variables?: Record<string, OpenAPIServerVariable>
 }
 
 export interface OpenAPITag {
-  name: string;
-  description?: string;
+  name: string
+  description?: string
 }
 
 export interface OpenAPIPaths {
-  [path: string]: OpenAPIPathItem;
+  [path: string]: OpenAPIPathItem
 }
 
 export interface OpenAPIPathItem {
-  get?: OpenAPIOperation;
-  post?: OpenAPIOperation;
-  put?: OpenAPIOperation;
-  delete?: OpenAPIOperation;
-  patch?: OpenAPIOperation;
+  get?: OpenAPIOperation
+  post?: OpenAPIOperation
+  put?: OpenAPIOperation
+  delete?: OpenAPIOperation
+  patch?: OpenAPIOperation
 }
 
 export interface OpenAPIOperation {
-  tags?: string[];
-  summary?: string;
-  description?: string;
-  operationId?: string;
-  parameters?: OpenAPIParameter[];
-  requestBody?: OpenAPIRequestBody;
-  responses: OpenAPIResponses;
-  security?: OpenAPISecurityRequirement[];
-  deprecated?: boolean;
+  tags?: string[]
+  summary?: string
+  description?: string
+  operationId?: string
+  parameters?: OpenAPIParameter[]
+  requestBody?: OpenAPIRequestBody
+  responses: OpenAPIResponses
+  security?: OpenAPISecurityRequirement[]
+  deprecated?: boolean
 }
 
 export interface OpenAPIParameter {
-  name: string;
-  in: 'path' | 'query' | 'header' | 'cookie';
-  description?: string;
-  required?: boolean;
-  schema: OpenAPISchema;
+  name: string
+  in: 'path' | 'query' | 'header' | 'cookie'
+  description?: string
+  required?: boolean
+  schema: OpenAPISchema
 }
 
 export interface OpenAPIRequestBody {
-  description?: string;
-  content: OpenAPIContent;
-  required?: boolean;
+  description?: string
+  content: OpenAPIContent
+  required?: boolean
 }
 
 export interface OpenAPIContent {
-  [mediaType: string]: OpenAPIMediaType;
+  [mediaType: string]: OpenAPIMediaType
 }
 
 export interface OpenAPIMediaType {
-  schema?: OpenAPISchema;
-  example?: unknown;
+  schema?: OpenAPISchema
+  example?: unknown
 }
 
 export interface OpenAPIResponses {
-  [statusCode: string]: OpenAPIResponse;
+  [statusCode: string]: OpenAPIResponse
 }
 
 export interface OpenAPIResponse {
-  description: string;
-  headers?: Record<string, OpenAPIHeader>;
-  content?: OpenAPIContent;
+  description: string
+  headers?: Record<string, OpenAPIHeader>
+  content?: OpenAPIContent
 }
 
 export interface OpenAPISchema {
-  type?: 'string' | 'number' | 'integer' | 'boolean' | 'array' | 'object';
-  format?: string;
-  description?: string;
-  enum?: (string | number)[];
-  default?: unknown;
-  example?: unknown;
-  items?: OpenAPISchema;
-  properties?: Record<string, OpenAPISchema>;
-  required?: string[];
-  $ref?: string;
-  allOf?: OpenAPISchema[];
-  anyOf?: OpenAPISchema[];
-  oneOf?: OpenAPISchema[];
+  type?: 'string' | 'number' | 'integer' | 'boolean' | 'array' | 'object'
+  format?: string
+  description?: string
+  enum?: (string | number)[]
+  default?: unknown
+  example?: unknown
+  items?: OpenAPISchema
+  properties?: Record<string, OpenAPISchema>
+  required?: string[]
+  $ref?: string
+  allOf?: OpenAPISchema[]
+  anyOf?: OpenAPISchema[]
+  oneOf?: OpenAPISchema[]
 }
 
 export interface OpenAPIComponents {
-  schemas?: Record<string, OpenAPISchema>;
-  responses?: Record<string, OpenAPIResponse>;
-  parameters?: Record<string, OpenAPIParameter>;
-  requestBodies?: Record<string, OpenAPIRequestBody>;
-  securitySchemes?: Record<string, OpenAPISecurityScheme>;
+  schemas?: Record<string, OpenAPISchema>
+  responses?: Record<string, OpenAPIResponse>
+  parameters?: Record<string, OpenAPIParameter>
+  requestBodies?: Record<string, OpenAPIRequestBody>
+  securitySchemes?: Record<string, OpenAPISecurityScheme>
 }
 
 export interface OpenAPISecurityScheme {
-  type: 'apiKey' | 'http' | 'oauth2' | 'openIdConnect';
-  description?: string;
-  name?: string;
-  in?: 'query' | 'header' | 'cookie';
-  scheme?: string;
-  bearerFormat?: string;
+  type: 'apiKey' | 'http' | 'oauth2' | 'openIdConnect'
+  description?: string
+  name?: string
+  in?: 'query' | 'header' | 'cookie'
+  scheme?: string
+  bearerFormat?: string
 }
 
 export interface OpenAPISecurityRequirement {
-  [name: string]: string[];
+  [name: string]: string[]
 }
 ```
 
@@ -714,15 +724,15 @@ export interface OpenAPISecurityRequirement {
 ```typescript
 /**
  * OpenAPI 3.0 Specification Generator
- * 
+ *
  * Scans all API routes and generates OpenAPI specification from JSDoc annotations.
  */
 
-import { glob } from 'glob';
-import fs from 'fs/promises';
-import type { OpenAPISpec } from '@/lib/types/openapi';
-import { parseJSDocAnnotations } from './parser';
-import { logger } from '@/lib/logger';
+import { glob } from 'glob'
+import fs from 'fs/promises'
+import type { OpenAPISpec } from '@/lib/types/openapi'
+import { parseJSDocAnnotations } from './parser'
+import { logger } from '@/lib/logger'
 
 /**
  * OpenAPI specification template
@@ -804,7 +814,13 @@ Authorization: Bearer <your-jwt-token>
               properties: {
                 type: {
                   type: 'string',
-                  enum: ['VALIDATION_ERROR', 'AUTHENTICATION_ERROR', 'AUTHORIZATION_ERROR', 'NOT_FOUND', 'INTERNAL_ERROR'],
+                  enum: [
+                    'VALIDATION_ERROR',
+                    'AUTHENTICATION_ERROR',
+                    'AUTHORIZATION_ERROR',
+                    'NOT_FOUND',
+                    'INTERNAL_ERROR',
+                  ],
                 },
                 code: { type: 'string' },
                 message: { type: 'string' },
@@ -841,7 +857,7 @@ Authorization: Bearer <your-jwt-token>
         },
       },
     },
-  };
+  }
 }
 
 /**
@@ -850,98 +866,93 @@ Authorization: Bearer <your-jwt-token>
 async function scanApiRoutes(): Promise<Record<string, unknown>> {
   const apiFiles = await glob('src/app/api/**/route.ts', {
     cwd: process.cwd(),
-  });
+  })
 
-  const allAnnotations: Record<string, unknown> = {};
+  const allAnnotations: Record<string, unknown> = {}
 
   for (const file of apiFiles) {
     try {
-      const content = await fs.readFile(file, 'utf-8');
-      const annotations = parseJSDocAnnotations(content);
-      
+      const content = await fs.readFile(file, 'utf-8')
+      const annotations = parseJSDocAnnotations(content)
+
       // Merge paths
       if (annotations.paths) {
-        Object.assign(allAnnotations.paths || {}, annotations.paths);
+        Object.assign(allAnnotations.paths || {}, annotations.paths)
       }
-      
+
       // Merge components
       if (annotations.components) {
-        Object.assign(allAnnotations.components || {}, annotations.components);
+        Object.assign(allAnnotations.components || {}, annotations.components)
       }
     } catch (error) {
-      logger.warn(`Failed to parse ${file}`, { error });
+      logger.warn(`Failed to parse ${file}`, { error })
     }
   }
 
-  return allAnnotations;
+  return allAnnotations
 }
 
 /**
  * Generate complete OpenAPI specification
  */
 export async function generateOpenAPISpec(): Promise<OpenAPISpec> {
-  logger.info('Generating OpenAPI specification...');
+  logger.info('Generating OpenAPI specification...')
 
-  const spec = createBaseSpec();
-  const annotations = await scanApiRoutes();
+  const spec = createBaseSpec()
+  const annotations = await scanApiRoutes()
 
   // Merge paths
   if (annotations.paths) {
-    spec.paths = { ...spec.paths, ...(annotations.paths as Record<string, unknown>) };
+    spec.paths = { ...spec.paths, ...(annotations.paths as Record<string, unknown>) }
   }
 
   // Extract and add tags
-  const tags = new Set<string>();
-  Object.values(spec.paths).forEach((pathItem) => {
-    Object.values(pathItem as Record<string, unknown>).forEach((operation) => {
+  const tags = new Set<string>()
+  Object.values(spec.paths).forEach(pathItem => {
+    Object.values(pathItem as Record<string, unknown>).forEach(operation => {
       if (typeof operation === 'object' && operation !== null && 'tags' in operation) {
-        const opTags = (operation as { tags?: string[] }).tags;
+        const opTags = (operation as { tags?: string[] }).tags
         if (Array.isArray(opTags)) {
-          opTags.forEach(tag => tags.add(tag));
+          opTags.forEach(tag => tags.add(tag))
         }
       }
-    });
-  });
+    })
+  })
 
   spec.tags = Array.from(tags).map(tag => ({
     name: tag,
     description: `${tag} related endpoints`,
-  }));
+  }))
 
   // Merge components
   if (annotations.components) {
     spec.components!.schemas = {
       ...spec.components!.schemas,
       ...((annotations.components as { schemas?: Record<string, unknown> }).schemas || {}),
-    };
+    }
   }
 
   logger.info('OpenAPI specification generated', {
     paths: Object.keys(spec.paths).length,
     tags: spec.tags?.length || 0,
-  });
+  })
 
-  return spec;
+  return spec
 }
 
 /**
  * Generate OpenAPI spec and write to files
  */
-export async function generateOpenAPISpecFiles(
-  outputPath: string = 'docs/api',
-): Promise<void> {
-  const spec = await generateOpenAPISpec();
-  
+export async function generateOpenAPISpecFiles(outputPath: string = 'docs/api'): Promise<void> {
+  const spec = await generateOpenAPISpec()
+
   // Ensure directory exists
-  await fs.mkdir(outputPath, { recursive: true });
-  
+  await fs.mkdir(outputPath, { recursive: true })
+
   // Write JSON (YAML requires js-yaml package)
-  await fs.writeFile(
-    `${outputPath}/openapi.json`,
-    JSON.stringify(spec, null, 2)
-  );
-  
-  logger.info(`OpenAPI spec written to ${outputPath}/openapi.json`);
+  await fs.writeFile(`${outputPath}/openapi.json`, JSON.stringify(spec, null, 2))
+
+  logger.info(`OpenAPI spec written to ${outputPath}/openapi.json`)
 }
 ```
 
@@ -950,12 +961,12 @@ export async function generateOpenAPISpecFiles(
 ```typescript
 /**
  * JSDoc Annotation Parser
- * 
+ *
  * Parses @openapi annotations from TypeScript source files.
  */
 
-import yaml from 'js-yaml';
-import { logger } from '@/lib/logger';
+import yaml from 'js-yaml'
+import { logger } from '@/lib/logger'
 
 /**
  * Parse JSDoc @openapi annotations from source code
@@ -964,49 +975,49 @@ export function parseJSDocAnnotations(sourceCode: string): Record<string, unknow
   const annotations: Record<string, unknown> = {
     paths: {},
     components: {},
-  };
+  }
 
   // Find all @openapi blocks
-  const openapiBlocks = extractOpenAPIDocBlocks(sourceCode);
+  const openapiBlocks = extractOpenAPIDocBlocks(sourceCode)
 
   // Parse each block
   for (const block of openapiBlocks) {
     try {
-      const parsed = parseOpenAPIBlock(block);
+      const parsed = parseOpenAPIBlock(block)
       if (parsed) {
         // Merge paths
         if (parsed.paths) {
-          Object.assign(annotations.paths, parsed.paths);
+          Object.assign(annotations.paths, parsed.paths)
         }
         // Merge components
         if (parsed.components) {
-          Object.assign(annotations.components, parsed.components);
+          Object.assign(annotations.components, parsed.components)
         }
       }
     } catch (error) {
-      logger.warn('Failed to parse @openapi block', { error });
+      logger.warn('Failed to parse @openapi block', { error })
     }
   }
 
-  return annotations;
+  return annotations
 }
 
 /**
  * Extract @openapi documentation blocks
  */
 function extractOpenAPIDocBlocks(sourceCode: string): string[] {
-  const blocks: string[] = [];
-  const regex = /\/\*\*[\s\S]*?\*\//g;
-  let match;
+  const blocks: string[] = []
+  const regex = /\/\*\*[\s\S]*?\*\//g
+  let match
 
   while ((match = regex.exec(sourceCode)) !== null) {
-    const block = match[0];
+    const block = match[0]
     if (block.includes('@openapi')) {
-      blocks.push(block);
+      blocks.push(block)
     }
   }
 
-  return blocks;
+  return blocks
 }
 
 /**
@@ -1021,16 +1032,16 @@ function parseOpenAPIBlock(block: string): Record<string, unknown> | null {
       .split('\n')
       .map(line => line.replace(/^\s*\*\s?/, '').trim())
       .filter(line => !line.startsWith('@')) // Remove other JSDoc tags
-      .join('\n');
+      .join('\n')
 
     // Parse as YAML
-    const parsed = yaml.load(content) as Record<string, unknown>;
-    return parsed;
+    const parsed = yaml.load(content) as Record<string, unknown>
+    return parsed
   } catch (error) {
     logger.warn('Failed to parse @openapi block', {
       error: error instanceof Error ? error.message : String(error),
-    });
-    return null;
+    })
+    return null
   }
 }
 ```
@@ -1040,15 +1051,15 @@ function parseOpenAPIBlock(block: string): Record<string, unknown> | null {
 ```typescript
 /**
  * OpenAPI Documentation Endpoint
- * 
+ *
  * Serves the OpenAPI specification as JSON
  */
 
-import { NextResponse } from 'next/server';
-import { generateOpenAPISpec } from '@/lib/openapi/generator';
+import { NextResponse } from 'next/server'
+import { generateOpenAPISpec } from '@/lib/openapi/generator'
 
-export const dynamic = 'force-dynamic';
-export const revalidate = 3600; // Cache for 1 hour
+export const dynamic = 'force-dynamic'
+export const revalidate = 3600 // Cache for 1 hour
 
 /**
  * GET /api/docs
@@ -1056,19 +1067,16 @@ export const revalidate = 3600; // Cache for 1 hour
  */
 export async function GET() {
   try {
-    const spec = await generateOpenAPISpec();
-    
+    const spec = await generateOpenAPISpec()
+
     return NextResponse.json(spec, {
       headers: {
         'Content-Type': 'application/json',
         'Cache-Control': 'public, max-age=3600, s-maxage=3600',
       },
-    });
+    })
   } catch (error) {
-    return NextResponse.json(
-      { error: 'Failed to generate OpenAPI specification' },
-      { status: 500 }
-    );
+    return NextResponse.json({ error: 'Failed to generate OpenAPI specification' }, { status: 500 })
   }
 }
 ```
@@ -1080,7 +1088,7 @@ export async function GET() {
 
 /**
  * API Documentation Page
- * 
+ *
  * Interactive Swagger UI for API exploration
  */
 
@@ -1097,9 +1105,9 @@ export default function APIDocsPage() {
             Interactive API documentation for 7zi platform
           </p>
         </div>
-        
+
         <div className="border rounded-lg overflow-hidden">
-          <SwaggerUI 
+          <SwaggerUI
             url="/api/docs"
             docExpansion="list"
             deepLinking={true}
@@ -1121,59 +1129,57 @@ export default function APIDocsPage() {
 
 /**
  * OpenAPI Specification Generator Script
- * 
+ *
  * Usage:
  *   node scripts/generate-openapi.js
  *   node scripts/generate-openapi.js --output docs/api
  *   node scripts/generate-openapi.js --validate
  */
 
-const { generateOpenAPISpecFiles } = require('../src/lib/openapi/generator');
-const { validateOpenAPISpec } = require('../src/lib/openapi/validator');
-const fs = require('fs');
-const path = require('path');
+const { generateOpenAPISpecFiles } = require('../src/lib/openapi/generator')
+const { validateOpenAPISpec } = require('../src/lib/openapi/validator')
+const fs = require('fs')
+const path = require('path')
 
 async function main() {
-  const args = process.argv.slice(2);
-  const outputDir = args.includes('--output') 
-    ? args[args.indexOf('--output') + 1] 
-    : 'docs/api';
-  const shouldValidate = args.includes('--validate');
+  const args = process.argv.slice(2)
+  const outputDir = args.includes('--output') ? args[args.indexOf('--output') + 1] : 'docs/api'
+  const shouldValidate = args.includes('--validate')
 
-  console.log('🚀 Generating OpenAPI specification...');
-  console.log(`   Output: ${outputDir}`);
+  console.log('🚀 Generating OpenAPI specification...')
+  console.log(`   Output: ${outputDir}`)
 
   try {
     // Generate spec files
-    await generateOpenAPISpecFiles(outputDir);
+    await generateOpenAPISpecFiles(outputDir)
 
     if (shouldValidate) {
-      console.log('🔍 Validating OpenAPI specification...');
-      
-      const specPath = path.join(outputDir, 'openapi.json');
-      const spec = JSON.parse(fs.readFileSync(specPath, 'utf-8'));
-      
-      const validation = validateOpenAPISpec(spec);
-      
+      console.log('🔍 Validating OpenAPI specification...')
+
+      const specPath = path.join(outputDir, 'openapi.json')
+      const spec = JSON.parse(fs.readFileSync(specPath, 'utf-8'))
+
+      const validation = validateOpenAPISpec(spec)
+
       if (validation.valid) {
-        console.log('✅ OpenAPI specification is valid');
+        console.log('✅ OpenAPI specification is valid')
       } else {
-        console.error('❌ OpenAPI specification has errors:');
+        console.error('❌ OpenAPI specification has errors:')
         validation.errors.forEach(err => {
-          console.error(`   - ${err.message}`);
-        });
-        process.exit(1);
+          console.error(`   - ${err.message}`)
+        })
+        process.exit(1)
       }
     }
 
-    console.log('✨ Done!');
+    console.log('✨ Done!')
   } catch (error) {
-    console.error('❌ Error:', error.message);
-    process.exit(1);
+    console.error('❌ Error:', error.message)
+    process.exit(1)
   }
 }
 
-main();
+main()
 ```
 
 ---
@@ -1200,28 +1206,28 @@ on:
 jobs:
   generate-and-validate:
     runs-on: ubuntu-latest
-    
+
     steps:
       - uses: actions/checkout@v4
-      
+
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
           node-version: '22'
           cache: 'npm'
-      
+
       - name: Install dependencies
         run: npm ci
-      
+
       - name: Generate OpenAPI spec
         run: node scripts/generate-openapi.js --validate
-      
+
       - name: Upload OpenAPI spec
         uses: actions/upload-artifact@v4
         with:
           name: openapi-spec
           path: docs/api/
-      
+
       - name: Comment PR with spec changes
         if: github.event_name == 'pull_request'
         uses: actions/github-script@v7
@@ -1229,7 +1235,7 @@ jobs:
           script: |
             const fs = require('fs');
             const spec = JSON.parse(fs.readFileSync('docs/api/openapi.json', 'utf-8'));
-            
+
             github.rest.issues.createComment({
               issue_number: context.issue.number,
               owner: context.repo.owner,
@@ -1252,12 +1258,12 @@ API_CHANGED=$(git diff --cached --name-only | grep -c "src/app/api/")
 if [ "$API_CHANGED" -gt 0 ]; then
   echo "📝 API files changed, regenerating documentation..."
   node scripts/generate-openapi.js --validate
-  
+
   if [ $? -ne 0 ]; then
     echo "❌ API documentation validation failed"
     exit 1
   fi
-  
+
   # Add generated files to commit
   git add docs/api/
 fi
@@ -1355,14 +1361,14 @@ npm run docs:publish
 
 ### 预计工作量
 
-| 阶段 | 工作内容 | 预计时间 | 负责人 |
-|------|---------|---------|--------|
-| 阶段 1 | 基础设施搭建 | 1-2 天 | Executor |
-| 阶段 2 | API 注解标准化 (65+ 端点) | 3-5 天 | Executor |
-| 阶段 3 | 文档集成 | 2-3 天 | 架构师 |
-| 阶段 4 | 自动化与 CI/CD | 2 天 | 系统管理员 |
-| 阶段 5 | 测试与优化 | 1-2 天 | 测试员 |
-| **总计** | | **9-14 天** | |
+| 阶段     | 工作内容                  | 预计时间    | 负责人     |
+| -------- | ------------------------- | ----------- | ---------- |
+| 阶段 1   | 基础设施搭建              | 1-2 天      | Executor   |
+| 阶段 2   | API 注解标准化 (65+ 端点) | 3-5 天      | Executor   |
+| 阶段 3   | 文档集成                  | 2-3 天      | 架构师     |
+| 阶段 4   | 自动化与 CI/CD            | 2 天        | 系统管理员 |
+| 阶段 5   | 测试与优化                | 1-2 天      | 测试员     |
+| **总计** |                           | **9-14 天** |            |
 
 ### 下一步行动
 
@@ -1383,15 +1389,15 @@ npm run docs:publish
 
 ### 风险与应对
 
-| 风险 | 可能性 | 影响 | 应对措施 |
-|------|--------|------|----------|
-| JSDoc 解析复杂 | 中 | 中 | 使用成熟的 js-yaml 库 |
-| 注解格式不统一 | 高 | 低 | 提供模板和 Lint 规则 |
-| 性能问题 | 低 | 中 | 缓存生成结果，增量更新 |
-| 团队接受度 | 中 | 中 | 培训和文档支持 |
+| 风险           | 可能性 | 影响 | 应对措施               |
+| -------------- | ------ | ---- | ---------------------- |
+| JSDoc 解析复杂 | 中     | 中   | 使用成熟的 js-yaml 库  |
+| 注解格式不统一 | 高     | 低   | 提供模板和 Lint 规则   |
+| 性能问题       | 低     | 中   | 缓存生成结果，增量更新 |
+| 团队接受度     | 中     | 中   | 培训和文档支持         |
 
 ---
 
 **方案制定完成**
 
-*本方案由 📚 咨询师（研究分析专家）制定，已充分考虑与现有技术栈的兼容性和团队的实际需求。如需调整或有疑问，请及时反馈。*
+_本方案由 📚 咨询师（研究分析专家）制定，已充分考虑与现有技术栈的兼容性和团队的实际需求。如需调整或有疑问，请及时反馈。_

@@ -133,7 +133,7 @@ describe('SEO - Robots.txt 验证', () => {
       // 确保没有明确允许敏感目录
       const sensitivePaths = ['/api/', '/admin/', '/.git/', '/node_modules/']
 
-      sensitivePaths.forEach((path) => {
+      sensitivePaths.forEach(path => {
         expect(defaultRule.allow).not.toContain(path)
       })
     })

@@ -10,4 +10,4 @@
  */
 
 // Feedback Components
-export * from './feedback';
+export * from './feedback'

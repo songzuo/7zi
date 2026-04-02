@@ -7,7 +7,7 @@
  */
 
 // Core Engine
-export { RCAEngine, RCAError, getRCAEngine, initRCAEngine } from "./RCAEngine";
+export { RCAEngine, RCAError, getRCAEngine, initRCAEngine } from './RCAEngine'
 
 // Types
 export type {
@@ -22,7 +22,7 @@ export type {
   SpanError,
   TracePerformance,
   SlowSpan,
-} from "./RCAEngine";
+} from './RCAEngine'
 
 // Enums
-export type { Severity, Priority, Effort, RootCauseType } from "./RCAEngine";
+export type { Severity, Priority, Effort, RootCauseType } from './RCAEngine'

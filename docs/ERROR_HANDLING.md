@@ -35,14 +35,14 @@ App Root
 
 ### Error Type Classification
 
-| Error Type | Icon Color | Use Case |
-|------------|------------|----------|
-| `generic` | Red | Unknown/unclassified errors |
-| `network` | Orange | Network connection failures |
-| `not-found` | Blue | 404 - Page not found |
-| `unauthorized` | Amber | 401 - Authentication required |
-| `forbidden` | Amber | 403 - Permission denied |
-| `server` | Purple | 5xx - Server errors |
+| Error Type     | Icon Color | Use Case                      |
+| -------------- | ---------- | ----------------------------- |
+| `generic`      | Red        | Unknown/unclassified errors   |
+| `network`      | Orange     | Network connection failures   |
+| `not-found`    | Blue       | 404 - Page not found          |
+| `unauthorized` | Amber      | 401 - Authentication required |
+| `forbidden`    | Amber      | 403 - Permission denied       |
+| `server`       | Purple     | 5xx - Server errors           |
 
 ### Error Monitoring (Sentry Integration)
 
@@ -80,6 +80,7 @@ All errors are automatically reported to Sentry with:
 ### Loading State Coverage
 
 ✅ Pages with loading.tsx:
+
 - `/[locale]/dashboard` → DashboardLoading
 - `/[locale]/tasks` → TasksLoading
 - `/[locale]/blog` → CardGridLoading
@@ -96,6 +97,7 @@ All errors are automatically reported to Sentry with:
 **Location:** `components/ErrorBoundary.tsx`
 
 **Features:**
+
 - Automatic error type analysis
 - Smart retry mechanism with counting
 - Sentry integration
@@ -103,28 +105,30 @@ All errors are automatically reported to Sentry with:
 - Multiple recovery options (reset, home, back, refresh, copy)
 
 **Props:**
+
 ```typescript
 interface ErrorBoundaryProps {
-  error: Error & { digest?: string };
-  reset: () => void;
-  title?: string;
-  showReset?: boolean;
-  showHomeButton?: boolean;
-  showBackButton?: boolean;
-  showRefreshButton?: boolean;
-  showCopyError?: boolean;
-  variant?: 'default' | 'compact' | 'fullscreen';
+  error: Error & { digest?: string }
+  reset: () => void
+  title?: string
+  showReset?: boolean
+  showHomeButton?: boolean
+  showBackButton?: boolean
+  showRefreshButton?: boolean
+  showCopyError?: boolean
+  variant?: 'default' | 'compact' | 'fullscreen'
 }
 ```
 
 **Usage:**
+
 ```tsx
 export default function PageError({
   error,
   reset,
 }: {
-  error: Error & { digest?: string };
-  reset: () => void;
+  error: Error & { digest?: string }
+  reset: () => void
 }) {
   return (
     <ErrorBoundary
@@ -135,7 +139,7 @@ export default function PageError({
       showReset
       showHomeButton
     />
-  );
+  )
 }
 ```
 
@@ -144,6 +148,7 @@ export default function PageError({
 **Location:** `components/ErrorDisplay.tsx`
 
 **Features:**
+
 - Three display variants (default, compact, fullscreen)
 - Error type-specific icons and colors
 - Interactive retry mechanism
@@ -155,12 +160,14 @@ export default function PageError({
 **Location:** `components/NetworkErrorBoundary.tsx`
 
 **Features:**
+
 - Network status monitoring
 - Automatic reconnection detection
 - Manual retry capability
 - Offline/online state tracking
 
 **Usage:**
+
 ```tsx
 <NetworkErrorBoundary pingUrl="/api/health" onRetry={() => refetch()}>
   <YourComponent />
@@ -172,15 +179,17 @@ export default function PageError({
 **Location:** `components/ErrorBoundaryWrapper.tsx`
 
 **Features:**
+
 - Class component boundary for React trees
 - Custom fallback support
 - HOC: `withErrorBoundary`
 - Sentry integration with component stack
 
 **Usage:**
+
 ```tsx
 // Direct usage
-<ErrorBoundaryWrapper title="Component failed" showReset>
+;<ErrorBoundaryWrapper title="Component failed" showReset>
   <SomeComponent />
 </ErrorBoundaryWrapper>
 
@@ -188,7 +197,7 @@ export default function PageError({
 const SafeComponent = withErrorBoundary(MyComponent, {
   title: 'Load failed',
   showReset: true,
-});
+})
 ```
 
 ### RetryBoundary
@@ -196,6 +205,7 @@ const SafeComponent = withErrorBoundary(MyComponent, {
 **Location:** `components/RetryBoundary.tsx`
 
 **Features:**
+
 - Configurable max retries
 - Exponential backoff strategy
 - Error type analysis
@@ -203,8 +213,9 @@ const SafeComponent = withErrorBoundary(MyComponent, {
 - HOC: `withRetry`
 
 **Usage:**
+
 ```tsx
-<RetryBoundary maxRetries={3} retryDelay={2000}>
+;<RetryBoundary maxRetries={3} retryDelay={2000}>
   <SomeComponentThatMightFail />
 </RetryBoundary>
 
@@ -212,7 +223,7 @@ const SafeComponent = withErrorBoundary(MyComponent, {
 const SafeComponent = withRetry(MyComponent, {
   maxRetries: 3,
   retryDelay: 2000,
-});
+})
 ```
 
 ---
@@ -223,28 +234,22 @@ const SafeComponent = withRetry(MyComponent, {
 
 ```tsx
 // app/[locale]/dashboard/error.tsx
-'use client';
+'use client'
 
-export { DashboardError as default } from '@/components/errors';
+export { DashboardError as default } from '@/components/errors'
 
 // Or custom:
-'use client';
-import { ErrorBoundary } from '@/components/ErrorBoundary';
+;('use client')
+import { ErrorBoundary } from '@/components/ErrorBoundary'
 
 export default function DashboardError({
   error,
   reset,
 }: {
-  error: Error & { digest?: string };
-  reset: () => void;
+  error: Error & { digest?: string }
+  reset: () => void
 }) {
-  return (
-    <ErrorBoundary
-      error={error}
-      reset={reset}
-      title="Dashboard failed to load"
-    />
-  );
+  return <ErrorBoundary error={error} reset={reset} title="Dashboard failed to load" />
 }
 ```
 
@@ -252,18 +257,18 @@ export default function DashboardError({
 
 ```tsx
 // app/[locale]/dashboard/loading.tsx
-import { DashboardLoading } from '@/components/PageLoadingTemplate';
+import { DashboardLoading } from '@/components/PageLoadingTemplate'
 
 export default function DashboardPageLoading() {
-  return <DashboardLoading />;
+  return <DashboardLoading />
 }
 ```
 
 ### Component-Level Error Boundary
 
 ```tsx
-'use client';
-import { ErrorBoundaryWrapper } from '@/components/ErrorBoundaryWrapper';
+'use client'
+import { ErrorBoundaryWrapper } from '@/components/ErrorBoundaryWrapper'
 
 function MyComponent() {
   return (
@@ -271,39 +276,36 @@ function MyComponent() {
       title="Widget failed"
       variant="compact"
       showReset
-      onError={(error) => console.error('Widget error:', error)}
+      onError={error => console.error('Widget error:', error)}
     >
       <SomeWidget />
     </ErrorBoundaryWrapper>
-  );
+  )
 }
 ```
 
 ### Network Error Handling
 
 ```tsx
-'use client';
-import { NetworkErrorBoundary } from '@/components/NetworkErrorBoundary';
+'use client'
+import { NetworkErrorBoundary } from '@/components/NetworkErrorBoundary'
 
 function DataFetchingComponent() {
-  const { data, error, refetch } = useQuery('data', fetchData);
+  const { data, error, refetch } = useQuery('data', fetchData)
 
   return (
-    <NetworkErrorBoundary
-      onRetry={refetch}
-      pingUrl="/api/health"
-    >
+    <NetworkErrorBoundary onRetry={refetch} pingUrl="/api/health">
       {error ? <div>{error.message}</div> : <div>{data}</div>}
     </NetworkErrorBoundary>
-  );
+  )
 }
 ```
 
 ### Retry Logic for Async Operations
 
 ```tsx
-'use client';
-import { RetryBoundary } from '@/components/RetryBoundary';
+'use client'
+import { RetryBoundary } from '@/components/RetryBoundary'
 
 function UnstableComponent() {
   return (
@@ -311,15 +313,15 @@ function UnstableComponent() {
       maxRetries={3}
       retryDelay={1000}
       onError={(error, retryCount) => {
-        console.log(`Attempt ${retryCount} failed:`, error);
+        console.log(`Attempt ${retryCount} failed:`, error)
       }}
       onSuccess={() => {
-        console.log('Success after retries!');
+        console.log('Success after retries!')
       }}
     >
       <DataFetchingWidget />
     </RetryBoundary>
-  );
+  )
 }
 ```
 
@@ -330,15 +332,17 @@ function UnstableComponent() {
 ### 1. Always Provide Loading States
 
 ✅ **Do:**
+
 ```tsx
 // app/[locale]/page/loading.tsx
-import { CardGridLoading } from '@/components/PageLoadingTemplate';
+import { CardGridLoading } from '@/components/PageLoadingTemplate'
 export default function PageLoading() {
-  return <CardGridLoading />;
+  return <CardGridLoading />
 }
 ```
 
 ❌ **Don't:**
+
 - Leave users staring at blank screens
 - Use generic spinners for complex pages
 - Ignore skeleton screens for better perceived performance
@@ -358,24 +362,26 @@ Global (root) → Layout → Page → Component
 ### 3. Error Message Guidelines
 
 ✅ **Good:**
+
 - "网络连接失败，请检查您的网络设置" (Clear, actionable)
 - "页面不存在或已被移除" (Specific)
 - "服务器暂时无法处理请求，请稍后重试" (Reassuring)
 
 ❌ **Bad:**
+
 - "Error: 404" (Too technical)
 - "Something went wrong" (Too vague)
 - "undefined" (No information)
 
 ### 4. Loading State Selection
 
-| Scenario | Recommended Component |
-|----------|---------------------|
-| Dashboard widgets | `DashboardLoading` |
-| Card grids (blog, portfolio) | `CardGridLoading` |
-| Data tables | `TableLoading` |
-| Simple pages | `PageLoading` |
-| Inline loading | `LoadingSpinner` (compact) |
+| Scenario                     | Recommended Component      |
+| ---------------------------- | -------------------------- |
+| Dashboard widgets            | `DashboardLoading`         |
+| Card grids (blog, portfolio) | `CardGridLoading`          |
+| Data tables                  | `TableLoading`             |
+| Simple pages                 | `PageLoading`              |
+| Inline loading               | `LoadingSpinner` (compact) |
 
 ### 5. Retry Strategy
 
@@ -387,6 +393,7 @@ Global (root) → Layout → Page → Component
 ### 6. Error Recovery Options
 
 Always provide at least 2 recovery options:
+
 1. **Primary**: Retry/Reset (when applicable)
 2. **Secondary**: Navigate home or back
 3. **Optional**: Refresh page, copy error, contact support
@@ -497,6 +504,7 @@ Check Sentry for error patterns:
 ## Support
 
 For issues or questions:
+
 1. Check this documentation
 2. Review component TypeScript definitions
 3. Examine existing implementations in the codebase

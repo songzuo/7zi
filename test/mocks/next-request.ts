@@ -4,14 +4,14 @@
  * Creates properly mocked NextRequest objects for testing API routes.
  */
 
-import { NextRequest } from 'next/server';
-import { URL } from 'url';
+import { NextRequest } from 'next/server'
+import { URL } from 'url'
 
 interface MockRequestOptions {
-  method?: 'GET' | 'POST' | 'PUT' | 'DELETE' | 'PATCH';
-  headers?: Record<string, string>;
-  body?: Record<string, unknown> | unknown[] | string | null;
-  cookies?: Record<string, string>;
+  method?: 'GET' | 'POST' | 'PUT' | 'DELETE' | 'PATCH'
+  headers?: Record<string, string>
+  body?: Record<string, unknown> | unknown[] | string | null
+  cookies?: Record<string, string>
 }
 
 /**
@@ -21,11 +21,8 @@ interface MockRequestOptions {
  * @param options - Additional request options
  * @returns A NextRequest-like mock object
  */
-export function createMockNextRequest(
-  url: string,
-  options: MockRequestOptions = {}
-): NextRequest {
-  const parsedUrl = new URL(url, 'http://localhost');
+export function createMockNextRequest(url: string, options: MockRequestOptions = {}): NextRequest {
+  const parsedUrl = new URL(url, 'http://localhost')
 
   const request: Record<string, unknown> = {
     url,
@@ -47,20 +44,20 @@ export function createMockNextRequest(
     text: async () => JSON.stringify(options.body),
     body: options.body ? JSON.stringify(options.body) : null,
     clone: () => createMockNextRequest(url, options),
-  };
+  }
 
   // Add cookies mock
   if (options.cookies) {
-    (request as Record<string, unknown>).cookies = {
+    ;(request as Record<string, unknown>).cookies = {
       get: (name: string) => ({ value: options.cookies![name] }),
       set: vi.fn(),
       delete: vi.fn(),
       entries: vi.fn(() => Object.entries(options.cookies!)),
       forEach: vi.fn(),
-    };
+    }
   }
 
-  return request as unknown as NextRequest;
+  return request as unknown as NextRequest
 }
 
 /**
@@ -71,14 +68,14 @@ export function createRequestWithParams(
   params: Record<string, string | string[]> = {},
   options: MockRequestOptions = {}
 ): NextRequest {
-  const url = new URL(pathname, 'http://localhost');
+  const url = new URL(pathname, 'http://localhost')
   Object.entries(params).forEach(([key, value]) => {
     if (Array.isArray(value)) {
-      value.forEach(v => url.searchParams.append(key, v));
+      value.forEach(v => url.searchParams.append(key, v))
     } else {
-      url.searchParams.set(key, value);
+      url.searchParams.set(key, value)
     }
-  });
+  })
 
-  return createMockNextRequest(url.toString(), options);
+  return createMockNextRequest(url.toString(), options)
 }

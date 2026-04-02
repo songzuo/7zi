@@ -1,10 +1,12 @@
 # 架构审查报告 - 7zi-frontend
+
 **日期**: 2026-03-28
 **架构师**: AI架构师
 
 ## 📊 当前架构概览
 
 ### 技术栈
+
 - **框架**: Next.js 16.2.1 (App Router) + React 19.2.4
 - **状态管理**: Zustand 5.0.12
 - **UI库**: Radix UI + Lucide React + Tailwind CSS
@@ -13,6 +15,7 @@
 - **测试**: Vitest + Playwright
 
 ### 架构模式
+
 ```
 src/
 ├── app/          # Next.js App Router (Server Components优先)
@@ -27,6 +30,7 @@ src/
 ## ✅ 优势
 
 ### 1. **性能优化到位**
+
 - ✅ React Compiler 启用
 - ✅ Turbopack 加速构建
 - ✅ Webpack分包策略极其详细 (9个cacheGroups)
@@ -34,25 +38,30 @@ src/
 - ✅ 服务端外部包配置正确 (sharp, better-sqlite3)
 
 ### 2. **分层清晰**
+
 - ✅ 组件按业务功能分组 (dashboard, meeting, chat, etc.)
 - ✅ lib/ 层职责明确 (auth, db, cache, websocket, etc.)
 - ✅ 类型定义集中管理 (src/types/)
 
 ### 3. **安全配置完善**
+
 - ✅ 严格的HTTP安全头 (HSTS, X-Frame-Options, etc.)
 - ✅ CSP配置 (特别是SVG)
 - ✅ 权限管理 (src/lib/permissions)
 
 ### 4. **测试覆盖良好**
+
 - ✅ 单元测试 (Vitest)
 - ✅ E2E测试 (Playwright)
 - ✅ API集成测试
-- ✅ __tests__/ 目录结构合理
+- ✅ **tests**/ 目录结构合理
 
 ## ⚠️ 问题识别
 
 ### 1. **组件结构过度碎片化**
+
 **问题**: 19+ 个组件子目录,部分职责重叠
+
 ```
 components/
 ├── shared/      # 通用组件?
@@ -62,17 +71,21 @@ components/
 ```
 
 **影响**:
+
 - 开发者难以定位组件
 - 可能存在重复代码
 - 维护成本增加
 
 **建议**:
+
 - 合并相似目录: `errors/` + `fallbacks/` → `error-handling/`
 - 明确 `shared/` vs `ui/` 职责边界
 - 考虑将通用UI组件迁移到 `ui/`, 业务组件保留在 `components/`
 
 ### 2. **lib/ 层职责过重**
+
 **问题**: 35+ 个子模块,部分功能交叉
+
 ```
 lib/
 ├── api/         # API客户端?
@@ -83,48 +96,60 @@ lib/
 ```
 
 **影响**:
+
 - 循环依赖风险
 - 职责边界模糊
 
 **建议**:
+
 - 重构 Agent 模块: `agent/`, `agents/`, `agent-communication/` → `agent/`
 - 统一 API 层: 合并 `api/` 和 `services/` 中非数据库相关服务
 - 建立清晰的依赖图 (使用 `madge` 或 `dependency-cruiser`)
 
 ### 3. **缺少领域驱动设计 (DDD)**
+
 **问题**: 结构偏向技术分层,而非业务领域
+
 ```
 当前: app/, components/, lib/, stores/
 理想: meeting/, chat/, collaboration/, analytics/
 ```
 
 **影响**:
+
 - 跨模块重构困难
 - 新开发者难以理解业务上下文
 
 **建议**: **不立即重构**,但建议:
+
 - 使用 path alias 明确业务边界: `@/modules/meeting/`, `@/modules/chat/`
 - 为新功能采用 Feature-based Slicing
 
 ### 4. **状态管理策略不一致**
+
 **问题**: 同时存在 `stores/` (Zustand) 和 `contexts/` (React Context)
+
 ```
 stores/        # Zustand
 contexts/      # React Context
 ```
 
 **影响**:
+
 - 状态管理方式不统一
 - 可能存在重复状态
 
 **建议**:
+
 - 明确使用规则:
   - Zustand: 全局状态、跨组件共享状态
   - Context: 主题、国际化、Provider模式
 - 审查现有 `contexts/` 是否都可以迁移到 Zustand
 
 ### 5. **Next.js 配置过于复杂**
+
 **问题**: Webpack配置超过150行,cacheGroups配置过于细粒度
+
 ```typescript
 // next.config.ts
 cacheGroups: {
@@ -135,11 +160,13 @@ cacheGroups: {
 ```
 
 **影响**:
+
 - 构建时间增加
 - 维护困难
 - 过度优化 (可能是 micro-optimization)
 
 **建议**:
+
 - 简化为3个核心分组: `vendor`, `framework`, `common`
 - 让 Webpack 自动分包,只在必要时手动干预
 - 使用 Bundle Analyzer 验证简化后的效果
@@ -147,6 +174,7 @@ cacheGroups: {
 ## 🎯 改进建议 (优先级排序)
 
 ### P0 (立即执行)
+
 1. **合并 `lib/agent*` 模块** → 减少目录碎片化
 2. **明确状态管理规范** → Zustand vs Context 使用边界
 3. **运行依赖分析** → 检测循环依赖
@@ -160,7 +188,9 @@ npx madge --circular src/
 ```
 
 ### P1 (本迭代)
+
 4. **重构组件目录结构**
+
    ```
    components/
    ├── ui/              # 基础UI组件 (按钮、输入框等)
@@ -189,7 +219,9 @@ npx madge --circular src/
    ```
 
 ### P2 (下个版本)
+
 6. **引入 Feature-based 目录结构** (可选)
+
    ```
    src/
    ├── features/
@@ -209,14 +241,14 @@ npx madge --circular src/
 
 ## 📈 架构健康度评分
 
-| 维度 | 评分 | 说明 |
-|------|------|------|
-| 分层清晰度 | 7/10 | 清晰但有碎片化问题 |
-| 可维护性 | 6/10 | lib/ 层过于复杂 |
-| 性能优化 | 9/10 | Webpack配置过度,但有效 |
-| 可扩展性 | 7/10 | 缺少DDD,但App Router支持好 |
-| 测试覆盖 | 8/10 | 单元测试+E2E完善 |
-| 文档完整性 | 7/10 | 技术文档多,但缺少架构图 |
+| 维度       | 评分 | 说明                       |
+| ---------- | ---- | -------------------------- |
+| 分层清晰度 | 7/10 | 清晰但有碎片化问题         |
+| 可维护性   | 6/10 | lib/ 层过于复杂            |
+| 性能优化   | 9/10 | Webpack配置过度,但有效     |
+| 可扩展性   | 7/10 | 缺少DDD,但App Router支持好 |
+| 测试覆盖   | 8/10 | 单元测试+E2E完善           |
+| 文档完整性 | 7/10 | 技术文档多,但缺少架构图    |
 
 **总体评分**: **7.3/10** (良好,有改进空间)
 

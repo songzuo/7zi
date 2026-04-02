@@ -4,10 +4,10 @@
  * 批量修复未使用的导入和变量
  */
 
-const fs = require('fs');
-const path = require('path');
+const fs = require('fs')
+const path = require('path')
 
-console.log('🔧 批量修复未使用的导入...\n');
+console.log('🔧 批量修复未使用的导入...\n')
 
 // 需要处理的文件和修复规则
 const filesToProcess = [
@@ -62,22 +62,22 @@ const filesToProcess = [
     replace: [
       { from: 'const config =', to: 'const _config =' },
       { from: 'const t = useTranslations', to: 'const _t = useTranslations' },
-    ]
+    ],
   },
-];
+]
 
-let totalFixed = 0;
+let totalFixed = 0
 
 filesToProcess.forEach(({ file, removeImports, replace }) => {
-  const filePath = path.join(process.cwd(), file);
+  const filePath = path.join(process.cwd(), file)
 
   if (!fs.existsSync(filePath)) {
-    return;
+    return
   }
 
   try {
-    let content = fs.readFileSync(filePath, 'utf8');
-    let modified = false;
+    let content = fs.readFileSync(filePath, 'utf8')
+    let modified = false
 
     // 删除未使用的导入
     if (removeImports) {
@@ -86,47 +86,49 @@ filesToProcess.forEach(({ file, removeImports, replace }) => {
         const patterns = [
           new RegExp(`import\\s*\\{[^}]*\\b${imp}\\b[^}]*\\}\\s*from\\s*['"][^'"]+['"];?\\n`, 'g'),
           new RegExp(`import\\s*${imp}\\s*,?\\s*from\\s*['"][^'"]+['"];?\\n`, 'g'),
-        ];
+        ]
 
         patterns.forEach(pattern => {
           if (pattern.test(content)) {
-            const match = content.match(pattern);
+            const match = content.match(pattern)
             if (match) {
               // 检查是否是单导入
-              const singleImport = new RegExp(`import\\s*\\{\\s*${imp}\\s*\\}\\s*from`);
+              const singleImport = new RegExp(`import\\s*\\{\\s*${imp}\\s*\\}\\s*from`)
               if (singleImport.test(match[0])) {
-                content = content.replace(pattern, '');
-                modified = true;
+                content = content.replace(pattern, '')
+                modified = true
               } else {
                 // 多导入 - 只删除该导入项
-                const multiImport = new RegExp(`(import\\s*\\{[^}]*)\\b${imp}\\b,?\\s*([^}]*\\}\\s*from)`);
-                content = content.replace(multiImport, '$1$2');
-                modified = true;
+                const multiImport = new RegExp(
+                  `(import\\s*\\{[^}]*)\\b${imp}\\b,?\\s*([^}]*\\}\\s*from)`
+                )
+                content = content.replace(multiImport, '$1$2')
+                modified = true
               }
             }
           }
-        });
-      });
+        })
+      })
     }
 
     // 应用替换
     if (replace) {
       replace.forEach(({ from, to }) => {
         if (content.includes(from)) {
-          content = content.replace(from, to);
-          modified = true;
+          content = content.replace(from, to)
+          modified = true
         }
-      });
+      })
     }
 
     if (modified) {
-      fs.writeFileSync(filePath, content, 'utf8');
-      totalFixed++;
-      console.log(`✅ ${file}`);
+      fs.writeFileSync(filePath, content, 'utf8')
+      totalFixed++
+      console.log(`✅ ${file}`)
     }
   } catch (error) {
-    console.error(`❌ ${file}: ${error.message}`);
+    console.error(`❌ ${file}: ${error.message}`)
   }
-});
+})
 
-console.log(`\n完成! 修复了 ${totalFixed} 个文件`);
+console.log(`\n完成! 修复了 ${totalFixed} 个文件`)

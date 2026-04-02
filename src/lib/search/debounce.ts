@@ -17,20 +17,20 @@ export function debounce<T extends (...args: unknown[]) => unknown>(
   fn: T,
   delay: number
 ): (...args: Parameters<T>) => void {
-  let timeoutId: ReturnType<typeof setTimeout> | null = null;
+  let timeoutId: ReturnType<typeof setTimeout> | null = null
 
-  return function(this: unknown, ...args: Parameters<T>) {
+  return function (this: unknown, ...args: Parameters<T>) {
     // 清除之前的定时器
     if (timeoutId !== null) {
-      clearTimeout(timeoutId);
+      clearTimeout(timeoutId)
     }
 
     // 设置新的定时器
     timeoutId = setTimeout(() => {
-      fn.apply(this, args);
-      timeoutId = null;
-    }, delay);
-  };
+      fn.apply(this, args)
+      timeoutId = null
+    }, delay)
+  }
 }
 
 /**
@@ -43,25 +43,25 @@ export function debounceLeading<T extends (...args: unknown[]) => unknown>(
   fn: T,
   delay: number
 ): (...args: Parameters<T>) => void {
-  let timeoutId: ReturnType<typeof setTimeout> | null = null;
-  let isFirstCall = true;
+  let timeoutId: ReturnType<typeof setTimeout> | null = null
+  let isFirstCall = true
 
-  return function(this: unknown, ...args: Parameters<T>) {
+  return function (this: unknown, ...args: Parameters<T>) {
     if (isFirstCall) {
-      fn.apply(this, args);
-      isFirstCall = false;
-      return;
+      fn.apply(this, args)
+      isFirstCall = false
+      return
     }
 
     if (timeoutId !== null) {
-      clearTimeout(timeoutId);
+      clearTimeout(timeoutId)
     }
 
     timeoutId = setTimeout(() => {
-      fn.apply(this, args);
-      timeoutId = null;
-    }, delay);
-  };
+      fn.apply(this, args)
+      timeoutId = null
+    }, delay)
+  }
 }
 
 /**
@@ -74,57 +74,57 @@ export function debounceCancellable<T extends (...args: unknown[]) => unknown>(
   fn: T,
   delay: number
 ): {
-  (...args: Parameters<T>): void;
-  cancel: () => void;
-  flush: () => void;
+  (...args: Parameters<T>): void
+  cancel: () => void
+  flush: () => void
 } {
-  let timeoutId: ReturnType<typeof setTimeout> | null = null;
-  let pendingArgs: Parameters<T> | null = null;
-  let pendingContext: unknown = null;
+  let timeoutId: ReturnType<typeof setTimeout> | null = null
+  let pendingArgs: Parameters<T> | null = null
+  let pendingContext: unknown = null
 
-  const debounced = function(this: unknown, ...args: Parameters<T>) {
-    pendingArgs = args;
+  const debounced = function (this: unknown, ...args: Parameters<T>) {
+    pendingArgs = args
     // eslint-disable-next-line @typescript-eslint/no-this-alias
-    pendingContext = this;
+    pendingContext = this
 
     if (timeoutId !== null) {
-      clearTimeout(timeoutId);
+      clearTimeout(timeoutId)
     }
 
     timeoutId = setTimeout(() => {
       if (pendingArgs !== null) {
-        fn.apply(pendingContext, pendingArgs);
+        fn.apply(pendingContext, pendingArgs)
       }
-      timeoutId = null;
-      pendingArgs = null;
-      pendingContext = null;
-    }, delay);
-  };
+      timeoutId = null
+      pendingArgs = null
+      pendingContext = null
+    }, delay)
+  }
 
   // 取消待执行的调用
-  debounced.cancel = function() {
+  debounced.cancel = function () {
     if (timeoutId !== null) {
-      clearTimeout(timeoutId);
-      timeoutId = null;
+      clearTimeout(timeoutId)
+      timeoutId = null
     }
-    pendingArgs = null;
-    pendingContext = null;
-  };
+    pendingArgs = null
+    pendingContext = null
+  }
 
   // 立即执行待处理的调用
-  debounced.flush = function() {
+  debounced.flush = function () {
     if (timeoutId !== null) {
-      clearTimeout(timeoutId);
-      timeoutId = null;
+      clearTimeout(timeoutId)
+      timeoutId = null
     }
     if (pendingArgs !== null) {
-      fn.apply(pendingContext, pendingArgs);
-      pendingArgs = null;
-      pendingContext = null;
+      fn.apply(pendingContext, pendingArgs)
+      pendingArgs = null
+      pendingContext = null
     }
-  };
+  }
 
-  return debounced as typeof debounced & { cancel: () => void; flush: () => void };
+  return debounced as typeof debounced & { cancel: () => void; flush: () => void }
 }
 
 // ============================================================================
@@ -141,30 +141,30 @@ export function throttle<T extends (...args: unknown[]) => unknown>(
   fn: T,
   delay: number
 ): (...args: Parameters<T>) => void {
-  let lastCall = 0;
-  let timeoutId: ReturnType<typeof setTimeout> | null = null;
+  let lastCall = 0
+  let timeoutId: ReturnType<typeof setTimeout> | null = null
 
-  return function(this: unknown, ...args: Parameters<T>) {
-    const now = Date.now();
-    const remaining = delay - (now - lastCall);
+  return function (this: unknown, ...args: Parameters<T>) {
+    const now = Date.now()
+    const remaining = delay - (now - lastCall)
 
     if (remaining <= 0) {
       // 可以立即执行
       if (timeoutId !== null) {
-        clearTimeout(timeoutId);
-        timeoutId = null;
+        clearTimeout(timeoutId)
+        timeoutId = null
       }
-      lastCall = now;
-      fn.apply(this, args);
+      lastCall = now
+      fn.apply(this, args)
     } else if (!timeoutId) {
       // 等待剩余时间
       timeoutId = setTimeout(() => {
-        lastCall = Date.now();
-        timeoutId = null;
-        fn.apply(this, args);
-      }, remaining);
+        lastCall = Date.now()
+        timeoutId = null
+        fn.apply(this, args)
+      }, remaining)
     }
-  };
+  }
 }
 
 // ============================================================================
@@ -183,7 +183,7 @@ export const SEARCH_DEBOUNCE_DELAYS = {
   SLOW: 500,
   /** 非常慢的搜索 - 800ms */
   VERY_SLOW: 800,
-} as const;
+} as const
 
 /**
  * 创建搜索防抖函数（使用标准延迟）
@@ -192,7 +192,7 @@ export function createSearchDebounce<T extends (...args: unknown[]) => unknown>(
   fn: T,
   delay: number = SEARCH_DEBOUNCE_DELAYS.STANDARD
 ): ReturnType<typeof debounceCancellable<T>> {
-  return debounceCancellable(fn, delay);
+  return debounceCancellable(fn, delay)
 }
 
 // ============================================================================
@@ -203,7 +203,10 @@ export function createSearchDebounce<T extends (...args: unknown[]) => unknown>(
  * 防抖管理器 - 集中管理多个防抖函数
  */
 export class DebounceManager {
-  private debouncers: Map<string, { (...args: unknown[]): void; cancel: () => void; flush: () => void }> = new Map();
+  private debouncers: Map<
+    string,
+    { (...args: unknown[]): void; cancel: () => void; flush: () => void }
+  > = new Map()
 
   /**
    * 注册一个防抖函数
@@ -215,20 +218,23 @@ export class DebounceManager {
   ): void {
     // 如果已存在，先取消
     if (this.debouncers.has(key)) {
-      this.cancel(key);
+      this.cancel(key)
     }
 
-    const debounced = debounceCancellable(fn, delay);
-    this.debouncers.set(key, debounced as { (...args: unknown[]): void; cancel: () => void; flush: () => void });
+    const debounced = debounceCancellable(fn, delay)
+    this.debouncers.set(
+      key,
+      debounced as { (...args: unknown[]): void; cancel: () => void; flush: () => void }
+    )
   }
 
   /**
    * 执行注册的防抖函数
    */
   execute(key: string, ...args: unknown[]): void {
-    const debouncer = this.debouncers.get(key);
+    const debouncer = this.debouncers.get(key)
     if (debouncer) {
-      debouncer(...args);
+      debouncer(...args)
     }
   }
 
@@ -236,10 +242,10 @@ export class DebounceManager {
    * 取消注册的防抖函数
    */
   cancel(key: string): void {
-    const debouncer = this.debouncers.get(key);
+    const debouncer = this.debouncers.get(key)
     if (debouncer) {
-      debouncer.cancel();
-      this.debouncers.delete(key);
+      debouncer.cancel()
+      this.debouncers.delete(key)
     }
   }
 
@@ -247,9 +253,9 @@ export class DebounceManager {
    * 立即执行注册的防抖函数
    */
   flush(key: string): void {
-    const debouncer = this.debouncers.get(key);
+    const debouncer = this.debouncers.get(key)
     if (debouncer) {
-      debouncer.flush();
+      debouncer.flush()
     }
   }
 
@@ -258,7 +264,7 @@ export class DebounceManager {
    */
   cancelAll(): void {
     for (const [key] of this.debouncers) {
-      this.cancel(key);
+      this.cancel(key)
     }
   }
 
@@ -266,15 +272,15 @@ export class DebounceManager {
    * 检查是否有注册的防抖函数
    */
   has(key: string): boolean {
-    return this.debouncers.has(key);
+    return this.debouncers.has(key)
   }
 
   /**
    * 清理所有防抖函数
    */
   dispose(): void {
-    this.cancelAll();
-    this.debouncers.clear();
+    this.cancelAll()
+    this.debouncers.clear()
   }
 }
 
@@ -282,16 +288,16 @@ export class DebounceManager {
 // 全局防抖管理器实例
 // ============================================================================
 
-let globalDebounceManager: DebounceManager | null = null;
+let globalDebounceManager: DebounceManager | null = null
 
 /**
  * 获取或创建全局防抖管理器
  */
 export function getGlobalDebounceManager(recreate = false): DebounceManager {
   if (!globalDebounceManager || recreate) {
-    globalDebounceManager = new DebounceManager();
+    globalDebounceManager = new DebounceManager()
   }
-  return globalDebounceManager;
+  return globalDebounceManager
 }
 
 /**
@@ -299,7 +305,7 @@ export function getGlobalDebounceManager(recreate = false): DebounceManager {
  */
 export function resetGlobalDebounceManager(): void {
   if (globalDebounceManager) {
-    globalDebounceManager.dispose();
+    globalDebounceManager.dispose()
   }
-  globalDebounceManager = null;
+  globalDebounceManager = null
 }

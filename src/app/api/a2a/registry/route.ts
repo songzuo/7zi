@@ -4,14 +4,14 @@
  * POST /api/a2a/registry - Register a new agent
  */
 
-import { NextRequest } from 'next/server';
-import { getAgentRegistry } from '@/lib/agents/a2a/agent-registry';
-import { AgentRegistration } from '@/lib/agents/a2a/types';
+import { NextRequest } from 'next/server'
+import { getAgentRegistry } from '@/lib/agents/a2a/agent-registry'
+import { AgentRegistration } from '@/lib/agents/a2a/types'
 import {
   createSuccessResponse,
   createErrorResponse,
   createValidationError,
-} from '@/lib/api/error-handler';
+} from '@/lib/api/error-handler'
 
 /**
  * GET /api/a2a/registry
@@ -19,47 +19,41 @@ import {
  */
 export async function GET(request: NextRequest) {
   try {
-    const { searchParams } = new URL(request.url);
-    const capability = searchParams.get('capability');
-    const skill = searchParams.get('skill');
-    const status = searchParams.get('status');
-    const available = searchParams.get('available') === 'true';
+    const { searchParams } = new URL(request.url)
+    const capability = searchParams.get('capability')
+    const skill = searchParams.get('skill')
+    const status = searchParams.get('status')
+    const available = searchParams.get('available') === 'true'
 
-    const registry = getAgentRegistry();
-    let agents = registry.getAll();
+    const registry = getAgentRegistry()
+    let agents = registry.getAll()
 
     // Filter by capability
     if (capability) {
-      agents = agents.filter(agent =>
-        agent.capabilities.includes(capability)
-      );
+      agents = agents.filter(agent => agent.capabilities.includes(capability))
     }
 
     // Filter by skill
     if (skill) {
-      agents = agents.filter(agent =>
-        agent.skills.includes(skill)
-      );
+      agents = agents.filter(agent => agent.skills.includes(skill))
     }
 
     // Filter by status
     if (status) {
-      agents = agents.filter(agent => agent.status === status);
+      agents = agents.filter(agent => agent.status === status)
     }
 
     // Filter available agents
     if (available) {
-      agents = agents.filter(agent => agent.status === 'online');
+      agents = agents.filter(agent => agent.status === 'online')
     }
 
     return createSuccessResponse({
       agents,
       count: agents.length,
-    });
-  } catch (_error) {
-    return createErrorResponse(
-      error instanceof Error ? error : new Error(String(error))
-    );
+    })
+  } catch (error) {
+    return createErrorResponse(error instanceof Error ? error : new Error(String(error)))
   }
 }
 
@@ -69,14 +63,11 @@ export async function GET(request: NextRequest) {
  */
 export async function POST(request: NextRequest) {
   try {
-    const body = await request.json();
+    const body = await request.json()
 
     // Basic validation
     if (!body.name || !body.url) {
-      return createValidationError(
-        'Missing required fields',
-        { fields: ['name', 'url'] }
-      );
+      return createValidationError('Missing required fields', { fields: ['name', 'url'] })
     }
 
     const registration: AgentRegistration = {
@@ -89,18 +80,19 @@ export async function POST(request: NextRequest) {
       lastHeartbeat: new Date().toISOString(),
       load: body.load,
       metadata: body.metadata,
-    };
+    }
 
-    const registry = getAgentRegistry();
-    registry.register(registration);
+    const registry = getAgentRegistry()
+    registry.register(registration)
 
-    return createSuccessResponse({
-      message: 'Agent registered successfully',
-      agent: registry.get(registration.id),
-    }, 201);
-  } catch (_error) {
-    return createErrorResponse(
-      error instanceof Error ? error : new Error(String(error))
-    );
+    return createSuccessResponse(
+      {
+        message: 'Agent registered successfully',
+        agent: registry.get(registration.id),
+      },
+      201
+    )
+  } catch (error) {
+    return createErrorResponse(error instanceof Error ? error : new Error(String(error)))
   }
 }

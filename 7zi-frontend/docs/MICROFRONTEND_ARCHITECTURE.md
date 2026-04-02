@@ -24,6 +24,7 @@
 ### 1.1 当前架构概览
 
 **技术栈**:
+
 - **框架**: Next.js 14.2.0 (App Router)
 - **UI库**: React 18.2.0
 - **状态管理**: Zustand 4.5.0
@@ -32,6 +33,7 @@
 - **测试**: Vitest + Playwright
 
 **项目结构**:
+
 ```
 src/
 ├── app/                    # Next.js App Router 页面
@@ -55,54 +57,63 @@ src/
 ### 1.2 当前架构的优势
 
 ✅ **开发效率高**
+
 - 单一仓库，代码共享方便
 - 统一的构建和部署流程
 - 依赖管理简单
 
 ✅ **TypeScript 支持**
+
 - 类型安全
 - 良好的 IDE 支持
 
 ✅ **性能优化**
+
 - Next.js SSR/SSG
 - 图片优化
 - 代码分割
 
 ✅ **测试覆盖完善**
+
 - 单元测试 (Vitest)
 - E2E测试 (Playwright)
 
 ### 1.3 当前架构的痛点
 
 ❌ **单点风险**
+
 - 一个构建失败，整个应用不可用
 - 代码耦合度较高
 
 ❌ **部署依赖**
+
 - 所有改动必须整体部署
 - 无法独立发布功能模块
 
 ❌ **团队协作限制**
+
 - 代码冲突频繁
 - 难以支持多团队并行开发
 
 ❌ **性能挑战**
+
 - 初始包体积较大
 - 动态导入虽然存在，但不够灵活
 
 ❌ **扩展性受限**
+
 - 新增功能需要修改主应用
 - 难以独立维护和升级模块
 
 ### 1.4 关键组件分析
 
-| 组件名称 | 行数 | 职责 | 复杂度 | 优先级拆分 |
-|---------|------|------|--------|-----------|
-| WebSocketStatusPanel | 358 | WebSocket连接状态监控 | 高 | ⭐⭐⭐⭐⭐ |
-| NotificationCenter | 308 | 通知中心UI和逻辑 | 高 | ⭐⭐⭐⭐⭐ |
-| 监控页面 | 329 | 监控数据展示 | 中 | ⭐⭐⭐ |
-| 通知Demo页面 | 282 | 通知功能演示 | 低 | ⭐⭐ |
-| 图片优化页面 | 202 | 图片优化示例 | 低 | ⭐ |
+| 组件名称             | 行数 | 职责                  | 复杂度 | 优先级拆分 |
+| -------------------- | ---- | --------------------- | ------ | ---------- |
+| WebSocketStatusPanel | 358  | WebSocket连接状态监控 | 高     | ⭐⭐⭐⭐⭐ |
+| NotificationCenter   | 308  | 通知中心UI和逻辑      | 高     | ⭐⭐⭐⭐⭐ |
+| 监控页面             | 329  | 监控数据展示          | 中     | ⭐⭐⭐     |
+| 通知Demo页面         | 282  | 通知功能演示          | 低     | ⭐⭐       |
+| 图片优化页面         | 202  | 图片优化示例          | 低     | ⭐         |
 
 ---
 
@@ -150,13 +161,13 @@ src/
 
 #### 2.1.2 模块划分
 
-| 模块 | 类型 | 职责 | 技术栈 | 端口 |
-|------|------|------|--------|------|
-| **Host** | 宿主应用 | 路由、布局、全局状态 | Next.js 14 + React 18 | 3000 |
-| **notifications** | 远程模块 | 通知中心功能 | Vite + React 18 | 3001 |
-| **websocket** | 远程模块 | WebSocket状态面板 | Vite + React 18 | 3002 |
-| **monitoring** | 远程模块 | 监控仪表盘 | Vite + React 18 | 3003 |
-| **shared** | 共享库 | 通用组件、工具、类型 | Vite + TypeScript | 3004 |
+| 模块              | 类型     | 职责                 | 技术栈                | 端口 |
+| ----------------- | -------- | -------------------- | --------------------- | ---- |
+| **Host**          | 宿主应用 | 路由、布局、全局状态 | Next.js 14 + React 18 | 3000 |
+| **notifications** | 远程模块 | 通知中心功能         | Vite + React 18       | 3001 |
+| **websocket**     | 远程模块 | WebSocket状态面板    | Vite + React 18       | 3002 |
+| **monitoring**    | 远程模块 | 监控仪表盘           | Vite + React 18       | 3003 |
+| **shared**        | 共享库   | 通用组件、工具、类型 | Vite + TypeScript     | 3004 |
 
 #### 2.1.3 依赖共享策略
 
@@ -176,14 +187,14 @@ src/
 
 ### 2.2 备选方案对比
 
-| 维度 | Module Federation | Qwik SPA | Single Repo Monorepo |
-|------|------------------|----------|---------------------|
-| **独立部署** | ✅ 完全独立 | ✅ 完全独立 | ❌ 整体部署 |
-| **代码共享** | ✅ 运行时共享 | ⚠️ 需要包管理 | ✅ 直接共享 |
-| **性能** | ⚠️ 网络开销 | ✅ 最佳 | ✅ 最优 |
-| **学习曲线** | ⚠️ 中等 | ❌ 陡峭 | ✅ 平缓 |
-| **生态** | ✅ 成熟 | ⚠️ 新兴 | ✅ 成熟 |
-| **适合Next.js** | ✅ 完美支持 | ⚠️ 需要改造 | ✅ 原生 |
+| 维度            | Module Federation | Qwik SPA      | Single Repo Monorepo |
+| --------------- | ----------------- | ------------- | -------------------- |
+| **独立部署**    | ✅ 完全独立       | ✅ 完全独立   | ❌ 整体部署          |
+| **代码共享**    | ✅ 运行时共享     | ⚠️ 需要包管理 | ✅ 直接共享          |
+| **性能**        | ⚠️ 网络开销       | ✅ 最佳       | ✅ 最优              |
+| **学习曲线**    | ⚠️ 中等           | ❌ 陡峭       | ✅ 平缓              |
+| **生态**        | ✅ 成熟           | ⚠️ 新兴       | ✅ 成熟              |
+| **适合Next.js** | ✅ 完美支持       | ⚠️ 需要改造   | ✅ 原生              |
 
 **推荐理由**: Module Federation 与 Next.js 14 集成良好，生态成熟，学习曲线适中，完美平衡了独立部署和代码共享的需求。
 
@@ -193,34 +204,34 @@ src/
 
 ### 3.1 核心技术栈
 
-| 技术选型 | 版本 | 用途 |
-|---------|------|------|
+| 技术选型                    | 版本   | 用途                   |
+| --------------------------- | ------ | ---------------------- |
 | **@module-federation/vite** | latest | Module Federation 支持 |
-| **Next.js** | 14.2.0 | Host 应用框架 |
-| **Vite** | 5.x | Remote 应用构建 |
-| **React** | 18.2.0 | UI框架 |
-| **TypeScript** | 5.3+ | 类型安全 |
-| **Zustand** | 4.5.0 | 状态管理 |
-| **Socket.io Client** | 4.7.0 | 实时通信 |
+| **Next.js**                 | 14.2.0 | Host 应用框架          |
+| **Vite**                    | 5.x    | Remote 应用构建        |
+| **React**                   | 18.2.0 | UI框架                 |
+| **TypeScript**              | 5.3+   | 类型安全               |
+| **Zustand**                 | 4.5.0  | 状态管理               |
+| **Socket.io Client**        | 4.7.0  | 实时通信               |
 
 ### 3.2 开发工具
 
-| 工具 | 版本 | 用途 |
-|------|------|------|
-| **Vitest** | 1.3+ | 单元测试 |
-| **Playwright** | 1.42+ | E2E测试 |
-| **ESLint** | latest | 代码规范 |
-| **Prettier** | latest | 代码格式化 |
+| 工具             | 版本   | 用途             |
+| ---------------- | ------ | ---------------- |
+| **Vitest**       | 1.3+   | 单元测试         |
+| **Playwright**   | 1.42+  | E2E测试          |
+| **ESLint**       | latest | 代码规范         |
+| **Prettier**     | latest | 代码格式化       |
 | **Turbo** (可选) | latest | Monorepo构建优化 |
 
 ### 3.3 部署工具
 
-| 工具 | 用途 |
-|------|------|
-| **Docker** | 容器化部署 |
-| **Nginx** | 反向代理和静态资源服务 |
-| **GitHub Actions** | CI/CD流水线 |
-| **PM2** | 进程管理 |
+| 工具               | 用途                   |
+| ------------------ | ---------------------- |
+| **Docker**         | 容器化部署             |
+| **Nginx**          | 反向代理和静态资源服务 |
+| **GitHub Actions** | CI/CD流水线            |
+| **PM2**            | 进程管理               |
 
 ---
 
@@ -428,6 +439,7 @@ export { useMonitoring } from './useMonitoring'
 #### 5.1.2 根配置文件
 
 **package.json**:
+
 ```json
 {
   "name": "7zi-frontend-monorepo",
@@ -449,6 +461,7 @@ export { useMonitoring } from './useMonitoring'
 ```
 
 **pnpm-workspace.yaml**:
+
 ```yaml
 packages:
   - 'apps/*'
@@ -456,6 +469,7 @@ packages:
 ```
 
 **turbo.json**:
+
 ```json
 {
   "$schema": "https://turbo.build/schema.json",
@@ -484,6 +498,7 @@ packages:
 #### 5.2.1 Host 应用配置
 
 **apps/host/vite.config.ts**:
+
 ```typescript
 import { federation } from '@module-federation/vite'
 import { defineConfig } from 'vite'
@@ -522,6 +537,7 @@ export default defineConfig({
 ```
 
 **apps/host/next.config.js**:
+
 ```javascript
 /** @type {import('next').NextConfig} */
 const nextConfig = {
@@ -537,6 +553,7 @@ module.exports = nextConfig
 ```
 
 **apps/host/src/app/layout.tsx**:
+
 ```typescript
 import type { Metadata } from 'next'
 import { Inter } from 'next/font/google'
@@ -563,6 +580,7 @@ export default function RootLayout({
 ```
 
 **apps/host/src/app/page.tsx**:
+
 ```typescript
 'use client'
 
@@ -624,6 +642,7 @@ export default function HomePage() {
 #### 5.2.2 Notifications Remote 配置
 
 **apps/notifications/vite.config.ts**:
+
 ```typescript
 import { federation } from '@module-federation/vite'
 import { defineConfig } from 'vite'
@@ -668,6 +687,7 @@ export default defineConfig({
 ```
 
 **apps/notifications/src/NotificationApp.tsx**:
+
 ```typescript
 import { NotificationCenter } from './components/NotificationCenter'
 
@@ -681,6 +701,7 @@ export default function NotificationApp() {
 ```
 
 **apps/notifications/src/components/NotificationCenter.tsx**:
+
 ```typescript
 'use client'
 
@@ -728,6 +749,7 @@ export function NotificationCenter() {
 #### 5.2.3 WebSocket Remote 配置
 
 **apps/websocket/vite.config.ts**:
+
 ```typescript
 import { federation } from '@module-federation/vite'
 import { defineConfig } from 'vite'
@@ -772,6 +794,7 @@ export default defineConfig({
 ```
 
 **apps/websocket/src/components/WebSocketStatusPanel.tsx**:
+
 ```typescript
 'use client'
 
@@ -835,6 +858,7 @@ export function WebSocketStatusPanel() {
 #### 5.2.4 Monitoring Remote 配置
 
 **apps/monitoring/vite.config.ts**:
+
 ```typescript
 import { federation } from '@module-federation/vite'
 import { defineConfig } from 'vite'
@@ -882,6 +906,7 @@ export default defineConfig({
 #### 5.3.1 Shared Package 配置
 
 **packages/shared/package.json**:
+
 ```json
 {
   "name": "@7zi/shared",
@@ -909,6 +934,7 @@ export default defineConfig({
 ```
 
 **packages/shared/tsconfig.json**:
+
 ```json
 {
   "compilerOptions": {
@@ -938,6 +964,7 @@ export default defineConfig({
 #### 5.3.2 Shared Types
 
 **packages/shared/src/types/index.ts**:
+
 ```typescript
 /**
  * WebSocket 相关类型
@@ -1013,6 +1040,7 @@ export interface Alert {
 #### 5.3.3 Shared Hooks
 
 **packages/shared/src/hooks/useWebSocket.ts**:
+
 ```typescript
 'use client'
 
@@ -1029,12 +1057,7 @@ interface UseWebSocketOptions {
 
 export function useWebSocket(options: UseWebSocketOptions | string) {
   const config = typeof options === 'string' ? { url: options } : options
-  const {
-    url,
-    autoConnect = true,
-    reconnectInterval = 3000,
-    maxReconnectAttempts = 5,
-  } = config
+  const { url, autoConnect = true, reconnectInterval = 3000, maxReconnectAttempts = 5 } = config
 
   const socketRef = useRef<Socket | null>(null)
   const [isConnected, setIsConnected] = useState(false)
@@ -1054,9 +1077,9 @@ export function useWebSocket(options: UseWebSocketOptions | string) {
 
       socket.on('connect', () => setIsConnected(true))
       socket.on('disconnect', () => setIsConnected(false))
-      socket.on('message', (data) => {
+      socket.on('message', data => {
         setLastMessage(data)
-        setStats((prev) => ({ ...prev, messagesReceived: prev.messagesReceived + 1 }))
+        setStats(prev => ({ ...prev, messagesReceived: prev.messagesReceived + 1 }))
       })
     }
     socketRef.current?.connect()
@@ -1074,7 +1097,7 @@ export function useWebSocket(options: UseWebSocketOptions | string) {
   const send = useCallback((event: string, data: any) => {
     if (socketRef.current?.connected) {
       socketRef.current.emit(event, data)
-      setStats((prev) => ({ ...prev, messagesSent: prev.messagesSent + 1 }))
+      setStats(prev => ({ ...prev, messagesSent: prev.messagesSent + 1 }))
     }
   }, [])
 
@@ -1098,6 +1121,7 @@ export function useWebSocket(options: UseWebSocketOptions | string) {
 ```
 
 **packages/shared/src/hooks/useNotifications.ts**:
+
 ```typescript
 'use client'
 
@@ -1113,26 +1137,27 @@ interface NotificationStore {
   clearAll: () => void
 }
 
-const useNotificationStore = create<NotificationStore>((set) => ({
+const useNotificationStore = create<NotificationStore>(set => ({
   notifications: [],
-  addNotification: (notification) => set((state) => ({
-    notifications: [
-      {
-        ...notification,
-        id: Math.random().toString(36).substr(2, 9),
-        timestamp: new Date(),
-      },
-      ...state.notifications,
-    ],
-  })),
-  removeNotification: (id) => set((state) => ({
-    notifications: state.notifications.filter((n) => n.id !== id),
-  })),
-  markAsRead: (id) => set((state) => ({
-    notifications: state.notifications.map((n) =>
-      n.id === id ? { ...n, read: true } : n
-    ),
-  })),
+  addNotification: notification =>
+    set(state => ({
+      notifications: [
+        {
+          ...notification,
+          id: Math.random().toString(36).substr(2, 9),
+          timestamp: new Date(),
+        },
+        ...state.notifications,
+      ],
+    })),
+  removeNotification: id =>
+    set(state => ({
+      notifications: state.notifications.filter(n => n.id !== id),
+    })),
+  markAsRead: id =>
+    set(state => ({
+      notifications: state.notifications.map(n => (n.id === id ? { ...n, read: true } : n)),
+    })),
   clearAll: () => set({ notifications: [] }),
 }))
 
@@ -1164,6 +1189,7 @@ export function useNotificationActions() {
 ```
 
 **packages/shared/src/hooks/useMonitoring.ts**:
+
 ```typescript
 'use client'
 
@@ -1204,6 +1230,7 @@ export function useMonitoring(refreshInterval: number = 5000) {
 ```
 
 **packages/shared/src/index.ts**:
+
 ```typescript
 // Types
 export * from './types'
@@ -1224,6 +1251,7 @@ export * from './utils'
 #### 5.4.1 Docker 镜像配置
 
 **docker/host.Dockerfile**:
+
 ```dockerfile
 FROM node:18-alpine AS builder
 
@@ -1253,6 +1281,7 @@ CMD ["npm", "start"]
 ```
 
 **docker/notifications.Dockerfile**:
+
 ```dockerfile
 FROM node:18-alpine AS builder
 
@@ -1277,6 +1306,7 @@ EXPOSE 80
 ```
 
 **nginx/default.conf**:
+
 ```nginx
 server {
     listen 80;
@@ -1303,6 +1333,7 @@ server {
 #### 5.4.2 Nginx 反向代理配置
 
 **nginx/nginx.conf**:
+
 ```nginx
 upstream host {
     server host:3000;
@@ -1369,6 +1400,7 @@ server {
 #### 5.4.3 部署脚本
 
 **scripts/deploy.sh**:
+
 ```bash
 #!/bin/bash
 
@@ -1419,6 +1451,7 @@ echo "✅ 部署完成！"
 #### 5.5.1 Host 应用 CI
 
 **.github/workflows/ci-host.yml**:
+
 ```yaml
 name: CI - Host Application
 
@@ -1477,6 +1510,7 @@ jobs:
 #### 5.5.2 Remote 应用 CI
 
 **.github/workflows/ci-remote.yml**:
+
 ```yaml
 name: CI - Remote Applications
 
@@ -1559,6 +1593,7 @@ jobs:
 #### 5.5.3 部署流水线
 
 **.github/workflows/deploy.yml**:
+
 ```yaml
 name: Deploy
 
@@ -1603,29 +1638,30 @@ jobs:
 
 ### 6.1 技术风险
 
-| 风险 | 影响 | 概率 | 应对策略 |
-|------|------|------|---------|
-| **Module Federation 兼容性问题** | 高 | 中 | 充分测试、保留降级方案 |
-| **版本冲突导致运行时错误** | 高 | 中 | 使用 singleton 共享依赖、严格版本管理 |
-| **网络延迟影响模块加载** | 中 | 高 | 预加载、缓存策略、SSR 降级 |
-| **跨域问题** | 中 | 中 | 配置 CORS、同源部署选项 |
-| **构建时间过长** | 低 | 中 | 使用 Turbo、缓存优化 |
+| 风险                             | 影响 | 概率 | 应对策略                              |
+| -------------------------------- | ---- | ---- | ------------------------------------- |
+| **Module Federation 兼容性问题** | 高   | 中   | 充分测试、保留降级方案                |
+| **版本冲突导致运行时错误**       | 高   | 中   | 使用 singleton 共享依赖、严格版本管理 |
+| **网络延迟影响模块加载**         | 中   | 高   | 预加载、缓存策略、SSR 降级            |
+| **跨域问题**                     | 中   | 中   | 配置 CORS、同源部署选项               |
+| **构建时间过长**                 | 低   | 中   | 使用 Turbo、缓存优化                  |
 
 ### 6.2 运维风险
 
-| 风险 | 影响 | 概率 | 应对策略 |
-|------|------|------|---------|
-| **多模块部署复杂** | 中 | 高 | 自动化部署、蓝绿发布 |
-| **依赖管理困难** | 中 | 中 | Monorepo 工具、版本锁定 |
-| **监控和调试困难** | 高 | 中 | 分布式追踪、统一日志 |
-| **回滚复杂** | 高 | 低 | 版本化部署、快速回滚脚本 |
-| **扩缩容挑战** | 中 | 中 | 容器化、自动扩缩容 |
+| 风险               | 影响 | 概率 | 应对策略                 |
+| ------------------ | ---- | ---- | ------------------------ |
+| **多模块部署复杂** | 中   | 高   | 自动化部署、蓝绿发布     |
+| **依赖管理困难**   | 中   | 中   | Monorepo 工具、版本锁定  |
+| **监控和调试困难** | 高   | 中   | 分布式追踪、统一日志     |
+| **回滚复杂**       | 高   | 低   | 版本化部署、快速回滚脚本 |
+| **扩缩容挑战**     | 中   | 中   | 容器化、自动扩缩容       |
 
 ### 6.3 应对措施
 
 #### 6.3.1 降级策略
 
 **模块加载失败降级**:
+
 ```typescript
 // apps/host/src/components/ErrorBoundary.tsx
 'use client'
@@ -1731,6 +1767,7 @@ export function useOfflineMode() {
 #### 7.1.1 集成 Sentry
 
 **packages/shared/src/monitoring/sentry.ts**:
+
 ```typescript
 import * as Sentry from '@sentry/react'
 
@@ -1738,10 +1775,7 @@ export function initSentry(dsn: string, environment: string) {
   Sentry.init({
     dsn,
     environment,
-    integrations: [
-      new Sentry.BrowserTracing(),
-      new Sentry.Replay(),
-    ],
+    integrations: [new Sentry.BrowserTracing(), new Sentry.Replay()],
     tracesSampleRate: 0.1,
     replaysSessionSampleRate: 0.1,
     replaysOnErrorSampleRate: 1.0,
@@ -1878,7 +1912,7 @@ export async function healthCheck(req: Request) {
     },
   }
 
-  if (Object.values(checks.dependencies).some((status) => status !== 'ok')) {
+  if (Object.values(checks.dependencies).some(status => status !== 'ok')) {
     checks.status = 'degraded'
     logger.warn('Health check degraded', checks)
   }
@@ -1912,7 +1946,7 @@ groups:
         labels:
           severity: critical
         annotations:
-          summary: "High module load error rate"
+          summary: 'High module load error rate'
 
       - alert: ModuleLoadLatency
         expr: module_load_duration_seconds > 5
@@ -1920,7 +1954,7 @@ groups:
         labels:
           severity: warning
         annotations:
-          summary: "Module load taking too long"
+          summary: 'Module load taking too long'
 
       - alert: DependencyVersionMismatch
         expr: dependency_version_mismatch == 1
@@ -1928,7 +1962,7 @@ groups:
         labels:
           severity: high
         annotations:
-          summary: "Dependency version mismatch detected"
+          summary: 'Dependency version mismatch detected'
 ```
 
 ---
@@ -1938,24 +1972,29 @@ groups:
 ### 8.1 开发最佳实践
 
 ✅ **模块独立开发**
+
 - 每个 Remote 模块应能独立运行和测试
 - 使用 Storybook 进行组件隔离开发
 
 ✅ **共享依赖管理**
+
 - 明确哪些依赖需要共享，哪些可以独立
 - 使用 workspace 协议确保版本一致性
 
 ✅ **错误边界**
+
 - 每个 Remote 模块外层包装错误边界
 - 提供友好的降级 UI
 
 ✅ **类型安全**
+
 - 共享类型定义在 @7zi/shared 包中
 - 避免使用 any，充分利用 TypeScript
 
 ### 8.2 性能优化最佳实践
 
 ✅ **预加载策略**
+
 ```typescript
 // apps/host/src/app/page.tsx
 useEffect(() => {
@@ -1966,24 +2005,29 @@ useEffect(() => {
 ```
 
 ✅ **代码分割**
+
 - 使用 dynamic import 按需加载模块
 - 配置 chunk 分割策略
 
 ✅ **缓存策略**
+
 - 静态资源使用长期缓存
 - remoteEntry.js 使用不可变缓存
 
 ### 8.3 团队协作最佳实践
 
 ✅ **代码审查**
+
 - 跨模块变更需要相关模块团队审查
 - 共享模块变更需要所有团队知情
 
 ✅ **版本发布**
+
 - 遵循语义化版本规范
 - Breaking changes 需要提前通知
 
 ✅ **文档维护**
+
 - 每个模块维护自己的 README
 - 及时更新接口变更文档
 
@@ -2032,6 +2076,7 @@ useEffect(() => {
 ### Q3: 如何保证模块加载的可靠性？
 
 **A**:
+
 1. 实现错误边界和降级 UI
 2. 配置重试机制
 3. 提供离线模式
@@ -2040,6 +2085,7 @@ useEffect(() => {
 ### Q4: 如何处理不同模块的样式冲突？
 
 **A**:
+
 1. 使用 CSS Modules 或 CSS-in-JS
 2. 采用 BEM 命名规范
 3. 预设统一的设计系统
@@ -2048,6 +2094,7 @@ useEffect(() => {
 ### Q5: 模块加载失败后如何降级？
 
 **A**:
+
 ```typescript
 const NotificationsApp = dynamic(
   () => import('notifications/NotificationApp').catch(() => {

@@ -1,29 +1,34 @@
-'use client';
+'use client'
 
 /**
  * @fileoverview 任务板搜索与过滤组件
  * @description 为 GitHub Issues 任务板提供搜索、过滤、排序功能
  */
 
-import React, { useState, useMemo } from 'react';
-import Image from 'next/image';
-import { GitHubIssue } from '@/types';
-import { SearchFilter } from '@/components/SearchFilter';
-import { ISSUE_FILTER_CONFIGS, ISSUE_SORT_CONFIGS, type FilterConfig } from '@/types/search-filter';
+import React, { useState, useMemo } from 'react'
+import Image from 'next/image'
+import { GitHubIssue } from '@/types'
+import { SearchFilter } from '@/components/SearchFilter'
+import {
+  ISSUE_FILTER_CONFIGS,
+  ISSUE_SORT_CONFIGS,
+  type FilterConfig,
+  type SearchFilterResult,
+} from '@/types/search-filter'
 import {
   extractLabelOptions,
   extractAssigneeOptions,
   highlightSearchTerm,
-} from '@/lib/search-filter';
-import { formatTimeAgo } from '@/lib/date';
-import { ProgressBar, Card, EmptyState } from '@/components/shared';
+} from '@/lib/search-filter'
+import { formatTimeAgo } from '@/lib/date'
+import { ProgressBar, Card, EmptyState } from '@/components/shared'
 
 interface TaskBoardSearchProps {
-  issues: GitHubIssue[];
+  issues: GitHubIssue[]
   /** 默认过滤状态 */
-  defaultStatus?: 'all' | 'open' | 'closed';
+  defaultStatus?: 'all' | 'open' | 'closed'
   /** 是否显示统计信息 */
-  showStats?: boolean;
+  showStats?: boolean
 }
 
 export const TaskBoardSearch: React.FC<TaskBoardSearchProps> = ({
@@ -32,55 +37,56 @@ export const TaskBoardSearch: React.FC<TaskBoardSearchProps> = ({
   showStats = true,
 }) => {
   const [filteredIssues, setFilteredIssues] = useState<GitHubIssue[]>(() => {
-    if (defaultStatus === 'all') return issues;
-    return issues.filter(issue => issue.state === defaultStatus);
-  });
+    if (defaultStatus === 'all') return issues
+    return issues.filter(issue => issue.state === defaultStatus)
+  })
   const [searchResults, setSearchResults] = useState<{
-    total: number;
-    filtered: number;
-  }>({ total: issues.length, filtered: issues.length });
+    total: number
+    filtered: number
+  }>({ total: issues.length, filtered: issues.length })
 
   // 提取动态过滤器选项
-  const labelOptions = useMemo(() => extractLabelOptions(issues), [issues]);
-  const assigneeOptions = useMemo(() => extractAssigneeOptions(issues), [issues]);
+  const labelOptions = useMemo(() => extractLabelOptions(issues), [issues])
+  const assigneeOptions = useMemo(() => extractAssigneeOptions(issues), [issues])
 
   // 更新过滤器配置
   const filterConfigs = useMemo(() => {
     return ISSUE_FILTER_CONFIGS.map(config => {
       if (config.id === 'labels') {
-        return { ...config, options: labelOptions };
+        return { ...config, options: labelOptions }
       }
       if (config.id === 'assignees') {
-        return { ...config, options: assigneeOptions };
+        return { ...config, options: assigneeOptions }
       }
-      return config;
-    });
-  }, [labelOptions, assigneeOptions]);
+      return config
+    })
+  }, [labelOptions, assigneeOptions])
 
   // 处理搜索过滤结果变化
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const handleResultsChange = (result: any) => {
-    setFilteredIssues(result.items);
+  const handleResultsChange = (results: any) => {
+    setFilteredIssues(results.items ?? [])
     setSearchResults({
-      total: result.items?.length || 0,
-      filtered: result.items?.length || 0,
-    });
-  };
+      total: results.totalResults ?? 0,
+      filtered: results.filteredResults ?? 0,
+    })
+  }
 
   // 计算进度
-  const progress = issues.length > 0
-    ? Math.round((issues.filter(i => i.state === 'closed').length / issues.length) * 100)
-    : 0;
+  const progress =
+    issues.length > 0
+      ? Math.round((issues.filter(i => i.state === 'closed').length / issues.length) * 100)
+      : 0
 
-  const openIssues = issues.filter(i => i.state === 'open');
-  const closedIssues = issues.filter(i => i.state === 'closed');
+  const openIssues = issues.filter(i => i.state === 'open')
+  const closedIssues = issues.filter(i => i.state === 'closed')
 
   return (
-    <Card padding="none" className="flex flex-col h-full">
+    <Card padding="none" className="flex h-full flex-col">
       {/* 看板头部 */}
-      <div className="px-6 py-4 border-b border-zinc-200 dark:border-zinc-700 bg-zinc-50 dark:bg-zinc-800/50">
-        <div className="flex items-center justify-between mb-4">
-          <h2 className="text-lg font-semibold text-zinc-900 dark:text-white flex items-center gap-2">
+      <div className="border-b border-zinc-200 bg-zinc-50 px-6 py-4 dark:border-zinc-700 dark:bg-zinc-800/50">
+        <div className="mb-4 flex items-center justify-between">
+          <h2 className="flex items-center gap-2 text-lg font-semibold text-zinc-900 dark:text-white">
             <span>📋</span> GitHub 任务
             {searchResults.filtered !== searchResults.total && (
               <span className="text-sm font-normal text-zinc-500 dark:text-zinc-400">
@@ -103,14 +109,15 @@ export const TaskBoardSearch: React.FC<TaskBoardSearchProps> = ({
       </div>
 
       {/* 搜索与过滤区域 */}
-      <div className="px-6 py-4 border-b border-zinc-200 dark:border-zinc-700 bg-white dark:bg-zinc-800">
+      <div className="border-b border-zinc-200 bg-white px-6 py-4 dark:border-zinc-700 dark:bg-zinc-800">
         <SearchFilter
           items={issues}
           // eslint-disable-next-line @typescript-eslint/no-explicit-any
           filters={filterConfigs as any}
           // eslint-disable-next-line @typescript-eslint/no-explicit-any
           sorts={ISSUE_SORT_CONFIGS as any}
-          onResultsChange={handleResultsChange}
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
+          onResultsChange={handleResultsChange as any}
           searchPlaceholder="搜索任务标题、标签..."
           showFilterCount={true}
           collapsible={true}
@@ -119,88 +126,90 @@ export const TaskBoardSearch: React.FC<TaskBoardSearchProps> = ({
       </div>
 
       {/* 任务列表 */}
-      <div className="divide-y divide-zinc-200 dark:divide-zinc-700 flex-1 overflow-y-auto max-h-[600px]">
+      <div className="max-h-[600px] flex-1 divide-y divide-zinc-200 overflow-y-auto dark:divide-zinc-700">
         {filteredIssues.length === 0 ? (
-          <EmptyState
-            icon="📭"
-            title="暂无匹配任务"
-            description="尝试调整搜索关键词或过滤器条件"
-          />
+          <EmptyState icon="📭" title="暂无匹配任务" description="尝试调整搜索关键词或过滤器条件" />
         ) : (
-          filteredIssues.map(issue => (
-            <TaskCard key={issue.number} issue={issue} />
-          ))
+          filteredIssues.map(issue => <TaskCard key={issue.number} issue={issue} />)
         )}
       </div>
 
       {/* 底部统计 */}
       {filteredIssues.length > 0 && (
-        <div className="px-6 py-3 border-t border-zinc-200 dark:border-zinc-700 bg-zinc-50 dark:bg-zinc-800/50 text-xs text-zinc-500 dark:text-zinc-400">
+        <div className="border-t border-zinc-200 bg-zinc-50 px-6 py-3 text-xs text-zinc-500 dark:border-zinc-700 dark:bg-zinc-800/50 dark:text-zinc-400">
           显示 {filteredIssues.length} / {issues.length} 个任务
         </div>
       )}
     </Card>
-  );
-};
+  )
+}
 
 // ============================================================================
 // 任务卡片组件 - 支持搜索高亮
 // ============================================================================
 
 interface TaskCardProps {
-  issue: GitHubIssue;
+  issue: GitHubIssue
   /** 搜索关键词（用于高亮） */
-  searchQuery?: string;
+  searchQuery?: string
 }
 
 const TaskCardBase: React.FC<TaskCardProps> = ({ issue, searchQuery }) => {
   const stateConfig = {
-    open: { color: 'text-green-600 bg-green-50 border-green-200 dark:bg-green-900/30 dark:text-green-400 dark:border-green-800', label: '🟢 进行中' },
-    closed: { color: 'text-zinc-500 bg-zinc-50 border-zinc-200 dark:bg-zinc-900/30 dark:text-zinc-400 dark:border-zinc-700', label: '✅ 已完成' },
-  };
+    open: {
+      color:
+        'text-green-600 bg-green-50 border-green-200 dark:bg-green-900/30 dark:text-green-400 dark:border-green-800',
+      label: '🟢 进行中',
+    },
+    closed: {
+      color:
+        'text-zinc-500 bg-zinc-50 border-zinc-200 dark:bg-zinc-900/30 dark:text-zinc-400 dark:border-zinc-700',
+      label: '✅ 已完成',
+    },
+  }
 
-  const config = stateConfig[issue.state];
+  const config = stateConfig[issue.state]
 
   // 高亮标题中的搜索关键词
-  const highlightedTitle = searchQuery
-    ? highlightSearchTerm(issue.title, searchQuery)
-    : issue.title;
+  const highlightedTitle = searchQuery ? highlightSearchTerm(issue.title, searchQuery) : issue.title
 
   return (
-    <div className="px-6 py-4 hover:bg-zinc-50 dark:hover:bg-zinc-800/50 transition-all duration-200 group border-l-2 border-transparent hover:border-cyan-500 hover:translate-x-1">
+    <div className="group border-l-2 border-transparent px-6 py-4 transition-all duration-200 hover:translate-x-1 hover:border-cyan-500 hover:bg-zinc-50 dark:hover:bg-zinc-800/50">
       <div className="flex items-start gap-3">
         {/* 状态图标 */}
         <div className="mt-1 flex-shrink-0">
-          <span className={`inline-flex items-center px-2 py-0.5 rounded text-xs font-medium border ${config.color} transition-transform group-hover:scale-105`}>
+          <span
+            className={`inline-flex items-center rounded border px-2 py-0.5 text-xs font-medium ${config.color} transition-transform group-hover:scale-105`}
+          >
             {config.label}
           </span>
         </div>
 
         {/* 内容区 */}
-        <div className="flex-1 min-w-0">
-          <div className="flex items-center gap-2 mb-2">
+        <div className="min-w-0 flex-1">
+          <div className="mb-2 flex items-center gap-2">
             <a
               href={issue.html_url}
               target="_blank"
               rel="noopener noreferrer"
-              className="text-sm font-medium text-cyan-600 hover:text-cyan-800 dark:text-cyan-400 hover:underline transition-colors"
+              className="text-sm font-medium text-cyan-600 transition-colors hover:text-cyan-800 hover:underline dark:text-cyan-400"
             >
               #{issue.number}
             </a>
             {/* 使用 dangerouslySetInnerHTML 渲染高亮标题 */}
             <h3
-              className="text-sm font-medium text-zinc-900 dark:text-white truncate group-hover:text-cyan-600 dark:group-hover:text-cyan-400 transition-colors"
+              className="truncate text-sm font-medium text-zinc-900 transition-colors group-hover:text-cyan-600 dark:text-white dark:group-hover:text-cyan-400"
               dangerouslySetInnerHTML={{ __html: highlightedTitle }}
             />
           </div>
 
           {/* 标签 */}
           {issue.labels && issue.labels.length > 0 && (
-            <div className="flex items-center gap-1 mb-2 flex-wrap">
+            <div className="mb-2 flex flex-wrap items-center gap-1">
               {issue.labels.slice(0, 5).map((label, idx) => (
                 <span
                   key={idx}
-                  className="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium"
+                  className="inline-flex items-center rounded px-2 py-0.5 text-xs font-medium"
                   style={{
                     backgroundColor: `#${label.color}20`,
                     color: `#${label.color}`,
@@ -244,15 +253,15 @@ const TaskCardBase: React.FC<TaskCardProps> = ({ issue, searchQuery }) => {
             href={issue.html_url}
             target="_blank"
             rel="noopener noreferrer"
-            className="text-sm text-cyan-600 hover:text-cyan-800 dark:text-cyan-400 opacity-0 group-hover:opacity-100 transition-opacity"
+            className="text-sm text-cyan-600 opacity-0 transition-opacity group-hover:opacity-100 hover:text-cyan-800 dark:text-cyan-400"
           >
             查看 →
           </a>
         </div>
       </div>
     </div>
-  );
-};
+  )
+}
 
 // 使用 React.memo 优化 TaskCard
 const TaskCard = React.memo(TaskCardBase, (prevProps, nextProps) => {
@@ -262,5 +271,5 @@ const TaskCard = React.memo(TaskCardBase, (prevProps, nextProps) => {
     prevProps.issue.title === nextProps.issue.title &&
     prevProps.issue.updated_at === nextProps.issue.updated_at &&
     prevProps.searchQuery === nextProps.searchQuery
-  );
-});
+  )
+})

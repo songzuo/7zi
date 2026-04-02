@@ -3,9 +3,9 @@
  * Handles sending notifications when feedback is created, updated, or resolved
  */
 
-import { getDatabaseAsync } from '../db/index';
-import { logger } from '../logger';
-import { Feedback, FeedbackType, FeedbackStatus, FeedbackPriority } from '@/types/feedback';
+import { getDatabaseAsync } from '../db/index'
+import { logger } from '../logger'
+import { Feedback, FeedbackType, FeedbackStatus, FeedbackPriority } from '@/types/feedback'
 
 /**
  * Notification types for feedback
@@ -25,21 +25,21 @@ export async function createFeedbackNotification(
   type: FeedbackNotificationType
 ): Promise<void> {
   try {
-    const db = await getDatabaseAsync();
+    const db = await getDatabaseAsync()
 
     // Get admin users (in production, query the users table)
     // For now, we'll use a placeholder admin ID
-    const adminId = 'admin';
+    const adminId = 'admin'
 
-    const notificationId = crypto.randomUUID();
-    const now = new Date().toISOString();
+    const notificationId = crypto.randomUUID()
+    const now = new Date().toISOString()
 
     // Create notification
     db.exec(
       `INSERT INTO feedback_notifications (id, feedback_id, recipient_id, type, created_at)
        VALUES (?, ?, ?, ?, ?)`,
       [notificationId, feedback.id, adminId, type, now]
-    );
+    )
 
     // Log notification creation
     logger.info('Feedback notification created', {
@@ -48,13 +48,13 @@ export async function createFeedbackNotification(
       feedbackId: feedback.id,
       recipientId: adminId,
       type,
-    });
-  } catch (_error) {
+    })
+  } catch (error) {
     logger.error('Failed to create feedback notification', error, {
       category: 'feedback',
       feedbackId: feedback.id,
       type,
-    });
+    })
   }
 }
 
@@ -62,34 +62,32 @@ export async function createFeedbackNotification(
  * Feedback notification with details
  */
 interface FeedbackNotification {
-  id: string;
-  feedback_id: string;
-  recipient_id: string;
-  type: string;
-  created_at: string;
-  read_at: string | null;
-  feedback_type?: FeedbackType;
-  title?: string;
-  status?: FeedbackStatus;
-  priority?: number;
-  rating?: number;
+  id: string
+  feedback_id: string
+  recipient_id: string
+  type: string
+  created_at: string
+  read_at: string | null
+  feedback_type?: FeedbackType
+  title?: string
+  status?: FeedbackStatus
+  priority?: number
+  rating?: number
 }
 
 /**
  * Get unread feedback notifications for a user
  */
-export async function getUnreadFeedbackNotifications(
-  userId: string
-): Promise<
+export async function getUnreadFeedbackNotifications(userId: string): Promise<
   Array<{
-    id: string;
-    feedback_id: string;
-    type: FeedbackNotificationType;
-    created_at: string;
-    feedback?: Feedback;
+    id: string
+    feedback_id: string
+    type: FeedbackNotificationType
+    created_at: string
+    feedback?: Feedback
   }>
 > {
-  const db = await getDatabaseAsync();
+  const db = await getDatabaseAsync()
 
   const notifications = db.queryRows(
     `SELECT fn.*, f.type as feedback_type, f.title, f.status, f.priority, f.rating
@@ -98,94 +96,86 @@ export async function getUnreadFeedbackNotifications(
      WHERE fn.recipient_id = ? AND fn.read_at IS NULL
      ORDER BY fn.created_at DESC`,
     [userId]
-  ) as unknown as FeedbackNotification[];
+  ) as unknown as FeedbackNotification[]
 
   // Map and type-cast the notifications
-  return notifications.map((notif) => ({
+  return notifications.map(notif => ({
     id: notif.id,
     feedback_id: notif.feedback_id,
     type: notif.type as FeedbackNotificationType,
     created_at: notif.created_at,
-    feedback: notif.feedback_type && notif.title
-      ? {
-          id: notif.feedback_id,
-          type: notif.feedback_type,
-          title: notif.title,
-          status: (notif.status || 'open') as FeedbackStatus,
-          priority: (notif.priority || 'medium') as FeedbackPriority,
-          rating: notif.rating || 0,
-          created_at: notif.created_at,
-          updated_at: notif.created_at,
-          user_id: userId,
-          description: '',
-          helpful_count: 0,
-          not_helpful_count: 0,
-        }
-      : undefined,
-  }));
+    feedback:
+      notif.feedback_type && notif.title
+        ? {
+            id: notif.feedback_id,
+            type: notif.feedback_type,
+            title: notif.title,
+            status: (notif.status || 'open') as FeedbackStatus,
+            priority: (notif.priority || 'medium') as FeedbackPriority,
+            rating: notif.rating || 0,
+            created_at: notif.created_at,
+            updated_at: notif.created_at,
+            user_id: userId,
+            description: '',
+            helpful_count: 0,
+            not_helpful_count: 0,
+          }
+        : undefined,
+  }))
 }
 
 /**
  * Mark feedback notifications as read
  */
-export async function markFeedbackNotificationsAsRead(
-  notificationIds: string[]
-): Promise<void> {
-  const db = await getDatabaseAsync();
+export async function markFeedbackNotificationsAsRead(notificationIds: string[]): Promise<void> {
+  const db = await getDatabaseAsync()
 
-  const now = new Date().toISOString();
+  const now = new Date().toISOString()
 
   for (const notificationId of notificationIds) {
-    db.exec(
-      `UPDATE feedback_notifications SET read_at = ? WHERE id = ?`,
-      [now, notificationId]
-    );
+    db.exec(`UPDATE feedback_notifications SET read_at = ? WHERE id = ?`, [now, notificationId])
   }
 
   logger.info('Feedback notifications marked as read', {
     category: 'feedback',
     count: notificationIds.length,
-  });
+  })
 }
 
 /**
  * Mark all feedback notifications as read for a user
  */
-export async function markAllFeedbackNotificationsAsRead(
-  userId: string
-): Promise<void> {
-  const db = await getDatabaseAsync();
+export async function markAllFeedbackNotificationsAsRead(userId: string): Promise<void> {
+  const db = await getDatabaseAsync()
 
-  const now = new Date().toISOString();
+  const now = new Date().toISOString()
 
   db.exec(
     `UPDATE feedback_notifications SET read_at = ?
      WHERE recipient_id = ? AND read_at IS NULL`,
     [now, userId]
-  );
+  )
 
   logger.info('All feedback notifications marked as read', {
     category: 'feedback',
     userId,
-  });
+  })
 }
 
 /**
  * Get unread notification count for a user
  */
-export async function getUnreadFeedbackNotificationCount(
-  userId: string
-): Promise<number> {
-  const db = await getDatabaseAsync();
+export async function getUnreadFeedbackNotificationCount(userId: string): Promise<number> {
+  const db = await getDatabaseAsync()
 
   const result = db.queryRows(
     `SELECT COUNT(*) as count
      FROM feedback_notifications
      WHERE recipient_id = ? AND read_at IS NULL`,
     [userId]
-  )[0] as { count: number };
+  )[0] as { count: number }
 
-  return result.count;
+  return result.count
 }
 
 /**
@@ -203,14 +193,14 @@ export async function sendFeedbackEmail(
     to: 'admin@example.com',
     subject: getFeedbackEmailSubject(feedback, type),
     body: getFeedbackEmailBody(feedback, type),
-  };
+  }
 
   logger.info('Feedback email notification queued', {
     category: 'feedback',
     type,
     feedbackId: feedback.id,
     email: emailContent.to,
-  });
+  })
 
   // In production: await emailService.send(emailContent);
 }
@@ -218,29 +208,23 @@ export async function sendFeedbackEmail(
 /**
  * Generate email subject based on notification type
  */
-function getFeedbackEmailSubject(
-  feedback: Feedback,
-  type: FeedbackNotificationType
-): string {
+function getFeedbackEmailSubject(feedback: Feedback, type: FeedbackNotificationType): string {
   const subjects: Record<FeedbackNotificationType, string> = {
     [FeedbackNotificationType.NEW]: `新反馈: ${feedback.title}`,
     [FeedbackNotificationType.UPDATED]: `反馈更新: ${feedback.title}`,
     [FeedbackNotificationType.RESOLVED]: `反馈已解决: ${feedback.title}`,
     [FeedbackNotificationType.FLAGGED]: `需要关注: ${feedback.title}`,
-  };
+  }
 
-  return subjects[type];
+  return subjects[type]
 }
 
 /**
  * Generate email body based on notification type
  */
-function getFeedbackEmailBody(
-  feedback: Feedback,
-  type: FeedbackNotificationType
-): string {
-  const baseUrl = process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000';
-  const feedbackUrl = `${baseUrl}/admin/feedback/${feedback.id}`;
+function getFeedbackEmailBody(feedback: Feedback, type: FeedbackNotificationType): string {
+  const baseUrl = process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000'
+  const feedbackUrl = `${baseUrl}/admin/feedback/${feedback.id}`
 
   return `
 新${getFeedbackNotificationTypeLabel(type)} - ${feedback.type}
@@ -258,7 +242,7 @@ ${feedback.description}
 ${feedback.email ? `邮箱: ${feedback.email}` : ''}
 
 查看详情: ${feedbackUrl}
-  `.trim();
+  `.trim()
 }
 
 /**
@@ -270,9 +254,9 @@ function getFeedbackNotificationTypeLabel(type: FeedbackNotificationType): strin
     [FeedbackNotificationType.UPDATED]: '反馈更新',
     [FeedbackNotificationType.RESOLVED]: '反馈已解决',
     [FeedbackNotificationType.FLAGGED]: '需要关注',
-  };
+  }
 
-  return labels[type];
+  return labels[type]
 }
 
 /**
@@ -280,8 +264,8 @@ function getFeedbackNotificationTypeLabel(type: FeedbackNotificationType): strin
  */
 export async function notifyHighPriorityFeedback(feedback: Feedback): Promise<void> {
   if (feedback.priority === 'high' || feedback.priority === 'urgent') {
-    await createFeedbackNotification(feedback, FeedbackNotificationType.FLAGGED);
-    await sendFeedbackEmail(feedback, FeedbackNotificationType.FLAGGED);
+    await createFeedbackNotification(feedback, FeedbackNotificationType.FLAGGED)
+    await sendFeedbackEmail(feedback, FeedbackNotificationType.FLAGGED)
   }
 }
 
@@ -291,17 +275,15 @@ export async function notifyHighPriorityFeedback(feedback: Feedback): Promise<vo
 export async function notifyFeedbackResolved(feedback: Feedback): Promise<void> {
   // In production, send email to feedback.email if provided
   if (feedback.email) {
-    await sendFeedbackEmail(feedback, FeedbackNotificationType.RESOLVED);
+    await sendFeedbackEmail(feedback, FeedbackNotificationType.RESOLVED)
   }
 }
 
 /**
  * Batch process feedback notifications
  */
-export async function processFeedbackNotifications(
-  batchSize: number = 50
-): Promise<void> {
-  const db = await getDatabaseAsync();
+export async function processFeedbackNotifications(batchSize: number = 50): Promise<void> {
+  const db = await getDatabaseAsync()
 
   // Get unread notifications
   const unreadNotifications = db.queryRows(
@@ -310,51 +292,50 @@ export async function processFeedbackNotifications(
      ORDER BY created_at ASC
      LIMIT ?`,
     [batchSize]
-  ) as unknown as FeedbackNotification[];
+  ) as unknown as FeedbackNotification[]
 
   logger.info('Processing feedback notifications', {
     category: 'feedback',
     count: unreadNotifications.length,
-  });
+  })
 
   // Process each notification
   for (const notification of unreadNotifications) {
     try {
       // Get feedback details
-      const feedback = db.queryRows(
-        'SELECT * FROM feedbacks WHERE id = ?',
-        [notification.feedback_id]
-      )[0] as unknown as Feedback | undefined;
+      const feedback = db.queryRows('SELECT * FROM feedbacks WHERE id = ?', [
+        notification.feedback_id,
+      ])[0] as unknown as Feedback | undefined
 
       if (!feedback) {
         logger.warn('Feedback not found for notification', {
           category: 'feedback',
           notificationId: notification.id,
           feedbackId: notification.feedback_id,
-        });
-        continue;
+        })
+        continue
       }
 
       // Send appropriate notification
       switch (notification.type) {
         case FeedbackNotificationType.NEW:
-          await sendFeedbackEmail(feedback, notification.type);
-          break;
+          await sendFeedbackEmail(feedback, notification.type)
+          break
         case FeedbackNotificationType.UPDATED:
-          await sendFeedbackEmail(feedback, notification.type);
-          break;
+          await sendFeedbackEmail(feedback, notification.type)
+          break
         case FeedbackNotificationType.RESOLVED:
-          await notifyFeedbackResolved(feedback);
-          break;
+          await notifyFeedbackResolved(feedback)
+          break
         case FeedbackNotificationType.FLAGGED:
-          await notifyHighPriorityFeedback(feedback);
-          break;
+          await notifyHighPriorityFeedback(feedback)
+          break
       }
-    } catch (_error) {
+    } catch (error) {
       logger.error('Failed to process feedback notification', error, {
         category: 'feedback',
         notificationId: notification.id,
-      });
+      })
     }
   }
 }

@@ -5,15 +5,15 @@
  * Requires JWT authentication and user ownership verification
  */
 
-import { NextRequest, NextResponse } from 'next/server';
-import { notificationService } from '@/lib/services/notification';
+import { NextRequest, NextResponse } from 'next/server'
+import { notificationService } from '@/lib/services/notification'
 import {
   createSuccessResponse,
   createNotFoundError,
   createErrorResponse,
   createForbiddenError,
-} from '../../../../lib/api/error-handler';
-import { authenticateJWT } from '@/lib/auth/api-auth';
+} from '../../../../lib/api/error-handler'
+import { authenticateJWT } from '@/lib/auth/api-auth'
 
 /**
  * GET /api/notifications/[id]
@@ -21,12 +21,9 @@ import { authenticateJWT } from '@/lib/auth/api-auth';
  * Get a specific notification
  * Requires JWT authentication and user ownership
  */
-export async function GET(
-  request: NextRequest,
-  { params }: { params: { id: string } }
-) {
+export async function GET(request: NextRequest, { params }: { params: { id: string } }) {
   // Authenticate user
-  const authResult = await authenticateJWT(request);
+  const authResult = await authenticateJWT(request)
 
   if (!authResult.authenticated) {
     return NextResponse.json(
@@ -36,18 +33,18 @@ export async function GET(
         message: authResult.error || 'Authentication required',
       },
       { status: 401 }
-    );
+    )
   }
 
   try {
-    const notificationId = params.id;
+    const notificationId = params.id
 
     // Get notification
-    const allNotifications = notificationService.getNotifications();
-    const notification = allNotifications.find(n => n.id === notificationId);
+    const allNotifications = notificationService.getNotifications()
+    const notification = allNotifications.find(n => n.id === notificationId)
 
     if (!notification) {
-      return createNotFoundError('Notification not found');
+      return createNotFoundError('Notification not found')
     }
 
     // Verify ownership - user can only access their own notifications unless admin
@@ -59,12 +56,12 @@ export async function GET(
           message: 'You do not have permission to access this notification',
         },
         { status: 403 }
-      );
+      )
     }
 
-    return createSuccessResponse(notification);
+    return createSuccessResponse(notification)
   } catch (error) {
-    return createErrorResponse(error instanceof Error ? error : new Error(String(error)));
+    return createErrorResponse(error instanceof Error ? error : new Error(String(error)))
   }
 }
 
@@ -74,12 +71,9 @@ export async function GET(
  * Update a notification (mark as read)
  * Requires JWT authentication and user ownership
  */
-export async function PATCH(
-  request: NextRequest,
-  { params }: { params: { id: string } }
-) {
+export async function PATCH(request: NextRequest, { params }: { params: { id: string } }) {
   // Authenticate user
-  const authResult = await authenticateJWT(request);
+  const authResult = await authenticateJWT(request)
 
   if (!authResult.authenticated) {
     return NextResponse.json(
@@ -89,18 +83,18 @@ export async function PATCH(
         message: authResult.error || 'Authentication required',
       },
       { status: 401 }
-    );
+    )
   }
 
   try {
-    const notificationId = params.id;
+    const notificationId = params.id
 
     // Get notification to verify ownership
-    const allNotifications = notificationService.getNotifications();
-    const notification = allNotifications.find(n => n.id === notificationId);
+    const allNotifications = notificationService.getNotifications()
+    const notification = allNotifications.find(n => n.id === notificationId)
 
     if (!notification) {
-      return createNotFoundError('Notification not found');
+      return createNotFoundError('Notification not found')
     }
 
     // Verify ownership
@@ -112,21 +106,21 @@ export async function PATCH(
           message: 'You do not have permission to modify this notification',
         },
         { status: 403 }
-      );
+      )
     }
 
-    const body = await request.json();
+    const body = await request.json()
 
     if (body.read !== undefined && body.read === true) {
-      notificationService.markAsRead(notificationId);
+      notificationService.markAsRead(notificationId)
     }
 
     return createSuccessResponse({
       id: notificationId,
       message: 'Notification updated',
-    });
+    })
   } catch (error) {
-    return createErrorResponse(error instanceof Error ? error : new Error(String(error)));
+    return createErrorResponse(error instanceof Error ? error : new Error(String(error)))
   }
 }
 
@@ -136,12 +130,9 @@ export async function PATCH(
  * Delete a notification
  * Requires JWT authentication and user ownership
  */
-export async function DELETE(
-  request: NextRequest,
-  { params }: { params: { id: string } }
-) {
+export async function DELETE(request: NextRequest, { params }: { params: { id: string } }) {
   // Authenticate user
-  const authResult = await authenticateJWT(request);
+  const authResult = await authenticateJWT(request)
 
   if (!authResult.authenticated) {
     return NextResponse.json(
@@ -151,18 +142,18 @@ export async function DELETE(
         message: authResult.error || 'Authentication required',
       },
       { status: 401 }
-    );
+    )
   }
 
   try {
-    const notificationId = params.id;
+    const notificationId = params.id
 
     // Get notification to verify ownership
-    const allNotifications = notificationService.getNotifications();
-    const notification = allNotifications.find(n => n.id === notificationId);
+    const allNotifications = notificationService.getNotifications()
+    const notification = allNotifications.find(n => n.id === notificationId)
 
     if (!notification) {
-      return createNotFoundError('Notification not found');
+      return createNotFoundError('Notification not found')
     }
 
     // Verify ownership
@@ -174,16 +165,16 @@ export async function DELETE(
           message: 'You do not have permission to delete this notification',
         },
         { status: 403 }
-      );
+      )
     }
 
-    notificationService.deleteNotification(notificationId);
+    notificationService.deleteNotification(notificationId)
 
     return createSuccessResponse({
       id: notificationId,
       message: 'Notification deleted',
-    });
+    })
   } catch (error) {
-    return createErrorResponse(error instanceof Error ? error : new Error(String(error)));
+    return createErrorResponse(error instanceof Error ? error : new Error(String(error)))
   }
 }

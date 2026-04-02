@@ -3,39 +3,39 @@
  * Provides UI for exporting tasks, projects, and creating backups
  */
 
-'use client';
+'use client'
 
-import { useState } from 'react';
-import { Button } from '@/components/ui/Button';
-import { Card } from '@/components/ui/Card';
-import { Select } from '@/components/ui/Select';
-import { Checkbox } from '@/components/ui/Checkbox';
-import { Input } from '@/components/ui/Input';
-import { downloadFile } from '@/lib/utils/download';
+import { useState } from 'react'
+import { Button } from '@/components/ui/Button'
+import { Card } from '@/components/ui/Card'
+import { Select } from '@/components/ui/Select'
+import { Checkbox } from '@/components/ui/Checkbox'
+import { Input } from '@/components/ui/Input'
+import { downloadFile } from '@/lib/utils/download'
 
-type ExportFormat = 'json' | 'csv';
-type ExportType = 'tasks' | 'projects' | 'backup';
+type ExportFormat = 'json' | 'csv'
+type ExportType = 'tasks' | 'projects' | 'backup'
 
 interface ExportProgress {
-  isExporting: boolean;
-  progress: number;
-  status: string;
+  isExporting: boolean
+  progress: number
+  status: string
 }
 
 interface ExportFilters {
-  status: string;
-  priority: string;
-  assignee: string;
-  tags: string;
-  startDate: string;
-  endDate: string;
-  category?: string;
+  status: string
+  priority: string
+  assignee: string
+  tags: string
+  startDate: string
+  endDate: string
+  category?: string
 }
 
 export function DataExportPanel() {
-  const [exportType, setExportType] = useState<ExportType>('tasks');
-  const [format, setFormat] = useState<ExportFormat>('json');
-  const [includeTasks, setIncludeTasks] = useState(true);
+  const [exportType, setExportType] = useState<ExportType>('tasks')
+  const [format, setFormat] = useState<ExportFormat>('json')
+  const [includeTasks, setIncludeTasks] = useState(true)
   const [filters, setFilters] = useState<ExportFilters>({
     status: '',
     priority: '',
@@ -44,12 +44,12 @@ export function DataExportPanel() {
     endDate: '',
     tags: '',
     category: '',
-  });
+  })
   const [progress, setProgress] = useState<ExportProgress>({
     isExporting: false,
     progress: 0,
     status: '',
-  });
+  })
 
   const handleExport = async () => {
     try {
@@ -57,96 +57,96 @@ export function DataExportPanel() {
         isExporting: true,
         progress: 0,
         status: 'Preparing export...',
-      });
+      })
 
-      let url: string;
-      let filename: string;
+      let url: string
+      let filename: string
 
       // Build URL with query parameters
-      const searchParams = new URLSearchParams();
+      const searchParams = new URLSearchParams()
 
       if (exportType === 'tasks') {
-        searchParams.append('format', format);
+        searchParams.append('format', format)
 
         // Add task filters
-        if (filters.status) searchParams.append('status', filters.status);
-        if (filters.priority) searchParams.append('priority', filters.priority);
-        if (filters.assignee) searchParams.append('assignee', filters.assignee);
-        if (filters.startDate) searchParams.append('startDate', filters.startDate);
-        if (filters.endDate) searchParams.append('endDate', filters.endDate);
-        if (filters.tags) searchParams.append('tags', filters.tags);
+        if (filters.status) searchParams.append('status', filters.status)
+        if (filters.priority) searchParams.append('priority', filters.priority)
+        if (filters.assignee) searchParams.append('assignee', filters.assignee)
+        if (filters.startDate) searchParams.append('startDate', filters.startDate)
+        if (filters.endDate) searchParams.append('endDate', filters.endDate)
+        if (filters.tags) searchParams.append('tags', filters.tags)
 
-        url = `/api/export/tasks?${searchParams.toString()}`;
-        filename = `tasks-export-${new Date().toISOString().split('T')[0]}.${format}`;
+        url = `/api/export/tasks?${searchParams.toString()}`
+        filename = `tasks-export-${new Date().toISOString().split('T')[0]}.${format}`
       } else if (exportType === 'projects') {
-        searchParams.append('format', format);
-        searchParams.append('includeTasks', includeTasks.toString());
+        searchParams.append('format', format)
+        searchParams.append('includeTasks', includeTasks.toString())
 
         // Add project filters
-        if (filters.category) searchParams.append('category', filters.category);
+        if (filters.category) searchParams.append('category', filters.category)
 
-        url = `/api/export/projects?${searchParams.toString()}`;
-        filename = `projects-export-${new Date().toISOString().split('T')[0]}.${format}`;
+        url = `/api/export/projects?${searchParams.toString()}`
+        filename = `projects-export-${new Date().toISOString().split('T')[0]}.${format}`
       } else {
         // Backup - always JSON
-        setProgress({ ...progress, status: 'Creating backup...' });
+        setProgress({ ...progress, status: 'Creating backup...' })
 
         // Create backup first
         const backupResponse = await fetch('/api/backup', {
           method: 'POST',
-        });
+        })
 
         if (!backupResponse.ok) {
-          throw new Error('Failed to create backup');
+          throw new Error('Failed to create backup')
         }
 
-        const backupData = await backupResponse.json();
-        const backupId = backupData.data.backup.id;
-        url = `/api/backup/${backupId}`;
-        filename = `backup-${new Date().toISOString().split('T')[0]}.json`;
+        const backupData = await backupResponse.json()
+        const backupId = backupData.data.backup.id
+        url = `/api/backup/${backupId}`
+        filename = `backup-${new Date().toISOString().split('T')[0]}.json`
 
-        setProgress({ ...progress, progress: 50, status: 'Downloading backup...' });
+        setProgress({ ...progress, progress: 50, status: 'Downloading backup...' })
       }
 
       // Simulate progress for non-backup exports
       if (exportType !== 'backup') {
         const progressInterval = setInterval(() => {
-          setProgress((prev) => ({
+          setProgress(prev => ({
             ...prev,
             progress: Math.min(prev.progress + 10, 90),
-          }));
-        }, 100);
+          }))
+        }, 100)
 
         // Fetch data
-        const response = await fetch(url);
-        clearInterval(progressInterval);
+        const response = await fetch(url)
+        clearInterval(progressInterval)
 
         if (!response.ok) {
-          throw new Error('Export failed');
+          throw new Error('Export failed')
         }
 
-        setProgress({ ...progress, progress: 100, status: 'Processing...' });
+        setProgress({ ...progress, progress: 100, status: 'Processing...' })
 
         // Download file
-        const content = await response.text();
-        downloadFile(content, filename, format === 'csv' ? 'text/csv' : 'application/json');
+        const content = await response.text()
+        downloadFile(content, filename, format === 'csv' ? 'text/csv' : 'application/json')
       } else {
         // Backup download
-        const response = await fetch(url);
+        const response = await fetch(url)
 
         if (!response.ok) {
-          throw new Error('Download failed');
+          throw new Error('Download failed')
         }
 
-        const content = await response.text();
-        downloadFile(content, filename, 'application/json');
+        const content = await response.text()
+        downloadFile(content, filename, 'application/json')
       }
 
       setProgress({
         isExporting: false,
         progress: 100,
         status: 'Export completed successfully!',
-      });
+      })
 
       // Reset after 2 seconds
       setTimeout(() => {
@@ -154,25 +154,25 @@ export function DataExportPanel() {
           isExporting: false,
           progress: 0,
           status: '',
-        });
-      }, 2000);
-    } catch (_error) {
+        })
+      }, 2000)
+    } catch (error) {
       // Silently handle error in production
       if (process.env.NODE_ENV === 'development') {
-        console.error('Export error:', error);
+        console.error('Export error:', error)
       }
       setProgress({
         isExporting: false,
         progress: 0,
         status: 'Export failed. Please try again.',
-      });
+      })
     }
-  };
+  }
 
   return (
-    <Card className="p-6 space-y-6">
+    <Card className="space-y-6 p-6">
       <div>
-        <h3 className="text-lg font-semibold mb-2">Data Export & Backup</h3>
+        <h3 className="mb-2 text-lg font-semibold">Data Export & Backup</h3>
         <p className="text-sm text-zinc-600 dark:text-zinc-400">
           Export your data or create a full database backup for safekeeping.
         </p>
@@ -183,7 +183,9 @@ export function DataExportPanel() {
         <label className="text-sm font-medium">Export Type</label>
         <Select
           value={exportType}
-          onChange={(e: React.ChangeEvent<HTMLSelectElement>) => setExportType(e.target.value as ExportType)}
+          onChange={(e: React.ChangeEvent<HTMLSelectElement>) =>
+            setExportType(e.target.value as ExportType)
+          }
           disabled={progress.isExporting}
         >
           <option value="tasks">Tasks</option>
@@ -198,7 +200,9 @@ export function DataExportPanel() {
           <label className="text-sm font-medium">Format</label>
           <Select
             value={format}
-            onChange={(e: React.ChangeEvent<HTMLSelectElement>) => setFormat(e.target.value as ExportFormat)}
+            onChange={(e: React.ChangeEvent<HTMLSelectElement>) =>
+              setFormat(e.target.value as ExportFormat)
+            }
             disabled={progress.isExporting}
           >
             <option value="json">JSON</option>
@@ -224,7 +228,7 @@ export function DataExportPanel() {
 
       {/* Filters for Tasks */}
       {exportType === 'tasks' && (
-        <div className="space-y-4 p-4 bg-zinc-50 dark:bg-zinc-800 rounded-lg">
+        <div className="space-y-4 rounded-lg bg-zinc-50 p-4 dark:bg-zinc-800">
           <h4 className="text-sm font-medium">Filters (Optional)</h4>
 
           <div className="grid grid-cols-2 gap-4">
@@ -232,7 +236,9 @@ export function DataExportPanel() {
               <label className="text-xs text-zinc-600 dark:text-zinc-400">Status</label>
               <Select
                 value={filters.status}
-                onChange={(e: React.ChangeEvent<HTMLSelectElement>) => setFilters({ ...filters, status: e.target.value })}
+                onChange={(e: React.ChangeEvent<HTMLSelectElement>) =>
+                  setFilters({ ...filters, status: e.target.value })
+                }
                 disabled={progress.isExporting}
               >
                 <option value="">All</option>
@@ -247,7 +253,9 @@ export function DataExportPanel() {
               <label className="text-xs text-zinc-600 dark:text-zinc-400">Priority</label>
               <Select
                 value={filters.priority}
-                onChange={(e: React.ChangeEvent<HTMLSelectElement>) => setFilters({ ...filters, priority: e.target.value })}
+                onChange={(e: React.ChangeEvent<HTMLSelectElement>) =>
+                  setFilters({ ...filters, priority: e.target.value })
+                }
                 disabled={progress.isExporting}
               >
                 <option value="">All</option>
@@ -263,7 +271,9 @@ export function DataExportPanel() {
               <Input
                 type="text"
                 value={filters.assignee}
-                onChange={(e: React.ChangeEvent<HTMLInputElement>) => setFilters({ ...filters, assignee: e.target.value })}
+                onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
+                  setFilters({ ...filters, assignee: e.target.value })
+                }
                 placeholder="Assignee ID"
                 disabled={progress.isExporting}
               />
@@ -274,7 +284,9 @@ export function DataExportPanel() {
               <Input
                 type="text"
                 value={filters.tags}
-                onChange={(e: React.ChangeEvent<HTMLInputElement>) => setFilters({ ...filters, tags: e.target.value })}
+                onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
+                  setFilters({ ...filters, tags: e.target.value })
+                }
                 placeholder="tag1, tag2, tag3"
                 disabled={progress.isExporting}
               />
@@ -285,7 +297,9 @@ export function DataExportPanel() {
               <Input
                 type="date"
                 value={filters.startDate}
-                onChange={(e: React.ChangeEvent<HTMLInputElement>) => setFilters({ ...filters, startDate: e.target.value })}
+                onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
+                  setFilters({ ...filters, startDate: e.target.value })
+                }
                 disabled={progress.isExporting}
               />
             </div>
@@ -295,7 +309,9 @@ export function DataExportPanel() {
               <Input
                 type="date"
                 value={filters.endDate}
-                onChange={(e: React.ChangeEvent<HTMLInputElement>) => setFilters({ ...filters, endDate: e.target.value })}
+                onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
+                  setFilters({ ...filters, endDate: e.target.value })
+                }
                 disabled={progress.isExporting}
               />
             </div>
@@ -305,14 +321,16 @@ export function DataExportPanel() {
 
       {/* Filters for Projects */}
       {exportType === 'projects' && (
-        <div className="space-y-4 p-4 bg-zinc-50 dark:bg-zinc-800 rounded-lg">
+        <div className="space-y-4 rounded-lg bg-zinc-50 p-4 dark:bg-zinc-800">
           <h4 className="text-sm font-medium">Filters (Optional)</h4>
 
           <div className="space-y-1">
             <label className="text-xs text-zinc-600 dark:text-zinc-400">Category</label>
             <Select
               value={filters.category}
-              onChange={(e: React.ChangeEvent<HTMLSelectElement>) => setFilters({ ...filters, category: e.target.value })}
+              onChange={(e: React.ChangeEvent<HTMLSelectElement>) =>
+                setFilters({ ...filters, category: e.target.value })
+              }
               disabled={progress.isExporting}
             >
               <option value="">All Categories</option>
@@ -330,13 +348,11 @@ export function DataExportPanel() {
         <div className="space-y-2">
           <div className="flex items-center justify-between text-sm">
             <span className="font-medium">{progress.status}</span>
-            <span className="text-zinc-600 dark:text-zinc-400">
-              {progress.progress}%
-            </span>
+            <span className="text-zinc-600 dark:text-zinc-400">{progress.progress}%</span>
           </div>
-          <div className="w-full bg-zinc-200 dark:bg-zinc-700 rounded-full h-2">
+          <div className="h-2 w-full rounded-full bg-zinc-200 dark:bg-zinc-700">
             <div
-              className="bg-blue-600 h-2 rounded-full transition-all duration-300"
+              className="h-2 rounded-full bg-blue-600 transition-all duration-300"
               style={{ width: `${progress.progress}%` }}
             />
           </div>
@@ -344,18 +360,14 @@ export function DataExportPanel() {
       )}
 
       {/* Export Button */}
-      <Button
-        onClick={handleExport}
-        disabled={progress.isExporting}
-        className="w-full"
-      >
+      <Button onClick={handleExport} disabled={progress.isExporting} className="w-full">
         {progress.isExporting ? 'Exporting...' : 'Export Data'}
       </Button>
 
       {/* Status Message */}
       {progress.status && !progress.isExporting && (
         <div
-          className={`text-sm text-center ${
+          className={`text-center text-sm ${
             progress.status.includes('successfully')
               ? 'text-green-600 dark:text-green-400'
               : 'text-red-600 dark:text-red-400'
@@ -365,5 +377,5 @@ export function DataExportPanel() {
         </div>
       )}
     </Card>
-  );
+  )
 }

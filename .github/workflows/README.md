@@ -6,31 +6,31 @@ This directory contains the CI/CD pipelines for the 7zi-frontend project.
 
 ### Main Workflows
 
-| Workflow | Purpose | Trigger | Est. Time |
-|----------|---------|---------|-----------|
-| `ci-main.yml` | Full CI/CD with smart testing | Push to main/develop, PR | 8-10 min |
-| `ci-pr.yml` | Fast PR checks | Pull requests | 3-5 min |
-| `tests.yml` | Test-only workflow | Push to main/develop, PR | 4-5 min |
-| `deploy-main.yml` | Main branch deployment | Push to main | 6-8 min |
+| Workflow          | Purpose                       | Trigger                  | Est. Time |
+| ----------------- | ----------------------------- | ------------------------ | --------- |
+| `ci-main.yml`     | Full CI/CD with smart testing | Push to main/develop, PR | 8-10 min  |
+| `ci-pr.yml`       | Fast PR checks                | Pull requests            | 3-5 min   |
+| `tests.yml`       | Test-only workflow            | Push to main/develop, PR | 4-5 min   |
+| `deploy-main.yml` | Main branch deployment        | Push to main             | 6-8 min   |
 
 ### Specialized Workflows
 
-| Workflow | Purpose | Trigger |
-|----------|---------|---------|
-| `security-scan.yml` | Daily security scans | Schedule (UTC 2:00), manual |
-| `preview.yml` | Preview deployments | PR to main |
-| `production.yml` | Production deployment | Manual (workflow_dispatch) |
-| `version-check.yml` | Version validation | Push to main/develop |
+| Workflow            | Purpose               | Trigger                     |
+| ------------------- | --------------------- | --------------------------- |
+| `security-scan.yml` | Daily security scans  | Schedule (UTC 2:00), manual |
+| `preview.yml`       | Preview deployments   | PR to main                  |
+| `production.yml`    | Production deployment | Manual (workflow_dispatch)  |
+| `version-check.yml` | Version validation    | Push to main/develop        |
 
 ### Legacy Workflows (Deprecated)
 
-| Workflow | Status | Replacement |
-|----------|--------|-------------|
-| `ci.yml` | ⚠️ Deprecated | `ci-main.yml` |
-| `ci-cd.yml` | ❌ Archived | `ci-main.yml` |
-| `ci-simple.yml` | ❌ Archived | `ci-pr.yml` |
-| `ci-optimized.yml` | ❌ Archived | `ci-main.yml` |
-| `deploy.yml` | ❌ Archived | `deploy-main.yml` |
+| Workflow           | Status        | Replacement       |
+| ------------------ | ------------- | ----------------- |
+| `ci.yml`           | ⚠️ Deprecated | `ci-main.yml`     |
+| `ci-cd.yml`        | ❌ Archived   | `ci-main.yml`     |
+| `ci-simple.yml`    | ❌ Archived   | `ci-pr.yml`       |
+| `ci-optimized.yml` | ❌ Archived   | `ci-main.yml`     |
+| `deploy.yml`       | ❌ Archived   | `deploy-main.yml` |
 
 ---
 
@@ -49,12 +49,12 @@ This directory contains the CI/CD pipelines for the 7zi-frontend project.
 
 ### Performance Improvements
 
-| Metric | Before | After | Improvement |
-|--------|--------|-------|-------------|
-| Full CI time | 18-20 min | 8-10 min | **50-60% faster** |
-| PR check time | ~10 min | 3-5 min | **50-70% faster** |
-| Deploy time | 12-15 min | 6-8 min | **50% faster** |
-| CI minutes/day | ~480 min | ~220 min | **54% savings** |
+| Metric         | Before    | After    | Improvement       |
+| -------------- | --------- | -------- | ----------------- |
+| Full CI time   | 18-20 min | 8-10 min | **50-60% faster** |
+| PR check time  | ~10 min   | 3-5 min  | **50-70% faster** |
+| Deploy time    | 12-15 min | 6-8 min  | **50% faster**    |
+| CI minutes/day | ~480 min  | ~220 min | **54% savings**   |
 
 ---
 
@@ -108,14 +108,14 @@ gh workflow run ci-main.yml --ref main -f skip-tests=false -f run-e2e=true
 
 Configure these in GitHub repository settings → Secrets:
 
-| Secret | Purpose | Required For |
-|--------|---------|--------------|
-| `GITHUB_TOKEN` | GitHub API access | Docker builds (auto) |
-| `STAGING_HOST` | Staging server | deploy-main.yml |
-| `DEPLOY_USER` | SSH username | Deployments |
-| `DEPLOY_PASS` | SSH password | Deployments |
-| `PRODUCTION_HOST` | Production server | Production deploy |
-| `SNYK_TOKEN` | Snyk security scanning | security-scan.yml |
+| Secret            | Purpose                | Required For         |
+| ----------------- | ---------------------- | -------------------- |
+| `GITHUB_TOKEN`    | GitHub API access      | Docker builds (auto) |
+| `STAGING_HOST`    | Staging server         | deploy-main.yml      |
+| `DEPLOY_USER`     | SSH username           | Deployments          |
+| `DEPLOY_PASS`     | SSH password           | Deployments          |
+| `PRODUCTION_HOST` | Production server      | Production deploy    |
+| `SNYK_TOKEN`      | Snyk security scanning | security-scan.yml    |
 
 ### Environment Variables
 
@@ -123,9 +123,9 @@ Workflows use these environment variables:
 
 ```yaml
 env:
-  NODE_VERSION: '22'           # Node.js version
-  REGISTRY: ghcr.io            # Docker registry
-  IMAGE_NAME: ${{ github.repository }}  # Docker image name
+  NODE_VERSION: '22' # Node.js version
+  REGISTRY: ghcr.io # Docker registry
+  IMAGE_NAME: ${{ github.repository }} # Docker image name
 ```
 
 ---
@@ -135,6 +135,7 @@ env:
 ### ci-main.yml
 
 **Features**:
+
 - ✅ Smart change detection (skip unnecessary tests)
 - ✅ Multi-layer caching (npm, Next.js turbo, Docker)
 - ✅ Parallel execution (lint, typecheck, tests)
@@ -144,6 +145,7 @@ env:
 - ✅ Docker builds with GHA cache
 
 **Jobs**:
+
 1. `changes` - Detect file changes
 2. `setup` - Setup and cache dependencies
 3. `security` - Security audit
@@ -159,6 +161,7 @@ env:
 ### tests.yml
 
 **Features**:
+
 - ✅ Node.js 22 (fixed)
 - ✅ Parallel test sharding (4 shards)
 - ✅ Conditional E2E tests (PR and main only)
@@ -166,6 +169,7 @@ env:
 - ✅ Coverage upload
 
 **Jobs**:
+
 1. `unit-tests` - 4 parallel shards
 2. `e2e-tests` - Conditional E2E
 3. `test-report` - Summary report
@@ -173,6 +177,7 @@ env:
 ### deploy-main.yml
 
 **Features**:
+
 - ✅ Parallel checks (lint, typecheck, tests)
 - ✅ Next.js turbo cache
 - ✅ GHA Docker cache
@@ -180,6 +185,7 @@ env:
 - ✅ Deployment status summary
 
 **Jobs**:
+
 1. `check` - 3 parallel checks
 2. `build` - Build with cache
 3. `docker` - Docker build and push
@@ -279,6 +285,7 @@ git push
 ### Adding New Workflows
 
 Follow the naming convention:
+
 - `ci-*.yml` - CI workflows
 - `deploy-*.yml` - Deployment workflows
 - `test-*.yml` - Testing workflows

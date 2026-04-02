@@ -15,6 +15,7 @@
 ### 1. 核心库安装
 
 已安装必要的依赖：
+
 - ✅ i18next (国际化核心)
 - ✅ react-i18next (React 绑定)
 - ✅ i18next-browser-languagedetector (语言检测)
@@ -22,12 +23,14 @@
 ### 2. 配置和初始化
 
 #### 服务端配置
+
 - ✅ `src/lib/i18n/config.ts` - 完整的 i18n 配置
 - ✅ `src/lib/i18n/server.ts` - 服务端初始化
 - ✅ 支持的语言：中文 (zh)、英文 (en)
 - ✅ 默认语言：中文 (zh)
 
 #### 客户端配置
+
 - ✅ `src/lib/i18n/client.ts` - 客户端初始化
 - ✅ 自动语言检测 (Cookie + localStorage + navigator)
 - ✅ 命名空间管理 (common, auth, navigation, errors, dashboard)
@@ -35,6 +38,7 @@
 ### 3. 翻译资源
 
 完整的翻译文件（中英文）：
+
 - ✅ `src/locales/zh/common.json` (2960 bytes) - 通用翻译
 - ✅ `src/locales/zh/auth.json` (2239 bytes) - 认证相关
 - ✅ `src/locales/zh/navigation.json` (2142 bytes) - 导航相关
@@ -52,6 +56,7 @@
 ### 4. React 组件
 
 #### LanguageSwitcher (语言切换器)
+
 **文件**: `src/shared/components/LanguageSwitcher.tsx`
 
 - ✅ 三种显示模式：
@@ -62,6 +67,7 @@
 - ✅ 完整的 TypeScript 类型
 
 #### LanguageProvider (i18n 提供者)
+
 **文件**: `src/shared/components/LanguageProvider.tsx`
 
 - ✅ 包裹根组件，确保所有组件可访问翻译
@@ -71,6 +77,7 @@
 ### 5. 自定义 Hooks
 
 #### useServerTranslation (服务端翻译)
+
 **文件**: `src/shared/hooks/useServerTranslation.ts`
 
 - ✅ 仅在 Server Components 中使用
@@ -80,6 +87,7 @@
 ### 6. 中间件集成
 
 #### i18n 中间件
+
 **文件**: `src/middleware.i18n.ts`
 
 - ✅ 语言自动检测 (Cookie + Accept-Language header)
@@ -88,6 +96,7 @@
 - ✅ 静态资源和 API 路由跳过
 
 #### 主中间件更新
+
 **文件**: `src/middleware.ts`
 
 - ✅ 集成 i18n 中间件
@@ -145,21 +154,25 @@
 ## 🎯 功能特性
 
 ### 支持的语言
+
 - ✅ 中文 (zh) - 简体中文
 - ✅ 英文 (en) - 英文
 
 ### 语言检测优先级
+
 1. Cookie (`i18next`)
 2. Accept-Language header
 3. 默认语言 (zh)
 
 ### SSR 兼容
+
 - ✅ 服务端组件使用 `useServerTranslation`
 - ✅ 客户端组件使用 `useTranslation`
 - ✅ 避免水合错误
 - ✅ LanguageProvider 包裹
 
 ### 翻译功能
+
 - ✅ 命名空间支持 (5个)
 - ✅ 插值支持 (`{{variable}}`)
 - ✅ 复数支持 (扩展需要 i18next-plural)
@@ -248,32 +261,31 @@ src/middleware.ts                 # 集成 i18n 中间件
 ### 服务端组件
 
 ```tsx
-import { useServerTranslation } from '@/shared/hooks';
+import { useServerTranslation } from '@/shared/hooks'
 
 export default async function Page() {
-  const { t } = await useServerTranslation('common');
-  return <h1>{t('welcome')}</h1>;
+  const { t } = await useServerTranslation('common')
+  return <h1>{t('welcome')}</h1>
 }
 ```
 
 ### 客户端组件
 
 ```tsx
-'use client';
-import { useTranslation } from 'react-i18next';
+'use client'
+import { useTranslation } from 'react-i18next'
 
 export function ClientComponent() {
-  const { t } = useTranslation('common');
-  return <h1>{t('welcome')}</h1>;
+  const { t } = useTranslation('common')
+  return <h1>{t('welcome')}</h1>
 }
 ```
 
 ### 语言切换
 
 ```tsx
-import { LanguageSwitcher } from '@/shared/components';
-
-<LanguageSwitcher variant="buttons" />
+import { LanguageSwitcher } from '@/shared/components'
+;<LanguageSwitcher variant="buttons" />
 ```
 
 ---

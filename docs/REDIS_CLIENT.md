@@ -42,18 +42,18 @@ ENABLE_REDIS_RATE_LIMIT=true
 ### Basic Usage
 
 ```typescript
-import { getRedisClient, isRedisAvailable, redisCommand } from '@/lib/redis/client';
+import { getRedisClient, isRedisAvailable, redisCommand } from '@/lib/redis/client'
 
 // Get client instance
-const client = getRedisClient();
+const client = getRedisClient()
 
 if (client) {
-  await client.set('key', 'value');
-  const value = await client.get('key');
+  await client.set('key', 'value')
+  const value = await client.get('key')
 }
 
 // Check availability
-const available = await isRedisAvailable();
+const available = await isRedisAvailable()
 if (available) {
   // Redis is ready
 }
@@ -62,15 +62,15 @@ if (available) {
 ### With Error Handling
 
 ```typescript
-import { redisCommand } from '@/lib/redis/client';
+import { redisCommand } from '@/lib/redis/client'
 
 const value = await redisCommand(
   async () => {
-    const client = getRedisClient();
-    return await client?.get('key');
+    const client = getRedisClient()
+    return await client?.get('key')
   },
   'fallback-value' // returned on error
-);
+)
 ```
 
 ## Integration with Rate Limiting
@@ -78,27 +78,27 @@ const value = await redisCommand(
 The Redis client is used by the rate limiting system:
 
 ```typescript
-import { withRateLimit } from '@/lib/rate-limit';
+import { withRateLimit } from '@/lib/rate-limit'
 
 export const GET = withRateLimit(async (req: NextRequest) => {
   // Rate limiting uses Redis when available
-  return NextResponse.json({ data: 'Hello World' });
-});
+  return NextResponse.json({ data: 'Hello World' })
+})
 ```
 
 ## Health Checks
 
 ```typescript
-import { isRedisAvailable } from '@/lib/redis/client';
+import { isRedisAvailable } from '@/lib/redis/client'
 
 // In health endpoint
 export async function GET() {
-  const redisAvailable = await isRedisAvailable();
+  const redisAvailable = await isRedisAvailable()
 
   return NextResponse.json({
     status: 'ok',
     redis: redisAvailable ? 'connected' : 'unavailable',
-  });
+  })
 }
 ```
 
@@ -126,9 +126,9 @@ The client automatically handles shutdown:
 Or manually:
 
 ```typescript
-import { closeRedisClient } from '@/lib/redis/client';
+import { closeRedisClient } from '@/lib/redis/client'
 
-await closeRedisClient();
+await closeRedisClient()
 ```
 
 ## Fallback Behavior
@@ -145,15 +145,15 @@ When Redis is unavailable:
 Enable Redis monitoring:
 
 ```typescript
-import { isRedisAvailable } from '@/lib/redis/client';
+import { isRedisAvailable } from '@/lib/redis/client'
 
 // Periodic health check
 setInterval(async () => {
-  const available = await isRedisAvailable();
+  const available = await isRedisAvailable()
   if (!available) {
-    logger.warn('Redis unavailable');
+    logger.warn('Redis unavailable')
   }
-}, 60000); // Every minute
+}, 60000) // Every minute
 ```
 
 ## Troubleshooting

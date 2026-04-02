@@ -9,18 +9,21 @@
 ## 1. 核心模块检查
 
 ### ✅ RoomManager
+
 - **位置**: `src/features/websocket/room/room-manager.ts`
 - **状态**: 存在并正确实现
 - **功能**: 房间创建、成员管理、权限检查
 - **导出**: `export class RoomManager`
 
 ### ✅ PermissionManager
+
 - **位置**: `src/features/websocket/room/permission-manager.ts`
 - **状态**: 存在并正确实现
 - **功能**: 细粒度权限检查、角色权限管理
 - **导出**: `export class PermissionManager`
 
 ### ⚠️ MessageStore
+
 - **状态**: 不存在
 - **替代**: `MessagePersistence` 类
 - **位置**: `src/features/websocket/message/persistence.ts`
@@ -32,13 +35,14 @@
 ## 2. 模块集成检查
 
 ### ✅ WebSocketAdvancedService
+
 - **位置**: `src/features/websocket/lib/websocket-advanced.ts`
 - **状态**: 已集成所有核心模块
 - **集成内容**:
   ```typescript
-  import { RoomManager } from '../room/room-manager';
-  import { PermissionManager } from '../room/permission-manager';
-  import { MessagePersistence } from '../message/persistence';
+  import { RoomManager } from '../room/room-manager'
+  import { PermissionManager } from '../room/permission-manager'
+  import { MessagePersistence } from '../message/persistence'
   ```
 - **单例导出**: `export const websocketAdvancedService`
 
@@ -69,15 +73,17 @@ src/features/websocket/
 ### ⚠️ 服务器端集成不完整
 
 **发现的问题**:
+
 1. `src/lib/socket.ts` 仅初始化通知服务
 2. 未发现将 `WebSocketAdvancedService` 集成到 Socket.IO 服务器的代码
 3. 缺少服务端房间/消息事件处理
 
 **当前服务器端代码**:
+
 ```typescript
 // src/lib/socket.ts
 export function initializeSocketIO(httpServer: HTTPServer): SocketIOServer {
-  notificationService.initialize(httpServer);
+  notificationService.initialize(httpServer)
   // ... 仅通知服务
 }
 ```
@@ -87,20 +93,22 @@ export function initializeSocketIO(httpServer: HTTPServer): SocketIOServer {
 ## 5. 导入测试
 
 ### ✅ 客户端模块导入
+
 ```typescript
 // 可用导入
-import { RoomManager } from '@/features/websocket/room/room-manager';
-import { PermissionManager } from '@/features/websocket/room/permission-manager';
-import { MessagePersistence } from '@/features/websocket/message/persistence';
-import { websocketAdvancedService } from '@/features/websocket/lib/websocket-advanced';
+import { RoomManager } from '@/features/websocket/room/room-manager'
+import { PermissionManager } from '@/features/websocket/room/permission-manager'
+import { MessagePersistence } from '@/features/websocket/message/persistence'
+import { websocketAdvancedService } from '@/features/websocket/lib/websocket-advanced'
 ```
 
 ### ⚠️ 索引导出不完整
+
 ```typescript
 // src/features/websocket/index.ts 未导出核心类
-export * from './components';
-export { useWebSocketStatus } from './hooks/useWebSocketStatus';
-export * from './types';
+export * from './components'
+export { useWebSocketStatus } from './hooks/useWebSocketStatus'
+export * from './types'
 // 缺少: RoomManager, PermissionManager, MessagePersistence 导出
 ```
 
@@ -116,27 +124,28 @@ export * from './types';
 
 ## 7. 测试结果总结
 
-| 检查项 | 状态 | 说明 |
-|--------|------|------|
-| RoomManager 存在 | ✅ | 完整实现 |
-| PermissionManager 存在 | ✅ | 完整实现 |
-| MessageStore 存在 | ⚠️ | 使用 MessagePersistence 替代 |
-| 模块正确导出 | ✅ | 各文件正确导出 |
-| 集成服务存在 | ✅ | WebSocketAdvancedService |
-| 服务器端集成 | ⚠️ | 仅通知服务，缺少房间/消息集成 |
-| 索引导出完整 | ⚠️ | 主索引未导出核心类 |
+| 检查项                 | 状态 | 说明                          |
+| ---------------------- | ---- | ----------------------------- |
+| RoomManager 存在       | ✅   | 完整实现                      |
+| PermissionManager 存在 | ✅   | 完整实现                      |
+| MessageStore 存在      | ⚠️   | 使用 MessagePersistence 替代  |
+| 模块正确导出           | ✅   | 各文件正确导出                |
+| 集成服务存在           | ✅   | WebSocketAdvancedService      |
+| 服务器端集成           | ⚠️   | 仅通知服务，缺少房间/消息集成 |
+| 索引导出完整           | ⚠️   | 主索引未导出核心类            |
 
 ---
 
 ## 8. 建议修复
 
 1. **更新主索引文件**:
+
    ```typescript
    // src/features/websocket/index.ts
-   export { RoomManager } from './room/room-manager';
-   export { PermissionManager } from './room/permission-manager';
-   export { MessagePersistence } from './message/persistence';
-   export { WebSocketAdvancedService, websocketAdvancedService } from './lib/websocket-advanced';
+   export { RoomManager } from './room/room-manager'
+   export { PermissionManager } from './room/permission-manager'
+   export { MessagePersistence } from './message/persistence'
+   export { WebSocketAdvancedService, websocketAdvancedService } from './lib/websocket-advanced'
    ```
 
 2. **增强服务器端集成**:
@@ -157,4 +166,4 @@ export * from './types';
 
 ---
 
-*测试完成于 2026-03-29 12:51 UTC+2*
+_测试完成于 2026-03-29 12:51 UTC+2_

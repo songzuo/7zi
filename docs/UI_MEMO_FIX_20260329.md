@@ -9,6 +9,7 @@
 ## 📋 任务背景
 
 之前的 UI 审核发现以下组件存在 'use memo' 注释但未实际使用 `React.memo()` 的问题：
+
 - Button.tsx - 伪 memo 指令
 - Input.tsx - 内部组件每次渲染重建
 - TaskCard.tsx - 组件和 TaskList 未 memo 化
@@ -19,9 +20,11 @@
 ## 🔧 修复详情
 
 ### 1. Button.tsx
+
 **文件路径**: `src/components/ui/Button.tsx`
 
 **修改内容**:
+
 - 将 `Button` 组件改为 `ButtonBase` 基础实现
 - 使用 `React.memo()` 包装导出: `export const Button = React.memo(ButtonBase)`
 - 将 `IconButton` 组件改为 `IconButtonBase` 基础实现
@@ -30,6 +33,7 @@
 - 使用 `React.memo()` 包装导出: `export const ButtonGroup = React.memo(ButtonGroupBase)`
 
 **代码示例**:
+
 ```typescript
 // 修复前
 export const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(...);
@@ -44,9 +48,11 @@ Button.displayName = 'Button';
 ---
 
 ### 2. Input.tsx
+
 **文件路径**: `src/components/ui/Input.tsx`
 
 **修改内容**:
+
 - ✅ `ValidationIcon` 已正确使用 `memo()` - 保持不变
 - ✅ `PasswordToggle` 已正确使用 `memo()` - 保持不变
 - 将 `Input` 组件改为 `InputBase` 基础实现
@@ -56,6 +62,7 @@ Button.displayName = 'Button';
 - 清理了 merge conflict 标记
 
 **代码示例**:
+
 ```typescript
 // 修复前
 export const Input = forwardRef<HTMLInputElement, InputProps>(...);
@@ -70,9 +77,11 @@ Input.displayName = 'Input';
 ---
 
 ### 3. TaskCard.tsx
+
 **文件路径**: `src/components/ui/TaskCard.tsx`
 
 **修改内容**:
+
 - 将 `TaskCard` 函数改为 `TaskCardBase` 基础实现
 - 使用 `React.memo()` 包装导出: `export const TaskCard = React.memo(TaskCardBase)`
 - 将 `TaskList` 函数改为 `TaskListBase` 基础实现
@@ -80,6 +89,7 @@ Input.displayName = 'Input';
 - ✅ `TaskStatusToggle` 已正确使用 `memo()` - 保持不变
 
 **代码示例**:
+
 ```typescript
 // 修复前
 export function TaskCard({ task, loading, onEdit, onDelete, onStatusChange }: TaskCardProps) { ... }
@@ -100,7 +110,9 @@ TaskList.displayName = 'TaskList';
 ## ✅ 验证结果
 
 ### TypeScript 编译检查
+
 运行 `npx tsc --noEmit` 检查三个修改的文件：
+
 - ✅ **Button.tsx** - 无编译错误
 - ✅ **Input.tsx** - 无编译错误
 - ✅ **TaskCard.tsx** - 无编译错误
@@ -113,32 +125,32 @@ TaskList.displayName = 'TaskList';
 
 ### 修复前后对比
 
-| 组件 | 修复前 | 修复后 |
-|------|--------|--------|
-| Button | ❌ 未使用 memo | ✅ 使用 React.memo() |
-| IconButton | ❌ 未使用 memo | ✅ 使用 React.memo() |
-| ButtonGroup | ❌ 未使用 memo | ✅ 使用 React.memo() |
-| Input | ❌ 未使用 memo | ✅ 使用 React.memo() |
-| Textarea | ❌ 未使用 memo | ✅ 使用 React.memo() |
-| TaskCard | ❌ 未使用 memo | ✅ 使用 React.memo() |
-| TaskList | ❌ 未使用 memo | ✅ 使用 React.memo() |
-| ValidationIcon | ✅ 已正确实现 | ✅ 保持不变 |
-| PasswordToggle | ✅ 已正确实现 | ✅ 保持不变 |
-| TaskStatusToggle | ✅ 已正确实现 | ✅ 保持不变 |
-| Skeleton | ✅ 已正确实现 | ✅ 保持不变 |
+| 组件             | 修复前         | 修复后               |
+| ---------------- | -------------- | -------------------- |
+| Button           | ❌ 未使用 memo | ✅ 使用 React.memo() |
+| IconButton       | ❌ 未使用 memo | ✅ 使用 React.memo() |
+| ButtonGroup      | ❌ 未使用 memo | ✅ 使用 React.memo() |
+| Input            | ❌ 未使用 memo | ✅ 使用 React.memo() |
+| Textarea         | ❌ 未使用 memo | ✅ 使用 React.memo() |
+| TaskCard         | ❌ 未使用 memo | ✅ 使用 React.memo() |
+| TaskList         | ❌ 未使用 memo | ✅ 使用 React.memo() |
+| ValidationIcon   | ✅ 已正确实现  | ✅ 保持不变          |
+| PasswordToggle   | ✅ 已正确实现  | ✅ 保持不变          |
+| TaskStatusToggle | ✅ 已正确实现  | ✅ 保持不变          |
+| Skeleton         | ✅ 已正确实现  | ✅ 保持不变          |
 
 ---
 
 ## 🎯 约束检查
 
-| 约束 | 状态 |
-|------|------|
-| 保持现有 props 接口不变 | ✅ |
-| 保持现有样式不变 | ✅ |
-| 使用 React.memo() 而非 useMemo | ✅ |
-| 导出格式正确 | ✅ |
-| 所有修改后组件功能正常 | ✅ |
-| Input 内部组件已提取 | ✅（ValidationIcon 和 PasswordToggle 本身就是外部组件） |
+| 约束                           | 状态                                                    |
+| ------------------------------ | ------------------------------------------------------- |
+| 保持现有 props 接口不变        | ✅                                                      |
+| 保持现有样式不变               | ✅                                                      |
+| 使用 React.memo() 而非 useMemo | ✅                                                      |
+| 导出格式正确                   | ✅                                                      |
+| 所有修改后组件功能正常         | ✅                                                      |
+| Input 内部组件已提取           | ✅（ValidationIcon 和 PasswordToggle 本身就是外部组件） |
 
 ---
 
@@ -163,6 +175,7 @@ Component.displayName = 'ComponentName';
 ```
 
 这种模式确保：
+
 - 组件正确暴露为具名组件
 - DevTools 中显示正确的组件名称
 - React.memo 正确记忆组件渲染

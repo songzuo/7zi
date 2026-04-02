@@ -1,7 +1,18 @@
 'use client'
 
 import { useState } from 'react'
-import { Check, X, Mail, ArrowRight, Star, Zap, Shield, Users, Headphones, Globe } from 'lucide-react'
+import {
+  Check,
+  X,
+  Mail,
+  ArrowRight,
+  Star,
+  Zap,
+  Shield,
+  Users,
+  Headphones,
+  Globe,
+} from 'lucide-react'
 import { Navigation } from '@/components/ui/Navigation'
 
 type PricingTier = 'free' | 'pro' | 'enterprise'
@@ -91,27 +102,28 @@ const zhTranslations: Translations = {
   billing: {
     monthly: '按月付费',
     yearly: '按年付费',
-    save: '节省 20%'
+    save: '节省 20%',
   },
   tiers: {
     free: {
       name: '免费版',
       description: '适合个人用户和轻度使用',
       price: '¥0',
-      cta: '开始使用'
+      cta: '开始使用',
     },
     pro: {
       name: '专业版',
       description: '适合小型团队和专业人士',
       price: '¥99',
-      popular: '最受欢迎'
+      popular: '最受欢迎',
+      cta: '立即升级',
     },
     enterprise: {
       name: '企业版',
       description: '适合大型组织和复杂需求',
       price: '¥399',
-      cta: '联系销售'
-    }
+      cta: '联系销售',
+    },
   },
   features: {
     basic: '基础功能',
@@ -125,11 +137,11 @@ const zhTranslations: Translations = {
     apiCalls: 'API 调用',
     customDomain: '自定义域名',
     analytics: '数据分析',
-    priority: '优先支持'
+    priority: '优先支持',
   },
   comparison: {
     title: '功能对比',
-    description: '详细了解各版本的功能差异'
+    description: '详细了解各版本的功能差异',
   },
   form: {
     title: '获取专业报价',
@@ -138,29 +150,29 @@ const zhTranslations: Translations = {
     submit: '提交申请',
     success: '提交成功！我们会尽快与您联系。',
     error: '提交失败，请稍后重试。',
-    privacy: '提交即表示您同意我们的隐私政策'
+    privacy: '提交即表示您同意我们的隐私政策',
   },
   faq: {
     title: '常见问题',
     items: [
       {
         question: '免费版可以商用吗？',
-        answer: '可以。免费版包含所有基础功能，适合个人和小团队使用。'
+        answer: '可以。免费版包含所有基础功能，适合个人和小团队使用。',
       },
       {
         question: '可以随时升级或降级吗？',
-        answer: '可以。您可以随时在账户设置中更改您的订阅计划。'
+        answer: '可以。您可以随时在账户设置中更改您的订阅计划。',
       },
       {
         question: '支持退款吗？',
-        answer: '我们提供 30 天无理由退款保证，让您放心使用。'
+        answer: '我们提供 30 天无理由退款保证，让您放心使用。',
       },
       {
         question: '企业版包含哪些服务？',
-        answer: '企业版包含专属客户经理、定制化功能、SLA 保证以及优先技术支持。'
-      }
-    ]
-  }
+        answer: '企业版包含专属客户经理、定制化功能、SLA 保证以及优先技术支持。',
+      },
+    ],
+  },
 }
 
 const enTranslations: Translations = {
@@ -169,27 +181,28 @@ const enTranslations: Translations = {
   billing: {
     monthly: 'Monthly',
     yearly: 'Yearly',
-    save: 'Save 20%'
+    save: 'Save 20%',
   },
   tiers: {
     free: {
       name: 'Free',
       description: 'Perfect for individuals and casual use',
       price: '$0',
-      cta: 'Get Started'
+      cta: 'Get Started',
     },
     pro: {
       name: 'Pro',
       description: 'Best for small teams and professionals',
       price: '$99',
-      popular: 'Most Popular'
+      popular: 'Most Popular',
+      cta: 'Upgrade Now',
     },
     enterprise: {
       name: 'Enterprise',
       description: 'Ideal for large organizations',
       price: '$399',
-      cta: 'Contact Sales'
-    }
+      cta: 'Contact Sales',
+    },
   },
   features: {
     basic: 'Basic Features',
@@ -203,11 +216,11 @@ const enTranslations: Translations = {
     apiCalls: 'API Calls',
     customDomain: 'Custom Domain',
     analytics: 'Analytics',
-    priority: 'Priority Support'
+    priority: 'Priority Support',
   },
   comparison: {
     title: 'Feature Comparison',
-    description: 'Compare all features across different plans'
+    description: 'Compare all features across different plans',
   },
   form: {
     title: 'Get Custom Quote',
@@ -216,29 +229,31 @@ const enTranslations: Translations = {
     submit: 'Submit Request',
     success: 'Success! We will contact you soon.',
     error: 'Submission failed, please try again later.',
-    privacy: 'By submitting, you agree to our Privacy Policy'
+    privacy: 'By submitting, you agree to our Privacy Policy',
   },
   faq: {
     title: 'Frequently Asked Questions',
     items: [
       {
         question: 'Can I use the free plan for commercial purposes?',
-        answer: 'Yes. The free plan includes all basic features and is suitable for individuals and small teams.'
+        answer:
+          'Yes. The free plan includes all basic features and is suitable for individuals and small teams.',
       },
       {
         question: 'Can I upgrade or downgrade anytime?',
-        answer: 'Yes. You can change your subscription plan anytime in your account settings.'
+        answer: 'Yes. You can change your subscription plan anytime in your account settings.',
       },
       {
         question: 'Do you offer refunds?',
-        answer: 'We offer a 30-day no-questions-asked refund policy.'
+        answer: 'We offer a 30-day no-questions-asked refund policy.',
       },
       {
         question: 'What services are included in the Enterprise plan?',
-        answer: 'The Enterprise plan includes a dedicated account manager, customized features, SLA guarantee, and priority technical support.'
-      }
-    ]
-  }
+        answer:
+          'The Enterprise plan includes a dedicated account manager, customized features, SLA guarantee, and priority technical support.',
+      },
+    ],
+  },
 }
 
 const featuresData: PricingFeatures = {
@@ -253,7 +268,7 @@ const featuresData: PricingFeatures = {
   apiCalls: { free: '1,000/月', pro: '100,000/月', enterprise: '无限' },
   customDomain: { free: false, pro: true, enterprise: true },
   analytics: { free: '基础', pro: '高级', enterprise: '定制' },
-  priority: { free: false, pro: true, enterprise: true }
+  priority: { free: false, pro: true, enterprise: true },
 }
 
 export default function PricingPage() {
@@ -287,28 +302,27 @@ export default function PricingPage() {
 
     return (
       <div
-        className={`
-          relative rounded-2xl p-8 transition-all duration-300
-          ${isPopular ? 'bg-gradient-to-b from-blue-500 to-blue-600 text-white shadow-xl scale-105' : 'bg-white dark:bg-gray-800 shadow-lg hover:shadow-xl'}
-        `}
+        className={`relative rounded-2xl p-8 transition-all duration-300 ${isPopular ? 'scale-105 bg-gradient-to-b from-blue-500 to-blue-600 text-white shadow-xl' : 'bg-white shadow-lg hover:shadow-xl dark:bg-gray-800'} `}
       >
-        {isPopular && (
-          <div className="absolute -top-4 left-1/2 transform -translate-x-1/2">
-            <span className="bg-yellow-400 text-yellow-900 px-4 py-1 rounded-full text-sm font-semibold flex items-center gap-1">
-              <Star className="w-4 h-4" />
+        {isPopular && 'popular' in tierData && (
+          <div className="absolute -top-4 left-1/2 -translate-x-1/2 transform">
+            <span className="flex items-center gap-1 rounded-full bg-yellow-400 px-4 py-1 text-sm font-semibold text-yellow-900">
+              <Star className="h-4 w-4" />
               {tierData.popular}
             </span>
           </div>
         )}
 
-        <div className="text-center mb-6">
-          <h3 className="text-2xl font-bold mb-2">{tierData.name}</h3>
-          <p className={`text-sm ${isPopular ? 'text-blue-100' : 'text-gray-600 dark:text-gray-400'}`}>
+        <div className="mb-6 text-center">
+          <h3 className="mb-2 text-2xl font-bold">{tierData.name}</h3>
+          <p
+            className={`text-sm ${isPopular ? 'text-blue-100' : 'text-gray-600 dark:text-gray-400'}`}
+          >
             {tierData.description}
           </p>
         </div>
 
-        <div className="text-center mb-6">
+        <div className="mb-6 text-center">
           <div className="flex items-baseline justify-center gap-1">
             <span className="text-4xl font-bold">{tierData.price}</span>
             {!isEnterprise && (
@@ -318,21 +332,19 @@ export default function PricingPage() {
             )}
           </div>
           {isYearly && !isFree && !isEnterprise && (
-            <p className="text-sm text-green-400 mt-2">{t.billing.save}</p>
+            <p className="mt-2 text-sm text-green-400">{t.billing.save}</p>
           )}
         </div>
 
         <button
-          className={`
-            w-full py-3 px-6 rounded-lg font-semibold transition-all duration-200
-            ${isPopular
+          className={`w-full rounded-lg px-6 py-3 font-semibold transition-all duration-200 ${
+            isPopular
               ? 'bg-white text-blue-600 hover:bg-blue-50'
               : 'bg-blue-600 text-white hover:bg-blue-700'
-            }
-          `}
+          } `}
         >
           {tierData.cta}
-          {!isEnterprise && <ArrowRight className="inline w-4 h-4 ml-2" />}
+          {!isEnterprise && <ArrowRight className="ml-2 inline h-4 w-4" />}
         </button>
 
         <ul className="mt-8 space-y-4">
@@ -344,14 +356,16 @@ export default function PricingPage() {
             return (
               <li key={feature} className="flex items-start gap-3">
                 {hasFeature ? (
-                  <Check className="w-5 h-5 flex-shrink-0 mt-0.5 text-green-500" />
+                  <Check className="mt-0.5 h-5 w-5 flex-shrink-0 text-green-500" />
                 ) : (
-                  <X className="w-5 h-5 flex-shrink-0 mt-0.5 text-gray-400" />
+                  <X className="mt-0.5 h-5 w-5 flex-shrink-0 text-gray-400" />
                 )}
                 <span className={isPopular ? '' : 'text-gray-700 dark:text-gray-300'}>
                   {featureLabel}
                   {typeof value === 'string' && value !== '社区支持' && (
-                    <span className={`ml-2 text-sm ${isPopular ? 'text-blue-100' : 'text-gray-500'}`}>
+                    <span
+                      className={`ml-2 text-sm ${isPopular ? 'text-blue-100' : 'text-gray-500'}`}
+                    >
                       ({value})
                     </span>
                   )}
@@ -371,37 +385,43 @@ export default function PricingPage() {
 
       {/* Hero Section */}
       <section className="container mx-auto px-4 py-16 text-center">
-        <h2 className="text-4xl md:text-5xl font-bold mb-4 text-gray-900 dark:text-white">
+        <h2 className="mb-4 text-4xl font-bold text-gray-900 md:text-5xl dark:text-white">
           {t.title}
         </h2>
-        <p className="text-xl text-gray-600 dark:text-gray-400 mb-8">
-          {t.subtitle}
-        </p>
+        <p className="mb-8 text-xl text-gray-600 dark:text-gray-400">{t.subtitle}</p>
 
         {/* Billing Toggle */}
-        <div className="flex items-center justify-center gap-4 mb-12">
-          <span className={!isYearly ? 'text-blue-600 font-semibold' : 'text-gray-600 dark:text-gray-400'}>
+        <div className="mb-12 flex items-center justify-center gap-4">
+          <span
+            className={
+              !isYearly ? 'font-semibold text-blue-600' : 'text-gray-600 dark:text-gray-400'
+            }
+          >
             {t.billing.monthly}
           </span>
           <button
             onClick={() => setIsYearly(!isYearly)}
-            className={`relative w-16 h-8 rounded-full transition-colors ${
+            className={`relative h-8 w-16 rounded-full transition-colors ${
               isYearly ? 'bg-blue-600' : 'bg-gray-300 dark:bg-gray-600'
             }`}
           >
             <div
-              className={`absolute top-1 w-6 h-6 bg-white rounded-full transition-all ${
+              className={`absolute top-1 h-6 w-6 rounded-full bg-white transition-all ${
                 isYearly ? 'left-9' : 'left-1'
               }`}
             />
           </button>
-          <span className={isYearly ? 'text-blue-600 font-semibold' : 'text-gray-600 dark:text-gray-400'}>
+          <span
+            className={
+              isYearly ? 'font-semibold text-blue-600' : 'text-gray-600 dark:text-gray-400'
+            }
+          >
             {t.billing.yearly}
           </span>
         </div>
 
         {/* Pricing Cards */}
-        <div className="grid md:grid-cols-3 gap-8 max-w-6xl mx-auto">
+        <div className="mx-auto grid max-w-6xl gap-8 md:grid-cols-3">
           <PricingCard tier="free" isYearly={isYearly} />
           <PricingCard tier="pro" isYearly={isYearly} isPopular />
           <PricingCard tier="enterprise" isYearly={isYearly} />
@@ -410,15 +430,15 @@ export default function PricingPage() {
 
       {/* Feature Comparison */}
       <section className="container mx-auto px-4 py-16">
-        <div className="max-w-6xl mx-auto">
-          <h3 className="text-3xl font-bold text-center mb-4 text-gray-900 dark:text-white">
+        <div className="mx-auto max-w-6xl">
+          <h3 className="mb-4 text-center text-3xl font-bold text-gray-900 dark:text-white">
             {t.comparison.title}
           </h3>
-          <p className="text-center text-gray-600 dark:text-gray-400 mb-12">
+          <p className="mb-12 text-center text-gray-600 dark:text-gray-400">
             {t.comparison.description}
           </p>
 
-          <div className="bg-white dark:bg-gray-800 rounded-xl shadow-lg overflow-hidden">
+          <div className="overflow-hidden rounded-xl bg-white shadow-lg dark:bg-gray-800">
             <table className="w-full">
               <thead>
                 <tr className="bg-gray-50 dark:bg-gray-700">
@@ -440,24 +460,30 @@ export default function PricingPage() {
                 {Object.entries(featuresData).map(([feature, values]) => {
                   const featureLabel = t.features[feature as keyof typeof t.features]
                   return (
-                    <tr key={feature} className="hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors">
+                    <tr
+                      key={feature}
+                      className="transition-colors hover:bg-gray-50 dark:hover:bg-gray-700"
+                    >
                       <td className="px-6 py-4 text-sm text-gray-900 dark:text-white">
                         {featureLabel}
                       </td>
-                      {(['free', 'pro', 'enterprise'] as const).map((tier) => {
+                      {(['free', 'pro', 'enterprise'] as const).map(tier => {
                         const value = values[tier]
-                        const hasFeature = value === true || (typeof value === 'string' && value !== '社区支持')
+                        const hasFeature =
+                          value === true || (typeof value === 'string' && value !== '社区支持')
                         return (
                           <td key={tier} className="px-6 py-4 text-center">
                             {hasFeature ? (
                               <span className="flex items-center justify-center gap-2">
-                                <Check className="w-5 h-5 text-green-500" />
+                                <Check className="h-5 w-5 text-green-500" />
                                 {typeof value === 'string' && value !== '社区支持' && (
-                                  <span className="text-sm text-gray-600 dark:text-gray-400">{value}</span>
+                                  <span className="text-sm text-gray-600 dark:text-gray-400">
+                                    {value}
+                                  </span>
                                 )}
                               </span>
                             ) : (
-                              <X className="w-5 h-5 text-gray-400 mx-auto" />
+                              <X className="mx-auto h-5 w-5 text-gray-400" />
                             )}
                           </td>
                         )
@@ -473,10 +499,10 @@ export default function PricingPage() {
 
       {/* Email Collection Form */}
       <section className="container mx-auto px-4 py-16">
-        <div className="max-w-2xl mx-auto bg-gradient-to-r from-blue-600 to-blue-700 rounded-2xl p-8 shadow-xl text-white">
-          <div className="text-center mb-8">
-            <Mail className="w-12 h-12 mx-auto mb-4 opacity-90" />
-            <h3 className="text-3xl font-bold mb-2">{t.form.title}</h3>
+        <div className="mx-auto max-w-2xl rounded-2xl bg-gradient-to-r from-blue-600 to-blue-700 p-8 text-white shadow-xl">
+          <div className="mb-8 text-center">
+            <Mail className="mx-auto mb-4 h-12 w-12 opacity-90" />
+            <h3 className="mb-2 text-3xl font-bold">{t.form.title}</h3>
             <p className="text-blue-100">{t.form.subtitle}</p>
           </div>
 
@@ -485,43 +511,39 @@ export default function PricingPage() {
               <input
                 type="email"
                 value={email}
-                onChange={(e) => setEmail(e.target.value)}
+                onChange={e => setEmail(e.target.value)}
                 placeholder={t.form.email}
-                className="w-full px-4 py-3 rounded-lg text-gray-900 placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-white"
+                className="w-full rounded-lg px-4 py-3 text-gray-900 placeholder-gray-500 focus:ring-2 focus:ring-white focus:outline-none"
                 required
               />
             </div>
 
             <button
               type="submit"
-              className="w-full bg-white text-blue-600 py-3 px-6 rounded-lg font-semibold hover:bg-blue-50 transition-colors"
+              className="w-full rounded-lg bg-white px-6 py-3 font-semibold text-blue-600 transition-colors hover:bg-blue-50"
             >
               {t.form.submit}
             </button>
 
             {submitStatus === 'success' && (
-              <div className="bg-green-500 text-white p-3 rounded-lg text-center">
+              <div className="rounded-lg bg-green-500 p-3 text-center text-white">
                 {t.form.success}
               </div>
             )}
 
             {submitStatus === 'error' && (
-              <div className="bg-red-500 text-white p-3 rounded-lg text-center">
-                {t.form.error}
-              </div>
+              <div className="rounded-lg bg-red-500 p-3 text-center text-white">{t.form.error}</div>
             )}
 
-            <p className="text-sm text-blue-100 text-center">
-              {t.form.privacy}
-            </p>
+            <p className="text-center text-sm text-blue-100">{t.form.privacy}</p>
           </form>
         </div>
       </section>
 
       {/* FAQ Section */}
       <section className="container mx-auto px-4 py-16">
-        <div className="max-w-3xl mx-auto">
-          <h3 className="text-3xl font-bold text-center mb-12 text-gray-900 dark:text-white">
+        <div className="mx-auto max-w-3xl">
+          <h3 className="mb-12 text-center text-3xl font-bold text-gray-900 dark:text-white">
             {t.faq.title}
           </h3>
 
@@ -529,26 +551,24 @@ export default function PricingPage() {
             {t.faq.items.map((item, index) => (
               <div
                 key={index}
-                className="bg-white dark:bg-gray-800 rounded-lg shadow-md overflow-hidden"
+                className="overflow-hidden rounded-lg bg-white shadow-md dark:bg-gray-800"
               >
                 <button
                   onClick={() => setExpandedFaq(expandedFaq === index ? null : index)}
-                  className="w-full px-6 py-4 text-left flex items-center justify-between hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors"
+                  className="flex w-full items-center justify-between px-6 py-4 text-left transition-colors hover:bg-gray-50 dark:hover:bg-gray-700"
                 >
                   <span className="font-semibold text-gray-900 dark:text-white">
                     {item.question}
                   </span>
                   <ChevronDown
-                    className={`w-5 h-5 text-gray-500 transition-transform ${
+                    className={`h-5 w-5 text-gray-500 transition-transform ${
                       expandedFaq === index ? 'rotate-180' : ''
                     }`}
                   />
                 </button>
 
                 {expandedFaq === index && (
-                  <div className="px-6 pb-4 text-gray-600 dark:text-gray-400">
-                    {item.answer}
-                  </div>
+                  <div className="px-6 pb-4 text-gray-600 dark:text-gray-400">{item.answer}</div>
                 )}
               </div>
             ))}
@@ -558,38 +578,47 @@ export default function PricingPage() {
 
       {/* CTA Section */}
       <section className="container mx-auto px-4 py-16">
-        <div className="max-w-4xl mx-auto bg-gradient-to-r from-blue-600 to-purple-600 rounded-2xl p-12 shadow-xl text-white text-center">
-          <Zap className="w-16 h-16 mx-auto mb-6 opacity-90" />
-          <h3 className="text-3xl font-bold mb-4">
+        <div className="mx-auto max-w-4xl rounded-2xl bg-gradient-to-r from-blue-600 to-purple-600 p-12 text-center text-white shadow-xl">
+          <Zap className="mx-auto mb-6 h-16 w-16 opacity-90" />
+          <h3 className="mb-4 text-3xl font-bold">
             {language === 'zh' ? '准备好开始了吗？' : 'Ready to get started?'}
           </h3>
-          <p className="text-xl mb-8 opacity-90">
+          <p className="mb-8 text-xl opacity-90">
             {language === 'zh'
               ? '加入数千名用户，体验 7zi 的强大功能'
               : 'Join thousands of users and experience the power of 7zi'}
           </p>
-          <button className="bg-white text-blue-600 px-8 py-4 rounded-lg font-semibold text-lg hover:bg-blue-50 transition-colors inline-flex items-center gap-2">
+          <button className="inline-flex items-center gap-2 rounded-lg bg-white px-8 py-4 text-lg font-semibold text-blue-600 transition-colors hover:bg-blue-50">
             {t.tiers.free.cta}
-            <ArrowRight className="w-5 h-5" />
+            <ArrowRight className="h-5 w-5" />
           </button>
         </div>
       </section>
 
       {/* Footer */}
-      <footer className="bg-white dark:bg-gray-800 border-t border-gray-200 dark:border-gray-700">
+      <footer className="border-t border-gray-200 bg-white dark:border-gray-700 dark:bg-gray-800">
         <div className="container mx-auto px-4 py-8">
-          <div className="flex flex-col md:flex-row items-center justify-between gap-4">
+          <div className="flex flex-col items-center justify-between gap-4 md:flex-row">
             <div className="flex items-center gap-6">
               <span className="text-2xl font-bold text-blue-600">7zi</span>
               <div className="flex gap-4">
-                <a href="#" className="text-gray-600 dark:text-gray-400 hover:text-blue-600 transition-colors">
-                  <Users className="w-5 h-5" />
+                <a
+                  href="#"
+                  className="text-gray-600 transition-colors hover:text-blue-600 dark:text-gray-400"
+                >
+                  <Users className="h-5 w-5" />
                 </a>
-                <a href="#" className="text-gray-600 dark:text-gray-400 hover:text-blue-600 transition-colors">
-                  <Shield className="w-5 h-5" />
+                <a
+                  href="#"
+                  className="text-gray-600 transition-colors hover:text-blue-600 dark:text-gray-400"
+                >
+                  <Shield className="h-5 w-5" />
                 </a>
-                <a href="#" className="text-gray-600 dark:text-gray-400 hover:text-blue-600 transition-colors">
-                  <Globe className="w-5 h-5" />
+                <a
+                  href="#"
+                  className="text-gray-600 transition-colors hover:text-blue-600 dark:text-gray-400"
+                >
+                  <Globe className="h-5 w-5" />
                 </a>
               </div>
             </div>
@@ -606,18 +635,8 @@ export default function PricingPage() {
 // ChevronDown component for FAQ
 function ChevronDown({ className }: { className?: string }) {
   return (
-    <svg
-      className={className}
-      fill="none"
-      viewBox="0 0 24 24"
-      stroke="currentColor"
-    >
-      <path
-        strokeLinecap="round"
-        strokeLinejoin="round"
-        strokeWidth={2}
-        d="M19 9l-7 7-7-7"
-      />
+    <svg className={className} fill="none" viewBox="0 0 24 24" stroke="currentColor">
+      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
     </svg>
   )
 }

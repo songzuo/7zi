@@ -13,24 +13,24 @@
  * - Dark/light mode support
  */
 
-'use client';
+'use client'
 
-import { useMemo } from 'react';
-import { RoomStatusIndicator } from './RoomStatusIndicator';
-import type { Room } from '@/types/rooms';
-import clsx from 'clsx';
+import { useMemo } from 'react'
+import { RoomStatusIndicator } from './RoomStatusIndicator'
+import type { Room } from '@/types/rooms'
+import clsx from 'clsx'
 
 export interface RoomCardProps {
   /** Room data */
-  room: Room;
+  room: Room
   /** Click handler */
-  onClick?: (room: Room) => void;
+  onClick?: (room: Room) => void
   /** Is current room (highlight) */
-  isActive?: boolean;
+  isActive?: boolean
   /** Show detailed info */
-  showDetails?: boolean;
+  showDetails?: boolean
   /** Additional CSS classes */
-  className?: string;
+  className?: string
 }
 
 /**
@@ -47,63 +47,58 @@ export function RoomCard({
    * Calculate online percentage
    */
   const onlinePercentage = useMemo(() => {
-    if (room.memberCount === 0) return 0;
-    return Math.round((room.onlineCount / room.memberCount) * 100);
-  }, [room.onlineCount, room.memberCount]);
+    if (room.memberCount === 0) return 0
+    return Math.round((room.onlineCount / room.memberCount) * 100)
+  }, [room.onlineCount, room.memberCount])
 
   /**
    * Format last activity time
    */
   const formatLastActivity = useMemo(() => {
-    const now = Date.now();
-    const diff = now - room.lastActivityAt;
+    const now = Date.now()
+    const diff = now - room.lastActivityAt
 
-    const minutes = Math.floor(diff / 60000);
-    const hours = Math.floor(diff / 3600000);
-    const days = Math.floor(diff / 86400000);
+    const minutes = Math.floor(diff / 60000)
+    const hours = Math.floor(diff / 3600000)
+    const days = Math.floor(diff / 86400000)
 
-    if (days > 0) return `${days}天前`;
-    if (hours > 0) return `${hours}小时前`;
-    if (minutes > 0) return `${minutes}分钟前`;
-    return '刚刚';
-  }, [room.lastActivityAt]);
+    if (days > 0) return `${days}天前`
+    if (hours > 0) return `${hours}小时前`
+    if (minutes > 0) return `${minutes}分钟前`
+    return '刚刚'
+  }, [room.lastActivityAt])
 
   /**
    * Get room type icon
    */
   const roomTypeIcon = useMemo(() => {
-    if (room.password) return '🔒';
-    return '🏠';
-  }, [room.password]);
+    return '🏠'
+  }, [])
 
   return (
     <button
       onClick={() => onClick?.(room)}
       className={clsx(
-        'w-full text-left p-4 rounded-lg border transition-all hover:shadow-md',
+        'w-full rounded-lg border p-4 text-left transition-all hover:shadow-md',
         isActive
-          ? 'border-blue-500 bg-blue-50 dark:bg-blue-900/20 ring-2 ring-blue-500'
-          : 'border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 hover:border-gray-300 dark:hover:border-gray-600',
+          ? 'border-blue-500 bg-blue-50 ring-2 ring-blue-500 dark:bg-blue-900/20'
+          : 'border-gray-200 bg-white hover:border-gray-300 dark:border-gray-700 dark:bg-gray-800 dark:hover:border-gray-600',
         className
       )}
       type="button"
     >
       {/* Header */}
-      <div className="flex items-start justify-between mb-2">
-        <div className="flex-1 min-w-0">
+      <div className="mb-2 flex items-start justify-between">
+        <div className="min-w-0 flex-1">
           {/* Room Name */}
-          <div className="flex items-center gap-2 mb-1">
+          <div className="mb-1 flex items-center gap-2">
             <span className="text-lg">{roomTypeIcon}</span>
-            <h3 className="font-semibold text-gray-900 dark:text-gray-100 truncate">
-              {room.name}
-            </h3>
+            <h3 className="truncate font-semibold text-gray-900 dark:text-gray-100">{room.name}</h3>
           </div>
 
           {/* Description */}
           {room.description && (
-            <p className="text-sm text-gray-600 dark:text-gray-400 truncate">
-              {room.description}
-            </p>
+            <p className="truncate text-sm text-gray-600 dark:text-gray-400">{room.description}</p>
           )}
         </div>
 
@@ -119,12 +114,12 @@ export function RoomCard({
 
       {/* Details Row */}
       {showDetails && (
-        <div className="flex items-center justify-between text-xs text-gray-500 dark:text-gray-400 pt-2 border-t border-gray-100 dark:border-gray-700">
+        <div className="flex items-center justify-between border-t border-gray-100 pt-2 text-xs text-gray-500 dark:border-gray-700 dark:text-gray-400">
           {/* Online Percentage Bar */}
-          <div className="flex items-center gap-2 flex-1">
-            <div className="w-full max-w-[100px] bg-gray-200 dark:bg-gray-700 rounded-full h-1.5">
+          <div className="flex flex-1 items-center gap-2">
+            <div className="h-1.5 w-full max-w-[100px] rounded-full bg-gray-200 dark:bg-gray-700">
               <div
-                className="bg-green-500 h-1.5 rounded-full transition-all"
+                className="h-1.5 rounded-full bg-green-500 transition-all"
                 style={{ width: `${onlinePercentage}%` }}
               />
             </div>
@@ -132,15 +127,13 @@ export function RoomCard({
           </div>
 
           {/* Last Activity */}
-          <div className="whitespace-nowrap">
-            {formatLastActivity}
-          </div>
+          <div className="whitespace-nowrap">{formatLastActivity}</div>
         </div>
       )}
 
       {/* Compact View (when showDetails is false) */}
       {!showDetails && (
-        <div className="flex items-center gap-3 text-xs text-gray-500 dark:text-gray-400 pt-2">
+        <div className="flex items-center gap-3 pt-2 text-xs text-gray-500 dark:text-gray-400">
           <div className="flex items-center gap-1">
             <span className="text-green-500">●</span>
             <span>{room.onlineCount} 在线</span>
@@ -150,7 +143,7 @@ export function RoomCard({
         </div>
       )}
     </button>
-  );
+  )
 }
 
 /**
@@ -166,33 +159,33 @@ export function CompactRoomCard({
     <button
       onClick={() => onClick?.(room)}
       className={clsx(
-        'w-full text-left px-3 py-2 rounded-md transition-colors',
+        'w-full rounded-md px-3 py-2 text-left transition-colors',
         isActive
-          ? 'bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300'
-          : 'hover:bg-gray-100 dark:hover:bg-gray-800 text-gray-700 dark:text-gray-300',
+          ? 'bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-300'
+          : 'text-gray-700 hover:bg-gray-100 dark:text-gray-300 dark:hover:bg-gray-800',
         className
       )}
       type="button"
     >
       <div className="flex items-center justify-between">
-        <div className="flex items-center gap-2 min-w-0">
+        <div className="flex min-w-0 items-center gap-2">
           {/* Room Icon */}
-          <span className="flex-shrink-0">{room.password ? '🔒' : '🏠'}</span>
+          <span className="flex-shrink-0">🏠</span>
 
           {/* Room Name */}
-          <span className="font-medium truncate">{room.name}</span>
+          <span className="truncate font-medium">{room.name}</span>
         </div>
 
         {/* Online Count */}
         {room.onlineCount > 0 && (
-          <span className="text-xs text-gray-500 dark:text-gray-400 flex-shrink-0">
+          <span className="flex-shrink-0 text-xs text-gray-500 dark:text-gray-400">
             <span className="text-green-500">●</span>
             {room.onlineCount}
           </span>
         )}
       </div>
     </button>
-  );
+  )
 }
 
-export default RoomCard;
+export default RoomCard

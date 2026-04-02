@@ -31,12 +31,12 @@ Model Context Protocol (MCP) 是一个开放协议，允许 AI 助手通过标�
 
 ### 设计目标
 
-| 目标 | 描述 |
-|------|------|
+| 目标       | 描述                         |
+| ---------- | ---------------------------- |
 | **标准化** | 完全遵循 MCP 2025-06-18 规范 |
 | **安全性** | 多层安全验证，危险操作需确认 |
-| **可扩展** | 模块化设计，易于添加新工具 |
-| **高性能** | 支持流式响应和会话复用 |
+| **可扩展** | 模块化设计，易于添加新工具   |
+| **高性能** | 支持流式响应和会话复用       |
 
 ### 项目结构
 
@@ -130,21 +130,21 @@ MCP Server 的核心类，负责：
 // 位置: app/lib/mcp/server.ts
 
 export class SevenZiMcpServer {
-  private server: McpServer;        // MCP SDK 实例
-  private config: McpServerConfig;   // 配置
-  private tools: Map<string, ToolDefinition>; // 工具注册表
+  private server: McpServer // MCP SDK 实例
+  private config: McpServerConfig // 配置
+  private tools: Map<string, ToolDefinition> // 工具注册表
 
   // 构造函数
-  constructor(config: Partial<McpServerConfig> = {});
+  constructor(config: Partial<McpServerConfig> = {})
 
   // 注册工具
-  registerTool<T extends z.ZodType>(tool: ToolDefinition<T>): void;
+  registerTool<T extends z.ZodType>(tool: ToolDefinition<T>): void
 
   // 获取工具列表
-  getTools(): ToolDefinition[];
+  getTools(): ToolDefinition[]
 
   // 启动 stdio 传输
-  async startStdio(): Promise<void>;
+  async startStdio(): Promise<void>
 }
 ```
 
@@ -152,9 +152,9 @@ export class SevenZiMcpServer {
 
 ```typescript
 interface McpServerConfig {
-  name: string;      // 服务器名称
-  version: string;   // 版本号
-  debug?: boolean;   // 调试模式
+  name: string // 服务器名称
+  version: string // 版本号
+  debug?: boolean // 调试模式
 }
 ```
 
@@ -166,20 +166,20 @@ interface McpServerConfig {
 // 位置: app/lib/mcp/tools.ts
 
 export class ToolRegistry {
-  private tools: Map<string, ExtendedToolDefinition>;
-  private categories: Map<ToolCategory, Set<string>>;
+  private tools: Map<string, ExtendedToolDefinition>
+  private categories: Map<ToolCategory, Set<string>>
 
   // 注册工具
-  register(tool: ExtendedToolDefinition): void;
+  register(tool: ExtendedToolDefinition): void
 
   // 注销工具
-  unregister(name: string): boolean;
+  unregister(name: string): boolean
 
   // 按类别获取工具
-  getByCategory(category: ToolCategory): ExtendedToolDefinition[];
+  getByCategory(category: ToolCategory): ExtendedToolDefinition[]
 
   // 获取危险工具列表
-  getDangerousTools(): ExtendedToolDefinition[];
+  getDangerousTools(): ExtendedToolDefinition[]
 }
 ```
 
@@ -187,15 +187,15 @@ export class ToolRegistry {
 
 ```typescript
 interface ExtendedToolDefinition {
-  name: string;              // 工具标识
-  title?: string;            // 显示名称
-  description: string;       // 描述
-  category: ToolCategory;    // 分类
-  tags?: string[];           // 标签
-  dangerous?: boolean;       // 危险标记
-  requiresConfirmation?: boolean; // 需确认
-  inputSchema: z.ZodType;    // 输入验证
-  handler: (params: unknown) => Promise<ToolResult>;
+  name: string // 工具标识
+  title?: string // 显示名称
+  description: string // 描述
+  category: ToolCategory // 分类
+  tags?: string[] // 标签
+  dangerous?: boolean // 危险标记
+  requiresConfirmation?: boolean // 需确认
+  inputSchema: z.ZodType // 输入验证
+  handler: (params: unknown) => Promise<ToolResult>
 }
 ```
 
@@ -207,19 +207,19 @@ interface ExtendedToolDefinition {
 // 位置: app/lib/mcp/http-transport.ts
 
 export class MCPSessionManager {
-  private sessions: Map<string, Session>;
+  private sessions: Map<string, Session>
 
   // 创建会话
-  createSession(): string;
+  createSession(): string
 
   // 获取会话
-  getSession(id: string): Session | undefined;
+  getSession(id: string): Session | undefined
 
   // 删除会话
-  deleteSession(id: string): boolean;
+  deleteSession(id: string): boolean
 
   // 清理过期会话
-  cleanupExpired(maxAgeMs: number): number;
+  cleanupExpired(maxAgeMs: number): number
 }
 ```
 
@@ -229,27 +229,27 @@ export class MCPSessionManager {
 
 ### 内置工具列表
 
-| 工具名称 | 分类 | 描述 | 危险级别 |
-|---------|------|------|---------|
-| `read_file` | file | 读取文件内容 | 🟢 安全 |
-| `write_file` | file | 写入文件 | 🟡 中等 |
-| `list_directory` | file | 列出目录内容 | 🟢 安全 |
-| `delete_file` | file | 删除文件 | 🔴 危险 |
-| `execute_command` | system | 执行 Shell 命令 | 🔴 危险 |
-| `search_files` | file | 搜索文件 | 🟢 安全 |
-| `get_system_info` | system | 获取系统信息 | 🟢 安全 |
-| `http_request` | network | 发起 HTTP 请求 | 🟡 中等 |
-| `http_get` | network | HTTP GET 请求 | 🟡 中等 |
+| 工具名称          | 分类    | 描述            | 危险级别 |
+| ----------------- | ------- | --------------- | -------- |
+| `read_file`       | file    | 读取文件内容    | 🟢 安全  |
+| `write_file`      | file    | 写入文件        | 🟡 中等  |
+| `list_directory`  | file    | 列出目录内容    | 🟢 安全  |
+| `delete_file`     | file    | 删除文件        | 🔴 危险  |
+| `execute_command` | system  | 执行 Shell 命令 | 🔴 危险  |
+| `search_files`    | file    | 搜索文件        | 🟢 安全  |
+| `get_system_info` | system  | 获取系统信息    | 🟢 安全  |
+| `http_request`    | network | 发起 HTTP 请求  | 🟡 中等  |
+| `http_get`        | network | HTTP GET 请求   | 🟡 中等  |
 
 ### 工具分类
 
 ```typescript
-type ToolCategory = 
-  | 'file'     // 文件操作
-  | 'system'   // 系统命令
-  | 'network'  // 网络请求
-  | 'data'     // 数据处理
-  | 'custom';  // 自定义工具
+type ToolCategory =
+  | 'file' // 文件操作
+  | 'system' // 系统命令
+  | 'network' // 网络请求
+  | 'data' // 数据处理
+  | 'custom' // 自定义工具
 ```
 
 ### 工具输入验证
@@ -267,8 +267,8 @@ inputSchema: z.object({
 ### 添加自定义工具
 
 ```typescript
-import { toolRegistry } from '@/lib/mcp/tools';
-import { z } from 'zod';
+import { toolRegistry } from '@/lib/mcp/tools'
+import { z } from 'zod'
 
 // 注册自定义工具
 toolRegistry.register({
@@ -281,13 +281,13 @@ toolRegistry.register({
     input: z.string().describe('输入参数'),
   }),
   handler: async (params: unknown) => {
-    const { input } = params as { input: string };
+    const { input } = params as { input: string }
     // 执行操作...
-    return { 
-      content: [{ type: 'text', text: `处理结果: ${input}` }] 
-    };
+    return {
+      content: [{ type: 'text', text: `处理结果: ${input}` }],
+    }
   },
-});
+})
 ```
 
 ### 危险操作处理
@@ -326,6 +326,7 @@ MCP_DEBUG=true npx tsx app/lib/mcp/cli.ts
 ```
 
 **特点:**
+
 - 标准输入/输出通信
 - 适合作为子进程被 AI 客户端调用
 - 无需网络配置
@@ -345,18 +346,18 @@ DELETE /api/mcp  - 终止会话
 ```typescript
 // SSE 事件结构
 interface SSEEvent {
-  id?: string;      // 事件 ID
-  event?: string;   // 事件类型
-  data: string;     // JSON 数据
+  id?: string // 事件 ID
+  event?: string // 事件类型
+  data: string // JSON 数据
 }
 
 // 转换为 SSE 格式
 function toSSE(event: SSEEvent): string {
-  let output = '';
-  if (event.id) output += `id: ${event.id}\n`;
-  if (event.event) output += `event: ${event.event}\n`;
-  output += `data: ${event.data}\n\n`;
-  return output;
+  let output = ''
+  if (event.id) output += `id: ${event.id}\n`
+  if (event.event) output += `event: ${event.event}\n`
+  output += `data: ${event.data}\n\n`
+  return output
 }
 ```
 
@@ -364,7 +365,7 @@ function toSSE(event: SSEEvent): string {
 
 ```typescript
 // 消息类型
-type JsonRpcMessage = 
+type JsonRpcMessage =
   | JsonRpcRequest      // 请求 (有 id)
   | JsonRpcNotification // 通知 (无 id)
   | JsonRpcResponse;    // 响应
@@ -396,11 +397,11 @@ type JsonRpcMessage =
 
 ### 端点规范
 
-| 端点 | 方法 | 描述 |
-|------|------|------|
-| `/api/mcp` | POST | 发送 JSON-RPC 消息 |
-| `/api/mcp` | GET | 打开 SSE 流 |
-| `/api/mcp` | DELETE | 终止会话 |
+| 端点       | 方法   | 描述               |
+| ---------- | ------ | ------------------ |
+| `/api/mcp` | POST   | 发送 JSON-RPC 消息 |
+| `/api/mcp` | GET    | 打开 SSE 流        |
+| `/api/mcp` | DELETE | 终止会话           |
 
 ### 初始化流程
 
@@ -428,32 +429,32 @@ type JsonRpcMessage =
 
 ### 支持的 MCP 方法
 
-| 方法 | 描述 |
-|------|------|
+| 方法         | 描述                       |
+| ------------ | -------------------------- |
 | `initialize` | 初始化连接，返回服务器能力 |
-| `tools/list` | 获取可用工具列表 |
-| `tools/call` | 调用指定工具 |
-| `ping` | 心跳检测 |
+| `tools/list` | 获取可用工具列表           |
+| `tools/call` | 调用指定工具               |
+| `ping`       | 心跳检测                   |
 
 ### 与 Next.js 的集成
 
 ```typescript
 // app/app/api/mcp/route.ts
 
-import { NextRequest, NextResponse } from 'next/server';
-import { getMcpServer } from '@/lib/mcp/server';
-import { sessionManager, MCPHttpTransport } from '@/lib/mcp/http-transport';
+import { NextRequest, NextResponse } from 'next/server'
+import { getMcpServer } from '@/lib/mcp/server'
+import { sessionManager, MCPHttpTransport } from '@/lib/mcp/http-transport'
 
 export async function POST(request: NextRequest) {
   // 1. 验证 Origin
-  const origin = request.headers.get('origin');
+  const origin = request.headers.get('origin')
   if (!MCPHttpTransport.validateOrigin(origin)) {
-    return NextResponse.json({ error: 'Invalid origin' }, { status: 403 });
+    return NextResponse.json({ error: 'Invalid origin' }, { status: 403 })
   }
 
   // 2. 解析消息
-  const body = await request.text();
-  const message = MCPHttpTransport.parseMessage(body);
+  const body = await request.text()
+  const message = MCPHttpTransport.parseMessage(body)
 
   // 3. 处理请求
   // ...
@@ -500,7 +501,7 @@ static validateOrigin(origin: string | null, allowedOrigins: string[] = []): boo
   if (!origin) return true;  // 允许无 origin 的请求
 
   // 允许 localhost
-  if (origin.startsWith('http://localhost') || 
+  if (origin.startsWith('http://localhost') ||
       origin.startsWith('http://127.0.0.1') ||
       origin.startsWith('https://localhost')) {
     return true;
@@ -519,23 +520,23 @@ static validateOrigin(origin: string | null, allowedOrigins: string[] = []): boo
 ```typescript
 // 会话配置
 const SESSION_CONFIG = {
-  maxAgeMs: 3600000,    // 1 小时过期
-  keepAliveInterval: 30000,  // 30 秒心跳
-};
+  maxAgeMs: 3600000, // 1 小时过期
+  keepAliveInterval: 30000, // 30 秒心跳
+}
 
 // 定期清理过期会话
 setInterval(() => {
-  sessionManager.cleanupExpired(SESSION_CONFIG.maxAgeMs);
-}, 60000);  // 每分钟清理一次
+  sessionManager.cleanupExpired(SESSION_CONFIG.maxAgeMs)
+}, 60000) // 每分钟清理一次
 ```
 
 ### 危险操作处理
 
-| 级别 | 工具 | 处理方式 |
-|------|------|---------|
+| 级别    | 工具                                                     | 处理方式 |
+| ------- | -------------------------------------------------------- | -------- |
 | 🟢 安全 | read_file, list_directory, search_files, get_system_info | 直接执行 |
-| 🟡 中等 | write_file, http_request | 记录日志 |
-| 🔴 危险 | execute_command, delete_file | 需要确认 |
+| 🟡 中等 | write_file, http_request                                 | 记录日志 |
+| 🔴 危险 | execute_command, delete_file                             | 需要确认 |
 
 ---
 
@@ -557,33 +558,33 @@ const initResponse = await fetch('https://7zi.com/api/mcp', {
     params: {
       protocolVersion: '2025-06-18',
       capabilities: {},
-      clientInfo: { name: 'my-client', version: '1.0.0' }
-    }
-  })
-});
+      clientInfo: { name: 'my-client', version: '1.0.0' },
+    },
+  }),
+})
 
-const sessionId = initResponse.headers.get('Mcp-Session-Id');
+const sessionId = initResponse.headers.get('Mcp-Session-Id')
 
 // 获取工具列表
 const toolsResponse = await fetch('https://7zi.com/api/mcp', {
   method: 'POST',
   headers: {
     'Content-Type': 'application/json',
-    'Mcp-Session-Id': sessionId
+    'Mcp-Session-Id': sessionId,
   },
   body: JSON.stringify({
     jsonrpc: '2.0',
     id: '2',
-    method: 'tools/list'
-  })
-});
+    method: 'tools/list',
+  }),
+})
 
 // 调用工具
 const result = await fetch('https://7zi.com/api/mcp', {
   method: 'POST',
   headers: {
     'Content-Type': 'application/json',
-    'Mcp-Session-Id': sessionId
+    'Mcp-Session-Id': sessionId,
   },
   body: JSON.stringify({
     jsonrpc: '2.0',
@@ -591,10 +592,10 @@ const result = await fetch('https://7zi.com/api/mcp', {
     method: 'tools/call',
     params: {
       name: 'read_file',
-      arguments: { path: '/etc/hosts' }
-    }
-  })
-});
+      arguments: { path: '/etc/hosts' },
+    },
+  }),
+})
 ```
 
 #### 2. SSE 流连接
@@ -602,16 +603,16 @@ const result = await fetch('https://7zi.com/api/mcp', {
 ```typescript
 // 打开 SSE 流
 const eventSource = new EventSource('https://7zi.com/api/mcp', {
-  headers: { 'Mcp-Session-Id': sessionId }
-});
+  headers: { 'Mcp-Session-Id': sessionId },
+})
 
-eventSource.addEventListener('connected', (event) => {
-  console.log('Connected:', JSON.parse(event.data));
-});
+eventSource.addEventListener('connected', event => {
+  console.log('Connected:', JSON.parse(event.data))
+})
 
-eventSource.addEventListener('message', (event) => {
-  console.log('Message:', JSON.parse(event.data));
-});
+eventSource.addEventListener('message', event => {
+  console.log('Message:', JSON.parse(event.data))
+})
 ```
 
 #### 3. Stdio 连接 (Claude Desktop)
@@ -648,7 +649,7 @@ eventSource.addEventListener('message', (event) => {
   "method": "tools/call",
   "params": {
     "name": "execute_command",
-    "arguments": { 
+    "arguments": {
       "command": "docker ps",
       "cwd": "/home/user"
     }
@@ -696,9 +697,9 @@ services:
       - MCP_DEBUG=false
       - MCP_SESSION_MAX_AGE=3600000
     ports:
-      - "3000:3000"
+      - '3000:3000'
     volumes:
-      - ./data:/app/data  # 持久化数据
+      - ./data:/app/data # 持久化数据
 ```
 
 ### Nginx 配置
@@ -712,7 +713,7 @@ location /api/mcp {
     proxy_buffering off;
     proxy_cache off;
     chunked_transfer_encoding off;
-    
+
     # 超时设置
     proxy_read_timeout 86400s;
     proxy_send_timeout 86400s;
@@ -726,10 +727,10 @@ location /api/mcp {
 const metrics = {
   activeSessions: () => sessionManager.sessions.size,
   totalTools: () => toolRegistry.getNames().length,
-  dangerousToolCalls: 0,  // 危险工具调用次数
-  errors: 0,              // 错误次数
-  avgResponseTime: 0,     // 平均响应时间
-};
+  dangerousToolCalls: 0, // 危险工具调用次数
+  errors: 0, // 错误次数
+  avgResponseTime: 0, // 平均响应时间
+}
 ```
 
 ---
@@ -738,24 +739,24 @@ const metrics = {
 
 ### A. 错误码参考
 
-| 错误码 | 描述 |
-|--------|------|
-| -32700 | Parse error - JSON 解析失败 |
-| -32600 | Invalid Request - 无效请求 |
-| -32601 | Method not found - 方法不存在 |
-| -32602 | Invalid params - 参数无效 |
-| -32603 | Internal error - 内部错误 |
+| 错误码 | 描述                           |
+| ------ | ------------------------------ |
+| -32700 | Parse error - JSON 解析失败    |
+| -32600 | Invalid Request - 无效请求     |
+| -32601 | Method not found - 方法不存在  |
+| -32602 | Invalid params - 参数无效      |
+| -32603 | Internal error - 内部错误      |
 | -32001 | Session not found - 会话不存在 |
 
 ### B. 相关文件
 
-| 文件 | 描述 |
-|------|------|
-| `app/lib/mcp/server.ts` | MCP Server 核心实现 |
-| `app/lib/mcp/tools.ts` | 工具注册中心 |
-| `app/lib/mcp/http-transport.ts` | HTTP 传输层 |
-| `app/lib/mcp/cli.ts` | CLI 入口点 |
-| `app/app/api/mcp/route.ts` | Next.js API 路由 |
+| 文件                            | 描述                |
+| ------------------------------- | ------------------- |
+| `app/lib/mcp/server.ts`         | MCP Server 核心实现 |
+| `app/lib/mcp/tools.ts`          | 工具注册中心        |
+| `app/lib/mcp/http-transport.ts` | HTTP 传输层         |
+| `app/lib/mcp/cli.ts`            | CLI 入口点          |
+| `app/app/api/mcp/route.ts`      | Next.js API 路由    |
 
 ### C. 参考资料
 
@@ -765,6 +766,6 @@ const metrics = {
 
 ---
 
-*文档版本: 1.0.0*
-*最后更新: 2026-03-07*
-*作者: 架构师 (AI 子代理)*
+_文档版本: 1.0.0_
+_最后更新: 2026-03-07_
+_作者: 架构师 (AI 子代理)_

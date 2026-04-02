@@ -4,43 +4,43 @@
 // This file provides a unified API for Sentry operations across the app.
 // Used by both client and server components.
 
-import * as Sentry from "@sentry/nextjs";
+import * as Sentry from '@sentry/nextjs'
 
 // ============================================
 // Types
 // ============================================
 
 export interface SentryUser {
-  id: string;
-  email?: string;
-  username?: string;
-  role?: string;
+  id: string
+  email?: string
+  username?: string
+  role?: string
 }
 
 export interface SentryContext {
-  tags?: Record<string, string | number | boolean>;
-  extra?: Record<string, unknown>;
-  user?: SentryUser;
+  tags?: Record<string, string | number | boolean>
+  extra?: Record<string, unknown>
+  user?: SentryUser
 }
 
 // ============================================
 // Initialization Check
 // ============================================
 
-let isInitialized = false;
+let isInitialized = false
 
 /**
  * Check if Sentry is initialized
  */
 export function isSentryInitialized(): boolean {
-  return isInitialized;
+  return isInitialized
 }
 
 /**
  * Mark Sentry as initialized (called by sentry.client.config.ts)
  */
 export function markSentryInitialized(): void {
-  isInitialized = true;
+  isInitialized = true
 }
 
 // ============================================
@@ -50,20 +50,17 @@ export function markSentryInitialized(): void {
 /**
  * Capture an exception with optional context
  */
-export function captureException(
-  error: Error | unknown,
-  context?: SentryContext
-): string {
+export function captureException(error: Error | unknown, context?: SentryContext): string {
   if (!isInitialized) {
-    console.warn("[Sentry] Not initialized, skipping error capture");
-    return "";
+    console.warn('[Sentry] Not initialized, skipping error capture')
+    return ''
   }
 
   return Sentry.captureException(error, {
     tags: context?.tags,
     extra: context?.extra,
     user: context?.user,
-  });
+  })
 }
 
 /**
@@ -71,19 +68,19 @@ export function captureException(
  */
 export function captureMessage(
   message: string,
-  level: "debug" | "info" | "warning" | "error" | "fatal" = "info",
+  level: 'debug' | 'info' | 'warning' | 'error' | 'fatal' = 'info',
   context?: SentryContext
 ): string {
   if (!isInitialized) {
-    console.warn("[Sentry] Not initialized, skipping message capture");
-    return "";
+    console.warn('[Sentry] Not initialized, skipping message capture')
+    return ''
   }
 
   return Sentry.captureMessage(message, {
     level,
     tags: context?.tags,
     extra: context?.extra,
-  });
+  })
 }
 
 // ============================================
@@ -94,7 +91,7 @@ export function captureMessage(
  * Set user context for error tracking
  */
 export function setSentryUser(user: SentryUser | null): void {
-  if (!isInitialized) return;
+  if (!isInitialized) return
 
   if (user) {
     Sentry.setUser({
@@ -102,9 +99,9 @@ export function setSentryUser(user: SentryUser | null): void {
       email: user.email,
       username: user.username,
       role: user.role,
-    });
+    })
   } else {
-    Sentry.setUser(null);
+    Sentry.setUser(null)
   }
 }
 
@@ -112,8 +109,8 @@ export function setSentryUser(user: SentryUser | null): void {
  * Clear user context (on logout)
  */
 export function clearSentryUser(): void {
-  if (!isInitialized) return;
-  Sentry.setUser(null);
+  if (!isInitialized) return
+  Sentry.setUser(null)
 }
 
 // ============================================
@@ -128,14 +125,14 @@ export function addBreadcrumb(
   category: string,
   data?: Record<string, unknown>
 ): void {
-  if (!isInitialized) return;
+  if (!isInitialized) return
 
   Sentry.addBreadcrumb({
     message,
     category,
     data,
     timestamp: Date.now() / 1000,
-  });
+  })
 }
 
 // ============================================
@@ -153,7 +150,7 @@ export function startSpan<T>(
   callback: (span: Sentry.Span | null) => T | Promise<T>
 ): T | Promise<T> {
   if (!isInitialized) {
-    return callback(null);
+    return callback(null)
   }
 
   return Sentry.startSpan(
@@ -162,23 +159,20 @@ export function startSpan<T>(
       op,
     },
     callback
-  );
+  )
 }
 
 /**
  * Legacy startTransaction for backward compatibility
  * @deprecated Use startSpan instead
  */
-export function startTransaction(
-  name: string,
-  op: string
-): unknown {
-  if (!isInitialized) return null;
+export function startTransaction(name: string, op: string): unknown {
+  if (!isInitialized) return null
 
   // In Sentry v10+, startSpan should be used instead
   // This function is kept for backward compatibility but does nothing
-  console.warn("[Sentry] startTransaction is deprecated, use startSpan instead");
-  return null;
+  console.warn('[Sentry] startTransaction is deprecated, use startSpan instead')
+  return null
 }
 
 /**
@@ -191,7 +185,7 @@ export async function measurePerformance<T>(
   fn: () => Promise<T>
 ): Promise<T> {
   if (!isInitialized) {
-    return fn();
+    return fn()
   }
 
   return Sentry.startSpan(
@@ -199,20 +193,20 @@ export async function measurePerformance<T>(
       name,
       op: operation,
     },
-    async (span) => {
+    async span => {
       try {
-        const result = await fn();
-        span?.setStatus({ code: 1 }); // OK
-        return result;
+        const result = await fn()
+        span?.setStatus({ code: 1 }) // OK
+        return result
       } catch (error) {
-        span?.setStatus({ code: 2 }); // ERROR
+        span?.setStatus({ code: 2 }) // ERROR
         captureException(error, {
           tags: { transaction: name, operation },
-        });
-        throw error;
+        })
+        throw error
       }
     }
-  );
+  )
 }
 
 // ============================================
@@ -228,12 +222,12 @@ export function captureErrorBoundaryError(
   errorInfo?: Record<string, unknown>
 ): void {
   captureException(error, {
-    tags: { source: "error-boundary" },
+    tags: { source: 'error-boundary' },
     extra: {
       componentStack,
       errorInfo,
     },
-  });
+  })
 }
 
 // ============================================
@@ -245,30 +239,30 @@ export function captureErrorBoundaryError(
  * Use this in development to test error reporting
  */
 export function throwTestError(): never {
-  const error = new Error("[Sentry Test] This is a test error");
-  error.name = "SentryTestError";
-  
+  const error = new Error('[Sentry Test] This is a test error')
+  error.name = 'SentryTestError'
+
   captureException(error, {
-    tags: { test: "true" },
+    tags: { test: 'true' },
     extra: {
       timestamp: new Date().toISOString(),
-      message: "This is a test error thrown to verify Sentry integration",
+      message: 'This is a test error thrown to verify Sentry integration',
     },
-  });
-  
-  throw error;
+  })
+
+  throw error
 }
 
 /**
  * Send a test message to Sentry
  */
 export function sendTestMessage(): void {
-  captureMessage("[Sentry Test] Test message from 7zi-frontend", "info", {
-    tags: { test: "true" },
+  captureMessage('[Sentry Test] Test message from 7zi-frontend', 'info', {
+    tags: { test: 'true' },
     extra: {
       timestamp: new Date().toISOString(),
     },
-  });
+  })
 }
 
 // ============================================
@@ -281,25 +275,25 @@ export function sendTestMessage(): void {
 export function captureApiError(
   error: Error,
   request: {
-    method: string;
-    url: string;
-    statusCode?: number;
+    method: string
+    url: string
+    statusCode?: number
   }
 ): void {
   captureException(error, {
     tags: {
-      source: "api",
+      source: 'api',
       method: request.method,
     },
     extra: {
       url: request.url,
       statusCode: request.statusCode,
     },
-  });
+  })
 }
 
 // ============================================
 // Export Sentry for advanced usage
 // ============================================
 
-export { Sentry };
+export { Sentry }

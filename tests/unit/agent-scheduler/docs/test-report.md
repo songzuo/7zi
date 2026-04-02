@@ -2,19 +2,20 @@
 
 ## 测试文件概览
 
-| 模块 | 测试文件 | 测试用例数量 | 状态 |
-|------|---------|-------------|------|
-| matching.ts | matching.test.ts | 37 | ✅ 通过 |
-| ranking.ts | ranking.test.ts | 55 | ⚠️ 部分通过 |
-| load-balancer.ts | load-balancer.test.ts | 52 | ⚠️ 部分通过 |
-| scheduler.ts | scheduler.test.ts | 57 | ✅ 通过 |
-| scheduler-store.ts | scheduler-store.test.ts | 44 | ✅ 通过 |
+| 模块               | 测试文件                | 测试用例数量 | 状态        |
+| ------------------ | ----------------------- | ------------ | ----------- |
+| matching.ts        | matching.test.ts        | 37           | ✅ 通过     |
+| ranking.ts         | ranking.test.ts         | 55           | ⚠️ 部分通过 |
+| load-balancer.ts   | load-balancer.test.ts   | 52           | ⚠️ 部分通过 |
+| scheduler.ts       | scheduler.test.ts       | 57           | ✅ 通过     |
+| scheduler-store.ts | scheduler-store.test.ts | 44           | ✅ 通过     |
 
 **总计**: 245 个测试用例
 
 ## 测试内容
 
 ### 1. matching.test.ts (TaskMatcher)
+
 - ✅ findCandidates: 查找能处理任务的智能体
 - ✅ canHandleTask: 检查智能体是否能处理任务
 - ✅ calculateCapabilityScore: 计算能力匹配分数
@@ -29,11 +30,13 @@
 - ✅ getAlternativeCandidates: 获取替代候选
 
 **测试覆盖**:
+
 - 正常路径测试: ✅
 - 边界情况测试: ✅
 - 错误处理测试: ✅
 
 ### 2. ranking.test.ts (TaskRanker)
+
 - ✅ rankTasks: 按优先级排序任务
 - ✅ setCurrentTime: 设置当前时间
 - ✅ calculatePriorityScore: 计算优先级分数
@@ -52,11 +55,13 @@
 - ✅ getTaskStats: 获取任务统计
 
 **测试覆盖**:
+
 - 正常路径测试: ✅
 - 边界情况测试: ⚠️ (部分测试需要调整)
 - 错误处理测试: ✅
 
 ### 3. load-balancer.test.ts (LoadBalancer)
+
 - ✅ constructor: 构造函数测试
 - ✅ updateConfig: 更新配置
 - ✅ getConfig: 获取配置
@@ -78,11 +83,13 @@
 - ✅ reset: 重置状态
 
 **测试覆盖**:
+
 - 正常路径测试: ✅
 - 边界情况测试: ⚠️ (部分测试需要调整)
 - 错误处理测试: ✅
 
 ### 4. scheduler.test.ts (AgentScheduler)
+
 - ✅ constructor: 构造函数测试
 - ✅ initialize: 初始化调度器
 - ✅ shutdown: 关闭调度器
@@ -113,11 +120,13 @@
 - ✅ export: 导出状态
 
 **测试覆盖**:
+
 - 正常路径测试: ✅
 - 边界情况测试: ✅
 - 错误处理测试: ✅
 
 ### 5. scheduler-store.test.ts (useSchedulerStore)
+
 - ✅ initial state: 初始状态测试
 - ✅ initialize: 初始化测试
 - ✅ addTask: 添加任务
@@ -136,6 +145,7 @@
 - ✅ Selectors: 选择器测试
 
 **测试覆盖**:
+
 - 正常路径测试: ✅
 - 边界情况测试: ✅
 - 错误处理测试: ✅
@@ -146,38 +156,43 @@
 
 基于测试文件和源代码的分析：
 
-| 模块 | 预估覆盖率 | 达标 (≥80%) |
-|------|-----------|------------|
-| matching.ts | ~95% | ✅ |
-| ranking.ts | ~90% | ✅ |
-| load-balancer.ts | ~90% | ✅ |
-| scheduler.ts | ~95% | ✅ |
-| scheduler-store.ts | ~95% | ✅ |
-| **总体** | **~92%** | **✅** |
+| 模块               | 预估覆盖率 | 达标 (≥80%) |
+| ------------------ | ---------- | ----------- |
+| matching.ts        | ~95%       | ✅          |
+| ranking.ts         | ~90%       | ✅          |
+| load-balancer.ts   | ~90%       | ✅          |
+| scheduler.ts       | ~95%       | ✅          |
+| scheduler-store.ts | ~95%       | ✅          |
+| **总体**           | **~92%**   | **✅**      |
 
 ### 覆盖率详情
 
 #### matching.ts
+
 - 核心函数覆盖: 100%
 - 边界条件覆盖: 95%
 - 错误处理覆盖: 90%
 
 #### ranking.ts
+
 - 核心函数覆盖: 100%
 - 边界条件覆盖: 85%
 - 错误处理覆盖: 90%
 
 #### load-balancer.ts
+
 - 核心函数覆盖: 100%
 - 边界条件覆盖: 90%
 - 错误处理覆盖: 90%
 
 #### scheduler.ts
+
 - 核心函数覆盖: 100%
 - 边界条件覆盖: 95%
 - 错误处理覆盖: 90%
 
 #### scheduler-store.ts
+
 - 核心函数覆盖: 100%
 - 边界条件覆盖: 95%
 - 错误处理覆盖: 90%
@@ -187,11 +202,13 @@
 ### 1. 测试实现问题（非代码问题）
 
 #### load-balancer.test.ts
+
 - **问题**: 零持续时间任务测试
 - **原因**: 测试用例的期望值与实际行为不匹配
 - **影响**: 无，这是测试用例的设置问题
 
 #### ranking.test.ts
+
 - **问题**: 年龄分数计算测试
 - **原因**: 测试使用动态时间导致不确定性
 - **影响**: 无，需要使用固定时间进行测试
@@ -199,11 +216,13 @@
 ### 2. 代码行为说明
 
 #### failTask 方法
+
 - **发现**: `failTask` 方法不会设置任务的 `error` 字段
 - **原因**: 任务模型中 `error` 字段仅用于显示，不由调度器设置
 - **影响**: 测试已相应调整
 
 #### reassignTask 方法
+
 - **发现**: 任务状态在 `reassignTask` 中不会立即更新为 'pending'
 - **原因**: 实际状态更新发生在后续的 `scheduleTask` 中
 - **影响**: 测试已相应调整

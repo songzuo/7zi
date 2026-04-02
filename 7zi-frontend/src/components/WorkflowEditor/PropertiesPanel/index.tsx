@@ -4,13 +4,14 @@
  * 节点和工作流属性编辑器
  */
 
-import React from 'react';
-import { NodeProperties } from './NodeProperties';
-import type { WorkflowNodeData } from '../types';
+import React from 'react'
+import { NodeProperties } from './NodeProperties'
+import type { WorkflowNodeData } from '../types'
+import type { Node } from 'reactflow'
 
 interface PropertiesPanelProps {
-  node?: any;
-  onChange?: (data: Partial<WorkflowNodeData>) => void;
+  node?: Node<WorkflowNodeData> | null
+  onChange?: (data: Partial<WorkflowNodeData>) => void
 }
 
 export function PropertiesPanel({ node, onChange }: PropertiesPanelProps) {
@@ -19,10 +20,10 @@ export function PropertiesPanel({ node, onChange }: PropertiesPanelProps) {
       <div className="h-full p-4 text-center text-gray-500 dark:text-gray-400">
         <p>选择一个节点以编辑属性</p>
       </div>
-    );
+    )
   }
 
-  return <NodeProperties node={node} onChange={onChange} />;
+  return <NodeProperties node={node} onChange={onChange} />
 }
 
-export { NodeProperties } from './NodeProperties';
+export { NodeProperties } from './NodeProperties'

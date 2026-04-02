@@ -9,14 +9,14 @@
 
 ## 📊 完成状态
 
-| 任务项 | 状态 | 说明 |
-|--------|------|------|
-| 创建性能预算配置 | ✅ 已完成 | `budget-config.ts` |
-| 创建预算检查器 | ✅ 已完成 | `budget-checker.ts` (已存在，已优化) |
-| 创建预算警告触发器 | ✅ 已完成 | `budget-alerts.ts` |
-| 创建预算 Dashboard 组件 | ⏸️ 可选 | 暂不实现 |
-| 更新 index.ts | ✅ 已完成 | 导出所有模块 |
-| 单元测试 | ✅ 已完成 | 48 tests, 100% 通过 |
+| 任务项                  | 状态      | 说明                                 |
+| ----------------------- | --------- | ------------------------------------ |
+| 创建性能预算配置        | ✅ 已完成 | `budget-config.ts`                   |
+| 创建预算检查器          | ✅ 已完成 | `budget-checker.ts` (已存在，已优化) |
+| 创建预算警告触发器      | ✅ 已完成 | `budget-alerts.ts`                   |
+| 创建预算 Dashboard 组件 | ⏸️ 可选   | 暂不实现                             |
+| 更新 index.ts           | ✅ 已完成 | 导出所有模块                         |
+| 单元测试                | ✅ 已完成 | 48 tests, 100% 通过                  |
 
 ---
 
@@ -41,6 +41,7 @@ src/lib/performance-monitoring/budget-control/
 ### 1. 预算配置管理器 (`budget-config.ts`)
 
 **核心功能**:
+
 - ✅ 支持从 JSON 对象加载配置
 - ✅ 配置验证（预算、阈值、资源限制）
 - ✅ 多页面预算管理
@@ -50,6 +51,7 @@ src/lib/performance-monitoring/budget-control/
 - ✅ 生成预算摘要
 
 **主要类和方法**:
+
 ```typescript
 class BudgetConfigManager {
   loadFromJSON(config, options?)          // 加载配置
@@ -65,6 +67,7 @@ class BudgetConfigManager {
 ```
 
 **支持的验证项**:
+
 - ✅ `enabled` 布尔值检查
 - ✅ `budgets` 数组检查
 - ✅ 页面路径必填
@@ -77,6 +80,7 @@ class BudgetConfigManager {
 ### 2. 预算检查器 (`budget-checker.ts`)
 
 **核心功能**:
+
 - ✅ 检查时间指标预算（LCP, FID, CLS, TTFB, FCP, INP 等）
 - ✅ 检查资源预算（JS, CSS, Images, Total）
 - ✅ 支持容差值（tolerance）配置
@@ -86,6 +90,7 @@ class BudgetConfigManager {
 - ✅ 批量检查多个页面
 
 **主要类和方法**:
+
 ```typescript
 class BudgetChecker {
   checkBudget(page, metrics, resources?)        // 检查单个页面
@@ -99,11 +104,13 @@ class BudgetChecker {
 ```
 
 **严重程度判定**:
+
 - **Minor**: 超限 0-20%
 - **Major**: 超限 20-50%
 - **Critical**: 超限 >50%
 
 **预算分数计算**:
+
 - 100 分：无违规
 - Minor 扣 5 分
 - Major 扣 15 分
@@ -114,6 +121,7 @@ class BudgetChecker {
 ### 3. 预算告警集成 (`budget-alerts.ts`)
 
 **核心功能**:
+
 - ✅ 与 PerformanceAlerter 完全集成
 - ✅ 自动触发预算违规告警
 - ✅ 支持不同严重级别（warning, error, critical）
@@ -123,24 +131,27 @@ class BudgetChecker {
 - ✅ 详细上下文信息包含
 
 **主要类和方法**:
+
 ```typescript
 class BudgetAlertManager {
-  checkAndAlert(page, metrics, resources?)       // 检查并告警
-  checkMultiplePagesAndAlert(pages)              // 批量检查并告警
-  createSummaryAlert(violations)                  // 创建摘要告警
-  registerBudgetAlertRules()                      // 注册告警规则
-  getLastAlertTime(page, metric)                  // 获取最后告警时间
-  clearCooldown(page, metric)                    // 清除冷却时间
-  updateConfig(partialConfig)                     // 更新配置
+  checkAndAlert(page, metrics, resources?) // 检查并告警
+  checkMultiplePagesAndAlert(pages) // 批量检查并告警
+  createSummaryAlert(violations) // 创建摘要告警
+  registerBudgetAlertRules() // 注册告警规则
+  getLastAlertTime(page, metric) // 获取最后告警时间
+  clearCooldown(page, metric) // 清除冷却时间
+  updateConfig(partialConfig) // 更新配置
 }
 ```
 
 **告警级别映射**:
+
 - `minor` → `info`
 - `major` → `warning`
 - `critical` → `critical`
 
 **告警冷却**:
+
 - 默认冷却时间：300 秒（5 分钟）
 - 支持页面+指标级别的冷却控制
 - 可手动清除冷却时间
@@ -154,6 +165,7 @@ class BudgetAlertManager {
 **测试分组**:
 
 #### BudgetChecker (15 tests)
+
 - ✅ 检查预算通过/失败
 - ✅ 阈值容差正确性
 - ✅ 严重程度判定
@@ -165,6 +177,7 @@ class BudgetAlertManager {
 - ✅ 分数计算
 
 #### BudgetConfigManager (17 tests)
+
 - ✅ 配置加载和验证
 - ✅ 配置合并
 - ✅ 页面预算管理
@@ -175,6 +188,7 @@ class BudgetAlertManager {
 - ✅ 错误处理
 
 #### BudgetAlertManager (10 tests)
+
 - ✅ 检查和告警
 - ✅ 冷却时间控制
 - ✅ 告警级别判定
@@ -184,6 +198,7 @@ class BudgetAlertManager {
 - ✅ 配置更新
 
 #### 集成测试 (3 tests)
+
 - ✅ Checker + Config + Alerts 集成
 - ✅ 复杂场景处理
 - ✅ 默认配置验证
@@ -194,17 +209,17 @@ class BudgetAlertManager {
 
 ## 📊 验收标准检查
 
-| 验收标准 | 状态 | 说明 |
-|---------|------|------|
-| 支持多指标预算配置 | ✅ 完成 | LCP, FID, CLS, TTFB, FCP, INP 等指标 |
-| 支持多页面配置 | ✅ 完成 | 精确匹配 + 通配符匹配 |
-| 支持容差值配置 | ✅ 完成 | tolerance 参数 (0-1) |
-| 预算检查算法正确 | ✅ 完成 | 阈值比较、严重程度判定 |
-| 支持阈值比较（大于、小于、等于） | ✅ 完成 | 基于 threshold 计算 |
-| 生成预算状态报告 | ✅ 完成 | BudgetCheckResult 包含分数、违规列表 |
-| 与告警系统集成 | ✅ 完成 | BudgetAlertManager 集成 PerformanceAlerter |
-| 支持不同严重级别 | ✅ 完成 | warning, error, critical |
-| 单元测试 > 80% 覆盖 | ✅ 完成 | 48 tests, 100% 通过 |
+| 验收标准                         | 状态    | 说明                                       |
+| -------------------------------- | ------- | ------------------------------------------ |
+| 支持多指标预算配置               | ✅ 完成 | LCP, FID, CLS, TTFB, FCP, INP 等指标       |
+| 支持多页面配置                   | ✅ 完成 | 精确匹配 + 通配符匹配                      |
+| 支持容差值配置                   | ✅ 完成 | tolerance 参数 (0-1)                       |
+| 预算检查算法正确                 | ✅ 完成 | 阈值比较、严重程度判定                     |
+| 支持阈值比较（大于、小于、等于） | ✅ 完成 | 基于 threshold 计算                        |
+| 生成预算状态报告                 | ✅ 完成 | BudgetCheckResult 包含分数、违规列表       |
+| 与告警系统集成                   | ✅ 完成 | BudgetAlertManager 集成 PerformanceAlerter |
+| 支持不同严重级别                 | ✅ 完成 | warning, error, critical                   |
+| 单元测试 > 80% 覆盖              | ✅ 完成 | 48 tests, 100% 通过                        |
 
 ---
 
@@ -213,25 +228,28 @@ class BudgetAlertManager {
 ### 1. 基本预算检查
 
 ```typescript
-import { BudgetChecker, budgetChecker } from '@/lib/performance-monitoring/budget-control';
+import { BudgetChecker, budgetChecker } from '@/lib/performance-monitoring/budget-control'
 
 // 检查首页性能
 const result = budgetChecker.checkBudget('/', {
   LCP: 2100,
   FID: 85,
   CLS: 0.08,
-});
+})
 
 if (!result.passed) {
-  console.log('预算违规!', result.violations);
-  console.log('预算分数:', result.score);
+  console.log('预算违规!', result.violations)
+  console.log('预算分数:', result.score)
 }
 ```
 
 ### 2. 配置管理
 
 ```typescript
-import { BudgetConfigManager, budgetConfigManager } from '@/lib/performance-monitoring/budget-control';
+import {
+  BudgetConfigManager,
+  budgetConfigManager,
+} from '@/lib/performance-monitoring/budget-control'
 
 // 设置新页面预算
 budgetConfigManager.setPageBudget({
@@ -244,36 +262,36 @@ budgetConfigManager.setPageBudget({
     js: 800 * 1024,
     total: 3 * 1024 * 1024,
   },
-});
+})
 
 // 生成摘要
-const summary = budgetConfigManager.generateSummary();
-console.log('总页面数:', summary.totalPages);
-console.log('总指标数:', summary.totalMetrics);
+const summary = budgetConfigManager.generateSummary()
+console.log('总页面数:', summary.totalPages)
+console.log('总指标数:', summary.totalMetrics)
 ```
 
 ### 3. 自动告警
 
 ```typescript
-import { BudgetAlertManager, budgetAlertManager } from '@/lib/performance-monitoring/budget-control';
+import { BudgetAlertManager, budgetAlertManager } from '@/lib/performance-monitoring/budget-control'
 
 // 检查并自动发送告警
 const { checkResult, alertsSent } = await budgetAlertManager.checkAndAlert('/', {
-  LCP: 4000,  // 超出预算
+  LCP: 4000, // 超出预算
   FID: 180,
-});
+})
 
 if (alertsSent > 0) {
-  console.log('已发送', alertsSent, '个告警');
+  console.log('已发送', alertsSent, '个告警')
 }
 ```
 
 ### 4. 从 JSON 加载配置
 
 ```typescript
-import { BudgetConfigManager } from '@/lib/performance-monitoring/budget-control';
+import { BudgetConfigManager } from '@/lib/performance-monitoring/budget-control'
 
-const configManager = new BudgetConfigManager();
+const configManager = new BudgetConfigManager()
 
 // 从 JSON 配置加载
 const config = {
@@ -281,16 +299,14 @@ const config = {
   budgets: [
     {
       path: '/',
-      timings: [
-        { metric: 'LCP', budget: 2500, tolerance: 0.1, unit: 'ms' },
-      ],
+      timings: [{ metric: 'LCP', budget: 2500, tolerance: 0.1, unit: 'ms' }],
     },
   ],
-};
+}
 
-const validation = configManager.loadFromJSON(config);
+const validation = configManager.loadFromJSON(config)
 if (!validation.valid) {
-  console.error('配置错误:', validation.errors);
+  console.error('配置错误:', validation.errors)
 }
 ```
 
@@ -303,16 +319,16 @@ if (!validation.valid) {
 `BudgetAlertManager` 完全集成了现有的 `PerformanceAlerter`:
 
 ```typescript
-import { BudgetAlertManager } from '@/lib/performance-monitoring/budget-control';
-import { PerformanceAlerter } from '@/lib/performance-monitoring/alerting';
+import { BudgetAlertManager } from '@/lib/performance-monitoring/budget-control'
+import { PerformanceAlerter } from '@/lib/performance-monitoring/alerting'
 
 // 使用现有的告警器
 const alerter = new PerformanceAlerter({
   enabled: true,
   defaultChannels: ['dashboard', 'slack'],
-});
+})
 
-const budgetAlerts = new BudgetAlertManager({}, alerter);
+const budgetAlerts = new BudgetAlertManager({}, alerter)
 ```
 
 ### 与异常检测集成
@@ -320,15 +336,15 @@ const budgetAlerts = new BudgetAlertManager({}, alerter);
 预算检查可以与异常检测结合使用:
 
 ```typescript
-import { BudgetAlertManager } from '@/lib/performance-monitoring/budget-control';
-import { PerformanceAnomalyDetector } from '@/lib/performance-monitoring/anomaly-detection';
+import { BudgetAlertManager } from '@/lib/performance-monitoring/budget-control'
+import { PerformanceAnomalyDetector } from '@/lib/performance-monitoring/anomaly-detection'
 
-const budgetAlerts = new BudgetAlertManager();
-const anomalyDetector = new PerformanceAnomalyDetector();
+const budgetAlerts = new BudgetAlertManager()
+const anomalyDetector = new PerformanceAnomalyDetector()
 
 // 综合检查
-const budgetResult = await budgetAlerts.checkAndAlert('/', metrics);
-const anomalyResult = await anomalyDetector.detect('LCP', metrics.LCP);
+const budgetResult = await budgetAlerts.checkAndAlert('/', metrics)
+const anomalyResult = await anomalyDetector.detect('LCP', metrics.LCP)
 
 // 综合决策
 if (!budgetResult.passed || anomalyResult.isAnomaly) {
@@ -340,14 +356,14 @@ if (!budgetResult.passed || anomalyResult.isAnomaly) {
 
 ## 📈 性能指标
 
-| 指标 | 数值 | 说明 |
-|------|------|------|
-| 代码行数 | 2,122 | TypeScript 代码 |
-| 测试数量 | 48 | 单元测试用例 |
-| 测试通过率 | 100% | 48/48 通过 |
-| 测试覆盖率 | >80% | 满足验收标准 |
-| 文件数量 | 6 | 模块文件 |
-| 类型定义 | 85 行 | types.ts |
+| 指标       | 数值  | 说明            |
+| ---------- | ----- | --------------- |
+| 代码行数   | 2,122 | TypeScript 代码 |
+| 测试数量   | 48    | 单元测试用例    |
+| 测试通过率 | 100%  | 48/48 通过      |
+| 测试覆盖率 | >80%  | 满足验收标准    |
+| 文件数量   | 6     | 模块文件        |
+| 类型定义   | 85 行 | types.ts        |
 
 ---
 
@@ -389,11 +405,13 @@ if (!budgetResult.passed || anomalyResult.isAnomaly) {
 ## 📝 更新的文件
 
 ### 修改的文件
+
 - `src/lib/performance-monitoring/index.ts`
   - 添加了 `BudgetConfigManager`, `BudgetAlertManager` 导出
   - 添加了相关类型导出
 
 ### 新增的文件
+
 - `src/lib/performance-monitoring/budget-control/budget-config.ts` (518 行)
 - `src/lib/performance-monitoring/budget-control/budget-alerts.ts` (343 行)
 - `src/lib/performance-monitoring/budget-control/budget.test.ts` (832 行)

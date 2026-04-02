@@ -7,35 +7,30 @@
  * 这个文件展示了如何在应用中集成和使用工作流编辑器
  */
 
-import React, { useState } from 'react';
-import { WorkflowEditor } from '@/components/WorkflowEditor';
+import React, { useState } from 'react'
+import { WorkflowEditor } from '@/components/WorkflowEditor'
 
 /**
  * 示例 1: 基本使用
  */
 export function BasicExample() {
   const handleSave = (workflow: unknown) => {
-    console.log('保存工作流:', workflow);
+    console.log('保存工作流:', workflow)
 
     // 调用 API 保存
     fetch('/api/workflows', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(workflow),
-    }).catch((err) => {
-      console.error('保存失败:', err);
-      alert('保存失败');
-    });
+    }).catch(err => {
+      console.error('保存失败:', err)
+      alert('保存失败')
+    })
 
-    alert('工作流已保存');
-  };
+    alert('工作流已保存')
+  }
 
-  return (
-    <WorkflowEditor
-      onSave={(w) => handleSave(w)}
-      readOnly={false}
-    />
-  );
+  return <WorkflowEditor onSave={w => handleSave(w)} readOnly={false} />
 }
 
 /**
@@ -94,7 +89,7 @@ export function PresetWorkflowExample() {
         config: {},
       },
     },
-  ];
+  ]
 
   // 预设边
   const initialEdges = [
@@ -106,7 +101,7 @@ export function PresetWorkflowExample() {
       target: 'end',
       sourceHandle: 'true',
     },
-  ];
+  ]
 
   return (
     <WorkflowEditor
@@ -115,7 +110,7 @@ export function PresetWorkflowExample() {
       initialEdges={initialEdges}
       onSave={console.log}
     />
-  );
+  )
 }
 
 /**
@@ -124,60 +119,52 @@ export function PresetWorkflowExample() {
 export function ReadOnlyExample({ workflowId }: { workflowId: string }) {
   return (
     <div className="h-screen">
-      <WorkflowEditor
-        workflowId={workflowId}
-        readOnly={true}
-        onSave={() => {}}
-      />
+      <WorkflowEditor workflowId={workflowId} readOnly={true} onSave={() => {}} />
     </div>
-  );
+  )
 }
 
 /**
  * 示例 4: 完整的工作流管理页面
  */
 export function WorkflowManagementPage() {
-  const [workflowId, setWorkflowId] = useState<string | null>(null);
-  const [isCreating, setIsCreating] = useState(false);
+  const [workflowId, setWorkflowId] = useState<string | null>(null)
+  const [isCreating, setIsCreating] = useState(false)
 
   const handleSave = (workflow: unknown) => {
-    const url = workflowId
-      ? `/api/workflows/${workflowId}`
-      : '/api/workflows';
+    const url = workflowId ? `/api/workflows/${workflowId}` : '/api/workflows'
 
     fetch(url, {
       method: workflowId ? 'PUT' : 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(workflow),
     })
-      .then((response) => {
-        if (!response.ok) throw new Error('保存失败');
-        return response.json();
+      .then(response => {
+        if (!response.ok) throw new Error('保存失败')
+        return response.json()
       })
-      .then((savedWorkflow) => {
-        setWorkflowId(savedWorkflow.id);
-        setIsCreating(false);
-        alert('保存成功');
+      .then(savedWorkflow => {
+        setWorkflowId(savedWorkflow.id)
+        setIsCreating(false)
+        alert('保存成功')
       })
-      .catch((error) => {
-        console.error('保存失败:', error);
-        alert('保存失败: ' + (error as Error).message);
-      });
-  };
+      .catch(error => {
+        console.error('保存失败:', error)
+        alert('保存失败: ' + (error as Error).message)
+      })
+  }
 
   const handleCreateNew = () => {
-    setWorkflowId(null);
-    setIsCreating(true);
-  };
+    setWorkflowId(null)
+    setIsCreating(true)
+  }
 
   return (
     <div className="h-screen">
       {/* 顶部操作栏 */}
       <div className="border-b border-gray-200 bg-white p-4 dark:border-gray-700 dark:bg-gray-800">
         <div className="flex items-center justify-between">
-          <h1 className="text-2xl font-bold text-gray-900 dark:text-white">
-            工作流管理
-          </h1>
+          <h1 className="text-2xl font-bold text-gray-900 dark:text-white">工作流管理</h1>
           <button
             onClick={handleCreateNew}
             className="rounded-lg bg-indigo-600 px-4 py-2 text-white hover:bg-indigo-700"
@@ -189,10 +176,7 @@ export function WorkflowManagementPage() {
 
       {/* 工作流编辑器 */}
       {isCreating || workflowId ? (
-        <WorkflowEditor
-          workflowId={workflowId || undefined}
-          onSave={(w) => handleSave(w)}
-        />
+        <WorkflowEditor workflowId={workflowId || undefined} onSave={w => handleSave(w)} />
       ) : (
         <div className="flex h-full items-center justify-center">
           <div className="text-center">
@@ -209,7 +193,7 @@ export function WorkflowManagementPage() {
         </div>
       )}
     </div>
-  );
+  )
 }
 
-export default BasicExample;
+export default BasicExample

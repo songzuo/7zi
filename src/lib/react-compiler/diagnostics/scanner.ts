@@ -1,39 +1,39 @@
 /**
  * React Compiler Diagnostics - Component Scanner
- * 
+ *
  * 扫描组件并检测 React Compiler 兼容性问题
  */
 
-import * as fs from 'fs';
-import * as path from 'path';
-import { glob } from 'glob';
+import * as fs from 'fs'
+import * as path from 'path'
+import { glob } from 'glob'
 
 export interface CompilerIssue {
-  type: 'unsupported-pattern' | 'side-effect' | 'performance-warning' | 'error';
-  message: string;
-  line?: number;
-  column?: number;
-  suggestion?: string;
-  severity: 'low' | 'medium' | 'high';
+  type: 'unsupported-pattern' | 'side-effect' | 'performance-warning' | 'error'
+  message: string
+  line?: number
+  column?: number
+  suggestion?: string
+  severity: 'low' | 'medium' | 'high'
 }
 
 export interface IncompatibilityReport {
-  filePath: string;
-  componentName?: string;
-  issues: CompilerIssue[];
-  canCompile: boolean;
-  estimatedEffort: 'none' | 'low' | 'medium' | 'high';
+  filePath: string
+  componentName?: string
+  issues: CompilerIssue[]
+  canCompile: boolean
+  estimatedEffort: 'none' | 'low' | 'medium' | 'high'
 }
 
 export interface ScanResult {
-  totalFiles: number;
-  compatibleFiles: number;
-  incompatibleFiles: number;
-  reports: IncompatibilityReport[];
+  totalFiles: number
+  compatibleFiles: number
+  incompatibleFiles: number
+  reports: IncompatibilityReport[]
   summary: {
-    byType: Record<string, number>;
-    bySeverity: Record<'low' | 'medium' | 'high', number>;
-  };
+    byType: Record<string, number>
+    bySeverity: Record<'low' | 'medium' | 'high', number>
+  }
 }
 
 /**
@@ -75,7 +75,7 @@ const INCOMPATIBLE_PATTERNS = [
     suggestion: 'Use callback refs or useRef',
     severity: 'high' as const,
   },
-];
+]
 
 /**
  * 性能警告模式
@@ -99,99 +99,91 @@ const PERFORMANCE_WARNINGS = [
     suggestion: 'Consider combining filters or using a single pass',
     severity: 'low' as const,
   },
-];
+]
 
 export class ComponentScanner {
-  private projectRoot: string;
+  private projectRoot: string
 
   constructor(projectRoot: string) {
-    this.projectRoot = projectRoot;
+    this.projectRoot = projectRoot
   }
 
   /**
    * 扫描所有组件
    */
   async scanAllComponents(): Promise<ScanResult> {
-    const componentFiles = await this.findComponentFiles();
-    const reports: IncompatibilityReport[] = [];
+    const componentFiles = await this.findComponentFiles()
+    const reports: IncompatibilityReport[] = []
 
     for (const file of componentFiles) {
-      const report = await this.scanFile(file);
-      reports.push(report);
+      const report = await this.scanFile(file)
+      reports.push(report)
     }
 
-    return this.generateSummary(reports, componentFiles.length);
+    return this.generateSummary(reports, componentFiles.length)
   }
 
   /**
    * 查找所有组件文件
    */
   private async findComponentFiles(): Promise<string[]> {
-    const patterns = [
-      'src/**/*.tsx',
-      'src/**/*.jsx',
-    ];
+    const patterns = ['src/**/*.tsx', 'src/**/*.jsx']
 
     const files = await glob(patterns, {
       cwd: this.projectRoot,
-      ignore: [
-        'node_modules/**',
-        '**/*.test.tsx',
-        '**/*.spec.tsx',
-        '**/__tests__/**',
-      ],
-    });
+      ignore: ['node_modules/**', '**/*.test.tsx', '**/*.spec.tsx', '**/__tests__/**'],
+    })
 
-    return files.map(f => path.join(this.projectRoot, f));
+    return files.map(f => path.join(this.projectRoot, f))
   }
 
   /**
    * 扫描单个文件
    */
   async scanFile(filePath: string): Promise<IncompatibilityReport> {
-    const content = await fs.promises.readFile(filePath, 'utf-8');
-    const issues: CompilerIssue[] = [];
+    const content = await fs.promises.readFile(filePath, 'utf-8')
+    const issues: CompilerIssue[] = []
 
     // 检测不兼容模式
     for (const { pattern, type, message, suggestion, severity } of INCOMPATIBLE_PATTERNS) {
-      const matches = content.match(pattern);
+      const matches = content.match(pattern)
       if (matches) {
-        const line = this.findLineNumber(content, matches[0]);
+        const line = this.findLineNumber(content, matches[0])
         issues.push({
           type,
           message,
           line,
           suggestion,
           severity,
-        });
+        })
       }
     }
 
     // 检测性能警告
     for (const { pattern, message, suggestion, severity } of PERFORMANCE_WARNINGS) {
-      const matches = content.match(pattern);
+      const matches = content.match(pattern)
       if (matches) {
-        const line = this.findLineNumber(content, matches[0]);
+        const line = this.findLineNumber(content, matches[0])
         issues.push({
           type: 'performance-warning',
           message,
           line,
           suggestion,
           severity,
-        });
+        })
       }
     }
 
     // 检测第三方库副作用
-    const sideEffectIssues = this.detectThirdPartySideEffects(content);
-    issues.push(...sideEffectIssues);
+    const sideEffectIssues = this.detectThirdPartySideEffects(content)
+    issues.push(...sideEffectIssues)
 
     // 提取组件名称
-    const componentName = this.extractComponentName(content);
+    const componentName = this.extractComponentName(content)
 
     // 计算编译难度
-    const canCompile = !issues.some(i => i.severity === 'high');
-    const estimatedEffort = this.calculateEffort(issues);
+    const canCompile = !issues.some(i => i.severity === 'high')
+    const estimatedEffort = this.calculateEffort(issues)
 
     return {
       filePath: path.relative(this.projectRoot, filePath),
@@ -199,15 +191,15 @@ export class ComponentScanner {
       issues,
       canCompile,
       estimatedEffort,
-    };
+    }
   }
 
   /**
    * 检测第三方库副作用
    */
   private detectThirdPartySideEffects(content: string): CompilerIssue[] {
-    const issues: CompilerIssue[] = [];
-    
+    const issues: CompilerIssue[] = []
+
     // 检测可能引起副作用的模式
     const sideEffectPatterns = [
       {
@@ -225,7 +217,7 @@ export class ComponentScanner {
         message: 'localStorage access should be wrapped in useEffect',
         suggestion: 'Move localStorage operations to useEffect',
       },
-    ];
+    ]
 
     for (const { pattern, message, suggestion } of sideEffectPatterns) {
       if (pattern.test(content)) {
@@ -234,63 +226,63 @@ export class ComponentScanner {
           message,
           suggestion,
           severity: 'medium',
-        });
+        })
       }
     }
 
-    return issues;
+    return issues
   }
 
   /**
    * 查找行号
    */
   private findLineNumber(content: string, search: string): number {
-    const lines = content.split('\n');
+    const lines = content.split('\n')
     for (let i = 0; i < lines.length; i++) {
       if (lines[i].includes(search)) {
-        return i + 1;
+        return i + 1
       }
     }
-    return 1;
+    return 1
   }
 
   /**
    * 提取组件名称
    */
   private extractComponentName(content: string): string | undefined {
-    const match = content.match(/(?:function|const)\s+([A-Z][a-zA-Z0-9]*)\s*[=(]/);
-    return match ? match[1] : undefined;
+    const match = content.match(/(?:function|const)\s+([A-Z][a-zA-Z0-9]*)\s*[=(]/)
+    return match ? match[1] : undefined
   }
 
   /**
    * 计算修复难度
    */
   private calculateEffort(issues: CompilerIssue[]): 'none' | 'low' | 'medium' | 'high' {
-    if (issues.length === 0) return 'none';
-    
-    const hasHigh = issues.some(i => i.severity === 'high');
-    const hasMedium = issues.some(i => i.severity === 'medium');
-    
-    if (hasHigh) return 'high';
-    if (hasMedium && issues.length > 3) return 'medium';
-    if (hasMedium || issues.length > 2) return 'low';
-    return 'low';
+    if (issues.length === 0) return 'none'
+
+    const hasHigh = issues.some(i => i.severity === 'high')
+    const hasMedium = issues.some(i => i.severity === 'medium')
+
+    if (hasHigh) return 'high'
+    if (hasMedium && issues.length > 3) return 'medium'
+    if (hasMedium || issues.length > 2) return 'low'
+    return 'low'
   }
 
   /**
    * 生成摘要
    */
   private generateSummary(reports: IncompatibilityReport[], totalFiles: number): ScanResult {
-    const compatibleFiles = reports.filter(r => r.canCompile).length;
-    const incompatibleFiles = totalFiles - compatibleFiles;
+    const compatibleFiles = reports.filter(r => r.canCompile).length
+    const incompatibleFiles = totalFiles - compatibleFiles
 
-    const byType: Record<string, number> = {};
-    const bySeverity: Record<'low' | 'medium' | 'high', number> = { low: 0, medium: 0, high: 0 };
+    const byType: Record<string, number> = {}
+    const bySeverity: Record<'low' | 'medium' | 'high', number> = { low: 0, medium: 0, high: 0 }
 
     for (const report of reports) {
       for (const issue of report.issues) {
-        byType[issue.type] = (byType[issue.type] || 0) + 1;
-        bySeverity[issue.severity]++;
+        byType[issue.type] = (byType[issue.type] || 0) + 1
+        bySeverity[issue.severity]++
       }
     }
 
@@ -300,7 +292,7 @@ export class ComponentScanner {
       incompatibleFiles,
       reports,
       summary: { byType, bySeverity },
-    };
+    }
   }
 }
 
@@ -308,6 +300,6 @@ export class ComponentScanner {
  * 快速扫描函数
  */
 export async function quickScan(projectRoot: string): Promise<ScanResult> {
-  const scanner = new ComponentScanner(projectRoot);
-  return scanner.scanAllComponents();
+  const scanner = new ComponentScanner(projectRoot)
+  return scanner.scanAllComponents()
 }

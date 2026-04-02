@@ -19,6 +19,7 @@
 **位置**: `/root/.openclaw/workspace/src/components/dashboard/DashboardStats.tsx`
 
 **功能特性**:
+
 - ✅ 显示活跃任务数、已完成任务、团队成员在线数、Agent 调度效率
 - ✅ 使用 Card 基础组件
 - ✅ 支持深色模式
@@ -29,6 +30,7 @@
 - ✅ 国际化支持 (中文/英文)
 
 **技术亮点**:
+
 - 使用 `clsx` 和 `tailwind-merge` 处理类名
 - 支持 Lucide React 图标库
 - React.memo 优化渲染性能
@@ -44,6 +46,7 @@
 **位置**: `/root/.openclaw/workspace/src/components/dashboard/RecentActivity.tsx`
 
 **功能特性**:
+
 - ✅ 显示最近的任务创建、状态变更、成员加入等事件
 - ✅ 支持 8 种活动类型:
   - `task_created` - 创建任务
@@ -63,6 +66,7 @@
 - ✅ 国际化支持
 
 **技术亮点**:
+
 - 智能时间格式化函数
 - 每种活动类型有专属图标和颜色
 - 支持活动执行者头像显示
@@ -77,6 +81,7 @@
 **位置**: `/root/.openclaw/workspace/src/components/dashboard/QuickActions.tsx`
 
 **功能特性**:
+
 - ✅ 创建任务、邀请成员、快速开始 Agent、学习资源
 - ✅ 预设 8 个默认操作:
   1. 创建任务 (Create Task)
@@ -96,6 +101,7 @@
 - ✅ 国际化支持
 
 **技术亮点**:
+
 - 网格布局，响应式列数
 - 悬停动画效果
 - 颜色配置系统
@@ -110,6 +116,7 @@
 **位置**: `/root/.openclaw/workspace/src/app/[locale]/dashboard/page.tsx`
 
 **功能特性**:
+
 - ✅ 整合三个核心组件 (DashboardStats, RecentActivity, QuickActions)
 - ✅ 使用 `next-intl` 的 `useTranslations`
 - ✅ 响应式布局 (移动端/桌面端)
@@ -121,6 +128,7 @@
 - ✅ 毛玻璃效果导航栏
 
 **技术亮点**:
+
 - 使用 `useDashboardData` hook 获取数据
 - 使用 `useMembers` 从 Zustand store 获取成员数据
 - Suspense 边界处理懒加载
@@ -135,16 +143,17 @@
 **位置**: `/root/.openclaw/workspace/src/components/dashboard/index.ts`
 
 **导出内容**:
+
 ```typescript
 // 组件导出
-export { DashboardStats, createDefaultStats } from './DashboardStats';
-export { RecentActivity, createMockActivities } from './RecentActivity';
-export { QuickActions, defaultActions, minimalActions, analyticsActions } from './QuickActions';
+export { DashboardStats, createDefaultStats } from './DashboardStats'
+export { RecentActivity, createMockActivities } from './RecentActivity'
+export { QuickActions, defaultActions, minimalActions, analyticsActions } from './QuickActions'
 
 // 类型导出
-export type { StatItem } from './DashboardStats';
-export type { ActivityItem, ActivityType } from './RecentActivity';
-export type { QuickAction } from './QuickActions';
+export type { StatItem } from './DashboardStats'
+export type { ActivityItem, ActivityType } from './RecentActivity'
+export type { QuickAction } from './QuickActions'
 ```
 
 ---
@@ -174,6 +183,7 @@ src/app/[locale]/dashboard/
 ## 技术栈
 
 ### 核心技术
+
 - ✅ **React 18+** - UI 框架
 - ✅ **TypeScript** - 类型安全
 - ✅ **Next.js 13+** - App Router
@@ -194,16 +204,16 @@ src/app/[locale]/dashboard/
 // 通用 Props 模式
 interface ComponentProps {
   // 数据
-  data: DataType[];
-  
+  data: DataType[]
+
   // 配置
-  locale?: string;
-  loading?: boolean;
-  className?: ClassValue;
-  variant?: 'default' | 'compact' | 'minimal';
-  
+  locale?: string
+  loading?: boolean
+  className?: ClassValue
+  variant?: 'default' | 'compact' | 'minimal'
+
   // 回调
-  onItemClick?: (item: DataType) => void;
+  onItemClick?: (item: DataType) => void
 }
 ```
 
@@ -211,18 +221,18 @@ interface ComponentProps {
 
 每个组件都支持三种显示变体:
 
-| 变体 | 用途 | 特点 |
-|------|------|------|
+| 变体      | 用途     | 特点                     |
+| --------- | -------- | ------------------------ |
 | `default` | 标准展示 | 完整信息，适合主要内容区 |
-| `compact` | 紧凑展示 | 信息精简，适合侧边栏 |
-| `minimal` | 最小展示 | 仅核心信息，适合小组件 |
+| `compact` | 紧凑展示 | 信息精简，适合侧边栏     |
+| `minimal` | 最小展示 | 仅核心信息，适合小组件   |
 
 ### 颜色系统
 
 统一的颜色配置，支持 7 种主题色:
 
 ```typescript
-type ColorTheme = 'blue' | 'green' | 'yellow' | 'purple' | 'cyan' | 'orange' | 'slate';
+type ColorTheme = 'blue' | 'green' | 'yellow' | 'purple' | 'cyan' | 'orange' | 'slate'
 ```
 
 ---
@@ -230,11 +240,13 @@ type ColorTheme = 'blue' | 'green' | 'yellow' | 'purple' | 'cyan' | 'orange' | '
 ## 响应式设计
 
 ### 断点支持
+
 - **移动端** (< 640px): 1-2 列
 - **平板** (640-1024px): 2-3 列
 - **桌面** (> 1024px): 3-4 列
 
 ### Tailwind 类示例
+
 ```css
 /* 响应式网格 */
 grid-cols-2 sm:grid-cols-3 md:grid-cols-4
@@ -264,17 +276,19 @@ border-zinc-200 dark:border-zinc-700
 ## 国际化支持
 
 ### 支持语言
+
 - 🇨🇳 中文（默认）
 - 🇬🇧 English
 
 ### 实现方式
+
 ```typescript
 // 组件内硬编码双语
-const displayLabel = locale === 'en' && stat.labelEn ? stat.labelEn : stat.label;
+const displayLabel = locale === 'en' && stat.labelEn ? stat.labelEn : stat.label
 
 // 使用 next-intl
-const t = useTranslations('dashboard');
-t('title', { defaultValue: 'Dashboard' });
+const t = useTranslations('dashboard')
+t('title', { defaultValue: 'Dashboard' })
 ```
 
 ---
@@ -356,14 +370,14 @@ const customActions: QuickAction[] = [
 
 ## 代码统计
 
-| 文件 | 行数 | 大小 |
-|------|------|------|
-| DashboardStats.tsx | 359 | 10,914 bytes |
-| RecentActivity.tsx | 437 | 13,164 bytes |
-| QuickActions.tsx | 453 | 12,828 bytes |
-| page.tsx (Dashboard) | 372 | 13,441 bytes |
-| index.ts | 16 | 534 bytes |
-| **总计** | **1,637** | **~51 KB** |
+| 文件                 | 行数      | 大小         |
+| -------------------- | --------- | ------------ |
+| DashboardStats.tsx   | 359       | 10,914 bytes |
+| RecentActivity.tsx   | 437       | 13,164 bytes |
+| QuickActions.tsx     | 453       | 12,828 bytes |
+| page.tsx (Dashboard) | 372       | 13,441 bytes |
+| index.ts             | 16        | 534 bytes    |
+| **总计**             | **1,637** | **~51 KB**   |
 
 ---
 
@@ -390,12 +404,14 @@ const customActions: QuickAction[] = [
 ## 未来改进建议
 
 ### 功能增强
+
 1. 📊 更多可视化图表 (使用 Recharts)
 2. 🔔 实时通知推送
 3. 📱 原生移动端适配
 4. 🎨 自定义主题
 
 ### 性能优化
+
 1. 虚拟滚动 (大列表)
 2. WebSocket 实时更新
 3. 离线缓存
@@ -412,6 +428,7 @@ npm install clsx tailwind-merge lucide-react
 ```
 
 ### 已存在的依赖
+
 - ✅ React 18+
 - ✅ Next.js 13+
 - ✅ TypeScript

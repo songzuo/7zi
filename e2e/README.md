@@ -6,16 +6,17 @@
 
 ### 新增测试文件（2026-03-29）
 
-| 文件 | 描述 | 测试数 |
-|------|------|--------|
-| `homepage.spec.ts` | 首页加载和渲染测试 | 21 |
-| `navigation.spec.ts` | 导航菜单功能测试 | 30 |
-| `language-switching.spec.ts` | 语言切换功能测试 | 35 |
-| `core-interactions.spec.ts` | 核心交互元素测试 | 40 |
+| 文件                         | 描述               | 测试数 |
+| ---------------------------- | ------------------ | ------ |
+| `homepage.spec.ts`           | 首页加载和渲染测试 | 21     |
+| `navigation.spec.ts`         | 导航菜单功能测试   | 30     |
+| `language-switching.spec.ts` | 语言切换功能测试   | 35     |
+| `core-interactions.spec.ts`  | 核心交互元素测试   | 40     |
 
 ### 现有测试文件
 
 项目还有其他 E2E 测试文件，包括：
+
 - `auth-flow.spec.ts` - 认证流程测试
 - `dashboard-analytics.spec.ts` - 仪表板分析测试
 - `dashboard.spec.ts` - 仪表板功能测试
@@ -134,6 +135,7 @@ npx playwright test --project=visual-regression
 Playwright 配置文件位于项目根目录的 `playwright.config.ts`。
 
 主要配置：
+
 - **测试目录**: `./e2e`
 - **并行运行**: 完全并行
 - **CI 重试**: 2 次
@@ -149,6 +151,7 @@ Playwright 配置文件位于项目根目录的 `playwright.config.ts`。
 - **JUnit 报告**: `test-results/junit-results.xml`
 
 查看 HTML 报告：
+
 ```bash
 npm run test:e2e:report
 # 或
@@ -197,6 +200,7 @@ npx playwright test -g "测试名称"
 ## 支持
 
 如有问题或需要帮助，请查看：
+
 1. [Playwright 故障排除](https://playwright.dev/docs/troubleshooting)
 2. [常见问题](../docs/e2e-test-plan.md#常见问题)
 3. 项目团队

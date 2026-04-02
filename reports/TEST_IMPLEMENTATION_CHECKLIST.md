@@ -104,14 +104,14 @@
 
 ### 当前状态
 
-| 模块 | 覆盖率 | 目标 | 状态 |
-|------|--------|------|------|
-| API Routes | 11% | 90% | ❌ 需要改进 |
-| Components | 13% | 70% | ❌ 需要改进 |
-| Hooks/Stores | 80% | 85% | ✅ 良好 |
-| Libs | 125% | 90% | ✅ 优秀 |
-| E2E | 基础 | 完整 | ✅ 基础完善 |
-| **整体** | **46%** | **80%** | ⚠️ 中等 |
+| 模块         | 覆盖率  | 目标    | 状态        |
+| ------------ | ------- | ------- | ----------- |
+| API Routes   | 11%     | 90%     | ❌ 需要改进 |
+| Components   | 13%     | 70%     | ❌ 需要改进 |
+| Hooks/Stores | 80%     | 85%     | ✅ 良好     |
+| Libs         | 125%    | 90%     | ✅ 优秀     |
+| E2E          | 基础    | 完整    | ✅ 基础完善 |
+| **整体**     | **46%** | **80%** | ⚠️ 中等     |
 
 ### Phase 1 目标（Week 1-2）
 
@@ -310,32 +310,37 @@ npx playwright test --update-snapshots
 ### 常见问题
 
 **测试运行超时**
+
 ```bash
 # 增加超时时间
 npm run test -- --testTimeout=20000
 ```
 
 **Mock 不工作**
+
 ```typescript
 // 确保 mock 在导入之前
 vi.mock('@/lib/api', () => ({
   fetchUser: vi.fn(),
-}));
+}))
 ```
 
 **测试环境变量缺失**
+
 ```typescript
 // 在测试中设置环境变量
-process.env.NODE_ENV = 'test';
-process.env.API_URL = 'http://localhost:3000';
+process.env.NODE_ENV = 'test'
+process.env.API_URL = 'http://localhost:3000'
 ```
 
 **Playwright 浏览器未安装**
+
 ```bash
 npx playwright install
 ```
 
 **覆盖率报告不准确**
+
 ```bash
 # 清理缓存后重新运行
 rm -rf coverage

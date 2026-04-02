@@ -17,16 +17,17 @@
 
 ### Dockerfile 状态
 
-| 文件 | 状态 | 说明 |
-|------|------|------|
-| `Dockerfile` | ✅ 就绪 | 标准多阶段构建，推荐使用 |
-| `Dockerfile.optimized` | ✅ 就绪 | 优化版本 |
-| `Dockerfile.production` | ✅ 就绪 | 生产环境专用 |
-| `Dockerfile.static` | ✅ 就绪 | 静态导出版本 |
+| 文件                    | 状态    | 说明                     |
+| ----------------------- | ------- | ------------------------ |
+| `Dockerfile`            | ✅ 就绪 | 标准多阶段构建，推荐使用 |
+| `Dockerfile.optimized`  | ✅ 就绪 | 优化版本                 |
+| `Dockerfile.production` | ✅ 就绪 | 生产环境专用             |
+| `Dockerfile.static`     | ✅ 就绪 | 静态导出版本             |
 
 **推荐**: 使用 `Dockerfile` - 包含完整的多阶段构建优化
 
 **关键特性**:
+
 - ✅ 多阶段构建（deps → builder → runner）
 - ✅ Node.js 22 Alpine 基础镜像（轻量级）
 - ✅ 非 root 用户运行（uid 1001，安全）
@@ -36,15 +37,16 @@
 
 ### Docker Compose 配置
 
-| 文件 | 状态 | 说明 |
-|------|------|------|
-| `docker-compose.yml` | ✅ 就绪 | 开发/测试环境 |
-| `docker-compose.prod.yml` | ✅ 就绪 | 生产环境（推荐） |
-| `docker-compose.zero-downtime.yml` | ✅ 就绪 | 零停机部署 |
+| 文件                               | 状态    | 说明             |
+| ---------------------------------- | ------- | ---------------- |
+| `docker-compose.yml`               | ✅ 就绪 | 开发/测试环境    |
+| `docker-compose.prod.yml`          | ✅ 就绪 | 生产环境（推荐） |
+| `docker-compose.zero-downtime.yml` | ✅ 就绪 | 零停机部署       |
 
 **推荐**: 使用 `docker-compose.prod.yml` - 专为生产环境优化
 
 **关键特性**:
+
 - ✅ 健康检查配置（interval: 30s, timeout: 10s, retries: 3）
 - ✅ 资源限制（CPU: 2核, 内存: 1GB）
 - ✅ 日志轮转配置（max-size: 50MB, max-file: 5）
@@ -58,29 +60,30 @@
 
 ### 主部署脚本（根目录）
 
-| 脚本 | 状态 | 目标服务器 | 功能 |
-|------|------|-----------|------|
-| `deploy-remote.sh` | ✅ 就绪 | 7zi.com | 远程部署（推荐） |
-| `deploy-production.sh` | ✅ 就绪 | 7zi.com | 生产部署 |
-| `deploy-cluster.sh` | ✅ 就绪 | 所有8台 | 集群部署 |
-| `deploy.sh` | ✅ 就绪 | 通用 | 快速部署 |
-| `deploy-zero-downtime.sh` | ✅ 就绪 | 7zi.com | 零停机部署 |
-| `quick-deploy.sh` | ✅ 新增 | 任意 | 新快速部署脚本 |
+| 脚本                      | 状态    | 目标服务器 | 功能             |
+| ------------------------- | ------- | ---------- | ---------------- |
+| `deploy-remote.sh`        | ✅ 就绪 | 7zi.com    | 远程部署（推荐） |
+| `deploy-production.sh`    | ✅ 就绪 | 7zi.com    | 生产部署         |
+| `deploy-cluster.sh`       | ✅ 就绪 | 所有8台    | 集群部署         |
+| `deploy.sh`               | ✅ 就绪 | 通用       | 快速部署         |
+| `deploy-zero-downtime.sh` | ✅ 就绪 | 7zi.com    | 零停机部署       |
+| `quick-deploy.sh`         | ✅ 新增 | 任意       | 新快速部署脚本   |
 
-**推荐**: 
+**推荐**:
+
 - 首次部署: `quick-deploy.sh full`
 - 更新部署: `quick-deploy.sh quick`
 
 ### 辅助脚本（deploy-scripts/）
 
-| 脚本 | 状态 | 功能 |
-|------|------|------|
-| `deploy-nginx.sh` | ✅ 就绪 | Nginx 部署 |
-| `deploy-docker.sh` | ✅ 就绪 | Docker 部署 |
-| `deploy-rsync.sh` | ✅ 就绪 | rsync 同步 |
-| `deploy-7zi-bot5.sh` | ✅ 就绪 | 部署到 bot5 |
-| `deploy-7zi-www.sh` | ✅ 就绪 | 部署到 www |
-| `check-cicd.sh` | ✅ 就绪 | CI/CD 检查 |
+| 脚本                       | 状态    | 功能          |
+| -------------------------- | ------- | ------------- |
+| `deploy-nginx.sh`          | ✅ 就绪 | Nginx 部署    |
+| `deploy-docker.sh`         | ✅ 就绪 | Docker 部署   |
+| `deploy-rsync.sh`          | ✅ 就绪 | rsync 同步    |
+| `deploy-7zi-bot5.sh`       | ✅ 就绪 | 部署到 bot5   |
+| `deploy-7zi-www.sh`        | ✅ 就绪 | 部署到 www    |
+| `check-cicd.sh`            | ✅ 就绪 | CI/CD 检查    |
 | `setup-git-hook-server.sh` | ✅ 就绪 | Git Hook 设置 |
 
 ---
@@ -89,11 +92,11 @@
 
 ### 配置文件状态
 
-| 文件 | 状态 | 说明 |
-|------|------|------|
-| `.env.example` | ✅ 存在 | 完整环境变量示例 |
-| `.env.production.example` | ✅ 存在 | 生产环境示例 |
-| `.env.production` | ⚠️ 需创建 | 实际生产配置（需手动配置） |
+| 文件                      | 状态      | 说明                       |
+| ------------------------- | --------- | -------------------------- |
+| `.env.example`            | ✅ 存在   | 完整环境变量示例           |
+| `.env.production.example` | ✅ 存在   | 生产环境示例               |
+| `.env.production`         | ⚠️ 需创建 | 实际生产配置（需手动配置） |
 
 ### 必需环境变量清单
 
@@ -145,17 +148,18 @@ SENTRY_PROJECT=<需要配置>
 
 ### 7zi.com (165.99.43.61)
 
-| 项目 | 状态 | 说明 |
-|------|------|------|
-| SSH 连接 | ✅ 正常 | 密码认证可用 |
-| Docker | ✅ 已安装 | v29.1.1 |
-| Docker Compose | ⚠️ 未安装 | 部署脚本会自动安装 |
-| 系统 | ✅ Ubuntu | Linux 5.15.0-171-generic |
-| 用户 | ✅ root | 密码: `ge20993344$ZZ` |
+| 项目           | 状态      | 说明                     |
+| -------------- | --------- | ------------------------ |
+| SSH 连接       | ✅ 正常   | 密码认证可用             |
+| Docker         | ✅ 已安装 | v29.1.1                  |
+| Docker Compose | ⚠️ 未安装 | 部署脚本会自动安装       |
+| 系统           | ✅ Ubuntu | Linux 5.15.0-171-generic |
+| 用户           | ✅ root   | 密码: `ge20993344$ZZ`    |
 
 **部署路径**: `/opt/7zi-frontend`
 
 **开放端口**:
+
 - `80/tcp` - HTTP
 - `443/tcp` - HTTPS
 - `22/tcp` - SSH
@@ -163,12 +167,12 @@ SENTRY_PROJECT=<需要配置>
 
 ### bot5.szspd.cn (182.43.36.134)
 
-| 项目 | 状态 | 说明 |
-|------|------|------|
-| SSH 连接 | ⚠️ 待测试 | 需验证 |
-| Docker | ⚠️ 待检查 | 部署脚本会自动安装 |
-| 系统 | ⚠️ 待确认 | 需要检查 |
-| 用户 | ✅ root | 密码: `ge20993344$ZZ` |
+| 项目     | 状态      | 说明                  |
+| -------- | --------- | --------------------- |
+| SSH 连接 | ⚠️ 待测试 | 需验证                |
+| Docker   | ⚠️ 待检查 | 部署脚本会自动安装    |
+| 系统     | ⚠️ 待确认 | 需要检查              |
+| 用户     | ✅ root   | 密码: `ge20993344$ZZ` |
 
 **用途**: 测试环境
 
@@ -293,15 +297,15 @@ docker-compose -f docker-compose.prod.yml logs -f
 
 ## 📚 8. 文档清单
 
-| 文档 | 状态 | 说明 |
-|------|------|------|
-| `README.md` | ✅ 存在 | 项目主文档 |
-| `DEPLOYMENT-CHECKLIST.md` | ✅ 新增 | 完整部署清单 |
-| `DEPLOYMENT-REPORT.md` | ✅ 新增 | 本报告 |
-| `deploy-scripts/README.md` | ✅ 存在 | 部署方案概览 |
-| `deploy-scripts/QUICKSTART.md` | ✅ 存在 | 快速开始指南 |
+| 文档                                | 状态    | 说明         |
+| ----------------------------------- | ------- | ------------ |
+| `README.md`                         | ✅ 存在 | 项目主文档   |
+| `DEPLOYMENT-CHECKLIST.md`           | ✅ 新增 | 完整部署清单 |
+| `DEPLOYMENT-REPORT.md`              | ✅ 新增 | 本报告       |
+| `deploy-scripts/README.md`          | ✅ 存在 | 部署方案概览 |
+| `deploy-scripts/QUICKSTART.md`      | ✅ 存在 | 快速开始指南 |
 | `deploy-scripts/PROJECT_SUMMARY.md` | ✅ 存在 | 部署方案总结 |
-| `7zi-nginx.conf` | ✅ 存在 | Nginx 配置 |
+| `7zi-nginx.conf`                    | ✅ 存在 | Nginx 配置   |
 
 ---
 
@@ -430,6 +434,7 @@ cd /root/.openclaw/workspace
 ```
 
 部署脚本会自动处理：
+
 - ✅ 环境检查
 - ✅ 依赖安装
 - ✅ 代码同步

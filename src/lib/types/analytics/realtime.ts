@@ -7,22 +7,17 @@
 // WebSocket Connection Status
 // ============================================================================
 
-export type WebSocketStatus =
-  | 'connecting'
-  | 'connected'
-  | 'disconnected'
-  | 'error'
-  | 'reconnecting';
+export type WebSocketStatus = 'connecting' | 'connected' | 'disconnected' | 'error' | 'reconnecting'
 
 export interface WebSocketConnectionMetrics {
-  status: WebSocketStatus;
-  connectedAt?: string;
-  lastPing?: string;
-  latency?: number;
-  reconnectAttempts: number;
-  messagesReceived: number;
-  messagesSent: number;
-  lastError?: string;
+  status: WebSocketStatus
+  connectedAt?: string
+  lastPing?: string
+  latency?: number
+  reconnectAttempts: number
+  messagesReceived: number
+  messagesSent: number
+  lastError?: string
 }
 
 // ============================================================================
@@ -30,29 +25,29 @@ export interface WebSocketConnectionMetrics {
 // ============================================================================
 
 export interface TaskStatusDistribution {
-  timestamp: string;
+  timestamp: string
   statuses: {
-    submitted: number;
-    running: number;
-    completed: number;
-    failed: number;
-    cancelled: number;
-    pending: number;
-  };
+    submitted: number
+    running: number
+    completed: number
+    failed: number
+    cancelled: number
+    pending: number
+  }
   changes?: {
-    status: string;
-    delta: number;
-  }[];
+    status: string
+    delta: number
+  }[]
 }
 
 export interface TaskStatusHistoryPoint {
-  timestamp: string;
-  submitted: number;
-  running: number;
-  completed: number;
-  failed: number;
-  cancelled: number;
-  pending: number;
+  timestamp: string
+  submitted: number
+  running: number
+  completed: number
+  failed: number
+  cancelled: number
+  pending: number
 }
 
 // ============================================================================
@@ -60,26 +55,26 @@ export interface TaskStatusHistoryPoint {
 // ============================================================================
 
 export interface TeamEfficiencyMetrics {
-  timestamp: string;
-  agentsOnline: number;
-  agentsIdle: number;
-  agentsWorking: number;
-  tasksPerHour: number;
-  averageTaskDuration: number;
-  taskSuccessRate: number;
-  throughput: number;
-  queueSize: number;
+  timestamp: string
+  agentsOnline: number
+  agentsIdle: number
+  agentsWorking: number
+  tasksPerHour: number
+  averageTaskDuration: number
+  taskSuccessRate: number
+  throughput: number
+  queueSize: number
 }
 
 export interface AgentEfficiencyRecord {
-  agentId: string;
-  agentName: string;
-  status: 'online' | 'offline' | 'busy' | 'idle';
-  tasksCompleted: number;
-  averageResponseTime: number;
-  tokensUsed: number;
-  uptime: number;
-  lastActive: string;
+  agentId: string
+  agentName: string
+  status: 'online' | 'offline' | 'busy' | 'idle'
+  tasksCompleted: number
+  averageResponseTime: number
+  tokensUsed: number
+  uptime: number
+  lastActive: string
 }
 
 // ============================================================================
@@ -87,14 +82,14 @@ export interface AgentEfficiencyRecord {
 // ============================================================================
 
 export interface RealtimePerformanceMetrics {
-  timestamp: string;
-  cpuUsage: number;
-  memoryUsage: number;
-  networkLatency: number;
-  requestsPerSecond: number;
-  activeConnections: number;
-  queueLength: number;
-  errorRate: number;
+  timestamp: string
+  cpuUsage: number
+  memoryUsage: number
+  networkLatency: number
+  requestsPerSecond: number
+  activeConnections: number
+  queueLength: number
+  errorRate: number
 }
 
 // ============================================================================
@@ -102,13 +97,13 @@ export interface RealtimePerformanceMetrics {
 // ============================================================================
 
 export interface RealtimeUpdateMessage {
-  type: 'metrics_update' | 'task_status_update' | 'performance_update' | 'efficiency_update';
-  timestamp: string;
+  type: 'metrics_update' | 'task_status_update' | 'performance_update' | 'efficiency_update'
+  timestamp: string
   data:
     | TaskStatusDistribution
     | TeamEfficiencyMetrics
     | RealtimePerformanceMetrics
-    | WebSocketConnectionMetrics;
+    | WebSocketConnectionMetrics
 }
 
 // ============================================================================
@@ -116,14 +111,14 @@ export interface RealtimeUpdateMessage {
 // ============================================================================
 
 export interface RealtimeAnalyticsState {
-  connection: WebSocketConnectionMetrics;
-  taskDistribution: TaskStatusDistribution;
-  teamEfficiency: TeamEfficiencyMetrics;
-  performance: RealtimePerformanceMetrics;
+  connection: WebSocketConnectionMetrics
+  taskDistribution: TaskStatusDistribution
+  teamEfficiency: TeamEfficiencyMetrics
+  performance: RealtimePerformanceMetrics
   history: {
-    taskStatus: TaskStatusHistoryPoint[];
-    efficiency: TeamEfficiencyMetrics[];
-  };
+    taskStatus: TaskStatusHistoryPoint[]
+    efficiency: TeamEfficiencyMetrics[]
+  }
 }
 
 // ============================================================================
@@ -131,14 +126,9 @@ export interface RealtimeAnalyticsState {
 // ============================================================================
 
 export interface RealtimeWebSocketConfig {
-  url: string;
-  reconnectInterval?: number;
-  maxReconnectAttempts?: number;
-  heartbeatInterval?: number;
-  enabledMetrics?: (
-    | 'connection'
-    | 'task_distribution'
-    | 'team_efficiency'
-    | 'performance'
-  )[];
+  url: string
+  reconnectInterval?: number
+  maxReconnectAttempts?: number
+  heartbeatInterval?: number
+  enabledMetrics?: ('connection' | 'task_distribution' | 'team_efficiency' | 'performance')[]
 }

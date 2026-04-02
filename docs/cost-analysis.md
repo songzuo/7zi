@@ -11,28 +11,31 @@
 
 ### 当前成本结构概览
 
-| 成本类别 | 月度成本估算 | 年度成本估算 | 占比 |
-|---------|------------|------------|------|
-| **云服务器基础设施** | $50-80/月 | $600-960/年 | 45% |
-| **AI API 调用** | $30-60/月 | $360-720/年 | 35% |
-| **第三方服务** | $10-15/月 | $120-180/年 | 10% |
-| **CDN/带宽** | $5-10/月 | $60-120/年 | 5% |
-| **人工维护** | $10-20/月 | $120-240/年 | 5% |
-| **总计** | **$105-185/月** | **$1260-2220/年** | 100% |
+| 成本类别             | 月度成本估算    | 年度成本估算      | 占比 |
+| -------------------- | --------------- | ----------------- | ---- |
+| **云服务器基础设施** | $50-80/月       | $600-960/年       | 45%  |
+| **AI API 调用**      | $30-60/月       | $360-720/年       | 35%  |
+| **第三方服务**       | $10-15/月       | $120-180/年       | 10%  |
+| **CDN/带宽**         | $5-10/月        | $60-120/年        | 5%   |
+| **人工维护**         | $10-20/月       | $120-240/年       | 5%   |
+| **总计**             | **$105-185/月** | **$1260-2220/年** | 100% |
 
 ### 核心发现
 
 ✅ **成本控制良好的方面**:
+
 - Docker 资源限制已优化（384MB 内存）
 - 自托管服务（SQLite + Redis）降低数据成本
 - 已实施 Turbopack 构建优化
 
 ⚠️ **成本优化空间**:
+
 - AI API 调用成本有较大优化空间（可降低 30-50%）
 - 容器资源可进一步收紧（可节省 15-20%）
 - 第三方服务可整合优化
 
 🎯 **预期节省潜力**:
+
 - 短期优化（1-2周）：**$20-35/月** (~20%)
 - 中期优化（1-2月）：**$35-60/月** (~30-40%)
 - 长期优化（3-6月）：**$50-85/月** (~40-50%)
@@ -43,11 +46,11 @@
 
 ### 1.1 服务器配置
 
-| 服务器 | 配置 | 用途 | 月度成本估算 |
-|--------|------|------|-------------|
-| **7zi.com** (165.99.43.61) | VPS (推测 2-4 vCPU, 4-8GB RAM) | 主生产服务器 | $30-50/月 |
-| **bot5.szspd.cn** (182.43.36.134) | VPS (推测 1-2 vCPU, 2-4GB RAM) | 测试/备用服务器 | $15-20/月 |
-| **bot6 (本机)** | 本地环境 | OpenClaw 运行 | $0 |
+| 服务器                            | 配置                           | 用途            | 月度成本估算 |
+| --------------------------------- | ------------------------------ | --------------- | ------------ |
+| **7zi.com** (165.99.43.61)        | VPS (推测 2-4 vCPU, 4-8GB RAM) | 主生产服务器    | $30-50/月    |
+| **bot5.szspd.cn** (182.43.36.134) | VPS (推测 1-2 vCPU, 2-4GB RAM) | 测试/备用服务器 | $15-20/月    |
+| **bot6 (本机)**                   | 本地环境                       | OpenClaw 运行   | $0           |
 
 **总基础设施成本: $45-70/月**
 
@@ -84,15 +87,15 @@ services:
 ```yaml
 # 优化后建议配置
 7zi-frontend:
-  limits: cpu=0.5, memory=320M  # 0.75→0.5, 384M→320M
+  limits: cpu=0.5, memory=320M # 0.75→0.5, 384M→320M
   reservations: cpu=0.2, memory=160M
 
 redis:
-  limits: cpu=0.2, memory=200M  # 0.25→0.2, 256M→200M
+  limits: cpu=0.2, memory=200M # 0.25→0.2, 256M→200M
   reservations: cpu=0.1, memory=100M
 
 nginx:
-  limits: cpu=0.25, memory=128M  # 0.3→0.25, 192M→128M
+  limits: cpu=0.25, memory=128M # 0.3→0.25, 192M→128M
   reservations: cpu=0.1, memory=48M
 
 优化后总计:
@@ -101,6 +104,7 @@ nginx:
 ```
 
 **预估节省:**
+
 - 允许在同一服务器上部署更多实例
 - 或迁移到更小的 VPS 规格
 - 月度节省：**$10-15/月**（约 15-20%）
@@ -109,13 +113,13 @@ nginx:
 
 #### 数据库和文件存储
 
-| 组件 | 当前大小 | 存储位置 | 成本 |
-|------|---------|---------|------|
-| SQLite 数据库 (7zi.db) | < 100MB | 本地磁盘 | 免费 |
-| Web Vitals 数据库 (web-vitals.db) | 48KB | 本地磁盘 | 免费 |
-| Redis 持久化 | < 50MB | Docker volume | 免费 |
-| 静态资源 | ~1MB | CDN | $5-10/月 |
-| 日志文件 | < 100MB | Docker volume | 免费 |
+| 组件                              | 当前大小 | 存储位置      | 成本     |
+| --------------------------------- | -------- | ------------- | -------- |
+| SQLite 数据库 (7zi.db)            | < 100MB  | 本地磁盘      | 免费     |
+| Web Vitals 数据库 (web-vitals.db) | 48KB     | 本地磁盘      | 免费     |
+| Redis 持久化                      | < 50MB   | Docker volume | 免费     |
+| 静态资源                          | ~1MB     | CDN           | $5-10/月 |
+| 日志文件                          | < 100MB  | Docker volume | 免费     |
 
 **结论:** 所有存储均使用本地磁盘，**无额外存储成本**。
 
@@ -127,14 +131,14 @@ nginx:
 
 项目集成了多个 AI 提供商，根据 `lib/agent/types.ts` 和实际代码：
 
-| 提供商 | 用途 | 模型 | 预估成本/1K tokens | 使用频率 |
-|--------|------|------|-------------------|---------|
-| **MiniMax** | 智能体世界专家、咨询师 | MiniMax-M2.7 | $0.01-0.02 | 高 |
-| **Bailian** | 销售客服、系统管理员 | 通义千问 | $0.008-0.015 | 中 |
-| **Volcengine** | 执行器、推广专员 | 豆包大模型 | $0.007-0.012 | 高 |
-| **Self-Claude** | 架构师、设计师、媒体 | Claude API | $0.03-0.15 | 中 |
-| **OpenAI** | (备用) | GPT-4/GPT-3.5 | $0.03-0.10 | 低 |
-| **Anthropic** | (备用) | Claude API | $0.03-0.15 | 低 |
+| 提供商          | 用途                   | 模型          | 预估成本/1K tokens | 使用频率 |
+| --------------- | ---------------------- | ------------- | ------------------ | -------- |
+| **MiniMax**     | 智能体世界专家、咨询师 | MiniMax-M2.7  | $0.01-0.02         | 高       |
+| **Bailian**     | 销售客服、系统管理员   | 通义千问      | $0.008-0.015       | 中       |
+| **Volcengine**  | 执行器、推广专员       | 豆包大模型    | $0.007-0.012       | 高       |
+| **Self-Claude** | 架构师、设计师、媒体   | Claude API    | $0.03-0.15         | 中       |
+| **OpenAI**      | (备用)                 | GPT-4/GPT-3.5 | $0.03-0.10         | 低       |
+| **Anthropic**   | (备用)                 | Claude API    | $0.03-0.15         | 低       |
 
 ### 2.2 成本估算模型
 
@@ -158,6 +162,7 @@ nginx:
 #### 场景 2: 优化后（预期）
 
 实施以下优化措施：
+
 - 智能体对话缓存（降低 40%）
 - 批量处理任务（降低 30%）
 - 选择性使用高成本模型（降低 20%）
@@ -177,20 +182,20 @@ nginx:
 
 ```typescript
 // lib/cache/ai-response-cache.ts
-import { LRUCache } from 'lru-cache';
+import { LRUCache } from 'lru-cache'
 
 const aiCache = new LRUCache<string, string>({
   max: 1000, // 最多缓存 1000 个响应
   ttl: 1000 * 60 * 60 * 24, // 24 小时
-});
+})
 
 export async function getCachedAIResponse(
   provider: string,
   model: string,
   prompt: string
 ): Promise<string | null> {
-  const cacheKey = `${provider}:${model}:${hashPrompt(prompt)}`;
-  return aiCache.get(cacheKey) || null;
+  const cacheKey = `${provider}:${model}:${hashPrompt(prompt)}`
+  return aiCache.get(cacheKey) || null
 }
 
 export function setCachedAIResponse(
@@ -199,8 +204,8 @@ export function setCachedAIResponse(
   prompt: string,
   response: string
 ): void {
-  const cacheKey = `${provider}:${model}:${hashPrompt(prompt)}`;
-  aiCache.set(cacheKey, response);
+  const cacheKey = `${provider}:${model}:${hashPrompt(prompt)}`
+  aiCache.set(cacheKey, response)
 }
 ```
 
@@ -212,18 +217,21 @@ export function setCachedAIResponse(
 
 ```typescript
 // lib/ai/model-selector.ts
-export function selectModelForTask(taskType: string, complexity: 'low' | 'medium' | 'high'): string {
-  const lowCostModels = ['volcengine', 'bailian', 'minimax'];
-  const mediumCostModels = ['minimax', 'bailian'];
-  const highCostModels = ['self-claude', 'openai', 'anthropic'];
+export function selectModelForTask(
+  taskType: string,
+  complexity: 'low' | 'medium' | 'high'
+): string {
+  const lowCostModels = ['volcengine', 'bailian', 'minimax']
+  const mediumCostModels = ['minimax', 'bailian']
+  const highCostModels = ['self-claude', 'openai', 'anthropic']
 
   switch (complexity) {
     case 'low':
-      return lowCostModels[Math.floor(Math.random() * lowCostModels.length)];
+      return lowCostModels[Math.floor(Math.random() * lowCostModels.length)]
     case 'medium':
-      return mediumCostModels[Math.floor(Math.random() * mediumCostModels.length)];
+      return mediumCostModels[Math.floor(Math.random() * mediumCostModels.length)]
     case 'high':
-      return highCostModels[Math.floor(Math.random() * highCostModels.length)];
+      return highCostModels[Math.floor(Math.random() * highCostModels.length)]
   }
 }
 ```
@@ -241,13 +249,16 @@ export async function processTasksBatch(
   provider: string
 ): Promise<Array<{ id: string; response: string }>> {
   // 合并任务提示
-  const batchedPrompt = tasks.map(t => `[Task ${t.id}]: ${t.prompt}`).join('\n\n');
+  const batchedPrompt = tasks.map(t => `[Task ${t.id}]: ${t.prompt}`).join('\n\n')
 
   // 单次调用
-  const response = await callAI(provider, batchedPrompt);
+  const response = await callAI(provider, batchedPrompt)
 
   // 解析返回结果
-  return parseBatchedResponse(response, tasks.map(t => t.id));
+  return parseBatchedResponse(
+    response,
+    tasks.map(t => t.id)
+  )
 }
 ```
 
@@ -260,22 +271,22 @@ export async function processTasksBatch(
 ```typescript
 // lib/agent/quota-manager.ts
 const QUOTA_LIMITS: Record<string, number> = {
-  'expert': 1000000,        // 智能体世界专家: 1M tokens/月
-  'consultant': 800000,     // 咨询师: 800K tokens/月
-  'executor': 600000,      // Executor: 600K tokens/月
-  'designer': 500000,       // 设计师: 500K tokens/月
-  'architect': 700000,      // 架构师: 700K tokens/月
-  'tester': 400000,         // 测试员: 400K tokens/月
-  'admin': 300000,          // 系统管理员: 300K tokens/月
-  'marketer': 500000,       // 推广专员: 500K tokens/月
-  'sales': 400000,          // 销售客服: 400K tokens/月
-  'finance': 300000,        // 财务: 300K tokens/月
-  'media': 400000,          // 媒体: 400K tokens/月
-};
+  expert: 1000000, // 智能体世界专家: 1M tokens/月
+  consultant: 800000, // 咨询师: 800K tokens/月
+  executor: 600000, // Executor: 600K tokens/月
+  designer: 500000, // 设计师: 500K tokens/月
+  architect: 700000, // 架构师: 700K tokens/月
+  tester: 400000, // 测试员: 400K tokens/月
+  admin: 300000, // 系统管理员: 300K tokens/月
+  marketer: 500000, // 推广专员: 500K tokens/月
+  sales: 400000, // 销售客服: 400K tokens/月
+  finance: 300000, // 财务: 300K tokens/月
+  media: 400000, // 媒体: 400K tokens/月
+}
 
 export function checkQuota(role: string, usage: number): boolean {
-  const limit = QUOTA_LIMITS[role] || 500000;
-  return usage < limit;
+  const limit = QUOTA_LIMITS[role] || 500000
+  return usage < limit
 }
 ```
 
@@ -287,12 +298,12 @@ export function checkQuota(role: string, usage: number): boolean {
 
 ### 3.1 当前集成服务
 
-| 服务 | 用途 | 定价模型 | 月度成本 | 状态 |
-|------|------|---------|---------|------|
-| **Resend** | 邮件发送 | $0.001/封 | $5-10 | ⚠️ 按需启用 |
-| **Plausible Analytics** | 网站分析 | €9/月 | €9 (~$10) | ✅ 已启用 |
-| **Sentry** | 错误监控 | 免费 (5K events/月) | $0 | ✅ 已启用 |
-| **Let's Encrypt** | SSL 证书 | 免费 | $0 | ✅ 已启用 |
+| 服务                    | 用途     | 定价模型            | 月度成本  | 状态        |
+| ----------------------- | -------- | ------------------- | --------- | ----------- |
+| **Resend**              | 邮件发送 | $0.001/封           | $5-10     | ⚠️ 按需启用 |
+| **Plausible Analytics** | 网站分析 | €9/月               | €9 (~$10) | ✅ 已启用   |
+| **Sentry**              | 错误监控 | 免费 (5K events/月) | $0        | ✅ 已启用   |
+| **Let's Encrypt**       | SSL 证书 | 免费                | $0        | ✅ 已启用   |
 
 **总第三方服务成本: $10-20/月**
 
@@ -301,6 +312,7 @@ export function checkQuota(role: string, usage: number): boolean {
 #### 🟡 中优先级: Resend 邮件服务优化
 
 **当前问题:**
+
 - 每个通知独立发送邮件
 - 未使用邮件模板缓存
 - 未实施批量发送
@@ -309,28 +321,28 @@ export function checkQuota(role: string, usage: number): boolean {
 
 ```typescript
 // lib/email/batch-email-service.ts
-import { Resend } from 'resend';
+import { Resend } from 'resend'
 
-const resend = new Resend(process.env.RESEND_API_KEY);
+const resend = new Resend(process.env.RESEND_API_KEY)
 
 interface PendingEmail {
-  to: string;
-  subject: string;
-  html: string;
+  to: string
+  subject: string
+  html: string
 }
 
-const emailQueue: PendingEmail[] = [];
-const BATCH_INTERVAL = 5 * 60 * 1000; // 5 分钟
+const emailQueue: PendingEmail[] = []
+const BATCH_INTERVAL = 5 * 60 * 1000 // 5 分钟
 
 export function queueEmail(email: PendingEmail): void {
-  emailQueue.push(email);
+  emailQueue.push(email)
 }
 
 // 定期批量发送
 setInterval(async () => {
-  if (emailQueue.length === 0) return;
+  if (emailQueue.length === 0) return
 
-  const batch = emailQueue.splice(0, 100); // 每批最多 100 封
+  const batch = emailQueue.splice(0, 100) // 每批最多 100 封
   await Promise.allSettled(
     batch.map(email =>
       resend.emails.send({
@@ -340,8 +352,8 @@ setInterval(async () => {
         html: email.html,
       })
     )
-  );
-}, BATCH_INTERVAL);
+  )
+}, BATCH_INTERVAL)
 ```
 
 **预估收益:** 邮件成本降低 30-50%（$2-5/月）
@@ -388,6 +400,7 @@ umami-db:
 ```
 
 **资源需求:**
+
 - CPU: 0.2 cores
 - 内存: 128MB
 - 存储: <100MB
@@ -400,26 +413,26 @@ umami-db:
 
 ```typescript
 // lib/monitoring/sentry-quota.ts
-let eventCount = 0;
-const QUOTA_LIMIT = 5000;
-const QUOTA_RESET_KEY = 'sentry-quota-reset';
+let eventCount = 0
+const QUOTA_LIMIT = 5000
+const QUOTA_RESET_KEY = 'sentry-quota-reset'
 
 export function shouldSendToSentry(): boolean {
-  const lastReset = localStorage.getItem(QUOTA_RESET_KEY);
-  const now = new Date();
+  const lastReset = localStorage.getItem(QUOTA_RESET_KEY)
+  const now = new Date()
 
   // 每月重置计数
   if (!lastReset || new Date(lastReset).getMonth() !== now.getMonth()) {
-    eventCount = 0;
-    localStorage.setItem(QUOTA_RESET_KEY, now.toISOString());
+    eventCount = 0
+    localStorage.setItem(QUOTA_RESET_KEY, now.toISOString())
   }
 
   if (eventCount >= QUOTA_LIMIT) {
-    return false; // 超过配额，不上报
+    return false // 超过配额，不上报
   }
 
-  eventCount++;
-  return true;
+  eventCount++
+  return true
 }
 ```
 
@@ -445,12 +458,12 @@ images: {
 
 假设使用 Vercel 或类似 CDN 服务：
 
-| 资源类型 | 月度流量 | 单价 | 成本 |
-|---------|---------|------|------|
-| 静态资源 (JS/CSS) | 50GB | $0.15/GB | $7.5 |
-| 图片 | 30GB | $0.20/GB | $6 |
-| API 响应 | 20GB | $0.20/GB | $4 |
-| **总计** | **100GB** | - | **$17.5/月** |
+| 资源类型          | 月度流量  | 单价     | 成本         |
+| ----------------- | --------- | -------- | ------------ |
+| 静态资源 (JS/CSS) | 50GB      | $0.15/GB | $7.5         |
+| 图片              | 30GB      | $0.20/GB | $6           |
+| API 响应          | 20GB      | $0.20/GB | $4           |
+| **总计**          | **100GB** | -        | **$17.5/月** |
 
 ### 4.3 优化建议
 
@@ -503,22 +516,16 @@ server {
 export function middleware(request: NextRequest) {
   // 静态资源缓存
   if (request.nextUrl.pathname.startsWith('/static')) {
-    const response = NextResponse.next();
-    response.headers.set(
-      'Cache-Control',
-      'public, max-age=31536000, immutable'
-    );
-    return response;
+    const response = NextResponse.next()
+    response.headers.set('Cache-Control', 'public, max-age=31536000, immutable')
+    return response
   }
 
   // API 响应缓存
   if (request.nextUrl.pathname.startsWith('/api')) {
-    const response = NextResponse.next();
-    response.headers.set(
-      'Cache-Control',
-      'public, max-age=300, s-maxage=600'
-    );
-    return response;
+    const response = NextResponse.next()
+    response.headers.set('Cache-Control', 'public, max-age=300, s-maxage=600')
+    return response
   }
 }
 ```
@@ -531,14 +538,14 @@ export function middleware(request: NextRequest) {
 
 ### 5.1 当前维护任务
 
-| 任务类型 | 频率 | 耗时 | 月度总耗时 |
-|---------|------|------|-----------|
-| 代码更新/部署 | 2次/周 | 1小时 | 8小时 |
-| 错误排查/修复 | 随机 | 1-2小时 | 4-6小时 |
-| 监控/检查 | 每天 | 15分钟 | 7.5小时 |
-| 文档更新 | 每周 | 1小时 | 4小时 |
-| 优化改进 | 每月 | 4小时 | 4小时 |
-| **总计** | - | - | **27.5-29.5小时/月** |
+| 任务类型      | 频率   | 耗时    | 月度总耗时           |
+| ------------- | ------ | ------- | -------------------- |
+| 代码更新/部署 | 2次/周 | 1小时   | 8小时                |
+| 错误排查/修复 | 随机   | 1-2小时 | 4-6小时              |
+| 监控/检查     | 每天   | 15分钟  | 7.5小时              |
+| 文档更新      | 每周   | 1小时   | 4小时                |
+| 优化改进      | 每月   | 4小时   | 4小时                |
+| **总计**      | -      | -       | **27.5-29.5小时/月** |
 
 ### 5.2 成本估算
 
@@ -567,21 +574,21 @@ export async function runDailyHealthCheck(): Promise<void> {
     checkDiskSpace(),
     checkMemoryUsage(),
     checkAIProviders(),
-  ];
+  ]
 
-  const results = await Promise.allSettled(checks);
+  const results = await Promise.allSettled(checks)
 
-  const failures = results.filter(r => r.status === 'rejected');
+  const failures = results.filter(r => r.status === 'rejected')
   if (failures.length > 0) {
     await sendAlertEmail({
       subject: '7zi 健康检查失败',
       failures: failures.map(f => f.reason),
-    });
+    })
   }
 }
 
 // 每天 6:00 AM 自动检查
-cron.schedule('0 6 * * *', runDailyHealthCheck);
+cron.schedule('0 6 * * *', runDailyHealthCheck)
 ```
 
 **预估收益:** 减少人工监控时间 50-70%
@@ -619,18 +626,18 @@ jobs:
 
 ```typescript
 // scripts/auto-update-docs.ts
-import { execSync } from 'child_process';
+import { execSync } from 'child_process'
 
 export async function updateDocsOnCommit(): Promise<void> {
   // 自动生成 API 文档
-  execSync('npm run docs:generate');
+  execSync('npm run docs:generate')
 
   // 自动更新 CHANGELOG
-  execSync('npx conventional-changelog -p angular -i CHANGELOG.md -s');
+  execSync('npx conventional-changelog -p angular -i CHANGELOG.md -s')
 
   // 提交变更
-  execSync('git add docs/ CHANGELOG.md');
-  execSync('git commit -m "docs: auto-update documentation [skip ci]"');
+  execSync('git add docs/ CHANGELOG.md')
+  execSync('git commit -m "docs: auto-update documentation [skip ci]"')
 }
 ```
 
@@ -642,37 +649,37 @@ export async function updateDocsOnCommit(): Promise<void> {
 
 ### 阶段 1: 立即执行（本周）
 
-| # | 优化项 | 工作量 | 预期节省 | 优先级 |
-|---|--------|--------|---------|--------|
-| 1 | 收紧 Docker 资源限制 | 30分钟 | $10-15/月 | 🔴 |
-| 2 | 实施 AI 对话缓存 | 2小时 | $30-40/月 | 🔴 |
-| 3 | 邮件批量发送优化 | 1.5小时 | $2-5/月 | 🟡 |
-| 4 | 自动化健康检查 | 2小时 | 人工时间 | 🔴 |
+| #   | 优化项               | 工作量  | 预期节省  | 优先级 |
+| --- | -------------------- | ------- | --------- | ------ |
+| 1   | 收紧 Docker 资源限制 | 30分钟  | $10-15/月 | 🔴     |
+| 2   | 实施 AI 对话缓存     | 2小时   | $30-40/月 | 🔴     |
+| 3   | 邮件批量发送优化     | 1.5小时 | $2-5/月   | 🟡     |
+| 4   | 自动化健康检查       | 2小时   | 人工时间  | 🔴     |
 
 **阶段 1 总计:** 节省 **$42-60/月**（约 40%）
 
 ### 阶段 2: 短期优化（2-4周）
 
-| # | 优化项 | 工作量 | 预期节省 | 优先级 |
-|---|--------|--------|---------|--------|
-| 5 | 多模型智能切换 | 4小时 | $20-25/月 | 🔴 |
-| 6 | 批量任务处理 | 6小时 | $15-20/月 | 🟡 |
-| 7 | 智能体配额管理 | 3小时 | 防止超支 | 🟡 |
-| 8 | 图片尺寸优化 | 30分钟 | $1-2/月 | 🟡 |
-| 9 | CI/CD 自动部署 | 4小时 | 人工时间 | 🟡 |
-| 10 | 替换 Plausible 为 Umami | 2小时 | $10/月 | 🟢 |
+| #   | 优化项                  | 工作量 | 预期节省  | 优先级 |
+| --- | ----------------------- | ------ | --------- | ------ |
+| 5   | 多模型智能切换          | 4小时  | $20-25/月 | 🔴     |
+| 6   | 批量任务处理            | 6小时  | $15-20/月 | 🟡     |
+| 7   | 智能体配额管理          | 3小时  | 防止超支  | 🟡     |
+| 8   | 图片尺寸优化            | 30分钟 | $1-2/月   | 🟡     |
+| 9   | CI/CD 自动部署          | 4小时  | 人工时间  | 🟡     |
+| 10  | 替换 Plausible 为 Umami | 2小时  | $10/月    | 🟢     |
 
 **阶段 2 总计:** 节省 **$46-57/月**（累计约 65%）
 
 ### 阶段 3: 中长期优化（1-3月）
 
-| # | 优化项 | 工作量 | 预期节省 | 优先级 |
-|---|--------|--------|---------|--------|
-| 11 | API 响应缓存策略 | 6小时 | $3-5/月 | 🟡 |
-| 12 | 数据库查询优化 | 4小时 | 性能提升 | 🟢 |
-| 13 | 自动化文档更新 | 4小时 | 人工时间 | 🟢 |
-| 14 | 服务器迁移评估 | 8小时 | $15-25/月 | 🟢 |
-| 15 | Redis 缓存策略优化 | 4小时 | $2-3/月 | 🟢 |
+| #   | 优化项             | 工作量 | 预期节省  | 优先级 |
+| --- | ------------------ | ------ | --------- | ------ |
+| 11  | API 响应缓存策略   | 6小时  | $3-5/月   | 🟡     |
+| 12  | 数据库查询优化     | 4小时  | 性能提升  | 🟢     |
+| 13  | 自动化文档更新     | 4小时  | 人工时间  | 🟢     |
+| 14  | 服务器迁移评估     | 8小时  | $15-25/月 | 🟢     |
+| 15  | Redis 缓存策略优化 | 4小时  | $2-3/月   | 🟢     |
 
 **阶段 3 总计:** 节省 **$20-33/月**（累计约 75%）
 
@@ -682,14 +689,14 @@ export async function updateDocsOnCommit(): Promise<void> {
 
 ### 优化前后对比
 
-| 成本类别 | 当前成本 | 优化后 | 节省 |
-|---------|---------|--------|------|
-| 云服务器基础设施 | $50-80/月 | $35-60/月 | $15-20/月 (30%) |
-| AI API 调用 | $30-60/月 | $15-30/月 | $15-30/月 (50%) |
-| 第三方服务 | $10-15/月 | $5-10/月 | $5-5/月 (35%) |
-| CDN/带宽 | $5-10/月 | $3-5/月 | $2-5/月 (40%) |
-| 人工维护 | $0/月 | $0/月 | $0/月 |
-| **总计** | **$95-165/月** | **$58-105/月** | **$37-60/月 (40%)** |
+| 成本类别         | 当前成本       | 优化后         | 节省                |
+| ---------------- | -------------- | -------------- | ------------------- |
+| 云服务器基础设施 | $50-80/月      | $35-60/月      | $15-20/月 (30%)     |
+| AI API 调用      | $30-60/月      | $15-30/月      | $15-30/月 (50%)     |
+| 第三方服务       | $10-15/月      | $5-10/月       | $5-5/月 (35%)       |
+| CDN/带宽         | $5-10/月       | $3-5/月        | $2-5/月 (40%)       |
+| 人工维护         | $0/月          | $0/月          | $0/月               |
+| **总计**         | **$95-165/月** | **$58-105/月** | **$37-60/月 (40%)** |
 
 ### 年度节省
 
@@ -701,18 +708,21 @@ export async function updateDocsOnCommit(): Promise<void> {
 ### ROI 分析
 
 **阶段 1（本周）**
+
 - 工作量: 6 小时
 - 月度节省: $42-60
 - 回本周期: < 1 天
 - 年度 ROI: > 8400%
 
 **阶段 1+2（1个月）**
+
 - 工作量: 27 小时
 - 月度节省: $88-117
 - 回本周期: < 1 周
 - 年度 ROI: > 3900%
 
 **阶段 1+2+3（3个月）**
+
 - 工作量: 53 小时
 - 月度节省: $108-150
 - 回本周期: < 2 周
@@ -724,12 +734,12 @@ export async function updateDocsOnCommit(): Promise<void> {
 
 ### 实施风险
 
-| 风险 | 影响 | 概率 | 缓解措施 |
-|------|------|------|---------|
-| 缓存导致数据不一致 | 中 | 低 | 设置合理的 TTL，及时清理缓存 |
-| 模型切换导致质量下降 | 中 | 中 | A/B 测试，保留高成本模型作为兜底 |
-| 资源限制收紧影响性能 | 低 | 低 | 逐步收紧，密切监控性能指标 |
-| 自托管服务维护成本增加 | 低 | 低 | 确保有足够技术储备 |
+| 风险                   | 影响 | 概率 | 缓解措施                         |
+| ---------------------- | ---- | ---- | -------------------------------- |
+| 缓存导致数据不一致     | 中   | 低   | 设置合理的 TTL，及时清理缓存     |
+| 模型切换导致质量下降   | 中   | 中   | A/B 测试，保留高成本模型作为兜底 |
+| 资源限制收紧影响性能   | 低   | 低   | 逐步收紧，密切监控性能指标       |
+| 自托管服务维护成本增加 | 低   | 低   | 确保有足够技术储备               |
 
 ### 长期风险
 
@@ -789,15 +799,12 @@ export async function generateMonthlyCostReport(): Promise<void> {
     thirdParty: await getThirdPartyCost(),
     cdn: await getCDNCost(),
     total: 0,
-  };
+  }
 
-  report.total = report.infrastructure +
-                report.aiApi +
-                report.thirdParty +
-                report.cdn;
+  report.total = report.infrastructure + report.aiApi + report.thirdParty + report.cdn
 
-  await saveToFile('monthly-cost-report.json', report);
-  await sendCostAlertIfNeeded(report);
+  await saveToFile('monthly-cost-report.json', report)
+  await sendCostAlertIfNeeded(report)
 }
 ```
 
@@ -807,34 +814,34 @@ export async function generateMonthlyCostReport(): Promise<void> {
 // lib/monitoring/quota-alert.ts
 const QUOTA_THRESHOLDS = {
   aiApi: 100, // $100/月
-  cdn: 20,    // $20/月
+  cdn: 20, // $20/月
   thirdParty: 15, // $15/月
-};
+}
 
 export async function checkQuotaAlerts(): Promise<void> {
-  const current = await getCurrentMonthCost();
+  const current = await getCurrentMonthCost()
 
   if (current.aiApi > QUOTA_THRESHOLDS.aiApi) {
-    await sendAlert('AI API 成本接近上限！');
+    await sendAlert('AI API 成本接近上限！')
   }
 
   if (current.cdn > QUOTA_THRESHOLDS.cdn) {
-    await sendAlert('CDN 流量成本接近上限！');
+    await sendAlert('CDN 流量成本接近上限！')
   }
 }
 ```
 
 ### C. 成本对比表
 
-| 云服务提供商 | 相同配置月度成本 | 推荐指数 |
-|-------------|----------------|---------|
-| DigitalOcean | $40-60 | ⭐⭐⭐⭐ |
-| Linode (Akamai) | $45-65 | ⭐⭐⭐⭐⭐ |
-| Vultr | $35-55 | ⭐⭐⭐⭐ |
-| Hetzner | $25-40 | ⭐⭐⭐⭐⭐ (性价比最高) |
-| AWS Lightsail | $50-70 | ⭐⭐⭐ |
-| GCP | $55-75 | ⭐⭐⭐ |
-| Azure | $60-80 | ⭐⭐⭐ |
+| 云服务提供商    | 相同配置月度成本 | 推荐指数                |
+| --------------- | ---------------- | ----------------------- |
+| DigitalOcean    | $40-60           | ⭐⭐⭐⭐                |
+| Linode (Akamai) | $45-65           | ⭐⭐⭐⭐⭐              |
+| Vultr           | $35-55           | ⭐⭐⭐⭐                |
+| Hetzner         | $25-40           | ⭐⭐⭐⭐⭐ (性价比最高) |
+| AWS Lightsail   | $50-70           | ⭐⭐⭐                  |
+| GCP             | $55-75           | ⭐⭐⭐                  |
+| Azure           | $60-80           | ⭐⭐⭐                  |
 
 ---
 
@@ -843,6 +850,6 @@ export async function checkQuotaAlerts(): Promise<void> {
 
 ---
 
-*本报告由 💰 财务 (AI Subagent) 自动生成*
-*分析维度: 基础设施 · AI API · 第三方服务 · CDN/带宽 · 人工维护*
-*版本: v1.0*
+_本报告由 💰 财务 (AI Subagent) 自动生成_
+_分析维度: 基础设施 · AI API · 第三方服务 · CDN/带宽 · 人工维护_
+_版本: v1.0_

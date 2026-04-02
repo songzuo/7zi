@@ -14,8 +14,8 @@
  * }
  */
 
-import { NextResponse } from 'next/server';
-import { logger } from '../logger';
+import { NextResponse } from 'next/server'
+import { logger } from '../logger'
 
 /**
  * Error types for different error categories
@@ -39,7 +39,7 @@ export enum ErrorType {
  * API Error class for structured error responses
  */
 export class ApiError extends Error {
-  public data?: Record<string, unknown>;
+  public data?: Record<string, unknown>
 
   constructor(
     public type: ErrorType,
@@ -47,8 +47,8 @@ export class ApiError extends Error {
     public statusCode: number = 500,
     public details?: Record<string, unknown>
   ) {
-    super(message);
-    this.name = 'ApiError';
+    super(message)
+    this.name = 'ApiError'
   }
 }
 
@@ -57,13 +57,13 @@ export class ApiError extends Error {
  * This is the standard format for all API error responses
  */
 export interface ErrorResponse {
-  success: false;
+  success: false
   error: {
-    type: ErrorType;
-    message: string;
-    details?: Record<string, unknown>;
-    timestamp: string;
-  };
+    type: ErrorType
+    message: string
+    details?: Record<string, unknown>
+    timestamp: string
+  }
 }
 
 /**
@@ -71,9 +71,9 @@ export interface ErrorResponse {
  * This is the standard format for all API success responses
  */
 export interface SuccessResponse<T = unknown> {
-  success: true;
-  data: T;
-  timestamp: string;
+  success: true
+  data: T
+  timestamp: string
 }
 
 /**
@@ -91,7 +91,7 @@ export function createSuccessResponse<T = unknown>(
       timestamp: new Date().toISOString(),
     },
     { status }
-  );
+  )
 }
 
 /**
@@ -103,7 +103,7 @@ export function createErrorResponse(
   statusCode?: number,
   details?: Record<string, unknown>
 ): NextResponse<ErrorResponse> {
-  const timestamp = new Date().toISOString();
+  const timestamp = new Date().toISOString()
 
   // If it's already an ApiError, use it directly
   if (error instanceof ApiError) {
@@ -118,14 +118,16 @@ export function createErrorResponse(
         },
       },
       { status: error.statusCode }
-    );
+    )
   }
 
   // Handle generic errors
-  logger.error('API Error', error instanceof Error ? error : new Error(String(error)), { category: 'api' });
+  logger.error('API Error', error instanceof Error ? error : new Error(String(error)), {
+    category: 'api',
+  })
 
-  const errorType = ErrorType.INTERNAL;
-  const status = statusCode ?? 500;
+  const errorType = ErrorType.INTERNAL
+  const status = statusCode ?? 500
 
   return NextResponse.json(
     {
@@ -134,14 +136,13 @@ export function createErrorResponse(
         type: errorType,
         message: 'An internal error occurred',
         // Only include details in development, and sanitize them
-        details: process.env.NODE_ENV === 'development'
-          ? { originalMessage: error.message }
-          : undefined,
+        details:
+          process.env.NODE_ENV === 'development' ? { originalMessage: error.message } : undefined,
         timestamp,
       },
     },
     { status }
-  );
+  )
 }
 
 /**
@@ -151,8 +152,8 @@ export function createValidationError(
   message: string,
   details?: Record<string, unknown>
 ): NextResponse<ErrorResponse> {
-  const error = new ApiError(ErrorType.VALIDATION, message, 400, details);
-  return createErrorResponse(error);
+  const error = new ApiError(ErrorType.VALIDATION, message, 400, details)
+  return createErrorResponse(error)
 }
 
 /**
@@ -162,8 +163,8 @@ export function createNotFoundError(
   message: string,
   details?: Record<string, unknown>
 ): NextResponse<ErrorResponse> {
-  const error = new ApiError(ErrorType.NOT_FOUND, message, 404, details);
-  return createErrorResponse(error);
+  const error = new ApiError(ErrorType.NOT_FOUND, message, 404, details)
+  return createErrorResponse(error)
 }
 
 /**
@@ -172,8 +173,8 @@ export function createNotFoundError(
 export function createUnauthorizedError(
   message: string = 'Unauthorized access'
 ): NextResponse<ErrorResponse> {
-  const error = new ApiError(ErrorType.UNAUTHORIZED, message, 401);
-  return createErrorResponse(error);
+  const error = new ApiError(ErrorType.UNAUTHORIZED, message, 401)
+  return createErrorResponse(error)
 }
 
 /**
@@ -182,12 +183,12 @@ export function createUnauthorizedError(
 export function createForbiddenError(
   message: string = 'Access forbidden',
   extra?: {
-    requiredPermissions?: string[];
-    missingPermissions?: string[];
+    requiredPermissions?: string[]
+    missingPermissions?: string[]
   }
 ): NextResponse<ErrorResponse> {
-  const error = new ApiError(ErrorType.FORBIDDEN, message, 403);
-  const response = createErrorResponse(error);
+  const error = new ApiError(ErrorType.FORBIDDEN, message, 403)
+  const response = createErrorResponse(error)
 
   // Add extra context if provided by adding to the error data
   if (extra) {
@@ -195,10 +196,10 @@ export function createForbiddenError(
       ...error.details,
       requiredPermissions: extra.requiredPermissions,
       missingPermissions: extra.missingPermissions,
-    };
+    }
   }
 
-  return response;
+  return response
 }
 
 /**
@@ -207,8 +208,8 @@ export function createForbiddenError(
 export function createRateLimitError(
   message: string = 'Rate limit exceeded'
 ): NextResponse<ErrorResponse> {
-  const error = new ApiError(ErrorType.RATE_LIMIT, message, 429);
-  return createErrorResponse(error);
+  const error = new ApiError(ErrorType.RATE_LIMIT, message, 429)
+  return createErrorResponse(error)
 }
 
 /**
@@ -217,8 +218,8 @@ export function createRateLimitError(
 export function createServiceUnavailableError(
   message: string = 'Service temporarily unavailable'
 ): NextResponse<ErrorResponse> {
-  const error = new ApiError(ErrorType.SERVICE_UNAVAILABLE, message, 503);
-  return createErrorResponse(error);
+  const error = new ApiError(ErrorType.SERVICE_UNAVAILABLE, message, 503)
+  return createErrorResponse(error)
 }
 
 /**
@@ -228,8 +229,8 @@ export function createRegistrationFailedError(
   message: string = 'Registration failed',
   details?: Record<string, unknown>
 ): NextResponse<ErrorResponse> {
-  const error = new ApiError(ErrorType.REGISTRATION_FAILED, message, 400, details);
-  return createErrorResponse(error);
+  const error = new ApiError(ErrorType.REGISTRATION_FAILED, message, 400, details)
+  return createErrorResponse(error)
 }
 
 /**
@@ -239,8 +240,8 @@ export function createWeakPasswordError(
   message: string = 'Password is too weak',
   details?: Record<string, unknown>
 ): NextResponse<ErrorResponse> {
-  const error = new ApiError(ErrorType.WEAK_PASSWORD, message, 400, details);
-  return createErrorResponse(error);
+  const error = new ApiError(ErrorType.WEAK_PASSWORD, message, 400, details)
+  return createErrorResponse(error)
 }
 
 /**
@@ -250,8 +251,8 @@ export function createBadRequestError(
   message: string = 'Bad request',
   details?: Record<string, unknown>
 ): NextResponse<ErrorResponse> {
-  const error = new ApiError(ErrorType.BAD_REQUEST, message, 400, details);
-  return createErrorResponse(error);
+  const error = new ApiError(ErrorType.BAD_REQUEST, message, 400, details)
+  return createErrorResponse(error)
 }
 
 /**
@@ -260,8 +261,8 @@ export function createBadRequestError(
 export function createMissingTokenError(
   message: string = 'Authentication token is missing'
 ): NextResponse<ErrorResponse> {
-  const error = new ApiError(ErrorType.MISSING_TOKEN, message, 401);
-  return createErrorResponse(error);
+  const error = new ApiError(ErrorType.MISSING_TOKEN, message, 401)
+  return createErrorResponse(error)
 }
 
 /**
@@ -279,9 +280,9 @@ export function withErrorHandling<T extends (...args: unknown[]) => Promise<Next
 ): T {
   return (async (...args: unknown[]) => {
     try {
-      return await handler(...(args as Parameters<T>));
+      return await handler(...(args as Parameters<T>))
     } catch (error) {
-      return createErrorResponse(error instanceof Error ? error : new Error(String(error)));
+      return createErrorResponse(error instanceof Error ? error : new Error(String(error)))
     }
-  }) as unknown as T;
+  }) as unknown as T
 }

@@ -10,16 +10,17 @@
 
 ### 整体评分: 78/100
 
-| 审查项目 | 评分 | 状态 |
-|---------|------|------|
-| 房间系统 UI | 90/100 | ✅ 优秀 |
-| 消息界面 | 40/100 | ⚠️ 需改进 |
+| 审查项目    | 评分   | 状态      |
+| ----------- | ------ | --------- |
+| 房间系统 UI | 90/100 | ✅ 优秀   |
+| 消息界面    | 40/100 | ⚠️ 需改进 |
 | 权限提示 UI | 55/100 | ⚠️ 需改进 |
-| 暗色模式 | 95/100 | ✅ 优秀 |
-| 响应式设计 | 85/100 | ✅ 良好 |
-| 代码一致性 | 70/100 | ⚠️ 需改进 |
+| 暗色模式    | 95/100 | ✅ 优秀   |
+| 响应式设计  | 85/100 | ✅ 良好   |
+| 代码一致性  | 70/100 | ⚠️ 需改进 |
 
 **关键发现**:
+
 - ✅ 房间系统 UI 完整且美观
 - ⚠️ **消息界面 UI 组件缺失**（优先级 P0）
 - ⚠️ 权限提示组件存在但未集成
@@ -40,41 +41,49 @@
 ### 1.2 优点 ✨
 
 **完整性**
+
 - 所有房间相关功能都有对应 UI 组件
 - 创建/加入/离开房间流程完整
 - 成员管理、设置、邀请等功能齐全
 
 **视觉设计**
+
 - 统一的视觉语言（圆角、阴影、配色）
 - 清晰的信息层级
 - 状态指示器直观（在线/离线/连接状态）
 - 角色徽章设计友好（👑 owner, 🛡️ admin）
 
 **交互体验**
+
 - 加载状态明确（骨架屏/加载动画）
 - 错误处理清晰（错误提示、重试按钮）
 - 搜索和过滤功能直观
 - 响应式布局适配良好
 
 **暗色模式支持**
+
 - 所有组件完全支持暗色模式
 - 72 处 `dark:` 样式覆盖
 
 ### 1.3 发现的问题
 
 **🔴 P1 - 缺少消息列表集成** ⚠️
+
 - `RoomDetail` 组件中没有消息列表显示
 - 消息相关 UI 组件缺失（见第 2 节）
 - 影响：用户无法在房间内查看历史消息
 
 **🟡 P2 - 成员列表缺少在线状态动画**
+
 ```typescript
 // 当前状态：静态图标
 <span className={member.isOnline ? 'bg-green-500' : 'bg-gray-400'}>
 ```
+
 **建议**: 添加脉动效果增强在线状态感知
 
 **🟡 P2 - 时间格式化不统一**
+
 ```typescript
 // RoomList 中使用相对时间
 ${Math.floor(diff / 60000)}m
@@ -82,9 +91,11 @@ ${Math.floor(diff / 60000)}m
 // RoomDetail 中使用绝对时间
 new Date(timestamp).toLocaleString()
 ```
+
 **建议**: 统一时间格式化工具，保持一致性
 
 **🟢 P3 - 表情反应 UI 缺失**
+
 - 类型定义中包含 `reactions?: MessageReaction[]`
 - 但 UI 中没有显示表情反应的组件
 
@@ -99,22 +110,24 @@ new Date(timestamp).toLocaleString()
 ### 2.2 现有基础设施 ✅
 
 **数据模型** (`src/features/websocket/message/message-model.ts`)
+
 ```typescript
 export interface Message {
-  id: string;
-  roomId: string;
-  senderId: string;
-  senderName: string;
-  type: MessageType;  // text | file | image | audio | video | system | notification
-  content: MessageContent;
-  replyTo?: string;
-  editedAt?: number;
-  reactions?: MessageReaction[];
-  createdAt: number;
+  id: string
+  roomId: string
+  senderId: string
+  senderName: string
+  type: MessageType // text | file | image | audio | video | system | notification
+  content: MessageContent
+  replyTo?: string
+  editedAt?: number
+  reactions?: MessageReaction[]
+  createdAt: number
 }
 ```
 
 **状态管理** (`src/stores/room-store.ts`)
+
 ```typescript
 messages: Record<string, RoomMessage[]>;
 unreadCounts: Record<string, number>;
@@ -125,24 +138,25 @@ addMessage: (roomId: string, message: RoomMessage) => void;
 
 **🔴 P0 - 必须实现**
 
-| 组件 | 功能 | 优先级 |
-|------|------|--------|
-| `MessageList` | 消息列表显示 | P0 |
-| `MessageInput` | 消息输入框 | P0 |
-| `MessageBubble` | 单条消息气泡 | P0 |
-| `MessageReactionPicker` | 表情反应选择器 | P1 |
-| `MessageReplyPreview` | 回复预览 | P1 |
+| 组件                    | 功能           | 优先级 |
+| ----------------------- | -------------- | ------ |
+| `MessageList`           | 消息列表显示   | P0     |
+| `MessageInput`          | 消息输入框     | P0     |
+| `MessageBubble`         | 单条消息气泡   | P0     |
+| `MessageReactionPicker` | 表情反应选择器 | P1     |
+| `MessageReplyPreview`   | 回复预览       | P1     |
 
 ### 2.4 建议实现方案
 
 **MessageList 组件架构**
+
 ```typescript
 interface MessageListProps {
-  roomId: string;
-  messages: RoomMessage[];
-  currentUserId: string;
-  onReply?: (messageId: string) => void;
-  onReact?: (messageId: string, emoji: string) => void;
+  roomId: string
+  messages: RoomMessage[]
+  currentUserId: string
+  onReply?: (messageId: string) => void
+  onReact?: (messageId: string, emoji: string) => void
 }
 
 // 功能需求：
@@ -156,12 +170,13 @@ interface MessageListProps {
 ```
 
 **MessageInput 组件架构**
+
 ```typescript
 interface MessageInputProps {
-  roomId: string;
-  replyTo?: RoomMessage;
-  onCancelReply?: () => void;
-  onSend: (content: string, replyTo?: string) => void;
+  roomId: string
+  replyTo?: RoomMessage
+  onCancelReply?: () => void
+  onSend: (content: string, replyTo?: string) => void
 }
 
 // 功能需求：
@@ -177,6 +192,7 @@ interface MessageInputProps {
 ### 2.5 设计规范建议
 
 **消息气泡样式**
+
 ```
 自己消息:
 - 背景色: bg-blue-600 dark:bg-blue-500
@@ -192,6 +208,7 @@ interface MessageInputProps {
 ```
 
 **时间戳分组**
+
 ```
 今天:
 - 显示: HH:mm (14:30)
@@ -213,6 +230,7 @@ interface MessageInputProps {
 ### 3.1 现状
 
 **可用组件**: `EmptyPermission` ✅
+
 ```typescript
 export const EmptyPermission: React.FC<EmptyPermissionProps> = ({
   title = '权限不足',
@@ -226,13 +244,14 @@ export const EmptyPermission: React.FC<EmptyPermissionProps> = ({
 
 **🟡 P1 - 组件未集成到场景中**
 
-| 场景 | 当前状态 | 建议改进 |
-|------|---------|---------|
-| 房间设置 | 仅管理员可见按钮 | 非管理员应看到 `EmptyPermission` |
-| 成员管理 | 仅显示移除按钮 | 无权限时应隐藏/禁用 |
-| 删除房间 | 有 `confirm` 确认 | 应检查权限后再显示按钮 |
+| 场景     | 当前状态          | 建议改进                         |
+| -------- | ----------------- | -------------------------------- |
+| 房间设置 | 仅管理员可见按钮  | 非管理员应看到 `EmptyPermission` |
+| 成员管理 | 仅显示移除按钮    | 无权限时应隐藏/禁用              |
+| 删除房间 | 有 `confirm` 确认 | 应检查权限后再显示按钮           |
 
 **示例问题代码** (`RoomDetail.tsx`):
+
 ```typescript
 {isAdmin && member.id !== currentUserId && member.role !== 'owner' && (
   <Button variant="danger" size="sm" onClick={() => removeMember(room.id, member.id)}>
@@ -240,9 +259,11 @@ export const EmptyPermission: React.FC<EmptyPermissionProps> = ({
   </Button>
 )}
 ```
+
 **问题**: 使用条件渲染隐藏按钮，而不是显示权限不足提示
 
 **建议改进**:
+
 ```typescript
 {isAdmin ? (
   member.id !== currentUserId && member.role !== 'owner' ? (
@@ -260,6 +281,7 @@ export const EmptyPermission: React.FC<EmptyPermissionProps> = ({
 ### 3.3 建议的权限提示系统
 
 **权限级别映射**
+
 ```
 owner: 完全访问权限
 admin: 管理员权限（可以踢人、修改设置）
@@ -270,45 +292,42 @@ guest: 访客（只能查看，受限操作）
 
 **权限不足提示类型**
 
-| 场景 | 提示文案 | 图标 |
-|------|---------|------|
-| 没有房间访问权限 | "此房间为私密，需要邀请才能访问" | 🔒 |
-| 不是管理员 | "此操作需要管理员权限" | 🛡️ |
-| 已被封禁 | "您已被禁止在此房间发言" | 🚫 |
-| 房间已满 | "房间人数已达上限" | 👥 |
+| 场景             | 提示文案                         | 图标 |
+| ---------------- | -------------------------------- | ---- |
+| 没有房间访问权限 | "此房间为私密，需要邀请才能访问" | 🔒   |
+| 不是管理员       | "此操作需要管理员权限"           | 🛡️   |
+| 已被封禁         | "您已被禁止在此房间发言"         | 🚫   |
+| 房间已满         | "房间人数已达上限"               | 👥   |
 
 ### 3.4 权限检查 Hook 建议
 
 ```typescript
 // hooks/useRoomPermission.ts
-export function useRoomPermission(
-  room: Room | null,
-  userId: string | null
-) {
+export function useRoomPermission(room: Room | null, userId: string | null) {
   const canEditSettings = useMemo(() => {
-    if (!room || !userId) return false;
-    const member = room.members.find(m => m.id === userId);
-    return member?.role === 'owner' || member?.role === 'admin';
-  }, [room, userId]);
+    if (!room || !userId) return false
+    const member = room.members.find(m => m.id === userId)
+    return member?.role === 'owner' || member?.role === 'admin'
+  }, [room, userId])
 
   const canKickMember = useMemo(() => {
-    if (!room || !userId) return false;
-    const member = room.members.find(m => m.id === userId);
-    return member?.role === 'owner' || member?.role === 'admin' || member?.role === 'moderator';
-  }, [room, userId]);
+    if (!room || !userId) return false
+    const member = room.members.find(m => m.id === userId)
+    return member?.role === 'owner' || member?.role === 'admin' || member?.role === 'moderator'
+  }, [room, userId])
 
   const canDeleteRoom = useMemo(() => {
-    if (!room || !userId) return false;
-    const member = room.members.find(m => m.id === userId);
-    return member?.role === 'owner';
-  }, [room, userId]);
+    if (!room || !userId) return false
+    const member = room.members.find(m => m.id === userId)
+    return member?.role === 'owner'
+  }, [room, userId])
 
   return {
     canEditSettings,
     canKickMember,
     canDeleteRoom,
     // ...
-  };
+  }
 }
 ```
 
@@ -326,26 +345,28 @@ export function useRoomPermission(
 
 ### 4.2 统计数据
 
-| 文件类型 | dark: 样式数量 | 覆盖率 |
-|---------|---------------|--------|
-| rooms/*.tsx | 72 | 100% |
-| ui/*.tsx | 105 | 100% |
-| 其他 | 待统计 | ~95% |
+| 文件类型     | dark: 样式数量 | 覆盖率 |
+| ------------ | -------------- | ------ |
+| rooms/\*.tsx | 72             | 100%   |
+| ui/\*.tsx    | 105            | 100%   |
+| 其他         | 待统计         | ~95%   |
 
 ### 4.3 Design Tokens 审查 ✅
 
 **颜色系统** (`src/styles/tokens.css`)
+
 ```css
 /* 完整的暗色主题定义 */
 .dark {
-  --color-gray-50: #0f172a;      /* 最深背景 */
-  --color-gray-100: #1e293b;     /* 次深背景 */
-  --color-gray-900: #f8fafc;     /* 最亮文本 */
+  --color-gray-50: #0f172a; /* 最深背景 */
+  --color-gray-100: #1e293b; /* 次深背景 */
+  --color-gray-900: #f8fafc; /* 最亮文本 */
   /* ... */
 }
 ```
 
 **优点**:
+
 - ✅ 完整的颜色语义化（primary, gray, success, warning, error）
 - ✅ 阴影适配暗色模式（增加不透明度）
 - ✅ 所有颜色变量都有暗色对应值
@@ -364,6 +385,7 @@ text-green-500 dark:text-green-400  // ✅ 正确
 ```
 
 **建议**: 使用 CSS 变量替代硬编码颜色值
+
 ```css
 .badge {
   background-color: var(--color-primary-500);
@@ -374,6 +396,7 @@ text-green-500 dark:text-green-400  // ✅ 正确
 ### 4.5 主题切换器 ✅
 
 **功能完整**:
+
 - ✅ 三种模式（light/dark/system）
 - ✅ 图标切换动画
 - ✅ 可访问性（aria-label）
@@ -386,6 +409,7 @@ text-green-500 dark:text-green-400  // ✅ 正确
 ### 5.1 断点配置
 
 **Tailwind 配置** (`tailwind.config.js`)
+
 ```javascript
 module.exports = {
   darkMode: 'class',
@@ -401,6 +425,7 @@ module.exports = {
 ### 5.2 移动端优化
 
 **✅ 已有优化**
+
 - LazyImage 图片懒加载组件
 - 响应式图片 srcset 支持
 - 触摸手势 Hooks（useTouchGestures, usePinchToZoom）
@@ -408,6 +433,7 @@ module.exports = {
 - 移动端优化演示页面
 
 **示例代码分析** (`mobile-optimization-demo/page.tsx`):
+
 ```typescript
 // ✅ 响应式 Hero 区域
 <section className="h-[50vh] sm:h-[60vh] md:h-[70vh]">
@@ -425,6 +451,7 @@ const swipeRef = useSwipe({
 ### 5.3 房间系统响应式审查
 
 **RoomList.tsx** ✅
+
 ```typescript
 // ✅ 响应式布局
 <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
@@ -437,6 +464,7 @@ const swipeRef = useSwipe({
 ```
 
 **RoomDetail.tsx** ✅
+
 ```typescript
 // ✅ 响应式卡片网格
 <div className="grid grid-cols-2 gap-4 sm:grid-cols-4">
@@ -448,10 +476,12 @@ const swipeRef = useSwipe({
 ### 5.4 发现的问题
 
 **🟡 P2 - 移动端导航问题**
+
 - 房间详情页 Tabs 可能在小屏幕上水平溢出
 - 当前实现: `overflow-x-auto`（可用但体验一般）
 
 **建议改进**:
+
 ```typescript
 // 移动端使用下拉菜单
 <select className="md:hidden">
@@ -468,6 +498,7 @@ const swipeRef = useSwipe({
 ```
 
 **🟢 P3 - 触摸目标尺寸**
+
 ```typescript
 // 某些按钮可能小于 44px
 <Button size="xs" className="px-2.5 py-1">  // ❌ 移动端过小
@@ -484,15 +515,18 @@ const swipeRef = useSwipe({
 **🟡 P1 - WebSocketStatusPanel 组件重复** ⚠️
 
 **重复位置**:
+
 1. `src/features/websocket/components/WebSocketStatusPanel.tsx`
 2. `src/components/websocket/WebSocketStatusPanel.tsx`
 
 **影响**:
+
 - 代码维护困难
 - 可能导致行为不一致
 - 增加打包体积
 
 **建议**:
+
 ```
 保留: src/features/websocket/components/WebSocketStatusPanel.tsx
 删除: src/components/websocket/WebSocketStatusPanel.tsx
@@ -503,13 +537,14 @@ const swipeRef = useSwipe({
 
 ```typescript
 // Button.tsx
-variant="primary"  // ✅
+variant = 'primary' // ✅
 
 // Modal.tsx
-showCloseButton   // ❌ 前缀不一致，应该 closeable 或 withCloseButton
+showCloseButton // ❌ 前缀不一致，应该 closeable 或 withCloseButton
 ```
 
 **建议**: 制定并遵循命名规范
+
 ```
 属性命名:
 - 布尔值: isXxx, hasXxx, showXxx, withXxx (统一使用一种)
@@ -523,11 +558,13 @@ showCloseButton   // ❌ 前缀不一致，应该 closeable 或 withCloseButton
 **🟢 P3 - 类型定义分散**
 
 当前状态:
+
 - `src/types/rooms.ts` - 房间相关
 - `src/features/websocket/message/message-model.ts` - 消息相关
 - 组件内定义接口 - 零散
 
 **建议**:
+
 ```
 统一到 src/types/:
 - types/rooms.ts
@@ -539,15 +576,18 @@ showCloseButton   // ❌ 前缀不一致，应该 closeable 或 withCloseButton
 ### 6.2 组件结构一致性
 
 **优点** ✅
+
 - 所有组件都有 JSDoc 注释
 - Props 类型定义完整
 - 使用 clsx 进行样式合并
 
 **需要改进** 🟡
+
 - 部分组件缺少 `export interface Props`（使用内联类型）
 - 缺少统一的组件文件结构模板
 
 **建议的文件结构**:
+
 ```typescript
 /**
  * ComponentName 组件
@@ -558,34 +598,34 @@ showCloseButton   // ❌ 前缀不一致，应该 closeable 或 withCloseButton
  * <ComponentName prop="value" />
  */
 
-'use client';
+'use client'
 
-import React, { memo, forwardRef, useCallback, useMemo } from 'react';
-import clsx from 'clsx';
+import React, { memo, forwardRef, useCallback, useMemo } from 'react'
+import clsx from 'clsx'
 
 // ============================================
 // 类型定义
 // ============================================
 export interface ComponentNameProps {
   /** 属性描述 */
-  prop: string;
+  prop: string
 }
 
 // ============================================
 // 组件实现
 // ============================================
-export const ComponentName = memo(forwardRef<HTMLDivElement, ComponentNameProps>(
-  ({ prop, className, ...props }, ref) => {
+export const ComponentName = memo(
+  forwardRef<HTMLDivElement, ComponentNameProps>(({ prop, className, ...props }, ref) => {
     // 实现逻辑
-  }
-));
+  })
+)
 
-ComponentName.displayName = 'ComponentName';
+ComponentName.displayName = 'ComponentName'
 
 // ============================================
 // 导出
 // ============================================
-export default ComponentName;
+export default ComponentName
 ```
 
 ---
@@ -595,6 +635,7 @@ export default ComponentName;
 ### 🔴 P0 - 阻塞问题
 
 **Bug #1: 消息界面 UI 完全缺失**
+
 - **位置**: 消息相关组件
 - **影响**: 用户无法在房间内发送/接收消息
 - **复现**: 打开任意房间，无消息列表和输入框
@@ -603,11 +644,13 @@ export default ComponentName;
 ### 🟡 P1 - 重要问题
 
 **Bug #2: WebSocketStatusPanel 组件重复**
+
 - **位置**: `src/features/websocket/components/` 和 `src/components/websocket/`
 - **影响**: 代码维护困难，可能导致不一致
 - **修复**: 删除重复组件，统一导入路径
 
 **Bug #3: 权限检查未集成到 UI**
+
 - **位置**: `RoomDetail.tsx`, `RoomList.tsx`
 - **影响**: 用户不知道某些功能为何不可用
 - **修复**: 实现 useRoomPermission Hook，集成 EmptyPermission 组件
@@ -615,11 +658,13 @@ export default ComponentName;
 ### 🟢 P2 - 次要问题
 
 **Bug #4: 时间格式化不统一**
+
 - **位置**: `RoomList.tsx` vs `RoomDetail.tsx`
 - **影响**: 用户体验不一致
 - **修复**: 创建统一的时间格式化工具
 
 **Bug #5: 移动端 Tabs 可能溢出**
+
 - **位置**: `RoomDetail.tsx` Tabs 导航
 - **影响**: 小屏幕体验不佳
 - **修复**: 移动端使用下拉菜单

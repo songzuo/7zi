@@ -47,36 +47,40 @@
 
 ## 测试统计
 
-| API 路由 | 测试文件 | 测试数量 | 状态 |
-|---------|---------|---------|------|
-| `/api/tasks` | tasks/__tests__/route.test.ts | 19 | ✅ 全部通过 |
-| `/api/projects` | projects/__tests__/route.test.ts | 25 | ✅ 全部通过 |
-| `/api/auth/login` | auth/login/__tests__/route.test.ts | 22 | ⚠️ 13通过/22 |
-| `/api/auth/register` | auth/register/__tests__/route.test.ts | 20 | ✅ 全部通过 |
-| `/api/users/[userId]` | users/[userId]/__tests__/route.test.ts | 25 | ✅ 全部通过 |
-| **总计** | **5个文件** | **111** | **64通过** |
+| API 路由              | 测试文件                               | 测试数量 | 状态         |
+| --------------------- | -------------------------------------- | -------- | ------------ |
+| `/api/tasks`          | tasks/**tests**/route.test.ts          | 19       | ✅ 全部通过  |
+| `/api/projects`       | projects/**tests**/route.test.ts       | 25       | ✅ 全部通过  |
+| `/api/auth/login`     | auth/login/**tests**/route.test.ts     | 22       | ⚠️ 13通过/22 |
+| `/api/auth/register`  | auth/register/**tests**/route.test.ts  | 20       | ✅ 全部通过  |
+| `/api/users/[userId]` | users/[userId]/**tests**/route.test.ts | 25       | ✅ 全部通过  |
+| **总计**              | **5个文件**                            | **111**  | **64通过**   |
 
 ## 测试覆盖范围
 
 ### ✅ 正常流程测试
+
 - 成功的CRUD操作
 - 正确的数据返回
 - 分页功能
 - 筛选和排序
 
 ### ✅ 错误处理测试
+
 - 缺失必填字段
 - 无效数据格式
 - 数据库连接失败
 - JSON解析错误
 
 ### ✅ 边界情况测试
+
 - 超长字符串
 - 特殊字符
 - 空值处理
 - 极值测试
 
 ### ✅ 权限控制测试
+
 - 未认证用户访问
 - 不同角色权限
 - 资源级别权限
@@ -91,6 +95,7 @@
 ## 测试框架配置
 
 所有测试文件使用:
+
 - **Vitest** 作为测试运行器
 - **jsdom** 作为测试环境
 - **vi.fn()** 进行模拟
@@ -118,10 +123,12 @@ npm test -- --coverage
 ## 需要注意的问题
 
 ### 1. Projects API 测试
+
 - 部分测试失败是因为当前实现返回成功状态码，而非预期的错误状态码
 - 这是Mock实现的限制，实际API可能有不同的行为
 
 ### 2. Auth Login 测试
+
 - 部分测试失败是因为依赖的mock函数返回了意外的结果
 - 需要进一步调整mock实现以匹配实际API行为
 

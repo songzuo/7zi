@@ -4,30 +4,30 @@
  * 生成各种格式的兼容性报告
  */
 
-import { ScanResult, IncompatibilityReport, CompilerIssue } from './scanner';
+import { ScanResult, IncompatibilityReport, CompilerIssue } from './scanner'
 
 export interface CompatibilityReport {
-  format: 'json' | 'markdown' | 'html';
-  generatedAt: string;
-  scanResult: ScanResult;
+  format: 'json' | 'markdown' | 'html'
+  generatedAt: string
+  scanResult?: ScanResult
   summary: {
-    totalFiles: number;
-    compatibleFiles: number;
-    incompatibleFiles: number;
-    compatibilityRate: number;
-  };
+    totalFiles: number
+    compatibleFiles: number
+    incompatibleFiles: number
+    compatibilityRate: number
+  }
   details?: {
-    highSeverityIssues: IncompatibilityReport[];
-    mediumSeverityIssues: IncompatibilityReport[];
-    lowSeverityIssues: IncompatibilityReport[];
-  };
-  recommendations: string[];
+    highSeverityIssues: IncompatibilityReport[]
+    mediumSeverityIssues: IncompatibilityReport[]
+    lowSeverityIssues: IncompatibilityReport[]
+  }
+  recommendations: string[]
 }
 
 export interface ReportOptions {
-  format?: 'json' | 'markdown' | 'html';
-  includeDetails?: boolean;
-  includeMigrationGuide?: boolean;
+  format?: 'json' | 'markdown' | 'html'
+  includeDetails?: boolean
+  includeMigrationGuide?: boolean
 }
 
 /**
@@ -38,23 +38,21 @@ export function generateCompatibilityReport(
   options: ReportOptions = {}
 ): CompatibilityReport {
   // 处理异步扫描结果
-  const isPromise = scanResult instanceof Promise;
-  const result = isPromise ? null : scanResult;
+  const isPromise = scanResult instanceof Promise
+  const result = isPromise ? null : scanResult
 
-  const { format = 'json', includeDetails = true } = options;
+  const { format = 'json', includeDetails = true } = options
 
   // 计算兼容性百分比
-  const compatibilityRate = result
-    ? (result.compatibleFiles / result.totalFiles) * 100
-    : 0;
+  const compatibilityRate = result ? (result.compatibleFiles / result.totalFiles) * 100 : 0
 
   // 生成建议
-  const recommendations = generateRecommendations(result);
+  const recommendations = generateRecommendations(result ?? undefined)
 
   const report: CompatibilityReport = {
     format,
     generatedAt: new Date().toISOString(),
-    scanResult: result,
+    scanResult: result ?? undefined,
     summary: {
       totalFiles: result?.totalFiles || 0,
       compatibleFiles: result?.compatibleFiles || 0,
@@ -62,7 +60,7 @@ export function generateCompatibilityReport(
       compatibilityRate,
     },
     recommendations,
-  };
+  }
 
   // 添加详细信息
   if (includeDetails && result) {
@@ -70,168 +68,170 @@ export function generateCompatibilityReport(
       highSeverityIssues: result.reports.filter((r: IncompatibilityReport) =>
         r.issues.some((i: CompilerIssue) => i.severity === 'high')
       ),
-      mediumSeverityIssues: result.reports.filter((r: IncompatibilityReport) =>
-        r.issues.some((i: CompilerIssue) => i.severity === 'medium') &&
-        !r.issues.some((i: CompilerIssue) => i.severity === 'high')
+      mediumSeverityIssues: result.reports.filter(
+        (r: IncompatibilityReport) =>
+          r.issues.some((i: CompilerIssue) => i.severity === 'medium') &&
+          !r.issues.some((i: CompilerIssue) => i.severity === 'high')
       ),
-      lowSeverityIssues: result.reports.filter((r: IncompatibilityReport) =>
-        r.issues.some((i: CompilerIssue) => i.severity === 'low') &&
-        !r.issues.some((i: CompilerIssue) => i.severity === 'high' || i.severity === 'medium')
+      lowSeverityIssues: result.reports.filter(
+        (r: IncompatibilityReport) =>
+          r.issues.some((i: CompilerIssue) => i.severity === 'low') &&
+          !r.issues.some((i: CompilerIssue) => i.severity === 'high' || i.severity === 'medium')
       ),
-    };
+    }
   }
 
-  return report;
+  return report
 }
 
 /**
  * 生成修复建议
  */
 function generateRecommendations(scanResult?: ScanResult): string[] {
-  if (!scanResult) return [];
+  if (!scanResult) return []
 
-  const recommendations: string[] = [];
+  const recommendations: string[] = []
 
   // 总体建议
-  const compatibilityRate = (scanResult.compatibleFiles / scanResult.totalFiles) * 100;
+  const compatibilityRate = (scanResult.compatibleFiles / scanResult.totalFiles) * 100
 
   if (compatibilityRate > 90) {
-    recommendations.push('✅ 项目整体兼容性良好，可以逐步启用 React Compiler');
+    recommendations.push('✅ 项目整体兼容性良好，可以逐步启用 React Compiler')
   } else if (compatibilityRate > 70) {
-    recommendations.push('⚠️ 项目兼容性中等，建议先修复高优先级问题');
+    recommendations.push('⚠️ 项目兼容性中等，建议先修复高优先级问题')
   } else {
-    recommendations.push('❌ 项目兼容性较低，建议进行全面重构再启用');
+    recommendations.push('❌ 项目兼容性较低，建议进行全面重构再启用')
   }
 
   // 按问题类型给出建议
-  const issueTypes = Object.entries(scanResult.summary.byType);
+  const issueTypes = Object.entries(scanResult.summary.byType)
 
   if (issueTypes.length > 0) {
-    const mostCommonType = issueTypes
-      .sort((a, b) => b[1] - a[1])[0];
+    const mostCommonType = issueTypes.sort((a, b) => b[1] - a[1])[0]
 
-    recommendations.push(
-      `最常见的问题类型: "${mostCommonType[0]}" (${mostCommonType[1]} 处)`
-    );
+    recommendations.push(`最常见的问题类型: "${mostCommonType[0]}" (${mostCommonType[1]} 处)`)
   }
 
   // 高严重程度问题建议
-  const highSeverityCount = scanResult.summary.bySeverity.high || 0;
+  const highSeverityCount = scanResult.summary.bySeverity.high || 0
   if (highSeverityCount > 0) {
-    recommendations.push(
-      `⚠️ 发现 ${highSeverityCount} 个高严重程度问题，需要优先修复`
-    );
+    recommendations.push(`⚠️ 发现 ${highSeverityCount} 个高严重程度问题，需要优先修复`)
   }
 
   // 迁移建议
-  recommendations.push(
-    '📋 建议优先处理高严重程度问题，然后逐步修复中低优先级问题'
-  );
-  recommendations.push(
-    '🔄 可以使用组件级别的编译器开关，逐步迁移到 React Compiler'
-  );
+  recommendations.push('📋 建议优先处理高严重程度问题，然后逐步修复中低优先级问题')
+  recommendations.push('🔄 可以使用组件级别的编译器开关，逐步迁移到 React Compiler')
 
-  return recommendations;
+  return recommendations
 }
 
 /**
  * 生成 Markdown 格式报告
  */
 export function generateMarkdownReport(report: CompatibilityReport): string {
-  const { summary, details, recommendations } = report;
+  const { summary, details, recommendations } = report
 
-  const lines: string[] = [];
+  const lines: string[] = []
 
   // 标题
-  lines.push('# React Compiler 兼容性报告\n');
-  lines.push(`生成时间: ${new Date(report.generatedAt).toLocaleString('zh-CN')}\n`);
+  lines.push('# React Compiler 兼容性报告\n')
+  lines.push(`生成时间: ${new Date(report.generatedAt).toLocaleString('zh-CN')}\n`)
 
   // 摘要
-  lines.push('## 📊 摘要\n');
-  lines.push(`- **总文件数**: ${summary.totalFiles}`);
-  lines.push(`- **兼容文件**: ${summary.compatibleFiles} (${summary.compatibilityRate.toFixed(1)}%)`);
-  lines.push(`- **不兼容文件**: ${summary.incompatibleFiles} (${(100 - summary.compatibilityRate).toFixed(1)}%)\n`);
+  lines.push('## 📊 摘要\n')
+  lines.push(`- **总文件数**: ${summary.totalFiles}`)
+  lines.push(
+    `- **兼容文件**: ${summary.compatibleFiles} (${summary.compatibilityRate.toFixed(1)}%)`
+  )
+  lines.push(
+    `- **不兼容文件**: ${summary.incompatibleFiles} (${(100 - summary.compatibilityRate).toFixed(1)}%)\n`
+  )
 
   // 详细信息
   if (details) {
-    lines.push('## 🔍 详细问题\n');
+    lines.push('## 🔍 详细问题\n')
 
     // 高严重程度
     if (details.highSeverityIssues.length > 0) {
-      lines.push('### 🔴 高严重程度问题\n');
+      lines.push('### 🔴 高严重程度问题\n')
       details.highSeverityIssues.forEach(report => {
-        lines.push(`#### ${report.filePath}${report.componentName ? ` (${report.componentName})` : ''}\n`);
+        lines.push(
+          `#### ${report.filePath}${report.componentName ? ` (${report.componentName})` : ''}\n`
+        )
         report.issues.forEach(issue => {
-          lines.push(`- **${issue.type}**: ${issue.message}`);
+          lines.push(`- **${issue.type}**: ${issue.message}`)
           if (issue.suggestion) {
-            lines.push(`  - 建议: ${issue.suggestion}`);
+            lines.push(`  - 建议: ${issue.suggestion}`)
           }
-          lines.push('');
-        });
-      });
+          lines.push('')
+        })
+      })
     }
 
     // 中严重程度
     if (details.mediumSeverityIssues.length > 0) {
-      lines.push('### 🟡 中严重程度问题\n');
+      lines.push('### 🟡 中严重程度问题\n')
       details.mediumSeverityIssues.forEach(report => {
-        lines.push(`#### ${report.filePath}\n`);
+        lines.push(`#### ${report.filePath}\n`)
         report.issues.forEach(issue => {
-          lines.push(`- **${issue.type}**: ${issue.message}`);
+          lines.push(`- **${issue.type}**: ${issue.message}`)
           if (issue.suggestion) {
-            lines.push(`  - 建议: ${issue.suggestion}`);
+            lines.push(`  - 建议: ${issue.suggestion}`)
           }
-          lines.push('');
-        });
-      });
+          lines.push('')
+        })
+      })
     }
 
     // 低严重程度
     if (details.lowSeverityIssues.length > 0) {
-      lines.push('### 🟢 低严重程度问题\n');
+      lines.push('### 🟢 低严重程度问题\n')
       details.lowSeverityIssues.forEach(report => {
-        lines.push(`#### ${report.filePath}\n`);
+        lines.push(`#### ${report.filePath}\n`)
         report.issues.forEach(issue => {
-          lines.push(`- **${issue.type}**: ${issue.message}`);
+          lines.push(`- **${issue.type}**: ${issue.message}`)
           if (issue.suggestion) {
-            lines.push(`  - 建议: ${issue.suggestion}`);
+            lines.push(`  - 建议: ${issue.suggestion}`)
           }
-          lines.push('');
-        });
-      });
+          lines.push('')
+        })
+      })
     }
   }
 
   // 建议
-  lines.push('## 💡 建议\n');
+  lines.push('## 💡 建议\n')
   recommendations.forEach(rec => {
-    lines.push(`- ${rec}`);
-  });
-  lines.push('');
+    lines.push(`- ${rec}`)
+  })
+  lines.push('')
 
   // 问题统计
-  lines.push('## 📈 问题统计\n');
-  const { byType, bySeverity } = report.scanResult.summary;
+  lines.push('## 📈 问题统计\n')
+  const { byType, bySeverity } = report.scanResult?.summary || {
+    byType: {},
+    bySeverity: { high: 0, medium: 0, low: 0 },
+  }
 
-  lines.push('### 按类型统计\n');
+  lines.push('### 按类型统计\n')
   Object.entries(byType).forEach(([type, count]) => {
-    lines.push(`- ${type}: ${count}`);
-  });
-  lines.push('');
+    lines.push(`- ${type}: ${count}`)
+  })
+  lines.push('')
 
-  lines.push('### 按严重程度统计\n');
-  lines.push(`- High: ${bySeverity.high}`);
-  lines.push(`- Medium: ${bySeverity.medium}`);
-  lines.push(`- Low: ${bySeverity.low}\n`);
+  lines.push('### 按严重程度统计\n')
+  lines.push(`- High: ${bySeverity.high}`)
+  lines.push(`- Medium: ${bySeverity.medium}`)
+  lines.push(`- Low: ${bySeverity.low}\n`)
 
-  return lines.join('\n');
+  return lines.join('\n')
 }
 
 /**
  * 生成 HTML 格式报告
  */
 export function generateHTMLReport(report: CompatibilityReport): string {
-  const { summary, details, recommendations } = report;
+  const { summary, details, recommendations } = report
 
   const html = `
 <!DOCTYPE html>
@@ -377,53 +377,93 @@ export function generateHTMLReport(report: CompatibilityReport): string {
       </div>
     </div>
 
-    ${details ? `
+    ${
+      details
+        ? `
     <h2>🔍 详细问题</h2>
-    ${details.highSeverityIssues.length > 0 ? `
+    ${
+      details.highSeverityIssues.length > 0
+        ? `
     <h3>🔴 高严重程度问题 (${details.highSeverityIssues.length})</h3>
-    ${details.highSeverityIssues.map(report => `
+    ${details.highSeverityIssues
+      .map(
+        report => `
       <div>
         <h4><span class="file-path">${report.filePath}</span>${report.componentName ? ` (${report.componentName})` : ''}</h4>
-        ${report.issues.map(issue => `
+        ${report.issues
+          .map(
+            issue => `
           <div class="issue high">
             <strong>${issue.type}</strong>: ${issue.message}
             ${issue.suggestion ? `<br><em>建议: ${issue.suggestion}</em>` : ''}
           </div>
-        `).join('')}
+        `
+          )
+          .join('')}
       </div>
-    `).join('')}
-    ` : ''}
+    `
+      )
+      .join('')}
+    `
+        : ''
+    }
 
-    ${details.mediumSeverityIssues.length > 0 ? `
+    ${
+      details.mediumSeverityIssues.length > 0
+        ? `
     <h3>🟡 中严重程度问题 (${details.mediumSeverityIssues.length})</h3>
-    ${details.mediumSeverityIssues.map(report => `
+    ${details.mediumSeverityIssues
+      .map(
+        report => `
       <div>
         <h4><span class="file-path">${report.filePath}</span></h4>
-        ${report.issues.map(issue => `
+        ${report.issues
+          .map(
+            issue => `
           <div class="issue medium">
             <strong>${issue.type}</strong>: ${issue.message}
             ${issue.suggestion ? `<br><em>建议: ${issue.suggestion}</em>` : ''}
           </div>
-        `).join('')}
+        `
+          )
+          .join('')}
       </div>
-    `).join('')}
-    ` : ''}
+    `
+      )
+      .join('')}
+    `
+        : ''
+    }
 
-    ${details.lowSeverityIssues.length > 0 ? `
+    ${
+      details.lowSeverityIssues.length > 0
+        ? `
     <h3>🟢 低严重程度问题 (${details.lowSeverityIssues.length})</h3>
-    ${details.lowSeverityIssues.map(report => `
+    ${details.lowSeverityIssues
+      .map(
+        report => `
       <div>
         <h4><span class="file-path">${report.filePath}</span></h4>
-        ${report.issues.map(issue => `
+        ${report.issues
+          .map(
+            issue => `
           <div class="issue low">
             <strong>${issue.type}</strong>: ${issue.message}
             ${issue.suggestion ? `<br><em>建议: ${issue.suggestion}</em>` : ''}
           </div>
-        `).join('')}
+        `
+          )
+          .join('')}
       </div>
-    `).join('')}
-    ` : ''}
-    ` : ''}
+    `
+      )
+      .join('')}
+    `
+        : ''
+    }
+    `
+        : ''
+    }
 
     <h2>💡 建议</h2>
     <div class="recommendations">
@@ -436,45 +476,49 @@ export function generateHTMLReport(report: CompatibilityReport): string {
     <div class="stat-grid">
       <div class="stat-item">
         <span class="stat-label">按类型</span>
-        <span class="stat-value">${Object.keys(report.scanResult.summary.byType).length}</span>
+        <span class="stat-value">${Object.keys(report.scanResult?.summary?.byType || {}).length}</span>
       </div>
       <div class="stat-item">
         <span class="stat-label">按严重程度</span>
-        <span class="stat-value">${Object.values(report.scanResult.summary.bySeverity).reduce((a, b) => a + b, 0)}</span>
+        <span class="stat-value">${Object.values(report.scanResult?.summary?.bySeverity || { high: 0, medium: 0, low: 0 }).reduce((a, b) => a + b, 0)}</span>
       </div>
     </div>
 
     <h3>按类型统计</h3>
     <div class="stat-grid">
-      ${Object.entries(report.scanResult.summary.byType).map(([type, count]) => `
+      ${Object.entries(report.scanResult?.summary?.byType || {})
+        .map(
+          ([type, count]) => `
         <div class="stat-item">
           <span class="stat-label">${type}</span>
           <span class="stat-value">${count}</span>
         </div>
-      `).join('')}
+      `
+        )
+        .join('')}
     </div>
 
     <h3>按严重程度统计</h3>
     <div class="stat-grid">
       <div class="stat-item">
         <span class="stat-label">High</span>
-        <span class="stat-value">${report.scanResult.summary.bySeverity.high}</span>
+        <span class="stat-value">${report.scanResult?.summary?.bySeverity?.high || 0}</span>
       </div>
       <div class="stat-item">
         <span class="stat-label">Medium</span>
-        <span class="stat-value">${report.scanResult.summary.bySeverity.medium}</span>
+        <span class="stat-value">${report.scanResult?.summary?.bySeverity?.medium || 0}</span>
       </div>
       <div class="stat-item">
         <span class="stat-label">Low</span>
-        <span class="stat-value">${report.scanResult.summary.bySeverity.low}</span>
+        <span class="stat-value">${report.scanResult?.summary?.bySeverity?.low || 0}</span>
       </div>
     </div>
   </div>
 </body>
 </html>
-  `;
+  `
 
-  return html.trim();
+  return html.trim()
 }
 
 /**
@@ -483,11 +527,11 @@ export function generateHTMLReport(report: CompatibilityReport): string {
 export function reportToString(report: CompatibilityReport): string {
   switch (report.format) {
     case 'markdown':
-      return generateMarkdownReport(report);
+      return generateMarkdownReport(report)
     case 'html':
-      return generateHTMLReport(report);
+      return generateHTMLReport(report)
     case 'json':
     default:
-      return JSON.stringify(report, null, 2);
+      return JSON.stringify(report, null, 2)
   }
 }

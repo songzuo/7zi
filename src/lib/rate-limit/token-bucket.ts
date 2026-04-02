@@ -10,33 +10,33 @@
  * - Smooth traffic shaping
  */
 
-import { getRedisClient, redisCommand } from '../redis/client';
-import { getMemoryStore } from './memory-store';
-import { shouldUseRedis, getCachedRedisAvailability } from './storage-factory';
-import { logger } from '@/lib/logger';
+import { getRedisClient, redisCommand } from '../redis/client'
+import { getMemoryStore } from './memory-store'
+import { shouldUseRedis, getCachedRedisAvailability } from './storage-factory'
+import { logger } from '@/lib/logger'
 
 export interface TokenBucketResult {
-  allowed: boolean;
-  remaining: number;
-  resetTime: number;
-  tokensAvailable: number;
-  storage: 'redis' | 'memory';
+  allowed: boolean
+  remaining: number
+  resetTime: number
+  tokensAvailable: number
+  storage: 'redis' | 'memory'
 }
 
 export interface TokenBucketConfig {
-  key: string;
-  capacity: number; // Maximum tokens in bucket (burst limit)
-  refillRate: number; // Tokens to add per second
-  window: number; // Time window in seconds (for reset time calculation)
-  forceMemory?: boolean; // Force memory storage
+  key: string
+  capacity: number // Maximum tokens in bucket (burst limit)
+  refillRate: number // Tokens to add per second
+  window: number // Time window in seconds (for reset time calculation)
+  forceMemory?: boolean // Force memory storage
 }
 
 /**
  * Token bucket state stored in Redis
  */
 interface TokenBucketState {
-  tokens: number;
-  lastRefill: number;
+  tokens: number
+  lastRefill: number
 }
 
 /**
@@ -49,29 +49,32 @@ interface TokenBucketState {
  *
  * Uses Redis Lua script for atomic operations.
  */
-export async function checkTokenBucket(
-  config: TokenBucketConfig
-): Promise<TokenBucketResult> {
-  const { key, capacity, refillRate, window, forceMemory } = config;
-  const now = Date.now();
+export async function checkTokenBucket(config: TokenBucketConfig): Promise<TokenBucketResult> {
+  const { key, capacity, refillRate, window, forceMemory } = config
+  const now = Date.now()
 
   // 检查是否使用内存存储
-  const useMemory = forceMemory || !shouldUseRedis();
-  const redisAvailable = await getCachedRedisAvailability();
+  const useMemory = forceMemory || !shouldUseRedis()
+  const redisAvailable = await getCachedRedisAvailability()
 
   // 如果应该使用 Redis 且 Redis 可用
   if (!useMemory && redisAvailable) {
     try {
-      return await checkTokenBucketRedis(key, capacity, refillRate, window, now);
-    } catch (_error) {
-      logger.error('Redis token bucket check failed, falling back to memory', { error, key, capacity, refillRate });
+      return await checkTokenBucketRedis(key, capacity, refillRate, window, now)
+    } catch (error) {
+      logger.error('Redis token bucket check failed, falling back to memory', {
+        error,
+        key,
+        capacity,
+        refillRate,
+      })
       // Fall back to memory storage
-      return checkTokenBucketMemory(key, capacity, refillRate, window, now);
+      return checkTokenBucketMemory(key, capacity, refillRate, window, now)
     }
   }
 
   // 使用内存存储
-  return checkTokenBucketMemory(key, capacity, refillRate, window, now);
+  return checkTokenBucketMemory(key, capacity, refillRate, window, now)
 }
 
 /**
@@ -84,10 +87,10 @@ async function checkTokenBucketRedis(
   window: number,
   now: number
 ): Promise<TokenBucketResult> {
-  const client = getRedisClient();
+  const client = getRedisClient()
 
   if (!client) {
-    throw new Error('Redis client not available');
+    throw new Error('Redis client not available')
   }
 
   // Lua script for atomic token bucket operations
@@ -129,21 +132,14 @@ async function checkTokenBucketRedis(
 
     -- Return results
     return {allowed, tokens, lastRefill}
-  `;
+  `
 
   // Execute Lua script
-  const result = await client.eval(
-    luaScript,
-    1,
-    key,
-    now,
-    capacity,
-    refillRate
-  );
+  const result = await client.eval(luaScript, 1, key, now, capacity, refillRate)
 
-  const [allowed, tokens, lastRefill] = result as [boolean, number, number];
-  const remaining = Math.max(0, Math.floor(tokens));
-  const resetTime = now + window * 1000;
+  const [allowed, tokens, lastRefill] = result as [boolean, number, number]
+  const remaining = Math.max(0, Math.floor(tokens))
+  const resetTime = now + window * 1000
 
   return {
     allowed,
@@ -151,7 +147,7 @@ async function checkTokenBucketRedis(
     resetTime,
     tokensAvailable: remaining,
     storage: 'redis',
-  };
+  }
 }
 
 /**
@@ -164,8 +160,8 @@ function checkTokenBucketMemory(
   window: number,
   now: number
 ): TokenBucketResult {
-  const memoryStore = getMemoryStore();
-  const result = memoryStore.checkTokenBucket(key, capacity, refillRate, window);
+  const memoryStore = getMemoryStore()
+  const result = memoryStore.checkTokenBucket(key, capacity, refillRate, window)
 
   return {
     allowed: result.allowed,
@@ -173,64 +169,73 @@ function checkTokenBucketMemory(
     resetTime: result.resetTime,
     tokensAvailable: result.tokensAvailable,
     storage: 'memory',
-  };
+  }
 }
 
 /**
  * Get current token bucket status
  */
-export async function getTokenBucketStatus(
-  key: string
-): Promise<{ tokens: number; lastRefill: number | null; capacity: number; storage: 'redis' | 'memory' }> {
-  const useMemory = !shouldUseRedis();
-  const redisAvailable = await getCachedRedisAvailability();
+export async function getTokenBucketStatus(key: string): Promise<{
+  tokens: number
+  lastRefill: number | null
+  capacity: number
+  storage: 'redis' | 'memory'
+}> {
+  const useMemory = !shouldUseRedis()
+  const redisAvailable = await getCachedRedisAvailability()
 
   // 如果应该使用 Redis 且 Redis 可用
   if (!useMemory && redisAvailable) {
     try {
-      return await getTokenBucketStatusRedis(key);
-    } catch (_error) {
-      logger.error('Redis token bucket status check failed, falling back to memory', { error, key });
+      return await getTokenBucketStatusRedis(key)
+    } catch (error) {
+      logger.error('Redis token bucket status check failed, falling back to memory', { error, key })
       // Fall back to memory storage
-      return getTokenBucketStatusMemory(key);
+      return getTokenBucketStatusMemory(key)
     }
   }
 
   // 使用内存存储
-  return getTokenBucketStatusMemory(key);
+  return getTokenBucketStatusMemory(key)
 }
 
 /**
  * 使用 Redis 获取令牌桶状态
  */
-async function getTokenBucketStatusRedis(
-  key: string
-): Promise<{ tokens: number; lastRefill: number | null; capacity: number; storage: 'redis' | 'memory' }> {
-  const client = getRedisClient();
+async function getTokenBucketStatusRedis(key: string): Promise<{
+  tokens: number
+  lastRefill: number | null
+  capacity: number
+  storage: 'redis' | 'memory'
+}> {
+  const client = getRedisClient()
 
   if (!client) {
-    throw new Error('Redis client not available');
+    throw new Error('Redis client not available')
   }
 
-  const data = await client.hmget(key, 'tokens', 'lastRefill', 'capacity');
-  const tokens = parseFloat(data[0] || '0');
-  const lastRefill = data[1] ? parseInt(data[1]) : null;
-  const capacity = parseInt(data[2] || '0');
+  const data = await client.hmget(key, 'tokens', 'lastRefill', 'capacity')
+  const tokens = parseFloat(data[0] || '0')
+  const lastRefill = data[1] ? parseInt(data[1]) : null
+  const capacity = parseInt(data[2] || '0')
 
-  return { tokens, lastRefill, capacity, storage: 'redis' };
+  return { tokens, lastRefill, capacity, storage: 'redis' }
 }
 
 /**
  * 使用内存获取令牌桶状态
  */
-function getTokenBucketStatusMemory(
-  key: string
-): { tokens: number; lastRefill: number | null; capacity: number; storage: 'redis' | 'memory' } {
-  const memoryStore = getMemoryStore();
-  const status = memoryStore.getTokenBucketStatus(key);
+function getTokenBucketStatusMemory(key: string): {
+  tokens: number
+  lastRefill: number | null
+  capacity: number
+  storage: 'redis' | 'memory'
+} {
+  const memoryStore = getMemoryStore()
+  const status = memoryStore.getTokenBucketStatus(key)
 
   if (!status) {
-    return { tokens: 0, lastRefill: null, capacity: 0, storage: 'memory' };
+    return { tokens: 0, lastRefill: null, capacity: 0, storage: 'memory' }
   }
 
   return {
@@ -238,49 +243,44 @@ function getTokenBucketStatusMemory(
     lastRefill: status.lastRefill,
     capacity: status.capacity,
     storage: 'memory',
-  };
+  }
 }
 
 /**
  * Reset token bucket for a key
  */
 export async function resetTokenBucket(key: string, capacity: number): Promise<boolean> {
-  return (await redisCommand(
-    async () => {
-      const client = getRedisClient();
+  return (
+    (await redisCommand(async () => {
+      const client = getRedisClient()
       if (!client) {
-        return false;
+        return false
       }
 
-      const now = Date.now();
-      await client.hmset(key, 'tokens', capacity, 'lastRefill', now);
-      await client.expire(key, 3600);
+      const now = Date.now()
+      await client.hmset(key, 'tokens', capacity, 'lastRefill', now)
+      await client.expire(key, 3600)
 
-      return true;
-    },
-    false
-  )) ?? false;
+      return true
+    }, false)) ?? false
+  )
 }
 
 /**
  * Set token bucket capacity (for dynamic adjustments)
  */
-export async function setTokenBucketCapacity(
-  key: string,
-  capacity: number
-): Promise<boolean> {
-  return (await redisCommand(
-    async () => {
-      const client = getRedisClient();
+export async function setTokenBucketCapacity(key: string, capacity: number): Promise<boolean> {
+  return (
+    (await redisCommand(async () => {
+      const client = getRedisClient()
       if (!client) {
-        return false;
+        return false
       }
 
-      await client.hset(key, 'capacity', capacity);
-      return true;
-    },
-    false
-  )) ?? false;
+      await client.hset(key, 'capacity', capacity)
+      return true
+    }, false)) ?? false
+  )
 }
 
 /**
@@ -291,14 +291,15 @@ export async function addTokensToBucket(
   tokensToAdd: number,
   maxCapacity: number
 ): Promise<{ success: boolean; newTokenCount: number }> {
-  return (await redisCommand(
-    async () => {
-      const client = getRedisClient();
-      if (!client) {
-        return { success: false, newTokenCount: 0 };
-      }
+  return (
+    (await redisCommand(
+      async () => {
+        const client = getRedisClient()
+        if (!client) {
+          return { success: false, newTokenCount: 0 }
+        }
 
-      const luaScript = `
+        const luaScript = `
         local key = KEYS[1]
         local tokensToAdd = tonumber(ARGV[1])
         local maxCapacity = tonumber(ARGV[2])
@@ -309,14 +310,15 @@ export async function addTokensToBucket(
         redis.call('HSET', key, 'tokens', newTokens)
 
         return newTokens
-      `;
+      `
 
-      const newTokens = await client.eval(luaScript, 1, key, tokensToAdd, maxCapacity) as number;
+        const newTokens = (await client.eval(luaScript, 1, key, tokensToAdd, maxCapacity)) as number
 
-      return { success: true, newTokenCount: newTokens };
-    },
-    { success: false, newTokenCount: 0 }
-  )) ?? { success: false, newTokenCount: 0 };
+        return { success: true, newTokenCount: newTokens }
+      },
+      { success: false, newTokenCount: 0 }
+    )) ?? { success: false, newTokenCount: 0 }
+  )
 }
 
 /**
@@ -327,14 +329,15 @@ export async function consumeTokens(
   tokensToConsume: number,
   capacity: number
 ): Promise<{ allowed: boolean; remaining: number }> {
-  return (await redisCommand(
-    async () => {
-      const client = getRedisClient();
-      if (!client) {
-        return { allowed: true, remaining: capacity - tokensToConsume };
-      }
+  return (
+    (await redisCommand(
+      async () => {
+        const client = getRedisClient()
+        if (!client) {
+          return { allowed: true, remaining: capacity - tokensToConsume }
+        }
 
-      const luaScript = `
+        const luaScript = `
         local key = KEYS[1]
         local tokensToConsume = tonumber(ARGV[1])
         local capacity = tonumber(ARGV[2])
@@ -364,20 +367,21 @@ export async function consumeTokens(
         redis.call('EXPIRE', key, 3600)
 
         return {allowed, tokens}
-      `;
+      `
 
-      const now = Date.now();
-      const [allowed, remaining] = await client.eval(
-        luaScript,
-        1,
-        key,
-        tokensToConsume,
-        capacity,
-        now
-      ) as [boolean, number];
+        const now = Date.now()
+        const [allowed, remaining] = (await client.eval(
+          luaScript,
+          1,
+          key,
+          tokensToConsume,
+          capacity,
+          now
+        )) as [boolean, number]
 
-      return { allowed, remaining };
-    },
-    { allowed: true, remaining: capacity - tokensToConsume }
-  )) ?? { allowed: true, remaining: capacity - tokensToConsume };
+        return { allowed, remaining }
+      },
+      { allowed: true, remaining: capacity - tokensToConsume }
+    )) ?? { allowed: true, remaining: capacity - tokensToConsume }
+  )
 }

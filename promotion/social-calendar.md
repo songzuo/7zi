@@ -5,6 +5,7 @@
 ### 3月6日 (周四) - 发布日
 
 **Twitter/X**
+
 ```
 09:00 发布公告
 🚀 正式发布！7zi - AI驱动的团队管理平台
@@ -36,6 +37,7 @@ github.com/songzuo/7zi
 ```
 
 **LinkedIn**
+
 ```
 10:00 长文发布
 🎉 激动分享：7zi正式发布！
@@ -49,6 +51,7 @@ github.com/songzuo/7zi
 ```
 
 **微信朋友圈**
+
 ```
 20:00 发布文案
 🚀 重磅发布！
@@ -65,18 +68,20 @@ github.com/songzuo/7zi
 ### 3月7日 (周五) - 技术分享日
 
 **Twitter/X**
+
 ```
 10:00 技术栈公开
 🛠️ 7zi技术栈全公开：
 
 Frontend:  Next.js 14 + TypeScript
-Backend:   Node.js 22 + OpenClaw  
+Backend:   Node.js 22 + OpenClaw
 AI:        MiniMax + Volcengine + Bailian + Claude
 
 #NextJS #TypeScript #AI #OpenSource
 ```
 
 **技术社区**
+
 - 14:00 Reddit r/programming 发布
 - 14:30 Hacker News Show HN
 
@@ -85,6 +90,7 @@ AI:        MiniMax + Volcengine + Bailian + Claude
 ### 3月8日 (周六) - 应用场景日
 
 **Twitter/X**
+
 ```
 11:00 创业场景
 🚀 创业团队的痛点：
@@ -103,6 +109,7 @@ AI:        MiniMax + Volcengine + Bailian + Claude
 ### 3月9日 (周日) - 社区互动日
 
 **Twitter/X**
+
 - 全天 AMA问答环节
 - 15:00 用户反馈分享
 
@@ -111,9 +118,11 @@ AI:        MiniMax + Volcengine + Bailian + Claude
 ### 3月10日 (周一) - 商业推广日
 
 **LinkedIn**
+
 - 10:00 商业价值分析
 
 **邮件营销**
+
 - 11:00 发送产品介绍邮件
 
 ---
@@ -121,6 +130,7 @@ AI:        MiniMax + Volcengine + Bailian + Claude
 ### 3月11日 (周二) - 视频内容日
 
 **抖音/视频号**
+
 - 19:00 15秒短视频
 - 20:00 30秒详解视频
 
@@ -129,19 +139,20 @@ AI:        MiniMax + Volcengine + Bailian + Claude
 ### 3月12日 (周三) - 总结规划日
 
 **Twitter/X**
+
 - 10:00 发布周总结
 
 ---
 
 ## 发布频率建议
 
-| 平台 | 频率 | 最佳时间 |
-|------|------|----------|
+| 平台      | 频率     | 最佳时间           |
+| --------- | -------- | ------------------ |
 | Twitter/X | 3-5条/天 | 9:00, 15:00, 21:00 |
-| LinkedIn | 1条/天 | 10:00 |
-| 微信 | 1条/天 | 20:00 |
-| 邮件 | 2封/周 | 周一、周四 |
+| LinkedIn  | 1条/天   | 10:00              |
+| 微信      | 1条/天   | 20:00              |
+| 邮件      | 2封/周   | 周一、周四         |
 
 ---
 
-*更新时间: 2026-03-06*
+_更新时间: 2026-03-06_

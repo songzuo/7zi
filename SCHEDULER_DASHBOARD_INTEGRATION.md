@@ -1,6 +1,7 @@
 # AgentScheduler Dashboard 集成报告
 
 ## 概述
+
 成功将 AgentScheduler Dashboard 集成到主 Next.js 应用中。
 
 ## 集成步骤
@@ -8,6 +9,7 @@
 ### 1. 发现现有 Dashboard 组件
 
 发现 Dashboard 组件位于：
+
 ```
 /root/.openclaw/workspace/src/lib/agent-scheduler/dashboard/
 ├── Dashboard.tsx
@@ -20,6 +22,7 @@
 ### 2. 确认依赖项
 
 确认以下依赖已安装：
+
 - ✅ `recharts: ^3.8.0` - 用于图表渲染
 - ✅ `lucide-react: ^0.577.0` - 用于图标
 - ✅ `zustand: ^5.0.12` - 用于状态管理
@@ -27,6 +30,7 @@
 ### 3. 创建调度器页面
 
 创建了新的路由页面：
+
 ```
 /root/.openclaw/workspace/src/app/[locale]/scheduler/
 ├── page.tsx         # 服务端组件
@@ -34,31 +38,36 @@
 ```
 
 #### page.tsx
+
 - 使用 `dynamic = 'force-dynamic'` 确保动态渲染
 - 支持国际化（`setRequestLocale`）
 - 导入 SchedulerClient 组件
 
 #### SchedulerClient.tsx
+
 - 客户端组件，集成 Dashboard
 - 传递 locale 参数以支持多语言
 
 ### 4. Dashboard 组件路径
 
 Dashboard 组件正确导入：
+
 ```typescript
-import { Dashboard } from '@/lib/agent-scheduler/dashboard/Dashboard';
+import { Dashboard } from '@/lib/agent-scheduler/dashboard/Dashboard'
 ```
 
 ### 5. Store 路径
 
 useSchedulerStore 路径正确：
+
 ```typescript
-import { useSchedulerStore } from '../stores/scheduler-store';
+import { useSchedulerStore } from '../stores/scheduler-store'
 ```
 
 ### 6. 现有页面结构
 
 发现现有 `/dashboard` 页面显示的是 AI 团队实时看板，与 AgentScheduler 功能不同：
+
 - `/dashboard` - AI 团队实时看板（11 位 AI 成员状态）
 - `/scheduler` - AgentScheduler Dashboard（任务调度和管理）
 
@@ -120,6 +129,7 @@ import { useSchedulerStore } from '../stores/scheduler-store';
 ### 双语支持
 
 Dashboard 组件内置中英文切换：
+
 - `zh` - 中文界面
 - `en` - 英文界面
 
@@ -128,6 +138,7 @@ Dashboard 组件内置中英文切换：
 ✅ TypeScript 类型检查通过（调度器相关代码）
 
 运行类型检查：
+
 ```bash
 pnpm run type-check
 ```
@@ -144,6 +155,7 @@ pnpm run type-check
 ## 建议的后续步骤
 
 1. **构建验证**
+
    ```bash
    pnpm build
    ```
@@ -163,18 +175,22 @@ pnpm run type-check
 ## 集成问题与解决方案
 
 ### 问题 1: 现有 /dashboard 路由
+
 - **问题**: 已存在 `/dashboard` 路由用于 AI 团队实时看板
 - **解决**: 创建新的 `/scheduler` 路由，避免冲突
 
 ### 问题 2: 多语言支持
+
 - **问题**: Dashboard 组件需要支持中英文
 - **解决**: Dashboard 组件内置语言切换功能，无需额外配置
 
 ### 问题 3: 动态渲染
+
 - **问题**: 调度器需要实时数据，不能使用静态导出
 - **解决**: 在 page.tsx 中设置 `export const dynamic = 'force-dynamic'`
 
 ### 问题 4: TypeScript 类型错误（已修复）
+
 - **问题 4.1**: `page.tsx` 中 locale 类型不匹配
   - **解决**: 使用 `locale as Locale` 类型断言
 - **问题 4.2**: `Dashboard.tsx` 中 `pendingTasks` 未定义

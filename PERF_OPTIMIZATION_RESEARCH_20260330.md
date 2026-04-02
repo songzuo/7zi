@@ -14,14 +14,14 @@
 
 ### 关键发现
 
-| 指标 | 当前状态 | 评估 |
-|------|----------|------|
-| Bundle 总大小 | 227MB (.next) | ⚠️ 需关注 |
-| 最大单 chunk | 334KB (850.x.js) | ⚠️ 超过建议值 |
-| React Compiler | 已启用 (annotation 模式) | ✅ 良好 |
-| 代码分割 | 已配置详细策略 | ✅ 良好 |
-| 图片优化 | AVIF/WebP 支持 | ✅ 良好 |
-| 组件优化 | 19/100+ 组件优化 | ⚠️ 覆盖率低 |
+| 指标           | 当前状态                 | 评估          |
+| -------------- | ------------------------ | ------------- |
+| Bundle 总大小  | 227MB (.next)            | ⚠️ 需关注     |
+| 最大单 chunk   | 334KB (850.x.js)         | ⚠️ 超过建议值 |
+| React Compiler | 已启用 (annotation 模式) | ✅ 良好       |
+| 代码分割       | 已配置详细策略           | ✅ 良好       |
+| 图片优化       | AVIF/WebP 支持           | ✅ 良好       |
+| 组件优化       | 19/100+ 组件优化         | ⚠️ 覆盖率低   |
 
 ---
 
@@ -57,6 +57,7 @@ formats: ['image/avif', 'image/webp']
 #### 📊 代码分割策略
 
 项目已配置详细的 splitChunks 策略，涵盖：
+
 - `web-vitals` (优先级 80)
 - `three-core` (优先级 70)
 - `react-three` (优先级 65)
@@ -78,11 +79,11 @@ formats: ['image/avif', 'image/webp']
 
 ```typescript
 const CHUNK_LIMITS = {
-  maxEntrypointSize: 300 * 1024,  // 300KB
-  maxAssetSize: 250 * 1024,        // 250KB
-  maxAsyncChunkSize: 200 * 1024,   // 200KB
-  minChunkSize: 15 * 1024,         // 15KB
-};
+  maxEntrypointSize: 300 * 1024, // 300KB
+  maxAssetSize: 250 * 1024, // 250KB
+  maxAsyncChunkSize: 200 * 1024, // 200KB
+  minChunkSize: 15 * 1024, // 15KB
+}
 ```
 
 **问题**: 最大 chunk 334KB 超过了 300KB 的 entrypoint 限制
@@ -93,33 +94,34 @@ const CHUNK_LIMITS = {
 
 ### 2.1 主要 Chunk 大小
 
-| Chunk | 大小 | 类型 | 评估 |
-|-------|------|------|------|
-| `850.549014dd3491db91.js` | 334KB | 页面 chunk | 🔴 过大 |
-| `next-core-ff30e0d3.js` | 196KB | Next.js 核心 | ✅ 合理 |
-| `2297.dd566ddcb5f403fb.js` | 180KB | 共享 chunk | ⚠️ 偏大 |
-| `react-core-36598b9c.js` | 171KB | React 核心 | ✅ 合理 |
-| `polyfills-42372ed130431b0a.js` | 110KB | Polyfills | ⚠️ 偏大 |
-| `i18n-libs-bfc4c7c6.js` | 48KB | 国际化 | ✅ 良好 |
-| `vendors-8a62d4460b3cae75.js` | 29KB | 第三方库 | ✅ 良好 |
+| Chunk                           | 大小  | 类型         | 评估    |
+| ------------------------------- | ----- | ------------ | ------- |
+| `850.549014dd3491db91.js`       | 334KB | 页面 chunk   | 🔴 过大 |
+| `next-core-ff30e0d3.js`         | 196KB | Next.js 核心 | ✅ 合理 |
+| `2297.dd566ddcb5f403fb.js`      | 180KB | 共享 chunk   | ⚠️ 偏大 |
+| `react-core-36598b9c.js`        | 171KB | React 核心   | ✅ 合理 |
+| `polyfills-42372ed130431b0a.js` | 110KB | Polyfills    | ⚠️ 偏大 |
+| `i18n-libs-bfc4c7c6.js`         | 48KB  | 国际化       | ✅ 良好 |
+| `vendors-8a62d4460b3cae75.js`   | 29KB  | 第三方库     | ✅ 良好 |
 
 ### 2.2 页面级 Chunk 分析
 
-| 页面 | 大小 | 评估 |
-|------|------|------|
-| `/monitoring-example` | 46KB | ⚠️ 偏大 |
-| `/i18n-demo` | 33KB | ✅ 合理 |
-| `/feedback` | 33KB | ✅ 合理 |
+| 页面                        | 大小 | 评估    |
+| --------------------------- | ---- | ------- |
+| `/monitoring-example`       | 46KB | ⚠️ 偏大 |
+| `/i18n-demo`                | 33KB | ✅ 合理 |
+| `/feedback`                 | 33KB | ✅ 合理 |
 | `/examples/ux-improvements` | 30KB | ✅ 合理 |
-| `/websocket-status-demo` | 29KB | ✅ 合理 |
-| `/ui-components-demo` | 24KB | ✅ 良好 |
-| `/admin/feedback` | 22KB | ✅ 良好 |
+| `/websocket-status-demo`    | 29KB | ✅ 合理 |
+| `/ui-components-demo`       | 24KB | ✅ 良好 |
+| `/admin/feedback`           | 22KB | ✅ 良好 |
 
 ### 2.3 识别的问题
 
 #### 🔴 Critical: 850.x.js Chunk 过大 (334KB)
 
 这个 chunk 可能包含：
+
 - 未正确分割的大型依赖
 - 多个页面共享的代码未进一步拆分
 - 可能包含未使用的死代码
@@ -142,12 +144,12 @@ reactCompiler: {
 
 ### 3.2 使用统计
 
-| 指标 | 数量 | 评估 |
-|------|------|------|
-| 标记 'use memo' 的组件 | 3 | 🔴 极低 |
-| 使用 React.memo 的组件 | 19 | ⚠️ 偏低 |
-| 总组件数（估算） | 100+ | - |
-| 优化覆盖率 | ~19% | 🔴 需提升 |
+| 指标                   | 数量 | 评估      |
+| ---------------------- | ---- | --------- |
+| 标记 'use memo' 的组件 | 3    | 🔴 极低   |
+| 使用 React.memo 的组件 | 19   | ⚠️ 偏低   |
+| 总组件数（估算）       | 100+ | -         |
+| 优化覆盖率             | ~19% | 🔴 需提升 |
 
 ### 3.3 已标记 'use memo' 的组件
 
@@ -159,7 +161,8 @@ reactCompiler: {
 
 共 19 个组件使用了手动优化技术（详见 `REACT_OPTIMIZATION_SUMMARY.md`）。
 
-**问题**: 
+**问题**:
+
 - React Compiler 使用率极低（3 个组件标记）
 - 大部分组件仍依赖手动优化
 - 需要迁移现有 React.memo 组件到 React Compiler
@@ -170,12 +173,12 @@ reactCompiler: {
 
 ### 4.1 已实现的动态加载
 
-| 文件 | 加载方式 | 评估 |
-|------|----------|------|
-| `DynamicIcon.tsx` | lazy + Suspense | ✅ 良好 |
-| `LazyImage.tsx` | 动态导入 | ✅ 良好 |
-| `OptimizedImage.tsx` | 优化加载 | ✅ 良好 |
-| `knowledge-lattice/page.tsx` | 动态导入 | ✅ 良好 |
+| 文件                         | 加载方式        | 评估    |
+| ---------------------------- | --------------- | ------- |
+| `DynamicIcon.tsx`            | lazy + Suspense | ✅ 良好 |
+| `LazyImage.tsx`              | 动态导入        | ✅ 良好 |
+| `OptimizedImage.tsx`         | 优化加载        | ✅ 良好 |
+| `knowledge-lattice/page.tsx` | 动态导入        | ✅ 良好 |
 
 ### 4.2 DynamicIcon 组件分析
 
@@ -186,13 +189,13 @@ const iconCache = new Map<IconName, ComponentType<LucideProps>>();
 export function DynamicIcon({ name, ...props }) {
   const CachedIcon = iconCache.get(name);
   if (CachedIcon) return <CachedIcon {...props} />;
-  
+
   const IconComponent = lazy(async () => {
     const module = await iconMap[name]();
     iconCache.set(name, module.default);
     return { default: module.default };
   });
-  
+
   return <Suspense fallback={<IconFallback />}><IconComponent /></Suspense>;
 }
 ```
@@ -203,12 +206,12 @@ export function DynamicIcon({ name, ...props }) {
 
 以下组件/页面建议实施动态加载：
 
-| 组件/页面 | 原因 | 优先级 |
-|-----------|------|--------|
-| Three.js 相关组件 | 大型 3D 库 | P0 |
-| 监控仪表板页面 | 复杂组件 | P1 |
-| 管理后台页面 | 非核心功能 | P1 |
-| 图表组件 (recharts) | 大型图表库 | P2 |
+| 组件/页面           | 原因       | 优先级 |
+| ------------------- | ---------- | ------ |
+| Three.js 相关组件   | 大型 3D 库 | P0     |
+| 监控仪表板页面      | 复杂组件   | P1     |
+| 管理后台页面        | 非核心功能 | P1     |
+| 图表组件 (recharts) | 大型图表库 | P2     |
 
 ---
 
@@ -218,12 +221,12 @@ export function DynamicIcon({ name, ...props }) {
 
 项目已实现完整的性能监控系统（详见 `PERFORMANCE_ALERT_SYSTEM_REPORT.md`）：
 
-| 模块 | 状态 | 评估 |
-|------|------|------|
+| 模块            | 状态      | 评估 |
+| --------------- | --------- | ---- |
 | Web Vitals 监控 | ✅ 已实现 | 完整 |
-| 预算控制器 | ✅ 已实现 | 完整 |
-| 根因分析 | ✅ 已实现 | 完整 |
-| 告警管理器 | ✅ 已实现 | 完整 |
+| 预算控制器      | ✅ 已实现 | 完整 |
+| 根因分析        | ✅ 已实现 | 完整 |
+| 告警管理器      | ✅ 已实现 | 完整 |
 
 ### 5.2 Web Vitals 配置
 
@@ -231,12 +234,12 @@ export function DynamicIcon({ name, ...props }) {
 const DEFAULT_CONFIG = {
   enabled: true,
   reportThresholds: {
-    LCP: 2500,  // good
-    CLS: 0.1,   // good
-    INP: 200,   // good
+    LCP: 2500, // good
+    CLS: 0.1, // good
+    INP: 200, // good
   },
   trackAllMetrics: true,
-};
+}
 ```
 
 **评估**: ✅ 阈值设置合理
@@ -275,6 +278,7 @@ images: {
 **问题**: 334KB 的 chunk 超过性能预算
 
 **行动**:
+
 ```bash
 # 使用 bundle analyzer
 npm run build:analyze:webpack
@@ -290,6 +294,7 @@ ANALYZE=true npm run build
 **问题**: 仅 3 个组件使用了 'use memo'
 
 **行动**:
+
 ```typescript
 // 方案 A: 全量模式（推荐）
 reactCompiler: {
@@ -300,6 +305,7 @@ reactCompiler: {
 ```
 
 **迁移清单**:
+
 - [ ] 评估全量模式的稳定性
 - [ ] 移除手动 React.memo（避免重复优化）
 - [ ] 更新构建流程
@@ -312,6 +318,7 @@ reactCompiler: {
 **问题**: Three.js (3D 库) 应该按需加载
 
 **行动**:
+
 ```typescript
 // 当前: 同步导入
 import { KnowledgeLattice3D } from '@/components/knowledge-lattice/KnowledgeLattice3D';
@@ -319,7 +326,7 @@ import { KnowledgeLattice3D } from '@/components/knowledge-lattice/KnowledgeLatt
 // 建议: 动态导入
 const KnowledgeLattice3D = dynamic(
   () => import('@/components/knowledge-lattice/KnowledgeLattice3D'),
-  { 
+  {
     ssr: false,
     loading: () => <div className="animate-pulse h-96 bg-zinc-800 rounded" />
   }
@@ -335,6 +342,7 @@ const KnowledgeLattice3D = dynamic(
 #### 7.2.1 减少未使用的依赖
 
 **行动**:
+
 ```bash
 # 分析依赖使用情况
 npx depcheck
@@ -348,6 +356,7 @@ npx depcheck
 **问题**: polyfills chunk 110KB 偏大
 
 **行动**:
+
 ```typescript
 // 评估是否需要所有 polyfills
 // 考虑使用 .browserslistrc 精确定位目标浏览器
@@ -357,17 +366,18 @@ npx depcheck
 
 #### 7.2.3 实施更多动态加载
 
-| 页面/组件 | 当前状态 | 建议 |
-|-----------|----------|------|
+| 页面/组件             | 当前状态   | 建议             |
+| --------------------- | ---------- | ---------------- |
 | `/monitoring-example` | 46KB chunk | 动态导入大型组件 |
-| 管理后台页面 | 同步加载 | 条件加载 |
-| 图表组件 | 同步导入 | lazy 加载 |
+| 管理后台页面          | 同步加载   | 条件加载         |
+| 图表组件              | 同步导入   | lazy 加载        |
 
 #### 7.2.4 扩展 React Compiler 使用
 
 **目标**: 将优化覆盖率从 19% 提升到 50%+
 
 **优先组件**:
+
 1. 高频重渲染组件
 2. 列表项组件
 3. 表单组件
@@ -382,6 +392,7 @@ npx depcheck
 **场景**: 长列表渲染（如 ActivityLog）
 
 **行动**:
+
 ```bash
 npm install @tanstack/react-virtual
 # 或
@@ -389,14 +400,14 @@ npm install react-window
 ```
 
 ```typescript
-import { useVirtualizer } from '@tanstack/react-virtual';
+import { useVirtualizer } from '@tanstack/react-virtual'
 
 function VirtualList({ items }) {
   const virtualizer = useVirtualizer({
     count: items.length,
     getScrollElement: () => parentRef.current,
     estimateSize: () => 80,
-  });
+  })
   // ...
 }
 ```
@@ -404,6 +415,7 @@ function VirtualList({ items }) {
 #### 7.3.2 Service Worker 缓存
 
 **行动**:
+
 ```bash
 npm install next-pwa
 ```
@@ -413,14 +425,15 @@ npm install next-pwa
 const withPWA = require('next-pwa')({
   dest: 'public',
   disable: process.env.NODE_ENV === 'development',
-});
+})
 
-module.exports = withPWA(nextConfig);
+module.exports = withPWA(nextConfig)
 ```
 
 #### 7.3.3 预加载关键资源
 
 **行动**:
+
 ```typescript
 // 使用 SmartPrefetch 组件预加载
 <SmartPrefetch
@@ -436,6 +449,7 @@ module.exports = withPWA(nextConfig);
 #### 7.3.4 实施性能监控仪表板
 
 **基于现有系统创建可视化仪表板**:
+
 - 实时 Web Vitals 指标
 - Bundle 大小趋势
 - 性能预算状态
@@ -450,20 +464,22 @@ module.exports = withPWA(nextConfig);
 **场景**: 如果项目持续增长
 
 **考虑**:
+
 - 模块联邦 (Module Federation)
 - 独立部署的子应用
 
 #### 7.4.2 边缘计算优化
 
 **行动**:
+
 ```typescript
 // 使用 Edge Runtime
-export const runtime = 'edge';
+export const runtime = 'edge'
 
 // 使用 Edge Functions
 export const config = {
   runtime: 'edge',
-};
+}
 ```
 
 #### 7.4.3 A/B 测试框架
@@ -502,25 +518,27 @@ export const config = {
 
 ## 9. 性能指标目标
 
-| 指标 | 当前 | 目标 (Phase 1) | 目标 (Phase 3) |
-|------|------|----------------|----------------|
-| 最大 chunk | 334KB | < 250KB | < 200KB |
-| 初始 JS | ~800KB | < 600KB | < 400KB |
-| React Compiler 覆盖率 | 3% | 50% | 80% |
-| 组件优化覆盖率 | 19% | 50% | 80% |
-| LCP | 待测 | < 2.5s | < 2.0s |
-| INP | 待测 | < 200ms | < 150ms |
+| 指标                  | 当前   | 目标 (Phase 1) | 目标 (Phase 3) |
+| --------------------- | ------ | -------------- | -------------- |
+| 最大 chunk            | 334KB  | < 250KB        | < 200KB        |
+| 初始 JS               | ~800KB | < 600KB        | < 400KB        |
+| React Compiler 覆盖率 | 3%     | 50%            | 80%            |
+| 组件优化覆盖率        | 19%    | 50%            | 80%            |
+| LCP                   | 待测   | < 2.5s         | < 2.0s         |
+| INP                   | 待测   | < 200ms        | < 150ms        |
 
 ---
 
 ## 10. 参考资源
 
 ### 内部文档
+
 - `REACT_OPTIMIZATION_SUMMARY.md` - React 优化总结
 - `PERFORMANCE_ALERT_SYSTEM_REPORT.md` - 性能告警系统报告
 - `next.config.ts` - Next.js 配置
 
 ### 外部资源
+
 - [React Compiler 文档](https://react.dev/learn/react-compiler)
 - [Next.js 性能优化](https://nextjs.org/docs/app/building-your-application/optimizing)
 - [Web Vitals](https://web.dev/vitals/)

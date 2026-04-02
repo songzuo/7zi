@@ -9,14 +9,14 @@
 
 ## 📊 执行摘要
 
-| 类别 | 问题数 | 严重程度 | 预估总工时 |
-|------|--------|----------|------------|
-| 🔴 安全漏洞 | 1 | 中等 | 30 分钟 |
-| 🟡 代码格式 | 278 文件 | 低 | 2 小时 |
-| 🟡 TypeScript | 1 错误 | 高 | 10 分钟 |
-| 🟡 测试问题 | ~50 失败 | 中等 | 2 小时 |
-| 🟢 代码质量 | 3 重复定义 | 低 | 1 小时 |
-| **总计** | **~333** | - | **~5.5 小时** |
+| 类别          | 问题数     | 严重程度 | 预估总工时    |
+| ------------- | ---------- | -------- | ------------- |
+| 🔴 安全漏洞   | 1          | 中等     | 30 分钟       |
+| 🟡 代码格式   | 278 文件   | 低       | 2 小时        |
+| 🟡 TypeScript | 1 错误     | 高       | 10 分钟       |
+| 🟡 测试问题   | ~50 失败   | 中等     | 2 小时        |
+| 🟢 代码质量   | 3 重复定义 | 低       | 1 小时        |
+| **总计**      | **~333**   | -        | **~5.5 小时** |
 
 ### 关键发现
 
@@ -37,6 +37,7 @@
 **位置**: `src/app/api/auth/me/route.ts:25`
 
 **错误信息**:
+
 ```
 TS2367: 类型 '"deleted"' 无法与类型 'UserStatus' 进行比较
 ```
@@ -44,6 +45,7 @@ TS2367: 类型 '"deleted"' 无法与类型 'UserStatus' 进行比较
 **影响**: 阻塞类型检查，可能导致运行时错误
 
 **修复方案**:
+
 ```typescript
 // src/lib/auth/types.ts
 enum UserStatus {
@@ -51,7 +53,7 @@ enum UserStatus {
   INACTIVE = 'inactive',
   SUSPENDED = 'suspended',
   PENDING = 'pending',
-  DELETED = 'deleted',  // 添加此行
+  DELETED = 'deleted', // 添加此行
 }
 ```
 
@@ -67,11 +69,13 @@ enum UserStatus {
 
 **影响**: 开发环境源代码泄露风险
 
-**当前状态**: 
+**当前状态**:
+
 - `package.json` 已配置 override: `"esbuild@<=0.24.2": ">=0.25.0"`
 - **需要验证**: 运行 `pnpm ls esbuild` 确认版本
 
 **修复方案**:
+
 ```bash
 # 验证当前版本
 pnpm ls esbuild
@@ -104,6 +108,7 @@ pnpm update esbuild
 | 其他 | ~38 | 13% |
 
 **修复方案**:
+
 ```bash
 # 1. 创建 .prettierignore（排除构建产物）
 # 2. 执行格式化
@@ -122,36 +127,39 @@ npx prettier --write "**/*.{ts,tsx,js,jsx,json,css}"
 
 **分类**:
 
-| 问题类型 | 失败数 | 根因 |
-|----------|--------|------|
-| CollaborationManager mock | 6 | vi.mock 未正确返回导出 |
-| TeamPage SSR | 14 | document 对象在 SSR 中未定义 |
-| user-preferences DB | ~30 | 测试数据库表未初始化 |
+| 问题类型                  | 失败数 | 根因                         |
+| ------------------------- | ------ | ---------------------------- |
+| CollaborationManager mock | 6      | vi.mock 未正确返回导出       |
+| TeamPage SSR              | 14     | document 对象在 SSR 中未定义 |
+| user-preferences DB       | ~30    | 测试数据库表未初始化         |
 
 **修复方案**:
 
 #### A. CollaborationManager 测试
+
 ```typescript
 // src/lib/collaboration/manager.test.ts
 vi.mock('../lib/collaboration/manager', () => ({
   CollaborationManager: vi.fn().mockImplementation(() => ({
     // 正确返回所有需要的方法
-  }))
-}));
+  })),
+}))
 ```
 
 #### B. TeamPage SSR 测试
+
 ```typescript
 // src/app/[locale]/team/page.test.tsx
 // 添加 document mock 或标记为客户端测试
 beforeAll(() => {
   global.document = {
     // mock 实现
-  } as any;
-});
+  } as any
+})
 ```
 
 #### C. user-preferences DB 测试
+
 ```typescript
 // 在测试 setup 中添加表初始化
 await db.exec(`
@@ -160,7 +168,7 @@ await db.exec(`
     user_id TEXT NOT NULL,
     preferences TEXT
   )
-`);
+`)
 ```
 
 **预估工时**: 2 小时
@@ -176,6 +184,7 @@ await db.exec(`
 **问题**: 同一接口在 3 个位置定义
 
 **位置**:
+
 1. `src/lib/permissions.ts`
 2. `src/features/auth/lib/permissions.ts`
 3. `src/features/websocket/room/permission-manager.ts`
@@ -183,6 +192,7 @@ await db.exec(`
 **影响**: 维护成本增加，可能导致类型不一致
 
 **修复方案**:
+
 ```typescript
 // 创建 src/types/permission.ts
 export interface PermissionContext {
@@ -190,7 +200,7 @@ export interface PermissionContext {
 }
 
 // 其他文件从此处导入
-export type { PermissionContext } from '@/types/permission';
+export type { PermissionContext } from '@/types/permission'
 ```
 
 **预估工时**: 1 小时
@@ -204,10 +214,12 @@ export type { PermissionContext } from '@/types/permission';
 **问题**: 构建产物被纳入格式检查
 
 **当前检查到的应忽略文件**:
+
 - `7zi-frontend/html/**` - 构建产物
 - `7zi-frontend/e2e/**` - 测试文件（可选）
 
 **修复方案**:
+
 ```gitignore
 # .prettierignore
 .next/
@@ -284,12 +296,12 @@ node_modules/
 
 ### 对版本目标的影响
 
-| 影响项 | 风险程度 | 说明 |
-|--------|----------|------|
-| 新功能开发 | 🟢 低 | 技术债务不影响新功能 |
-| 性能优化 | 🟢 低 | 当前债务不影响性能 |
-| 安全合规 | 🟡 中 | esbuild 漏洞需修复 |
-| 测试稳定性 | 🟡 中 | 50 个测试失败需修复 |
+| 影响项     | 风险程度 | 说明                 |
+| ---------- | -------- | -------------------- |
+| 新功能开发 | 🟢 低    | 技术债务不影响新功能 |
+| 性能优化   | 🟢 低    | 当前债务不影响性能   |
+| 安全合规   | 🟡 中    | esbuild 漏洞需修复   |
+| 测试稳定性 | 🟡 中    | 50 个测试失败需修复  |
 
 ### 建议
 
@@ -319,22 +331,22 @@ node_modules/
 
 ### 安全审计结果
 
-| 漏洞 | 严重程度 | 状态 |
-|------|----------|------|
-| esbuild CORS (GHSA-67mh-4wv8-2f99) | 中等 | ⚠️ 已配置 override，需验证 |
+| 漏洞                               | 严重程度 | 状态                       |
+| ---------------------------------- | -------- | -------------------------- |
+| esbuild CORS (GHSA-67mh-4wv8-2f99) | 中等     | ⚠️ 已配置 override，需验证 |
 
 ---
 
 ## ✅ 代码质量检查结果
 
-| 检查项 | 状态 | 说明 |
-|--------|------|------|
-| 循环依赖 | ✅ 通过 | madge 检查无循环 |
-| dangerouslySetInnerHTML | ✅ 无使用 | 安全检查通过 |
-| TODO/FIXME 标记 | ✅ 无 | 代码整洁 |
-| @ts-ignore | ✅ 无使用 | 类型安全良好 |
-| any 类型使用 | ✅ 无滥用 | 类型定义完善 |
-| console.log 滥用 | ✅ 无 | 生产代码干净 |
+| 检查项                  | 状态      | 说明             |
+| ----------------------- | --------- | ---------------- |
+| 循环依赖                | ✅ 通过   | madge 检查无循环 |
+| dangerouslySetInnerHTML | ✅ 无使用 | 安全检查通过     |
+| TODO/FIXME 标记         | ✅ 无     | 代码整洁         |
+| @ts-ignore              | ✅ 无使用 | 类型安全良好     |
+| any 类型使用            | ✅ 无滥用 | 类型定义完善     |
+| console.log 滥用        | ✅ 无     | 生产代码干净     |
 
 ---
 
@@ -385,12 +397,12 @@ npx lint-staged
 
 ## 📅 时间线
 
-| 阶段 | 时间 | 任务 |
-|------|------|------|
-| P0 修复 | Day 1 上午 | TypeScript + esbuild |
-| P1 修复 | Day 1-2 | 测试 + 格式化 |
-| P2 优化 | Day 3+ | 类型统一 |
-| 验证 | 完成 | 全量测试 + Code Review |
+| 阶段    | 时间       | 任务                   |
+| ------- | ---------- | ---------------------- |
+| P0 修复 | Day 1 上午 | TypeScript + esbuild   |
+| P1 修复 | Day 1-2    | 测试 + 格式化          |
+| P2 优化 | Day 3+     | 类型统一               |
+| 验证    | 完成       | 全量测试 + Code Review |
 
 **预计完成时间**: 2-3 个工作日
 

@@ -10,14 +10,14 @@
 
 ### 1.1 已有的错误处理组件和工具
 
-| 组件/工具 | 位置 | 状态 |
-|-----------|------|------|
-| AppError 类 | `lib/errors.ts` | ✅ 完善 |
-| ApiError 类 | `lib/api/error-handler.ts` | ✅ 完善 |
-| EmptyError 组件 | `components/ui/EmptyState.tsx` | ✅ 存在 |
-| EmptyNetwork 组件 | `components/ui/EmptyState.tsx` | ✅ 存在 |
-| 错误消息本地化 | `locales/en/errors.json`, `locales/zh/errors.json` | ✅ 完善 |
-| API 错误响应格式 | `lib/api/error-handler.ts` | ✅ 标准化 |
+| 组件/工具         | 位置                                               | 状态      |
+| ----------------- | -------------------------------------------------- | --------- |
+| AppError 类       | `lib/errors.ts`                                    | ✅ 完善   |
+| ApiError 类       | `lib/api/error-handler.ts`                         | ✅ 完善   |
+| EmptyError 组件   | `components/ui/EmptyState.tsx`                     | ✅ 存在   |
+| EmptyNetwork 组件 | `components/ui/EmptyState.tsx`                     | ✅ 存在   |
+| 错误消息本地化    | `locales/en/errors.json`, `locales/zh/errors.json` | ✅ 完善   |
+| API 错误响应格式  | `lib/api/error-handler.ts`                         | ✅ 标准化 |
 
 ### 1.2 现有错误处理架构
 
@@ -44,36 +44,39 @@
 **问题:** 整个应用没有 ErrorBoundary 组件来捕获 React 渲染错误。
 
 **影响:**
+
 - 组件渲染错误会导致整个应用白屏
 - 用户无法恢复到正常状态
 - 错误信息对用户不友好
 
 **当前状态:**
+
 ```bash
 $ grep -rn "ErrorBoundary" src/
 # 无结果
 ```
 
 **建议:**
+
 ```tsx
 // components/ErrorBoundary.tsx
 class ErrorBoundary extends React.Component {
-  state = { hasError: false, error: null };
-  
+  state = { hasError: false, error: null }
+
   static getDerivedStateFromError(error) {
-    return { hasError: true, error };
+    return { hasError: true, error }
   }
-  
+
   componentDidCatch(error, errorInfo) {
     // 上报错误到监控系统
-    logger.error('React Error:', error, errorInfo);
+    logger.error('React Error:', error, errorInfo)
   }
-  
+
   render() {
     if (this.state.hasError) {
-      return <ErrorFallback error={this.state.error} />;
+      return <ErrorFallback error={this.state.error} />
     }
-    return this.props.children;
+    return this.props.children
   }
 }
 ```
@@ -85,33 +88,36 @@ class ErrorBoundary extends React.Component {
 **问题:** 没有遵循 Next.js App Router 的错误处理模式，缺少 `error.tsx` 文件。
 
 **影响:**
+
 - 路由级别的错误无法优雅处理
 - 无法提供错误恢复选项
 
 **当前状态:**
+
 ```bash
 $ find src -name "error.tsx"
 # 无结果
 ```
 
 **建议:**
+
 ```tsx
 // app/error.tsx
-'use client';
- 
+'use client'
+
 export default function Error({
   error,
   reset,
 }: {
-  error: Error & { digest?: string };
-  reset: () => void;
+  error: Error & { digest?: string }
+  reset: () => void
 }) {
   return (
     <div className="error-container">
       <h2>出错了!</h2>
       <button onClick={() => reset()}>重试</button>
     </div>
-  );
+  )
 }
 ```
 
@@ -122,28 +128,31 @@ export default function Error({
 **问题:** 没有监听 `window.onerror` 和 `unhandledrejection` 事件。
 
 **影响:**
+
 - 未捕获的 Promise 错误会静默失败
 - 无法统一收集运行时错误
 - 用户体验差
 
 **当前状态:**
+
 ```bash
 $ grep -rn "onerror\|unhandledrejection" src/
 # 无结果
 ```
 
 **建议:**
+
 ```tsx
 // 在 app/layout.tsx 或专门的错误处理模块中
 if (typeof window !== 'undefined') {
   window.onerror = (message, source, lineno, colno, error) => {
-    logger.error('Global error:', { message, source, lineno, colno, error });
+    logger.error('Global error:', { message, source, lineno, colno, error })
     // 可选: 显示友好的错误提示
-  };
-  
-  window.addEventListener('unhandledrejection', (event) => {
-    logger.error('Unhandled promise rejection:', event.reason);
-  });
+  }
+
+  window.addEventListener('unhandledrejection', event => {
+    logger.error('Unhandled promise rejection:', event.reason)
+  })
 }
 ```
 
@@ -156,11 +165,13 @@ if (typeof window !== 'undefined') {
 **问题:** 没有临时的、非阻塞的错误提示组件。
 
 **影响:**
+
 - API 调用失败没有即时反馈
 - 用户可能不知道操作是否成功
 - 需要刷新页面才能清除错误状态
 
 **建议:**
+
 - 创建 `components/ui/Toast.tsx` 组件
 - 集成 toast 上下文用于全局调用
 - 支持不同类型 (success, error, warning, info)
@@ -172,43 +183,48 @@ if (typeof window !== 'undefined') {
 **问题:** 各 hooks 和组件中的 fetch 错误处理方式不统一。
 
 **示例:**
+
 ```tsx
 // hooks/useNotifications.ts (第 253-273 行)
 const refreshNotifications = useCallback(async () => {
   try {
-    const response = await fetch(`/api/notifications?${params}`);
-    const result = await response.json();
+    const response = await fetch(`/api/notifications?${params}`)
+    const result = await response.json()
     if (result.success && result.data) {
-      setNotifications(result.data);
+      setNotifications(result.data)
     }
     // ❌ 没有处理 response.ok === false 的情况
     // ❌ 没有向用户显示错误
   } catch (error) {
-    console.error('[useNotifications] Failed to refresh:', error);
+    console.error('[useNotifications] Failed to refresh:', error)
     // ❌ 只是 console.error, 用户看不到
   }
-}, [userId, teamId]);
+}, [userId, teamId])
 ```
 
 **建议:**
+
 ```tsx
 // 创建统一的 API 客户端
 // lib/api/client.ts
-export async function apiClient<T>(url: string, options?: RequestInit): Promise<{
-  data: T | null;
-  error: AppError | null;
+export async function apiClient<T>(
+  url: string,
+  options?: RequestInit
+): Promise<{
+  data: T | null
+  error: AppError | null
 }> {
   try {
-    const response = await fetch(url, options);
-    const result = await response.json();
-    
+    const response = await fetch(url, options)
+    const result = await response.json()
+
     if (!response.ok) {
-      return { data: null, error: new AppError(result) };
+      return { data: null, error: new AppError(result) }
     }
-    
-    return { data: result.data, error: null };
+
+    return { data: result.data, error: null }
   } catch (error) {
-    return { data: null, error: new AppError(error) };
+    return { data: null, error: new AppError(error) }
   }
 }
 ```
@@ -220,10 +236,12 @@ export async function apiClient<T>(url: string, options?: RequestInit): Promise<
 **问题:** 虽然有 `ErrorAggregator` 类，但没有集成 Sentry 或其他监控服务。
 
 **影响:**
+
 - 生产环境错误无法追踪
 - 无法分析错误趋势
 
 **建议:**
+
 - 集成 Sentry 或 LogRocket
 - 配置 source map 上传
 - 添加用户上下文信息
@@ -237,16 +255,18 @@ export async function apiClient<T>(url: string, options?: RequestInit): Promise<
 **问题:** 部分 API 错误直接返回技术性消息。
 
 **示例:**
+
 ```tsx
 // app/api/feedback/route.ts (第 142-148 行)
 return NextResponse.json({
   success: false,
   error: 'Failed to fetch feedbacks',
-  message: '获取反馈列表失败',  // ✅ 有中文消息
-});
+  message: '获取反馈列表失败', // ✅ 有中文消息
+})
 ```
 
 **改进建议:**
+
 - 所有错误消息使用本地化
 - 提供错误代码供用户查询
 - 区分开发环境和生产环境的错误详情
@@ -260,6 +280,7 @@ return NextResponse.json({
 **当前状态:** 有 `validation-schemas.ts`，但前端没有统一的错误展示机制。
 
 **建议:**
+
 - 创建 `useFormError` hook
 - 集成 zod 错误到 UI 组件
 
@@ -269,16 +290,16 @@ return NextResponse.json({
 
 ### 优先级排序
 
-| 优先级 | 问题 | 影响 | 建议措施 |
-|--------|------|------|----------|
-| **P0** | 缺少 ErrorBoundary | 组件错误导致白屏 | 创建 ErrorBoundary 组件，包裹关键路由 |
-| **P0** | 缺少 error.tsx | 路由错误无法恢复 | 添加 app/error.tsx 和子路由错误页面 |
-| **P0** | 无全局错误监听 | 运行时错误静默失败 | 添加 window.onerror/unhandledrejection |
-| **P1** | 缺少 Toast 组件 | 操作反馈不明显 | 创建 Toast 上下文和组件 |
-| **P1** | API 错误处理不一致 | 错误体验参差 | 创建统一 API 客户端 |
-| **P1** | 无错误上报 | 无法追踪生产错误 | 集成 Sentry 或类似服务 |
-| **P2** | 错误消息不够友好 | 用户体验不佳 | 统一使用本地化错误消息 |
-| **P2** | 表单验证提示不完善 | 用户难以定位问题 | 创建表单错误处理 hook |
+| 优先级 | 问题               | 影响               | 建议措施                               |
+| ------ | ------------------ | ------------------ | -------------------------------------- |
+| **P0** | 缺少 ErrorBoundary | 组件错误导致白屏   | 创建 ErrorBoundary 组件，包裹关键路由  |
+| **P0** | 缺少 error.tsx     | 路由错误无法恢复   | 添加 app/error.tsx 和子路由错误页面    |
+| **P0** | 无全局错误监听     | 运行时错误静默失败 | 添加 window.onerror/unhandledrejection |
+| **P1** | 缺少 Toast 组件    | 操作反馈不明显     | 创建 Toast 上下文和组件                |
+| **P1** | API 错误处理不一致 | 错误体验参差       | 创建统一 API 客户端                    |
+| **P1** | 无错误上报         | 无法追踪生产错误   | 集成 Sentry 或类似服务                 |
+| **P2** | 错误消息不够友好   | 用户体验不佳       | 统一使用本地化错误消息                 |
+| **P2** | 表单验证提示不完善 | 用户难以定位问题   | 创建表单错误处理 hook                  |
 
 ---
 
@@ -343,5 +364,5 @@ return NextResponse.json({
 
 ---
 
-*审核人: AI 咨询师 + 媒体团队*
-*审核时间: 2026-03-29 13:21 GMT+2*
+_审核人: AI 咨询师 + 媒体团队_
+_审核时间: 2026-03-29 13:21 GMT+2_

@@ -13,92 +13,87 @@
  * - File attachments (future)
  */
 
-'use client';
+'use client'
 
-import { useState, useRef, useEffect, useCallback } from 'react';
-import { ChatMessage } from './ChatMessage';
-import { useRoomStore } from '@/stores/room-store';
-import type { Room } from '@/types/rooms';
-import { Button } from '@/components/ui/Button';
-import { Input } from '@/components/ui/Input';
-import clsx from 'clsx';
+import { useState, useRef, useEffect, useCallback } from 'react'
+import { ChatMessage } from './ChatMessage'
+import { useRoomStore } from '@/stores/room-store'
+import type { Room, RoomMessage } from '@/types/rooms'
+import { Button } from '@/components/ui/Button'
+import { Textarea } from '@/components/ui/Input'
+import clsx from 'clsx'
 
 export interface RoomChatProps {
   /** Room to display chat for */
-  room: Room;
+  room: Room
   /** Current user ID */
-  currentUserId: string;
+  currentUserId: string
   /** WebSocket manager for sending messages */
-  sendMessage?: (event: string, data: unknown) => boolean;
+  sendMessage?: (event: string, data: unknown) => boolean
   /** Additional CSS classes */
-  className?: string;
+  className?: string
 }
 
 /**
  * Room Chat Component
  */
-export function RoomChat({
-  room,
-  currentUserId,
-  sendMessage,
-  className,
-}: RoomChatProps) {
+export function RoomChat({ room, currentUserId, sendMessage, className }: RoomChatProps) {
   // Store state
-  const messages = useRoomStore((state) => state.messages[room.id] || []);
-  const markAsRead = useRoomStore((state) => state.markAsRead);
+  const messages = useRoomStore(state => state.messages[room.id] || [])
+  const markAsRead = useRoomStore(state => state.markAsRead)
 
   // Local state
-  const [inputValue, setInputValue] = useState('');
-  const [isTyping, setIsTyping] = useState(false);
-  const [typingUsers, setTypingUsers] = useState<string[]>([]);
+  const [inputValue, setInputValue] = useState('')
+  const [isTyping, setIsTyping] = useState(false)
+  const [typingUsers, setTypingUsers] = useState<string[]>([])
 
   // Refs
-  const messagesEndRef = useRef<HTMLDivElement>(null);
-  const scrollContainerRef = useRef<HTMLDivElement>(null);
-  const isScrolledToBottomRef = useRef(true);
-  const typingTimeoutRef = useRef<NodeJS.Timeout>();
+  const messagesEndRef = useRef<HTMLDivElement>(null)
+  const scrollContainerRef = useRef<HTMLDivElement>(null)
+  const isScrolledToBottomRef = useRef(true)
+  const typingTimeoutRef = useRef<NodeJS.Timeout>()
 
   /**
    * Scroll to bottom
    */
   const scrollToBottom = useCallback((force = false) => {
     if (messagesEndRef.current && (isScrolledToBottomRef.current || force)) {
-      messagesEndRef.current.scrollIntoView({ behavior: 'smooth' });
+      messagesEndRef.current.scrollIntoView({ behavior: 'smooth' })
     }
-  }, []);
+  }, [])
 
   /**
    * Handle scroll to detect if user is at bottom
    */
   const handleScroll = useCallback(() => {
-    const container = scrollContainerRef.current;
-    if (!container) return;
+    const container = scrollContainerRef.current
+    if (!container) return
 
-    const { scrollTop, scrollHeight, clientHeight } = container;
-    const distanceFromBottom = scrollHeight - scrollTop - clientHeight;
-    isScrolledToBottomRef.current = distanceFromBottom < 100;
-  }, []);
+    const { scrollTop, scrollHeight, clientHeight } = container
+    const distanceFromBottom = scrollHeight - scrollTop - clientHeight
+    isScrolledToBottomRef.current = distanceFromBottom < 100
+  }, [])
 
   /**
    * Effect: Scroll to bottom when messages change
    */
   useEffect(() => {
-    scrollToBottom();
-  }, [messages, scrollToBottom]);
+    scrollToBottom()
+  }, [messages, scrollToBottom])
 
   /**
    * Effect: Mark room as read when chat is opened
    */
   useEffect(() => {
-    markAsRead(room.id);
-  }, [room.id, markAsRead]);
+    markAsRead(room.id)
+  }, [room.id, markAsRead])
 
   /**
    * Send message
    */
   const handleSendMessage = useCallback(() => {
-    const trimmed = inputValue.trim();
-    if (!trimmed) return;
+    const trimmed = inputValue.trim()
+    if (!trimmed) return
 
     // Send via WebSocket
     if (sendMessage) {
@@ -106,100 +101,107 @@ export function RoomChat({
         roomId: room.id,
         content: trimmed,
         type: 'text',
-      });
+      })
 
       if (success) {
-        setInputValue('');
-        setIsTyping(false);
+        setInputValue('')
+        setIsTyping(false)
 
         // Scroll to bottom after sending
-        setTimeout(() => scrollToBottom(true), 100);
+        setTimeout(() => scrollToBottom(true), 100)
       }
     }
-  }, [inputValue, sendMessage, room.id, scrollToBottom]);
+  }, [inputValue, sendMessage, room.id, scrollToBottom])
 
   /**
    * Handle input change (typing indicator)
    */
-  const handleInputChange = useCallback((value: string) => {
-    setInputValue(value);
+  const handleInputChange = useCallback(
+    (value: string) => {
+      setInputValue(value)
 
-    if (!isTyping && value.trim()) {
-      setIsTyping(true);
+      if (!isTyping && value.trim()) {
+        setIsTyping(true)
 
-      // Send typing indicator
-      if (sendMessage) {
-        sendMessage('room:typing', { roomId: room.id, isTyping: true });
-      }
-
-      // Clear typing indicator after 3 seconds of inactivity
-      if (typingTimeoutRef.current) {
-        clearTimeout(typingTimeoutRef.current);
-      }
-
-      typingTimeoutRef.current = setTimeout(() => {
-        setIsTyping(false);
-
+        // Send typing indicator
         if (sendMessage) {
-          sendMessage('room:typing', { roomId: room.id, isTyping: false });
+          sendMessage('room:typing', { roomId: room.id, isTyping: true })
         }
-      }, 3000);
-    }
-  }, [isTyping, sendMessage, room.id]);
+
+        // Clear typing indicator after 3 seconds of inactivity
+        if (typingTimeoutRef.current) {
+          clearTimeout(typingTimeoutRef.current)
+        }
+
+        typingTimeoutRef.current = setTimeout(() => {
+          setIsTyping(false)
+
+          if (sendMessage) {
+            sendMessage('room:typing', { roomId: room.id, isTyping: false })
+          }
+        }, 3000)
+      }
+    },
+    [isTyping, sendMessage, room.id]
+  )
 
   /**
    * Handle key press (Enter to send)
    */
-  const handleKeyPress = useCallback((e: React.KeyboardEvent) => {
-    if (e.key === 'Enter' && !e.shiftKey) {
-      e.preventDefault();
-      handleSendMessage();
-    }
-  }, [handleSendMessage]);
+  const handleKeyPress = useCallback(
+    (e: React.KeyboardEvent) => {
+      if (e.key === 'Enter' && !e.shiftKey) {
+        e.preventDefault()
+        handleSendMessage()
+      }
+    },
+    [handleSendMessage]
+  )
 
   /**
    * Handle reply
    */
-  const handleReply = useCallback((message: Room) => {
-    setInputValue(`> ${message.senderName}: ${message.content}\n\n`);
+  const handleReply = useCallback((message: RoomMessage) => {
+    setInputValue(`> ${message.senderName}: ${message.content}\n\n`)
     // Focus input
-  }, []);
+  }, [])
 
   /**
    * Handle delete
    */
-  const handleDelete = useCallback((message: Room) => {
-    // Send delete request
-    if (sendMessage) {
-      sendMessage('room:delete_message', { roomId: room.id, messageId: message.id });
-    }
-  }, [sendMessage, room.id]);
+  const handleDelete = useCallback(
+    (message: RoomMessage) => {
+      // Send delete request
+      if (sendMessage) {
+        sendMessage('room:delete_message', { roomId: room.id, messageId: message.id })
+      }
+    },
+    [sendMessage, room.id]
+  )
 
   return (
-    <div className={clsx('flex flex-col h-full', className)}>
+    <div className={clsx('flex h-full flex-col', className)}>
       {/* Messages Container */}
       <div
         ref={scrollContainerRef}
         onScroll={handleScroll}
-        className="flex-1 overflow-y-auto px-4 py-4 space-y-2"
+        className="flex-1 space-y-2 overflow-y-auto px-4 py-4"
       >
         {/* Welcome Message */}
         {messages.length === 0 && (
-          <div className="flex items-center justify-center h-full">
+          <div className="flex h-full items-center justify-center">
             <div className="text-center">
-              <div className="text-6xl mb-4">💬</div>
-              <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100 mb-2">
+              <div className="mb-4 text-6xl">💬</div>
+              <h3 className="mb-2 text-lg font-semibold text-gray-900 dark:text-gray-100">
                 欢迎来到 {room.name}
               </h3>
-              <p className="text-gray-600 dark:text-gray-400">
-                发送第一条消息开始聊天吧！
-              </p>
+              <p className="text-gray-600 dark:text-gray-400">发送第一条消息开始聊天吧！</p>
             </div>
           </div>
         )}
 
         {/* Messages */}
-        {messages.map((message) => (
+        {messages.map(message => (
           <ChatMessage
             key={message.id}
             message={message}
@@ -226,15 +228,15 @@ export function RoomChat({
       )}
 
       {/* Input Area */}
-      <div className="border-t border-gray-200 dark:border-gray-700 p-4">
+      <div className="border-t border-gray-200 p-4 dark:border-gray-700">
         <div className="flex items-end gap-3">
           {/* Attachment Button (future) */}
           <button
             type="button"
-            className="p-2 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 transition-colors"
+            className="p-2 text-gray-400 transition-colors hover:text-gray-600 dark:hover:text-gray-300"
             title="Attach file"
           >
-            <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <svg className="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path
                 strokeLinecap="round"
                 strokeLinejoin="round"
@@ -245,14 +247,13 @@ export function RoomChat({
           </button>
 
           {/* Message Input */}
-          <Input
+          <Textarea
             value={inputValue}
-            onChange={(e) => handleInputChange(e.target.value)}
-            onKeyPress={handleKeyPress}
+            onChange={e => handleInputChange(e.target.value)}
+            onKeyDown={handleKeyPress as unknown as React.KeyboardEventHandler<HTMLTextAreaElement>}
             placeholder="输入消息..."
-            multiline
             rows={1}
-            className="flex-1 min-h-0"
+            className="min-h-0 flex-1 resize-none"
           />
 
           {/* Send Button */}
@@ -262,7 +263,7 @@ export function RoomChat({
             variant="primary"
             size="md"
           >
-            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <svg className="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path
                 strokeLinecap="round"
                 strokeLinejoin="round"
@@ -279,7 +280,7 @@ export function RoomChat({
         </div>
       </div>
     </div>
-  );
+  )
 }
 
-export default RoomChat;
+export default RoomChat

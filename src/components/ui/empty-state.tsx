@@ -11,9 +11,9 @@
  * - ARIA 无障碍支持
  */
 
-'use client';
+'use client'
 
-import { memo, type FC, type ReactNode } from 'react';
+import { memo, type FC, type ReactNode } from 'react'
 
 // ============================================================================
 // Types
@@ -30,34 +30,34 @@ export type EmptyStateVariant =
   | 'data'
   | 'error'
   | 'no-permission'
-  | 'coming-soon';
+  | 'coming-soon'
 
 export interface EmptyStateAction {
-  label: string;
-  onClick: () => void;
-  variant?: 'primary' | 'secondary';
-  icon?: ReactNode;
+  label: string
+  onClick: () => void
+  variant?: 'primary' | 'secondary'
+  icon?: ReactNode
 }
 
 export interface EmptyStateProps {
   /** 预设变体 */
-  variant?: EmptyStateVariant;
+  variant?: EmptyStateVariant
   /** 自定义图标（emoji 或 React 节点） */
-  icon?: string | ReactNode;
+  icon?: string | ReactNode
   /** 标题 */
-  title?: string;
+  title?: string
   /** 描述文字 */
-  description?: string;
+  description?: string
   /** 操作按钮 */
-  action?: EmptyStateAction;
+  action?: EmptyStateAction
   /** 次要操作按钮 */
-  secondaryAction?: EmptyStateAction;
+  secondaryAction?: EmptyStateAction
   /** 自定义内容 */
-  children?: ReactNode;
+  children?: ReactNode
   /** 紧凑模式 */
-  compact?: boolean;
+  compact?: boolean
   /** 自定义类名 */
-  className?: string;
+  className?: string
 }
 
 // ============================================================================
@@ -65,9 +65,9 @@ export interface EmptyStateProps {
 // ============================================================================
 
 interface PresetConfig {
-  icon: string;
-  title: string;
-  description: string;
+  icon: string
+  title: string
+  description: string
 }
 
 const PRESET_CONFIGS: Record<EmptyStateVariant, PresetConfig> = {
@@ -126,15 +126,15 @@ const PRESET_CONFIGS: Record<EmptyStateVariant, PresetConfig> = {
     title: '即将推出',
     description: '此功能正在开发中，敬请期待',
   },
-};
+}
 
 // ============================================================================
 // Icon Renderer
 // ============================================================================
 
 interface IconProps {
-  icon: string | ReactNode;
-  size: 'sm' | 'md' | 'lg';
+  icon: string | ReactNode
+  size: 'sm' | 'md' | 'lg'
 }
 
 const IconRenderer: FC<IconProps> = memo(({ icon, size }) => {
@@ -142,47 +142,40 @@ const IconRenderer: FC<IconProps> = memo(({ icon, size }) => {
     sm: 'text-3xl',
     md: 'text-5xl',
     lg: 'text-6xl',
-  };
+  }
 
   if (typeof icon === 'string') {
     return (
-      <span
-        className={`${sizeClasses[size]} select-none`}
-        role="img"
-        aria-hidden="true"
-      >
+      <span className={`${sizeClasses[size]} select-none`} role="img" aria-hidden="true">
         {icon}
       </span>
-    );
+    )
   }
 
-  return (
-    <div className={`${sizeClasses[size]} flex items-center justify-center`}>
-      {icon}
-    </div>
-  );
-});
+  return <div className={`${sizeClasses[size]} flex items-center justify-center`}>{icon}</div>
+})
 
-IconRenderer.displayName = 'IconRenderer';
+IconRenderer.displayName = 'IconRenderer'
 
 // ============================================================================
 // Action Button
 // ============================================================================
 
 interface ActionButtonProps {
-  action: EmptyStateAction;
-  size: 'sm' | 'md';
+  action: EmptyStateAction
+  size: 'sm' | 'md'
 }
 
 const ActionButton: FC<ActionButtonProps> = memo(({ action, size }) => {
-  const baseClasses = 'inline-flex items-center justify-center gap-2 font-medium transition-all duration-200';
-  const sizeClasses = size === 'sm'
-    ? 'px-4 py-2 text-sm rounded-lg'
-    : 'px-6 py-3 text-base rounded-full';
+  const baseClasses =
+    'inline-flex items-center justify-center gap-2 font-medium transition-all duration-200'
+  const sizeClasses =
+    size === 'sm' ? 'px-4 py-2 text-sm rounded-lg' : 'px-6 py-3 text-base rounded-full'
 
-  const variantClasses = action.variant === 'secondary'
-    ? 'border-2 border-zinc-300 dark:border-zinc-600 text-zinc-700 dark:text-zinc-300 hover:border-cyan-500 hover:text-cyan-500'
-    : 'bg-gradient-to-r from-cyan-500 to-purple-600 text-white hover:shadow-lg hover:shadow-cyan-500/25 hover:-translate-y-0.5';
+  const variantClasses =
+    action.variant === 'secondary'
+      ? 'border-2 border-zinc-300 dark:border-zinc-600 text-zinc-700 dark:text-zinc-300 hover:border-cyan-500 hover:text-cyan-500'
+      : 'bg-gradient-to-r from-cyan-500 to-purple-600 text-white hover:shadow-lg hover:shadow-cyan-500/25 hover:-translate-y-0.5'
 
   return (
     <button
@@ -193,170 +186,151 @@ const ActionButton: FC<ActionButtonProps> = memo(({ action, size }) => {
       {action.icon && <span className="flex-shrink-0">{action.icon}</span>}
       {action.label}
     </button>
-  );
-});
+  )
+})
 
-ActionButton.displayName = 'ActionButton';
+ActionButton.displayName = 'ActionButton'
 
 // ============================================================================
 // Main EmptyState Component
 // ============================================================================
 
-export const EmptyState: FC<EmptyStateProps> = memo(({
-  variant = 'default',
-  icon,
-  title,
-  description,
-  action,
-  secondaryAction,
-  children,
-  compact = false,
-  className = '',
-}) => {
-  const preset = PRESET_CONFIGS[variant];
+export const EmptyState: FC<EmptyStateProps> = memo(
+  ({
+    variant = 'default',
+    icon,
+    title,
+    description,
+    action,
+    secondaryAction,
+    children,
+    compact = false,
+    className = '',
+  }) => {
+    const preset = PRESET_CONFIGS[variant]
 
-  const finalIcon = icon ?? preset.icon;
-  const finalTitle = title ?? preset.title;
-  const finalDescription = description ?? preset.description;
+    const finalIcon = icon ?? preset.icon
+    const finalTitle = title ?? preset.title
+    const finalDescription = description ?? preset.description
 
-  const iconSize = compact ? 'sm' : 'md';
-  const containerPadding = compact ? 'py-8' : 'py-16';
-  const textSpacing = compact ? 'mt-2' : 'mt-4';
+    const iconSize = compact ? 'sm' : 'md'
+    const containerPadding = compact ? 'py-8' : 'py-16'
+    const textSpacing = compact ? 'mt-2' : 'mt-4'
 
-  return (
-    <div
-      className={`
-        flex flex-col items-center justify-center text-center
-        ${containerPadding} px-4
-        ${className}
-      `}
-      role="status"
-      aria-label={finalTitle}
-    >
-      {/* Icon */}
-      <div className="animate-fade-in">
-        <IconRenderer icon={finalIcon} size={iconSize} />
-      </div>
-
-      {/* Title */}
-      <h3
-        className={`
-          text-lg sm:text-xl font-semibold
-          text-zinc-800 dark:text-zinc-100
-          ${textSpacing}
-          animate-fade-in-up
-        `}
-        style={{ animationDelay: '100ms' }}
+    return (
+      <div
+        className={`flex flex-col items-center justify-center text-center ${containerPadding} px-4 ${className} `}
+        role="status"
+        aria-label={finalTitle}
       >
-        {finalTitle}
-      </h3>
-
-      {/* Description */}
-      {finalDescription && (
-        <p
-          className={`
-            text-sm sm:text-base
-            text-zinc-500 dark:text-zinc-400
-            mt-2 max-w-md
-            animate-fade-in-up
-          `}
-          style={{ animationDelay: '200ms' }}
-        >
-          {finalDescription}
-        </p>
-      )}
-
-      {/* Actions */}
-      {(action || secondaryAction) && (
-        <div
-          className={`
-            flex flex-col sm:flex-row gap-3
-            mt-6
-            animate-fade-in-up
-          `}
-          style={{ animationDelay: '300ms' }}
-        >
-          {action && <ActionButton action={action} size={compact ? 'sm' : 'md'} />}
-          {secondaryAction && (
-            <ActionButton
-              action={{ ...secondaryAction, variant: 'secondary' }}
-              size={compact ? 'sm' : 'md'}
-            />
-          )}
+        {/* Icon */}
+        <div className="animate-fade-in">
+          <IconRenderer icon={finalIcon} size={iconSize} />
         </div>
-      )}
 
-      {/* Custom Content */}
-      {children && (
-        <div
-          className="mt-6 animate-fade-in-up"
-          style={{ animationDelay: '400ms' }}
+        {/* Title */}
+        <h3
+          className={`text-lg font-semibold text-zinc-800 sm:text-xl dark:text-zinc-100 ${textSpacing} animate-fade-in-up`}
+          style={{ animationDelay: '100ms' }}
         >
-          {children}
-        </div>
-      )}
-    </div>
-  );
-});
+          {finalTitle}
+        </h3>
 
-EmptyState.displayName = 'EmptyState';
+        {/* Description */}
+        {finalDescription && (
+          <p
+            className={`animate-fade-in-up mt-2 max-w-md text-sm text-zinc-500 sm:text-base dark:text-zinc-400`}
+            style={{ animationDelay: '200ms' }}
+          >
+            {finalDescription}
+          </p>
+        )}
+
+        {/* Actions */}
+        {(action || secondaryAction) && (
+          <div
+            className={`animate-fade-in-up mt-6 flex flex-col gap-3 sm:flex-row`}
+            style={{ animationDelay: '300ms' }}
+          >
+            {action && <ActionButton action={action} size={compact ? 'sm' : 'md'} />}
+            {secondaryAction && (
+              <ActionButton
+                action={{ ...secondaryAction, variant: 'secondary' }}
+                size={compact ? 'sm' : 'md'}
+              />
+            )}
+          </div>
+        )}
+
+        {/* Custom Content */}
+        {children && (
+          <div className="animate-fade-in-up mt-6" style={{ animationDelay: '400ms' }}>
+            {children}
+          </div>
+        )}
+      </div>
+    )
+  }
+)
+
+EmptyState.displayName = 'EmptyState'
 
 // ============================================================================
 // Specialized Empty State Components
 // ============================================================================
 
 /** 任务列表空状态 */
-export const EmptyTasks: FC<Omit<EmptyStateProps, 'variant'>> = (props) => (
+export const EmptyTasks: FC<Omit<EmptyStateProps, 'variant'>> = props => (
   <EmptyState variant="tasks" {...props} />
-);
+)
 
 /** 项目列表空状态 */
-export const EmptyProjects: FC<Omit<EmptyStateProps, 'variant'>> = (props) => (
+export const EmptyProjects: FC<Omit<EmptyStateProps, 'variant'>> = props => (
   <EmptyState variant="projects" {...props} />
-);
+)
 
 /** 搜索结果空状态 */
-export const EmptySearch: FC<Omit<EmptyStateProps, 'variant'>> = (props) => (
+export const EmptySearch: FC<Omit<EmptyStateProps, 'variant'>> = props => (
   <EmptyState variant="search" {...props} />
-);
+)
 
 /** 通知列表空状态 */
-export const EmptyNotifications: FC<Omit<EmptyStateProps, 'variant'>> = (props) => (
+export const EmptyNotifications: FC<Omit<EmptyStateProps, 'variant'>> = props => (
   <EmptyState variant="notifications" {...props} />
-);
+)
 
 /** 消息列表空状态 */
-export const EmptyMessages: FC<Omit<EmptyStateProps, 'variant'>> = (props) => (
+export const EmptyMessages: FC<Omit<EmptyStateProps, 'variant'>> = props => (
   <EmptyState variant="messages" {...props} />
-);
+)
 
 /** 文件列表空状态 */
-export const EmptyFiles: FC<Omit<EmptyStateProps, 'variant'>> = (props) => (
+export const EmptyFiles: FC<Omit<EmptyStateProps, 'variant'>> = props => (
   <EmptyState variant="files" {...props} />
-);
+)
 
 /** 数据空状态 */
-export const EmptyData: FC<Omit<EmptyStateProps, 'variant'>> = (props) => (
+export const EmptyData: FC<Omit<EmptyStateProps, 'variant'>> = props => (
   <EmptyState variant="data" {...props} />
-);
+)
 
 /** 错误状态 */
-export const ErrorState: FC<Omit<EmptyStateProps, 'variant'>> = (props) => (
+export const ErrorState: FC<Omit<EmptyStateProps, 'variant'>> = props => (
   <EmptyState variant="error" {...props} />
-);
+)
 
 /** 无权限状态 */
-export const NoPermission: FC<Omit<EmptyStateProps, 'variant'>> = (props) => (
+export const NoPermission: FC<Omit<EmptyStateProps, 'variant'>> = props => (
   <EmptyState variant="no-permission" {...props} />
-);
+)
 
 /** 即将推出状态 */
-export const ComingSoon: FC<Omit<EmptyStateProps, 'variant'>> = (props) => (
+export const ComingSoon: FC<Omit<EmptyStateProps, 'variant'>> = props => (
   <EmptyState variant="coming-soon" {...props} />
-);
+)
 
 // ============================================================================
 // Exports
 // ============================================================================
 
-export default EmptyState;
+export default EmptyState

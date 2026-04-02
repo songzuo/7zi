@@ -3,78 +3,81 @@
  * Defines the capabilities and characteristics of AI agents in the scheduling system
  */
 
-export type AgentProvider = 'minimax' | 'bailian' | 'volcengine' | 'self-claude';
+export type AgentProvider = 'minimax' | 'bailian' | 'volcengine' | 'self-claude'
 
-export type TaskType = 
-  | 'architecture' 
-  | 'research' 
-  | 'implementation' 
-  | 'testing' 
-  | 'devops' 
-  | 'design' 
-  | 'marketing' 
-  | 'sales' 
-  | 'finance' 
-  | 'media' 
-  | 'general';
+export type TaskType =
+  | 'architecture'
+  | 'research'
+  | 'implementation'
+  | 'testing'
+  | 'devops'
+  | 'design'
+  | 'marketing'
+  | 'sales'
+  | 'finance'
+  | 'media'
+  | 'general'
 
 export interface AgentCapabilities {
   /** Technologies and frameworks the agent is proficient in */
-  techStack: string[];
-  
+  techStack: string[]
+
   /** Types of tasks the agent can handle */
-  taskTypes: TaskType[];
-  
+  taskTypes: TaskType[]
+
   /** Maximum concurrent tasks the agent can handle */
-  concurrency: number;
-  
+  concurrency: number
+
   /** Average response time in seconds */
-  avgResponseTime: number;
-  
+  avgResponseTime: number
+
   /** Task success rate (0-1) */
-  successRate: number;
-  
+  successRate: number
+
   /** Specialized domains or areas */
-  specializations?: string[];
+  specializations?: string[]
 }
 
 export interface AgentCapability {
   /** Unique identifier for the agent */
-  agentId: string;
-  
+  agentId: string
+
   /** Human-readable name */
-  name: string;
-  
+  name: string
+
   /** AI provider */
-  provider: AgentProvider;
-  
+  provider: AgentProvider
+
   /** Agent capabilities */
-  capabilities: AgentCapabilities;
-  
+  capabilities: AgentCapabilities
+
   /** Current workload percentage (0-100) */
-  currentLoad: number;
-  
+  currentLoad: number
+
   /** Whether the agent is available for new tasks */
-  availability: boolean;
-  
+  availability: boolean
+
   /** Last active timestamp (Unix timestamp) */
-  lastActiveTime: number;
-  
+  lastActiveTime: number
+
   /** Agent role in the team */
-  role: string;
-  
+  role: string
+
   /** Performance metrics */
   metrics?: {
-    totalTasksCompleted: number;
-    averageCompletionTime: number;
-    errorRate: number;
-  };
+    totalTasksCompleted: number
+    averageCompletionTime: number
+    errorRate: number
+  }
 }
 
 /**
  * Agent capability configuration for the 11 AI team members
  */
-export const AGENT_CAPABILITIES_CONFIG: Record<string, Omit<AgentCapability, 'currentLoad' | 'availability' | 'lastActiveTime'>> = {
+export const AGENT_CAPABILITIES_CONFIG: Record<
+  string,
+  Omit<AgentCapability, 'currentLoad' | 'availability' | 'lastActiveTime'>
+> = {
   'agent-expert': {
     agentId: 'agent-expert',
     name: '智能体世界专家',
@@ -86,16 +89,16 @@ export const AGENT_CAPABILITIES_CONFIG: Record<string, Omit<AgentCapability, 'cu
       concurrency: 3,
       avgResponseTime: 8,
       successRate: 0.95,
-      specializations: ['agent-orchestration', 'distributed-systems', 'emerging-tech']
+      specializations: ['agent-orchestration', 'distributed-systems', 'emerging-tech'],
     },
     metrics: {
       totalTasksCompleted: 45,
       averageCompletionTime: 15,
-      errorRate: 0.05
-    }
+      errorRate: 0.05,
+    },
   },
-  
-  'consultant': {
+
+  consultant: {
     agentId: 'consultant',
     name: '咨询师',
     provider: 'minimax',
@@ -106,36 +109,43 @@ export const AGENT_CAPABILITIES_CONFIG: Record<string, Omit<AgentCapability, 'cu
       concurrency: 4,
       avgResponseTime: 6,
       successRate: 0.97,
-      specializations: ['market-analysis', 'technical-research', 'competitive-analysis']
+      specializations: ['market-analysis', 'technical-research', 'competitive-analysis'],
     },
     metrics: {
       totalTasksCompleted: 78,
       averageCompletionTime: 12,
-      errorRate: 0.03
-    }
+      errorRate: 0.03,
+    },
   },
-  
-  'architect': {
+
+  architect: {
     agentId: 'architect',
     name: '架构师',
     provider: 'self-claude',
     role: '架构设计',
     capabilities: {
-      techStack: ['typescript', 'react', 'nextjs', 'nodejs', 'architecture-patterns', 'system-design'],
+      techStack: [
+        'typescript',
+        'react',
+        'nextjs',
+        'nodejs',
+        'architecture-patterns',
+        'system-design',
+      ],
       taskTypes: ['architecture', 'implementation'],
       concurrency: 2,
       avgResponseTime: 12,
       successRate: 0.96,
-      specializations: ['microservices', 'scalability', 'performance-optimization']
+      specializations: ['microservices', 'scalability', 'performance-optimization'],
     },
     metrics: {
       totalTasksCompleted: 56,
       averageCompletionTime: 20,
-      errorRate: 0.04
-    }
+      errorRate: 0.04,
+    },
   },
-  
-  'executor': {
+
+  executor: {
     agentId: 'executor',
     name: 'Executor',
     provider: 'volcengine',
@@ -146,16 +156,16 @@ export const AGENT_CAPABILITIES_CONFIG: Record<string, Omit<AgentCapability, 'cu
       concurrency: 5,
       avgResponseTime: 5,
       successRate: 0.94,
-      specializations: ['code-implementation', 'automation', 'rapid-prototyping']
+      specializations: ['code-implementation', 'automation', 'rapid-prototyping'],
     },
     metrics: {
       totalTasksCompleted: 120,
       averageCompletionTime: 8,
-      errorRate: 0.06
-    }
+      errorRate: 0.06,
+    },
   },
-  
-  'sysadmin': {
+
+  sysadmin: {
     agentId: 'sysadmin',
     name: '系统管理员',
     provider: 'bailian',
@@ -166,16 +176,16 @@ export const AGENT_CAPABILITIES_CONFIG: Record<string, Omit<AgentCapability, 'cu
       concurrency: 3,
       avgResponseTime: 7,
       successRate: 0.98,
-      specializations: ['deployment', 'infrastructure', 'security']
+      specializations: ['deployment', 'infrastructure', 'security'],
     },
     metrics: {
       totalTasksCompleted: 67,
       averageCompletionTime: 10,
-      errorRate: 0.02
-    }
+      errorRate: 0.02,
+    },
   },
-  
-  'tester': {
+
+  tester: {
     agentId: 'tester',
     name: '测试员',
     provider: 'minimax',
@@ -186,16 +196,16 @@ export const AGENT_CAPABILITIES_CONFIG: Record<string, Omit<AgentCapability, 'cu
       concurrency: 4,
       avgResponseTime: 6,
       successRate: 0.95,
-      specializations: ['unit-testing', 'e2e-testing', 'performance-testing']
+      specializations: ['unit-testing', 'e2e-testing', 'performance-testing'],
     },
     metrics: {
       totalTasksCompleted: 95,
       averageCompletionTime: 9,
-      errorRate: 0.05
-    }
+      errorRate: 0.05,
+    },
   },
-  
-  'designer': {
+
+  designer: {
     agentId: 'designer',
     name: '设计师',
     provider: 'self-claude',
@@ -206,16 +216,16 @@ export const AGENT_CAPABILITIES_CONFIG: Record<string, Omit<AgentCapability, 'cu
       concurrency: 3,
       avgResponseTime: 10,
       successRate: 0.93,
-      specializations: ['ui-design', 'ux-optimization', 'responsive-design']
+      specializations: ['ui-design', 'ux-optimization', 'responsive-design'],
     },
     metrics: {
       totalTasksCompleted: 42,
       averageCompletionTime: 18,
-      errorRate: 0.07
-    }
+      errorRate: 0.07,
+    },
   },
-  
-  'promoter': {
+
+  promoter: {
     agentId: 'promoter',
     name: '推广专员',
     provider: 'volcengine',
@@ -226,16 +236,16 @@ export const AGENT_CAPABILITIES_CONFIG: Record<string, Omit<AgentCapability, 'cu
       concurrency: 4,
       avgResponseTime: 5,
       successRate: 0.92,
-      specializations: ['seo-optimization', 'content-strategy', 'growth-hacking']
+      specializations: ['seo-optimization', 'content-strategy', 'growth-hacking'],
     },
     metrics: {
       totalTasksCompleted: 38,
       averageCompletionTime: 7,
-      errorRate: 0.08
-    }
+      errorRate: 0.08,
+    },
   },
-  
-  'sales': {
+
+  sales: {
     agentId: 'sales',
     name: '销售客服',
     provider: 'bailian',
@@ -246,16 +256,16 @@ export const AGENT_CAPABILITIES_CONFIG: Record<string, Omit<AgentCapability, 'cu
       concurrency: 5,
       avgResponseTime: 4,
       successRate: 0.96,
-      specializations: ['customer-support', 'sales-automation', 'lead-generation']
+      specializations: ['customer-support', 'sales-automation', 'lead-generation'],
     },
     metrics: {
       totalTasksCompleted: 110,
       averageCompletionTime: 6,
-      errorRate: 0.04
-    }
+      errorRate: 0.04,
+    },
   },
-  
-  'finance': {
+
+  finance: {
     agentId: 'finance',
     name: '财务',
     provider: 'minimax',
@@ -266,16 +276,16 @@ export const AGENT_CAPABILITIES_CONFIG: Record<string, Omit<AgentCapability, 'cu
       concurrency: 2,
       avgResponseTime: 9,
       successRate: 0.98,
-      specializations: ['budget-management', 'financial-reporting', 'cost-optimization']
+      specializations: ['budget-management', 'financial-reporting', 'cost-optimization'],
     },
     metrics: {
       totalTasksCompleted: 32,
       averageCompletionTime: 14,
-      errorRate: 0.02
-    }
+      errorRate: 0.02,
+    },
   },
-  
-  'media': {
+
+  media: {
     agentId: 'media',
     name: '媒体',
     provider: 'self-claude',
@@ -286,15 +296,15 @@ export const AGENT_CAPABILITIES_CONFIG: Record<string, Omit<AgentCapability, 'cu
       concurrency: 3,
       avgResponseTime: 11,
       successRate: 0.91,
-      specializations: ['content-production', 'brand-strategy', 'media-relations']
+      specializations: ['content-production', 'brand-strategy', 'media-relations'],
     },
     metrics: {
       totalTasksCompleted: 28,
       averageCompletionTime: 16,
-      errorRate: 0.09
-    }
-  }
-};
+      errorRate: 0.09,
+    },
+  },
+}
 
 /**
  * Create an agent capability instance with default runtime values
@@ -306,19 +316,19 @@ export function createAgentCapability(
     ...config,
     currentLoad: 0,
     availability: true,
-    lastActiveTime: Date.now()
-  };
+    lastActiveTime: Date.now(),
+  }
 }
 
 /**
  * Initialize all agents from configuration
  */
 export function initializeAgents(): Map<string, AgentCapability> {
-  const agents = new Map<string, AgentCapability>();
-  
+  const agents = new Map<string, AgentCapability>()
+
   for (const [id, config] of Object.entries(AGENT_CAPABILITIES_CONFIG)) {
-    agents.set(id, createAgentCapability(config));
+    agents.set(id, createAgentCapability(config))
   }
-  
-  return agents;
+
+  return agents
 }

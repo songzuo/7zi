@@ -1,34 +1,34 @@
-'use client';
+'use client'
 
 /**
  * Modal 组件 - 模态框组件
  * 支持多种尺寸、动画效果
  */
 
-import React, { useEffect, useRef } from 'react';
-import clsx from 'clsx';
+import React, { useEffect, useRef } from 'react'
+import clsx from 'clsx'
 
 export interface ModalProps {
   /** 是否显示 */
-  isOpen: boolean;
+  isOpen: boolean
   /** 关闭回调 */
-  onClose: () => void;
+  onClose: () => void
   /** 标题 */
-  title?: string;
+  title?: string
   /** 内容 */
-  children: React.ReactNode;
+  children: React.ReactNode
   /** 模态框大小 */
-  size?: 'sm' | 'md' | 'lg' | 'xl' | 'full';
+  size?: 'sm' | 'md' | 'lg' | 'xl' | 'full'
   /** 是否显示关闭按钮 */
-  showCloseButton?: boolean;
+  showCloseButton?: boolean
   /** 点击遮罩层是否关闭 */
-  closeOnOverlayClick?: boolean;
+  closeOnOverlayClick?: boolean
   /** 是否显示遮罩层 */
-  showOverlay?: boolean;
+  showOverlay?: boolean
   /** 自定义类名 */
-  className?: string;
+  className?: string
   /** 页脚内容 */
-  footer?: React.ReactNode;
+  footer?: React.ReactNode
 }
 
 export const Modal: React.FC<ModalProps> = ({
@@ -43,75 +43,75 @@ export const Modal: React.FC<ModalProps> = ({
   className,
   footer,
 }) => {
-  "use memo";
+  'use memo'
 
-  const modalRef = useRef<HTMLDivElement>(null);
-  const previousActiveElement = useRef<HTMLElement | null>(null);
-  
+  const modalRef = useRef<HTMLDivElement>(null)
+  const previousActiveElement = useRef<HTMLElement | null>(null)
+
   // 处理 ESC 键关闭
   useEffect(() => {
     const handleEscape = (e: KeyboardEvent) => {
       if (e.key === 'Escape' && isOpen) {
-        onClose();
+        onClose()
       }
-    };
-    
-    if (isOpen) {
-      document.addEventListener('keydown', handleEscape);
     }
-    
+
+    if (isOpen) {
+      document.addEventListener('keydown', handleEscape)
+    }
+
     return () => {
-      document.removeEventListener('keydown', handleEscape);
-    };
-  }, [isOpen, onClose]);
-  
+      document.removeEventListener('keydown', handleEscape)
+    }
+  }, [isOpen, onClose])
+
   // 管理焦点
   useEffect(() => {
     if (isOpen) {
       // 保存当前焦点元素
-      previousActiveElement.current = document.activeElement as HTMLElement;
-      
+      previousActiveElement.current = document.activeElement as HTMLElement
+
       // 将焦点移到模态框
       if (modalRef.current) {
-        modalRef.current.focus();
+        modalRef.current.focus()
       }
-      
+
       // 禁止背景滚动
-      document.body.style.overflow = 'hidden';
+      document.body.style.overflow = 'hidden'
     } else {
       // 恢复焦点
       if (previousActiveElement.current) {
-        previousActiveElement.current.focus();
+        previousActiveElement.current.focus()
       }
-      
+
       // 恢复背景滚动
-      document.body.style.overflow = 'unset';
+      document.body.style.overflow = 'unset'
     }
-    
+
     return () => {
-      document.body.style.overflow = 'unset';
-    };
-  }, [isOpen]);
-  
+      document.body.style.overflow = 'unset'
+    }
+  }, [isOpen])
+
   const sizeStyles = {
     sm: 'max-w-md',
     md: 'max-w-lg',
     lg: 'max-w-2xl',
     xl: 'max-w-4xl',
     full: 'max-w-full mx-4',
-  };
-  
-  if (!isOpen) {
-    return null;
   }
-  
+
+  if (!isOpen) {
+    return null
+  }
+
   return (
     <>
       {showOverlay && (
         <div
           className={clsx(
             'fixed inset-0 z-50 flex items-center justify-center p-4',
-            'bg-black bg-opacity-50',
+            'bg-opacity-50 bg-black',
             'transition-opacity duration-300',
             isOpen ? 'opacity-100' : 'opacity-0'
           )}
@@ -120,33 +120,26 @@ export const Modal: React.FC<ModalProps> = ({
           <div
             ref={modalRef}
             className={clsx(
-              'relative w-full bg-white rounded-lg shadow-2xl',
+              'relative w-full rounded-lg bg-white shadow-2xl',
               'transform transition-all duration-300',
               isOpen ? 'scale-100 opacity-100' : 'scale-95 opacity-0',
               sizeStyles[size],
               className
             )}
-            onClick={(e) => e.stopPropagation()}
+            onClick={e => e.stopPropagation()}
             tabIndex={-1}
           >
             {/* 头部 */}
             {(title || showCloseButton) && (
-              <div className="flex items-center justify-between px-6 py-4 border-b border-gray-200">
-                {title && (
-                  <h2 className="text-xl font-semibold text-gray-900">{title}</h2>
-                )}
+              <div className="flex items-center justify-between border-b border-gray-200 px-6 py-4">
+                {title && <h2 className="text-xl font-semibold text-gray-900">{title}</h2>}
                 {showCloseButton && (
                   <button
                     onClick={onClose}
-                    className="p-2 text-gray-400 hover:text-gray-600 hover:bg-gray-100 rounded-lg transition-colors"
+                    className="rounded-lg p-2 text-gray-400 transition-colors hover:bg-gray-100 hover:text-gray-600"
                     aria-label="关闭"
                   >
-                    <svg
-                      className="w-5 h-5"
-                      fill="none"
-                      viewBox="0 0 24 24"
-                      stroke="currentColor"
-                    >
+                    <svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                       <path
                         strokeLinecap="round"
                         strokeLinejoin="round"
@@ -158,13 +151,13 @@ export const Modal: React.FC<ModalProps> = ({
                 )}
               </div>
             )}
-            
+
             {/* 内容 */}
             <div className="px-6 py-4">{children}</div>
-            
+
             {/* 页脚 */}
             {footer && (
-              <div className="flex items-center justify-end gap-3 px-6 py-4 border-t border-gray-200 bg-gray-50 rounded-b-lg">
+              <div className="flex items-center justify-end gap-3 rounded-b-lg border-t border-gray-200 bg-gray-50 px-6 py-4">
                 {footer}
               </div>
             )}
@@ -172,5 +165,5 @@ export const Modal: React.FC<ModalProps> = ({
         </div>
       )}
     </>
-  );
-};
+  )
+}

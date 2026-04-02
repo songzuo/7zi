@@ -2,19 +2,25 @@
  * 表单字段组件
  * 带实时验证反馈
  */
-'use client';
+'use client'
 
-import { forwardRef, InputHTMLAttributes, TextareaHTMLAttributes, SelectHTMLAttributes, ReactNode } from 'react';
-import { useFieldValidation, UseFieldValidationOptions } from './useFieldValidation';
+import {
+  forwardRef,
+  InputHTMLAttributes,
+  TextareaHTMLAttributes,
+  SelectHTMLAttributes,
+  ReactNode,
+} from 'react'
+import { useFieldValidation, UseFieldValidationOptions } from './useFieldValidation'
 
 export interface FormFieldProps {
-  label?: string;
-  error?: string;
-  touched?: boolean;
-  required?: boolean;
-  hint?: string;
-  className?: string;
-  children: ReactNode;
+  label?: string
+  error?: string
+  touched?: boolean
+  required?: boolean
+  hint?: string
+  className?: string
+  children: ReactNode
 }
 
 /**
@@ -29,25 +35,20 @@ export function FormField({
   className = '',
   children,
 }: FormFieldProps) {
-  const showError = touched && error;
+  const showError = touched && error
 
   return (
     <div className={`space-y-2 ${className}`}>
       {label && (
         <label className="block text-sm font-medium text-zinc-700 dark:text-zinc-300">
           {label}
-          {required && <span className="text-red-500 ml-1">*</span>}
+          {required && <span className="ml-1 text-red-500">*</span>}
         </label>
       )}
       {children}
       {showError && (
-        <p className="text-sm text-red-500 flex items-center gap-1">
-          <svg
-            className="w-4 h-4"
-            fill="none"
-            stroke="currentColor"
-            viewBox="0 0 24 24"
-          >
+        <p className="flex items-center gap-1 text-sm text-red-500">
+          <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path
               strokeLinecap="round"
               strokeLinejoin="round"
@@ -58,56 +59,56 @@ export function FormField({
           {error}
         </p>
       )}
-      {hint && !showError && (
-        <p className="text-sm text-zinc-500 dark:text-zinc-400">{hint}</p>
-      )}
+      {hint && !showError && <p className="text-sm text-zinc-500 dark:text-zinc-400">{hint}</p>}
     </div>
-  );
+  )
 }
 
 /**
  * 输入框组件（带实时验证）
  */
 export interface InputProps
-  extends Omit<InputHTMLAttributes<HTMLInputElement>, 'defaultValue'>,
-    UseFieldValidationOptions {
-  error?: string;
-  touched?: boolean;
+  extends Omit<InputHTMLAttributes<HTMLInputElement>, 'defaultValue'>, UseFieldValidationOptions {
+  error?: string
+  touched?: boolean
 }
 
 export const Input = forwardRef<HTMLInputElement, InputProps>(
-  ({ 
-    validate, 
-    validateOn = 'blur', 
-    validateOnChange, 
-    validateOnBlur,
-    error: externalError,
-    touched: externalTouched,
-    className = '',
-    onChange,
-    onBlur,
-    ...props 
-  }, ref) => {
+  (
+    {
+      validate,
+      validateOn = 'blur',
+      validateOnChange,
+      validateOnBlur,
+      error: externalError,
+      touched: externalTouched,
+      className = '',
+      onChange,
+      onBlur,
+      ...props
+    },
+    ref
+  ) => {
     const { value, error, handleChange, handleBlur, isTouched } = useFieldValidation({
       validate,
       validateOn,
       validateOnChange,
       validateOnBlur,
       defaultValue: String(props.defaultValue || ''),
-    });
+    })
 
-    const showError = (externalTouched ?? isTouched) && (externalError ?? error);
-    
+    const showError = (externalTouched ?? isTouched) && (externalError ?? error)
+
     // 合并外部和内部事件处理器
     const handleChangeWrapper = (e: React.ChangeEvent<HTMLInputElement>) => {
-      handleChange(e);
-      onChange?.(e);
-    };
+      handleChange(e)
+      onChange?.(e)
+    }
 
     const handleBlurWrapper = (e: React.FocusEvent<HTMLInputElement>) => {
-      handleBlur(e);
-      onBlur?.(e);
-    };
+      handleBlur(e)
+      onBlur?.(e)
+    }
 
     return (
       <input
@@ -115,59 +116,63 @@ export const Input = forwardRef<HTMLInputElement, InputProps>(
         value={value}
         onChange={handleChangeWrapper}
         onBlur={handleBlurWrapper}
-        className={`w-full px-4 py-3 rounded-xl bg-zinc-50 dark:bg-zinc-800 border ${
+        className={`w-full rounded-xl border bg-zinc-50 px-4 py-3 dark:bg-zinc-800 ${
           showError
             ? 'border-red-500 focus:border-red-500 focus:ring-red-500/20'
-            : 'border-zinc-200 dark:border-zinc-700 focus:border-cyan-500 focus:ring-cyan-500/20'
-        } text-zinc-900 dark:text-white focus:outline-none focus:ring-4 transition-all ${className}`}
+            : 'border-zinc-200 focus:border-cyan-500 focus:ring-cyan-500/20 dark:border-zinc-700'
+        } text-zinc-900 transition-all focus:ring-4 focus:outline-none dark:text-white ${className}`}
         aria-invalid={showError ? 'true' : 'false'}
         aria-describedby={showError ? `${props.name}-error` : undefined}
         {...props}
       />
-    );
+    )
   }
-);
+)
 
-Input.displayName = 'Input';
+Input.displayName = 'Input'
 
 /**
  * 文本域组件（带实时验证）
  */
 export interface TextareaProps
-  extends Omit<TextareaHTMLAttributes<HTMLTextAreaElement>, 'defaultValue'>,
+  extends
+    Omit<TextareaHTMLAttributes<HTMLTextAreaElement>, 'defaultValue'>,
     UseFieldValidationOptions {
-  error?: string;
-  touched?: boolean;
+  error?: string
+  touched?: boolean
 }
 
 export const Textarea = forwardRef<HTMLTextAreaElement, TextareaProps>(
-  ({ 
-    validate, 
-    validateOn = 'blur',
-    error: externalError,
-    touched: externalTouched,
-    className = '',
-    onChange,
-    onBlur,
-    ...props 
-  }, ref) => {
+  (
+    {
+      validate,
+      validateOn = 'blur',
+      error: externalError,
+      touched: externalTouched,
+      className = '',
+      onChange,
+      onBlur,
+      ...props
+    },
+    ref
+  ) => {
     const { value, error, handleChange, handleBlur, isTouched } = useFieldValidation({
       validate,
       validateOn,
       defaultValue: String(props.defaultValue || ''),
-    });
+    })
 
-    const showError = (externalTouched ?? isTouched) && (externalError ?? error);
+    const showError = (externalTouched ?? isTouched) && (externalError ?? error)
 
     const handleChangeWrapper = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
-      handleChange(e as unknown as React.ChangeEvent<HTMLInputElement>);
-      onChange?.(e);
-    };
+      handleChange(e as unknown as React.ChangeEvent<HTMLInputElement>)
+      onChange?.(e)
+    }
 
     const handleBlurWrapper = (e: React.FocusEvent<HTMLTextAreaElement>) => {
-      handleBlur(e as unknown as React.FocusEvent<HTMLInputElement>);
-      onBlur?.(e);
-    };
+      handleBlur(e as unknown as React.FocusEvent<HTMLInputElement>)
+      onBlur?.(e)
+    }
 
     return (
       <textarea
@@ -175,43 +180,42 @@ export const Textarea = forwardRef<HTMLTextAreaElement, TextareaProps>(
         value={value}
         onChange={handleChangeWrapper}
         onBlur={handleBlurWrapper}
-        className={`w-full px-4 py-3 rounded-xl bg-zinc-50 dark:bg-zinc-800 border ${
+        className={`w-full rounded-xl border bg-zinc-50 px-4 py-3 dark:bg-zinc-800 ${
           showError
             ? 'border-red-500 focus:border-red-500 focus:ring-red-500/20'
-            : 'border-zinc-200 dark:border-zinc-700 focus:border-cyan-500 focus:ring-cyan-500/20'
-        } text-zinc-900 dark:text-white focus:outline-none focus:ring-4 transition-all resize-none ${className}`}
+            : 'border-zinc-200 focus:border-cyan-500 focus:ring-cyan-500/20 dark:border-zinc-700'
+        } resize-none text-zinc-900 transition-all focus:ring-4 focus:outline-none dark:text-white ${className}`}
         aria-invalid={showError ? 'true' : 'false'}
         {...props}
       />
-    );
+    )
   }
-);
+)
 
-Textarea.displayName = 'Textarea';
+Textarea.displayName = 'Textarea'
 
 /**
  * 下拉选择组件
  */
-export interface SelectProps
-  extends SelectHTMLAttributes<HTMLSelectElement> {
-  options: Array<{ value: string; label: string }>;
-  error?: string;
-  touched?: boolean;
-  placeholder?: string;
+export interface SelectProps extends SelectHTMLAttributes<HTMLSelectElement> {
+  options: Array<{ value: string; label: string }>
+  error?: string
+  touched?: boolean
+  placeholder?: string
 }
 
 export const Select = forwardRef<HTMLSelectElement, SelectProps>(
   ({ options, error, touched, placeholder, className = '', ...props }, ref) => {
-    const showError = touched && error;
+    const showError = touched && error
 
     return (
       <select
         ref={ref}
-        className={`w-full px-4 py-3 rounded-xl bg-zinc-50 dark:bg-zinc-800 border ${
+        className={`w-full rounded-xl border bg-zinc-50 px-4 py-3 dark:bg-zinc-800 ${
           showError
             ? 'border-red-500 focus:border-red-500'
-            : 'border-zinc-200 dark:border-zinc-700 focus:border-cyan-500'
-        } text-zinc-900 dark:text-white focus:outline-none transition-colors ${className}`}
+            : 'border-zinc-200 focus:border-cyan-500 dark:border-zinc-700'
+        } text-zinc-900 transition-colors focus:outline-none dark:text-white ${className}`}
         aria-invalid={showError ? 'true' : 'false'}
         {...props}
       >
@@ -220,44 +224,44 @@ export const Select = forwardRef<HTMLSelectElement, SelectProps>(
             {placeholder}
           </option>
         )}
-        {options.map((option) => (
+        {options.map(option => (
           <option key={option.value} value={option.value}>
             {option.label}
           </option>
         ))}
       </select>
-    );
+    )
   }
-);
+)
 
-Select.displayName = 'Select';
+Select.displayName = 'Select'
 
 /**
  * 复选框组件
  */
 export interface CheckboxProps extends InputHTMLAttributes<HTMLInputElement> {
-  label: string;
-  error?: string;
+  label: string
+  error?: string
 }
 
 export const Checkbox = forwardRef<HTMLInputElement, CheckboxProps>(
   ({ label, error, className = '', ...props }, ref) => {
     return (
-      <label className={`flex items-start gap-3 cursor-pointer ${className}`}>
+      <label className={`flex cursor-pointer items-start gap-3 ${className}`}>
         <input
           ref={ref}
           type="checkbox"
-          className="w-5 h-5 rounded border-zinc-300 dark:border-zinc-600 text-cyan-500 focus:ring-cyan-500/20 focus:ring-4 mt-0.5"
+          className="mt-0.5 h-5 w-5 rounded border-zinc-300 text-cyan-500 focus:ring-4 focus:ring-cyan-500/20 dark:border-zinc-600"
           {...props}
         />
-        <span className="text-zinc-700 dark:text-zinc-300 text-sm">{label}</span>
-        {error && <span className="text-red-500 text-sm">{error}</span>}
+        <span className="text-sm text-zinc-700 dark:text-zinc-300">{label}</span>
+        {error && <span className="text-sm text-red-500">{error}</span>}
       </label>
-    );
+    )
   }
-);
+)
 
-Checkbox.displayName = 'Checkbox';
+Checkbox.displayName = 'Checkbox'
 
 const FormComponents = {
   FormField,
@@ -265,6 +269,6 @@ const FormComponents = {
   Textarea,
   Select,
   Checkbox,
-};
+}
 
-export default FormComponents;
+export default FormComponents

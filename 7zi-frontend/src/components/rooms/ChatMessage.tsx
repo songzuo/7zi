@@ -13,29 +13,29 @@
  * - Dark/light mode support
  */
 
-'use client';
+'use client'
 
-import { useMemo } from 'react';
-import clsx from 'clsx';
-import type { RoomMessage } from '@/types/rooms';
+import { useMemo } from 'react'
+import clsx from 'clsx'
+import type { RoomMessage } from '@/types/rooms'
 
 export interface ChatMessageProps {
   /** Message data */
-  message: RoomMessage;
+  message: RoomMessage
   /** Current user ID (for highlighting own messages) */
-  currentUserId?: string;
+  currentUserId?: string
   /** Show avatar */
-  showAvatar?: boolean;
+  showAvatar?: boolean
   /** Show timestamp */
-  showTimestamp?: boolean;
+  showTimestamp?: boolean
   /** Enable message actions */
-  enableActions?: boolean;
+  enableActions?: boolean
   /** Additional CSS classes */
-  className?: string;
+  className?: string
   /** Reply callback */
-  onReply?: (message: RoomMessage) => void;
+  onReply?: (message: RoomMessage) => void
   /** Delete callback */
-  onDelete?: (message: RoomMessage) => void;
+  onDelete?: (message: RoomMessage) => void
 }
 
 /**
@@ -51,22 +51,22 @@ export function ChatMessage({
   onReply,
   onDelete,
 }: ChatMessageProps) {
-  const isOwnMessage = message.senderId === currentUserId;
-  const isSystemMessage = message.type === 'system' || message.type === 'notification';
+  const isOwnMessage = message.senderId === currentUserId
+  const isSystemMessage = message.type === 'system' || message.type === 'notification'
 
   /**
    * Format timestamp
    */
   const formattedTime = useMemo(() => {
-    const date = new Date(message.timestamp);
-    const now = new Date();
-    const isToday = date.toDateString() === now.toDateString();
+    const date = new Date(message.timestamp)
+    const now = new Date()
+    const isToday = date.toDateString() === now.toDateString()
 
     if (isToday) {
       return date.toLocaleTimeString(undefined, {
         hour: '2-digit',
         minute: '2-digit',
-      });
+      })
     }
 
     return date.toLocaleDateString(undefined, {
@@ -74,8 +74,8 @@ export function ChatMessage({
       day: 'numeric',
       hour: '2-digit',
       minute: '2-digit',
-    });
-  }, [message.timestamp]);
+    })
+  }, [message.timestamp])
 
   /**
    * Get avatar content
@@ -86,36 +86,31 @@ export function ChatMessage({
         <img
           src={message.senderAvatar}
           alt={message.senderName}
-          className="w-full h-full rounded-full object-cover"
+          className="h-full w-full rounded-full object-cover"
         />
-      );
+      )
     }
 
     return (
-      <div className="w-full h-full rounded-full bg-gradient-to-br from-blue-500 to-purple-600 flex items-center justify-center text-white font-medium text-sm">
+      <div className="flex h-full w-full items-center justify-center rounded-full bg-gradient-to-br from-blue-500 to-purple-600 text-sm font-medium text-white">
         {message.senderName.charAt(0).toUpperCase()}
       </div>
-    );
-  }, [message.senderAvatar, message.senderName]);
+    )
+  }, [message.senderAvatar, message.senderName])
 
   /**
    * Render system message
    */
   if (isSystemMessage) {
     return (
-      <div
-        className={clsx(
-          'flex justify-center py-1',
-          className
-        )}
-      >
-        <div className="bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-400 px-3 py-1.5 rounded-full text-sm">
+      <div className={clsx('flex justify-center py-1', className)}>
+        <div className="rounded-full bg-gray-100 px-3 py-1.5 text-sm text-gray-600 dark:bg-gray-800 dark:text-gray-400">
           <span className="font-medium">{message.senderName}</span>
           <span className="mx-1">•</span>
           {message.content}
         </div>
       </div>
-    );
+    )
   }
 
   /**
@@ -123,31 +118,23 @@ export function ChatMessage({
    */
   return (
     <div
-      className={clsx(
-        'flex gap-3 py-1',
-        isOwnMessage ? 'flex-row-reverse' : 'flex-row',
-        className
-      )}
+      className={clsx('flex gap-3 py-1', isOwnMessage ? 'flex-row-reverse' : 'flex-row', className)}
     >
       {/* Avatar */}
-      {showAvatar && (
-        <div className="flex-shrink-0 w-8 h-8">
-          {avatarContent}
-        </div>
-      )}
+      {showAvatar && <div className="h-8 w-8 flex-shrink-0">{avatarContent}</div>}
 
       {/* Message Content */}
-      <div className={clsx('flex flex-col max-w-[70%]', isOwnMessage ? 'items-end' : 'items-start')}>
+      <div
+        className={clsx('flex max-w-[70%] flex-col', isOwnMessage ? 'items-end' : 'items-start')}
+      >
         {/* Sender Name */}
         {!isOwnMessage && (
-          <div className="flex items-center gap-2 mb-0.5">
+          <div className="mb-0.5 flex items-center gap-2">
             <span className="text-xs font-medium text-gray-700 dark:text-gray-300">
               {message.senderName}
             </span>
             {showTimestamp && (
-              <span className="text-xs text-gray-500 dark:text-gray-500">
-                {formattedTime}
-              </span>
+              <span className="text-xs text-gray-500 dark:text-gray-500">{formattedTime}</span>
             )}
           </div>
         )}
@@ -155,10 +142,10 @@ export function ChatMessage({
         {/* Message Bubble */}
         <div
           className={clsx(
-            'px-4 py-2 rounded-2xl break-words',
+            'rounded-2xl px-4 py-2 break-words',
             isOwnMessage
-              ? 'bg-blue-600 text-white rounded-br-md'
-              : 'bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 border border-gray-200 dark:border-gray-700 rounded-bl-md'
+              ? 'rounded-br-md bg-blue-600 text-white'
+              : 'rounded-bl-md border border-gray-200 bg-white text-gray-900 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-100'
           )}
         >
           {message.content}
@@ -166,16 +153,14 @@ export function ChatMessage({
 
         {/* Timestamp for own messages */}
         {isOwnMessage && showTimestamp && (
-          <span className="text-xs text-gray-500 dark:text-gray-500 mt-0.5">
-            {formattedTime}
-          </span>
+          <span className="mt-0.5 text-xs text-gray-500 dark:text-gray-500">{formattedTime}</span>
         )}
 
         {/* Message Actions */}
         {enableActions && (
           <div
             className={clsx(
-              'flex gap-1 mt-1 transition-opacity opacity-0 hover:opacity-100',
+              'mt-1 flex gap-1 opacity-0 transition-opacity hover:opacity-100',
               isOwnMessage ? 'justify-end' : 'justify-start'
             )}
           >
@@ -186,7 +171,7 @@ export function ChatMessage({
                 title="Reply"
                 type="button"
               >
-                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path
                     strokeLinecap="round"
                     strokeLinejoin="round"
@@ -203,7 +188,7 @@ export function ChatMessage({
                 title="Delete"
                 type="button"
               >
-                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path
                     strokeLinecap="round"
                     strokeLinejoin="round"
@@ -217,7 +202,7 @@ export function ChatMessage({
         )}
       </div>
     </div>
-  );
+  )
 }
 
 /**
@@ -228,47 +213,43 @@ export function CompactMessage({
   isUnread = false,
   onClick,
 }: {
-  message: RoomMessage;
-  isUnread?: boolean;
-  onClick?: () => void;
+  message: RoomMessage
+  isUnread?: boolean
+  onClick?: () => void
 }) {
   return (
     <div
       className={clsx(
-        'flex items-center gap-3 p-3 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-800 cursor-pointer transition-colors',
+        'flex cursor-pointer items-center gap-3 rounded-lg p-3 transition-colors hover:bg-gray-100 dark:hover:bg-gray-800',
         isUnread && 'bg-blue-50 dark:bg-blue-900/20'
       )}
       onClick={onClick}
     >
       {/* Avatar */}
-      <div className="w-10 h-10 rounded-full bg-gradient-to-br from-blue-500 to-purple-600 flex items-center justify-center text-white font-medium flex-shrink-0">
+      <div className="flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-full bg-gradient-to-br from-blue-500 to-purple-600 font-medium text-white">
         {message.senderName.charAt(0).toUpperCase()}
       </div>
 
       {/* Content */}
-      <div className="flex-1 min-w-0">
+      <div className="min-w-0 flex-1">
         <div className="flex items-center gap-2">
-          <span className="font-medium text-gray-900 dark:text-gray-100 truncate">
+          <span className="truncate font-medium text-gray-900 dark:text-gray-100">
             {message.senderName}
           </span>
-          {isUnread && (
-            <span className="w-2 h-2 bg-blue-500 rounded-full flex-shrink-0" />
-          )}
+          {isUnread && <span className="h-2 w-2 flex-shrink-0 rounded-full bg-blue-500" />}
         </div>
-        <p className="text-sm text-gray-600 dark:text-gray-400 truncate">
-          {message.content}
-        </p>
+        <p className="truncate text-sm text-gray-600 dark:text-gray-400">{message.content}</p>
       </div>
 
       {/* Timestamp */}
-      <span className="text-xs text-gray-500 dark:text-gray-500 flex-shrink-0">
+      <span className="flex-shrink-0 text-xs text-gray-500 dark:text-gray-500">
         {new Date(message.timestamp).toLocaleTimeString(undefined, {
           hour: '2-digit',
           minute: '2-digit',
         })}
       </span>
     </div>
-  );
+  )
 }
 
-export default ChatMessage;
+export default ChatMessage

@@ -5,4 +5,7 @@
  */
 
 // Re-export from main websocket components
-export { WebSocketStatusPanel, WebSocketStatusBadge } from '@/components/websocket/WebSocketStatusPanel';
+export {
+  WebSocketStatusPanel,
+  WebSocketStatusBadge,
+} from '@/components/websocket/WebSocketStatusPanel'

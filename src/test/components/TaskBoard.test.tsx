@@ -18,7 +18,10 @@ const mockIssues: GitHubIssue[] = [
     number: 2,
     title: '修复导航栏样式问题',
     state: 'closed',
-    labels: [{ name: 'bug', color: 'red' }, { name: 'ui', color: 'green' }],
+    labels: [
+      { name: 'bug', color: 'red' },
+      { name: 'ui', color: 'green' },
+    ],
     assignee: null,
     created_at: '2024-03-02T10:00:00Z',
     updated_at: '2024-03-05T10:00:00Z',
@@ -44,19 +47,19 @@ describe('TaskBoard', () => {
   describe('rendering', () => {
     it('renders task board with header', () => {
       render(<TaskBoard issues={mockIssues} />)
-      
+
       expect(screen.getByText(/GitHub 任务/)).toBeInTheDocument()
     })
 
     it('renders issue numbers', () => {
       render(<TaskBoard issues={mockIssues} />)
-      
+
       expect(screen.getByText('#1')).toBeInTheDocument()
     })
 
     it('renders issue titles', () => {
       render(<TaskBoard issues={mockIssues} />)
-      
+
       expect(screen.getByText('实现用户登录功能')).toBeInTheDocument()
     })
   })
@@ -64,20 +67,20 @@ describe('TaskBoard', () => {
   describe('progress calculation', () => {
     it('displays correct progress percentage', () => {
       render(<TaskBoard issues={mockIssues} />)
-      
+
       // 1 closed out of 3 total = 33%
       expect(screen.getByText('33%')).toBeInTheDocument()
     })
 
     it('calculates 0% progress when no issues', () => {
       render(<TaskBoard issues={[]} />)
-      
+
       expect(screen.getByText('0%')).toBeInTheDocument()
     })
 
     it('shows open and closed issue counts', () => {
       render(<TaskBoard issues={mockIssues} />)
-      
+
       expect(screen.getByText(/2.*进行中/)).toBeInTheDocument()
       expect(screen.getByText(/1.*已完成/)).toBeInTheDocument()
     })
@@ -86,7 +89,7 @@ describe('TaskBoard', () => {
   describe('filtering', () => {
     it('filters issues by open state by default', () => {
       render(<TaskBoard issues={mockIssues} />)
-      
+
       // Should show open issues
       expect(screen.getByText('实现用户登录功能')).toBeInTheDocument()
       expect(screen.getByText('添加暗色模式支持')).toBeInTheDocument()
@@ -96,10 +99,10 @@ describe('TaskBoard', () => {
 
     it('filters issues to show all when "all" is selected', () => {
       render(<TaskBoard issues={mockIssues} />)
-      
+
       const select = screen.getByRole('combobox')
       fireEvent.change(select, { target: { value: 'all' } })
-      
+
       expect(screen.getByText('实现用户登录功能')).toBeInTheDocument()
       expect(screen.getByText('修复导航栏样式问题')).toBeInTheDocument()
       expect(screen.getByText('添加暗色模式支持')).toBeInTheDocument()
@@ -107,10 +110,10 @@ describe('TaskBoard', () => {
 
     it('filters issues to show closed when "closed" is selected', () => {
       render(<TaskBoard issues={mockIssues} />)
-      
+
       const select = screen.getByRole('combobox')
       fireEvent.change(select, { target: { value: 'closed' } })
-      
+
       expect(screen.queryByText('实现用户登录功能')).not.toBeInTheDocument()
       expect(screen.getByText('修复导航栏样式问题')).toBeInTheDocument()
     })
@@ -119,7 +122,7 @@ describe('TaskBoard', () => {
   describe('empty state', () => {
     it('displays empty state when no issues match filter', () => {
       render(<TaskBoard issues={[]} />)
-      
+
       expect(screen.getByText('暂无任务')).toBeInTheDocument()
     })
   })
@@ -127,7 +130,7 @@ describe('TaskBoard', () => {
   describe('task count', () => {
     it('shows correct task count in footer', () => {
       render(<TaskBoard issues={mockIssues} />)
-      
+
       // Default filter is "open", showing 2 out of 3
       expect(screen.getByText(/显示.*2.*\/.*3.*个任务/)).toBeInTheDocument()
     })
@@ -136,29 +139,29 @@ describe('TaskBoard', () => {
   describe('issue cards', () => {
     it('displays issue labels', () => {
       render(<TaskBoard issues={mockIssues} />)
-      
+
       expect(screen.getByText('feature')).toBeInTheDocument()
     })
 
     it('displays multiple labels when present', () => {
       render(<TaskBoard issues={mockIssues} />)
-      
+
       const select = screen.getByRole('combobox')
       fireEvent.change(select, { target: { value: 'all' } })
-      
+
       expect(screen.getByText('bug')).toBeInTheDocument()
       expect(screen.getByText('ui')).toBeInTheDocument()
     })
 
     it('displays assignee when present', () => {
       render(<TaskBoard issues={mockIssues} />)
-      
+
       expect(screen.getByText('executor')).toBeInTheDocument()
     })
 
     it('displays open state correctly', () => {
       render(<TaskBoard issues={mockIssues} />)
-      
+
       // Check for status badge on issue card (more specific selector)
       const statusBadges = screen.getAllByText(/进行中/)
       expect(statusBadges.length).toBeGreaterThan(0)
@@ -166,10 +169,10 @@ describe('TaskBoard', () => {
 
     it('displays closed state correctly', () => {
       render(<TaskBoard issues={mockIssues} />)
-      
+
       const select = screen.getByRole('combobox')
       fireEvent.change(select, { target: { value: 'closed' } })
-      
+
       // Check for status badge on issue card (more specific selector)
       const statusBadges = screen.getAllByText(/已完成/)
       expect(statusBadges.length).toBeGreaterThan(0)
@@ -177,7 +180,7 @@ describe('TaskBoard', () => {
 
     it('renders link to GitHub issue', () => {
       render(<TaskBoard issues={mockIssues} />)
-      
+
       const links = screen.getAllByRole('link')
       expect(links.some(link => link.getAttribute('href') === mockIssues[0].html_url)).toBe(true)
     })

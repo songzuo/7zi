@@ -12,6 +12,7 @@
 本报告记录了 React Compiler 真实环境验证的完整过程，包括验证环境创建、性能测试、数据收集和优化建议。
 
 **关键成果**:
+
 - ✅ 验证页面已创建 (`/react-compiler-verify`)
 - ✅ 性能测试脚本已创建
 - ✅ 多语言支持已添加
@@ -37,23 +38,24 @@
 **目的**: 测试大量数据渲染性能
 
 **特性**:
+
 - 1000 个列表项
 - 实时过滤功能
 - 点击选择/取消选择
 - 只显示前 100 项（避免 UI 卡顿）
 
 **预期性能提升**:
+
 - 无编译器: 过滤操作触发所有组件重渲染
 - 有编译器: 只有变化的组件重渲染
 - 预期提升: 30-40%
 
 **代码示例**:
+
 ```tsx
 const filteredItems = useMemo(() => {
-  return listItems.filter(item =>
-    item.value.toString().includes(filterValue)
-  );
-}, [listItems, filterValue]);
+  return listItems.filter(item => item.value.toString().includes(filterValue))
+}, [listItems, filterValue])
 
 // 编译器会自动优化这个 useMemo
 // 不需要手动优化
@@ -64,16 +66,19 @@ const filteredItems = useMemo(() => {
 **目的**: 测试频繁状态更新性能
 
 **特性**:
+
 - 每秒更新一次数据
 - 显示时间戳、CPU、内存、连接数
 - 模拟真实监控仪表板
 
 **预期性能提升**:
+
 - 无编译器: 每次更新触发整个仪表板重渲染
 - 有编译器: 只有变化的数据重渲染
 - 预期提升: 40-50%
 
 **代码示例**:
+
 ```tsx
 useEffect(() => {
   const interval = setInterval(() => {
@@ -81,11 +86,11 @@ useEffect(() => {
       timestamp: Date.now(),
       cpuUsage: Math.random() * 100,
       // ...
-    });
-  }, 1000);
+    })
+  }, 1000)
 
-  return () => clearInterval(interval);
-}, []);
+  return () => clearInterval(interval)
+}, [])
 
 // 编译器会优化子组件的更新
 // 避免不必要的重渲染
@@ -96,20 +101,23 @@ useEffect(() => {
 **目的**: 测试多个状态更新的性能
 
 **特性**:
+
 - 5 个独立计数器
 - 派生状态计算（总和）
 - 点击任意计数器更新
 
 **预期性能提升**:
+
 - 无编译器: 更新一个计数器触发所有计数器重渲染
 - 有编译器: 只有更新的计数器重渲染
 - 预期提升: 60-70%
 
 **代码示例**:
+
 ```tsx
 const derivedValue = useMemo(() => {
-  return Object.values(complexState).reduce((sum, val) => sum + val, 0);
-}, [complexState]);
+  return Object.values(complexState).reduce((sum, val) => sum + val, 0)
+}, [complexState])
 
 // 编译器会自动优化依赖追踪
 // 只有相关组件重渲染
@@ -120,28 +128,31 @@ const derivedValue = useMemo(() => {
 **目的**: 精确测量组件重渲染次数
 
 **特性**:
+
 - 跟踪每个组件的渲染次数
 - 显示总渲染次数和百分比
 - 支持强制重渲染
 - 支持重置计数器
 
 **用途**:
+
 - 对比启用/禁用编译器的重渲染次数
 - 识别不必要的重渲染
 - 量化性能提升
 
 **代码示例**:
+
 ```tsx
-const renderCounts = useRef<Map<string, number>>(new Map());
+const renderCounts = useRef<Map<string, number>>(new Map())
 
 const trackRender = (componentName: string) => {
-  const current = renderCounts.current.get(componentName) || 0;
-  renderCounts.current.set(componentName, current + 1);
-};
+  const current = renderCounts.current.get(componentName) || 0
+  renderCounts.current.set(componentName, current + 1)
+}
 
 // 在组件中调用
 function MyComponent() {
-  trackRender('MyComponent');
+  trackRender('MyComponent')
   // ...
 }
 ```
@@ -156,12 +167,12 @@ function MyComponent() {
 
 **功能**:
 
-| 功能 | 描述 |
-|-----|------|
-| 构建测试 | 对比启用/禁用编译器的构建时间 |
-| 产物分析 | 分析构建产物大小和路由数量 |
-| Lighthouse 测试 | 运行性能测试（需要安装） |
-| 报告生成 | 生成 Markdown 和 JSON 报告 |
+| 功能            | 描述                          |
+| --------------- | ----------------------------- |
+| 构建测试        | 对比启用/禁用编译器的构建时间 |
+| 产物分析        | 分析构建产物大小和路由数量    |
+| Lighthouse 测试 | 运行性能测试（需要安装）      |
+| 报告生成        | 生成 Markdown 和 JSON 报告    |
 
 **使用方法**:
 
@@ -213,14 +224,15 @@ cat reports/react-compiler-performance-YYYYMMDD-HHMMSS.md
 
 **构建性能**:
 
-| 指标 | 禁用编译器 | 启用编译器 | 变化 |
-|-----|----------|----------|------|
-| 构建时间 | ~118s | ~130s | +10% |
-| 构建产物大小 | 121MB | 118MB | -2.5% |
-| TypeScript 时间 | 61s | 63s | +3% |
-| 静态页面生成 | 880ms | 850ms | -3.4% |
+| 指标            | 禁用编译器 | 启用编译器 | 变化  |
+| --------------- | ---------- | ---------- | ----- |
+| 构建时间        | ~118s      | ~130s      | +10%  |
+| 构建产物大小    | 121MB      | 118MB      | -2.5% |
+| TypeScript 时间 | 61s        | 63s        | +3%   |
+| 静态页面生成    | 880ms      | 850ms      | -3.4% |
 
 **分析**:
+
 - ✅ 构建时间增加 10% - 在可接受范围内
 - ✅ 构建产物略微减小 - 编译器优化了代码
 - ✅ 静态页面生成更快 - 编译后的代码更高效
@@ -229,30 +241,30 @@ cat reports/react-compiler-performance-YYYYMMDD-HHMMSS.md
 
 **重渲染次数**:
 
-| 组件 | 禁用编译器 | 启用编译器 | 减少 |
-|-----|----------|----------|------|
-| ListItem (100 项) | 500 | 50 | -90% |
-| RealtimeDashboard | 60 | 60 | 0% (每秒更新) |
-| ComplexStateComponent | 100 | 20 | -80% |
-| 总计 | 660 | 130 | -80% |
+| 组件                  | 禁用编译器 | 启用编译器 | 减少          |
+| --------------------- | ---------- | ---------- | ------------- |
+| ListItem (100 项)     | 500        | 50         | -90%          |
+| RealtimeDashboard     | 60         | 60         | 0% (每秒更新) |
+| ComplexStateComponent | 100        | 20         | -80%          |
+| 总计                  | 660        | 130        | -80%          |
 
 **FPS (帧率)**:
 
-| 操作 | 禁用编译器 | 启用编译器 | 提升 |
-|-----|----------|----------|------|
-| 静态页面 | 60 | 60 | 0% |
-| 过滤列表 | 45 | 58 | +29% |
-| 点击计数器 | 50 | 60 | +20% |
-| 实时更新 | 55 | 59 | +7% |
+| 操作       | 禁用编译器 | 启用编译器 | 提升 |
+| ---------- | ---------- | ---------- | ---- |
+| 静态页面   | 60         | 60         | 0%   |
+| 过滤列表   | 45         | 58         | +29% |
+| 点击计数器 | 50         | 60         | +20% |
+| 实时更新   | 55         | 59         | +7%  |
 
 **Web Vitals (预期)**:
 
 | 指标 | 禁用编译器 | 启用编译器 | 变化 |
-|-----|----------|----------|------|
-| FCP | 1.8s | 1.6s | -11% |
-| LCP | 2.5s | 2.1s | -16% |
-| TTI | 3.2s | 2.8s | -13% |
-| CLS | 0.1 | 0.05 | -50% |
+| ---- | ---------- | ---------- | ---- |
+| FCP  | 1.8s       | 1.6s       | -11% |
+| LCP  | 2.5s       | 2.1s       | -16% |
+| TTI  | 3.2s       | 2.8s       | -13% |
+| CLS  | 0.1        | 0.05       | -50% |
 
 ### 3.3 数据收集方法
 
@@ -301,11 +313,13 @@ cat reports/react-compiler-performance-*.json
 **结论**: ✅ 通过
 
 **分析**:
+
 - 构建时间增加 10% 是正常的，因为 React Compiler 需要额外的分析时间
 - 这个 overhead 是一次性的，不影响运行时性能
 - 增加的构建时间（12s）相对于获得的性能提升是值得的
 
 **建议**:
+
 - 可以使用 Turbopack 进一步优化构建速度
 - 考虑在 CI/CD 中启用编译器，本地开发可以选择性启用
 
@@ -345,6 +359,7 @@ cat reports/react-compiler-performance-*.json
 ### 4.3 内存使用
 
 **预期**:
+
 - 编译后代码略微增加（+1-2%）
 - 运行时内存略微减少（-3-5%）
 - 由于减少了不必要的重渲染，GC 压力降低
@@ -383,7 +398,7 @@ if (reactCompilerMode === 'opt-in') {
     'src/app/[locale]/dashboard',
     'src/components/dashboard',
     'src/components/tasks',
-  ];
+  ]
   // ...
 }
 ```
@@ -409,7 +424,7 @@ ENABLE_REACT_COMPILER=false
 **当前配置**:
 
 ```typescript
-const reactCompilerEnabled = process.env.ENABLE_REACT_COMPILER === 'true';
+const reactCompilerEnabled = process.env.ENABLE_REACT_COMPILER === 'true'
 
 const nextConfig: NextConfig = {
   // ...
@@ -422,7 +437,7 @@ const nextConfig: NextConfig = {
       },
     },
   }),
-};
+}
 ```
 
 **优化建议**:
@@ -524,6 +539,7 @@ REACT_COMPILER_MODE=opt-in
 ```
 
 **目标**:
+
 - 验证核心组件性能
 - 监控错误和警告
 - 收集用户反馈
@@ -545,11 +561,13 @@ REACT_COMPILER_MODE=opt-out
 ```
 
 **目标**:
+
 - 验证生产环境性能
 - 监控关键指标（Web Vitals）
 - 逐步扩大流量
 
 **回滚计划**:
+
 - 使用蓝绿部署
 - 保留旧版本 1-2 天
 - 问题立即回滚
@@ -566,44 +584,44 @@ REACT_COMPILER_MODE=opt-out
 
 **关键指标**:
 
-| 指标 | 工具 | 警告阈值 | 严重阈值 |
-|-----|------|----------|----------|
-| Web Vitals | Lighthouse | < 90 | < 80 |
-| FPS | React DevTools | < 50 | < 30 |
-| 重渲染次数 | React DevTools | +50% | +100% |
-| 错误率 | Sentry | > 1% | > 5% |
-| 构建时间 | CI/CD | +20% | +50% |
+| 指标       | 工具           | 警告阈值 | 严重阈值 |
+| ---------- | -------------- | -------- | -------- |
+| Web Vitals | Lighthouse     | < 90     | < 80     |
+| FPS        | React DevTools | < 50     | < 30     |
+| 重渲染次数 | React DevTools | +50%     | +100%    |
+| 错误率     | Sentry         | > 1%     | > 5%     |
+| 构建时间   | CI/CD          | +20%     | +50%     |
 
 **监控工具**:
 
 1. **Lighthouse CI**:
+
 ```bash
 npm install -g @lhci/cli
 lhci autorun
 ```
 
 2. **Sentry**:
+
 ```typescript
 // 监控 React Compiler 相关错误
 Sentry.init({
-  integrations: [
-    new Sentry.BrowserTracing(),
-    new Sentry.Replay(),
-  ],
+  integrations: [new Sentry.BrowserTracing(), new Sentry.Replay()],
   tracesSampleRate: 0.1,
   replaysSessionSampleRate: 0.1,
-});
+})
 ```
 
 3. **自建监控**:
+
 ```typescript
 // 收集重渲染数据
 useEffect(() => {
-  const renderCount = getRenderCount();
+  const renderCount = getRenderCount()
   if (renderCount > 100) {
-    sendToAnalytics('high-render-count', { component, renderCount });
+    sendToAnalytics('high-render-count', { component, renderCount })
   }
-}, []);
+}, [])
 ```
 
 ---
@@ -635,26 +653,26 @@ useEffect(() => {
 ```tsx
 // ❌ 编译后可以移除
 const memoizedCallback = useCallback(() => {
-  doSomething(a, b);
-}, [a, b]);
+  doSomething(a, b)
+}, [a, b])
 
 const memoizedValue = useMemo(() => {
-  return computeExpensiveValue(a, b);
-}, [a, b]);
+  return computeExpensiveValue(a, b)
+}, [a, b])
 
-export default React.memo(MyComponent);
+export default React.memo(MyComponent)
 ```
 
 **可以简化的代码**:
 
 ```tsx
 // ❌ 不需要
-const [state, setState] = useState(initialState);
-const derived = useMemo(() => computeDerived(state), [state]);
+const [state, setState] = useState(initialState)
+const derived = useMemo(() => computeDerived(state), [state])
 
 // ✅ 编译器会自动优化依赖
-const [state, setState] = useState(initialState);
-const derived = computeDerived(state);
+const [state, setState] = useState(initialState)
+const derived = computeDerived(state)
 ```
 
 **需要保留的代码**:
@@ -662,13 +680,13 @@ const derived = computeDerived(state);
 ```tsx
 // ✅ 需要保留：复杂计算且结果稳定
 const result = useMemo(() => {
-  return heavyComputation(largeDataSet);
-}, [largeDataSet]);
+  return heavyComputation(largeDataSet)
+}, [largeDataSet])
 
 // ✅ 需要保留：传递给子组件的引用
 const handleSubmit = useCallback(() => {
   // ...
-}, [dependencies]);
+}, [dependencies])
 ```
 
 ### 7.3 兼容性问题处理
@@ -676,6 +694,7 @@ const handleSubmit = useCallback(() => {
 **常见问题**:
 
 1. **Rules of Hooks 违规**:
+
 ```tsx
 // ❌ 错误
 if (condition) {
@@ -689,15 +708,17 @@ useEffect(() => {
 ```
 
 2. **Props mutation**:
+
 ```tsx
 // ❌ 错误
-props.user.name = 'new name';
+props.user.name = 'new name'
 
 // ✅ 修复
-const updatedUser = { ...props.user, name: 'new name' };
+const updatedUser = { ...props.user, name: 'new name' }
 ```
 
 3. **不兼容的第三方库**:
+
 ```bash
 # 排除不兼容的库
 REACT_COMPILER_EXCLUDE_PATTERNS=**/recharts/**,**/@react-three/fiber/**
@@ -759,27 +780,30 @@ REACT_COMPILER_EXCLUDE_PATTERNS=**/recharts/**,**/@react-three/fiber/**
 
 ### 9.2 预期性能提升
 
-| 场景 | 预期提升 |
-|-----|----------|
-| 大列表渲染 | 30-40% |
-| 实时数据更新 | 20-30% |
-| 复杂状态管理 | 60-70% |
-| Web Vitals | 10-20% |
-| 重渲染次数 | 70-80% |
+| 场景         | 预期提升 |
+| ------------ | -------- |
+| 大列表渲染   | 30-40%   |
+| 实时数据更新 | 20-30%   |
+| 复杂状态管理 | 60-70%   |
+| Web Vitals   | 10-20%   |
+| 重渲染次数   | 70-80%   |
 
 ### 9.3 下一步建议
 
 **短期 (1-2 周)**:
+
 1. 在测试环境验证性能
 2. 运行兼容性检测
 3. 监控关键指标
 
 **中期 (3-4 周)**:
+
 1. 生产环境灰度发布
 2. 收集真实性能数据
 3. 优化不兼容组件
 
 **长期 (持续)**:
+
 1. 建立性能监控机制
 2. 定期审查和优化
 3. 跟进 React Compiler 版本更新

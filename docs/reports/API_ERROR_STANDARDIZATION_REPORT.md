@@ -20,43 +20,57 @@
 创建了 `/docs/api/UNIFIED_RESPONSE_FORMAT.md`，定义了：
 
 ### 成功响应
+
 ```typescript
 interface ApiSuccessResponse<T> {
-  success: true;
-  data: T;
-  timestamp?: string;
-  requestId?: string;
+  success: true
+  data: T
+  timestamp?: string
+  requestId?: string
   meta?: {
-    total?: number;
-    page?: number;
-    pageSize?: number;
-    totalPages?: number;
-  };
+    total?: number
+    page?: number
+    pageSize?: number
+    totalPages?: number
+  }
 }
 ```
 
 ### 错误响应
+
 ```typescript
 interface ApiErrorResponse {
-  success: false;
+  success: false
   error: {
-    type: ErrorType;
-    message: string;
-    userMessage?: string;
-    code?: string;
-    details?: Record<string, unknown>;
-    timestamp: string;
-  };
-  requestId?: string;
+    type: ErrorType
+    message: string
+    userMessage?: string
+    code?: string
+    details?: Record<string, unknown>
+    timestamp: string
+  }
+  requestId?: string
 }
 ```
 
 ### ErrorType 枚举
+
 ```typescript
 enum ErrorType {
-  VALIDATION, UNAUTHORIZED, FORBIDDEN, NOT_FOUND, CONFLICT,
-  RATE_LIMIT, INTERNAL, SERVICE_UNAVAILABLE, TIMEOUT, NETWORK,
-  BAD_REQUEST, REGISTRATION_FAILED, WEAK_PASSWORD, MISSING_TOKEN
+  VALIDATION,
+  UNAUTHORIZED,
+  FORBIDDEN,
+  NOT_FOUND,
+  CONFLICT,
+  RATE_LIMIT,
+  INTERNAL,
+  SERVICE_UNAVAILABLE,
+  TIMEOUT,
+  NETWORK,
+  BAD_REQUEST,
+  REGISTRATION_FAILED,
+  WEAK_PASSWORD,
+  MISSING_TOKEN,
 }
 ```
 
@@ -64,90 +78,114 @@ enum ErrorType {
 
 ## 🔄 已迁移 API 端点
 
-| # | API 路径 | 迁移前 | 迁移后 | 状态 |
-|---|---------|--------|--------|------|
-| 1 | `/api/workflow` | 旧格式 `{error, details}` | 统一格式 | ✅ 完成 |
-| 2 | `/api/workflow/[id]` | 旧格式 `{error}` | 统一格式 | ✅ 完成 |
-| 3 | `/api/workflow/[id]/run` | 旧格式 `{error}` | 统一格式 | ✅ 完成 |
-| 4 | `/api/a2a/registry` | 旧格式 `{error, message}` | 统一格式 | ✅ 完成 |
-| 5 | `/api/a2a/registry/[id]` | 旧格式 `{error, message}` | 统一格式 | ✅ 完成 |
-| 6 | `/api/revalidate` | 旧格式 `{message}` | 统一格式 | ✅ 完成 |
-| 7 | `/api/csp-violation` | 旧格式 `{success}` | 统一格式 | ✅ 完成 |
-| 8 | `/api/projects` | 部分统一 | 完全统一 | ✅ 完成 |
+| #   | API 路径                 | 迁移前                    | 迁移后   | 状态    |
+| --- | ------------------------ | ------------------------- | -------- | ------- |
+| 1   | `/api/workflow`          | 旧格式 `{error, details}` | 统一格式 | ✅ 完成 |
+| 2   | `/api/workflow/[id]`     | 旧格式 `{error}`          | 统一格式 | ✅ 完成 |
+| 3   | `/api/workflow/[id]/run` | 旧格式 `{error}`          | 统一格式 | ✅ 完成 |
+| 4   | `/api/a2a/registry`      | 旧格式 `{error, message}` | 统一格式 | ✅ 完成 |
+| 5   | `/api/a2a/registry/[id]` | 旧格式 `{error, message}` | 统一格式 | ✅ 完成 |
+| 6   | `/api/revalidate`        | 旧格式 `{message}`        | 统一格式 | ✅ 完成 |
+| 7   | `/api/csp-violation`     | 旧格式 `{success}`        | 统一格式 | ✅ 完成 |
+| 8   | `/api/projects`          | 部分统一                  | 完全统一 | ✅ 完成 |
 
 ---
 
 ## 📝 迁移详情
 
 ### 1. Workflow API (`/api/workflow`)
+
 **迁移内容:**
+
 - POST: 创建工作流 - 使用 `createSuccessResponse()` 和 `createValidationError()`
 - GET: 获取工作流列表 - 使用 `createSuccessResponse()`
 
 **更改:**
+
 - 替换所有 `NextResponse.json({ error: ... })` 为 `createErrorResponse()`
 - 替换 `NextResponse.json(data)` 为 `createSuccessResponse(data)`
 - 统一错误处理逻辑
 
 ### 2. Workflow [id] API (`/api/workflow/[id]`)
+
 **迁移内容:**
+
 - GET: 获取工作流详情 - 使用 `createSuccessResponse()` 和 `createNotFoundError()`
 - PUT: 更新工作流 - 使用 `createSuccessResponse()` 和 `createValidationError()`
 - DELETE: 删除工作流 - 使用 `createSuccessResponse()`
 
 **更改:**
+
 - 移除 `console.error` 调用（由 `createErrorResponse` 内部处理）
 - 统一 404 错误处理
 
 ### 3. Workflow Run API (`/api/workflow/[id]/run`)
+
 **迁移内容:**
+
 - POST: 运行工作流 - 使用 `createSuccessResponse()`
 - GET: 获取运行历史 - 使用 `createSuccessResponse()`
 
 **更改:**
+
 - 简化错误处理流程
 
 ### 4. A2A Registry API (`/api/a2a/registry`)
+
 **迁移内容:**
+
 - GET: 列出所有代理 - 使用 `createSuccessResponse()`
 - POST: 注册新代理 - 使用 `createSuccessResponse()` 和 `createValidationError()`
 
 **更改:**
+
 - 统一验证错误响应格式
 
 ### 5. A2A Registry [id] API (`/api/a2a/registry/[id]`)
+
 **迁移内容:**
+
 - GET: 获取指定代理 - 使用 `createSuccessResponse()` 和 `createNotFoundError()`
 - PUT: 更新代理信息 - 使用 `createSuccessResponse()` 和 `createNotFoundError()`
 - DELETE: 注销代理 - 使用 `createSuccessResponse()` 和 `createNotFoundError()`
 - PATCH: 更新心跳 - 使用 `createSuccessResponse()` 和 `createNotFoundError()`
 
 **更改:**
+
 - 更新 `context.params` 使用 `await` (Next.js 15 要求)
 - 统一所有方法使用统一格式
 
 ### 6. Revalidate API (`/api/revalidate`)
+
 **迁移内容:**
+
 - POST: 按路径或标签重新验证缓存 - 使用 `createSuccessResponse()` 和 `createUnauthorizedError()`
 - GET: 重新验证（查询参数） - 使用 `createSuccessResponse()` 和 `createUnauthorizedError()`
 
 **更改:**
+
 - 使用 `createUnauthorizedError()` 处理密钥验证失败
 
 ### 7. CSP Violation API (`/api/csp-violation`)
+
 **迁移内容:**
+
 - POST: 接收 CSP 违规报告 - 使用 `createSuccessResponse()` 和 `createBadRequestError()`
 - GET: 获取端点状态 - 使用 `createSuccessResponse()`
 
 **更改:**
+
 - 使用 `createBadRequestError()` 处理无效报告格式
 
 ### 8. Projects API (`/api/projects`)
+
 **迁移内容:**
+
 - GET: 获取项目列表 - 使用 `createSuccessResponse()`
 - POST: 创建新项目 - 使用 `createSuccessResponse(data, 201)`
 
 **更改:**
+
 - 简化响应格式
 
 ---
@@ -155,6 +193,7 @@ enum ErrorType {
 ## 🧪 测试验证
 
 ### 自动化测试
+
 建议运行以下命令验证迁移：
 
 ```bash
@@ -172,6 +211,7 @@ npm run lint
 ```
 
 ### 手动验证要点
+
 1. ✅ 所有响应包含 `success` 字段
 2. ✅ 成功响应有 `data` 字段
 3. ✅ 错误响应有 `error` 对象
@@ -184,6 +224,7 @@ npm run lint
 ## 📚 使用指南
 
 ### 推荐导入
+
 ```typescript
 import {
   createSuccessResponse,
@@ -192,16 +233,17 @@ import {
   createUnauthorizedError,
   createNotFoundError,
   withErrorHandling,
-} from '@/lib/api/error-handler';
+} from '@/lib/api/error-handler'
 ```
 
 ### 成功响应示例
+
 ```typescript
 // 简单成功响应
-return createSuccessResponse({ user });
+return createSuccessResponse({ user })
 
 // 带状态码的成功响应
-return createSuccessResponse({ user }, 201);
+return createSuccessResponse({ user }, 201)
 
 // 带分页数据
 return createSuccessResponse({
@@ -209,25 +251,26 @@ return createSuccessResponse({
   total,
   page,
   totalPages,
-});
+})
 ```
 
 ### 错误响应示例
+
 ```typescript
 // 验证错误
-return createValidationError('Invalid email format', { field: 'email' });
+return createValidationError('Invalid email format', { field: 'email' })
 
 // 未授权错误
-return createUnauthorizedError('Session expired');
+return createUnauthorizedError('Session expired')
 
 // 未找到错误
-return createNotFoundError('User not found');
+return createNotFoundError('User not found')
 
 // 使用 withErrorHandling 自动捕获
-export const GET = withErrorHandling(async (request) => {
+export const GET = withErrorHandling(async request => {
   // 错误会自动转换为统一格式
-  throw new Error('Something went wrong');
-});
+  throw new Error('Something went wrong')
+})
 ```
 
 ---
@@ -245,6 +288,7 @@ export const GET = withErrorHandling(async (request) => {
 ## 📄 相关文件
 
 ### 已修改文件
+
 - `src/app/api/workflow/route.ts`
 - `src/app/api/workflow/[id]/route.ts`
 - `src/app/api/workflow/[id]/run/route.ts`
@@ -255,9 +299,11 @@ export const GET = withErrorHandling(async (request) => {
 - `src/app/api/csp-violation/route.ts`
 
 ### 新增文件
+
 - `docs/api/UNIFIED_RESPONSE_FORMAT.md`
 
 ### 相关文件（未修改）
+
 - `src/lib/api/error-handler.ts` (已存在，被使用)
 - `src/lib/api/api-response-wrapper.ts` (已存在，备用方案)
 
@@ -279,4 +325,4 @@ export const GET = withErrorHandling(async (request) => {
 
 ---
 
-*报告生成时间: 2026-03-31 06:05 GMT+2*
+_报告生成时间: 2026-03-31 06:05 GMT+2_

@@ -25,10 +25,10 @@
 ### 使用方法
 
 ```typescript
-import { useDashboardData } from '@/hooks/useDashboardData';
+import { useDashboardData } from '@/hooks/useDashboardData'
 
 function MyComponent() {
-  const { issues, isLoading, error } = useDashboardData('owner', 'repo');
+  const { issues, isLoading, error } = useDashboardData('owner', 'repo')
   // ...
 }
 ```
@@ -51,66 +51,66 @@ function MyComponent() {
 
 ```typescript
 export interface GitHubIssue {
-  number: number;
-  title: string;
-  state: 'open' | 'closed';
-  labels: Array<{ name: string; color: string }>;
-  assignee?: { login: string; avatar_url: string } | null;
-  created_at: string;
-  updated_at: string;
-  html_url: string;
+  number: number
+  title: string
+  state: 'open' | 'closed'
+  labels: Array<{ name: string; color: string }>
+  assignee?: { login: string; avatar_url: string } | null
+  created_at: string
+  updated_at: string
+  html_url: string
 }
 
 export interface GitHubCommit {
-  sha: string;
+  sha: string
   commit: {
-    message: string;
-    author: { name: string; date: string };
-  };
-  html_url: string;
-  author?: { avatar_url: string } | null;
+    message: string
+    author: { name: string; date: string }
+  }
+  html_url: string
+  author?: { avatar_url: string } | null
 }
 
 export interface ActivityItem {
-  id: string;
-  type: 'commit' | 'issue' | 'comment';
-  title: string;
-  author: string;
-  avatar?: string;
-  timestamp: string;
-  url: string;
+  id: string
+  type: 'commit' | 'issue' | 'comment'
+  title: string
+  author: string
+  avatar?: string
+  timestamp: string
+  url: string
 }
 
 interface UseDashboardDataReturn {
-  issues: GitHubIssue[];
-  commits: GitHubCommit[];
-  activities: ActivityItem[];
-  isLoading: boolean;
-  error: string | null;
-  lastUpdated: Date | null;
-  refreshData: () => Promise<void>;
+  issues: GitHubIssue[]
+  commits: GitHubCommit[]
+  activities: ActivityItem[]
+  isLoading: boolean
+  error: string | null
+  lastUpdated: Date | null
+  refreshData: () => Promise<void>
 }
 ```
 
 #### 参数
 
-| 参数 | 类型 | 必填 | 说明 |
-|------|------|------|------|
-| owner | string | 是 | GitHub 仓库所有者 |
-| repo | string | 是 | 仓库名称 |
-| _token | string \| null | 否 | 已弃用，不再使用 |
+| 参数    | 类型           | 必填 | 说明              |
+| ------- | -------------- | ---- | ----------------- |
+| owner   | string         | 是   | GitHub 仓库所有者 |
+| repo    | string         | 是   | 仓库名称          |
+| \_token | string \| null | 否   | 已弃用，不再使用  |
 
 #### 返回值
 
-| 属性 | 类型 | 说明 |
-|------|------|------|
-| issues | `GitHubIssue[]` | Issues 列表 |
-| commits | `GitHubCommit[]` | Commits 列表 |
-| activities | `ActivityItem[]` | 合并后的活动列表（最近 20 条） |
-| isLoading | boolean | 加载状态 |
-| error | string \| null | 错误信息 |
-| lastUpdated | Date \| null | 最后更新时间 |
-| refreshData | `() => Promise<void>` | 手动刷新数据 |
+| 属性        | 类型                  | 说明                           |
+| ----------- | --------------------- | ------------------------------ |
+| issues      | `GitHubIssue[]`       | Issues 列表                    |
+| commits     | `GitHubCommit[]`      | Commits 列表                   |
+| activities  | `ActivityItem[]`      | 合并后的活动列表（最近 20 条） |
+| isLoading   | boolean               | 加载状态                       |
+| error       | string \| null        | 错误信息                       |
+| lastUpdated | Date \| null          | 最后更新时间                   |
+| refreshData | `() => Promise<void>` | 手动刷新数据                   |
 
 #### 使用示例
 
@@ -118,7 +118,7 @@ interface UseDashboardDataReturn {
 import { useDashboardData } from '@/hooks/useDashboardData';
 
 function Dashboard() {
-  const { issues, commits, activities, isLoading, error, refreshData } = 
+  const { issues, commits, activities, isLoading, error, refreshData } =
     useDashboardData('songzuo', '7zi');
 
   if (isLoading) return <LoadingSpinner />;
@@ -163,18 +163,18 @@ function Dashboard() {
 
 #### 参数
 
-| 参数 | 类型 | 必填 | 默认值 | 说明 |
-|------|------|------|--------|------|
-| config.url | string | 是 | - | WebSocket 服务器 URL |
-| config.protocols | string \| string[] | 否 | - | 可选的子协议 |
-| config.autoConnect | boolean | 否 | true | 是否自动连接 |
-| config.reconnectOnClose | boolean | 否 | false | 关闭时是否自动重连 |
-| config.reconnectInterval | number | 否 | 3000 | 重连间隔（毫秒） |
-| config.maxReconnectAttempts | number | 否 | 5 | 最大重连次数 |
-| options.onOpen | (event: Event) => void | 否 | - | 连接打开回调 |
-| options.onMessage | (message: WebSocketMessage) => void | 否 | - | 消息接收回调 |
-| options.onError | (event: Event) => void | 否 | - | 错误回调 |
-| options.onClose | (event: CloseEvent) => void | 否 | - | 连接关闭回调 |
+| 参数                        | 类型                                | 必填 | 默认值 | 说明                 |
+| --------------------------- | ----------------------------------- | ---- | ------ | -------------------- |
+| config.url                  | string                              | 是   | -      | WebSocket 服务器 URL |
+| config.protocols            | string \| string[]                  | 否   | -      | 可选的子协议         |
+| config.autoConnect          | boolean                             | 否   | true   | 是否自动连接         |
+| config.reconnectOnClose     | boolean                             | 否   | false  | 关闭时是否自动重连   |
+| config.reconnectInterval    | number                              | 否   | 3000   | 重连间隔（毫秒）     |
+| config.maxReconnectAttempts | number                              | 否   | 5      | 最大重连次数         |
+| options.onOpen              | (event: Event) => void              | 否   | -      | 连接打开回调         |
+| options.onMessage           | (message: WebSocketMessage) => void | 否   | -      | 消息接收回调         |
+| options.onError             | (event: Event) => void              | 否   | -      | 错误回调             |
+| options.onClose             | (event: CloseEvent) => void         | 否   | -      | 连接关闭回调         |
 
 #### 返回值
 
@@ -259,54 +259,50 @@ function Dashboard() {
 ```typescript
 // 持续监听某个事件
 useEffect(() => {
-  const unsubscribe = addListener('task:update', (data) => {
-    console.log('Task updated:', data);
-  });
+  const unsubscribe = addListener('task:update', data => {
+    console.log('Task updated:', data)
+  })
 
-  return () => unsubscribe();
-}, [addListener]);
+  return () => unsubscribe()
+}, [addListener])
 
 // 只监听一次
 useEffect(() => {
-  const unsubscribe = once('system:ready', (data) => {
-    console.log('System ready:', data);
+  const unsubscribe = once('system:ready', data => {
+    console.log('System ready:', data)
     // 初始化应用
-  });
+  })
 
-  return () => unsubscribe();
-}, [once]);
+  return () => unsubscribe()
+}, [once])
 
 // 监听所有消息（通配符）
 useEffect(() => {
-  const unsubscribe = addListener('*', (data) => {
-    console.log('All messages:', data);
-  });
+  const unsubscribe = addListener('*', data => {
+    console.log('All messages:', data)
+  })
 
-  return () => unsubscribe();
-}, [addListener]);
+  return () => unsubscribe()
+}, [addListener])
 ```
 
 #### 辅助函数
 
 ```typescript
-import {
-  generateMessageId,
-  createMessage,
-  isMessageType
-} from '@/lib/realtime/useWebSocket';
+import { generateMessageId, createMessage, isMessageType } from '@/lib/realtime/useWebSocket'
 
 // 生成唯一消息 ID
-const messageId = generateMessageId(); // "1710776400000-abc123"
+const messageId = generateMessageId() // "1710776400000-abc123"
 
 // 创建标准消息
 const message = createMessage('task:update', {
   taskId: '123',
   status: 'in-progress',
-});
+})
 
 // 检查消息类型
 if (isMessageType<TaskPayload>(message, 'task:update')) {
-  console.log(message.payload); // 类型安全的访问
+  console.log(message.payload) // 类型安全的访问
 }
 ```
 
@@ -337,17 +333,17 @@ if (isMessageType<TaskPayload>(message, 'task:update')) {
 
 #### 参数
 
-| 参数 | 类型 | 必填 | 默认值 | 说明 |
-|------|------|------|--------|------|
-| url | string | 是 | - | WebSocket 服务器 URL |
-| enableHeartbeat | boolean | 否 | true | 是否启用心跳 |
-| heartbeatInterval | number | 否 | 30000 | 心跳间隔（毫秒） |
-| heartbeatTimeout | number | 否 | 5000 | 心跳超时（毫秒） |
-| enableAck | boolean | 否 | false | 是否启用消息确认 |
-| enableRetry | boolean | 否 | true | 是否启用重试 |
-| maxRetryAttempts | number | 否 | 3 | 最大重试次数 |
-| enableQueue | boolean | 否 | true | 是否启用消息队列 |
-| maxQueueSize | number | 否 | 100 | 最大队列大小 |
+| 参数              | 类型    | 必填 | 默认值 | 说明                 |
+| ----------------- | ------- | ---- | ------ | -------------------- |
+| url               | string  | 是   | -      | WebSocket 服务器 URL |
+| enableHeartbeat   | boolean | 否   | true   | 是否启用心跳         |
+| heartbeatInterval | number  | 否   | 30000  | 心跳间隔（毫秒）     |
+| heartbeatTimeout  | number  | 否   | 5000   | 心跳超时（毫秒）     |
+| enableAck         | boolean | 否   | false  | 是否启用消息确认     |
+| enableRetry       | boolean | 否   | true   | 是否启用重试         |
+| maxRetryAttempts  | number  | 否   | 3      | 最大重试次数         |
+| enableQueue       | boolean | 否   | true   | 是否启用消息队列     |
+| maxQueueSize      | number  | 否   | 100    | 最大队列大小         |
 
 #### 返回值
 
@@ -406,28 +402,28 @@ function EnhancedDashboard() {
 ```typescript
 // 发送需要确认的消息
 useEffect(() => {
-  const unsubscribe = addListener('message:ack', (data) => {
-    const { messageId } = data as { messageId: string };
-    console.log('Message acknowledged:', messageId);
+  const unsubscribe = addListener('message:ack', data => {
+    const { messageId } = data as { messageId: string }
+    console.log('Message acknowledged:', messageId)
     // 从待确认列表中移除
-    removePendingMessage(messageId);
-  });
+    removePendingMessage(messageId)
+  })
 
-  return () => unsubscribe();
-}, [addListener]);
+  return () => unsubscribe()
+}, [addListener])
 
 // 发送消息并等待确认
 const sendTaskUpdate = (taskId: string, updates: object) => {
-  const messageId = generateMessageId();
+  const messageId = generateMessageId()
   const message = createMessage('task:update', {
     taskId,
     updates,
     requireAck: true,
-  });
+  })
 
-  send(message);
-  addPendingMessage({ id: messageId, message });
-};
+  send(message)
+  addPendingMessage({ id: messageId, message })
+}
 ```
 
 **详细文档**: 参见 [WebSocket 实时通信文档](./WEBSOCKET.md)
@@ -444,32 +440,28 @@ const sendTaskUpdate = (taskId: string, updates: object) => {
 
 #### 参数
 
-| 参数 | 类型 | 必填 | 说明 |
-|------|------|------|------|
-| owner | string | 是 | 仓库所有者 |
-| repo | string | 是 | 仓库名称 |
-| type | 'issues' \| 'commits' | 是 | 数据类型 |
-| token | string \| null | 否 | GitHub Token（可选） |
+| 参数  | 类型                  | 必填 | 说明                 |
+| ----- | --------------------- | ---- | -------------------- |
+| owner | string                | 是   | 仓库所有者           |
+| repo  | string                | 是   | 仓库名称             |
+| type  | 'issues' \| 'commits' | 是   | 数据类型             |
+| token | string \| null        | 否   | GitHub Token（可选） |
 
 #### 返回值
 
 ```typescript
 {
-  data: T | null;      // 数据
-  isLoading: boolean;   // 加载状态
-  error: string | null; // 错误信息
-  refetch: () => Promise<void>; // 重新获取
+  data: T | null // 数据
+  isLoading: boolean // 加载状态
+  error: string | null // 错误信息
+  refetch: () => Promise<void> // 重新获取
 }
 ```
 
 #### 使用示例
 
 ```typescript
-const { data: issues, isLoading } = useGitHubData(
-  'songzuo',
-  '7zi',
-  'issues'
-);
+const { data: issues, isLoading } = useGitHubData('songzuo', '7zi', 'issues')
 ```
 
 ---
@@ -482,26 +474,26 @@ const { data: issues, isLoading } = useGitHubData(
 
 #### 参数
 
-| 参数 | 类型 | 必填 | 说明 |
-|------|------|------|------|
-| url | string | 是 | 请求 URL |
-| options | RequestInit | 否 | Fetch 选项 |
+| 参数    | 类型        | 必填 | 说明       |
+| ------- | ----------- | ---- | ---------- |
+| url     | string      | 是   | 请求 URL   |
+| options | RequestInit | 否   | Fetch 选项 |
 
 #### 返回值
 
 ```typescript
 {
-  data: T | null;
-  isLoading: boolean;
-  error: string | null;
-  refetch: () => Promise<void>;
+  data: T | null
+  isLoading: boolean
+  error: string | null
+  refetch: () => Promise<void>
 }
 ```
 
 #### 使用示例
 
 ```typescript
-const { data, isLoading } = useFetch<User[]>('/api/users');
+const { data, isLoading } = useFetch<User[]>('/api/users')
 ```
 
 ---
@@ -516,18 +508,18 @@ const { data, isLoading } = useFetch<User[]>('/api/users');
 
 #### 参数
 
-| 参数 | 类型 | 必填 | 默认值 | 说明 |
-|------|------|------|--------|------|
-| threshold | number | 否 | 0.1 | 触发阈值 (0-1) |
-| rootMargin | string | 否 | '0px' | 根边距 |
-| enabled | boolean | 否 | true | 是否启用 |
+| 参数       | 类型    | 必填 | 默认值 | 说明           |
+| ---------- | ------- | ---- | ------ | -------------- |
+| threshold  | number  | 否   | 0.1    | 触发阈值 (0-1) |
+| rootMargin | string  | 否   | '0px'  | 根边距         |
+| enabled    | boolean | 否   | true   | 是否启用       |
 
 #### 返回值
 
 ```typescript
 {
-  ref: RefObject<HTMLElement>;
-  isIntersecting: boolean;
+  ref: RefObject<HTMLElement>
+  isIntersecting: boolean
 }
 ```
 
@@ -553,10 +545,10 @@ const { ref, isIntersecting } = useIntersectionObserver({ threshold: 0.5 });
 
 #### 参数
 
-| 参数 | 类型 | 必填 | 说明 |
-|------|------|------|------|
-| key | string | 是 | 存储键 |
-| defaultValue | T | 是 | 默认值 |
+| 参数         | 类型   | 必填 | 说明   |
+| ------------ | ------ | ---- | ------ |
+| key          | string | 是   | 存储键 |
+| defaultValue | T      | 是   | 默认值 |
 
 #### 返回值
 
@@ -567,17 +559,17 @@ const { ref, isIntersecting } = useIntersectionObserver({ threshold: 0.5 });
 #### 使用示例
 
 ```typescript
-const [theme, setTheme] = useLocalStorage('theme', 'light');
+const [theme, setTheme] = useLocalStorage('theme', 'light')
 const [settings, setSettings] = useLocalStorage('settings', {
   notifications: true,
   compact: false,
-});
+})
 
 // 更新值
-setTheme('dark');
+setTheme('dark')
 
 // 删除
-remove();
+remove()
 ```
 
 #### 特性
@@ -606,18 +598,18 @@ remove();
 #### 使用示例
 
 ```typescript
-import { usePerformance } from '@/hooks/usePerformance';
+import { usePerformance } from '@/hooks/usePerformance'
 
 function PerformanceMonitor() {
   usePerformance({
-    onReport: (metric) => {
-      console.log('性能指标:', metric);
+    onReport: metric => {
+      console.log('性能指标:', metric)
       // 发送到分析服务
-      analytics.track('web-vital', metric);
+      analytics.track('web-vital', metric)
     },
-  });
+  })
 
-  return null; // 不渲染任何内容
+  return null // 不渲染任何内容
 }
 ```
 
@@ -633,10 +625,10 @@ function PerformanceMonitor() {
 
 #### 参数
 
-| 参数 | 类型 | 必填 | 默认值 | 说明 |
-|------|------|------|--------|------|
-| initialSelection | string[] | 否 | [] | 初始选中项 ID |
-| items | T[] | 否 | [] | 可选择的项目列表 |
+| 参数             | 类型     | 必填 | 默认值 | 说明             |
+| ---------------- | -------- | ---- | ------ | ---------------- |
+| initialSelection | string[] | 否   | []     | 初始选中项 ID    |
+| items            | T[]      | 否   | []     | 可选择的项目列表 |
 
 #### 返回值
 
@@ -695,6 +687,7 @@ const {
 ### useIntersectionObserver (详细)
 
 **特性**:
+
 - 支持自定义触发阈值
 - 支持根边距
 - 可动态启用/禁用
@@ -711,13 +704,13 @@ const {
 ```typescript
 // ❌ 错误：直接使用外部依赖
 useEffect(() => {
-  fetchData();
-}, []); // 依赖数组可能遗漏
+  fetchData()
+}, []) // 依赖数组可能遗漏
 
 // ✅ 正确：将依赖声明为参数
 useEffect(() => {
-  fetchData();
-}, [fetchData]);
+  fetchData()
+}, [fetchData])
 ```
 
 ### 2. 性能优化
@@ -726,12 +719,12 @@ useEffect(() => {
 // ✅ 使用 useCallback 缓存回调
 const handleClick = useCallback(() => {
   // 处理点击
-}, [dep1, dep2]);
+}, [dep1, dep2])
 
 // ✅ 使用 useMemo 缓存计算结果
 const filteredItems = useMemo(() => {
-  return items.filter(item => item.active);
-}, [items]);
+  return items.filter(item => item.active)
+}, [items])
 ```
 
 ### 3. 错误处理
@@ -753,16 +746,16 @@ const [user, setUser] = useLocalStorage<User>('user', {
   id: '',
   name: '',
   email: '',
-});
+})
 
 // ✅ 使用接口定义复杂类型
 interface Task {
-  id: string;
-  title: string;
-  completed: boolean;
+  id: string
+  title: string
+  completed: boolean
 }
 
-const { data: tasks } = useFetch<Task[]>('/api/tasks');
+const { data: tasks } = useFetch<Task[]>('/api/tasks')
 ```
 
 ### 5. 避免无限循环
@@ -770,14 +763,14 @@ const { data: tasks } = useFetch<Task[]>('/api/tasks');
 ```typescript
 // ❌ 错误：每次渲染都创建新对象
 useEffect(() => {
-  fetchData({ page: 1, limit: 10 });
-}, [fetchData]);
+  fetchData({ page: 1, limit: 10 })
+}, [fetchData])
 
 // ✅ 正确：将配置提取到组件外部或使用 useMemo
-const config = useMemo(() => ({ page: 1, limit: 10 }), []);
+const config = useMemo(() => ({ page: 1, limit: 10 }), [])
 useEffect(() => {
-  fetchData(config);
-}, [fetchData, config]);
+  fetchData(config)
+}, [fetchData, config])
 ```
 
 ---
@@ -787,75 +780,75 @@ useEffect(() => {
 ### 基本结构
 
 ```typescript
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback } from 'react'
 
 // 类型定义
 interface UseMyHookOptions {
-  initialValue?: number;
-  onSuccess?: (value: number) => void;
+  initialValue?: number
+  onSuccess?: (value: number) => void
 }
 
 interface UseMyHookReturn {
-  value: number;
-  increment: () => void;
-  decrement: () => void;
-  reset: () => void;
+  value: number
+  increment: () => void
+  decrement: () => void
+  reset: () => void
 }
 
 // Hook 实现
 export function useMyHook(options: UseMyHookOptions = {}): UseMyHookReturn {
-  const { initialValue = 0, onSuccess } = options;
-  const [value, setValue] = useState(initialValue);
+  const { initialValue = 0, onSuccess } = options
+  const [value, setValue] = useState(initialValue)
 
   const increment = useCallback(() => {
     setValue(prev => {
-      const newValue = prev + 1;
-      onSuccess?.(newValue);
-      return newValue;
-    });
-  }, [onSuccess]);
+      const newValue = prev + 1
+      onSuccess?.(newValue)
+      return newValue
+    })
+  }, [onSuccess])
 
   const decrement = useCallback(() => {
-    setValue(prev => prev - 1);
-  }, []);
+    setValue(prev => prev - 1)
+  }, [])
 
   const reset = useCallback(() => {
-    setValue(initialValue);
-  }, [initialValue]);
+    setValue(initialValue)
+  }, [initialValue])
 
-  return { value, increment, decrement, reset };
+  return { value, increment, decrement, reset }
 }
 ```
 
 ### 测试模板
 
 ```typescript
-import { renderHook, act } from '@testing-library/react';
-import { useMyHook } from './useMyHook';
+import { renderHook, act } from '@testing-library/react'
+import { useMyHook } from './useMyHook'
 
 describe('useMyHook', () => {
   it('should initialize with default value', () => {
-    const { result } = renderHook(() => useMyHook());
-    expect(result.current.value).toBe(0);
-  });
+    const { result } = renderHook(() => useMyHook())
+    expect(result.current.value).toBe(0)
+  })
 
   it('should increment value', () => {
-    const { result } = renderHook(() => useMyHook());
+    const { result } = renderHook(() => useMyHook())
     act(() => {
-      result.current.increment();
-    });
-    expect(result.current.value).toBe(1);
-  });
+      result.current.increment()
+    })
+    expect(result.current.value).toBe(1)
+  })
 
   it('should call onSuccess callback', () => {
-    const onSuccess = jest.fn();
-    const { result } = renderHook(() => useMyHook({ onSuccess }));
+    const onSuccess = jest.fn()
+    const { result } = renderHook(() => useMyHook({ onSuccess }))
     act(() => {
-      result.current.increment();
-    });
-    expect(onSuccess).toHaveBeenCalledWith(1);
-  });
-});
+      result.current.increment()
+    })
+    expect(onSuccess).toHaveBeenCalledWith(1)
+  })
+})
 ```
 
 ---
@@ -866,12 +859,11 @@ describe('useMyHook', () => {
 
 ```typescript
 // 旧代码
-const { data: issues } = useGitHubData('owner', 'repo', 'issues', token);
-const { data: commits } = useGitHubData('owner', 'repo', 'commits', token);
+const { data: issues } = useGitHubData('owner', 'repo', 'issues', token)
+const { data: commits } = useGitHubData('owner', 'repo', 'commits', token)
 
 // 新代码
-const { issues, commits, activities, isLoading, error } = 
-  useDashboardData('owner', 'repo');
+const { issues, commits, activities, isLoading, error } = useDashboardData('owner', 'repo')
 
 // 不再需要传递 token（服务端代理）
 ```
@@ -886,4 +878,4 @@ const { issues, commits, activities, isLoading, error } =
 
 ---
 
-*由 7zi Studio AI 团队维护 🤖*
+_由 7zi Studio AI 团队维护 🤖_

@@ -12,6 +12,7 @@
 本报告分析了 `/root/.openclaw/workspace` 项目的 APM（应用性能监控）集成现状，识别了覆盖盲点，并为 v1.7.0 版本制定了具体的深化建议。
 
 **关键发现**:
+
 - ✅ Sentry APM 已完成基础集成
 - ⚠️ WebSocket 服务器监控缺失
 - ⚠️ Agent 调度系统与 APM 集成不够深入
@@ -19,6 +20,7 @@
 - ⚠️ 实时监控仪表板和主动告警渠道不完善
 
 **预期收益**:
+
 - 🎯 提升问题定位效率 60%
 - 🎯 减少平均故障恢复时间 (MTTR) 40%
 - 🎯 Agent 任务执行可观测性提升至 95%
@@ -33,6 +35,7 @@
 #### 1.1.1 Sentry APM 基础集成
 
 **配置文件**:
+
 - `sentry.client.config.ts` - 客户端配置
 - `sentry.server.config.ts` - 服务端配置
 - `sentry.edge.config.ts` - Edge Runtime 配置
@@ -47,6 +50,7 @@
 | 环境隔离 | ✅ 完成 | dev/staging/production 分离 |
 
 **采样率配置**:
+
 ```
 开发环境: tracesSampleRate=1.0, profilesSampleRate=1.0
 生产环境: tracesSampleRate=0.1, profilesSampleRate=0.05
@@ -56,16 +60,16 @@
 
 **核心组件**:
 
-| 模块 | 文件 | 代码行数 | 功能 |
-|------|------|----------|------|
-| 健康检查 | health.ts | 143 | Kubernetes 探针支持 |
-| 性能监控 | performance.monitor.ts | 598 | Core Web Vitals 追踪 |
-| 智能体追踪 | agent-tracker.ts | 499 | Agent 任务执行监控 |
-| API 监控 | api-middleware.ts | 378 | API 响应时间追踪 |
-| 告警管理 | alert-manager.ts | 700+ | 告警规则和通知 |
-| 根因分析 | root-cause.ts | 700+ | 性能问题诊断 |
-| 预算控制 | budget-controller.ts | 700+ | 性能预算管理 |
-| Prometheus | prometheus.ts | 359 | 指标导出 |
+| 模块       | 文件                   | 代码行数 | 功能                 |
+| ---------- | ---------------------- | -------- | -------------------- |
+| 健康检查   | health.ts              | 143      | Kubernetes 探针支持  |
+| 性能监控   | performance.monitor.ts | 598      | Core Web Vitals 追踪 |
+| 智能体追踪 | agent-tracker.ts       | 499      | Agent 任务执行监控   |
+| API 监控   | api-middleware.ts      | 378      | API 响应时间追踪     |
+| 告警管理   | alert-manager.ts       | 700+     | 告警规则和通知       |
+| 根因分析   | root-cause.ts          | 700+     | 性能问题诊断         |
+| 预算控制   | budget-controller.ts   | 700+     | 性能预算管理         |
+| Prometheus | prometheus.ts          | 359      | 指标导出             |
 
 **总代码量**: ~4,000+ 行
 
@@ -74,11 +78,13 @@
 **实现文件**: `src/lib/tracing/`
 
 **支持的格式**:
+
 - ✅ W3C Trace Context
 - ✅ B3 Propagation
 - ✅ Sentry Trace Header
 
 **核心功能**:
+
 - 追踪上下文管理 (TraceContextManager)
 - Sentry 集成 (configureSentryIntegration)
 - A2A 协议追踪 (injectA2ATraceContext)
@@ -90,6 +96,7 @@
 **位置**: `src/lib/agents/scheduler/`
 
 **核心功能**:
+
 - 智能任务匹配 (TaskMatcher)
 - 任务优先级排序 (TaskRanker)
 - 负载均衡 (LoadBalancer)
@@ -125,21 +132,24 @@
 WebSocket 服务器 (`server/websocket-server.js`) 作为独立进程运行，完全没有集成 Sentry APM。
 
 **影响范围**:
+
 - 房间管理操作无监控
 - 实时协作功能无性能追踪
 - Socket 连接状态无监控
 - 消息传递失败无告警
 
 **当前状态**:
+
 ```javascript
 // server/websocket-server.js - 缺少 Sentry 集成
-const { Server: SocketIOServer } = require("socket.io");
+const { Server: SocketIOServer } = require('socket.io')
 // ❌ 没有 Sentry 导入
 // ❌ 没有错误追踪
 // ❌ 没有性能监控
 ```
 
 **业务影响**:
+
 - 实时协作问题难以定位
 - 用户断线原因不可追踪
 - 性能瓶颈无法发现
@@ -150,12 +160,14 @@ const { Server: SocketIOServer } = require("socket.io");
 虽然 `agent-tracker.ts` 提供了基础的任务追踪，但缺少对调度决策过程的深度监控。
 
 **缺失的监控点**:
+
 1. **调度决策延迟** - 从任务创建到分配完成的时间
 2. **匹配评分详情** - 为什么选择了某个 Agent
 3. **负载预测准确性** - 负载预测与实际的偏差
 4. **协作流程追踪** - 多 Agent 协作的完整链路
 
 **示例场景**:
+
 ```
 用户创建任务 → 调度器评估 11 个 Agent → 选择最优 Agent → 执行任务
                 ↑
@@ -168,11 +180,13 @@ const { Server: SocketIOServer } = require("socket.io");
 虽然实现了分布式追踪系统，但追踪链路在关键节点断裂。
 
 **断裂点**:
+
 1. **WebSocket → Next.js App** - 请求追踪丢失
 2. **Agent Task → Database** - 数据库操作未关联到任务
 3. **A2A 消息传递** - 跨 Agent 调用追踪不完整
 
 **示例场景**:
+
 ```
 用户操作 → WebSocket → Agent A → Agent B → 数据库
   [OK]      [缺失]      [OK]      [部分]    [缺失]
@@ -184,12 +198,14 @@ const { Server: SocketIOServer } = require("socket.io");
 缺少统一的实时监控仪表板，需要登录 Sentry 才能查看数据。
 
 **缺失功能**:
+
 - 实时错误率图表
 - Agent 任务执行热力图
 - 性能趋势预警
 - 自定义仪表板
 
 **当前替代方案**:
+
 - 使用 Sentry Dashboard（功能有限）
 - 使用 Prometheus + Grafana（未完全集成）
 
@@ -199,10 +215,12 @@ const { Server: SocketIOServer } = require("socket.io");
 仅依赖 Sentry 内置告警，缺少 Slack/邮件等主动通知渠道。
 
 **当前告警方式**:
+
 - Sentry Issues Dashboard
 - 日志文件监控
 
 **缺失功能**:
+
 - Slack 实时告警
 - 邮件通知
 - 短信紧急告警
@@ -249,64 +267,68 @@ const { Server: SocketIOServer } = require("socket.io");
 **实现步骤**:
 
 1. **安装 Sentry SDK**
+
 ```bash
 npm install @sentry/node @sentry/integrations
 ```
 
 2. **创建配置文件** `server/sentry.config.js`
+
 ```javascript
-const Sentry = require("@sentry/node");
+const Sentry = require('@sentry/node')
 
 Sentry.init({
   dsn: process.env.SENTRY_DSN,
   environment: process.env.NODE_ENV,
   tracesSampleRate: 0.1,
-  integrations: [
-    new Sentry.Integrations.Http({ tracing: true }),
-  ],
-});
+  integrations: [new Sentry.Integrations.Http({ tracing: true })],
+})
 ```
 
 3. **集成到 WebSocket 服务器**
+
 ```javascript
 // 在文件顶部添加
-const Sentry = require("@sentry/node");
-require("./sentry.config");
+const Sentry = require('@sentry/node')
+require('./sentry.config')
 
 // 包装事件处理器
-io.on("connection", (socket) => {
+io.on('connection', socket => {
   const transaction = Sentry.startTransaction({
-    name: "websocket.connection",
-    op: "websocket",
-  });
+    name: 'websocket.connection',
+    op: 'websocket',
+  })
 
-  setupSocketHandlers(socket);
+  setupSocketHandlers(socket)
 
-  socket.on("disconnect", () => {
-    transaction.finish();
-  });
-});
+  socket.on('disconnect', () => {
+    transaction.finish()
+  })
+})
 ```
 
 4. **添加 Socket.IO 中间件**
+
 ```javascript
 // Socket 事件追踪中间件
 io.use((socket, next) => {
-  Sentry.withScope((scope) => {
-    scope.setUser({ id: socket.data.user?.id });
-    scope.setTag("socket_id", socket.id);
-    next();
-  });
-});
+  Sentry.withScope(scope => {
+    scope.setUser({ id: socket.data.user?.id })
+    scope.setTag('socket_id', socket.id)
+    next()
+  })
+})
 ```
 
 5. **关键操作追踪**
+
 - 房间加入/离开
 - 文档操作
 - 心跳检测
 - 错误捕获
 
 **预期成果**:
+
 - WebSocket 操作 100% 可追踪
 - 连接问题实时告警
 - 性能瓶颈可视化
@@ -322,13 +344,14 @@ io.use((socket, next) => {
 **实现步骤**:
 
 1. **创建调度追踪器** `src/lib/monitoring/scheduler-tracker.ts`
+
 ```typescript
 export class SchedulerTracker {
   // 追踪调度决策
   trackSchedulingDecision(task: Task, candidates: Agent[], selected: Agent) {
     const span = sentryClient.startTransaction({
       name: `Schedule: ${task.type}`,
-      op: "agent.scheduling",
+      op: 'agent.scheduling',
       data: {
         taskId: task.id,
         taskType: task.type,
@@ -337,98 +360,101 @@ export class SchedulerTracker {
         selectedAgentId: selected.id,
         selectedAgentName: selected.name,
       },
-    });
+    })
 
     // 记录候选 Agent 评分
-    candidates.forEach((agent) => {
-      span.setAttribute(`candidate.${agent.id}.score`, agent.score);
-    });
+    candidates.forEach(agent => {
+      span.setAttribute(`candidate.${agent.id}.score`, agent.score)
+    })
 
-    return span;
+    return span
   }
 
   // 追踪负载预测
   trackLoadPrediction(agentId: string, predicted: number, actual: number) {
-    const accuracy = 1 - Math.abs(predicted - actual) / 100;
-    
+    const accuracy = 1 - Math.abs(predicted - actual) / 100
+
     sentryClient.addBreadcrumb({
-      category: "scheduler.load_prediction",
+      category: 'scheduler.load_prediction',
       message: `Agent ${agentId} load prediction accuracy: ${accuracy}%`,
       data: { predicted, actual, accuracy },
-    });
+    })
   }
 }
 ```
 
 2. **集成到调度器核心**
+
 ```typescript
 // src/lib/agents/scheduler/core/scheduler.ts
 
 class AgentScheduler {
-  private tracker = new SchedulerTracker();
+  private tracker = new SchedulerTracker()
 
   async schedule(task: Task): Promise<ScheduleResult> {
     // 开始追踪
-    const span = this.tracker.trackSchedulingStart(task);
+    const span = this.tracker.trackSchedulingStart(task)
 
     try {
       // 匹配 Agent
-      const candidates = await this.matcher.match(task);
-      span.setAttribute("candidates_count", candidates.length);
+      const candidates = await this.matcher.match(task)
+      span.setAttribute('candidates_count', candidates.length)
 
       // 排序
-      const ranked = this.ranker.rank(candidates, task);
+      const ranked = this.ranker.rank(candidates, task)
 
       // 负载均衡
-      const selected = this.loadBalancer.select(ranked);
+      const selected = this.loadBalancer.select(ranked)
 
       // 记录决策
-      this.tracker.trackSchedulingDecision(task, candidates, selected);
+      this.tracker.trackSchedulingDecision(task, candidates, selected)
 
       // 分配任务
-      await this.assign(task, selected);
+      await this.assign(task, selected)
 
-      span.setStatus({ code: 1 });
-      return { success: true, agentId: selected.id };
+      span.setStatus({ code: 1 })
+      return { success: true, agentId: selected.id }
     } catch (error) {
-      span.setStatus({ code: 2 });
-      this.tracker.trackSchedulingError(task, error);
-      throw error;
+      span.setStatus({ code: 2 })
+      this.tracker.trackSchedulingError(task, error)
+      throw error
     } finally {
-      span.finish();
+      span.finish()
     }
   }
 }
 ```
 
 3. **添加调度指标收集**
+
 ```typescript
 // src/lib/monitoring/scheduler-metrics.ts
 
 export const schedulerMetrics = {
   // 调度延迟分布
   schedulingLatency: new Histogram({
-    name: "scheduler_scheduling_latency_ms",
-    help: "Scheduling decision latency",
+    name: 'scheduler_scheduling_latency_ms',
+    help: 'Scheduling decision latency',
     buckets: [10, 50, 100, 500, 1000, 5000],
   }),
 
   // Agent 负载分布
   agentLoad: new Gauge({
-    name: "scheduler_agent_load_percent",
-    help: "Current agent load",
-    labelNames: ["agent_id", "agent_name"],
+    name: 'scheduler_agent_load_percent',
+    help: 'Current agent load',
+    labelNames: ['agent_id', 'agent_name'],
   }),
 
   // 任务队列长度
   taskQueueLength: new Gauge({
-    name: "scheduler_task_queue_length",
-    help: "Number of pending tasks",
+    name: 'scheduler_task_queue_length',
+    help: 'Number of pending tasks',
   }),
-};
+}
 ```
 
 4. **创建调度仪表板组件**
+
 ```typescript
 // src/components/monitoring/SchedulerDashboard.tsx
 
@@ -470,6 +496,7 @@ export function SchedulerDashboard() {
 ```
 
 **预期成果**:
+
 - 调度决策过程 100% 可追踪
 - 负载预测准确性可量化
 - 性能瓶颈自动识别
@@ -485,27 +512,29 @@ export function SchedulerDashboard() {
 **实现步骤**:
 
 1. **WebSocket ↔ Next.js 追踪传播**
+
 ```typescript
 // 客户端发送追踪上下文
-socket.emit("room:join", {
-  roomId: "room-123",
+socket.emit('room:join', {
+  roomId: 'room-123',
   // 注入追踪上下文
   traceContext: injectTraceContext({}),
-});
+})
 
 // 服务端提取追踪上下文
-socket.on("room:join", (data) => {
-  const parentContext = extractTraceContext(data.traceContext);
-  
+socket.on('room:join', data => {
+  const parentContext = extractTraceContext(data.traceContext)
+
   const span = Sentry.startTransaction({
-    name: "websocket.room.join",
-    op: "websocket",
+    name: 'websocket.room.join',
+    op: 'websocket',
     parentSpanId: parentContext.spanId,
-  });
-});
+  })
+})
 ```
 
 2. **Agent Task ↔ Database 追踪关联**
+
 ```typescript
 // src/lib/db/query-executor.ts
 
@@ -515,28 +544,29 @@ export async function executeQuery<T>(
   context?: TraceContext
 ): Promise<T> {
   // 从上下文创建子 span
-  const span = context 
+  const span = context
     ? Sentry.startSpan({
-        op: "db.query",
+        op: 'db.query',
         name: query.substring(0, 100),
         parentSpanId: context.spanId,
       })
-    : null;
+    : null
 
   try {
-    const result = await pool.query(query, params);
-    span?.setStatus({ code: 1 });
-    return result.rows[0];
+    const result = await pool.query(query, params)
+    span?.setStatus({ code: 1 })
+    return result.rows[0]
   } catch (error) {
-    span?.setStatus({ code: 2 });
-    throw error;
+    span?.setStatus({ code: 2 })
+    throw error
   } finally {
-    span?.finish();
+    span?.finish()
   }
 }
 ```
 
 3. **A2A 协议追踪增强**
+
 ```typescript
 // src/lib/agents/a2a/protocol-v2.1.ts
 
@@ -546,19 +576,17 @@ export function createA2AMessage(
   parentContext?: TraceContext
 ): A2AMessage {
   // 创建追踪上下文
-  const traceContext = parentContext
-    ? createChildContext(parentContext)
-    : createTraceContext();
+  const traceContext = parentContext ? createChildContext(parentContext) : createTraceContext()
 
   const span = Sentry.startTransaction({
     name: `A2A ${type}`,
-    op: "a2a.message",
+    op: 'a2a.message',
     traceId: traceContext.traceId,
     parentSpanId: traceContext.spanId,
-  });
+  })
 
   return {
-    jsonrpc: "2.0",
+    jsonrpc: '2.0',
     method: type,
     params: {
       ...payload,
@@ -569,11 +597,12 @@ export function createA2AMessage(
         parentSpanId: traceContext.spanId,
       },
     },
-  };
+  }
 }
 ```
 
 4. **创建追踪可视化组件**
+
 ```typescript
 // src/components/monitoring/TraceVisualization.tsx
 
@@ -601,6 +630,7 @@ export function TraceVisualization({ traceId }: { traceId: string }) {
 ```
 
 **预期成果**:
+
 - 跨组件请求 100% 可追踪
 - 端到端延迟可视化
 - 问题定位时间减少 70%
@@ -616,6 +646,7 @@ export function TraceVisualization({ traceId }: { traceId: string }) {
 **实现步骤**:
 
 1. **创建监控数据 API**
+
 ```typescript
 // src/app/api/monitoring/dashboard/route.ts
 
@@ -623,29 +654,30 @@ export async function GET(request: NextRequest) {
   const metrics = {
     // 系统健康
     health: await detailedHealthCheck(),
-    
+
     // Agent 状态
     agents: agentTracker.getGlobalStats(),
-    
+
     // API 性能
     api: apiMonitor.getStats(),
-    
+
     // 错误率 (过去1小时)
-    errors: await getErrorRate("1h"),
-    
+    errors: await getErrorRate('1h'),
+
     // 性能指标
     performance: {
       p50: apiMonitor.getStats().p50,
       p95: apiMonitor.getStats().p95,
       p99: apiMonitor.getStats().p99,
     },
-  };
+  }
 
-  return NextResponse.json(metrics);
+  return NextResponse.json(metrics)
 }
 ```
 
 2. **创建仪表板组件**
+
 ```typescript
 // src/app/[locale]/monitoring/dashboard/page.tsx
 
@@ -658,19 +690,19 @@ export default function MonitoringDashboard() {
     <div className="grid grid-cols-4 gap-4 p-4">
       {/* 健康状态 */}
       <HealthCard health={data?.health} />
-      
+
       {/* Agent 状态 */}
       <AgentStatusCard agents={data?.agents} />
-      
+
       {/* 错误率趋势 */}
       <ErrorRateChart data={data?.errors} />
-      
+
       {/* 性能分布 */}
       <PerformanceChart data={data?.performance} />
-      
+
       {/* 实时日志流 */}
       <LogStream />
-      
+
       {/* 告警列表 */}
       <AlertList />
     </div>
@@ -679,22 +711,24 @@ export default function MonitoringDashboard() {
 ```
 
 3. **添加实时更新 (WebSocket)**
+
 ```typescript
 // 实时推送监控数据
-io.of("/monitoring").on("connection", (socket) => {
+io.of('/monitoring').on('connection', socket => {
   // 每5秒推送一次数据
   const interval = setInterval(async () => {
-    const metrics = await collectMetrics();
-    socket.emit("metrics", metrics);
-  }, 5000);
+    const metrics = await collectMetrics()
+    socket.emit('metrics', metrics)
+  }, 5000)
 
-  socket.on("disconnect", () => {
-    clearInterval(interval);
-  });
-});
+  socket.on('disconnect', () => {
+    clearInterval(interval)
+  })
+})
 ```
 
 **预期成果**:
+
 - 实时监控数据可视化
 - 5 秒刷新延迟
 - 多维度数据展示
@@ -710,86 +744,91 @@ io.of("/monitoring").on("connection", (socket) => {
 **实现步骤**:
 
 1. **创建告警服务**
+
 ```typescript
 // src/lib/monitoring/alerting/notification-service.ts
 
 export class AlertNotificationService {
   // Slack 告警
   async sendSlackAlert(alert: Alert): Promise<void> {
-    const webhook = process.env.SLACK_WEBHOOK_URL;
-    if (!webhook) return;
+    const webhook = process.env.SLACK_WEBHOOK_URL
+    if (!webhook) return
 
     const message = {
       text: `🚨 ${alert.severity.toUpperCase()}: ${alert.title}`,
-      attachments: [{
-        color: this.getSeverityColor(alert.severity),
-        fields: [
-          { title: "类型", value: alert.type, short: true },
-          { title: "时间", value: new Date().toISOString(), short: true },
-          { title: "详情", value: alert.message },
-        ],
-      }],
-    };
+      attachments: [
+        {
+          color: this.getSeverityColor(alert.severity),
+          fields: [
+            { title: '类型', value: alert.type, short: true },
+            { title: '时间', value: new Date().toISOString(), short: true },
+            { title: '详情', value: alert.message },
+          ],
+        },
+      ],
+    }
 
     await fetch(webhook, {
-      method: "POST",
+      method: 'POST',
       body: JSON.stringify(message),
-    });
+    })
   }
 
   // 邮件告警
   async sendEmailAlert(alert: Alert): Promise<void> {
     // 使用 Resend API
-    await fetch("https://api.resend.com/emails", {
-      method: "POST",
+    await fetch('https://api.resend.com/emails', {
+      method: 'POST',
       headers: {
-        "Authorization": `Bearer ${process.env.RESEND_API_KEY}`,
-        "Content-Type": "application/json",
+        Authorization: `Bearer ${process.env.RESEND_API_KEY}`,
+        'Content-Type': 'application/json',
       },
       body: JSON.stringify({
-        from: "alerts@7zi.com",
-        to: process.env.ALERT_EMAIL_RECIPIENTS?.split(",") || [],
+        from: 'alerts@7zi.com',
+        to: process.env.ALERT_EMAIL_RECIPIENTS?.split(',') || [],
         subject: `[${alert.severity}] ${alert.title}`,
         html: this.formatAlertEmail(alert),
       }),
-    });
+    })
   }
 }
 ```
 
 2. **集成告警规则**
+
 ```typescript
 // src/lib/monitoring/alerting/rules.ts
 
 export const alertRules: AlertRule[] = [
   {
-    id: "high-error-rate",
-    name: "高错误率告警",
-    condition: (metrics) => metrics.errorRate > 0.05,
-    severity: "critical",
-    channels: ["slack", "email"],
-    message: "API 错误率超过 5%",
+    id: 'high-error-rate',
+    name: '高错误率告警',
+    condition: metrics => metrics.errorRate > 0.05,
+    severity: 'critical',
+    channels: ['slack', 'email'],
+    message: 'API 错误率超过 5%',
   },
   {
-    id: "slow-response",
-    name: "慢响应告警",
-    condition: (metrics) => metrics.p95 > 2000,
-    severity: "warning",
-    channels: ["slack"],
-    message: "P95 响应时间超过 2 秒",
+    id: 'slow-response',
+    name: '慢响应告警',
+    condition: metrics => metrics.p95 > 2000,
+    severity: 'warning',
+    channels: ['slack'],
+    message: 'P95 响应时间超过 2 秒',
   },
   {
-    id: "agent-offline",
-    name: "Agent 离线告警",
-    condition: (stats) => stats.activeAgents < stats.totalAgents * 0.8,
-    severity: "critical",
-    channels: ["slack", "email"],
-    message: "超过 20% 的 Agent 离线",
+    id: 'agent-offline',
+    name: 'Agent 离线告警',
+    condition: stats => stats.activeAgents < stats.totalAgents * 0.8,
+    severity: 'critical',
+    channels: ['slack', 'email'],
+    message: '超过 20% 的 Agent 离线',
   },
-];
+]
 ```
 
 **预期成果**:
+
 - 关键事件实时通知
 - 多渠道告警
 - 告警降噪
@@ -800,16 +839,16 @@ export const alertRules: AlertRule[] = [
 
 ### 3.3 任务总览
 
-| 编号 | 任务名称 | 优先级 | 工作量 | 负责人 | 状态 |
-|------|----------|--------|--------|--------|------|
-| P0-1 | WebSocket 服务器 Sentry 集成 | 🔴 P0 | 2 天 | - | 待开始 |
-| P0-2 | Agent 调度系统深度监控 | 🔴 P0 | 3 天 | - | 待开始 |
-| P0-3 | 分布式追踪链路补全 | 🔴 P0 | 4 天 | - | 待开始 |
-| P1-4 | 实时监控仪表板 | 🟡 P1 | 3 天 | - | 待开始 |
-| P1-5 | 告警通知渠道集成 | 🟡 P1 | 2 天 | - | 待开始 |
-| P1-6 | APM 文档完善 | 🟡 P1 | 1 天 | - | 待开始 |
-| P2-7 | 性能预算自动化检查 | 🟢 P2 | 2 天 | - | 待开始 |
-| P2-8 | 根因分析 AI 增强 | 🟢 P2 | 3 天 | - | 待开始 |
+| 编号 | 任务名称                     | 优先级 | 工作量 | 负责人 | 状态   |
+| ---- | ---------------------------- | ------ | ------ | ------ | ------ |
+| P0-1 | WebSocket 服务器 Sentry 集成 | 🔴 P0  | 2 天   | -      | 待开始 |
+| P0-2 | Agent 调度系统深度监控       | 🔴 P0  | 3 天   | -      | 待开始 |
+| P0-3 | 分布式追踪链路补全           | 🔴 P0  | 4 天   | -      | 待开始 |
+| P1-4 | 实时监控仪表板               | 🟡 P1  | 3 天   | -      | 待开始 |
+| P1-5 | 告警通知渠道集成             | 🟡 P1  | 2 天   | -      | 待开始 |
+| P1-6 | APM 文档完善                 | 🟡 P1  | 1 天   | -      | 待开始 |
+| P2-7 | 性能预算自动化检查           | 🟢 P2  | 2 天   | -      | 待开始 |
+| P2-8 | 根因分析 AI 增强             | 🟢 P2  | 3 天   | -      | 待开始 |
 
 **总计**: P0 任务 9 天，P1 任务 6 天，P2 任务 5 天
 
@@ -822,11 +861,13 @@ export const alertRules: AlertRule[] = [
 #### 4.1.1 问题定位效率提升
 
 **当前状态**:
+
 - WebSocket 问题定位时间: ~30 分钟
 - Agent 调度问题定位时间: ~20 分钟
 - 分布式问题定位时间: ~1 小时
 
 **目标状态**:
+
 - WebSocket 问题定位时间: ~10 分钟 (提升 66%)
 - Agent 调度问题定位时间: ~8 分钟 (提升 60%)
 - 分布式问题定位时间: ~20 分钟 (提升 66%)
@@ -834,22 +875,26 @@ export const alertRules: AlertRule[] = [
 #### 4.1.2 故障恢复时间减少
 
 **当前 MTTR**:
+
 - P0 故障: ~2 小时
 - P1 故障: ~4 小时
 
 **目标 MTTR**:
+
 - P0 故障: ~1 小时 (减少 50%)
 - P1 故障: ~2 小时 (减少 50%)
 
 #### 4.1.3 可观测性提升
 
 **当前覆盖率**:
+
 - Next.js App: 90%
 - WebSocket: 0%
 - Agent Scheduler: 40%
 - 端到端追踪: 30%
 
 **目标覆盖率**:
+
 - Next.js App: 95%
 - WebSocket: 90%
 - Agent Scheduler: 90%
@@ -857,16 +902,16 @@ export const alertRules: AlertRule[] = [
 
 ### 4.2 成功指标
 
-| 指标 | 当前值 | 目标值 | 衡量方式 |
-|------|--------|--------|----------|
-| **APM 覆盖率** | 60% | 90% | 监控代码行数/总代码行数 |
-| **分布式追踪完整性** | 30% | 80% | 完整链路占比 |
-| **告警响应时间** | 10 分钟 | 1 分钟 | Slack/邮件通知延迟 |
-| **问题定位效率** | 基准 | +60% | 定位时间对比 |
-| **MTTR** | 基准 | -40% | 故障恢复时间对比 |
-| **Agent 任务可追踪性** | 70% | 95% | 任务监控覆盖率 |
-| **WebSocket 事件监控** | 0% | 100% | 事件追踪覆盖率 |
-| **调度决策可视化** | 40% | 100% | 决策过程可追踪 |
+| 指标                   | 当前值  | 目标值 | 衡量方式                |
+| ---------------------- | ------- | ------ | ----------------------- |
+| **APM 覆盖率**         | 60%     | 90%    | 监控代码行数/总代码行数 |
+| **分布式追踪完整性**   | 30%     | 80%    | 完整链路占比            |
+| **告警响应时间**       | 10 分钟 | 1 分钟 | Slack/邮件通知延迟      |
+| **问题定位效率**       | 基准    | +60%   | 定位时间对比            |
+| **MTTR**               | 基准    | -40%   | 故障恢复时间对比        |
+| **Agent 任务可追踪性** | 70%     | 95%    | 任务监控覆盖率          |
+| **WebSocket 事件监控** | 0%      | 100%   | 事件追踪覆盖率          |
+| **调度决策可视化**     | 40%     | 100%   | 决策过程可追踪          |
 
 ### 4.3 验收标准
 
@@ -896,12 +941,12 @@ export const alertRules: AlertRule[] = [
 
 ### 5.1 技术风险
 
-| 风险 | 影响 | 缓解措施 |
-|------|------|----------|
-| Sentry 配额限制 | 中 | 优化采样率，减少不必要的追踪 |
-| 性能开销 | 低 | 异步上报，采样控制 |
-| 数据隐私 | 低 | 已配置敏感信息过滤 |
-| 存储成本 | 中 | 设置数据保留策略 (30 天) |
+| 风险            | 影响 | 缓解措施                     |
+| --------------- | ---- | ---------------------------- |
+| Sentry 配额限制 | 中   | 优化采样率，减少不必要的追踪 |
+| 性能开销        | 低   | 异步上报，采样控制           |
+| 数据隐私        | 低   | 已配置敏感信息过滤           |
+| 存储成本        | 中   | 设置数据保留策略 (30 天)     |
 
 ### 5.2 依赖项
 
@@ -967,6 +1012,7 @@ Week 4:
 ### 7.2 代码文件清单
 
 **监控核心**:
+
 - `src/lib/monitoring/index.ts` - 监控模块入口
 - `src/lib/monitoring/sentry-client.ts` - Sentry 客户端
 - `src/lib/monitoring/agent-tracker.ts` - Agent 追踪器
@@ -974,21 +1020,25 @@ Week 4:
 - `src/lib/monitoring/health.ts` - 健康检查
 
 **配置文件**:
+
 - `sentry.client.config.ts` - 客户端配置
 - `sentry.server.config.ts` - 服务端配置
 - `sentry.edge.config.ts` - Edge 配置
 
 **分布式追踪**:
+
 - `src/lib/tracing/context.ts` - 追踪上下文
 - `src/lib/tracing/types.ts` - 类型定义
 - `src/lib/tracing/sentry-integration.ts` - Sentry 集成
 
 **Agent 系统**:
+
 - `src/lib/agents/scheduler/core/scheduler.ts` - 调度器核心
 - `src/lib/agents/registry/agent-registry.ts` - Agent 注册表
 - `src/lib/agents/a2a/protocol-v2.1.ts` - A2A 协议
 
 **WebSocket 服务器**:
+
 - `server/websocket-server.js` - WebSocket 服务器
 
 ### 7.3 测试文件
@@ -1014,12 +1064,12 @@ Week 4:
 
 **文档审批**:
 
-| 角色 | 姓名 | 日期 |
-|------|------|------|
-| 主管 | - | - |
-| 架构师 | - | - |
-| 系统管理员 | - | - |
+| 角色       | 姓名 | 日期 |
+| ---------- | ---- | ---- |
+| 主管       | -    | -    |
+| 架构师     | -    | -    |
+| 系统管理员 | -    | -    |
 
 ---
 
-*报告完成时间: 2026-04-01*
+_报告完成时间: 2026-04-01_

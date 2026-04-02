@@ -34,14 +34,14 @@
 
 ### 1.2 现有组件
 
-| 组件 | 技术 | 状态 |
-|------|------|------|
-| 前端框架 | Next.js 14 | ✅ 运行中 |
-| AI 框架 | OpenClaw | ✅ 运行中 |
-| 样式 | Tailwind CSS 3.0 | ✅ 使用中 |
-| 状态管理 | React Hooks | ✅ 基础 |
-| 部署 | Vercel + GitHub Actions | ✅ 运行中 |
-| 服务器 | 7zi.com (SSH问题) | ⚠️ 待修复 |
+| 组件     | 技术                    | 状态      |
+| -------- | ----------------------- | --------- |
+| 前端框架 | Next.js 14              | ✅ 运行中 |
+| AI 框架  | OpenClaw                | ✅ 运行中 |
+| 样式     | Tailwind CSS 3.0        | ✅ 使用中 |
+| 状态管理 | React Hooks             | ✅ 基础   |
+| 部署     | Vercel + GitHub Actions | ✅ 运行中 |
+| 服务器   | 7zi.com (SSH问题)       | ⚠️ 待修复 |
 
 ### 1.3 识别的问题
 
@@ -74,6 +74,7 @@
 #### 2.1.1 状态管理改进
 
 **方案 A: 引入 Zustand (推荐)**
+
 - 轻量级，仅 1KB
 - 无 Provider 嵌套
 - 支持 TypeScript
@@ -89,17 +90,19 @@ interface TeamState {
   updateMemberStatus: (id: string, status: Status) => void
 }
 
-export const useTeamStore = create<TeamState>((set) => ({
+export const useTeamStore = create<TeamState>(set => ({
   members: [],
   tasks: [],
-  addTask: (task) => set((state) => ({ tasks: [...state.tasks, task] })),
-  updateMemberStatus: (id, status) => set((state) => ({
-    members: state.members.map(m => m.id === id ? { ...m, status } : m)
-  })),
+  addTask: task => set(state => ({ tasks: [...state.tasks, task] })),
+  updateMemberStatus: (id, status) =>
+    set(state => ({
+      members: state.members.map(m => (m.id === id ? { ...m, status } : m)),
+    })),
 }))
 ```
 
 **方案 B: 引入 TanStack Query**
+
 - 服务端状态管理
 - 自动缓存和同步
 - 适合 API 数据
@@ -116,6 +119,7 @@ components/
 ```
 
 **改进措施:**
+
 1. 建立 Storybook 组件库文档
 2. 统一组件 Props 接口
 3. 实现组件懒加载
@@ -125,6 +129,7 @@ components/
 #### 2.2.1 子代理系统重构
 
 **当前结构:**
+
 ```
 subagents/
 ├── director.md      # 主管
@@ -134,6 +139,7 @@ subagents/
 ```
 
 **优化后结构:**
+
 ```
 agents/
 ├── base/            # 基础代理类
@@ -286,7 +292,7 @@ services:
   web:
     build: .
     ports:
-      - "3000:3000"
+      - '3000:3000'
     environment:
       - DATABASE_URL=${DATABASE_URL}
       - OPENCLAW_API=${OPENCLAW_API}
@@ -318,10 +324,10 @@ export const logger = pino({
   level: process.env.LOG_LEVEL || 'info',
   transport: {
     target: 'pino-pretty',
-    options: { colorize: true }
+    options: { colorize: true },
   },
   formatters: {
-    level: (label) => ({ level: label }),
+    level: label => ({ level: label }),
   },
 })
 
@@ -337,12 +343,12 @@ export function logError(error: Error, context: any) {
 
 #### 2.5.2 监控指标
 
-| 指标 | 描述 | 阈值 |
-|------|------|------|
-| 响应时间 | API 平均响应时间 | < 500ms |
-| 任务完成率 | 子代理任务完成率 | > 90% |
-| 活跃代理数 | 当前活跃 AI 代理 | 11/11 |
-| 错误率 | 系统错误率 | < 1% |
+| 指标       | 描述             | 阈值    |
+| ---------- | ---------------- | ------- |
+| 响应时间   | API 平均响应时间 | < 500ms |
+| 任务完成率 | 子代理任务完成率 | > 90%   |
+| 活跃代理数 | 当前活跃 AI 代理 | 11/11   |
+| 错误率     | 系统错误率       | < 1%    |
 
 ---
 
@@ -350,49 +356,49 @@ export function logError(error: Error, context: any) {
 
 ### 3.1 第一阶段: 基础优化 (Week 1-2)
 
-| 任务 | 描述 | 优先级 | 负责人 |
-|------|------|--------|--------|
-| 状态管理 | 引入 Zustand | 高 | 设计师 |
-| 组件重构 | 建立组件目录结构 | 高 | 设计师 |
-| API 规范 | 制定 API 设计规范 | 中 | 架构师 |
+| 任务     | 描述              | 优先级 | 负责人 |
+| -------- | ----------------- | ------ | ------ |
+| 状态管理 | 引入 Zustand      | 高     | 设计师 |
+| 组件重构 | 建立组件目录结构  | 高     | 设计师 |
+| API 规范 | 制定 API 设计规范 | 中     | 架构师 |
 
 ### 3.2 第二阶段: AI 系统优化 (Week 3-4)
 
-| 任务 | 描述 | 优先级 | 负责人 |
-|------|------|--------|--------|
-| 代理重构 | 重构子代理系统 | 高 | 架构师 |
-| 通信协议 | 实现代理通信协议 | 高 | Executor |
-| 记忆系统 | 完善记忆系统 | 中 | 智能体专家 |
+| 任务     | 描述             | 优先级 | 负责人     |
+| -------- | ---------------- | ------ | ---------- |
+| 代理重构 | 重构子代理系统   | 高     | 架构师     |
+| 通信协议 | 实现代理通信协议 | 高     | Executor   |
+| 记忆系统 | 完善记忆系统     | 中     | 智能体专家 |
 
 ### 3.3 第三阶段: 部署优化 (Week 5-6)
 
-| 任务 | 描述 | 优先级 | 负责人 |
-|------|------|--------|--------|
-| Docker | Docker 化部署 | 高 | 系统管理员 |
-| 监控 | 集成监控系统 | 中 | 系统管理员 |
-| CI/CD | 优化部署流程 | 高 | Executor |
+| 任务   | 描述          | 优先级 | 负责人     |
+| ------ | ------------- | ------ | ---------- |
+| Docker | Docker 化部署 | 高     | 系统管理员 |
+| 监控   | 集成监控系统  | 中     | 系统管理员 |
+| CI/CD  | 优化部署流程  | 高     | Executor   |
 
 ---
 
 ## 4. 技术选型总结
 
-| 领域 | 当前 | 优化后 | 理由 |
-|------|------|--------|------|
-| 状态管理 | React Hooks | Zustand | 轻量、TypeScript 友好 |
-| API 状态 | 无 | TanStack Query | 自动缓存、同步 |
-| 数据存储 | 本地 | Supabase | 快速开发、实时订阅 |
-| 日志 | console | Pino | 结构化、高性能 |
-| 部署 | SSH | Docker | 可复现、可扩展 |
+| 领域     | 当前        | 优化后         | 理由                  |
+| -------- | ----------- | -------------- | --------------------- |
+| 状态管理 | React Hooks | Zustand        | 轻量、TypeScript 友好 |
+| API 状态 | 无          | TanStack Query | 自动缓存、同步        |
+| 数据存储 | 本地        | Supabase       | 快速开发、实时订阅    |
+| 日志     | console     | Pino           | 结构化、高性能        |
+| 部署     | SSH         | Docker         | 可复现、可扩展        |
 
 ---
 
 ## 5. 风险与缓解
 
-| 风险 | 影响 | 缓解措施 |
-|------|------|----------|
-| SSH 连接问题 | 部署延迟 | 使用 Vercel 替代部署 |
-| 子代理通信 | 系统不稳定 | 先本地测试 |
-| 数据迁移 | 数据丢失 | 备份现有数据 |
+| 风险         | 影响       | 缓解措施             |
+| ------------ | ---------- | -------------------- |
+| SSH 连接问题 | 部署延迟   | 使用 Vercel 替代部署 |
+| 子代理通信   | 系统不稳定 | 先本地测试           |
+| 数据迁移     | 数据丢失   | 备份现有数据         |
 
 ---
 

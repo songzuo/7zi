@@ -8,13 +8,13 @@
 
 ## 📋 执行摘要
 
-| 项目 | 状态 | 说明 |
-|------|------|------|
-| 环境配置 | ✅ 正常 | `.env.production` 配置正确 |
-| Docker 部署 | ⚠️ 未运行 | 容器未启动，需要部署 |
-| Nginx 配置 | ⚠️ 有警告 | 配置正常但有冲突警告 |
-| 日志系统 | ✅ 正常 | 日志轮转正常工作 |
-| 性能基线 | ✅ 正常 | 系统资源充足 |
+| 项目        | 状态      | 说明                       |
+| ----------- | --------- | -------------------------- |
+| 环境配置    | ✅ 正常   | `.env.production` 配置正确 |
+| Docker 部署 | ⚠️ 未运行 | 容器未启动，需要部署       |
+| Nginx 配置  | ⚠️ 有警告 | 配置正常但有冲突警告       |
+| 日志系统    | ✅ 正常   | 日志轮转正常工作           |
+| 性能基线    | ✅ 正常   | 系统资源充足               |
 
 **总体评估**: 生产环境配置完整，但需要完成 Docker 部署。
 
@@ -40,6 +40,7 @@ NEXT_PUBLIC_GITHUB_REPO=openclaw-workspace
 ```
 
 **检查结果**:
+
 - ✅ 生产环境变量正确设置
 - ✅ 端口配置正确 (3000)
 - ✅ 监听地址正确 (0.0.0.0)
@@ -51,6 +52,7 @@ NEXT_PUBLIC_GITHUB_REPO=openclaw-workspace
 ### 1.2 配置一致性
 
 **对比本机配置** (`/root/.openclaw/workspace/.env.production`):
+
 - ✅ 两处配置完全一致
 - ✅ 无敏感信息泄露风险
 
@@ -75,11 +77,13 @@ NEXT_PUBLIC_GITHUB_REPO=openclaw-workspace
 ### 2.2 Dockerfile 分析
 
 **多阶段构建**:
+
 - ✅ Stage 1: 依赖安装 + 构建 (node:22-alpine)
 - ✅ Stage 2: Alpine 生产镜像 (runner-alpine)
 - ✅ Stage 3: Distroless 生产镜像 (runner-distroless)
 
 **优化特性**:
+
 - ✅ 使用 `npm ci` 确保依赖一致性
 - ✅ 非 root 用户运行 (UID 1001)
 - ✅ 只读文件系统
@@ -90,12 +94,13 @@ NEXT_PUBLIC_GITHUB_REPO=openclaw-workspace
 
 **服务配置**:
 
-| 服务 | 镜像 | 端口 | 资源限制 | 健康检查 |
-|------|------|------|----------|----------|
-| 7zi-frontend | 7zi-frontend:latest | 3000:3000 | 1 CPU, 512M | ✅ 启用 |
-| nginx | nginx:alpine | 80, 443 | 0.5 CPU, 128M | ✅ 启用 |
+| 服务         | 镜像                | 端口      | 资源限制      | 健康检查 |
+| ------------ | ------------------- | --------- | ------------- | -------- |
+| 7zi-frontend | 7zi-frontend:latest | 3000:3000 | 1 CPU, 512M   | ✅ 启用  |
+| nginx        | nginx:alpine        | 80, 443   | 0.5 CPU, 128M | ✅ 启用  |
 
 **安全配置**:
+
 - ✅ `no-new-privileges:true`
 - ✅ 只读文件系统
 - ✅ 临时文件系统 `/tmp`
@@ -103,6 +108,7 @@ NEXT_PUBLIC_GITHUB_REPO=openclaw-workspace
 ### 2.4 容器运行状态
 
 **检查结果**:
+
 ```bash
 NAME      IMAGE     COMMAND   SERVICE   CREATED   STATUS    PORTS
 ```
@@ -131,6 +137,7 @@ NAME      IMAGE     COMMAND   SERVICE   CREATED   STATUS    PORTS
 ```
 
 **证书信息**:
+
 - ✅ 证书存在
 - ✅ 符号链接正确
 - ✅ 证书大小正常 (3.5K)
@@ -138,6 +145,7 @@ NAME      IMAGE     COMMAND   SERVICE   CREATED   STATUS    PORTS
 ### 3.3 配置检查
 
 **测试结果**:
+
 ```bash
 nginx: [warn] conflicting server name "7zi.com" on 0.0.0.0:80, ignored
 nginx: [warn] conflicting server name "www.7zi.com" on 0.0.0.0:80, ignored
@@ -147,6 +155,7 @@ nginx: configuration file /etc/nginx/nginx.conf test is successful
 ```
 
 **警告分析**:
+
 - ⚠️ 多个虚拟主机配置存在冲突
 - ✅ 语法正确，测试通过
 - ⚠️ 建议清理重复的 server_name 配置
@@ -154,6 +163,7 @@ nginx: configuration file /etc/nginx/nginx.conf test is successful
 ### 3.4 安全头配置
 
 **当前配置**:
+
 ```nginx
 Strict-Transport-Security: max-age=63072000; includeSubDomains; preload
 X-Frame-Options: DENY
@@ -167,11 +177,13 @@ Referrer-Policy: strict-origin-when-cross-origin
 ### 3.5 性能优化配置
 
 **缓存策略**:
+
 - ✅ `/_next/static` → 1年缓存
 - ✅ `/_next/image` → 7天缓存
 - ✅ 静态资源 → 1年缓存
 
 **压缩配置**:
+
 - ✅ Gzip 启用 (级别 6)
 - ✅ 支持多种 MIME 类型
 
@@ -184,6 +196,7 @@ Referrer-Policy: strict-origin-when-cross-origin
 **Nginx 日志**: `/var/log/nginx/`
 
 **关键日志文件**:
+
 - `7zi.com-https.access.log` (469K, 当前)
 - `7zi.com-https.error.log` (66K, 当前)
 - `access.log` (367K, 当前)
@@ -194,6 +207,7 @@ Referrer-Policy: strict-origin-when-cross-origin
 **配置状态**: ✅ 正常工作
 
 **轮转示例**:
+
 ```
 7zi.com-https.access.log.1       (1.2M) - 昨天
 7zi.com-https.access.log.2.gz    (52K)  - 2天前
@@ -203,12 +217,13 @@ Referrer-Policy: strict-origin-when-cross-origin
 ```
 
 **Docker 日志**:
+
 ```yaml
 logging:
-  driver: "json-file"
+  driver: 'json-file'
   options:
-    max-size: "10m"
-    max-file: "3"
+    max-size: '10m'
+    max-file: '3'
 ```
 
 **检查结果**: ✅ 日志轮转配置正确
@@ -225,6 +240,7 @@ logging:
 ```
 
 **建议**:
+
 - 生产环境建议启用 Sentry
 - 需要配置 DSN 和认证令牌
 
@@ -235,17 +251,20 @@ logging:
 ### 5.1 系统资源
 
 **CPU**:
+
 - 型号: Intel Xeon E5-2673 v4 @ 2.30GHz
 - 核心数: 8
 - 当前负载: 0.71 (1分钟平均)
 
 **内存**:
+
 - 总计: 7.8G
 - 已用: 4.2G
 - 可用: 3.3G
 - Swap: 0B
 
 **磁盘**:
+
 - 总计: 88G
 - 已用: 63G (72%)
 - 可用: 25G
@@ -255,6 +274,7 @@ logging:
 ### 5.2 网络状态
 
 **监听端口**:
+
 ```
 tcp    0.0.0.0:80     → nginx master
 tcp    0.0.0.0:443    → nginx master
@@ -270,6 +290,7 @@ tcp6   :::8081        → node (其他服务)
 ### 5.3 响应性能
 
 **HTTPS 响应头**:
+
 ```
 HTTP/2 307
 server: nginx/1.18.0 (Ubuntu)
@@ -280,15 +301,15 @@ strict-transport-security: max-age=63072000; includeSubDomains; preload
 
 ### 5.4 预期性能指标（基线）
 
-| 指标 | 预期值 | 当前值 | 状态 |
-|------|--------|--------|------|
-| CPU 负载 | < 2.0 | 0.71 | ✅ 优秀 |
-| 内存使用率 | < 80% | 54% | ✅ 优秀 |
-| 磁盘使用率 | < 90% | 72% | ✅ 正常 |
-| 响应时间 | < 500ms | N/A* | ⚠️ 待部署 |
-| 可用性 | 99.9% | N/A* | ⚠️ 待部署 |
+| 指标       | 预期值  | 当前值 | 状态      |
+| ---------- | ------- | ------ | --------- |
+| CPU 负载   | < 2.0   | 0.71   | ✅ 优秀   |
+| 内存使用率 | < 80%   | 54%    | ✅ 优秀   |
+| 磁盘使用率 | < 90%   | 72%    | ✅ 正常   |
+| 响应时间   | < 500ms | N/A\*  | ⚠️ 待部署 |
+| 可用性     | 99.9%   | N/A\*  | ⚠️ 待部署 |
 
-*注：当前站点使用其他方式运行，Docker 容器未部署
+\*注：当前站点使用其他方式运行，Docker 容器未部署
 
 ---
 
@@ -305,6 +326,7 @@ Docker Compose 服务: 未启动
 ### 6.2 部署建议
 
 **立即执行**:
+
 ```bash
 # 进入部署目录
 cd /web/7zi-deploy
@@ -335,24 +357,24 @@ docker compose logs -f
 
 ### 7.1 容器安全
 
-| 项目 | 状态 | 说明 |
-|------|------|------|
-| 非 root 用户 | ✅ | UID 1001 |
-| 只读文件系统 | ✅ | except /tmp |
-| 特权降级 | ✅ | no-new-privileges |
-| 资源限制 | ✅ | CPU + Memory |
-| 最小镜像 | ✅ | Alpine |
+| 项目         | 状态 | 说明              |
+| ------------ | ---- | ----------------- |
+| 非 root 用户 | ✅   | UID 1001          |
+| 只读文件系统 | ✅   | except /tmp       |
+| 特权降级     | ✅   | no-new-privileges |
+| 资源限制     | ✅   | CPU + Memory      |
+| 最小镜像     | ✅   | Alpine            |
 
 ### 7.2 Nginx 安全
 
-| 项目 | 状态 | 说明 |
-|------|------|------|
-| TLS 1.2/1.3 | ✅ | 仅现代协议 |
-| HSTS | ✅ | 预加载启用 |
-| XSS 保护 | ✅ | 模式阻塞 |
-| 点击劫持 | ✅ | DENY |
-| MIME 类型嗅探 | ✅ | 已禁用 |
-| CSP | ⚠️ | 未配置 |
+| 项目          | 状态 | 说明       |
+| ------------- | ---- | ---------- |
+| TLS 1.2/1.3   | ✅   | 仅现代协议 |
+| HSTS          | ✅   | 预加载启用 |
+| XSS 保护      | ✅   | 模式阻塞   |
+| 点击劫持      | ✅   | DENY       |
+| MIME 类型嗅探 | ✅   | 已禁用     |
+| CSP           | ⚠️   | 未配置     |
 
 ### 7.3 建议
 
@@ -375,6 +397,7 @@ docker compose logs -f
 ### 8.1 基础监控
 
 **建议工具**:
+
 - [ ] Prometheus + Grafana
 - [ ] Uptime Robot / Pingdom
 - [ ] Docker 监控 (cAdvisor)
@@ -382,6 +405,7 @@ docker compose logs -f
 ### 8.2 日志监控
 
 **建议方案**:
+
 - [ ] ELK Stack (Elasticsearch + Logstash + Kibana)
 - [ ] Loki + Grafana
 - [ ] Papertrail
@@ -389,6 +413,7 @@ docker compose logs -f
 ### 8.3 告警配置
 
 **关键指标**:
+
 - CPU > 80% 持续 5 分钟
 - 内存 > 85%
 - 磁盘 > 85%
@@ -410,16 +435,19 @@ docker compose logs -f
 ### 9.2 行动项
 
 **立即执行**:
+
 1. 部署 Docker 容器 (`docker compose up -d`)
 2. 验证网站可访问性
 3. 检查健康检查状态
 
 **近期执行**:
+
 1. 清理 Nginx 配置冲突
 2. 启用 Sentry 错误追踪
 3. 添加 CSP 安全头
 
 **长期规划**:
+
 1. 设置监控系统
 2. 配置自动备份
 3. 建立 CI/CD 流程
@@ -458,15 +486,15 @@ free -h && df -h && uptime
 
 ### 10.2 配置文件位置
 
-| 文件 | 路径 |
-|------|------|
-| 环境变量 | `/web/7zi-deploy/.env.production` |
+| 文件           | 路径                                 |
+| -------------- | ------------------------------------ |
+| 环境变量       | `/web/7zi-deploy/.env.production`    |
 | Docker Compose | `/web/7zi-deploy/docker-compose.yml` |
-| Dockerfile | `/web/7zi-deploy/Dockerfile` |
-| Nginx 配置 | `/web/7zi-deploy/7zi-nginx.conf` |
-| SSL 证书 | `/web/ssl_unified/` |
-| Nginx 日志 | `/var/log/nginx/7zi.com-*.log` |
-| Docker 日志 | `docker compose logs` |
+| Dockerfile     | `/web/7zi-deploy/Dockerfile`         |
+| Nginx 配置     | `/web/7zi-deploy/7zi-nginx.conf`     |
+| SSL 证书       | `/web/ssl_unified/`                  |
+| Nginx 日志     | `/var/log/nginx/7zi.com-*.log`       |
+| Docker 日志    | `docker compose logs`                |
 
 ### 10.3 联系信息
 

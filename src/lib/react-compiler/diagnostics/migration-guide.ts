@@ -4,47 +4,47 @@
  * 生成详细的迁移建议和修复指南
  */
 
-import { ScanResult, IncompatibilityReport, CompilerIssue } from './scanner';
+import { ScanResult, IncompatibilityReport, CompilerIssue } from './scanner'
 
 export interface MigrationStep {
-  step: number;
-  description: string;
+  step: number
+  description: string
   codeExample?: {
-    before: string;
-    after: string;
-  };
-  notes?: string[];
+    before: string
+    after: string
+  }
+  notes?: string[]
 }
 
 export interface ComponentMigration {
-  filePath: string;
-  componentName?: string;
-  steps: MigrationStep[];
-  estimatedTime: string;
-  difficulty: 'easy' | 'medium' | 'hard';
+  filePath: string
+  componentName?: string
+  steps: MigrationStep[]
+  estimatedTime: string
+  difficulty: 'easy' | 'medium' | 'hard'
 }
 
 export interface MigrationGuide {
-  title: string;
+  title: string
   summary: {
-    totalComponents: number;
-    componentsNeedingMigration: number;
-    estimatedTotalTime: string;
-  };
+    totalComponents: number
+    componentsNeedingMigration: number
+    estimatedTotalTime: string
+  }
   byPriority: {
-    high: ComponentMigration[];
-    medium: ComponentMigration[];
-    low: ComponentMigration[];
-  };
+    high: ComponentMigration[]
+    medium: ComponentMigration[]
+    low: ComponentMigration[]
+  }
   commonIssues: {
     [key: string]: {
-      count: number;
-      description: string;
-      fixGuide: string;
-    };
-  };
-  quickWins: string[];
-  recommendedOrder: string[];
+      count: number
+      description: string
+      fixGuide: string
+    }
+  }
+  quickWins: string[]
+  recommendedOrder: string[]
 }
 
 /**
@@ -78,7 +78,7 @@ useEffect(() => {
 \`\`\`
 `,
   },
-  'dangerouslySetInnerHTML': {
+  dangerouslySetInnerHTML: {
     description: '使用 dangerouslySetInnerHTML',
     fixGuide: `
 **问题**: React Compiler 无法保证 HTML 内容的安全性。
@@ -101,7 +101,7 @@ import DOMPurify from 'isomorphic-dompurify';
 \`\`\`
 `,
   },
-  'createRef': {
+  createRef: {
     description: '在函数组件中使用 createRef',
     fixGuide: `
 **问题**: createRef 在函数组件中可能导致不必要的重新渲染。
@@ -125,7 +125,7 @@ function MyComponent() {
 \`\`\`
 `,
   },
-  'findDOMNode': {
+  findDOMNode: {
     description: '使用 findDOMNode',
     fixGuide: `
 **问题**: findDOMNode 已被废弃且不推荐使用。
@@ -234,7 +234,7 @@ function MyComponent() {
 \`\`\`
 `,
   },
-  'localStorage': {
+  localStorage: {
     description: '直接访问 localStorage',
     fixGuide: `
 **问题**: 在渲染期间访问 localStorage 可能导致不一致。
@@ -361,7 +361,7 @@ const filtered = data.filter(item =>
 \`\`\`
 `,
   },
-};
+}
 
 /**
  * 根据问题类型生成修复步骤
@@ -370,48 +370,44 @@ function generateStepsForIssue(issue: CompilerIssue): MigrationStep {
   const fixGuide = ISSUE_FIX_GUIDES[issue.type] || {
     description: '未知问题类型',
     fixGuide: '请查阅 React Compiler 官方文档',
-  };
+  }
 
   return {
     step: 1,
     description: `修复 ${issue.type} 问题`,
-    notes: [
-      `行号: ${issue.line || '未知'}`,
-      `严重程度: ${issue.severity}`,
-      issue.message,
-    ],
-  };
+    notes: [`行号: ${issue.line || '未知'}`, `严重程度: ${issue.severity}`, issue.message],
+  }
 }
 
 /**
  * 计算修复难度
  */
 function calculateDifficulty(report: IncompatibilityReport): 'easy' | 'medium' | 'hard' {
-  const highSeverityCount = report.issues.filter(i => i.severity === 'high').length;
-  const mediumSeverityCount = report.issues.filter(i => i.severity === 'medium').length;
+  const highSeverityCount = report.issues.filter(i => i.severity === 'high').length
+  const mediumSeverityCount = report.issues.filter(i => i.severity === 'medium').length
 
-  if (highSeverityCount > 0) return 'hard';
-  if (mediumSeverityCount > 2) return 'medium';
-  if (report.issues.length > 5) return 'medium';
-  return 'easy';
+  if (highSeverityCount > 0) return 'hard'
+  if (mediumSeverityCount > 2) return 'medium'
+  if (report.issues.length > 5) return 'medium'
+  return 'easy'
 }
 
 /**
  * 估算修复时间
  */
 function estimateTime(report: IncompatibilityReport): string {
-  const difficulty = calculateDifficulty(report);
-  const issueCount = report.issues.length;
+  const difficulty = calculateDifficulty(report)
+  const issueCount = report.issues.length
 
   switch (difficulty) {
     case 'easy':
-      return `${issueCount * 5} 分钟`;
+      return `${issueCount * 5} 分钟`
     case 'medium':
-      return `${issueCount * 10} 分钟`;
+      return `${issueCount * 10} 分钟`
     case 'hard':
-      return `${issueCount * 20} 分钟`;
+      return `${issueCount * 20} 分钟`
     default:
-      return '未知';
+      return '未知'
   }
 }
 
@@ -419,33 +415,29 @@ function estimateTime(report: IncompatibilityReport): string {
  * 生成组件迁移指南
  */
 function generateComponentMigration(report: IncompatibilityReport): ComponentMigration {
-  const steps: MigrationStep[] = [];
+  const steps: MigrationStep[] = []
 
   // 按严重程度排序问题
   const sortedIssues = [...report.issues].sort((a, b) => {
-    const severityOrder = { high: 0, medium: 1, low: 2 };
-    return severityOrder[a.severity] - severityOrder[b.severity];
-  });
+    const severityOrder = { high: 0, medium: 1, low: 2 }
+    return severityOrder[a.severity] - severityOrder[b.severity]
+  })
 
   // 为每个问题生成修复步骤
   sortedIssues.forEach((issue, index) => {
     const step: MigrationStep = {
       step: index + 1,
       description: issue.message,
-    };
-
-    // 添加修复指南
-    const fixGuide = ISSUE_FIX_GUIDES[issue.type];
-    if (fixGuide) {
-      step.notes = [
-        `严重程度: ${issue.severity}`,
-        fixGuide.description,
-        fixGuide.fixGuide,
-      ];
     }
 
-    steps.push(step);
-  });
+    // 添加修复指南
+    const fixGuide = ISSUE_FIX_GUIDES[issue.type]
+    if (fixGuide) {
+      step.notes = [`严重程度: ${issue.severity}`, fixGuide.description, fixGuide.fixGuide]
+    }
+
+    steps.push(step)
+  })
 
   return {
     filePath: report.filePath,
@@ -453,25 +445,27 @@ function generateComponentMigration(report: IncompatibilityReport): ComponentMig
     steps,
     estimatedTime: estimateTime(report),
     difficulty: calculateDifficulty(report),
-  };
+  }
 }
 
 /**
  * 生成整体迁移指南
  */
 export async function generateMigrationGuide(scanResult: ScanResult): Promise<MigrationGuide> {
-  const componentsNeedingMigration = scanResult.reports.filter(r => !r.canCompile);
-  const migrations: ComponentMigration[] = componentsNeedingMigration.map(generateComponentMigration);
+  const componentsNeedingMigration = scanResult.reports.filter(r => !r.canCompile)
+  const migrations: ComponentMigration[] = componentsNeedingMigration.map(
+    generateComponentMigration
+  )
 
   // 按优先级分组
   const byPriority = {
     high: migrations.filter(m => m.difficulty === 'hard'),
     medium: migrations.filter(m => m.difficulty === 'medium'),
     low: migrations.filter(m => m.difficulty === 'easy'),
-  };
+  }
 
   // 统计常见问题
-  const commonIssues: MigrationGuide['commonIssues'] = {};
+  const commonIssues: MigrationGuide['commonIssues'] = {}
   for (const report of componentsNeedingMigration) {
     for (const issue of report.issues) {
       if (!commonIssues[issue.type]) {
@@ -479,36 +473,33 @@ export async function generateMigrationGuide(scanResult: ScanResult): Promise<Mi
           count: 0,
           description: issue.message,
           fixGuide: ISSUE_FIX_GUIDES[issue.type]?.fixGuide || '请查阅官方文档',
-        };
+        }
       }
-      commonIssues[issue.type].count++;
+      commonIssues[issue.type].count++
     }
   }
 
   // 估算总时间
-  let totalMinutes = 0;
+  let totalMinutes = 0
   migrations.forEach(m => {
-    const time = m.estimatedTime;
-    const match = time.match(/(\d+)/);
+    const time = m.estimatedTime
+    const match = time.match(/(\d+)/)
     if (match) {
-      totalMinutes += parseInt(match[1], 10);
+      totalMinutes += parseInt(match[1], 10)
     }
-  });
-  const estimatedTotalTime = totalMinutes < 60
-    ? `${totalMinutes} 分钟`
-    : `${Math.round(totalMinutes / 60)} 小时`;
+  })
+  const estimatedTotalTime =
+    totalMinutes < 60 ? `${totalMinutes} 分钟` : `${Math.round(totalMinutes / 60)} 小时`
 
   // 生成快速修复建议
-  const quickWins: string[] = [];
+  const quickWins: string[] = []
   const sortedCommonIssues = Object.entries(commonIssues)
     .sort((a, b) => b[1].count - a[1].count)
-    .slice(0, 3);
+    .slice(0, 3)
 
   sortedCommonIssues.forEach(([type, info]) => {
-    quickWins.push(
-      `批量修复 "${type}" 问题 (${info.count} 处) - ${info.description}`
-    );
-  });
+    quickWins.push(`批量修复 "${type}" 问题 (${info.count} 处) - ${info.description}`)
+  })
 
   // 推荐修复顺序
   const recommendedOrder: string[] = [
@@ -517,7 +508,7 @@ export async function generateMigrationGuide(scanResult: ScanResult): Promise<Mi
     '3. 优化 low 严重程度的性能问题',
     '4. 添加必要的依赖项到 useEffect',
     '5. 测试所有修改后的组件',
-  ];
+  ]
 
   return {
     title: 'React Compiler 迁移指南',
@@ -530,5 +521,5 @@ export async function generateMigrationGuide(scanResult: ScanResult): Promise<Mi
     commonIssues,
     quickWins,
     recommendedOrder,
-  };
+  }
 }

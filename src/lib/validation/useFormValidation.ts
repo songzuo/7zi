@@ -2,14 +2,19 @@
  * 表单验证 Hook
  * 提供实时验证、字段级验证、表单级验证
  */
-import { useState, useCallback, useMemo } from 'react';
-import type { ValidationSchema, ValidationErrors, ValidationState, ValidationOptions } from './types';
+import { useState, useCallback, useMemo } from 'react'
+import type {
+  ValidationSchema,
+  ValidationErrors,
+  ValidationState,
+  ValidationOptions,
+} from './types'
 import {
   getRequiredErrorMessage,
   getMinLengthErrorMessage,
   getMaxLengthErrorMessage,
   getPatternErrorMessage,
-} from './helpers';
+} from './helpers'
 
 /**
  * 表单验证 Hook
@@ -19,11 +24,7 @@ export function useFormValidation<T extends Record<string, unknown>>(
   schema: ValidationSchema<T>,
   options: ValidationOptions = {}
 ) {
-  const {
-    validateOnBlur = true,
-    validateOnChange = false,
-    validateOnSubmit = true,
-  } = options;
+  const { validateOnBlur = true, validateOnChange = false, validateOnSubmit = true } = options
 
   const [state, setState] = useState<ValidationState<T>>({
     values: initialValues,
@@ -31,192 +32,192 @@ export function useFormValidation<T extends Record<string, unknown>>(
     touched: {},
     isValid: true,
     isDirty: false,
-  });
+  })
 
   /**
    * 验证单个字段
    */
   const validateField = useCallback(
     (name: keyof T, value: unknown): string | undefined => {
-      const fieldSchema = schema[name];
-      if (!fieldSchema) return undefined;
+      const fieldSchema = schema[name]
+      if (!fieldSchema) return undefined
 
-      const strValue = typeof value === 'string' ? value : String(value ?? '');
+      const strValue = typeof value === 'string' ? value : String(value ?? '')
 
       // 必填验证
       if (fieldSchema.required) {
         if (!strValue || strValue.trim() === '') {
           return typeof fieldSchema.required === 'string'
             ? fieldSchema.required
-            : getRequiredErrorMessage();
+            : getRequiredErrorMessage()
         }
       }
 
       // 如果值为空且非必填，跳过其他验证
       if (!strValue || strValue.trim() === '') {
-        return undefined;
+        return undefined
       }
 
       // 最小长度
       if (fieldSchema.minLength !== undefined) {
         if (strValue.length < fieldSchema.minLength) {
-          return getMinLengthErrorMessage(fieldSchema.minLength);
+          return getMinLengthErrorMessage(fieldSchema.minLength)
         }
       }
 
       // 最大长度
       if (fieldSchema.maxLength !== undefined) {
         if (strValue.length > fieldSchema.maxLength) {
-          return getMaxLengthErrorMessage(fieldSchema.maxLength);
+          return getMaxLengthErrorMessage(fieldSchema.maxLength)
         }
       }
 
       // 正则验证
       if (fieldSchema.pattern) {
         if (!fieldSchema.pattern.test(strValue)) {
-          return getPatternErrorMessage();
+          return getPatternErrorMessage()
         }
       }
 
       // 自定义验证
       if (fieldSchema.custom) {
         if (!fieldSchema.custom.rule(strValue)) {
-          return fieldSchema.custom.message;
+          return fieldSchema.custom.message
         }
       }
 
-      return undefined;
+      return undefined
     },
     [schema]
-  );
+  )
 
   /**
    * 验证所有字段
    */
   const validateAllFields = useCallback((): ValidationErrors<T> => {
-    const errors: ValidationErrors<T> = {};
-    let hasErrors = false;
+    const errors: ValidationErrors<T> = {}
+    let hasErrors = false
 
     for (const key in schema) {
-      const error = validateField(key, state.values[key]);
+      const error = validateField(key, state.values[key])
       if (error) {
-        errors[key] = error;
-        hasErrors = true;
+        errors[key] = error
+        hasErrors = true
       }
     }
 
-    setState((prev) => ({
+    setState(prev => ({
       ...prev,
       errors,
       isValid: !hasErrors,
-    }));
+    }))
 
-    return errors;
-  }, [schema, state.values, validateField]);
+    return errors
+  }, [schema, state.values, validateField])
 
   /**
    * 设置字段值
    */
   const setValue = useCallback(
     (name: keyof T, value: T[keyof T]) => {
-      setState((prev) => {
-        const newValues = { ...prev.values, [name]: value };
+      setState(prev => {
+        const newValues = { ...prev.values, [name]: value }
         const newState: ValidationState<T> = {
           ...prev,
           values: newValues,
           isDirty: true,
-        };
+        }
 
         // 实时验证
         if (validateOnChange && prev.touched[name]) {
-          const error = validateField(name, value);
-          newState.errors = { ...prev.errors, [name]: error };
-          newState.isValid = Object.values(newState.errors).every((e) => !e);
+          const error = validateField(name, value)
+          newState.errors = { ...prev.errors, [name]: error }
+          newState.isValid = Object.values(newState.errors).every(e => !e)
         }
 
-        return newState;
-      });
+        return newState
+      })
     },
     [validateField, validateOnChange]
-  );
+  )
 
   /**
    * 设置字段为已触摸
    */
   const setTouched = useCallback(
     (name: keyof T) => {
-      setState((prev) => {
+      setState(prev => {
         const newState: ValidationState<T> = {
           ...prev,
           touched: { ...prev.touched, [name]: true },
-        };
+        }
 
         // 失焦验证
         if (validateOnBlur) {
-          const error = validateField(name, prev.values[name]);
-          newState.errors = { ...prev.errors, [name]: error };
-          newState.isValid = Object.values(newState.errors).every((e) => !e);
+          const error = validateField(name, prev.values[name])
+          newState.errors = { ...prev.errors, [name]: error }
+          newState.isValid = Object.values(newState.errors).every(e => !e)
         }
 
-        return newState;
-      });
+        return newState
+      })
     },
     [validateField, validateOnBlur]
-  );
+  )
 
   /**
    * 处理输入变化
    */
   const handleChange = useCallback(
     (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
-      const { name, value, type } = e.target;
-      const finalValue = type === 'number' ? Number(value) : value;
-      setValue(name as keyof T, finalValue as T[keyof T]);
+      const { name, value, type } = e.target
+      const finalValue = type === 'number' ? Number(value) : value
+      setValue(name as keyof T, finalValue as T[keyof T])
     },
     [setValue]
-  );
+  )
 
   /**
    * 处理失焦
    */
   const handleBlur = useCallback(
     (e: React.FocusEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
-      const { name } = e.target;
-      setTouched(name as keyof T);
+      const { name } = e.target
+      setTouched(name as keyof T)
     },
     [setTouched]
-  );
+  )
 
   /**
    * 提交表单
    */
   const handleSubmit = useCallback(
     (onSubmit: (values: T) => void | Promise<void>) => async (e: React.FormEvent) => {
-      e.preventDefault();
+      e.preventDefault()
 
       // 标记所有字段为已触摸
       const allTouched = Object.keys(schema).reduce(
         (acc, key) => ({ ...acc, [key]: true }),
         {} as Partial<Record<keyof T, boolean>>
-      );
+      )
 
       if (validateOnSubmit) {
-        const errors = validateAllFields();
-        
-        setState((prev) => ({
+        const errors = validateAllFields()
+
+        setState(prev => ({
           ...prev,
           touched: allTouched,
-        }));
+        }))
 
         if (Object.keys(errors).length > 0) {
-          return;
+          return
         }
       }
 
-      await onSubmit(state.values);
+      await onSubmit(state.values)
     },
     [schema, validateOnSubmit, validateAllFields, state.values]
-  );
+  )
 
   /**
    * 重置表单
@@ -228,30 +229,30 @@ export function useFormValidation<T extends Record<string, unknown>>(
       touched: {},
       isValid: true,
       isDirty: false,
-    });
-  }, [initialValues]);
+    })
+  }, [initialValues])
 
   /**
    * 设置多个字段值
    */
   const setValues = useCallback((values: Partial<T>) => {
-    setState((prev) => ({
+    setState(prev => ({
       ...prev,
       values: { ...prev.values, ...values },
       isDirty: true,
-    }));
-  }, []);
+    }))
+  }, [])
 
   /**
    * 设置多个错误
    */
   const setErrors = useCallback((errors: ValidationErrors<T>) => {
-    setState((prev) => ({
+    setState(prev => ({
       ...prev,
       errors: { ...prev.errors, ...errors },
-      isValid: Object.values({ ...prev.errors, ...errors }).every((e) => !e),
-    }));
-  }, []);
+      isValid: Object.values({ ...prev.errors, ...errors }).every(e => !e),
+    }))
+  }, [])
 
   /**
    * 获取字段状态
@@ -264,7 +265,7 @@ export function useFormValidation<T extends Record<string, unknown>>(
       hasError: !!state.errors[name] && !!state.touched[name],
     }),
     [state.values, state.errors, state.touched]
-  );
+  )
 
   /**
    * 获取字段属性（用于 input 元素）
@@ -277,7 +278,7 @@ export function useFormValidation<T extends Record<string, unknown>>(
       onBlur: handleBlur,
     }),
     [state.values, handleChange, handleBlur]
-  );
+  )
 
   return useMemo(
     () => ({
@@ -317,7 +318,7 @@ export function useFormValidation<T extends Record<string, unknown>>(
       getFieldState,
       getFieldProps,
     ]
-  );
+  )
 }
 
-export default useFormValidation;
+export default useFormValidation

@@ -1,4 +1,4 @@
-"use client";
+'use client'
 
 /**
  * Footer Component - i18n 集成示例
@@ -7,48 +7,45 @@
  * 请参考此示例修改 src/components/Footer.tsx
  */
 
-import { useMemo } from "react";
-import Link from "next/link";
-import { useTranslations, useLocale } from "@/i18n/hooks";
-import { SocialLinks } from "./SocialLinks";
+import { useMemo } from 'react'
+import Link from 'next/link'
+import { useTranslations, useLocale } from '@/i18n/hooks'
+import { SocialLinks } from './SocialLinks'
 
 export function FooterWithI18n() {
-  const t = useTranslations('footer');
-  const locale = useLocale();
+  const t = useTranslations('footer')
+  const locale = useLocale()
 
   // Memoize currentYear to prevent recalculation on every render
-  const currentYear = useMemo(() => new Date().getFullYear(), []);
+  const currentYear = useMemo(() => new Date().getFullYear(), [])
 
   return (
-    <footer className="bg-zinc-50 dark:bg-zinc-950 text-zinc-300 dark:text-zinc-400 pb-safe-bottom">
+    <footer className="pb-safe-bottom bg-zinc-50 text-zinc-300 dark:bg-zinc-950 dark:text-zinc-400">
       {/* Main Footer Content */}
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 py-12 sm:py-16">
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-8 lg:gap-12">
-          
+      <div className="mx-auto max-w-7xl px-4 py-12 sm:px-6 sm:py-16">
+        <div className="grid grid-cols-1 gap-8 sm:grid-cols-2 lg:grid-cols-5 lg:gap-12">
           {/* Brand Section */}
-          <div className="lg:col-span-2 space-y-6">
+          <div className="space-y-6 lg:col-span-2">
             <Link href="/" className="inline-block">
-              <h2 className="text-2xl sm:text-3xl font-bold text-white">
+              <h2 className="text-2xl font-bold text-white sm:text-3xl">
                 7zi<span className="text-cyan-500">Studio</span>
               </h2>
             </Link>
-            <p className="text-sm sm:text-base max-w-md">
-              {t('description')}
-            </p>
+            <p className="max-w-md text-sm sm:text-base">{t('description')}</p>
             <div className="hidden sm:block">
-              <h3 className="text-sm font-semibold text-white mb-3">{t('followUs')}</h3>
+              <h3 className="mb-3 text-sm font-semibold text-white">{t('followUs')}</h3>
               <SocialLinks variant="horizontal" size="sm" />
             </div>
           </div>
 
           {/* Quick Links */}
           <div>
-            <h3 className="text-sm font-semibold text-white mb-4">{t('quickLinks.title')}</h3>
+            <h3 className="mb-4 text-sm font-semibold text-white">{t('quickLinks.title')}</h3>
             <ul className="space-y-2 sm:space-y-3">
               <li>
                 <Link
                   href="/"
-                  className="text-sm block py-1 hover:text-cyan-400 transition-colors duration-200 min-h-[44px] flex items-center"
+                  className="block flex min-h-[44px] items-center py-1 text-sm transition-colors duration-200 hover:text-cyan-400"
                 >
                   {t('quickLinks.home')}
                 </Link>
@@ -56,7 +53,7 @@ export function FooterWithI18n() {
               <li>
                 <Link
                   href="/about"
-                  className="text-sm block py-1 hover:text-cyan-400 transition-colors duration-200 min-h-[44px] flex items-center"
+                  className="block flex min-h-[44px] items-center py-1 text-sm transition-colors duration-200 hover:text-cyan-400"
                 >
                   {t('quickLinks.about')}
                 </Link>
@@ -64,7 +61,7 @@ export function FooterWithI18n() {
               <li>
                 <Link
                   href="/team"
-                  className="text-sm block py-1 hover:text-cyan-400 transition-colors duration-200 min-h-[44px] flex items-center"
+                  className="block flex min-h-[44px] items-center py-1 text-sm transition-colors duration-200 hover:text-cyan-400"
                 >
                   {t('quickLinks.team')}
                 </Link>
@@ -72,7 +69,7 @@ export function FooterWithI18n() {
               <li>
                 <Link
                   href="/blog"
-                  className="text-sm block py-1 hover:text-cyan-400 transition-colors duration-200 min-h-[44px] flex items-center"
+                  className="block flex min-h-[44px] items-center py-1 text-sm transition-colors duration-200 hover:text-cyan-400"
                 >
                   {t('quickLinks.blog')}
                 </Link>
@@ -80,7 +77,7 @@ export function FooterWithI18n() {
               <li>
                 <Link
                   href="/contact"
-                  className="text-sm block py-1 hover:text-cyan-400 transition-colors duration-200 min-h-[44px] flex items-center"
+                  className="block flex min-h-[44px] items-center py-1 text-sm transition-colors duration-200 hover:text-cyan-400"
                 >
                   {t('quickLinks.contact')}
                 </Link>
@@ -88,7 +85,7 @@ export function FooterWithI18n() {
               <li>
                 <Link
                   href="/dashboard"
-                  className="text-sm block py-1 hover:text-cyan-400 transition-colors duration-200 min-h-[44px] flex items-center"
+                  className="block flex min-h-[44px] items-center py-1 text-sm transition-colors duration-200 hover:text-cyan-400"
                 >
                   {t('quickLinks.dashboard')}
                 </Link>
@@ -98,12 +95,12 @@ export function FooterWithI18n() {
 
           {/* Services */}
           <div>
-            <h3 className="text-sm font-semibold text-white mb-4">{t('services.title')}</h3>
+            <h3 className="mb-4 text-sm font-semibold text-white">{t('services.title')}</h3>
             <ul className="space-y-2 sm:space-y-3">
               <li>
                 <Link
                   href="#services"
-                  className="text-sm block py-1 hover:text-cyan-400 transition-colors duration-200 min-h-[44px] flex items-center"
+                  className="block flex min-h-[44px] items-center py-1 text-sm transition-colors duration-200 hover:text-cyan-400"
                 >
                   {t('services.webDevelopment')}
                 </Link>
@@ -111,7 +108,7 @@ export function FooterWithI18n() {
               <li>
                 <Link
                   href="#services"
-                  className="text-sm block py-1 hover:text-cyan-400 transition-colors duration-200 min-h-[44px] flex items-center"
+                  className="block flex min-h-[44px] items-center py-1 text-sm transition-colors duration-200 hover:text-cyan-400"
                 >
                   {t('services.brandDesign')}
                 </Link>
@@ -119,7 +116,7 @@ export function FooterWithI18n() {
               <li>
                 <Link
                   href="#services"
-                  className="text-sm block py-1 hover:text-cyan-400 transition-colors duration-200 min-h-[44px] flex items-center"
+                  className="block flex min-h-[44px] items-center py-1 text-sm transition-colors duration-200 hover:text-cyan-400"
                 >
                   {t('services.seoOptimization')}
                 </Link>
@@ -127,7 +124,7 @@ export function FooterWithI18n() {
               <li>
                 <Link
                   href="#services"
-                  className="text-sm block py-1 hover:text-cyan-400 transition-colors duration-200 min-h-[44px] flex items-center"
+                  className="block flex min-h-[44px] items-center py-1 text-sm transition-colors duration-200 hover:text-cyan-400"
                 >
                   {t('services.marketing')}
                 </Link>
@@ -135,7 +132,7 @@ export function FooterWithI18n() {
               <li>
                 <Link
                   href="#services"
-                  className="text-sm block py-1 hover:text-cyan-400 transition-colors duration-200 min-h-[44px] flex items-center"
+                  className="block flex min-h-[44px] items-center py-1 text-sm transition-colors duration-200 hover:text-cyan-400"
                 >
                   {t('services.uiux')}
                 </Link>
@@ -143,7 +140,7 @@ export function FooterWithI18n() {
               <li>
                 <Link
                   href="#services"
-                  className="text-sm block py-1 hover:text-cyan-400 transition-colors duration-200 min-h-[44px] flex items-center"
+                  className="block flex min-h-[44px] items-center py-1 text-sm transition-colors duration-200 hover:text-cyan-400"
                 >
                   {t('services.aiSolutions')}
                 </Link>
@@ -153,14 +150,16 @@ export function FooterWithI18n() {
 
           {/* Contact Info */}
           <div>
-            <h3 className="text-sm font-semibold text-white mb-4">{t('contact.title')}</h3>
+            <h3 className="mb-4 text-sm font-semibold text-white">{t('contact.title')}</h3>
             <ul className="space-y-3">
               <li>
                 <a
                   href="mailto:business@7zi.studio"
-                  className="flex items-center gap-3 text-sm hover:text-cyan-400 transition-colors min-h-[44px]"
+                  className="flex min-h-[44px] items-center gap-3 text-sm transition-colors hover:text-cyan-400"
                 >
-                  <span className="text-lg" aria-hidden="true">📧</span>
+                  <span className="text-lg" aria-hidden="true">
+                    📧
+                  </span>
                   <span>{t('contact.email')}</span>
                 </a>
               </li>
@@ -169,15 +168,19 @@ export function FooterWithI18n() {
                   href="https://7zi.studio"
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="flex items-center gap-3 text-sm hover:text-cyan-400 transition-colors min-h-[44px]"
+                  className="flex min-h-[44px] items-center gap-3 text-sm transition-colors hover:text-cyan-400"
                 >
-                  <span className="text-lg" aria-hidden="true">🌐</span>
+                  <span className="text-lg" aria-hidden="true">
+                    🌐
+                  </span>
                   <span>{t('contact.website')}</span>
                 </a>
               </li>
               <li>
                 <div className="flex items-center gap-3 text-sm">
-                  <span className="text-lg" aria-hidden="true">📍</span>
+                  <span className="text-lg" aria-hidden="true">
+                    📍
+                  </span>
                   <span>{t('contact.address')}</span>
                 </div>
               </li>
@@ -188,21 +191,21 @@ export function FooterWithI18n() {
 
       {/* Bottom Bar */}
       <div className="border-t border-zinc-800">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 py-6">
-          <div className="flex flex-col sm:flex-row justify-between items-center gap-4">
+        <div className="mx-auto max-w-7xl px-4 py-6 sm:px-6">
+          <div className="flex flex-col items-center justify-between gap-4 sm:flex-row">
             <p className="text-sm text-zinc-400">
               © {currentYear} {t('copyright')}
             </p>
             <div className="flex gap-6 text-sm">
               <Link
                 href="/privacy"
-                className="text-zinc-400 hover:text-cyan-400 transition-colors min-h-[44px] flex items-center"
+                className="flex min-h-[44px] items-center text-zinc-400 transition-colors hover:text-cyan-400"
               >
                 {t('privacyPolicy')}
               </Link>
               <Link
                 href="/terms"
-                className="text-zinc-400 hover:text-cyan-400 transition-colors min-h-[44px] flex items-center"
+                className="flex min-h-[44px] items-center text-zinc-400 transition-colors hover:text-cyan-400"
               >
                 {t('termsOfService')}
               </Link>
@@ -211,7 +214,7 @@ export function FooterWithI18n() {
         </div>
       </div>
     </footer>
-  );
+  )
 }
 
 /**

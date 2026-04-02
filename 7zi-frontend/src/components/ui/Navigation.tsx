@@ -29,21 +29,21 @@ export function Navigation({ language = 'zh', onLanguageChange }: NavigationProp
   }
 
   return (
-    <nav className="bg-white dark:bg-gray-800 shadow-sm sticky top-0 z-50">
+    <nav className="sticky top-0 z-50 bg-white shadow-sm dark:bg-gray-800">
       <div className="container mx-auto px-4">
-        <div className="flex items-center justify-between h-16">
+        <div className="flex h-16 items-center justify-between">
           {/* Logo */}
           <Link href="/" className="flex items-center gap-2">
             <span className="text-2xl font-bold text-blue-600">7zi</span>
           </Link>
 
           {/* Desktop Navigation */}
-          <div className="hidden md:flex items-center gap-8">
-            {navLinks.map((link) => (
+          <div className="hidden items-center gap-8 md:flex">
+            {navLinks.map(link => (
               <Link
                 key={link.href}
                 href={link.href}
-                className="text-gray-700 dark:text-gray-300 hover:text-blue-600 dark:hover:text-blue-400 transition-colors"
+                className="text-gray-700 transition-colors hover:text-blue-600 dark:text-gray-300 dark:hover:text-blue-400"
               >
                 {language === 'zh' ? link.label : link.labelEn}
               </Link>
@@ -52,39 +52,39 @@ export function Navigation({ language = 'zh', onLanguageChange }: NavigationProp
             {/* Language Toggle */}
             <button
               onClick={toggleLanguage}
-              className="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-gray-100 dark:bg-gray-700 hover:bg-gray-200 dark:hover:bg-gray-600 transition-colors"
+              className="flex items-center gap-2 rounded-lg bg-gray-100 px-3 py-1.5 transition-colors hover:bg-gray-200 dark:bg-gray-700 dark:hover:bg-gray-600"
             >
-              <Globe className="w-4 h-4" />
+              <Globe className="h-4 w-4" />
               <span className="text-sm font-medium">{language === 'zh' ? 'EN' : '中文'}</span>
             </button>
           </div>
 
           {/* Mobile Menu Button */}
-          <div className="md:hidden flex items-center gap-2">
+          <div className="flex items-center gap-2 md:hidden">
             <button
               onClick={toggleLanguage}
-              className="p-2 rounded-lg bg-gray-100 dark:bg-gray-700"
+              className="rounded-lg bg-gray-100 p-2 dark:bg-gray-700"
             >
-              <Globe className="w-5 h-5" />
+              <Globe className="h-5 w-5" />
             </button>
             <button
               onClick={() => setIsOpen(!isOpen)}
-              className="p-2 rounded-lg bg-gray-100 dark:bg-gray-700"
+              className="rounded-lg bg-gray-100 p-2 dark:bg-gray-700"
             >
-              {isOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
+              {isOpen ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
             </button>
           </div>
         </div>
 
         {/* Mobile Navigation */}
         {isOpen && (
-          <div className="md:hidden py-4 border-t border-gray-200 dark:border-gray-700">
+          <div className="border-t border-gray-200 py-4 md:hidden dark:border-gray-700">
             <div className="flex flex-col gap-4">
-              {navLinks.map((link) => (
+              {navLinks.map(link => (
                 <Link
                   key={link.href}
                   href={link.href}
-                  className="text-gray-700 dark:text-gray-300 hover:text-blue-600 dark:hover:text-blue-400 transition-colors px-2 py-1"
+                  className="px-2 py-1 text-gray-700 transition-colors hover:text-blue-600 dark:text-gray-300 dark:hover:text-blue-400"
                   onClick={() => setIsOpen(false)}
                 >
                   {language === 'zh' ? link.label : link.labelEn}

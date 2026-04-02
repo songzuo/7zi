@@ -14,16 +14,16 @@
 
 v1.5.0 专注于 **AI Agent 调度系统增强** + **技术债务清理**。目前核心基础设施已完成，但仍有关键功能需要完善。
 
-| 模块 | 完成度 | 状态 | 阻塞 |
-|------|--------|------|------|
-| **auth.middleware 模块** | 100% | ✅ 完成 | 无 |
-| **lib/ 层结构分析** | 100% | ✅ 完成 | 无 |
-| **API 错误处理标准化** | 61% | 🟡 进行中 | 无 |
-| **中间件统一** | 40% | 🟡 部分完成 | 无 |
-| **Agent Dashboard UI** | 60% | 🟡 部分完成 | 无 |
-| **WebSocket 房间系统 UI** | 0% | ❌ 未开始 | 依赖 v1.4.0 |
-| **PermissionContext → Zustand 迁移** | 0% | ❌ 未开始 | 无 |
-| **配置管理优化** | 0% | ❌ 未开始 | 无 |
+| 模块                                 | 完成度 | 状态        | 阻塞        |
+| ------------------------------------ | ------ | ----------- | ----------- |
+| **auth.middleware 模块**             | 100%   | ✅ 完成     | 无          |
+| **lib/ 层结构分析**                  | 100%   | ✅ 完成     | 无          |
+| **API 错误处理标准化**               | 61%    | 🟡 进行中   | 无          |
+| **中间件统一**                       | 40%    | 🟡 部分完成 | 无          |
+| **Agent Dashboard UI**               | 60%    | 🟡 部分完成 | 无          |
+| **WebSocket 房间系统 UI**            | 0%     | ❌ 未开始   | 依赖 v1.4.0 |
+| **PermissionContext → Zustand 迁移** | 0%     | ❌ 未开始   | 无          |
+| **配置管理优化**                     | 0%     | ❌ 未开始   | 无          |
 
 ### 关键差距
 
@@ -68,40 +68,38 @@ v1.5.0 专注于 **AI Agent 调度系统增强** + **技术债务清理**。目�
 
 迁移剩余 7 个 API 路由到标准错误处理器 (`src/lib/api/error-handler.ts`)
 
-| 文件路径 | 状态 | 工时 |
-|---------|------|------|
-| `src/app/api/feedback/route.ts` | ❌ 未迁移 | 30min |
-| `src/app/api/feedback/stats/route.ts` | ❌ 未迁移 | 15min |
+| 文件路径                                 | 状态      | 工时  |
+| ---------------------------------------- | --------- | ----- |
+| `src/app/api/feedback/route.ts`          | ❌ 未迁移 | 30min |
+| `src/app/api/feedback/stats/route.ts`    | ❌ 未迁移 | 15min |
 | `src/app/api/feedback/response/route.ts` | ❌ 未迁移 | 15min |
-| `src/app/api/feedback/export/route.ts` | ❌ 未迁移 | 15min |
-| `src/app/api/search/route.ts` | ❌ 未迁移 | 15min |
-| `src/app/api/data/import/route.ts` | ❌ 未迁移 | 15min |
+| `src/app/api/feedback/export/route.ts`   | ❌ 未迁移 | 15min |
+| `src/app/api/search/route.ts`            | ❌ 未迁移 | 15min |
+| `src/app/api/data/import/route.ts`       | ❌ 未迁移 | 15min |
 
 #### 实施步骤
 
 1. **替换错误响应格式**
+
    ```typescript
    // ❌ 旧格式
    return NextResponse.json(
      { success: false, error: 'Not Found', message: '反馈不存在' },
      { status: 404 }
-   );
+   )
 
    // ✅ 新格式
-   return createErrorResponse(
-     'NOT_FOUND',
-     '反馈不存在',
-     404
-   );
+   return createErrorResponse('NOT_FOUND', '反馈不存在', 404)
    ```
 
 2. **替换日志记录**
+
    ```typescript
    // ❌ 旧格式
-   console.error('[Feedback API] GET error:', error);
+   console.error('[Feedback API] GET error:', error)
 
    // ✅ 新格式
-   logger.error('Feedback API error', { error, method: 'GET' });
+   logger.error('Feedback API error', { error, method: 'GET' })
    ```
 
 3. **添加时间戳**
@@ -131,7 +129,7 @@ v1.5.0 专注于 **AI Agent 调度系统增强** + **技术债务清理**。目�
 **当前使用情况:**
 | 中间件 | 使用路由 | 行数 |
 |--------|---------|------|
-| `api-auth.ts` | notifications/*, a2a/*, projects, users, feedback | ~150 行 |
+| `api-auth.ts` | notifications/_, a2a/_, projects, users, feedback | ~150 行 |
 | `auth.middleware.ts` | search, data/import | ~80 行 |
 
 #### 实施步骤
@@ -141,6 +139,7 @@ v1.5.0 专注于 **AI Agent 调度系统增强** + **技术债务清理**。目�
    - 将 `data/import/route.ts` 从 `authMiddleware` 改为 `withAuth`
 
 2. **弃用旧中间件**
+
    ```typescript
    // 在 auth.middleware.ts 顶部添加
    /**
@@ -149,12 +148,13 @@ v1.5.0 专注于 **AI Agent 调度系统增强** + **技术债务清理**。目�
    ```
 
 3. **更新导入路径**
+
    ```typescript
    // ❌ 旧导入
-   import { authMiddleware } from '@/middleware/auth.middleware';
+   import { authMiddleware } from '@/middleware/auth.middleware'
 
    // ✅ 新导入
-   import { withAuth } from '@/lib/auth/api-auth';
+   import { withAuth } from '@/lib/auth/api-auth'
    ```
 
 #### 验收标准
@@ -181,6 +181,7 @@ v1.5.0 专注于 **AI Agent 调度系统增强** + **技术债务清理**。目�
 #### 当前状态
 
 **PermissionContext 使用情况:**
+
 - `src/components/PermissionProvider.tsx`
 - 使用钩子: `usePermissions()`
 - 状态: userRoles, permissions, loading, error
@@ -188,23 +189,24 @@ v1.5.0 专注于 **AI Agent 调度系统增强** + **技术债务清理**。目�
 #### 实施步骤
 
 1. **创建 Zustand Store**
+
    ```typescript
    // src/stores/permission-store.ts
-   import { create } from 'zustand';
-   import { subscribeWithSelector } from 'zustand/middleware';
+   import { create } from 'zustand'
+   import { subscribeWithSelector } from 'zustand/middleware'
 
    interface PermissionState {
-     userRoles: string[];
-     permissions: Set<string>;
-     loading: boolean;
-     error: Error | null;
+     userRoles: string[]
+     permissions: Set<string>
+     loading: boolean
+     error: Error | null
 
      // Actions
-     setUserRoles: (roles: string[]) => void;
-     addPermission: (permission: string) => void;
-     removePermission: (permission: string) => void;
-     hasPermission: (permission: string) => boolean;
-     hasRole: (role: string) => boolean;
+     setUserRoles: (roles: string[]) => void
+     addPermission: (permission: string) => void
+     removePermission: (permission: string) => void
+     hasPermission: (permission: string) => boolean
+     hasRole: (role: string) => boolean
    }
 
    export const usePermissionStore = create<PermissionState>()(
@@ -214,19 +216,21 @@ v1.5.0 专注于 **AI Agent 调度系统增强** + **技术债务清理**。目�
        loading: false,
        error: null,
 
-       setUserRoles: (roles) => set({ userRoles: roles }),
-       addPermission: (permission) => set((state) => ({
-         permissions: new Set(state.permissions).add(permission),
-       })),
-       removePermission: (permission) => set((state) => {
-         const newPermissions = new Set(state.permissions);
-         newPermissions.delete(permission);
-         return { permissions: newPermissions };
-       }),
-       hasPermission: (permission) => get().permissions.has(permission),
-       hasRole: (role) => get().userRoles.includes(role),
+       setUserRoles: roles => set({ userRoles: roles }),
+       addPermission: permission =>
+         set(state => ({
+           permissions: new Set(state.permissions).add(permission),
+         })),
+       removePermission: permission =>
+         set(state => {
+           const newPermissions = new Set(state.permissions)
+           newPermissions.delete(permission)
+           return { permissions: newPermissions }
+         }),
+       hasPermission: permission => get().permissions.has(permission),
+       hasRole: role => get().userRoles.includes(role),
      }))
-   );
+   )
    ```
 
 2. **迁移组件**
@@ -235,6 +239,7 @@ v1.5.0 专注于 **AI Agent 调度系统增强** + **技术债务清理**。目�
    - 移除 PermissionProvider 包装
 
 3. **更新布局**
+
    ```typescript
    // app/layout.tsx
    // ❌ 移除
@@ -247,12 +252,12 @@ v1.5.0 专注于 **AI Agent 调度系统增强** + **技术债务清理**。目�
 
 #### 迁移清单
 
-| 组件/文件 | 当前实现 | 目标实现 | 工时 |
-|----------|---------|---------|------|
-| `app/layout.tsx` | PermissionProvider | 移除 Provider | 30min |
-| `app/api/.../route.ts` | 权限检查 | Zustand | 1h |
-| `src/components/*` | usePermissions() | usePermissionStore() | 1.5h |
-| 测试更新 | Context 测试 | Store 测试 | 1h |
+| 组件/文件              | 当前实现           | 目标实现             | 工时  |
+| ---------------------- | ------------------ | -------------------- | ----- |
+| `app/layout.tsx`       | PermissionProvider | 移除 Provider        | 30min |
+| `app/api/.../route.ts` | 权限检查           | Zustand              | 1h    |
+| `src/components/*`     | usePermissions()   | usePermissionStore() | 1.5h  |
+| 测试更新               | Context 测试       | Store 测试           | 1h    |
 
 #### 验收标准
 
@@ -278,6 +283,7 @@ v1.5.0 专注于 **AI Agent 调度系统增强** + **技术债务清理**。目�
 #### 实施步骤
 
 1. **创建配置文件**
+
    ```typescript
    // src/lib/config/features.ts
    export const features = {
@@ -313,25 +319,24 @@ v1.5.0 专注于 **AI Agent 调度系统增强** + **技术债务清理**。目�
      // Development
      enableDebugMode: process.env.NODE_ENV === 'development',
      enableDevTools: process.env.ENABLE_DEV_TOOLS === 'true',
-   } as const;
+   } as const
 
-   export type FeatureName = keyof typeof features;
+   export type FeatureName = keyof typeof features
 
    export function isFeatureEnabled(feature: FeatureName): boolean {
-     return features[feature];
+     return features[feature]
    }
 
    export function getFeatures(): Record<string, boolean> {
-     return Object.fromEntries(
-       Object.entries(features).map(([key, value]) => [key, !!value])
-     );
+     return Object.fromEntries(Object.entries(features).map(([key, value]) => [key, !!value]))
    }
    ```
 
 2. **创建环境变量验证**
+
    ```typescript
    // src/lib/config/env-validation.ts
-   import { z } from 'zod';
+   import { z } from 'zod'
 
    const envSchema = z.object({
      // Required
@@ -343,19 +348,19 @@ v1.5.0 专注于 **AI Agent 调度系统增强** + **技术债务清理**。目�
      DISABLE_NOTIFICATIONS: z.string().optional(),
      ENABLE_RATE_LIMIT: z.string().optional(),
      // ... 其他环境变量
-   });
+   })
 
    export const validateEnv = () => {
      try {
-       envSchema.parse(process.env);
-       return { success: true, errors: null };
+       envSchema.parse(process.env)
+       return { success: true, errors: null }
      } catch (error) {
        if (error instanceof z.ZodError) {
-         return { success: false, errors: error.errors };
+         return { success: false, errors: error.errors }
        }
-       throw error;
+       throw error
      }
-   };
+   }
    ```
 
 3. **更新 .env.example**
@@ -386,12 +391,14 @@ v1.5.0 专注于 **AI Agent 调度系统增强** + **技术债务清理**。目�
 #### 当前状态
 
 已完成组件 (来自 v1.4.0):
+
 - ✅ AgentStatusPanel - 显示所有 Agent 状态
 - ✅ TaskQueueView - 任务队列可视化
 - ✅ ScheduleHistory - 调度历史记录
 - ✅ ManualOverride - 手动任务控制
 
 待完善功能:
+
 - ⚠️ 实时状态更新
 - ⚠️ 任务详情弹窗
 - ⚠️ 批量操作
@@ -425,13 +432,13 @@ v1.5.0 专注于 **AI Agent 调度系统增强** + **技术债务清理**。目�
 
 #### 工作量分解
 
-| 任务 | 工时 | 优先级 |
-|------|------|--------|
-| 实时状态优化 | 45min | 高 |
-| TaskDetailModal | 1h | 高 |
-| 批量操作 | 45min | 中 |
-| 导出功能 | 30min | 低 |
-| 响应式优化 | 30min | 中 |
+| 任务            | 工时  | 优先级 |
+| --------------- | ----- | ------ |
+| 实时状态优化    | 45min | 高     |
+| TaskDetailModal | 1h    | 高     |
+| 批量操作        | 45min | 中     |
+| 导出功能        | 30min | 低     |
+| 响应式优化      | 30min | 中     |
 
 #### 验收标准
 
@@ -457,12 +464,12 @@ v1.5.0 专注于 **AI Agent 调度系统增强** + **技术债务清理**。目�
 
 #### 文档清单
 
-| 文档 | 状态 | 工时 |
-|------|------|------|
-| `docs/API.md` 更新 | ⚠️ 需更新 | 45min |
-| `docs/AUTHENTICATION.md` (新) | ❌ 未创建 | 30min |
+| 文档                                  | 状态      | 工时  |
+| ------------------------------------- | --------- | ----- |
+| `docs/API.md` 更新                    | ⚠️ 需更新 | 45min |
+| `docs/AUTHENTICATION.md` (新)         | ❌ 未创建 | 30min |
 | `docs/MIGRATION_GUIDE_v1.5.0.md` (新) | ❌ 未创建 | 30min |
-| `CHANGELOG.md` v1.5.0 更新 | ⚠️ 需更新 | 15min |
+| `CHANGELOG.md` v1.5.0 更新            | ⚠️ 需更新 | 15min |
 
 #### 实施步骤
 
@@ -533,13 +540,13 @@ v1.5.0 专注于 **AI Agent 调度系统增强** + **技术债务清理**。目�
 
 #### 组件清单
 
-| 组件 | 工时 | 说明 |
-|------|------|------|
-| RoomList | 4h | 房间列表 |
-| RoomDetail | 4h | 房间详情 |
-| RoomSettings | 3h | 房间设置 |
-| ParticipantList | 3h | 参与者列表 |
-| ParticipantActions | 2h | 用户操作 |
+| 组件               | 工时 | 说明       |
+| ------------------ | ---- | ---------- |
+| RoomList           | 4h   | 房间列表   |
+| RoomDetail         | 4h   | 房间详情   |
+| RoomSettings       | 3h   | 房间设置   |
+| ParticipantList    | 3h   | 参与者列表 |
+| ParticipantActions | 2h   | 用户操作   |
 
 #### 验收标准
 
@@ -583,32 +590,33 @@ v1.5.0 专注于 **AI Agent 调度系统增强** + **技术债务清理**。目�
 #### 实施步骤
 
 1. **创建告警服务**
+
    ```typescript
    // src/lib/monitoring/alert-service.ts
    interface AlertChannel {
-     type: 'email' | 'slack' | 'webhook';
-     config: Record<string, unknown>;
+     type: 'email' | 'slack' | 'webhook'
+     config: Record<string, unknown>
    }
 
    interface AlertRule {
-     id: string;
-     name: string;
-     condition: (metrics: PerformanceMetrics) => boolean;
-     channels: AlertChannel[];
-     enabled: boolean;
+     id: string
+     name: string
+     condition: (metrics: PerformanceMetrics) => boolean
+     channels: AlertChannel[]
+     enabled: boolean
    }
 
    class AlertService {
      // 发送告警
-     sendAlert(rule: AlertRule, metrics: PerformanceMetrics): Promise<void>;
+     sendAlert(rule: AlertRule, metrics: PerformanceMetrics): Promise<void>
 
      // 管理告警规则
-     addRule(rule: AlertRule): void;
-     removeRule(ruleId: string): void;
-     updateRule(ruleId: string, updates: Partial<AlertRule>): void;
+     addRule(rule: AlertRule): void
+     removeRule(ruleId: string): void
+     updateRule(ruleId: string, updates: Partial<AlertRule>): void
 
      // 检查指标
-     checkMetrics(metrics: PerformanceMetrics): Promise<void>;
+     checkMetrics(metrics: PerformanceMetrics): Promise<void>
    }
    ```
 
@@ -636,14 +644,14 @@ v1.5.0 专注于 **AI Agent 调度系统增强** + **技术债务清理**。目�
 
 ### Sprint 1 (Day 1): 基础设施标准化
 
-| 时间 | 任务 | 负责人 | 工时 |
-|------|------|--------|------|
+| 时间        | 任务                     | 负责人      | 工时 |
+| ----------- | ------------------------ | ----------- | ---- |
 | 09:00-10:30 | P0-1: API 错误处理标准化 | ⚡ Executor | 1.5h |
-| 10:30-11:30 | P0-2: 中间件统一 | ⚡ Executor | 1h |
-| 11:30-12:00 | 测试验证 | 🧪 测试员 | 0.5h |
-| 14:00-15:00 | P1-1: 配置管理优化 | 🏗️ 架构师 | 1h |
-| 15:00-16:00 | 环境变量验证 | 🏗️ 架构师 | 1h |
-| 16:00-17:00 | 文档更新 (API.md) | 📚 咨询师 | 1h |
+| 10:30-11:30 | P0-2: 中间件统一         | ⚡ Executor | 1h   |
+| 11:30-12:00 | 测试验证                 | 🧪 测试员   | 0.5h |
+| 14:00-15:00 | P1-1: 配置管理优化       | 🏗️ 架构师   | 1h   |
+| 15:00-16:00 | 环境变量验证             | 🏗️ 架构师   | 1h   |
+| 16:00-17:00 | 文档更新 (API.md)        | 📚 咨询师   | 1h   |
 
 **里程碑:** API 一致性达成
 
@@ -651,12 +659,12 @@ v1.5.0 专注于 **AI Agent 调度系统增强** + **技术债务清理**。目�
 
 ### Sprint 2 (Day 2): 状态管理迁移
 
-| 时间 | 任务 | 负责人 | 工时 |
-|------|------|--------|------|
-| 09:00-11:00 | P0-3: PermissionContext → Zustand (Part 1) | ⚡ Executor | 2h |
-| 11:00-12:00 | Store 测试编写 | 🧪 测试员 | 1h |
-| 14:00-16:00 | P0-3: 组件迁移 (Part 2) | ⚡ Executor | 2h |
-| 16:00-17:00 | 迁移测试验证 | 🧪 测试员 | 1h |
+| 时间        | 任务                                       | 负责人      | 工时 |
+| ----------- | ------------------------------------------ | ----------- | ---- |
+| 09:00-11:00 | P0-3: PermissionContext → Zustand (Part 1) | ⚡ Executor | 2h   |
+| 11:00-12:00 | Store 测试编写                             | 🧪 测试员   | 1h   |
+| 14:00-16:00 | P0-3: 组件迁移 (Part 2)                    | ⚡ Executor | 2h   |
+| 16:00-17:00 | 迁移测试验证                               | 🧪 测试员   | 1h   |
 
 **里程碑:** Zustand 迁移完成
 
@@ -664,14 +672,14 @@ v1.5.0 专注于 **AI Agent 调度系统增强** + **技术债务清理**。目�
 
 ### Sprint 3 (Day 3): UI 完善
 
-| 时间 | 任务 | 负责人 | 工时 |
-|------|------|--------|------|
-| 09:00-10:00 | P1-2: 实时状态优化 | 🎨 设计师 | 1h |
-| 10:00-11:00 | TaskDetailModal 开发 | 🎨 设计师 | 1h |
-| 11:00-12:00 | 批量操作实现 | 🎨 设计师 | 1h |
-| 14:00-14:30 | 导出功能 | 🎨 设计师 | 0.5h |
-| 14:30-15:30 | 响应式优化 | 🎨 设计师 | 1h |
-| 15:30-16:30 | UI 测试 | 🧪 测试员 | 1h |
+| 时间        | 任务                 | 负责人    | 工时 |
+| ----------- | -------------------- | --------- | ---- |
+| 09:00-10:00 | P1-2: 实时状态优化   | 🎨 设计师 | 1h   |
+| 10:00-11:00 | TaskDetailModal 开发 | 🎨 设计师 | 1h   |
+| 11:00-12:00 | 批量操作实现         | 🎨 设计师 | 1h   |
+| 14:00-14:30 | 导出功能             | 🎨 设计师 | 0.5h |
+| 14:30-15:30 | 响应式优化           | 🎨 设计师 | 1h   |
+| 15:30-16:30 | UI 测试              | 🧪 测试员 | 1h   |
 
 **里程碑:** Agent Dashboard UI 完成
 
@@ -679,14 +687,14 @@ v1.5.0 专注于 **AI Agent 调度系统增强** + **技术债务清理**。目�
 
 ### Sprint 4 (Day 3.5): 文档和收尾
 
-| 时间 | 任务 | 负责人 | 工时 |
-|------|------|--------|------|
-| 09:00-10:00 | AUTHENTICATION.md 创建 | 📚 咨询师 | 1h |
-| 10:00-10:30 | MIGRATION_GUIDE_v1.5.0.md | 📚 咨询师 | 0.5h |
-| 10:30-11:00 | CHANGELOG.md 更新 | 📚 咨询师 | 0.5h |
-| 11:00-12:00 | 最终测试验证 | 🧪 测试员 | 1h |
-| 14:00-15:00 | 代码审查 | 🏗️ 架构师 | 1h |
-| 15:00-16:00 | 发布准备 | ⛡️ 系统管理员 | 1h |
+| 时间        | 任务                      | 负责人       | 工时 |
+| ----------- | ------------------------- | ------------ | ---- |
+| 09:00-10:00 | AUTHENTICATION.md 创建    | 📚 咨询师    | 1h   |
+| 10:00-10:30 | MIGRATION_GUIDE_v1.5.0.md | 📚 咨询师    | 0.5h |
+| 10:30-11:00 | CHANGELOG.md 更新         | 📚 咨询师    | 0.5h |
+| 11:00-12:00 | 最终测试验证              | 🧪 测试员    | 1h   |
+| 14:00-15:00 | 代码审查                  | 🏗️ 架构师    | 1h   |
+| 15:00-16:00 | 发布准备                  | ⛡️ 系统管理员 | 1h   |
 
 **里程碑:** v1.5.0 就绪发布
 
@@ -718,13 +726,13 @@ v1.5.0 专注于 **AI Agent 调度系统增强** + **技术债务清理**。目�
 
 ### 完成度目标
 
-| 指标 | 当前 | 目标 | 时间 |
-|------|------|------|------|
-| **总体完成度** | 45% | 100% | 3-4 天 |
-| **P0 任务** | 60% | 100% | 2 天 |
-| **P1 任务** | 20% | 100% | 4 天 |
-| **测试覆盖率** | 98% | 98%+ | 持续 |
-| **API 一致性** | 61% | 100% | 1 天 |
+| 指标           | 当前 | 目标 | 时间   |
+| -------------- | ---- | ---- | ------ |
+| **总体完成度** | 45%  | 100% | 3-4 天 |
+| **P0 任务**    | 60%  | 100% | 2 天   |
+| **P1 任务**    | 20%  | 100% | 4 天   |
+| **测试覆盖率** | 98%  | 98%+ | 持续   |
+| **API 一致性** | 61%  | 100% | 1 天   |
 
 ### 质量目标
 
@@ -738,13 +746,13 @@ v1.5.0 专注于 **AI Agent 调度系统增强** + **技术债务清理**。目�
 
 ## ⚠️ 风险评估
 
-| 风险 | 影响 | 概率 | 缓解措施 |
-|------|------|------|---------|
-| **权限迁移引入 Bug** | 高 | 中 | 充分测试，保留回滚计划 |
-| **API 中断** | 高 | 低 | 保持向后兼容，渐进式迁移 |
-| **工期延误** | 中 | 中 | P2 任务可延后，P0 必须完成 |
-| **性能下降** | 中 | 低 | 性能基准测试，对比前后指标 |
-| **测试失败** | 低 | 低 | 并行开发测试，及时修复 |
+| 风险                 | 影响 | 概率 | 缓解措施                   |
+| -------------------- | ---- | ---- | -------------------------- |
+| **权限迁移引入 Bug** | 高   | 中   | 充分测试，保留回滚计划     |
+| **API 中断**         | 高   | 低   | 保持向后兼容，渐进式迁移   |
+| **工期延误**         | 中   | 中   | P2 任务可延后，P0 必须完成 |
+| **性能下降**         | 中   | 低   | 性能基准测试，对比前后指标 |
+| **测试失败**         | 低   | 低   | 并行开发测试，及时修复     |
 
 ---
 
@@ -905,11 +913,11 @@ v1.5.0 专注于 **AI Agent 调度系统增强** + **技术债务清理**。目�
 ## 附录 B: 工作量汇总
 
 | 任务分类 | 任务数 | 总工时 | 占比 |
-|---------|--------|--------|------|
-| **P0** | 3 | 6.5h | 35% |
-| **P1** | 3 | 6.5h | 35% |
-| **P2** | 2 | 3d | 30% |
-| **总计** | 8 | ~19h | 100% |
+| -------- | ------ | ------ | ---- |
+| **P0**   | 3      | 6.5h   | 35%  |
+| **P1**   | 3      | 6.5h   | 35%  |
+| **P2**   | 2      | 3d     | 30%  |
+| **总计** | 8      | ~19h   | 100% |
 
 **P0+P1 预计完成时间:** 2-3 天
 **全部完成预计时间:** 4-5 天 (含 P2)
@@ -918,14 +926,14 @@ v1.5.0 专注于 **AI Agent 调度系统增强** + **技术债务清理**。目�
 
 ## 附录 C: 团队分工
 
-| 角色 | 职责 | 主要任务 |
-|------|------|---------|
-| **🏗️ 架构师** | 技术设计、代码审查 | P0-3, P1-1, 代码审查 |
-| **⚡ Executor** | 功能实现 | P0-1, P0-2, P0-3 |
-| **🧪 测试员** | 测试、质量保证 | 所有测试任务 |
-| **🎨 设计师** | UI/UX 优化 | P1-2 |
-| **📚 咨询师** | 文档编写 | P1-3 |
-| **⛡️ 系统管理员** | 部署、运维 | 发布准备 |
+| 角色             | 职责               | 主要任务             |
+| ---------------- | ------------------ | -------------------- |
+| **🏗️ 架构师**    | 技术设计、代码审查 | P0-3, P1-1, 代码审查 |
+| **⚡ Executor**  | 功能实现           | P0-1, P0-2, P0-3     |
+| **🧪 测试员**    | 测试、质量保证     | 所有测试任务         |
+| **🎨 设计师**    | UI/UX 优化         | P1-2                 |
+| **📚 咨询师**    | 文档编写           | P1-3                 |
+| **⛡️ 系统管理员** | 部署、运维         | 发布准备             |
 
 ---
 

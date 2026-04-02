@@ -61,36 +61,36 @@ CollaborationGraph 是一个用于可视化 Agent 协作流程的 React 组件�
 
 ```typescript
 // Agent 状态类型
-export type AgentStatus = "idle" | "running" | "error" | "offline";
+export type AgentStatus = 'idle' | 'running' | 'error' | 'offline'
 
 // Agent 节点数据
 export interface AgentNode {
-  id: string;
-  name: string;
-  status: AgentStatus;
-  lastActivity: number;
-  avatar?: string;
-  currentTask?: string;
-  load?: number;
+  id: string
+  name: string
+  status: AgentStatus
+  lastActivity: number
+  avatar?: string
+  currentTask?: string
+  load?: number
 }
 
 // 连接数据
 export interface ConnectionData {
-  source: string;
-  target: string;
-  taskId?: string;
-  taskType?: string;
-  label?: string;
+  source: string
+  target: string
+  taskId?: string
+  taskType?: string
+  label?: string
 }
 
 // 组件 Props
 export interface CollaborationGraphProps {
-  agentNodes: AgentNode[];
-  connections: ConnectionData[];
-  onAgentUpdate?: (agentId: string, updates: Partial<AgentNode>) => void;
-  onConnectionClick?: (connection: ConnectionData) => void;
-  className?: string;
-  enableRealtime?: boolean;
+  agentNodes: AgentNode[]
+  connections: ConnectionData[]
+  onAgentUpdate?: (agentId: string, updates: Partial<AgentNode>) => void
+  onConnectionClick?: (connection: ConnectionData) => void
+  className?: string
+  enableRealtime?: boolean
 }
 ```
 
@@ -119,66 +119,66 @@ CollaborationGraph/
 ### 基础用法
 
 ```tsx
-import { CollaborationGraph, AgentNode, ConnectionData } from "@/components/agent-dashboard/CollaborationGraph";
+import {
+  CollaborationGraph,
+  AgentNode,
+  ConnectionData,
+} from '@/components/agent-dashboard/CollaborationGraph'
 
 const agents: AgentNode[] = [
-  { id: "executor", name: "Executor", status: "running", lastActivity: Date.now(), load: 75 },
-  { id: "architect", name: "Architect", status: "idle", lastActivity: Date.now() - 60000, load: 0 },
-  { id: "tester", name: "Tester", status: "idle", lastActivity: Date.now() - 120000, load: 20 },
-];
+  { id: 'executor', name: 'Executor', status: 'running', lastActivity: Date.now(), load: 75 },
+  { id: 'architect', name: 'Architect', status: 'idle', lastActivity: Date.now() - 60000, load: 0 },
+  { id: 'tester', name: 'Tester', status: 'idle', lastActivity: Date.now() - 120000, load: 20 },
+]
 
 const connections: ConnectionData[] = [
-  { source: "executor", target: "tester", taskType: "code-review", label: "代码审查" },
-  { source: "architect", target: "executor", taskType: "design", label: "设计方案" },
-];
+  { source: 'executor', target: 'tester', taskType: 'code-review', label: '代码审查' },
+  { source: 'architect', target: 'executor', taskType: 'design', label: '设计方案' },
+]
 
 function Dashboard() {
   return (
     <div className="h-[600px]">
-      <CollaborationGraph
-        agentNodes={agents}
-        connections={connections}
-        enableRealtime={true}
-      />
+      <CollaborationGraph agentNodes={agents} connections={connections} enableRealtime={true} />
     </div>
-  );
+  )
 }
 ```
 
 ### 实时更新集成
 
 ```tsx
-import { useEffect, useState } from "react";
-import { CollaborationGraph, AgentNode, ConnectionData } from "@/components/agent-dashboard/CollaborationGraph";
+import { useEffect, useState } from 'react'
+import {
+  CollaborationGraph,
+  AgentNode,
+  ConnectionData,
+} from '@/components/agent-dashboard/CollaborationGraph'
 
 function RealtimeDashboard() {
-  const [agents, setAgents] = useState<AgentNode[]>([]);
-  const [connections, setConnections] = useState<ConnectionData[]>([]);
+  const [agents, setAgents] = useState<AgentNode[]>([])
+  const [connections, setConnections] = useState<ConnectionData[]>([])
 
   useEffect(() => {
     // 连接 WebSocket
-    const ws = new WebSocket("wss://api.example.com/agent-status");
+    const ws = new WebSocket('wss://api.example.com/agent-status')
 
-    ws.onmessage = (event) => {
-      const data = JSON.parse(event.data);
+    ws.onmessage = event => {
+      const data = JSON.parse(event.data)
 
-      if (data.type === "agent-update") {
-        setAgents((prev) =>
-          prev.map((agent) =>
-            agent.id === data.agentId
-              ? { ...agent, ...data.updates }
-              : agent
-          )
-        );
+      if (data.type === 'agent-update') {
+        setAgents(prev =>
+          prev.map(agent => (agent.id === data.agentId ? { ...agent, ...data.updates } : agent))
+        )
       }
 
-      if (data.type === "connection-update") {
-        setConnections(data.connections);
+      if (data.type === 'connection-update') {
+        setConnections(data.connections)
       }
-    };
+    }
 
-    return () => ws.close();
-  }, []);
+    return () => ws.close()
+  }, [])
 
   return (
     <CollaborationGraph
@@ -186,7 +186,7 @@ function RealtimeDashboard() {
       connections={connections}
       enableRealtime={false} // 我们自己管理更新
     />
-  );
+  )
 }
 ```
 

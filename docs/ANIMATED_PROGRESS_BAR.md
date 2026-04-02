@@ -23,11 +23,11 @@ AnimatedProgressBar 组件是一个高性能、多功能的动画进度条组件
 
 ### 性能优化成果
 
-| 优化项 | 提升幅度 |
-|--------|----------|
-| 重渲染减少 | 30-40% |
-| 内存占用 | -20% |
-| 动画流畅度 | +25% |
+| 优化项     | 提升幅度 |
+| ---------- | -------- |
+| 重渲染减少 | 30-40%   |
+| 内存占用   | -20%     |
+| 动画流畅度 | +25%     |
 
 ---
 
@@ -59,48 +59,48 @@ AnimatedProgressBar 组件是一个高性能、多功能的动画进度条组件
 
 ### Props
 
-| 属性 | 类型 | 必填 | 默认值 | 说明 |
-|------|------|------|--------|------|
-| `value` | number | 是 | - | 当前进度值 |
-| `max` | number | 否 | 100 | 最大值 |
-| `label` | string | 否 | - | 标签文本 |
-| `showPercentage` | boolean | 否 | false | 是否显示百分比 |
-| `color` | 'blue' \| 'green' \| 'red' \| 'yellow' \| 'purple' \| 'gradient' | 否 | 'blue' | 颜色主题 |
-| `size` | 'sm' \| 'md' \| 'lg' | 否 | 'md' | 尺寸 |
-| `animation` | 'smooth' \| 'pulse' \| 'glow' \| 'striped-animated' \| 'bounce' \| 'steps' | 否 | 'smooth' | 动画类型 |
-| `striped` | boolean | 否 | false | 是否显示条纹 |
-| `onComplete` | () => void | 否 | - | 动画完成回调 |
-| `duration` | number | 否 | 500 | 动画时长（毫秒） |
+| 属性             | 类型                                                                       | 必填 | 默认值   | 说明             |
+| ---------------- | -------------------------------------------------------------------------- | ---- | -------- | ---------------- |
+| `value`          | number                                                                     | 是   | -        | 当前进度值       |
+| `max`            | number                                                                     | 否   | 100      | 最大值           |
+| `label`          | string                                                                     | 否   | -        | 标签文本         |
+| `showPercentage` | boolean                                                                    | 否   | false    | 是否显示百分比   |
+| `color`          | 'blue' \| 'green' \| 'red' \| 'yellow' \| 'purple' \| 'gradient'           | 否   | 'blue'   | 颜色主题         |
+| `size`           | 'sm' \| 'md' \| 'lg'                                                       | 否   | 'md'     | 尺寸             |
+| `animation`      | 'smooth' \| 'pulse' \| 'glow' \| 'striped-animated' \| 'bounce' \| 'steps' | 否   | 'smooth' | 动画类型         |
+| `striped`        | boolean                                                                    | 否   | false    | 是否显示条纹     |
+| `onComplete`     | () => void                                                                 | 否   | -        | 动画完成回调     |
+| `duration`       | number                                                                     | 否   | 500      | 动画时长（毫秒） |
 
 ### 尺寸配置
 
-| 尺寸 | 高度 | 说明 |
-|------|------|------|
-| `sm` | 0.5rem (8px) | 小尺寸，适用于紧凑布局 |
-| `md` | 0.75rem (12px) | 中等尺寸，标准高度 |
-| `lg` | 1rem (16px) | 大尺寸，适用于重要进度显示 |
+| 尺寸 | 高度           | 说明                       |
+| ---- | -------------- | -------------------------- |
+| `sm` | 0.5rem (8px)   | 小尺寸，适用于紧凑布局     |
+| `md` | 0.75rem (12px) | 中等尺寸，标准高度         |
+| `lg` | 1rem (16px)    | 大尺寸，适用于重要进度显示 |
 
 ### 颜色主题
 
-| 主题 | 说明 |
-|------|------|
-| `blue` | 蓝色系，默认主题 |
-| `green` | 绿色系，成功状态 |
-| `red` | 红色系，错误或警告状态 |
-| `yellow` | 黄色系，警告状态 |
-| `purple` | 紫色系，特殊主题 |
-| `gradient` | 渐变色，从蓝到粉 |
+| 主题       | 说明                   |
+| ---------- | ---------------------- |
+| `blue`     | 蓝色系，默认主题       |
+| `green`    | 绿色系，成功状态       |
+| `red`      | 红色系，错误或警告状态 |
+| `yellow`   | 黄色系，警告状态       |
+| `purple`   | 紫色系，特殊主题       |
+| `gradient` | 渐变色，从蓝到粉       |
 
 ### 动画类型
 
-| 动画 | 说明 | 适用场景 |
-|------|------|----------|
-| `smooth` | 平滑过渡 | 标准进度显示 |
-| `pulse` | 脉冲效果 | 等待/加载状态 |
-| `glow` | 发光效果 | 强调重要进度 |
-| `striped-animated` | 条纹滚动 | 长时间任务 |
-| `bounce` | 弹跳效果 | 完成时的庆祝动画 |
-| `steps` | 步进动画 | 阶段性任务 |
+| 动画               | 说明     | 适用场景         |
+| ------------------ | -------- | ---------------- |
+| `smooth`           | 平滑过渡 | 标准进度显示     |
+| `pulse`            | 脉冲效果 | 等待/加载状态    |
+| `glow`             | 发光效果 | 强调重要进度     |
+| `striped-animated` | 条纹滚动 | 长时间任务       |
+| `bounce`           | 弹跳效果 | 完成时的庆祝动画 |
+| `steps`            | 步进动画 | 阶段性任务       |
 
 ### 使用示例
 
@@ -259,15 +259,15 @@ function CustomDuration() {
 
 ### Props
 
-| 属性 | 类型 | 必填 | 默认值 | 说明 |
-|------|------|------|--------|------|
-| `value` | number | 是 | - | 当前进度值 |
-| `max` | number | 否 | 100 | 最大值 |
-| `size` | number | 否 | 100 | 圆形尺寸（像素） |
-| `color` | 'blue' \| 'green' \| 'red' \| 'yellow' \| 'purple' | 否 | 'blue' | 颜色主题 |
-| `showValue` | boolean | 否 | true | 是否显示数值 |
-| `label` | string | 否 | - | 标签文本 |
-| `duration` | number | 否 | 800 | 动画时长（毫秒） |
+| 属性        | 类型                                               | 必填 | 默认值 | 说明             |
+| ----------- | -------------------------------------------------- | ---- | ------ | ---------------- |
+| `value`     | number                                             | 是   | -      | 当前进度值       |
+| `max`       | number                                             | 否   | 100    | 最大值           |
+| `size`      | number                                             | 否   | 100    | 圆形尺寸（像素） |
+| `color`     | 'blue' \| 'green' \| 'red' \| 'yellow' \| 'purple' | 否   | 'blue' | 颜色主题         |
+| `showValue` | boolean                                            | 否   | true   | 是否显示数值     |
+| `label`     | string                                             | 否   | -      | 标签文本         |
+| `duration`  | number                                             | 否   | 800    | 动画时长（毫秒） |
 
 ### 使用示例
 
@@ -308,16 +308,16 @@ function CircularProgress() {
 
 ### Props
 
-| 属性 | 类型 | 必填 | 默认值 | 说明 |
-|------|------|------|--------|------|
-| `segments` | number | 是 | - | 分段数量 |
-| `current` | number | 是 | - | 当前进度（0 到 segments） |
-| `color` | 'blue' \| 'green' \| 'red' \| 'yellow' \| 'purple' \| 'gradient' | 否 | 'blue' | 颜色主题 |
-| `size` | 'sm' \| 'md' \| 'lg' | 否 | 'md' | 尺寸 |
-| `animated` | boolean | 否 | true | 是否启用动画 |
-| `showLabels` | boolean | 否 | false | 是否显示标签 |
-| `labels` | string[] | 否 | - | 标签文本数组 |
-| `duration` | number | 否 | 300 | 动画时长（毫秒） |
+| 属性         | 类型                                                             | 必填 | 默认值 | 说明                      |
+| ------------ | ---------------------------------------------------------------- | ---- | ------ | ------------------------- |
+| `segments`   | number                                                           | 是   | -      | 分段数量                  |
+| `current`    | number                                                           | 是   | -      | 当前进度（0 到 segments） |
+| `color`      | 'blue' \| 'green' \| 'red' \| 'yellow' \| 'purple' \| 'gradient' | 否   | 'blue' | 颜色主题                  |
+| `size`       | 'sm' \| 'md' \| 'lg'                                             | 否   | 'md'   | 尺寸                      |
+| `animated`   | boolean                                                          | 否   | true   | 是否启用动画              |
+| `showLabels` | boolean                                                          | 否   | false  | 是否显示标签              |
+| `labels`     | string[]                                                         | 否   | -      | 标签文本数组              |
+| `duration`   | number                                                           | 否   | 300    | 动画时长（毫秒）          |
 
 ### 使用示例
 
@@ -358,16 +358,16 @@ function StepWizard() {
 
 ### Props
 
-| 属性 | 类型 | 必填 | 默认值 | 说明 |
-|------|------|------|--------|------|
-| `value` | number | 是 | - | 当前进度值 |
-| `max` | number | 否 | 100 | 最大值 |
-| `label` | string | 否 | - | 标签文本 |
-| `showPercentage` | boolean | 否 | false | 是否显示百分比 |
-| `size` | 'sm' \| 'md' \| 'lg' | 否 | 'md' | 尺寸 |
-| `gradientColors` | string[] | 否 | ['#3b82f6', '#8b5cf6', '#ec4899'] | 渐变颜色数组 |
-| `animated` | boolean | 否 | true | 是否启用动画 |
-| `duration` | number | 否 | 600 | 动画时长（毫秒） |
+| 属性             | 类型                 | 必填 | 默认值                            | 说明             |
+| ---------------- | -------------------- | ---- | --------------------------------- | ---------------- |
+| `value`          | number               | 是   | -                                 | 当前进度值       |
+| `max`            | number               | 否   | 100                               | 最大值           |
+| `label`          | string               | 否   | -                                 | 标签文本         |
+| `showPercentage` | boolean              | 否   | false                             | 是否显示百分比   |
+| `size`           | 'sm' \| 'md' \| 'lg' | 否   | 'md'                              | 尺寸             |
+| `gradientColors` | string[]             | 否   | ['#3b82f6', '#8b5cf6', '#ec4899'] | 渐变颜色数组     |
+| `animated`       | boolean              | 否   | true                              | 是否启用动画     |
+| `duration`       | number               | 否   | 600                               | 动画时长（毫秒） |
 
 ### 使用示例
 
@@ -401,12 +401,12 @@ function CustomGradient() {
 
 ### Props
 
-| 属性 | 类型 | 必填 | 默认值 | 说明 |
-|------|------|------|--------|------|
-| `steps` | { label: string; completed: boolean }[] | 是 | - | 步骤数组 |
-| `currentStep` | number | 否 | 0 | 当前步骤索引 |
-| `color` | 'blue' \| 'green' \| 'red' \| 'yellow' \| 'purple' | 否 | 'blue' | 颜色主题 |
-| `orientation` | 'horizontal' \| 'vertical' | 否 | 'horizontal' | 方向 |
+| 属性          | 类型                                               | 必填 | 默认值       | 说明         |
+| ------------- | -------------------------------------------------- | ---- | ------------ | ------------ |
+| `steps`       | { label: string; completed: boolean }[]            | 是   | -            | 步骤数组     |
+| `currentStep` | number                                             | 否   | 0            | 当前步骤索引 |
+| `color`       | 'blue' \| 'green' \| 'red' \| 'yellow' \| 'purple' | 否   | 'blue'       | 颜色主题     |
+| `orientation` | 'horizontal' \| 'vertical'                         | 否   | 'horizontal' | 方向         |
 
 ### 使用示例
 

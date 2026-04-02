@@ -16,33 +16,28 @@ describe('ErrorDisplay', () => {
   describe('default variant', () => {
     it('renders with default props', () => {
       render(<ErrorDisplay />)
-      
+
       expect(screen.getByText('出现了一些问题')).toBeInTheDocument()
       expect(screen.getByText('发生了意外错误，请稍后重试')).toBeInTheDocument()
     })
 
     it('renders with custom title and message', () => {
-      render(
-        <ErrorDisplay 
-          title="自定义错误" 
-          message="这是一个自定义错误消息" 
-        />
-      )
-      
+      render(<ErrorDisplay title="自定义错误" message="这是一个自定义错误消息" />)
+
       expect(screen.getByText('自定义错误')).toBeInTheDocument()
       expect(screen.getByText('这是一个自定义错误消息')).toBeInTheDocument()
     })
 
     it('shows reset button when showReset is true and onReset is provided', () => {
       render(<ErrorDisplay showReset onReset={mockOnReset} />)
-      
+
       const resetButton = screen.getByRole('button', { name: '重试' })
       expect(resetButton).toBeInTheDocument()
     })
 
     it('hides reset button when showReset is false', () => {
       render(<ErrorDisplay showReset={false} onReset={mockOnReset} />)
-      
+
       expect(screen.queryByRole('button', { name: '重试' })).not.toBeInTheDocument()
     })
 
@@ -57,7 +52,7 @@ describe('ErrorDisplay', () => {
 
     it('shows error digest toggle when errorDigest is provided', () => {
       render(<ErrorDisplay errorDigest="test-digest-123" />)
-      
+
       expect(screen.getByText('显示错误详情')).toBeInTheDocument()
     })
 
@@ -77,13 +72,13 @@ describe('ErrorDisplay', () => {
 
     it('renders return home button', () => {
       render(<ErrorDisplay />)
-      
+
       expect(screen.getByRole('button', { name: '返回首页' })).toBeInTheDocument()
     })
 
     it('renders support email link', () => {
       render(<ErrorDisplay />)
-      
+
       const supportLink = screen.getByRole('link', { name: '技术支持' })
       expect(supportLink).toHaveAttribute('href', 'mailto:support@7zi.studio')
     })
@@ -92,13 +87,13 @@ describe('ErrorDisplay', () => {
   describe('compact variant', () => {
     it('renders compact variant correctly', () => {
       render(<ErrorDisplay variant="compact" message="紧凑错误" />)
-      
+
       expect(screen.getByText('紧凑错误')).toBeInTheDocument()
     })
 
     it('shows reset button in compact variant', () => {
       render(<ErrorDisplay variant="compact" showReset onReset={mockOnReset} />)
-      
+
       expect(screen.getByRole('button', { name: '重试' })).toBeInTheDocument()
     })
 
@@ -114,27 +109,21 @@ describe('ErrorDisplay', () => {
 
   describe('fullscreen variant', () => {
     it('renders fullscreen variant correctly', () => {
-      render(
-        <ErrorDisplay 
-          variant="fullscreen" 
-          title="全屏错误" 
-          message="全屏错误消息" 
-        />
-      )
-      
+      render(<ErrorDisplay variant="fullscreen" title="全屏错误" message="全屏错误消息" />)
+
       expect(screen.getByText('全屏错误')).toBeInTheDocument()
       expect(screen.getByText('全屏错误消息')).toBeInTheDocument()
     })
 
     it('shows truncated error digest in fullscreen variant', () => {
       render(<ErrorDisplay variant="fullscreen" errorDigest="very-long-digest-string" />)
-      
+
       expect(screen.getByText('错误码: very-lon')).toBeInTheDocument()
     })
 
     it('shows reload button in fullscreen variant', () => {
       render(<ErrorDisplay variant="fullscreen" showReset onReset={mockOnReset} />)
-      
+
       expect(screen.getByRole('button', { name: '重新加载' })).toBeInTheDocument()
     })
 

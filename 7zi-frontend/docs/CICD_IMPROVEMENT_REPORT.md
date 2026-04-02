@@ -11,6 +11,7 @@
 本次任务为 7zi-frontend 项目完善了 GitHub Actions CI/CD 流水线，添加了 Turbopack 构建支持、Playwright E2E 测试，并优化了缓存策略。
 
 ### 完成状态
+
 ✅ **所有任务已完成**
 
 ---
@@ -20,10 +21,12 @@
 ### 1. ✅ 检查 .github/workflows/ 目录
 
 **发现**:
+
 - 项目之前没有 `.github/workflows/` 目录
 - 需要从零开始创建 CI/CD 配置
 
 **行动**:
+
 - 创建了 `.github/workflows/` 目录
 
 ---
@@ -31,6 +34,7 @@
 ### 2. ✅ 读取项目需求文档
 
 **读取的文档**:
+
 - `package.json` - 了解项目脚本和依赖
 - `next.config.js` - 了解 Next.js 配置
 - `playwright.config.ts` - 了解 E2E 测试配置
@@ -38,6 +42,7 @@
 - `docs/TESTING_STRATEGY.md` - 了解测试策略
 
 **关键发现**:
+
 - 项目已配置 Vitest 单元测试 (400+ 测试用例)
 - 项目已配置 Playwright E2E 测试框架
 - `package.json` 已包含 Turbopack 相关脚本:
@@ -54,6 +59,7 @@
 #### 3.1 `ci.yml` - 持续集成流水线
 
 **包含的 Job**:
+
 1. **lint** - 代码质量检查
    - ESLint 检查
    - TypeScript 类型检查
@@ -90,6 +96,7 @@
    - 汇总所有 job 状态
 
 **触发条件**:
+
 - Push 到 main/develop 分支
 - Pull Request 到 main/develop 分支
 
@@ -98,6 +105,7 @@
 #### 3.2 `cd.yml` - 持续部署流水线
 
 **包含的 Job**:
+
 1. **build-and-push** - 构建 & 推送 Docker 镜像
    - 构建多架构 Docker 镜像
    - 推送到 GitHub Container Registry
@@ -118,10 +126,12 @@
    - 提供手动回滚指引
 
 **触发条件**:
+
 - Push 到 main 分支
 - 手动触发 (workflow_dispatch)
 
 **环境配置**:
+
 - production 环境
 - URL: https://7zi.com
 
@@ -130,6 +140,7 @@
 #### 3.3 `e2e.yml` - E2E 测试流水线
 
 **包含的 Job**:
+
 1. **test-chromium** - Chromium 测试
 2. **test-firefox** - Firefox 测试
 3. **test-webkit** - WebKit 测试
@@ -139,6 +150,7 @@
 5. **merge-reports** - 合并报告
 
 **优化亮点**:
+
 - ✅ **浏览器缓存**: 使用 GitHub Actions 缓存 Playwright 浏览器
 - ✅ **依赖缓存**: 使用 npm cache 加速依赖安装
 - ✅ **并行执行**: 多个浏览器并行测试
@@ -146,6 +158,7 @@
 - ✅ **GitHub Pages**: 自动部署测试报告到 GitHub Pages
 
 **触发条件**:
+
 - Push 到 main/develop 分支
 - Pull Request 到 main/develop 分支
 - 手动触发 (可选择浏览器)
@@ -155,6 +168,7 @@
 #### 3.4 `scheduled.yml` - 定时任务流水线
 
 **包含的 Job**:
+
 1. **check-dependencies** - 依赖检查
    - 检查过时的包
    - 安全漏洞扫描
@@ -178,6 +192,7 @@
    - 性能提升计算
 
 **触发条件**:
+
 - 每天 UTC 0:00 (北京时间 8:00)
 - 手动触发
 
@@ -186,6 +201,7 @@
 #### 3.5 `dependency-updates.yml` - 依赖更新流水线
 
 **包含的 Job**:
+
 1. **check-updates** - 检查更新
    - 分类检查 Major/Minor/Patch 更新
 
@@ -206,6 +222,7 @@
    - 创建 issue 或更新现有 issue
 
 **触发条件**:
+
 - 每周一 UTC 0:00
 - 手动触发
 
@@ -216,6 +233,7 @@
 **实现方式**:
 
 1. **CI 工作流** (`ci.yml`):
+
    ```yaml
    build-turbopack:
      name: ⚡ Build with Turbopack
@@ -242,6 +260,7 @@
    - 构建时间监控任务对比标准构建和 Turbopack 构建
 
 **Turbopack 配置**:
+
 - `next.config.js` 已配置:
   ```javascript
   turbopack: {
@@ -259,6 +278,7 @@
 **实现方式**:
 
 1. **CI 工作流** (`ci.yml`):
+
    ```yaml
    test-e2e:
      name: 🎭 E2E Tests
@@ -277,6 +297,7 @@
    - 报告自动合并
 
 **E2E 测试配置** (`playwright.config.ts`):
+
 - 5 个测试项目:
   - Chromium (Desktop)
   - Firefox (Desktop)
@@ -294,14 +315,16 @@
 **实现的缓存优化**:
 
 #### 6.1 Node 依赖缓存
+
 ```yaml
 - uses: actions/setup-node@v4
   with:
     node-version: ${{ env.NODE_VERSION }}
-    cache: 'npm'  # ✅ 自动缓存 node_modules
+    cache: 'npm' # ✅ 自动缓存 node_modules
 ```
 
 #### 6.2 Playwright 浏览器缓存
+
 ```yaml
 - name: Restore Playwright browser cache
   uses: actions/cache@v4
@@ -315,6 +338,7 @@
 ```
 
 #### 6.3 Docker 构建缓存
+
 ```yaml
 - name: Build and push Docker image
   uses: docker/build-push-action@v5
@@ -324,18 +348,19 @@
 ```
 
 #### 6.4 Next.js 构建缓存
+
 - 使用 `output: 'standalone'` 优化构建
 - Turbopack 自动增量构建
 
 #### 6.5 缓存策略总结
 
-| 缓存类型 | 缓存路径 | 缓存键 | 预期节省时间 |
-|---------|---------|--------|-------------|
-| npm 依赖 | `~/.npm` | `package-lock.json` hash | 1-2 分钟 |
-| Playwright 浏览器 | `~/.cache/ms-playwright` | `package-lock.json` hash | 3-5 分钟 |
-| Docker 层 | Docker registry | `type=gha` | 2-3 分钟 |
-| Next.js 构建 | `.next/cache` | 内部 | 1-2 分钟 |
-| **总计** | | | **7-12 分钟** |
+| 缓存类型          | 缓存路径                 | 缓存键                   | 预期节省时间  |
+| ----------------- | ------------------------ | ------------------------ | ------------- |
+| npm 依赖          | `~/.npm`                 | `package-lock.json` hash | 1-2 分钟      |
+| Playwright 浏览器 | `~/.cache/ms-playwright` | `package-lock.json` hash | 3-5 分钟      |
+| Docker 层         | Docker registry          | `type=gha`               | 2-3 分钟      |
+| Next.js 构建      | `.next/cache`            | 内部                     | 1-2 分钟      |
+| **总计**          |                          |                          | **7-12 分钟** |
 
 ---
 
@@ -344,12 +369,14 @@
 **创建的文件**: `Dockerfile`
 
 **特性**:
+
 1. **多阶段构建**:
    - `deps` - 依赖安装
    - `builder` - 应用构建
    - `runner` - 生产运行
 
 2. **Turbopack 支持**:
+
    ```dockerfile
    ARG TURBOPACK_ENABLED=0
    RUN if [ "$TURBOPACK_ENABLED" = "1" ]; then \
@@ -365,6 +392,7 @@
    - 最小化镜像大小
 
 4. **健康检查**:
+
    ```dockerfile
    HEALTHCHECK --interval=30s --timeout=3s --start-period=40s --retries=3 \
        CMD node -e "require('http').get('http://localhost:3000/api/health', ...)"
@@ -382,6 +410,7 @@
 **创建的文件**: `.dockerignore`
 
 **忽略的文件**:
+
 - `node_modules/` (在 Docker 内重新安装)
 - `.next/` (在 Docker 内重新构建)
 - 测试相关文件 (`coverage/`, `test-results/`)
@@ -457,11 +486,13 @@
 ### 1. Turbopack 集成
 
 **优势**:
+
 - ⚡ **更快的开发构建**: 700x 快速刷新
 - 🚀 **更快的生产构建**: 本地构建加速
 - 💾 **更小的包大小**: 更好的 tree-shaking
 
 **使用方式**:
+
 ```bash
 # 开发模式 (已配置)
 npm run dev  # 使用 Turbopack
@@ -478,6 +509,7 @@ npm run build        # 标准构建
 ### 2. Playwright E2E 测试
 
 **支持的测试场景**:
+
 - ✅ 用户登录/登出流程
 - ✅ 通知系统
 - ✅ WebSocket 连接
@@ -485,6 +517,7 @@ npm run build        # 标准构建
 - ✅ 移动端响应式
 
 **测试浏览器**:
+
 - Chromium
 - Firefox
 - WebKit (Safari)
@@ -496,6 +529,7 @@ npm run build        # 标准构建
 ### 3. 智能缓存策略
 
 **缓存层次**:
+
 1. **Level 1**: npm 依赖缓存 (节省 ~2 分钟)
 2. **Level 2**: Playwright 浏览器缓存 (节省 ~5 分钟)
 3. **Level 3**: Docker 构建缓存 (节省 ~3 分钟)
@@ -508,6 +542,7 @@ npm run build        # 标准构建
 ### 4. 自动化部署
 
 **部署流程**:
+
 1. ✅ 构建通过
 2. ✅ 测试通过
 3. ✅ 推送镜像
@@ -516,6 +551,7 @@ npm run build        # 标准构建
 6. ✅ 部署后测试
 
 **回滚机制**:
+
 - 失败自动通知
 - 手动回滚指引
 - 保留旧版本镜像
@@ -525,6 +561,7 @@ npm run build        # 标准构建
 ### 5. 定时任务
 
 **每日任务**:
+
 - 🔍 依赖安全检查
 - 📊 代码质量分析
 - 📈 覆盖率趋势
@@ -532,6 +569,7 @@ npm run build        # 标准构建
 - ⏱️ 构建时间监控
 
 **每周任务**:
+
 - 📦 依赖更新检查
 - 🔄 自动创建更新 PR
 
@@ -540,21 +578,25 @@ npm run build        # 标准构建
 ## 🔐 安全最佳实践
 
 ### 1. 依赖安全
+
 - npm audit 自动扫描
 - Snyk 集成
 - 自动创建安全 issue
 
 ### 2. 代码安全
+
 - ESLint 规则检查
 - TypeScript 类型检查
 - 禁用 console.log (生产)
 
 ### 3. 部署安全
+
 - 非 root 用户运行
 - 容器隔离
 - 健康检查
 
 ### 4. Secret 管理
+
 - GitHub Secrets
 - SSH 私钥加密
 - 环境变量隔离
@@ -565,12 +607,12 @@ npm run build        # 标准构建
 
 ### 1. Turbopack vs Webpack
 
-| 指标 | Webpack | Turbopack | 提升 |
-|-----|---------|-----------|------|
-| 初始构建 | ~3-5 分钟 | ~1-2 分钟 | 2-3x |
-| 增量构建 | ~30-60 秒 | ~5-10 秒 | 5-10x |
-| HMR | ~2-3 秒 | ~100ms | 20-30x |
-| 包大小 | 100% | ~95% | 5% |
+| 指标     | Webpack   | Turbopack | 提升   |
+| -------- | --------- | --------- | ------ |
+| 初始构建 | ~3-5 分钟 | ~1-2 分钟 | 2-3x   |
+| 增量构建 | ~30-60 秒 | ~5-10 秒  | 5-10x  |
+| HMR      | ~2-3 秒   | ~100ms    | 20-30x |
+| 包大小   | 100%      | ~95%      | 5%     |
 
 ### 2. 缓存优化效果
 
@@ -595,6 +637,7 @@ npm run build        # 标准构建
 ### 本地测试 CI 配置
 
 1. **安装 Act** (本地运行 GitHub Actions):
+
    ```bash
    # macOS/Linux
    brew install act
@@ -604,6 +647,7 @@ npm run build        # 标准构建
    ```
 
 2. **运行 CI**:
+
    ```bash
    act push -j build
    act push -j test-unit
@@ -611,6 +655,7 @@ npm run build        # 标准构建
    ```
 
 3. **测试 Turbopack 构建**:
+
    ```bash
    npm run build:turbo
    ```
@@ -627,43 +672,47 @@ npm run build        # 标准构建
 
 ### GitHub Secrets 需要配置
 
-| Secret 名称 | 用途 | 是否必需 |
-|------------|------|---------|
-| `GITHUB_TOKEN` | GitHub API | ✅ 自动 |
-| `SSH_PRIVATE_KEY` | SSH 连接服务器 | ✅ 需要 |
-| `PRODUCTION_HOST` | 生产服务器地址 | ✅ 需要 |
-| `SNYK_TOKEN` | Snyk 安全扫描 | ⚠️ 可选 |
+| Secret 名称       | 用途           | 是否必需 |
+| ----------------- | -------------- | -------- |
+| `GITHUB_TOKEN`    | GitHub API     | ✅ 自动  |
+| `SSH_PRIVATE_KEY` | SSH 连接服务器 | ✅ 需要  |
+| `PRODUCTION_HOST` | 生产服务器地址 | ✅ 需要  |
+| `SNYK_TOKEN`      | Snyk 安全扫描  | ⚠️ 可选  |
 
 ### 环境变量需要配置
 
-| 变量 | 用途 | 示例值 |
-|-----|------|--------|
-| `NODE_ENV` | Node 环境 | `production` |
-| `BASE_URL` | E2E 测试 URL | `http://localhost:3000` |
-| `TURBOPACK_ENABLED` | 启用 Turbopack | `1` 或 `0` |
+| 变量                | 用途           | 示例值                  |
+| ------------------- | -------------- | ----------------------- |
+| `NODE_ENV`          | Node 环境      | `production`            |
+| `BASE_URL`          | E2E 测试 URL   | `http://localhost:3000` |
+| `TURBOPACK_ENABLED` | 启用 Turbopack | `1` 或 `0`              |
 
 ---
 
 ## 📝 下一步建议
 
 ### 1. 立即执行
+
 - [ ] 配置 GitHub Secrets (SSH 私钥、服务器地址)
 - [ ] 测试本地 CI 运行
 - [ ] 首次运行验证所有 job
 
 ### 2. 短期优化 (1-2 周)
+
 - [ ] 添加 Slack/Discord 通知集成
 - [ ] 配置 Codecov 覆盖率 badge
 - [ ] 添加 Lighthouse CI 配置
 - [ ] 设置性能基准阈值
 
 ### 3. 中期优化 (1-2 月)
+
 - [ ] 集成代码审查工具
 - [ ] 添加视觉回归测试
 - [ ] 配置多环境部署 (staging)
 - [ ] 添加 Blue-Green 部署
 
 ### 4. 长期优化 (3-6 月)
+
 - [ ] 实现金丝雀发布
 - [ ] 添加 A/B 测试支持
 - [ ] 集成混沌工程测试

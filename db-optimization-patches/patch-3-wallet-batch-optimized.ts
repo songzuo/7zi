@@ -6,34 +6,34 @@
  * 优化: 使用 UNION ALL 或 IN 子句批量查询，减少到 1 次查询
  */
 
-import { getDatabaseAsync } from '../db';
-import { buildWhereQuery } from '../db/query-builder';
-import { generateId as generateIdUtil } from '../utils';
+import { getDatabaseAsync } from '../db'
+import { buildWhereQuery } from '../db/query-builder'
+import { generateId as generateIdUtil } from '../utils'
 import {
   AgentWallet,
   WalletTransaction,
   TransactionType,
   TransactionStatus,
   WalletOperationRequest,
-} from './types';
+} from './types'
 
 /**
  * 批量交易查询选项
  */
 export interface BatchTransactionOptions {
-  limit?: number;
-  offset?: number;
-  status?: TransactionStatus;
-  type?: TransactionType;
-  startDate?: Date;
-  endDate?: Date;
+  limit?: number
+  offset?: number
+  status?: TransactionStatus
+  type?: TransactionType
+  startDate?: Date
+  endDate?: Date
 }
 
 /**
  * 初始化钱包表 - Optimized with better indexes
  */
 export async function initializeWalletTables(): Promise<void> {
-  const db = await getDatabaseAsync();
+  const db = await getDatabaseAsync()
 
   const schema = `
     -- 智能体钱包表
@@ -78,13 +78,13 @@ export async function initializeWalletTables(): Promise<void> {
     CREATE INDEX IF NOT EXISTS idx_wallet_transactions_wallet_status ON wallet_transactions(wallet_id, status);
     CREATE INDEX IF NOT EXISTS idx_wallet_transactions_wallet_created ON wallet_transactions(wallet_id, created_at DESC);
     CREATE INDEX IF NOT EXISTS idx_wallet_transactions_type_status ON wallet_transactions(type, status);
-  `;
+  `
 
   try {
-    db.exec(schema);
+    db.exec(schema)
   } catch (error) {
     if (!(error instanceof Error && error.message.includes('already exists'))) {
-      throw error;
+      throw error
     }
   }
 }
@@ -92,19 +92,22 @@ export async function initializeWalletTables(): Promise<void> {
 /**
  * 为智能体创建钱包
  */
-export async function createWallet(agentId: string, currency: string = 'CNY'): Promise<AgentWallet> {
-  const db = await getDatabaseAsync();
-  await initializeWalletTables();
+export async function createWallet(
+  agentId: string,
+  currency: string = 'CNY'
+): Promise<AgentWallet> {
+  const db = await getDatabaseAsync()
+  await initializeWalletTables()
 
-  const id = generateIdUtil('wallet');
-  const now = new Date().toISOString();
+  const id = generateIdUtil('wallet')
+  const now = new Date().toISOString()
 
   const stmt = db.prepare(`
     INSERT INTO agent_wallets (id, agent_id, balance, currency, frozen_balance, created_at, updated_at)
     VALUES (?, ?, ?, ?, ?, ?, ?)
-  `);
+  `)
 
-  stmt.run(id, agentId, 0, currency, 0, now, now);
+  stmt.run(id, agentId, 0, currency, 0, now, now)
 
   return {
     id,
@@ -114,61 +117,66 @@ export async function createWallet(agentId: string, currency: string = 'CNY'): P
     frozenBalance: 0,
     createdAt: new Date(now),
     updatedAt: new Date(now),
-  };
+  }
 }
 
 /**
  * 根据智能体 ID 获取钱包
  */
 export async function getWalletByAgentId(agentId: string): Promise<AgentWallet | null> {
-  const db = await getDatabaseAsync();
-  await initializeWalletTables();
+  const db = await getDatabaseAsync()
+  await initializeWalletTables()
 
-  const stmt = db.prepare('SELECT * FROM agent_wallets WHERE agent_id = ?');
-  const row = stmt.get(agentId) as Record<string, unknown> | undefined;
+  const stmt = db.prepare('SELECT * FROM agent_wallets WHERE agent_id = ?')
+  const row = stmt.get(agentId) as Record<string, unknown> | undefined
 
-  if (!row) return null;
+  if (!row) return null
 
-  return mapRowToWallet(row);
+  return mapRowToWallet(row)
 }
 
 /**
  * 根据钱包 ID 获取钱包
  */
 export async function getWalletById(id: string): Promise<AgentWallet | null> {
-  const db = await getDatabaseAsync();
-  await initializeWalletTables();
+  const db = await getDatabaseAsync()
+  await initializeWalletTables()
 
-  const stmt = db.prepare('SELECT * FROM agent_wallets WHERE id = ?');
-  const row = stmt.get(id) as Record<string, unknown> | undefined;
+  const stmt = db.prepare('SELECT * FROM agent_wallets WHERE id = ?')
+  const row = stmt.get(id) as Record<string, unknown> | undefined
 
-  if (!row) return null;
+  if (!row) return null
 
-  return mapRowToWallet(row);
+  return mapRowToWallet(row)
 }
 
 /**
  * 获取或创建钱包
  */
-export async function getOrCreateWallet(agentId: string, currency: string = 'CNY'): Promise<AgentWallet> {
-  const wallet = await getWalletByAgentId(agentId);
-  if (wallet) return wallet;
-  return createWallet(agentId, currency);
+export async function getOrCreateWallet(
+  agentId: string,
+  currency: string = 'CNY'
+): Promise<AgentWallet> {
+  const wallet = await getWalletByAgentId(agentId)
+  if (wallet) return wallet
+  return createWallet(agentId, currency)
 }
 
 /**
  * 获取钱包余额
  */
-export async function getWalletBalance(agentId: string): Promise<{ balance: number; frozen: number; available: number }> {
-  const wallet = await getWalletByAgentId(agentId);
+export async function getWalletBalance(
+  agentId: string
+): Promise<{ balance: number; frozen: number; available: number }> {
+  const wallet = await getWalletByAgentId(agentId)
   if (!wallet) {
-    return { balance: 0, frozen: 0, available: 0 };
+    return { balance: 0, frozen: 0, available: 0 }
   }
   return {
     balance: wallet.balance,
     frozen: wallet.frozenBalance,
     available: wallet.balance - wallet.frozenBalance,
-  };
+  }
 }
 
 /**
@@ -178,44 +186,44 @@ export async function getWalletTransactions(
   walletId: string,
   options?: BatchTransactionOptions
 ): Promise<WalletTransaction[]> {
-  const db = await getDatabaseAsync();
-  await initializeWalletTables();
+  const db = await getDatabaseAsync()
+  await initializeWalletTables()
 
-  let sql = 'SELECT * FROM wallet_transactions WHERE wallet_id = ?';
-  const params: (string | number)[] = [walletId];
+  let sql = 'SELECT * FROM wallet_transactions WHERE wallet_id = ?'
+  const params: (string | number)[] = [walletId]
 
   if (options?.status) {
-    sql += ' AND status = ?';
-    params.push(options.status);
+    sql += ' AND status = ?'
+    params.push(options.status)
   }
   if (options?.type) {
-    sql += ' AND type = ?';
-    params.push(options.type);
+    sql += ' AND type = ?'
+    params.push(options.type)
   }
   if (options?.startDate) {
-    sql += ' AND created_at >= ?';
-    params.push(options.startDate.toISOString());
+    sql += ' AND created_at >= ?'
+    params.push(options.startDate.toISOString())
   }
   if (options?.endDate) {
-    sql += ' AND created_at <= ?';
-    params.push(options.endDate.toISOString());
+    sql += ' AND created_at <= ?'
+    params.push(options.endDate.toISOString())
   }
 
-  sql += ' ORDER BY created_at DESC';
+  sql += ' ORDER BY created_at DESC'
 
   if (options?.limit) {
-    sql += ' LIMIT ?';
-    params.push(options.limit);
+    sql += ' LIMIT ?'
+    params.push(options.limit)
   }
   if (options?.offset) {
-    sql += ' OFFSET ?';
-    params.push(options.offset);
+    sql += ' OFFSET ?'
+    params.push(options.offset)
   }
 
-  const stmt = db.prepare(sql);
-  const rows = stmt.all(...params) as unknown as Record<string, unknown>[];
+  const stmt = db.prepare(sql)
+  const rows = stmt.all(...params) as unknown as Record<string, unknown>[]
 
-  return rows.map(mapRowToTransaction);
+  return rows.map(mapRowToTransaction)
 }
 
 /**
@@ -246,73 +254,73 @@ export async function getWalletTransactionsBatch(
   options?: BatchTransactionOptions
 ): Promise<Map<string, WalletTransaction[]>> {
   if (walletIds.length === 0) {
-    return new Map();
+    return new Map()
   }
 
-  const db = await getDatabaseAsync();
-  await initializeWalletTables();
+  const db = await getDatabaseAsync()
+  await initializeWalletTables()
 
   // 构建批量查询
-  const placeholders = walletIds.map(() => '?').join(', ');
+  const placeholders = walletIds.map(() => '?').join(', ')
   let sql = `
     SELECT * FROM wallet_transactions
     WHERE wallet_id IN (${placeholders})
-  `;
+  `
 
-  const params: (string | number)[] = [...walletIds];
+  const params: (string | number)[] = [...walletIds]
 
   if (options?.status) {
-    sql += ' AND status = ?';
-    params.push(options.status);
+    sql += ' AND status = ?'
+    params.push(options.status)
   }
   if (options?.type) {
-    sql += ' AND type = ?';
-    params.push(options.type);
+    sql += ' AND type = ?'
+    params.push(options.type)
   }
   if (options?.startDate) {
-    sql += ' AND created_at >= ?';
-    params.push(options.startDate.toISOString());
+    sql += ' AND created_at >= ?'
+    params.push(options.startDate.toISOString())
   }
   if (options?.endDate) {
-    sql += ' AND created_at <= ?';
-    params.push(options.endDate.toISOString());
+    sql += ' AND created_at <= ?'
+    params.push(options.endDate.toISOString())
   }
 
-  sql += ' ORDER BY wallet_id, created_at DESC';
+  sql += ' ORDER BY wallet_id, created_at DESC'
 
   // 注意: 分页限制适用于每个钱包还是总数？
   // 这里实现为: 每个钱包最多返回 limit 条记录
   // 如果需要全局限制，需要在应用层过滤
 
-  const stmt = db.prepare(sql);
-  const rows = stmt.all(...params) as unknown as Record<string, unknown>[];
+  const stmt = db.prepare(sql)
+  const rows = stmt.all(...params) as unknown as Record<string, unknown>[]
 
   // 按钱包 ID 分组
-  const result = new Map<string, WalletTransaction[]>();
+  const result = new Map<string, WalletTransaction[]>()
 
   // 初始化所有钱包的空数组
   for (const walletId of walletIds) {
-    result.set(walletId, []);
+    result.set(walletId, [])
   }
 
   // 按钱包分组交易
   for (const row of rows) {
-    const walletId = row.wallet_id as string;
-    const transactions = result.get(walletId) || [];
-    transactions.push(mapRowToTransaction(row));
-    result.set(walletId, transactions);
+    const walletId = row.wallet_id as string
+    const transactions = result.get(walletId) || []
+    transactions.push(mapRowToTransaction(row))
+    result.set(walletId, transactions)
   }
 
   // 应用分页限制（每个钱包）
   if (options?.limit && options.limit > 0) {
     for (const [walletId, transactions] of result.entries()) {
       if (transactions.length > options.limit) {
-        result.set(walletId, transactions.slice(0, options.limit));
+        result.set(walletId, transactions.slice(0, options.limit))
       }
     }
   }
 
-  return result;
+  return result
 }
 
 /**
@@ -331,65 +339,65 @@ export async function getWalletTransactionsAggregated(
   options?: BatchTransactionOptions
 ): Promise<{ transactions: WalletTransaction[]; walletMap: Map<string, AgentWallet> }> {
   if (walletIds.length === 0) {
-    return { transactions: [], walletMap: new Map() };
+    return { transactions: [], walletMap: new Map() }
   }
 
-  const db = await getDatabaseAsync();
-  await initializeWalletTables();
+  const db = await getDatabaseAsync()
+  await initializeWalletTables()
 
   // 获取钱包信息
-  const placeholders = walletIds.map(() => '?').join(', ');
-  const walletStmt = db.prepare(`SELECT * FROM agent_wallets WHERE id IN (${placeholders})`);
-  const walletRows = walletStmt.all(...walletIds) as unknown as Record<string, unknown>[];
-  const walletMap = new Map<string, AgentWallet>();
+  const placeholders = walletIds.map(() => '?').join(', ')
+  const walletStmt = db.prepare(`SELECT * FROM agent_wallets WHERE id IN (${placeholders})`)
+  const walletRows = walletStmt.all(...walletIds) as unknown as Record<string, unknown>[]
+  const walletMap = new Map<string, AgentWallet>()
 
   for (const row of walletRows) {
-    const wallet = mapRowToWallet(row);
-    walletMap.set(wallet.id, wallet);
+    const wallet = mapRowToWallet(row)
+    walletMap.set(wallet.id, wallet)
   }
 
   // 获取交易记录
   let sql = `
     SELECT * FROM wallet_transactions
     WHERE wallet_id IN (${placeholders})
-  `;
+  `
 
-  const params: (string | number)[] = [...walletIds];
+  const params: (string | number)[] = [...walletIds]
 
   if (options?.status) {
-    sql += ' AND status = ?';
-    params.push(options.status);
+    sql += ' AND status = ?'
+    params.push(options.status)
   }
   if (options?.type) {
-    sql += ' AND type = ?';
-    params.push(options.type);
+    sql += ' AND type = ?'
+    params.push(options.type)
   }
   if (options?.startDate) {
-    sql += ' AND created_at >= ?';
-    params.push(options.startDate.toISOString());
+    sql += ' AND created_at >= ?'
+    params.push(options.startDate.toISOString())
   }
   if (options?.endDate) {
-    sql += ' AND created_at <= ?';
-    params.push(options.endDate.toISOString());
+    sql += ' AND created_at <= ?'
+    params.push(options.endDate.toISOString())
   }
 
-  sql += ' ORDER BY created_at DESC';
+  sql += ' ORDER BY created_at DESC'
 
   if (options?.limit) {
-    sql += ' LIMIT ?';
-    params.push(options.limit);
+    sql += ' LIMIT ?'
+    params.push(options.limit)
   }
   if (options?.offset) {
-    sql += ' OFFSET ?';
-    params.push(options.offset);
+    sql += ' OFFSET ?'
+    params.push(options.offset)
   }
 
-  const stmt = db.prepare(sql);
-  const rows = stmt.all(...params) as unknown as Record<string, unknown>[];
+  const stmt = db.prepare(sql)
+  const rows = stmt.all(...params) as unknown as Record<string, unknown>[]
 
-  const transactions = rows.map(mapRowToTransaction);
+  const transactions = rows.map(mapRowToTransaction)
 
-  return { transactions, walletMap };
+  return { transactions, walletMap }
 }
 
 // ... [其余函数保持不变: createTransaction, updateWalletBalance, etc.] ...
@@ -406,7 +414,7 @@ function mapRowToWallet(row: Record<string, unknown>): AgentWallet {
     frozenBalance: row.frozen_balance as number,
     createdAt: new Date(row.created_at as string),
     updatedAt: new Date(row.updated_at as string),
-  };
+  }
 }
 
 /**
@@ -426,5 +434,5 @@ function mapRowToTransaction(row: Record<string, unknown>): WalletTransaction {
     metadata: JSON.parse((row.metadata as string) || '{}'),
     createdAt: new Date(row.created_at as string),
     completedAt: row.completed_at ? new Date(row.completed_at as string) : undefined,
-  };
+  }
 }

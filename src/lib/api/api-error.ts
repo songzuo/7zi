@@ -54,7 +54,7 @@ export const STATUS_CODE_TO_ERROR: Record<number, ApiErrorCode> = {
   502: ApiErrorCode.BAD_GATEWAY,
   503: ApiErrorCode.SERVICE_UNAVAILABLE,
   504: ApiErrorCode.GATEWAY_TIMEOUT,
-};
+}
 
 /**
  * Error code to HTTP status code mapping
@@ -79,7 +79,7 @@ export const ERROR_CODE_TO_STATUS: Record<ApiErrorCode, number> = {
   [ApiErrorCode.VALIDATION_ERROR]: 400,
   [ApiErrorCode.PARSE_ERROR]: 400,
   [ApiErrorCode.UNKNOWN_ERROR]: 500,
-};
+}
 
 /**
  * User-friendly error messages
@@ -104,26 +104,26 @@ export const ERROR_MESSAGES: Record<ApiErrorCode, string> = {
   [ApiErrorCode.VALIDATION_ERROR]: '数据验证失败',
   [ApiErrorCode.PARSE_ERROR]: '数据解析错误',
   [ApiErrorCode.UNKNOWN_ERROR]: '未知错误',
-};
+}
 
 /**
  * Standard API error response structure
  */
 export interface ApiErrorResponse {
   /** Error code */
-  code: ApiErrorCode;
+  code: ApiErrorCode
   /** Error message */
-  message: string;
+  message: string
   /** Detailed error description */
-  detail?: string;
+  detail?: string
   /** Validation errors */
-  errors?: Record<string, string[]>;
+  errors?: Record<string, string[]>
   /** Error timestamp */
-  timestamp: string;
+  timestamp: string
   /** Request ID for tracing */
-  requestId?: string;
+  requestId?: string
   /** Error stack trace (development only) */
-  stack?: string;
+  stack?: string
 }
 
 /**
@@ -131,51 +131,49 @@ export interface ApiErrorResponse {
  */
 export interface ApiSuccessResponse<T = unknown> {
   /** Success indicator */
-  success: true;
+  success: true
   /** Response data */
-  data: T;
+  data: T
   /** Response metadata */
   meta?: {
     /** Total items (for paginated responses) */
-    total?: number;
+    total?: number
     /** Current page (for paginated responses) */
-    page?: number;
+    page?: number
     /** Items per page (for paginated responses) */
-    pageSize?: number;
+    pageSize?: number
     /** Total pages (for paginated responses) */
-    totalPages?: number;
-  };
+    totalPages?: number
+  }
   /** Timestamp */
-  timestamp: string;
+  timestamp: string
   /** Request ID for tracing */
-  requestId?: string;
+  requestId?: string
 }
 
 /**
  * Standard API response (union type)
  */
-export type ApiResponse<T = unknown> =
-  | ApiSuccessResponse<T>
-  | ApiErrorResponse;
+export type ApiResponse<T = unknown> = ApiSuccessResponse<T> | ApiErrorResponse
 
 /**
  * API error class
  */
 export class ApiError extends Error {
-  public readonly code: ApiErrorCode;
-  public readonly statusCode: number;
-  public readonly detail?: string;
-  public readonly errors?: Record<string, string[]>;
-  public readonly requestId?: string;
+  public readonly code: ApiErrorCode
+  public readonly statusCode: number
+  public readonly detail?: string
+  public readonly errors?: Record<string, string[]>
+  public readonly requestId?: string
 
   constructor(options: {
-    code?: ApiErrorCode;
-    message?: string;
-    statusCode?: number;
-    detail?: string;
-    errors?: Record<string, string[]>;
-    requestId?: string;
-    cause?: Error;
+    code?: ApiErrorCode
+    message?: string
+    statusCode?: number
+    detail?: string
+    errors?: Record<string, string[]>
+    requestId?: string
+    cause?: Error
   }) {
     const {
       code = ApiErrorCode.UNKNOWN_ERROR,
@@ -185,16 +183,16 @@ export class ApiError extends Error {
       errors,
       requestId,
       cause,
-    } = options;
+    } = options
 
-    super(message, { cause });
+    super(message, { cause })
 
-    this.name = 'ApiError';
-    this.code = code;
-    this.statusCode = statusCode;
-    this.detail = detail;
-    this.errors = errors;
-    this.requestId = requestId;
+    this.name = 'ApiError'
+    this.code = code
+    this.statusCode = statusCode
+    this.detail = detail
+    this.errors = errors
+    this.requestId = requestId
   }
 
   /**
@@ -209,24 +207,20 @@ export class ApiError extends Error {
       timestamp: new Date().toISOString(),
       requestId: this.requestId,
       stack: process.env.NODE_ENV === 'development' ? this.stack : undefined,
-    };
+    }
   }
 
   /**
    * Create ApiError from HTTP status code
    */
-  static fromStatusCode(
-    statusCode: number,
-    message?: string,
-    detail?: string
-  ): ApiError {
-    const code = STATUS_CODE_TO_ERROR[statusCode] || ApiErrorCode.UNKNOWN_ERROR;
+  static fromStatusCode(statusCode: number, message?: string, detail?: string): ApiError {
+    const code = STATUS_CODE_TO_ERROR[statusCode] || ApiErrorCode.UNKNOWN_ERROR
     return new ApiError({
       code,
       message: message || ERROR_MESSAGES[code],
       statusCode,
       detail,
-    });
+    })
   }
 
   /**
@@ -234,7 +228,7 @@ export class ApiError extends Error {
    */
   static fromError(error: unknown): ApiError {
     if (error instanceof ApiError) {
-      return error;
+      return error
     }
 
     if (error instanceof Error) {
@@ -243,13 +237,13 @@ export class ApiError extends Error {
         message: error.message,
         detail: error.stack,
         cause: error,
-      });
+      })
     }
 
     return new ApiError({
       code: ApiErrorCode.UNKNOWN_ERROR,
       message: String(error),
-    });
+    })
   }
 }
 
@@ -257,15 +251,12 @@ export class ApiError extends Error {
  * Validation error class
  */
 export class ValidationError extends ApiError {
-  constructor(
-    errors: Record<string, string[]>,
-    message: string = '数据验证失败'
-  ) {
+  constructor(errors: Record<string, string[]>, message: string = '数据验证失败') {
     super({
       code: ApiErrorCode.VALIDATION_ERROR,
       message,
       errors,
-    });
-    this.name = 'ValidationError';
+    })
+    this.name = 'ValidationError'
   }
 }

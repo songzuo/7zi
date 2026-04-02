@@ -1,16 +1,20 @@
 # API 路由测试报告
 
 ## 任务完成时间
+
 2026-03-17 22:33
 
 ## 测试文件位置
+
 - `/root/.openclaw/workspace/7zi-project/src/test/api/routes.test.ts` (已存在)
 - `/root/.openclaw/workspace/7zi-project/src/test/api/routes-github-csrf.test.ts` (新增)
 
 ## 测试覆盖的路由
 
 ### 1. `/api/status` - 状态端点
+
 **测试场景:**
+
 - ✅ 返回正确状态结构 (status, lastUpdated, services, metrics, incidents, maintenance)
 - ✅ 返回有效状态值 (operational, degraded, outage)
 - ✅ 服务字段验证 (name, status, uptime, responseTime)
@@ -20,7 +24,9 @@
 - ✅ 返回有效的 ISO 时间戳
 
 ### 2. `/api/health` - 健康检查端点
+
 **测试场景:**
+
 - ✅ 内存使用正常时返回 healthy 状态
 - ✅ 包含内存检查 (status, used, limit)
 - ✅ 包含 Node 检查 (status, version)
@@ -29,24 +35,32 @@
 - ✅ 错误处理场景 - 处理内存异常
 
 ### 3. `/api/health/live` - 存活探测端点
+
 **测试场景:**
+
 - ✅ 始终返回 alive 状态
 - ✅ 快速响应 (< 100ms，满足 Kubernetes 存活探测要求)
 
 ### 4. `/api/health/ready` - 就绪探测端点
+
 **测试场景:**
+
 - ✅ 返回健康状态和检查项
 - ✅ 根据就绪状态返回正确的状态码
 - ✅ 包含依赖检查 (当可用时)
 
 ### 5. `/api/health/detailed` - 详细健康检查端点
+
 **测试场景:**
+
 - ✅ 返回详细健康状态
 - ✅ 包含外部服务检查
 - ✅ 检查结果结构验证 (status, latency, message)
 
 ### 6. `/api/github/commits` - GitHub API 代理 (新增测试)
+
 **正常请求场景:**
+
 - ✅ 返回有效仓库的提交数据
 - ✅ 使用查询参数中的自定义 owner 和 repo
 - ✅ 使用自定义 per_page 参数
@@ -55,6 +69,7 @@
 - ✅ 返回 JSON content-type
 
 **错误处理场景:**
+
 - ✅ 仓库不存在时返回 404
 - ✅ GitHub Token 无效时返回 401
 - ✅ 速率限制时返回 403
@@ -63,19 +78,24 @@
 - ✅ 处理 GitHub API 超时
 
 **安全场景:**
+
 - ✅ 不在响应中暴露 GitHub Token
 - ✅ 无 Token 时可以正常工作（未认证）
 
 **性能场景:**
+
 - ✅ 在合理时间内响应
 
 ### 7. `/api/csrf-token` - CSRF Token 生成 (新增测试)
+
 **Token 生成逻辑:**
+
 - ✅ 生成有效的 64 位十六进制 token
 - ✅ 每次调用生成唯一 token
 - ✅ 并发生成多个唯一 token
 
 **性能场景:**
+
 - ✅ 快速生成 token (< 100ms)
 - ✅ 高效处理并发请求 (50 个 token < 200ms)
 
@@ -84,6 +104,7 @@
 ## 测试统计
 
 ### 总计
+
 - **测试文件数**: 2
 - **测试用例数**: 45
 - **通过**: 45 ✅
@@ -92,26 +113,29 @@
 
 ### 按文件统计
 
-| 文件 | 测试数 | 状态 |
-|------|--------|------|
-| routes.test.ts | 23 | ✅ 全部通过 |
-| routes-github-csrf.test.ts | 22 | ✅ 全部通过 |
+| 文件                       | 测试数 | 状态        |
+| -------------------------- | ------ | ----------- |
+| routes.test.ts             | 23     | ✅ 全部通过 |
+| routes-github-csrf.test.ts | 22     | ✅ 全部通过 |
 
 ## 测试覆盖的功能模块
 
 ### 1. 系统状态监控
+
 - ✅ 状态页面数据
 - ✅ 服务健康检查
 - ✅ 性能指标
 - ✅ 事件跟踪
 
 ### 2. 健康检查
+
 - ✅ 基础健康检查
 - ✅ Kubernetes 存活探测
 - ✅ Kubernetes 就绪探测
 - ✅ 详细健康检查 (包含外部服务)
 
 ### 3. GitHub API 集成
+
 - ✅ 提交列表获取
 - ✅ 参数化查询
 - ✅ 认证处理
@@ -119,11 +143,13 @@
 - ✅ 速率限制处理
 
 ### 4. 安全性
+
 - ✅ Token 安全 (不暴露敏感信息)
 - ✅ CSRF Token 生成
 - ✅ Token 唯一性和随机性
 
 ### 5. 性能
+
 - ✅ 响应时间验证
 - ✅ 并发处理能力
 - ✅ 资源使用监控
@@ -184,10 +210,12 @@ src/test/api/
 ## 结论
 
 ✅ **任务完成**: 成功为至少 2 个 API 路由编写了集成测试
+
 - `/api/github/commits` - 完整的测试覆盖 (正常场景、错误处理、安全、性能)
 - `/api/csrf-token` - Token 生成逻辑测试 (安全性和性能)
 
 ✅ **测试覆盖**:
+
 - ✅ 正常请求场景
 - ✅ 错误处理场景
 - ✅ 安全性验证

@@ -239,24 +239,24 @@
  *                 type: string
  */
 
-import { NextRequest, NextResponse } from "next/server";
-import { mcpServer } from "@/lib/mcp/server";
-import { createErrorResponse } from "@/lib/api/error-handler";
+import { NextRequest, NextResponse } from 'next/server'
+import { mcpServer } from '@/lib/mcp/server'
+import { createErrorResponse } from '@/lib/api/error-handler'
 
 /**
  * 支持 CORS（用于 Claude Desktop 等客户端）
  */
 const CORS_HEADERS = {
-  "Access-Control-Allow-Origin": "*",
-  "Access-Control-Allow-Methods": "POST, OPTIONS",
-  "Access-Control-Allow-Headers": "Content-Type, Authorization",
-};
+  'Access-Control-Allow-Origin': '*',
+  'Access-Control-Allow-Methods': 'POST, OPTIONS',
+  'Access-Control-Allow-Headers': 'Content-Type, Authorization',
+}
 
 /**
  * 处理 OPTIONS 请求（CORS 预检）
  */
 export async function OPTIONS() {
-  return new NextResponse(null, { status: 204, headers: CORS_HEADERS });
+  return new NextResponse(null, { status: 204, headers: CORS_HEADERS })
 }
 
 /**
@@ -265,64 +265,64 @@ export async function OPTIONS() {
 export async function POST(request: NextRequest) {
   try {
     // 解析 JSON-RPC 请求
-    const body = await request.json();
+    const body = await request.json()
 
     // 检查是否是批量请求
     if (Array.isArray(body)) {
-      const response = await mcpServer.handleRequest(body);
+      const response = await mcpServer.handleRequest(body)
       return NextResponse.json(response, {
         headers: CORS_HEADERS,
-      });
+      })
     }
 
     // 验证请求格式（单个请求）
-    if (!body.jsonrpc || body.jsonrpc !== "2.0") {
+    if (!body.jsonrpc || body.jsonrpc !== '2.0') {
       return NextResponse.json(
         {
-          jsonrpc: "2.0",
+          jsonrpc: '2.0',
           id: body.id || null,
           error: {
             code: -32600,
-            message: "Invalid Request: jsonrpc version must be 2.0",
+            message: 'Invalid Request: jsonrpc version must be 2.0',
           },
         },
         { status: 400, headers: CORS_HEADERS }
-      );
+      )
     }
 
     if (!body.method) {
       return NextResponse.json(
         {
-          jsonrpc: "2.0",
+          jsonrpc: '2.0',
           id: body.id || null,
           error: {
             code: -32600,
-            message: "Invalid Request: method is required",
+            message: 'Invalid Request: method is required',
           },
         },
         { status: 400, headers: CORS_HEADERS }
-      );
+      )
     }
 
     // 处理 MCP 请求
-    const response = await mcpServer.handleRequest(body);
+    const response = await mcpServer.handleRequest(body)
 
     return NextResponse.json(response, {
       headers: CORS_HEADERS,
-    });
+    })
   } catch {
     // JSON 解析错误
     return NextResponse.json(
       {
-        jsonrpc: "2.0",
+        jsonrpc: '2.0',
         id: null,
         error: {
           code: -32700,
-          message: "Parse error: Invalid JSON",
+          message: 'Parse error: Invalid JSON',
         },
       },
       { status: 400, headers: CORS_HEADERS }
-    );
+    )
   }
 }
 
@@ -332,18 +332,18 @@ export async function POST(request: NextRequest) {
 export async function GET() {
   return NextResponse.json(
     {
-      name: "OpenClaw MCP Server",
-      version: "1.0.0",
-      protocol: "Model Context Protocol (MCP)",
-      specification: "https://modelcontextprotocol.io/specification",
+      name: 'OpenClaw MCP Server',
+      version: '1.0.0',
+      protocol: 'Model Context Protocol (MCP)',
+      specification: 'https://modelcontextprotocol.io/specification',
       endpoints: {
-        rpc: "/api/mcp/rpc",
+        rpc: '/api/mcp/rpc',
       },
       methods: {
-        "tools/list": "List available tools",
-        "tools/call": "Execute a tool",
+        'tools/list': 'List available tools',
+        'tools/call': 'Execute a tool',
       },
     },
     { headers: CORS_HEADERS }
-  );
+  )
 }

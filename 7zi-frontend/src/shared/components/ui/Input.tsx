@@ -3,24 +3,27 @@
  * 支持文本、密码、邮箱等多种类型
  */
 
-import React, { forwardRef, useState } from 'react';
-import clsx from 'clsx';
+import React, { forwardRef, useState } from 'react'
+import clsx from 'clsx'
 
-export interface InputProps extends Omit<React.InputHTMLAttributes<HTMLInputElement>, 'size' | 'prefix'> {
+export interface InputProps extends Omit<
+  React.InputHTMLAttributes<HTMLInputElement>,
+  'size' | 'prefix'
+> {
   /** 标签 */
-  label?: string;
+  label?: string
   /** 错误信息 */
-  error?: string;
+  error?: string
   /** 帮助文本 */
-  helperText?: string;
+  helperText?: string
   /** 前缀图标 */
-  leftIcon?: React.ReactNode;
+  leftIcon?: React.ReactNode
   /** 后缀图标 */
-  rightIcon?: React.ReactNode;
+  rightIcon?: React.ReactNode
   /** 输入框大小 */
-  size?: 'sm' | 'md' | 'lg';
+  size?: 'sm' | 'md' | 'lg'
   /** 是否全宽 */
-  fullWidth?: boolean;
+  fullWidth?: boolean
 }
 
 export const Input = forwardRef<HTMLInputElement, InputProps>(
@@ -40,18 +43,19 @@ export const Input = forwardRef<HTMLInputElement, InputProps>(
     },
     ref
   ) => {
-    const [showPassword, setShowPassword] = useState(false);
-    const isPassword = type === 'password';
-    const inputType = isPassword && showPassword ? 'text' : type;
-    
-    const baseStyles = 'block w-full rounded-lg border transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-offset-2';
-    
+    const [showPassword, setShowPassword] = useState(false)
+    const isPassword = type === 'password'
+    const inputType = isPassword && showPassword ? 'text' : type
+
+    const baseStyles =
+      'block w-full rounded-lg border transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-offset-2'
+
     const sizeStyles = {
       sm: 'px-3 py-1.5 text-sm',
       md: 'px-4 py-2 text-base',
       lg: 'px-5 py-3 text-lg',
-    };
-    
+    }
+
     const inputStyles = clsx(
       baseStyles,
       sizeStyles[size],
@@ -61,57 +65,43 @@ export const Input = forwardRef<HTMLInputElement, InputProps>(
       leftIcon && 'pl-10',
       rightIcon && 'pr-10',
       'disabled:bg-gray-100 disabled:cursor-not-allowed'
-    );
-    
+    )
+
     const togglePassword = () => {
-      setShowPassword(!showPassword);
-    };
-    
+      setShowPassword(!showPassword)
+    }
+
     return (
       <div className={clsx(fullWidth && 'w-full', className)}>
         {label && (
-          <label
-            htmlFor={id}
-            className="block text-sm font-medium text-gray-700 mb-1"
-          >
+          <label htmlFor={id} className="mb-1 block text-sm font-medium text-gray-700">
             {label}
           </label>
         )}
-        
+
         <div className="relative">
           {leftIcon && (
-            <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-gray-400">
+            <div className="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3 text-gray-400">
               {leftIcon}
             </div>
           )}
-          
-          <input
-            id={id}
-            ref={ref}
-            type={inputType}
-            className={inputStyles}
-            {...props}
-          />
-          
+
+          <input id={id} ref={ref} type={inputType} className={inputStyles} {...props} />
+
           {rightIcon && !isPassword && (
-            <div className="absolute inset-y-0 right-0 pr-3 flex items-center pointer-events-none text-gray-400">
+            <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center pr-3 text-gray-400">
               {rightIcon}
             </div>
           )}
-          
+
           {isPassword && (
             <button
               type="button"
               onClick={togglePassword}
-              className="absolute inset-y-0 right-0 pr-3 flex items-center text-gray-400 hover:text-gray-600 focus:outline-none"
+              className="absolute inset-y-0 right-0 flex items-center pr-3 text-gray-400 hover:text-gray-600 focus:outline-none"
             >
               {showPassword ? (
-                <svg
-                  className="h-5 w-5"
-                  fill="none"
-                  viewBox="0 0 24 24"
-                  stroke="currentColor"
-                >
+                <svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                   <path
                     strokeLinecap="round"
                     strokeLinejoin="round"
@@ -120,12 +110,7 @@ export const Input = forwardRef<HTMLInputElement, InputProps>(
                   />
                 </svg>
               ) : (
-                <svg
-                  className="h-5 w-5"
-                  fill="none"
-                  viewBox="0 0 24 24"
-                  stroke="currentColor"
-                >
+                <svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                   <path
                     strokeLinecap="round"
                     strokeLinejoin="round"
@@ -143,17 +128,13 @@ export const Input = forwardRef<HTMLInputElement, InputProps>(
             </button>
           )}
         </div>
-        
-        {error && (
-          <p className="mt-1 text-sm text-red-600">{error}</p>
-        )}
-        
-        {helperText && !error && (
-          <p className="mt-1 text-sm text-gray-500">{helperText}</p>
-        )}
-      </div>
-    );
-  }
-);
 
-Input.displayName = 'Input';
+        {error && <p className="mt-1 text-sm text-red-600">{error}</p>}
+
+        {helperText && !error && <p className="mt-1 text-sm text-gray-500">{helperText}</p>}
+      </div>
+    )
+  }
+)
+
+Input.displayName = 'Input'

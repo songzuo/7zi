@@ -1,7 +1,7 @@
 /**
  * Performance Alerting System
  * Multi-level alerts with suppression, aggregation, and history tracking
- * 
+ *
  * Features:
  * - Multi-level alerts (info, warning, error, critical)
  * - Alert suppression (avoid duplicate alerts)
@@ -17,66 +17,66 @@
 /**
  * Alert severity levels
  */
-export type AlertLevel = 'info' | 'warning' | 'error' | 'critical';
+export type AlertLevel = 'info' | 'warning' | 'error' | 'critical'
 
 /**
  * Alert status
  */
-export type AlertStatus = 'active' | 'acknowledged' | 'resolved' | 'suppressed';
+export type AlertStatus = 'active' | 'acknowledged' | 'resolved' | 'suppressed'
 
 /**
  * Alert categories
  */
-export type AlertCategory = 
+export type AlertCategory =
   | 'performance'
   | 'availability'
   | 'error'
   | 'resource'
   | 'security'
-  | 'custom';
+  | 'custom'
 
 /**
  * Performance alert data
  */
 export interface PerformanceAlert {
   /** Unique alert ID */
-  id: string;
+  id: string
   /** Alert title */
-  title: string;
+  title: string
   /** Alert description */
-  message: string;
+  message: string
   /** Severity level */
-  level: AlertLevel;
+  level: AlertLevel
   /** Alert category */
-  category: AlertCategory;
+  category: AlertCategory
   /** Current status */
-  status: AlertStatus;
+  status: AlertStatus
   /** Source component/module */
-  source: string;
+  source: string
   /** Metric that triggered the alert */
-  metric?: string;
+  metric?: string
   /** Current value */
-  currentValue?: number;
+  currentValue?: number
   /** Threshold value */
-  threshold?: number;
+  threshold?: number
   /** Additional metadata */
-  metadata?: Record<string, unknown>;
+  metadata?: Record<string, unknown>
   /** Timestamp when alert was created */
-  createdAt: number;
+  createdAt: number
   /** Timestamp when alert was last updated */
-  updatedAt: number;
+  updatedAt: number
   /** Timestamp when alert was acknowledged */
-  acknowledgedAt?: number;
+  acknowledgedAt?: number
   /** User who acknowledged the alert */
-  acknowledgedBy?: string;
+  acknowledgedBy?: string
   /** Timestamp when alert was resolved */
-  resolvedAt?: number;
+  resolvedAt?: number
   /** Number of times this alert has fired */
-  occurrenceCount: number;
+  occurrenceCount: number
   /** IDs of aggregated alerts */
-  aggregatedIds?: string[];
+  aggregatedIds?: string[]
   /** Tags for filtering */
-  tags?: string[];
+  tags?: string[]
 }
 
 /**
@@ -84,19 +84,21 @@ export interface PerformanceAlert {
  */
 export interface AlertConfig {
   /** Minimum level to trigger alerts */
-  minLevel: AlertLevel;
+  minLevel: AlertLevel
   /** Enable/disable alerting */
-  enabled: boolean;
+  enabled: boolean
   /** Suppression window in milliseconds */
-  suppressionWindow: number;
+  suppressionWindow: number
   /** Aggregation window in milliseconds */
-  aggregationWindow: number;
+  aggregationWindow: number
   /** Maximum alerts to keep in history */
-  maxHistorySize: number;
+  maxHistorySize: number
   /** Enable alert aggregation */
-  enableAggregation: boolean;
+  enableAggregation: boolean
   /** Custom deduplication key function */
-  deduplicationKeyFn?: (alert: Omit<PerformanceAlert, 'id' | 'createdAt' | 'updatedAt' | 'status' | 'occurrenceCount'>) => string;
+  deduplicationKeyFn?: (
+    alert: Omit<PerformanceAlert, 'id' | 'createdAt' | 'updatedAt' | 'status' | 'occurrenceCount'>
+  ) => string
 }
 
 /**
@@ -104,21 +106,21 @@ export interface AlertConfig {
  */
 export interface SuppressionRule {
   /** Rule ID */
-  id: string;
+  id: string
   /** Rule name */
-  name: string;
+  name: string
   /** Alert filter criteria */
-  filter: AlertFilter;
+  filter: AlertFilter
   /** Suppression duration in milliseconds */
-  duration: number;
+  duration: number
   /** Whether the rule is active */
-  active: boolean;
+  active: boolean
   /** Reason for suppression */
-  reason: string;
+  reason: string
   /** Created timestamp */
-  createdAt: number;
+  createdAt: number
   /** Created by */
-  createdBy?: string;
+  createdBy?: string
 }
 
 /**
@@ -126,17 +128,17 @@ export interface SuppressionRule {
  */
 export interface AlertFilter {
   /** Filter by level */
-  level?: AlertLevel | AlertLevel[];
+  level?: AlertLevel | AlertLevel[]
   /** Filter by category */
-  category?: AlertCategory | AlertCategory[];
+  category?: AlertCategory | AlertCategory[]
   /** Filter by source */
-  source?: string | string[];
+  source?: string | string[]
   /** Filter by metric */
-  metric?: string | string[];
+  metric?: string | string[]
   /** Filter by tags (all must match) */
-  tags?: string[];
+  tags?: string[]
   /** Custom filter function */
-  customFn?: (alert: PerformanceAlert) => boolean;
+  customFn?: (alert: PerformanceAlert) => boolean
 }
 
 /**
@@ -144,18 +146,18 @@ export interface AlertFilter {
  */
 export interface AggregatedAlertGroup {
   /** Group key */
-  key: string;
+  key: string
   /** Representative alert */
-  representative: PerformanceAlert;
+  representative: PerformanceAlert
   /** All alerts in the group */
-  alerts: PerformanceAlert[];
+  alerts: PerformanceAlert[]
   /** Total occurrence count */
-  totalOccurrences: number;
+  totalOccurrences: number
   /** Time range of alerts in group */
   timeRange: {
-    start: number;
-    end: number;
-  };
+    start: number
+    end: number
+  }
 }
 
 /**
@@ -163,9 +165,9 @@ export interface AggregatedAlertGroup {
  */
 export interface AlertHistoryEntry {
   /** The alert */
-  alert: PerformanceAlert;
+  alert: PerformanceAlert
   /** Actions taken */
-  actions: AlertAction[];
+  actions: AlertAction[]
 }
 
 /**
@@ -173,13 +175,13 @@ export interface AlertHistoryEntry {
  */
 export interface AlertAction {
   /** Action type */
-  type: 'created' | 'updated' | 'acknowledged' | 'resolved' | 'suppressed' | 'aggregated';
+  type: 'created' | 'updated' | 'acknowledged' | 'resolved' | 'suppressed' | 'aggregated'
   /** Timestamp */
-  timestamp: number;
+  timestamp: number
   /** User who performed the action */
-  user?: string;
+  user?: string
   /** Additional details */
-  details?: Record<string, unknown>;
+  details?: Record<string, unknown>
 }
 
 /**
@@ -187,19 +189,19 @@ export interface AlertAction {
  */
 export interface AlertStats {
   /** Total alerts by level */
-  byLevel: Record<AlertLevel, number>;
+  byLevel: Record<AlertLevel, number>
   /** Total alerts by category */
-  byCategory: Record<AlertCategory, number>;
+  byCategory: Record<AlertCategory, number>
   /** Total alerts by status */
-  byStatus: Record<AlertStatus, number>;
+  byStatus: Record<AlertStatus, number>
   /** Total alerts in last 24 hours */
-  last24Hours: number;
+  last24Hours: number
   /** Total alerts in last 7 days */
-  last7Days: number;
+  last7Days: number
   /** Average resolution time in milliseconds */
-  avgResolutionTime: number;
+  avgResolutionTime: number
   /** Active suppression rules count */
-  activeSuppressions: number;
+  activeSuppressions: number
 }
 
 /**
@@ -207,11 +209,11 @@ export interface AlertStats {
  */
 export interface AlertChannel {
   /** Channel name */
-  name: string;
+  name: string
   /** Send alert to this channel */
-  send(alert: PerformanceAlert): Promise<void>;
+  send(alert: PerformanceAlert): Promise<void>
   /** Test channel connectivity */
-  test?(): Promise<boolean>;
+  test?(): Promise<boolean>
 }
 
 /**
@@ -219,29 +221,29 @@ export interface AlertChannel {
  */
 export interface DashboardAlertMessage {
   /** Alert ID */
-  id: string;
+  id: string
   /** Display title */
-  title: string;
+  title: string
   /** Display message */
-  message: string;
+  message: string
   /** Severity level */
-  level: AlertLevel;
+  level: AlertLevel
   /** Icon name */
-  icon: string;
+  icon: string
   /** Color for display */
-  color: string;
+  color: string
   /** Timestamp */
-  timestamp: number;
+  timestamp: number
   /** Whether it requires acknowledgment */
-  requiresAcknowledgment: boolean;
+  requiresAcknowledgment: boolean
   /** Actions available */
   actions: {
-    acknowledge: boolean;
-    resolve: boolean;
-    suppress: boolean;
-  };
+    acknowledge: boolean
+    resolve: boolean
+    suppress: boolean
+  }
   /** Additional data */
-  data?: Record<string, unknown>;
+  data?: Record<string, unknown>
 }
 
 // ========================================
@@ -253,13 +255,13 @@ const LEVEL_PRIORITY: Record<AlertLevel, number> = {
   warning: 1,
   error: 2,
   critical: 3,
-};
+}
 
 /**
  * Get the priority of an alert level
  */
 export function getLevelPriority(level: AlertLevel): number {
-  return LEVEL_PRIORITY[level];
+  return LEVEL_PRIORITY[level]
 }
 
 /**
@@ -267,23 +269,23 @@ export function getLevelPriority(level: AlertLevel): number {
  * Returns: negative if a < b, 0 if equal, positive if a > b
  */
 export function compareLevels(a: AlertLevel, b: AlertLevel): number {
-  return LEVEL_PRIORITY[a] - LEVEL_PRIORITY[b];
+  return LEVEL_PRIORITY[a] - LEVEL_PRIORITY[b]
 }
 
 /**
  * Check if a level meets the minimum threshold
  */
 export function meetsMinLevel(level: AlertLevel, minLevel: AlertLevel): boolean {
-  return LEVEL_PRIORITY[level] >= LEVEL_PRIORITY[minLevel];
+  return LEVEL_PRIORITY[level] >= LEVEL_PRIORITY[minLevel]
 }
 
 /**
  * Get display properties for an alert level
  */
 export function getLevelDisplay(level: AlertLevel): {
-  icon: string;
-  color: string;
-  bgColor: string;
+  icon: string
+  color: string
+  bgColor: string
 } {
   const displays: Record<AlertLevel, { icon: string; color: string; bgColor: string }> = {
     info: {
@@ -306,24 +308,24 @@ export function getLevelDisplay(level: AlertLevel): {
       color: '#dc2626',
       bgColor: '#fee2e2',
     },
-  };
-  return displays[level];
+  }
+  return displays[level]
 }
 
 // ========================================
 // Alert ID Generator
 // ========================================
 
-let alertCounter = 0;
+let alertCounter = 0
 
 /**
  * Generate a unique alert ID
  */
 export function generateAlertId(): string {
-  const timestamp = Date.now().toString(36);
-  const counter = (alertCounter++).toString(36).padStart(4, '0');
-  const random = Math.random().toString(36).substring(2, 6);
-  return `alert-${timestamp}-${counter}-${random}`;
+  const timestamp = Date.now().toString(36)
+  const counter = (alertCounter++).toString(36).padStart(4, '0')
+  const random = Math.random().toString(36).substring(2, 6)
+  return `alert-${timestamp}-${counter}-${random}`
 }
 
 // ========================================
@@ -337,14 +339,8 @@ export function generateAlertId(): string {
 export function defaultDeduplicationKey(
   alert: Omit<PerformanceAlert, 'id' | 'createdAt' | 'updatedAt' | 'status' | 'occurrenceCount'>
 ): string {
-  const parts = [
-    alert.title,
-    alert.level,
-    alert.category,
-    alert.source,
-    alert.metric || 'none',
-  ];
-  return parts.join('::').toLowerCase();
+  const parts = [alert.title, alert.level, alert.category, alert.source, alert.metric || 'none']
+  return parts.join('::').toLowerCase()
 }
 
 // ========================================
@@ -352,14 +348,14 @@ export function defaultDeduplicationKey(
 // ========================================
 
 export class PerformanceAlerter {
-  private config: AlertConfig;
-  private channels: AlertChannel[] = [];
-  private activeAlerts: Map<string, PerformanceAlert> = new Map();
-  private alertHistory: AlertHistoryEntry[] = [];
-  private suppressionRules: Map<string, SuppressionRule> = new Map();
-  private suppressionCache: Map<string, number> = new Map();
-  private aggregationGroups: Map<string, AggregatedAlertGroup> = new Map();
-  private metricsCallback?: (stats: AlertStats) => void;
+  private config: AlertConfig
+  private channels: AlertChannel[] = []
+  private activeAlerts: Map<string, PerformanceAlert> = new Map()
+  private alertHistory: AlertHistoryEntry[] = []
+  private suppressionRules: Map<string, SuppressionRule> = new Map()
+  private suppressionCache: Map<string, number> = new Map()
+  private aggregationGroups: Map<string, AggregatedAlertGroup> = new Map()
+  private metricsCallback?: (stats: AlertStats) => void
 
   constructor(config: Partial<AlertConfig> = {}) {
     this.config = {
@@ -370,7 +366,7 @@ export class PerformanceAlerter {
       maxHistorySize: 1000,
       enableAggregation: true,
       ...config,
-    };
+    }
   }
 
   // ========================================
@@ -381,28 +377,28 @@ export class PerformanceAlerter {
    * Update alerter configuration
    */
   updateConfig(config: Partial<AlertConfig>): void {
-    this.config = { ...this.config, ...config };
+    this.config = { ...this.config, ...config }
   }
 
   /**
    * Get current configuration
    */
   getConfig(): AlertConfig {
-    return { ...this.config };
+    return { ...this.config }
   }
 
   /**
    * Enable/disable alerting
    */
   setEnabled(enabled: boolean): void {
-    this.config.enabled = enabled;
+    this.config.enabled = enabled
   }
 
   /**
    * Check if alerting is enabled
    */
   isEnabled(): boolean {
-    return this.config.enabled;
+    return this.config.enabled
   }
 
   // ========================================
@@ -413,8 +409,8 @@ export class PerformanceAlerter {
    * Register an alert channel
    */
   registerChannel(channel: AlertChannel): void {
-    if (!this.channels.find((c) => c.name === channel.name)) {
-      this.channels.push(channel);
+    if (!this.channels.find(c => c.name === channel.name)) {
+      this.channels.push(channel)
     }
   }
 
@@ -422,14 +418,14 @@ export class PerformanceAlerter {
    * Unregister an alert channel
    */
   unregisterChannel(channelName: string): void {
-    this.channels = this.channels.filter((c) => c.name !== channelName);
+    this.channels = this.channels.filter(c => c.name !== channelName)
   }
 
   /**
    * Get all registered channels
    */
   getChannels(): AlertChannel[] {
-    return [...this.channels];
+    return [...this.channels]
   }
 
   // ========================================
@@ -440,27 +436,22 @@ export class PerformanceAlerter {
    * Create and send a new alert
    */
   async createAlert(
-    data: Omit<
-      PerformanceAlert,
-      'id' | 'createdAt' | 'updatedAt' | 'status' | 'occurrenceCount'
-    >
+    data: Omit<PerformanceAlert, 'id' | 'createdAt' | 'updatedAt' | 'status' | 'occurrenceCount'>
   ): Promise<PerformanceAlert> {
     // Check if alerting is enabled
     if (!this.config.enabled) {
-      throw new Error('Alerting is disabled');
+      throw new Error('Alerting is disabled')
     }
 
     // Check minimum level
     if (!meetsMinLevel(data.level, this.config.minLevel)) {
-      throw new Error(
-        `Alert level ${data.level} is below minimum level ${this.config.minLevel}`
-      );
+      throw new Error(`Alert level ${data.level} is below minimum level ${this.config.minLevel}`)
     }
 
-    const now = Date.now();
+    const now = Date.now()
     const deduplicationKey = this.config.deduplicationKeyFn
       ? this.config.deduplicationKeyFn(data)
-      : defaultDeduplicationKey(data);
+      : defaultDeduplicationKey(data)
 
     // Check suppression
     if (await this.shouldSuppress(deduplicationKey, data)) {
@@ -471,22 +462,22 @@ export class PerformanceAlerter {
         createdAt: now,
         updatedAt: now,
         occurrenceCount: 1,
-      };
-      this.addToHistory(suppressedAlert, 'suppressed');
-      return suppressedAlert;
+      }
+      this.addToHistory(suppressedAlert, 'suppressed')
+      return suppressedAlert
     }
 
     // Check for existing active alert (deduplication)
-    const existingAlert = this.findExistingAlert(deduplicationKey);
+    const existingAlert = this.findExistingAlert(deduplicationKey)
     if (existingAlert) {
       // Update occurrence count
-      existingAlert.occurrenceCount++;
-      existingAlert.updatedAt = now;
+      existingAlert.occurrenceCount++
+      existingAlert.updatedAt = now
       if (data.currentValue !== undefined) {
-        existingAlert.currentValue = data.currentValue;
+        existingAlert.currentValue = data.currentValue
       }
-      this.addToHistory(existingAlert, 'updated');
-      return existingAlert;
+      this.addToHistory(existingAlert, 'updated')
+      return existingAlert
     }
 
     // Create new alert
@@ -497,28 +488,28 @@ export class PerformanceAlerter {
       createdAt: now,
       updatedAt: now,
       occurrenceCount: 1,
-    };
+    }
 
     // Check aggregation
     if (this.config.enableAggregation) {
-      const aggregatedAlert = this.tryAggregate(alert, deduplicationKey);
+      const aggregatedAlert = this.tryAggregate(alert, deduplicationKey)
       if (aggregatedAlert) {
-        this.addToHistory(aggregatedAlert, 'aggregated');
-        return aggregatedAlert;
+        this.addToHistory(aggregatedAlert, 'aggregated')
+        return aggregatedAlert
       }
     }
 
     // Store as active alert
-    this.activeAlerts.set(alert.id, alert);
-    this.suppressionCache.set(deduplicationKey, now);
+    this.activeAlerts.set(alert.id, alert)
+    this.suppressionCache.set(deduplicationKey, now)
 
     // Add to history
-    this.addToHistory(alert, 'created');
+    this.addToHistory(alert, 'created')
 
     // Send to channels
-    await this.sendToChannels(alert);
+    await this.sendToChannels(alert)
 
-    return alert;
+    return alert
   }
 
   /**
@@ -528,12 +519,12 @@ export class PerformanceAlerter {
     for (const alert of this.activeAlerts.values()) {
       const existingKey = this.config.deduplicationKeyFn
         ? this.config.deduplicationKeyFn(alert)
-        : defaultDeduplicationKey(alert);
+        : defaultDeduplicationKey(alert)
       if (existingKey === deduplicationKey) {
-        return alert;
+        return alert
       }
     }
-    return undefined;
+    return undefined
   }
 
   // ========================================
@@ -548,23 +539,23 @@ export class PerformanceAlerter {
       ...rule,
       id: `suppression-${Date.now().toString(36)}-${Math.random().toString(36).substring(2, 6)}`,
       createdAt: Date.now(),
-    };
-    this.suppressionRules.set(newRule.id, newRule);
-    return newRule;
+    }
+    this.suppressionRules.set(newRule.id, newRule)
+    return newRule
   }
 
   /**
    * Remove a suppression rule
    */
   removeSuppressionRule(ruleId: string): boolean {
-    return this.suppressionRules.delete(ruleId);
+    return this.suppressionRules.delete(ruleId)
   }
 
   /**
    * Get all suppression rules
    */
   getSuppressionRules(): SuppressionRule[] {
-    return Array.from(this.suppressionRules.values());
+    return Array.from(this.suppressionRules.values())
   }
 
   /**
@@ -574,90 +565,92 @@ export class PerformanceAlerter {
     deduplicationKey: string,
     alert: Omit<PerformanceAlert, 'id' | 'createdAt' | 'updatedAt' | 'status' | 'occurrenceCount'>
   ): Promise<boolean> {
-    const now = Date.now();
+    const now = Date.now()
 
     // Check suppression cache (time-based suppression)
-    const lastSuppression = this.suppressionCache.get(deduplicationKey);
-    if (lastSuppression && (now - lastSuppression) < this.config.suppressionWindow) {
-      return true;
+    const lastSuppression = this.suppressionCache.get(deduplicationKey)
+    if (lastSuppression && now - lastSuppression < this.config.suppressionWindow) {
+      return true
     }
 
     // Check active suppression rules
     for (const rule of this.suppressionRules.values()) {
-      if (!rule.active) continue;
+      if (!rule.active) continue
 
       // Check if rule matches this alert
       if (this.matchesFilter(alert, rule.filter)) {
         // Check if rule is still valid
-        if ((now - rule.createdAt) < rule.duration) {
-          return true;
+        if (now - rule.createdAt < rule.duration) {
+          return true
         } else {
           // Rule has expired, deactivate it
-          rule.active = false;
+          rule.active = false
         }
       }
     }
 
-    return false;
+    return false
   }
 
   /**
    * Check if an alert matches a filter
    */
   private matchesFilter(
-    alert: PerformanceAlert | Omit<PerformanceAlert, 'id' | 'createdAt' | 'updatedAt' | 'status' | 'occurrenceCount'>,
+    alert:
+      | PerformanceAlert
+      | Omit<PerformanceAlert, 'id' | 'createdAt' | 'updatedAt' | 'status' | 'occurrenceCount'>,
     filter: AlertFilter
   ): boolean {
     // Check level filter
     if (filter.level) {
-      const levels = Array.isArray(filter.level) ? filter.level : [filter.level];
+      const levels = Array.isArray(filter.level) ? filter.level : [filter.level]
       if (!levels.includes(alert.level)) {
-        return false;
+        return false
       }
     }
 
     // Check category filter
     if (filter.category) {
-      const categories = Array.isArray(filter.category) ? filter.category : [filter.category];
+      const categories = Array.isArray(filter.category) ? filter.category : [filter.category]
       if (!categories.includes(alert.category)) {
-        return false;
+        return false
       }
     }
 
     // Check source filter
     if (filter.source) {
-      const sources = Array.isArray(filter.source) ? filter.source : [filter.source];
+      const sources = Array.isArray(filter.source) ? filter.source : [filter.source]
       if (!sources.includes(alert.source)) {
-        return false;
+        return false
       }
     }
 
     // Check metric filter
     if (filter.metric) {
-      const metrics = Array.isArray(filter.metric) ? filter.metric : [filter.metric];
+      const metrics = Array.isArray(filter.metric) ? filter.metric : [filter.metric]
       if (!alert.metric || !metrics.includes(alert.metric)) {
-        return false;
+        return false
       }
     }
 
     // Check tags filter
     if (filter.tags && filter.tags.length > 0) {
       if (!alert.tags) {
-        return false;
+        return false
       }
-      if (!filter.tags.every((tag) => alert.tags!.includes(tag))) {
-        return false;
+      if (!filter.tags.every(tag => alert.tags!.includes(tag))) {
+        return false
       }
     }
 
     // Check custom filter function
     if (filter.customFn) {
       if (!filter.customFn(alert as PerformanceAlert)) {
-        return false;
+        return false
       }
     }
 
-    return true;
+    return true
   }
 
   // ========================================
@@ -667,32 +660,29 @@ export class PerformanceAlerter {
   /**
    * Try to aggregate an alert with existing alerts
    */
-  private tryAggregate(
-    alert: PerformanceAlert,
-    deduplicationKey: string
-  ): PerformanceAlert | null {
-    const now = Date.now();
+  private tryAggregate(alert: PerformanceAlert, deduplicationKey: string): PerformanceAlert | null {
+    const now = Date.now()
 
     // Find or create aggregation group
-    const group = this.aggregationGroups.get(deduplicationKey);
+    const group = this.aggregationGroups.get(deduplicationKey)
 
     if (group) {
       // Check if group is still within aggregation window
-      if ((now - group.timeRange.start) <= this.config.aggregationWindow) {
+      if (now - group.timeRange.start <= this.config.aggregationWindow) {
         // Add to existing group
-        group.alerts.push(alert);
-        group.totalOccurrences += alert.occurrenceCount;
-        group.timeRange.end = now;
+        group.alerts.push(alert)
+        group.totalOccurrences += alert.occurrenceCount
+        group.timeRange.end = now
 
         // Update representative alert
-        group.representative.occurrenceCount = group.totalOccurrences;
-        group.representative.updatedAt = now;
-        group.representative.aggregatedIds = group.alerts.map((a) => a.id);
+        group.representative.occurrenceCount = group.totalOccurrences
+        group.representative.updatedAt = now
+        group.representative.aggregatedIds = group.alerts.map(a => a.id)
 
-        return group.representative;
+        return group.representative
       } else {
         // Group has expired, start a new one
-        this.aggregationGroups.delete(deduplicationKey);
+        this.aggregationGroups.delete(deduplicationKey)
       }
     }
 
@@ -706,33 +696,33 @@ export class PerformanceAlerter {
         start: now,
         end: now,
       },
-    });
+    })
 
-    return null;
+    return null
   }
 
   /**
    * Get all aggregation groups
    */
   getAggregationGroups(): AggregatedAlertGroup[] {
-    return Array.from(this.aggregationGroups.values());
+    return Array.from(this.aggregationGroups.values())
   }
 
   /**
    * Clear expired aggregation groups
    */
   clearExpiredAggregationGroups(): number {
-    const now = Date.now();
-    let cleared = 0;
+    const now = Date.now()
+    let cleared = 0
 
     for (const [key, group] of this.aggregationGroups.entries()) {
-      if ((now - group.timeRange.start) > this.config.aggregationWindow) {
-        this.aggregationGroups.delete(key);
-        cleared++;
+      if (now - group.timeRange.start > this.config.aggregationWindow) {
+        this.aggregationGroups.delete(key)
+        cleared++
       }
     }
 
-    return cleared;
+    return cleared
   }
 
   // ========================================
@@ -743,61 +733,61 @@ export class PerformanceAlerter {
    * Get all active alerts
    */
   getActiveAlerts(): PerformanceAlert[] {
-    return Array.from(this.activeAlerts.values());
+    return Array.from(this.activeAlerts.values())
   }
 
   /**
    * Get an alert by ID
    */
   getAlert(alertId: string): PerformanceAlert | undefined {
-    return this.activeAlerts.get(alertId);
+    return this.activeAlerts.get(alertId)
   }
 
   /**
    * Acknowledge an alert
    */
   acknowledgeAlert(alertId: string, acknowledgedBy?: string): PerformanceAlert | null {
-    const alert = this.activeAlerts.get(alertId);
+    const alert = this.activeAlerts.get(alertId)
     if (!alert) {
-      return null;
+      return null
     }
 
-    alert.status = 'acknowledged';
-    alert.acknowledgedAt = Date.now();
-    alert.acknowledgedBy = acknowledgedBy;
-    alert.updatedAt = Date.now();
+    alert.status = 'acknowledged'
+    alert.acknowledgedAt = Date.now()
+    alert.acknowledgedBy = acknowledgedBy
+    alert.updatedAt = Date.now()
 
-    this.addToHistory(alert, 'acknowledged', { user: acknowledgedBy });
+    this.addToHistory(alert, 'acknowledged', { user: acknowledgedBy })
 
-    return alert;
+    return alert
   }
 
   /**
    * Resolve an alert
    */
   resolveAlert(alertId: string): PerformanceAlert | null {
-    const alert = this.activeAlerts.get(alertId);
+    const alert = this.activeAlerts.get(alertId)
     if (!alert) {
-      return null;
+      return null
     }
 
-    alert.status = 'resolved';
-    alert.resolvedAt = Date.now();
-    alert.updatedAt = Date.now();
+    alert.status = 'resolved'
+    alert.resolvedAt = Date.now()
+    alert.updatedAt = Date.now()
 
-    this.activeAlerts.delete(alertId);
-    this.addToHistory(alert, 'resolved');
+    this.activeAlerts.delete(alertId)
+    this.addToHistory(alert, 'resolved')
 
-    return alert;
+    return alert
   }
 
   /**
    * Clear all active alerts
    */
   clearAllAlerts(): number {
-    const count = this.activeAlerts.size;
-    this.activeAlerts.clear();
-    return count;
+    const count = this.activeAlerts.size
+    this.activeAlerts.clear()
+    return count
   }
 
   // ========================================
@@ -816,20 +806,20 @@ export class PerformanceAlerter {
       type: actionType,
       timestamp: Date.now(),
       details,
-    };
-
-    // Find existing history entry or create new one
-    let entry = this.alertHistory.find((e) => e.alert.id === alert.id);
-    if (!entry) {
-      entry = { alert, actions: [] };
-      this.alertHistory.push(entry);
     }
 
-    entry.actions.push(action);
+    // Find existing history entry or create new one
+    let entry = this.alertHistory.find(e => e.alert.id === alert.id)
+    if (!entry) {
+      entry = { alert, actions: [] }
+      this.alertHistory.push(entry)
+    }
+
+    entry.actions.push(action)
 
     // Trim history if needed
     if (this.alertHistory.length > this.config.maxHistorySize) {
-      this.alertHistory.shift();
+      this.alertHistory.shift()
     }
   }
 
@@ -837,41 +827,41 @@ export class PerformanceAlerter {
    * Get alert history
    */
   getHistory(options?: {
-    limit?: number;
-    level?: AlertLevel;
-    category?: AlertCategory;
-    since?: number;
+    limit?: number
+    level?: AlertLevel
+    category?: AlertCategory
+    since?: number
   }): AlertHistoryEntry[] {
-    let history = [...this.alertHistory];
+    let history = [...this.alertHistory]
 
     // Apply filters
     if (options?.level) {
-      history = history.filter((e) => e.alert.level === options.level);
+      history = history.filter(e => e.alert.level === options.level)
     }
     if (options?.category) {
-      history = history.filter((e) => e.alert.category === options.category);
+      history = history.filter(e => e.alert.category === options.category)
     }
     if (options?.since) {
-      const since = options.since;
-      history = history.filter((e) => e.alert.createdAt >= since);
+      const since = options.since
+      history = history.filter(e => e.alert.createdAt >= since)
     }
 
     // Sort by timestamp (newest first)
-    history.sort((a, b) => b.alert.createdAt - a.alert.createdAt);
+    history.sort((a, b) => b.alert.createdAt - a.alert.createdAt)
 
     // Apply limit
     if (options?.limit) {
-      history = history.slice(0, options.limit);
+      history = history.slice(0, options.limit)
     }
 
-    return history;
+    return history
   }
 
   /**
    * Clear alert history
    */
   clearHistory(): void {
-    this.alertHistory = [];
+    this.alertHistory = []
   }
 
   // ========================================
@@ -882,9 +872,9 @@ export class PerformanceAlerter {
    * Get alert statistics
    */
   getStats(): AlertStats {
-    const now = Date.now();
-    const dayAgo = now - 86400000;
-    const weekAgo = now - 604800000;
+    const now = Date.now()
+    const dayAgo = now - 86400000
+    const weekAgo = now - 604800000
 
     const stats: AlertStats = {
       byLevel: { info: 0, warning: 0, error: 0, critical: 0 },
@@ -901,57 +891,57 @@ export class PerformanceAlerter {
       last7Days: 0,
       avgResolutionTime: 0,
       activeSuppressions: 0,
-    };
+    }
 
     // Calculate from history
-    let totalResolutionTime = 0;
-    let resolvedCount = 0;
+    let totalResolutionTime = 0
+    let resolvedCount = 0
 
     for (const entry of this.alertHistory) {
-      const alert = entry.alert;
+      const alert = entry.alert
 
       // By level
-      stats.byLevel[alert.level]++;
+      stats.byLevel[alert.level]++
 
       // By category
-      stats.byCategory[alert.category]++;
+      stats.byCategory[alert.category]++
 
       // By status
-      stats.byStatus[alert.status]++;
+      stats.byStatus[alert.status]++
 
       // Time-based counts
       if (alert.createdAt >= dayAgo) {
-        stats.last24Hours++;
+        stats.last24Hours++
       }
       if (alert.createdAt >= weekAgo) {
-        stats.last7Days++;
+        stats.last7Days++
       }
 
       // Resolution time
       if (alert.resolvedAt && alert.createdAt) {
-        totalResolutionTime += alert.resolvedAt - alert.createdAt;
-        resolvedCount++;
+        totalResolutionTime += alert.resolvedAt - alert.createdAt
+        resolvedCount++
       }
     }
 
     // Calculate average resolution time
-    stats.avgResolutionTime = resolvedCount > 0 ? totalResolutionTime / resolvedCount : 0;
+    stats.avgResolutionTime = resolvedCount > 0 ? totalResolutionTime / resolvedCount : 0
 
     // Count active suppressions
     for (const rule of this.suppressionRules.values()) {
-      if (rule.active && (now - rule.createdAt) < rule.duration) {
-        stats.activeSuppressions++;
+      if (rule.active && now - rule.createdAt < rule.duration) {
+        stats.activeSuppressions++
       }
     }
 
-    return stats;
+    return stats
   }
 
   /**
    * Set metrics callback for external monitoring
    */
   setMetricsCallback(callback: (stats: AlertStats) => void): void {
-    this.metricsCallback = callback;
+    this.metricsCallback = callback
   }
 
   // ========================================
@@ -962,19 +952,19 @@ export class PerformanceAlerter {
    * Send alert to all registered channels
    */
   private async sendToChannels(alert: PerformanceAlert): Promise<void> {
-    const sendPromises = this.channels.map(async (channel) => {
+    const sendPromises = this.channels.map(async channel => {
       try {
-        await channel.send(alert);
-      } catch (_error) {
-        console.error(`[PerformanceAlerter] Failed to send to channel ${channel.name}:`, error);
+        await channel.send(alert)
+      } catch (error) {
+        console.error(`[PerformanceAlerter] Failed to send to channel ${channel.name}:`, error)
       }
-    });
+    })
 
-    await Promise.allSettled(sendPromises);
+    await Promise.allSettled(sendPromises)
 
     // Trigger metrics callback if set
     if (this.metricsCallback) {
-      this.metricsCallback(this.getStats());
+      this.metricsCallback(this.getStats())
     }
   }
 
@@ -982,7 +972,7 @@ export class PerformanceAlerter {
    * Convert alert to dashboard message format
    */
   toDashboardMessage(alert: PerformanceAlert): DashboardAlertMessage {
-    const display = getLevelDisplay(alert.level);
+    const display = getLevelDisplay(alert.level)
 
     return {
       id: alert.id,
@@ -1007,7 +997,7 @@ export class PerformanceAlerter {
         occurrenceCount: alert.occurrenceCount,
         metadata: alert.metadata,
       },
-    };
+    }
   }
 }
 
@@ -1019,13 +1009,13 @@ export class PerformanceAlerter {
  * Dashboard channel for sending alerts to the UI
  */
 export class DashboardChannel implements AlertChannel {
-  name = 'dashboard';
-  private callbacks: Set<(message: DashboardAlertMessage) => void> = new Set();
-  private messageHistory: DashboardAlertMessage[] = [];
-  private maxHistorySize: number;
+  name = 'dashboard'
+  private callbacks: Set<(message: DashboardAlertMessage) => void> = new Set()
+  private messageHistory: DashboardAlertMessage[] = []
+  private maxHistorySize: number
 
   constructor(options?: { maxHistorySize?: number }) {
-    this.maxHistorySize = options?.maxHistorySize || 100;
+    this.maxHistorySize = options?.maxHistorySize || 100
   }
 
   /**
@@ -1056,20 +1046,20 @@ export class DashboardChannel implements AlertChannel {
         occurrenceCount: alert.occurrenceCount,
         metadata: alert.metadata,
       },
-    };
+    }
 
     // Add to history
-    this.messageHistory.unshift(message);
+    this.messageHistory.unshift(message)
     if (this.messageHistory.length > this.maxHistorySize) {
-      this.messageHistory.pop();
+      this.messageHistory.pop()
     }
 
     // Notify all subscribers
     for (const callback of this.callbacks) {
       try {
-        callback(message);
-      } catch (_error) {
-        console.error('[DashboardChannel] Callback error:', error);
+        callback(message)
+      } catch (error) {
+        console.error('[DashboardChannel] Callback error:', error)
       }
     }
   }
@@ -1078,39 +1068,39 @@ export class DashboardChannel implements AlertChannel {
    * Subscribe to dashboard alerts
    */
   subscribe(callback: (message: DashboardAlertMessage) => void): () => void {
-    this.callbacks.add(callback);
-    return () => this.callbacks.delete(callback);
+    this.callbacks.add(callback)
+    return () => this.callbacks.delete(callback)
   }
 
   /**
    * Get message history
    */
   getHistory(options?: { limit?: number; level?: AlertLevel }): DashboardAlertMessage[] {
-    let messages = [...this.messageHistory];
+    let messages = [...this.messageHistory]
 
     if (options?.level) {
-      messages = messages.filter((m) => m.level === options.level);
+      messages = messages.filter(m => m.level === options.level)
     }
 
     if (options?.limit) {
-      messages = messages.slice(0, options.limit);
+      messages = messages.slice(0, options.limit)
     }
 
-    return messages;
+    return messages
   }
 
   /**
    * Clear message history
    */
   clearHistory(): void {
-    this.messageHistory = [];
+    this.messageHistory = []
   }
 
   /**
    * Test channel connectivity
    */
   async test(): Promise<boolean> {
-    return true;
+    return true
   }
 }
 
@@ -1126,13 +1116,13 @@ export function createPerformanceAlert(
   message: string,
   level: AlertLevel,
   options?: {
-    category?: AlertCategory;
-    source?: string;
-    metric?: string;
-    currentValue?: number;
-    threshold?: number;
-    metadata?: Record<string, unknown>;
-    tags?: string[];
+    category?: AlertCategory
+    source?: string
+    metric?: string
+    currentValue?: number
+    threshold?: number
+    metadata?: Record<string, unknown>
+    tags?: string[]
   }
 ): Omit<PerformanceAlert, 'id' | 'createdAt' | 'updatedAt' | 'status' | 'occurrenceCount'> {
   return {
@@ -1146,86 +1136,82 @@ export function createPerformanceAlert(
     threshold: options?.threshold,
     metadata: options?.metadata,
     tags: options?.tags,
-  };
+  }
 }
 
 /**
  * Format alert for logging
  */
 export function formatAlertForLog(alert: PerformanceAlert): string {
-  const display = getLevelDisplay(alert.level);
-  const timestamp = new Date(alert.createdAt).toISOString();
-  return `[${timestamp}] ${display.icon} [${alert.level.toUpperCase()}] ${alert.title}: ${alert.message}`;
+  const display = getLevelDisplay(alert.level)
+  const timestamp = new Date(alert.createdAt).toISOString()
+  return `[${timestamp}] ${display.icon} [${alert.level.toUpperCase()}] ${alert.title}: ${alert.message}`
 }
 
 /**
  * Filter alerts by criteria
  */
-export function filterAlerts(
-  alerts: PerformanceAlert[],
-  filter: AlertFilter
-): PerformanceAlert[] {
-  return alerts.filter((alert) => {
+export function filterAlerts(alerts: PerformanceAlert[], filter: AlertFilter): PerformanceAlert[] {
+  return alerts.filter(alert => {
     // Check level filter
     if (filter.level) {
-      const levels = Array.isArray(filter.level) ? filter.level : [filter.level];
+      const levels = Array.isArray(filter.level) ? filter.level : [filter.level]
       if (!levels.includes(alert.level)) {
-        return false;
+        return false
       }
     }
 
     // Check category filter
     if (filter.category) {
-      const categories = Array.isArray(filter.category) ? filter.category : [filter.category];
+      const categories = Array.isArray(filter.category) ? filter.category : [filter.category]
       if (!categories.includes(alert.category)) {
-        return false;
+        return false
       }
     }
 
     // Check source filter
     if (filter.source) {
-      const sources = Array.isArray(filter.source) ? filter.source : [filter.source];
+      const sources = Array.isArray(filter.source) ? filter.source : [filter.source]
       if (!sources.includes(alert.source)) {
-        return false;
+        return false
       }
     }
 
     // Check metric filter
     if (filter.metric) {
-      const metrics = Array.isArray(filter.metric) ? filter.metric : [filter.metric];
+      const metrics = Array.isArray(filter.metric) ? filter.metric : [filter.metric]
       if (!alert.metric || !metrics.includes(alert.metric)) {
-        return false;
+        return false
       }
     }
 
     // Check tags filter
     if (filter.tags && filter.tags.length > 0) {
       if (!alert.tags) {
-        return false;
+        return false
       }
-      if (!filter.tags.every((tag) => alert.tags!.includes(tag))) {
-        return false;
+      if (!filter.tags.every(tag => alert.tags!.includes(tag))) {
+        return false
       }
     }
 
     // Check custom filter function
     if (filter.customFn && !filter.customFn(alert)) {
-      return false;
+      return false
     }
 
-    return true;
-  });
+    return true
+  })
 }
 
 // ========================================
 // Export Singleton Instance
 // ========================================
 
-export const performanceAlerter = new PerformanceAlerter();
+export const performanceAlerter = new PerformanceAlerter()
 
 // ========================================
 // Default Export
 // ========================================
 
-export default performanceAlerter;
-
+export default performanceAlerter

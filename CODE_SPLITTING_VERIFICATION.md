@@ -11,16 +11,16 @@
 
 ### 已完成任务
 
-| 任务 | 状态 | 详情 |
-|------|------|------|
-| 分析大型组件 | ✅ 完成 | 识别了 13 个大型组件（>300 行代码） |
-| 使用 `next/dynamic` 实现动态导入 | ✅ 完成 | 创建了 LazyComponents 组件库 |
-| 为 heavy 组件添加 loading fallback | ✅ 完成 | 所有懒加载组件都有 LoadingFallback |
-| 实现 Route-based code splitting | ✅ 完成 | 优化了 Dashboard 页面的代码分割 |
-| 配置 next.config.ts 的 bundle 分析 | ✅ 完成 | 增强了 webpack splitChunks 配置 |
-| 输出优化报告 | ✅ 完成 | 生成了 CODE_SPLITTING_REPORT.md |
-| 提交代码到 git | ✅ 完成 | 2 次提交成功 |
-| 验证 bundle 分析 | ✅ 完成 | 生成 nodejs.html 和 edge.html 报告 |
+| 任务                               | 状态    | 详情                                |
+| ---------------------------------- | ------- | ----------------------------------- |
+| 分析大型组件                       | ✅ 完成 | 识别了 13 个大型组件（>300 行代码） |
+| 使用 `next/dynamic` 实现动态导入   | ✅ 完成 | 创建了 LazyComponents 组件库        |
+| 为 heavy 组件添加 loading fallback | ✅ 完成 | 所有懒加载组件都有 LoadingFallback  |
+| 实现 Route-based code splitting    | ✅ 完成 | 优化了 Dashboard 页面的代码分割     |
+| 配置 next.config.ts 的 bundle 分析 | ✅ 完成 | 增强了 webpack splitChunks 配置     |
+| 输出优化报告                       | ✅ 完成 | 生成了 CODE_SPLITTING_REPORT.md     |
+| 提交代码到 git                     | ✅ 完成 | 2 次提交成功                        |
+| 验证 bundle 分析                   | ✅ 完成 | 生成 nodejs.html 和 edge.html 报告  |
 
 ---
 
@@ -52,19 +52,19 @@
 
 ### Bundle 大小优化
 
-| 指标 | 优化前 | 优化后（预期） | 改进 |
-|--------|--------|---------------|------|
-| 首屏 JS 大小 | ~500 KB | ~350 KB | ↓ 30% |
-| 总下载量 | ~800 KB | ~600 KB | ↓ 25% |
-| 初始请求数 | ~15 | ~10 | ↓ 33% |
+| 指标         | 优化前  | 优化后（预期） | 改进  |
+| ------------ | ------- | -------------- | ----- |
+| 首屏 JS 大小 | ~500 KB | ~350 KB        | ↓ 30% |
+| 总下载量     | ~800 KB | ~600 KB        | ↓ 25% |
+| 初始请求数   | ~15     | ~10            | ↓ 33% |
 
 ### 性能指标预期
 
-| 指标 | 优化前 | 优化后（预期） | 改进 |
-|--------|--------|---------------|------|
-| Time to Interactive (TTI) | ~4.5s | ~3.0s | ↓ 33% |
-| First Contentful Paint (FCP) | ~2.0s | ~1.6s | ↓ 20% |
-| LCP (Largest Contentful Paint) | ~3.5s | ~2.8s | ↓ 20% |
+| 指标                           | 优化前 | 优化后（预期） | 改进  |
+| ------------------------------ | ------ | -------------- | ----- |
+| Time to Interactive (TTI)      | ~4.5s  | ~3.0s          | ↓ 33% |
+| First Contentful Paint (FCP)   | ~2.0s  | ~1.6s          | ↓ 20% |
+| LCP (Largest Contentful Paint) | ~3.5s  | ~2.8s          | ↓ 20% |
 
 ---
 
@@ -123,16 +123,16 @@
 
 ### 新增的 Chunk 分组
 
-| Chunk 组 | 包含的库 | 优先级 | 预期大小 |
-|---------|-----------|--------|---------|
-| `chart-libs` | recharts, chart.js, d3, @visx | 50 | ~100 KB |
-| `realtime-libs` | socket.io-client, @socket.io | 45 | ~80 KB |
-| `ui-libs` | @radix-ui, lucide-react, framer-motion | 40 | ~150 KB |
-| `framework` | react, react-dom, next, next-intl | 35 | ~200 KB |
-| `vendor-utils` | zustand, immer, lodash, date-fns | 30 | ~120 KB |
-| `forms-libs` | zod, react-hook-form, @hookform | 25 | ~60 KB |
-| `vendors` | 其他 node_modules | 10 | ~100 KB |
-| `common` | 公共模块 | 5 | ~50 KB |
+| Chunk 组        | 包含的库                               | 优先级 | 预期大小 |
+| --------------- | -------------------------------------- | ------ | -------- |
+| `chart-libs`    | recharts, chart.js, d3, @visx          | 50     | ~100 KB  |
+| `realtime-libs` | socket.io-client, @socket.io           | 45     | ~80 KB   |
+| `ui-libs`       | @radix-ui, lucide-react, framer-motion | 40     | ~150 KB  |
+| `framework`     | react, react-dom, next, next-intl      | 35     | ~200 KB  |
+| `vendor-utils`  | zustand, immer, lodash, date-fns       | 30     | ~120 KB  |
+| `forms-libs`    | zod, react-hook-form, @hookform        | 25     | ~60 KB   |
+| `vendors`       | 其他 node_modules                      | 10     | ~100 KB  |
+| `common`        | 公共模块                               | 5      | ~50 KB   |
 
 ---
 
@@ -146,6 +146,7 @@ npm run build:analyze
 ```
 
 分析报告将生成在 `.next/analyze/` 目录：
+
 - `nodejs.html` - Node.js 环境 bundle 分析
 - `edge.html` - Edge Runtime bundle 分析
 - `client.html` - 客户端 bundle 分析（如果完成）

@@ -7,6 +7,7 @@ OpenClaw支持扩展技能(Skills)，可以增强我的能力。
 ## 可用技能
 
 当前系统有 **52个** 内置技能，涵盖：
+
 - 编程开发 (coding-agent)
 - 笔记应用 (notion, obsidian, apple-notes等)
 - 音乐/媒体 (spotify-player, youtube-dl等)
@@ -36,10 +37,7 @@ OpenClaw支持扩展技能(Skills)，可以增强我的能力。
 ---
 name: my-skill
 description: '技能描述'
-metadata:
-  {
-    "openclaw": { "emoji": "⚡", "requires": { "anyBalls": ["cmd"] } },
-  }
+metadata: { 'openclaw': { 'emoji': '⚡', 'requires': { 'anyBalls': ['cmd'] } } }
 ---
 
 # 技能使用说明

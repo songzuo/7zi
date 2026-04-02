@@ -22,27 +22,27 @@
 
 ```typescript
 // ✅ 正确
-const userName = 'John';
-function getUserData() { }
-const MAX_RETRIES = 3;
+const userName = 'John'
+function getUserData() {}
+const MAX_RETRIES = 3
 
 // ❌ 错误
-const username = 'John';  // 使用 camelCase
-function get_user_data() { }  // 不使用下划线
-const max_retries = 3;  // 常量用大写
+const username = 'John' // 使用 camelCase
+function get_user_data() {} // 不使用下划线
+const max_retries = 3 // 常量用大写
 ```
 
 ### 组件和类
 
 ```typescript
 // ✅ 正确 - 使用 PascalCase
-class UserService { }
-const UserProfile = () => { };
-interface ApiResponse { }
+class UserService {}
+const UserProfile = () => {}
+interface ApiResponse {}
 
 // ❌ 错误
-class userService { }
-const userProfile = () => { };
+class userService {}
+const userProfile = () => {}
 ```
 
 ### 文件和目录
@@ -68,52 +68,49 @@ utils/FormatDate.ts  # 工具函数用 kebab-case
 // 使用 2 空格缩进
 function processData(data: DataProps): Result {
   if (!data) {
-    throw new Error('Data is required');
+    throw new Error('Data is required')
   }
-  
-  const result = transform(data);
-  return result;
+
+  const result = transform(data)
+  return result
 }
 
 // 箭头函数
 const handleClick = () => {
-  console.log('Clicked!');
-};
+  console.log('Clicked!')
+}
 
 // 导出语句
-export { UserService };
-export default UserProfile;
+export { UserService }
+export default UserProfile
 ```
 
 ### React 组件
 
 ```tsx
 // ✅ 正确的组件结构
-import React, { useState, useEffect } from 'react';
-import styles from './UserProfile.module.css';
+import React, { useState, useEffect } from 'react'
+import styles from './UserProfile.module.css'
 
 interface UserProfileProps {
-  userId: string;
-  showAvatar?: boolean;
+  userId: string
+  showAvatar?: boolean
 }
 
-export const UserProfile: React.FC<UserProfileProps> = ({
-  userId,
-  showAvatar = true
-}) => {
-  const [user, setUser] = useState<User | null>(null);
+export const UserProfile: React.FC<UserProfileProps> = ({ userId, showAvatar = true }) => {
+  const [user, setUser] = useState<User | null>(null)
 
   useEffect(() => {
-    loadUser(userId);
-  }, [userId]);
+    loadUser(userId)
+  }, [userId])
 
   return (
     <div className={styles.container}>
       {showAvatar && <Avatar user={user} />}
       <h2>{user?.name}</h2>
     </div>
-  );
-};
+  )
+}
 ```
 
 ### CSS/样式
@@ -162,10 +159,7 @@ export const UserProfile: React.FC<UserProfileProps> = ({
  * @example
  * const user = await getUserData('123', { includeProfile: true });
  */
-async function getUserData(
-  userId: string,
-  options: QueryOptions = {}
-): Promise<User> {
+async function getUserData(userId: string, options: QueryOptions = {}): Promise<User> {
   // ...
 }
 ```
@@ -174,10 +168,10 @@ async function getUserData(
 
 ```typescript
 // ✅ 好的注释 - 解释为什么
-const timeout = 5000; // 5 秒超时，给慢网络留有余量
+const timeout = 5000 // 5 秒超时，给慢网络留有余量
 
 // ❌ 不好的注释 - 重复代码
-i++; // i 加 1
+i++ // i 加 1
 ```
 
 ---
@@ -205,20 +199,20 @@ project/
 
 ```tsx
 // 1. 导入
-import React from 'react';
-import { useState } from 'react';
+import React from 'react'
+import { useState } from 'react'
 
 // 2. 类型定义
-interface Props { }
+interface Props {}
 
 // 3. 常量
-const MAX_ITEMS = 100;
+const MAX_ITEMS = 100
 
 // 4. 组件
-export const Component = () => { };
+export const Component = () => {}
 
 // 5. 导出
-export default Component;
+export default Component
 ```
 
 ---
@@ -278,31 +272,35 @@ docs(readme): 更新快速开始指南
 
 ```typescript
 // ✅ 正确 - 使用 withErrorHandling 包装器
-import { withErrorHandling, createSuccessResponse, createValidationError } from '@/lib/api/error-handler';
+import {
+  withErrorHandling,
+  createSuccessResponse,
+  createValidationError,
+} from '@/lib/api/error-handler'
 
 export const POST = withErrorHandling(async (request: NextRequest) => {
-  const { email } = await request.json();
+  const { email } = await request.json()
 
   // 验证输入
   if (!email) {
-    return createValidationError('Email is required');
+    return createValidationError('Email is required')
   }
 
-  const user = await createUser(email);
-  return createSuccessResponse(user, 201);
-});
+  const user = await createUser(email)
+  return createSuccessResponse(user, 201)
+})
 ```
 
 ```typescript
 // ❌ 错误 - 不要直接返回 NextResponse.json 错误
 export async function POST(request: NextRequest) {
   try {
-    const user = await createUser(email);
-    return NextResponse.json(user);
+    const user = await createUser(email)
+    return NextResponse.json(user)
   } catch (error) {
     // ❌ 暴露错误详情到生产环境
-    console.error('Error:', error);
-    return NextResponse.json({ error: error.message }, { status: 500 });
+    console.error('Error:', error)
+    return NextResponse.json({ error: error.message }, { status: 500 })
   }
 }
 ```
@@ -339,31 +337,32 @@ function UserProfile() {
 
 ```typescript
 // ✅ 正确 - 使用 logger
-import { logger } from '@/lib/logger';
+import { logger } from '@/lib/logger'
 
 logger.error('Failed to process request', error, {
   category: 'api',
   endpoint: '/api/users',
-  sensitive: false
-});
+  sensitive: false,
+})
 ```
 
 ```typescript
 // ❌ 错误 - 不要使用 console.error
-console.error('Failed to encrypt backup:', error);  // ⚠️ 暴露敏感信息
+console.error('Failed to encrypt backup:', error) // ⚠️ 暴露敏感信息
 ```
 
 #### 安全注意事项
 
 ```typescript
 // ✅ 正确 - 用户友好的消息
-return createUnauthorizedError('Please log in to continue');
+return createUnauthorizedError('Please log in to continue')
 
 // ❌ 错误 - 不要暴露技术细节
-return createUnauthorizedError('JWT token missing in Authorization header');
+return createUnauthorizedError('JWT token missing in Authorization header')
 ```
 
 **相关文档:**
+
 - 📖 [错误处理完整指南](./ERROR_HANDLING_GUIDE.md)
 - 📋 [错误处理审计报告](../ERROR_HANDLING_AUDIT.md)
 
@@ -372,14 +371,14 @@ return createUnauthorizedError('JWT token missing in Authorization header');
 ```typescript
 // ✅ 正确的错误处理（非错误处理相关）
 try {
-  const data = await fetchData();
-  return { success: true, data };
+  const data = await fetchData()
+  return { success: true, data }
 } catch (error) {
-  logger.error('Failed to fetch data', error);
-  return { 
-    success: false, 
-    error: '数据加载失败，请稍后重试' 
-  };
+  logger.error('Failed to fetch data', error)
+  return {
+    success: false,
+    error: '数据加载失败，请稍后重试',
+  }
 }
 ```
 
@@ -388,20 +387,18 @@ try {
 ```typescript
 // ✅ 使用 async/await
 async function processUsers(userIds: string[]) {
-  const results = await Promise.all(
-    userIds.map(id => fetchUser(id))
-  );
-  return results;
+  const results = await Promise.all(userIds.map(id => fetchUser(id)))
+  return results
 }
 
 // ❌ 避免回调地狱
 userIds.forEach(id => {
-  fetchUser(id, (user) => {
-    processUser(user, (result) => {
+  fetchUser(id, user => {
+    processUser(user, result => {
       // ...
-    });
-  });
-});
+    })
+  })
+})
 ```
 
 ### 性能优化
@@ -428,16 +425,16 @@ import { VirtualList } from './VirtualList';
 // ✅ 输入验证
 function createUser(input: Input) {
   if (!input.email || !isValidEmail(input.email)) {
-    throw new ValidationError('无效的邮箱地址');
+    throw new ValidationError('无效的邮箱地址')
   }
   // ...
 }
 
 // ✅ 转义用户输入
-const safeHtml = escapeHtml(userInput);
+const safeHtml = escapeHtml(userInput)
 
 // ❌ 避免 SQL 注入
-const user = db.query(`SELECT * FROM users WHERE id = ${userId}`); // 危险！
+const user = db.query(`SELECT * FROM users WHERE id = ${userId}`) // 危险！
 ```
 
 ---
@@ -498,4 +495,4 @@ const user = db.query(`SELECT * FROM users WHERE id = ${userId}`); // 危险！
 
 ---
 
-*本规范由 7zi Studio AI 团队制定并维护*
+_本规范由 7zi Studio AI 团队制定并维护_

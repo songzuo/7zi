@@ -27,13 +27,13 @@
 
 本项目的 E2E 测试使用 **Playwright** 框架，覆盖以下关键业务流程：
 
-| 场景 | 测试文件 | 状态 |
-|------|---------|------|
-| 用户登录 | `auth-flow.spec.ts` | ✅ |
-| 用户注册 | `user-registration.spec.ts` | ✅ |
-| 任务创建/管理 | `task-creation-pom.spec.ts` | ✅ |
-| 反馈提交 | `form.spec.ts` | ✅ |
-| 项目管理 | `dashboard.spec.ts` | ✅ |
+| 场景          | 测试文件                    | 状态 |
+| ------------- | --------------------------- | ---- |
+| 用户登录      | `auth-flow.spec.ts`         | ✅   |
+| 用户注册      | `user-registration.spec.ts` | ✅   |
+| 任务创建/管理 | `task-creation-pom.spec.ts` | ✅   |
+| 反馈提交      | `form.spec.ts`              | ✅   |
+| 项目管理      | `dashboard.spec.ts`         | ✅   |
 
 ### 测试统计
 
@@ -50,15 +50,15 @@
 
 相比 Cypress，Playwright 的优势：
 
-| 特性 | Playwright | Cypress |
-|------|-----------|---------|
-| **多浏览器支持** | ✅ Chromium, Firefox, WebKit | ⚠️ 主要基于 Chromium |
-| **并行执行** | ✅ 原生支持 | ⚠️ 需要额外配置 |
-| **移动端测试** | ✅ 设备模拟 | ⚠️ 有限支持 |
-| **性能** | ✅ 更快 | ⚠️ 较慢 |
-| **自动化截图/视频** | ✅ 内置 | ✅ 内置 |
-| **测试隔离** | ✅ 浏览器上下文隔离 | ⚠️ 共享窗口 |
-| **API 支持** | ✅ 强大的 API 测试 | ⚠️ 有限 |
+| 特性                | Playwright                   | Cypress              |
+| ------------------- | ---------------------------- | -------------------- |
+| **多浏览器支持**    | ✅ Chromium, Firefox, WebKit | ⚠️ 主要基于 Chromium |
+| **并行执行**        | ✅ 原生支持                  | ⚠️ 需要额外配置      |
+| **移动端测试**      | ✅ 设备模拟                  | ⚠️ 有限支持          |
+| **性能**            | ✅ 更快                      | ⚠️ 较慢              |
+| **自动化截图/视频** | ✅ 内置                      | ✅ 内置              |
+| **测试隔离**        | ✅ 浏览器上下文隔离          | ⚠️ 共享窗口          |
+| **API 支持**        | ✅ 强大的 API 测试           | ⚠️ 有限              |
 
 ### 架构设计
 
@@ -166,7 +166,7 @@ e2e/
 **playwright.config.ts** - 主配置文件
 
 ```typescript
-import { defineConfig, devices } from '@playwright/test';
+import { defineConfig, devices } from '@playwright/test'
 
 export default defineConfig({
   // 测试目录
@@ -201,7 +201,7 @@ export default defineConfig({
     url: 'http://localhost:3000',
     reuseExistingServer: !process.env.CI,
   },
-});
+})
 ```
 
 ---
@@ -265,29 +265,29 @@ npx playwright test --slowMo=1000
 ### 测试模板
 
 ```typescript
-import { test, expect } from '@playwright/test';
+import { test, expect } from '@playwright/test'
 
 test.describe('功能模块名称', () => {
   test.beforeEach(async ({ page }) => {
     // 每个测试前的准备
-    await page.goto('/');
-  });
+    await page.goto('/')
+  })
 
   test('应该完成某个功能', async ({ page }) => {
     // 测试步骤
-    await page.click('button');
-    await expect(page).toHaveURL('/new-page');
-  });
+    await page.click('button')
+    await expect(page).toHaveURL('/new-page')
+  })
 
   test('另一个测试用例', async ({ page }) => {
     // ...
-  });
+  })
 
   test.afterEach(async ({ page }) => {
     // 每个测试后的清理
-    await page.close();
-  });
-});
+    await page.close()
+  })
+})
 ```
 
 ### 选择器策略
@@ -317,20 +317,20 @@ page.locator('div > div:nth-child(2) > span')
 ```typescript
 test('should handle async operations', async ({ page }) => {
   // 等待元素出现
-  await page.waitForSelector('.element');
+  await page.waitForSelector('.element')
 
   // 等待页面加载
-  await page.waitForLoadState('networkidle');
+  await page.waitForLoadState('networkidle')
 
   // 等待 URL 变化
-  await page.waitForURL('/dashboard');
+  await page.waitForURL('/dashboard')
 
   // 等待响应
-  const response = await page.waitForResponse('/api/data');
+  const response = await page.waitForResponse('/api/data')
 
   // 带重试的等待
-  await expect(page.locator('.element')).toBeVisible({ timeout: 10000 });
-});
+  await expect(page.locator('.element')).toBeVisible({ timeout: 10000 })
+})
 ```
 
 ---
@@ -346,35 +346,35 @@ Page Object Model 将页面元素和操作封装成类，提高测试的可维�
 **pages/login-page.ts**
 
 ```typescript
-import { Page, Locator } from '@playwright/test';
+import { Page, Locator } from '@playwright/test'
 
 export class LoginPage {
-  readonly page: Page;
-  readonly emailInput: Locator;
-  readonly passwordInput: Locator;
-  readonly loginButton: Locator;
-  readonly errorMessage: Locator;
+  readonly page: Page
+  readonly emailInput: Locator
+  readonly passwordInput: Locator
+  readonly loginButton: Locator
+  readonly errorMessage: Locator
 
   constructor(page: Page) {
-    this.page = page;
-    this.emailInput = page.getByLabel('邮箱');
-    this.passwordInput = page.getByLabel('密码');
-    this.loginButton = page.getByRole('button', { name: '登录' });
-    this.errorMessage = page.locator('.error-message');
+    this.page = page
+    this.emailInput = page.getByLabel('邮箱')
+    this.passwordInput = page.getByLabel('密码')
+    this.loginButton = page.getByRole('button', { name: '登录' })
+    this.errorMessage = page.locator('.error-message')
   }
 
   async goto() {
-    await this.page.goto('/login');
+    await this.page.goto('/login')
   }
 
   async login(email: string, password: string) {
-    await this.emailInput.fill(email);
-    await this.passwordInput.fill(password);
-    await this.loginButton.click();
+    await this.emailInput.fill(email)
+    await this.passwordInput.fill(password)
+    await this.loginButton.click()
   }
 
   async getErrorMessage(): Promise<string> {
-    return await this.errorMessage.textContent();
+    return await this.errorMessage.textContent()
   }
 }
 ```
@@ -382,35 +382,35 @@ export class LoginPage {
 ### 使用页面对象
 
 ```typescript
-import { test, expect } from '@playwright/test';
-import { LoginPage } from './pages/login-page';
+import { test, expect } from '@playwright/test'
+import { LoginPage } from './pages/login-page'
 
 test('should login with valid credentials', async ({ page }) => {
-  const loginPage = new LoginPage(page);
+  const loginPage = new LoginPage(page)
 
   // 使用页面对象
-  await loginPage.goto();
-  await loginPage.login('test@7zi.com', 'password123');
+  await loginPage.goto()
+  await loginPage.login('test@7zi.com', 'password123')
 
   // 验证结果
-  await expect(page).toHaveURL('/dashboard');
-});
+  await expect(page).toHaveURL('/dashboard')
+})
 ```
 
 ### 已有页面对象列表
 
-| 文件 | 描述 |
-|------|------|
-| `login-page.ts` | 登录页面 |
-| `dashboard-page.ts` | 仪表盘页面 |
-| `task-creation-page.ts` | 任务创建页面 |
-| `navigation-page.ts` | 导航控制 |
-| `contact-page.ts` | 联系表单页面 |
-| `team-page.ts` | 团队管理页面 |
+| 文件                      | 描述         |
+| ------------------------- | ------------ |
+| `login-page.ts`           | 登录页面     |
+| `dashboard-page.ts`       | 仪表盘页面   |
+| `task-creation-page.ts`   | 任务创建页面 |
+| `navigation-page.ts`      | 导航控制     |
+| `contact-page.ts`         | 联系表单页面 |
+| `team-page.ts`            | 团队管理页面 |
 | `user-management-page.ts` | 用户管理页面 |
-| `notifications-page.ts` | 通知页面 |
-| `settings-page.ts` | 设置页面 |
-| `analytics-page.ts` | 分析页面 |
+| `notifications-page.ts`   | 通知页面     |
+| `settings-page.ts`        | 设置页面     |
+| `analytics-page.ts`       | 分析页面     |
 
 ---
 
@@ -421,32 +421,32 @@ test('should login with valid credentials', async ({ page }) => {
 **文件**: `e2e/auth-flow.spec.ts`
 
 ```typescript
-import { test, expect } from '@playwright/test';
-import { LoginPage } from './pages/login-page';
+import { test, expect } from '@playwright/test'
+import { LoginPage } from './pages/login-page'
 
 test.describe('Authentication Flow', () => {
   test('should login with valid credentials', async ({ page }) => {
-    const loginPage = new LoginPage(page);
+    const loginPage = new LoginPage(page)
 
-    await loginPage.goto();
-    await loginPage.login('test@7zi.com', 'password123');
+    await loginPage.goto()
+    await loginPage.login('test@7zi.com', 'password123')
 
     // 验证登录成功
-    await expect(page).toHaveURL('/dashboard');
-    await expect(page.getByText('欢迎')).toBeVisible();
-  });
+    await expect(page).toHaveURL('/dashboard')
+    await expect(page.getByText('欢迎')).toBeVisible()
+  })
 
   test('should show error with invalid credentials', async ({ page }) => {
-    const loginPage = new LoginPage(page);
+    const loginPage = new LoginPage(page)
 
-    await loginPage.goto();
-    await loginPage.login('wrong@email.com', 'wrongpassword');
+    await loginPage.goto()
+    await loginPage.login('wrong@email.com', 'wrongpassword')
 
     // 验证错误消息
-    const error = await loginPage.getErrorMessage();
-    expect(error).toContain('邮箱或密码错误');
-  });
-});
+    const error = await loginPage.getErrorMessage()
+    expect(error).toContain('邮箱或密码错误')
+  })
+})
 ```
 
 ### 场景 2: 项目/任务创建
@@ -454,44 +454,44 @@ test.describe('Authentication Flow', () => {
 **文件**: `e2e/task-creation-pom.spec.ts`
 
 ```typescript
-import { test, expect } from '@playwright/test';
-import { LoginPage } from './pages/login-page';
-import { TaskCreationPage } from './pages/task-creation-page';
+import { test, expect } from '@playwright/test'
+import { LoginPage } from './pages/login-page'
+import { TaskCreationPage } from './pages/task-creation-page'
 
 test.describe('Task Creation', () => {
   test.beforeEach(async ({ page }) => {
-    const loginPage = new LoginPage(page);
-    await loginPage.goto();
-    await loginPage.login('test@7zi.com', 'password123');
-  });
+    const loginPage = new LoginPage(page)
+    await loginPage.goto()
+    await loginPage.login('test@7zi.com', 'password123')
+  })
 
   test('should create a new task', async ({ page }) => {
-    const taskPage = new TaskCreationPage(page);
+    const taskPage = new TaskCreationPage(page)
 
-    await taskPage.goto();
+    await taskPage.goto()
     await taskPage.createTask({
       title: '测试任务',
       description: '这是一个测试任务描述',
       priority: 'high',
       assignee: 'John Doe',
-    });
+    })
 
     // 验证任务创建成功
-    await expect(page.getByText('任务创建成功')).toBeVisible();
-    await expect(page).toHaveURL(/\/tasks\/.+/);
-  });
+    await expect(page.getByText('任务创建成功')).toBeVisible()
+    await expect(page).toHaveURL(/\/tasks\/.+/)
+  })
 
   test('should validate required fields', async ({ page }) => {
-    const taskPage = new TaskCreationPage(page);
-    await taskPage.goto();
+    const taskPage = new TaskCreationPage(page)
+    await taskPage.goto()
 
     // 不填写必填字段直接提交
-    await taskPage.submitForm();
+    await taskPage.submitForm()
 
     // 验证验证错误
-    await expect(page.getByText('标题是必填的')).toBeVisible();
-  });
-});
+    await expect(page.getByText('标题是必填的')).toBeVisible()
+  })
+})
 ```
 
 ### 场景 3: 反馈提交
@@ -499,38 +499,38 @@ test.describe('Task Creation', () => {
 **文件**: `e2e/form.spec.ts`
 
 ```typescript
-import { test, expect } from '@playwright/test';
-import { ContactPage } from './pages/contact-page';
+import { test, expect } from '@playwright/test'
+import { ContactPage } from './pages/contact-page'
 
 test.describe('Feedback Form', () => {
   test('should submit feedback successfully', async ({ page }) => {
-    const contactPage = new ContactPage(page);
+    const contactPage = new ContactPage(page)
 
-    await contactPage.goto();
+    await contactPage.goto()
     await contactPage.submitFeedback({
       name: '张三',
       email: 'zhangsan@example.com',
       subject: '功能建议',
       message: '建议增加新的数据分析功能',
       rating: 5,
-    });
+    })
 
     // 验证提交成功
-    await expect(page.getByText('感谢您的反馈')).toBeVisible();
-  });
+    await expect(page.getByText('感谢您的反馈')).toBeVisible()
+  })
 
   test('should validate email format', async ({ page }) => {
-    const contactPage = new ContactPage(page);
-    await contactPage.goto();
+    const contactPage = new ContactPage(page)
+    await contactPage.goto()
 
     // 填写无效邮箱
-    await contactPage.fillEmail('invalid-email');
-    await contactPage.submitForm();
+    await contactPage.fillEmail('invalid-email')
+    await contactPage.submitForm()
 
     // 验证错误
-    await expect(page.getByText('请输入有效的邮箱地址')).toBeVisible();
-  });
-});
+    await expect(page.getByText('请输入有效的邮箱地址')).toBeVisible()
+  })
+})
 ```
 
 ### 完整用户流程示例
@@ -538,38 +538,38 @@ test.describe('Feedback Form', () => {
 **文件**: `e2e/integration/user-flow.spec.ts`
 
 ```typescript
-import { test, expect } from '@playwright/test';
-import { LoginPage } from '../pages/login-page';
-import { TaskCreationPage } from '../pages/task-creation-page';
-import { DashboardPage } from '../pages/dashboard-page';
+import { test, expect } from '@playwright/test'
+import { LoginPage } from '../pages/login-page'
+import { TaskCreationPage } from '../pages/task-creation-page'
+import { DashboardPage } from '../pages/dashboard-page'
 
 test.describe('Complete User Flow', () => {
   test('should complete full workflow: login -> create task -> verify on dashboard', async ({
     page,
   }) => {
     // 1. 登录
-    const loginPage = new LoginPage(page);
-    await loginPage.goto();
-    await loginPage.login('test@7zi.com', 'password123');
+    const loginPage = new LoginPage(page)
+    await loginPage.goto()
+    await loginPage.login('test@7zi.com', 'password123')
 
     // 2. 创建任务
-    const taskPage = new TaskCreationPage(page);
-    await taskPage.goto();
-    const taskTitle = `测试任务-${Date.now()}`;
+    const taskPage = new TaskCreationPage(page)
+    await taskPage.goto()
+    const taskTitle = `测试任务-${Date.now()}`
     await taskPage.createTask({
       title: taskTitle,
       description: '完整流程测试任务',
       priority: 'medium',
-    });
+    })
 
     // 3. 验证任务出现在仪表盘
-    const dashboardPage = new DashboardPage(page);
-    await dashboardPage.goto();
-    await dashboardPage.searchTask(taskTitle);
+    const dashboardPage = new DashboardPage(page)
+    await dashboardPage.goto()
+    await dashboardPage.searchTask(taskTitle)
 
-    await expect(page.getByText(taskTitle)).toBeVisible();
-  });
-});
+    await expect(page.getByText(taskTitle)).toBeVisible()
+  })
+})
 ```
 
 ---
@@ -643,7 +643,7 @@ npm run test:e2e:report
 test('should work independently', async ({ page }) => {
   // 每个测试都有自己的页面上下文
   // 使用测试数据工厂创建独立数据
-});
+})
 ```
 
 ### 2. 智能等待
@@ -652,16 +652,16 @@ test('should work independently', async ({ page }) => {
 
 ```typescript
 // ❌ 不好：硬编码延迟
-await page.waitForTimeout(5000);
+await page.waitForTimeout(5000)
 
 // ✅ 好：等待元素
-await expect(page.locator('.element')).toBeVisible();
+await expect(page.locator('.element')).toBeVisible()
 
 // ✅ 好：等待网络空闲
-await page.waitForLoadState('networkidle');
+await page.waitForLoadState('networkidle')
 
 // ✅ 好：等待 API 响应
-await page.waitForResponse('/api/data');
+await page.waitForResponse('/api/data')
 ```
 
 ### 3. 语义化测试名称
@@ -670,10 +670,10 @@ await page.waitForResponse('/api/data');
 
 ```typescript
 // ❌ 不好
-test('test1', async ({ page }) => {});
+test('test1', async ({ page }) => {})
 
 // ✅ 好
-test('should display error message when email is invalid', async ({ page }) => {});
+test('should display error message when email is invalid', async ({ page }) => {})
 ```
 
 ### 4. 使用测试数据工厂
@@ -687,19 +687,19 @@ export class TestData {
     return {
       admin: { email: 'admin@7zi.com', password: 'admin123' },
       user: { email: 'user@7zi.com', password: 'user123' },
-    };
+    }
   }
 
   static tasks() {
     return {
       pending: { title: '待办任务', status: 'pending' },
       completed: { title: '已完成任务', status: 'completed' },
-    };
+    }
   }
 }
 
 // 使用
-const { admin } = TestData.users();
+const { admin } = TestData.users()
 ```
 
 ### 5. 断言精确性
@@ -708,10 +708,10 @@ const { admin } = TestData.users();
 
 ```typescript
 // ❌ 模糊
-expect(page.url()).toContain('dashboard');
+expect(page.url()).toContain('dashboard')
 
 // ✅ 精确
-await expect(page).toHaveURL(/\/dashboard$/);
+await expect(page).toHaveURL(/\/dashboard$/)
 ```
 
 ### 6. 测试组织
@@ -721,14 +721,14 @@ await expect(page).toHaveURL(/\/dashboard$/);
 ```typescript
 test.describe('User Authentication', () => {
   test.describe('Login', () => {
-    test('with valid credentials', async ({ page }) => {});
-    test('with invalid credentials', async ({ page }) => {});
-  });
+    test('with valid credentials', async ({ page }) => {})
+    test('with invalid credentials', async ({ page }) => {})
+  })
 
   test.describe('Logout', () => {
-    test('should logout successfully', async ({ page }) => {});
-  });
-});
+    test('should logout successfully', async ({ page }) => {})
+  })
+})
 ```
 
 ### 7. 处理异步状态
@@ -736,11 +736,11 @@ test.describe('User Authentication', () => {
 使用 waitFor 处理异步更新：
 
 ```typescript
-await page.click('button');
+await page.click('button')
 
 // 等待状态更新
-await page.waitForTimeout(100); // 给反应时间
-await expect(page.locator('.status')).toHaveText('success');
+await page.waitForTimeout(100) // 给反应时间
+await expect(page.locator('.status')).toHaveText('success')
 ```
 
 ### 8. 测试清理
@@ -750,9 +750,9 @@ await expect(page.locator('.status')).toHaveText('success');
 ```typescript
 test.afterEach(async ({ page }) => {
   // 清理创建的数据
-  await page.goto('/settings');
-  await page.click('button:text("清除所有数据")');
-});
+  await page.goto('/settings')
+  await page.click('button:text("清除所有数据")')
+})
 ```
 
 ---
@@ -762,6 +762,7 @@ test.afterEach(async ({ page }) => {
 ### 问题 1: 测试超时
 
 **错误**：
+
 ```
 Error: Test timeout of 30000ms exceeded
 ```
@@ -770,15 +771,16 @@ Error: Test timeout of 30000ms exceeded
 
 ```typescript
 // 增加超时时间
-test.setTimeout(60000);
+test.setTimeout(60000)
 
 // 或在配置中设置
-test.use({ actionTimeout: 30000 });
+test.use({ actionTimeout: 30000 })
 ```
 
 ### 问题 2: 元素未找到
 
 **错误**：
+
 ```
 Error: locator.click: Target closed
 ```
@@ -787,10 +789,10 @@ Error: locator.click: Target closed
 
 ```typescript
 // 使用重试
-await page.click('button', { timeout: 10000 });
+await page.click('button', { timeout: 10000 })
 
 // 或等待元素稳定
-await page.waitForSelector('button', { state: 'visible' });
+await page.waitForSelector('button', { state: 'visible' })
 ```
 
 ### 问题 3: 测试不稳定（Flaky）
@@ -799,14 +801,18 @@ await page.waitForSelector('button', { state: 'visible' });
 
 ```typescript
 // 增加重试次数
-test('flaky test', async ({ page }) => {
-  // ...
-}, { retries: 3 });
+test(
+  'flaky test',
+  async ({ page }) => {
+    // ...
+  },
+  { retries: 3 }
+)
 
 // 或在配置中
 export default defineConfig({
   retries: 3,
-});
+})
 ```
 
 ### 问题 4: 视觉回归失败
@@ -829,12 +835,12 @@ await expect(page.locator('.content')).toHaveScreenshot({
 
 ```typescript
 // 使用内存数据库
-process.env.DATABASE_URL = ':memory:';
+process.env.DATABASE_URL = ':memory:'
 
 // 或 Mock 数据库
 vi.mock('@/lib/db', () => ({
   getDatabase: vi.fn(() => mockDb),
-}));
+}))
 ```
 
 ---
@@ -904,7 +910,7 @@ services:
   app:
     build: .
     ports:
-      - "3000:3000"
+      - '3000:3000'
     environment:
       - NODE_ENV=test
       - DATABASE_URL=/data/test.db
@@ -941,13 +947,13 @@ docker-compose -f docker-compose.test.yml up --abort-on-container-exit
 
 ### 脚本参考
 
-| 脚本 | 功能 |
-|------|------|
-| `npm run test:e2e` | 运行所有 E2E 测试 |
-| `npm run test:e2e:ui` | UI 模式运行测试 |
-| `npm run test:e2e:debug` | 调试模式 |
-| `npm run test:e2e:report` | 查看测试报告 |
-| `./run-e2e.sh` | 高级运行脚本 |
+| 脚本                      | 功能              |
+| ------------------------- | ----------------- |
+| `npm run test:e2e`        | 运行所有 E2E 测试 |
+| `npm run test:e2e:ui`     | UI 模式运行测试   |
+| `npm run test:e2e:debug`  | 调试模式          |
+| `npm run test:e2e:report` | 查看测试报告      |
+| `./run-e2e.sh`            | 高级运行脚本      |
 
 ### 示例测试文件
 

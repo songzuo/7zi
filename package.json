@@ -1,6 +1,6 @@
 {
   "name": "7zi-frontend",
-  "version": "1.4.0",
+  "version": "1.9.0",
   "private": true,
   "scripts": {
     "dev": "next dev",
@@ -36,6 +36,8 @@
     "test:e2e:new:debug": "playwright test --config=playwright.tests.config.ts --debug",
     "test:e2e:new:report": "playwright show-report tests/e2e/playwright-report",
     "test:all": "npm run test:run && npm run test:e2e",
+    "benchmark": "npx tsx performance-benchmark.ts",
+    "benchmark:verbose": "npx tsx performance-benchmark.ts --verbose",
     "dep:check": "madge --circular src/",
     "dep:check:graph": "madge --visualization --image dependency-graph.svg src/",
     "dep:warn": "madge --warning --circular src/ || true",
@@ -56,6 +58,7 @@
     "@react-three/fiber": "^9.5.0",
     "@sentry/nextjs": "^10.44.0",
     "@testing-library/jest-dom": "^6.9.1",
+    "@xyflow/react": "^12.10.2",
     "better-sqlite3": "^12.8.0",
     "commander": "^14.0.3",
     "exceljs": "^4.4.0",
@@ -102,6 +105,7 @@
     "jsdom": "^29.0.1",
     "madge": "^8.0.0",
     "msw": "^2.12.14",
+    "prettier-plugin-tailwindcss": "^0.7.2",
     "socket.io": "^4.8.3",
     "supertest": "^7.2.2",
     "typescript": "^5",

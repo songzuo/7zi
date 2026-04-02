@@ -4,19 +4,20 @@
 
 ### 当前已配置
 
-| 服务器 | IP | 用户 | 密码 | 用途 |
-|--------|-----|------|------|------|
-| **7zi.com** | 165.99.43.61 | root | `ge20993344$ZZ` | 主网站部署 |
-| **bot5.szspd.cn** | 182.43.36.134 | root | `ge20993344$ZZ` | 测试机器 |
-| **本机 (bot6)** | - | root | - | OpenClaw 运行 |
+| 服务器            | IP            | 用户 | 密码            | 用途          |
+| ----------------- | ------------- | ---- | --------------- | ------------- |
+| **7zi.com**       | 165.99.43.61  | root | `ge20993344$ZZ` | 主网站部署    |
+| **bot5.szspd.cn** | 182.43.36.134 | root | `ge20993344$ZZ` | 测试机器      |
+| **本机 (bot6)**   | -             | root | -               | OpenClaw 运行 |
 
 ### Windows 测试机器
 
-| 服务器 | IP | 用户 | 密码 | 连接方式 | 用途 |
-|--------|-----|------|------|----------|------|
+| 服务器             | IP           | 用户          | 密码            | 连接方式        | 用途               |
+| ------------------ | ------------ | ------------- | --------------- | --------------- | ------------------ |
 | **Windows 测试机** | 36.133.22.15 | Administrator | `ge20993344$ZZ` | RDP (端口 3389) | 网站测试、界面验证 |
 
 **连接命令**:
+
 ```bash
 # 使用 rdesktop 连接
 rdesktop -u Administrator -p 'ge20993344$ZZ' 36.133.22.15
@@ -56,6 +57,7 @@ sshpass -p "ge20993344$ZZ" ssh root@7zi.com
 ## SSH Keys
 
 ### 密钥对 1 (ed25519)
+
 ```bash
 # 公钥
 ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIKUyv7pPHVE5WJ9G7aWgUuXTivNZmJHm7uV9PSgcUpxM root@bot6
@@ -63,6 +65,7 @@ ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIKUyv7pPHVE5WJ9G7aWgUuXTivNZmJHm7uV9PSgcUpxM
 ```
 
 ### 密钥对 2 (最新)
+
 ```bash
 # 公钥
 ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIMl7ZIMgYpejAkTAf6mRiSNWmwyJX9O91AYGNFUJsXYo

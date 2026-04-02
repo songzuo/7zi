@@ -5,24 +5,24 @@
  */
 
 export interface SlidingWindowOptions {
-  windowMs: number;      // 时间窗口（毫秒）
-  maxRequests: number;   // 窗口内最大请求数
+  windowMs: number // 时间窗口（毫秒）
+  maxRequests: number // 窗口内最大请求数
 }
 
 export interface SlidingWindowResult {
-  allowed: boolean;      // 是否允许请求
-  remaining: number;     // 剩余请求数
-  resetTime: number;      // 重置时间（时间戳）
+  allowed: boolean // 是否允许请求
+  remaining: number // 剩余请求数
+  resetTime: number // 重置时间（时间戳）
 }
 
 export class SlidingWindow {
-  private windowMs: number;
-  private maxRequests: number;
-  private timestamps: number[] = [];
+  private windowMs: number
+  private maxRequests: number
+  private timestamps: number[] = []
 
   constructor(options: SlidingWindowOptions) {
-    this.windowMs = options.windowMs;
-    this.maxRequests = options.maxRequests;
+    this.windowMs = options.windowMs
+    this.maxRequests = options.maxRequests
   }
 
   /**
@@ -32,27 +32,27 @@ export class SlidingWindow {
    */
   check(currentTime: number): SlidingWindowResult {
     // 清理过期的请求时间戳
-    this.cleanup(currentTime);
+    this.cleanup(currentTime)
 
     // 检查是否超过限制
-    const allowed = this.timestamps.length < this.maxRequests;
+    const allowed = this.timestamps.length < this.maxRequests
 
     if (allowed) {
       // 如果允许，记录当前请求
-      this.timestamps.push(currentTime);
+      this.timestamps.push(currentTime)
     }
 
     // 计算剩余请求数
-    const remaining = Math.max(0, this.maxRequests - this.timestamps.length);
+    const remaining = Math.max(0, this.maxRequests - this.timestamps.length)
 
     // 计算重置时间（最早的请求过期时间）
-    const resetTime = this.calculateResetTime(currentTime);
+    const resetTime = this.calculateResetTime(currentTime)
 
     return {
       allowed,
       remaining,
       resetTime,
-    };
+    }
   }
 
   /**
@@ -60,10 +60,8 @@ export class SlidingWindow {
    * @param currentTime 当前时间（时间戳）
    */
   private cleanup(currentTime: number): void {
-    const windowStart = currentTime - this.windowMs;
-    this.timestamps = this.timestamps.filter(
-      timestamp => timestamp > windowStart
-    );
+    const windowStart = currentTime - this.windowMs
+    this.timestamps = this.timestamps.filter(timestamp => timestamp > windowStart)
   }
 
   /**
@@ -73,18 +71,18 @@ export class SlidingWindow {
    */
   private calculateResetTime(currentTime: number): number {
     if (this.timestamps.length === 0) {
-      return currentTime + this.windowMs;
+      return currentTime + this.windowMs
     }
 
-    const oldestTimestamp = this.timestamps[0];
-    return oldestTimestamp + this.windowMs;
+    const oldestTimestamp = this.timestamps[0]
+    return oldestTimestamp + this.windowMs
   }
 
   /**
    * 重置滑动窗口
    */
   reset(): void {
-    this.timestamps = [];
+    this.timestamps = []
   }
 
   /**
@@ -92,9 +90,9 @@ export class SlidingWindow {
    * @returns 请求数量
    */
   getCurrentCount(): number {
-    const currentTime = Date.now();
-    this.cleanup(currentTime);
-    return this.timestamps.length;
+    const currentTime = Date.now()
+    this.cleanup(currentTime)
+    return this.timestamps.length
   }
 
   /**
@@ -102,6 +100,6 @@ export class SlidingWindow {
    * @returns 时间戳数组
    */
   getTimestamps(): number[] {
-    return [...this.timestamps];
+    return [...this.timestamps]
   }
 }

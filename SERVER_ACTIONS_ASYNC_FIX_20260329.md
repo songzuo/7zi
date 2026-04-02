@@ -6,6 +6,7 @@
 ## 问题摘要
 
 构建失败，错误信息：
+
 ```
 Server Actions must be async functions.
 ```
@@ -23,54 +24,68 @@ Server Actions must be async functions.
 ### 1. `checkUserPermission`
 
 **修复前**:
+
 ```typescript
-export function checkUserPermission(userId: string, roomId: string, permission: Permission): boolean {
-  if (!permissionManager) return false;
-  return permissionManager.hasPermission(userId, roomId, permission);
+export function checkUserPermission(
+  userId: string,
+  roomId: string,
+  permission: Permission
+): boolean {
+  if (!permissionManager) return false
+  return permissionManager.hasPermission(userId, roomId, permission)
 }
 ```
 
 **修复后**:
+
 ```typescript
-export async function checkUserPermission(userId: string, roomId: string, permission: Permission): Promise<boolean> {
-  if (!permissionManager) return false;
-  return permissionManager.hasPermission(userId, roomId, permission);
+export async function checkUserPermission(
+  userId: string,
+  roomId: string,
+  permission: Permission
+): Promise<boolean> {
+  if (!permissionManager) return false
+  return permissionManager.hasPermission(userId, roomId, permission)
 }
 ```
 
 ### 2. `getUserRoomRole`
 
 **修复前**:
+
 ```typescript
 export function getUserRoomRole(userId: string, roomId: string): UserRole {
-  if (!permissionManager) return 'guest';
-  return permissionManager.getUserRole(userId, roomId);
+  if (!permissionManager) return 'guest'
+  return permissionManager.getUserRole(userId, roomId)
 }
 ```
 
 **修复后**:
+
 ```typescript
 export async function getUserRoomRole(userId: string, roomId: string): Promise<UserRole> {
-  if (!permissionManager) return 'guest';
-  return permissionManager.getUserRole(userId, roomId);
+  if (!permissionManager) return 'guest'
+  return permissionManager.getUserRole(userId, roomId)
 }
 ```
 
 ### 3. `isUserBannedFromRoom`
 
 **修复前**:
+
 ```typescript
 export function isUserBannedFromRoom(userId: string, roomId: string): boolean {
-  if (!permissionManager) return false;
-  return permissionManager.isUserBanned(userId, roomId);
+  if (!permissionManager) return false
+  return permissionManager.isUserBanned(userId, roomId)
 }
 ```
 
 **修复后**:
+
 ```typescript
 export async function isUserBannedFromRoom(userId: string, roomId: string): Promise<boolean> {
-  if (!permissionManager) return false;
-  return permissionManager.isUserBanned(userId, roomId);
+  if (!permissionManager) return false
+  return permissionManager.isUserBanned(userId, roomId)
 }
 ```
 
@@ -83,15 +98,16 @@ export async function isUserBannedFromRoom(userId: string, roomId: string): Prom
 ### 剩余问题 ⚠️
 
 构建仍有其他不相关的错误：
+
 - `src/app/sse-demo/page.tsx` 导入了不存在的函数 `useHealthSSE` 和 `useSSE`
 
 这不是 Server Actions 的问题，而是 SSE demo 页面与库导出不匹配的问题。
 
 ## 文件变更
 
-| 文件 | 变更类型 | 说明 |
-|------|----------|------|
-| `src/lib/websocket/server.ts` | 修改 | 为 3 个导出函数添加 `async` 关键字 |
+| 文件                          | 变更类型 | 说明                               |
+| ----------------------------- | -------- | ---------------------------------- |
+| `src/lib/websocket/server.ts` | 修改     | 为 3 个导出函数添加 `async` 关键字 |
 
 ## 后续建议
 

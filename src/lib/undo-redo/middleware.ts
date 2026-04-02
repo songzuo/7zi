@@ -3,44 +3,44 @@
  * @description Zustand middleware that adds undo/redo functionality to any store
  */
 
-import { StateCreator, StoreMutatorIdentifier } from 'zustand';
-import type { UndoRedoMiddlewareConfig, HistoryState } from './types';
+import { StateCreator, StoreMutatorIdentifier } from 'zustand'
+import type { UndoRedoMiddlewareConfig, HistoryState } from './types'
 
 // ============================================================================
 // Type Definitions
 // ============================================================================
 
-type Write<T, U> = Omit<T, keyof U> & U;
-type Cast<T, U> = T extends U ? T : U;
+type Write<T, U> = Omit<T, keyof U> & U
+type Cast<T, U> = T extends U ? T : U
 
 type UndoRedoImpl = <
   T,
   Mps extends [StoreMutatorIdentifier, unknown][] = [],
-  Mcs extends [StoreMutatorIdentifier, unknown][] = []
+  Mcs extends [StoreMutatorIdentifier, unknown][] = [],
 >(
   f: StateCreator<T, [...Mps, ['zustand/undo-redo', never]], Mcs>,
   config?: UndoRedoMiddlewareConfig<T>
-) => StateCreator<T, Mps, [['zustand/undo-redo', never], ...Mcs]>;
+) => StateCreator<T, Mps, [['zustand/undo-redo', never], ...Mcs]>
 
 // Type workaround for StoreMutators - use module augmentation with proper types
 declare module 'zustand/vanilla' {
   interface StoreMutators<S, A> {
-    'zustand/undo-redo': Write<Cast<S, object>, UndoRedoStoreActions>;
+    'zustand/undo-redo': Write<Cast<S, object>, UndoRedoStoreActions>
   }
 }
 
 export interface UndoRedoStoreActions {
-  undo: () => void;
-  redo: () => void;
-  clearHistory: () => void;
-  skipNextHistoryPush: () => void;
-  canUndo: boolean;
-  canRedo: boolean;
-  pastStatesCount: number;
-  futureStatesCount: number;
-  getHistorySnapshot: () => HistoryState;
-  exportHistory: () => string;
-  importHistory: (json: string) => { success: boolean; error?: string };
+  undo: () => void
+  redo: () => void
+  clearHistory: () => void
+  skipNextHistoryPush: () => void
+  canUndo: boolean
+  canRedo: boolean
+  pastStatesCount: number
+  futureStatesCount: number
+  getHistorySnapshot: () => HistoryState
+  exportHistory: () => string
+  importHistory: (json: string) => { success: boolean; error?: string }
 }
 
 // ============================================================================
@@ -53,21 +53,21 @@ const DEFAULT_CONFIG: Required<UndoRedoMiddlewareConfig<unknown>> = {
   persistenceKey: 'undo-redo-history',
   shouldRecordAction: () => true,
   generateDescription: () => 'State change',
-  getActionType: (action) => {
+  getActionType: action => {
     if (typeof action === 'object' && action !== null && 'type' in action) {
-      return String(action.type);
+      return String(action.type)
     }
-    return 'unknown';
+    return 'unknown'
   },
   excludeActionTypes: [],
-};
+}
 
 // ============================================================================
 // Middleware Implementation
 // ============================================================================
 
 export const undoRedoImpl: UndoRedoImpl = (f, config = {}) => {
-  const fullConfig = { ...DEFAULT_CONFIG, ...config };
+  const fullConfig = { ...DEFAULT_CONFIG, ...config }
 
   return (set, get, api) => {
     // Internal history state
@@ -79,133 +79,133 @@ export const undoRedoImpl: UndoRedoImpl = (f, config = {}) => {
       currentIndex: 0,
       isUndoing: false,
       isRedoing: false,
-    };
+    }
 
-    let skipNextPush = false;
+    let skipNextPush = false
 
     // Load from localStorage if persistence is enabled
     if (fullConfig.enablePersistence && typeof window !== 'undefined') {
       try {
-        const saved = localStorage.getItem(fullConfig.persistenceKey);
+        const saved = localStorage.getItem(fullConfig.persistenceKey)
         if (saved) {
-          const loaded = JSON.parse(saved) as HistoryState;
+          const loaded = JSON.parse(saved) as HistoryState
           // Validate loaded state
           if (
             Array.isArray(loaded.past) &&
             Array.isArray(loaded.future) &&
             typeof loaded.present !== 'undefined'
           ) {
-            Object.assign(history, loaded);
+            Object.assign(history, loaded)
             // Restore present state into the store
             // @ts-expect-error - Type assertion for history state
-            set(loaded.present);
+            set(loaded.present)
           }
         }
-      } catch (_error) {
-        console.error('Failed to load undo-redo history:', error);
+      } catch (error) {
+        console.error('Failed to load undo-redo history:', error)
       }
     }
 
     // Save to localStorage helper
     const saveToStorage = () => {
       if (!fullConfig.enablePersistence || typeof window === 'undefined') {
-        return;
+        return
       }
       try {
-        localStorage.setItem(fullConfig.persistenceKey, JSON.stringify(history));
-      } catch (_error) {
-        console.error('Failed to save undo-redo history:', error);
+        localStorage.setItem(fullConfig.persistenceKey, JSON.stringify(history))
+      } catch (error) {
+        console.error('Failed to save undo-redo history:', error)
       }
-    };
+    }
 
     // Undo function
     const undo = () => {
       if (history.past.length === 0) {
-        return; // Nothing to undo
+        return // Nothing to undo
       }
 
-      const previous = history.past[history.past.length - 1];
-      history.past = history.past.slice(0, history.past.length - 1);
-      history.future = [history.present, ...history.future];
-      history.present = previous;
-      history.currentIndex = Math.max(0, history.currentIndex - 1);
-      history.isUndoing = true;
-      history.isRedoing = false;
+      const previous = history.past[history.past.length - 1]
+      history.past = history.past.slice(0, history.past.length - 1)
+      history.future = [history.present, ...history.future]
+      history.present = previous
+      history.currentIndex = Math.max(0, history.currentIndex - 1)
+      history.isUndoing = true
+      history.isRedoing = false
 
       // @ts-expect-error - Type assertion for history state (unknown to T)
-      set(previous);
-      saveToStorage();
+      set(previous)
+      saveToStorage()
 
       // Reset undoing flag
       setTimeout(() => {
-        history.isUndoing = false;
-      }, 0);
-    };
+        history.isUndoing = false
+      }, 0)
+    }
 
     // Redo function
     const redo = () => {
       if (history.future.length === 0) {
-        return; // Nothing to redo
+        return // Nothing to redo
       }
 
-      const next = history.future[0];
-      history.future = history.future.slice(1);
-      history.past = [...history.past, history.present];
-      history.present = next;
-      history.currentIndex = history.currentIndex + 1;
-      history.isUndoing = false;
-      history.isRedoing = true;
+      const next = history.future[0]
+      history.future = history.future.slice(1)
+      history.past = [...history.past, history.present]
+      history.present = next
+      history.currentIndex = history.currentIndex + 1
+      history.isUndoing = false
+      history.isRedoing = true
 
       // @ts-expect-error - Type assertion for history state (unknown to T)
-      set(next);
-      saveToStorage();
+      set(next)
+      saveToStorage()
 
       // Reset redoing flag
       setTimeout(() => {
-        history.isRedoing = false;
-      }, 0);
-    };
+        history.isRedoing = false
+      }, 0)
+    }
 
     // Clear history function
     const clearHistory = () => {
-      history.past = [];
-      history.future = [];
-      history.present = get();
-      history.currentIndex = 0;
-      history.isUndoing = false;
-      history.isRedoing = false;
-      saveToStorage();
-    };
+      history.past = []
+      history.future = []
+      history.present = get()
+      history.currentIndex = 0
+      history.isUndoing = false
+      history.isRedoing = false
+      saveToStorage()
+    }
 
     // Skip next push function
     const skipNextHistoryPush = () => {
-      skipNextPush = true;
-    };
+      skipNextPush = true
+    }
 
     // Get history snapshot
     const getHistorySnapshot = () => {
       return {
         past: [...history.past],
-        present: history.present ? { ...history.present as object } as unknown : undefined,
+        present: history.present ? ({ ...(history.present as object) } as unknown) : undefined,
         future: [...history.future],
         currentIndex: history.currentIndex,
         isUndoing: history.isUndoing,
         isRedoing: history.isRedoing,
-      };
-    };
+      }
+    }
 
     // Export history
     const exportHistory = () => {
       return JSON.stringify({
         ...history,
         exportedAt: new Date().toISOString(),
-      });
-    };
+      })
+    }
 
     // Import history
     const importHistory = (json: string) => {
       try {
-        const imported = JSON.parse(json) as HistoryState;
+        const imported = JSON.parse(json) as HistoryState
 
         // Validate
         if (
@@ -213,74 +213,74 @@ export const undoRedoImpl: UndoRedoImpl = (f, config = {}) => {
           !Array.isArray(imported.future) ||
           typeof imported.present === 'undefined'
         ) {
-          return { success: false, error: 'Invalid history format' };
+          return { success: false, error: 'Invalid history format' }
         }
 
-        Object.assign(history, imported);
+        Object.assign(history, imported)
         // @ts-expect-error - Type assertion for history state
-        set(imported.present);
-        saveToStorage();
+        set(imported.present)
+        saveToStorage()
 
-        return { success: true };
-      } catch (_error) {
+        return { success: true }
+      } catch (error) {
         return {
           success: false,
           error: error instanceof Error ? error.message : 'Import failed',
-        };
+        }
       }
-    };
+    }
 
     // Create wrapped set function - type workaround for Zustand v5
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const wrappedSet: any = (...args: unknown[]) => {
-      const currentState = { ...get() };
+      const currentState = { ...get() }
 
       // Skip if we're in the middle of undo/redo
       if (history.isUndoing || history.isRedoing) {
         // @ts-expect-error - Type assertion for set function spread args (Zustand v5 type limitation)
-        set(...args);
-        return;
+        set(...args)
+        return
       }
 
       // Skip if requested
       if (skipNextPush) {
-        skipNextPush = false;
+        skipNextPush = false
         // @ts-expect-error - Type assertion for set function spread args (Zustand v5 type limitation)
-        set(...args);
-        return;
+        set(...args)
+        return
       }
 
       // Apply the state change
       // @ts-expect-error - Type assertion for set function spread args (Zustand v5 type limitation)
-      set(...args);
+      set(...args)
 
       // Wait for the next tick to get the updated state
       Promise.resolve().then(() => {
-        const newState = get();
+        const newState = get()
 
         // Check if state actually changed
-        const hasChanged = JSON.stringify(currentState) !== JSON.stringify(newState);
-        if (!hasChanged) return;
+        const hasChanged = JSON.stringify(currentState) !== JSON.stringify(newState)
+        if (!hasChanged) return
 
         // Add to history
-        history.past.push(currentState);
+        history.past.push(currentState)
 
         // Trim history if needed
         if (history.past.length > fullConfig.maxHistorySize) {
-          history.past = history.past.slice(-fullConfig.maxHistorySize);
+          history.past = history.past.slice(-fullConfig.maxHistorySize)
         }
 
-        history.present = newState;
-        history.future = []; // Clear future on new action
-        history.currentIndex = history.past.length;
+        history.present = newState
+        history.future = [] // Clear future on new action
+        history.currentIndex = history.past.length
 
-        saveToStorage();
-      });
-    };
+        saveToStorage()
+      })
+    }
 
     // Create the store - @ts-expect-error for type assertion
     // @ts-expect-error - Type assertion for final store creation (Zustand v5 type limitation)
-    const store = f(wrappedSet, get, api);
+    const store = f(wrappedSet, get, api)
 
     // Return the enhanced store with undo-redo actions
     return {
@@ -290,23 +290,23 @@ export const undoRedoImpl: UndoRedoImpl = (f, config = {}) => {
       clearHistory,
       skipNextHistoryPush,
       get canUndo() {
-        return history.past.length > 0;
+        return history.past.length > 0
       },
       get canRedo() {
-        return history.future.length > 0;
+        return history.future.length > 0
       },
       get pastStatesCount() {
-        return history.past.length;
+        return history.past.length
       },
       get futureStatesCount() {
-        return history.future.length;
+        return history.future.length
       },
       getHistorySnapshot,
       exportHistory,
       importHistory,
-    } as typeof store & UndoRedoStoreActions;
-  };
-};
+    } as typeof store & UndoRedoStoreActions
+  }
+}
 
 /**
  * Zustand middleware for undo-redo functionality
@@ -328,4 +328,4 @@ export const undoRedoImpl: UndoRedoImpl = (f, config = {}) => {
  * const canUndo = useStore.getState().canUndo;
  * ```
  */
-export const undoRedo = undoRedoImpl as unknown as UndoRedoImpl;
+export const undoRedo = undoRedoImpl as unknown as UndoRedoImpl

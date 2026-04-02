@@ -8,30 +8,30 @@
 
 ### 1. 核心组件文件
 
-| 文件路径 | 描述 | 大小 |
-|---------|------|------|
-| `src/components/agent-dashboard/StatsCard.tsx` | 统计卡片组件 | 5.5KB |
-| `src/components/agent-dashboard/TaskList.tsx` | 任务列表组件 | 11.5KB |
-| `src/components/agent-dashboard/TeamStatus.tsx` | 团队状态组件 | 9.8KB |
-| `src/components/agent-dashboard/index.ts` | 组件导出索引 | 0.4KB |
+| 文件路径                                        | 描述         | 大小   |
+| ----------------------------------------------- | ------------ | ------ |
+| `src/components/agent-dashboard/StatsCard.tsx`  | 统计卡片组件 | 5.5KB  |
+| `src/components/agent-dashboard/TaskList.tsx`   | 任务列表组件 | 11.5KB |
+| `src/components/agent-dashboard/TeamStatus.tsx` | 团队状态组件 | 9.8KB  |
+| `src/components/agent-dashboard/index.ts`       | 组件导出索引 | 0.4KB  |
 
 ### 2. 页面文件
 
-| 文件路径 | 描述 | 大小 |
-|---------|------|------|
+| 文件路径                                    | 描述             | 大小  |
+| ------------------------------------------- | ---------------- | ----- |
 | `src/app/[locale]/agent-dashboard/page.tsx` | Dashboard 主页面 | 7.6KB |
 
 ### 3. 国际化翻译文件
 
-| 文件路径 | 描述 |
-|---------|------|
+| 文件路径                    | 描述                                 |
+| --------------------------- | ------------------------------------ |
 | `src/i18n/messages/zh.json` | 已合并中文翻译 (agentDashboard 节点) |
 | `src/i18n/messages/en.json` | 已合并英文翻译 (agentDashboard 节点) |
 
 ### 4. 配置文件更新
 
-| 文件路径 | 更新内容 |
-|---------|---------|
+| 文件路径             | 更新内容                       |
+| -------------------- | ------------------------------ |
 | `src/i18n/config.ts` | 添加 /agent-dashboard 路由配置 |
 
 ---
@@ -41,6 +41,7 @@
 ### 1. StatsCard 组件 (`StatsCard.tsx`)
 
 **功能特性：**
+
 - 显示统计指标：活跃任务数、平均响应时间、今日完成任务、团队效率
 - 玻璃态效果 (Glassmorphism)
 - 支持 4 种变体：default、success、warning、info
@@ -49,6 +50,7 @@
 - 响应式设计
 
 **技术实现：**
+
 - 使用 `useDarkMode()` hook 获取主题状态
 - Tailwind CSS 实现样式
 - TypeScript 类型安全
@@ -56,6 +58,7 @@
 ### 2. TaskList 组件 (`TaskList.tsx`)
 
 **功能特性：**
+
 - 显示任务列表：名称、状态、负责人、进度条、预估剩余时间
 - 筛选功能：全部/进行中/等待中/完成
 - 点击展开详情
@@ -65,6 +68,7 @@
 - 响应式滚动列表
 
 **技术实现：**
+
 - 使用 `TaskFilter` 类型进行筛选
 - 状态样式映射（pending、in-progress、completed、failed、cancelled）
 - 计算进度百分比
@@ -72,6 +76,7 @@
 ### 3. TeamStatus 组件 (`TeamStatus.tsx`)
 
 **功能特性：**
+
 - 显示 11 位 AI 成员状态
 - 成员头像（Emoji 图标）
 - 状态指示灯（在线/忙碌/空闲/离线）
@@ -81,6 +86,7 @@
 - 类型标签
 
 **技术实现：**
+
 - 使用 `useSchedulerStore` 获取 agent 数据
 - 自动计算团队效率
 - 代理类型映射图标
@@ -88,6 +94,7 @@
 ### 4. Dashboard 主页面 (`page.tsx`)
 
 **功能特性：**
+
 - 三栏布局：统计卡片 + 任务列表 + 团队状态
 - 实时数据更新（5秒轮询）
 - 深色科技风格主题
@@ -95,6 +102,7 @@
 - 国际化支持（next-intl）
 
 **技术实现：**
+
 - 使用 `useSchedulerStore` 管理状态
 - 使用 `useTranslations('agentDashboard')` 获取翻译
 - 自动初始化调度器
@@ -104,6 +112,7 @@
 ## 预览截图描述
 
 ### 桌面端视图
+
 ```
 ┌─────────────────────────────────────────────────────────────┐
 │                    AI 团队调度台                              │
@@ -130,6 +139,7 @@
 ```
 
 ### 移动端视图
+
 - 统计卡片：垂直堆叠，单列显示
 - 任务列表：全宽显示
 - 团队状态：全宽显示，网格布局
@@ -144,23 +154,24 @@
 
 ```typescript
 // src/lib/agent-scheduler/websocket.ts
-import { useSchedulerStore } from './stores/scheduler-store';
+import { useSchedulerStore } from './stores/scheduler-store'
 
 export function connectSchedulerWebSocket() {
-  const ws = new WebSocket('ws://localhost:3001/scheduler');
-  
-  ws.onmessage = (event) => {
-    const data = JSON.parse(event.data);
-    useSchedulerStore.getState().refresh();
-  };
-  
-  return ws;
+  const ws = new WebSocket('ws://localhost:3001/scheduler')
+
+  ws.onmessage = event => {
+    const data = JSON.parse(event.data)
+    useSchedulerStore.getState().refresh()
+  }
+
+  return ws
 }
 ```
 
 ### 2. 任务操作功能
 
 添加任务操作按钮：
+
 - 开始/暂停任务
 - 手动分配任务
 - 取消任务
@@ -169,6 +180,7 @@ export function connectSchedulerWebSocket() {
 ### 3. 高级筛选
 
 扩展筛选功能：
+
 - 按优先级筛选
 - 按负责人筛选
 - 按时间范围筛选
@@ -177,6 +189,7 @@ export function connectSchedulerWebSocket() {
 ### 4. 数据可视化
 
 添加图表组件：
+
 - 任务完成趋势图
 - 团队效率历史图
 - 任务分布饼图
@@ -184,6 +197,7 @@ export function connectSchedulerWebSocket() {
 ### 5. 通知系统集成
 
 集成现有通知系统：
+
 - 任务完成通知
 - 新任务分配通知
 - 效率下降警报
@@ -191,6 +205,7 @@ export function connectSchedulerWebSocket() {
 ### 6. 权限控制
 
 添加权限控制：
+
 - 查看权限
 - 操作权限
 - 管理权限
@@ -202,17 +217,19 @@ export function connectSchedulerWebSocket() {
 ### 1. 类型定义优化
 
 建议创建独立的类型文件：
+
 ```typescript
 // src/components/agent-dashboard/types.ts
 export interface TaskDisplay extends Task {
-  progressPercentage: number;
-  estimatedTimeFormatted: string;
+  progressPercentage: number
+  estimatedTimeFormatted: string
 }
 ```
 
 ### 2. 组件拆分
 
 建议进一步拆分组件：
+
 - `TaskItem.tsx` - 单个任务项
 - `AgentCard.tsx` - 单个代理卡片
 - `FilterBar.tsx` - 筛选栏
@@ -220,6 +237,7 @@ export interface TaskDisplay extends Task {
 ### 3. 测试覆盖
 
 添加单元测试和集成测试：
+
 - `StatsCard.test.tsx`
 - `TaskList.test.tsx`
 - `TeamStatus.test.tsx`
@@ -241,5 +259,5 @@ export interface TaskDisplay extends Task {
 
 ---
 
-*生成时间: 2026-03-29*
-*作者: 🎨 设计师 + ⚡ Executor*
+_生成时间: 2026-03-29_
+_作者: 🎨 设计师 + ⚡ Executor_

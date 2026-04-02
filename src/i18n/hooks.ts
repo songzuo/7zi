@@ -4,10 +4,13 @@
  * 集中管理 i18n 相关的 hooks 和工具函数
  */
 
-'use client';
+'use client'
 
-import { useTranslations as useNextIntlTranslations, useLocale as useNextIntlLocale } from 'next-intl';
-import type { Locale } from './config';
+import {
+  useTranslations as useNextIntlTranslations,
+  useLocale as useNextIntlLocale,
+} from 'next-intl'
+import type { Locale } from './config'
 
 // ============================================================================
 // 基础 Hooks
@@ -33,7 +36,7 @@ import type { Locale } from './config';
  * @returns 翻译函数
  */
 export function useTranslations(namespace?: string) {
-  return useNextIntlTranslations(namespace);
+  return useNextIntlTranslations(namespace)
 }
 
 /**
@@ -48,7 +51,7 @@ export function useTranslations(namespace?: string) {
  * @returns 当前语言代码
  */
 export function useLocale(): Locale {
-  return useNextIntlLocale() as Locale;
+  return useNextIntlLocale() as Locale
 }
 
 // ============================================================================
@@ -67,63 +70,63 @@ export function useLocale(): Locale {
  * ```
  */
 export function useCommonTranslations() {
-  return useTranslations('common');
+  return useTranslations('common')
 }
 
 /**
  * 导航翻译 hook
  */
 export function useNavTranslations() {
-  return useTranslations('nav');
+  return useTranslations('nav')
 }
 
 /**
  * 首页翻译 hook
  */
 export function useHomeTranslations() {
-  return useTranslations('home');
+  return useTranslations('home')
 }
 
 /**
  * 关于我们翻译 hook
  */
 export function useAboutTranslations() {
-  return useTranslations('about');
+  return useTranslations('about')
 }
 
 /**
  * 团队翻译 hook
  */
 export function useTeamTranslations() {
-  return useTranslations('team');
+  return useTranslations('team')
 }
 
 /**
  * 作品案例翻译 hook
  */
 export function usePortfolioTranslations() {
-  return useTranslations('portfolio');
+  return useTranslations('portfolio')
 }
 
 /**
  * 联系我们翻译 hook
  */
 export function useContactTranslations() {
-  return useTranslations('contact');
+  return useTranslations('contact')
 }
 
 /**
  * 控制台翻译 hook
  */
 export function useDashboardTranslations() {
-  return useTranslations('dashboard');
+  return useTranslations('dashboard')
 }
 
 /**
  * 页脚翻译 hook
  */
 export function useFooterTranslations() {
-  return useTranslations('footer');
+  return useTranslations('footer')
 }
 
 // ============================================================================
@@ -133,15 +136,12 @@ export function useFooterTranslations() {
 /**
  * 翻译函数类型
  */
-export type TranslateFunction = ReturnType<typeof useTranslations>;
+export type TranslateFunction = ReturnType<typeof useTranslations>
 
 /**
  * 带参数的翻译函数类型
  */
-export type TranslateWithParams = (
-  key: string,
-  params?: Record<string, string | number>
-) => string;
+export type TranslateWithParams = (key: string, params?: Record<string, string | number>) => string
 
 // ============================================================================
 // 工具函数
@@ -165,8 +165,8 @@ export function getLocaleName(locale: Locale): string {
     es: 'Español',
     fr: 'Français',
     de: 'Deutsch',
-  };
-  return localeNames[locale] || locale;
+  }
+  return localeNames[locale] || locale
 }
 
 /**
@@ -187,8 +187,8 @@ export function getLocaleTag(locale: Locale): string {
     es: 'es-ES',
     fr: 'fr-FR',
     de: 'de-DE',
-  };
-  return localeTags[locale] || locale;
+  }
+  return localeTags[locale] || locale
 }
 
 /**
@@ -201,8 +201,8 @@ export function getLocaleTag(locale: Locale): string {
  * ```
  */
 export function isRTL(locale: Locale): boolean {
-  const rtlLocales: Locale[] = [];
-  return rtlLocales.includes(locale);
+  const rtlLocales: Locale[] = []
+  return rtlLocales.includes(locale)
 }
 
 /**
@@ -215,7 +215,7 @@ export function isRTL(locale: Locale): boolean {
  * ```
  */
 export function getTextDirection(locale: Locale): 'ltr' | 'rtl' {
-  return isRTL(locale) ? 'rtl' : 'ltr';
+  return isRTL(locale) ? 'rtl' : 'ltr'
 }
 
 /**
@@ -232,7 +232,7 @@ export function formatDate(date: Date, locale: Locale): string {
     year: 'numeric',
     month: 'long',
     day: 'numeric',
-  });
+  })
 }
 
 /**
@@ -244,7 +244,7 @@ export function formatDate(date: Date, locale: Locale): string {
  * ```
  */
 export function formatNumber(number: number, locale: Locale): string {
-  return number.toLocaleString(getLocaleTag(locale));
+  return number.toLocaleString(getLocaleTag(locale))
 }
 
 /**
@@ -259,7 +259,7 @@ export function formatCurrency(amount: number, locale: Locale, currency: string)
   return amount.toLocaleString(getLocaleTag(locale), {
     style: 'currency',
     currency,
-  });
+  })
 }
 
 // ============================================================================

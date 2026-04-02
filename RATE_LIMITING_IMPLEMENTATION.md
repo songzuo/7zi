@@ -22,6 +22,7 @@
 ### 1. 核心算法
 
 #### 滑动窗口算法 (Sliding Window)
+
 - **文件**: `src/lib/rate-limit/sliding-window.ts`
 - **特点**:
   - 使用 Redis Sorted Sets 实现
@@ -34,6 +35,7 @@
 - **已测试**: ✅ 通过
 
 #### 令牌桶算法 (Token Bucket)
+
 - **文件**: `src/lib/rate-limit/token-bucket.ts`
 - **特点**:
   - 使用 Redis Hash + Lua 脚本实现
@@ -48,8 +50,10 @@
 ### 2. 存储后端
 
 #### Redis 存储
+
 - **文件**: `src/lib/redis/client.ts`
 - **配置**:
+
   ```bash
   # 使用 URL
   REDIS_URL=redis://:password@host:port/db
@@ -62,6 +66,7 @@
   ```
 
 #### 内存存储
+
 - **文件**: `src/lib/rate-limit/memory-store.ts`
 - **特点**:
   - 使用 Map 数据结构
@@ -71,6 +76,7 @@
 - **已测试**: ✅ 16 个测试全部通过
 
 #### 存储工厂
+
 - **文件**: `src/lib/rate-limit/storage-factory.ts`
 - **功能**:
   - 自动选择存储后端
@@ -82,43 +88,48 @@
 ### 3. 配置系统
 
 #### 环境变量配置
+
 - **文件**: `src/lib/rate-limit/config.ts`
 
-| 环境变量 | 默认值 | 说明 |
-|---------|--------|------|
-| `RATE_LIMIT_WINDOW_MS` | `60000` | 时间窗口（毫秒） |
-| `RATE_LIMIT_MAX_REQUESTS` | `100` | 最大请求数 |
-| `RATE_LIMIT_BY` | `ip` | 限流维度（ip/userId/both） |
-| `ENABLE_REDIS_RATE_LIMIT` | `false` | 启用 Redis 分布式限流 |
-| `RATE_LIMIT_FAIL_OPEN` | `true` | 失败时是否放行 |
-| `RATE_LIMIT_CACHE_TTL` | `3600` | 限流器缓存 TTL（秒） |
+| 环境变量                  | 默认值  | 说明                       |
+| ------------------------- | ------- | -------------------------- |
+| `RATE_LIMIT_WINDOW_MS`    | `60000` | 时间窗口（毫秒）           |
+| `RATE_LIMIT_MAX_REQUESTS` | `100`   | 最大请求数                 |
+| `RATE_LIMIT_BY`           | `ip`    | 限流维度（ip/userId/both） |
+| `ENABLE_REDIS_RATE_LIMIT` | `false` | 启用 Redis 分布式限流      |
+| `RATE_LIMIT_FAIL_OPEN`    | `true`  | 失败时是否放行             |
+| `RATE_LIMIT_CACHE_TTL`    | `3600`  | 限流器缓存 TTL（秒）       |
 
 #### 限流维度
 
 **按 IP 限流** (`RATE_LIMIT_BY=ip`)
+
 - 根据客户端 IP 地址限流
 - 适合公开 API
 
 **按用户 ID 限流** (`RATE_LIMIT_BY=userId`)
+
 - 根据认证用户 ID 限流
 - 适合需要登录的 API
 
 **双重限流** (`RATE_LIMIT_BY=both`)
+
 - 同时支持 IP 和用户 ID
 - 优先使用用户 ID，未认证时使用 IP
 
 ### 4. 中间件集成
 
 #### API 路由中间件
+
 - **文件**: `src/lib/rate-limit/middleware.ts`
 - **使用方法**:
 
 ```typescript
-import { withRateLimit } from '@/lib/rate-limit/middleware';
+import { withRateLimit } from '@/lib/rate-limit/middleware'
 
 export const GET = withRateLimit(async (req: NextRequest) => {
-  return NextResponse.json({ message: 'Hello' });
-});
+  return NextResponse.json({ message: 'Hello' })
+})
 ```
 
 **自定义配置**:
@@ -126,46 +137,45 @@ export const GET = withRateLimit(async (req: NextRequest) => {
 ```typescript
 export const POST = withRateLimit(
   async (req: NextRequest) => {
-    return NextResponse.json({ success: true });
+    return NextResponse.json({ success: true })
   },
   {
-    maxRequests: 5,      // 5 次请求
-    windowMs: 60000,     // 60 秒窗口
-    limitBy: 'userId',   // 按用户 ID 限流
+    maxRequests: 5, // 5 次请求
+    windowMs: 60000, // 60 秒窗口
+    limitBy: 'userId', // 按用户 ID 限流
   }
-);
+)
 ```
 
 #### Next.js 中间件
+
 - **使用方法**:
 
 ```typescript
 // middleware.ts
-import { createRateLimitMiddleware } from '@/lib/rate-limit/middleware';
+import { createRateLimitMiddleware } from '@/lib/rate-limit/middleware'
 
 export const middleware = createRateLimitMiddleware({
   enabled: true,
   skipPaths: ['/_next', '/static', '/favicon.ico'],
-});
+})
 
 export const config = {
-  matcher: [
-    '/((?!_next/static|_next/image|favicon.ico).*)',
-  ],
-};
+  matcher: ['/((?!_next/static|_next/image|favicon.ico).*)'],
+}
 ```
 
 ### 5. 响应头
 
 所有限流请求都会包含以下响应头：
 
-| 响应头 | 说明 |
-|--------|------|
-| `X-RateLimit-Limit` | 限流阈值 |
-| `X-RateLimit-Remaining` | 剩余请求数 |
-| `X-RateLimit-Reset` | 重置时间（ISO 8601） |
-| `X-RateLimit-Algorithm` | 使用的算法 |
-| `Retry-After` | 重试等待时间（秒，仅限流时） |
+| 响应头                  | 说明                         |
+| ----------------------- | ---------------------------- |
+| `X-RateLimit-Limit`     | 限流阈值                     |
+| `X-RateLimit-Remaining` | 剩余请求数                   |
+| `X-RateLimit-Reset`     | 重置时间（ISO 8601）         |
+| `X-RateLimit-Algorithm` | 使用的算法                   |
+| `Retry-After`           | 重试等待时间（秒，仅限流时） |
 
 ### 6. 错误响应
 
@@ -194,64 +204,64 @@ export const config = {
 
 ```typescript
 // src/app/api/tasks/route.ts
-import { NextRequest, NextResponse } from 'next/server';
-import { withRateLimit } from '@/lib/rate-limit/middleware';
+import { NextRequest, NextResponse } from 'next/server'
+import { withRateLimit } from '@/lib/rate-limit/middleware'
 
 export const GET = withRateLimit(async (req: NextRequest) => {
   // 你的业务逻辑
-  const tasks = await getTasks();
+  const tasks = await getTasks()
 
-  return NextResponse.json({ tasks });
-});
+  return NextResponse.json({ tasks })
+})
 
 export const POST = withRateLimit(async (req: NextRequest) => {
-  const body = await req.json();
-  const task = await createTask(body);
+  const body = await req.json()
+  const task = await createTask(body)
 
-  return NextResponse.json({ task }, { status: 201 });
-});
+  return NextResponse.json({ task }, { status: 201 })
+})
 ```
 
 ### 示例 2: 严格限流（登录端点）
 
 ```typescript
 // src/app/api/auth/login/route.ts
-import { withRateLimit } from '@/lib/rate-limit/middleware';
+import { withRateLimit } from '@/lib/rate-limit/middleware'
 
 export const POST = withRateLimit(
   async (req: NextRequest) => {
-    const body = await req.json();
-    const result = await authenticate(body);
+    const body = await req.json()
+    const result = await authenticate(body)
 
-    return NextResponse.json({ success: true, token: result.token });
+    return NextResponse.json({ success: true, token: result.token })
   },
   {
-    maxRequests: 5,      // 5 次尝试
-    windowMs: 60000,     // 1 分钟窗口
-    limitBy: 'ip',       // 按 IP 限流
+    maxRequests: 5, // 5 次尝试
+    windowMs: 60000, // 1 分钟窗口
+    limitBy: 'ip', // 按 IP 限流
   }
-);
+)
 ```
 
 ### 示例 3: 用户级别限流
 
 ```typescript
 // src/app/api/projects/route.ts
-import { withRateLimit } from '@/lib/rate-limit/middleware';
+import { withRateLimit } from '@/lib/rate-limit/middleware'
 
 export const POST = withRateLimit(
   async (req: NextRequest) => {
-    const body = await req.json();
-    const project = await createProject(body);
+    const body = await req.json()
+    const project = await createProject(body)
 
-    return NextResponse.json({ project }, { status: 201 });
+    return NextResponse.json({ project }, { status: 201 })
   },
   {
-    maxRequests: 20,     // 20 次请求
-    windowMs: 60000,     // 1 分钟窗口
-    limitBy: 'userId',   // 按用户 ID 限流
+    maxRequests: 20, // 20 次请求
+    windowMs: 60000, // 1 分钟窗口
+    limitBy: 'userId', // 按用户 ID 限流
   }
-);
+)
 ```
 
 ## 测试
@@ -347,16 +357,17 @@ logger.info('Rate limit check', {
   remaining: 99,
   algorithm: 'sliding-window',
   limit: 100,
-});
+})
 
 logger.warn('Rate limit exceeded', {
   path: '/api/auth/login',
   algorithm: 'token-bucket',
   limit: 5,
-});
+})
 ```
 
 建议在生产环境中：
+
 1. 监控限流事件频率
 2. 跟踪被拒绝的请求
 3. 分析限流模式
@@ -393,6 +404,7 @@ logger.warn('Rate limit exceeded', {
 ### Redis 不可用
 
 系统会自动降级到内存存储：
+
 - 配置 `RATE_LIMIT_FAIL_OPEN=true` 时，继续允许请求
 - 配置 `RATE_LIMIT_FAIL_OPEN=false` 时，拒绝所有请求
 

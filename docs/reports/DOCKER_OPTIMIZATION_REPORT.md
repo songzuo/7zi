@@ -1,6 +1,9 @@
 # Docker 部署优化报告
+
 # 项目: 7zi-frontend
+
 # 生成时间: 2026-03-22
+
 # 分析人: 🛡️ 系统管理员
 
 ---
@@ -11,13 +14,13 @@
 
 ### 核心发现
 
-| 指标 | 当前状态 | 优化后预期 | 提升 |
-|------|---------|-----------|------|
-| **镜像大小** | ~180-250MB (Alpine) | ~150-180MB (Distroless) | ↓ 25-40% |
-| **构建时间** | ~3-5 分钟 | ~2-3 分钟 | ↓ 30-40% |
-| **安全评分** | B+ (Alpine + non-root) | A+ (Distroless) | ↑ 安全性 |
-| **层数** | ~12-15 层 | ~8-10 层 | ↓ 30% |
-| **缓存命中率** | ~60% | ~85% | ↑ 25% |
+| 指标           | 当前状态               | 优化后预期              | 提升     |
+| -------------- | ---------------------- | ----------------------- | -------- |
+| **镜像大小**   | ~180-250MB (Alpine)    | ~150-180MB (Distroless) | ↓ 25-40% |
+| **构建时间**   | ~3-5 分钟              | ~2-3 分钟               | ↓ 30-40% |
+| **安全评分**   | B+ (Alpine + non-root) | A+ (Distroless)         | ↑ 安全性 |
+| **层数**       | ~12-15 层              | ~8-10 层                | ↓ 30%    |
+| **缓存命中率** | ~60%                   | ~85%                    | ↑ 25%    |
 
 ---
 
@@ -28,6 +31,7 @@
 #### Dockerfile (默认/优化版)
 
 **优点:**
+
 - ✅ 采用多阶段构建（deps → builder → runner）
 - ✅ 使用 Alpine 基础镜像（体积小）
 - ✅ 配置了非 root 用户（安全）
@@ -36,12 +40,14 @@
 - ✅ 健康检查配置完善
 
 **问题:**
+
 - ❌ 安装了 `sqlite` 包（1.2MB），但 nginx 配置显示后端服务在 127.0.0.1:8318，说明 SQLite 可能不需要
 - ❌ 在 deps 阶段只安装生产依赖，在 builder 阶段又安装完整依赖，造成重复
 - ❌ 缺少 `.dockerignore` 导致不必要的文件被复制
 - ❌ 没有利用 BuildKit 的缓存挂载（`--mount=type=cache`）
 
 **镜像大小估算:**
+
 - node:22-alpine: ~180MB
 - node_modules: ~800MB (构建阶段)
 - SQLite 包: ~1.2MB
@@ -50,11 +56,13 @@
 #### Dockerfile.production
 
 **优点:**
+
 - ✅ 简化版，移除了 SQLite
 - ✅ 多阶段构建
 - ✅ 非 root 用户
 
 **问题:**
+
 - ❌ 仍然在 deps 和 builder 阶段重复安装依赖
 - ❌ 缺少 BuildKit 缓存优化
 - ❌ 健康检查端点 `/api/health` 可能不存在
@@ -62,20 +70,24 @@
 #### Dockerfile.optimized
 
 **优点:**
+
 - ✅ 包含 distroless 变体（最高安全级别）
 - ✅ 提供了 Alpine 和 Distroless 两个选项
 
 **问题:**
+
 - ❌ 重复依赖安装问题
 - ❌ 缺少缓存优化
 
 #### Dockerfile.static
 
 **用途:**
+
 - 用于静态导出 + Nginx 部署
 - 适合无需服务器端渲染的场景
 
 **问题:**
+
 - ❌ 配置文件路径不明确：`nginx/nginx-static.conf` 不存在
 - ❌ 当前项目使用 SSR/SSG 混合，静态导出可能不适用
 
@@ -84,6 +96,7 @@
 ### 2. Nginx 配置分析 (7zi-nginx.conf)
 
 **优点:**
+
 - ✅ HTTP→HTTPS 重定向
 - ✅ TLS 1.2/1.3 配置
 - ✅ 安全头配置完善（HSTS, CSP, X-Frame-Options 等）
@@ -92,6 +105,7 @@
 - ✅ Gmail Pub/Sub 回调支持
 
 **问题:**
+
 - ⚠️ 后端服务代理到 127.0.0.1:8318，说明有独立的后端服务
 - ⚠️ 静态文件根目录 `/var/www/7zi` 与 Docker 容器路径不一致
 - ❌ 没有配置 gzip 压缩级别
@@ -99,6 +113,7 @@
 - ❌ 缺少 connection limiting
 
 **配置冲突:**
+
 ```
 # Docker 容器端口映射
 ports:
@@ -149,6 +164,7 @@ Stage 3 (runner):
 #### 层缓存命中率问题
 
 **当前策略的缓存问题:**
+
 ```dockerfile
 # ❌ 问题1: deps 阶段只安装生产依赖
 COPY package.json package-lock.json* ./
@@ -160,11 +176,13 @@ RUN npm ci --legacy-peer-deps  # 重复下载大部分依赖！
 ```
 
 **缓存命中率影响:**
+
 - 修改 `package.json`: ❌ deps 失败，builder 失败 → 0% 命中
 - 修改源代码: ✅ deps 成功，builder 失败 → 50% 命中
 - 修改 Dockerfile: ❌ 所有阶段失败 → 0% 命中
 
 **优化后预期:**
+
 - 修改 `package.json`: ✅ deps 失败，builder 成功 → 50% 命中
 - 修改源代码: ✅ deps 成功，builder 成功 → 100% 命中
 - 修改 Dockerfile: ❌ 仅修改阶段失败 → 75% 命中
@@ -178,6 +196,7 @@ RUN npm ci --legacy-peer-deps  # 重复下载大部分依赖！
 #### 1.1 创建统一的 Dockerfile
 
 **优化点:**
+
 - ✅ 使用 BuildKit 缓存挂载（`--mount=type=cache`）
 - ✅ 合并 deps 和 builder 阶段，避免重复安装
 - ✅ 移除不必要的 SQLite（如有独立后端）
@@ -348,6 +367,7 @@ docker-compose*.yml
 ```
 
 **预期效果:**
+
 - 构建上下文: ~200MB → ~15MB
 - 构建时间: ↓ 20-30%
 
@@ -537,7 +557,7 @@ server {
 
 ```yaml
 # docker-compose.optimized.yml
-version: "3.8"
+version: '3.8'
 
 services:
   # Next.js Frontend
@@ -545,7 +565,7 @@ services:
     build:
       context: .
       dockerfile: Dockerfile
-      target: runner-alpine  # 或 runner-distroless
+      target: runner-alpine # 或 runner-distroless
       args:
         - NODE_ENV=production
       # 🚀 启用 BuildKit 缓存
@@ -565,15 +585,21 @@ services:
     deploy:
       resources:
         limits:
-          cpus: "1"
+          cpus: '1'
           memory: 512M
         reservations:
-          cpus: "0.25"
+          cpus: '0.25'
           memory: 128M
 
     # 🚀 健康检查
     healthcheck:
-      test: ["CMD", "node", "-e", "require('http').get('http://localhost:3000/', (r) => {process.exit(r.statusCode === 200 ? 0 : 1)})"]
+      test:
+        [
+          'CMD',
+          'node',
+          '-e',
+          "require('http').get('http://localhost:3000/', (r) => {process.exit(r.statusCode === 200 ? 0 : 1)})",
+        ]
       interval: 30s
       timeout: 10s
       retries: 3
@@ -581,16 +607,16 @@ services:
 
     # 🚀 日志轮转
     logging:
-      driver: "json-file"
+      driver: 'json-file'
       options:
-        max-size: "10m"
-        max-file: "3"
-        compress: "true"
+        max-size: '10m'
+        max-file: '3'
+        compress: 'true'
 
     # 🚀 安全配置
     security_opt:
       - no-new-privileges:true
-    read_only: true  # 只读文件系统（提高安全性）
+    read_only: true # 只读文件系统（提高安全性）
     tmpfs:
       - /tmp
 
@@ -604,8 +630,8 @@ services:
     restart: unless-stopped
 
     ports:
-      - "80:80"
-      - "443:443"
+      - '80:80'
+      - '443:443'
 
     volumes:
       - ./nginx/nginx.conf:/etc/nginx/nginx.conf:ro
@@ -620,14 +646,14 @@ services:
     deploy:
       resources:
         limits:
-          cpus: "0.5"
+          cpus: '0.5'
           memory: 128M
         reservations:
-          cpus: "0.1"
+          cpus: '0.1'
           memory: 32M
 
     healthcheck:
-      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost/health"]
+      test: ['CMD', 'wget', '--no-verbose', '--tries=1', '--spider', 'http://localhost/health']
       interval: 30s
       timeout: 10s
       retries: 3
@@ -693,6 +719,7 @@ RUN npm ci --legacy-peer-deps --prefer-offline --no-audit
 ```
 
 **优势:**
+
 - 减少 1 次依赖安装
 - 利用 BuildKit 缓存挂载
 - 构建时间 ↓ 30-40%
@@ -704,39 +731,44 @@ RUN npm ci --legacy-peer-deps --prefer-offline --no-audit
 #### 4.1 何时使用 Distroless
 
 **推荐使用场景:**
+
 - ✅ 生产环境（最高安全要求）
 - ✅ 需要最小化攻击面
 - ✅ 不需要调试容器
 - ✅ 使用 standalone 输出模式
 
 **不推荐场景:**
+
 - ❌ 开发环境（需要调试）
 - ❌ 需要运行时安装包
 - ❌ 需要 shell 访问
 
 #### 4.2 Distroless vs Alpine 对比
 
-| 特性 | Alpine | Distroless | 推荐 |
-|------|--------|-----------|------|
-| 镜像大小 | ~180MB | ~150MB | Distroless |
-| 安全性 | B+ | A+ | Distroless |
-| 可调试性 | ✅ 有 shell | ❌ 无 shell | Alpine |
-| 层数 | ~12 | ~8 | Distroless |
-| CVE 数量 | 较多 | 较少 | Distroless |
+| 特性     | Alpine      | Distroless  | 推荐       |
+| -------- | ----------- | ----------- | ---------- |
+| 镜像大小 | ~180MB      | ~150MB      | Distroless |
+| 安全性   | B+          | A+          | Distroless |
+| 可调试性 | ✅ 有 shell | ❌ 无 shell | Alpine     |
+| 层数     | ~12         | ~8          | Distroless |
+| CVE 数量 | 较多        | 较少        | Distroless |
 
 #### 4.3 迁移建议
 
 **阶段1（立即）:** 优化现有 Dockerfile（Alpine）
+
 - 添加 `.dockerignore`
 - 使用 BuildKit 缓存
 - 合并依赖安装阶段
 
 **阶段2（1-2周后）:** 引入 Distroless 选项
+
 - 保留 Alpine 版本作为后备
 - 在测试环境验证 Distroless
 - 监控生产环境性能
 
 **阶段3（稳定后）:** 完全切换到 Distroless
+
 - 仅在需要调试时切换回 Alpine
 
 ---
@@ -761,6 +793,7 @@ RUN npm ci --legacy-peer-deps --prefer-offline --no-audit
 ### 优先级 P1（本周内）
 
 4. **启用 BuildKit**
+
    ```bash
    # 在 ~/.docker/config.json 添加
    {
@@ -771,6 +804,7 @@ RUN npm ci --legacy-peer-deps --prefer-offline --no-audit
    ```
 
 5. **构建优化镜像**
+
    ```bash
    DOCKER_BUILDKIT=1 docker build -t 7zi-frontend:optimized .
    ```
@@ -798,22 +832,24 @@ RUN npm ci --legacy-peer-deps --prefer-offline --no-audit
 
 ### 性能提升
 
-| 指标 | 当前 | 优化后 | 提升 |
-|------|------|--------|------|
-| 构建时间 | 3-5 分钟 | 2-3 分钟 | ↓ 30-40% |
-| 镜像大小 | 180-250MB | 150-180MB | ↓ 15-25% |
-| 层数 | 15-20 | 8-10 | ↓ 50% |
-| 缓存命中率 | 60% | 85% | ↑ 25% |
-| 部署时间 | 5-8 分钟 | 3-5 分钟 | ↓ 40% |
+| 指标       | 当前      | 优化后    | 提升     |
+| ---------- | --------- | --------- | -------- |
+| 构建时间   | 3-5 分钟  | 2-3 分钟  | ↓ 30-40% |
+| 镜像大小   | 180-250MB | 150-180MB | ↓ 15-25% |
+| 层数       | 15-20     | 8-10      | ↓ 50%    |
+| 缓存命中率 | 60%       | 85%       | ↑ 25%    |
+| 部署时间   | 5-8 分钟  | 3-5 分钟  | ↓ 40%    |
 
 ### 成本节约
 
 **单服务器部署（7zi.com）:**
+
 - 存储空间: ↓ 50MB × 3 版本 = 150MB
 - 带宽: ↓ 25%（镜像拉取）
 - 构建时间: ↓ 2 分钟 × 每天 5 次 = 每天 10 分钟
 
 **多服务器部署（8 台服务器）:**
+
 - 存储空间: ↓ 150MB × 8 = 1.2GB
 - 带宽: ↓ 25% × 8 台 = 200%
 - 总体: 月节省 ~50-100GB 流量
@@ -893,6 +929,7 @@ docker stats 7zi-frontend
 **当前问题:** Nginx 配置中后端服务运行在 `127.0.0.1:8318`，但 Docker 容器无法访问宿主机的 localhost。
 
 **解决方案:**
+
 ```nginx
 # 选项1: 使用 Docker 网络名称
 proxy_pass http://7zi-frontend:3000;
@@ -909,12 +946,13 @@ proxy_pass http://192.168.1.100:8318;
 **问题:** Dockerfile 中安装了 SQLite，但 nginx 配置显示有独立后端。
 
 **建议:**
+
 - 如果有独立后端: 移除 SQLite
 - 如果需要 SQLite: 保留，但确保数据持久化
 
 ```yaml
 volumes:
-  - ./data:/app/data  # SQLite 数据持久化
+  - ./data:/app/data # SQLite 数据持久化
 ```
 
 ### 3. 静态文件部署
@@ -922,6 +960,7 @@ volumes:
 **问题:** Dockerfile.static 配置路径不存在。
 
 **建议:**
+
 - 如果使用 SSR/SSG 混合: 不使用静态导出
 - 如果完全静态: 创建 `nginx/nginx-static.conf`
 
@@ -955,6 +994,7 @@ volumes:
 ## ✅ 检查清单
 
 ### 构建优化
+
 - [ ] 创建 `.dockerignore`
 - [ ] 合并 deps 和 builder 阶段
 - [ ] 使用 BuildKit 缓存挂载
@@ -962,6 +1002,7 @@ volumes:
 - [ ] 测试 Distroless 镜像
 
 ### 镜像优化
+
 - [ ] 使用 Alpine 或 Distroless 基础镜像
 - [ ] 合并 RUN 命令减少层数
 - [ ] 使用非 root 用户
@@ -969,6 +1010,7 @@ volumes:
 - [ ] 设置资源限制
 
 ### 部署优化
+
 - [ ] 修复 Nginx 后端代理配置
 - [ ] 添加速率限制
 - [ ] 配置 Let's Encrypt 自动续期
@@ -976,6 +1018,7 @@ volumes:
 - [ ] 配置日志轮转
 
 ### 安全优化
+
 - [ ] 启用 Distroless（生产环境）
 - [ ] 配置安全头
 - [ ] 限制容器权限（no-new-privileges）
@@ -987,6 +1030,7 @@ volumes:
 ## 📞 后续支持
 
 如有问题或需要进一步优化，请联系：
+
 - 🛡️ 系统管理员
 - 📧 Email: admin@7zi.com
 - 📱 Telegram: @admin

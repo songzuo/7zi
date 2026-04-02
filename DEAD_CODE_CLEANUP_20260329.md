@@ -8,11 +8,11 @@
 
 ### 统计数据
 
-| 项目 | 数量 |
-|------|------|
-| 分析的总文件数 | 430 |
-| src/lib 中的非测试文件 | 235 |
-| 发现的未使用文件 | 约 50+ 个 |
+| 项目                   | 数量      |
+| ---------------------- | --------- |
+| 分析的总文件数         | 430       |
+| src/lib 中的非测试文件 | 235       |
+| 发现的未使用文件       | 约 50+ 个 |
 
 ---
 
@@ -23,6 +23,7 @@
 以下模块在整个项目中没有被引用（不包括测试文件）：
 
 #### 数据库相关模块（15个）
+
 ```
 src/lib/db/nplus1-detector.ts
 src/lib/db/index-unified.ts
@@ -42,10 +43,12 @@ src/lib/db/migrations.ts
 ```
 
 **说明**: 虽然这些文件未被直接引用，但部分模块可能通过 `src/lib/db/index.ts` 被间接使用。建议：
+
 - 保留：`migrations.ts`（通过 index.ts 导出使用）
 - 可清理：大部分工具类模块（nplus1-detector, slow-query-logger 等）
 
 #### 备份系统模块（7个）
+
 ```
 src/lib/backup/types.ts
 src/lib/backup/scheduler.ts
@@ -59,6 +62,7 @@ src/lib/backup/data-export.ts
 **建议**: 保留所有文件，这些模块通过 `src/lib/backup/index.ts` 统一导出，未来可能需要使用。
 
 #### 错误处理子模块（3个）
+
 ```
 src/lib/errors/unified-types.ts
 src/lib/errors/unified-response.ts
@@ -69,6 +73,7 @@ src/lib/errors/unified-error.ts
 **建议**: **不要删除**
 
 #### 协作功能模块（2个）
+
 ```
 src/lib/collaboration/rooms.ts
 src/lib/collaboration/server.ts
@@ -77,6 +82,7 @@ src/lib/collaboration/server.ts
 **建议**: 保留，可能用于实时协作功能。
 
 #### 多模态 AI 提供商（2个）
+
 ```
 src/lib/multimodal/bailian-provider.ts
 src/lib/multimodal/volcengine-provider.ts
@@ -85,6 +91,7 @@ src/lib/multimodal/volcengine-provider.ts
 **建议**: 保留，用于图像和音频 AI 处理功能。
 
 #### 其他未使用模块（30+）
+
 ```
 src/lib/timing.ts
 src/lib/theme-script-inline.ts
@@ -98,6 +105,7 @@ src/lib/feedback/notifications.ts
 ```
 
 以及以下目录下的多个模块：
+
 - `src/lib/permissions/` (middleware, migrations)
 - `src/lib/rate-limit/` (event-logger, memory-store, token-bucket 等)
 - `src/lib/realtime/` (useWebSocket, notification-hooks 等)
@@ -111,16 +119,16 @@ src/lib/feedback/notifications.ts
 
 所有 UI 组件都在被使用中，未发现完全未使用的组件：
 
-| 组件 | 导入次数 | 状态 |
-|------|---------|------|
-| Button | 8 | ✅ 使用中 |
-| Card | 7 | ✅ 使用中 |
-| Tooltip | 2 | ✅ 使用中 |
-| Checkbox | 1 | ✅ 使用中 |
-| Input | - | 需要检查 |
-| Select | - | 需要检查 |
-| Badge | - | 需要检查 |
-| ThemeSelector | - | 需要检查 |
+| 组件          | 导入次数 | 状态      |
+| ------------- | -------- | --------- |
+| Button        | 8        | ✅ 使用中 |
+| Card          | 7        | ✅ 使用中 |
+| Tooltip       | 2        | ✅ 使用中 |
+| Checkbox      | 1        | ✅ 使用中 |
+| Input         | -        | 需要检查  |
+| Select        | -        | 需要检查  |
+| Badge         | -        | 需要检查  |
+| ThemeSelector | -        | 需要检查  |
 
 **结论**: `src/components/ui/` 目录下的组件都在使用中，无需清理。
 
@@ -228,6 +236,7 @@ src/lib/permissions/migrations.ts
 ### 5.3 性能优化
 
 删除未使用的文件可以：
+
 - 减少构建时间
 - 减小包体积
 - 提高代码可维护性

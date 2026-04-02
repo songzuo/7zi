@@ -1,4 +1,4 @@
-import { defineConfig, devices } from '@playwright/test';
+import { defineConfig, devices } from '@playwright/test'
 
 /**
  * Enhanced E2E Test Configuration
@@ -35,22 +35,31 @@ export default defineConfig({
   // Reporter configuration - Enhanced reporting
   reporter: [
     // HTML Report with open in browser
-    ['html', {
-      outputFolder: 'tests/e2e/playwright-report',
-      open: 'never',
-      host: '0.0.0.0',
-      port: 9324,
-    }],
+    [
+      'html',
+      {
+        outputFolder: 'tests/e2e/playwright-report',
+        open: 'never',
+        host: '0.0.0.0',
+        port: 9324,
+      },
+    ],
     // Console output
     ['list'],
     // JSON for CI integration
-    ['json', {
-      outputFile: 'tests/e2e/test-results/test-results.json',
-    }],
+    [
+      'json',
+      {
+        outputFile: 'tests/e2e/test-results/test-results.json',
+      },
+    ],
     // JUnit for test tracking
-    ['junit', {
-      outputFile: 'tests/e2e/test-results/junit-results.xml',
-    }],
+    [
+      'junit',
+      {
+        outputFile: 'tests/e2e/test-results/junit-results.xml',
+      },
+    ],
     // GitHub Actions annotations
     process.env.GITHUB_ACTIONS ? ['github'] : null,
   ].filter(Boolean),
@@ -183,4 +192,4 @@ export default defineConfig({
 
   // Snapshot directory for visual regression
   snapshotDir: 'tests/e2e/snapshots',
-});
+})

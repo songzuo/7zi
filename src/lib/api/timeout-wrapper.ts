@@ -14,17 +14,17 @@
  * );
  */
 
-import { logger } from '../logger';
-import { createServiceUnavailableError, ErrorType } from './error-handler';
-import { getLocaleFromRequest, SupportedLocale } from './user-messages';
+import { logger } from '../logger'
+import { createServiceUnavailableError, ErrorType } from './error-handler'
+import { getLocaleFromRequest, SupportedLocale } from './user-messages'
 
 /**
  * Timeout error for operation timeouts
  */
 export class TimeoutError extends Error {
   constructor(message: string = 'Operation timed out') {
-    super(message);
-    this.name = 'TimeoutError';
+    super(message)
+    this.name = 'TimeoutError'
   }
 }
 
@@ -63,29 +63,29 @@ export function withTimeout<T extends (...args: unknown[]) => Promise<unknown>>(
     // Create timeout promise
     const timeoutPromise = new Promise<never>((_, reject) => {
       const timeoutId = setTimeout(() => {
-        reject(new TimeoutError(`Operation timed out after ${timeoutMs}ms`));
-      }, timeoutMs);
+        reject(new TimeoutError(`Operation timed out after ${timeoutMs}ms`))
+      }, timeoutMs)
 
       // Store timeout ID for cleanup
-      (timeoutPromise as { __timeoutId?: NodeJS.Timeout }).__timeoutId = timeoutId;
-    });
+      ;(timeoutPromise as { __timeoutId?: NodeJS.Timeout }).__timeoutId = timeoutId
+    })
 
     try {
       // Race between the operation and the timeout
-      const result = await Promise.race([fn(...args), timeoutPromise]);
+      const result = await Promise.race([fn(...args), timeoutPromise])
 
       // Clear timeout if operation completed first
-      const timeoutId = (timeoutPromise as { __timeoutId?: NodeJS.Timeout }).__timeoutId;
+      const timeoutId = (timeoutPromise as { __timeoutId?: NodeJS.Timeout }).__timeoutId
       if (timeoutId) {
-        clearTimeout(timeoutId);
+        clearTimeout(timeoutId)
       }
 
-      return result;
-    } catch (_error) {
+      return result
+    } catch (error) {
       // Clear timeout on error
-      const timeoutId = (timeoutPromise as { __timeoutId?: NodeJS.Timeout }).__timeoutId;
+      const timeoutId = (timeoutPromise as { __timeoutId?: NodeJS.Timeout }).__timeoutId
       if (timeoutId) {
-        clearTimeout(timeoutId);
+        clearTimeout(timeoutId)
       }
 
       // Handle timeout error
@@ -93,15 +93,15 @@ export function withTimeout<T extends (...args: unknown[]) => Promise<unknown>>(
         logger.warn(`Operation timed out: ${fn.name || 'anonymous'}`, {
           timeoutMs,
           args: args.length > 0 ? args : undefined,
-        });
+        })
 
-        throw error;
+        throw error
       }
 
       // Re-throw other errors
-      throw error;
+      throw error
     }
-  }) as T;
+  }) as T
 }
 
 /**
@@ -118,7 +118,7 @@ export function withTimeout<T extends (...args: unknown[]) => Promise<unknown>>(
  *     fetch('/api/data'),
  *     5000
  *   );
- * } catch (_error) {
+ * } catch (error) {
  *   if (error instanceof ApiError) {
  *     // Handle timeout error
  *   }
@@ -131,19 +131,19 @@ export async function withTimeoutPromise<T>(
 ): Promise<T> {
   return new Promise((resolve, reject) => {
     const timeoutId = setTimeout(() => {
-      reject(new TimeoutError(`Operation timed out after ${timeoutMs}ms`));
-    }, timeoutMs);
+      reject(new TimeoutError(`Operation timed out after ${timeoutMs}ms`))
+    }, timeoutMs)
 
     promise
       .then(result => {
-        clearTimeout(timeoutId);
-        resolve(result);
+        clearTimeout(timeoutId)
+        resolve(result)
       })
       .catch(error => {
-        clearTimeout(timeoutId);
-        reject(error);
-      });
-  });
+        clearTimeout(timeoutId)
+        reject(error)
+      })
+  })
 }
 
 /**
@@ -161,17 +161,14 @@ export function withTimeoutApi<T extends (...args: unknown[]) => Promise<unknown
 ): T {
   return (async (...args: Parameters<T>) => {
     try {
-      return await withTimeout(fn, timeoutMs, locale)(...args);
-    } catch (_error) {
+      return await withTimeout(fn, timeoutMs, locale)(...args)
+    } catch (error) {
       if (error instanceof TimeoutError) {
-        return await createServiceUnavailableError(
-          `请求超时，请稍后重试 (${timeoutMs}ms)`,
-          locale
-        );
+        return await createServiceUnavailableError(`请求超时，请稍后重试 (${timeoutMs}ms)`, locale)
       }
-      throw error;
+      throw error
     }
-  }) as T;
+  }) as T
 }
 
 /**
@@ -195,7 +192,7 @@ export const TimeoutPresets = {
 
   /** Extra long timeout for file operations (120s) */
   extraLong: 120000,
-};
+}
 
 /**
  * Execute function with timeout and return result or default
@@ -218,13 +215,13 @@ export async function withTimeoutDefault<T>(
   defaultValue: T
 ): Promise<T> {
   try {
-    return await withTimeout(fn, timeoutMs)();
-  } catch (_error) {
+    return await withTimeout(fn, timeoutMs)()
+  } catch (error) {
     if (error instanceof TimeoutError) {
-      logger.warn('Operation timed out, returning default value');
-      return defaultValue;
+      logger.warn('Operation timed out, returning default value')
+      return defaultValue
     }
-    throw error;
+    throw error
   }
 }
 
@@ -241,20 +238,17 @@ export async function withTimeoutDefault<T>(
  *   'fetchData'
  * );
  */
-export async function withMeasurement<T>(
-  fn: () => Promise<T>,
-  name: string
-): Promise<T> {
-  const startTime = Date.now();
+export async function withMeasurement<T>(fn: () => Promise<T>, name: string): Promise<T> {
+  const startTime = Date.now()
   try {
-    const result = await fn();
-    const duration = Date.now() - startTime;
-    logger.info(`Function ${name} completed`, { durationMs: duration });
-    return result;
-  } catch (_error) {
-    const duration = Date.now() - startTime;
-    logger.error(`Function ${name} failed`, error, { durationMs: duration });
-    throw error;
+    const result = await fn()
+    const duration = Date.now() - startTime
+    logger.info(`Function ${name} completed`, { durationMs: duration })
+    return result
+  } catch (error) {
+    const duration = Date.now() - startTime
+    logger.error(`Function ${name} failed`, error, { durationMs: duration })
+    throw error
   }
 }
 
@@ -271,8 +265,5 @@ export async function withTimeoutAndMeasurement<T>(
   timeoutMs: number,
   name: string
 ): Promise<T> {
-  return withMeasurement(
-    () => withTimeout(fn, timeoutMs)(),
-    name
-  );
+  return withMeasurement(() => withTimeout(fn, timeoutMs)(), name)
 }

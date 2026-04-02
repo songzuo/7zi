@@ -3,28 +3,28 @@
  * Provides optimized query helpers to avoid N+1 query problems
  */
 
-import { DatabaseConnection } from './connection';
+import { DatabaseConnection } from './connection'
 
 /**
  * Database table row types for query results
  */
 
 export interface FeedbackAttachmentRow {
-  id: string;
-  feedback_id: string;
-  filename: string;
-  url: string;
-  size: number;
-  mimetype: string;
-  uploaded_at: string;
+  id: string
+  feedback_id: string
+  filename: string
+  url: string
+  size: number
+  mimetype: string
+  uploaded_at: string
 }
 
 export interface HelpfulVoteRow {
-  id: string;
-  rating_id: string;
-  user_id: string;
-  is_helpful: number;
-  created_at: string;
+  id: string
+  rating_id: string
+  user_id: string
+  is_helpful: number
+  created_at: string
 }
 
 /**
@@ -32,15 +32,17 @@ export interface HelpfulVoteRow {
  * Combines multiple GROUP BY queries into single query with CTEs
  */
 export interface OptimizedFeedbackStats {
-  total: number;
-  by_status: Record<string, number>;
-  by_type: Record<string, number>;
-  by_priority: Record<string, number>;
-  average_rating: number;
-  rating_distribution: Record<number, number>;
+  total: number
+  by_status: Record<string, number>
+  by_type: Record<string, number>
+  by_priority: Record<string, number>
+  average_rating: number
+  rating_distribution: Record<number, number>
 }
 
-export async function getOptimizedFeedbackStats(db: DatabaseConnection): Promise<OptimizedFeedbackStats> {
+export async function getOptimizedFeedbackStats(
+  db: DatabaseConnection
+): Promise<OptimizedFeedbackStats> {
   // Use a single query with multiple aggregate functions
   const result = db.queryRows(`
     SELECT
@@ -69,30 +71,30 @@ export async function getOptimizedFeedbackStats(db: DatabaseConnection): Promise
       SUM(CASE WHEN rating = 5 THEN 1 ELSE 0 END) as rating_5
     FROM feedbacks
   `)[0] as {
-    total: number;
-    avg_rating: number | null;
-    status_pending: number;
-    status_reviewed: number;
-    status_approved: number;
-    status_rejected: number;
-    status_resolved: number;
-    type_general: number;
-    type_bug: number;
-    type_feature: number;
-    type_suggestion: number;
-    type_complaint: number;
-    type_compliment: number;
-    type_other: number;
-    priority_low: number;
-    priority_medium: number;
-    priority_high: number;
-    priority_urgent: number;
-    rating_1: number;
-    rating_2: number;
-    rating_3: number;
-    rating_4: number;
-    rating_5: number;
-  };
+    total: number
+    avg_rating: number | null
+    status_pending: number
+    status_reviewed: number
+    status_approved: number
+    status_rejected: number
+    status_resolved: number
+    type_general: number
+    type_bug: number
+    type_feature: number
+    type_suggestion: number
+    type_complaint: number
+    type_compliment: number
+    type_other: number
+    priority_low: number
+    priority_medium: number
+    priority_high: number
+    priority_urgent: number
+    rating_1: number
+    rating_2: number
+    rating_3: number
+    rating_4: number
+    rating_5: number
+  }
 
   return {
     total: result.total,
@@ -126,7 +128,7 @@ export async function getOptimizedFeedbackStats(db: DatabaseConnection): Promise
       4: result.rating_4,
       5: result.rating_5,
     },
-  };
+  }
 }
 
 /**
@@ -134,29 +136,29 @@ export async function getOptimizedFeedbackStats(db: DatabaseConnection): Promise
  * Combines multiple GROUP BY queries into single query
  */
 export interface OptimizedRatingStats {
-  total: number;
-  average_rating: number;
-  rating_distribution: Record<number, number>;
-  by_target_type: Record<string, number>;
-  helpful_ratio: number;
+  total: number
+  average_rating: number
+  rating_distribution: Record<number, number>
+  by_target_type: Record<string, number>
+  helpful_ratio: number
 }
 
 export async function getOptimizedRatingStats(
   db: DatabaseConnection,
   filters?: {
-    target_type?: string;
-    target_id?: string;
+    target_type?: string
+    target_id?: string
   }
 ): Promise<OptimizedRatingStats> {
   const whereClause = filters?.target_type
     ? `WHERE target_type = ?${filters.target_id ? ' AND target_id = ?' : ''}`
-    : '';
+    : ''
 
   const params = filters?.target_type
     ? filters.target_id
       ? [filters.target_type, filters.target_id]
       : [filters.target_type]
-    : [];
+    : []
 
   // Combined query for basic stats
   const statsResult = db.queryRows(
@@ -173,19 +175,19 @@ export async function getOptimizedRatingStats(
     `,
     params
   )[0] as {
-    total: number;
-    avg_rating: number | null;
-    rating_1: number;
-    rating_2: number;
-    rating_3: number;
-    rating_4: number;
-    rating_5: number;
-  };
+    total: number
+    avg_rating: number | null
+    rating_1: number
+    rating_2: number
+    rating_3: number
+    rating_4: number
+    rating_5: number
+  }
 
   // Separate query for target types (can't easily combine with WHERE filter)
   const targetTypeResults = db.queryRows(
     `SELECT target_type, COUNT(*) as count FROM ratings GROUP BY target_type`
-  ) as Array<{ target_type: string; count: number }>;
+  ) as Array<{ target_type: string; count: number }>
 
   // Combined query for helpful votes (single query instead of two)
   const helpfulResult = db.queryRows(
@@ -195,11 +197,11 @@ export async function getOptimizedRatingStats(
       SUM(CASE WHEN is_helpful = 0 THEN 1 ELSE 0 END) as not_helpful
     FROM helpful_votes
     `
-  )[0] as { helpful: number; not_helpful: number };
+  )[0] as { helpful: number; not_helpful: number }
 
-  const helpful_count = helpfulResult.helpful || 0;
-  const not_helpful_count = helpfulResult.not_helpful || 0;
-  const totalVotes = helpful_count + not_helpful_count;
+  const helpful_count = helpfulResult.helpful || 0
+  const not_helpful_count = helpfulResult.not_helpful || 0
+  const totalVotes = helpful_count + not_helpful_count
 
   return {
     total: statsResult.total,
@@ -216,7 +218,7 @@ export async function getOptimizedRatingStats(
       {}
     ),
     helpful_ratio: totalVotes > 0 ? Math.round((helpful_count / totalVotes) * 100) / 100 : 0,
-  };
+  }
 }
 
 /**
@@ -230,26 +232,26 @@ export async function batchLoad<T>(
   idColumn: string = 'id'
 ): Promise<T[]> {
   if (ids.length === 0) {
-    return [];
+    return []
   }
 
   // Split into batches of 100 to avoid SQL query length limits
-  const batchSize = 100;
-  const results: T[] = [];
+  const batchSize = 100
+  const results: T[] = []
 
   for (let i = 0; i < ids.length; i += batchSize) {
-    const batchIds = ids.slice(i, i + batchSize);
-    const placeholders = batchIds.map(() => '?').join(',');
+    const batchIds = ids.slice(i, i + batchSize)
+    const placeholders = batchIds.map(() => '?').join(',')
 
     const batch = db.queryRows(
       `SELECT * FROM ${tableName} WHERE ${idColumn} IN (${placeholders})`,
       batchIds
-    ) as T[];
+    ) as T[]
 
-    results.push(...batch);
+    results.push(...batch)
   }
 
-  return results;
+  return results
 }
 
 /**
@@ -257,11 +259,11 @@ export async function batchLoad<T>(
  * Uses window function to get count without separate COUNT query
  */
 export interface PaginatedResult<T> {
-  items: T[];
-  total: number;
-  page: number;
-  per_page: number;
-  total_pages: number;
+  items: T[]
+  total: number
+  page: number
+  per_page: number
+  total_pages: number
 }
 
 export async function paginate<T>(
@@ -273,7 +275,7 @@ export async function paginate<T>(
   params: unknown[] = [],
   orderBy: string = 'created_at DESC'
 ): Promise<PaginatedResult<T>> {
-  const offset = (page - 1) * perPage;
+  const offset = (page - 1) * perPage
 
   // Use window function to get count in same query
   const result = db.queryRows(
@@ -285,10 +287,10 @@ export async function paginate<T>(
     LIMIT ? OFFSET ?
     `,
     [...params, perPage, offset]
-  ) as Array<T & { total_count: number }>;
+  ) as Array<T & { total_count: number }>
 
-  const items = result.map(({ total_count, ...item }) => item) as T[];
-  const total = result[0]?.total_count || 0;
+  const items = result.map(({ total_count, ...item }) => item) as T[]
+  const total = result[0]?.total_count || 0
 
   return {
     items,
@@ -296,7 +298,7 @@ export async function paginate<T>(
     page,
     per_page: perPage,
     total_pages: Math.ceil(total / perPage),
-  };
+  }
 }
 
 /**
@@ -308,26 +310,26 @@ export async function getFeedbacksWithAttachments(
   feedbackIds: string[]
 ): Promise<Map<string, FeedbackAttachmentRow[]>> {
   if (feedbackIds.length === 0) {
-    return new Map();
+    return new Map()
   }
 
-  const placeholders = feedbackIds.map(() => '?').join(',');
+  const placeholders = feedbackIds.map(() => '?').join(',')
 
   const attachments = db.queryRows(
     `SELECT * FROM feedback_attachments WHERE feedback_id IN (${placeholders}) ORDER BY feedback_id, uploaded_at`,
     feedbackIds
-  ) as unknown as Array<FeedbackAttachmentRow>;
+  ) as unknown as Array<FeedbackAttachmentRow>
 
   // Group by feedback_id
-  const grouped = new Map<string, FeedbackAttachmentRow[]>();
+  const grouped = new Map<string, FeedbackAttachmentRow[]>()
   for (const attachment of attachments) {
     if (!grouped.has(attachment.feedback_id)) {
-      grouped.set(attachment.feedback_id, []);
+      grouped.set(attachment.feedback_id, [])
     }
-    grouped.get(attachment.feedback_id)!.push(attachment);
+    grouped.get(attachment.feedback_id)!.push(attachment)
   }
 
-  return grouped;
+  return grouped
 }
 
 /**
@@ -339,26 +341,26 @@ export async function getRatingWithVotes(
   ratingIds: string[]
 ): Promise<Map<string, HelpfulVoteRow[]>> {
   if (ratingIds.length === 0) {
-    return new Map();
+    return new Map()
   }
 
-  const placeholders = ratingIds.map(() => '?').join(',');
+  const placeholders = ratingIds.map(() => '?').join(',')
 
   const votes = db.queryRows(
     `SELECT * FROM helpful_votes WHERE rating_id IN (${placeholders}) ORDER BY rating_id, created_at`,
     ratingIds
-  ) as unknown as Array<HelpfulVoteRow>;
+  ) as unknown as Array<HelpfulVoteRow>
 
   // Group by rating_id
-  const grouped = new Map<string, HelpfulVoteRow[]>();
+  const grouped = new Map<string, HelpfulVoteRow[]>()
   for (const vote of votes) {
     if (!grouped.has(vote.rating_id)) {
-      grouped.set(vote.rating_id, []);
+      grouped.set(vote.rating_id, [])
     }
-    grouped.get(vote.rating_id)!.push(vote);
+    grouped.get(vote.rating_id)!.push(vote)
   }
 
-  return grouped;
+  return grouped
 }
 
 /**
@@ -370,16 +372,16 @@ export async function getFeedbackStatsByStatuses(
   statuses: string[]
 ): Promise<Record<string, number>> {
   if (statuses.length === 0) {
-    return {};
+    return {}
   }
 
-  const statusList = statuses.map(s => `'${s}'`).join(',');
+  const statusList = statuses.map(s => `'${s}'`).join(',')
 
   const results = db.queryRows(
     `SELECT status, COUNT(*) as count FROM feedbacks WHERE status IN (${statusList}) GROUP BY status`
-  ) as Array<{ status: string; count: number }>;
+  ) as Array<{ status: string; count: number }>
 
-  return results.reduce((acc, row) => ({ ...acc, [row.status]: row.count }), {});
+  return results.reduce((acc, row) => ({ ...acc, [row.status]: row.count }), {})
 }
 
 /**
@@ -391,17 +393,17 @@ export async function getRatingStatsByValues(
   ratings: number[]
 ): Promise<Record<number, number>> {
   if (ratings.length === 0) {
-    return {};
+    return {}
   }
 
-  const ratingList = ratings.join(',');
+  const ratingList = ratings.join(',')
 
   const results = db.queryRows(
     `SELECT rating, COUNT(*) as count FROM ratings WHERE rating IN (${ratingList}) GROUP BY rating`
-  ) as Array<{ rating: number; count: number }>;
+  ) as Array<{ rating: number; count: number }>
 
   return results.reduce(
     (acc, row) => ({ ...acc, [row.rating]: row.count }),
     {} as Record<number, number>
-  );
+  )
 }

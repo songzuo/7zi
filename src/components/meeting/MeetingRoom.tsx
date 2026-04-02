@@ -1,4 +1,4 @@
-'use client';
+'use client'
 
 /**
  * Meeting Room Component
@@ -7,10 +7,14 @@
  * Displays participants, audio levels, and control bar
  */
 
-import React, { useEffect, useRef, useState } from 'react';
-import { useWebRTCMeeting, MeetingParticipant, UseWebRTCMeetingOptions } from '@/hooks/useWebRTCMeeting';
-import { Mic, MicOff, Phone, Users, Settings, Copy, Check } from 'lucide-react';
-import { toast } from '@/stores/uiStore';
+import React, { useEffect, useRef, useState } from 'react'
+import {
+  useWebRTCMeeting,
+  MeetingParticipant,
+  UseWebRTCMeetingOptions,
+} from '@/hooks/useWebRTCMeeting'
+import { Mic, MicOff, Phone, Users, Settings, Copy, Check } from 'lucide-react'
+import { toast } from '@/stores/uiStore'
 
 // ============================================================================
 // Global Type Extensions
@@ -18,7 +22,7 @@ import { toast } from '@/stores/uiStore';
 
 declare global {
   interface Window {
-    webkitAudioContext?: typeof AudioContext;
+    webkitAudioContext?: typeof AudioContext
   }
 }
 
@@ -27,23 +31,23 @@ declare global {
 // ============================================================================
 
 interface MeetingRoomProps {
-  roomId: string;
-  token: string;
-  userId: string;
-  userName: string;
-  meetingTitle?: string;
-  onLeave?: () => void;
+  roomId: string
+  token: string
+  userId: string
+  userName: string
+  meetingTitle?: string
+  onLeave?: () => void
 }
 
 interface AudioLevel {
-  participantId: string;
-  level: number;
+  participantId: string
+  level: number
 }
 
 interface AudioSettings {
-  echoCancellation: boolean;
-  noiseSuppression: boolean;
-  autoGainControl: boolean;
+  echoCancellation: boolean
+  noiseSuppression: boolean
+  autoGainControl: boolean
 }
 
 // ============================================================================
@@ -52,21 +56,26 @@ interface AudioSettings {
 
 const styles = {
   container: 'flex flex-col h-screen bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900',
-  header: 'flex items-center justify-between px-6 py-4 bg-slate-900/50 backdrop-blur-sm border-b border-slate-700',
+  header:
+    'flex items-center justify-between px-6 py-4 bg-slate-900/50 backdrop-blur-sm border-b border-slate-700',
   meetingInfo: 'flex items-center gap-4',
   meetingTitle: 'text-xl font-semibold text-white',
   roomId: 'flex items-center gap-2 text-slate-400 text-sm font-mono',
   roomIdText: 'hover:text-slate-300 cursor-pointer transition-colors',
   copyButton: 'p-1 hover:text-slate-300 transition-colors',
   timer: 'text-slate-400 font-mono',
-  leaveButton: 'flex items-center gap-2 px-4 py-2 bg-red-600 hover:bg-red-700 text-white rounded-lg transition-colors',
+  leaveButton:
+    'flex items-center gap-2 px-4 py-2 bg-red-600 hover:bg-red-700 text-white rounded-lg transition-colors',
   mainContent: 'flex-1 flex overflow-hidden',
   participantGrid: 'flex-1 p-6 overflow-auto',
   grid: 'grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6',
-  participantCard: 'relative bg-slate-800/50 backdrop-blur-sm rounded-2xl p-6 border border-slate-700 transition-all hover:border-slate-600',
+  participantCard:
+    'relative bg-slate-800/50 backdrop-blur-sm rounded-2xl p-6 border border-slate-700 transition-all hover:border-slate-600',
   avatarContainer: 'relative w-24 h-24 mx-auto mb-4',
-  avatar: 'w-full h-full rounded-full bg-gradient-to-br from-blue-500 to-purple-600 flex items-center justify-center text-white text-3xl font-semibold',
-  speakingIndicator: 'absolute inset-0 rounded-full ring-4 ring-green-500 ring-opacity-50 animate-pulse',
+  avatar:
+    'w-full h-full rounded-full bg-gradient-to-br from-blue-500 to-purple-600 flex items-center justify-center text-white text-3xl font-semibold',
+  speakingIndicator:
+    'absolute inset-0 rounded-full ring-4 ring-green-500 ring-opacity-50 animate-pulse',
   name: 'text-center text-white font-semibold text-lg mb-1',
   email: 'text-center text-slate-400 text-sm mb-4',
   audioLevelBar: 'h-1 bg-slate-700 rounded-full overflow-hidden',
@@ -78,16 +87,19 @@ const styles = {
   participantCount: 'text-slate-400 text-sm',
   participantList: 'p-4 space-y-3',
   participantListItem: 'flex items-center gap-3 p-3 bg-slate-800/50 rounded-lg',
-  participantAvatar: 'w-10 h-10 rounded-full bg-gradient-to-br from-blue-500 to-purple-600 flex items-center justify-center text-white font-semibold',
+  participantAvatar:
+    'w-10 h-10 rounded-full bg-gradient-to-br from-blue-500 to-purple-600 flex items-center justify-center text-white font-semibold',
   participantName: 'text-white font-medium flex-1',
   participantStatus: 'text-slate-400 text-xs',
-  controlBar: 'flex items-center justify-center gap-4 px-6 py-4 bg-slate-900/50 backdrop-blur-sm border-t border-slate-700',
+  controlBar:
+    'flex items-center justify-center gap-4 px-6 py-4 bg-slate-900/50 backdrop-blur-sm border-t border-slate-700',
   controlButton: 'p-4 rounded-full transition-all hover:scale-110 active:scale-95',
   micButtonEnabled: 'bg-blue-600 hover:bg-blue-700 text-white',
   micButtonDisabled: 'bg-slate-700 hover:bg-slate-600 text-white',
   iconButton: 'bg-slate-700 hover:bg-slate-600 text-white',
   leaveButtonControl: 'bg-red-600 hover:bg-red-700 text-white',
-  settingsPanel: 'absolute bottom-24 left-1/2 transform -translate-x-1/2 bg-slate-800 rounded-lg p-4 shadow-xl border border-slate-700',
+  settingsPanel:
+    'absolute bottom-24 left-1/2 transform -translate-x-1/2 bg-slate-800 rounded-lg p-4 shadow-xl border border-slate-700',
   settingsTitle: 'text-white font-semibold mb-3',
   settingRow: 'flex items-center justify-between mb-2',
   settingLabel: 'text-slate-300 text-sm',
@@ -95,78 +107,80 @@ const styles = {
   settingToggleEnabled: 'bg-blue-600',
   settingToggleKnob: 'absolute top-1 left-1 w-4 h-4 bg-white rounded-full transition-transform',
   settingToggleKnobEnabled: 'transform translate-x-6',
-};
+}
 
 // ============================================================================
 // Helper Components
 // ============================================================================
 
 function MeetingTimer() {
-  const [duration, setDuration] = useState(0);
+  const [duration, setDuration] = useState(0)
 
   useEffect(() => {
     const interval = setInterval(() => {
-      setDuration((prev) => prev + 1);
-    }, 1000);
+      setDuration(prev => prev + 1)
+    }, 1000)
 
-    return () => clearInterval(interval);
-  }, []);
+    return () => clearInterval(interval)
+  }, [])
 
   const formatTime = (seconds: number): string => {
-    const hours = Math.floor(seconds / 3600);
-    const minutes = Math.floor((seconds % 3600) / 60);
-    const secs = seconds % 60;
+    const hours = Math.floor(seconds / 3600)
+    const minutes = Math.floor((seconds % 3600) / 60)
+    const secs = seconds % 60
 
     if (hours > 0) {
-      return `${hours}:${minutes.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
+      return `${hours}:${minutes.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`
     }
-    return `${minutes.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
-  };
+    return `${minutes.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`
+  }
 
-  return <span className={styles.timer}>{formatTime(duration)}</span>;
+  return <span className={styles.timer}>{formatTime(duration)}</span>
 }
 
 function RoomIdDisplay({ roomId }: { roomId: string }) {
-  const [copied, setCopied] = useState(false);
+  const [copied, setCopied] = useState(false)
 
   const handleCopy = async () => {
     try {
-      await navigator.clipboard.writeText(roomId);
-      setCopied(true);
-      setTimeout(() => setCopied(false), 2000);
-    } catch (_error) {
+      await navigator.clipboard.writeText(roomId)
+      setCopied(true)
+      setTimeout(() => setCopied(false), 2000)
+    } catch (error) {
       if (process.env.NODE_ENV === 'development') {
-        console.error('Failed to copy room ID:', error);
+        console.error('Failed to copy room ID:', error)
       }
     }
-  };
+  }
 
   return (
     <div className={styles.roomId}>
       <span className="text-slate-500">Room ID:</span>
-      <span className={styles.roomIdText} onClick={handleCopy}>{roomId}</span>
-      <button
-        className={styles.copyButton}
-        onClick={handleCopy}
-        title="Copy room ID"
-      >
+      <span className={styles.roomIdText} onClick={handleCopy}>
+        {roomId}
+      </span>
+      <button className={styles.copyButton} onClick={handleCopy} title="Copy room ID">
         {copied ? <Check size={16} /> : <Copy size={16} />}
       </button>
     </div>
-  );
+  )
 }
 
-function ParticipantCard({ participant, isSpeaking, audioLevel }: {
-  participant: MeetingParticipant;
-  isSpeaking: boolean;
-  audioLevel: number;
+function ParticipantCard({
+  participant,
+  isSpeaking,
+  audioLevel,
+}: {
+  participant: MeetingParticipant
+  isSpeaking: boolean
+  audioLevel: number
 }) {
   const initials = participant.name
     .split(' ')
-    .map((n) => n[0])
+    .map(n => n[0])
     .join('')
     .toUpperCase()
-    .slice(0, 2);
+    .slice(0, 2)
 
   return (
     <div className={styles.participantCard}>
@@ -177,7 +191,7 @@ function ParticipantCard({ participant, isSpeaking, audioLevel }: {
             <img
               src={participant.avatar}
               alt={participant.name}
-              className="w-full h-full rounded-full object-cover"
+              className="h-full w-full rounded-full object-cover"
             />
           ) : (
             initials
@@ -193,17 +207,14 @@ function ParticipantCard({ participant, isSpeaking, audioLevel }: {
         </div>
       )}
       <div className={styles.audioLevelBar}>
-        <div
-          className={styles.audioLevelFill}
-          style={{ width: `${audioLevel}%` }}
-        />
+        <div className={styles.audioLevelFill} style={{ width: `${audioLevel}%` }} />
       </div>
     </div>
-  );
+  )
 }
 
 function ParticipantSidebar({ participants }: { participants: Map<string, MeetingParticipant> }) {
-  const participantArray = Array.from(participants.values());
+  const participantArray = Array.from(participants.values())
 
   return (
     <div className={styles.sidebar}>
@@ -215,13 +226,13 @@ function ParticipantSidebar({ participants }: { participants: Map<string, Meetin
         <p className={styles.participantCount}>{participantArray.length} in meeting</p>
       </div>
       <div className={styles.participantList}>
-        {participantArray.map((participant) => {
+        {participantArray.map(participant => {
           const initials = participant.name
             .split(' ')
-            .map((n) => n[0])
+            .map(n => n[0])
             .join('')
             .toUpperCase()
-            .slice(0, 2);
+            .slice(0, 2)
 
           return (
             <div key={participant.id} className={styles.participantListItem}>
@@ -230,13 +241,13 @@ function ParticipantSidebar({ participants }: { participants: Map<string, Meetin
                   <img
                     src={participant.avatar}
                     alt={participant.name}
-                    className="w-full h-full rounded-full object-cover"
+                    className="h-full w-full rounded-full object-cover"
                   />
                 ) : (
                   initials
                 )}
               </div>
-              <div className="flex-1 min-w-0">
+              <div className="min-w-0 flex-1">
                 <p className={styles.participantName}>{participant.name}</p>
                 <p className={styles.participantStatus}>
                   {participant.audioEnabled ? 'Active' : 'Muted'}
@@ -244,11 +255,11 @@ function ParticipantSidebar({ participants }: { participants: Map<string, Meetin
               </div>
               {!participant.audioEnabled && <MicOff size={16} className="text-red-400" />}
             </div>
-          );
+          )
         })}
       </div>
     </div>
-  );
+  )
 }
 
 function AudioLevelMonitor({
@@ -256,76 +267,76 @@ function AudioLevelMonitor({
   remoteStreams,
   onAudioLevelChange,
 }: {
-  participants: Map<string, MeetingParticipant>;
-  remoteStreams: Map<string, MediaStream>;
-  onAudioLevelChange: (audioLevels: Map<string, number>) => void;
+  participants: Map<string, MeetingParticipant>
+  remoteStreams: Map<string, MediaStream>
+  onAudioLevelChange: (audioLevels: Map<string, number>) => void
 }) {
-  const audioContextRef = useRef<AudioContext | null>(null);
-  const analyzersRef = useRef<Map<string, AnalyserNode>>(new Map());
+  const audioContextRef = useRef<AudioContext | null>(null)
+  const analyzersRef = useRef<Map<string, AnalyserNode>>(new Map())
 
   useEffect(() => {
     // Initialize AudioContext on user interaction
     const initAudioContext = () => {
       if (!audioContextRef.current) {
-        audioContextRef.current = new (window.AudioContext || window.webkitAudioContext)();
+        audioContextRef.current = new (window.AudioContext || window.webkitAudioContext)()
       }
-    };
+    }
 
-    initAudioContext();
+    initAudioContext()
 
     return () => {
-      audioContextRef.current?.close();
-    };
-  }, []);
+      audioContextRef.current?.close()
+    }
+  }, [])
 
   useEffect(() => {
     // Set up analyzers for remote streams
     remoteStreams.forEach((stream, participantId) => {
-      if (!audioContextRef.current) return;
+      if (!audioContextRef.current) return
 
       // Check if we already have an analyzer for this participant
-      if (analyzersRef.current.has(participantId)) return;
+      if (analyzersRef.current.has(participantId)) return
 
-      const audioContext = audioContextRef.current;
-      const source = audioContext.createMediaStreamSource(stream);
-      const analyzer = audioContext.createAnalyser();
-      analyzer.fftSize = 256;
-      analyzer.smoothingTimeConstant = 0.8;
+      const audioContext = audioContextRef.current
+      const source = audioContext.createMediaStreamSource(stream)
+      const analyzer = audioContext.createAnalyser()
+      analyzer.fftSize = 256
+      analyzer.smoothingTimeConstant = 0.8
 
-      source.connect(analyzer);
-      analyzersRef.current.set(participantId, analyzer);
-    });
+      source.connect(analyzer)
+      analyzersRef.current.set(participantId, analyzer)
+    })
 
     // Clean up analyzers for streams that no longer exist
     analyzersRef.current.forEach((analyzer, participantId) => {
       if (!remoteStreams.has(participantId)) {
-        analyzer.disconnect();
-        analyzersRef.current.delete(participantId);
+        analyzer.disconnect()
+        analyzersRef.current.delete(participantId)
       }
-    });
-  }, [remoteStreams]);
+    })
+  }, [remoteStreams])
 
   useEffect(() => {
     // Monitor audio levels
     const interval = setInterval(() => {
-      const audioLevels = new Map<string, number>();
+      const audioLevels = new Map<string, number>()
 
       analyzersRef.current.forEach((analyzer, participantId) => {
-        const dataArray = new Uint8Array(analyzer.frequencyBinCount);
-        analyzer.getByteFrequencyData(dataArray);
+        const dataArray = new Uint8Array(analyzer.frequencyBinCount)
+        analyzer.getByteFrequencyData(dataArray)
 
         // Calculate average volume
-        const average = dataArray.reduce((sum, value) => sum + value, 0) / dataArray.length;
-        audioLevels.set(participantId, Math.min(100, (average / 255) * 100));
-      });
+        const average = dataArray.reduce((sum, value) => sum + value, 0) / dataArray.length
+        audioLevels.set(participantId, Math.min(100, (average / 255) * 100))
+      })
 
-      onAudioLevelChange(audioLevels);
-    }, 100);
+      onAudioLevelChange(audioLevels)
+    }, 100)
 
-    return () => clearInterval(interval);
-  }, [onAudioLevelChange]);
+    return () => clearInterval(interval)
+  }, [onAudioLevelChange])
 
-  return null;
+  return null
 }
 
 function SettingsPanel({
@@ -334,12 +345,12 @@ function SettingsPanel({
   settings,
   onSettingsChange,
 }: {
-  isOpen: boolean;
-  onClose: () => void;
-  settings: AudioSettings;
-  onSettingsChange: (settings: AudioSettings) => void;
+  isOpen: boolean
+  onClose: () => void
+  settings: AudioSettings
+  onSettingsChange: (settings: AudioSettings) => void
 }) {
-  if (!isOpen) return null;
+  if (!isOpen) return null
 
   return (
     <div className={styles.settingsPanel}>
@@ -349,7 +360,9 @@ function SettingsPanel({
         <span className={styles.settingLabel}>Echo Cancellation</span>
         <button
           className={`${styles.settingToggle} ${settings.echoCancellation ? styles.settingToggleEnabled : ''}`}
-          onClick={() => onSettingsChange({ ...settings, echoCancellation: !settings.echoCancellation })}
+          onClick={() =>
+            onSettingsChange({ ...settings, echoCancellation: !settings.echoCancellation })
+          }
         >
           <div
             className={`${styles.settingToggleKnob} ${settings.echoCancellation ? styles.settingToggleKnobEnabled : ''}`}
@@ -361,7 +374,9 @@ function SettingsPanel({
         <span className={styles.settingLabel}>Noise Suppression</span>
         <button
           className={`${styles.settingToggle} ${settings.noiseSuppression ? styles.settingToggleEnabled : ''}`}
-          onClick={() => onSettingsChange({ ...settings, noiseSuppression: !settings.noiseSuppression })}
+          onClick={() =>
+            onSettingsChange({ ...settings, noiseSuppression: !settings.noiseSuppression })
+          }
         >
           <div
             className={`${styles.settingToggleKnob} ${settings.noiseSuppression ? styles.settingToggleKnobEnabled : ''}`}
@@ -373,7 +388,9 @@ function SettingsPanel({
         <span className={styles.settingLabel}>Auto Gain Control</span>
         <button
           className={`${styles.settingToggle} ${settings.autoGainControl ? styles.settingToggleEnabled : ''}`}
-          onClick={() => onSettingsChange({ ...settings, autoGainControl: !settings.autoGainControl })}
+          onClick={() =>
+            onSettingsChange({ ...settings, autoGainControl: !settings.autoGainControl })
+          }
         >
           <div
             className={`${styles.settingToggleKnob} ${settings.autoGainControl ? styles.settingToggleKnobEnabled : ''}`}
@@ -381,7 +398,7 @@ function SettingsPanel({
         </button>
       </div>
     </div>
-  );
+  )
 }
 
 // ============================================================================
@@ -396,25 +413,25 @@ export default function MeetingRoom({
   meetingTitle = 'Voice Meeting',
   onLeave,
 }: MeetingRoomProps) {
-  const [audioLevels, setAudioLevels] = useState<Map<string, number>>(new Map());
-  const [showSidebar, setShowSidebar] = useState(true);
-  const [showSettings, setShowSettings] = useState(false);
+  const [audioLevels, setAudioLevels] = useState<Map<string, number>>(new Map())
+  const [showSidebar, setShowSidebar] = useState(true)
+  const [showSettings, setShowSettings] = useState(false)
   const [audioSettings, setAudioSettings] = useState<AudioSettings>({
     echoCancellation: true,
     noiseSuppression: true,
     autoGainControl: true,
-  });
+  })
 
   const handleError = (error: Error) => {
     // Show error toast using the Toast component
-    const errorMessage = error.message || 'An error occurred';
-    toast.error(errorMessage, 'Meeting Error', { duration: 5000 });
-    
+    const errorMessage = error.message || 'An error occurred'
+    toast.error(errorMessage, 'Meeting Error', { duration: 5000 })
+
     // Log error in development
     if (process.env.NODE_ENV === 'development') {
-      console.error('Meeting error:', error);
+      console.error('Meeting error:', error)
     }
-  };
+  }
 
   const {
     isConnected,
@@ -433,30 +450,30 @@ export default function MeetingRoom({
     userName,
     autoJoin: true,
     onError: handleError,
-  });
+  })
 
   // Ensure audio elements are created for remote streams
   useEffect(() => {
     remoteStreams.forEach((stream, peerId) => {
-      getAudioElement(peerId);
-    });
-  }, [remoteStreams, getAudioElement]);
+      getAudioElement(peerId)
+    })
+  }, [remoteStreams, getAudioElement])
 
   const handleLeave = async () => {
-    await leaveMeeting();
-    onLeave?.();
-  };
+    await leaveMeeting()
+    onLeave?.()
+  }
 
   const getInitials = (name: string): string => {
     return name
       .split(' ')
-      .map((n) => n[0])
+      .map(n => n[0])
       .join('')
       .toUpperCase()
-      .slice(0, 2);
-  };
+      .slice(0, 2)
+  }
 
-  const participantArray = Array.from(participants.values());
+  const participantArray = Array.from(participants.values())
 
   return (
     <div className={styles.container}>
@@ -469,11 +486,7 @@ export default function MeetingRoom({
           </div>
           <MeetingTimer />
         </div>
-        <button
-          className={styles.leaveButton}
-          onClick={handleLeave}
-          disabled={isConnecting}
-        >
+        <button className={styles.leaveButton} onClick={handleLeave} disabled={isConnecting}>
           <Phone size={20} />
           Leave
         </button>
@@ -484,19 +497,19 @@ export default function MeetingRoom({
         {/* Participant Grid */}
         <div className={styles.participantGrid}>
           {isConnecting && (
-            <div className="flex items-center justify-center h-full text-white">
+            <div className="flex h-full items-center justify-center text-white">
               <div className="text-center">
-                <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-white mx-auto mb-4" />
+                <div className="mx-auto mb-4 h-12 w-12 animate-spin rounded-full border-b-2 border-white" />
                 <p>Connecting to meeting...</p>
               </div>
             </div>
           )}
 
           {!isConnecting && participantArray.length === 0 && (
-            <div className="flex items-center justify-center h-full text-white">
+            <div className="flex h-full items-center justify-center text-white">
               <div className="text-center">
                 <Users size={64} className="mx-auto mb-4 text-slate-600" />
-                <h2 className="text-xl font-semibold mb-2">Waiting for participants</h2>
+                <h2 className="mb-2 text-xl font-semibold">Waiting for participants</h2>
                 <p className="text-slate-400">Share the room ID to invite others</p>
               </div>
             </div>
@@ -504,7 +517,7 @@ export default function MeetingRoom({
 
           {!isConnecting && participantArray.length > 0 && (
             <div className={styles.grid}>
-              {participantArray.map((participant) => (
+              {participantArray.map(participant => (
                 <ParticipantCard
                   key={participant.id}
                   participant={participant}
@@ -524,9 +537,7 @@ export default function MeetingRoom({
         </div>
 
         {/* Sidebar */}
-        {showSidebar && (
-          <ParticipantSidebar participants={participants} />
-        )}
+        {showSidebar && <ParticipantSidebar participants={participants} />}
       </div>
 
       {/* Control Bar */}
@@ -574,5 +585,5 @@ export default function MeetingRoom({
         onSettingsChange={setAudioSettings}
       />
     </div>
-  );
+  )
 }

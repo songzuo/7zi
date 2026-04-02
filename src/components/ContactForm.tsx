@@ -1,183 +1,190 @@
-"use client";
+'use client'
 
-import { useState, FormEvent, useEffect, useMemo, useCallback } from "react";
-import { useTranslations } from "next-intl";
+import { useState, FormEvent, useEffect, useMemo, useCallback } from 'react'
+import { useTranslations } from 'next-intl'
 
 interface FormData {
-  name: string;
-  email: string;
-  company: string;
-  subject: string;
-  message: string;
+  name: string
+  email: string
+  company: string
+  subject: string
+  message: string
 }
 
 interface FormErrors {
-  name?: string;
-  email?: string;
-  message?: string;
+  name?: string
+  email?: string
+  message?: string
 }
 
 interface ContactFormProps {
-  locale?: 'zh' | 'en';
+  locale?: 'zh' | 'en'
 }
 
 export function ContactForm({ locale = 'zh' }: ContactFormProps) {
-  const t = useTranslations('contact.form');
-  
+  const t = useTranslations('contact.form')
+
   const [formData, setFormData] = useState<FormData>({
-    name: "",
-    email: "",
-    company: "",
-    subject: "",
-    message: "",
-  });
-  
-  const [errors, setErrors] = useState<FormErrors>({});
-  const [isSubmitting, setIsSubmitting] = useState(false);
-  const [submitStatus, setSubmitStatus] = useState<"idle" | "success" | "error">("idle");
-  const [csrfToken, setCsrfToken] = useState<string | null>(null);
+    name: '',
+    email: '',
+    company: '',
+    subject: '',
+    message: '',
+  })
+
+  const [errors, setErrors] = useState<FormErrors>({})
+  const [isSubmitting, setIsSubmitting] = useState(false)
+  const [submitStatus, setSubmitStatus] = useState<'idle' | 'success' | 'error'>('idle')
+  const [csrfToken, setCsrfToken] = useState<string | null>(null)
 
   // 获取 CSRF Token
   useEffect(() => {
     const fetchCsrfToken = async () => {
       try {
-        const response = await fetch('/api/csrf-token');
+        const response = await fetch('/api/csrf-token')
         if (response.ok) {
-          const data = await response.json();
-          setCsrfToken(data.csrfToken);
+          const data = await response.json()
+          setCsrfToken(data.csrfToken)
         }
-      } catch (_error) {
+      } catch (error) {
         // Silently handle error in production
         if (process.env.NODE_ENV === 'development') {
-          console.error('Failed to fetch CSRF token:', error);
+          console.error('Failed to fetch CSRF token:', error)
         }
       }
-    };
-    
-    fetchCsrfToken();
-  }, []);
+    }
+
+    fetchCsrfToken()
+  }, [])
 
   const validateForm = useCallback((): boolean => {
-    const newErrors: FormErrors = {};
+    const newErrors: FormErrors = {}
 
     if (!formData.name.trim()) {
-      newErrors.name = locale === 'zh' ? "请输入您的姓名" : "Please enter your name";
+      newErrors.name = locale === 'zh' ? '请输入您的姓名' : 'Please enter your name'
     }
 
     if (!formData.email.trim()) {
-      newErrors.email = locale === 'zh' ? "请输入您的邮箱" : "Please enter your email";
+      newErrors.email = locale === 'zh' ? '请输入您的邮箱' : 'Please enter your email'
     } else if (!/^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/.test(formData.email)) {
-      newErrors.email = locale === 'zh' ? "邮箱格式不正确" : "Invalid email format";
+      newErrors.email = locale === 'zh' ? '邮箱格式不正确' : 'Invalid email format'
     }
 
     if (!formData.message.trim()) {
-      newErrors.message = locale === 'zh' ? "请输入消息内容" : "Please enter your message";
+      newErrors.message = locale === 'zh' ? '请输入消息内容' : 'Please enter your message'
     } else if (formData.message.trim().length < 10) {
-      newErrors.message = locale === 'zh' ? "消息内容至少需要 10 个字符" : "Message must be at least 10 characters";
+      newErrors.message =
+        locale === 'zh' ? '消息内容至少需要 10 个字符' : 'Message must be at least 10 characters'
     }
 
-    setErrors(newErrors);
-    return Object.keys(newErrors).length === 0;
-  }, [formData, locale]);
+    setErrors(newErrors)
+    return Object.keys(newErrors).length === 0
+  }, [formData, locale])
 
   // Empty form data object for reset
   const emptyFormData: FormData = {
-    name: "",
-    email: "",
-    company: "",
-    subject: "",
-    message: "",
-  };
+    name: '',
+    email: '',
+    company: '',
+    subject: '',
+    message: '',
+  }
 
-  const handleSubmit = useCallback(async (e: FormEvent) => {
-    e.preventDefault();
+  const handleSubmit = useCallback(
+    async (e: FormEvent) => {
+      e.preventDefault()
 
-    if (!validateForm()) {
-      return;
-    }
-
-    setIsSubmitting(true);
-    setSubmitStatus("idle");
-
-    try {
-      // 调用联系表单 API，添加 CSRF 保护
-      const headers: HeadersInit = {
-        "Content-Type": "application/json",
-      };
-
-      // 添加 CSRF Token 到请求头
-      if (csrfToken) {
-        headers["X-CSRF-Token"] = csrfToken;
+      if (!validateForm()) {
+        return
       }
 
-      const response = await fetch("/api/contact", {
-        method: "POST",
-        headers,
-        body: JSON.stringify({ ...formData, locale }),
-      });
+      setIsSubmitting(true)
+      setSubmitStatus('idle')
 
-      const result = await response.json();
+      try {
+        // 调用联系表单 API，添加 CSRF 保护
+        const headers: HeadersInit = {
+          'Content-Type': 'application/json',
+        }
 
-      if (!response.ok) {
-        throw new Error(result.error || "发送失败");
+        // 添加 CSRF Token 到请求头
+        if (csrfToken) {
+          headers['X-CSRF-Token'] = csrfToken
+        }
+
+        const response = await fetch('/api/contact', {
+          method: 'POST',
+          headers,
+          body: JSON.stringify({ ...formData, locale }),
+        })
+
+        const result = await response.json()
+
+        if (!response.ok) {
+          throw new Error(result.error || '发送失败')
+        }
+
+        // 成功处理
+        setSubmitStatus('success')
+        setFormData(emptyFormData)
+      } catch (error) {
+        // Silently handle error in production
+        if (process.env.NODE_ENV === 'development') {
+          console.error('Form submission error:', error)
+        }
+        setSubmitStatus('error')
+      } finally {
+        setIsSubmitting(false)
       }
+    },
+    [validateForm, formData, locale, csrfToken]
+  )
 
-      // 成功处理
-      setSubmitStatus("success");
-      setFormData(emptyFormData);
-    } catch (_error) {
-      // Silently handle error in production
-      if (process.env.NODE_ENV === 'development') {
-        console.error("Form submission error:", error);
-      }
-      setSubmitStatus("error");
-    } finally {
-      setIsSubmitting(false);
-    }
-  }, [validateForm, formData, locale, csrfToken]);
+  const handleChange = useCallback(
+    (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
+      const { name, value } = e.target
+      setFormData(prev => ({ ...prev, [name]: value }))
 
-  const handleChange = useCallback((
-    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>
-  ) => {
-    const { name, value } = e.target;
-    setFormData((prev) => ({ ...prev, [name]: value }));
-
-    // Clear error for this field if it exists
-    setErrors((prev) => {
-      if (!prev[name as keyof FormErrors]) return prev;
-      const { [name as keyof FormErrors]: removed, ...rest } = prev;
-      return rest;
-    });
-  }, []);
+      // Clear error for this field if it exists
+      setErrors(prev => {
+        if (!prev[name as keyof FormErrors]) return prev
+        const { [name as keyof FormErrors]: removed, ...rest } = prev
+        return rest
+      })
+    },
+    []
+  )
 
   // Memoize subjectOptions to prevent unnecessary recalculations
-  const subjectOptions = useMemo(() => (
-    locale === 'zh'
-      ? [
-          { value: '', label: '选择咨询主题' },
-          { value: 'project', label: '项目咨询' },
-          { value: 'cooperation', label: '商务合作' },
-          { value: 'support', label: '技术支持' },
-          { value: 'careers', label: '加入我们' },
-          { value: 'other', label: '其他' },
-        ]
-      : [
-          { value: '', label: 'Select a topic' },
-          { value: 'project', label: 'Project Inquiry' },
-          { value: 'cooperation', label: 'Business Cooperation' },
-          { value: 'support', label: 'Technical Support' },
-          { value: 'careers', label: 'Join Us' },
-          { value: 'other', label: 'Other' },
-        ]
-  ), [locale]);
+  const subjectOptions = useMemo(
+    () =>
+      locale === 'zh'
+        ? [
+            { value: '', label: '选择咨询主题' },
+            { value: 'project', label: '项目咨询' },
+            { value: 'cooperation', label: '商务合作' },
+            { value: 'support', label: '技术支持' },
+            { value: 'careers', label: '加入我们' },
+            { value: 'other', label: '其他' },
+          ]
+        : [
+            { value: '', label: 'Select a topic' },
+            { value: 'project', label: 'Project Inquiry' },
+            { value: 'cooperation', label: 'Business Cooperation' },
+            { value: 'support', label: 'Technical Support' },
+            { value: 'careers', label: 'Join Us' },
+            { value: 'other', label: 'Other' },
+          ],
+    [locale]
+  )
 
   return (
     <form onSubmit={handleSubmit} className="space-y-6">
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+      <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
         <div>
           <label
             htmlFor="name"
-            className="block text-sm font-medium text-zinc-700 dark:text-zinc-300 mb-2"
+            className="mb-2 block text-sm font-medium text-zinc-700 dark:text-zinc-300"
           >
             {t('name')} <span className="text-red-500">*</span>
           </label>
@@ -187,21 +194,19 @@ export function ContactForm({ locale = 'zh' }: ContactFormProps) {
             name="name"
             value={formData.name}
             onChange={handleChange}
-            placeholder={locale === 'zh' ? "您的姓名" : "Your name"}
-            className={`w-full px-6 py-4 rounded-2xl bg-zinc-50 dark:bg-zinc-800 border ${
+            placeholder={locale === 'zh' ? '您的姓名' : 'Your name'}
+            className={`w-full rounded-2xl border bg-zinc-50 px-6 py-4 dark:bg-zinc-800 ${
               errors.name
-                ? "border-red-500 focus:border-red-500"
-                : "border-zinc-200 dark:border-zinc-700 focus:border-cyan-500"
-            } text-zinc-900 dark:text-white focus:outline-none transition-colors`}
+                ? 'border-red-500 focus:border-red-500'
+                : 'border-zinc-200 focus:border-cyan-500 dark:border-zinc-700'
+            } text-zinc-900 transition-colors focus:outline-none dark:text-white`}
           />
-          {errors.name && (
-            <p className="mt-2 text-sm text-red-500">{errors.name}</p>
-          )}
+          {errors.name && <p className="mt-2 text-sm text-red-500">{errors.name}</p>}
         </div>
         <div>
           <label
             htmlFor="email"
-            className="block text-sm font-medium text-zinc-700 dark:text-zinc-300 mb-2"
+            className="mb-2 block text-sm font-medium text-zinc-700 dark:text-zinc-300"
           >
             {t('email')} <span className="text-red-500">*</span>
           </label>
@@ -212,22 +217,20 @@ export function ContactForm({ locale = 'zh' }: ContactFormProps) {
             value={formData.email}
             onChange={handleChange}
             placeholder="your@email.com"
-            className={`w-full px-6 py-4 rounded-2xl bg-zinc-50 dark:bg-zinc-800 border ${
+            className={`w-full rounded-2xl border bg-zinc-50 px-6 py-4 dark:bg-zinc-800 ${
               errors.email
-                ? "border-red-500 focus:border-red-500"
-                : "border-zinc-200 dark:border-zinc-700 focus:border-cyan-500"
-            } text-zinc-900 dark:text-white focus:outline-none transition-colors`}
+                ? 'border-red-500 focus:border-red-500'
+                : 'border-zinc-200 focus:border-cyan-500 dark:border-zinc-700'
+            } text-zinc-900 transition-colors focus:outline-none dark:text-white`}
           />
-          {errors.email && (
-            <p className="mt-2 text-sm text-red-500">{errors.email}</p>
-          )}
+          {errors.email && <p className="mt-2 text-sm text-red-500">{errors.email}</p>}
         </div>
       </div>
 
       <div>
         <label
           htmlFor="company"
-          className="block text-sm font-medium text-zinc-700 dark:text-zinc-300 mb-2"
+          className="mb-2 block text-sm font-medium text-zinc-700 dark:text-zinc-300"
         >
           {t('company')}
         </label>
@@ -237,15 +240,15 @@ export function ContactForm({ locale = 'zh' }: ContactFormProps) {
           name="company"
           value={formData.company}
           onChange={handleChange}
-          placeholder={locale === 'zh' ? "您的公司" : "Your company"}
-          className="w-full px-6 py-4 rounded-2xl bg-zinc-50 dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-700 text-zinc-900 dark:text-white focus:outline-none focus:border-cyan-500 transition-colors"
+          placeholder={locale === 'zh' ? '您的公司' : 'Your company'}
+          className="w-full rounded-2xl border border-zinc-200 bg-zinc-50 px-6 py-4 text-zinc-900 transition-colors focus:border-cyan-500 focus:outline-none dark:border-zinc-700 dark:bg-zinc-800 dark:text-white"
         />
       </div>
 
       <div>
         <label
           htmlFor="subject"
-          className="block text-sm font-medium text-zinc-700 dark:text-zinc-300 mb-2"
+          className="mb-2 block text-sm font-medium text-zinc-700 dark:text-zinc-300"
         >
           {t('subject')}
         </label>
@@ -254,9 +257,9 @@ export function ContactForm({ locale = 'zh' }: ContactFormProps) {
           name="subject"
           value={formData.subject}
           onChange={handleChange}
-          className="w-full px-6 py-4 rounded-2xl bg-zinc-50 dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-700 text-zinc-900 dark:text-white focus:outline-none focus:border-cyan-500 transition-colors"
+          className="w-full rounded-2xl border border-zinc-200 bg-zinc-50 px-6 py-4 text-zinc-900 transition-colors focus:border-cyan-500 focus:outline-none dark:border-zinc-700 dark:bg-zinc-800 dark:text-white"
         >
-          {subjectOptions.map((option) => (
+          {subjectOptions.map(option => (
             <option key={option.value} value={option.value}>
               {option.label}
             </option>
@@ -267,7 +270,7 @@ export function ContactForm({ locale = 'zh' }: ContactFormProps) {
       <div>
         <label
           htmlFor="message"
-          className="block text-sm font-medium text-zinc-700 dark:text-zinc-300 mb-2"
+          className="mb-2 block text-sm font-medium text-zinc-700 dark:text-zinc-300"
         >
           {t('message')} <span className="text-red-500">*</span>
         </label>
@@ -277,31 +280,29 @@ export function ContactForm({ locale = 'zh' }: ContactFormProps) {
           rows={6}
           value={formData.message}
           onChange={handleChange}
-          placeholder={locale === 'zh' ? "请描述您的需求..." : "Describe your needs..."}
-          className={`w-full px-6 py-4 rounded-2xl bg-zinc-50 dark:bg-zinc-800 border ${
+          placeholder={locale === 'zh' ? '请描述您的需求...' : 'Describe your needs...'}
+          className={`w-full rounded-2xl border bg-zinc-50 px-6 py-4 dark:bg-zinc-800 ${
             errors.message
-              ? "border-red-500 focus:border-red-500"
-              : "border-zinc-200 dark:border-zinc-700 focus:border-cyan-500"
-          } text-zinc-900 dark:text-white focus:outline-none transition-colors resize-none`}
+              ? 'border-red-500 focus:border-red-500'
+              : 'border-zinc-200 focus:border-cyan-500 dark:border-zinc-700'
+          } resize-none text-zinc-900 transition-colors focus:outline-none dark:text-white`}
         />
-        {errors.message && (
-          <p className="mt-2 text-sm text-red-500">{errors.message}</p>
-        )}
+        {errors.message && <p className="mt-2 text-sm text-red-500">{errors.message}</p>}
       </div>
 
       {/* 提交状态提示 */}
-      {submitStatus === "success" && (
-        <div className="p-4 bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800 rounded-2xl">
-          <p className="text-green-700 dark:text-green-400 flex items-center gap-2">
+      {submitStatus === 'success' && (
+        <div className="rounded-2xl border border-green-200 bg-green-50 p-4 dark:border-green-800 dark:bg-green-900/20">
+          <p className="flex items-center gap-2 text-green-700 dark:text-green-400">
             <span>✅</span>
             {t('success')}
           </p>
         </div>
       )}
 
-      {submitStatus === "error" && (
-        <div className="p-4 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-2xl">
-          <p className="text-red-700 dark:text-red-400 flex items-center gap-2">
+      {submitStatus === 'error' && (
+        <div className="rounded-2xl border border-red-200 bg-red-50 p-4 dark:border-red-800 dark:bg-red-900/20">
+          <p className="flex items-center gap-2 text-red-700 dark:text-red-400">
             <span>❌</span>
             {t('error')}
           </p>
@@ -311,16 +312,16 @@ export function ContactForm({ locale = 'zh' }: ContactFormProps) {
       <button
         type="submit"
         disabled={isSubmitting}
-        className={`w-full py-4 min-h-[56px] bg-gradient-to-r from-cyan-500 to-purple-600 text-white rounded-2xl font-semibold text-lg transition-all duration-300 touch-active ${
+        className={`touch-active min-h-[56px] w-full rounded-2xl bg-gradient-to-r from-cyan-500 to-purple-600 py-4 text-lg font-semibold text-white transition-all duration-300 ${
           isSubmitting
-            ? "opacity-70 cursor-not-allowed"
-            : "hover:shadow-lg hover:scale-[1.02] active:scale-[0.98]"
+            ? 'cursor-not-allowed opacity-70'
+            : 'hover:scale-[1.02] hover:shadow-lg active:scale-[0.98]'
         }`}
       >
         {isSubmitting ? (
           <span className="flex items-center justify-center gap-2">
             <svg
-              className="animate-spin h-5 w-5"
+              className="h-5 w-5 animate-spin"
               xmlns="http://www.w3.org/2000/svg"
               fill="none"
               viewBox="0 0 24 24"
@@ -346,5 +347,5 @@ export function ContactForm({ locale = 'zh' }: ContactFormProps) {
         )}
       </button>
     </form>
-  );
+  )
 }

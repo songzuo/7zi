@@ -9,15 +9,9 @@
  * - 避免 N+1 问题
  */
 
-import { getDatabaseAsync } from '../db';
-import {
-  User,
-  UserStatus,
-  UserRole,
-  CreateUserRequest,
-  UpdateUserRequest,
-} from './types';
-import { hashPassword, verifyPassword } from './repository';
+import { getDatabaseAsync } from '../db'
+import { User, UserStatus, UserRole, CreateUserRequest, UpdateUserRequest } from './types'
+import { hashPassword, verifyPassword } from './repository'
 
 // ============================================================================
 // Cache Key Generation
@@ -27,13 +21,13 @@ import { hashPassword, verifyPassword } from './repository';
  * Generate cache key for user list query
  */
 export function generateUserListCacheKey(options: {
-  status?: UserStatus;
-  role?: UserRole;
-  search?: string;
-  sortBy?: string;
-  sortOrder?: 'asc' | 'desc';
-  page?: number;
-  limit?: number;
+  status?: UserStatus
+  role?: UserRole
+  search?: string
+  sortBy?: string
+  sortOrder?: 'asc' | 'desc'
+  page?: number
+  limit?: number
 }): string {
   const parts = [
     'users:list',
@@ -44,8 +38,8 @@ export function generateUserListCacheKey(options: {
     options.sortOrder || 'desc',
     options.page || 1,
     options.limit || 20,
-  ];
-  return parts.join(':');
+  ]
+  return parts.join(':')
 }
 
 // ============================================================================
@@ -66,72 +60,72 @@ export function generateUserListCacheKey(options: {
  * @returns 用户列表和总数
  */
 export async function getAllUsersPaginated(options: {
-  status?: UserStatus;
-  role?: UserRole;
-  search?: string;
-  sortBy?: 'created_at' | 'name' | 'email' | 'last_login_at';
-  sortOrder?: 'asc' | 'desc';
-  page?: number;
-  limit?: number;
+  status?: UserStatus
+  role?: UserRole
+  search?: string
+  sortBy?: 'created_at' | 'name' | 'email' | 'last_login_at'
+  sortOrder?: 'asc' | 'desc'
+  page?: number
+  limit?: number
 }): Promise<{ users: User[]; total: number }> {
-  const db = await getDatabaseAsync();
+  const db = await getDatabaseAsync()
 
   // 验证并默认化参数
-  const page = Math.max(1, options.page || 1);
-  const limit = Math.min(100, Math.max(1, options.limit || 20));
-  const offset = (page - 1) * limit;
+  const page = Math.max(1, options.page || 1)
+  const limit = Math.min(100, Math.max(1, options.limit || 20))
+  const offset = (page - 1) * limit
 
   // 构建 WHERE 子句
-  let sql = 'SELECT * FROM users';
-  const conditions: string[] = [];
-  const params: (string | number)[] = [];
+  let sql = 'SELECT * FROM users'
+  const conditions: string[] = []
+  const params: (string | number)[] = []
 
   if (options.status) {
-    conditions.push('status = ?');
-    params.push(options.status);
+    conditions.push('status = ?')
+    params.push(options.status)
   }
 
   if (options.role) {
-    conditions.push('role = ?');
-    params.push(options.role);
+    conditions.push('role = ?')
+    params.push(options.role)
   }
 
   if (options.search) {
-    conditions.push('(name LIKE ? OR email LIKE ?)');
-    const searchTerm = `%${options.search}%`;
-    params.push(searchTerm, searchTerm);
+    conditions.push('(name LIKE ? OR email LIKE ?)')
+    const searchTerm = `%${options.search}%`
+    params.push(searchTerm, searchTerm)
   }
 
   if (conditions.length > 0) {
-    sql += ' WHERE ' + conditions.join(' AND ');
+    sql += ' WHERE ' + conditions.join(' AND ')
   }
 
   // 添加排序（数据库层面）
-  const sortBy = options.sortBy || 'created_at';
-  const sortOrder = options.sortOrder || 'desc';
-  sql += ` ORDER BY ${sortBy} ${sortOrder.toUpperCase()}`;
+  const sortBy = options.sortBy || 'created_at'
+  const sortOrder = options.sortOrder || 'desc'
+  sql += ` ORDER BY ${sortBy} ${sortOrder.toUpperCase()}`
 
   // 添加分页（数据库层面）
-  sql += ' LIMIT ? OFFSET ?';
-  params.push(limit, offset);
+  sql += ' LIMIT ? OFFSET ?'
+  params.push(limit, offset)
 
   // 执行主查询
-  const stmt = db.prepare(sql);
-  const users = stmt.all(...params) as unknown as Record<string, unknown>[];
+  const stmt = db.prepare(sql)
+  const users = stmt.all(...params) as unknown as Record<string, unknown>[]
 
   // 获取总数（使用 COUNT 而不是获取所有行）
-  let countSql = 'SELECT COUNT(*) as total FROM users';
+  let countSql = 'SELECT COUNT(*) as total FROM users'
   if (conditions.length > 0) {
-    countSql += ' WHERE ' + conditions.join(' AND ');
+    countSql += ' WHERE ' + conditions.join(' AND ')
   }
-  const countStmt = db.prepare(countSql);
-  const countParams = params.slice(0, -2); // 排除 LIMIT 和 OFFSET
-  const { total } = countStmt.get(...countParams) as { total: number };
+  const countStmt = db.prepare(countSql)
+  const countParams = params.slice(0, -2) // 排除 LIMIT 和 OFFSET
+  const { total } = countStmt.get(...countParams) as { total: number }
 
   return {
     users: users.map(mapRowToUser),
     total,
-  };
+  }
 }
 
 /**
@@ -143,25 +137,25 @@ export async function getAllUsersPaginated(options: {
  */
 export async function batchGetUsersById(userIds: string[]): Promise<Map<string, User>> {
   if (userIds.length === 0) {
-    return new Map();
+    return new Map()
   }
 
-  const db = await getDatabaseAsync();
+  const db = await getDatabaseAsync()
 
   // 使用 IN 子句批量查询
-  const placeholders = userIds.map(() => '?').join(',');
-  const sql = `SELECT * FROM users WHERE id IN (${placeholders})`;
-  const stmt = db.prepare(sql);
-  const users = stmt.all(...userIds) as unknown as Record<string, unknown>[];
+  const placeholders = userIds.map(() => '?').join(',')
+  const sql = `SELECT * FROM users WHERE id IN (${placeholders})`
+  const stmt = db.prepare(sql)
+  const users = stmt.all(...userIds) as unknown as Record<string, unknown>[]
 
   // 转换为 Map
-  const userMap = new Map<string, User>();
+  const userMap = new Map<string, User>()
   for (const user of users) {
-    const mapped = mapRowToUser(user);
-    userMap.set(mapped.id, mapped);
+    const mapped = mapRowToUser(user)
+    userMap.set(mapped.id, mapped)
   }
 
-  return userMap;
+  return userMap
 }
 
 /**
@@ -176,20 +170,20 @@ export async function getUsersByStatus(
   status: UserStatus,
   options: { page?: number; limit?: number } = {}
 ): Promise<{ users: User[]; total: number; page: number; totalPages: number }> {
-  const page = Math.max(1, options.page || 1);
-  const limit = Math.min(100, Math.max(1, options.limit || 20));
+  const page = Math.max(1, options.page || 1)
+  const limit = Math.min(100, Math.max(1, options.limit || 20))
 
   const result = await getAllUsersPaginated({
     status,
     page,
     limit,
-  });
+  })
 
   return {
     ...result,
     page,
     totalPages: Math.ceil(result.total / limit),
-  };
+  }
 }
 
 /**
@@ -204,20 +198,20 @@ export async function getUsersByRole(
   role: UserRole,
   options: { page?: number; limit?: number } = {}
 ): Promise<{ users: User[]; total: number; page: number; totalPages: number }> {
-  const page = Math.max(1, options.page || 1);
-  const limit = Math.min(100, Math.max(1, options.limit || 20));
+  const page = Math.max(1, options.page || 1)
+  const limit = Math.min(100, Math.max(1, options.limit || 20))
 
   const result = await getAllUsersPaginated({
     role,
     page,
     limit,
-  });
+  })
 
   return {
     ...result,
     page,
     totalPages: Math.ceil(result.total / limit),
-  };
+  }
 }
 
 /**
@@ -232,20 +226,20 @@ export async function searchUsers(
   searchTerm: string,
   options: { page?: number; limit?: number } = {}
 ): Promise<{ users: User[]; total: number; page: number; totalPages: number }> {
-  const page = Math.max(1, options.page || 1);
-  const limit = Math.min(100, Math.max(1, options.limit || 20));
+  const page = Math.max(1, options.page || 1)
+  const limit = Math.min(100, Math.max(1, options.limit || 20))
 
   const result = await getAllUsersPaginated({
     search: searchTerm,
     page,
     limit,
-  });
+  })
 
   return {
     ...result,
     page,
     totalPages: Math.ceil(result.total / limit),
-  };
+  }
 }
 
 /**
@@ -255,13 +249,13 @@ export async function searchUsers(
  * @returns 用户统计信息
  */
 export async function getUserStatistics(): Promise<{
-  total: number;
-  byStatus: Record<UserStatus, number>;
-  byRole: Record<UserRole, number>;
-  activeToday: number;
-  activeWeek: number;
+  total: number
+  byStatus: Record<UserStatus, number>
+  byRole: Record<UserRole, number>
+  activeToday: number
+  activeWeek: number
 }> {
-  const db = await getDatabaseAsync();
+  const db = await getDatabaseAsync()
 
   // 使用 CASE 语句合并多个统计查询
   const result = db.queryRows(`
@@ -280,19 +274,19 @@ export async function getUserStatistics(): Promise<{
       SUM(CASE WHEN last_login_at >= datetime('now', '-7 days') THEN 1 ELSE 0 END) as active_week
     FROM users
   `)[0] as {
-    total: number;
-    status_active: number;
-    status_inactive: number;
-    status_suspended: number;
-    status_pending: number;
-    status_deleted: number;
-    role_admin: number;
-    role_manager: number;
-    role_member: number;
-    role_guest: number;
-    active_today: number;
-    active_week: number;
-  };
+    total: number
+    status_active: number
+    status_inactive: number
+    status_suspended: number
+    status_pending: number
+    status_deleted: number
+    role_admin: number
+    role_manager: number
+    role_member: number
+    role_guest: number
+    active_today: number
+    active_week: number
+  }
 
   return {
     total: result.total,
@@ -311,7 +305,7 @@ export async function getUserStatistics(): Promise<{
     },
     activeToday: result.active_today,
     activeWeek: result.active_week,
-  };
+  }
 }
 
 /**
@@ -326,17 +320,17 @@ export async function getUsersWithRecentActivity(
   days: number = 7,
   limit: number = 20
 ): Promise<User[]> {
-  const db = await getDatabaseAsync();
+  const db = await getDatabaseAsync()
 
   const stmt = db.prepare(`
     SELECT * FROM users
     WHERE last_login_at >= datetime('now', '-' || ? || ' days')
     ORDER BY last_login_at DESC
     LIMIT ?
-  `);
+  `)
 
-  const users = stmt.all(days, limit) as unknown as Record<string, unknown>[];
-  return users.map(mapRowToUser);
+  const users = stmt.all(days, limit) as unknown as Record<string, unknown>[]
+  return users.map(mapRowToUser)
 }
 
 // ============================================================================
@@ -355,17 +349,17 @@ function mapRowToUser(row: Record<string, unknown>): User {
     name: row.name as string,
     avatar: row.avatar as string | undefined,
     role: row.role as UserRole,
-    roles: row.roles ? JSON.parse(row.roles as string || '[]') : [],
+    roles: row.roles ? JSON.parse((row.roles as string) || '[]') : [],
     status: row.status as UserStatus,
-    permissions: row.permissions ? JSON.parse(row.permissions as string || '[]') : [],
+    permissions: row.permissions ? JSON.parse((row.permissions as string) || '[]') : [],
     customPermissions: row.customPermissions
-      ? JSON.parse(row.customPermissions as string || '[]')
+      ? JSON.parse((row.customPermissions as string) || '[]')
       : undefined,
-    metadata: row.metadata ? JSON.parse(row.metadata as string || '{}') : {},
+    metadata: row.metadata ? JSON.parse((row.metadata as string) || '{}') : {},
     createdAt: new Date(row.created_at as string),
     updatedAt: new Date(row.updated_at as string),
     lastLoginAt: row.last_login_at ? new Date(row.last_login_at as string) : undefined,
-  };
+  }
 }
 
 // ============================================================================
@@ -379,15 +373,15 @@ function mapRowToUser(row: Record<string, unknown>): User {
  * @deprecated Use getAllUsersPaginated for better performance
  */
 export async function getAllUsers(options?: {
-  status?: UserStatus;
-  role?: UserRole;
+  status?: UserStatus
+  role?: UserRole
 }): Promise<User[]> {
-  console.warn('getAllUsers is deprecated. Use getAllUsersPaginated for better performance.');
+  console.warn('getAllUsers is deprecated. Use getAllUsersPaginated for better performance.')
   const result = await getAllUsersPaginated({
     status: options?.status,
     role: options?.role,
     page: 1,
     limit: 1000, // High limit to get all users
-  });
-  return result.users;
+  })
+  return result.users
 }

@@ -10,14 +10,14 @@
 
 ### 实施的优化措施
 
-| 优化项 | 状态 | 说明 |
-|--------|------|------|
+| 优化项             | 状态    | 说明                        |
+| ------------------ | ------- | --------------------------- |
 | WebP/AVIF 格式支持 | ✅ 完成 | next.config.js 配置自动转换 |
-| 响应式图片 | ✅ 完成 | 6 种预设尺寸配置 |
-| 懒加载 | ✅ 完成 | 使用 Intersection Observer |
-| 占位符 | ✅ 完成 | SVG 占位符 + blur 效果 |
-| LCP 优化 | ✅ 完成 | priority 属性标记关键图片 |
-| 预加载 | ✅ 完成 | usePreloadImage Hook |
+| 响应式图片         | ✅ 完成 | 6 种预设尺寸配置            |
+| 懒加载             | ✅ 完成 | 使用 Intersection Observer  |
+| 占位符             | ✅ 完成 | SVG 占位符 + blur 效果      |
+| LCP 优化           | ✅ 完成 | priority 属性标记关键图片   |
+| 预加载             | ✅ 完成 | usePreloadImage Hook        |
 
 ---
 
@@ -29,11 +29,11 @@
 images: {
   // 启用现代格式
   formats: ['image/avif', 'image/webp'],
-  
+
   // 响应式尺寸
   deviceSizes: [640, 750, 828, 1080, 1200, 1920, 2048, 3840],
   imageSizes: [16, 32, 48, 64, 96, 128, 256, 384],
-  
+
   // 缓存策略
   minimumCacheTTL: 2592000, // 30 天
 }
@@ -41,14 +41,14 @@ images: {
 
 ### 2. 图片预设配置
 
-| 预设名 | 尺寸 | 用途 |
-|--------|------|------|
-| avatar | 64x64 | 用户头像 |
-| thumbnail | 300x200 | 缩略图 |
-| card | 400x300 | 卡片图片 |
-| hero | 1920x1080 | 英雄图（LCP） |
-| content | 800x600 | 内容图片 |
-| logo | 180x60 | Logo 图片 |
+| 预设名    | 尺寸      | 用途          |
+| --------- | --------- | ------------- |
+| avatar    | 64x64     | 用户头像      |
+| thumbnail | 300x200   | 缩略图        |
+| card      | 400x300   | 卡片图片      |
+| hero      | 1920x1080 | 英雄图（LCP） |
+| content   | 800x600   | 内容图片      |
+| logo      | 180x60    | Logo 图片     |
 
 ---
 
@@ -71,13 +71,13 @@ src/
 
 ## 🎯 Lighthouse 性能预期提升
 
-| 指标 | 优化前 | 优化后 | 提升 |
-|------|--------|--------|------|
-| Performance | ~60 | ~90+ | +50% |
-| LCP | ~4s | ~1.5s | -62% |
-| FID | ~150ms | ~50ms | -67% |
-| CLS | ~0.3 | ~0.05 | -83% |
-| TTI | ~5s | ~2s | -60% |
+| 指标        | 优化前 | 优化后 | 提升 |
+| ----------- | ------ | ------ | ---- |
+| Performance | ~60    | ~90+   | +50% |
+| LCP         | ~4s    | ~1.5s  | -62% |
+| FID         | ~150ms | ~50ms  | -67% |
+| CLS         | ~0.3   | ~0.05  | -83% |
+| TTI         | ~5s    | ~2s    | -60% |
 
 ### 优化依据
 
@@ -126,12 +126,7 @@ import { OptimizedImage } from '@/components/OptimizedImage'
 
 ```tsx
 import { BackgroundImage } from '@/components/OptimizedImage'
-
-<BackgroundImage
-  src="/images/hero.jpg"
-  overlayOpacity={0.5}
-  className="h-screen"
->
+;<BackgroundImage src="/images/hero.jpg" overlayOpacity={0.5} className="h-screen">
   <h1>标题</h1>
 </BackgroundImage>
 ```
@@ -140,8 +135,7 @@ import { BackgroundImage } from '@/components/OptimizedImage'
 
 ```tsx
 import { ImageGallery } from '@/components/OptimizedImage'
-
-<ImageGallery
+;<ImageGallery
   images={[
     { src: '/1.jpg', alt: 'Image 1' },
     { src: '/2.jpg', alt: 'Image 2' },

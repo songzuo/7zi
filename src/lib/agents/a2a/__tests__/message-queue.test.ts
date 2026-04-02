@@ -2,29 +2,29 @@
  * Unit tests for Message Queue
  */
 
-import { describe, it, expect, beforeEach, afterEach } from 'vitest';
+import { describe, it, expect, beforeEach, afterEach } from 'vitest'
 import {
   PriorityMessageQueue,
   FileMessageQueue,
   getMessageQueue,
   resetMessageQueue,
-} from '../message-queue';
-import { QueueMessage, TaskPriority, QueueConfig } from '../types';
+} from '../message-queue'
+import { QueueMessage, TaskPriority, QueueConfig } from '../types'
 
 describe('PriorityMessageQueue', () => {
-  let queue: PriorityMessageQueue;
+  let queue: PriorityMessageQueue
 
   beforeEach(() => {
-    queue = new PriorityMessageQueue();
-  });
+    queue = new PriorityMessageQueue()
+  })
 
   afterEach(() => {
-    resetMessageQueue();
-  });
+    resetMessageQueue()
+  })
 
   describe('enqueue and dequeue', () => {
     it('should enqueue and dequeue messages in priority order', () => {
-      const priorities: TaskPriority[] = ['low', 'critical', 'normal', 'high'];
+      const priorities: TaskPriority[] = ['low', 'critical', 'normal', 'high']
 
       priorities.forEach((priority, index) => {
         queue.enqueue({
@@ -36,23 +36,23 @@ describe('PriorityMessageQueue', () => {
           createdAt: new Date().toISOString(),
           attempts: 0,
           maxAttempts: 3,
-        });
-      });
+        })
+      })
 
-      expect(queue.size()).toBe(4);
+      expect(queue.size()).toBe(4)
 
       // Should dequeue in priority order: critical, high, normal, low
-      const order: TaskPriority[] = [];
-      let msg: QueueMessage | null;
+      const order: TaskPriority[] = []
+      let msg: QueueMessage | null
       while ((msg = queue.dequeue())) {
-        order.push(msg.priority);
+        order.push(msg.priority)
       }
 
-      expect(order).toEqual(['critical', 'high', 'normal', 'low']);
-    });
+      expect(order).toEqual(['critical', 'high', 'normal', 'low'])
+    })
 
     it('should handle queue size limit', () => {
-      const smallQueue = new PriorityMessageQueue({ maxQueueSize: 2 });
+      const smallQueue = new PriorityMessageQueue({ maxQueueSize: 2 })
 
       smallQueue.enqueue({
         id: 'msg-1',
@@ -63,7 +63,7 @@ describe('PriorityMessageQueue', () => {
         createdAt: new Date().toISOString(),
         attempts: 0,
         maxAttempts: 3,
-      });
+      })
 
       smallQueue.enqueue({
         id: 'msg-2',
@@ -74,7 +74,7 @@ describe('PriorityMessageQueue', () => {
         createdAt: new Date().toISOString(),
         attempts: 0,
         maxAttempts: 3,
-      });
+      })
 
       expect(() => {
         smallQueue.enqueue({
@@ -86,10 +86,10 @@ describe('PriorityMessageQueue', () => {
           createdAt: new Date().toISOString(),
           attempts: 0,
           maxAttempts: 3,
-        });
-      }).toThrow('Queue is full');
-    });
-  });
+        })
+      }).toThrow('Queue is full')
+    })
+  })
 
   describe('getMessagesByAgent', () => {
     it('should return messages for a specific agent', () => {
@@ -102,7 +102,7 @@ describe('PriorityMessageQueue', () => {
         createdAt: new Date().toISOString(),
         attempts: 0,
         maxAttempts: 3,
-      });
+      })
 
       queue.enqueue({
         id: 'msg-2',
@@ -113,13 +113,13 @@ describe('PriorityMessageQueue', () => {
         createdAt: new Date().toISOString(),
         attempts: 0,
         maxAttempts: 3,
-      });
+      })
 
-      const agent1Messages = queue.getMessagesByAgent('agent-1');
-      expect(agent1Messages).toHaveLength(1);
-      expect(agent1Messages[0].agentId).toBe('agent-1');
-    });
-  });
+      const agent1Messages = queue.getMessagesByAgent('agent-1')
+      expect(agent1Messages).toHaveLength(1)
+      expect(agent1Messages[0].agentId).toBe('agent-1')
+    })
+  })
 
   describe('getMessagesByPriority', () => {
     it('should return messages with a specific priority', () => {
@@ -132,7 +132,7 @@ describe('PriorityMessageQueue', () => {
         createdAt: new Date().toISOString(),
         attempts: 0,
         maxAttempts: 3,
-      });
+      })
 
       queue.enqueue({
         id: 'msg-2',
@@ -143,7 +143,7 @@ describe('PriorityMessageQueue', () => {
         createdAt: new Date().toISOString(),
         attempts: 0,
         maxAttempts: 3,
-      });
+      })
 
       queue.enqueue({
         id: 'msg-3',
@@ -154,13 +154,13 @@ describe('PriorityMessageQueue', () => {
         createdAt: new Date().toISOString(),
         attempts: 0,
         maxAttempts: 3,
-      });
+      })
 
-      const highPriorityMessages = queue.getMessagesByPriority('high');
-      expect(highPriorityMessages).toHaveLength(2);
-      expect(highPriorityMessages.every(m => m.priority === 'high')).toBe(true);
-    });
-  });
+      const highPriorityMessages = queue.getMessagesByPriority('high')
+      expect(highPriorityMessages).toHaveLength(2)
+      expect(highPriorityMessages.every(m => m.priority === 'high')).toBe(true)
+    })
+  })
 
   describe('retry', () => {
     it('should retry a failed message', () => {
@@ -173,15 +173,15 @@ describe('PriorityMessageQueue', () => {
         createdAt: new Date().toISOString(),
         attempts: 0,
         maxAttempts: 3,
-      });
+      })
 
-      const retried = queue.retry('msg-1');
-      expect(retried).toBe(true);
+      const retried = queue.retry('msg-1')
+      expect(retried).toBe(true)
 
-      const message = queue.getMessagesByAgent('agent-1')[0];
-      expect(message.attempts).toBe(1);
-      expect(message.nextRetryAt).toBeDefined();
-    });
+      const message = queue.getMessagesByAgent('agent-1')[0]
+      expect(message.attempts).toBe(1)
+      expect(message.nextRetryAt).toBeDefined()
+    })
 
     it('should not retry after max attempts', () => {
       queue.enqueue({
@@ -193,16 +193,16 @@ describe('PriorityMessageQueue', () => {
         createdAt: new Date().toISOString(),
         attempts: 3,
         maxAttempts: 3,
-      });
+      })
 
-      const retried = queue.retry('msg-1');
-      expect(retried).toBe(false);
+      const retried = queue.retry('msg-1')
+      expect(retried).toBe(false)
 
       // Message should be removed from queue
-      const messages = queue.getMessagesByAgent('agent-1');
-      expect(messages).toHaveLength(0);
-    });
-  });
+      const messages = queue.getMessagesByAgent('agent-1')
+      expect(messages).toHaveLength(0)
+    })
+  })
 
   describe('getStats', () => {
     it('should return accurate statistics', () => {
@@ -215,7 +215,7 @@ describe('PriorityMessageQueue', () => {
         createdAt: new Date().toISOString(),
         attempts: 0,
         maxAttempts: 3,
-      });
+      })
 
       queue.enqueue({
         id: 'msg-2',
@@ -226,7 +226,7 @@ describe('PriorityMessageQueue', () => {
         createdAt: new Date().toISOString(),
         attempts: 0,
         maxAttempts: 3,
-      });
+      })
 
       queue.enqueue({
         id: 'msg-3',
@@ -237,23 +237,23 @@ describe('PriorityMessageQueue', () => {
         createdAt: new Date().toISOString(),
         attempts: 0,
         maxAttempts: 3,
-      });
+      })
 
-      const stats = queue.getStats();
+      const stats = queue.getStats()
 
-      expect(stats.total).toBe(3);
-      expect(stats.byPriority.high).toBe(2);
-      expect(stats.byPriority.normal).toBe(1);
-      expect(stats.byAgent.get('agent-1')).toBe(2);
-      expect(stats.byAgent.get('agent-2')).toBe(1);
-    });
-  });
+      expect(stats.total).toBe(3)
+      expect(stats.byPriority.high).toBe(2)
+      expect(stats.byPriority.normal).toBe(1)
+      expect(stats.byAgent.get('agent-1')).toBe(2)
+      expect(stats.byAgent.get('agent-2')).toBe(1)
+    })
+  })
 
   describe('queue events', () => {
     it('should emit enqueued events', () => {
-      const events: any[] = [];
+      const events: any[] = []
 
-      queue.subscribe(event => events.push(event));
+      queue.subscribe(event => events.push(event))
 
       queue.enqueue({
         id: 'msg-1',
@@ -264,16 +264,16 @@ describe('PriorityMessageQueue', () => {
         createdAt: new Date().toISOString(),
         attempts: 0,
         maxAttempts: 3,
-      });
+      })
 
-      expect(events).toHaveLength(1);
-      expect(events[0].type).toBe('enqueued');
-    });
+      expect(events).toHaveLength(1)
+      expect(events[0].type).toBe('enqueued')
+    })
 
     it('should emit dequeued events', () => {
-      const events: any[] = [];
+      const events: any[] = []
 
-      queue.subscribe(event => events.push(event));
+      queue.subscribe(event => events.push(event))
 
       queue.enqueue({
         id: 'msg-1',
@@ -284,33 +284,33 @@ describe('PriorityMessageQueue', () => {
         createdAt: new Date().toISOString(),
         attempts: 0,
         maxAttempts: 3,
-      });
+      })
 
-      queue.dequeue();
+      queue.dequeue()
 
-      expect(events).toHaveLength(2);
-      expect(events[1].type).toBe('dequeued');
-    });
-  });
-});
+      expect(events).toHaveLength(2)
+      expect(events[1].type).toBe('dequeued')
+    })
+  })
+})
 
 describe('Singleton Pattern', () => {
   afterEach(() => {
-    resetMessageQueue();
-  });
+    resetMessageQueue()
+  })
 
   it('should return the same instance across calls', () => {
-    const queue1 = getMessageQueue();
-    const queue2 = getMessageQueue();
+    const queue1 = getMessageQueue()
+    const queue2 = getMessageQueue()
 
-    expect(queue1).toBe(queue2);
-  });
+    expect(queue1).toBe(queue2)
+  })
 
   it('should reset the instance', () => {
-    const queue1 = getMessageQueue();
-    resetMessageQueue();
-    const queue2 = getMessageQueue();
+    const queue1 = getMessageQueue()
+    resetMessageQueue()
+    const queue2 = getMessageQueue()
 
-    expect(queue1).not.toBe(queue2);
-  });
-});
+    expect(queue1).not.toBe(queue2)
+  })
+})

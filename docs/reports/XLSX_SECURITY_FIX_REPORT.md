@@ -17,6 +17,7 @@ The project has **already completed migration** from the vulnerable `xlsx` packa
 ### Security Vulnerabilities in xlsx
 
 The `xlsx` package (SheetJS) has been affected by:
+
 - **Prototype Pollution Vulnerability (CVE-2022-28383)** - Allows attackers to modify Object.prototype
 - **ReDoS (Regular Expression Denial of Service)** - Can cause application crashes with specially crafted inputs
 - **No patch available** - Maintainers have not released fixes
@@ -24,6 +25,7 @@ The `xlsx` package (SheetJS) has been affected by:
 ### Recommended Action
 
 Replace `xlsx` with `exceljs`, which:
+
 - Actively maintained
 - No known security vulnerabilities
 - Similar API for Excel operations
@@ -43,7 +45,8 @@ $ pnpm ls exceljs
 exceljs@4.4.0
 ```
 
-**Finding:** 
+**Finding:**
+
 - ❌ `xlsx` package NOT installed
 - ✅ `exceljs` v4.4.0 installed (current, secure version)
 
@@ -60,15 +63,15 @@ No xlsx imports found
 
 All "xlsx" string references in the codebase are **format type identifiers**, not package references:
 
-| File | Usage | Type |
-|------|-------|------|
-| `src/lib/types/analytics.ts` | `ExportFormat = 'csv' \| 'xlsx' \| 'json' \| 'pdf'` | Type definition |
-| `src/lib/export/types.ts` | `ExportFormat = 'csv' \| 'json' \| 'xlsx'` | Type definition |
-| `src/lib/export/index.ts` | `case 'xlsx':` | Format switch case |
-| `src/lib/export/index.ts` | `workbook.xlsx.writeBuffer()` | **exceljs API method** |
-| `src/app/api/analytics/export/route.ts` | Format handling & `workbook.xlsx.writeBuffer()` | API route (exceljs) |
-| `src/components/ExportPanel.tsx` | Format selection UI | UI component |
-| `src/components/analytics/AnalyticsChart.tsx` | Export format prop | UI component |
+| File                                          | Usage                                               | Type                   |
+| --------------------------------------------- | --------------------------------------------------- | ---------------------- |
+| `src/lib/types/analytics.ts`                  | `ExportFormat = 'csv' \| 'xlsx' \| 'json' \| 'pdf'` | Type definition        |
+| `src/lib/export/types.ts`                     | `ExportFormat = 'csv' \| 'json' \| 'xlsx'`          | Type definition        |
+| `src/lib/export/index.ts`                     | `case 'xlsx':`                                      | Format switch case     |
+| `src/lib/export/index.ts`                     | `workbook.xlsx.writeBuffer()`                       | **exceljs API method** |
+| `src/app/api/analytics/export/route.ts`       | Format handling & `workbook.xlsx.writeBuffer()`     | API route (exceljs)    |
+| `src/components/ExportPanel.tsx`              | Format selection UI                                 | UI component           |
+| `src/components/analytics/AnalyticsChart.tsx` | Export format prop                                  | UI component           |
 
 **Finding:** No xlsx package imports exist. All Excel operations use exceljs.
 
@@ -82,15 +85,16 @@ The project uses exceljs in two main locations:
 
 ```typescript
 // Dynamic import of ExcelJS for code splitting
-const ExcelJS = await import('exceljs');
-const workbook = new ExcelJS.Workbook();
-const worksheet = workbook.addWorksheet(sheetName);
+const ExcelJS = await import('exceljs')
+const workbook = new ExcelJS.Workbook()
+const worksheet = workbook.addWorksheet(sheetName)
 
 // Write to buffer
-const excelBuffer = await workbook.xlsx.writeBuffer();
+const excelBuffer = await workbook.xlsx.writeBuffer()
 ```
 
 Features implemented:
+
 - ✅ Workbook and worksheet creation
 - ✅ Header styling (bold, gray background)
 - ✅ Auto-fit column widths
@@ -105,15 +109,16 @@ Features implemented:
 
 ```typescript
 // Dynamic import for bundle optimization
-const ExcelJS = (await import('exceljs')).default;
-const workbook = new ExcelJS.Workbook();
-const worksheet = workbook.addWorksheet(sheetName);
+const ExcelJS = (await import('exceljs')).default
+const workbook = new ExcelJS.Workbook()
+const worksheet = workbook.addWorksheet(sheetName)
 
 // Generate buffer
-const buffer = await workbook.xlsx.writeBuffer();
+const buffer = await workbook.xlsx.writeBuffer()
 ```
 
 Features implemented:
+
 - ✅ CSV/Excel/JSON export formats
 - ✅ Analytics data export
 - ✅ Time range filtering
@@ -123,15 +128,15 @@ Features implemented:
 
 ## Security Assessment
 
-| Security Check | Status | Details |
-|---------------|--------|---------|
-| xlsx package installed | ✅ PASS | Not installed |
-| exceljs package installed | ✅ PASS | v4.4.0 (secure) |
-| xlsx imports in code | ✅ PASS | None found |
-| Prototype pollution risk | ✅ PASS | Not vulnerable |
-| ReDoS vulnerability | ✅ PASS | Not vulnerable |
-| Build successful | ✅ PASS | No errors |
-| Export functionality | ✅ PASS | All features working |
+| Security Check            | Status  | Details              |
+| ------------------------- | ------- | -------------------- |
+| xlsx package installed    | ✅ PASS | Not installed        |
+| exceljs package installed | ✅ PASS | v4.4.0 (secure)      |
+| xlsx imports in code      | ✅ PASS | None found           |
+| Prototype pollution risk  | ✅ PASS | Not vulnerable       |
+| ReDoS vulnerability       | ✅ PASS | Not vulnerable       |
+| Build successful          | ✅ PASS | No errors            |
+| Export functionality      | ✅ PASS | All features working |
 
 ---
 
@@ -148,6 +153,7 @@ Duration: 6.48s
 **Excel Export Tests:** 58/63 passing ✅
 
 **Passed Tests Include:**
+
 - ✅ CSV export
 - ✅ JSON export
 - ✅ Excel export with headers
@@ -162,6 +168,7 @@ Duration: 6.48s
 - ✅ Export templates
 
 **Failed Tests (5):** Pre-existing issues unrelated to xlsx/exceljs migration
+
 - ❌ Quick export async return
 - ❌ Template export async return
 - ❌ Template error handling
@@ -186,18 +193,20 @@ Duration: 6.48s
 ### Code Examples
 
 **Before (hypothetical xlsx usage):**
+
 ```typescript
-import * as XLSX from 'xlsx';
-const workbook = XLSX.read(data);
-const buffer = XLSX.write(workbook, { type: 'buffer', bookType: 'xlsx' });
+import * as XLSX from 'xlsx'
+const workbook = XLSX.read(data)
+const buffer = XLSX.write(workbook, { type: 'buffer', bookType: 'xlsx' })
 ```
 
 **After (current exceljs implementation):**
+
 ```typescript
-const ExcelJS = await import('exceljs');
-const workbook = new ExcelJS.Workbook();
-await workbook.xlsx.load(data);
-const buffer = await workbook.xlsx.writeBuffer();
+const ExcelJS = await import('exceljs')
+const workbook = new ExcelJS.Workbook()
+await workbook.xlsx.load(data)
+const buffer = await workbook.xlsx.writeBuffer()
 ```
 
 ---
@@ -219,13 +228,13 @@ const buffer = await workbook.xlsx.writeBuffer();
 
 The 5 failing tests need fixes:
 
-| Test | Issue | Fix Required |
-|------|-------|--------------|
-| Quick export | Async function returns undefined | Add `await` to call |
-| Template export | Async function returns undefined | Add `await` to call |
+| Test                    | Issue                            | Fix Required        |
+| ----------------------- | -------------------------------- | ------------------- |
+| Quick export            | Async function returns undefined | Add `await` to call |
+| Template export         | Async function returns undefined | Add `await` to call |
 | Template error handling | Async function returns undefined | Add `await` to call |
-| Multi-sheet export | Async function returns undefined | Add `await` to call |
-| Empty sheet handling | Async function returns undefined | Add `await` to call |
+| Multi-sheet export      | Async function returns undefined | Add `await` to call |
+| Empty sheet handling    | Async function returns undefined | Add `await` to call |
 
 These are simple test fixes - add `await` to the async function calls.
 
@@ -280,25 +289,25 @@ The project uses **dynamic imports** for exceljs to optimize bundle size:
 const ExcelJS = await import(
   /* webpackChunkName: "exceljs" */
   'exceljs'
-);
+)
 ```
 
 This reduces initial bundle size by ~500KB and only loads exceljs when export functionality is needed.
 
 ### ExcelJS vs xlsx Feature Comparison
 
-| Feature | exceljs | xlsx (deprecated) |
-|---------|---------|------------------|
-| Read Excel | ✅ | ✅ |
-| Write Excel | ✅ | ✅ |
-| Cell styling | ✅ (rich) | ⚠️ (limited) |
-| Data validation | ✅ | ❌ |
-| Frozen rows/cols | ✅ | ⚠️ |
-| Auto-filter | ✅ | ❌ |
-| Multi-sheet | ✅ | ✅ |
-| TypeScript support | ✅ (excellent) | ⚠️ (partial) |
-| Security | ✅ (secure) | ❌ (vulnerable) |
-| Maintenance | ✅ (active) | ⚠️ (slow) |
+| Feature            | exceljs        | xlsx (deprecated) |
+| ------------------ | -------------- | ----------------- |
+| Read Excel         | ✅             | ✅                |
+| Write Excel        | ✅             | ✅                |
+| Cell styling       | ✅ (rich)      | ⚠️ (limited)      |
+| Data validation    | ✅             | ❌                |
+| Frozen rows/cols   | ✅             | ⚠️                |
+| Auto-filter        | ✅             | ❌                |
+| Multi-sheet        | ✅             | ✅                |
+| TypeScript support | ✅ (excellent) | ⚠️ (partial)      |
+| Security           | ✅ (secure)    | ❌ (vulnerable)   |
+| Maintenance        | ✅ (active)    | ⚠️ (slow)         |
 
 **Conclusion:** ExcelJS is superior in every aspect, especially security and TypeScript support.
 

@@ -9,15 +9,15 @@
 
 ## 📊 执行摘要
 
-| 问题类别 | 当前状态 | 严重程度 | 预估修复时间 | 优先级 |
-|---------|---------|---------|-------------|-------|
-| xlsx 包安全漏洞 | ✅ 已解决 | - | 0h | - |
-| i18n 文件完整性 | ✅ 正常 | - | 0h | - |
-| TypeScript 类型错误 | ⚠️ 存在问题 | 中 | 2-4h | P1 |
-| 测试失败问题 | ⚠️ 7.24% 失败 | 中 | 8-12h | P1 |
-| 测试覆盖率提升 | 📈 91.97% | 低 | 4-6h | P2 |
-| 代码重复问题 | ⚠️ 9.1% | 中 | 10-15h | P2 |
-| 过大文件重构 | ⚠️ 164 文件 | 低 | 20-30h | P3 |
+| 问题类别            | 当前状态      | 严重程度 | 预估修复时间 | 优先级 |
+| ------------------- | ------------- | -------- | ------------ | ------ |
+| xlsx 包安全漏洞     | ✅ 已解决     | -        | 0h           | -      |
+| i18n 文件完整性     | ✅ 正常       | -        | 0h           | -      |
+| TypeScript 类型错误 | ⚠️ 存在问题   | 中       | 2-4h         | P1     |
+| 测试失败问题        | ⚠️ 7.24% 失败 | 中       | 8-12h        | P1     |
+| 测试覆盖率提升      | 📈 91.97%     | 低       | 4-6h         | P2     |
+| 代码重复问题        | ⚠️ 9.1%       | 中       | 10-15h       | P2     |
+| 过大文件重构        | ⚠️ 164 文件   | 低       | 20-30h       | P3     |
 
 **总预估工时**: 44-67 小时
 
@@ -28,10 +28,12 @@
 ### 1. xlsx 包安全漏洞 ✅ 已解决
 
 **原始问题描述**:
+
 - xlsx 包存在原型污染 (CVE) 和 ReDoS 漏洞
 - 建议替换为 exceljs
 
 **调查结果**:
+
 - ✅ 项目已使用 `exceljs@4.4.0`
 - ✅ xlsx 包未安装
 - ✅ 无 xlsx 导入代码
@@ -44,22 +46,24 @@
 ### 2. i18n 文件完整性 ✅ 正常
 
 **原始问题描述**:
+
 - 日语文件仅 255 行（应为 800+）
 - 韩语/西班牙语有混合语言问题
 
 **调查结果**:
 
-| 文件 | 行数 | 状态 |
-|-----|-----|------|
-| ja.json | 861 | ✅ 完整 |
-| ko.json | 861 | ✅ 完整 |
-| es.json | 861 | ✅ 完整 |
-| zh.json | 861 | ✅ 完整 |
-| en.json | 861 | ✅ 完整 |
-| de.json | 861 | ✅ 完整 |
-| fr.json | 861 | ✅ 完整 |
+| 文件    | 行数 | 状态    |
+| ------- | ---- | ------- |
+| ja.json | 861  | ✅ 完整 |
+| ko.json | 861  | ✅ 完整 |
+| es.json | 861  | ✅ 完整 |
+| zh.json | 861  | ✅ 完整 |
+| en.json | 861  | ✅ 完整 |
+| de.json | 861  | ✅ 完整 |
+| fr.json | 861  | ✅ 完整 |
 
 **语言验证**:
+
 - ✅ 日语文件使用日语内容
 - ✅ 韩语文件使用韩语内容
 - ✅ 西班牙语文件使用西班牙语内容
@@ -76,26 +80,28 @@
 
 **错误分布**:
 
-| 文件 | 错误类型 | 数量 |
-|-----|---------|------|
-| Dashboard.spec.tsx | TS7006: 隐式 any 类型 | 4 |
-| ManualOverride.spec.tsx | TS7006: 隐式 any 类型 | 4 |
-| ScheduleHistory.spec.tsx | TS7006: 隐式 any 类型 | 5 |
-| TaskQueueView.spec.tsx | TS7006: 隐式 any 类型 + TS1117 | 8 |
+| 文件                     | 错误类型                       | 数量 |
+| ------------------------ | ------------------------------ | ---- |
+| Dashboard.spec.tsx       | TS7006: 隐式 any 类型          | 4    |
+| ManualOverride.spec.tsx  | TS7006: 隐式 any 类型          | 4    |
+| ScheduleHistory.spec.tsx | TS7006: 隐式 any 类型          | 5    |
+| TaskQueueView.spec.tsx   | TS7006: 隐式 any 类型 + TS1117 | 8    |
 
 **典型错误示例**:
+
 ```typescript
 // src/lib/agent-scheduler/dashboard/Dashboard.spec.tsx:332
 error TS7006: Parameter 'selector' implicitly has an 'any' type.
 ```
 
 **修复方案**:
+
 ```typescript
 // 修复前
-mockUseStore.mockImplementation((selector) => selector(state));
+mockUseStore.mockImplementation(selector => selector(state))
 
 // 修复后
-mockUseStore.mockImplementation((selector: (state: StoreState) => unknown) => selector(state));
+mockUseStore.mockImplementation((selector: (state: StoreState) => unknown) => selector(state))
 ```
 
 **预估修复时间**: 2-4 小时
@@ -107,6 +113,7 @@ mockUseStore.mockImplementation((selector: (state: StoreState) => unknown) => se
 ### 4. 测试失败问题 ⚠️ P1
 
 **问题描述**:
+
 - 总测试数: 1658
 - 通过: 1525 (91.97%)
 - 失败: 120 (7.24%)
@@ -116,27 +123,29 @@ mockUseStore.mockImplementation((selector: (state: StoreState) => unknown) => se
 
 #### 4.1 API 路由测试失败 (最严重)
 
-| 测试文件 | 失败数 | 问题类型 |
-|---------|-------|---------|
-| auth/route.test.ts | 9 | 返回 500 而非 400/201 |
-| notifications/route.test.ts | 12 | 401 认证失败 |
-| notifications/stats/route.test.ts | 3 | 数据结构不匹配 |
-| data/import/route.test.ts | 2 | 验证返回 500 |
-| projects/route.test.ts | 4 | 权限/验证问题 |
+| 测试文件                          | 失败数 | 问题类型              |
+| --------------------------------- | ------ | --------------------- |
+| auth/route.test.ts                | 9      | 返回 500 而非 400/201 |
+| notifications/route.test.ts       | 12     | 401 认证失败          |
+| notifications/stats/route.test.ts | 3      | 数据结构不匹配        |
+| data/import/route.test.ts         | 2      | 验证返回 500          |
+| projects/route.test.ts            | 4      | 权限/验证问题         |
 
 **根本原因分析**:
+
 1. API 内部错误处理不完善
 2. Mock 配置问题
 3. 测试数据结构不匹配
 
 #### 4.2 组件测试失败
 
-| 测试文件 | 失败数 | 问题类型 |
-|---------|-------|---------|
-| Dashboard.spec.tsx | 多处 | 组件渲染/交互问题 |
-| WebSocket 相关测试 | 多处 | 连接状态断言失败 |
+| 测试文件           | 失败数 | 问题类型          |
+| ------------------ | ------ | ----------------- |
+| Dashboard.spec.tsx | 多处   | 组件渲染/交互问题 |
+| WebSocket 相关测试 | 多处   | 连接状态断言失败  |
 
 **修复策略**:
+
 1. 修复 API 错误处理逻辑
 2. 更新 Mock 配置
 3. 对齐测试数据结构
@@ -150,15 +159,18 @@ mockUseStore.mockImplementation((selector: (state: StoreState) => unknown) => se
 ### 5. 测试覆盖率提升 📈 P2
 
 **当前状态**:
+
 - 覆盖率: 91.97%
 - 目标: 95%+
 
 **缺失覆盖模块**:
+
 - 部分 API 路由错误处理分支
 - 边缘情况测试
 - WebSocket 断线重连场景
 
 **建议行动**:
+
 1. 为失败测试添加修复用例
 2. 补充 API 错误处理分支测试
 3. 添加 WebSocket 边缘情况测试
@@ -172,6 +184,7 @@ mockUseStore.mockImplementation((selector: (state: StoreState) => unknown) => se
 ### 6. 代码重复问题 ⚠️ P2
 
 **问题描述**:
+
 - 完全重复: ~1,800 行 (1.0%)
 - 相似代码: ~5,400 行 (3.1%)
 - 结构重复: ~8,900 行 (5.0%)
@@ -180,6 +193,7 @@ mockUseStore.mockImplementation((selector: (state: StoreState) => unknown) => se
 **关键重复问题**:
 
 #### 6.1 Repository 多版本并存 (3,900 行重复)
+
 ```
 repository.ts                   (675 行)
 repository-optimized.ts         (608 行)
@@ -192,9 +206,11 @@ wallet-repository-optimized-v2.ts (674 行)
 **建议**: 统一使用 v2 版本，删除冗余文件
 
 #### 6.2 加密函数重复实现 (180 行)
+
 **建议**: 统一使用 `lib/crypto/index.ts`
 
 #### 6.3 权限检查函数重复 (4 处)
+
 **建议**: 统一到 `src/lib/permissions/` 模块
 
 **预估修复时间**: 10-15 小时
@@ -206,20 +222,21 @@ wallet-repository-optimized-v2.ts (674 行)
 ### 7. 过大文件重构 ⚠️ P3
 
 **问题描述**:
+
 - 超过 500 行的文件: 164 个
 - 超过 800 行的文件: 20 个
 - 超过 1000 行的文件: 6 个
 
 **高优先级文件**:
 
-| 文件 | 行数 | 问题 | 建议 |
-|-----|-----|------|-----|
-| query-builder.ts | 1,279 | 多职责 | 拆分为 3 个模块 |
-| search-filter.test.ts | 1,270 | 测试过多 | 按功能分组拆分 |
-| notification-provider.edge-cases.test.tsx | 1,201 | 边缘测试过多 | 提取到独立套件 |
-| page.tsx (首页) | 1,134 | 逻辑过多 | 提取 hooks 和子组件 |
-| notification-service.ts | 1,038 | 多职责 | 拆分职责 |
-| cache.ts | 1,022 | 多职责 | 拆分核心和策略 |
+| 文件                                      | 行数  | 问题         | 建议                |
+| ----------------------------------------- | ----- | ------------ | ------------------- |
+| query-builder.ts                          | 1,279 | 多职责       | 拆分为 3 个模块     |
+| search-filter.test.ts                     | 1,270 | 测试过多     | 按功能分组拆分      |
+| notification-provider.edge-cases.test.tsx | 1,201 | 边缘测试过多 | 提取到独立套件      |
+| page.tsx (首页)                           | 1,134 | 逻辑过多     | 提取 hooks 和子组件 |
+| notification-service.ts                   | 1,038 | 多职责       | 拆分职责            |
+| cache.ts                                  | 1,022 | 多职责       | 拆分核心和策略      |
 
 **预估修复时间**: 20-30 小时
 
@@ -230,6 +247,7 @@ wallet-repository-optimized-v2.ts (674 行)
 ## 🎯 推荐清理顺序
 
 ### 第一阶段 (P1 - 立即处理)
+
 预计时间: 10-16 小时
 
 1. **修复 TypeScript 类型错误** (2-4h)
@@ -244,6 +262,7 @@ wallet-repository-optimized-v2.ts (674 行)
    - 运行 `npm run test:run` 验证
 
 ### 第二阶段 (P2 - 短期处理)
+
 预计时间: 14-21 小时
 
 3. **提升测试覆盖率** (4-6h)
@@ -256,6 +275,7 @@ wallet-repository-optimized-v2.ts (674 行)
    - 统一权限检查函数
 
 ### 第三阶段 (P3 - 长期改进)
+
 预计时间: 20-30 小时
 
 5. **重构过大文件**
@@ -288,15 +308,18 @@ npm run build
 ## 📝 备注
 
 ### 已完成的工作
+
 - ✅ xlsx 包已替换为 exceljs
 - ✅ i18n 文件已修复完整
 
 ### 关键发现
+
 1. 原始审计中提到的 xlsx 漏洞和 i18n 文件损坏问题**已经解决**
 2. 当前主要问题是 TypeScript 类型和测试失败
 3. 代码重复和过大文件是长期改进项
 
 ### 风险评估
+
 - **P1 问题**: 可能影响 CI/CD 流程和代码质量
 - **P2 问题**: 影响维护成本和开发效率
 - **P3 问题**: 代码质量改进，可逐步进行
@@ -314,35 +337,37 @@ v1.5.0 规划中的 lib/ 层重构，发现多处目录重复：
 
 #### 8.1 Agent 核心模块重复
 
-| 位置 | 状态 | 说明 |
-|-----|------|------|
-| `src/lib/agent/` | ⚠️ 旧版 | 基础导出，无优化版本 |
+| 位置                    | 状态    | 说明                     |
+| ----------------------- | ------- | ------------------------ |
+| `src/lib/agent/`        | ⚠️ 旧版 | 基础导出，无优化版本     |
 | `src/lib/agents/agent/` | ✅ 新版 | 完整导出 + 优化版本 (V2) |
 
 **差异**: `agents/agent/index.ts` 额外导出:
+
 - `repository-optimized` 函数
-- `repository-optimized-v2` 函数  
+- `repository-optimized-v2` 函数
 - `wallet-repository-optimized` 函数
 - `wallet-repository-optimized-v2` 函数
 
 #### 8.2 A2A 协议重复
 
-| 位置 | 文件数 | 状态 |
-|-----|-------|------|
-| `src/lib/a2a/` | 7 | ⚠️ 旧版，无 index.ts |
-| `src/lib/agents/a2a/` | 8 | ✅ 新版，有 index.ts |
+| 位置                  | 文件数 | 状态                 |
+| --------------------- | ------ | -------------------- |
+| `src/lib/a2a/`        | 7      | ⚠️ 旧版，无 index.ts |
+| `src/lib/agents/a2a/` | 8      | ✅ 新版，有 index.ts |
 
 **差异**: `agents/a2a/` 多了 `index.ts` 统一导出
 
 #### 8.3 使用老路径的文件
 
-| 老路径 | 使用文件数 | 迁移建议 |
-|-------|----------|---------|
-| `@/lib/agent` | 通过 legacy-agent-exports.ts 兼容 | 阶段迁移 |
-| `@/lib/a2a` | 10+ 处 `app/api/a2a/*` | Phase 1 |
-| `@/lib/agent-scheduler` | 2 处 dashboard 组件 | Phase 2 |
+| 老路径                  | 使用文件数                        | 迁移建议 |
+| ----------------------- | --------------------------------- | -------- |
+| `@/lib/agent`           | 通过 legacy-agent-exports.ts 兼容 | 阶段迁移 |
+| `@/lib/a2a`             | 10+ 处 `app/api/a2a/*`            | Phase 1  |
+| `@/lib/agent-scheduler` | 2 处 dashboard 组件               | Phase 2  |
 
 **重构步骤**:
+
 1. **Phase 1**: 更新 `@/lib/a2a` → `@/lib/agents/a2a` 导入 (10+ 文件)
 2. **Phase 2**: 更新 `@/lib/agent-scheduler` → `@/lib/agents/scheduler` (2 文件)
 3. **Phase 3**: 废弃 `legacy-agent-exports.ts`，统一使用 `@/lib/agents`
@@ -354,10 +379,12 @@ v1.5.0 规划中的 lib/ 层重构，发现多处目录重复：
 ### 9. middleware/auth.middleware 缺失 ⚠️ P1
 
 **问题描述**:
+
 - 缺失模块 `@/middleware/auth.middleware`
 - 影响 tasks.route.test.ts 等测试文件
 
 **修复**: ✅ 已解决 (2026-03-30)
+
 - 创建 `src/middleware/auth.middleware.ts`
 - 导出 auth 相关函数和 mock 配置
 - tasks.route.test.ts 36 个测试全部通过
@@ -368,14 +395,14 @@ v1.5.0 规划中的 lib/ 层重构，发现多处目录重复：
 
 ## 📊 更新后的总预估工时
 
-| 问题类别 | 优先级 | 预估工时 |
-|---------|--------|---------|
-| TypeScript 类型错误 | P1 | 2-4h |
-| 测试失败问题 | P1 | 8-12h |
-| lib/ 层重构 | P1 | 4-6h |
-| 测试覆盖率提升 | P2 | 4-6h |
-| 代码重复问题 | P2 | 10-15h |
-| 过大文件重构 | P3 | 20-30h |
+| 问题类别            | 优先级 | 预估工时 |
+| ------------------- | ------ | -------- |
+| TypeScript 类型错误 | P1     | 2-4h     |
+| 测试失败问题        | P1     | 8-12h    |
+| lib/ 层重构         | P1     | 4-6h     |
+| 测试覆盖率提升      | P2     | 4-6h     |
+| 代码重复问题        | P2     | 10-15h   |
+| 过大文件重构        | P3     | 20-30h   |
 
 **总预估工时**: 48-73 小时
 

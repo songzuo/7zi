@@ -10,19 +10,14 @@ export {
   hasAllPermissions,
   getDefaultPermissions,
   UserRole,
-} from './lib/auth';
+} from './lib/auth'
 
 // Types - need to export type for interfaces when isolatedModules is enabled
-export type {
-  User,
-  Credentials,
-  Session,
-  AuthResult
-} from './lib/auth';
+export type { User, Credentials, Session, AuthResult } from './lib/auth'
 
 // Re-export Permission from auth as AuthPermission to avoid conflict
-export { Permission as AuthPermission } from './lib/auth';
+export { Permission as AuthPermission } from './lib/auth'
 
 // Export permissions module (has its own Permission type)
-export * from './lib/permissions';
-export * from './lib/jwt';
+export * from './lib/permissions'
+export * from './lib/jwt'

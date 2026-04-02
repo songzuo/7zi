@@ -4,13 +4,13 @@
  */
 
 // Main Dashboard page
-export { Dashboard } from './Dashboard';
+export { Dashboard } from './Dashboard'
 
 // Individual components
-export { AgentStatusPanel } from './AgentStatusPanel';
-export { TaskQueueView } from './TaskQueueView';
-export { ScheduleHistory } from './ScheduleHistory';
-export { ManualOverride } from './ManualOverride';
+export { AgentStatusPanel } from './AgentStatusPanel'
+export { TaskQueueView } from './TaskQueueView'
+export { ScheduleHistory } from './ScheduleHistory'
+export { ManualOverride } from './ManualOverride'
 
 // Types
-export type { DashboardTab } from './Dashboard';
+export type { DashboardTab } from './Dashboard'

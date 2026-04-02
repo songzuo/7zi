@@ -4,12 +4,14 @@
 
 ### 1. Import Path Fixes
 
-#### src/app/api/multimodal/image/__tests__/route.test.ts
+#### src/app/api/multimodal/image/**tests**/route.test.ts
+
 - Fixed import path from `@/` to use proper path aliases
 - Mock imports now correctly reference `@/lib/multimodal/image-utils`, `@/lib/logger`, and `@/lib/api/error-handler`
 - Status: Import issues resolved
 
-#### src/lib/middleware/__tests__/user-rate-limit.test.ts
+#### src/lib/middleware/**tests**/user-rate-limit.test.ts
+
 - Fixed imports to use relative paths instead of `@/` prefix
 - Mock imports now correctly reference `../../logger` and the local module
 - Status: Import issues resolved
@@ -17,18 +19,21 @@
 ### 2. Act() Wrapper Fixes
 
 #### src/components/ContactForm.test.tsx
+
 - Imported `act` from `@testing-library/react`
 - Wrapped all `fireEvent.click()` calls in `act(async () => { ... })`
 - Wrapped all `fireEvent.change()` calls in `act(async () => { ... })`
 - Updated test expectations to match actual component behavior
 - Status: Act wrappers added to all state-triggering events
 
-#### src/components/rating/__tests__/RatingList.test.tsx
+#### src/components/rating/**tests**/RatingList.test.tsx
+
 - Imported `act` from `@testing-library/react`
 - Wrapped `fireEvent.click()` for sort buttons and filter toggles
 - Status: Key user interactions wrapped in act()
 
 #### src/test/components/ErrorDisplay.test.tsx
+
 - Imported `act` from `@testing-library/react`
 - Wrapped `fireEvent.click()` for reset and toggle buttons
 - Made test functions async to properly handle act()
@@ -37,6 +42,7 @@
 ### 3. Canvas Mock Configuration
 
 #### src/test/setup.tsx
+
 - Added comprehensive Canvas API mocking
 - Mocked `HTMLCanvasElement.prototype.getContext` with full set of methods:
   - `fillRect`, `clearRect`, `getImageData`, `putImageData`, `createImageData`
@@ -50,6 +56,7 @@
 ### 4. Timeout Configuration
 
 #### vitest.config.ts
+
 - Increased `testTimeout` from 15000ms to 30000ms
 - Increased `fileTimeout` from 60000ms to 120000ms
 - This gives slower tests more time to complete
@@ -58,6 +65,7 @@
 ## Test Results
 
 ### Before Fixes
+
 - Multiple test failures due to:
   - Import path errors
   - React state updates not wrapped in act()
@@ -65,6 +73,7 @@
   - Timeout issues
 
 ### After Fixes
+
 - Import paths corrected for all target files
 - Act wrappers added to all relevant tests
 - Canvas API mocked
@@ -73,12 +82,15 @@
 ## Remaining Issues
 
 ### ContactForm.test.tsx
+
 Some tests still fail due to:
+
 - Translation mocking - The component uses `useTranslations` from `next-intl`
 - Button text differs from test expectations due to locale/translation
 - Need to verify actual button text matches test queries
 
 ### route.test.ts (Image API)
+
 - Some tests expect 200 status but get 400 - likely validation/logic issues in the route handler
 - Not a test infrastructure issue, but actual test assertion failures
 

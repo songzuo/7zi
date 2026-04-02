@@ -38,11 +38,11 @@ export enum Permission {
  * 用户信息
  */
 export interface User {
-  id: string;
-  username: string;
-  email?: string;
-  role: Role;
-  permissions: Permission[];
+  id: string
+  username: string
+  email?: string
+  role: Role
+  permissions: Permission[]
 }
 
 /**
@@ -53,20 +53,20 @@ export interface CheckPermissionOptions {
    * 资源所有者 ID
    * 用于检查用户是否是资源所有者
    */
-  resourceOwnerId?: string;
+  resourceOwnerId?: string
   /**
    * 是否要求所有权限
    * false 表示只需要任一权限
    */
-  requireAll?: boolean;
+  requireAll?: boolean
 }
 
 /**
  * 权限检查结果
  */
 export interface PermissionCheckResult {
-  allowed: boolean;
-  reason?: string;
+  allowed: boolean
+  reason?: string
 }
 
 /**
@@ -76,43 +76,40 @@ export interface PermissionContextType {
   /**
    * 当前用户
    */
-  user: User | null;
+  user: User | null
 
   /**
    * 检查单个权限
    */
-  hasPermission: (permission: Permission) => boolean;
+  hasPermission: (permission: Permission) => boolean
 
   /**
    * 检查多个权限
    */
-  hasPermissions: (permissions: Permission[], options?: CheckPermissionOptions) => boolean;
+  hasPermissions: (permissions: Permission[], options?: CheckPermissionOptions) => boolean
 
   /**
    * 检查角色
    */
-  hasRole: (role: Role) => boolean;
+  hasRole: (role: Role) => boolean
 
   /**
    * 检查是否是管理员
    */
-  isAdmin: () => boolean;
+  isAdmin: () => boolean
 
   /**
    * 检查是否可以访问资源
    */
-  canAccessResource: (
-    resourceOwnerId: string,
-    requiredPermission: Permission
-  ) => boolean;
+  canAccessResource: (resourceOwnerId: string, requiredPermission: Permission) => boolean
 
   /**
    * 设置当前用户
    */
-  setUser: (user: User | null) => void;
+  setUser: (user: User | null) => void
 
   /**
    * 清除当前用户
    */
-  clearUser: () => void;
+  clearUser: () => void
 }

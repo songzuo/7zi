@@ -65,15 +65,15 @@ npm run build
 
 项目仍有 **64 行 TypeScript 错误**，但分布在以下文件中：
 
-| 文件 | 错误数 | 类型 |
-|------|--------|------|
-| `src/app/sse-demo/page.tsx` | 4 | 导出不存在 |
-| `src/lib/monitoring/root-cause/*.ts` | 7 | 类型不匹配 |
-| `src/lib/performance-monitoring/*.ts` | 15 | 类型错误 |
-| `src/lib/react-compiler/**/*.ts` | 6 | 模块导入错误 |
-| `src/lib/security/rbac/*.ts` | 5 | 类型签名不匹配 |
-| `src/lib/websocket/**/*.ts` | 1 | 变量引用错误 |
-| `src/tools/agent-cli.ts` | 14 | 隐式 any 类型 |
+| 文件                                  | 错误数 | 类型           |
+| ------------------------------------- | ------ | -------------- |
+| `src/app/sse-demo/page.tsx`           | 4      | 导出不存在     |
+| `src/lib/monitoring/root-cause/*.ts`  | 7      | 类型不匹配     |
+| `src/lib/performance-monitoring/*.ts` | 15     | 类型错误       |
+| `src/lib/react-compiler/**/*.ts`      | 6      | 模块导入错误   |
+| `src/lib/security/rbac/*.ts`          | 5      | 类型签名不匹配 |
+| `src/lib/websocket/**/*.ts`           | 1      | 变量引用错误   |
+| `src/tools/agent-cli.ts`              | 14     | 隐式 any 类型  |
 
 ## 建议
 

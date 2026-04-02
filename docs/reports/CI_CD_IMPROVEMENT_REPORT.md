@@ -10,20 +10,20 @@
 
 ### 1. 现状概述
 
-| 组件 | 状态 | 详情 |
-|------|------|------|
-| **自动化测试** | ✅ 良好 | 单元测试 (Vitest) + E2E 测试 (Playwright) |
-| **自动化构建** | ✅ 良好 | Next.js 构建优化，Docker 多阶段构建 |
-| **环境配置分离** | ✅ 良好 | .env.example, .env.production, .env.test |
-| **CI 工作流** | ✅ 优秀 | ci-main.yml, tests.yml, security-scan.yml |
-| **Docker 镜像构建** | ✅ 良好 | 支持多平台，缓存优化 |
-| **自动化部署** | ⚠️ 不完整 | 只构建镜像，无自动部署到服务器 |
-| **回滚机制** | ❌ 缺失 | 无自动回滚流程 |
-| **数据库迁移** | ❌ 缺失 | SQLite 数据库无迁移脚本 |
-| **监控告警** | ❌ 缺失 | 无部署后健康检查告警 |
-| **蓝绿部署** | ❌ 缺失 | 单一部署，无零停机切换 |
-| **依赖管理** | ✅ 优秀 | Dependabot 配置完善 |
-| **安全扫描** | ✅ 良好 | npm audit, 敏感文件检查 |
+| 组件                | 状态      | 详情                                      |
+| ------------------- | --------- | ----------------------------------------- |
+| **自动化测试**      | ✅ 良好   | 单元测试 (Vitest) + E2E 测试 (Playwright) |
+| **自动化构建**      | ✅ 良好   | Next.js 构建优化，Docker 多阶段构建       |
+| **环境配置分离**    | ✅ 良好   | .env.example, .env.production, .env.test  |
+| **CI 工作流**       | ✅ 优秀   | ci-main.yml, tests.yml, security-scan.yml |
+| **Docker 镜像构建** | ✅ 良好   | 支持多平台，缓存优化                      |
+| **自动化部署**      | ⚠️ 不完整 | 只构建镜像，无自动部署到服务器            |
+| **回滚机制**        | ❌ 缺失   | 无自动回滚流程                            |
+| **数据库迁移**      | ❌ 缺失   | SQLite 数据库无迁移脚本                   |
+| **监控告警**        | ❌ 缺失   | 无部署后健康检查告警                      |
+| **蓝绿部署**        | ❌ 缺失   | 单一部署，无零停机切换                    |
+| **依赖管理**        | ✅ 优秀   | Dependabot 配置完善                       |
+| **安全扫描**        | ✅ 良好   | npm audit, 敏感文件检查                   |
 
 ### 2. 当前工作流架构
 
@@ -147,6 +147,7 @@ deploy:
 #### 1.2 配置 GitHub Secrets
 
 需要配置：
+
 - `PRODUCTION_HOST`: 7zi.com 服务器 IP
 - `PRODUCTION_USER`: 登录用户名 (root)
 - `SSH_PRIVATE_KEY`: SSH 私钥
@@ -167,6 +168,7 @@ pre-deploy-check:
 ```
 
 **预期效果**:
+
 - ✅ Push 到 main 分支后自动部署
 - ✅ 无需手动 SSH 操作
 - ✅ 部署后自动检查服务健康
@@ -210,15 +212,15 @@ deploy-rollback:
 创建 `scripts/migrate.js`:
 
 ```javascript
-const Database = require('better-sqlite3');
-const path = require('path');
-const fs = require('fs');
+const Database = require('better-sqlite3')
+const path = require('path')
+const fs = require('fs')
 
-const DB_PATH = process.env.DB_PATH || './data/database.db';
-const MIGRATIONS_DIR = './migrations';
+const DB_PATH = process.env.DB_PATH || './data/database.db'
+const MIGRATIONS_DIR = './migrations'
 
 async function migrate() {
-  const db = new Database(DB_PATH);
+  const db = new Database(DB_PATH)
 
   // 创建迁移记录表
   db.exec(`
@@ -227,37 +229,31 @@ async function migrate() {
       name TEXT NOT NULL UNIQUE,
       applied_at DATETIME DEFAULT CURRENT_TIMESTAMP
     )
-  `);
+  `)
 
   // 获取所有迁移文件
-  const migrations = fs.readdirSync(MIGRATIONS_DIR)
+  const migrations = fs
+    .readdirSync(MIGRATIONS_DIR)
     .filter(f => f.endsWith('.sql'))
-    .sort();
+    .sort()
 
   // 执行未应用的迁移
   for (const migration of migrations) {
-    const applied = db.prepare(
-      'SELECT 1 FROM _migrations WHERE name = ?'
-    ).get(migration);
+    const applied = db.prepare('SELECT 1 FROM _migrations WHERE name = ?').get(migration)
 
     if (!applied) {
-      console.log(`Applying migration: ${migration}`);
-      const sql = fs.readFileSync(
-        path.join(MIGRATIONS_DIR, migration),
-        'utf-8'
-      );
-      db.exec(sql);
-      db.prepare(
-        'INSERT INTO _migrations (name) VALUES (?)'
-      ).run(migration);
+      console.log(`Applying migration: ${migration}`)
+      const sql = fs.readFileSync(path.join(MIGRATIONS_DIR, migration), 'utf-8')
+      db.exec(sql)
+      db.prepare('INSERT INTO _migrations (name) VALUES (?)').run(migration)
     }
   }
 
-  db.close();
-  console.log('Migration completed');
+  db.close()
+  console.log('Migration completed')
 }
 
-migrate().catch(console.error);
+migrate().catch(console.error)
 ```
 
 #### 2.3 在部署流程中集成迁移
@@ -282,6 +278,7 @@ migrate:
 ```
 
 **预期效果**:
+
 - ✅ 部署失败时自动回滚
 - ✅ 数据库变更可追踪、可回滚
 - ✅ 零停机迁移（配合蓝绿部署）
@@ -302,11 +299,11 @@ services:
     image: registry.7zi.com/7zi-frontend:blue
     container_name: 7zi-blue
     ports:
-      - "3001:3000"
+      - '3001:3000'
     environment:
       - NODE_ENV=production
     healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:3000/health"]
+      test: ['CMD', 'curl', '-f', 'http://localhost:3000/health']
       interval: 10s
       timeout: 5s
       retries: 3
@@ -315,11 +312,11 @@ services:
     image: registry.7zi.com/7zi-frontend:green
     container_name: 7zi-green
     ports:
-      - "3002:3000"
+      - '3002:3000'
     environment:
       - NODE_ENV=production
     healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:3000/health"]
+      test: ['CMD', 'curl', '-f', 'http://localhost:3000/health']
       interval: 10s
       timeout: 5s
       retries: 3
@@ -329,7 +326,7 @@ services:
     volumes:
       - ./nginx/nginx.conf:/etc/nginx/nginx.conf:ro
     ports:
-      - "80:80"
+      - '80:80'
     depends_on:
       - app-blue
       - app-green
@@ -385,6 +382,7 @@ monitoring:
 ```
 
 **预期效果**:
+
 - ✅ 零停机部署
 - ✅ 新版本灰度测试
 - ✅ 部署失败自动切换回旧版本
@@ -464,6 +462,7 @@ secrets-scan:
 ```
 
 **预期效果**:
+
 - ✅ 性能退化自动发现
 - ✅ 构建大小趋势追踪
 - ✅ 安全漏洞提前发现
@@ -474,44 +473,44 @@ secrets-scan:
 
 ### 核心 CI/CD 平台
 
-| 工具 | 用途 | 优先级 |
-|------|------|--------|
+| 工具               | 用途       | 优先级    |
+| ------------------ | ---------- | --------- |
 | **GitHub Actions** | CI/CD 平台 | ✅ 已使用 |
-| **Docker** | 容器化 | ✅ 已使用 |
-| **Docker Compose** | 容器编排 | ✅ 已使用 |
+| **Docker**         | 容器化     | ✅ 已使用 |
+| **Docker Compose** | 容器编排   | ✅ 已使用 |
 
 ### 部署工具
 
-| 工具 | 用途 | 优先级 |
-|------|------|--------|
-| **appleboy/ssh-action** | SSH 部署 | 🔥 必须 |
-| **Watchtower** | 自动更新 | 🔥 必须 |
-| **Nginx** | 反向代理 | ✅ 已使用 |
+| 工具                    | 用途     | 优先级    |
+| ----------------------- | -------- | --------- |
+| **appleboy/ssh-action** | SSH 部署 | 🔥 必须   |
+| **Watchtower**          | 自动更新 | 🔥 必须   |
+| **Nginx**               | 反向代理 | ✅ 已使用 |
 
 ### 监控告警
 
-| 工具 | 用途 | 优先级 |
-|------|------|--------|
-| **Sentry** | 错误监控 | ✅ 已使用 |
-| **Prometheus + Grafana** | 指标监控 | 🔥 推荐 |
-| **Lighthouse CI** | 性能测试 | 🔥 推荐 |
-| **Slack/Telegram** | 通知集成 | 🔥 推荐 |
+| 工具                     | 用途     | 优先级    |
+| ------------------------ | -------- | --------- |
+| **Sentry**               | 错误监控 | ✅ 已使用 |
+| **Prometheus + Grafana** | 指标监控 | 🔥 推荐   |
+| **Lighthouse CI**        | 性能测试 | 🔥 推荐   |
+| **Slack/Telegram**       | 通知集成 | 🔥 推荐   |
 
 ### 安全工具
 
-| 工具 | 用途 | 优先级 |
-|------|------|--------|
-| **npm audit** | 依赖漏洞 | ✅ 已使用 |
-| **Gitleaks** | Secret 扫描 | 🔥 推荐 |
-| **Trivy** | 镜像扫描 | 🔥 推荐 |
+| 工具          | 用途        | 优先级    |
+| ------------- | ----------- | --------- |
+| **npm audit** | 依赖漏洞    | ✅ 已使用 |
+| **Gitleaks**  | Secret 扫描 | 🔥 推荐   |
+| **Trivy**     | 镜像扫描    | 🔥 推荐   |
 
 ### 测试工具
 
-| 工具 | 用途 | 优先级 |
-|------|------|--------|
-| **Vitest** | 单元测试 | ✅ 已使用 |
-| **Playwright** | E2E 测试 | ✅ 已使用 |
-| **MSW** | Mock 服务 | ✅ 已使用 |
+| 工具           | 用途      | 优先级    |
+| -------------- | --------- | --------- |
+| **Vitest**     | 单元测试  | ✅ 已使用 |
+| **Playwright** | E2E 测试  | ✅ 已使用 |
+| **MSW**        | Mock 服务 | ✅ 已使用 |
 
 ---
 
@@ -559,14 +558,14 @@ secrets-scan:
 
 ## 📊 预期改进效果
 
-| 指标 | 当前 | 改进后 | 提升 |
-|------|------|--------|------|
-| **部署时间** | 15-30 分钟 | 5-10 分钟 | ⬇️ 67% |
-| **回滚时间** | 30+ 分钟 | < 5 分钟 | ⬇️ 83% |
-| **停机时间** | 30-60 秒 | 0 秒 | ⬇️ 100% |
-| **人工操作** | 5-10 步 | 0 步 | ⬇️ 100% |
-| **错误率** | 中等 | 低 | ⬇️ 50% |
-| **问题发现时间** | 数小时 | 数分钟 | ⬇️ 80% |
+| 指标             | 当前       | 改进后    | 提升    |
+| ---------------- | ---------- | --------- | ------- |
+| **部署时间**     | 15-30 分钟 | 5-10 分钟 | ⬇️ 67%  |
+| **回滚时间**     | 30+ 分钟   | < 5 分钟  | ⬇️ 83%  |
+| **停机时间**     | 30-60 秒   | 0 秒      | ⬇️ 100% |
+| **人工操作**     | 5-10 步    | 0 步      | ⬇️ 100% |
+| **错误率**       | 中等       | 低        | ⬇️ 50%  |
+| **问题发现时间** | 数小时     | 数分钟    | ⬇️ 80%  |
 
 ---
 
@@ -575,12 +574,14 @@ secrets-scan:
 ### 当前状态
 
 ✅ **做得好的地方**:
+
 - 完整的测试套件（单元 + E2E）
 - 优化的 CI 流程（并行、缓存、分片）
 - 优秀的依赖管理（Dependabot）
 - 安全扫描基础
 
 ❌ **需要改进**:
+
 - 缺少自动化部署到服务器
 - 无回滚机制
 - 无零停机部署
@@ -596,6 +597,7 @@ secrets-scan:
 ### 风险提示
 
 ⚠️ **实施前注意**:
+
 - 备份现有生产环境
 - 在测试环境先验证所有流程
 - 准备紧急回滚方案

@@ -17,6 +17,7 @@ Successfully implemented a comprehensive Content Security Policy (CSP) configura
 ### Primary CSP Headers
 
 **Content-Security-Policy** (Enforced Mode)
+
 ```javascript
 default-src 'self'
 script-src 'self' 'nonce-{GENERATED_NONCE}' https://va.vercel-scripts.com https://cdn.jsdelivr.net
@@ -35,6 +36,7 @@ upgrade-insecure-requests
 ```
 
 **Content-Security-Policy-Report-Only** (Testing Mode)
+
 ```javascript
 default-src 'self'
 script-src 'self' 'unsafe-inline' 'unsafe-eval' https://va.vercel-scripts.com https://cdn.jsdelivr.net
@@ -59,6 +61,7 @@ report-uri /api/csp-violation
 ## 2. Security Improvements
 
 ### Before (Previous Configuration)
+
 ```javascript
 script-src 'self' 'unsafe-inline' https://va.vercel-scripts.com https://cdn.jsdelivr.net
 ```
@@ -66,6 +69,7 @@ script-src 'self' 'unsafe-inline' https://va.vercel-scripts.com https://cdn.jsde
 **Risk:** `'unsafe-inline'` allows any inline JavaScript to execute, creating XSS vulnerability.
 
 ### After (Current Configuration)
+
 ```javascript
 script-src 'self' 'nonce-{GENERATED_NONCE}' https://va.vercel-scripts.com https://cdn.jsdelivr.net
 ```
@@ -79,21 +83,25 @@ script-src 'self' 'nonce-{GENERATED_NONCE}' https://va.vercel-scripts.com https:
 ### 3.1 Configuration Files Modified
 
 #### `next.config.ts`
+
 - Enhanced CSP headers with nonce-based script policy
 - Added CSP Report-Only mode for testing
 - Integrated security headers (HSTS, X-Frame-Options, etc.)
 - Added cache control headers for static assets
 
 #### `src/proxy.ts`
+
 - Implemented nonce generation in middleware
 - Integrated CSP nonce injection into response headers
 - Maintained next-intl internationalization middleware
 
 #### `src/components/SEO.tsx`
+
 - Updated JSON-LD script components with `strategy="afterInteractive"`
 - Prepared for nonce-based script loading (Next.js 16 handles automatically)
 
 #### `src/app/api/csp-violation/route.ts`
+
 - Created new API endpoint for CSP violation reporting
 - Integrated with Sentry for error tracking
 - Provides GET endpoint for testing
@@ -117,20 +125,26 @@ function generateNonce(): string {
 ## 4. Testing Results
 
 ### Build Status
+
 ✅ **Build Successful** - Production build completed without errors
+
 - Build ID: `fu7pTYhqZNxz7ibLrAvw9`
 - Standalone mode: Enabled
 - Turbopack: Enabled
 - Output: `.next/` directory generated successfully
 
 ### Development Server
+
 ✅ **Server Running** - Development server started successfully
+
 - Port: 3001 (3000 occupied)
 - URL: http://localhost:3001
 - Turbopack: Active
 
 ### CSP Header Verification
+
 ✅ **Headers Applied** - All security headers present and correct
+
 ```bash
 $ curl -I http://localhost:3001/zh | grep -E "(Content-Security-Policy|X-Frame|X-Content|Strict-Transport)"
 
@@ -142,7 +156,9 @@ X-Content-Type-Options: nosniff
 ```
 
 ### Nonce Injection
+
 ✅ **Nonce Generated** - CSP nonce present in response headers
+
 ```bash
 $ curl -I http://localhost:3001/zh | grep "x-csp-nonce"
 x-csp-nonce: daaebbff68d698f956052c30677c66c7
@@ -171,11 +187,13 @@ x-csp-nonce: daaebbff68d698f956052c30677c66c7
 ### Inline Styles
 
 **Style-src Policy:**
+
 ```javascript
 style-src 'self' 'unsafe-inline' https://fonts.googleapis.com
 ```
 
 **Rationale for 'unsafe-inline':**
+
 - CSS-in-JS libraries (Tailwind CSS, styled-components) require inline styles
 - Lower security risk than script injection
 - Styles cannot execute JavaScript code
@@ -184,6 +202,7 @@ style-src 'self' 'unsafe-inline' https://fonts.googleapis.com
 ### External Domains
 
 **Authorized Sources:**
+
 - `https://va.vercel-scripts.com` - Vercel Analytics
 - `https://cdn.jsdelivr.net` - CDN libraries
 - `https://fonts.googleapis.com` - Google Fonts
@@ -198,11 +217,13 @@ style-src 'self' 'unsafe-inline' https://fonts.googleapis.com
 ## 6. Next Steps & Recommendations
 
 ### Phase 1: Monitor (Current Status)
+
 - ✅ CSP headers applied in enforce mode
 - ✅ Report-Only mode active for testing
 - ✅ CSP violation reporting endpoint created
 
 ### Phase 2: Production Deployment
+
 1. **Deploy to staging environment first**
    - Monitor CSP violation reports
    - Identify any blocking issues
@@ -216,6 +237,7 @@ style-src 'self' 'unsafe-inline' https://fonts.googleapis.com
    - Monitor nonce generation overhead
 
 ### Phase 3: Hardening (Future Improvements)
+
 1. **Remove 'unsafe-inline' from style-src** (if feasible)
    - Migrate from CSS-in-JS to external CSS files
    - Use CSP hashes for specific inline styles
@@ -252,14 +274,17 @@ style-src 'self' 'unsafe-inline' https://fonts.googleapis.com
 ### Common Issues
 
 **Issue: Scripts not loading**
+
 - **Solution:** Check browser console for CSP violation reports
 - **Verify:** Script URLs are whitelisted in CSP directives
 
 **Issue: Inline styles not working**
+
 - **Solution:** Keep `'unsafe-inline'` in style-src (CSS-in-JS requirement)
 - **Verify:** Check CSP Report-Only endpoint for violations
 
 **Issue: Fonts not loading**
+
 - **Solution:** Ensure `https://fonts.gstatic.com` is whitelisted in font-src
 - **Verify:** Check Network tab for font loading errors
 
@@ -268,10 +293,12 @@ style-src 'self' 'unsafe-inline' https://fonts.googleapis.com
 ## 9. Documentation
 
 ### New Files Created
+
 - `docs/CSP_CONFIGURATION_GUIDE.md` - CSP configuration guide
 - `docs/CSP_IMPLEMENTATION_REPORT.md` - This report
 
 ### Files Modified
+
 - `next.config.ts` - Enhanced CSP headers
 - `src/proxy.ts` - Nonce generation and injection
 - `src/components/SEO.tsx` - Script component updates

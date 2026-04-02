@@ -3,37 +3,48 @@
  * Simple statistical anomaly detection based on standard deviation (Z-Score)
  */
 
+import {
+  average,
+  percentile,
+  standardDeviation,
+  zScore as calcZScore,
+  isAnomalyZScore as checkAnomalyZScore,
+} from '@/lib/utils/metrics'
+
+// Re-export for backward compatibility
+export { checkAnomalyZScore as detectAnomalyZScore }
+
 // ========================================
 // Types
 // ========================================
 
 export interface Baseline {
-  metric: string;
-  mean: number;
-  stdDev: number;
-  min: number;
-  max: number;
-  p50: number;
-  p95: number;
-  p99: number;
-  sampleSize: number;
-  lastUpdated: number;
+  metric: string
+  mean: number
+  stdDev: number
+  min: number
+  max: number
+  p50: number
+  p95: number
+  p99: number
+  sampleSize: number
+  lastUpdated: number
 }
 
 export interface AnomalyResult {
-  isAnomaly: boolean;
-  value: number;
-  zScore: number;
-  severity: 'normal' | 'warning' | 'critical';
-  algorithm: 'zscore' | 'threshold';
-  timestamp: number;
+  isAnomaly: boolean
+  value: number
+  zScore: number
+  severity: 'normal' | 'warning' | 'critical'
+  algorithm: 'zscore' | 'threshold'
+  timestamp: number
 }
 
 export interface AnomalyDetectorConfig {
-  enabled: boolean;
-  zScoreThreshold: number; // Default: 3
-  minSampleSize: number; // Default: 10
-  windowSize: number; // Max samples to keep
+  enabled: boolean
+  zScoreThreshold: number // Default: 3
+  minSampleSize: number // Default: 10
+  windowSize: number // Max samples to keep
 }
 
 const DEFAULT_CONFIG: AnomalyDetectorConfig = {
@@ -41,61 +52,60 @@ const DEFAULT_CONFIG: AnomalyDetectorConfig = {
   zScoreThreshold: 3,
   minSampleSize: 10,
   windowSize: 100,
-};
+}
 
 // ========================================
 // Anomaly Detector Class
 // ========================================
 
 export class AnomalyDetector {
-  private config: AnomalyDetectorConfig;
-  private dataHistory: Map<string, number[]> = new Map();
-  private baselines: Map<string, Baseline> = new Map();
+  private config: AnomalyDetectorConfig
+  private dataHistory: Map<string, number[]> = new Map()
+  private baselines: Map<string, Baseline> = new Map()
 
   constructor(config: Partial<AnomalyDetectorConfig> = {}) {
-    this.config = { ...DEFAULT_CONFIG, ...config };
+    this.config = { ...DEFAULT_CONFIG, ...config }
   }
 
   /**
    * Add a data point for a metric
    */
   addDataPoint(metric: string, value: number): void {
-    if (!this.config.enabled) return;
+    if (!this.config.enabled) return
 
-    const history = this.dataHistory.get(metric) || [];
-    history.push(value);
+    const history = this.dataHistory.get(metric) || []
+    history.push(value)
 
     // Keep only the last windowSize samples
     if (history.length > this.config.windowSize) {
-      history.shift();
+      history.shift()
     }
 
-    this.dataHistory.set(metric, history);
+    this.dataHistory.set(metric, history)
   }
 
   /**
    * Calculate baseline statistics for a metric
    */
   calculateBaseline(metric: string): Baseline | undefined {
-    const history = this.dataHistory.get(metric);
+    const history = this.dataHistory.get(metric)
     if (!history || history.length < this.config.minSampleSize) {
-      return undefined;
+      return undefined
     }
 
-    const sorted = [...history].sort((a, b) => a - b);
-    const n = sorted.length;
+    const sorted = [...history].sort((a, b) => a - b)
+    const n = sorted.length
 
-    // Calculate mean
-    const mean = sorted.reduce((a, b) => a + b, 0) / n;
+    // Calculate mean using shared utility
+    const mean = average(sorted)
 
-    // Calculate standard deviation
-    const squaredDiffs = sorted.map((v) => Math.pow(v - mean, 2));
-    const stdDev = Math.sqrt(squaredDiffs.reduce((a, b) => a + b, 0) / n);
+    // Calculate standard deviation using shared utility
+    const { population: stdDev } = standardDeviation(sorted, mean)
 
-    // Calculate percentiles
-    const p50 = this.percentile(sorted, 50);
-    const p95 = this.percentile(sorted, 95);
-    const p99 = this.percentile(sorted, 99);
+    // Calculate percentiles using shared utility
+    const p50 = percentile(sorted, 50)
+    const p95 = percentile(sorted, 95)
+    const p99 = percentile(sorted, 99)
 
     const baseline: Baseline = {
       metric,
@@ -108,32 +118,24 @@ export class AnomalyDetector {
       p99,
       sampleSize: n,
       lastUpdated: Date.now(),
-    };
+    }
 
-    this.baselines.set(metric, baseline);
-    return baseline;
-  }
-
-  /**
-   * Get the percentile value from sorted data
-   */
-  private percentile(sorted: number[], p: number): number {
-    const index = Math.ceil((p / 100) * sorted.length) - 1;
-    return sorted[Math.max(0, Math.min(index, sorted.length - 1))];
+    this.baselines.set(metric, baseline)
+    return baseline
   }
 
   /**
    * Get baseline for a metric
    */
   getBaseline(metric: string): Baseline | null {
-    return this.baselines.get(metric) || null;
+    return this.baselines.get(metric) || null
   }
 
   /**
    * Calculate Z-Score for a value
    */
   calculateZScore(value: number, baseline: Baseline): number {
-    return (value - baseline.mean) / baseline.stdDev;
+    return calcZScore(value, baseline.mean, baseline.stdDev)
   }
 
   /**
@@ -141,66 +143,57 @@ export class AnomalyDetector {
    */
   detectAnomaly(metric: string, value: number): AnomalyResult | null {
     if (!this.config.enabled) {
-      return null;
+      return null
     }
 
     // First check if we have enough data
-    const history = this.dataHistory.get(metric);
+    const history = this.dataHistory.get(metric)
     if (!history || history.length < this.config.minSampleSize) {
       // Not enough data, just track it
-      this.addDataPoint(metric, value);
-      return null;
+      this.addDataPoint(metric, value)
+      return null
     }
 
     // Get or calculate baseline
-    let baseline = this.baselines.get(metric);
+    let baseline = this.baselines.get(metric)
     if (!baseline) {
-      baseline = this.calculateBaseline(metric);
-      if (!baseline) return null;
+      baseline = this.calculateBaseline(metric)
+      if (!baseline) return null
     }
 
-    // Calculate Z-Score
-    const zScore = this.calculateZScore(value, baseline);
-    const absZScore = Math.abs(zScore);
-
-    // Determine if anomaly
-    const isAnomaly = absZScore >= this.config.zScoreThreshold;
-
-    // Determine severity
-    let severity: 'normal' | 'warning' | 'critical' = 'normal';
-    if (isAnomaly) {
-      if (absZScore >= this.config.zScoreThreshold * 2) {
-        severity = 'critical';
-      } else {
-        severity = 'warning';
-      }
-    }
+    // Use shared utility for anomaly detection
+    const anomalyResult = checkAnomalyZScore(
+      value,
+      baseline.mean,
+      baseline.stdDev,
+      this.config.zScoreThreshold
+    )
 
     // Add the value to history for future analysis
-    this.addDataPoint(metric, value);
+    this.addDataPoint(metric, value)
 
     return {
-      isAnomaly,
+      isAnomaly: anomalyResult.isAnomaly,
       value,
-      zScore,
-      severity,
+      zScore: anomalyResult.zScore,
+      severity: anomalyResult.severity,
       algorithm: 'zscore',
       timestamp: Date.now(),
-    };
+    }
   }
 
   /**
    * Check if a value exceeds a simple threshold
    */
   detectThresholdAnomaly(metric: string, value: number, threshold: number): AnomalyResult {
-    const isAnomaly = value > threshold;
-    let severity: 'normal' | 'warning' | 'critical' = 'normal';
+    const isAnomaly = value > threshold
+    let severity: 'normal' | 'warning' | 'critical' = 'normal'
 
     if (isAnomaly) {
       if (value >= threshold * 1.5) {
-        severity = 'critical';
+        severity = 'critical'
       } else {
-        severity = 'warning';
+        severity = 'warning'
       }
     }
 
@@ -211,30 +204,30 @@ export class AnomalyDetector {
       severity,
       algorithm: 'threshold',
       timestamp: Date.now(),
-    };
+    }
   }
 
   /**
    * Clear all data for a specific metric
    */
   clearMetric(metric: string): void {
-    this.dataHistory.delete(metric);
-    this.baselines.delete(metric);
+    this.dataHistory.delete(metric)
+    this.baselines.delete(metric)
   }
 
   /**
    * Clear all data
    */
   clear(): void {
-    this.dataHistory.clear();
-    this.baselines.clear();
+    this.dataHistory.clear()
+    this.baselines.clear()
   }
 
   /**
    * Get statistics for all metrics
    */
   getStats(): { metric: string; sampleSize: number; mean: number; stdDev: number }[] {
-    const stats: { metric: string; sampleSize: number; mean: number; stdDev: number }[] = [];
+    const stats: { metric: string; sampleSize: number; mean: number; stdDev: number }[] = []
 
     this.baselines.forEach((baseline, metric) => {
       stats.push({
@@ -242,10 +235,10 @@ export class AnomalyDetector {
         sampleSize: baseline.sampleSize,
         mean: baseline.mean,
         stdDev: baseline.stdDev,
-      });
-    });
+      })
+    })
 
-    return stats;
+    return stats
   }
 }
 
@@ -257,59 +250,33 @@ export class AnomalyDetector {
  * Calculate mean of an array
  */
 export function calculateMean(values: number[]): number {
-  if (values.length === 0) return 0;
-  return values.reduce((a, b) => a + b, 0) / values.length;
+  if (values.length === 0) return 0
+  return values.reduce((a, b) => a + b, 0) / values.length
 }
 
 /**
  * Calculate standard deviation
  */
 export function calculateStdDev(values: number[], mean?: number): number {
-  if (values.length === 0) return 0;
-  
-  const m = mean ?? calculateMean(values);
-  const squaredDiffs = values.map((v) => Math.pow(v - m, 2));
-  return Math.sqrt(squaredDiffs.reduce((a, b) => a + b, 0) / values.length);
+  if (values.length === 0) return 0
+
+  const m = mean ?? calculateMean(values)
+  const squaredDiffs = values.map(v => Math.pow(v - m, 2))
+  return Math.sqrt(squaredDiffs.reduce((a, b) => a + b, 0) / values.length)
 }
 
 /**
  * Calculate Z-Score
  */
 export function calculateZScore(value: number, mean: number, stdDev: number): number {
-  if (stdDev === 0) return 0;
-  return (value - mean) / stdDev;
-}
-
-/**
- * Detect anomaly using Z-Score with pre-calculated values
- */
-export function detectAnomalyZScore(
-  value: number,
-  mean: number,
-  stdDev: number,
-  threshold: number = 3
-): { isAnomaly: boolean; zScore: number; severity: 'normal' | 'warning' | 'critical' } {
-  const zScore = calculateZScore(value, mean, stdDev);
-  const absZScore = Math.abs(zScore);
-
-  let severity: 'normal' | 'warning' | 'critical' = 'normal';
-  if (absZScore >= threshold * 2) {
-    severity = 'critical';
-  } else if (absZScore >= threshold) {
-    severity = 'warning';
-  }
-
-  return {
-    isAnomaly: absZScore >= threshold,
-    zScore,
-    severity,
-  };
+  if (stdDev === 0) return 0
+  return (value - mean) / stdDev
 }
 
 // ========================================
 // Export singleton instance
 // ========================================
 
-export const anomalyDetector = new AnomalyDetector();
+export const anomalyDetector = new AnomalyDetector()
 
-export default AnomalyDetector;
+export default AnomalyDetector

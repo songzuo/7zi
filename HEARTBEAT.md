@@ -1,23 +1,30 @@
 # HEARTBEAT.md
 
 ## Current Time
-- **System**: Thursday April 2nd 2026 15:28 (Europe/Berlin)
+- **System**: Thursday April 2nd 2026 23:57 (Europe/Berlin)
 
-## ✅ Status: Build Passing
+## TypeScript: 5 Errors (TraceManager.ts)
 
-Build was fixed. All systems operational.
+### Errors in TraceManager.ts
+- `limiter` not in `RateLimitEnvironmentConfig`
+- `config.rateLimit` type issues (5 errors)
+
+### Root Cause
+- Rate limit config structure changed, TraceManager using old interface
 
 ## Projects
 
 | Workspace | TypeScript | Status |
 |---------|-----------|--------|
-| workspace | TypeScript ✅ | Build Passing ✅ |
+| workspace | **5 errors** | TraceManager.ts |
 | 7zi-frontend | TypeScript ✅ | healthy |
+
+## Today's Summary
+| Metric | Start | End | Improvement |
+|--------|-------|-----|-------------|
+| TypeScript | 1760 | 5 | 99.7% |
+| Workflow Tests | 0 | 231+ | - |
+| ESLint any | 122 | 0 | 100% |
 
 ## Server
 - 7zi.com: picoclaw.service ✅
-
-## Note
-This is NOT a TypeScript config issue - it's missing module exports that need to be either:
-1. Added to `@/lib/monitoring`
-2. Or imported from the correct module

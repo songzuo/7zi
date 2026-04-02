@@ -14,7 +14,7 @@
  * - Cross-Origin-Embedder-Policy
  */
 
-import { NextRequest, NextResponse } from 'next/server';
+import { NextRequest, NextResponse } from 'next/server'
 
 /**
  * Security headers configuration
@@ -22,38 +22,38 @@ import { NextRequest, NextResponse } from 'next/server';
 export interface SecurityHeadersConfig {
   // Content Security Policy
   contentSecurityPolicy?: {
-    defaultSrc?: string[];
-    scriptSrc?: string[];
-    styleSrc?: string[];
-    imgSrc?: string[];
-    fontSrc?: string[];
-    connectSrc?: string[];
-    mediaSrc?: string[];
-    objectSrc?: string[];
-    frameSrc?: string[];
-    baseUri?: string[];
-    formAction?: string[];
-    frameAncestors?: string[];
-    reportUri?: string;
-    reportOnly?: boolean;
-    upgradeInsecureRequests?: boolean;
-  };
+    defaultSrc?: string[]
+    scriptSrc?: string[]
+    styleSrc?: string[]
+    imgSrc?: string[]
+    fontSrc?: string[]
+    connectSrc?: string[]
+    mediaSrc?: string[]
+    objectSrc?: string[]
+    frameSrc?: string[]
+    baseUri?: string[]
+    formAction?: string[]
+    frameAncestors?: string[]
+    reportUri?: string
+    reportOnly?: boolean
+    upgradeInsecureRequests?: boolean
+  }
 
   // HTTP Strict Transport Security
   hsts?: {
-    maxAge?: number;
-    includeSubDomains?: boolean;
-    preload?: boolean;
-  };
+    maxAge?: number
+    includeSubDomains?: boolean
+    preload?: boolean
+  }
 
   // X-Frame-Options
-  frameOptions?: 'DENY' | 'SAMEORIGIN' | 'ALLOW-FROM';
+  frameOptions?: 'DENY' | 'SAMEORIGIN' | 'ALLOW-FROM'
 
   // X-Content-Type-Options
-  contentTypeOptions?: 'nosniff';
+  contentTypeOptions?: 'nosniff'
 
   // X-XSS-Protection
-  xssProtection?: boolean | '1; mode=block';
+  xssProtection?: boolean | '1; mode=block'
 
   // Referrer-Policy
   referrerPolicy?:
@@ -64,31 +64,31 @@ export interface SecurityHeadersConfig {
     | 'same-origin'
     | 'strict-origin'
     | 'strict-origin-when-cross-origin'
-    | 'unsafe-url';
+    | 'unsafe-url'
 
   // Permissions-Policy
   permissionsPolicy?: {
-    camera?: string[];
-    microphone?: string[];
-    geolocation?: string[];
-    interestCohort?: string[];
-    payment?: string[];
-    usb?: string[];
-    magnetometer?: string[];
-    accelerometer?: string[];
-    gyroscope?: string[];
-    fullscreen?: string[];
-    screenWakeLock?: string[];
-  };
+    camera?: string[]
+    microphone?: string[]
+    geolocation?: string[]
+    interestCohort?: string[]
+    payment?: string[]
+    usb?: string[]
+    magnetometer?: string[]
+    accelerometer?: string[]
+    gyroscope?: string[]
+    fullscreen?: string[]
+    screenWakeLock?: string[]
+  }
 
   // Cross-Origin headers
-  crossOriginOpenerPolicy?: 'unsafe-none' | 'same-origin' | 'same-origin-allow-popups';
-  crossOriginResourcePolicy?: 'same-site' | 'same-origin' | 'cross-origin';
-  crossOriginEmbedderPolicy?: 'unsafe-none' | 'require-corp';
+  crossOriginOpenerPolicy?: 'unsafe-none' | 'same-origin' | 'same-origin-allow-popups'
+  crossOriginResourcePolicy?: 'same-site' | 'same-origin' | 'cross-origin'
+  crossOriginEmbedderPolicy?: 'unsafe-none' | 'require-corp'
 
   // Additional headers
-  xPermittedCrossDomainPolicies?: 'none' | 'master-only' | 'by-content-type' | 'all';
-  xDownloadOptions?: 'noopen';
+  xPermittedCrossDomainPolicies?: 'none' | 'master-only' | 'by-content-type' | 'all'
+  xDownloadOptions?: 'noopen'
 }
 
 /**
@@ -136,137 +136,133 @@ const DEFAULT_CONFIG: SecurityHeadersConfig = {
   crossOriginResourcePolicy: 'same-site',
   xPermittedCrossDomainPolicies: 'none',
   xDownloadOptions: 'noopen',
-};
+}
 
 /**
  * Build Content-Security-Policy header value
  */
 function buildCSP(config: SecurityHeadersConfig['contentSecurityPolicy']): string {
   if (!config) {
-    return '';
+    return ''
   }
 
-  const directives: string[] = [];
+  const directives: string[] = []
 
   // Standard directives
   if (config.defaultSrc) {
-    directives.push(`default-src ${config.defaultSrc.join(' ')}`);
+    directives.push(`default-src ${config.defaultSrc.join(' ')}`)
   }
   if (config.scriptSrc) {
-    directives.push(`script-src ${config.scriptSrc.join(' ')}`);
+    directives.push(`script-src ${config.scriptSrc.join(' ')}`)
   }
   if (config.styleSrc) {
-    directives.push(`style-src ${config.styleSrc.join(' ')}`);
+    directives.push(`style-src ${config.styleSrc.join(' ')}`)
   }
   if (config.imgSrc) {
-    directives.push(`img-src ${config.imgSrc.join(' ')}`);
+    directives.push(`img-src ${config.imgSrc.join(' ')}`)
   }
   if (config.fontSrc) {
-    directives.push(`font-src ${config.fontSrc.join(' ')}`);
+    directives.push(`font-src ${config.fontSrc.join(' ')}`)
   }
   if (config.connectSrc) {
-    directives.push(`connect-src ${config.connectSrc.join(' ')}`);
+    directives.push(`connect-src ${config.connectSrc.join(' ')}`)
   }
   if (config.mediaSrc) {
-    directives.push(`media-src ${config.mediaSrc.join(' ')}`);
+    directives.push(`media-src ${config.mediaSrc.join(' ')}`)
   }
   if (config.objectSrc) {
-    directives.push(`object-src ${config.objectSrc.join(' ')}`);
+    directives.push(`object-src ${config.objectSrc.join(' ')}`)
   }
   if (config.frameSrc) {
-    directives.push(`frame-src ${config.frameSrc.join(' ')}`);
+    directives.push(`frame-src ${config.frameSrc.join(' ')}`)
   }
   if (config.baseUri) {
-    directives.push(`base-uri ${config.baseUri.join(' ')}`);
+    directives.push(`base-uri ${config.baseUri.join(' ')}`)
   }
   if (config.formAction) {
-    directives.push(`form-action ${config.formAction.join(' ')}`);
+    directives.push(`form-action ${config.formAction.join(' ')}`)
   }
   if (config.frameAncestors) {
-    directives.push(`frame-ancestors ${config.frameAncestors.join(' ')}`);
+    directives.push(`frame-ancestors ${config.frameAncestors.join(' ')}`)
   }
 
   // Special directives
   if (config.upgradeInsecureRequests) {
-    directives.push('upgrade-insecure-requests');
+    directives.push('upgrade-insecure-requests')
   }
   if (config.reportUri) {
-    directives.push(`report-uri ${config.reportUri}`);
+    directives.push(`report-uri ${config.reportUri}`)
   }
 
-  return directives.join('; ');
+  return directives.join('; ')
 }
 
 /**
  * Build Strict-Transport-Security header value
  */
-function buildHSTS(
-  config: SecurityHeadersConfig['hsts']
-): string | null {
+function buildHSTS(config: SecurityHeadersConfig['hsts']): string | null {
   if (!config) {
-    return null;
+    return null
   }
 
-  const parts: string[] = [`max-age=${config.maxAge || 63072000}`];
+  const parts: string[] = [`max-age=${config.maxAge || 63072000}`]
 
   if (config.includeSubDomains) {
-    parts.push('includeSubDomains');
+    parts.push('includeSubDomains')
   }
 
   if (config.preload) {
-    parts.push('preload');
+    parts.push('preload')
   }
 
-  return parts.join('; ');
+  return parts.join('; ')
 }
 
 /**
  * Build Permissions-Policy header value
  */
-function buildPermissionsPolicy(
-  config: SecurityHeadersConfig['permissionsPolicy']
-): string | null {
+function buildPermissionsPolicy(config: SecurityHeadersConfig['permissionsPolicy']): string | null {
   if (!config) {
-    return null;
+    return null
   }
 
-  const directives: string[] = [];
+  const directives: string[] = []
 
   if (config.camera) {
-    directives.push(`camera=${config.camera.join(' ')}`);
+    directives.push(`camera=${config.camera.join(' ')}`)
   }
   if (config.microphone) {
-    directives.push(`microphone=${config.microphone.join(' ')}`);
+    directives.push(`microphone=${config.microphone.join(' ')}`)
   }
   if (config.geolocation) {
-    directives.push(`geolocation=${config.geolocation.join(' ')}`);
+    directives.push(`geolocation=${config.geolocation.join(' ')}`)
   }
   if (config.interestCohort) {
-    directives.push(`interest-cohort=${config.interestCohort.join(' ')}`);
+    directives.push(`interest-cohort=${config.interestCohort.join(' ')}`)
   }
   if (config.payment) {
-    directives.push(`payment=${config.payment.join(' ')}`);
+    directives.push(`payment=${config.payment.join(' ')}`)
   }
   if (config.usb) {
-    directives.push(`usb=${config.usb.join(' ')}`);
+    directives.push(`usb=${config.usb.join(' ')}`)
   }
   if (config.magnetometer) {
-    directives.push(`magnetometer=${config.magnetometer.join(' ')}`);
+    directives.push(`magnetometer=${config.magnetometer.join(' ')}`)
   }
   if (config.accelerometer) {
-    directives.push(`accelerometer=${config.accelerometer.join(' ')}`);
+    directives.push(`accelerometer=${config.accelerometer.join(' ')}`)
   }
   if (config.gyroscope) {
-    directives.push(`gyroscope=${config.gyroscope.join(' ')}`);
+    directives.push(`gyroscope=${config.gyroscope.join(' ')}`)
   }
   if (config.fullscreen) {
-    directives.push(`fullscreen=${config.fullscreen.join(' ')}`);
+    directives.push(`fullscreen=${config.fullscreen.join(' ')}`)
   }
   if (config.screenWakeLock) {
-    directives.push(`screen-wake-lock=${config.screenWakeLock.join(' ')}`);
+    directives.push(`screen-wake-lock=${config.screenWakeLock.join(' ')}`)
   }
 
-  return directives.length > 0 ? directives.join(', ') : null;
+  return directives.length > 0 ? directives.join(', ') : null
 }
 
 /**
@@ -279,36 +275,36 @@ export function setSecurityHeaders(
   const finalConfig: SecurityHeadersConfig = {
     ...DEFAULT_CONFIG,
     ...config,
-  };
+  }
 
   // Content Security Policy
   if (finalConfig.contentSecurityPolicy) {
-    const cspValue = buildCSP(finalConfig.contentSecurityPolicy);
+    const cspValue = buildCSP(finalConfig.contentSecurityPolicy)
     if (cspValue) {
       if (finalConfig.contentSecurityPolicy.reportOnly) {
-        response.headers.set('Content-Security-Policy-Report-Only', cspValue);
+        response.headers.set('Content-Security-Policy-Report-Only', cspValue)
       } else {
-        response.headers.set('Content-Security-Policy', cspValue);
+        response.headers.set('Content-Security-Policy', cspValue)
       }
     }
   }
 
   // HTTP Strict Transport Security (only in HTTPS)
   if (process.env.NODE_ENV === 'production' || process.env.ENABLE_HSTS === 'true') {
-    const hstsValue = buildHSTS(finalConfig.hsts);
+    const hstsValue = buildHSTS(finalConfig.hsts)
     if (hstsValue) {
-      response.headers.set('Strict-Transport-Security', hstsValue);
+      response.headers.set('Strict-Transport-Security', hstsValue)
     }
   }
 
   // X-Frame-Options
   if (finalConfig.frameOptions) {
-    response.headers.set('X-Frame-Options', finalConfig.frameOptions);
+    response.headers.set('X-Frame-Options', finalConfig.frameOptions)
   }
 
   // X-Content-Type-Options
   if (finalConfig.contentTypeOptions) {
-    response.headers.set('X-Content-Type-Options', finalConfig.contentTypeOptions);
+    response.headers.set('X-Content-Type-Options', finalConfig.contentTypeOptions)
   }
 
   // X-XSS-Protection
@@ -318,30 +314,30 @@ export function setSecurityHeaders(
         ? finalConfig.xssProtection
           ? '1; mode=block'
           : '0'
-        : finalConfig.xssProtection;
-    response.headers.set('X-XSS-Protection', value);
+        : finalConfig.xssProtection
+    response.headers.set('X-XSS-Protection', value)
   }
 
   // Referrer-Policy
   if (finalConfig.referrerPolicy) {
-    response.headers.set('Referrer-Policy', finalConfig.referrerPolicy);
+    response.headers.set('Referrer-Policy', finalConfig.referrerPolicy)
   }
 
   // Permissions-Policy
-  const permissionsValue = buildPermissionsPolicy(finalConfig.permissionsPolicy);
+  const permissionsValue = buildPermissionsPolicy(finalConfig.permissionsPolicy)
   if (permissionsValue) {
-    response.headers.set('Permissions-Policy', permissionsValue);
+    response.headers.set('Permissions-Policy', permissionsValue)
   }
 
   // Cross-Origin headers
   if (finalConfig.crossOriginOpenerPolicy) {
-    response.headers.set('Cross-Origin-Opener-Policy', finalConfig.crossOriginOpenerPolicy);
+    response.headers.set('Cross-Origin-Opener-Policy', finalConfig.crossOriginOpenerPolicy)
   }
   if (finalConfig.crossOriginResourcePolicy) {
-    response.headers.set('Cross-Origin-Resource-Policy', finalConfig.crossOriginResourcePolicy);
+    response.headers.set('Cross-Origin-Resource-Policy', finalConfig.crossOriginResourcePolicy)
   }
   if (finalConfig.crossOriginEmbedderPolicy) {
-    response.headers.set('Cross-Origin-Embedder-Policy', finalConfig.crossOriginEmbedderPolicy);
+    response.headers.set('Cross-Origin-Embedder-Policy', finalConfig.crossOriginEmbedderPolicy)
   }
 
   // Additional headers
@@ -349,13 +345,13 @@ export function setSecurityHeaders(
     response.headers.set(
       'X-Permitted-Cross-Domain-Policies',
       finalConfig.xPermittedCrossDomainPolicies
-    );
+    )
   }
   if (finalConfig.xDownloadOptions) {
-    response.headers.set('X-Download-Options', finalConfig.xDownloadOptions);
+    response.headers.set('X-Download-Options', finalConfig.xDownloadOptions)
   }
 
-  return response;
+  return response
 }
 
 /**
@@ -366,11 +362,11 @@ export function withSecurityHeaders(
   config?: Partial<SecurityHeadersConfig>
 ) {
   return async (request: NextRequest): Promise<NextResponse> => {
-    let response: NextResponse;
+    let response: NextResponse
 
     try {
-      response = await handler(request);
-    } catch (_error) {
+      response = await handler(request)
+    } catch (error) {
       response = NextResponse.json(
         {
           success: false,
@@ -380,12 +376,12 @@ export function withSecurityHeaders(
           },
         },
         { status: 500 }
-      );
+      )
     }
 
     // Apply security headers
-    return setSecurityHeaders(response, config);
-  };
+    return setSecurityHeaders(response, config)
+  }
 }
 
 /**
@@ -409,7 +405,7 @@ export function createSecurityConfig(
       ...DEFAULT_CONFIG.permissionsPolicy,
       ...overrides.permissionsPolicy,
     },
-  };
+  }
 }
 
 /**
@@ -419,46 +415,47 @@ export function createSecurityConfig(
 export function getCSPNonce(): string {
   // In Next.js, this should be generated by the framework
   // This is a placeholder for custom implementations
-  const existingNonce = process.env.CSP_NONCE;
+  const existingNonce = process.env.CSP_NONCE
   if (existingNonce && existingNonce !== '{GENERATED_NONCE}') {
-    return existingNonce;
+    return existingNonce
   }
 
   // Generate a random nonce (for non-Next.js environments)
-  return Buffer.from(crypto.randomUUID()).toString('base64').slice(0, 16);
+  return Buffer.from(crypto.randomUUID()).toString('base64').slice(0, 16)
 }
 
 /**
  * Validate CSP configuration
  */
-export function validateCSPConfig(
-  config: SecurityHeadersConfig['contentSecurityPolicy']
-): { valid: boolean; errors: string[] } {
-  const errors: string[] = [];
+export function validateCSPConfig(config: SecurityHeadersConfig['contentSecurityPolicy']): {
+  valid: boolean
+  errors: string[]
+} {
+  const errors: string[] = []
 
   if (!config) {
-    return { valid: true, errors: [] };
+    return { valid: true, errors: [] }
   }
 
   // Check if at least defaultSrc is defined
   if (!config.defaultSrc || config.defaultSrc.length === 0) {
-    errors.push('defaultSrc must be defined');
+    errors.push('defaultSrc must be defined')
   }
 
   // Check for unsafe-inline in scriptSrc (should use nonce)
   if (config.scriptSrc && config.scriptSrc.includes("'unsafe-inline'")) {
-    errors.push('scriptSrc should not include unsafe-inline, use nonce instead');
+    errors.push('scriptSrc should not include unsafe-inline, use nonce instead')
   }
 
   // Check for unsafe-eval
   if (config.scriptSrc && config.scriptSrc.includes("'unsafe-eval'")) {
-    errors.push('scriptSrc should not include unsafe-eval for security');
+    errors.push('scriptSrc should not include unsafe-eval for security')
   }
 
   return {
     valid: errors.length === 0,
     errors,
-  };
+  }
 }
 
 /**
@@ -477,5 +474,5 @@ export function getAPIRouteCSP(): string {
     "frame-src 'none'",
     "base-uri 'self'",
     "form-action 'self'",
-  ].join('; ');
+  ].join('; ')
 }

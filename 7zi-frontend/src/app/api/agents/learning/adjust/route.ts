@@ -1,38 +1,61 @@
-import { NextRequest, NextResponse } from 'next/server';
-import { adaptiveLearner } from '@/lib/agents/learning/adaptive-learner';
-import { createSuccessResponse, createErrorResponse, ErrorType } from '@/lib/api/error-handler';
-import { authenticateJWT } from '@/lib/auth/api-auth';
+import { NextRequest, NextResponse } from 'next/server'
+import { adaptiveLearner } from '@/lib/agents/learning/adaptive-learner'
+import { createSuccessResponse, createErrorResponse, ErrorType } from '@/lib/api/error-handler'
+import { authenticateJWT } from '@/lib/auth/api-auth'
 
 interface WeightAdjustmentRequest {
-  agentId: string;
-  taskType: string;
-  adjustment: number;
-  reason?: string;
+  agentId: string
+  taskType: string
+  adjustment: number
+  reason?: string
 }
 
 export async function POST(request: NextRequest) {
-  const auth = await authenticateJWT(request);
-  if (!auth.authenticated) return NextResponse.json({ success: false, error: 'Unauthorized' }, { status: 401 });
+  const auth = await authenticateJWT(request)
+  if (!auth.authenticated)
+    return NextResponse.json({ success: false, error: 'Unauthorized' }, { status: 401 })
 
   try {
-    const body: WeightAdjustmentRequest = await request.json();
-    if (!body.agentId) return NextResponse.json({ success: false, error: { type: ErrorType.VALIDATION, message: 'Agent ID is required' } }, { status: 400 });
-    if (!body.taskType) return NextResponse.json({ success: false, error: { type: ErrorType.VALIDATION, message: 'Task type is required' } }, { status: 400 });
-    if (typeof body.adjustment !== 'number') return NextResponse.json({ success: false, error: { type: ErrorType.VALIDATION, message: 'Adjustment must be a number' } }, { status: 400 });
-    if (body.adjustment < -1 || body.adjustment > 1) return NextResponse.json({ success: false, error: { type: ErrorType.VALIDATION, message: 'Adjustment must be between -1.0 and 1.0' } }, { status: 400 });
+    const body: WeightAdjustmentRequest = await request.json()
+    if (!body.agentId)
+      return NextResponse.json(
+        { success: false, error: { type: ErrorType.VALIDATION, message: 'Agent ID is required' } },
+        { status: 400 }
+      )
+    if (!body.taskType)
+      return NextResponse.json(
+        { success: false, error: { type: ErrorType.VALIDATION, message: 'Task type is required' } },
+        { status: 400 }
+      )
+    if (typeof body.adjustment !== 'number')
+      return NextResponse.json(
+        {
+          success: false,
+          error: { type: ErrorType.VALIDATION, message: 'Adjustment must be a number' },
+        },
+        { status: 400 }
+      )
+    if (body.adjustment < -1 || body.adjustment > 1)
+      return NextResponse.json(
+        {
+          success: false,
+          error: { type: ErrorType.VALIDATION, message: 'Adjustment must be between -1.0 and 1.0' },
+        },
+        { status: 400 }
+      )
 
-    const prevStats = adaptiveLearner.getAgentLearningStats(body.agentId) as any;
-    const prevScore = prevStats.capabilityScores.get(body.taskType)?.successRate || 0.5;
+    const prevStats = adaptiveLearner.getAgentLearningStats(body.agentId) as any
+    const prevScore = prevStats.capabilityScores.get(body.taskType)?.successRate || 0.5
 
     adaptiveLearner.adjustWeight({
       agentId: body.agentId,
       taskType: body.taskType,
       adjustment: body.adjustment,
       reason: body.reason || 'Manual adjustment',
-    });
+    })
 
-    const newStats = adaptiveLearner.getAgentLearningStats(body.agentId) as any;
-    const newScore = newStats.capabilityScores.get(body.taskType)?.successRate || 0.5;
+    const newStats = adaptiveLearner.getAgentLearningStats(body.agentId) as any
+    const newScore = newStats.capabilityScores.get(body.taskType)?.successRate || 0.5
 
     return createSuccessResponse({
       agentId: body.agentId,
@@ -42,40 +65,50 @@ export async function POST(request: NextRequest) {
       adjustment: body.adjustment,
       reason: body.reason || 'Manual adjustment',
       timestamp: Date.now(),
-    });
+    })
   } catch (error) {
-    if (error instanceof Error && error.message.includes('not found')) return NextResponse.json({ success: false, error: 'Agent not found' }, { status: 404 });
-    console.error('Agent Weight Adjustment error:', error);
-    return createErrorResponse(error instanceof Error ? error : new Error('Failed to adjust agent weight'));
+    if (error instanceof Error && error.message.includes('not found'))
+      return NextResponse.json({ success: false, error: 'Agent not found' }, { status: 404 })
+    console.error('Agent Weight Adjustment error:', error)
+    return createErrorResponse(
+      error instanceof Error ? error : new Error('Failed to adjust agent weight')
+    )
   }
 }
 
 export async function GET(request: NextRequest) {
-  const auth = await authenticateJWT(request);
-  if (!auth.authenticated) return NextResponse.json({ success: false, error: 'Unauthorized' }, { status: 401 });
+  const auth = await authenticateJWT(request)
+  if (!auth.authenticated)
+    return NextResponse.json({ success: false, error: 'Unauthorized' }, { status: 401 })
 
   try {
-    const { searchParams } = new URL(request.url);
-    const agentId = searchParams.get('agentId');
-    const allStats: any[] = agentId ? [adaptiveLearner.getAgentLearningStats(agentId)] as any[] : adaptiveLearner.getAgentLearningStats() as any[];
+    const { searchParams } = new URL(request.url)
+    const agentId = searchParams.get('agentId')
+    const allStats: any[] = agentId
+      ? ([adaptiveLearner.getAgentLearningStats(agentId)] as any[])
+      : (adaptiveLearner.getAgentLearningStats() as any[])
 
     const adjustmentInfo = allStats.map(s => ({
       agentId: s.agentId,
       agentName: s.agentName,
-      taskTypes: Array.from(s.capabilityScores.entries() as Iterable<[string, any]>).map(([type, cap]) => ({
-        taskType: type,
-        currentScore: Math.round(cap.successRate * 100) / 100,
-        sampleCount: cap.sampleCount,
-        trend: cap.trend,
-        canAdjust: true,
-      })),
+      taskTypes: Array.from(s.capabilityScores.entries() as Iterable<[string, any]>).map(
+        ([type, cap]) => ({
+          taskType: type,
+          currentScore: Math.round(cap.successRate * 100) / 100,
+          sampleCount: cap.sampleCount,
+          trend: cap.trend,
+          canAdjust: true,
+        })
+      ),
       overallScore: Math.round(s.overallScore * 100) / 100,
       totalTasks: s.totalTasksCompleted,
-    }));
+    }))
 
-    return createSuccessResponse({ agents: adjustmentInfo, count: adjustmentInfo.length });
+    return createSuccessResponse({ agents: adjustmentInfo, count: adjustmentInfo.length })
   } catch (error) {
-    console.error('Agent Adjustment GET error:', error);
-    return createErrorResponse(error instanceof Error ? error : new Error('Failed to get adjustment info'));
+    console.error('Agent Adjustment GET error:', error)
+    return createErrorResponse(
+      error instanceof Error ? error : new Error('Failed to get adjustment info')
+    )
   }
 }

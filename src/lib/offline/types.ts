@@ -7,35 +7,35 @@
 /**
  * 同步操作类型
  */
-export type SyncOperationType = 'create' | 'update' | 'delete';
+export type SyncOperationType = 'create' | 'update' | 'delete'
 
 /**
  * 同步状态
  */
-export type SyncStatus = 'pending' | 'syncing' | 'synced' | 'failed';
+export type SyncStatus = 'pending' | 'syncing' | 'synced' | 'failed'
 
 /**
  * 待同步操作
  */
 export interface PendingOperation {
   /** 操作 ID */
-  id: string;
+  id: string
   /** 操作类型 */
-  type: SyncOperationType;
+  type: SyncOperationType
   /** 实体类型（tasks, tags, preferences 等） */
-  entityType: string;
+  entityType: string
   /** 实体 ID */
-  entityId: string;
+  entityId: string
   /** 操作数据 */
-  data: Record<string, unknown>;
+  data: Record<string, unknown>
   /** 创建时间 */
-  createdAt: Date;
+  createdAt: Date
   /** 重试次数 */
-  retryCount: number;
+  retryCount: number
   /** 最后错误信息 */
-  lastError?: string;
+  lastError?: string
   /** 同步状态 */
-  status: SyncStatus;
+  status: SyncStatus
 }
 
 /**
@@ -43,15 +43,15 @@ export interface PendingOperation {
  */
 export interface SyncQueue {
   /** 队列 ID */
-  id: string;
+  id: string
   /** 队列名称 */
-  name: string;
+  name: string
   /** 待处理操作 */
-  operations: PendingOperation[];
+  operations: PendingOperation[]
   /** 最后同步时间 */
-  lastSyncAt?: Date;
+  lastSyncAt?: Date
   /** 是否正在同步 */
-  isSyncing: boolean;
+  isSyncing: boolean
 }
 
 /**
@@ -59,21 +59,21 @@ export interface SyncQueue {
  */
 export interface OfflineData<T = unknown> {
   /** 数据 ID */
-  id: string;
+  id: string
   /** 实体类型 */
-  entityType: string;
+  entityType: string
   /** 数据内容 */
-  data: T;
+  data: T
   /** 本地版本号 */
-  localVersion: number;
+  localVersion: number
   /** 服务器版本号（用于冲突检测） */
-  serverVersion?: number;
+  serverVersion?: number
   /** 最后更新时间 */
-  updatedAt: Date;
+  updatedAt: Date
   /** 是否已同步 */
-  synced: boolean;
+  synced: boolean
   /** 是否已删除（软删除） */
-  deleted?: boolean;
+  deleted?: boolean
 }
 
 /**
@@ -81,15 +81,15 @@ export interface OfflineData<T = unknown> {
  */
 export interface SyncResult {
   /** 成功数量 */
-  successCount: number;
+  successCount: number
   /** 失败数量 */
-  failedCount: number;
+  failedCount: number
   /** 冲突数量 */
-  conflictCount: number;
+  conflictCount: number
   /** 错误列表 */
-  errors: SyncError[];
+  errors: SyncError[]
   /** 同步耗时（毫秒） */
-  duration: number;
+  duration: number
 }
 
 /**
@@ -97,13 +97,13 @@ export interface SyncResult {
  */
 export interface SyncError {
   /** 操作 ID */
-  operationId: string;
+  operationId: string
   /** 错误类型 */
-  type: 'network' | 'conflict' | 'validation' | 'unknown';
+  type: 'network' | 'conflict' | 'validation' | 'unknown'
   /** 错误信息 */
-  message: string;
+  message: string
   /** 时间戳 */
-  timestamp: Date;
+  timestamp: Date
 }
 
 /**
@@ -111,17 +111,17 @@ export interface SyncError {
  */
 export interface NetworkStatus {
   /** 是否在线 */
-  isOnline: boolean;
+  isOnline: boolean
   /** 最后在线时间 */
-  lastOnlineAt?: Date;
+  lastOnlineAt?: Date
   /** 最后离线时间 */
-  lastOfflineAt?: Date;
+  lastOfflineAt?: Date
   /** 连接类型 */
-  connectionType?: 'wifi' | 'cellular' | 'ethernet' | 'unknown';
+  connectionType?: 'wifi' | 'cellular' | 'ethernet' | 'unknown'
   /** 下行速度（Mbps） */
-  downlink?: number;
+  downlink?: number
   /** RTT（毫秒） */
-  rtt?: number;
+  rtt?: number
 }
 
 /**
@@ -129,17 +129,17 @@ export interface NetworkStatus {
  */
 export interface SyncConfig {
   /** 自动同步间隔（毫秒） */
-  autoSyncInterval: number;
+  autoSyncInterval: number
   /** 最大重试次数 */
-  maxRetryCount: number;
+  maxRetryCount: number
   /** 重试延迟（毫秒） */
-  retryDelay: number;
+  retryDelay: number
   /** 批量同步大小 */
-  batchSize: number;
+  batchSize: number
   /** 是否启用离线模式 */
-  offlineEnabled: boolean;
+  offlineEnabled: boolean
   /** 冲突解决策略 */
-  conflictResolution: 'server-wins' | 'client-wins' | 'manual';
+  conflictResolution: 'server-wins' | 'client-wins' | 'manual'
 }
 
 /**
@@ -152,7 +152,7 @@ export const DEFAULT_SYNC_CONFIG: SyncConfig = {
   batchSize: 50,
   offlineEnabled: true,
   conflictResolution: 'server-wins',
-};
+}
 
 /**
  * 存储键名
@@ -163,7 +163,7 @@ export const STORAGE_KEYS = {
   NETWORK_STATUS: 'network-status',
   SYNC_CONFIG: 'sync-config',
   LAST_SYNC: 'last-sync-timestamp',
-} as const;
+} as const
 
 /**
  * 支持离线的实体类型
@@ -174,6 +174,6 @@ export const OFFLINE_ENTITIES = {
   PREFERENCES: 'preferences',
   READ_RECEIPTS: 'read-receipts',
   USER_ACTIVITY: 'user-activity',
-} as const;
+} as const
 
-export type OfflineEntityType = typeof OFFLINE_ENTITIES[keyof typeof OFFLINE_ENTITIES];
+export type OfflineEntityType = (typeof OFFLINE_ENTITIES)[keyof typeof OFFLINE_ENTITIES]

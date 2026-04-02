@@ -1,19 +1,13 @@
-'use client';
+'use client'
 
-import React, { useState, useCallback, useMemo } from 'react';
+import React, { useState, useCallback, useMemo } from 'react'
 
 /**
  * @fileoverview 数据导出面板组件
  * @description 提供可视化的数据导出界面，支持字段选择和多种格式
  */
 
-import {
-  DataExporter,
-  ExportFormat,
-  ExportField,
-  ExportResult,
-  downloadExport,
-} from '@/lib/export';
+import { DataExporter, ExportFormat, ExportField, ExportResult, downloadExport } from '@/lib/export'
 
 // ============================================================================
 // 类型定义
@@ -21,27 +15,27 @@ import {
 
 export interface ExportPanelProps<T extends Record<string, unknown>> {
   /** 要导出的数据 */
-  data: T[];
+  data: T[]
   /** 导出字段配置 */
-  fields: ExportField<T>[];
+  fields: ExportField<T>[]
   /** 默认文件名 */
-  defaultFilename?: string;
+  defaultFilename?: string
   /** 支持的导出格式 */
-  formats?: ExportFormat[];
+  formats?: ExportFormat[]
   /** 导出完成回调 */
-  onExport?: (result: ExportResult) => void;
+  onExport?: (result: ExportResult) => void
   /** 面板标题 */
-  title?: string;
+  title?: string
   /** 描述文字 */
-  description?: string;
+  description?: string
   /** 是否显示字段选择 */
-  showFieldSelector?: boolean;
+  showFieldSelector?: boolean
   /** 是否显示预览 */
-  showPreview?: boolean;
+  showPreview?: boolean
   /** 预览行数 */
-  previewRows?: number;
+  previewRows?: number
   /** 自定义类名 */
-  className?: string;
+  className?: string
 }
 
 // ============================================================================
@@ -63,50 +57,50 @@ export function ExportPanel<T extends Record<string, unknown>>({
 }: ExportPanelProps<T>): React.ReactElement {
   // 状态
   const [selectedFields, setSelectedFields] = useState<Set<string>>(
-    new Set(fields.filter((f) => f.defaultSelected !== false).map((f) => f.key as string))
-  );
-  const [format, setFormat] = useState<ExportFormat>(formats[0]);
-  const [filename, setFilename] = useState(defaultFilename);
-  const [isExporting, setIsExporting] = useState(false);
-  const [error, setError] = useState<string | null>(null);
+    new Set(fields.filter(f => f.defaultSelected !== false).map(f => f.key as string))
+  )
+  const [format, setFormat] = useState<ExportFormat>(formats[0])
+  const [filename, setFilename] = useState(defaultFilename)
+  const [isExporting, setIsExporting] = useState(false)
+  const [error, setError] = useState<string | null>(null)
 
   // 计算选中的字段列表
   const selectedFieldKeys = useMemo(
     () => Array.from(selectedFields) as (keyof T)[],
     [selectedFields]
-  );
+  )
 
   // 切换字段选择
   const toggleField = useCallback((key: string) => {
-    setSelectedFields((prev) => {
-      const next = new Set(prev);
+    setSelectedFields(prev => {
+      const next = new Set(prev)
       if (next.has(key)) {
-        next.delete(key);
+        next.delete(key)
       } else {
-        next.add(key);
+        next.add(key)
       }
-      return next;
-    });
-  }, []);
+      return next
+    })
+  }, [])
 
   // 全选/取消全选
   const toggleAll = useCallback(() => {
     if (selectedFields.size === fields.length) {
-      setSelectedFields(new Set());
+      setSelectedFields(new Set())
     } else {
-      setSelectedFields(new Set(fields.map((f) => f.key as string)));
+      setSelectedFields(new Set(fields.map(f => f.key as string)))
     }
-  }, [selectedFields.size, fields]);
+  }, [selectedFields.size, fields])
 
   // 执行导出
   const handleExport = useCallback(async () => {
     if (selectedFields.size === 0) {
-      setError('请至少选择一个字段');
-      return;
+      setError('请至少选择一个字段')
+      return
     }
 
-    setIsExporting(true);
-    setError(null);
+    setIsExporting(true)
+    setError(null)
 
     try {
       const exporter = new DataExporter<T>({
@@ -114,32 +108,32 @@ export function ExportPanel<T extends Record<string, unknown>>({
         format,
         fields,
         selectedFields: selectedFieldKeys,
-      });
+      })
 
-      const result = await exporter.export(data);
+      const result = await exporter.export(data)
 
       if (result.success) {
-        downloadExport(result);
-        onExport?.(result);
+        downloadExport(result)
+        onExport?.(result)
       } else {
-        setError(result.error || '导出失败');
+        setError(result.error || '导出失败')
       }
-    } catch (_err) {
-      setError(err instanceof Error ? err.message : '导出失败');
+    } catch (err) {
+      setError(err instanceof Error ? err.message : '导出失败')
     } finally {
-      setIsExporting(false);
+      setIsExporting(false)
     }
-  }, [data, fields, filename, format, selectedFieldKeys, selectedFields.size, onExport]);
+  }, [data, fields, filename, format, selectedFieldKeys, selectedFields.size, onExport])
 
   // 预览数据
-  const previewData = useMemo(() => data.slice(0, previewRows), [data, previewRows]);
-  const selectedFieldsList = fields.filter((f) => selectedFields.has(f.key as string));
+  const previewData = useMemo(() => data.slice(0, previewRows), [data, previewRows])
+  const selectedFieldsList = fields.filter(f => selectedFields.has(f.key as string))
 
   return (
-    <div className={`bg-white dark:bg-zinc-800 rounded-lg shadow-lg ${className}`}>
+    <div className={`rounded-lg bg-white shadow-lg dark:bg-zinc-800 ${className}`}>
       {/* 头部 */}
-      <div className="px-6 py-4 border-b border-zinc-200 dark:border-zinc-700">
-        <h3 className="text-lg font-semibold text-zinc-900 dark:text-white flex items-center gap-2">
+      <div className="border-b border-zinc-200 px-6 py-4 dark:border-zinc-700">
+        <h3 className="flex items-center gap-2 text-lg font-semibold text-zinc-900 dark:text-white">
           <span>📥</span> {title}
         </h3>
         {description && (
@@ -147,20 +141,18 @@ export function ExportPanel<T extends Record<string, unknown>>({
         )}
       </div>
 
-      <div className="p-6 space-y-6">
+      <div className="space-y-6 p-6">
         {/* 文件名输入 */}
         <div>
-          <label className="block text-sm font-medium text-zinc-700 dark:text-zinc-300 mb-2">
+          <label className="mb-2 block text-sm font-medium text-zinc-700 dark:text-zinc-300">
             文件名
           </label>
           <div className="flex items-center gap-2">
             <input
               type="text"
               value={filename}
-              onChange={(e) => setFilename(e.target.value)}
-              className="flex-1 px-3 py-2 border border-zinc-300 dark:border-zinc-600 rounded-lg 
-                         focus:ring-2 focus:ring-cyan-500 focus:border-cyan-500
-                         bg-white dark:bg-zinc-700 text-zinc-900 dark:text-white"
+              onChange={e => setFilename(e.target.value)}
+              className="flex-1 rounded-lg border border-zinc-300 bg-white px-3 py-2 text-zinc-900 focus:border-cyan-500 focus:ring-2 focus:ring-cyan-500 dark:border-zinc-600 dark:bg-zinc-700 dark:text-white"
               placeholder="输入文件名"
             />
             <span className="text-sm text-zinc-500 dark:text-zinc-400">
@@ -171,20 +163,19 @@ export function ExportPanel<T extends Record<string, unknown>>({
 
         {/* 格式选择 */}
         <div>
-          <label className="block text-sm font-medium text-zinc-700 dark:text-zinc-300 mb-2">
+          <label className="mb-2 block text-sm font-medium text-zinc-700 dark:text-zinc-300">
             导出格式
           </label>
-          <div className="flex gap-2 flex-wrap">
-            {formats.map((f) => (
+          <div className="flex flex-wrap gap-2">
+            {formats.map(f => (
               <button
                 key={f}
                 onClick={() => setFormat(f)}
-                className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors
-                  ${
-                    format === f
-                      ? 'bg-cyan-600 text-white'
-                      : 'bg-zinc-100 dark:bg-zinc-700 text-zinc-700 dark:text-zinc-300 hover:bg-zinc-200 dark:hover:bg-zinc-600'
-                  }`}
+                className={`rounded-lg px-4 py-2 text-sm font-medium transition-colors ${
+                  format === f
+                    ? 'bg-cyan-600 text-white'
+                    : 'bg-zinc-100 text-zinc-700 hover:bg-zinc-200 dark:bg-zinc-700 dark:text-zinc-300 dark:hover:bg-zinc-600'
+                }`}
               >
                 {f === 'xlsx' || f === 'excel' ? '📊 Excel' : f === 'csv' ? '📄 CSV' : '📋 JSON'}
               </button>
@@ -195,27 +186,26 @@ export function ExportPanel<T extends Record<string, unknown>>({
         {/* 字段选择 */}
         {showFieldSelector && (
           <div>
-            <div className="flex items-center justify-between mb-2">
+            <div className="mb-2 flex items-center justify-between">
               <label className="block text-sm font-medium text-zinc-700 dark:text-zinc-300">
                 选择字段 ({selectedFields.size}/{fields.length})
               </label>
               <button
                 onClick={toggleAll}
-                className="text-sm text-cyan-600 dark:text-cyan-400 hover:underline"
+                className="text-sm text-cyan-600 hover:underline dark:text-cyan-400"
               >
                 {selectedFields.size === fields.length ? '取消全选' : '全选'}
               </button>
             </div>
-            <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-2">
-              {fields.map((field) => (
+            <div className="grid grid-cols-2 gap-2 md:grid-cols-3 lg:grid-cols-4">
+              {fields.map(field => (
                 <label
                   key={String(field.key)}
-                  className={`flex items-center gap-2 px-3 py-2 rounded-lg cursor-pointer transition-colors
-                    ${
-                      selectedFields.has(field.key as string)
-                        ? 'bg-cyan-100 dark:bg-cyan-900/30 border border-cyan-300 dark:border-cyan-700'
-                        : 'bg-zinc-50 dark:bg-zinc-700/50 border border-transparent hover:bg-zinc-100 dark:hover:bg-zinc-700'
-                    }`}
+                  className={`flex cursor-pointer items-center gap-2 rounded-lg px-3 py-2 transition-colors ${
+                    selectedFields.has(field.key as string)
+                      ? 'border border-cyan-300 bg-cyan-100 dark:border-cyan-700 dark:bg-cyan-900/30'
+                      : 'border border-transparent bg-zinc-50 hover:bg-zinc-100 dark:bg-zinc-700/50 dark:hover:bg-zinc-700'
+                  }`}
                 >
                   <input
                     type="checkbox"
@@ -233,30 +223,30 @@ export function ExportPanel<T extends Record<string, unknown>>({
         {/* 数据预览 */}
         {showPreview && previewData.length > 0 && (
           <div>
-            <label className="block text-sm font-medium text-zinc-700 dark:text-zinc-300 mb-2">
+            <label className="mb-2 block text-sm font-medium text-zinc-700 dark:text-zinc-300">
               数据预览 (前 {previewRows} 条)
             </label>
-            <div className="overflow-x-auto hide-scrollbar border border-zinc-200 dark:border-zinc-700 rounded-lg">
+            <div className="hide-scrollbar overflow-x-auto rounded-lg border border-zinc-200 dark:border-zinc-700">
               <table className="min-w-full divide-y divide-zinc-200 dark:divide-zinc-700">
                 <thead className="bg-zinc-50 dark:bg-zinc-700/50">
                   <tr>
-                    {selectedFieldsList.map((field) => (
+                    {selectedFieldsList.map(field => (
                       <th
                         key={String(field.key)}
-                        className="px-3 py-2 text-left text-xs font-medium text-zinc-500 dark:text-zinc-400 uppercase tracking-wider"
+                        className="px-3 py-2 text-left text-xs font-medium tracking-wider text-zinc-500 uppercase dark:text-zinc-400"
                       >
                         {field.label}
                       </th>
                     ))}
                   </tr>
                 </thead>
-                <tbody className="bg-white dark:bg-zinc-800 divide-y divide-zinc-200 dark:divide-zinc-700">
+                <tbody className="divide-y divide-zinc-200 bg-white dark:divide-zinc-700 dark:bg-zinc-800">
                   {previewData.map((row, idx) => (
                     <tr key={idx}>
-                      {selectedFieldsList.map((field) => (
+                      {selectedFieldsList.map(field => (
                         <td
                           key={String(field.key)}
-                          className="px-3 py-2 text-sm text-zinc-900 dark:text-white whitespace-nowrap"
+                          className="px-3 py-2 text-sm whitespace-nowrap text-zinc-900 dark:text-white"
                         >
                           {formatCellValue(row[field.key])}
                         </td>
@@ -282,7 +272,7 @@ export function ExportPanel<T extends Record<string, unknown>>({
 
         {/* 错误提示 */}
         {error && (
-          <div className="p-3 bg-red-50 dark:bg-red-900/30 border border-red-200 dark:border-red-800 rounded-lg">
+          <div className="rounded-lg border border-red-200 bg-red-50 p-3 dark:border-red-800 dark:bg-red-900/30">
             <p className="text-sm text-red-600 dark:text-red-400">❌ {error}</p>
           </div>
         )}
@@ -292,16 +282,15 @@ export function ExportPanel<T extends Record<string, unknown>>({
           <button
             onClick={handleExport}
             disabled={isExporting || selectedFields.size === 0}
-            className={`px-6 py-2.5 rounded-lg text-sm font-medium transition-colors
-              ${
-                isExporting || selectedFields.size === 0
-                  ? 'bg-zinc-300 dark:bg-zinc-600 text-zinc-500 dark:text-zinc-400 cursor-not-allowed'
-                  : 'bg-cyan-600 hover:bg-cyan-700 text-white'
-              }`}
+            className={`rounded-lg px-6 py-2.5 text-sm font-medium transition-colors ${
+              isExporting || selectedFields.size === 0
+                ? 'cursor-not-allowed bg-zinc-300 text-zinc-500 dark:bg-zinc-600 dark:text-zinc-400'
+                : 'bg-cyan-600 text-white hover:bg-cyan-700'
+            }`}
           >
             {isExporting ? (
               <span className="flex items-center gap-2">
-                <svg className="animate-spin h-4 w-4" viewBox="0 0 24 24">
+                <svg className="h-4 w-4 animate-spin" viewBox="0 0 24 24">
                   <circle
                     className="opacity-25"
                     cx="12"
@@ -326,7 +315,7 @@ export function ExportPanel<T extends Record<string, unknown>>({
         </div>
       </div>
     </div>
-  );
+  )
 }
 
 // ============================================================================
@@ -337,10 +326,10 @@ export function ExportPanel<T extends Record<string, unknown>>({
  * 格式化单元格值
  */
 function formatCellValue(value: unknown): string {
-  if (value === null || value === undefined) return '-';
-  if (typeof value === 'boolean') return value ? '是' : '否';
-  if (typeof value === 'object') return JSON.stringify(value);
-  return String(value);
+  if (value === null || value === undefined) return '-'
+  if (typeof value === 'boolean') return value ? '是' : '否'
+  if (typeof value === 'object') return JSON.stringify(value)
+  return String(value)
 }
 
 // ============================================================================
@@ -348,12 +337,12 @@ function formatCellValue(value: unknown): string {
 // ============================================================================
 
 export interface QuickExportButtonProps<T extends Record<string, unknown>> {
-  data: T[];
-  fields: ExportField<T>[];
-  filename?: string;
-  format?: ExportFormat;
-  onExport?: (result: ExportResult) => void;
-  className?: string;
+  data: T[]
+  fields: ExportField<T>[]
+  filename?: string
+  format?: ExportFormat
+  onExport?: (result: ExportResult) => void
+  className?: string
 }
 
 /**
@@ -367,37 +356,35 @@ export function QuickExportButton<T extends Record<string, unknown>>({
   onExport,
   className = '',
 }: QuickExportButtonProps<T>): React.ReactElement {
-  const [isExporting, setIsExporting] = useState(false);
+  const [isExporting, setIsExporting] = useState(false)
 
   const handleExport = useCallback(async () => {
-    setIsExporting(true);
+    setIsExporting(true)
     try {
       const exporter = new DataExporter<T>({
         filename,
         format,
         fields,
-      });
-      const result = await exporter.export(data);
+      })
+      const result = await exporter.export(data)
       if (result.success) {
-        downloadExport(result);
-        onExport?.(result);
+        downloadExport(result)
+        onExport?.(result)
       }
     } finally {
-      setIsExporting(false);
+      setIsExporting(false)
     }
-  }, [data, fields, filename, format, onExport]);
+  }, [data, fields, filename, format, onExport])
 
   return (
     <button
       onClick={handleExport}
       disabled={isExporting}
-      className={`inline-flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium
-        bg-cyan-600 hover:bg-cyan-700 disabled:bg-cyan-400 text-white transition-colors
-        ${className}`}
+      className={`inline-flex items-center gap-2 rounded-lg bg-cyan-600 px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-cyan-700 disabled:bg-cyan-400 ${className}`}
     >
       {isExporting ? (
         <>
-          <svg className="animate-spin h-4 w-4" viewBox="0 0 24 24">
+          <svg className="h-4 w-4 animate-spin" viewBox="0 0 24 24">
             <circle
               className="opacity-25"
               cx="12"
@@ -422,7 +409,7 @@ export function QuickExportButton<T extends Record<string, unknown>>({
         </>
       )}
     </button>
-  );
+  )
 }
 
-export default ExportPanel;
+export default ExportPanel

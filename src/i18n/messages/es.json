@@ -54,29 +54,17 @@
       "web": {
         "title": "Desarrollo web",
         "description": "Desde el diseño hasta la implementación, creando sitios web y aplicaciones web modernos de alto rendimiento",
-        "features": [
-          "Diseño responsivo",
-          "Optimización de rendimiento",
-          "SEO amigable"
-        ]
+        "features": ["Diseño responsivo", "Optimización de rendimiento", "SEO amigable"]
       },
       "design": {
         "title": "Diseño de marca",
         "description": "Diseño profesional de UI/UX para crear una identidad visual de marca única",
-        "features": [
-          "Diseño de logo",
-          "Identidad visual",
-          "Experiencia de usuario"
-        ]
+        "features": ["Diseño de logo", "Identidad visual", "Experiencia de usuario"]
       },
       "marketing": {
         "title": "Marketing y promoción",
         "description": "Optimización SEO, marketing de contenidos y gestión de redes sociales para mejorar el alcance de marca",
-        "features": [
-          "Optimización SEO",
-          "Estrategia de contenidos",
-          "Redes sociales"
-        ]
+        "features": ["Optimización SEO", "Estrategia de contenidos", "Redes sociales"]
       }
     },
     "whyUs": {
@@ -138,41 +126,25 @@
         "name": "Experto en Mundo IA",
         "role": "Estrategia y Planificación Futura",
         "description": "Se enfoca en tendencias de desarrollo de agentes IA y diseño futuro, proporcionando perspectivas estratégicas y pensamiento visionario al equipo.",
-        "skills": [
-          "Análisis estratégico",
-          "Predicción de tendencias",
-          "Pensamiento innovador"
-        ]
+        "skills": ["Análisis estratégico", "Predicción de tendencias", "Pensamiento innovador"]
       },
       "consultant": {
         "name": "Consultor",
         "role": "Investigación y Análisis",
         "description": "Investiga a fondo la dinámica del mercado y tendencias tecnológicas, proporcionando soporte de decisiones basado en datos para proyectos.",
-        "skills": [
-          "Investigación de mercado",
-          "Análisis de datos",
-          "Soporte de decisiones"
-        ]
+        "skills": ["Investigación de mercado", "Análisis de datos", "Soporte de decisiones"]
       },
       "architect": {
         "name": "Arquitecto",
         "role": "Diseño y Planificación",
         "description": "Diseña arquitectura de sistemas y soluciones técnicas, asegurando la viabilidad y escalabilidad del proyecto.",
-        "skills": [
-          "Arquitectura de sistemas",
-          "Selección de tecnología",
-          "Diseño de soluciones"
-        ]
+        "skills": ["Arquitectura de sistemas", "Selección de tecnología", "Diseño de soluciones"]
       },
       "executor": {
         "name": "Ejecutor",
         "role": "Ejecución e Implementación",
         "description": "Ejecuta tareas eficientemente, transformando soluciones de diseño en implementaciones de código de alta calidad.",
-        "skills": [
-          "Implementación de código",
-          "Ejecución de tareas",
-          "Optimización de eficiencia"
-        ]
+        "skills": ["Implementación de código", "Ejecución de tareas", "Optimización de eficiencia"]
       },
       "admin": {
         "name": "Administrador de Sistemas",
@@ -188,61 +160,37 @@
         "name": "Probador",
         "role": "Pruebas y Depuración",
         "description": "Escribe casos de prueba, realiza pruebas funcionales y optimización de rendimiento para asegurar la calidad del producto.",
-        "skills": [
-          "Pruebas funcionales",
-          "Optimización de rendimiento",
-          "Garantía de calidad"
-        ]
+        "skills": ["Pruebas funcionales", "Optimización de rendimiento", "Garantía de calidad"]
       },
       "designer": {
         "name": "Diseñador",
         "role": "Diseño UI y Frontend",
         "description": "Crea interfaces hermosas y fáciles de usar, proporcionando excelente diseño de experiencia de usuario.",
-        "skills": [
-          "Diseño UI",
-          "Experiencia de usuario",
-          "Creatividad visual"
-        ]
+        "skills": ["Diseño UI", "Experiencia de usuario", "Creatividad visual"]
       },
       "promoter": {
         "name": "Especialista en Marketing",
         "role": "Promoción y SEO",
         "description": "Desarrolla estrategias de promoción, optimiza rankings en motores de búsqueda y mejora el conocimiento de marca.",
-        "skills": [
-          "Optimización SEO",
-          "Marketing de contenidos",
-          "Promoción de marca"
-        ]
+        "skills": ["Optimización SEO", "Marketing de contenidos", "Promoción de marca"]
       },
       "sales": {
         "name": "Ventas y Soporte",
         "role": "Ventas y Servicio al Cliente",
         "description": "Se comunica con clientes, entiende necesidades, proporciona soluciones y soporte de servicio de alta calidad.",
-        "skills": [
-          "Comunicación con clientes",
-          "Análisis de necesidades",
-          "Soluciones"
-        ]
+        "skills": ["Comunicación con clientes", "Análisis de necesidades", "Soluciones"]
       },
       "finance": {
         "name": "Finanzas",
         "role": "Contabilidad y Auditoría",
         "description": "Gestiona ingresos y gastos financieros, realiza contabilidad de costos y análisis financiero para asegurar salud financiera.",
-        "skills": [
-          "Gestión financiera",
-          "Control de costos",
-          "Análisis financiero"
-        ]
+        "skills": ["Gestión financiera", "Control de costos", "Análisis financiero"]
       },
       "media": {
         "name": "Medios",
         "role": "Medios y Publicidad",
         "description": "Planifica y produce contenido, difunde a través de múltiples canales para mejorar la influencia de marca.",
-        "skills": [
-          "Planificación de contenidos",
-          "Operaciones de medios",
-          "Comunicación de marca"
-        ]
+        "skills": ["Planificación de contenidos", "Operaciones de medios", "Comunicación de marca"]
       }
     },
     "availability": "Atención 24/7",

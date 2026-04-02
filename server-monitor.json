@@ -2,7 +2,7 @@
   "server_name": "bot6",
   "monitoring_interval": 30,
   "version": "2.0-optimized",
-  
+
   "metrics": {
     "cpu": {
       "command": "cat /proc/loadavg | awk '{print $1}'",
@@ -319,7 +319,7 @@
       "description": "系统温度"
     }
   },
-  
+
   "alerts": {
     "cpu_high": {
       "condition": "cpu > warning_threshold",
@@ -459,7 +459,7 @@
       "cooldown_minutes": 15
     }
   },
-  
+
   "performance": {
     "auto_cleanup": {
       "enabled": true,
@@ -531,7 +531,7 @@
       "metrics_summary_interval": 300
     }
   },
-  
+
   "notification": {
     "channels": ["telegram", "log"],
     "telegram": {
@@ -547,7 +547,7 @@
       "rotate_count": 5
     }
   },
-  
+
   "summary": {
     "enabled": true,
     "schedule": "0 9 * * *",

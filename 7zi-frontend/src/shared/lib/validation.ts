@@ -8,8 +8,8 @@
  * 验证电子邮件地址
  */
 export function isValidEmail(email: string): boolean {
-  const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-  return emailRegex.test(email);
+  const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
+  return emailRegex.test(email)
 }
 
 /**
@@ -17,10 +17,10 @@ export function isValidEmail(email: string): boolean {
  */
 export function isValidUrl(url: string): boolean {
   try {
-    new URL(url);
-    return true;
+    new URL(url)
+    return true
   } catch {
-    return false;
+    return false
   }
 }
 
@@ -28,8 +28,8 @@ export function isValidUrl(url: string): boolean {
  * 验证手机号码（中国大陆）
  */
 export function isValidPhoneNumber(phone: string): boolean {
-  const phoneRegex = /^1[3-9]\d{9}$/;
-  return phoneRegex.test(phone);
+  const phoneRegex = /^1[3-9]\d{9}$/
+  return phoneRegex.test(phone)
 }
 
 /**
@@ -38,11 +38,11 @@ export function isValidPhoneNumber(phone: string): boolean {
  */
 export function isStrongPassword(password: string): boolean {
   if (password.length < 8) {
-    return false;
+    return false
   }
-  const hasLetter = /[a-zA-Z]/.test(password);
-  const hasNumber = /[0-9]/.test(password);
-  return hasLetter && hasNumber;
+  const hasLetter = /[a-zA-Z]/.test(password)
+  const hasNumber = /[0-9]/.test(password)
+  return hasLetter && hasNumber
 }
 
 /**
@@ -50,30 +50,30 @@ export function isStrongPassword(password: string): boolean {
  * 3-20个字符，只允许字母、数字、下划线
  */
 export function isValidUsername(username: string): boolean {
-  const usernameRegex = /^[a-zA-Z0-9_]{3,20}$/;
-  return usernameRegex.test(username);
+  const usernameRegex = /^[a-zA-Z0-9_]{3,20}$/
+  return usernameRegex.test(username)
 }
 
 /**
  * 验证文件扩展名
  */
 export function isValidFileExtension(filename: string, allowedExtensions: string[]): boolean {
-  const ext = filename.split('.').pop()?.toLowerCase() || '';
-  return allowedExtensions.map(e => e.toLowerCase()).includes(ext);
+  const ext = filename.split('.').pop()?.toLowerCase() || ''
+  return allowedExtensions.map(e => e.toLowerCase()).includes(ext)
 }
 
 /**
  * 验证数字范围
  */
 export function isInRange(value: number, min: number, max: number): boolean {
-  return value >= min && value <= max;
+  return value >= min && value <= max
 }
 
 /**
  * 验证字符串长度
  */
 export function isValidLength(value: string, min: number, max: number): boolean {
-  return value.length >= min && value.length <= max;
+  return value.length >= min && value.length <= max
 }
 
 /**
@@ -81,18 +81,18 @@ export function isValidLength(value: string, min: number, max: number): boolean 
  */
 export function isEmpty(value: unknown): boolean {
   if (value === null || value === undefined) {
-    return true;
+    return true
   }
   if (typeof value === 'string' && value.trim() === '') {
-    return true;
+    return true
   }
   if (Array.isArray(value) && value.length === 0) {
-    return true;
+    return true
   }
   if (typeof value === 'object' && Object.keys(value).length === 0) {
-    return true;
+    return true
   }
-  return false;
+  return false
 }
 
 /**
@@ -100,10 +100,10 @@ export function isEmpty(value: unknown): boolean {
  */
 export function isValidDate(date: unknown): boolean {
   if (typeof date !== 'string' && !(date instanceof Date)) {
-    return false;
+    return false
   }
-  const d = typeof date === 'string' ? new Date(date) : date;
-  return !isNaN(d.getTime());
+  const d = typeof date === 'string' ? new Date(date) : date
+  return !isNaN(d.getTime())
 }
 
 /**
@@ -111,10 +111,10 @@ export function isValidDate(date: unknown): boolean {
  */
 export function isValidJson(json: string): boolean {
   try {
-    JSON.parse(json);
-    return true;
+    JSON.parse(json)
+    return true
   } catch {
-    return false;
+    return false
   }
 }
 
@@ -122,24 +122,25 @@ export function isValidJson(json: string): boolean {
  * 验证 UUID 格式
  */
 export function isValidUuid(uuid: string): boolean {
-  const uuidRegex = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
-  return uuidRegex.test(uuid);
+  const uuidRegex = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i
+  return uuidRegex.test(uuid)
 }
 
 /**
  * 验证 IP 地址（IPv4）
  */
 export function isValidIPv4(ip: string): boolean {
-  const ipv4Regex = /^(?:(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.){3}(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)$/;
-  return ipv4Regex.test(ip);
+  const ipv4Regex =
+    /^(?:(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.){3}(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)$/
+  return ipv4Regex.test(ip)
 }
 
 /**
  * 验证十六进制颜色代码
  */
 export function isValidHexColor(color: string): boolean {
-  const hexColorRegex = /^#([A-Fa-f0-9]{6}|[A-Fa-f0-9]{3})$/;
-  return hexColorRegex.test(color);
+  const hexColorRegex = /^#([A-Fa-f0-9]{6}|[A-Fa-f0-9]{3})$/
+  return hexColorRegex.test(color)
 }
 
 /**
@@ -147,10 +148,10 @@ export function isValidHexColor(color: string): boolean {
  */
 export function isValidRegex(pattern: string): boolean {
   try {
-    new RegExp(pattern);
-    return true;
+    new RegExp(pattern)
+    return true
   } catch {
-    return false;
+    return false
   }
 }
 
@@ -160,32 +161,33 @@ export function isValidRegex(pattern: string): boolean {
 export function validateObject<T extends Record<string, unknown>>(
   obj: T,
   rules: {
-    [K in keyof T]?: (value: T[K]) => boolean | string;
+    [K in keyof T]?: (value: T[K]) => boolean | string
   }
 ): { valid: boolean; errors: Partial<Record<keyof T, string>> } {
-  const errors: Partial<Record<keyof T, string>> = {};
-  let valid = true;
+  const errors: Partial<Record<keyof T, string>> = {}
+  let valid = true
 
   for (const [key, rule] of Object.entries(rules)) {
     if (rule) {
-      const result = rule(obj[key as keyof T]);
+      const result = rule(obj[key as keyof T])
       if (result !== true) {
-        valid = false;
-        errors[key as keyof T] = typeof result === 'string' ? result : `${String(key)} validation failed`;
+        valid = false
+        errors[key as keyof T] =
+          typeof result === 'string' ? result : `${String(key)} validation failed`
       }
     }
   }
 
-  return { valid, errors };
+  return { valid, errors }
 }
 
 /**
  * 清理和验证 HTML 内容
  */
 export function sanitizeHtml(html: string): string {
-  const temp = document.createElement('div');
-  temp.textContent = html;
-  return temp.innerHTML;
+  const temp = document.createElement('div')
+  temp.textContent = html
+  return temp.innerHTML
 }
 
 /**
@@ -193,18 +195,18 @@ export function sanitizeHtml(html: string): string {
  */
 export function truncateString(value: string, maxLength: number, suffix = '...'): string {
   if (value.length <= maxLength) {
-    return value;
+    return value
   }
-  return value.substring(0, maxLength - suffix.length) + suffix;
+  return value.substring(0, maxLength - suffix.length) + suffix
 }
 
 /**
  * 验证并格式化电话号码
  */
 export function formatPhoneNumber(phone: string): string | null {
-  const cleaned = phone.replace(/\D/g, '');
+  const cleaned = phone.replace(/\D/g, '')
   if (cleaned.length !== 11) {
-    return null;
+    return null
   }
-  return `${cleaned.slice(0, 3)}-${cleaned.slice(3, 7)}-${cleaned.slice(7)}`;
+  return `${cleaned.slice(0, 3)}-${cleaned.slice(3, 7)}-${cleaned.slice(7)}`
 }

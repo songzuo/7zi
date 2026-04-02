@@ -8,6 +8,7 @@
 ## 📊 执行摘要
 
 ### Lint 检查结果
+
 - **总警告数:** 23 个
 - **严重错误:** 0 个
 - **主要问题类别:**
@@ -16,6 +17,7 @@
   - `@next/next/no-img-element`: 7 处 (建议使用 Next.js Image 组件)
 
 ### TypeScript 类型检查
+
 - **主要错误:** 15 个 (集中在测试文件)
 - **生产代码:** 类型安全良好
 - **测试文件:** 需要修复导入和类型定义
@@ -27,6 +29,7 @@
 ### 1. TypeScript 类型安全性
 
 #### ✅ 优点
+
 - 主要组件和库文件都有完整的类型定义
 - 接口定义清晰 (如 `Notification`, `Message`, `MemberPresence`)
 - 泛型使用恰当 (`safeJsonParse<T>`, `debounce<T>`)
@@ -34,25 +37,31 @@
 #### ⚠️ 需要改进
 
 **问题 1.1:** `lib/users.ts` - `excludePassword` 函数未使用变量
+
 ```typescript
 // 第 88 行
-const { password, ...userWithoutPassword } = user;
-return userWithoutPassword;
+const { password, ...userWithoutPassword } = user
+return userWithoutPassword
 ```
+
 **建议:** 直接返回解构结果，或删除未使用的 `password` 变量声明。
 
 **问题 1.2:** `lib/presence.ts` - `checkExpiredPresence` 未使用参数
+
 ```typescript
 // 第 174 行
 mockMemberPresence.forEach((presence, memberId) => {
 ```
+
 **建议:** 将 `memberId` 改为 `_memberId` 或删除。
 
 **问题 1.3:** `components/MemberCard.tsx` - 未使用的 `statusBgColors`
+
 ```typescript
 // 第 27 行
 const statusBgColors = { ... }; // 从未使用
 ```
+
 **建议:** 删除此未使用的对象。
 
 ---
@@ -62,6 +71,7 @@ const statusBgColors = { ... }; // 从未使用
 #### ⚠️ 重复代码模式
 
 **问题 2.1:** `formatTimeAgo` 函数重复定义
+
 - `lib/utils.ts` 已定义
 - `ActivityLog.tsx` 又定义了一遍
 - `MemberPresenceBoard.tsx` 使用 `useEffect` 内联实现
@@ -70,6 +80,7 @@ const statusBgColors = { ... }; // 从未使用
 
 **问题 2.2:** 状态颜色映射重复
 多个组件定义了相似的状态颜色映射:
+
 - `MemberCard.tsx`: `statusColors`, `statusBgColors`
 - `MemberPresenceBoard.tsx`: `statusColors`, `statusLabels`
 - `TaskBoard.tsx`: `stateColors`, `stateLabels`
@@ -77,12 +88,14 @@ const statusBgColors = { ... }; // 从未使用
 **建议:** 在 `lib/utils.ts` 或新建 `lib/constants.ts` 中统一定义。
 
 **问题 2.3:** 图片错误处理重复
+
 ```typescript
 // 在多个组件中重复
 onError={(e) => {
   (e.target as HTMLImageElement).src = 'https://api.dicebear.com/7.x/bottts/svg?seed=' + seed;
 }}
 ```
+
 **建议:** 创建统一的 `ImageWithFallback` 组件。
 
 ---
@@ -94,22 +107,27 @@ onError={(e) => {
 **问题 3.1:** 未使用 Next.js Image 组件
 Lint 警告 7 处使用 `<img>` 标签，建议使用 `<Image>` 进行自动优化。
 
-**影响:** 
+**影响:**
+
 - 更大的带宽消耗
 - 缺少自动图片优化
 - 可能影响 LCP (Largest Contentful Paint)
 
 **建议:** 替换为 `<Image>` 组件，特别是:
+
 - `MemberCard.tsx` (头像)
 - `TaskBoard.tsx` (Issue 分配者头像)
 - `TaskComments.tsx` (评论者头像)
 
 **问题 3.2:** `MemberPresenceBoard` 中不必要的轮询
+
 ```typescript
 // 每 10 秒刷新一次，即使没有新数据
-const interval = setInterval(loadPresence, 10000);
+const interval = setInterval(loadPresence, 10000)
 ```
-**建议:** 
+
+**建议:**
+
 - 使用 WebSocket 实时推送代替轮询
 - 或实现智能轮询 (仅在可见时刷新)
 
@@ -117,8 +135,9 @@ const interval = setInterval(loadPresence, 10000);
 当前使用固定间隔重连，可能导致服务器压力。
 
 **建议:** 实现指数退避:
+
 ```typescript
-const delay = Math.min(1000 * Math.pow(2, attempts), 30000);
+const delay = Math.min(1000 * Math.pow(2, attempts), 30000)
 ```
 
 ---
@@ -126,6 +145,7 @@ const delay = Math.min(1000 * Math.pow(2, attempts), 30000);
 ### 4. 错误处理完善性
 
 #### ✅ 优点
+
 - API 调用都有 try-catch
 - 错误状态有 UI 展示
 - 提供了错误恢复机制 (如 ErrorBoundary)
@@ -133,13 +153,16 @@ const delay = Math.min(1000 * Math.pow(2, attempts), 30000);
 #### ⚠️ 需要改进
 
 **问题 4.1:** 静默失败
+
 ```typescript
 // lib/auth.ts
 } catch {
   return null; // 没有日志记录
 }
 ```
+
 **建议:** 至少记录错误用于调试:
+
 ```typescript
 } catch (error) {
   console.error('Token verification failed:', error);
@@ -148,18 +171,21 @@ const delay = Math.min(1000 * Math.pow(2, attempts), 30000);
 ```
 
 **问题 4.2:** 网络错误未区分类型
+
 ```typescript
 // TaskComments.tsx
 catch (err) {
   setError(err instanceof Error ? err.message : 'Failed to load comments');
 }
 ```
+
 **建议:** 区分网络错误、认证错误、服务器错误:
+
 ```typescript
 if (err instanceof TypeError && err.message.includes('fetch')) {
-  setError('网络连接失败，请检查网络');
+  setError('网络连接失败，请检查网络')
 } else if (response?.status === 401) {
-  setError('认证失败，请重新登录');
+  setError('认证失败，请重新登录')
 }
 ```
 
@@ -167,6 +193,7 @@ if (err instanceof TypeError && err.message.includes('fetch')) {
 `ErrorBoundary.test.tsx` 存在但可能不完整。
 
 **建议:** 添加测试用例:
+
 - 渲染错误捕获
 - 重试功能
 - 错误报告回调
@@ -193,6 +220,7 @@ if (err instanceof TypeError && err.message.includes('fetch')) {
 ### 中优先级 (本周内完成)
 
 4. **创建 `ImageWithFallback` 组件** (2 小时)
+
    ```typescript
    // components/ui/ImageWithFallback.tsx
    export const ImageWithFallback: React.FC<{
@@ -214,6 +242,7 @@ if (err instanceof TypeError && err.message.includes('fetch')) {
    ```
 
 5. **统一状态常量** (1 小时)
+
    ```typescript
    // lib/constants.ts
    export const STATUS_COLORS = {
@@ -221,7 +250,7 @@ if (err instanceof TypeError && err.message.includes('fetch')) {
      busy: 'bg-yellow-500',
      away: 'bg-gray-400',
      offline: 'bg-gray-500',
-   };
+   }
    ```
 
 6. **改进 WebSocket 重连策略** (2 小时)
@@ -269,13 +298,13 @@ if (err instanceof TypeError && err.message.includes('fetch')) {
 
 ## 📈 代码质量评分
 
-| 维度 | 评分 | 说明 |
-|------|------|------|
+| 维度     | 评分      | 说明                               |
+| -------- | --------- | ---------------------------------- |
 | 类型安全 | ⭐⭐⭐⭐☆ | 4/5 - 主要代码良好，测试文件需改进 |
-| 代码重复 | ⭐⭐⭐☆☆ | 3/5 - 存在重复工具函数和常量 |
-| 错误处理 | ⭐⭐⭐⭐☆ | 4/5 - 覆盖全面，细节可改进 |
-| 性能优化 | ⭐⭐⭐☆☆ | 3/5 - 有优化空间 (图片、轮询) |
-| 可维护性 | ⭐⭐⭐⭐☆ | 4/5 - 结构清晰，注释充分 |
+| 代码重复 | ⭐⭐⭐☆☆  | 3/5 - 存在重复工具函数和常量       |
+| 错误处理 | ⭐⭐⭐⭐☆ | 4/5 - 覆盖全面，细节可改进         |
+| 性能优化 | ⭐⭐⭐☆☆  | 3/5 - 有优化空间 (图片、轮询)      |
+| 可维护性 | ⭐⭐⭐⭐☆ | 4/5 - 结构清晰，注释充分           |
 
 **综合评分:** ⭐⭐⭐⭐☆ (3.6/5)
 
@@ -284,6 +313,7 @@ if (err instanceof TypeError && err.message.includes('fetch')) {
 ## ✅ 下一步行动
 
 ### 立即可执行
+
 ```bash
 # 1. 运行 lint 自动修复
 npm run lint -- --fix
@@ -296,6 +326,7 @@ npm run lint -- --fix
 ```
 
 ### 建议的代码变更文件
+
 1. `components/MemberCard.tsx` - 删除未使用变量
 2. `components/ActivityLog.tsx` - 导入 `formatTimeAgo`
 3. `lib/messages/utils.ts` - 导出类型

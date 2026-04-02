@@ -9,6 +9,7 @@
 ## 📊 分析结果摘要
 
 ### 项目规模统计
+
 - **TypeScript 文件数**: 326 个
 - **总代码行数**: 80,242 行
 - **导出函数数量**: 约 50+ 个
@@ -17,16 +18,16 @@
 
 ### 分析工具执行状态
 
-| 工具 | 状态 | 结果 |
-|------|------|------|
-| `npx tsx scripts/check-unused.ts` | ❌ 脚本不存在 | 使用替代方案 |
-| `node cleanup-code.js` | ❌ 脚本不存在 | 跳过此项检查 |
-| `npx madge --circular` | ✅ 成功 | 无循环依赖 |
-| `npx knip --exports` | ⚠️ 超时 | 无法获取完整结果 |
-| `npx ts-prune` | ⚠️ 超时 | 无法获取完整结果 |
-| `npx unimported` | ⚠️ 超时 | 无法获取完整结果 |
-| `npx tsc --noEmit` | ✅ 成功 | 发现测试文件类型错误 |
-| `npx eslint` | ⚠️ 超时 | 无法获取完整结果 |
+| 工具                              | 状态          | 结果                 |
+| --------------------------------- | ------------- | -------------------- |
+| `npx tsx scripts/check-unused.ts` | ❌ 脚本不存在 | 使用替代方案         |
+| `node cleanup-code.js`            | ❌ 脚本不存在 | 跳过此项检查         |
+| `npx madge --circular`            | ✅ 成功       | 无循环依赖           |
+| `npx knip --exports`              | ⚠️ 超时       | 无法获取完整结果     |
+| `npx ts-prune`                    | ⚠️ 超时       | 无法获取完整结果     |
+| `npx unimported`                  | ⚠️ 超时       | 无法获取完整结果     |
+| `npx tsc --noEmit`                | ✅ 成功       | 发现测试文件类型错误 |
+| `npx eslint`                      | ⚠️ 超时       | 无法获取完整结果     |
 
 ---
 
@@ -49,6 +50,7 @@
 **文件**: `src/lib/api/__tests__/error-handler.test.ts`
 
 **错误信息**:
+
 ```
 - Property 'status' does not exist on type 'never'
 - Property 'json' does not exist on type 'never'
@@ -63,6 +65,7 @@
 根据之前的分析报告（2026-03-29），发现约 **209 个未使用导出**，主要包括：
 
 #### UI 组件库（建议保留）
+
 - `SkeletonText` - 已在示例页面中使用
 - `SkeletonAvatar` - 未使用
 - `SkeletonTable` - 未使用
@@ -70,6 +73,7 @@
 - `SkeletonNavigation` - 未使用
 
 #### 性能监控模块内部类型（建议保留）
+
 - `SlowRequestTrace`
 - `TimelineEntry`
 - `ResourceAnalysis`
@@ -81,14 +85,17 @@
 基于导出分析，发现以下可优化点：
 
 #### 验证函数
+
 - `src/lib/validation.ts` 中有多个验证函数导出
 - 建议检查是否所有验证函数都被实际使用
 
 #### 认证函数
+
 - `src/lib/auth.ts` 中有大量认证相关函数导出
 - 建议评估哪些函数是内部使用的，可以不导出
 
 #### 错误处理函数
+
 - `src/lib/errors.ts` 中有多个错误创建函数
 - 这些函数可能重复了某些逻辑
 
@@ -107,6 +114,7 @@
 ### 优先级 2 - 定期维护
 
 1. **设置 CI/CD 死代码检测**
+
    ```yaml
    # .github/workflows/code-quality.yml
    - name: Check unused exports
@@ -135,11 +143,13 @@
 ## 📈 项目质量评估
 
 ### ✅ 优点
+
 1. **无循环依赖** - 代码结构清晰
 2. **模块化良好** - 功能分类明确
 3. **类型安全** - 大部分代码都有类型定义
 
 ### ⚠️ 需要改进
+
 1. **测试文件类型错误** - 需要修复
 2. **分析工具超时** - 可能项目较大，需要优化配置
 3. **未使用导出较多** - 建议定期清理
@@ -159,12 +169,15 @@
 ## 📝 附加说明
 
 ### 分析工具问题
+
 本次分析中，多个工具（knip、ts-prune、unimported）出现超时问题。可能原因：
+
 - 项目文件数量较多（326个TS文件）
 - 工具默认配置不适合大型项目
 - 需要增加超时时间或优化工具配置
 
 ### 建议
+
 1. 创建 `.kniprc` 配置文件，优化分析范围
 2. 将死代码检测集成到 CI/CD 流程
 3. 定期（每月）运行完整的代码质量检查

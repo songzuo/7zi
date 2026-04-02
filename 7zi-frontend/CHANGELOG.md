@@ -10,6 +10,7 @@
 ## [Unreleased]
 
 ### 计划中
+
 - Multi-Agent 协作框架增强
 - AI 对话式任务创建界面优化
 - 可视化工作流编排器完善
@@ -26,12 +27,12 @@ v1.5.0 专注于 **认证中间件模块化**、**lib/ 层架构优化** 和 **�
 
 ### 📊 完成度总览
 
-| 功能模块 | 完成度 | 状态 |
-|---------|--------|------|
-| **auth.middleware 模块** | 100% | ✅ 已完成 |
-| **lib/ 层结构分析** | 100% | ✅ 已完成 |
-| **单元测试覆盖** | 100% | ✅ 已完成 |
-| **项目文档更新** | 100% | ✅ 已完成 |
+| 功能模块                 | 完成度 | 状态      |
+| ------------------------ | ------ | --------- |
+| **auth.middleware 模块** | 100%   | ✅ 已完成 |
+| **lib/ 层结构分析**      | 100%   | ✅ 已完成 |
+| **单元测试覆盖**         | 100%   | ✅ 已完成 |
+| **项目文档更新**         | 100%   | ✅ 已完成 |
 
 ### ✨ 新增 / Added
 
@@ -40,6 +41,7 @@ v1.5.0 专注于 **认证中间件模块化**、**lib/ 层架构优化** 和 **�
 独立的认证中间件模块，提供 API 路由的认证和授权功能。
 
 **核心功能**:
+
 - ✅ 路径保护 - 自动保护敏感 API 端点
 - ✅ 用户信息提取 - 从请求头提取用户 ID、邮箱、角色
 - ✅ 权限检查 - 基于角色的访问控制 (RBAC)
@@ -55,25 +57,27 @@ v1.5.0 专注于 **认证中间件模块化**、**lib/ 层架构优化** 和 **�
 | `getUserRole(request)` | 获取用户角色 |
 
 **保护路径**:
+
 - `/api/search`
 - `/api/data/import`
 - `/api/data/export`
 
 **使用示例**:
+
 ```typescript
-import { authMiddleware, checkPermissions } from '@/middleware/auth.middleware';
+import { authMiddleware, checkPermissions } from '@/middleware/auth.middleware'
 
 // 基础认证
 export async function GET(request: NextRequest) {
-  const authResponse = authMiddleware(request);
+  const authResponse = authMiddleware(request)
   if (authResponse.status !== 200) {
-    return authResponse;
+    return authResponse
   }
   // ...处理请求
 }
 
 // 角色权限检查
-const adminOnly = checkPermissions(['admin', 'superadmin']);
+const adminOnly = checkPermissions(['admin', 'superadmin'])
 ```
 
 #### **📁 lib/ 层结构分析完成**
@@ -99,16 +103,19 @@ const adminOnly = checkPermissions(['admin', 'superadmin']);
 | `websocket-manager.ts` | WebSocket 管理 | ✅ 稳定 |
 
 **迁移记录**:
+
 - ✅ `agent-scheduler/` → `agents/scheduler/` (完成)
 
 #### **🧪 单元测试覆盖增强**
 
 **测试统计**:
+
 - 测试文件数：3+ (A2A 相关)
 - 测试用例数：18+
 - 通过率：100%
 
 **测试覆盖模块**:
+
 - ✅ A2A Queue API (2 tests)
 - ✅ A2A Registry API (3 tests)
 - ✅ A2A JSON-RPC API (13 tests)
@@ -126,11 +133,13 @@ const adminOnly = checkPermissions(['admin', 'superadmin']);
 ### 🔄 改进 / Improved
 
 #### 代码质量
+
 - 认证逻辑从 `lib/auth.ts` 分离到独立中间件
 - 优化导入路径一致性
 - 清理未使用的模块
 
 #### 架构优化
+
 - `lib/` 目录结构清晰化
 - Agent Scheduler 迁移到 `lib/agents/scheduler/`
 - 认证中间件独立模块化
@@ -152,19 +161,20 @@ v1.4.0 专注于 **WebSocket 高级协作功能**、**AI Agent 智能调度** �
 
 ### 📊 完成度总览
 
-| 功能模块 | 完成度 | 状态 |
-|---------|--------|------|
-| **WebSocket 高级功能** | 100% | ✅ 已完成 |
-| **AI Agent 智能调度** | 100% | ✅ 核心完成 |
-| **性能监控升级** | 60% | 🟢 超前 |
-| **React Compiler 可选** | 100% | ✅ 已完成 |
-| **P0 架构改进** | 100% | ✅ 已完成 |
+| 功能模块                | 完成度 | 状态        |
+| ----------------------- | ------ | ----------- |
+| **WebSocket 高级功能**  | 100%   | ✅ 已完成   |
+| **AI Agent 智能调度**   | 100%   | ✅ 核心完成 |
+| **性能监控升级**        | 60%    | 🟢 超前     |
+| **React Compiler 可选** | 100%   | ✅ 已完成   |
+| **P0 架构改进**         | 100%   | ✅ 已完成   |
 
 ### ✨ 新增 / Added
 
 #### **🔄 WebSocket 高级功能 (P0) - 100% 完成** 🎉
 
 **房间系统** (`src/lib/websocket/rooms.ts` - 847 行)
+
 - ✅ 多房间支持 - 动态房间创建和管理，支持 task/project/chat/document/voice/video 类型
 - ✅ 房间可见性 - 公开(public)、私有(private)、仅邀请(invite-only) 三种模式
 - ✅ 房间配置 - 最大参与者限制、历史开关、自动清理、访客控制
@@ -173,12 +183,14 @@ v1.4.0 专注于 **WebSocket 高级协作功能**、**AI Agent 智能调度** �
 - ✅ 参与者状态追踪 - 光标位置、输入状态、在线/离线、最后活动时间
 
 **权限控制系统** (`src/lib/websocket/permissions.ts` - 436 行)
+
 - ✅ 5 种角色 - owner/admin/moderator/member/guest，层级管理
 - ✅ 16 种权限 - 房间权限 7 种 + 消息权限 6 种 + 管理权限 3 种
 - ✅ RBAC 集成 - 角色层级强制、权限授予/撤销/过期
 - ✅ 封禁系统 - 用户封禁、权限自动撤销、禁止重新加入
 
 **消息持久化** (`src/lib/websocket/message-store.ts` - 623 行)
+
 - ✅ 内存存储 - Map-based O(1) 访问，每房间最多 10,000 条消息
 - ✅ 消息操作 - 存储、编辑(带追踪)、软删除、永久删除
 - ✅ 消息元数据 - 反应(emoji)、置顶、编辑标记、自定义元数据
@@ -189,6 +201,7 @@ v1.4.0 专注于 **WebSocket 高级协作功能**、**AI Agent 智能调度** �
 #### **🤖 AI Agent 智能调度系统 (P0) - 100% 完成** ✅
 
 **核心组件** (`src/lib/agent-scheduler/`)
+
 - ✅ `core/scheduler.ts` - 调度器核心 (487 行)
 - ✅ `core/matching.ts` - 任务匹配算法 (312 行)
 - ✅ `core/ranking.ts` - 候选排序 (286 行)
@@ -200,6 +213,7 @@ v1.4.0 专注于 **WebSocket 高级协作功能**、**AI Agent 智能调度** �
 - ✅ Dashboard UI - AgentStatusPanel、TaskQueueView、ScheduleHistory、ManualOverride (3,058 行)
 
 **调度算法**
+
 - 能力匹配权重: capability 40% + load 30% + performance 20% + response 10%
 - 负载均衡: 保留 10% 缓冲，避免单 Agent 过载
 - 任务依赖: 支持任务依赖管理和优先级排序
@@ -209,6 +223,7 @@ v1.4.0 专注于 **WebSocket 高级协作功能**、**AI Agent 智能调度** �
 #### **📊 性能监控升级 (P0) - 60% 完成**
 
 **异常检测** (`src/lib/performance-monitoring/anomaly-detection/detector.ts` - 271 行)
+
 - ✅ Z-score 检测算法 - 基于历史数据的基准线自动学习
 - ✅ 百分比偏差检测 - 多指标独立跟踪
 - ✅ 性能指标收集 - Web Vitals 自动收集、API 响应时间、渲染性能
@@ -217,6 +232,7 @@ v1.4.0 专注于 **WebSocket 高级协作功能**、**AI Agent 智能调度** �
 **测试覆盖**: 76 个单元测试，100% 通过，98.91% 代码覆盖率
 
 **待完成**
+
 - ⏳ 根因分析自动化
 - ⏳ 性能预算控制
 - ⏳ 实时告警系统
@@ -224,6 +240,7 @@ v1.4.0 专注于 **WebSocket 高级协作功能**、**AI Agent 智能调度** �
 #### **⚡ React Compiler 可选功能 (P0) - 100% 完成** 🎉
 
 **配置文件**
+
 - ✅ 环境变量控制系统 (`ENABLE_REACT_COMPILER`, `REACT_COMPILER_MODE`)
 - ✅ `next.config.ts` 更新 - 支持可选启用、智能过滤
 - ✅ 兼容性检测工具 (`scripts/check-react-compiler-compatibility.sh`, `.js`)
@@ -233,20 +250,22 @@ v1.4.0 专注于 **WebSocket 高级协作功能**、**AI Agent 智能调度** �
 
 #### **性能优化**
 
-| 指标 | 优化前 | 目标 | 已实现 | 提升 |
-|------|--------|------|--------|------|
-| AI Agent 调度效率 | 手动分配 | 智能调度 | ✅ 已实现 | 70-80% ↑ |
-| 性能问题发现时间 | 2-4 小时 | 15-30 分钟 | ✅ 异常检测 | 60-90% ↓ |
-| WebSocket 连接稳定性 | 95% | 99%+ | ✅ 已实现 | 4% ↑ |
-| 不必要的重新渲染 | ~150-200/分钟 | ~90-120/分钟 | ✅ 可选启用 | 20-40% ↓ |
-| 测试覆盖率 | 94.2% | 96-98% | ✅ 98% | 3.8% ↑ |
+| 指标                 | 优化前        | 目标         | 已实现      | 提升     |
+| -------------------- | ------------- | ------------ | ----------- | -------- |
+| AI Agent 调度效率    | 手动分配      | 智能调度     | ✅ 已实现   | 70-80% ↑ |
+| 性能问题发现时间     | 2-4 小时      | 15-30 分钟   | ✅ 异常检测 | 60-90% ↓ |
+| WebSocket 连接稳定性 | 95%           | 99%+         | ✅ 已实现   | 4% ↑     |
+| 不必要的重新渲染     | ~150-200/分钟 | ~90-120/分钟 | ✅ 可选启用 | 20-40% ↓ |
+| 测试覆盖率           | 94.2%         | 96-98%       | ✅ 98%      | 3.8% ↑   |
 
 #### **React.memo 优化**
+
 - 手动优化组件应用 React.memo
 - 减少不必要的重新渲染
 - 为 React Compiler 迁移做准备
 
 #### **代码清理**
+
 - 删除未使用的导入和组件
 - 清理冗余的工具函数
 - 优化代码结构
@@ -254,6 +273,7 @@ v1.4.0 专注于 **WebSocket 高级协作功能**、**AI Agent 智能调度** �
 ### 🧪 测试覆盖更新
 
 **v1.4.0 新增测试**:
+
 - Agent Scheduler: 122 tests (100% 覆盖)
 - WebSocket v1.4.0: 86 tests (100% 通过)
 - Performance Monitor: 76 tests (98.91% 覆盖)
@@ -294,6 +314,7 @@ v1.4.0 专注于 **WebSocket 高级协作功能**、**AI Agent 智能调度** �
 ### 新增 / Added
 
 #### 国际化 (i18n Phase 2) ✅
+
 - 完整的国际化系统实现 (react-i18next)
 - 支持中文 (zh) 和英文 (en) 切换
 - 自动语言检测 (Cookie + Accept-Language header)
@@ -306,6 +327,7 @@ v1.4.0 专注于 **WebSocket 高级协作功能**、**AI Agent 智能调度** �
 - 详细文档：`docs/I18N_IMPLEMENTATION.md`
 
 #### 图片优化 ✅
+
 - Next.js Image 优化配置
 - 支持 AVIF/WebP 现代格式
 - 6 种图片预设尺寸（avatar, thumbnail, card, hero, content, logo）
@@ -321,6 +343,7 @@ v1.4.0 专注于 **WebSocket 高级协作功能**、**AI Agent 智能调度** �
 - 详细文档：`docs/IMAGE_OPTIMIZATION_GUIDE.md`
 
 #### 安全加固 ✅
+
 - JWT 认证系统（使用 jose）
 - 认证中间件 (`src/middleware/auth.middleware.ts`)
 - 原型污染防护
@@ -336,6 +359,7 @@ v1.4.0 专注于 **WebSocket 高级协作功能**、**AI Agent 智能调度** �
 - 详细文档：`docs/SECURITY_HARDENING.md`
 
 #### E2E 测试框架 ✅
+
 - Playwright E2E 测试框架配置
 - 登录流程测试
 - 通知系统测试
@@ -346,6 +370,7 @@ v1.4.0 专注于 **WebSocket 高级协作功能**、**AI Agent 智能调度** �
 - 详细文档：`docs/E2E_TEST_COMPLETION_REPORT.md`
 
 #### 深色模式 ✅
+
 - 完整的深色模式实现
 - 主题切换组件
 - 自动主题检测（系统偏好）
@@ -355,6 +380,7 @@ v1.4.0 专注于 **WebSocket 高级协作功能**、**AI Agent 智能调度** �
 - 详细文档：`DARK_MODE_IMPLEMENTATION_REPORT.md`
 
 #### 性能监控 ✅
+
 - 实时性能 Dashboard
 - Web Vitals 监控（LCP, FID, CLS, FCP, TTFB, TTI）
 - 性能历史记录
@@ -364,6 +390,7 @@ v1.4.0 专注于 **WebSocket 高级协作功能**、**AI Agent 智能调度** �
 - 详细文档：`docs/PERFORMANCE_MONITORING_IMPLEMENTATION_SUMMARY.md`
 
 #### 测试性能优化 ✅
+
 - 测试套件性能优化
 - 并行测试执行
 - Mock 优化
@@ -371,12 +398,14 @@ v1.4.0 专注于 **WebSocket 高级协作功能**、**AI Agent 智能调度** �
 - 详细文档：`TEST_PERFORMANCE_OPTIMIZATION.md`
 
 #### Three.js 优化 ✅
+
 - Three.js 组件性能优化
 - 渲染优化
 - 内存管理
 - 详细文档：`THREE_JS_OPTIMIZATION.md`
 
 #### TypeScript 类型修复 ✅
+
 - TypeScript 类型系统修复
 - 类型错误解决
 - 详细文档：`TYPESCRIPT_FIX_REPORT_2026-03-28.md`
@@ -384,17 +413,20 @@ v1.4.0 专注于 **WebSocket 高级协作功能**、**AI Agent 智能调度** �
 ### 改进 / Improved
 
 #### 代码优化
+
 - 重构现有组件提升性能
 - 优化 Webpack/TurboPack 配置
 - 减少包体积
 - 优化代码分割
 
 #### 设计系统
+
 - 完成设计系统 v1.0
 - 组件库标准化
 - 详细文档：`DESIGN_SYSTEM_COMPLETION_REPORT.md`
 
 #### 测试覆盖
+
 - 单元测试覆盖率达到 85%+
 - 346+ 测试用例
 - 详细文档：`docs/TEST_COVERAGE_SUMMARY.md`
@@ -430,6 +462,7 @@ v1.4.0 专注于 **WebSocket 高级协作功能**、**AI Agent 智能调度** �
 ### API 变更 / API Changes
 
 #### 新增 API 端点
+
 - `POST /api/data/import` - 数据导入（需要认证）
 - `POST /api/feedback` - 提交反馈（需要认证）
 - `GET /api/search` - 搜索（需要认证）
@@ -442,6 +475,7 @@ v1.4.0 专注于 **WebSocket 高级协作功能**、**AI Agent 智能调度** �
 - `GET /api/notifications/enhanced` - 增强通知
 
 #### API 安全增强
+
 - 所有端点支持 JWT 认证
 - 添加速率限制
 - 添加输入验证
@@ -515,6 +549,7 @@ v1.4.0 专注于 **WebSocket 高级协作功能**、**AI Agent 智能调度** �
 ## [1.2.0] - 2026-03-22
 
 ### 新增 / Added
+
 - MCP (Model Context Protocol) Server 实现
 - JSON-RPC 2.0 协议支持
 - WebSocket 通信系统
@@ -523,6 +558,7 @@ v1.4.0 专注于 **WebSocket 高级协作功能**、**AI Agent 智能调度** �
 - 性能监控 Dashboard
 
 ### 改进 / Improved
+
 - 前端架构重构（基于功能）
 - 认证系统升级
 - 响应式设计优化
@@ -532,6 +568,7 @@ v1.4.0 专注于 **WebSocket 高级协作功能**、**AI Agent 智能调度** �
 ## [1.1.0] - 2026-03-15
 
 ### 新增 / Added
+
 - Next.js 14 App Router 迁移
 - 基础 UI 组件库
 - 用户认证系统
@@ -542,6 +579,7 @@ v1.4.0 专注于 **WebSocket 高级协作功能**、**AI Agent 智能调度** �
 ## [1.0.0] - 2026-03-01
 
 ### 新增 / Added
+
 - 项目初始化
 - 基础架构搭建
 - 核心功能实现
@@ -551,11 +589,13 @@ v1.4.0 专注于 **WebSocket 高级协作功能**、**AI Agent 智能调度** �
 ## 版本说明 / Version Notes
 
 ### 语义化版本格式
+
 - **主版本号**: 不兼容的 API 变更
 - **次版本号**: 向后兼容的功能新增
 - **修订号**: 向后兼容的问题修复
 
 ### 变更类型
+
 - **新增**: 新功能
 - **改进**: 现有功能增强
 - **修复**: Bug 修复

@@ -11,6 +11,7 @@
 ## 1. PM2 配置优化
 
 ### 当前问题
+
 - PM2 使用 `npm start`，但服务器构建缺少 `standalone` 输出
 - 重启次数过多（2862次）说明启动配置有问题
 
@@ -21,6 +22,7 @@
 在 `next.config.ts` 中已配置 `output: 'standalone'`。
 
 **PM2 ecosystem.config.production.js:**
+
 ```javascript
 {
   script: '.next/standalone/server.js',
@@ -30,6 +32,7 @@
 ```
 
 **构建后需要复制文件：**
+
 ```bash
 # 在服务器上执行
 cd /var/www/7zi

@@ -2,51 +2,51 @@
  * RBAC Seeding - Initialize default roles and permissions
  */
 
-import { Role, Permission } from './types';
-import { initializeRbacTables, getRoleById, assignPermissionsToRole } from './repository';
-import { getRoleDefinition } from './rbac';
-import { logger } from '../logger';
+import { Role, Permission } from './types'
+import { initializeRbacTables, getRoleById, assignPermissionsToRole } from './repository'
+import { getRoleDefinition } from './rbac'
+import { logger } from '../logger'
 
 /**
  * Seed default roles and permissions into database
  */
 export async function seedDefaultRolesAndPermissions(): Promise<{
-  success: boolean;
-  message: string;
-  rolesSeeded: string[];
-  permissionsSeeded: number;
+  success: boolean
+  message: string
+  rolesSeeded: string[]
+  permissionsSeeded: number
 }> {
   try {
-    await initializeRbacTables();
+    await initializeRbacTables()
 
-    const rolesSeeded: string[] = [];
-    let permissionsSeeded = 0;
+    const rolesSeeded: string[] = []
+    let permissionsSeeded = 0
 
     // Iterate through all default role definitions
     for (const role of Object.values(Role)) {
-      const roleDef = getRoleDefinition(role);
+      const roleDef = getRoleDefinition(role)
 
       if (!roleDef) {
-        continue;
+        continue
       }
 
       // Check if role already exists in database
-      const existingRole = await getRoleById(role);
+      const existingRole = await getRoleById(role)
 
       if (existingRole) {
         // Update existing role's permissions
-        await assignPermissionsToRole(role, roleDef.permissions);
-        rolesSeeded.push(`${role} (updated)`);
+        await assignPermissionsToRole(role, roleDef.permissions)
+        rolesSeeded.push(`${role} (updated)`)
       } else {
         // Create new role in database
-        const db = await import('../db').then((m) => m.getDatabaseAsync());
-        const dbInstance = await db;
+        const db = await import('../db').then(m => m.getDatabaseAsync())
+        const dbInstance = await db
 
-        const now = new Date().toISOString();
+        const now = new Date().toISOString()
         const stmt = dbInstance.prepare(`
           INSERT INTO roles (id, name, description, permissions, is_system, created_at, updated_at)
           VALUES (?, ?, ?, ?, ?, ?, ?)
-        `);
+        `)
 
         stmt.run(
           roleDef.id,
@@ -56,14 +56,14 @@ export async function seedDefaultRolesAndPermissions(): Promise<{
           roleDef.isSystem ? 1 : 0,
           now,
           now
-        );
+        )
 
         // Assign permissions to role
-        await assignPermissionsToRole(role, roleDef.permissions);
-        rolesSeeded.push(`${role} (created)`);
+        await assignPermissionsToRole(role, roleDef.permissions)
+        rolesSeeded.push(`${role} (created)`)
       }
 
-      permissionsSeeded += roleDef.permissions.length;
+      permissionsSeeded += roleDef.permissions.length
     }
 
     return {
@@ -71,15 +71,15 @@ export async function seedDefaultRolesAndPermissions(): Promise<{
       message: 'Roles and permissions seeded successfully',
       rolesSeeded,
       permissionsSeeded,
-    };
-  } catch (_error) {
-    logger.error('Failed to seed roles and permissions:', { error });
+    }
+  } catch (error) {
+    logger.error('Failed to seed roles and permissions:', { error })
     return {
       success: false,
       message: error instanceof Error ? error.message : 'Failed to seed roles and permissions',
       rolesSeeded: [],
       permissionsSeeded: 0,
-    };
+    }
   }
 }
 
@@ -88,24 +88,24 @@ export async function seedDefaultRolesAndPermissions(): Promise<{
  */
 export async function needsSeeding(): Promise<boolean> {
   try {
-    const roles = await import('./repository').then((m) => m.getAllRoles());
+    const roles = await import('./repository').then(m => m.getAllRoles())
 
     // If no roles exist, seeding is needed
     if (roles.length === 0) {
-      return true;
+      return true
     }
 
     // Check if any default roles are missing
     for (const role of Object.values(Role)) {
-      const roleDef = await getRoleById(role);
+      const roleDef = await getRoleById(role)
       if (!roleDef) {
-        return true;
+        return true
       }
     }
 
-    return false;
-  } catch {
-    return true;
+    return false
+  } catch (error) {
+    return true
   }
 }
 
@@ -114,35 +114,35 @@ export async function needsSeeding(): Promise<boolean> {
  * Warning: This will remove all custom roles and permissions
  */
 export async function resetToDefaults(): Promise<{
-  success: boolean;
-  message: string;
+  success: boolean
+  message: string
 }> {
   try {
-    const db = await import('../db').then((m) => m.getDatabaseAsync());
-    const dbInstance = await db;
+    const db = await import('../db').then(m => m.getDatabaseAsync())
+    const dbInstance = await db
 
     // Delete all role-permission mappings
-    dbInstance.exec('DELETE FROM role_permissions');
+    dbInstance.exec('DELETE FROM role_permissions')
 
     // Delete all user-role mappings
-    dbInstance.exec('DELETE FROM user_roles');
+    dbInstance.exec('DELETE FROM user_roles')
 
     // Delete all roles
-    dbInstance.exec('DELETE FROM roles');
+    dbInstance.exec('DELETE FROM roles')
 
     // Re-seed with defaults
-    const result = await seedDefaultRolesAndPermissions();
+    const result = await seedDefaultRolesAndPermissions()
 
     return {
       success: result.success,
       message: result.message,
-    };
-  } catch (_error) {
-    logger.error('Failed to reset roles and permissions:', { error });
+    }
+  } catch (error) {
+    logger.error('Failed to reset roles and permissions:', { error })
     return {
       success: false,
       message: error instanceof Error ? error.message : 'Failed to reset roles and permissions',
-    };
+    }
   }
 }
 
@@ -150,30 +150,30 @@ export async function resetToDefaults(): Promise<{
  * Get seeding statistics
  */
 export async function getSeedingStats(): Promise<{
-  rolesInDb: number;
-  permissionsInDb: number;
-  defaultRolesCount: number;
-  needsSeeding: boolean;
+  rolesInDb: number
+  permissionsInDb: number
+  defaultRolesCount: number
+  needsSeeding: boolean
 }> {
   try {
-    const { getAllRoles } = await import('./repository');
-    const { getAllPermissions } = await import('./repository');
+    const { getAllRoles } = await import('./repository')
+    const { getAllPermissions } = await import('./repository')
 
-    const roles = await getAllRoles();
-    const permissions = await getAllPermissions();
+    const roles = await getAllRoles()
+    const permissions = await getAllPermissions()
 
     return {
       rolesInDb: roles.length,
       permissionsInDb: permissions.length,
       defaultRolesCount: Object.values(Role).length,
       needsSeeding: await needsSeeding(),
-    };
-  } catch {
+    }
+  } catch (error) {
     return {
       rolesInDb: 0,
       permissionsInDb: 0,
       defaultRolesCount: Object.values(Role).length,
       needsSeeding: true,
-    };
+    }
   }
 }

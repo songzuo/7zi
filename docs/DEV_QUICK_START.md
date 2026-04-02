@@ -16,21 +16,21 @@
 
 ### 必需软件
 
-| 软件 | 最低版本 | 推荐版本 | 用途 |
-|------|----------|----------|------|
-| Node.js | 22.x | 22.22.0 | 运行时环境 |
-| pnpm | 8.x | 9.x | 包管理器 |
-| Git | 2.30+ | 2.40+ | 版本控制 |
-| VS Code | Latest | Latest | 代码编辑器 |
+| 软件    | 最低版本 | 推荐版本 | 用途       |
+| ------- | -------- | -------- | ---------- |
+| Node.js | 22.x     | 22.22.0  | 运行时环境 |
+| pnpm    | 8.x      | 9.x      | 包管理器   |
+| Git     | 2.30+    | 2.40+    | 版本控制   |
+| VS Code | Latest   | Latest   | 代码编辑器 |
 
 ### 推荐软件
 
-| 软件 | 用途 |
-|------|------|
-| Docker Desktop | 容器化开发 |
-| Postman | API 测试 |
+| 软件                 | 用途       |
+| -------------------- | ---------- |
+| Docker Desktop       | 容器化开发 |
+| Postman              | API 测试   |
 | TablePlus/DB Browser | 数据库管理 |
-| Chrome DevTools | 调试工具 |
+| Chrome DevTools      | 调试工具   |
 
 ---
 
@@ -61,6 +61,7 @@ nano .env.local
 ```
 
 **核心环境变量**:
+
 ```bash
 # 应用配置
 NEXT_PUBLIC_APP_URL=http://localhost:3000
@@ -178,6 +179,7 @@ git push origin feature/your-feature-name
 ```
 
 **提交信息规范**:
+
 - `feat`: 新功能
 - `fix`: Bug 修复
 - `docs`: 文档更新
@@ -262,13 +264,13 @@ touch src/app/api/health/route.ts
 
 ```typescript
 // src/app/api/health/route.ts
-import { NextResponse } from 'next/server';
+import { NextResponse } from 'next/server'
 
 export async function GET() {
   return NextResponse.json({
     status: 'healthy',
     timestamp: new Date().toISOString(),
-  });
+  })
 }
 ```
 
@@ -286,28 +288,28 @@ export async function GET() {
 
 ```typescript
 // src/hooks/useVoiceMeeting.ts
-import { useEffect, useState } from 'react';
+import { useEffect, useState } from 'react'
 
 export function useVoiceMeeting(roomId: string) {
-  const [isConnected, setIsConnected] = useState(false);
+  const [isConnected, setIsConnected] = useState(false)
 
   useEffect(() => {
     // Socket.IO 连接
-    const socket = io('http://localhost:3000');
+    const socket = io('http://localhost:3000')
 
-    socket.emit('join-room', roomId);
+    socket.emit('join-room', roomId)
 
     socket.on('user-joined', (userId: string) => {
-      console.log('User joined:', userId);
+      console.log('User joined:', userId)
       // 建立 WebRTC 连接
-    });
+    })
 
     return () => {
-      socket.disconnect();
-    };
-  }, [roomId]);
+      socket.disconnect()
+    }
+  }, [roomId])
 
-  return { isConnected };
+  return { isConnected }
 }
 ```
 
@@ -341,25 +343,25 @@ export function useVoiceMeeting(roomId: string) {
 export const logger = {
   debug: (message: string, ...args: any[]) => {
     if (process.env.NODE_ENV === 'development') {
-      console.debug(`[DEBUG] ${message}`, ...args);
+      console.debug(`[DEBUG] ${message}`, ...args)
     }
   },
   info: (message: string, ...args: any[]) => {
-    console.info(`[INFO] ${message}`, ...args);
+    console.info(`[INFO] ${message}`, ...args)
   },
   warn: (message: string, ...args: any[]) => {
-    console.warn(`[WARN] ${message}`, ...args);
+    console.warn(`[WARN] ${message}`, ...args)
   },
   error: (message: string, ...args: any[]) => {
-    console.error(`[ERROR] ${message}`, ...args);
+    console.error(`[ERROR] ${message}`, ...args)
   },
-};
+}
 
 // 使用
-import { logger } from '@/lib/logger';
+import { logger } from '@/lib/logger'
 
-logger.info('User logged in', { userId: '123' });
-logger.error('Failed to fetch data', error);
+logger.info('User logged in', { userId: '123' })
+logger.error('Failed to fetch data', error)
 ```
 
 ### LRUCache
@@ -368,29 +370,29 @@ logger.error('Failed to fetch data', error);
 
 ```typescript
 // src/lib/cache.ts
-import { LRUCache } from 'lru-cache';
+import { LRUCache } from 'lru-cache'
 
 export const apiCache = new LRUCache<string, any>({
   max: 100, // 最大缓存项
   ttl: 1000 * 60 * 5, // 5分钟过期
-});
+})
 
 // 使用
-import { apiCache } from '@/lib/cache';
+import { apiCache } from '@/lib/cache'
 
 const fetchData = async (key: string) => {
   // 检查缓存
-  const cached = apiCache.get(key);
-  if (cached) return cached;
+  const cached = apiCache.get(key)
+  if (cached) return cached
 
   // 获取数据
-  const data = await fetchFromAPI(key);
+  const data = await fetchFromAPI(key)
 
   // 存入缓存
-  apiCache.set(key, data);
+  apiCache.set(key, data)
 
-  return data;
-};
+  return data
+}
 ```
 
 ---
@@ -416,18 +418,18 @@ describe('MyComponent', () => {
 
 ```typescript
 // src/app/api/health/__tests__/route.test.ts
-import { GET } from '../route';
-import { NextRequest } from 'next/server';
+import { GET } from '../route'
+import { NextRequest } from 'next/server'
 
 describe('Health API', () => {
   it('returns healthy status', async () => {
-    const request = new NextRequest('http://localhost:3000/api/health');
-    const response = await GET(request);
-    const data = await response.json();
+    const request = new NextRequest('http://localhost:3000/api/health')
+    const response = await GET(request)
+    const data = await response.json()
 
-    expect(data.status).toBe('healthy');
-  });
-});
+    expect(data.status).toBe('healthy')
+  })
+})
 ```
 
 ---
@@ -500,17 +502,17 @@ const JWT_SECRET = "super-secret-key";
 ### 2. 输入验证
 
 ```typescript
-import { z } from 'zod';
+import { z } from 'zod'
 
 // 定义 schema
 const UserSchema = z.object({
   email: z.string().email(),
   age: z.number().min(18),
-});
+})
 
 // 验证输入
 function createUser(input: unknown) {
-  const validated = UserSchema.parse(input);
+  const validated = UserSchema.parse(input)
   // 使用验证后的数据
 }
 ```
@@ -519,10 +521,10 @@ function createUser(input: unknown) {
 
 ```typescript
 // ✅ 正确：使用参数化查询
-db.prepare('SELECT * FROM users WHERE id = ?').get(userId);
+db.prepare('SELECT * FROM users WHERE id = ?').get(userId)
 
 // ❌ 错误：字符串拼接
-db.prepare(`SELECT * FROM users WHERE id = '${userId}'`).get();
+db.prepare(`SELECT * FROM users WHERE id = '${userId}'`).get()
 ```
 
 ---
@@ -571,6 +573,7 @@ pm2 start npm --name "7zi" -- start
 ### 问题: `pnpm install` 失败
 
 **解决方案**:
+
 ```bash
 # 清理缓存
 pnpm store prune
@@ -585,6 +588,7 @@ pnpm install
 ### 问题: TypeScript 编译错误
 
 **解决方案**:
+
 ```bash
 # 重新生成类型定义
 pnpm type-check
@@ -596,6 +600,7 @@ cat tsconfig.json
 ### 问题: 端口 3000 被占用
 
 **解决方案**:
+
 ```bash
 # 使用其他端口
 pnpm dev -p 3001

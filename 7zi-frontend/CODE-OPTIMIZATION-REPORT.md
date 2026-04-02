@@ -13,11 +13,13 @@
 ### 依赖分析
 
 **生产依赖** (9个):
+
 - ✅ 所有依赖都在使用中
 - ✅ 核心库版本最新（Next.js 16.2.1, React 18.2.0）
 - ✅ 状态管理（zustand 5.0.11）高效轻量
 
 **开发依赖** (15个):
+
 - ✅ 测试工具完整（Vitest + Playwright）
 - ✅ 代码质量工具（ESLint, Prettier, TypeScript）
 - ✅ 性能分析（@next/bundle-analyzer）
@@ -35,11 +37,11 @@
 ```json
 {
   "compilerOptions": {
-    "target": "ES2017",        // ✅ 现代目标
-    "module": "esnext",        // ✅ Next.js 优化
+    "target": "ES2017", // ✅ 现代目标
+    "module": "esnext", // ✅ Next.js 优化
     "moduleResolution": "bundler", // ✅ 最新解析策略
-    "strict": true,            // ✅ 严格模式
-    "incremental": true       // ✅ 增量编译
+    "strict": true, // ✅ 严格模式
+    "incremental": true // ✅ 增量编译
   }
 }
 ```
@@ -53,6 +55,7 @@
 **当前状态**: ✅ 完善且现代化
 
 **优点**:
+
 - ✅ 安全头完整（CSP、HSTS、X-Frame-Options）
 - ✅ 性能优化（代码分割、包导入优化）
 - ✅ 图片优化（AVIF/WebP、CDN）
@@ -86,10 +89,10 @@ optimizePackageImports: ['next-intl', '@sentry/nextjs', 'zustand']
 
 ```json
 {
-  "dev": "next dev",              // ✅ 开发服务器
-  "build": "next build",          // ✅ 生产构建
+  "dev": "next dev", // ✅ 开发服务器
+  "build": "next build", // ✅ 生产构建
   "build:analyze": "ANALYZE=true next build", // ✅ 包分析
-  "lint": "eslint",               // ✅ 代码检查
+  "lint": "eslint", // ✅ 代码检查
   "test:all": "npm run test:run && npm run test:e2e", // ✅ 完整测试
   "test:coverage": "vitest run --coverage" // ✅ 覆盖率
 }
@@ -111,7 +114,7 @@ optimizePackageImports: ['next-intl', '@sentry/nextjs', 'zustand']
 // next.config.ts - 添加
 export default {
   experimental: {
-    instrumentationHook: true,  // 启用性能钩子
+    instrumentationHook: true, // 启用性能钩子
   },
   // ...
 }
@@ -136,15 +139,15 @@ export default {
 
 ### 当前安全配置：✅ 完善
 
-| 安全头 | 状态 | 用途 |
-|--------|------|------|
-| Content-Security-Policy | ✅ | XSS 防护 |
-| Strict-Transport-Security | ✅ | HTTPS 强制 |
-| X-Frame-Options | ✅ | 点击劫持防护 |
-| X-Content-Type-Options | ✅ | MIME 类型嗅探防护 |
-| X-XSS-Protection | ✅ | XSS 过滤器 |
-| Referrer-Policy | ✅ | 隐私保护 |
-| Permissions-Policy | ✅ | 功能权限控制 |
+| 安全头                    | 状态 | 用途              |
+| ------------------------- | ---- | ----------------- |
+| Content-Security-Policy   | ✅   | XSS 防护          |
+| Strict-Transport-Security | ✅   | HTTPS 强制        |
+| X-Frame-Options           | ✅   | 点击劫持防护      |
+| X-Content-Type-Options    | ✅   | MIME 类型嗅探防护 |
+| X-XSS-Protection          | ✅   | XSS 过滤器        |
+| Referrer-Policy           | ✅   | 隐私保护          |
+| Permissions-Policy        | ✅   | 功能权限控制      |
 
 **优化建议**: 无需修改
 

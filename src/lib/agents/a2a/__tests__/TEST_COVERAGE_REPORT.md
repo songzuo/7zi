@@ -15,13 +15,13 @@ The `src/lib/a2a/` module has comprehensive unit test coverage for all its compo
 
 ## Test Files Summary
 
-| Test File | Test Cases | Coverage |
-|-----------|------------|----------|
-| `types.test.ts` | 4 | Type definitions, error codes, and data structures |
-| `task-store.test.ts` | 68 | Task storage and lifecycle management |
-| `executor.test.ts` | 38 | Agent execution logic and event handling |
-| `jsonrpc-handler.test.ts` | 27 | JSON-RPC 2.0 protocol implementation |
-| `agent-card.test.ts` | 32 | Agent capability declarations |
+| Test File                 | Test Cases | Coverage                                           |
+| ------------------------- | ---------- | -------------------------------------------------- |
+| `types.test.ts`           | 4          | Type definitions, error codes, and data structures |
+| `task-store.test.ts`      | 68         | Task storage and lifecycle management              |
+| `executor.test.ts`        | 38         | Agent execution logic and event handling           |
+| `jsonrpc-handler.test.ts` | 27         | JSON-RPC 2.0 protocol implementation               |
+| `agent-card.test.ts`      | 32         | Agent capability declarations                      |
 
 **Total**: 169 test cases across 5 test files
 
@@ -34,12 +34,14 @@ The `src/lib/a2a/` module has comprehensive unit test coverage for all its compo
 **Covers**: Core A2A protocol type definitions
 
 #### Test Categories:
+
 - ✅ TaskState enumeration (8 states)
 - ✅ A2AErrorCodes (JSON-RPC standard + A2A specific errors)
 - ✅ Part type (text, file, data variants)
 - ✅ Message type (user/agent roles, context, references)
 
 #### Test Scenarios:
+
 - Type validation: Required vs optional fields
 - Type structure verification
 
@@ -50,6 +52,7 @@ The `src/lib/a2a/` module has comprehensive unit test coverage for all its compo
 **Covers**: `InMemoryTaskStore` class and `getTaskStore` function
 
 #### Test Categories:
+
 - ✅ `createTask`: ID generation, context handling, initial messages
 - ✅ `getTask`: Retrieval, non-existent tasks, shallow copy behavior
 - ✅ `updateTaskStatus`: Status updates, persistence
@@ -62,6 +65,7 @@ The `src/lib/a2a/` module has comprehensive unit test coverage for all its compo
 - ✅ Singleton pattern: `getTaskStore` caching
 
 #### Test Scenarios:
+
 - Normal flow: CRUD operations on tasks
 - Error handling: Non-existent tasks, invalid operations
 - Edge cases: Empty stores, pagination boundaries
@@ -74,6 +78,7 @@ The `src/lib/a2a/` module has comprehensive unit test coverage for all its compo
 **Covers**: `SimpleEventBus`, `SevenZiExecutor`, `createSevenZiExecutor`
 
 #### Test Categories:
+
 - ✅ `SimpleEventBus`:
   - Event publishing and storage
   - Subscriber notifications
@@ -91,6 +96,7 @@ The `src/lib/a2a/` module has comprehensive unit test coverage for all its compo
 - ✅ `createSevenZiExecutor`: Factory function
 
 #### Test Scenarios:
+
 - Normal flow: Complete execution lifecycle
 - Error handling: Graceful failure with status updates
 - Edge cases: Cancellation at different stages
@@ -103,6 +109,7 @@ The `src/lib/a2a/` module has comprehensive unit test coverage for all its compo
 **Covers**: `A2ARequestHandler` class and `createRequestHandler` function
 
 #### Test Categories:
+
 - ✅ `handleRequest`:
   - JSON-RPC version validation
   - Method routing (message/send, message/stream, tasks/get, tasks/list, tasks/cancel, agent/getCard, agent/getExtendedCard)
@@ -139,6 +146,7 @@ The `src/lib/a2a/` module has comprehensive unit test coverage for all its compo
 - ✅ Error handling: Internal errors, graceful responses
 
 #### Test Scenarios:
+
 - Normal flow: All JSON-RPC methods
 - Error handling: Invalid params, missing fields, unsupported operations
 - Edge cases: Empty results, pagination, cancellation states
@@ -150,6 +158,7 @@ The `src/lib/a2a/` module has comprehensive unit test coverage for all its compo
 **Covers**: `createAgentCard`, `createExtendedAgentCard`, `getAgentCard`, `getExtendedAgentCard`, `resetAgentCards`
 
 #### Test Categories:
+
 - ✅ `createAgentCard`:
   - Default and custom baseUrl
   - Version information
@@ -186,6 +195,7 @@ The `src/lib/a2a/` module has comprehensive unit test coverage for all its compo
   - Valid input/output modes
 
 #### Test Scenarios:
+
 - Normal flow: Card creation and retrieval
 - Edge cases: Custom baseUrl, cache invalidation
 - Structure validation: Complete field presence
@@ -196,27 +206,28 @@ The `src/lib/a2a/` module has comprehensive unit test coverage for all its compo
 
 ### Functions/Classes Covered
 
-| Module | Exported Functions/Classes | Tested |
-|--------|--------------------------|--------|
-| `types.ts` | Type definitions | ✅ 100% |
-| `task-store.ts` | `InMemoryTaskStore`, `getTaskStore` | ✅ 100% |
-| `executor.ts` | `SimpleEventBus`, `SevenZiExecutor`, `createSevenZiExecutor` | ✅ 100% |
-| `jsonrpc-handler.ts` | `A2ARequestHandler`, `createRequestHandler` | ✅ 100% |
-| `agent-card.ts` | `createAgentCard`, `createExtendedAgentCard`, `getAgentCard`, `getExtendedAgentCard`, `resetAgentCards` | ✅ 100% |
+| Module               | Exported Functions/Classes                                                                              | Tested  |
+| -------------------- | ------------------------------------------------------------------------------------------------------- | ------- |
+| `types.ts`           | Type definitions                                                                                        | ✅ 100% |
+| `task-store.ts`      | `InMemoryTaskStore`, `getTaskStore`                                                                     | ✅ 100% |
+| `executor.ts`        | `SimpleEventBus`, `SevenZiExecutor`, `createSevenZiExecutor`                                            | ✅ 100% |
+| `jsonrpc-handler.ts` | `A2ARequestHandler`, `createRequestHandler`                                                             | ✅ 100% |
+| `agent-card.ts`      | `createAgentCard`, `createExtendedAgentCard`, `getAgentCard`, `getExtendedAgentCard`, `resetAgentCards` | ✅ 100% |
 
 ### Test Coverage by Category
 
-| Category | Test Cases | Percentage |
-|----------|------------|------------|
-| Normal flow | ~100 | 59% |
-| Error handling | ~40 | 24% |
-| Edge cases | ~29 | 17% |
+| Category       | Test Cases | Percentage |
+| -------------- | ---------- | ---------- |
+| Normal flow    | ~100       | 59%        |
+| Error handling | ~40        | 24%        |
+| Edge cases     | ~29        | 17%        |
 
 ---
 
 ## Test Quality
 
 ### Strengths:
+
 1. ✅ **Comprehensive coverage**: All exported functions, classes, and interfaces tested
 2. ✅ **Test variety**: Normal flows, error handling, edge cases all covered
 3. ✅ **Clear organization**: Test files grouped by module with descriptive describe blocks
@@ -225,6 +236,7 @@ The `src/lib/a2a/` module has comprehensive unit test coverage for all its compo
 6. ✅ **Fast execution**: Total runtime ~2.67s
 
 ### Test Patterns Used:
+
 - `beforeEach` for test isolation
 - `vi.fn()` and `vi.spyOn()` for mocking
 - Async/await for asynchronous tests
@@ -255,6 +267,7 @@ npm run test -- src/lib/a2a/__tests__/
 The a2a module has comprehensive test coverage with all 149 tests passing. No additional tests are needed at this time.
 
 ### Future Considerations:
+
 1. Consider adding integration tests for the complete JSON-RPC flow
 2. Consider adding performance tests for task cleanup operations
 3. Consider adding E2E tests for the executor with mock AI services
@@ -264,6 +277,7 @@ The a2a module has comprehensive test coverage with all 149 tests passing. No ad
 ## Conclusion
 
 The `src/lib/a2a/` module has **complete unit test coverage** with:
+
 - **169 test cases** across 5 test files
 - **100% coverage** of all exported functions and classes
 - **All tests passing** (0 failures)

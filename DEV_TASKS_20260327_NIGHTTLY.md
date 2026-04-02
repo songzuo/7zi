@@ -7,49 +7,54 @@
 
 ## 📊 任务概览
 
-| 任务 | 类型 | 状态 | 测试 |
-|------|------|------|------|
+| 任务                                 | 类型     | 状态    | 测试       |
+| ------------------------------------ | -------- | ------- | ---------- |
 | revalidateTag cacheLife profile 迁移 | 代码优化 | ✅ 完成 | 10/10 通过 |
-| Server Actions 新缓存 API 参考实现 | 测试编写 | ✅ 完成 | 10 tests |
-| CHANGELOG 和文档更新 | 文档更新 | ✅ 完成 | - |
+| Server Actions 新缓存 API 参考实现   | 测试编写 | ✅ 完成 | 10 tests   |
+| CHANGELOG 和文档更新                 | 文档更新 | ✅ 完成 | -          |
 
 ---
 
 ## ✅ 任务 1: 代码优化 - revalidateTag 迁移到 cacheLife Profile API
 
 ### 变更文件
+
 - `src/app/actions/revalidate.ts`
 
 ### 变更内容
+
 将过时的 `revalidateTag(tag)` 单参数形式迁移到新的 `revalidateTag(tag, cacheLife)` API:
 
 ```typescript
 // 旧代码 ❌
-revalidateTag('posts', 'posts');  // 双参数是错误用法
-revalidateTag('projects', 'projects');
+revalidateTag('posts', 'posts') // 双参数是错误用法
+revalidateTag('projects', 'projects')
 
 // 新代码 ✅
-revalidateTag('posts', 'max');    // 使用 cacheLife profile
-revalidateTag('projects', 'max');
+revalidateTag('posts', 'max') // 使用 cacheLife profile
+revalidateTag('projects', 'max')
 ```
 
 ### cacheLife Profile 说明
-| Profile | 缓存时间 | 适用场景 |
-|---------|----------|----------|
-| `max` | 最大 | 静态内容（博客、项目） |
-| `hours` | 小时 | 中等更新频率 |
-| `minutes` | 分钟 | 高频更新（仪表盘） |
-| `min` | 最小 | 紧急刷新 |
+
+| Profile   | 缓存时间 | 适用场景               |
+| --------- | -------- | ---------------------- |
+| `max`     | 最大     | 静态内容（博客、项目） |
+| `hours`   | 小时     | 中等更新频率           |
+| `minutes` | 分钟     | 高频更新（仪表盘）     |
+| `min`     | 最小     | 紧急刷新               |
 
 ---
 
 ## ✅ 任务 2: 测试编写 - 新缓存 API 测试
 
 ### 新增文件
+
 - `src/app/api/revalidate/__tests__/new_cache_api.test.ts` (测试文件)
 - `src/app/api/revalidate/route_new_api.ts` (参考实现)
 
 ### 测试覆盖
+
 ```
 ✓ revalidateTag with cacheLife profile
   ✓ 应该使用 cacheLife profile 调用 revalidateTag
@@ -75,9 +80,11 @@ revalidateTag('projects', 'max');
 ## ✅ 任务 3: 文档更新
 
 ### 变更文件
+
 - `CHANGELOG.md`
 
 ### 更新内容
+
 在 v1.3.0 规划中标注已完成的任务:
 
 ```markdown
@@ -100,12 +107,12 @@ revalidateTag('projects', 'max');
 
 ## 📁 变更文件清单
 
-| 文件 | 操作 | 说明 |
-|------|------|------|
-| `src/app/actions/revalidate.ts` | 修改 | 迁移到 cacheLife profile API |
-| `src/app/api/revalidate/route_new_api.ts` | 新增 | 新缓存 API 参考实现 |
-| `src/app/api/revalidate/__tests__/new_cache_api.test.ts` | 新增 | 缓存 API 测试 |
-| `CHANGELOG.md` | 修改 | 标注任务完成状态 |
+| 文件                                                     | 操作 | 说明                         |
+| -------------------------------------------------------- | ---- | ---------------------------- |
+| `src/app/actions/revalidate.ts`                          | 修改 | 迁移到 cacheLife profile API |
+| `src/app/api/revalidate/route_new_api.ts`                | 新增 | 新缓存 API 参考实现          |
+| `src/app/api/revalidate/__tests__/new_cache_api.test.ts` | 新增 | 缓存 API 测试                |
+| `CHANGELOG.md`                                           | 修改 | 标注任务完成状态             |
 
 ---
 

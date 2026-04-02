@@ -8,25 +8,25 @@
  */
 export interface WebSocketMetrics {
   /** 连接时间 (ms) */
-  connectTime: number;
+  connectTime: number
   /** 当前延迟 (ms) */
-  latency: number;
+  latency: number
   /** 重连次数 */
-  reconnectCount: number;
+  reconnectCount: number
   /** 消息计数 */
-  messageCount: number;
+  messageCount: number
   /** 错误计数 */
-  errorCount: number;
+  errorCount: number
   /** 最后心跳时间 */
-  lastHeartbeat?: number;
+  lastHeartbeat?: number
   /** 连接状态 */
-  connectionState: "connecting" | "connected" | "disconnected" | "reconnecting";
+  connectionState: 'connecting' | 'connected' | 'disconnected' | 'reconnecting'
   /** 平均延迟 (ms) */
-  avgLatency?: number;
+  avgLatency?: number
   /** 最大延迟 (ms) */
-  maxLatency?: number;
+  maxLatency?: number
   /** 最小延迟 (ms) */
-  minLatency?: number;
+  minLatency?: number
 }
 
 /**
@@ -34,36 +34,36 @@ export interface WebSocketMetrics {
  */
 export interface WebSocketMonitorConfig {
   /** Ping 间隔 (ms), 默认 5000 */
-  pingInterval?: number;
+  pingInterval?: number
   /** 延迟阈值 - 警告 (ms), 默认 200 */
-  latencyWarningThreshold?: number;
+  latencyWarningThreshold?: number
   /** 延迟阈值 - 严重 (ms), 默认 500 */
-  latencyCriticalThreshold?: number;
+  latencyCriticalThreshold?: number
   /** 是否启用自动上报, 默认 true */
-  autoReport?: boolean;
+  autoReport?: boolean
   /** 是否记录详细日志, 默认 false */
-  verbose?: boolean;
+  verbose?: boolean
   /** 历史记录最大长度, 默认 100 */
-  maxHistoryLength?: number;
+  maxHistoryLength?: number
 }
 
 /**
  * WebSocket 连接事件
  */
 export interface WebSocketEvent {
-  type: "connect" | "disconnect" | "reconnect" | "error" | "latency" | "message";
-  timestamp: number;
-  namespace: string;
-  data?: Record<string, unknown>;
+  type: 'connect' | 'disconnect' | 'reconnect' | 'error' | 'latency' | 'message'
+  timestamp: number
+  namespace: string
+  data?: Record<string, unknown>
 }
 
 /**
  * 延迟记录
  */
 export interface LatencyRecord {
-  timestamp: number;
-  latency: number;
-  namespace: string;
+  timestamp: number
+  latency: number
+  namespace: string
 }
 
 /**
@@ -71,23 +71,23 @@ export interface LatencyRecord {
  */
 export interface WebSocketMonitorStats {
   /** 总连接数 */
-  totalConnections: number;
+  totalConnections: number
   /** 当前活跃连接数 */
-  activeConnections: number;
+  activeConnections: number
   /** 总重连次数 */
-  totalReconnects: number;
+  totalReconnects: number
   /** 总错误次数 */
-  totalErrors: number;
+  totalErrors: number
   /** 总消息数 */
-  totalMessages: number;
+  totalMessages: number
   /** 平均延迟 */
-  avgLatency: number;
+  avgLatency: number
   /** 最大延迟 */
-  maxLatency: number;
+  maxLatency: number
   /** 最小延迟 */
-  minLatency: number;
+  minLatency: number
   /** 命名空间统计 */
-  namespaces: Map<string, WebSocketMetrics>;
+  namespaces: Map<string, WebSocketMetrics>
 }
 
 /**
@@ -100,4 +100,4 @@ export const DEFAULT_WEBSOCKET_MONITOR_CONFIG: Required<WebSocketMonitorConfig> 
   autoReport: true,
   verbose: false,
   maxHistoryLength: 100,
-};
+}

@@ -12,11 +12,11 @@
 
 ### 关键发现
 
-| 严重程度 | 数量 | 状态 |
-|---------|------|------|
-| 🔴 高优先级 | 2 | 需要立即修复 |
-| 🟡 中优先级 | 6 | 本周内修复 |
-| 🟢 低优先级 | 4 | 可延后处理 |
+| 严重程度    | 数量 | 状态         |
+| ----------- | ---- | ------------ |
+| 🔴 高优先级 | 2    | 需要立即修复 |
+| 🟡 中优先级 | 6    | 本周内修复   |
+| 🟢 低优先级 | 4    | 可延后处理   |
 
 ---
 
@@ -28,6 +28,7 @@
 `src/components/SearchFilter.tsx` 存在 TypeScript 类型不匹配错误，导致生产构建失败。
 
 **错误信息**:
+
 ```
 Type error: Type 'SortConfig<T>[]' is not assignable to type 'SortConfig<unknown>[]'.
   Type 'SortConfig<T>' is not assignable to type 'SortConfig<unknown>'.
@@ -40,6 +41,7 @@ Type error: Type 'SortConfig<T>[]' is not assignable to type 'SortConfig<unknown
 **严重程度**: 🔴 **高**
 
 **影响范围**:
+
 - 生产构建完全失败
 - SearchFilter 组件无法使用
 - 所有依赖该组件的功能受影响
@@ -50,6 +52,7 @@ TypeScript 泛型协变/逆变问题，`SortConfig<T>[]` 不能直接赋值给 `
 **修复方向**:
 
 1. **方案 1: 使用类型断言（快速修复）**
+
 ```typescript
 // src/components/SearchFilter.tsx 第 414 行
 <SortDropdown
@@ -60,6 +63,7 @@ TypeScript 泛型协变/逆变问题，`SortConfig<T>[]` 不能直接赋值给 `
 ```
 
 2. **方案 2: 修改 SortDropdown 组件类型定义（推荐）**
+
 ```typescript
 // 修改 SortDropdown Props 定义
 interface SortDropdownProps<T extends object> {
@@ -77,6 +81,7 @@ interface SortDropdownProps<T extends object> {
 ```
 
 3. **方案 3: 使用工具类型（最优雅）**
+
 ```typescript
 // 创建工具类型
 type SortConfigArray<T> = SortConfig<unknown>[];
@@ -92,6 +97,7 @@ type SortConfigArray<T> = SortConfig<unknown>[];
 **预计修复时间**: 30 分钟 - 1 小时
 
 **验证步骤**:
+
 ```bash
 # 1. 应用修复
 # 2. 运行 TypeScript 检查
@@ -112,15 +118,18 @@ npm test src/components/SearchFilter.test.tsx
 项目中使用的 `xlsx@0.18.5` 包存在 2 个高危安全漏洞，可能导致远程代码执行（RCE）和服务拒绝攻击（ReDoS）。
 
 **漏洞详情**:
+
 - **GHSA-4r6h-8v6p-xvw6**: Prototype Pollution in sheetJS (CVSS 7.8 - 高危)
 - **GHSA-5pgg-2g8v-p4x9**: Regular Expression Denial of Service (ReDoS) (CVSS 7.5 - 高危)
 
 **使用位置**:
+
 - `src/lib/export/index.ts` - Excel 文件导出功能
 
 **严重程度**: 🔴 **高**
 
 **影响范围**:
+
 - 生产环境安全风险
 - 用户上传恶意 Excel 文件可能导致 RCE
 - 攻击者可利用 ReDoS 导致服务瘫痪
@@ -128,6 +137,7 @@ npm test src/components/SearchFilter.test.tsx
 **修复方向**:
 
 1. **方案 1: 替换为 exceljs（推荐）**
+
 ```bash
 # 卸载 xlsx
 npm uninstall xlsx
@@ -139,33 +149,35 @@ npm install -D @types/exceljs
 
 ```typescript
 // src/lib/export/index.ts 迁移示例
-import ExcelJS from 'exceljs';
+import ExcelJS from 'exceljs'
 
 export async function exportToExcel(data: unknown[], filename: string) {
-  const workbook = new ExcelJS.Workbook();
-  const worksheet = workbook.addWorksheet('Sheet 1');
+  const workbook = new ExcelJS.Workbook()
+  const worksheet = workbook.addWorksheet('Sheet 1')
 
   // 添加数据
   worksheet.columns = Object.keys(data[0]).map(key => ({
     header: key,
     key: key,
-  }));
+  }))
 
-  data.forEach(row => worksheet.addRow(row));
+  data.forEach(row => worksheet.addRow(row))
 
   // 导出
-  const buffer = await workbook.xlsx.writeBuffer();
+  const buffer = await workbook.xlsx.writeBuffer()
   // ... 下载逻辑
 }
 ```
 
 2. **方案 2: 暂时移除导出功能**
+
 ```bash
 npm uninstall xlsx
 # 在 src/lib/export/index.ts 中注释或移除相关代码
 ```
 
 3. **方案 3: 输入验证 + 沙箱（临时缓解）**
+
 ```typescript
 // 如果必须使用 xlsx，添加严格验证
 function validateExcelData(data: unknown[]): boolean {
@@ -179,6 +191,7 @@ function validateExcelData(data: unknown[]): boolean {
 **预计修复时间**: 2-3 小时（包括测试）
 
 **验证步骤**:
+
 ```bash
 # 1. 移除/替换 xlsx
 npm uninstall xlsx
@@ -209,6 +222,7 @@ npm run build
 构建日志显示 `nav.portfolio` 消息键在中文和英文语言包中缺失，导致构建失败。
 
 **错误信息**:
+
 ```
 Error: MISSING_MESSAGE: nav.portfolio (zh)
 Error: MISSING_MESSAGE: nav.portfolio (en)
@@ -217,12 +231,14 @@ Error: MISSING_MESSAGE: nav.portfolio (en)
 **严重程度**: 🟡 **中**
 
 **影响范围**:
+
 - 生产构建失败
 - Portfolio 页面无法访问
 - 导航功能异常
 
 **可能原因**:
 尽管检查显示 `src/i18n/messages/en.json` 和 `src/i18n/messages/zh.json` 都包含 `nav.portfolio`，但构建时仍然报错，可能是：
+
 1. i18n 配置问题
 2. 文件缓存问题
 3. next-intl 版本问题
@@ -231,6 +247,7 @@ Error: MISSING_MESSAGE: nav.portfolio (en)
 **修复方向**:
 
 1. **方案 1: 清理构建缓存**
+
 ```bash
 # 清理 Next.js 缓存
 rm -rf .next
@@ -243,41 +260,44 @@ npm run build
 ```
 
 2. **方案 2: 检查 i18n 配置**
+
 ```typescript
 // src/i18n/request.ts
-import { getRequestConfig } from 'next-intl/server';
-import { notFound } from 'next/navigation';
+import { getRequestConfig } from 'next-intl/server'
+import { notFound } from 'next/navigation'
 
 export default getRequestConfig(async ({ locale }) => {
   // 验证 locale 是否有效
-  let validatedLocale: string;
+  let validatedLocale: string
   try {
     validatedLocale = await import(`@/i18n/messages/${locale}.json`)
       .then(m => locale)
-      .catch(() => notFound());
+      .catch(() => notFound())
   } catch {
-    notFound();
+    notFound()
   }
 
   return {
     messages: (await import(`@/i18n/messages/${validatedLocale}.json`)).default,
     timeZone: 'Europe/Berlin',
-  };
-});
+  }
+})
 ```
 
 3. **方案 3: 使用默认值**
+
 ```typescript
 // src/app/[locale]/portfolio/[slug]/page.tsx
-const tNav = await getTranslations({ locale, namespace: 'nav' });
+const tNav = await getTranslations({ locale, namespace: 'nav' })
 
 // 添加默认值处理
 const portfolioLabel = tNav('portfolio', {
   defaultValue: locale === 'zh' ? '作品案例' : 'Portfolio',
-});
+})
 ```
 
 4. **方案 4: 验证消息文件完整性**
+
 ```bash
 # 创建验证脚本
 cat > scripts/verify-i18n.js << 'EOF'
@@ -337,6 +357,7 @@ node scripts/verify-i18n.js
 **预计修复时间**: 1-2 小时
 
 **验证步骤**:
+
 ```bash
 # 1. 清理缓存
 rm -rf .next node_modules/.cache
@@ -359,6 +380,7 @@ npm test src/i18n/__tests__
 `/zh/portfolio/ai-content-generator` 页面在预渲染时发生错误。
 
 **错误信息**:
+
 ```
 Error occurred prerendering page "/zh/portfolio/ai-content-generator"
 TypeError: Cannot read properties of null (reading 'useEffect')
@@ -368,11 +390,13 @@ digest: '168258402'
 **严重程度**: 🟡 **中**
 
 **影响范围**:
+
 - Portfolio 详情页无法预渲染
 - 特定项目页面加载失败
 - SEO 受影响（无法静态生成）
 
 **可能原因**:
+
 1. Server Component 中错误地使用了 `useEffect`
 2. 某个组件在服务端渲染时试图访问客户端 API
 3. 某个依赖项为 null 导致调用失败
@@ -380,6 +404,7 @@ digest: '168258402'
 **修复方向**:
 
 1. **方案 1: 检查 ClientProviders 组件**
+
 ```typescript
 // src/components/ClientProviders.tsx
 'use client';  // 确保是客户端组件
@@ -392,61 +417,66 @@ export function ClientProviders({ children }: { children: ReactNode }) {
 ```
 
 2. **方案 2: 修复 useEffect 使用**
+
 ```typescript
 // ❌ 错误：在服务端组件中使用 useEffect
 // src/app/[locale]/portfolio/[slug]/page.tsx
 
 export default async function ProjectDetailPage({ params }: { params: Params }) {
-  useEffect(() => {  // 错误！
+  useEffect(() => {
+    // 错误！
     // ...
-  });
+  })
   // ...
 }
 
 // ✅ 正确：移到单独的客户端组件
 // src/app/[locale]/portfolio/[slug]/components/ProjectTracker.tsx
-'use client';
+;('use client')
 
-import { useEffect } from 'react';
+import { useEffect } from 'react'
 
 export function ProjectTracker({ slug }: { slug: string }) {
   useEffect(() => {
     // 客户端逻辑
-  }, [slug]);
+  }, [slug])
 
-  return null;
+  return null
 }
 ```
 
 3. **方案 3: 添加空值检查**
+
 ```typescript
 // src/app/[locale]/portfolio/[slug]/page.tsx
-const project = getProjectBySlug(slug);
+const project = getProjectBySlug(slug)
 
 // 添加更详细的错误处理
 if (!project) {
-  console.error(`Project not found: ${slug}`);
-  notFound();
+  console.error(`Project not found: ${slug}`)
+  notFound()
 }
 
 // 验证必需字段
 if (!project.titleZh || !project.title || !project.description) {
-  console.error('Invalid project data:', slug, project);
-  notFound();
+  console.error('Invalid project data:', slug, project)
+  notFound()
 }
 ```
 
 4. **方案 4: 禁用静态生成（临时）**
+
 ```typescript
 // 已经在代码中使用了 dynamic = 'force-dynamic'
 // 如果仍然有问题，检查是否有其他地方启用了静态生成
-export const dynamic = 'force-dynamic';
-export const dynamicParams = true;
+export const dynamic = 'force-dynamic'
+export const dynamicParams = true
 ```
 
 **预计修复时间**: 1-2 小时
 
 **验证步骤**:
+
 ```bash
 # 1. 修复 useEffect 问题
 # 编辑相关组件文件
@@ -472,11 +502,13 @@ npm run dev 2>&1 | grep -i error
 **严重程度**: 🟡 **中**
 
 **影响范围**:
+
 - 多个列表渲染组件
 - 可能导致渲染性能问题
 - React 开发工具警告
 
 **受影响文件**（根据日志）:
+
 - `<html>` 标签子元素
 - `<head>` 标签子元素
 - `<meta>` 标签子元素
@@ -485,6 +517,7 @@ npm run dev 2>&1 | grep -i error
 **修复方向**:
 
 1. **通用修复模式**
+
 ```typescript
 // ❌ 错误：没有 key
 {items.map(item => (
@@ -503,6 +536,7 @@ npm run dev 2>&1 | grep -i error
 ```
 
 2. **检查 layout.tsx 和 page.tsx**
+
 ```typescript
 // src/app/[locale]/layout.tsx
 // 检查所有列表渲染
@@ -515,6 +549,7 @@ npm run dev 2>&1 | grep -i error
 ```
 
 3. **添加 ESLint 规则（预防）**
+
 ```json
 // .eslintrc.json
 {
@@ -525,6 +560,7 @@ npm run dev 2>&1 | grep -i error
 ```
 
 4. **批量查找修复**
+
 ```bash
 # 查找所有使用 .map 的文件
 grep -r "\.map(" src/components src/app --include="*.tsx" --include="*.ts" -l
@@ -535,6 +571,7 @@ grep -r "\.map(" src/components src/app --include="*.tsx" --include="*.ts" -l
 **预计修复时间**: 2-3 小时（取决于文件数量）
 
 **验证步骤**:
+
 ```bash
 # 1. 修复所有 key 问题
 
@@ -559,6 +596,7 @@ npm run build 2>&1 | grep "key"
 开发服务器日志显示大量 "No intl context found" 错误，影响所有页面访问。
 
 **错误信息**:
+
 ```
 Error: No intl context found. Have you configured the provider? See https://next-intl.dev/docs/usage/configuration#server-client-components
 ```
@@ -566,11 +604,13 @@ Error: No intl context found. Have you configured the provider? See https://next
 **严重程度**: 🟡 **中**
 
 **影响范围**:
+
 - 开发环境体验差
 - 所有页面需要手动刷新才能正常显示
 - 影响开发效率
 
 **可能原因**:
+
 1. next-intl Provider 未正确配置
 2. Server Component 和 Client Component 混用
 3. 爆炸式错误导致连锁反应
@@ -578,6 +618,7 @@ Error: No intl context found. Have you configured the provider? See https://next
 **修复方向**:
 
 1. **方案 1: 检查 root layout**
+
 ```typescript
 // src/app/[locale]/layout.tsx
 import { NextIntlClientProvider } from 'next-intl';
@@ -605,6 +646,7 @@ export default async function LocaleLayout({
 ```
 
 2. **方案 2: 检查 ClientProviders**
+
 ```typescript
 // src/components/ClientProviders.tsx
 'use client';
@@ -627,6 +669,7 @@ export function ClientProviders({ children, messages }: ClientProvidersProps) {
 ```
 
 3. **方案 3: 使用 Server Component（推荐）**
+
 ```typescript
 // src/app/[locale]/portfolio/[slug]/page.tsx
 // 移除 ClientProviders，直接在 Server Component 中使用
@@ -652,6 +695,7 @@ export default async function ProjectDetailPage({ params }: { params: Params }) 
 ```
 
 4. **方案 4: 添加错误边界**
+
 ```typescript
 // src/components/IntlErrorBoundary.tsx
 'use client';
@@ -689,6 +733,7 @@ export class IntlErrorBoundary extends Component<Props, State> {
 **预计修复时间**: 1-2 小时
 
 **验证步骤**:
+
 ```bash
 # 1. 修复 Provider 配置
 
@@ -713,11 +758,13 @@ curl http://localhost:3000/zh
 **严重程度**: 🟡 **中**
 
 **影响范围**:
+
 - CI/CD 可能被阻塞
 - 无法准确判断测试状态
 - 可能隐藏实际的测试问题
 
 **可能原因**:
+
 1. 测试框架配置问题
 2. 测试超时或崩溃
 3. 测试运行器异常退出
@@ -725,11 +772,12 @@ curl http://localhost:3000/zh
 **修复方向**:
 
 1. **方案 1: 检查 Vitest 配置**
+
 ```typescript
 // vitest.config.ts
-import { defineConfig } from 'vitest/config';
-import react from '@vitejs/plugin-react';
-import path from 'path';
+import { defineConfig } from 'vitest/config'
+import react from '@vitejs/plugin-react'
+import path from 'path'
 
 export default defineConfig({
   plugins: [react()],
@@ -740,13 +788,7 @@ export default defineConfig({
     coverage: {
       provider: 'v8',
       reporter: ['text', 'json', 'html'],
-      exclude: [
-        'node_modules/',
-        'src/test/',
-        '**/*.d.ts',
-        '**/*.config.*',
-        '**/mockData',
-      ],
+      exclude: ['node_modules/', 'src/test/', '**/*.d.ts', '**/*.config.*', '**/mockData'],
     },
     // 添加超时配置
     testTimeout: 10000,
@@ -757,26 +799,28 @@ export default defineConfig({
       '@': path.resolve(__dirname, './src'),
     },
   },
-});
+})
 ```
 
 2. **方案 2: 创建测试设置文件**
+
 ```typescript
 // src/test/setup.ts
-import '@testing-library/jest-dom';
-import { cleanup } from '@testing-library/react';
-import { afterEach, vi } from 'vitest';
+import '@testing-library/jest-dom'
+import { cleanup } from '@testing-library/react'
+import { afterEach, vi } from 'vitest'
 
 // 每个测试后清理
 afterEach(() => {
-  cleanup();
-});
+  cleanup()
+})
 
 // 模拟环境变量
-vi.stubEnv('NODE_ENV', 'test');
+vi.stubEnv('NODE_ENV', 'test')
 ```
 
 3. **方案 3: 运行详细测试**
+
 ```bash
 # 运行测试并显示详细输出
 npm run test -- --reporter=verbose
@@ -789,6 +833,7 @@ npm run test:coverage
 ```
 
 4. **方案 4: 检查测试日志**
+
 ```bash
 # 查找测试相关日志
 find . -name "*.log" -exec grep -l "test\|vitest" {} \;
@@ -800,6 +845,7 @@ tail -f .next/dev/logs/next-development.log | grep -i error
 **预计修复时间**: 1 小时
 
 **验证步骤**:
+
 ```bash
 # 1. 更新 Vitest 配置
 
@@ -824,6 +870,7 @@ npm run test:coverage
 构建和运行时显示 "middleware" 文件约定已弃用的警告。
 
 **警告信息**:
+
 ```
 Warning: The "middleware" file convention is deprecated.
 Please use "proxy" instead.
@@ -832,6 +879,7 @@ Please use "proxy" instead.
 **严重程度**: 🟡 **中**
 
 **影响范围**:
+
 - 未来版本可能完全移除
 - 需要提前适配
 - 技术债务
@@ -839,33 +887,39 @@ Please use "proxy" instead.
 **修复方向**:
 
 1. **查找 middleware 文件**
+
 ```bash
 find src -name "middleware.*" -type f
 ```
 
 2. **重命名为 proxy**
+
 ```bash
 # 如果存在 middleware.ts
 mv src/middleware.ts src/proxy.ts
 ```
 
 3. **更新 Next.js 配置（如果需要）**
+
 ```typescript
 // next.config.ts
 const nextConfig: NextConfig = {
   // 如果有 middleware 相关配置，更新为 proxy
-};
+}
 ```
 
 4. **更新文档**
+
 ```markdown
 # DEPLOYMENT.md
+
 # 将所有 "middleware" 引用更新为 "proxy"
 ```
 
 **预计修复时间**: 30 分钟
 
 **验证步骤**:
+
 ```bash
 # 1. 重命名文件
 mv src/middleware.ts src/proxy.ts
@@ -890,6 +944,7 @@ npm run build
 构建时检测到非标准的 `NODE_ENV` 值，可能导致不一致性。
 
 **警告信息**:
+
 ```
 Warning: You are using a non-standard "NODE_ENV" value in your environment.
 This creates inconsistencies in the project and is strongly advised against.
@@ -898,6 +953,7 @@ This creates inconsistencies in the project and is strongly advised against.
 **严重程度**: 🟢 **低**
 
 **影响范围**:
+
 - 构建一致性
 - 性能优化可能不生效
 - 代码条件分支异常
@@ -905,6 +961,7 @@ This creates inconsistencies in the project and is strongly advised against.
 **修复方向**:
 
 1. **检查环境变量**
+
 ```bash
 # 检查 .env 文件
 cat .env
@@ -916,6 +973,7 @@ echo $NODE_ENV
 ```
 
 2. **标准化 NODE_ENV**
+
 ```bash
 # .env
 NODE_ENV=development
@@ -925,6 +983,7 @@ NODE_ENV=production
 ```
 
 3. **移除自定义 NODE_ENV**
+
 ```bash
 # 如果使用了自定义值（如 "stage", "staging"）
 # 改用标准值：development, production, test
@@ -940,6 +999,7 @@ NODE_ENV=production
 Next.js 检测到多个 lockfile，可能导致构建混淆。
 
 **警告信息**:
+
 ```
 Warning: Next.js inferred your workspace root, but it may not be correct.
 We detected multiple lockfiles and selected the directory of /root/.openclaw/workspace/package-lock.json as the root directory.
@@ -948,12 +1008,14 @@ We detected multiple lockfiles and selected the directory of /root/.openclaw/wor
 **严重程度**: 🟢 **低**
 
 **影响范围**:
+
 - 构建工具路径混淆
 - 依赖解析可能不一致
 
 **修复方向**:
 
 1. **删除多余的 lockfile**
+
 ```bash
 # 保留一个，删除其他
 # 选项 1: 保留 package-lock.json
@@ -967,6 +1029,7 @@ rm -f package-lock.json pnpm-lock.yaml
 ```
 
 2. **统一包管理器**
+
 ```bash
 # 选择一个包管理器
 # npm (使用 package-lock.json)
@@ -982,6 +1045,7 @@ yarn install
 ```
 
 3. **配置 Next.js（如果需要）**
+
 ```typescript
 // next.config.ts
 const nextConfig: NextConfig = {
@@ -990,7 +1054,7 @@ const nextConfig: NextConfig = {
       root: process.cwd(),
     },
   },
-};
+}
 ```
 
 **预计修复时间**: 10 分钟
@@ -1003,6 +1067,7 @@ const nextConfig: NextConfig = {
 多个依赖项存在 Major 版本更新可用。
 
 **过时依赖**:
+
 - `@vitejs/plugin-react`: 5.2.0 → 6.0.1
 - `eslint`: 9.39.4 → 10.0.3
 - `jsdom`: 28.1.0 → 29.0.0
@@ -1011,12 +1076,14 @@ const nextConfig: NextConfig = {
 **严重程度**: 🟢 **低**
 
 **影响范围**:
+
 - 错过新功能和性能改进
 - 潜在的安全修复
 
 **修复方向**:
 
 1. **分阶段更新**
+
 ```bash
 # 第 1 周：更新 @vitejs/plugin-react
 npm install -D @vitejs/plugin-react@latest
@@ -1032,6 +1099,7 @@ npm install -D jsdom@latest
 ```
 
 2. **测试每个更新**
+
 ```bash
 # 更新后
 npm run build
@@ -1047,6 +1115,7 @@ npm run dev
 
 **问题描述**:
 测试覆盖率存在严重不均衡：
+
 - API 路由：11%
 - 组件：13%
 - 整体：46%
@@ -1054,6 +1123,7 @@ npm run dev
 **严重程度**: 🟢 **低**
 
 **影响范围**:
+
 - 代码质量风险
 - 回归风险
 - 维护成本
@@ -1069,19 +1139,19 @@ npm run dev
 ## 📊 Bug 优先级矩阵
 
 | Bug ID | 严重程度 | 影响范围 | 修复难度 | 优先级排序 |
-|--------|---------|---------|---------|-----------|
-| #1 | 🔴 高 | 构建失败 | 中 | 1 |
-| #2 | 🔴 高 | 安全风险 | 中 | 2 |
-| #3 | 🟡 中 | 构建失败 | 低 | 3 |
-| #4 | 🟡 中 | 功能异常 | 中 | 4 |
-| #5 | 🟡 中 | 性能问题 | 低 | 5 |
-| #6 | 🟡 中 | 开发体验 | 中 | 6 |
-| #7 | 🟡 中 | CI/CD | 低 | 7 |
-| #8 | 🟡 中 | 技术债务 | 低 | 8 |
-| #9 | 🟢 低 | 一致性 | 低 | 9 |
-| #10 | 🟢 低 | 构建工具 | 低 | 10 |
-| #11 | 🟢 低 | 依赖更新 | 中 | 11 |
-| #12 | 🟢 低 | 代码质量 | 高 | 12 |
+| ------ | -------- | -------- | -------- | ---------- |
+| #1     | 🔴 高    | 构建失败 | 中       | 1          |
+| #2     | 🔴 高    | 安全风险 | 中       | 2          |
+| #3     | 🟡 中    | 构建失败 | 低       | 3          |
+| #4     | 🟡 中    | 功能异常 | 中       | 4          |
+| #5     | 🟡 中    | 性能问题 | 低       | 5          |
+| #6     | 🟡 中    | 开发体验 | 中       | 6          |
+| #7     | 🟡 中    | CI/CD    | 低       | 7          |
+| #8     | 🟡 中    | 技术债务 | 低       | 8          |
+| #9     | 🟢 低    | 一致性   | 低       | 9          |
+| #10    | 🟢 低    | 构建工具 | 低       | 10         |
+| #11    | 🟢 低    | 依赖更新 | 中       | 11         |
+| #12    | 🟢 低    | 代码质量 | 高       | 12         |
 
 ---
 
@@ -1090,6 +1160,7 @@ npm run dev
 ### 本周（Week 1 - 3月18-22日）
 
 **必须完成**:
+
 - [ ] Bug #1: SearchFilter TypeScript 错误（1小时）
 - [ ] Bug #2: xlsx 安全漏洞（3小时）
 - [ ] Bug #3: i18n 消息键缺失（2小时）
@@ -1100,6 +1171,7 @@ npm run dev
 ### 下周（Week 2 - 3月25-29日）
 
 **推荐完成**:
+
 - [ ] Bug #5: React key 警告（3小时）
 - [ ] Bug #6: Intl 上下文错误（2小时）
 - [ ] Bug #7: 测试状态失败（1小时）
@@ -1110,6 +1182,7 @@ npm run dev
 ### 本月（Week 3-4 - 4月1-12日）
 
 **可以完成**:
+
 - [ ] Bug #9: NODE_ENV 警告（0.25小时）
 - [ ] Bug #10: 多个 lockfile（0.25小时）
 - [ ] Bug #11: 依赖更新（8小时，分4周）
@@ -1119,6 +1192,7 @@ npm run dev
 ### 长期（2-3个月）
 
 **持续改进**:
+
 - [ ] Bug #12: 测试覆盖率提升（6-8周）
 
 ---
@@ -1128,6 +1202,7 @@ npm run dev
 ### 1. Bug 预防
 
 **代码审查清单**:
+
 - [ ] TypeScript 类型检查通过
 - [ ] ESLint 无警告
 - [ ] 所有列表元素有 key
@@ -1137,6 +1212,7 @@ npm run dev
 ### 2. 监控和告警
 
 **建议添加**:
+
 - 构建失败 Slack/Telegram 通知
 - 安全漏洞自动检测
 - 测试覆盖率阈值告警
@@ -1144,6 +1220,7 @@ npm run dev
 ### 3. 文档维护
 
 **建议更新**:
+
 - BUG_FIXES.md - 记录已修复的 Bug
 - KNOWN_ISSUES.md - 记录已知问题
 - CHANGELOG.md - 记录 Bug 修复
@@ -1154,15 +1231,15 @@ npm run dev
 
 ### 关键指标
 
-| 指标 | 数值 |
-|------|------|
-| 总 Bug 数 | 12 个 |
-| 高优先级 | 2 个 |
-| 中优先级 | 6 个 |
-| 低优先级 | 4 个 |
-| 本周修复时间 | ~8 小时 |
+| 指标         | 数值     |
+| ------------ | -------- |
+| 总 Bug 数    | 12 个    |
+| 高优先级     | 2 个     |
+| 中优先级     | 6 个     |
+| 低优先级     | 4 个     |
+| 本周修复时间 | ~8 小时  |
 | 本月修复时间 | ~15 小时 |
-| 长期改进时间 | 6-8 周 |
+| 长期改进时间 | 6-8 周   |
 
 ### 立即行动
 

@@ -66,12 +66,12 @@ docker run -p 3000:3000 7zi-frontend:latest
 
 ### 2. 环境变量
 
-| 变量 | 描述 | 默认值 |
-|------|------|--------|
-| `NODE_ENV` | 运行环境 | `production` |
-| `PORT` | 服务端口 | `3000` |
-| `HOSTNAME` | 监听地址 | `0.0.0.0` |
-| `TURBOPACK` | Turbopack 开关 | `1` |
+| 变量        | 描述           | 默认值       |
+| ----------- | -------------- | ------------ |
+| `NODE_ENV`  | 运行环境       | `production` |
+| `PORT`      | 服务端口       | `3000`       |
+| `HOSTNAME`  | 监听地址       | `0.0.0.0`    |
+| `TURBOPACK` | Turbopack 开关 | `1`          |
 
 ### 3. 回退到 Webpack
 
@@ -123,7 +123,7 @@ experimental: {
          source: '/_next/static/:path*',
          headers: [{ key: 'Cache-Control', value: 'public, max-age=31536000, immutable' }],
        },
-     ];
+     ]
    }
    ```
 
@@ -136,6 +136,7 @@ experimental: {
 **症状**: Turbopack 构建时出现错误
 
 **解决方案**:
+
 ```bash
 # 回退到 Webpack
 TURBOPACK=0 npm run build
@@ -146,6 +147,7 @@ TURBOPACK=0 npm run build
 **症状**: 开发时修改代码不刷新
 
 **解决方案**:
+
 - 检查 `turbopackFileSystemCacheForDev: true`
 - 清除 `.next` 缓存: `rm -rf .next`
 - 重启开发服务器
@@ -155,6 +157,7 @@ TURBOPACK=0 npm run build
 **症状**: 构建时间过长
 
 **解决方案**:
+
 - 确保启用了 `turbopackFileSystemCacheForDev`
 - 检查 `optimizePackageImports` 配置
 - 减少不必要的依赖
@@ -164,6 +167,7 @@ TURBOPACK=0 npm run build
 **症状**: 构建时 OOM (Out of Memory)
 
 **解决方案**:
+
 ```bash
 # 增加 Node 内存限制
 NODE_OPTIONS="--max-old-space-size=4096" npm run build
@@ -186,11 +190,11 @@ ANALYZE=true npm run build:analyze
 
 ### 构建时间对比（示例）
 
-| 场景 | Webpack | Turbopack | 提升 |
-|------|---------|-----------|------|
-| 初始构建 | 120s | 45s | 2.7x |
-| 增量构建 | 30s | 3s | 10x |
-| HMR | 800ms | 2ms | 400x |
+| 场景     | Webpack | Turbopack | 提升 |
+| -------- | ------- | --------- | ---- |
+| 初始构建 | 120s    | 45s       | 2.7x |
+| 增量构建 | 30s     | 3s        | 10x  |
+| HMR      | 800ms   | 2ms       | 400x |
 
 ### 实际指标
 

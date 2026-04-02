@@ -26,11 +26,13 @@
 ### 文件命名
 
 **基础规则**:
+
 - 使用 **PascalCase** 命名组件文件
 - 文件名与组件名一致
 - 一个文件一个组件（复杂组件除外）
 
 **示例**:
+
 ```
 ✅ 正确
 TaskCard.tsx
@@ -44,6 +46,7 @@ agent-status-panel.tsx
 ```
 
 **组件文件夹结构**:
+
 ```
 TaskCard/
 ├── TaskCard.tsx          # 主组件
@@ -56,6 +59,7 @@ TaskCard/
 ### 组件命名
 
 **命名模式**:
+
 ```tsx
 // ✅ 功能性命名
 TaskCard
@@ -74,6 +78,7 @@ Item
 ```
 
 **Props 接口命名**:
+
 ```tsx
 // ✅ 使用 Props 后缀
 interface TaskCardProps {
@@ -86,6 +91,7 @@ interface ITaskCard { ... }
 ```
 
 **事件处理函数命名**:
+
 ```tsx
 // ✅ 使用 on 前缀 + 动作
 onClick
@@ -107,56 +113,51 @@ const handleSubmit = (e: FormEvent) => { ... };
 ```tsx
 /**
  * TaskCard - 任务卡片组件
- * 
+ *
  * @description 显示单个任务的详细信息
  * @version 1.0.0
  * @author 开发者姓名
  */
 
-import { useState, useCallback } from 'react';
-import { Task } from '@/types';
-import { useTranslation } from '@/lib/i18n';
-import { logger } from '@/lib/logger';
+import { useState, useCallback } from 'react'
+import { Task } from '@/types'
+import { useTranslation } from '@/lib/i18n'
+import { logger } from '@/lib/logger'
 
 // ==================== 类型定义 ====================
 
 export interface TaskCardProps {
   /** 任务数据 */
-  task: Task;
+  task: Task
   /** 是否显示详细信息 */
-  showDetails?: boolean;
+  showDetails?: boolean
   /** 编辑回调 */
-  onEdit?: (taskId: string) => void;
+  onEdit?: (taskId: string) => void
   /** 删除回调 */
-  onDelete?: (taskId: string) => void;
+  onDelete?: (taskId: string) => void
 }
 
 // ==================== 主组件 ====================
 
-export function TaskCard({
-  task,
-  showDetails = false,
-  onEdit,
-  onDelete
-}: TaskCardProps) {
+export function TaskCard({ task, showDetails = false, onEdit, onDelete }: TaskCardProps) {
   // Hooks
-  const { t } = useTranslation('common');
-  const [isExpanded, setIsExpanded] = useState(false);
+  const { t } = useTranslation('common')
+  const [isExpanded, setIsExpanded] = useState(false)
 
   // Event Handlers
   const handleEdit = useCallback(() => {
-    logger.info('Task edit clicked', { taskId: task.id });
-    onEdit?.(task.id);
-  }, [task.id, onEdit]);
+    logger.info('Task edit clicked', { taskId: task.id })
+    onEdit?.(task.id)
+  }, [task.id, onEdit])
 
   const handleDelete = useCallback(() => {
-    logger.info('Task delete clicked', { taskId: task.id });
-    onDelete?.(task.id);
-  }, [task.id, onDelete]);
+    logger.info('Task delete clicked', { taskId: task.id })
+    onDelete?.(task.id)
+  }, [task.id, onDelete])
 
   const handleToggle = useCallback(() => {
-    setIsExpanded(prev => !prev);
-  }, []);
+    setIsExpanded(prev => !prev)
+  }, [])
 
   // Render
   return (
@@ -164,18 +165,10 @@ export function TaskCard({
       <div className="flex items-center justify-between">
         <h3 className="text-lg font-semibold">{task.title}</h3>
         <div className="flex gap-2">
-          <button
-            onClick={handleEdit}
-            className="btn btn-primary"
-            aria-label={t('task.edit')}
-          >
+          <button onClick={handleEdit} className="btn btn-primary" aria-label={t('task.edit')}>
             {t('common.edit')}
           </button>
-          <button
-            onClick={handleDelete}
-            className="btn btn-danger"
-            aria-label={t('task.delete')}
-          >
+          <button onClick={handleDelete} className="btn btn-danger" aria-label={t('task.delete')}>
             {t('common.delete')}
           </button>
         </div>
@@ -185,24 +178,30 @@ export function TaskCard({
         <div className="mt-2 text-gray-600">
           <p>{task.description}</p>
           <div className="mt-2 flex items-center gap-4">
-            <span>{t('task.status')}: {task.status}</span>
-            <span>{t('task.priority')}: {task.priority}</span>
+            <span>
+              {t('task.status')}: {task.status}
+            </span>
+            <span>
+              {t('task.priority')}: {task.priority}
+            </span>
           </div>
         </div>
       )}
 
       {isExpanded && (
         <div className="mt-4 border-t pt-4">
-          <p>{t('task.details')}: {task.details}</p>
+          <p>
+            {t('task.details')}: {task.details}
+          </p>
         </div>
       )}
     </div>
-  );
+  )
 }
 
 // ==================== 默认导出 ====================
 
-export default TaskCard;
+export default TaskCard
 ```
 
 ### 组件组织顺序
@@ -254,40 +253,38 @@ export default Component;
 ### Props 定义
 
 **使用 TypeScript 接口**:
+
 ```tsx
 // ✅ 清晰的类型定义
 interface UserCardProps {
   /** 用户 ID */
-  userId: string;
+  userId: string
   /** 用户数据（可选，用于乐观更新） */
-  user?: User;
+  user?: User
   /** 是否显示详细信息 */
-  showDetails?: boolean;
+  showDetails?: boolean
   /** 编辑回调 */
-  onEdit: (userId: string) => void;
+  onEdit: (userId: string) => void
   /** 删除回调（可选） */
-  onDelete?: (userId: string) => void;
+  onDelete?: (userId: string) => void
   /** 自定义类名 */
-  className?: string;
+  className?: string
 }
 ```
 
 ### 默认值处理
 
 **使用默认参数**:
+
 ```tsx
 // ✅ 推荐：使用默认参数
-export function UserCard({
-  user,
-  showDetails = false,
-  className = ''
-}: UserCardProps) {
+export function UserCard({ user, showDetails = false, className = '' }: UserCardProps) {
   // ...
 }
 
 // ❌ 避免：在组件内部设置默认值
 export function UserCard({ user, showDetails, className }: UserCardProps) {
-  const show = showDetails || false; // 不推荐
+  const show = showDetails || false // 不推荐
   // ...
 }
 ```
@@ -299,20 +296,14 @@ export function UserCard({ user, showDetails, className }: UserCardProps) {
 function TaskCard({ task, onEdit, onDelete }: Props) {
   // 可选回调
   const handleEdit = () => {
-    onEdit?.(task.id);
-  };
+    onEdit?.(task.id)
+  }
 
   // 默认值
-  const status = task.status ?? 'pending';
-  
+  const status = task.status ?? 'pending'
+
   // 条件渲染
-  return (
-    <div>
-      {onDelete && (
-        <button onClick={() => onDelete(task.id)}>Delete</button>
-      )}
-    </div>
-  );
+  return <div>{onDelete && <button onClick={() => onDelete(task.id)}>Delete</button>}</div>
 }
 ```
 
@@ -326,7 +317,7 @@ export function UserCard({ userId, user, onEdit }: Props) {
 
 // ❌ 避免：使用 props 对象
 export function UserCard(props: Props) {
-  const userId = props.userId;
+  const userId = props.userId
   // ...
 }
 ```
@@ -339,61 +330,63 @@ export function UserCard(props: Props) {
 
 ```tsx
 // ✅ 简单状态
-const [isOpen, setIsOpen] = useState(false);
-const [count, setCount] = useState(0);
+const [isOpen, setIsOpen] = useState(false)
+const [count, setCount] = useState(0)
 
 // ✅ 对象状态（使用函数式更新）
-const [user, setUser] = useState<User | null>(null);
+const [user, setUser] = useState<User | null>(null)
 
 const updateUserName = (name: string) => {
-  setUser(prev => prev ? { ...prev, name } : null);
-};
+  setUser(prev => (prev ? { ...prev, name } : null))
+}
 
 // ✅ 数组状态
-const [items, setItems] = useState<Item[]>([]);
+const [items, setItems] = useState<Item[]>([])
 
 const addItem = (item: Item) => {
-  setItems(prev => [...prev, item]);
-};
+  setItems(prev => [...prev, item])
+}
 
 const removeItem = (id: string) => {
-  setItems(prev => prev.filter(item => item.id !== id));
-};
+  setItems(prev => prev.filter(item => item.id !== id))
+}
 ```
 
 ### 全局状态（Zustand）
 
 ```tsx
 // stores/taskStore.ts
-import { create } from 'zustand';
+import { create } from 'zustand'
 
 interface TaskState {
-  tasks: Task[];
-  addTask: (task: Task) => void;
-  removeTask: (id: string) => void;
+  tasks: Task[]
+  addTask: (task: Task) => void
+  removeTask: (id: string) => void
 }
 
-export const useTaskStore = create<TaskState>((set) => ({
+export const useTaskStore = create<TaskState>(set => ({
   tasks: [],
-  addTask: (task) => set((state) => ({
-    tasks: [...state.tasks, task]
-  })),
-  removeTask: (id) => set((state) => ({
-    tasks: state.tasks.filter(t => t.id !== id)
-  }))
-}));
+  addTask: task =>
+    set(state => ({
+      tasks: [...state.tasks, task],
+    })),
+  removeTask: id =>
+    set(state => ({
+      tasks: state.tasks.filter(t => t.id !== id),
+    })),
+}))
 
 // 组件中使用
 function TaskList() {
-  const { tasks, addTask } = useTaskStore();
-  
+  const { tasks, addTask } = useTaskStore()
+
   return (
     <div>
       {tasks.map(task => (
         <TaskCard key={task.id} task={task} />
       ))}
     </div>
-  );
+  )
 }
 ```
 
@@ -402,17 +395,14 @@ function TaskList() {
 ```tsx
 // ✅ 将共享状态提升到共同父组件
 function TaskManager() {
-  const [selectedTaskId, setSelectedTaskId] = useState<string | null>(null);
+  const [selectedTaskId, setSelectedTaskId] = useState<string | null>(null)
 
   return (
     <div>
-      <TaskList
-        selectedId={selectedTaskId}
-        onSelect={setSelectedTaskId}
-      />
+      <TaskList selectedId={selectedTaskId} onSelect={setSelectedTaskId} />
       <TaskDetail taskId={selectedTaskId} />
     </div>
-  );
+  )
 }
 ```
 
@@ -424,61 +414,59 @@ function TaskManager() {
 
 ```tsx
 // ✅ 使用 useCallback 缓存
-const handleSubmit = useCallback((e: FormEvent) => {
-  e.preventDefault();
-  // 处理逻辑
-}, [dependency1, dependency2]);
+const handleSubmit = useCallback(
+  (e: FormEvent) => {
+    e.preventDefault()
+    // 处理逻辑
+  },
+  [dependency1, dependency2]
+)
 
 const handleClick = useCallback(() => {
-  logger.info('Button clicked');
-  onAction?.();
-}, [onAction]);
+  logger.info('Button clicked')
+  onAction?.()
+}, [onAction])
 
 // ❌ 避免内联函数（性能敏感场景）
-<button onClick={() => doSomething()}>Click</button>
+;<button onClick={() => doSomething()}>Click</button>
 ```
 
 ### 表单处理
 
 ```tsx
-import { useState } from 'react';
+import { useState } from 'react'
 
 interface FormData {
-  title: string;
-  description: string;
+  title: string
+  description: string
 }
 
 function TaskForm({ onSubmit }: Props) {
   const [formData, setFormData] = useState<FormData>({
     title: '',
-    description: ''
-  });
+    description: '',
+  })
 
   const handleChange = useCallback((e: ChangeEvent<HTMLInputElement>) => {
-    const { name, value } = e.target;
-    setFormData(prev => ({ ...prev, [name]: value }));
-  }, []);
+    const { name, value } = e.target
+    setFormData(prev => ({ ...prev, [name]: value }))
+  }, [])
 
-  const handleSubmit = useCallback((e: FormEvent) => {
-    e.preventDefault();
-    onSubmit(formData);
-  }, [formData, onSubmit]);
+  const handleSubmit = useCallback(
+    (e: FormEvent) => {
+      e.preventDefault()
+      onSubmit(formData)
+    },
+    [formData, onSubmit]
+  )
 
   return (
     <form onSubmit={handleSubmit}>
-      <input
-        name="title"
-        value={formData.title}
-        onChange={handleChange}
-      />
-      <input
-        name="description"
-        value={formData.description}
-        onChange={handleChange}
-      />
+      <input name="title" value={formData.title} onChange={handleChange} />
+      <input name="description" value={formData.description} onChange={handleChange} />
       <button type="submit">Submit</button>
     </form>
-  );
+  )
 }
 ```
 
@@ -553,18 +541,20 @@ export function TaskCard({ isActive }: Props) {
 ### 使用翻译
 
 ```tsx
-import { useTranslation } from 'react-i18next';
+import { useTranslation } from 'react-i18next'
 
 function TaskCard({ task }: Props) {
-  const { t } = useTranslation('tasks');
+  const { t } = useTranslation('tasks')
 
   return (
     <div>
       <h3>{task.title}</h3>
-      <p>{t('status')}: {task.status}</p>
+      <p>
+        {t('status')}: {task.status}
+      </p>
       <button>{t('common.edit')}</button>
     </div>
-  );
+  )
 }
 ```
 
@@ -597,8 +587,8 @@ function TaskCard({ task }: Props) {
 
 ```tsx
 // TaskCard.test.tsx
-import { render, screen, fireEvent } from '@testing-library/react';
-import { TaskCard } from './TaskCard';
+import { render, screen, fireEvent } from '@testing-library/react'
+import { TaskCard } from './TaskCard'
 
 describe('TaskCard', () => {
   const mockTask: Task = {
@@ -606,62 +596,62 @@ describe('TaskCard', () => {
     title: 'Test Task',
     description: 'Test Description',
     status: 'pending',
-    priority: 'medium'
-  };
+    priority: 'medium',
+  }
 
   it('should render task title', () => {
-    render(<TaskCard task={mockTask} />);
-    expect(screen.getByText('Test Task')).toBeInTheDocument();
-  });
+    render(<TaskCard task={mockTask} />)
+    expect(screen.getByText('Test Task')).toBeInTheDocument()
+  })
 
   it('should call onEdit when edit button clicked', () => {
-    const onEdit = vi.fn();
-    render(<TaskCard task={mockTask} onEdit={onEdit} />);
-    
-    fireEvent.click(screen.getByRole('button', { name: /edit/i }));
-    expect(onEdit).toHaveBeenCalledWith('1');
-  });
+    const onEdit = vi.fn()
+    render(<TaskCard task={mockTask} onEdit={onEdit} />)
+
+    fireEvent.click(screen.getByRole('button', { name: /edit/i }))
+    expect(onEdit).toHaveBeenCalledWith('1')
+  })
 
   it('should expand details when showDetails is true', () => {
-    render(<TaskCard task={mockTask} showDetails />);
-    expect(screen.getByText('Test Description')).toBeInTheDocument();
-  });
-});
+    render(<TaskCard task={mockTask} showDetails />)
+    expect(screen.getByText('Test Description')).toBeInTheDocument()
+  })
+})
 ```
 
 ### 集成测试
 
 ```tsx
 // TaskList.integration.test.tsx
-import { render, screen, waitFor } from '@testing-library/react';
-import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
-import { TaskList } from './TaskList';
+import { render, screen, waitFor } from '@testing-library/react'
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
+import { TaskList } from './TaskList'
 
 describe('TaskList Integration', () => {
   it('should load and display tasks', async () => {
-    const queryClient = new QueryClient();
-    
+    const queryClient = new QueryClient()
+
     render(
       <QueryClientProvider client={queryClient}>
         <TaskList />
       </QueryClientProvider>
-    );
+    )
 
     await waitFor(() => {
-      expect(screen.getByText('Task 1')).toBeInTheDocument();
-    });
-  });
-});
+      expect(screen.getByText('Task 1')).toBeInTheDocument()
+    })
+  })
+})
 ```
 
 ### 测试覆盖率要求
 
-| 类型 | 最低覆盖率 | 推荐覆盖率 |
-|------|-----------|-----------|
-| **语句覆盖率** | 80% | 90% |
-| **分支覆盖率** | 75% | 85% |
-| **函数覆盖率** | 80% | 90% |
-| **行覆盖率** | 80% | 90% |
+| 类型           | 最低覆盖率 | 推荐覆盖率 |
+| -------------- | ---------- | ---------- |
+| **语句覆盖率** | 80%        | 90%        |
+| **分支覆盖率** | 75%        | 85%        |
+| **函数覆盖率** | 80%        | 90%        |
+| **行覆盖率**   | 80%        | 90%        |
 
 ```bash
 # 运行测试覆盖率
@@ -680,19 +670,24 @@ open coverage/lcov-report/index.html
 ```tsx
 // ✅ 对纯组件使用 memo
 export const TaskCard = memo(function TaskCard({ task }: Props) {
-  return <div>{task.title}</div>;
-});
+  return <div>{task.title}</div>
+})
 
 // ✅ 自定义比较函数
-export const TaskList = memo(function TaskList({ tasks }: Props) {
-  return (
-    <div>
-      {tasks.map(task => <TaskCard key={task.id} task={task} />)}
-    </div>
-  );
-}, (prevProps, nextProps) => {
-  return prevProps.tasks.length === nextProps.tasks.length;
-});
+export const TaskList = memo(
+  function TaskList({ tasks }: Props) {
+    return (
+      <div>
+        {tasks.map(task => (
+          <TaskCard key={task.id} task={task} />
+        ))}
+      </div>
+    )
+  },
+  (prevProps, nextProps) => {
+    return prevProps.tasks.length === nextProps.tasks.length
+  }
+)
 ```
 
 ### useCallback 和 useMemo
@@ -700,39 +695,42 @@ export const TaskList = memo(function TaskList({ tasks }: Props) {
 ```tsx
 function TaskManager({ tasks, onUpdate }: Props) {
   // ✅ 缓存回调函数
-  const handleTaskUpdate = useCallback((taskId: string, updates: Partial<Task>) => {
-    onUpdate(taskId, updates);
-  }, [onUpdate]);
+  const handleTaskUpdate = useCallback(
+    (taskId: string, updates: Partial<Task>) => {
+      onUpdate(taskId, updates)
+    },
+    [onUpdate]
+  )
 
   // ✅ 缓存计算结果
   const sortedTasks = useMemo(() => {
-    return [...tasks].sort((a, b) => a.priority - b.priority);
-  }, [tasks]);
+    return [...tasks].sort((a, b) => a.priority - b.priority)
+  }, [tasks])
 
   // ✅ 缓存过滤结果
   const filteredTasks = useMemo(() => {
-    return tasks.filter(task => task.status === 'active');
-  }, [tasks]);
+    return tasks.filter(task => task.status === 'active')
+  }, [tasks])
 
-  return <TaskList tasks={sortedTasks} onUpdate={handleTaskUpdate} />;
+  return <TaskList tasks={sortedTasks} onUpdate={handleTaskUpdate} />
 }
 ```
 
 ### 代码分割
 
 ```tsx
-import { lazy, Suspense } from 'react';
+import { lazy, Suspense } from 'react'
 
 // ✅ 懒加载大型组件
-const TaskDashboard = lazy(() => import('./TaskDashboard'));
-const AnalyticsPanel = lazy(() => import('./AnalyticsPanel'));
+const TaskDashboard = lazy(() => import('./TaskDashboard'))
+const AnalyticsPanel = lazy(() => import('./AnalyticsPanel'))
 
 function App() {
   return (
     <Suspense fallback={<LoadingSpinner />}>
       <TaskDashboard />
     </Suspense>
-  );
+  )
 }
 ```
 
@@ -743,19 +741,19 @@ function App() {
 // next.config.ts
 const nextConfig = {
   experimental: {
-    reactCompiler: true
-  }
-};
+    reactCompiler: true,
+  },
+}
 
 // ✅ 手动优化（编译器会自动处理）
 function TaskCard({ task }: Props) {
   // React Compiler 会自动优化这个组件
-  return <div>{task.title}</div>;
+  return <div>{task.title}</div>
 }
 
 // ✅ 忽略特定组件（如果需要）
 // @ts-ignore
-TaskCard.displayName = 'TaskCard';
+TaskCard.displayName = 'TaskCard'
 ```
 
 ---
@@ -789,34 +787,32 @@ TaskCard.displayName = 'TaskCard';
 
 ```tsx
 // ✅ 使用 Error Boundary
-import { ErrorBoundary } from 'react-error-boundary';
+import { ErrorBoundary } from 'react-error-boundary'
 
 function TaskList() {
   return (
     <ErrorBoundary
       fallback={<div>Something went wrong</div>}
-      onError={(error) => logger.error('TaskList error:', error)}
+      onError={error => logger.error('TaskList error:', error)}
     >
       <TaskListContent />
     </ErrorBoundary>
-  );
+  )
 }
 
 // ✅ 处理异步错误
 function TaskDetail({ taskId }: Props) {
-  const { data, error, isLoading } = useQuery(['task', taskId], () =>
-    fetchTask(taskId)
-  );
+  const { data, error, isLoading } = useQuery(['task', taskId], () => fetchTask(taskId))
 
   if (error) {
-    return <ErrorState message={error.message} />;
+    return <ErrorState message={error.message} />
   }
 
   if (isLoading) {
-    return <LoadingSpinner />;
+    return <LoadingSpinner />
   }
 
-  return <TaskContent task={data} />;
+  return <TaskContent task={data} />
 }
 ```
 

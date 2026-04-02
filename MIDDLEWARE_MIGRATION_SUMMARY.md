@@ -19,6 +19,7 @@ Successfully created the infrastructure to migrate Next.js global middleware to 
 **File:** `src/lib/middleware/with-request-id.ts`
 
 Features:
+
 - ✅ Generate unique request IDs using `crypto.randomUUID()`
 - ✅ Add request ID to request headers
 - ✅ Add request ID to response headers
@@ -33,9 +34,11 @@ Features:
 **File:** `src/middleware.ts`
 
 Changed from:
+
 - Active middleware that processed all requests
 
 To:
+
 - Deprecated stub with matcher set to `[]` (no routes)
 - Contains deprecation notice and migration guide reference
 
@@ -44,6 +47,7 @@ To:
 **File:** `docs/middleware-migration.md`
 
 Comprehensive guide covering:
+
 - Why migrate
 - Before/after examples
 - Usage examples
@@ -56,6 +60,7 @@ Comprehensive guide covering:
 **File:** `src/app/api/example/route.ts`
 
 Demonstrates:
+
 - Basic GET with request ID
 - POST with body processing
 - PUT with error handling
@@ -66,6 +71,7 @@ Demonstrates:
 **File:** `scripts/migrate-middleware.js`
 
 Features:
+
 - Dry-run mode for previewing changes
 - Migrate all API routes at once
 - Migrate specific files
@@ -97,6 +103,7 @@ Features:
 ### 🔄 Partially Complete
 
 **API Routes Migration Progress:**
+
 - Total API routes: 76
 - Migrated: 41 (54%)
 - Remaining: 35 (46%)
@@ -106,12 +113,14 @@ Features:
 The following steps need to be completed by the development team:
 
 1. **Review and test the wrapper**
+
    ```bash
    npm run dev
    curl -i http://localhost:3000/api/example
    ```
 
 2. **Run migration script (dry-run first)**
+
    ```bash
    node scripts/migrate-middleware.js --dry-run
    ```
@@ -145,7 +154,7 @@ The following steps need to be completed by the development team:
 The migration script successfully processed all 76 API route files:
 
 - ✅ **Successfully migrated:** 35 routes (handler functions wrapped with `withRequestId`)
-- ⏭️  **Skipped:** 24 routes (non-API routes or already migrated)
+- ⏭️ **Skipped:** 24 routes (non-API routes or already migrated)
 - 📊 **Total processed:** 59 routes
 
 ### Manual Migration (Completed)
@@ -161,6 +170,7 @@ After automated migration, 6 additional routes were manually migrated:
 - **Remaining:** 35 (46%)
 
 The 35 remaining routes were skipped because they:
+
 - Don't use `NextRequest`/`NextResponse` (not API routes)
 - Are already using `withRequestId`
 - Have complex handler patterns requiring manual review
@@ -174,22 +184,22 @@ The 35 remaining routes were skipped because they:
 ```typescript
 // src/middleware.ts (old)
 export function middleware(request: NextRequest) {
-  const requestId = crypto.randomUUID();
-  const requestHeaders = new Headers(request.headers);
-  requestHeaders.set('x-request-id', requestId);
+  const requestId = crypto.randomUUID()
+  const requestHeaders = new Headers(request.headers)
+  requestHeaders.set('x-request-id', requestId)
 
   logger.info(`Incoming request: ${request.method} ${request.nextUrl.pathname}`, {
     requestId,
     method: request.method,
     path: request.nextUrl.pathname,
-  });
+  })
 
   const response = NextResponse.next({
     request: { headers: requestHeaders },
-  });
+  })
 
-  response.headers.set('x-request-id', requestId);
-  return response;
+  response.headers.set('x-request-id', requestId)
+  return response
 }
 ```
 
@@ -197,18 +207,18 @@ export function middleware(request: NextRequest) {
 
 ```typescript
 // src/app/api/example/route.ts
-import { NextResponse } from 'next/server';
-import { withRequestId } from '@/lib/middleware/with-request-id';
+import { NextResponse } from 'next/server'
+import { withRequestId } from '@/lib/middleware/with-request-id'
 
 export const GET = withRequestId(async (request, context) => {
-  const { requestId } = context;
+  const { requestId } = context
 
   // Your API logic here
   return NextResponse.json({
     requestId,
     message: 'Hello, World!',
-  });
-});
+  })
+})
 ```
 
 ---
@@ -225,13 +235,13 @@ export const GET = withRequestId(async (request, context) => {
 
 ## Key Files Reference
 
-| File | Purpose |
-|------|---------|
+| File                                    | Purpose                     |
+| --------------------------------------- | --------------------------- |
 | `src/lib/middleware/with-request-id.ts` | Main wrapper implementation |
-| `src/middleware.ts` | Deprecated middleware stub |
-| `docs/middleware-migration.md` | Migration guide |
-| `src/app/api/example/route.ts` | Example usage |
-| `scripts/migrate-middleware.js` | Migration script |
+| `src/middleware.ts`                     | Deprecated middleware stub  |
+| `docs/middleware-migration.md`          | Migration guide             |
+| `src/app/api/example/route.ts`          | Example usage               |
+| `scripts/migrate-middleware.js`         | Migration script            |
 
 ---
 
@@ -262,6 +272,7 @@ After migrating each API route, verify:
 ## Questions or Issues?
 
 Refer to:
+
 - Migration Guide: `docs/middleware-migration.md`
 - Example Route: `src/app/api/example/route.ts`
 - Wrapper Implementation: `src/lib/middleware/with-request-id.ts`

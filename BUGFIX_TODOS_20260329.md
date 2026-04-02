@@ -25,6 +25,7 @@
 **文件**: `/root/.openclaw/workspace/src/components/analytics/RealtimeTeamEfficiency.tsx`
 
 **问题描述**:
+
 ```typescript
 trend: undefined // TODO: Calculate trend from previous period
 ```
@@ -32,13 +33,14 @@ trend: undefined // TODO: Calculate trend from previous period
 **修复内容**:
 
 1. **更新组件 Props 类型定义**:
+
    ```typescript
    export interface RealtimeTeamEfficiencyProps {
-     metrics: TeamEfficiencyMetrics | null;
-     previousMetrics?: TeamEfficiencyMetrics | null; // 新增
-     showDetails?: boolean;
-     locale?: string;
-     className?: string;
+     metrics: TeamEfficiencyMetrics | null
+     previousMetrics?: TeamEfficiencyMetrics | null // 新增
+     showDetails?: boolean
+     locale?: string
+     className?: string
    }
    ```
 
@@ -49,43 +51,60 @@ trend: undefined // TODO: Calculate trend from previous period
    - 处理边界情况（无前一周期的数据、除零等）
 
 3. **更新 metricsCards 计算**:
+
    ```typescript
    const metricsCards = useMemo(() => {
-     if (!metrics) return [];
+     if (!metrics) return []
 
      return Object.entries(METRIC_CONFIG).map(([key, config]) => {
-       const value = metrics[key as keyof TeamEfficiencyMetrics] as number;
-       const previousValue = previousMetrics ? previousMetrics[key as keyof TeamEfficiencyMetrics] as number : undefined;
-       
+       const value = metrics[key as keyof TeamEfficiencyMetrics] as number
+       const previousValue = previousMetrics
+         ? (previousMetrics[key as keyof TeamEfficiencyMetrics] as number)
+         : undefined
+
        // Calculate trend
-       let trend: MetricCardProps['trend'] = undefined;
+       let trend: MetricCardProps['trend'] = undefined
        if (previousValue !== undefined && previousValue !== 0) {
-         const direction = calculateTrend(value, previousValue);
+         const direction = calculateTrend(value, previousValue)
          if (direction) {
-           const change = ((value - previousValue) / previousValue) * 100;
+           const change = ((value - previousValue) / previousValue) * 100
            trend = {
              direction,
              value: Math.abs(change),
-             label: direction === 'up' ? (locale === 'zh' ? '上升' : 'increase') :
-                    direction === 'down' ? (locale === 'zh' ? '下降' : 'decrease') :
-                    (locale === 'zh' ? '稳定' : 'stable')
-           };
+             label:
+               direction === 'up'
+                 ? locale === 'zh'
+                   ? '上升'
+                   : 'increase'
+                 : direction === 'down'
+                   ? locale === 'zh'
+                     ? '下降'
+                     : 'decrease'
+                   : locale === 'zh'
+                     ? '稳定'
+                     : 'stable',
+           }
          }
        }
 
        return {
          key,
          label: config.label[locale as 'en' | 'zh'],
-         value: formatMetricValue(value, config.format, 'decimals' in config ? config.decimals : undefined),
+         value: formatMetricValue(
+           value,
+           config.format,
+           'decimals' in config ? config.decimals : undefined
+         ),
          icon: config.icon,
          color: config.color,
-         trend
-       };
-     });
-   }, [metrics, previousMetrics, locale]);
+         trend,
+       }
+     })
+   }, [metrics, previousMetrics, locale])
    ```
 
 **影响**:
+
 - 组件现在可以正确显示所有指标的趋势变化
 - 支持中英文双语显示
 - 趋势数据会以可视化方式展示在 MetricCard 中
@@ -97,39 +116,44 @@ trend: undefined // TODO: Calculate trend from previous period
 **文件**: `/root/.openclaw/workspace/src/components/meeting/MeetingRoom.tsx`
 
 **问题描述**:
+
 ```typescript
 // TODO: Show error toast - need to implement with existing Toast component
-alert(`Meeting error: ${error.message || 'An error occurred'}`);
+alert(`Meeting error: ${error.message || 'An error occurred'}`)
 ```
 
 **修复内容**:
 
 1. **导入 Toast 系统**:
+
    ```typescript
-   import { toast } from '@/stores/uiStore';
+   import { toast } from '@/stores/uiStore'
    ```
 
 2. **更新错误处理函数**:
+
    ```typescript
    const handleError = (error: Error) => {
      // Show error toast using the Toast component
-     const errorMessage = error.message || 'An error occurred';
-     toast.error(errorMessage, 'Meeting Error', { duration: 5000 });
-     
+     const errorMessage = error.message || 'An error occurred'
+     toast.error(errorMessage, 'Meeting Error', { duration: 5000 })
+
      // Log error in development
      if (process.env.NODE_ENV === 'development') {
-       console.error('Meeting error:', error);
+       console.error('Meeting error:', error)
      }
-   };
+   }
    ```
 
 **改进点**:
+
 - 使用项目统一的 Toast 通知系统
 - 错误信息显示更加美观和一致
 - 自动 5 秒后关闭，用户体验更好
 - 移除了侵入性的 `alert()` 弹窗
 
 **Toast 配置**:
+
 - 类型: `error`
 - 标题: `Meeting Error`
 - 持续时间: 5000ms
@@ -142,6 +166,7 @@ alert(`Meeting error: ${error.message || 'An error occurred'}`);
 **新增文件**:
 
 #### 3.1 性能趋势计算测试
+
 **文件**: `/root/.openclaw/workspace/src/lib/monitoring/performance-trend.test.ts`
 
 **测试内容**:
@@ -164,6 +189,7 @@ alert(`Meeting error: ${error.message || 'An error occurred'}`);
    - 权重分配验证
 
 **测试覆盖**:
+
 - 趋势方向计算
 - 百分比计算精度
 - 多语言支持
@@ -171,6 +197,7 @@ alert(`Meeting error: ${error.message || 'An error occurred'}`);
 - 集成测试场景
 
 #### 3.2 性能趋势数据聚合测试
+
 **文件**: `/root/.openclaw/workspace/src/lib/monitoring/performance-trend-aggregation.test.ts`
 
 **测试内容**:
@@ -204,6 +231,7 @@ alert(`Meeting error: ${error.message || 'An error occurred'}`);
    - 速度标准化（每小时）
 
 **测试覆盖**:
+
 - 数据聚合逻辑
 - 时间窗口管理
 - 移动平均计算
@@ -218,6 +246,7 @@ alert(`Meeting error: ${error.message || 'An error occurred'}`);
 所有修复都通过了 TypeScript 类型检查。虽然有其他无关的类型错误，但本次修复的代码没有引入新的类型问题。
 
 **修复的类型错误**:
+
 - `performance-trend.test.ts(80,37)`: 修复了 `inverse` 属性的类型访问问题
 
 ---
@@ -250,11 +279,11 @@ alert(`Meeting error: ${error.message || 'An error occurred'}`);
 
 ## 测试用例统计
 
-| 测试文件 | 测试套件数 | 测试用例数 | 代码行数 |
-|---------|-----------|-----------|---------|
-| performance-trend.test.ts | 5 | 30+ | ~400 |
-| performance-trend-aggregation.test.ts | 7 | 50+ | ~700 |
-| **总计** | **12** | **80+** | **~1100** |
+| 测试文件                              | 测试套件数 | 测试用例数 | 代码行数  |
+| ------------------------------------- | ---------- | ---------- | --------- |
+| performance-trend.test.ts             | 5          | 30+        | ~400      |
+| performance-trend-aggregation.test.ts | 7          | 50+        | ~700      |
+| **总计**                              | **12**     | **80+**    | **~1100** |
 
 ---
 

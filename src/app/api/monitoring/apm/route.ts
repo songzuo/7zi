@@ -8,51 +8,51 @@
  * - Agent task statistics
  */
 
-import { NextRequest, NextResponse } from "next/server";
-import { sentryClient, agentTracker } from "@/lib/monitoring";
-import { getCurrentTraceContext, injectTraceContext } from "@/lib/tracing";
-import { createErrorResponse } from "@/lib/api/error-handler";
-import { logger } from "@/lib/logger";
+import { NextRequest, NextResponse } from 'next/server'
+import { sentryClient, agentTracker } from '@/lib/monitoring'
+import { getCurrentTraceContext, injectTraceContext } from '@/lib/tracing'
+import { createErrorResponse } from '@/lib/api/error-handler'
+import { logger } from '@/lib/logger'
 
 /**
  * APM Status Response
  */
 interface APMStatusResponse {
   apm: {
-    status: "enabled" | "disabled";
+    status: 'enabled' | 'disabled'
     sentry: {
-      initialized: boolean;
-      dsn: boolean;
-      environment: string;
-      release?: string;
-      tracesSampleRate: number;
-      profilesSampleRate: number;
-      debug: boolean;
-    };
+      initialized: boolean
+      dsn: boolean
+      environment: string
+      release?: string
+      tracesSampleRate: number
+      profilesSampleRate: number
+      debug: boolean
+    }
     tracing: {
-      traceId?: string;
-      spanId?: string;
-      activeSpans?: number;
-    };
-  };
+      traceId?: string
+      spanId?: string
+      activeSpans?: number
+    }
+  }
   performance: {
     memory: {
-      used: number;
-      limit: number;
-      percentage: number;
-    };
-    uptime: number;
-    responseTime?: number;
-  };
+      used: number
+      limit: number
+      percentage: number
+    }
+    uptime: number
+    responseTime?: number
+  }
   agentTasks: {
-    totalAgents: number;
-    totalTasks: number;
-    completedTasks: number;
-    failedTasks: number;
-    activeTasks: number;
-    avgTaskDuration: number;
-    totalTokens: number;
-  };
+    totalAgents: number
+    totalTasks: number
+    completedTasks: number
+    failedTasks: number
+    activeTasks: number
+    avgTaskDuration: number
+    totalTokens: number
+  }
 }
 
 /**
@@ -60,41 +60,41 @@ interface APMStatusResponse {
  * Returns APM status and metrics
  */
 export async function GET(request: NextRequest) {
-  const startTime = Date.now();
+  const startTime = Date.now()
 
   try {
     // Extract trace context from incoming headers
-    const traceContext = getCurrentTraceContext();
+    const traceContext = getCurrentTraceContext()
 
     // Start a span for this operation
     const span = sentryClient.startSpan({
-      op: "http.server",
-      description: "GET /api/monitoring/apm",
+      op: 'http.server',
+      description: 'GET /api/monitoring/apm',
       data: {
         path: request.nextUrl.pathname,
         method: request.method,
       },
-    });
+    })
 
     // Get Sentry status
-    const sentryStatus = sentryClient.getStatus();
+    const sentryStatus = sentryClient.getStatus()
 
     // Get active spans count
-    const { getGlobalContextStorage } = await import("@/lib/tracing");
-    const globalStorage = getGlobalContextStorage();
-    const activeSpans = globalStorage.getActiveSpans().length;
+    const { getGlobalContextStorage } = await import('@/lib/tracing')
+    const globalStorage = getGlobalContextStorage()
+    const activeSpans = globalStorage.getActiveSpans().length
 
     // Get agent task statistics
-    const agentStats = agentTracker.getGlobalStats();
+    const agentStats = agentTracker.getGlobalStats()
 
     // Get memory usage
-    const usedMemory = Math.round(process.memoryUsage().heapUsed / 1024 / 1024);
-    const memoryLimit = 512; // Default memory limit in MB
+    const usedMemory = Math.round(process.memoryUsage().heapUsed / 1024 / 1024)
+    const memoryLimit = 512 // Default memory limit in MB
 
     // Prepare response
     const data: APMStatusResponse = {
       apm: {
-        status: sentryStatus.isInitialized ? "enabled" : "disabled",
+        status: sentryStatus.isInitialized ? 'enabled' : 'disabled',
         sentry: {
           initialized: sentryStatus.isInitialized,
           dsn: sentryStatus.hasDsn,
@@ -128,28 +128,28 @@ export async function GET(request: NextRequest) {
         avgTaskDuration: agentStats.avgTaskDuration,
         totalTokens: agentStats.totalTokens,
       },
-    };
+    }
 
     // Prepare response headers with trace context
     const responseHeaders: Record<string, string> = {
-      "Content-Type": "application/json",
-      "Cache-Control": "public, max-age=10", // 10 second cache
-      "X-Response-Time": `${Date.now() - startTime}ms`,
-    };
+      'Content-Type': 'application/json',
+      'Cache-Control': 'public, max-age=10', // 10 second cache
+      'X-Response-Time': `${Date.now() - startTime}ms`,
+    }
 
     // Inject trace context into response headers for propagation
     if (traceContext) {
-      const traceHeadersOut = injectTraceContext(traceContext, "w3c");
+      const traceHeadersOut = injectTraceContext(traceContext, 'w3c')
       Object.entries(traceHeadersOut).forEach(([key, value]) => {
-        if (value) responseHeaders[key] = String(value);
-      });
+        if (value) responseHeaders[key] = String(value)
+      })
 
       // Also add Sentry trace header
-      const sentryTraceHeader = `${traceContext.traceId}-${traceContext.spanId}-${traceContext.sampled ? 1 : 0}`;
-      responseHeaders["sentry-trace"] = sentryTraceHeader;
+      const sentryTraceHeader = `${traceContext.traceId}-${traceContext.spanId}-${traceContext.sampled ? 1 : 0}`
+      responseHeaders['sentry-trace'] = sentryTraceHeader
     }
 
-    span?.end();
+    span?.end()
 
     return NextResponse.json(
       {
@@ -158,13 +158,13 @@ export async function GET(request: NextRequest) {
         timestamp: new Date().toISOString(),
       },
       { headers: responseHeaders }
-    );
+    )
   } catch (err) {
-    logger.error("APM status endpoint failed", err as Error);
+    logger.error('APM status endpoint failed', err as Error)
     sentryClient.captureException(err as Error, {
-      tags: { endpoint: "api/monitoring/apm" },
-    });
-    return createErrorResponse(err as Error, 500);
+      tags: { endpoint: 'api/monitoring/apm' },
+    })
+    return createErrorResponse(err as Error, 500)
   }
 }
 
@@ -173,5 +173,5 @@ export async function GET(request: NextRequest) {
  * Lightweight check for APM endpoint availability
  */
 export async function HEAD() {
-  return NextResponse.json(null, { status: 200 });
+  return NextResponse.json(null, { status: 200 })
 }

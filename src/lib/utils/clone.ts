@@ -1,14 +1,14 @@
 /**
  * Clone utilities - deepClone
- * 
+ *
  * @module lib/utils/clone
  */
 
 /**
  * Deep clone an object, handling circular references (iterative implementation)
- * 
+ *
  * This implementation uses recursion with WeakMap for circular reference tracking.
- * 
+ *
  * @template T - Type of the object to clone
  * @param {T} obj - Object to clone
  * @param {WeakMap} seen - Internal use for circular reference tracking
@@ -21,69 +21,72 @@
 export function deepClone<T>(obj: T, seen: WeakMap<object, unknown> = new WeakMap()): T {
   // Handle primitives, null, and undefined
   if (obj === null || typeof obj !== 'object') {
-    return obj;
+    return obj
   }
 
   // Handle Date
   if (obj instanceof Date) {
-    return new Date(obj.getTime()) as T;
+    return new Date(obj.getTime()) as T
   }
 
   // Handle RegExp
   if (obj instanceof RegExp) {
-    return new RegExp(obj.source, obj.flags) as T;
+    return new RegExp(obj.source, obj.flags) as T
   }
 
   // Handle circular references
   if (seen.has(obj)) {
-    return seen.get(obj) as T;
+    return seen.get(obj) as T
   }
 
   // Handle Array
   if (Array.isArray(obj)) {
-    const cloned = [] as unknown as T;
-    seen.set(obj, cloned);
+    const cloned = [] as unknown as T
+    seen.set(obj, cloned)
     for (let i = 0; i < obj.length; i++) {
-      (cloned as unknown[])[i] = deepClone(obj[i], seen);
+      ;(cloned as unknown[])[i] = deepClone(obj[i], seen)
     }
-    return cloned;
+    return cloned
   }
 
   // Handle Map
   if (obj instanceof Map) {
-    const cloned = new Map();
-    seen.set(obj, cloned);
+    const cloned = new Map()
+    seen.set(obj, cloned)
     obj.forEach((value, key) => {
-      cloned.set(deepClone(key, seen), deepClone(value, seen));
-    });
-    return cloned as T;
+      cloned.set(deepClone(key, seen), deepClone(value, seen))
+    })
+    return cloned as T
   }
 
   // Handle Set
   if (obj instanceof Set) {
-    const cloned = new Set();
-    seen.set(obj, cloned);
+    const cloned = new Set()
+    seen.set(obj, cloned)
     obj.forEach(value => {
-      cloned.add(deepClone(value, seen));
-    });
-    return cloned as T;
+      cloned.add(deepClone(value, seen))
+    })
+    return cloned as T
   }
 
   // Handle plain objects
-  const cloned = {} as T;
-  seen.set(obj, cloned);
+  const cloned = {} as T
+  seen.set(obj, cloned)
 
   // Handle Symbol properties
-  const symbolKeys = Object.getOwnPropertySymbols(obj);
+  const symbolKeys = Object.getOwnPropertySymbols(obj)
   for (const sym of symbolKeys) {
-    (cloned as Record<symbol, unknown>)[sym] = deepClone((obj as Record<symbol, unknown>)[sym], seen);
+    ;(cloned as Record<symbol, unknown>)[sym] = deepClone(
+      (obj as Record<symbol, unknown>)[sym],
+      seen
+    )
   }
 
   // Handle string keys
   for (const key in obj) {
     if (Object.prototype.hasOwnProperty.call(obj, key)) {
-      cloned[key] = deepClone(obj[key], seen);
+      cloned[key] = deepClone(obj[key], seen)
     }
   }
-  return cloned;
+  return cloned
 }

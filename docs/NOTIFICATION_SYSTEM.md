@@ -88,6 +88,7 @@ src/
 **Technology**: Socket.IO
 
 **Events**:
+
 - `subscribe` - Subscribe to notification channels
 - `unsubscribe` - Unsubscribe from channels
 - `notification` - New notification received
@@ -97,6 +98,7 @@ src/
 - `unread_count` - Unread count update
 
 **Channels**:
+
 - `user:{userId}` - User-specific notifications
 - `team:{teamId}` - Team-wide notifications
 - `all` - System-wide notifications
@@ -106,11 +108,13 @@ src/
 **Storage**: SQLite database with WAL mode for performance
 
 **Tables**:
+
 - `notifications` - Notification records
 - `user_notification_preferences` - User notification settings
 - `notification_delivery_log` - Delivery tracking
 
 **Features**:
+
 - Persistent storage
 - Read/unread tracking
 - Filtering by type, priority, user, team, task
@@ -122,6 +126,7 @@ src/
 **Technology**: Resend API
 
 **Features**:
+
 - HTML email templates with responsive design
 - Priority-based delivery (only send emails above threshold)
 - Quiet hours support
@@ -129,6 +134,7 @@ src/
 - Delivery tracking
 
 **Configuration**:
+
 ```bash
 RESEND_API_KEY=your_resend_api_key
 FROM_EMAIL=noreply@7zi.studio
@@ -138,6 +144,7 @@ CONTACT_EMAIL=business@7zi.studio
 ### 4. User Preferences
 
 **Settings**:
+
 - `emailEnabled` - Enable/disable email notifications
 - `emailThreshold` - Minimum priority for emails (low/medium/high/urgent)
 - `pushEnabled` - Enable/disable push notifications
@@ -173,6 +180,7 @@ CONTACT_EMAIL=business@7zi.studio
 ```
 
 **Response**:
+
 ```json
 {
   "success": true,
@@ -189,6 +197,7 @@ CONTACT_EMAIL=business@7zi.studio
 **GET** `/api/notifications/enhanced?userId=user123&limit=20`
 
 **Response**:
+
 ```json
 {
   "success": true,
@@ -205,6 +214,7 @@ CONTACT_EMAIL=business@7zi.studio
 **GET** `/api/notifications/preferences/{userId}`
 
 **Response**:
+
 ```json
 {
   "success": true,
@@ -242,6 +252,7 @@ CONTACT_EMAIL=business@7zi.studio
 **GET** `/api/notifications/stats`
 
 **Response**:
+
 ```json
 {
   "success": true,
@@ -260,7 +271,11 @@ CONTACT_EMAIL=business@7zi.studio
 ### Server-Side: Send Notification
 
 ```typescript
-import { enhancedNotificationService, NotificationType, NotificationPriority } from '@/lib/services/notification-enhanced';
+import {
+  enhancedNotificationService,
+  NotificationType,
+  NotificationPriority,
+} from '@/lib/services/notification-enhanced'
 
 await enhancedNotificationService.notify(
   {
@@ -277,7 +292,7 @@ await enhancedNotificationService.notify(
   {
     forceEmail: true,
   }
-);
+)
 ```
 
 ### Client-Side: Use Notifications Hook
@@ -333,34 +348,34 @@ const updatePreferences = async () => {
       quietHoursEnd: '08:00',
       timezone: 'Europe/Berlin',
     }),
-  });
+  })
 
-  const result = await response.json();
-};
+  const result = await response.json()
+}
 ```
 
 ## Notification Types
 
-| Type | Description | Use Case |
-|------|-------------|----------|
-| `info` | General information | System announcements, updates |
-| `success` | Success messages | Task completed, operation successful |
-| `warning` | Warning messages | Deadlines approaching, resource limits |
-| `error` | Error messages | Failed operations, critical errors |
-| `task_assigned` | Task assignment | New task assigned to user |
-| `task_completed` | Task completion | Task marked as complete |
-| `task_updated` | Task update | Task details changed |
-| `message` | Direct message | User mentions, comments |
-| `system` | System notifications | Platform-wide announcements |
+| Type             | Description          | Use Case                               |
+| ---------------- | -------------------- | -------------------------------------- |
+| `info`           | General information  | System announcements, updates          |
+| `success`        | Success messages     | Task completed, operation successful   |
+| `warning`        | Warning messages     | Deadlines approaching, resource limits |
+| `error`          | Error messages       | Failed operations, critical errors     |
+| `task_assigned`  | Task assignment      | New task assigned to user              |
+| `task_completed` | Task completion      | Task marked as complete                |
+| `task_updated`   | Task update          | Task details changed                   |
+| `message`        | Direct message       | User mentions, comments                |
+| `system`         | System notifications | Platform-wide announcements            |
 
 ## Priority Levels
 
-| Priority | Description | Default Behavior |
-|----------|-------------|-------------------|
-| `low` | Non-critical | Push only, no email |
+| Priority | Description       | Default Behavior              |
+| -------- | ----------------- | ----------------------------- |
+| `low`    | Non-critical      | Push only, no email           |
 | `medium` | Normal importance | Push + email if user opted in |
-| `high` | Important | Push + email (default) |
-| `urgent` | Critical | Push + email + force send |
+| `high`   | Important         | Push + email (default)        |
+| `urgent` | Critical          | Push + email + force send     |
 
 ## Environment Variables
 
@@ -383,6 +398,7 @@ DATABASE_PATH=/data/7zi.db
 ### 1. Install Dependencies
 
 Dependencies are already installed in `package.json`:
+
 - `socket.io` - WebSocket server
 - `socket.io-client` - WebSocket client
 - `better-sqlite3` - SQLite database
@@ -402,11 +418,11 @@ CONTACT_EMAIL=business@7zi.studio
 Create or update your startup script (e.g., in `app/layout.tsx`):
 
 ```typescript
-import { enhancedNotificationService } from '@/lib/services/notification-enhanced';
+import { enhancedNotificationService } from '@/lib/services/notification-enhanced'
 
 // Initialize on server startup
 if (typeof window === 'undefined') {
-  enhancedNotificationService.initialize().catch(console.error);
+  enhancedNotificationService.initialize().catch(console.error)
 }
 ```
 

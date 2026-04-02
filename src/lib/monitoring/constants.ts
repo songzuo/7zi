@@ -11,7 +11,7 @@ export const TIME_INTERVALS = {
   HEALTH_CHECK: 30000,
   DEFAULT_TIMEOUT: 5000,
   BATCH_FLUSH: 30000,
-} as const;
+} as const
 
 // Size limits
 export const SIZE_LIMITS = {
@@ -22,7 +22,7 @@ export const SIZE_LIMITS = {
   MAX_ALERT_HISTORY_SIZE: 1000,
   MAX_DURATION_HISTORY: 100,
   MAX_API_ARGS_LENGTH: 500,
-} as const;
+} as const
 
 // Alert thresholds (for quick reference)
 export const ALERT_THRESHOLDS = {
@@ -32,13 +32,13 @@ export const ALERT_THRESHOLDS = {
   LONG_TASK_CRITICAL: 300,
   RENDER_WARNING: 16,
   RENDER_CRITICAL: 33,
-} as const;
+} as const
 
 // HTTP statuses
 export const HTTP_STATUS = {
   OK: 200,
   UNAUTHORIZED: 401,
-} as const;
+} as const
 
 // Performance weights for scoring
 export const PERFORMANCE_WEIGHTS = {
@@ -47,16 +47,16 @@ export const PERFORMANCE_WEIGHTS = {
   CLS: 0.25,
   FCP: 0.15,
   TTFB: 0.1,
-} as const;
+} as const
 
 // Performance score thresholds
 export const SCORE_THRESHOLDS = {
   EXCELLENT: 90,
   GOOD: 50,
-} as const;
+} as const
 
 // Cleanup cutoff (1 hour in ms)
-export const CLEANUP_CUTOFF = 3600000;
+export const CLEANUP_CUTOFF = 3600000
 
 // Regex patterns for resource type detection
 export const RESOURCE_PATTERNS = {
@@ -65,21 +65,21 @@ export const RESOURCE_PATTERNS = {
   IMAGE: /\.(png|jpg|jpeg|gif|webp|svg|ico)($|\?)/i,
   FONT: /\.(woff|woff2|ttf|otf|eot)($|\?)/i,
   API: /\/api\//,
-} as const;
+} as const
 
 // Performance score colors
 export const PERFORMANCE_COLORS = {
   GOOD: '#0cce6b',
   NEEDS_IMPROVEMENT: '#ffa400',
   POOR: '#ff4e42',
-} as const;
+} as const
 
 // Performance score labels
 export const SCORE_LABELS = {
   EXCELLENT: '优秀',
   GOOD: '需改进',
   POOR: '差',
-} as const;
+} as const
 
 // Severity colors for Slack alerts
 export const SEVERITY_COLORS = {
@@ -87,7 +87,7 @@ export const SEVERITY_COLORS = {
   p1: '#FFA500',
   p2: '#FFFF00',
   p3: '#00FF00',
-} as const;
+} as const
 
 // Severity labels for Slack alerts
 export const SEVERITY_LABELS = {
@@ -95,4 +95,4 @@ export const SEVERITY_LABELS = {
   p1: '🟠 HIGH',
   p2: '🟡 WARNING',
   p3: '🟢 INFO',
-} as const;
+} as const

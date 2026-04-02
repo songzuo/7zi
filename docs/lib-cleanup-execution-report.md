@@ -9,13 +9,16 @@
 ## 执行步骤
 
 ### 1. ✅ 备份当前导入引用情况
+
 - 扫描了整个 `src/` 目录
 - 识别出所有使用旧路径的导入引用
 - 发现 `src/tools/agent-cli.ts` 使用了旧路径 `../lib/agent-scheduler/`
 
 ### 2. ✅ 更新所有从旧路径导入的代码
+
 - **文件:** `src/tools/agent-cli.ts`
 - **修改内容:**
+
   ```typescript
   // 旧路径
   from '../lib/agent-scheduler/core/scheduler'
@@ -27,15 +30,19 @@
   from '../lib/agents/scheduler/models/task-model'
   from '../lib/agents/scheduler/models/agent-capability'
   ```
+
 - 验证其他文件：已全部使用新路径 `@/lib/agents/*`
 
 ### 3. ✅ 删除废弃的重复目录
+
 旧目录（已确认不存在）：
+
 - `src/lib/agent/` - ❌ 已删除
 - `src/lib/a2a/` - ❌ 已删除
 - `src/lib/agent-scheduler/` - ❌ 已删除
 
 新目录（保留）：
+
 - `src/lib/agents/agent/` - ✅ 存在 (12 个文件/目录)
 - `src/lib/agents/a2a/` - ✅ 存在 (9 个文件/目录)
 - `src/lib/agents/scheduler/` - ✅ 存在 (8 个文件/目录)
@@ -43,15 +50,18 @@
 ### 4. ✅ 验证构建和测试
 
 #### 构建结果
+
 ```bash
 npm run build
 ```
+
 - ✅ 编译成功 (2.4min)
 - ✅ TypeScript 类型检查通过 (5.1min)
 - ✅ 静态页面生成成功 (59/59)
 - ✅ 构建成功完成，无错误
 
 #### 导入引用验证
+
 - **lib/agents/agent 引用:** 3 处
   - `src/lib/db/__tests__/optimization.test.ts` - 测试文件
   - `src/lib/db/__tests__/optimization.test.ts` - 测试文件
@@ -75,6 +85,7 @@ npm run build
 ## 清理结果
 
 ### 目录结构
+
 ```
 src/lib/
 ├── agents/
@@ -89,6 +100,7 @@ src/lib/
 ```
 
 ### 影响范围
+
 - **修改文件数:** 1 个 (`src/tools/agent-cli.ts`)
 - **修改行数:** 3 行
 - **影响模块:** CLI 工具
@@ -119,6 +131,7 @@ src/lib/
 4. 代码质量保持，无功能影响
 
 **下一步建议:**
+
 - 如需运行完整测试套件，可执行 `npm test`
 - 建议添加 pre-commit hook 防止未来出现旧路径引用
 - 可考虑在 `eslint` 规则中禁用旧路径导入

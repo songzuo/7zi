@@ -1,3 +1,4 @@
+import { NextRequest, NextResponse } from 'next/server'
 /**
  * Tasks API Route
  * 任务管理 API 端点 (PROTECTED)
@@ -7,10 +8,10 @@
  * @version 1.0.0
  */
 
-import { withAuth, RATE_LIMIT_CONFIG } from '@/middleware/auth';
-import { getDatabase } from '@/lib/db';
-import logger from '@/lib/logger';
-import { createAppError, ErrorCodes, formatErrorMessage } from '@/lib/errors';
+import { withAuth, RATE_LIMIT_CONFIG } from '@/middleware/auth'
+import { getDatabase } from '@/lib/db'
+import logger from '@/lib/logger'
+import { createAppError, ErrorCodes, formatErrorMessage } from '@/lib/errors'
 
 // ============================================================================
 // Types
@@ -19,37 +20,37 @@ import { createAppError, ErrorCodes, formatErrorMessage } from '@/lib/errors';
 /**
  * 任务优先级
  */
-export type TaskPriority = 'low' | 'medium' | 'high' | 'urgent';
+export type TaskPriority = 'low' | 'medium' | 'high' | 'urgent'
 
 /**
  * 任务状态
  */
-export type TaskStatus = 'pending' | 'in_progress' | 'completed' | 'cancelled';
+export type TaskStatus = 'pending' | 'in_progress' | 'completed' | 'cancelled'
 
 /**
  * 任务模型
  */
 export interface Task {
   /** 任务唯一标识符 */
-  id: string;
+  id: string
   /** 任务标题 */
-  title: string;
+  title: string
   /** 任务描述 */
-  description?: string;
+  description?: string
   /** 任务优先级 */
-  priority: TaskPriority;
+  priority: TaskPriority
   /** 任务状态 */
-  status: TaskStatus;
+  status: TaskStatus
   /** 截止日期（可选） */
-  dueDate?: string;
+  dueDate?: string
   /** 创建者用户 ID */
-  createdBy: string;
+  createdBy: string
   /** 分配给的用户 ID（可选） */
-  assignedTo?: string;
+  assignedTo?: string
   /** 创建时间 */
-  createdAt: string;
+  createdAt: string
   /** 更新时间 */
-  updatedAt: string;
+  updatedAt: string
 }
 
 /**
@@ -57,17 +58,17 @@ export interface Task {
  */
 export interface CreateTaskRequest {
   /** 任务标题 */
-  title: string;
+  title: string
   /** 任务描述 */
-  description?: string;
+  description?: string
   /** 任务优先级 */
-  priority?: TaskPriority;
+  priority?: TaskPriority
   /** 任务状态 */
-  status?: TaskStatus;
+  status?: TaskStatus
   /** 截止日期（ISO 8601） */
-  dueDate?: string;
+  dueDate?: string
   /** 分配给的用户 ID */
-  assignedTo?: string;
+  assignedTo?: string
 }
 
 /**
@@ -75,17 +76,17 @@ export interface CreateTaskRequest {
  */
 export interface UpdateTaskRequest {
   /** 任务标题 */
-  title?: string;
+  title?: string
   /** 任务描述 */
-  description?: string;
+  description?: string
   /** 任务优先级 */
-  priority?: TaskPriority;
+  priority?: TaskPriority
   /** 任务状态 */
-  status?: TaskStatus;
+  status?: TaskStatus
   /** 截止日期（ISO 8601） */
-  dueDate?: string;
+  dueDate?: string
   /** 分配给的用户 ID */
-  assignedTo?: string;
+  assignedTo?: string
 }
 
 /**
@@ -93,23 +94,23 @@ export interface UpdateTaskRequest {
  */
 export interface TaskQueryParams {
   /** 页码（从 1 开始） */
-  page?: number;
+  page?: number
   /** 每页数量 */
-  limit?: number;
+  limit?: number
   /** 按状态筛选 */
-  status?: TaskStatus;
+  status?: TaskStatus
   /** 按优先级筛选 */
-  priority?: TaskPriority;
+  priority?: TaskPriority
   /** 按创建者筛选 */
-  createdBy?: string;
+  createdBy?: string
   /** 按分配给的用户筛选 */
-  assignedTo?: string;
+  assignedTo?: string
   /** 搜索关键词（匹配标题和描述） */
-  search?: string;
+  search?: string
   /** 排序字段 */
-  sortBy?: 'createdAt' | 'updatedAt' | 'dueDate' | 'priority' | 'title';
+  sortBy?: 'createdAt' | 'updatedAt' | 'dueDate' | 'priority' | 'title'
   /** 排序方向 */
-  sortOrder?: 'asc' | 'desc';
+  sortOrder?: 'asc' | 'desc'
 }
 
 /**
@@ -117,19 +118,19 @@ export interface TaskQueryParams {
  */
 export interface PaginatedResponse<T> {
   /** 数据列表 */
-  items: T[];
+  items: T[]
   /** 总数量 */
-  total: number;
+  total: number
   /** 当前页码 */
-  page: number;
+  page: number
   /** 每页数量 */
-  limit: number;
+  limit: number
   /** 总页数 */
-  totalPages: number;
+  totalPages: number
   /** 是否有下一页 */
-  hasNextPage: boolean;
+  hasNextPage: boolean
   /** 是否有上一页 */
-  hasPreviousPage: boolean;
+  hasPreviousPage: boolean
 }
 
 // ============================================================================
@@ -140,7 +141,7 @@ export interface PaginatedResponse<T> {
  * 初始化 tasks 表
  */
 function ensureTasksTable(): void {
-  const db = getDatabase();
+  const db = getDatabase()
 
   db.exec(`
     CREATE TABLE IF NOT EXISTS tasks (
@@ -157,7 +158,7 @@ function ensureTasksTable(): void {
       FOREIGN KEY (created_by) REFERENCES users(id),
       FOREIGN KEY (assigned_to) REFERENCES users(id)
     )
-  `);
+  `)
 
   // 创建索引以提高查询性能
   db.exec(`
@@ -167,23 +168,23 @@ function ensureTasksTable(): void {
     CREATE INDEX IF NOT EXISTS idx_tasks_assigned_to ON tasks(assigned_to);
     CREATE INDEX IF NOT EXISTS idx_tasks_due_date ON tasks(due_date);
     CREATE INDEX IF NOT EXISTS idx_tasks_created_at ON tasks(created_at);
-  `);
+  `)
 }
 
 /**
  * 数据库行类型
  */
 interface TaskRow {
-  id: string;
-  title: string;
-  description: string | null;
-  priority: string;
-  status: string;
-  due_date: string | null;
-  created_by: string;
-  assigned_to: string | null;
-  created_at: string;
-  updated_at: string;
+  id: string
+  title: string
+  description: string | null
+  priority: string
+  status: string
+  due_date: string | null
+  created_by: string
+  assigned_to: string | null
+  created_at: string
+  updated_at: string
 }
 
 /**
@@ -201,7 +202,7 @@ function rowToTask(row: TaskRow): Task {
     assignedTo: row.assigned_to ?? undefined,
     createdAt: row.created_at,
     updatedAt: row.updated_at,
-  };
+  }
 }
 
 // ============================================================================
@@ -212,86 +213,89 @@ function rowToTask(row: TaskRow): Task {
  * 验证任务优先级
  */
 function isValidPriority(priority: string): priority is TaskPriority {
-  return ['low', 'medium', 'high', 'urgent'].includes(priority);
+  return ['low', 'medium', 'high', 'urgent'].includes(priority)
 }
 
 /**
  * 验证任务状态
  */
 function isValidStatus(status: string): status is TaskStatus {
-  return ['pending', 'in_progress', 'completed', 'cancelled'].includes(status);
+  return ['pending', 'in_progress', 'completed', 'cancelled'].includes(status)
 }
 
 /**
  * 验证创建任务请求
  */
 function validateCreateTaskRequest(data: CreateTaskRequest): { valid: boolean; errors: string[] } {
-  const errors: string[] = [];
+  const errors: string[] = []
 
   if (!data.title || typeof data.title !== 'string' || data.title.trim().length === 0) {
-    errors.push('Title is required and must be a non-empty string');
+    errors.push('Title is required and must be a non-empty string')
   }
 
   if (data.title && data.title.length > 200) {
-    errors.push('Title must be less than 200 characters');
+    errors.push('Title must be less than 200 characters')
   }
 
   if (data.description && data.description.length > 5000) {
-    errors.push('Description must be less than 5000 characters');
+    errors.push('Description must be less than 5000 characters')
   }
 
   if (data.priority && !isValidPriority(data.priority)) {
-    errors.push('Invalid priority value');
+    errors.push('Invalid priority value')
   }
 
   if (data.status && !isValidStatus(data.status)) {
-    errors.push('Invalid status value');
+    errors.push('Invalid status value')
   }
 
   if (data.dueDate && isNaN(Date.parse(data.dueDate))) {
-    errors.push('Invalid dueDate format');
+    errors.push('Invalid dueDate format')
   }
 
   return {
     valid: errors.length === 0,
     errors,
-  };
+  }
 }
 
 /**
  * 验证更新任务请求
  */
-function validateUpdateTaskRequest(data: Partial<UpdateTaskRequest>): { valid: boolean; errors: string[] } {
-  const errors: string[] = [];
+function validateUpdateTaskRequest(data: Partial<UpdateTaskRequest>): {
+  valid: boolean
+  errors: string[]
+} {
+  const errors: string[] = []
 
   if (data.title !== undefined) {
     if (typeof data.title !== 'string' || data.title.trim().length === 0) {
-      errors.push('Title must be a non-empty string');
+      errors.push('Title must be a non-empty string')
     } else if (data.title.length > 200) {
-      errors.push('Title must be less than 200 characters');
+      errors.push('Title must be less than 200 characters')
     }
   }
 
   if (data.description !== undefined && data.description.length > 5000) {
-    errors.push('Description must be less than 5000 characters');
+    errors.push('Description must be less than 5000 characters')
   }
 
   if (data.priority !== undefined && !isValidPriority(data.priority)) {
-    errors.push('Invalid priority value');
+    errors.push('Invalid priority value')
   }
 
   if (data.status !== undefined && !isValidStatus(data.status)) {
-    errors.push('Invalid status value');
+    errors.push('Invalid status value')
   }
 
   if (data.dueDate !== undefined && data.dueDate !== null && isNaN(Date.parse(data.dueDate))) {
-    errors.push('Invalid dueDate format');
+    errors.push('Invalid dueDate format')
   }
 
   return {
     valid: errors.length === 0,
     errors,
-  };
+  }
 }
 
 // ============================================================================
@@ -302,99 +306,91 @@ function validateUpdateTaskRequest(data: Partial<UpdateTaskRequest>): { valid: b
  * 任务查询参数接口
  */
 export interface TaskQueryParams {
-  page?: number;
-  limit?: number;
-  status?: TaskStatus;
-  priority?: TaskPriority;
-  createdBy?: string;
-  assignedTo?: string;
-  search?: string;
-  sortBy?: 'createdAt' | 'updatedAt' | 'dueDate' | 'priority' | 'title';
-  sortOrder?: 'asc' | 'desc';
+  page?: number
+  limit?: number
+  status?: TaskStatus
+  priority?: TaskPriority
+  createdBy?: string
+  assignedTo?: string
+  search?: string
+  sortBy?: 'createdAt' | 'updatedAt' | 'dueDate' | 'priority' | 'title'
+  sortOrder?: 'asc' | 'desc'
 }
 
 /**
  * 排序字段映射
  */
-const _sortFieldMap = {
+const sortFieldMap = {
   createdAt: 'created_at',
   updatedAt: 'updated_at',
   dueDate: 'due_date',
   priority: 'priority',
   title: 'title',
-} as const;
+} as const
 
 /**
  * 构建查询条件和参数
  */
 function buildQuery(params: TaskQueryParams): {
-  where: string;
-  orderBy: string;
-  queryParams: (string | number)[];
+  where: string
+  orderBy: string
+  queryParams: (string | number)[]
 } {
-  const conditions: string[] = [];
-  const queryParams: (string | number)[] = [];
+  const conditions: string[] = []
+  const queryParams: (string | number)[] = []
 
   // 状态筛选
   if (params.status) {
-    conditions.push('status = ?');
-    queryParams.push(params.status);
+    conditions.push('status = ?')
+    queryParams.push(params.status)
   }
 
   // 优先级筛选
   if (params.priority) {
-    conditions.push('priority = ?');
-    queryParams.push(params.priority);
+    conditions.push('priority = ?')
+    queryParams.push(params.priority)
   }
 
   // 创建者筛选
   if (params.createdBy) {
-    conditions.push('created_by = ?');
-    queryParams.push(params.createdBy);
+    conditions.push('created_by = ?')
+    queryParams.push(params.createdBy)
   }
 
   // 分配给筛选
   if (params.assignedTo) {
-    conditions.push('assigned_to = ?');
-    queryParams.push(params.assignedTo);
+    conditions.push('assigned_to = ?')
+    queryParams.push(params.assignedTo)
   }
 
   // 搜索关键词
   if (params.search) {
-    conditions.push('(title LIKE ? OR description LIKE ?)');
-    const searchTerm = `%${params.search}%`;
-    queryParams.push(searchTerm, searchTerm);
+    conditions.push('(title LIKE ? OR description LIKE ?)')
+    const searchTerm = `%${params.search}%`
+    queryParams.push(searchTerm, searchTerm)
   }
 
   // 构建 WHERE 子句
-  const where = conditions.length > 0 ? `WHERE ${conditions.join(' AND ')}` : '';
+  const where = conditions.length > 0 ? `WHERE ${conditions.join(' AND ')}` : ''
 
   // 排序字段映射
-  const sortFieldMap = {
-    createdAt: 'created_at',
-    updatedAt: 'updated_at',
-    dueDate: 'due_date',
-    priority: 'priority',
-    title: 'title',
-  };
-
-  const sortField = sortFieldMap[params.sortBy || 'createdAt'];
-  const sortOrder = params.sortOrder || 'desc';
+  const sortField = sortFieldMap[params.sortBy || 'createdAt']
+  const sortOrder = params.sortOrder || 'desc'
 
   // 优先级的自定义排序（low < medium < high < urgent）
-  let orderBy = '';
+  let orderBy = ''
   if (params.sortBy === 'priority') {
     orderBy = `ORDER BY CASE priority
       WHEN 'low' THEN 1
       WHEN 'medium' THEN 2
       WHEN 'high' THEN 3
       WHEN 'urgent' THEN 4
-    END ${sortOrder}`;
+    END ${sortOrder}`
   } else {
-    orderBy = `ORDER BY ${sortField} ${sortOrder}`;
+    orderBy = `ORDER BY ${sortField} ${sortOrder}`
   }
 
-  return { where, orderBy, queryParams };
+  return { where, orderBy, queryParams }
 }
 
 // ============================================================================
@@ -407,15 +403,15 @@ function buildQuery(params: TaskQueryParams): {
 export async function GET(request: NextRequest) {
   return withAuth(request, async (_req, _userId) => {
     try {
-      ensureTasksTable();
+      ensureTasksTable()
 
-      const db = getDatabase();
-      const searchParams = request.nextUrl.searchParams;
+      const db = getDatabase()
+      const searchParams = request.nextUrl.searchParams
 
       // 解析查询参数
-      const page = Math.max(1, parseInt(searchParams.get('page') || '1'));
-      const limit = Math.min(100, Math.max(1, parseInt(searchParams.get('limit') || '20')));
-      const offset = (page - 1) * limit;
+      const page = Math.max(1, parseInt(searchParams.get('page') || '1'))
+      const limit = Math.min(100, Math.max(1, parseInt(searchParams.get('limit') || '20')))
+      const offset = (page - 1) * limit
 
       const params: TaskQueryParams = {
         page,
@@ -426,16 +422,16 @@ export async function GET(request: NextRequest) {
         assignedTo: searchParams.get('assignedTo') || undefined,
         search: searchParams.get('search') || undefined,
         sortBy: (searchParams.get('sortBy') as keyof typeof sortFieldMap) || 'createdAt',
-        sortOrder: searchParams.get('sortOrder') as 'asc' | 'desc' || 'desc',
-      };
+        sortOrder: (searchParams.get('sortOrder') as 'asc' | 'desc') || 'desc',
+      }
 
       // 构建查询
-      const { where, orderBy, queryParams } = buildQuery(params);
+      const { where, orderBy, queryParams } = buildQuery(params)
 
       // 获取总数
-      const countQuery = `SELECT COUNT(*) as total FROM tasks ${where}`;
-      const countResult = db.prepare(countQuery).get(...queryParams) as { total: number };
-      const total = countResult.total;
+      const countQuery = `SELECT COUNT(*) as total FROM tasks ${where}`
+      const countResult = db.prepare(countQuery).get(...queryParams) as { total: number }
+      const total = countResult.total
 
       // 获取数据
       const dataQuery = `
@@ -443,11 +439,13 @@ export async function GET(request: NextRequest) {
         ${where}
         ${orderBy}
         LIMIT ? OFFSET ?
-      `;
-      const rows = db.prepare(dataQuery).all(...queryParams, limit, offset);
+      `
+      const rows = db.prepare(dataQuery).all(...queryParams, limit, offset)
 
-      const items = (rows as Record<string, unknown>[]).map(row => rowToTask(row as unknown as TaskRow));
-      const totalPages = Math.ceil(total / limit);
+      const items = (rows as Record<string, unknown>[]).map(row =>
+        rowToTask(row as unknown as TaskRow)
+      )
+      const totalPages = Math.ceil(total / limit)
 
       return NextResponse.json({
         success: true,
@@ -460,9 +458,9 @@ export async function GET(request: NextRequest) {
           hasNextPage: page < totalPages,
           hasPreviousPage: page > 1,
         } as PaginatedResponse<Task>,
-      });
-    } catch (_error) {
-      logger.error('Failed to fetch tasks', error);
+      })
+    } catch (error) {
+      logger.error('Failed to fetch tasks', error)
       return NextResponse.json(
         {
           success: false,
@@ -470,9 +468,9 @@ export async function GET(request: NextRequest) {
           code: getErrorCode(error),
         },
         { status: 500 }
-      );
+      )
     }
-  });
+  })
 }
 
 /**
@@ -481,12 +479,12 @@ export async function GET(request: NextRequest) {
 export async function POST(request: NextRequest) {
   return withAuth(request, async (req, userId) => {
     try {
-      ensureTasksTable();
+      ensureTasksTable()
 
-      const body = await request.json() as CreateTaskRequest;
+      const body = (await request.json()) as CreateTaskRequest
 
       // 验证输入
-      const validation = validateCreateTaskRequest(body);
+      const validation = validateCreateTaskRequest(body)
       if (!validation.valid) {
         return NextResponse.json(
           {
@@ -495,14 +493,14 @@ export async function POST(request: NextRequest) {
             errors: validation.errors,
           },
           { status: 400 }
-        );
+        )
       }
 
-      const db = getDatabase();
-      const now = new Date().toISOString();
+      const db = getDatabase()
+      const now = new Date().toISOString()
 
       // 生成唯一 ID
-      const id = crypto.randomUUID();
+      const id = crypto.randomUUID()
 
       // 插入任务
       const insertQuery = `
@@ -510,7 +508,7 @@ export async function POST(request: NextRequest) {
           id, title, description, priority, status, due_date,
           created_by, assigned_to, created_at, updated_at
         ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
-      `;
+      `
 
       db.prepare(insertQuery).run(
         id,
@@ -523,11 +521,13 @@ export async function POST(request: NextRequest) {
         body.assignedTo || null,
         now,
         now
-      );
+      )
 
       // 获取创建的任务
-      const taskRow = db.prepare('SELECT * FROM tasks WHERE id = ?').get(id) as unknown as TaskRow | undefined;
-      const task = taskRow ? rowToTask(taskRow) : null;
+      const taskRow = db.prepare('SELECT * FROM tasks WHERE id = ?').get(id) as unknown as
+        | TaskRow
+        | undefined
+      const task = taskRow ? rowToTask(taskRow) : null
 
       if (!task) {
         return NextResponse.json(
@@ -539,10 +539,10 @@ export async function POST(request: NextRequest) {
             },
           },
           { status: 500 }
-        );
+        )
       }
 
-      logger.info(`Task created: ${id}`, { taskId: id, userId });
+      logger.info(`Task created: ${id}`, { taskId: id, userId })
 
       return NextResponse.json(
         {
@@ -550,9 +550,9 @@ export async function POST(request: NextRequest) {
           data: task,
         },
         { status: 201 }
-      );
-    } catch (_error) {
-      logger.error('Failed to create task', error);
+      )
+    } catch (error) {
+      logger.error('Failed to create task', error)
       return NextResponse.json(
         {
           success: false,
@@ -560,9 +560,9 @@ export async function POST(request: NextRequest) {
           code: getErrorCode(error),
         },
         { status: 500 }
-      );
+      )
     }
-  });
+  })
 }
 
 // ============================================================================
@@ -573,6 +573,6 @@ export async function POST(request: NextRequest) {
  * 获取错误代码
  */
 function getErrorCode(error: unknown): string {
-  const appError = error as { code?: string };
-  return appError.code || ErrorCodes.SERVER_ERROR;
+  const appError = error as { code?: string }
+  return appError.code || ErrorCodes.SERVER_ERROR
 }

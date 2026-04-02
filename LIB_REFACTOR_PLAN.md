@@ -13,10 +13,10 @@
 
 ### 当前状态
 
-| 目录 | 状态 | 说明 |
-|------|------|------|
-| `src/lib/agent/` | ✅ **已清理** | 不存在（已完成合并） |
-| `src/lib/agents/` | ✅ **活跃** | 统一的 agent 模块 |
+| 目录                           | 状态          | 说明                 |
+| ------------------------------ | ------------- | -------------------- |
+| `src/lib/agent/`               | ✅ **已清理** | 不存在（已完成合并） |
+| `src/lib/agents/`              | ✅ **活跃**   | 统一的 agent 模块    |
 | `src/lib/agent-communication/` | ✅ **已清理** | 不存在（功能已整合） |
 
 ---
@@ -32,6 +32,7 @@
 **职责：** 智能体核心操作模块
 
 **文件结构：**
+
 ```
 src/lib/agent/
 ├── types.ts                    # 智能体类型定义
@@ -48,6 +49,7 @@ src/lib/agent/
 ```
 
 **核心功能：**
+
 - 智能体实体管理（注册、查询、更新）
 - 认证授权（API Key、JWT Token）
 - 钱包系统（充值、转账、交易记录）
@@ -59,6 +61,7 @@ src/lib/agent/
 **职责：** 另一个智能体模块（与 agent/ 存在功能重叠）
 
 **文件结构：**
+
 ```
 src/lib/agents/
 ├── types.ts                    # 类型定义（与 agent/types.ts 重复）
@@ -75,6 +78,7 @@ src/lib/agents/
 ```
 
 **重叠部分：**
+
 - ✅ 完全相同的认证服务（auth-service.ts）
 - ✅ 完全相同的仓库实现
 - ✅ 完全相同的钱包系统
@@ -85,6 +89,7 @@ src/lib/agents/
 **职责：** 智能体通信协议
 
 **文件结构：**
+
 ```
 src/lib/agent-communication/
 ├── types.ts                    # 通信类型定义
@@ -93,6 +98,7 @@ src/lib/agent-communication/
 ```
 
 **核心功能：**
+
 - 消息类型枚举（任务、协作、数据、通知、系统、会议、投票）
 - 消息信封（AgentMessageEnvelope）
 - 消息优先级和状态管理
@@ -108,6 +114,7 @@ src/lib/agent-communication/
 **职责：** 统一的智能体功能模块
 
 **文件结构：**
+
 ```
 src/lib/agents/
 ├── index.ts                    # 统一导出
@@ -160,6 +167,7 @@ src/lib/agents/
 **职责：** 前端智能体功能
 
 **文件结构：**
+
 ```
 7zi-frontend/src/lib/agents/
 ├── scheduler/                  # 简化版调度器
@@ -179,12 +187,14 @@ src/lib/agents/
 ### 方案 A：保持现状（推荐）
 
 **理由：**
+
 1. ✅ 目录已经统一到 `src/lib/agents/`
 2. ✅ `agent-communication` 功能已整合到 `agents/agent/communication/`
 3. ✅ 无需额外重构工作
 4. ✅ 代码结构清晰，职责明确
 
 **验证清单：**
+
 - [x] `src/lib/agent/` 不存在（已删除）
 - [x] `src/lib/agent-communication/` 不存在（已合并）
 - [x] `src/lib/agents/` 统一管理所有智能体功能
@@ -199,11 +209,13 @@ src/lib/agents/
 **问题：** 存在多个 `-optimized` 和 `-optimized-v2` 文件
 
 **文件列表：**
+
 - `auth-service.ts` + `auth-service-optimized.ts`
 - `repository.ts` + `repository-optimized.ts` + `repository-optimized-v2.ts`
 - `wallet-repository.ts` + `wallet-repository-optimized.ts` + `wallet-repository-optimized-v2.ts`
 
 **优化方案：**
+
 1. 确定哪个版本是当前使用的
 2. 删除未使用的版本
 3. 重命名使用的版本为标准名称（无 `-optimized` 后缀）
@@ -211,10 +223,12 @@ src/lib/agents/
 #### B2. 统一两个调度器实现
 
 **问题：** 存在两个调度器实现
+
 - `src/lib/agents/scheduler/` - 完整版（core, models, dashboard, stores）
 - `7zi-frontend/src/lib/agents/scheduler/` - 简化版（scheduler.ts, types.ts）
 
 **优化方案：**
+
 1. 分析两个实现的功能差异
 2. 确定是否需要两个版本
 3. 如果不需要，合并为一个版本
@@ -225,12 +239,14 @@ src/lib/agents/
 **问题：** `agents/agent/communication/` 功能未被使用
 
 **验证：**
+
 ```bash
 grep -r "message-builder" --include="*.ts" src
 # 结果：仅在 src/lib/agents/agent/communication/index.ts 中导出
 ```
 
 **优化方案：**
+
 1. 确认是否有外部引用
 2. 如果无引用，考虑删除或标记为 deprecated
 3. 如果需要，添加文档说明使用场景
@@ -241,23 +257,23 @@ grep -r "message-builder" --include="*.ts" src
 
 ### 方案 A：保持现状
 
-| 任务 | 工作量 | 优先级 |
-|------|--------|--------|
-| 验证当前目录结构 | 0.5 人时 | P0 |
-| 检查导入引用 | 1 人时 | P0 |
-| 文档化当前状态 | 2 人时 | P1 |
-| **总计** | **3.5 人时** | - |
+| 任务             | 工作量       | 优先级 |
+| ---------------- | ------------ | ------ |
+| 验证当前目录结构 | 0.5 人时     | P0     |
+| 检查导入引用     | 1 人时       | P0     |
+| 文档化当前状态   | 2 人时       | P1     |
+| **总计**         | **3.5 人时** | -      |
 
 ### 方案 B：进一步优化
 
-| 任务 | 工作量 | 优先级 | 风险 |
-|------|--------|--------|------|
-| 清理历史优化文件 | 4 人时 | P2 | 中 |
-| 统一两个调度器实现 | 8 人时 | P2 | 高 |
-| 整合通信模块 | 2 人时 | P3 | 低 |
-| 测试验证 | 4 人时 | P2 | - |
-| 文档更新 | 2 人时 | P3 | - |
-| **总计** | **20 人时** | - | - |
+| 任务               | 工作量      | 优先级 | 风险 |
+| ------------------ | ----------- | ------ | ---- |
+| 清理历史优化文件   | 4 人时      | P2     | 中   |
+| 统一两个调度器实现 | 8 人时      | P2     | 高   |
+| 整合通信模块       | 2 人时      | P3     | 低   |
+| 测试验证           | 4 人时      | P2     | -    |
+| 文档更新           | 2 人时      | P3     | -    |
+| **总计**           | **20 人时** | -      | -    |
 
 ---
 
@@ -265,30 +281,30 @@ grep -r "message-builder" --include="*.ts" src
 
 ### 已完成的路径映射（历史）
 
-| 旧路径 | 新路径 | 状态 |
-|--------|--------|------|
-| `@/lib/agent/types` | `@/lib/agents/agent/types` | ✅ 已迁移 |
-| `@/lib/agents/repository` | `@/lib/agents/agent/repository` | ✅ 已迁移 |
+| 旧路径                            | 新路径                                   | 状态      |
+| --------------------------------- | ---------------------------------------- | --------- |
+| `@/lib/agent/types`               | `@/lib/agents/agent/types`               | ✅ 已迁移 |
+| `@/lib/agents/repository`         | `@/lib/agents/agent/repository`          | ✅ 已迁移 |
 | `@/lib/agent-communication/types` | `@/lib/agents/agent/communication/types` | ✅ 已迁移 |
-| `@/lib/agent-scheduler/*` | `@/lib/agents/scheduler/*` | ✅ 已迁移 |
+| `@/lib/agent-scheduler/*`         | `@/lib/agents/scheduler/*`               | ✅ 已迁移 |
 
 ### 当前推荐导入路径
 
 ```typescript
 // 智能体核心功能
-import { createAgent, authenticateAgent } from '@/lib/agents/agent';
-import type { Agent, AgentRole } from '@/lib/agents/agent/types';
+import { createAgent, authenticateAgent } from '@/lib/agents/agent'
+import type { Agent, AgentRole } from '@/lib/agents/agent/types'
 
 // 任务调度
-import { Scheduler, TaskMatcher } from '@/lib/agents/scheduler';
-import type { Task, TaskPriority } from '@/lib/agents/scheduler/models';
+import { Scheduler, TaskMatcher } from '@/lib/agents/scheduler'
+import type { Task, TaskPriority } from '@/lib/agents/scheduler/models'
 
 // A2A 协议
-import { InMemoryAgentRegistry } from '@/lib/agents/a2a';
-import type { AgentCard, Task as A2ATask } from '@/lib/agents/a2a';
+import { InMemoryAgentRegistry } from '@/lib/agents/a2a'
+import type { AgentCard, Task as A2ATask } from '@/lib/agents/a2a'
 
 // 工具函数
-import { someUtility } from '@/lib/agents/tools';
+import { someUtility } from '@/lib/agents/tools'
 ```
 
 ---
@@ -298,46 +314,50 @@ import { someUtility } from '@/lib/agents/tools';
 ### 已实施的兼容措施
 
 1. **向后兼容导出** (`src/lib/agents/index.ts`)
+
    ```typescript
    // Re-export a2a types with explicit naming to avoid conflicts
    export {
      InMemoryAgentRegistry,
      SimpleEventBus,
      // ...
-   } from './a2a';
+   } from './a2a'
 
    export type {
-     Task as A2ATask,  // 重命名避免与 scheduler.Task 冲突
-   } from './a2a';
+     Task as A2ATask, // 重命名避免与 scheduler.Task 冲突
+   } from './a2a'
    ```
 
 2. **多重导出支持** (`src/lib/agents/agent/index.ts`)
    ```typescript
    // 同时导出原始版本和优化版本
-   export { createAgent } from './repository';
-   export { createAgent as createAgentOptimized } from './repository-optimized';
-   export { createAgent as createAgentV2 } from './repository-optimized-v2';
+   export { createAgent } from './repository'
+   export { createAgent as createAgentOptimized } from './repository-optimized'
+   export { createAgent as createAgentV2 } from './repository-optimized-v2'
    ```
 
 ### 推荐的兼容性实践
 
 1. **使用 @/lib/agents 作为统一入口**
+
    ```typescript
-   import { createAgent, Scheduler } from '@/lib/agents';
+   import { createAgent, Scheduler } from '@/lib/agents'
    ```
 
 2. **显式导入子模块**（当需要特定功能时）
+
    ```typescript
-   import { AdaptiveLearner } from '@/lib/agents/learning';
+   import { AdaptiveLearner } from '@/lib/agents/learning'
    ```
 
 3. **避免直接导入优化文件**
+
    ```typescript
    // ❌ 不推荐
-   import { createAgent } from '@/lib/agents/agent/repository-optimized-v2';
+   import { createAgent } from '@/lib/agents/agent/repository-optimized-v2'
 
    // ✅ 推荐
-   import { createAgent } from '@/lib/agents/agent';
+   import { createAgent } from '@/lib/agents/agent'
    ```
 
 ---
@@ -392,6 +412,7 @@ import { someUtility } from '@/lib/agents/tools';
 **推荐方案：** 保持现状（方案 A）
 
 **理由：**
+
 1. ✅ 重构已完成，无需额外工作
 2. ✅ 代码结构清晰，职责明确
 3. ✅ 低风险，高收益

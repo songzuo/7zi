@@ -5,40 +5,37 @@
  * Shows colored highlights with user labels
  */
 
-'use client';
+'use client'
 
-import type { FC, ReactNode } from 'react';
+import type { FC, ReactNode } from 'react'
 
 // ============================================================================
 // Types
 // ============================================================================
 
 export interface RemoteSelection {
-  userId: string;
-  userName: string;
-  color: string;
+  userId: string
+  userName: string
+  color: string
   selection: {
-    start: number;
-    end: number;
-  };
+    start: number
+    end: number
+  }
 }
 
 interface RemoteSelectionProps {
-  selection: RemoteSelection;
-  currentUserId: string;
+  selection: RemoteSelection
+  currentUserId: string
 }
 
 // ============================================================================
 // Component
 // ============================================================================
 
-export function RemoteSelectionHighlight({
-  selection,
-  currentUserId,
-}: RemoteSelectionProps) {
+export function RemoteSelectionHighlight({ selection, currentUserId }: RemoteSelectionProps) {
   // Don't show selection for current user
   if (selection.userId === currentUserId) {
-    return null;
+    return null
   }
 
   return (
@@ -52,7 +49,7 @@ export function RemoteSelectionHighlight({
     >
       {/* User label tooltip */}
       <span
-        className="absolute -top-6 left-0 px-2 py-0.5 text-white text-xs rounded whitespace-nowrap z-10"
+        className="absolute -top-6 left-0 z-10 rounded px-2 py-0.5 text-xs whitespace-nowrap text-white"
         style={{
           backgroundColor: selection.color,
         }}
@@ -60,7 +57,7 @@ export function RemoteSelectionHighlight({
         {selection.userName}
       </span>
     </span>
-  );
+  )
 }
 
 // ============================================================================
@@ -68,10 +65,10 @@ export function RemoteSelectionHighlight({
 // ============================================================================
 
 interface SelectionHighlighterProps {
-  content: string;
-  selections: RemoteSelection[];
-  currentUserId: string;
-  className?: string;
+  content: string
+  selections: RemoteSelection[]
+  currentUserId: string
+  className?: string
 }
 
 export function SelectionHighlighter({
@@ -81,31 +78,27 @@ export function SelectionHighlighter({
   className = '',
 }: SelectionHighlighterProps) {
   // Filter out current user's selections
-  const remoteSelections = selections.filter(s => s.userId !== currentUserId);
+  const remoteSelections = selections.filter(s => s.userId !== currentUserId)
 
   if (remoteSelections.length === 0) {
-    return <span className={className}>{content}</span>;
+    return <span className={className}>{content}</span>
   }
 
   // Sort selections by start position
   const sortedSelections = [...remoteSelections].sort(
     (a, b) => a.selection.start - b.selection.start
-  );
+  )
 
   // Build highlighted content
-  let lastIndex = 0;
-  const parts: ReactNode[] = [];
+  let lastIndex = 0
+  const parts: ReactNode[] = []
 
-  sortedSelections.forEach((sel) => {
-    const { start, end } = sel.selection;
+  sortedSelections.forEach(sel => {
+    const { start, end } = sel.selection
 
     // Add content before selection
     if (start > lastIndex) {
-      parts.push(
-        <span key={`text-${lastIndex}`}>
-          {content.slice(lastIndex, start)}
-        </span>
-      );
+      parts.push(<span key={`text-${lastIndex}`}>{content.slice(lastIndex, start)}</span>)
     }
 
     // Add highlighted selection
@@ -123,7 +116,7 @@ export function SelectionHighlighter({
 
         {/* User label tooltip */}
         <span
-          className="absolute -top-6 left-0 px-2 py-0.5 text-white text-xs rounded whitespace-nowrap z-10"
+          className="absolute -top-6 left-0 z-10 rounded px-2 py-0.5 text-xs whitespace-nowrap text-white"
           style={{
             backgroundColor: sel.color,
           }}
@@ -131,21 +124,17 @@ export function SelectionHighlighter({
           {sel.userName}
         </span>
       </span>
-    );
+    )
 
-    lastIndex = end;
-  });
+    lastIndex = end
+  })
 
   // Add remaining content
   if (lastIndex < content.length) {
-    parts.push(
-      <span key={`text-${lastIndex}`}>
-        {content.slice(lastIndex)}
-      </span>
-    );
+    parts.push(<span key={`text-${lastIndex}`}>{content.slice(lastIndex)}</span>)
   }
 
-  return <span className={className}>{parts}</span>;
+  return <span className={className}>{parts}</span>
 }
 
 // ============================================================================
@@ -154,31 +143,28 @@ export function SelectionHighlighter({
 
 interface CursorWithSelectionProps {
   cursor: {
-    userId: string;
-    userName: string;
-    color: string;
-    position: number;
+    userId: string
+    userName: string
+    color: string
+    position: number
     selection?: {
-      start: number;
-      end: number;
-    };
-  };
-  currentUserId: string;
+      start: number
+      end: number
+    }
+  }
+  currentUserId: string
 }
 
-export function CursorWithSelection({
-  cursor,
-  currentUserId,
-}: CursorWithSelectionProps) {
+export function CursorWithSelection({ cursor, currentUserId }: CursorWithSelectionProps) {
   if (cursor.userId === currentUserId) {
-    return null;
+    return null
   }
 
   return (
     <div className="relative">
       {/* Cursor caret */}
       <div
-        className="absolute pointer-events-none"
+        className="pointer-events-none absolute"
         style={{
           left: `${cursor.position}px`,
           top: 0,
@@ -190,7 +176,7 @@ export function CursorWithSelection({
       >
         {/* Cursor label */}
         <div
-          className="absolute top-0 left-1 px-2 py-0.5 text-white text-xs rounded-t-sm whitespace-nowrap"
+          className="absolute top-0 left-1 rounded-t-sm px-2 py-0.5 text-xs whitespace-nowrap text-white"
           style={{
             backgroundColor: cursor.color,
           }}
@@ -202,7 +188,7 @@ export function CursorWithSelection({
       {/* Selection highlight */}
       {cursor.selection && (
         <div
-          className="absolute pointer-events-none opacity-30"
+          className="pointer-events-none absolute opacity-30"
           style={{
             left: `${Math.min(cursor.selection.start, cursor.selection.end)}px`,
             top: 0,
@@ -213,7 +199,7 @@ export function CursorWithSelection({
         />
       )}
     </div>
-  );
+  )
 }
 
 // ============================================================================
@@ -221,34 +207,30 @@ export function CursorWithSelection({
 // ============================================================================
 
 interface SelectionManagerProps {
-  cursors: Map<string, {
-    userId: string;
-    userName: string;
-    color: string;
-    position: number;
-    selection?: {
-      start: number;
-      end: number;
-    };
-  }>;
-  currentUserId: string;
+  cursors: Map<
+    string,
+    {
+      userId: string
+      userName: string
+      color: string
+      position: number
+      selection?: {
+        start: number
+        end: number
+      }
+    }
+  >
+  currentUserId: string
 }
 
-export function SelectionManager({
-  cursors,
-  currentUserId,
-}: SelectionManagerProps) {
+export function SelectionManager({ cursors, currentUserId }: SelectionManagerProps) {
   return (
-    <div className="absolute inset-0 pointer-events-none">
-      {Array.from(cursors.values()).map((cursor) => (
-        <CursorWithSelection
-          key={cursor.userId}
-          cursor={cursor}
-          currentUserId={currentUserId}
-        />
+    <div className="pointer-events-none absolute inset-0">
+      {Array.from(cursors.values()).map(cursor => (
+        <CursorWithSelection key={cursor.userId} cursor={cursor} currentUserId={currentUserId} />
       ))}
     </div>
-  );
+  )
 }
 
 // ============================================================================
@@ -257,30 +239,27 @@ export function SelectionManager({
 
 interface TypingIndicatorProps {
   typingUsers: Array<{
-    userId: string;
-    userName: string;
-    color: string;
-  }>;
-  currentUserId: string;
+    userId: string
+    userName: string
+    color: string
+  }>
+  currentUserId: string
 }
 
-export function TypingIndicator({
-  typingUsers,
-  currentUserId,
-}: TypingIndicatorProps) {
-  const othersTyping = typingUsers.filter(u => u.userId !== currentUserId);
+export function TypingIndicator({ typingUsers, currentUserId }: TypingIndicatorProps) {
+  const othersTyping = typingUsers.filter(u => u.userId !== currentUserId)
 
   if (othersTyping.length === 0) {
-    return null;
+    return null
   }
 
   return (
     <div className="flex items-center gap-2">
       <div className="flex gap-1">
-        {[0, 1, 2].map((i) => (
+        {[0, 1, 2].map(i => (
           <div
             key={i}
-            className="w-1.5 h-1.5 bg-blue-500 rounded-full animate-bounce"
+            className="h-1.5 w-1.5 animate-bounce rounded-full bg-blue-500"
             style={{
               animationDelay: `${i * 0.1}s`,
               animationDuration: '0.6s',
@@ -294,7 +273,7 @@ export function TypingIndicator({
           : `${othersTyping.length} people are typing...`}
       </span>
     </div>
-  );
+  )
 }
 
-export default RemoteSelectionHighlight;
+export default RemoteSelectionHighlight

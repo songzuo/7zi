@@ -1,17 +1,17 @@
-'use client';
+'use client'
 
-import { useState, useEffect, useRef } from 'react';
-import { SettingsPanel } from './SettingsPanel';
+import { useState, useEffect, useRef } from 'react'
+import { SettingsPanel } from './SettingsPanel'
 
 interface SettingsButtonProps {
-  className?: string;
-  compact?: boolean;
+  className?: string
+  compact?: boolean
 }
 
 export function SettingsButton({ className = '', compact = false }: SettingsButtonProps) {
-  const [isOpen, setIsOpen] = useState(false);
-  const panelRef = useRef<HTMLDivElement>(null);
-  const buttonRef = useRef<HTMLButtonElement>(null);
+  const [isOpen, setIsOpen] = useState(false)
+  const panelRef = useRef<HTMLDivElement>(null)
+  const buttonRef = useRef<HTMLButtonElement>(null)
 
   // 点击外部关闭
   useEffect(() => {
@@ -23,39 +23,36 @@ export function SettingsButton({ className = '', compact = false }: SettingsButt
         !panelRef.current.contains(event.target as Node) &&
         !buttonRef.current.contains(event.target as Node)
       ) {
-        setIsOpen(false);
+        setIsOpen(false)
       }
-    };
+    }
 
-    document.addEventListener('mousedown', handleClickOutside);
-    return () => document.removeEventListener('mousedown', handleClickOutside);
-  }, [isOpen]);
+    document.addEventListener('mousedown', handleClickOutside)
+    return () => document.removeEventListener('mousedown', handleClickOutside)
+  }, [isOpen])
 
   // ESC 关闭
   useEffect(() => {
     const handleEscape = (event: KeyboardEvent) => {
       if (event.key === 'Escape' && isOpen) {
-        setIsOpen(false);
+        setIsOpen(false)
       }
-    };
+    }
 
-    document.addEventListener('keydown', handleEscape);
-    return () => document.removeEventListener('keydown', handleEscape);
-  }, [isOpen]);
+    document.addEventListener('keydown', handleEscape)
+    return () => document.removeEventListener('keydown', handleEscape)
+  }, [isOpen])
 
   return (
     <div className={`relative ${className}`}>
       <button
         ref={buttonRef}
         onClick={() => setIsOpen(!isOpen)}
-        className={`
-          flex items-center justify-center rounded-lg transition-colors
-          ${compact
-            ? 'w-10 h-10 bg-zinc-100 dark:bg-zinc-800 hover:bg-zinc-200 dark:hover:bg-zinc-700'
-            : 'px-4 py-2 bg-zinc-100 dark:bg-zinc-800 hover:bg-zinc-200 dark:hover:bg-zinc-700 gap-2'
-          }
-          ${isOpen ? 'bg-zinc-200 dark:bg-zinc-700' : ''}
-        `}
+        className={`flex items-center justify-center rounded-lg transition-colors ${
+          compact
+            ? 'h-10 w-10 bg-zinc-100 hover:bg-zinc-200 dark:bg-zinc-800 dark:hover:bg-zinc-700'
+            : 'gap-2 bg-zinc-100 px-4 py-2 hover:bg-zinc-200 dark:bg-zinc-800 dark:hover:bg-zinc-700'
+        } ${isOpen ? 'bg-zinc-200 dark:bg-zinc-700' : ''} `}
         aria-label="设置"
         aria-expanded={isOpen}
       >
@@ -69,7 +66,7 @@ export function SettingsButton({ className = '', compact = false }: SettingsButt
       {isOpen && (
         <div
           ref={panelRef}
-          className="absolute right-0 top-full mt-2 w-80 sm:w-96 z-50 animate-fade-in"
+          className="animate-fade-in absolute top-full right-0 z-50 mt-2 w-80 sm:w-96"
         >
           <SettingsPanel onClose={() => setIsOpen(false)} />
         </div>
@@ -91,7 +88,7 @@ export function SettingsButton({ className = '', compact = false }: SettingsButt
         }
       `}</style>
     </div>
-  );
+  )
 }
 
-export default SettingsButton;
+export default SettingsButton

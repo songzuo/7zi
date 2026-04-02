@@ -25,24 +25,24 @@
 
 ### 开发环境
 
-| 组件 | 最低版本 | 推荐版本 |
-|------|----------|----------|
-| **Node.js** | 20.x | 22.x LTS |
-| **npm** | 9.x | 10.x |
-| **pnpm** | 8.x | 9.x (推荐) |
-| **Git** | 2.x | 最新 |
-| **Docker** | 20.x | 最新 (可选) |
+| 组件        | 最低版本 | 推荐版本    |
+| ----------- | -------- | ----------- |
+| **Node.js** | 20.x     | 22.x LTS    |
+| **npm**     | 9.x      | 10.x        |
+| **pnpm**    | 8.x      | 9.x (推荐)  |
+| **Git**     | 2.x      | 最新        |
+| **Docker**  | 20.x     | 最新 (可选) |
 
 ### 生产环境
 
-| 组件 | 要求 |
-|------|------|
-| **操作系统** | Linux (Ubuntu 20.04+, Debian 11+) |
-| **CPU** | 2+ 核心推荐 |
-| **内存** | 4GB+ (8GB+ 推荐) |
-| **磁盘** | 20GB+ 可用空间 |
-| **Docker** | 20.10+ |
-| **Docker Compose** | 2.0+ |
+| 组件               | 要求                              |
+| ------------------ | --------------------------------- |
+| **操作系统**       | Linux (Ubuntu 20.04+, Debian 11+) |
+| **CPU**            | 2+ 核心推荐                       |
+| **内存**           | 4GB+ (8GB+ 推荐)                  |
+| **磁盘**           | 20GB+ 可用空间                    |
+| **Docker**         | 20.10+                            |
+| **Docker Compose** | 2.0+                              |
 
 ---
 
@@ -503,6 +503,7 @@ FROM node:22-alpine AS runner
 ```
 
 **优势**：
+
 - 减小最终镜像大小
 - 只包含运行时依赖
 - 提高安全性
@@ -518,12 +519,12 @@ services:
       context: .
       dockerfile: Dockerfile
     ports:
-      - "3000:3000"
+      - '3000:3000'
     environment:
       - NODE_ENV=production
     restart: unless-stopped
     healthcheck:
-      test: ["CMD", "wget", "--quiet", "--tries=1", "--spider", "http://localhost:3000"]
+      test: ['CMD', 'wget', '--quiet', '--tries=1', '--spider', 'http://localhost:3000']
       interval: 30s
       timeout: 10s
       retries: 3
@@ -554,12 +555,12 @@ services:
 
 在 GitHub 仓库设置中添加以下 Secrets：
 
-| Secret | 说明 | 示例 |
-|--------|------|------|
-| `DEPLOY_HOST` | 服务器地址 | 165.99.43.61 |
-| `DEPLOY_USER` | SSH 用户 | root |
-| `DEPLOY_KEY` | SSH 私钥 | -----BEGIN RSA PRIVATE KEY----- |
-| `DEPLOY_PORT` | SSH 端口 | 22 |
+| Secret        | 说明       | 示例                            |
+| ------------- | ---------- | ------------------------------- |
+| `DEPLOY_HOST` | 服务器地址 | 165.99.43.61                    |
+| `DEPLOY_USER` | SSH 用户   | root                            |
+| `DEPLOY_KEY`  | SSH 私钥   | -----BEGIN RSA PRIVATE KEY----- |
+| `DEPLOY_PORT` | SSH 端口   | 22                              |
 
 #### 触发部署
 
@@ -651,8 +652,8 @@ export async function GET() {
     status: 'ok',
     timestamp: new Date().toISOString(),
     uptime: process.uptime(),
-    memory: process.memoryUsage()
-  });
+    memory: process.memoryUsage(),
+  })
 }
 ```
 
@@ -805,9 +806,9 @@ export default {
 export async function GET() {
   return NextResponse.json(data, {
     headers: {
-      'Cache-Control': 'public, s-maxage=3600, stale-while-revalidate=86400'
-    }
-  });
+      'Cache-Control': 'public, s-maxage=3600, stale-while-revalidate=86400',
+    },
+  })
 }
 ```
 
@@ -829,8 +830,8 @@ const pool = createPool({
   max: 10,
   min: 2,
   acquireTimeoutMillis: 30000,
-  idleTimeoutMillis: 30000
-});
+  idleTimeoutMillis: 30000,
+})
 ```
 
 ---

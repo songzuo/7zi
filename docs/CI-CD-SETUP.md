@@ -5,27 +5,31 @@
 ### 1. GitHub Actions Workflows
 
 #### `.github/workflows/ci-cd.yml` - 主 CI/CD 流水线
+
 - **代码质量检查**: TypeScript 类型检查、ESLint、Prettier
 - **单元测试**: Vitest 测试 + 覆盖率报告
 - **构建**: Next.js 构建 + 产物上传
 - **Docker 构建**: 多阶段构建 + 推送到 Docker Hub
 - **Vercel 部署**: 自动部署到 Vercel
-- **服务器部署**: 
+- **服务器部署**:
   - 7zi.com (生产环境)
   - bot5.szspd.cn (测试环境)
 - **部署通知**: Discord 通知 + GitHub Summary
 
 #### `.github/workflows/tests.yml` - 测试专用流水线
+
 - **单元测试**: 独立运行，快速反馈
 - **E2E 测试**: Playwright 框架支持（可选）
 - **测试报告**: 覆盖率报告汇总
 
 #### `.github/workflows/deploy.yml` - 原有配置（保留）
+
 - 基础的 CI/CD 流程
 
 ### 2. Docker 部署配置
 
 #### `deploy-scripts/docker/`
+
 ```
 docker/
 ├── Dockerfile.production      # 生产环境多阶段构建
@@ -38,6 +42,7 @@ docker/
 ### 3. 配置文档
 
 #### `.github/SECRETS.md` - GitHub Secrets 配置指南
+
 - SSH 密钥生成和配置
 - Docker Hub 访问令牌
 - Vercel API 令牌
@@ -45,6 +50,7 @@ docker/
 - 环境配置（production/staging）
 
 #### `deploy-scripts/check-cicd.sh` - 配置检查脚本
+
 - 验证所有配置文件
 - 检查 YAML 语法
 - 确认必要文件存在
@@ -56,6 +62,7 @@ docker/
 ### 快速开始
 
 1. **配置 GitHub Secrets**
+
    ```bash
    # 参考 .github/SECRETS.md
    # 必需配置：
@@ -66,12 +73,14 @@ docker/
    ```
 
 2. **验证配置**
+
    ```bash
    cd /root/.openclaw/workspace
    ./deploy-scripts/check-cicd.sh
    ```
 
 3. **推送代码**
+
    ```bash
    git add .
    git commit -m "feat: 配置完整 CI/CD 流水线"
@@ -125,6 +134,7 @@ push 到 main
 ## 🔐 安全配置
 
 ### SSH 密钥（服务器部署）
+
 ```bash
 # 生成专用部署密钥
 ssh-keygen -t ed25519 -C "github-actions-deploy" -f ~/.ssh/github_actions_deploy
@@ -138,6 +148,7 @@ cat ~/.ssh/github_actions_deploy | gh secret set SSH_PRIVATE_KEY
 ```
 
 ### 服务器防火墙配置
+
 ```bash
 # 确保服务器允许 GitHub Actions IP
 # GitHub Actions 使用 GitHub 的 IP 范围
@@ -148,6 +159,7 @@ cat ~/.ssh/github_actions_deploy | gh secret set SSH_PRIVATE_KEY
 ## 📊 监控和维护
 
 ### 查看部署日志
+
 ```bash
 # GitHub Actions
 https://github.com/your-repo/actions
@@ -158,6 +170,7 @@ ssh root@bot5.szspd.cn "tail -f /var/log/nginx/7zi-frontend-error.log"
 ```
 
 ### 回滚部署
+
 ```bash
 # SSH 到服务器
 ssh root@7zi.com

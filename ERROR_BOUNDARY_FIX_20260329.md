@@ -22,12 +22,13 @@
 
 项目提供了两个版本的 ErrorBoundary：
 
-| 组件 | 位置 | 类型 | 用途 |
-|------|------|------|------|
-| `ErrorBoundary.tsx` | `src/components/` | 函数式组件 | Next.js 页面级错误处理 |
+| 组件                       | 位置              | 类型          | 用途                             |
+| -------------------------- | ----------------- | ------------- | -------------------------------- |
+| `ErrorBoundary.tsx`        | `src/components/` | 函数式组件    | Next.js 页面级错误处理           |
 | `ErrorBoundaryWrapper.tsx` | `src/components/` | **类组件** ✅ | 包裹组件树，捕获 JavaScript 错误 |
 
 **ErrorBoundaryWrapper 特性**:
+
 - ✅ 使用 React Class Component（符合推荐规范）
 - ✅ 实现 `getDerivedStateFromError` 和 `componentDidCatch`
 - ✅ 集成 Sentry 错误监控
@@ -65,22 +66,22 @@ src/app/
 
 **实现的功能**:
 
-| 监听器 | 服务端 | 客户端 | 状态 |
-|--------|--------|--------|------|
-| `unhandledrejection` | ✅ | ✅ | 已实现 |
-| `window.onerror` | - | ✅ | 已实现 |
-| `uncaughtException` | ✅ | - | 已实现 |
-| `uncaughtExceptionMonitor` | ✅ | - | 已实现 |
-| `warning` | ✅ | - | 已实现 |
+| 监听器                     | 服务端 | 客户端 | 状态   |
+| -------------------------- | ------ | ------ | ------ |
+| `unhandledrejection`       | ✅     | ✅     | 已实现 |
+| `window.onerror`           | -      | ✅     | 已实现 |
+| `uncaughtException`        | ✅     | -      | 已实现 |
+| `uncaughtExceptionMonitor` | ✅     | -      | 已实现 |
+| `warning`                  | ✅     | -      | 已实现 |
 
 **初始化位置**: `src/components/ClientProviders.tsx`
 
 ```tsx
 useEffect(() => {
-  setupBrowserErrorHandlers();  // 初始化浏览器错误处理
-  initWebVitalsMonitoring();     // Web Vitals 监控
-  initPerformanceMonitoring();  // 性能监控
-}, []);
+  setupBrowserErrorHandlers() // 初始化浏览器错误处理
+  initWebVitalsMonitoring() // Web Vitals 监控
+  initPerformanceMonitoring() // 性能监控
+}, [])
 ```
 
 ### 4. 错误展示组件
@@ -88,11 +89,13 @@ useEffect(() => {
 **位置**: `src/components/ErrorDisplay.tsx`
 
 **支持的变体**:
+
 - `default` - 默认展示，适合页面级错误
 - `compact` - 紧凑展示，适合组件级错误
 - `fullscreen` - 全屏展示，适合严重错误
 
 **错误类型支持**:
+
 - `generic` - 通用错误
 - `network` - 网络错误
 - `not-found` - 404 错误
@@ -104,8 +107,8 @@ useEffect(() => {
 
 **错误消息翻译**:
 
-| 语言 | 文件位置 | 状态 |
-|------|----------|------|
+| 语言      | 文件位置                    | 状态    |
+| --------- | --------------------------- | ------- |
 | 中文 (zh) | `src/i18n/messages/zh.json` | ✅ 完整 |
 | 英文 (en) | `src/i18n/messages/en.json` | ✅ 完整 |
 | 德语 (de) | `src/i18n/messages/de.json` | ✅ 完整 |
@@ -152,18 +155,18 @@ useEffect(() => {
 
 ## ✅ P0 要求检查清单
 
-| 要求 | 状态 | 实现位置 |
-|------|------|----------|
-| 创建 ErrorBoundary 组件 | ✅ 已完成 | `src/components/ErrorBoundary.tsx`<br>`src/components/ErrorBoundaryWrapper.tsx` |
-| 使用 React class component | ✅ 已完成 | `ErrorBoundaryWrapper.tsx` (类组件) |
-| 添加 error.tsx | ✅ 已完成 | 13 个 error.tsx 文件 |
-| 符合 Next.js 15 规范 | ✅ 已完成 | 所有 error.tsx 都使用 `'use client'` 和正确签名 |
-| 监听 window.onerror | ✅ 已完成 | `global-error-handlers.ts` |
-| 监听 unhandledrejection | ✅ 已完成 | `global-error-handlers.ts` |
-| 中文和英文错误消息 | ✅ 已完成 | `i18n/messages/*.json` |
-| 友好的一键重置界面 | ✅ 已完成 | `ErrorDisplay.tsx` |
-| 不向用户暴露技术细节 | ✅ 已完成 | 错误详情可折叠，仅开发环境显示完整堆栈 |
-| 支持错误上报 | ✅ 已完成 | Sentry 集成 |
+| 要求                       | 状态      | 实现位置                                                                        |
+| -------------------------- | --------- | ------------------------------------------------------------------------------- |
+| 创建 ErrorBoundary 组件    | ✅ 已完成 | `src/components/ErrorBoundary.tsx`<br>`src/components/ErrorBoundaryWrapper.tsx` |
+| 使用 React class component | ✅ 已完成 | `ErrorBoundaryWrapper.tsx` (类组件)                                             |
+| 添加 error.tsx             | ✅ 已完成 | 13 个 error.tsx 文件                                                            |
+| 符合 Next.js 15 规范       | ✅ 已完成 | 所有 error.tsx 都使用 `'use client'` 和正确签名                                 |
+| 监听 window.onerror        | ✅ 已完成 | `global-error-handlers.ts`                                                      |
+| 监听 unhandledrejection    | ✅ 已完成 | `global-error-handlers.ts`                                                      |
+| 中文和英文错误消息         | ✅ 已完成 | `i18n/messages/*.json`                                                          |
+| 友好的一键重置界面         | ✅ 已完成 | `ErrorDisplay.tsx`                                                              |
+| 不向用户暴露技术细节       | ✅ 已完成 | 错误详情可折叠，仅开发环境显示完整堆栈                                          |
+| 支持错误上报               | ✅ 已完成 | Sentry 集成                                                                     |
 
 ---
 

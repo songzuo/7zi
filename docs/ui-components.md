@@ -6,13 +6,13 @@ This document provides comprehensive documentation for the 7zi project's UI comp
 
 ## 📦 Components Overview
 
-| Component | Purpose | Responsive | TypeScript |
-|-----------|---------|-----------|------------|
-| Button | Interactive buttons with multiple variants | ✅ | ✅ |
-| Modal | Dialog/overlay component | ✅ | ✅ |
-| Tabs | Tab navigation system | ✅ | ✅ |
-| Toast | Notification system | ✅ | ✅ |
-| Tooltip | Hover information display | ✅ | ✅ |
+| Component | Purpose                                    | Responsive | TypeScript |
+| --------- | ------------------------------------------ | ---------- | ---------- |
+| Button    | Interactive buttons with multiple variants | ✅         | ✅         |
+| Modal     | Dialog/overlay component                   | ✅         | ✅         |
+| Tabs      | Tab navigation system                      | ✅         | ✅         |
+| Toast     | Notification system                        | ✅         | ✅         |
+| Tooltip   | Hover information display                  | ✅         | ✅         |
 
 ---
 
@@ -33,14 +33,14 @@ A flexible, responsive button component with multiple variants, sizes, and state
 ### Basic Usage
 
 ```tsx
-import { Button } from '@/components/ui';
+import { Button } from '@/components/ui'
 
 export function Example() {
   return (
     <Button variant="primary" onClick={() => alert('Clicked!')}>
       Click Me
     </Button>
-  );
+  )
 }
 ```
 
@@ -91,9 +91,8 @@ export function Example() {
 ### Button Group
 
 ```tsx
-import { Button, ButtonGroup } from '@/components/ui';
-
-<ButtonGroup>
+import { Button, ButtonGroup } from '@/components/ui'
+;<ButtonGroup>
   <Button variant="primary">Save</Button>
   <Button variant="outline">Cancel</Button>
 </ButtonGroup>
@@ -102,23 +101,22 @@ import { Button, ButtonGroup } from '@/components/ui';
 ### Icon Button
 
 ```tsx
-import { IconButton } from '@/components/ui';
-
-<IconButton icon={<StarIcon />} tooltip="Add to favorites" />
+import { IconButton } from '@/components/ui'
+;<IconButton icon={<StarIcon />} tooltip="Add to favorites" />
 ```
 
 ### Props Reference
 
-| Prop | Type | Default | Description |
-|------|------|---------|-------------|
-| variant | `ButtonVariant` | `'primary'` | Button visual variant |
-| size | `ButtonSize` | `'md'` | Button size preset |
-| loading | `boolean` | `false` | Show loading spinner |
-| disabled | `boolean` | `false` | Disable button |
-| fullWidth | `boolean` | `false` | Full width button |
-| icon | `ReactNode` | - | Icon element |
-| iconPosition | `'left' \| 'right'` | `'left'` | Icon position |
-| className | `string` | - | Custom classes |
+| Prop         | Type                | Default     | Description           |
+| ------------ | ------------------- | ----------- | --------------------- |
+| variant      | `ButtonVariant`     | `'primary'` | Button visual variant |
+| size         | `ButtonSize`        | `'md'`      | Button size preset    |
+| loading      | `boolean`           | `false`     | Show loading spinner  |
+| disabled     | `boolean`           | `false`     | Disable button        |
+| fullWidth    | `boolean`           | `false`     | Full width button     |
+| icon         | `ReactNode`         | -           | Icon element          |
+| iconPosition | `'left' \| 'right'` | `'left'`    | Icon position         |
+| className    | `string`            | -           | Custom classes        |
 
 ### Responsive Behavior
 
@@ -150,25 +148,20 @@ A responsive modal dialog component with backdrop, animation, and keyboard suppo
 ### Basic Usage
 
 ```tsx
-import { Modal, Button } from '@/components/ui';
+import { Modal, Button } from '@/components/ui'
 
 function Example() {
-  const [isOpen, setIsOpen] = useState(false);
+  const [isOpen, setIsOpen] = useState(false)
 
   return (
     <>
       <Button onClick={() => setIsOpen(true)}>Open Modal</Button>
-      
-      <Modal
-        isOpen={isOpen}
-        onClose={() => setIsOpen(false)}
-        title="Modal Title"
-        size="md"
-      >
+
+      <Modal isOpen={isOpen} onClose={() => setIsOpen(false)} title="Modal Title" size="md">
         <p>Modal content goes here...</p>
       </Modal>
     </>
-  );
+  )
 }
 ```
 
@@ -195,9 +188,8 @@ function Example() {
 ### Confirm Dialog
 
 ```tsx
-import { ConfirmDialog } from '@/components/ui';
-
-<ConfirmDialog
+import { ConfirmDialog } from '@/components/ui'
+;<ConfirmDialog
   isOpen={isOpen}
   onClose={() => setIsOpen(false)}
   title="Delete Item"
@@ -217,17 +209,17 @@ import { ConfirmDialog } from '@/components/ui';
 
 ### Props Reference
 
-| Prop | Type | Default | Description |
-|------|------|---------|-------------|
-| isOpen | `boolean` | - | Modal visibility |
-| onClose | `() => void` | - | Close handler |
-| title | `string` | - | Modal title |
-| size | `ModalSize` | `'md'` | Modal size preset |
-| closeOnBackdropClick | `boolean` | `true` | Close on backdrop click |
-| closeOnEscape | `boolean` | `true` | Close on escape key |
-| showCloseButton | `boolean` | `true` | Show close button |
-| preventBodyScroll | `boolean` | `true` | Prevent body scroll |
-| className | `string` | - | Custom classes for content |
+| Prop                 | Type         | Default | Description                |
+| -------------------- | ------------ | ------- | -------------------------- |
+| isOpen               | `boolean`    | -       | Modal visibility           |
+| onClose              | `() => void` | -       | Close handler              |
+| title                | `string`     | -       | Modal title                |
+| size                 | `ModalSize`  | `'md'`  | Modal size preset          |
+| closeOnBackdropClick | `boolean`    | `true`  | Close on backdrop click    |
+| closeOnEscape        | `boolean`    | `true`  | Close on escape key        |
+| showCloseButton      | `boolean`    | `true`  | Show close button          |
+| preventBodyScroll    | `boolean`    | `true`  | Prevent body scroll        |
+| className            | `string`     | -       | Custom classes for content |
 
 ---
 
@@ -247,7 +239,7 @@ A responsive tab component with horizontal and vertical layouts.
 ### Basic Usage
 
 ```tsx
-import { Tabs, TabsList, TabTrigger, TabContent } from '@/components/ui';
+import { Tabs, TabsList, TabTrigger, TabContent } from '@/components/ui'
 
 function Example() {
   return (
@@ -258,17 +250,11 @@ function Example() {
         <TabTrigger value="tab3">Tab 3</TabTrigger>
       </TabsList>
 
-      <TabContent value="tab1">
-        Content for tab 1
-      </TabContent>
-      <TabContent value="tab2">
-        Content for tab 2
-      </TabContent>
-      <TabContent value="tab3">
-        Content for tab 3
-      </TabContent>
+      <TabContent value="tab1">Content for tab 1</TabContent>
+      <TabContent value="tab2">Content for tab 2</TabContent>
+      <TabContent value="tab3">Content for tab 3</TabContent>
     </Tabs>
-  );
+  )
 }
 ```
 
@@ -276,16 +262,13 @@ function Example() {
 
 ```tsx
 function ControlledExample() {
-  const [activeTab, setActiveTab] = useState('tab1');
+  const [activeTab, setActiveTab] = useState('tab1')
 
   return (
-    <Tabs
-      value={activeTab}
-      onChange={setActiveTab}
-    >
+    <Tabs value={activeTab} onChange={setActiveTab}>
       {/* ... */}
     </Tabs>
-  );
+  )
 }
 ```
 
@@ -309,18 +292,15 @@ function ControlledExample() {
 
 ```tsx
 <Tabs orientation="vertical">
-  <TabsList>
-    {/* Vertical tab list */}
-  </TabsList>
+  <TabsList>{/* Vertical tab list */}</TabsList>
 </Tabs>
 ```
 
 ### Responsive Tabs
 
 ```tsx
-import { ResponsiveTabs } from '@/components/ui';
-
-<ResponsiveTabs breakpoint="md">
+import { ResponsiveTabs } from '@/components/ui'
+;<ResponsiveTabs breakpoint="md">
   {/* Auto-switches to vertical on mobile (< 768px) */}
 </ResponsiveTabs>
 ```
@@ -328,15 +308,12 @@ import { ResponsiveTabs } from '@/components/ui';
 ### With Animation
 
 ```tsx
-import { TabPanel } from '@/components/ui';
-
-<Tabs defaultValue="tab1">
+import { TabPanel } from '@/components/ui'
+;<Tabs defaultValue="tab1">
   <TabsList>
     <TabTrigger value="tab1">Tab 1</TabTrigger>
   </TabsList>
-  <TabPanel value="tab1">
-    {/* Animated content */}
-  </TabPanel>
+  <TabPanel value="tab1">{/* Animated content */}</TabPanel>
 </Tabs>
 ```
 
@@ -344,21 +321,21 @@ import { TabPanel } from '@/components/ui';
 
 #### Tabs Props
 
-| Prop | Type | Default | Description |
-|------|------|---------|-------------|
-| defaultValue | `string` | - | Default active tab (uncontrolled) |
-| value | `string` | - | Current active tab (controlled) |
-| onChange | `(tab: string) => void` | - | On change callback |
-| variant | `'underline' \| 'enclosed' \| 'soft-rounded'` | `'underline'` | Tab variant |
-| orientation | `'horizontal' \| 'vertical'` | `'horizontal'` | Orientation |
+| Prop         | Type                                          | Default        | Description                       |
+| ------------ | --------------------------------------------- | -------------- | --------------------------------- |
+| defaultValue | `string`                                      | -              | Default active tab (uncontrolled) |
+| value        | `string`                                      | -              | Current active tab (controlled)   |
+| onChange     | `(tab: string) => void`                       | -              | On change callback                |
+| variant      | `'underline' \| 'enclosed' \| 'soft-rounded'` | `'underline'`  | Tab variant                       |
+| orientation  | `'horizontal' \| 'vertical'`                  | `'horizontal'` | Orientation                       |
 
 #### TabTrigger Props
 
-| Prop | Type | Default | Description |
-|------|------|---------|-------------|
-| value | `string` | - | Tab value |
-| label | `string` | - | Tab label (alternative to children) |
-| disabled | `boolean` | `false` | Disabled state |
+| Prop     | Type      | Default | Description                         |
+| -------- | --------- | ------- | ----------------------------------- |
+| value    | `string`  | -       | Tab value                           |
+| label    | `string`  | -       | Tab label (alternative to children) |
+| disabled | `boolean` | `false` | Disabled state                      |
 
 ---
 
@@ -381,49 +358,49 @@ A toast notification system with multiple variants and positions.
 Wrap your app with `ToastProvider`:
 
 ```tsx
-import { ToastProvider } from '@/components/ui';
+import { ToastProvider } from '@/components/ui'
 
 export function App() {
   return (
     <ToastProvider maxToasts={5} defaultPosition="top-right">
       {/* Your app */}
     </ToastProvider>
-  );
+  )
 }
 ```
 
 ### Basic Usage
 
 ```tsx
-import { useToastActions } from '@/components/ui';
+import { useToastActions } from '@/components/ui'
 
 function Example() {
-  const { success, error, warning, info } = useToastActions();
+  const { success, error, warning, info } = useToastActions()
 
   const handleSuccess = () => {
-    success('Success!', 'Operation completed successfully');
-  };
+    success('Success!', 'Operation completed successfully')
+  }
 
   const handleError = () => {
-    error('Error', 'Something went wrong');
-  };
+    error('Error', 'Something went wrong')
+  }
 
   return (
     <>
       <Button onClick={handleSuccess}>Show Success</Button>
       <Button onClick={handleError}>Show Error</Button>
     </>
-  );
+  )
 }
 ```
 
 ### Using useToast Hook
 
 ```tsx
-import { useToast } from '@/components/ui';
+import { useToast } from '@/components/ui'
 
 function Example() {
-  const { showToast } = useToast();
+  const { showToast } = useToast()
 
   const showToast = () => {
     showToast({
@@ -432,33 +409,33 @@ function Example() {
       message: 'Operation completed',
       duration: 5000,
       closable: true,
-    });
-  };
+    })
+  }
 }
 ```
 
 ### Convenience Methods
 
 ```tsx
-const { success, error, warning, info } = useToastActions();
+const { success, error, warning, info } = useToastActions()
 
 // Success toast
-success('Success!', 'Operation completed');
+success('Success!', 'Operation completed')
 
 // Error toast
-error('Error', 'Something went wrong');
+error('Error', 'Something went wrong')
 
 // Warning toast
-warning('Warning', 'Please review your input');
+warning('Warning', 'Please review your input')
 
 // Info toast
-info('Info', 'New update available');
+info('Info', 'New update available')
 ```
 
 ### Custom Toast
 
 ```tsx
-const { custom } = useToastActions();
+const { custom } = useToastActions()
 
 custom({
   variant: 'info',
@@ -466,27 +443,27 @@ custom({
   message: 'This is a custom message',
   duration: 10000,
   closable: true,
-});
+})
 ```
 
 ### Props Reference
 
 #### ToastProvider Props
 
-| Prop | Type | Default | Description |
-|------|------|---------|-------------|
-| maxToasts | `number` | `5` | Maximum concurrent toasts |
-| defaultPosition | `ToastPosition` | `'top-right'` | Default position |
+| Prop            | Type            | Default       | Description               |
+| --------------- | --------------- | ------------- | ------------------------- |
+| maxToasts       | `number`        | `5`           | Maximum concurrent toasts |
+| defaultPosition | `ToastPosition` | `'top-right'` | Default position          |
 
 #### Toast Item
 
-| Prop | Type | Description |
-|------|------|-------------|
-| variant | `ToastVariant` | Toast variant |
-| title | `string` | Toast title |
-| message | `string` | Toast message (optional) |
-| duration | `number` | Auto-dismiss duration (ms) |
-| closable | `boolean` | Show close button |
+| Prop     | Type           | Description                |
+| -------- | -------------- | -------------------------- |
+| variant  | `ToastVariant` | Toast variant              |
+| title    | `string`       | Toast title                |
+| message  | `string`       | Toast message (optional)   |
+| duration | `number`       | Auto-dismiss duration (ms) |
+| closable | `boolean`      | Show close button          |
 
 ---
 
@@ -507,14 +484,14 @@ A responsive tooltip component with positioning and animations.
 ### Basic Usage
 
 ```tsx
-import { Tooltip } from '@/components/ui';
+import { Tooltip } from '@/components/ui'
 
 function Example() {
   return (
     <Tooltip content="This is a tooltip" position="top">
       <Button>Hover Me</Button>
     </Tooltip>
-  );
+  )
 }
 ```
 
@@ -549,9 +526,8 @@ function Example() {
 ### Simple Tooltip
 
 ```tsx
-import { SimpleTooltip } from '@/components/ui';
-
-<SimpleTooltip content="Simple tooltip">
+import { SimpleTooltip } from '@/components/ui'
+;<SimpleTooltip content="Simple tooltip">
   <Button>Simple</Button>
 </SimpleTooltip>
 ```
@@ -559,40 +535,31 @@ import { SimpleTooltip } from '@/components/ui';
 ### Info Tooltip
 
 ```tsx
-import { InfoTooltip } from '@/components/ui';
-
-<InfoTooltip
-  content="This is additional information"
-  position="right"
-  iconSize="md"
-/>
+import { InfoTooltip } from '@/components/ui'
+;<InfoTooltip content="This is additional information" position="right" iconSize="md" />
 ```
 
 ### Higher-Order Component
 
 ```tsx
-import { withTooltip } from '@/components/ui';
+import { withTooltip } from '@/components/ui'
 
-const ButtonWithTooltip = withTooltip(
-  Button,
-  'This button performs an action',
-  'top'
-);
+const ButtonWithTooltip = withTooltip(Button, 'This button performs an action', 'top')
 
-<ButtonWithTooltip>Action</ButtonWithTooltip>
+;<ButtonWithTooltip>Action</ButtonWithTooltip>
 ```
 
 ### Props Reference
 
-| Prop | Type | Default | Description |
-|------|------|---------|-------------|
-| content | `ReactNode` | - | Tooltip content |
-| position | `TooltipPosition` | `'top'` | Tooltip position |
-| size | `TooltipSize` | `'md'` | Tooltip size |
-| showArrow | `boolean` | `true` | Show arrow indicator |
-| delay | `number` | `200` | Show delay (ms) |
-| hideDelay | `number` | `100` | Hide delay (ms) |
-| disabled | `boolean` | `false` | Disabled state |
+| Prop      | Type              | Default | Description          |
+| --------- | ----------------- | ------- | -------------------- |
+| content   | `ReactNode`       | -       | Tooltip content      |
+| position  | `TooltipPosition` | `'top'` | Tooltip position     |
+| size      | `TooltipSize`     | `'md'`  | Tooltip size         |
+| showArrow | `boolean`         | `true`  | Show arrow indicator |
+| delay     | `number`          | `200`   | Show delay (ms)      |
+| hideDelay | `number`          | `100`   | Hide delay (ms)      |
+| disabled  | `boolean`         | `false` | Disabled state       |
 
 ---
 
@@ -643,7 +610,7 @@ Components use Tailwind CSS for styling and support dark mode:
 All components are already included in the project. Import from `@/components/ui`:
 
 ```tsx
-import { Button, Modal, Tabs, Tooltip } from '@/components/ui';
+import { Button, Modal, Tabs, Tooltip } from '@/components/ui'
 ```
 
 ---

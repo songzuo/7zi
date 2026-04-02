@@ -58,20 +58,22 @@ src/lib/agents/
 
 ### 1.2 并存目录对比
 
-| 位置 | 名称 | 用途 | 状态 |
-|------|------|------|------|
-| `src/lib/agents/` | agents（复数）| 主模块目录 | ✅ 正确 |
-| `src/lib/agents/agent/` | agent（单数）| 单个 agent 功能 | ⚠️ 命名冲突 |
-| `src/lib/agents/agent/communication/` | communication | 通信模块 | ⚠️ 嵌套过深 |
+| 位置                                  | 名称           | 用途            | 状态        |
+| ------------------------------------- | -------------- | --------------- | ----------- |
+| `src/lib/agents/`                     | agents（复数） | 主模块目录      | ✅ 正确     |
+| `src/lib/agents/agent/`               | agent（单数）  | 单个 agent 功能 | ⚠️ 命名冲突 |
+| `src/lib/agents/agent/communication/` | communication  | 通信模块        | ⚠️ 嵌套过深 |
 
 ### 1.3 命名问题
 
 **问题 1: agent vs agents**
+
 - `lib/agents/` - 复数，表示多个 agents 模块
 - `lib/agents/agent/` - 单数，单个 agent 功能
 - 混淆点: `lib/agents/agent/` 应该是 `lib/agents/core/` 或 `lib/agents/agent-core/`
 
 **问题 2: communication 嵌套**
+
 - `lib/agents/agent/communication/` - 嵌套在 agent 下
 - 应该提升到 `lib/agents/communication/` 或合并到其他模块
 
@@ -84,6 +86,7 @@ src/lib/agents/
 **总导入数**: ~28 个文件使用 `@/lib/agents/`
 
 **主要使用场景**:
+
 1. **A2A API**: `src/app/api/a2a/*` - 使用 `a2a/` 模块
 2. **Scheduler Dashboard**: `src/components/dashboard/*` - 使用 `scheduler/` 模块
 3. **Agent Dashboard**: `src/app/[locale]/agent-dashboard/*` - 使用 `scheduler/stores/`
@@ -91,6 +94,7 @@ src/lib/agents/
 ### 2.2 内部依赖检查
 
 **`lib/agents/agent/` 导入分析**:
+
 ```bash
 # 所有文件只导入来自:
 - ../../db           # 数据库工具
@@ -102,6 +106,7 @@ src/lib/agents/
 **结论**: ✅ `agent/` 目录无循环依赖
 
 **`communication/` 导入分析**:
+
 ```bash
 # 只导入:
 - ./types            # 本地类型
@@ -112,13 +117,13 @@ src/lib/agents/
 
 ### 2.3 与其他模块的关系
 
-| 模块 | 依赖 | 被依赖 |
-|------|------|--------|
-| `agent/` | db, utils, logger | 无（未被外部直接导入） |
-| `communication/` | 无 | 无（未被使用） |
-| `a2a/` | 无 | API Routes |
-| `scheduler/` | 无 | Dashboard, Components |
-| `learning/` | 无 | 未使用 |
+| 模块             | 依赖              | 被依赖                 |
+| ---------------- | ----------------- | ---------------------- |
+| `agent/`         | db, utils, logger | 无（未被外部直接导入） |
+| `communication/` | 无                | 无（未被使用）         |
+| `a2a/`           | 无                | API Routes             |
+| `scheduler/`     | 无                | Dashboard, Components  |
+| `learning/`      | 无                | 未使用                 |
 
 ---
 
@@ -165,6 +170,7 @@ src/lib/agents/
 **目标**: 最小化变更，保持兼容性
 
 **目录调整**:
+
 ```
 src/lib/agents/
 ├── a2a/                          # 不变
@@ -190,12 +196,14 @@ src/lib/agents/
 ```
 
 **变更清单**:
+
 1. ✅ 重命名 `agent/` → `core/`
 2. ✅ 移动 `agent/communication/` → `communication/`
 3. ✅ 更新所有导入路径
 4. ✅ 保持 `index.ts` 向后兼容（添加别名导出）
 
 **向后兼容策略**:
+
 ```typescript
 // lib/agents/index.ts
 // 新的统一导出
@@ -216,6 +224,7 @@ export { * as agent } from './core';
 **目标**: 完全重组目录结构
 
 **问题**:
+
 - 破坏性变更太大
 - 需要更新所有导入
 - 测试回归风险高
@@ -225,6 +234,7 @@ export { * as agent } from './core';
 **目标**: 最小化变更，仅清理无用代码
 
 **变更**:
+
 1. 删除 `communication/` 模块（无外部使用）
 2. 保留 `agent/` 目录
 3. 更新 `index.ts` 移除 `communication` 导出
@@ -236,6 +246,7 @@ export { * as agent } from './core';
 ### 5.1 执行步骤
 
 **Phase 1: 备份和准备**
+
 ```bash
 # 1. 创建备份
 cp -r src/lib/agents src/lib/agents.backup
@@ -245,6 +256,7 @@ npm test -- --run 2>&1 | tee test-baseline.log
 ```
 
 **Phase 2: 目录调整**
+
 ```bash
 # 1. 重命名 agent/ → core/
 mv src/lib/agents/agent src/lib/agents/core
@@ -254,6 +266,7 @@ mv src/lib/agents/core/communication src/lib/agents/communication
 ```
 
 **Phase 3: 更新导入路径**
+
 ```bash
 # 查找需要更新的文件
 grep -r "@/lib/agents/agent" src/ --include="*.ts" --include="*.tsx"
@@ -264,10 +277,12 @@ grep -r "@/lib/agents/agent" src/ --include="*.ts" --include="*.tsx"
 ```
 
 **Phase 4: 更新导出文件**
+
 - 更新 `src/lib/agents/index.ts`
 - 添加向后兼容导出
 
 **Phase 5: 测试验证**
+
 ```bash
 # 运行所有测试
 npm test -- --run
@@ -276,6 +291,7 @@ npm test -- --run
 ```
 
 **Phase 6: 文档更新**
+
 - 更新 `README.md`
 - 更新相关文档
 - 添加迁移指南
@@ -293,12 +309,12 @@ git checkout . # 恢复所有更改
 
 ## 六、风险评估
 
-| 风险 | 概率 | 影响 | 缓解措施 |
-|------|------|------|----------|
-| 测试失败 | 中 | 高 | 备份 + 分步执行 |
-| 导入路径错误 | 低 | 中 | grep 全局搜索 + 批量替换 |
-| 运行时错误 | 低 | 高 | 先修复导入再运行测试 |
-| 文档不同步 | 中 | 低 | 最后一步统一更新 |
+| 风险         | 概率 | 影响 | 缓解措施                 |
+| ------------ | ---- | ---- | ------------------------ |
+| 测试失败     | 中   | 高   | 备份 + 分步执行          |
+| 导入路径错误 | 低   | 中   | grep 全局搜索 + 批量替换 |
+| 运行时错误   | 低   | 高   | 先修复导入再运行测试     |
+| 文档不同步   | 中   | 低   | 最后一步统一更新         |
 
 ---
 
@@ -315,15 +331,15 @@ git checkout . # 恢复所有更改
 
 ## 八、时间估算
 
-| 步骤 | 预计时间 |
-|------|----------|
-| Phase 1: 备份和准备 | 10 分钟 |
-| Phase 2: 目录调整 | 5 分钟 |
-| Phase 3: 更新导入路径 | 30 分钟 |
-| Phase 4: 更新导出文件 | 15 分钟 |
-| Phase 5: 测试验证 | 30 分钟 |
-| Phase 6: 文档更新 | 20 分钟 |
-| **总计** | **~2 小时** |
+| 步骤                  | 预计时间    |
+| --------------------- | ----------- |
+| Phase 1: 备份和准备   | 10 分钟     |
+| Phase 2: 目录调整     | 5 分钟      |
+| Phase 3: 更新导入路径 | 30 分钟     |
+| Phase 4: 更新导出文件 | 15 分钟     |
+| Phase 5: 测试验证     | 30 分钟     |
+| Phase 6: 文档更新     | 20 分钟     |
+| **总计**              | **~2 小时** |
 
 ---
 
@@ -332,6 +348,7 @@ git checkout . # 恢复所有更改
 **推荐执行**: 方案 A（保守重构）
 
 **理由**:
+
 1. ✅ 命名更清晰 (`core/` vs `agent/`)
 2. ✅ 目录结构更扁平 (`communication/` 提升)
 3. ✅ 最小化破坏性变更
@@ -339,6 +356,7 @@ git checkout . # 恢复所有更改
 5. ✅ 易于回滚
 
 **不执行的理由**:
+
 - 如果时间紧张，可以选择方案 C（仅删除未使用模块）
 - 方案 B 风险太高，不推荐
 

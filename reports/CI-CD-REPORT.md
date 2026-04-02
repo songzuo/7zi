@@ -5,6 +5,7 @@
 ### 1. 原有状态
 
 项目之前**没有 CI/CD 配置**，所有部署都是手动执行：
+
 - 无自动化测试
 - 无代码质量检查
 - 无构建缓存
@@ -53,28 +54,30 @@
 
 ### 3. 预估时间对比
 
-| 阶段 | 优化前（手动） | 优化后（CI） | 节省 |
-|------|---------------|-------------|------|
-| 代码检查 | 手动执行/跳过 | ~50s | 确保质量 |
-| 单元测试 | 手动执行/跳过 | ~60s | 确保质量 |
-| 构建 | ~3-5 分钟 | ~90s (有缓存更快) | ~60% |
-| Docker 构建 | ~5 分钟 | ~2 分钟 (有缓存) | ~60% |
-| 部署 | ~5-10 分钟 | ~1-2 分钟 | ~80% |
-| **总计** | **15-20 分钟** | **~5-8 分钟** | **~65%** |
+| 阶段        | 优化前（手动） | 优化后（CI）      | 节省     |
+| ----------- | -------------- | ----------------- | -------- |
+| 代码检查    | 手动执行/跳过  | ~50s              | 确保质量 |
+| 单元测试    | 手动执行/跳过  | ~60s              | 确保质量 |
+| 构建        | ~3-5 分钟      | ~90s (有缓存更快) | ~60%     |
+| Docker 构建 | ~5 分钟        | ~2 分钟 (有缓存)  | ~60%     |
+| 部署        | ~5-10 分钟     | ~1-2 分钟         | ~80%     |
+| **总计**    | **15-20 分钟** | **~5-8 分钟**     | **~65%** |
 
 ## 优化策略详情
 
 ### 1. 构建缓存策略
 
 #### npm 依赖缓存
+
 ```yaml
 - uses: actions/setup-node@v4
   with:
     node-version: '22'
-    cache: 'npm'  # 自动缓存 npm 依赖
+    cache: 'npm' # 自动缓存 npm 依赖
 ```
 
 #### Next.js 构建缓存
+
 ```yaml
 - name: Cache Next.js build
   uses: actions/cache@v4
@@ -84,6 +87,7 @@
 ```
 
 #### Docker 层缓存
+
 ```yaml
 - name: Cache Docker layers
   uses: actions/cache@v4
@@ -114,7 +118,7 @@ poolOptions: {
 ```yaml
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
-  cancel-in-progress: true  # 新提交自动取消旧的运行
+  cancel-in-progress: true # 新提交自动取消旧的运行
 ```
 
 ### 4. 依赖安装优化
@@ -134,6 +138,7 @@ npm ci --prefer-offline  # 使用缓存，更快更可靠
 ### 预部署检查 (Pre-deployment)
 
 #### ✅ 代码质量
+
 - [ ] ESLint 检查通过
 - [ ] TypeScript 类型检查通过
 - [ ] 代码格式检查通过
@@ -141,6 +146,7 @@ npm ci --prefer-offline  # 使用缓存，更快更可靠
 - [ ] 测试覆盖率达标 (≥50%)
 
 #### ✅ 构建验证
+
 - [ ] Next.js 构建成功
 - [ ] standalone 文件生成
 - [ ] static 文件生成
@@ -149,11 +155,13 @@ npm ci --prefer-offline  # 使用缓存，更快更可靠
 - [ ] 构建大小合理 (<500MB)
 
 #### ✅ 安全检查
+
 - [ ] 无敏感文件泄露
 - [ ] 无 .env 文件包含在构建中
 - [ ] 无私钥/证书包含在构建中
 
 #### ✅ 部署准备
+
 - [ ] Docker 镜像构建成功
 - [ ] 镜像推送成功
 - [ ] 部署清单生成
@@ -178,23 +186,25 @@ npm ci --prefer-offline  # 使用缓存，更快更可靠
 
 ## 需要配置的 Secrets
 
-| Secret | 描述 | 必需 |
-|--------|------|------|
-| `DOCKER_REGISTRY` | Docker 镜像仓库地址 | 可选 (默认 ghcr.io) |
-| `DOCKER_USERNAME` | Docker 仓库用户名 | 可选 |
-| `DOCKER_PASSWORD` | Docker 仓库密码 | 可选 |
-| `DEPLOY_USER` | 部署服务器用户名 | 是 |
-| `DEPLOY_KEY` | 部署 SSH 私钥 | 是 |
-| `STAGING_HOST` | Staging 服务器地址 | 是 |
-| `PRODUCTION_HOST` | Production 服务器地址 | 是 |
+| Secret            | 描述                  | 必需                |
+| ----------------- | --------------------- | ------------------- |
+| `DOCKER_REGISTRY` | Docker 镜像仓库地址   | 可选 (默认 ghcr.io) |
+| `DOCKER_USERNAME` | Docker 仓库用户名     | 可选                |
+| `DOCKER_PASSWORD` | Docker 仓库密码       | 可选                |
+| `DEPLOY_USER`     | 部署服务器用户名      | 是                  |
+| `DEPLOY_KEY`      | 部署 SSH 私钥         | 是                  |
+| `STAGING_HOST`    | Staging 服务器地址    | 是                  |
+| `PRODUCTION_HOST` | Production 服务器地址 | 是                  |
 
 ## 使用方式
 
 ### 自动触发
+
 - Push 到 `main` 或 `develop` 分支自动运行 CI
 - PR 到 `main` 或 `develop` 运行检查（不部署）
 
 ### 手动触发
+
 1. 进入 Actions 页面
 2. 选择 "CI/CD Pipeline"
 3. 点击 "Run workflow"
@@ -202,6 +212,7 @@ npm ci --prefer-offline  # 使用缓存，更快更可靠
 5. 点击 "Run workflow"
 
 ### 部署流程
+
 1. **Staging**: 合并到 main 后自动部署
 2. **Production**: 需手动触发，选择 production 环境
 

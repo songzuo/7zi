@@ -5,17 +5,17 @@
  * Requires JWT authentication
  */
 
-import { NextRequest, NextResponse } from 'next/server';
-import { enhancedNotificationService } from '@/lib/services/notification-enhanced';
-import { NotificationType, NotificationPriority } from '@/lib/services/notification-types';
-import type { Notification } from '@/lib/services/notification-types';
-import { EmailRecipient } from '@/lib/services/email';
+import { NextRequest, NextResponse } from 'next/server'
+import { enhancedNotificationService } from '@/lib/services/notification-enhanced'
+import { NotificationType, NotificationPriority } from '@/lib/services/notification-types'
+import type { Notification } from '@/lib/services/notification-types'
+import { EmailRecipient } from '@/lib/services/email'
 import {
   createSuccessResponse,
   createValidationError,
   createErrorResponse,
-} from '../../../../lib/api/error-handler';
-import { authenticateJWT } from '@/lib/auth/api-auth';
+} from '../../../../lib/api/error-handler'
+import { authenticateJWT } from '@/lib/auth/api-auth'
 
 /**
  * GET /api/notifications/enhanced
@@ -25,7 +25,7 @@ import { authenticateJWT } from '@/lib/auth/api-auth';
  */
 export async function GET(request: NextRequest) {
   // Authenticate user
-  const authResult = await authenticateJWT(request);
+  const authResult = await authenticateJWT(request)
 
   if (!authResult.authenticated) {
     return NextResponse.json(
@@ -35,24 +35,28 @@ export async function GET(request: NextRequest) {
         message: authResult.error || 'Authentication required',
       },
       { status: 401 }
-    );
+    )
   }
 
   try {
-    const searchParams = request.nextUrl.searchParams;
+    const searchParams = request.nextUrl.searchParams
 
     // User can only see their own notifications unless admin
-    const userId = authResult.role === 'admin'
-      ? searchParams.get('userId') || undefined
-      : authResult.userId;
+    const userId =
+      authResult.role === 'admin' ? searchParams.get('userId') || undefined : authResult.userId
 
-    const teamId = searchParams.get('teamId') || undefined;
-    const taskId = searchParams.get('taskId') || undefined;
-    const type = searchParams.get('type') as NotificationType | null;
-    const priority = searchParams.get('priority') as NotificationPriority | null;
-    const read = searchParams.get('read') === 'true' ? true : searchParams.get('read') === 'false' ? false : undefined;
-    const since = searchParams.get('since') ? parseInt(searchParams.get('since')!, 10) : undefined;
-    const limit = searchParams.get('limit') ? parseInt(searchParams.get('limit')!, 10) : 50;
+    const teamId = searchParams.get('teamId') || undefined
+    const taskId = searchParams.get('taskId') || undefined
+    const type = searchParams.get('type') as NotificationType | null
+    const priority = searchParams.get('priority') as NotificationPriority | null
+    const read =
+      searchParams.get('read') === 'true'
+        ? true
+        : searchParams.get('read') === 'false'
+          ? false
+          : undefined
+    const since = searchParams.get('since') ? parseInt(searchParams.get('since')!, 10) : undefined
+    const limit = searchParams.get('limit') ? parseInt(searchParams.get('limit')!, 10) : 50
 
     const notifications = enhancedNotificationService.getNotifications({
       userId,
@@ -63,9 +67,9 @@ export async function GET(request: NextRequest) {
       read,
       since,
       limit,
-    });
+    })
 
-    const unreadCount = enhancedNotificationService.getUnreadCount(userId);
+    const unreadCount = enhancedNotificationService.getUnreadCount(userId)
 
     return createSuccessResponse({
       notifications,
@@ -73,9 +77,9 @@ export async function GET(request: NextRequest) {
         count: notifications.length,
         unreadCount,
       },
-    });
+    })
   } catch (error) {
-    return createErrorResponse(error instanceof Error ? error : new Error(String(error)));
+    return createErrorResponse(error instanceof Error ? error : new Error(String(error)))
   }
 }
 
@@ -87,7 +91,7 @@ export async function GET(request: NextRequest) {
  */
 export async function POST(request: NextRequest) {
   // Authenticate user
-  const authResult = await authenticateJWT(request);
+  const authResult = await authenticateJWT(request)
 
   if (!authResult.authenticated) {
     return NextResponse.json(
@@ -97,15 +101,15 @@ export async function POST(request: NextRequest) {
         message: authResult.error || 'Authentication required',
       },
       { status: 401 }
-    );
+    )
   }
 
   try {
-    const body = await request.json();
+    const body = await request.json()
 
     // Validate required fields
     if (!body.title || !body.message) {
-      return createValidationError('title and message are required');
+      return createValidationError('title and message are required')
     }
 
     // Prepare delivery options
@@ -115,7 +119,7 @@ export async function POST(request: NextRequest) {
       skipStorage: body.skipStorage === true,
       forceEmail: body.forceEmail === true,
       emailRecipients: body.emailRecipients as EmailRecipient[] | undefined,
-    };
+    }
 
     // Send notification
     const result = await enhancedNotificationService.notify(
@@ -131,18 +135,21 @@ export async function POST(request: NextRequest) {
         expiresAt: body.expiresAt,
       },
       options
-    );
+    )
 
     if (result.success) {
-      return createSuccessResponse({
-        id: result.notificationId,
-        emailSent: result.emailSent,
-        message: 'Notification sent',
-      }, 201);
+      return createSuccessResponse(
+        {
+          id: result.notificationId,
+          emailSent: result.emailSent,
+          message: 'Notification sent',
+        },
+        201
+      )
     } else {
-      return createErrorResponse(new Error(result.error || 'Failed to send notification'));
+      return createErrorResponse(new Error(result.error || 'Failed to send notification'))
     }
   } catch (error) {
-    return createErrorResponse(error instanceof Error ? error : new Error(String(error)));
+    return createErrorResponse(error instanceof Error ? error : new Error(String(error)))
   }
 }

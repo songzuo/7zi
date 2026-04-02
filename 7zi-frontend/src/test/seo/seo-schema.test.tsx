@@ -30,12 +30,7 @@ describe('SEO - 结构化数据 (Schema.org) 验证', () => {
     })
 
     it('Organization 应包含必需字段', () => {
-      const { container } = render(
-        <OrganizationJsonLd
-          name="7zi Frontend"
-          url="https://7zi.com"
-        />
-      )
+      const { container } = render(<OrganizationJsonLd name="7zi Frontend" url="https://7zi.com" />)
 
       const script = container.querySelector('script[type="application/ld+json"]')
       const data = JSON.parse(script!.innerHTML)
@@ -65,11 +60,7 @@ describe('SEO - 结构化数据 (Schema.org) 验证', () => {
 
     it('Organization logo 应使用完整 URL', () => {
       const { container } = render(
-        <OrganizationJsonLd
-          name="7zi Frontend"
-          url="https://7zi.com"
-          logo="/images/logo.png"
-        />
+        <OrganizationJsonLd name="7zi Frontend" url="https://7zi.com" logo="/images/logo.png" />
       )
 
       const script = container.querySelector('script[type="application/ld+json"]')
@@ -94,12 +85,7 @@ describe('SEO - 结构化数据 (Schema.org) 验证', () => {
     })
 
     it('WebSite 应包含必需字段', () => {
-      const { container } = render(
-        <WebSiteJsonLd
-          name="7zi Frontend"
-          url="https://7zi.com"
-        />
-      )
+      const { container } = render(<WebSiteJsonLd name="7zi Frontend" url="https://7zi.com" />)
 
       const script = container.querySelector('script[type="application/ld+json"]')
       const data = JSON.parse(script!.innerHTML)
@@ -156,18 +142,14 @@ describe('SEO - 结构化数据 (Schema.org) 验证', () => {
     ]
 
     it('应正确渲染 BreadcrumbList 脚本标签', () => {
-      const { container } = render(
-        <BreadcrumbJsonLd items={breadcrumbItems} />
-      )
+      const { container } = render(<BreadcrumbJsonLd items={breadcrumbItems} />)
 
       const script = container.querySelector('script[type="application/ld+json"]')
       expect(script).toBeDefined()
     })
 
     it('BreadcrumbList 应包含必需字段', () => {
-      const { container } = render(
-        <BreadcrumbJsonLd items={breadcrumbItems} />
-      )
+      const { container } = render(<BreadcrumbJsonLd items={breadcrumbItems} />)
 
       const script = container.querySelector('script[type="application/ld+json"]')
       const data = JSON.parse(script!.innerHTML)
@@ -178,9 +160,7 @@ describe('SEO - 结构化数据 (Schema.org) 验证', () => {
     })
 
     it('breadcrumb items 应有正确的位置索引', () => {
-      const { container } = render(
-        <BreadcrumbJsonLd items={breadcrumbItems} />
-      )
+      const { container } = render(<BreadcrumbJsonLd items={breadcrumbItems} />)
 
       const script = container.querySelector('script[type="application/ld+json"]')
       const data = JSON.parse(script!.innerHTML)
@@ -192,9 +172,7 @@ describe('SEO - 结构化数据 (Schema.org) 验证', () => {
     })
 
     it('breadcrumb items 应包含 name 和 url', () => {
-      const { container } = render(
-        <BreadcrumbJsonLd items={breadcrumbItems} />
-      )
+      const { container } = render(<BreadcrumbJsonLd items={breadcrumbItems} />)
 
       const script = container.querySelector('script[type="application/ld+json"]')
       const data = JSON.parse(script!.innerHTML)
@@ -296,14 +274,10 @@ describe('SEO - 结构化数据 (Schema.org) 验证', () => {
         <OrganizationJsonLd name="Test" url="https://test.com" />,
         <WebSiteJsonLd name="Test" url="https://test.com" />,
         <BreadcrumbJsonLd items={[{ name: 'Home', url: 'https://test.com' }]} />,
-        <SoftwareApplicationJsonLd
-          name="Test"
-          description="Test"
-          url="https://test.com"
-        />,
+        <SoftwareApplicationJsonLd name="Test" description="Test" url="https://test.com" />,
       ]
 
-      components.forEach((component) => {
+      components.forEach(component => {
         const { container } = render(component)
         const script = container.querySelector('script[type="application/ld+json"]')
         expect(() => JSON.parse(script!.innerHTML)).not.toThrow()
@@ -315,14 +289,10 @@ describe('SEO - 结构化数据 (Schema.org) 验证', () => {
         <OrganizationJsonLd name="Test" url="https://test.com" />,
         <WebSiteJsonLd name="Test" url="https://test.com" />,
         <BreadcrumbJsonLd items={[{ name: 'Home', url: 'https://test.com' }]} />,
-        <SoftwareApplicationJsonLd
-          name="Test"
-          description="Test"
-          url="https://test.com"
-        />,
+        <SoftwareApplicationJsonLd name="Test" description="Test" url="https://test.com" />,
       ]
 
-      components.forEach((component) => {
+      components.forEach(component => {
         const { container } = render(component)
         const script = container.querySelector('script[type="application/ld+json"]')
         const data = JSON.parse(script!.innerHTML)
@@ -336,11 +306,7 @@ describe('SEO - 结构化数据 (Schema.org) 验证', () => {
         <OrganizationJsonLd name="Test" url="https://test.com" />,
         <WebSiteJsonLd name="Test" url="https://test.com" />,
         <BreadcrumbJsonLd items={[{ name: 'Home', url: 'https://test.com' }]} />,
-        <SoftwareApplicationJsonLd
-          name="Test"
-          description="Test"
-          url="https://test.com"
-        />,
+        <SoftwareApplicationJsonLd name="Test" description="Test" url="https://test.com" />,
       ]
 
       components.forEach((component, index) => {

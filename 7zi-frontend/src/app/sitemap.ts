@@ -88,22 +88,22 @@ export default function sitemap(): MetadataRoute.Sitemap {
 
   const routes: MetadataRoute.Sitemap = [
     // 主要页面
-    ...mainPages.map((page) => ({
+    ...mainPages.map(page => ({
       url: `${baseUrl}${page.path}`,
       lastModified: new Date('2026-03-29'),
       changeFrequency: page.changeFreq,
       priority: page.priority,
     })),
     // Demo 页面
-    ...demoPages.map((page) => ({
+    ...demoPages.map(page => ({
       url: `${baseUrl}${page.path}`,
       lastModified: new Date('2026-03-29'),
       changeFrequency: page.changeFreq,
       priority: page.priority,
     })),
     // 多语言页面
-    ...locales.flatMap((locale) =>
-      localePages.map((page) => ({
+    ...locales.flatMap(locale =>
+      localePages.map(page => ({
         url: `${baseUrl}/${locale}${page.path}`,
         lastModified: new Date('2026-03-29'),
         changeFrequency: page.changeFreq,

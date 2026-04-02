@@ -4,5 +4,5 @@
  * Export all authentication utilities
  */
 
-export * from './jwt';
-export * from './api-auth';
+export * from './jwt'
+export * from './api-auth'

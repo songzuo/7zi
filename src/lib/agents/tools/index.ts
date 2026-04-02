@@ -4,5 +4,4 @@
  */
 
 // Placeholder for future tools
-export {};
-
+export {}

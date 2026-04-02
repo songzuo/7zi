@@ -1,17 +1,20 @@
 # ESLint 修复报告
 
 ## 任务概述
+
 修复项目的 ESLint 错误
 
 ## 已完成的修复
 
 ### 1. 自动修复的文件 (20个)
 
-#### catch (err) -> catch (_err)
+#### catch (err) -> catch (\_err)
+
 - `src/lib/hooks/useWebVitals.ts` - 修复 5 处
 - `src/lib/prefetch/hooks/use-prefetch.ts` - 修复 1 处
 
 #### 未使用的变量 (添加下划线前缀)
+
 - `src/app/[locale]/agent-dashboard/page.tsx` - `pendingTasks` -> `_pendingTasks`
 - `src/app/[locale]/dashboard/page.tsx` - `busyCount`, `idleCount` -> `_busyCount`, `_idleCount`
 - `src/app/[locale]/performance/page.tsx` - `config`, `t` -> `_config`, `_t`
@@ -34,12 +37,14 @@
 - `src/app/manifest.ts` - `baseUrl` -> `_baseUrl`
 
 #### 未使用的定义/导入
+
 - `src/app/[locale]/page.optimized.example.tsx` - 删除 `HeroSkeleton` 导入
 - `src/app/[locale]/react-compiler-verify/page.tsx` - 删除 `RenderCount` 接口定义
 - `src/app/[locale]/scheduler/SchedulerClient.tsx` - `locale` -> `_locale`
 - `src/app/api/auth/refresh/route.ts` - 删除 `NextResponse` 导入
 
 #### NextResponse 导入批量删除
+
 - 所有 API 路由中未使用的 `NextResponse` 导入已删除
 
 ## 统计

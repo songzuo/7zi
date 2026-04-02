@@ -4,12 +4,12 @@
 
 ## 📊 摘要
 
-| 指标 | 数量 |
-|------|------|
-| 总文件数 | 897 |
-| 包含未使用导入的文件 | 107 |
-| 包含未使用导出的文件 | 376 |
-| 可能包含死代码的文件 | 362 |
+| 指标                 | 数量 |
+| -------------------- | ---- |
+| 总文件数             | 897  |
+| 包含未使用导入的文件 | 107  |
+| 包含未使用导出的文件 | 376  |
+| 可能包含死代码的文件 | 362  |
 
 ## 📥 未使用的导入
 
@@ -288,14 +288,13 @@
 - `import { useCollaboration } from '@/lib/websocket'`
 - `import { ConnectionStatus, UserList } from '@/components/collaboration/ConnectionStatus'`
 
-*... 还有 57 个文件 *
-
+_... 还有 57 个文件 _
 
 ## 📤 未使用的导出
 
 以下文件包含导出但未被其他文件引用：
 
-*注意：已排除 Next.js 路由文件（page.tsx, layout.tsx 等）*
+_注意：已排除 Next.js 路由文件（page.tsx, layout.tsx 等）_
 
 ### src/app/[locale]/portfolio/components/CategoryFilterWrapper.tsx
 
@@ -517,8 +516,7 @@
 
 - 命名导出: `ProjectDashboard`
 
-*... 还有 326 个文件 *
-
+_... 还有 326 个文件 _
 
 ## 💀 潜在的死代码
 
@@ -646,8 +644,7 @@
 
 - 未使用的函数: `GET`, `POST`
 
-*... 还有 332 个文件 *
-
+_... 还有 332 个文件 _
 
 ## ⚠️ 注意事项
 
@@ -666,4 +663,3 @@
 5. 清理死代码
 6. 再次运行测试确保一切正常
 7. 提交更改
-

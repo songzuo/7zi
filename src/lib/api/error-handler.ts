@@ -14,13 +14,18 @@
  * }
  */
 
-import { NextResponse, NextRequest } from 'next/server';
-import { logger } from '../logger';
-import { getUserFriendlyError, getLocaleFromRequest, createUserErrorExtension, SupportedLocale } from './user-messages';
-import { ErrorType } from './error-types';
+import { NextResponse, NextRequest } from 'next/server'
+import { logger } from '../logger'
+import {
+  getUserFriendlyError,
+  getLocaleFromRequest,
+  createUserErrorExtension,
+  SupportedLocale,
+} from './user-messages'
+import { ErrorType } from './error-types'
 
 // Re-export ErrorType for backward compatibility
-export { ErrorType } from './error-types';
+export { ErrorType } from './error-types'
 
 /**
  * API Error class for structured error responses
@@ -32,8 +37,8 @@ export class ApiError extends Error {
     public statusCode: number = 500,
     public details?: Record<string, unknown>
   ) {
-    super(message);
-    this.name = 'ApiError';
+    super(message)
+    this.name = 'ApiError'
   }
 }
 
@@ -42,21 +47,21 @@ export class ApiError extends Error {
  * This is the standard format for all API error responses
  */
 export interface ErrorResponse {
-  success: false;
+  success: false
   error: {
-    type: ErrorType;
-    message: string;
+    type: ErrorType
+    message: string
     /** User-friendly message (all environments) */
-    userMessage?: string;
+    userMessage?: string
     /** Suggested action for the user */
-    action?: string;
+    action?: string
     /** Additional help text */
-    help?: string;
-    details?: Record<string, unknown>;
-    timestamp: string;
-  };
+    help?: string
+    details?: Record<string, unknown>
+    timestamp: string
+  }
   /** Request ID for tracking */
-  requestId?: string;
+  requestId?: string
 }
 
 /**
@@ -64,9 +69,9 @@ export interface ErrorResponse {
  * This is the standard format for all API success responses
  */
 export interface SuccessResponse<T = unknown> {
-  success: true;
-  data: T;
-  timestamp: string;
+  success: true
+  data: T
+  timestamp: string
 }
 
 // ============================================================================
@@ -84,9 +89,9 @@ async function buildErrorResponse(
   locale: SupportedLocale = 'zh',
   requestId?: string
 ): Promise<ErrorResponse> {
-  const timestamp = new Date().toISOString();
-  const isDevelopment = process.env.NODE_ENV === 'development' || process.env.NODE_ENV === 'test';
-  const userErrorExtension = await createUserErrorExtension(type, locale);
+  const timestamp = new Date().toISOString()
+  const isDevelopment = process.env.NODE_ENV === 'development' || process.env.NODE_ENV === 'test'
+  const userErrorExtension = await createUserErrorExtension(type, locale)
 
   return {
     success: false,
@@ -100,7 +105,7 @@ async function buildErrorResponse(
       timestamp,
     },
     requestId,
-  };
+  }
 }
 
 /**
@@ -110,7 +115,7 @@ function errorResponseToNextResponse(
   errorData: ErrorResponse,
   statusCode: number
 ): NextResponse<ErrorResponse> {
-  return NextResponse.json(errorData, { status: statusCode });
+  return NextResponse.json(errorData, { status: statusCode })
 }
 
 /**
@@ -128,7 +133,7 @@ export function createSuccessResponse<T = unknown>(
       timestamp: new Date().toISOString(),
     },
     { status }
-  );
+  )
 }
 
 /**
@@ -151,14 +156,16 @@ export async function createErrorResponse(
       error.details,
       locale,
       requestId
-    );
-    return errorResponseToNextResponse(errorData, error.statusCode);
+    )
+    return errorResponseToNextResponse(errorData, error.statusCode)
   }
 
   // Handle generic errors
-  logger.error('API Error', error instanceof Error ? error : new Error(String(error)), { category: 'api' });
+  logger.error('API Error', error instanceof Error ? error : new Error(String(error)), {
+    category: 'api',
+  })
 
-  const status = statusCode ?? 500;
+  const status = statusCode ?? 500
   const errorData = await buildErrorResponse(
     ErrorType.INTERNAL,
     error.message || 'An internal error occurred',
@@ -166,15 +173,15 @@ export async function createErrorResponse(
     isDevelopment() ? { originalMessage: error.message } : undefined,
     locale,
     requestId
-  );
-  return errorResponseToNextResponse(errorData, status);
+  )
+  return errorResponseToNextResponse(errorData, status)
 }
 
 /**
  * Check if running in development mode
  */
 function isDevelopment(): boolean {
-  return process.env.NODE_ENV === 'development' || process.env.NODE_ENV === 'test';
+  return process.env.NODE_ENV === 'development' || process.env.NODE_ENV === 'test'
 }
 
 /**
@@ -186,8 +193,8 @@ export async function createValidationError(
   locale: SupportedLocale = 'zh',
   requestId?: string
 ): Promise<NextResponse<ErrorResponse>> {
-  const error = new ApiError(ErrorType.VALIDATION, message, 400, details);
-  return createErrorResponse(error, undefined, details, locale, requestId);
+  const error = new ApiError(ErrorType.VALIDATION, message, 400, details)
+  return createErrorResponse(error, undefined, details, locale, requestId)
 }
 
 /**
@@ -199,8 +206,8 @@ export async function createNotFoundError(
   locale: SupportedLocale = 'zh',
   requestId?: string
 ): Promise<NextResponse<ErrorResponse>> {
-  const error = new ApiError(ErrorType.NOT_FOUND, message, 404, details);
-  return createErrorResponse(error, undefined, details, locale, requestId);
+  const error = new ApiError(ErrorType.NOT_FOUND, message, 404, details)
+  return createErrorResponse(error, undefined, details, locale, requestId)
 }
 
 /**
@@ -211,8 +218,8 @@ export async function createUnauthorizedError(
   locale: SupportedLocale = 'zh',
   requestId?: string
 ): Promise<NextResponse<ErrorResponse>> {
-  const error = new ApiError(ErrorType.UNAUTHORIZED, message, 401);
-  return createErrorResponse(error, undefined, undefined, locale, requestId);
+  const error = new ApiError(ErrorType.UNAUTHORIZED, message, 401)
+  return createErrorResponse(error, undefined, undefined, locale, requestId)
 }
 
 /**
@@ -223,8 +230,8 @@ export async function createForbiddenError(
   locale: SupportedLocale = 'zh',
   requestId?: string
 ): Promise<NextResponse<ErrorResponse>> {
-  const error = new ApiError(ErrorType.FORBIDDEN, message, 403);
-  return createErrorResponse(error, undefined, undefined, locale, requestId);
+  const error = new ApiError(ErrorType.FORBIDDEN, message, 403)
+  return createErrorResponse(error, undefined, undefined, locale, requestId)
 }
 
 /**
@@ -236,8 +243,8 @@ export async function createConflictError(
   locale: SupportedLocale = 'zh',
   requestId?: string
 ): Promise<NextResponse<ErrorResponse>> {
-  const error = new ApiError(ErrorType.CONFLICT, message, 409, details);
-  return createErrorResponse(error, undefined, details, locale, requestId);
+  const error = new ApiError(ErrorType.CONFLICT, message, 409, details)
+  return createErrorResponse(error, undefined, details, locale, requestId)
 }
 
 /**
@@ -248,8 +255,8 @@ export async function createRateLimitError(
   locale: SupportedLocale = 'zh',
   requestId?: string
 ): Promise<NextResponse<ErrorResponse>> {
-  const error = new ApiError(ErrorType.RATE_LIMIT, message, 429);
-  return createErrorResponse(error, undefined, undefined, locale, requestId);
+  const error = new ApiError(ErrorType.RATE_LIMIT, message, 429)
+  return createErrorResponse(error, undefined, undefined, locale, requestId)
 }
 
 /**
@@ -260,8 +267,8 @@ export async function createServiceUnavailableError(
   locale: SupportedLocale = 'zh',
   requestId?: string
 ): Promise<NextResponse<ErrorResponse>> {
-  const error = new ApiError(ErrorType.SERVICE_UNAVAILABLE, message, 503);
-  return createErrorResponse(error, undefined, undefined, locale, requestId);
+  const error = new ApiError(ErrorType.SERVICE_UNAVAILABLE, message, 503)
+  return createErrorResponse(error, undefined, undefined, locale, requestId)
 }
 
 /**
@@ -273,8 +280,8 @@ export async function createRegistrationFailedError(
   locale: SupportedLocale = 'zh',
   requestId?: string
 ): Promise<NextResponse<ErrorResponse>> {
-  const error = new ApiError(ErrorType.REGISTRATION_FAILED, message, 400, details);
-  return createErrorResponse(error, undefined, details, locale, requestId);
+  const error = new ApiError(ErrorType.REGISTRATION_FAILED, message, 400, details)
+  return createErrorResponse(error, undefined, details, locale, requestId)
 }
 
 /**
@@ -286,8 +293,8 @@ export async function createWeakPasswordError(
   locale: SupportedLocale = 'zh',
   requestId?: string
 ): Promise<NextResponse<ErrorResponse>> {
-  const error = new ApiError(ErrorType.WEAK_PASSWORD, message, 400, details);
-  return createErrorResponse(error, undefined, details, locale, requestId);
+  const error = new ApiError(ErrorType.WEAK_PASSWORD, message, 400, details)
+  return createErrorResponse(error, undefined, details, locale, requestId)
 }
 
 /**
@@ -299,8 +306,8 @@ export async function createBadRequestError(
   locale: SupportedLocale = 'zh',
   requestId?: string
 ): Promise<NextResponse<ErrorResponse>> {
-  const error = new ApiError(ErrorType.BAD_REQUEST, message, 400, details);
-  return createErrorResponse(error, undefined, details, locale, requestId);
+  const error = new ApiError(ErrorType.BAD_REQUEST, message, 400, details)
+  return createErrorResponse(error, undefined, details, locale, requestId)
 }
 
 /**
@@ -311,8 +318,8 @@ export async function createMissingTokenError(
   locale: SupportedLocale = 'zh',
   requestId?: string
 ): Promise<NextResponse<ErrorResponse>> {
-  const error = new ApiError(ErrorType.MISSING_TOKEN, message, 401);
-  return createErrorResponse(error, undefined, undefined, locale, requestId);
+  const error = new ApiError(ErrorType.MISSING_TOKEN, message, 401)
+  return createErrorResponse(error, undefined, undefined, locale, requestId)
 }
 
 /**
@@ -330,12 +337,14 @@ export function withErrorHandling<T extends (...args: unknown[]) => Promise<Next
 ): T {
   return (async (...args: unknown[]) => {
     try {
-      return await handler(...(args as Parameters<T>));
-    } catch (_error) {
+      return await handler(...(args as Parameters<T>))
+    } catch (error) {
       // Try to extract locale and request ID from the request
-      const request = args[0] as Request | NextRequest | undefined;
-      const locale = request ? getLocaleFromRequest(request) : 'zh';
-      const requestId = request?.headers ? (request.headers as Headers).get('x-request-id') || undefined : undefined;
+      const request = args[0] as Request | NextRequest | undefined
+      const locale = request ? getLocaleFromRequest(request) : 'zh'
+      const requestId = request?.headers
+        ? (request.headers as Headers).get('x-request-id') || undefined
+        : undefined
 
       return await createErrorResponse(
         error instanceof Error ? error : new Error(String(error)),
@@ -343,7 +352,7 @@ export function withErrorHandling<T extends (...args: unknown[]) => Promise<Next
         undefined,
         locale,
         requestId
-      );
+      )
     }
-  }) as T;
+  }) as T
 }

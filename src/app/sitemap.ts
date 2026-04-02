@@ -28,15 +28,15 @@ export default function sitemap(): MetadataRoute.Sitemap {
 
   const routes: MetadataRoute.Sitemap = [
     // 主要页面
-    ...mainPages.map((route) => ({
+    ...mainPages.map(route => ({
       url: `${baseUrl}${route}`,
       lastModified: new Date(),
       changeFrequency: 'weekly' as const,
       priority: route === '' ? 1 : 0.8,
     })),
     // 多语言页面
-    ...locales.flatMap((locale) =>
-      localePages.map((route) => ({
+    ...locales.flatMap(locale =>
+      localePages.map(route => ({
         url: `${baseUrl}/${locale}${route}`,
         lastModified: new Date(),
         changeFrequency: 'weekly' as const,

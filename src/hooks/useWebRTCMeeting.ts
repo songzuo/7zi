@@ -1,4 +1,4 @@
-'use client';
+'use client'
 
 /**
  * WebRTC Audio Meeting Hook
@@ -7,59 +7,59 @@
  * Integrates with existing Socket.IO infrastructure
  */
 
-import { useEffect, useRef, useState, useCallback } from 'react';
-import { io, Socket } from 'socket.io-client';
-import { logger } from '@/lib/logger';
+import { useEffect, useRef, useState, useCallback } from 'react'
+import { io, Socket } from 'socket.io-client'
+import { logger } from '@/lib/logger'
 
 // ============================================================================
 // Types
 // ============================================================================
 
 export interface PeerConnection {
-  peerId: string;
-  connection: RTCPeerConnection;
-  stream: MediaStream | null;
+  peerId: string
+  connection: RTCPeerConnection
+  stream: MediaStream | null
 }
 
 export interface MeetingParticipant {
-  id: string;
-  name: string;
-  email?: string;
-  avatar?: string;
-  audioEnabled: boolean;
-  isSpeaking: boolean;
-  joinedAt: Date;
+  id: string
+  name: string
+  email?: string
+  avatar?: string
+  audioEnabled: boolean
+  isSpeaking: boolean
+  joinedAt: Date
 }
 
 export interface UseWebRTCMeetingOptions {
-  roomId: string;
-  token: string;
-  userId: string;
-  userName: string;
-  autoJoin?: boolean;
-  onError?: (error: Error) => void;
-  onParticipantJoined?: (participant: MeetingParticipant) => void;
-  onParticipantLeft?: (participantId: string) => void;
-  onMuteStateChanged?: (participantId: string, muted: boolean) => void;
+  roomId: string
+  token: string
+  userId: string
+  userName: string
+  autoJoin?: boolean
+  onError?: (error: Error) => void
+  onParticipantJoined?: (participant: MeetingParticipant) => void
+  onParticipantLeft?: (participantId: string) => void
+  onMuteStateChanged?: (participantId: string, muted: boolean) => void
 }
 
 export interface UseWebRTCMeetingReturn {
   // State
-  isConnected: boolean;
-  isConnecting: boolean;
-  isMuted: boolean;
-  participants: Map<string, MeetingParticipant>;
-  remoteStreams: Map<string, MediaStream>;
+  isConnected: boolean
+  isConnecting: boolean
+  isMuted: boolean
+  participants: Map<string, MeetingParticipant>
+  remoteStreams: Map<string, MediaStream>
 
   // Actions
-  joinMeeting: () => Promise<void>;
-  leaveMeeting: () => Promise<void>;
-  toggleMute: () => Promise<void>;
-  enableAudio: () => Promise<void>;
-  disableAudio: () => Promise<void>;
+  joinMeeting: () => Promise<void>
+  leaveMeeting: () => Promise<void>
+  toggleMute: () => Promise<void>
+  enableAudio: () => Promise<void>
+  disableAudio: () => Promise<void>
 
   // Audio elements
-  getAudioElement: (peerId: string) => HTMLAudioElement | null;
+  getAudioElement: (peerId: string) => HTMLAudioElement | null
 }
 
 // ============================================================================
@@ -67,13 +67,10 @@ export interface UseWebRTCMeetingReturn {
 // ============================================================================
 
 const RTC_CONFIG: RTCConfiguration = {
-  iceServers: [
-    { urls: 'stun:stun.l.google.com:19302' },
-    { urls: 'stun:stun1.l.google.com:19302' },
-  ],
+  iceServers: [{ urls: 'stun:stun.l.google.com:19302' }, { urls: 'stun:stun1.l.google.com:19302' }],
   iceCandidatePoolSize: 10,
   iceTransportPolicy: 'all',
-};
+}
 
 const AUDIO_CONSTRAINTS: MediaStreamConstraints = {
   audio: {
@@ -84,7 +81,7 @@ const AUDIO_CONSTRAINTS: MediaStreamConstraints = {
     channelCount: 1,
   },
   video: false,
-};
+}
 
 // ============================================================================
 // Hook Implementation
@@ -101,28 +98,28 @@ export function useWebRTCMeeting(options: UseWebRTCMeetingOptions): UseWebRTCMee
     onParticipantJoined,
     onParticipantLeft,
     onMuteStateChanged,
-  } = options;
+  } = options
 
   // Refs for persistent values
-  const socketRef = useRef<Socket | null>(null);
-  const localStreamRef = useRef<MediaStream | null>(null);
-  const peerConnectionsRef = useRef<Map<string, RTCPeerConnection>>(new Map());
-  const audioElementsRef = useRef<Map<string, HTMLAudioElement>>(new Map());
-  const isCleanupRef = useRef(false);
+  const socketRef = useRef<Socket | null>(null)
+  const localStreamRef = useRef<MediaStream | null>(null)
+  const peerConnectionsRef = useRef<Map<string, RTCPeerConnection>>(new Map())
+  const audioElementsRef = useRef<Map<string, HTMLAudioElement>>(new Map())
+  const isCleanupRef = useRef(false)
 
   // State
-  const [isConnected, setIsConnected] = useState(false);
-  const [isConnecting, setIsConnecting] = useState(false);
-  const [isMuted, setIsMuted] = useState(false);
-  const [participants, setParticipants] = useState<Map<string, MeetingParticipant>>(new Map());
-  const [remoteStreams, setRemoteStreams] = useState<Map<string, MediaStream>>(new Map());
+  const [isConnected, setIsConnected] = useState(false)
+  const [isConnecting, setIsConnecting] = useState(false)
+  const [isMuted, setIsMuted] = useState(false)
+  const [participants, setParticipants] = useState<Map<string, MeetingParticipant>>(new Map())
+  const [remoteStreams, setRemoteStreams] = useState<Map<string, MediaStream>>(new Map())
 
   /**
    * Initialize Socket.IO connection
    */
   const initializeSocket = useCallback(async () => {
     if (socketRef.current?.connected) {
-      return;
+      return
     }
 
     const socket = io('/api/ws', {
@@ -132,317 +129,329 @@ export function useWebRTCMeeting(options: UseWebRTCMeetingOptions): UseWebRTCMee
       reconnectionDelay: 1000,
       reconnectionDelayMax: 5000,
       reconnectionAttempts: 5,
-    });
+    })
 
-    socketRef.current = socket;
+    socketRef.current = socket
 
     // Connection handlers
     socket.on('connect', () => {
-      logger.info('[WebRTC] Socket connected');
-      setIsConnected(true);
-    });
+      logger.info('[WebRTC] Socket connected')
+      setIsConnected(true)
+    })
 
-    socket.on('disconnect', (reason) => {
-      logger.info('[WebRTC] Socket disconnected:', { reason });
-      setIsConnected(false);
-    });
+    socket.on('disconnect', reason => {
+      logger.info('[WebRTC] Socket disconnected:', { reason })
+      setIsConnected(false)
+    })
 
-    socket.on('connect_error', (error) => {
-      logger.error('[WebRTC] Socket connection error:', error);
-      onError?.(new Error(`Socket connection error: ${error.message}`));
-    });
+    socket.on('connect_error', error => {
+      logger.error('[WebRTC] Socket connection error:', error)
+      onError?.(new Error(`Socket connection error: ${error.message}`))
+    })
 
     // Meeting room handlers
     socket.on('room-joined', (data: { roomId: string; participants: MeetingParticipant[] }) => {
-      logger.info('[WebRTC] Joined room', { roomId: data.roomId, participants: data.participants });
-      const newParticipants = new Map<string, MeetingParticipant>();
-      data.participants.forEach((p) => newParticipants.set(p.id, p));
-      setParticipants(newParticipants);
-    });
+      logger.info('[WebRTC] Joined room', { roomId: data.roomId, participants: data.participants })
+      const newParticipants = new Map<string, MeetingParticipant>()
+      data.participants.forEach(p => newParticipants.set(p.id, p))
+      setParticipants(newParticipants)
+    })
 
     socket.on('participant-joined', (participant: MeetingParticipant) => {
-      logger.info('[WebRTC] Participant joined', { name: participant.name });
-      setParticipants((prev) => {
-        const next = new Map(prev);
-        next.set(participant.id, participant);
-        return next;
-      });
-      onParticipantJoined?.(participant);
-    });
+      logger.info('[WebRTC] Participant joined', { name: participant.name })
+      setParticipants(prev => {
+        const next = new Map(prev)
+        next.set(participant.id, participant)
+        return next
+      })
+      onParticipantJoined?.(participant)
+    })
 
     socket.on('participant-left', (data: { participantId: string }) => {
-      logger.info('[WebRTC] Participant left', { participantId: data.participantId });
-      setParticipants((prev) => {
-        const next = new Map(prev);
-        next.delete(data.participantId);
-        return next;
-      });
-      onParticipantLeft?.(data.participantId);
+      logger.info('[WebRTC] Participant left', { participantId: data.participantId })
+      setParticipants(prev => {
+        const next = new Map(prev)
+        next.delete(data.participantId)
+        return next
+      })
+      onParticipantLeft?.(data.participantId)
 
       // Clean up peer connection
-      cleanupPeerConnection(data.participantId);
-    });
+      cleanupPeerConnection(data.participantId)
+    })
 
     // Signaling handlers
     socket.on('offer', async (data: { sdp: RTCSessionDescriptionInit; senderId: string }) => {
-      logger.info('[WebRTC] Received offer', { senderId: data.senderId });
-      await handleOffer(data);
-    });
+      logger.info('[WebRTC] Received offer', { senderId: data.senderId })
+      await handleOffer(data)
+    })
 
     socket.on('answer', async (data: { sdp: RTCSessionDescriptionInit; senderId: string }) => {
-      logger.info('[WebRTC] Received answer', { senderId: data.senderId });
-      await handleAnswer(data);
-    });
+      logger.info('[WebRTC] Received answer', { senderId: data.senderId })
+      await handleAnswer(data)
+    })
 
-    socket.on('ice-candidate', async (data: { candidate: RTCIceCandidateInit; senderId: string }) => {
-      logger.info('[WebRTC] Received ICE candidate', { senderId: data.senderId });
-      await handleIceCandidate(data);
-    });
+    socket.on(
+      'ice-candidate',
+      async (data: { candidate: RTCIceCandidateInit; senderId: string }) => {
+        logger.info('[WebRTC] Received ICE candidate', { senderId: data.senderId })
+        await handleIceCandidate(data)
+      }
+    )
 
     socket.on('participant-muted', (data: { participantId: string; muted: boolean }) => {
-      logger.info('[WebRTC] Participant mute state changed', { data });
-      setParticipants((prev) => {
-        const next = new Map(prev);
-        const participant = next.get(data.participantId);
+      logger.info('[WebRTC] Participant mute state changed', { data })
+      setParticipants(prev => {
+        const next = new Map(prev)
+        const participant = next.get(data.participantId)
         if (participant) {
-          next.set(data.participantId, { ...participant, audioEnabled: !data.muted });
+          next.set(data.participantId, { ...participant, audioEnabled: !data.muted })
         }
-        return next;
-      });
-      onMuteStateChanged?.(data.participantId, data.muted);
-    });
-  }, [token, onError, onParticipantJoined, onParticipantLeft, onMuteStateChanged]);
+        return next
+      })
+      onMuteStateChanged?.(data.participantId, data.muted)
+    })
+  }, [token, onError, onParticipantJoined, onParticipantLeft, onMuteStateChanged])
 
   /**
    * Get local audio stream
    */
   const getLocalStream = useCallback(async () => {
     try {
-      const stream = await navigator.mediaDevices.getUserMedia(AUDIO_CONSTRAINTS);
-      localStreamRef.current = stream;
-      return stream;
-    } catch (_error) {
-      logger.error('[WebRTC] Error getting local stream:', error);
-      onError?.(error instanceof Error ? error : new Error('Failed to get audio stream'));
-      throw error;
+      const stream = await navigator.mediaDevices.getUserMedia(AUDIO_CONSTRAINTS)
+      localStreamRef.current = stream
+      return stream
+    } catch (error) {
+      logger.error('[WebRTC] Error getting local stream:', error)
+      onError?.(error instanceof Error ? error : new Error('Failed to get audio stream'))
+      throw error
     }
-  }, [onError]);
+  }, [onError])
 
   /**
    * Create peer connection
    */
-  const createPeerConnection = useCallback(async (
-    peerId: string,
-    isInitiator: boolean = false
-  ): Promise<RTCPeerConnection> => {
-    logger.info('[WebRTC] Creating peer connection', { peerId, isInitiator });
+  const createPeerConnection = useCallback(
+    async (peerId: string, isInitiator: boolean = false): Promise<RTCPeerConnection> => {
+      logger.info('[WebRTC] Creating peer connection', { peerId, isInitiator })
 
-    const pc = new RTCPeerConnection(RTC_CONFIG);
-    peerConnectionsRef.current.set(peerId, pc);
+      const pc = new RTCPeerConnection(RTC_CONFIG)
+      peerConnectionsRef.current.set(peerId, pc)
 
-    // Add local stream to peer connection
-    if (localStreamRef.current) {
-      localStreamRef.current.getTracks().forEach((track) => {
-        pc.addTrack(track, localStreamRef.current!);
-      });
-    }
-
-    // Handle ICE candidates
-    pc.onicecandidate = (event) => {
-      if (event.candidate && socketRef.current?.connected) {
-        socketRef.current.emit('ice-candidate', {
-          candidate: event.candidate,
-          senderId: userId,
-          receiverId: peerId,
-        });
+      // Add local stream to peer connection
+      if (localStreamRef.current) {
+        localStreamRef.current.getTracks().forEach(track => {
+          pc.addTrack(track, localStreamRef.current!)
+        })
       }
-    };
 
-    pc.oniceconnectionstatechange = () => {
-      logger.info('[WebRTC] ICE connection state', { peerId, state: pc.iceConnectionState });
-      if (pc.iceConnectionState === 'disconnected' || pc.iceConnectionState === 'failed') {
-        cleanupPeerConnection(peerId);
-      }
-    };
-
-    // Handle remote stream
-    pc.ontrack = (event) => {
-      logger.info('[WebRTC] Received remote stream', { peerId });
-      const remoteStream = event.streams[0];
-      setRemoteStreams((prev) => {
-        const next = new Map(prev);
-        next.set(peerId, remoteStream);
-        return next;
-      });
-    };
-
-    // Create offer if initiator
-    if (isInitiator) {
-      try {
-        const offer = await pc.createOffer();
-        await pc.setLocalDescription(offer);
-
-        // Wait for ICE gathering to complete
-        await new Promise<void>((resolve) => {
-          if (pc.iceGatheringState === 'complete') {
-            resolve();
-          } else {
-            pc.onicegatheringstatechange = () => {
-              if (pc.iceGatheringState === 'complete') {
-                resolve();
-              }
-            };
-          }
-        });
-
-        // Send offer
-        if (socketRef.current?.connected) {
-          socketRef.current.emit('offer', {
-            sdp: pc.localDescription,
+      // Handle ICE candidates
+      pc.onicecandidate = event => {
+        if (event.candidate && socketRef.current?.connected) {
+          socketRef.current.emit('ice-candidate', {
+            candidate: event.candidate,
             senderId: userId,
             receiverId: peerId,
-          });
+          })
         }
-      } catch (_error) {
-        logger.error('[WebRTC] Error creating offer:', error);
-        onError?.(error instanceof Error ? error : new Error('Failed to create offer'));
       }
-    }
 
-    return pc;
-  }, [userId, onError]);
+      pc.oniceconnectionstatechange = () => {
+        logger.info('[WebRTC] ICE connection state', { peerId, state: pc.iceConnectionState })
+        if (pc.iceConnectionState === 'disconnected' || pc.iceConnectionState === 'failed') {
+          cleanupPeerConnection(peerId)
+        }
+      }
+
+      // Handle remote stream
+      pc.ontrack = event => {
+        logger.info('[WebRTC] Received remote stream', { peerId })
+        const remoteStream = event.streams[0]
+        setRemoteStreams(prev => {
+          const next = new Map(prev)
+          next.set(peerId, remoteStream)
+          return next
+        })
+      }
+
+      // Create offer if initiator
+      if (isInitiator) {
+        try {
+          const offer = await pc.createOffer()
+          await pc.setLocalDescription(offer)
+
+          // Wait for ICE gathering to complete
+          await new Promise<void>(resolve => {
+            if (pc.iceGatheringState === 'complete') {
+              resolve()
+            } else {
+              pc.onicegatheringstatechange = () => {
+                if (pc.iceGatheringState === 'complete') {
+                  resolve()
+                }
+              }
+            }
+          })
+
+          // Send offer
+          if (socketRef.current?.connected) {
+            socketRef.current.emit('offer', {
+              sdp: pc.localDescription,
+              senderId: userId,
+              receiverId: peerId,
+            })
+          }
+        } catch (error) {
+          logger.error('[WebRTC] Error creating offer:', error)
+          onError?.(error instanceof Error ? error : new Error('Failed to create offer'))
+        }
+      }
+
+      return pc
+    },
+    [userId, onError]
+  )
 
   /**
    * Handle incoming offer
    */
-  const handleOffer = useCallback(async (data: { sdp: RTCSessionDescriptionInit; senderId: string }) => {
-    const { sdp, senderId } = data;
+  const handleOffer = useCallback(
+    async (data: { sdp: RTCSessionDescriptionInit; senderId: string }) => {
+      const { sdp, senderId } = data
 
-    let pc = peerConnectionsRef.current.get(senderId);
-    if (!pc) {
-      pc = await createPeerConnection(senderId, false);
-    }
-
-    try {
-      await pc.setRemoteDescription(new RTCSessionDescription(sdp));
-      const answer = await pc.createAnswer();
-      await pc.setLocalDescription(answer);
-
-      // Wait for ICE gathering to complete
-      await new Promise<void>((resolve) => {
-        if (pc!.iceGatheringState === 'complete') {
-          resolve();
-        } else {
-          pc!.onicegatheringstatechange = () => {
-            if (pc!.iceGatheringState === 'complete') {
-              resolve();
-            }
-          };
-        }
-      });
-
-      // Send answer
-      if (socketRef.current?.connected) {
-        socketRef.current.emit('answer', {
-          sdp: pc.localDescription,
-          senderId: userId,
-          receiverId: senderId,
-        });
+      let pc = peerConnectionsRef.current.get(senderId)
+      if (!pc) {
+        pc = await createPeerConnection(senderId, false)
       }
-    } catch (_error) {
-      logger.error('[WebRTC] Error handling offer:', error);
-      onError?.(error instanceof Error ? error : new Error('Failed to handle offer'));
-    }
-  }, [userId, createPeerConnection, onError]);
+
+      try {
+        await pc.setRemoteDescription(new RTCSessionDescription(sdp))
+        const answer = await pc.createAnswer()
+        await pc.setLocalDescription(answer)
+
+        // Wait for ICE gathering to complete
+        await new Promise<void>(resolve => {
+          if (pc!.iceGatheringState === 'complete') {
+            resolve()
+          } else {
+            pc!.onicegatheringstatechange = () => {
+              if (pc!.iceGatheringState === 'complete') {
+                resolve()
+              }
+            }
+          }
+        })
+
+        // Send answer
+        if (socketRef.current?.connected) {
+          socketRef.current.emit('answer', {
+            sdp: pc.localDescription,
+            senderId: userId,
+            receiverId: senderId,
+          })
+        }
+      } catch (error) {
+        logger.error('[WebRTC] Error handling offer:', error)
+        onError?.(error instanceof Error ? error : new Error('Failed to handle offer'))
+      }
+    },
+    [userId, createPeerConnection, onError]
+  )
 
   /**
    * Handle incoming answer
    */
-  const handleAnswer = useCallback(async (data: { sdp: RTCSessionDescriptionInit; senderId: string }) => {
-    const { sdp, senderId } = data;
-    const pc = peerConnectionsRef.current.get(senderId);
+  const handleAnswer = useCallback(
+    async (data: { sdp: RTCSessionDescriptionInit; senderId: string }) => {
+      const { sdp, senderId } = data
+      const pc = peerConnectionsRef.current.get(senderId)
 
-    if (!pc) {
-      logger.warn('[WebRTC] Received answer for unknown peer', { senderId });
-      return;
-    }
+      if (!pc) {
+        logger.warn('[WebRTC] Received answer for unknown peer', { senderId })
+        return
+      }
 
-    try {
-      await pc.setRemoteDescription(new RTCSessionDescription(sdp));
-      logger.info('[WebRTC] Set remote description', { senderId });
-    } catch (_error) {
-      logger.error('[WebRTC] Error handling answer:', error);
-      onError?.(error instanceof Error ? error : new Error('Failed to handle answer'));
-    }
-  }, [onError]);
+      try {
+        await pc.setRemoteDescription(new RTCSessionDescription(sdp))
+        logger.info('[WebRTC] Set remote description', { senderId })
+      } catch (error) {
+        logger.error('[WebRTC] Error handling answer:', error)
+        onError?.(error instanceof Error ? error : new Error('Failed to handle answer'))
+      }
+    },
+    [onError]
+  )
 
   /**
    * Handle ICE candidate
    */
-  const handleIceCandidate = useCallback(async (data: { candidate: RTCIceCandidateInit; senderId: string }) => {
-    const { candidate, senderId } = data;
-    const pc = peerConnectionsRef.current.get(senderId);
+  const handleIceCandidate = useCallback(
+    async (data: { candidate: RTCIceCandidateInit; senderId: string }) => {
+      const { candidate, senderId } = data
+      const pc = peerConnectionsRef.current.get(senderId)
 
-    if (!pc) {
-      logger.warn('[WebRTC] Received ICE candidate for unknown peer', { senderId });
-      return;
-    }
+      if (!pc) {
+        logger.warn('[WebRTC] Received ICE candidate for unknown peer', { senderId })
+        return
+      }
 
-    try {
-      await pc.addIceCandidate(new RTCIceCandidate(candidate));
-      logger.info('[WebRTC] Added ICE candidate', { senderId });
-    } catch (_error) {
-      logger.error('[WebRTC] Error adding ICE candidate:', error);
-      onError?.(error instanceof Error ? error : new Error('Failed to add ICE candidate'));
-    }
-  }, [onError]);
+      try {
+        await pc.addIceCandidate(new RTCIceCandidate(candidate))
+        logger.info('[WebRTC] Added ICE candidate', { senderId })
+      } catch (error) {
+        logger.error('[WebRTC] Error adding ICE candidate:', error)
+        onError?.(error instanceof Error ? error : new Error('Failed to add ICE candidate'))
+      }
+    },
+    [onError]
+  )
 
   /**
    * Clean up peer connection
    */
   const cleanupPeerConnection = useCallback((peerId: string) => {
-    logger.info('[WebRTC] Cleaning up peer connection', { peerId });
+    logger.info('[WebRTC] Cleaning up peer connection', { peerId })
 
-    const pc = peerConnectionsRef.current.get(peerId);
+    const pc = peerConnectionsRef.current.get(peerId)
     if (pc) {
-      pc.close();
-      peerConnectionsRef.current.delete(peerId);
+      pc.close()
+      peerConnectionsRef.current.delete(peerId)
     }
 
     // Clean up audio element
-    const audioElement = audioElementsRef.current.get(peerId);
+    const audioElement = audioElementsRef.current.get(peerId)
     if (audioElement) {
-      audioElement.pause();
-      audioElement.srcObject = null;
-      audioElement.remove();
-      audioElementsRef.current.delete(peerId);
+      audioElement.pause()
+      audioElement.srcObject = null
+      audioElement.remove()
+      audioElementsRef.current.delete(peerId)
     }
 
     // Clean up remote stream
-    setRemoteStreams((prev) => {
-      const next = new Map(prev);
-      next.delete(peerId);
-      return next;
-    });
-  }, []);
+    setRemoteStreams(prev => {
+      const next = new Map(prev)
+      next.delete(peerId)
+      return next
+    })
+  }, [])
 
   /**
    * Join meeting room
    */
   const joinMeeting = useCallback(async () => {
     if (isConnecting || isConnected) {
-      return;
+      return
     }
 
-    setIsConnecting(true);
-    isCleanupRef.current = false;
+    setIsConnecting(true)
+    isCleanupRef.current = false
 
     try {
       // Initialize socket
-      await initializeSocket();
+      await initializeSocket()
 
       // Get local stream
-      await getLocalStream();
+      await getLocalStream()
 
       // Join room
       if (socketRef.current?.connected) {
@@ -456,143 +465,156 @@ export function useWebRTCMeeting(options: UseWebRTCMeetingOptions): UseWebRTCMee
             video: false,
             screenShare: false,
           },
-        });
+        })
       }
-    } catch (_error) {
-      logger.error('[WebRTC] Error joining meeting:', error);
-      onError?.(error instanceof Error ? error : new Error('Failed to join meeting'));
-      setIsConnecting(false);
+    } catch (error) {
+      logger.error('[WebRTC] Error joining meeting:', error)
+      onError?.(error instanceof Error ? error : new Error('Failed to join meeting'))
+      setIsConnecting(false)
     } finally {
-      setIsConnecting(false);
+      setIsConnecting(false)
     }
-  }, [roomId, token, userId, userName, isConnecting, isConnected, initializeSocket, getLocalStream, onError]);
+  }, [
+    roomId,
+    token,
+    userId,
+    userName,
+    isConnecting,
+    isConnected,
+    initializeSocket,
+    getLocalStream,
+    onError,
+  ])
 
   /**
    * Leave meeting room
    */
   const leaveMeeting = useCallback(async () => {
-    logger.info('[WebRTC] Leaving meeting', {});
-    isCleanupRef.current = true;
+    logger.info('[WebRTC] Leaving meeting', {})
+    isCleanupRef.current = true
 
     // Leave room
     if (socketRef.current?.connected) {
-      socketRef.current.emit('leave-room', { roomId });
+      socketRef.current.emit('leave-room', { roomId })
     }
 
     // Clean up all peer connections
     peerConnectionsRef.current.forEach((pc, peerId) => {
-      pc.close();
-    });
-    peerConnectionsRef.current.clear();
+      pc.close()
+    })
+    peerConnectionsRef.current.clear()
 
     // Clean up audio elements
-    audioElementsRef.current.forEach((audio) => {
-      audio.pause();
-      audio.srcObject = null;
-      audio.remove();
-    });
-    audioElementsRef.current.clear();
+    audioElementsRef.current.forEach(audio => {
+      audio.pause()
+      audio.srcObject = null
+      audio.remove()
+    })
+    audioElementsRef.current.clear()
 
     // Clean up local stream
     if (localStreamRef.current) {
-      localStreamRef.current.getTracks().forEach((track) => {
-        track.stop();
-      });
-      localStreamRef.current = null;
+      localStreamRef.current.getTracks().forEach(track => {
+        track.stop()
+      })
+      localStreamRef.current = null
     }
 
     // Clean up socket
     if (socketRef.current) {
-      socketRef.current.disconnect();
-      socketRef.current = null;
+      socketRef.current.disconnect()
+      socketRef.current = null
     }
 
     // Reset state
-    setIsConnected(false);
-    setIsConnecting(false);
-    setParticipants(new Map());
-    setRemoteStreams(new Map());
-  }, [roomId]);
+    setIsConnected(false)
+    setIsConnecting(false)
+    setParticipants(new Map())
+    setRemoteStreams(new Map())
+  }, [roomId])
 
   /**
    * Toggle mute state
    */
   const toggleMute = useCallback(async () => {
     if (isMuted) {
-      await enableAudio();
+      await enableAudio()
     } else {
-      await disableAudio();
+      await disableAudio()
     }
-  }, [isMuted]);
+  }, [isMuted])
 
   /**
    * Enable audio
    */
   const enableAudio = useCallback(async () => {
     if (localStreamRef.current) {
-      localStreamRef.current.getAudioTracks().forEach((track) => {
-        track.enabled = true;
-      });
-      setIsMuted(false);
+      localStreamRef.current.getAudioTracks().forEach(track => {
+        track.enabled = true
+      })
+      setIsMuted(false)
 
       // Notify other participants
       if (socketRef.current?.connected) {
-        socketRef.current.emit('mute-state-changed', { muted: false });
+        socketRef.current.emit('mute-state-changed', { muted: false })
       }
     }
-  }, []);
+  }, [])
 
   /**
    * Disable audio
    */
   const disableAudio = useCallback(async () => {
     if (localStreamRef.current) {
-      localStreamRef.current.getAudioTracks().forEach((track) => {
-        track.enabled = false;
-      });
-      setIsMuted(true);
+      localStreamRef.current.getAudioTracks().forEach(track => {
+        track.enabled = false
+      })
+      setIsMuted(true)
 
       // Notify other participants
       if (socketRef.current?.connected) {
-        socketRef.current.emit('mute-state-changed', { muted: true });
+        socketRef.current.emit('mute-state-changed', { muted: true })
       }
     }
-  }, []);
+  }, [])
 
   /**
    * Get or create audio element for remote stream
    */
-  const getAudioElement = useCallback((peerId: string): HTMLAudioElement | null => {
-    let audioElement = audioElementsRef.current.get(peerId);
+  const getAudioElement = useCallback(
+    (peerId: string): HTMLAudioElement | null => {
+      let audioElement = audioElementsRef.current.get(peerId)
 
-    if (!audioElement) {
-      audioElement = document.createElement('audio');
-      audioElement.autoplay = true;
-      audioElement.style.display = 'none';
-      document.body.appendChild(audioElement);
-      audioElementsRef.current.set(peerId, audioElement);
-    }
+      if (!audioElement) {
+        audioElement = document.createElement('audio')
+        audioElement.autoplay = true
+        audioElement.style.display = 'none'
+        document.body.appendChild(audioElement)
+        audioElementsRef.current.set(peerId, audioElement)
+      }
 
-    const stream = remoteStreams.get(peerId);
-    if (stream && audioElement.srcObject !== stream) {
-      audioElement.srcObject = stream;
-    }
+      const stream = remoteStreams.get(peerId)
+      if (stream && audioElement.srcObject !== stream) {
+        audioElement.srcObject = stream
+      }
 
-    return audioElement;
-  }, [remoteStreams]);
+      return audioElement
+    },
+    [remoteStreams]
+  )
 
   // Auto-join on mount if enabled
   useEffect(() => {
     if (autoJoin && !isCleanupRef.current) {
-      joinMeeting();
+      joinMeeting()
     }
 
     return () => {
       if (!isCleanupRef.current) {
-        leaveMeeting();
+        leaveMeeting()
       }
-    };
-  }, [autoJoin, joinMeeting, leaveMeeting]);
+    }
+  }, [autoJoin, joinMeeting, leaveMeeting])
 
   return {
     // State
@@ -611,5 +633,5 @@ export function useWebRTCMeeting(options: UseWebRTCMeetingOptions): UseWebRTCMee
 
     // Audio elements
     getAudioElement,
-  };
+  }
 }

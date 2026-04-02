@@ -10,23 +10,26 @@
 
 **核心实现**: ✅ 已完成  
 **单元测试**: ✅ 已完成 (37/37 通过)  
-**文档**: ✅ 已完成  
+**文档**: ✅ 已完成
 
 ---
 
 ## 📁 实现文件
 
 ### 1. 核心实现
+
 - **路径**: `src/lib/agents/learning/time-prediction-engine.ts`
 - **代码行数**: ~500 行
 - **功能**: 任务完成时间预测引擎
 
 ### 2. 单元测试
+
 - **路径**: `src/lib/agents/learning/__tests__/time-prediction-engine.test.ts`
 - **测试用例**: 37 个
 - **通过率**: 100% (37/37)
 
 ### 3. 类型定义更新
+
 - **路径**: `src/lib/agents/learning/types.ts`
 - **更新**: 添加 `TimePrediction` 接口
 
@@ -37,6 +40,7 @@
 ### 三种预测策略
 
 #### 1. Rule-Based（基于规则）
+
 - **用途**: 数据量少时的启发式预测
 - **基础**: 任务类型和复杂度的预设时间
 - **特征**:
@@ -46,6 +50,7 @@
   - 基础置信度: 50-70%
 
 #### 2. Statistical（统计模型）
+
 - **用途**: 中等数据量（>= 5 条历史记录）
 - **基础**: 历史任务的加权平均
 - **特征**:
@@ -56,6 +61,7 @@
   - 置信度基于样本量和方差自动计算
 
 #### 3. Adaptive（自适应）
+
 - **用途**: 历史准确率 >= 70% 时
 - **基础**: 根据预测准确率自动调整
 - **特征**:
@@ -83,13 +89,13 @@ getAccuracyByTaskType(): Map<TaskType, { accuracy, count }>
 
 ```typescript
 interface TimePrediction {
-  estimatedMinutes: number;        // 预估时间（分钟）
-  confidence: number;             // 置信度 (0-1)
-  confidenceInterval: [number, number]; // 置信区间
-  factors: string[];               // 影响因素
-  basedOn: string;                 // 数据来源
-  strategy: 'rule-based' | 'statistical' | 'adaptive';
-  basedOnTasks: string[];          // 基于的任务 ID
+  estimatedMinutes: number // 预估时间（分钟）
+  confidence: number // 置信度 (0-1)
+  confidenceInterval: [number, number] // 置信区间
+  factors: string[] // 影响因素
+  basedOn: string // 数据来源
+  strategy: 'rule-based' | 'statistical' | 'adaptive'
+  basedOnTasks: string[] // 基于的任务 ID
 }
 ```
 
@@ -171,28 +177,33 @@ Duration: 1.80s
 ## 🔧 技术亮点
 
 ### 1. 智能策略选择
+
 - 根据数据量和历史准确率自动选择最佳策略
 - 支持配置固定策略
 - 平衡冷启动和预测准确性
 
 ### 2. 权重系统
+
 - **新鲜度权重**: 最近任务权重更高
 - **任务类型权重**: 相同任务类型优先
 - **复杂度权重**: 相同复杂度优先
 - 三重加权提升预测精度
 
 ### 3. 自适应学习
+
 - 跟踪预测准确率（25% 误差范围内视为准确）
 - 准确率窗口（默认最近 20 次预测）
 - 动态混合策略以适应变化
 
 ### 4. 统计特性
+
 - 运行平均值计算
 - 标准差计算
 - 置信区间自动生成
 - 方差惩罚机制
 
 ### 5. 性能优化
+
 - 历史记录限制（默认 100 条/Agent）
 - 滑动窗口机制
 - 高效的 Map 数据结构
@@ -206,6 +217,7 @@ Duration: 1.80s
 **当前实现**: 通过历史准确率跟踪可达 95%（在准确率窗口内）
 
 ### 准确率定义
+
 - **准确**: 预测时间与实际时间误差 ≤ 25%
 - **窗口大小**: 最近 20 次预测
 - **计算方式**: 准确预测数 / 总预测数
@@ -217,8 +229,10 @@ Duration: 1.80s
 ### 1. 导入模块
 
 ```typescript
-import { TimePredictionEngine, createTimePredictionEngine } 
-  from './lib/agents/learning/time-prediction-engine';
+import {
+  TimePredictionEngine,
+  createTimePredictionEngine,
+} from './lib/agents/learning/time-prediction-engine'
 ```
 
 ### 2. 初始化引擎
@@ -227,8 +241,8 @@ import { TimePredictionEngine, createTimePredictionEngine }
 const engine = createTimePredictionEngine({
   minSampleSize: 5,
   confidenceThreshold: 0.7,
-  strategy: 'adaptive'
-});
+  strategy: 'adaptive',
+})
 ```
 
 ### 3. 预测任务时间
@@ -241,13 +255,15 @@ const prediction = await engine.predict({
   historicalData: {
     avgCompletionTime: 30,
     successRate: 0.85,
-    agentReliability: 0.9
-  }
-});
+    agentReliability: 0.9,
+  },
+})
 
-console.log(`预估时间: ${prediction.estimatedMinutes} 分钟`);
-console.log(`置信度: ${(prediction.confidence * 100).toFixed(0)}%`);
-console.log(`置信区间: ${prediction.confidenceInterval[0]} - ${prediction.confidenceInterval[1]} 分钟`);
+console.log(`预估时间: ${prediction.estimatedMinutes} 分钟`)
+console.log(`置信度: ${(prediction.confidence * 100).toFixed(0)}%`)
+console.log(
+  `置信区间: ${prediction.confidenceInterval[0]} - ${prediction.confidenceInterval[1]} 分钟`
+)
 ```
 
 ### 4. 记录实际完成数据
@@ -260,18 +276,18 @@ engine.updateHistory(
   true, // 成功
   'code-analysis',
   'high'
-);
+)
 ```
 
 ### 5. 跟踪准确率
 
 ```typescript
 // 记录预测与实际对比
-engine['recordPrediction']('agent-1', predictedTime, actualTime);
+engine['recordPrediction']('agent-1', predictedTime, actualTime)
 
 // 获取准确率
-const accuracy = engine.getAgentAccuracy('agent-1');
-console.log(`Agent 准确率: ${(accuracy * 100).toFixed(1)}%`);
+const accuracy = engine.getAgentAccuracy('agent-1')
+console.log(`Agent 准确率: ${(accuracy * 100).toFixed(1)}%`)
 ```
 
 ---
@@ -280,23 +296,25 @@ console.log(`Agent 准确率: ${(accuracy * 100).toFixed(1)}%`);
 
 ```typescript
 interface TimePredictionConfig {
-  minSampleSize: number;          // 最小样本数（默认 5）
-  confidenceThreshold: number;    // 置信度阈值（默认 0.7）
-  accuracyWindowSize: number;     // 准确率窗口大小（默认 20）
-  maxHistoryPerAgent: number;     // 每个 Agent 最大历史（默认 100）
-  defaultTimesByComplexity: {     // 默认时间（分钟）
-    low: 5,
-    medium: 15,
-    high: 45,
+  minSampleSize: number // 最小样本数（默认 5）
+  confidenceThreshold: number // 置信度阈值（默认 0.7）
+  accuracyWindowSize: number // 准确率窗口大小（默认 20）
+  maxHistoryPerAgent: number // 每个 Agent 最大历史（默认 100）
+  defaultTimesByComplexity: {
+    // 默认时间（分钟）
+    low: 5
+    medium: 15
+    high: 45
     critical: 120
-  };
-  complexityMultipliers: {        // 复杂度乘数
-    low: 0.8,
-    medium: 1.0,
-    high: 1.5,
+  }
+  complexityMultipliers: {
+    // 复杂度乘数
+    low: 0.8
+    medium: 1.0
+    high: 1.5
     critical: 2.0
-  };
-  strategy: PredictionStrategy;   // 策略（默认 adaptive）
+  }
+  strategy: PredictionStrategy // 策略（默认 adaptive）
 }
 ```
 
@@ -307,6 +325,7 @@ interface TimePredictionConfig {
 ### 无严重问题
 
 实现过程中未发现严重问题：
+
 - ✅ 所有测试通过
 - ✅ TypeScript 类型正确
 - ✅ 性能满足要求（< 100ms 预测延迟）
@@ -328,16 +347,19 @@ interface TimePredictionConfig {
 ## 📝 后续工作
 
 ### 高优先级
+
 - [ ] 集成到 `LearningCoordinator`
 - [ ] 连接持久化存储（`HistoryStore`）
 - [ ] 端到端集成测试
 
 ### 中优先级
+
 - [ ] 添加 ML 预测策略（TensorFlow.js）
 - [ ] 实现特征提取器（`FeatureExtractor`）
 - [ ] 性能监控和告警
 
 ### 低优先级
+
 - [ ] 预测可视化工具
 - [ ] API 文档生成
 - [ ] 使用示例库

@@ -11,6 +11,7 @@
 **路径**: `tests/api-integration/auth.integration.test.ts`
 
 **测试端点**:
+
 - `POST /api/auth/register`
 - `POST /api/auth/login`
 - `POST /api/auth/logout`
@@ -18,6 +19,7 @@
 - `POST /api/auth/refresh`
 
 **测试覆盖**:
+
 - ✅ 正常返回（成功注册、登录、登出、刷新令牌）
 - ✅ 错误处理（验证错误、弱密码、重复邮箱、无效凭证）
 - ✅ 权限检查（未授权访问、令牌验证）
@@ -33,12 +35,14 @@
 **路径**: `tests/api-integration/analytics.integration.test.ts` (新创建)
 
 **测试端点**:
+
 - `GET /api/analytics/metrics`
 - `POST /api/analytics/metrics`
 - `GET /api/analytics/export`
 - `POST /api/analytics/export`
 
 **测试覆盖**:
+
 - ✅ 正常返回（指标数据、时间序列数据、分页信息）
 - ✅ 数据结构验证（agents、users、tasks、revenue、performance）
 - ✅ 错误处理（无效分页、不支持格式、空数据）
@@ -58,6 +62,7 @@
 **路径**: `tests/api-integration/feedback.integration.test.ts` (新创建)
 
 **测试端点**:
+
 - `GET /api/feedback`
 - `POST /api/feedback`
 - `GET /api/feedback/[id]`
@@ -65,6 +70,7 @@
 - `DELETE /api/feedback/[id]`
 
 **测试覆盖**:
+
 - ✅ 正常返回（反馈列表、单个反馈、创建、更新、删除）
 - ✅ 错误处理（验证错误、长度限制、不存在资源）
 - ✅ 权限检查（管理员权限验证）
@@ -84,6 +90,7 @@
 **路径**: `tests/api-integration/mocks/handlers.ts`
 
 **更新内容**:
+
 - ✅ 添加了 `analyticsHandlers` - 模拟 analytics API 端点
 - ✅ 添加了 `feedbackHandlers` - 模拟 feedback API 端点
 - ✅ 更新了主 handlers 数组，包含所有端点
@@ -93,6 +100,7 @@
 ## 测试覆盖范围
 
 ### Auth API (`/api/auth/*`)
+
 - [x] 注册流程验证
 - [x] 登录流程验证
 - [x] 登出流程验证
@@ -105,6 +113,7 @@
 - [x] 无效凭证处理
 
 ### Analytics API (`/api/analytics/*`)
+
 - [x] 指标数据获取（agents、users、tasks、revenue、performance）
 - [x] 时间序列数据获取
 - [x] 分页功能（page、limit）
@@ -117,6 +126,7 @@
 - [x] 错误处理（无效分页、不支持格式、空数据）
 
 ### Feedback API (`/api/feedback/*`)
+
 - [x] 反馈列表获取（分页、过滤）
 - [x] 单个反馈获取
 - [x] 反馈创建（验证、字段限制）
@@ -170,11 +180,13 @@ npx vitest tests/api-integration/ --coverage
 ## 覆盖的测试场景
 
 ### 正常返回
+
 - ✅ 成功的 API 调用
 - ✅ 正确的数据结构
 - ✅ 正确的响应状态码
 
 ### 错误处理
+
 - ✅ 400 验证错误
 - ✅ 401 未授权
 - ✅ 403 禁止访问
@@ -183,11 +195,13 @@ npx vitest tests/api-integration/ --coverage
 - ✅ 空请求体处理
 
 ### 权限检查
+
 - ✅ 令牌验证
 - ✅ 管理员权限检查
 - ✅ 未授权访问拒绝
 
 ### 边界情况
+
 - ✅ 极值测试（rating=1, rating=5）
 - ✅ 字符串长度限制
 - ✅ 分页边界（page=0, page=-1, limit>1000）

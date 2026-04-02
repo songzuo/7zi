@@ -1,11 +1,11 @@
 /**
  * 通知状态管理 Store
- * 
+ *
  * 使用 Zustand 管理通知状态
  */
 
-import { create } from 'zustand';
-import type { RealtimeNotification, NotificationCategory } from './types';
+import { create } from 'zustand'
+import type { RealtimeNotification, NotificationCategory } from './types'
 
 // ============================================================================
 // Store 定义
@@ -13,17 +13,17 @@ import type { RealtimeNotification, NotificationCategory } from './types';
 
 interface NotificationStore {
   // 状态
-  notifications: RealtimeNotification[];
-  unreadCount: number;
-  isConnected: boolean;
-  
+  notifications: RealtimeNotification[]
+  unreadCount: number
+  isConnected: boolean
+
   // 操作方法
-  addNotification: (notification: RealtimeNotification) => void;
-  markAsRead: (id: string) => void;
-  markAllAsRead: () => void;
-  removeNotification: (id: string) => void;
-  clearAll: () => void;
-  setConnected: (connected: boolean) => void;
+  addNotification: (notification: RealtimeNotification) => void
+  markAsRead: (id: string) => void
+  markAllAsRead: () => void
+  removeNotification: (id: string) => void
+  clearAll: () => void
+  setConnected: (connected: boolean) => void
 }
 
 // ============================================================================
@@ -35,59 +35,56 @@ export const useRealtimeNotificationStore = create<NotificationStore>((set, get)
   notifications: [],
   unreadCount: 0,
   isConnected: false,
-  
+
   // 添加通知
-  addNotification: (notification) => {
-    set((state) => ({
+  addNotification: notification => {
+    set(state => ({
       notifications: [notification, ...state.notifications].slice(0, 100), // 最多保留 100 条
       unreadCount: state.unreadCount + 1,
-    }));
+    }))
   },
-  
+
   // 标记为已读
-  markAsRead: (id) => {
-    set((state) => ({
-      notifications: state.notifications.map((n) =>
-        n.id === id ? { ...n, read: true } : n
-      ),
+  markAsRead: id => {
+    set(state => ({
+      notifications: state.notifications.map(n => (n.id === id ? { ...n, read: true } : n)),
       unreadCount: Math.max(0, state.unreadCount - 1),
-    }));
+    }))
   },
-  
+
   // 全部标记为已读
   markAllAsRead: () => {
-    set((state) => ({
-      notifications: state.notifications.map((n) => ({ ...n, read: true })),
+    set(state => ({
+      notifications: state.notifications.map(n => ({ ...n, read: true })),
       unreadCount: 0,
-    }));
+    }))
   },
-  
+
   // 删除通知
-  removeNotification: (id) => {
-    set((state) => {
-      const removed = state.notifications.find((n) => n.id === id);
+  removeNotification: id => {
+    set(state => {
+      const removed = state.notifications.find(n => n.id === id)
       return {
-        notifications: state.notifications.filter((n) => n.id !== id),
-        unreadCount: removed && !removed.read
-          ? Math.max(0, state.unreadCount - 1)
-          : state.unreadCount,
-      };
-    });
+        notifications: state.notifications.filter(n => n.id !== id),
+        unreadCount:
+          removed && !removed.read ? Math.max(0, state.unreadCount - 1) : state.unreadCount,
+      }
+    })
   },
-  
+
   // 清空所有通知
   clearAll: () => {
     set({
       notifications: [],
       unreadCount: 0,
-    });
+    })
   },
-  
+
   // 设置连接状态
-  setConnected: (connected) => {
-    set({ isConnected: connected });
+  setConnected: connected => {
+    set({ isConnected: connected })
   },
-}));
+}))
 
 // ============================================================================
 // 辅助函数
@@ -106,26 +103,25 @@ function inferCategoryFromType(messageType: string): NotificationCategory {
     'member:status_changed': 'info',
     'system:announcement': 'warning',
     'project:updated': 'info',
-  };
+  }
 
-  return categoryMap[messageType] || 'info';
+  return categoryMap[messageType] || 'info'
 }
 
 /**
  * 从 WebSocket 消息创建通知
  */
-export function createNotificationFromMessage(
-  message: unknown
-): RealtimeNotification {
-  const msg = message as Record<string, unknown>;
-  const type = (msg.type as string) || 'system:announcement';
-  const payload = (msg.payload as Record<string, unknown>) || {};
+export function createNotificationFromMessage(message: unknown): RealtimeNotification {
+  const msg = message as Record<string, unknown>
+  const type = (msg.type as string) || 'system:announcement'
+  const payload = (msg.payload as Record<string, unknown>) || {}
 
   return {
     id: (msg.id as string) || `notif-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
     type: mapMessageTypeToNotificationType(type),
     title: (payload.title as string) || getDefaultTitle(type),
-    message: (payload.message as string) || (payload.description as string) || getDefaultMessage(type),
+    message:
+      (payload.message as string) || (payload.description as string) || getDefaultMessage(type),
     read: false,
     timestamp: (msg.timestamp as string) || new Date().toISOString(),
     priority: (payload.priority as RealtimeNotification['priority']) || 'normal',
@@ -135,15 +131,13 @@ export function createNotificationFromMessage(
     actionText: payload.actionText as string | undefined,
     soundEnabled: (payload.soundEnabled as boolean) ?? true,
     data: payload,
-  };
+  }
 }
 
 /**
  * 映射消息类型到通知类型
  */
-function mapMessageTypeToNotificationType(
-  messageType: string
-): RealtimeNotification['type'] {
+function mapMessageTypeToNotificationType(messageType: string): RealtimeNotification['type'] {
   const typeMap: Record<string, RealtimeNotification['type']> = {
     'task:status_changed': 'task_status_changed',
     'task:assigned': 'task_assigned',
@@ -153,9 +147,9 @@ function mapMessageTypeToNotificationType(
     'member:status_changed': 'member_status_changed',
     'system:announcement': 'system_announcement',
     'project:updated': 'project_updated',
-  };
+  }
 
-  return typeMap[messageType] || 'system_announcement';
+  return typeMap[messageType] || 'system_announcement'
 }
 
 /**
@@ -171,9 +165,9 @@ function getDefaultTitle(messageType: string): string {
     'member:status_changed': '成员状态变更',
     'system:announcement': '系统公告',
     'project:updated': '项目更新',
-  };
+  }
 
-  return titleMap[messageType] || '通知';
+  return titleMap[messageType] || '通知'
 }
 
 /**
@@ -189,9 +183,9 @@ function getDefaultMessage(messageType: string): string {
     'member:status_changed': '成员状态已变更',
     'system:announcement': '收到系统公告',
     'project:updated': '项目已更新',
-  };
+  }
 
-  return messageMap[messageType] || '收到新通知';
+  return messageMap[messageType] || '收到新通知'
 }
 
 /**
@@ -207,7 +201,7 @@ function getDefaultIcon(messageType: string): string | undefined {
     'member:status_changed': '🔄',
     'system:announcement': '📢',
     'project:updated': '📁',
-  };
+  }
 
-  return iconMap[messageType];
+  return iconMap[messageType]
 }

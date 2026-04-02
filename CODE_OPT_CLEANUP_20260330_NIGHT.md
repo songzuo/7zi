@@ -8,12 +8,12 @@
 
 ## 📊 清理摘要
 
-| 类别 | 清理文件数 | 节省空间估算 |
-|------|-----------|-------------|
-| 备份文件 (.backup) | 3 | ~35 KB |
-| 优化配置文件 (.optimized) | 6 | ~20 KB |
-| 重复组件文件 | 5 | ~80 KB |
-| **总计** | **14** | **~135 KB** |
+| 类别                      | 清理文件数 | 节省空间估算 |
+| ------------------------- | ---------- | ------------ |
+| 备份文件 (.backup)        | 3          | ~35 KB       |
+| 优化配置文件 (.optimized) | 6          | ~20 KB       |
+| 重复组件文件              | 5          | ~80 KB       |
+| **总计**                  | **14**     | **~135 KB**  |
 
 ---
 
@@ -51,6 +51,7 @@
 ### 3. 重复组件文件 (5 个)
 
 #### 3.1 Performance Dashboard 组件
+
 ```bash
 # 清理: src/components/ (保留: src/features/monitoring/components/)
 /root/.openclaw/workspace/7zi-frontend/src/components/PerformanceDashboard.tsx
@@ -63,6 +64,7 @@
 **清理原因**: 功能模块化的组件应放在 features 目录
 
 #### 3.2 WebSocket 组件
+
 ```bash
 # 清理: src/components/websocket/ (保留: src/features/websocket/components/)
 /root/.openclaw/workspace/7zi-frontend/src/components/websocket/WebSocketStatusPanel.tsx
@@ -73,6 +75,7 @@
 **清理原因**: WebSocket 功能已模块化到 features 目录
 
 #### 3.3 UI 组件
+
 ```bash
 # 清理: src/components/ui/ (保留: src/shared/components/ui/)
 /root/.openclaw/workspace/7zi-frontend/src/components/ui/Modal.tsx
@@ -115,6 +118,7 @@
 **说明**: 这是一个新的 UI 组件，提供实时 Agent 状态监控功能
 
 **特性**:
+
 - ✅ 实时状态显示（运行中/空闲/离线/错误）
 - ✅ 任务进度追踪
 - ✅ 资源使用监控（CPU、内存）
@@ -213,13 +217,13 @@
 
 ### 主要重复文件
 
-| 文件 1 | 文件 2 | 重复度 | 状态 |
-|--------|--------|--------|------|
-| `src/components/PerformanceDashboard.tsx` | `src/features/monitoring/components/PerformanceDashboard.tsx` | 100% | ✅ 已清理 |
-| `src/components/EnhancedPerformanceDashboard.tsx` | `src/features/monitoring/components/EnhancedPerformanceDashboard.tsx` | 96% | ✅ 已清理 |
-| `src/components/SimplePerformanceDashboard.tsx` | `src/features/monitoring/components/SimplePerformanceDashboard.tsx` | 82% | ✅ 已清理 |
-| `src/components/websocket/WebSocketStatusPanel.tsx` | `src/features/websocket/components/WebSocketStatusPanel.tsx` | 90% | ✅ 已清理 |
-| `src/components/ui/Modal.tsx` | `src/shared/components/ui/Modal.tsx` | 98% | ✅ 已清理 |
+| 文件 1                                              | 文件 2                                                                | 重复度 | 状态      |
+| --------------------------------------------------- | --------------------------------------------------------------------- | ------ | --------- |
+| `src/components/PerformanceDashboard.tsx`           | `src/features/monitoring/components/PerformanceDashboard.tsx`         | 100%   | ✅ 已清理 |
+| `src/components/EnhancedPerformanceDashboard.tsx`   | `src/features/monitoring/components/EnhancedPerformanceDashboard.tsx` | 96%    | ✅ 已清理 |
+| `src/components/SimplePerformanceDashboard.tsx`     | `src/features/monitoring/components/SimplePerformanceDashboard.tsx`   | 82%    | ✅ 已清理 |
+| `src/components/websocket/WebSocketStatusPanel.tsx` | `src/features/websocket/components/WebSocketStatusPanel.tsx`          | 90%    | ✅ 已清理 |
+| `src/components/ui/Modal.tsx`                       | `src/shared/components/ui/Modal.tsx`                                  | 98%    | ✅ 已清理 |
 
 ### 当前重复率
 
@@ -238,16 +242,19 @@
 ## 🎯 清理成果
 
 ### 1. 结构优化
+
 - ✅ 移除了 `src/components/` 下的重复组件
 - ✅ 统一使用 `src/features/` 和 `src/shared/` 目录结构
 - ✅ 清理了 `.backup` 和 `.optimized` 临时文件
 
 ### 2. 代码质量
+
 - ✅ 消除了 80-100% 的重复代码
 - ✅ 组件组织更加模块化
 - ✅ 保留了 `src/components/dashboard/` 新 UI 组件
 
 ### 3. 维护性提升
+
 - ✅ 减少了维护负担（不再需要同步多个副本）
 - ✅ 代码路径更加清晰
 - ✅ 降低了混淆风险
@@ -257,16 +264,19 @@
 ## 📝 后续建议
 
 ### 1. 继续优化
+
 - [ ] 考虑重构 `EmptyState.tsx` 减少内部重复
 - [ ] 统一 NotificationCenter 组件的使用
 - [ ] 检查其他目录是否还有重复文件
 
 ### 2. 建立规范
+
 - [ ] 设置 pre-commit hook，防止提交 `.backup` 文件
 - [ ] 将 `.backup` 添加到 `.gitignore`
 - [ ] 定期运行 jscpd 检测重复代码
 
 ### 3. 文档更新
+
 - [x] 已创建 `src/components/dashboard/README.md`
 - [ ] 更新项目结构文档
 - [ ] 添加组件贡献指南

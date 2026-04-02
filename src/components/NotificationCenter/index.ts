@@ -3,9 +3,9 @@
  * @description 统一导出通知中心相关组件和类型
  */
 
-export { NotificationCenter, default as NotificationCenterDefault } from './NotificationCenter';
-export { NotificationItem } from './NotificationItem';
-export { NotificationBadge } from './NotificationBadge';
+export { NotificationCenter, default as NotificationCenterDefault } from './NotificationCenter'
+export { NotificationItem } from './NotificationItem'
+export { NotificationBadge } from './NotificationBadge'
 
 export type {
   Notification,
@@ -14,4 +14,4 @@ export type {
   NotificationBadgeProps,
   NotificationType,
   NotificationPriority,
-} from './types';
+} from './types'

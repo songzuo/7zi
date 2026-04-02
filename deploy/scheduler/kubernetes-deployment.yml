@@ -19,14 +19,14 @@ metadata:
   name: scheduler-config
   namespace: scheduler
 data:
-  NODE_ENV: "production"
-  PORT: "3001"
-  SCHEDULER_HOST: "0.0.0.0"
-  SCHEDULER_AUTO_START: "true"
-  SCHEDULER_INTERVAL: "30000"
-  SCHEDULER_MAX_BATCH_SIZE: "10"
-  LOG_LEVEL: "info"
-  LOG_FORMAT: "json"
+  NODE_ENV: 'production'
+  PORT: '3001'
+  SCHEDULER_HOST: '0.0.0.0'
+  SCHEDULER_AUTO_START: 'true'
+  SCHEDULER_INTERVAL: '30000'
+  SCHEDULER_MAX_BATCH_SIZE: '10'
+  LOG_LEVEL: 'info'
+  LOG_FORMAT: 'json'
 
 ---
 # Secret - Redis 密码
@@ -37,7 +37,7 @@ metadata:
   namespace: scheduler
 type: Opaque
 data:
-  redis-password: c2NoZWR1bGVyLXJlZGlzLXBhc3N3b3Jk  # base64: scheduler-redis-password
+  redis-password: c2NoZWR1bGVyLXJlZGlzLXBhc3N3b3Jk # base64: scheduler-redis-password
 
 ---
 # Deployment - AgentScheduler
@@ -63,9 +63,9 @@ spec:
       labels:
         app: scheduler
       annotations:
-        prometheus.io/scrape: "true"
-        prometheus.io/port: "3001"
-        prometheus.io/path: "/metrics"
+        prometheus.io/scrape: 'true'
+        prometheus.io/port: '3001'
+        prometheus.io/path: '/metrics'
     spec:
       containers:
         - name: scheduler
@@ -80,16 +80,16 @@ spec:
                 name: scheduler-config
           env:
             - name: REDIS_URL
-              value: "redis://redis-service:6379"
+              value: 'redis://redis-service:6379'
             - name: NODE_OPTIONS
-              value: "--max-old-space-size=512"
+              value: '--max-old-space-size=512'
           resources:
             requests:
-              cpu: "100m"
-              memory: "256Mi"
+              cpu: '100m'
+              memory: '256Mi'
             limits:
-              cpu: "500m"
-              memory: "512Mi"
+              cpu: '500m'
+              memory: '512Mi'
           livenessProbe:
             httpGet:
               path: /health
@@ -161,22 +161,22 @@ spec:
           command:
             - redis-server
             - --appendonly
-            - "yes"
+            - 'yes'
             - --maxmemory
-            - "256mb"
+            - '256mb'
             - --maxmemory-policy
-            - "allkeys-lru"
+            - 'allkeys-lru'
           ports:
             - containerPort: 6379
               name: redis
               protocol: TCP
           resources:
             requests:
-              cpu: "50m"
-              memory: "128Mi"
+              cpu: '50m'
+              memory: '128Mi'
             limits:
-              cpu: "200m"
-              memory: "256Mi"
+              cpu: '200m'
+              memory: '256Mi'
           livenessProbe:
             exec:
               command:
@@ -224,7 +224,7 @@ spec:
   resources:
     requests:
       storage: 1Gi
-  storageClassName: standard  # 根据集群配置调整
+  storageClassName: standard # 根据集群配置调整
 
 ---
 # Ingress - 外部访问
@@ -235,8 +235,8 @@ metadata:
   namespace: scheduler
   annotations:
     nginx.ingress.kubernetes.io/rewrite-target: /
-    nginx.ingress.kubernetes.io/ssl-redirect: "true"
-    cert-manager.io/cluster-issuer: "letsencrypt-prod"
+    nginx.ingress.kubernetes.io/ssl-redirect: 'true'
+    cert-manager.io/cluster-issuer: 'letsencrypt-prod'
 spec:
   ingressClassName: nginx
   tls:

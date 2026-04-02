@@ -18,6 +18,7 @@
 ### 1.1 审查的文件
 
 **API 路由 (src/app/api/)**:
+
 - `/api/projects/route.ts` - 项目管理 API
 - `/api/users/route.ts` - 用户管理 API
 - `/api/auth/route.ts` - 认证 API
@@ -26,19 +27,23 @@
 - `/api/mcp/rpc/route.ts` - MCP JSON-RPC API
 
 **错误处理框架**:
+
 - `src/lib/api/error-handler.ts` - 标准化错误响应系统
 
 **前端组件**:
+
 - `src/components/NetworkErrorBoundary.tsx` - 网络错误边界
 - `src/components/RetryBoundary.tsx` - 重试错误边界
 - `src/components/ContactForm.tsx` - 联系表单（含 API 调用）
 
 **文档**:
+
 - `docs/API-REFERENCE.md` - API 参考文档
 
 ### 1.2 现有错误处理框架
 
 项目已实现 `src/lib/api/error-handler.ts`，提供：
+
 - ✅ 标准化的成功/错误响应格式
 - ✅ 预定义的错误类型 (ErrorType 枚举)
 - ✅ ApiError 类
@@ -56,33 +61,36 @@
 **位置**: 所有 API 路由
 
 **问题描述**:
+
 - 没有对网络故障或临时性服务不可用进行自动重试
 - `/api/mcp/rpc/route.ts` 直接返回 JSON 解析错误，未考虑重试
 - 外部 API 调用（如 GitHub API）没有实现退避重试
 
 **影响**:
+
 - 临时网络波动导致用户体验下降
 - 服务抖动时频繁报错，而非自动恢复
 
 **示例代码** (`/api/mcp/rpc/route.ts`):
+
 ```typescript
 export async function POST(request: NextRequest) {
   try {
-    const body = await request.json();
+    const body = await request.json()
     // ... 处理逻辑
   } catch {
     // ❌ 直接返回错误，没有重试
     return NextResponse.json(
       {
-        jsonrpc: "2.0",
+        jsonrpc: '2.0',
         id: null,
         error: {
           code: -32700,
-          message: "Parse error: Invalid JSON",
+          message: 'Parse error: Invalid JSON',
         },
       },
       { headers: CORS_HEADERS }
-    );
+    )
   }
 }
 ```
@@ -94,12 +102,14 @@ export async function POST(request: NextRequest) {
 **位置**: `/api/auth/route.ts`, `/api/notifications/enhanced/route.ts`
 
 **问题描述**:
+
 - 部分路由使用 `AuditLogger`，但错误细节记录不足
 - 缺少统一的错误分类和标记
 - 没有 API 错误聚合统计（如 5xx 错误率）
 - 开发环境日志详细，生产环境缺少调试信息
 
 **示例** (`/api/auth/route.ts`):
+
 ```typescript
 catch (error) {
   await AuditLogger.logApiAccess({
@@ -127,11 +137,13 @@ catch (error) {
 **位置**: 前端组件
 
 **问题描述**:
+
 - API 返回的技术错误消息（如 "Parse error: Invalid JSON"）直接展示给用户
 - 缺少本地化的错误消息
 - 没有根据错误类型提供具体的解决方案
 
 **示例**:
+
 ```typescript
 // API 返回
 { "message": "Parse error: Invalid JSON" }
@@ -148,10 +160,12 @@ catch (error) {
 **位置**: 前端页面和组件
 
 **问题描述**:
+
 - `NetworkErrorBoundary` 组件存在，但未在 API 调用密集的页面中使用
 - `ContactForm` 等组件直接调用 `fetch()`，没有使用重试边界
 
 **影响**:
+
 - 网络波动时用户体验差
 
 ---
@@ -161,10 +175,12 @@ catch (error) {
 **位置**: 所有 API 路由
 
 **问题描述**:
+
 - API 路由没有设置超时限制
 - 外部请求（如 MCP 调用）可能无限期挂起
 
 **风险**:
+
 - 恶意请求或服务故障导致服务器资源耗尽
 
 ---
@@ -174,10 +190,12 @@ catch (error) {
 **位置**: 所有 API 路由
 
 **问题描述**:
+
 - 没有为每个请求生成唯一的请求 ID
 - 错误日志无法关联到特定请求
 
 **影响**:
+
 - 难以追踪跨服务的错误链路
 
 ---
@@ -189,6 +207,7 @@ catch (error) {
 **位置**: `docs/API-REFERENCE.md`
 
 **问题描述**:
+
 - 错误处理章节过于简略（仅 20 行）
 - 只列出 GitHub API 错误码，未覆盖内部 API 错误类型
 - 没有错误响应示例
@@ -204,15 +223,15 @@ catch (error) {
 创建 `src/lib/api/retry-decorator.ts`:
 
 ```typescript
-import { logger } from '../logger';
+import { logger } from '../logger'
 
 interface RetryConfig {
-  maxRetries?: number;
-  initialDelay?: number;
-  maxDelay?: number;
-  backoffMultiplier?: number;
-  retryableErrors?: (number | string)[];
-  shouldRetry?: (error: Error, attempt: number) => boolean;
+  maxRetries?: number
+  initialDelay?: number
+  maxDelay?: number
+  backoffMultiplier?: number
+  retryableErrors?: (number | string)[]
+  shouldRetry?: (error: Error, attempt: number) => boolean
 }
 
 const DEFAULT_RETRY_CONFIG: Required<RetryConfig> = {
@@ -222,86 +241,83 @@ const DEFAULT_RETRY_CONFIG: Required<RetryConfig> = {
   backoffMultiplier: 2,
   retryableErrors: [503, 502, 504, 'ECONNRESET', 'ETIMEDOUT'],
   shouldRetry: () => true,
-};
+}
 
 export function withRetry<T extends (...args: any[]) => Promise<any>>(
   fn: T,
   config: RetryConfig = {}
 ): T {
-  const options = { ...DEFAULT_RETRY_CONFIG, ...config };
+  const options = { ...DEFAULT_RETRY_CONFIG, ...config }
 
   return (async (...args: Parameters<T>) => {
-    let lastError: Error | undefined;
-    let delay = options.initialDelay;
+    let lastError: Error | undefined
+    let delay = options.initialDelay
 
     for (let attempt = 0; attempt <= options.maxRetries; attempt++) {
       try {
-        return await fn(...args);
+        return await fn(...args)
       } catch (error) {
-        lastError = error instanceof Error ? error : new Error(String(error));
+        lastError = error instanceof Error ? error : new Error(String(error))
 
         // 检查是否应该重试
-        const isRetryable = 
+        const isRetryable =
           options.shouldRetry?.(lastError, attempt) ||
-          options.retryableErrors.some(code => 
-            lastError!.message.includes(String(code))
-          );
+          options.retryableErrors.some(code => lastError!.message.includes(String(code)))
 
         if (!isRetryable || attempt === options.maxRetries) {
-          break;
+          break
         }
 
         // 记录重试
         logger.warn(`Retry attempt ${attempt + 1}/${options.maxRetries}`, {
           error: lastError.message,
           delay,
-        });
+        })
 
         // 等待后重试
-        await new Promise(resolve => setTimeout(resolve, delay));
-        delay = Math.min(delay * options.backoffMultiplier, options.maxDelay);
+        await new Promise(resolve => setTimeout(resolve, delay))
+        delay = Math.min(delay * options.backoffMultiplier, options.maxDelay)
       }
     }
 
-    throw lastError;
-  }) as T;
+    throw lastError
+  }) as T
 }
 ```
 
 #### 使用示例
 
 ```typescript
-import { withRetry } from '@/lib/api/retry-decorator';
-import { createServiceUnavailableError } from '@/lib/api/error-handler';
+import { withRetry } from '@/lib/api/retry-decorator'
+import { createServiceUnavailableError } from '@/lib/api/error-handler'
 
 // 包装外部 API 调用
 const fetchGitHubData = withRetry(
   async (owner: string, repo: string) => {
-    const response = await fetch(
-      `https://api.github.com/repos/${owner}/${repo}/issues`,
-      { headers: { 'Authorization': `token ${process.env.GITHUB_TOKEN}` } }
-    );
+    const response = await fetch(`https://api.github.com/repos/${owner}/${repo}/issues`, {
+      headers: { Authorization: `token ${process.env.GITHUB_TOKEN}` },
+    })
 
     if (!response.ok) {
-      throw new Error(`GitHub API error: ${response.status}`);
+      throw new Error(`GitHub API error: ${response.status}`)
     }
 
-    return response.json();
+    return response.json()
   },
   {
     maxRetries: 5,
     initialDelay: 2000,
-    retryableErrors: [403, 502, 503],  // GitHub 速率限制
+    retryableErrors: [403, 502, 503], // GitHub 速率限制
   }
-);
+)
 
 // 在 API 路由中使用
 export async function GET(request: NextRequest) {
   try {
-    const data = await fetchGitHubData('songzuo', '7zi');
-    return createSuccessResponse(data);
+    const data = await fetchGitHubData('songzuo', '7zi')
+    return createSuccessResponse(data)
   } catch (error) {
-    return createServiceUnavailableError('暂时无法获取数据，请稍后重试');
+    return createServiceUnavailableError('暂时无法获取数据，请稍后重试')
   }
 }
 ```
@@ -315,26 +331,26 @@ export async function GET(request: NextRequest) {
 创建 `src/lib/api/error-logger.ts`:
 
 ```typescript
-import { logger } from '../logger';
-import { ErrorType } from './error-handler';
+import { logger } from '../logger'
+import { ErrorType } from './error-handler'
 
 interface ErrorLogContext {
-  requestId?: string;
-  userId?: string;
-  ip?: string;
-  path?: string;
-  method?: string;
-  userAgent?: string;
-  duration?: number;
+  requestId?: string
+  userId?: string
+  ip?: string
+  path?: string
+  method?: string
+  userAgent?: string
+  duration?: number
 }
 
 interface ErrorLogData {
-  type: ErrorType | string;
-  message: string;
-  stack?: string;
-  statusCode?: number;
-  context: ErrorLogContext;
-  timestamp: string;
+  type: ErrorType | string
+  message: string
+  stack?: string
+  statusCode?: number
+  context: ErrorLogContext
+  timestamp: string
 }
 
 export function logApiError(
@@ -349,15 +365,15 @@ export function logApiError(
     statusCode: (error as any).statusCode,
     context,
     timestamp: new Date().toISOString(),
-  };
+  }
 
   // 根据错误严重程度选择日志级别
   if (errorData.statusCode && errorData.statusCode >= 500) {
-    logger.error('API Server Error', error, errorData);
+    logger.error('API Server Error', error, errorData)
   } else if (errorData.statusCode && errorData.statusCode >= 400) {
-    logger.warn('API Client Error', errorData);
+    logger.warn('API Client Error', errorData)
   } else {
-    logger.error('API Unknown Error', error, errorData);
+    logger.error('API Unknown Error', error, errorData)
   }
 
   // 发送到外部监控（如 Sentry、DataDog）
@@ -366,15 +382,12 @@ export function logApiError(
   }
 }
 
-export function logApiSuccess(
-  context: ErrorLogContext,
-  statusCode: number = 200
-) {
+export function logApiSuccess(context: ErrorLogContext, statusCode: number = 200) {
   logger.info('API Success', {
     ...context,
     statusCode,
     timestamp: new Date().toISOString(),
-  });
+  })
 }
 ```
 
@@ -382,27 +395,27 @@ export function logApiSuccess(
 
 ```typescript
 // src/middleware.ts
-import { NextResponse } from 'next/server';
-import type { NextRequest } from 'next/server';
+import { NextResponse } from 'next/server'
+import type { NextRequest } from 'next/server'
 
 export function middleware(request: NextRequest) {
   // 生成请求 ID
-  const requestId = crypto.randomUUID();
+  const requestId = crypto.randomUUID()
 
   // 添加到请求头
-  const requestHeaders = new Headers(request.headers);
-  requestHeaders.set('x-request-id', requestId);
+  const requestHeaders = new Headers(request.headers)
+  requestHeaders.set('x-request-id', requestId)
 
   const response = NextResponse.next({
     request: {
       headers: requestHeaders,
     },
-  });
+  })
 
   // 添加到响应头
-  response.headers.set('x-request-id', requestId);
+  response.headers.set('x-request-id', requestId)
 
-  return response;
+  return response
 }
 ```
 
@@ -415,101 +428,96 @@ export function middleware(request: NextRequest) {
 创建 `src/lib/api/user-messages.ts`:
 
 ```typescript
-import { ErrorType } from './error-handler';
-import { getTranslations } from 'next-intl/server';
+import { ErrorType } from './error-handler'
+import { getTranslations } from 'next-intl/server'
 
 interface UserErrorMapping {
-  type: ErrorType;
-  userMessage: (locale: string) => Promise<string>;
-  action: (locale: string) => Promise<string>;
+  type: ErrorType
+  userMessage: (locale: string) => Promise<string>
+  action: (locale: string) => Promise<string>
 }
 
 const ERROR_MAPPINGS: Record<ErrorType, UserErrorMapping> = {
   [ErrorType.VALIDATION]: {
-    userMessage: async (locale) => 
+    userMessage: async locale =>
       locale === 'zh' ? '输入信息有误，请检查后重试' : 'Invalid input, please check and try again',
-    action: async (locale) => 
-      locale === 'zh' ? '请检查表单字段' : 'Please check the form fields',
+    action: async locale => (locale === 'zh' ? '请检查表单字段' : 'Please check the form fields'),
   },
   [ErrorType.NOT_FOUND]: {
-    userMessage: async (locale) => 
+    userMessage: async locale =>
       locale === 'zh' ? '请求的资源不存在' : 'The requested resource was not found',
-    action: async (locale) => 
-      locale === 'zh' ? '返回上一页' : 'Go back',
+    action: async locale => (locale === 'zh' ? '返回上一页' : 'Go back'),
   },
   [ErrorType.UNAUTHORIZED]: {
-    userMessage: async (locale) => 
-      locale === 'zh' ? '请先登录' : 'Please log in',
-    action: async (locale) => 
-      locale === 'zh' ? '去登录' : 'Log in',
+    userMessage: async locale => (locale === 'zh' ? '请先登录' : 'Please log in'),
+    action: async locale => (locale === 'zh' ? '去登录' : 'Log in'),
   },
   [ErrorType.FORBIDDEN]: {
-    userMessage: async (locale) => 
-      locale === 'zh' ? '您没有权限访问此资源' : 'You do not have permission to access this resource',
-    action: async (locale) => 
-      locale === 'zh' ? '联系管理员' : 'Contact administrator',
+    userMessage: async locale =>
+      locale === 'zh'
+        ? '您没有权限访问此资源'
+        : 'You do not have permission to access this resource',
+    action: async locale => (locale === 'zh' ? '联系管理员' : 'Contact administrator'),
   },
   [ErrorType.RATE_LIMIT]: {
-    userMessage: async (locale) => 
+    userMessage: async locale =>
       locale === 'zh' ? '请求过于频繁，请稍后再试' : 'Too many requests, please try again later',
-    action: async (locale) => 
-      locale === 'zh' ? '等待 1 分钟' : 'Wait 1 minute',
+    action: async locale => (locale === 'zh' ? '等待 1 分钟' : 'Wait 1 minute'),
   },
   [ErrorType.INTERNAL]: {
-    userMessage: async (locale) => 
-      locale === 'zh' ? '服务器出错了，我们正在修复' : 'Something went wrong, we\'re fixing it',
-    action: async (locale) => 
-      locale === 'zh' ? '稍后重试' : 'Try again later',
+    userMessage: async locale =>
+      locale === 'zh' ? '服务器出错了，我们正在修复' : "Something went wrong, we're fixing it",
+    action: async locale => (locale === 'zh' ? '稍后重试' : 'Try again later'),
   },
   [ErrorType.BAD_REQUEST]: {
-    userMessage: async (locale) => 
-      locale === 'zh' ? '请求格式错误' : 'Invalid request format',
-    action: async (locale) => 
-      locale === 'zh' ? '刷新页面' : 'Refresh page',
+    userMessage: async locale => (locale === 'zh' ? '请求格式错误' : 'Invalid request format'),
+    action: async locale => (locale === 'zh' ? '刷新页面' : 'Refresh page'),
   },
   [ErrorType.SERVICE_UNAVAILABLE]: {
-    userMessage: async (locale) => 
-      locale === 'zh' ? '服务暂时不可用，请稍后重试' : 'Service temporarily unavailable, please try again later',
-    action: async (locale) => 
-      locale === 'zh' ? '等待后重试' : 'Wait and retry',
+    userMessage: async locale =>
+      locale === 'zh'
+        ? '服务暂时不可用，请稍后重试'
+        : 'Service temporarily unavailable, please try again later',
+    action: async locale => (locale === 'zh' ? '等待后重试' : 'Wait and retry'),
   },
   [ErrorType.REGISTRATION_FAILED]: {
-    userMessage: async (locale) => 
+    userMessage: async locale =>
       locale === 'zh' ? '注册失败，请重试' : 'Registration failed, please try again',
-    action: async (locale) => 
-      locale === 'zh' ? '检查邮箱格式' : 'Check email format',
+    action: async locale => (locale === 'zh' ? '检查邮箱格式' : 'Check email format'),
   },
   [ErrorType.WEAK_PASSWORD]: {
-    userMessage: async (locale) => 
-      locale === 'zh' ? '密码强度不够，请使用更复杂的密码' : 'Password is too weak, please use a stronger one',
-    action: async (locale) => 
-      locale === 'zh' ? '设置新密码' : 'Set new password',
+    userMessage: async locale =>
+      locale === 'zh'
+        ? '密码强度不够，请使用更复杂的密码'
+        : 'Password is too weak, please use a stronger one',
+    action: async locale => (locale === 'zh' ? '设置新密码' : 'Set new password'),
   },
   [ErrorType.MISSING_TOKEN]: {
-    userMessage: async (locale) => 
-      locale === 'zh' ? '认证令牌缺失，请重新登录' : 'Authentication token missing, please log in again',
-    action: async (locale) => 
-      locale === 'zh' ? '重新登录' : 'Log in again',
+    userMessage: async locale =>
+      locale === 'zh'
+        ? '认证令牌缺失，请重新登录'
+        : 'Authentication token missing, please log in again',
+    action: async locale => (locale === 'zh' ? '重新登录' : 'Log in again'),
   },
-};
+}
 
 export async function getUserFriendlyError(
   errorType: ErrorType,
   locale: string = 'zh'
 ): Promise<{ message: string; action: string }> {
-  const mapping = ERROR_MAPPINGS[errorType];
-  
+  const mapping = ERROR_MAPPINGS[errorType]
+
   if (!mapping) {
     return {
       message: locale === 'zh' ? '发生未知错误' : 'An unknown error occurred',
       action: locale === 'zh' ? '刷新页面' : 'Refresh page',
-    };
+    }
   }
 
   return {
     message: await mapping.userMessage(locale),
     action: await mapping.action(locale),
-  };
+  }
 }
 ```
 
@@ -520,16 +528,16 @@ export async function getUserFriendlyError(
 ```typescript
 // src/lib/api/error-handler.ts
 export interface ErrorResponse {
-  success: false;
+  success: false
   error: {
-    type: ErrorType;
-    message: string;        // 技术消息（开发环境）
-    userMessage?: string;    // 用户友好消息（所有环境）
-    action?: string;         // 建议的用户操作
-    details?: Record<string, unknown>;
-    timestamp: string;
-  };
-  requestId?: string;
+    type: ErrorType
+    message: string // 技术消息（开发环境）
+    userMessage?: string // 用户友好消息（所有环境）
+    action?: string // 建议的用户操作
+    details?: Record<string, unknown>
+    timestamp: string
+  }
+  requestId?: string
 }
 
 export async function createErrorResponse(
@@ -538,15 +546,15 @@ export async function createErrorResponse(
   details?: Record<string, unknown>,
   locale: string = 'zh'
 ): Promise<NextResponse<ErrorResponse>> {
-  const requestId = headers.get('x-request-id') || undefined;
-  const isDevelopment = process.env.NODE_ENV === 'development';
+  const requestId = headers.get('x-request-id') || undefined
+  const isDevelopment = process.env.NODE_ENV === 'development'
 
   // ... 获取 userMessage
-  let userMessage, action;
+  let userMessage, action
   if (error instanceof ApiError) {
-    const userError = await getUserFriendlyError(error.type, locale);
-    userMessage = userError.message;
-    action = userError.action;
+    const userError = await getUserFriendlyError(error.type, locale)
+    userMessage = userError.message
+    action = userError.action
   }
 
   return NextResponse.json(
@@ -563,7 +571,7 @@ export async function createErrorResponse(
       requestId,
     },
     { status: statusCode ?? 500 }
-  );
+  )
 }
 ```
 
@@ -576,7 +584,7 @@ export async function createErrorResponse(
 创建 `src/lib/api/timeout-wrapper.ts`:
 
 ```typescript
-import { createServiceUnavailableError } from './error-handler';
+import { createServiceUnavailableError } from './error-handler'
 
 export function withTimeout<T extends (...args: any[]) => Promise<any>>(
   fn: T,
@@ -585,19 +593,19 @@ export function withTimeout<T extends (...args: any[]) => Promise<any>>(
   return (async (...args: Parameters<T>) => {
     const timeoutPromise = new Promise((_, reject) => {
       setTimeout(() => {
-        reject(new Error('Request timeout'));
-      }, timeoutMs);
-    });
+        reject(new Error('Request timeout'))
+      }, timeoutMs)
+    })
 
     try {
-      return await Promise.race([fn(...args), timeoutPromise]);
+      return await Promise.race([fn(...args), timeoutPromise])
     } catch (error) {
       if (error instanceof Error && error.message === 'Request timeout') {
-        throw createServiceUnavailableError('请求超时，请稍后重试');
+        throw createServiceUnavailableError('请求超时，请稍后重试')
       }
-      throw error;
+      throw error
     }
-  }) as T;
+  }) as T
 }
 ```
 
@@ -608,13 +616,13 @@ export async function POST(request: NextRequest) {
   const handler = withTimeout(
     async () => {
       // 慢速操作
-      const result = await someSlowOperation();
-      return createSuccessResponse(result);
+      const result = await someSlowOperation()
+      return createSuccessResponse(result)
     },
-    10000  // 10 秒超时
-  );
+    10000 // 10 秒超时
+  )
 
-  return await handler();
+  return await handler()
 }
 ```
 
@@ -627,18 +635,18 @@ export async function POST(request: NextRequest) {
 创建 `src/lib/api/api-wrapper.ts`:
 
 ```typescript
-import { NextRequest, NextResponse } from 'next/server';
-import { withRetry } from './retry-decorator';
-import { withTimeout } from './timeout-wrapper';
-import { logApiError, logApiSuccess } from './error-logger';
-import { createErrorResponse } from './error-handler';
-import { getUserFriendlyError } from './user-messages';
+import { NextRequest, NextResponse } from 'next/server'
+import { withRetry } from './retry-decorator'
+import { withTimeout } from './timeout-wrapper'
+import { logApiError, logApiSuccess } from './error-logger'
+import { createErrorResponse } from './error-handler'
+import { getUserFriendlyError } from './user-messages'
 
 interface ApiWrapperConfig {
-  timeout?: number;
-  retry?: boolean | RetryConfig;
-  logError?: boolean;
-  locale?: string;
+  timeout?: number
+  retry?: boolean | RetryConfig
+  logError?: boolean
+  locale?: string
 }
 
 const DEFAULT_WRAPPER_CONFIG: Required<ApiWrapperConfig> = {
@@ -646,18 +654,18 @@ const DEFAULT_WRAPPER_CONFIG: Required<ApiWrapperConfig> = {
   retry: false,
   logError: true,
   locale: 'zh',
-};
+}
 
 export function withApiHandling<T extends (...args: any[]) => Promise<NextResponse>>(
   handler: T,
   config: ApiWrapperConfig = {}
 ): T {
-  const options = { ...DEFAULT_WRAPPER_CONFIG, ...config };
-  let wrappedHandler = handler;
+  const options = { ...DEFAULT_WRAPPER_CONFIG, ...config }
+  let wrappedHandler = handler
 
   // 添加超时
   if (options.timeout) {
-    wrappedHandler = withTimeout(wrappedHandler, options.timeout) as T;
+    wrappedHandler = withTimeout(wrappedHandler, options.timeout) as T
   }
 
   // 添加重试
@@ -665,15 +673,15 @@ export function withApiHandling<T extends (...args: any[]) => Promise<NextRespon
     wrappedHandler = withRetry(
       wrappedHandler,
       typeof options.retry === 'boolean' ? {} : options.retry
-    ) as T;
+    ) as T
   }
 
   // 返回最终包装器
   return (async (...args: Parameters<T>) => {
-    const startTime = Date.now();
-    const request = args[0] as NextRequest;
-    const requestId = request.headers.get('x-request-id');
-    
+    const startTime = Date.now()
+    const request = args[0] as NextRequest
+    const requestId = request.headers.get('x-request-id')
+
     // 提取上下文
     const context = {
       requestId: requestId || undefined,
@@ -681,38 +689,38 @@ export function withApiHandling<T extends (...args: any[]) => Promise<NextRespon
       path: request.nextUrl.pathname,
       method: request.method,
       userAgent: request.headers.get('user-agent'),
-    };
+    }
 
     try {
-      const response = await wrappedHandler(...args);
-      const duration = Date.now() - startTime;
+      const response = await wrappedHandler(...args)
+      const duration = Date.now() - startTime
 
       // 记录成功
       if (options.logError) {
-        logApiSuccess({ ...context, duration }, response.status);
+        logApiSuccess({ ...context, duration }, response.status)
       }
 
-      return response;
+      return response
     } catch (error) {
-      const duration = Date.now() - startTime;
-      const errorObj = error instanceof Error ? error : new Error(String(error));
+      const duration = Date.now() - startTime
+      const errorObj = error instanceof Error ? error : new Error(String(error))
 
       // 记录错误
       if (options.logError) {
-        logApiError(errorObj, { ...context, duration });
+        logApiError(errorObj, { ...context, duration })
       }
 
       // 返回错误响应
-      return await createErrorResponse(errorObj, undefined, undefined, options.locale);
+      return await createErrorResponse(errorObj, undefined, undefined, options.locale)
     }
-  }) as T;
+  }) as T
 }
 
 export async function createApiHandler(
   handler: (...args: any[]) => Promise<NextResponse>,
   config?: ApiWrapperConfig
 ) {
-  return withApiHandling(handler, config);
+  return withApiHandling(handler, config)
 }
 ```
 
@@ -720,22 +728,22 @@ export async function createApiHandler(
 
 ```typescript
 // src/app/api/projects/route.ts
-import { withApiHandling } from '@/lib/api/api-wrapper';
-import { createSuccessResponse } from '@/lib/api/error-handler';
+import { withApiHandling } from '@/lib/api/api-wrapper'
+import { createSuccessResponse } from '@/lib/api/error-handler'
 
 // 使用包装器
 export const GET = withApiHandling(
   async (request: NextRequest) => {
     // 业务逻辑
-    const data = await fetchProjects();
-    return createSuccessResponse(data);
+    const data = await fetchProjects()
+    return createSuccessResponse(data)
   },
   {
     timeout: 10000,
     retry: { maxRetries: 2, initialDelay: 500 },
     locale: request.headers.get('accept-language')?.startsWith('en') ? 'en' : 'zh',
   }
-);
+)
 ```
 
 ---
@@ -747,6 +755,7 @@ export const GET = withApiHandling(
 **时间估计**: 1-2 天
 
 **任务**:
+
 1. ✅ 创建 `src/lib/api/retry-decorator.ts`
 2. ✅ 创建 `src/lib/api/error-logger.ts`
 3. ✅ 创建 `src/lib/api/user-messages.ts`
@@ -756,6 +765,7 @@ export const GET = withApiHandling(
 7. ✅ 扩展 `ErrorResponse` 接口（添加 `userMessage`, `action`）
 
 **验收标准**:
+
 - 所有新文件有单元测试
 - 中间件正常生成请求 ID
 - 错误响应包含用户友好消息
@@ -767,6 +777,7 @@ export const GET = withApiHandling(
 **时间估计**: 2-3 天
 
 **任务**:
+
 1. 迁移核心 API 路由到 `withApiHandling`:
    - `/api/auth/route.ts`
    - `/api/users/route.ts`
@@ -777,25 +788,26 @@ export const GET = withApiHandling(
 4. 添加错误日志
 
 **示例**:
+
 ```typescript
 // before
 export async function POST(request: NextRequest) {
   try {
-    const body = await request.json();
+    const body = await request.json()
     // ...
   } catch (error) {
-    return createErrorResponse(error);
+    return createErrorResponse(error)
   }
 }
 
 // after
 export const POST = withApiHandling(
   async (request: NextRequest) => {
-    const body = await request.json();
+    const body = await request.json()
     // ...
   },
   { timeout: 15000, logError: true }
-);
+)
 ```
 
 ---
@@ -805,6 +817,7 @@ export const POST = withApiHandling(
 **时间估计**: 1-2 天
 
 **任务**:
+
 1. 在关键页面使用 `NetworkErrorBoundary`:
    - 仪表板页面
    - 项目列表页面
@@ -820,6 +833,7 @@ export const POST = withApiHandling(
 **时间估计**: 1 天
 
 **任务**:
+
 1. 集成 Sentry 或类似监控工具
 2. 配置错误告警规则:
    - 5xx 错误率 > 5%
@@ -833,6 +847,7 @@ export const POST = withApiHandling(
 **时间估计**: 0.5 天
 
 **任务**:
+
 1. 更新 `docs/API-REFERENCE.md` 错误处理章节:
    - 添加完整错误类型列表
    - 提供错误响应示例
@@ -852,26 +867,32 @@ export const POST = withApiHandling(
 // src/lib/api/__tests__/retry-decorator.test.ts
 describe('withRetry', () => {
   it('should retry on retryable errors', async () => {
-    let attempts = 0;
-    const fn = withRetry(async () => {
-      attempts++;
-      if (attempts < 3) throw new Error('ECONNRESET');
-      return 'success';
-    }, { maxRetries: 3 });
+    let attempts = 0
+    const fn = withRetry(
+      async () => {
+        attempts++
+        if (attempts < 3) throw new Error('ECONNRESET')
+        return 'success'
+      },
+      { maxRetries: 3 }
+    )
 
-    const result = await fn();
-    expect(result).toBe('success');
-    expect(attempts).toBe(3);
-  });
+    const result = await fn()
+    expect(result).toBe('success')
+    expect(attempts).toBe(3)
+  })
 
   it('should not retry on non-retryable errors', async () => {
-    const fn = withRetry(async () => {
-      throw new Error('Invalid input');
-    }, { maxRetries: 3 });
+    const fn = withRetry(
+      async () => {
+        throw new Error('Invalid input')
+      },
+      { maxRetries: 3 }
+    )
 
-    await expect(fn()).rejects.toThrow('Invalid input');
-  });
-});
+    await expect(fn()).rejects.toThrow('Invalid input')
+  })
+})
 ```
 
 ### 5.2 集成测试
@@ -885,13 +906,13 @@ describe('/api/auth/login', () => {
         method: 'POST',
         body: JSON.stringify({ username: 'wrong', password: 'wrong' }),
       })
-    );
+    )
 
-    const data = await response.json();
-    expect(data.success).toBe(false);
-    expect(data.error.userMessage).toBeDefined();
-    expect(data.error.action).toBeDefined();
-  });
+    const data = await response.json()
+    expect(data.success).toBe(false)
+    expect(data.error.userMessage).toBeDefined()
+    expect(data.error.action).toBeDefined()
+  })
 
   it('should include request ID', async () => {
     const response = await POST(
@@ -900,11 +921,11 @@ describe('/api/auth/login', () => {
         headers: { 'x-request-id': 'test-123' },
         body: JSON.stringify({ username: 'wrong', password: 'wrong' }),
       })
-    );
+    )
 
-    expect(response.headers.get('x-request-id')).toBe('test-123');
-  });
-});
+    expect(response.headers.get('x-request-id')).toBe('test-123')
+  })
+})
 ```
 
 ---
@@ -948,7 +969,7 @@ export const API_CONFIG = {
     external: parseInt(process.env.API_TIMEOUT_EXTERNAL || '60000', 10),
   },
   retryableErrors: [503, 502, 504, 'ECONNRESET', 'ETIMEDOUT'],
-} as const;
+} as const
 ```
 
 ---
@@ -957,12 +978,12 @@ export const API_CONFIG = {
 
 ### 7.1 潜在风险
 
-| 风险 | 影响 | 缓解措施 |
-|------|------|----------|
-| 重试导致重复请求 | 数据一致性 | 幂等性设计 |
-| 超时时间过短 | 用户体验差 | 根据实际操作调整 |
-| 日志量过大 | 性能影响 | 异步日志 + 日志聚合 |
-| 错误消息本地化延迟 | 开发周期 | 优先中文，逐步添加英文 |
+| 风险               | 影响       | 缓解措施               |
+| ------------------ | ---------- | ---------------------- |
+| 重试导致重复请求   | 数据一致性 | 幂等性设计             |
+| 超时时间过短       | 用户体验差 | 根据实际操作调整       |
+| 日志量过大         | 性能影响   | 异步日志 + 日志聚合    |
+| 错误消息本地化延迟 | 开发周期   | 优先中文，逐步添加英文 |
 
 ### 7.2 实施注意事项
 
@@ -977,24 +998,27 @@ export const API_CONFIG = {
 
 ### 8.1 改进收益
 
-| 方面 | 改进前 | 改进后 |
-|------|--------|--------|
-| **用户体验** | 技术错误消息、无重试 | 友好提示、自动重试 |
-| **调试效率** | 日志不完整 | 结构化日志 + 请求追踪 |
-| **系统稳定性** | 网络波动易失败 | 重试 + 退避策略 |
-| **运维监控** | 无聚合统计 | 错误告警 + 仪表板 |
+| 方面           | 改进前               | 改进后                |
+| -------------- | -------------------- | --------------------- |
+| **用户体验**   | 技术错误消息、无重试 | 友好提示、自动重试    |
+| **调试效率**   | 日志不完整           | 结构化日志 + 请求追踪 |
+| **系统稳定性** | 网络波动易失败       | 重试 + 退避策略       |
+| **运维监控**   | 无聚合统计           | 错误告警 + 仪表板     |
 
 ### 8.2 优先级建议
 
 **立即实施 (本周)**:
+
 - ✅ 创建基础设施文件 (阶段 1)
 - ✅ 迁移核心认证 API (阶段 2 部分)
 
 **短期实施 (2 周)**:
+
 - ✅ 完成所有 API 路由迁移 (阶段 2)
 - ✅ 前端错误边界增强 (阶段 3)
 
 **中长期实施 (1 个月)**:
+
 - ✅ 监控集成 (阶段 4)
 - ✅ 文档更新 (阶段 5)
 
@@ -1002,19 +1026,19 @@ export const API_CONFIG = {
 
 ## 附录 A: 错误类型快速参考
 
-| ErrorType | HTTP 状态码 | 重试 | 示例场景 |
-|-----------|-------------|------|----------|
-| VALIDATION | 400 | ❌ | 表单验证失败 |
-| UNAUTHORIZED | 401 | ❌ | 未登录 |
-| FORBIDDEN | 403 | ❌ | 权限不足 |
-| NOT_FOUND | 404 | ❌ | 资源不存在 |
-| BAD_REQUEST | 400 | ❌ | 请求格式错误 |
-| RATE_LIMIT | 429 | ⏱️ | 速率限制 (延迟后重试) |
-| SERVICE_UNAVAILABLE | 503 | ✅ | 服务暂时不可用 |
-| INTERNAL | 500 | ✅ | 服务器内部错误 |
-| REGISTRATION_FAILED | 400 | ❌ | 注册失败 |
-| WEAK_PASSWORD | 400 | ❌ | 密码强度不足 |
-| MISSING_TOKEN | 401 | ❌ | 缺少令牌 |
+| ErrorType           | HTTP 状态码 | 重试 | 示例场景              |
+| ------------------- | ----------- | ---- | --------------------- |
+| VALIDATION          | 400         | ❌   | 表单验证失败          |
+| UNAUTHORIZED        | 401         | ❌   | 未登录                |
+| FORBIDDEN           | 403         | ❌   | 权限不足              |
+| NOT_FOUND           | 404         | ❌   | 资源不存在            |
+| BAD_REQUEST         | 400         | ❌   | 请求格式错误          |
+| RATE_LIMIT          | 429         | ⏱️   | 速率限制 (延迟后重试) |
+| SERVICE_UNAVAILABLE | 503         | ✅   | 服务暂时不可用        |
+| INTERNAL            | 500         | ✅   | 服务器内部错误        |
+| REGISTRATION_FAILED | 400         | ❌   | 注册失败              |
+| WEAK_PASSWORD       | 400         | ❌   | 密码强度不足          |
+| MISSING_TOKEN       | 401         | ❌   | 缺少令牌              |
 
 ---
 
@@ -1026,5 +1050,5 @@ export const API_CONFIG = {
 
 **文档结束**
 
-*审查完成日期: 2026-03-22*  
-*下一步: 等待主管审批后开始实施*
+_审查完成日期: 2026-03-22_  
+_下一步: 等待主管审批后开始实施_

@@ -12,44 +12,41 @@
 
 ```typescript
 class MetaLearningEngine {
-  private learningStrategies: LearningStrategy[] = [];
-  private performanceHistory: Map<string, number[]> = new Map();
+  private learningStrategies: LearningStrategy[] = []
+  private performanceHistory: Map<string, number[]> = new Map()
 
-  async optimizeLearning(
-    agentId: string,
-    recentPerformance: number[]
-  ): Promise<LearningStrategy> {
+  async optimizeLearning(agentId: string, recentPerformance: number[]): Promise<LearningStrategy> {
     // 1. 记录性能
-    this.recordPerformance(agentId, recentPerformance);
+    this.recordPerformance(agentId, recentPerformance)
 
     // 2. 分析学习效果
-    const learningEffectiveness = this.analyzeLearningEffectiveness(agentId);
+    const learningEffectiveness = this.analyzeLearningEffectiveness(agentId)
 
     // 3. 选择最优学习策略
-    const bestStrategy = this.selectBestStrategy(learningEffectiveness);
+    const bestStrategy = this.selectBestStrategy(learningEffectiveness)
 
     // 4. 调整学习参数
-    const adjustedParams = this.adjustParameters(bestStrategy);
+    const adjustedParams = this.adjustParameters(bestStrategy)
 
     return {
       strategy: bestStrategy,
       parameters: adjustedParams,
       reasoning: this.explainSelection(learningEffectiveness, bestStrategy),
-    };
+    }
   }
 
   private analyzeLearningEffectiveness(agentId: string): LearningMetrics {
-    const history = this.performanceHistory.get(agentId) || [];
-    const recent = history.slice(-50); // 最近50次
+    const history = this.performanceHistory.get(agentId) || []
+    const recent = history.slice(-50) // 最近50次
 
     // 计算改进率
-    const improvementRate = this.calculateImprovementRate(recent);
+    const improvementRate = this.calculateImprovementRate(recent)
 
     // 计算稳定性
-    const stability = this.calculateStability(recent);
+    const stability = this.calculateStability(recent)
 
     // 计算收敛速度
-    const convergence = this.calculateConvergenceSpeed(recent);
+    const convergence = this.calculateConvergenceSpeed(recent)
 
     return {
       improvementRate,
@@ -57,27 +54,27 @@ class MetaLearningEngine {
       convergence,
       plateauDetection: this.detectPlateau(recent),
       overfittingDetection: this.detectOverfitting(recent),
-    };
+    }
   }
 
   private selectBestStrategy(metrics: LearningMetrics): LearningStrategy {
     // 如果检测到平台期，增加探索
     if (metrics.plateauDetected) {
-      return LearningStrategy.EXPLORATIVE;
+      return LearningStrategy.EXPLORATIVE
     }
 
     // 如果检测到过拟合，降低学习率
     if (metrics.overfittingDetection) {
-      return LearningStrategy.CONSERVATIVE;
+      return LearningStrategy.CONSERVATIVE
     }
 
     // 如果改进率稳定，平衡探索和利用
     if (metrics.improvementRate > 0.05 && metrics.stability > 0.8) {
-      return LearningStrategy.BALANCED;
+      return LearningStrategy.BALANCED
     }
 
     // 默认策略
-    return LearningStrategy.DEFAULT;
+    return LearningStrategy.DEFAULT
   }
 }
 
@@ -96,53 +93,41 @@ enum LearningStrategy {
 
 ```typescript
 interface KnowledgeGraph {
-  nodes: KnowledgeNode[];
-  edges: KnowledgeEdge[];
-  version: string;
-  lastUpdated: number;
+  nodes: KnowledgeNode[]
+  edges: KnowledgeEdge[]
+  version: string
+  lastUpdated: number
 }
 
 interface KnowledgeNode {
-  id: string;
-  type: NodeType;
-  content: unknown;
-  confidence: number;
-  source: KnowledgeSource;
-  createdAt: number;
-  updatedAt: number;
-  tags: string[];
+  id: string
+  type: NodeType
+  content: unknown
+  confidence: number
+  source: KnowledgeSource
+  createdAt: number
+  updatedAt: number
+  tags: string[]
 }
 
 interface KnowledgeEdge {
-  id: string;
-  source: string;
-  target: string;
-  type: EdgeType;
-  weight: number;
-  confidence: number;
-  evidence: Evidence[];
+  id: string
+  source: string
+  target: string
+  type: EdgeType
+  weight: number
+  confidence: number
+  evidence: Evidence[]
 }
 
-type NodeType =
-  | 'strategy'
-  | 'pattern'
-  | 'context'
-  | 'feedback'
-  | 'recommendation'
-  | 'lesson';
+type NodeType = 'strategy' | 'pattern' | 'context' | 'feedback' | 'recommendation' | 'lesson'
 
-type EdgeType =
-  | 'causes'
-  | 'prevents'
-  | 'solves'
-  | 'related_to'
-  | 'contradicts'
-  | 'improves';
+type EdgeType = 'causes' | 'prevents' | 'solves' | 'related_to' | 'contradicts' | 'improves'
 
 interface Evidence {
-  source: string;
-  timestamp: number;
-  strength: number;
+  source: string
+  timestamp: number
+  strength: number
 }
 ```
 
@@ -150,20 +135,20 @@ interface Evidence {
 
 ```typescript
 class KnowledgeGraphManager {
-  private graph: KnowledgeGraph;
+  private graph: KnowledgeGraph
 
   async addKnowledge(
     node: Partial<KnowledgeNode>,
     edges: Partial<KnowledgeEdge>[]
   ): Promise<string> {
     // 1. 检查是否已存在相似节点
-    const existingNode = this.findSimilarNode(node);
-    let nodeId: string;
+    const existingNode = this.findSimilarNode(node)
+    let nodeId: string
 
     if (existingNode) {
       // 更新现有节点
-      nodeId = existingNode.id;
-      this.updateNodeConfidence(nodeId, node.confidence || 0.5);
+      nodeId = existingNode.id
+      this.updateNodeConfidence(nodeId, node.confidence || 0.5)
     } else {
       // 创建新节点
       const newNode: KnowledgeNode = {
@@ -175,9 +160,9 @@ class KnowledgeGraphManager {
         createdAt: Date.now(),
         updatedAt: Date.now(),
         tags: node.tags || [],
-      };
-      this.graph.nodes.push(newNode);
-      nodeId = newNode.id;
+      }
+      this.graph.nodes.push(newNode)
+      nodeId = newNode.id
     }
 
     // 2. 添加边
@@ -188,52 +173,46 @@ class KnowledgeGraphManager {
         id: this.generateId(),
         confidence: edge.confidence || 0.5,
         evidence: [],
-      });
+      })
     }
 
-    return nodeId;
+    return nodeId
   }
 
   async updateNodeConfidence(nodeId: string, delta: number): Promise<void> {
-    const node = this.graph.nodes.find(n => n.id === nodeId);
-    if (!node) return;
+    const node = this.graph.nodes.find(n => n.id === nodeId)
+    if (!node) return
 
     // 使用贝叶斯更新
-    const alpha = node.confidence * 10;
-    const beta = (1 - node.confidence) * 10;
-    const newAlpha = alpha + (delta > 0 ? 1 : 0);
-    const newBeta = beta + (delta < 0 ? 1 : 0);
+    const alpha = node.confidence * 10
+    const beta = (1 - node.confidence) * 10
+    const newAlpha = alpha + (delta > 0 ? 1 : 0)
+    const newBeta = beta + (delta < 0 ? 1 : 0)
 
-    node.confidence = newAlpha / (newAlpha + newBeta);
-    node.updatedAt = Date.now();
+    node.confidence = newAlpha / (newAlpha + newBeta)
+    node.updatedAt = Date.now()
 
     // 清理低置信度节点
     if (node.confidence < 0.3) {
-      this.pruneNode(nodeId);
+      this.pruneNode(nodeId)
     }
   }
 
-  queryKnowledge(
-    query: KnowledgeQuery
-  ): KnowledgeQueryResult {
+  queryKnowledge(query: KnowledgeQuery): KnowledgeQueryResult {
     // 基于图遍历和语义相似度查询
-    const matchedNodes = this.graph.nodes.filter(node =>
-      this.matchesQuery(node, query)
-    );
+    const matchedNodes = this.graph.nodes.filter(node => this.matchesQuery(node, query))
 
     // 按置信度排序
-    matchedNodes.sort((a, b) => b.confidence - a.confidence);
+    matchedNodes.sort((a, b) => b.confidence - a.confidence)
 
     // 获取相关节点（通过边连接）
-    const relatedNodes = this.getRelatedNodes(
-      matchedNodes.slice(0, 10).map(n => n.id)
-    );
+    const relatedNodes = this.getRelatedNodes(matchedNodes.slice(0, 10).map(n => n.id))
 
     return {
       directMatches: matchedNodes,
       relatedMatches: relatedNodes,
       confidence: this.calculateQueryConfidence(matchedNodes),
-    };
+    }
   }
 }
 ```
@@ -242,59 +221,59 @@ class KnowledgeGraphManager {
 
 **评估指标**:
 
-| 指标 | 说明 | 计算方式 |
-|------|------|----------|
-| **学习速度** | 性能提升速度 | Δ性能 / Δ时间 |
-| **学习稳定性** | 性能波动程度 | 1 - 标准差 / 平均值 |
-| **知识覆盖率** | 已学习模式 / 总模式 | 已识别模式数 / 估计总模式数 |
-| **知识准确率** | 应用学习知识的成功率 | 成功应用次数 / 总应用次数 |
-| **泛化能力** | 新情境下表现 | 新情境成功率 / 已知情境成功率 |
-| **遗忘率** | 知识遗忘速度 | 知识减少 / 时间 |
+| 指标           | 说明                 | 计算方式                      |
+| -------------- | -------------------- | ----------------------------- |
+| **学习速度**   | 性能提升速度         | Δ性能 / Δ时间                 |
+| **学习稳定性** | 性能波动程度         | 1 - 标准差 / 平均值           |
+| **知识覆盖率** | 已学习模式 / 总模式  | 已识别模式数 / 估计总模式数   |
+| **知识准确率** | 应用学习知识的成功率 | 成功应用次数 / 总应用次数     |
+| **泛化能力**   | 新情境下表现         | 新情境成功率 / 已知情境成功率 |
+| **遗忘率**     | 知识遗忘速度         | 知识减少 / 时间               |
 
 **评估报告**:
 
 ```typescript
 interface LearningAssessmentReport {
-  agentId: string;
+  agentId: string
   period: {
-    start: number;
-    end: number;
-  };
+    start: number
+    end: number
+  }
   metrics: {
-    learningSpeed: number;
-    stability: number;
-    knowledgeCoverage: number;
-    knowledgeAccuracy: number;
-    generalization: number;
-    forgettingRate: number;
-  };
-  topLearnedPatterns: LearnedPattern[];
-  areasForImprovement: string[];
-  recommendations: string[];
+    learningSpeed: number
+    stability: number
+    knowledgeCoverage: number
+    knowledgeAccuracy: number
+    generalization: number
+    forgettingRate: number
+  }
+  topLearnedPatterns: LearnedPattern[]
+  areasForImprovement: string[]
+  recommendations: string[]
 }
 ```
 
 ### 3.5 实施路线图
 
-| 阶段 | 功能 | 完成度 | 里程碑 |
-|------|------|--------|--------|
-| **Phase 1** (Week 1-2) | 反馈学习层 | 0% | 基础反馈收集和模式存储 |
-| **Phase 2** (Week 3-4) | 模式识别层 | 0% | 成功/失败模式识别准确率 >80% |
-| **Phase 3** (Week 5-6) | 知识图谱基础 | 0% | 知识节点 1000+，边 5000+ |
-| **Phase 4** (Week 7-8) | 元学习引擎 MVP | 0% | 学习策略自动选择准确率 >70% |
-| **Phase 5** (Week 9-10) | 学习效果评估 | 0% | 完整评估报告生成 |
-| **Phase 6** (Week 11-12) | 集成优化 | 0% | 系统级学习效果提升 >30% |
+| 阶段                     | 功能           | 完成度 | 里程碑                       |
+| ------------------------ | -------------- | ------ | ---------------------------- |
+| **Phase 1** (Week 1-2)   | 反馈学习层     | 0%     | 基础反馈收集和模式存储       |
+| **Phase 2** (Week 3-4)   | 模式识别层     | 0%     | 成功/失败模式识别准确率 >80% |
+| **Phase 3** (Week 5-6)   | 知识图谱基础   | 0%     | 知识节点 1000+，边 5000+     |
+| **Phase 4** (Week 7-8)   | 元学习引擎 MVP | 0%     | 学习策略自动选择准确率 >70%  |
+| **Phase 5** (Week 9-10)  | 学习效果评估   | 0%     | 完整评估报告生成             |
+| **Phase 6** (Week 11-12) | 集成优化       | 0%     | 系统级学习效果提升 >30%      |
 
 ### 3.6 成功指标
 
-| 指标 | 当前 (v1.7.0) | 目标 (v1.8.0) | 提升 |
-|------|--------------|---------------|------|
-| 学习速度（性能/月） | N/A | >15% | 新功能 |
-| 知识覆盖率 | N/A | >60% | 新功能 |
-| 知识应用准确率 | N/A | >75% | 新功能 |
-| 泛化能力（新情境/旧情境） | N/A | >80% | 新功能 |
-| 任务重复错误率 | ~15% | <5% | -67% |
-| 人工干预减少率 | N/A | >40% | 新功能 |
+| 指标                      | 当前 (v1.7.0) | 目标 (v1.8.0) | 提升   |
+| ------------------------- | ------------- | ------------- | ------ |
+| 学习速度（性能/月）       | N/A           | >15%          | 新功能 |
+| 知识覆盖率                | N/A           | >60%          | 新功能 |
+| 知识应用准确率            | N/A           | >75%          | 新功能 |
+| 泛化能力（新情境/旧情境） | N/A           | >80%          | 新功能 |
+| 任务重复错误率            | ~15%          | <5%           | -67%   |
+| 人工干预减少率            | N/A           | >40%          | 新功能 |
 
 ---
 
@@ -303,11 +282,13 @@ interface LearningAssessmentReport {
 ### 4.1 当前交互模式分析 (v1.7.0)
 
 **交互方式**:
+
 - 📝 **文本指令** - 通过聊天界面发送指令
 - 🖱️ **GUI 操作** - 通过 Dashboard 点击操作
 - 📊 **数据查看** - 查看状态、进度、结果
 
 **局限性**:
+
 - ❌ 需要明确指令，不支持模糊意图
 - ❌ 交互方式单一，缺乏自然对话体验
 - ❌ 决策过程不透明，难以建立信任
@@ -338,57 +319,59 @@ interface LearningAssessmentReport {
 **核心技术**:
 
 1. **意图理解**:
+
 ```typescript
 interface IntentUnderstandingEngine {
-  understand(userInput: string): Promise<Intent>;
+  understand(userInput: string): Promise<Intent>
 }
 
 interface Intent {
-  primaryAction: string;
-  entities: Entity[];
-  context: Context;
-  confidence: number;
-  clarificationsNeeded?: Clarification[];
+  primaryAction: string
+  entities: Entity[]
+  context: Context
+  confidence: number
+  clarificationsNeeded?: Clarification[]
 }
 
 interface Entity {
-  type: 'time' | 'data' | 'metric' | 'task' | 'role' | 'other';
-  value: unknown;
-  confidence: number;
+  type: 'time' | 'data' | 'metric' | 'task' | 'role' | 'other'
+  value: unknown
+  confidence: number
 }
 
 interface Clarification {
-  question: string;
-  options?: string[];
-  required: boolean;
+  question: string
+  options?: string[]
+  required: boolean
 }
 ```
 
 2. **对话管理**:
+
 ```typescript
 class ConversationManager {
-  private conversationState: ConversationState;
+  private conversationState: ConversationState
 
   async processMessage(
     message: UserMessage,
     context: ConversationContext
   ): Promise<SystemResponse> {
     // 1. 理解意图
-    const intent = await this.understandIntent(message, context);
+    const intent = await this.understandIntent(message, context)
 
     // 2. 检查是否需要澄清
     if (intent.clarificationsNeeded && intent.clarificationsNeeded.length > 0) {
-      return this.askClarifications(intent.clarificationsNeeded);
+      return this.askClarifications(intent.clarificationsNeeded)
     }
 
     // 3. 更新对话状态
-    this.conversationState = this.updateState(intent);
+    this.conversationState = this.updateState(intent)
 
     // 4. 执行任务
-    const result = await this.executeIntent(intent);
+    const result = await this.executeIntent(intent)
 
     // 5. 生成响应
-    return this.generateResponse(result, intent);
+    return this.generateResponse(result, intent)
   }
 
   private async understandIntent(
@@ -396,10 +379,10 @@ class ConversationManager {
     context: ConversationContext
   ): Promise<Intent> {
     // 使用 LLM 进行意图理解
-    const prompt = this.buildPrompt(message, context);
-    const response = await this.llm.complete(prompt);
+    const prompt = this.buildPrompt(message, context)
+    const response = await this.llm.complete(prompt)
 
-    return this.parseIntent(response);
+    return this.parseIntent(response)
   }
 }
 ```
@@ -409,43 +392,45 @@ class ConversationManager {
 **可解释性体系**:
 
 1. **决策日志**:
+
 ```typescript
 interface DecisionLog {
-  id: string;
-  taskId: string;
-  decisionType: DecisionType;
-  reasoning: string;
-  alternatives: Alternative[];
-  selectedAlternative: Alternative;
-  confidence: number;
-  timestamp: number;
+  id: string
+  taskId: string
+  decisionType: DecisionType
+  reasoning: string
+  alternatives: Alternative[]
+  selectedAlternative: Alternative
+  confidence: number
+  timestamp: number
 }
 
 interface Alternative {
-  id: string;
-  description: string;
-  pros: string[];
-  cons: string[];
-  estimatedOutcome: Outcome;
-  score: number;
+  id: string
+  description: string
+  pros: string[]
+  cons: string[]
+  estimatedOutcome: Outcome
+  score: number
 }
 
 interface DecisionExplanation {
-  decisionId: string;
-  summary: string;
-  detailedReasoning: string;
-  visualizations: DecisionVisualization[];
-  relatedContexts: string[];
+  decisionId: string
+  summary: string
+  detailedReasoning: string
+  visualizations: DecisionVisualization[]
+  relatedContexts: string[]
 }
 ```
 
 2. **决策可视化**:
+
 ```typescript
 interface DecisionVisualization {
-  type: 'timeline' | 'tree' | 'comparison' | 'flowchart';
-  data: unknown;
-  title: string;
-  description: string;
+  type: 'timeline' | 'tree' | 'comparison' | 'flowchart'
+  data: unknown
+  title: string
+  description: string
 }
 
 // 示例：决策树可视化
@@ -456,7 +441,7 @@ class DecisionTreeVisualizer {
       data: this.buildTree(decisionLog),
       title: '决策路径',
       description: '展示决策的推理过程',
-    };
+    }
   }
 
   private buildTree(decisionLog: DecisionLog): TreeNode {
@@ -471,12 +456,13 @@ class DecisionTreeVisualizer {
         selected: alt.id === decisionLog.selectedAlternative.id,
         children: [],
       })),
-    };
+    }
   }
 }
 ```
 
 3. **交互式解释界面**:
+
 ```
 [决策详情面板]
 ┌─────────────────────────────────────────┐
@@ -506,43 +492,41 @@ class DecisionTreeVisualizer {
 **能力**:
 
 1. **任务预测**:
+
 ```typescript
 interface TaskPrediction {
-  predictedTasks: PredictedTask[];
-  reasoning: string;
-  confidence: number;
+  predictedTasks: PredictedTask[]
+  reasoning: string
+  confidence: number
 }
 
 interface PredictedTask {
-  description: string;
-  priority: Priority;
-  estimatedStartTime: number;
-  likelihood: number;
-  dependencies: string[];
+  description: string
+  priority: Priority
+  estimatedStartTime: number
+  likelihood: number
+  dependencies: string[]
 }
 
 class TaskPredictor {
   predictNextTasks(context: PredictionContext): TaskPrediction {
     // 基于历史模式预测
-    const historicalPatterns = this.analyzeHistoricalPatterns(context);
+    const historicalPatterns = this.analyzeHistoricalPatterns(context)
 
     // 基于当前状态预测
-    const currentState = this.analyzeCurrentState(context);
+    const currentState = this.analyzeCurrentState(context)
 
     // 基于周期性预测
-    const periodicPatterns = this.analyzePeriodicPatterns(context);
+    const periodicPatterns = this.analyzePeriodicPatterns(context)
 
     // 综合预测
-    return this.combinePredictions(
-      historicalPatterns,
-      currentState,
-      periodicPatterns
-    );
+    return this.combinePredictions(historicalPatterns, currentState, periodicPatterns)
   }
 }
 ```
 
 2. **主动建议**:
+
 ```typescript
 interface SuggestionEngine {
   generateSuggestions(context: SuggestionContext): Suggestion[];
@@ -592,6 +576,7 @@ type SuggestionType =
 ```
 
 3. **风险预警**:
+
 ```typescript
 interface RiskPrediction {
   id: string;
@@ -649,99 +634,95 @@ type RiskType =
 **个性化维度**:
 
 1. **交互风格偏好**:
+
 ```typescript
 interface UserInteractionPreferences {
-  communicationStyle: 'concise' | 'detailed' | 'conversational';
-  responseLength: 'short' | 'medium' | 'long';
-  notificationFrequency: 'immediate' | 'batched' | 'digest';
-  decisionExplanationLevel: 'summary' | 'standard' | 'detailed';
-  proactiveSuggestions: boolean;
+  communicationStyle: 'concise' | 'detailed' | 'conversational'
+  responseLength: 'short' | 'medium' | 'long'
+  notificationFrequency: 'immediate' | 'batched' | 'digest'
+  decisionExplanationLevel: 'summary' | 'standard' | 'detailed'
+  proactiveSuggestions: boolean
   visualPreferences: {
-    theme: string;
-    dataVisualization: 'minimal' | 'standard' | 'comprehensive';
-    chartTypes: string[];
-  };
+    theme: string
+    dataVisualization: 'minimal' | 'standard' | 'comprehensive'
+    chartTypes: string[]
+  }
   languagePreferences: {
-    primary: string;
-    secondary?: string;
-    formality: 'formal' | 'casual';
-  };
+    primary: string
+    secondary?: string
+    formality: 'formal' | 'casual'
+  }
 }
 
 class InteractionPersonalizer {
-  adaptResponse(
-    content: string,
-    preferences: UserInteractionPreferences
-  ): string {
-    let adapted = content;
+  adaptResponse(content: string, preferences: UserInteractionPreferences): string {
+    let adapted = content
 
     // 1. 调整详细程度
     if (preferences.responseLength === 'short') {
-      adapted = this.summarize(adapted);
+      adapted = this.summarize(adapted)
     } else if (preferences.responseLength === 'long') {
-      adapted = this.expand(adapted);
+      adapted = this.expand(adapted)
     }
 
     // 2. 调整交流风格
     if (preferences.communicationStyle === 'concise') {
-      adapted = this.makeConcise(adapted);
+      adapted = this.makeConcise(adapted)
     } else if (preferences.communicationStyle === 'conversational') {
-      adapted = this.makeConversational(adapted);
+      adapted = this.makeConversational(adapted)
     }
 
     // 3. 调整语言风格
     if (preferences.languagePreferences.formality === 'casual') {
-      adapted = this.makeCasual(adapted);
+      adapted = this.makeCasual(adapted)
     }
 
-    return adapted;
+    return adapted
   }
 }
 ```
 
 2. **上下文感知交互**:
+
 ```typescript
 interface ContextAwareInteraction {
-  understandContext(): ContextInsights;
-  adaptToContext(context: ContextInsights): AdaptedContent;
+  understandContext(): ContextInsights
+  adaptToContext(context: ContextInsights): AdaptedContent
 }
 
 interface ContextInsights {
-  currentWorkload: WorkloadLevel;
-  timeOfDay: TimeOfDay;
-  userMood?: 'stressed' | 'relaxed' | 'focused' | 'tired';
-  recentFailures: number;
-  recentSuccesses: number;
-  upcomingDeadlines: Deadline[];
-  location?: 'office' | 'home' | 'mobile';
+  currentWorkload: WorkloadLevel
+  timeOfDay: TimeOfDay
+  userMood?: 'stressed' | 'relaxed' | 'focused' | 'tired'
+  recentFailures: number
+  recentSuccesses: number
+  upcomingDeadlines: Deadline[]
+  location?: 'office' | 'home' | 'mobile'
 }
 
 // 示例：根据上下文调整交互
 class ContextAdapter {
-  adapt(
-    content: string,
-    context: ContextInsights
-  ): AdaptedContent {
-    let adapted = content;
+  adapt(content: string, context: ContextInsights): AdaptedContent {
+    let adapted = content
 
     // 如果用户压力大，提供更多支持
     if (context.userMood === 'stressed') {
-      adapted = this.addSupportiveElements(adapted);
-      adapted = this.reduceComplexity(adapted);
-      adapted = this.offerHelp(adapted);
+      adapted = this.addSupportiveElements(adapted)
+      adapted = this.reduceComplexity(adapted)
+      adapted = this.offerHelp(adapted)
     }
 
     // 如果是深夜，减少通知频率
     if (context.timeOfDay === 'late_night') {
-      adapted = this.bundleNotifications(adapted);
+      adapted = this.bundleNotifications(adapted)
     }
 
     // 如果有临近截止日期，优先显示相关内容
     if (context.upcomingDeadlines.length > 0) {
-      adapted = this.highlightDeadlines(adapted, context.upcomingDeadlines);
+      adapted = this.highlightDeadlines(adapted, context.upcomingDeadlines)
     }
 
-    return adapted;
+    return adapted
   }
 }
 ```
@@ -751,6 +732,7 @@ class ContextAdapter {
 #### 4.3.1 智能对话界面
 
 **特性**:
+
 - 💬 自然语言对话
 - 🧠 上下文理解
 - 📝 意图确认
@@ -760,6 +742,7 @@ class ContextAdapter {
 - 🎯 快捷操作
 
 **界面布局**:
+
 ```
 ┌─────────────────────────────────────────────────────────┐
 │ 7zi AI 智能助手                           [设置] [历史] │
@@ -785,6 +768,7 @@ class ContextAdapter {
 #### 4.3.2 决策透明化仪表板
 
 **特性**:
+
 - 📊 决策流程可视化
 - 🔍 深入分析决策依据
 - 💾 决策历史追溯
@@ -792,6 +776,7 @@ class ContextAdapter {
 - 📝 决策反馈收集
 
 **界面布局**:
+
 ```
 ┌─────────────────────────────────────────────────────────┐
 │ 决策透明化仪表板                          [筛选] [导出] │
@@ -825,6 +810,7 @@ class ContextAdapter {
 #### 4.3.3 主动建议中心
 
 **特性**:
+
 - 💡 智能建议生成
 - 📊 建议效果预测
 - ✅ 一键采纳建议
@@ -832,6 +818,7 @@ class ContextAdapter {
 - 🎯 优先级排序
 
 **界面布局**:
+
 ```
 ┌─────────────────────────────────────────────────────────┐
 │ 💡 主动建议中心                             [全部] [未读] │
@@ -857,24 +844,24 @@ class ContextAdapter {
 
 ### 4.4 实施路线图
 
-| 阶段 | 功能 | 完成度 | 里程碑 |
-|------|------|--------|--------|
-| **Phase 1** (Week 1-3) | 自然语言交互增强 | 0% | 意图理解准确率 >85% |
-| **Phase 2** (Week 4-6) | 决策透明化 | 0% | 决策日志覆盖率 100% |
-| **Phase 3** (Week 7-9) | 主动建议系统 | 0% | 建议采纳率 >40% |
-| **Phase 4** (Week 10-11) | 个性化交互 | 0% | 用户满意度 >90% |
-| **Phase 5** (Week 12-13) | 新交互界面 | 0% | 界面可用性评分 >4.5/5 |
+| 阶段                     | 功能             | 完成度 | 里程碑                |
+| ------------------------ | ---------------- | ------ | --------------------- |
+| **Phase 1** (Week 1-3)   | 自然语言交互增强 | 0%     | 意图理解准确率 >85%   |
+| **Phase 2** (Week 4-6)   | 决策透明化       | 0%     | 决策日志覆盖率 100%   |
+| **Phase 3** (Week 7-9)   | 主动建议系统     | 0%     | 建议采纳率 >40%       |
+| **Phase 4** (Week 10-11) | 个性化交互       | 0%     | 用户满意度 >90%       |
+| **Phase 5** (Week 12-13) | 新交互界面       | 0%     | 界面可用性评分 >4.5/5 |
 
 ### 4.5 成功指标
 
-| 指标 | 当前 (v1.7.0) | 目标 (v1.8.0) | 提升 |
-|------|--------------|---------------|------|
-| 意图理解准确率 | N/A | >85% | 新功能 |
-| 交互轮次（完成任务） | ~3-5 轮 | <2 轮 | -50% |
-| 用户满意度 | N/A | >90% | 新功能 |
-| 决策透明度感知 | N/A | >80% | 新功能 |
-| 主动建议采纳率 | N/A | >40% | 新功能 |
-| 任务完成效率 | 基准 | +25% | 效率提升 |
+| 指标                 | 当前 (v1.7.0) | 目标 (v1.8.0) | 提升     |
+| -------------------- | ------------- | ------------- | -------- |
+| 意图理解准确率       | N/A           | >85%          | 新功能   |
+| 交互轮次（完成任务） | ~3-5 轮       | <2 轮         | -50%     |
+| 用户满意度           | N/A           | >90%          | 新功能   |
+| 决策透明度感知       | N/A           | >80%          | 新功能   |
+| 主动建议采纳率       | N/A           | >40%          | 新功能   |
+| 任务完成效率         | 基准          | +25%          | 效率提升 |
 
 ---
 
@@ -951,38 +938,38 @@ class ContextAdapter {
 
 ```typescript
 interface DecisionApprovalWorkflow {
-  decisionId: string;
-  decision: Decision;
-  riskLevel: RiskLevel;
-  requiredApproval: ApprovalRequirement;
-  approvals: Approval[];
-  state: 'pending' | 'approved' | 'rejected' | 'escalated';
-  timestamp: number;
+  decisionId: string
+  decision: Decision
+  riskLevel: RiskLevel
+  requiredApproval: ApprovalRequirement
+  approvals: Approval[]
+  state: 'pending' | 'approved' | 'rejected' | 'escalated'
+  timestamp: number
 }
 
-type RiskLevel = 'low' | 'medium' | 'high' | 'critical';
+type RiskLevel = 'low' | 'medium' | 'high' | 'critical'
 
 interface ApprovalRequirement {
-  autoApprove: boolean;  // 是否可以自动批准
-  requiredApprovers: string[];  // 需要哪些角色批准
-  requiredConsensus: boolean;  // 是否需要共识
-  escalationThreshold?: number;  // 超时时限
+  autoApprove: boolean // 是否可以自动批准
+  requiredApprovers: string[] // 需要哪些角色批准
+  requiredConsensus: boolean // 是否需要共识
+  escalationThreshold?: number // 超时时限
 }
 
 class DecisionApprovalManager {
   async requestApproval(decision: Decision): Promise<ApprovalResult> {
     // 1. 评估决策风险
-    const riskLevel = await this.assessRisk(decision);
+    const riskLevel = await this.assessRisk(decision)
 
     // 2. 确定审批要求
-    const requirement = this.determineApprovalRequirement(riskLevel);
+    const requirement = this.determineApprovalRequirement(riskLevel)
 
     // 3. 如果低风险，自动批准
     if (requirement.autoApprove) {
       return {
         approved: true,
         reason: 'Low risk, auto-approved',
-      };
+      }
     }
 
     // 4. 创建审批流程
@@ -994,13 +981,13 @@ class DecisionApprovalManager {
       approvals: [],
       state: 'pending',
       timestamp: Date.now(),
-    };
+    }
 
     // 5. 发送审批请求
-    await this.sendApprovalRequests(workflow);
+    await this.sendApprovalRequests(workflow)
 
     // 6. 等待审批（或超时升级）
-    return await this.waitForApproval(workflow);
+    return await this.waitForApproval(workflow)
   }
 
   private async assessRisk(decision: Decision): Promise<RiskLevel> {
@@ -1011,14 +998,14 @@ class DecisionApprovalManager {
       complexity: decision.complexity,
       reversibility: decision.reversible ? 0 : 1,
       previousFailures: this.getFailureHistory(decision.type),
-    };
+    }
 
-    const riskScore = this.calculateRiskScore(factors);
+    const riskScore = this.calculateRiskScore(factors)
 
-    if (riskScore < 0.3) return 'low';
-    if (riskScore < 0.6) return 'medium';
-    if (riskScore < 0.8) return 'high';
-    return 'critical';
+    if (riskScore < 0.3) return 'low'
+    if (riskScore < 0.6) return 'medium'
+    if (riskScore < 0.8) return 'high'
+    return 'critical'
   }
 }
 ```
@@ -1124,3 +1111,4 @@ class AnomalyDetector {
           },
         ],
         recommendedAction:
+```

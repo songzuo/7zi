@@ -9,6 +9,7 @@ The 7zi notification system now includes robust localStorage-based persistence u
 ### State Management
 
 **Technology Stack:**
+
 - **Zustand** - Lightweight state management with middleware support
 - **Zustand Persist Middleware** - Automatic localStorage synchronization
 - **TypeScript** - Full type safety
@@ -99,7 +100,7 @@ persist(
   }),
   {
     name: 'notification-store',
-    partialize: (state) => ({
+    partialize: state => ({
       preferences: state.preferences,
       // Only persist notifications up to 100 to avoid quota issues
       notifications: state.notifications.slice(0, 100),
@@ -157,7 +158,7 @@ function MyComponent() {
 ### Add a Notification
 
 ```typescript
-const { addNotification } = useNotificationStore();
+const { addNotification } = useNotificationStore()
 
 addNotification({
   id: 'notif-123',
@@ -169,84 +170,84 @@ addNotification({
   status: NotificationStatus.UNREAD,
   created_at: new Date().toISOString(),
   updated_at: new Date().toISOString(),
-});
+})
 ```
 
 ### Mark as Read
 
 ```typescript
-const { markAsRead } = useNotificationStore();
+const { markAsRead } = useNotificationStore()
 
-markAsRead('notif-123');
+markAsRead('notif-123')
 ```
 
 ### Mark All as Read
 
 ```typescript
-const { markAllAsRead } = useNotificationStore();
+const { markAllAsRead } = useNotificationStore()
 
-markAllAsRead();
+markAllAsRead()
 ```
 
 ### Clear All Notifications
 
 ```typescript
-const { clearAll } = useNotificationStore();
+const { clearAll } = useNotificationStore()
 
-clearAll();
+clearAll()
 ```
 
 ### Filter Notifications
 
 ```typescript
-const { filterByType, filterByPriority, getUnreadNotifications } = useNotificationStore();
+const { filterByType, filterByPriority, getUnreadNotifications } = useNotificationStore()
 
 // Get all task assigned notifications
-const taskNotifications = filterByType(NotificationType.TASK_ASSIGNED);
+const taskNotifications = filterByType(NotificationType.TASK_ASSIGNED)
 
 // Get all high priority notifications
-const urgentNotifications = filterByPriority(NotificationPriority.URGENT);
+const urgentNotifications = filterByPriority(NotificationPriority.URGENT)
 
 // Get only unread notifications
-const unread = getUnreadNotifications();
+const unread = getUnreadNotifications()
 ```
 
 ## API Reference
 
 ### State
 
-| Property | Type | Description |
-|----------|------|-------------|
-| `notifications` | `Notification[]` | Array of notifications (max 100) |
-| `unreadCount` | `number` | Count of unread notifications |
-| `preferences` | `NotificationPreferences` | User notification settings |
-| `isLoading` | `boolean` | Loading state for async operations |
-| `error` | `string \| null` | Error message if any |
+| Property        | Type                      | Description                        |
+| --------------- | ------------------------- | ---------------------------------- |
+| `notifications` | `Notification[]`          | Array of notifications (max 100)   |
+| `unreadCount`   | `number`                  | Count of unread notifications      |
+| `preferences`   | `NotificationPreferences` | User notification settings         |
+| `isLoading`     | `boolean`                 | Loading state for async operations |
+| `error`         | `string \| null`          | Error message if any               |
 
 ### Actions
 
-| Method | Parameters | Description |
-|--------|------------|-------------|
-| `setNotifications` | `notifications: Notification[]` | Replace all notifications |
-| `addNotification` | `notification: Notification` | Add a new notification (enforces 100 limit) |
-| `updateNotification` | `id: string, updates: Partial<Notification>` | Update specific notification |
-| `removeNotification` | `id: string` | Remove a specific notification |
-| `markAsRead` | `id: string` | Mark notification as read |
-| `markAllAsRead` | `()` | Mark all notifications as read |
-| `clearAll` | `()` | Remove all notifications |
-| `updatePreferences` | `preferences: Partial<NotificationPreferences>` | Update user preferences |
-| `resetPreferences` | `()` | Reset preferences to defaults |
-| `setLoading` | `loading: boolean` | Set loading state |
-| `setError` | `error: string \| null` | Set error state |
+| Method               | Parameters                                      | Description                                 |
+| -------------------- | ----------------------------------------------- | ------------------------------------------- |
+| `setNotifications`   | `notifications: Notification[]`                 | Replace all notifications                   |
+| `addNotification`    | `notification: Notification`                    | Add a new notification (enforces 100 limit) |
+| `updateNotification` | `id: string, updates: Partial<Notification>`    | Update specific notification                |
+| `removeNotification` | `id: string`                                    | Remove a specific notification              |
+| `markAsRead`         | `id: string`                                    | Mark notification as read                   |
+| `markAllAsRead`      | `()`                                            | Mark all notifications as read              |
+| `clearAll`           | `()`                                            | Remove all notifications                    |
+| `updatePreferences`  | `preferences: Partial<NotificationPreferences>` | Update user preferences                     |
+| `resetPreferences`   | `()`                                            | Reset preferences to defaults               |
+| `setLoading`         | `loading: boolean`                              | Set loading state                           |
+| `setError`           | `error: string \| null`                         | Set error state                             |
 
 ### Selectors
 
-| Selector | Returns | Description |
-|----------|---------|-------------|
-| `selectUnreadCount` | `number` | Get unread count |
-| `selectNotifications` | `Notification[]` | Get all notifications |
-| `selectPreferences` | `NotificationPreferences` | Get user preferences |
-| `selectIsLoading` | `boolean` | Get loading state |
+| Selector              | Returns                   | Description           |
+| --------------------- | ------------------------- | --------------------- |
+| `selectUnreadCount`   | `number`                  | Get unread count      |
+| `selectNotifications` | `Notification[]`          | Get all notifications |
+| `selectPreferences`   | `NotificationPreferences` | Get user preferences  |
+| `selectIsLoading`     | `boolean`                 | Get loading state     |
 
 ## Testing
 
@@ -313,12 +314,7 @@ Test Files  1 passed (1)
     ],
     "preferences": {
       "user_id": "user1",
-      "enabled_types": [
-        "task_assigned",
-        "task_overdue",
-        "meeting_reminder",
-        "user_mention"
-      ],
+      "enabled_types": ["task_assigned", "task_overdue", "meeting_reminder", "user_mention"],
       "enabled": true,
       "email_enabled": true,
       "sound_enabled": true
@@ -349,29 +345,31 @@ Test Files  1 passed (1)
 ### From Old Hook to Zustand Store
 
 **Old Approach** (deprecated):
-```typescript
-import { useNotifications } from '@/hooks/useNotifications';
 
-const { notifications, addNotification } = useNotifications();
+```typescript
+import { useNotifications } from '@/hooks/useNotifications'
+
+const { notifications, addNotification } = useNotifications()
 ```
 
 **New Approach** (recommended):
-```typescript
-import { useNotificationStore } from '@/lib/notifications';
 
-const { notifications, addNotification } = useNotificationStore();
+```typescript
+import { useNotificationStore } from '@/lib/notifications'
+
+const { notifications, addNotification } = useNotificationStore()
 ```
 
 ### Key Differences
 
-| Feature | Old Hook | Zustand Store |
-|---------|----------|---------------|
-| State Management | React hooks | Zustand store |
-| Persistence | Custom localStorage logic | Zustand persist middleware |
-| Global Access | Provider required | Import anywhere |
-| TypeScript Support | Basic | Full type safety |
-| Testability | Requires React wrapper | Direct function calls |
-| Performance | Re-renders on change | Selective subscriptions |
+| Feature            | Old Hook                  | Zustand Store              |
+| ------------------ | ------------------------- | -------------------------- |
+| State Management   | React hooks               | Zustand store              |
+| Persistence        | Custom localStorage logic | Zustand persist middleware |
+| Global Access      | Provider required         | Import anywhere            |
+| TypeScript Support | Basic                     | Full type safety           |
+| Testability        | Requires React wrapper    | Direct function calls      |
+| Performance        | Re-renders on change      | Selective subscriptions    |
 
 ## Troubleshooting
 
@@ -380,6 +378,7 @@ const { notifications, addNotification } = useNotificationStore();
 **Symptoms**: Notifications disappear after page refresh
 
 **Solutions**:
+
 1. Check browser localStorage support
 2. Verify no browser extensions blocking localStorage
 3. Check browser console for quota errors
@@ -390,6 +389,7 @@ const { notifications, addNotification } = useNotificationStore();
 **Symptoms**: Old notifications shown after updates
 
 **Solutions**:
+
 1. Clear localStorage: `localStorage.removeItem('notification-store')`
 2. Reload page to reinitialize store
 3. Check if multiple tabs are open (sync may lag)
@@ -399,6 +399,7 @@ const { notifications, addNotification } = useNotificationStore();
 **Symptoms**: Console warnings about localStorage quota
 
 **Solutions**:
+
 1. Check if other features are using localStorage heavily
 2. Consider reducing notification limit
 3. Clear old data from localStorage
@@ -407,13 +408,13 @@ const { notifications, addNotification } = useNotificationStore();
 
 ### localStorage Support
 
-| Browser | Version | Status |
-|---------|---------|--------|
-| Chrome | 4+ | ✅ Full support |
-| Firefox | 3.5+ | ✅ Full support |
-| Safari | 4+ | ✅ Full support |
-| Edge | All versions | ✅ Full support |
-| IE | 8+ | ⚠️ Partial support |
+| Browser | Version      | Status             |
+| ------- | ------------ | ------------------ |
+| Chrome  | 4+           | ✅ Full support    |
+| Firefox | 3.5+         | ✅ Full support    |
+| Safari  | 4+           | ✅ Full support    |
+| Edge    | All versions | ✅ Full support    |
+| IE      | 8+           | ⚠️ Partial support |
 
 ### Private/Incognito Mode
 
@@ -434,9 +435,9 @@ const { notifications, addNotification } = useNotificationStore();
 Always sanitize notification content before storing:
 
 ```typescript
-import DOMPurify from 'dompurify';
+import DOMPurify from 'dompurify'
 
-const sanitizedContent = DOMPurify.sanitize(rawContent);
+const sanitizedContent = DOMPurify.sanitize(rawContent)
 ```
 
 ## Future Enhancements

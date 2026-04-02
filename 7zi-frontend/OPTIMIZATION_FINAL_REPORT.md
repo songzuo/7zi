@@ -1,9 +1,11 @@
 # 7zi-Frontend 代码优化完成报告
 
 ## 执行日期
+
 2026-03-29
 
 ## 检查范围
+
 - ✅ 循环依赖检查
 - ✅ src/lib/ 目录分析
 - ✅ src/hooks/ 目录分析
@@ -28,11 +30,13 @@
 | API | src/app/api/notifications/ | features/notifications/api/ | ~500 行 |
 
 **执行：**
+
 ```bash
 rm -rf src/features/notifications/
 ```
 
 **结果：**
+
 - ✅ 删除代码：~4,300 行
 - ✅ 删除文件：21 个
 - ✅ 减少重复：100%
@@ -44,15 +48,18 @@ rm -rf src/features/notifications/
 
 **问题：**
 Notification 类型在多处定义，导致类型混淆：
+
 1. `src/stores/notification-store.ts` - UI 通知（Toast/Snackbar）
 2. `src/lib/services/notification-types.ts` - 服务器通知
 
 **执行：**
+
 1. 将 Store 中的类型重命名为 `UINotification*`
 2. 保持向后兼容的别名（`@deprecated`）
 3. 更新注释说明用途差异
 
 **结果：**
+
 - ✅ 类型职责清晰：UI 通知 vs 服务器通知
 - ✅ 避免命名冲突
 - ✅ 向后兼容（不影响现有代码）
@@ -65,10 +72,12 @@ Notification 类型在多处定义，导致类型混淆：
 ### ✅ 优化 3: 拆分 useImageOptimization 职责
 
 **问题：**
+
 - 文件名：`useImageOptimization.ts`（误导性）
 - 内容：hooks + 工具函数混合
 
 **执行：**
+
 1. 创建 `src/hooks/useImagePreload.ts` - 所有 hooks
 2. 创建 `src/lib/utils/image.ts` - 工具函数
 3. 更新 `src/hooks/index.ts` 导出
@@ -76,12 +85,14 @@ Notification 类型在多处定义，导致类型混淆：
 5. 删除原文件
 
 **结果：**
+
 - ✅ 文件名符合内容
 - ✅ 职责清晰：hooks vs 工具函数
 - ✅ 更好的代码组织
 - ✅ 减少文件大小：从 195 行 → 两个专注文件
 
 **文件：**
+
 - `src/hooks/useImagePreload.ts` (新建)
 - `src/lib/utils/image.ts` (新建)
 - `src/hooks/useImageOptimization.ts` (已删除)
@@ -90,13 +101,13 @@ Notification 类型在多处定义，导致类型混淆：
 
 ## 优化效果总结
 
-| 指标 | 优化前 | 优化后 | 改进 |
-|------|--------|--------|------|
-| 总代码行数 | 82,931 | ~78,500 | -5,400 行 (-6.5%) |
-| 重复文件数 | 21 | 0 | -100% |
-| 类型冲突 | 2+ 处 | 0 | -100% |
-| 文件组织 | 部分混乱 | 清晰 | ✓ |
-| 文件数量 | 减少 | 减少 | -22 文件 |
+| 指标       | 优化前   | 优化后  | 改进              |
+| ---------- | -------- | ------- | ----------------- |
+| 总代码行数 | 82,931   | ~78,500 | -5,400 行 (-6.5%) |
+| 重复文件数 | 21       | 0       | -100%             |
+| 类型冲突   | 2+ 处    | 0       | -100%             |
+| 文件组织   | 部分混乱 | 清晰    | ✓                 |
+| 文件数量   | 减少     | 减少    | -22 文件          |
 
 ---
 
@@ -147,21 +158,25 @@ src/features/notifications/
 ## 验证建议
 
 ### 1. 运行测试
+
 ```bash
 npm test
 ```
 
 ### 2. 构建验证
+
 ```bash
 npm run build
 ```
 
 ### 3. 类型检查
+
 ```bash
 npm run lint
 ```
 
 ### 4. E2E 测试
+
 ```bash
 npm run test:e2e
 ```
@@ -171,11 +186,13 @@ npm run test:e2e
 ## 风险评估
 
 ### 低风险
+
 - ✅ features/notifications 无任何引用
 - ✅ Notification Store 向后兼容（类型别名）
 - ✅ useImagePreload 仅 1 处引用，已更新
 
 ### 需要关注
+
 - ⚠️ 部分 hooks 可能未被使用（useNotificationsStable 仅 1 处使用）
 - ⚠️ 新建的 image.ts 工具函数可能未被使用（当前 0 引用）
 
@@ -184,6 +201,7 @@ npm run test:e2e
 ## 后续建议
 
 ### 1. 清理未使用的代码
+
 ```bash
 # 检查 useNotificationsStable 是否可以移除
 grep -r "useNotificationsStable" src/
@@ -193,16 +211,19 @@ grep -r "compressImage\|getSupportedImageFormats" src/
 ```
 
 ### 2. 安装代码重复检测工具
+
 ```bash
 npm install -D madge eslint-plugin-import
 ```
 
 ### 3. 定期代码审查
+
 - 每月代码审查
 - 新 PR 需要检查重复代码
 - 更新架构文档
 
 ### 4. 循环依赖检测
+
 ```bash
 # 安装 madge
 npm install -D madge
@@ -216,11 +237,13 @@ npx madge --circular src/
 ## 性能影响
 
 ### 正面影响
+
 - ✅ 减少打包体积（~4,300 行代码）
 - ✅ 减少类型检查时间
 - ✅ 减少潜在的运行时冲突
 
 ### 无负面影响
+
 - ✅ 零破坏性变更
 - ✅ 向后兼容
 - ✅ 功能完全保留

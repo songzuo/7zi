@@ -10,61 +10,79 @@
  * - Request logging
  */
 
-import { NextRequest, NextResponse } from 'next/server';
-import { withRateLimit } from './rate-limit';
-import { withBruteForceProtection } from './brute-force-protection';
-import { withCORS, type CORSConfig } from './cors';
-import { withSecurityHeaders, type SecurityHeadersConfig } from './security-headers';
+import { NextRequest, NextResponse } from 'next/server'
+import { withRateLimit } from './rate-limit'
+import { withBruteForceProtection } from './brute-force-protection'
+import { withCORS, type CORSConfig } from './cors'
+import { withSecurityHeaders, type SecurityHeadersConfig } from './security-headers'
 import {
   sanitizeRequestBody,
   sanitizeQueryParams,
   sanitizeValue,
   type SanitizationOptions,
-} from './input-sanitization';
-import { logRequestStart, logRequestComplete, logRequestError, type RequestMetadata } from '@/lib/api/api-logger';
-import { logger } from '@/lib/logger';
+} from './input-sanitization'
+import {
+  logRequestStart,
+  logRequestComplete,
+  logRequestError,
+  type RequestMetadata,
+} from '@/lib/api/api-logger'
+import { logger } from '@/lib/logger'
+
+/**
+ * Extended NextRequest with sanitized properties
+ */
+interface ExtendedNextRequest extends NextRequest {
+  sanitizedBody?: Record<string, unknown>
+  sanitizedQuery?: Record<string, unknown>
+  securityContext?: {
+    identifier?: string
+    attempts?: number
+    locked?: boolean
+  }
+}
 
 /**
  * Combined security middleware configuration
  */
 export interface SecurityMiddlewareConfig {
   // Rate limiting
-  enableRateLimit?: boolean;
+  enableRateLimit?: boolean
   rateLimitConfig?: {
-    windowMs?: number;
-    maxRequests?: number;
-    skipSuccessfulRequests?: boolean;
-    skipFailedRequests?: boolean;
-  };
+    windowMs?: number
+    maxRequests?: number
+    skipSuccessfulRequests?: boolean
+    skipFailedRequests?: boolean
+  }
 
   // Brute force protection
-  enableBruteForceProtection?: boolean;
+  enableBruteForceProtection?: boolean
   bruteForceConfig?: {
-    maxAttempts?: number;
-    baseLockoutDuration?: number;
-    attemptWindow?: number;
-    captchaThreshold?: number;
-    trackByAccount?: boolean;
-  };
+    maxAttempts?: number
+    baseLockoutDuration?: number
+    attemptWindow?: number
+    captchaThreshold?: number
+    trackByAccount?: boolean
+  }
 
   // CORS
-  enableCORS?: boolean;
-  corsConfig?: Partial<CORSConfig>;
+  enableCORS?: boolean
+  corsConfig?: Partial<CORSConfig>
 
   // Security headers
-  enableSecurityHeaders?: boolean;
-  securityHeadersConfig?: Partial<SecurityHeadersConfig>;
+  enableSecurityHeaders?: boolean
+  securityHeadersConfig?: Partial<SecurityHeadersConfig>
 
   // Input sanitization
-  enableInputSanitization?: boolean;
-  bodySchema?: Record<string, SanitizationOptions>;
-  querySchema?: Record<string, SanitizationOptions>;
+  enableInputSanitization?: boolean
+  bodySchema?: Record<string, SanitizationOptions>
+  querySchema?: Record<string, SanitizationOptions>
 
   // Logging
-  enableLogging?: boolean;
+  enableLogging?: boolean
 
   // Extract identifier for brute force protection (e.g., email)
-  extractIdentifier?: (request: NextRequest) => Promise<string | undefined>;
+  extractIdentifier?: (request: NextRequest) => Promise<string | undefined>
 }
 
 /**
@@ -77,7 +95,7 @@ const DEFAULT_CONFIG: SecurityMiddlewareConfig = {
   enableSecurityHeaders: true,
   enableInputSanitization: true,
   enableLogging: true,
-};
+}
 
 /**
  * Apply input sanitization to request
@@ -86,53 +104,49 @@ async function applyInputSanitization(
   request: NextRequest,
   config: SecurityMiddlewareConfig
 ): Promise<{ request: NextRequest; errors: string[] }> {
-  const errors: string[] = [];
+  const errors: string[] = []
 
   if (!config.enableInputSanitization) {
-    return { request, errors };
+    return { request, errors }
   }
 
   try {
     // Clone the request to modify body
-    const clonedRequest = request.clone();
-    let body: Record<string, unknown> = {};
+    const clonedRequest = request.clone()
+    let body: Record<string, unknown> = {}
 
     try {
-      body = await clonedRequest.json();
-    } catch {
+      body = await clonedRequest.json()
+    } catch (error) {
       // No JSON body, that's fine
     }
 
     // Sanitize body if schema is provided
     if (config.bodySchema && Object.keys(body).length > 0) {
-      const result = sanitizeRequestBody(body, config.bodySchema);
+      const result = sanitizeRequestBody(body, config.bodySchema)
       if (!result.valid) {
-        errors.push(
-          `Body validation failed: ${Object.values(result.errors).join(', ')}`
-        );
+        errors.push(`Body validation failed: ${Object.values(result.errors).join(', ')}`)
       } else {
         // Replace body with sanitized version
-        (request as any).sanitizedBody = result.sanitized;
+        ;(request as ExtendedNextRequest).sanitizedBody = result.sanitized
       }
     }
 
     // Sanitize query params if schema is provided
     if (config.querySchema) {
-      const searchParams = request.nextUrl.searchParams;
-      const result = sanitizeQueryParams(searchParams, config.querySchema);
+      const searchParams = request.nextUrl.searchParams
+      const result = sanitizeQueryParams(searchParams, config.querySchema)
       if (!result.valid) {
-        errors.push(
-          `Query validation failed: ${Object.values(result.errors).join(', ')}`
-        );
+        errors.push(`Query validation failed: ${Object.values(result.errors).join(', ')}`)
       } else {
-        (request as any).sanitizedQuery = result.sanitized;
+        ;(request as ExtendedNextRequest).sanitizedQuery = result.sanitized
       }
     }
-  } catch (_error) {
-    logger.warn('Input sanitization error', { error });
+  } catch (error) {
+    logger.warn('Input sanitization error', { error })
   }
 
-  return { request, errors };
+  return { request, errors }
 }
 
 /**
@@ -145,23 +159,20 @@ export function withSecurity(
   const finalConfig: SecurityMiddlewareConfig = {
     ...DEFAULT_CONFIG,
     ...config,
-  };
+  }
 
   return async (request: NextRequest): Promise<NextResponse> => {
-    const startTime = Date.now();
-    let metadata: RequestMetadata | null = null;
+    const startTime = Date.now()
+    let metadata: RequestMetadata | null = null
 
     // Start logging if enabled
     if (finalConfig.enableLogging) {
-      metadata = logRequestStart(request);
+      metadata = logRequestStart(request)
     }
 
     try {
       // Apply input sanitization first
-      const sanitizationResult = await applyInputSanitization(
-        request,
-        finalConfig
-      );
+      const sanitizationResult = await applyInputSanitization(request, finalConfig)
 
       if (sanitizationResult.errors.length > 0) {
         const response = NextResponse.json(
@@ -174,69 +185,56 @@ export function withSecurity(
             },
           },
           { status: 400 }
-        );
+        )
 
         if (finalConfig.enableLogging && metadata) {
-          logRequestComplete(metadata, response, startTime);
+          logRequestComplete(metadata, response, startTime)
         }
 
         // Apply CORS and security headers even on error
-        let finalResponse = response as unknown as NextResponse;
+        let finalResponse = response as unknown as NextResponse
         if (finalConfig.enableCORS) {
-          const { setCORSHeaders } = await import('./cors');
-          const corsConfig = finalConfig.corsConfig || {};
-          finalResponse = setCORSHeaders(
-            finalResponse as any,
-            request,
-            {
-              allowedOrigins: corsConfig.allowedOrigins || ['*'],
-              allowedMethods: corsConfig.allowedMethods || ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'],
-              allowedHeaders: corsConfig.allowedHeaders || ['Content-Type', 'Authorization', 'X-Requested-With'],
-              credentials: corsConfig.credentials || false,
-              maxAge: corsConfig.maxAge || 86400,
-            }
-          ) as any;
+          const { setCORSHeaders } = await import('./cors')
+          const corsConfig = finalConfig.corsConfig || {}
+          finalResponse = setCORSHeaders(finalResponse, request, corsConfig)
         }
         if (finalConfig.enableSecurityHeaders) {
           finalResponse = setSecurityHeadersOnResponse(
             finalResponse,
             finalConfig.securityHeadersConfig
-          );
+          )
         }
 
-        return finalResponse;
+        return finalResponse
       }
 
       // Build the handler chain
-      let wrappedHandler = handler;
+      let wrappedHandler: (req: NextRequest) => Promise<NextResponse> = handler
 
       // Apply brute force protection
       if (finalConfig.enableBruteForceProtection) {
         const bruteForceMiddleware = withBruteForceProtection(
           async (req, context) => {
             // Add context to request
-            (request as any).securityContext = context;
-            return await wrappedHandler(req);
+            ;(request as ExtendedNextRequest).securityContext = context
+            return await wrappedHandler(req)
           },
           finalConfig.bruteForceConfig,
           finalConfig.extractIdentifier
-        );
-        wrappedHandler = bruteForceMiddleware as any;
+        )
+        wrappedHandler = bruteForceMiddleware
       }
 
       // Apply rate limiting
       if (finalConfig.enableRateLimit) {
-        const rateLimitMiddleware = withRateLimit(
-          wrappedHandler,
-          finalConfig.rateLimitConfig
-        );
-        wrappedHandler = rateLimitMiddleware;
+        const rateLimitMiddleware = withRateLimit(wrappedHandler, finalConfig.rateLimitConfig)
+        wrappedHandler = rateLimitMiddleware
       }
 
       // Apply CORS
       if (finalConfig.enableCORS) {
-        const corsMiddleware = withCORS(wrappedHandler, finalConfig.corsConfig);
-        wrappedHandler = corsMiddleware;
+        const corsMiddleware = withCORS(wrappedHandler, finalConfig.corsConfig)
+        wrappedHandler = corsMiddleware
       }
 
       // Apply security headers
@@ -244,23 +242,23 @@ export function withSecurity(
         const securityHeadersMiddleware = withSecurityHeaders(
           wrappedHandler,
           finalConfig.securityHeadersConfig
-        );
-        wrappedHandler = securityHeadersMiddleware;
+        )
+        wrappedHandler = securityHeadersMiddleware
       }
 
       // Execute the handler chain
-      const response = await wrappedHandler(request);
+      const response = await wrappedHandler(request)
 
       // Log completion
       if (finalConfig.enableLogging && metadata) {
-        logRequestComplete(metadata, response, startTime);
+        logRequestComplete(metadata, response, startTime)
       }
 
-      return response;
-    } catch (_error) {
+      return response
+    } catch (error) {
       // Log error
       if (finalConfig.enableLogging && metadata) {
-        logRequestError(metadata, error, startTime);
+        logRequestError(metadata, error, startTime)
       }
 
       // Create error response
@@ -273,24 +271,24 @@ export function withSecurity(
           },
         },
         { status: 500 }
-      );
+      )
 
       // Apply CORS and security headers even on error
-      let finalResponse = response as unknown as NextResponse;
+      let finalResponse = response as unknown as NextResponse
       if (finalConfig.enableCORS) {
-        const { setCORSHeaders } = await import('./cors');
-        finalResponse = setCORSHeaders(finalResponse as any, request as any, finalConfig.corsConfig as any) as unknown as NextResponse;
+        const { setCORSHeaders } = await import('./cors')
+        finalResponse = setCORSHeaders(finalResponse, request, finalConfig.corsConfig || {})
       }
       if (finalConfig.enableSecurityHeaders) {
         finalResponse = setSecurityHeadersOnResponse(
           finalResponse,
           finalConfig.securityHeadersConfig
-        );
+        )
       }
 
-      return finalResponse;
+      return finalResponse
     }
-  };
+  }
 }
 
 /**
@@ -300,7 +298,10 @@ function setSecurityHeadersOnResponse(
   response: NextResponse,
   config?: Partial<SecurityHeadersConfig>
 ): NextResponse {
-  return (require('./security-headers') as any).setSecurityHeaders(response, config);
+  // Import dynamically to avoid circular dependencies
+  return import('./security-headers').then(module =>
+    module.setSecurityHeaders(response, config)
+  ) as unknown as NextResponse
 }
 
 /**
@@ -403,15 +404,13 @@ export const SecurityConfigs = {
       },
     },
   } as SecurityMiddlewareConfig,
-};
+}
 
 /**
  * Quick wrapper for public routes
  */
-export function withPublicSecurity(
-  handler: (req: NextRequest) => Promise<NextResponse>
-) {
-  return withSecurity(handler, SecurityConfigs.public);
+export function withPublicSecurity(handler: (req: NextRequest) => Promise<NextResponse>) {
+  return withSecurity(handler, SecurityConfigs.public)
 }
 
 /**
@@ -421,8 +420,8 @@ export function withAuthSecurity(
   handler: (req: NextRequest) => Promise<NextResponse>,
   extractIdentifier?: (request: NextRequest) => Promise<string | undefined>,
   schemaOverrides?: {
-    bodySchema?: Record<string, SanitizationOptions>;
-    querySchema?: Record<string, SanitizationOptions>;
+    bodySchema?: Record<string, SanitizationOptions>
+    querySchema?: Record<string, SanitizationOptions>
   }
 ) {
   return withSecurity(handler, {
@@ -430,7 +429,7 @@ export function withAuthSecurity(
     extractIdentifier,
     bodySchema: schemaOverrides?.bodySchema,
     querySchema: schemaOverrides?.querySchema,
-  });
+  })
 }
 
 /**
@@ -445,7 +444,7 @@ export function withProtectedSecurity(
     ...SecurityConfigs.protected,
     bodySchema,
     querySchema,
-  });
+  })
 }
 
 /**
@@ -458,16 +457,14 @@ export function withAdminSecurity(
   return withSecurity(handler, {
     ...SecurityConfigs.admin,
     extractIdentifier,
-  });
+  })
 }
 
 /**
  * Get sanitized body from request
  */
-export function getSanitizedBody<T = Record<string, unknown>>(
-  request: NextRequest
-): T | undefined {
-  return (request as any).sanitizedBody as T;
+export function getSanitizedBody<T = Record<string, unknown>>(request: NextRequest): T | undefined {
+  return (request as ExtendedNextRequest).sanitizedBody as T
 }
 
 /**
@@ -476,7 +473,7 @@ export function getSanitizedBody<T = Record<string, unknown>>(
 export function getSanitizedQuery<T = Record<string, unknown>>(
   request: NextRequest
 ): T | undefined {
-  return (request as any).sanitizedQuery as T;
+  return (request as ExtendedNextRequest).sanitizedQuery as T
 }
 
 /**
@@ -484,19 +481,19 @@ export function getSanitizedQuery<T = Record<string, unknown>>(
  */
 export interface SecurityContext {
   config: {
-    maxAttempts: number;
-    baseLockoutDuration: number;
-    attemptWindow: number;
-    captchaThreshold: number;
-    trackByAccount: boolean;
-  };
-  identifier?: string;
-  requireCaptcha: boolean;
+    maxAttempts: number
+    baseLockoutDuration: number
+    attemptWindow: number
+    captchaThreshold: number
+    trackByAccount: boolean
+  }
+  identifier?: string
+  requireCaptcha: boolean
 }
 
 /**
  * Get security context from request (brute force info)
  */
 export function getSecurityContext(request: NextRequest): SecurityContext | undefined {
-  return (request as { securityContext?: SecurityContext }).securityContext;
+  return (request as { securityContext?: SecurityContext }).securityContext
 }

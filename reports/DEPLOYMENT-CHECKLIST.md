@@ -6,13 +6,13 @@
 
 ### 代码质量
 
-| 检查项 | 命令 | 通过标准 |
-|--------|------|----------|
-| ESLint | `npm run lint` | 无错误 |
-| TypeScript | `npm run type-check` | 无错误 |
-| 格式化 | `npm run format:check` | 无差异 |
-| 单元测试 | `npm run test:run` | 全部通过 |
-| 覆盖率 | `npm run test:coverage` | ≥50% |
+| 检查项     | 命令                    | 通过标准 |
+| ---------- | ----------------------- | -------- |
+| ESLint     | `npm run lint`          | 无错误   |
+| TypeScript | `npm run type-check`    | 无错误   |
+| 格式化     | `npm run format:check`  | 无差异   |
+| 单元测试   | `npm run test:run`      | 全部通过 |
+| 覆盖率     | `npm run test:coverage` | ≥50%     |
 
 ### 构建验证
 
@@ -29,13 +29,13 @@ ls -la public/
 du -sh .next/standalone/
 ```
 
-| 检查项 | 通过标准 |
-|--------|----------|
-| standalone 目录存在 | ✅ |
-| static 目录存在 | ✅ |
-| public 目录存在 | ✅ |
-| server.js 存在 | ✅ |
-| 构建大小 < 500MB | ✅ |
+| 检查项              | 通过标准 |
+| ------------------- | -------- |
+| standalone 目录存在 | ✅       |
+| static 目录存在     | ✅       |
+| public 目录存在     | ✅       |
+| server.js 存在      | ✅       |
+| 构建大小 < 500MB    | ✅       |
 
 ### 安全检查
 
@@ -49,11 +49,11 @@ find . -name "*.key" -not -path "./node_modules/*"
 grep -E "\.env|\.pem|\.key" .gitignore
 ```
 
-| 检查项 | 通过标准 |
-|--------|----------|
-| 无 .env 文件在构建中 | ✅ |
-| 无私钥/证书在构建中 | ✅ |
-| .gitignore 配置正确 | ✅ |
+| 检查项               | 通过标准 |
+| -------------------- | -------- |
+| 无 .env 文件在构建中 | ✅       |
+| 无私钥/证书在构建中  | ✅       |
+| .gitignore 配置正确  | ✅       |
 
 ### 环境变量检查
 
@@ -65,10 +65,10 @@ cat .env.production
 grep -E "NEXT_PUBLIC_|API_URL|DATABASE" .env.production
 ```
 
-| 必要变量 | 描述 |
-|----------|------|
-| `NEXT_PUBLIC_API_URL` | API 地址 |
-| `NODE_ENV` | 设为 production |
+| 必要变量              | 描述            |
+| --------------------- | --------------- |
+| `NEXT_PUBLIC_API_URL` | API 地址        |
+| `NODE_ENV`            | 设为 production |
 
 ---
 
@@ -96,12 +96,12 @@ docker-compose -f docker-compose.prod.yml up -d --no-deps --build 7zi-frontend
 docker-compose -f docker-compose.prod.yml logs -f --tail=100
 ```
 
-| 检查项 | 命令 | 通过标准 |
-|--------|------|----------|
-| 容器运行 | `docker ps` | STATUS: healthy |
+| 检查项   | 命令                                    | 通过标准               |
+| -------- | --------------------------------------- | ---------------------- |
+| 容器运行 | `docker ps`                             | STATUS: healthy        |
 | 健康检查 | `curl -sf http://localhost:3000/health` | 返回 `{"status":"ok"}` |
-| 页面访问 | `curl -sf http://localhost:3000/` | HTTP 200 |
-| 日志检查 | `docker logs 7zi-frontend` | 无错误 |
+| 页面访问 | `curl -sf http://localhost:3000/`       | HTTP 200               |
+| 日志检查 | `docker logs 7zi-frontend`              | 无错误                 |
 
 ### Production 部署
 
@@ -139,14 +139,14 @@ cp -r "$BACKUP_DIR/.next" ./
 docker-compose -f docker-compose.prod.yml up -d
 ```
 
-| 检查项 | 命令 | 通过标准 |
-|--------|------|----------|
-| 备份创建 | `ls /opt/backups/` | 存在最新备份 |
-| 容器运行 | `docker ps` | STATUS: healthy |
-| 健康检查 | `curl http://localhost:3000/health` | HTTP 200 |
-| 外部访问 | `curl https://7zi.com` | HTTP 200 |
-| SSL 证书 | `curl -vI https://7zi.com` | 证书有效 |
-| 日志检查 | `docker logs 7zi-frontend` | 无错误 |
+| 检查项   | 命令                                | 通过标准        |
+| -------- | ----------------------------------- | --------------- |
+| 备份创建 | `ls /opt/backups/`                  | 存在最新备份    |
+| 容器运行 | `docker ps`                         | STATUS: healthy |
+| 健康检查 | `curl http://localhost:3000/health` | HTTP 200        |
+| 外部访问 | `curl https://7zi.com`              | HTTP 200        |
+| SSL 证书 | `curl -vI https://7zi.com`          | 证书有效        |
+| 日志检查 | `docker logs 7zi-frontend`          | 无错误          |
 
 ---
 
@@ -154,13 +154,13 @@ docker-compose -f docker-compose.prod.yml up -d
 
 ### 功能验证
 
-| 页面 | URL | 检查内容 |
-|------|-----|----------|
-| 首页 | `/` | 正常渲染 |
-| 关于页 | `/about` | 正常渲染 |
-| 联系页 | `/contact` | 表单可提交 |
-| Dashboard | `/dashboard` | 数据加载正常 |
-| 健康检查 | `/api/health` | 返回正常状态 |
+| 页面      | URL           | 检查内容     |
+| --------- | ------------- | ------------ |
+| 首页      | `/`           | 正常渲染     |
+| 关于页    | `/about`      | 正常渲染     |
+| 联系页    | `/contact`    | 表单可提交   |
+| Dashboard | `/dashboard`  | 数据加载正常 |
+| 健康检查  | `/api/health` | 返回正常状态 |
 
 ### 性能检查
 
@@ -172,21 +172,21 @@ curl -w "Time: %{time_total}s\n" -o /dev/null -s https://7zi.com/
 curl -w "Size: %{size_download} bytes\n" -o /dev/null -s https://7zi.com/
 ```
 
-| 指标 | 目标值 | 实际值 | 通过 |
-|------|--------|--------|------|
-| 首页响应时间 | < 1s | | |
-| API 响应时间 | < 500ms | | |
-| 首页大小 | < 500KB | | |
-| 内存使用 | < 512MB | | |
+| 指标         | 目标值  | 实际值 | 通过 |
+| ------------ | ------- | ------ | ---- |
+| 首页响应时间 | < 1s    |        |      |
+| API 响应时间 | < 500ms |        |      |
+| 首页大小     | < 500KB |        |      |
+| 内存使用     | < 512MB |        |      |
 
 ### 监控检查
 
-| 检查项 | 命令/URL | 状态 |
-|--------|----------|------|
-| 容器状态 | `docker ps` | |
-| 容器日志 | `docker logs --tail=50` | |
-| 磁盘空间 | `df -h` | |
-| 内存使用 | `free -h` | |
+| 检查项   | 命令/URL                | 状态 |
+| -------- | ----------------------- | ---- |
+| 容器状态 | `docker ps`             |      |
+| 容器日志 | `docker logs --tail=50` |      |
+| 磁盘空间 | `df -h`                 |      |
+| 内存使用 | `free -h`               |      |
 
 ---
 
@@ -231,12 +231,12 @@ docker-compose -f docker-compose.prod.yml up -d --build
 ```
 ### 部署记录: [日期] [时间]
 
-**部署人**: 
+**部署人**:
 **环境**: staging / production
 **版本**: commit hash / tag
 
 **变更内容**:
-- 
+-
 
 **检查结果**:
 - [ ] Pre-deployment 检查通过
@@ -244,10 +244,10 @@ docker-compose -f docker-compose.prod.yml up -d --build
 - [ ] Post-deployment 检查通过
 
 **问题记录**:
-- 
+-
 
 **回滚**: 是/否
-**回滚原因**: 
+**回滚原因**:
 ```
 
 ---
@@ -265,8 +265,8 @@ docker-compose -f docker-compose.prod.yml up -d --build
 
 ## 📞 紧急联系
 
-| 角色 | 姓名 | 联系方式 |
-|------|------|----------|
-| 开发负责人 | | |
-| 运维负责人 | | |
-| 值班人员 | | |
+| 角色       | 姓名 | 联系方式 |
+| ---------- | ---- | -------- |
+| 开发负责人 |      |          |
+| 运维负责人 |      |          |
+| 值班人员   |      |          |

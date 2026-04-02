@@ -15,6 +15,7 @@
 **位置**: `/root/.openclaw/workspace/7zi-project/docs/ERROR_HANDLING_GUIDE.md`
 
 **文件统计**:
+
 - 文件大小: 25KB
 - 行数: 1042 行
 - 章节数: 10 个主要章节
@@ -22,18 +23,21 @@
 **内容概览**:
 
 ##### 1.1 错误处理架构概述
+
 - 完整的错误处理流程图
 - API 路由错误处理流程
 - 组件错误边界处理流程
 - 全局错误处理机制
 
 ##### 1.2 ErrorType 枚举文档
+
 - 完整的错误类型列表
 - 每种错误类型的说明
 - HTTP 状态码映射表
 - 使用场景说明
 
 **支持的错误类型**:
+
 - VALIDATION (400)
 - NOT_FOUND (404)
 - UNAUTHORIZED (401)
@@ -47,6 +51,7 @@
 - MISSING_TOKEN (401)
 
 ##### 1.3 API 错误处理指南
+
 - `createSuccessResponse` 函数使用说明
 - `createErrorResponse` 函数使用说明
 - `withErrorHandling` 高阶函数使用指南
@@ -54,21 +59,23 @@
 - 完整的 API 路由示例
 
 **关键代码示例**:
+
 ```typescript
 // 标准的 API 路由实现
 export const POST = withErrorHandling(async (request: NextRequest) => {
-  const { email, password } = await request.json();
+  const { email, password } = await request.json()
 
   if (!email || !password) {
-    return createValidationError('Email and password are required');
+    return createValidationError('Email and password are required')
   }
 
-  const user = await authenticateUser(email, password);
-  return createSuccessResponse(user);
-});
+  const user = await authenticateUser(email, password)
+  return createSuccessResponse(user)
+})
 ```
 
 ##### 1.4 组件级错误边界使用指南
+
 - ErrorBoundaryWrapper 组件完整文档
 - Props 接口说明
 - 自定义 fallback 使用方法
@@ -77,6 +84,7 @@ export const POST = withErrorHandling(async (request: NextRequest) => {
 - ErrorDisplay 组件完整文档
 
 **关键代码示例**:
+
 ```tsx
 // 异步组件错误边界
 <ErrorBoundaryWrapper title="加载失败" showReset variant="compact">
@@ -87,17 +95,20 @@ export const POST = withErrorHandling(async (request: NextRequest) => {
 ```
 
 ##### 1.5 全局错误处理配置
+
 - global-error.tsx 配置说明
 - error.tsx 路由级错误处理
 - 错误页面工厂函数使用
 
 ##### 1.6 错误监控与上报 (Sentry 集成)
+
 - Sentry 自动集成说明
 - 手动错误记录方法
 - 环境感知日志记录
 - 错误上下文配置
 
 ##### 1.7 最佳实践章节
+
 - ✅ DO: 正确做法示例
 - ❌ DON'T: 错误做法示例
 - API 路由最佳实践
@@ -106,12 +117,14 @@ export const POST = withErrorHandling(async (request: NextRequest) => {
 - 错误消息最佳实践
 
 ##### 1.8 安全注意事项
+
 - 🔴 Critical 安全规则
 - 敏感数据处理规范
 - 生产环境错误响应清理
 - 错误消息暴露风险评估
 
 ##### 1.9 常见模式
+
 - Pattern 1: API 路由与验证
 - Pattern 2: 异步组件错误边界
 - Pattern 3: 表单提交错误处理
@@ -119,11 +132,13 @@ export const POST = withErrorHandling(async (request: NextRequest) => {
 - Pattern 5: 路由特定错误页面
 
 ##### 1.10 迁移指南
+
 - 从手动错误处理迁移到统一系统
 - 7zi-frontend API 路由迁移指南
 - Before/After 对比示例
 
 ##### 1.11 故障排除
+
 - Sentry 错误未出现的问题排查
 - 错误边界未捕获错误的问题排查
 - 生产环境 console 错误问题排查
@@ -133,6 +148,7 @@ export const POST = withErrorHandling(async (request: NextRequest) => {
 **位置**: `/root/.openclaw/workspace/7zi-project/CONTRIBUTING.md`
 
 **添加内容**:
+
 - 新增 "🛡️ 错误处理最佳实践" 章节 (第 156 行)
 - API 路由错误处理规范
 - 组件错误边界规范
@@ -142,19 +158,23 @@ export const POST = withErrorHandling(async (request: NextRequest) => {
 - 相关文档链接
 
 **关键更新**:
+
 ```markdown
 ## 🛡️ 错误处理最佳实践
 
 ### API 路由错误处理
+
 ✅ 必须使用 `withErrorHandling` 包装器
 ✅ 使用标准化的错误响应函数
 ❌ 禁止直接返回 NextResponse.json 错误
 
 ### 组件错误边界
+
 ✅ 为异步组件添加错误边界
 ✅ 为 React.lazy 组件使用错误边界
 
 ### 错误日志记录
+
 ✅ 使用 logger 而不是 console.error
 ❌ 禁止使用 console.error 暴露敏感信息
 ```
@@ -164,6 +184,7 @@ export const POST = withErrorHandling(async (request: NextRequest) => {
 **位置**: `/root/.openclaw/workspace/7zi-project/docs/CODE_STYLE.md`
 
 **更新内容**:
+
 - 重写 "错误处理" 最佳实践章节 (第 275 行)
 - 添加 7zi 项目统一错误处理系统说明
 - API 路由错误处理规范 (✅ 正确 vs ❌ 错误)
@@ -173,6 +194,7 @@ export const POST = withErrorHandling(async (request: NextRequest) => {
 - 相关文档链接
 
 **关键更新**:
+
 ```markdown
 ## 最佳实践
 
@@ -181,18 +203,22 @@ export const POST = withErrorHandling(async (request: NextRequest) => {
 7zi 项目使用统一的错误处理系统。所有代码必须遵循以下规范：
 
 #### API 路由错误处理
+
 ✅ 正确 - 使用 withErrorHandling 包装器
 ❌ 错误 - 不要直接返回 NextResponse.json 错误
 
 #### 组件错误边界
+
 ✅ 正确 - 为异步组件添加错误边界
 ❌ 错误 - 没有错误边界
 
 #### 错误日志记录
+
 ✅ 正确 - 使用 logger
 ❌ 错误 - 不要使用 console.error
 
 #### 安全注意事项
+
 ✅ 正确 - 用户友好的消息
 ❌ 错误 - 不要暴露技术细节
 ```
@@ -203,15 +229,15 @@ export const POST = withErrorHandling(async (request: NextRequest) => {
 
 ### 新建文件 (1 个)
 
-| 文件路径 | 大小 | 行数 | 状态 |
-|---------|------|------|------|
+| 文件路径                        | 大小 | 行数 | 状态      |
+| ------------------------------- | ---- | ---- | --------- |
 | `/docs/ERROR_HANDLING_GUIDE.md` | 25KB | 1042 | ✅ 已创建 |
 
 ### 修改文件 (2 个)
 
-| 文件路径 | 修改类型 | 状态 |
-|---------|---------|------|
-| `/CONTRIBUTING.md` | 添加新章节 | ✅ 已更新 |
+| 文件路径              | 修改类型     | 状态      |
+| --------------------- | ------------ | --------- |
+| `/CONTRIBUTING.md`    | 添加新章节   | ✅ 已更新 |
 | `/docs/CODE_STYLE.md` | 更新现有章节 | ✅ 已更新 |
 
 ---
@@ -250,22 +276,26 @@ export const POST = withErrorHandling(async (request: NextRequest) => {
 ## 🔍 文档特点
 
 ### 1. 完整性
+
 - 涵盖错误处理的所有方面
 - 从 API 到组件的全流程指南
 - 安全、性能、最佳实践全覆盖
 
 ### 2. 实用性
+
 - 大量 ✅ 正确 / ❌ 错误对比示例
 - 可直接复制使用的代码示例
 - 常见模式和反模式说明
 
 ### 3. 可维护性
+
 - 清晰的章节结构
 - 完整的表格和图表
 - 相关文档链接
 - 参考文件列表
 
 ### 4. 安全性
+
 - 重点强调安全注意事项
 - 敏感数据处理规范
 - 生产环境错误响应清理
@@ -274,24 +304,25 @@ export const POST = withErrorHandling(async (request: NextRequest) => {
 
 ## 🎯 文档目标达成
 
-| 要求 | 状态 | 说明 |
-|------|------|------|
-| 错误处理架构概述 | ✅ | 完整的架构流程图和说明 |
-| ErrorType 枚举文档 | ✅ | 所有 11 种错误类型详细说明 |
-| createErrorResponse 使用 | ✅ | 完整的函数文档和示例 |
-| createSuccessResponse 使用 | ✅ | 完整的函数文档和示例 |
-| withErrorHandling 使用 | ✅ | 高阶函数完整指南 |
-| API 路由最佳实践 | ✅ | 完整的规范和示例 |
-| 组件错误边界指南 | ✅ | ErrorBoundaryWrapper 完整文档 |
-| Sentry 集成指南 | ✅ | 监控与上报完整说明 |
-| 代码示例 | ✅ | 5 种常见模式 + Before/After |
-| 更新现有文档 | ✅ | CONTRIBUTING.md + CODE_STYLE.md |
+| 要求                       | 状态 | 说明                            |
+| -------------------------- | ---- | ------------------------------- |
+| 错误处理架构概述           | ✅   | 完整的架构流程图和说明          |
+| ErrorType 枚举文档         | ✅   | 所有 11 种错误类型详细说明      |
+| createErrorResponse 使用   | ✅   | 完整的函数文档和示例            |
+| createSuccessResponse 使用 | ✅   | 完整的函数文档和示例            |
+| withErrorHandling 使用     | ✅   | 高阶函数完整指南                |
+| API 路由最佳实践           | ✅   | 完整的规范和示例                |
+| 组件错误边界指南           | ✅   | ErrorBoundaryWrapper 完整文档   |
+| Sentry 集成指南            | ✅   | 监控与上报完整说明              |
+| 代码示例                   | ✅   | 5 种常见模式 + Before/After     |
+| 更新现有文档               | ✅   | CONTRIBUTING.md + CODE_STYLE.md |
 
 ---
 
 ## 📚 参考文件
 
 文档基于以下参考文件创建:
+
 - ✅ `/ERROR_HANDLING_AUDIT.md` - 审计报告
 - ✅ `/src/lib/api/error-handler.ts` - 错误处理实现
 - ✅ `/src/components/ErrorBoundaryWrapper.tsx` - 错误边界实现
@@ -302,16 +333,19 @@ export const POST = withErrorHandling(async (request: NextRequest) => {
 ## 🚀 后续建议
 
 ### 短期 (1 周内)
+
 1. 审核新创建的 ERROR_HANDLING_GUIDE.md
 2. 在团队会议中介绍新的错误处理规范
 3. 标记需要迁移的 7zi-frontend API 路由
 
 ### 中期 (1 个月内)
+
 1. 迁移 7zi-frontend API 路由到统一错误处理器
 2. 添加 Suspense 边界到所有异步组件
 3. 修复 backup/encryption 模块中的 console.error
 
 ### 长期 (持续)
+
 1. 定期审查错误处理文档
 2. 根据实际使用情况更新最佳实践
 3. 添加更多常见模式和反模式示例

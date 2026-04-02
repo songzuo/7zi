@@ -8,16 +8,16 @@
 
 ## 📊 执行摘要
 
-| 检查项 | 状态 | 严重性 | 说明 |
-|--------|------|--------|------|
-| **后端 API 服务** | ✅ 正常 | - | Python API 服务运行正常，响应正常 |
-| **前端服务** | ⚠️ 警告 | 中 | 运行在开发模式，应切换到生产模式 |
-| **Nginx 反向代理** | ✅ 正常 | 低 | 运行正常，但有 IPv6 连接警告 |
-| **数据库服务** | ✅ 正常 | - | PostgreSQL 运行正常 |
-| **系统资源** | ✅ 正常 | 低 | 内存和 CPU 使用正常，磁盘 74% |
-| **API 响应时间** | ⚠️ 警告 | 中 | 响应时间 1.2s，偏慢 |
-| **WebSocket** | ⚠️ 未测试 | - | 需要专门的 WebSocket 测试工具 |
-| **部署状态** | ✅ 最近更新 | - | 最近 3 天有代码提交 |
+| 检查项             | 状态        | 严重性 | 说明                              |
+| ------------------ | ----------- | ------ | --------------------------------- |
+| **后端 API 服务**  | ✅ 正常     | -      | Python API 服务运行正常，响应正常 |
+| **前端服务**       | ⚠️ 警告     | 中     | 运行在开发模式，应切换到生产模式  |
+| **Nginx 反向代理** | ✅ 正常     | 低     | 运行正常，但有 IPv6 连接警告      |
+| **数据库服务**     | ✅ 正常     | -      | PostgreSQL 运行正常               |
+| **系统资源**       | ✅ 正常     | 低     | 内存和 CPU 使用正常，磁盘 74%     |
+| **API 响应时间**   | ⚠️ 警告     | 中     | 响应时间 1.2s，偏慢               |
+| **WebSocket**      | ⚠️ 未测试   | -      | 需要专门的 WebSocket 测试工具     |
+| **部署状态**       | ✅ 最近更新 | -      | 最近 3 天有代码提交               |
 
 **总体评估**: 🟡 系统基本正常运行，但存在性能和配置优化空间
 
@@ -26,6 +26,7 @@
 ## 1️⃣ 服务部署状态
 
 ### PM2 进程管理
+
 ```
 状态: ⚠️ PM2 未运行任何进程
 说明: 应用程序通过其他方式管理（systemd 或直接运行）
@@ -40,6 +41,7 @@
 | mesh.mjs (Claw Mesh) | 880 | - | 0.0% | 0.2% | 3 days |
 
 ### 监听端口
+
 ```
 2000/tcp    - Python API Gateway (主后端)
 3001/tcp    - Node.js 服务 (前端/后端)
@@ -54,17 +56,20 @@
 ## 2️⃣ API 端点响应测试
 
 ### 认证端点测试
-| 端点 | 方法 | 状态码 | 响应时间 | 连接时间 | 评估 |
-|------|------|--------|----------|----------|------|
-| /api/user/login | POST | 401 | 1.20s | 0.28s | ⚠️ 响应时间偏长 |
-| /api/channels | GET | 403 | 1.20s | 0.28s | ⚠️ 响应时间偏长 |
+
+| 端点            | 方法 | 状态码 | 响应时间 | 连接时间 | 评估            |
+| --------------- | ---- | ------ | -------- | -------- | --------------- |
+| /api/user/login | POST | 401    | 1.20s    | 0.28s    | ⚠️ 响应时间偏长 |
+| /api/channels   | GET  | 403    | 1.20s    | 0.28s    | ⚠️ 响应时间偏长 |
 
 **测试结果**:
+
 - ✅ API 端点可访问
 - ✅ 认证逻辑正常（返回预期错误）
 - ⚠️ 响应时间 1.2 秒偏长，建议优化到 <500ms
 
 ### 性能指标
+
 - **总响应时间**: 1.20s
 - **TCP 连接时间**: 0.28s
 - **建议目标**: 响应时间 < 500ms
@@ -76,6 +81,7 @@
 **状态**: ⚠️ 未直接测试
 
 **说明**:
+
 - WebSocket 端点需要专门的测试工具（如 `wscat` 或浏览器测试）
 - 当前通过 API 测试无法验证 WebSocket 连接
 - 建议使用以下命令测试：
@@ -90,17 +96,20 @@
 ## 4️⃣ 数据库连接池状态
 
 ### PostgreSQL 服务
+
 ```
 服务状态: ✅ active (running)
 运行时间: 3 days (自 2026-03-24 08:47:41)
 ```
 
 **连接池检查**:
+
 - ⚠️ 无法通过当前用户检查活动连接（权限限制）
 - ✅ 服务状态正常，可以接收连接
 - 📊 建议监控：活动连接数、空闲连接数、连接超时
 
 **监控建议**:
+
 ```sql
 -- 推荐监控查询
 SELECT count(*) as active_connections FROM pg_stat_activity WHERE state = 'active';
@@ -112,6 +121,7 @@ SELECT count(*) as idle_connections FROM pg_stat_activity WHERE state = 'idle';
 ## 5️⃣ 前端资源加载性能
 
 ### 前端服务状态
+
 ```
 状态: ⚠️ 运行在开发模式 (DEV)
 进程: next-server (PID: 3070785)
@@ -128,17 +138,20 @@ SELECT count(*) as idle_connections FROM pg_stat_activity WHERE state = 'idle';
 | HTTP 状态码 | 307 (临时重定向) | ⚠️ 应优化到 200 |
 
 **关键问题**:
+
 1. ❌ **前端运行在开发模式** - 性能较差，应切换到生产构建
 2. ⚠️ 加载时间 2.09 秒，目标应 < 1 秒
 3. ⚠️ 返回 307 重定向，应优化路由配置
 
 **前端服务错误日志**:
+
 ```
 Error: Could not find a production build in the '.next' directory.
 Try building your app with 'next build' before starting the production server.
 ```
 
 **建议操作**:
+
 ```bash
 cd /var/www/7zi
 npm run build   # 生成生产构建
@@ -150,6 +163,7 @@ pm2 start npm --name "7zi-frontend" -- start   # 使用 PM2 管理
 ## 6️⃣ 最近部署记录
 
 ### API Gateway 最近提交（过去 3 天）
+
 ```
 bb05498 fix: 修复 OpenAI 兼容路由实现方式
 0b698f0 feat: 添加 OpenAI 兼容路由中间件
@@ -161,6 +175,7 @@ bb25657 feat: 支持 Codex SSE 格式解析
 ```
 
 **部署时间线**:
+
 - 最后提交: 2026-03-27
 - Nginx 重载: 2026-03-24 19:24:18
 - PM2 日志最后更新: 2026-03-25 12:34
@@ -172,6 +187,7 @@ bb25657 feat: 支持 Codex SSE 格式解析
 ## 7️⃣ Nginx 状态和错误日志
 
 ### Nginx 服务
+
 ```
 状态: ✅ active (running)
 运行时间: 3 days (自 2026-03-24 08:47:27)
@@ -182,6 +198,7 @@ Worker 进程: 8 个
 ### 警告和错误
 
 #### 配置警告（低优先级）
+
 ```
 ⚠️ conflicting server name "7zi.com" on 0.0.0.0:80, ignored
 ⚠️ conflicting server name "www.7zi.com" on 0.0.0.0:443, ignored
@@ -191,6 +208,7 @@ Worker 进程: 8 个
 ```
 
 #### 连接错误（中优先级）
+
 ```
 ❌ connect() to [2001:67c:4e8:f004::9]:443 failed (101: Unknown error)
 说明: IPv6 上游连接失败
@@ -199,6 +217,7 @@ Worker 进程: 8 个
 ```
 
 #### 上游连接失败（中优先级）
+
 ```
 ❌ connect() failed (111: Unknown error) while connecting to upstream
 说明: 连接到 127.0.0.1:2000 失败
@@ -208,6 +227,7 @@ Worker 进程: 8 个
 ```
 
 #### 文件不存在错误（低优先级）
+
 ```
 ❌ open() "/usr/share/nginx/html/favicon.ico" failed (2: No such file or directory)
 ❌ open() "/usr/share/nginx/html/login" failed (2: No such file or directory)
@@ -216,6 +236,7 @@ Worker 进程: 8 个
 ```
 
 **建议**:
+
 1. 🔧 清理重复的 server_name 配置
 2. 🔧 检查 IPv6 上游配置，或禁用 IPv6
 3. 🔧 监控 127.0.0.1:2000 连接失败原因
@@ -226,6 +247,7 @@ Worker 进程: 8 个
 ## 8️⃣ 系统资源状态
 
 ### 系统负载和运行时间
+
 ```
 运行时间: 3 days, 13:40
 负载平均值: 0.22 (1min) | 0.25 (5min) | 0.27 (15min)
@@ -233,6 +255,7 @@ Worker 进程: 8 个
 ```
 
 ### 内存使用
+
 ```
 总计: 7.8 Gi
 已用: 4.6 Gi
@@ -241,6 +264,7 @@ Worker 进程: 8 个
 ```
 
 ### 磁盘使用
+
 ```
 Filesystem: /dev/vda1
 总计: 88G
@@ -251,6 +275,7 @@ Filesystem: /dev/vda1
 ```
 
 ### 网络连接
+
 ```
 建立连接数: 24
 评估: ✅ 连接数正常
@@ -304,6 +329,7 @@ Filesystem: /dev/vda1
 ## 📈 监控指标建议
 
 ### 应添加的监控项
+
 1. **响应时间监控**
    - API 平均响应时间
    - 目标: < 500ms
@@ -334,17 +360,20 @@ Filesystem: /dev/vda1
 ## 🎯 下一步行动
 
 ### 立即执行（今天）
+
 1. ✅ 检查前端生产构建状态
 2. ✅ 测试 WebSocket 连接
 3. ✅ 监控后端服务连接稳定性
 
 ### 本周内完成
+
 4. 🔧 前端切换到生产模式
 5. 🔧 优化 API 响应时间
 6. 🔧 清理 Nginx 配置警告
 7. 🔧 检查 IPv6 上游配置
 
 ### 持续监控
+
 8. 📊 设置响应时间告警
 9. 📊 设置磁盘空间告警
 10. 📊 定期检查错误日志
@@ -354,6 +383,7 @@ Filesystem: /dev/vda1
 ## 📝 检查命令参考
 
 ### 快速健康检查
+
 ```bash
 # PM2 状态
 pm2 status
@@ -380,6 +410,7 @@ sudo -u postgres psql -c "SELECT count(*) FROM pg_stat_activity WHERE state = 'a
 ```
 
 ### API 测试
+
 ```bash
 # 测试登录端点
 curl -X POST https://api.7zi.com/api/user/login \

@@ -5,13 +5,13 @@
  */
 
 // Types
-export * from './types';
+export * from './types'
 
 // Service
-export * from './service';
+export * from './service'
 
 // Repository
-export * from './repository';
+export * from './repository'
 
 // Middleware (RBAC-enhanced)
-export * from './middleware-rbac';
+export * from './middleware-rbac'

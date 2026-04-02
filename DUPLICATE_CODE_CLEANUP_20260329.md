@@ -12,12 +12,12 @@
 
 在多个文件中发现了重复的加密函数实现：
 
-| 文件 | 重复的函数 | 行号 |
-|------|-----------|------|
-| `src/lib/crypto/index.ts` | ✅ 正确实现（保留） | - |
-| `src/lib/agent/repository.ts` | encryptApiKey, decryptApiKey, getEncryptionSecret, generateSecureToken | 28-73 (46行) |
-| `src/lib/agent/repository-optimized.ts` | encryptApiKey, decryptApiKey, getEncryptionSecret, generateId, generateSecureToken | 22-83 (62行) |
-| `src/lib/agent/repository-optimized-v2.ts` | encryptApiKey, decryptApiKey, getEncryptionSecret, generateSecureToken | 26-75 (50行) |
+| 文件                                       | 重复的函数                                                                         | 行号         |
+| ------------------------------------------ | ---------------------------------------------------------------------------------- | ------------ |
+| `src/lib/crypto/index.ts`                  | ✅ 正确实现（保留）                                                                | -            |
+| `src/lib/agent/repository.ts`              | encryptApiKey, decryptApiKey, getEncryptionSecret, generateSecureToken             | 28-73 (46行) |
+| `src/lib/agent/repository-optimized.ts`    | encryptApiKey, decryptApiKey, getEncryptionSecret, generateId, generateSecureToken | 22-83 (62行) |
+| `src/lib/agent/repository-optimized-v2.ts` | encryptApiKey, decryptApiKey, getEncryptionSecret, generateSecureToken             | 26-75 (50行) |
 
 ### 2. 代码重复统计
 
@@ -45,6 +45,7 @@ src/lib/agent/repository-optimized-v2.ts → src/lib/agent/repository-optimized-
 #### 2.1 `src/lib/agent/repository.ts`
 
 **修改前**:
+
 ```typescript
 import * as crypto from 'crypto';
 
@@ -56,13 +57,9 @@ function generateSecureToken(): string { ... }
 ```
 
 **修改后**:
+
 ```typescript
-import {
-  encryptApiKey,
-  decryptApiKey,
-  getEncryptionSecret,
-  generateSecureToken,
-} from '../crypto';
+import { encryptApiKey, decryptApiKey, getEncryptionSecret, generateSecureToken } from '../crypto'
 ```
 
 **删除行数**: 42 行
@@ -70,6 +67,7 @@ import {
 #### 2.2 `src/lib/agent/repository-optimized.ts`
 
 **修改前**:
+
 ```typescript
 import * as crypto from 'crypto';
 
@@ -82,12 +80,10 @@ function generateSecureToken(): string { ... }
 ```
 
 **修改后**:
+
 ```typescript
-import {
-  encryptApiKey,
-  getEncryptionSecret,
-} from '../crypto';
-import { generateId } from '../utils';
+import { encryptApiKey, getEncryptionSecret } from '../crypto'
+import { generateId } from '../utils'
 
 // 移除未使用的 decryptApiKey 和 generateSecureToken 导入
 // 移除重复的 generateId 实现（使用 utils 版本）
@@ -98,6 +94,7 @@ import { generateId } from '../utils';
 #### 2.3 `src/lib/agent/repository-optimized-v2.ts`
 
 **修改前**:
+
 ```typescript
 import * as crypto from 'crypto';
 
@@ -109,13 +106,9 @@ function generateSecureToken(): string { ... }
 ```
 
 **修改后**:
+
 ```typescript
-import {
-  encryptApiKey,
-  decryptApiKey,
-  getEncryptionSecret,
-  generateSecureToken,
-} from '../crypto';
+import { encryptApiKey, decryptApiKey, getEncryptionSecret, generateSecureToken } from '../crypto'
 
 // 移除未使用的 executeQuery 导入
 ```
@@ -175,6 +168,7 @@ import {
 ## 总结
 
 本次清理成功：
+
 - ✅ 移除了 3 个文件中的 12 个重复函数实现
 - ✅ 删除了 135 行重复代码
 - ✅ 所有文件都通过 Lint 检查
@@ -183,6 +177,7 @@ import {
 - ✅ 创建了 3 个备份文件确保数据安全
 
 **下一步建议**:
+
 1. 考虑定期检查代码重复（可使用 jscpd 等工具）
 2. 在代码审查中加入重复代码检查项
 3. 考虑删除或归档 `repository-optimized*.ts` 文件，统一使用一个实现

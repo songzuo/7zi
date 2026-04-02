@@ -10,12 +10,12 @@
 
 ### 关键发现
 
-| 指标 | 当前值 | 目标值 | 状态 |
-|------|--------|--------|------|
-| 总体静态资源体积 | 4.7 MB | < 2 MB | 🔴 需要优化 |
-| chunks 目录体积 | 4.4 MB | < 1.5 MB | 🔴 需要优化 |
-| 最大单文件 | 1.3 MB | < 500 KB | 🔴 严重超限 |
-| 超限 entrypoint 数量 | 83 个 | 0 个 | 🔴 严重超限 |
+| 指标                 | 当前值 | 目标值   | 状态        |
+| -------------------- | ------ | -------- | ----------- |
+| 总体静态资源体积     | 4.7 MB | < 2 MB   | 🔴 需要优化 |
+| chunks 目录体积      | 4.4 MB | < 1.5 MB | 🔴 需要优化 |
+| 最大单文件           | 1.3 MB | < 500 KB | 🔴 严重超限 |
+| 超限 entrypoint 数量 | 83 个  | 0 个     | 🔴 严重超限 |
 
 ### 潜在优化收益
 
@@ -38,6 +38,7 @@
 ### 1.2 构建告警摘要
 
 **超大资源警告 (>500 KB)**:
+
 - `../app/api/analytics/export/route.js` - 822 KB
 - `../app/collaboration-demo/page.js` - 1.3 MB
 - `../app/[locale]/analytics/test/page.js` - 505 KB
@@ -52,18 +53,18 @@
 
 ### 2.1 Top 10 最大 Chunks (>100 KB)
 
-| 文件名 | 大小 | 类型 | 优先级 |
-|--------|------|------|--------|
-| `three-libs-628d97d9.js` | 365 KB | 3D 库 | 60 |
-| `three-libs-06afcb45.js` | 345 KB | 3D 库 | 60 |
-| `framework-1c490867.js` | 196 KB | 框架 | 35 |
-| `framework-f7f7243c.js` | 171 KB | 框架 | 35 |
-| `three-libs-8743d79b.js` | 142 KB | 3D 库 | 60 |
-| `framework-d41eb72e.js` | 128 KB | 框架 | 35 |
-| `polyfills-42372ed1.js` | 110 KB | Polyfills | N/A |
-| `8187.js` | 92 KB | 应用代码 | N/A |
-| `chart-libs-664d7b50.js` | 82 KB | 图表库 | 50 |
-| `framework-bdf5bfda.js` | 75 KB | 框架 | 35 |
+| 文件名                   | 大小   | 类型      | 优先级 |
+| ------------------------ | ------ | --------- | ------ |
+| `three-libs-628d97d9.js` | 365 KB | 3D 库     | 60     |
+| `three-libs-06afcb45.js` | 345 KB | 3D 库     | 60     |
+| `framework-1c490867.js`  | 196 KB | 框架      | 35     |
+| `framework-f7f7243c.js`  | 171 KB | 框架      | 35     |
+| `three-libs-8743d79b.js` | 142 KB | 3D 库     | 60     |
+| `framework-d41eb72e.js`  | 128 KB | 框架      | 35     |
+| `polyfills-42372ed1.js`  | 110 KB | Polyfills | N/A    |
+| `8187.js`                | 92 KB  | 应用代码  | N/A    |
+| `chart-libs-664d7b50.js` | 82 KB  | 图表库    | 50     |
+| `framework-bdf5bfda.js`  | 75 KB  | 框架      | 35     |
 
 ### 2.2 Three.js 相关包分析
 
@@ -78,6 +79,7 @@ three-libs-8743d79b.js      142 KB
 ```
 
 **使用情况**:
+
 - 实际使用页面: 仅 `KnowledgeLatticeScene.tsx` (1 个页面)
 - 潜在使用: 可能有其他动态导入场景
 
@@ -88,6 +90,7 @@ three-libs-8743d79b.js      142 KB
 **React/Next.js 相关**: 8 个 framework chunks，总计约 750 KB
 
 **问题**:
+
 - 多个 framework chunks (196KB, 171KB, 128KB, 75KB, 70KB, 68KB, 45KB, 38KB)
 - 可能存在框架代码重复加载
 - 未充分利用浏览器缓存
@@ -98,18 +101,19 @@ three-libs-8743d79b.js      142 KB
 
 ### 3.1 已识别的大型依赖
 
-| 包名 | 体积估算 | 使用情况 | 优化潜力 |
-|------|----------|----------|----------|
-| three | 852 KB | 仅 1 个页面 | ⭐⭐⭐⭐⭐ 高 |
-| @react-three/fiber | (包含在 three-libs) | 动态导入 | ⭐⭐⭐⭐ 高 |
-| @react-three/drei | (包含在 three-libs) | 动态导入 | ⭐⭐⭐⭐ 高 |
-| recharts | ~82 KB | Analytics 页面 | ⭐⭐⭐ 中 |
-| next/react | ~750 KB | 全局必需 | ⭐⭐ 低 |
-| polyfills | 110 KB | 全局加载 | ⭐⭐⭐⭐ 高 |
+| 包名               | 体积估算            | 使用情况       | 优化潜力      |
+| ------------------ | ------------------- | -------------- | ------------- |
+| three              | 852 KB              | 仅 1 个页面    | ⭐⭐⭐⭐⭐ 高 |
+| @react-three/fiber | (包含在 three-libs) | 动态导入       | ⭐⭐⭐⭐ 高   |
+| @react-three/drei  | (包含在 three-libs) | 动态导入       | ⭐⭐⭐⭐ 高   |
+| recharts           | ~82 KB              | Analytics 页面 | ⭐⭐⭐ 中     |
+| next/react         | ~750 KB             | 全局必需       | ⭐⭐ 低       |
+| polyfills          | 110 KB              | 全局加载       | ⭐⭐⭐⭐ 高   |
 
 ### 3.2 Tree-shaking 效果评估
 
 **已配置的 Tree-shaking**:
+
 ```javascript
 // next.config.ts
 optimization.usedExports = true
@@ -118,6 +122,7 @@ optimization.providedExports = true
 ```
 
 **已配置的 optimizePackageImports**:
+
 ```javascript
 experimental.optimizePackageImports: [
   'next-intl', '@sentry/nextjs', 'zustand', 'web-vitals', 'lucide-react',
@@ -134,30 +139,28 @@ experimental.optimizePackageImports: [
 ### 4.1 已实现的动态导入
 
 **Three.js 优化代码**:
+
 ```typescript
 // src/lib/code-splitting.tsx
-const ThreeFiber = React.lazy(() =>
-  import('@react-three/fiber').then((mod) => mod.default)
-);
-const ThreeDrei = React.lazy(() =>
-  import('@react-three/drei').then((mod) => mod)
-);
+const ThreeFiber = React.lazy(() => import('@react-three/fiber').then(mod => mod.default))
+const ThreeDrei = React.lazy(() => import('@react-three/drei').then(mod => mod))
 
 // Preloading logic
-preloadChunk(() => import('@react-three/fiber'));
-preloadChunk(() => import('@react-three/drei'));
+preloadChunk(() => import('@react-three/fiber'))
+preloadChunk(() => import('@react-three/drei'))
 ```
 
 **使用页面**:
+
 - `/[locale]/knowledge-lattice` - KnowledgeLatticeScene (使用 Canvas)
 
 ### 4.2 未使用动态导入的页面
 
-| 路由 | 体积 | 大型依赖 | 建议 |
-|------|------|----------|------|
-| `/[locale]/analytics/test` | 505 KB | 可能包含图表库 | ⚠️ 需要检查 |
-| `/collaboration-demo` | 1.3 MB | WebSocket + 依赖 | ✅ 已分离，但仍有依赖 |
-| `/api/analytics/export` | 822 KB | 可能包含 xlsx | ⚠️ 需要动态导入 |
+| 路由                       | 体积   | 大型依赖         | 建议                  |
+| -------------------------- | ------ | ---------------- | --------------------- |
+| `/[locale]/analytics/test` | 505 KB | 可能包含图表库   | ⚠️ 需要检查           |
+| `/collaboration-demo`      | 1.3 MB | WebSocket + 依赖 | ✅ 已分离，但仍有依赖 |
+| `/api/analytics/export`    | 822 KB | 可能包含 xlsx    | ⚠️ 需要动态导入       |
 
 ---
 
@@ -194,16 +197,15 @@ polyfills              110 KB  2.5%   ⚠️
 **当前配置**: 全局加载 110 KB polyfills
 
 **建议**:
+
 ```javascript
 // next.config.ts
-const polyfills = [
-  'fetch', 'Promise', 'Object.assign', 'Array.from', 'String.prototype.startsWith'
-];
+const polyfills = ['fetch', 'Promise', 'Object.assign', 'Array.from', 'String.prototype.startsWith']
 
 const nextConfig = {
   // 使用 @next/bundle-analyzer 检测实际需要的 polyfills
   // 考虑使用 core-js 按需加载
-};
+}
 ```
 
 **潜在收益**: 减少 80-100 KB
@@ -211,10 +213,12 @@ const nextConfig = {
 ### 6.2 重复的依赖
 
 **发现**:
+
 - Three.js 有 3 个独立 chunks，可能包含重复代码
 - Framework 有 8 个 chunks，部分代码可能重复
 
 **建议**:
+
 ```javascript
 // next.config.ts - 优化 splitChunks 配置
 cacheGroups: {
@@ -238,6 +242,7 @@ cacheGroups: {
 ### 6.3 过大的图标库
 
 **当前配置**:
+
 ```javascript
 experimental.optimizePackageImports: ['lucide-react']
 ```
@@ -245,12 +250,13 @@ experimental.optimizePackageImports: ['lucide-react']
 **检查**: 需要验证 lucide-react 是否按需导入
 
 **建议**:
+
 ```typescript
 // ✅ 正确 - 按需导入
-import { Home, Settings, User } from 'lucide-react';
+import { Home, Settings, User } from 'lucide-react'
 
 // ❌ 错误 - 导入整个库
-import * as Icons from 'lucide-react';
+import * as Icons from 'lucide-react'
 ```
 
 **潜在收益**: 如果误用，可减少 50-100 KB
@@ -260,6 +266,7 @@ import * as Icons from 'lucide-react';
 #### 高优先级 (>500 KB 页面)
 
 1. **`/collaboration-demo` (1.3 MB)**
+
    ```typescript
    const CollaborationDemo = dynamic(() => import('./collaboration-demo/page'), {
      loading: () => <div>Loading...</div>,
@@ -267,10 +274,11 @@ import * as Icons from 'lucide-react';
    ```
 
 2. **`/api/analytics/export` (822 KB)**
+
    ```typescript
    // 在 API route 内部动态导入
-   const xlsx = await import('xlsx');
-   const workbook = xlsx.utils.book_new();
+   const xlsx = await import('xlsx')
+   const workbook = xlsx.utils.book_new()
    ```
 
 3. **`/[locale]/analytics/test` (505 KB)**
@@ -278,7 +286,7 @@ import * as Icons from 'lucide-react';
    // 动态导入测试组件
    const AnalyticsTest = dynamic(() => import('@/components/analytics/test'), {
      ssr: false, // 客户端组件，不需要 SSR
-   });
+   })
    ```
 
 #### 中优先级 (>300 KB 页面)
@@ -301,14 +309,14 @@ webpack: (config, { dev, isServer }) => {
     usedExports: true,
     sideEffects: false, // 更严格的副作用检查
     providedExports: true,
-  };
+  }
 
   // 启用模块压缩
   if (!dev) {
-    config.optimization.minimize = true;
+    config.optimization.minimize = true
   }
 
-  return config;
+  return config
 }
 ```
 
@@ -335,24 +343,24 @@ const DashboardPage = dynamic(() => import('./dashboard/page'));
 
 ### 阶段 1: 快速优化 (1-2 天)
 
-| 优先级 | 任务 | 预计收益 | 工作量 |
-|--------|------|----------|--------|
-| 🔴 高 | 动态导入 collaboration-demo | 减少 1.3 MB | 2h |
-| 🔴 高 | 动态导入 /api/analytics/export 的 xlsx | 减少 500 KB | 2h |
-| 🟡 中 | 优化 polyfills 配置 | 减少 80-100 KB | 4h |
-| 🟡 中 | 验证 lucide-react 按需导入 | 减少 0-100 KB | 2h |
+| 优先级 | 任务                                   | 预计收益       | 工作量 |
+| ------ | -------------------------------------- | -------------- | ------ |
+| 🔴 高  | 动态导入 collaboration-demo            | 减少 1.3 MB    | 2h     |
+| 🔴 高  | 动态导入 /api/analytics/export 的 xlsx | 减少 500 KB    | 2h     |
+| 🟡 中  | 优化 polyfills 配置                    | 减少 80-100 KB | 4h     |
+| 🟡 中  | 验证 lucide-react 按需导入             | 减少 0-100 KB  | 2h     |
 
 **阶段 1 预计收益**: 减少 1.9 - 2.0 MB
 
 ### 阶段 2: 深度优化 (3-5 天)
 
-| 优先级 | 任务 | 预计收益 | 工作量 |
-|--------|------|----------|--------|
-| 🔴 高 | 优化 splitChunks 配置 | 减少 200-300 KB | 4h |
-| 🔴 高 | 动态导入 analytics/test 页面 | 减少 300 KB | 2h |
-| 🟡 中 | 路由级懒加载 (dashboard, portfolio) | 减少 200-300 KB | 6h |
-| 🟡 中 | 审查并移除未使用的依赖 | 减少 100-200 KB | 8h |
-| 🟢 低 | 启用更激进的 tree-shaking | 减少 50-100 KB | 4h |
+| 优先级 | 任务                                | 预计收益        | 工作量 |
+| ------ | ----------------------------------- | --------------- | ------ |
+| 🔴 高  | 优化 splitChunks 配置               | 减少 200-300 KB | 4h     |
+| 🔴 高  | 动态导入 analytics/test 页面        | 减少 300 KB     | 2h     |
+| 🟡 中  | 路由级懒加载 (dashboard, portfolio) | 减少 200-300 KB | 6h     |
+| 🟡 中  | 审查并移除未使用的依赖              | 减少 100-200 KB | 8h     |
+| 🟢 低  | 启用更激进的 tree-shaking           | 减少 50-100 KB  | 4h     |
 
 **阶段 2 预计收益**: 减少 0.8 - 1.2 MB
 
@@ -369,13 +377,13 @@ const DashboardPage = dynamic(() => import('./dashboard/page'));
 
 ### 8.1 目标指标
 
-| 指标 | 当前值 | 目标值 | 预期值 |
-|------|--------|--------|--------|
-| 总体静态资源 | 4.7 MB | < 2 MB | 2.2 MB |
-| chunks 目录 | 4.4 MB | < 1.5 MB | 2.0 MB |
-| 最大单文件 | 1.3 MB | < 500 KB | 350 KB |
-| 首次加载 (LCP) | 未知 | < 2.5s | 改善 30-40% |
-| FID | 未知 | < 100ms | 改善 40-50% |
+| 指标           | 当前值 | 目标值   | 预期值      |
+| -------------- | ------ | -------- | ----------- |
+| 总体静态资源   | 4.7 MB | < 2 MB   | 2.2 MB      |
+| chunks 目录    | 4.4 MB | < 1.5 MB | 2.0 MB      |
+| 最大单文件     | 1.3 MB | < 500 KB | 350 KB      |
+| 首次加载 (LCP) | 未知   | < 2.5s   | 改善 30-40% |
+| FID            | 未知   | < 100ms  | 改善 40-50% |
 
 ### 8.2 收益计算
 
@@ -396,6 +404,7 @@ const DashboardPage = dynamic(() => import('./dashboard/page'));
 ### 9.1 持续监控工具
 
 1. **Bundle Analyzer**
+
    ```bash
    # 每次构建后自动生成报告
    npm run build:analyze

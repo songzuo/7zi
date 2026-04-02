@@ -1,3 +1,3 @@
-'use client';
+'use client'
 
-export { DashboardError as default } from '@/components/errors';
+export { DashboardError as default } from '@/components/errors'

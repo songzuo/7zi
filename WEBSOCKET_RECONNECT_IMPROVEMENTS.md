@@ -13,9 +13,9 @@
 
 项目中有两套 WebSocket 实现:
 
-| 位置 | 用途 | 成熟度 |
-|------|------|--------|
-| `src/lib/websocket-manager.ts` | 通用通知/消息 | ⭐⭐⭐⭐ 完善 |
+| 位置                                              | 用途                        | 成熟度          |
+| ------------------------------------------------- | --------------------------- | --------------- |
+| `src/lib/websocket-manager.ts`                    | 通用通知/消息               | ⭐⭐⭐⭐ 完善   |
 | `src/features/websocket/lib/websocket-manager.ts` | 协作功能 (useCollaboration) | ⭐⭐⭐ 有待优化 |
 
 ### 1.2 现有优点 ✅
@@ -32,6 +32,7 @@
 ### 1.3 发现的问题 ⚠️
 
 #### 问题 1: 缺少 Jitter (抖动) ⚠️ 中等
+
 **现象**: 所有客户端在断线后同时以相同延迟重连 → "惊群效应"
 
 ```
@@ -44,6 +45,7 @@ Client C: 1s → 2s → 4s → 8s...  ← 同时到达
 ```
 
 #### 问题 2: 断线原因未区分 ⚠️ 中等
+
 **现象**: 所有错误类型使用相同重连策略
 
 ```typescript
@@ -59,7 +61,8 @@ this.scheduleReconnection(); // 所有错误一样
 ```
 
 #### 问题 3: 服务器心跳超时过严 ⚠️ 低
-**现象**: 服务器 60s 超时 vs 客户端 25s*3=75s 最大检测时间
+
+**现象**: 服务器 60s 超时 vs 客户端 25s\*3=75s 最大检测时间
 
 ```
 Socket.IO 配置:
@@ -73,38 +76,41 @@ pingInterval: 25000 (25s)    ← 服务器发送频率
 ```
 
 #### 问题 4: 重连后状态恢复不完整 ⚠️ 高
+
 **现象**: useCollaboration.ts 重连后丢失房间/文档状态
 
 ```typescript
 // 当前 disconnect 处理
 socket.on('disconnect', () => {
-  setIsInRoom(false);    // ❌ 重连后需要手动重新加入
-  setUsers([]);           // ❌ 用户列表丢失
-});
+  setIsInRoom(false) // ❌ 重连后需要手动重新加入
+  setUsers([]) // ❌ 用户列表丢失
+})
 ```
 
 #### 问题 5: 缺少"快速重连"机制 ⚠️ 低
+
 **现象**: 浏览器断网恢复后，页面不会立即重连
 
 ```typescript
 // 浏览器恢复网络时，没有监听
 window.addEventListener('online', () => {
   // 立即尝试重连，而不是等待下次调度
-});
+})
 ```
 
 #### 问题 6: 重连成功/失败无回调 ⚠️ 低
+
 **现象**: 上层组件无法感知重连完成
 
 ```typescript
 // 缺少这样的 API:
 wsManager.onReconnect((attempt, duration) => {
-  toast.success(`已恢复连接 (尝试${attempt}次)`);
-});
+  toast.success(`已恢复连接 (尝试${attempt}次)`)
+})
 
 wsManager.onReconnectFailed((attempts, error) => {
-  toast.error('连接失败，请检查网络');
-});
+  toast.error('连接失败，请检查网络')
+})
 ```
 
 ---
@@ -141,33 +147,33 @@ Attempt 3: 4000 + [0-2000]  = 4000~6000ms
 const RECONNECT_STRATEGIES = {
   'io client disconnect': {
     shouldReconnect: false,
-    reason: '用户主动断开'
+    reason: '用户主动断开',
   },
   'io server disconnect': {
     shouldReconnect: true,
     initialDelay: 1000,
     maxAttempts: 10,
-    strategy: 'normal'
+    strategy: 'normal',
   },
   'ping timeout': {
     shouldReconnect: true,
-    initialDelay: 500,     // 快速重连
+    initialDelay: 500, // 快速重连
     maxAttempts: 5,
-    strategy: 'aggressive'
+    strategy: 'aggressive',
   },
   'transport close': {
     shouldReconnect: true,
     initialDelay: 1000,
     maxAttempts: 10,
-    strategy: 'normal'
+    strategy: 'normal',
   },
   'transport error': {
     shouldReconnect: true,
-    initialDelay: 2000,    // 稍等一下
+    initialDelay: 2000, // 稍等一下
     maxAttempts: 8,
-    strategy: 'conservative'
-  }
-};
+    strategy: 'conservative',
+  },
+}
 ```
 
 ### 2.3 心跳优化策略
@@ -185,19 +191,19 @@ const RECONNECT_STRATEGIES = {
 
 ```typescript
 interface HeartbeatConfig {
-  interval: number;           // 当前: 固定 25000ms
-  timeout: number;            // 当前: 固定 10000ms
-  maxMissed: number;          // 当前: 固定 3次
-  adaptiveInterval: boolean;   // 新增: 自适应开关
-  latencyThreshold: number;    // 新增: 延迟阈值 (ms)
+  interval: number // 当前: 固定 25000ms
+  timeout: number // 当前: 固定 10000ms
+  maxMissed: number // 当前: 固定 3次
+  adaptiveInterval: boolean // 新增: 自适应开关
+  latencyThreshold: number // 新增: 延迟阈值 (ms)
 }
 
 // 自适应算法示例
 function calculateNextPingInterval(avgLatency: number): number {
-  const base = 25000;
-  const safetyMargin = 5000;
-  const calculated = Math.max(avgLatency * 10, base);
-  return Math.min(calculated + safetyMargin, 60000); // 最多60s
+  const base = 25000
+  const safetyMargin = 5000
+  const calculated = Math.max(avgLatency * 10, base)
+  return Math.min(calculated + safetyMargin, 60000) // 最多60s
 }
 ```
 
@@ -205,28 +211,28 @@ function calculateNextPingInterval(avgLatency: number): number {
 
 ```typescript
 interface ConnectionHealth {
-  score: number;              // 0-100
-  latency: number;            // 当前延迟
-  avgLatency: number;         // 平均延迟
-  missedHeartbeats: number;   // 连续丢失
-  lastConnectedAt: number;     // 上次连接时间
-  reconnectionCount: number;   // 今日重连次数
+  score: number // 0-100
+  latency: number // 当前延迟
+  avgLatency: number // 平均延迟
+  missedHeartbeats: number // 连续丢失
+  lastConnectedAt: number // 上次连接时间
+  reconnectionCount: number // 今日重连次数
 }
 
 // 健康度计算
 function calculateHealth(stats): ConnectionHealth {
-  let score = 100;
-  
+  let score = 100
+
   // 延迟扣分 (每 100ms -5分)
-  score -= Math.min(Math.floor(stats.avgLatency / 100) * 5, 30);
-  
+  score -= Math.min(Math.floor(stats.avgLatency / 100) * 5, 30)
+
   // 丢失心跳扣分 (每次 -10分)
-  score -= stats.missedHeartbeats * 10;
-  
+  score -= stats.missedHeartbeats * 10
+
   // 频繁重连扣分 (每天 >10次 -20分)
-  if (stats.reconnectionCount > 10) score -= 20;
-  
-  return { ...stats, score: Math.max(0, score) };
+  if (stats.reconnectionCount > 10) score -= 20
+
+  return { ...stats, score: Math.max(0, score) }
 }
 ```
 
@@ -235,27 +241,27 @@ function calculateHealth(stats): ConnectionHealth {
 ```typescript
 // 网络状态变化监听
 window.addEventListener('online', () => {
-  logger.log('[WebSocket] Network online, attempting fast reconnect');
+  logger.log('[WebSocket] Network online, attempting fast reconnect')
   // 立即重连，不等待调度器
   if (this.state !== ConnectionState.CONNECTED) {
-    this.immediateReconnect?.();
+    this.immediateReconnect?.()
   }
-});
+})
 
 window.addEventListener('offline', () => {
-  logger.log('[WebSocket] Network offline');
+  logger.log('[WebSocket] Network offline')
   // 标记状态，但不立即断开 (让心跳处理)
-});
+})
 
 // 可选: visibilitychange (标签页切换回来时)
 document.addEventListener('visibilitychange', () => {
   if (document.visibilityState === 'visible') {
     // 用户切回来，检查连接
     if (!this.isConnected()) {
-      this.immediateReconnect?.();
+      this.immediateReconnect?.()
     }
   }
-});
+})
 ```
 
 ### 2.6 优雅关闭机制
@@ -263,25 +269,25 @@ document.addEventListener('visibilitychange', () => {
 ```typescript
 async gracefulShutdown(): Promise<void> {
   logger.log('[WebSocket] Graceful shutdown initiated');
-  
+
   // 1. 停止新的消息发送
   this._acceptingMessages = false;
-  
+
   // 2. 等待队列清空 (最多5秒)
   const startTime = Date.now();
   while (this.queue.length > 0 && Date.now() - startTime < 5000) {
     await this.sleep(100);
   }
-  
+
   // 3. 发送关闭信号
   this.socket?.emit('client:closing', { timestamp: Date.now() });
-  
+
   // 4. 等待服务器确认 (最多2秒)
   await this.waitForAck('server:ack:closing', 2000);
-  
+
   // 5. 真正断开
   this.disconnect();
-  
+
   logger.log('[WebSocket] Graceful shutdown completed');
 }
 ```
@@ -338,9 +344,9 @@ socket.on('connect', () => {
 ```typescript
 const io = new SocketIOServer(httpServer, {
   // ... 其他配置
-  pingTimeout: 120000,   // 120秒 (原来是 60000)
-  pingInterval: 25000,    // 保持 25秒
-});
+  pingTimeout: 120000, // 120秒 (原来是 60000)
+  pingInterval: 25000, // 保持 25秒
+})
 ```
 
 ---
@@ -356,16 +362,16 @@ const io = new SocketIOServer(httpServer, {
 
 private scheduleReconnection(): void {
   // ... 现有检查 ...
-  
+
   const baseDelay = this.options.reconnectionDelay * Math.pow(2, this.reconnectionAttempts - 1);
   const jitter = Math.random() * baseDelay * 0.5; // 0-50% 抖动
   const delay = Math.min(baseDelay + jitter, this.options.reconnectionDelayMax);
-  
+
   // 日志显示实际延迟 (含抖动)
   logger.log(
     `[WebSocketManager] Reconnecting in ${Math.round(delay)}ms (base: ${baseDelay}ms, jitter: +${Math.round(jitter)}ms)`
   );
-  
+
   this.reconnectionTimer = setTimeout(() => this.connect(), delay);
 }
 ```
@@ -375,7 +381,7 @@ private scheduleReconnection(): void {
 **新增方法**:
 
 ```typescript
-type DisconnectReason = 
+type DisconnectReason =
   | 'io client disconnect'
   | 'io server disconnect'
   | 'ping timeout'
@@ -416,7 +422,7 @@ private getReconnectStrategy(reason: string): {
       skipBackoff: false
     }
   };
-  
+
   return strategies[reason] || strategies.default;
 }
 ```
@@ -433,12 +439,12 @@ private setupNetworkListeners(): void {
       this.fastReconnect?.();
     }
   };
-  
+
   this._offlineHandler = () => {
     logger.log('[WebSocketManager] Network offline');
     this._wasConnected = this.state === ConnectionState.CONNECTED;
   };
-  
+
   window.addEventListener('online', this._onlineHandler);
   window.addEventListener('offline', this._offlineHandler);
 }
@@ -511,15 +517,15 @@ interface HealthReport {
 }
 
 getHealth(): HealthReport {
-  const uptime = this.state === ConnectionState.CONNECTED 
-    ? Date.now() - this._connectedAt 
+  const uptime = this.state === ConnectionState.CONNECTED
+    ? Date.now() - this._connectedAt
     : 0;
-  
+
   let score = 100;
   if (this.stats.averagePingLatency > 500) score -= 20;
   if (this.stats.averagePingLatency > 1000) score -= 30;
   if (this.missedHeartbeats > 0) score -= this.missedHeartbeats * 15;
-  
+
   return {
     score: Math.max(0, score),
     status: score > 80 ? 'excellent' : score > 60 ? 'good' : score > 30 ? 'degraded' : 'poor',
@@ -537,31 +543,31 @@ getHealth(): HealthReport {
 ```typescript
 async shutdown(timeoutMs = 5000): Promise<void> {
   logger.log('[WebSocketManager] Shutdown initiated');
-  
+
   // 1. 停止接受新消息
   this._acceptingMessages = false;
-  
+
   // 2. 清空队列中的消息 (可选: 改为持久化)
   this.queue = [];
-  
+
   // 3. 停止所有定时器
   this.stopHeartbeat();
-  
+
   if (this.reconnectionTimer) {
     clearTimeout(this.reconnectionTimer);
     this.reconnectionTimer = null;
   }
-  
+
   // 4. 断开连接
   if (this.socket) {
     this.socket.disconnect();
     this.socket = null;
   }
-  
+
   // 5. 清理监听器
   this.stateListeners.clear();
   this.messageListeners.clear();
-  
+
   this.setState(ConnectionState.DISCONNECTED);
   logger.log('[WebSocketManager] Shutdown completed');
 }
@@ -573,29 +579,29 @@ async shutdown(timeoutMs = 5000): Promise<void> {
 
 ### Phase 1: 紧急修复 (1-2天)
 
-| 任务 | 优先级 | 工作量 |
-|------|--------|--------|
-| 修复 useCollaboration 重连状态恢复 | P0 | 2小时 |
-| 调整服务器心跳超时 60s→120s | P0 | 15分钟 |
-| 添加断线原因判断 (避免重复断开) | P0 | 1小时 |
+| 任务                               | 优先级 | 工作量 |
+| ---------------------------------- | ------ | ------ |
+| 修复 useCollaboration 重连状态恢复 | P0     | 2小时  |
+| 调整服务器心跳超时 60s→120s        | P0     | 15分钟 |
+| 添加断线原因判断 (避免重复断开)    | P0     | 1小时  |
 
 ### Phase 2: 稳定性提升 (3-5天)
 
-| 任务 | 优先级 | 工作量 |
-|------|--------|--------|
-| 添加 Jitter 到退避算法 | P1 | 1小时 |
-| 实现断线原因分类策略 | P1 | 2小时 |
-| 添加在线/离线事件监听 | P1 | 1小时 |
-| 完善单元测试 | P1 | 3小时 |
+| 任务                   | 优先级 | 工作量 |
+| ---------------------- | ------ | ------ |
+| 添加 Jitter 到退避算法 | P1     | 1小时  |
+| 实现断线原因分类策略   | P1     | 2小时  |
+| 添加在线/离线事件监听  | P1     | 1小时  |
+| 完善单元测试           | P1     | 3小时  |
 
 ### Phase 3: 体验优化 (1周+)
 
-| 任务 | 优先级 | 工作量 |
-|------|--------|--------|
-| 重连事件回调 API | P2 | 2小时 |
-| 连接健康度评分 | P2 | 3小时 |
-| 优雅关闭机制 | P2 | 2小时 |
-| 监控面板集成 | P2 | 5小时 |
+| 任务             | 优先级 | 工作量 |
+| ---------------- | ------ | ------ |
+| 重连事件回调 API | P2     | 2小时  |
+| 连接健康度评分   | P2     | 3小时  |
+| 优雅关闭机制     | P2     | 2小时  |
+| 监控面板集成     | P2     | 5小时  |
 
 ---
 
@@ -607,26 +613,26 @@ async shutdown(timeoutMs = 5000): Promise<void> {
 describe('WebSocket Reconnection', () => {
   it('should reconnect with jitter (not all clients same delay)', async () => {
     // 模拟 100 个客户端同时断线
-    const delays = clients.map(c => c.getNextDelay());
-    
+    const delays = clients.map(c => c.getNextDelay())
+
     // 验证: 延迟不是完全相同 (标准差 > 0)
-    const stdDev = calculateStdDev(delays);
-    expect(stdDev).toBeGreaterThan(0);
-  });
-  
+    const stdDev = calculateStdDev(delays)
+    expect(stdDev).toBeGreaterThan(0)
+  })
+
   it('should not reconnect on io client disconnect', async () => {
     // 用户主动断开，不应该自动重连
-    ws.disconnect();
-    expect(ws.getState()).toBe(ConnectionState.DISCONNECTED);
-    expect(ws.getReconnectAttempts()).toBe(0);
-  });
-  
+    ws.disconnect()
+    expect(ws.getState()).toBe(ConnectionState.DISCONNECTED)
+    expect(ws.getReconnectAttempts()).toBe(0)
+  })
+
   it('should reconnect quickly on ping timeout', async () => {
     // 心跳超时应该使用较短延迟
-    const strategy = ws.getReconnectStrategy('ping timeout');
-    expect(strategy.initialDelay).toBeLessThan(1000);
-  });
-});
+    const strategy = ws.getReconnectStrategy('ping timeout')
+    expect(strategy.initialDelay).toBeLessThan(1000)
+  })
+})
 ```
 
 ### 5.2 网络状态测试
@@ -634,17 +640,17 @@ describe('WebSocket Reconnection', () => {
 ```typescript
 it('should fast reconnect when network comes back', async () => {
   // 1. 断开网络
-  simulator.disconnectNetwork();
-  
+  simulator.disconnectNetwork()
+
   // 2. 模拟恢复
-  simulator.connectNetwork();
-  
+  simulator.connectNetwork()
+
   // 3. 触发 online 事件
-  window.dispatchEvent(new Event('online'));
-  
+  window.dispatchEvent(new Event('online'))
+
   // 4. 验证立即重连
-  await waitFor(() => ws.getState() === ConnectionState.CONNECTED);
-});
+  await waitFor(() => ws.getState() === ConnectionState.CONNECTED)
+})
 ```
 
 ---
@@ -659,15 +665,15 @@ it('should fast reconnect when network comes back', async () => {
 
 ### 6.2 关键配置对比
 
-| 参数 | 当前值 | 推荐值 | 原因 |
-|------|--------|--------|------|
-| `reconnectionDelay` | 1000ms | 1000ms | ✅ 合适 |
-| `reconnectionDelayMax` | 30000ms | 30000ms | ✅ 合适 |
-| `heartbeatInterval` | 25000ms | 25000ms | ✅ 合适 |
-| `heartbeatTimeout` | 10000ms | 10000ms | ✅ 合适 |
-| `server pingTimeout` | 60000ms | 120000ms | ⚠️ 需修改 |
-| `jitter` | 无 | 50% | ⚠️ 需添加 |
-| `strategy` | 统一 | 分类 | ⚠️ 需优化 |
+| 参数                   | 当前值  | 推荐值   | 原因      |
+| ---------------------- | ------- | -------- | --------- |
+| `reconnectionDelay`    | 1000ms  | 1000ms   | ✅ 合适   |
+| `reconnectionDelayMax` | 30000ms | 30000ms  | ✅ 合适   |
+| `heartbeatInterval`    | 25000ms | 25000ms  | ✅ 合适   |
+| `heartbeatTimeout`     | 10000ms | 10000ms  | ✅ 合适   |
+| `server pingTimeout`   | 60000ms | 120000ms | ⚠️ 需修改 |
+| `jitter`               | 无      | 50%      | ⚠️ 需添加 |
+| `strategy`             | 统一    | 分类     | ⚠️ 需优化 |
 
 ---
 
@@ -675,13 +681,13 @@ it('should fast reconnect when network comes back', async () => {
 
 ### 当前状态评估
 
-| 维度 | 评分 | 说明 |
-|------|------|------|
-| 基础功能 | ⭐⭐⭐⭐⭐ | 心跳、退避、队列已完善 |
-| 重连策略 | ⭐⭐⭐ | 缺少分类和抖动 |
-| 状态恢复 | ⭐⭐ | useCollaboration 重连后状态丢失 |
-| 可观测性 | ⭐⭐⭐⭐ | 有统计和日志 |
-| 优雅性 | ⭐⭐⭐ | 有基本错误处理 |
+| 维度     | 评分       | 说明                            |
+| -------- | ---------- | ------------------------------- |
+| 基础功能 | ⭐⭐⭐⭐⭐ | 心跳、退避、队列已完善          |
+| 重连策略 | ⭐⭐⭐     | 缺少分类和抖动                  |
+| 状态恢复 | ⭐⭐       | useCollaboration 重连后状态丢失 |
+| 可观测性 | ⭐⭐⭐⭐   | 有统计和日志                    |
+| 优雅性   | ⭐⭐⭐     | 有基本错误处理                  |
 
 ### 核心建议
 

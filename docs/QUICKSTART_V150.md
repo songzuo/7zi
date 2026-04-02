@@ -24,11 +24,13 @@
 **背景**: 原 React Context-based 权限系统已迁移到 Zustand store，提升性能。
 
 **变更**:
+
 - ✅ Zustand store (`src/stores/permissionStore.ts`)
 - ✅ 兼容层 (`src/contexts/PermissionContext.tsx`)
 - ✅ 保持 API 向后兼容
 
 **性能提升**:
+
 - 精确订阅，减少不必要的重渲染
 - 无需 Provider 嵌套
 - 内置持久化支持
@@ -36,6 +38,7 @@
 ### 2. lib/ 层优化
 
 **变更**:
+
 - ✅ 无循环依赖（madge 检测通过）
 - ✅ 模块职责清晰（43 个模块）
 - ✅ 29/43 模块有统一导出
@@ -45,6 +48,7 @@
 ### 3. Agent Learning System
 
 **新增功能**:
+
 - ✅ 任务完成时间预测模型
 - ✅ Agent 能力自动评估
 - ✅ 数据持久化增强
@@ -58,7 +62,7 @@
 ### 推荐方式（性能更好）
 
 ```typescript
-import { 
+import {
   usePermissionStore,
   useIsAdmin,
   usePermissionLoading
@@ -84,7 +88,7 @@ function MyComponent() {
   const { hasPermission, isAdmin, loading } = usePermissions();
 
   if (loading) return <div>Loading...</div>;
-  
+
   if (!hasPermission('task:create')) {
     return <div>Access denied</div>;
   }
@@ -120,49 +124,49 @@ function MyPage() {
 ### 日志系统
 
 ```typescript
-import { logger } from '@/lib/logger';
+import { logger } from '@/lib/logger'
 
-logger.info('User logged in', { userId: '123' });
-logger.error('Failed to fetch data', error);
+logger.info('User logged in', { userId: '123' })
+logger.error('Failed to fetch data', error)
 ```
 
 ### 数据库
 
 ```typescript
-import { db } from '@/lib/db';
+import { db } from '@/lib/db'
 
-const users = db.prepare('SELECT * FROM users').all();
-const user = db.prepare('SELECT * FROM users WHERE id = ?').get(userId);
+const users = db.prepare('SELECT * FROM users').all()
+const user = db.prepare('SELECT * FROM users WHERE id = ?').get(userId)
 ```
 
 ### 缓存
 
 ```typescript
-import { apiCache } from '@/lib/cache';
+import { apiCache } from '@/lib/cache'
 
-apiCache.set('user:123', userData);
-const cached = apiCache.get('user:123');
+apiCache.set('user:123', userData)
+const cached = apiCache.get('user:123')
 ```
 
 ### 搜索
 
 ```typescript
-import { searchService } from '@/lib/search';
+import { searchService } from '@/lib/search'
 
 const results = await searchService.search({
   query: 'keyword',
   types: ['agents', 'tasks'],
-});
+})
 ```
 
 ### WebSocket
 
 ```typescript
-import { wsClient } from '@/lib/websocket';
+import { wsClient } from '@/lib/websocket'
 
-wsClient.connect();
-wsClient.send('chat', { text: 'Hello' });
-wsClient.on('message', (data) => console.log(data));
+wsClient.connect()
+wsClient.send('chat', { text: 'Hello' })
+wsClient.on('message', data => console.log(data))
 ```
 
 ---
@@ -172,7 +176,7 @@ wsClient.on('message', (data) => console.log(data));
 ### 任务时间预测
 
 ```typescript
-import { predictCompletionTime } from '@/lib/agents/learning';
+import { predictCompletionTime } from '@/lib/agents/learning'
 
 const prediction = predictCompletionTime(
   {
@@ -186,21 +190,21 @@ const prediction = predictCompletionTime(
     agentLoad: 0.5,
   },
   'agent-1'
-);
+)
 
-console.log('Estimated time:', prediction.estimatedTime);
-console.log('Confidence:', prediction.confidence);
+console.log('Estimated time:', prediction.estimatedTime)
+console.log('Confidence:', prediction.confidence)
 ```
 
 ### Agent 能力评估
 
 ```typescript
-import { assessAgentCapability } from '@/lib/agents/learning';
+import { assessAgentCapability } from '@/lib/agents/learning'
 
-const assessment = assessAgentCapability('agent-1');
-console.log('Overall score:', assessment.overallScore);
-console.log('Technical score:', assessment.dimensions.technical.score);
-console.log('Recommendations:', assessment.recommendations);
+const assessment = assessAgentCapability('agent-1')
+console.log('Overall score:', assessment.overallScore)
+console.log('Technical score:', assessment.dimensions.technical.score)
+console.log('Recommendations:', assessment.recommendations)
 ```
 
 ### 学习数据持久化
@@ -209,11 +213,11 @@ console.log('Recommendations:', assessment.recommendations);
 import {
   initializeLearningPersistence,
   addTaskRecord,
-  saveLearningData
-} from '@/lib/agents/learning';
+  saveLearningData,
+} from '@/lib/agents/learning'
 
 // 初始化
-const { persistence } = await initializeLearningPersistence();
+const { persistence } = await initializeLearningPersistence()
 
 // 添加任务记录
 await addTaskRecord({
@@ -228,10 +232,10 @@ await addTaskRecord({
   inputSize: 1000,
   priority: 'normal',
   agentLoadAtStart: 0.5,
-});
+})
 
 // 保存
-await saveLearningData();
+await saveLearningData()
 ```
 
 ---
@@ -243,7 +247,7 @@ await saveLearningData();
 ```typescript
 'use client';
 
-import { 
+import {
   useDashboardStore,
   usePermissionStore,
   useIsAdmin,
@@ -256,7 +260,7 @@ export default function Dashboard() {
   // Dashboard 数据
   const members = useDashboardStore(state => state.members);
   const loading = useDashboardStore(state => state.loading);
-  
+
   // 权限检查
   const isAdmin = useIsAdmin();
 
@@ -304,12 +308,12 @@ export default function Dashboard() {
 
 ```typescript
 // 旧方式（仍然可用）
-import { usePermissions } from '@/contexts/PermissionContext';
-const { hasPermission } = usePermissions();
+import { usePermissions } from '@/contexts/PermissionContext'
+const { hasPermission } = usePermissions()
 
 // 新方式（推荐）
-import { usePermissionStore } from '@/stores';
-const hasPermission = usePermissionStore(state => state.hasPermission('task:create'));
+import { usePermissionStore } from '@/stores'
+const hasPermission = usePermissionStore(state => state.hasPermission('task:create'))
 ```
 
 ### lib/ 层更新
@@ -317,9 +321,9 @@ const hasPermission = usePermissionStore(state => state.hasPermission('task:crea
 lib/ 层的导入路径保持不变：
 
 ```typescript
-import { logger } from '@/lib/logger';
-import { db } from '@/lib/db';
-import { searchService } from '@/lib/search';
+import { logger } from '@/lib/logger'
+import { db } from '@/lib/db'
+import { searchService } from '@/lib/search'
 // ...
 ```
 
@@ -328,16 +332,13 @@ import { searchService } from '@/lib/search';
 Agent Learning System 是全新功能，需要手动集成：
 
 ```typescript
-import {
-  initializeLearningPersistence,
-  predictCompletionTime
-} from '@/lib/agents/learning';
+import { initializeLearningPersistence, predictCompletionTime } from '@/lib/agents/learning'
 
 // 在应用初始化时
-const { persistence, timePredictor } = await initializeLearningPersistence();
+const { persistence, timePredictor } = await initializeLearningPersistence()
 
 // 在任务调度时
-const prediction = predictCompletionTime(features, agentId);
+const prediction = predictCompletionTime(features, agentId)
 ```
 
 ---
@@ -349,7 +350,7 @@ const prediction = predictCompletionTime(features, agentId);
 ```typescript
 'use client';
 
-import { 
+import {
   useDashboardStore,
   usePermissionStore,
   useIsAdmin,
@@ -362,7 +363,7 @@ export default function Dashboard() {
   // Dashboard 数据
   const members = useDashboardStore(state => state.members);
   const loading = useDashboardStore(state => state.loading);
-  
+
   // 权限检查
   const isAdmin = useIsAdmin();
 
@@ -403,7 +404,7 @@ export default function Dashboard() {
 ```typescript
 'use client';
 
-import { 
+import {
   AgentStatusPanel,
   TaskQueueView,
   ScheduleHistory,
@@ -415,13 +416,13 @@ export default function AgentSchedulerPage() {
     <div className="space-y-6">
       {/* 实时状态面板 */}
       <AgentStatusPanel />
-      
+
       {/* 任务队列视图 */}
       <TaskQueueView />
-      
+
       {/* 历史调度记录 */}
       <ScheduleHistory />
-      
+
       {/* 手动干预面板 */}
       <ManualOverride />
     </div>
@@ -477,35 +478,35 @@ export default function RoomManager() {
 ### 测试权限系统
 
 ```typescript
-import { renderHook } from '@testing-library/react';
-import { usePermissionStore } from '@/stores';
+import { renderHook } from '@testing-library/react'
+import { usePermissionStore } from '@/stores'
 
 describe('Permission Tests', () => {
   beforeEach(() => {
-    usePermissionStore.getState().reset();
-  });
+    usePermissionStore.getState().reset()
+  })
 
   it('should check admin permission', () => {
     usePermissionStore.getState().initializeFromAuthData({
       user: { id: '1', roles: ['admin'] },
       permissions: ['all'],
-    });
+    })
 
-    const isAdmin = usePermissionStore.getState().isAdmin();
-    expect(isAdmin).toBe(true);
-  });
-});
+    const isAdmin = usePermissionStore.getState().isAdmin()
+    expect(isAdmin).toBe(true)
+  })
+})
 ```
 
 ### 测试 Agent Learning
 
 ```typescript
-import { TaskTimePredictor } from '@/lib/agents/learning/time-prediction';
+import { TaskTimePredictor } from '@/lib/agents/learning/time-prediction'
 
 describe('Task Time Prediction', () => {
   it('should predict task time', () => {
-    const predictor = new TaskTimePredictor();
-    
+    const predictor = new TaskTimePredictor()
+
     const result = predictor.predict(
       {
         taskType: 'text-generation',
@@ -518,13 +519,13 @@ describe('Task Time Prediction', () => {
         agentLoad: 0.5,
       },
       'agent-1'
-    );
+    )
 
-    expect(result.estimatedTime).toBeGreaterThan(0);
-    expect(result.confidence).toBeGreaterThanOrEqual(0);
-    expect(result.confidence).toBeLessThanOrEqual(1);
-  });
-});
+    expect(result.estimatedTime).toBeGreaterThan(0)
+    expect(result.confidence).toBeGreaterThanOrEqual(0)
+    expect(result.confidence).toBeLessThanOrEqual(1)
+  })
+})
 ```
 
 ---
@@ -550,7 +551,8 @@ A: 可以。`usePermissions()` hook 和 `PermissionProvider` 组件仍然可用�
 
 **Q: 如何选择使用 Zustand 还是兼容层？**
 
-A: 
+A:
+
 - **新代码**: 直接使用 Zustand（性能更好）
 - **旧代码**: 继续使用 `usePermissions()`（无需修改）
 
@@ -559,7 +561,7 @@ A:
 A: 使用 Zustand store 的测试工具：
 
 ```typescript
-import { usePermissionStore } from '@/stores';
+import { usePermissionStore } from '@/stores'
 
 describe('Permission Check', () => {
   it('should check admin permission', () => {
@@ -567,13 +569,13 @@ describe('Permission Check', () => {
     usePermissionStore.getState().initializeFromAuthData({
       user: { id: '1', roles: ['admin'] },
       permissions: ['all'],
-    });
+    })
 
     // 测试
-    const isAdmin = usePermissionStore.getState().isAdmin();
-    expect(isAdmin).toBe(true);
-  });
-});
+    const isAdmin = usePermissionStore.getState().isAdmin()
+    expect(isAdmin).toBe(true)
+  })
+})
 ```
 
 ### Agent Learning System
@@ -591,12 +593,12 @@ A: 会。使用 `LearningPersistence` 自动保存到 localStorage，并支持�
 A: 使用 Agent Dashboard UI 或调用 API：
 
 ```typescript
-import { assessAgentCapability } from '@/lib/agents/learning';
+import { assessAgentCapability } from '@/lib/agents/learning'
 
-const assessment = assessAgentCapability('agent-1');
-console.log('Overall score:', assessment.overallScore);
-console.log('Dimensions:', assessment.dimensions);
-console.log('Recommendations:', assessment.recommendations);
+const assessment = assessAgentCapability('agent-1')
+console.log('Overall score:', assessment.overallScore)
+console.log('Dimensions:', assessment.dimensions)
+console.log('Recommendations:', assessment.recommendations)
 ```
 
 ### WebSocket 房间系统
@@ -606,7 +608,7 @@ console.log('Recommendations:', assessment.recommendations);
 A: 使用 WebSocket 客户端 API：
 
 ```typescript
-import { wsClient } from '@/lib/websocket';
+import { wsClient } from '@/lib/websocket'
 
 // 创建房间
 await wsClient.createRoom({
@@ -615,9 +617,9 @@ await wsClient.createRoom({
   visibility: 'private',
   permissions: {
     admin: ['user-1', 'user-2'],
-    member: ['user-3']
-  }
-});
+    member: ['user-3'],
+  },
+})
 ```
 
 **Q: 房间的权限如何管理？**
@@ -630,11 +632,11 @@ await wsClient.setRoomPermissions('project-123', {
   admin: ['user-1'],
   moderator: ['user-2'],
   member: ['user-3', 'user-4'],
-  guest: ['user-5']
-});
+  guest: ['user-5'],
+})
 
 // 检查用户权限
-const hasPermission = await wsClient.checkPermission('project-123', 'user-3', 'message:send');
+const hasPermission = await wsClient.checkPermission('project-123', 'user-3', 'message:send')
 ```
 
 **Q: 房间消息会持久化吗？**
@@ -656,10 +658,10 @@ REACT_COMPILER_MODE=opt-out
 或在应用中动态启用：
 
 ```typescript
-import { enableReactCompiler } from 'react-compiler-runtime';
+import { enableReactCompiler } from 'react-compiler-runtime'
 
 if (process.env.NEXT_PUBLIC_ENABLE_REACT_COMPILER === 'true') {
-  enableReactCompiler();
+  enableReactCompiler()
 }
 ```
 
@@ -682,7 +684,7 @@ Turbopack 比 Webpack 快 40-60%。
 A: 集成性能监控系统：
 
 ```typescript
-import { performanceMonitor } from '@/lib/performance/monitor';
+import { performanceMonitor } from '@/lib/performance/monitor'
 
 // 记录自定义指标
 performanceMonitor.recordMetric({
@@ -691,15 +693,15 @@ performanceMonitor.recordMetric({
   status: 'success',
   metadata: {
     agentId: 'agent-1',
-    taskType: 'text-generation'
-  }
-});
+    taskType: 'text-generation',
+  },
+})
 
 // 查看异常检测报告
 const anomalies = await performanceMonitor.getAnomalies({
-  threshold: 3.0,  // Z-score 阈值
-  timeRange: '1h'
-});
+  threshold: 3.0, // Z-score 阈值
+  timeRange: '1h',
+})
 ```
 
 ### 部署相关

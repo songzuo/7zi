@@ -9,22 +9,26 @@
 ### 1. xlsx 安全漏洞修复 ✅
 
 **问题描述:**
+
 - xlsx 包存在 2 个高危漏洞:
   - Prototype Pollution in sheetJS (GHSA-4r6h-8v6p-xvw6)
   - Regular Expression Denial of Service (ReDoS) (GHSA-5pgg-2g8v-p4x9)
 
 **解决方案:**
+
 - 从 package.json 中移除了 xlsx 依赖 (版本 0.18.5)
 - 项目中已有 exceljs 4.4.0 作为替代方案
 - 检查代码库确认 xlsx 未被直接使用
 
 **结果:**
+
 - 移除了 8 个相关包
 - npm audit 显示: **0 vulnerabilities**
 
 ### 2. undici 安全检查 ✅
 
 **检查结果:**
+
 - 当前版本: 7.24.6
 - 最新版本: 7.24.6
 - **无需更新** - 已是最新版本
@@ -32,12 +36,14 @@
 ## 验证步骤
 
 ### npm audit
+
 ```bash
 npm audit
 # 输出: found 0 vulnerabilities
 ```
 
 ### 包依赖
+
 ```bash
 npm ls xlsx
 # 输出: (empty - 已移除)
@@ -68,14 +74,15 @@ npm ls undici
 
 ## 总结
 
-| 漏洞 | 严重性 | 状态 | 操作 |
-|------|--------|------|------|
-| xlsx Prototype Pollution | High | ✅ 已修复 | 移除 xlsx |
-| xlsx ReDoS | High | ✅ 已修复 | 移除 xlsx |
-| undici | - | ✅ 无问题 | 已是最新 |
+| 漏洞                     | 严重性 | 状态      | 操作      |
+| ------------------------ | ------ | --------- | --------- |
+| xlsx Prototype Pollution | High   | ✅ 已修复 | 移除 xlsx |
+| xlsx ReDoS               | High   | ✅ 已修复 | 移除 xlsx |
+| undici                   | -      | ✅ 无问题 | 已是最新  |
 
 **最终状态: 0 vulnerabilities** 🎉
 
 ---
-*修复时间: 2026-03-29 10:50 GMT+2*
-*修复人员: 🛡️ 系统管理员 + ⚡ Executor*
+
+_修复时间: 2026-03-29 10:50 GMT+2_
+_修复人员: 🛡️ 系统管理员 + ⚡ Executor_

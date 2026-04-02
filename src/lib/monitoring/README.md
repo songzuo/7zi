@@ -19,6 +19,7 @@ Located in `root-cause/` directory:
 Analyzes resource loading waterfall to identify performance bottlenecks.
 
 **Features:**
+
 - Page load performance waterfall visualization
 - Network request timing breakdown (DNS, TCP, TLS, Request, Response)
 - Render blocking analysis
@@ -29,24 +30,24 @@ Analyzes resource loading waterfall to identify performance bottlenecks.
 **Usage:**
 
 ```typescript
-import { performanceWaterfall, fromPerformanceResourceTiming } from './monitoring/root-cause';
+import { performanceWaterfall, fromPerformanceResourceTiming } from './monitoring/root-cause'
 
 // Start observing resource timing
-performanceWaterfall.startObserving();
+performanceWaterfall.startObserving()
 
 // Analyze waterfall
-const analysis = performanceWaterfall.analyzeWaterfall();
+const analysis = performanceWaterfall.analyzeWaterfall()
 
-console.log('FCP Estimate:', analysis.fcpEstimate);
-console.log('Render Blocking Resources:', analysis.renderBlockingResources);
-console.log('Timing Breakdown:', analysis.timingBreakdown);
-console.log('Recommendations:', analysis.recommendations);
+console.log('FCP Estimate:', analysis.fcpEstimate)
+console.log('Render Blocking Resources:', analysis.renderBlockingResources)
+console.log('Timing Breakdown:', analysis.timingBreakdown)
+console.log('Recommendations:', analysis.recommendations)
 
 // Find slowest resources
-const slowest = performanceWaterfall.findSlowestResources(5);
+const slowest = performanceWaterfall.findSlowestResources(5)
 
 // Find largest resources
-const largest = performanceWaterfall.findLargestResources(5);
+const largest = performanceWaterfall.findLargestResources(5)
 ```
 
 #### 2. Performance Root Cause Analyzer (`performance-root-cause.ts`)
@@ -54,6 +55,7 @@ const largest = performanceWaterfall.findLargestResources(5);
 Complete root cause analysis for performance issues.
 
 **Features:**
+
 - Slow page diagnosis (FCP > 1.8s, LCP > 2.5s, CLS > 0.1, INP > 200ms)
 - Memory leak detection (long-term heap growth > 50MB)
 - Network bottleneck identification (DNS/TCP/TLS connection times)
@@ -67,7 +69,7 @@ import {
   createMockCoreWebVitals,
   createMockMemoryMetrics,
   createMockNetworkTiming,
-} from './monitoring/root-cause';
+} from './monitoring/root-cause'
 
 // Collect metrics
 const coreWebVitals = {
@@ -77,13 +79,13 @@ const coreWebVitals = {
   FID: 50,
   INP: 100,
   TTFB: 600,
-};
+}
 
 const memoryMetrics = createMockMemoryMetrics({
   usedJSHeapSize: 100 * 1024 * 1024, // 100MB
   growthRate: 20 * 1024 * 1024, // 20MB/sec
   trend: 'increasing',
-});
+})
 
 const networkTimings = [
   createMockNetworkTiming({
@@ -91,7 +93,7 @@ const networkTimings = [
     tcp: 150,
     tls: 180,
   }),
-];
+]
 
 // Perform analysis
 const analysis = performanceRootCauseAnalyzer.analyze(
@@ -99,54 +101,54 @@ const analysis = performanceRootCauseAnalyzer.analyze(
   memoryMetrics,
   networkTimings,
   window.location.href
-);
+)
 
-console.log('Overall Health:', analysis.overallHealth);
-console.log('Slow Page Diagnoses:', analysis.slowPageDiagnoses);
-console.log('Memory Analysis:', analysis.memoryAnalysis);
-console.log('Network Bottlenecks:', analysis.networkBottlenecks);
-console.log('Priority Actions:', analysis.priorityActions);
-console.log('Summary:', analysis.summary);
+console.log('Overall Health:', analysis.overallHealth)
+console.log('Slow Page Diagnoses:', analysis.slowPageDiagnoses)
+console.log('Memory Analysis:', analysis.memoryAnalysis)
+console.log('Network Bottlenecks:', analysis.networkBottlenecks)
+console.log('Priority Actions:', analysis.priorityActions)
+console.log('Summary:', analysis.summary)
 ```
 
 **Slow Page Diagnosis:**
 
 ```typescript
-const diagnoses = performanceRootCauseAnalyzer.diagnoseSlowPages(coreWebVitals);
+const diagnoses = performanceRootCauseAnalyzer.diagnoseSlowPages(coreWebVitals)
 
 for (const diagnosis of diagnoses) {
-  console.log(`Metric: ${diagnosis.metric}`);
-  console.log(`Severity: ${diagnosis.severity}`);
-  console.log(`Deviation: ${diagnosis.deviation}%`);
-  console.log(`Root Causes:`, diagnosis.rootCauses);
-  console.log(`Recommendations:`, diagnosis.recommendations);
+  console.log(`Metric: ${diagnosis.metric}`)
+  console.log(`Severity: ${diagnosis.severity}`)
+  console.log(`Deviation: ${diagnosis.deviation}%`)
+  console.log(`Root Causes:`, diagnosis.rootCauses)
+  console.log(`Recommendations:`, diagnosis.recommendations)
 }
 ```
 
 **Memory Leak Detection:**
 
 ```typescript
-const memoryAnalysis = performanceRootCauseAnalyzer.detectMemoryLeak(memoryMetrics);
+const memoryAnalysis = performanceRootCauseAnalyzer.detectMemoryLeak(memoryMetrics)
 
 if (memoryAnalysis.detected) {
-  console.log(`Memory leak detected: ${memoryAnalysis.growthRate.toFixed(2)} MB/hour`);
-  console.log(`Severity: ${memoryAnalysis.severity}`);
-  console.log(`Estimated time to OOM: ${memoryAnalysis.estimatedTimeToOOM}s`);
-  console.log(`Suspected sources:`, memoryAnalysis.suspectedSources);
-  console.log(`Recommendations:`, memoryAnalysis.recommendations);
+  console.log(`Memory leak detected: ${memoryAnalysis.growthRate.toFixed(2)} MB/hour`)
+  console.log(`Severity: ${memoryAnalysis.severity}`)
+  console.log(`Estimated time to OOM: ${memoryAnalysis.estimatedTimeToOOM}s`)
+  console.log(`Suspected sources:`, memoryAnalysis.suspectedSources)
+  console.log(`Recommendations:`, memoryAnalysis.recommendations)
 }
 ```
 
 **Network Bottleneck Detection:**
 
 ```typescript
-const bottlenecks = performanceRootCauseAnalyzer.identifyNetworkBottlenecks(networkTimings);
+const bottlenecks = performanceRootCauseAnalyzer.identifyNetworkBottlenecks(networkTimings)
 
 for (const bottleneck of bottlenecks) {
-  console.log(`Type: ${bottleneck.type}`);
-  console.log(`Duration: ${bottleneck.duration}ms`);
-  console.log(`Severity: ${bottleneck.severity}`);
-  console.log(`Recommendation: ${bottleneck.recommendation}`);
+  console.log(`Type: ${bottleneck.type}`)
+  console.log(`Duration: ${bottleneck.duration}ms`)
+  console.log(`Severity: ${bottleneck.severity}`)
+  console.log(`Recommendation: ${bottleneck.recommendation}`)
 }
 ```
 
@@ -155,6 +157,7 @@ for (const bottleneck of bottlenecks) {
 Performance budget control with threshold-based alerting.
 
 **Features:**
+
 - Performance budget thresholds for all key metrics
 - Budget violation detection (warnings and errors)
 - Budget compliance reporting
@@ -163,30 +166,30 @@ Performance budget control with threshold-based alerting.
 
 **Default Budget Thresholds:**
 
-| Metric | Threshold | Severity | Category |
-|--------|-----------|-----------|-----------|
-| FCP | 1800ms | error | Web Vitals |
-| LCP | 2500ms | error | Web Vitals |
-| CLS | 0.1 | error | Web Vitals |
-| FID | 100ms | error | Web Vitals |
-| INP | 200ms | error | Web Vitals |
-| TTFB | 800ms | error | Web Vitals |
-| TBT | 200ms | warning | Web Vitals |
-| TTI | 3800ms | warning | Web Vitals |
-| Total Transfer Size | 1MB | error | Resource |
-| JavaScript Size | 300KB | error | Resource |
-| CSS Size | 100KB | warning | Resource |
-| Image Size | 500KB | error | Resource |
-| Request Count | 50 | warning | Resource |
-| Third-Party Request Count | 20 | error | Resource |
-| DOM Node Count | 1500 | warning | Resource |
-| Memory Usage | 100MB | warning | Memory |
-| Memory Usage Ratio | 70% | error | Memory |
+| Metric                    | Threshold | Severity | Category   |
+| ------------------------- | --------- | -------- | ---------- |
+| FCP                       | 1800ms    | error    | Web Vitals |
+| LCP                       | 2500ms    | error    | Web Vitals |
+| CLS                       | 0.1       | error    | Web Vitals |
+| FID                       | 100ms     | error    | Web Vitals |
+| INP                       | 200ms     | error    | Web Vitals |
+| TTFB                      | 800ms     | error    | Web Vitals |
+| TBT                       | 200ms     | warning  | Web Vitals |
+| TTI                       | 3800ms    | warning  | Web Vitals |
+| Total Transfer Size       | 1MB       | error    | Resource   |
+| JavaScript Size           | 300KB     | error    | Resource   |
+| CSS Size                  | 100KB     | warning  | Resource   |
+| Image Size                | 500KB     | error    | Resource   |
+| Request Count             | 50        | warning  | Resource   |
+| Third-Party Request Count | 20        | error    | Resource   |
+| DOM Node Count            | 1500      | warning  | Resource   |
+| Memory Usage              | 100MB     | warning  | Memory     |
+| Memory Usage Ratio        | 70%       | error    | Memory     |
 
 **Usage:**
 
 ```typescript
-import { performanceBudgetController, createMockPerformanceMetrics } from './monitoring/root-cause';
+import { performanceBudgetController, createMockPerformanceMetrics } from './monitoring/root-cause'
 
 // Check budgets
 const metrics = createMockPerformanceMetrics({
@@ -194,16 +197,16 @@ const metrics = createMockPerformanceMetrics({
   LCP: 2000,
   CLS: 0.05,
   INP: 100,
-});
+})
 
-const report = performanceBudgetController.checkBudgets(metrics, window.location.href);
+const report = performanceBudgetController.checkBudgets(metrics, window.location.href)
 
-console.log('Compliance Status:', report.complianceStatus);
-console.log('Overall Score:', report.overallScore);
-console.log('Violations:', report.violations);
-console.log('Warnings:', report.warnings);
-console.log('Summary:', report.summary);
-console.log('Recommendations:', report.recommendations);
+console.log('Compliance Status:', report.complianceStatus)
+console.log('Overall Score:', report.overallScore)
+console.log('Violations:', report.violations)
+console.log('Warnings:', report.warnings)
+console.log('Summary:', report.summary)
+console.log('Recommendations:', report.recommendations)
 ```
 
 **Custom Budget Thresholds:**
@@ -218,7 +221,7 @@ performanceBudgetController.setThreshold({
   severity: 'error',
   category: 'custom',
   description: 'Custom metric threshold',
-});
+})
 
 // Update existing threshold
 performanceBudgetController.setThreshold({
@@ -229,26 +232,26 @@ performanceBudgetController.setThreshold({
   severity: 'error',
   category: 'web-vitals',
   description: 'Updated FCP threshold',
-});
+})
 
 // Remove threshold
-performanceBudgetController.removeThreshold('FCP');
+performanceBudgetController.removeThreshold('FCP')
 ```
 
 **Alert Management:**
 
 ```typescript
 // Get alerts
-const alerts = performanceBudgetController.getAlerts();
+const alerts = performanceBudgetController.getAlerts()
 
 // Suppress alert
-performanceBudgetController.suppressAlert('FCP', 'Known issue, will fix later');
+performanceBudgetController.suppressAlert('FCP', 'Known issue, will fix later')
 
 // Unsuppress alert
-performanceBudgetController.unsuppressAlert('FCP');
+performanceBudgetController.unsuppressAlert('FCP')
 
 // Clear alerts
-performanceBudgetController.clearAlerts();
+performanceBudgetController.clearAlerts()
 ```
 
 **Compliance Reporting:**
@@ -259,20 +262,20 @@ const report = performanceBudgetController.getComplianceReportByUrl(
   'https://example.com',
   new Date(Date.now() - 24 * 60 * 60 * 1000), // 24 hours ago
   new Date()
-);
+)
 
 if (report) {
-  console.log('Average Score:', report.overallScore);
-  console.log('Compliance Status:', report.complianceStatus);
-  console.log('Summary:', report.summary);
+  console.log('Average Score:', report.overallScore)
+  console.log('Compliance Status:', report.complianceStatus)
+  console.log('Summary:', report.summary)
 }
 
 // Get performance trend
-const trend = performanceBudgetController.getPerformanceTrend(24); // Last 24 hours
+const trend = performanceBudgetController.getPerformanceTrend(24) // Last 24 hours
 
-trend.forEach((data) => {
-  console.log(`${data.timestamp.toISOString()}: ${data.score} (${data.status})`);
-});
+trend.forEach(data => {
+  console.log(`${data.timestamp.toISOString()}: ${data.score} (${data.status})`)
+})
 ```
 
 ### Other Components
@@ -301,46 +304,43 @@ All modules are compatible with Next.js App Router and can be used in:
 ### Example: Server Component
 
 ```typescript
-'use client';
+'use client'
 
-import { useEffect } from 'react';
-import { performanceRootCauseAnalyzer } from '@/lib/monitoring/root-cause';
+import { useEffect } from 'react'
+import { performanceRootCauseAnalyzer } from '@/lib/monitoring/root-cause'
 
 export default function PerformanceMonitor() {
   useEffect(() => {
     // Start observing
-    performanceRootCauseAnalyzer.startObserving();
+    performanceRootCauseAnalyzer.startObserving()
 
     // Collect memory samples periodically
     const interval = setInterval(() => {
-      performanceRootCauseAnalyzer.collectMemorySample();
-    }, 60000); // Every minute
+      performanceRootCauseAnalyzer.collectMemorySample()
+    }, 60000) // Every minute
 
     return () => {
-      clearInterval(interval);
-      performanceRootCauseAnalyzer.stopObserving();
-    };
-  }, []);
+      clearInterval(interval)
+      performanceRootCauseAnalyzer.stopObserving()
+    }
+  }, [])
 
-  return null;
+  return null
 }
 ```
 
 ### Example: API Route
 
 ```typescript
-import { NextRequest, NextResponse } from 'next/server';
-import { performanceBudgetController } from '@/lib/monitoring/root-cause';
+import { NextRequest, NextResponse } from 'next/server'
+import { performanceBudgetController } from '@/lib/monitoring/root-cause'
 
 export async function POST(req: NextRequest) {
-  const metrics = await req.json();
-  
-  const report = performanceBudgetController.checkBudgets(
-    metrics,
-    metrics.url
-  );
+  const metrics = await req.json()
 
-  return NextResponse.json(report);
+  const report = performanceBudgetController.checkBudgets(metrics, metrics.url)
+
+  return NextResponse.json(report)
 }
 ```
 

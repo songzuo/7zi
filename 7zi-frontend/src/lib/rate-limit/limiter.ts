@@ -4,8 +4,8 @@
  * 滑动窗口速率限制器实现
  */
 
-import { IRateLimitStorage, RateLimitEntry } from './storage';
-import { RateLimitConfig } from './config';
+import { IRateLimitStorage, RateLimitEntry } from './storage'
+import { RateLimitConfig } from './config'
 
 /**
  * 限流结果接口
@@ -14,62 +14,62 @@ export interface RateLimitResult {
   /**
    * 是否允许请求
    */
-  allowed: boolean;
+  allowed: boolean
 
   /**
    * 剩余请求数
    */
-  remaining: number;
+  remaining: number
 
   /**
    * 重置时间（Unix 时间戳，毫秒）
    */
-  resetTime: number;
+  resetTime: number
 
   /**
    * 重置时间（秒）
    */
-  resetAfter: number;
+  resetAfter: number
 
   /**
    * 当前窗口内的请求数
    */
-  limit: number;
+  limit: number
 
   /**
    * 是否超出限流
    */
-  exceeded: boolean;
+  exceeded: boolean
 
   /**
    * 当前计数
    */
-  count: number;
+  count: number
 }
 
 /**
  * 速率限制器类
  */
 export class RateLimiter {
-  private storage: IRateLimitStorage;
-  private config: RateLimitConfig;
+  private storage: IRateLimitStorage
+  private config: RateLimitConfig
 
   constructor(storage: IRateLimitStorage, config: RateLimitConfig) {
-    this.storage = storage;
-    this.config = config;
+    this.storage = storage
+    this.config = config
   }
 
   /**
    * 检查并更新限流状态
    */
   async check(key: string): Promise<RateLimitResult> {
-    const entry = await this.storage.increment(key, this.config.windowMs);
-    const now = Date.now();
+    const entry = await this.storage.increment(key, this.config.windowMs)
+    const now = Date.now()
 
     // 计算剩余请求数
-    const remaining = Math.max(0, this.config.maxRequests - entry.count);
-    const exceeded = entry.count > this.config.maxRequests;
-    const resetAfter = Math.max(0, Math.ceil((entry.resetTime - now) / 1000));
+    const remaining = Math.max(0, this.config.maxRequests - entry.count)
+    const exceeded = entry.count > this.config.maxRequests
+    const resetAfter = Math.max(0, Math.ceil((entry.resetTime - now) / 1000))
 
     return {
       allowed: !exceeded,
@@ -79,15 +79,15 @@ export class RateLimiter {
       limit: this.config.maxRequests,
       exceeded,
       count: entry.count,
-    };
+    }
   }
 
   /**
    * 仅检查限流状态（不增加计数）
    */
   async peek(key: string): Promise<RateLimitResult> {
-    const entry = await this.storage.get(key);
-    const now = Date.now();
+    const entry = await this.storage.get(key)
+    const now = Date.now()
 
     if (!entry) {
       return {
@@ -98,12 +98,12 @@ export class RateLimiter {
         limit: this.config.maxRequests,
         exceeded: false,
         count: 0,
-      };
+      }
     }
 
-    const remaining = Math.max(0, this.config.maxRequests - entry.count);
-    const exceeded = entry.count > this.config.maxRequests;
-    const resetAfter = Math.max(0, Math.ceil((entry.resetTime - now) / 1000));
+    const remaining = Math.max(0, this.config.maxRequests - entry.count)
+    const exceeded = entry.count > this.config.maxRequests
+    const resetAfter = Math.max(0, Math.ceil((entry.resetTime - now) / 1000))
 
     return {
       allowed: !exceeded,
@@ -113,28 +113,28 @@ export class RateLimiter {
       limit: this.config.maxRequests,
       exceeded,
       count: entry.count,
-    };
+    }
   }
 
   /**
    * 重置限流状态
    */
   async reset(key: string): Promise<void> {
-    await this.storage.reset(key);
+    await this.storage.reset(key)
   }
 
   /**
    * 获取限流配置
    */
   getConfig(): RateLimitConfig {
-    return this.config;
+    return this.config
   }
 
   /**
    * 更新限流配置
    */
   updateConfig(config: Partial<RateLimitConfig>): void {
-    this.config = { ...this.config, ...config };
+    this.config = { ...this.config, ...config }
   }
 }
 
@@ -143,26 +143,26 @@ export class RateLimiter {
  */
 export function getClientIP(request: Request): string {
   // 从 headers 中获取 IP
-  const forwardedFor = request.headers.get('x-forwarded-for');
+  const forwardedFor = request.headers.get('x-forwarded-for')
   if (forwardedFor) {
     // x-forwarded-for 可能包含多个 IP，取第一个
-    const ips = forwardedFor.split(',').map(ip => ip.trim());
-    return ips[0];
+    const ips = forwardedFor.split(',').map(ip => ip.trim())
+    return ips[0]
   }
 
-  const realIP = request.headers.get('x-real-ip');
+  const realIP = request.headers.get('x-real-ip')
   if (realIP) {
-    return realIP;
+    return realIP
   }
 
-  const cfConnectingIP = request.headers.get('cf-connecting-ip');
+  const cfConnectingIP = request.headers.get('cf-connecting-ip')
   if (cfConnectingIP) {
-    return cfConnectingIP;
+    return cfConnectingIP
   }
 
   // Next.js API 路由中可能有其他 header
   // 这里返回默认值，实际应用中需要根据部署环境调整
-  return 'unknown';
+  return 'unknown'
 }
 
 /**
@@ -173,26 +173,26 @@ export function generateRateLimitKey(
   keyGenerator?: (request: Request) => string
 ): string {
   if (keyGenerator) {
-    return keyGenerator(request);
+    return keyGenerator(request)
   }
 
-  const ip = getClientIP(request);
-  const url = new URL(request.url);
-  const pathname = url.pathname;
+  const ip = getClientIP(request)
+  const url = new URL(request.url)
+  const pathname = url.pathname
 
-  return `${ip}:${pathname}`;
+  return `${ip}:${pathname}`
 }
 
 /**
  * 格式化限流响应头
  */
 export function formatRateLimitHeaders(result: RateLimitResult): Headers {
-  const headers = new Headers();
+  const headers = new Headers()
 
-  headers.set('X-RateLimit-Limit', result.limit.toString());
-  headers.set('X-RateLimit-Remaining', result.remaining.toString());
-  headers.set('X-RateLimit-Reset', Math.ceil(result.resetTime / 1000).toString());
-  headers.set('Retry-After', result.resetAfter.toString());
+  headers.set('X-RateLimit-Limit', result.limit.toString())
+  headers.set('X-RateLimit-Remaining', result.remaining.toString())
+  headers.set('X-RateLimit-Reset', Math.ceil(result.resetTime / 1000).toString())
+  headers.set('Retry-After', result.resetAfter.toString())
 
-  return headers;
+  return headers
 }

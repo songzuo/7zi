@@ -8,21 +8,21 @@
  * - Typing status
  */
 
-'use client';
+'use client'
 
-import React, { useState, useEffect, useRef } from 'react';
-import { useCollaboration } from '@/lib/websocket';
-import { ConnectionStatus, UserList, RemoteCursor } from './ConnectionStatus';
-import type { Operation } from '@/lib/collaboration/manager';
+import React, { useState, useEffect, useRef } from 'react'
+import { useCollaboration } from '@/lib/websocket'
+import { ConnectionStatus, UserList, RemoteCursor } from './ConnectionStatus'
+import type { Operation } from '@/lib/collaboration/manager'
 
 interface TaskEditorProps {
-  taskId: string;
-  taskTitle: string;
-  initialContent: string;
-  token: string;
-  userId: string;
-  userName: string;
-  userAvatar?: string;
+  taskId: string
+  taskTitle: string
+  initialContent: string
+  token: string
+  userId: string
+  userName: string
+  userAvatar?: string
 }
 
 export function TaskEditor({
@@ -34,9 +34,9 @@ export function TaskEditor({
   userName,
   userAvatar,
 }: TaskEditorProps) {
-  const [content, setContent] = useState(initialContent);
-  const [cursorPosition, setCursorPosition] = useState(0);
-  const textareaRef = useRef<HTMLTextAreaElement>(null);
+  const [content, setContent] = useState(initialContent)
+  const [cursorPosition, setCursorPosition] = useState(0)
+  const textareaRef = useRef<HTMLTextAreaElement>(null)
 
   // Initialize collaboration
   const {
@@ -65,69 +65,69 @@ export function TaskEditor({
     roomType: 'task',
     documentId: taskId,
     autoConnect: true,
-  });
+  })
 
   // Join room when connected
   useEffect(() => {
     if (isConnected && !isInRoom) {
-      joinRoom(`task:${taskId}`, 'task', taskId, taskTitle);
+      joinRoom(`task:${taskId}`, 'task', taskId, taskTitle)
     }
 
     return () => {
       if (isInRoom) {
-        leaveRoom();
+        leaveRoom()
       }
-    };
-  }, [isConnected, isInRoom, taskId, taskTitle, joinRoom, leaveRoom]);
+    }
+  }, [isConnected, isInRoom, taskId, taskTitle, joinRoom, leaveRoom])
 
   // Listen for document updates
   useEffect(() => {
-    const unsubscribe = onDocumentUpdate((updatedDoc) => {
+    const unsubscribe = onDocumentUpdate(updatedDoc => {
       if (updatedDoc.revision > (document?.revision || 0)) {
-        setContent(updatedDoc.content);
+        setContent(updatedDoc.content)
       }
-    });
+    })
 
-    return unsubscribe;
-  }, [document, onDocumentUpdate]);
+    return unsubscribe
+  }, [document, onDocumentUpdate])
 
   // Handle cursor movement and selection
   const handleCursorChange = () => {
-    if (!textareaRef.current) return;
-    const newPosition = textareaRef.current.selectionStart;
-    const selectionEnd = textareaRef.current.selectionEnd;
-    setCursorPosition(newPosition);
+    if (!textareaRef.current) return
+    const newPosition = textareaRef.current.selectionStart
+    const selectionEnd = textareaRef.current.selectionEnd
+    setCursorPosition(newPosition)
 
     // Send cursor position
     moveCursor(newPosition, {
       start: Math.min(newPosition, selectionEnd),
       end: Math.max(newPosition, selectionEnd),
-    });
+    })
 
     // Selection update is handled automatically by moveCursor
-  };
+  }
 
   // Handle text input
   const handleInputChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
-    const newContent = e.target.value;
-    const oldContent = content;
+    const newContent = e.target.value
+    const oldContent = content
 
-    setContent(newContent);
+    setContent(newContent)
 
     // Calculate and send operation
-    const operation = calculateOperation(oldContent, newContent, cursorPosition);
+    const operation = calculateOperation(oldContent, newContent, cursorPosition)
     if (operation) {
-      sendOperation(operation);
+      sendOperation(operation)
     }
 
     // Update typing status
-    setTyping(true);
+    setTyping(true)
 
     // Clear typing status after 3 seconds of inactivity
     setTimeout(() => {
-      setTyping(false);
-    }, 3000);
-  };
+      setTyping(false)
+    }, 3000)
+  }
 
   // Calculate operation to send to server
   const calculateOperation = (
@@ -136,38 +136,39 @@ export function TaskEditor({
     position: number
   ): Operation | null => {
     if (oldContent === newContent) {
-      return null;
+      return null
     }
 
     // Simple implementation: treat as insert or delete at cursor position
     if (newContent.length > oldContent.length) {
       // Insert operation
-      const insertedContent = newContent.slice(position, position + (newContent.length - oldContent.length));
+      const insertedContent = newContent.slice(
+        position,
+        position + (newContent.length - oldContent.length)
+      )
       return {
         type: 'insert',
         position,
         content: insertedContent,
-      };
+      }
     } else {
       // Delete operation
-      const deletedLength = oldContent.length - newContent.length;
+      const deletedLength = oldContent.length - newContent.length
       return {
         type: 'delete',
         position,
         length: deletedLength,
-      };
+      }
     }
-  };
+  }
 
   return (
-    <div className="flex flex-col h-full">
+    <div className="flex h-full flex-col">
       {/* Header */}
-      <div className="flex items-center justify-between p-4 border-b dark:border-zinc-700">
+      <div className="flex items-center justify-between border-b p-4 dark:border-zinc-700">
         <div>
           <h2 className="text-xl font-semibold">{taskTitle}</h2>
-          <p className="text-sm text-zinc-500 dark:text-zinc-400">
-            Task ID: {taskId}
-          </p>
+          <p className="text-sm text-zinc-500 dark:text-zinc-400">Task ID: {taskId}</p>
         </div>
 
         <div className="flex items-center gap-4">
@@ -187,15 +188,18 @@ export function TaskEditor({
 
       {/* Collaboration Banner - shows when collaborating */}
       {isInRoom && users.length > 1 && (
-        <div className="bg-blue-50 dark:bg-blue-900/20 px-4 py-2 border-b border-blue-200 dark:border-blue-800">
+        <div className="border-b border-blue-200 bg-blue-50 px-4 py-2 dark:border-blue-800 dark:bg-blue-900/20">
           <div className="flex items-center gap-2 text-sm text-blue-700 dark:text-blue-300">
-            <span className="w-2 h-2 bg-blue-500 rounded-full animate-pulse" />
+            <span className="h-2 w-2 animate-pulse rounded-full bg-blue-500" />
             <span>
               <strong>{users.length}</strong> people are collaborating on this task
             </span>
-            <span className="text-blue-400 mx-2">•</span>
+            <span className="mx-2 text-blue-400">•</span>
             <span className="text-blue-600 dark:text-blue-400">
-              {users.filter(u => u.id !== userId).map(u => u.name).join(', ')}
+              {users
+                .filter(u => u.id !== userId)
+                .map(u => u.name)
+                .join(', ')}
               {users.filter(u => u.id !== userId).length > 0 ? ' and you' : 'you'}
             </span>
           </div>
@@ -203,7 +207,7 @@ export function TaskEditor({
       )}
 
       {/* Editor */}
-      <div className="flex-1 relative overflow-hidden">
+      <div className="relative flex-1 overflow-hidden">
         <textarea
           ref={textareaRef}
           value={content}
@@ -211,7 +215,7 @@ export function TaskEditor({
           onSelect={handleCursorChange}
           onKeyUp={handleCursorChange}
           onClick={handleCursorChange}
-          className="w-full h-full p-4 resize-none border-none focus:outline-none dark:bg-zinc-800 dark:text-white font-mono text-sm leading-relaxed"
+          className="h-full w-full resize-none border-none p-4 font-mono text-sm leading-relaxed focus:outline-none dark:bg-zinc-800 dark:text-white"
           placeholder="Start typing to edit the task..."
           disabled={!isConnected || !isInRoom}
           style={{
@@ -221,49 +225,49 @@ export function TaskEditor({
         />
 
         {/* Remote cursors overlay - positioned absolutely over textarea */}
-        <div className="absolute inset-0 pointer-events-none overflow-hidden">
-          {Array.from(cursors.values()).map((cursor) => {
-            if (cursor.userId === userId) return null;
-            
+        <div className="pointer-events-none absolute inset-0 overflow-hidden">
+          {Array.from(cursors.values()).map(cursor => {
+            if (cursor.userId === userId) return null
+
             // Calculate cursor position based on textarea content
-            const textarea = textareaRef.current;
-            if (!textarea) return null;
-            
+            const textarea = textareaRef.current
+            if (!textarea) return null
+
             // Get cursor coordinates
             const cursorStyle = {
               position: 'absolute' as const,
               pointerEvents: 'none' as const,
               zIndex: 10,
-            };
-            
+            }
+
             return (
               <div key={cursor.userId} style={cursorStyle}>
                 {/* Cursor caret */}
                 <div
-                  className="w-0.5 h-5 animate-pulse"
+                  className="h-5 w-0.5 animate-pulse"
                   style={{ backgroundColor: cursor.color }}
                 />
                 {/* User label */}
                 <div
-                  className="px-2 py-0.5 text-white text-xs rounded-t-sm whitespace-nowrap"
+                  className="rounded-t-sm px-2 py-0.5 text-xs whitespace-nowrap text-white"
                   style={{ backgroundColor: cursor.color, fontSize: '10px' }}
                 >
                   {cursor.userName}
                 </div>
               </div>
-            );
+            )
           })}
         </div>
 
         {/* Typing indicator */}
         {typingUsers.length > 0 && (
-          <div className="absolute bottom-4 right-4 bg-white dark:bg-zinc-700 rounded-lg shadow-lg px-3 py-2">
+          <div className="absolute right-4 bottom-4 rounded-lg bg-white px-3 py-2 shadow-lg dark:bg-zinc-700">
             <div className="flex items-center gap-2">
               <div className="flex gap-1">
-                {[0, 1, 2].map((i) => (
+                {[0, 1, 2].map(i => (
                   <div
                     key={i}
-                    className="w-1.5 h-1.5 bg-blue-500 rounded-full animate-bounce"
+                    className="h-1.5 w-1.5 animate-bounce rounded-full bg-blue-500"
                     style={{
                       animationDelay: `${i * 0.1}s`,
                       animationDuration: '0.6s',
@@ -282,7 +286,7 @@ export function TaskEditor({
       </div>
 
       {/* Footer */}
-      <div className="p-4 border-t dark:border-zinc-700 flex items-center justify-between">
+      <div className="flex items-center justify-between border-t p-4 dark:border-zinc-700">
         <div className="flex items-center gap-4 text-sm text-zinc-500 dark:text-zinc-400">
           {document && (
             <>
@@ -303,7 +307,7 @@ export function TaskEditor({
         </div>
       </div>
     </div>
-  );
+  )
 }
 
 /**
@@ -320,7 +324,7 @@ export function TaskEditorPage({
   userAvatar,
 }: TaskEditorProps) {
   return (
-    <div className="h-screen flex flex-col">
+    <div className="flex h-screen flex-col">
       <TaskEditor
         taskId={taskId}
         taskTitle={taskTitle}
@@ -331,7 +335,7 @@ export function TaskEditorPage({
         userAvatar={userAvatar}
       />
     </div>
-  );
+  )
 }
 
-export default TaskEditor;
+export default TaskEditor

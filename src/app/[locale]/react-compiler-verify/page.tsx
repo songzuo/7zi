@@ -1,7 +1,7 @@
-'use client';
+'use client'
 
-import { useState, useEffect, useCallback, useMemo, useRef } from 'react';
-import { useTranslations } from 'next-intl';
+import { useState, useEffect, useCallback, useMemo, useRef } from 'react'
+import { useTranslations } from 'next-intl'
 
 /**
  * React Compiler 验证页面
@@ -17,13 +17,13 @@ import { useTranslations } from 'next-intl';
 
 // 类型定义
 interface ListItem {
-  id: number;
-  value: number;
-  selected: boolean;
+  id: number
+  value: number
+  selected: boolean
 }
 
 export default function ReactCompilerVerifyPage() {
-  const t = useTranslations('ReactCompilerVerify');
+  const t = useTranslations('ReactCompilerVerify')
 
   // ===== 场景 1: 大列表渲染 =====
   const [listItems, setListItems] = useState<ListItem[]>(() =>
@@ -32,22 +32,18 @@ export default function ReactCompilerVerifyPage() {
       value: Math.random(),
       selected: false,
     }))
-  );
-  const [filterValue, setFilterValue] = useState('');
+  )
+  const [filterValue, setFilterValue] = useState('')
 
   const filteredItems = useMemo(() => {
-    return listItems.filter(item =>
-      item.value.toString().includes(filterValue)
-    );
-  }, [listItems, filterValue]);
+    return listItems.filter(item => item.value.toString().includes(filterValue))
+  }, [listItems, filterValue])
 
   const toggleItem = useCallback((id: number) => {
     setListItems(items =>
-      items.map(item =>
-        item.id === id ? { ...item, selected: !item.selected } : item
-      )
-    );
-  }, []);
+      items.map(item => (item.id === id ? { ...item, selected: !item.selected } : item))
+    )
+  }, [])
 
   // ===== 场景 2: 实时数据更新 =====
   const [realtimeData, setRealtimeData] = useState({
@@ -55,7 +51,7 @@ export default function ReactCompilerVerifyPage() {
     cpuUsage: Math.random() * 100,
     memoryUsage: Math.random() * 100,
     activeConnections: Math.floor(Math.random() * 1000),
-  });
+  })
 
   useEffect(() => {
     const interval = setInterval(() => {
@@ -64,11 +60,11 @@ export default function ReactCompilerVerifyPage() {
         cpuUsage: Math.random() * 100,
         memoryUsage: Math.random() * 100,
         activeConnections: Math.floor(Math.random() * 1000),
-      });
-    }, 1000);
+      })
+    }, 1000)
 
-    return () => clearInterval(interval);
-  }, []);
+    return () => clearInterval(interval)
+  }, [])
 
   // ===== 场景 3: 复杂状态管理 =====
   const [complexState, setComplexState] = useState({
@@ -77,77 +73,77 @@ export default function ReactCompilerVerifyPage() {
     count3: 0,
     count4: 0,
     count5: 0,
-  });
+  })
 
   const incrementCount = useCallback((key: keyof typeof complexState) => {
     setComplexState(prev => ({
       ...prev,
       [key]: prev[key] + 1,
-    }));
-  }, []);
+    }))
+  }, [])
 
   // 计算派生状态 (容易触发不必要的重渲染)
   const derivedValue = useMemo(() => {
-    return Object.values(complexState).reduce((sum, val) => sum + val, 0);
-  }, [complexState]);
+    return Object.values(complexState).reduce((sum, val) => sum + val, 0)
+  }, [complexState])
 
   // ===== 场景 4: 重渲染计数器 =====
-  const renderCounts = useRef<Map<string, number>>(new Map());
+  const renderCounts = useRef<Map<string, number>>(new Map())
 
   const trackRender = (componentName: string) => {
-    const current = renderCounts.current.get(componentName) || 0;
-    renderCounts.current.set(componentName, current + 1);
-  };
+    const current = renderCounts.current.get(componentName) || 0
+    renderCounts.current.set(componentName, current + 1)
+  }
 
-  const [refreshKey, setRefreshKey] = useState(0);
+  const [refreshKey, setRefreshKey] = useState(0)
 
   // 强制所有组件重渲染
   const forceRerender = useCallback(() => {
-    setRefreshKey(prev => prev + 1);
-  }, []);
+    setRefreshKey(prev => prev + 1)
+  }, [])
 
   // ===== 性能监控 =====
   const [performanceMetrics, setPerformanceMetrics] = useState({
     fps: 0,
     frameTime: 0,
-  });
+  })
 
   useEffect(() => {
-    let frameCount = 0;
-    let lastTime = performance.now();
-    let animationFrameId: number;
+    let frameCount = 0
+    let lastTime = performance.now()
+    let animationFrameId: number
 
     const measureFPS = () => {
-      frameCount++;
-      const currentTime = performance.now();
+      frameCount++
+      const currentTime = performance.now()
 
       if (currentTime - lastTime >= 1000) {
-        const fps = frameCount;
-        const frameTime = 1000 / fps;
+        const fps = frameCount
+        const frameTime = 1000 / fps
 
-        setPerformanceMetrics({ fps, frameTime });
+        setPerformanceMetrics({ fps, frameTime })
 
-        frameCount = 0;
-        lastTime = currentTime;
+        frameCount = 0
+        lastTime = currentTime
       }
 
-      animationFrameId = requestAnimationFrame(measureFPS);
-    };
+      animationFrameId = requestAnimationFrame(measureFPS)
+    }
 
-    animationFrameId = requestAnimationFrame(measureFPS);
+    animationFrameId = requestAnimationFrame(measureFPS)
 
-    return () => cancelAnimationFrame(animationFrameId);
-  }, []);
+    return () => cancelAnimationFrame(animationFrameId)
+  }, [])
 
   // 重置计数器
   const resetCounts = useCallback(() => {
-    renderCounts.current.clear();
-    setRefreshKey(prev => prev + 1);
-  }, []);
+    renderCounts.current.clear()
+    setRefreshKey(prev => prev + 1)
+  }, [])
 
   // ===== React Compiler 状态检查 =====
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const isCompilerEnabled = typeof (window as any).__REACT_COMPILER__ !== 'undefined';
+  const isCompilerEnabled = typeof (window as any).__REACT_COMPILER__ !== 'undefined'
 
   return (
     <div className="min-h-screen bg-gray-50 p-8">
@@ -158,7 +154,9 @@ export default function ReactCompilerVerifyPage() {
             {t('title', { defaultValue: 'React Compiler Verification' })}
           </h1>
           <p className="mt-2 text-gray-600">
-            {t('description', { defaultValue: 'Test and compare performance with React Compiler enabled/disabled' })}
+            {t('description', {
+              defaultValue: 'Test and compare performance with React Compiler enabled/disabled',
+            })}
           </p>
 
           {/* 编译器状态 */}
@@ -206,9 +204,7 @@ export default function ReactCompilerVerifyPage() {
               <p className="text-sm font-medium text-gray-700">
                 {t('fps', { defaultValue: 'FPS' })}
               </p>
-              <p className="mt-1 text-2xl font-semibold text-gray-900">
-                {performanceMetrics.fps}
-              </p>
+              <p className="mt-1 text-2xl font-semibold text-gray-900">{performanceMetrics.fps}</p>
             </div>
             <div className="rounded-md bg-gray-50 p-4">
               <p className="text-sm font-medium text-gray-700">
@@ -230,9 +226,7 @@ export default function ReactCompilerVerifyPage() {
               <p className="text-sm font-medium text-gray-700">
                 {t('refreshKey', { defaultValue: 'Refresh Key' })}
               </p>
-              <p className="mt-1 text-2xl font-semibold text-gray-900">
-                {refreshKey}
-              </p>
+              <p className="mt-1 text-2xl font-semibold text-gray-900">{refreshKey}</p>
             </div>
           </div>
         </div>
@@ -252,7 +246,7 @@ export default function ReactCompilerVerifyPage() {
             key={`list-${refreshKey}`}
             items={filteredItems}
             onToggle={toggleItem}
-            trackRender={(name) => trackRender(name)}
+            trackRender={name => trackRender(name)}
             renderCount={renderCounts.current.get('ListRenderer') || 0}
           />
 
@@ -260,9 +254,9 @@ export default function ReactCompilerVerifyPage() {
             <input
               type="text"
               value={filterValue}
-              onChange={(e) => setFilterValue(e.target.value)}
+              onChange={e => setFilterValue(e.target.value)}
               placeholder={t('filterPlaceholder', { defaultValue: 'Filter items...' })}
-              className="rounded-md border border-gray-300 px-4 py-2 text-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
+              className="rounded-md border border-gray-300 px-4 py-2 text-sm focus:border-blue-500 focus:ring-1 focus:ring-blue-500 focus:outline-none"
             />
             <span className="text-sm text-gray-600">
               {t('showingItems', {
@@ -287,7 +281,7 @@ export default function ReactCompilerVerifyPage() {
           <RealtimeDashboard
             key={`realtime-${refreshKey}`}
             data={realtimeData}
-            trackRender={(name) => trackRender(name)}
+            trackRender={name => trackRender(name)}
             renderCount={renderCounts.current.get('RealtimeDashboard') || 0}
           />
         </div>
@@ -308,7 +302,7 @@ export default function ReactCompilerVerifyPage() {
             state={complexState}
             derivedValue={derivedValue}
             onIncrement={incrementCount}
-            trackRender={(name) => trackRender(name)}
+            trackRender={name => trackRender(name)}
             renderCount={renderCounts.current.get('ComplexStateComponent') || 0}
           />
         </div>
@@ -322,34 +316,34 @@ export default function ReactCompilerVerifyPage() {
             <table className="min-w-full divide-y divide-gray-200">
               <thead className="bg-gray-50">
                 <tr>
-                  <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500">
+                  <th className="px-6 py-3 text-left text-xs font-medium tracking-wider text-gray-500 uppercase">
                     {t('component', { defaultValue: 'Component' })}
                   </th>
-                  <th className="px-6 py-3 text-right text-xs font-medium uppercase tracking-wider text-gray-500">
+                  <th className="px-6 py-3 text-right text-xs font-medium tracking-wider text-gray-500 uppercase">
                     {t('renderCount', { defaultValue: 'Render Count' })}
                   </th>
-                  <th className="px-6 py-3 text-right text-xs font-medium uppercase tracking-wider text-gray-500">
+                  <th className="px-6 py-3 text-right text-xs font-medium tracking-wider text-gray-500 uppercase">
                     {t('percentage', { defaultValue: 'Percentage' })}
                   </th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-gray-200 bg-white">
                 {Array.from(renderCounts.current.entries()).map(([component, count]) => {
-                  const total = Array.from(renderCounts.current.values()).reduce((a, b) => a + b, 0);
-                  const percentage = total > 0 ? ((count / total) * 100).toFixed(1) : '0';
+                  const total = Array.from(renderCounts.current.values()).reduce((a, b) => a + b, 0)
+                  const percentage = total > 0 ? ((count / total) * 100).toFixed(1) : '0'
                   return (
                     <tr key={component}>
-                      <td className="whitespace-nowrap px-6 py-4 text-sm font-medium text-gray-900">
+                      <td className="px-6 py-4 text-sm font-medium whitespace-nowrap text-gray-900">
                         {component}
                       </td>
-                      <td className="whitespace-nowrap px-6 py-4 text-right text-sm text-gray-900">
+                      <td className="px-6 py-4 text-right text-sm whitespace-nowrap text-gray-900">
                         {count}
                       </td>
-                      <td className="whitespace-nowrap px-6 py-4 text-right text-sm text-gray-900">
+                      <td className="px-6 py-4 text-right text-sm whitespace-nowrap text-gray-900">
                         {percentage}%
                       </td>
                     </tr>
-                  );
+                  )
                 })}
               </tbody>
             </table>
@@ -374,7 +368,8 @@ export default function ReactCompilerVerifyPage() {
             </li>
             <li>
               {t('instruction3', {
-                defaultValue: 'In the other tab, disable React Compiler (ENABLE_REACT_COMPILER=false)',
+                defaultValue:
+                  'In the other tab, disable React Compiler (ENABLE_REACT_COMPILER=false)',
               })}
             </li>
             <li>
@@ -396,7 +391,7 @@ export default function ReactCompilerVerifyPage() {
         </div>
       </div>
     </div>
-  );
+  )
 }
 
 // ===== 子组件 =====
@@ -410,12 +405,12 @@ function ListRenderer({
   trackRender,
   renderCount,
 }: {
-  items: ListItem[];
-  onToggle: (id: number) => void;
-  trackRender: (name: string) => void;
-  renderCount: number;
+  items: ListItem[]
+  onToggle: (id: number) => void
+  trackRender: (name: string) => void
+  renderCount: number
 }) {
-  trackRender('ListRenderer');
+  trackRender('ListRenderer')
 
   return (
     <div className="mt-4">
@@ -426,34 +421,34 @@ function ListRenderer({
         <table className="min-w-full divide-y divide-gray-200">
           <thead className="bg-gray-50">
             <tr>
-              <th className="px-4 py-2 text-left text-xs font-medium uppercase tracking-wider text-gray-500">
+              <th className="px-4 py-2 text-left text-xs font-medium tracking-wider text-gray-500 uppercase">
                 ID
               </th>
-              <th className="px-4 py-2 text-left text-xs font-medium uppercase tracking-wider text-gray-500">
+              <th className="px-4 py-2 text-left text-xs font-medium tracking-wider text-gray-500 uppercase">
                 Value
               </th>
-              <th className="px-4 py-2 text-left text-xs font-medium uppercase tracking-wider text-gray-500">
+              <th className="px-4 py-2 text-left text-xs font-medium tracking-wider text-gray-500 uppercase">
                 Selected
               </th>
-              <th className="px-4 py-2 text-left text-xs font-medium uppercase tracking-wider text-gray-500">
+              <th className="px-4 py-2 text-left text-xs font-medium tracking-wider text-gray-500 uppercase">
                 Action
               </th>
             </tr>
           </thead>
           <tbody className="divide-y divide-gray-200 bg-white">
-            {items.slice(0, 100).map((item) => (
+            {items.slice(0, 100).map(item => (
               <ListItem
                 key={item.id}
                 item={item}
                 onToggle={onToggle}
-                trackRender={(name) => trackRender(name)}
+                trackRender={name => trackRender(name)}
               />
             ))}
           </tbody>
         </table>
       </div>
     </div>
-  );
+  )
 }
 
 /**
@@ -464,24 +459,20 @@ function ListItem({
   onToggle,
   trackRender,
 }: {
-  item: ListItem;
-  onToggle: (id: number) => void;
-  trackRender: (name: string) => void;
+  item: ListItem
+  onToggle: (id: number) => void
+  trackRender: (name: string) => void
 }) {
-  trackRender(`ListItem-${item.id}`);
+  trackRender(`ListItem-${item.id}`)
 
   return (
     <tr className={item.selected ? 'bg-blue-50' : ''}>
-      <td className="whitespace-nowrap px-4 py-2 text-sm text-gray-900">
-        {item.id}
-      </td>
-      <td className="whitespace-nowrap px-4 py-2 text-sm text-gray-900">
-        {item.value.toFixed(4)}
-      </td>
-      <td className="whitespace-nowrap px-4 py-2 text-sm text-gray-900">
+      <td className="px-4 py-2 text-sm whitespace-nowrap text-gray-900">{item.id}</td>
+      <td className="px-4 py-2 text-sm whitespace-nowrap text-gray-900">{item.value.toFixed(4)}</td>
+      <td className="px-4 py-2 text-sm whitespace-nowrap text-gray-900">
         {item.selected ? '✓' : '✗'}
       </td>
-      <td className="whitespace-nowrap px-4 py-2 text-sm">
+      <td className="px-4 py-2 text-sm whitespace-nowrap">
         <button
           onClick={() => onToggle(item.id)}
           className="rounded-md bg-gray-200 px-3 py-1 text-xs font-medium text-gray-700 hover:bg-gray-300"
@@ -490,7 +481,7 @@ function ListItem({
         </button>
       </td>
     </tr>
-  );
+  )
 }
 
 /**
@@ -502,15 +493,15 @@ function RealtimeDashboard({
   renderCount,
 }: {
   data: {
-    timestamp: number;
-    cpuUsage: number;
-    memoryUsage: number;
-    activeConnections: number;
-  };
-  trackRender: (name: string) => void;
-  renderCount: number;
+    timestamp: number
+    cpuUsage: number
+    memoryUsage: number
+    activeConnections: number
+  }
+  trackRender: (name: string) => void
+  renderCount: number
 }) {
-  trackRender('RealtimeDashboard');
+  trackRender('RealtimeDashboard')
 
   return (
     <div className="mt-4 grid grid-cols-2 gap-4 md:grid-cols-4">
@@ -528,30 +519,24 @@ function RealtimeDashboard({
           Renders: <span className="font-semibold">{renderCount}</span>
         </div>
         <p className="text-sm font-medium text-gray-700">CPU Usage</p>
-        <p className="mt-1 text-lg font-semibold text-gray-900">
-          {data.cpuUsage.toFixed(1)}%
-        </p>
+        <p className="mt-1 text-lg font-semibold text-gray-900">{data.cpuUsage.toFixed(1)}%</p>
       </div>
       <div className="rounded-md bg-gray-50 p-4">
         <div className="mb-2 text-sm text-gray-600">
           Renders: <span className="font-semibold">{renderCount}</span>
         </div>
         <p className="text-sm font-medium text-gray-700">Memory Usage</p>
-        <p className="mt-1 text-lg font-semibold text-gray-900">
-          {data.memoryUsage.toFixed(1)}%
-        </p>
+        <p className="mt-1 text-lg font-semibold text-gray-900">{data.memoryUsage.toFixed(1)}%</p>
       </div>
       <div className="rounded-md bg-gray-50 p-4">
         <div className="mb-2 text-sm text-gray-600">
           Renders: <span className="font-semibold">{renderCount}</span>
         </div>
         <p className="text-sm font-medium text-gray-700">Active Connections</p>
-        <p className="mt-1 text-lg font-semibold text-gray-900">
-          {data.activeConnections}
-        </p>
+        <p className="mt-1 text-lg font-semibold text-gray-900">{data.activeConnections}</p>
       </div>
     </div>
-  );
+  )
 }
 
 /**
@@ -565,18 +550,18 @@ function ComplexStateComponent({
   renderCount,
 }: {
   state: {
-    count1: number;
-    count2: number;
-    count3: number;
-    count4: number;
-    count5: number;
-  };
-  derivedValue: number;
-  onIncrement: (key: keyof typeof state) => void;
-  trackRender: (name: string) => void;
-  renderCount: number;
+    count1: number
+    count2: number
+    count3: number
+    count4: number
+    count5: number
+  }
+  derivedValue: number
+  onIncrement: (key: keyof typeof state) => void
+  trackRender: (name: string) => void
+  renderCount: number
 }) {
-  trackRender('ComplexStateComponent');
+  trackRender('ComplexStateComponent')
 
   return (
     <div className="mt-4">
@@ -600,11 +585,9 @@ function ComplexStateComponent({
         <div className="rounded-md bg-green-50 p-4">
           <p className="text-sm font-medium text-green-700">Derived Value</p>
           <p className="mt-1 text-2xl font-semibold text-green-900">{derivedValue}</p>
-          <p className="mt-2 text-xs text-green-600">
-            (Sum of all counters)
-          </p>
+          <p className="mt-2 text-xs text-green-600">(Sum of all counters)</p>
         </div>
       </div>
     </div>
-  );
+  )
 }

@@ -46,21 +46,22 @@
 
 ```typescript
 interface AgentLearningMetrics {
-  agentId: string;
-  totalAssigned: number;
-  totalCompleted: number;
-  totalFailed: number;
-  successRate: number;
-  avgCompletionTime: number;
-  byTaskType: Record<TaskType, TaskTypeMetrics>;
-  byPriority: Record<TaskPriority, TaskPriorityMetrics>;
-  confidence: number;        // 学习置信度
-  trend: 'improving' | 'stable' | 'declining';
-  lastUpdated: number;
+  agentId: string
+  totalAssigned: number
+  totalCompleted: number
+  totalFailed: number
+  successRate: number
+  avgCompletionTime: number
+  byTaskType: Record<TaskType, TaskTypeMetrics>
+  byPriority: Record<TaskPriority, TaskPriorityMetrics>
+  confidence: number // 学习置信度
+  trend: 'improving' | 'stable' | 'declining'
+  lastUpdated: number
 }
 ```
 
 **跟踪维度**:
+
 - 总体表现: 成功率、完成时间
 - 按任务类型: 不同类型任务的专门表现
 - 按优先级: 处理紧急任务的能力
@@ -80,10 +81,11 @@ getWeightAdjustments(agents: Map<string, AgentCapability>): WeightAdjustment[]
 4. **渐进调整**: 使用 `adjustmentFactor` 控制调整幅度
 
 **示例**:
+
 ```typescript
 // 建议权重计算
 weight = successRate * trendFactor * confidenceFactor * adjustmentFactor
-weight = 1.0 + (weight - 1.0) * 0.3  // 渐进调整
+weight = 1.0 + (weight - 1.0) * 0.3 // 渐进调整
 ```
 
 ##### c) 优化权重推荐
@@ -93,16 +95,21 @@ getOptimizedWeights(taskType: TaskType): OptimizedWeights | null
 ```
 
 **策略**:
+
 - **高性能场景** (成功率 > 90%, 置信度 > 0.8):
+
   ```typescript
   { capability: 0.5, load: 0.25, performance: 0.15, response: 0.1 }
   ```
+
   → 信任能力匹配
 
 - **低置信场景** (成功率 < 70% 或 置信度 < 0.6):
+
   ```typescript
   { capability: 0.25, load: 0.25, performance: 0.4, response: 0.1 }
   ```
+
   → 优先考虑历史表现
 
 - **混合场景**: 使用默认平衡权重
@@ -116,8 +123,8 @@ getOptimizedWeights(taskType: TaskType): OptimizedWeights | null
 ```typescript
 interface SchedulerConfig {
   // ... 现有配置
-  learning?: LearningConfig;
-  enableLearning?: boolean;
+  learning?: LearningConfig
+  enableLearning?: boolean
 }
 ```
 
@@ -180,12 +187,12 @@ getLearner(): AdaptiveLearner
 
 ```typescript
 interface LearningConfig {
-  minTasksForLearning: number;    // 最小学习样本数
-  adjustmentFactor: number;       // 调整幅度因子 (0-1)
-  trendWindow: number;            // 趋势分析窗口
-  autoUpdateWeights: boolean;     // 自动更新权重
-  enablePersistence: boolean;     // 启用持久化
-  persistencePath?: string;       // 持久化文件路径
+  minTasksForLearning: number // 最小学习样本数
+  adjustmentFactor: number // 调整幅度因子 (0-1)
+  trendWindow: number // 趋势分析窗口
+  autoUpdateWeights: boolean // 自动更新权重
+  enablePersistence: boolean // 启用持久化
+  persistencePath?: string // 持久化文件路径
 }
 ```
 
@@ -204,46 +211,46 @@ exportData(): string
 ### 基本使用
 
 ```typescript
-import { AgentScheduler } from './scheduler';
+import { AgentScheduler } from './scheduler'
 
 // 创建调度器（默认启用学习）
 const scheduler = new AgentScheduler({
   enableLearning: true,
   learning: {
     minTasksForLearning: 5,
-    adjustmentFactor: 0.3
-  }
-});
+    adjustmentFactor: 0.3,
+  },
+})
 
 // 执行任务
-const decision = await scheduler.scheduleTask('task-1');
-await executeTask(decision.assignedAgent, decision.taskId);
+const decision = await scheduler.scheduleTask('task-1')
+await executeTask(decision.assignedAgent, decision.taskId)
 
 // 记录完成
-scheduler.completeTask('task-1');
+scheduler.completeTask('task-1')
 ```
 
 ### 查看学习进度
 
 ```typescript
 // 获取学习摘要
-const summary = scheduler.getLearningSummary();
-console.log('平均成功率:', summary.averageSuccessRate);
-console.log('有学习数据的代理:', summary.agentsWithLearningData);
-console.log('表现最佳:', summary.topPerformers);
+const summary = scheduler.getLearningSummary()
+console.log('平均成功率:', summary.averageSuccessRate)
+console.log('有学习数据的代理:', summary.agentsWithLearningData)
+console.log('表现最佳:', summary.topPerformers)
 ```
 
 ### 查看特定代理指标
 
 ```typescript
-const learner = scheduler.getLearner();
-const metrics = learner.getAgentMetrics('architect');
+const learner = scheduler.getLearner()
+const metrics = learner.getAgentMetrics('architect')
 
 if (metrics) {
-  console.log('成功率:', metrics.successRate);
-  console.log('平均完成时间:', metrics.avgCompletionTime);
-  console.log('趋势:', metrics.trend);
-  console.log('按任务类型:', metrics.byTaskType);
+  console.log('成功率:', metrics.successRate)
+  console.log('平均完成时间:', metrics.avgCompletionTime)
+  console.log('趋势:', metrics.trend)
+  console.log('按任务类型:', metrics.byTaskType)
 }
 ```
 
@@ -251,34 +258,34 @@ if (metrics) {
 
 ```typescript
 // 获取调整建议
-const adjustments = scheduler.getWeightAdjustments();
+const adjustments = scheduler.getWeightAdjustments()
 
 adjustments.forEach(adj => {
-  console.log(`${adj.agentId} 对于 ${adj.taskType}:`);
-  console.log(`  当前权重: ${adj.currentWeight}`);
-  console.log(`  建议权重: ${adj.suggestedWeight}`);
-  console.log(`  原因: ${adj.reason}`);
-});
+  console.log(`${adj.agentId} 对于 ${adj.taskType}:`)
+  console.log(`  当前权重: ${adj.currentWeight}`)
+  console.log(`  建议权重: ${adj.suggestedWeight}`)
+  console.log(`  原因: ${adj.reason}`)
+})
 
 // 应用调整
-scheduler.applyWeightAdjustments();
+scheduler.applyWeightAdjustments()
 ```
 
 ### 导出/导入学习数据
 
 ```typescript
 // 导出
-const data = scheduler.getLearner().exportData();
-fs.writeFileSync('learning-data.json', data);
+const data = scheduler.getLearner().exportData()
+fs.writeFileSync('learning-data.json', data)
 
 // 导入（在创建新调度器时）
 const scheduler = new AgentScheduler({
   enableLearning: true,
   learning: {
     enablePersistence: true,
-    persistencePath: 'learning-data.json'
-  }
-});
+    persistencePath: 'learning-data.json',
+  },
+})
 ```
 
 ## 性能优化建议
@@ -288,10 +295,11 @@ const scheduler = new AgentScheduler({
 **问题**: 决策历史无限制增长
 
 **解决方案**:
+
 ```typescript
 // 保留最近 1000 条决策
 if (this.decisionHistory.length > 1000) {
-  this.decisionHistory = this.decisionHistory.slice(-1000);
+  this.decisionHistory = this.decisionHistory.slice(-1000)
 }
 
 // 持久化时只保留 500 条
@@ -303,6 +311,7 @@ decisionHistory: this.decisionHistory.slice(-500)
 **当前**: 同步写入（已注释）
 
 **建议**: 使用队列异步持久化
+
 ```typescript
 private persistQueue: Array<() => void> = [];
 
@@ -325,6 +334,7 @@ private queuePersist() {
 **当前**: 每次任务完成后重新计算所有权重
 
 **建议**: 增量更新缓存
+
 ```typescript
 private updateCachedWeight(agentId: string, taskType: TaskType, delta: number) {
   const cache = this.weightCache.get(agentId);
@@ -340,6 +350,7 @@ private updateCachedWeight(agentId: string, taskType: TaskType, delta: number) {
 **当前**: 顺序分析所有代理
 
 **建议**: 使用 Worker 并行分析
+
 ```typescript
 async getWeightAdjustmentsParallel(agents: Map<string, AgentCapability>) {
   const agentEntries = Array.from(agents.entries());
@@ -362,12 +373,12 @@ async getWeightAdjustmentsParallel(agents: Map<string, AgentCapability>) {
 
 ### 关键指标
 
-| 指标 | 健康值 | 警告阈值 |
-|------|--------|----------|
-| 平均成功率 | > 90% | < 80% |
-| 学习数据代理数 | > 50% | < 20% |
-| 权重调整频率 | 稳定 | 频繁大幅调整 |
-| 置信度 | > 0.7 | < 0.5 |
+| 指标           | 健康值 | 警告阈值     |
+| -------------- | ------ | ------------ |
+| 平均成功率     | > 90%  | < 80%        |
+| 学习数据代理数 | > 50%  | < 20%        |
+| 权重调整频率   | 稳定   | 频繁大幅调整 |
+| 置信度         | > 0.7  | < 0.5        |
 
 ### 调优建议
 
@@ -376,11 +387,11 @@ async getWeightAdjustmentsParallel(agents: Map<string, AgentCapability>) {
 ```typescript
 const scheduler = new AgentScheduler({
   learning: {
-    minTasksForLearning: 3,      // 降低阈值
-    adjustmentFactor: 0.5,       // 加快调整
-    trendWindow: 5                // 缩短窗口
-  }
-});
+    minTasksForLearning: 3, // 降低阈值
+    adjustmentFactor: 0.5, // 加快调整
+    trendWindow: 5, // 缩短窗口
+  },
+})
 ```
 
 #### 2. 提高稳定性
@@ -388,19 +399,19 @@ const scheduler = new AgentScheduler({
 ```typescript
 const scheduler = new AgentScheduler({
   learning: {
-    minTasksForLearning: 10,     // 提高阈值
-    adjustmentFactor: 0.2,       // 减缓调整
-    trendWindow: 20               // 延长窗口
-  }
-});
+    minTasksForLearning: 10, // 提高阈值
+    adjustmentFactor: 0.2, // 减缓调整
+    trendWindow: 20, // 延长窗口
+  },
+})
 ```
 
 #### 3. 针对特定任务类型优化
 
 ```typescript
 // 为 architecture 任务类型提高成功率要求
-const learner = scheduler.getLearner();
-const archMetrics = learner.getAgentMetrics('architect');
+const learner = scheduler.getLearner()
+const archMetrics = learner.getAgentMetrics('architect')
 
 if (archMetrics?.byTaskType.architecture.successRate < 0.95) {
   // 考虑手动干预或调整配置
@@ -414,6 +425,7 @@ if (archMetrics?.byTaskType.architecture.successRate < 0.95) {
 **文件**: `src/lib/agents/scheduler/core/__tests__/adaptive-learner.test.ts`
 
 **测试覆盖** (20 个测试):
+
 - ✅ 记录成功/失败决策
 - ✅ 成功率计算
 - ✅ 多代理独立跟踪
@@ -434,6 +446,7 @@ if (archMetrics?.byTaskType.architecture.successRate < 0.95) {
 **文件**: `src/lib/agents/scheduler/dashboard/AgentStatusPanel.spec.tsx`
 
 **测试覆盖** (6 个测试):
+
 - ✅ 组件渲染
 - ✅ 统计摘要显示
 - ✅ 过滤器渲染
@@ -458,9 +471,10 @@ Duration: 6.44s
 **当前**: 基于统计的规则系统
 
 **建议**: 集成机器学习模型
+
 ```typescript
 class MLBasedLearner extends AdaptiveLearner {
-  private model: TensorFlowModel;
+  private model: TensorFlowModel
 
   async trainModel(): Promise<void> {
     // 训练预测模型
@@ -479,6 +493,7 @@ class MLBasedLearner extends AdaptiveLearner {
 **当前**: 仅优化成功率
 
 **建议**: 平衡多个目标
+
 ```typescript
 interface OptimizationGoals {
   minimizeFailure: number;      // 最小化失败率
@@ -497,6 +512,7 @@ getOptimalSchedule(goals: OptimizationGoals): ScheduleDecision[] {
 **当前**: 单实例学习
 
 **建议**: 多实例协同学习
+
 ```typescript
 class DistributedLearner extends AdaptiveLearner {
   async syncWithPeers(peers: string[]): Promise<void> {
@@ -512,6 +528,7 @@ class DistributedLearner extends AdaptiveLearner {
 **当前**: 任务完成后记录
 
 **建议**: 实时监控和调整
+
 ```typescript
 class RealTimeLearner extends AdaptiveLearner {
   onTaskProgress(taskId: string, progress: number): void {
@@ -538,13 +555,13 @@ class RealTimeLearner extends AdaptiveLearner {
 
 ### 关键改进
 
-| 方面 | 改进前 | 改进后 |
-|------|--------|--------|
-| 测试状态 | 6 失败 | 全部通过 |
-| 学习能力 | 无 | 自适应 |
-| 权重调整 | 固定 | 动态 |
-| 数据持久化 | 无 | 支持 |
-| 趋势分析 | 无 | 支持三种趋势 |
+| 方面       | 改进前 | 改进后       |
+| ---------- | ------ | ------------ |
+| 测试状态   | 6 失败 | 全部通过     |
+| 学习能力   | 无     | 自适应       |
+| 权重调整   | 固定   | 动态         |
+| 数据持久化 | 无     | 支持         |
+| 趋势分析   | 无     | 支持三种趋势 |
 
 ### 使用建议
 
@@ -556,13 +573,16 @@ class RealTimeLearner extends AdaptiveLearner {
 ### 文件清单
 
 **新增文件**:
+
 - `src/lib/agents/scheduler/core/adaptive-learner.ts` - 学习系统核心
 - `src/lib/agents/scheduler/core/__tests__/adaptive-learner.test.ts` - 测试
 
 **修改文件**:
+
 - `src/lib/agents/scheduler/core/scheduler.ts` - 集成学习系统
 - `src/lib/agents/scheduler/dashboard/AgentStatusPanel.spec.tsx` - 修复环境配置
 
 **文档**:
+
 - `AGENT_LEARNING_SYSTEM_REPORT.md` - 本报告
 - `AGENT_LEARNING_OPTIMIZATION_GUIDE.md` - 优化指南（本文档）

@@ -19,6 +19,7 @@ PermissionContext → Zustand 迁移工作已在之前**成功完成**，所有�
 **文件:** `src/stores/permissionStore.ts`
 
 **功能完整性:**
+
 - ✅ 完整的 PermissionState 接口实现
 - ✅ 状态持久化到 localStorage (persist 中间件)
 - ✅ Legacy permission 映射支持
@@ -61,6 +62,7 @@ usePermissionHelpers()
 **文件:** `src/contexts/PermissionContext.tsx`
 
 **保持的 API (100% 向后兼容):**
+
 - ✅ `PermissionProvider` - 可选的 Provider
 - ✅ `usePermissions` hook - 与原 Context 相同的 API
 - ✅ `withPermission` HOC
@@ -70,18 +72,19 @@ usePermissionHelpers()
 - ✅ `AnyRoleGate` - 多角色门控组件
 
 **兼容性保证:**
+
 ```tsx
 // 现有代码无需任何修改
-import { usePermissions, PermissionGate } from '@/contexts/PermissionContext';
+import { usePermissions, PermissionGate } from '@/contexts/PermissionContext'
 
 function MyComponent() {
-  const { hasPermission, loading } = usePermissions();
+  const { hasPermission, loading } = usePermissions()
 
   return (
     <PermissionGate permission={Permission.USER_READ}>
       <div>Protected content</div>
     </PermissionGate>
-  );
+  )
 }
 ```
 
@@ -100,6 +103,7 @@ npm test -- --run src/lib/permissions/__tests__/permissions.test.ts
 ```
 
 **结果:**
+
 - ✅ Test Files: 1 passed
 - ✅ Tests: 15/15 passed
 - ✅ Duration: 880ms
@@ -128,15 +132,16 @@ TypeScript 检查未发现 PermissionContext 迁移相关的错误。编译中�
 function App() {
   return (
     <PermissionProvider>
-      <Dashboard />  {/* 任何权限更新都会重渲染 */}
+      <Dashboard /> {/* 任何权限更新都会重渲染 */}
       <UserList />
       <AdminPanel />
     </PermissionProvider>
-  );
+  )
 }
 ```
 
 **问题:**
+
 - ❌ 每次权限更新触发整个 Provider 树重渲染
 - ❌ 无状态持久化
 - ❌ 需要 Provider 包裹
@@ -147,22 +152,23 @@ function App() {
 ```tsx
 // 组件只在订阅的状态变化时重渲染
 function AdminPanel() {
-  const isAdmin = useIsAdmin();  // 仅在 admin 状态变化时重渲染
-  const { hasPermission } = usePermissionHelpers();
+  const isAdmin = useIsAdmin() // 仅在 admin 状态变化时重渲染
+  const { hasPermission } = usePermissionHelpers()
 
   if (isAdmin && hasPermission(Permission.SYSTEM_MANAGE)) {
-    return <AdminContent />;
+    return <AdminContent />
   }
-  return null;
+  return null
 }
 
 function UserList() {
-  const permissions = usePermissions();  // 仅在权限列表变化时重渲染
+  const permissions = usePermissions() // 仅在权限列表变化时重渲染
   // ...
 }
 ```
 
 **优势:**
+
 - ✅ 组件只在订阅的状态变化时重渲染
 - ✅ 状态持久化到 localStorage
 - ✅ 不需要 Provider (可选兼容包装)
@@ -177,24 +183,24 @@ function UserList() {
 
 ### 新建文件
 
-| 文件 | 说明 |
-|-----|------|
+| 文件                            | 说明                          |
+| ------------------------------- | ----------------------------- |
 | `src/stores/permissionStore.ts` | Zustand permission store 实现 |
 
 ### 更新文件
 
-| 文件 | 变更说明 |
-|-----|---------|
-| `src/contexts/PermissionContext.tsx` | 重写为 Zustand 的兼容层 |
-| `src/stores/index.ts` | 添加 permission store 导出 |
+| 文件                                 | 变更说明                   |
+| ------------------------------------ | -------------------------- |
+| `src/contexts/PermissionContext.tsx` | 重写为 Zustand 的兼容层    |
+| `src/stores/index.ts`                | 添加 permission store 导出 |
 
 ### 保持不变
 
-| 文件 | 说明 |
-|-----|------|
-| `src/lib/permissions/types.ts` | 类型定义 |
-| `src/lib/permissions/rbac.ts` | RBAC 核心逻辑 |
-| `src/lib/permissions/repository.ts` | 数据库访问层 |
+| 文件                                | 说明          |
+| ----------------------------------- | ------------- |
+| `src/lib/permissions/types.ts`      | 类型定义      |
+| `src/lib/permissions/rbac.ts`       | RBAC 核心逻辑 |
+| `src/lib/permissions/repository.ts` | 数据库访问层  |
 
 ---
 
@@ -204,7 +210,7 @@ function UserList() {
 
 ```tsx
 function UserActions() {
-  const { hasPermission, hasRole, loading } = usePermissions();
+  const { hasPermission, hasRole, loading } = usePermissions()
   // 整个组件会在任何权限更新时重渲染
 
   return (
@@ -213,18 +219,18 @@ function UserActions() {
       {hasPermission(Permission.USER_UPDATE) && <button>Edit User</button>}
       {hasPermission(Permission.TASK_READ) && <button>View Tasks</button>}
     </div>
-  );
+  )
 }
 ```
 
 ### 优化后 (Zustand)
 
 ```tsx
-import { useIsAdmin, usePermissionHelpers } from '@/stores/permissionStore';
+import { useIsAdmin, usePermissionHelpers } from '@/stores/permissionStore'
 
 function OptimizedUserActions() {
-  const isAdmin = useIsAdmin();  // 仅在 admin 状态变化时重渲染
-  const { hasPermission } = usePermissionHelpers();
+  const isAdmin = useIsAdmin() // 仅在 admin 状态变化时重渲染
+  const { hasPermission } = usePermissionHelpers()
 
   return (
     <div>
@@ -232,7 +238,7 @@ function OptimizedUserActions() {
       {hasPermission(Permission.USER_UPDATE) && <button>Edit User</button>}
       {hasPermission(Permission.TASK_READ) && <button>View Tasks</button>}
     </div>
-  );
+  )
 }
 ```
 
@@ -268,7 +274,7 @@ export {
   useRoles,
   useIsAdmin,
   // ... 其他 selectors
-} from './permissionStore';
+} from './permissionStore'
 ```
 
 ---

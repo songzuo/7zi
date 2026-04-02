@@ -1,4 +1,5 @@
 # 代码优化报告
+
 **日期**: 2025-03-25
 **分析范围**: `/root/.openclaw/workspace/src` 目录
 **代码文件总数**: 968 个 TypeScript/TSX 文件
@@ -11,11 +12,11 @@
 
 ### 关键指标
 
-| 类别 | 发现数量 | 高优先级 | 中优先级 | 低优先级 |
-|------|---------|---------|---------|---------|
-| 未使用的代码 | 8 | 3 | 4 | 1 |
-| 性能优化点 | 14 | 6 | 5 | 3 |
-| 代码健康度 | 13 | 4 | 6 | 3 |
+| 类别         | 发现数量 | 高优先级 | 中优先级 | 低优先级 |
+| ------------ | -------- | -------- | -------- | -------- |
+| 未使用的代码 | 8        | 3        | 4        | 1        |
+| 性能优化点   | 14       | 6        | 5        | 3        |
+| 代码健康度   | 13       | 4        | 6        | 3        |
 
 ---
 
@@ -27,6 +28,7 @@
 
 **问题**:
 以下 hooks 已导出但未被实际使用，造成代码膨胀：
+
 - `useThrottle` - 未找到使用处
 - `useDevicePerformance` - 未找到使用处
 - `useMounted` - 未找到使用处
@@ -34,6 +36,7 @@
 - `useScrollPosition` - 未找到使用处
 
 **建议**:
+
 ```typescript
 // 选项 1: 完全移除未使用的 hooks
 // 选项 2: 移到单独文件并标记为 @experimental
@@ -46,7 +49,8 @@
 
 ### 2. 移除重复的 useDebounce Hook (高)
 
-**位置**: 
+**位置**:
+
 - `src/hooks/useDebounce.ts`
 - `src/hooks/usePerformance.ts`
 
@@ -54,6 +58,7 @@
 `useDebounce` hook 在两个文件中重复定义，造成混淆和潜在的不一致。
 
 **建议**:
+
 ```typescript
 // 统一使用 src/hooks/useDebounce.ts 中的实现
 // 从 hooks/usePerformance.ts 中移除重复定义
@@ -70,18 +75,20 @@
 
 **问题**:
 以下文件包含 console.log 调用：
+
 - `src/hooks/useWebSocket.ts` - 6 处
 - `src/app/api/revalidate/route.ts` - 4 处
 - `src/lib/auth/jwt.ts` - 2 处（注释中的示例）
 - `src/lib/api/user-messages.ts` - 2 处（注释中的示例）
 
 **建议**:
+
 ```typescript
 // 使用统一的日志服务
-import { logger } from '@/lib/logger';
+import { logger } from '@/lib/logger'
 
 // 替换 console.log('[WebSocket] Connected', data)
-logger.debug('[WebSocket] Connected', data);
+logger.debug('[WebSocket] Connected', data)
 
 // 对于关键错误，使用 logger.error
 // 对于一般信息，使用 logger.info
@@ -97,12 +104,14 @@ logger.debug('[WebSocket] Connected', data);
 
 **问题**:
 组件过于庞大，难以维护和测试，包含多个职责：
+
 - 数据获取
 - 过滤器管理
 - 图表渲染
 - 导出功能
 
 **建议**:
+
 ```
 拆分为以下子组件：
 1. AnalyticsHeader - 头部和控制按钮
@@ -124,6 +133,7 @@ logger.debug('[WebSocket] Connected', data);
 会议组件包含视频流、屏幕共享、聊天、白板等多个功能，耦合度高。
 
 **建议**:
+
 ```
 拆分为以下子组件：
 1. MeetingHeader - 会议头部信息
@@ -140,28 +150,30 @@ logger.debug('[WebSocket] Connected', data);
 
 ### 6. 修复 TODO 注释中的待办事项 (高)
 
-**位置**: 
+**位置**:
+
 - `src/components/meeting/MeetingRoom.tsx` - "TODO: Show error toast"
 - `src/app/api/web-vitals/route.ts` - "TODO: 存储到数据库" (2 处)
 
 **建议**:
+
 ```typescript
 // MeetingRoom.tsx
-import { useToast } from '@/components/ui/Toast';
+import { useToast } from '@/components/ui/Toast'
 
 // 添加错误处理
 if (error) {
   toast({
     variant: 'error',
     title: '会议连接失败',
-    description: error.message
-  });
+    description: error.message,
+  })
 }
 
 // web-vitals/route.ts
 // 实现数据库存储逻辑
-import { db } from '@/lib/db';
-await db.webVitals.create({ data: metrics });
+import { db } from '@/lib/db'
+await db.webVitals.create({ data: metrics })
 ```
 
 **影响**: 完成未完成的功能，提高用户体验
@@ -174,10 +186,12 @@ await db.webVitals.create({ data: metrics });
 
 **问题**:
 注释掉的导出组件引用了不存在的文件：
+
 - `LazyPerformanceDashboard` - 引用 `@/components/PerformanceDashboard`
 - `LazySimplePerformanceDashboard` - 引用 `@/components/SimplePerformanceDashboard`
 
 **建议**:
+
 ```typescript
 // 移除注释掉的代码，或替换为实际存在的组件
 // 如果需要性能监控，使用 MonitoringMetrics 组件替代
@@ -195,6 +209,7 @@ await db.webVitals.create({ data: metrics });
 组件功能过于复杂，包含多种占位符类型和错误处理逻辑。
 
 **建议**:
+
 ```
 拆分为以下部分：
 1. LazyLoadImageCore - 核心懒加载逻辑
@@ -215,15 +230,16 @@ await db.webVitals.create({ data: metrics });
 多个组件的事件处理器在每次渲染时重新创建，可能导致子组件不必要的重渲染。
 
 **示例**:
+
 ```typescript
 // src/components/GitHubActivity.tsx
 const handleRefresh = useCallback(() => {
-  refreshData();
-}, [refreshData]);
+  refreshData()
+}, [refreshData])
 
 const handleExport = useCallback(() => {
-  exportData();
-}, []);
+  exportData()
+}, [])
 ```
 
 **影响**: 减少不必要的重渲染，提高性能
@@ -236,10 +252,12 @@ const handleExport = useCallback(() => {
 
 **发现**:
 多个 PNG 图片可以转换为 WebP 格式以减小体积：
+
 - `screenshot-wide.png` (约 200KB)
 - `icon-512.png` (约 15KB)
 
 **建议**:
+
 ```bash
 # 使用 next/image 的优化功能
 # 或提前转换为 WebP 格式
@@ -298,17 +316,16 @@ npm install sharp
 **当前状态**: 已使用 useMemo（良好）
 
 **可优化处**:
+
 ```typescript
 // 过滤和排序操作可以用 useMemo
 const filteredIssues = useMemo(() => {
-  return issues.filter(issue => issue.state === 'open');
-}, [issues]);
+  return issues.filter(issue => issue.state === 'open')
+}, [issues])
 
 const sortedActivities = useMemo(() => {
-  return [...activities].sort((a, b) => 
-    new Date(b.timestamp) - new Date(a.timestamp)
-  );
-}, [activities]);
+  return [...activities].sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp))
+}, [activities])
 ```
 
 ---
@@ -318,14 +335,15 @@ const sortedActivities = useMemo(() => {
 **位置**: `src/components/LazyComponents.tsx`
 
 **建议**:
+
 ```typescript
 // 对关键路径组件使用预加载
 export const preloadDashboardComponents = () => {
   if (typeof window !== 'undefined') {
-    import('@/components/TaskBoard');
-    import('@/components/ActivityLog');
+    import('@/components/TaskBoard')
+    import('@/components/ActivityLog')
   }
-};
+}
 
 // 在路由变化时调用预加载
 // 可以结合 next/link 的 prefetch 属性
@@ -338,6 +356,7 @@ export const preloadDashboardComponents = () => {
 **位置**: `src/app/[locale]/` 下的各个页面
 
 **建议**:
+
 ```typescript
 // 为每个页面添加错误边界
 import { ErrorBoundary } from '@/components/ErrorBoundary';
@@ -358,15 +377,16 @@ export default function Page() {
 **位置**: `src/components/form/FormField.tsx`
 
 **建议**:
+
 ```typescript
 // 使用 Zod 或 Yup 进行表单验证
-import { z } from 'zod';
+import { z } from 'zod'
 
 const contactFormSchema = z.object({
   name: z.string().min(2),
   email: z.string().email(),
   message: z.string().min(10),
-});
+})
 
 // 减少手动验证代码，提高一致性
 ```
@@ -375,11 +395,13 @@ const contactFormSchema = z.object({
 
 ### 25. 添加虚拟滚动到长列表 (中)
 
-**位置**: 
+**位置**:
+
 - `src/components/analytics/AnalyticsDashboard.tsx`
 - `src/components/ActivityLog.tsx`
 
 **建议**:
+
 ```typescript
 // 使用 react-window 或 react-virtualized
 import { FixedSizeList } from 'react-window';
@@ -404,6 +426,7 @@ const Row = ({ index, style }) => (
 ### 26-30. 清理重复的 CSS 类名 (中)
 
 **建议**:
+
 - 创建统一的 CSS 工具类文件
 - 使用 Tailwind CSS 的 @apply 指令
 - 减少内联样式
@@ -415,14 +438,15 @@ const Row = ({ index, style }) => (
 **位置**: `src/hooks/useFetch.ts`
 
 **建议**:
+
 ```typescript
 // 使用 Zod 验证 API 响应
 const apiResponseSchema = z.object({
   data: z.unknown(),
   error: z.string().optional(),
-});
+})
 
-const result = apiResponseSchema.parse(response);
+const result = apiResponseSchema.parse(response)
 ```
 
 ---
@@ -432,6 +456,7 @@ const result = apiResponseSchema.parse(response);
 **位置**: `src/app/[locale]/layout.tsx` 和各个页面
 
 **建议**:
+
 ```typescript
 // 使用统一的 metadata 生成函数
 export function generateMetadata({ params }) {
@@ -451,12 +476,13 @@ export function generateMetadata({ params }) {
 **位置**: 关键组件和 API 路由
 
 **建议**:
+
 ```typescript
 // 使用 performance.mark 和 performance.measure
-performance.mark('data-fetch-start');
-const data = await fetchData();
-performance.mark('data-fetch-end');
-performance.measure('data-fetch', 'data-fetch-start', 'data-fetch-end');
+performance.mark('data-fetch-start')
+const data = await fetchData()
+performance.mark('data-fetch-end')
+performance.measure('data-fetch', 'data-fetch-start', 'data-fetch-end')
 ```
 
 ---
@@ -466,6 +492,7 @@ performance.measure('data-fetch', 'data-fetch-start', 'data-fetch-end');
 **位置**: `src/lib/db/`
 
 **建议**:
+
 - 使用索引优化查询
 - 实现查询结果缓存
 - 使用批量操作减少数据库往返
@@ -475,6 +502,7 @@ performance.measure('data-fetch', 'data-fetch-start', 'data-fetch-end');
 ### 35. 添加可访问性改进 (中)
 
 **建议**:
+
 - 为所有图片添加 alt 文本
 - 为表单元素添加 label
 - 使用语义化 HTML 标签
@@ -488,6 +516,7 @@ performance.measure('data-fetch', 'data-fetch-start', 'data-fetch-end');
 ### 36-40. 改进注释和文档 (低)
 
 **建议**:
+
 - 为复杂函数添加 JSDoc 注释
 - 编写组件使用示例
 - 更新 README 文件
@@ -499,6 +528,7 @@ performance.measure('data-fetch', 'data-fetch-start', 'data-fetch-end');
 ### 41-42. 优化测试覆盖率 (低)
 
 **建议**:
+
 - 为关键组件添加集成测试
 - 添加 E2E 测试覆盖主要用户流程
 - 设置 CI/CD 中的测试覆盖率阈值
@@ -508,6 +538,7 @@ performance.measure('data-fetch', 'data-fetch-start', 'data-fetch-end');
 ### 43-45. 改进开发体验 (低)
 
 **建议**:
+
 - 添加 ESLint 规则强制最佳实践
 - 配置 Prettier 统一代码风格
 - 添加 Git hooks（husky + lint-staged）
@@ -520,12 +551,12 @@ performance.measure('data-fetch', 'data-fetch-start', 'data-fetch-end');
 
 ### 性能提升
 
-| 优化项 | 预期改善 |
-|--------|---------|
-| 清理未使用的代码 | 减少包体积 5-10% |
-| 图片优化 | 减少 30-40% 加载时间 |
-| 组件拆分 | 提高首屏渲染速度 10-15% |
-| 虚拟滚动 | 长列表渲染性能提升 80%+ |
+| 优化项           | 预期改善                |
+| ---------------- | ----------------------- |
+| 清理未使用的代码 | 减少包体积 5-10%        |
+| 图片优化         | 减少 30-40% 加载时间    |
+| 组件拆分         | 提高首屏渲染速度 10-15% |
+| 虚拟滚动         | 长列表渲染性能提升 80%+ |
 
 ### 可维护性提升
 
@@ -582,6 +613,7 @@ performance.measure('data-fetch', 'data-fetch-start', 'data-fetch-end');
 建议按照优先级和实施阶段逐步推进，预计 **4-6 周内**可以完成所有高优先级和中优先级优化。
 
 **关键成果**:
+
 - ✅ 代码库更健康、更易维护
 - ✅ 性能提升 10-30%
 - ✅ 包体积减少 5-10%

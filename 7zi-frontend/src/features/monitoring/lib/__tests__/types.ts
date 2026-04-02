@@ -3,4 +3,4 @@
  * Re-exports from lib/types
  */
 
-export * from '../types';
+export * from '../types'

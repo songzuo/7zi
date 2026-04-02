@@ -7,6 +7,7 @@
 **修复方案**: 创建了共享类型文件 `shortcut-types.ts`
 
 **当前依赖关系**:
+
 ```
 shortcut-types.ts ← shortcut-config.ts (导入 ShortcutContext, KeyboardShortcut)
                  ← shortcut-manager.ts (导入 ShortcutContext, KeyboardShortcut)
@@ -21,10 +22,12 @@ shortcut-manager.ts → shortcut-config.ts (导入 DEFAULT_SHORTCUTS)
 **修复方案**: 创建了共享类型文件 `websocket/types.ts`
 
 **修复前的问题**:
+
 - `websocket/server.ts` 导入 `setupVoiceMeetingHandlers` 从 `voice-meeting/signaling.ts`
 - `voice-meeting/signaling.ts` 导入 `AuthenticatedSocket` 类型从 `websocket/server.ts`
 
 **当前依赖关系**:
+
 ```
 websocket/types.ts ← websocket/server.ts (导入 AuthenticatedSocket, WebSocketMessage)
                   ← voice-meeting/signaling.ts (导入 AuthenticatedSocket)
@@ -36,14 +39,17 @@ websocket/server.ts → voice-meeting/signaling.ts (导入 setupVoiceMeetingHand
 ## ✅ 核心模块验证
 
 ### src/lib/agent-scheduler/
+
 - ✅ 17 个文件 - 无循环依赖
 - 包含核心调度器、负载均衡、任务匹配、排名等模块
 
 ### src/lib/websocket/
+
 - ✅ 38 个文件 - 无循环依赖
 - 包含 WebSocket 服务器、房间管理、权限管理、消息存储等模块
 
 ### src/lib/performance-monitoring/
+
 - ✅ 34 个文件 - 无循环依赖
 - 包含性能监控、指标收集、健康检查等模块
 
@@ -60,6 +66,7 @@ websocket/server.ts → voice-meeting/signaling.ts (导入 setupVoiceMeetingHand
 Madge 无法解析使用 `@/` 路径别名的导入。这些文件需要配置 TypeScript 解析器。
 
 建议在 `madge.config.cjs` 添加:
+
 ```javascript
 {
   detectiveOptions: {
@@ -97,21 +104,21 @@ Madge 无法解析使用 `@/` 路径别名的导入。这些文件需要配置 T
 module.exports = {
   detectiveOptions: {
     ts: {
-      tsConfigPath: './tsconfig.json'
-    }
-  }
-};
+      tsConfigPath: './tsconfig.json',
+    },
+  },
+}
 ```
 
 ## 执行结果
 
-| 模块 | 文件数 | 循环依赖 | 状态 |
-|------|--------|----------|------|
-| src/lib/agent-scheduler/ | 17 | 0 | ✅ |
-| src/lib/websocket/ | 38 | 0 | ✅ |
-| src/lib/performance-monitoring/ | 34 | 0 | ✅ |
-| src/lib/keyboard-shortcuts/ | 3 | 0 | ✅ |
-| 全局扫描 | 1157 | 0 | ✅ |
+| 模块                            | 文件数 | 循环依赖 | 状态 |
+| ------------------------------- | ------ | -------- | ---- |
+| src/lib/agent-scheduler/        | 17     | 0        | ✅   |
+| src/lib/websocket/              | 38     | 0        | ✅   |
+| src/lib/performance-monitoring/ | 34     | 0        | ✅   |
+| src/lib/keyboard-shortcuts/     | 3      | 0        | ✅   |
+| 全局扫描                        | 1157   | 0        | ✅   |
 
 ## 日期
 

@@ -17,6 +17,7 @@
 ### 1. CHANGELOG.md ✅
 
 **更新内容**:
+
 - ✅ 添加 v1.0.9 版本发布记录
 - ✅ 记录 Redis API 限流系统实现（滑动窗口 + Token Bucket）
 - ✅ 记录 React 19 完整兼容性改进
@@ -25,10 +26,12 @@
 - ✅ 添加详细的性能改进和 Bug 修复条目
 
 **关键新增内容**:
+
 ```markdown
 ## [1.0.9] - 2026-03-23
 
 ### 🎉 Release Highlights
+
 This release implements a comprehensive Redis-based API rate limiting system
 with sliding window and token bucket algorithms. Additionally, this release
 includes major React 19 compatibility improvements, significant database
@@ -36,6 +39,7 @@ performance optimizations (85-90% improvement), and enhanced test coverage
 (67% → 72-75%).
 
 ### ✨ New Features
+
 - 🚀 Redis API Rate Limiting System
   - Sliding Window Algorithm
   - Token Bucket Algorithm
@@ -47,6 +51,7 @@ performance optimizations (85-90% improvement), and enhanced test coverage
   - Fixed concurrent rendering issues
 
 ### ⚡ Performance Improvements
+
 - Database Query Optimization - 85-90% performance improvement
   - Implemented query result caching
   - Added N+1 query detection and prevention
@@ -63,6 +68,7 @@ performance optimizations (85-90% improvement), and enhanced test coverage
 ### 2. README.md ✅
 
 **更新内容**:
+
 - ✅ 更新版本号从 v1.0.8 到 v1.0.9
 - ✅ 更新 Next.js 版本从 16.2.1 到 15.2.1
 - ✅ 添加项目状态为"🚀 积极维护中"
@@ -72,23 +78,26 @@ performance optimizations (85-90% improvement), and enhanced test coverage
 - ✅ 更新技术栈信息（React 19, Next.js 15）
 
 **关键新增内容**:
-```markdown
+
+````markdown
 ### 项目状态
 
-| 指标 | 状态 |
-|------|------|
-| **版本** | v1.0.9 |
-| **项目状态** | 🚀 积极维护中 |
-| **测试覆盖率** | 72-75% ✅ |
+| 指标           | 状态          |
+| -------------- | ------------- |
+| **版本**       | v1.0.9        |
+| **项目状态**   | 🚀 积极维护中 |
+| **测试覆盖率** | 72-75% ✅     |
 
 ## 🚀 快速开始
 
 ### 环境要求
+
 - Node.js 22.x LTS 或更高版本
 - pnpm 8+ 或 npm 10+
 - Git
 
 ### 本地开发
+
 ```bash
 git clone https://github.com/songzuo/7zi.git
 cd 7zi
@@ -96,7 +105,9 @@ pnpm install
 cp .env.example .env.local
 pnpm dev
 ```
-```
+````
+
+````
 
 ---
 
@@ -162,18 +173,20 @@ hotfix/<hotfix-description>  # 紧急修复
 refactor/<description>       # 重构
 docs/<description>           # 文档更新
 release/<version>            # 发布版本
-```
+````
 
 ---
 
 ### 4. docs/API-DOCUMENTATION.md ✅
 
 **更新内容**:
+
 - ✅ 更新生成日期为 2026-03-23
 - ✅ 更新版本号为 1.0.9
 - ✅ 更新 Next.js 版本为 15 App Router
 
 **关键变更**:
+
 ```markdown
 # 7zi Project API Documentation
 
@@ -187,12 +200,14 @@ release/<version>            # 发布版本
 ### 5. docs/DEPLOYMENT.md ✅
 
 **更新内容**:
+
 - ✅ 添加版本信息（v1.0.9）
 - ✅ 添加更新日期（2026-03-23）
 - ✅ 更新 Next.js 版本为 15.2.1
 - ✅ 更新 React 版本为 19.2.4
 
 **关键新增内容**:
+
 ```markdown
 # 7zi-frontend 部署方案
 
@@ -211,12 +226,14 @@ release/<version>            # 发布版本
 ### 6. docs/INDEX.md ✅
 
 **更新内容**:
+
 - ✅ 更新最后更新日期为 2026-03-23
 - ✅ 更新版本号为 v1.0.9
 - ✅ 在快速开始章节添加 v1.0.9 发布说明链接
 - ✅ 修正 README.md 路径（添加 ../ 前缀）
 
 **关键变更**:
+
 ```markdown
 # 📚 7zi Studio 文档中心索引
 
@@ -237,12 +254,14 @@ release/<version>            # 发布版本
 ### 7. docs/ARCHITECTURE.md ✅
 
 **更新内容**:
+
 - ✅ 更新 Next.js 版本从 16.1.7 到 15.2.1
 
 **关键变更**:
+
 ```markdown
 7zi Studio 采用 **现代化全栈架构**，结合 Next.js 15.2.1 App Router、微服务设计和 AI 代理系统...
-│  │              Next.js 15.2.1 App Router (Frontend)            │    │
+│ │ Next.js 15.2.1 App Router (Frontend) │ │
 ```
 
 ---
@@ -250,15 +269,18 @@ release/<version>            # 发布版本
 ### 8. docs/ARCHITECTURE_REVIEW.md ✅
 
 **更新内容**:
+
 - ✅ 更新技术栈版本号（Next.js 15.2.1）
 - ✅ 更新架构设计描述中的版本引用
 
 **关键变更**:
+
 ```markdown
 **技术栈**: Next.js 16.2.1 + React 19.2.4 + TypeScript 5
+
 - App Router 结构符合 Next.js 15 最佳实践
-| Next.js 15 | ✅ 优秀 | 继续使用 |
-7zi-Frontend 项目整体架构设计合理，遵循 Next.js 15 最佳实践...
+  | Next.js 15 | ✅ 优秀 | 继续使用 |
+  7zi-Frontend 项目整体架构设计合理，遵循 Next.js 15 最佳实践...
 ```
 
 ---
@@ -266,9 +288,11 @@ release/<version>            # 发布版本
 ### 9. docs/ARCHITECTURE_SUMMARY.md ✅
 
 **更新内容**:
+
 - ✅ 更新 Next.js 版本引用
 
 **关键变更**:
+
 ```markdown
 | **架构成熟度** | ⭐⭐⭐⭐⭐ (5/5) | 遵循 Next.js 15.2.1 最佳实践 |
 ```
@@ -278,12 +302,14 @@ release/<version>            # 发布版本
 ### 10. docs/ARCHITECTURE_DIAGRAMS.md ✅
 
 **更新内容**:
+
 - ✅ 更新架构图中的 Next.js 版本从 16 到 15
 
 **关键变更**:
+
 ```markdown
 subgraph "前端应用 - Next.js 15"
-    NEXT[Next.js 15]
+NEXT[Next.js 15]
 ```
 
 ---
@@ -291,12 +317,14 @@ subgraph "前端应用 - Next.js 15"
 ### 11. docs/ARCHITECTURE-MAIN.md ✅
 
 **更新内容**:
+
 - ✅ 更新技术栈表格中的 Next.js 版本为 15.2.1
 
 **关键变更**:
+
 ```markdown
-| 技术 | 版本 | 用途 | 选择理由 |
-|------|------|------|----------|
+| 技术    | 版本   | 用途           | 选择理由                             |
+| ------- | ------ | -------------- | ------------------------------------ |
 | Next.js | 15.2.1 | React 全栈框架 | SSG/SSR 支持、文件系统路由、内置优化 |
 ```
 
@@ -305,6 +333,7 @@ subgraph "前端应用 - Next.js 15"
 ### 12. docs/RELEASE_NOTES_v1.0.9.md ✅ （新建）
 
 **文档内容**:
+
 - ✅ 完整的 v1.0.9 版本发布说明
 - ✅ 版本亮点
 - ✅ 新功能详细说明（Redis API 限流系统、React 19 兼容性）
@@ -315,20 +344,32 @@ subgraph "前端应用 - Next.js 15"
 - ✅ 致谢
 
 **文档结构**:
+
 ```markdown
 # v1.0.9 版本发布说明
 
 ## 🎉 版本亮点
+
 ## ✨ 新功能
+
 ### 1. Redis API 限流系统
+
 ### 2. React 19 完整兼容
+
 ## ⚡ 性能改进
+
 ### 1. 数据库查询优化 - 85-90% 性能提升
+
 ### 2. React 性能优化
+
 ### 3. 测试覆盖率提升 - 67% → 72-75%
+
 ## 🐛 Bug 修复
+
 ## 📚 文档更新
+
 ## 🚀 升级指南
+
 ## 🙏 致谢
 ```
 
@@ -336,20 +377,20 @@ subgraph "前端应用 - Next.js 15"
 
 ## 📊 更新统计
 
-| 文档 | 状态 | 主要变更 |
-|------|------|----------|
-| **CHANGELOG.md** | ✅ 已更新 | 添加 v1.0.9 详细记录 |
-| **README.md** | ✅ 已更新 | 版本、技术栈、快速开始 |
-| **CONTRIBUTING.md** | ✅ 已更新 | 测试指南、代码规范、提交规范 |
-| **docs/API-DOCUMENTATION.md** | ✅ 已更新 | 版本号、Next.js 版本 |
-| **docs/DEPLOYMENT.md** | ✅ 已更新 | 版本信息 |
-| **docs/INDEX.md** | ✅ 已更新 | 版本、发布说明链接 |
-| **docs/ARCHITECTURE.md** | ✅ 已更新 | Next.js 版本 |
-| **docs/ARCHITECTURE_REVIEW.md** | ✅ 已更新 | Next.js 版本 |
-| **docs/ARCHITECTURE_SUMMARY.md** | ✅ 已更新 | Next.js 版本 |
-| **docs/ARCHITECTURE_DIAGRAMS.md** | ✅ 已更新 | Next.js 版本 |
-| **docs/ARCHITECTURE-MAIN.md** | ✅ 已更新 | Next.js 版本 |
-| **docs/RELEASE_NOTES_v1.0.9.md** | ✅ 新建 | 完整发布说明 |
+| 文档                              | 状态      | 主要变更                     |
+| --------------------------------- | --------- | ---------------------------- |
+| **CHANGELOG.md**                  | ✅ 已更新 | 添加 v1.0.9 详细记录         |
+| **README.md**                     | ✅ 已更新 | 版本、技术栈、快速开始       |
+| **CONTRIBUTING.md**               | ✅ 已更新 | 测试指南、代码规范、提交规范 |
+| **docs/API-DOCUMENTATION.md**     | ✅ 已更新 | 版本号、Next.js 版本         |
+| **docs/DEPLOYMENT.md**            | ✅ 已更新 | 版本信息                     |
+| **docs/INDEX.md**                 | ✅ 已更新 | 版本、发布说明链接           |
+| **docs/ARCHITECTURE.md**          | ✅ 已更新 | Next.js 版本                 |
+| **docs/ARCHITECTURE_REVIEW.md**   | ✅ 已更新 | Next.js 版本                 |
+| **docs/ARCHITECTURE_SUMMARY.md**  | ✅ 已更新 | Next.js 版本                 |
+| **docs/ARCHITECTURE_DIAGRAMS.md** | ✅ 已更新 | Next.js 版本                 |
+| **docs/ARCHITECTURE-MAIN.md**     | ✅ 已更新 | Next.js 版本                 |
+| **docs/RELEASE_NOTES_v1.0.9.md**  | ✅ 新建   | 完整发布说明                 |
 
 **总计**: 12 个文件更新，1 个文件新建
 
@@ -358,23 +399,27 @@ subgraph "前端应用 - Next.js 15"
 ## 🔍 关键变更摘要
 
 ### 版本信息更新
+
 - 所有文档统一更新为 **v1.0.9**
 - Next.js 版本统一更新为 **15.2.1**（部分文档原本错误地显示为 16.x）
 - React 版本确认为 **19.2.4**
 
 ### 新增内容
+
 1. **CHANGELOG.md**: 详细记录 v1.0.9 的所有变更
 2. **README.md**: 新增快速开始指南
 3. **CONTRIBUTING.md**: 新增详细的测试指南和代码规范
 4. **docs/RELEASE_NOTES_v1.0.9.md**: 完整的版本发布说明
 
 ### 核心特性记录
+
 - ✅ Redis API 限流系统（滑动窗口 + Token Bucket）
 - ✅ React 19 完整兼容性
 - ✅ 数据库性能提升 85-90%
 - ✅ 测试覆盖率从 67% 提升到 72-75%
 
 ### 文档一致性
+
 - 所有文档的版本号统一
 - 所有文档的技术栈版本统一
 - 所有文档的语言风格保持一致（中文）

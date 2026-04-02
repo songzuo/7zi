@@ -293,7 +293,7 @@ jobs:
           status: failure
           text: |
             🔴 v1.5.0 Test Suite Failed!
-            
+
             Check the logs: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
           webhook_url: ${{ secrets.SLACK_WEBHOOK_URL }}
         env:

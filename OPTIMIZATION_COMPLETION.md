@@ -21,19 +21,23 @@
 ## 🎯 实施的优化 / Implemented Optimizations
 
 ### 1. 修复 React Hook 依赖问题
+
 **文件 / File:** `src/lib/realtime/useEnhancedWebSocket.ts`
 
 **问题描述:**
+
 - `useCallback` 回调依赖 `stats` 状态对象，导致每次状态更新都重建回调
 - 引起不必要的子组件重渲染，影响性能
 
 **优化内容:**
+
 - 移除所有回调对 `stats` 的直接依赖
 - 改用 `setStats(prev => ({ ...prev, ...updates }))` 内联更新
 - 受影响函数: `handleMessage`, `trimOfflineQueue`, `processOfflineQueue`, `sendMessage`
 - 修复 Set 迭代兼容性问题: 使用 `Array.from()` 替代 spread 操作符
 
 **性能提升:**
+
 - 减少回调函数重建
 - 降低子组件重渲染频率
 - 提升响应速度
@@ -41,15 +45,18 @@
 ---
 
 ### 2. 增强类型安全性
+
 **文件 / File:** `src/lib/auth/repository.ts`
 
 **问题描述:**
+
 - `mapRowToUser` 使用类型断言 `as`，缺少运行时验证
 - `JSON.parse` 可能抛出异常导致崩溃
 - 没有验证枚举值有效性
 - Date 解析缺少错误处理
 
 **优化内容:**
+
 - 添加必填字段存在性验证
 - 创建安全解析辅助函数:
   - `parseStringArray()` - 安全解析 JSON 数组
@@ -59,6 +66,7 @@
 - 所有解析操作提供默认值和异常处理
 
 **类型安全提升:**
+
 - 运行时验证防止类型错误
 - 优雅处理 JSON 解析失败
 - 验证枚举值有效性
@@ -67,21 +75,25 @@
 ---
 
 ### 3. 简化错误处理逻辑
+
 **文件 / File:** `src/lib/api/error-handler.ts`
 
 **问题描述:**
+
 - `createErrorResponse` 存在大量重复代码
 - ApiError 和普通错误处理逻辑相似但未复用
 - 环境判断 (`isDevelopment`) 重复出现
 - 响应构建逻辑分散
 
 **优化内容:**
+
 - 提取 `buildErrorResponse()` - 统一错误响应构建
 - 提取 `errorResponseToNextResponse()` - 统一 NextResponse 创建
 - 提取 `isDevelopment()` - 统一环境检查
 - 简化主函数，提升可读性和可维护性
 
 **代码质量提升:**
+
 - 减少约 40 行重复代码
 - 更易维护和扩展
 - 遵循单一职责原则
@@ -136,19 +148,21 @@ node -c src/lib/api/error-handler.ts                # ✅ 语法正确
 
 **已实施的 3 个高价值优化:**
 
-| 优化类型 | 文件 | 影响 |
-|---------|------|------|
+| 优化类型 | 文件                      | 影响                     |
+| -------- | ------------------------- | ------------------------ |
 | 性能优化 | `useEnhancedWebSocket.ts` | 减少重渲染，提升响应速度 |
-| 类型安全 | `auth/repository.ts` | 运行时验证，防止崩溃 |
-| 代码质量 | `api/error-handler.ts` | 减少重复，提升可维护性 |
+| 类型安全 | `auth/repository.ts`      | 运行时验证，防止崩溃     |
+| 代码质量 | `api/error-handler.ts`    | 减少重复，提升可维护性   |
 
 **整体影响 / Overall Impact:**
+
 - ✅ 提升应用性能（减少不必要的重渲染）
 - ✅ 增强类型安全（运行时验证 + 错误处理）
 - ✅ 提高代码质量（减少重复，提升可维护性）
 - ✅ 保持代码语法正确性（通过验证）
 
 **建议后续步骤 / Recommended Next Steps:**
+
 1. 修复 `src/app/layout.tsx` 的 Server Component 动态导入问题
 2. 为关键组件添加错误边界
 3. 添加单元测试验证优化效果

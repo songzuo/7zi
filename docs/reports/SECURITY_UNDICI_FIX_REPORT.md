@@ -10,14 +10,14 @@
 
 安全审计发现 undici 包存在 6 个安全漏洞：
 
-| 漏洞类型 | 严重程度 | 说明 |
-|---------|---------|------|
-| WebSocket 长度溢出 | 🔴 High | WebSocket 消息长度处理不当 |
-| HTTP 请求走私 | 🟠 Moderate | HTTP 请求解析漏洞 |
-| WebSocket 内存耗尽 | 🔴 High | WebSocket 连接可能导致内存耗尽 |
-| WebSocket 内存耗尽 #2 | 🔴 High | 另一处内存耗尽问题 |
-| WebSocket 未处理异常 | 🔴 High | 未捕获的异常可能导致拒绝服务 |
-| CRLF 注入 | 🟠 Moderate | HTTP 头部 CRLF 注入 |
+| 漏洞类型              | 严重程度    | 说明                           |
+| --------------------- | ----------- | ------------------------------ |
+| WebSocket 长度溢出    | 🔴 High     | WebSocket 消息长度处理不当     |
+| HTTP 请求走私         | 🟠 Moderate | HTTP 请求解析漏洞              |
+| WebSocket 内存耗尽    | 🔴 High     | WebSocket 连接可能导致内存耗尽 |
+| WebSocket 内存耗尽 #2 | 🔴 High     | 另一处内存耗尽问题             |
+| WebSocket 未处理异常  | 🔴 High     | 未捕获的异常可能导致拒绝服务   |
+| CRLF 注入             | 🟠 Moderate | HTTP 头部 CRLF 注入            |
 
 **影响版本**: 7.0.0 - 7.23.0
 **修复版本**: ≥7.24.0
@@ -33,11 +33,13 @@ cd /root/.openclaw/workspace && cat package.json | grep undici
 ```
 
 **结果**:
+
 ```json
 "undici": "^7.24.6"
 ```
 
 实际运行版本：
+
 ```bash
 node -e "console.log(require('undici/package.json').version)"
 ```
@@ -56,12 +58,12 @@ npm view undici version
 
 ## 📊 版本状态
 
-| 检查项 | 状态 |
-|--------|------|
-| package.json 声明版本 | `^7.24.6` |
-| 实际安装版本 | `7.24.6` |
-| npm 最新版本 | `7.24.6` |
-| 是否满足安全要求 | ✅ 是 (≥7.24.0) |
+| 检查项                | 状态            |
+| --------------------- | --------------- |
+| package.json 声明版本 | `^7.24.6`       |
+| 实际安装版本          | `7.24.6`        |
+| npm 最新版本          | `7.24.6`        |
+| 是否满足安全要求      | ✅ 是 (≥7.24.0) |
 
 ---
 
@@ -100,6 +102,7 @@ cd /root/.openclaw/workspace && npm run build
 **构建状态**: ✅ 成功
 
 所有页面正常生成：
+
 - 主路由: `app/[locale]/*`
 - API 路由: `/api/a2a/jsonrpc`
 - 静态页面: 59 个全部生成成功

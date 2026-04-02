@@ -63,7 +63,7 @@ Agent Scheduler 是 7zi 平台的核心调度引擎，负责智能地将任务�
 Agent Scheduler 采用多因素加权算法进行任务分配，核心公式如下：
 
 ```
-Score(Agent, Task) = 
+Score(Agent, Task) =
   W_capability × CapabilityScore +
   W_load × LoadScore +
   W_priority × PriorityScore +
@@ -73,13 +73,13 @@ Score(Agent, Task) =
 
 #### 权重配置
 
-| 因素 | 默认权重 | 说明 |
-|------|----------|------|
-| `W_capability` | 0.35 | Agent 能力匹配度 |
-| `W_load` | 0.25 | 当前负载因子 |
-| `W_priority` | 0.15 | 任务优先级加权 |
-| `W_history` | 0.15 | 历史执行成功率 |
-| `W_affinity` | 0.10 | 任务亲和性 |
+| 因素           | 默认权重 | 说明             |
+| -------------- | -------- | ---------------- |
+| `W_capability` | 0.35     | Agent 能力匹配度 |
+| `W_load`       | 0.25     | 当前负载因子     |
+| `W_priority`   | 0.15     | 任务优先级加权   |
+| `W_history`    | 0.15     | 历史执行成功率   |
+| `W_affinity`   | 0.10     | 任务亲和性       |
 
 ### 各因素详解
 
@@ -99,6 +99,7 @@ CapabilityScore = (匹配的能力数 / 所需能力数) × 能力深度权重
 ```
 
 **示例**：
+
 - 任务需要：`['chat', 'code', 'analysis']`
 - Agent A 具备：`['chat', 'code', 'analysis', 'web_search']`
 - 匹配度：3/3 = 1.0
@@ -117,8 +118,8 @@ interface LoadMetrics {
 }
 
 // 计算方式
-LoadScore = (1 - currentTasks/maxCapacity) × 
-            (1 - cpuUsage/100) × 
+LoadScore = (1 - currentTasks/maxCapacity) ×
+            (1 - cpuUsage/100) ×
             (1 - memoryUsage/100)
 ```
 
@@ -126,13 +127,13 @@ LoadScore = (1 - currentTasks/maxCapacity) ×
 
 根据任务优先级调整调度权重。
 
-| 优先级 | 分数 | 说明 |
-|--------|------|------|
-| `critical` | 1.0 | 关键任务，立即执行 |
-| `high` | 0.8 | 高优先级 |
-| `normal` | 0.5 | 普通优先级 |
-| `low` | 0.3 | 低优先级 |
-| `background` | 0.1 | 后台任务 |
+| 优先级       | 分数 | 说明               |
+| ------------ | ---- | ------------------ |
+| `critical`   | 1.0  | 关键任务，立即执行 |
+| `high`       | 0.8  | 高优先级           |
+| `normal`     | 0.5  | 普通优先级         |
+| `low`        | 0.3  | 低优先级           |
+| `background` | 0.1  | 后台任务           |
 
 #### 4. 历史成功率 (HistoryScore)
 
@@ -156,10 +157,10 @@ HistoryScore = successRate × (1 - timeDecayFactor)
 
 ```typescript
 interface AffinityConfig {
-  enabled: boolean;
-  sessionAffinity: boolean;   // 会话亲和性
-  dataAffinity: boolean;      // 数据亲和性
-  cacheAffinity: boolean;     // 缓存亲和性
+  enabled: boolean
+  sessionAffinity: boolean // 会话亲和性
+  dataAffinity: boolean // 数据亲和性
+  cacheAffinity: boolean // 缓存亲和性
 }
 ```
 
@@ -184,8 +185,8 @@ scheduler:
 scheduler:
   strategy: least-loaded
   config:
-    checkInterval: 5000  # 负载检查间隔 (ms)
-    threshold: 0.8       # 负载阈值
+    checkInterval: 5000 # 负载检查间隔 (ms)
+    threshold: 0.8 # 负载阈值
 ```
 
 优先选择当前负载最低的 Agent。
@@ -196,7 +197,7 @@ scheduler:
 scheduler:
   strategy: capability-first
   config:
-    strictMatch: true    # 严格匹配模式
+    strictMatch: true # 严格匹配模式
     fallbackEnabled: true
 ```
 
@@ -220,11 +221,11 @@ scheduler:
 
 ```typescript
 interface TaskQueue {
-  critical: Task[];    // 关键队列 - 立即处理
-  high: Task[];        // 高优先级队列
-  normal: Task[];      // 普通队列
-  low: Task[];         // 低优先级队列
-  background: Task[];  // 后台队列
+  critical: Task[] // 关键队列 - 立即处理
+  high: Task[] // 高优先级队列
+  normal: Task[] // 普通队列
+  low: Task[] // 低优先级队列
+  background: Task[] // 后台队列
 }
 ```
 
@@ -233,16 +234,16 @@ interface TaskQueue {
 ```yaml
 queue:
   maxSize: 10000
-  overflowStrategy: reject  # reject | drop-oldest | prioritize
-  
+  overflowStrategy: reject # reject | drop-oldest | prioritize
+
   priorityAging:
     enabled: true
-    interval: 60000         # 老化间隔 (ms)
-    boostAmount: 0.1        # 每次提升量
-  
+    interval: 60000 # 老化间隔 (ms)
+    boostAmount: 0.1 # 每次提升量
+
   deadlock:
     detection: true
-    timeout: 300000         # 死锁超时 (ms)
+    timeout: 300000 # 死锁超时 (ms)
 ```
 
 ---
@@ -255,22 +256,22 @@ Agent 能力通过结构化配置声明：
 
 ```typescript
 interface AgentCapability {
-  id: string;              // 能力唯一标识
-  name: string;            // 显示名称
-  version: string;         // 版本号
-  category: CapabilityCategory;
-  description: string;     // 描述
-  parameters: Parameter[]; // 参数定义
-  dependencies: string[];  // 依赖的其他能力
-  resourceRequirements: ResourceRequirements;
+  id: string // 能力唯一标识
+  name: string // 显示名称
+  version: string // 版本号
+  category: CapabilityCategory
+  description: string // 描述
+  parameters: Parameter[] // 参数定义
+  dependencies: string[] // 依赖的其他能力
+  resourceRequirements: ResourceRequirements
 }
 
-type CapabilityCategory = 
-  | 'communication'  // 通信能力
-  | 'analysis'       // 分析能力
-  | 'action'         // 执行能力
-  | 'integration'    // 集成能力
-  | 'specialized';   // 专业能力
+type CapabilityCategory =
+  | 'communication' // 通信能力
+  | 'analysis' // 分析能力
+  | 'action' // 执行能力
+  | 'integration' // 集成能力
+  | 'specialized' // 专业能力
 ```
 
 ### 配置文件格式
@@ -281,79 +282,79 @@ Agent 能力配置使用 YAML 格式：
 # /config/agents/capabilities.yaml
 
 agent:
-  id: "agent-code-assistant"
-  name: "代码助手 Agent"
-  version: "1.5.0"
-  
+  id: 'agent-code-assistant'
+  name: '代码助手 Agent'
+  version: '1.5.0'
+
   # 基础信息
   metadata:
-    provider: "minimax"
-    model: "MiniMax-M2.7"
-    description: "专业代码分析和生成助手"
-    
+    provider: 'minimax'
+    model: 'MiniMax-M2.7'
+    description: '专业代码分析和生成助手'
+
   # 能力声明
   capabilities:
-    - id: "code-generation"
-      name: "代码生成"
-      category: "action"
-      version: "2.0"
-      description: "根据需求生成高质量代码"
+    - id: 'code-generation'
+      name: '代码生成'
+      category: 'action'
+      version: '2.0'
+      description: '根据需求生成高质量代码'
       parameters:
-        - name: "language"
-          type: "string"
+        - name: 'language'
+          type: 'string'
           required: true
-          enum: ["typescript", "python", "go", "rust"]
-        - name: "framework"
-          type: "string"
+          enum: ['typescript', 'python', 'go', 'rust']
+        - name: 'framework'
+          type: 'string'
           required: false
-        - name: "style"
-          type: "string"
-          default: "clean"
+        - name: 'style'
+          type: 'string'
+          default: 'clean'
       resourceRequirements:
         cpu: 2
-        memory: "4Gi"
+        memory: '4Gi'
         timeout: 60000
-        
-    - id: "code-review"
-      name: "代码审查"
-      category: "analysis"
-      version: "1.5"
-      description: "分析代码质量并提供改进建议"
+
+    - id: 'code-review'
+      name: '代码审查'
+      category: 'analysis'
+      version: '1.5'
+      description: '分析代码质量并提供改进建议'
       parameters:
-        - name: "severity"
-          type: "string"
-          enum: ["strict", "normal", "relaxed"]
-          default: "normal"
+        - name: 'severity'
+          type: 'string'
+          enum: ['strict', 'normal', 'relaxed']
+          default: 'normal'
       dependencies:
-        - "static-analysis"
-        
-    - id: "refactoring"
-      name: "重构建议"
-      category: "analysis"
-      version: "1.0"
-      description: "提供代码重构建议"
+        - 'static-analysis'
+
+    - id: 'refactoring'
+      name: '重构建议'
+      category: 'analysis'
+      version: '1.0'
+      description: '提供代码重构建议'
       dependencies:
-        - "code-review"
-        
+        - 'code-review'
+
   # 资源限制
   resources:
     maxConcurrentTasks: 5
-    maxMemory: "8Gi"
+    maxMemory: '8Gi'
     maxCpu: 4
     timeout: 300000
-    
+
   # 调度配置
   scheduling:
-    priority: "normal"
+    priority: 'normal'
     loadFactor: 0.8
     retryPolicy:
       maxRetries: 3
-      backoff: "exponential"
+      backoff: 'exponential'
       initialDelay: 1000
-      
+
   # 健康检查
   healthCheck:
-    endpoint: "/health"
+    endpoint: '/health'
     interval: 30000
     timeout: 5000
     unhealthyThreshold: 3
@@ -365,12 +366,12 @@ Agent 启动时向 Scheduler 注册能力：
 
 ```typescript
 // 示例：Agent 注册代码
-import { AgentClient } from '@7zi/agent-sdk';
+import { AgentClient } from '@7zi/agent-sdk'
 
 const client = new AgentClient({
   schedulerUrl: process.env.SCHEDULER_URL,
   agentId: 'agent-code-assistant',
-});
+})
 
 // 注册能力
 await client.registerCapabilities({
@@ -386,13 +387,13 @@ await client.registerCapabilities({
       handler: handleCodeReview,
     },
   ],
-  
+
   // 声明资源
   resources: {
     maxConcurrent: 5,
     memoryLimit: '8Gi',
   },
-  
+
   // 心跳配置
   heartbeat: {
     interval: 10000,
@@ -401,15 +402,15 @@ await client.registerCapabilities({
       queueLength: getQueueLength(),
     }),
   },
-});
+})
 
 // 处理函数示例
 async function handleCodeGeneration(task: Task) {
-  const { language, framework, style } = task.parameters;
-  
+  const { language, framework, style } = task.parameters
+
   // 执行代码生成逻辑
-  const result = await generateCode({ language, framework, style });
-  
+  const result = await generateCode({ language, framework, style })
+
   return {
     success: true,
     data: result,
@@ -417,7 +418,7 @@ async function handleCodeGeneration(task: Task) {
       executionTime: Date.now() - task.startTime,
       tokensUsed: result.tokens,
     },
-  };
+  }
 }
 ```
 
@@ -428,17 +429,17 @@ async function handleCodeGeneration(task: Task) {
 ```yaml
 # 更新能力版本
 updates:
-  - capabilityId: "code-generation"
-    action: "update"
-    version: "2.1"
+  - capabilityId: 'code-generation'
+    action: 'update'
+    version: '2.1'
     changes:
-      - parameterAdded: "maxLines"
-      - performanceImproved: "30%"
-      
-  - capabilityId: "legacy-analysis"
-    action: "deprecate"
-    reason: "已被 code-review 替代"
-    sunsetDate: "2026-06-01"
+      - parameterAdded: 'maxLines'
+      - performanceImproved: '30%'
+
+  - capabilityId: 'legacy-analysis'
+    action: 'deprecate'
+    reason: '已被 code-review 替代'
+    sunsetDate: '2026-06-01'
 ```
 
 ---
@@ -535,13 +536,13 @@ updates:
 
 ```typescript
 interface TaskCreationRequest {
-  type: string;                    // 任务类型
-  capabilities: string[];          // 所需能力
-  parameters: Record<string, any>; // 任务参数
-  priority?: 'critical' | 'high' | 'normal' | 'low' | 'background';
-  timeout?: number;                // 超时时间 (ms)
-  callback?: string;               // 回调 URL
-  metadata?: Record<string, any>;  // 元数据
+  type: string // 任务类型
+  capabilities: string[] // 所需能力
+  parameters: Record<string, any> // 任务参数
+  priority?: 'critical' | 'high' | 'normal' | 'low' | 'background'
+  timeout?: number // 超时时间 (ms)
+  callback?: string // 回调 URL
+  metadata?: Record<string, any> // 元数据
 }
 
 // 创建任务
@@ -555,7 +556,7 @@ const task = await scheduler.createTask({
   },
   priority: 'normal',
   timeout: 60000,
-});
+})
 ```
 
 #### 步骤 2-3: 验证与入队
@@ -564,33 +565,33 @@ const task = await scheduler.createTask({
 // 任务验证
 async function validateTask(task: Task): Promise<ValidationResult> {
   // 检查能力是否存在
-  const capabilities = await capabilityRegistry.get(task.requiredCapabilities);
+  const capabilities = await capabilityRegistry.get(task.requiredCapabilities)
   if (capabilities.missing.length > 0) {
-    return { valid: false, error: `缺少能力: ${capabilities.missing.join(', ')}` };
+    return { valid: false, error: `缺少能力: ${capabilities.missing.join(', ')}` }
   }
-  
+
   // 检查参数有效性
-  const paramValidation = validateParameters(task);
+  const paramValidation = validateParameters(task)
   if (!paramValidation.valid) {
-    return { valid: false, error: paramValidation.errors };
+    return { valid: false, error: paramValidation.errors }
   }
-  
-  return { valid: true };
+
+  return { valid: true }
 }
 
 // 入队
 async function enqueueTask(task: Task): Promise<QueueResult> {
-  const queue = getQueueByPriority(task.priority);
-  
+  const queue = getQueueByPriority(task.priority)
+
   if (queue.size >= queue.maxSize) {
     if (task.priority === 'critical') {
       // 关键任务强制入队，移除最低优先级任务
-      return queue.forceEnqueue(task);
+      return queue.forceEnqueue(task)
     }
-    return { success: false, reason: 'queue_full' };
+    return { success: false, reason: 'queue_full' }
   }
-  
-  return queue.enqueue(task);
+
+  return queue.enqueue(task)
 }
 ```
 
@@ -599,71 +600,67 @@ async function enqueueTask(task: Task): Promise<QueueResult> {
 ```typescript
 async function selectAgent(task: Task): Promise<Agent | null> {
   // 1. 获取所有活跃 Agent
-  const activeAgents = await agentRegistry.getActive();
-  
+  const activeAgents = await agentRegistry.getActive()
+
   // 2. 能力匹配过滤
-  const capableAgents = activeAgents.filter(agent => 
+  const capableAgents = activeAgents.filter(agent =>
     task.requiredCapabilities.every(cap => agent.capabilities.includes(cap))
-  );
-  
+  )
+
   if (capableAgents.length === 0) {
-    return null;
+    return null
   }
-  
+
   // 3. 负载检查
-  const availableAgents = capableAgents.filter(agent => 
-    agent.currentLoad < agent.maxCapacity * loadThreshold
-  );
-  
+  const availableAgents = capableAgents.filter(
+    agent => agent.currentLoad < agent.maxCapacity * loadThreshold
+  )
+
   if (availableAgents.length === 0) {
     // 所有 Agent 都满载，选择负载最低的
-    return capableAgents.reduce((min, agent) => 
-      agent.currentLoad < min.currentLoad ? agent : min
-    );
+    return capableAgents.reduce((min, agent) => (agent.currentLoad < min.currentLoad ? agent : min))
   }
-  
+
   // 4. 计算得分并排序
   const scoredAgents = availableAgents.map(agent => ({
     agent,
     score: calculateScore(agent, task),
-  }));
-  
-  scoredAgents.sort((a, b) => b.score - a.score);
-  
+  }))
+
+  scoredAgents.sort((a, b) => b.score - a.score)
+
   // 5. 应用亲和性
   if (task.sessionId) {
-    const affinityAgent = scoredAgents.find(s => 
-      s.agent.activeSessions.includes(task.sessionId)
-    );
+    const affinityAgent = scoredAgents.find(s => s.agent.activeSessions.includes(task.sessionId))
     if (affinityAgent && affinityAgent.score > affinityThreshold) {
-      return affinityAgent.agent;
+      return affinityAgent.agent
     }
   }
-  
-  return scoredAgents[0].agent;
+
+  return scoredAgents[0].agent
 }
 
 function calculateScore(agent: Agent, task: Task): number {
-  const weights = config.scheduler.weights;
-  
+  const weights = config.scheduler.weights
+
   // 能力匹配度
-  const capabilityScore = calculateCapabilityScore(agent, task);
-  
+  const capabilityScore = calculateCapabilityScore(agent, task)
+
   // 负载因子
-  const loadScore = 1 - (agent.currentLoad / agent.maxCapacity);
-  
+  const loadScore = 1 - agent.currentLoad / agent.maxCapacity
+
   // 优先级权重
-  const priorityScore = priorityWeights[task.priority];
-  
+  const priorityScore = priorityWeights[task.priority]
+
   // 历史成功率
-  const historyScore = agent.successRate;
-  
+  const historyScore = agent.successRate
+
   return (
     weights.capability * capabilityScore +
     weights.load * loadScore +
     weights.priority * priorityScore +
     weights.history * historyScore
-  );
+  )
 }
 ```
 
@@ -672,8 +669,8 @@ function calculateScore(agent: Agent, task: Task): number {
 ```typescript
 async function executeTask(agent: Agent, task: Task): Promise<TaskResult> {
   // 锁定 Agent
-  await agentRegistry.lock(agent.id, task.id);
-  
+  await agentRegistry.lock(agent.id, task.id)
+
   try {
     // 发送任务到 Agent
     const response = await agentClient.execute(agent.endpoint, {
@@ -681,30 +678,28 @@ async function executeTask(agent: Agent, task: Task): Promise<TaskResult> {
       type: task.type,
       parameters: task.parameters,
       timeout: task.timeout,
-    });
-    
+    })
+
     // 监控执行
-    const monitor = startMonitoring(agent, task);
-    
+    const monitor = startMonitoring(agent, task)
+
     // 等待完成
-    const result = await waitForCompletion(response, task.timeout);
-    
+    const result = await waitForCompletion(response, task.timeout)
+
     // 停止监控
-    monitor.stop();
-    
+    monitor.stop()
+
     // 更新统计
-    await updateStats(agent, task, result);
-    
-    return result;
-    
+    await updateStats(agent, task, result)
+
+    return result
   } catch (error) {
     // 处理失败
-    await handleFailure(agent, task, error);
-    throw error;
-    
+    await handleFailure(agent, task, error)
+    throw error
   } finally {
     // 释放 Agent
-    await agentRegistry.unlock(agent.id);
+    await agentRegistry.unlock(agent.id)
   }
 }
 ```
@@ -715,25 +710,25 @@ async function executeTask(agent: Agent, task: Task): Promise<TaskResult> {
 retry:
   # 重试策略
   strategy: exponential-backoff
-  
+
   # 最大重试次数
   maxRetries: 3
-  
+
   # 初始延迟
   initialDelay: 1000
-  
+
   # 最大延迟
   maxDelay: 60000
-  
+
   # 退避乘数
   multiplier: 2
-  
+
   # 可重试的错误
   retryableErrors:
-    - "TIMEOUT"
-    - "AGENT_UNAVAILABLE"
-    - "RATE_LIMIT"
-    - "TEMPORARY_FAILURE"
+    - 'TIMEOUT'
+    - 'AGENT_UNAVAILABLE'
+    - 'RATE_LIMIT'
+    - 'TEMPORARY_FAILURE'
 ```
 
 ---
@@ -772,12 +767,12 @@ Dashboard 默认运行在 `http://localhost:3000/dashboard/scheduler`
 
 **Agent 列表视图**
 
-| Agent ID | 状态 | 能力数 | 当前任务 | 负载 | 健康度 | 操作 |
-|----------|------|--------|----------|------|--------|------|
-| agent-code-1 | 🟢 活跃 | 8 | 4 | 80% | 99.9% | [详情] [禁用] |
-| agent-code-2 | 🟡 忙碌 | 8 | 5 | 100% | 99.5% | [详情] |
-| agent-chat-1 | 🟢 活跃 | 5 | 2 | 40% | 99.8% | [详情] [禁用] |
-| agent-chat-2 | 🔴 离线 | 5 | 0 | 0% | - | [详情] [重启] |
+| Agent ID     | 状态    | 能力数 | 当前任务 | 负载 | 健康度 | 操作          |
+| ------------ | ------- | ------ | -------- | ---- | ------ | ------------- |
+| agent-code-1 | 🟢 活跃 | 8      | 4        | 80%  | 99.9%  | [详情] [禁用] |
+| agent-code-2 | 🟡 忙碌 | 8      | 5        | 100% | 99.5%  | [详情]        |
+| agent-chat-1 | 🟢 活跃 | 5      | 2        | 40%  | 99.8%  | [详情] [禁用] |
+| agent-chat-2 | 🔴 离线 | 5      | 0        | 0%   | -      | [详情] [重启] |
 
 **Agent 详情页面**
 
@@ -846,18 +841,18 @@ Agent: agent-code-assistant-1
 # 可视化配置编辑器
 scheduler:
   strategy: weighted-score
-  
+
   weights:
-    capability: 0.35    # [滑块调节]
-    load: 0.25          # [滑块调节]
-    priority: 0.15      # [滑块调节]
-    history: 0.15       # [滑块调节]
-    affinity: 0.10      # [滑块调节]
-    
+    capability: 0.35 # [滑块调节]
+    load: 0.25 # [滑块调节]
+    priority: 0.15 # [滑块调节]
+    history: 0.15 # [滑块调节]
+    affinity: 0.10 # [滑块调节]
+
   queue:
     maxSize: 10000
     overflowStrategy: reject
-    
+
   retry:
     maxRetries: 3
     strategy: exponential-backoff
@@ -905,10 +900,10 @@ GET    /api/scheduler/metrics/history     // 历史指标
 ```yaml
 # 推荐配置
 agent:
-  maxConcurrentTasks: 5      # 根据资源调整
-  loadThreshold: 0.8         # 80% 容量告警
-  healthCheckInterval: 30s   # 定期健康检查
-  
+  maxConcurrentTasks: 5 # 根据资源调整
+  loadThreshold: 0.8 # 80% 容量告警
+  healthCheckInterval: 30s # 定期健康检查
+
 scheduler:
   loadBalanceStrategy: least-loaded
   overflowStrategy: prioritize
@@ -928,15 +923,15 @@ alerts:
   - name: agent-unhealthy
     condition: healthCheck.failed > 3
     severity: warning
-    
+
   - name: queue-backup
     condition: queue.size > maxCapacity * 0.8
     severity: warning
-    
+
   - name: high-error-rate
     condition: errorRate > 0.05
     severity: critical
-    
+
   - name: agent-overload
     condition: agent.load > 0.9 for 5m
     severity: warning
@@ -953,11 +948,13 @@ alerts:
 **症状**：任务在队列中等待时间过长
 
 **原因**：
+
 - Agent 数量不足
 - Agent 负载过高
 - 能力匹配失败
 
 **解决方案**：
+
 ```bash
 # 检查队列状态
 curl http://localhost:3000/api/scheduler/queues
@@ -974,6 +971,7 @@ kubectl scale deployment agent-code --replicas=5
 **症状**：任务频繁失败
 
 **诊断步骤**：
+
 ```bash
 # 查看任务详情
 curl http://localhost:3000/api/scheduler/tasks/{taskId}
@@ -990,6 +988,7 @@ curl http://localhost:3000/api/scheduler/agents/{agentId}/health
 **症状**：Agent 心跳丢失
 
 **解决方案**：
+
 ```bash
 # 检查 Agent 进程
 kubectl get pods -l app=agent-code
@@ -1025,5 +1024,5 @@ curl http://localhost:3000/api/scheduler/diagnostics > diagnostics.json
 
 ---
 
-*最后更新: 2026-03-31*
-*版本: 1.5.0*
+_最后更新: 2026-03-31_
+_版本: 1.5.0_

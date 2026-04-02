@@ -3,32 +3,32 @@
  * @description Modal form for collecting user feedback with star rating
  */
 
-'use client';
+'use client'
 
-import React, { useState } from 'react';
-import { StarRating } from './StarRating';
+import React, { useState } from 'react'
+import { StarRating } from './StarRating'
 
 interface FeedbackModalProps {
-  isOpen: boolean;
-  onClose: () => void;
-  onSubmit: (feedback: FeedbackData) => Promise<void> | void;
-  isLoading?: boolean;
-  feedbackType?: 'general' | 'bug' | 'feature' | 'other';
+  isOpen: boolean
+  onClose: () => void
+  onSubmit: (feedback: FeedbackData) => Promise<void> | void
+  isLoading?: boolean
+  feedbackType?: 'general' | 'bug' | 'feature' | 'other'
 }
 
 export interface FeedbackData {
-  type: 'general' | 'bug' | 'feature' | 'other';
-  rating: number;
-  title: string;
-  description: string;
-  email?: string;
-  attachments?: File[];
+  type: 'general' | 'bug' | 'feature' | 'other'
+  rating: number
+  title: string
+  description: string
+  email?: string
+  attachments?: File[]
 }
 
 interface FeedbackTypeOption {
-  value: 'general' | 'bug' | 'feature' | 'other';
-  label: string;
-  icon: string;
+  value: 'general' | 'bug' | 'feature' | 'other'
+  label: string
+  icon: string
 }
 
 const FEEDBACK_TYPES: FeedbackTypeOption[] = [
@@ -36,7 +36,7 @@ const FEEDBACK_TYPES: FeedbackTypeOption[] = [
   { value: 'bug', label: '问题报告', icon: '🐛' },
   { value: 'feature', label: '功能建议', icon: '💡' },
   { value: 'other', label: '其他', icon: '📝' },
-];
+]
 
 export function FeedbackModal({
   isOpen,
@@ -45,28 +45,28 @@ export function FeedbackModal({
   isLoading = false,
   feedbackType = 'general',
 }: FeedbackModalProps) {
-  const [type, setType] = useState(feedbackType);
-  const [rating, setRating] = useState(5);
-  const [title, setTitle] = useState('');
-  const [description, setDescription] = useState('');
-  const [email, setEmail] = useState('');
+  const [type, setType] = useState(feedbackType)
+  const [rating, setRating] = useState(5)
+  const [title, setTitle] = useState('')
+  const [description, setDescription] = useState('')
+  const [email, setEmail] = useState('')
 
   // Reset form when modal opens
   React.useEffect(() => {
     if (isOpen) {
-      setType(feedbackType);
-      setRating(5);
-      setTitle('');
-      setDescription('');
-      setEmail('');
+      setType(feedbackType)
+      setRating(5)
+      setTitle('')
+      setDescription('')
+      setEmail('')
     }
-  }, [isOpen, feedbackType]);
+  }, [isOpen, feedbackType])
 
   const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
+    e.preventDefault()
 
     if (!title.trim() || !description.trim()) {
-      return;
+      return
     }
 
     const feedback: FeedbackData = {
@@ -75,14 +75,14 @@ export function FeedbackModal({
       title: title.trim(),
       description: description.trim(),
       email: email.trim() || undefined,
-    };
+    }
 
-    await onSubmit(feedback);
-    onClose();
-  };
+    await onSubmit(feedback)
+    onClose()
+  }
 
   if (!isOpen) {
-    return null;
+    return null
   }
 
   return (
@@ -94,34 +94,26 @@ export function FeedbackModal({
     >
       {/* Backdrop */}
       <div
-        className="fixed inset-0 bg-black bg-opacity-50 transition-opacity"
+        className="bg-opacity-50 fixed inset-0 bg-black transition-opacity"
         onClick={onClose}
         aria-hidden="true"
       />
 
       {/* Modal */}
       <div className="flex min-h-full items-center justify-center p-4">
-        <div className="relative w-full max-w-lg transform rounded-lg bg-white dark:bg-zinc-900 shadow-xl transition-all">
+        <div className="relative w-full max-w-lg transform rounded-lg bg-white shadow-xl transition-all dark:bg-zinc-900">
           {/* Header */}
-          <div className="flex items-center justify-between border-b border-zinc-200 dark:border-zinc-700 px-6 py-4">
-            <h3
-              id="modal-title"
-              className="text-lg font-semibold text-zinc-900 dark:text-white"
-            >
+          <div className="flex items-center justify-between border-b border-zinc-200 px-6 py-4 dark:border-zinc-700">
+            <h3 id="modal-title" className="text-lg font-semibold text-zinc-900 dark:text-white">
               提交反馈
             </h3>
             <button
               type="button"
               onClick={onClose}
-              className="text-zinc-400 hover:text-zinc-500 focus:outline-none focus:ring-2 focus:ring-blue-500 rounded-lg p-1"
+              className="rounded-lg p-1 text-zinc-400 hover:text-zinc-500 focus:ring-2 focus:ring-blue-500 focus:outline-none"
               aria-label="关闭"
             >
-              <svg
-                className="h-6 w-6"
-                fill="none"
-                stroke="currentColor"
-                viewBox="0 0 24 24"
-              >
+              <svg className="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path
                   strokeLinecap="round"
                   strokeLinejoin="round"
@@ -133,34 +125,29 @@ export function FeedbackModal({
           </div>
 
           {/* Body */}
-          <form onSubmit={handleSubmit} className="px-6 py-4 space-y-4">
+          <form onSubmit={handleSubmit} className="space-y-4 px-6 py-4">
             {/* Feedback Type */}
             <div>
               <label
                 htmlFor="feedback-type"
-                className="block text-sm font-medium text-zinc-700 dark:text-zinc-300 mb-2"
+                className="mb-2 block text-sm font-medium text-zinc-700 dark:text-zinc-300"
               >
                 反馈类型
               </label>
               <div className="grid grid-cols-2 gap-2 sm:grid-cols-4">
-                {FEEDBACK_TYPES.map((ft) => (
+                {FEEDBACK_TYPES.map(ft => (
                   <button
                     key={ft.value}
                     type="button"
                     onClick={() => setType(ft.value)}
-                    className={`
-                      flex flex-col items-center gap-1 p-3 rounded-lg border-2 transition-all
-                      ${
-                        type === ft.value
-                          ? 'border-blue-500 bg-blue-50 dark:bg-blue-900/20'
-                          : 'border-zinc-200 dark:border-zinc-700 hover:border-zinc-300 dark:hover:border-zinc-600'
-                      }
-                    `}
+                    className={`flex flex-col items-center gap-1 rounded-lg border-2 p-3 transition-all ${
+                      type === ft.value
+                        ? 'border-blue-500 bg-blue-50 dark:bg-blue-900/20'
+                        : 'border-zinc-200 hover:border-zinc-300 dark:border-zinc-700 dark:hover:border-zinc-600'
+                    } `}
                   >
                     <span className="text-2xl">{ft.icon}</span>
-                    <span className="text-xs text-zinc-700 dark:text-zinc-300">
-                      {ft.label}
-                    </span>
+                    <span className="text-xs text-zinc-700 dark:text-zinc-300">{ft.label}</span>
                   </button>
                 ))}
               </div>
@@ -168,22 +155,17 @@ export function FeedbackModal({
 
             {/* Rating */}
             <div>
-              <label className="block text-sm font-medium text-zinc-700 dark:text-zinc-300 mb-2">
+              <label className="mb-2 block text-sm font-medium text-zinc-700 dark:text-zinc-300">
                 您的评分
               </label>
-              <StarRating
-                rating={rating}
-                onRatingChange={setRating}
-                size="lg"
-                showLabels
-              />
+              <StarRating rating={rating} onRatingChange={setRating} size="lg" showLabels />
             </div>
 
             {/* Title */}
             <div>
               <label
                 htmlFor="feedback-title"
-                className="block text-sm font-medium text-zinc-700 dark:text-zinc-300 mb-2"
+                className="mb-2 block text-sm font-medium text-zinc-700 dark:text-zinc-300"
               >
                 标题 <span className="text-red-500">*</span>
               </label>
@@ -191,32 +173,30 @@ export function FeedbackModal({
                 type="text"
                 id="feedback-title"
                 value={title}
-                onChange={(e) => setTitle(e.target.value)}
+                onChange={e => setTitle(e.target.value)}
                 placeholder="简要描述您的反馈..."
-                className="w-full px-3 py-2 border border-zinc-300 dark:border-zinc-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent dark:bg-zinc-800 dark:text-white"
+                className="w-full rounded-lg border border-zinc-300 px-3 py-2 focus:border-transparent focus:ring-2 focus:ring-blue-500 dark:border-zinc-600 dark:bg-zinc-800 dark:text-white"
                 required
                 maxLength={100}
               />
-              <p className="mt-1 text-xs text-zinc-500 dark:text-zinc-400">
-                {title.length}/100
-              </p>
+              <p className="mt-1 text-xs text-zinc-500 dark:text-zinc-400">{title.length}/100</p>
             </div>
 
             {/* Description */}
             <div>
               <label
                 htmlFor="feedback-description"
-                className="block text-sm font-medium text-zinc-700 dark:text-zinc-300 mb-2"
+                className="mb-2 block text-sm font-medium text-zinc-700 dark:text-zinc-300"
               >
                 详细描述 <span className="text-red-500">*</span>
               </label>
               <textarea
                 id="feedback-description"
                 value={description}
-                onChange={(e) => setDescription(e.target.value)}
+                onChange={e => setDescription(e.target.value)}
                 placeholder="请详细描述您的问题或建议..."
                 rows={5}
-                className="w-full px-3 py-2 border border-zinc-300 dark:border-zinc-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent dark:bg-zinc-800 dark:text-white resize-none"
+                className="w-full resize-none rounded-lg border border-zinc-300 px-3 py-2 focus:border-transparent focus:ring-2 focus:ring-blue-500 dark:border-zinc-600 dark:bg-zinc-800 dark:text-white"
                 required
                 maxLength={1000}
               />
@@ -229,7 +209,7 @@ export function FeedbackModal({
             <div>
               <label
                 htmlFor="feedback-email"
-                className="block text-sm font-medium text-zinc-700 dark:text-zinc-300 mb-2"
+                className="mb-2 block text-sm font-medium text-zinc-700 dark:text-zinc-300"
               >
                 邮箱（可选）
               </label>
@@ -237,20 +217,20 @@ export function FeedbackModal({
                 type="email"
                 id="feedback-email"
                 value={email}
-                onChange={(e) => setEmail(e.target.value)}
+                onChange={e => setEmail(e.target.value)}
                 placeholder="如果您希望收到回复，请留下邮箱"
-                className="w-full px-3 py-2 border border-zinc-300 dark:border-zinc-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent dark:bg-zinc-800 dark:text-white"
+                className="w-full rounded-lg border border-zinc-300 px-3 py-2 focus:border-transparent focus:ring-2 focus:ring-blue-500 dark:border-zinc-600 dark:bg-zinc-800 dark:text-white"
               />
             </div>
           </form>
 
           {/* Footer */}
-          <div className="flex justify-end gap-3 border-t border-zinc-200 dark:border-zinc-700 px-6 py-4">
+          <div className="flex justify-end gap-3 border-t border-zinc-200 px-6 py-4 dark:border-zinc-700">
             <button
               type="button"
               onClick={onClose}
               disabled={isLoading}
-              className="px-4 py-2 text-sm font-medium text-zinc-700 dark:text-zinc-300 bg-white dark:bg-zinc-800 border border-zinc-300 dark:border-zinc-600 rounded-lg hover:bg-zinc-50 dark:hover:bg-zinc-700 focus:outline-none focus:ring-2 focus:ring-blue-500 disabled:opacity-50 disabled:cursor-not-allowed"
+              className="rounded-lg border border-zinc-300 bg-white px-4 py-2 text-sm font-medium text-zinc-700 hover:bg-zinc-50 focus:ring-2 focus:ring-blue-500 focus:outline-none disabled:cursor-not-allowed disabled:opacity-50 dark:border-zinc-600 dark:bg-zinc-800 dark:text-zinc-300 dark:hover:bg-zinc-700"
             >
               取消
             </button>
@@ -259,15 +239,11 @@ export function FeedbackModal({
               form="feedback-form"
               onClick={handleSubmit}
               disabled={isLoading || !title.trim() || !description.trim()}
-              className="px-4 py-2 text-sm font-medium text-white bg-blue-600 rounded-lg hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
+              className="flex items-center gap-2 rounded-lg bg-blue-600 px-4 py-2 text-sm font-medium text-white hover:bg-blue-700 focus:ring-2 focus:ring-blue-500 focus:outline-none disabled:cursor-not-allowed disabled:opacity-50"
             >
               {isLoading ? (
                 <>
-                  <svg
-                    className="animate-spin h-4 w-4"
-                    fill="none"
-                    viewBox="0 0 24 24"
-                  >
+                  <svg className="h-4 w-4 animate-spin" fill="none" viewBox="0 0 24 24">
                     <circle
                       className="opacity-25"
                       cx="12"
@@ -292,7 +268,7 @@ export function FeedbackModal({
         </div>
       </div>
     </div>
-  );
-};
+  )
+}
 
-export default FeedbackModal;
+export default FeedbackModal

@@ -1,4 +1,4 @@
-'use client';
+'use client'
 
 /**
  * Button 组件 - 按钮组件
@@ -8,8 +8,8 @@
  * @date 2026-03-29
  */
 
-import React, { useCallback, useRef, useState } from 'react';
-import clsx from 'clsx';
+import React, { useCallback, useRef, useState } from 'react'
+import clsx from 'clsx'
 
 // ============================================
 // 类型定义
@@ -17,19 +17,19 @@ import clsx from 'clsx';
 
 export interface ButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
   /** 按钮变体 */
-  variant?: 'primary' | 'secondary' | 'outline' | 'ghost' | 'danger' | 'success';
+  variant?: 'primary' | 'secondary' | 'outline' | 'ghost' | 'danger' | 'success'
   /** 按钮大小 */
-  size?: 'xs' | 'sm' | 'md' | 'lg' | 'xl';
+  size?: 'xs' | 'sm' | 'md' | 'lg' | 'xl'
   /** 是否禁用 */
-  disabled?: boolean;
+  disabled?: boolean
   /** 是否加载中 */
-  loading?: boolean;
+  loading?: boolean
   /** 是否全宽 */
-  fullWidth?: boolean;
+  fullWidth?: boolean
   /** 是否启用涟漪效果 */
-  ripple?: boolean;
+  ripple?: boolean
   /** 子元素 */
-  children: React.ReactNode;
+  children: React.ReactNode
 }
 
 // ============================================
@@ -37,9 +37,9 @@ export interface ButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElemen
 // ============================================
 
 interface RippleProps {
-  x: number;
-  y: number;
-  size: number;
+  x: number
+  y: number
+  size: number
 }
 
 // ============================================
@@ -62,44 +62,50 @@ const ButtonBase = React.forwardRef<HTMLButtonElement, ButtonProps>(
     },
     ref
   ) => {
-    const [ripples, setRipples] = useState<RippleProps[]>([]);
-    const buttonRef = useRef<HTMLButtonElement>(null);
-    const rippleTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+    const [ripples, setRipples] = useState<RippleProps[]>([])
+    const buttonRef = useRef<HTMLButtonElement>(null)
+    const rippleTimeoutRef = useRef<NodeJS.Timeout | null>(null)
 
     // 清理涟漪效果
     const cleanupRipples = useCallback(() => {
       if (rippleTimeoutRef.current) {
-        clearTimeout(rippleTimeoutRef.current);
+        clearTimeout(rippleTimeoutRef.current)
       }
       rippleTimeoutRef.current = setTimeout(() => {
-        setRipples([]);
-      }, 600);
-    }, []);
+        setRipples([])
+      }, 600)
+    }, [])
 
     // 创建涟漪效果
-    const createRipple = useCallback((event: React.MouseEvent<HTMLButtonElement>) => {
-      const button = buttonRef.current || (ref as React.RefObject<HTMLButtonElement>)?.current;
-      if (!button || !ripple) return;
+    const createRipple = useCallback(
+      (event: React.MouseEvent<HTMLButtonElement>) => {
+        const button = buttonRef.current || (ref as React.RefObject<HTMLButtonElement>)?.current
+        if (!button || !ripple) return
 
-      const rect = button.getBoundingClientRect();
-      const x = event.clientX - rect.left;
-      const y = event.clientY - rect.top;
-      const size = Math.max(rect.width, rect.height) * 2;
+        const rect = button.getBoundingClientRect()
+        const x = event.clientX - rect.left
+        const y = event.clientY - rect.top
+        const size = Math.max(rect.width, rect.height) * 2
 
-      setRipples(prev => [...prev, { x, y, size }]);
-      cleanupRipples();
-    }, [ripple, ref, cleanupRipples]);
+        setRipples(prev => [...prev, { x, y, size }])
+        cleanupRipples()
+      },
+      [ripple, ref, cleanupRipples]
+    )
 
     // 处理点击
-    const handleClick = useCallback((event: React.MouseEvent<HTMLButtonElement>) => {
-      if (loading || disabled) {
-        event.preventDefault();
-        return;
-      }
+    const handleClick = useCallback(
+      (event: React.MouseEvent<HTMLButtonElement>) => {
+        if (loading || disabled) {
+          event.preventDefault()
+          return
+        }
 
-      createRipple(event);
-      onClick?.(event);
-    }, [loading, disabled, createRipple, onClick]);
+        createRipple(event)
+        onClick?.(event)
+      },
+      [loading, disabled, createRipple, onClick]
+    )
 
     // 基础样式
     const baseStyles = clsx(
@@ -110,7 +116,7 @@ const ButtonBase = React.forwardRef<HTMLButtonElement, ButtonProps>(
       'disabled:opacity-50 disabled:cursor-not-allowed',
       'active:scale-[0.98]',
       'transform-gpu'
-    );
+    )
 
     // 变体样式 - 增强 hover 效果
     const variantStyles = {
@@ -150,7 +156,7 @@ const ButtonBase = React.forwardRef<HTMLButtonElement, ButtonProps>(
         'focus:ring-green-500',
         'shadow-sm'
       ),
-    };
+    }
 
     // 尺寸样式
     const sizeStyles = {
@@ -159,7 +165,7 @@ const ButtonBase = React.forwardRef<HTMLButtonElement, ButtonProps>(
       md: 'px-4 py-2 text-sm gap-2',
       lg: 'px-5 py-2.5 text-base gap-2',
       xl: 'px-6 py-3 text-lg gap-2.5',
-    };
+    }
 
     // 组合样式类
     const classes = clsx(
@@ -169,7 +175,7 @@ const ButtonBase = React.forwardRef<HTMLButtonElement, ButtonProps>(
       fullWidth && 'w-full',
       loading && 'opacity-75 cursor-wait',
       className
-    );
+    )
 
     return (
       <button
@@ -181,11 +187,11 @@ const ButtonBase = React.forwardRef<HTMLButtonElement, ButtonProps>(
       >
         {/* 涟漪效果层 */}
         {ripple && !disabled && !loading && (
-          <span className="absolute inset-0 overflow-hidden rounded-lg pointer-events-none">
+          <span className="pointer-events-none absolute inset-0 overflow-hidden rounded-lg">
             {ripples.map((r, index) => (
               <span
                 key={index}
-                className="absolute animate-ripple bg-white/30 rounded-full"
+                className="animate-ripple absolute rounded-full bg-white/30"
                 style={{
                   left: r.x - r.size / 2,
                   top: r.y - r.size / 2,
@@ -200,7 +206,7 @@ const ButtonBase = React.forwardRef<HTMLButtonElement, ButtonProps>(
         {/* 加载状态 */}
         {loading && (
           <svg
-            className="animate-spin -ml-1 mr-2 h-4 w-4"
+            className="mr-2 -ml-1 h-4 w-4 animate-spin"
             xmlns="http://www.w3.org/2000/svg"
             fill="none"
             viewBox="0 0 24 24"
@@ -222,19 +228,19 @@ const ButtonBase = React.forwardRef<HTMLButtonElement, ButtonProps>(
         )}
 
         {/* 内容 */}
-        <span className="relative z-10 flex items-center justify-center gap-inherit">
+        <span className="gap-inherit relative z-10 flex items-center justify-center">
           {children}
         </span>
       </button>
-    );
+    )
   }
-);
+)
 
-ButtonBase.displayName = 'Button';
+ButtonBase.displayName = 'Button'
 
 // 使用 React.memo 优化性能
-export const Button = React.memo(ButtonBase);
-Button.displayName = 'Button';
+export const Button = React.memo(ButtonBase)
+Button.displayName = 'Button'
 
 // ============================================
 // 图标按钮组件
@@ -242,9 +248,9 @@ Button.displayName = 'Button';
 
 export interface IconButtonProps extends Omit<ButtonProps, 'children'> {
   /** 图标 */
-  icon: React.ReactNode;
+  icon: React.ReactNode
   /** aria-label */
-  'aria-label': string;
+  'aria-label': string
 }
 
 const IconButtonBase = React.forwardRef<HTMLButtonElement, IconButtonProps>(
@@ -255,26 +261,21 @@ const IconButtonBase = React.forwardRef<HTMLButtonElement, IconButtonProps>(
       md: 'p-2',
       lg: 'p-2.5',
       xl: 'p-3',
-    };
+    }
 
     return (
-      <Button
-        ref={ref}
-        size={size}
-        className={clsx(sizeStyles[size], className)}
-        {...props}
-      >
+      <Button ref={ref} size={size} className={clsx(sizeStyles[size], className)} {...props}>
         {icon}
       </Button>
-    );
+    )
   }
-);
+)
 
-IconButtonBase.displayName = 'IconButton';
+IconButtonBase.displayName = 'IconButton'
 
 // 使用 React.memo 优化性能
-export const IconButton = React.memo(IconButtonBase);
-IconButton.displayName = 'IconButton';
+export const IconButton = React.memo(IconButtonBase)
+IconButton.displayName = 'IconButton'
 
 // ============================================
 // 按钮组组件
@@ -282,13 +283,13 @@ IconButton.displayName = 'IconButton';
 
 export interface ButtonGroupProps {
   /** 子按钮 */
-  children: React.ReactNode;
+  children: React.ReactNode
   /** 方向 */
-  orientation?: 'horizontal' | 'vertical';
+  orientation?: 'horizontal' | 'vertical'
   /** 间距 */
-  gap?: 'none' | 'sm' | 'md' | 'lg';
+  gap?: 'none' | 'sm' | 'md' | 'lg'
   /** CSS 类名 */
-  className?: string;
+  className?: string
 }
 
 const ButtonGroupBase = ({
@@ -302,7 +303,7 @@ const ButtonGroupBase = ({
     sm: 'gap-1',
     md: 'gap-2',
     lg: 'gap-3',
-  };
+  }
 
   return (
     <div
@@ -316,15 +317,15 @@ const ButtonGroupBase = ({
     >
       {children}
     </div>
-  );
-};
+  )
+}
 
 // 使用 React.memo 优化性能
-export const ButtonGroup = React.memo(ButtonGroupBase);
-ButtonGroup.displayName = 'ButtonGroup';
+export const ButtonGroup = React.memo(ButtonGroupBase)
+ButtonGroup.displayName = 'ButtonGroup'
 
 // ============================================
 // 导出
 // ============================================
 
-export default Button;
+export default Button

@@ -1,3 +1,3 @@
-'use client';
+'use client'
 
-export { AboutError as default } from '@/components/errors';
+export { AboutError as default } from '@/components/errors'

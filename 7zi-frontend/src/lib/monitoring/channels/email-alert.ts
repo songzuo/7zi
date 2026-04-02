@@ -5,74 +5,74 @@
  * Sends alerts via email using nodemailer or similar service.
  */
 
-import { Alert, AlertChannel } from "../alert-engine";
+import { Alert, AlertChannel } from '../alert-engine'
 
 export interface EmailChannelConfig {
   // SMTP Configuration
-  host: string;
-  port: number;
-  secure: boolean; // true for 465, false for other ports
+  host: string
+  port: number
+  secure: boolean // true for 465, false for other ports
   auth: {
-    user: string;
-    pass: string;
-  };
+    user: string
+    pass: string
+  }
 
   // Email Options
-  from: string;
+  from: string
   recipients: {
-    P0: string[];
-    P1: string[];
-    P2: string[];
-    P3: string[];
-    all?: string[];
-  };
+    P0: string[]
+    P1: string[]
+    P2: string[]
+    P3: string[]
+    all?: string[]
+  }
 
   // Template options
-  includeContext?: boolean;
-  includeStackTrace?: boolean;
+  includeContext?: boolean
+  includeStackTrace?: boolean
 }
 
 interface EmailMessage {
-  to: string;
-  subject: string;
-  text: string;
-  html?: string;
+  to: string
+  subject: string
+  text: string
+  html?: string
 }
 
 /**
  * Email Alert Channel
  */
 export class EmailAlertChannel implements AlertChannel {
-  private config: EmailChannelConfig;
-  private transporter?: any; // nodemailer transporter (initialized lazily)
+  private config: EmailChannelConfig
+  private transporter?: any // nodemailer transporter (initialized lazily)
 
   constructor(config: EmailChannelConfig) {
     this.config = {
       includeContext: true,
       includeStackTrace: false,
       ...config,
-    };
+    }
   }
 
   /**
    * Send alert via email
    */
   async send(alert: Alert): Promise<void> {
-    const message = this.buildEmailMessage(alert);
-    
+    const message = this.buildEmailMessage(alert)
+
     // Try to send via nodemailer if available
     if (!this.transporter) {
       try {
         // Use require to avoid static analysis
         // eslint-disable-next-line @typescript-eslint/no-var-requires
-        const nodemailer = require("nodemailer");
-        
+        const nodemailer = require('nodemailer')
+
         this.transporter = nodemailer.createTransport({
           host: this.config.host,
           port: this.config.port,
           secure: this.config.secure,
           auth: this.config.auth,
-        });
+        })
       } catch {
         // nodemailer not available, will use console fallback
       }
@@ -86,61 +86,61 @@ export class EmailAlertChannel implements AlertChannel {
           subject: message.subject,
           text: message.text,
           html: message.html,
-        });
+        })
 
-        console.log(`[EmailAlert] Sent: ${message.subject} to ${message.to}`);
-        return;
+        console.log(`[EmailAlert] Sent: ${message.subject} to ${message.to}`)
+        return
       } catch (error) {
-        console.error(`[EmailAlert] Failed to send:`, error);
+        console.error(`[EmailAlert] Failed to send:`, error)
       }
     }
 
     // Fallback to console log if nodemailer not available
-    console.log(`[EmailAlert] Would send: ${message.subject}`);
-    console.log(`[EmailAlert] To: ${message.to}`);
-    console.log(`[EmailAlert] Body:\n${message.text}`);
+    console.log(`[EmailAlert] Would send: ${message.subject}`)
+    console.log(`[EmailAlert] To: ${message.to}`)
+    console.log(`[EmailAlert] Body:\n${message.text}`)
   }
 
   /**
    * Build email message from alert
    */
   private buildEmailMessage(alert: Alert): EmailMessage {
-    const priority = alert.priority || "P3";
-    const recipients = this.getRecipients(priority);
+    const priority = alert.priority || 'P3'
+    const recipients = this.getRecipients(priority)
 
-    const severityEmoji = this.getSeverityEmoji(alert.severity);
-    const priorityLabel = this.getPriorityLabel(priority);
+    const severityEmoji = this.getSeverityEmoji(alert.severity)
+    const priorityLabel = this.getPriorityLabel(priority)
 
-    const subject = `[${priorityLabel}] ${severityEmoji} ${alert.ruleName}`;
-    
-    const text = this.buildTextContent(alert);
-    const html = this.buildHtmlContent(alert);
+    const subject = `[${priorityLabel}] ${severityEmoji} ${alert.ruleName}`
+
+    const text = this.buildTextContent(alert)
+    const html = this.buildHtmlContent(alert)
 
     return {
-      to: recipients.join(", "),
+      to: recipients.join(', '),
       subject,
       text,
       html,
-    };
+    }
   }
 
   /**
    * Get recipients based on priority
    */
   private getRecipients(priority: string): string[] {
-    const configPriority = priority as keyof typeof this.config.recipients;
-    const recipients = this.config.recipients[configPriority];
-    
+    const configPriority = priority as keyof typeof this.config.recipients
+    const recipients = this.config.recipients[configPriority]
+
     if (!recipients) {
-      return this.config.recipients.P3 || [];
+      return this.config.recipients.P3 || []
     }
 
     if (this.config.recipients.all) {
       // Use Array.from instead of spread to avoid downlevelIteration issue
-      return Array.from(new Set([...recipients, ...this.config.recipients.all]));
+      return Array.from(new Set([...recipients, ...this.config.recipients.all]))
     }
 
-    return recipients;
+    return recipients
   }
 
   /**
@@ -167,30 +167,30 @@ export class EmailAlertChannel implements AlertChannel {
       ``,
       `────────────────── TIMING ──────────────────`,
       `Triggered: ${new Date(alert.timestamp).toISOString()}`,
-      alert.startedAt ? `Started: ${new Date(alert.startedAt).toISOString()}` : "",
-      alert.endedAt ? `Ended: ${new Date(alert.endedAt).toISOString()}` : "",
+      alert.startedAt ? `Started: ${new Date(alert.startedAt).toISOString()}` : '',
+      alert.endedAt ? `Ended: ${new Date(alert.endedAt).toISOString()}` : '',
       ``,
-    ];
+    ]
 
     if (this.config.includeContext && alert.context) {
-      lines.push(`────────────────── CONTEXT ──────────────────`);
-      lines.push(...this.formatContext(alert.context));
-      lines.push(``);
+      lines.push(`────────────────── CONTEXT ──────────────────`)
+      lines.push(...this.formatContext(alert.context))
+      lines.push(``)
     }
 
-    lines.push(`═══════════════════════════════════════════════════════════════`);
-    lines.push(`Alert ID: ${alert.id}`);
-    lines.push(`Rule ID: ${alert.ruleId}`);
+    lines.push(`═══════════════════════════════════════════════════════════════`)
+    lines.push(`Alert ID: ${alert.id}`)
+    lines.push(`Rule ID: ${alert.ruleId}`)
 
-    return lines.filter(Boolean).join("\n");
+    return lines.filter(Boolean).join('\n')
   }
 
   /**
    * Build HTML email content
    */
   private buildHtmlContent(alert: Alert): string {
-    const severityColor = this.getSeverityColor(alert.severity);
-    const priorityBgColor = this.getPriorityBgColor(alert.priority);
+    const severityColor = this.getSeverityColor(alert.severity)
+    const priorityBgColor = this.getPriorityBgColor(alert.priority)
 
     return `
 <!DOCTYPE html>
@@ -257,7 +257,7 @@ export class EmailAlertChannel implements AlertChannel {
         <h3>Context</h3>
         <pre>${JSON.stringify(alert.context, null, 2)}</pre>
       `
-          : ""
+          : ''
       }
     </div>
     <div class="footer">
@@ -267,24 +267,24 @@ export class EmailAlertChannel implements AlertChannel {
   </div>
 </body>
 </html>
-    `.trim();
+    `.trim()
   }
 
   /**
    * Format context for text output
    */
   private formatContext(context: Record<string, unknown>): string[] {
-    const lines: string[] = [];
-    
+    const lines: string[] = []
+
     for (const [key, value] of Object.entries(context)) {
-      if (typeof value === "object") {
-        lines.push(`${key}: ${JSON.stringify(value)}`);
+      if (typeof value === 'object') {
+        lines.push(`${key}: ${JSON.stringify(value)}`)
       } else {
-        lines.push(`${key}: ${value}`);
+        lines.push(`${key}: ${value}`)
       }
     }
-    
-    return lines;
+
+    return lines
   }
 
   /**
@@ -292,16 +292,16 @@ export class EmailAlertChannel implements AlertChannel {
    */
   private getSeverityEmoji(severity: string): string {
     switch (severity) {
-      case "critical":
-        return "🚨";
-      case "error":
-        return "❌";
-      case "warning":
-        return "⚠️";
-      case "info":
-        return "ℹ️";
+      case 'critical':
+        return '🚨'
+      case 'error':
+        return '❌'
+      case 'warning':
+        return '⚠️'
+      case 'info':
+        return 'ℹ️'
       default:
-        return "🔔";
+        return '🔔'
     }
   }
 
@@ -310,16 +310,16 @@ export class EmailAlertChannel implements AlertChannel {
    */
   private getSeverityColor(severity: string): string {
     switch (severity) {
-      case "critical":
-        return "#9c27b0";
-      case "error":
-        return "#f44336";
-      case "warning":
-        return "#ff9800";
-      case "info":
-        return "#2196f3";
+      case 'critical':
+        return '#9c27b0'
+      case 'error':
+        return '#f44336'
+      case 'warning':
+        return '#ff9800'
+      case 'info':
+        return '#2196f3'
       default:
-        return "#607d8b";
+        return '#607d8b'
     }
   }
 
@@ -328,16 +328,16 @@ export class EmailAlertChannel implements AlertChannel {
    */
   private getPriorityBgColor(priority: string): string {
     switch (priority) {
-      case "P0":
-        return "#f44336";
-      case "P1":
-        return "#ff9800";
-      case "P2":
-        return "#ffc107";
-      case "P3":
-        return "#4caf50";
+      case 'P0':
+        return '#f44336'
+      case 'P1':
+        return '#ff9800'
+      case 'P2':
+        return '#ffc107'
+      case 'P3':
+        return '#4caf50'
       default:
-        return "#607d8b";
+        return '#607d8b'
     }
   }
 
@@ -345,7 +345,7 @@ export class EmailAlertChannel implements AlertChannel {
    * Get priority label
    */
   private getPriorityLabel(priority: string): string {
-    return priority;
+    return priority
   }
 
   /**
@@ -353,21 +353,21 @@ export class EmailAlertChannel implements AlertChannel {
    */
   async testConnection(): Promise<boolean> {
     try {
-      const nodemailer = await import("nodemailer");
-      
+      const nodemailer = await import('nodemailer')
+
       const testTransport = nodemailer.createTransport({
         host: this.config.host,
         port: this.config.port,
         secure: this.config.secure,
         auth: this.config.auth,
-      });
+      })
 
-      await testTransport.verify();
-      console.log("[EmailAlert] Connection verified");
-      return true;
+      await testTransport.verify()
+      console.log('[EmailAlert] Connection verified')
+      return true
     } catch (error) {
-      console.error("[EmailAlert] Connection test failed:", error);
-      return false;
+      console.error('[EmailAlert] Connection test failed:', error)
+      return false
     }
   }
 
@@ -375,14 +375,14 @@ export class EmailAlertChannel implements AlertChannel {
    * Update configuration
    */
   updateConfig(config: Partial<EmailChannelConfig>): void {
-    this.config = { ...this.config, ...config };
+    this.config = { ...this.config, ...config }
   }
 
   /**
    * Get configuration
    */
   getConfig(): EmailChannelConfig {
-    return { ...this.config };
+    return { ...this.config }
   }
 }
 
@@ -390,15 +390,15 @@ export class EmailAlertChannel implements AlertChannel {
  * Create email channel from environment variables
  */
 export function createEmailChannelFromEnv(): EmailAlertChannel | null {
-  const host = process.env.EMAIL_SMTP_HOST;
-  const port = parseInt(process.env.EMAIL_SMTP_PORT || "587");
-  const user = process.env.EMAIL_SMTP_USER;
-  const pass = process.env.EMAIL_SMTP_PASS;
-  const from = process.env.EMAIL_FROM || "alerts@7zi.com";
+  const host = process.env.EMAIL_SMTP_HOST
+  const port = parseInt(process.env.EMAIL_SMTP_PORT || '587')
+  const user = process.env.EMAIL_SMTP_USER
+  const pass = process.env.EMAIL_SMTP_PASS
+  const from = process.env.EMAIL_FROM || 'alerts@7zi.com'
 
   if (!host || !user || !pass) {
-    console.warn("[EmailAlert] SMTP not configured, email alerts will be logged only");
-    return null;
+    console.warn('[EmailAlert] SMTP not configured, email alerts will be logged only')
+    return null
   }
 
   return new EmailAlertChannel({
@@ -408,13 +408,13 @@ export function createEmailChannelFromEnv(): EmailAlertChannel | null {
     auth: { user, pass },
     from,
     recipients: {
-      P0: (process.env.EMAIL_RECIPIENTS_P0 || "").split(",").filter(Boolean),
-      P1: (process.env.EMAIL_RECIPIENTS_P1 || "").split(",").filter(Boolean),
-      P2: (process.env.EMAIL_RECIPIENTS_P2 || "").split(",").filter(Boolean),
-      P3: (process.env.EMAIL_RECIPIENTS_P3 || "").split(",").filter(Boolean),
-      all: (process.env.EMAIL_RECIPIENTS_ALL || "").split(",").filter(Boolean),
+      P0: (process.env.EMAIL_RECIPIENTS_P0 || '').split(',').filter(Boolean),
+      P1: (process.env.EMAIL_RECIPIENTS_P1 || '').split(',').filter(Boolean),
+      P2: (process.env.EMAIL_RECIPIENTS_P2 || '').split(',').filter(Boolean),
+      P3: (process.env.EMAIL_RECIPIENTS_P3 || '').split(',').filter(Boolean),
+      all: (process.env.EMAIL_RECIPIENTS_ALL || '').split(',').filter(Boolean),
     },
-  });
+  })
 }
 
-export default EmailAlertChannel;
+export default EmailAlertChannel

@@ -4,61 +4,64 @@
 
 ### Docker 配置文件
 
-| 文件 | 说明 |
-|------|------|
-| `Dockerfile.production` | 生产环境多阶段构建 Dockerfile |
-| `Dockerfile.dev` | 开发环境 Dockerfile（热重载） |
-| `docker-compose.dev.yml` | 开发环境 Docker Compose 配置 |
-| `docker-compose.prod.yml` | 生产环境 Docker Compose 配置 |
-| `.dockerignore` | Docker 构建忽略文件（优化构建） |
-| `.env.docker.example` | 环境变量模板 |
+| 文件                      | 说明                            |
+| ------------------------- | ------------------------------- |
+| `Dockerfile.production`   | 生产环境多阶段构建 Dockerfile   |
+| `Dockerfile.dev`          | 开发环境 Dockerfile（热重载）   |
+| `docker-compose.dev.yml`  | 开发环境 Docker Compose 配置    |
+| `docker-compose.prod.yml` | 生产环境 Docker Compose 配置    |
+| `.dockerignore`           | Docker 构建忽略文件（优化构建） |
+| `.env.docker.example`     | 环境变量模板                    |
 
 ### Nginx 配置
 
-| 文件 | 说明 |
-|------|------|
+| 文件                         | 说明                                 |
+| ---------------------------- | ------------------------------------ |
 | `nginx/nginx-optimized.conf` | 优化的 nginx 配置（SSL、缓存、限流） |
 
 ### 部署脚本
 
-| 文件 | 说明 |
-|------|------|
-| `docker-deploy.sh` | 一键部署脚本 |
+| 文件                            | 说明             |
+| ------------------------------- | ---------------- |
+| `docker-deploy.sh`              | 一键部署脚本     |
 | `scripts/docker-healthcheck.sh` | 容器健康检查脚本 |
 
 ### 文档
 
-| 文件 | 说明 |
-|------|------|
+| 文件                        | 说明         |
+| --------------------------- | ------------ |
 | `docs/DOCKER_DEPLOYMENT.md` | 完整部署指南 |
-| `DOCKER_QUICK_REF.md` | 快速参考手册 |
+| `DOCKER_QUICK_REF.md`       | 快速参考手册 |
 
 ---
 
 ## 🏗️ 多阶段构建优化
 
 ### Stage 1: deps（依赖安装）
+
 - 基础镜像：node:22-alpine
 - 仅复制 package.json
 - 利用 Docker 缓存层
 
 ### Stage 2: builder（构建）
+
 - 安装 devDependencies
 - 执行 Turbopack 生产构建
 - 生成 standalone 输出
 
 ### Stage 3: runner（运行）
+
 - 最小化镜像
 - 非 root 用户（安全）
 - 健康检查内置
 
 ### 镜像大小预估
 
-| 阶段 | 大小 |
-|------|------|
-| deps | ~300MB |
+| 阶段    | 大小   |
+| ------- | ------ |
+| deps    | ~300MB |
 | builder | ~500MB |
-| runner | ~250MB |
+| runner  | ~250MB |
 
 ---
 
@@ -94,7 +97,7 @@
 
 ```yaml
 healthcheck:
-  test: ["CMD", "/usr/local/bin/healthcheck.sh"]
+  test: ['CMD', '/usr/local/bin/healthcheck.sh']
   interval: 30s
   timeout: 5s
   retries: 3
@@ -152,17 +155,17 @@ curl https://your-domain.com/health
 
 ### 生产环境配置
 
-| 服务 | CPU | 内存 |
-|------|-----|------|
-| 7zi-frontend | 1 core | 512MB |
-| nginx | 0.5 core | 256MB |
+| 服务         | CPU      | 内存  |
+| ------------ | -------- | ----- |
+| 7zi-frontend | 1 core   | 512MB |
+| nginx        | 0.5 core | 256MB |
 
 ### 预留资源
 
-| 服务 | CPU | 内存 |
-|------|-----|------|
+| 服务         | CPU       | 内存  |
+| ------------ | --------- | ----- |
 | 7zi-frontend | 0.25 core | 256MB |
-| nginx | 0.1 core | 64MB |
+| nginx        | 0.1 core  | 64MB  |
 
 ---
 
@@ -186,6 +189,7 @@ curl https://your-domain.com/health
 ## 📝 下一步
 
 1. **配置 SSL 证书**
+
    ```bash
    # Let's Encrypt
    docker compose run --rm certbot certonly --webroot -w /var/www/certbot -d 7zi.com -d www.7zi.com
@@ -196,6 +200,7 @@ curl https://your-domain.com/health
    - 设置敏感变量
 
 3. **执行部署**
+
    ```bash
    ./docker-deploy.sh
    ```

@@ -16,6 +16,7 @@
 获取消息队列的当前状态和统计信息。
 
 **Response (200 OK):**
+
 ```json
 {
   "status": "ok",
@@ -47,6 +48,7 @@
 ```
 
 **Response Fields:**
+
 - `status`: 队列状态 ("ok" 或 "error")
 - `stats.total`: 队列中消息总数
 - `stats.byPriority`: 按优先级分组的消息数量
@@ -63,6 +65,7 @@
 将新消息加入队列。
 
 **Request Body:**
+
 ```json
 {
   "id": "msg_123",
@@ -78,19 +81,20 @@
 }
 ```
 
-| Field | Type | Required | Description |
-|-------|------|----------|-------------|
-| `taskId` | string | Yes | 任务ID |
-| `agentId` | string | Yes | 目标智能体ID |
-| `id` | string | No | 消息ID（自动生成如果未提供） |
-| `priority` | string | No | 优先级: "high", "normal", "low" (默认: "normal") |
-| `payload` | object | No | 消息负载数据 |
-| `createdAt` | string | No | 创建时间 (默认: 当前时间) |
-| `attempts` | number | No | 已尝试次数 (默认: 0) |
-| `maxAttempts` | number | No | 最大尝试次数 (默认: 3) |
-| `nextRetryAt` | string | No | 下次重试时间 |
+| Field         | Type   | Required | Description                                      |
+| ------------- | ------ | -------- | ------------------------------------------------ |
+| `taskId`      | string | Yes      | 任务ID                                           |
+| `agentId`     | string | Yes      | 目标智能体ID                                     |
+| `id`          | string | No       | 消息ID（自动生成如果未提供）                     |
+| `priority`    | string | No       | 优先级: "high", "normal", "low" (默认: "normal") |
+| `payload`     | object | No       | 消息负载数据                                     |
+| `createdAt`   | string | No       | 创建时间 (默认: 当前时间)                        |
+| `attempts`    | number | No       | 已尝试次数 (默认: 0)                             |
+| `maxAttempts` | number | No       | 最大尝试次数 (默认: 3)                           |
+| `nextRetryAt` | string | No       | 下次重试时间                                     |
 
 **Response (201 Created):**
+
 ```json
 {
   "message": "Message enqueued successfully",
@@ -110,6 +114,7 @@
 ```
 
 **Errors:**
+
 - `400` - 验证错误（缺少必需字段）
 - `500` - 内部服务器错误
 
@@ -130,6 +135,7 @@
 **注意:** 如果不提供查询参数，将清空整个队列。
 
 **Response (200 OK) - Clear entire queue:**
+
 ```json
 {
   "message": "Queue cleared successfully",
@@ -138,6 +144,7 @@
 ```
 
 **Response (200 OK) - Clear by agent:**
+
 ```json
 {
   "message": "Removed 3 messages for agent agent_1",
@@ -147,6 +154,7 @@
 ```
 
 **Response (200 OK) - Clear by priority:**
+
 ```json
 {
   "message": "Removed 2 messages with priority high",
@@ -156,6 +164,7 @@
 ```
 
 **Errors:**
+
 - `500` - 内部服务器错误
 
 ---
@@ -179,6 +188,7 @@
 | `available` | boolean | No | 仅返回在线智能体 |
 
 **Examples:**
+
 ```
 GET /api/a2a/registry
 GET /api/a2a/registry?capability=code_review
@@ -187,6 +197,7 @@ GET /api/a2a/registry?available=true
 ```
 
 **Response (200 OK):**
+
 ```json
 {
   "agents": [
@@ -221,6 +232,7 @@ GET /api/a2a/registry?available=true
 ```
 
 **Response Fields:**
+
 - `agents`: 智能体数组
 - `agents[].id`: 智能体唯一标识
 - `agents[].name`: 智能体名称
@@ -242,6 +254,7 @@ GET /api/a2a/registry?available=true
 注册新智能体到注册表。
 
 **Request Body:**
+
 ```json
 {
   "id": "agent_789",
@@ -258,18 +271,19 @@ GET /api/a2a/registry?available=true
 }
 ```
 
-| Field | Type | Required | Description |
-|-------|------|----------|-------------|
-| `name` | string | Yes | 智能体名称 |
-| `url` | string | Yes | 智能体端点URL |
-| `id` | string | No | 智能体ID（自动生成如果未提供） |
-| `capabilities` | string[] | No | 能力列表 |
-| `skills` | string[] | No | 技能列表 |
-| `status` | string | No | 初始状态 (默认: "online") |
-| `load` | number | No | 初始负载 (默认: 0.0) |
-| `metadata` | object | No | 附加元数据 |
+| Field          | Type     | Required | Description                    |
+| -------------- | -------- | -------- | ------------------------------ |
+| `name`         | string   | Yes      | 智能体名称                     |
+| `url`          | string   | Yes      | 智能体端点URL                  |
+| `id`           | string   | No       | 智能体ID（自动生成如果未提供） |
+| `capabilities` | string[] | No       | 能力列表                       |
+| `skills`       | string[] | No       | 技能列表                       |
+| `status`       | string   | No       | 初始状态 (默认: "online")      |
+| `load`         | number   | No       | 初始负载 (默认: 0.0)           |
+| `metadata`     | object   | No       | 附加元数据                     |
 
 **Response (201 Created):**
+
 ```json
 {
   "message": "Agent registered successfully",
@@ -291,6 +305,7 @@ GET /api/a2a/registry?available=true
 ```
 
 **Errors:**
+
 - `400` - 验证错误（缺少必需字段）
 - `409` - 智能体ID已存在
 - `500` - 内部服务器错误
@@ -309,6 +324,7 @@ GET /api/a2a/registry?available=true
 | `id` | string | Yes | 智能体ID |
 
 **Response (200 OK):**
+
 ```json
 {
   "agent": {
@@ -326,6 +342,7 @@ GET /api/a2a/registry?available=true
 ```
 
 **Errors:**
+
 - `404` - 智能体未找到
 - `500` - 内部服务器错误
 
@@ -343,6 +360,7 @@ GET /api/a2a/registry?available=true
 | `id` | string | Yes | 智能体ID |
 
 **Request Body:**
+
 ```json
 {
   "name": "Updated Agent Name",
@@ -358,17 +376,18 @@ GET /api/a2a/registry?available=true
 }
 ```
 
-| Field | Type | Required | Description |
-|-------|------|----------|-------------|
-| `name` | string | No | 更新的智能体名称 |
-| `url` | string | No | 更新的端点URL |
-| `capabilities` | string[] | No | 更新的能力列表 |
-| `skills` | string[] | No | 更新的技能列表 |
-| `status` | string | No | 更新的状态 |
-| `load` | number | No | 更新的负载 |
-| `metadata` | object | No | 更新的元数据 |
+| Field          | Type     | Required | Description      |
+| -------------- | -------- | -------- | ---------------- |
+| `name`         | string   | No       | 更新的智能体名称 |
+| `url`          | string   | No       | 更新的端点URL    |
+| `capabilities` | string[] | No       | 更新的能力列表   |
+| `skills`       | string[] | No       | 更新的技能列表   |
+| `status`       | string   | No       | 更新的状态       |
+| `load`         | number   | No       | 更新的负载       |
+| `metadata`     | object   | No       | 更新的元数据     |
 
 **Response (200 OK):**
+
 ```json
 {
   "message": "Agent updated successfully",
@@ -390,6 +409,7 @@ GET /api/a2a/registry?available=true
 ```
 
 **Errors:**
+
 - `404` - 智能体未找到
 - `500` - 内部服务器错误
 
@@ -407,6 +427,7 @@ GET /api/a2a/registry?available=true
 | `id` | string | Yes | 智能体ID |
 
 **Response (200 OK):**
+
 ```json
 {
   "message": "Agent unregistered successfully",
@@ -415,6 +436,7 @@ GET /api/a2a/registry?available=true
 ```
 
 **Errors:**
+
 - `404` - 智能体未找到
 - `500` - 内部服务器错误
 
@@ -432,6 +454,7 @@ GET /api/a2a/registry?available=true
 | `id` | string | Yes | 智能体ID |
 
 **Response (200 OK):**
+
 ```json
 {
   "success": true,
@@ -442,6 +465,7 @@ GET /api/a2a/registry?available=true
 ```
 
 **Errors:**
+
 - `404` - 智能体未找到
 - `500` - 内部服务器错误
 
@@ -458,19 +482,12 @@ GET /api/a2a/registry?available=true
 获取支持的表和导出选项信息。
 
 **Response (200 OK):**
+
 ```json
 {
   "success": true,
   "message": "Data export API",
-  "supportedTables": [
-    "users",
-    "tasks",
-    "projects",
-    "teams",
-    "audit_logs",
-    "roles",
-    "permissions"
-  ],
+  "supportedTables": ["users", "tasks", "projects", "teams", "audit_logs", "roles", "permissions"],
   "usage": {
     "method": "POST",
     "body": {
@@ -499,6 +516,7 @@ GET /api/a2a/registry?available=true
 从数据库表导出数据为 CSV 或 JSON 格式。
 
 **Request Body:**
+
 ```json
 {
   "format": "csv",
@@ -521,16 +539,16 @@ GET /api/a2a/registry?available=true
 }
 ```
 
-| Field | Type | Required | Description |
-|-------|------|----------|-------------|
-| `format` | string | No | 导出格式: "csv" 或 "json" (默认: "json") |
-| `tables` | string[] | Yes | 要导出的表名列表 |
-| `filters` | object[] | No | 表级别的过滤器 |
-| `filters[].table` | string | No | 表名 |
-| `filters[].where` | string | No | WHERE 子句 |
-| `filters[].params` | any[] | No | WHERE 参数 |
-| `filters[].limit` | number | No | 每表最大行数 |
-| `includeSchema` | boolean | No | 是否包含表结构 (默认: false) |
+| Field              | Type     | Required | Description                              |
+| ------------------ | -------- | -------- | ---------------------------------------- |
+| `format`           | string   | No       | 导出格式: "csv" 或 "json" (默认: "json") |
+| `tables`           | string[] | Yes      | 要导出的表名列表                         |
+| `filters`          | object[] | No       | 表级别的过滤器                           |
+| `filters[].table`  | string   | No       | 表名                                     |
+| `filters[].where`  | string   | No       | WHERE 子句                               |
+| `filters[].params` | any[]    | No       | WHERE 参数                               |
+| `filters[].limit`  | number   | No       | 每表最大行数                             |
+| `includeSchema`    | boolean  | No       | 是否包含表结构 (默认: false)             |
 
 **Response (200 OK) - CSV Format:**
 
@@ -541,6 +559,7 @@ GET /api/a2a/registry?available=true
 响应为文件下载，`Content-Type: application/json; charset=utf-8`
 
 **JSON 示例:**
+
 ```json
 {
   "version": "1.0",
@@ -560,9 +579,7 @@ GET /api/a2a/registry?available=true
       "schema": {
         "columns": ["id", "title", "status", "priority"]
       },
-      "data": [
-        { "id": 1, "title": "Task 1", "status": "open", "priority": "high" }
-      ]
+      "data": [{ "id": 1, "title": "Task 1", "status": "open", "priority": "high" }]
     }
   },
   "statistics": {
@@ -577,6 +594,7 @@ GET /api/a2a/registry?available=true
 ```
 
 **CSV 示例:**
+
 ```csv
 table,users
 id,email,name,status
@@ -589,6 +607,7 @@ id,title,status,priority
 ```
 
 **Errors:**
+
 - `400` - 验证错误
 - `500` - 内部服务器错误
 
@@ -601,6 +620,7 @@ id,title,status,priority
 获取导入选项和限制信息。
 
 **Response (200 OK):**
+
 ```json
 {
   "success": true,
@@ -630,18 +650,20 @@ id,title,status,priority
 
 **Request Body:** `multipart/form-data`
 
-| Field | Type | Required | Description |
-|-------|------|----------|-------------|
-| `file` | File | Yes | 要导入的文件 (CSV 或 JSON) |
-| `format` | string | No | 文件格式 (可选，自动检测) |
-| `onConflict` | string | No | 冲突处理策略: "error", "skip", "update" (默认: "error") |
+| Field        | Type   | Required | Description                                             |
+| ------------ | ------ | -------- | ------------------------------------------------------- |
+| `file`       | File   | Yes      | 要导入的文件 (CSV 或 JSON)                              |
+| `format`     | string | No       | 文件格式 (可选，自动检测)                               |
+| `onConflict` | string | No       | 冲突处理策略: "error", "skip", "update" (默认: "error") |
 
 **冲突处理策略:**
+
 - `error` - 如果记录已存在则报错
 - `skip` - 跳过已存在的记录
 - `update` - 更新已存在的记录
 
 **Response (200 OK):**
+
 ```json
 {
   "success": true,
@@ -679,6 +701,7 @@ id,title,status,priority
 ```
 
 **Errors:**
+
 - `400` - 验证错误或文件格式不正确
 - `409` - 记录冲突 (当 onConflict=error 时)
 - `413` - 文件过大
@@ -699,35 +722,39 @@ id,title,status,priority
 **Query Parameters:**
 
 #### Basic Parameters
-| Parameter | Type | Required | Description |
-|-----------|------|----------|-------------|
-| `q` | string | Yes | 搜索查询字符串 |
-| `target` | string | No | 目标类型: "all", "tasks", "projects", "members" (默认: "all") |
-| `limit` | number | No | 返回数量 (默认: 50, 最大: 100) |
-| `offset` | number | No | 偏移量 (默认: 0) |
-| `history` | boolean | No | 是否包含搜索历史 (默认: false) |
+
+| Parameter | Type    | Required | Description                                                   |
+| --------- | ------- | -------- | ------------------------------------------------------------- |
+| `q`       | string  | Yes      | 搜索查询字符串                                                |
+| `target`  | string  | No       | 目标类型: "all", "tasks", "projects", "members" (默认: "all") |
+| `limit`   | number  | No       | 返回数量 (默认: 50, 最大: 100)                                |
+| `offset`  | number  | No       | 偏移量 (默认: 0)                                              |
+| `history` | boolean | No       | 是否包含搜索历史 (默认: false)                                |
 
 #### Filter Parameters
-| Parameter | Type | Description |
-|-----------|------|-------------|
-| `status` | string | 状态过滤 (逗号分隔，如: "active,completed") |
-| `priority` | string | 优先级过滤 (逗号分隔，如: "high,medium") |
-| `labels` | string | 标签过滤 (逗号分隔) |
-| `assignees` | string | 分配人过滤 (逗号分隔) |
-| `createdAfter` | string | 创建时间起点 (ISO 8601) |
-| `createdBefore` | string | 创建时间终点 (ISO 8601) |
-| `updatedAfter` | string | 更新时间起点 (ISO 8601) |
-| `updatedBefore` | string | 更新时间终点 (ISO 8601) |
+
+| Parameter       | Type   | Description                                 |
+| --------------- | ------ | ------------------------------------------- |
+| `status`        | string | 状态过滤 (逗号分隔，如: "active,completed") |
+| `priority`      | string | 优先级过滤 (逗号分隔，如: "high,medium")    |
+| `labels`        | string | 标签过滤 (逗号分隔)                         |
+| `assignees`     | string | 分配人过滤 (逗号分隔)                       |
+| `createdAfter`  | string | 创建时间起点 (ISO 8601)                     |
+| `createdBefore` | string | 创建时间终点 (ISO 8601)                     |
+| `updatedAfter`  | string | 更新时间起点 (ISO 8601)                     |
+| `updatedBefore` | string | 更新时间终点 (ISO 8601)                     |
 
 #### Search Configuration Parameters
-| Parameter | Type | Default | Description |
-|-----------|------|---------|-------------|
-| `fuzzy` | boolean | true | 启用模糊匹配 |
-| `fuzzyThreshold` | number | 0.3 | 模糊匹配阈值 (0.0-1.0) |
-| `caseSensitive` | boolean | false | 区分大小写 |
-| `highlights` | boolean | true | 包含高亮结果 |
+
+| Parameter        | Type    | Default | Description            |
+| ---------------- | ------- | ------- | ---------------------- |
+| `fuzzy`          | boolean | true    | 启用模糊匹配           |
+| `fuzzyThreshold` | number  | 0.3     | 模糊匹配阈值 (0.0-1.0) |
+| `caseSensitive`  | boolean | false   | 区分大小写             |
+| `highlights`     | boolean | true    | 包含高亮结果           |
 
 **Examples:**
+
 ```
 GET /api/search?q=hello&target=all
 GET /api/search?q=bug&target=tasks&status=open,pending
@@ -738,6 +765,7 @@ GET /api/search?q=recent&createdAfter=2026-03-01&history=true
 ```
 
 **Response (200 OK):**
+
 ```json
 {
   "results": [
@@ -794,6 +822,7 @@ GET /api/search?q=recent&createdAfter=2026-03-01&history=true
 ```
 
 **Response Fields:**
+
 - `results`: 搜索结果数组
 - `results[].id`: 实体ID
 - `results[].type`: 实体类型 ("task", "project", "member")
@@ -807,6 +836,7 @@ GET /api/search?q=recent&createdAfter=2026-03-01&history=true
 - `history`: 搜索历史（如果请求）
 
 **Errors:**
+
 - `400` - 无效查询参数
 - `500` - 内部服务器错误
 
@@ -826,11 +856,13 @@ GET /api/search?q=recent&createdAfter=2026-03-01&history=true
 | `type` | string | No | 建议类型: "all", "query", "entity" (默认: "all") |
 
 **Example:**
+
 ```
 GET /api/search/autocomplete?q=bug&limit=5
 ```
 
 **Response (200 OK):**
+
 ```json
 {
   "suggestions": [
@@ -864,6 +896,7 @@ GET /api/search/autocomplete?q=bug&limit=5
 ```
 
 **Response Fields:**
+
 - `suggestions`: 建议数组
 - `suggestions[].type`: 建议类型 ("query" 或 "entity")
 - `suggestions[].text`: 建议文本
@@ -887,11 +920,13 @@ GET /api/search/autocomplete?q=bug&limit=5
 | `since` | string | No | 时间起点 (ISO 8601) |
 
 **Example:**
+
 ```
 GET /api/search/history?limit=10
 ```
 
 **Response (200 OK):**
+
 ```json
 {
   "history": [
@@ -916,6 +951,7 @@ GET /api/search/history?limit=10
 ```
 
 **Response Fields:**
+
 - `history`: 历史记录数组
 - `history[].query`: 搜索查询
 - `history[].resultCount`: 结果数量
@@ -935,11 +971,13 @@ GET /api/search/history?limit=10
 获取当前登录用户的偏好设置。
 
 **Headers:**
+
 ```
 Authorization: Bearer <token>
 ```
 
 **Response (200 OK):**
+
 ```json
 {
   "success": true,
@@ -977,12 +1015,14 @@ Authorization: Bearer <token>
 更新当前登录用户的偏好设置。
 
 **Headers:**
+
 ```
 Authorization: Bearer <token>
 Content-Type: application/json
 ```
 
 **Request Body:**
+
 ```json
 {
   "theme": "dark",
@@ -1004,24 +1044,25 @@ Content-Type: application/json
 }
 ```
 
-| Field | Type | Description |
-|-------|------|-------------|
-| `theme` | string | 主题: "light", "dark", "auto" |
-| `language` | string | 语言代码 (如: "zh-CN", "en-US") |
-| `timezone` | string | 时区 (如: "Asia/Shanghai") |
-| `dateFormat` | string | 日期格式 |
-| `timeFormat` | string | 时间格式: "12h" 或 "24h" |
-| `notifications` | object | 通知设置 |
-| `notifications.email` | boolean | 邮件通知 |
-| `notifications.push` | boolean | 推送通知 |
-| `notifications.desktop` | boolean | 桌面通知 |
-| `notifications.digest` | string | 摘要频率: "daily", "weekly", "never" |
-| `ui` | object | UI 设置 |
-| `ui.sidebarCollapsed` | boolean | 侧边栏折叠 |
-| `ui.density` | string | 密度: "compact", "comfortable", "spacious" |
-| `ui.fontSize` | string | 字体大小: "small", "medium", "large" |
+| Field                   | Type    | Description                                |
+| ----------------------- | ------- | ------------------------------------------ |
+| `theme`                 | string  | 主题: "light", "dark", "auto"              |
+| `language`              | string  | 语言代码 (如: "zh-CN", "en-US")            |
+| `timezone`              | string  | 时区 (如: "Asia/Shanghai")                 |
+| `dateFormat`            | string  | 日期格式                                   |
+| `timeFormat`            | string  | 时间格式: "12h" 或 "24h"                   |
+| `notifications`         | object  | 通知设置                                   |
+| `notifications.email`   | boolean | 邮件通知                                   |
+| `notifications.push`    | boolean | 推送通知                                   |
+| `notifications.desktop` | boolean | 桌面通知                                   |
+| `notifications.digest`  | string  | 摘要频率: "daily", "weekly", "never"       |
+| `ui`                    | object  | UI 设置                                    |
+| `ui.sidebarCollapsed`   | boolean | 侧边栏折叠                                 |
+| `ui.density`            | string  | 密度: "compact", "comfortable", "spacious" |
+| `ui.fontSize`           | string  | 字体大小: "small", "medium", "large"       |
 
 **Response (200 OK):**
+
 ```json
 {
   "success": true,
@@ -1052,6 +1093,7 @@ Content-Type: application/json
 ```
 
 **Errors:**
+
 - `400` - 验证错误
 - `401` - 未授权
 - `500` - 内部服务器错误
@@ -1080,6 +1122,7 @@ Content-Type: application/json
 **Content-Type:** 根据头像类型确定 (如: `image/jpeg`, `image/png`)
 
 **Errors:**
+
 - `404` - 用户或头像未找到
 
 ---
@@ -1096,6 +1139,7 @@ Content-Type: application/json
 | `userId` | string | Yes | 用户ID |
 
 **Headers:**
+
 ```
 Authorization: Bearer <token>
 Content-Type: multipart/form-data
@@ -1103,12 +1147,13 @@ Content-Type: multipart/form-data
 
 **Request Body:** `multipart/form-data`
 
-| Field | Type | Required | Description |
-|-------|------|----------|-------------|
-| `avatar` | File | Yes | 头像图片文件 |
-| `crop` | string | No | 裁剪参数 (JSON 字符串) |
+| Field    | Type   | Required | Description            |
+| -------- | ------ | -------- | ---------------------- |
+| `avatar` | File   | Yes      | 头像图片文件           |
+| `crop`   | string | No       | 裁剪参数 (JSON 字符串) |
 
 **Supported Image Types:**
+
 - `image/jpeg`, `image/jpg`
 - `image/png`
 - `image/webp`
@@ -1117,6 +1162,7 @@ Content-Type: multipart/form-data
 **Max File Size:** 5MB
 
 **Crop Parameter Format:**
+
 ```json
 {
   "x": 0,
@@ -1127,6 +1173,7 @@ Content-Type: multipart/form-data
 ```
 
 **Response (200 OK):**
+
 ```json
 {
   "success": true,
@@ -1144,6 +1191,7 @@ Content-Type: multipart/form-data
 ```
 
 **Errors:**
+
 - `400` - 验证错误或文件格式不支持
 - `401` - 未授权
 - `403` - 权限不足（只能更新自己的头像）
@@ -1164,11 +1212,13 @@ Content-Type: multipart/form-data
 | `userId` | string | Yes | 用户ID |
 
 **Headers:**
+
 ```
 Authorization: Bearer <token>
 ```
 
 **Response (200 OK):**
+
 ```json
 {
   "success": true,
@@ -1182,6 +1232,7 @@ Authorization: Bearer <token>
 ```
 
 **Errors:**
+
 - `401` - 未授权
 - `403` - 权限不足（只能删除自己的头像）
 - `500` - 内部服务器错误
@@ -1189,4 +1240,3 @@ Authorization: Bearer <token>
 ---
 
 ## 🟡 Batch User Operations API
-

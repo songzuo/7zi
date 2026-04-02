@@ -1,15 +1,15 @@
-'use memo';
+'use memo'
 
 /**
  * Card 组件 - 卡片组件
  * 用于展示内容、图片、信息等，包含增强的交互反馈
- * 
+ *
  * @version 1.1.0
  * @date 2026-03-29
  */
 
-import React from 'react';
-import clsx from 'clsx';
+import React from 'react'
+import clsx from 'clsx'
 
 // ============================================
 // Card 组件
@@ -17,19 +17,19 @@ import clsx from 'clsx';
 
 export interface CardProps extends Omit<React.HTMLAttributes<HTMLDivElement>, 'onClick'> {
   /** 卡片内容 */
-  children: React.ReactNode;
+  children: React.ReactNode
   /** 是否有阴影 */
-  shadow?: 'none' | 'sm' | 'md' | 'lg' | 'xl';
+  shadow?: 'none' | 'sm' | 'md' | 'lg' | 'xl'
   /** 是否可点击 */
-  clickable?: boolean;
+  clickable?: boolean
   /** 自定义类名 */
-  className?: string;
+  className?: string
   /** 点击事件 */
-  onClick?: () => void;
+  onClick?: () => void
   /** 是否启用悬浮效果 */
-  hoverable?: boolean;
+  hoverable?: boolean
   /** 是否启用边框高亮 */
-  bordered?: boolean;
+  bordered?: boolean
 }
 
 export const Card = React.forwardRef<HTMLDivElement, CardProps>(
@@ -52,7 +52,7 @@ export const Card = React.forwardRef<HTMLDivElement, CardProps>(
       md: 'shadow-md',
       lg: 'shadow-lg',
       xl: 'shadow-xl',
-    };
+    }
 
     const classes = clsx(
       'bg-white rounded-lg',
@@ -65,131 +65,120 @@ export const Card = React.forwardRef<HTMLDivElement, CardProps>(
       // 悬停效果
       hoverable && 'transition-all duration-300 ease-out',
       // 可点击状态
-      clickable && clsx(
-        'cursor-pointer',
-        'hover:shadow-xl hover:-translate-y-0.5',
-        'active:scale-[0.98]',
-        'transform-gpu'
-      ),
+      clickable &&
+        clsx(
+          'cursor-pointer',
+          'hover:shadow-xl hover:-translate-y-0.5',
+          'active:scale-[0.98]',
+          'transform-gpu'
+        ),
       // 焦点状态
       'focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2',
       className
-    );
+    )
 
     return (
       <div ref={ref} className={classes} onClick={onClick} {...props}>
         {children}
       </div>
-    );
+    )
   }
-);
+)
 
-Card.displayName = 'Card';
+Card.displayName = 'Card'
 
 // ============================================
 // CardHeader 组件
 // ============================================
 
 export interface CardHeaderProps {
-  children: React.ReactNode;
-  className?: string;
+  children: React.ReactNode
+  className?: string
   /** 是否有底部边框 */
-  bordered?: boolean;
+  bordered?: boolean
 }
 
-export const CardHeader: React.FC<CardHeaderProps> = ({
-  children,
-  className,
-  bordered = true
-}) => {
+export const CardHeader: React.FC<CardHeaderProps> = ({ children, className, bordered = true }) => {
   return (
-    <div className={clsx(
-      'px-6 py-4',
-      bordered && 'border-b border-gray-200 dark:border-gray-700',
-      className
-    )}>
+    <div
+      className={clsx(
+        'px-6 py-4',
+        bordered && 'border-b border-gray-200 dark:border-gray-700',
+        className
+      )}
+    >
       {children}
     </div>
-  );
-};
+  )
+}
 
 // ============================================
 // CardBody 组件
 // ============================================
 
 export interface CardBodyProps {
-  children: React.ReactNode;
-  className?: string;
+  children: React.ReactNode
+  className?: string
   /** 垂直内边距 */
-  padding?: 'none' | 'sm' | 'md' | 'lg';
+  padding?: 'none' | 'sm' | 'md' | 'lg'
 }
 
-export const CardBody: React.FC<CardBodyProps> = ({
-  children,
-  className,
-  padding = 'md'
-}) => {
+export const CardBody: React.FC<CardBodyProps> = ({ children, className, padding = 'md' }) => {
   const paddingStyles = {
     none: '',
     sm: 'px-6 py-2',
     md: 'px-6 py-4',
     lg: 'px-6 py-6',
-  };
+  }
 
-  return (
-    <div className={clsx(paddingStyles[padding], className)}>
-      {children}
-    </div>
-  );
-};
+  return <div className={clsx(paddingStyles[padding], className)}>{children}</div>
+}
 
 // ============================================
 // CardFooter 组件
 // ============================================
 
 export interface CardFooterProps {
-  children: React.ReactNode;
-  className?: string;
+  children: React.ReactNode
+  className?: string
   /** 背景颜色 */
-  bg?: 'gray' | 'white' | 'blue';
+  bg?: 'gray' | 'white' | 'blue'
 }
 
-export const CardFooter: React.FC<CardFooterProps> = ({
-  children,
-  className,
-  bg = 'gray'
-}) => {
+export const CardFooter: React.FC<CardFooterProps> = ({ children, className, bg = 'gray' }) => {
   const bgStyles = {
     gray: 'bg-gray-50 dark:bg-gray-900/50',
     white: 'bg-white dark:bg-gray-800',
     blue: 'bg-blue-50 dark:bg-blue-900/20',
-  };
+  }
 
   return (
-    <div className={clsx(
-      'px-6 py-4 border-t border-gray-200 dark:border-gray-700',
-      bgStyles[bg],
-      className
-    )}>
+    <div
+      className={clsx(
+        'border-t border-gray-200 px-6 py-4 dark:border-gray-700',
+        bgStyles[bg],
+        className
+      )}
+    >
       {children}
     </div>
-  );
-};
+  )
+}
 
 // ============================================
 // CardImage 组件
 // ============================================
 
 export interface CardImageProps {
-  src: string;
-  alt: string;
-  className?: string;
+  src: string
+  alt: string
+  className?: string
   /** 图片高度 */
-  height?: 'xs' | 'sm' | 'md' | 'lg' | 'xl';
+  height?: 'xs' | 'sm' | 'md' | 'lg' | 'xl'
   /** 图片对象适应方式 */
-  objectFit?: 'cover' | 'contain' | 'fill' | 'none' | 'scale-down';
+  objectFit?: 'cover' | 'contain' | 'fill' | 'none' | 'scale-down'
   /** 是否启用放大效果 */
-  zoomOnHover?: boolean;
+  zoomOnHover?: boolean
 }
 
 export const CardImage: React.FC<CardImageProps> = ({
@@ -206,14 +195,10 @@ export const CardImage: React.FC<CardImageProps> = ({
     md: 'h-48',
     lg: 'h-64',
     xl: 'h-80',
-  };
+  }
 
   return (
-    <div className={clsx(
-      'overflow-hidden relative',
-      heightStyles[height],
-      'w-full'
-    )}>
+    <div className={clsx('relative overflow-hidden', heightStyles[height], 'w-full')}>
       <img
         src={src}
         alt={alt}
@@ -227,147 +212,135 @@ export const CardImage: React.FC<CardImageProps> = ({
         style={{ objectFit }}
       />
     </div>
-  );
-};
+  )
+}
 
 // ============================================
 // CardTitle 组件
 // ============================================
 
 export interface CardTitleProps {
-  children: React.ReactNode;
-  className?: string;
+  children: React.ReactNode
+  className?: string
   /** 标题大小 */
-  size?: 'sm' | 'md' | 'lg' | 'xl';
+  size?: 'sm' | 'md' | 'lg' | 'xl'
 }
 
-export const CardTitle: React.FC<CardTitleProps> = ({
-  children,
-  className,
-  size = 'lg'
-}) => {
+export const CardTitle: React.FC<CardTitleProps> = ({ children, className, size = 'lg' }) => {
   const sizeStyles = {
     sm: 'text-sm',
     md: 'text-base',
     lg: 'text-lg',
     xl: 'text-xl',
-  };
+  }
 
   return (
-    <h3 className={clsx(
-      'font-semibold text-gray-900 dark:text-gray-100',
-      sizeStyles[size],
-      className
-    )}>
+    <h3
+      className={clsx(
+        'font-semibold text-gray-900 dark:text-gray-100',
+        sizeStyles[size],
+        className
+      )}
+    >
       {children}
     </h3>
-  );
-};
+  )
+}
 
 // ============================================
 // CardText 组件
 // ============================================
 
 export interface CardTextProps {
-  children: React.ReactNode;
-  className?: string;
+  children: React.ReactNode
+  className?: string
   /** 文本颜色 */
-  color?: 'primary' | 'secondary' | 'muted';
+  color?: 'primary' | 'secondary' | 'muted'
 }
 
-export const CardText: React.FC<CardTextProps> = ({
-  children,
-  className,
-  color = 'secondary'
-}) => {
+export const CardText: React.FC<CardTextProps> = ({ children, className, color = 'secondary' }) => {
   const colorStyles = {
     primary: 'text-gray-900 dark:text-gray-100',
     secondary: 'text-gray-600 dark:text-gray-400',
     muted: 'text-gray-500 dark:text-gray-500',
-  };
+  }
 
-  return (
-    <p className={clsx(colorStyles[color], 'mt-2', className)}>
-      {children}
-    </p>
-  );
-};
+  return <p className={clsx(colorStyles[color], 'mt-2', className)}>{children}</p>
+}
 
 // ============================================
 // CardMeta 组件
 // ============================================
 
 export interface CardMetaProps {
-  children: React.ReactNode;
-  className?: string;
+  children: React.ReactNode
+  className?: string
   /** 元数据方向 */
-  direction?: 'horizontal' | 'vertical';
+  direction?: 'horizontal' | 'vertical'
 }
 
 export const CardMeta: React.FC<CardMetaProps> = ({
   children,
   className,
-  direction = 'horizontal'
+  direction = 'horizontal',
 }) => {
   return (
-    <div className={clsx(
-      'flex items-center gap-3 text-sm text-gray-500 dark:text-gray-400 mt-3',
-      direction === 'vertical' && 'flex-col items-start',
-      className
-    )}>
+    <div
+      className={clsx(
+        'mt-3 flex items-center gap-3 text-sm text-gray-500 dark:text-gray-400',
+        direction === 'vertical' && 'flex-col items-start',
+        className
+      )}
+    >
       {children}
     </div>
-  );
-};
+  )
+}
 
 // ============================================
 // CardActions 组件
 // ============================================
 
 export interface CardActionsProps {
-  children: React.ReactNode;
-  className?: string;
+  children: React.ReactNode
+  className?: string
   /** 操作按钮对齐方式 */
-  align?: 'left' | 'center' | 'right';
+  align?: 'left' | 'center' | 'right'
 }
 
 export const CardActions: React.FC<CardActionsProps> = ({
   children,
   className,
-  align = 'right'
+  align = 'right',
 }) => {
   const alignStyles = {
     left: 'justify-start',
     center: 'justify-center',
     right: 'justify-end',
-  };
+  }
 
   return (
-    <div className={clsx(
-      'flex items-center gap-2 mt-4',
-      alignStyles[align],
-      className
-    )}>
+    <div className={clsx('mt-4 flex items-center gap-2', alignStyles[align], className)}>
       {children}
     </div>
-  );
-};
+  )
+}
 
 // ============================================
 // CardOverlay 组件
 // ============================================
 
 export interface CardOverlayProps {
-  children: React.ReactNode;
-  className?: string;
+  children: React.ReactNode
+  className?: string
   /** 渐变方向 */
-  gradient?: 'top' | 'bottom' | 'left' | 'right' | 'none';
+  gradient?: 'top' | 'bottom' | 'left' | 'right' | 'none'
 }
 
 export const CardOverlay: React.FC<CardOverlayProps> = ({
   children,
   className,
-  gradient = 'bottom'
+  gradient = 'bottom',
 }) => {
   const gradientStyles = {
     top: 'bg-gradient-to-b from-black/70 to-transparent',
@@ -375,32 +348,30 @@ export const CardOverlay: React.FC<CardOverlayProps> = ({
     left: 'bg-gradient-to-r from-black/70 to-transparent',
     right: 'bg-gradient-to-l from-black/70 to-transparent',
     none: '',
-  };
+  }
 
   return (
-    <div className={clsx(
-      'absolute inset-0 flex items-end p-4',
-      gradientStyles[gradient],
-      className
-    )}>
+    <div
+      className={clsx('absolute inset-0 flex items-end p-4', gradientStyles[gradient], className)}
+    >
       {children}
     </div>
-  );
-};
+  )
+}
 
 // ============================================
 // CardBadge 组件
 // ============================================
 
 export interface CardBadgeProps {
-  children: React.ReactNode;
-  className?: string;
+  children: React.ReactNode
+  className?: string
   /** 徽章颜色 */
-  color?: 'blue' | 'green' | 'yellow' | 'red' | 'purple' | 'gray' | 'orange';
+  color?: 'blue' | 'green' | 'yellow' | 'red' | 'purple' | 'gray' | 'orange'
   /** 徽章变体 */
-  variant?: 'solid' | 'outline' | 'soft';
+  variant?: 'solid' | 'outline' | 'soft'
   /** 徽章大小 */
-  size?: 'sm' | 'md' | 'lg';
+  size?: 'sm' | 'md' | 'lg'
 }
 
 export const CardBadge: React.FC<CardBadgeProps> = ({
@@ -446,24 +417,26 @@ export const CardBadge: React.FC<CardBadgeProps> = ({
       outline: 'border-2 border-orange-600 text-orange-600',
       soft: 'bg-orange-100 text-orange-700 dark:bg-orange-900/30 dark:text-orange-400',
     },
-  };
+  }
 
   const sizeStyles = {
     sm: 'px-2 py-0.5 text-xs',
     md: 'px-2.5 py-0.5 text-xs',
     lg: 'px-3 py-1 text-sm',
-  };
+  }
 
   return (
-    <span className={clsx(
-      'inline-flex items-center rounded-full font-medium',
-      colorStyles[color][variant],
-      sizeStyles[size],
-      className
-    )}>
+    <span
+      className={clsx(
+        'inline-flex items-center rounded-full font-medium',
+        colorStyles[color][variant],
+        sizeStyles[size],
+        className
+      )}
+    >
       {children}
     </span>
-  );
-};
+  )
+}
 
-export default Card;
+export default Card

@@ -1,9 +1,11 @@
 # Dead Code 清理报告
+
 **7zi 项目** - 生成时间: 2026-03-26
 
 ## 📊 概要
 
 本次分析发现了大量未使用的代码，包括：
+
 - **未使用的组件**: 5个
 - **未使用的API路由**: 30+个
 - **未使用的库模块**: 多个
@@ -57,13 +59,13 @@
 
 以下组件在代码库中未被引用，现已删除：
 
-| 组件名 | 文件路径 | 状态 |
-|--------|----------|------|
-| `FeedbackWidget` | `src/components/FeedbackWidget.tsx` | ✅ 已删除 |
+| 组件名                    | 文件路径                                     | 状态      |
+| ------------------------- | -------------------------------------------- | --------- |
+| `FeedbackWidget`          | `src/components/FeedbackWidget.tsx`          | ✅ 已删除 |
 | `LoadingSpinner.enhanced` | `src/components/LoadingSpinner.enhanced.tsx` | ✅ 已删除 |
-| `NetworkErrorBoundary` | `src/components/NetworkErrorBoundary.tsx` | ✅ 已删除 |
-| `OptimizedImageWithWebP` | `src/components/OptimizedImageWithWebP.tsx` | ✅ 已删除 |
-| `RetryBoundary` | `src/components/RetryBoundary.tsx` | ✅ 已删除 |
+| `NetworkErrorBoundary`    | `src/components/NetworkErrorBoundary.tsx`    | ✅ 已删除 |
+| `OptimizedImageWithWebP`  | `src/components/OptimizedImageWithWebP.tsx`  | ✅ 已删除 |
+| `RetryBoundary`           | `src/components/RetryBoundary.tsx`           | ✅ 已删除 |
 
 ### 未使用的 API 路由 (src/app/api/)
 
@@ -123,6 +125,7 @@
    - ✅ `src/lib/agents/index-optimized.ts` - 未被使用的优化入口
 
 **保留的模块**：
+
 - `src/lib/agents/auth-service.ts` - 被 middleware.ts 使用
 - `src/lib/agents/auth-service-optimized.ts` - 被 index-optimized 使用
 - `src/lib/agents/repository.ts` - 被 middleware.ts 使用
@@ -132,14 +135,14 @@
 
 ## 📊 清理统计
 
-| 类别 | 已删除 | 预计减少行数 |
-|------|--------|-------------|
-| API 路由文件 | 35+ | ~5,000 行 |
-| 组件文件 | 5 | ~800 行 |
-| 库模块文件 | 4 | ~500 行 |
-| 测试文件 | 20+ | ~2,000 行 |
-| 导出清理 | 5 | ~10 行 |
-| **总计** | **~65+ 文件** | **~8,300 行** |
+| 类别         | 已删除        | 预计减少行数  |
+| ------------ | ------------- | ------------- |
+| API 路由文件 | 35+           | ~5,000 行     |
+| 组件文件     | 5             | ~800 行       |
+| 库模块文件   | 4             | ~500 行       |
+| 测试文件     | 20+           | ~2,000 行     |
+| 导出清理     | 5             | ~10 行        |
+| **总计**     | **~65+ 文件** | **~8,300 行** |
 
 ---
 

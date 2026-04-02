@@ -1,6 +1,7 @@
 # ADR-0009: React Compiler 采用策略
 
 ## 状态
+
 Accepted
 
 ## 上下文
@@ -13,6 +14,7 @@ v1.3.0 已完成 React Compiler 可行性验证，发现可以减少 20-40% 不�
 4. **学习成本**: 团队需要理解 React Compiler 的工作原理
 
 可行性验证结果：
+
 - ✅ babel-plugin-react-compiler 集成可行
 - ✅ 性能基准显示可减少 20-40% 不必要的重新渲染
 - ⚠️ 部分组件存在兼容性问题（使用 ref.current 等）
@@ -26,12 +28,14 @@ v1.3.0 已完成 React Compiler 可行性验证，发现可以减少 20-40% 不�
 #### 1. 为什么作为可选功能而不是默认启用
 
 **默认启用的风险**:
+
 - ❌ 兼容性问题导致编译失败或运行时错误
 - ❌ 性能收益不确定，可能适得其反
 - ❌ 回滚困难，需要重新部署
 - ❌ 影响整个应用稳定性
 
 **可选功能的优势**:
+
 - ✅ **风险可控**: 只对特定组件启用，影响范围小
 - ✅ **渐进式迁移**: 先验证后推广
 - ✅ **灵活回滚**: 可随时禁用编译器
@@ -39,6 +43,7 @@ v1.3.0 已完成 React Compiler 可行性验证，发现可以减少 20-40% 不�
 - ✅ **按需启用**: 对性能敏感的页面优先启用
 
 **实现方案**:
+
 ```typescript
 // next.config.ts
 const nextConfig = {
@@ -48,29 +53,24 @@ const nextConfig = {
       reactCompiler: {
         enable: true,
         // 忽略的文件
-        ignore: [
-          'node_modules',
-          'src/components/third-party'
-        ],
+        ignore: ['node_modules', 'src/components/third-party'],
         // 只编译指定文件（白名单模式）
-        only: [
-          'src/components/features/dashboard',
-          'src/components/features/tasks'
-        ]
-      }
-    }
-  })
-};
+        only: ['src/components/features/dashboard', 'src/components/features/tasks'],
+      },
+    },
+  }),
+}
 
 // 环境变量控制
 // .env.development
-ENABLE_REACT_COMPILER=false
+ENABLE_REACT_COMPILER = false
 
 // .env.production (可选)
-ENABLE_REACT_COMPILER=true
+ENABLE_REACT_COMPILER = true
 ```
 
 **功能开关组件**:
+
 ```typescript
 // src/components/feature-flags/ReactCompilerToggle.tsx
 export function ReactCompilerToggle() {
@@ -106,32 +106,33 @@ export function ReactCompilerToggle() {
 #### 2. 兼容性检查策略
 
 **自动检测不兼容的组件**:
+
 ```typescript
 // src/lib/react-compiler/diagnostics.ts
 class ReactCompilerDiagnostics {
   // 扫描不兼容的组件
   async scanIncompatibleComponents(): Promise<IncompatibilityReport[]> {
-    const components = await this.getAllComponents();
-    const reports: IncompatibilityReport[] = [];
+    const components = await this.getAllComponents()
+    const reports: IncompatibilityReport[] = []
 
     for (const component of components) {
-      const issues = await this.checkComponent(component);
+      const issues = await this.checkComponent(component)
       if (issues.length > 0) {
         reports.push({
           component: component.path,
           issues,
-          severity: this.calculateSeverity(issues)
-        });
+          severity: this.calculateSeverity(issues),
+        })
       }
     }
 
-    return reports;
+    return reports
   }
 
   // 检查单个组件
   private async checkComponent(component: ComponentInfo): Promise<CompilerIssue[]> {
-    const issues: CompilerIssue[] = [];
-    const code = await component.readCode();
+    const issues: CompilerIssue[] = []
+    const code = await component.readCode()
 
     // 检查 1: 使用了 ref.current（编译器不支持）
     if (/\bref\.current\b/.test(code)) {
@@ -139,8 +140,8 @@ class ReactCompilerDiagnostics {
         type: 'unsupported-pattern',
         message: '使用 ref.current 不被 React Compiler 支持',
         line: this.findLineNumber(code, 'ref.current'),
-        suggestion: '使用 useRef hook 或 state 代替'
-      });
+        suggestion: '使用 useRef hook 或 state 代替',
+      })
     }
 
     // 检查 2: 使用了 dangerouslySetInnerHTML
@@ -149,8 +150,8 @@ class ReactCompilerDiagnostics {
         type: 'unsupported-pattern',
         message: '使用 dangerouslySetInnerHTML 不被支持',
         line: this.findLineNumber(code, 'dangerouslySetInnerHTML'),
-        suggestion: '使用安全的 HTML 清理库'
-      });
+        suggestion: '使用安全的 HTML 清理库',
+      })
     }
 
     // 检查 3: 使用了第三方库的副作用
@@ -159,18 +160,18 @@ class ReactCompilerDiagnostics {
         type: 'side-effect',
         message: '组件可能存在第三方库的副作用',
         line: this.findSideEffectLine(code),
-        suggestion: '使用 React.memo 或 useMemo 优化'
-      });
+        suggestion: '使用 React.memo 或 useMemo 优化',
+      })
     }
 
-    return issues;
+    return issues
   }
 
   // 生成兼容性报告
   generateReport(reports: IncompatibilityReport[]): string {
-    const total = reports.length;
-    const critical = reports.filter(r => r.severity === 'critical').length;
-    const warning = reports.filter(r => r.severity === 'warning').length;
+    const total = reports.length
+    const critical = reports.filter(r => r.severity === 'critical').length
+    const warning = reports.filter(r => r.severity === 'warning').length
 
     return `
 # React Compiler 兼容性报告
@@ -179,16 +180,21 @@ class ReactCompilerDiagnostics {
 - 严重问题: ${critical}
 - 警告: ${warning}
 
-${reports.map(r => `
+${reports
+  .map(
+    r => `
 ## ${r.component}
 ${r.issues.map(i => `- ${i.message} (${i.suggestion})`).join('\n')}
-`).join('\n')}
-    `.trim();
+`
+  )
+  .join('\n')}
+    `.trim()
   }
 }
 ```
 
 **兼容性报告示例**:
+
 ```
 # React Compiler 兼容性报告
 
@@ -207,17 +213,18 @@ ${r.issues.map(i => `- ${i.message} (${i.suggestion})`).join('\n')}
 ```
 
 **迁移建议生成**:
+
 ```typescript
 class MigrationGuideGenerator {
   // 生成迁移指南
   generateGuide(componentPath: string): MigrationStep[] {
-    const issues = this.getIssues(componentPath);
+    const issues = this.getIssues(componentPath)
     return issues.map(issue => ({
       title: issue.message,
       severity: issue.severity,
       steps: this.generateFixSteps(issue),
-      example: this.generateFixExample(issue)
-    }));
+      example: this.generateFixExample(issue),
+    }))
   }
 
   // 生成修复步骤
@@ -227,15 +234,12 @@ class MigrationGuideGenerator {
         return [
           '1. 移除 ref.current 的直接访问',
           '2. 使用 React state 代替',
-          '3. 或使用 useMemo 缓存计算结果'
-        ];
+          '3. 或使用 useMemo 缓存计算结果',
+        ]
       case 'dangerously-set-inner-html':
-        return [
-          '1. 使用 DOMPurify 清理 HTML',
-          '2. 或使用安全的 markdown 渲染库'
-        ];
+        return ['1. 使用 DOMPurify 清理 HTML', '2. 或使用安全的 markdown 渲染库']
       default:
-        return ['1. 检查组件逻辑', '2. 添加 React.memo 或 useMemo'];
+        return ['1. 检查组件逻辑', '2. 添加 React.memo 或 useMemo']
     }
   }
 }
@@ -244,46 +248,50 @@ class MigrationGuideGenerator {
 #### 3. 回滚机制设计
 
 **为什么需要回滚机制**:
+
 - React Compiler 可能引入新 Bug
 - 性能收益不如预期
 - 兼容性问题未完全发现
 
 **回滚策略**:
+
 1. **环境变量开关**: 修改 `.env` 文件，重新构建
 2. **功能开关**: 通过 API 动态切换
 3. **A/B 测试**: 部分用户启用，部分禁用
 4. **版本回滚**: Git revert 或切换分支
 
 **回滚实现**:
+
 ```typescript
 // 1. 环境变量回滚
 // .env
-ENABLE_REACT_COMPILER=false
+ENABLE_REACT_COMPILER = false
 
 // 2. API 回滚
 // src/app/api/feature-flags/react-compiler/route.ts
 export async function POST(request: Request) {
-  const { enabled } = await request.json();
+  const { enabled } = await request.json()
 
   // 更新配置
-  await updateConfig('ENABLE_REACT_COMPILER', enabled);
+  await updateConfig('ENABLE_REACT_COMPILER', enabled)
 
   // 清除构建缓存
-  await revalidatePath('/');
+  await revalidatePath('/')
 
-  return Response.json({ success: true, enabled });
+  return Response.json({ success: true, enabled })
 }
 
 // 3. A/B 测试
 // src/lib/react-compiler/ab-test.ts
 function isReactCompilerEnabled(userId: string): boolean {
-  const hash = hashString(userId);
+  const hash = hashString(userId)
   // 50% 用户启用
-  return hash % 2 === 0;
+  return hash % 2 === 0
 }
 ```
 
 **零停机回滚**:
+
 ```bash
 # 1. 修改配置
 sed -i 's/ENABLE_REACT_COMPILER=true/ENABLE_REACT_COMPILER=false/' .env
@@ -335,10 +343,12 @@ pm2 reload all
 ### 替代方案 1: 默认启用，全局编译
 
 **优点**:
+
 - 一次性完成迁移
 - 所有组件都能受益
 
 **缺点**:
+
 - 风险高，影响范围大
 - 回滚困难
 - 兼容性问题可能导致构建失败
@@ -348,10 +358,12 @@ pm2 reload all
 ### 替代方案 2: 不启用 React Compiler
 
 **优点**:
+
 - 零风险
 - 无额外复杂度
 
 **缺点**:
+
 - 错失性能优化机会（20-40% 渲染优化）
 - 长期技术债务
 
@@ -360,10 +372,12 @@ pm2 reload all
 ### 替代方案 3: 使用 useMemo 和 React.memo 手动优化
 
 **优点**:
+
 - 完全可控
 - 无编译器依赖
 
 **缺点**:
+
 - 手动维护成本高
 - 容易遗漏
 - 性能优化不彻底

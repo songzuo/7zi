@@ -6,14 +6,14 @@
 
 ## ✅ 验收标准完成情况
 
-| 验收标准 | 状态 | 说明 |
-|---------|------|------|
-| 支持滑动窗口和令牌桶两种算法 | ✅ | 已实现两种算法 |
-| 支持多级别限制（用户/IP/API） | ✅ | 提供多种键生成器 |
-| Redis 分布式存储 | ✅ | 完整的 Redis 适配器 |
-| 标准 Rate Limit headers | ✅ | 中间件支持标准 headers |
-| 单元测试覆盖率 > 80% | ✅ | 100+ 测试用例，覆盖率 ~95% |
-| 现有 API 路由集成示例 | ✅ | 提供多种集成示例 |
+| 验收标准                      | 状态 | 说明                       |
+| ----------------------------- | ---- | -------------------------- |
+| 支持滑动窗口和令牌桶两种算法  | ✅   | 已实现两种算法             |
+| 支持多级别限制（用户/IP/API） | ✅   | 提供多种键生成器           |
+| Redis 分布式存储              | ✅   | 完整的 Redis 适配器        |
+| 标准 Rate Limit headers       | ✅   | 中间件支持标准 headers     |
+| 单元测试覆盖率 > 80%          | ✅   | 100+ 测试用例，覆盖率 ~95% |
+| 现有 API 路由集成示例         | ✅   | 提供多种集成示例           |
 
 ## 📁 文件结构
 
@@ -39,11 +39,13 @@ src/lib/security/rate-limit/
 ### 1. 算法实现
 
 #### 滑动窗口算法
+
 - 记录每个请求的时间戳
 - 只保留窗口内的请求
 - 自动清理过期时间戳
 
 #### 令牌桶算法
+
 - 桶容量和补充速率可配置
 - 请求消耗令牌
 - 自动补充令牌
@@ -89,15 +91,15 @@ src/lib/security/rate-limit/
 
 ## 📊 测试覆盖
 
-| 模块 | 测试数 | 通过率 |
-|------|--------|--------|
-| SlidingWindow | 7 | 100% |
-| TokenBucket | 8 | 100% |
-| DistributedRateLimiter | 5 | 100% |
-| RedisAdapter | 10 | 100% |
-| RateLimitConfigManager | 12 | 100% |
-| PresetConfigs | 6 | 100% |
-| **总计** | **48** | **100%** |
+| 模块                   | 测试数 | 通过率   |
+| ---------------------- | ------ | -------- |
+| SlidingWindow          | 7      | 100%     |
+| TokenBucket            | 8      | 100%     |
+| DistributedRateLimiter | 5      | 100%     |
+| RedisAdapter           | 10     | 100%     |
+| RateLimitConfigManager | 12     | 100%     |
+| PresetConfigs          | 6      | 100%     |
+| **总计**               | **48** | **100%** |
 
 **覆盖率**: ~95%
 
@@ -106,28 +108,28 @@ src/lib/security/rate-limit/
 ### 基本使用（内存模式）
 
 ```typescript
-import { DistributedRateLimiter, KeyGenerators } from '@/lib/security/rate-limit';
+import { DistributedRateLimiter, KeyGenerators } from '@/lib/security/rate-limit'
 
 const limiter = new DistributedRateLimiter({
-  windowMs: 60000,     // 1 分钟
-  maxRequests: 100,   // 100 请求/分钟
+  windowMs: 60000, // 1 分钟
+  maxRequests: 100, // 100 请求/分钟
   algorithm: 'sliding-window',
   keyGenerator: KeyGenerators.byIP,
-});
+})
 
-const result = await limiter.check(req);
+const result = await limiter.check(req)
 if (!result.allowed) {
-  return NextResponse.json({ error: 'Rate limit exceeded' }, { status: 429 });
+  return NextResponse.json({ error: 'Rate limit exceeded' }, { status: 429 })
 }
 ```
 
 ### Redis 分布式模式
 
 ```typescript
-import { DistributedRateLimiter, RedisAdapter } from '@/lib/security/rate-limit';
+import { DistributedRateLimiter, RedisAdapter } from '@/lib/security/rate-limit'
 
-const redisAdapter = new RedisAdapter({ keyPrefix: 'rate-limit' });
-await redisAdapter.connect();
+const redisAdapter = new RedisAdapter({ keyPrefix: 'rate-limit' })
+await redisAdapter.connect()
 
 const limiter = new DistributedRateLimiter(
   {
@@ -137,20 +139,20 @@ const limiter = new DistributedRateLimiter(
     keyGenerator: KeyGenerators.byUser,
   },
   redisAdapter
-);
+)
 ```
 
 ### 使用中间件
 
 ```typescript
-import { withRateLimit } from '@/lib/security/rate-limit';
+import { withRateLimit } from '@/lib/security/rate-limit'
 
 export const POST = withRateLimit(
   async (req: NextRequest) => {
-    return NextResponse.json({ success: true });
+    return NextResponse.json({ success: true })
   },
   { limiter }
-);
+)
 ```
 
 ## 📦 依赖项

@@ -15,7 +15,7 @@ export {
   getCacheStats,
   type CacheConfig,
   type CacheStats,
-} from './rbac-cache';
+} from './rbac-cache'
 
 // Permission Inheritance
 export {
@@ -30,7 +30,7 @@ export {
   InheritanceStrategy,
   type PermissionOverride,
   type InheritanceResult,
-} from './permission-inheritance';
+} from './permission-inheritance'
 
 // Audit Logger
 export {
@@ -52,4 +52,4 @@ export {
   type ReadOptions,
   MemoryAuditLogStorage,
   type AuditLogStorage,
-} from './audit-logger';
+} from './audit-logger'

@@ -28,14 +28,14 @@ src/i18n/
 
 ## 🌍 支持的语言
 
-| 语言代码 | 语言名称 | 区域标签 | 状态 |
-|---------|---------|---------|------|
-| `zh` | 中文 | `zh-CN` | ✅ 完成 |
-| `en` | English | `en-US` | ✅ 完成 |
-| `ja` | 日本語 | `ja-JP` | 🚧 待完成 |
-| `ko` | 한국어 | `ko-KR` | 🚧 待完成 |
-| `fr` | Français | `fr-FR` | 🚧 待完成 |
-| `de` | Deutsch | `de-DE` | 🚧 待完成 |
+| 语言代码 | 语言名称 | 区域标签 | 状态      |
+| -------- | -------- | -------- | --------- |
+| `zh`     | 中文     | `zh-CN`  | ✅ 完成   |
+| `en`     | English  | `en-US`  | ✅ 完成   |
+| `ja`     | 日本語   | `ja-JP`  | 🚧 待完成 |
+| `ko`     | 한국어   | `ko-KR`  | 🚧 待完成 |
+| `fr`     | Français | `fr-FR`  | 🚧 待完成 |
+| `de`     | Deutsch  | `de-DE`  | 🚧 待完成 |
 
 ---
 
@@ -44,43 +44,43 @@ src/i18n/
 ### 1. 在服务器组件中使用
 
 ```tsx
-import { getTranslations } from 'next-intl/server';
-import type { Metadata } from 'next';
+import { getTranslations } from 'next-intl/server'
+import type { Metadata } from 'next'
 
-type Params = Promise<{ locale: string }>;
+type Params = Promise<{ locale: string }>
 
 export async function generateMetadata({ params }: { params: Params }): Promise<Metadata> {
-  const { locale } = await params;
-  const t = await getTranslations({ locale, namespace: 'home' });
+  const { locale } = await params
+  const t = await getTranslations({ locale, namespace: 'home' })
 
   return {
     title: t('meta.title'),
     description: t('meta.description'),
-  };
+  }
 }
 
 export default async function HomePage({ params }: { params: Params }) {
-  const { locale } = await params;
-  const t = await getTranslations({ locale, namespace: 'home' });
+  const { locale } = await params
+  const t = await getTranslations({ locale, namespace: 'home' })
 
   return (
     <div>
       <h1>{t('hero.title')}</h1>
       <p>{t('hero.description')}</p>
     </div>
-  );
+  )
 }
 ```
 
 ### 2. 在客户端组件中使用
 
 ```tsx
-'use client';
+'use client'
 
-import { useTranslations } from '@/i18n/client';
+import { useTranslations } from '@/i18n/client'
 
 export function HeroSection() {
-  const t = useTranslations('home.hero');
+  const t = useTranslations('home.hero')
 
   return (
     <div>
@@ -88,38 +88,38 @@ export function HeroSection() {
       <p>{t('description')}</p>
       <button>{t('cta1')}</button>
     </div>
-  );
+  )
 }
 ```
 
 ### 3. 使用预定义的 hooks
 
 ```tsx
-'use client';
+'use client'
 
-import { useHomeTranslations } from '@/i18n/hooks';
+import { useHomeTranslations } from '@/i18n/hooks'
 
 export function HeroSection() {
-  const t = useHomeTranslations();
+  const t = useHomeTranslations()
 
   return (
     <div>
       <h1>{t('hero.title')}</h1>
     </div>
-  );
+  )
 }
 ```
 
 ### 4. 使用路由导航
 
 ```tsx
-'use client';
+'use client'
 
-import { Link } from '@/i18n/routing';
-import { useTranslations } from '@/i18n/client';
+import { Link } from '@/i18n/routing'
+import { useTranslations } from '@/i18n/client'
 
 export function Navigation() {
-  const t = useTranslations('nav');
+  const t = useTranslations('nav')
 
   return (
     <nav>
@@ -127,7 +127,7 @@ export function Navigation() {
       <Link href="/about">{t('about')}</Link>
       <Link href="/team">{t('team')}</Link>
     </nav>
-  );
+  )
 }
 ```
 
@@ -138,6 +138,7 @@ export function Navigation() {
 ### 1. 在翻译文件中添加新键
 
 **`src/i18n/messages/zh.json`**:
+
 ```json
 {
   "myComponent": {
@@ -149,6 +150,7 @@ export function Navigation() {
 ```
 
 **`src/i18n/messages/en.json`**:
+
 ```json
 {
   "myComponent": {
@@ -162,12 +164,12 @@ export function Navigation() {
 ### 2. 在组件中使用翻译
 
 ```tsx
-'use client';
+'use client'
 
-import { useTranslations } from '@/i18n/client';
+import { useTranslations } from '@/i18n/client'
 
 export function MyComponent() {
-  const t = useTranslations('myComponent');
+  const t = useTranslations('myComponent')
 
   return (
     <div>
@@ -175,7 +177,7 @@ export function MyComponent() {
       <p>{t('description')}</p>
       <button>{t('button')}</button>
     </div>
-  );
+  )
 }
 ```
 
@@ -186,6 +188,7 @@ export function MyComponent() {
 ### 1. 带参数的翻译
 
 **翻译文件**:
+
 ```json
 {
   "greeting": "你好, {name}!",
@@ -194,6 +197,7 @@ export function MyComponent() {
 ```
 
 **使用方式**:
+
 ```tsx
 const t = useTranslations();
 
@@ -204,38 +208,38 @@ const t = useTranslations();
 ### 2. 获取当前语言
 
 ```tsx
-'use client';
+'use client'
 
-import { useLocale } from '@/i18n/client';
+import { useLocale } from '@/i18n/client'
 
 export function LanguageInfo() {
-  const locale = useLocale();
+  const locale = useLocale()
 
   return (
     <div>
       <p>当前语言: {locale}</p>
     </div>
-  );
+  )
 }
 ```
 
 ### 3. 使用工具函数
 
 ```tsx
-'use client';
+'use client'
 
-import { useLocale, formatDate, formatNumber } from '@/i18n/hooks';
+import { useLocale, formatDate, formatNumber } from '@/i18n/hooks'
 
 export function DateTime() {
-  const locale = useLocale();
-  const now = new Date();
+  const locale = useLocale()
+  const now = new Date()
 
   return (
     <div>
       <p>日期: {formatDate(now, locale)}</p>
       <p>数字: {formatNumber(1234.56, locale)}</p>
     </div>
-  );
+  )
 }
 ```
 
@@ -268,53 +272,53 @@ export function DynamicSection({ section }: { section: string }) {
 ### 获取语言名称
 
 ```tsx
-import { getLocaleName } from '@/i18n/hooks';
+import { getLocaleName } from '@/i18n/hooks'
 
-const name = getLocaleName('zh'); // '中文'
-const name = getLocaleName('en'); // 'English'
+const name = getLocaleName('zh') // '中文'
+const name = getLocaleName('en') // 'English'
 ```
 
 ### 获取语言标签
 
 ```tsx
-import { getLocaleTag } from '@/i18n/hooks';
+import { getLocaleTag } from '@/i18n/hooks'
 
-const tag = getLocaleTag('zh'); // 'zh-CN'
-const tag = getLocaleTag('en'); // 'en-US'
+const tag = getLocaleTag('zh') // 'zh-CN'
+const tag = getLocaleTag('en') // 'en-US'
 ```
 
 ### 检查是否为 RTL 语言
 
 ```tsx
-import { isRTL } from '@/i18n/hooks';
+import { isRTL } from '@/i18n/hooks'
 
-const isRtl = isRTL('ar'); // true
-const isRtl = isRTL('zh'); // false
+const isRtl = isRTL('ar') // true
+const isRtl = isRTL('zh') // false
 ```
 
 ### 格式化日期
 
 ```tsx
-import { formatDate } from '@/i18n/hooks';
+import { formatDate } from '@/i18n/hooks'
 
-const date = new Date();
-const formatted = formatDate(date, 'zh'); // '2024年3月26日'
+const date = new Date()
+const formatted = formatDate(date, 'zh') // '2024年3月26日'
 ```
 
 ### 格式化数字
 
 ```tsx
-import { formatNumber } from '@/i18n/hooks';
+import { formatNumber } from '@/i18n/hooks'
 
-const formatted = formatNumber(1234.56, 'en'); // '1,234.56'
+const formatted = formatNumber(1234.56, 'en') // '1,234.56'
 ```
 
 ### 格式化货币
 
 ```tsx
-import { formatCurrency } from '@/i18n/hooks';
+import { formatCurrency } from '@/i18n/hooks'
 
-const formatted = formatCurrency(1234.56, 'en', 'USD'); // '$1,234.56'
+const formatted = formatCurrency(1234.56, 'en', 'USD') // '$1,234.56'
 ```
 
 ---
@@ -328,6 +332,7 @@ const formatted = formatCurrency(1234.56, 'en', 'USD'); // '$1,234.56'
 - 保持语义清晰
 
 **好的示例**:
+
 ```json
 {
   "home": {
@@ -343,15 +348,17 @@ const formatted = formatCurrency(1234.56, 'en', 'USD'); // '$1,234.56'
 ```
 
 **使用方式**:
+
 ```tsx
-const t = useTranslations('home');
-t('hero.title');       // ✅ 清晰
-t('features.title');   // ✅ 清晰
+const t = useTranslations('home')
+t('hero.title') // ✅ 清晰
+t('features.title') // ✅ 清晰
 ```
 
 ### 避免的命名
 
 **不好的示例**:
+
 ```json
 {
   "homePageHeroTitle": "标题",
@@ -360,8 +367,9 @@ t('features.title');   // ✅ 清晰
 ```
 
 **使用方式**:
+
 ```tsx
-t('homePageHeroTitle'); // ❌ 太长，不易维护
+t('homePageHeroTitle') // ❌ 太长，不易维护
 ```
 
 ---
@@ -371,9 +379,9 @@ t('homePageHeroTitle'); // ❌ 太长，不易维护
 ### 单元测试
 
 ```tsx
-import { render, screen } from '@testing-library/react';
-import { NextIntlClientProvider } from 'next-intl';
-import MyComponent from './MyComponent';
+import { render, screen } from '@testing-library/react'
+import { NextIntlClientProvider } from 'next-intl'
+import MyComponent from './MyComponent'
 
 describe('MyComponent', () => {
   it('renders Chinese text correctly', () => {
@@ -381,33 +389,33 @@ describe('MyComponent', () => {
       myComponent: {
         title: '标题',
       },
-    };
+    }
 
     render(
       <NextIntlClientProvider messages={messages} locale="zh">
         <MyComponent />
       </NextIntlClientProvider>
-    );
+    )
 
-    expect(screen.getByText('标题')).toBeInTheDocument();
-  });
+    expect(screen.getByText('标题')).toBeInTheDocument()
+  })
 
   it('renders English text correctly', () => {
     const messages = {
       myComponent: {
         title: 'Title',
       },
-    };
+    }
 
     render(
       <NextIntlClientProvider messages={messages} locale="en">
         <MyComponent />
       </NextIntlClientProvider>
-    );
+    )
 
-    expect(screen.getByText('Title')).toBeInTheDocument();
-  });
-});
+    expect(screen.getByText('Title')).toBeInTheDocument()
+  })
+})
 ```
 
 ---
@@ -417,30 +425,30 @@ describe('MyComponent', () => {
 ### 1. 检查当前语言
 
 ```tsx
-'use client';
+'use client'
 
-import { useLocale } from '@/i18n/client';
+import { useLocale } from '@/i18n/client'
 
 export function DebugLocale() {
-  const locale = useLocale();
+  const locale = useLocale()
 
   return (
     <div style={{ position: 'fixed', bottom: 10, right: 10, background: 'white', padding: 10 }}>
       当前语言: {locale}
     </div>
-  );
+  )
 }
 ```
 
 ### 2. 检查翻译键是否存在
 
 ```tsx
-'use client';
+'use client'
 
-import { useTranslations } from '@/i18n/client';
+import { useTranslations } from '@/i18n/client'
 
 export function DebugTranslations() {
-  const t = useTranslations();
+  const t = useTranslations()
 
   return (
     <div>
@@ -449,7 +457,7 @@ export function DebugTranslations() {
       {/* 不存在的键会返回键本身 */}
       <p>{t('nonexistent.key')}</p> {/* 输出: 'nonexistent.key' */}
     </div>
-  );
+  )
 }
 ```
 
@@ -460,25 +468,28 @@ export function DebugTranslations() {
 ### 1. 避免硬编码文本
 
 ❌ **不要这样做**:
+
 ```tsx
 export function Header() {
-  return <h1>首页</h1>;
+  return <h1>首页</h1>
 }
 ```
 
 ✅ **应该这样做**:
+
 ```tsx
-import { useTranslations } from '@/i18n/client';
+import { useTranslations } from '@/i18n/client'
 
 export function Header() {
-  const t = useTranslations('nav');
-  return <h1>{t('home')}</h1>;
+  const t = useTranslations('nav')
+  return <h1>{t('home')}</h1>
 }
 ```
 
 ### 2. 使用命名空间组织翻译
 
 ❌ **不要这样做**:
+
 ```json
 {
   "homeHeroTitle": "标题",
@@ -489,6 +500,7 @@ export function Header() {
 ```
 
 ✅ **应该这样做**:
+
 ```json
 {
   "home": {
@@ -556,8 +568,8 @@ const t = useTranslations();
 使用参数传递动态值：
 
 ```tsx
-const t = useTranslations();
-<p>{t('greeting', { name: userName })}</p>
+const t = useTranslations()
+;<p>{t('greeting', { name: userName })}</p>
 ```
 
 ### Q3: 如何切换语言？
@@ -565,9 +577,8 @@ const t = useTranslations();
 使用语言切换器组件：
 
 ```tsx
-import { LanguageSwitcher } from '@/components/LanguageSwitcher';
-
-<LanguageSwitcher />
+import { LanguageSwitcher } from '@/components/LanguageSwitcher'
+;<LanguageSwitcher />
 ```
 
 ### Q4: 如何添加新语言？
@@ -606,5 +617,5 @@ import { LanguageSwitcher } from '@/components/LanguageSwitcher';
 
 ---
 
-*文档版本：1.0*
-*最后更新：2026-03-26*
+_文档版本：1.0_
+_最后更新：2026-03-26_

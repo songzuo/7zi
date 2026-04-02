@@ -1,6 +1,6 @@
 /**
  * Prefetch Module Exports
- * 
+ *
  * 智能预加载系统统一导出
  */
 
@@ -11,7 +11,7 @@ export {
   type UserBehaviorPattern,
   type UserSession,
   type UserBehaviorData,
-} from './user-behavior';
+} from './user-behavior'
 
 // Predictive Prefetcher
 export {
@@ -20,7 +20,7 @@ export {
   type UserContext,
   type PrefetchPrediction,
   type PrefetchResult as PredictivePrefetchResult,
-} from './predictive-prefetcher';
+} from './predictive-prefetcher'
 
 // Route Prefetcher
 export {
@@ -30,7 +30,7 @@ export {
   ROUTE_PREFETCH_CONFIGS,
   type RoutePrefetchConfig,
   type PrefetchContext,
-} from './route-prefetcher';
+} from './route-prefetcher'
 
 // Resource Prefetcher
 export {
@@ -40,7 +40,7 @@ export {
   type ResourceConfig,
   type PrefetchResult as ResourcePrefetchResult,
   type ViewportBasedConfig,
-} from './resource-prefetcher';
+} from './resource-prefetcher'
 
 // Prefetch Provider
 export {
@@ -48,7 +48,7 @@ export {
   usePrefetchContext,
   type PrefetchProviderProps,
   type PrefetchMetrics,
-} from './prefetch-provider';
+} from './prefetch-provider'
 
 // Hooks
 export {
@@ -56,13 +56,13 @@ export {
   useBatchPrefetch,
   type UsePrefetchOptions,
   type PrefetchResult,
-} from './hooks/use-prefetch';
+} from './hooks/use-prefetch'
 
 export {
   usePredictivePrefetch,
   type UsePredictivePrefetchOptions,
   type PredictionResult,
-} from './hooks/use-predictive-prefetch';
+} from './hooks/use-predictive-prefetch'
 
 export {
   useResourceHint,
@@ -75,4 +75,4 @@ export {
   useSmartResourceHints,
   type ResourceHintConfig,
   type ResourceHintResult,
-} from './hooks/use-resource-hint';
+} from './hooks/use-resource-hint'

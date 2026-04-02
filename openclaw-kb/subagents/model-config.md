@@ -6,19 +6,19 @@
 
 ## 提供商分配 (11个子代理)
 
-| 子代理 | 职责 | 提供商 | 模型 |
-|--------|------|--------|------|
-| 🌟 **智能体世界专家** | 视角转换、未来布局 | **minimax** | MiniMax-M2.5 |
-| 📚 咨询师 | 研究分析 | **minimax** | MiniMax-M2.5 |
-| 🏗️ 架构师 | 架构设计 | **self-claude** | Claude Opus 4.5 |
-| ⚡ Executor | 执行实现 | **volcengine** | GLM-4-7 |
-| 🛡️ 系统管理员 | 运维部署 | **bailian** | Qwen 3.5 Plus |
-| 🧪 测试员 | 测试调试 | **minimax** | MiniMax-M2.5 |
-| 🎨 设计师 | UI设计 | **self-claude** | Claude Opus 4.5 |
-| 📣 推广专员 | 推广SEO | **volcengine** | GLM-4-7 |
-| 💼 销售客服 | 销售客服 | **bailian** | Qwen 3.5 Plus |
-| 💰 财务 | 财务会计 | **minimax** | MiniMax-M2.5 |
-| 📺 媒体 | 媒体宣传 | **self-claude** | Claude Opus 4.5 |
+| 子代理                | 职责               | 提供商          | 模型            |
+| --------------------- | ------------------ | --------------- | --------------- |
+| 🌟 **智能体世界专家** | 视角转换、未来布局 | **minimax**     | MiniMax-M2.5    |
+| 📚 咨询师             | 研究分析           | **minimax**     | MiniMax-M2.5    |
+| 🏗️ 架构师             | 架构设计           | **self-claude** | Claude Opus 4.5 |
+| ⚡ Executor           | 执行实现           | **volcengine**  | GLM-4-7         |
+| 🛡️ 系统管理员         | 运维部署           | **bailian**     | Qwen 3.5 Plus   |
+| 🧪 测试员             | 测试调试           | **minimax**     | MiniMax-M2.5    |
+| 🎨 设计师             | UI设计             | **self-claude** | Claude Opus 4.5 |
+| 📣 推广专员           | 推广SEO            | **volcengine**  | GLM-4-7         |
+| 💼 销售客服           | 销售客服           | **bailian**     | Qwen 3.5 Plus   |
+| 💰 财务               | 财务会计           | **minimax**     | MiniMax-M2.5    |
+| 📺 媒体               | 媒体宣传           | **self-claude** | Claude Opus 4.5 |
 
 ## 提供商分布
 

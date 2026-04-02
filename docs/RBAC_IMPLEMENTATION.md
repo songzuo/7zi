@@ -65,6 +65,7 @@ CREATE TABLE role_permissions (
 ## Permission Categories
 
 ### Users
+
 - `user:read` - View user profiles
 - `user:create` - Create new users
 - `user:update` - Update user information
@@ -72,6 +73,7 @@ CREATE TABLE role_permissions (
 - `user:manage_role` - Manage user roles
 
 ### Teams
+
 - `team:read` - View teams
 - `team:create` - Create teams
 - `team:update` - Update team information
@@ -81,6 +83,7 @@ CREATE TABLE role_permissions (
 - `team:manage` - Full team management
 
 ### Tasks
+
 - `task:read` - View tasks
 - `task:create` - Create tasks
 - `task:update` - Update tasks
@@ -89,11 +92,13 @@ CREATE TABLE role_permissions (
 - `task:assign` - Assign tasks to users
 
 ### Settings
+
 - `settings:read` - View settings
 - `settings:update` - Update settings
 - `settings:manage` - Full settings management
 
 ### Approvals
+
 - `approval:read` - View approvals
 - `approval:create` - Create approval requests
 - `approval:update` - Update approval requests
@@ -103,20 +108,24 @@ CREATE TABLE role_permissions (
 - `approval:manage` - Full approval management
 
 ### Reports
+
 - `reports:export` - Export reports
 - `reports:view` - View reports
 - `reports:manage` - Full report management
 
 ### System
+
 - `system:read` - Read system information
 - `system:manage` - System management
 - `system:config` - System configuration
 
 ### Logs
+
 - `logs:read` - Read logs
 - `logs:export` - Export logs
 
 ### AI Agents
+
 - `agent:read` - View agents
 - `agent:create` - Create agents
 - `agent:update` - Update agents
@@ -125,6 +134,7 @@ CREATE TABLE role_permissions (
 - `agent:execute` - Execute agent actions
 
 ### Wallets
+
 - `wallet:read` - View wallets
 - `wallet:manage` - Manage wallets
 - `wallet:transfer` - Transfer funds
@@ -132,10 +142,13 @@ CREATE TABLE role_permissions (
 ## Role Definitions
 
 ### Admin
+
 Full system access with all permissions.
 
 ### Manager
+
 Managerial access to:
+
 - Teams (full management)
 - Tasks (full management)
 - Reports (view and export)
@@ -144,7 +157,9 @@ Managerial access to:
 - Settings (read and update)
 
 ### Member
+
 Standard team member access to:
+
 - Tasks (read, create, update, assign)
 - Teams (read-only)
 - Approvals (read, create, update)
@@ -152,7 +167,9 @@ Standard team member access to:
 - AI Agents (read, execute)
 
 ### Viewer
+
 Read-only access to:
+
 - Users (self only)
 - Teams (read-only)
 - Tasks (read-only)
@@ -167,15 +184,15 @@ Read-only access to:
 #### Basic Permission Check
 
 ```typescript
-import { NextRequest, NextResponse } from 'next/server';
-import { withPermissions } from '@/lib/permissions';
-import { Permission } from '@/lib/permissions/types';
+import { NextRequest, NextResponse } from 'next/server'
+import { withPermissions } from '@/lib/permissions'
+import { Permission } from '@/lib/permissions/types'
 
 export async function GET(request: NextRequest) {
   return withPermissions(Permission.USER_READ)(request, async (req, context) => {
     // User has permission, proceed
-    return NextResponse.json({ data: '...' });
-  });
+    return NextResponse.json({ data: '...' })
+  })
 }
 ```
 
@@ -183,75 +200,75 @@ export async function GET(request: NextRequest) {
 
 ```typescript
 export async function POST(request: NextRequest) {
-  return withPermissions(
-    Permission.USER_CREATE,
-    Permission.TEAM_ADD_MEMBER
-  )(request, async (req, context) => {
-    // User has both permissions
-    return NextResponse.json({ success: true });
-  });
+  return withPermissions(Permission.USER_CREATE, Permission.TEAM_ADD_MEMBER)(
+    request,
+    async (req, context) => {
+      // User has both permissions
+      return NextResponse.json({ success: true })
+    }
+  )
 }
 ```
 
 #### Any Permission (ONE required)
 
 ```typescript
-import { withAnyPermission } from '@/lib/permissions';
+import { withAnyPermission } from '@/lib/permissions'
 
 export async function GET(request: NextRequest) {
-  return withAnyPermission(
-    Permission.TEAM_READ,
-    Permission.TASK_READ
-  )(request, async (req, context) => {
-    // User has at least one permission
-    return NextResponse.json({ data: '...' });
-  });
+  return withAnyPermission(Permission.TEAM_READ, Permission.TASK_READ)(
+    request,
+    async (req, context) => {
+      // User has at least one permission
+      return NextResponse.json({ data: '...' })
+    }
+  )
 }
 ```
 
 #### Role Check
 
 ```typescript
-import { withRole } from '@/lib/permissions';
-import { Role } from '@/lib/permissions/types';
+import { withRole } from '@/lib/permissions'
+import { Role } from '@/lib/permissions/types'
 
 export async function GET(request: NextRequest) {
   return withRole(Role.ADMIN)(request, async (req, context) => {
     // User is admin
-    return NextResponse.json({ data: '...' });
-  });
+    return NextResponse.json({ data: '...' })
+  })
 }
 ```
 
 #### Multiple Roles (ANY required)
 
 ```typescript
-import { withAnyRole } from '@/lib/permissions';
+import { withAnyRole } from '@/lib/permissions'
 
 export async function GET(request: NextRequest) {
   return withAnyRole(Role.ADMIN, Role.MANAGER)(request, async (req, context) => {
     // User is admin OR manager
-    return NextResponse.json({ data: '...' });
-  });
+    return NextResponse.json({ data: '...' })
+  })
 }
 ```
 
 #### Permission Context Access
 
 ```typescript
-import { withPermissionContext } from '@/lib/permissions';
+import { withPermissionContext } from '@/lib/permissions'
 
 export async function GET(request: NextRequest) {
   return withPermissionContext(request, async (req, context) => {
     if (!context) {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
     }
 
-    console.log('User roles:', context.roles);
-    console.log('User permissions:', context.permissions);
+    console.log('User roles:', context.roles)
+    console.log('User permissions:', context.permissions)
 
-    return NextResponse.json({ roles: context.roles });
-  });
+    return NextResponse.json({ roles: context.roles })
+  })
 }
 ```
 
@@ -343,42 +360,42 @@ export default withPermission(Permission.USER_UPDATE)(UserEditor);
 #### Assign Roles to User
 
 ```typescript
-import { addRolesToUser } from '@/lib/permissions';
-import { Role } from '@/lib/permissions/types';
+import { addRolesToUser } from '@/lib/permissions'
+import { Role } from '@/lib/permissions/types'
 
-await addRolesToUser('user123', [Role.ADMIN, Role.MANAGER], 'admin456');
+await addRolesToUser('user123', [Role.ADMIN, Role.MANAGER], 'admin456')
 ```
 
 #### Remove Roles from User
 
 ```typescript
-import { removeRolesFromUser } from '@/lib/permissions';
-import { Role } from '@/lib/permissions/types';
+import { removeRolesFromUser } from '@/lib/permissions'
+import { Role } from '@/lib/permissions/types'
 
-await removeRolesFromUser('user123', [Role.MANAGER]);
+await removeRolesFromUser('user123', [Role.MANAGER])
 ```
 
 #### Assign Permissions to Role
 
 ```typescript
-import { assignPermissionsToRole } from '@/lib/permissions';
-import { Role, Permission } from '@/lib/permissions/types';
+import { assignPermissionsToRole } from '@/lib/permissions'
+import { Role, Permission } from '@/lib/permissions/types'
 
 await assignPermissionsToRole(
   Role.MANAGER,
   [Permission.SYSTEM_READ, Permission.LOGS_READ],
   'admin456'
-);
+)
 ```
 
 #### Get User Permission Context
 
 ```typescript
-import { getUserPermissionContext } from '@/lib/permissions';
+import { getUserPermissionContext } from '@/lib/permissions'
 
-const context = await getUserPermissionContext('user123');
-console.log(context?.roles);      // ['admin', 'manager']
-console.log(context?.permissions); // ['user:read', 'team:create', ...]
+const context = await getUserPermissionContext('user123')
+console.log(context?.roles) // ['admin', 'manager']
+console.log(context?.permissions) // ['user:read', 'team:create', ...]
 ```
 
 ## Migration
@@ -386,12 +403,13 @@ console.log(context?.permissions); // ['user:read', 'team:create', ...]
 ### Applying RBAC Migration
 
 ```typescript
-import { migrate } from '@/lib/permissions/migrations';
+import { migrate } from '@/lib/permissions/migrations'
 
-await migrate();
+await migrate()
 ```
 
 This will:
+
 1. Add `roles` column to users table
 2. Create roles, user_roles, and role_permissions tables
 3. Seed default roles and permissions
@@ -399,30 +417,30 @@ This will:
 ### Checking Migration Status
 
 ```typescript
-import { getMigrationStatus } from '@/lib/permissions/migrations';
+import { getMigrationStatus } from '@/lib/permissions/migrations'
 
-const status = await getMigrationStatus();
-console.log(status.applied); // true/false
-console.log(status.version); // '1'
+const status = await getMigrationStatus()
+console.log(status.applied) // true/false
+console.log(status.version) // '1'
 ```
 
 ### Rolling Back Migration
 
 ```typescript
-import { rollback } from '@/lib/permissions/migrations';
+import { rollback } from '@/lib/permissions/migrations'
 
-await rollback();
+await rollback()
 ```
 
 ## Seeding Default Roles and Permissions
 
 ```typescript
-import { seedDefaultRolesAndPermissions } from '@/lib/permissions';
+import { seedDefaultRolesAndPermissions } from '@/lib/permissions'
 
-const result = await seedDefaultRolesAndPermissions();
-console.log(result.success);
-console.log(result.rolesSeeded);
-console.log(result.permissionsSeeded);
+const result = await seedDefaultRolesAndPermissions()
+console.log(result.success)
+console.log(result.rolesSeeded)
+console.log(result.permissionsSeeded)
 ```
 
 ## Testing
@@ -489,6 +507,7 @@ npm test -- src/lib/permissions/__tests__/rbac.test.ts
 ## Support
 
 For issues or questions, please refer to:
+
 - API Documentation: `/docs/API.md`
 - Code Comments: Each module is fully documented
 - Test Cases: `/src/lib/permissions/__tests__/`

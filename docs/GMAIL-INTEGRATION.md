@@ -9,6 +9,7 @@
 ## 概述
 
 本指南描述如何将 Gmail 集成到 OpenClaw 系统，实现：
+
 - 📥 自动接收和监控新邮件
 - 📤 自动发送邮件
 - 🔔 新邮件实时通知
@@ -20,9 +21,9 @@
 
 ### 已安装工具
 
-| 工具 | 版本 | 路径 |
-|------|------|------|
-| gcloud | latest | `/usr/bin/gcloud` |
+| 工具   | 版本    | 路径                 |
+| ------ | ------- | -------------------- |
+| gcloud | latest  | `/usr/bin/gcloud`    |
 | gogcli | v0.11.0 | `/usr/local/bin/gog` |
 
 ### 需要配置
@@ -106,23 +107,23 @@ gog gmail watch start \
 {
   hooks: {
     enabled: true,
-    token: "OPENCLAW_HOOK_TOKEN",
-    path: "/hooks",
-    presets: ["gmail"],
+    token: 'OPENCLAW_HOOK_TOKEN',
+    path: '/hooks',
+    presets: ['gmail'],
     mappings: [
       {
-        match: { path: "gmail" },
-        action: "agent",
-        wakeMode: "now",
-        name: "Gmail",
-        sessionKey: "hook:gmail:{{messages[0].id}}",
-        messageTemplate: "新邮件来自 {{messages[0].from}}\n主题：{{messages[0].subject}}\n{{messages[0].snippet}}",
+        match: { path: 'gmail' },
+        action: 'agent',
+        wakeMode: 'now',
+        name: 'Gmail',
+        sessionKey: 'hook:gmail:{{messages[0].id}}',
+        messageTemplate: '新邮件来自 {{messages[0].from}}\n主题：{{messages[0].subject}}\n{{messages[0].snippet}}',
         deliver: true,
-        channel: "telegram",
-        to: "telegram:1955162435"
-      }
-    ]
-  }
+        channel: 'telegram',
+        to: 'telegram:1955162435',
+      },
+    ],
+  },
 }
 ```
 
@@ -148,7 +149,7 @@ gog gmail watch serve \
 server {
     listen 443 ssl;
     server_name 7zi.com;
-    
+
     location /gmail-pubsub {
         proxy_pass http://localhost:8788/gmail-pubsub;
         proxy_set_header Host $host;
@@ -292,25 +293,25 @@ openclaw sessions send --session agent:main:main --message "发送测试邮件�
 
 ### API 端点
 
-| 端点 | 方法 | 说明 |
-|------|------|------|
-| `/hooks/gmail` | POST | Gmail Pub/Sub 回调 |
-| `/gmail-pubsub` | POST | gog 回调服务 |
+| 端点            | 方法 | 说明               |
+| --------------- | ---- | ------------------ |
+| `/hooks/gmail`  | POST | Gmail Pub/Sub 回调 |
+| `/gmail-pubsub` | POST | gog 回调服务       |
 
 ---
 
 ## 进度追踪
 
-| 步骤 | 状态 | 完成时间 |
-|------|------|----------|
-| gcloud 安装 | ✅ | 2026-03-06 |
-| gogcli 安装 | ✅ | 2026-03-06 |
-| GCP 项目创建 | 🔄 | - |
-| API 启用 | 🔄 | - |
-| OAuth 配置 | 🔄 | - |
-| Gmail Watch | 🔄 | - |
-| 回调部署 | 🔄 | - |
+| 步骤         | 状态 | 完成时间   |
+| ------------ | ---- | ---------- |
+| gcloud 安装  | ✅   | 2026-03-06 |
+| gogcli 安装  | ✅   | 2026-03-06 |
+| GCP 项目创建 | 🔄   | -          |
+| API 启用     | 🔄   | -          |
+| OAuth 配置   | 🔄   | -          |
+| Gmail Watch  | 🔄   | -          |
+| 回调部署     | 🔄   | -          |
 
 ---
 
-*文档由 7zi Studio AI 团队维护*
+_文档由 7zi Studio AI 团队维护_

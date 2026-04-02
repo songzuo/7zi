@@ -94,6 +94,7 @@ src/
 #### ⚠️ 问题
 
 1. **组件目录扁平化严重**
+
    ```
    components/           # 30+ 组件文件混在一起
    ├── AIChat.tsx
@@ -133,13 +134,13 @@ src/
 
 ### 1.3 目录结构评分
 
-| 维度 | 评分 | 说明 |
-|------|------|------|
-| **清晰度** | 6/10 | lib/ 清晰，但 components/ 混乱 |
-| **可维护性** | 6/10 | 新增组件容易放错位置 |
-| **扩展性** | 7/10 | 功能模块可以独立扩展 |
-| **团队协作** | 5/10 | 难以避免组件冲突 |
-| **总体** | **6/10** | **需要重构组件目录** |
+| 维度         | 评分     | 说明                           |
+| ------------ | -------- | ------------------------------ |
+| **清晰度**   | 6/10     | lib/ 清晰，但 components/ 混乱 |
+| **可维护性** | 6/10     | 新增组件容易放错位置           |
+| **扩展性**   | 7/10     | 功能模块可以独立扩展           |
+| **团队协作** | 5/10     | 难以避免组件冲突               |
+| **总体**     | **6/10** | **需要重构组件目录**           |
 
 ---
 
@@ -149,12 +150,12 @@ src/
 
 项目使用了 **混合状态管理方案**：
 
-| 方案 | 用途 | Store/Context 数量 |
-|------|------|-------------------|
-| **Zustand** | 全局状态 | 5+ stores |
-| **React Context** | 特定场景状态 | 3 contexts |
-| **useState** | 组件本地状态 | 广泛使用 |
-| **localStorage** | 持久化 | 辅助 Zustand persist |
+| 方案              | 用途         | Store/Context 数量   |
+| ----------------- | ------------ | -------------------- |
+| **Zustand**       | 全局状态     | 5+ stores            |
+| **React Context** | 特定场景状态 | 3 contexts           |
+| **useState**      | 组件本地状态 | 广泛使用             |
+| **localStorage**  | 持久化       | 辅助 Zustand persist |
 
 ### 2.2 Zustand Stores 详解
 
@@ -169,11 +170,13 @@ src/
 ```
 
 **优点**:
+
 - ✅ 提供了完善的选择器 Hooks（`useMembers`, `useDashboardStats` 等）
 - ✅ 支持外部访问（`getDashboardSnapshot`, `refreshDashboardData`）
 - ✅ 错误处理完善
 
 **问题**:
+
 - ⚠️ 混合了业务数据和 UI 状态
 - ⚠️ AI 成员数据在多个地方重复定义（store、DashboardClient、组件内部）
 
@@ -181,31 +184,31 @@ src/
 
 ```typescript
 // 管理的内容
-- 智能体钱包余额
-- 转账记录
-- 交易历史
-- 钱包配置
+;-智能体钱包余额 - 转账记录 - 交易历史 - 钱包配置
 ```
 
 **优点**:
+
 - ✅ 使用 persist 中间件持久化到 localStorage
 - ✅ 自定义序列化处理 Map 类型
 - ✅ 提供了丰富的操作方法（transfer, deposit, reward, penalty）
 
 **问题**:
+
 - ⚠️ 功能完整但复杂度高（350+ 行）
 - ⚠️ 缺少错误边界处理
 
 #### 2.2.3 其他 Store
 
-| Store | 位置 | 用途 |
-|-------|------|------|
-| **RealtimeStore** | `src/lib/realtime/store.ts` | 实时数据同步 |
-| **TaskStore** | `src/lib/a2a/task-store.ts` | A2A 协议任务管理 |
-| **NotificationStore** | `src/lib/notifications/store.ts` | 通知管理 |
-| **OfflineStore** | `src/lib/offline/offline-store.ts` | 离线数据管理 |
+| Store                 | 位置                               | 用途             |
+| --------------------- | ---------------------------------- | ---------------- |
+| **RealtimeStore**     | `src/lib/realtime/store.ts`        | 实时数据同步     |
+| **TaskStore**         | `src/lib/a2a/task-store.ts`        | A2A 协议任务管理 |
+| **NotificationStore** | `src/lib/notifications/store.ts`   | 通知管理         |
+| **OfflineStore**      | `src/lib/offline/offline-store.ts` | 离线数据管理     |
 
 **问题**:
+
 - ⚠️ Store 位置不统一（有的在 `src/stores/`，有的在 `src/lib/*/`）
 - ⚠️ 缺少统一的命名规范
 
@@ -215,18 +218,17 @@ src/
 
 ```typescript
 // 管理的内容
-- 团队成员列表
-- 聊天消息
-- 输入状态
-- 成员选择
+;-团队成员列表 - 聊天消息 - 输入状态 - 成员选择
 ```
 
 **优点**:
+
 - ✅ 解决了 prop drilling 问题（AIChat → 4 层子组件）
 - ✅ 提供了便捷的 Hooks（`useChatContext`, `useChatMembers`）
 - ✅ 类型安全
 
 **问题**:
+
 - ⚠️ 团队成员数据与 DashboardStore 重复
 - ⚠️ 缺少错误边界
 
@@ -234,17 +236,17 @@ src/
 
 ```typescript
 // 管理的内容
-- 用户权限
-- 角色信息
-- 权限检查方法
+;-用户权限 - 角色信息 - 权限检查方法
 ```
 
 **优点**:
+
 - ✅ 支持 legacy 和新权限系统的映射
 - ✅ 提供了便捷的检查方法（`hasPermission`, `hasRole`）
 - ✅ 自动刷新机制
 
 **问题**:
+
 - ⚠️ 每次组件挂载都调用 `/api/auth/me`，可能造成性能问题
 - ⚠️ 缺少缓存机制
 
@@ -257,26 +259,28 @@ src/
 ```
 
 **优点**:
+
 - ✅ 统一管理用户偏好
 - ✅ 支持主题持久化
 
 **问题**:
+
 - ⚠️ 功能相对简单，可以考虑合并到 Zustand
 
 ### 2.4 状态划分分析
 
 #### 全局状态 vs 局部状态
 
-| 状态类型 | 当前方案 | 是否合理 | 建议 |
-|---------|---------|---------|------|
-| **用户认证** | PermissionContext | ✅ 合理 | 考虑添加缓存 |
-| **用户设置** | SettingsContext | ✅ 合理 | 可考虑 Zustand |
-| **Dashboard 数据** | DashboardStore | ✅ 合理 | 需要拆分 |
-| **钱包数据** | WalletStore | ✅ 合理 | 保持现状 |
-| **聊天状态** | ChatContext | ⚠️ 可优化 | 考虑 Zustand |
-| **实时数据** | RealtimeStore | ✅ 合理 | 保持现状 |
-| **通知** | NotificationStore | ✅ 合理 | 保持现状 |
-| **UI 状态（弹窗、模态）** | useState | ✅ 合理 | 保持现状 |
+| 状态类型                  | 当前方案          | 是否合理  | 建议           |
+| ------------------------- | ----------------- | --------- | -------------- |
+| **用户认证**              | PermissionContext | ✅ 合理   | 考虑添加缓存   |
+| **用户设置**              | SettingsContext   | ✅ 合理   | 可考虑 Zustand |
+| **Dashboard 数据**        | DashboardStore    | ✅ 合理   | 需要拆分       |
+| **钱包数据**              | WalletStore       | ✅ 合理   | 保持现状       |
+| **聊天状态**              | ChatContext       | ⚠️ 可优化 | 考虑 Zustand   |
+| **实时数据**              | RealtimeStore     | ✅ 合理   | 保持现状       |
+| **通知**                  | NotificationStore | ✅ 合理   | 保持现状       |
+| **UI 状态（弹窗、模态）** | useState          | ✅ 合理   | 保持现状       |
 
 ### 2.5 状态管理混乱问题
 
@@ -290,6 +294,7 @@ src/
 ```
 
 **影响**:
+
 - 数据不一致风险
 - 维护成本高（需要同步更新多处）
 - 内存浪费
@@ -313,18 +318,19 @@ Zustand Stores 位置分散:
 - SettingsContext 可以迁移到 Zustand 统一管理
 
 **影响**:
+
 - 开发者需要学习两套 API
 - 难以统一调试和监控
 
 ### 2.6 状态管理评分
 
-| 维度 | 评分 | 说明 |
-|------|------|------|
-| **统一性** | 5/10 | Zustand 和 Context 混用 |
-| **可维护性** | 6/10 | Store 功能完整但位置混乱 |
-| **性能** | 7/10 | 有选择器优化，但存在数据重复 |
-| **可扩展性** | 7/10 | Zustand 易于扩展 |
-| **总体** | **6/10** | **需要统一状态管理方案** |
+| 维度         | 评分     | 说明                         |
+| ------------ | -------- | ---------------------------- |
+| **统一性**   | 5/10     | Zustand 和 Context 混用      |
+| **可维护性** | 6/10     | Store 功能完整但位置混乱     |
+| **性能**     | 7/10     | 有选择器优化，但存在数据重复 |
+| **可扩展性** | 7/10     | Zustand 易于扩展             |
+| **总体**     | **6/10** | **需要统一状态管理方案**     |
 
 ---
 
@@ -334,29 +340,31 @@ Zustand Stores 位置分散:
 
 #### 3.1.1 当前 Hooks 清单
 
-| Hook | 用途 | 测试 | 复用性 |
-|------|------|------|--------|
-| `useDashboardData` | Dashboard 数据获取 | ✅ | 高 |
-| `useFetch` | 通用数据获取 | ✅ | 高 |
-| `useGitHubData` | GitHub API | ✅ | 高 |
-| `useLocalStorage` | localStorage 操作 | ✅ | 高 |
-| `useDebounce` | 防抖 | ✅ | 高 |
-| `useNotifications` | 通知管理 | ✅ | 高 |
-| `useIntersectionObserver` | 视口检测 | ✅ | 高 |
-| `useSwipeGestures` | 手势识别 | ✅ | 高 |
-| `useLongPress` | 长按手势 | ✅ | 中 |
-| `usePerformance` | 性能监控 | ✅ | 中 |
-| `useThemeEnhanced` | 主题增强 | ✅ | 中 |
-| `useGlobalLoading` | 全局加载 | ✅ | 高 |
-| `useWebRTCMeeting` | WebRTC 会议 | ✅ | 低（业务特定） |
+| Hook                      | 用途               | 测试 | 复用性         |
+| ------------------------- | ------------------ | ---- | -------------- |
+| `useDashboardData`        | Dashboard 数据获取 | ✅   | 高             |
+| `useFetch`                | 通用数据获取       | ✅   | 高             |
+| `useGitHubData`           | GitHub API         | ✅   | 高             |
+| `useLocalStorage`         | localStorage 操作  | ✅   | 高             |
+| `useDebounce`             | 防抖               | ✅   | 高             |
+| `useNotifications`        | 通知管理           | ✅   | 高             |
+| `useIntersectionObserver` | 视口检测           | ✅   | 高             |
+| `useSwipeGestures`        | 手势识别           | ✅   | 高             |
+| `useLongPress`            | 长按手势           | ✅   | 中             |
+| `usePerformance`          | 性能监控           | ✅   | 中             |
+| `useThemeEnhanced`        | 主题增强           | ✅   | 中             |
+| `useGlobalLoading`        | 全局加载           | ✅   | 高             |
+| `useWebRTCMeeting`        | WebRTC 会议        | ✅   | 低（业务特定） |
 
 **优点**:
+
 - ✅ 所有 Hooks 都有测试覆盖
 - ✅ 通用 Hooks 复用性高
 - ✅ 提供了 `index.ts` 统一导出
 - ✅ 类型定义完整
 
 **问题**:
+
 - ⚠️ 部分业务特定 Hooks（如 `useWebRTCMeeting`）也可以放在业务组件内
 - ⚠️ 缺少 Hooks 使用文档
 
@@ -415,11 +423,13 @@ lib/
 ```
 
 **优点**:
+
 - ✅ 功能模块化清晰
 - ✅ 每个模块独立测试
 - ✅ 职责单一
 
 **问题**:
+
 - ⚠️ **目录数量过多**（39个子目录）
 - ⚠️ `agent/` 和 `agents/` 命名不统一
 - ⚠️ 部分模块只有少量代码（如 `crypto/`、`logger/`）
@@ -463,11 +473,13 @@ app/api/
 ```
 
 **优点**:
+
 - ✅ RESTful 结构清晰
 - ✅ 功能分类合理
 - ✅ 支持流式传输（`/stream`）
 
 **问题**:
+
 - ⚠️ 缺少统一的 API 版本控制
 - ⚠️ 缺少 API 文档（只有 `docs/API-REFERENCE.md`）
 - ⚠️ 错误处理分散在各个路由中
@@ -486,6 +498,7 @@ lib/api/
 ```
 
 **问题**:
+
 - ⚠️ **没有统一的 API 客户端**
 - ⚠️ 组件直接使用 `fetch()` 或 `useFetch`
 - ⚠️ 缺少请求/响应拦截器
@@ -496,23 +509,23 @@ lib/api/
 ```typescript
 // 当前方式：分散
 const response = await fetch('/api/auth/me', {
-  headers: { Authorization: `Bearer ${token}` }
-});
+  headers: { Authorization: `Bearer ${token}` },
+})
 
 // 建议方式：统一客户端
-const client = createAPIClient();
-const user = await client.auth.getMe();
+const client = createAPIClient()
+const user = await client.auth.getMe()
 ```
 
 ### 3.4 代码组织评分
 
-| 维度 | 评分 | 说明 |
-|------|------|------|
-| **Hooks 复用性** | 8/10 | 高质量，测试完善 |
-| **Lib 组织** | 6/10 | 模块化但过度细分 |
-| **API 层设计** | 5/10 | 缺少统一客户端 |
-| **可维护性** | 6/10 | 目录多但职责清晰 |
-| **总体** | **6/10** | **需要简化 lib 目录，统一 API 层** |
+| 维度             | 评分     | 说明                               |
+| ---------------- | -------- | ---------------------------------- |
+| **Hooks 复用性** | 8/10     | 高质量，测试完善                   |
+| **Lib 组织**     | 6/10     | 模块化但过度细分                   |
+| **API 层设计**   | 5/10     | 缺少统一客户端                     |
+| **可维护性**     | 6/10     | 目录多但职责清晰                   |
+| **总体**         | **6/10** | **需要简化 lib 目录，统一 API 层** |
 
 ---
 
@@ -522,12 +535,12 @@ const user = await client.auth.getMe();
 
 #### 已实施的优化（来自 REACT_OPTIMIZATION_SUMMARY.md）
 
-| 技术 | 优化组件数 | 预期收益 |
-|------|-----------|---------|
-| **React.memo** | 7 个 | 减少 60-85% 重渲染 |
-| **useMemo** | 5 个 | 减少计算开销 |
-| **useCallback** | 4 个 | 减少回调重建 |
-| **代码分割** | 多个大型组件 | 减少初始包体积 |
+| 技术            | 优化组件数   | 预期收益           |
+| --------------- | ------------ | ------------------ |
+| **React.memo**  | 7 个         | 减少 60-85% 重渲染 |
+| **useMemo**     | 5 个         | 减少计算开销       |
+| **useCallback** | 4 个         | 减少回调重建       |
+| **代码分割**    | 多个大型组件 | 减少初始包体积     |
 
 **总体预期收益**: 减少 45-55% 不必要的重渲染
 
@@ -535,17 +548,19 @@ const user = await client.auth.getMe();
 
 ```typescript
 // ✅ DashboardClient.tsx
-const stats = React.useMemo(() => ({
-  totalMembers: AI_MEMBERS.length,
-  working: AI_MEMBERS.filter(m => m.status === 'working').length,
-  // ...
-}), [AI_MEMBERS]);
+const stats = React.useMemo(
+  () => ({
+    totalMembers: AI_MEMBERS.length,
+    working: AI_MEMBERS.filter(m => m.status === 'working').length,
+    // ...
+  }),
+  [AI_MEMBERS]
+)
 
 // ✅ LazyComponents.tsx
-export const LazyAIChat = dynamic(
-  () => measureAsync('ai-chat-load', () => import('./AIChat')),
-  { ssr: false }
-);
+export const LazyAIChat = dynamic(() => measureAsync('ai-chat-load', () => import('./AIChat')), {
+  ssr: false,
+})
 ```
 
 ### 4.2 性能分析
@@ -553,11 +568,13 @@ export const LazyAIChat = dynamic(
 #### 4.2.1 不必要的重渲染风险
 
 **已优化**:
+
 - ✅ DashboardClient 使用 useMemo 缓存统计数据
 - ✅ StatCard、MemberStatus 使用 React.memo
 - ✅ ActivityLog 使用自定义比较函数
 
 **潜在问题**:
+
 - ⚠️ DashboardClient 的 `AI_MEMBERS` 每次渲染都会重新创建
 - ⚠️ 部分组件缺少 React.memo（如 ContactForm、BugReportForm）
 - ⚠️ Context Provider 每次渲染都会创建新的 value 对象
@@ -575,11 +592,13 @@ export const LazyAIChat = dynamic(
 #### 4.2.2 内存泄漏风险
 
 **已防护**:
+
 - ✅ useEffect 清理函数（大部分组件）
 - ✅ WebSocket 连接清理
 - ✅ IntersectionObserver 清理
 
 **潜在问题**:
+
 - ⚠️ 部分 setInterval/setTimeout 没有清理
 - ⚠️ DashboardClient 的自动刷新定时器可能在组件卸载后继续运行
 - ⚠️ Zustand store 的订阅没有清理（虽然 Zustand 会自动处理）
@@ -587,6 +606,7 @@ export const LazyAIChat = dynamic(
 #### 4.2.3 懒加载策略
 
 **已实施**:
+
 - ✅ 使用 `next/dynamic` 动态导入大型组件
 - ✅ 视口检测懒加载（`LazyViewportWrapper`）
 - ✅ 图片懒加载（`OptimizedImage`）
@@ -606,6 +626,7 @@ export const LazyProjectDashboard = dynamic(
 ```
 
 **待优化**:
+
 - ⚠️ 部分组件仍然同步加载（如 ContactForm）
 - ⚠️ 缺少路由级别的代码分割
 - ⚠️ 第三方库（如 Three.js）可以按需加载
@@ -622,17 +643,18 @@ export const LazyProjectDashboard = dynamic(
 ```json
 // package.json 依赖分析
 {
-  "next": "^16.2.1",        // ~200KB (gzip)
-  "react": "^19.2.4",       // ~40KB (gzip)
-  "@react-three/fiber": "^9.5.0",  // ~50KB (gzip)
-  "three": "^0.183.2",      // ~600KB (gzip) - 大！
-  "socket.io-client": "^4.8.3",   // ~80KB (gzip)
-  "recharts": "^3.8.0",     // ~150KB (gzip)
-  "lucide-react": "^0.577.0"     // ~30KB (gzip)
+  "next": "^16.2.1", // ~200KB (gzip)
+  "react": "^19.2.4", // ~40KB (gzip)
+  "@react-three/fiber": "^9.5.0", // ~50KB (gzip)
+  "three": "^0.183.2", // ~600KB (gzip) - 大！
+  "socket.io-client": "^4.8.3", // ~80KB (gzip)
+  "recharts": "^3.8.0", // ~150KB (gzip)
+  "lucide-react": "^0.577.0" // ~30KB (gzip)
 }
 ```
 
 **问题**:
+
 - ⚠️ Three.js 体积大（600KB），应该懒加载
 - ⚠️ Socket.io-client 如果只在某些页面使用，应该按需加载
 
@@ -647,10 +669,9 @@ export const LazyProjectDashboard = dynamic(
 
 ```typescript
 // LazyComponents.tsx
-export const LazyAIChat = dynamic(
-  () => measureAsync('ai-chat-load', () => import('./AIChat')),
-  { ssr: false }
-);
+export const LazyAIChat = dynamic(() => measureAsync('ai-chat-load', () => import('./AIChat')), {
+  ssr: false,
+})
 ```
 
 #### 待改进
@@ -661,14 +682,14 @@ export const LazyAIChat = dynamic(
 
 ### 4.5 性能架构评分
 
-| 维度 | 评分 | 说明 |
-|------|------|------|
-| **重渲染优化** | 8/10 | 已有 React.memo/useMemo/useCallback 优化 |
-| **懒加载** | 7/10 | 基础完善，部分组件可优化 |
-| **内存管理** | 7/10 | 大部分有清理，少数遗漏 |
-| **包体积** | 6/10 | Three.js 等大库需要优化 |
-| **性能监控** | 7/10 | 基础监控完善，缺少 Web Vitals |
-| **总体** | **7/10** | **性能优化基础良好，需持续优化** |
+| 维度           | 评分     | 说明                                     |
+| -------------- | -------- | ---------------------------------------- |
+| **重渲染优化** | 8/10     | 已有 React.memo/useMemo/useCallback 优化 |
+| **懒加载**     | 7/10     | 基础完善，部分组件可优化                 |
+| **内存管理**   | 7/10     | 大部分有清理，少数遗漏                   |
+| **包体积**     | 6/10     | Three.js 等大库需要优化                  |
+| **性能监控**   | 7/10     | 基础监控完善，缺少 Web Vitals            |
+| **总体**       | **7/10** | **性能优化基础良好，需持续优化**         |
 
 ---
 
@@ -679,16 +700,19 @@ export const LazyAIChat = dynamic(
 #### 🔴 问题 1: 组件目录扁平化严重（优先级：⭐⭐⭐⭐⭐）
 
 **问题描述**:
+
 - `components/` 目录有 30+ 组件文件，缺乏分类
 - 业务组件、UI 组件、特定功能组件混在一起
 - 难以快速定位和维护
 
 **影响**:
+
 - 新成员学习成本高
 - 组件冲突风险增加
 - 代码审查困难
 
 **具体问题示例**:
+
 ```
 components/
 ├── AIChat.tsx           # 聊天组件
@@ -702,6 +726,7 @@ components/
 ```
 
 **重构方案**:
+
 ```typescript
 // 建议的新目录结构
 components/
@@ -740,6 +765,7 @@ components/
 ```
 
 **迁移步骤**:
+
 1. 创建新的目录结构
 2. 逐个移动组件文件（按功能分类）
 3. 更新导入路径（使用 IDE 的重构功能）
@@ -753,16 +779,19 @@ components/
 #### 🔴 问题 2: 状态管理混乱，数据重复存储（优先级：⭐⭐⭐⭐⭐）
 
 **问题描述**:
+
 - Zustand stores 和 React Contexts 混用
 - 团队成员数据在 3 个地方重复存储
 - Store 位置不统一
 
 **影响**:
+
 - 数据不一致风险
 - 维护成本高（需要同步更新多处）
 - 开发者需要学习多套 API
 
 **具体问题示例**:
+
 ```typescript
 // 数据重复出现在 3 个地方：
 
@@ -785,11 +814,13 @@ const getAIMembers = (locale: string): AIMember[] => [
 **重构方案**:
 
 **Step 1: 统一状态管理方案**
+
 - **全局状态**: 全部使用 Zustand
 - **组件树局部状态**: 继续使用 React Context（如主题）
 - **组件内部状态**: 继续使用 useState
 
 **Step 2: 统一 Store 位置**
+
 ```
 src/
 └── stores/
@@ -804,57 +835,60 @@ src/
 ```
 
 **Step 3: 消除数据重复**
+
 ```typescript
 // stores/dashboardStore.ts - 唯一数据源
-export const useDashboardStore = create<DashboardState>((set) => ({
-  members: AI_MEMBERS,  // 这里是唯一的数据源
+export const useDashboardStore = create<DashboardState>(set => ({
+  members: AI_MEMBERS, // 这里是唯一的数据源
 
   // 多语言支持通过派生数据实现
   getLocalizedMembers: (locale: string) => {
     return members.map(m => ({
       ...m,
       name: locale === 'zh' ? m.nameZh : m.nameEn,
-    }));
+    }))
   },
-}));
+}))
 
 // stores/chatStore.ts - 从 DashboardStore 读取
 export const useChatStore = create<ChatState>((set, get) => ({
-  members: useDashboardStore.getState().members,  // 引用，不重复存储
+  members: useDashboardStore.getState().members, // 引用，不重复存储
 
   // 或者使用 selector 订阅
   members: useDashboardStore(s => s.members),
-}));
+}))
 ```
 
 **Step 4: 迁移 ChatContext**
+
 ```typescript
 // 之前：ChatContext
 export function useChatContext() {
-  const context = useContext(ChatContext);
-  if (!context) throw new Error('useChatContext must be used within ChatProvider');
-  return context;
+  const context = useContext(ChatContext)
+  if (!context) throw new Error('useChatContext must be used within ChatProvider')
+  return context
 }
 
 // 之后：ChatStore
-export const useChatStore = create<ChatState>((set) => ({
+export const useChatStore = create<ChatState>(set => ({
   messages: [],
   inputValue: '',
   // ...
 
-  sendMessage: (text) => {
+  sendMessage: text => {
     // ...
   },
-}));
+}))
 
 // 在组件中使用
 function AIChat() {
-  const { messages, sendMessage } = useChatStore();
+  const { messages, sendMessage } = useChatStore()
   // ...
 }
 ```
 
 **迁移步骤**:
+
 1. 创建新的 `chatStore.ts`
 2. 更新 AIChat 组件，使用 chatStore 替代 ChatContext
 3. 删除 ChatContext
@@ -868,16 +902,19 @@ function AIChat() {
 #### 🔴 问题 3: Lib 目录过度细分（优先级：⭐⭐⭐⭐）
 
 **问题描述**:
+
 - `lib/` 有 39 个子目录，部分目录只有 1-2 个文件
 - 目录数量过多，难以导航
 - 缺少分类层级
 
 **影响**:
+
 - 导入路径过长
 - 难以找到相关工具
 - 新成员学习成本高
 
 **具体问题示例**:
+
 ```
 lib/
 ├── logger/              # 只有 3 个文件
@@ -891,6 +928,7 @@ lib/
 ```
 
 **重构方案**:
+
 ```typescript
 // 建议的新目录结构
 lib/
@@ -933,11 +971,13 @@ lib/
 ```
 
 **合并原则**:
+
 1. **相关功能合并**: `agent/` + `agents/` + `agent-communication/` → `agents/`
 2. **小型目录合并**: `logger/` + `crypto/` + `validation/` → `utils/`
 3. **分类分组**: 按功能域分组（core, api, data, realtime 等）
 
 **迁移步骤**:
+
 1. 创建新的目录结构
 2. 移动文件（保持文件内容不变）
 3. 更新导入路径（使用 IDE 重构）
@@ -951,17 +991,20 @@ lib/
 #### 🟡 问题 4: 缺少统一的 API 客户端（优先级：⭐⭐⭐⭐）
 
 **问题描述**:
+
 - 组件直接使用 `fetch()` 或 `useFetch`
 - 缺少请求/响应拦截器
 - 缺少统一的错误处理
 - 缺少 API 类型定义中心
 
 **影响**:
+
 - API 调用代码重复
 - 错误处理不统一
 - 难以添加全局逻辑（如 token 刷新、重试）
 
 **具体问题示例**:
+
 ```typescript
 // 当前：分散的 API 调用
 async function loadData() {
@@ -985,23 +1028,21 @@ async function loadIssues() {
 **重构方案**:
 
 **Step 1: 创建统一 API 客户端**
+
 ```typescript
 // lib/api/client.ts
-import { ApiClient, ApiError } from './types';
+import { ApiClient, ApiError } from './types'
 
 class APIClient {
-  private baseURL = process.env.NEXT_PUBLIC_API_BASE_URL || '';
+  private baseURL = process.env.NEXT_PUBLIC_API_BASE_URL || ''
   private defaultHeaders: HeadersInit = {
     'Content-Type': 'application/json',
-  };
+  }
 
   // 请求拦截器
-  private async request<T>(
-    endpoint: string,
-    options: RequestInit = {}
-  ): Promise<T> {
-    const url = `${this.baseURL}${endpoint}`;
-    const token = localStorage.getItem('token');
+  private async request<T>(endpoint: string, options: RequestInit = {}): Promise<T> {
+    const url = `${this.baseURL}${endpoint}`
+    const token = localStorage.getItem('token')
 
     const response = await fetch(url, {
       ...options,
@@ -1010,20 +1051,20 @@ class APIClient {
         ...options.headers,
         ...(token && { Authorization: `Bearer ${token}` }),
       },
-    });
+    })
 
     // 响应拦截器
     if (!response.ok) {
-      const error = await response.json();
-      throw new ApiError(error.message || 'Request failed', response.status, error);
+      const error = await response.json()
+      throw new ApiError(error.message || 'Request failed', response.status, error)
     }
 
-    return response.json();
+    return response.json()
   }
 
   // 便捷方法
   get<T>(endpoint: string, options?: RequestInit) {
-    return this.request<T>(endpoint, { ...options, method: 'GET' });
+    return this.request<T>(endpoint, { ...options, method: 'GET' })
   }
 
   post<T>(endpoint: string, data?: unknown, options?: RequestInit) {
@@ -1031,7 +1072,7 @@ class APIClient {
       ...options,
       method: 'POST',
       body: JSON.stringify(data),
-    });
+    })
   }
 
   put<T>(endpoint: string, data?: unknown, options?: RequestInit) {
@@ -1039,36 +1080,39 @@ class APIClient {
       ...options,
       method: 'PUT',
       body: JSON.stringify(data),
-    });
+    })
   }
 
   delete<T>(endpoint: string, options?: RequestInit) {
-    return this.request<T>(endpoint, { ...options, method: 'DELETE' });
+    return this.request<T>(endpoint, { ...options, method: 'DELETE' })
   }
 }
 
 // 单例导出
-export const apiClient = new APIClient();
+export const apiClient = new APIClient()
 ```
 
 **Step 2: 定义 API 模块**
+
 ```typescript
 // lib/api/modules/auth.ts
-import { apiClient } from '../client';
+import { apiClient } from '../client'
 
 export const authAPI = {
   getMe: () => apiClient.get<User>('/api/auth/me'),
-  login: (credentials: LoginRequest) => apiClient.post<{ token: string }>('/api/auth/login', credentials),
+  login: (credentials: LoginRequest) =>
+    apiClient.post<{ token: string }>('/api/auth/login', credentials),
   logout: () => apiClient.post('/api/auth/logout'),
-};
+}
 
 // lib/api/index.ts
-export { apiClient } from './client';
-export { authAPI } from './modules/auth';
-export * from './types';
+export { apiClient } from './client'
+export { authAPI } from './modules/auth'
+export * from './types'
 ```
 
 **优点**:
+
 - ✅ 统一的错误处理
 - ✅ 自动添加 token
 - ✅ 类型安全
@@ -1081,28 +1125,29 @@ export * from './types';
 #### 🟡 问题 5: 包体积优化（优先级：⭐⭐⭐）
 
 **问题描述**:
+
 - Three.js 体积大（600KB），但直接同步加载
 - Socket.io-client 如果只在某些页面使用，应该按需加载
 
 **优化方案**:
 
 **Step 1: 懒加载 Three.js**
+
 ```typescript
-const Hero3D = dynamic(
-  () => import('./Hero3D'),
-  { ssr: false }
-);
+const Hero3D = dynamic(() => import('./Hero3D'), { ssr: false })
 ```
 
 **Step 2: 按需加载 Socket.io-client**
+
 ```typescript
 async function connectToSocket() {
-  const { default: io } = await import('socket.io-client');
-  return io(WS_URL);
+  const { default: io } = await import('socket.io-client')
+  return io(WS_URL)
 }
 ```
 
 **预期收益**:
+
 - 减少 30-40% 初始包体积
 - 首屏加载时间减少 40-50%
 
@@ -1112,13 +1157,13 @@ async function connectToSocket() {
 
 ### 5.3 重构优先级矩阵
 
-| 问题 | 优先级 | 工作量 | 建议顺序 |
-|------|--------|--------|---------|
-| 组件目录扁平化 | ⭐⭐⭐⭐⭐ | 2-3 天 | 1 |
-| 状态管理混乱 | ⭐⭐⭐⭐⭐ | 3-5 天 | 2 |
-| Lib 目录过度细分 | ⭐⭐⭐⭐ | 2-3 天 | 3 |
-| 缺少统一 API 客户端 | ⭐⭐⭐⭐ | 3-4 天 | 4 |
-| 包体积优化 | ⭐⭐⭐ | 2-3 天 | 5 |
+| 问题                | 优先级     | 工作量 | 建议顺序 |
+| ------------------- | ---------- | ------ | -------- |
+| 组件目录扁平化      | ⭐⭐⭐⭐⭐ | 2-3 天 | 1        |
+| 状态管理混乱        | ⭐⭐⭐⭐⭐ | 3-5 天 | 2        |
+| Lib 目录过度细分    | ⭐⭐⭐⭐   | 2-3 天 | 3        |
+| 缺少统一 API 客户端 | ⭐⭐⭐⭐   | 3-4 天 | 4        |
+| 包体积优化          | ⭐⭐⭐     | 2-3 天 | 5        |
 
 ---
 
@@ -1126,13 +1171,13 @@ async function connectToSocket() {
 
 ### 6.1 整体评估
 
-| 维度 | 评分 | 说明 |
-|------|------|------|
-| **目录结构** | 6/10 | lib/ 清晰，components/ 混乱 |
-| **状态管理** | 6/10 | 方案混用，数据重复 |
-| **代码组织** | 6/10 | Hooks 质量高，lib 过度细分 |
-| **性能架构** | 7/10 | 优化基础好，需持续改进 |
-| **总体** | **6/10** | **基础扎实，需要系统性重构** |
+| 维度         | 评分     | 说明                         |
+| ------------ | -------- | ---------------------------- |
+| **目录结构** | 6/10     | lib/ 清晰，components/ 混乱  |
+| **状态管理** | 6/10     | 方案混用，数据重复           |
+| **代码组织** | 6/10     | Hooks 质量高，lib 过度细分   |
+| **性能架构** | 7/10     | 优化基础好，需持续改进       |
+| **总体**     | **6/10** | **基础扎实，需要系统性重构** |
 
 ### 6.2 核心优势
 
@@ -1152,18 +1197,22 @@ async function connectToSocket() {
 ### 6.4 建议重构路线图
 
 #### 第一阶段（1-2 周）：目录重构
+
 - ✅ 组件目录重构（按功能分类）
 - ✅ Lib 目录合并（减少到 15-20 个目录）
 
 #### 第二阶段（2-3 周）：状态管理重构
+
 - ✅ 统一使用 Zustand 管理全局状态
 - ✅ 消除数据重复存储
 
 #### 第三阶段（1-2 周）：API 层重构
+
 - ✅ 创建统一 API 客户端
 - ✅ 定义 API 模块和类型
 
 #### 第四阶段（1 周）：性能优化
+
 - ✅ 懒加载 Three.js 等大库
 - ✅ 添加 Web Vitals 监控
 

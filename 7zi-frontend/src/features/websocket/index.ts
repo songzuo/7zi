@@ -4,10 +4,10 @@
  */
 
 // Components
-export * from './components';
+export * from './components'
 
 // Hooks
-export { useWebSocketStatus } from './hooks/useWebSocketStatus';
+export { useWebSocketStatus } from './hooks/useWebSocketStatus'
 
 // Types
-export * from './types';
+export * from './types'

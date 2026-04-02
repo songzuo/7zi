@@ -46,35 +46,35 @@
 
 ### 1.2 技术栈
 
-| 层级 | 技术 | 版本 |
-|------|------|------|
-| **前端框架** | Next.js | 16.2.1 |
-| **UI 框架** | React | 19.2.4 |
-| **语言** | TypeScript | 5.x |
-| **样式** | Tailwind CSS | 4.x |
-| **状态管理** | Zustand | 5.0.12 |
-| **数据库** | SQLite (better-sqlite3) | 12.8.0 |
-| **缓存** | Redis (ioredis) | 5.10.1 |
-| **WebSocket** | Socket.IO | 4.8.3 |
-| **API 验证** | Zod | 4.3.6 |
-| **监控** | Sentry | 10.44.0 |
-| **E2E 测试** | Playwright | 1.58.2 |
-| **单元测试** | Vitest | 4.1.2 |
+| 层级          | 技术                    | 版本    |
+| ------------- | ----------------------- | ------- |
+| **前端框架**  | Next.js                 | 16.2.1  |
+| **UI 框架**   | React                   | 19.2.4  |
+| **语言**      | TypeScript              | 5.x     |
+| **样式**      | Tailwind CSS            | 4.x     |
+| **状态管理**  | Zustand                 | 5.0.12  |
+| **数据库**    | SQLite (better-sqlite3) | 12.8.0  |
+| **缓存**      | Redis (ioredis)         | 5.10.1  |
+| **WebSocket** | Socket.IO               | 4.8.3   |
+| **API 验证**  | Zod                     | 4.3.6   |
+| **监控**      | Sentry                  | 10.44.0 |
+| **E2E 测试**  | Playwright              | 1.58.2  |
+| **单元测试**  | Vitest                  | 4.1.2   |
 
 ### 1.3 核心功能模块
 
-| 模块 | 说明 | 优先级 |
-|------|------|--------|
-| **认证授权** | JWT、RBAC、权限管理 | P0 |
-| **用户管理** | 注册、登录、用户 CRUD | P0 |
-| **任务管理** | 任务创建、分配、执行、完成 | P0 |
-| **AI Agent 系统** | Agent 调度、学习系统、Registry | P0 |
-| **实时协作** | WebSocket 房间、消息传递 | P1 |
-| **项目管理** | 项目 CRUD、团队管理 | P1 |
-| **通知系统** | 实时通知、邮件通知 | P1 |
-| **性能监控** | APM、性能指标收集 | P1 |
-| **A2A 协议** | Agent 间通信 v2.1 | P0 |
-| **工作流引擎** | Workflow Executor | P0 |
+| 模块              | 说明                           | 优先级 |
+| ----------------- | ------------------------------ | ------ |
+| **认证授权**      | JWT、RBAC、权限管理            | P0     |
+| **用户管理**      | 注册、登录、用户 CRUD          | P0     |
+| **任务管理**      | 任务创建、分配、执行、完成     | P0     |
+| **AI Agent 系统** | Agent 调度、学习系统、Registry | P0     |
+| **实时协作**      | WebSocket 房间、消息传递       | P1     |
+| **项目管理**      | 项目 CRUD、团队管理            | P1     |
+| **通知系统**      | 实时通知、邮件通知             | P1     |
+| **性能监控**      | APM、性能指标收集              | P1     |
+| **A2A 协议**      | Agent 间通信 v2.1              | P0     |
+| **工作流引擎**    | Workflow Executor              | P0     |
 
 ---
 
@@ -99,11 +99,11 @@
 
 ### 2.1 测试分布
 
-| 测试类型 | 数量 | 执行时间 | 覆盖率 | 维护成本 |
-|---------|------|---------|--------|----------|
-| **单元测试** | 400-500 | < 3 min | 70%+ | 低 |
-| **集成测试** | 150-200 | < 5 min | 60%+ | 中 |
-| **E2E 测试** | 20-30 | < 10 min | 关键流程 100% | 高 |
+| 测试类型     | 数量    | 执行时间 | 覆盖率        | 维护成本 |
+| ------------ | ------- | -------- | ------------- | -------- |
+| **单元测试** | 400-500 | < 3 min  | 70%+          | 低       |
+| **集成测试** | 150-200 | < 5 min  | 60%+          | 中       |
+| **E2E 测试** | 20-30   | < 10 min | 关键流程 100% | 高       |
 
 ### 2.2 测试比例
 
@@ -114,6 +114,7 @@ E2E 测试：10% (20-30)
 ```
 
 **比例依据**：
+
 - 单元测试：快速反馈、细粒度、易于调试
 - 集成测试：验证模块协作、API 契约
 - E2E 测试：验证端到端流程、用户体验
@@ -124,40 +125,40 @@ E2E 测试：10% (20-30)
 
 ### 3.1 单元测试工具
 
-| 工具 | 版本 | 用途 | 选型理由 |
-|------|------|------|---------|
-| **Vitest** | 4.1.2 | 测试框架 | 与 Vite 无缝集成、速度快、兼容 Jest API |
-| **React Testing Library** | 16.3.2 | React 组件测试 | 鼓励测试用户行为、测试 DOM 交互 |
-| **@testing-library/user-event** | 14.6.1 | 用户交互模拟 | 更真实的用户交互行为 |
-| **@vitest/coverage-v8** | 4.1.2 | 代码覆盖率 | V8 引擎、速度快、报告格式丰富 |
-| **jsdom** | 29.0.1 | 浏览器环境模拟 | 标准 DOM 实现、轻量级 |
-| **MSW (Mock Service Worker)** | 2.12.14 | API 模拟 | 网络层拦截、真实请求/响应 |
+| 工具                            | 版本    | 用途           | 选型理由                                |
+| ------------------------------- | ------- | -------------- | --------------------------------------- |
+| **Vitest**                      | 4.1.2   | 测试框架       | 与 Vite 无缝集成、速度快、兼容 Jest API |
+| **React Testing Library**       | 16.3.2  | React 组件测试 | 鼓励测试用户行为、测试 DOM 交互         |
+| **@testing-library/user-event** | 14.6.1  | 用户交互模拟   | 更真实的用户交互行为                    |
+| **@vitest/coverage-v8**         | 4.1.2   | 代码覆盖率     | V8 引擎、速度快、报告格式丰富           |
+| **jsdom**                       | 29.0.1  | 浏览器环境模拟 | 标准 DOM 实现、轻量级                   |
+| **MSW (Mock Service Worker)**   | 2.12.14 | API 模拟       | 网络层拦截、真实请求/响应               |
 
 ### 3.2 集成测试工具
 
-| 工具 | 版本 | 用途 | 选型理由 |
-|------|------|------|---------|
-| **Vitest** | 4.1.2 | 测试框架 | 与单元测试统一、支持 API 测试 |
-| **Supertest** | 7.2.2 | HTTP 请求测试 | 测试 API 路由、断言响应 |
-| **better-sqlite3** | 12.8.0 | 数据库测试 | 内存数据库、事务支持 |
-| **ioredis-mock** | 模拟库 | Redis 测试 | 模拟 Redis 行为 |
-| **socket.io-testing** | 自定义 | WebSocket 测试 | 测试实时通信 |
+| 工具                  | 版本   | 用途           | 选型理由                      |
+| --------------------- | ------ | -------------- | ----------------------------- |
+| **Vitest**            | 4.1.2  | 测试框架       | 与单元测试统一、支持 API 测试 |
+| **Supertest**         | 7.2.2  | HTTP 请求测试  | 测试 API 路由、断言响应       |
+| **better-sqlite3**    | 12.8.0 | 数据库测试     | 内存数据库、事务支持          |
+| **ioredis-mock**      | 模拟库 | Redis 测试     | 模拟 Redis 行为               |
+| **socket.io-testing** | 自定义 | WebSocket 测试 | 测试实时通信                  |
 
 ### 3.3 E2E 测试工具
 
-| 工具 | 版本 | 用途 | 选型理由 |
-|------|------|------|---------|
-| **Playwright** | 1.58.2 | E2E 测试框架 | 跨浏览器、自动等待、内置截图 |
-| **@playwright/test** | 1.58.2 | Playwright 测试库 | TypeScript 支持、并行执行 |
-| **Page Object Model** | 自定义 | 测试模式 | 提高代码复用性、便于维护 |
+| 工具                  | 版本   | 用途              | 选型理由                     |
+| --------------------- | ------ | ----------------- | ---------------------------- |
+| **Playwright**        | 1.58.2 | E2E 测试框架      | 跨浏览器、自动等待、内置截图 |
+| **@playwright/test**  | 1.58.2 | Playwright 测试库 | TypeScript 支持、并行执行    |
+| **Page Object Model** | 自定义 | 测试模式          | 提高代码复用性、便于维护     |
 
 ### 3.4 性能测试工具
 
-| 工具 | 版本 | 用途 | 选型理由 |
-|------|------|------|---------|
-| **Lighthouse CI** | 最新 | 性能基准测试 | Web Vitals、性能评分 |
-| **k6** | 最新 | 负载测试 | 压力测试、并发测试 |
-| **Web Vitals** | 5.1.0 | 实时性能监控 | Core Web Vitals 收集 |
+| 工具              | 版本  | 用途         | 选型理由             |
+| ----------------- | ----- | ------------ | -------------------- |
+| **Lighthouse CI** | 最新  | 性能基准测试 | Web Vitals、性能评分 |
+| **k6**            | 最新  | 负载测试     | 压力测试、并发测试   |
+| **Web Vitals**    | 5.1.0 | 实时性能监控 | Core Web Vitals 收集 |
 
 ---
 
@@ -165,14 +166,14 @@ E2E 测试：10% (20-30)
 
 ### 4.1 测试范围
 
-| 模块 | 测试重点 | 覆盖率目标 |
-|------|---------|-----------|
-| **Utils** | 纯函数、数据转换、格式化 | 90%+ |
-| **Hooks** | 自定义 Hook 逻辑、副作用 | 80%+ |
-| **Components** | 组件渲染、交互、状态 | 70%+ |
-| **Services** | 业务逻辑、错误处理 | 80%+ |
-| **Stores** | 状态管理、选择器 | 80%+ |
-| **API Validators** | Zod schema 验证 | 100% |
+| 模块               | 测试重点                 | 覆盖率目标 |
+| ------------------ | ------------------------ | ---------- |
+| **Utils**          | 纯函数、数据转换、格式化 | 90%+       |
+| **Hooks**          | 自定义 Hook 逻辑、副作用 | 80%+       |
+| **Components**     | 组件渲染、交互、状态     | 70%+       |
+| **Services**       | 业务逻辑、错误处理       | 80%+       |
+| **Stores**         | 状态管理、选择器         | 80%+       |
+| **API Validators** | Zod schema 验证          | 100%       |
 
 ### 4.2 测试结构
 
@@ -203,28 +204,30 @@ src/
    - 不测试内部状态变化细节
 
 2. **使用 AAA 模式**
+
    ```typescript
    // Arrange - 准备测试数据
-   const input = 'value';
+   const input = 'value'
 
    // Act - 执行操作
-   const result = doSomething(input);
+   const result = doSomething(input)
 
    // Assert - 验证结果
-   expect(result).toBe('expected');
+   expect(result).toBe('expected')
    ```
 
 3. **使用描述性测试名称**
+
    ```typescript
-   test('should return 400 when email is invalid', () => {});
-   test('should create user with valid data', () => {});
+   test('should return 400 when email is invalid', () => {})
+   test('should create user with valid data', () => {})
    ```
 
 4. **隔离和清理**
    ```typescript
    beforeEach(() => {
-     vi.clearAllMocks();
-   });
+     vi.clearAllMocks()
+   })
    ```
 
 ---
@@ -233,13 +236,13 @@ src/
 
 ### 5.1 测试范围
 
-| 类型 | 测试重点 | 示例 |
-|------|---------|------|
-| **API 集成** | API 路由完整流程 | POST /api/users 创建用户 |
-| **数据库集成** | CRUD 操作、事务 | 创建、读取、更新、删除 |
-| **缓存集成** | Redis 缓存机制 | L1/L2/L3 缓存 |
-| **WebSocket 集成** | 实时通信 | 消息发送/接收 |
-| **外部服务** | 第三方 API 集成 | 邮件服务、AI 服务 |
+| 类型               | 测试重点         | 示例                     |
+| ------------------ | ---------------- | ------------------------ |
+| **API 集成**       | API 路由完整流程 | POST /api/users 创建用户 |
+| **数据库集成**     | CRUD 操作、事务  | 创建、读取、更新、删除   |
+| **缓存集成**       | Redis 缓存机制   | L1/L2/L3 缓存            |
+| **WebSocket 集成** | 实时通信         | 消息发送/接收            |
+| **外部服务**       | 第三方 API 集成  | 邮件服务、AI 服务        |
 
 ### 5.2 测试结构
 
@@ -263,19 +266,19 @@ tests/
 使用内存数据库进行集成测试：
 
 ```typescript
-import Database from 'better-sqlite3';
-import { migrate } from '../../lib/db/migrations';
+import Database from 'better-sqlite3'
+import { migrate } from '../../lib/db/migrations'
 
 // 使用内存数据库
-const db = new Database(':memory:');
+const db = new Database(':memory:')
 
 // 运行迁移
-migrate(db);
+migrate(db)
 
 // 测试完成后清理
 afterAll(() => {
-  db.close();
-});
+  db.close()
+})
 ```
 
 ---
@@ -284,15 +287,15 @@ afterAll(() => {
 
 ### 6.1 测试范围
 
-| 类型 | 测试重点 | 数量 |
-|------|---------|------|
-| **认证流程** | 注册、登录、登出 | 3 |
-| **用户管理** | 创建、编辑、删除用户 | 3 |
-| **任务流程** | 创建、分配、完成任务 | 5 |
-| **项目流程** | 创建项目、管理团队 | 3 |
-| **实时协作** | WebSocket 消息、房间 | 3 |
-| **通知系统** | 实时通知、邮件通知 | 2 |
-| **权限管理** | RBAC 权限验证 | 2 |
+| 类型         | 测试重点             | 数量 |
+| ------------ | -------------------- | ---- |
+| **认证流程** | 注册、登录、登出     | 3    |
+| **用户管理** | 创建、编辑、删除用户 | 3    |
+| **任务流程** | 创建、分配、完成任务 | 5    |
+| **项目流程** | 创建项目、管理团队   | 3    |
+| **实时协作** | WebSocket 消息、房间 | 3    |
+| **通知系统** | 实时通知、邮件通知   | 2    |
+| **权限管理** | RBAC 权限验证        | 2    |
 
 **总计：20-30 个 E2E 测试**
 
@@ -322,24 +325,24 @@ e2e/
 
 ### 7.1 整体覆盖率目标
 
-| 指标 | 当前 | 目标 v1.8.0 | 说明 |
-|------|------|------------|------|
-| **Lines** | 50% | 60% | 代码行覆盖率 |
-| **Functions** | 50% | 60% | 函数覆盖率 |
-| **Branches** | 40% | 50% | 分支覆盖率 |
-| **Statements** | 50% | 60% | 语句覆盖率 |
+| 指标           | 当前 | 目标 v1.8.0 | 说明         |
+| -------------- | ---- | ----------- | ------------ |
+| **Lines**      | 50%  | 60%         | 代码行覆盖率 |
+| **Functions**  | 50%  | 60%         | 函数覆盖率   |
+| **Branches**   | 40%  | 50%         | 分支覆盖率   |
+| **Statements** | 50%  | 60%         | 语句覆盖率   |
 
 ### 7.2 分模块覆盖率目标
 
-| 模块 | Lines | Functions | Branches | Statements |
-|------|-------|-----------|----------|------------|
-| **Utils** | 90% | 90% | 85% | 90% |
-| **Hooks** | 80% | 80% | 75% | 80% |
-| **Components** | 70% | 75% | 65% | 75% |
-| **Services** | 80% | 85% | 75% | 85% |
-| **Stores** | 80% | 85% | 75% | 85% |
-| **API Routes** | 70% | 75% | 65% | 75% |
-| **Validators** | 100% | 100% | 100% | 100% |
+| 模块           | Lines | Functions | Branches | Statements |
+| -------------- | ----- | --------- | -------- | ---------- |
+| **Utils**      | 90%   | 90%       | 85%      | 90%        |
+| **Hooks**      | 80%   | 80%       | 75%      | 80%        |
+| **Components** | 70%   | 75%       | 65%      | 75%        |
+| **Services**   | 80%   | 85%       | 75%      | 85%        |
+| **Stores**     | 80%   | 85%       | 75%      | 85%        |
+| **API Routes** | 70%   | 75%       | 65%      | 75%        |
+| **Validators** | 100%  | 100%      | 100%     | 100%       |
 
 ---
 
@@ -349,19 +352,19 @@ e2e/
 
 ```typescript
 // src/lib/__tests__/format.test.ts
-import { describe, it, expect } from 'vitest';
-import { formatDate, formatCurrency, validateEmail } from '../format';
+import { describe, it, expect } from 'vitest'
+import { formatDate, formatCurrency, validateEmail } from '../format'
 
 describe('formatDate', () => {
   it('should format date to YYYY-MM-DD', () => {
-    const date = new Date('2026-04-02');
-    expect(formatDate(date)).toBe('2026-04-02');
-  });
+    const date = new Date('2026-04-02')
+    expect(formatDate(date)).toBe('2026-04-02')
+  })
 
   it('should handle null date', () => {
-    expect(formatDate(null)).toBe('N/A');
-  });
-});
+    expect(formatDate(null)).toBe('N/A')
+  })
+})
 ```
 
 ### 8.2 单元测试 - React Component 测试
@@ -391,11 +394,11 @@ describe('Button', () => {
 
 ```typescript
 // src/app/api/auth/login/__tests__/route.test.ts
-import { describe, it, expect } from 'vitest';
-import request from 'supertest';
-import { createServer } from '../../../../lib/server';
+import { describe, it, expect } from 'vitest'
+import request from 'supertest'
+import { createServer } from '../../../../lib/server'
 
-const app = createServer();
+const app = createServer()
 
 describe('POST /api/auth/login', () => {
   it('should login with valid credentials', async () => {
@@ -403,41 +406,41 @@ describe('POST /api/auth/login', () => {
       .post('/api/auth/login')
       .send({
         email: 'test@example.com',
-        password: 'password123'
+        password: 'password123',
       })
-      .expect(200);
+      .expect(200)
 
-    expect(response.body).toHaveProperty('token');
-  });
-});
+    expect(response.body).toHaveProperty('token')
+  })
+})
 ```
 
 ### 8.4 E2E 测试 - 登录流程
 
 ```typescript
 // e2e/pages/login-page.ts
-import { Page } from '@playwright/test';
+import { Page } from '@playwright/test'
 
 export class LoginPage {
   constructor(private page: Page) {}
 
   async login(email: string, password: string) {
-    await this.page.goto('/login');
-    await this.page.getByLabel('Email').fill(email);
-    await this.page.getByLabel('Password').fill(password);
-    await this.page.getByRole('button', { name: 'Login' }).click();
+    await this.page.goto('/login')
+    await this.page.getByLabel('Email').fill(email)
+    await this.page.getByLabel('Password').fill(password)
+    await this.page.getByRole('button', { name: 'Login' }).click()
   }
 }
 
 // e2e/auth-flow.spec.ts
-import { test, expect } from '@playwright/test';
-import { LoginPage } from './pages/login-page';
+import { test, expect } from '@playwright/test'
+import { LoginPage } from './pages/login-page'
 
 test('should login with valid credentials', async ({ page }) => {
-  const loginPage = new LoginPage(page);
-  await loginPage.login('test@example.com', 'password123');
-  await expect(page).toHaveURL('/dashboard');
-});
+  const loginPage = new LoginPage(page)
+  await loginPage.login('test@example.com', 'password123')
+  await expect(page).toHaveURL('/dashboard')
+})
 ```
 
 ---
@@ -548,15 +551,15 @@ module.exports = {
       },
     },
   },
-};
+}
 ```
 
 ### 10.2 k6 负载测试
 
 ```javascript
 // load-test.js
-import http from 'k6/http';
-import { check, sleep } from 'k6';
+import http from 'k6/http'
+import { check, sleep } from 'k6'
 
 export const options = {
   stages: [
@@ -569,30 +572,34 @@ export const options = {
   thresholds: {
     http_req_duration: ['p(95)<500'],
   },
-};
+}
 
 export default function () {
-  const res = http.post('http://localhost:3000/api/auth/login', JSON.stringify({
-    email: 'test@example.com',
-    password: 'password123'
-  }), {
-    headers: { 'Content-Type': 'application/json' },
-  });
+  const res = http.post(
+    'http://localhost:3000/api/auth/login',
+    JSON.stringify({
+      email: 'test@example.com',
+      password: 'password123',
+    }),
+    {
+      headers: { 'Content-Type': 'application/json' },
+    }
+  )
 
-  check(res, { 'login successful': (r) => r.status === 200 });
-  sleep(1);
+  check(res, { 'login successful': r => r.status === 200 })
+  sleep(1)
 }
 ```
 
 ### 10.3 性能指标目标
 
-| 指标 | 目标 | 说明 |
-|------|------|------|
-| **LCP** | < 2.5s | Largest Contentful Paint |
-| **FID** | < 100ms | First Input Delay |
-| **CLS** | < 0.1 | Cumulative Layout Shift |
-| **TTI** | < 3.8s | Time to Interactive |
-| **TBT** | < 200ms | Total Blocking Time |
+| 指标    | 目标    | 说明                     |
+| ------- | ------- | ------------------------ |
+| **LCP** | < 2.5s  | Largest Contentful Paint |
+| **FID** | < 100ms | First Input Delay        |
+| **CLS** | < 0.1   | Cumulative Layout Shift  |
+| **TTI** | < 3.8s  | Time to Interactive      |
+| **TBT** | < 200ms | Total Blocking Time      |
 
 ---
 
@@ -600,23 +607,23 @@ export default function () {
 
 ### 11.1 开发阶段测试
 
-| 阶段 | 测试类型 | 执行时机 | 执行者 |
-|------|---------|---------|--------|
-| **编码** | 单元测试 | 保存文件时（watch 模式） | 开发者 |
-| **提交前** | 单元 + 集成 | git pre-commit hook | 开发者 |
-| **PR** | 全量测试 | CI Pipeline | CI 系统 |
-| **合并** | E2E 测试 | CI Pipeline | CI 系统 |
-| **部署前** | 性能测试 | CI Pipeline | CI 系统 |
+| 阶段       | 测试类型    | 执行时机                 | 执行者  |
+| ---------- | ----------- | ------------------------ | ------- |
+| **编码**   | 单元测试    | 保存文件时（watch 模式） | 开发者  |
+| **提交前** | 单元 + 集成 | git pre-commit hook      | 开发者  |
+| **PR**     | 全量测试    | CI Pipeline              | CI 系统 |
+| **合并**   | E2E 测试    | CI Pipeline              | CI 系统 |
+| **部署前** | 性能测试    | CI Pipeline              | CI 系统 |
 
 ### 11.2 测试执行频率
 
-| 测试类型 | 频率 | 执行时间 |
-|---------|------|---------|
-| **单元测试** | 每次保存 | < 3 min |
-| **集成测试** | 每次 PR | < 5 min |
+| 测试类型     | 频率            | 执行时间 |
+| ------------ | --------------- | -------- |
+| **单元测试** | 每次保存        | < 3 min  |
+| **集成测试** | 每次 PR         | < 5 min  |
 | **E2E 测试** | 每次合并到 main | < 10 min |
-| **性能测试** | 每次部署 | < 15 min |
-| **负载测试** | 每周 | < 30 min |
+| **性能测试** | 每次部署        | < 15 min |
+| **负载测试** | 每周            | < 30 min |
 
 ---
 
@@ -679,12 +686,12 @@ jobs:
 
 ### 12.2 测试质量门禁
 
-| 门禁 | 条件 | 失败处理 |
-|------|------|---------|
-| **单元测试通过** | 所有测试通过 | 阻止合并 |
-| **覆盖率达标** | Lines ≥ 60% | 阻止合并 |
-| **E2E 测试通过** | 关键流程通过 | 阻止部署 |
-| **性能达标** | Lighthouse ≥ 90 | 警告 |
+| 门禁             | 条件            | 失败处理 |
+| ---------------- | --------------- | -------- |
+| **单元测试通过** | 所有测试通过    | 阻止合并 |
+| **覆盖率达标**   | Lines ≥ 60%     | 阻止合并 |
+| **E2E 测试通过** | 关键流程通过    | 阻止部署 |
+| **性能达标**     | Lighthouse ≥ 90 | 警告     |
 
 ---
 
@@ -722,4 +729,4 @@ npm run test:all          # 运行所有测试
 
 ---
 
-*文档版本: 1.0.0 | 最后更新: 2026-04-02*
+_文档版本: 1.0.0 | 最后更新: 2026-04-02_

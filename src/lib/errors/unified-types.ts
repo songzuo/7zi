@@ -46,20 +46,20 @@ export const ErrorCodes = {
   REGISTRATION_FAILED: 'REGISTRATION_FAILED',
   WEAK_PASSWORD: 'WEAK_PASSWORD',
   UNKNOWN: 'UNKNOWN',
-} as const;
+} as const
 
 /**
  * 统一错误接口
  * Unified Error Interface
  */
 export interface UnifiedErrorInfo {
-  type: UnifiedErrorType;
-  message: string;
-  code?: string;          // 错误代码 (用于国际化)
-  statusCode: number;
-  details?: Record<string, unknown>;
-  retryable: boolean;
-  retryAfter?: number;
+  type: UnifiedErrorType
+  message: string
+  code?: string // 错误代码 (用于国际化)
+  statusCode: number
+  details?: Record<string, unknown>
+  retryable: boolean
+  retryAfter?: number
 }
 
 /**
@@ -76,7 +76,7 @@ export const STATUS_CODE_TO_ERROR_TYPE: Record<number, UnifiedErrorType> = {
   500: UnifiedErrorType.INTERNAL,
   503: UnifiedErrorType.SERVICE_UNAVAILABLE,
   504: UnifiedErrorType.TIMEOUT,
-};
+}
 
 /**
  * 判断错误是否可重试
@@ -89,9 +89,9 @@ export function isRetryableErrorType(errorType: UnifiedErrorType): boolean {
     UnifiedErrorType.SERVICE_UNAVAILABLE,
     UnifiedErrorType.INTERNAL,
     UnifiedErrorType.RATE_LIMIT,
-  ];
+  ]
 
-  return retryableTypes.includes(errorType);
+  return retryableTypes.includes(errorType)
 }
 
 /**
@@ -114,7 +114,7 @@ export function getDefaultStatusCode(errorType: UnifiedErrorType): number {
     [UnifiedErrorType.SERVICE_UNAVAILABLE]: 503,
     [UnifiedErrorType.NETWORK_ERROR]: 503,
     [UnifiedErrorType.TIMEOUT]: 504,
-  };
+  }
 
-  return typeToStatus[errorType] || 500;
+  return typeToStatus[errorType] || 500
 }

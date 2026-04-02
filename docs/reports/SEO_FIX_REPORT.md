@@ -15,13 +15,16 @@
 ## 1. robots.txt 优化 ✅
 
 ### 问题描述
+
 之前的 SEO 审计发现 robots.txt 未明确禁止 /api 目录爬取。
 
 ### 检查结果
+
 - **文件位置**: `/root/.openclaw/workspace/7zi-frontend/src/app/robots.ts`
 - **当前状态**: ✅ 已包含 `Disallow: /api/`
 
 ### 修复内容
+
 已优化 robots.txt 配置，添加更完整的爬取规则：
 
 ```typescript
@@ -59,6 +62,7 @@ export default function robots(): MetadataRoute.Robots {
 ```
 
 ### 优化亮点
+
 - ✅ 明确禁止所有 API 路由（`/api/`, `/api/v1/`, `/api/v2/`）
 - ✅ 禁止管理后台和敏感目录
 - ✅ 禁止 Next.js 内部目录和测试/演示页面
@@ -71,13 +75,16 @@ export default function robots(): MetadataRoute.Robots {
 ## 2. sitemap.xml 验证 ✅
 
 ### 问题描述
+
 sitemap.xml 需要验证完整性和更新 lastmod 日期。
 
 ### 检查结果
+
 - **文件位置**: `/root/.openclaw/workspace/7zi-frontend/src/app/sitemap.ts`
 - **状态**: ✅ 已优化并更新
 
 ### 修复内容
+
 更新了 sitemap.ts 配置：
 
 ```typescript
@@ -122,6 +129,7 @@ export default function sitemap(): MetadataRoute.Sitemap {
 ```
 
 ### 优化亮点
+
 - ✅ 修正 base URL 为 `https://7zi.studio`
 - ✅ 更新 lastmod 日期为 `2026-03-29`
 - ✅ 包含所有重要页面（首页、设计系统、反馈、知识图谱）
@@ -130,6 +138,7 @@ export default function sitemap(): MetadataRoute.Sitemap {
 - ✅ 包含 hreflang 标签支持国际 SEO
 
 ### 生成的 URL 列表
+
 1. https://7zi.studio/ (priority: 1.0)
 2. https://7zi.studio/design-system (priority: 0.8)
 3. https://7zi.studio/feedback (priority: 0.7)
@@ -142,6 +151,7 @@ export default function sitemap(): MetadataRoute.Sitemap {
 ## 3. 页面 Metadata 抽查 ✅
 
 ### 检查的页面
+
 - `/feedback` - 用户反馈页面
 - `/design-system` - 设计系统文档页面
 - `/knowledge-lattice` - 知识图谱可视化页面
@@ -149,9 +159,11 @@ export default function sitemap(): MetadataRoute.Sitemap {
 ### 修复内容
 
 #### 3.1 Feedback 页面
+
 **文件**: `/root/.openclaw/workspace/7zi-frontend/src/app/feedback/page.tsx`
 
 添加了完整的 metadata：
+
 - ✅ Title: "用户反馈 - 7zi Studio"
 - ✅ Description: 完整的页面描述
 - ✅ Keywords: 用户反馈、问题报告、功能建议等
@@ -159,9 +171,11 @@ export default function sitemap(): MetadataRoute.Sitemap {
 - ✅ Twitter Card: summary_large_image, title, description, images
 
 #### 3.2 Design System 页面
+
 **文件**: `/root/.openclaw/workspace/7zi-frontend/src/app/design-system/page.tsx`
 
 添加了完整的 metadata：
+
 - ✅ Title: "设计系统文档 - 7zi Studio"
 - ✅ Description: 详细的设计系统介绍
 - ✅ Keywords: 设计系统、UI 组件、Design Token 等
@@ -169,9 +183,11 @@ export default function sitemap(): MetadataRoute.Sitemap {
 - ✅ Twitter Card: 完整配置
 
 #### 3.3 Knowledge Lattice 页面
+
 **文件**: `/root/.openclaw/workspace/7zi-frontend/src/app/[locale]/knowledge-lattice/layout.tsx`
 
 创建了新文件并添加了完整的 metadata：
+
 - ✅ Title: "Knowledge Lattice - 知识图谱可视化 - 7zi Studio"
 - ✅ Description: 详细的 3D 可视化介绍
 - ✅ Keywords: 知识图谱、3D 可视化、Three.js 等
@@ -179,6 +195,7 @@ export default function sitemap(): MetadataRoute.Sitemap {
 - ✅ Twitter Card: 完整配置
 
 ### Metadata 示例
+
 ```typescript
 export const metadata = {
   title: '页面标题',
@@ -214,6 +231,7 @@ export const metadata = {
 虽然 P0 问题已全部解决，但仍有一些建议可以进一步提升 SEO：
 
 ### 4.1 Open Graph 图片
+
 - 当前 metadata 中引用的图片路径需要确保实际存在
 - 建议创建以下图片文件：
   - `/public/images/og-feedback.jpg` (1200x630)
@@ -221,15 +239,18 @@ export const metadata = {
   - `/public/images/og-knowledge-lattice.jpg` (1200x630)
 
 ### 4.2 结构化数据
+
 - 可以添加 Schema.org 的结构化数据（如 Organization, WebSite）
 - 这有助于搜索引擎更好地理解网站内容
 
 ### 4.3 性能优化
+
 - 检查页面加载速度（LCP, FID, CLS）
 - 优化图片和资源加载
 - 确保移动端性能良好
 
 ### 4.4 内容优化
+
 - 为页面添加更多的文本内容
 - 优化标题和描述的关键词
 - 添加内部链接结构
@@ -239,6 +260,7 @@ export const metadata = {
 ## 5. 部署建议 🚀
 
 ### 5.1 验证更改
+
 ```bash
 # 进入项目目录
 cd /root/.openclaw/workspace/7zi-frontend
@@ -255,6 +277,7 @@ npm run start
 ```
 
 ### 5.2 部署到生产环境
+
 ```bash
 # 提交更改
 git add src/app/robots.ts
@@ -272,7 +295,9 @@ git push origin main
 ```
 
 ### 5.3 SEO 验证
+
 部署后，请验证：
+
 1. 访问 `https://7zi.studio/robots.txt` 确认配置正确
 2. 访问 `https://7zi.studio/sitemap.xml` 确认所有 URL 正确
 3. 使用以下工具测试：
@@ -286,17 +311,20 @@ git push origin main
 ## 6. 总结 ✅
 
 ### 已完成的修复
+
 - ✅ robots.txt 优化 - 添加了完整的 Disallow 规则
 - ✅ sitemap.xml 验证 - 更新了 URL 列表和 lastmod 日期
 - ✅ 页面 metadata 完善 - 为 3 个关键页面添加了完整的 metadata
 
 ### 影响评估
+
 - **搜索爬取**: 防止爬虫索引 API 和管理后台，节省服务器资源
 - **索引效率**: 通过正确的 sitemap 帮助搜索引擎快速发现重要页面
 - **社交分享**: 完善的 Open Graph 和 Twitter Card 提升分享体验
 - **搜索引擎优化**: 合理的 title、description 和 keywords 提升搜索排名
 
 ### 下一步行动
+
 1. 部署更改到生产环境
 2. 验证 robots.txt 和 sitemap.xml 可访问性
 3. 创建 Open Graph 图片文件

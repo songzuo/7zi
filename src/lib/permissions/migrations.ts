@@ -3,27 +3,27 @@
  * Add support for multi-role RBAC system
  */
 
-import { getDatabaseAsync } from '../db';
-import { logger } from '../logger';
+import { getDatabaseAsync } from '../db'
+import { logger } from '../logger'
 
 /**
  * Migration 3: Add RBAC tables
  */
 export async function migrate(): Promise<void> {
-  const db = await getDatabaseAsync();
+  const db = await getDatabaseAsync()
 
   // Check if migration has already run
   const checkStmt = db.prepare(`
     SELECT value FROM migrations WHERE key = 'rbac_version'
-  `);
-  const existing = checkStmt.get() as { value: string } | undefined;
+  `)
+  const existing = checkStmt.get() as { value: string } | undefined
 
   if (existing) {
-    logger.info('RBAC migration already applied', { category: 'db', version: existing.value });
-    return;
+    logger.info('RBAC migration already applied', { category: 'db', version: existing.value })
+    return
   }
 
-  logger.info('Applying RBAC migration...', { category: 'db' });
+  logger.info('Applying RBAC migration...', { category: 'db' })
 
   const statements = [
     // Users table updates (add roles array support)
@@ -70,33 +70,33 @@ export async function migrate(): Promise<void> {
 
     // Record migration
     `INSERT INTO migrations (key, value, updated_at) VALUES ('rbac_version', '1', ?)`,
-  ];
+  ]
 
   for (const statement of statements) {
     try {
-      db.exec(statement);
-      logger.debug(`Applied: ${statement.substring(0, 50)}...`, { category: 'db' });
-    } catch (_error) {
+      db.exec(statement)
+      logger.debug(`Applied: ${statement.substring(0, 50)}...`, { category: 'db' })
+    } catch (error) {
       if (!(error instanceof Error && error.message.includes('already exists'))) {
-        logger.error('Migration failed', error, { category: 'db' });
-        throw error;
+        logger.error('Migration failed', error, { category: 'db' })
+        throw error
       }
       // Column might already exist, continue
     }
   }
 
   // Seed default roles and permissions
-  const { seedDefaultRolesAndPermissions } = await import('./seed');
-  const seedResult = await seedDefaultRolesAndPermissions();
+  const { seedDefaultRolesAndPermissions } = await import('./seed')
+  const seedResult = await seedDefaultRolesAndPermissions()
 
   if (seedResult.success) {
     logger.info('RBAC migration completed successfully', {
       category: 'db',
       rolesSeeded: seedResult.rolesSeeded,
       permissionsSeeded: seedResult.permissionsSeeded,
-    });
+    })
   } else {
-    logger.error('Failed to seed roles', new Error(seedResult.message), { category: 'db' });
+    logger.error('Failed to seed roles', new Error(seedResult.message), { category: 'db' })
   }
 }
 
@@ -104,52 +104,52 @@ export async function migrate(): Promise<void> {
  * Rollback RBAC migration
  */
 export async function rollback(): Promise<void> {
-  const db = await getDatabaseAsync();
+  const db = await getDatabaseAsync()
 
-  logger.info('Rolling back RBAC migration...', { category: 'db' });
+  logger.info('Rolling back RBAC migration...', { category: 'db' })
 
   const statements = [
     `DROP TABLE IF EXISTS role_permissions`,
     `DROP TABLE IF EXISTS user_roles`,
     `DROP TABLE IF EXISTS roles`,
     `DELETE FROM migrations WHERE key = 'rbac_version'`,
-  ];
+  ]
 
   for (const statement of statements) {
     try {
-      db.exec(statement);
-      logger.debug(`Rolled back: ${statement}`, { category: 'db' });
-    } catch (_error) {
-      logger.error('Rollback failed', error, { category: 'db' });
-      throw error;
+      db.exec(statement)
+      logger.debug(`Rolled back: ${statement}`, { category: 'db' })
+    } catch (error) {
+      logger.error('Rollback failed', error, { category: 'db' })
+      throw error
     }
   }
 
-  logger.info('RBAC rollback completed', { category: 'db' });
+  logger.info('RBAC rollback completed', { category: 'db' })
 }
 
 /**
  * Check RBAC migration status
  */
 export async function getMigrationStatus(): Promise<{
-  applied: boolean;
-  version: string | null;
+  applied: boolean
+  version: string | null
 }> {
-  const db = await getDatabaseAsync();
+  const db = await getDatabaseAsync()
 
   const stmt = db.prepare(`
     SELECT value FROM migrations WHERE key = 'rbac_version'
-  `);
-  const row = stmt.get() as { value: string } | undefined;
+  `)
+  const row = stmt.get() as { value: string } | undefined
 
   return {
     applied: !!row,
     version: row?.value || null,
-  };
+  }
 }
 
 export default {
   migrate,
   rollback,
   getMigrationStatus,
-};
+}

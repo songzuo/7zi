@@ -9,33 +9,30 @@
  * - 兼容 Prometheus/Grafana 监控栈
  */
 
-import {
-  getApiPerformanceReport,
-  type ApiPerformanceData,
-} from '@/lib/middleware/api-performance';
-import { getRateLimitStats } from '@/lib/middleware/rate-limit';
-import { getQueryMetricsSummary } from '@/lib/middleware/db-performance';
-import { logger } from '@/lib/logger';
+import { getApiPerformanceReport, type ApiPerformanceData } from '@/lib/middleware/api-performance'
+import { getRateLimitStats } from '@/lib/middleware/rate-limit'
+import { getQueryMetricsSummary } from '@/lib/middleware/db-performance'
+import { logger } from '@/lib/logger'
 
 // ============================================
 // 类型定义
 // ============================================
 
-export type MetricType = 'counter' | 'gauge' | 'histogram' | 'summary';
+export type MetricType = 'counter' | 'gauge' | 'histogram' | 'summary'
 
 export interface Metric {
-  name: string;
-  type: MetricType;
-  help: string;
-  value: number;
-  labels?: Record<string, string>;
+  name: string
+  type: MetricType
+  help: string
+  value: number
+  labels?: Record<string, string>
 }
 
 export interface HistogramMetric extends Metric {
-  type: 'histogram';
-  buckets: { le: string; value: number }[];
-  sum: number;
-  count: number;
+  type: 'histogram'
+  buckets: { le: string; value: number }[]
+  sum: number
+  count: number
 }
 
 // ============================================
@@ -47,30 +44,30 @@ export class PrometheusExporter {
    * 生成所有 Prometheus 指标
    */
   async export(): Promise<string> {
-    const lines: string[] = [];
+    const lines: string[] = []
 
     // 系统指标
-    lines.push(...await this.generateSystemMetrics());
+    lines.push(...(await this.generateSystemMetrics()))
 
     // HTTP 指标
-    lines.push(...this.generateHttpMetrics());
+    lines.push(...this.generateHttpMetrics())
 
     // 数据库指标
-    lines.push(...this.generateDatabaseMetrics());
+    lines.push(...this.generateDatabaseMetrics())
 
     // 速率限制指标
-    lines.push(...this.generateRateLimitMetrics());
+    lines.push(...this.generateRateLimitMetrics())
 
-    return lines.join('\n') + '\n';
+    return lines.join('\n') + '\n'
   }
 
   /**
    * 生成系统指标
    */
   private generateSystemMetrics(): string[] {
-    const lines: string[] = [];
-    const memUsage = process.memoryUsage();
-    const uptime = process.uptime();
+    const lines: string[] = []
+    const memUsage = process.memoryUsage()
+    const uptime = process.uptime()
 
     // 内存指标
     lines.push(
@@ -98,7 +95,7 @@ export class PrometheusExporter {
         help: 'Resident set size',
         value: memUsage.rss,
       })
-    );
+    )
 
     // 运行时间
     lines.push(
@@ -108,7 +105,7 @@ export class PrometheusExporter {
         help: 'Process uptime in seconds',
         value: uptime,
       })
-    );
+    )
 
     // 事件循环延迟 (近似)
     lines.push(
@@ -118,17 +115,17 @@ export class PrometheusExporter {
         help: 'Lag of event loop in seconds',
         value: 0, // 需要实际测量
       })
-    );
+    )
 
-    return lines;
+    return lines
   }
 
   /**
    * 生成 HTTP 指标
    */
   private generateHttpMetrics(): string[] {
-    const lines: string[] = [];
-    const report = getApiPerformanceReport();
+    const lines: string[] = []
+    const report = getApiPerformanceReport()
 
     // 请求总数
     lines.push(
@@ -138,7 +135,7 @@ export class PrometheusExporter {
         help: 'Total number of HTTP requests',
         value: report.summary.totalRequests,
       })
-    );
+    )
 
     // 成功请求数
     lines.push(
@@ -148,7 +145,7 @@ export class PrometheusExporter {
         help: 'Total number of successful HTTP requests',
         value: report.summary.successfulRequests,
       })
-    );
+    )
 
     // 失败请求数
     lines.push(
@@ -158,7 +155,7 @@ export class PrometheusExporter {
         help: 'Total number of failed HTTP requests',
         value: report.summary.failedRequests,
       })
-    );
+    )
 
     // 慢请求数
     lines.push(
@@ -168,7 +165,7 @@ export class PrometheusExporter {
         help: 'Total number of slow HTTP requests (>500ms)',
         value: report.summary.slowRequests,
       })
-    );
+    )
 
     // 按状态码分组的请求
     Object.entries(report.summary.errors).forEach(([statusCode, count]) => {
@@ -180,8 +177,8 @@ export class PrometheusExporter {
           value: count,
           labels: { status: statusCode },
         })
-      );
-    });
+      )
+    })
 
     // 平均响应时间
     lines.push(
@@ -191,7 +188,7 @@ export class PrometheusExporter {
         help: 'Average HTTP request duration in seconds',
         value: report.summary.averageDuration / 1000,
       })
-    );
+    )
 
     // 最大响应时间
     lines.push(
@@ -201,7 +198,7 @@ export class PrometheusExporter {
         help: 'Maximum HTTP request duration in seconds',
         value: report.summary.maxDuration / 1000,
       })
-    );
+    )
 
     // 最小响应时间
     lines.push(
@@ -211,7 +208,7 @@ export class PrometheusExporter {
         help: 'Minimum HTTP request duration in seconds',
         value: report.summary.minDuration / 1000,
       })
-    );
+    )
 
     // 按路由分组的指标
     Object.entries(report.routes).forEach(([route, stats]) => {
@@ -237,12 +234,12 @@ export class PrometheusExporter {
           value: stats.errorRate / 100,
           labels: { route },
         })
-      );
-    });
+      )
+    })
 
     // P95 和 P99 响应时间 (需要从实际数据计算)
-    const p95 = this.calculatePercentile(report.slowRequests, 0.95);
-    const p99 = this.calculatePercentile(report.slowRequests, 0.99);
+    const p95 = this.calculatePercentile(report.slowRequests, 0.95)
+    const p99 = this.calculatePercentile(report.slowRequests, 0.99)
 
     if (p95 !== null) {
       lines.push(
@@ -252,7 +249,7 @@ export class PrometheusExporter {
           help: 'P95 HTTP request duration in seconds',
           value: p95 / 1000,
         })
-      );
+      )
     }
 
     if (p99 !== null) {
@@ -263,18 +260,18 @@ export class PrometheusExporter {
           help: 'P99 HTTP request duration in seconds',
           value: p99 / 1000,
         })
-      );
+      )
     }
 
-    return lines;
+    return lines
   }
 
   /**
    * 生成数据库指标
    */
   private generateDatabaseMetrics(): string[] {
-    const lines: string[] = [];
-    const dbSummary = getQueryMetricsSummary();
+    const lines: string[] = []
+    const dbSummary = getQueryMetricsSummary()
 
     // 查询总数
     lines.push(
@@ -284,7 +281,7 @@ export class PrometheusExporter {
         help: 'Total number of database queries',
         value: dbSummary.total,
       })
-    );
+    )
 
     // 平均查询时间
     lines.push(
@@ -294,7 +291,7 @@ export class PrometheusExporter {
         help: 'Average database query duration in seconds',
         value: dbSummary.avgDuration / 1000,
       })
-    );
+    )
 
     // 慢查询数
     lines.push(
@@ -304,7 +301,7 @@ export class PrometheusExporter {
         help: 'Total number of slow database queries',
         value: dbSummary.slowQueries.length,
       })
-    );
+    )
 
     // 查询成功率
     lines.push(
@@ -314,7 +311,7 @@ export class PrometheusExporter {
         help: 'Database query success rate (0-1)',
         value: dbSummary.successRate,
       })
-    );
+    )
 
     // 按操作类型分组的指标
     Object.entries(dbSummary.byOperation).forEach(([operation, stats]) => {
@@ -340,18 +337,18 @@ export class PrometheusExporter {
           value: stats.errorRate,
           labels: { operation },
         })
-      );
-    });
+      )
+    })
 
-    return lines;
+    return lines
   }
 
   /**
    * 生成速率限制指标
    */
   private generateRateLimitMetrics(): string[] {
-    const lines: string[] = [];
-    const rateLimitStats = getRateLimitStats();
+    const lines: string[] = []
+    const rateLimitStats = getRateLimitStats()
 
     // 总条目数
     lines.push(
@@ -361,7 +358,7 @@ export class PrometheusExporter {
         help: 'Total number of rate limit entries',
         value: rateLimitStats.totalEntries,
       })
-    );
+    )
 
     // 追踪的路径数
     lines.push(
@@ -371,7 +368,7 @@ export class PrometheusExporter {
         help: 'Number of paths with rate limiting',
         value: rateLimitStats.trackedPaths.length,
       })
-    );
+    )
 
     // 总请求数
     lines.push(
@@ -381,54 +378,51 @@ export class PrometheusExporter {
         help: 'Total number of rate-limited requests',
         value: rateLimitStats.totalRequests,
       })
-    );
+    )
 
-    return lines;
+    return lines
   }
 
   /**
    * 计算百分位数
    */
-  private calculatePercentile(
-    metrics: ApiPerformanceData[],
-    percentile: number
-  ): number | null {
-    if (metrics.length === 0) return null;
+  private calculatePercentile(metrics: ApiPerformanceData[], percentile: number): number | null {
+    if (metrics.length === 0) return null
 
-    const sorted = [...metrics].sort((a, b) => a.duration - b.duration);
-    const index = Math.ceil(sorted.length * percentile) - 1;
-    return sorted[Math.max(0, index)].duration;
+    const sorted = [...metrics].sort((a, b) => a.duration - b.duration)
+    const index = Math.ceil(sorted.length * percentile) - 1
+    return sorted[Math.max(0, index)].duration
   }
 
   /**
    * 格式化 Prometheus 指标
    */
   private formatMetric(metric: Metric): string {
-    const lines: string[] = [];
+    const lines: string[] = []
 
     // HELP 注释
-    lines.push(`# HELP ${metric.name} ${metric.help}`);
+    lines.push(`# HELP ${metric.name} ${metric.help}`)
 
     // TYPE 注释
-    lines.push(`# TYPE ${metric.name} ${metric.type}`);
+    lines.push(`# TYPE ${metric.name} ${metric.type}`)
 
     // 指标值
     const labels = metric.labels
       ? `{${Object.entries(metric.labels)
           .map(([k, v]) => `${k}="${this.escapeLabelValue(v)}"`)
           .join(',')}}`
-      : '';
+      : ''
 
-    lines.push(`${metric.name}${labels} ${metric.value}`);
+    lines.push(`${metric.name}${labels} ${metric.value}`)
 
-    return lines.join('\n');
+    return lines.join('\n')
   }
 
   /**
    * 转义标签值
    */
   private escapeLabelValue(value: string): string {
-    return value.replace(/\\/g, '\\\\').replace(/"/g, '\\"').replace(/\n/g, '\\n');
+    return value.replace(/\\/g, '\\\\').replace(/"/g, '\\"').replace(/\n/g, '\\n')
   }
 }
 
@@ -436,7 +430,7 @@ export class PrometheusExporter {
 // 单例
 // ============================================
 
-export const prometheusExporter = new PrometheusExporter();
+export const prometheusExporter = new PrometheusExporter()
 
 // ============================================
 // 便捷函数
@@ -447,11 +441,11 @@ export const prometheusExporter = new PrometheusExporter();
  */
 export async function exportPrometheusMetrics(): Promise<string> {
   try {
-    const metrics = await prometheusExporter.export();
-    logger.debug('[Prometheus] Metrics exported successfully');
-    return metrics;
-  } catch (_error) {
-    logger.error('[Prometheus] Failed to export metrics', error);
-    throw error;
+    const metrics = await prometheusExporter.export()
+    logger.debug('[Prometheus] Metrics exported successfully')
+    return metrics
+  } catch (error) {
+    logger.error('[Prometheus] Failed to export metrics', error)
+    throw error
   }
 }

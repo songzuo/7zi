@@ -60,6 +60,7 @@ npm run start
 ```
 
 **验证清单**:
+
 - ✅ 开发服务器启动成功 (http://localhost:3000)
 - ✅ 类型检查通过
 - ✅ Lint 检查通过
@@ -72,21 +73,21 @@ npm run start
 
 ### 必需软件
 
-| 软件 | 版本要求 | 说明 |
-|------|---------|------|
-| **Node.js** | ≥ 20.0.0 | 推荐 22.x LTS |
-| **npm** | ≥ 10.0.0 | 包管理器 |
-| **Git** | ≥ 2.40 | 版本控制 |
-| **PostgreSQL** | ≥ 15 | 数据库（生产环境） |
-| **Redis** | ≥ 7.0 | 缓存和会话存储（可选） |
+| 软件           | 版本要求 | 说明                   |
+| -------------- | -------- | ---------------------- |
+| **Node.js**    | ≥ 20.0.0 | 推荐 22.x LTS          |
+| **npm**        | ≥ 10.0.0 | 包管理器               |
+| **Git**        | ≥ 2.40   | 版本控制               |
+| **PostgreSQL** | ≥ 15     | 数据库（生产环境）     |
+| **Redis**      | ≥ 7.0    | 缓存和会话存储（可选） |
 
 ### 推荐工具
 
-| 工具 | 用途 | 安装命令 |
-|------|------|----------|
+| 工具        | 用途       | 安装命令                       |
+| ----------- | ---------- | ------------------------------ |
 | **VS Code** | 代码编辑器 | https://code.visualstudio.com/ |
-| **Docker** | 容器化部署 | https://www.docker.com/ |
-| **Postman** | API 测试 | https://www.postman.com/ |
+| **Docker**  | 容器化部署 | https://www.docker.com/        |
+| **Postman** | API 测试   | https://www.postman.com/       |
 
 ### 环境变量配置
 
@@ -178,24 +179,24 @@ src/app/
 
 **v1.4.0 新增模块**:
 
-| 模块 | 路径 | 功能 |
-|------|------|------|
-| **agent-scheduler** | `lib/agent-scheduler/` | AI Agent 智能调度系统 |
-| **performance-monitoring** | `lib/performance-monitoring/` | 性能监控和告警 |
-| **rate-limit** | `lib/rate-limit/` | API 速率限制 |
-| **prefetch** | `lib/prefetch/` | 智能预加载 |
-| **keyboard-shortcuts** | `lib/keyboard-shortcuts/` | 键盘快捷键 |
+| 模块                       | 路径                          | 功能                  |
+| -------------------------- | ----------------------------- | --------------------- |
+| **agent-scheduler**        | `lib/agent-scheduler/`        | AI Agent 智能调度系统 |
+| **performance-monitoring** | `lib/performance-monitoring/` | 性能监控和告警        |
+| **rate-limit**             | `lib/rate-limit/`             | API 速率限制          |
+| **prefetch**               | `lib/prefetch/`               | 智能预加载            |
+| **keyboard-shortcuts**     | `lib/keyboard-shortcuts/`     | 键盘快捷键            |
 
 **核心模块**:
 
-| 模块 | 功能 | 关键文件 |
-|------|------|----------|
-| **auth** | 认证授权 | `auth.ts`, `session.ts` |
-| **db** | 数据库操作 | `index.ts`, `connection.ts` |
-| **websocket** | WebSocket 通信 | `client.ts`, `rooms.ts` |
-| **api** | API 工具 | `fetch.ts`, `cache.ts` |
-| **logger** | 日志系统 | `logger.ts` |
-| **cache** | 缓存管理 | `redis-cache.ts` |
+| 模块          | 功能           | 关键文件                    |
+| ------------- | -------------- | --------------------------- |
+| **auth**      | 认证授权       | `auth.ts`, `session.ts`     |
+| **db**        | 数据库操作     | `index.ts`, `connection.ts` |
+| **websocket** | WebSocket 通信 | `client.ts`, `rooms.ts`     |
+| **api**       | API 工具       | `fetch.ts`, `cache.ts`      |
+| **logger**    | 日志系统       | `logger.ts`                 |
+| **cache**     | 缓存管理       | `redis-cache.ts`            |
 
 #### `src/components/` - 组件库（31 个分类）
 
@@ -253,6 +254,7 @@ git push origin feature/your-feature-name
 ```
 
 **类型**:
+
 - `feat`: 新功能
 - `fix`: Bug 修复
 - `docs`: 文档更新
@@ -263,6 +265,7 @@ git push origin feature/your-feature-name
 - `chore`: 构建/工具
 
 **示例**:
+
 ```bash
 feat(agent-scheduler): add intelligent task matching algorithm
 
@@ -293,6 +296,7 @@ npm run test:api
 ```
 
 **测试文件命名**:
+
 - 单元测试: `*.test.ts` 或 `*.test.tsx`
 - 集成测试: `tests/api-integration/*.test.ts`
 - E2E 测试: `tests/e2e/*.spec.ts`
@@ -322,44 +326,44 @@ npm run format
 
 ### 核心框架
 
-| 技术 | 版本 | 用途 |
-|------|------|------|
-| **Next.js** | 16.2.1 | 全栈 React 框架 |
-| **React** | 19.2.4 | UI 库 |
-| **TypeScript** | 5.x | 类型安全 |
-| **Tailwind CSS** | 4.x | 样式框架 |
+| 技术             | 版本   | 用途            |
+| ---------------- | ------ | --------------- |
+| **Next.js**      | 16.2.1 | 全栈 React 框架 |
+| **React**        | 19.2.4 | UI 库           |
+| **TypeScript**   | 5.x    | 类型安全        |
+| **Tailwind CSS** | 4.x    | 样式框架        |
 
 ### 状态管理
 
-| 技术 | 版本 | 用途 |
-|------|------|------|
-| **Zustand** | 5.0.12 | 全局状态管理 |
-| **React Context** | 内置 | 局部状态共享 |
+| 技术              | 版本   | 用途         |
+| ----------------- | ------ | ------------ |
+| **Zustand**       | 5.0.12 | 全局状态管理 |
+| **React Context** | 内置   | 局部状态共享 |
 
 ### 数据处理
 
-| 技术 | 版本 | 用途 |
-|------|------|------|
-| **PostgreSQL** | ≥ 15 | 主数据库 |
-| **Redis** | ≥ 7.0 | 缓存、会话 |
-| **Socket.IO** | 4.8.3 | WebSocket 通信 |
+| 技术           | 版本  | 用途           |
+| -------------- | ----- | -------------- |
+| **PostgreSQL** | ≥ 15  | 主数据库       |
+| **Redis**      | ≥ 7.0 | 缓存、会话     |
+| **Socket.IO**  | 4.8.3 | WebSocket 通信 |
 
 ### 工具库
 
-| 技术 | 用途 |
-|------|------|
-| **Zod** | 数据验证 |
-| **date-fns** | 日期处理 |
-| **Recharts** | 图表可视化 |
-| **Lucide React** | 图标库 |
+| 技术             | 用途       |
+| ---------------- | ---------- |
+| **Zod**          | 数据验证   |
+| **date-fns**     | 日期处理   |
+| **Recharts**     | 图表可视化 |
+| **Lucide React** | 图标库     |
 
 ### 测试工具
 
-| 技术 | 版本 | 用途 |
-|------|------|------|
-| **Vitest** | - | 单元测试 |
-| **Playwright** | 1.58.2 | E2E 测试 |
-| **Testing Library** | - | React 测试 |
+| 技术                | 版本   | 用途       |
+| ------------------- | ------ | ---------- |
+| **Vitest**          | -      | 单元测试   |
+| **Playwright**      | 1.58.2 | E2E 测试   |
+| **Testing Library** | -      | React 测试 |
 
 ---
 
@@ -397,19 +401,19 @@ npm run format
   },
   "typescript.tsdk": "node_modules/typescript/lib",
   "typescript.enablePromptUseWorkspaceTsdk": true,
-  "tailwindCSS.experimental.classRegex": [
-    ["clsx\\(([^)]*)\\)", "(?:'|\"|`)([^']*)(?:'|\"|`)"]
-  ]
+  "tailwindCSS.experimental.classRegex": [["clsx\\(([^)]*)\\)", "(?:'|\"|`)([^']*)(?:'|\"|`)"]]
 }
 ```
 
 ### Chrome 开发工具
 
 **React DevTools**:
+
 - 安装: Chrome Web Store
 - 用途: React 组件树、Props、State 查看
 
 **React Compiler DevTools** (v1.4.0+):
+
 - 用途: 查看编译器优化效果
 - 功能: 组件重新渲染次数、性能分析
 
@@ -421,11 +425,11 @@ npm run format
 
 ```typescript
 // 使用统一的 logger
-import { logger } from '@/lib/logger';
+import { logger } from '@/lib/logger'
 
-logger.info('Task created', { taskId: '123' });
-logger.warn('Rate limit approaching', { remaining: 10 });
-logger.error('Database connection failed', { error: err });
+logger.info('Task created', { taskId: '123' })
+logger.warn('Rate limit approaching', { remaining: 10 })
+logger.error('Database connection failed', { error: err })
 ```
 
 ### 🐛 断点调试
@@ -455,50 +459,56 @@ logger.error('Database connection failed', { error: err });
 ### 📊 性能调试
 
 **React Profiler**:
-```tsx
-import { Profiler } from 'react';
 
-<Profiler id="TaskList" onRender={(id, phase, actualDuration) => {
-  console.log(`${id} ${phase} took ${actualDuration}ms`);
-}}>
+```tsx
+import { Profiler } from 'react'
+;<Profiler
+  id="TaskList"
+  onRender={(id, phase, actualDuration) => {
+    console.log(`${id} ${phase} took ${actualDuration}ms`)
+  }}
+>
   <TaskList />
 </Profiler>
 ```
 
 **性能监控** (v1.4.0):
+
 ```typescript
-import { anomalyDetector } from '@/lib/performance-monitoring';
+import { anomalyDetector } from '@/lib/performance-monitoring'
 
 // 检测异常
-const result = anomalyDetector.detectAnomaly('LCP', 3000);
+const result = anomalyDetector.detectAnomaly('LCP', 3000)
 if (result.isAnomaly) {
-  console.warn('Performance anomaly detected:', result);
+  console.warn('Performance anomaly detected:', result)
 }
 ```
 
 ### 🌐 网络调试
 
 **API 请求追踪**:
+
 ```typescript
 // 使用 fetch wrapper
-import { fetchWithCache } from '@/lib/api';
+import { fetchWithCache } from '@/lib/api'
 
 const data = await fetchWithCache('/api/tasks', {
   cacheTags: ['tasks'],
-  cacheProfile: 'minutes'
-});
+  cacheProfile: 'minutes',
+})
 ```
 
 **WebSocket 调试**:
+
 ```typescript
-import { wsClient } from '@/lib/websocket';
+import { wsClient } from '@/lib/websocket'
 
 // 查看连接状态
-console.log('WebSocket state:', wsClient.getStatus());
+console.log('WebSocket state:', wsClient.getStatus())
 
 // 监听事件
-wsClient.on('connect', () => console.log('Connected'));
-wsClient.on('disconnect', (reason) => console.log('Disconnected:', reason));
+wsClient.on('connect', () => console.log('Connected'))
+wsClient.on('disconnect', reason => console.log('Disconnected:', reason))
 ```
 
 ---
@@ -577,9 +587,9 @@ npm run dev
 export default defineConfig({
   test: {
     testTimeout: 30000, // 30 秒
-    hookTimeout: 30000
-  }
-});
+    hookTimeout: 30000,
+  },
+})
 ```
 
 **Q: E2E 测试失败**
@@ -611,9 +621,9 @@ python scripts/translate-i18n.py
 
 ```typescript
 // 检查 Cookie 设置
-import { setLanguage } from '@/lib/i18n';
+import { setLanguage } from '@/lib/i18n'
 
-await setLanguage('zh'); // 设置中文
+await setLanguage('zh') // 设置中文
 ```
 
 ### ❓ WebSocket 问题
@@ -622,23 +632,23 @@ await setLanguage('zh'); // 设置中文
 
 ```typescript
 // 检查连接配置
-import { wsClient } from '@/lib/websocket';
+import { wsClient } from '@/lib/websocket'
 
-console.log('Config:', wsClient.getConfig());
-console.log('Status:', wsClient.getStatus());
+console.log('Config:', wsClient.getConfig())
+console.log('Status:', wsClient.getStatus())
 
 // 手动重连
-wsClient.reconnect();
+wsClient.reconnect()
 ```
 
 **Q: 房间加入失败**
 
 ```typescript
 // 检查权限
-import { roomManager } from '@/lib/websocket/rooms';
+import { roomManager } from '@/lib/websocket/rooms'
 
-const canJoin = await roomManager.checkPermission(roomId, userId, 'join');
-console.log('Can join:', canJoin);
+const canJoin = await roomManager.checkPermission(roomId, userId, 'join')
+console.log('Can join:', canJoin)
 ```
 
 ### ❓ 性能问题
@@ -659,11 +669,11 @@ npm run build:analyze
 // 使用 React DevTools Profiler
 // 或使用性能监控工具
 
-import { performanceMonitor } from '@/lib/performance-monitoring';
+import { performanceMonitor } from '@/lib/performance-monitoring'
 
-performanceMonitor.startTracking('memory');
+performanceMonitor.startTracking('memory')
 // ... 你的代码
-performanceMonitor.stopTracking('memory');
+performanceMonitor.stopTracking('memory')
 ```
 
 ---

@@ -26,40 +26,40 @@
 
 新增了以下房间事件处理器：
 
-| 事件名称 | 处理器 | 描述 |
-|---------|-------|------|
-| `room:create` | `room:create` | 创建新房间，支持房间配置 |
+| 事件名称      | 处理器        | 描述                           |
+| ------------- | ------------- | ------------------------------ |
+| `room:create` | `room:create` | 创建新房间，支持房间配置       |
 | `room:delete` | `room:delete` | 删除房间，仅房主或管理员可操作 |
 
 #### 已存在的房间事件处理器
 
 以下事件处理器已正确实现：
 
-| 事件名称 | 处理器 | 描述 |
-|---------|-------|------|
-| `room:join` | `room:join` | 加入房间，支持自动创建 |
-| `room:leave` | `room:leave` | 离开房间 |
-| `room:kick` | `room:kick` | 踢出用户 |
-| `room:ban` | `room:ban` | 封禁用户 |
-| `room:unban` | `room:unban` | 解除封禁 |
-| `room:invite` | `room:invite` | 邀请用户 |
-| `room:change_role` | `room:change_role` | 更改用户角色 |
-| `room:get_users` | `room:get_users` | 获取房间用户列表 |
-| `room:get_info` | `room:get_info` | 获取房间信息 |
+| 事件名称           | 处理器             | 描述                   |
+| ------------------ | ------------------ | ---------------------- |
+| `room:join`        | `room:join`        | 加入房间，支持自动创建 |
+| `room:leave`       | `room:leave`       | 离开房间               |
+| `room:kick`        | `room:kick`        | 踢出用户               |
+| `room:ban`         | `room:ban`         | 封禁用户               |
+| `room:unban`       | `room:unban`       | 解除封禁               |
+| `room:invite`      | `room:invite`      | 邀请用户               |
+| `room:change_role` | `room:change_role` | 更改用户角色           |
+| `room:get_users`   | `room:get_users`   | 获取房间用户列表       |
+| `room:get_info`    | `room:get_info`    | 获取房间信息           |
 
 #### 消息事件处理器（已存在）
 
 所有消息事件处理器已正确实现：
 
-| 事件名称 | 处理器 | 描述 |
-|---------|-------|------|
-| `message:send` | `message:send` | 发送消息 |
-| `message:edit` | `message:edit` | 编辑消息 |
-| `message:delete` | `message:delete` | 删除消息 |
-| `message:react` | `message:react` | 添加表情反应 |
-| `message:pin` | `message:pin` | 固定消息 |
+| 事件名称              | 处理器                | 描述         |
+| --------------------- | --------------------- | ------------ |
+| `message:send`        | `message:send`        | 发送消息     |
+| `message:edit`        | `message:edit`        | 编辑消息     |
+| `message:delete`      | `message:delete`      | 删除消息     |
+| `message:react`       | `message:react`       | 添加表情反应 |
+| `message:pin`         | `message:pin`         | 固定消息     |
 | `message:get_history` | `message:get_history` | 获取历史消息 |
-| `message:get_pinned` | `message:get_pinned` | 获取固定消息 |
+| `message:get_pinned`  | `message:get_pinned`  | 获取固定消息 |
 
 ### 2. 索引导出修复
 
@@ -71,10 +71,10 @@
 
 ```typescript
 export {
-  RoomManager,           // ✅ 新增
+  RoomManager, // ✅ 新增
   getRoomManager,
   resetRoomManager,
-} from './rooms';
+} from './rooms'
 
 export type {
   RoomType,
@@ -86,20 +86,20 @@ export type {
   CreateRoomOptions,
   JoinRoomOptions,
   RoomEventCallbacks,
-} from './rooms';
+} from './rooms'
 ```
 
 #### 权限管理模块
 
 ```typescript
 export {
-  PermissionManager,     // ✅ 新增
+  PermissionManager, // ✅ 新增
   getPermissionManager,
   resetPermissionManager,
   createPermissionChecker,
   checkPermissions,
   DEFAULT_ROLE_PERMISSIONS,
-} from './permissions';
+} from './permissions'
 
 export type {
   RoomPermission,
@@ -109,17 +109,17 @@ export type {
   UserRole,
   PermissionGrant,
   UserRoomPermissions,
-} from './permissions';
+} from './permissions'
 ```
 
 #### 消息存储模块
 
 ```typescript
 export {
-  MessageStore,           // ✅ 新增
+  MessageStore, // ✅ 新增
   getMessageStore,
   resetMessageStore,
-} from './message-store';
+} from './message-store'
 
 export type {
   StoredMessage,
@@ -127,7 +127,7 @@ export type {
   OfflineMessage,
   MessageHistoryOptions,
   MessageStoreStats,
-} from './message-store';
+} from './message-store'
 ```
 
 ### 3. 修复内容汇总

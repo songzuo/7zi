@@ -1,3 +1,3 @@
-'use client';
+'use client'
 
-export { default } from './error-enhanced';
+export { default } from './error-enhanced'

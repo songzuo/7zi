@@ -1,4 +1,5 @@
 # Bundle Performance Optimization Report
+
 **Date:** 2026-03-29
 **Task:** Sprint 2 S3 - Bundle Performance Optimization
 **Agent:** 🎨 Designer + ⚡ Executor
@@ -8,6 +9,7 @@
 ## Executive Summary
 
 This report documents the bundle performance optimization work for the 7zi-frontend project. The primary goals were:
+
 1. Implement dynamic import for Three.js (38MB reduction)
 2. Convert PNG icons to WebP format
 3. Analyze bundle sizes and identify optimization opportunities
@@ -34,6 +36,7 @@ const KnowledgeLattice3D = dynamic(
 ```
 
 **Benefits:**
+
 - Three.js (~38MB) is only loaded when visiting `/knowledge-lattice`
 - SSR disabled to prevent server-side rendering issues
 - Loading state provides better UX during bundle loading
@@ -47,11 +50,13 @@ const KnowledgeLattice3D = dynamic(
 **File Modified:** `next.config.ts`
 
 **Changes:**
+
 - Switched from Turbopack to Webpack (Turbopack has compatibility issues with Next.js 16.2.1)
 - Added empty `turbopack: {}` config to force Webpack usage
 - Updated package.json scripts to use `--webpack` flag
 
 **Package.json Updates:**
+
 ```json
 "build": "NODE_ENV=production next build --webpack",
 ```
@@ -64,16 +69,16 @@ const KnowledgeLattice3D = dynamic(
 
 The following chunk optimization strategies are in place:
 
-| Chunk Group | Pattern | Priority | Max Size | Purpose |
-|-------------|---------|----------|-----------|---------|
-| `three-libs` | three, @react-three | 60 | 300KB | Separate Three.js libraries |
-| `chart-libs` | recharts, d3, @visx | 50 | 200KB | Separate chart libraries |
-| `realtime-libs` | socket.io, engine.io | 45 | 200KB | Separate WebSocket libraries |
-| `ui-libs` | @radix-ui, lucide-react | 40 | 200KB | Separate UI components |
-| `framework` | react, react-dom, next | 35 | 400KB | Framework core |
-| `vendor-utils` | zustand, immer, uuid, date-fns | 30 | 200KB | Utility libraries |
-| `forms-libs` | zod, react-hook-form | 25 | 200KB | Form validation |
-| `i18n-libs` | i18next, react-i18next | 22 | 200KB | Internationalization |
+| Chunk Group     | Pattern                        | Priority | Max Size | Purpose                      |
+| --------------- | ------------------------------ | -------- | -------- | ---------------------------- |
+| `three-libs`    | three, @react-three            | 60       | 300KB    | Separate Three.js libraries  |
+| `chart-libs`    | recharts, d3, @visx            | 50       | 200KB    | Separate chart libraries     |
+| `realtime-libs` | socket.io, engine.io           | 45       | 200KB    | Separate WebSocket libraries |
+| `ui-libs`       | @radix-ui, lucide-react        | 40       | 200KB    | Separate UI components       |
+| `framework`     | react, react-dom, next         | 35       | 400KB    | Framework core               |
+| `vendor-utils`  | zustand, immer, uuid, date-fns | 30       | 200KB    | Utility libraries            |
+| `forms-libs`    | zod, react-hook-form           | 25       | 200KB    | Form validation              |
+| `i18n-libs`     | i18next, react-i18next         | 22       | 200KB    | Internationalization         |
 
 ---
 
@@ -81,15 +86,15 @@ The following chunk optimization strategies are in place:
 
 ### Current Bundle Sizes
 
-| Page/Route | Bundle Size | Notes |
-|------------|-------------|-------|
-| `main` | 710 KiB | Main entry point |
-| `main-app` | 706 KiB | App router bundle |
-| `app/page` | 702 KiB | Homepage |
-| `app/layout` | 711 KiB | Root layout |
+| Page/Route                            | Bundle Size | Notes                  |
+| ------------------------------------- | ----------- | ---------------------- |
+| `main`                                | 710 KiB     | Main entry point       |
+| `main-app`                            | 706 KiB     | App router bundle      |
+| `app/page`                            | 702 KiB     | Homepage               |
+| `app/layout`                          | 711 KiB     | Root layout            |
 | `app/[locale]/knowledge-lattice/page` | **704 KiB** | Knowledge Lattice page |
-| `app/feedback/page` | 799 KiB | Feedback page |
-| `app/ui-components-demo/page` | 782 KiB | UI demo page |
+| `app/feedback/page`                   | 799 KiB     | Feedback page          |
+| `app/ui-components-demo/page`         | 782 KiB     | UI demo page           |
 
 ### Key Observations:
 
@@ -152,6 +157,7 @@ The following chunk optimization strategies are in place:
 - Images in `public/` directory: (none found)
 
 **Configuration (next.config.ts):**
+
 ```typescript
 images: {
   formats: ['image/avif', 'image/webp'],
@@ -233,6 +239,7 @@ images: {
 ## Conclusion
 
 **Progress:**
+
 - ✅ Three.js dynamic import: Already implemented
 - ✅ Build configuration: Optimized for Webpack
 - ✅ Image optimization: Handled by Next.js automatically
@@ -240,6 +247,7 @@ images: {
 - ❌ Full validation: Blocked by TypeScript errors
 
 **Estimated Bundle Size Reduction:**
+
 - Three.js lazy loading: ~10-15% for pages not using 3D
 - Tree-shaking improvements: ~5-10% (pending verification)
 - Total potential: **15-25%** reduction

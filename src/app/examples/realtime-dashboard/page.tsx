@@ -7,42 +7,42 @@
  * - Connection status monitoring
  */
 
-'use client';
+'use client'
 
-export const dynamic = 'force-dynamic';
+export const dynamic = 'force-dynamic'
 
-import React, { useState, useEffect } from 'react';
-import { NotificationPanel } from '@/components/realtime/NotificationPanel';
-import { TaskUpdateFeed } from '@/components/realtime/TaskUpdateFeed';
-import { Button } from '@/components/ui/Button';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/Card';
-import { Bell, Wifi, WifiOff, RefreshCw } from 'lucide-react';
+import React, { useState, useEffect } from 'react'
+import { NotificationPanel } from '@/components/realtime/NotificationPanel'
+import { TaskUpdateFeed } from '@/components/realtime/TaskUpdateFeed'
+import { Button } from '@/components/ui/Button'
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/Card'
+import { Bell, Wifi, WifiOff, RefreshCw } from 'lucide-react'
 
 export default function RealtimeDashboardExample() {
   // All hooks must be called at the top level
-  const [showNotifications, setShowNotifications] = useState(false);
-  const [selectedProject, setSelectedProject] = useState<string | null>('project-1');
-  const [selectedTask, setSelectedTask] = useState<string | null>(null);
-  const [isMounted, setIsMounted] = useState(false);
+  const [showNotifications, setShowNotifications] = useState(false)
+  const [selectedProject, setSelectedProject] = useState<string | null>('project-1')
+  const [selectedTask, setSelectedTask] = useState<string | null>(null)
+  const [isMounted, setIsMounted] = useState(false)
 
   useEffect(() => {
     // eslint-disable-next-line react-hooks/set-state-in-effect
-    setIsMounted(true);
-  }, []);
+    setIsMounted(true)
+  }, [])
 
   // Skip SSR
   if (!isMounted) {
-    return null;
+    return null
   }
 
   // Mock user ID - in production this would come from authentication
-  const userId = 'user-123';
+  const userId = 'user-123'
 
   return (
     <div className="min-h-screen bg-zinc-50 dark:bg-zinc-900">
       {/* Header */}
-      <header className="bg-white dark:bg-zinc-800 border-b border-zinc-200 dark:border-zinc-700 px-6 py-4">
-        <div className="max-w-7xl mx-auto flex items-center justify-between">
+      <header className="border-b border-zinc-200 bg-white px-6 py-4 dark:border-zinc-700 dark:bg-zinc-800">
+        <div className="mx-auto flex max-w-7xl items-center justify-between">
           <div>
             <h1 className="text-2xl font-bold text-zinc-900 dark:text-zinc-100">
               Real-time Dashboard
@@ -54,8 +54,8 @@ export default function RealtimeDashboardExample() {
 
           <div className="flex items-center gap-4">
             {/* Connection Status */}
-            <div className="flex items-center gap-2 px-3 py-1.5 bg-zinc-100 dark:bg-zinc-700 rounded-full">
-              <Wifi className="w-4 h-4 text-green-500" />
+            <div className="flex items-center gap-2 rounded-full bg-zinc-100 px-3 py-1.5 dark:bg-zinc-700">
+              <Wifi className="h-4 w-4 text-green-500" />
               <span className="text-sm font-medium text-zinc-700 dark:text-zinc-300">
                 Connected
               </span>
@@ -69,8 +69,8 @@ export default function RealtimeDashboardExample() {
                 onClick={() => setShowNotifications(!showNotifications)}
                 className="relative"
               >
-                <Bell className="w-5 h-5" />
-                <span className="absolute -top-1 -right-1 w-5 h-5 bg-red-500 text-white text-xs rounded-full flex items-center justify-center">
+                <Bell className="h-5 w-5" />
+                <span className="absolute -top-1 -right-1 flex h-5 w-5 items-center justify-center rounded-full bg-red-500 text-xs text-white">
                   3
                 </span>
               </Button>
@@ -90,24 +90,24 @@ export default function RealtimeDashboardExample() {
       </header>
 
       {/* Main Content */}
-      <main className="max-w-7xl mx-auto px-6 py-8">
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+      <main className="mx-auto max-w-7xl px-6 py-8">
+        <div className="grid grid-cols-1 gap-6 lg:grid-cols-3">
           {/* Left Column - Task Updates */}
-          <div className="lg:col-span-2 space-y-6">
+          <div className="space-y-6 lg:col-span-2">
             <Card>
               <CardHeader>
                 <CardTitle>Task Updates Feed</CardTitle>
               </CardHeader>
               <CardContent>
-                <div className="space-y-4 mb-6">
+                <div className="mb-6 space-y-4">
                   <div className="flex items-center gap-4">
                     <label className="text-sm font-medium text-zinc-700 dark:text-zinc-300">
                       Project:
                     </label>
                     <select
                       value={selectedProject || ''}
-                      onChange={(e) => setSelectedProject(e.target.value || null)}
-                      className="flex-1 px-3 py-2 border border-zinc-300 dark:border-zinc-600 rounded-lg bg-white dark:bg-zinc-800 text-zinc-900 dark:text-zinc-100"
+                      onChange={e => setSelectedProject(e.target.value || null)}
+                      className="flex-1 rounded-lg border border-zinc-300 bg-white px-3 py-2 text-zinc-900 dark:border-zinc-600 dark:bg-zinc-800 dark:text-zinc-100"
                     >
                       <option value="">All Projects</option>
                       <option value="project-1">Project Alpha</option>
@@ -122,8 +122,8 @@ export default function RealtimeDashboardExample() {
                     </label>
                     <select
                       value={selectedTask || ''}
-                      onChange={(e) => setSelectedTask(e.target.value || null)}
-                      className="flex-1 px-3 py-2 border border-zinc-300 dark:border-zinc-600 rounded-lg bg-white dark:bg-zinc-800 text-zinc-900 dark:text-zinc-100"
+                      onChange={e => setSelectedTask(e.target.value || null)}
+                      className="flex-1 rounded-lg border border-zinc-300 bg-white px-3 py-2 text-zinc-900 dark:border-zinc-600 dark:bg-zinc-800 dark:text-zinc-100"
                     >
                       <option value="">All Tasks</option>
                       <option value="task-1">Task 1: Design Homepage</option>
@@ -146,44 +146,30 @@ export default function RealtimeDashboardExample() {
             <Card>
               <CardHeader>
                 <CardTitle>WebSocket Statistics</CardTitle>
-                  Real-time connection metrics
+                Real-time connection metrics
               </CardHeader>
               <CardContent>
-                <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-                  <div className="p-4 bg-zinc-50 dark:bg-zinc-700 rounded-lg">
-                    <div className="text-2xl font-bold text-zinc-900 dark:text-zinc-100">
-                      1,234
-                    </div>
-                    <div className="text-sm text-zinc-500 dark:text-zinc-400">
-                      Messages Sent
-                    </div>
+                <div className="grid grid-cols-2 gap-4 md:grid-cols-4">
+                  <div className="rounded-lg bg-zinc-50 p-4 dark:bg-zinc-700">
+                    <div className="text-2xl font-bold text-zinc-900 dark:text-zinc-100">1,234</div>
+                    <div className="text-sm text-zinc-500 dark:text-zinc-400">Messages Sent</div>
                   </div>
 
-                  <div className="p-4 bg-zinc-50 dark:bg-zinc-700 rounded-lg">
-                    <div className="text-2xl font-bold text-zinc-900 dark:text-zinc-100">
-                      5,678
-                    </div>
+                  <div className="rounded-lg bg-zinc-50 p-4 dark:bg-zinc-700">
+                    <div className="text-2xl font-bold text-zinc-900 dark:text-zinc-100">5,678</div>
                     <div className="text-sm text-zinc-500 dark:text-zinc-400">
                       Messages Received
                     </div>
                   </div>
 
-                  <div className="p-4 bg-zinc-50 dark:bg-zinc-700 rounded-lg">
-                    <div className="text-2xl font-bold text-zinc-900 dark:text-zinc-100">
-                      12
-                    </div>
-                    <div className="text-sm text-zinc-500 dark:text-zinc-400">
-                      Reconnections
-                    </div>
+                  <div className="rounded-lg bg-zinc-50 p-4 dark:bg-zinc-700">
+                    <div className="text-2xl font-bold text-zinc-900 dark:text-zinc-100">12</div>
+                    <div className="text-sm text-zinc-500 dark:text-zinc-400">Reconnections</div>
                   </div>
 
-                  <div className="p-4 bg-zinc-50 dark:bg-zinc-700 rounded-lg">
-                    <div className="text-2xl font-bold text-zinc-900 dark:text-zinc-100">
-                      45m
-                    </div>
-                    <div className="text-sm text-zinc-500 dark:text-zinc-400">
-                      Connected For
-                    </div>
+                  <div className="rounded-lg bg-zinc-50 p-4 dark:bg-zinc-700">
+                    <div className="text-2xl font-bold text-zinc-900 dark:text-zinc-100">45m</div>
+                    <div className="text-sm text-zinc-500 dark:text-zinc-400">Connected For</div>
                   </div>
                 </div>
               </CardContent>
@@ -196,35 +182,29 @@ export default function RealtimeDashboardExample() {
             <Card>
               <CardHeader>
                 <CardTitle>Active Rooms</CardTitle>
-                  Rooms you&apos;re currently connected to
+                Rooms you&apos;re currently connected to
               </CardHeader>
               <CardContent>
                 <div className="space-y-3">
-                  <div className="flex items-center justify-between p-3 bg-zinc-50 dark:bg-zinc-700 rounded-lg">
+                  <div className="flex items-center justify-between rounded-lg bg-zinc-50 p-3 dark:bg-zinc-700">
                     <div>
                       <div className="font-medium text-zinc-900 dark:text-zinc-100">
                         Project Alpha
                       </div>
-                      <div className="text-xs text-zinc-500 dark:text-zinc-400">
-                        5 users online
-                      </div>
+                      <div className="text-xs text-zinc-500 dark:text-zinc-400">5 users online</div>
                     </div>
-                    <div className="w-2 h-2 bg-green-500 rounded-full" />
+                    <div className="h-2 w-2 rounded-full bg-green-500" />
                   </div>
 
-                  <div className="flex items-center justify-between p-3 bg-zinc-50 dark:bg-zinc-700 rounded-lg">
+                  <div className="flex items-center justify-between rounded-lg bg-zinc-50 p-3 dark:bg-zinc-700">
                     <div>
-                      <div className="font-medium text-zinc-900 dark:text-zinc-100">
-                        Task #123
-                      </div>
-                      <div className="text-xs text-zinc-500 dark:text-zinc-400">
-                        2 users online
-                      </div>
+                      <div className="font-medium text-zinc-900 dark:text-zinc-100">Task #123</div>
+                      <div className="text-xs text-zinc-500 dark:text-zinc-400">2 users online</div>
                     </div>
-                    <div className="w-2 h-2 bg-green-500 rounded-full" />
+                    <div className="h-2 w-2 rounded-full bg-green-500" />
                   </div>
 
-                  <div className="flex items-center justify-between p-3 bg-zinc-50 dark:bg-zinc-700 rounded-lg">
+                  <div className="flex items-center justify-between rounded-lg bg-zinc-50 p-3 dark:bg-zinc-700">
                     <div>
                       <div className="font-medium text-zinc-900 dark:text-zinc-100">
                         General Chat
@@ -233,7 +213,7 @@ export default function RealtimeDashboardExample() {
                         12 users online
                       </div>
                     </div>
-                    <div className="w-2 h-2 bg-green-500 rounded-full" />
+                    <div className="h-2 w-2 rounded-full bg-green-500" />
                   </div>
                 </div>
               </CardContent>
@@ -243,20 +223,20 @@ export default function RealtimeDashboardExample() {
             <Card>
               <CardHeader>
                 <CardTitle>Quick Actions</CardTitle>
-                  Common real-time operations
+                Common real-time operations
               </CardHeader>
               <CardContent>
                 <div className="space-y-2">
                   <Button variant="outline" className="w-full justify-start" size="sm">
-                    <RefreshCw className="w-4 h-4 mr-2" />
+                    <RefreshCw className="mr-2 h-4 w-4" />
                     Reconnect WebSocket
                   </Button>
                   <Button variant="outline" className="w-full justify-start" size="sm">
-                    <Bell className="w-4 h-4 mr-2" />
+                    <Bell className="mr-2 h-4 w-4" />
                     Test Notification
                   </Button>
                   <Button variant="outline" className="w-full justify-start" size="sm">
-                    <WifiOff className="w-4 h-4 mr-2" />
+                    <WifiOff className="mr-2 h-4 w-4" />
                     Simulate Disconnect
                   </Button>
                 </div>
@@ -266,5 +246,5 @@ export default function RealtimeDashboardExample() {
         </div>
       </main>
     </div>
-  );
+  )
 }

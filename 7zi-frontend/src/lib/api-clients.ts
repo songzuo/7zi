@@ -6,7 +6,7 @@
  */
 
 // Re-export room API clients
-export { roomsClient, RoomWebSocket, createRoomWebSocket } from './api/rooms/client';
+export { roomsClient, RoomWebSocket, createRoomWebSocket } from './api/rooms/client'
 
 // Re-export room store for server-side usage
-export { roomStore } from './api/rooms/store';
+export { roomStore } from './api/rooms/store'

@@ -7,19 +7,11 @@
  * @module lib/alerting/EmailAlertService
  */
 
-import * as nodemailer from "nodemailer";
-import type { Transporter, SendMailOptions } from "nodemailer";
-import {
-  EmailAlertConfig,
-  EmailRecipient,
-  validateEmailConfig,
-} from "@/config/email";
-import type {
-  PerformanceAlert,
-  AlertLevel,
-  AlertChannel,
-} from "@/lib/performance/alerting/alerter";
-import { renderAlertEmail } from "./templates/alert-template";
+import * as nodemailer from 'nodemailer'
+import type { Transporter, SendMailOptions } from 'nodemailer'
+import { EmailAlertConfig, EmailRecipient, validateEmailConfig } from '@/config/email'
+import type { PerformanceAlert, AlertLevel, AlertChannel } from '@/lib/performance/alerting/alerter'
+import { renderAlertEmail } from './templates/alert-template'
 
 // ========================================
 // Types
@@ -30,15 +22,15 @@ import { renderAlertEmail } from "./templates/alert-template";
  */
 export interface EmailAlertOptions {
   /** Override recipients */
-  recipients?: EmailRecipient[];
+  recipients?: EmailRecipient[]
   /** Custom subject */
-  subject?: string;
+  subject?: string
   /** Additional reply-to address */
-  replyTo?: string;
+  replyTo?: string
   /** Custom headers */
-  headers?: Record<string, string>;
+  headers?: Record<string, string>
   /** Priority level (high, normal, low) */
-  priority?: "high" | "normal" | "low";
+  priority?: 'high' | 'normal' | 'low'
 }
 
 /**
@@ -46,15 +38,15 @@ export interface EmailAlertOptions {
  */
 export interface EmailSendResult {
   /** Whether the email was sent successfully */
-  success: boolean;
+  success: boolean
   /** Message ID if successful */
-  messageId?: string;
+  messageId?: string
   /** Error message if failed */
-  error?: string;
+  error?: string
   /** Number of retry attempts made */
-  attempts: number;
+  attempts: number
   /** Timestamp when sent */
-  timestamp: number;
+  timestamp: number
 }
 
 /**
@@ -62,19 +54,19 @@ export interface EmailSendResult {
  */
 export interface EmailServiceStatus {
   /** Whether the service is enabled */
-  enabled: boolean;
+  enabled: boolean
   /** Whether the service is connected */
-  connected: boolean;
+  connected: boolean
   /** Last successful send timestamp */
-  lastSendSuccess?: number;
+  lastSendSuccess?: number
   /** Last failed send timestamp */
-  lastSendFailure?: number;
+  lastSendFailure?: number
   /** Total emails sent */
-  totalSent: number;
+  totalSent: number
   /** Total emails failed */
-  totalFailed: number;
+  totalFailed: number
   /** Last error message */
-  lastError?: string;
+  lastError?: string
 }
 
 // ========================================
@@ -87,26 +79,26 @@ export interface EmailServiceStatus {
  * Implements the AlertChannel interface for sending alerts via email
  */
 export class EmailAlertService implements AlertChannel {
-  readonly name = "email";
+  readonly name = 'email'
 
-  private config: EmailAlertConfig;
-  private transporter: Transporter | null = null;
+  private config: EmailAlertConfig
+  private transporter: Transporter | null = null
   private status: EmailServiceStatus = {
     enabled: true,
     connected: false,
     totalSent: 0,
     totalFailed: 0,
-  };
+  }
 
   constructor(config: EmailAlertConfig) {
     // Validate configuration
-    const errors = validateEmailConfig(config);
+    const errors = validateEmailConfig(config)
     if (errors.length > 0) {
-      throw new Error(`Invalid email configuration: ${errors.join(", ")}`);
+      throw new Error(`Invalid email configuration: ${errors.join(', ')}`)
     }
 
-    this.config = config;
-    this.status.enabled = config.enabled;
+    this.config = config
+    this.status.enabled = config.enabled
   }
 
   // ========================================
@@ -118,15 +110,15 @@ export class EmailAlertService implements AlertChannel {
    */
   async connect(): Promise<void> {
     if (this.transporter) {
-      return;
+      return
     }
 
-    const { host, port, auth, tls } = this.config.smtp;
+    const { host, port, auth, tls } = this.config.smtp
 
     this.transporter = nodemailer.createTransport({
       host,
       port,
-      secure: tls?.secure ?? (port === 465),
+      secure: tls?.secure ?? port === 465,
       auth: {
         user: auth.user,
         pass: auth.pass,
@@ -140,17 +132,16 @@ export class EmailAlertService implements AlertChannel {
       maxMessages: 100,
       rateDelta: 1000,
       rateLimit: 10,
-    });
+    })
 
     // Verify connection
     try {
-      await this.transporter.verify();
-      this.status.connected = true;
+      await this.transporter.verify()
+      this.status.connected = true
     } catch (error) {
-      this.status.connected = false;
-      this.status.lastError =
-        error instanceof Error ? error.message : "Unknown connection error";
-      throw error;
+      this.status.connected = false
+      this.status.lastError = error instanceof Error ? error.message : 'Unknown connection error'
+      throw error
     }
   }
 
@@ -159,9 +150,9 @@ export class EmailAlertService implements AlertChannel {
    */
   async disconnect(): Promise<void> {
     if (this.transporter) {
-      this.transporter.close();
-      this.transporter = null;
-      this.status.connected = false;
+      this.transporter.close()
+      this.transporter = null
+      this.status.connected = false
     }
   }
 
@@ -171,12 +162,12 @@ export class EmailAlertService implements AlertChannel {
   async test(): Promise<boolean> {
     try {
       if (!this.transporter) {
-        await this.connect();
+        await this.connect()
       }
-      await this.transporter!.verify();
-      return true;
-    } catch {
-      return false;
+      await this.transporter!.verify()
+      return true
+    } catch (error) {
+      return false
     }
   }
 
@@ -189,14 +180,14 @@ export class EmailAlertService implements AlertChannel {
    */
   async send(alert: PerformanceAlert): Promise<void> {
     if (!this.status.enabled) {
-      console.log("[EmailAlertService] Email alerting is disabled, skipping");
-      return;
+      console.log('[EmailAlertService] Email alerting is disabled, skipping')
+      return
     }
 
-    const result = await this.sendAlertEmail(alert);
+    const result = await this.sendAlertEmail(alert)
 
     if (!result.success) {
-      throw new Error(result.error || "Failed to send alert email");
+      throw new Error(result.error || 'Failed to send alert email')
     }
   }
 
@@ -209,48 +200,46 @@ export class EmailAlertService implements AlertChannel {
    */
   async sendAlertEmail(
     alert: PerformanceAlert,
-    options: EmailAlertOptions = {},
+    options: EmailAlertOptions = {}
   ): Promise<EmailSendResult> {
-    const startTime = Date.now();
-    let attempts = 0;
-    const maxAttempts = this.config.retry?.maxAttempts ?? 3;
-    const baseDelay = this.config.retry?.delayMs ?? 1000;
-    const backoff = this.config.retry?.backoffMultiplier ?? 2;
+    const startTime = Date.now()
+    let attempts = 0
+    const maxAttempts = this.config.retry?.maxAttempts ?? 3
+    const baseDelay = this.config.retry?.delayMs ?? 1000
+    const backoff = this.config.retry?.backoffMultiplier ?? 2
 
     // Ensure connected
     if (!this.transporter) {
       try {
-        await this.connect();
+        await this.connect()
       } catch (error) {
         return {
           success: false,
-          error: `Failed to connect: ${error instanceof Error ? error.message : "Unknown error"}`,
+          error: `Failed to connect: ${error instanceof Error ? error.message : 'Unknown error'}`,
           attempts: 0,
           timestamp: startTime,
-        };
+        }
       }
     }
 
     // Get recipients
-    const recipients = options.recipients ?? this.config.recipients;
+    const recipients = options.recipients ?? this.config.recipients
     if (recipients.length === 0) {
       return {
         success: false,
-        error: "No recipients specified",
+        error: 'No recipients specified',
         attempts: 0,
         timestamp: startTime,
-      };
+      }
     }
 
     // Prepare email
-    const { subject, html, text } = this.prepareAlertEmail(alert, options);
-    const to = recipients
-      .map((r) => (r.name ? `${r.name} <${r.email}>` : r.email))
-      .join(", ");
+    const { subject, html, text } = this.prepareAlertEmail(alert, options)
+    const to = recipients.map(r => (r.name ? `${r.name} <${r.email}>` : r.email)).join(', ')
 
     // Retry loop
     while (attempts < maxAttempts) {
-      attempts++;
+      attempts++
 
       try {
         const mailOptions: SendMailOptions = {
@@ -262,43 +251,42 @@ export class EmailAlertService implements AlertChannel {
           replyTo: options.replyTo,
           headers: options.headers,
           priority: options.priority ?? this.getPriorityForLevel(alert.level),
-        };
+        }
 
-        const info = await this.transporter!.sendMail(mailOptions);
+        const info = await this.transporter!.sendMail(mailOptions)
 
         // Success
-        this.status.totalSent++;
-        this.status.lastSendSuccess = Date.now();
+        this.status.totalSent++
+        this.status.lastSendSuccess = Date.now()
 
         return {
           success: true,
           messageId: info.messageId,
           attempts,
           timestamp: Date.now(),
-        };
+        }
       } catch (error) {
-        const errorMessage =
-          error instanceof Error ? error.message : "Unknown error";
-        this.status.lastError = errorMessage;
+        const errorMessage = error instanceof Error ? error.message : 'Unknown error'
+        this.status.lastError = errorMessage
 
         // Check if we should retry
         if (attempts < maxAttempts && this.shouldRetry(error)) {
-          const delay = baseDelay * Math.pow(backoff, attempts - 1);
+          const delay = baseDelay * Math.pow(backoff, attempts - 1)
           console.warn(
-            `[EmailAlertService] Attempt ${attempts}/${maxAttempts} failed, retrying in ${delay}ms: ${errorMessage}`,
-          );
-          await this.sleep(delay);
+            `[EmailAlertService] Attempt ${attempts}/${maxAttempts} failed, retrying in ${delay}ms: ${errorMessage}`
+          )
+          await this.sleep(delay)
         } else {
           // Final failure
-          this.status.totalFailed++;
-          this.status.lastSendFailure = Date.now();
+          this.status.totalFailed++
+          this.status.lastSendFailure = Date.now()
 
           return {
             success: false,
             error: errorMessage,
             attempts,
             timestamp: Date.now(),
-          };
+          }
         }
       }
     }
@@ -306,10 +294,10 @@ export class EmailAlertService implements AlertChannel {
     // Should not reach here, but just in case
     return {
       success: false,
-      error: "Max retry attempts exceeded",
+      error: 'Max retry attempts exceeded',
       attempts,
       timestamp: Date.now(),
-    };
+    }
   }
 
   /**
@@ -317,17 +305,16 @@ export class EmailAlertService implements AlertChannel {
    */
   private prepareAlertEmail(
     alert: PerformanceAlert,
-    options: EmailAlertOptions,
+    options: EmailAlertOptions
   ): { subject: string; html: string; text: string } {
-    const prefix = this.config.subjectPrefix || "";
-    const levelEmoji = this.getLevelEmoji(alert.level);
+    const prefix = this.config.subjectPrefix || ''
+    const levelEmoji = this.getLevelEmoji(alert.level)
     const subject =
-      options.subject ||
-      `${prefix} ${levelEmoji} ${alert.level.toUpperCase()}: ${alert.title}`;
+      options.subject || `${prefix} ${levelEmoji} ${alert.level.toUpperCase()}: ${alert.title}`
 
-    const { html, text } = renderAlertEmail(alert);
+    const { html, text } = renderAlertEmail(alert)
 
-    return { subject, html, text };
+    return { subject, html, text }
   }
 
   /**
@@ -335,50 +322,46 @@ export class EmailAlertService implements AlertChannel {
    */
   private shouldRetry(error: unknown): boolean {
     if (!(error instanceof Error)) {
-      return true;
+      return true
     }
 
-    const message = error.message.toLowerCase();
+    const message = error.message.toLowerCase()
 
     // Network/timeout errors - retry
     if (
-      message.includes("etimedout") ||
-      message.includes("econnreset") ||
-      message.includes("econnrefused") ||
-      message.includes("enotfound") ||
-      message.includes("timeout")
+      message.includes('etimedout') ||
+      message.includes('econnreset') ||
+      message.includes('econnrefused') ||
+      message.includes('enotfound') ||
+      message.includes('timeout')
     ) {
-      return true;
+      return true
     }
 
     // Rate limiting - retry
-    if (
-      message.includes("rate") ||
-      message.includes("limit") ||
-      message.includes("throttl")
-    ) {
-      return true;
+    if (message.includes('rate') || message.includes('limit') || message.includes('throttl')) {
+      return true
     }
 
     // Authentication/authorization errors - don't retry
     if (
-      message.includes("auth") ||
-      message.includes("credential") ||
-      message.includes("invalid user") ||
-      message.includes("access denied")
+      message.includes('auth') ||
+      message.includes('credential') ||
+      message.includes('invalid user') ||
+      message.includes('access denied')
     ) {
-      return false;
+      return false
     }
 
     // Default: retry
-    return true;
+    return true
   }
 
   /**
    * Sleep utility for retry delays
    */
   private sleep(ms: number): Promise<void> {
-    return new Promise((resolve) => setTimeout(resolve, ms));
+    return new Promise(resolve => setTimeout(resolve, ms))
   }
 
   // ========================================
@@ -390,25 +373,25 @@ export class EmailAlertService implements AlertChannel {
    */
   private getLevelEmoji(level: AlertLevel): string {
     const emojis: Record<AlertLevel, string> = {
-      info: "ℹ️",
-      warning: "⚠️",
-      error: "❌",
-      critical: "🚨",
-    };
-    return emojis[level] || "📌";
+      info: 'ℹ️',
+      warning: '⚠️',
+      error: '❌',
+      critical: '🚨',
+    }
+    return emojis[level] || '📌'
   }
 
   /**
    * Get email priority for alert level
    */
-  private getPriorityForLevel(level: AlertLevel): "high" | "normal" | "low" {
-    const priorities: Record<AlertLevel, "high" | "normal" | "low"> = {
-      info: "normal",
-      warning: "normal",
-      error: "high",
-      critical: "high",
-    };
-    return priorities[level] || "normal";
+  private getPriorityForLevel(level: AlertLevel): 'high' | 'normal' | 'low' {
+    const priorities: Record<AlertLevel, 'high' | 'normal' | 'low'> = {
+      info: 'normal',
+      warning: 'normal',
+      error: 'high',
+      critical: 'high',
+    }
+    return priorities[level] || 'normal'
   }
 
   // ========================================
@@ -419,33 +402,33 @@ export class EmailAlertService implements AlertChannel {
    * Get current status
    */
   getStatus(): EmailServiceStatus {
-    return { ...this.status };
+    return { ...this.status }
   }
 
   /**
    * Enable/disable the service
    */
   setEnabled(enabled: boolean): void {
-    this.status.enabled = enabled;
-    this.config.enabled = enabled;
+    this.status.enabled = enabled
+    this.config.enabled = enabled
   }
 
   /**
    * Check if service is enabled
    */
   isEnabled(): boolean {
-    return this.status.enabled;
+    return this.status.enabled
   }
 
   /**
    * Update configuration
    */
   async updateConfig(config: Partial<EmailAlertConfig>): Promise<void> {
-    const newConfig = { ...this.config, ...config };
+    const newConfig = { ...this.config, ...config }
 
-    const errors = validateEmailConfig(newConfig);
+    const errors = validateEmailConfig(newConfig)
     if (errors.length > 0) {
-      throw new Error(`Invalid configuration: ${errors.join(", ")}`);
+      throw new Error(`Invalid configuration: ${errors.join(', ')}`)
     }
 
     // Reconnect if SMTP config changed
@@ -453,28 +436,28 @@ export class EmailAlertService implements AlertChannel {
       config.smtp &&
       (config.smtp.host !== this.config.smtp.host ||
         config.smtp.port !== this.config.smtp.port ||
-        config.smtp.auth?.user !== this.config.smtp.auth.user);
+        config.smtp.auth?.user !== this.config.smtp.auth.user)
 
-    this.config = newConfig;
-    this.status.enabled = newConfig.enabled;
+    this.config = newConfig
+    this.status.enabled = newConfig.enabled
 
     if (smtpChanged) {
-      await this.disconnect();
-      await this.connect();
+      await this.disconnect()
+      await this.connect()
     }
   }
 
   /**
    * Get current configuration (without sensitive data)
    */
-  getConfig(): Omit<EmailAlertConfig, "smtp"> & {
-    smtp: Omit<EmailAlertConfig["smtp"], "auth">;
+  getConfig(): Omit<EmailAlertConfig, 'smtp'> & {
+    smtp: Omit<EmailAlertConfig['smtp'], 'auth'>
   } {
-    const { auth, ...smtp } = this.config.smtp;
+    const { auth, ...smtp } = this.config.smtp
     return {
       ...this.config,
       smtp,
-    };
+    }
   }
 }
 
@@ -486,13 +469,13 @@ export class EmailAlertService implements AlertChannel {
  * Create an Email Alert Service from environment variables
  */
 export function createEmailAlertService(): EmailAlertService {
-  const { parseEmailConfig } = require("@/config/email");
-  const config = parseEmailConfig();
-  return new EmailAlertService(config);
+  const { parseEmailConfig } = require('@/config/email')
+  const config = parseEmailConfig()
+  return new EmailAlertService(config)
 }
 
 // ========================================
 // Export
 // ========================================
 
-export default EmailAlertService;
+export default EmailAlertService

@@ -18,12 +18,14 @@
 ### 1. 版本检查
 
 **升级前版本**:
+
 ```bash
 npm list vitest
 └── vitest@4.1.0
 ```
 
 **最新可用版本**:
+
 ```bash
 npm view vitest version
 4.1.2
@@ -32,15 +34,18 @@ npm view vitest version
 ### 2. 依赖更新
 
 **更新的包**:
+
 - `vitest`: 4.1.0 → 4.1.2
 - `@vitest/coverage-v8`: 4.1.0 → 4.1.2
 
 **安装命令**:
+
 ```bash
 npm install vitest@4.1.2 @vitest/coverage-v8@4.1.2 --save-dev
 ```
 
 **安装结果**: ✅ 成功
+
 - vitest@4.1.2
 - @vitest/coverage-v8@4.1.2
 
@@ -51,6 +56,7 @@ npm install vitest@4.1.2 @vitest/coverage-v8@4.1.2 --save-dev
 ### 测试执行情况
 
 **命令**:
+
 ```bash
 npm run test:coverage -- --run
 ```
@@ -58,10 +64,11 @@ npm run test:coverage -- --run
 **状态**: ⏳ 测试运行时间较长（执行超过 30 分钟）
 
 **观察结果**:
+
 1. ✅ vitest 4.1.2 成功启动并运行测试
 2. ✅ 大量测试套件成功执行（数千个测试用例）
 3. ✅ 性能测试、集成测试等正常工作
-4. ⚠️  部分测试存在失败（经分析为现有问题，非版本升级导致）
+4. ⚠️ 部分测试存在失败（经分析为现有问题，非版本升级导致）
 
 ### 测试失败分析
 
@@ -93,6 +100,7 @@ npm run build
 ```
 
 **当前状态**:
+
 - Next.js build 进程正在运行
 - 多个进程并发执行
 
@@ -105,6 +113,7 @@ npm run build
 ### Vitest 4.1.0 → 4.1.2 主要改进
 
 根据 vitest 发布日志，4.1.2 版本主要包括：
+
 - Bug 修复
 - 性能优化
 - 稳定性改进
@@ -139,6 +148,7 @@ npm run build
 ## 更新日志
 
 ### 已完成
+
 - [x] 检查最新 vitest 版本
 - [x] 更新 vitest 到 4.1.2
 - [x] 更新 @vitest/coverage-v8 到 4.1.2
@@ -148,6 +158,7 @@ npm run build
 - [ ] 完成 TypeScript 编译（进行中）
 
 ### 注意事项
+
 - 部分测试存在已知失败（与升级无关）
 - 编译仍在进行中，预计正常完成
 
@@ -158,6 +169,7 @@ npm run build
 ✅ **升级成功**: vitest 成功从 4.1.0 升级到 4.1.2
 
 **升级评估**:
+
 - 兼容性: ✅ 完全兼容
 - 测试运行: ✅ 正常
 - 编译状态: 🔄 进行中

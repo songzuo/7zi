@@ -1,4 +1,4 @@
-'use client';
+'use client'
 
 /**
  * SchedulerClient.tsx
@@ -6,13 +6,13 @@
  * Integrates the AgentScheduler Dashboard with the main Next.js application
  */
 
-import { Dashboard } from '@/lib/agents/scheduler/dashboard/Dashboard';
-import type { Locale } from '@/i18n/config';
+import { Dashboard } from '@/lib/agents/scheduler/dashboard/Dashboard'
+import type { Locale } from '@/i18n/config'
 
 interface SchedulerClientProps {
-  locale: Locale;
+  locale: Locale
 }
 
 export default function SchedulerClient({ locale: _locale }: SchedulerClientProps) {
-  return <Dashboard />;
+  return <Dashboard />
 }

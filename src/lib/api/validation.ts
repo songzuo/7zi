@@ -3,9 +3,9 @@
  * @description Zod schemas for request parameter validation across all API routes
  */
 
-import { z } from 'zod';
-import { createValidationError } from './error-handler';
-import type { NextResponse } from 'next/server';
+import { z } from 'zod'
+import { createValidationError } from './error-handler'
+import type { NextResponse } from 'next/server'
 
 /**
  * Common validation schemas
@@ -18,7 +18,7 @@ export const emailSchema = z
   .string()
   .min(1, 'Email is required')
   .max(255, 'Email is too long')
-  .email('Invalid email format');
+  .email('Invalid email format')
 
 /**
  * Password validation schema
@@ -34,7 +34,7 @@ export const passwordSchema = z
   .max(128, 'Password is too long')
   .regex(/[A-Z]/, 'Password must contain at least one uppercase letter')
   .regex(/[a-z]/, 'Password must contain at least one lowercase letter')
-  .regex(/[0-9]/, 'Password must contain at least one number');
+  .regex(/[0-9]/, 'Password must contain at least one number')
 
 /**
  * Pagination schema
@@ -42,7 +42,7 @@ export const passwordSchema = z
 export const paginationSchema = z.object({
   page: z.coerce.number().int().min(1).default(1),
   per_page: z.coerce.number().int().min(1).max(100).default(30),
-});
+})
 
 /**
  * Owner and repository schema (required fields, no defaults)
@@ -50,29 +50,25 @@ export const paginationSchema = z.object({
 export const ownerRepoSchema = z.object({
   owner: z.string().min(1).max(100),
   repo: z.string().min(1).max(100),
-});
+})
 
 /**
  * GitHub API validation schemas
  */
-export const githubCommitsQuerySchema = paginationSchema
-  .merge(ownerRepoSchema)
-  .extend({
-    sha: z.string().optional(),
-    path: z.string().optional(),
-    since: z.string().optional(), // Accept both date and datetime formats
-    until: z.string().optional(), // Accept both date and datetime formats
-  });
+export const githubCommitsQuerySchema = paginationSchema.merge(ownerRepoSchema).extend({
+  sha: z.string().optional(),
+  path: z.string().optional(),
+  since: z.string().optional(), // Accept both date and datetime formats
+  until: z.string().optional(), // Accept both date and datetime formats
+})
 
-export const githubIssuesQuerySchema = paginationSchema
-  .merge(ownerRepoSchema)
-  .extend({
-    state: z.enum(['open', 'closed', 'all']).default('all'),
-    labels: z.string().optional(),
-    sort: z.enum(['created', 'updated', 'comments']).default('created'),
-    direction: z.enum(['asc', 'desc']).default('desc'),
-    since: z.string().optional(), // Accept both date and datetime formats
-  });
+export const githubIssuesQuerySchema = paginationSchema.merge(ownerRepoSchema).extend({
+  state: z.enum(['open', 'closed', 'all']).default('all'),
+  labels: z.string().optional(),
+  sort: z.enum(['created', 'updated', 'comments']).default('created'),
+  direction: z.enum(['asc', 'desc']).default('desc'),
+  since: z.string().optional(), // Accept both date and datetime formats
+})
 
 /**
  * Status API validation schemas
@@ -80,7 +76,7 @@ export const githubIssuesQuerySchema = paginationSchema
 export const statusQuerySchema = z.object({
   format: z.enum(['json', 'compact']).default('json'),
   include_metrics: z.coerce.boolean().default(true),
-});
+})
 
 /**
  * Health API validation schemas
@@ -88,46 +84,48 @@ export const statusQuerySchema = z.object({
 export const healthQuerySchema = z.object({
   detailed: z.coerce.boolean().default(false),
   checks: z.string().optional(), // Comma-separated list of checks to run
-});
+})
 
 /**
  * Database API validation schemas
  */
 export const databaseActionSchema = z.object({
   action: z.enum(['stats', 'health', 'optimize', 'backup']),
-});
+})
 
 /**
  * A2A JSON-RPC validation schemas
  */
-export const jsonRpcVersionSchema = z.literal('2.0');
+export const jsonRpcVersionSchema = z.literal('2.0')
 
 export const jsonRpcRequestSchema = z.object({
   jsonrpc: jsonRpcVersionSchema,
   method: z.string().min(1),
   params: z.unknown().optional(),
   id: z.union([z.string(), z.number()]).optional(),
-});
+})
 
-export const jsonRpcBatchRequestSchema = z.array(jsonRpcRequestSchema).min(1);
+export const jsonRpcBatchRequestSchema = z.array(jsonRpcRequestSchema).min(1)
 
 export const jsonRpcResponseSchema = z.object({
   jsonrpc: jsonRpcVersionSchema,
   result: z.unknown().optional(),
-  error: z.object({
-    code: z.number(),
-    message: z.string(),
-    data: z.unknown().optional(),
-  }).optional(),
+  error: z
+    .object({
+      code: z.number(),
+      message: z.string(),
+      data: z.unknown().optional(),
+    })
+    .optional(),
   id: z.union([z.string(), z.number(), z.null()]),
-});
+})
 
 /**
  * CSRF validation schemas
  */
 export const csrfTokenSchema = z.object({
   csrfToken: z.string().length(64), // 32 bytes = 64 hex chars
-});
+})
 
 /**
  * Response validation schemas
@@ -137,7 +135,7 @@ export const successResponseSchema = <T>(dataSchema: z.ZodType<T>) =>
     success: z.literal(true),
     data: dataSchema,
     timestamp: z.string().datetime(),
-  });
+  })
 
 export const paginatedResponseSchema = <T>(itemSchema: z.ZodType<T>) =>
   successResponseSchema(
@@ -150,7 +148,7 @@ export const paginatedResponseSchema = <T>(itemSchema: z.ZodType<T>) =>
         total_pages: z.number(),
       }),
     })
-  );
+  )
 
 /**
  * Helper functions
@@ -163,26 +161,24 @@ export function validateQuery<T>(
   searchParams: URLSearchParams,
   schema: z.ZodType<T>
 ): { success: true; data: T } | { success: false; errors: z.ZodError } {
-  const params: Record<string, string | string[]> = {};
+  const params: Record<string, string | string[]> = {}
 
   searchParams.forEach((value, key) => {
-    const existing = params[key];
+    const existing = params[key]
     if (existing) {
-      params[key] = Array.isArray(existing)
-        ? [...existing, value]
-        : [existing, value];
+      params[key] = Array.isArray(existing) ? [...existing, value] : [existing, value]
     } else {
-      params[key] = value;
+      params[key] = value
     }
-  });
+  })
 
-  const result = schema.safeParse(params);
+  const result = schema.safeParse(params)
 
   if (result.success) {
-    return { success: true, data: result.data };
+    return { success: true, data: result.data }
   }
 
-  return { success: false, errors: result.error };
+  return { success: false, errors: result.error }
 }
 
 /**
@@ -192,27 +188,27 @@ export function validateBody<T>(
   body: unknown,
   schema: z.ZodType<T>
 ): { success: true; data: T } | { success: false; errors: z.ZodError } {
-  const result = schema.safeParse(body);
+  const result = schema.safeParse(body)
 
   if (result.success) {
-    return { success: true, data: result.data };
+    return { success: true, data: result.data }
   }
 
-  return { success: false, errors: result.error };
+  return { success: false, errors: result.error }
 }
 
 /**
  * Format validation errors for response
  */
 export function formatValidationErrors(error: z.ZodError<unknown>): Record<string, string> {
-  const errors: Record<string, string> = {};
+  const errors: Record<string, string> = {}
 
   error.issues.forEach((err: z.ZodIssue) => {
-    const path = err.path.join('.');
-    errors[path] = err.message;
-  });
+    const path = err.path.join('.')
+    errors[path] = err.message
+  })
 
-  return errors;
+  return errors
 }
 
 /**
@@ -223,17 +219,14 @@ export function withQueryValidation<T>(
   handler: (validated: T, request: Request) => Promise<NextResponse>
 ) {
   return async (request: Request): Promise<NextResponse> => {
-    const url = new URL(request.url);
-    const validation = validateQuery(url.searchParams, schema);
+    const url = new URL(request.url)
+    const validation = validateQuery(url.searchParams, schema)
 
     if (!validation.success) {
-      const errors = formatValidationErrors(validation.errors);
-      return createValidationError(
-        'Invalid query parameters',
-        { fields: errors }
-      );
+      const errors = formatValidationErrors(validation.errors)
+      return createValidationError('Invalid query parameters', { fields: errors })
     }
 
-    return handler(validation.data, request);
-  };
+    return handler(validation.data, request)
+  }
 }

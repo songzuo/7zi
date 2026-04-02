@@ -13,14 +13,14 @@
 
 ### 关键发现
 
-| 类别 | 状态 | 风险等级 |
-|------|------|----------|
-| Workflow 冗余 | ⚠️ 11 个 workflow，3+ 个功能重叠 | 中 |
-| 依赖缓存 | 🟡 npm 缓存有效但未共享 node_modules | 低 |
-| 并行执行 | ✅ lint/typecheck 已并行，测试 4 分片 | - |
-| Docker 构建 | 🟡 使用 GHA cache，缺少 BuildKit mount | 低 |
-| 安全审计 | ⚠️ secrets 使用密码而非 SSH 密钥 | 高 |
-| 自动化 | 🟡 缺少格式化检查、发布通知 | 中 |
+| 类别          | 状态                                   | 风险等级 |
+| ------------- | -------------------------------------- | -------- |
+| Workflow 冗余 | ⚠️ 11 个 workflow，3+ 个功能重叠       | 中       |
+| 依赖缓存      | 🟡 npm 缓存有效但未共享 node_modules   | 低       |
+| 并行执行      | ✅ lint/typecheck 已并行，测试 4 分片  | -        |
+| Docker 构建   | 🟡 使用 GHA cache，缺少 BuildKit mount | 低       |
+| 安全审计      | ⚠️ secrets 使用密码而非 SSH 密钥       | 高       |
+| 自动化        | 🟡 缺少格式化检查、发布通知            | 中       |
 
 ### 优化预期收益
 
@@ -53,15 +53,15 @@
 
 ### 1.2 工作流功能矩阵
 
-| Workflow | 触发条件 | 主要功能 | 预估耗时 | 状态 |
-|----------|----------|----------|----------|------|
-| `ci.yml` | push/PR/dispatch | 完整 CI/CD（含部署） | 15-20min | ✅ 活跃 |
-| `production.yml` | push/dispatch | lint→typecheck→test→build→deploy | 18-25min | ⚠️ 冗余 |
-| `deploy-main.yml` | push main | build→docker→deploy | 10-15min | ⚠️ 冗余 |
-| `tests.yml` | push/PR | 单元测试(4分片) + E2E | 8-12min | ✅ 合理 |
-| `security-scan.yml` | schedule/manual | npm audit, secrets, code, container | 5-10min | ✅ 合理 |
-| `preview.yml` | PR opened | typecheck→build→preview | 8-10min | ✅ 合理 |
-| `version-check.yml` | push | 版本兼容性检查 | 1-2min | ✅ 合理 |
+| Workflow            | 触发条件         | 主要功能                            | 预估耗时 | 状态    |
+| ------------------- | ---------------- | ----------------------------------- | -------- | ------- |
+| `ci.yml`            | push/PR/dispatch | 完整 CI/CD（含部署）                | 15-20min | ✅ 活跃 |
+| `production.yml`    | push/dispatch    | lint→typecheck→test→build→deploy    | 18-25min | ⚠️ 冗余 |
+| `deploy-main.yml`   | push main        | build→docker→deploy                 | 10-15min | ⚠️ 冗余 |
+| `tests.yml`         | push/PR          | 单元测试(4分片) + E2E               | 8-12min  | ✅ 合理 |
+| `security-scan.yml` | schedule/manual  | npm audit, secrets, code, container | 5-10min  | ✅ 合理 |
+| `preview.yml`       | PR opened        | typecheck→build→preview             | 8-10min  | ✅ 合理 |
+| `version-check.yml` | push             | 版本兼容性检查                      | 1-2min   | ✅ 合理 |
 
 ### 1.3 当前 CI Pipeline 架构 (ci.yml)
 
@@ -97,18 +97,18 @@
 
 ### 2.1 问题分类概览
 
-| # | 问题 | 影响 | 严重性 |
-|---|------|------|--------|
-| 1 | Workflow 冗余（3 个主要 CI 文件） | 维护困难、资源浪费 | 🔴 高 |
-| 2 | 每个 job 重复执行 `npm ci` | 浪费时间（~3-5min/job） | 🟡 中 |
-| 3 | security job 在每次 push 都运行 | 资源浪费 | 🟡 中 |
-| 4 | secrets 使用密码而非 SSH 密钥 | 安全风险 | 🔴 高 |
-| 5 | 缺少格式化检查自动化 | 代码风格不一致 | 🟢 低 |
-| 6 | 部署通知未集成 | 沟通效率低 | 🟢 低 |
-| 7 | E2E 测试需要完整 build | 重复构建 | 🟡 中 |
-| 8 | Docker BuildKit cache mounts 未使用 | 构建时间增加 | 🟡 中 |
-| 9 | workflow_dispatch 无输入验证 | 潜在误操作 | 🟡 中 |
-| 10 | 未使用 workflow permissions 限制 | 权限过大 | 🟡 中 |
+| #   | 问题                                | 影响                    | 严重性 |
+| --- | ----------------------------------- | ----------------------- | ------ |
+| 1   | Workflow 冗余（3 个主要 CI 文件）   | 维护困难、资源浪费      | 🔴 高  |
+| 2   | 每个 job 重复执行 `npm ci`          | 浪费时间（~3-5min/job） | 🟡 中  |
+| 3   | security job 在每次 push 都运行     | 资源浪费                | 🟡 中  |
+| 4   | secrets 使用密码而非 SSH 密钥       | 安全风险                | 🔴 高  |
+| 5   | 缺少格式化检查自动化                | 代码风格不一致          | 🟢 低  |
+| 6   | 部署通知未集成                      | 沟通效率低              | 🟢 低  |
+| 7   | E2E 测试需要完整 build              | 重复构建                | 🟡 中  |
+| 8   | Docker BuildKit cache mounts 未使用 | 构建时间增加            | 🟡 中  |
+| 9   | workflow_dispatch 无输入验证        | 潜在误操作              | 🟡 中  |
+| 10  | 未使用 workflow permissions 限制    | 权限过大                | 🟡 中  |
 
 ### 2.2 详细问题分析
 
@@ -116,13 +116,14 @@
 
 **现状**: 存在 3 个主要 CI workflow，功能高度重叠
 
-| 文件 | 代码行数 | 主要功能 |
-|------|----------|----------|
-| `ci.yml` | 500+ | 完整 CI/CD，含 lint, typecheck, test, build, docker, deploy |
-| `production.yml` | 180+ | lint→typecheck→test→build→简单 deploy |
-| `deploy-main.yml` | 200+ | check→build→docker→status |
+| 文件              | 代码行数 | 主要功能                                                    |
+| ----------------- | -------- | ----------------------------------------------------------- |
+| `ci.yml`          | 500+     | 完整 CI/CD，含 lint, typecheck, test, build, docker, deploy |
+| `production.yml`  | 180+     | lint→typecheck→test→build→简单 deploy                       |
+| `deploy-main.yml` | 200+     | check→build→docker→status                                   |
 
 **问题**:
+
 - 重复的 job 定义（lint, typecheck, build）
 - 维护成本高，修改需同步 3+ 文件
 - 资源浪费，可能同时触发多个 workflow
@@ -142,14 +143,14 @@ lint:
   steps:
     - uses: actions/checkout@v4
     - uses: actions/setup-node@v4
-    - run: npm ci --prefer-offline   # ❌ 重复
+    - run: npm ci --prefer-offline # ❌ 重复
     - run: npm run lint
 
 typecheck:
   steps:
     - uses: actions/checkout@v4
     - uses: actions/setup-node@v4
-    - run: npm ci --prefer-offline   # ❌ 重复
+    - run: npm ci --prefer-offline # ❌ 重复
     - run: npm run type-check
 ```
 
@@ -174,12 +175,13 @@ typecheck:
 ```yaml
 deploy-staging:
   env:
-    SSH_PASS: ${{ secrets.DEPLOY_PASS }}  # ❌ 密码存储在 GitHub
+    SSH_PASS: ${{ secrets.DEPLOY_PASS }} # ❌ 密码存储在 GitHub
   run: |
     sshpass -p "$SSH_PASS" ssh ...         # ❌ 密码明文传输
 ```
 
 **风险**:
+
 - 密码泄露后无法感知
 - 无法限制权限（密钥可以限制 commands）
 - 无法审计谁使用了密码
@@ -195,7 +197,7 @@ deploy-staging:
 ```yaml
 - name: 检查代码格式
   run: npm run format:check
-  continue-on-error: true   # ⚠️ 格式错误不阻塞 CI
+  continue-on-error: true # ⚠️ 格式错误不阻塞 CI
 ```
 
 **建议**: 格式检查应该严格，失败则阻塞
@@ -215,7 +217,7 @@ deploy-staging:
   with:
     webhook-url: ${{ secrets.DISCORD_WEBHOOK }}
     status: ${{ job.status }}
-    content: "🚀 Deploy ${{ job.status }} for ${{ github.event.inputs.environment }}"
+    content: '🚀 Deploy ${{ job.status }} for ${{ github.event.inputs.environment }}'
 ```
 
 ---
@@ -226,7 +228,7 @@ deploy-staging:
 
 ```yaml
 test-e2e:
-  needs: [build]        # ✅ 依赖 build
+  needs: [build] # ✅ 依赖 build
   steps:
     - name: Download build artifacts
       uses: actions/download-artifact@v4
@@ -263,7 +265,7 @@ workflow_dispatch:
   inputs:
     skip-tests:
       type: boolean
-      default: false   # ❌ 没有验证逻辑
+      default: false # ❌ 没有验证逻辑
 ```
 
 **建议**: 添加 env 或 script 验证输入
@@ -291,30 +293,31 @@ permissions:
 
 ### 3.1 环境变量管理
 
-| 检查项 | 状态 | 说明 |
-|--------|------|------|
-| `.env.example` 存在 | ✅ | 提供模板 |
-| `.env.production` 存在 | ✅ | 生产配置 |
-| `.env.test` 存在 | ✅ | 测试配置 |
-| 敏感值不在 repo | ⚠️ | 部分 hardcoded |
-| `NEXT_TELEMETRY_DISABLED=1` | ✅ | 已设置 |
-| secrets 管理 | ⚠️ | 使用密码非密钥 |
+| 检查项                      | 状态 | 说明           |
+| --------------------------- | ---- | -------------- |
+| `.env.example` 存在         | ✅   | 提供模板       |
+| `.env.production` 存在      | ✅   | 生产配置       |
+| `.env.test` 存在            | ✅   | 测试配置       |
+| 敏感值不在 repo             | ⚠️   | 部分 hardcoded |
+| `NEXT_TELEMETRY_DISABLED=1` | ✅   | 已设置         |
+| secrets 管理                | ⚠️   | 使用密码非密钥 |
 
 ### 3.2 Secrets 配置
 
 **当前 Secrets 列表** (来自 SECRETS.md):
 
-| Secret | 用途 | 安全评级 |
-|--------|------|----------|
+| Secret            | 用途         | 安全评级   |
+| ----------------- | ------------ | ---------- |
 | `SSH_PRIVATE_KEY` | SSH 部署密钥 | ⭐⭐⭐⭐⭐ |
-| `DEPLOY_PASS` | SSH 密码 | ⭐⭐ |
-| `DOCKER_USERNAME` | Docker Hub | ⭐⭐⭐ |
-| `DOCKER_PASSWORD` | Docker Token | ⭐⭐⭐⭐ |
-| `VERCEL_TOKEN` | Vercel 部署 | ⭐⭐⭐⭐ |
-| `DISCORD_WEBHOOK` | 通知 | ⭐⭐⭐⭐ |
-| `SNYK_TOKEN` | 安全扫描 | ⭐⭐⭐⭐ |
+| `DEPLOY_PASS`     | SSH 密码     | ⭐⭐       |
+| `DOCKER_USERNAME` | Docker Hub   | ⭐⭐⭐     |
+| `DOCKER_PASSWORD` | Docker Token | ⭐⭐⭐⭐   |
+| `VERCEL_TOKEN`    | Vercel 部署  | ⭐⭐⭐⭐   |
+| `DISCORD_WEBHOOK` | 通知         | ⭐⭐⭐⭐   |
+| `SNYK_TOKEN`      | 安全扫描     | ⭐⭐⭐⭐   |
 
 **问题**:
+
 1. `DEPLOY_PASS` 同时存在（应移除，只用密钥）
 2. `SSH_PRIVATE_KEY` 可能未配置
 3. 缺少 `STAGING_HOST`, `PRODUCTION_HOST` secrets
@@ -327,24 +330,26 @@ permissions:
 
 ```yaml
 permissions:
-  contents: read       # checkout 代码
-  actions: read       # 读取 workflow
+  contents: read # checkout 代码
+  actions: read # 读取 workflow
   deployments: write # 部署环境
-  id-token: write     # OIDC (如果使用)
-  packages: write    # GHCR docker push
-  statuses: write    # commit status
+  id-token: write # OIDC (如果使用)
+  packages: write # GHCR docker push
+  statuses: write # commit status
   pull-requests: write # PR 状态
 ```
 
 ### 3.4 敏感信息检查
 
 **当前检查** (ci.yml):
+
 ```bash
 # ✅ 基础检查
 if grep -r "sk-\|api_key\|secret" src/ 2>/dev/null | grep -v "//" | grep -v "/*"
 ```
 
 **改进建议**:
+
 - 使用 TruffleHog 进行深度扫描
 - 添加 commit 前置检查 (pre-commit hook)
 - 使用 GitHub Secret Scanning
@@ -355,18 +360,18 @@ if grep -r "sk-\|api_key\|secret" src/ 2>/dev/null | grep -v "//" | grep -v "/*"
 
 ### 4.1 优化优先级矩阵
 
-| 优先级 | 优化项 | 工作量 | 收益 | 风险 |
-|--------|--------|--------|------|------|
-| P0 | 合并冗余 workflow | 中 | 高 | 低 |
-| P0 | 改用 SSH 密钥认证 | 低 | 高 | 中 |
-| P1 | 共享依赖缓存 | 低 | 高 | 低 |
-| P1 | 格式化检查严格化 | 低 | 中 | 低 |
-| P1 | Docker BuildKit cache | 低 | 中 | 低 |
-| P2 | 添加部署通知 | 低 | 中 | 低 |
-| P2 | 限制 workflow 权限 | 低 | 中 | 低 |
-| P2 | Security job 优化 | 低 | 中 | 低 |
-| P3 | 自动化版本发布 | 中 | 高 | 中 |
-| P3 | 自动化 changelog | 中 | 中 | 低 |
+| 优先级 | 优化项                | 工作量 | 收益 | 风险 |
+| ------ | --------------------- | ------ | ---- | ---- |
+| P0     | 合并冗余 workflow     | 中     | 高   | 低   |
+| P0     | 改用 SSH 密钥认证     | 低     | 高   | 中   |
+| P1     | 共享依赖缓存          | 低     | 高   | 低   |
+| P1     | 格式化检查严格化      | 低     | 中   | 低   |
+| P1     | Docker BuildKit cache | 低     | 中   | 低   |
+| P2     | 添加部署通知          | 低     | 中   | 低   |
+| P2     | 限制 workflow 权限    | 低     | 中   | 低   |
+| P2     | Security job 优化     | 低     | 中   | 低   |
+| P3     | 自动化版本发布        | 中     | 高   | 中   |
+| P3     | 自动化 changelog      | 中     | 中   | 低   |
 
 ### 4.2 立即实施优化 (P0-P1)
 
@@ -389,6 +394,7 @@ mv .github/workflows/deploy-main.yml .github/workflows/archive/
 #### 优化 2: 改用 SSH 密钥认证 [P0]
 
 **当前 (不安全)**:
+
 ```yaml
 env:
   SSH_PASS: ${{ secrets.DEPLOY_PASS }}
@@ -396,6 +402,7 @@ run: sshpass -p "$SSH_PASS" ssh ...
 ```
 
 **改进 (安全)**:
+
 ```yaml
 - name: Setup SSH
   uses: webfactory/ssh-agent@v0.9.0
@@ -411,6 +418,7 @@ run: sshpass -p "$SSH_PASS" ssh ...
 ```
 
 **Benefits**:
+
 - 无密码存储
 - 可限制密钥权限
 - 可审计使用记录
@@ -463,13 +471,15 @@ lint:
 #### 优化 4: 格式化检查严格化 [P1]
 
 **当前**:
+
 ```yaml
 - name: Check format
   run: npm run format:check
-  continue-on-error: true   # ❌
+  continue-on-error: true # ❌
 ```
 
 **改进**:
+
 ```yaml
 - name: Check format
   run: npm run format:check
@@ -571,10 +581,10 @@ concurrency:
 ```yaml
 on:
   schedule:
-    - cron: '0 2 * * *'  # UTC 2:00
+    - cron: '0 2 * * *' # UTC 2:00
   workflow_dispatch:
   push:
-    branches: [main]  # 只在 main 分支的 push 时运行
+    branches: [main] # 只在 main 分支的 push 时运行
 ```
 
 ---
@@ -688,12 +698,12 @@ changelog:
 
 ### 5.2 预期时间节省
 
-| 阶段 | 优化项 | 时间节省 |
-|------|--------|----------|
-| Phase 1 | 合并 workflow + 共享缓存 | ~5-8 min |
-| Phase 2 | Docker cache + 减少不必要 job | ~3-5 min |
-| Phase 3 | 自动化发布减少手动操作 | ~2-3 min |
-| **总计** | | **~10-16 min** |
+| 阶段     | 优化项                        | 时间节省       |
+| -------- | ----------------------------- | -------------- |
+| Phase 1  | 合并 workflow + 共享缓存      | ~5-8 min       |
+| Phase 2  | Docker cache + 减少不必要 job | ~3-5 min       |
+| Phase 3  | 自动化发布减少手动操作        | ~2-3 min       |
+| **总计** |                               | **~10-16 min** |
 
 ### 5.3 验证检查清单
 
@@ -788,7 +798,7 @@ jobs:
           path: node_modules
           key: npm-${{ runner.os }}-${{ hashFiles('**/package-lock.json') }}
       - run: npm run lint
-      - run: npm run format:check  # 不再 continue-on-error
+      - run: npm run format:check # 不再 continue-on-error
 
   typecheck:
     name: Type Check

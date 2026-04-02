@@ -44,49 +44,51 @@ v1.6.0 已完成 Dashboard 页面深色模式优化（见 `DASHBOARD_DARK_MODE_2
 
 ### 1. 页面深色模式覆盖率统计
 
-| 页面 | 文件路径 | dark: 样式数 | 覆盖率 | 优先级 |
-|------|---------|-------------|--------|--------|
-| Pricing | `src/app/pricing/page.tsx` | 31 | ✅ 良好 (85%) | P2 |
-| About | `src/app/about/page.tsx` | 25 | ✅ 良好 (80%) | P2 |
-| Dashboard | `src/app/dashboard/page.tsx` | N/A | ✅ 完成 (100%) | ✅ 完成 |
-| 首页 | `src/app/page.tsx` | 8 | ⚠️ 基础 (60%) | P1 |
-| Rooms | `src/app/rooms/page.tsx` | 7 | ⚠️ 基础 (50%) | P1 |
-| Room Detail | `src/app/rooms/[id]/page.tsx` | 7 | ⚠️ 基础 (50%) | P1 |
-| **Feedback** | `src/app/feedback/page.tsx` | **0** | ❌ **缺失 (0%)** | **P0** |
-| Knowledge Lattice | `src/app/[locale]/knowledge-lattice/page.tsx` | 0 | ⚪ 专用深色 (N/A) | - |
+| 页面              | 文件路径                                      | dark: 样式数 | 覆盖率            | 优先级  |
+| ----------------- | --------------------------------------------- | ------------ | ----------------- | ------- |
+| Pricing           | `src/app/pricing/page.tsx`                    | 31           | ✅ 良好 (85%)     | P2      |
+| About             | `src/app/about/page.tsx`                      | 25           | ✅ 良好 (80%)     | P2      |
+| Dashboard         | `src/app/dashboard/page.tsx`                  | N/A          | ✅ 完成 (100%)    | ✅ 完成 |
+| 首页              | `src/app/page.tsx`                            | 8            | ⚠️ 基础 (60%)     | P1      |
+| Rooms             | `src/app/rooms/page.tsx`                      | 7            | ⚠️ 基础 (50%)     | P1      |
+| Room Detail       | `src/app/rooms/[id]/page.tsx`                 | 7            | ⚠️ 基础 (50%)     | P1      |
+| **Feedback**      | `src/app/feedback/page.tsx`                   | **0**        | ❌ **缺失 (0%)**  | **P0**  |
+| Knowledge Lattice | `src/app/[locale]/knowledge-lattice/page.tsx` | 0            | ⚪ 专用深色 (N/A) | -       |
 
 ### 2. 背景样式分析
 
-| 页面 | 浅色模式背景 | 深色模式背景 | 状态 |
-|------|-------------|-------------|------|
-| Dashboard | `from-gray-50 to-blue-50` | `dark:from-gray-900 dark:to-gray-800` | ✅ 完成 |
-| Pricing | `from-gray-50 to-gray-100` | `dark:from-gray-900 dark:to-gray-800` | ✅ 良好 |
-| 首页 | `from-gray-50 to-gray-100` | `dark:from-gray-900 dark:to-gray-800` | ✅ 良好 |
-| About | `bg-gray-50` | `dark:bg-gray-900` | ⚠️ 单色 |
-| Rooms | `bg-gray-50` | `dark:bg-gray-900` | ⚠️ 单色 |
-| **Feedback** | `from-blue-50 to-indigo-50` | **无** | ❌ 缺失 |
-| Knowledge Lattice | `bg-zinc-950` | N/A (专用深色) | ⚪ 特殊 |
+| 页面              | 浅色模式背景                | 深色模式背景                          | 状态    |
+| ----------------- | --------------------------- | ------------------------------------- | ------- |
+| Dashboard         | `from-gray-50 to-blue-50`   | `dark:from-gray-900 dark:to-gray-800` | ✅ 完成 |
+| Pricing           | `from-gray-50 to-gray-100`  | `dark:from-gray-900 dark:to-gray-800` | ✅ 良好 |
+| 首页              | `from-gray-50 to-gray-100`  | `dark:from-gray-900 dark:to-gray-800` | ✅ 良好 |
+| About             | `bg-gray-50`                | `dark:bg-gray-900`                    | ⚠️ 单色 |
+| Rooms             | `bg-gray-50`                | `dark:bg-gray-900`                    | ⚠️ 单色 |
+| **Feedback**      | `from-blue-50 to-indigo-50` | **无**                                | ❌ 缺失 |
+| Knowledge Lattice | `bg-zinc-950`               | N/A (专用深色)                        | ⚪ 特殊 |
 
 ### 3. 组件深色模式支持情况
 
-| 组件 | 文件 | dark: 支持 | 状态 |
-|------|-----|-----------|------|
-| Card | `src/components/ui/Card.tsx` | ✅ 完整 | ✅ 完成 |
-| Button | `src/components/ui/Button.tsx` | ✅ 完整 | ✅ 完成 |
-| Navigation | `src/components/ui/Navigation.tsx` | ✅ 完整 | ✅ 完成 |
-| Input | `src/components/ui/Input.tsx` | ✅ 完整 | ✅ 完成 |
-| Toast | `src/components/ui/feedback/Toast.tsx` | ✅ 完整 | ✅ 完成 |
+| 组件       | 文件                                   | dark: 支持 | 状态    |
+| ---------- | -------------------------------------- | ---------- | ------- |
+| Card       | `src/components/ui/Card.tsx`           | ✅ 完整    | ✅ 完成 |
+| Button     | `src/components/ui/Button.tsx`         | ✅ 完整    | ✅ 完成 |
+| Navigation | `src/components/ui/Navigation.tsx`     | ✅ 完整    | ✅ 完成 |
+| Input      | `src/components/ui/Input.tsx`          | ✅ 完整    | ✅ 完成 |
+| Toast      | `src/components/ui/feedback/Toast.tsx` | ✅ 完整    | ✅ 完成 |
 
 ### 4. CSS 变量系统审计
 
 **文件**: `src/styles/tokens.css`
 
 #### ✅ 已完成
+
 - 完整的颜色变量定义（primary, gray, success, warning, error, info）
 - 浅色和深色主题变量
 - 字体、间距、圆角、阴影系统
 
 #### ⚠️ 需要优化
+
 - 深色模式下 `--color-gray-50` 到 `--color-gray-900` 的反转命名可能造成混淆
 - 建议增加语义化颜色变量（如 `--color-bg-primary`, `--color-text-primary`）
 
@@ -99,15 +101,18 @@ v1.6.0 已完成 Dashboard 页面深色模式优化（见 `DASHBOARD_DARK_MODE_2
 #### 1. Feedback 页面完全缺失深色模式
 
 **问题描述**:
+
 - Feedback 页面（`src/app/feedback/page.tsx`）完全没有深色模式支持
 - 使用硬编码浅色渐变：`bg-gradient-to-br from-blue-50 to-indigo-50`
 - 在深色模式下会显示突兀的浅色背景
 
 **影响范围**:
+
 - 用户在深色模式下访问反馈页面时体验极差
 - 与其他已优化页面形成强烈反差
 
 **修复方案**:
+
 ```tsx
 // 修改前
 <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-50 py-12 px-4">
@@ -121,6 +126,7 @@ v1.6.0 已完成 Dashboard 页面深色模式优化（见 `DASHBOARD_DARK_MODE_2
 #### 2. 背景样式不统一
 
 **问题描述**:
+
 - Dashboard 使用 `from-gray-50 to-blue-50` 渐变
 - Pricing 使用 `from-gray-50 to-gray-100` 渐变
 - About/Rooms 使用单色 `bg-gray-50`
@@ -128,21 +134,24 @@ v1.6.0 已完成 Dashboard 页面深色模式优化（见 `DASHBOARD_DARK_MODE_2
 
 **建议方案**:
 统一使用 Dashboard 的渐变策略作为标准：
+
 ```tsx
 // 标准页面背景
-className="bg-gradient-to-br from-gray-50 to-blue-50 dark:from-gray-900 dark:to-gray-800"
+className = 'bg-gradient-to-br from-gray-50 to-blue-50 dark:from-gray-900 dark:to-gray-800'
 
 // 或者更中性的渐变
-className="bg-gradient-to-b from-gray-50 to-gray-100 dark:from-gray-900 dark:to-gray-800"
+className = 'bg-gradient-to-b from-gray-50 to-gray-100 dark:from-gray-900 dark:to-gray-800'
 ```
 
 #### 3. 文本颜色对比度不足
 
 **问题描述**:
+
 - 部分页面使用 `dark:text-gray-400` 作为主要文本颜色
 - 在深色背景上对比度可能不足（WCAG AA 标准）
 
 **建议方案**:
+
 - 主要文本使用 `dark:text-gray-100` 或 `dark:text-white`
 - 次要文本使用 `dark:text-gray-300` 或 `dark:text-gray-400`
 - 辅助文本使用 `dark:text-gray-500`
@@ -156,6 +165,7 @@ className="bg-gradient-to-b from-gray-50 to-gray-100 dark:from-gray-900 dark:to-
 
 **建议方案**:
 添加语义化变量别名：
+
 ```css
 :root {
   /* 语义化别名 */
@@ -189,12 +199,14 @@ className="bg-gradient-to-b from-gray-50 to-gray-100 dark:from-gray-900 dark:to-
 **修改内容**:
 
 1. 页面背景
+
 ```tsx
 // 第 47 行
 <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-50 dark:from-gray-900 dark:to-gray-800 py-12 px-4">
 ```
 
 2. Header 区域
+
 ```tsx
 // 图标背景
 <div className="inline-flex items-center justify-center w-16 h-16 bg-blue-500 dark:bg-blue-600 rounded-full mb-4">
@@ -207,6 +219,7 @@ className="bg-gradient-to-b from-gray-50 to-gray-100 dark:from-gray-900 dark:to-
 ```
 
 3. 卡片和容器
+
 ```tsx
 // 成功提示卡片
 <div className="mb-8 p-6 bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800 rounded-lg">
@@ -238,13 +251,15 @@ className="bg-gradient-to-b from-gray-50 to-gray-100 dark:from-gray-900 dark:to-
 
 #### 任务 1.3: Rooms 页面深色模式增强
 
-**文件**: 
+**文件**:
+
 - `src/app/rooms/page.tsx`
 - `src/app/rooms/[id]/page.tsx`
 
 **修改内容**:
 
 1. 背景从单色改为渐变
+
 ```tsx
 <div className="min-h-screen bg-gradient-to-br from-gray-50 to-blue-50 dark:from-gray-900 dark:to-gray-800">
 ```
@@ -262,6 +277,7 @@ className="bg-gradient-to-b from-gray-50 to-gray-100 dark:from-gray-900 dark:to-
 **文件**: `docs/DARK_MODE_GUIDELINES.md`
 
 **内容**:
+
 - 背景渐变标准
 - 文本颜色层级
 - 边框和分割线颜色
@@ -280,6 +296,7 @@ className="bg-gradient-to-b from-gray-50 to-gray-100 dark:from-gray-900 dark:to-
 **修改内容**:
 
 添加语义化变量：
+
 ```css
 :root {
   /* 背景层级 */
@@ -287,18 +304,18 @@ className="bg-gradient-to-b from-gray-50 to-gray-100 dark:from-gray-900 dark:to-
   --bg-secondary: var(--color-gray-100);
   --bg-tertiary: var(--color-gray-200);
   --bg-inverse: var(--color-gray-900);
-  
+
   /* 文本层级 */
   --text-primary: var(--color-gray-900);
   --text-secondary: var(--color-gray-700);
   --text-tertiary: var(--color-gray-600);
   --text-muted: var(--color-gray-500);
   --text-inverse: var(--color-gray-50);
-  
+
   /* 边框 */
   --border-primary: var(--color-gray-200);
   --border-secondary: var(--color-gray-300);
-  
+
   /* 交互状态 */
   --interactive-hover: var(--color-gray-100);
   --interactive-active: var(--color-gray-200);
@@ -310,18 +327,18 @@ className="bg-gradient-to-b from-gray-50 to-gray-100 dark:from-gray-900 dark:to-
   --bg-secondary: var(--color-gray-800);
   --bg-tertiary: var(--color-gray-700);
   --bg-inverse: var(--color-gray-50);
-  
+
   /* 文本层级 - 深色模式 */
   --text-primary: var(--color-gray-100);
   --text-secondary: var(--color-gray-300);
   --text-tertiary: var(--color-gray-400);
   --text-muted: var(--color-gray-500);
   --text-inverse: var(--color-gray-900);
-  
+
   /* 边框 - 深色模式 */
   --border-primary: var(--color-gray-700);
   --border-secondary: var(--color-gray-600);
-  
+
   /* 交互状态 - 深色模式 */
   --interactive-hover: var(--color-gray-800);
   --interactive-active: var(--color-gray-700);
@@ -339,6 +356,7 @@ className="bg-gradient-to-b from-gray-50 to-gray-100 dark:from-gray-900 dark:to-
 **修改内容**:
 
 1. 背景从单色改为渐变
+
 ```tsx
 <main className="min-h-screen bg-gradient-to-br from-gray-50 to-blue-50 dark:from-gray-900 dark:to-gray-800">
 ```
@@ -370,6 +388,7 @@ className="bg-gradient-to-b from-gray-50 to-gray-100 dark:from-gray-900 dark:to-
 **文件**: `e2e/dark-mode.spec.ts`
 
 **测试内容**:
+
 - 所有主要页面的深色模式切换
 - 颜色对比度测试
 - 主题持久化测试
@@ -384,6 +403,7 @@ className="bg-gradient-to-b from-gray-50 to-gray-100 dark:from-gray-900 dark:to-
 **工具**: Playwright 截图对比
 
 **测试范围**:
+
 - 浅色模式截图基准
 - 深色模式截图基准
 - 主题切换过渡效果
@@ -395,6 +415,7 @@ className="bg-gradient-to-b from-gray-50 to-gray-100 dark:from-gray-900 dark:to-
 #### 任务 3.3: 文档更新
 
 **更新文件**:
+
 - `README.md` - 添加深色模式使用说明
 - `docs/DESIGN_SYSTEM.md` - 添加深色模式设计规范
 - `CHANGELOG.md` - 记录 v1.8.0 深色模式改进
@@ -406,6 +427,7 @@ className="bg-gradient-to-b from-gray-50 to-gray-100 dark:from-gray-900 dark:to-
 #### 任务 3.4: 性能测试
 
 **测试内容**:
+
 - 主题切换性能
 - CSS 加载性能
 - 首次内容绘制（FCP）
@@ -440,15 +462,15 @@ Week 1 (第 1-2 天)
 
 ### 优先级排序
 
-| 优先级 | 任务 | 原因 |
-|-------|------|------|
+| 优先级 | 任务              | 原因                           |
+| ------ | ----------------- | ------------------------------ |
 | **P0** | Feedback 页面修复 | 完全缺失深色模式，影响用户体验 |
-| **P1** | 首页增强 | 入口页面，优先级高 |
-| **P1** | Rooms 页面增强 | 核心功能页面 |
-| **P2** | CSS 变量重构 | 长期可维护性 |
-| **P2** | About 页面优化 | 信息页面 |
-| **P2** | Pricing 页面审查 | 已有良好基础，需审查优化 |
-| **P3** | 测试与文档 | 质量保障 |
+| **P1** | 首页增强          | 入口页面，优先级高             |
+| **P1** | Rooms 页面增强    | 核心功能页面                   |
+| **P2** | CSS 变量重构      | 长期可维护性                   |
+| **P2** | About 页面优化    | 信息页面                       |
+| **P2** | Pricing 页面审查  | 已有良好基础，需审查优化       |
+| **P3** | 测试与文档        | 质量保障                       |
 
 ---
 
@@ -457,11 +479,13 @@ Week 1 (第 1-2 天)
 ### 当前命名系统
 
 **优点**:
+
 - 色阶完整（50-900）
 - 与 Tailwind 颜色对应
 - 支持深色模式覆盖
 
 **缺点**:
+
 - 深色模式下编号含义反转
 - 缺少语义化命名
 - 开发者需要记住两种模式的映射
@@ -483,23 +507,23 @@ Week 1 (第 1-2 天)
 ```css
 :root {
   /* === 背景系统 === */
-  --bg-base: var(--color-gray-50);           /* 页面主背景 */
-  --bg-elevated: var(--color-white);         /* 卡片/弹窗背景 */
-  --bg-sunken: var(--color-gray-100);        /* 内嵌区域背景 */
-  --bg-overlay: rgba(0, 0, 0, 0.5);          /* 遮罩层 */
-  
+  --bg-base: var(--color-gray-50); /* 页面主背景 */
+  --bg-elevated: var(--color-white); /* 卡片/弹窗背景 */
+  --bg-sunken: var(--color-gray-100); /* 内嵌区域背景 */
+  --bg-overlay: rgba(0, 0, 0, 0.5); /* 遮罩层 */
+
   /* === 文本系统 === */
-  --text-primary: var(--color-gray-900);     /* 主要文本 */
-  --text-secondary: var(--color-gray-700);   /* 次要文本 */
-  --text-tertiary: var(--color-gray-600);    /* 辅助文本 */
-  --text-muted: var(--color-gray-500);       /* 占位符/禁用 */
-  --text-inverse: var(--color-white);        /* 深色背景上的文本 */
-  
+  --text-primary: var(--color-gray-900); /* 主要文本 */
+  --text-secondary: var(--color-gray-700); /* 次要文本 */
+  --text-tertiary: var(--color-gray-600); /* 辅助文本 */
+  --text-muted: var(--color-gray-500); /* 占位符/禁用 */
+  --text-inverse: var(--color-white); /* 深色背景上的文本 */
+
   /* === 边框系统 === */
-  --border-default: var(--color-gray-200);   /* 默认边框 */
-  --border-emphasis: var(--color-gray-300);  /* 强调边框 */
-  --border-focus: var(--color-primary-500);  /* 焦点边框 */
-  
+  --border-default: var(--color-gray-200); /* 默认边框 */
+  --border-emphasis: var(--color-gray-300); /* 强调边框 */
+  --border-focus: var(--color-primary-500); /* 焦点边框 */
+
   /* === 交互状态 === */
   --interactive-hover: var(--color-gray-100);
   --interactive-active: var(--color-gray-200);
@@ -512,19 +536,19 @@ Week 1 (第 1-2 天)
   --bg-elevated: var(--color-gray-800);
   --bg-sunken: var(--color-gray-700);
   --bg-overlay: rgba(0, 0, 0, 0.7);
-  
+
   /* === 文本系统 - 深色模式 === */
   --text-primary: var(--color-gray-100);
   --text-secondary: var(--color-gray-300);
   --text-tertiary: var(--color-gray-400);
   --text-muted: var(--color-gray-500);
   --text-inverse: var(--color-gray-900);
-  
+
   /* === 边框系统 - 深色模式 === */
   --border-default: var(--color-gray-700);
   --border-emphasis: var(--color-gray-600);
   --border-focus: var(--color-primary-400);
-  
+
   /* === 交互状态 - 深色模式 === */
   --interactive-hover: var(--color-gray-800);
   --interactive-active: var(--color-gray-700);
@@ -583,23 +607,23 @@ Week 1 (第 1-2 天)
 
 ### 详细工时表
 
-| 阶段 | 任务 | 预计工时 | 负责人 |
-|------|------|---------|--------|
-| **阶段一** | | **8h** | |
-| | Feedback 页面修复 | 4h | 前端开发 |
-| | 首页增强 | 2h | 前端开发 |
-| | Rooms 页面增强 | 2h | 前端开发 |
-| **阶段二** | | **12h** | |
-| | 设计规范文档 | 4h | 设计师 |
-| | CSS 变量重构 | 3h | 前端开发 |
-| | About 页面优化 | 2h | 前端开发 |
-| | Pricing 审查 | 3h | 前端开发 |
-| **阶段三** | | **12h** | |
-| | 测试用例编写 | 4h | QA |
-| | 视觉回归测试 | 3h | QA |
-| | 文档更新 | 2h | 技术文档 |
-| | 性能测试 | 3h | 前端开发 |
-| **总计** | | **32h** | |
+| 阶段       | 任务              | 预计工时 | 负责人   |
+| ---------- | ----------------- | -------- | -------- |
+| **阶段一** |                   | **8h**   |          |
+|            | Feedback 页面修复 | 4h       | 前端开发 |
+|            | 首页增强          | 2h       | 前端开发 |
+|            | Rooms 页面增强    | 2h       | 前端开发 |
+| **阶段二** |                   | **12h**  |          |
+|            | 设计规范文档      | 4h       | 设计师   |
+|            | CSS 变量重构      | 3h       | 前端开发 |
+|            | About 页面优化    | 2h       | 前端开发 |
+|            | Pricing 审查      | 3h       | 前端开发 |
+| **阶段三** |                   | **12h**  |          |
+|            | 测试用例编写      | 4h       | QA       |
+|            | 视觉回归测试      | 3h       | QA       |
+|            | 文档更新          | 2h       | 技术文档 |
+|            | 性能测试          | 3h       | 前端开发 |
+| **总计**   |                   | **32h**  |          |
 
 ### 时间安排
 
@@ -614,6 +638,7 @@ Week 1 (第 1-2 天)
 ### 风险 1: CSS 变量重构影响现有组件
 
 **缓解措施**:
+
 - 保留原有变量定义
 - 新增语义化变量作为别名
 - 逐步迁移，不强制替换
@@ -621,6 +646,7 @@ Week 1 (第 1-2 天)
 ### 风险 2: 深色模式颜色调整影响品牌一致性
 
 **缓解措施**:
+
 - 设计师参与颜色审核
 - 建立颜色对比度测试流程
 - 用户测试反馈
@@ -628,6 +654,7 @@ Week 1 (第 1-2 天)
 ### 风险 3: 性能影响
 
 **缓解措施**:
+
 - 使用 CSS 变量而非运行时计算
 - 避免 JavaScript 主题切换
 - 优化 CSS 选择器
@@ -668,4 +695,4 @@ Week 1 (第 1-2 天)
 
 **文档结束**
 
-*本文档将在 v1.8.0 开发过程中持续更新。*
+_本文档将在 v1.8.0 开发过程中持续更新。_

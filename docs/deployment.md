@@ -96,10 +96,10 @@
 
 ### 触发条件
 
-| 事件 | 触发条件 | 运行内容 |
-|------|----------|----------|
-| Push | `main`, `develop` | 完整 CI + 自动 Staging 部署 |
-| PR | `main`, `develop` | CI 检查 + E2E 测试（不部署） |
+| 事件   | 触发条件          | 运行内容                     |
+| ------ | ----------------- | ---------------------------- |
+| Push   | `main`, `develop` | 完整 CI + 自动 Staging 部署  |
+| PR     | `main`, `develop` | CI 检查 + E2E 测试（不部署） |
 | Manual | workflow_dispatch | 可选择 Staging 或 Production |
 
 ### 流水线阶段
@@ -151,10 +151,10 @@
 
 ### 时间估算
 
-| 场景 | 无缓存 | 有缓存 |
-|------|--------|--------|
-| PR 检查 | ~5 分钟 | ~3 分钟 |
-| Staging 部署 | ~8 分钟 | ~5 分钟 |
+| 场景            | 无缓存   | 有缓存  |
+| --------------- | -------- | ------- |
+| PR 检查         | ~5 分钟  | ~3 分钟 |
+| Staging 部署    | ~8 分钟  | ~5 分钟 |
 | Production 部署 | ~10 分钟 | ~6 分钟 |
 
 ## 部署方式
@@ -223,13 +223,13 @@ cd /opt/7zi-frontend
 
 在 GitHub 仓库 Settings → Secrets and variables → Actions 中配置：
 
-| Secret | 描述 | 示例值 |
-|--------|------|--------|
-| `STAGING_HOST` | Staging 服务器地址 | `staging.7zi.com` |
-| `PRODUCTION_HOST` | Production 服务器地址 | `165.99.43.61` |
-| `DEPLOY_USER` | SSH 用户名 | `root` |
-| `DEPLOY_PASS` | SSH 密码 | `********` |
-| `DEPLOY_KEY` | SSH 私钥（可选） | `-----BEGIN RSA...` |
+| Secret            | 描述                  | 示例值              |
+| ----------------- | --------------------- | ------------------- |
+| `STAGING_HOST`    | Staging 服务器地址    | `staging.7zi.com`   |
+| `PRODUCTION_HOST` | Production 服务器地址 | `165.99.43.61`      |
+| `DEPLOY_USER`     | SSH 用户名            | `root`              |
+| `DEPLOY_PASS`     | SSH 密码              | `********`          |
+| `DEPLOY_KEY`      | SSH 私钥（可选）      | `-----BEGIN RSA...` |
 
 ### 服务器环境变量
 
@@ -264,7 +264,7 @@ SENTRY_AUTH_TOKEN=xxxxxxxx
 - uses: actions/setup-node@v4
   with:
     node-version: '22'
-    cache: 'npm'  # 自动缓存 node_modules
+    cache: 'npm' # 自动缓存 node_modules
 ```
 
 ### 2. Next.js 构建缓存
@@ -294,11 +294,11 @@ SENTRY_AUTH_TOKEN=xxxxxxxx
 
 ### 缓存效果
 
-| 场景 | 无缓存 | 有缓存 | 提升 |
-|------|--------|--------|------|
-| npm install | ~60s | ~15s | 75% |
-| Next.js build | ~120s | ~40s | 67% |
-| Docker build | ~180s | ~60s | 67% |
+| 场景          | 无缓存 | 有缓存 | 提升 |
+| ------------- | ------ | ------ | ---- |
+| npm install   | ~60s   | ~15s   | 75%  |
+| Next.js build | ~120s  | ~40s   | 67%  |
+| Docker build  | ~180s  | ~60s   | 67%  |
 
 ## 常用命令
 
@@ -526,11 +526,11 @@ notify-failure:
 
 ## 更新日志
 
-| 日期 | 版本 | 变更 |
-|------|------|------|
+| 日期       | 版本 | 变更                                         |
+| ---------- | ---- | -------------------------------------------- |
 | 2026-03-07 | v3.0 | 统一 CI/CD 配置，添加 E2E 测试，优化缓存策略 |
-| 2024-03-06 | v2.0 | 添加零停机部署，Docker 层缓存 |
-| 2024-03-01 | v1.0 | 初始 CI/CD 配置 |
+| 2024-03-06 | v2.0 | 添加零停机部署，Docker 层缓存                |
+| 2024-03-01 | v1.0 | 初始 CI/CD 配置                              |
 
 ---
 

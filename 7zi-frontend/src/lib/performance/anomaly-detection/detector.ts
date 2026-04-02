@@ -3,7 +3,7 @@
  * 性能异常检测器 - 核心模块
  */
 
-import { v4 as uuidv4 } from 'uuid';
+import { v4 as uuidv4 } from 'uuid'
 import {
   AnomalyDetection,
   AnomalyDetectionConfig,
@@ -11,27 +11,27 @@ import {
   MetricBaseline,
   MetricDataPoint,
   DEFAULT_ANOMALY_CONFIG,
-} from './types';
-import { BaselineManager } from './baseline';
-import { detectAnomalyZScore, calculatePercentChange } from './algorithms/z-score';
-import { trainAndDetect } from './algorithms/isolation-forest';
-import { CompositeFilter, createDefaultFilters, FilterContext } from './filters';
+} from './types'
+import { BaselineManager } from './baseline'
+import { detectAnomalyZScore, calculatePercentChange } from './algorithms/z-score'
+import { trainAndDetect } from './algorithms/isolation-forest'
+import { CompositeFilter, createDefaultFilters, FilterContext } from './filters'
 
 export class PerformanceAnomalyDetector {
-  private config: AnomalyDetectionConfig;
-  private baselineManager: BaselineManager;
-  private filter: CompositeFilter;
-  private recentDetections: Map<string, AnomalyDetection[]> = new Map();
-  private anomalyEvents: AnomalyEvent[] = [];
-  private metricHistory: Map<string, MetricDataPoint[]> = new Map();
+  private config: AnomalyDetectionConfig
+  private baselineManager: BaselineManager
+  private filter: CompositeFilter
+  private recentDetections: Map<string, AnomalyDetection[]> = new Map()
+  private anomalyEvents: AnomalyEvent[] = []
+  private metricHistory: Map<string, MetricDataPoint[]> = new Map()
 
   constructor(config: Partial<AnomalyDetectionConfig> = {}) {
-    this.config = { ...DEFAULT_ANOMALY_CONFIG, ...config };
-    this.baselineManager = new BaselineManager(this.config);
+    this.config = { ...DEFAULT_ANOMALY_CONFIG, ...config }
+    this.baselineManager = new BaselineManager(this.config)
     this.filter = createDefaultFilters({
       cooldownMs: this.config.filters.cooldownMs,
       minConfidence: this.config.filters.minConfidence,
-    });
+    })
   }
 
   /**
@@ -41,12 +41,12 @@ export class PerformanceAnomalyDetector {
   trackMetric(metric: string, value: number, timestamp: number = Date.now()): void {
     // 添加到历史
     if (!this.metricHistory.has(metric)) {
-      this.metricHistory.set(metric, []);
+      this.metricHistory.set(metric, [])
     }
-    this.metricHistory.get(metric)!.push({ timestamp, value });
+    this.metricHistory.get(metric)!.push({ timestamp, value })
 
     // 添加到基线管理器
-    this.baselineManager.addDataPoint(metric, value, timestamp);
+    this.baselineManager.addDataPoint(metric, value, timestamp)
   }
 
   /**
@@ -54,15 +54,15 @@ export class PerformanceAnomalyDetector {
    * 检测指标异常
    */
   detectAnomaly(metric: string, value: number): AnomalyDetection | null {
-    const baseline = this.baselineManager.getBaseline(metric);
-    
+    const baseline = this.baselineManager.getBaseline(metric)
+
     // 使用配置的算法检测
-    const detections: AnomalyDetection[] = [];
+    const detections: AnomalyDetection[] = []
 
     // 阈值检测（不需要基线）
     if (this.config.algorithms.threshold.enabled) {
-      const thresholdConfig = this.config.algorithms.threshold;
-      
+      const thresholdConfig = this.config.algorithms.threshold
+
       if (thresholdConfig.minThreshold !== undefined && value < thresholdConfig.minThreshold) {
         detections.push({
           isAnomaly: true,
@@ -74,7 +74,7 @@ export class PerformanceAnomalyDetector {
           reason: `Value ${value} below minimum threshold ${thresholdConfig.minThreshold}`,
           detectedAt: Date.now(),
           algorithm: 'threshold',
-        });
+        })
       }
 
       if (thresholdConfig.maxThreshold !== undefined && value > thresholdConfig.maxThreshold) {
@@ -88,16 +88,16 @@ export class PerformanceAnomalyDetector {
           reason: `Value ${value} exceeds maximum threshold ${thresholdConfig.maxThreshold}`,
           detectedAt: Date.now(),
           algorithm: 'threshold',
-        });
+        })
       }
     }
-    
+
     if (!baseline) {
       // 如果没有基线但检测到了阈值异常，返回检测结果
       if (detections.length > 0) {
-        return detections[0];
+        return detections[0]
       }
-      
+
       return {
         isAnomaly: false,
         severity: 'low',
@@ -108,7 +108,7 @@ export class PerformanceAnomalyDetector {
         reason: 'No baseline available',
         detectedAt: Date.now(),
         algorithm: 'threshold',
-      };
+      }
     }
 
     // Z-Score 检测
@@ -117,8 +117,8 @@ export class PerformanceAnomalyDetector {
         value,
         baseline,
         this.config.algorithms.zScore.threshold
-      );
-      
+      )
+
       if (zScoreResult.isAnomaly) {
         detections.push({
           isAnomaly: true,
@@ -131,23 +131,19 @@ export class PerformanceAnomalyDetector {
           reason: `Z-score ${zScoreResult.zScore.toFixed(2)} exceeds threshold ${this.config.algorithms.zScore.threshold}`,
           detectedAt: Date.now(),
           algorithm: 'z-score',
-        });
+        })
       }
     }
 
     // 孤立森林检测（需要足够的数据）
     if (this.config.algorithms.isolationForest.enabled) {
-      const history = this.metricHistory.get(metric) || [];
+      const history = this.metricHistory.get(metric) || []
       if (history.length >= 30) {
-        const isoResult = trainAndDetect(
-          history,
-          value,
-          {
-            numTrees: this.config.algorithms.isolationForest.numTrees || 100,
-            subSamplingSize: this.config.algorithms.isolationForest.subSamplingSize || 256,
-            contamination: this.config.algorithms.isolationForest.contamination,
-          }
-        );
+        const isoResult = trainAndDetect(history, value, {
+          numTrees: this.config.algorithms.isolationForest.numTrees || 100,
+          subSamplingSize: this.config.algorithms.isolationForest.subSamplingSize || 256,
+          contamination: this.config.algorithms.isolationForest.contamination,
+        })
 
         if (isoResult.isAnomaly) {
           detections.push({
@@ -160,7 +156,7 @@ export class PerformanceAnomalyDetector {
             reason: `Isolation forest anomaly score: ${isoResult.score.toFixed(3)}`,
             detectedAt: Date.now(),
             algorithm: 'isolation-forest',
-          });
+          })
         }
       }
     }
@@ -177,20 +173,20 @@ export class PerformanceAnomalyDetector {
         reason: 'Value within normal range',
         detectedAt: Date.now(),
         algorithm: 'z-score',
-      };
+      }
     }
 
     // 选择最严重的异常
     const mostSevere = detections.sort((a, b) => {
-      const severityOrder = { critical: 4, high: 3, medium: 2, low: 1 };
-      return severityOrder[b.severity] - severityOrder[a.severity];
-    })[0];
+      const severityOrder = { critical: 4, high: 3, medium: 2, low: 1 }
+      return severityOrder[b.severity] - severityOrder[a.severity]
+    })[0]
 
     // 应用过滤器
     if (this.config.filters.enablePseudoAnomalyFilter) {
-      const context = this.createFilterContext(metric);
-      const filterResult = this.filter.applyWithDetails(mostSevere, context);
-      
+      const context = this.createFilterContext(metric)
+      const filterResult = this.filter.applyWithDetails(mostSevere, context)
+
       if (!filterResult.passed) {
         // 被过滤器拦截
         return {
@@ -198,14 +194,14 @@ export class PerformanceAnomalyDetector {
           isAnomaly: false,
           reason: `${mostSevere.reason} (filtered by: ${filterResult.failedFilters.join(', ')})`,
           confidence: mostSevere.confidence * 0.5, // 降低置信度
-        };
+        }
       }
     }
 
     // 记录检测历史
-    this.recordDetection(metric, mostSevere);
+    this.recordDetection(metric, mostSevere)
 
-    return mostSevere;
+    return mostSevere
   }
 
   /**
@@ -213,15 +209,15 @@ export class PerformanceAnomalyDetector {
    * 创建过滤器上下文
    */
   private createFilterContext(metric: string): FilterContext {
-    const now = new Date();
-    const history = this.metricHistory.get(metric) || [];
+    const now = new Date()
+    const history = this.metricHistory.get(metric) || []
 
     return {
       recentDetections: this.recentDetections.get(metric) || [],
       metricHistory: history,
       timeOfDay: now.getHours(),
       dayOfWeek: now.getDay(),
-    };
+    }
   }
 
   /**
@@ -230,17 +226,15 @@ export class PerformanceAnomalyDetector {
    */
   private recordDetection(metric: string, detection: AnomalyDetection): void {
     if (!this.recentDetections.has(metric)) {
-      this.recentDetections.set(metric, []);
+      this.recentDetections.set(metric, [])
     }
-    
-    this.recentDetections.get(metric)!.push(detection);
+
+    this.recentDetections.get(metric)!.push(detection)
 
     // 清理过期的检测记录
-    const cutoff = Date.now() - this.config.filters.cooldownMs * 2;
-    const filtered = this.recentDetections
-      .get(metric)!
-      .filter((d) => d.detectedAt >= cutoff);
-    this.recentDetections.set(metric, filtered);
+    const cutoff = Date.now() - this.config.filters.cooldownMs * 2
+    const filtered = this.recentDetections.get(metric)!.filter(d => d.detectedAt >= cutoff)
+    this.recentDetections.set(metric, filtered)
   }
 
   /**
@@ -259,7 +253,7 @@ export class PerformanceAnomalyDetector {
       p99: 0,
       sampleSize: 0,
       lastUpdated: Date.now(),
-    };
+    }
   }
 
   /**
@@ -267,8 +261,8 @@ export class PerformanceAnomalyDetector {
    * 一步追踪并检测
    */
   trackAndDetect(metric: string, value: number): AnomalyDetection | null {
-    this.trackMetric(metric, value);
-    return this.detectAnomaly(metric, value);
+    this.trackMetric(metric, value)
+    return this.detectAnomaly(metric, value)
   }
 
   /**
@@ -276,7 +270,7 @@ export class PerformanceAnomalyDetector {
    * 获取指标基线
    */
   getBaseline(metric: string): MetricBaseline | null {
-    return this.baselineManager.getBaseline(metric);
+    return this.baselineManager.getBaseline(metric)
   }
 
   /**
@@ -284,7 +278,7 @@ export class PerformanceAnomalyDetector {
    * 获取所有基线
    */
   getAllBaselines(): MetricBaseline[] {
-    return this.baselineManager.getAllBaselines();
+    return this.baselineManager.getAllBaselines()
   }
 
   /**
@@ -292,7 +286,7 @@ export class PerformanceAnomalyDetector {
    * 强制更新基线
    */
   updateBaseline(metric: string): MetricBaseline | null {
-    return this.baselineManager.updateBaseline(metric);
+    return this.baselineManager.updateBaseline(metric)
   }
 
   /**
@@ -301,9 +295,9 @@ export class PerformanceAnomalyDetector {
    */
   getAnomalyEvents(startTime?: number): AnomalyEvent[] {
     if (startTime) {
-      return this.anomalyEvents.filter((e) => e.detection.detectedAt >= startTime);
+      return this.anomalyEvents.filter(e => e.detection.detectedAt >= startTime)
     }
-    return [...this.anomalyEvents];
+    return [...this.anomalyEvents]
   }
 
   /**
@@ -311,14 +305,14 @@ export class PerformanceAnomalyDetector {
    * 确认异常事件
    */
   acknowledgeEvent(eventId: string, acknowledgedBy: string): boolean {
-    const event = this.anomalyEvents.find((e) => e.id === eventId);
+    const event = this.anomalyEvents.find(e => e.id === eventId)
     if (event) {
-      event.acknowledged = true;
-      event.acknowledgedAt = Date.now();
-      event.acknowledgedBy = acknowledgedBy;
-      return true;
+      event.acknowledged = true
+      event.acknowledgedAt = Date.now()
+      event.acknowledgedBy = acknowledgedBy
+      return true
     }
-    return false;
+    return false
   }
 
   /**
@@ -326,14 +320,14 @@ export class PerformanceAnomalyDetector {
    * 解决异常事件
    */
   resolveEvent(eventId: string, notes?: string): boolean {
-    const event = this.anomalyEvents.find((e) => e.id === eventId);
+    const event = this.anomalyEvents.find(e => e.id === eventId)
     if (event) {
-      event.resolved = true;
-      event.resolvedAt = Date.now();
-      event.notes = notes;
-      return true;
+      event.resolved = true
+      event.resolvedAt = Date.now()
+      event.notes = notes
+      return true
     }
-    return false;
+    return false
   }
 
   /**
@@ -341,13 +335,13 @@ export class PerformanceAnomalyDetector {
    * 标记为误报
    */
   markAsFalsePositive(eventId: string, notes?: string): boolean {
-    const event = this.anomalyEvents.find((e) => e.id === eventId);
+    const event = this.anomalyEvents.find(e => e.id === eventId)
     if (event) {
-      event.falsePositive = true;
-      event.notes = notes;
-      return true;
+      event.falsePositive = true
+      event.notes = notes
+      return true
     }
-    return false;
+    return false
   }
 
   /**
@@ -355,7 +349,7 @@ export class PerformanceAnomalyDetector {
    * 获取指标历史
    */
   getMetricHistory(metric: string): MetricDataPoint[] {
-    return this.metricHistory.get(metric) || [];
+    return this.metricHistory.get(metric) || []
   }
 
   /**
@@ -363,9 +357,9 @@ export class PerformanceAnomalyDetector {
    * 清除指标数据
    */
   clearMetric(metric: string): void {
-    this.metricHistory.delete(metric);
-    this.recentDetections.delete(metric);
-    this.baselineManager.clearBaseline(metric);
+    this.metricHistory.delete(metric)
+    this.recentDetections.delete(metric)
+    this.baselineManager.clearBaseline(metric)
   }
 
   /**
@@ -373,10 +367,10 @@ export class PerformanceAnomalyDetector {
    * 清除所有数据
    */
   clearAll(): void {
-    this.metricHistory.clear();
-    this.recentDetections.clear();
-    this.anomalyEvents = [];
-    this.baselineManager.clearAll();
+    this.metricHistory.clear()
+    this.recentDetections.clear()
+    this.anomalyEvents = []
+    this.baselineManager.clearAll()
   }
 
   /**
@@ -384,14 +378,14 @@ export class PerformanceAnomalyDetector {
    * 更新配置
    */
   updateConfig(partialConfig: Partial<AnomalyDetectionConfig>): void {
-    this.config = { ...this.config, ...partialConfig };
-    
+    this.config = { ...this.config, ...partialConfig }
+
     // 重新创建过滤器
     if (partialConfig.filters) {
       this.filter = createDefaultFilters({
         cooldownMs: this.config.filters.cooldownMs,
         minConfidence: this.config.filters.minConfidence,
-      });
+      })
     }
   }
 
@@ -400,13 +394,13 @@ export class PerformanceAnomalyDetector {
    * 导出状态用于持久化
    */
   exportState(): {
-    baselines: MetricBaseline[];
-    events: AnomalyEvent[];
+    baselines: MetricBaseline[]
+    events: AnomalyEvent[]
   } {
     return {
       baselines: this.baselineManager.exportBaselines(),
       events: this.anomalyEvents,
-    };
+    }
   }
 
   /**
@@ -414,12 +408,12 @@ export class PerformanceAnomalyDetector {
    * 从持久化导入状态
    */
   importState(state: { baselines: MetricBaseline[]; events: AnomalyEvent[] }): void {
-    state.baselines.forEach((baseline) => {
-      this.baselineManager.importBaseline(baseline);
-    });
-    this.anomalyEvents = state.events;
+    state.baselines.forEach(baseline => {
+      this.baselineManager.importBaseline(baseline)
+    })
+    this.anomalyEvents = state.events
   }
 }
 
 // Export singleton instance
-export const anomalyDetector = new PerformanceAnomalyDetector();
+export const anomalyDetector = new PerformanceAnomalyDetector()

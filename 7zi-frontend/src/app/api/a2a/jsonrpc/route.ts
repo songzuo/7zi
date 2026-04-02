@@ -1,19 +1,19 @@
 /**
  * A2A JSON-RPC API Route
- * 
+ *
  * JSON-RPC 2.0 endpoint for A2A protocol communication.
  * Supports task execution, agent discovery, and method invocation.
  */
 
-import { NextRequest, NextResponse } from 'next/server';
-import { agentScheduler } from '@/lib/agents/scheduler/scheduler';
-import type { JSONRPCRequest, JSONRPCResponse } from '@/lib/agents/scheduler/types';
-import { authenticateJWT } from '@/lib/auth/api-auth';
+import { NextRequest, NextResponse } from 'next/server'
+import { agentScheduler } from '@/lib/agents/scheduler/scheduler'
+import type { JSONRPCRequest, JSONRPCResponse } from '@/lib/agents/scheduler/types'
+import { authenticateJWT } from '@/lib/auth/api-auth'
 
 export async function POST(request: NextRequest) {
   try {
     // Parse JSON-RPC request
-    const body: JSONRPCRequest = await request.json();
+    const body: JSONRPCRequest = await request.json()
 
     // Validate JSON-RPC 2.0 format
     if (body.jsonrpc !== '2.0') {
@@ -24,8 +24,8 @@ export async function POST(request: NextRequest) {
           message: 'Invalid Request: jsonrpc version must be "2.0"',
         },
         id: body.id,
-      };
-      return NextResponse.json(errorResponse, { status: 400 });
+      }
+      return NextResponse.json(errorResponse, { status: 400 })
     }
 
     if (!body.method) {
@@ -36,8 +36,8 @@ export async function POST(request: NextRequest) {
           message: 'Method not found: method is required',
         },
         id: body.id,
-      };
-      return NextResponse.json(errorResponse, { status: 400 });
+      }
+      return NextResponse.json(errorResponse, { status: 400 })
     }
 
     // Optional authentication check
@@ -49,10 +49,10 @@ export async function POST(request: NextRequest) {
       'task.create',
       'task.get',
       'task.status',
-    ];
+    ]
 
     if (!publicMethods.includes(body.method)) {
-      const auth = await authenticateJWT(request);
+      const auth = await authenticateJWT(request)
       if (!auth.authenticated) {
         const errorResponse: JSONRPCResponse = {
           jsonrpc: '2.0',
@@ -61,21 +61,21 @@ export async function POST(request: NextRequest) {
             message: 'Unauthorized: authentication required',
           },
           id: body.id,
-        };
-        return NextResponse.json(errorResponse, { status: 401 });
+        }
+        return NextResponse.json(errorResponse, { status: 401 })
       }
     }
 
     // Route to handler
-    const result = await handleJSONRPCMethod(body.method, body.params);
+    const result = await handleJSONRPCMethod(body.method, body.params)
 
     if (result.success) {
       const successResponse: JSONRPCResponse = {
         jsonrpc: '2.0',
         result: result.data,
         id: body.id,
-      };
-      return NextResponse.json(successResponse, { status: result.httpStatus || 200 });
+      }
+      return NextResponse.json(successResponse, { status: result.httpStatus || 200 })
     } else {
       const errorResponse: JSONRPCResponse = {
         jsonrpc: '2.0',
@@ -85,19 +85,19 @@ export async function POST(request: NextRequest) {
           data: result.error?.data,
         },
         id: body.id,
-      };
-      return NextResponse.json(errorResponse, { status: result.httpStatus || 400 });
+      }
+      return NextResponse.json(errorResponse, { status: result.httpStatus || 400 })
     }
   } catch (error) {
-    console.error('JSON-RPC error:', error);
+    console.error('JSON-RPC error:', error)
     const errorResponse: JSONRPCResponse = {
       jsonrpc: '2.0',
       error: {
         code: -32700,
         message: 'Parse error: invalid JSON',
       },
-    };
-    return NextResponse.json(errorResponse, { status: 400 });
+    }
+    return NextResponse.json(errorResponse, { status: 400 })
   }
 }
 
@@ -105,84 +105,84 @@ async function handleJSONRPCMethod(
   method: string,
   params?: Record<string, unknown>
 ): Promise<{
-  success: boolean;
-  data?: unknown;
-  error?: { code: number; message: string; data?: unknown };
-  httpStatus?: number;
+  success: boolean
+  data?: unknown
+  error?: { code: number; message: string; data?: unknown }
+  httpStatus?: number
 }> {
   try {
     // Agent methods
     if (method === 'agent.list') {
-      const agents = agentScheduler.getAllAgents();
-      return { success: true, data: { agents, count: agents.length } };
+      const agents = agentScheduler.getAllAgents()
+      return { success: true, data: { agents, count: agents.length } }
     }
 
     if (method === 'agent.get') {
-      const agentId = params?.agentId as string;
+      const agentId = params?.agentId as string
       if (!agentId) {
         return {
           success: false,
           error: { code: -32602, message: 'Invalid params: agentId required' },
-        };
+        }
       }
-      const agent = agentScheduler.getAgent(agentId);
+      const agent = agentScheduler.getAgent(agentId)
       if (!agent) {
         return {
           success: false,
           error: { code: -32002, message: 'Agent not found' },
           httpStatus: 404,
-        };
+        }
       }
-      return { success: true, data: { agent } };
+      return { success: true, data: { agent } }
     }
 
     if (method === 'agent.discover') {
-      const capability = params?.capability as string;
+      const capability = params?.capability as string
       const agents = capability
         ? agentScheduler.getAgentsByCapability(capability)
-        : agentScheduler.getAllAgents();
+        : agentScheduler.getAllAgents()
       return {
         success: true,
         data: { agents, count: agents.length },
-      };
+      }
     }
 
     if (method === 'agent.heartbeat') {
-      const agentId = params?.agentId as string;
+      const agentId = params?.agentId as string
       if (!agentId) {
         return {
           success: false,
           error: { code: -32602, message: 'Invalid params: agentId required' },
-        };
+        }
       }
-      const success = agentScheduler.heartbeat(agentId);
+      const success = agentScheduler.heartbeat(agentId)
       if (!success) {
         return {
           success: false,
           error: { code: -32002, message: 'Agent not found' },
           httpStatus: 404,
-        };
+        }
       }
-      return { success: true, data: { message: 'Heartbeat received' } };
+      return { success: true, data: { message: 'Heartbeat received' } }
     }
 
     // Task methods
     if (method === 'task.create') {
-      const type = params?.type as string;
-      const input = params?.input as Record<string, unknown>;
+      const type = params?.type as string
+      const input = params?.input as Record<string, unknown>
 
       if (!type) {
         return {
           success: false,
           error: { code: -32602, message: 'Invalid params: type required' },
-        };
+        }
       }
 
       if (!input) {
         return {
           success: false,
           error: { code: -32602, message: 'Invalid params: input required' },
-        };
+        }
       }
 
       const response = agentScheduler.scheduleTask({
@@ -192,7 +192,7 @@ async function handleJSONRPCMethod(
         agentId: params?.agentId as string,
         metadata: params?.metadata as Record<string, unknown>,
         maxRetries: params?.maxRetries as number,
-      });
+      })
 
       if (!response.success) {
         return {
@@ -202,62 +202,62 @@ async function handleJSONRPCMethod(
             message: response.error || 'Failed to create task',
           },
           httpStatus: 400,
-        };
+        }
       }
 
-      const task = agentScheduler.getTask(response.taskId!);
-      return { success: true, data: { task, taskId: response.taskId }, httpStatus: 201 };
+      const task = agentScheduler.getTask(response.taskId!)
+      return { success: true, data: { task, taskId: response.taskId }, httpStatus: 201 }
     }
 
     if (method === 'task.get') {
-      const taskId = params?.taskId as string;
+      const taskId = params?.taskId as string
       if (!taskId) {
         return {
           success: false,
           error: { code: -32602, message: 'Invalid params: taskId required' },
-        };
+        }
       }
-      const task = agentScheduler.getTask(taskId);
+      const task = agentScheduler.getTask(taskId)
       if (!task) {
         return {
           success: false,
           error: { code: -32004, message: 'Task not found' },
           httpStatus: 404,
-        };
+        }
       }
-      return { success: true, data: { task } };
+      return { success: true, data: { task } }
     }
 
     if (method === 'task.status') {
-      const taskId = params?.taskId as string;
+      const taskId = params?.taskId as string
       if (!taskId) {
         return {
           success: false,
           error: { code: -32602, message: 'Invalid params: taskId required' },
-        };
+        }
       }
-      const task = agentScheduler.getTask(taskId);
+      const task = agentScheduler.getTask(taskId)
       if (!task) {
         return {
           success: false,
           error: { code: -32004, message: 'Task not found' },
           httpStatus: 404,
-        };
+        }
       }
-      return { success: true, data: { taskId, status: task.status } };
+      return { success: true, data: { taskId, status: task.status } }
     }
 
     if (method === 'task.update') {
-      const taskId = params?.taskId as string;
-      const status = params?.status as string;
-      const output = params?.output as Record<string, unknown>;
-      const error = params?.error as string;
+      const taskId = params?.taskId as string
+      const status = params?.status as string
+      const output = params?.output as Record<string, unknown>
+      const error = params?.error as string
 
       if (!taskId) {
         return {
           success: false,
           error: { code: -32602, message: 'Invalid params: taskId required' },
-        };
+        }
       }
 
       const updated = agentScheduler.updateTask({
@@ -265,45 +265,45 @@ async function handleJSONRPCMethod(
         status: status as any,
         output,
         error,
-      });
+      })
 
       if (!updated) {
         return {
           success: false,
           error: { code: -32004, message: 'Task not found' },
           httpStatus: 404,
-        };
+        }
       }
 
-      const task = agentScheduler.getTask(taskId);
-      return { success: true, data: { task } };
+      const task = agentScheduler.getTask(taskId)
+      return { success: true, data: { task } }
     }
 
     if (method === 'task.cancel') {
-      const taskId = params?.taskId as string;
+      const taskId = params?.taskId as string
       if (!taskId) {
         return {
           success: false,
           error: { code: -32602, message: 'Invalid params: taskId required' },
-        };
+        }
       }
 
-      const cancelled = agentScheduler.cancelTask(taskId);
+      const cancelled = agentScheduler.cancelTask(taskId)
       if (!cancelled) {
         return {
           success: false,
           error: { code: -32004, message: 'Task not found' },
           httpStatus: 404,
-        };
+        }
       }
 
-      return { success: true, data: { message: 'Task cancelled' } };
+      return { success: true, data: { message: 'Task cancelled' } }
     }
 
     // Queue methods
     if (method === 'queue.stats') {
-      const stats = agentScheduler.getQueueStats();
-      return { success: true, data: { stats } };
+      const stats = agentScheduler.getQueueStats()
+      return { success: true, data: { stats } }
     }
 
     // Unknown method
@@ -314,9 +314,9 @@ async function handleJSONRPCMethod(
         message: 'Method not found',
         data: { method },
       },
-    };
+    }
   } catch (error) {
-    console.error('JSON-RPC method handler error:', error);
+    console.error('JSON-RPC method handler error:', error)
     return {
       success: false,
       error: {
@@ -324,7 +324,7 @@ async function handleJSONRPCMethod(
         message: 'Internal error',
         data: error instanceof Error ? error.message : 'Unknown error',
       },
-    };
+    }
   }
 }
 
@@ -336,5 +336,5 @@ export async function OPTIONS(request: NextRequest) {
       'Access-Control-Allow-Methods': 'POST, OPTIONS',
       'Access-Control-Allow-Headers': 'Content-Type, Authorization',
     },
-  });
+  })
 }

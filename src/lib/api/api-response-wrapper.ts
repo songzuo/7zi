@@ -4,14 +4,14 @@
  * Standardizes API responses across all Next.js API routes
  */
 
-import { NextResponse } from 'next/server';
+import { NextResponse } from 'next/server'
 import {
   ApiResponse,
   ApiSuccessResponse,
   ApiErrorResponse,
   ApiError,
   ApiErrorCode,
-} from './api-error';
+} from './api-error'
 
 /**
  * Create a successful API response
@@ -20,8 +20,8 @@ export function success<T = unknown>(
   data: T,
   meta?: ApiSuccessResponse<T>['meta'],
   options?: {
-    status?: number;
-    requestId?: string;
+    status?: number
+    requestId?: string
   }
 ): NextResponse<ApiSuccessResponse<T>> {
   const response: ApiSuccessResponse<T> = {
@@ -30,7 +30,7 @@ export function success<T = unknown>(
     meta,
     timestamp: new Date().toISOString(),
     requestId: options?.requestId,
-  };
+  }
 
   return NextResponse.json(response, {
     status: options?.status || 200,
@@ -38,7 +38,7 @@ export function success<T = unknown>(
       'X-Request-ID': options?.requestId || generateRequestId(),
       'Content-Type': 'application/json',
     },
-  });
+  })
 }
 
 /**
@@ -47,11 +47,11 @@ export function success<T = unknown>(
 export function error(
   error: ApiError | Error | unknown,
   options?: {
-    status?: number;
-    requestId?: string;
+    status?: number
+    requestId?: string
   }
 ): NextResponse<ApiErrorResponse> {
-  const apiError = ApiError.fromError(error);
+  const apiError = ApiError.fromError(error)
 
   const response: ApiErrorResponse = {
     code: apiError.code,
@@ -61,9 +61,9 @@ export function error(
     timestamp: new Date().toISOString(),
     requestId: options?.requestId || apiError.requestId || generateRequestId(),
     stack: process.env.NODE_ENV === 'development' ? apiError.stack : undefined,
-  };
+  }
 
-  const status = options?.status || apiError.statusCode;
+  const status = options?.status || apiError.statusCode
 
   return NextResponse.json(response, {
     status,
@@ -71,7 +71,7 @@ export function error(
       'X-Request-ID': response.requestId || '',
       'Content-Type': 'application/json',
     },
-  });
+  })
 }
 
 /**
@@ -81,19 +81,19 @@ export function badRequest(
   message: string = '请求参数错误',
   errors?: Record<string, string[]>,
   options?: {
-    requestId?: string;
+    requestId?: string
   }
 ): NextResponse<ApiErrorResponse> {
   const apiError = new ApiError({
     code: ApiErrorCode.BAD_REQUEST,
     message,
     errors,
-  });
+  })
 
   return error(apiError, {
     status: 400,
     requestId: options?.requestId,
-  });
+  })
 }
 
 /**
@@ -102,18 +102,18 @@ export function badRequest(
 export function unauthorized(
   message: string = '未授权，请登录',
   options?: {
-    requestId?: string;
+    requestId?: string
   }
 ): NextResponse<ApiErrorResponse> {
   const apiError = new ApiError({
     code: ApiErrorCode.UNAUTHORIZED,
     message,
-  });
+  })
 
   return error(apiError, {
     status: 401,
     requestId: options?.requestId,
-  });
+  })
 }
 
 /**
@@ -122,18 +122,18 @@ export function unauthorized(
 export function forbidden(
   message: string = '没有权限执行此操作',
   options?: {
-    requestId?: string;
+    requestId?: string
   }
 ): NextResponse<ApiErrorResponse> {
   const apiError = new ApiError({
     code: ApiErrorCode.FORBIDDEN,
     message,
-  });
+  })
 
   return error(apiError, {
     status: 403,
     requestId: options?.requestId,
-  });
+  })
 }
 
 /**
@@ -142,18 +142,18 @@ export function forbidden(
 export function notFound(
   message: string = '请求的资源不存在',
   options?: {
-    requestId?: string;
+    requestId?: string
   }
 ): NextResponse<ApiErrorResponse> {
   const apiError = new ApiError({
     code: ApiErrorCode.NOT_FOUND,
     message,
-  });
+  })
 
   return error(apiError, {
     status: 404,
     requestId: options?.requestId,
-  });
+  })
 }
 
 /**
@@ -162,18 +162,18 @@ export function notFound(
 export function conflict(
   message: string = '资源冲突',
   options?: {
-    requestId?: string;
+    requestId?: string
   }
 ): NextResponse<ApiErrorResponse> {
   const apiError = new ApiError({
     code: ApiErrorCode.CONFLICT,
     message,
-  });
+  })
 
   return error(apiError, {
     status: 409,
     requestId: options?.requestId,
-  });
+  })
 }
 
 /**
@@ -182,18 +182,18 @@ export function conflict(
 export function tooManyRequests(
   message: string = '请求过于频繁，请稍后再试',
   options?: {
-    requestId?: string;
+    requestId?: string
   }
 ): NextResponse<ApiErrorResponse> {
   const apiError = new ApiError({
     code: ApiErrorCode.TOO_MANY_REQUESTS,
     message,
-  });
+  })
 
   return error(apiError, {
     status: 429,
     requestId: options?.requestId,
-  });
+  })
 }
 
 /**
@@ -202,18 +202,18 @@ export function tooManyRequests(
 export function internalError(
   message: string = '服务器内部错误',
   options?: {
-    requestId?: string;
+    requestId?: string
   }
 ): NextResponse<ApiErrorResponse> {
   const apiError = new ApiError({
     code: ApiErrorCode.INTERNAL_SERVER_ERROR,
     message,
-  });
+  })
 
   return error(apiError, {
     status: 500,
     requestId: options?.requestId,
-  });
+  })
 }
 
 /**
@@ -222,18 +222,18 @@ export function internalError(
 export function serviceUnavailable(
   message: string = '服务暂时不可用',
   options?: {
-    requestId?: string;
+    requestId?: string
   }
 ): NextResponse<ApiErrorResponse> {
   const apiError = new ApiError({
     code: ApiErrorCode.SERVICE_UNAVAILABLE,
     message,
-  });
+  })
 
   return error(apiError, {
     status: 503,
     requestId: options?.requestId,
-  });
+  })
 }
 
 /**
@@ -251,55 +251,49 @@ export function withApiHandler<T = unknown>(
   handler: (request: Request) => Promise<NextResponse<ApiResponse<T>>>
 ): (request: Request) => Promise<NextResponse<ApiResponse<T>>> {
   return async (request: Request) => {
-    const requestId = generateRequestId();
+    const requestId = generateRequestId()
 
     try {
-      const response = await handler(request);
+      const response = await handler(request)
 
       // Add request ID to response headers if not present
       if (!response.headers.get('X-Request-ID')) {
-        response.headers.set('X-Request-ID', requestId);
+        response.headers.set('X-Request-ID', requestId)
       }
 
-      return response;
-    } catch (_err) {
-      return error(err, { requestId });
+      return response
+    } catch (err) {
+      return error(err, { requestId })
     }
-  };
+  }
 }
 
 /**
  * Generate a unique request ID
  */
 function generateRequestId(): string {
-  return `${Date.now()}-${Math.random().toString(36).substring(2, 15)}`;
+  return `${Date.now()}-${Math.random().toString(36).substring(2, 15)}`
 }
 
 /**
  * Type guard for success response
  */
-export function isSuccessResponse<T>(
-  response: ApiResponse<T>
-): response is ApiSuccessResponse<T> {
-  return (response as ApiSuccessResponse<T>).success === true;
+export function isSuccessResponse<T>(response: ApiResponse<T>): response is ApiSuccessResponse<T> {
+  return (response as ApiSuccessResponse<T>).success === true
 }
 
 /**
  * Type guard for error response
  */
-export function isErrorResponse(
-  response: ApiResponse
-): response is ApiErrorResponse {
-  return !isSuccessResponse(response);
+export function isErrorResponse(response: ApiResponse): response is ApiErrorResponse {
+  return !isSuccessResponse(response)
 }
 
 /**
  * Parse API response and throw error if failed
  */
-export async function parseResponse<T = unknown>(
-  response: Response
-): Promise<T> {
-  const json = (await response.json()) as ApiResponse<T>;
+export async function parseResponse<T = unknown>(response: Response): Promise<T> {
+  const json = (await response.json()) as ApiResponse<T>
 
   if (isErrorResponse(json)) {
     const apiError = new ApiError({
@@ -308,9 +302,9 @@ export async function parseResponse<T = unknown>(
       detail: json.detail,
       errors: json.errors,
       requestId: json.requestId,
-    });
-    throw apiError;
+    })
+    throw apiError
   }
 
-  return json.data;
+  return json.data
 }

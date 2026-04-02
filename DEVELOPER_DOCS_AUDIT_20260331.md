@@ -21,13 +21,13 @@
 
 ### 关键发现
 
-| 发现 | 严重性 | 状态 |
-|------|--------|------|
-| README.md 版本徽章显示 v1.4.0，但 v1.5.0 正在开发 | 低 | ⚠️ 需更新 |
-| CONTRIBUTING.md 缺少 v1.5.0 开发流程更新 | 中 | ⚠️ 需补充 |
-| docs/ 目录存在大量重复文档 | 中 | 🔄 建议清理 |
-| Agent Learning System 文档不完整 | 中 | ⚠️ 需补充 |
-| PermissionContext → Zustand 迁移指南已创建 | 低 | ✅ 已完成 |
+| 发现                                              | 严重性 | 状态        |
+| ------------------------------------------------- | ------ | ----------- |
+| README.md 版本徽章显示 v1.4.0，但 v1.5.0 正在开发 | 低     | ⚠️ 需更新   |
+| CONTRIBUTING.md 缺少 v1.5.0 开发流程更新          | 中     | ⚠️ 需补充   |
+| docs/ 目录存在大量重复文档                        | 中     | 🔄 建议清理 |
+| Agent Learning System 文档不完整                  | 中     | ⚠️ 需补充   |
+| PermissionContext → Zustand 迁移指南已创建        | 低     | ✅ 已完成   |
 
 ---
 
@@ -35,24 +35,24 @@
 
 ### 文档数量统计
 
-| 类别 | 数量 | 状态 |
-|------|------|------|
-| **根目录文档** | 15+ | ✅ 完整 |
-| **docs/ 文档** | 100+ | ✅ 完整 |
-| **ADR 架构决策** | 9 | ✅ 完整 |
-| **API 文档** | 15+ | ⚠️ 有冗余 |
-| **组件文档** | 6 | ✅ 完整 |
-| **测试文档** | 10+ | ✅ 完整 |
+| 类别             | 数量 | 状态      |
+| ---------------- | ---- | --------- |
+| **根目录文档**   | 15+  | ✅ 完整   |
+| **docs/ 文档**   | 100+ | ✅ 完整   |
+| **ADR 架构决策** | 9    | ✅ 完整   |
+| **API 文档**     | 15+  | ⚠️ 有冗余 |
+| **组件文档**     | 6    | ✅ 完整   |
+| **测试文档**     | 10+  | ✅ 完整   |
 
 ### 文档质量评分
 
-| 指标 | 评分 | 说明 |
-|------|------|------|
-| **完整性** | ⭐⭐⭐⭐☆ (4/5) | v1.5.0 部分功能文档缺失 |
-| **准确性** | ⭐⭐⭐⭐⭐ (5/5) | 现有文档与代码一致 |
-| **可读性** | ⭐⭐⭐⭐⭐ (5/5) | 结构清晰，示例丰富 |
-| **时效性** | ⭐⭐⭐☆☆ (3/5) | 部分文档未同步 v1.5.0 |
-| **一致性** | ⭐⭐⭐☆☆ (3/5) | 命名风格不统一 |
+| 指标       | 评分             | 说明                    |
+| ---------- | ---------------- | ----------------------- |
+| **完整性** | ⭐⭐⭐⭐☆ (4/5)  | v1.5.0 部分功能文档缺失 |
+| **准确性** | ⭐⭐⭐⭐⭐ (5/5) | 现有文档与代码一致      |
+| **可读性** | ⭐⭐⭐⭐⭐ (5/5) | 结构清晰，示例丰富      |
+| **时效性** | ⭐⭐⭐☆☆ (3/5)   | 部分文档未同步 v1.5.0   |
+| **一致性** | ⭐⭐⭐☆☆ (3/5)   | 命名风格不统一          |
 
 ---
 
@@ -84,25 +84,31 @@
 #### ⚠️ 需要更新
 
 1. **v1.5.0 新功能说明不完整**
+
    ```markdown
    # 当前状态
-   | 功能模块 | 完成度 | 状态 |
-   |---------|--------|------|
-   | **lib/ 层重构** | 100% | ✅ 已完成 |
-   | **PermissionContext 迁移** | 0% | ⏳ 待开始 |
-   
+
+   | 功能模块                   | 完成度 | 状态      |
+   | -------------------------- | ------ | --------- |
+   | **lib/ 层重构**            | 100%   | ✅ 已完成 |
+   | **PermissionContext 迁移** | 0%     | ⏳ 待开始 |
+
    # 建议补充
+
    - Agent Learning System 功能说明
    - 新增的 lib/ 层工具使用方法
    - 权限系统迁移影响说明
    ```
 
 2. **版本徽章需更新**
+
    ```markdown
    # 当前
+
    [![Version](https://img.shields.io/badge/version-1.4.0-blue.svg)]
-   
+
    # 建议更新为（开发期间）
+
    [![Version](https://img.shields.io/badge/version-1.5.0--dev-blue.svg)]
    ```
 
@@ -113,7 +119,7 @@
 
 #### 🔧 建议修改
 
-```markdown
+````markdown
 ## 🔥 最新进展 (v1.5.0 - 开发中)
 
 ### v1.5.0 核心更新
@@ -121,28 +127,32 @@
 #### 🏗️ lib/ 层架构重构 (100% 完成)
 
 **目录统一**:
+
 - 合并 `lib/a2a/` 和 `lib/agent-scheduler/` 到 `lib/agents/`
 - 删除 30+ 重复文件，净减少 1,500 行
 - 43 个模块职责清晰
 
 **新增工具**:
+
 ```typescript
 // 日志系统
-import { logger } from '@/lib/logger';
+import { logger } from '@/lib/logger'
 
 // 数据库操作
-import { db } from '@/lib/db';
+import { db } from '@/lib/db'
 
 // 搜索服务
-import { searchService } from '@/lib/search';
+import { searchService } from '@/lib/search'
 
 // Agent 学习系统
-import { predictCompletionTime, assessAgentCapability } from '@/lib/agents/learning';
+import { predictCompletionTime, assessAgentCapability } from '@/lib/agents/learning'
 ```
+````
 
 #### 🔄 权限系统迁移 (进行中)
 
 **迁移说明**: PermissionContext → Zustand
+
 - ✅ Zustand Store 已创建
 - ✅ 迁移指南已完成
 - ⏳ 组件迁移进行中
@@ -152,31 +162,34 @@ import { predictCompletionTime, assessAgentCapability } from '@/lib/agents/learn
 #### 🤖 Agent Learning System (新增)
 
 **功能**: AI Agent 智能学习优化
+
 - 时间预测: 基于历史数据预测任务完成时间
 - 能力评估: 多维度评估 Agent 能力
 - 数据持久化: 学习数据存储和查询
 
 **使用示例**:
+
 ```typescript
-import { predictCompletionTime, assessAgentCapability } from '@/lib/agents/learning';
+import { predictCompletionTime, assessAgentCapability } from '@/lib/agents/learning'
 
 // 预测任务完成时间
-const prediction = await predictCompletionTime(taskFeatures);
-console.log(`预计完成时间: ${prediction.estimatedTime}分钟`);
-console.log(`置信度: ${prediction.confidence * 100}%`);
+const prediction = await predictCompletionTime(taskFeatures)
+console.log(`预计完成时间: ${prediction.estimatedTime}分钟`)
+console.log(`置信度: ${prediction.confidence * 100}%`)
 
 // 评估 Agent 能力
-const assessment = await assessAgentCapability('agent-001', historicalData);
-console.log(`综合评分: ${assessment.overallScore}`);
+const assessment = await assessAgentCapability('agent-001', historicalData)
+console.log(`综合评分: ${assessment.overallScore}`)
 ```
-```
+
+````
 
 ---
 
 ### 2. CONTRIBUTING.md 审核
 
-**文件路径**: `/root/.openclaw/workspace/CONTRIBUTING.md`  
-**行数**: 903 行  
+**文件路径**: `/root/.openclaw/workspace/CONTRIBUTING.md`
+**行数**: 903 行
 **最后更新**: 2026-03-29
 
 #### ✅ 优点
@@ -207,148 +220,158 @@ console.log(`综合评分: ${assessment.overallScore}`);
 
    ```markdown
    ## 🔄 v1.5.0 开发流程
-   
+
    ### 权限系统迁移
-   
+
    #### 从 PermissionContext 迁移到 Zustand
-   
+
    ```typescript
    // ❌ 旧方式 (Context)
    import { usePermissions } from '@/contexts/PermissionContext';
    const { hasPermission, userRoles } = usePermissions();
-   
+
    // ✅ 新方式 (Zustand)
    import { usePermissionStore, useIsAdmin } from '@/stores';
    const hasPermission = usePermissionStore(state => state.hasPermission);
    const isAdmin = useIsAdmin();
-   ```
-   
-   **迁移步骤**:
-   1. 参考 [docs/PERMISSION_MIGRATION_GUIDE.md](./docs/PERMISSION_MIGRATION_GUIDE.md)
-   2. 更新组件中的权限检查逻辑
-   3. 移除 PermissionProvider 包装
-   4. 运行测试验证
-   
-   ### lib/ 层工具使用
-   
-   #### 日志系统
-   
-   ```typescript
-   import { logger } from '@/lib/logger';
-   
-   // ✅ 正确使用
-   logger.info('Operation completed', { userId: '123', duration: 150 });
-   logger.error('Failed to process request', error, { category: 'api' });
-   
-   // ❌ 禁止使用
-   console.log('Operation completed'); // 会被 ESLint 警告
-   console.error('Error:', error); // 会被 ESLint 警告
-   ```
-   
-   #### Agent Learning System
-   
-   ```typescript
-   import { 
-     predictCompletionTime, 
-     assessAgentCapability,
-     getAgentPerformanceHistory 
-   } from '@/lib/agents/learning';
-   
-   // 预测任务完成时间
-   const prediction = await predictCompletionTime({
-     taskType: 'code-generation',
-     inputSize: 1000,
-     priority: 'high'
-   });
-   
-   // 评估 Agent 能力
-   const assessment = await assessAgentCapability(agentId, historicalData);
-   ```
-   ```
+````
+
+**迁移步骤**:
+
+1.  参考 [docs/PERMISSION_MIGRATION_GUIDE.md](./docs/PERMISSION_MIGRATION_GUIDE.md)
+2.  更新组件中的权限检查逻辑
+3.  移除 PermissionProvider 包装
+4.  运行测试验证
+
+### lib/ 层工具使用
+
+#### 日志系统
+
+```typescript
+import { logger } from '@/lib/logger'
+
+// ✅ 正确使用
+logger.info('Operation completed', { userId: '123', duration: 150 })
+logger.error('Failed to process request', error, { category: 'api' })
+
+// ❌ 禁止使用
+console.log('Operation completed') // 会被 ESLint 警告
+console.error('Error:', error) // 会被 ESLint 警告
+```
+
+#### Agent Learning System
+
+```typescript
+import {
+  predictCompletionTime,
+  assessAgentCapability,
+  getAgentPerformanceHistory,
+} from '@/lib/agents/learning'
+
+// 预测任务完成时间
+const prediction = await predictCompletionTime({
+  taskType: 'code-generation',
+  inputSize: 1000,
+  priority: 'high',
+})
+
+// 评估 Agent 能力
+const assessment = await assessAgentCapability(agentId, historicalData)
+```
+
+````
 
 2. **环境变量更新**
 
-   ```markdown
-   ## 🔧 环境变量配置 (v1.5.0 新增)
-   
-   ### Agent Learning System
-   
-   ```bash
-   # Agent 学习系统配置
-   ENABLE_AGENT_LEARNING=true
-   AGENT_LEARNING_DATA_RETENTION_DAYS=90
-   AGENT_LEARNING_MIN_SAMPLES=10
-   ```
-   
-   ### 权限系统 (Zustand)
-   
-   ```bash
-   # 权限缓存配置
-   PERMISSION_CACHE_TTL=300
-   ENABLE_PERMISSION_PERSISTENCE=true
-   ```
-   ```
+```markdown
+## 🔧 环境变量配置 (v1.5.0 新增)
+
+### Agent Learning System
+
+```bash
+# Agent 学习系统配置
+ENABLE_AGENT_LEARNING=true
+AGENT_LEARNING_DATA_RETENTION_DAYS=90
+AGENT_LEARNING_MIN_SAMPLES=10
+````
+
+### 权限系统 (Zustand)
+
+```bash
+# 权限缓存配置
+PERMISSION_CACHE_TTL=300
+ENABLE_PERMISSION_PERSISTENCE=true
+```
+
+```
 
 ---
 
 ### 3. docs/ 目录审核
 
-**目录路径**: `/root/.openclaw/workspace/docs/`  
-**文档数量**: 100+ 个  
+**目录路径**: `/root/.openclaw/workspace/docs/`
+**文档数量**: 100+ 个
 **最后更新**: 2026-03-31
 
 #### ✅ 优点
 
 1. **文档分类清晰**
-   - 快速开始 (2 个)
-   - 架构文档 (8 个)
-   - API 文档 (15+ 个)
-   - 组件文档 (6 个)
-   - 测试文档 (10+ 个)
+- 快速开始 (2 个)
+- 架构文档 (8 个)
+- API 文档 (15+ 个)
+- 组件文档 (6 个)
+- 测试文档 (10+ 个)
 
 2. **ADR 架构决策记录完整**
-   - 9 个 ADR 记录
-   - 覆盖核心架构决策
-   - 状态清晰 (Accepted)
+- 9 个 ADR 记录
+- 覆盖核心架构决策
+- 状态清晰 (Accepted)
 
 3. **INDEX.md 作为文档中心**
-   - 文档导航清晰
-   - 推荐阅读顺序
-   - 最新更新说明
+- 文档导航清晰
+- 推荐阅读顺序
+- 最新更新说明
 
 #### ⚠️ 问题
 
 1. **文档冗余问题**
 
-   | 文档类型 | 重复数量 | 建议 |
-   |---------|---------|------|
-   | API 文档 | 5+ 个 | 保留 `API.md` 和 `api/API-DOCUMENTATION.md`，归档其他 |
-   | 架构文档 | 3 个 | 合并为单一 `ARCHITECTURE.md` |
-   | 组件文档 | 3 个 | 合并为单一 `COMPONENTS.md` |
+| 文档类型 | 重复数量 | 建议 |
+|---------|---------|------|
+| API 文档 | 5+ 个 | 保留 `API.md` 和 `api/API-DOCUMENTATION.md`，归档其他 |
+| 架构文档 | 3 个 | 合并为单一 `ARCHITECTURE.md` |
+| 组件文档 | 3 个 | 合并为单一 `COMPONENTS.md` |
 
 2. **命名不统一**
-   
-   ```
-   # 当前命名风格混乱
-   API-REFERENCE.md      (连字符)
-   API_DOCUMENTATION.md  (下划线)
-   api-documentation.md  (小写)
-   
-   # 建议统一为
-   API.md               (推荐)
-   API-DOCUMENTATION.md (可接受)
-   ```
+
+```
+
+# 当前命名风格混乱
+
+API-REFERENCE.md (连字符)
+API_DOCUMENTATION.md (下划线)
+api-documentation.md (小写)
+
+# 建议统一为
+
+API.md (推荐)
+API-DOCUMENTATION.md (可接受)
+
+```
 
 3. **归档目录缺失**
-   
-   ```
-   # 建议创建
-   docs/archive/
-   ├── v1.0/           # v1.0.x 归档文档
-   ├── v1.1/           # v1.1.x 归档文档
-   ├── v1.2/           # v1.2.x 归档文档
-   └── deprecated/     # 废弃但保留的文档
-   ```
+
+```
+
+# 建议创建
+
+docs/archive/
+├── v1.0/ # v1.0.x 归档文档
+├── v1.1/ # v1.1.x 归档文档
+├── v1.2/ # v1.2.x 归档文档
+└── deprecated/ # 废弃但保留的文档
+
+````
 
 #### 🔧 建议清理
 
@@ -371,36 +394,36 @@ docs/ARCHITECTURE_SUMMARY.md          → archive/
 docs/COMPONENTS-MAIN.md               → archive/
 docs/COMPONENTS-MAIN-UPDATED.md       → archive/
 docs/COMPONENTS-USAGE-GUIDE.md        → archive/
-```
+````
 
 ---
 
 ### 4. ADR 架构决策记录审核
 
 **目录路径**: `/root/.openclaw/workspace/docs/adr/`  
-**ADR 数量**: 9 个  
+**ADR 数量**: 9 个
 
 #### ✅ 现有 ADR 列表
 
-| ADR | 标题 | 状态 | 日期 |
-|-----|------|------|------|
-| 0001 | 使用 Zustand 进行状态管理 | Accepted | 2026-01-15 |
+| ADR  | 标题                          | 状态     | 日期       |
+| ---- | ----------------------------- | -------- | ---------- |
+| 0001 | 使用 Zustand 进行状态管理     | Accepted | 2026-01-15 |
 | 0002 | 使用 Socket.IO 实现 WebSocket | Accepted | 2026-02-01 |
-| 0003 | 使用 Redis 进行缓存 | Accepted | 2026-02-15 |
-| 0004 | 启用 TypeScript Strict Mode | Accepted | 2026-03-01 |
-| 0005 | 使用 Vitest 作为测试框架 | Accepted | 2026-03-10 |
-| 0006 | Agent Scheduler 架构 | Accepted | 2026-03-29 |
-| 0007 | 性能监控架构 | Accepted | 2026-03-29 |
-| 0008 | WebSocket 房间系统设计 | Accepted | 2026-03-29 |
-| 0009 | React Compiler 采用策略 | Accepted | 2026-03-29 |
+| 0003 | 使用 Redis 进行缓存           | Accepted | 2026-02-15 |
+| 0004 | 启用 TypeScript Strict Mode   | Accepted | 2026-03-01 |
+| 0005 | 使用 Vitest 作为测试框架      | Accepted | 2026-03-10 |
+| 0006 | Agent Scheduler 架构          | Accepted | 2026-03-29 |
+| 0007 | 性能监控架构                  | Accepted | 2026-03-29 |
+| 0008 | WebSocket 房间系统设计        | Accepted | 2026-03-29 |
+| 0009 | React Compiler 采用策略       | Accepted | 2026-03-29 |
 
 #### ⚠️ 缺失的 ADR (v1.5.0)
 
-| 建议新增 ADR | 说明 | 优先级 |
-|-------------|------|--------|
-| 0010 - PermissionContext 迁移到 Zustand | 记录权限系统迁移决策 | 高 |
-| 0011 - lib/ 层架构重构 | 记录目录合并决策 | 中 |
-| 0012 - Agent Learning System 架构 | 记录学习系统设计 | 中 |
+| 建议新增 ADR                            | 说明                 | 优先级 |
+| --------------------------------------- | -------------------- | ------ |
+| 0010 - PermissionContext 迁移到 Zustand | 记录权限系统迁移决策 | 高     |
+| 0011 - lib/ 层架构重构                  | 记录目录合并决策     | 中     |
+| 0012 - Agent Learning System 架构       | 记录学习系统设计     | 中     |
 
 #### 📝 建议 ADR-0010 内容
 
@@ -408,45 +431,57 @@ docs/COMPONENTS-USAGE-GUIDE.md        → archive/
 # ADR-0010: PermissionContext 迁移到 Zustand
 
 ## 状态
+
 Accepted
 
 ## 上下文
+
 v1.4.0 使用 React Context (PermissionContext) 管理权限状态，存在以下问题：
+
 1. Provider 嵌套复杂
 2. 全局订阅导致不必要的重渲染
 3. 状态持久化需要额外配置
 
 ## 决策
+
 v1.5.0 将权限状态迁移至 Zustand Store：
+
 - 创建 `src/stores/permissionStore.ts`
 - 使用 Zustand 的 `subscribeWithSelector` 中间件
 - 支持选择性订阅，减少重渲染
 - 内置状态持久化支持
 
 ## 权衡
+
 考虑的替代方案：
+
 1. **保持 Context** - 简单但性能差
 2. **Redux Toolkit** - 功能强大但过于复杂
 3. **Jotai/Recoil** - 原子化状态，学习曲线陡峭
 
 选择 Zustand 的原因：
+
 - 轻量级 (~1KB)
 - 学习曲线平缓
 - 与现有 Zustand stores 一致
 - 内置中间件支持
 
 ## 后果
+
 **正面**:
+
 - 性能提升（精确订阅）
 - 代码简化（无需 Provider）
 - 状态持久化内置
 
 **负面**:
+
 - 需要迁移现有组件
 - 需要更新测试
 - 短期内增加工作量
 
 ## 相关决策
+
 - ADR-0001: 使用 Zustand 进行状态管理
 - ADR-0004: 启用 TypeScript Strict Mode
 ```
@@ -456,7 +491,7 @@ v1.5.0 将权限状态迁移至 Zustand Store：
 ### 5. API 文档审核
 
 **文档路径**: `/root/.openclaw/workspace/docs/API.md`  
-**端点数量**: 79+ 个  
+**端点数量**: 79+ 个
 
 #### ✅ 优点
 
@@ -483,15 +518,16 @@ v1.5.0 将权限状态迁移至 Zustand Store：
 #### ⚠️ 需要补充
 
 1. **Agent Learning API 文档**
-   
-   ```markdown
+
+   ````markdown
    ## 🤖 Agent Learning APIs (v1.5.0 新增)
-   
+
    ### POST /api/agents/learning/predict
-   
+
    预测任务完成时间
-   
+
    **请求体**:
+
    ```json
    {
      "taskType": "code-generation",
@@ -500,8 +536,10 @@ v1.5.0 将权限状态迁移至 Zustand Store：
      "dependencies": 2
    }
    ```
-   
+   ````
+
    **响应**:
+
    ```json
    {
      "success": true,
@@ -512,12 +550,13 @@ v1.5.0 将权限状态迁移至 Zustand Store：
      }
    }
    ```
-   
+
    ### GET /api/agents/learning/capability/:agentId
-   
+
    获取 Agent 能力评估
-   
+
    **响应**:
+
    ```json
    {
      "success": true,
@@ -533,30 +572,39 @@ v1.5.0 将权限状态迁移至 Zustand Store：
      }
    }
    ```
+
+   ```
+
    ```
 
 2. **v1.5.0 Breaking Changes 说明**
-   
-   ```markdown
+
+   ````markdown
    ## ⚠️ Breaking Changes (v1.5.0)
-   
+
    ### 权限系统 API 变更
-   
+
    **影响范围**: 使用 PermissionContext 的前端组件
-   
+
    **变更说明**:
+
    - `usePermissions()` hook 继续支持，但内部使用 Zustand
    - 建议迁移到 `usePermissionStore()`
    - PermissionProvider 仍可使用，但不再必需
-   
+
    **迁移示例**:
+
    ```typescript
    // 旧方式 (仍支持)
-   import { usePermissions } from '@/contexts/PermissionContext';
-   
+   import { usePermissions } from '@/contexts/PermissionContext'
+
    // 新方式 (推荐)
-   import { usePermissionStore, useIsAdmin } from '@/stores';
+   import { usePermissionStore, useIsAdmin } from '@/stores'
    ```
+   ````
+
+   ```
+
    ```
 
 ---
@@ -565,27 +613,27 @@ v1.5.0 将权限状态迁移至 Zustand Store：
 
 ### 高优先级 (P0) - 阻塞新贡献者上手
 
-| 缺口 | 影响 | 建议 |
-|------|------|------|
-| **v1.5.0 新功能文档** | 新贡献者不了解最新功能 | 更新 README.md |
-| **Agent Learning System 使用指南** | 无法使用新功能 | 创建专项文档 |
-| **权限系统迁移指南** | 开发者使用旧 API | ✅ 已创建 |
+| 缺口                               | 影响                   | 建议           |
+| ---------------------------------- | ---------------------- | -------------- |
+| **v1.5.0 新功能文档**              | 新贡献者不了解最新功能 | 更新 README.md |
+| **Agent Learning System 使用指南** | 无法使用新功能         | 创建专项文档   |
+| **权限系统迁移指南**               | 开发者使用旧 API       | ✅ 已创建      |
 
 ### 中优先级 (P1) - 影响开发效率
 
-| 缺口 | 影响 | 建议 |
-|------|------|------|
-| **ADR-0010 (权限迁移决策)** | 缺少架构决策记录 | 创建 ADR |
-| **API 一致性文档** | 开发者使用不一致的 API 格式 | 更新 API.md |
-| **文档冗余** | 开发者不知道看哪个文档 | 清理重复文档 |
+| 缺口                        | 影响                        | 建议         |
+| --------------------------- | --------------------------- | ------------ |
+| **ADR-0010 (权限迁移决策)** | 缺少架构决策记录            | 创建 ADR     |
+| **API 一致性文档**          | 开发者使用不一致的 API 格式 | 更新 API.md  |
+| **文档冗余**                | 开发者不知道看哪个文档      | 清理重复文档 |
 
 ### 低优先级 (P2) - 提升文档质量
 
-| 缺口 | 影响 | 建议 |
-|------|------|------|
-| **文档命名不统一** | 文档查找困难 | 统一命名规范 |
-| **缺少归档目录** | 历史文档散乱 | 创建 archive/ |
-| **缺少图表** | 文档不够直观 | 添加架构图 |
+| 缺口               | 影响         | 建议          |
+| ------------------ | ------------ | ------------- |
+| **文档命名不统一** | 文档查找困难 | 统一命名规范  |
+| **缺少归档目录**   | 历史文档散乱 | 创建 archive/ |
+| **缺少图表**       | 文档不够直观 | 添加架构图    |
 
 ---
 
@@ -650,6 +698,7 @@ v1.5.0 将权限状态迁移至 Zustand Store：
 ### 中期改进 (1-2 月)
 
 1. **重组文档结构**
+
    ```
    docs/
    ├── getting-started/    # 快速开始
@@ -661,6 +710,7 @@ v1.5.0 将权限状态迁移至 Zustand Store：
    ```
 
 2. **添加文档标签**
+
    ```markdown
    ---
    tags: [api, websocket, v1.4.0]
@@ -697,21 +747,21 @@ v1.5.0 将权限状态迁移至 Zustand Store：
 
 ### 当前指标
 
-| 指标 | 当前值 | 目标值 | 状态 |
-|------|--------|--------|------|
-| **文档覆盖率** | 85% | 95% | 🟡 需提升 |
-| **文档准确性** | 95% | 98% | 🟢 良好 |
-| **文档时效性** | 75% | 90% | 🟡 需提升 |
-| **文档可用性** | 90% | 95% | 🟢 良好 |
+| 指标           | 当前值 | 目标值 | 状态      |
+| -------------- | ------ | ------ | --------- |
+| **文档覆盖率** | 85%    | 95%    | 🟡 需提升 |
+| **文档准确性** | 95%    | 98%    | 🟢 良好   |
+| **文档时效性** | 75%    | 90%    | 🟡 需提升 |
+| **文档可用性** | 90%    | 95%    | 🟢 良好   |
 
 ### 改进后预期指标
 
-| 指标 | 当前值 | 预期值 | 提升 |
-|------|--------|--------|------|
-| **文档覆盖率** | 85% | 95% | +10% |
-| **文档准确性** | 95% | 98% | +3% |
-| **文档时效性** | 75% | 90% | +15% |
-| **文档可用性** | 90% | 95% | +5% |
+| 指标           | 当前值 | 预期值 | 提升 |
+| -------------- | ------ | ------ | ---- |
+| **文档覆盖率** | 85%    | 95%    | +10% |
+| **文档准确性** | 95%    | 98%    | +3%  |
+| **文档时效性** | 75%    | 90%    | +15% |
+| **文档可用性** | 90%    | 95%    | +5%  |
 
 ---
 
@@ -743,16 +793,19 @@ v1.5.0 将权限状态迁移至 Zustand Store：
 ### 优先行动
 
 **立即执行** (本周内):
+
 1. 更新 README.md 添加 v1.5.0 新功能说明
 2. 创建 ADR-0010 记录权限迁移决策
 3. 补充 Agent Learning System 使用文档
 
 **短期执行** (2 周内):
+
 1. 清理重复文档，创建归档目录
 2. 更新 CONTRIBUTING.md 开发流程
 3. 统一文档命名风格
 
 **中期规划** (1-2 月):
+
 1. 重组文档结构
 2. 添加架构图
 3. 创建文档网站

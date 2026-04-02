@@ -1,8 +1,8 @@
 // Client Providers
-export { ClientProviders } from './ClientProviders';
+export { ClientProviders } from './ClientProviders'
 
 // Theme (backward compatible - now delegates to Zustand preferencesStore)
-export { ThemeProvider, useTheme } from './ThemeProvider';
+export { ThemeProvider, useTheme } from './ThemeProvider'
 
 // Settings (recommended - use Zustand stores)
 export {
@@ -12,27 +12,27 @@ export {
   useNotificationPreferences,
   usePreferencesLoaded,
   useDarkMode,
-} from '@/stores/preferencesStore';
+} from '@/stores/preferencesStore'
 export type {
   Theme,
   Locale,
   UserSettings,
   NotificationPreferences,
-} from '@/stores/preferencesStore';
+} from '@/stores/preferencesStore'
 
 // Settings Components
-export { SettingsPanel, SettingsPanelCompact } from './SettingsPanel';
-export { SettingsButton } from './SettingsButton';
+export { SettingsPanel, SettingsPanelCompact } from './SettingsPanel'
+export { SettingsButton } from './SettingsButton'
 
 // AI & Chat
-export { default as AIChatComponent } from './AIChat';
+export { default as AIChatComponent } from './AIChat'
 
 // Data Display
-export { GitHubActivity } from './GitHubActivity';
-export { ProjectDashboard } from './ProjectDashboard';
+export { GitHubActivity } from './GitHubActivity'
+export { ProjectDashboard } from './ProjectDashboard'
 
 // UI Components
-export { Hero3D } from './Hero3D';
+export { Hero3D } from './Hero3D'
 
 // New UI Components (Note: Modal, Tabs, Toast, ErrorBoundary, FilterDropdown, SearchInput have been removed)
 export {
@@ -43,7 +43,7 @@ export {
   SimpleTooltip,
   withTooltip,
   InfoTooltip,
-} from './ui';
+} from './ui'
 export type {
   ButtonProps,
   ButtonGroupProps,
@@ -55,11 +55,11 @@ export type {
   InfoTooltipProps,
   TooltipPosition,
   TooltipSize,
-} from './ui';
+} from './ui'
 
 // Image Components
-export { OptimizedImage, ResponsiveImage } from './OptimizedImage';
-export type { LazyLoadImageProps as OptimizedImageProps } from './LazyLoadImage';
+export { OptimizedImage, ResponsiveImage } from './OptimizedImage'
+export type { LazyLoadImageProps as OptimizedImageProps } from './LazyLoadImage'
 
 // Lazy Loading Components
 export {
@@ -81,14 +81,14 @@ export {
   LazyEnhancedFeedbackModal,
   LazyLazyLoadImage,
   preloadComponents,
-} from './LazyComponents';
+} from './LazyComponents'
 
 // Performance Monitoring
-export { PerformanceMonitor, ResourceTimingMonitor } from './PerformanceMonitor';
+export { PerformanceMonitor, ResourceTimingMonitor } from './PerformanceMonitor'
 
 // Health Dashboard
-export { HealthDashboard } from './HealthDashboard';
-export type { HealthMetric, HealthDashboardProps } from './HealthDashboard';
+export { HealthDashboard } from './HealthDashboard'
+export type { HealthMetric, HealthDashboardProps } from './HealthDashboard'
 
 // Skeleton Loading Components (Designer Patch v4)
 export {
@@ -99,13 +99,13 @@ export {
   SkeletonTable,
   SkeletonStatCard,
   SkeletonNav,
-  SkeletonPage
-} from './Skeleton';
+  SkeletonPage,
+} from './Skeleton'
 
 // Error Handling
-export { ErrorBoundary } from './ErrorBoundary';
-export { ErrorDisplay } from './ErrorDisplay';
-export { ErrorBoundaryWrapper, withErrorBoundary } from './ErrorBoundaryWrapper';
+export { ErrorBoundary } from './ErrorBoundary'
+export { ErrorDisplay } from './ErrorDisplay'
+export { ErrorBoundaryWrapper, withErrorBoundary } from './ErrorBoundaryWrapper'
 
 // Error Boundary Factory (for page-level errors)
 export {
@@ -117,38 +117,24 @@ export {
   ContactError,
   DashboardError,
   TeamError,
-} from './errors';
+} from './errors'
 
 // Contact & Social
-export { ContactForm } from './ContactForm';
-export { SocialLinks } from './SocialLinks';
+export { ContactForm } from './ContactForm'
+export { SocialLinks } from './SocialLinks'
 
 // Analytics
-export { Analytics } from './Analytics';
+export { Analytics } from './Analytics'
 
 // Footer
-export { Footer } from './Footer';
+export { Footer } from './Footer'
 
 // Shared UI Components
-export {
-  StatusBadge,
-  ProgressBar,
-  Avatar,
-  Card,
-  EmptyState,
-  StatCard,
-  TimeAgo,
-} from './shared';
-
-
+export { StatusBadge, ProgressBar, Avatar, Card, EmptyState, StatCard, TimeAgo } from './shared'
 
 // Loading Components
-export { LoadingSpinner } from './LoadingSpinner';
-export type {
-  LoadingVariant,
-  LoadingSize,
-  LoadingColor,
-} from './LoadingSpinner';
+export { LoadingSpinner } from './LoadingSpinner'
+export type { LoadingVariant, LoadingSize, LoadingColor } from './LoadingSpinner'
 
-export { GlobalLoader, MinimalLoader } from './GlobalLoader';
-export type { LoaderVariant } from './GlobalLoader';
+export { GlobalLoader, MinimalLoader } from './GlobalLoader'
+export type { LoaderVariant } from './GlobalLoader'

@@ -12,12 +12,12 @@ WebSocket API 提供实时双向通信能力，支持房间系统、权限控制
 
 ### v1.4.0 新增功能 (2026-03-29)
 
-| 功能模块 | 完成度 | 描述 |
-|---------|--------|------|
-| **房间系统** | 100% | 多房间管理、动态创建、可见性控制 |
-| **权限控制** | 100% | 5 种角色、16 种权限、RBAC 集成 |
-| **消息持久化** | 100% | 内存存储、离线队列、历史查询 |
-| **状态同步** | 100% | 用户在线状态、输入状态、光标位置 |
+| 功能模块       | 完成度 | 描述                             |
+| -------------- | ------ | -------------------------------- |
+| **房间系统**   | 100%   | 多房间管理、动态创建、可见性控制 |
+| **权限控制**   | 100%   | 5 种角色、16 种权限、RBAC 集成   |
+| **消息持久化** | 100%   | 内存存储、离线队列、历史查询     |
+| **状态同步**   | 100%   | 用户在线状态、输入状态、光标位置 |
 
 ### 功能特性
 
@@ -43,24 +43,24 @@ WebSocket API 提供实时双向通信能力，支持房间系统、权限控制
 #### 方式 1: URL 参数传递 Token
 
 ```javascript
-const ws = new WebSocket(
-  `wss://7zi.com?token=${encodeURIComponent(jwtToken)}`
-);
+const ws = new WebSocket(`wss://7zi.com?token=${encodeURIComponent(jwtToken)}`)
 ```
 
 #### 方式 2: 握手时发送认证消息
 
 ```javascript
-const ws = new WebSocket('wss://7zi.com');
+const ws = new WebSocket('wss://7zi.com')
 
 ws.onopen = () => {
-  ws.send(JSON.stringify({
-    type: 'auth',
-    payload: {
-      token: jwtToken
-    }
-  }));
-};
+  ws.send(
+    JSON.stringify({
+      type: 'auth',
+      payload: {
+        token: jwtToken,
+      },
+    })
+  )
+}
 ```
 
 ---
@@ -71,13 +71,13 @@ ws.onopen = () => {
 
 ```typescript
 interface WebSocketMessage {
-  type: string;           // 消息类型
-  id: string;            // 消息唯一 ID
-  timestamp: string;     // ISO 时间戳
-  payload?: unknown;     // 消息负载
-  roomId?: string;       // 房间 ID (可选)
-  userId?: string;        // 用户 ID (可选)
-  [key: string]: unknown; // 其他字段
+  type: string // 消息类型
+  id: string // 消息唯一 ID
+  timestamp: string // ISO 时间戳
+  payload?: unknown // 消息负载
+  roomId?: string // 房间 ID (可选)
+  userId?: string // 用户 ID (可选)
+  [key: string]: unknown // 其他字段
 }
 ```
 
@@ -100,22 +100,22 @@ interface WebSocketMessage {
 
 ### 房间类型
 
-| 类型 | 说明 | 示例 |
-|------|------|------|
-| `task` | 任务房间 | 任务讨论、协作 |
-| `project` | 项目房间 | 项目沟通、文档 |
-| `chat` | 聊天房间 | 实时聊天 |
-| `document` | 文档房间 | 协作编辑 |
-| `voice` | 语音房间 | 语音通话 |
-| `video` | 视频房间 | 视频会议 |
+| 类型       | 说明     | 示例           |
+| ---------- | -------- | -------------- |
+| `task`     | 任务房间 | 任务讨论、协作 |
+| `project`  | 项目房间 | 项目沟通、文档 |
+| `chat`     | 聊天房间 | 实时聊天       |
+| `document` | 文档房间 | 协作编辑       |
+| `voice`    | 语音房间 | 语音通话       |
+| `video`    | 视频房间 | 视频会议       |
 
 ### 房间可见性
 
-| 类型 | 说明 | 访问控制 |
-|------|------|----------|
-| `public` | 公开 | 所有认证用户可加入 |
-| `private` | 私有 | 需要所有者邀请 |
-| `invite-only` | 仅邀请 | 需要邀请码 |
+| 类型          | 说明   | 访问控制           |
+| ------------- | ------ | ------------------ |
+| `public`      | 公开   | 所有认证用户可加入 |
+| `private`     | 私有   | 需要所有者邀请     |
+| `invite-only` | 仅邀请 | 需要邀请码         |
 
 ### 创建房间
 
@@ -198,46 +198,46 @@ interface WebSocketMessage {
 owner > admin > moderator > member > guest
 ```
 
-| 角色 | 描述 | 默认权限 |
-|------|------|----------|
-| `owner` | 所有者 | 所有权限 |
-| `admin` | 管理员 | 管理权限 + 所有房间权限 |
-| `moderator` | 版主 | 大部分权限，不能踢出 admin/owner |
-| `member` | 成员 | 基础权限 |
-| `guest` | 访客 | 只读权限 |
+| 角色        | 描述   | 默认权限                         |
+| ----------- | ------ | -------------------------------- |
+| `owner`     | 所有者 | 所有权限                         |
+| `admin`     | 管理员 | 管理权限 + 所有房间权限          |
+| `moderator` | 版主   | 大部分权限，不能踢出 admin/owner |
+| `member`    | 成员   | 基础权限                         |
+| `guest`     | 访客   | 只读权限                         |
 
 ### 权限列表
 
 #### 房间权限 (7 种)
 
-| 权限 | 说明 | Guest | Member | Moderator | Admin | Owner |
-|------|------|-------|--------|-----------|-------|-------|
-| `room:join` | 加入房间 | ✅ | ✅ | ✅ | ✅ | ✅ |
-| `room:leave` | 离开房间 | ✅ | ✅ | ✅ | ✅ | ✅ |
-| `room:invite` | 邀请用户 | ❌ | ❌ | ✅ | ✅ | ✅ |
-| `room:kick` | 踢出用户 | ❌ | ❌ | ✅ | ✅ | ✅ |
-| `room:ban` | 封禁用户 | ❌ | ❌ | ✅ | ✅ | ✅ |
-| `room:promote` | 提升角色 | ❌ | ❌ | ❌ | ✅ | ✅ |
-| `room:config` | 修改配置 | ❌ | ❌ | ✅ | ✅ | ✅ |
+| 权限           | 说明     | Guest | Member | Moderator | Admin | Owner |
+| -------------- | -------- | ----- | ------ | --------- | ----- | ----- |
+| `room:join`    | 加入房间 | ✅    | ✅     | ✅        | ✅    | ✅    |
+| `room:leave`   | 离开房间 | ✅    | ✅     | ✅        | ✅    | ✅    |
+| `room:invite`  | 邀请用户 | ❌    | ❌     | ✅        | ✅    | ✅    |
+| `room:kick`    | 踢出用户 | ❌    | ❌     | ✅        | ✅    | ✅    |
+| `room:ban`     | 封禁用户 | ❌    | ❌     | ✅        | ✅    | ✅    |
+| `room:promote` | 提升角色 | ❌    | ❌     | ❌        | ✅    | ✅    |
+| `room:config`  | 修改配置 | ❌    | ❌     | ✅        | ✅    | ✅    |
 
 #### 消息权限 (6 种)
 
-| 权限 | 说明 | Guest | Member | Moderator | Admin | Owner |
-|------|------|-------|--------|-----------|-------|-------|
-| `message:send` | 发送消息 | ❌ | ✅ | ✅ | ✅ | ✅ |
-| `message:edit` | 编辑自己的消息 | ✅ | ✅ | ✅ | ✅ | ✅ |
-| `message:delete` | 删除自己的消息 | ✅ | ✅ | ✅ | ✅ | ✅ |
-| `message:edit_any` | 编辑任何消息 | ❌ | ❌ | ✅ | ✅ | ✅ |
-| `message:delete_any` | 删除任何消息 | ❌ | ❌ | ✅ | ✅ | ✅ |
-| `message:pin` | 置顶消息 | ❌ | ❌ | ✅ | ✅ | ✅ |
+| 权限                 | 说明           | Guest | Member | Moderator | Admin | Owner |
+| -------------------- | -------------- | ----- | ------ | --------- | ----- | ----- |
+| `message:send`       | 发送消息       | ❌    | ✅     | ✅        | ✅    | ✅    |
+| `message:edit`       | 编辑自己的消息 | ✅    | ✅     | ✅        | ✅    | ✅    |
+| `message:delete`     | 删除自己的消息 | ✅    | ✅     | ✅        | ✅    | ✅    |
+| `message:edit_any`   | 编辑任何消息   | ❌    | ❌     | ✅        | ✅    | ✅    |
+| `message:delete_any` | 删除任何消息   | ❌    | ❌     | ✅        | ✅    | ✅    |
+| `message:pin`        | 置顶消息       | ❌    | ❌     | ✅        | ✅    | ✅    |
 
 #### 管理权限 (3 种)
 
-| 权限 | 说明 | Guest | Member | Moderator | Admin | Owner |
-|------|------|-------|--------|-----------|-------|-------|
-| `admin:manage_users` | 管理用户 | ❌ | ❌ | ❌ | ✅ | ✅ |
-| `admin:manage_roles` | 管理角色 | ❌ | ❌ | ❌ | ✅ | ✅ |
-| `admin:delete_room` | 删除房间 | ❌ | ❌ | ❌ | ✅ | ✅ |
+| 权限                 | 说明     | Guest | Member | Moderator | Admin | Owner |
+| -------------------- | -------- | ----- | ------ | --------- | ----- | ----- |
+| `admin:manage_users` | 管理用户 | ❌    | ❌     | ❌        | ✅    | ✅    |
+| `admin:manage_roles` | 管理角色 | ❌    | ❌     | ❌        | ✅    | ✅    |
+| `admin:delete_room`  | 删除房间 | ❌    | ❌     | ❌        | ✅    | ✅    |
 
 ### 权限检查
 
@@ -293,12 +293,12 @@ owner > admin > moderator > member > guest
 
 ### 消息类型
 
-| 类型 | 说明 |
-|------|------|
-| `text` | 文本消息 |
-| `image` | 图片消息 |
-| `file` | 文件消息 |
-| `system` | 系统消息 |
+| 类型       | 说明         |
+| ---------- | ------------ |
+| `text`     | 文本消息     |
+| `image`    | 图片消息     |
+| `file`     | 文件消息     |
+| `system`   | 系统消息     |
 | `reaction` | 反应 (emoji) |
 
 ### 编辑消息
@@ -491,14 +491,14 @@ owner > admin > moderator > member > guest
 
 ### 常见错误码
 
-| 错误码 | 描述 | HTTP 状态码 |
-|--------|------|-------------|
-| `AUTH_FAILED` | 认证失败 | 401 |
-| `PERMISSION_DENIED` | 权限不足 | 403 |
-| `ROOM_NOT_FOUND` | 房间不存在 | 404 |
-| `ROOM_FULL` | 房间已满 | 409 |
-| `RATE_LIMITED` | 请求频率过高 | 429 |
-| `INVALID_PAYLOAD` | 无效的消息负载 | 400 |
+| 错误码              | 描述           | HTTP 状态码 |
+| ------------------- | -------------- | ----------- |
+| `AUTH_FAILED`       | 认证失败       | 401         |
+| `PERMISSION_DENIED` | 权限不足       | 403         |
+| `ROOM_NOT_FOUND`    | 房间不存在     | 404         |
+| `ROOM_FULL`         | 房间已满       | 409         |
+| `RATE_LIMITED`      | 请求频率过高   | 429         |
+| `INVALID_PAYLOAD`   | 无效的消息负载 | 400         |
 
 ---
 
@@ -554,38 +554,35 @@ owner > admin > moderator > member > guest
 ```javascript
 class AutoReconnectWebSocket {
   constructor(url, options = {}) {
-    this.url = url;
-    this.ws = null;
-    this.reconnectAttempts = 0;
-    this.maxReconnectAttempts = options.maxReconnectAttempts || 5;
-    this.reconnectInterval = options.reconnectInterval || 3000;
-    this.autoReconnect = options.autoReconnect !== false;
-    
-    this.connect();
+    this.url = url
+    this.ws = null
+    this.reconnectAttempts = 0
+    this.maxReconnectAttempts = options.maxReconnectAttempts || 5
+    this.reconnectInterval = options.reconnectInterval || 3000
+    this.autoReconnect = options.autoReconnect !== false
+
+    this.connect()
   }
-  
+
   connect() {
-    this.ws = new WebSocket(this.url);
-    
+    this.ws = new WebSocket(this.url)
+
     this.ws.onopen = () => {
-      console.log('WebSocket connected');
-      this.reconnectAttempts = 0;
-    };
-    
-    this.ws.onclose = (event) => {
-      console.log('WebSocket disconnected:', event.code);
-      
+      console.log('WebSocket connected')
+      this.reconnectAttempts = 0
+    }
+
+    this.ws.onclose = event => {
+      console.log('WebSocket disconnected:', event.code)
+
       if (this.autoReconnect && this.reconnectAttempts < this.maxReconnectAttempts) {
-        const delay = Math.min(
-          this.reconnectInterval * Math.pow(2, this.reconnectAttempts),
-          60000
-        );
-        
-        console.log(`Reconnecting in ${delay}ms...`);
-        setTimeout(() => this.connect(), delay);
-        this.reconnectAttempts++;
+        const delay = Math.min(this.reconnectInterval * Math.pow(2, this.reconnectAttempts), 60000)
+
+        console.log(`Reconnecting in ${delay}ms...`)
+        setTimeout(() => this.connect(), delay)
+        this.reconnectAttempts++
       }
-    };
+    }
   }
 }
 ```
@@ -598,146 +595,142 @@ class AutoReconnectWebSocket {
 
 ```javascript
 // 创建 WebSocket 连接
-const ws = new WebSocket('wss://7zi.com?token=' + token);
+const ws = new WebSocket('wss://7zi.com?token=' + token)
 
 // 连接打开
 ws.onopen = () => {
-  console.log('WebSocket connected');
-  
+  console.log('WebSocket connected')
+
   // 加入房间
-  ws.send(JSON.stringify({
-    type: 'room:join',
-    id: generateId(),
-    timestamp: new Date().toISOString(),
-    payload: { roomId: 'room-001' }
-  }));
-};
+  ws.send(
+    JSON.stringify({
+      type: 'room:join',
+      id: generateId(),
+      timestamp: new Date().toISOString(),
+      payload: { roomId: 'room-001' },
+    })
+  )
+}
 
 // 接收消息
-ws.onmessage = (event) => {
-  const message = JSON.parse(event.data);
-  
+ws.onmessage = event => {
+  const message = JSON.parse(event.data)
+
   switch (message.type) {
     case 'message:send':
-      console.log('New message:', message.payload);
-      break;
+      console.log('New message:', message.payload)
+      break
     case 'user:presence':
-      console.log('User status update:', message.payload);
-      break;
+      console.log('User status update:', message.payload)
+      break
     case 'error':
-      console.error('WebSocket error:', message.payload);
-      break;
+      console.error('WebSocket error:', message.payload)
+      break
   }
-};
+}
 
 // 连接关闭
-ws.onclose = (event) => {
-  console.log('WebSocket disconnected:', event.code);
-};
+ws.onclose = event => {
+  console.log('WebSocket disconnected:', event.code)
+}
 
 // 错误处理
-ws.onerror = (error) => {
-  console.error('WebSocket error:', error);
-};
+ws.onerror = error => {
+  console.error('WebSocket error:', error)
+}
 ```
 
 ### React Hook 实现
 
 ```typescript
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useRef, useState } from 'react'
 
 interface WebSocketMessage {
-  type: string;
-  id: string;
-  timestamp: string;
-  payload?: unknown;
+  type: string
+  id: string
+  timestamp: string
+  payload?: unknown
 }
 
 interface UseWebSocketOptions {
-  autoConnect?: boolean;
-  autoReconnect?: boolean;
-  maxReconnectAttempts?: number;
-  onMessage?: (message: WebSocketMessage) => void;
-  onError?: (error: Event) => void;
-  onOpen?: (event: Event) => void;
-  onClose?: (event: CloseEvent) => void;
+  autoConnect?: boolean
+  autoReconnect?: boolean
+  maxReconnectAttempts?: number
+  onMessage?: (message: WebSocketMessage) => void
+  onError?: (error: Event) => void
+  onOpen?: (event: Event) => void
+  onClose?: (event: CloseEvent) => void
 }
 
-export function useWebSocket(
-  url: string,
-  options: UseWebSocketOptions = {}
-) {
-  const [isConnected, setIsConnected] = useState(false);
-  const wsRef = useRef<WebSocket | null>(null);
-  const reconnectAttemptsRef = useRef(0);
-  
+export function useWebSocket(url: string, options: UseWebSocketOptions = {}) {
+  const [isConnected, setIsConnected] = useState(false)
+  const wsRef = useRef<WebSocket | null>(null)
+  const reconnectAttemptsRef = useRef(0)
+
   const connect = () => {
-    const ws = new WebSocket(url);
-    wsRef.current = ws;
-    
-    ws.onopen = (event) => {
-      setIsConnected(true);
-      reconnectAttemptsRef.current = 0;
-      options.onOpen?.(event);
-    };
-    
-    ws.onmessage = (event) => {
-      const message = JSON.parse(event.data) as WebSocketMessage;
-      options.onMessage?.(message);
-    };
-    
-    ws.onerror = (error) => {
-      options.onError?.(error);
-    };
-    
-    ws.onclose = (event) => {
-      setIsConnected(false);
-      options.onClose?.(event);
-      
+    const ws = new WebSocket(url)
+    wsRef.current = ws
+
+    ws.onopen = event => {
+      setIsConnected(true)
+      reconnectAttemptsRef.current = 0
+      options.onOpen?.(event)
+    }
+
+    ws.onmessage = event => {
+      const message = JSON.parse(event.data) as WebSocketMessage
+      options.onMessage?.(message)
+    }
+
+    ws.onerror = error => {
+      options.onError?.(error)
+    }
+
+    ws.onclose = event => {
+      setIsConnected(false)
+      options.onClose?.(event)
+
       // 自动重连
       if (options.autoReconnect) {
-        const maxAttempts = options.maxReconnectAttempts || 5;
+        const maxAttempts = options.maxReconnectAttempts || 5
         if (reconnectAttemptsRef.current < maxAttempts) {
-          const delay = Math.min(
-            3000 * Math.pow(2, reconnectAttemptsRef.current),
-            60000
-          );
-          
+          const delay = Math.min(3000 * Math.pow(2, reconnectAttemptsRef.current), 60000)
+
           setTimeout(() => {
-            reconnectAttemptsRef.current++;
-            connect();
-          }, delay);
+            reconnectAttemptsRef.current++
+            connect()
+          }, delay)
         }
       }
-    };
-  };
-  
+    }
+  }
+
   const send = (data: WebSocketMessage) => {
     if (wsRef.current?.readyState === WebSocket.OPEN) {
-      wsRef.current.send(JSON.stringify(data));
+      wsRef.current.send(JSON.stringify(data))
     }
-  };
-  
+  }
+
   const disconnect = () => {
-    wsRef.current?.close();
-  };
-  
+    wsRef.current?.close()
+  }
+
   useEffect(() => {
     if (options.autoConnect !== false) {
-      connect();
+      connect()
     }
-    
+
     return () => {
-      disconnect();
-    };
-  }, [url]);
-  
+      disconnect()
+    }
+  }, [url])
+
   return {
     isConnected,
     send,
     disconnect,
     connect,
-  };
+  }
 }
 ```
 
@@ -748,23 +741,25 @@ export function useWebSocket(
 ### 1. 消息批处理
 
 ```javascript
-const messageQueue = [];
-let batchTimeout = null;
+const messageQueue = []
+let batchTimeout = null
 
 function sendMessage(message) {
-  messageQueue.push(message);
-  
+  messageQueue.push(message)
+
   if (!batchTimeout) {
     batchTimeout = setTimeout(() => {
       if (ws.readyState === WebSocket.OPEN) {
-        ws.send(JSON.stringify({
-          type: 'batch',
-          messages: messageQueue
-        }));
+        ws.send(
+          JSON.stringify({
+            type: 'batch',
+            messages: messageQueue,
+          })
+        )
       }
-      messageQueue.length = 0;
-      batchTimeout = null;
-    }, 100); // 100ms 批处理窗口
+      messageQueue.length = 0
+      batchTimeout = null
+    }, 100) // 100ms 批处理窗口
   }
 }
 ```
@@ -772,64 +767,69 @@ function sendMessage(message) {
 ### 2. 消息去重
 
 ```javascript
-const messageCache = new Set();
+const messageCache = new Set()
 
 function handleMessage(message) {
-  const messageId = message.id;
-  
+  const messageId = message.id
+
   if (messageCache.has(messageId)) {
-    return; // 已处理过，忽略
+    return // 已处理过，忽略
   }
-  
-  messageCache.add(messageId);
-  
+
+  messageCache.add(messageId)
+
   // 处理消息
-  processMessage(message);
-  
+  processMessage(message)
+
   // 5 分钟后清理
-  setTimeout(() => {
-    messageCache.delete(messageId);
-  }, 5 * 60 * 1000);
+  setTimeout(
+    () => {
+      messageCache.delete(messageId)
+    },
+    5 * 60 * 1000
+  )
 }
 ```
 
 ### 3. 心跳优化
 
 ```javascript
-let lastPingTime = Date.now();
-let pongTimeout = null;
+let lastPingTime = Date.now()
+let pongTimeout = null
 
 function sendPing() {
   if (ws.readyState === WebSocket.OPEN) {
-    lastPingTime = Date.now();
-    ws.send(JSON.stringify({
-      type: 'ping',
-      id: generateId(),
-      timestamp: new Date().toISOString()
-    }));
-    
+    lastPingTime = Date.now()
+    ws.send(
+      JSON.stringify({
+        type: 'ping',
+        id: generateId(),
+        timestamp: new Date().toISOString(),
+      })
+    )
+
     // 等待 pong 响应
     pongTimeout = setTimeout(() => {
-      console.warn('Pong timeout, reconnecting...');
-      ws.close();
-    }, 5000);
+      console.warn('Pong timeout, reconnecting...')
+      ws.close()
+    }, 5000)
   }
 }
 
 // 设置心跳间隔
-setInterval(sendPing, 30000);
+setInterval(sendPing, 30000)
 
 // 处理 pong 响应
-ws.onmessage = (event) => {
-  const message = JSON.parse(event.data);
+ws.onmessage = event => {
+  const message = JSON.parse(event.data)
   if (message.type === 'pong') {
     if (pongTimeout) {
-      clearTimeout(pongTimeout);
+      clearTimeout(pongTimeout)
     }
-    const rtt = Date.now() - lastPingTime;
-    console.log('Round-trip time:', rtt, 'ms');
+    const rtt = Date.now() - lastPingTime
+    console.log('Round-trip time:', rtt, 'ms')
   }
-};
+}
 ```
 
 ---
@@ -841,22 +841,24 @@ ws.onmessage = (event) => {
 ```javascript
 // 连接时验证 Token
 ws.onopen = () => {
-  ws.send(JSON.stringify({
-    type: 'auth',
-    payload: { token: getAuthToken() }
-  }));
-};
+  ws.send(
+    JSON.stringify({
+      type: 'auth',
+      payload: { token: getAuthToken() },
+    })
+  )
+}
 
 // 监听认证结果
-ws.onmessage = (event) => {
-  const message = JSON.parse(event.data);
+ws.onmessage = event => {
+  const message = JSON.parse(event.data)
   if (message.type === 'auth:success') {
-    console.log('Authentication successful');
+    console.log('Authentication successful')
   } else if (message.type === 'auth:failed') {
-    console.error('Authentication failed');
-    ws.close();
+    console.error('Authentication failed')
+    ws.close()
   }
-};
+}
 ```
 
 ### 2. 消息验证
@@ -865,37 +867,32 @@ ws.onmessage = (event) => {
 function validateMessage(message) {
   // 验证必需字段
   if (!message.type || !message.id || !message.timestamp) {
-    return false;
+    return false
   }
-  
+
   // 验证时间戳 (防重放攻击)
-  const messageTime = new Date(message.timestamp).getTime();
-  const now = Date.now();
+  const messageTime = new Date(message.timestamp).getTime()
+  const now = Date.now()
   if (Math.abs(now - messageTime) > 60000) {
-    return false;
+    return false
   }
-  
+
   // 验证消息类型
-  const validTypes = [
-    'message:send',
-    'room:join',
-    'room:leave',
-    'user:presence'
-  ];
-  
-  return validTypes.includes(message.type);
+  const validTypes = ['message:send', 'room:join', 'room:leave', 'user:presence']
+
+  return validTypes.includes(message.type)
 }
 
-ws.onmessage = (event) => {
-  const message = JSON.parse(event.data);
-  
+ws.onmessage = event => {
+  const message = JSON.parse(event.data)
+
   if (!validateMessage(message)) {
-    console.warn('Invalid message received:', message);
-    return;
+    console.warn('Invalid message received:', message)
+    return
   }
-  
-  processMessage(message);
-};
+
+  processMessage(message)
+}
 ```
 
 ---
@@ -905,15 +902,15 @@ ws.onmessage = (event) => {
 ### 1. 消息日志
 
 ```javascript
-ws.onmessage = (event) => {
-  const message = JSON.parse(event.data);
-  
+ws.onmessage = event => {
+  const message = JSON.parse(event.data)
+
   if (process.env.NODE_ENV === 'development') {
-    console.log('[WebSocket]', message.type, message.payload);
+    console.log('[WebSocket]', message.type, message.payload)
   }
-  
-  handleMessage(message);
-};
+
+  handleMessage(message)
+}
 ```
 
 ### 2. 连接状态监控
@@ -924,7 +921,7 @@ const connectionStates = {
   OPEN: 1,
   CLOSING: 2,
   CLOSED: 3,
-};
+}
 
 setInterval(() => {
   console.log(
@@ -932,8 +929,8 @@ setInterval(() => {
     Object.keys(connectionStates)[ws.readyState],
     'Is connected:',
     ws.readyState === connectionStates.OPEN
-  );
-}, 5000);
+  )
+}, 5000)
 ```
 
 ---

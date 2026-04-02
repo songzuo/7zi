@@ -82,6 +82,7 @@ src/app/
 **文件**: `src/app/[locale]/page.tsx`
 
 **功能**:
+
 - Hero 展示区
 - 团队预览
 - GitHub 活动展示
@@ -91,6 +92,7 @@ src/app/
 - AI 聊天组件
 
 **关键组件**:
+
 - `LazyGitHubActivity` - GitHub 活动懒加载
 - `LazyProjectDashboard` - 项目看板懒加载
 - `LazyAIChat` - AI 聊天懒加载
@@ -104,6 +106,7 @@ src/app/
 **文件**: `src/app/[locale]/about/page.tsx`
 
 **功能**:
+
 - 7zi Studio 介绍
 - 团队理念
 - 发展历程
@@ -118,6 +121,7 @@ src/app/
 **文件**: `src/app/[locale]/team/page.tsx`
 
 **功能**:
+
 - 11 位 AI 成员详细介绍
 - 每个成员的角色和职责
 - 成员状态展示
@@ -133,6 +137,7 @@ src/app/
 **文件**: `src/app/[locale]/blog/page.tsx`
 
 **功能**:
+
 - 博客文章列表
 - 分类筛选
 - 搜索功能
@@ -147,6 +152,7 @@ src/app/
 **文件**: `src/app/[locale]/blog/[slug]/page.tsx`
 
 **功能**:
+
 - 文章详情
 - 文章元数据
 - 相关文章推荐
@@ -161,6 +167,7 @@ src/app/
 **文件**: `src/app/[locale]/contact/page.tsx`
 
 **功能**:
+
 - 联系表单
 - 公司信息
 - 地图集成
@@ -177,12 +184,14 @@ src/app/
 **文件**: `src/app/[locale]/dashboard/page.tsx`
 
 **功能**:
+
 - 实时 AI 团队状态
 - GitHub Issues 追踪
 - 实时活动日志
 - 任务进度展示
 
 **关键组件**:
+
 - `DashboardClient` - 客户端组件
 - `MemberCard` - 成员卡片
 - `TaskBoard` - 任务看板
@@ -201,11 +210,13 @@ src/app/
 **文件**: `src/app/[locale]/portfolio/page.tsx`
 
 **功能**:
+
 - 项目展示
 - 分类筛选
 - 项目搜索
 
 **关键组件**:
+
 - `PortfolioGrid`
 - `ProjectCard`
 - `CategoryFilter`
@@ -219,6 +230,7 @@ src/app/
 **文件**: `src/app/[locale]/portfolio/[slug]/page.tsx`
 
 **功能**:
+
 - 项目详情
 - 截图展示
 - 技术栈
@@ -233,6 +245,7 @@ src/app/
 **文件**: `src/app/[locale]/tasks/page.tsx`
 
 **功能**:
+
 - 任务列表
 - 任务状态管理
 - 任务筛选
@@ -250,9 +263,10 @@ src/app/
 **值**: `zh-CN`, `en-US`
 
 **示例**:
+
 ```typescript
 export default async function Page({ params }: { params: { locale: string } }) {
-  const { locale } = params;
+  const { locale } = params
   // 使用 locale 加载对应的翻译
 }
 ```
@@ -270,6 +284,7 @@ export default async function Page({ params }: { params: { locale: string } }) {
 ### 根布局 (`src/app/layout.tsx`)
 
 **职责**:
+
 - 全局 HTML 结构
 - 全局样式引入
 - 根布局组件
@@ -287,12 +302,14 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
 ### 语言布局 (`src/app/[locale]/layout.tsx`)
 
 **职责**:
+
 - 语言特定的导航
 - 语言切换器
 - 主题提供者
 - SEO 元数据
 
 **关键组件**:
+
 - `Navigation`
 - `LanguageSwitcher`
 - `ThemeToggle`
@@ -322,10 +339,14 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
 每个页面都可以通过 `generateMetadata` 动态生成 SEO 元数据：
 
 ```typescript
-export async function generateMetadata({ params }: { params: { locale: string } }): Promise<Metadata> {
-  const { locale } = params;
-  const t = await getTranslations({ locale, namespace: 'metadata' });
-  
+export async function generateMetadata({
+  params,
+}: {
+  params: { locale: string }
+}): Promise<Metadata> {
+  const { locale } = params
+  const t = await getTranslations({ locale, namespace: 'metadata' })
+
   return {
     title: t('title'),
     description: t('description'),
@@ -342,7 +363,7 @@ export async function generateMetadata({ params }: { params: { locale: string } 
         'en-US': 'https://7zi.studio/en-US',
       },
     },
-  };
+  }
 }
 ```
 
@@ -372,6 +393,7 @@ export async function generateMetadata({ params }: { params: { locale: string } 
 ### Navigation (`/src/components/Navigation.tsx`)
 
 主导航栏，包含：
+
 - Logo
 - 导航链接
 - 主题切换
@@ -387,9 +409,10 @@ export async function generateMetadata({ params }: { params: { locale: string } 
 ## 外部链接
 
 项目包含以下外部链接：
+
 - **GitHub**: `https://github.com/songzuo/7zi`
 - **Visa 服务**: `https://visa.7zi.com`
 
 ---
 
-*由 7zi Studio AI 团队维护 🤖*
+_由 7zi Studio AI 团队维护 🤖_

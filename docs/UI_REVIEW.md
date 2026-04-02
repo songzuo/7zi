@@ -13,13 +13,13 @@
 
 ### 总体评分
 
-| 维度 | 评分 | 说明 |
-|------|------|------|
-| 响应式设计 | ⭐⭐⭐⭐☆ (4/5) | 良好的断点设计，移动端有专门优化 |
-| 颜色主题一致性 | ⭐⭐⭐⭐⭐ (5/5) | CSS 变量体系完善，主题切换流畅 |
-| 无障碍访问性 | ⭐⭐⭐☆☆ (3.5/5) | 基础支持到位，部分细节需增强 |
-| 视觉设计 | ⭐⭐⭐⭐☆ (4/5) | 现代化设计，动效丰富但可优化 |
-| 性能优化 | ⭐⭐⭐⭐☆ (4/5) | 有优化措施，可进一步提升 |
+| 维度           | 评分             | 说明                             |
+| -------------- | ---------------- | -------------------------------- |
+| 响应式设计     | ⭐⭐⭐⭐☆ (4/5)  | 良好的断点设计，移动端有专门优化 |
+| 颜色主题一致性 | ⭐⭐⭐⭐⭐ (5/5) | CSS 变量体系完善，主题切换流畅   |
+| 无障碍访问性   | ⭐⭐⭐☆☆ (3.5/5) | 基础支持到位，部分细节需增强     |
+| 视觉设计       | ⭐⭐⭐⭐☆ (4/5)  | 现代化设计，动效丰富但可优化     |
+| 性能优化       | ⭐⭐⭐⭐☆ (4/5)  | 有优化措施，可进一步提升         |
 
 ---
 
@@ -69,7 +69,7 @@
 
 ```tsx
 // 移动端优化
-<div className="flex flex-col sm:flex-row sm:items-center sm:justify-between mb-4 gap-3">
+<div className="mb-4 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
   <h2>...</h2>
   <select className="w-full sm:w-auto">...</select>
 </div>
@@ -85,8 +85,8 @@
 
 ```tsx
 style={{
-  height: isFullscreen 
-    ? `calc(${visualViewportHeight}vh - var(--chat-offset, 0px))` 
+  height: isFullscreen
+    ? `calc(${visualViewportHeight}vh - var(--chat-offset, 0px))`
     : undefined,
 }}
 ```
@@ -139,9 +139,10 @@ style={{
 **文件**: `src/app/team/TeamContent.tsx`, `src/app/about/AboutContent.tsx`
 
 **示例**:
+
 ```tsx
 // 硬编码的渐变色
-color: "from-yellow-400 to-orange-500"
+color: 'from-yellow-400 to-orange-500'
 ```
 
 **建议**: 将团队成员颜色映射到 CSS 变量
@@ -175,7 +176,12 @@ color: "from-yellow-400 to-orange-500"
   --brand-primary: #06b6d4;
   --brand-secondary: #a855f7;
   --brand-accent: #ec4899;
-  --gradient-brand: linear-gradient(135deg, var(--brand-primary), var(--brand-secondary), var(--brand-accent));
+  --gradient-brand: linear-gradient(
+    135deg,
+    var(--brand-primary),
+    var(--brand-secondary),
+    var(--brand-accent)
+  );
 }
 ```
 
@@ -185,15 +191,15 @@ color: "from-yellow-400 to-orange-500"
 
 ### ✅ 已实现的无障碍特性
 
-| 特性 | 状态 | 位置 |
-|------|------|------|
-| 语义化 HTML | ✅ | 全局 |
-| ARIA 标签 | ✅ | Navigation, MobileMenu, AIChat |
-| 键盘导航 | ✅ | ESC 关闭菜单/模态框 |
-| Focus 样式 | ✅ | `focus:ring-2 focus:ring-cyan-500` |
-| 屏幕阅读器支持 | ✅ | `aria-label`, `aria-expanded`, `aria-hidden` |
-| 减少动画偏好 | ✅ | `@media (prefers-reduced-motion: reduce)` |
-| 颜色对比度 | ⚠️ | 部分需改进 |
+| 特性           | 状态 | 位置                                         |
+| -------------- | ---- | -------------------------------------------- |
+| 语义化 HTML    | ✅   | 全局                                         |
+| ARIA 标签      | ✅   | Navigation, MobileMenu, AIChat               |
+| 键盘导航       | ✅   | ESC 关闭菜单/模态框                          |
+| Focus 样式     | ✅   | `focus:ring-2 focus:ring-cyan-500`           |
+| 屏幕阅读器支持 | ✅   | `aria-label`, `aria-expanded`, `aria-hidden` |
+| 减少动画偏好   | ✅   | `@media (prefers-reduced-motion: reduce)`    |
+| 颜色对比度     | ⚠️   | 部分需改进                                   |
 
 ### ⚠️ 问题与改进建议
 
@@ -205,13 +211,14 @@ color: "from-yellow-400 to-orange-500"
 
 ```tsx
 <body>
-  <a href="#main-content" className="sr-only focus:not-sr-only focus:absolute focus:top-4 focus:left-4 focus:z-50 focus:px-4 focus:py-2 focus:bg-cyan-500 focus:text-white focus:rounded-lg">
+  <a
+    href="#main-content"
+    className="sr-only focus:not-sr-only focus:absolute focus:top-4 focus:left-4 focus:z-50 focus:rounded-lg focus:bg-cyan-500 focus:px-4 focus:py-2 focus:text-white"
+  >
     跳转到主内容
   </a>
   <Navigation />
-  <main id="main-content">
-    {children}
-  </main>
+  <main id="main-content">{children}</main>
 </body>
 ```
 
@@ -222,7 +229,7 @@ color: "from-yellow-400 to-orange-500"
 ```tsx
 <Image
   src={member.avatar}
-  alt={member.name}  // ✅ 有 alt
+  alt={member.name} // ✅ 有 alt
   width={40}
   height={40}
   className="rounded-full"
@@ -245,24 +252,26 @@ alt={`${member.name} 的头像 - ${member.role}`}
 但验证错误信息未与输入框关联：
 
 ```tsx
-{errors.name && (
-  <p className="mt-2 text-sm text-red-500">{errors.name}</p>
-)}
+{
+  errors.name && <p className="mt-2 text-sm text-red-500">{errors.name}</p>
+}
 ```
 
 **建议**: 使用 `aria-describedby` 关联错误信息
 
 ```tsx
-<input
+;<input
   id="name"
-  aria-describedby={errors.name ? "name-error" : undefined}
+  aria-describedby={errors.name ? 'name-error' : undefined}
   aria-invalid={!!errors.name}
 />
-{errors.name && (
-  <p id="name-error" className="mt-2 text-sm text-red-500" role="alert">
-    {errors.name}
-  </p>
-)}
+{
+  errors.name && (
+    <p id="name-error" className="mt-2 text-sm text-red-500" role="alert">
+      {errors.name}
+    </p>
+  )
+}
 ```
 
 #### 问题 4: 按钮缺少明确的操作描述
@@ -287,21 +296,18 @@ aria-label={isDark ? "切换到亮色模式" : "切换到暗色模式"}
 **建议**: 添加 `title` 属性作为 tooltip
 
 ```tsx
-<button
-  title="复制到剪贴板"
-  aria-label="复制到剪贴板"
->
+<button title="复制到剪贴板" aria-label="复制到剪贴板">
   <CopyIcon />
 </button>
 ```
 
 #### 问题 6: 颜色对比度问题
 
-| 元素 | 当前 | 对比度 | 建议 |
-|------|------|--------|------|
-| 灰色次要文本 | `text-zinc-500` | ~4.2:1 | 改为 `text-zinc-400` (~5.1:1) |
-| 暗黑模式卡片边框 | `border-zinc-700` | - | 改为 `border-zinc-600` 提高可见性 |
-| 禁用状态按钮 | `opacity-50` | - | 添加 `cursor-not-allowed` |
+| 元素             | 当前              | 对比度 | 建议                              |
+| ---------------- | ----------------- | ------ | --------------------------------- |
+| 灰色次要文本     | `text-zinc-500`   | ~4.2:1 | 改为 `text-zinc-400` (~5.1:1)     |
+| 暗黑模式卡片边框 | `border-zinc-700` | -      | 改为 `border-zinc-600` 提高可见性 |
+| 禁用状态按钮     | `opacity-50`      | -      | 添加 `cursor-not-allowed`         |
 
 ---
 
@@ -334,11 +340,11 @@ aria-label={isDark ? "切换到亮色模式" : "切换到暗色模式"}
 // components/Skeleton.tsx
 export function Skeleton({ className }: { className?: string }) {
   return (
-    <div 
-      className={`animate-pulse bg-zinc-200 dark:bg-zinc-700 rounded ${className}`}
+    <div
+      className={`animate-pulse rounded bg-zinc-200 dark:bg-zinc-700 ${className}`}
       aria-hidden="true"
     />
-  );
+  )
 }
 ```
 
@@ -391,7 +397,7 @@ export function Skeleton({ className }: { className?: string }) {
 
 ```tsx
 // 移除 blur 效果，保留核心悬停效果
-className="hover:-translate-y-2 hover:shadow-xl transition-all duration-300"
+className = 'hover:-translate-y-2 hover:shadow-xl transition-all duration-300'
 ```
 
 ### 🟢 轻微问题
@@ -415,9 +421,9 @@ background: linear-gradient(...) #0a0a0a;
 <button
   role="checkbox"
   aria-checked={checked}
-  className="w-5 h-5 rounded border-2 border-zinc-300 dark:border-zinc-600 flex items-center justify-center"
+  className="flex h-5 w-5 items-center justify-center rounded border-2 border-zinc-300 dark:border-zinc-600"
 >
-  {checked && <CheckIcon className="w-3 h-3" />}
+  {checked && <CheckIcon className="h-3 w-3" />}
 </button>
 ```
 
@@ -427,29 +433,29 @@ background: linear-gradient(...) #0a0a0a;
 
 ### 🎯 优先级高 (建议本周完成)
 
-| # | 问题 | 解决方案 | 预估工时 |
-|---|------|----------|----------|
-| 1 | 缺少 Skip Link | 添加跳过导航链接 | 1h |
-| 2 | 表单错误未关联 | 添加 `aria-describedby` | 2h |
-| 3 | 移动端滚动穿透 | 添加 `overscroll-behavior` | 0.5h |
-| 4 | 颜色对比度不足 | 调整灰色调色板 | 1h |
+| #   | 问题           | 解决方案                   | 预估工时 |
+| --- | -------------- | -------------------------- | -------- |
+| 1   | 缺少 Skip Link | 添加跳过导航链接           | 1h       |
+| 2   | 表单错误未关联 | 添加 `aria-describedby`    | 2h       |
+| 3   | 移动端滚动穿透 | 添加 `overscroll-behavior` | 0.5h     |
+| 4   | 颜色对比度不足 | 调整灰色调色板             | 1h       |
 
 ### 📋 优先级中 (建议本月完成)
 
-| # | 问题 | 解决方案 | 预估工时 |
-|---|------|----------|----------|
-| 1 | 骨架屏缺失 | 创建 Skeleton 组件 | 3h |
-| 2 | 过度动画优化 | 限制全局过渡范围 | 1h |
-| 3 | 响应式字体 | 使用响应式字体类 | 2h |
-| 4 | 团队卡片动画简化 | 移除 blur 效果 | 1h |
+| #   | 问题             | 解决方案           | 预估工时 |
+| --- | ---------------- | ------------------ | -------- |
+| 1   | 骨架屏缺失       | 创建 Skeleton 组件 | 3h       |
+| 2   | 过度动画优化     | 限制全局过渡范围   | 1h       |
+| 3   | 响应式字体       | 使用响应式字体类   | 2h       |
+| 4   | 团队卡片动画简化 | 移除 blur 效果     | 1h       |
 
 ### 💡 优先级低 (建议下季度完成)
 
-| # | 问题 | 解决方案 | 预估工时 |
-|---|------|----------|----------|
-| 1 | 品牌色语义化 | 重构颜色变量系统 | 4h |
-| 2 | 自定义表单控件 | 创建 Checkbox/Radio 组件 | 4h |
-| 3 | 国际化无障碍标签 | 动态 aria-label | 2h |
+| #   | 问题             | 解决方案                 | 预估工时 |
+| --- | ---------------- | ------------------------ | -------- |
+| 1   | 品牌色语义化     | 重构颜色变量系统         | 4h       |
+| 2   | 自定义表单控件   | 创建 Checkbox/Radio 组件 | 4h       |
+| 3   | 国际化无障碍标签 | 动态 aria-label          | 2h       |
 
 ---
 
@@ -459,12 +465,12 @@ background: linear-gradient(...) #0a0a0a;
 
 ```css
 /* 间距系统 */
---space-xs: 0.25rem;   /* 4px */
---space-sm: 0.5rem;    /* 8px */
---space-md: 1rem;      /* 16px */
---space-lg: 1.5rem;    /* 24px */
---space-xl: 2rem;      /* 32px */
---space-2xl: 3rem;     /* 48px */
+--space-xs: 0.25rem; /* 4px */
+--space-sm: 0.5rem; /* 8px */
+--space-md: 1rem; /* 16px */
+--space-lg: 1.5rem; /* 24px */
+--space-xl: 2rem; /* 32px */
+--space-2xl: 3rem; /* 48px */
 
 /* Z-Index 层级 */
 --z-base: 0;

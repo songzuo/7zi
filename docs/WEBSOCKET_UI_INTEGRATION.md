@@ -55,7 +55,7 @@ const {
   roomType: 'task',
   documentId: taskId,
   autoConnect: true,
-});
+})
 ```
 
 ---
@@ -69,6 +69,7 @@ Use the existing demo page to test collaboration features immediately.
 **URL**: `/collaboration-demo`
 
 **Features**:
+
 - Full collaboration UI
 - Connection controls
 - Room management
@@ -77,6 +78,7 @@ Use the existing demo page to test collaboration features immediately.
 - User presence indicators
 
 **Usage**:
+
 1. Start dev server: `npm run dev`
 2. Navigate to: `http://localhost:3000/collaboration-demo`
 3. Open in multiple browser tabs
@@ -115,6 +117,7 @@ function TaskEditPage({ task, user }) {
 ```
 
 **Props**:
+
 - `task: Task` - Task object with id, number, title, body
 - `token?: string` - JWT token for WebSocket authentication
 - `userId?: string` - Current user's ID
@@ -304,6 +307,7 @@ NEXTAUTH_URL=http://localhost:3000
 ### WebSocket Server Setup
 
 The WebSocket server is implemented in:
+
 - `src/lib/websocket/server.ts`
 - `src/app/api/ws/route.ts`
 
@@ -380,6 +384,7 @@ Always show connection status to users:
 ```
 
 **States**:
+
 - ✅ **Connected** - Green indicator
 - 🔄 **Connecting/Reconnecting** - Yellow indicator
 - ❌ **Disconnected/Error** - Red indicator with reconnect button
@@ -468,6 +473,7 @@ Empty rooms are automatically cleaned up after 30 minutes.
 **Problem**: Can't connect to WebSocket server
 
 **Solutions**:
+
 1. Check WebSocket URL: `process.env.NEXT_PUBLIC_WS_URL`
 2. Verify authentication token is valid
 3. Check server logs for errors
@@ -478,6 +484,7 @@ Empty rooms are automatically cleaned up after 30 minutes.
 **Problem**: Remote cursors don't appear
 
 **Solutions**:
+
 1. Verify users are in the same room
 2. Check cursor position is being sent
 3. Ensure overlay has correct z-index
@@ -488,6 +495,7 @@ Empty rooms are automatically cleaned up after 30 minutes.
 **Problem**: Changes don't appear for other users
 
 **Solutions**:
+
 1. Verify room ID matches
 2. Check document ID is consistent
 3. Ensure operations are being sent
@@ -498,6 +506,7 @@ Empty rooms are automatically cleaned up after 30 minutes.
 **Problem**: Type errors in collaboration components
 
 **Solutions**:
+
 1. Ensure `src/lib/websocket/types.ts` is imported
 2. Check type definitions in `useCollaboration.ts`
 3. Verify prop types match interface
@@ -622,6 +631,7 @@ Full-featured task editor with collaboration.
 Returns collaboration state and actions:
 
 **State**:
+
 - `connectionState: ConnectionState`
 - `isConnected: boolean`
 - `isInRoom: boolean`
@@ -631,6 +641,7 @@ Returns collaboration state and actions:
 - `typingUsers: string[]`
 
 **Actions**:
+
 - `connect(): void`
 - `disconnect(): void`
 - `reconnect(): void`
@@ -641,6 +652,7 @@ Returns collaboration state and actions:
 - `setTyping(isTyping): void`
 
 **Event Listeners**:
+
 - `onDocumentUpdate(callback): () => void`
 - `onUserJoined(callback): () => void`
 - `onUserLeft(callback): () => void`

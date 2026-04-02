@@ -9,9 +9,9 @@
  * 4. 保持向后兼容性
  */
 
-import { getDatabaseAsync } from '../../db';
-import { buildWhereQuery } from '../../db/query-builder';
-import { generateId as generateIdUtil } from '../../utils';
+import { getDatabaseAsync } from '../../db'
+import { buildWhereQuery } from '../../db/query-builder'
+import { generateId as generateIdUtil } from '../../utils'
 import {
   Agent,
   AgentStatus,
@@ -21,19 +21,19 @@ import {
   AgentDataAccess,
   CreateAgentRequest,
   UpdateAgentRequest,
-} from './types';
+} from './types'
 import {
   encryptApiKey,
   decryptApiKey,
   getEncryptionSecret,
   generateSecureToken,
-} from '../../crypto';
+} from '../../crypto'
 
 /**
  * 初始化智能体表 - Optimized with better indexes
  */
 export async function initializeAgentTables(): Promise<void> {
-  const db = await getDatabaseAsync();
+  const db = await getDatabaseAsync()
 
   const schema = `
     -- 智能体表
@@ -99,13 +99,13 @@ export async function initializeAgentTables(): Promise<void> {
     CREATE INDEX IF NOT EXISTS idx_agent_data_access_timestamp ON agent_data_access(timestamp DESC);
     CREATE INDEX IF NOT EXISTS idx_agent_data_access_agent_timestamp ON agent_data_access(agent_id, timestamp DESC);
     CREATE INDEX IF NOT EXISTS idx_agent_data_access_resource ON agent_data_access(resource_type, resource_id);
-  `;
+  `
 
   try {
-    db.exec(schema);
-  } catch (_error) {
+    db.exec(schema)
+  } catch (error) {
     if (!(error instanceof Error && error.message.includes('already exists'))) {
-      throw error;
+      throw error
     }
   }
 }
@@ -114,19 +114,19 @@ export async function initializeAgentTables(): Promise<void> {
  * 创建智能体
  */
 export async function createAgent(data: CreateAgentRequest & { apiKey?: string }): Promise<Agent> {
-  const db = await getDatabaseAsync();
-  await initializeAgentTables();
+  const db = await getDatabaseAsync()
+  await initializeAgentTables()
 
-  const id = generateIdUtil('agent');
-  const now = new Date().toISOString();
+  const id = generateIdUtil('agent')
+  const now = new Date().toISOString()
 
   // 加密 API Key
-  const encryptedApiKey = data.apiKey ? encryptApiKey(data.apiKey, getEncryptionSecret()) : null;
+  const encryptedApiKey = data.apiKey ? encryptApiKey(data.apiKey, getEncryptionSecret()) : null
 
   const stmt = db.prepare(`
     INSERT INTO agents (id, name, description, type, provider, model, api_key, webhook_url, status, permissions, metadata, created_at, updated_at)
     VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
-  `);
+  `)
 
   stmt.run(
     id,
@@ -142,7 +142,7 @@ export async function createAgent(data: CreateAgentRequest & { apiKey?: string }
     JSON.stringify(data.metadata || {}),
     now,
     now
-  );
+  )
 
   return {
     id,
@@ -158,22 +158,22 @@ export async function createAgent(data: CreateAgentRequest & { apiKey?: string }
     apiKey: data.apiKey || '',
     createdAt: new Date(now),
     updatedAt: new Date(now),
-  };
+  }
 }
 
 /**
  * 根据 ID 获取智能体
  */
 export async function getAgentById(id: string): Promise<Agent | null> {
-  const db = await getDatabaseAsync();
-  await initializeAgentTables();
+  const db = await getDatabaseAsync()
+  await initializeAgentTables()
 
-  const stmt = db.prepare('SELECT * FROM agents WHERE id = ?');
-  const row = stmt.get(id) as Record<string, unknown> | undefined;
+  const stmt = db.prepare('SELECT * FROM agents WHERE id = ?')
+  const row = stmt.get(id) as Record<string, unknown> | undefined
 
-  if (!row) return null;
+  if (!row) return null
 
-  return mapRowToAgent(row);
+  return mapRowToAgent(row)
 }
 
 /**
@@ -185,14 +185,14 @@ export async function getAgentById(id: string): Promise<Agent | null> {
  * 3. 更简洁的条件处理
  */
 export async function getAllAgents(options?: {
-  status?: AgentStatus;
-  type?: AgentType;
-  provider?: AgentProvider;
-  limit?: number;
-  offset?: number;
+  status?: AgentStatus
+  type?: AgentType
+  provider?: AgentProvider
+  limit?: number
+  offset?: number
 }): Promise<Agent[]> {
-  const db = await getDatabaseAsync();
-  await initializeAgentTables();
+  const db = await getDatabaseAsync()
+  await initializeAgentTables()
 
   // 使用查询构建器 - 自动处理条件、排序和分页
   const { sql, params } = buildWhereQuery(
@@ -208,115 +208,118 @@ export async function getAllAgents(options?: {
       limit: options?.limit,
       offset: options?.offset,
     }
-  );
+  )
 
-  const stmt = db.prepare(sql);
-  const rows = stmt.all(...params) as unknown as Record<string, unknown>[];
+  const stmt = db.prepare(sql)
+  const rows = stmt.all(...params) as unknown as Record<string, unknown>[]
 
-  return rows.map(mapRowToAgent);
+  return rows.map(mapRowToAgent)
 }
 
 /**
  * 更新智能体
  */
-export async function updateAgent(id: string, data: UpdateAgentRequest & { apiKey?: string }): Promise<Agent | null> {
-  const db = await getDatabaseAsync();
-  await initializeAgentTables();
+export async function updateAgent(
+  id: string,
+  data: UpdateAgentRequest & { apiKey?: string }
+): Promise<Agent | null> {
+  const db = await getDatabaseAsync()
+  await initializeAgentTables()
 
-  const agent = await getAgentById(id);
-  if (!agent) return null;
+  const agent = await getAgentById(id)
+  if (!agent) return null
 
-  const updates: string[] = [];
-  const values: (string | null)[] = [];
+  const updates: string[] = []
+  const values: (string | null)[] = []
 
   if (data.name !== undefined) {
-    updates.push('name = ?');
-    values.push(data.name);
+    updates.push('name = ?')
+    values.push(data.name)
   }
   if (data.description !== undefined) {
-    updates.push('description = ?');
-    values.push(data.description);
+    updates.push('description = ?')
+    values.push(data.description)
   }
   if (data.type !== undefined) {
-    updates.push('type = ?');
-    values.push(data.type);
+    updates.push('type = ?')
+    values.push(data.type)
   }
   if (data.provider !== undefined) {
-    updates.push('provider = ?');
-    values.push(data.provider);
+    updates.push('provider = ?')
+    values.push(data.provider)
   }
   if (data.model !== undefined) {
-    updates.push('model = ?');
-    values.push(data.model);
+    updates.push('model = ?')
+    values.push(data.model)
   }
   if (data.apiKey !== undefined) {
-    updates.push('api_key = ?');
-    values.push(data.apiKey ? encryptApiKey(data.apiKey, getEncryptionSecret()) : null);
+    updates.push('api_key = ?')
+    values.push(data.apiKey ? encryptApiKey(data.apiKey, getEncryptionSecret()) : null)
   }
   if (data.webhookUrl !== undefined) {
-    updates.push('webhook_url = ?');
-    values.push(data.webhookUrl);
+    updates.push('webhook_url = ?')
+    values.push(data.webhookUrl)
   }
   if (data.status !== undefined) {
-    updates.push('status = ?');
-    values.push(data.status);
+    updates.push('status = ?')
+    values.push(data.status)
   }
   if (data.permissions !== undefined) {
-    updates.push('permissions = ?');
-    values.push(JSON.stringify(data.permissions));
+    updates.push('permissions = ?')
+    values.push(JSON.stringify(data.permissions))
   }
   if (data.metadata !== undefined) {
-    updates.push('metadata = ?');
-    values.push(JSON.stringify(data.metadata));
+    updates.push('metadata = ?')
+    values.push(JSON.stringify(data.metadata))
   }
 
-  if (updates.length === 0) return agent;
+  if (updates.length === 0) return agent
 
-  updates.push('updated_at = ?');
-  values.push(new Date().toISOString());
-  values.push(id);
+  updates.push('updated_at = ?')
+  values.push(new Date().toISOString())
+  values.push(id)
 
-  const stmt = db.prepare(`UPDATE agents SET ${updates.join(', ')} WHERE id = ?`);
-  stmt.run(...values);
+  const stmt = db.prepare(`UPDATE agents SET ${updates.join(', ')} WHERE id = ?`)
+  stmt.run(...values)
 
-  return getAgentById(id);
+  return getAgentById(id)
 }
 
 /**
  * 删除智能体
  */
 export async function deleteAgent(id: string): Promise<boolean> {
-  const db = await getDatabaseAsync();
-  await initializeAgentTables();
+  const db = await getDatabaseAsync()
+  await initializeAgentTables()
 
-  const stmt = db.prepare('DELETE FROM agents WHERE id = ?');
-  const result = stmt.run(id);
+  const stmt = db.prepare('DELETE FROM agents WHERE id = ?')
+  const result = stmt.run(id)
 
-  return (result.changes ?? 0) > 0;
+  return (result.changes ?? 0) > 0
 }
 
 /**
  * 验证智能体 API Key
  */
 export async function validateAgentApiKey(agentId: string, apiKey: string): Promise<Agent | null> {
-  const db = await getDatabaseAsync();
-  await initializeAgentTables();
+  const db = await getDatabaseAsync()
+  await initializeAgentTables()
 
-  const stmt = db.prepare('SELECT * FROM agents WHERE id = ?');
-  const row = stmt.get(agentId) as Record<string, unknown> | undefined;
+  const stmt = db.prepare('SELECT * FROM agents WHERE id = ?')
+  const row = stmt.get(agentId) as Record<string, unknown> | undefined
 
-  if (!row || !row.api_key) return null;
+  if (!row || !row.api_key) return null
 
   try {
-    const decryptedKey = decryptApiKey(row.api_key as string, getEncryptionSecret());
+    const decryptedKey = decryptApiKey(row.api_key as string, getEncryptionSecret())
     if (decryptedKey === apiKey) {
-      return mapRowToAgent(row);
+      return mapRowToAgent(row)
     }
-  } catch {
-    return null;
+  } catch (error) {
+    return null
   }
 
-  return null;
+  return null
 }
 
 /**
@@ -327,21 +330,21 @@ export async function createAgentToken(
   scopes: string[] = [],
   expiresInDays: number = 30
 ): Promise<AgentToken> {
-  const db = await getDatabaseAsync();
-  await initializeAgentTables();
+  const db = await getDatabaseAsync()
+  await initializeAgentTables()
 
-  const id = generateIdUtil('token');
-  const now = new Date();
-  const expiresAt = new Date(now.getTime() + expiresInDays * 24 * 60 * 60 * 1000);
-  const refreshExpiresAt = new Date(now.getTime() + (expiresInDays * 2) * 24 * 60 * 60 * 1000);
+  const id = generateIdUtil('token')
+  const now = new Date()
+  const expiresAt = new Date(now.getTime() + expiresInDays * 24 * 60 * 60 * 1000)
+  const refreshExpiresAt = new Date(now.getTime() + expiresInDays * 2 * 24 * 60 * 60 * 1000)
 
-  const token = generateSecureToken();
-  const refreshToken = generateSecureToken();
+  const token = generateSecureToken()
+  const refreshToken = generateSecureToken()
 
   const stmt = db.prepare(`
     INSERT INTO agent_tokens (id, agent_id, token, refresh_token, expires_at, refresh_expires_at, scopes, created_at)
     VALUES (?, ?, ?, ?, ?, ?, ?, ?)
-  `);
+  `)
 
   stmt.run(
     id,
@@ -352,7 +355,7 @@ export async function createAgentToken(
     refreshExpiresAt.toISOString(),
     JSON.stringify(scopes),
     now.toISOString()
-  );
+  )
 
   return {
     id,
@@ -363,30 +366,32 @@ export async function createAgentToken(
     refreshExpiresAt,
     scopes,
     createdAt: now,
-  };
+  }
 }
 
 /**
  * 验证智能体令牌
  */
-export async function validateAgentToken(token: string): Promise<{ agent: Agent; token: AgentToken } | null> {
-  const db = await getDatabaseAsync();
-  await initializeAgentTables();
+export async function validateAgentToken(
+  token: string
+): Promise<{ agent: Agent; token: AgentToken } | null> {
+  const db = await getDatabaseAsync()
+  await initializeAgentTables()
 
-  const stmt = db.prepare('SELECT * FROM agent_tokens WHERE token = ?');
-  const row = stmt.get(token) as Record<string, unknown> | undefined;
+  const stmt = db.prepare('SELECT * FROM agent_tokens WHERE token = ?')
+  const row = stmt.get(token) as Record<string, unknown> | undefined
 
-  if (!row) return null;
+  if (!row) return null
 
-  const expiresAt = new Date(row.expires_at as string);
-  if (expiresAt < new Date()) return null;
+  const expiresAt = new Date(row.expires_at as string)
+  if (expiresAt < new Date()) return null
 
   // 更新最后使用时间
-  const updateStmt = db.prepare('UPDATE agent_tokens SET last_used_at = ? WHERE id = ?');
-  updateStmt.run(new Date().toISOString(), row.id);
+  const updateStmt = db.prepare('UPDATE agent_tokens SET last_used_at = ? WHERE id = ?')
+  updateStmt.run(new Date().toISOString(), row.id)
 
-  const agent = await getAgentById(row.agent_id as string);
-  if (!agent) return null;
+  const agent = await getAgentById(row.agent_id as string)
+  if (!agent) return null
 
   return {
     agent,
@@ -397,49 +402,52 @@ export async function validateAgentToken(token: string): Promise<{ agent: Agent;
       refreshToken: row.refresh_token as string,
       expiresAt,
       refreshExpiresAt: new Date(row.refresh_expires_at as string),
-      scopes: JSON.parse(row.scopes as string || '[]'),
+      scopes: JSON.parse((row.scopes as string) || '[]'),
       createdAt: new Date(row.created_at as string),
       lastUsedAt: row.last_used_at ? new Date(row.last_used_at as string) : undefined,
     },
-  };
+  }
 }
 
 /**
  * 刷新令牌
  */
 export async function refreshAgentToken(refreshToken: string): Promise<AgentToken | null> {
-  const db = await getDatabaseAsync();
-  await initializeAgentTables();
+  const db = await getDatabaseAsync()
+  await initializeAgentTables()
 
-  const stmt = db.prepare('SELECT * FROM agent_tokens WHERE refresh_token = ?');
-  const row = stmt.get(refreshToken) as Record<string, unknown> | undefined;
+  const stmt = db.prepare('SELECT * FROM agent_tokens WHERE refresh_token = ?')
+  const row = stmt.get(refreshToken) as Record<string, unknown> | undefined
 
-  if (!row) return null;
+  if (!row) return null
 
-  const refreshExpiresAt = new Date(row.refresh_expires_at as string);
-  if (refreshExpiresAt < new Date()) return null;
+  const refreshExpiresAt = new Date(row.refresh_expires_at as string)
+  if (refreshExpiresAt < new Date()) return null
 
   // 创建新令牌
-  const newToken = await createAgentToken(row.agent_id as string, JSON.parse(row.scopes as string || '[]'));
+  const newToken = await createAgentToken(
+    row.agent_id as string,
+    JSON.parse((row.scopes as string) || '[]')
+  )
 
   // 删除旧令牌
-  const deleteStmt = db.prepare('DELETE FROM agent_tokens WHERE id = ?');
-  deleteStmt.run(row.id);
+  const deleteStmt = db.prepare('DELETE FROM agent_tokens WHERE id = ?')
+  deleteStmt.run(row.id)
 
-  return newToken;
+  return newToken
 }
 
 /**
  * 撤销令牌
  */
 export async function revokeAgentToken(token: string): Promise<boolean> {
-  const db = await getDatabaseAsync();
-  await initializeAgentTables();
+  const db = await getDatabaseAsync()
+  await initializeAgentTables()
 
-  const stmt = db.prepare('DELETE FROM agent_tokens WHERE token = ?');
-  const result = stmt.run(token);
+  const stmt = db.prepare('DELETE FROM agent_tokens WHERE token = ?')
+  const result = stmt.run(token)
 
-  return (result.changes ?? 0) > 0;
+  return (result.changes ?? 0) > 0
 }
 
 /**
@@ -452,22 +460,30 @@ export async function logDataAccess(
   action: 'read' | 'write' | 'delete',
   metadata?: Record<string, unknown>
 ): Promise<AgentDataAccess> {
-  const db = await getDatabaseAsync();
-  await initializeAgentTables();
+  const db = await getDatabaseAsync()
+  await initializeAgentTables()
 
-  const id = generateIdUtil('access');
-  const now = new Date();
+  const id = generateIdUtil('access')
+  const now = new Date()
 
   const stmt = db.prepare(`
     INSERT INTO agent_data_access (id, agent_id, resource_type, resource_id, action, timestamp, metadata)
     VALUES (?, ?, ?, ?, ?, ?, ?)
-  `);
+  `)
 
-  stmt.run(id, agentId, resourceType, resourceId, action, now.toISOString(), JSON.stringify(metadata || {}));
+  stmt.run(
+    id,
+    agentId,
+    resourceType,
+    resourceId,
+    action,
+    now.toISOString(),
+    JSON.stringify(metadata || {})
+  )
 
   // 更新智能体最后活跃时间
-  const updateStmt = db.prepare('UPDATE agents SET last_active_at = ? WHERE id = ?');
-  updateStmt.run(now.toISOString(), agentId);
+  const updateStmt = db.prepare('UPDATE agents SET last_active_at = ? WHERE id = ?')
+  updateStmt.run(now.toISOString(), agentId)
 
   return {
     id,
@@ -477,7 +493,7 @@ export async function logDataAccess(
     action,
     timestamp: now,
     metadata,
-  };
+  }
 }
 
 /**
@@ -490,14 +506,14 @@ export async function logDataAccess(
 export async function getAgentDataAccessLog(
   agentId: string,
   options?: {
-    resourceType?: string;
-    action?: 'read' | 'write' | 'delete';
-    limit?: number;
-    offset?: number;
+    resourceType?: string
+    action?: 'read' | 'write' | 'delete'
+    limit?: number
+    offset?: number
   }
 ): Promise<AgentDataAccess[]> {
-  const db = await getDatabaseAsync();
-  await initializeAgentTables();
+  const db = await getDatabaseAsync()
+  await initializeAgentTables()
 
   // 使用查询构建器
   const { sql, params } = buildWhereQuery(
@@ -513,20 +529,20 @@ export async function getAgentDataAccessLog(
       limit: options?.limit,
       offset: options?.offset,
     }
-  );
+  )
 
-  const stmt = db.prepare(sql);
-  const rows = stmt.all(...params) as unknown as Record<string, unknown>[];
+  const stmt = db.prepare(sql)
+  const rows = stmt.all(...params) as unknown as Record<string, unknown>[]
 
-  return rows.map((row) => ({
+  return rows.map(row => ({
     id: row.id as string,
     agentId: row.agent_id as string,
     resourceType: row.resource_type as string,
     resourceId: row.resource_id as string,
     action: row.action as 'read' | 'write' | 'delete',
     timestamp: new Date(row.timestamp as string),
-    metadata: JSON.parse(row.metadata as string || '{}'),
-  }));
+    metadata: JSON.parse((row.metadata as string) || '{}'),
+  }))
 }
 
 /**
@@ -542,49 +558,49 @@ function mapRowToAgent(row: Record<string, unknown>): Agent {
     model: row.model as string | undefined,
     webhookUrl: row.webhook_url as string | undefined,
     status: row.status as AgentStatus,
-    permissions: JSON.parse(row.permissions as string || '[]'),
-    metadata: JSON.parse(row.metadata as string || '{}'),
-    apiKey: row.api_key as string || '',
+    permissions: JSON.parse((row.permissions as string) || '[]'),
+    metadata: JSON.parse((row.metadata as string) || '{}'),
+    apiKey: (row.api_key as string) || '',
     createdAt: new Date(row.created_at as string),
     updatedAt: new Date(row.updated_at as string),
     lastActiveAt: row.last_active_at ? new Date(row.last_active_at as string) : undefined,
-  };
+  }
 }
 
 /**
  * 更新智能体状态
  */
 export async function updateAgentStatus(id: string, status: AgentStatus): Promise<Agent | null> {
-  return updateAgent(id, { status });
+  return updateAgent(id, { status })
 }
 
 /**
  * 更新智能体最后活跃时间
  */
 export async function updateAgentLastActive(id: string): Promise<void> {
-  const db = await getDatabaseAsync();
-  await initializeAgentTables();
+  const db = await getDatabaseAsync()
+  await initializeAgentTables()
 
-  const stmt = db.prepare('UPDATE agents SET last_active_at = ? WHERE id = ?');
-  stmt.run(new Date().toISOString(), id);
+  const stmt = db.prepare('UPDATE agents SET last_active_at = ? WHERE id = ?')
+  stmt.run(new Date().toISOString(), id)
 }
 
 /**
  * 获取智能体统计信息 - Optimized to avoid N+1 queries
- * 
+ *
  * 优化: 将 3 个独立查询合并为 1 个查询
  */
 export async function getAgentStats(): Promise<{
-  total: number;
-  active: number;
-  inactive: number;
-  busy: number;
-  offline: number;
-  byProvider: Record<string, number>;
-  byType: Record<string, number>;
+  total: number
+  active: number
+  inactive: number
+  busy: number
+  offline: number
+  byProvider: Record<string, number>
+  byType: Record<string, number>
 }> {
-  const db = await getDatabaseAsync();
-  await initializeAgentTables();
+  const db = await getDatabaseAsync()
+  await initializeAgentTables()
 
   // 单次查询获取所有统计信息 - 使用条件聚合
   const stmt = db.prepare(`
@@ -607,20 +623,23 @@ export async function getAgentStats(): Promise<{
         COUNT(*) OVER (PARTITION BY type) as type_count
       FROM agents
     ) as stats
-  `);
+  `)
 
   const row = stmt.get(
     AgentStatus.ACTIVE,
     AgentStatus.INACTIVE,
     AgentStatus.BUSY,
     AgentStatus.OFFLINE
-  ) as Record<string, unknown>;
+  ) as Record<string, unknown>
 
-  const total = (row.total as number) || 0;
+  const total = (row.total as number) || 0
 
   // 解析 JSON 对象
-  const byProvider = (row.byProvider ? JSON.parse(row.byProvider as string) : {}) as Record<string, number>;
-  const byType = (row.byType ? JSON.parse(row.byType as string) : {}) as Record<string, number>;
+  const byProvider = (row.byProvider ? JSON.parse(row.byProvider as string) : {}) as Record<
+    string,
+    number
+  >
+  const byType = (row.byType ? JSON.parse(row.byType as string) : {}) as Record<string, number>
 
   return {
     total,
@@ -630,5 +649,5 @@ export async function getAgentStats(): Promise<{
     offline: (row.offline as number) || 0,
     byProvider,
     byType,
-  };
+  }
 }

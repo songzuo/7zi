@@ -66,46 +66,46 @@
 
 ### 服务器指标
 
-| 指标 | 说明 | 阈值 | 告警级别 |
-|------|------|------|---------|
-| CPU 使用率 | 处理器使用百分比 | >80% | ⚠️ 警告 |
-| CPU 使用率 | 处理器使用百分比 | >95% | 🔴 严重 |
-| 内存使用率 | RAM 使用百分比 | >85% | ⚠️ 警告 |
-| 内存使用率 | RAM 使用百分比 | >95% | 🔴 严重 |
-| 磁盘使用率 | 存储空间使用百分比 | >80% | ⚠️ 警告 |
-| 磁盘使用率 | 存储空间使用百分比 | >90% | 🔴 严重 |
-| 网络流入 | 入站流量 (Mbps) | - | 📊 监控 |
-| 网络流出 | 出站流量 (Mbps) | - | 📊 监控 |
-| 系统负载 | 1 分钟平均负载 | >核心数×2 | ⚠️ 警告 |
+| 指标       | 说明               | 阈值      | 告警级别 |
+| ---------- | ------------------ | --------- | -------- |
+| CPU 使用率 | 处理器使用百分比   | >80%      | ⚠️ 警告  |
+| CPU 使用率 | 处理器使用百分比   | >95%      | 🔴 严重  |
+| 内存使用率 | RAM 使用百分比     | >85%      | ⚠️ 警告  |
+| 内存使用率 | RAM 使用百分比     | >95%      | 🔴 严重  |
+| 磁盘使用率 | 存储空间使用百分比 | >80%      | ⚠️ 警告  |
+| 磁盘使用率 | 存储空间使用百分比 | >90%      | 🔴 严重  |
+| 网络流入   | 入站流量 (Mbps)    | -         | 📊 监控  |
+| 网络流出   | 出站流量 (Mbps)    | -         | 📊 监控  |
+| 系统负载   | 1 分钟平均负载     | >核心数×2 | ⚠️ 警告  |
 
 ### 应用指标
 
-| 指标 | 说明 | 阈值 | 告警级别 |
-|------|------|------|---------|
-| 响应时间 | P95 响应时间 (ms) | >500ms | ⚠️ 警告 |
-| 响应时间 | P95 响应时间 (ms) | >2000ms | 🔴 严重 |
-| 错误率 | HTTP 5xx 错误百分比 | >1% | ⚠️ 警告 |
-| 错误率 | HTTP 5xx 错误百分比 | >5% | 🔴 严重 |
-| QPS | 每秒请求数 | - | 📊 监控 |
-| 活跃连接 | 当前活跃连接数 | >1000 | ⚠️ 警告 |
+| 指标     | 说明                | 阈值    | 告警级别 |
+| -------- | ------------------- | ------- | -------- |
+| 响应时间 | P95 响应时间 (ms)   | >500ms  | ⚠️ 警告  |
+| 响应时间 | P95 响应时间 (ms)   | >2000ms | 🔴 严重  |
+| 错误率   | HTTP 5xx 错误百分比 | >1%     | ⚠️ 警告  |
+| 错误率   | HTTP 5xx 错误百分比 | >5%     | 🔴 严重  |
+| QPS      | 每秒请求数          | -       | 📊 监控  |
+| 活跃连接 | 当前活跃连接数      | >1000   | ⚠️ 警告  |
 
 ### API 指标
 
-| 指标 | 说明 | 阈值 | 告警级别 |
-|------|------|------|---------|
-| 可用性 | API 可用百分比 | <99.9% | ⚠️ 警告 |
-| 可用性 | API 可用百分比 | <99% | 🔴 严重 |
-| P50 延迟 | 中位数延迟 (ms) | >200ms | ⚠️ 警告 |
-| P99 延迟 | 99 百分位延迟 (ms) | >1000ms | ⚠️ 警告 |
+| 指标     | 说明               | 阈值    | 告警级别 |
+| -------- | ------------------ | ------- | -------- |
+| 可用性   | API 可用百分比     | <99.9%  | ⚠️ 警告  |
+| 可用性   | API 可用百分比     | <99%    | 🔴 严重  |
+| P50 延迟 | 中位数延迟 (ms)    | >200ms  | ⚠️ 警告  |
+| P99 延迟 | 99 百分位延迟 (ms) | >1000ms | ⚠️ 警告  |
 
 ### 数据库指标
 
-| 指标 | 说明 | 阈值 | 告警级别 |
-|------|------|------|---------|
-| 连接数 | 当前连接数 | >80% 上限 | ⚠️ 警告 |
-| 慢查询 | >1s 的查询数 | >10/分钟 | ⚠️ 警告 |
-| 锁等待 | 锁等待时间 | >100ms | ⚠️ 警告 |
-| 复制延迟 | 主从复制延迟 (秒) | >30s | ⚠️ 警告 |
+| 指标     | 说明              | 阈值      | 告警级别 |
+| -------- | ----------------- | --------- | -------- |
+| 连接数   | 当前连接数        | >80% 上限 | ⚠️ 警告  |
+| 慢查询   | >1s 的查询数      | >10/分钟  | ⚠️ 警告  |
+| 锁等待   | 锁等待时间        | >100ms    | ⚠️ 警告  |
+| 复制延迟 | 主从复制延迟 (秒) | >30s      | ⚠️ 警告  |
 
 ---
 
@@ -113,11 +113,11 @@
 
 ### 告警级别
 
-| 级别 | 颜色 | 响应时间 | 通知方式 |
-|------|------|---------|---------|
-| 🔴 严重 | 红色 | 立即 | Telegram + 电话 |
-| ⚠️ 警告 | 黄色 | 30 分钟内 | Telegram |
-| 📊 信息 | 蓝色 | 工作时间 | 邮件/日报 |
+| 级别    | 颜色 | 响应时间  | 通知方式        |
+| ------- | ---- | --------- | --------------- |
+| 🔴 严重 | 红色 | 立即      | Telegram + 电话 |
+| ⚠️ 警告 | 黄色 | 30 分钟内 | Telegram        |
+| 📊 信息 | 蓝色 | 工作时间  | 邮件/日报       |
 
 ### 告警规则
 
@@ -132,8 +132,8 @@ groups:
         labels:
           severity: critical
         annotations:
-          summary: "CPU 使用率过高"
-          description: "{{ $labels.instance }} CPU 使用率 {{ $value | humanizePercentage }}"
+          summary: 'CPU 使用率过高'
+          description: '{{ $labels.instance }} CPU 使用率 {{ $value | humanizePercentage }}'
 
       - alert: HighMemoryUsage
         expr: memory_usage > 0.95
@@ -141,8 +141,8 @@ groups:
         labels:
           severity: critical
         annotations:
-          summary: "内存使用率过高"
-          description: "{{ $labels.instance }} 内存使用率 {{ $value | humanizePercentage }}"
+          summary: '内存使用率过高'
+          description: '{{ $labels.instance }} 内存使用率 {{ $value | humanizePercentage }}'
 
       - alert: HighDiskUsage
         expr: disk_usage > 0.90
@@ -150,8 +150,8 @@ groups:
         labels:
           severity: warning
         annotations:
-          summary: "磁盘空间不足"
-          description: "{{ $labels.instance }} 磁盘使用率 {{ $value | humanizePercentage }}"
+          summary: '磁盘空间不足'
+          description: '{{ $labels.instance }} 磁盘使用率 {{ $value | humanizePercentage }}'
 
   - name: application-alerts
     rules:
@@ -161,8 +161,8 @@ groups:
         labels:
           severity: critical
         annotations:
-          summary: "错误率过高"
-          description: "错误率 {{ $value | humanizePercentage }}"
+          summary: '错误率过高'
+          description: '错误率 {{ $value | humanizePercentage }}'
 
       - alert: HighLatency
         expr: http_request_duration_seconds_p95 > 2
@@ -170,8 +170,8 @@ groups:
         labels:
           severity: warning
         annotations:
-          summary: "响应时间过长"
-          description: "P95 延迟 {{ $value }}s"
+          summary: '响应时间过长'
+          description: 'P95 延迟 {{ $value }}s'
 ```
 
 ### 通知配置
@@ -181,8 +181,8 @@ groups:
 receivers:
   - name: telegram-critical
     telegram_configs:
-      - bot_token: "${TELEGRAM_BOT_TOKEN}"
-        chat_id: "${TELEGRAM_CHANNEL_ID}"
+      - bot_token: '${TELEGRAM_BOT_TOKEN}'
+        chat_id: '${TELEGRAM_CHANNEL_ID}'
         message: |
           🔴 严重告警
 
@@ -193,8 +193,8 @@ receivers:
 
   - name: telegram-warning
     telegram_configs:
-      - bot_token: "${TELEGRAM_BOT_TOKEN}"
-        chat_id: "${TELEGRAM_CHANNEL_ID}"
+      - bot_token: '${TELEGRAM_BOT_TOKEN}'
+        chat_id: '${TELEGRAM_CHANNEL_ID}'
         message: |
           ⚠️ 警告
 
@@ -219,12 +219,12 @@ route:
 
 ### 日志级别
 
-| 级别 | 说明 | 示例 |
-|------|------|------|
+| 级别  | 说明               | 示例           |
+| ----- | ------------------ | -------------- |
 | ERROR | 错误，需要立即处理 | 数据库连接失败 |
-| WARN | 警告，可能有问题 | 重试次数过多 |
-| INFO | 信息，正常操作 | 用户登录成功 |
-| DEBUG | 调试，详细信息 | SQL 查询语句 |
+| WARN  | 警告，可能有问题   | 重试次数过多   |
+| INFO  | 信息，正常操作     | 用户登录成功   |
+| DEBUG | 调试，详细信息     | SQL 查询语句   |
 
 ### 日志格式
 
@@ -250,20 +250,20 @@ route:
 
 ```typescript
 // 结构化日志
-import { logger } from './logger';
+import { logger } from './logger'
 
 logger.info('User logged in', {
   userId: user.id,
   ip: req.ip,
-  userAgent: req.headers['user-agent']
-});
+  userAgent: req.headers['user-agent'],
+})
 
 logger.error('Payment failed', {
   userId: user.id,
   amount: order.total,
   error: error.message,
-  stack: error.stack
-});
+  stack: error.stack,
+})
 ```
 
 ### 日志存储
@@ -516,4 +516,4 @@ cat /logs/application/*.log | jq 'select(.level == "ERROR")'
 
 ---
 
-*本系统由 7zi Studio AI 团队维护*
+_本系统由 7zi Studio AI 团队维护_

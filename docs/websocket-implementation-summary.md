@@ -13,16 +13,17 @@
 
 创建的 WebSocket API 路由：
 
-| 文件 | 路径 | 功能 |
-|------|------|------|
-| `route.ts` | `/api/ws` | WebSocket 连接端点 |
-| `stats/route.ts` | `/api/ws/stats` | 服务器统计信息 |
-| `rooms/[roomId]/route.ts` | `/api/ws/rooms/:roomId` | 房间详细信息 |
-| `broadcast/route.ts` | `/api/ws/broadcast` | 系统公告广播 |
+| 文件                      | 路径                    | 功能               |
+| ------------------------- | ----------------------- | ------------------ |
+| `route.ts`                | `/api/ws`               | WebSocket 连接端点 |
+| `stats/route.ts`          | `/api/ws/stats`         | 服务器统计信息     |
+| `rooms/[roomId]/route.ts` | `/api/ws/rooms/:roomId` | 房间详细信息       |
+| `broadcast/route.ts`      | `/api/ws/broadcast`     | 系统公告广播       |
 
 ### 2. 实时通知 Hook
 
 #### useRealtimeNotifications.ts
+
 - 接收和管理实时通知
 - 支持多种通知类型（任务、成员、系统）
 - 未读计数管理
@@ -31,6 +32,7 @@
 - 自动标记已读
 
 #### useTaskRealtime.ts
+
 - 订阅任务更新
 - 订阅项目更新
 - 订阅用户更新
@@ -40,6 +42,7 @@
 ### 3. React 组件
 
 #### NotificationPanel.tsx
+
 - 完整的通知面板 UI
 - 优先级徽章
 - 分类图标
@@ -50,6 +53,7 @@
 - 响应式设计
 
 #### TaskUpdateFeed.tsx
+
 - 任务更新流组件
 - 更新类型标识
 - 时间戳显示
@@ -59,6 +63,7 @@
 ### 4. 实时仪表板示例
 
 #### /examples/realtime-dashboard/page.tsx
+
 - 完整的功能演示页面
 - 实时通知面板
 - 任务更新流
@@ -69,6 +74,7 @@
 ### 5. 文档
 
 #### Integration Guide
+
 - 完整的集成指南
 - 架构组件说明
 - 快速开始教程
@@ -81,6 +87,7 @@
 ### 6. 类型导出
 
 更新了模块导出：
+
 - `src/lib/realtime/index.ts` - 添加新的 hooks 导出
 - `src/components/realtime/index.ts` - 组件导出
 
@@ -165,11 +172,13 @@ src/
 ## 📝 API 端点
 
 ### WebSocket 连接
+
 ```
 GET /api/ws
 ```
 
 ### 服务器统计
+
 ```bash
 GET /api/ws/stats
 
@@ -183,6 +192,7 @@ Response:
 ```
 
 ### 房间信息
+
 ```bash
 GET /api/ws/rooms/task:abc123
 
@@ -197,6 +207,7 @@ Response:
 ```
 
 ### 系统公告
+
 ```bash
 POST /api/ws/broadcast
 Content-Type: application/json
@@ -211,18 +222,16 @@ Content-Type: application/json
 ### 1. 添加通知面板到页面
 
 ```tsx
-import { NotificationPanel } from '@/components/realtime';
-import { useState } from 'react';
+import { NotificationPanel } from '@/components/realtime'
+import { useState } from 'react'
 
 export default function MyPage() {
-  const [showNotifications, setShowNotifications] = useState(false);
-  const userId = 'user-123'; // 从认证上下文获取
+  const [showNotifications, setShowNotifications] = useState(false)
+  const userId = 'user-123' // 从认证上下文获取
 
   return (
     <div>
-      <button onClick={() => setShowNotifications(!showNotifications)}>
-        Notifications
-      </button>
+      <button onClick={() => setShowNotifications(!showNotifications)}>Notifications</button>
 
       {showNotifications && (
         <NotificationPanel
@@ -232,41 +241,37 @@ export default function MyPage() {
         />
       )}
     </div>
-  );
+  )
 }
 ```
 
 ### 2. 订阅任务更新
 
 ```tsx
-import { useTaskRealtime } from '@/lib/realtime/useTaskRealtime';
-import { useEffect } from 'react';
+import { useTaskRealtime } from '@/lib/realtime/useTaskRealtime'
+import { useEffect } from 'react'
 
 export default function TaskPage({ taskId }: { taskId: string }) {
-  const {
-    isConnected,
-    recentUpdates,
-    subscribeToTask,
-  } = useTaskRealtime();
+  const { isConnected, recentUpdates, subscribeToTask } = useTaskRealtime()
 
   useEffect(() => {
-    const cleanup = subscribeToTask(taskId);
-    return cleanup;
-  }, [taskId, subscribeToTask]);
+    const cleanup = subscribeToTask(taskId)
+    return cleanup
+  }, [taskId, subscribeToTask])
 
   return (
     <div>
       <div>连接状态: {isConnected ? '已连接' : '未连接'}</div>
       <div>更新数: {recentUpdates.length}</div>
     </div>
-  );
+  )
 }
 ```
 
 ### 3. 发送任务状态变更通知
 
 ```tsx
-import { notificationService } from '@/lib/realtime/notification-service';
+import { notificationService } from '@/lib/realtime/notification-service'
 
 export async function updateTaskStatus() {
   await notificationService.notifyTaskStatusChange({
@@ -277,7 +282,7 @@ export async function updateTaskStatus() {
     changedBy: { id: 'user-1', name: '张三' },
     projectId: 'project-456',
     assigneeId: 'user-2',
-  });
+  })
 }
 ```
 
@@ -307,33 +312,33 @@ const config = {
   heartbeatInterval: 30000,
   offlineQueueSize: 100,
   enableOfflineQueue: true,
-};
+}
 ```
 
 ## 📦 文件清单
 
 ### 新创建的文件
 
-| 文件 | 行数 | 说明 |
-|------|------|------|
-| `src/app/api/ws/route.ts` | 38 | WebSocket 端点 |
-| `src/app/api/ws/stats/route.ts` | 28 | 统计 API |
-| `src/app/api/ws/rooms/[roomId]/route.ts` | 32 | 房间 API |
-| `src/app/api/ws/broadcast/route.ts` | 36 | 广播 API |
-| `src/lib/realtime/useRealtimeNotifications.ts` | 390 | 实时通知 Hook |
-| `src/lib/realtime/useTaskRealtime.ts` | 210 | 任务实时更新 Hook |
-| `src/components/realtime/NotificationPanel.tsx` | 345 | 通知面板组件 |
-| `src/components/realtime/TaskUpdateFeed.tsx` | 153 | 任务更新流组件 |
-| `src/components/realtime/index.ts` | 17 | 组件导出 |
-| `src/app/examples/realtime-dashboard/page.tsx` | 248 | 演示页面 |
-| `docs/websocket-integration.md` | 200+ | 集成指南 |
+| 文件                                            | 行数 | 说明              |
+| ----------------------------------------------- | ---- | ----------------- |
+| `src/app/api/ws/route.ts`                       | 38   | WebSocket 端点    |
+| `src/app/api/ws/stats/route.ts`                 | 28   | 统计 API          |
+| `src/app/api/ws/rooms/[roomId]/route.ts`        | 32   | 房间 API          |
+| `src/app/api/ws/broadcast/route.ts`             | 36   | 广播 API          |
+| `src/lib/realtime/useRealtimeNotifications.ts`  | 390  | 实时通知 Hook     |
+| `src/lib/realtime/useTaskRealtime.ts`           | 210  | 任务实时更新 Hook |
+| `src/components/realtime/NotificationPanel.tsx` | 345  | 通知面板组件      |
+| `src/components/realtime/TaskUpdateFeed.tsx`    | 153  | 任务更新流组件    |
+| `src/components/realtime/index.ts`              | 17   | 组件导出          |
+| `src/app/examples/realtime-dashboard/page.tsx`  | 248  | 演示页面          |
+| `docs/websocket-integration.md`                 | 200+ | 集成指南          |
 
 **总计**: 11 个新文件，~1700 行代码
 
 ### 修改的文件
 
-| 文件 | 修改内容 |
-|------|----------|
+| 文件                        | 修改内容          |
+| --------------------------- | ----------------- |
 | `src/lib/realtime/index.ts` | 添加新 hooks 导出 |
 
 ## ✅ 任务完成清单
@@ -349,26 +354,31 @@ const config = {
 ## 🎯 核心功能
 
 ### 1. 自动重连
+
 - 指数退避算法（3s → 30s）
 - 可配置最大重连次数
 - 连接成功后自动重置
 
 ### 2. 心跳检测
+
 - 定期发送心跳保持连接
 - 可配置心跳间隔（默认 30s）
 - 超时自动断开（60s）
 
 ### 3. 离线队列
+
 - 断开连接时自动缓存
 - 可配置队列大小（默认 100 条）
 - 重连后自动发送
 
 ### 4. 连接状态管理
+
 - 完整的状态机
 - 状态变化监听
 - 连接时长统计
 
 ### 5. 通知服务
+
 - 支持多种通知类型
 - 离线通知队列
 - 自动重试机制
@@ -418,6 +428,7 @@ const config = {
 WebSocket 实时通信系统已经完整实现并集成到 7zi 项目中。
 
 **核心成果**:
+
 - ✅ 4 个 API 路由端点
 - ✅ 2 个新的 React Hooks
 - ✅ 2 个 UI 组件
@@ -425,6 +436,7 @@ WebSocket 实时通信系统已经完整实现并集成到 7zi 项目中。
 - ✅ 完整的文档
 
 **功能覆盖**:
+
 - ✅ 实时通知（任务、成员、系统）
 - ✅ 任务实时更新（状态、分配、评论）
 - ✅ WebSocket 连接管理（重连、心跳、队列）

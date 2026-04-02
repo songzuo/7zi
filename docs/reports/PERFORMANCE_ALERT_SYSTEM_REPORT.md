@@ -58,7 +58,6 @@ src/lib/monitoring/
   - 跟踪内存增长趋势
   - 计算堆内存增长率
   - 识别持续增长的内存使用模式
-  
 - **慢查询检测**
   - 监控慢请求数量
   - 分析平均响应时间
@@ -72,6 +71,7 @@ src/lib/monitoring/
 #### 2.1.2 指标关联分析
 
 计算关键指标之间的相关性：
+
 - 传输大小 ↔ LCP
 - 请求数量 ↔ TTI
 - DOM 节点数 ↔ FID
@@ -80,6 +80,7 @@ src/lib/monitoring/
 #### 2.1.3 诊断报告生成
 
 包含以下要素：
+
 - **主要问题**: 最关键的性能问题
 - **根本原因**: 问题产生的根本原因
 - **贡献因素**: 次要影响因素
@@ -89,6 +90,7 @@ src/lib/monitoring/
 #### 2.1.4 行动计划
 
 为每个检测到的问题生成：
+
 - 优先级 (P0/P1/P2/P3)
 - 优化建议标题和描述
 - 预估影响 (低/中/高)
@@ -101,22 +103,22 @@ src/lib/monitoring/
 class RootCauseAnalyzer {
   // 分析性能概况
   analyze(profile: PerformanceProfile): RootCauseAnalysis
-  
+
   // 内存泄漏检测
   private detectMemoryLeak(profile: PerformanceProfile): MemoryLeakIndicator | null
-  
+
   // 慢查询检测
   private detectSlowQueries(profile: PerformanceProfile): SlowQueryIndicator | null
-  
+
   // 缓存问题检测
   private detectCacheIssues(profile: PerformanceProfile): CacheHitRateIndicator | null
-  
+
   // 指标相关性计算
   private calculateCorrelations(profile: PerformanceProfile): MetricCorrelation[]
-  
+
   // 生成诊断报告
   private generateDiagnosis(indicators, correlations): DiagnosisReport
-  
+
   // 生成行动计划
   private generateActionPlan(indicators, diagnosis): ActionItem[]
 }
@@ -125,7 +127,7 @@ class RootCauseAnalyzer {
 ### 2.3 使用示例
 
 ```typescript
-import { rootCauseAnalyzer } from '@/lib/monitoring';
+import { rootCauseAnalyzer } from '@/lib/monitoring'
 
 const profile = {
   totalTransferSize: 2 * 1024 * 1024,
@@ -133,13 +135,13 @@ const profile = {
   slowRequests: 8,
   averageResponseTime: 800,
   // ... 其他指标
-};
+}
 
-const analysis = rootCauseAnalyzer.analyze(profile);
+const analysis = rootCauseAnalyzer.analyze(profile)
 
-console.log('Overall Health:', analysis.overallHealth);
-console.log('Critical Issues:', analysis.criticalIssues.length);
-console.log('Recommendations:', analysis.actionPlan);
+console.log('Overall Health:', analysis.overallHealth)
+console.log('Critical Issues:', analysis.criticalIssues.length)
+console.log('Recommendations:', analysis.actionPlan)
 ```
 
 ---
@@ -153,6 +155,7 @@ console.log('Recommendations:', analysis.actionPlan);
 支持以下预算规则类型：
 
 **Core Web Vitals 预算**:
+
 - LCP: 警告 2.5s, 严重 4s
 - FID: 警告 100ms, 严重 300ms
 - CLS: 警告 0.1, 严重 0.25
@@ -161,11 +164,13 @@ console.log('Recommendations:', analysis.actionPlan);
 - TTI: 警告 3.8s, 严重 7.3s
 
 **资源预算**:
+
 - 传输大小: 警告 1MB, 严重 2MB
 - 请求数量: 警告 50, 严重 100
 - JavaScript 大小: 警告 250KB, 严重 500KB
 
 **内存预算**:
+
 - 内存使用率: 警告 70%, 严重 90%
 
 #### 3.1.2 预算检查
@@ -176,6 +181,7 @@ console.log('Recommendations:', analysis.actionPlan);
 #### 3.1.3 预算报告生成
 
 包含以下内容：
+
 - 总体状态 (健康/警告/严重)
 - 通过率 (0-100%)
 - 严重违规统计
@@ -196,18 +202,18 @@ class BudgetController {
   // 添加/删除预算规则
   addRule(rule: BudgetRule): void
   removeRule(ruleId: string): boolean
-  
+
   // 检查指标
   checkMetric(metricName: string, value: number): BudgetCheckResult[]
   checkMetrics(metrics: Record<string, number>): BudgetCheckResult[]
-  
+
   // 生成报告
   generateReport(metrics, period): BudgetReport
-  
+
   // 抑制规则管理
   addSuppressionRule(rule: SuppressionRule): void
   suppressRule(ruleId: string, durationMs: number, reason?: string): boolean
-  
+
   // 历史记录
   getViolationHistory(limit?: number): BudgetViolationAlert[]
   getViolationStats(): Record<string, { count; lastSeen; avgDeviation }>
@@ -217,23 +223,23 @@ class BudgetController {
 ### 3.3 使用示例
 
 ```typescript
-import { budgetController } from '@/lib/monitoring';
+import { budgetController } from '@/lib/monitoring'
 
 // 检查单个指标
-const lcpResults = budgetController.checkMetric('LCP', 3500);
+const lcpResults = budgetController.checkMetric('LCP', 3500)
 
 // 检查多个指标
 const metrics = {
   LCP: 3500,
   FID: 150,
   CLS: 0.15,
-};
-const results = budgetController.checkMetrics(metrics);
+}
+const results = budgetController.checkMetrics(metrics)
 
 // 生成预算报告
-const report = budgetController.generateReport(metrics);
-console.log('Overall Score:', report.summary.score);
-console.log('Pass Rate:', report.passRate + '%');
+const report = budgetController.generateReport(metrics)
+console.log('Overall Score:', report.summary.score)
+console.log('Pass Rate:', report.passRate + '%')
 ```
 
 ---
@@ -244,16 +250,17 @@ console.log('Pass Rate:', report.passRate + '%');
 
 #### 4.1.1 告警级别
 
-| 级别 | 优先级 | 名称 | 颜色 | Emoji | 自动升级 |
-|------|--------|------|------|-------|----------|
-| P0 | 0 | Critical | #FF0000 | 🚨 | 无 |
-| P1 | 1 | High | #FFA500 | 🔴 | 5 分钟后 |
-| P2 | 2 | Warning | #FFFF00 | 🟡 | 10 分钟后 |
-| P3 | 3 | Info | #00FF00 | 🟢 | 不升级 |
+| 级别 | 优先级 | 名称     | 颜色    | Emoji | 自动升级  |
+| ---- | ------ | -------- | ------- | ----- | --------- |
+| P0   | 0      | Critical | #FF0000 | 🚨    | 无        |
+| P1   | 1      | High     | #FFA500 | 🔴    | 5 分钟后  |
+| P2   | 2      | Warning  | #FFFF00 | 🟡    | 10 分钟后 |
+| P3   | 3      | Info     | #00FF00 | 🟢    | 不升级    |
 
 #### 4.1.2 告警规则
 
 默认告警规则包括：
+
 - LCP 严重/警告
 - FID 严重/警告
 - CLS 严重/警告
@@ -265,6 +272,7 @@ console.log('Pass Rate:', report.passRate + '%');
 #### 4.1.3 告警通道
 
 支持多通道告警：
+
 - **Slack**: Webhook 集成
 - **Email**: Resend API 集成
 - **Webhook**: 通用 Webhook
@@ -294,23 +302,23 @@ class AlertManager {
   addRule(rule: AlertRule): void
   removeRule(ruleId: string): boolean
   setRuleEnabled(ruleId: string, enabled: boolean): boolean
-  
+
   // 告警评估
   evaluate(metrics: Record<string, unknown>): AlertRecord[]
-  
+
   // 告警生命周期
   acknowledgeAlert(alertId: string, acknowledgedBy: string): boolean
   resolveAlert(alertId: string): boolean
-  
+
   // 静默规则
   addSilenceRule(rule: SilenceRule): void
   suppressRule(ruleId: string, durationMs: number, reason?: string): boolean
-  
+
   // 统计
   getAlertHistory(limit?: number): AlertRecord[]
   getActiveAlerts(): AlertRecord[]
   getStats(): AlertStats
-  
+
   // 自动升级
   private checkEscalation(): void
   private escalateAlert(alert: AlertRecord): Promise<void>
@@ -320,8 +328,8 @@ class AlertManager {
 ### 4.3 使用示例
 
 ```typescript
-import { createAlertManager } from '@/lib/monitoring';
-import { AlertSystem } from '@/lib/monitoring/alerts';
+import { createAlertManager } from '@/lib/monitoring'
+import { AlertSystem } from '@/lib/monitoring/alerts'
 
 const alertSystem = new AlertSystem({
   slack: {
@@ -334,23 +342,23 @@ const alertSystem = new AlertSystem({
     recipients: ['admin@example.com'],
     from: 'alerts@example.com',
   },
-});
+})
 
-const alertManager = createAlertManager(alertSystem);
+const alertManager = createAlertManager(alertSystem)
 
 // 评估指标并触发告警
 const metrics = {
   LCP: 5000,
   FID: 400,
   CLS: 0.3,
-};
+}
 
-const alerts = alertManager.evaluate(metrics);
+const alerts = alertManager.evaluate(metrics)
 
 // 查看告警统计
-const stats = alertManager.getStats();
-console.log('Total Alerts:', stats.totalAlerts);
-console.log('Active Alerts:', stats.activeAlerts);
+const stats = alertManager.getStats()
+console.log('Total Alerts:', stats.totalAlerts)
+console.log('Active Alerts:', stats.activeAlerts)
 ```
 
 ---
@@ -399,12 +407,12 @@ console.log('Active Alerts:', stats.activeAlerts);
 
 ### 5.2 测试统计
 
-| 模块 | 测试用例数 | 覆盖率 |
-|------|-----------|--------|
-| Root Cause Analyzer | ~30 | 90%+ |
-| Budget Controller | ~40 | 95%+ |
-| Alert Manager | ~50 | 95%+ |
-| Integration | ~20 | 85%+ |
+| 模块                | 测试用例数 | 覆盖率 |
+| ------------------- | ---------- | ------ |
+| Root Cause Analyzer | ~30        | 90%+   |
+| Budget Controller   | ~40        | 95%+   |
+| Alert Manager       | ~50        | 95%+   |
+| Integration         | ~20        | 85%+   |
 
 ### 5.3 运行测试
 
@@ -439,7 +447,7 @@ const bottleneck: Bottleneck = {
   name: 'Large Page Weight',
   description: `Page transfer size exceeds threshold`,
   // ...
-};
+}
 ```
 
 ### 6.2 Budget Controller
@@ -452,7 +460,7 @@ export function formatBudgetResultsForDisplay(results) {
     ariaLabel: `${result.rule.name}: ${result.passed ? 'Passed' : 'Failed'}. 
                 Actual: ${result.actualValue} ${result.rule.unit}, 
                 Threshold: ${result.threshold} ${result.rule.unit}`,
-  }));
+  }))
 }
 ```
 
@@ -465,10 +473,8 @@ export function formatAlertForDisplay(alert: AlertRecord) {
     // ...
     ariaLabel: `${levelConfig.emoji} ${levelConfig.name} alert: 
                 ${alert.message} at ${alert.timestamp.toISOString()}`,
-    ariaLive: alert.level === 'p0' || alert.level === 'p1' 
-      ? 'assertive' 
-      : 'polite',
-  };
+    ariaLive: alert.level === 'p0' || alert.level === 'p1' ? 'assertive' : 'polite',
+  }
 }
 ```
 
@@ -478,7 +484,7 @@ export function formatAlertForDisplay(alert: AlertRecord) {
 
 ### 7.1 内存优化
 
-- **历史记录限制**: 
+- **历史记录限制**:
   - 根因分析: 100 个样本
   - 预算控制器: 1000 条违规记录
   - 告警管理器: 10000 条历史记录
@@ -505,34 +511,34 @@ export function formatAlertForDisplay(alert: AlertRecord) {
 ### 8.1 与 Metrics Collector 集成
 
 ```typescript
-import { performanceCollector } from '@/lib/monitoring';
-import { rootCauseAnalyzer, budgetController, alertManager } from '@/lib/monitoring';
+import { performanceCollector } from '@/lib/monitoring'
+import { rootCauseAnalyzer, budgetController, alertManager } from '@/lib/monitoring'
 
 // 收集指标
-performanceCollector.start();
+performanceCollector.start()
 
 // 监听性能指标
-performanceCollector.on('metric', (metric) => {
+performanceCollector.on('metric', metric => {
   // 更新根因分析
   if (metric.name === 'LCP' || metric.name === 'FID' || metric.name === 'CLS') {
     // ... 更新性能概况
   }
-});
+})
 
 // 定期检查预算和告警
 setInterval(() => {
-  const metrics = performanceCollector.getLatestMetrics();
-  
+  const metrics = performanceCollector.getLatestMetrics()
+
   // 检查预算
-  const budgetResults = budgetController.checkMetrics(metrics);
-  
+  const budgetResults = budgetController.checkMetrics(metrics)
+
   // 评估告警
-  const alertResults = alertManager.evaluate(metrics);
-  
+  const alertResults = alertManager.evaluate(metrics)
+
   // 根因分析
-  const profile = buildPerformanceProfile(metrics);
-  const analysis = rootCauseAnalyzer.analyze(profile);
-}, 60000); // 每分钟
+  const profile = buildPerformanceProfile(metrics)
+  const analysis = rootCauseAnalyzer.analyze(profile)
+}, 60000) // 每分钟
 ```
 
 ### 8.2 导出配置
@@ -545,18 +551,18 @@ export {
   RootCauseAnalyzer,
   rootCauseAnalyzer,
   // ...
-  
+
   // 预算控制
   BudgetController,
   budgetController,
   // ...
-  
+
   // 告警管理
   AlertManager,
   getAlertManager,
   createAlertManager,
   // ...
-} from './monitoring';
+} from './monitoring'
 ```
 
 ---
@@ -566,11 +572,8 @@ export {
 ### 9.1 完整配置
 
 ```typescript
-import { 
-  createAlertManager, 
-  createBudgetControllerWithAlerts 
-} from '@/lib/monitoring';
-import { AlertSystem } from '@/lib/monitoring/alerts';
+import { createAlertManager, createBudgetControllerWithAlerts } from '@/lib/monitoring'
+import { AlertSystem } from '@/lib/monitoring/alerts'
 
 // 配置 AlertSystem
 const alertSystem = new AlertSystem({
@@ -593,20 +596,20 @@ const alertSystem = new AlertSystem({
   },
   deduplication: {
     enabled: true,
-    ttl: 3600000,      // 1 小时
-    cooldown: 300000,   // 5 分钟
+    ttl: 3600000, // 1 小时
+    cooldown: 300000, // 5 分钟
   },
   aggregation: {
     enabled: true,
-    windowMs: 60000,    // 1 分钟
+    windowMs: 60000, // 1 分钟
   },
-});
+})
 
 // 创建告警管理器
-const alertManager = createAlertManager(alertSystem);
+const alertManager = createAlertManager(alertSystem)
 
 // 创建预算控制器
-const budgetController = createBudgetControllerWithAlerts(alertSystem);
+const budgetController = createBudgetControllerWithAlerts(alertSystem)
 
 // 配置预算控制器规则
 budgetController.addRule({
@@ -620,7 +623,7 @@ budgetController.addRule({
   priority: 'p1',
   description: 'Custom LCP threshold',
   tags: ['custom', 'loading'],
-});
+})
 
 // 配置静默规则
 alertManager.addSilenceRule({
@@ -634,7 +637,7 @@ alertManager.addSilenceRule({
   duration: 3600000, // 1 小时
   createdAt: new Date(),
   reason: 'Scheduled maintenance',
-});
+})
 ```
 
 ---
@@ -751,16 +754,19 @@ alertManager.addSilenceRule({
 ### 12.1 常见问题
 
 **Q: 告警未发送**
+
 - 检查 AlertSystem 配置
 - 验证 API 密钥和 Webhook URL
 - 检查节流和抑制规则
 
 **Q: 预算检查失败**
+
 - 验证指标名称和单位
 - 检查规则是否启用
 - 确认阈值设置正确
 
 **Q: 根因分析不准确**
+
 - 确保有足够的历史数据
 - 检查性能概况数据完整性
 - 验证指标时间对齐
@@ -769,20 +775,20 @@ alertManager.addSilenceRule({
 
 ```typescript
 // 启用详细日志
-process.env.DEBUG_MONITORING = 'true';
+process.env.DEBUG_MONITORING = 'true'
 
 // 检查规则配置
-console.log(budgetController.getAllRules());
+console.log(budgetController.getAllRules())
 
 // 查看告警历史
-console.log(alertManager.getAlertHistory(50));
+console.log(alertManager.getAlertHistory(50))
 
 // 检查预算违规
-console.log(budgetController.getViolationStats());
+console.log(budgetController.getViolationStats())
 
 // 查看根因分析结果
-console.log(analysis.indicators);
-console.log(analysis.correlations);
+console.log(analysis.indicators)
+console.log(analysis.correlations)
 ```
 
 ---
@@ -826,7 +832,7 @@ console.log(analysis.correlations);
 ✅ **告警管理器模块** - 多级别、多通道告警系统  
 ✅ **集成测试** - 完整的单元测试和集成测试  
 ✅ **ARIA 支持** - 包含无障碍标签  
-✅ **文档完善** - 详细的技术文档和使用指南  
+✅ **文档完善** - 详细的技术文档和使用指南
 
 系统已准备好集成到现有项目中，可以立即开始使用。
 

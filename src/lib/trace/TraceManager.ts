@@ -1,12 +1,12 @@
 /**
  * TraceManager - 分布式追踪核心管理器
- * 
+ *
  * 功能：
  * - Trace ID 生成 (UUID v4 格式)
  * - Span 创建和嵌套
  * - 上下文传播 (header 注入)
  * - 异步任务追踪
- * 
+ *
  * @version v1.7.0
  * @author AI Executor
  */
@@ -23,7 +23,7 @@ import {
   SpanKind,
   generateTraceId as generateTraceIdBase,
   generateSpanId as generateSpanIdBase,
-} from "../tracing/types";
+} from '../tracing/types'
 
 // ============================================
 // UUID v4 Generation
@@ -34,41 +34,43 @@ import {
  * 格式: xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx
  */
 export function generateUUIDv4(): string {
-  if (typeof crypto !== "undefined" && crypto.randomUUID) {
-    return crypto.randomUUID();
+  if (typeof crypto !== 'undefined' && crypto.randomUUID) {
+    return crypto.randomUUID()
   }
-  
+
   // Fallback for environments without crypto.randomUUID
-  const bytes = new Uint8Array(16);
-  if (typeof crypto !== "undefined" && crypto.getRandomValues) {
-    crypto.getRandomValues(bytes);
+  const bytes = new Uint8Array(16)
+  if (typeof crypto !== 'undefined' && crypto.getRandomValues) {
+    crypto.getRandomValues(bytes)
   } else {
     // Node.js fallback
     // eslint-disable-next-line @typescript-eslint/no-require-imports
-    require("crypto").randomFillSync(bytes);
+    require('crypto').randomFillSync(bytes)
   }
-  
+
   // Set version (4) and variant bits
-  bytes[6] = (bytes[6] & 0x0f) | 0x40;
-  bytes[8] = (bytes[8] & 0x3f) | 0x80;
-  
-  const hex = Array.from(bytes).map(b => b.toString(16).padStart(2, "0")).join("");
-  
-  return `${hex.slice(0, 8)}-${hex.slice(8, 12)}-${hex.slice(12, 16)}-${hex.slice(16, 20)}-${hex.slice(20, 32)}`;
+  bytes[6] = (bytes[6] & 0x0f) | 0x40
+  bytes[8] = (bytes[8] & 0x3f) | 0x80
+
+  const hex = Array.from(bytes)
+    .map(b => b.toString(16).padStart(2, '0'))
+    .join('')
+
+  return `${hex.slice(0, 8)}-${hex.slice(8, 12)}-${hex.slice(12, 16)}-${hex.slice(16, 20)}-${hex.slice(20, 32)}`
 }
 
 /**
  * 生成 Trace ID (UUID v4 格式，去掉连字符)
  */
 export function generateTraceId(): TraceId {
-  return generateUUIDv4().replace(/-/g, "") as TraceId;
+  return generateUUIDv4().replace(/-/g, '') as TraceId
 }
 
 /**
  * 生成 Span ID
  */
 export function generateSpanId(): SpanId {
-  return generateSpanIdBase();
+  return generateSpanIdBase()
 }
 
 // ============================================
@@ -80,48 +82,48 @@ export function generateSpanId(): SpanId {
  * 用于管理嵌套的 Span
  */
 class SpanStackManager {
-  private stack: Span[] = [];
+  private stack: Span[] = []
 
   /**
    * 推入 Span
    */
   push(span: Span): void {
-    this.stack.push(span);
+    this.stack.push(span)
   }
 
   /**
    * 弹出 Span
    */
   pop(): Span | undefined {
-    return this.stack.pop();
+    return this.stack.pop()
   }
 
   /**
    * 获取当前 Span
    */
   current(): Span | undefined {
-    return this.stack[this.stack.length - 1];
+    return this.stack[this.stack.length - 1]
   }
 
   /**
    * 获取栈深度
    */
   depth(): number {
-    return this.stack.length;
+    return this.stack.length
   }
 
   /**
    * 获取所有活跃 Span
    */
   all(): Span[] {
-    return [...this.stack];
+    return [...this.stack]
   }
 
   /**
    * 清空栈
    */
   clear(): void {
-    this.stack = [];
+    this.stack = []
   }
 }
 
@@ -131,19 +133,19 @@ class SpanStackManager {
 
 export interface TraceManagerOptions {
   /** 服务名称 */
-  serviceName: string;
+  serviceName: string
   /** 服务版本 */
-  serviceVersion?: string;
+  serviceVersion?: string
   /** 环境标识 */
-  environment?: string;
+  environment?: string
   /** 是否启用采样 */
-  samplingEnabled?: boolean;
+  samplingEnabled?: boolean
   /** 采样率 (0-1) */
-  samplingRate?: number;
+  samplingRate?: number
   /** 自动记录异常 */
-  recordExceptions?: boolean;
+  recordExceptions?: boolean
   /** 最大 Span 数量 */
-  maxSpans?: number;
+  maxSpans?: number
 }
 
 // ============================================
@@ -151,12 +153,12 @@ export interface TraceManagerOptions {
 // ============================================
 
 interface ActiveTrace {
-  traceId: TraceId;
-  rootSpanId: SpanId;
-  spans: Map<SpanId, Span>;
-  metadata: TraceMetadata;
-  startTime: number;
-  spanStack: SpanStackManager;
+  traceId: TraceId
+  rootSpanId: SpanId
+  spans: Map<SpanId, Span>
+  metadata: TraceMetadata
+  startTime: number
+  spanStack: SpanStackManager
 }
 
 // ============================================
@@ -165,43 +167,43 @@ interface ActiveTrace {
 
 /**
  * TraceManager - 分布式追踪核心管理器
- * 
+ *
  * 使用示例:
  * ```typescript
  * const traceManager = new TraceManager({
  *   serviceName: 'agent-executor',
  *   environment: 'production'
  * });
- * 
+ *
  * // 开始一个新的 Trace
  * const traceId = traceManager.startTrace('process-task', {
  *   attributes: { taskId: '123' }
  * });
- * 
+ *
  * // 创建嵌套 Span
  * const span1 = traceManager.startSpan('validate-input');
  * // ... do work
  * traceManager.endSpan(span1);
- * 
+ *
  * // 结束 Trace
  * traceManager.endTrace();
  * ```
  */
 export class TraceManager {
-  private options: Required<TraceManagerOptions>;
-  private activeTraces: Map<TraceId, ActiveTrace> = new Map();
-  private currentTraceId: TraceId | undefined;
+  private options: Required<TraceManagerOptions>
+  private activeTraces: Map<TraceId, ActiveTrace> = new Map()
+  private currentTraceId: TraceId | undefined
 
   constructor(options: TraceManagerOptions) {
     this.options = {
       serviceName: options.serviceName,
-      serviceVersion: options.serviceVersion ?? "1.0.0",
-      environment: options.environment ?? "development",
+      serviceVersion: options.serviceVersion ?? '1.0.0',
+      environment: options.environment ?? 'development',
       samplingEnabled: options.samplingEnabled ?? true,
       samplingRate: options.samplingRate ?? 1.0,
       recordExceptions: options.recordExceptions ?? true,
       maxSpans: options.maxSpans ?? 1000,
-    };
+    }
   }
 
   // ============================================
@@ -217,42 +219,45 @@ export class TraceManager {
   startTrace(
     name: string,
     options?: {
-      traceId?: TraceId;
-      attributes?: Record<string, string | number | boolean>;
-      metadata?: Partial<TraceMetadata>;
+      traceId?: TraceId
+      attributes?: Record<string, string | number | boolean>
+      metadata?: Partial<TraceMetadata>
     }
   ): TraceId {
-    const traceId = options?.traceId ?? generateTraceId();
-    const rootSpanId = generateSpanId();
-    
+    const traceId = options?.traceId ?? generateTraceId()
+    const rootSpanId = generateSpanId()
+
     // 检查采样
     if (!this.shouldSample(traceId)) {
-      return traceId;
+      return traceId
     }
 
     const metadata: TraceMetadata = {
+      traceId: traceId,
+      spanId: rootSpanId,
       serviceName: this.options.serviceName,
-      serviceVersion: this.options.serviceVersion,
+      serviceVersion: this.options.serviceVersion ?? '1.0.0',
       environment: this.options.environment,
-      operationType: options?.metadata?.operationType ?? "custom" as any,
-      ...options?.metadata,
-    };
+      operationType: options?.metadata?.operationType ?? 'custom',
+      timestamp: Date.now(),
+    }
 
     // 创建根 Span
     const rootSpan: Span = {
       spanId: rootSpanId,
+      traceId,
       name,
       kind: SpanKind.INTERNAL,
       startTime: Date.now(),
       status: { code: SpanStatusCode.UNSET },
       attributes: {
-        "service.name": this.options.serviceName,
-        "service.version": this.options.serviceVersion,
+        'service.name': this.options.serviceName,
+        'service.version': this.options.serviceVersion,
         ...options?.attributes,
       },
       events: [],
       links: [],
-    };
+    }
 
     // 创建活跃追踪记录
     const activeTrace: ActiveTrace = {
@@ -262,13 +267,13 @@ export class TraceManager {
       metadata,
       startTime: Date.now(),
       spanStack: new SpanStackManager(),
-    };
+    }
 
-    activeTrace.spanStack.push(rootSpan);
-    this.activeTraces.set(traceId, activeTrace);
-    this.currentTraceId = traceId;
+    activeTrace.spanStack.push(rootSpan)
+    this.activeTraces.set(traceId, activeTrace)
+    this.currentTraceId = traceId
 
-    return traceId;
+    return traceId
   }
 
   /**
@@ -276,39 +281,39 @@ export class TraceManager {
    * @param traceId 可选，不传则使用当前 Trace
    */
   endTrace(traceId?: TraceId): Span[] | undefined {
-    const id = traceId ?? this.currentTraceId;
-    if (!id) return undefined;
+    const id = traceId ?? this.currentTraceId
+    if (!id) return undefined
 
-    const activeTrace = this.activeTraces.get(id);
-    if (!activeTrace) return undefined;
+    const activeTrace = this.activeTraces.get(id)
+    if (!activeTrace) return undefined
 
     // 结束所有未关闭的 Span
-    const spans = Array.from(activeTrace.spans.values());
-    const now = Date.now();
+    const spans = Array.from(activeTrace.spans.values())
+    const now = Date.now()
 
     for (const span of spans) {
       if (span.endTime === undefined) {
-        span.endTime = now;
-        span.duration = now - span.startTime;
+        span.endTime = now
+        span.duration = now - span.startTime
       }
     }
 
     // 设置根 Span 的结束时间
-    const rootSpan = activeTrace.spans.get(activeTrace.rootSpanId);
+    const rootSpan = activeTrace.spans.get(activeTrace.rootSpanId)
     if (rootSpan && rootSpan.endTime === undefined) {
-      rootSpan.endTime = now;
-      rootSpan.duration = now - rootSpan.startTime;
+      rootSpan.endTime = now
+      rootSpan.duration = now - rootSpan.startTime
     }
 
     // 清理
-    this.activeTraces.delete(id);
-    activeTrace.spanStack.clear();
+    this.activeTraces.delete(id)
+    activeTrace.spanStack.clear()
 
     if (this.currentTraceId === id) {
-      this.currentTraceId = undefined;
+      this.currentTraceId = undefined
     }
 
-    return spans;
+    return spans
   }
 
   // ============================================
@@ -324,24 +329,27 @@ export class TraceManager {
   startSpan(
     name: string,
     options?: {
-      kind?: SpanKind;
-      attributes?: Record<string, string | number | boolean>;
+      kind?: SpanKind
+      attributes?: Record<string, string | number | boolean>
     }
   ): Span | undefined {
-    const activeTrace = this.getActiveTrace();
-    if (!activeTrace) return undefined;
+    const activeTrace = this.getActiveTrace()
+    if (!activeTrace) return undefined
 
     // 检查 Span 数量限制
     if (activeTrace.spans.size >= this.options.maxSpans) {
-      console.warn(`TraceManager: Max spans (${this.options.maxSpans}) reached for trace ${activeTrace.traceId}`);
-      return undefined;
+      console.warn(
+        `TraceManager: Max spans (${this.options.maxSpans}) reached for trace ${activeTrace.traceId}`
+      )
+      return undefined
     }
 
-    const spanId = generateSpanId();
-    const parentSpan = activeTrace.spanStack.current();
-    
+    const spanId = generateSpanId()
+    const parentSpan = activeTrace.spanStack.current()
+
     const span: Span = {
       spanId,
+      traceId: activeTrace.traceId,
       name,
       kind: options?.kind ?? SpanKind.INTERNAL,
       startTime: Date.now(),
@@ -350,12 +358,12 @@ export class TraceManager {
       attributes: options?.attributes ?? {},
       events: [],
       links: [],
-    };
+    }
 
-    activeTrace.spans.set(spanId, span);
-    activeTrace.spanStack.push(span);
+    activeTrace.spans.set(spanId, span)
+    activeTrace.spanStack.push(span)
 
-    return span;
+    return span
   }
 
   /**
@@ -364,29 +372,29 @@ export class TraceManager {
    * @param status 可选状态
    */
   endSpan(span: Span | SpanId, status?: SpanStatus): void {
-    const activeTrace = this.getActiveTrace();
-    if (!activeTrace) return;
+    const activeTrace = this.getActiveTrace()
+    if (!activeTrace) return
 
-    let spanObj: Span | undefined;
-    if (typeof span === "string") {
-      spanObj = activeTrace.spans.get(span as SpanId);
+    let spanObj: Span | undefined
+    if (typeof span === 'string') {
+      spanObj = activeTrace.spans.get(span as SpanId)
     } else {
-      spanObj = span;
+      spanObj = span
     }
 
-    if (!spanObj) return;
+    if (!spanObj) return
 
-    spanObj.endTime = Date.now();
-    spanObj.duration = spanObj.endTime - spanObj.startTime;
+    spanObj.endTime = Date.now()
+    spanObj.duration = spanObj.endTime - spanObj.startTime
 
     if (status) {
-      spanObj.status = status;
+      spanObj.status = status
     }
 
     // 从栈中弹出
-    const currentSpan = activeTrace.spanStack.current();
+    const currentSpan = activeTrace.spanStack.current()
     if (currentSpan?.spanId === spanObj.spanId) {
-      activeTrace.spanStack.pop();
+      activeTrace.spanStack.pop()
     }
   }
 
@@ -400,34 +408,34 @@ export class TraceManager {
     name: string,
     fn: () => Promise<T>,
     options?: {
-      kind?: SpanKind;
-      attributes?: Record<string, string | number | boolean>;
+      kind?: SpanKind
+      attributes?: Record<string, string | number | boolean>
     }
   ): Promise<T> {
-    const span = this.startSpan(name, options);
+    const span = this.startSpan(name, options)
     if (!span) {
-      return fn();
+      return fn()
     }
 
     try {
-      const result = await fn();
-      this.endSpan(span, { code: SpanStatusCode.OK });
-      return result;
+      const result = await fn()
+      this.endSpan(span, { code: SpanStatusCode.OK })
+      return result
     } catch (error) {
       this.endSpan(span, {
         code: SpanStatusCode.ERROR,
         message: error instanceof Error ? error.message : String(error),
-      });
-      
+      })
+
       if (this.options.recordExceptions) {
-        this.addEvent(span, "exception", {
-          "exception.type": error instanceof Error ? error.constructor.name : "Unknown",
-          "exception.message": error instanceof Error ? error.message : String(error),
-          "exception.stacktrace": error instanceof Error ? error.stack ?? "" : "",
-        });
+        this.addEvent(span, 'exception', {
+          'exception.type': error instanceof Error ? error.constructor.name : 'Unknown',
+          'exception.message': error instanceof Error ? error.message : String(error),
+          'exception.stacktrace': error instanceof Error ? (error.stack ?? '') : '',
+        })
       }
-      
-      throw error;
+
+      throw error
     }
   }
 
@@ -438,25 +446,25 @@ export class TraceManager {
     name: string,
     fn: () => T,
     options?: {
-      kind?: SpanKind;
-      attributes?: Record<string, string | number | boolean>;
+      kind?: SpanKind
+      attributes?: Record<string, string | number | boolean>
     }
   ): T {
-    const span = this.startSpan(name, options);
+    const span = this.startSpan(name, options)
     if (!span) {
-      return fn();
+      return fn()
     }
 
     try {
-      const result = fn();
-      this.endSpan(span, { code: SpanStatusCode.OK });
-      return result;
+      const result = fn()
+      this.endSpan(span, { code: SpanStatusCode.OK })
+      return result
     } catch (error) {
       this.endSpan(span, {
         code: SpanStatusCode.ERROR,
         message: error instanceof Error ? error.message : String(error),
-      });
-      throw error;
+      })
+      throw error
     }
   }
 
@@ -467,34 +475,26 @@ export class TraceManager {
   /**
    * 添加 Span 事件
    */
-  addEvent(
-    span: Span,
-    name: string,
-    attributes?: Record<string, string | number | boolean>
-  ): void {
+  addEvent(span: Span, name: string, attributes?: Record<string, string | number | boolean>): void {
     span.events.push({
       name,
       timestamp: Date.now(),
       attributes,
-    });
+    })
   }
 
   /**
    * 设置 Span 属性
    */
-  setAttribute(
-    span: Span,
-    key: string,
-    value: string | number | boolean
-  ): void {
-    span.attributes[key] = value;
+  setAttribute(span: Span, key: string, value: string | number | boolean): void {
+    span.attributes[key] = value
   }
 
   /**
    * 设置 Span 状态
    */
   setStatus(span: Span, status: SpanStatus): void {
-    span.status = status;
+    span.status = status
   }
 
   /**
@@ -504,13 +504,13 @@ export class TraceManager {
     this.setStatus(span, {
       code: SpanStatusCode.ERROR,
       message: error instanceof Error ? error.message : String(error),
-    });
+    })
 
-    this.addEvent(span, "exception", {
-      "exception.type": error instanceof Error ? error.constructor.name : "Unknown",
-      "exception.message": error instanceof Error ? error.message : String(error),
-      "exception.stacktrace": error instanceof Error ? error.stack ?? "" : "",
-    });
+    this.addEvent(span, 'exception', {
+      'exception.type': error instanceof Error ? error.constructor.name : 'Unknown',
+      'exception.message': error instanceof Error ? error.message : String(error),
+      'exception.stacktrace': error instanceof Error ? (error.stack ?? '') : '',
+    })
   }
 
   // ============================================
@@ -521,32 +521,32 @@ export class TraceManager {
    * 获取当前 Trace ID
    */
   getTraceId(): TraceId | undefined {
-    return this.currentTraceId;
+    return this.currentTraceId
   }
 
   /**
    * 获取当前 Span ID
    */
   getSpanId(): SpanId | undefined {
-    const activeTrace = this.getActiveTrace();
-    return activeTrace?.spanStack.current()?.spanId;
+    const activeTrace = this.getActiveTrace()
+    return activeTrace?.spanStack.current()?.spanId
   }
 
   /**
    * 获取当前 Trace Context
    */
   getContext(): TraceContext | undefined {
-    const activeTrace = this.getActiveTrace();
-    if (!activeTrace) return undefined;
+    const activeTrace = this.getActiveTrace()
+    if (!activeTrace) return undefined
 
-    const currentSpan = activeTrace.spanStack.current();
+    const currentSpan = activeTrace.spanStack.current()
     return {
       traceId: activeTrace.traceId,
       spanId: currentSpan?.spanId ?? activeTrace.rootSpanId,
       parentSpanId: currentSpan?.parentSpanId,
       sampled: true,
       traceFlags: 1,
-    };
+    }
   }
 
   /**
@@ -556,84 +556,84 @@ export class TraceManager {
    */
   injectContext(
     headers: Record<string, string>,
-    format: "w3c" | "b3" | "sentry" = "w3c"
+    format: 'w3c' | 'b3' | 'sentry' = 'w3c'
   ): Record<string, string> {
-    const context = this.getContext();
-    if (!context) return headers;
+    const context = this.getContext()
+    if (!context || !context.spanId) return headers
 
     switch (format) {
-      case "w3c":
-        headers["traceparent"] = `00-${context.traceId}-${context.spanId}-01`;
+      case 'w3c':
+        headers['traceparent'] = `00-${context.traceId}-${context.spanId}-01`
         if (context.baggage) {
-          headers["tracestate"] = Object.entries(context.baggage)
+          headers['tracestate'] = Object.entries(context.baggage)
             .map(([k, v]) => `${k}=${v}`)
-            .join(",");
+            .join(',')
         }
-        break;
+        break
 
-      case "b3":
-        headers["X-B3-TraceId"] = context.traceId;
-        headers["X-B3-SpanId"] = context.spanId;
+      case 'b3':
+        headers['X-B3-TraceId'] = context.traceId
+        headers['X-B3-SpanId'] = context.spanId
         if (context.parentSpanId) {
-          headers["X-B3-ParentSpanId"] = context.parentSpanId;
+          headers['X-B3-ParentSpanId'] = context.parentSpanId
         }
-        headers["X-B3-Sampled"] = "1";
-        break;
+        headers['X-B3-Sampled'] = '1'
+        break
 
-      case "sentry":
-        headers["sentry-trace"] = `${context.traceId}-${context.spanId}-1`;
-        break;
+      case 'sentry':
+        headers['sentry-trace'] = `${context.traceId}-${context.spanId}-1`
+        break
     }
 
-    return headers;
+    return headers
   }
 
   /**
    * 从 Headers 提取追踪上下文
    */
-  extractContext(
-    headers: Record<string, string | undefined>
-  ): TraceContext | undefined {
+  extractContext(headers: Record<string, string | undefined>): TraceContext | undefined {
     // 尝试 W3C 格式
-    const traceparent = headers["traceparent"] || headers["Traceparent"];
+    const traceparent = headers['traceparent'] || headers['Traceparent']
     if (traceparent) {
-      const parts = traceparent.split("-");
+      const parts = traceparent.split('-')
       if (parts.length >= 3) {
         return {
           traceId: parts[1] as TraceId,
           spanId: parts[2] as SpanId,
-          sampled: parts[3] === "01",
+          sampled: parts[3] === '01',
           traceFlags: parts[3] ? parseInt(parts[3], 16) : 1,
-        };
+        }
       }
     }
 
     // 尝试 B3 格式
-    const b3TraceId = headers["X-B3-TraceId"] || headers["x-b3-traceid"];
-    const b3SpanId = headers["X-B3-SpanId"] || headers["x-b3-spanid"];
+    const b3TraceId = headers['X-B3-TraceId'] || headers['x-b3-traceid']
+    const b3SpanId = headers['X-B3-SpanId'] || headers['x-b3-spanid']
     if (b3TraceId && b3SpanId) {
       return {
         traceId: b3TraceId as TraceId,
         spanId: b3SpanId as SpanId,
-        parentSpanId: (headers["X-B3-ParentSpanId"] || headers["x-b3-parentspanid"]) as SpanId | undefined,
-        sampled: (headers["X-B3-Sampled"] || headers["x-b3-sampled"]) === "1",
-      };
+        parentSpanId: (headers['X-B3-ParentSpanId'] || headers['x-b3-parentspanid']) as
+          | SpanId
+          | undefined,
+        sampled: (headers['X-B3-Sampled'] || headers['x-b3-sampled']) === '1',
+      }
     }
 
     // 尝试 Sentry 格式
-    const sentryTrace = headers["sentry-trace"] || headers["Sentry-Trace"];
+    const sentryTrace = headers['sentry-trace'] || headers['Sentry-Trace']
     if (sentryTrace) {
-      const parts = sentryTrace.split("-");
+      const parts = sentryTrace.split('-')
       if (parts.length >= 2) {
         return {
           traceId: parts[0] as TraceId,
           spanId: parts[1] as SpanId,
-          sampled: parts[2] === "1",
-        };
+          sampled: parts[2] === '1',
+        }
       }
     }
 
-    return undefined;
+    return undefined
   }
 
   /**
@@ -641,9 +641,9 @@ export class TraceManager {
    */
   restoreFromContext(context: TraceContext): TraceId | undefined {
     // 创建一个新的 trace，使用现有的 traceId
-    return this.startTrace("restored-trace", {
+    return this.startTrace('restored-trace', {
       traceId: context.traceId,
-    });
+    })
   }
 
   // ============================================
@@ -660,15 +660,19 @@ export class TraceManager {
     taskName: string,
     task: (span: Span) => Promise<T>,
     options?: {
-      kind?: SpanKind;
-      attributes?: Record<string, string | number | boolean>;
+      kind?: SpanKind
+      attributes?: Record<string, string | number | boolean>
     }
   ): Promise<T> {
-    return this.withSpan(taskName, () => {
-      const span = this.getActiveSpan();
-      if (!span) throw new Error("No active span");
-      return task(span);
-    }, options);
+    return this.withSpan(
+      taskName,
+      () => {
+        const span = this.getActiveSpan()
+        if (!span) throw new Error('No active span')
+        return task(span)
+      },
+      options
+    )
   }
 
   /**
@@ -676,16 +680,14 @@ export class TraceManager {
    */
   async trackParallelTasks<T>(
     tasks: Array<{
-      name: string;
-      task: () => Promise<T>;
-      attributes?: Record<string, string | number | boolean>;
+      name: string
+      task: () => Promise<T>
+      attributes?: Record<string, string | number | boolean>
     }>
   ): Promise<T[]> {
     return Promise.all(
-      tasks.map(({ name, task, attributes }) =>
-        this.withSpan(name, task, { attributes })
-      )
-    );
+      tasks.map(({ name, task, attributes }) => this.withSpan(name, task, { attributes }))
+    )
   }
 
   // ============================================
@@ -696,42 +698,42 @@ export class TraceManager {
    * 获取活跃的 Trace
    */
   private getActiveTrace(): ActiveTrace | undefined {
-    if (!this.currentTraceId) return undefined;
-    return this.activeTraces.get(this.currentTraceId);
+    if (!this.currentTraceId) return undefined
+    return this.activeTraces.get(this.currentTraceId)
   }
 
   /**
    * 获取当前活跃的 Span
    */
   getActiveSpan(): Span | undefined {
-    const activeTrace = this.getActiveTrace();
-    return activeTrace?.spanStack.current();
+    const activeTrace = this.getActiveTrace()
+    return activeTrace?.spanStack.current()
   }
 
   /**
    * 获取所有 Span
    */
   getSpans(traceId?: TraceId): Span[] {
-    const id = traceId ?? this.currentTraceId;
-    if (!id) return [];
+    const id = traceId ?? this.currentTraceId
+    if (!id) return []
 
-    const activeTrace = this.activeTraces.get(id);
-    return activeTrace ? Array.from(activeTrace.spans.values()) : [];
+    const activeTrace = this.activeTraces.get(id)
+    return activeTrace ? Array.from(activeTrace.spans.values()) : []
   }
 
   /**
    * 获取 Span 数量
    */
   getSpanCount(traceId?: TraceId): number {
-    return this.getSpans(traceId).length;
+    return this.getSpans(traceId).length
   }
 
   /**
    * 获取 Span 栈深度
    */
   getStackDepth(): number {
-    const activeTrace = this.getActiveTrace();
-    return activeTrace?.spanStack.depth() ?? 0;
+    const activeTrace = this.getActiveTrace()
+    return activeTrace?.spanStack.depth() ?? 0
   }
 
   // ============================================
@@ -742,26 +744,26 @@ export class TraceManager {
    * 判断是否应该采样
    */
   private shouldSample(traceId: TraceId): boolean {
-    if (!this.options.samplingEnabled) return true;
-    if (this.options.samplingRate >= 1) return true;
-    if (this.options.samplingRate <= 0) return false;
+    if (!this.options.samplingEnabled) return true
+    if (this.options.samplingRate >= 1) return true
+    if (this.options.samplingRate <= 0) return false
 
     // 使用 traceId 的哈希值进行确定性采样
-    const hash = this.hashString(traceId);
-    return (hash % 100) < this.options.samplingRate * 100;
+    const hash = this.hashString(traceId)
+    return hash % 100 < this.options.samplingRate * 100
   }
 
   /**
    * 简单字符串哈希
    */
   private hashString(str: string): number {
-    let hash = 0;
+    let hash = 0
     for (let i = 0; i < str.length; i++) {
-      const char = str.charCodeAt(i);
-      hash = ((hash << 5) - hash) + char;
-      hash = hash & hash;
+      const char = str.charCodeAt(i)
+      hash = (hash << 5) - hash + char
+      hash = hash & hash
     }
-    return Math.abs(hash);
+    return Math.abs(hash)
   }
 
   // ============================================
@@ -772,11 +774,11 @@ export class TraceManager {
    * 导出追踪数据 (JSON 格式)
    */
   exportTrace(traceId?: TraceId): object | undefined {
-    const id = traceId ?? this.currentTraceId;
-    if (!id) return undefined;
+    const id = traceId ?? this.currentTraceId
+    if (!id) return undefined
 
-    const activeTrace = this.activeTraces.get(id);
-    if (!activeTrace) return undefined;
+    const activeTrace = this.activeTraces.get(id)
+    if (!activeTrace) return undefined
 
     return {
       traceId: activeTrace.traceId,
@@ -787,15 +789,15 @@ export class TraceManager {
         ...span,
         duration: span.endTime ? span.endTime - span.startTime : undefined,
       })),
-    };
+    }
   }
 
   /**
    * 清理所有追踪数据
    */
   clear(): void {
-    this.activeTraces.clear();
-    this.currentTraceId = undefined;
+    this.activeTraces.clear()
+    this.currentTraceId = undefined
   }
 }
 
@@ -803,32 +805,32 @@ export class TraceManager {
 // Singleton Instance
 // ============================================
 
-let defaultInstance: TraceManager | undefined;
+let defaultInstance: TraceManager | undefined
 
 /**
  * 获取默认 TraceManager 实例
  */
 export function getTraceManager(options?: TraceManagerOptions): TraceManager {
   if (!defaultInstance && options) {
-    defaultInstance = new TraceManager(options);
+    defaultInstance = new TraceManager(options)
   }
   if (!defaultInstance) {
-    throw new Error("TraceManager not initialized. Call getTraceManager with options first.");
+    throw new Error('TraceManager not initialized. Call getTraceManager with options first.')
   }
-  return defaultInstance;
+  return defaultInstance
 }
 
 /**
  * 初始化默认 TraceManager
  */
 export function initTraceManager(options: TraceManagerOptions): TraceManager {
-  defaultInstance = new TraceManager(options);
-  return defaultInstance;
+  defaultInstance = new TraceManager(options)
+  return defaultInstance
 }
 
 // ============================================
 // Re-exports
 // ============================================
 
-export { SpanStatusCode, SpanKind };
-export type { Span, SpanStatus, SpanOptions, TraceContext, TraceMetadata };
+export { SpanStatusCode, SpanKind }
+export type { Span, SpanStatus, SpanOptions, TraceContext, TraceMetadata }

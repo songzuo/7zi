@@ -32,12 +32,12 @@
 
 ## API Endpoints
 
-| Method | Path | Description |
-|--------|------|-------------|
-| GET | `/api/agents/learning` | Get all agents' learning statistics |
-| GET | `/api/agents/learning/:agentId` | Get detailed agent learning data |
-| POST | `/api/agents/learning/adjust` | Manually adjust agent weights |
-| GET | `/api/agents/learning/adjust` | Get adjustment info |
+| Method | Path                            | Description                         |
+| ------ | ------------------------------- | ----------------------------------- |
+| GET    | `/api/agents/learning`          | Get all agents' learning statistics |
+| GET    | `/api/agents/learning/:agentId` | Get detailed agent learning data    |
+| POST   | `/api/agents/learning/adjust`   | Manually adjust agent weights       |
+| GET    | `/api/agents/learning/adjust`   | Get adjustment info                 |
 
 ## Key Features
 

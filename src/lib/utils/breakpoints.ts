@@ -11,14 +11,14 @@
  */
 
 export const BREAKPOINTS = {
-  sm: 640,  // Small screens (landscape phones)
-  md: 768,  // Medium screens (tablets)
+  sm: 640, // Small screens (landscape phones)
+  md: 768, // Medium screens (tablets)
   lg: 1024, // Large screens (laptops)
   xl: 1280, // Extra large screens (desktops)
   '2xl': 1536, // 2X large screens
-} as const;
+} as const
 
-export type BreakpointKey = keyof typeof BREAKPOINTS;
+export type BreakpointKey = keyof typeof BREAKPOINTS
 
 /**
  * 检查当前视口宽度是否小于指定断点
@@ -26,8 +26,8 @@ export type BreakpointKey = keyof typeof BREAKPOINTS;
  * @returns boolean
  */
 export function isBelowBreakpoint(breakpoint: BreakpointKey): boolean {
-  if (typeof window === 'undefined') return false;
-  return window.innerWidth < BREAKPOINTS[breakpoint];
+  if (typeof window === 'undefined') return false
+  return window.innerWidth < BREAKPOINTS[breakpoint]
 }
 
 /**
@@ -36,8 +36,8 @@ export function isBelowBreakpoint(breakpoint: BreakpointKey): boolean {
  * @returns boolean
  */
 export function isAtLeastBreakpoint(breakpoint: BreakpointKey): boolean {
-  if (typeof window === 'undefined') return false;
-  return window.innerWidth >= BREAKPOINTS[breakpoint];
+  if (typeof window === 'undefined') return false
+  return window.innerWidth >= BREAKPOINTS[breakpoint]
 }
 
 /**
@@ -45,15 +45,15 @@ export function isAtLeastBreakpoint(breakpoint: BreakpointKey): boolean {
  * @returns 当前断点名称
  */
 export function getCurrentBreakpoint(): BreakpointKey {
-  if (typeof window === 'undefined') return 'md';
+  if (typeof window === 'undefined') return 'md'
 
-  const width = window.innerWidth;
+  const width = window.innerWidth
 
-  if (width >= BREAKPOINTS['2xl']) return '2xl';
-  if (width >= BREAKPOINTS.xl) return 'xl';
-  if (width >= BREAKPOINTS.lg) return 'lg';
-  if (width >= BREAKPOINTS.md) return 'md';
-  return 'sm';
+  if (width >= BREAKPOINTS['2xl']) return '2xl'
+  if (width >= BREAKPOINTS.xl) return 'xl'
+  if (width >= BREAKPOINTS.lg) return 'lg'
+  if (width >= BREAKPOINTS.md) return 'md'
+  return 'sm'
 }
 
 /**
@@ -62,18 +62,18 @@ export function getCurrentBreakpoint(): BreakpointKey {
  * @returns 当前是否小于该断点
  */
 export function useBreakpoint(breakpoint: BreakpointKey): boolean {
-  const [isBelow, setIsBelow] = useState(() => isBelowBreakpoint(breakpoint));
+  const [isBelow, setIsBelow] = useState(() => isBelowBreakpoint(breakpoint))
 
   useEffect(() => {
     const handleResize = () => {
-      setIsBelow(isBelowBreakpoint(breakpoint));
-    };
+      setIsBelow(isBelowBreakpoint(breakpoint))
+    }
 
-    window.addEventListener('resize', handleResize);
-    return () => window.removeEventListener('resize', handleResize);
-  }, [breakpoint]);
+    window.addEventListener('resize', handleResize)
+    return () => window.removeEventListener('resize', handleResize)
+  }, [breakpoint])
 
-  return isBelow;
+  return isBelow
 }
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react'

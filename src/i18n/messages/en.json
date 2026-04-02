@@ -54,29 +54,17 @@
       "web": {
         "title": "Web Development",
         "description": "From design to implementation, building high-performance modern websites and web applications",
-        "features": [
-          "Responsive Design",
-          "Performance Optimization",
-          "SEO Friendly"
-        ]
+        "features": ["Responsive Design", "Performance Optimization", "SEO Friendly"]
       },
       "design": {
         "title": "Brand Design",
         "description": "Professional UI/UX design to create unique brand visual identity",
-        "features": [
-          "Logo Design",
-          "Visual Identity",
-          "User Experience"
-        ]
+        "features": ["Logo Design", "Visual Identity", "User Experience"]
       },
       "marketing": {
         "title": "Marketing & Promotion",
         "description": "SEO optimization, content marketing, and social media management to enhance brand influence",
-        "features": [
-          "SEO Optimization",
-          "Content Strategy",
-          "Social Media"
-        ]
+        "features": ["SEO Optimization", "Content Strategy", "Social Media"]
       }
     },
     "whyUs": {
@@ -138,111 +126,67 @@
         "name": "AI World Expert",
         "role": "Strategy & Future Planning",
         "description": "Focuses on AI Agent development trends and future layout, providing strategic perspectives and forward-thinking for the team.",
-        "skills": [
-          "Strategic Analysis",
-          "Trend Prediction",
-          "Innovative Thinking"
-        ]
+        "skills": ["Strategic Analysis", "Trend Prediction", "Innovative Thinking"]
       },
       "consultant": {
         "name": "Consultant",
         "role": "Research & Analysis",
         "description": "Deep research on market dynamics and technology trends, providing data-driven decision support for projects.",
-        "skills": [
-          "Market Research",
-          "Data Analysis",
-          "Decision Support"
-        ]
+        "skills": ["Market Research", "Data Analysis", "Decision Support"]
       },
       "architect": {
         "name": "Architect",
         "role": "Design & Planning",
         "description": "Designs system architecture and technical solutions, ensuring project feasibility and scalability.",
-        "skills": [
-          "System Architecture",
-          "Tech Selection",
-          "Solution Design"
-        ]
+        "skills": ["System Architecture", "Tech Selection", "Solution Design"]
       },
       "executor": {
         "name": "Executor",
         "role": "Execution & Implementation",
         "description": "Efficiently executes tasks, transforming design solutions into high-quality code implementations.",
-        "skills": [
-          "Code Implementation",
-          "Task Execution",
-          "Efficiency Optimization"
-        ]
+        "skills": ["Code Implementation", "Task Execution", "Efficiency Optimization"]
       },
       "admin": {
         "name": "System Admin",
         "role": "Operations & Deployment",
         "description": "Responsible for system operations, server management, and automated deployment to ensure stable service operation.",
-        "skills": [
-          "System Operations",
-          "Auto Deployment",
-          "Security Hardening"
-        ]
+        "skills": ["System Operations", "Auto Deployment", "Security Hardening"]
       },
       "tester": {
         "name": "Tester",
         "role": "Testing & Debugging",
         "description": "Writes test cases, performs functional testing and performance optimization to ensure product quality.",
-        "skills": [
-          "Functional Testing",
-          "Performance Optimization",
-          "Quality Assurance"
-        ]
+        "skills": ["Functional Testing", "Performance Optimization", "Quality Assurance"]
       },
       "designer": {
         "name": "Designer",
         "role": "UI & Frontend Design",
         "description": "Creates beautiful and user-friendly interfaces, providing excellent user experience design.",
-        "skills": [
-          "UI Design",
-          "User Experience",
-          "Visual Creativity"
-        ]
+        "skills": ["UI Design", "User Experience", "Visual Creativity"]
       },
       "promoter": {
         "name": "Marketing Specialist",
         "role": "Promotion & SEO",
         "description": "Develops promotion strategies, optimizes search engine rankings, and enhances brand awareness.",
-        "skills": [
-          "SEO Optimization",
-          "Content Marketing",
-          "Brand Promotion"
-        ]
+        "skills": ["SEO Optimization", "Content Marketing", "Brand Promotion"]
       },
       "sales": {
         "name": "Sales & Support",
         "role": "Sales & Customer Service",
         "description": "Communicates with customers, understands needs, provides solutions and quality service support.",
-        "skills": [
-          "Customer Communication",
-          "Needs Analysis",
-          "Solutions"
-        ]
+        "skills": ["Customer Communication", "Needs Analysis", "Solutions"]
       },
       "finance": {
         "name": "Finance",
         "role": "Accounting & Auditing",
         "description": "Manages financial income and expenses, conducts cost accounting and financial analysis to ensure financial health.",
-        "skills": [
-          "Financial Management",
-          "Cost Control",
-          "Financial Analysis"
-        ]
+        "skills": ["Financial Management", "Cost Control", "Financial Analysis"]
       },
       "media": {
         "name": "Media",
         "role": "Media & Publicity",
         "description": "Plans and produces content, spreading through multiple channels to enhance brand influence.",
-        "skills": [
-          "Content Planning",
-          "Media Operations",
-          "Brand Communication"
-        ]
+        "skills": ["Content Planning", "Media Operations", "Brand Communication"]
       }
     },
     "availability": "24/7",

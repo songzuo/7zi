@@ -23,6 +23,7 @@ v1.4.0 Sprint 1 已 100% 超前完成。基于现有架构分析，v1.5.0 将聚
 ### 问题 1: lib/ 层目录结构不统一
 
 **现状**:
+
 ```
 src/lib/
 ├── agent/              # 智能体核心模块
@@ -34,11 +35,13 @@ src/lib/
 ```
 
 **问题描述**:
+
 - 相关智能体模块（agent, agent-scheduler, a2a）分散在不同位置
 - 两个性能模块（performance, performance-monitoring）功能重叠
 - 缺乏统一的模块导出策略
 
 **影响**:
+
 - 导入路径混乱，降低开发效率
 - 新人理解成本高
 - 模块边界不清晰
@@ -49,16 +52,18 @@ src/lib/
 
 **现状对比**:
 
-| 模块 | 功能 | 行数 | 状态 |
-|------|------|------|------|
-| `performance/` | Web Vitals, 自定义指标, 基础预算 | ~1,500 | 基础版 |
+| 模块                      | 功能                                   | 行数   | 状态   |
+| ------------------------- | -------------------------------------- | ------ | ------ |
+| `performance/`            | Web Vitals, 自定义指标, 基础预算       | ~1,500 | 基础版 |
 | `performance-monitoring/` | 异常检测, 根因分析, 智能告警, 高级预算 | ~3,000 | 升级版 |
 
 **重叠功能**:
+
 - `performance/budget.ts` - 基础预算管理
 - `performance-monitoring/budget-control/` - 高级预算配置
 
 **问题描述**:
+
 - 两个模块功能重复，造成混淆
 - 不清楚应该使用哪个模块的预算功能
 - 增加维护成本
@@ -67,14 +72,15 @@ src/lib/
 
 ### 问题 3: 缺失关键依赖
 
-| 包名 | 使用位置 | 影响级别 |
-|------|----------|----------|
-| `socket.io` | `src/lib/socket.ts` | 🔴 严重 - WebSocket 功能失效 |
-| `ioredis` | `src/lib/rate-limit/redis-storage.ts` | 🟡 中等 - Redis 限流不可用 |
-| `@storybook/react` | `src/stories/ui/Button.stories.tsx` | 🟢 低 - Storybook 无法运行 |
-| `@storybook/addon-themes` | `.storybook/preview.ts` | 🟢 低 - 主题功能缺失 |
+| 包名                      | 使用位置                              | 影响级别                     |
+| ------------------------- | ------------------------------------- | ---------------------------- |
+| `socket.io`               | `src/lib/socket.ts`                   | 🔴 严重 - WebSocket 功能失效 |
+| `ioredis`                 | `src/lib/rate-limit/redis-storage.ts` | 🟡 中等 - Redis 限流不可用   |
+| `@storybook/react`        | `src/stories/ui/Button.stories.tsx`   | 🟢 低 - Storybook 无法运行   |
+| `@storybook/addon-themes` | `.storybook/preview.ts`               | 🟢 低 - 主题功能缺失         |
 
 **问题描述**:
+
 - 缺失 `socket.io` 可能导致 WebSocket 核心功能失效
 - 缺失 `ioredis` 影响 Redis 限流功能
 - 缺失 Storybook 依赖影响开发体验
@@ -84,6 +90,7 @@ src/lib/
 ### 问题 4: 循环依赖（已解决，需保持监控）
 
 **状态**: ✅ 已解决
+
 - 通过创建共享类型文件打破循环依赖
 - 全局扫描 1157 个文件，0 个循环依赖
 - 需要保持监控，防止引入新问题
@@ -104,6 +111,7 @@ src/lib/
 当前 lib/ 层相关智能体模块分散，缺乏统一结构，影响可维护性和开发效率。
 
 **目标状态**:
+
 ```
 src/lib/
 ├── agents/                           # 统一 AI 智能体模块
@@ -174,10 +182,12 @@ src/lib/
    - [ ] 运行测试套件验证功能正常
 
 **依赖关系**:
+
 - 无前置依赖
 - 后续任务: P0-2, P0-3
 
 **验收标准**:
+
 - ✅ 所有智能体相关模块统一在 `agents/` 目录下
 - ✅ 所有 import 路径已更新
 - ✅ 构建通过，无错误
@@ -185,6 +195,7 @@ src/lib/
 - ✅ 向后兼容（可选：保留旧路径的重导出）
 
 **回滚计划**:
+
 - 如遇问题，立即撤销所有文件移动
 - 恢复到原始目录结构
 
@@ -200,6 +211,7 @@ src/lib/
 虽然当前循环依赖已全部解决，但需要建立持续监控机制，防止引入新问题。
 
 **目标状态**:
+
 - CI 流程中包含循环依赖检测
 - 任何新引入的循环依赖会被立即检测到
 - 定期自动化检查机制
@@ -221,16 +233,19 @@ src/lib/
    - [ ] 添加 PR 模板，提醒开发者检查循环依赖
 
 **依赖关系**:
+
 - 无前置依赖
 - 并行任务: P0-1, P0-3
 
 **验收标准**:
+
 - ✅ CI 流程包含循环依赖检测
 - ✅ 任何 PR 检测到循环依赖时失败
 - ✅ 每周自动检查脚本正常运行
 - ✅ 开发文档包含循环依赖避免指南
 
 **监控指标**:
+
 - 循环依赖数量: 保持为 0
 - CI 检查通过率: 100%
 
@@ -244,11 +259,13 @@ src/lib/
 
 **问题描述**:
 当前项目中存在多个中间件实现，但缺乏统一的接口规范和文档，导致：
+
 - 新增中间件时需要参考现有代码
 - 中间件之间缺乏清晰的依赖关系
 - 难以保证中间件执行顺序的一致性
 
 **目标状态**:
+
 - 定义清晰的中间件接口规范
 - 统一中间件注册机制
 - 文档化中间件生命周期
@@ -279,10 +296,12 @@ src/lib/
    - [ ] 更新架构文档
 
 **依赖关系**:
+
 - 并行任务: P0-1, P0-2
 - 后续任务: P1-1, P1-2
 
 **验收标准**:
+
 - ✅ 中间件接口定义清晰，类型安全
 - ✅ 所有现有中间件迁移到新架构
 - ✅ 构建通过，测试套件全部通过
@@ -294,9 +313,9 @@ src/lib/
 ```typescript
 // 中间件接口定义
 export interface Middleware<T = any> {
-  name: string;
-  priority: number;
-  execute: (context: MiddlewareContext<T>, next: MiddlewareNext) => Promise<void>;
+  name: string
+  priority: number
+  execute: (context: MiddlewareContext<T>, next: MiddlewareNext) => Promise<void>
 }
 
 // 使用示例
@@ -305,11 +324,11 @@ export const authMiddleware: Middleware = {
   priority: 10,
   execute: async (context, next) => {
     if (!context.user) {
-      throw new UnauthorizedError();
+      throw new UnauthorizedError()
     }
-    await next();
-  }
-};
+    await next()
+  },
+}
 ```
 
 ---
@@ -324,11 +343,13 @@ export const authMiddleware: Middleware = {
 
 **问题描述**:
 当前数据库查询可能存在 N+1 问题，特别是关联查询场景。需要：
+
 - 识别所有 N+1 查询位置
 - 使用 DataLoader 或批量查询优化
 - 建立查询性能监控
 
 **目标状态**:
+
 - 所有 N+1 查询已优化
 - 查询性能监控完善
 - 建立查询最佳实践文档
@@ -357,10 +378,12 @@ export const authMiddleware: Middleware = {
    - [ ] 编写查询最佳实践文档
 
 **依赖关系**:
+
 - 前置任务: P0-1
 - 后续任务: P1-2
 
 **验收标准**:
+
 - ✅ 所有识别的 N+1 查询已优化
 - ✅ 关键查询性能提升 50% 以上
 - ✅ 提供性能对比报告
@@ -377,6 +400,7 @@ export const authMiddleware: Middleware = {
 
 **问题描述**:
 当前项目中存在多个缓存实现方式：
+
 - React Query / SWR 用于客户端缓存
 - 简单的内存缓存用于服务端
 - Redis 缓存配置可能不完整
@@ -384,6 +408,7 @@ export const authMiddleware: Middleware = {
 需要建立统一的缓存策略和接口。
 
 **目标状态**:
+
 - 统一的缓存接口规范
 - 清晰的缓存策略（LRU, TTL）
 - Redis 缓存完整配置
@@ -412,10 +437,12 @@ export const authMiddleware: Middleware = {
    - [ ] 编写缓存最佳实践文档
 
 **依赖关系**:
+
 - 前置任务: P0-1
 - 并行任务: P1-1
 
 **验收标准**:
+
 - ✅ 统一的缓存接口和类型定义
 - ✅ Memory 和 Redis 两种缓存实现
 - ✅ 关键模块已集成缓存
@@ -427,17 +454,16 @@ export const authMiddleware: Middleware = {
 ```typescript
 // 缓存接口
 export interface CacheProvider {
-  get<T>(key: string): Promise<T | null>;
-  set<T>(key: string, value: T, ttl?: number): Promise<void>;
-  del(key: string): Promise<void>;
-  clear(): Promise<void>;
+  get<T>(key: string): Promise<T | null>
+  set<T>(key: string, value: T, ttl?: number): Promise<void>
+  del(key: string): Promise<void>
+  clear(): Promise<void>
 }
 
 // 使用示例
-const cache = new RedisCache();
-const agents = await cache.get('agents:list') ||
-              await fetchAgentsFromDB();
-await cache.set('agents:list', agents, 300); // 5分钟 TTL
+const cache = new RedisCache()
+const agents = (await cache.get('agents:list')) || (await fetchAgentsFromDB())
+await cache.set('agents:list', agents, 300) // 5分钟 TTL
 ```
 
 ---
@@ -450,11 +476,13 @@ await cache.set('agents:list', agents, 300); // 5分钟 TTL
 
 **问题描述**:
 当前 API 缺乏版本管理策略，随着功能增长可能遇到：
+
 - 破坏性变更导致客户端兼容性问题
 - 难以同时支持多个版本
 - API 变更历史不清晰
 
 **目标状态**:
+
 - 建立清晰的 API 版本管理策略
 - 支持多版本 API 共存
 - API 变更文档完善
@@ -482,10 +510,12 @@ await cache.set('agents:list', agents, 300); // 5分钟 TTL
    - [ ] 更新 OpenAPI/Swagger 文档
 
 **依赖关系**:
+
 - 前置任务: P0-3
 - 并行任务: P1-1, P1-2
 
 **验收标准**:
+
 - ✅ API 版本管理策略文档完善
 - ✅ 实现 v1/v2 路由结构
 - ✅ 支持多版本共存
@@ -514,12 +544,14 @@ X-API-Version: 2
 
 **问题描述**:
 当前存在两个性能监控模块，功能重叠造成混淆：
+
 - `performance/` - 基础性能监控 (~1,500 行)
 - `performance-monitoring/` - 高级性能监控 (~3,000 行)
 
 需要整合为统一的性能监控体系。
 
 **目标状态**:
+
 - 保留 `performance-monitoring/` 作为统一性能监控模块
 - 迁移 `performance/` 的功能到 `performance-monitoring/`
 - 添加迁移指南和废弃警告
@@ -549,10 +581,12 @@ X-API-Version: 2
    - [ ] 更新性能监控文档
 
 **依赖关系**:
+
 - 并行任务: P1-1, P1-2, P1-3
 - 后续任务: P2-1
 
 **验收标准**:
+
 - ✅ `performance-monitoring/` 成为统一的性能监控模块
 - ✅ 所有功能已整合
 - ✅ `performance/` 添加废弃警告
@@ -572,11 +606,13 @@ X-API-Version: 2
 
 **问题描述**:
 当前为单体应用，未来可能需要拆分为微服务。需要提前准备：
+
 - 识别服务边界
 - 定义服务间通信协议
 - 准备基础设施支持
 
 **目标状态**:
+
 - 明确的服务边界定义
 - 服务间通信协议设计完成
 - 基础设施准备完成
@@ -605,9 +641,11 @@ X-API-Version: 2
    - [ ] 准备回滚方案
 
 **依赖关系**:
+
 - 前置任务: P0-1, P1-2, P1-3
 
 **验收标准**:
+
 - ✅ 服务边界定义清晰
 - ✅ 通信协议设计完成
 - ✅ 基础设施配置准备就绪
@@ -623,11 +661,13 @@ X-API-Version: 2
 
 **问题描述**:
 当前系统主要使用同步调用，引入事件驱动架构可以提高：
+
 - 系统解耦
 - 可扩展性
 - 异步处理能力
 
 **目标状态**:
+
 - 统一的事件总线接口
 - 关键业务事件定义
 - 事件消费者机制
@@ -656,9 +696,11 @@ X-API-Version: 2
    - [ ] 定义事件规范
 
 **依赖关系**:
+
 - 前置任务: P0-1, P0-3, P1-2
 
 **验收标准**:
+
 - ✅ 事件总线接口统一
 - ✅ 关键业务事件已定义
 - ✅ 事件消费者机制完善
@@ -669,23 +711,23 @@ X-API-Version: 2
 ```typescript
 // 事件定义
 export interface AgentEvent {
-  type: 'agent.created' | 'agent.updated' | 'agent.deleted';
-  payload: any;
-  timestamp: number;
+  type: 'agent.created' | 'agent.updated' | 'agent.deleted'
+  payload: any
+  timestamp: number
 }
 
 // 事件总线
 export class EventBus {
-  publish<T>(event: T): Promise<void>;
-  subscribe<T>(type: string, handler: (event: T) => void): Unsubscribe;
+  publish<T>(event: T): Promise<void>
+  subscribe<T>(type: string, handler: (event: T) => void): Unsubscribe
 }
 
 // 使用示例
 eventBus.publish<AgentEvent>({
   type: 'agent.created',
   payload: { id: '123', name: 'Agent' },
-  timestamp: Date.now()
-});
+  timestamp: Date.now(),
+})
 ```
 
 ---
@@ -698,11 +740,13 @@ eventBus.publish<AgentEvent>({
 
 **问题描述**:
 当前系统未考虑多租户场景，未来可能需要支持：
+
 - 多组织隔离
 - 多用户权限管理
 - 数据隔离和共享
 
 **目标状态**:
+
 - 多租户架构设计完成
 - 数据隔离策略明确
 - 权限模型支持多租户
@@ -731,9 +775,11 @@ eventBus.publish<AgentEvent>({
    - [ ] 编写最佳实践指南
 
 **依赖关系**:
+
 - 前置任务: P0-1, P0-3, P1-1, P1-3
 
 **验收标准**:
+
 - ✅ 多租户架构设计文档完善
 - ✅ 数据隔离策略明确
 - ✅ 权限模型支持多租户
@@ -745,26 +791,28 @@ eventBus.publish<AgentEvent>({
 
 ### Sprint 2 任务分解（2026-04-05 开始）
 
-| 任务编号 | 任务名称 | 优先级 | 预估工时 | 负责人 | 状态 |
-|----------|----------|--------|----------|--------|------|
-| P0-1 | lib/ 层目录统一 | P0 | 8h | 🏗️ 架构师 | 🟡 待开始 |
-| P0-2 | 循环依赖保持监控 | P0 | 2h | 🏗️ 架构师 | 🟡 待开始 |
-| P0-3 | 中间件架构标准化 | P0 | 6h | 🏗️ 架构师 | 🟡 待开始 |
-| P1-1 | 数据库查询优化 | P1 | 12h | ⚡ Executor | 🟡 待开始 |
-| P1-2 | 缓存层统一 | P1 | 10h | ⚡ Executor | 🟡 待开始 |
-| P1-3 | API 版本管理策略 | P1 | 8h | ⚡ Executor | 🟡 待开始 |
-| P1-4 | 性能模块整合 | P1 | 12h | ⚡ Executor | 🟡 待开始 |
-| P2-1 | 微服务拆分准备 | P2 | 16h | 🏗️ 架构师 | 🔵 计划中 |
-| P2-2 | 事件驱动架构引入 | P2 | 14h | 🏗️ 架构师 | 🔵 计划中 |
-| P2-3 | 多租户架构设计 | P2 | 16h | 🏗️ 架构师 | 🔵 计划中 |
+| 任务编号 | 任务名称         | 优先级 | 预估工时 | 负责人      | 状态      |
+| -------- | ---------------- | ------ | -------- | ----------- | --------- |
+| P0-1     | lib/ 层目录统一  | P0     | 8h       | 🏗️ 架构师   | 🟡 待开始 |
+| P0-2     | 循环依赖保持监控 | P0     | 2h       | 🏗️ 架构师   | 🟡 待开始 |
+| P0-3     | 中间件架构标准化 | P0     | 6h       | 🏗️ 架构师   | 🟡 待开始 |
+| P1-1     | 数据库查询优化   | P1     | 12h      | ⚡ Executor | 🟡 待开始 |
+| P1-2     | 缓存层统一       | P1     | 10h      | ⚡ Executor | 🟡 待开始 |
+| P1-3     | API 版本管理策略 | P1     | 8h       | ⚡ Executor | 🟡 待开始 |
+| P1-4     | 性能模块整合     | P1     | 12h      | ⚡ Executor | 🟡 待开始 |
+| P2-1     | 微服务拆分准备   | P2     | 16h      | 🏗️ 架构师   | 🔵 计划中 |
+| P2-2     | 事件驱动架构引入 | P2     | 14h      | 🏗️ 架构师   | 🔵 计划中 |
+| P2-3     | 多租户架构设计   | P2     | 16h      | 🏗️ 架构师   | 🔵 计划中 |
 
 **总工时**:
+
 - P0 任务: 16 小时
 - P1 任务: 42 小时
 - P2 任务: 46 小时
 - **总计: 104 小时**
 
 **Sprint 2 建议**:
+
 - 完成 P0 任务（16 小时）
 - 选择 P1 任务中的 2-3 个（约 24-30 小时）
 - **总计约 40-46 小时**（约 5-6 个工作日）
@@ -814,8 +862,8 @@ eventBus.publish<AgentEvent>({
 
 ## 🔄 变更历史
 
-| 版本 | 日期 | 变更内容 | 作者 |
-|------|------|----------|------|
+| 版本   | 日期       | 变更内容     | 作者      |
+| ------ | ---------- | ------------ | --------- |
 | v1.0.0 | 2026-03-30 | 初始版本创建 | 🏗️ 架构师 |
 
 ---

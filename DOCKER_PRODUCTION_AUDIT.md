@@ -13,18 +13,18 @@
 
 ### 关键发现
 
-| 项目 | 状态 | 优先级 |
-|------|------|--------|
-| 多阶段构建 | ✅ 已实现 | - |
-| 非 root 用户运行 | ✅ 已实现 | - |
-| 健康检查 | ✅ 已实现 | - |
-| SSL/TLS 配置 | ✅ 已实现 | - |
-| 资源限制 | ✅ 已实现 | - |
-| Gzip 压缩 | ✅ 已实现 | - |
-| **Dockerfile 路径不匹配** | ❌ 需修复 | 🔴 高 |
-| **健康检查端点不一致** | ❌ 需修复 | 🔴 高 |
-| 安全标签缺失 | ⚠️ 建议添加 | 🟡 中 |
-| 缓存策略优化 | ⚠️ 建议添加 | 🟡 中 |
+| 项目                      | 状态        | 优先级 |
+| ------------------------- | ----------- | ------ |
+| 多阶段构建                | ✅ 已实现   | -      |
+| 非 root 用户运行          | ✅ 已实现   | -      |
+| 健康检查                  | ✅ 已实现   | -      |
+| SSL/TLS 配置              | ✅ 已实现   | -      |
+| 资源限制                  | ✅ 已实现   | -      |
+| Gzip 压缩                 | ✅ 已实现   | -      |
+| **Dockerfile 路径不匹配** | ❌ 需修复   | 🔴 高  |
+| **健康检查端点不一致**    | ❌ 需修复   | 🔴 高  |
+| 安全标签缺失              | ⚠️ 建议添加 | 🟡 中  |
+| 缓存策略优化              | ⚠️ 建议添加 | 🟡 中  |
 
 ---
 
@@ -45,14 +45,17 @@
 #### ❌ 问题
 
 ##### 问题 1.1: HEALTHCHECK 端点不匹配
+
 **严重程度**: 🔴 高
 
 **问题描述**:
+
 - Dockerfile 中使用 `/api/health` 端点
 - Nginx 配置中配置的是 `/health` 端点
 - 会导致健康检查失败
 
 **修复建议**:
+
 ```dockerfile
 # 修改 Dockerfile.production 中的 HEALTHCHECK
 HEALTHCHECK --interval=30s --timeout=10s --start-period=20s --retries=3 \
@@ -60,9 +63,11 @@ HEALTHCHECK --interval=30s --timeout=10s --start-period=20s --retries=3 \
 ```
 
 ##### 问题 1.2: distroless 阶段缺少 HEALTHCHECK
+
 **严重程度**: 🟡 中
 
 **问题描述**:
+
 - distroless 镜像没有 shell 和 node 命令
 - 无法使用现有 HEALTHCHECK 指令
 
@@ -72,6 +77,7 @@ HEALTHCHECK --interval=30s --timeout=10s --start-period=20s --retries=3 \
 #### ⚠️ 改进建议
 
 ##### 建议 1.1: 添加安全标签
+
 ```dockerfile
 # 在 runner-alpine 阶段添加
 LABEL security.scan.status="scanned"
@@ -81,6 +87,7 @@ LABEL version="3.0"
 ```
 
 ##### 建议 1.2: 优化依赖安装
+
 ```dockerfile
 # 在 builder 阶段，添加生产依赖锁定
 COPY package.json package-lock.json ./
@@ -104,47 +111,62 @@ RUN npm ci --only=production --legacy-peer-deps
 #### ❌ 问题
 
 ##### 问题 2.1: Dockerfile 路径不匹配
+
 **严重程度**: 🔴 高
 
 **问题描述**:
+
 - 配置中使用 `dockerfile: Dockerfile`
 - 实际文件名是 `Dockerfile.production`
 - 会导致构建失败
 
 **修复建议**:
+
 ```yaml
 7zi-frontend:
   build:
     context: .
-    dockerfile: Dockerfile.production  # 修改这里
-    target: runner-alpine  # 指定使用 Alpine 版本
+    dockerfile: Dockerfile.production # 修改这里
+    target: runner-alpine # 指定使用 Alpine 版本
 ```
 
 ##### 问题 2.2: 健康检查端点不一致
+
 **严重程度**: 🔴 高
 
 **问题描述**:
+
 - docker-compose 中使用根路径 `/` 进行健康检查
 - 与 Dockerfile 中的 `/api/health` 不一致
 
 **修复建议**:
+
 ```yaml
 healthcheck:
-  test: ["CMD", "node", "-e", "require('http').get('http://localhost:3000/health', (r) => {process.exit(r.statusCode === 200 ? 0 : 1)})"]
+  test:
+    [
+      'CMD',
+      'node',
+      '-e',
+      "require('http').get('http://localhost:3000/health', (r) => {process.exit(r.statusCode === 200 ? 0 : 1)})",
+    ]
 ```
 
 ##### 问题 2.3: Nginx 健康检查依赖不存在的端点
+
 **严重程度**: 🟡 中
 
 **问题描述**:
+
 - Nginx 健康检查使用 `http://localhost/health`
 - Nginx 容器本身没有 `/health` 端点
 
 **修复建议**:
+
 ```yaml
 nginx:
   healthcheck:
-    test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost/"]
+    test: ['CMD', 'wget', '--no-verbose', '--tries=1', '--spider', 'http://localhost/']
     interval: 30s
     timeout: 10s
     retries: 3
@@ -153,6 +175,7 @@ nginx:
 #### ⚠️ 改进建议
 
 ##### 建议 2.1: 添加只读文件系统
+
 ```yaml
 7zi-frontend:
   read_only: true
@@ -161,6 +184,7 @@ nginx:
 ```
 
 ##### 建议 2.2: 添加 capabilities 限制
+
 ```yaml
 7zi-frontend:
   cap_drop:
@@ -170,6 +194,7 @@ nginx:
 ```
 
 ##### 建议 2.3: 添加更多安全选项
+
 ```yaml
 7zi-frontend:
   security_opt:
@@ -179,11 +204,12 @@ nginx:
 ```
 
 ##### 建议 2.4: 添加资源监控
+
 ```yaml
 7zi-frontend:
   deploy:
     mode: replicated
-    replicas: 2  # 高可用
+    replicas: 2 # 高可用
 ```
 
 ---
@@ -200,6 +226,7 @@ nginx:
 #### ⚠️ 改进建议
 
 ##### 建议 3.1: 添加更多排除项
+
 ```dockerignore
 # 依赖
 node_modules
@@ -277,9 +304,11 @@ Dockerfile
 #### ❌ 问题
 
 ##### 问题 4.1: Gmail Pub/Sub 回调端点重复配置
+
 **严重程度**: 🟡 中
 
 **问题描述**:
+
 - `/gmail-pubsub` 在 HTTP 和 HTTPS server 块中都配置了
 - 配置重复，应该统一
 
@@ -287,9 +316,11 @@ Dockerfile
 保留 HTTP 中的配置，因为 Gmail Pub/Sub 需要 HTTP 回调，HTTPS 中可以删除。
 
 ##### 问题 4.2: 日志路径可能不存在
+
 **严重程度**: 🟡 中
 
 **问题描述**:
+
 - 日志输出到 `/var/log/nginx/`
 - 如果挂载了本地日志目录，可能不匹配
 
@@ -299,6 +330,7 @@ Dockerfile
 #### ⚠️ 改进建议
 
 ##### 建议 4.1: 添加更多安全头
+
 ```nginx
 # Content Security Policy（根据实际情况调整）
 add_header Content-Security-Policy "default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval' https://cdn.jsdelivr.net; style-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net; img-src 'self' data: https:; font-src 'self' https://cdn.jsdelivr.net; connect-src 'self' https://7zi.com; frame-src 'self' https://www.google.com;" always;
@@ -308,6 +340,7 @@ add_header Permissions-Policy "camera=(), microphone=(), geolocation=()" always;
 ```
 
 ##### 建议 4.2: 添加速率限制
+
 ```nginx
 # 在 http 块中添加
 limit_req_zone $binary_remote_addr zone=api_limit:10m rate=10r/s;
@@ -326,6 +359,7 @@ location / {
 ```
 
 ##### 建议 4.3: 优化超时设置
+
 ```nginx
 # 针对不同类型请求设置不同的超时
 location /api/gmail {
@@ -338,11 +372,13 @@ location /_next/image {
 ```
 
 ##### 建议 4.4: 添加请求体大小限制
+
 ```nginx
 client_max_body_size 10M;  # 根据实际需求调整
 ```
 
 ##### 建议 4.5: 添加缓存配置
+
 ```nginx
 # 静态资源缓存
 location ~* \.(jpg|jpeg|png|gif|ico|webp|svg)$ {
@@ -360,6 +396,7 @@ location /api/ {
 ```
 
 ##### 建议 4.6: 添加 SSL Stapling
+
 ```nginx
 ssl_stapling on;
 ssl_stapling_verify on;
@@ -389,7 +426,13 @@ HEALTHCHECK --interval=30s --timeout=10s --start-period=20s --retries=3 \
 ```yaml
 7zi-frontend:
   healthcheck:
-    test: ["CMD", "node", "-e", "require('http').get('http://localhost:3000/health', (r) => {process.exit(r.statusCode === 200 ? 0 : 1)})"]
+    test:
+      [
+        'CMD',
+        'node',
+        '-e',
+        "require('http').get('http://localhost:3000/health', (r) => {process.exit(r.statusCode === 200 ? 0 : 1)})",
+      ]
     interval: 30s
     timeout: 10s
     retries: 3
@@ -404,8 +447,8 @@ HEALTHCHECK --interval=30s --timeout=10s --start-period=20s --retries=3 \
 7zi-frontend:
   build:
     context: .
-    dockerfile: Dockerfile.production  # 修改为正确的文件名
-    target: runner-alpine  # 指定使用 Alpine 版本
+    dockerfile: Dockerfile.production # 修改为正确的文件名
+    target: runner-alpine # 指定使用 Alpine 版本
 ```
 
 #### 修复 3: 在 Next.js 中创建健康检查端点
@@ -413,13 +456,10 @@ HEALTHCHECK --interval=30s --timeout=10s --start-period=20s --retries=3 \
 **文件**: app/health/route.ts（创建新文件）
 
 ```typescript
-import { NextResponse } from 'next/server';
+import { NextResponse } from 'next/server'
 
 export async function GET() {
-  return NextResponse.json(
-    { status: 'ok', timestamp: new Date().toISOString() },
-    { status: 200 }
-  );
+  return NextResponse.json({ status: 'ok', timestamp: new Date().toISOString() }, { status: 200 })
 }
 ```
 
@@ -478,36 +518,39 @@ add_header Permissions-Policy "camera=(), microphone=(), geolocation=()" always;
 
 ## 📊 对比表：修复前后
 
-| 配置项 | 修复前 | 修复后 |
-|--------|--------|--------|
-| Dockerfile 路径 | ❌ Dockerfile | ✅ Dockerfile.production |
-| 健康检查端点 | ❌ 不一致（/api/health vs /） | ✅ 统一（/health） |
-| 非 root 用户 | ✅ nextjs (uid 1001) | ✅ nextjs (uid 1001) |
-| 多阶段构建 | ✅ 3 阶段 | ✅ 3 阶段 |
-| 资源限制 | ✅ 限制 2CPU/1G | ✅ 限制 2CPU/1G |
-| 只读文件系统 | ❌ 未配置 | ✅ 已配置 |
-| Capabilities | ❌ 未限制 | ✅ 已限制 |
-| 速率限制 | ❌ 未配置 | ✅ 已配置 |
-| 安全标签 | ❌ 缺失 | ✅ 已添加 |
-| 静态资源缓存 | ⚠️ 基本配置 | ✅ 优化配置 |
+| 配置项          | 修复前                        | 修复后                   |
+| --------------- | ----------------------------- | ------------------------ |
+| Dockerfile 路径 | ❌ Dockerfile                 | ✅ Dockerfile.production |
+| 健康检查端点    | ❌ 不一致（/api/health vs /） | ✅ 统一（/health）       |
+| 非 root 用户    | ✅ nextjs (uid 1001)          | ✅ nextjs (uid 1001)     |
+| 多阶段构建      | ✅ 3 阶段                     | ✅ 3 阶段                |
+| 资源限制        | ✅ 限制 2CPU/1G               | ✅ 限制 2CPU/1G          |
+| 只读文件系统    | ❌ 未配置                     | ✅ 已配置                |
+| Capabilities    | ❌ 未限制                     | ✅ 已限制                |
+| 速率限制        | ❌ 未配置                     | ✅ 已配置                |
+| 安全标签        | ❌ 缺失                       | ✅ 已添加                |
+| 静态资源缓存    | ⚠️ 基本配置                   | ✅ 优化配置              |
 
 ---
 
 ## 🎯 实施计划
 
 ### 阶段 1: 必须修复（立即执行）
+
 1. ✅ 修改 Dockerfile.production 中的 HEALTHCHECK 端点
 2. ✅ 修改 docker-compose.prod.yml 中的 Dockerfile 路径
 3. ✅ 创建 `/health` API 端点
 4. ✅ 统一所有健康检查配置
 
 ### 阶段 2: 安全加固（本周内）
+
 1. 添加 read_only 文件系统
 2. 配置 capabilities 限制
 3. 添加安全标签
 4. 增强 Nginx 安全头
 
 ### 阶段 3: 性能优化（下周）
+
 1. 配置 Nginx 速率限制
 2. 优化静态资源缓存
 3. 添加 SSL Stapling

@@ -79,7 +79,7 @@ describe('Authentication Flow Integration Tests', () => {
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ email: 'test@example.com', password: 'password123' }),
         })
-      } catch (_error) {
+      } catch (error) {
         expect(error).toBeInstanceOf(Error)
         expect((error as Error).message).toBe('Network error')
       }
@@ -87,10 +87,10 @@ describe('Authentication Flow Integration Tests', () => {
 
     it('should validate email format before submission', async () => {
       const invalidEmails = ['invalid', 'no-at-sign.com', '@nodomain.com', 'spaces in@email.com']
-      
+
       // Email validation should happen client-side
       const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
-      
+
       invalidEmails.forEach(email => {
         expect(emailRegex.test(email)).toBe(false)
       })
@@ -106,7 +106,7 @@ describe('Authentication Flow Integration Tests', () => {
       testCases.forEach(({ email, password }) => {
         const hasEmail = email.length > 0
         const hasPassword = password.length > 0
-        
+
         if (!hasEmail || !hasPassword) {
           expect(hasEmail && hasPassword).toBe(false)
         }
@@ -117,7 +117,7 @@ describe('Authentication Flow Integration Tests', () => {
   describe('Session Management', () => {
     it('should store token in localStorage after successful login', async () => {
       const mockToken = 'mock-jwt-token'
-      
+
       mockFetch.mockResolvedValueOnce({
         ok: true,
         json: async () => ({
@@ -134,7 +134,7 @@ describe('Authentication Flow Integration Tests', () => {
       })
 
       const data = await response.json()
-      
+
       if (data.token) {
         localStorage.setItem('auth_token', data.token)
       }
@@ -144,10 +144,10 @@ describe('Authentication Flow Integration Tests', () => {
 
     it('should clear token on logout', () => {
       localStorage.setItem('auth_token', 'mock-token')
-      
+
       // Simulate logout
       localStorage.removeItem('auth_token')
-      
+
       expect(localStorage.getItem('auth_token')).toBeNull()
     })
 
@@ -186,7 +186,7 @@ describe('Authentication Flow Integration Tests', () => {
 
       const response = await fetch('/api/protected/resource', {
         headers: {
-          'Authorization': '', // No token
+          Authorization: '', // No token
         },
       })
 
@@ -203,7 +203,7 @@ describe('Authentication Flow Integration Tests', () => {
 
       const response = await fetch('/api/protected/resource', {
         headers: {
-          'Authorization': 'Bearer valid-token',
+          Authorization: 'Bearer valid-token',
         },
       })
 
@@ -274,10 +274,12 @@ describe('User Flow Integration Tests', () => {
       const strongPasswords = ['SecurePass123!', 'MyP@ssw0rd2024', 'C0mpl3x!Pass']
 
       const isStrongPassword = (password: string) => {
-        return password.length >= 8 &&
-               /[A-Z]/.test(password) &&
-               /[a-z]/.test(password) &&
-               /[0-9]/.test(password)
+        return (
+          password.length >= 8 &&
+          /[A-Z]/.test(password) &&
+          /[a-z]/.test(password) &&
+          /[0-9]/.test(password)
+        )
       }
 
       weakPasswords.forEach(pwd => {

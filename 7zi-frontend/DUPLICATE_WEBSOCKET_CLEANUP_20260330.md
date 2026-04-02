@@ -14,18 +14,18 @@
 
 ### 文件位置对比
 
-| 路径 | 状态 | 说明 |
-|------|------|------|
-| `src/components/websocket/WebSocketStatusPanel.tsx` | ✅ 存在 | 主文件（322行） |
-| `src/features/websocket/components/WebSocketStatusPanel.tsx` | ❌ 不存在 | 已删除 |
+| 路径                                                         | 状态      | 说明            |
+| ------------------------------------------------------------ | --------- | --------------- |
+| `src/components/websocket/WebSocketStatusPanel.tsx`          | ✅ 存在   | 主文件（322行） |
+| `src/features/websocket/components/WebSocketStatusPanel.tsx` | ❌ 不存在 | 已删除          |
 
 ### 导入引用
 
-| 文件 | 导入路径 |
-|------|----------|
-| `src/app/websocket-status-demo/page.tsx` | `@/components/websocket` |
+| 文件                                         | 导入路径                                             |
+| -------------------------------------------- | ---------------------------------------------------- |
+| `src/app/websocket-status-demo/page.tsx`     | `@/components/websocket`                             |
 | `src/features/websocket/components/index.ts` | 重导出 `@/components/websocket/WebSocketStatusPanel` |
-| `src/components/websocket/index.ts` | 内部导出 `./WebSocketStatusPanel` |
+| `src/components/websocket/index.ts`          | 内部导出 `./WebSocketStatusPanel`                    |
 
 ### 清理方案
 
@@ -33,10 +33,14 @@
 
 ```typescript
 // src/features/websocket/components/index.ts
-export { WebSocketStatusPanel, WebSocketStatusBadge } from '@/components/websocket/WebSocketStatusPanel';
+export {
+  WebSocketStatusPanel,
+  WebSocketStatusBadge,
+} from '@/components/websocket/WebSocketStatusPanel'
 ```
 
 **优点**:
+
 - 代码单一来源维护
 - 多路径导入支持（`@/components/websocket` 或 `@/features/websocket/components`）
 - 无代码重复
@@ -70,15 +74,16 @@ Cause: ReferenceError: document is not defined
 ## 结论
 
 ✅ **WebSocketStatusPanel 重复代码问题已解决**
+
 - 重复文件 `src/features/websocket/components/WebSocketStatusPanel.tsx` 不存在（已删除）
 - 通过 `index.ts` 重导出实现多路径导入
 - 组件功能正常，无类型错误
 
 ### 待处理（与本任务无关）
 
-| 问题 | 优先级 | 说明 |
-|------|--------|------|
-| `/i18n-demo` SSR 错误 | P2 | 需修复 "document is not defined" |
+| 问题                  | 优先级 | 说明                             |
+| --------------------- | ------ | -------------------------------- |
+| `/i18n-demo` SSR 错误 | P2     | 需修复 "document is not defined" |
 
 ---
 

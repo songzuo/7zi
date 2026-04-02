@@ -41,14 +41,14 @@ v1.8.0 introduces the **Visual Workflow Orchestrator** - a complete visual workf
 
 ### 📊 节点类型
 
-| 节点类型 | 颜色 | 用途 |
-|---------|------|------|
-| `start` | 🟢 绿色 | 工作流入口 |
-| `end` | 🔴 红色 | 工作流终止 |
+| 节点类型         | 颜色    | 用途         |
+| ---------------- | ------- | ------------ |
+| `start`          | 🟢 绿色 | 工作流入口   |
+| `end`            | 🔴 红色 | 工作流终止   |
 | `task` / `agent` | 🔵 蓝色 | 任务执行节点 |
-| `condition` | 🟡 黄色 | 条件分支 |
-| `parallel` | 🟣 紫色 | 并行执行 |
-| `wait` | ⚪ 灰色 | 等待/延迟 |
+| `condition`      | 🟡 黄色 | 条件分支     |
+| `parallel`       | 🟣 紫色 | 并行执行     |
+| `wait`           | ⚪ 灰色 | 等待/延迟    |
 
 ### 💻 API 示例
 
@@ -58,23 +58,23 @@ const orchestrator = new VisualWorkflowOrchestrator({
   globalTimeout: 3600000,
   maxRetries: 3,
   enableLogs: true,
-});
+})
 
 // 注册自定义执行器
 orchestrator.registerExecutor(NodeType.AGENT, {
   execute: async (node, context) => {
-    return { success: true, nodeId: node.id, duration: 100, logs: [] };
+    return { success: true, nodeId: node.id, duration: 100, logs: [] }
   },
-  validate: (node) => ({ valid: true, errors: [] }),
-});
+  validate: node => ({ valid: true, errors: [] }),
+})
 
 // 执行工作流
-const instance = await orchestrator.execute(workflowDefinition, { input: 'data' });
+const instance = await orchestrator.execute(workflowDefinition, { input: 'data' })
 
 // 监听事件
-orchestrator.addEventListener((event) => {
-  console.log(`${event.type}: ${event.nodeId}`);
-});
+orchestrator.addEventListener(event => {
+  console.log(`${event.type}: ${event.nodeId}`)
+})
 ```
 
 ---
@@ -87,12 +87,12 @@ v1.5.0 专注于 **技术债务清理**、**架构改进** 和 **AI Agent 调度
 
 ### 📊 完成度总览
 
-| 功能模块 | 完成度 | 状态 |
-|---------|--------|------|
-| **lib/ 层重构** | 100% | ✅ 已完成 |
-| **PermissionContext 迁移** | 0% | ⏳ 待开始 |
-| **Agent 学习优化系统** | 0% | 🔄 规划中 |
-| **WebSocket 房间系统 UI** | 0% | ⏳ 待开始 |
+| 功能模块                   | 完成度 | 状态      |
+| -------------------------- | ------ | --------- |
+| **lib/ 层重构**            | 100%   | ✅ 已完成 |
+| **PermissionContext 迁移** | 0%     | ⏳ 待开始 |
+| **Agent 学习优化系统**     | 0%     | 🔄 规划中 |
+| **WebSocket 房间系统 UI**  | 0%     | ⏳ 待开始 |
 
 ### ✨ Features - 新功能
 
@@ -110,6 +110,7 @@ v1.5.0 专注于 **技术债务清理**、**架构改进** 和 **AI Agent 调度
 | 构建验证 | ✅ | `npm run build` 成功 |
 
 **清理结果**:
+
 - 删除文件数: 30+ 文件
 - 净代码变化: -1,500 行
 - 引用验证: 0 错误
@@ -123,11 +124,13 @@ v1.5.0 专注于 **技术债务清理**、**架构改进** 和 **AI Agent 调度
 #### **架构重构**
 
 **lib/ 层目录统一** - ✅ 已完成
+
 - 合并 `agent/`, `agents/`, `agent-communication/` 三个目录到 `lib/agents/`
 - 统一状态管理策略 - 迁移 `PermissionContext` → Zustand (待开始)
 - 运行循环依赖检测 - 已集成 `dependency-cruiser` 到 CI/CD
 
 **导入路径变更**:
+
 ```typescript
 // 旧路径 (已废弃)
 @/lib/a2a/*
@@ -141,6 +144,7 @@ v1.5.0 专注于 **技术债务清理**、**架构改进** 和 **AI Agent 调度
 ### 🐛 Bug Fixes
 
 #### **lib/ 层依赖清理**
+
 - 修复重复目录导致的导入混乱
 - 删除废弃的 `legacy-agent-exports.ts` 文件
 - 更新所有引用，确保无遗留导入错误
@@ -162,19 +166,20 @@ v1.4.0 专注于 **WebSocket 高级协作功能**、**AI Agent 智能调度** �
 
 ### 📊 完成度总览
 
-| 功能模块 | 完成度 | 状态 |
-|---------|--------|------|
-| **WebSocket 高级功能** | 100% | ✅ 已完成 |
-| **AI Agent 智能调度** | 100% | ✅ 核心完成 |
-| **性能监控升级** | 95% | 🟢 超前 |
-| **React Compiler 可选** | 100% | ✅ 已完成 |
-| **P0 架构改进** | 100% | ✅ 已完成 |
+| 功能模块                | 完成度 | 状态        |
+| ----------------------- | ------ | ----------- |
+| **WebSocket 高级功能**  | 100%   | ✅ 已完成   |
+| **AI Agent 智能调度**   | 100%   | ✅ 核心完成 |
+| **性能监控升级**        | 95%    | 🟢 超前     |
+| **React Compiler 可选** | 100%   | ✅ 已完成   |
+| **P0 架构改进**         | 100%   | ✅ 已完成   |
 
 ### ✨ Features - 新功能
 
 #### **🔄 WebSocket 高级功能 (P0) - 100% 完成** 🎉
 
 **房间系统** (`src/lib/websocket/rooms.ts` - 847 行)
+
 - ✅ 多房间支持 - 动态房间创建和管理，支持 task/project/chat/document/voice/video 类型
 - ✅ 房间可见性 - 公开(public)、私有(private)、仅邀请(invite-only) 三种模式
 - ✅ 房间配置 - 最大参与者限制、历史开关、自动清理、访客控制
@@ -184,6 +189,7 @@ v1.4.0 专注于 **WebSocket 高级协作功能**、**AI Agent 智能调度** �
 - ✅ 房间生命周期 - 自动创建、自动销毁、事件回调
 
 **权限控制系统** (`src/lib/websocket/permissions.ts` - 436 行)
+
 - ✅ 5 种角色 - owner/admin/moderator/member/guest，层级管理
 - ✅ 16 种权限 - 房间权限 7 种 + 消息权限 6 种 + 管理权限 3 种
 - ✅ RBAC 集成 - 角色层级强制、权限授予/撤销/过期
@@ -191,6 +197,7 @@ v1.4.0 专注于 **WebSocket 高级协作功能**、**AI Agent 智能调度** �
 - ✅ 层级检查 - 防止权限提升、只能管理低层级用户
 
 **消息持久化** (`src/lib/websocket/message-store.ts` - 623 行)
+
 - ✅ 内存存储 - Map-based O(1) 访问，每房间最多 10,000 条消息
 - ✅ 消息操作 - 存储、编辑(带追踪)、软删除、永久删除
 - ✅ 消息元数据 - 反应(emoji)、置顶、编辑标记、自定义元数据
@@ -198,6 +205,7 @@ v1.4.0 专注于 **WebSocket 高级协作功能**、**AI Agent 智能调度** �
 - ✅ 历史查询 - 过滤(时间/用户/类型)、分页、排除已删除
 
 **测试覆盖**
+
 - `permissions.test.ts` - 25 测试 ✅
 - `rooms.test.ts` - 35 测试 ✅
 - `message-store.test.ts` - 26 测试 ✅
@@ -208,6 +216,7 @@ v1.4.0 专注于 **WebSocket 高级协作功能**、**AI Agent 智能调度** �
 #### **🤖 AI Agent 智能调度系统 (P0) - 100% 完成** ✅
 
 **核心组件** (`src/lib/agent-scheduler/`)
+
 - ✅ `core/scheduler.ts` - 调度器核心 (487 行)
 - ✅ `core/matching.ts` - 任务匹配算法 (312 行)
 - ✅ `core/ranking.ts` - 候选排序 (286 行)
@@ -219,12 +228,14 @@ v1.4.0 专注于 **WebSocket 高级协作功能**、**AI Agent 智能调度** �
 - ✅ Dashboard UI - AgentStatusPanel、TaskQueueView、ScheduleHistory、ManualOverride (3,058 行)
 
 **调度算法**
+
 - 能力匹配权重: capability 40% + load 30% + performance 20% + response 10%
 - 负载均衡: 保留 10% 缓冲，避免单 Agent 过载
 - 任务依赖: 支持任务依赖管理和优先级排序
 - 决策透明: confidence、reasoning、alternativeAgents
 
 **测试覆盖**
+
 - 122 个单元测试，100% 通过
 - 100% 代码覆盖率
 
@@ -233,6 +244,7 @@ v1.4.0 专注于 **WebSocket 高级协作功能**、**AI Agent 智能调度** �
 #### **📊 性能监控升级 (P0) - 95% 完成** 🟢
 
 **异常检测** (`src/lib/performance-monitoring/anomaly-detection/detector.ts` - 271 行)
+
 - ✅ Z-score 检测算法 - 基于历史数据的基准线自动学习
 - ✅ 百分比偏差检测 - 多指标独立跟踪
 - ✅ 性能指标收集 - Web Vitals 自动收集、API 响应时间、渲染性能
@@ -240,6 +252,7 @@ v1.4.0 专注于 **WebSocket 高级协作功能**、**AI Agent 智能调度** �
 - ✅ 高性能处理 - 1000 数据点 < 100ms
 
 **根因分析自动化** (`src/lib/performance-monitoring/`)
+
 - ✅ `bottleneck-detector.ts` - 瓶颈检测，98.23% 语句覆盖
 - ✅ `performance-waterfall.ts` - 瀑布图分析，98.21% 覆盖
 - ✅ `slow-request-tracker.ts` - 慢请求追踪，81.74% 覆盖
@@ -247,17 +260,20 @@ v1.4.0 专注于 **WebSocket 高级协作功能**、**AI Agent 智能调度** �
 - ✅ 慢请求追踪 - 请求耗时分解、瓶颈定位
 
 **性能预算控制** (`src/lib/performance-monitoring/budget-control.ts`)
+
 - ✅ 关键指标阈值设置 - LCP、FCP、TTFB、CLS
 - ✅ 构建时检查 - 构建产物大小监控
 - ✅ 性能回归检测 - 自动标记超预算变更
 
 **实时告警系统** (`src/lib/alerting/`)
+
 - ✅ 多级别告警 - critical/warning/info
 - ✅ 多渠道通知 - 邮件、Dashboard、Slack/Webhook
 - ✅ 告警聚合 - 避免告警风暴
 - ✅ 告警静默规则 - 维护窗口
 
 **测试覆盖**
+
 - 153 个单元测试，100% 通过
 - 92.3% 代码覆盖率 (性能监控模块)
 
@@ -266,6 +282,7 @@ v1.4.0 专注于 **WebSocket 高级协作功能**、**AI Agent 智能调度** �
 #### **⚡ React Compiler 可选功能 (P0) - 100% 完成** 🎉
 
 **配置文件**
+
 - ✅ 环境变量控制系统
   - `ENABLE_REACT_COMPILER` - 启用/禁用
   - `NEXT_PUBLIC_REACT_COMPILER_ENABLED` - 客户端标识
@@ -274,12 +291,14 @@ v1.4.0 专注于 **WebSocket 高级协作功能**、**AI Agent 智能调度** �
 - ✅ `next.config.ts` 更新 - 支持可选启用、智能过滤
 
 **兼容性检测**
+
 - ✅ `scripts/check-react-compiler-compatibility.sh` - Bash 版本完整扫描
 - ✅ `scripts/check-react-compiler-compatibility.js` - Node.js 版本详细分析
 - ✅ 生成 TXT/MD/JSON 报告
 - ✅ 检测不兼容模式: ref.current、dangerouslySetInnerHTML、第三方库副作用
 
 **回滚机制**
+
 - ✅ `scripts/rollback-react-compiler.sh` - 快速禁用/恢复
 - ✅ 备份管理、构建测试、状态查询
 - ✅ 零停机切换 - 蓝绿部署、滚动更新、一键回滚(< 5 分钟)
@@ -289,39 +308,42 @@ v1.4.0 专注于 **WebSocket 高级协作功能**、**AI Agent 智能调度** �
 ### 🔄 Changed - 重大变更
 
 #### **架构重构** - 待开始
+
 - ⏳ 重构 lib/ 层模块结构 - 合并 `agent/`, `agents/`, `agent-communication/` 三个目录
 - ⏳ 统一状态管理策略 - 迁移 `PermissionContext` → Zustand
 - ⏳ 运行循环依赖检测 - 集成 `madge` 或 `dependency-cruiser`
 
 ### ⚡ Performance - 性能优化
 
-| 指标 | 优化前 | 目标 | 已实现 | 提升 | 状态 |
-|------|--------|------|--------|------|------|
-| AI Agent 调度效率 | 手动分配 | 智能调度 | ✅ 已实现 | 70-80% ↑ | ✅ 完成 |
-| 性能问题发现时间 | 2-4 小时 | 15-30 分钟 | ✅ 异常检测 | 60-90% ↓ | 🔄 进行中 |
-| WebSocket 连接稳定性 | 95% | 99%+ | ✅ 已实现 | 4% ↑ | ✅ 完成 |
-| 不必要的重新渲染 | ~150-200/分钟 | ~90-120/分钟 | ✅ 可选启用 | 20-40% ↓ | ✅ 完成 |
-| 测试覆盖率 | 94.2% | 96-98% | ✅ 98% | 3.8% ↑ | ✅ 完成 |
+| 指标                 | 优化前        | 目标         | 已实现      | 提升     | 状态      |
+| -------------------- | ------------- | ------------ | ----------- | -------- | --------- |
+| AI Agent 调度效率    | 手动分配      | 智能调度     | ✅ 已实现   | 70-80% ↑ | ✅ 完成   |
+| 性能问题发现时间     | 2-4 小时      | 15-30 分钟   | ✅ 异常检测 | 60-90% ↓ | 🔄 进行中 |
+| WebSocket 连接稳定性 | 95%           | 99%+         | ✅ 已实现   | 4% ↑     | ✅ 完成   |
+| 不必要的重新渲染     | ~150-200/分钟 | ~90-120/分钟 | ✅ 可选启用 | 20-40% ↓ | ✅ 完成   |
+| 测试覆盖率           | 94.2%         | 96-98%       | ✅ 98%      | 3.8% ↑   | ✅ 完成   |
 
 ### 📊 代码统计 (v1.4.0)
 
-| 模块 | 实现文件 | 测试文件 | 代码行数 | 测试数 | 状态 |
-|------|---------|---------|----------|--------|------|
-| **Agent Scheduler** | 8 | 6 | ~2,952 | 122 | ✅ 完成 |
-| **WebSocket v1.4.0** | 3 | 3 | 1,906 | 86 | ✅ 完成 |
-| **Performance Monitor** | 1 | 2 | ~271 | 76 | 🔄 进行中 |
-| **React Compiler** | 配置文件 | - | - | - | ✅ 完成 |
-| **总计** | **12** | **11** | **~5,129** | **284** | **🟢 超前** |
+| 模块                    | 实现文件 | 测试文件 | 代码行数   | 测试数  | 状态        |
+| ----------------------- | -------- | -------- | ---------- | ------- | ----------- |
+| **Agent Scheduler**     | 8        | 6        | ~2,952     | 122     | ✅ 完成     |
+| **WebSocket v1.4.0**    | 3        | 3        | 1,906      | 86      | ✅ 完成     |
+| **Performance Monitor** | 1        | 2        | ~271       | 76      | 🔄 进行中   |
+| **React Compiler**      | 配置文件 | -        | -          | -       | ✅ 完成     |
+| **总计**                | **12**   | **11**   | **~5,129** | **284** | **🟢 超前** |
 
 ### 🧪 测试覆盖更新
 
 **v1.4.0 新增测试**:
+
 - Agent Scheduler: 122 tests (100% 覆盖)
 - WebSocket v1.4.0: 86 tests (100% 通过)
 - Performance Monitor: 76 tests (98.91% 覆盖)
 - **总计**: 284 new tests, 100% pass rate
 
 **整体测试覆盖率**:
+
 - v1.3.0: 94.2%
 - v1.4.0: ~98%
 - **提升**: +3.8%
@@ -329,6 +351,7 @@ v1.4.0 专注于 **WebSocket 高级协作功能**、**AI Agent 智能调度** �
 ### 📚 Documentation - 文档更新
 
 #### **v1.4.0 新增文档**
+
 - ✅ `RELEASE_NOTES_v1.4.0.md` - 面向用户的发布说明
 - ✅ `WEBSOCKET_V1.4.0_IMPLEMENTATION_REPORT.md` - WebSocket 实现报告
 - ✅ `V140_PLANNING_20260329.md` - 完整规划文档
@@ -355,6 +378,7 @@ v1.3.0 专注于 Next.js 16 最新特性的深度集成，完成国际化 Phase 
 ### ✨ Added - 新功能
 
 #### **国际化 (i18n) 完整实现**
+
 - **技术栈**: react-i18next + i18next-browser-languagedetector
 - **支持语言**: 中文 (zh) + 英文 (en)，基础支持日语 (ja)、韩语 (ko)、西班牙语 (es)、法语 (fr)、德语 (de)
 - **功能特性**:
@@ -374,6 +398,7 @@ v1.3.0 专注于 Next.js 16 最新特性的深度集成，完成国际化 Phase 
 - **相关文件**: `src/lib/i18n/`, `src/components/ui/LanguageSwitcher.tsx`, `public/locales/`
 
 #### **Server Actions 缓存 API (P0)**
+
 - **updateTag()** - Read-Your-Writes 语义，确保用户立即看到自己的更新
 - **refresh()** - 仅刷新未缓存数据，提高效率
 - **revalidateTag()** - 新增 `cacheLife` profile 参数，支持细粒度缓存控制
@@ -382,6 +407,7 @@ v1.3.0 专注于 Next.js 16 最新特性的深度集成，完成国际化 Phase 
 - **文档**: 完整的 API 文档和迁移指南
 
 #### **国际化 Phase 2 (ja/ko/es) 完成**
+
 - **完成度**: 26% → 100%
 - **日语 (ja)**: 新增 210 个翻译键，总计 510 键
 - **韩语 (ko)**: 清理重复键，总计 510 键
@@ -400,6 +426,7 @@ v1.3.0 专注于 Next.js 16 最新特性的深度集成，完成国际化 Phase 
 ### 🔄 Changed - 重大变更
 
 #### **middleware.ts → proxy.ts 迁移 (P1)**
+
 - `src/middleware.ts` 重命名为 `src/proxy.ts`
 - 导出函数从 `middleware` 改为 `proxy`
 - 功能保持不变，名称更好地反映实际用途
@@ -407,6 +434,7 @@ v1.3.0 专注于 Next.js 16 最新特性的深度集成，完成国际化 Phase 
 - **相关文件**: `src/proxy.ts`
 
 #### **图片优化 (sizes 属性)**
+
 - 完成 11 个组件的图片 `sizes` 属性优化
 - 减少 CLS 性能问题 30-50%
 - 预期 LCP 提升 10-20%
@@ -415,6 +443,7 @@ v1.3.0 专注于 Next.js 16 最新特性的深度集成，完成国际化 Phase 
 ### 🧹 Removed - 已移除
 
 #### **死代码清理**
+
 - 删除废弃的 backup API routes (`src/app/api/backup/`)
 - 删除废弃的 user API routes (`src/app/api/users/`)
 - 删除未使用的 commander/ 目录
@@ -423,6 +452,7 @@ v1.3.0 专注于 Next.js 16 最新特性的深度集成，完成国际化 Phase 
 ### ⚡ Performance - 性能优化
 
 #### **React Compiler 可行性验证**
+
 - 完成 babel-plugin-react-compiler 集成可行性分析
 - 性能基准测试显示可减少 20-40% 不必要的重新渲染
 - 建议在后续版本作为可选功能逐步引入
@@ -431,6 +461,7 @@ v1.3.0 专注于 Next.js 16 最新特性的深度集成，完成国际化 Phase 
 ### 🧪 Testing - 测试改进
 
 #### **测试覆盖提升**
+
 - 新增 `tests/hooks/useDebounce.test.ts` (7 tests)
 - 新增 `tests/hooks/useBatchSelection.test.ts` (12 tests)
 - 新增 `tests/api-integration/auth-logout.test.ts` (10 tests)
@@ -441,12 +472,14 @@ v1.3.0 专注于 Next.js 16 最新特性的深度集成，完成国际化 Phase 
 ### 📚 Documentation - 文档更新
 
 #### **API 文档同步**
+
 - 更新 `docs/API.md` - 删除过时的 Backup APIs 文档
 - 新增完整的 Cache Revalidation API 章节
 - 添加 `cacheLife`, `updateTag`, `refresh` 使用示例
 - 迁移指南和最佳实践
 
 #### **SEO 文档增强**
+
 - 元标签优化，提升搜索引擎可见性
 - 增强结构化数据支持 (JSON-LD)
 - 优化 Open Graph 和 Twitter Card 元数据
@@ -454,19 +487,20 @@ v1.3.0 专注于 Next.js 16 最新特性的深度集成，完成国际化 Phase 
 ### 🔧 Build/CI/CD - 构建和部署
 
 #### **CI 依赖更新**
+
 - 更新 actions-docker group (4 updates)
 - 更新 actions-core group (3 updates)
 - 更新 actions/download-artifact (v4 → v8)
 
 ### 📊 预期收益 (部分实现)
 
-| 指标 | 当前 | 目标 | 提升 | 状态 |
-|------|------|------|------|------|
-| 构建时间 | ~3-5 min | ~30-60s | 50-80% ↓ | 🔄 规划中 |
-| 开发重启编译 | ~8-15s | ~3-6s | 40-60% ↓ | 🔄 规划中 |
-| 不必要的重新渲染 | ~150-200/分钟 | ~90-120/分钟 | 20-40% ↓ | ✅ 已验证 |
-| 缓存失效延迟 | ~200-500ms | ~20-100ms | 80-90% ↓ | ✅ 已实现 |
-| i18n 完成度 (ja/ko/es) | 26% | 100% | +74% | ✅ 已完成 |
+| 指标                   | 当前          | 目标         | 提升     | 状态      |
+| ---------------------- | ------------- | ------------ | -------- | --------- |
+| 构建时间               | ~3-5 min      | ~30-60s      | 50-80% ↓ | 🔄 规划中 |
+| 开发重启编译           | ~8-15s        | ~3-6s        | 40-60% ↓ | 🔄 规划中 |
+| 不必要的重新渲染       | ~150-200/分钟 | ~90-120/分钟 | 20-40% ↓ | ✅ 已验证 |
+| 缓存失效延迟           | ~200-500ms    | ~20-100ms    | 80-90% ↓ | ✅ 已实现 |
+| i18n 完成度 (ja/ko/es) | 26%           | 100%         | +74%     | ✅ 已完成 |
 
 ---
 
@@ -704,7 +738,7 @@ This release delivers a comprehensive performance monitoring system with real-ti
 
 - **Security Audit v1.2**
   - Completed comprehensive security audit of all API routes
-  - Audit covered /src/app/api/**/route.ts
+  - Audit covered /src/app/api/\*\*/route.ts
   - Identified 3 routes with proper authentication (✅ secure)
   - Identified 7 routes requiring attention (⚠️ needs fixes)
   - Fixed identified vulnerabilities in API routes
@@ -920,13 +954,13 @@ This update focuses on improving project documentation to ensure synchronization
 
 ### 📊 Documentation Statistics
 
-| Document | Lines Changed | Main Changes |
-|----------|---------------|--------------|
-| README.md | 200+ | Version update, feature highlights, performance data |
-| docs/API.md | 262+ | API directory restructuring, endpoint statistics |
-| docs/ARCHITECTURE.md | 50+ | Architecture updates, version synchronization |
-| docs/DEPLOYMENT.md | 30+ | Deployment documentation improvements |
-| docs/INDEX.md | 10+ | Documentation index updates |
+| Document             | Lines Changed | Main Changes                                         |
+| -------------------- | ------------- | ---------------------------------------------------- |
+| README.md            | 200+          | Version update, feature highlights, performance data |
+| docs/API.md          | 262+          | API directory restructuring, endpoint statistics     |
+| docs/ARCHITECTURE.md | 50+           | Architecture updates, version synchronization        |
+| docs/DEPLOYMENT.md   | 30+           | Deployment documentation improvements                |
+| docs/INDEX.md        | 10+           | Documentation index updates                          |
 
 ### 🎯 Update Goals
 
@@ -1041,7 +1075,7 @@ This release implements a comprehensive Redis-based API rate limiting system wit
   - **Hybrid Algorithm** - Combines both sliding window and token bucket for optimal control
   - **Rate Limiting Middleware** - Easy-to-use Next.js API route middleware
   - **Pre-configured Rules** - Default rate limits for `/api/health/*`, `/api/auth/*`, `/api/tasks`, `/api/projects`
-  - **X-RateLimit-* Response Headers** - Standard rate limit headers for all responses
+  - **X-RateLimit-\* Response Headers** - Standard rate limit headers for all responses
   - **Event Logging** - Comprehensive rate limit event tracking and analytics
   - **Redis Client Management** - Automatic connection handling with fallback to in-memory limiting
 
@@ -1151,29 +1185,23 @@ This release implements a comprehensive Redis-based API rate limiting system wit
 
 ```typescript
 // Basic usage (using default configuration)
-import { withRateLimit } from '@/lib/rate-limit';
+import { withRateLimit } from '@/lib/rate-limit'
 
 export const GET = withRateLimit(async (req: NextRequest) => {
-  return NextResponse.json({ data: 'Hello World' });
-});
+  return NextResponse.json({ data: 'Hello World' })
+})
 
 // Custom configuration
-export const POST = withRateLimit(
-  handler,
-  {
-    algorithm: 'token-bucket',
-    limit: 10,
-    window: 60,
-    burstCapacity: 20,
-    refillRate: 0.167,
-  }
-);
+export const POST = withRateLimit(handler, {
+  algorithm: 'token-bucket',
+  limit: 10,
+  window: 60,
+  burstCapacity: 20,
+  refillRate: 0.167,
+})
 
 // User-based rate limiting
-export const GET = withRateLimit(
-  handler,
-  { identifier: getUserIdFromRequest(req) }
-);
+export const GET = withRateLimit(handler, { identifier: getUserIdFromRequest(req) })
 ```
 
 ### 📊 Response Headers

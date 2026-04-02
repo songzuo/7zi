@@ -29,14 +29,14 @@
 
 ### 1.2 核心发现
 
-| 领域 | 当前状态 | 优化潜力 | 优先级 |
-|------|----------|----------|--------|
-| **任务自动化** | 手动分配为主 | 高 - 智能路由和自动分解 | 🔴 高 |
-| **知识管理** | 文档分散 | 高 - RAG + 向量检索 | 🔴 高 |
-| **实时协作** | WebSocket 已实现 | 中 - 冲突智能解决 | 🟡 中 |
-| **代码生成** | 部分 AI 辅助 | 高 - 完整代码工作流 | 🔴 高 |
-| **数据分析** | 基础 Dashboard | 中 - 预测性分析 | 🟡 中 |
-| **客服支持** | 部分自动化 | 高 - 多模态问答 | 🔴 高 |
+| 领域           | 当前状态         | 优化潜力                | 优先级 |
+| -------------- | ---------------- | ----------------------- | ------ |
+| **任务自动化** | 手动分配为主     | 高 - 智能路由和自动分解 | 🔴 高  |
+| **知识管理**   | 文档分散         | 高 - RAG + 向量检索     | 🔴 高  |
+| **实时协作**   | WebSocket 已实现 | 中 - 冲突智能解决       | 🟡 中  |
+| **代码生成**   | 部分 AI 辅助     | 高 - 完整代码工作流     | 🔴 高  |
+| **数据分析**   | 基础 Dashboard   | 中 - 预测性分析         | 🟡 中  |
+| **客服支持**   | 部分自动化       | 高 - 多模态问答         | 🔴 高  |
 
 ### 1.3 关键建议
 
@@ -61,6 +61,7 @@
 **定义**: AI 不再仅仅是生成内容，而是能够理解目标、规划步骤、调用工具、自主行动。
 
 **关键特性**:
+
 - 🎯 目标导向 - 理解高层目标而非简单指令
 - 🔄 自主规划 - 自动分解任务、制定执行计划
 - 🛠️ 工具调用 - 通过 Function Calling 调用外部 API
@@ -68,6 +69,7 @@
 - 🧠 记忆机制 - 短期和长期记忆管理
 
 **行业应用**:
+
 - **GitHub Copilot Workspace** - 从需求到代码的完整流程
 - **Devin AI** - 全自动软件开发
 - **AutoGPT** - 自主任务执行
@@ -85,6 +87,7 @@
 | **Consensus** | 投票决策 | 方案评审 | 自定义 |
 
 **最佳实践**:
+
 - ✅ 每个职责一个 Agent（单一职责原则）
 - ✅ 清晰的通信协议（如 A2A Protocol）
 - ✅ 幂等性设计（可重试）
@@ -96,6 +99,7 @@
 **定义**: 结合向量数据库检索和记忆机制，实现知识持久化和上下文积累。
 
 **技术栈**:
+
 - **向量数据库**: Pinecone, Weaviate, Chroma, pgvector
 - **嵌入模型**: OpenAI text-embedding-3, Cohere, SentenceTransformers
 - **记忆类型**:
@@ -104,6 +108,7 @@
   - 长期: 知识库（向量 DB）
 
 **最佳实践**:
+
 - 文档分块策略（500-1000 tokens）
 - 混合检索（向量 + 关键词）
 - 元数据过滤（按时间、作者、标签）
@@ -114,11 +119,13 @@
 **定义**: AI 通过结构化 API 调用外部工具和服务。
 
 **标准**:
+
 - **OpenAI Function Calling** - JSON Schema 定义
 - **Anthropic Tool Use** - 类似标准
 - **MCP (Model Context Protocol)** - 新兴协议
 
 **最佳实践**:
+
 ```typescript
 // 示例: 任务管理工具
 const tools = [
@@ -130,12 +137,12 @@ const tools = [
       properties: {
         title: { type: 'string', description: '任务标题' },
         priority: { type: 'string', enum: ['low', 'medium', 'high', 'urgent'] },
-        assignee: { type: 'string', description: '分配给谁' }
+        assignee: { type: 'string', description: '分配给谁' },
       },
-      required: ['title']
-    }
-  }
-];
+      required: ['title'],
+    },
+  },
+]
 ```
 
 #### 2.1.5 Human-in-the-Loop（人机协作）
@@ -143,6 +150,7 @@ const tools = [
 **定义**: AI 执行任务，但在关键决策点寻求人类确认。
 
 **设计原则**:
+
 - 🔄 明确的确认点（高风险操作）
 - 📝 可审计的决策日志
 - 🚀 紧急回退机制（一键撤销）
@@ -151,6 +159,7 @@ const tools = [
 #### 2.1.6 Streaming & Real-time（流式与实时）
 
 **趋势**:
+
 - Server-Sent Events (SSE) - 单向推送
 - WebSocket - 双向实时通信 ✅ (7zi 已实现)
 - Streaming Token Output - 流式生成文本
@@ -159,6 +168,7 @@ const tools = [
 #### 2.1.7 Security & Governance（安全与治理）
 
 **关键措施**:
+
 - 🔐 身份验证（JWT, OAuth2）
 - 🛡️ 权限控制（RBAC, ABAC） ✅ (7zi 已实现)
 - 📊 使用监控（Token 计数、成本追踪）
@@ -172,11 +182,13 @@ const tools = [
 #### 2.2.1 GitHub Copilot Workspace
 
 **核心功能**:
+
 - 从 Issue → Plan → PR 的全流程自动化
 - Agent 分工: Planner, Coder, Reviewer
 - 实时代码协作
 
 **可借鉴点**:
+
 - 明确的 Agent 角色定义
 - 可视化的执行流程
 - 人机确认机制
@@ -184,11 +196,13 @@ const tools = [
 #### 2.2.2 Microsoft 365 Copilot
 
 **核心功能**:
+
 - 跨 Office 应用的智能助手
 - 自然语言操作 Excel/Word/PPT
 - 上下文感知建议
 
 **可借鉴点**:
+
 - 多工具集成
 - 上下文理解
 - 自然语言界面
@@ -196,11 +210,13 @@ const tools = [
 #### 2.2.3 LangGraph
 
 **核心功能**:
+
 - 有向图编排多 Agent
 - 状态机管理
 - 可视化调试
 
 **可借鉴点**:
+
 - 流程可视化
 - 状态持久化
 - 灵活的编排
@@ -213,38 +229,38 @@ const tools = [
 
 #### 3.1.1 已具备的 AI Agent 基础
 
-| 组件 | 状态 | 说明 |
-|------|------|------|
-| **11 位 AI 成员** | ✅ 完整 | 角色、职责、提供商已定义 |
-| **A2A Protocol** | ✅ 已实现 | Agent 间通信协议（v0.3.0） |
-| **WebSocket 通信** | ✅ 已实现 | 实时协作基础 |
-| **Director 系统** | ✅ 已实现 | 任务分解与协调 |
-| **RBAC 权限系统** | ✅ 已实现 | 5 种角色、45 种权限 |
-| **任务管理** | ✅ 已实现 | CRUD、批量操作、标签系统 |
-| **API 层** | ✅ 完整 | 79+ 端点，覆盖所有功能 |
-| **数据库** | ✅ 完整 | SQLite + Redis 缓存 |
-| **实时协作** | ✅ 已实现 | WebSocket + 房间系统 |
+| 组件               | 状态      | 说明                       |
+| ------------------ | --------- | -------------------------- |
+| **11 位 AI 成员**  | ✅ 完整   | 角色、职责、提供商已定义   |
+| **A2A Protocol**   | ✅ 已实现 | Agent 间通信协议（v0.3.0） |
+| **WebSocket 通信** | ✅ 已实现 | 实时协作基础               |
+| **Director 系统**  | ✅ 已实现 | 任务分解与协调             |
+| **RBAC 权限系统**  | ✅ 已实现 | 5 种角色、45 种权限        |
+| **任务管理**       | ✅ 已实现 | CRUD、批量操作、标签系统   |
+| **API 层**         | ✅ 完整   | 79+ 端点，覆盖所有功能     |
+| **数据库**         | ✅ 完整   | SQLite + Redis 缓存        |
+| **实时协作**       | ✅ 已实现 | WebSocket + 房间系统       |
 
 #### 3.1.2 可扩展的技术基础
 
-| 技术 | 当前状态 | Agent 集成潜力 |
-|------|----------|----------------|
-| **Next.js 16.2.1** | ✅ 最新 | Server Actions、ISR 缓存 |
-| **React 19.2.4** | ✅ 最新 | Server Components、并发特性 |
-| **TypeScript 5.x** | ✅ 最新 | 类型安全的工具定义 |
-| **Socket.IO 4.8.3** | ✅ 完整 | 实时 Agent 通信 |
-| **Zustand 5.0.12** | ✅ 完整 | 状态管理，可用于 Agent 状态 |
-| **Bull 4.16.5** | ✅ 完整 | 任务队列，用于异步 Agent 任务 |
+| 技术                | 当前状态 | Agent 集成潜力                |
+| ------------------- | -------- | ----------------------------- |
+| **Next.js 16.2.1**  | ✅ 最新  | Server Actions、ISR 缓存      |
+| **React 19.2.4**    | ✅ 最新  | Server Components、并发特性   |
+| **TypeScript 5.x**  | ✅ 最新  | 类型安全的工具定义            |
+| **Socket.IO 4.8.3** | ✅ 完整  | 实时 Agent 通信               |
+| **Zustand 5.0.12**  | ✅ 完整  | 状态管理，可用于 Agent 状态   |
+| **Bull 4.16.5**     | ✅ 完整  | 任务队列，用于异步 Agent 任务 |
 
 #### 3.1.3 需要增强的领域
 
-| 领域 | 当前状态 | 痛点 | 改进方向 |
-|------|----------|------|----------|
-| **任务分配** | 手动/半自动 | 需要人工选择 Assignee | 智能路由 + 自动分解 |
-| **知识检索** | 全文搜索 | 精确匹配，无语义理解 | RAG + 向量检索 |
-| **代码生成** | 部分 AI 辅助 | 不完整工作流 | 完整的代码 Agent 工作流 |
-| **数据分析** | 基础 Dashboard | 描述性分析 | 预测性 + 异常检测 |
-| **客服支持** | 部分自动化 | 规则为主 | 多模态 + 上下文理解 |
+| 领域         | 当前状态       | 痛点                  | 改进方向                |
+| ------------ | -------------- | --------------------- | ----------------------- |
+| **任务分配** | 手动/半自动    | 需要人工选择 Assignee | 智能路由 + 自动分解     |
+| **知识检索** | 全文搜索       | 精确匹配，无语义理解  | RAG + 向量检索          |
+| **代码生成** | 部分 AI 辅助   | 不完整工作流          | 完整的代码 Agent 工作流 |
+| **数据分析** | 基础 Dashboard | 描述性分析            | 预测性 + 异常检测       |
+| **客服支持** | 部分自动化     | 规则为主              | 多模态 + 上下文理解     |
 
 ---
 
@@ -252,23 +268,24 @@ const tools = [
 
 #### 3.2.1 角色与职责矩阵
 
-| AI 成员 | 提供商 | 当前职责 | 可增强方向 |
-|---------|--------|----------|------------|
-| 🌟 智能体世界专家 | MiniMax | 视角转换、未来布局 | Agent 编排策略优化 |
-| 📚 咨询师 | MiniMax | 研究分析、信息整理 | RAG 知识库查询 |
-| 🏗️ 架构师 | Self-Claude | 系统设计、技术规划 | 代码架构审查 Agent |
-| ⚡ Executor | Volcengine | 任务执行、代码实现 | 自动化代码生成 |
-| 🛡️ 系统管理员 | Bailian | 运维部署、安全监控 | 异常检测与自愈 Agent |
-| 🧪 测试员 | MiniMax | 质量保障、Bug 修复 | 自动化测试生成 |
-| 🎨 设计师 | Self-Claude | UI/UX 设计、前端开发 | 设计规范检查 |
-| 📣 推广专员 | Volcengine | 市场推广、SEO 优化 | 内容生成与分发 |
-| 💼 销售客服 | Bailian | 客户支持、商务合作 | 多模态客服 Agent |
-| 💰 财务 | MiniMax | 会计审计、成本控制 | 成本优化建议 |
-| 📺 媒体 | Self-Claude | 内容创作、品牌宣传 | 内容自动生成 |
+| AI 成员           | 提供商      | 当前职责             | 可增强方向           |
+| ----------------- | ----------- | -------------------- | -------------------- |
+| 🌟 智能体世界专家 | MiniMax     | 视角转换、未来布局   | Agent 编排策略优化   |
+| 📚 咨询师         | MiniMax     | 研究分析、信息整理   | RAG 知识库查询       |
+| 🏗️ 架构师         | Self-Claude | 系统设计、技术规划   | 代码架构审查 Agent   |
+| ⚡ Executor       | Volcengine  | 任务执行、代码实现   | 自动化代码生成       |
+| 🛡️ 系统管理员     | Bailian     | 运维部署、安全监控   | 异常检测与自愈 Agent |
+| 🧪 测试员         | MiniMax     | 质量保障、Bug 修复   | 自动化测试生成       |
+| 🎨 设计师         | Self-Claude | UI/UX 设计、前端开发 | 设计规范检查         |
+| 📣 推广专员       | Volcengine  | 市场推广、SEO 优化   | 内容生成与分发       |
+| 💼 销售客服       | Bailian     | 客户支持、商务合作   | 多模态客服 Agent     |
+| 💰 财务           | MiniMax     | 会计审计、成本控制   | 成本优化建议         |
+| 📺 媒体           | Self-Claude | 内容创作、品牌宣传   | 内容自动生成         |
 
 #### 3.2.2 Agent 通信能力
 
 **A2A Protocol (v0.3.0)** 特性:
+
 - ✅ JSON-RPC 2.0 标准协议
 - ✅ 同步和流式调用
 - ✅ 任务状态追踪
@@ -276,6 +293,7 @@ const tools = [
 - ✅ 自动重试和错误恢复
 
 **可增强点**:
+
 - ⚠️ 缺少：Agent 能力发现（类似服务发现）
 - ⚠️ 缺少：Agent 负载均衡
 - ⚠️ 缺少：Agent 性能监控和评分
@@ -305,6 +323,7 @@ A2A Protocol 通信
 ```
 
 **痛点**:
+
 1. 任务分配依赖手动决策
 2. 没有自动学习历史分配模式
 3. 缺少实时负载均衡
@@ -344,12 +363,12 @@ Agent 并行/串行执行
 
 #### 4.1.2 解决的问题
 
-| 痛点 | 影响 |
-|------|------|
-| 手动分配任务耗时 | 降低整体效率 |
-| 任务分解依赖经验 | 质量不稳定 |
-| Agent 负载不均 | 部分过载、部分闲置 |
-| 失败任务需要手动重试 | 增加人工干预 |
+| 痛点                 | 影响               |
+| -------------------- | ------------------ |
+| 手动分配任务耗时     | 降低整体效率       |
+| 任务分解依赖经验     | 质量不稳定         |
+| Agent 负载不均       | 部分过载、部分闲置 |
+| 失败任务需要手动重试 | 增加人工干预       |
 
 #### 4.1.3 技术方案
 
@@ -409,11 +428,11 @@ Agent 并行/串行执行
 ```typescript
 // 1. 任务理解器
 interface TaskIntent {
-  type: 'frontend' | 'backend' | 'design' | 'test' | 'research' | 'deployment';
-  complexity: 'low' | 'medium' | 'high';
-  estimatedHours: number;
-  technologies: string[];
-  dependencies: string[];
+  type: 'frontend' | 'backend' | 'design' | 'test' | 'research' | 'deployment'
+  complexity: 'low' | 'medium' | 'high'
+  estimatedHours: number
+  technologies: string[]
+  dependencies: string[]
 }
 
 class TaskUnderstander {
@@ -424,12 +443,12 @@ class TaskUnderstander {
 
 // 2. 任务分解器
 interface Subtask {
-  id: string;
-  title: string;
-  description: string;
-  requiredSkills: string[];
-  dependencies: string[];
-  priority: number;
+  id: string
+  title: string
+  description: string
+  requiredSkills: string[]
+  dependencies: string[]
+  priority: number
 }
 
 class TaskDecomposer {
@@ -441,12 +460,12 @@ class TaskDecomposer {
 
 // 3. Agent 选择器
 interface AgentScore {
-  agentId: string;
-  capabilityMatch: number;  // 能力匹配度 0-1
-  loadFactor: number;       // 负载因子 0-1 (0=空闲, 1=满载)
-  historicalPerformance: number; // 历史表现 0-1
-  costFactor: number;       // 成本因子 0-1
-  totalScore: number;       // 综合得分 0-1
+  agentId: string
+  capabilityMatch: number // 能力匹配度 0-1
+  loadFactor: number // 负载因子 0-1 (0=空闲, 1=满载)
+  historicalPerformance: number // 历史表现 0-1
+  costFactor: number // 成本因子 0-1
+  totalScore: number // 综合得分 0-1
 }
 
 class AgentSelector {
@@ -468,28 +487,24 @@ class TaskScheduler {
 **评分算法示例**:
 
 ```typescript
-function calculateAgentScore(
-  subtask: Subtask,
-  agent: Agent,
-  agentStats: AgentStats
-): AgentScore {
-  const capabilityMatch = calculateCapabilityMatch(subtask, agent);
-  const loadFactor = agent.currentTasks / agent.maxConcurrency;
-  const historicalPerformance = agentStats.successRate;
-  const costFactor = 1 - normalizeCost(agent.costPerToken);
+function calculateAgentScore(subtask: Subtask, agent: Agent, agentStats: AgentStats): AgentScore {
+  const capabilityMatch = calculateCapabilityMatch(subtask, agent)
+  const loadFactor = agent.currentTasks / agent.maxConcurrency
+  const historicalPerformance = agentStats.successRate
+  const costFactor = 1 - normalizeCost(agent.costPerToken)
 
   const weights = {
     capability: 0.4,
     load: 0.3,
     performance: 0.2,
-    cost: 0.1
-  };
+    cost: 0.1,
+  }
 
   const totalScore =
     capabilityMatch * weights.capability +
     (1 - loadFactor) * weights.load +
     historicalPerformance * weights.performance +
-    costFactor * weights.cost;
+    costFactor * weights.cost
 
   return {
     agentId: agent.id,
@@ -497,37 +512,37 @@ function calculateAgentScore(
     loadFactor,
     historicalPerformance,
     costFactor,
-    totalScore
-  };
+    totalScore,
+  }
 }
 ```
 
 #### 4.1.4 实现难度
 
-| 维度 | 评分 | 说明 |
-|------|------|------|
-| **技术复杂度** | 🟡 中等 | 需要集成 LLM + 评分算法，但已有 A2A Protocol 基础 |
-| **工作量** | 🟡 2-3 人周 | 核心组件开发 + 测试 + 文档 |
-| **依赖外部服务** | 🟢 低 | 使用现有 LLM API（已有） |
-| **数据需求** | 🟡 中等 | 需要历史任务数据训练评分模型 |
+| 维度             | 评分        | 说明                                              |
+| ---------------- | ----------- | ------------------------------------------------- |
+| **技术复杂度**   | 🟡 中等     | 需要集成 LLM + 评分算法，但已有 A2A Protocol 基础 |
+| **工作量**       | 🟡 2-3 人周 | 核心组件开发 + 测试 + 文档                        |
+| **依赖外部服务** | 🟢 低       | 使用现有 LLM API（已有）                          |
+| **数据需求**     | 🟡 中等     | 需要历史任务数据训练评分模型                      |
 
 #### 4.1.5 潜在价值
 
-| 指标 | 预期提升 |
-|------|----------|
-| **任务分配效率** | 提升 40-60% |
-| **任务完成时间** | 减少 20-30% |
+| 指标                 | 预期提升    |
+| -------------------- | ----------- |
+| **任务分配效率**     | 提升 40-60% |
+| **任务完成时间**     | 减少 20-30% |
 | **Agent 资源利用率** | 提升 30-50% |
-| **人工干预率** | 降低 50-70% |
+| **人工干预率**       | 降低 50-70% |
 
 #### 4.1.6 成本估算
 
-| 项目 | 成本 |
-|------|------|
-| 开发成本 | 2-3 人周 |
-| 额外 API 调用 | ~$10-20/月（LLM 任务分解） |
-| 存储 | 可忽略（SQLite 存储历史数据） |
-| **总计** | **一次性开发成本 + ~$20/月** |
+| 项目          | 成本                          |
+| ------------- | ----------------------------- |
+| 开发成本      | 2-3 人周                      |
+| 额外 API 调用 | ~$10-20/月（LLM 任务分解）    |
+| 存储          | 可忽略（SQLite 存储历史数据） |
+| **总计**      | **一次性开发成本 + ~$20/月**  |
 
 ---
 
@@ -539,12 +554,12 @@ function calculateAgentScore(
 
 #### 4.2.2 解决的问题
 
-| 痛点 | 影响 |
-|------|------|
-| 文档分散在多处 | 信息检索困难 |
-| 关键词搜索局限性 | 语义理解差 |
-| 历史经验未沉淀 | 重复造轮子 |
-| 新成员学习曲线陡峭 | 上手慢 |
+| 痛点               | 影响         |
+| ------------------ | ------------ |
+| 文档分散在多处     | 信息检索困难 |
+| 关键词搜索局限性   | 语义理解差   |
+| 历史经验未沉淀     | 重复造轮子   |
+| 新成员学习曲线陡峭 | 上手慢       |
 
 #### 4.2.3 技术方案
 
@@ -659,43 +674,43 @@ class RAGAnswerGenerator {
 
 **技术选型对比**:
 
-| 向量数据库 | 优点 | 缺点 | 成本 | 推荐度 |
-|-----------|------|------|------|--------|
-| **pgvector** | PostgreSQL 生态 | 需要额外部署 | 免费 | ⭐⭐⭐⭐⭐ |
-| Pinecone | 全托管、性能好 | 成本高 | $70-800/月 | ⭐⭐⭐ |
-| Chroma | 开源、轻量 | 性能一般 | 免费 | ⭐⭐⭐⭐ |
-| Weaviate | 功能丰富 | 资源占用高 | 免费（自托管）| ⭐⭐⭐⭐ |
+| 向量数据库   | 优点            | 缺点         | 成本           | 推荐度     |
+| ------------ | --------------- | ------------ | -------------- | ---------- |
+| **pgvector** | PostgreSQL 生态 | 需要额外部署 | 免费           | ⭐⭐⭐⭐⭐ |
+| Pinecone     | 全托管、性能好  | 成本高       | $70-800/月     | ⭐⭐⭐     |
+| Chroma       | 开源、轻量      | 性能一般     | 免费           | ⭐⭐⭐⭐   |
+| Weaviate     | 功能丰富        | 资源占用高   | 免费（自托管） | ⭐⭐⭐⭐   |
 
 **推荐**: pgvector 或 Chroma（轻量级方案）
 
 #### 4.2.4 实现难度
 
-| 维度 | 评分 | 说明 |
-|------|------|------|
-| **技术复杂度** | 🟡 中等 | RAG 技术成熟，需要向量数据库 |
-| **工作量** | 🔴 高 | 3-4 人周（数据处理 + 向量 DB + 测试） |
-| **依赖外部服务** | 🟢 低 | 本地向量 DB，LLM API 已有 |
-| **数据需求** | 🔴 高 | 需要大规模文档处理和向量化 |
+| 维度             | 评分    | 说明                                  |
+| ---------------- | ------- | ------------------------------------- |
+| **技术复杂度**   | 🟡 中等 | RAG 技术成熟，需要向量数据库          |
+| **工作量**       | 🔴 高   | 3-4 人周（数据处理 + 向量 DB + 测试） |
+| **依赖外部服务** | 🟢 低   | 本地向量 DB，LLM API 已有             |
+| **数据需求**     | 🔴 高   | 需要大规模文档处理和向量化            |
 
 #### 4.2.5 潜在价值
 
-| 指标 | 预期提升 |
-|------|----------|
-| **信息检索时间** | 减少 50-70% |
-| **重复问题解决** | 减少 40-60% |
+| 指标               | 预期提升    |
+| ------------------ | ----------- |
+| **信息检索时间**   | 减少 50-70% |
+| **重复问题解决**   | 减少 40-60% |
 | **新成员上手时间** | 减少 30-50% |
-| **知识利用率** | 提升 60-80% |
+| **知识利用率**     | 提升 60-80% |
 
 #### 4.2.6 成本估算
 
-| 项目 | 成本 |
-|------|------|
-| 开发成本 | 3-4 人周 |
-| 向量数据库 | 免费（Chroma/pgvector）|
-| 嵌入 API 调用 | ~$5-15/月（文档向量化）|
-| LLM 问答 API | ~$15-30/月（知识检索）|
-| 存储 | ~5-10 GB |
-| **总计** | **一次性开发成本 + ~$20-45/月** |
+| 项目          | 成本                            |
+| ------------- | ------------------------------- |
+| 开发成本      | 3-4 人周                        |
+| 向量数据库    | 免费（Chroma/pgvector）         |
+| 嵌入 API 调用 | ~$5-15/月（文档向量化）         |
+| LLM 问答 API  | ~$15-30/月（知识检索）          |
+| 存储          | ~5-10 GB                        |
+| **总计**      | **一次性开发成本 + ~$20-45/月** |
 
 ---
 
@@ -707,12 +722,12 @@ class RAGAnswerGenerator {
 
 #### 4.3.2 解决的问题
 
-| 痛点 | 影响 |
-|------|------|
-| 代码生成不完整 | 需要大量人工补全 |
+| 痛点             | 影响               |
+| ---------------- | ------------------ |
+| 代码生成不完整   | 需要大量人工补全   |
 | 代码质量参差不齐 | Bug 增加、维护困难 |
-| 测试覆盖率低 | 缺乏自动化测试 |
-| 审查流程慢 | 阻塞合并 |
+| 测试覆盖率低     | 缺乏自动化测试     |
+| 审查流程慢       | 阻塞合并           |
 
 #### 4.3.3 技术方案
 
@@ -766,10 +781,10 @@ class RAGAnswerGenerator {
 ```typescript
 // 1. 代码生成器
 interface CodeGenerationResult {
-  files: GeneratedFile[];
-  tests: GeneratedTest[];
-  documentation: string;
-  estimatedComplexity: number;
+  files: GeneratedFile[]
+  tests: GeneratedTest[]
+  documentation: string
+  estimatedComplexity: number
 }
 
 class CodeGenerator {
@@ -783,11 +798,11 @@ class CodeGenerator {
 
 // 2. 代码审查器
 interface CodeReviewResult {
-  score: number; // 0-100
-  issues: ReviewIssue[];
-  suggestions: string[];
-  securityWarnings: SecurityWarning[];
-  performanceHints: PerformanceHint[];
+  score: number // 0-100
+  issues: ReviewIssue[]
+  suggestions: string[]
+  securityWarnings: SecurityWarning[]
+  performanceHints: PerformanceHint[]
 }
 
 class CodeReviewer {
@@ -811,30 +826,30 @@ class TestGenerator {
 
 #### 4.3.4 实现难度
 
-| 维度 | 评分 | 说明 |
-|------|------|------|
-| **技术复杂度** | 🔴 高 | 需要深度代码理解，多 Agent 协作 |
-| **工作量** | 🔴 高 | 4-5 人周（完整工作流） |
-| **依赖外部服务** | 🟡 中等 | LLM API + 静态分析工具 |
-| **数据需求** | 🟡 中等 | 需要代码库训练 |
+| 维度             | 评分    | 说明                            |
+| ---------------- | ------- | ------------------------------- |
+| **技术复杂度**   | 🔴 高   | 需要深度代码理解，多 Agent 协作 |
+| **工作量**       | 🔴 高   | 4-5 人周（完整工作流）          |
+| **依赖外部服务** | 🟡 中等 | LLM API + 静态分析工具          |
+| **数据需求**     | 🟡 中等 | 需要代码库训练                  |
 
 #### 4.3.5 潜在价值
 
-| 指标 | 预期提升 |
-|------|----------|
-| **开发效率** | 提升 30-50% |
-| **代码质量** | 提升 40-60% |
+| 指标           | 预期提升    |
+| -------------- | ----------- |
+| **开发效率**   | 提升 30-50% |
+| **代码质量**   | 提升 40-60% |
 | **测试覆盖率** | 提升 50-70% |
-| **审查时间** | 减少 60-80% |
+| **审查时间**   | 减少 60-80% |
 
 #### 4.3.6 成本估算
 
-| 项目 | 成本 |
-|------|------|
-| 开发成本 | 4-5 人周 |
-| LLM API 调用 | ~$30-50/月（代码生成 + 审查） |
-| 静态分析工具 | 免费（ESLint, TypeScript） |
-| **总计** | **一次性开发成本 + ~$30-50/月** |
+| 项目         | 成本                            |
+| ------------ | ------------------------------- |
+| 开发成本     | 4-5 人周                        |
+| LLM API 调用 | ~$30-50/月（代码生成 + 审查）   |
+| 静态分析工具 | 免费（ESLint, TypeScript）      |
+| **总计**     | **一次性开发成本 + ~$30-50/月** |
 
 ---
 
@@ -846,12 +861,12 @@ class TestGenerator {
 
 #### 4.4.2 解决的问题
 
-| 痛点 | 影响 |
-|------|------|
-| 问题发现滞后 | 影响用户后才处理 |
-| 手动监控耗时 | 资源浪费 |
-| 异常模式难识别 | 潜在风险未暴露 |
-| 缺乏预测能力 | 被动响应 |
+| 痛点           | 影响             |
+| -------------- | ---------------- |
+| 问题发现滞后   | 影响用户后才处理 |
+| 手动监控耗时   | 资源浪费         |
+| 异常模式难识别 | 潜在风险未暴露   |
+| 缺乏预测能力   | 被动响应         |
 
 #### 4.4.3 技术方案
 
@@ -906,13 +921,13 @@ class MetricsCollector {
 
 // 2. 异常检测器
 interface Anomaly {
-  id: string;
-  type: 'performance' | 'error' | 'business' | 'security';
-  severity: 'low' | 'medium' | 'high' | 'critical';
-  description: string;
-  timestamp: Date;
-  affectedResources: string[];
-  suggestedActions: string[];
+  id: string
+  type: 'performance' | 'error' | 'business' | 'security'
+  severity: 'low' | 'medium' | 'high' | 'critical'
+  description: string
+  timestamp: Date
+  affectedResources: string[]
+  suggestedActions: string[]
 }
 
 class AnomalyDetector {
@@ -923,12 +938,12 @@ class AnomalyDetector {
 
 // 3. 预测引擎
 interface Prediction {
-  metric: string;
-  currentValue: number;
-  predictedValue: number;
-  confidence: number;
-  timeHorizon: string;
-  warning: string;
+  metric: string
+  currentValue: number
+  predictedValue: number
+  confidence: number
+  timeHorizon: string
+  warning: string
 }
 
 class PredictionEngine {
@@ -947,29 +962,29 @@ class SelfHealingSystem {
 
 #### 4.4.4 实现难度
 
-| 维度 | 评分 | 说明 |
-|------|------|------|
-| **技术复杂度** | 🔴 高 | 需要机器学习、时序分析 |
-| **工作量** | 🟡 中等 | 2-3 人周（基础版） |
-| **依赖外部服务** | 🟢 低 | 本地计算为主 |
-| **数据需求** | 🔴 高 | 需要历史数据训练模型 |
+| 维度             | 评分    | 说明                   |
+| ---------------- | ------- | ---------------------- |
+| **技术复杂度**   | 🔴 高   | 需要机器学习、时序分析 |
+| **工作量**       | 🟡 中等 | 2-3 人周（基础版）     |
+| **依赖外部服务** | 🟢 低   | 本地计算为主           |
+| **数据需求**     | 🔴 高   | 需要历史数据训练模型   |
 
 #### 4.4.5 潜在价值
 
-| 指标 | 预期提升 |
-|------|----------|
-| **问题提前发现率** | 提升 70-90% |
+| 指标                    | 预期提升    |
+| ----------------------- | ----------- |
+| **问题提前发现率**      | 提升 70-90% |
 | **平均恢复时间 (MTTR)** | 减少 40-60% |
-| **误报率** | 降低 50-70% |
-| **系统可用性** | 提升 10-20% |
+| **误报率**              | 降低 50-70% |
+| **系统可用性**          | 提升 10-20% |
 
 #### 4.4.6 成本估算
 
-| 项目 | 成本 |
-|------|------|
-| 开发成本 | 2-3 人周 |
-| 计算资源 | 可忽略（轻量级模型） |
-| 存储 | ~1-2 GB（历史数据） |
+| 项目     | 成本                                |
+| -------- | ----------------------------------- |
+| 开发成本 | 2-3 人周                            |
+| 计算资源 | 可忽略（轻量级模型）                |
+| 存储     | ~1-2 GB（历史数据）                 |
 | **总计** | **一次性开发成本 + 可忽略运营成本** |
 
 ---
@@ -982,12 +997,12 @@ class SelfHealingSystem {
 
 #### 4.5.2 解决的问题
 
-| 痛点 | 影响 |
-|------|------|
-| 客服成本高 | 人力成本占比大 |
-| 响应时间长 | 用户满意度下降 |
-| 知识不统一 | 答案不一致 |
-| 多语言支持难 | 国际化受限 |
+| 痛点         | 影响           |
+| ------------ | -------------- |
+| 客服成本高   | 人力成本占比大 |
+| 响应时间长   | 用户满意度下降 |
+| 知识不统一   | 答案不一致     |
+| 多语言支持难 | 国际化受限     |
 
 #### 4.5.3 技术方案
 
@@ -1047,22 +1062,22 @@ class MultimodalInputProcessor {
   async process(input: UserInput): Promise<ProcessedInput> {
     switch (input.type) {
       case 'text':
-        return this.processText(input.content);
+        return this.processText(input.content)
       case 'voice':
-        return this.processVoice(input.content); // ASR
+        return this.processVoice(input.content) // ASR
       case 'image':
-        return this.processImage(input.content); // OCR + 图像理解
+        return this.processImage(input.content) // OCR + 图像理解
     }
   }
 }
 
 // 2. 意图分类器
 interface IntentClassification {
-  intent: 'faq' | 'technical_support' | 'complaint' | 'suggestion' | 'chitchat';
-  confidence: number;
-  sentiment: 'positive' | 'neutral' | 'negative';
-  urgency: 'low' | 'medium' | 'high';
-  language: string;
+  intent: 'faq' | 'technical_support' | 'complaint' | 'suggestion' | 'chitchat'
+  confidence: number
+  sentiment: 'positive' | 'neutral' | 'negative'
+  urgency: 'low' | 'medium' | 'high'
+  language: string
 }
 
 class IntentClassifier {
@@ -1084,42 +1099,39 @@ class MultilingualAnswerGenerator {
 
 // 4. 人机协作管理器
 class HumanAICollaboration {
-  async shouldEscalateToHuman(
-    intent: IntentClassification,
-    confidence: number
-  ): Promise<boolean> {
+  async shouldEscalateToHuman(intent: IntentClassification, confidence: number): Promise<boolean> {
     // 判断是否需要转人工
-    return confidence < 0.7 || intent.urgency === 'high' || intent.sentiment === 'negative';
+    return confidence < 0.7 || intent.urgency === 'high' || intent.sentiment === 'negative'
   }
 }
 ```
 
 #### 4.5.4 实现难度
 
-| 维度 | 评分 | 说明 |
-|------|------|------|
-| **技术复杂度** | 🟡 中等 | 多模态处理 + RAG 已成熟 |
-| **工作量** | 🟡 中等 | 2-3 人周（基础版） |
-| **依赖外部服务** | 🟡 中等 | ASR + OCR + LLM |
-| **数据需求** | 🟡 中等 | 需要 FAQ 库和历史对话 |
+| 维度             | 评分    | 说明                    |
+| ---------------- | ------- | ----------------------- |
+| **技术复杂度**   | 🟡 中等 | 多模态处理 + RAG 已成熟 |
+| **工作量**       | 🟡 中等 | 2-3 人周（基础版）      |
+| **依赖外部服务** | 🟡 中等 | ASR + OCR + LLM         |
+| **数据需求**     | 🟡 中等 | 需要 FAQ 库和历史对话   |
 
 #### 4.5.5 潜在价值
 
-| 指标 | 预期提升 |
-|------|----------|
-| **客服效率** | 提升 80%+ |
-| **响应时间** | 从小时级 → 分钟级 |
-| **客户满意度** | 提升 20-30% |
-| **客服成本** | 降低 50-70% |
+| 指标           | 预期提升          |
+| -------------- | ----------------- |
+| **客服效率**   | 提升 80%+         |
+| **响应时间**   | 从小时级 → 分钟级 |
+| **客户满意度** | 提升 20-30%       |
+| **客服成本**   | 降低 50-70%       |
 
 #### 4.5.6 成本估算
 
-| 项目 | 成本 |
-|------|------|
-| 开发成本 | 2-3 人周 |
-| ASR API | ~$10-20/月（语音识别） |
-| OCR API | ~$5-10/月（图片识别） |
-| LLM API | ~$20-40/月（对话生成） |
+| 项目     | 成本                            |
+| -------- | ------------------------------- |
+| 开发成本 | 2-3 人周                        |
+| ASR API  | ~$10-20/月（语音识别）          |
+| OCR API  | ~$5-10/月（图片识别）           |
+| LLM API  | ~$20-40/月（对话生成）          |
 | **总计** | **一次性开发成本 + ~$35-70/月** |
 
 ---
@@ -1138,12 +1150,13 @@ class HumanAICollaboration {
 
 **目标**: 快速见效，建立信心
 
-| 场景 | 优先级 | 工作量 | 预期收益 |
-|------|--------|--------|----------|
-| 智能任务路由与自动分解 | 🔴 P0 | 2-3 人周 | 效率提升 40-60% |
-| 多模态智能客服 Agent | 🔴 P0 | 2-3 人周 | 客服效率提升 80%+ |
+| 场景                   | 优先级 | 工作量   | 预期收益          |
+| ---------------------- | ------ | -------- | ----------------- |
+| 智能任务路由与自动分解 | 🔴 P0  | 2-3 人周 | 效率提升 40-60%   |
+| 多模态智能客服 Agent   | 🔴 P0  | 2-3 人周 | 客服效率提升 80%+ |
 
 **关键里程碑**:
+
 - Week 2: 任务路由系统 MVP
 - Week 4: 客服 Agent 上线
 - Week 6: 两个场景稳定运行
@@ -1152,12 +1165,13 @@ class HumanAICollaboration {
 
 **目标**: 构建核心竞争力
 
-| 场景 | 优先级 | 工作量 | 预期收益 |
-|------|--------|--------|----------|
-| RAG 驱动的知识管理 | 🔴 P1 | 3-4 人周 | 检索效率提升 50-70% |
-| AI 代码审查与生成工作流 | 🟡 P1 | 4-5 人周 | 开发效率提升 30-50% |
+| 场景                    | 优先级 | 工作量   | 预期收益            |
+| ----------------------- | ------ | -------- | ------------------- |
+| RAG 驱动的知识管理      | 🔴 P1  | 3-4 人周 | 检索效率提升 50-70% |
+| AI 代码审查与生成工作流 | 🟡 P1  | 4-5 人周 | 开发效率提升 30-50% |
 
 **关键里程碑**:
+
 - Week 8: 知识库向量化完成
 - Week 10: RAG 检索上线
 - Week 12: 代码生成工作流 MVP
@@ -1166,11 +1180,12 @@ class HumanAICollaboration {
 
 **目标**: 领先优势
 
-| 场景 | 优先级 | 工作量 | 预期收益 |
-|------|--------|--------|----------|
-| 预测性分析与异常检测 | 🟡 P2 | 2-3 人周 | 问题提前发现率 70-90% |
+| 场景                 | 优先级 | 工作量   | 预期收益              |
+| -------------------- | ------ | -------- | --------------------- |
+| 预测性分析与异常检测 | 🟡 P2  | 2-3 人周 | 问题提前发现率 70-90% |
 
 **关键里程碑**:
+
 - Week 16: 异常检测系统上线
 - Week 20: 预测模型训练完成
 - Week 24: 全系统集成测试完成
@@ -1196,45 +1211,45 @@ Phase 3 (依赖 Phase 2)
 
 ### 6.1 开发成本
 
-| 阶段 | 场景 | 人周 | 月薪（估算） | 成本 |
-|------|------|------|-------------|------|
-| Phase 1 | 智能任务路由 | 2-3 | ¥30,000 | ¥15,000-22,500 |
-| Phase 1 | 智能客服 Agent | 2-3 | ¥30,000 | ¥15,000-22,500 |
-| Phase 2 | RAG 知识管理 | 3-4 | ¥30,000 | ¥22,500-30,000 |
-| Phase 2 | 代码工作流 | 4-5 | ¥30,000 | ¥30,000-37,500 |
-| Phase 3 | 预测性分析 | 2-3 | ¥30,000 | ¥15,000-22,500 |
-| **总计** | | **15-18** | | **¥97,500-135,000** |
+| 阶段     | 场景           | 人周      | 月薪（估算） | 成本                |
+| -------- | -------------- | --------- | ------------ | ------------------- |
+| Phase 1  | 智能任务路由   | 2-3       | ¥30,000      | ¥15,000-22,500      |
+| Phase 1  | 智能客服 Agent | 2-3       | ¥30,000      | ¥15,000-22,500      |
+| Phase 2  | RAG 知识管理   | 3-4       | ¥30,000      | ¥22,500-30,000      |
+| Phase 2  | 代码工作流     | 4-5       | ¥30,000      | ¥30,000-37,500      |
+| Phase 3  | 预测性分析     | 2-3       | ¥30,000      | ¥15,000-22,500      |
+| **总计** |                | **15-18** |              | **¥97,500-135,000** |
 
 ### 6.2 运营成本（月度）
 
-| 项目 | 成本范围 | 说明 |
-|------|----------|------|
-| LLM API | $50-100 | 任务分解、代码生成、客服对话 |
-| 向量数据库 | $0-20 | Chroma（免费）或 Pinecone |
-| ASR/OCR API | $15-30 | 语音和图片识别 |
-| 嵌入 API | $10-20 | 文档向量化 |
-| 存储 | $10-20 | 向量库和历史数据 |
-| **月度总计** | **$85-190** | 约 ¥600-1,350 |
+| 项目         | 成本范围    | 说明                         |
+| ------------ | ----------- | ---------------------------- |
+| LLM API      | $50-100     | 任务分解、代码生成、客服对话 |
+| 向量数据库   | $0-20       | Chroma（免费）或 Pinecone    |
+| ASR/OCR API  | $15-30      | 语音和图片识别               |
+| 嵌入 API     | $10-20      | 文档向量化                   |
+| 存储         | $10-20      | 向量库和历史数据             |
+| **月度总计** | **$85-190** | 约 ¥600-1,350                |
 
 ### 6.3 预期收益（年度）
 
-| 指标 | 当前成本 | 优化后 | 节省 | 年度节省 |
-|------|----------|--------|------|----------|
-| 人工任务分配 | 20 小时/周 | 8 小时/周 | 60% | ¥156,000 |
-| 信息检索 | 15 小时/周 | 5 小时/周 | 67% | ¥156,000 |
-| 代码审查 | 10 小时/周 | 3 小时/周 | 70% | ¥109,200 |
-| 客服响应 | 30 小时/周 | 6 小时/周 | 80% | ¥312,000 |
-| 问题发现 | 滞后发现 | 提前发现 | 减少 50% 损失 | ¥200,000 |
-| **年度总节省** | | | | **¥933,200** |
+| 指标           | 当前成本   | 优化后    | 节省          | 年度节省     |
+| -------------- | ---------- | --------- | ------------- | ------------ |
+| 人工任务分配   | 20 小时/周 | 8 小时/周 | 60%           | ¥156,000     |
+| 信息检索       | 15 小时/周 | 5 小时/周 | 67%           | ¥156,000     |
+| 代码审查       | 10 小时/周 | 3 小时/周 | 70%           | ¥109,200     |
+| 客服响应       | 30 小时/周 | 6 小时/周 | 80%           | ¥312,000     |
+| 问题发现       | 滞后发现   | 提前发现  | 减少 50% 损失 | ¥200,000     |
+| **年度总节省** |            |           |               | **¥933,200** |
 
 ### 6.4 ROI 计算
 
-| 项目 | 数值 |
-|------|------|
+| 项目                     | 数值                                               |
+| ------------------------ | -------------------------------------------------- |
 | 总投资（开发 + 1年运营） | ¥97,500-135,000 + ¥7,200-16,200 = ¥104,700-151,200 |
-| 年度收益 | ¥933,200 |
-| ROI | **617%-892%** |
-| 回收周期 | **1-2 个月** |
+| 年度收益                 | ¥933,200                                           |
+| ROI                      | **617%-892%**                                      |
+| 回收周期                 | **1-2 个月**                                       |
 
 **结论**: 极高的投资回报率，强烈建议实施。
 
@@ -1244,28 +1259,28 @@ Phase 3 (依赖 Phase 2)
 
 ### 7.1 技术风险
 
-| 风险 | 概率 | 影响 | 缓解措施 |
-|------|------|------|----------|
-| LLM API 不稳定 | 🟡 中 | 🔴 高 | 多提供商备份、本地模型 fallback |
-| 向量数据库性能 | 🟢 低 | 🟡 中 | 选择成熟方案（pgvector）、性能测试 |
-| Agent 协作复杂度 | 🟡 中 | 🟡 中 | 充分测试、渐进式推出 |
-| 数据隐私泄露 | 🟢 低 | 🔴 高 | 数据加密、访问控制、审计日志 |
+| 风险             | 概率  | 影响  | 缓解措施                           |
+| ---------------- | ----- | ----- | ---------------------------------- |
+| LLM API 不稳定   | 🟡 中 | 🔴 高 | 多提供商备份、本地模型 fallback    |
+| 向量数据库性能   | 🟢 低 | 🟡 中 | 选择成熟方案（pgvector）、性能测试 |
+| Agent 协作复杂度 | 🟡 中 | 🟡 中 | 充分测试、渐进式推出               |
+| 数据隐私泄露     | 🟢 低 | 🔴 高 | 数据加密、访问控制、审计日志       |
 
 ### 7.2 业务风险
 
-| 风险 | 概率 | 影响 | 缓解措施 |
-|------|------|------|----------|
+| 风险               | 概率  | 影响  | 缓解措施                          |
+| ------------------ | ----- | ----- | --------------------------------- |
 | 用户不接受 AI 决策 | 🟡 中 | 🟡 中 | Human-in-the-Loop、透明化决策过程 |
-| 成本超预算 | 🟢 低 | 🟡 中 | 监控 API 使用、设置预算上限 |
-| 质量不达预期 | 🟡 中 | 🔴 高 | 充分测试、A/B 测试、渐进式推广 |
+| 成本超预算         | 🟢 低 | 🟡 中 | 监控 API 使用、设置预算上限       |
+| 质量不达预期       | 🟡 中 | 🔴 高 | 充分测试、A/B 测试、渐进式推广    |
 
 ### 7.3 运营风险
 
-| 风险 | 概率 | 影响 | 缓解措施 |
-|------|------|------|----------|
-| 维护成本高 | 🟢 低 | 🟡 中 | 文档完善、代码质量、自动化测试 |
-| 依赖单一提供商 | 🟡 中 | 🔴 高 | 多提供商策略、标准化接口 |
-| 团队技能不足 | 🟡 中 | 🟡 中 | 培训、招聘、外部咨询 |
+| 风险           | 概率  | 影响  | 缓解措施                       |
+| -------------- | ----- | ----- | ------------------------------ |
+| 维护成本高     | 🟢 低 | 🟡 中 | 文档完善、代码质量、自动化测试 |
+| 依赖单一提供商 | 🟡 中 | 🔴 高 | 多提供商策略、标准化接口       |
+| 团队技能不足   | 🟡 中 | 🟡 中 | 培训、招聘、外部咨询           |
 
 ---
 
@@ -1275,27 +1290,27 @@ Phase 3 (依赖 Phase 2)
 
 #### 8.1.1 Agent 编排
 
-| 需求 | 推荐方案 | 理由 |
-|------|----------|------|
-| Agent 编排框架 | **LangGraph** 或自研 | 灵活、可视化、已有 A2A Protocol |
-| 工具调用 | **OpenAI Function Calling** | 标准化、生态好 |
-| 状态管理 | **Zustand + Redis** | 已集成、实时性好 |
+| 需求           | 推荐方案                    | 理由                            |
+| -------------- | --------------------------- | ------------------------------- |
+| Agent 编排框架 | **LangGraph** 或自研        | 灵活、可视化、已有 A2A Protocol |
+| 工具调用       | **OpenAI Function Calling** | 标准化、生态好                  |
+| 状态管理       | **Zustand + Redis**         | 已集成、实时性好                |
 
 #### 8.1.2 RAG 系统
 
-| 需求 | 推荐方案 | 理由 |
-|------|----------|------|
+| 需求       | 推荐方案                   | 理由               |
+| ---------- | -------------------------- | ------------------ |
 | 向量数据库 | **Chroma** 或 **pgvector** | 开源、轻量、易部署 |
-| 嵌入模型 | **text-embedding-3-small** | 性价比高、效果好 |
-| 文档分块 | **LangChain Splitter** | 成熟、可定制 |
+| 嵌入模型   | **text-embedding-3-small** | 性价比高、效果好   |
+| 文档分块   | **LangChain Splitter**     | 成熟、可定制       |
 
 #### 8.1.3 多模态处理
 
-| 需求 | 推荐方案 | 理由 |
-|------|----------|------|
+| 需求     | 推荐方案                          | 理由                 |
+| -------- | --------------------------------- | -------------------- |
 | 语音识别 | **Whisper API** 或 **阿里云 ASR** | 准确率高、支持多语言 |
-| 图像理解 | **GPT-4V** 或 **Claude 3** | 多模态能力强 |
-| OCR | **Tesseract** 或 **百度 OCR** | 开源/云服务可选 |
+| 图像理解 | **GPT-4V** 或 **Claude 3**        | 多模态能力强         |
+| OCR      | **Tesseract** 或 **百度 OCR**     | 开源/云服务可选      |
 
 ### 8.2 代码结构建议
 
@@ -1334,29 +1349,29 @@ src/
 // 新增 API 端点
 
 // 1. 智能任务路由
-POST /api/agents/task-router/decompose
-POST /api/agents/task-router/select-agent
-GET  /api/agents/task-router/status
+POST / api / agents / task - router / decompose
+POST / api / agents / task - router / select - agent
+GET / api / agents / task - router / status
 
 // 2. 知识管理
-POST /api/rag/index
-POST /api/rag/search
-POST /api/rag/ask
+POST / api / rag / index
+POST / api / rag / search
+POST / api / rag / ask
 
 // 3. 代码工作流
-POST /api/code/generate
-POST /api/code/review
-POST /api/code/test
+POST / api / code / generate
+POST / api / code / review
+POST / api / code / test
 
 // 4. 预测分析
-GET  /api/prediction/metrics
-GET  /api/prediction/anomalies
-POST /api/prediction/heal
+GET / api / prediction / metrics
+GET / api / prediction / anomalies
+POST / api / prediction / heal
 
 // 5. 多模态客服
-POST /api/customer-service/chat
-POST /api/customer-service/voice
-POST /api/customer-service/image
+POST / api / customer - service / chat
+POST / api / customer - service / voice
+POST / api / customer - service / image
 ```
 
 ---
@@ -1426,20 +1441,20 @@ POST /api/customer-service/image
 
 ## 附录 B: 术语表
 
-| 术语 | 英文 | 定义 |
-|------|------|------|
-| Agent | AI Agent | 能够自主理解、规划、执行任务的 AI 系统 |
-| Agentic AI | - | 具有代理特性的 AI，能自主行动 |
-| RAG | Retrieval-Augmented Generation | 检索增强生成，结合知识检索和文本生成 |
-| Function Calling | Tool Calling | AI 调用外部工具或 API 的能力 |
-| Human-in-the-Loop | HITL | 人机协作，关键决策需人工确认 |
-| A2A Protocol | Agent-to-Agent Protocol | Agent 间通信协议 |
-| Multi-Agent Orchestration | - | 多 Agent 协同工作的编排方式 |
-| Vector Database | - | 存储和检索向量化数据的数据库 |
-| Embedding | - | 将文本转换为向量的过程 |
-| LLM | Large Language Model | 大型语言模型 |
+| 术语                      | 英文                           | 定义                                   |
+| ------------------------- | ------------------------------ | -------------------------------------- |
+| Agent                     | AI Agent                       | 能够自主理解、规划、执行任务的 AI 系统 |
+| Agentic AI                | -                              | 具有代理特性的 AI，能自主行动          |
+| RAG                       | Retrieval-Augmented Generation | 检索增强生成，结合知识检索和文本生成   |
+| Function Calling          | Tool Calling                   | AI 调用外部工具或 API 的能力           |
+| Human-in-the-Loop         | HITL                           | 人机协作，关键决策需人工确认           |
+| A2A Protocol              | Agent-to-Agent Protocol        | Agent 间通信协议                       |
+| Multi-Agent Orchestration | -                              | 多 Agent 协同工作的编排方式            |
+| Vector Database           | -                              | 存储和检索向量化数据的数据库           |
+| Embedding                 | -                              | 将文本转换为向量的过程                 |
+| LLM                       | Large Language Model           | 大型语言模型                           |
 
 ---
 
 **End of Document**
-                              �
+�

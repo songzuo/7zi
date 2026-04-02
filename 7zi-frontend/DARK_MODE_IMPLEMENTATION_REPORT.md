@@ -7,6 +7,7 @@
 ## ✅ 实现的功能
 
 ### 1. 主题上下文 (ThemeContext)
+
 **文件**: `src/shared/context/ThemeContext.tsx`
 
 - 提供全局主题状态管理
@@ -17,15 +18,17 @@
 - 提供 `useTheme` Hook 供组件使用
 
 **API**:
+
 ```typescript
 interface ThemeContextValue {
-  theme: Theme;           // 当前选择的主题
-  setTheme: (theme: Theme) => void;  // 设置主题
-  resolvedTheme: 'light' | 'dark';   // 实际应用的主题（考虑系统偏好）
+  theme: Theme // 当前选择的主题
+  setTheme: (theme: Theme) => void // 设置主题
+  resolvedTheme: 'light' | 'dark' // 实际应用的主题（考虑系统偏好）
 }
 ```
 
 ### 2. 主题切换组件 (ThemeSwitcher)
+
 **文件**: `src/components/ui/ThemeSwitcher.tsx`
 
 - 循环切换三种主题模式
@@ -36,15 +39,17 @@ interface ThemeContextValue {
 - 平滑的悬停和点击动画
 
 **Props**:
+
 ```typescript
 interface ThemeSwitcherProps {
-  size?: 'sm' | 'md' | 'lg';
-  showLabel?: boolean;
-  className?: string;
+  size?: 'sm' | 'md' | 'lg'
+  showLabel?: boolean
+  className?: string
 }
 ```
 
 ### 3. 全局样式系统
+
 **文件**: `src/app/globals.css`
 
 - 引入设计系统变量 (`tokens.css`)
@@ -55,22 +60,27 @@ interface ThemeSwitcherProps {
 - 动画效果（fadeIn、slideIn、spin）
 
 ### 4. 颜色变量系统
+
 **文件**: `src/styles/tokens.css`
 
 **浅色主题**:
+
 - 主色调：蓝色系 (#eff6ff → #1e3a8a)
 - 灰色系：从浅灰到深灰 (#f9fafb → #111827)
 - 语义色：成功、警告、错误、信息
 
 **暗色主题**:
+
 - 主色调：调整以适应深色背景
 - 灰色系：完全反转，确保文本可读性
 - 阴影：增强对比度，在深色背景上更明显
 
 ### 5. 演示页面
+
 **文件**: `src/app/dark-mode-demo/page.tsx`
 
 完整的功能展示页面，包括：
+
 - 响应式导航栏（集成主题切换器）
 - 功能特性卡片展示
 - 主题色预览网格
@@ -80,6 +90,7 @@ interface ThemeSwitcherProps {
 **访问路径**: `/dark-mode-demo`
 
 ### 6. 布局更新
+
 **文件**: `src/app/layout.tsx`
 
 - 包含 `ThemeProvider`
@@ -87,6 +98,7 @@ interface ThemeSwitcherProps {
 - 预连接图片 CDN（保持原有功能）
 
 ### 7. 组件导出更新
+
 **文件**: `src/components/ui/index.ts`
 
 - 添加 `ThemeSwitcher` 组件导出
@@ -95,15 +107,19 @@ interface ThemeSwitcherProps {
 ## 🎯 核心特性
 
 ### ✅ CSS 变量系统
+
 使用 CSS 自定义属性（Custom Properties）实现主题色系统，所有颜色都通过变量引用，主题切换时只需切换 `.dark` 类名。
 
 ### ✅ 系统偏好检测
+
 使用 `window.matchMedia('(prefers-color-scheme: dark)')` 检测系统主题设置，并监听变化实时响应。
 
 ### ✅ 本地存储持久化
+
 用户选择的主题自动保存到 `localStorage`，刷新页面后保持一致。存储键：`theme`。
 
 ### ✅ 平滑过渡动画
+
 所有元素使用 `transition: background-color 0.3s ease, color 0.3s ease` 实现平滑过渡，主题切换时视觉效果流畅自然。
 
 ## 📦 文件结构
@@ -176,18 +192,22 @@ function MyComponent() {
 ## 🎨 颜色变量清单
 
 ### 主色调
+
 - `--color-primary-50` 到 `--color-primary-900` (10个层级)
 
 ### 灰色系
+
 - `--color-gray-50` 到 `--color-gray-900` (10个层级)
 
 ### 语义色
+
 - `--color-success-500/600/700` (成功)
 - `--color-warning-500/600/700` (警告)
 - `--color-error-500/600/700` (错误)
 - `--color-info-500/600/700` (信息)
 
 ### 其他变量
+
 - 字体系统
 - 间距系统
 - 圆角系统
@@ -198,16 +218,19 @@ function MyComponent() {
 ## 🔄 主题模式说明
 
 ### Light (浅色)
+
 - 浅色背景 (#f9fafb)
 - 深色文本 (#111827)
 - 适合白天使用
 
 ### Dark (深色)
+
 - 深色背景 (#0f172a)
 - 浅色文本 (#f8fafc)
 - 适合夜间使用
 
 ### System (跟随系统)
+
 - 自动检测操作系统主题
 - 跟随系统设置变化
 - 最佳用户体验
@@ -237,6 +260,7 @@ function MyComponent() {
 ## 🎉 总结
 
 深色模式功能已完全实现并可用。所有要求均已满足：
+
 - ✅ CSS 变量实现主题色
 - ✅ 支持系统偏好检测
 - ✅ 持久化到 localStorage

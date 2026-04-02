@@ -10,7 +10,7 @@
 
 ### 原始任务要求
 
-1. ✅ **整理项目根目录的 Markdown 文档（*.md 文件）**
+1. ✅ **整理项目根目录的 Markdown 文档（\*.md 文件）**
 2. ✅ **建立清晰的文档结构（docs/ 目录）**
 3. ✅ **创建或更新以下核心文档：**
    - ✅ README.md（项目介绍、快速开始）
@@ -220,6 +220,7 @@ docs/
 ### 1. docs/README.md（已更新）
 
 **内容**:
+
 - 项目简介
 - 核心特性介绍
 - 最新进展 (v1.1.0)
@@ -232,6 +233,7 @@ docs/
 - 贡献指南
 
 **更新内容**:
+
 - 更新项目版本至 v1.1.0
 - 添加 Global Loading System 介绍
 - 添加 A2A Agent Communication 介绍
@@ -243,6 +245,7 @@ docs/
 ### 2. docs/INDEX.md（已创建）
 
 **内容**:
+
 - 完整的文档索引
 - 按类别组织的文档列表
 - 推荐阅读顺序
@@ -251,6 +254,7 @@ docs/
 - 快速链接
 
 **特点**:
+
 - 清晰的文档分类
 - 标注核心文档（⭐）
 - 提供新手、前端、后端、DevOps、AI 开发的推荐阅读路径
@@ -261,6 +265,7 @@ docs/
 ### 3. docs/ARCHITECTURE.md（已更新）
 
 **内容**:
+
 - 架构概览和分层设计
 - 核心组件详细说明
   - Global Loading System (v1.1.0 新增)
@@ -282,6 +287,7 @@ docs/
 - 相关文档链接
 
 **更新内容**:
+
 - 添加 Global Loading System 架构说明
 - 添加 A2A Agent Communication 架构说明
 - 更新架构图
@@ -293,6 +299,7 @@ docs/
 ### 4. docs/API.md（已更新）
 
 **内容**:
+
 - 自定义 Hooks（9 个）
   - useThemeCustomization
   - useUserPreferences
@@ -323,6 +330,7 @@ docs/
 - 相关文档链接
 
 **更新内容**:
+
 - 整理 Hooks 文档格式
 - 添加完整的代码示例
 - 规范 API 端点文档
@@ -335,25 +343,25 @@ docs/
 
 ### 核心文档内部链接验证
 
-| 文档 | 链接目标 | 状态 |
-|------|---------|------|
-| README.md | ARCHITECTURE.md | ✅ 有效 |
-| README.md | API.md | ✅ 有效 |
-| README.md | DEPLOYMENT.md | ✅ 有效 |
-| README.md | QUICKSTART.md | ✅ 有效 |
-| README.md | CHANGELOG.md | ✅ 有效 |
-| INDEX.md | README.md | ✅ 有效 |
-| INDEX.md | ARCHITECTURE.md | ✅ 有效 |
-| INDEX.md | API.md | ✅ 有效 |
-| INDEX.md | DEPLOYMENT.md | ✅ 有效 |
-| ARCHITECTURE.md | README.md | ✅ 有效 |
-| ARCHITECTURE.md | API.md | ✅ 有效 |
-| ARCHITECTURE.md | DEPLOYMENT.md | ✅ 有效 |
+| 文档            | 链接目标          | 状态    |
+| --------------- | ----------------- | ------- |
+| README.md       | ARCHITECTURE.md   | ✅ 有效 |
+| README.md       | API.md            | ✅ 有效 |
+| README.md       | DEPLOYMENT.md     | ✅ 有效 |
+| README.md       | QUICKSTART.md     | ✅ 有效 |
+| README.md       | CHANGELOG.md      | ✅ 有效 |
+| INDEX.md        | README.md         | ✅ 有效 |
+| INDEX.md        | ARCHITECTURE.md   | ✅ 有效 |
+| INDEX.md        | API.md            | ✅ 有效 |
+| INDEX.md        | DEPLOYMENT.md     | ✅ 有效 |
+| ARCHITECTURE.md | README.md         | ✅ 有效 |
+| ARCHITECTURE.md | API.md            | ✅ 有效 |
+| ARCHITECTURE.md | DEPLOYMENT.md     | ✅ 有效 |
 | ARCHITECTURE.md | LOADING-SYSTEM.md | ✅ 有效 |
-| ARCHITECTURE.md | WEBSOCKET.md | ✅ 有效 |
-| API.md | README.md | ✅ 有效 |
-| API.md | ARCHITECTURE.md | ✅ 有效 |
-| API.md | DEPLOYMENT.md | ✅ 有效 |
+| ARCHITECTURE.md | WEBSOCKET.md      | ✅ 有效 |
+| API.md          | README.md         | ✅ 有效 |
+| API.md          | ARCHITECTURE.md   | ✅ 有效 |
+| API.md          | DEPLOYMENT.md     | ✅ 有效 |
 
 ---
 
@@ -403,9 +411,9 @@ docs/
 
 归档以下类型的文档：
 
-- **临时报告**: 所有 *_REPORT.md 文件
-- **审计文档**: 所有 *_AUDIT*.md 文件
-- **会话文档**: 所有 *_SESSION*.md 文件
+- **临时报告**: 所有 \*\_REPORT.md 文件
+- **审计文档**: 所有 _\_AUDIT_.md 文件
+- **会话文档**: 所有 _\_SESSION_.md 文件
 - **其他临时文档**: 测试报告、优化报告、清理报告等
 
 ---

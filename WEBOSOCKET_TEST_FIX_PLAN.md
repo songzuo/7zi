@@ -3,6 +3,7 @@
 ## 概述
 
 **测试状态：**
+
 - 测试文件：4 个
 - 测试用例：97 个
 - 通过率：21/97 (21.7%)
@@ -15,6 +16,7 @@
 #### 问题 1.1: 按钮缺少 name/aria-label 属性
 
 **测试期望：**
+
 ```typescript
 screen.getByRole('button', { name: /加入/i })
 screen.getByRole('button', { name: /离开/i })
@@ -92,9 +94,10 @@ screen.getByRole('button', { name: /删除/i })
 #### 问题 1.2: 缺少 data-testid 属性
 
 **测试期望：**
+
 ```typescript
-const card = screen.getByText('测试房间').closest('div');
-expect(card?.className).toMatch(/border-blue-500|border-blue-400/);
+const card = screen.getByText('测试房间').closest('div')
+expect(card?.className).toMatch(/border-blue-500|border-blue-400/)
 ```
 
 **问题：** 使用 `closest('div')` 不稳定，容易选择错误的元素
@@ -146,26 +149,27 @@ expect(card?.className).toMatch(/border-blue-500|border-blue-400/);
 #### 问题 2.1: 缺少 data-testid 属性
 
 **测试期望：**
+
 ```typescript
-const onlineIndicator = document.querySelector('[data-status="online"]');
-const offlineIndicator = document.querySelector('[data-status="offline"]');
+const onlineIndicator = document.querySelector('[data-status="online"]')
+const offlineIndicator = document.querySelector('[data-status="offline"]')
 
-const container = document.querySelector('[data-testid="participant-grid"]');
-expect(container).toBeInTheDocument();
+const container = document.querySelector('[data-testid="participant-grid"]')
+expect(container).toBeInTheDocument()
 
-const avatars = document.querySelectorAll('[data-testid="participant-avatar"]');
+const avatars = document.querySelectorAll('[data-testid="participant-avatar"]')
 
-const avatars = document.querySelectorAll('[data-testid="avatar-stack"]');
+const avatars = document.querySelectorAll('[data-testid="avatar-stack"]')
 
-const container = document.querySelector('[data-testid="participant-compact"]');
+const container = document.querySelector('[data-testid="participant-compact"]')
 
-const typingIndicator = document.querySelector('[data-testid="typing-indicator"]');
+const typingIndicator = document.querySelector('[data-testid="typing-indicator"]')
 
-const currentUserItem = screen.getByText('当前用户').closest('[data-testid="participant-item"]');
+const currentUserItem = screen.getByText('当前用户').closest('[data-testid="participant-item"]')
 
-const avatar = document.querySelector('[data-testid="avatar-initial"]');
+const avatar = document.querySelector('[data-testid="avatar-initial"]')
 
-const list = screen.getByRole('list');
+const list = screen.getByRole('list')
 ```
 
 **修复方案：** 添加完整的 data-testid
@@ -304,6 +308,7 @@ const list = screen.getByRole('list');
 #### 问题 3.1: Tab 组件的 name 属性不匹配
 
 **测试期望：**
+
 ```typescript
 screen.getByRole('tab', { name: '通用设置' })
 screen.getByRole('tab', { name: '权限管理' })
@@ -322,7 +327,7 @@ const tabs = [
   { id: 'permissions', label: '权限管理', icon: '🔐' },
   { id: 'members', label: '成员管理', icon: '👥' },
   { id: 'danger', label: '危险区域', icon: '⚠️' },
-];
+]
 ```
 
 **修复方案 2：** 修改测试（备选）
@@ -476,31 +481,31 @@ screen.getByRole('tab', { name: '危险' })
 
 ### 高优先级（核心功能，影响大量测试）
 
-| 文件 | 修复内容 | 预估时间 |
-|------|---------|---------|
-| `RoomCard.tsx` | 添加 data-testid 和 aria-label | 30 分钟 |
-| `ParticipantList.tsx` | 添加完整 data-testid 属性 | 45 分钟 |
-| `RoomSettings.tsx` | 修改 tab 标签，添加 data-testid | 30 分钟 |
-| `RoomManager.tsx` | 添加 data-testid | 20 分钟 |
+| 文件                  | 修复内容                        | 预估时间 |
+| --------------------- | ------------------------------- | -------- |
+| `RoomCard.tsx`        | 添加 data-testid 和 aria-label  | 30 分钟  |
+| `ParticipantList.tsx` | 添加完整 data-testid 属性       | 45 分钟  |
+| `RoomSettings.tsx`    | 修改 tab 标签，添加 data-testid | 30 分钟  |
+| `RoomManager.tsx`     | 添加 data-testid                | 20 分钟  |
 
 **总计：** 约 2 小时
 
 ### 中优先级（提升测试稳定性）
 
-| 文件 | 修复内容 | 预估时间 |
-|------|---------|---------|
-| `RoomCard.tsx` | 优化按钮结构，添加 name 属性 | 20 分钟 |
-| `ParticipantList.tsx` | 添加 aria-label 和 role 属性 | 15 分钟 |
-| `RoomSettings.tsx` | 表单控件添加 name 属性 | 15 分钟 |
+| 文件                  | 修复内容                     | 预估时间 |
+| --------------------- | ---------------------------- | -------- |
+| `RoomCard.tsx`        | 优化按钮结构，添加 name 属性 | 20 分钟  |
+| `ParticipantList.tsx` | 添加 aria-label 和 role 属性 | 15 分钟  |
+| `RoomSettings.tsx`    | 表单控件添加 name 属性       | 15 分钟  |
 
 **总计：** 约 50 分钟
 
 ### 低优先级（可选优化）
 
-| 文件 | 修复内容 | 预估时间 |
-|------|---------|---------|
-| 测试文件 | 更新选择器使用 data-testid | 1 小时 |
-| 测试文件 | 添加更多边界情况测试 | 1 小时 |
+| 文件     | 修复内容                   | 预估时间 |
+| -------- | -------------------------- | -------- |
+| 测试文件 | 更新选择器使用 data-testid | 1 小时   |
+| 测试文件 | 添加更多边界情况测试       | 1 小时   |
 
 **总计：** 约 2 小时
 
@@ -511,29 +516,33 @@ screen.getByRole('tab', { name: '危险' })
 ### 1. 更新选择器使用 data-testid
 
 **旧代码：**
+
 ```typescript
-const card = screen.getByText('测试房间').closest('div');
-expect(card?.className).toMatch(/border-blue-500|border-blue-400/);
+const card = screen.getByText('测试房间').closest('div')
+expect(card?.className).toMatch(/border-blue-500|border-blue-400/)
 ```
 
 **新代码：**
+
 ```typescript
-const card = screen.getByTestId('room-card');
-expect(card).toHaveClass('border-blue-500', 'border-blue-400');
+const card = screen.getByTestId('room-card')
+expect(card).toHaveClass('border-blue-500', 'border-blue-400')
 ```
 
 ### 2. 使用更精确的查询
 
 **旧代码：**
+
 ```typescript
-const menuButton = screen.getByRole('button', { name: /操作/i });
+const menuButton = screen.getByRole('button', { name: /操作/i })
 ```
 
 **新代码：**
+
 ```typescript
-const menuButton = screen.getByTestId('participant-menu-button');
+const menuButton = screen.getByTestId('participant-menu-button')
 // 或
-const menuButton = screen.getByLabelText('更改角色');
+const menuButton = screen.getByLabelText('更改角色')
 ```
 
 ### 3. 添加 data-testid 帮助函数
@@ -541,16 +550,16 @@ const menuButton = screen.getByLabelText('更改角色');
 ```typescript
 // 创建 test-utils.ts
 export const getByTestId = (testId: string) => {
-  return screen.getByTestId(testId);
-};
+  return screen.getByTestId(testId)
+}
 
 export const queryByTestId = (testId: string) => {
-  return screen.queryByTestId(testId);
-};
+  return screen.queryByTestId(testId)
+}
 
 export const getAllByTestId = (testId: string) => {
-  return screen.getAllByTestId(testId);
-};
+  return screen.getAllByTestId(testId)
+}
 ```
 
 ---
@@ -558,21 +567,25 @@ export const getAllByTestId = (testId: string) => {
 ## 执行计划
 
 ### 阶段 1：核心修复（2 小时）
+
 1. ✅ 修复 `RoomCard.tsx` - 添加 data-testid 和 aria-label
 2. ✅ 修复 `ParticipantList.tsx` - 添加完整 data-testid
 3. ✅ 修复 `RoomSettings.tsx` - 修改 tab 标签，添加 data-testid
 4. ✅ 修复 `RoomManager.tsx` - 添加 data-testid
 
 ### 阶段 2：运行测试验证（30 分钟）
+
 1. 运行所有测试：`npm test`
 2. 记录失败的测试
 3. 分析失败原因
 
 ### 阶段 3：补充修复（30 分钟）
+
 1. 根据阶段 2 结果进行补充修复
 2. 优化测试选择器
 
 ### 阶段 4：最终验证（15 分钟）
+
 1. 再次运行所有测试
 2. 确保通过率 > 90%
 
@@ -581,10 +594,12 @@ export const getAllByTestId = (testId: string) => {
 ## 预期结果
 
 修复后预期通过率：
+
 - **修复前：** 21/97 (21.7%)
 - **修复后：** 85+/97 (87%+)
 
 剩余失败的测试可能涉及：
+
 - 异步状态更新
 - 事件处理逻辑
 - 边界情况处理
@@ -605,6 +620,7 @@ export const getAllByTestId = (testId: string) => {
 ## 测试最佳实践建议
 
 ### DO ✅
+
 - 使用 `data-testid` 而不是 CSS 类或文本内容
 - 使用 `aria-label` 提供可访问性
 - 使用语义化的 HTML（role 属性）
@@ -612,6 +628,7 @@ export const getAllByTestId = (testId: string) => {
 - 使用 waitFor 处理异步操作
 
 ### DON'T ❌
+
 - 不要依赖 CSS 类名（容易变化）
 - 不要依赖文本内容（可能国际化）
 - 不要测试内部状态

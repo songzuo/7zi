@@ -1,3 +1,4 @@
+import { NextRequest, NextResponse } from 'next/server'
 /**
  * Login API endpoint (Unified Error Handling)
  * POST /api/auth/login
@@ -5,15 +6,20 @@
  * 使用统一的错误处理系统
  */
 
-import { loginUser } from '@/lib/auth/service-unified';
-import { logger } from '@/lib/logger';
+import { loginUser } from '@/lib/auth/service-unified'
+import { logger } from '@/lib/logger'
 import {
   createUnifiedSuccessResponse,
   createValidationErrorResponse,
   withUnifiedErrorHandling,
-} from '@/lib/errors/index';
-import { validateEmail, setAuthCookies } from '@/lib/api/utils';
-import { logRequestStart, logRequestComplete, logAuthError, sanitizeUrlForLogging } from '@/lib/api/api-logger';
+} from '@/lib/errors/index'
+import { validateEmail, setAuthCookies } from '@/lib/api/utils'
+import {
+  logRequestStart,
+  logRequestComplete,
+  logAuthError,
+  sanitizeUrlForLogging,
+} from '@/lib/api/api-logger'
 
 /**
  * Login endpoint
@@ -61,31 +67,31 @@ import { logRequestStart, logRequestComplete, logAuthError, sanitizeUrlForLoggin
  * }
  */
 export const POST = withUnifiedErrorHandling(async (request: NextRequest) => {
-  const startTime = Date.now();
-  const metadata = logRequestStart(request);
-  const _sanitizedUrl = sanitizeUrlForLogging(request.url);
+  const startTime = Date.now()
+  const metadata = logRequestStart(request)
+  const _sanitizedUrl = sanitizeUrlForLogging(request.url)
 
   try {
-    const body = await request.json();
+    const body = await request.json()
 
     // Validate request body
-    const { email, password, rememberMe } = body;
+    const { email, password, rememberMe } = body
 
     if (!email || !password) {
-      const response = createValidationErrorResponse('Email and password are required');
-      logRequestComplete(metadata, response, startTime);
-      return response;
+      const response = createValidationErrorResponse('Email and password are required')
+      logRequestComplete(metadata, response, startTime)
+      return response
     }
 
     // Validate email format
     if (!validateEmail(email)) {
-      const response = createValidationErrorResponse('Invalid email format');
-      logRequestComplete(metadata, response, startTime);
-      return response;
+      const response = createValidationErrorResponse('Invalid email format')
+      logRequestComplete(metadata, response, startTime)
+      return response
     }
 
     // Login user (现在抛出 UnifiedAppError 而不是返回 { success, error })
-    const result = await loginUser({ email, password, rememberMe });
+    const result = await loginUser({ email, password, rememberMe })
 
     // Create response with standardized format
     const response = createUnifiedSuccessResponse({
@@ -93,25 +99,29 @@ export const POST = withUnifiedErrorHandling(async (request: NextRequest) => {
       token: result.token,
       refreshToken: result.refreshToken,
       expiresAt: result.expiresAt.toISOString(),
-    });
+    })
 
     // Set secure cookies for auth tokens
-    setAuthCookies(response, result.token, result.refreshToken, rememberMe);
+    setAuthCookies(response, result.token, result.refreshToken, rememberMe)
 
     logger.auth('User logged in successfully', {
       requestId: metadata.requestId,
       userId: result.user?.id,
       email: result.user?.email,
       // Never log tokens in logs
-    });
+    })
 
-    logRequestComplete(metadata, response, startTime);
-    return response;
-  } catch (_error) {
+    logRequestComplete(metadata, response, startTime)
+    return response
+  } catch (error) {
     // 记录认证错误
-    logAuthError(metadata, 'authentication', error instanceof Error ? error.message : 'Login failed');
+    logAuthError(
+      metadata,
+      'authentication',
+      error instanceof Error ? error.message : 'Login failed'
+    )
 
     // 错误会被 withUnifiedErrorHandling 捕获并转换为统一响应
-    throw error;
+    throw error
   }
-});
+})

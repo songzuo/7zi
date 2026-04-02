@@ -4,22 +4,22 @@
  * 显示工作流执行状态、进度和日志
  */
 
-import React from 'react';
-import type { WorkflowInstance, ExecutionLog } from './types';
+import React from 'react'
+import type { WorkflowInstance, ExecutionLog } from './types'
 
 interface ExecutionPanelProps {
-  instance: WorkflowInstance | null;
-  logs: ExecutionLog[];
-  isExecuting: boolean;
-  onStop: () => void;
+  instance: WorkflowInstance | null
+  logs: ExecutionLog[]
+  isExecuting: boolean
+  onStop: () => void
 }
 
 export function ExecutionPanel({ instance, logs, isExecuting, onStop }: ExecutionPanelProps) {
   const getProgressPercentage = () => {
-    if (!instance) return 0;
-    const { completed, failed, progress } = instance.progress;
-    return progress || 0;
-  };
+    if (!instance) return 0
+    const { completed, failed, progress } = instance.progress
+    return progress || 0
+  }
 
   return (
     <div className="rounded-lg border border-gray-200 bg-white p-4 dark:border-gray-700 dark:bg-gray-800">
@@ -57,7 +57,14 @@ export function ExecutionPanel({ instance, logs, isExecuting, onStop }: Executio
               {instance.startTime && (
                 <div>
                   <span className="font-medium">
-                    {Math.floor((Date.now() - (typeof instance.startTime === 'number' ? instance.startTime : new Date(instance.startTime).getTime())) / 1000)}s
+                    {Math.floor(
+                      (Date.now() -
+                        (typeof instance.startTime === 'number'
+                          ? instance.startTime
+                          : new Date(instance.startTime).getTime())) /
+                        1000
+                    )}
+                    s
                   </span>{' '}
                   耗时
                 </div>
@@ -80,15 +87,10 @@ export function ExecutionPanel({ instance, logs, isExecuting, onStop }: Executio
       {/* 执行日志 */}
       {logs.length > 0 && (
         <div className="mt-4">
-          <h3 className="mb-2 text-sm font-medium text-gray-900 dark:text-white">
-            执行日志
-          </h3>
+          <h3 className="mb-2 text-sm font-medium text-gray-900 dark:text-white">执行日志</h3>
           <div className="max-h-32 overflow-y-auto rounded-lg bg-gray-50 p-2 dark:bg-gray-900">
             {logs.slice(-10).map((log, index) => (
-              <div
-                key={index}
-                className="mb-1 flex gap-2 text-xs font-mono"
-              >
+              <div key={index} className="mb-1 flex gap-2 font-mono text-xs">
                 <span className="text-gray-400 dark:text-gray-600">
                   {new Date(log.timestamp).toLocaleTimeString()}
                 </span>
@@ -97,27 +99,23 @@ export function ExecutionPanel({ instance, logs, isExecuting, onStop }: Executio
                     log.level === 'error'
                       ? 'text-red-600 dark:text-red-400'
                       : log.level === 'warn'
-                      ? 'text-amber-600 dark:text-amber-400'
-                      : log.level === 'info'
-                      ? 'text-blue-600 dark:text-blue-400'
-                      : 'text-gray-600 dark:text-gray-400'
+                        ? 'text-amber-600 dark:text-amber-400'
+                        : log.level === 'info'
+                          ? 'text-blue-600 dark:text-blue-400'
+                          : 'text-gray-600 dark:text-gray-400'
                   }
                 >
                   [{log.level.toUpperCase()}]
                 </span>
                 {log.nodeId && (
-                  <span className="text-violet-600 dark:text-violet-400">
-                    {log.nodeId}
-                  </span>
+                  <span className="text-violet-600 dark:text-violet-400">{log.nodeId}</span>
                 )}
-                <span className="flex-1 text-gray-700 dark:text-gray-300">
-                  {log.message}
-                </span>
+                <span className="flex-1 text-gray-700 dark:text-gray-300">{log.message}</span>
               </div>
             ))}
           </div>
         </div>
       )}
     </div>
-  );
+  )
 }

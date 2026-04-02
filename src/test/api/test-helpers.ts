@@ -46,9 +46,7 @@ export function mockRequest(
 /**
  * Create a mock FormData request
  */
-export function mockFormDataRequest(
-  formData: Record<string, string | File>
-): NextRequest {
+export function mockFormDataRequest(formData: Record<string, string | File>): NextRequest {
   const formDataObj = new FormData()
   Object.entries(formData).forEach(([key, value]) => {
     formDataObj.append(key, value)
@@ -72,9 +70,7 @@ export async function parseJsonResponse(response: Response) {
 /**
  * Helper to test API response format
  */
-export function expectSuccessResponse(
-  data: Record<string, unknown>
-): void {
+export function expectSuccessResponse(data: Record<string, unknown>): void {
   expect(data).toHaveProperty('success', true)
   expect(data).toHaveProperty('data')
 }
@@ -82,9 +78,7 @@ export function expectSuccessResponse(
 /**
  * Helper to test error response format
  */
-export function expectErrorResponse(
-  data: Record<string, unknown>
-): void {
+export function expectErrorResponse(data: Record<string, unknown>): void {
   expect(data).toHaveProperty('success', false)
   expect(data).toHaveProperty('error')
   expect(data.error).toHaveProperty('code')
@@ -94,10 +88,7 @@ export function expectErrorResponse(
 /**
  * Helper to test validation error
  */
-export function expectValidationError(
-  data: Record<string, unknown>,
-  message?: string
-): void {
+export function expectValidationError(data: Record<string, unknown>, message?: string): void {
   expectErrorResponse(data)
   expect(data.error).toHaveProperty('code', 'VALIDATION_ERROR')
   if (message) {
@@ -108,10 +99,7 @@ export function expectValidationError(
 /**
  * Helper to test authentication error
  */
-export function expectAuthError(
-  data: Record<string, unknown>,
-  message?: string
-): void {
+export function expectAuthError(data: Record<string, unknown>, message?: string): void {
   expectErrorResponse(data)
   expect(data.error).toHaveProperty('code', 'AUTH_FAILED')
   if (message) {
@@ -122,10 +110,7 @@ export function expectAuthError(
 /**
  * Helper to test not found error
  */
-export function expectNotFoundError(
-  data: Record<string, unknown>,
-  message?: string
-): void {
+export function expectNotFoundError(data: Record<string, unknown>, message?: string): void {
   expectErrorResponse(data)
   expect(data.error).toHaveProperty('code', 'NOT_FOUND')
   if (message) {
@@ -136,9 +121,7 @@ export function expectNotFoundError(
 /**
  * Helper to test rate limit error
  */
-export function expectRateLimitError(
-  data: Record<string, unknown>
-): void {
+export function expectRateLimitError(data: Record<string, unknown>): void {
   expectErrorResponse(data)
   expect(data.error).toHaveProperty('code', 'RATE_LIMIT_EXCEEDED')
 }
@@ -146,10 +129,7 @@ export function expectRateLimitError(
 /**
  * Helper to test unauthorized error
  */
-export function expectUnauthorizedError(
-  data: Record<string, unknown>,
-  message?: string
-): void {
+export function expectUnauthorizedError(data: Record<string, unknown>, message?: string): void {
   expectErrorResponse(data)
   expect(data.error).toHaveProperty('code', 'UNAUTHORIZED')
   if (message) {
@@ -160,10 +140,7 @@ export function expectUnauthorizedError(
 /**
  * Helper to test forbidden error
  */
-export function expectForbiddenError(
-  data: Record<string, unknown>,
-  message?: string
-): void {
+export function expectForbiddenError(data: Record<string, unknown>, message?: string): void {
   expectErrorResponse(data)
   expect(data.error).toHaveProperty('code', 'FORBIDDEN')
   if (message) {
@@ -174,9 +151,7 @@ export function expectForbiddenError(
 /**
  * Helper to test internal error
  */
-export function expectInternalError(
-  data: Record<string, unknown>
-): void {
+export function expectInternalError(data: Record<string, unknown>): void {
   expectErrorResponse(data)
   expect(data.error).toHaveProperty('code', 'INTERNAL_ERROR')
 }

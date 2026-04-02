@@ -1,7 +1,7 @@
 /**
  * @fileoverview Task Priority Analyzer - Automatic task priority assessment
  * @description Analyzes tasks and suggests priorities based on type, deadline, and assignee load
- * 
+ *
  * @merged_from src/lib/agent/TaskPriorityAnalyzer.ts (archive backup)
  * @date 2026-03-30 - Sprint 3 lib/ layer refactoring
  */
@@ -13,31 +13,31 @@
 /**
  * Task type categories for priority calculation
  */
-export type TaskCategory = 'BUG' | 'FEATURE' | 'REFACTOR' | 'DOCS' | 'TEST' | 'OTHER';
+export type TaskCategory = 'BUG' | 'FEATURE' | 'REFACTOR' | 'DOCS' | 'TEST' | 'OTHER'
 
 /**
  * Priority levels for task classification
  */
-export type PriorityLevel = 'urgent' | 'high' | 'medium' | 'low';
+export type PriorityLevel = 'urgent' | 'high' | 'medium' | 'low'
 
 /**
  * Task data required for priority analysis
  */
 export interface TaskData {
   /** Unique task identifier */
-  id: string;
+  id: string
   /** Task title or description */
-  title: string;
+  title: string
   /** Task type (bug, feature, etc.) */
-  type: TaskCategory;
+  type: TaskCategory
   /** ISO format deadline date string */
-  deadline?: string;
+  deadline?: string
   /** Assignee user ID */
-  assigneeId?: string;
+  assigneeId?: string
   /** Current number of in-progress tasks for the assignee */
-  assigneeInProgressCount?: number;
+  assigneeInProgressCount?: number
   /** Additional metadata for custom rules */
-  metadata?: Record<string, unknown>;
+  metadata?: Record<string, unknown>
 }
 
 /**
@@ -45,13 +45,13 @@ export interface TaskData {
  */
 export interface PrioritySuggestion {
   /** Suggested priority level */
-  priority: PriorityLevel;
+  priority: PriorityLevel
   /** Priority score from 0 to 10 */
-  score: number;
+  score: number
   /** Reasoning explaining the priority decision */
-  reasoning: string[];
+  reasoning: string[]
   /** Recommended deadline (ISO date) if current deadline is not optimal */
-  recommendedDeadline?: string;
+  recommendedDeadline?: string
 }
 
 /**
@@ -59,15 +59,15 @@ export interface PrioritySuggestion {
  */
 export interface PriorityRulesConfig {
   /** Hours threshold for urgent priority */
-  urgentHoursThreshold: number;
+  urgentHoursThreshold: number
   /** Hours threshold for high priority */
-  highHoursThreshold: number;
+  highHoursThreshold: number
   /** Hours threshold for medium priority */
-  mediumHoursThreshold: number;
+  mediumHoursThreshold: number
   /** Number of in-progress tasks that triggers load bonus */
-  highLoadThreshold: number;
+  highLoadThreshold: number
   /** Priority score bonus for high load assignees */
-  highLoadBonus: number;
+  highLoadBonus: number
 }
 
 // ============================================================================
@@ -83,7 +83,7 @@ export const DEFAULT_PRIORITY_RULES: PriorityRulesConfig = {
   mediumHoursThreshold: 168, // 7 days
   highLoadThreshold: 5,
   highLoadBonus: 1,
-} as const;
+} as const
 
 // ============================================================================
 // Priority Analyzer Class
@@ -111,14 +111,14 @@ export const DEFAULT_PRIORITY_RULES: PriorityRulesConfig = {
  * ```
  */
 export class TaskPriorityAnalyzer {
-  private config: PriorityRulesConfig;
+  private config: PriorityRulesConfig
 
   /**
    * Creates a new TaskPriorityAnalyzer instance
    * @param config - Priority rules configuration (uses defaults if not provided)
    */
   constructor(config?: Partial<PriorityRulesConfig>) {
-    this.config = { ...DEFAULT_PRIORITY_RULES, ...config };
+    this.config = { ...DEFAULT_PRIORITY_RULES, ...config }
   }
 
   /**
@@ -128,35 +128,35 @@ export class TaskPriorityAnalyzer {
    * @returns Priority suggestion with reasoning
    */
   analyzePriority(task: TaskData, referenceDate?: Date): PrioritySuggestion {
-    const now = referenceDate || new Date();
-    const reasoning: string[] = [];
+    const now = referenceDate || new Date()
+    const reasoning: string[] = []
 
     // Calculate base priority from deadline
-    const deadlineScore = this.calculateDeadlineScore(task.deadline, now);
-    reasoning.push(...deadlineScore.reasoning);
+    const deadlineScore = this.calculateDeadlineScore(task.deadline, now)
+    reasoning.push(...deadlineScore.reasoning)
 
     // Calculate task type bonus
-    const typeScore = this.calculateTypeScore(task.type);
-    reasoning.push(...typeScore.reasoning);
+    const typeScore = this.calculateTypeScore(task.type)
+    reasoning.push(...typeScore.reasoning)
 
     // Calculate assignee load bonus
-    const loadScore = this.calculateLoadScore(task.assigneeInProgressCount);
-    reasoning.push(...loadScore.reasoning);
+    const loadScore = this.calculateLoadScore(task.assigneeInProgressCount)
+    reasoning.push(...loadScore.reasoning)
 
     // Combine scores
-    let totalScore = deadlineScore.score + typeScore.score + loadScore.score;
+    let totalScore = deadlineScore.score + typeScore.score + loadScore.score
 
     // Clamp score to 0-10 range
-    totalScore = Math.max(0, Math.min(10, totalScore));
+    totalScore = Math.max(0, Math.min(10, totalScore))
 
     // Determine priority level
-    const priority = this.scoreToPriority(totalScore);
+    const priority = this.scoreToPriority(totalScore)
 
     return {
       priority,
       score: totalScore,
       reasoning,
-    };
+    }
   }
 
   /**
@@ -169,51 +169,49 @@ export class TaskPriorityAnalyzer {
     deadline: string | undefined,
     now: Date
   ): { score: number; reasoning: string[] } {
-    const reasoning: string[] = [];
+    const reasoning: string[] = []
 
     if (!deadline) {
-      reasoning.push('No deadline specified - using neutral score');
-      return { score: 5, reasoning };
+      reasoning.push('No deadline specified - using neutral score')
+      return { score: 5, reasoning }
     }
 
-    const deadlineDate = new Date(deadline);
+    const deadlineDate = new Date(deadline)
     if (isNaN(deadlineDate.getTime())) {
-      reasoning.push('Invalid deadline format - using neutral score');
-      return { score: 5, reasoning };
+      reasoning.push('Invalid deadline format - using neutral score')
+      return { score: 5, reasoning }
     }
 
-    const hoursUntilDeadline = (deadlineDate.getTime() - now.getTime()) / (1000 * 60 * 60);
+    const hoursUntilDeadline = (deadlineDate.getTime() - now.getTime()) / (1000 * 60 * 60)
 
     if (hoursUntilDeadline < 0) {
-      reasoning.push('Task is overdue - maximum priority');
-      return { score: 10, reasoning };
+      reasoning.push('Task is overdue - maximum priority')
+      return { score: 10, reasoning }
     }
 
     if (hoursUntilDeadline < this.config.urgentHoursThreshold) {
       reasoning.push(
         `Deadline in ${Math.round(hoursUntilDeadline)} hours (< ${this.config.urgentHoursThreshold}h) - urgent priority`
-      );
-      return { score: 9, reasoning };
+      )
+      return { score: 9, reasoning }
     }
 
     if (hoursUntilDeadline < this.config.highHoursThreshold) {
       reasoning.push(
         `Deadline in ${Math.round(hoursUntilDeadline)} hours (< ${this.config.highHoursThreshold}h) - high priority`
-      );
-      return { score: 7, reasoning };
+      )
+      return { score: 7, reasoning }
     }
 
     if (hoursUntilDeadline < this.config.mediumHoursThreshold) {
       reasoning.push(
         `Deadline in ${Math.round(hoursUntilDeadline / 24)} days (< ${this.config.mediumHoursThreshold / 24}d) - medium priority`
-      );
-      return { score: 5, reasoning };
+      )
+      return { score: 5, reasoning }
     }
 
-    reasoning.push(
-      `Deadline in ${Math.round(hoursUntilDeadline / 24)} days - lower urgency`
-    );
-    return { score: 2, reasoning };
+    reasoning.push(`Deadline in ${Math.round(hoursUntilDeadline / 24)} days - lower urgency`)
+    return { score: 2, reasoning }
   }
 
   /**
@@ -222,32 +220,32 @@ export class TaskPriorityAnalyzer {
    * @returns Score bonus and reasoning
    */
   private calculateTypeScore(type: TaskCategory): { score: number; reasoning: string[] } {
-    const reasoning: string[] = [];
+    const reasoning: string[] = []
 
     switch (type) {
       case 'BUG':
-        reasoning.push('BUG type - highest importance (+2)');
-        return { score: 2, reasoning };
+        reasoning.push('BUG type - highest importance (+2)')
+        return { score: 2, reasoning }
 
       case 'FEATURE':
-        reasoning.push('FEATURE type - moderate importance (+1)');
-        return { score: 1, reasoning };
+        reasoning.push('FEATURE type - moderate importance (+1)')
+        return { score: 1, reasoning }
 
       case 'REFACTOR':
-        reasoning.push('REFACTOR type - neutral priority');
-        return { score: 0, reasoning };
+        reasoning.push('REFACTOR type - neutral priority')
+        return { score: 0, reasoning }
 
       case 'DOCS':
-        reasoning.push('DOCS type - lower priority (-1)');
-        return { score: -1, reasoning };
+        reasoning.push('DOCS type - lower priority (-1)')
+        return { score: -1, reasoning }
 
       case 'TEST':
-        reasoning.push('TEST type - neutral priority');
-        return { score: 0, reasoning };
+        reasoning.push('TEST type - neutral priority')
+        return { score: 0, reasoning }
 
       default:
-        reasoning.push('OTHER type - neutral priority');
-        return { score: 0, reasoning };
+        reasoning.push('OTHER type - neutral priority')
+        return { score: 0, reasoning }
     }
   }
 
@@ -256,25 +254,26 @@ export class TaskPriorityAnalyzer {
    * @param inProgressCount - Number of in-progress tasks for assignee
    * @returns Score bonus and reasoning
    */
-  private calculateLoadScore(
-    inProgressCount: number | undefined
-  ): { score: number; reasoning: string[] } {
-    const reasoning: string[] = [];
+  private calculateLoadScore(inProgressCount: number | undefined): {
+    score: number
+    reasoning: string[]
+  } {
+    const reasoning: string[] = []
 
     if (inProgressCount === undefined) {
-      reasoning.push('Assignee workload unknown - no load adjustment');
-      return { score: 0, reasoning };
+      reasoning.push('Assignee workload unknown - no load adjustment')
+      return { score: 0, reasoning }
     }
 
     if (inProgressCount > this.config.highLoadThreshold) {
       reasoning.push(
         `Assignee has ${inProgressCount} in-progress tasks (>${this.config.highLoadThreshold}) - priority increased`
-      );
-      return { score: this.config.highLoadBonus, reasoning };
+      )
+      return { score: this.config.highLoadBonus, reasoning }
     }
 
-    reasoning.push(`Assignee has ${inProgressCount} in-progress tasks - normal load`);
-    return { score: 0, reasoning };
+    reasoning.push(`Assignee has ${inProgressCount} in-progress tasks - normal load`)
+    return { score: 0, reasoning }
   }
 
   /**
@@ -283,10 +282,10 @@ export class TaskPriorityAnalyzer {
    * @returns Priority level
    */
   private scoreToPriority(score: number): PriorityLevel {
-    if (score >= 8) return 'urgent';
-    if (score >= 6) return 'high';
-    if (score >= 4) return 'medium';
-    return 'low';
+    if (score >= 8) return 'urgent'
+    if (score >= 6) return 'high'
+    if (score >= 4) return 'medium'
+    return 'low'
   }
 
   /**
@@ -299,10 +298,10 @@ export class TaskPriorityAnalyzer {
     tasks: TaskData[],
     referenceDate?: Date
   ): Array<{ taskId: string } & PrioritySuggestion> {
-    return tasks.map((task) => ({
+    return tasks.map(task => ({
       taskId: task.id,
       ...this.analyzePriority(task, referenceDate),
-    }));
+    }))
   }
 }
 
@@ -315,7 +314,7 @@ export class TaskPriorityAnalyzer {
  * @returns Configured TaskPriorityAnalyzer instance
  */
 export function createPriorityAnalyzer(): TaskPriorityAnalyzer {
-  return new TaskPriorityAnalyzer();
+  return new TaskPriorityAnalyzer()
 }
 
 /**
@@ -324,12 +323,9 @@ export function createPriorityAnalyzer(): TaskPriorityAnalyzer {
  * @param referenceDate - Reference date for deadline calculation
  * @returns Priority suggestion
  */
-export function analyzeTaskPriority(
-  task: TaskData,
-  referenceDate?: Date
-): PrioritySuggestion {
-  const analyzer = createPriorityAnalyzer();
-  return analyzer.analyzePriority(task, referenceDate);
+export function analyzeTaskPriority(task: TaskData, referenceDate?: Date): PrioritySuggestion {
+  const analyzer = createPriorityAnalyzer()
+  return analyzer.analyzePriority(task, referenceDate)
 }
 
 /**
@@ -342,6 +338,6 @@ export function analyzeTasksPriority(
   tasks: TaskData[],
   referenceDate?: Date
 ): Array<{ taskId: string } & PrioritySuggestion> {
-  const analyzer = createPriorityAnalyzer();
-  return analyzer.analyzePriorities(tasks, referenceDate);
+  const analyzer = createPriorityAnalyzer()
+  return analyzer.analyzePriorities(tasks, referenceDate)
 }

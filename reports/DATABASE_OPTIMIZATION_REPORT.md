@@ -30,6 +30,7 @@ This report details comprehensive database optimizations applied to the 7zi-proj
 **After**: Full SQLite database with better-sqlite3
 
 **Changes**:
+
 - Implemented `better-sqlite3` for synchronous database operations
 - Added WAL (Write-Ahead Logging) for better concurrency
 - Configured cache size (64MB) for better performance
@@ -37,6 +38,7 @@ This report details comprehensive database optimizations applied to the 7zi-proj
 - Added connection pooling mechanism
 
 **Performance Impact**:
+
 - Query execution: ~100x faster than stub implementation
 - Concurrency: WAL allows multiple readers
 - Cache: 64MB cache reduces disk I/O significantly
@@ -44,12 +46,13 @@ This report details comprehensive database optimizations applied to the 7zi-proj
 ### 1.2 Connection Pooling
 
 ```typescript
-let dbInstance: Database.Database | null = null;
-let connectionCount = 0;
-const MAX_CONNECTIONS = 10;
+let dbInstance: Database.Database | null = null
+let connectionCount = 0
+const MAX_CONNECTIONS = 10
 ```
 
 **Benefits**:
+
 - Single database instance shared across requests
 - Reduces connection overhead
 - Better memory usage
@@ -62,6 +65,7 @@ const MAX_CONNECTIONS = 10;
 ### 2.1 Agents Table Indexes
 
 **New Indexes Added**:
+
 1. `idx_agents_status` - Filter by status
 2. `idx_agents_provider` - Filter by provider
 3. `idx_agents_type` - Filter by agent type
@@ -70,6 +74,7 @@ const MAX_CONNECTIONS = 10;
 6. `idx_agents_status_type` - Composite: status + type
 
 **Query Optimizations**:
+
 - Status filtering: 100x faster with index
 - Provider/type filtering: 100x faster
 - Last active sorting: 100x faster
@@ -78,11 +83,13 @@ const MAX_CONNECTIONS = 10;
 ### 2.2 Agent Tokens Table Indexes
 
 **New Indexes Added**:
+
 1. `idx_agent_tokens_agent_id` - Join with agents
 2. `idx_agent_tokens_token` - Token lookup
 3. `idx_agent_tokens_expires` - Cleanup expired tokens
 
 **Query Optimizations**:
+
 - Token validation: Direct index lookup (O(1))
 - Expired token cleanup: Fast range scan
 - Agent's tokens: Fast join query
@@ -90,12 +97,14 @@ const MAX_CONNECTIONS = 10;
 ### 2.3 Agent Data Access Table Indexes
 
 **New Indexes Added**:
+
 1. `idx_agent_data_access_agent_id` - Filter by agent
 2. `idx_agent_data_access_timestamp` - Sort by time
 3. `idx_agent_data_access_agent_timestamp` - Composite: agent + time
 4. `idx_agent_data_access_resource` - Composite: resource type + id
 
 **Query Optimizations**:
+
 - Access logs by agent: Fast index scan
 - Recent activity: Sorted by timestamp index
 - Resource-based queries: Composite index eliminates sort
@@ -103,9 +112,11 @@ const MAX_CONNECTIONS = 10;
 ### 2.4 Wallet Tables Indexes
 
 **Agent Wallets Table**:
+
 1. `idx_agent_wallets_agent_id` - Join with agents
 
 **Wallet Transactions Table**:
+
 1. `idx_wallet_transactions_wallet_id` - Filter by wallet
 2. `idx_wallet_transactions_type` - Filter by type
 3. `idx_wallet_transactions_status` - Filter by status
@@ -115,6 +126,7 @@ const MAX_CONNECTIONS = 10;
 7. `idx_wallet_transactions_type_status` - Composite: type + status
 
 **Query Optimizations**:
+
 - Transaction history: Fast filtered queries
 - Statistics calculations: Group by indexed columns
 - Recent transactions: Sorted by indexed timestamp
@@ -127,6 +139,7 @@ const MAX_CONNECTIONS = 10;
 ### 3.1 Agent Statistics (getAgentStats)
 
 **Before**:
+
 ```typescript
 export async function getAgentStats() {
   const agents = await getAllAgents(); // Query 1: SELECT * FROM agents
@@ -143,35 +156,38 @@ export async function getAgentStats() {
 ```
 
 **Problems**:
+
 - Loads all agents into memory
 - Filters and groups in JavaScript
 - Single query but processes all data in app
 - O(n) memory and processing
 
 **After**:
+
 ```typescript
 export async function getAgentStats() {
   const statusStmt = db.prepare(`
     SELECT status, COUNT(*) as count 
     FROM agents 
     GROUP BY status
-  `); // Single query with aggregation
+  `) // Single query with aggregation
 
   const providerStmt = db.prepare(`
     SELECT provider, COUNT(*) as count 
     FROM agents 
     GROUP BY provider
-  `); // Single query for providers
+  `) // Single query for providers
 
   const typeStmt = db.prepare(`
     SELECT type, COUNT(*) as count 
     FROM agents 
     GROUP BY type
-  `); // Single query for types
+  `) // Single query for types
 }
 ```
 
 **Benefits**:
+
 - 3 queries total (down from 1 query + JS processing)
 - Aggregation done in database
 - Minimal data transfer (only aggregated results)
@@ -182,10 +198,11 @@ export async function getAgentStats() {
 ### 3.2 Wallet Statistics (getWalletStats)
 
 **Before**:
+
 ```typescript
 export async function getWalletStats(agentId) {
-  const wallet = await getWalletByAgentId(agentId); // Query 1
-  const transactions = await getTransactions(agentId); // Query 2: SELECT * FROM transactions
+  const wallet = await getWalletByAgentId(agentId) // Query 1
+  const transactions = await getTransactions(agentId) // Query 2: SELECT * FROM transactions
 
   return {
     totalDeposits: transactions
@@ -195,37 +212,40 @@ export async function getWalletStats(agentId) {
       .filter(t => t.type === 'withdraw' && t.status === 'completed')
       .reduce((sum, t) => sum + t.amount, 0),
     // ... more filters and reduces in JavaScript
-  };
+  }
 }
 ```
 
 **Problems**:
+
 - Loads all transactions into memory
 - Multiple filter operations in JavaScript
 - N+1 pattern if called for multiple wallets
 - O(n) memory and processing
 
 **After**:
+
 ```typescript
 export async function getWalletStats(agentId) {
-  const wallet = await getWalletByAgentId(agentId); // Query 1
+  const wallet = await getWalletByAgentId(agentId) // Query 1
 
   const stmt = db.prepare(`
     SELECT type, SUM(amount) as total_amount, COUNT(*) as count
     FROM wallet_transactions
     WHERE wallet_id = ? AND status = 'completed'
     GROUP BY type
-  `); // Single query with aggregation
+  `) // Single query with aggregation
 
   const countStmt = db.prepare(`
     SELECT COUNT(*) as count
     FROM wallet_transactions
     WHERE wallet_id = ?
-  `); // Single query for count
+  `) // Single query for count
 }
 ```
 
 **Benefits**:
+
 - 3 queries total (down from 1 query + JS processing)
 - Aggregation done in database
 - Only aggregated results transferred
@@ -240,16 +260,19 @@ export async function getWalletStats(agentId) {
 ### 4.1 Version Management
 
 **Features**:
+
 - Migration version tracking
 - Up and down migrations
 - Automatic migration execution
 - Rollback capability
 
 **Migrations Included**:
+
 1. **v1**: Initial schema creation
 2. **v2**: Composite indexes for performance
 
 **Benefits**:
+
 - Schema versioning
 - Safe deployment
 - Easy rollbacks
@@ -259,13 +282,13 @@ export async function getWalletStats(agentId) {
 
 ```typescript
 // Run all pending migrations
-await migrate();
+await migrate()
 
 // Rollback to specific version
-await rollback(1);
+await rollback(1)
 
 // Check current version
-const version = await getCurrentVersion();
+const version = await getCurrentVersion()
 ```
 
 ---
@@ -277,15 +300,17 @@ const version = await getCurrentVersion();
 **Purpose**: Compact database and reclaim free space
 
 ```typescript
-vacuumDatabase(); // Reduces database file size
+vacuumDatabase() // Reduces database file size
 ```
 
 **When to Use**:
+
 - After large deletions
 - Periodically (e.g., weekly)
 - When database size is too large
 
 **Impact**:
+
 - Reduces file size 10-90%
 - Improves read performance
 - Takes time proportional to database size
@@ -295,15 +320,17 @@ vacuumDatabase(); // Reduces database file size
 **Purpose**: Update query optimizer statistics
 
 ```typescript
-analyzeDatabase(); // Updates query planner statistics
+analyzeDatabase() // Updates query planner statistics
 ```
 
 **When to Use**:
+
 - After bulk inserts/updates
 - After schema changes
 - Periodically (e.g., daily)
 
 **Impact**:
+
 - Better query plans
 - Faster query execution
 - Minimal overhead
@@ -315,15 +342,17 @@ analyzeDatabase(); // Updates query planner statistics
 ```typescript
 await cleanupOldData({
   daysToKeep: 90, // Keep data for 90 days
-});
+})
 ```
 
 **Features**:
+
 - Removes expired tokens
 - Archives old access logs
 - Configurable retention period
 
 **Impact**:
+
 - Reduces database size
 - Improves query performance
 - Maintains data retention policies
@@ -333,11 +362,12 @@ await cleanupOldData({
 **Combined Optimization**:
 
 ```typescript
-const result = await optimizeDatabase();
+const result = await optimizeDatabase()
 // Runs: migrate -> cleanup -> vacuum -> analyze
 ```
 
 **Impact**:
+
 - Automated optimization
 - Comprehensive maintenance
 - Single command for all optimizations
@@ -351,6 +381,7 @@ const result = await optimizeDatabase();
 **Endpoint**: `GET /api/database/health`
 
 **Returns**:
+
 ```json
 {
   "success": true,
@@ -373,16 +404,12 @@ const result = await optimizeDatabase();
       "needsMigration": false,
       "slowQueryAnalysis": {
         "tablesWithoutIndexes": [],
-        "largeTables": [
-          { "name": "wallet_transactions", "count": 50000 }
-        ],
+        "largeTables": [{ "name": "wallet_transactions", "count": 50000 }],
         "suggestions": [
           "Large tables detected: wallet_transactions (50000 rows). Consider partitioning or archiving old data."
         ]
       },
-      "recommendations": [
-        "Run optimizeDatabase() periodically (e.g., weekly) for best performance"
-      ]
+      "recommendations": ["Run optimizeDatabase() periodically (e.g., weekly) for best performance"]
     }
   }
 }
@@ -393,6 +420,7 @@ const result = await optimizeDatabase();
 **Endpoint**: `POST /api/database/optimize`
 
 **Returns**:
+
 ```json
 {
   "success": true,
@@ -420,11 +448,13 @@ const result = await optimizeDatabase();
 ### 7.1 Automated Analysis
 
 **Features**:
+
 - Identify tables without indexes
 - Detect large tables
 - Generate optimization suggestions
 
 **Example Output**:
+
 ```typescript
 {
   tablesWithoutIndexes: ['old_logs'],
@@ -441,6 +471,7 @@ const result = await optimizeDatabase();
 ### 7.2 Query Optimization Recommendations
 
 **Status Queries**:
+
 ```sql
 -- Before: Full table scan
 SELECT * FROM agents;
@@ -450,25 +481,27 @@ SELECT * FROM agents WHERE status = 'active';
 ```
 
 **Statistics Queries**:
+
 ```sql
 -- Before: Load all and filter in JS
 SELECT * FROM wallet_transactions WHERE wallet_id = 'xxx';
 
 -- After: Aggregate in database
-SELECT type, SUM(amount) FROM wallet_transactions 
-WHERE wallet_id = 'xxx' AND status = 'completed' 
+SELECT type, SUM(amount) FROM wallet_transactions
+WHERE wallet_id = 'xxx' AND status = 'completed'
 GROUP BY type;
 ```
 
 **Time-based Queries**:
+
 ```sql
 -- Before: Load all and sort
 SELECT * FROM agent_data_access WHERE agent_id = 'xxx';
 
 -- After: Use timestamp index
-SELECT * FROM agent_data_access 
-WHERE agent_id = 'xxx' 
-ORDER BY timestamp DESC 
+SELECT * FROM agent_data_access
+WHERE agent_id = 'xxx'
+ORDER BY timestamp DESC
 LIMIT 100;
 ```
 
@@ -478,24 +511,24 @@ LIMIT 100;
 
 ### 8.1 Before Optimization
 
-| Operation | Time | Notes |
-|-----------|------|-------|
-| Database initialization | N/A | Stub implementation |
-| Get all agents | N/A | Stub only logs |
-| Get agent stats | N/A | Stub only logs |
-| Get wallet stats | N/A | Stub only logs |
-| Search/filter | N/A | Stub only logs |
+| Operation               | Time | Notes               |
+| ----------------------- | ---- | ------------------- |
+| Database initialization | N/A  | Stub implementation |
+| Get all agents          | N/A  | Stub only logs      |
+| Get agent stats         | N/A  | Stub only logs      |
+| Get wallet stats        | N/A  | Stub only logs      |
+| Search/filter           | N/A  | Stub only logs      |
 
 ### 8.2 After Optimization
 
-| Operation | Time (1000 rows) | Time (10000 rows) | Time (100000 rows) |
-|-----------|------------------|-------------------|--------------------|
-| Database initialization | 10ms | 15ms | 20ms |
-| Get all agents | 5ms | 15ms | 150ms |
-| Get agent stats | 2ms | 3ms | 5ms |
-| Get wallet stats | 3ms | 5ms | 10ms |
-| Search by status | 1ms | 2ms | 3ms |
-| Get transactions (last 50) | 1ms | 2ms | 3ms |
+| Operation                  | Time (1000 rows) | Time (10000 rows) | Time (100000 rows) |
+| -------------------------- | ---------------- | ----------------- | ------------------ |
+| Database initialization    | 10ms             | 15ms              | 20ms               |
+| Get all agents             | 5ms              | 15ms              | 150ms              |
+| Get agent stats            | 2ms              | 3ms               | 5ms                |
+| Get wallet stats           | 3ms              | 5ms               | 10ms               |
+| Search by status           | 1ms              | 2ms               | 3ms                |
+| Get transactions (last 50) | 1ms              | 2ms               | 3ms                |
 
 ### 8.3 Performance Gains
 
@@ -520,18 +553,22 @@ LIMIT 100;
 ### 9.2 Maintenance Schedule
 
 **Daily**:
+
 - No action needed (database handles routine operations)
 
 **Weekly**:
+
 - Run health check: `GET /api/database/health`
 - Run optimization if needed: `POST /api/database/optimize`
 
 **Monthly**:
+
 - Review slow query analysis
 - Archive old data if needed
 - Review database size trends
 
 **Quarterly**:
+
 - Review index usage
 - Consider schema changes
 - Plan for data growth
@@ -539,6 +576,7 @@ LIMIT 100;
 ### 9.3 Monitoring
 
 **Key Metrics to Monitor**:
+
 - Database size (MB)
 - Query execution times
 - Number of slow queries
@@ -546,6 +584,7 @@ LIMIT 100;
 - Table row counts
 
 **Alert Thresholds**:
+
 - Database size > 500MB: Consider archiving
 - Query time > 100ms: Review indexing
 - Tables > 100K rows: Consider partitioning
@@ -584,6 +623,7 @@ The database optimization project has successfully:
 6. ✅ Achieved 100x performance improvements
 
 **Overall Impact**:
+
 - Query performance: 100x faster on average
 - Database size: 50% reduction after vacuum
 - Maintainability: Migration system ensures safe updates
@@ -604,9 +644,11 @@ NODE_ENV=production                     # Enables/disables verbose logging
 ## Appendix B: API Endpoints
 
 ### GET /api/database/health
+
 Get database health report and statistics.
 
 ### POST /api/database/optimize
+
 Run database optimization (vacuum, analyze, cleanup).
 
 ## Appendix C: Code Examples
@@ -614,28 +656,28 @@ Run database optimization (vacuum, analyze, cleanup).
 ### Running Migrations
 
 ```typescript
-import { migrate } from '@/lib/db';
+import { migrate } from '@/lib/db'
 
 // Run all pending migrations
-await migrate();
+await migrate()
 ```
 
 ### Getting Database Health
 
 ```typescript
-import { getDatabaseHealth } from '@/lib/db';
+import { getDatabaseHealth } from '@/lib/db'
 
-const health = await getDatabaseHealth();
-console.log(health.recommendations);
+const health = await getDatabaseHealth()
+console.log(health.recommendations)
 ```
 
 ### Optimizing Database
 
 ```typescript
-import { optimizeDatabase } from '@/lib/db';
+import { optimizeDatabase } from '@/lib/db'
 
-const result = await optimizeDatabase();
-console.log('Size reduced:', result.sizeBefore.sizeInMB, '->', result.sizeAfter.sizeInMB);
+const result = await optimizeDatabase()
+console.log('Size reduced:', result.sizeBefore.sizeInMB, '->', result.sizeAfter.sizeInMB)
 ```
 
 ---

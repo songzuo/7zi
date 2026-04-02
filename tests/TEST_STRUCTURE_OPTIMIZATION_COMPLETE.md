@@ -1,6 +1,7 @@
 # 测试结构优化完成报告
 
 ## 日期
+
 2026-03-31
 
 ## 优化概述
@@ -15,14 +16,15 @@
 
 #### Agent Scheduler 核心测试（高优先级）
 
-| 模块 | 原有文件数 | 优化后 | 保留文件 |
-|------|-----------|--------|----------|
-| **Load Balancer** | 4 个重复文件 | 1 个 | `tests/unit/agent-scheduler/load-balancer.test.ts` |
-| **Scheduler** | 4 个重复文件 | 1 个 | `tests/unit/agent-scheduler/scheduler.test.ts` |
-| **Ranking** | 3 个重复文件 | 1 个 | `tests/unit/agent-scheduler/ranking.test.ts` |
-| **Matching** | 2 个重复文件 | 1 个 | `tests/unit/agent-scheduler/matching.test.ts` |
+| 模块              | 原有文件数   | 优化后 | 保留文件                                           |
+| ----------------- | ------------ | ------ | -------------------------------------------------- |
+| **Load Balancer** | 4 个重复文件 | 1 个   | `tests/unit/agent-scheduler/load-balancer.test.ts` |
+| **Scheduler**     | 4 个重复文件 | 1 个   | `tests/unit/agent-scheduler/scheduler.test.ts`     |
+| **Ranking**       | 3 个重复文件 | 1 个   | `tests/unit/agent-scheduler/ranking.test.ts`       |
+| **Matching**      | 2 个重复文件 | 1 个   | `tests/unit/agent-scheduler/matching.test.ts`      |
 
 **删除的重复文件：**
+
 - `tests/lib/agent-scheduler/*.test.ts` (4 个文件)
 - `tests/lib/agents/scheduler/*.test.ts` (3 个文件)
 - `tests/unit/agent-scheduler/core/*.test.ts` (4 个文件)
@@ -30,6 +32,7 @@
 ### 2. 统一测试目录结构
 
 #### 优化前的混乱结构：
+
 ```
 tests/
 ├── lib/
@@ -41,6 +44,7 @@ tests/
 ```
 
 #### 优化后的清晰结构：
+
 ```
 tests/
 ├── unit/                       # 单元测试
@@ -65,10 +69,10 @@ tests/
 
 ### 3. 移动散落的测试文件
 
-| 原位置 | 新位置 | 文件数 |
-|--------|--------|--------|
-| `tests/lib/*.test.ts` | `tests/unit/{相应模块}/` | 10 个 |
-| `tests/*.test.ts` (根目录) | `tests/integration/` | 3 个 |
+| 原位置                     | 新位置                   | 文件数 |
+| -------------------------- | ------------------------ | ------ |
+| `tests/lib/*.test.ts`      | `tests/unit/{相应模块}/` | 10 个  |
+| `tests/*.test.ts` (根目录) | `tests/integration/`     | 3 个   |
 
 ### 4. 规范化命名
 
@@ -86,12 +90,12 @@ tests/
 
 ### 测试文件数量
 
-| 指标 | 优化前 | 优化后 | 减少 |
-|------|--------|--------|------|
-| 测试文件总数 | ~540* | 90 | ~450 (83%) |
-| Agent Scheduler 重复测试 | 13 个 | 4 个 | 9 个 (69%) |
+| 指标                     | 优化前 | 优化后 | 减少       |
+| ------------------------ | ------ | ------ | ---------- |
+| 测试文件总数             | ~540\* | 90     | ~450 (83%) |
+| Agent Scheduler 重复测试 | 13 个  | 4 个   | 9 个 (69%) |
 
-> *注：原报告称 540 个测试文件，但实际测试用例文件数量较少。优化后仅统计 `.test.ts` 和 `.spec.ts` 文件。
+> \*注：原报告称 540 个测试文件，但实际测试用例文件数量较少。优化后仅统计 `.test.ts` 和 `.spec.ts` 文件。
 
 ### 目录清晰度
 
@@ -157,6 +161,7 @@ from '@/lib/agents/scheduler/xxx'
 ```
 
 **影响的文件：**
+
 - `tests/unit/agent-scheduler/agent-capability.test.ts`
 - `tests/unit/agent-scheduler/schedule-decision.test.ts`
 - `tests/unit/agent-scheduler/task-matching.test.ts`
@@ -172,12 +177,14 @@ from '@/lib/agents/scheduler/xxx'
 **问题**：部分测试文件可能依赖于不存在的模块路径。
 
 **解决方案**：
+
 - 已修复 `agent-scheduler` 相关路径
 - 其他测试如果失败，需要检查 `src/` 中对应的实际路径
 
 ### 2. 备份验证
 
 **建议**：验证备份目录 `.backup/tests/` 是否完整：
+
 ```bash
 # 验证备份
 diff -r tests .backup/tests --exclude=node_modules
@@ -188,6 +195,7 @@ diff -r tests .backup/tests --exclude=node_modules
 **状态**：`src/` 目录下仍有 208 个测试文件在 `__tests__/` 子目录中。
 
 **建议**：
+
 - 保留 `src/__tests__/` 目录用于组件级测试（与源码紧密耦合）
 - 保留 `src/test/` 目录用于测试工具和 mock
 
@@ -195,7 +203,7 @@ diff -r tests .backup/tests --exclude=node_modules
 
 ## 六、后续建议
 
-### 1. 清理 src/__tests__
+### 1. 清理 src/**tests**
 
 评估 `src/**/__tests__/` 中的测试是否与 `tests/unit/` 重复：
 
@@ -225,6 +233,7 @@ find tests/unit -name "*.test.ts" -exec basename {} \; | sort -u
 ### 3. 测试命名规范
 
 统一所有测试文件的命名：
+
 - 单元测试：`*.test.ts`
 - E2E 测试：`*.spec.ts`
 - 集成测试：`*.integration.test.ts`
@@ -232,6 +241,7 @@ find tests/unit -name "*.test.ts" -exec basename {} \; | sort -u
 ### 4. 文档更新
 
 更新以下文档：
+
 - `README.md` - 添加测试运行指南
 - `CONTRIBUTING.md` - 添加测试编写规范
 - `tests/README.md` - 测试目录说明

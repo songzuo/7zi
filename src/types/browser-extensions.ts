@@ -12,14 +12,14 @@
  * WebKit Audio Context (Safari non-standard API)
  */
 interface WindowWithWebKitAudioContext extends Window {
-  webkitAudioContext: typeof AudioContext;
+  webkitAudioContext: typeof AudioContext
 }
 
 /**
  * iOS Safari standalone mode (non-standard API)
  */
 interface NavigatorWithStandalone extends Navigator {
-  standalone?: boolean;
+  standalone?: boolean
 }
 
 /**
@@ -27,16 +27,16 @@ interface NavigatorWithStandalone extends Navigator {
  */
 interface WindowWithDebugVars extends Window {
   __THEME__?: {
-    stored: 'light' | 'dark' | 'system';
-    effective: 'light' | 'dark';
-  };
+    stored: 'light' | 'dark' | 'system'
+    effective: 'light' | 'dark'
+  }
   __SW_CONTROL?: {
-    update: () => void;
-    clearCache: () => void;
-    getVersion: () => string | null;
-    isOnline: boolean;
-    hasUpdate: boolean;
-  };
+    update: () => void
+    clearCache: () => void
+    getVersion: () => string | null
+    isOnline: boolean
+    hasUpdate: boolean
+  }
 }
 
 // ============================================================================
@@ -49,24 +49,24 @@ interface WindowWithDebugVars extends Window {
  */
 interface NetworkConnection extends EventTarget {
   /** Effective connection type */
-  effectiveType: 'slow-2g' | '2g' | '3g' | '4g';
+  effectiveType: 'slow-2g' | '2g' | '3g' | '4g'
 
   /** Estimated downlink bandwidth in Mbps */
-  downlink: number;
+  downlink: number
 
   /** Estimated round-trip time in milliseconds */
-  rtt: number;
+  rtt: number
 
   /** Data saving mode enabled */
-  saveData: boolean;
+  saveData: boolean
 
   /** Connection change event */
-  addEventListener(type: 'change', listener: () => void, options?: AddEventListenerOptions): void;
-  removeEventListener(type: 'change', listener: () => void): void;
+  addEventListener(type: 'change', listener: () => void, options?: AddEventListenerOptions): void
+  removeEventListener(type: 'change', listener: () => void): void
 }
 
 interface NavigatorWithConnection extends Navigator {
-  connection?: NetworkConnection;
+  connection?: NetworkConnection
 }
 
 // ============================================================================
@@ -77,31 +77,33 @@ interface NavigatorWithConnection extends Navigator {
  * Check if window has webkitAudioContext
  */
 export function hasWebKitAudioContext(win: Window): win is WindowWithWebKitAudioContext {
-  return 'webkitAudioContext' in win;
+  return 'webkitAudioContext' in win
 }
 
 /**
  * Check if navigator has standalone property (iOS Safari)
  */
 export function hasNavigatorStandalone(nav: Navigator): nav is NavigatorWithStandalone {
-  return 'standalone' in nav;
+  return 'standalone' in nav
 }
 
 /**
  * Check if navigator has connection API
  */
 export function hasNavigatorConnection(nav: Navigator): nav is NavigatorWithConnection {
-  return 'connection' in nav;
+  return 'connection' in nav
 }
 
 /**
  * Get AudioContext with WebKit fallback
  */
 export function getAudioContext(): AudioContext | null {
-  if (typeof window === 'undefined') return null;
+  if (typeof window === 'undefined') return null
 
-  const win = window as Window & { webkitAudioContext?: typeof AudioContext };
-  const AudioContextClass = win.AudioContext || win.webkitAudioContext;
+  const win = window as Window & { webkitAudioContext?: typeof AudioContext }
+  const AudioContextClass =
+    (win as unknown as { AudioContext?: typeof AudioContext }).AudioContext ||
+    win.webkitAudioContext
 
-  return AudioContextClass ? new AudioContextClass() : null;
+  return AudioContextClass ? new AudioContextClass() : null
 }
