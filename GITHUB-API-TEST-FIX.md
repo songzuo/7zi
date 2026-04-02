@@ -5,6 +5,7 @@
 **错误信息**: `Cannot read properties of undefined (reading 'VALIDATION')`
 
 **测试文件**:
+
 - `src/test/api/routes-github-csrf.test.ts`
 - `src/app/api/github/commits/route.test.ts`
 
@@ -61,17 +62,17 @@ export enum ErrorType {
 
 ```typescript
 // 从独立文件导入 ErrorType
-import { ErrorType } from './error-types';
+import { ErrorType } from './error-types'
 
 // 重新导出 ErrorType 以保持向后兼容
-export { ErrorType } from './error-types';
+export { ErrorType } from './error-types'
 ```
 
 ### 3. 修改 `src/lib/api/user-messages.ts`
 
 ```typescript
 // 从独立文件导入 ErrorType，而不是从 error-handler 导入
-import { ErrorType } from './error-types';
+import { ErrorType } from './error-types'
 ```
 
 ## 修复的文件
@@ -111,8 +112,8 @@ npx vitest run src/app/api/github/commits/route.test.ts
 
 ```typescript
 // 以下导入方式仍然可用：
-import { ErrorType } from '@/lib/api/error-handler';
-import { createValidationError } from '@/lib/api/error-handler';
+import { ErrorType } from '@/lib/api/error-handler'
+import { createValidationError } from '@/lib/api/error-handler'
 ```
 
 通过在 `error-handler.ts` 中重新导出 `ErrorType`，保持了向后兼容性。

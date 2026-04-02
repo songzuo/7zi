@@ -66,6 +66,7 @@ nano .env
 ```
 
 **必须设置的变量：**
+
 - `JWT_SECRET` - JWT 密钥（至少 32 字符）
 - `RESEND_API_KEY` - 邮件服务 API 密钥
 
@@ -83,6 +84,7 @@ docker-compose -f docker-compose.dev.yml down
 ```
 
 开发环境特性：
+
 - ✅ 热重载（HMR）
 - ✅ Turbopack 加速
 - ✅ 源代码挂载
@@ -122,13 +124,13 @@ docker-compose -f docker-compose.prod.yml up -d
 
 ### 镜像大小优化
 
-| 优化项 | 说明 |
-|--------|------|
-| Alpine 基础镜像 | node:22-alpine (~50MB) |
-| 多阶段构建 | 仅复制构建产物 |
-| standalone 输出 | 自动包含必需依赖 |
-| 删除 devDependencies | 生产环境不需要 |
-| 最小化运行时依赖 | 仅安装 sqlite-libs, curl |
+| 优化项               | 说明                     |
+| -------------------- | ------------------------ |
+| Alpine 基础镜像      | node:22-alpine (~50MB)   |
+| 多阶段构建           | 仅复制构建产物           |
+| standalone 输出      | 自动包含必需依赖         |
+| 删除 devDependencies | 生产环境不需要           |
+| 最小化运行时依赖     | 仅安装 sqlite-libs, curl |
 
 **预期镜像大小：** ~200-300MB（比传统方案减少 60%+）
 
@@ -176,7 +178,7 @@ limit_req_zone $binary_remote_addr zone=general_limit:10m rate=30r/s;
 
 ```yaml
 healthcheck:
-  test: ["CMD", "/usr/local/bin/healthcheck.sh"]
+  test: ['CMD', '/usr/local/bin/healthcheck.sh']
   interval: 30s
   timeout: 5s
   retries: 3
@@ -189,6 +191,7 @@ healthcheck:
 - `HEAD /health` - 轻量健康检查
 
 **响应示例：**
+
 ```json
 {
   "success": true,
@@ -222,10 +225,10 @@ healthcheck:
 deploy:
   resources:
     limits:
-      cpus: "1"
+      cpus: '1'
       memory: 512M
     reservations:
-      cpus: "0.25"
+      cpus: '0.25'
       memory: 256M
 ```
 
@@ -243,10 +246,10 @@ deploy:
 
 ```yaml
 security_opt:
-  - no-new-privileges:true  # 禁止提权
-read_only: true             # 只读文件系统
+  - no-new-privileges:true # 禁止提权
+read_only: true # 只读文件系统
 tmpfs:
-  - /tmp                    # 临时目录
+  - /tmp # 临时目录
   - /app/.next/cache:size=100M
 ```
 
@@ -266,10 +269,10 @@ USER nextjs
 
 ```yaml
 logging:
-  driver: "json-file"
+  driver: 'json-file'
   options:
-    max-size: "10m"
-    max-file: "3"
+    max-size: '10m'
+    max-file: '3'
 ```
 
 ### 查看日志
@@ -406,6 +409,7 @@ docker-compose -f docker-compose.prod.yml up -d
 ## 📞 支持
 
 如有问题，请检查：
+
 1. 日志输出
 2. 健康检查状态
 3. 资源使用情况

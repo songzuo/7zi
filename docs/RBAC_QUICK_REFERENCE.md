@@ -3,6 +3,7 @@
 ## TL;DR
 
 Complete RBAC system implemented with:
+
 - ✅ 4 roles (admin, manager, member, viewer)
 - ✅ 40 granular permissions across 10 categories
 - ✅ Multi-role support (users can have multiple roles)
@@ -22,15 +23,15 @@ node scripts/migrate-rbac.js
 Or programmatically:
 
 ```typescript
-import { migrate } from '@/lib/permissions/migrations';
-await migrate();
+import { migrate } from '@/lib/permissions/migrations'
+await migrate()
 ```
 
 ### 2. Seed Default Roles & Permissions
 
 ```typescript
-import { seedDefaultRolesAndPermissions } from '@/lib/permissions';
-await seedDefaultRolesAndPermissions();
+import { seedDefaultRolesAndPermissions } from '@/lib/permissions'
+await seedDefaultRolesAndPermissions()
 ```
 
 ### 3. Wrap App with PermissionProvider (Frontend)
@@ -56,35 +57,35 @@ export default function RootLayout({ children }) {
 
 ```typescript
 // Require specific permission
-import { withPermissions } from '@/lib/permissions';
-import { Permission } from '@/lib/permissions/types';
+import { withPermissions } from '@/lib/permissions'
+import { Permission } from '@/lib/permissions/types'
 
 export async function DELETE(request: NextRequest) {
   return withPermissions(Permission.USER_DELETE)(request, async (req, context) => {
     // User has permission
-    return NextResponse.json({ success: true });
-  });
+    return NextResponse.json({ success: true })
+  })
 }
 
 // Require multiple permissions (ALL)
-return withPermissions(Permission.USER_READ, Permission.USER_UPDATE)(request, handler);
+return withPermissions(Permission.USER_READ, Permission.USER_UPDATE)(request, handler)
 
 // Require any permission (ONE)
-import { withAnyPermission } from '@/lib/permissions';
-return withAnyPermission(Permission.TEAM_READ, Permission.TASK_READ)(request, handler);
+import { withAnyPermission } from '@/lib/permissions'
+return withAnyPermission(Permission.TEAM_READ, Permission.TASK_READ)(request, handler)
 
 // Require specific role
-import { withRole } from '@/lib/permissions';
-import { Role } from '@/lib/permissions/types';
-return withRole(Role.ADMIN)(request, handler);
+import { withRole } from '@/lib/permissions'
+import { Role } from '@/lib/permissions/types'
+return withRole(Role.ADMIN)(request, handler)
 
 // Require any role (admin or manager)
-import { withAnyRole } from '@/lib/permissions';
-return withAnyRole(Role.ADMIN, Role.MANAGER)(request, handler);
+import { withAnyRole } from '@/lib/permissions'
+return withAnyRole(Role.ADMIN, Role.MANAGER)(request, handler)
 
 // Convenience: Manager or Admin
-import { withManagerOrAdmin } from '@/lib/permissions';
-return withManagerOrAdmin(request, handler);
+import { withManagerOrAdmin } from '@/lib/permissions'
+return withManagerOrAdmin(request, handler)
 ```
 
 ### Client-side (React Components)
@@ -126,29 +127,30 @@ import {
   removeRolesFromUser,
   getUserRoles,
   assignPermissionsToRole,
-} from '@/lib/permissions';
-import { Role, Permission } from '@/lib/permissions/types';
+} from '@/lib/permissions'
+import { Role, Permission } from '@/lib/permissions/types'
 
 // Add roles to user
-await addRolesToUser('user123', [Role.ADMIN, Role.MANAGER], 'admin456');
+await addRolesToUser('user123', [Role.ADMIN, Role.MANAGER], 'admin456')
 
 // Remove roles from user
-await removeRolesFromUser('user123', [Role.MANAGER]);
+await removeRolesFromUser('user123', [Role.MANAGER])
 
 // Get user's roles
-const roles = await getUserRoles('user123');
+const roles = await getUserRoles('user123')
 
 // Assign custom permissions to role
 await assignPermissionsToRole(
   Role.MANAGER,
   [Permission.SYSTEM_READ, Permission.LOGS_READ],
   'admin456'
-);
+)
 ```
 
 ## Permissions Cheat Sheet
 
 ### User Permissions
+
 - `user:read` - View users
 - `user:create` - Create users
 - `user:update` - Update users
@@ -156,6 +158,7 @@ await assignPermissionsToRole(
 - `user:manage_role` - Manage user roles
 
 ### Team Permissions
+
 - `team:read` - View teams
 - `team:create` - Create teams
 - `team:update` - Update teams
@@ -165,6 +168,7 @@ await assignPermissionsToRole(
 - `team:manage` - Full team management
 
 ### Task Permissions
+
 - `task:read` - View tasks
 - `task:create` - Create tasks
 - `task:update` - Update tasks
@@ -173,6 +177,7 @@ await assignPermissionsToRole(
 - `task:assign` - Assign tasks
 
 ### Approval Permissions
+
 - `approval:read` - View approvals
 - `approval:create` - Create approvals
 - `approval:update` - Update approvals
@@ -182,20 +187,24 @@ await assignPermissionsToRole(
 - `approval:manage` - Full approval management
 
 ### Report Permissions
+
 - `reports:export` - Export reports
 - `reports:view` - View reports
 - `reports:manage` - Full report management
 
 ### System Permissions
+
 - `system:read` - Read system info
 - `system:manage` - System management
 - `system:config` - System configuration
 
 ### Log Permissions
+
 - `logs:read` - Read logs
 - `logs:export` - Export logs
 
 ### AI Agent Permissions
+
 - `agent:read` - View agents
 - `agent:create` - Create agents
 - `agent:update` - Update agents
@@ -204,6 +213,7 @@ await assignPermissionsToRole(
 - `agent:execute` - Execute agents
 
 ### Wallet Permissions
+
 - `wallet:read` - View wallets
 - `wallet:manage` - Manage wallets
 - `wallet:transfer` - Transfer funds
@@ -211,10 +221,12 @@ await assignPermissionsToRole(
 ## Roles Overview
 
 ### Admin
+
 - ✅ All 40 permissions
 - Full system access
 
 ### Manager
+
 - ✅ ~30 permissions
 - Team management
 - Task management
@@ -223,6 +235,7 @@ await assignPermissionsToRole(
 - Settings (read/write)
 
 ### Member
+
 - ✅ ~15 permissions
 - Task management
 - Team (read-only)
@@ -231,6 +244,7 @@ await assignPermissionsToRole(
 - AI Agents (read/execute)
 
 ### Viewer
+
 - ✅ ~6 permissions
 - Read-only access
 - View all resources
@@ -336,18 +350,21 @@ npm test -- src/lib/permissions/__tests__/rbac.test.ts
 ## Troubleshooting
 
 ### Permissions not updating?
+
 1. Check migration is applied: `await getMigrationStatus()`
 2. Verify roles are seeded: `await getAllRoles()`
 3. Clear browser cache and re-authenticate
 4. Check JWT token expiration
 
 ### Role assignments not working?
+
 1. Verify user_roles table: `await getUserRoles(userId)`
 2. Check role-permission mappings
 3. Ensure fresh JWT token
 4. Review database logs
 
 ### Frontend checks failing?
+
 1. Verify PermissionProvider wraps app
 2. Check token in localStorage
 3. Verify Authorization header

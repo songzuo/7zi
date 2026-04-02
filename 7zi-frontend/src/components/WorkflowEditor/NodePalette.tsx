@@ -4,13 +4,13 @@
  * 左侧可拖拽的节点选择器
  */
 
-import React from 'react';
-import { NODE_TEMPLATES } from './constants';
-import type { NodeType } from './types';
+import React from 'react'
+import { NODE_TEMPLATES } from './constants'
+import type { NodeType } from './types'
 
 interface NodePaletteProps {
-  onNodeDragStart: (event: React.DragEvent, nodeType: NodeType) => void;
-  disabled?: boolean;
+  onNodeDragStart: (event: React.DragEvent, nodeType: NodeType) => void
+  disabled?: boolean
 }
 
 export function NodePalette({ onNodeDragStart, disabled = false }: NodePaletteProps) {
@@ -18,21 +18,19 @@ export function NodePalette({ onNodeDragStart, disabled = false }: NodePalettePr
     basic: ['start', 'end'] as NodeType[],
     agent: ['agent'] as NodeType[],
     logic: ['condition', 'parallel'] as NodeType[],
-    flow: ['wait'] as NodeType[],
-  };
+    flow: ['wait', 'humanInput'] as NodeType[],
+  }
 
   const categoryLabels = {
     basic: '基础',
     agent: 'Agent',
     logic: '逻辑',
     flow: '流程',
-  };
+  }
 
   return (
     <div className="w-64 border-r border-gray-200 bg-white p-4 dark:border-gray-700 dark:bg-gray-800">
-      <h3 className="mb-4 text-lg font-semibold text-gray-900 dark:text-white">
-        节点面板
-      </h3>
+      <h3 className="mb-4 text-lg font-semibold text-gray-900 dark:text-white">节点面板</h3>
 
       {Object.entries(nodeCategories).map(([category, nodeTypes]) => (
         <div key={category} className="mb-4">
@@ -40,13 +38,13 @@ export function NodePalette({ onNodeDragStart, disabled = false }: NodePalettePr
             {categoryLabels[category as keyof typeof categoryLabels]}
           </h4>
           <div className="space-y-2">
-            {nodeTypes.map((nodeType) => {
-              const template = NODE_TEMPLATES[nodeType];
+            {nodeTypes.map(nodeType => {
+              const template = NODE_TEMPLATES[nodeType]
               return (
                 <div
                   key={nodeType}
                   draggable={!disabled}
-                  onDragStart={(e) => onNodeDragStart(e, nodeType)}
+                  onDragStart={e => onNodeDragStart(e, nodeType)}
                   className={`flex cursor-move items-center gap-3 rounded-lg border border-gray-200 p-3 transition-all hover:border-gray-400 hover:shadow-sm dark:border-gray-700 dark:hover:border-gray-600 ${
                     disabled ? 'cursor-not-allowed opacity-50' : ''
                   }`}
@@ -61,7 +59,7 @@ export function NodePalette({ onNodeDragStart, disabled = false }: NodePalettePr
                     </div>
                   </div>
                 </div>
-              );
+              )
             })}
           </div>
         </div>
@@ -73,5 +71,5 @@ export function NodePalette({ onNodeDragStart, disabled = false }: NodePalettePr
         <p className="mt-1">拖拽节点到画布上创建工作流</p>
       </div>
     </div>
-  );
+  )
 }

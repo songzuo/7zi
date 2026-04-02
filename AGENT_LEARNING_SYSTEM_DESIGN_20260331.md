@@ -69,6 +69,7 @@ src/lib/agents/
 ### 现有 AdaptiveLearner 分析
 
 **已实现功能**：
+
 - ✅ 决策历史记录
 - ✅ Agent 学习指标追踪
 - ✅ 趋势分析（improving/stable/declining）
@@ -76,6 +77,7 @@ src/lib/agents/
 - ✅ 基本持久化
 
 **缺失功能**：
+
 - ❌ 任务完成时间预测模型
 - ❌ 深度历史数据分析
 - ❌ 多维度能力评估
@@ -147,37 +149,40 @@ src/lib/agents/
 **职责**：预测任务完成时间
 
 **核心算法**：
+
 ```typescript
 // 特征向量
 interface TaskFeatures {
-  taskType: TaskType;           // 任务类型
-  estimatedComplexity: number;   // 复杂度评分 (1-10)
-  inputSize: number;             // 输入数据量
-  priority: Priority;            // 优先级
-  agentLoad: number;             // Agent 当前负载
-  timeOfDay: number;             // 时间特征 (0-23)
-  dayOfWeek: number;             // 星期特征 (0-6)
-  historicalAvg: number;         // 历史平均时间
-  similarTaskCount: number;      // 相似任务数量
+  taskType: TaskType // 任务类型
+  estimatedComplexity: number // 复杂度评分 (1-10)
+  inputSize: number // 输入数据量
+  priority: Priority // 优先级
+  agentLoad: number // Agent 当前负载
+  timeOfDay: number // 时间特征 (0-23)
+  dayOfWeek: number // 星期特征 (0-6)
+  historicalAvg: number // 历史平均时间
+  similarTaskCount: number // 相似任务数量
 }
 
 // 预测结果
 interface TimePrediction {
-  estimatedMinutes: number;      // 预估分钟数
-  confidenceInterval: [number, number]; // 置信区间
-  confidence: number;            // 置信度 (0-1)
-  factors: string[];             // 影响因素
-  basedOn: string;               // 基于什么数据
+  estimatedMinutes: number // 预估分钟数
+  confidenceInterval: [number, number] // 置信区间
+  confidence: number // 置信度 (0-1)
+  factors: string[] // 影响因素
+  basedOn: string // 基于什么数据
 }
 ```
 
 **预测策略**：
+
 1. **相似任务匹配**：查找历史上最相似的 N 个任务
 2. **加权平均**：根据相似度加权计算预测时间
 3. **Agent 特化调整**：根据特定 Agent 历史表现调整
 4. **置信度评估**：基于样本量和一致性计算置信度
 
 **实现路径**：
+
 - 阶段 1：基于规则的预测（相似任务平均）
 - 阶段 2：简单统计模型（线性回归）
 - 阶段 3：机器学习模型（可选）
@@ -187,43 +192,48 @@ interface TimePrediction {
 **职责**：实时评估 Agent 能力
 
 **评估维度**：
+
 ```typescript
 interface AgentCapabilityAssessment {
-  agentId: string;
-  
+  agentId: string
+
   // 核心指标
-  reliabilityScore: number;      // 可靠性评分 (基于成功率)
-  speedScore: number;            // 速度评分 (基于完成时间)
-  qualityScore: number;          // 质量评分 (基于重试率、错误率)
-  
+  reliabilityScore: number // 可靠性评分 (基于成功率)
+  speedScore: number // 速度评分 (基于完成时间)
+  qualityScore: number // 质量评分 (基于重试率、错误率)
+
   // 任务类型专长
-  taskTypeExpertise: Map<TaskType, {
-    score: number;               // 专长评分
-    sampleSize: number;          // 样本数量
-    trend: 'improving' | 'stable' | 'declining';
-    lastUpdated: number;
-  }>;
-  
+  taskTypeExpertise: Map<
+    TaskType,
+    {
+      score: number // 专长评分
+      sampleSize: number // 样本数量
+      trend: 'improving' | 'stable' | 'declining'
+      lastUpdated: number
+    }
+  >
+
   // 动态能力
   dynamicCapabilities: {
-    techStack: string[];         // 动态更新的技术栈
-    specializations: string[];   // 动态更新的专长
-    preferredTaskTypes: TaskType[]; // 偏好的任务类型
-  };
-  
+    techStack: string[] // 动态更新的技术栈
+    specializations: string[] // 动态更新的专长
+    preferredTaskTypes: TaskType[] // 偏好的任务类型
+  }
+
   // 风险评估
   riskAssessment: {
-    overloadRisk: number;        // 过载风险
-    qualityRisk: number;         // 质量风险
-    availabilityRisk: number;    // 可用性风险
-  };
-  
-  lastUpdated: number;
-  confidence: number;            // 评估置信度
+    overloadRisk: number // 过载风险
+    qualityRisk: number // 质量风险
+    availabilityRisk: number // 可用性风险
+  }
+
+  lastUpdated: number
+  confidence: number // 评估置信度
 }
 ```
 
 **评估策略**：
+
 1. **滚动窗口统计**：最近 N 个任务的统计
 2. **衰减因子**：旧数据权重逐渐降低
 3. **异常检测**：检测性能突变
@@ -234,48 +244,49 @@ interface AgentCapabilityAssessment {
 **职责**：深度分析历史数据
 
 **分析能力**：
+
 ```typescript
 interface HistoryAnalysis {
   // 聚合统计
   aggregatedStats: {
-    period: 'hour' | 'day' | 'week' | 'month';
-    tasksCompleted: number;
-    avgExecutionTime: number;
-    avgQueueWaitTime: number;
-    successRate: number;
-    predictionAccuracy: number;
-  };
-  
+    period: 'hour' | 'day' | 'week' | 'month'
+    tasksCompleted: number
+    avgExecutionTime: number
+    avgQueueWaitTime: number
+    successRate: number
+    predictionAccuracy: number
+  }
+
   // 性能排行
   rankings: {
-    topPerformers: Array<{ agentId: string; score: number }>;
-    strugglingAgents: Array<{ agentId: string; issues: string[] }>;
-    mostEfficient: Array<{ agentId: string; avgTime: number }>;
-  };
-  
+    topPerformers: Array<{ agentId: string; score: number }>
+    strugglingAgents: Array<{ agentId: string; issues: string[] }>
+    mostEfficient: Array<{ agentId: string; avgTime: number }>
+  }
+
   // 模式识别
   patterns: {
-    peakHours: number[];         // 高峰时段
-    quietHours: number[];        // 低谷时段
-    commonTaskTypes: TaskType[]; // 常见任务类型
-    bottleneckAgents: string[];  // 瓶颈 Agent
-  };
-  
+    peakHours: number[] // 高峰时段
+    quietHours: number[] // 低谷时段
+    commonTaskTypes: TaskType[] // 常见任务类型
+    bottleneckAgents: string[] // 瓶颈 Agent
+  }
+
   // 异常检测
   anomalies: Array<{
-    type: 'performance_drop' | 'error_spike' | 'delay_increase';
-    agentId?: string;
-    timestamp: number;
-    severity: 'low' | 'medium' | 'high';
-    details: string;
-  }>;
-  
+    type: 'performance_drop' | 'error_spike' | 'delay_increase'
+    agentId?: string
+    timestamp: number
+    severity: 'low' | 'medium' | 'high'
+    details: string
+  }>
+
   // 预测准确率
   predictionMetrics: {
-    timePredictionAccuracy: number;  // 时间预测准确率
-    assignmentSuccessRate: number;    // 分配成功率
-    loadBalanceScore: number;         // 负载均衡评分
-  };
+    timePredictionAccuracy: number // 时间预测准确率
+    assignmentSuccessRate: number // 分配成功率
+    loadBalanceScore: number // 负载均衡评分
+  }
 }
 ```
 
@@ -284,31 +295,32 @@ interface HistoryAnalysis {
 **职责**：协调各学习模块
 
 **核心接口**：
+
 ```typescript
 interface LearningCoordinator {
   // 初始化学习系统
-  initialize(config: LearningConfig): Promise<void>;
-  
+  initialize(config: LearningConfig): Promise<void>
+
   // 处理任务完成事件
-  onTaskCompleted(event: TaskCompletionEvent): Promise<void>;
-  
+  onTaskCompleted(event: TaskCompletionEvent): Promise<void>
+
   // 处理任务失败事件
-  onTaskFailed(event: TaskFailureEvent): Promise<void>;
-  
+  onTaskFailed(event: TaskFailureEvent): Promise<void>
+
   // 获取预测
-  predict(task: Task, agents: Map<string, AgentCapability>): Promise<LearningPrediction>;
-  
+  predict(task: Task, agents: Map<string, AgentCapability>): Promise<LearningPrediction>
+
   // 获取能力评估
-  assessCapability(agentId: string): Promise<AgentCapabilityAssessment>;
-  
+  assessCapability(agentId: string): Promise<AgentCapabilityAssessment>
+
   // 获取历史分析
-  analyzeHistory(period: AnalysisPeriod): Promise<HistoryAnalysis>;
-  
+  analyzeHistory(period: AnalysisPeriod): Promise<HistoryAnalysis>
+
   // 更新学习模型
-  updateModels(): Promise<ModelUpdateResult>;
-  
+  updateModels(): Promise<ModelUpdateResult>
+
   // 导出学习数据
-  exportLearningData(): Promise<LearningDataExport>;
+  exportLearningData(): Promise<LearningDataExport>
 }
 ```
 
@@ -323,11 +335,7 @@ class TimePredictionEngine {
   /**
    * 预测任务完成时间
    */
-  predict(
-    task: Task,
-    agent?: AgentCapability,
-    context?: PredictionContext
-  ): Promise<TimePrediction>;
+  predict(task: Task, agent?: AgentCapability, context?: PredictionContext): Promise<TimePrediction>
 
   /**
    * 批量预测
@@ -335,26 +343,22 @@ class TimePredictionEngine {
   predictBatch(
     tasks: Task[],
     agents: Map<string, AgentCapability>
-  ): Promise<Map<string, TimePrediction>>;
+  ): Promise<Map<string, TimePrediction>>
 
   /**
    * 更新预测模型
    */
-  updateModel(
-    historicalData: TaskHistoryRecord[]
-  ): Promise<ModelUpdateResult>;
+  updateModel(historicalData: TaskHistoryRecord[]): Promise<ModelUpdateResult>
 
   /**
    * 获取预测准确性统计
    */
-  getAccuracyStats(): Promise<PredictionAccuracyStats>;
+  getAccuracyStats(): Promise<PredictionAccuracyStats>
 
   /**
    * 解释预测结果
    */
-  explainPrediction(
-    prediction: TimePrediction
-  ): Promise<PredictionExplanation>;
+  explainPrediction(prediction: TimePrediction): Promise<PredictionExplanation>
 }
 ```
 
@@ -365,34 +369,27 @@ class CapabilityAssessor {
   /**
    * 评估单个 Agent 能力
    */
-  assess(agentId: string): Promise<AgentCapabilityAssessment>;
+  assess(agentId: string): Promise<AgentCapabilityAssessment>
 
   /**
    * 批量评估
    */
-  assessAll(): Promise<Map<string, AgentCapabilityAssessment>>;
+  assessAll(): Promise<Map<string, AgentCapabilityAssessment>>
 
   /**
    * 更新能力评分
    */
-  updateAssessment(
-    agentId: string,
-    taskResult: TaskCompletionEvent
-  ): Promise<void>;
+  updateAssessment(agentId: string, taskResult: TaskCompletionEvent): Promise<void>
 
   /**
    * 获取动态能力建议
    */
-  getDynamicCapabilities(
-    agentId: string
-  ): Promise<DynamicCapabilityUpdate>;
+  getDynamicCapabilities(agentId: string): Promise<DynamicCapabilityUpdate>
 
   /**
    * 检测能力异常
    */
-  detectAnomalies(
-    agentId: string
-  ): Promise<CapabilityAnomaly[]>;
+  detectAnomalies(agentId: string): Promise<CapabilityAnomaly[]>
 }
 ```
 
@@ -403,38 +400,27 @@ class HistoryAnalyzer {
   /**
    * 分析历史数据
    */
-  analyze(period: AnalysisPeriod): Promise<HistoryAnalysis>;
+  analyze(period: AnalysisPeriod): Promise<HistoryAnalysis>
 
   /**
    * 获取 Agent 性能报告
    */
-  getAgentReport(
-    agentId: string,
-    period: AnalysisPeriod
-  ): Promise<AgentPerformanceReport>;
+  getAgentReport(agentId: string, period: AnalysisPeriod): Promise<AgentPerformanceReport>
 
   /**
    * 获取任务类型报告
    */
-  getTaskTypeReport(
-    taskType: TaskType,
-    period: AnalysisPeriod
-  ): Promise<TaskTypeReport>;
+  getTaskTypeReport(taskType: TaskType, period: AnalysisPeriod): Promise<TaskTypeReport>
 
   /**
    * 检测异常模式
    */
-  detectPatterns(
-    options: PatternDetectionOptions
-  ): Promise<DetectedPattern[]>;
+  detectPatterns(options: PatternDetectionOptions): Promise<DetectedPattern[]>
 
   /**
    * 导出分析报告
    */
-  exportReport(
-    format: 'json' | 'csv' | 'markdown',
-    period: AnalysisPeriod
-  ): Promise<string>;
+  exportReport(format: 'json' | 'csv' | 'markdown', period: AnalysisPeriod): Promise<string>
 }
 ```
 
@@ -445,12 +431,12 @@ class LearningCoordinator {
   /**
    * 初始化学习系统
    */
-  initialize(config: LearningConfig): Promise<void>;
+  initialize(config: LearningConfig): Promise<void>
 
   /**
    * 关闭学习系统
    */
-  shutdown(): Promise<void>;
+  shutdown(): Promise<void>
 
   /**
    * 获取增强的调度建议
@@ -458,30 +444,27 @@ class LearningCoordinator {
   getEnhancedSuggestion(
     task: Task,
     agents: Map<string, AgentCapability>
-  ): Promise<EnhancedSchedulingSuggestion>;
+  ): Promise<EnhancedSchedulingSuggestion>
 
   /**
    * 记录调度结果
    */
-  recordOutcome(
-    decision: ScheduleDecision,
-    outcome: TaskOutcome
-  ): Promise<void>;
+  recordOutcome(decision: ScheduleDecision, outcome: TaskOutcome): Promise<void>
 
   /**
    * 获取学习系统状态
    */
-  getStatus(): LearningSystemStatus;
+  getStatus(): LearningSystemStatus
 
   /**
    * 手动触发模型更新
    */
-  triggerModelUpdate(): Promise<ModelUpdateResult>;
+  triggerModelUpdate(): Promise<ModelUpdateResult>
 
   /**
    * 获取学习系统健康报告
    */
-  getHealthReport(): Promise<LearningHealthReport>;
+  getHealthReport(): Promise<LearningHealthReport>
 }
 ```
 
@@ -496,32 +479,24 @@ class AgentScheduler {
    * 获取学习增强的调度建议
    */
   async scheduleWithLearning(taskId: string): Promise<ScheduleDecision> {
-    const task = this.taskQueue.getTask(taskId);
-    if (!task) throw new Error('Task not found');
+    const task = this.taskQueue.getTask(taskId)
+    if (!task) throw new Error('Task not found')
 
     // 使用学习系统预测时间
-    const prediction = await this.learningCoordinator
-      .getTimePredictor()
-      .predict(task);
+    const prediction = await this.learningCoordinator.getTimePredictor().predict(task)
 
     // 更新任务预估时间
-    task.estimatedDuration = prediction.estimatedMinutes;
+    task.estimatedDuration = prediction.estimatedMinutes
 
     // 获取增强的 Agent 评估
-    const assessments = await this.learningCoordinator
-      .getCapabilityAssessor()
-      .assessAll();
+    const assessments = await this.learningCoordinator.getCapabilityAssessor().assessAll()
 
     // 结合评估结果计算最佳匹配
-    const enhancedCandidates = this.taskMatcher.findCandidates(task, this.agents);
-    const rankedWithLearning = this.rankWithLearning(
-      task,
-      enhancedCandidates,
-      assessments
-    );
+    const enhancedCandidates = this.taskMatcher.findCandidates(task, this.agents)
+    const rankedWithLearning = this.rankWithLearning(task, enhancedCandidates, assessments)
 
     // 创建调度决策
-    return this.createDecision(task, rankedWithLearning[0], prediction);
+    return this.createDecision(task, rankedWithLearning[0], prediction)
   }
 
   /**
@@ -547,40 +522,40 @@ class AgentScheduler {
 ```typescript
 interface TaskHistoryRecord {
   // 基本信息
-  taskId: string;
-  taskType: TaskType;
-  priority: Priority;
-  description: string;
+  taskId: string
+  taskType: TaskType
+  priority: Priority
+  description: string
 
   // 时间追踪
-  createdAt: number;
-  startedAt: number;
-  completedAt: number;
-  queueWaitTime: number;      // 等待时间（毫秒）
-  executionTime: number;       // 执行时间（毫秒）
-  
+  createdAt: number
+  startedAt: number
+  completedAt: number
+  queueWaitTime: number // 等待时间（毫秒）
+  executionTime: number // 执行时间（毫秒）
+
   // Agent 信息
-  agentId: string;
-  agentLoadAtStart: number;   // 开始时 Agent 负载
-  
+  agentId: string
+  agentLoadAtStart: number // 开始时 Agent 负载
+
   // 输入输出
-  inputSize: number;          // 输入数据量
-  outputSize: number;         // 输出数据量
-  estimatedTime: number;      // 预估时间
-  actualTime: number;         // 实际时间
-  
+  inputSize: number // 输入数据量
+  outputSize: number // 输出数据量
+  estimatedTime: number // 预估时间
+  actualTime: number // 实际时间
+
   // 结果
-  status: 'completed' | 'failed' | 'cancelled';
-  errorType?: string;
-  errorMessage?: string;
-  retryCount: number;
-  
+  status: 'completed' | 'failed' | 'cancelled'
+  errorType?: string
+  errorMessage?: string
+  retryCount: number
+
   // 预测追踪
-  predictedTime?: number;     // 学习系统预测的时间
-  predictionConfidence?: number;
-  
+  predictedTime?: number // 学习系统预测的时间
+  predictionConfidence?: number
+
   // 特征
-  features: TaskFeatures;
+  features: TaskFeatures
 }
 ```
 
@@ -588,45 +563,45 @@ interface TaskHistoryRecord {
 
 ```typescript
 interface PredictionModel {
-  modelId: string;
-  version: string;
-  createdAt: number;
-  updatedAt: number;
-  
+  modelId: string
+  version: string
+  createdAt: number
+  updatedAt: number
+
   // 模型类型
-  type: 'rule-based' | 'statistical' | 'ml';
-  
+  type: 'rule-based' | 'statistical' | 'ml'
+
   // 训练数据
-  trainingDataSize: number;
+  trainingDataSize: number
   trainingPeriod: {
-    start: number;
-    end: number;
-  };
-  
+    start: number
+    end: number
+  }
+
   // 模型参数
   parameters: {
     // 基于任务类型的平均时间
-    taskTypeAverages: Map<TaskType, number>;
-    
+    taskTypeAverages: Map<TaskType, number>
+
     // Agent 调整因子
-    agentAdjustments: Map<string, number>;
-    
+    agentAdjustments: Map<string, number>
+
     // 复杂度权重
-    complexityWeights: number[];
-    
+    complexityWeights: number[]
+
     // 时间特征权重
     timeWeights: {
-      hour: number[];
-      dayOfWeek: number[];
-    };
-  };
-  
+      hour: number[]
+      dayOfWeek: number[]
+    }
+  }
+
   // 模型性能
   performance: {
-    accuracy: number;          // 预测准确率
-    meanAbsoluteError: number; // 平均绝对误差
-    sampleSize: number;        // 验证样本数
-  };
+    accuracy: number // 预测准确率
+    meanAbsoluteError: number // 平均绝对误差
+    sampleSize: number // 验证样本数
+  }
 }
 ```
 
@@ -634,48 +609,54 @@ interface PredictionModel {
 
 ```typescript
 interface AgentLearningProfile {
-  agentId: string;
-  agentName: string;
-  
+  agentId: string
+  agentName: string
+
   // 能力评估
-  assessment: AgentCapabilityAssessment;
-  
+  assessment: AgentCapabilityAssessment
+
   // 历史统计
   history: {
-    totalTasksCompleted: number;
-    totalTasksFailed: number;
-    avgCompletionTime: number;
-    avgQueueWaitTime: number;
-    
-    byTaskType: Map<TaskType, {
-      count: number;
-      avgTime: number;
-      successRate: number;
-      avgComplexity: number;
-    }>;
-    
-    byPriority: Map<Priority, {
-      count: number;
-      avgTime: number;
-      successRate: number;
-    }>;
-  };
-  
+    totalTasksCompleted: number
+    totalTasksFailed: number
+    avgCompletionTime: number
+    avgQueueWaitTime: number
+
+    byTaskType: Map<
+      TaskType,
+      {
+        count: number
+        avgTime: number
+        successRate: number
+        avgComplexity: number
+      }
+    >
+
+    byPriority: Map<
+      Priority,
+      {
+        count: number
+        avgTime: number
+        successRate: number
+      }
+    >
+  }
+
   // 性能趋势
   trends: {
-    overall: 'improving' | 'stable' | 'declining';
-    recentAccuracy: number[];  // 最近 10 次预测准确率
-    loadHistory: number[];     // 最近负载历史
-  };
-  
+    overall: 'improving' | 'stable' | 'declining'
+    recentAccuracy: number[] // 最近 10 次预测准确率
+    loadHistory: number[] // 最近负载历史
+  }
+
   // 风险指标
   risks: {
-    currentLoadRisk: number;
-    reliabilityRisk: number;
-    capacityRisk: number;
-  };
-  
-  lastUpdated: number;
+    currentLoadRisk: number
+    reliabilityRisk: number
+    capacityRisk: number
+  }
+
+  lastUpdated: number
 }
 ```
 
@@ -685,40 +666,40 @@ interface AgentLearningProfile {
 interface LearningSystemConfig {
   // 启用功能
   enabled: {
-    timePrediction: boolean;
-    capabilityAssessment: boolean;
-    historyAnalysis: boolean;
-    autoUpdate: boolean;
-  };
-  
+    timePrediction: boolean
+    capabilityAssessment: boolean
+    historyAnalysis: boolean
+    autoUpdate: boolean
+  }
+
   // 时间预测配置
   prediction: {
-    minSampleSize: number;      // 最小样本数
-    confidenceThreshold: number; // 置信度阈值
-    updateInterval: number;     // 更新间隔（毫秒）
-    maxHistorySize: number;     // 最大历史记录数
-  };
-  
+    minSampleSize: number // 最小样本数
+    confidenceThreshold: number // 置信度阈值
+    updateInterval: number // 更新间隔（毫秒）
+    maxHistorySize: number // 最大历史记录数
+  }
+
   // 能力评估配置
   assessment: {
-    windowSize: number;         // 滑动窗口大小
-    decayFactor: number;        // 衰减因子
-    anomalyThreshold: number;   // 异常检测阈值
-  };
-  
+    windowSize: number // 滑动窗口大小
+    decayFactor: number // 衰减因子
+    anomalyThreshold: number // 异常检测阈值
+  }
+
   // 历史分析配置
   analysis: {
-    aggregationIntervals: ('hour' | 'day' | 'week' | 'month')[];
-    retentionDays: number;      // 数据保留天数
-    patternDetectionEnabled: boolean;
-  };
-  
+    aggregationIntervals: ('hour' | 'day' | 'week' | 'month')[]
+    retentionDays: number // 数据保留天数
+    patternDetectionEnabled: boolean
+  }
+
   // 存储配置
   storage: {
-    persistenceEnabled: boolean;
-    storagePath: string;
-    autoSaveInterval: number;
-  };
+    persistenceEnabled: boolean
+    storagePath: string
+    autoSaveInterval: number
+  }
 }
 ```
 
@@ -735,32 +716,30 @@ interface LearningSystemConfig {
 ```typescript
 // 在 AgentScheduler 中添加学习系统
 class AgentScheduler {
-  private learner: AdaptiveLearner;           // 现有
-  private learningCoordinator?: LearningCoordinator;  // 新增
+  private learner: AdaptiveLearner // 现有
+  private learningCoordinator?: LearningCoordinator // 新增
 
   constructor(config?: Partial<SchedulerConfig>) {
     // ... 现有初始化 ...
-    
+
     // 可选：初始化新的学习系统
     if (config?.enableLearning) {
-      this.learningCoordinator = new LearningCoordinator(config.learning);
+      this.learningCoordinator = new LearningCoordinator(config.learning)
     }
   }
 
   // 保持现有方法不变
   async scheduleTask(taskId: string): Promise<ScheduleDecision | null> {
     // 现有逻辑 ...
-    
+
     // 如果启用学习系统，记录预测
     if (this.learningCoordinator) {
-      const prediction = await this.learningCoordinator
-        .getTimePredictor()
-        .predict(task);
-      
+      const prediction = await this.learningCoordinator.getTimePredictor().predict(task)
+
       // 记录预测但不影响现有逻辑
-      task.predictedTime = prediction.estimatedMinutes;
+      task.predictedTime = prediction.estimatedMinutes
     }
-    
+
     // 现有调度逻辑 ...
   }
 }
@@ -772,20 +751,17 @@ class AgentScheduler {
 class AgentScheduler {
   async scheduleTask(taskId: string): Promise<ScheduleDecision | null> {
     // 随机选择使用学习系统或传统方法
-    const useLearning = Math.random() < this.learningPercentage;
-    
+    const useLearning = Math.random() < this.learningPercentage
+
     if (useLearning && this.learningCoordinator) {
-      return this.scheduleWithLearning(taskId);
+      return this.scheduleWithLearning(taskId)
     } else {
-      return this.scheduleTraditional(taskId);
+      return this.scheduleTraditional(taskId)
     }
   }
-  
+
   // 比较两种方法的结果
-  compareResults(
-    traditional: ScheduleDecision,
-    learning: ScheduleDecision
-  ): void {
+  compareResults(traditional: ScheduleDecision, learning: ScheduleDecision): void {
     // 记录对比数据用于分析
   }
 }
@@ -798,11 +774,11 @@ class AgentScheduler {
   async scheduleTask(taskId: string): Promise<ScheduleDecision | null> {
     // 默认使用学习系统
     if (this.learningCoordinator && this.config.enableLearning) {
-      return this.scheduleWithLearning(taskId);
+      return this.scheduleWithLearning(taskId)
     }
-    
+
     // 回退到传统方法
-    return this.scheduleTraditional(taskId);
+    return this.scheduleTraditional(taskId)
   }
 }
 ```
@@ -830,34 +806,34 @@ Ranker → LoadBalancer → [Learning: Validate] → Decision
 // 扩展现有 SchedulerConfig
 interface SchedulerConfig {
   // ... 现有配置 ...
-  
+
   // 新增学习系统配置
   learning?: {
-    enabled: boolean;
-    
+    enabled: boolean
+
     prediction: {
-      enabled: boolean;
-      minSampleSize: number;
-      confidenceThreshold: number;
-    };
-    
+      enabled: boolean
+      minSampleSize: number
+      confidenceThreshold: number
+    }
+
     assessment: {
-      enabled: boolean;
-      windowSize: number;
-      decayFactor: number;
-    };
-    
+      enabled: boolean
+      windowSize: number
+      decayFactor: number
+    }
+
     analysis: {
-      enabled: boolean;
-      retentionDays: number;
-    };
-    
+      enabled: boolean
+      retentionDays: number
+    }
+
     // A/B 测试配置
     abTest?: {
-      enabled: boolean;
-      learningPercentage: number;  // 0-100
-    };
-  };
+      enabled: boolean
+      learningPercentage: number // 0-100
+    }
+  }
 }
 ```
 
@@ -867,14 +843,14 @@ interface SchedulerConfig {
 
 ### 量化指标
 
-| 指标 | 当前 | 目标 | 提升 |
-|------|------|------|------|
-| 任务完成时间预测准确率 | ~60% | >85% | +25% |
-| 调度决策成功率 | ~95% | >98% | +3% |
-| Agent 负载均衡度 | 85-95% | >95% | +5% |
-| 平均任务等待时间 | 基线 | -30% | 优化 |
-| 异常检测响应时间 | 手动 | <5min | 自动化 |
-| 整体调度效率 | 基线 | +30% | 优化 |
+| 指标                   | 当前   | 目标  | 提升   |
+| ---------------------- | ------ | ----- | ------ |
+| 任务完成时间预测准确率 | ~60%   | >85%  | +25%   |
+| 调度决策成功率         | ~95%   | >98%  | +3%    |
+| Agent 负载均衡度       | 85-95% | >95%  | +5%    |
+| 平均任务等待时间       | 基线   | -30%  | 优化   |
+| 异常检测响应时间       | 手动   | <5min | 自动化 |
+| 整体调度效率           | 基线   | +30%  | 优化   |
 
 ### 定性收益
 
@@ -903,6 +879,7 @@ interface SchedulerConfig {
 ### 第 1 天：基础架构
 
 **上午（4 小时）**
+
 - [ ] 创建模块目录结构
   ```
   src/lib/agents/learning/
@@ -925,6 +902,7 @@ interface SchedulerConfig {
   - `CapabilityStore`: 动态能力存储
 
 **下午（4 小时）**
+
 - [ ] 实现 `TimePredictionEngine` 基础版本
   - 特征提取器
   - 相似任务匹配
@@ -934,6 +912,7 @@ interface SchedulerConfig {
 ### 第 2 天：核心功能
 
 **上午（4 小时）**
+
 - [ ] 实现 `CapabilityAssessor`
   - 滑动窗口统计
   - 趋势分析
@@ -941,6 +920,7 @@ interface SchedulerConfig {
 - [ ] 集成到现有 `AdaptiveLearner`
 
 **下午（4 小时）**
+
 - [ ] 实现 `HistoryAnalyzer`
   - 聚合统计
   - 模式识别
@@ -950,6 +930,7 @@ interface SchedulerConfig {
 ### 第 3 天：集成与优化
 
 **上午（4 小时）**
+
 - [ ] 实现 `LearningCoordinator`
   - 模块协调
   - 统一 API
@@ -957,6 +938,7 @@ interface SchedulerConfig {
 - [ ] 集成到 `AgentScheduler`
 
 **下午（4 小时）**
+
 - [ ] 端到端测试
 - [ ] 性能测试
 - [ ] A/B 测试框架
@@ -964,11 +946,13 @@ interface SchedulerConfig {
 ### 第 4 天：测试与文档
 
 **上午（4 小时）**
+
 - [ ] 集成测试
 - [ ] 回归测试（确保现有功能正常）
 - [ ] 性能基准测试
 
 **下午（4 小时）**
+
 - [ ] API 文档
 - [ ] 使用示例
 - [ ] 部署指南
@@ -976,12 +960,12 @@ interface SchedulerConfig {
 
 ### 里程碑
 
-| 里程碑 | 时间 | 交付物 |
-|--------|------|--------|
+| 里程碑       | 时间      | 交付物                      |
+| ------------ | --------- | --------------------------- |
 | M1: 基础架构 | 第 1 天晚 | 存储层 + TimePredictor 基础 |
-| M2: 核心功能 | 第 2 天晚 | Assessor + Analyzer |
-| M3: 系统集成 | 第 3 天晚 | 集成完成 + 可运行 |
-| M4: 生产就绪 | 第 4 天晚 | 测试完成 + 文档齐全 |
+| M2: 核心功能 | 第 2 天晚 | Assessor + Analyzer         |
+| M3: 系统集成 | 第 3 天晚 | 集成完成 + 可运行           |
+| M4: 生产就绪 | 第 4 天晚 | 测试完成 + 文档齐全         |
 
 ---
 
@@ -989,28 +973,28 @@ interface SchedulerConfig {
 
 ### 技术风险
 
-| 风险 | 影响 | 概率 | 缓解策略 |
-|------|------|------|----------|
-| 预测准确率不达标 | 高 | 中 | 分阶段实现，先规则后模型；A/B 测试 |
-| 性能影响 | 中 | 低 | 异步处理；缓存优化；限流 |
-| 数据不足 | 中 | 中 | 引入外部数据；冷启动策略 |
-| 模型过拟合 | 低 | 低 | 交叉验证；正则化；定期更新 |
+| 风险             | 影响 | 概率 | 缓解策略                           |
+| ---------------- | ---- | ---- | ---------------------------------- |
+| 预测准确率不达标 | 高   | 中   | 分阶段实现，先规则后模型；A/B 测试 |
+| 性能影响         | 中   | 低   | 异步处理；缓存优化；限流           |
+| 数据不足         | 中   | 中   | 引入外部数据；冷启动策略           |
+| 模型过拟合       | 低   | 低   | 交叉验证；正则化；定期更新         |
 
 ### 集成风险
 
-| 风险 | 影响 | 概率 | 缓解策略 |
-|------|------|------|----------|
-| 破坏现有功能 | 高 | 低 | 全面测试；渐进集成；回滚机制 |
-| 兼容性问题 | 中 | 中 | 版本控制；向后兼容；特性开关 |
-| 配置复杂 | 低 | 中 | 合理默认值；文档完善；配置验证 |
+| 风险         | 影响 | 概率 | 缓解策略                       |
+| ------------ | ---- | ---- | ------------------------------ |
+| 破坏现有功能 | 高   | 低   | 全面测试；渐进集成；回滚机制   |
+| 兼容性问题   | 中   | 中   | 版本控制；向后兼容；特性开关   |
+| 配置复杂     | 低   | 中   | 合理默认值；文档完善；配置验证 |
 
 ### 运维风险
 
-| 风险 | 影响 | 概率 | 缓解策略 |
-|------|------|------|----------|
-| 数据丢失 | 高 | 低 | 持久化；备份；恢复机制 |
-| 资源消耗 | 中 | 中 | 资源限制；监控告警；优化策略 |
-| 调试困难 | 低 | 中 | 日志完善；可观测性工具；文档 |
+| 风险     | 影响 | 概率 | 缓解策略                     |
+| -------- | ---- | ---- | ---------------------------- |
+| 数据丢失 | 高   | 低   | 持久化；备份；恢复机制       |
+| 资源消耗 | 中   | 中   | 资源限制；监控告警；优化策略 |
+| 调试困难 | 低   | 中   | 日志完善；可观测性工具；文档 |
 
 ---
 

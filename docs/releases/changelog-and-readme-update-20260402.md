@@ -10,6 +10,7 @@
 **位置**: `/root/.openclaw/workspace/CHANGELOG.md`
 
 **更新内容**:
+
 - 添加 v1.8.0 Visual Workflow Orchestrator 发布记录
 - 合并 Email Alerting 基础设施记录
 - 版本主题: **可视化工作流编排** · **Email 告警系统** · **SMTP 集成** · **模板系统**
@@ -25,6 +26,7 @@
 | Alerting 系统集成 | 100% | ✅ |
 
 **代码统计**:
+
 - Visual Workflow Orchestrator: 1,614 行 (Orchestrator 798 + Canvas 766 + exports)
 - Email Alerting: 1,294 行 (config 314 + service 498 + templates 393 + index 89)
 
@@ -33,6 +35,7 @@
 **位置**: `/root/.openclaw/workspace/README.md`
 
 **更新内容**:
+
 1. 版本号徽章: `1.6.1` → `1.8.0`
 2. 最新进展标题: 添加 v1.8.0 Released 2026-04-02
 3. 添加 v1.8.0 核心亮点和改进部分
@@ -42,6 +45,7 @@
 ## Git 提交记录参考
 
 最近的 git 提交:
+
 ```
 a218581dd docs: update CHANGELOG with v1.8.0 Visual Workflow Orchestrator release notes
 f3add0f5a feat: v1.8.0 Visual Workflow Orchestrator core implementation
@@ -57,10 +61,10 @@ f3add0f5a feat: v1.8.0 Visual Workflow Orchestrator core implementation
 
 ## 文件变更摘要
 
-| 文件 | 变更 |
-|------|------|
+| 文件         | 变更                                        |
+| ------------ | ------------------------------------------- |
 | CHANGELOG.md | 添加 Visual Workflow Orchestrator 到 v1.8.0 |
-| README.md | 版本号 1.6.1→1.8.0，添加 v1.8.0 最新进展 |
+| README.md    | 版本号 1.6.1→1.8.0，添加 v1.8.0 最新进展    |
 
 ---
 

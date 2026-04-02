@@ -1,3 +1,4 @@
+import { NextRequest, NextResponse } from 'next/server'
 /**
  * API Route: /api/projects
  *
@@ -6,47 +7,45 @@
  * To enable rate limiting, simply wrap your handler with `withRateLimit`.
  */
 
-import { withRateLimit, getRateLimitStatus } from '@/lib/rate-limit';
+import { withRateLimit, getRateLimitStatus } from '@/lib/rate-limit'
 
 interface Project {
-  id: number;
-  name: string;
-  [key: string]: unknown;
+  id: number
+  name: string
+  [key: string]: unknown
 }
 
 interface CreateProjectData {
-  name: string;
-  [key: string]: unknown;
+  name: string
+  [key: string]: unknown
 }
 
 /**
  * GET /api/projects
  * Get all projects (with rate limiting)
  */
-export const GET = withRateLimit(
-  async (_req: NextRequest) => {
-    try {
-      // Your existing logic here
-      const projects = await getProjects();
+export const GET = withRateLimit(async (_req: NextRequest) => {
+  try {
+    // Your existing logic here
+    const projects = await getProjects()
 
-      return NextResponse.json({
-        success: true,
-        data: projects,
-      });
-    } catch (_error) {
-      return NextResponse.json(
-        {
-          success: false,
-          error: {
-            type: 'INTERNAL_ERROR',
-            message: 'Failed to fetch projects',
-          },
+    return NextResponse.json({
+      success: true,
+      data: projects,
+    })
+  } catch (error) {
+    return NextResponse.json(
+      {
+        success: false,
+        error: {
+          type: 'INTERNAL_ERROR',
+          message: 'Failed to fetch projects',
         },
-        { status: 500 }
-      );
-    }
+      },
+      { status: 500 }
+    )
   }
-);
+})
 
 /**
  * POST /api/projects
@@ -55,16 +54,16 @@ export const GET = withRateLimit(
 export const POST = withRateLimit(
   async (req: NextRequest) => {
     try {
-      const body = await req.json();
+      const body = await req.json()
 
       // Your existing logic here
-      const project = await createProject(body as CreateProjectData);
+      const project = await createProject(body as CreateProjectData)
 
       return NextResponse.json({
         success: true,
         data: project,
-      });
-    } catch (_error) {
+      })
+    } catch (error) {
       return NextResponse.json(
         {
           success: false,
@@ -74,29 +73,29 @@ export const POST = withRateLimit(
           },
         },
         { status: 500 }
-      );
+      )
     }
   },
   {
     windowMs: 60000, // 1 minute
     maxRequests: 30,
   }
-);
+)
 
 /**
  * GET /api/projects/status
  * Get rate limit status for current user
  */
 export async function GET_STATUS(req: NextRequest) {
-  const identifier = getUserIdFromRequest(req);
-  const status = await getRateLimitStatus('/api/projects', identifier);
+  const identifier = getUserIdFromRequest(req)
+  const status = await getRateLimitStatus('/api/projects', identifier)
 
   return NextResponse.json({
     success: true,
     data: {
       rateLimit: status,
     },
-  });
+  })
 }
 
 // Mock functions (replace with your actual implementation)
@@ -104,24 +103,24 @@ async function getProjects(): Promise<Project[]> {
   return [
     { id: 1, name: 'Project 1' },
     { id: 2, name: 'Project 2' },
-  ];
+  ]
 }
 
 async function createProject(data: CreateProjectData): Promise<Project> {
   return {
     id: Date.now(),
     ...data,
-  };
+  }
 }
 
 function getUserIdFromRequest(req: NextRequest): string {
   // Try to get user ID from token or session
-  const userId = req.headers.get('x-user-id');
+  const userId = req.headers.get('x-user-id')
   if (userId) {
-    return `user:${userId}`;
+    return `user:${userId}`
   }
 
   // Fallback to IP
-  const ip = req.headers.get('x-forwarded-for')?.split(',')[0] || 'unknown';
-  return `ip:${ip}`;
+  const ip = req.headers.get('x-forwarded-for')?.split(',')[0] || 'unknown'
+  return `ip:${ip}`
 }

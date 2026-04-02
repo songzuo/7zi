@@ -35,12 +35,12 @@
 
 ### 测试分类
 
-| 类型 | 工具 | 位置 | 数量 | 覆盖率目标 |
-|------|------|------|------|-----------|
-| **单元测试** | Vitest | `src/**/__tests__/*.test.ts` | 400+ | 80%+ |
-| **集成测试** | Vitest | `src/test/integration/*.test.ts` | 50+ | 70%+ |
-| **API 测试** | Vitest | `src/app/api/**/*.test.ts` | 30+ | 75%+ |
-| **E2E 测试** | Playwright | `e2e/*.spec.ts` | 20+ | 关键流程 100% |
+| 类型         | 工具       | 位置                             | 数量 | 覆盖率目标    |
+| ------------ | ---------- | -------------------------------- | ---- | ------------- |
+| **单元测试** | Vitest     | `src/**/__tests__/*.test.ts`     | 400+ | 80%+          |
+| **集成测试** | Vitest     | `src/test/integration/*.test.ts` | 50+  | 70%+          |
+| **API 测试** | Vitest     | `src/app/api/**/*.test.ts`       | 30+  | 75%+          |
+| **E2E 测试** | Playwright | `e2e/*.spec.ts`                  | 20+  | 关键流程 100% |
 
 ---
 
@@ -48,20 +48,20 @@
 
 ### Unit & Integration 测试
 
-| 工具 | 版本 | 用途 |
-|------|------|------|
-| **Vitest** | 4.1.0 | 测试框架 |
-| **React Testing Library** | 16.x | React 组件测试 |
-| **@testing-library/user-event** | 14.x | 用户交互模拟 |
-| **@vitest/coverage-v8** | 4.1.0 | 代码覆盖率 |
+| 工具                            | 版本  | 用途           |
+| ------------------------------- | ----- | -------------- |
+| **Vitest**                      | 4.1.0 | 测试框架       |
+| **React Testing Library**       | 16.x  | React 组件测试 |
+| **@testing-library/user-event** | 14.x  | 用户交互模拟   |
+| **@vitest/coverage-v8**         | 4.1.0 | 代码覆盖率     |
 
 ### E2E 测试
 
-| 工具 | 版本 | 用途 |
-|------|------|------|
-| **Playwright** | 1.58.2 | E2E 测试框架 |
+| 工具                 | 版本   | 用途              |
+| -------------------- | ------ | ----------------- |
+| **Playwright**       | 1.58.2 | E2E 测试框架      |
 | **@playwright/test** | 1.58.2 | Playwright 测试库 |
-| **TypeScript** | 5.x | 类型安全 |
+| **TypeScript**       | 5.x    | 类型安全          |
 
 ---
 
@@ -125,15 +125,15 @@ src/
 ### 编写单元测试
 
 ```typescript
-import { describe, it, expect } from 'vitest';
+import { describe, it, expect } from 'vitest'
 
 describe('Utils', () => {
   it('should format date correctly', () => {
-    const date = new Date('2026-03-21');
-    const formatted = formatDate(date);
-    expect(formatted).toBe('2026-03-21');
-  });
-});
+    const date = new Date('2026-03-21')
+    const formatted = formatDate(date)
+    expect(formatted).toBe('2026-03-21')
+  })
+})
 ```
 
 ### 组件测试
@@ -164,17 +164,17 @@ describe('Button', () => {
 ### 测试 API 路由
 
 ```typescript
-import { POST, GET } from './route';
+import { POST, GET } from './route'
 
 describe('API Route', () => {
   it('should handle POST request', async () => {
     const request = mockRequest({
-      email: 'test@example.com'
-    });
-    const response = await POST(request);
-    expect(response.status).toBe(200);
-  });
-});
+      email: 'test@example.com',
+    })
+    const response = await POST(request)
+    expect(response.status).toBe(200)
+  })
+})
 ```
 
 ### 测试数据库操作
@@ -182,11 +182,11 @@ describe('API Route', () => {
 ```typescript
 describe('Database Integration', () => {
   it('should create and fetch user', async () => {
-    const user = await createUser({ email: 'test@example.com' });
-    const fetched = await getUser(user.id);
-    expect(fetched.email).toBe('test@example.com');
-  });
-});
+    const user = await createUser({ email: 'test@example.com' })
+    const fetched = await getUser(user.id)
+    expect(fetched.email).toBe('test@example.com')
+  })
+})
 ```
 
 ---
@@ -216,18 +216,18 @@ e2e/
 ### 使用页面对象模型
 
 ```typescript
-import { LoginPage, DashboardPage } from './pages';
+import { LoginPage, DashboardPage } from './pages'
 
 test('should login and access dashboard', async ({ page }) => {
-  const loginPage = new LoginPage(page);
-  const dashboardPage = new DashboardPage(page);
+  const loginPage = new LoginPage(page)
+  const dashboardPage = new DashboardPage(page)
 
-  await loginPage.goto();
-  await loginPage.login('user@example.com', 'password');
+  await loginPage.goto()
+  await loginPage.login('user@example.com', 'password')
 
-  await dashboardPage.waitForLoad();
-  expect(await dashboardPage.isOnDashboard()).toBeTruthy();
-});
+  await dashboardPage.waitForLoad()
+  expect(await dashboardPage.isOnDashboard()).toBeTruthy()
+})
 ```
 
 ### 关键用户流程
@@ -236,58 +236,58 @@ test('should login and access dashboard', async ({ page }) => {
 
 ```typescript
 test('should login with valid credentials', async ({ page }) => {
-  const loginPage = new LoginPage(page);
-  await loginPage.login('test@7zi.com', 'test123456');
-  await expect(page).toHaveURL('/dashboard');
-});
+  const loginPage = new LoginPage(page)
+  await loginPage.login('test@7zi.com', 'test123456')
+  await expect(page).toHaveURL('/dashboard')
+})
 ```
 
 #### 2. 创建任务流程
 
 ```typescript
 test('should create a new task', async ({ page }) => {
-  const dashboardPage = new DashboardPage(page);
-  const taskCreationPage = new TaskCreationPage(page);
+  const dashboardPage = new DashboardPage(page)
+  const taskCreationPage = new TaskCreationPage(page)
 
-  await dashboardPage.goto();
-  await dashboardPage.clickCreateTask();
+  await dashboardPage.goto()
+  await dashboardPage.clickCreateTask()
 
-  await taskCreationPage.fillTitle('Test Task');
-  await taskCreationPage.submit();
+  await taskCreationPage.fillTitle('Test Task')
+  await taskCreationPage.submit()
 
-  const taskCard = dashboardPage.getTaskCardByTitle('Test Task');
-  await expect(taskCard).toBeVisible();
-});
+  const taskCard = dashboardPage.getTaskCardByTitle('Test Task')
+  await expect(taskCard).toBeVisible()
+})
 ```
 
 #### 3. 导航流程
 
 ```typescript
 test('should navigate between pages', async ({ page }) => {
-  const nav = new NavigationPage(page);
+  const nav = new NavigationPage(page)
 
-  await nav.goToTeam();
-  await nav.waitForNavigation();
-  expect(page.url()).toContain('/team');
+  await nav.goToTeam()
+  await nav.waitForNavigation()
+  expect(page.url()).toContain('/team')
 
-  await nav.goToDashboard();
-  await nav.waitForNavigation();
-  expect(page.url()).toContain('/dashboard');
-});
+  await nav.goToDashboard()
+  await nav.waitForNavigation()
+  expect(page.url()).toContain('/dashboard')
+})
 ```
 
 ### 视觉回归测试
 
 ```typescript
 test('should match home page screenshot', async ({ page }) => {
-  await page.goto('/');
-  await page.setViewportSize({ width: 1920, height: 1080 });
+  await page.goto('/')
+  await page.setViewportSize({ width: 1920, height: 1080 })
 
   await expect(page).toHaveScreenshot('home-desktop.png', {
     fullPage: true,
     maxDiffPixels: 100,
-  });
-});
+  })
+})
 ```
 
 ### E2E 测试命令
@@ -326,28 +326,31 @@ npm run test:e2e:report
    - 便于维护
 
 2. **智能等待**
+
    ```typescript
-   await page.waitForLoadState('networkidle');
-   await page.waitForSelector('.element');
+   await page.waitForLoadState('networkidle')
+   await page.waitForSelector('.element')
    ```
 
 3. **语义化定位器**
+
    ```typescript
    page.getByRole('button', { name: 'Submit' })
    page.getByLabel('Email')
    ```
 
 4. **测试数据隔离**
+
    ```typescript
-   const testData = new TestData();
-   const uniqueTitle = testData.generateTaskTitle();
+   const testData = new TestData()
+   const uniqueTitle = testData.generateTaskTitle()
    ```
 
 5. **清理测试状态**
    ```typescript
    test.afterEach(async () => {
-     await cleanupTestData();
-   });
+     await cleanupTestData()
+   })
    ```
 
 ---
@@ -356,12 +359,12 @@ npm run test:e2e:report
 
 ### 当前覆盖率
 
-| 指标 | 当前 | 目标 | 状态 |
-|------|------|------|------|
-| **Lines** | 85% | 80% | ✅ 超标 |
-| **Functions** | 82% | 80% | ✅ 超标 |
-| **Branches** | 78% | 70% | ✅ 超标 |
-| **Statements** | 85% | 80% | ✅ 超标 |
+| 指标           | 当前 | 目标 | 状态    |
+| -------------- | ---- | ---- | ------- |
+| **Lines**      | 85%  | 80%  | ✅ 超标 |
+| **Functions**  | 82%  | 80%  | ✅ 超标 |
+| **Branches**   | 78%  | 70%  | ✅ 超标 |
+| **Statements** | 85%  | 80%  | ✅ 超标 |
 
 ### 查看覆盖率
 
@@ -400,6 +403,7 @@ coverage: {
 **DO ✅**
 
 1. **测试行为，不测试实现**
+
    ```typescript
    // ✅ 好的测试
    expect(result).toBe('expected')
@@ -409,17 +413,19 @@ coverage: {
    ```
 
 2. **使用描述性测试名称**
+
    ```typescript
    test('should return 400 when email is invalid')
    ```
 
 3. **AAA 模式**
+
    ```typescript
    // Arrange
-   const input = 'value';
+   const input = 'value'
 
    // Act
-   const result = doSomething(input);
+   const result = doSomething(input)
 
    // Assert
    expect(result).toBe('expected')
@@ -428,8 +434,8 @@ coverage: {
 4. **使用 beforeEach 清理**
    ```typescript
    beforeEach(() => {
-     vi.clearAllMocks();
-   });
+     vi.clearAllMocks()
+   })
    ```
 
 **DON'T ❌**
@@ -465,18 +471,22 @@ coverage: {
 #### 测试超时
 
 ```typescript
-test('slow test', async () => {
-  // ...
-}, { timeout: 10000 });
+test(
+  'slow test',
+  async () => {
+    // ...
+  },
+  { timeout: 10000 }
+)
 ```
 
 #### Mock 不工作
 
 ```typescript
 beforeEach(() => {
-  vi.clearAllMocks();
-  vi.resetAllMocks();
-});
+  vi.clearAllMocks()
+  vi.resetAllMocks()
+})
 ```
 
 ### E2E 测试问题
@@ -485,22 +495,26 @@ beforeEach(() => {
 
 ```typescript
 // 使用更灵活的选择器
-await page.locator('button:has-text("Submit")').click();
+await page.locator('button:has-text("Submit")').click()
 ```
 
 #### 测试不稳定（Flaky）
 
 ```typescript
 // 等待网络空闲
-await page.waitForLoadState('networkidle');
+await page.waitForLoadState('networkidle')
 
 // 等待动画完成
-await page.waitForTimeout(500);
+await page.waitForTimeout(500)
 
 // 使用重试
-test('flaky test', async () => {
-  // ...
-}, { retries: 3 });
+test(
+  'flaky test',
+  async () => {
+    // ...
+  },
+  { retries: 3 }
+)
 ```
 
 #### 视觉回归失败
@@ -548,4 +562,4 @@ npx playwright test --headed --slowMo=1000
 
 ---
 
-*最后更新: 2026-03-21*
+_最后更新: 2026-03-21_

@@ -4,10 +4,5 @@
  * @version 1.5.0
  */
 
-export { AgentStatusPanel } from './AgentStatusPanel';
-export type {
-  Agent,
-  AgentTask,
-  ResourceUsage,
-  AgentStatusPanelProps,
-} from './AgentStatusPanel';
+export { AgentStatusPanel } from './AgentStatusPanel'
+export type { Agent, AgentTask, ResourceUsage, AgentStatusPanelProps } from './AgentStatusPanel'

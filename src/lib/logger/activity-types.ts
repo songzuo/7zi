@@ -101,21 +101,21 @@ export enum ActivityCategory {
 // ============================================
 
 export interface ActivityLogEntry {
-  id: string;
-  type: ActivityType;
-  category: ActivityCategory;
-  userId: string;
-  userEmail?: string;
-  userName?: string;
-  action: string;
-  description: string;
-  metadata?: Record<string, unknown>;
-  ipAddress?: string;
-  userAgent?: string;
-  requestId?: string;
-  timestamp: string;
-  severity: 'low' | 'medium' | 'high' | 'critical';
-  status: 'success' | 'failure' | 'partial';
+  id: string
+  type: ActivityType
+  category: ActivityCategory
+  userId: string
+  userEmail?: string
+  userName?: string
+  action: string
+  description: string
+  metadata?: Record<string, unknown>
+  ipAddress?: string
+  userAgent?: string
+  requestId?: string
+  timestamp: string
+  severity: 'low' | 'medium' | 'high' | 'critical'
+  status: 'success' | 'failure' | 'partial'
 }
 
 // ============================================
@@ -123,15 +123,15 @@ export interface ActivityLogEntry {
 // ============================================
 
 export interface ActivityFilters {
-  userId?: string;
-  type?: ActivityType;
-  category?: ActivityCategory;
-  startDate?: string;
-  endDate?: string;
-  severity?: 'low' | 'medium' | 'high' | 'critical';
-  status?: 'success' | 'failure' | 'partial';
-  limit?: number;
-  offset?: number;
+  userId?: string
+  type?: ActivityType
+  category?: ActivityCategory
+  startDate?: string
+  endDate?: string
+  severity?: 'low' | 'medium' | 'high' | 'critical'
+  status?: 'success' | 'failure' | 'partial'
+  limit?: number
+  offset?: number
 }
 
 // ============================================
@@ -139,17 +139,17 @@ export interface ActivityFilters {
 // ============================================
 
 export interface ActivityStatistics {
-  period: 'day' | 'week' | 'month' | 'year';
-  startDate: string;
-  endDate: string;
-  totalActivities: number;
-  activitiesByType: Record<ActivityType, number>;
-  activitiesByCategory: Record<ActivityCategory, number>;
-  activitiesByUser: Array<{ userId: string; userName?: string; count: number }>;
-  activitiesByDay: Array<{ date: string; count: number }>;
-  successRate: number;
-  failureCount: number;
-  criticalActivities: number;
+  period: 'day' | 'week' | 'month' | 'year'
+  startDate: string
+  endDate: string
+  totalActivities: number
+  activitiesByType: Record<ActivityType, number>
+  activitiesByCategory: Record<ActivityCategory, number>
+  activitiesByUser: Array<{ userId: string; userName?: string; count: number }>
+  activitiesByDay: Array<{ date: string; count: number }>
+  successRate: number
+  failureCount: number
+  criticalActivities: number
 }
 
 // ============================================
@@ -157,9 +157,9 @@ export interface ActivityStatistics {
 // ============================================
 
 export interface BatchWriteOptions {
-  batchSize?: number;
-  flushInterval?: number;
-  maxRetries?: number;
+  batchSize?: number
+  flushInterval?: number
+  maxRetries?: number
 }
 
 // ============================================
@@ -167,16 +167,16 @@ export interface BatchWriteOptions {
 // ============================================
 
 export interface ActivityTrackingOptions {
-  trackApiRequests?: boolean;
-  trackAuthentication?: boolean;
-  trackTaskOperations?: boolean;
-  trackProjectOperations?: boolean;
-  trackUserManagement?: boolean;
-  trackFileOperations?: boolean;
-  trackDataAccess?: boolean;
-  trackSecurityEvents?: boolean;
-  batchWrite?: boolean;
-  batchWriteOptions?: BatchWriteOptions;
-  excludePaths?: string[];
-  excludeUsers?: string[];
+  trackApiRequests?: boolean
+  trackAuthentication?: boolean
+  trackTaskOperations?: boolean
+  trackProjectOperations?: boolean
+  trackUserManagement?: boolean
+  trackFileOperations?: boolean
+  trackDataAccess?: boolean
+  trackSecurityEvents?: boolean
+  batchWrite?: boolean
+  batchWriteOptions?: BatchWriteOptions
+  excludePaths?: string[]
+  excludeUsers?: string[]
 }

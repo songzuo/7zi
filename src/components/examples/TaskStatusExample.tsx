@@ -5,25 +5,25 @@
  * using the WebSocket hook.
  */
 
-'use client';
+'use client'
 
-import { useTaskStatusUpdates } from '@/hooks/useWebSocket';
-import { WebSocketStatusIndicator } from '@/components/websocket/WebSocketStatusIndicator';
+import { useTaskStatusUpdates } from '@/hooks/useWebSocket'
+import { WebSocketStatusIndicator } from '@/components/websocket/WebSocketStatusIndicator'
 
 export function TaskStatusExample({ taskId }: { taskId: string }) {
-  const { state, taskUpdates, getTaskStatus } = useTaskStatusUpdates();
+  const { state, taskUpdates, getTaskStatus } = useTaskStatusUpdates()
 
-  const taskStatus = getTaskStatus(taskId);
+  const taskStatus = getTaskStatus(taskId)
 
   return (
-    <div className="p-6 bg-white rounded-lg shadow">
+    <div className="rounded-lg bg-white p-6 shadow">
       {/* Connection Status */}
       <div className="mb-4">
         <WebSocketStatusIndicator detailed={false} />
       </div>
 
       {/* Task Status Display */}
-      <h2 className="text-xl font-bold mb-4">Task Monitor</h2>
+      <h2 className="mb-4 text-xl font-bold">Task Monitor</h2>
 
       {taskStatus ? (
         <div className="space-y-2">
@@ -37,12 +37,17 @@ export function TaskStatusExample({ taskId }: { taskId: string }) {
           </div>
           <div className="flex justify-between">
             <span className="text-zinc-600">State:</span>
-            <span className={`px-2 py-1 rounded text-sm ${
-              taskStatus.state === 'completed' ? 'bg-green-100 text-green-800' :
-              taskStatus.state === 'running' ? 'bg-blue-100 text-blue-800' :
-              taskStatus.state === 'failed' ? 'bg-red-100 text-red-800' :
-              'bg-zinc-100 text-zinc-800'
-            }`}>
+            <span
+              className={`rounded px-2 py-1 text-sm ${
+                taskStatus.state === 'completed'
+                  ? 'bg-green-100 text-green-800'
+                  : taskStatus.state === 'running'
+                    ? 'bg-blue-100 text-blue-800'
+                    : taskStatus.state === 'failed'
+                      ? 'bg-red-100 text-red-800'
+                      : 'bg-zinc-100 text-zinc-800'
+              }`}
+            >
               {taskStatus.state}
             </span>
           </div>
@@ -55,5 +60,5 @@ export function TaskStatusExample({ taskId }: { taskId: string }) {
         <p className="text-zinc-500">Waiting for task updates...</p>
       )}
     </div>
-  );
+  )
 }

@@ -32,19 +32,19 @@
 
 ### 1.2 部署目标
 
-| 目标 | 当前状态 | 目标状态 |
-|------|---------|---------|
-| 部署时间 | 20-30 分钟 | <10 分钟 |
-| 停机时间 | 有停机 | 零停机 |
-| 回滚时间 | 10-15 分钟 | <2 分钟 |
-| 自动化程度 | 部分自动 | 全自动 |
+| 目标       | 当前状态   | 目标状态 |
+| ---------- | ---------- | -------- |
+| 部署时间   | 20-30 分钟 | <10 分钟 |
+| 停机时间   | 有停机     | 零停机   |
+| 回滚时间   | 10-15 分钟 | <2 分钟  |
+| 自动化程度 | 部分自动   | 全自动   |
 
 ### 1.3 目标服务器
 
-| 环境 | 服务器 | IP 地址 | 用途 |
-|------|--------|---------|------|
-| Production | 7zi.com | 165.99.43.61 | 生产环境 |
-| Staging | bot5.szspd.cn | 182.43.36.134 | 测试环境 |
+| 环境       | 服务器        | IP 地址       | 用途     |
+| ---------- | ------------- | ------------- | -------- |
+| Production | 7zi.com       | 165.99.43.61  | 生产环境 |
+| Staging    | bot5.szspd.cn | 182.43.36.134 | 测试环境 |
 
 ---
 
@@ -153,19 +153,19 @@
 
 ### 3.1 流水线概览
 
-| 阶段 | Job | 触发条件 | 超时 | 缓存 |
-|------|-----|---------|------|------|
-| **CI** | 变更检测 | Always | 3min | - |
-| | 依赖安装 | Always | 5min | node_modules |
-| | 代码检查 | Always | 5min | node_modules |
-| | 类型检查 | Always | 5min | node_modules |
-| | 单元测试 | 非跳过 | 10min | node_modules |
-| | 构建 | CI通过 | 15min | node_modules + .next |
-| | E2E测试 | PR/main | 20min | node_modules |
-| **CD** | Docker构建 | main/tag | 20min | GHA cache |
-| | Staging部署 | main分支 | 15min | - |
-| | Production部署 | tag/手动 | 20min | - |
-| | 通知 | Always | 3min | - |
+| 阶段   | Job            | 触发条件 | 超时  | 缓存                 |
+| ------ | -------------- | -------- | ----- | -------------------- |
+| **CI** | 变更检测       | Always   | 3min  | -                    |
+|        | 依赖安装       | Always   | 5min  | node_modules         |
+|        | 代码检查       | Always   | 5min  | node_modules         |
+|        | 类型检查       | Always   | 5min  | node_modules         |
+|        | 单元测试       | 非跳过   | 10min | node_modules         |
+|        | 构建           | CI通过   | 15min | node_modules + .next |
+|        | E2E测试        | PR/main  | 20min | node_modules         |
+| **CD** | Docker构建     | main/tag | 20min | GHA cache            |
+|        | Staging部署    | main分支 | 15min | -                    |
+|        | Production部署 | tag/手动 | 20min | -                    |
+|        | 通知           | Always   | 3min  | -                    |
 
 ### 3.2 触发条件配置
 
@@ -175,7 +175,7 @@ name: CI/CD Pipeline
 on:
   push:
     branches: [main, develop]
-    tags: ['v*.*.*']  # 版本标签触发生产部署
+    tags: ['v*.*.*'] # 版本标签触发生产部署
   pull_request:
     branches: [main, develop]
   workflow_dispatch:
@@ -284,16 +284,16 @@ stages:
   - notify
 
 variables:
-  NODE_VERSION: "22"
-  DOCKER_TLS_CERTDIR: ""
-  FF_USE_FASTZIP: "true"
+  NODE_VERSION: '22'
+  DOCKER_TLS_CERTDIR: ''
+  FF_USE_FASTZIP: 'true'
 
 # ============================================
 # 缓存配置
 # ============================================
 .node_cache: &node_cache
   cache:
-    key: 
+    key:
       files: [package-lock.json]
     paths: [node_modules/, .npm/]
 
@@ -495,16 +495,16 @@ notify-telegram:
     - |
       STATUS="✅ Success"
       [ "$CI_JOB_STATUS" = "failed" ] && STATUS="❌ Failed"
-      
+
       MESSAGE="$STATUS Pipeline Complete
-      
+
       📦 Project: $CI_PROJECT_NAME
       🌿 Branch: $CI_COMMIT_REF_NAME
       📝 Commit: $CI_COMMIT_SHORT_SHA
       👤 Author: $CI_COMMIT_AUTHOR
-      
+
       🔗 $CI_PROJECT_URL/-/pipelines/$CI_PIPELINE_ID"
-      
+
       curl -s -X POST "https://api.telegram.org/bot${TELEGRAM_BOT_TOKEN}/sendMessage" \
         -d chat_id="${TELEGRAM_CHAT_ID}" \
         -d text="${MESSAGE}" \
@@ -521,7 +521,7 @@ notify-slack:
     - |
       COLOR="good"
       [ "$CI_JOB_STATUS" = "failed" ] && COLOR="danger"
-      
+
       curl -s -X POST "${SLACK_WEBHOOK_URL}" \
         -H 'Content-Type: application/json' \
         -d "{
@@ -650,9 +650,9 @@ get_active_slot() {
 health_check() {
     local port=$1
     local attempt=1
-    
+
     log_info "健康检查: http://localhost:$port/api/health"
-    
+
     while [ $attempt -le $HEALTH_CHECK_RETRIES ]; do
         if curl -sf "http://localhost:$port/api/health" > /dev/null 2>&1; then
             log_info "✅ 健康检查通过"
@@ -662,7 +662,7 @@ health_check() {
         sleep $HEALTH_CHECK_INTERVAL
         attempt=$((attempt + 1))
     done
-    
+
     log_error "❌ 健康检查失败"
     return 1
 }
@@ -671,15 +671,15 @@ health_check() {
 switch_nginx() {
     local target_port=$1
     local nginx_conf="/etc/nginx/sites-available/7zi.com"
-    
+
     log_info "切换 Nginx 到端口 $target_port"
-    
+
     # 更新配置
     sed -i "s/proxy_pass http:\/\/127.0.0.1:300[01]/proxy_pass http:\/\/127.0.0.1:$target_port/" "$nginx_conf"
-    
+
     # 验证并重载
     nginx -t && systemctl reload nginx
-    
+
     log_info "✅ Nginx 切换完成"
 }
 
@@ -688,7 +688,7 @@ main() {
     local image=$1
     local active=$(get_active_slot)
     local target
-    
+
     if [ "$active" = "blue" ]; then
         target="green"
         target_port=$GREEN_PORT
@@ -696,19 +696,19 @@ main() {
         target="blue"
         target_port=$BLUE_PORT
     fi
-    
+
     log_info "🚀 开始蓝绿部署"
     log_info "当前活跃: $active"
     log_info "部署目标: $target"
-    
+
     # 1. 拉取镜像
     log_info "拉取镜像: $image"
     docker pull "$image"
-    
+
     # 2. 停止目标容器（如果存在）
     docker stop "7zi-frontend-$target" 2>/dev/null || true
     docker rm "7zi-frontend-$target" 2>/dev/null || true
-    
+
     # 3. 启动新容器
     log_info "启动 $target 容器..."
     docker run -d \
@@ -718,7 +718,7 @@ main() {
         -v 7zi-data:/app/data \
         -e NODE_ENV=production \
         "$image"
-    
+
     # 4. 健康检查
     if ! health_check $target_port; then
         log_error "部署失败，清理..."
@@ -726,14 +726,14 @@ main() {
         docker rm "7zi-frontend-$target"
         exit 1
     fi
-    
+
     # 5. 切换 Nginx
     switch_nginx $target_port
-    
+
     # 6. 停止旧容器
     log_info "停止旧容器: 7zi-frontend-$active"
     docker stop "7zi-frontend-$active" 2>/dev/null || true
-    
+
     log_info "✅ 蓝绿部署完成！"
     log_info "新版本运行在 $target (端口 $target_port)"
 }
@@ -812,7 +812,7 @@ log_error() { echo -e "\033[0;31m[ERROR]\033[0m $1"; }
 health_check() {
     local port=$1
     local attempt=1
-    
+
     while [ $attempt -le $HEALTH_CHECK_RETRIES ]; do
         if curl -sf "http://localhost:$port/api/health" > /dev/null 2>&1; then
             return 0
@@ -829,13 +829,13 @@ update_instance() {
     local image=$2
     local port=$((BASE_PORT + index))
     local container_name="7zi-frontend-$index"
-    
+
     log_info "更新实例 $index (端口 $port)..."
-    
+
     # 停止旧容器
     docker stop "$container_name" 2>/dev/null || true
     docker rm "$container_name" 2>/dev/null || true
-    
+
     # 启动新容器
     docker run -d \
         --name "$container_name" \
@@ -844,13 +844,13 @@ update_instance() {
         -v 7zi-data:/app/data \
         -e NODE_ENV=production \
         "$image"
-    
+
     # 健康检查
     if ! health_check $port; then
         log_error "实例 $index 健康检查失败"
         return 1
     fi
-    
+
     log_info "✅ 实例 $index 更新完成"
     return 0
 }
@@ -858,14 +858,14 @@ update_instance() {
 # 主逻辑
 main() {
     local image=$1
-    
+
     log_info "🚀 开始滚动更新"
     log_info "镜像: $image"
     log_info "副本数: $REPLICAS"
-    
+
     # 拉取镜像
     docker pull "$image"
-    
+
     # 逐个更新实例
     for i in $(seq 0 $((REPLICAS - 1))); do
         if ! update_instance $i "$image"; then
@@ -873,7 +873,7 @@ main() {
             exit 1
         fi
     done
-    
+
     log_info "✅ 滚动更新完成！"
 }
 
@@ -882,14 +882,14 @@ main "$@"
 
 ### 5.3 部署策略对比
 
-| 特性 | 蓝绿部署 | 滚动更新 |
-|------|---------|---------|
-| **停机时间** | 零停机 | 最小停机 |
+| 特性         | 蓝绿部署     | 滚动更新        |
+| ------------ | ------------ | --------------- |
+| **停机时间** | 零停机       | 最小停机        |
 | **回滚速度** | 即时 (<1min) | 较慢 (逐个回滚) |
-| **资源需求** | 2x 容器 | 1x + 部分额外 |
-| **适用场景** | 生产环境 | 大规模集群 |
-| **复杂度** | 中等 | 高 |
-| **风险** | 低 | 中 |
+| **资源需求** | 2x 容器      | 1x + 部分额外   |
+| **适用场景** | 生产环境     | 大规模集群      |
+| **复杂度**   | 中等         | 高              |
+| **风险**     | 低           | 中              |
 
 **推荐**: 生产环境使用蓝绿部署，测试环境使用简单部署。
 
@@ -920,8 +920,8 @@ curl "https://api.telegram.org/bot<BOT_TOKEN>/getUpdates"
 ```yaml
 # 在 GitHub 仓库设置中添加以下 Secrets:
 
-TELEGRAM_BOT_TOKEN: "1234567890:ABCdefGHIjklMNOpqrsTUVwxyz"
-TELEGRAM_CHAT_ID: "-1001234567890"  # 或个人 Chat ID
+TELEGRAM_BOT_TOKEN: '1234567890:ABCdefGHIjklMNOpqrsTUVwxyz'
+TELEGRAM_CHAT_ID: '-1001234567890' # 或个人 Chat ID
 ```
 
 #### 6.1.3 通知消息模板
@@ -937,7 +937,7 @@ MESSAGE="✅ CI/CD Pipeline 完成
 
 🔗 查看详情: https://github.com/..."
 
-# 失败消息  
+# 失败消息
 MESSAGE="❌ CI/CD Pipeline 失败
 
 📦 项目: 7zi-frontend
@@ -966,54 +966,58 @@ MESSAGE="❌ CI/CD Pipeline 失败
 #### 6.2.2 GitHub Secrets 配置
 
 ```yaml
-SLACK_WEBHOOK_URL: "YOUR_SLACK_WEBHOOK_URL"
+SLACK_WEBHOOK_URL: 'YOUR_SLACK_WEBHOOK_URL'
 ```
 
 #### 6.2.3 Slack 消息格式
 
 ```json
 {
-  "attachments": [{
-    "color": "good",
-    "blocks": [
-      {
-        "type": "header",
-        "text": {
-          "type": "plain_text",
-          "text": "✅ CI/CD Pipeline 完成"
+  "attachments": [
+    {
+      "color": "good",
+      "blocks": [
+        {
+          "type": "header",
+          "text": {
+            "type": "plain_text",
+            "text": "✅ CI/CD Pipeline 完成"
+          }
+        },
+        {
+          "type": "section",
+          "fields": [
+            { "type": "mrkdwn", "text": "*项目:*\n7zi-frontend" },
+            { "type": "mrkdwn", "text": "*分支:*\nmain" },
+            { "type": "mrkdwn", "text": "*Commit:*\nabc1234" },
+            { "type": "mrkdwn", "text": "*触发者:*\ndeveloper" }
+          ]
+        },
+        {
+          "type": "actions",
+          "elements": [
+            {
+              "type": "button",
+              "text": { "type": "plain_text", "text": "查看详情" },
+              "url": "https://github.com/..."
+            }
+          ]
         }
-      },
-      {
-        "type": "section",
-        "fields": [
-          {"type": "mrkdwn", "text": "*项目:*\n7zi-frontend"},
-          {"type": "mrkdwn", "text": "*分支:*\nmain"},
-          {"type": "mrkdwn", "text": "*Commit:*\nabc1234"},
-          {"type": "mrkdwn", "text": "*触发者:*\ndeveloper"}
-        ]
-      },
-      {
-        "type": "actions",
-        "elements": [{
-          "type": "button",
-          "text": {"type": "plain_text", "text": "查看详情"},
-          "url": "https://github.com/..."
-        }]
-      }
-    ]
-  }]
+      ]
+    }
+  ]
 }
 ```
 
 ### 6.3 通知触发条件
 
-| 事件 | Telegram | Slack | Email |
-|------|----------|-------|-------|
-| CI 成功 | ✅ | ✅ | ❌ |
-| CI 失败 | ✅ | ✅ | ✅ |
-| Staging 部署 | ✅ | ✅ | ❌ |
-| Production 部署 | ✅ | ✅ | ✅ |
-| 回滚操作 | ✅ | ✅ | ✅ |
+| 事件            | Telegram | Slack | Email |
+| --------------- | -------- | ----- | ----- |
+| CI 成功         | ✅       | ✅    | ❌    |
+| CI 失败         | ✅       | ✅    | ✅    |
+| Staging 部署    | ✅       | ✅    | ❌    |
+| Production 部署 | ✅       | ✅    | ✅    |
+| 回滚操作        | ✅       | ✅    | ✅    |
 
 ---
 
@@ -1053,23 +1057,23 @@ SSH_PRIVATE_KEY: |
   -----END OPENSSH PRIVATE KEY-----
 
 # 服务器信息
-PRODUCTION_HOST: "165.99.43.61"
-STAGING_HOST: "182.43.36.134"
-DEPLOY_USER: "root"
+PRODUCTION_HOST: '165.99.43.61'
+STAGING_HOST: '182.43.36.134'
+DEPLOY_USER: 'root'
 ```
 
 ### 7.2 GitHub Secrets 清单
 
-| Secret 名称 | 描述 | 示例 |
-|-------------|------|------|
-| `SSH_PRIVATE_KEY` | SSH 私钥 | `-----BEGIN...` |
-| `PRODUCTION_HOST` | 生产服务器 IP | `165.99.43.61` |
-| `STAGING_HOST` | 测试服务器 IP | `182.43.36.134` |
-| `DEPLOY_USER` | 部署用户 | `root` |
-| `TELEGRAM_BOT_TOKEN` | Telegram Bot Token | `123456:ABC...` |
-| `TELEGRAM_CHAT_ID` | Telegram Chat ID | `-1001234567890` |
-| `SLACK_WEBHOOK_URL` | Slack Webhook URL | `https://hooks.slack.com/...` |
-| `GITHUB_TOKEN` | GitHub Token (自动) | - |
+| Secret 名称          | 描述                | 示例                          |
+| -------------------- | ------------------- | ----------------------------- |
+| `SSH_PRIVATE_KEY`    | SSH 私钥            | `-----BEGIN...`               |
+| `PRODUCTION_HOST`    | 生产服务器 IP       | `165.99.43.61`                |
+| `STAGING_HOST`       | 测试服务器 IP       | `182.43.36.134`               |
+| `DEPLOY_USER`        | 部署用户            | `root`                        |
+| `TELEGRAM_BOT_TOKEN` | Telegram Bot Token  | `123456:ABC...`               |
+| `TELEGRAM_CHAT_ID`   | Telegram Chat ID    | `-1001234567890`              |
+| `SLACK_WEBHOOK_URL`  | Slack Webhook URL   | `https://hooks.slack.com/...` |
+| `GITHUB_TOKEN`       | GitHub Token (自动) | -                             |
 
 ### 7.3 环境变量配置
 
@@ -1082,15 +1086,15 @@ DEPLOY_USER: "root"
 # - 自动部署: 是
 # - 保护规则: 无
 # - 变量:
-STAGING_URL: "https://bot5.szspd.cn"
+STAGING_URL: 'https://bot5.szspd.cn'
 
 # Environment: production
 # - 自动部署: 否（需要手动触发）
-# - 保护规则: 
+# - 保护规则:
 #   - Required reviewers: 1 人
 #   - Wait timer: 5 分钟
 # - 变量:
-PRODUCTION_URL: "https://7zi.com"
+PRODUCTION_URL: 'https://7zi.com'
 ```
 
 ### 7.4 敏感信息保护
@@ -1119,7 +1123,7 @@ PRODUCTION_URL: "https://7zi.com"
 
 ```typescript
 // src/app/api/health/route.ts
-import { NextResponse } from 'next/server';
+import { NextResponse } from 'next/server'
 
 export async function GET() {
   const health = {
@@ -1128,24 +1132,24 @@ export async function GET() {
     version: process.env.npm_package_version || '1.0.0',
     uptime: process.uptime(),
     environment: process.env.NODE_ENV,
-  };
+  }
 
-  return NextResponse.json(health, { status: 200 });
+  return NextResponse.json(health, { status: 200 })
 }
 ```
 
 ### 8.2 监控指标
 
-| 指标 | 阈值 | 告警级别 | 通知渠道 |
-|------|------|---------|---------|
-| 响应时间 | > 3s | Warning | Telegram |
-| 响应时间 | > 5s | Critical | Telegram + Slack |
-| 错误率 | > 1% | Warning | Telegram |
-| 错误率 | > 5% | Critical | Telegram + Slack + Email |
-| CPU 使用率 | > 80% | Warning | Telegram |
-| 内存使用率 | > 90% | Critical | Telegram + Slack |
-| 磁盘使用率 | > 85% | Warning | Telegram |
-| 磁盘使用率 | > 95% | Critical | Telegram + Slack |
+| 指标       | 阈值  | 告警级别 | 通知渠道                 |
+| ---------- | ----- | -------- | ------------------------ |
+| 响应时间   | > 3s  | Warning  | Telegram                 |
+| 响应时间   | > 5s  | Critical | Telegram + Slack         |
+| 错误率     | > 1%  | Warning  | Telegram                 |
+| 错误率     | > 5%  | Critical | Telegram + Slack + Email |
+| CPU 使用率 | > 80% | Warning  | Telegram                 |
+| 内存使用率 | > 90% | Critical | Telegram + Slack         |
+| 磁盘使用率 | > 85% | Warning  | Telegram                 |
+| 磁盘使用率 | > 95% | Critical | Telegram + Slack         |
 
 ### 8.3 健康检查脚本
 
@@ -1160,7 +1164,7 @@ ENDPOINTS=(
 
 for endpoint in "${ENDPOINTS[@]}"; do
   response=$(curl -s -o /dev/null -w "%{http_code}" "$endpoint")
-  
+
   if [ "$response" = "200" ]; then
     echo "✅ $endpoint - OK"
   else
@@ -1227,7 +1231,7 @@ get_active() {
 rollback() {
     local current_port=$(get_active)
     local target_port
-    
+
     if [ "$current_port" = ":$GREEN_PORT" ]; then
         target_port=$BLUE_PORT
         target_name="blue"
@@ -1235,10 +1239,10 @@ rollback() {
         target_port=$GREEN_PORT
         target_name="green"
     fi
-    
+
     log_info "当前运行在端口 ${current_port#:}"
     log_info "回滚到 $target_name (端口 $target_port)"
-    
+
     # 检查目标容器是否存在并运行
     if ! docker ps --filter "name=7zi-frontend-$target_name" --filter "status=running" -q | grep -q .; then
         log_error "目标容器 7zi-frontend-$target_name 未运行"
@@ -1249,17 +1253,17 @@ rollback() {
         }
         sleep 5
     fi
-    
+
     # 健康检查
     if ! curl -sf "http://localhost:$target_port/api/health" > /dev/null; then
         log_error "目标容器健康检查失败"
         exit 1
     fi
-    
+
     # 更新 Nginx
     sed -i "s/proxy_pass http:\/\/127.0.0.1:300[01]/proxy_pass http:\/\/127.0.0.1:$target_port/" "$NGINX_CONF"
     nginx -t && systemctl reload nginx
-    
+
     log_info "✅ 回滚完成！"
     log_info "现在运行在 $target_name (端口 $target_port)"
 }
@@ -1270,22 +1274,26 @@ rollback "$@"
 
 ### 9.3 故障排查清单
 
-```markdown
+````markdown
 ## 部署失败排查步骤
 
 ### 1. 检查容器状态
+
 ```bash
 docker ps -a | grep 7zi-frontend
 docker logs 7zi-frontend-blue --tail 100
 ```
+````
 
 ### 2. 检查网络
+
 ```bash
 docker network inspect 7zi-network
 curl -v http://localhost:3000/api/health
 ```
 
 ### 3. 检查 Nginx
+
 ```bash
 nginx -t
 systemctl status nginx
@@ -1293,6 +1301,7 @@ tail -f /var/log/nginx/error.log
 ```
 
 ### 4. 检查资源
+
 ```bash
 df -h  # 磁盘空间
 free -m  # 内存
@@ -1300,9 +1309,11 @@ docker stats  # 容器资源使用
 ```
 
 ### 5. 检查数据库
+
 ```bash
 sqlite3 /opt/7zi-frontend/data/7zi.db ".tables"
 ```
+
 ```
 
 ---
@@ -1312,18 +1323,20 @@ sqlite3 /opt/7zi-frontend/data/7zi.db ".tables"
 ### 10.1 Git 工作流
 
 ```
+
 main (生产)
-  │
-  ├── v1.5.0 (Tag → 触发 Production 部署)
-  │
-  ├── develop (开发)
-  │     │
-  │     ├── feature/xxx (功能分支)
-  │     ├── bugfix/xxx (修复分支)
-  │     └── release/1.5.0 (发布分支)
-  │
-  └── hotfix/xxx (紧急修复 → main + develop)
-```
+│
+├── v1.5.0 (Tag → 触发 Production 部署)
+│
+├── develop (开发)
+│ │
+│ ├── feature/xxx (功能分支)
+│ ├── bugfix/xxx (修复分支)
+│ └── release/1.5.0 (发布分支)
+│
+└── hotfix/xxx (紧急修复 → main + develop)
+
+````
 
 ### 10.2 版本发布流程
 
@@ -1347,18 +1360,18 @@ git push origin main --tags
 # - 构建 Docker 镜像
 # - 部署到 Staging (自动)
 # - 部署到 Production (手动触发或 tag 触发)
-```
+````
 
 ### 10.3 CI/CD 优化建议
 
-| 优化项 | 方法 | 预期效果 |
-|--------|------|---------|
-| 依赖安装 | npm ci + 缓存 | 2-3min → <10s |
-| 构建 | Turbopack + 增量构建 | 5-8min → 1-3min |
-| 测试 | 分片并行执行 | 10min → 3min |
-| Docker | 多阶段构建 + GHA cache | 5-10min → 1-2min |
-| 部署 | 蓝绿部署 | 10min → <5min |
-| **总时间** | 综合优化 | 30min → <10min |
+| 优化项     | 方法                   | 预期效果         |
+| ---------- | ---------------------- | ---------------- |
+| 依赖安装   | npm ci + 缓存          | 2-3min → <10s    |
+| 构建       | Turbopack + 增量构建   | 5-8min → 1-3min  |
+| 测试       | 分片并行执行           | 10min → 3min     |
+| Docker     | 多阶段构建 + GHA cache | 5-10min → 1-2min |
+| 部署       | 蓝绿部署               | 10min → <5min    |
+| **总时间** | 综合优化               | 30min → <10min   |
 
 ### 10.4 安全检查清单
 

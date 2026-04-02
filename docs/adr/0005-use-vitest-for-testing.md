@@ -1,17 +1,20 @@
 # ADR-0005: 使用 Vitest 作为测试框架
 
 ## 状态
+
 Accepted
 
 ## 上下文
 
 项目需要现代化、快速的测试框架。原有的测试配置存在以下问题：
+
 - Jest 启动慢（~5-10s）
 - 配置复杂（需要多个配置文件）
 - 与 Vite 生态集成不完美
 - Watch 模式响应慢
 
 测试需求：
+
 - 单元测试（快速执行）
 - 集成测试（模拟真实环境）
 - E2E 测试（Playwright）
@@ -24,9 +27,10 @@ Accepted
 ### 实现方案
 
 1. **框架配置**:
+
    ```typescript
    // vitest.config.ts
-   import { defineConfig } from 'vitest/config';
+   import { defineConfig } from 'vitest/config'
 
    export default defineConfig({
      test: {
@@ -34,10 +38,10 @@ Accepted
        environment: 'jsdom',
        coverage: {
          provider: 'v8',
-         reporter: ['text', 'json', 'html']
-       }
-     }
-   });
+         reporter: ['text', 'json', 'html'],
+       },
+     },
+   })
    ```
 
 2. **测试工具**:
@@ -59,11 +63,13 @@ Accepted
 ### 替代方案 1: Jest
 
 **优点**:
+
 - 成熟稳定
 - 生态丰富
 - 文档完善
 
 **缺点**:
+
 - 启动慢（~5-10s）
 - 配置复杂
 - 与 Vite 生态集成不佳
@@ -73,10 +79,12 @@ Accepted
 ### 替代方案 2: Mocha + Chai
 
 **优点**:
+
 - 灵活可定制
 - 轻量级
 
 **缺点**:
+
 - 需要手动配置（断言库、mock 等）
 - Watch 模式需额外工具
 - TypeScript 支持需配置
@@ -86,10 +94,12 @@ Accepted
 ### 替代方案 3: Ava
 
 **优点**:
+
 - 并发执行
 - 简洁 API
 
 **缺点**:
+
 - 生态较小
 - 文档较少
 - 对 React 测试支持不够好
@@ -154,12 +164,12 @@ describe('fetchData', () => {
 
 ### 测试覆盖率目标
 
-| 模块 | 目标覆盖率 | 当前覆盖率 |
-|------|-----------|-----------|
-| Core | 90%+ | 94.2% |
-| API | 85%+ | 93% |
-| UI Components | 80%+ | 92% |
-| Overall | 85%+ | 94% |
+| 模块          | 目标覆盖率 | 当前覆盖率 |
+| ------------- | ---------- | ---------- |
+| Core          | 90%+       | 94.2%      |
+| API           | 85%+       | 93%        |
+| UI Components | 80%+       | 92%        |
+| Overall       | 85%+       | 94%        |
 
 ## 相关决策
 

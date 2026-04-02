@@ -7,14 +7,14 @@
  * @date 2026-03-29
  */
 
-import type { NextConfig } from 'next';
-import path from 'path';
+import type { NextConfig } from 'next'
+import path from 'path'
 
 // ============================================
 // 环境配置
 // ============================================
-const isProduction = process.env.NODE_ENV === 'production';
-const isAnalyze = process.env.ANALYZE === 'true';
+const isProduction = process.env.NODE_ENV === 'production'
+const isAnalyze = process.env.ANALYZE === 'true'
 
 // ============================================
 // Chunk 大小限制配置
@@ -28,7 +28,7 @@ const CHUNK_LIMITS = {
   maxAsyncChunkSize: 200 * 1024,
   // 最小 chunk 大小 (15KB)
   minChunkSize: 15 * 1024,
-};
+}
 
 // ============================================
 // Next.js 配置
@@ -138,12 +138,7 @@ const nextConfig: NextConfig = {
   // ============================================
   // 服务端外部包
   // ============================================
-  serverExternalPackages: [
-    'jose',
-    'better-sqlite3',
-    'sharp',
-    'uuid',
-  ],
+  serverExternalPackages: ['jose', 'better-sqlite3', 'sharp', 'uuid'],
 
   // ============================================
   // Turbopack 配置（禁用以使用 Webpack）
@@ -155,20 +150,20 @@ const nextConfig: NextConfig = {
   // ============================================
   webpack: (config: any, { isServer, dev }: any) => {
     // 路径别名配置
-    config.resolve = config.resolve || {};
-    config.resolve.alias = config.resolve.alias || {};
-    config.resolve.alias['@'] = path.join(__dirname, 'src');
+    config.resolve = config.resolve || {}
+    config.resolve.alias = config.resolve.alias || {}
+    config.resolve.alias['@'] = path.join(__dirname, 'src')
 
     // 模块解析优化
-    config.resolve.extensions = ['.tsx', '.ts', '.js', '.json'];
-    config.resolve.modules = ['node_modules'];
+    config.resolve.extensions = ['.tsx', '.ts', '.js', '.json']
+    config.resolve.modules = ['node_modules']
 
     // Tree-shaking 优化
-    config.optimization = config.optimization || {};
-    config.optimization.usedExports = true;
-    config.optimization.sideEffects = true;
-    config.optimization.providedExports = true;
-    config.optimization.concatenateModules = true;
+    config.optimization = config.optimization || {}
+    config.optimization.usedExports = true
+    config.optimization.sideEffects = true
+    config.optimization.providedExports = true
+    config.optimization.concatenateModules = true
 
     if (!isServer && !dev) {
       // 性能预算配置
@@ -176,7 +171,7 @@ const nextConfig: NextConfig = {
         maxEntrypointSize: CHUNK_LIMITS.maxEntrypointSize,
         maxAssetSize: CHUNK_LIMITS.maxAssetSize,
         hints: 'warning',
-      };
+      }
 
       // 代码分包策略 - 优化版
       config.optimization.splitChunks = {
@@ -290,7 +285,7 @@ const nextConfig: NextConfig = {
             maxSize: 150 * 1024,
           },
           // Zustand 状态管理
-          'zustand': {
+          zustand: {
             test: /[\\/]node_modules[\\/]zustand[\\/]/,
             name: 'zustand',
             priority: 32,
@@ -326,7 +321,7 @@ const nextConfig: NextConfig = {
             maxSize: 100 * 1024,
           },
           // 二维码库
-          'qrcode': {
+          qrcode: {
             test: /[\\/]node_modules[\\/]qrcode[\\/]/,
             name: 'qrcode',
             priority: 20,
@@ -335,7 +330,7 @@ const nextConfig: NextConfig = {
             maxSize: 50 * 1024,
           },
           // Polyfills（优化）
-          'polyfills': {
+          polyfills: {
             test: /[\\/]node_modules[\\/](core-js|regenerator-runtime)[\\/]/,
             name: 'polyfills',
             priority: 18,
@@ -366,10 +361,10 @@ const nextConfig: NextConfig = {
         maxSize: 150 * 1024, // 降低默认最大大小
         minChunks: 1,
         enforceSizeThreshold: 20 * 1024, // 降低阈值
-      };
+      }
     }
 
-    return config;
+    return config
   },
 
   // ============================================
@@ -383,7 +378,7 @@ const nextConfig: NextConfig = {
           { key: 'X-DNS-Prefetch-Control', value: 'on' },
           {
             key: 'Strict-Transport-Security',
-            value: 'max-age=63072000; includeSubDomains; preload'
+            value: 'max-age=63072000; includeSubDomains; preload',
           },
           { key: 'X-Frame-Options', value: 'SAMEORIGIN' },
           { key: 'X-Content-Type-Options', value: 'nosniff' },
@@ -391,23 +386,19 @@ const nextConfig: NextConfig = {
           { key: 'Referrer-Policy', value: 'strict-origin-when-cross-origin' },
           {
             key: 'Permissions-Policy',
-            value: 'camera=(), microphone=(), geolocation=(), interest-cohort=()'
+            value: 'camera=(), microphone=(), geolocation=(), interest-cohort=()',
           },
         ],
       },
       {
         source: '/:path*.{png,jpg,jpeg,webp,avif,svg,ico}',
-        headers: [
-          { key: 'Cache-Control', value: 'public, max-age=31536000, immutable' }
-        ],
+        headers: [{ key: 'Cache-Control', value: 'public, max-age=31536000, immutable' }],
       },
       {
         source: '/_next/static/:path*',
-        headers: [
-          { key: 'Cache-Control', value: 'public, max-age=31536000, immutable' }
-        ],
+        headers: [{ key: 'Cache-Control', value: 'public, max-age=31536000, immutable' }],
       },
-    ];
+    ]
   },
 
   // ============================================
@@ -418,9 +409,9 @@ const nextConfig: NextConfig = {
       fullUrl: !isProduction,
     },
   },
-};
+}
 
 // ============================================
 // 导出配置
 // ============================================
-export default nextConfig;
+export default nextConfig

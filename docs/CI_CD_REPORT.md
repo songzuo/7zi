@@ -20,12 +20,12 @@
 
 ### Workflow 文件
 
-| 文件 | 用途 | 触发条件 | 状态 |
-|------|------|----------|------|
-| `.github/workflows/ci.yml` | 主 CI/CD 流程 | push/PR/manual | ✅ 活跃 |
-| `.github/workflows/tests.yml` | 专用测试流程 | push/PR/manual | ✅ 活跃 |
-| `.github/workflows/deploy.yml` | 简单部署流程 | push | ⚠️ 可能重复 |
-| `.github/workflows/ci-cd.yml` | 完整 CI/CD 流程 | push/PR/manual | ⚠️ 功能重复 |
+| 文件                           | 用途            | 触发条件       | 状态        |
+| ------------------------------ | --------------- | -------------- | ----------- |
+| `.github/workflows/ci.yml`     | 主 CI/CD 流程   | push/PR/manual | ✅ 活跃     |
+| `.github/workflows/tests.yml`  | 专用测试流程    | push/PR/manual | ✅ 活跃     |
+| `.github/workflows/deploy.yml` | 简单部署流程    | push           | ⚠️ 可能重复 |
+| `.github/workflows/ci-cd.yml`  | 完整 CI/CD 流程 | push/PR/manual | ⚠️ 功能重复 |
 
 ### 当前流程架构
 
@@ -58,7 +58,9 @@
 ### 1. 🔴 高优先级问题
 
 #### 1.1 Node.js 版本不一致
+
 **问题**: 多个 workflow 使用不同的 Node.js 版本
+
 - `ci.yml`: Node 22 ✅
 - `tests.yml`: Node 20 ❌
 - `deploy.yml`: Node 20 ❌
@@ -67,6 +69,7 @@
 **影响**: 可能导致构建不一致、依赖版本冲突
 
 **解决方案**:
+
 ```yaml
 # 统一使用 Node 22（与 package.json 一致）
 env:
@@ -74,19 +77,24 @@ env:
 ```
 
 #### 1.2 重复的 Workflow 配置
+
 **问题**: 4个 workflow 文件功能重叠
+
 - `ci.yml` 和 `ci-cd.yml` 功能几乎完全重复
 - `tests.yml` 的测试功能已在 `ci.yml` 中实现
 
 **影响**: 增加维护成本、可能同时触发多个 workflow
 
 **解决方案**:
+
 - 保留 `ci.yml` 作为主 workflow
 - 将 `tests.yml` 改为按需触发的专用测试 workflow
 - 删除或重构 `ci-cd.yml` 和 `deploy.yml`
 
 #### 1.3 安全漏洞
+
 **问题**:
+
 - 使用 SSH 密码认证 (`sshpass`)
 - npm audit 配置为 `continue-on-error: true`
 - 没有依赖更新自动化
@@ -94,6 +102,7 @@ env:
 **影响**: 安全风险高，依赖漏洞可能被忽略
 
 **解决方案**:
+
 ```yaml
 # 使用 SSH 密钥认证
 - uses: webfactory/ssh-agent@v0.8.0
@@ -103,13 +112,15 @@ env:
 # npm audit 应该失败（或至少警告）
 - name: Security audit
   run: npm audit --audit-level=moderate
-  continue-on-error: false  # 改为 false
+  continue-on-error: false # 改为 false
 ```
 
 ### 2. 🟡 中优先级问题
 
 #### 2.1 缓存策略不优化
+
 **问题**:
+
 - Next.js turbo cache 未使用
 - Docker 层缓存 key 不够精确
 - npm cache 没有版本锁定
@@ -117,6 +128,7 @@ env:
 **影响**: 构建时间较长，资源浪费
 
 **优化建议**:
+
 ```yaml
 # 使用 Next.js turbo cache
 - name: Cache Next.js turbo
@@ -139,7 +151,9 @@ env:
 ```
 
 #### 2.2 测试效率问题
+
 **问题**:
+
 - E2E 测试仅在 Chromium 上运行
 - 没有基于变更的智能测试选择
 - 单元测试在某些 workflow 中顺序执行
@@ -147,6 +161,7 @@ env:
 **影响**: 测试覆盖率不完整，测试时间长
 
 **优化建议**:
+
 ```yaml
 # 多浏览器矩阵测试
 strategy:
@@ -166,7 +181,9 @@ strategy:
 ```
 
 #### 2.3 构建产物未验证
+
 **问题**:
+
 - 没有构建产物大小检查
 - 没有包大小回归检测
 - 没有构建性能指标
@@ -174,6 +191,7 @@ strategy:
 **影响**: 无法及时发现构建质量下降
 
 **优化建议**:
+
 ```yaml
 - name: Check bundle size
   run: |
@@ -193,7 +211,9 @@ strategy:
 ### 3. 🟢 低优先级问题
 
 #### 3.1 缺少可视化报告
+
 **问题**:
+
 - 没有测试覆盖率趋势图
 - 没有构建时间趋势分析
 - 没有部署成功率统计
@@ -201,7 +221,9 @@ strategy:
 **优化建议**: 使用 GitHub Actions Insights 或第三方工具
 
 #### 3.2 通知机制不完善
+
 **问题**:
+
 - 只有简单的通知
 - 没有 Slack/Telegram/Email 集成
 - 没有告警分级
@@ -411,14 +433,14 @@ strategy:
 jobs:
   build:
     runs-on: ubuntu-latest
-    timeout-minutes: 30  # 防止长时间运行
+    timeout-minutes: 30 # 防止长时间运行
     steps:
       # ...
 
 # 并发控制
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
-  cancel-in-progress: true  # 取消旧的运行
+  cancel-in-progress: true # 取消旧的运行
 
 # 按需触发
 on:
@@ -426,7 +448,7 @@ on:
     branches: [main]
   pull_request:
     branches: [main]
-  workflow_dispatch:  # 手动触发
+  workflow_dispatch: # 手动触发
 ```
 
 ---
@@ -435,14 +457,14 @@ on:
 
 ### 预期改进
 
-| 指标 | 当前 | 优化后 | 改进 |
-|------|------|--------|------|
-| 平均构建时间 | ~12 分钟 | ~6 分钟 | ⬇️ 50% |
-| CI/CD 维护复杂度 | 高 | 低 | ⬇️ 60% |
-| 测试覆盖率 | 部分 | 全面 | ⬆️ 30% |
-| 安全扫描频率 | 低 | 高 | ⬆️ 200% |
-| 部署失败率 | ~5% | ~1% | ⬇️ 80% |
-| 资源成本 | 基准 | 基准 | → 0% |
+| 指标             | 当前     | 优化后  | 改进    |
+| ---------------- | -------- | ------- | ------- |
+| 平均构建时间     | ~12 分钟 | ~6 分钟 | ⬇️ 50%  |
+| CI/CD 维护复杂度 | 高       | 低      | ⬇️ 60%  |
+| 测试覆盖率       | 部分     | 全面    | ⬆️ 30%  |
+| 安全扫描频率     | 低       | 高      | ⬆️ 200% |
+| 部署失败率       | ~5%      | ~1%     | ⬇️ 80%  |
+| 资源成本         | 基准     | 基准    | → 0%    |
 
 ### 成本节省
 
@@ -557,11 +579,13 @@ SLACK_WEBHOOK            # Slack 通知（可选）
 7zi-project 的 CI/CD 配置基础扎实，但存在一些可以优化的地方。通过实施上述优化建议，可以显著提升 CI/CD 流程的效率、安全性和可维护性。
 
 **优先级**:
+
 1. 🔴 立即修复: Node 版本统一、安全加固
 2. 🟡 短期优化: 缓存优化、测试并行化
 3. 🟢 长期改进: 智能测试、监控告警
 
 **预期收益**:
+
 - 构建时间减少 50%
 - 维护成本降低 60%
 - 安全性提升 200%
@@ -572,6 +596,7 @@ SLACK_WEBHOOK            # Slack 通知（可选）
 ## 📞 联系信息
 
 如有问题或需要进一步讨论，请联系：
+
 - **项目**: 7zi-project
 - **报告日期**: 2026-03-19
 - **下次审查**: 2026-04-19（建议每月审查）

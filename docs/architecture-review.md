@@ -11,19 +11,20 @@
 
 ### 总体评分: ⚠️ 6.5/10
 
-| 维度 | 评分 | 状态 |
-|------|------|------|
+| 维度     | 评分 | 状态                |
+| -------- | ---- | ------------------- |
 | 代码组织 | 7/10 | 🟡 良好但有改进空间 |
-| 模块化 | 6/10 | 🟡 部分实施 |
-| 状态管理 | 5/10 | 🔴 需要改进 |
-| 路由设计 | 8/10 | 🟢 良好 |
-| 性能优化 | 8/10 | 🟢 良好 |
-| 可扩展性 | 6/10 | 🟡 需要规划 |
-| 测试覆盖 | 7/10 | 🟡 部分覆盖 |
+| 模块化   | 6/10 | 🟡 部分实施         |
+| 状态管理 | 5/10 | 🔴 需要改进         |
+| 路由设计 | 8/10 | 🟢 良好             |
+| 性能优化 | 8/10 | 🟢 良好             |
+| 可扩展性 | 6/10 | 🟡 需要规划         |
+| 测试覆盖 | 7/10 | 🟡 部分覆盖         |
 
 ### 关键发现
 
 **✅ 优点**:
+
 1. 特征驱动的架构（Feature-Based）已部分实施
 2. 优秀的性能优化配置（Turbopack + React Compiler）
 3. 完善的测试基础设施（Vitest + Playwright）
@@ -31,6 +32,7 @@
 5. 组件职责相对清晰
 
 **❌ 问题**:
+
 1. 缺乏统一的全局状态管理
 2. `lib/` 目录职责过重，耦合严重
 3. 代码重复（permissions.ts 文件重复）
@@ -38,6 +40,7 @@
 5. 高耦合文件（权限系统、WebSocket 管理器）
 
 **🎯 优先改进项**:
+
 1. 实施统一的状态管理架构（基于 Zustand）
 2. 清理 `lib/` 目录，完成 Feature-Based 架构迁移
 3. 消除代码重复，建立清晰的模块边界
@@ -112,34 +115,39 @@
 
 ### 1.2 文件统计
 
-| 类别 | 数量 | 最大文件 | 总代码行数 |
-|------|------|----------|-----------|
-| 组件 (.tsx) | ~20 | 933 行 (FeedbackAdminPanel) | ~8,000 |
-| 业务逻辑 (.ts) | 80+ | 1,210 行 (notification test) | ~25,000 |
-| Hooks (.ts) | 8 | 560 行 (useTouchGestures) | ~3,000 |
-| API Routes | 8+ | 582 行 (feedback route) | ~2,000 |
-| **总计** | **120+** | - | **~58,000** |
+| 类别           | 数量     | 最大文件                     | 总代码行数  |
+| -------------- | -------- | ---------------------------- | ----------- |
+| 组件 (.tsx)    | ~20      | 933 行 (FeedbackAdminPanel)  | ~8,000      |
+| 业务逻辑 (.ts) | 80+      | 1,210 行 (notification test) | ~25,000     |
+| Hooks (.ts)    | 8        | 560 行 (useTouchGestures)    | ~3,000      |
+| API Routes     | 8+       | 582 行 (feedback route)      | ~2,000      |
+| **总计**       | **120+** | -                            | **~58,000** |
 
 ### 1.3 依赖分析
 
 **前端框架**:
+
 - Next.js 16.2.1 (App Router + Turbopack)
 - React 18.2.0
 - React Compiler (实验性)
 
 **状态管理**:
+
 - Zustand 4.5.0 (已引入但未充分利用)
 
 **UI & 可视化**:
+
 - Lucide React 1.7.0
 - Three.js 0.183.2
 - React Three Fiber
 - Recharts
 
 **通信**:
+
 - Socket.io Client 4.7.0
 
 **工具库**:
+
 - Zod 4.3.6 (验证)
 - UUID 13.0.0
 - better-sqlite3 12.8.0
@@ -158,11 +166,13 @@ src/features/auth/lib/permissions.ts  ← 相同文件
 ```
 
 **影响**:
+
 - 维护困难（需要同步更新两个文件）
 - 代码审查困惑
 - 增加代码体积
 
 **建议**:
+
 ```typescript
 // 保留 features/auth/lib/permissions.ts
 // 删除 src/lib/permissions.ts
@@ -174,6 +184,7 @@ src/features/auth/lib/permissions.ts  ← 相同文件
 **问题**: 缺乏统一的全局状态管理策略
 
 **现状**:
+
 - Zustand 已安装但未使用
 - 只有一个 Context: ThemeContext (主题切换)
 - 组件间通过 props 和自定义 Hooks 共享状态
@@ -184,15 +195,16 @@ src/features/auth/lib/permissions.ts  ← 相同文件
 ```typescript
 // hooks/useNotifications.ts - 自定义 Hook
 export function useNotifications() {
-  const [notifications, setNotifications] = useState<Notification[]>([]);
+  const [notifications, setNotifications] = useState<Notification[]>([])
   // ... 本地状态管理
 }
 
 // 组件中使用
-const { notifications, add, remove } = useNotifications();
+const { notifications, add, remove } = useNotifications()
 ```
 
 **问题**:
+
 - 无法跨组件共享状态
 - 每个实例维护独立状态
 - 性能开销（重复创建状态）
@@ -201,32 +213,30 @@ const { notifications, add, remove } = useNotifications();
 
 ```typescript
 // stores/notification-store.ts
-import { create } from 'zustand';
+import { create } from 'zustand'
 
 interface NotificationStore {
-  notifications: Notification[];
-  addNotification: (notification: Notification) => void;
-  removeNotification: (id: string) => void;
-  markAsRead: (id: string) => void;
+  notifications: Notification[]
+  addNotification: (notification: Notification) => void
+  removeNotification: (id: string) => void
+  markAsRead: (id: string) => void
 }
 
-export const useNotificationStore = create<NotificationStore>((set) => ({
+export const useNotificationStore = create<NotificationStore>(set => ({
   notifications: [],
-  addNotification: (notification) =>
-    set((state) => ({
+  addNotification: notification =>
+    set(state => ({
       notifications: [...state.notifications, notification],
     })),
-  removeNotification: (id) =>
-    set((state) => ({
-      notifications: state.notifications.filter((n) => n.id !== id),
+  removeNotification: id =>
+    set(state => ({
+      notifications: state.notifications.filter(n => n.id !== id),
     })),
-  markAsRead: (id) =>
-    set((state) => ({
-      notifications: state.notifications.map((n) =>
-        n.id === id ? { ...n, read: true } : n
-      ),
+  markAsRead: id =>
+    set(state => ({
+      notifications: state.notifications.map(n => (n.id === id ? { ...n, read: true } : n)),
     })),
-}));
+}))
 ```
 
 ### 2.3 lib/ 目录职责过重 🟡 中优先级
@@ -235,14 +245,14 @@ export const useNotificationStore = create<NotificationStore>((set) => ({
 
 **职责分析**:
 
-| 文件 | 职责 | 是否应该在 lib/ |
-|------|------|----------------|
-| `auth.ts` | 认证逻辑 | ❌ 应在 features/auth |
-| `permissions.ts` | 权限控制 | ❌ 应在 features/auth |
+| 文件                   | 职责           | 是否应该在 lib/            |
+| ---------------------- | -------------- | -------------------------- |
+| `auth.ts`              | 认证逻辑       | ❌ 应在 features/auth      |
+| `permissions.ts`       | 权限控制       | ❌ 应在 features/auth      |
 | `websocket-manager.ts` | WebSocket 管理 | ❌ 应在 features/websocket |
-| `logger.ts` | 日志工具 | ✅ 通用工具 |
-| `validation.ts` | 验证逻辑 | ✅ 通用工具 |
-| `socket.ts` | Socket 配置 | ❌ 应在 features/websocket |
+| `logger.ts`            | 日志工具       | ✅ 通用工具                |
+| `validation.ts`        | 验证逻辑       | ✅ 通用工具                |
+| `socket.ts`            | Socket 配置    | ❌ 应在 features/websocket |
 
 **当前结构问题**:
 
@@ -288,12 +298,12 @@ features/
 
 **大型文件识别** (>500 行):
 
-| 文件 | 行数 | 位置 | 问题 |
-|------|------|------|------|
-| `permissions.ts` | 983 | lib/ + features/auth | RBAC 系统过于复杂 |
-| `FeedbackAdminPanel.tsx` | 933 | components/ | 组件职责过多 |
-| `websocket-manager.ts` | 685 | lib/ + features/websocket | 类职责过多 |
-| `notification-enhanced.ts` | 627 | lib/services + features | 服务逻辑复杂 |
+| 文件                       | 行数 | 位置                      | 问题              |
+| -------------------------- | ---- | ------------------------- | ----------------- |
+| `permissions.ts`           | 983  | lib/ + features/auth      | RBAC 系统过于复杂 |
+| `FeedbackAdminPanel.tsx`   | 933  | components/               | 组件职责过多      |
+| `websocket-manager.ts`     | 685  | lib/ + features/websocket | 类职责过多        |
+| `notification-enhanced.ts` | 627  | lib/services + features   | 服务逻辑复杂      |
 
 **示例分析**: permissions.ts
 
@@ -356,12 +366,12 @@ features/auth/permissions.ts
 
 ```typescript
 // scripts/check-circular-deps.ts
-import { detective } from 'detect-circular-deps';
+import { detective } from 'detect-circular-deps'
 
-const circularDeps = detective('/path/to/src');
+const circularDeps = detective('/path/to/src')
 if (circularDeps.length > 0) {
-  console.error('发现循环依赖:', circularDeps);
-  process.exit(1);
+  console.error('发现循环依赖:', circularDeps)
+  process.exit(1)
 }
 ```
 
@@ -439,34 +449,34 @@ app/
 
 **状态管理方式**:
 
-| 状态类型 | 管理方式 | 位置 | 示例 |
-|----------|----------|------|------|
-| 主题 | Context | shared/context/ThemeContext.tsx | ✅ 良好 |
-| 通知 | 自定义 Hook | hooks/useNotifications.ts | ⚠️ 不统一 |
-| WebSocket | 自定义 Hook | hooks/useWebSocketStatus.ts | ⚠️ 分散 |
-| 用户认证 | 未全局管理 | - | ❌ 缺失 |
-| 权限 | 未全局管理 | - | ❌ 缺失 |
-| 应用设置 | 未全局管理 | - | ❌ 缺失 |
+| 状态类型  | 管理方式    | 位置                            | 示例      |
+| --------- | ----------- | ------------------------------- | --------- |
+| 主题      | Context     | shared/context/ThemeContext.tsx | ✅ 良好   |
+| 通知      | 自定义 Hook | hooks/useNotifications.ts       | ⚠️ 不统一 |
+| WebSocket | 自定义 Hook | hooks/useWebSocketStatus.ts     | ⚠️ 分散   |
+| 用户认证  | 未全局管理  | -                               | ❌ 缺失   |
+| 权限      | 未全局管理  | -                               | ❌ 缺失   |
+| 应用设置  | 未全局管理  | -                               | ❌ 缺失   |
 
 ### 4.2 建议 Zustand 架构
 
 ```typescript
 // stores/index.ts - 统一导出
-export { useNotificationStore } from './notification-store';
-export { useAuthStore } from './auth-store';
-export { useWebSocketStore } from './websocket-store';
-export { useAppStore } from './app-store';
+export { useNotificationStore } from './notification-store'
+export { useAuthStore } from './auth-store'
+export { useWebSocketStore } from './websocket-store'
+export { useAppStore } from './app-store'
 ```
 
 ```typescript
 // stores/auth-store.ts
 interface AuthStore {
-  user: User | null;
-  token: string | null;
-  isAuthenticated: boolean;
-  login: (credentials: Credentials) => Promise<void>;
-  logout: () => void;
-  updateProfile: (data: Partial<User>) => void;
+  user: User | null
+  token: string | null
+  isAuthenticated: boolean
+  login: (credentials: Credentials) => Promise<void>
+  logout: () => void
+  updateProfile: (data: Partial<User>) => void
 }
 
 export const useAuthStore = create<AuthStore>((set, get) => ({
@@ -474,41 +484,41 @@ export const useAuthStore = create<AuthStore>((set, get) => ({
   token: null,
   isAuthenticated: false,
 
-  login: async (credentials) => {
+  login: async credentials => {
     const response = await fetch('/api/auth/login', {
       method: 'POST',
       body: JSON.stringify(credentials),
-    });
-    const { user, token } = await response.json();
-    set({ user, token, isAuthenticated: true });
+    })
+    const { user, token } = await response.json()
+    set({ user, token, isAuthenticated: true })
   },
 
   logout: () => {
-    set({ user: null, token: null, isAuthenticated: false });
+    set({ user: null, token: null, isAuthenticated: false })
   },
 
-  updateProfile: (data) => {
-    const { user } = get();
+  updateProfile: data => {
+    const { user } = get()
     if (user) {
-      set({ user: { ...user, ...data } });
+      set({ user: { ...user, ...data } })
     }
   },
-}));
+}))
 ```
 
 ```typescript
 // stores/websocket-store.ts
 interface WebSocketStore {
-  status: ConnectionStatus;
-  messages: WebSocketMessage[];
-  lastPing: number;
-  latency: number;
-  connect: () => void;
-  disconnect: () => void;
-  sendMessage: (message: WebSocketMessage) => void;
+  status: ConnectionStatus
+  messages: WebSocketMessage[]
+  lastPing: number
+  latency: number
+  connect: () => void
+  disconnect: () => void
+  sendMessage: (message: WebSocketMessage) => void
 }
 
-export const useWebSocketStore = create<WebSocketStore>((set) => ({
+export const useWebSocketStore = create<WebSocketStore>(set => ({
   status: 'disconnected',
   messages: [],
   lastPing: 0,
@@ -522,13 +532,14 @@ export const useWebSocketStore = create<WebSocketStore>((set) => ({
     // 断开逻辑
   },
 
-  sendMessage: (message) => {
+  sendMessage: message => {
     // 发送消息
   },
-}));
+}))
 ```
 
 **优势**:
+
 - 全局状态共享
 - 无需 Provider 包装
 - 性能优化（选择器）
@@ -537,12 +548,14 @@ export const useWebSocketStore = create<WebSocketStore>((set) => ({
 ### 4.3 迁移策略
 
 **Phase 1**: 创建 Store 架构 (不影响现有代码)
+
 ```bash
 mkdir -p src/stores
 # 创建 store 文件
 ```
 
 **Phase 2**: 逐步迁移功能
+
 1. 认证状态 → `useAuthStore`
 2. 通知状态 → `useNotificationStore`
 3. WebSocket 状态 → `useWebSocketStore`
@@ -557,13 +570,13 @@ mkdir -p src/stores
 
 **优化措施**:
 
-| 优化项 | 状态 | 配置 |
-|--------|------|------|
-| Turbopack | ✅ 已启用 | `next build --turbopack` |
+| 优化项         | 状态      | 配置                            |
+| -------------- | --------- | ------------------------------- |
+| Turbopack      | ✅ 已启用 | `next build --turbopack`        |
 | React Compiler | ✅ 已启用 | `compilationMode: 'annotation'` |
-| 代码分包 | ✅ 已配置 | next.config.ts |
-| 图片优化 | ✅ 已配置 | WebP/AVIF |
-| Bundle 分析 | ✅ 支持 | `ANALYZE=true` |
+| 代码分包       | ✅ 已配置 | next.config.ts                  |
+| 图片优化       | ✅ 已配置 | WebP/AVIF                       |
+| Bundle 分析    | ✅ 支持   | `ANALYZE=true`                  |
 
 ### 5.2 Next.js 配置分析
 
@@ -588,17 +601,19 @@ export default {
     formats: ['image/avif', 'image/webp'],
     deviceSizes: [640, 750, 828, 1080, 1200, 1920, 2048, 3840],
   },
-};
+}
 ```
 
 ### 5.3 潜在性能问题
 
 **1. 大型组件未优化**:
+
 - `FeedbackAdminPanel.tsx` (933 行)
 - 未使用 React.memo
 - 未使用代码分割
 
 **2. 依赖导入未优化**:
+
 ```typescript
 // ❌ 不好的做法
 import { Button, Card, Modal, Input, ... } from '@/components/ui';
@@ -609,12 +624,14 @@ import { Card } from '@/components/ui/Card';
 ```
 
 **3. WebSocket 连接管理**:
+
 - 每个组件可能创建独立连接
 - 建议使用全局 Store 统一管理
 
 ### 5.4 建议
 
 **1. 组件优化**:
+
 ```typescript
 // 使用 React.memo
 export const FeedbackAdminPanel = React.memo(({ ... }) => {
@@ -628,15 +645,16 @@ const HeavyComponent = dynamic(() => import('./HeavyComponent'), {
 ```
 
 **2. 性能监控**:
+
 ```typescript
 // 使用 Web Vitals
-import { getCLS, getFID, getFCP, getLCP, getTTFB } from 'web-vitals';
+import { getCLS, getFID, getFCP, getLCP, getTTFB } from 'web-vitals'
 
-getCLS(console.log);
-getFID(console.log);
-getFCP(console.log);
-getLCP(console.log);
-getTTFB(console.log);
+getCLS(console.log)
+getFID(console.log)
+getFCP(console.log)
+getLCP(console.log)
+getTTFB(console.log)
 ```
 
 ---
@@ -646,11 +664,13 @@ getTTFB(console.log);
 ### 6.1 当前扩展能力 ⚠️ 6/10
 
 **优点**:
+
 - Feature-Based 架构已部分实施
 - 模块化设计良好
 - 清晰的分层结构
 
 **不足**:
+
 - lib/ 层职责过重，难以扩展
 - 缺乏统一的接口定义
 - 测试覆盖不完整
@@ -681,17 +701,17 @@ getTTFB(console.log);
 ```typescript
 // shared/interfaces/feature-interface.ts
 export interface IFeature {
-  name: string;
-  version: string;
-  dependencies?: string[];
-  initialize: () => Promise<void>;
-  destroy: () => Promise<void>;
+  name: string
+  version: string
+  dependencies?: string[]
+  initialize: () => Promise<void>
+  destroy: () => Promise<void>
 }
 
 // 每个特征模块实现此接口
 export class AuthFeature implements IFeature {
-  name = 'auth';
-  version = '1.0.0';
+  name = 'auth'
+  version = '1.0.0'
 
   async initialize() {
     // 初始化逻辑
@@ -708,25 +728,25 @@ export class AuthFeature implements IFeature {
 ```typescript
 // shared/plugin-system.ts
 interface Plugin {
-  name: string;
-  version: string;
-  activate: () => void;
-  deactivate: () => void;
+  name: string
+  version: string
+  activate: () => void
+  deactivate: () => void
 }
 
 class PluginManager {
-  private plugins = new Map<string, Plugin>();
+  private plugins = new Map<string, Plugin>()
 
   register(plugin: Plugin) {
-    this.plugins.set(plugin.name, plugin);
-    plugin.activate();
+    this.plugins.set(plugin.name, plugin)
+    plugin.activate()
   }
 
   unregister(name: string) {
-    const plugin = this.plugins.get(name);
+    const plugin = this.plugins.get(name)
     if (plugin) {
-      plugin.deactivate();
-      this.plugins.delete(name);
+      plugin.deactivate()
+      this.plugins.delete(name)
     }
   }
 }
@@ -739,6 +759,7 @@ class PluginManager {
 ### 7.1 优先级 P0 (立即执行)
 
 **1. 删除重复文件**
+
 ```bash
 # 删除 lib/permissions.ts（保留 features/auth/lib/permissions.ts）
 rm /root/.openclaw/workspace/7zi-frontend/src/lib/permissions.ts
@@ -748,6 +769,7 @@ find src -name "*.ts" -o -name "*.tsx" | xargs sed -i 's|from "@/lib/permissions
 ```
 
 **2. 建立 Zustand Store 架构**
+
 ```bash
 mkdir -p src/stores
 
@@ -761,6 +783,7 @@ mkdir -p src/stores
 ### 7.2 优先级 P1 (本周完成)
 
 **1. lib/ 目录清理**
+
 ```bash
 # 迁移到 features
 mv src/lib/auth.ts src/features/auth/lib/
@@ -774,6 +797,7 @@ mv src/lib/socket.ts src/features/websocket/lib/
 ```
 
 **2. 大型文件拆分**
+
 ```
 permissions.ts (983 行) →
 ├── types.ts
@@ -787,6 +811,7 @@ permissions.ts (983 行) →
 ### 7.3 优先级 P2 (本月完成)
 
 **1. 完整的 Feature-Based 架构**
+
 ```
 features/
 ├── auth/
@@ -806,6 +831,7 @@ features/
 ```
 
 **2. 统一的错误处理**
+
 ```typescript
 // shared/errors/
 ├── types.ts
@@ -817,6 +843,7 @@ features/
 ```
 
 **3. 测试覆盖率提升**
+
 - 单元测试覆盖率 > 80%
 - 集成测试覆盖关键流程
 - E2E 测试覆盖用户旅程
@@ -824,16 +851,19 @@ features/
 ### 7.4 优先级 P3 (长期规划)
 
 **1. 微前端架构**
+
 - 模块联邦
 - 独立部署
 - 共享依赖
 
 **2. 性能监控平台**
+
 - 实时性能指标
 - 错误追踪
 - 用户行为分析
 
 **3. 自动化测试流水线**
+
 - CI/CD 集成
 - 自动化测试
 - 性能回归检测
@@ -853,6 +883,7 @@ features/
 - [ ] 运行测试确保无破坏性更改
 
 **验收标准**:
+
 - 无代码重复
 - 所有测试通过
 - 构建成功
@@ -868,6 +899,7 @@ features/
 - [ ] 删除旧的自定义 Hooks
 
 **验收标准**:
+
 - 所有状态通过 Zustand 管理
 - 性能提升 > 20%
 - 开发体验改善
@@ -883,6 +915,7 @@ features/
 - [ ] 文档更新
 
 **验收标准**:
+
 - 单个文件 < 500 行
 - 测试覆盖率 > 80%
 - 文档完整
@@ -897,6 +930,7 @@ features/
 - [ ] 自动化测试流水线
 
 **验收标准**:
+
 - 支持动态加载模块
 - 性能监控完整
 - 自动化测试覆盖
@@ -907,20 +941,20 @@ features/
 
 ### 9.1 技术风险
 
-| 风险 | 概率 | 影响 | 缓解措施 |
-|------|------|------|----------|
-| 破坏性更改 | 中 | 高 | 逐步迁移，完整测试 |
-| 性能回归 | 低 | 中 | 性能基准测试 |
-| 依赖冲突 | 低 | 中 | 依赖锁定，版本管理 |
-| 数据丢失 | 极低 | 极高 | 完整备份，渐进式迁移 |
+| 风险       | 概率 | 影响 | 缓解措施             |
+| ---------- | ---- | ---- | -------------------- |
+| 破坏性更改 | 中   | 高   | 逐步迁移，完整测试   |
+| 性能回归   | 低   | 中   | 性能基准测试         |
+| 依赖冲突   | 低   | 中   | 依赖锁定，版本管理   |
+| 数据丢失   | 极低 | 极高 | 完整备份，渐进式迁移 |
 
 ### 9.2 业务风险
 
-| 风险 | 概率 | 影响 | 缓解措施 |
-|------|------|------|----------|
-| 功能中断 | 低 | 高 | 灰度发布，快速回滚 |
-| 用户体验下降 | 低 | 中 | A/B 测试，用户反馈 |
-| 开发进度延迟 | 中 | 低 | 合理规划，并行开发 |
+| 风险         | 概率 | 影响 | 缓解措施           |
+| ------------ | ---- | ---- | ------------------ |
+| 功能中断     | 低   | 高   | 灰度发布，快速回滚 |
+| 用户体验下降 | 低   | 中   | A/B 测试，用户反馈 |
+| 开发进度延迟 | 中   | 低   | 合理规划，并行开发 |
 
 ---
 
@@ -928,13 +962,13 @@ features/
 
 ### 10.1 关键指标
 
-| 指标 | 当前值 | 目标值 |
-|------|--------|--------|
-| 代码行数 | ~58,000 | < 50,000 |
-| 文件数量 | ~120 | ~150 |
-| 测试覆盖率 | ~60% | > 80% |
-| 构建时间 | ~2min | < 1.5min |
-| 首屏加载 | ~1.5s | < 1s |
+| 指标       | 当前值  | 目标值   |
+| ---------- | ------- | -------- |
+| 代码行数   | ~58,000 | < 50,000 |
+| 文件数量   | ~120    | ~150     |
+| 测试覆盖率 | ~60%    | > 80%    |
+| 构建时间   | ~2min   | < 1.5min |
+| 首屏加载   | ~1.5s   | < 1s     |
 
 ### 10.2 核心建议
 
@@ -947,16 +981,19 @@ features/
 ### 10.3 预期收益
 
 **短期** (1-2 周):
+
 - 消除技术债务
 - 代码质量提升
 - 开发效率提升
 
 **中期** (1-2 月):
+
 - 性能提升 20-30%
 - 测试覆盖率 > 80%
 - 可维护性显著改善
 
 **长期** (3-6 月):
+
 - 支持微前端架构
 - 扩展性大幅提升
 - 团队协作更高效
@@ -975,18 +1012,21 @@ features/
 ### B. 工具推荐
 
 **代码分析**:
+
 - ESLint
 - TypeScript
 - Depcheck (依赖检查)
 - Circular Dependency Check
 
 **性能监控**:
+
 - Web Vitals
 - Lighthouse
 - Chrome DevTools
 - Sentry
 
 **测试**:
+
 - Vitest (单元测试)
 - Playwright (E2E 测试)
 - Testing Library (组件测试)

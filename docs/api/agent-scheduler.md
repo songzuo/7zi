@@ -20,19 +20,19 @@ Agent 调度系统是 7zi 项目的核心 AI 成员管理模块，负责 11 位 
 
 ### 11 位 AI 成员
 
-| 角色 | 职责 | 技术能力 |
-|------|------|----------|
-| 🌟 智能体世界专家 | 视角转换、未来布局 | AI, 架构设计, 战略规划 |
-| 📚 咨询师 | 研究分析 | 数据分析, 市场研究, 文档编写 |
-| 🏗️ 架构师 | 系统设计 | 架构设计, TypeScript, 系统集成 |
-| ⚡ Executor | 任务执行 | 编码, 测试, 部署 |
-| 🛡️ 系统管理员 | 运维部署 | Docker, CI/CD, 监控 |
-| 🧪 测试员 | 质量保障 | 测试自动化, Bug 修复 |
-| 🎨 设计师 | UI/UX 设计 | React, CSS, 设计系统 |
-| 📣 推广专员 | 市场推广 | SEO, 内容营销 |
-| 💼 销售客服 | 客户支持 | 沟通, 问题解决 |
-| 💰 财务 | 成本控制 | 数据分析, 报表 |
-| 📺 媒体 | 内容创作 | 文案, 视频制作 |
+| 角色              | 职责               | 技术能力                       |
+| ----------------- | ------------------ | ------------------------------ |
+| 🌟 智能体世界专家 | 视角转换、未来布局 | AI, 架构设计, 战略规划         |
+| 📚 咨询师         | 研究分析           | 数据分析, 市场研究, 文档编写   |
+| 🏗️ 架构师         | 系统设计           | 架构设计, TypeScript, 系统集成 |
+| ⚡ Executor       | 任务执行           | 编码, 测试, 部署               |
+| 🛡️ 系统管理员     | 运维部署           | Docker, CI/CD, 监控            |
+| 🧪 测试员         | 质量保障           | 测试自动化, Bug 修复           |
+| 🎨 设计师         | UI/UX 设计         | React, CSS, 设计系统           |
+| 📣 推广专员       | 市场推广           | SEO, 内容营销                  |
+| 💼 销售客服       | 客户支持           | 沟通, 问题解决                 |
+| 💰 财务           | 成本控制           | 数据分析, 报表                 |
+| 📺 媒体           | 内容创作           | 文案, 视频制作                 |
 
 ---
 
@@ -50,18 +50,18 @@ X-API-Key: <your-api-key>
 
 ## 端点列表
 
-| 方法 | 端点 | 描述 |
-|------|------|------|
-| `GET` | `/api/a2a/registry` | 获取 Agent 注册列表 |
-| `POST` | `/api/a2a/registry` | 注册新 Agent |
-| `GET` | `/api/a2a/registry/:id` | 获取单个 Agent 信息 |
-| `PUT` | `/api/a2a/registry/:id` | 更新 Agent 信息 |
-| `DELETE` | `/api/a2a/registry/:id` | 注销 Agent |
-| `POST` | `/api/a2a/registry/:id/heartbeat` | Agent 心跳 |
-| `GET` | `/api/a2a/queue` | 获取任务队列状态 |
-| `POST` | `/api/a2a/queue` | 添加任务到队列 |
-| `DELETE` | `/api/a2a/queue` | 清空任务队列 |
-| `POST` | `/api/a2a/jsonrpc` | JSON-RPC 调用 |
+| 方法     | 端点                              | 描述                |
+| -------- | --------------------------------- | ------------------- |
+| `GET`    | `/api/a2a/registry`               | 获取 Agent 注册列表 |
+| `POST`   | `/api/a2a/registry`               | 注册新 Agent        |
+| `GET`    | `/api/a2a/registry/:id`           | 获取单个 Agent 信息 |
+| `PUT`    | `/api/a2a/registry/:id`           | 更新 Agent 信息     |
+| `DELETE` | `/api/a2a/registry/:id`           | 注销 Agent          |
+| `POST`   | `/api/a2a/registry/:id/heartbeat` | Agent 心跳          |
+| `GET`    | `/api/a2a/queue`                  | 获取任务队列状态    |
+| `POST`   | `/api/a2a/queue`                  | 添加任务到队列      |
+| `DELETE` | `/api/a2a/queue`                  | 清空任务队列        |
+| `POST`   | `/api/a2a/jsonrpc`                | JSON-RPC 调用       |
 
 ---
 
@@ -73,12 +73,12 @@ X-API-Key: <your-api-key>
 
 #### 请求参数
 
-| 参数 | 类型 | 必需 | 默认值 | 描述 |
-|------|------|------|--------|------|
-| `status` | string | 否 | - | 状态过滤 (`online` \| `offline` \| `busy`) |
-| `type` | string | 否 | - | 类型过滤 |
-| `limit` | number | 否 | 50 | 返回数量限制 |
-| `offset` | number | 否 | 0 | 分页偏移 |
+| 参数     | 类型   | 必需 | 默认值 | 描述                                       |
+| -------- | ------ | ---- | ------ | ------------------------------------------ |
+| `status` | string | 否   | -      | 状态过滤 (`online` \| `offline` \| `busy`) |
+| `type`   | string | 否   | -      | 类型过滤                                   |
+| `limit`  | number | 否   | 50     | 返回数量限制                               |
+| `offset` | number | 否   | 0      | 分页偏移                                   |
 
 #### 请求示例
 
@@ -90,12 +90,12 @@ curl -X GET "https://7zi.com/api/a2a/registry?status=online" \
 ```javascript
 const response = await fetch('/api/a2a/registry?status=online', {
   headers: {
-    'Authorization': `Bearer ${token}`,
+    Authorization: `Bearer ${token}`,
   },
-});
+})
 
-const data = await response.json();
-console.log(data.agents);
+const data = await response.json()
+console.log(data.agents)
 ```
 
 #### 响应格式
@@ -110,11 +110,7 @@ console.log(data.agents);
         "name": "架构师",
         "type": "architect",
         "status": "online",
-        "capabilities": [
-          "architecture-design",
-          "system-integration",
-          "typescript"
-        ],
+        "capabilities": ["architecture-design", "system-integration", "typescript"],
         "currentLoad": 45,
         "maxLoad": 90,
         "performanceScore": 0.95,
@@ -142,12 +138,12 @@ console.log(data.agents);
 
 ```typescript
 interface RegisterAgentDto {
-  id: string;                    // Agent 唯一 ID
-  name: string;                  // Agent 名称
-  type: string;                  // Agent 类型
-  capabilities: string[];         // 能力列表
-  maxLoad?: number;              // 最大负载 (默认 100)
-  metadata?: Record<string, unknown>; // 额外元数据
+  id: string // Agent 唯一 ID
+  name: string // Agent 名称
+  type: string // Agent 类型
+  capabilities: string[] // 能力列表
+  maxLoad?: number // 最大负载 (默认 100)
+  metadata?: Record<string, unknown> // 额外元数据
 }
 ```
 
@@ -211,13 +207,7 @@ curl -X GET "https://7zi.com/api/a2a/registry/agent-architect" \
     "name": "架构师",
     "type": "architect",
     "status": "online",
-    "capabilities": [
-      "architecture-design",
-      "system-integration",
-      "typescript",
-      "react",
-      "nextjs"
-    ],
+    "capabilities": ["architecture-design", "system-integration", "typescript", "react", "nextjs"],
     "currentLoad": 45,
     "maxLoad": 90,
     "performanceScore": 0.95,
@@ -254,11 +244,11 @@ curl -X GET "https://7zi.com/api/a2a/registry/agent-architect" \
 
 ```typescript
 interface UpdateAgentDto {
-  name?: string;
-  capabilities?: string[];
-  maxLoad?: number;
-  status?: 'online' | 'offline' | 'busy';
-  metadata?: Record<string, unknown>;
+  name?: string
+  capabilities?: string[]
+  maxLoad?: number
+  status?: 'online' | 'offline' | 'busy'
+  metadata?: Record<string, unknown>
 }
 ```
 
@@ -316,14 +306,14 @@ Agent 发送心跳，保持在线状态。
 
 ```typescript
 interface HeartbeatDto {
-  status?: 'online' | 'busy';
-  currentLoad?: number;
-  currentTask?: string;
+  status?: 'online' | 'busy'
+  currentLoad?: number
+  currentTask?: string
   metrics?: {
-    responseTime?: number;
-    memoryUsage?: number;
-    cpuUsage?: number;
-  };
+    responseTime?: number
+    memoryUsage?: number
+    cpuUsage?: number
+  }
 }
 ```
 
@@ -426,16 +416,16 @@ curl -X GET "https://7zi.com/api/a2a/queue" \
 
 ```typescript
 interface EnqueueTaskDto {
-  id: string;                    // 任务 ID
-  type: string;                  // 任务类型
-  priority?: 'urgent' | 'high' | 'normal' | 'low';
-  payload: Record<string, unknown>; // 任务数据
-  requiredCapabilities?: string[]; // 所需能力
-  preferredAgent?: string;       // 首选 Agent
-  maxAttempts?: number;          // 最大重试次数
-  estimatedDuration?: number;    // 预估耗时 (ms)
-  dependencies?: string[];       // 依赖任务 ID
-  metadata?: Record<string, unknown>;
+  id: string // 任务 ID
+  type: string // 任务类型
+  priority?: 'urgent' | 'high' | 'normal' | 'low'
+  payload: Record<string, unknown> // 任务数据
+  requiredCapabilities?: string[] // 所需能力
+  preferredAgent?: string // 首选 Agent
+  maxAttempts?: number // 最大重试次数
+  estimatedDuration?: number // 预估耗时 (ms)
+  dependencies?: string[] // 依赖任务 ID
+  metadata?: Record<string, unknown>
 }
 ```
 
@@ -499,11 +489,11 @@ curl -X POST "https://7zi.com/api/a2a/queue" \
 
 #### 请求参数
 
-| 参数 | 类型 | 必需 | 描述 |
-|------|------|------|------|
-| `agentId` | string | 否 | 仅清空特定 Agent 的任务 |
-| `priority` | string | 否 | 仅清空特定优先级的任务 |
-| `status` | string | 否 | 仅清空特定状态的任务 |
+| 参数       | 类型   | 必需 | 描述                    |
+| ---------- | ------ | ---- | ----------------------- |
+| `agentId`  | string | 否   | 仅清空特定 Agent 的任务 |
+| `priority` | string | 否   | 仅清空特定优先级的任务  |
+| `status`   | string | 否   | 仅清空特定状态的任务    |
 
 #### 请求示例
 
@@ -545,22 +535,22 @@ curl -X DELETE "https://7zi.com/api/a2a/queue?agentId=agent-executor" \
 
 ```typescript
 interface JsonRpcRequest {
-  jsonrpc: "2.0";
-  method: string;
-  params?: Record<string, unknown> | unknown[];
-  id: string | number;
+  jsonrpc: '2.0'
+  method: string
+  params?: Record<string, unknown> | unknown[]
+  id: string | number
 }
 ```
 
 #### 支持的方法
 
-| 方法 | 描述 |
-|------|------|
-| `schedule_task` | 调度任务 |
+| 方法               | 描述            |
+| ------------------ | --------------- |
+| `schedule_task`    | 调度任务        |
 | `get_agent_status` | 获取 Agent 状态 |
-| `cancel_task` | 取消任务 |
-| `get_task_result` | 获取任务结果 |
-| `list_agents` | 列出所有 Agent |
+| `cancel_task`      | 取消任务        |
+| `get_task_result`  | 获取任务结果    |
+| `list_agents`      | 列出所有 Agent  |
 | `agent_capability` | 查询 Agent 能力 |
 
 #### 请求示例
@@ -621,10 +611,8 @@ function calculateCapabilityScore(
   requiredCapabilities: string[],
   agentCapabilities: string[]
 ): number {
-  const matched = requiredCapabilities.filter(cap => 
-    agentCapabilities.includes(cap)
-  );
-  return matched.length / requiredCapabilities.length;
+  const matched = requiredCapabilities.filter(cap => agentCapabilities.includes(cap))
+  return matched.length / requiredCapabilities.length
 }
 ```
 
@@ -632,17 +620,14 @@ function calculateCapabilityScore(
 
 ```typescript
 // 负载评分计算
-function calculateLoadScore(
-  currentLoad: number,
-  maxLoad: number
-): number {
-  const utilization = currentLoad / maxLoad;
-  
+function calculateLoadScore(currentLoad: number, maxLoad: number): number {
+  const utilization = currentLoad / maxLoad
+
   // 保留 10% 缓冲
-  if (utilization > 0.9) return 0;
-  if (utilization > 0.7) return 0.5;
-  if (utilization > 0.5) return 0.7;
-  return 1;
+  if (utilization > 0.9) return 0
+  if (utilization > 0.7) return 0.5
+  if (utilization > 0.5) return 0.7
+  return 1
 }
 ```
 
@@ -666,7 +651,7 @@ function calculateLoadScore(
       "capabilityScore": 0.95,
       "loadScore": 0.85,
       "performanceScore": 0.95,
-      "responseScore": 0.90
+      "responseScore": 0.9
     }
   }
 }
@@ -680,60 +665,60 @@ function calculateLoadScore(
 
 ```typescript
 interface AgentCapability {
-  agentId: string;
-  name: string;
-  type: AgentType;
-  status: 'online' | 'offline' | 'busy';
-  capabilities: string[];
-  currentLoad: number;
-  maxLoad: number;
-  performanceScore: number;
-  averageResponseTime: number;
-  successRate: number;
-  lastHeartbeat: string;
+  agentId: string
+  name: string
+  type: AgentType
+  status: 'online' | 'offline' | 'busy'
+  capabilities: string[]
+  currentLoad: number
+  maxLoad: number
+  performanceScore: number
+  averageResponseTime: number
+  successRate: number
+  lastHeartbeat: string
   metadata: {
-    provider: string;
-    model: string;
-    version?: string;
-  };
+    provider: string
+    model: string
+    version?: string
+  }
 }
 
-type AgentType = 
-  | 'expert'      // 智能体世界专家
-  | 'consultant'  // 咨询师
-  | 'architect'   // 架构师
-  | 'executor'    // Executor
-  | 'admin'       // 系统管理员
-  | 'tester'      // 测试员
-  | 'designer'    // 设计师
-  | 'promoter'    // 推广专员
-  | 'sales'       // 销售客服
-  | 'finance'     // 财务
-  | 'media';      // 媒体
+type AgentType =
+  | 'expert' // 智能体世界专家
+  | 'consultant' // 咨询师
+  | 'architect' // 架构师
+  | 'executor' // Executor
+  | 'admin' // 系统管理员
+  | 'tester' // 测试员
+  | 'designer' // 设计师
+  | 'promoter' // 推广专员
+  | 'sales' // 销售客服
+  | 'finance' // 财务
+  | 'media' // 媒体
 ```
 
 ### 任务模型
 
 ```typescript
 interface TaskModel {
-  id: string;
-  type: string;
-  priority: 'urgent' | 'high' | 'normal' | 'low';
-  status: 'pending' | 'scheduled' | 'in_progress' | 'completed' | 'failed';
-  payload: Record<string, unknown>;
-  requiredCapabilities: string[];
-  assignedAgent?: string;
-  estimatedDuration?: number;
-  dependencies?: string[];
-  createdAt: string;
-  scheduledAt?: string;
-  startedAt?: string;
-  completedAt?: string;
-  result?: unknown;
-  error?: string;
-  attempts: number;
-  maxAttempts: number;
-  metadata?: Record<string, unknown>;
+  id: string
+  type: string
+  priority: 'urgent' | 'high' | 'normal' | 'low'
+  status: 'pending' | 'scheduled' | 'in_progress' | 'completed' | 'failed'
+  payload: Record<string, unknown>
+  requiredCapabilities: string[]
+  assignedAgent?: string
+  estimatedDuration?: number
+  dependencies?: string[]
+  createdAt: string
+  scheduledAt?: string
+  startedAt?: string
+  completedAt?: string
+  result?: unknown
+  error?: string
+  attempts: number
+  maxAttempts: number
+  metadata?: Record<string, unknown>
 }
 ```
 
@@ -741,22 +726,22 @@ interface TaskModel {
 
 ```typescript
 interface ScheduleDecision {
-  taskId: string;
-  assignedAgent: string;
-  confidence: number;
-  reasoning: string;
+  taskId: string
+  assignedAgent: string
+  confidence: number
+  reasoning: string
   alternativeAgents: Array<{
-    agentId: string;
-    score: number;
-    reason: string;
-  }>;
+    agentId: string
+    score: number
+    reason: string
+  }>
   schedulingFactors: {
-    capabilityScore: number;
-    loadScore: number;
-    performanceScore: number;
-    responseScore: number;
-  };
-  timestamp: string;
+    capabilityScore: number
+    loadScore: number
+    performanceScore: number
+    responseScore: number
+  }
+  timestamp: string
 }
 ```
 
@@ -764,28 +749,28 @@ interface ScheduleDecision {
 
 ## 限流策略
 
-| 端点 | 限制 | 说明 |
-|------|------|------|
-| `GET /api/a2a/registry` | 100 请求/分钟 | 查询操作 |
-| `POST /api/a2a/registry` | 10 请求/分钟 | 注册操作 |
+| 端点                                   | 限制          | 说明     |
+| -------------------------------------- | ------------- | -------- |
+| `GET /api/a2a/registry`                | 100 请求/分钟 | 查询操作 |
+| `POST /api/a2a/registry`               | 10 请求/分钟  | 注册操作 |
 | `POST /api/a2a/registry/:id/heartbeat` | 120 请求/分钟 | 心跳操作 |
-| `GET /api/a2a/queue` | 100 请求/分钟 | 查询操作 |
-| `POST /api/a2a/queue` | 50 请求/分钟 | 入队操作 |
-| `POST /api/a2a/jsonrpc` | 100 请求/分钟 | RPC 调用 |
+| `GET /api/a2a/queue`                   | 100 请求/分钟 | 查询操作 |
+| `POST /api/a2a/queue`                  | 50 请求/分钟  | 入队操作 |
+| `POST /api/a2a/jsonrpc`                | 100 请求/分钟 | RPC 调用 |
 
 ---
 
 ## 错误码
 
-| HTTP 状态码 | 错误码 | 描述 |
-|------------|--------|------|
-| 400 | `VALIDATION_ERROR` | 参数验证失败 |
-| 401 | `UNAUTHORIZED` | 未授权 |
-| 403 | `FORBIDDEN` | 无权限 |
-| 404 | `NOT_FOUND` | Agent 不存在 |
-| 409 | `CONFLICT` | Agent 已存在 |
-| 429 | `RATE_LIMITED` | 请求频率过高 |
-| 500 | `INTERNAL_ERROR` | 服务器内部错误 |
+| HTTP 状态码 | 错误码             | 描述           |
+| ----------- | ------------------ | -------------- |
+| 400         | `VALIDATION_ERROR` | 参数验证失败   |
+| 401         | `UNAUTHORIZED`     | 未授权         |
+| 403         | `FORBIDDEN`        | 无权限         |
+| 404         | `NOT_FOUND`        | Agent 不存在   |
+| 409         | `CONFLICT`         | Agent 已存在   |
+| 429         | `RATE_LIMITED`     | 请求频率过高   |
+| 500         | `INTERNAL_ERROR`   | 服务器内部错误 |
 
 ---
 
@@ -799,7 +784,7 @@ setInterval(async () => {
   await fetch('/api/a2a/registry/agent-001/heartbeat', {
     method: 'POST',
     headers: {
-      'Authorization': `Bearer ${token}`,
+      Authorization: `Bearer ${token}`,
       'Content-Type': 'application/json',
     },
     body: JSON.stringify({
@@ -807,8 +792,8 @@ setInterval(async () => {
       currentLoad: calculateLoad(),
       currentTask: currentTask?.id,
     }),
-  });
-}, 30000); // 每 30 秒
+  })
+}, 30000) // 每 30 秒
 ```
 
 ### 2. 任务轮询
@@ -816,23 +801,21 @@ setInterval(async () => {
 ```javascript
 // Agent 轮询获取任务
 async function pollForTasks(agentId) {
-  const response = await fetch(
-    `/api/a2a/queue?agentId=${agentId}&status=pending`
-  );
-  const { tasks } = await response.json();
-  
+  const response = await fetch(`/api/a2a/queue?agentId=${agentId}&status=pending`)
+  const { tasks } = await response.json()
+
   if (tasks.length > 0) {
     // 处理最高优先级任务
-    const task = tasks.sort((a, b) => 
-      getPriorityWeight(b.priority) - getPriorityWeight(a.priority)
-    )[0];
-    
-    await processTask(task);
+    const task = tasks.sort(
+      (a, b) => getPriorityWeight(b.priority) - getPriorityWeight(a.priority)
+    )[0]
+
+    await processTask(task)
   }
 }
 
 // 每 5 秒轮询一次
-setInterval(() => pollForTasks('agent-001'), 5000);
+setInterval(() => pollForTasks('agent-001'), 5000)
 ```
 
 ### 3. 错误重试
@@ -841,17 +824,17 @@ setInterval(() => pollForTasks('agent-001'), 5000);
 async function processTask(task, maxAttempts = 3) {
   for (let attempt = 1; attempt <= maxAttempts; attempt++) {
     try {
-      const result = await executeTask(task);
-      await reportTaskComplete(task.id, result);
-      return;
+      const result = await executeTask(task)
+      await reportTaskComplete(task.id, result)
+      return
     } catch (error) {
-      console.error(`Attempt ${attempt} failed:`, error);
-      
+      console.error(`Attempt ${attempt} failed:`, error)
+
       if (attempt === maxAttempts) {
-        await reportTaskFailed(task.id, error.message);
+        await reportTaskFailed(task.id, error.message)
       } else {
         // 指数退避
-        await sleep(1000 * Math.pow(2, attempt));
+        await sleep(1000 * Math.pow(2, attempt))
       }
     }
   }
@@ -862,13 +845,13 @@ async function processTask(task, maxAttempts = 3) {
 
 ## 性能指标
 
-| 指标 | 数值 |
-|------|------|
-| **调度效率提升** | 70-80% |
-| **任务完成时间减少** | 30-40% |
-| **Agent 负载均衡度** | 85-95% |
-| **平均响应时间** | < 100ms |
-| **调度准确率** | > 95% |
+| 指标                 | 数值    |
+| -------------------- | ------- |
+| **调度效率提升**     | 70-80%  |
+| **任务完成时间减少** | 30-40%  |
+| **Agent 负载均衡度** | 85-95%  |
+| **平均响应时间**     | < 100ms |
+| **调度准确率**       | > 95%   |
 
 ---
 

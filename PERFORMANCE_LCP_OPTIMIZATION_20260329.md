@@ -18,6 +18,7 @@
 ### 核心发现
 
 ✅ **已优化的部分**:
+
 1. 字体已配置 `display: swap` 和 `preload: true`
 2. DNS 预取和预连接已配置
 3. Lazy Loading 组件已实现 (AIChat, GitHubActivity, ProjectDashboard)
@@ -26,6 +27,7 @@
 6. Service Worker 注册已实现
 
 ⚠️ **需要优化的部分**:
+
 1. globals.css 文件过大 (700+ 行)，阻塞首屏渲染
 2. 缺少关键 CSS 内联
 3. 首屏图片未设置 `fetchpriority="high"`
@@ -40,11 +42,13 @@
 ### 1. CSS 阻塞问题
 
 **问题描述**:
+
 - `globals.css` 包含 700+ 行 CSS
 - 所有 CSS 在首屏加载时阻塞渲染
 - 包含大量首屏不需要的样式（动画、打印样式、响应式断点）
 
 **影响**:
+
 - 渲染阻塞时间增加
 - CSS 下载和解析时间长
 - 首屏白屏时间延长
@@ -61,11 +65,13 @@
 ### 2. 图片加载优先级问题
 
 **问题描述**:
+
 - 首屏 LCP 图片未明确设置高优先级
 - 缺少 `fetchpriority="high"` 属性
 - 缺少 `loading="eager"` 属性
 
 **影响**:
+
 - LCP 元素延迟加载
 - LCP 时间延长
 
@@ -79,11 +85,13 @@
 ### 3. 组件结构问题
 
 **问题描述**:
+
 - 首页组件未充分拆分 Suspense 边界
 - 同步组件过多，阻塞流式渲染
 - 大型组件（Team Preview、Services）未实现渐进式加载
 
 **影响**:
+
 - 无法利用 React 18 流式 SSR
 - 首屏等待所有组件渲染完成
 - TTFB 到 FCP 时间延长
@@ -93,11 +101,13 @@
 ### 4. 资源加载顺序问题
 
 **问题描述**:
+
 - 非关键资源未延迟加载
 - 第三方脚本未优化
 - 字体预加载未优化
 
 **影响**:
+
 - 关键资源竞争带宽
 - 首屏加载时间延长
 
@@ -124,6 +134,7 @@
    - 首页专属 CSS 优先加载
 
 **预期收益**:
+
 - CSS 阻塞时间减少 50-70%
 - FCP 提前 200-400ms
 - LCP 提前 400-600ms
@@ -151,18 +162,13 @@ nav { /* 导航样式 */ }
 // src/app/[locale]/layout.tsx
 <head>
   {/* 关键图片预加载 */}
-  <link 
-    rel="preload" 
-    href="/og-image.svg" 
-    as="image" 
-    fetchPriority="high"
-  />
-  
+  <link rel="preload" href="/og-image.svg" as="image" fetchPriority="high" />
+
   {/* 字体预加载 */}
-  <link 
-    rel="preload" 
-    href="/fonts/geist-sans.woff2" 
-    as="font" 
+  <link
+    rel="preload"
+    href="/fonts/geist-sans.woff2"
+    as="font"
     type="font/woff2"
     crossOrigin="anonymous"
   />
@@ -190,28 +196,28 @@ nav { /* 导航样式 */ }
 
 ```tsx
 // src/app/[locale]/page.tsx
-import { Suspense } from 'react';
+import { Suspense } from 'react'
 
 export default async function HomePage() {
   return (
     <div>
       {/* 关键内容 - 立即渲染 */}
       <HeroSection />
-      
+
       {/* 非关键内容 - 流式渲染 */}
       <Suspense fallback={<TeamPreviewSkeleton />}>
         <TeamPreview />
       </Suspense>
-      
+
       <Suspense fallback={<ServicesSkeleton />}>
         <Services />
       </Suspense>
-      
+
       {/* 懒加载内容 - 客户端渲染 */}
       <LazyGitHubActivity />
       <LazyProjectDashboard />
     </div>
-  );
+  )
 }
 ```
 
@@ -222,14 +228,14 @@ export default async function HomePage() {
 export function TeamPreviewSkeleton() {
   return (
     <div className="animate-pulse">
-      <div className="h-8 w-48 bg-zinc-200 rounded mb-4" />
+      <div className="mb-4 h-8 w-48 rounded bg-zinc-200" />
       <div className="grid grid-cols-6 gap-4">
         {Array.from({ length: 11 }).map((_, i) => (
-          <div key={i} className="h-24 bg-zinc-200 rounded-2xl" />
+          <div key={i} className="h-24 rounded-2xl bg-zinc-200" />
         ))}
       </div>
     </div>
-  );
+  )
 }
 ```
 
@@ -243,7 +249,7 @@ export function TeamPreviewSkeleton() {
   {/* 已有 */}
   <link rel="dns-prefetch" href="//github.com" />
   <link rel="preconnect" href="https://github.com" crossOrigin="anonymous" />
-  
+
   {/* 新增 */}
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
@@ -315,13 +321,13 @@ export function TeamPreviewSkeleton() {
 
 ### 性能指标对比
 
-| 指标 | 优化前 | 目标 | 预期优化后 | 提升幅度 |
-|------|--------|------|------------|----------|
-| **LCP** | 2.5s | <1.0s | **0.8-1.2s** | 52-68% ↓ |
-| **FCP** | 1.8s | <1.8s | **1.0-1.3s** | 28-44% ↓ |
-| **TTFB** | 800ms | <800ms | **400-600ms** | 25-50% ↓ |
-| **FID** | 100ms | <100ms | **50-80ms** | 20-50% ↓ |
-| **CLS** | 0.1 | <0.1 | **0.05-0.08** | 20-50% ↓ |
+| 指标     | 优化前 | 目标   | 预期优化后    | 提升幅度 |
+| -------- | ------ | ------ | ------------- | -------- |
+| **LCP**  | 2.5s   | <1.0s  | **0.8-1.2s**  | 52-68% ↓ |
+| **FCP**  | 1.8s   | <1.8s  | **1.0-1.3s**  | 28-44% ↓ |
+| **TTFB** | 800ms  | <800ms | **400-600ms** | 25-50% ↓ |
+| **FID**  | 100ms  | <100ms | **50-80ms**   | 20-50% ↓ |
+| **CLS**  | 0.1    | <0.1   | **0.05-0.08** | 20-50% ↓ |
 
 ### 用户体验提升
 
@@ -350,9 +356,8 @@ npx critical src/app/[locale]/page.tsx --inline > critical.css
 
 ```tsx
 // src/app/[locale]/layout.tsx
-import { PerformanceOptimizer } from '@/components/PerformanceOptimizer';
-
-<PerformanceOptimizer
+import { PerformanceOptimizer } from '@/components/PerformanceOptimizer'
+;<PerformanceOptimizer
   debug={process.env.NODE_ENV === 'development'}
   preloadCritical={true}
   sampleRate={1.0}

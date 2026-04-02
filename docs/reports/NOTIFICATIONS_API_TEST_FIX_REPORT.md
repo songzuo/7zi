@@ -69,7 +69,7 @@ private getNotificationRecipients(notification: Notification): EmailRecipient | 
 
 ```typescript
 // 修复前
-vi.mocked(notificationStorage.getUserPreferences).mockReturnValue(null);
+vi.mocked(notificationStorage.getUserPreferences).mockReturnValue(null)
 
 // 修复后
 vi.mocked(notificationStorage.getUserPreferences).mockReturnValue({
@@ -83,7 +83,7 @@ vi.mocked(notificationStorage.getUserPreferences).mockReturnValue({
   quietHoursStart: null,
   quietHoursEnd: null,
   timezone: 'UTC',
-});
+})
 ```
 
 #### 3. 修复布尔值断言

@@ -11,4 +11,4 @@ export {
   NavigationSkeleton,
   FullPageSkeleton,
   SimpleLoader,
-} from './HeroSkeleton';
+} from './HeroSkeleton'

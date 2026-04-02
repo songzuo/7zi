@@ -1,7 +1,7 @@
-'use client';
+'use client'
 
-import { lazy, Suspense, ComponentType } from 'react';
-import { LucideProps } from 'lucide-react';
+import { lazy, Suspense, ComponentType } from 'react'
+import { LucideProps } from 'lucide-react'
 
 // 图标名称到导入路径的映射 - use named exports instead of internal paths
 const iconMap = {
@@ -22,58 +22,55 @@ const iconMap = {
   Loader2: () => import('lucide-react').then(m => ({ default: m.Loader2 })),
   Globe: () => import('lucide-react').then(m => ({ default: m.Globe })),
   Lightbulb: () => import('lucide-react').then(m => ({ default: m.Lightbulb })),
-} as const;
+} as const
 
-type IconName = keyof typeof iconMap;
+type IconName = keyof typeof iconMap
 
 // 加载中的占位组件
 function IconFallback({ className }: { className?: string }) {
   return (
-    <div 
-      className={`animate-pulse bg-zinc-300 dark:bg-zinc-700 rounded ${className}`}
+    <div
+      className={`animate-pulse rounded bg-zinc-300 dark:bg-zinc-700 ${className}`}
       style={{ width: '1em', height: '1em' }}
     />
-  );
+  )
 }
 
 // 缓存已加载的图标组件
-const iconCache = new Map<IconName, ComponentType<LucideProps>>();
+const iconCache = new Map<IconName, ComponentType<LucideProps>>()
 
 // Props without ref to avoid type conflicts with dynamic components
-type IconProps = Omit<LucideProps, 'ref'>;
+type IconProps = Omit<LucideProps, 'ref'>
 
 /**
  * 动态图标组件
  * 按需加载图标，减少初始 bundle 大小
- * 
+ *
  * @example
  * <DynamicIcon name="Bell" className="w-4 h-4" />
  */
-export function DynamicIcon({ 
-  name, 
-  ...props 
-}: { name: IconName } & IconProps) {
+export function DynamicIcon({ name, ...props }: { name: IconName } & IconProps) {
   // 检查缓存
-  const CachedIcon = iconCache.get(name);
-  
+  const CachedIcon = iconCache.get(name)
+
   if (CachedIcon) {
-    return <CachedIcon {...props} />;
+    return <CachedIcon {...props} />
   }
 
   // 动态加载图标
   const IconComponent = lazy(async () => {
-    const module = await iconMap[name]();
-    const Icon = module.default;
-    iconCache.set(name, Icon);
-    return { default: Icon };
-  });
+    const module = await iconMap[name]()
+    const Icon = module.default
+    iconCache.set(name, Icon)
+    return { default: Icon }
+  })
 
   return (
     <Suspense fallback={<IconFallback className={props.className} />}>
       <IconComponent {...props} />
     </Suspense>
-  );
+  )
 }
 
 // 导出图标名称类型供其他组件使用
-export type { IconName };
+export type { IconName }

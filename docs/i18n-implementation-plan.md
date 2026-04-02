@@ -62,11 +62,13 @@ cp src/i18n/messages/en.json src/i18n/messages/de.json
 ```
 
 **翻译策略**：
+
 - 使用 AI 翻译工具（如 DeepL, Google Translate）生成初稿
 - 人工审核和修正专业术语
 - 确保语气和品牌一致性
 
 **需要特别关注的翻译**：
+
 - `common` - 基础术语
 - `nav` - 导航菜单
 - `home` - 首页内容（最重要）
@@ -76,6 +78,7 @@ cp src/i18n/messages/en.json src/i18n/messages/de.json
 - `contact` - 联系方式
 
 **预计工作量**：
+
 - 每种语言约 781 条翻译
 - AI 翻译 + 人工修正：每种语言 2-3 小时
 - 总计：8-12 小时
@@ -87,6 +90,7 @@ cp src/i18n/messages/en.json src/i18n/messages/de.json
 **步骤**：
 
 1. 扫描硬编码文本：
+
 ```bash
 # 查找包含中文字符的 TSX 文件
 grep -r "[\u4e00-\u9fa5]" src/app --include="*.tsx" | grep -v "i18n" | grep -v "test"
@@ -104,36 +108,37 @@ grep -r "[\u4e00-\u9fa5]" src/components --include="*.tsx" | grep -v "i18n"
 ```tsx
 // 修改前
 const quickLinks = [
-  { name: "首页", href: "/" },
-  { name: "关于我们", href: "/about" },
+  { name: '首页', href: '/' },
+  { name: '关于我们', href: '/about' },
   // ...
-];
+]
 
 // 修改后
-import { useTranslations } from '@/i18n/client';
+import { useTranslations } from '@/i18n/client'
 
 export function Footer() {
-  const t = useTranslations('footer');
+  const t = useTranslations('footer')
 
   const quickLinks = [
-    { name: t('quickLinks.home'), href: "/" },
-    { name: t('quickLinks.about'), href: "/about" },
+    { name: t('quickLinks.home'), href: '/' },
+    { name: t('quickLinks.about'), href: '/about' },
     // ...
-  ];
+  ]
 }
 ```
 
 4. 添加翻译到 `zh.json` 和 `en.json`：
+
 ```json
 {
   "footer": {
     "quickLinks": {
       "home": "首页",
-      "about": "关于我们",
+      "about": "关于我们"
       // ...
     },
     "services": {
-      "webDevelopment": "网站开发",
+      "webDevelopment": "网站开发"
       // ...
     }
   }
@@ -151,6 +156,7 @@ export function Footer() {
 **目标**：确保所有页面的 SEO 元数据都使用翻译
 
 **检查清单**：
+
 - [ ] 所有页面都使用 `generateMetadata` 生成动态 SEO
 - [ ] 正确设置 hreflang 标签
 - [ ] 每种语言都有独立的 meta 描述和关键词
@@ -161,8 +167,8 @@ export function Footer() {
 ```tsx
 // src/app/[locale]/about/page.tsx
 export async function generateMetadata({ params }: { params: Params }): Promise<Metadata> {
-  const { locale } = await params;
-  const t = await getTranslations({ locale, namespace: 'about' });
+  const { locale } = await params
+  const t = await getTranslations({ locale, namespace: 'about' })
 
   return {
     title: t('meta.title'),
@@ -172,7 +178,7 @@ export async function generateMetadata({ params }: { params: Params }): Promise<
       title: t('meta.ogTitle'),
       description: t('meta.ogDescription'),
     },
-  };
+  }
 }
 ```
 
@@ -181,6 +187,7 @@ export async function generateMetadata({ params }: { params: Params }): Promise<
 **目标**：减少 i18n 对性能的影响
 
 **措施**：
+
 - ✅ 已配置 `next-intl` 的优化导入（在 next.config.ts）
 - ⚠️ 验证翻译文件大小（每个文件约 20KB，可接受）
 - ⚠️ 考虑按页面分割翻译文件（如果文件过大）
@@ -249,6 +256,7 @@ console.log('Missing in zh.json:', missingInZh);
 **目标**：为开发者提供清晰的翻译指南
 
 **内容**：
+
 - 如何添加新的翻译键
 - 命名规范（使用点号分隔，如 `home.hero.title`）
 - 如何使用 `useTranslations` hook
@@ -257,12 +265,13 @@ console.log('Missing in zh.json:', missingInZh);
 
 **示例文档**：
 
-```markdown
+````markdown
 # 翻译指南
 
 ## 添加新翻译
 
 1. 在 `src/i18n/messages/zh.json` 中添加：
+
 ```json
 {
   "myComponent": {
@@ -271,15 +280,17 @@ console.log('Missing in zh.json:', missingInZh);
   }
 }
 ```
+````
 
 2. 在 `src/i18n/messages/en.json` 中添加对应的英文
 
 3. 在组件中使用：
-```tsx
-import { useTranslations } from '@/i18n/client';
 
-const t = useTranslations('myComponent');
-return <h1>{t('title')}</h1>;
+```tsx
+import { useTranslations } from '@/i18n/client'
+
+const t = useTranslations('myComponent')
+return <h1>{t('title')}</h1>
 ```
 
 ## 命名规范
@@ -287,7 +298,8 @@ return <h1>{t('title')}</h1>;
 - 使用点号分隔：`namespace.section.key`
 - 使用驼峰命名：`welcomeMessage`
 - 复数：`item.count`
-```
+
+````
 
 **预计工作量**：3-4 小时
 
@@ -321,11 +333,12 @@ describe('i18n Translations', () => {
     // 测试语言切换功能
   });
 });
-```
+````
 
 #### 4.2 可视化测试
 
 **工具**：
+
 - [Storybook i18n addon](https://storybook.js.org/addons/@storybook/addon-i18n) - 在 Storybook 中预览不同语言
 - Playwright - 测试多语言页面
 
@@ -376,6 +389,7 @@ src/
 ## 📦 依赖清单
 
 ### 当前已安装
+
 ```json
 {
   "next-intl": "^4.8.3"
@@ -383,18 +397,20 @@ src/
 ```
 
 ### 建议添加（可选）
+
 ```json
 {
   "devDependencies": {
-    "@types/node": "^25.5.0",      // 已安装
-    "easygettext": "^2.22.0",      // 提取翻译文本
-    "i18next-scanner": "^4.4.0",   // 自动提取
-    "storybook": "^8.0.0"          // 可视化测试（已有则跳过）
+    "@types/node": "^25.5.0", // 已安装
+    "easygettext": "^2.22.0", // 提取翻译文本
+    "i18next-scanner": "^4.4.0", // 自动提取
+    "storybook": "^8.0.0" // 可视化测试（已有则跳过）
   }
 }
 ```
 
 **安装命令**：
+
 ```bash
 npm install --save-dev easygettext i18next-scanner
 ```
@@ -405,14 +421,14 @@ npm install --save-dev easygettext i18next-scanner
 
 ### 优先级排序
 
-| 阶段 | 优先级 | 预计时间 | 状态 |
-|------|--------|----------|------|
-| 阶段 1.1：补充缺失翻译 | 高 | 8-12 小时 | 待开始 |
-| 阶段 1.2：修复硬编码文本 | 高 | 4-6 小时 | 待开始 |
-| 阶段 2：SEO 和性能优化 | 中 | 2-3 小时 | 待开始 |
-| 阶段 3：工作流和工具 | 低 | 3-4 小时 | 待开始 |
-| 阶段 4：测试和验证 | 高 | 4-5 小时 | 待开始 |
-| **总计** | - | **21-30 小时** | - |
+| 阶段                     | 优先级 | 预计时间       | 状态   |
+| ------------------------ | ------ | -------------- | ------ |
+| 阶段 1.1：补充缺失翻译   | 高     | 8-12 小时      | 待开始 |
+| 阶段 1.2：修复硬编码文本 | 高     | 4-6 小时       | 待开始 |
+| 阶段 2：SEO 和性能优化   | 中     | 2-3 小时       | 待开始 |
+| 阶段 3：工作流和工具     | 低     | 3-4 小时       | 待开始 |
+| 阶段 4：测试和验证       | 高     | 4-5 小时       | 待开始 |
+| **总计**                 | -      | **21-30 小时** | -      |
 
 ### 建议的实施顺序
 
@@ -453,15 +469,18 @@ npm install --save-dev easygettext i18next-scanner
 ## 📚 参考资料
 
 ### 官方文档
+
 - [next-intl 官方文档](https://next-intl-docs.vercel.app/)
 - [Next.js 国际化指南](https://nextjs.org/docs/app/building-your-application/routing/internationalization)
 
 ### 工具和插件
+
 - [DeepL 翻译](https://www.deepl.com/translator) - 高质量 AI 翻译
 - [Crowdin](https://crowdin.com/) - 在线翻译管理平台
 - [POEditor](https://poeditor.com/) - 翻译管理工具
 
 ### 最佳实践
+
 - 使用翻译键而不是直接嵌入文本
 - 保持翻译键的层级结构清晰
 - 使用命名空间组织翻译（如 `home.hero.title`）
@@ -475,6 +494,7 @@ npm install --save-dev easygettext i18next-scanner
 ### 立即开始
 
 1. **创建缺失的翻译文件**
+
    ```bash
    cd /root/.openclaw/workspace
    cp src/i18n/messages/en.json src/i18n/messages/ja.json
@@ -504,12 +524,13 @@ npm install --save-dev easygettext i18next-scanner
 ## 📞 联系和支持
 
 如有问题或需要帮助，请联系：
+
 - **技术负责人**：前端架构师
 - **翻译协调**：内容团队
 - **测试支持**：QA 团队
 
 ---
 
-*文档版本：1.0*
-*最后更新：2026-03-26*
-*作者：前端架构师子代理*
+_文档版本：1.0_
+_最后更新：2026-03-26_
+_作者：前端架构师子代理_

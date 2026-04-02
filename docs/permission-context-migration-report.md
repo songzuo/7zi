@@ -9,15 +9,17 @@
 ## 1. 迁移概述
 
 ### 1.1 目标
+
 将 React Context-based `PermissionContext` 迁移到 Zustand store，以提升性能并简化状态管理。
 
 ### 1.2 迁移状态
-| 组件 | 状态 | 说明 |
-|------|------|------|
-| `permissionStore.ts` | ✅ 完成 | Zustand store 实现 |
-| `PermissionContext.tsx` | ✅ 完成 | 兼容层（wrapper） |
-| TypeScript 编译 | ✅ 通过 | 0 errors |
-| 单元测试 | ⚠️ 待修复 | 测试配置问题（非迁移问题） |
+
+| 组件                    | 状态      | 说明                       |
+| ----------------------- | --------- | -------------------------- |
+| `permissionStore.ts`    | ✅ 完成   | Zustand store 实现         |
+| `PermissionContext.tsx` | ✅ 完成   | 兼容层（wrapper）          |
+| TypeScript 编译         | ✅ 通过   | 0 errors                   |
+| 单元测试                | ⚠️ 待修复 | 测试配置问题（非迁移问题） |
 
 ---
 
@@ -36,25 +38,28 @@ src/
 ### 2.2 Zustand Store (`permissionStore.ts`)
 
 **状态接口**:
+
 ```typescript
 interface PermissionState {
-  userId: string | null;
-  permissions: Permission[];
-  roles: Role[];
-  customPermissions: Permission[] | null;
-  loading: boolean;
-  error: string | null;
-  initialized: boolean;
+  userId: string | null
+  permissions: Permission[]
+  roles: Role[]
+  customPermissions: Permission[] | null
+  loading: boolean
+  error: string | null
+  initialized: boolean
 }
 ```
 
 **核心 Actions**:
+
 - `initializeFromAuth(auth)` - 从认证数据初始化
 - `initializeFromAuthData(data)` - 从 API 响应初始化
 - `reset()` - 重置状态
 - `setLoading(bool)` / `setError(msg)` - 状态管理
 
 **计算属性 (Getters)**:
+
 - `hasPermission(perm)` - 检查单个权限
 - `hasAnyPermission(perms)` - 检查任意权限
 - `hasAllPermissions(perms)` - 检查所有权限
@@ -64,6 +69,7 @@ interface PermissionState {
 - `getContext()` - 获取 PermissionContext 对象
 
 **Selector Hooks** (优化重渲染):
+
 ```typescript
 export const usePermissionLoading = () => usePermissionStore((s) => s.loading);
 export const usePermissionError = () => usePermissionStore((s) => s.error);
@@ -75,6 +81,7 @@ export const usePermissionHelpers = () => usePermissionStore((s) => ({...}));
 ```
 
 **持久化**:
+
 - 使用 `zustand/middleware` 的 `persist`
 - localStorage key: `permission-storage`
 - 仅持久化 auth 数据（userId, permissions, roles, customPermissions, initialized）
@@ -85,6 +92,7 @@ export const usePermissionHelpers = () => usePermissionStore((s) => ({...}));
 **Purpose**: 提供向后兼容 API，无需大量重构现有代码
 
 **导出内容**:
+
 ```typescript
 // Provider (可选 - Zustand 不需要但提供初始化逻辑)
 export function PermissionProvider({ children, skipFetch }) { ... }
@@ -157,11 +165,11 @@ import { usePermissions, PermissionGate, RoleGate } from '@/contexts/PermissionC
 
 function MyComponent() {
   const { hasPermission, isAdmin } = usePermissions();
-  
+
   if (!hasPermission(Permission.TASK_CREATE)) {
     return <AccessDenied />;
   }
-  
+
   return <TaskForm />;
 }
 
@@ -180,11 +188,13 @@ function MyComponent() {
 ## 4. 迁移步骤 (已执行)
 
 ### Step 1: ✅ 创建 Zustand Store
+
 - 文件: `src/stores/permissionStore.ts`
 - 实现状态管理、actions、getters
 - 添加 persist 中间件
 
 ### Step 2: ✅ 创建兼容层
+
 - 文件: `src/contexts/PermissionContext.tsx`
 - PermissionProvider (初始化逻辑)
 - usePermissions hook (兼容 API)
@@ -192,12 +202,14 @@ function MyComponent() {
 - Gate 组件 (PermissionGate, RoleGate, AnyRoleGate)
 
 ### Step 3: ✅ 验证 TypeScript 编译
+
 ```bash
 npx tsc --noEmit --skipLibCheck
 # ✅ 0 errors
 ```
 
 ### Step 4: ✅ Store 逻辑测试
+
 ```bash
 node --input-type=module << 'EOF'
 // Zustand store logic tests
@@ -206,6 +218,7 @@ EOF
 ```
 
 ### Step 5: ⚠️ 测试配置修复 (非迁移问题)
+
 - 问题: vitest 使用 `node` 环境，但测试代码使用浏览器 API (`window.localStorage`)
 - 影响: 测试文件 `PermissionContext.test.tsx` 无法运行
 - 解决方案: 将测试环境改为 `jsdom` 或在测试中正确 mock
@@ -221,6 +234,7 @@ EOF
 **原因**: vitest.config.ts 配置为 `environment: 'node'`，但测试代码使用浏览器 API
 
 **解决方案** (建议):
+
 ```typescript
 // vitest.config.ts
 test: {
@@ -236,13 +250,13 @@ test: {
 
 ## 6. 性能对比
 
-| 指标 | Context (旧) | Zustand (新) |
-|------|--------------|--------------|
-| 重渲染 | 全局 Context 变化时所有订阅者重渲染 | 仅相关订阅者重渲染 |
-| Provider 嵌套 | 需要 Context Provider 嵌套 | 不需要 Provider |
-| 状态持久化 | 需额外配置 | 内置 persist 中间件 |
-| 包大小 | React Context (内置) | zustand (~1KB) |
-| TypeScript 支持 | 良好 | 优秀 |
+| 指标            | Context (旧)                        | Zustand (新)        |
+| --------------- | ----------------------------------- | ------------------- |
+| 重渲染          | 全局 Context 变化时所有订阅者重渲染 | 仅相关订阅者重渲染  |
+| Provider 嵌套   | 需要 Context Provider 嵌套          | 不需要 Provider     |
+| 状态持久化      | 需额外配置                          | 内置 persist 中间件 |
+| 包大小          | React Context (内置)                | zustand (~1KB)      |
+| TypeScript 支持 | 良好                                | 优秀                |
 
 ---
 
@@ -252,19 +266,19 @@ test: {
 
 ```typescript
 // 直接访问 Zustand store
-import { usePermissionStore } from '@/stores/permissionStore';
+import { usePermissionStore } from '@/stores/permissionStore'
 
 // Selector hooks (推荐)
-usePermissionStore((s) => s.userId);
-usePermissionLoading();
-usePermissionError();
-usePermissionInitialized();
-useIsAdmin();
-useIsManagerOrAdmin();
-useIsMemberOrHigher();
-useIsGuest();
-usePermissionActions();  // 返回所有 actions
-usePermissionHelpers();  // 返回所有 helpers
+usePermissionStore(s => s.userId)
+usePermissionLoading()
+usePermissionError()
+usePermissionInitialized()
+useIsAdmin()
+useIsManagerOrAdmin()
+useIsMemberOrHigher()
+useIsGuest()
+usePermissionActions() // 返回所有 actions
+usePermissionHelpers() // 返回所有 helpers
 ```
 
 ### 7.2 兼容 API (保持不变)

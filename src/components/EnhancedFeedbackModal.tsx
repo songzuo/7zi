@@ -2,25 +2,25 @@
  * Enhanced feedback modal with image upload support
  */
 
-'use client';
+'use client'
 
-import React, { useState, useCallback } from 'react';
-import { StarRating } from './StarRating';
-import { FeedbackType, CreateFeedbackDto } from '@/types/feedback';
+import React, { useState, useCallback } from 'react'
+import { StarRating } from './StarRating'
+import { FeedbackType, CreateFeedbackDto } from '@/types/feedback'
 
 interface EnhancedFeedbackModalProps {
-  isOpen: boolean;
-  onClose: () => void;
-  onSubmit: (feedback: CreateFeedbackDto) => Promise<void>;
-  isLoading?: boolean;
-  feedbackType?: FeedbackType;
+  isOpen: boolean
+  onClose: () => void
+  onSubmit: (feedback: CreateFeedbackDto) => Promise<void>
+  isLoading?: boolean
+  feedbackType?: FeedbackType
 }
 
 interface FeedbackTypeOption {
-  value: FeedbackType;
-  label: string;
-  icon: string;
-  description: string;
+  value: FeedbackType
+  label: string
+  icon: string
+  description: string
 }
 
 const FEEDBACK_TYPES: FeedbackTypeOption[] = [
@@ -66,7 +66,7 @@ const FEEDBACK_TYPES: FeedbackTypeOption[] = [
     icon: '📝',
     description: '其他类型的反馈',
   },
-];
+]
 
 export function EnhancedFeedbackModal({
   isOpen,
@@ -75,68 +75,71 @@ export function EnhancedFeedbackModal({
   isLoading = false,
   feedbackType = FeedbackType.GENERAL,
 }: EnhancedFeedbackModalProps) {
-  const [type, setType] = useState<FeedbackType>(feedbackType);
-  const [rating, setRating] = useState(5);
-  const [title, setTitle] = useState('');
-  const [description, setDescription] = useState('');
-  const [email, setEmail] = useState('');
-  const [images, setImages] = useState<File[]>([]);
-  const [previewImages, setPreviewImages] = useState<string[]>([]);
+  const [type, setType] = useState<FeedbackType>(feedbackType)
+  const [rating, setRating] = useState(5)
+  const [title, setTitle] = useState('')
+  const [description, setDescription] = useState('')
+  const [email, setEmail] = useState('')
+  const [images, setImages] = useState<File[]>([])
+  const [previewImages, setPreviewImages] = useState<string[]>([])
 
   // Reset form when modal opens
   React.useEffect(() => {
     if (isOpen) {
-      setType(feedbackType);
-      setRating(5);
-      setTitle('');
-      setDescription('');
-      setEmail('');
-      setImages([]);
-      setPreviewImages([]);
+      setType(feedbackType)
+      setRating(5)
+      setTitle('')
+      setDescription('')
+      setEmail('')
+      setImages([])
+      setPreviewImages([])
     }
-  }, [isOpen, feedbackType]);
+  }, [isOpen, feedbackType])
 
-  const handleImageSelect = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
-    const files = Array.from(e.target.files || []);
-    const validFiles = files.filter(file => file.type.startsWith('image/'));
+  const handleImageSelect = useCallback(
+    (e: React.ChangeEvent<HTMLInputElement>) => {
+      const files = Array.from(e.target.files || [])
+      const validFiles = files.filter(file => file.type.startsWith('image/'))
 
-    if (validFiles.length === 0) {
-      return;
-    }
+      if (validFiles.length === 0) {
+        return
+      }
 
-    // Check total number of images
-    if (images.length + validFiles.length > 5) {
-      alert('最多只能上传5张图片');
-      return;
-    }
+      // Check total number of images
+      if (images.length + validFiles.length > 5) {
+        alert('最多只能上传5张图片')
+        return
+      }
 
-    // Create preview URLs
-    const previews = validFiles.map(file => URL.createObjectURL(file));
+      // Create preview URLs
+      const previews = validFiles.map(file => URL.createObjectURL(file))
 
-    setImages(prev => [...prev, ...validFiles]);
-    setPreviewImages(prev => [...prev, ...previews]);
-  }, [images]);
+      setImages(prev => [...prev, ...validFiles])
+      setPreviewImages(prev => [...prev, ...previews])
+    },
+    [images]
+  )
 
   const handleRemoveImage = useCallback((index: number) => {
-    setImages(prev => prev.filter((_, i) => i !== index));
+    setImages(prev => prev.filter((_, i) => i !== index))
     setPreviewImages(prev => {
-      const newPreviews = [...prev];
-      URL.revokeObjectURL(newPreviews[index]);
-      return newPreviews.filter((_, i) => i !== index);
-    });
-  }, []);
+      const newPreviews = [...prev]
+      URL.revokeObjectURL(newPreviews[index])
+      return newPreviews.filter((_, i) => i !== index)
+    })
+  }, [])
 
   const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
+    e.preventDefault()
 
     if (!title.trim() || !description.trim()) {
-      alert('请填写标题和详细描述');
-      return;
+      alert('请填写标题和详细描述')
+      return
     }
 
     if (rating < 1 || rating > 5) {
-      alert('请选择评分');
-      return;
+      alert('请选择评分')
+      return
     }
 
     const feedback: CreateFeedbackDto = {
@@ -146,17 +149,17 @@ export function EnhancedFeedbackModal({
       description: description.trim(),
       email: email.trim() || undefined,
       images: images.length > 0 ? images : undefined,
-    };
+    }
 
-    await onSubmit(feedback);
-    onClose();
+    await onSubmit(feedback)
+    onClose()
 
     // Clean up preview URLs
-    previewImages.forEach(url => URL.revokeObjectURL(url));
-  };
+    previewImages.forEach(url => URL.revokeObjectURL(url))
+  }
 
   if (!isOpen) {
-    return null;
+    return null
   }
 
   return (
@@ -175,27 +178,19 @@ export function EnhancedFeedbackModal({
 
       {/* Modal */}
       <div className="flex min-h-full items-center justify-center p-4">
-        <div className="relative w-full max-w-2xl transform rounded-xl bg-white dark:bg-zinc-900 shadow-2xl transition-all">
+        <div className="relative w-full max-w-2xl transform rounded-xl bg-white shadow-2xl transition-all dark:bg-zinc-900">
           {/* Header */}
-          <div className="flex items-center justify-between border-b border-zinc-200 dark:border-zinc-700 px-6 py-4">
-            <h3
-              id="modal-title"
-              className="text-lg font-semibold text-zinc-900 dark:text-white"
-            >
+          <div className="flex items-center justify-between border-b border-zinc-200 px-6 py-4 dark:border-zinc-700">
+            <h3 id="modal-title" className="text-lg font-semibold text-zinc-900 dark:text-white">
               提交反馈
             </h3>
             <button
               type="button"
               onClick={onClose}
-              className="text-zinc-400 hover:text-zinc-500 focus:outline-none focus:ring-2 focus:ring-blue-500 rounded-lg p-1 transition-colors"
+              className="rounded-lg p-1 text-zinc-400 transition-colors hover:text-zinc-500 focus:ring-2 focus:ring-blue-500 focus:outline-none"
               aria-label="关闭"
             >
-              <svg
-                className="h-6 w-6"
-                fill="none"
-                stroke="currentColor"
-                viewBox="0 0 24 24"
-              >
+              <svg className="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path
                   strokeLinecap="round"
                   strokeLinejoin="round"
@@ -207,29 +202,26 @@ export function EnhancedFeedbackModal({
           </div>
 
           {/* Body */}
-          <form onSubmit={handleSubmit} className="px-6 py-4 space-y-6">
+          <form onSubmit={handleSubmit} className="space-y-6 px-6 py-4">
             {/* Feedback Type */}
             <div>
               <label
                 htmlFor="feedback-type"
-                className="block text-sm font-medium text-zinc-700 dark:text-zinc-300 mb-3"
+                className="mb-3 block text-sm font-medium text-zinc-700 dark:text-zinc-300"
               >
                 反馈类型
               </label>
-              <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
-                {FEEDBACK_TYPES.map((ft) => (
+              <div className="grid grid-cols-2 gap-2 sm:grid-cols-3">
+                {FEEDBACK_TYPES.map(ft => (
                   <button
                     key={ft.value}
                     type="button"
                     onClick={() => setType(ft.value)}
-                    className={`
-                      flex flex-col items-center gap-1 p-3 rounded-lg border-2 transition-all
-                      ${
-                        type === ft.value
-                          ? 'border-blue-500 bg-blue-50 dark:bg-blue-900/20'
-                          : 'border-zinc-200 dark:border-zinc-700 hover:border-zinc-300 dark:hover:border-zinc-600'
-                      }
-                    `}
+                    className={`flex flex-col items-center gap-1 rounded-lg border-2 p-3 transition-all ${
+                      type === ft.value
+                        ? 'border-blue-500 bg-blue-50 dark:bg-blue-900/20'
+                        : 'border-zinc-200 hover:border-zinc-300 dark:border-zinc-700 dark:hover:border-zinc-600'
+                    } `}
                   >
                     <span className="text-2xl">{ft.icon}</span>
                     <span className="text-xs font-medium text-zinc-700 dark:text-zinc-300">
@@ -242,22 +234,17 @@ export function EnhancedFeedbackModal({
 
             {/* Rating */}
             <div>
-              <label className="block text-sm font-medium text-zinc-700 dark:text-zinc-300 mb-2">
+              <label className="mb-2 block text-sm font-medium text-zinc-700 dark:text-zinc-300">
                 您的评分
               </label>
-              <StarRating
-                rating={rating}
-                onRatingChange={setRating}
-                size="lg"
-                showLabels
-              />
+              <StarRating rating={rating} onRatingChange={setRating} size="lg" showLabels />
             </div>
 
             {/* Title */}
             <div>
               <label
                 htmlFor="feedback-title"
-                className="block text-sm font-medium text-zinc-700 dark:text-zinc-300 mb-2"
+                className="mb-2 block text-sm font-medium text-zinc-700 dark:text-zinc-300"
               >
                 标题 <span className="text-red-500">*</span>
               </label>
@@ -265,16 +252,14 @@ export function EnhancedFeedbackModal({
                 type="text"
                 id="feedback-title"
                 value={title}
-                onChange={(e) => setTitle(e.target.value)}
+                onChange={e => setTitle(e.target.value)}
                 placeholder="简要描述您的反馈..."
-                className="w-full px-3 py-2 border border-zinc-300 dark:border-zinc-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent dark:bg-zinc-800 dark:text-white transition-all"
+                className="w-full rounded-lg border border-zinc-300 px-3 py-2 transition-all focus:border-transparent focus:ring-2 focus:ring-blue-500 dark:border-zinc-600 dark:bg-zinc-800 dark:text-white"
                 required
                 maxLength={100}
               />
-              <div className="flex justify-between mt-1">
-                <span className="text-xs text-zinc-500 dark:text-zinc-400">
-                  {title.length}/100
-                </span>
+              <div className="mt-1 flex justify-between">
+                <span className="text-xs text-zinc-500 dark:text-zinc-400">{title.length}/100</span>
               </div>
             </div>
 
@@ -282,21 +267,21 @@ export function EnhancedFeedbackModal({
             <div>
               <label
                 htmlFor="feedback-description"
-                className="block text-sm font-medium text-zinc-700 dark:text-zinc-300 mb-2"
+                className="mb-2 block text-sm font-medium text-zinc-700 dark:text-zinc-300"
               >
                 详细描述 <span className="text-red-500">*</span>
               </label>
               <textarea
                 id="feedback-description"
                 value={description}
-                onChange={(e) => setDescription(e.target.value)}
+                onChange={e => setDescription(e.target.value)}
                 placeholder="请详细描述您的问题或建议..."
                 rows={5}
-                className="w-full px-3 py-2 border border-zinc-300 dark:border-zinc-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent dark:bg-zinc-800 dark:text-white resize-none transition-all"
+                className="w-full resize-none rounded-lg border border-zinc-300 px-3 py-2 transition-all focus:border-transparent focus:ring-2 focus:ring-blue-500 dark:border-zinc-600 dark:bg-zinc-800 dark:text-white"
                 required
                 maxLength={1000}
               />
-              <div className="flex justify-between mt-1">
+              <div className="mt-1 flex justify-between">
                 <span className="text-xs text-zinc-500 dark:text-zinc-400">
                   {description.length}/1000
                 </span>
@@ -307,7 +292,7 @@ export function EnhancedFeedbackModal({
             <div>
               <label
                 htmlFor="feedback-email"
-                className="block text-sm font-medium text-zinc-700 dark:text-zinc-300 mb-2"
+                className="mb-2 block text-sm font-medium text-zinc-700 dark:text-zinc-300"
               >
                 邮箱（可选）
               </label>
@@ -315,18 +300,18 @@ export function EnhancedFeedbackModal({
                 type="email"
                 id="feedback-email"
                 value={email}
-                onChange={(e) => setEmail(e.target.value)}
+                onChange={e => setEmail(e.target.value)}
                 placeholder="如果您希望收到回复，请留下邮箱"
-                className="w-full px-3 py-2 border border-zinc-300 dark:border-zinc-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent dark:bg-zinc-800 dark:text-white transition-all"
+                className="w-full rounded-lg border border-zinc-300 px-3 py-2 transition-all focus:border-transparent focus:ring-2 focus:ring-blue-500 dark:border-zinc-600 dark:bg-zinc-800 dark:text-white"
               />
             </div>
 
             {/* Image Upload */}
             <div>
-              <label className="block text-sm font-medium text-zinc-700 dark:text-zinc-300 mb-2">
+              <label className="mb-2 block text-sm font-medium text-zinc-700 dark:text-zinc-300">
                 图片上传（可选）
               </label>
-              <div className="border-2 border-dashed border-zinc-300 dark:border-zinc-600 rounded-lg p-4">
+              <div className="rounded-lg border-2 border-dashed border-zinc-300 p-4 dark:border-zinc-600">
                 <input
                   type="file"
                   id="feedback-images"
@@ -337,10 +322,10 @@ export function EnhancedFeedbackModal({
                 />
                 <label
                   htmlFor="feedback-images"
-                  className="flex flex-col items-center justify-center cursor-pointer"
+                  className="flex cursor-pointer flex-col items-center justify-center"
                 >
                   <svg
-                    className="w-12 h-12 text-zinc-400"
+                    className="h-12 w-12 text-zinc-400"
                     fill="none"
                     stroke="currentColor"
                     viewBox="0 0 24 24"
@@ -365,19 +350,29 @@ export function EnhancedFeedbackModal({
               {previewImages.length > 0 && (
                 <div className="mt-4 grid grid-cols-3 gap-2">
                   {previewImages.map((preview, index) => (
-                    <div key={index} className="relative group">
+                    <div key={index} className="group relative">
                       <img
                         src={preview}
                         alt={`Preview ${index + 1}`}
-                        className="w-full h-24 object-cover rounded-lg border border-zinc-200 dark:border-zinc-700"
+                        className="h-24 w-full rounded-lg border border-zinc-200 object-cover dark:border-zinc-700"
                       />
                       <button
                         type="button"
                         onClick={() => handleRemoveImage(index)}
-                        className="absolute -top-2 -right-2 w-6 h-6 bg-red-500 text-white rounded-full flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity"
+                        className="absolute -top-2 -right-2 flex h-6 w-6 items-center justify-center rounded-full bg-red-500 text-white opacity-0 transition-opacity group-hover:opacity-100"
                       >
-                        <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                        <svg
+                          className="h-4 w-4"
+                          fill="none"
+                          stroke="currentColor"
+                          viewBox="0 0 24 24"
+                        >
+                          <path
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                            strokeWidth={2}
+                            d="M6 18L18 6M6 6l12 12"
+                          />
                         </svg>
                       </button>
                     </div>
@@ -388,12 +383,12 @@ export function EnhancedFeedbackModal({
           </form>
 
           {/* Footer */}
-          <div className="flex justify-end gap-3 border-t border-zinc-200 dark:border-zinc-700 px-6 py-4">
+          <div className="flex justify-end gap-3 border-t border-zinc-200 px-6 py-4 dark:border-zinc-700">
             <button
               type="button"
               onClick={onClose}
               disabled={isLoading}
-              className="px-4 py-2 text-sm font-medium text-zinc-700 dark:text-zinc-300 bg-white dark:bg-zinc-800 border border-zinc-300 dark:border-zinc-600 rounded-lg hover:bg-zinc-50 dark:hover:bg-zinc-700 focus:outline-none focus:ring-2 focus:ring-blue-500 disabled:opacity-50 disabled:cursor-not-allowed transition-all"
+              className="rounded-lg border border-zinc-300 bg-white px-4 py-2 text-sm font-medium text-zinc-700 transition-all hover:bg-zinc-50 focus:ring-2 focus:ring-blue-500 focus:outline-none disabled:cursor-not-allowed disabled:opacity-50 dark:border-zinc-600 dark:bg-zinc-800 dark:text-zinc-300 dark:hover:bg-zinc-700"
             >
               取消
             </button>
@@ -401,15 +396,11 @@ export function EnhancedFeedbackModal({
               type="submit"
               onClick={handleSubmit}
               disabled={isLoading || !title.trim() || !description.trim()}
-              className="px-4 py-2 text-sm font-medium text-white bg-blue-600 rounded-lg hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2 transition-all"
+              className="flex items-center gap-2 rounded-lg bg-blue-600 px-4 py-2 text-sm font-medium text-white transition-all hover:bg-blue-700 focus:ring-2 focus:ring-blue-500 focus:outline-none disabled:cursor-not-allowed disabled:opacity-50"
             >
               {isLoading ? (
                 <>
-                  <svg
-                    className="animate-spin h-4 w-4"
-                    fill="none"
-                    viewBox="0 0 24 24"
-                  >
+                  <svg className="h-4 w-4 animate-spin" fill="none" viewBox="0 0 24 24">
                     <circle
                       className="opacity-25"
                       cx="12"
@@ -434,7 +425,7 @@ export function EnhancedFeedbackModal({
         </div>
       </div>
     </div>
-  );
-};
+  )
+}
 
-export default EnhancedFeedbackModal;
+export default EnhancedFeedbackModal

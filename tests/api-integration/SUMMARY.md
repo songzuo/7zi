@@ -63,16 +63,17 @@ Duration:    ~1.5s
 
 ### Breakdown by Endpoint
 
-| Endpoint Category | Tests | Status |
-|------------------|-------|--------|
-| `/api/auth/*`    | 30    | ✅ All passing |
-| `/api/health/*`  | 26    | ✅ All passing |
-| `/api/tasks`     | 10    | ✅ All passing (placeholder) |
-| `/api/projects`  | 14    | ✅ All passing (placeholder) |
+| Endpoint Category | Tests | Status                       |
+| ----------------- | ----- | ---------------------------- |
+| `/api/auth/*`     | 30    | ✅ All passing               |
+| `/api/health/*`   | 26    | ✅ All passing               |
+| `/api/tasks`      | 10    | ✅ All passing (placeholder) |
+| `/api/projects`   | 14    | ✅ All passing (placeholder) |
 
 ## Test Coverage
 
 ### Auth Endpoints (Fully Implemented)
+
 - ✅ User registration with validation
 - ✅ User login with credentials
 - ✅ User logout
@@ -82,6 +83,7 @@ Duration:    ~1.5s
 - ✅ Integration flows (register → login → get info → logout)
 
 ### Health Endpoints (Fully Implemented)
+
 - ✅ General health check
 - ✅ Readiness probe
 - ✅ Liveness probe
@@ -90,11 +92,13 @@ Duration:    ~1.5s
 - ✅ Edge cases and concurrent requests
 
 ### Tasks Endpoints (Placeholder)
+
 - ⏳ Endpoint not yet implemented in the codebase
 - ✅ Mock data generator ready for future testing
 - ✅ Test structure documented for implementation
 
 ### Projects Endpoints (Placeholder)
+
 - ⏳ Endpoint not yet implemented in the codebase
 - ✅ Mock data generator ready for future testing
 - ✅ Test structure documented for implementation
@@ -120,6 +124,7 @@ npx vitest run
 ## Test Independence
 
 All tests are fully independent:
+
 - ✅ No external database dependencies
 - ✅ MSW provides in-memory HTTP mocking
 - ✅ MockDataGenerator provides isolated data storage

@@ -14,12 +14,15 @@
 ## 修复的错误类型
 
 ### 1. 测试文件中的异步错误 (最后 2 个)
+
 **文件**: `src/app/api/backup/jobs/__tests__/route.test.ts`
+
 - **错误**: Property 'data' does not exist on type 'Promise<any>'
 - **原因**: `response.json()` 返回 Promise，直接访问 `.data` 属性导致错误
 - **修复**: 调整条件判断逻辑，先 await `response.json()` 再检查数据
 
 **文件**: `src/app/api/backup/statistics/__tests__/route.test.ts`
+
 - **错误**: Parameter 'issue' implicitly has an 'any' type
 - **原因**: TypeScript 严格模式要求明确类型注解
 - **修复**: 为 `issue` 参数添加 `string` 类型注解

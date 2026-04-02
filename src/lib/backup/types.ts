@@ -2,7 +2,7 @@
  * Backup System Types
  */
 
-import { z } from 'zod';
+import { z } from 'zod'
 
 /**
  * Backup frequency options
@@ -57,114 +57,114 @@ export enum ExportFormat {
  * Backup metadata
  */
 export interface BackupMetadata {
-  id: string;
-  filename: string;
-  version: string;
-  createdAt: string;
-  updatedAt: string;
-  sizeInBytes: number;
-  sizeInMB: number;
-  compression: CompressionAlgorithm;
-  encryption: EncryptionAlgorithm;
-  checksum: string;
-  status: BackupStatus;
-  tables: string[];
-  recordCounts: Record<string, number>;
-  error?: string;
+  id: string
+  filename: string
+  version: string
+  createdAt: string
+  updatedAt: string
+  sizeInBytes: number
+  sizeInMB: number
+  compression: CompressionAlgorithm
+  encryption: EncryptionAlgorithm
+  checksum: string
+  status: BackupStatus
+  tables: string[]
+  recordCounts: Record<string, number>
+  error?: string
 }
 
 /**
  * Backup configuration
  */
 export interface BackupConfig {
-  id: string;
-  name: string;
-  frequency: BackupFrequency;
-  retentionDays: number;
-  compression: CompressionAlgorithm;
-  encryption: EncryptionAlgorithm;
-  encryptionKey?: string;
-  enabled: boolean;
-  tables?: string[];
-  schedule?: string; // Cron-like schedule
-  lastRunAt?: string;
-  nextRunAt?: string;
-  notificationEnabled: boolean;
+  id: string
+  name: string
+  frequency: BackupFrequency
+  retentionDays: number
+  compression: CompressionAlgorithm
+  encryption: EncryptionAlgorithm
+  encryptionKey?: string
+  enabled: boolean
+  tables?: string[]
+  schedule?: string // Cron-like schedule
+  lastRunAt?: string
+  nextRunAt?: string
+  notificationEnabled: boolean
 }
 
 /**
  * Backup schedule job
  */
 export interface BackupJob {
-  id: string;
-  configId: string;
-  scheduledAt: string;
-  status: BackupStatus;
-  startedAt?: string;
-  completedAt?: string;
-  error?: string;
-  backupId?: string;
+  id: string
+  configId: string
+  scheduledAt: string
+  status: BackupStatus
+  startedAt?: string
+  completedAt?: string
+  error?: string
+  backupId?: string
 }
 
 /**
  * Export options
  */
 export interface ExportOptions {
-  format: ExportFormat;
-  tables?: string[];
-  includeMetadata?: boolean;
-  compress?: boolean;
+  format: ExportFormat
+  tables?: string[]
+  includeMetadata?: boolean
+  compress?: boolean
   encryption?: {
-    algorithm: EncryptionAlgorithm;
-    key: string;
-  };
+    algorithm: EncryptionAlgorithm
+    key: string
+  }
 }
 
 /**
  * Import options
  */
 export interface ImportOptions {
-  format: ExportFormat;
-  truncateTables?: boolean;
-  skipErrors?: boolean;
-  dryRun?: boolean;
+  format: ExportFormat
+  truncateTables?: boolean
+  skipErrors?: boolean
+  dryRun?: boolean
 }
 
 /**
  * Restore options
  */
 export interface RestoreOptions {
-  backupId: string;
-  encryptionKey?: string;
-  truncateTables?: boolean;
-  skipErrors?: boolean;
-  dryRun?: boolean;
+  backupId: string
+  encryptionKey?: string
+  truncateTables?: boolean
+  skipErrors?: boolean
+  dryRun?: boolean
 }
 
 /**
  * Backup statistics
  */
 export interface BackupStatistics {
-  totalBackups: number;
-  totalSizeInBytes: number;
-  totalSizeInMB: number;
-  oldestBackup?: BackupMetadata;
-  newestBackup?: BackupMetadata;
-  totalRecords: number;
-  averageBackupSize: number;
-  compressionRatio?: number;
+  totalBackups: number
+  totalSizeInBytes: number
+  totalSizeInMB: number
+  oldestBackup?: BackupMetadata
+  newestBackup?: BackupMetadata
+  totalRecords: number
+  averageBackupSize: number
+  compressionRatio?: number
 }
 
 /**
  * Backup notification
  */
 export interface BackupNotification {
-  jobId: string;
-  status: BackupStatus;
-  backupId?: string;
-  timestamp: string;
-  message: string;
-  error?: string;
+  jobId: string
+  status: BackupStatus
+  backupId?: string
+  timestamp: string
+  message: string
+  error?: string
 }
 
 /**
@@ -181,7 +181,7 @@ export const BackupConfigSchema = z.object({
   tables: z.array(z.string()).optional(),
   schedule: z.string().optional(),
   notificationEnabled: z.boolean(),
-});
+})
 
 export const RestoreOptionsSchema = z.object({
   backupId: z.string(),
@@ -189,18 +189,20 @@ export const RestoreOptionsSchema = z.object({
   truncateTables: z.boolean().default(false),
   skipErrors: z.boolean().default(false),
   dryRun: z.boolean().default(false),
-});
+})
 
 export const ExportOptionsSchema = z.object({
   format: z.nativeEnum(ExportFormat),
   tables: z.array(z.string()).optional(),
   includeMetadata: z.boolean().default(true),
   compress: z.boolean().default(false),
-  encryption: z.object({
-    algorithm: z.nativeEnum(EncryptionAlgorithm),
-    key: z.string(),
-  }).optional(),
-});
+  encryption: z
+    .object({
+      algorithm: z.nativeEnum(EncryptionAlgorithm),
+      key: z.string(),
+    })
+    .optional(),
+})
 
 /**
  * Backup event types
@@ -220,13 +222,13 @@ export enum BackupEventType {
  * Backup event
  */
 export interface BackupEvent {
-  type: BackupEventType;
-  timestamp: string;
+  type: BackupEventType
+  timestamp: string
   data: {
-    backupId?: string;
-    scheduleId?: string;
-    jobId?: string;
-    userId?: string;
-    metadata?: Record<string, unknown>;
-  };
+    backupId?: string
+    scheduleId?: string
+    jobId?: string
+    userId?: string
+    metadata?: Record<string, unknown>
+  }
 }

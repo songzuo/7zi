@@ -17,18 +17,28 @@ process.env.JWT_SECRET = 'test-secret-key-for-jwt-in-tests'
 process.env.AGENT_ENCRYPTION_SECRET = 'test-encryption-secret'
 
 // Mock JWT token generation to avoid crypto/JWT issues in test environment
-vi.mock('jose', async (importOriginal) => {
+vi.mock('jose', async importOriginal => {
   const actual = await importOriginal<typeof import('jose')>()
 
   // Create proper function-based mock for SignJWT
-  const mockSignJWT = function(this: any, payload: any) {
+  const mockSignJWT = function (this: any, payload: any) {
     return {
-      setProtectedHeader: vi.fn(function(this: any) { return this }),
-      setIssuedAt: vi.fn(function(this: any) { return this }),
-      setExpirationTime: vi.fn(function(this: any) { return this }),
-      setIssuer: vi.fn(function(this: any) { return this }),
-      setAudience: vi.fn(function(this: any) { return this }),
-      sign: vi.fn(async function(this: any) {
+      setProtectedHeader: vi.fn(function (this: any) {
+        return this
+      }),
+      setIssuedAt: vi.fn(function (this: any) {
+        return this
+      }),
+      setExpirationTime: vi.fn(function (this: any) {
+        return this
+      }),
+      setIssuer: vi.fn(function (this: any) {
+        return this
+      }),
+      setAudience: vi.fn(function (this: any) {
+        return this
+      }),
+      sign: vi.fn(async function (this: any) {
         return 'mock-jwt-token.eyJzdWIiOiJ1c2VyLTEiLCJlbWFpbCI6InRlc3RAZXhhbXBsZS5jb20ifQ.signature'
       }),
     }
@@ -54,7 +64,7 @@ vi.mock('jose', async (importOriginal) => {
 })
 
 // Mock auth repository to work with in-memory data
-vi.mock('@/lib/auth/repository', async (importOriginal) => {
+vi.mock('@/lib/auth/repository', async importOriginal => {
   const actual = await importOriginal<typeof import('@/lib/auth/repository')>()
 
   // In-memory user storage for tests
@@ -177,7 +187,7 @@ vi.mock('@/lib/auth/repository', async (importOriginal) => {
     }),
     updateLastLogin: vi.fn(async () => {}),
     createPasswordResetToken: vi.fn(async () => 'reset-token-123'),
-    validatePasswordResetToken: vi.fn(async () => testUsers[0] ? { ...testUsers[0] } : null),
+    validatePasswordResetToken: vi.fn(async () => (testUsers[0] ? { ...testUsers[0] } : null)),
     deletePasswordResetToken: vi.fn(async () => {}),
     getUserByRefreshToken: vi.fn(async (refreshToken: string) => {
       const token = testTokens.find(t => t.refreshToken === refreshToken)

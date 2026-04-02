@@ -25,7 +25,7 @@ src/
 
 ```css
 /* 响应式布局优化补丁 */
-@import "../styles/responsive-fixes.css";
+@import '../styles/responsive-fixes.css';
 ```
 
 ### 步骤 2: 替换组件（可选）
@@ -34,10 +34,10 @@ src/
 
 ```tsx
 // 原组件保持不变，在新页面使用优化组件
-import { MobileMenuOptimized } from '@/components/optimized/MobileMenu.optimized';
+import { MobileMenuOptimized } from '@/components/optimized/MobileMenu.optimized'
 
 // 或
-import { AIChatOptimized } from '@/components/optimized/AIChat.optimized';
+import { AIChatOptimized } from '@/components/optimized/AIChat.optimized'
 ```
 
 **完整替换**：
@@ -65,7 +65,8 @@ cp src/components/optimized/MobileMenu.optimized.tsx src/components/MobileMenu.t
    响应式优化 - 触摸目标
    ============================================ */
 @media (hover: none) and (pointer: coarse) {
-  nav a, nav button {
+  nav a,
+  nav button {
     min-height: 44px;
     min-width: 44px;
   }
@@ -84,6 +85,7 @@ cp src/components/optimized/MobileMenu.optimized.tsx src/components/MobileMenu.t
 **位置**: `src/components/Navigation.tsx`
 
 **修改前**:
+
 ```tsx
 <button
   onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
@@ -91,6 +93,7 @@ cp src/components/optimized/MobileMenu.optimized.tsx src/components/MobileMenu.t
 ```
 
 **修改后**:
+
 ```tsx
 <button
   onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
@@ -102,12 +105,13 @@ cp src/components/optimized/MobileMenu.optimized.tsx src/components/MobileMenu.t
 **位置**: `src/components/AIChat.tsx`
 
 **关键修改**:
+
 ```tsx
 // 聊天窗口 - 小屏幕全屏
 <div className={`
   fixed z-50 bg-white dark:bg-zinc-900
-  ${isFullscreen 
-    ? 'inset-0 rounded-none' 
+  ${isFullscreen
+    ? 'inset-0 rounded-none'
     : 'bottom-24 right-6 w-80 md:w-96 rounded-2xl'
   }
 `}
@@ -124,6 +128,7 @@ cp src/components/optimized/MobileMenu.optimized.tsx src/components/MobileMenu.t
 **位置**: `src/app/dashboard/page.tsx`
 
 **修改网格布局**:
+
 ```tsx
 // 修改前
 <div className="grid grid-cols-1 xl:grid-cols-3 gap-6">
@@ -137,6 +142,7 @@ cp src/components/optimized/MobileMenu.optimized.tsx src/components/MobileMenu.t
 **位置**: `src/app/team/TeamContent.tsx`
 
 **字体大小调整**:
+
 ```tsx
 // 修改前
 <h1 className="text-5xl md:text-7xl font-bold">
@@ -150,6 +156,7 @@ cp src/components/optimized/MobileMenu.optimized.tsx src/components/MobileMenu.t
 **位置**: `src/components/Footer.tsx`
 
 **网格简化**:
+
 ```tsx
 // 修改前
 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-8">
@@ -172,13 +179,13 @@ cp src/components/optimized/MobileMenu.optimized.tsx src/components/MobileMenu.t
 
 ### 设备测试
 
-| 设备 | 尺寸 | 状态 |
-|------|------|------|
-| iPhone SE | 375px | ☐ |
-| iPhone 14 | 390px | ☐ |
-| iPad Mini | 768px | ☐ |
-| iPad Pro | 1024px | ☐ |
-| Desktop | 1440px | ☐ |
+| 设备      | 尺寸   | 状态 |
+| --------- | ------ | ---- |
+| iPhone SE | 375px  | ☐    |
+| iPhone 14 | 390px  | ☐    |
+| iPad Mini | 768px  | ☐    |
+| iPad Pro  | 1024px | ☐    |
+| Desktop   | 1440px | ☐    |
 
 ### 浏览器测试
 
@@ -237,12 +244,12 @@ cp src/components/optimized/MobileMenu.optimized.tsx src/components/MobileMenu.t
 
 ## 📊 预期改进
 
-| 指标 | 优化前 | 优化后 | 改进 |
-|------|--------|--------|------|
-| 触摸目标达标率 | 60% | 100% | +40% |
-| 移动端 Lighthouse | 78 | 92 | +14 |
-| 累积布局偏移 (CLS) | 0.15 | 0.05 | -67% |
-| 首次输入延迟 (FID) | 120ms | 50ms | -58% |
+| 指标               | 优化前 | 优化后 | 改进 |
+| ------------------ | ------ | ------ | ---- |
+| 触摸目标达标率     | 60%    | 100%   | +40% |
+| 移动端 Lighthouse  | 78     | 92     | +14  |
+| 累积布局偏移 (CLS) | 0.15   | 0.05   | -67% |
+| 首次输入延迟 (FID) | 120ms  | 50ms   | -58% |
 
 ---
 
@@ -263,7 +270,7 @@ cp src/components/optimized/MobileMenu.optimized.tsx src/components/MobileMenu.t
 **解决方案**: 确保在 `layout.tsx` 的 `<head>` 中添加了 viewport meta：
 
 ```html
-<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
 ```
 
 ### 问题: 动画卡顿
@@ -282,16 +289,19 @@ cp src/components/optimized/MobileMenu.optimized.tsx src/components/MobileMenu.t
 ## 📅 实施计划
 
 ### Week 1: 高优先级修复
+
 - Day 1-2: CSS 补丁导入和测试
 - Day 3-4: 触摸目标修复
 - Day 5: 移动菜单优化
 
 ### Week 2: 中优先级优化
+
 - Day 1-2: AI 聊天组件优化
 - Day 3: 图片组件优化
 - Day 4-5: 网格布局调整
 
 ### Week 3: 测试和部署
+
 - Day 1-2: 全设备测试
 - Day 3: 性能基准测试
 - Day 4: 修复发现的问题
@@ -299,5 +309,5 @@ cp src/components/optimized/MobileMenu.optimized.tsx src/components/MobileMenu.t
 
 ---
 
-*文档生成: 2026-03-06*  
-*作者: 设计师 (AI 子代理)*
+_文档生成: 2026-03-06_  
+_作者: 设计师 (AI 子代理)_

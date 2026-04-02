@@ -97,17 +97,17 @@ if [ -f "package.json" ]; then
     export NVM_DIR="$HOME/.nvm"
     [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"
     nvm use ${NODE_VERSION}
-    
+
     # 安装依赖
     npm ci --production
-    
+
     # 构建
     if npm run build --if-present; then
         echo "✅ 构建成功"
     else
         echo "⚠️  无构建步骤或构建失败"
     fi
-    
+
     # 同步到部署目录
     rsync -av --delete ./dist/ "${WORK_TREE}/"
 else
@@ -250,7 +250,7 @@ rm -rf "${BUILD_DIR}"/*
 if [ -d "${WORK_TREE}" ] && [ "$(ls -A ${WORK_TREE})" ]; then
     log_info "备份当前版本..."
     cp -r "${WORK_TREE}" "${BACKUP_DIR}/backup_${TIMESTAMP}"
-    
+
     # 保留最近 5 个备份
     cd "${BACKUP_DIR}"
     ls -dt backup_* 2>/dev/null | tail -n +6 | xargs -r rm -rf
@@ -266,14 +266,14 @@ cd "${BUILD_DIR}"
 # 检测项目类型并构建
 if [ -f "package.json" ]; then
     log_info "检测到 Node.js 项目..."
-    
+
     # 加载 Node.js
     export NVM_DIR="$HOME/.nvm"
     if [ -s "$NVM_DIR/nvm.sh" ]; then
         \. "$NVM_DIR/nvm.sh"
         nvm use 20
     fi
-    
+
     # 安装依赖
     if [ -f "package-lock.json" ]; then
         log_info "安装依赖 (npm ci)..."
@@ -282,7 +282,7 @@ if [ -f "package.json" ]; then
         log_info "安装依赖 (npm install)..."
         npm install --production
     fi
-    
+
     # 构建
     if grep -q '"build"' package.json; then
         log_info "执行构建..."
@@ -294,7 +294,7 @@ if [ -f "package.json" ]; then
             exit 1
         fi
     fi
-    
+
     # 同步到部署目录
     if [ -d "dist" ]; then
         log_info "同步 dist 目录..."
@@ -306,26 +306,26 @@ if [ -f "package.json" ]; then
         log_warn "未找到 dist 或 build 目录，同步整个项目"
         rsync -av --delete --exclude='node_modules' --exclude='.git' "${BUILD_DIR}/" "${WORK_TREE}/"
     fi
-    
+
 elif [ -f "requirements.txt" ]; then
     log_info "检测到 Python 项目..."
-    
+
     # 创建虚拟环境
     python3 -m venv "${BUILD_DIR}/venv"
     source "${BUILD_DIR}/venv/bin/activate"
-    
+
     # 安装依赖
     pip install -r requirements.txt
-    
+
     # 同步
     rsync -av --delete --exclude='venv' --exclude='__pycache__' --exclude='.git' "${BUILD_DIR}/" "${WORK_TREE}/"
-    
+
 elif [ -f "go.mod" ]; then
     log_info "检测到 Go 项目..."
-    
+
     # 构建
     go build -o "${WORK_TREE}/app" .
-    
+
 else
     log_info "静态项目，直接同步..."
     rsync -av --delete --exclude='.git' "${BUILD_DIR}/" "${WORK_TREE}/"
@@ -410,7 +410,7 @@ git push prod main     # 生产环境（需要保护）
 # 只允许 main/master 分支推送到生产环境
 while read oldrev newrev refname; do
     branch=$(echo $refname | sed 's|refs/heads/||')
-    
+
     if [ "$branch" != "main" ] && [ "$branch" != "master" ]; then
         echo "❌ 错误：生产环境只接受 main/master 分支"
         echo "   你尝试推送的分支：$branch"
@@ -443,14 +443,14 @@ fi
 send_notification() {
     local status="$1"
     local message="$2"
-    
+
     # Telegram Bot（可选）
     if [ -n "${TELEGRAM_BOT_TOKEN}" ] && [ -n "${TELEGRAM_CHAT_ID}" ]; then
         curl -s -X POST "https://api.telegram.org/bot${TELEGRAM_BOT_TOKEN}/sendMessage" \
             -d "chat_id=${TELEGRAM_CHAT_ID}" \
             -d "text=${message}"
     fi
-    
+
     # 钉钉 webhook（可选）
     if [ -n "${DINGTALK_WEBHOOK}" ]; then
         curl -s -X POST "${DINGTALK_WEBHOOK}" \
@@ -462,7 +462,7 @@ send_notification() {
                 }
             }"
     fi
-    
+
     # 邮件通知（可选）
     if [ -n "${NOTIFY_EMAIL}" ]; then
         echo "${message}" | mail -s "部署通知：${status}" "${NOTIFY_EMAIL}"
@@ -544,12 +544,14 @@ ssh git@server
 ### 常见问题
 
 1. **权限错误**
+
    ```bash
    sudo chown -R git:www-data /var/www/myapp
    sudo chmod -R 775 /var/www/myapp
    ```
 
 2. **Node.js 未找到**
+
    ```bash
    # 安装 nvm
    curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.39.0/install.sh | bash
@@ -557,10 +559,11 @@ ssh git@server
    ```
 
 3. **Git hook 不执行**
+
    ```bash
    # 检查执行权限
    chmod +x /home/git/repos/myapp.git/hooks/post-receive
-   
+
    # 检查所有者
    chown git:git /home/git/repos/myapp.git/hooks/post-receive
    ```

@@ -70,12 +70,12 @@ npx playwright test --config=playwright.tests.config.ts --slowMo=1000
 
 ### Core User Flows
 
-| Test Suite | Description | Test Cases | Status |
-|------------|-------------|------------|--------|
-| Authentication | Login, registration, logout | 15+ tests | ✅ Complete |
-| Dashboard | Dashboard loading, navigation, stats | 15+ tests | ✅ Complete |
-| Task Management | Create, edit, delete, complete tasks | 20+ tests | ✅ Complete |
-| User Workflow | Complete user journey | 6 tests | ✅ Complete |
+| Test Suite      | Description                          | Test Cases | Status      |
+| --------------- | ------------------------------------ | ---------- | ----------- |
+| Authentication  | Login, registration, logout          | 15+ tests  | ✅ Complete |
+| Dashboard       | Dashboard loading, navigation, stats | 15+ tests  | ✅ Complete |
+| Task Management | Create, edit, delete, complete tasks | 20+ tests  | ✅ Complete |
+| User Workflow   | Complete user journey                | 6 tests    | ✅ Complete |
 
 ### Browser Coverage
 
@@ -164,25 +164,25 @@ Tests complete user journeys:
 ### Example Usage
 
 ```typescript
-import { test } from '@playwright/test';
-import { AuthPage } from '../pages/auth-page';
-import { DashboardPage } from '../pages/dashboard-page';
+import { test } from '@playwright/test'
+import { AuthPage } from '../pages/auth-page'
+import { DashboardPage } from '../pages/dashboard-page'
 
 test('should login and access dashboard', async ({ page }) => {
-  const authPage = new AuthPage(page);
-  const dashboardPage = new DashboardPage(page);
+  const authPage = new AuthPage(page)
+  const dashboardPage = new DashboardPage(page)
 
   // Login
-  await authPage.gotoLogin();
-  await authPage.login('test@example.com', 'password123');
+  await authPage.gotoLogin()
+  await authPage.login('test@example.com', 'password123')
 
   // Access dashboard
-  await dashboardPage.goto();
-  await dashboardPage.waitForLoad();
+  await dashboardPage.goto()
+  await dashboardPage.waitForLoad()
 
   // Verify
-  expect(await dashboardPage.isOnDashboard()).toBeTruthy();
-});
+  expect(await dashboardPage.isOnDashboard()).toBeTruthy()
+})
 ```
 
 ## 🛠️ Configuration
@@ -220,6 +220,7 @@ npx playwright show-report tests/e2e/playwright-report
 ```
 
 HTML report includes:
+
 - Test results and status
 - Screenshots on failure
 - Videos on failure
@@ -291,12 +292,13 @@ npx playwright test --config=playwright.tests.config.ts --slowMo=1000
 ### Pause Execution
 
 ```typescript
-await page.pause();
+await page.pause()
 ```
 
 ### Trace Viewer
 
 View traces from failed tests:
+
 ```bash
 npx playwright show-trace tests/e2e/test-results/trace.zip
 ```
@@ -306,9 +308,10 @@ npx playwright show-trace tests/e2e/test-results/trace.zip
 Screenshots are automatically taken on failures.
 
 Manual screenshots:
+
 ```typescript
-import { takeScreenshot } from '../helpers/test-helpers';
-await takeScreenshot(page, 'my-test-case');
+import { takeScreenshot } from '../helpers/test-helpers'
+await takeScreenshot(page, 'my-test-case')
 ```
 
 ## 🔧 Helper Functions

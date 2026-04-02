@@ -10,90 +10,90 @@
  * <SkeletonLoader variant="table" rows={5} cols={4} />
  */
 
-'use client';
+'use client'
 
-import React, { memo } from 'react';
+import React, { memo } from 'react'
 
-export type SkeletonVariant = 'text' | 'card' | 'list' | 'table';
-export type SkeletonSize = 'sm' | 'md' | 'lg';
+export type SkeletonVariant = 'text' | 'card' | 'list' | 'table'
+export type SkeletonSize = 'sm' | 'md' | 'lg'
 
 interface SkeletonLoaderProps {
   /**
    * Visual variant of the skeleton
    * @default 'text'
    */
-  variant?: SkeletonVariant;
+  variant?: SkeletonVariant
 
   /**
    * Size of the skeleton elements
    * @default 'md'
    */
-  size?: SkeletonSize;
+  size?: SkeletonSize
 
   /**
    * Number of lines (for 'text' variant)
    * @default 3
    */
-  lines?: number;
+  lines?: number
 
   /**
    * Number of items (for 'list' variant)
    * @default 3
    */
-  items?: number;
+  items?: number
 
   /**
    * Number of rows (for 'table' variant)
    * @default 5
    */
-  rows?: number;
+  rows?: number
 
   /**
    * Number of columns (for 'table' variant)
    * @default 4
    */
-  cols?: number;
+  cols?: number
 
   /**
    * Whether to include header (for 'table' variant)
    * @default true
    */
-  showHeader?: boolean;
+  showHeader?: boolean
 
   /**
    * Width of the skeleton (for 'text' variant, as percentage or pixels)
    * @default ['100%', '90%', '80%']
    */
-  widths?: (string | number)[];
+  widths?: (string | number)[]
 
   /**
    * Whether the skeleton is animating
    * @default true
    */
-  animate?: boolean;
+  animate?: boolean
 
   /**
    * Custom CSS class names
    */
-  className?: string;
+  className?: string
 
   /**
    * Custom style
    */
-  style?: React.CSSProperties;
+  style?: React.CSSProperties
 }
 
 const sizeClasses: Record<SkeletonSize, string> = {
   sm: 'h-2',
   md: 'h-4',
   lg: 'h-6',
-};
+}
 
 const sizeWidthClasses: Record<SkeletonSize, string> = {
   sm: 'w-12',
   md: 'w-16',
   lg: 'w-20',
-};
+}
 
 /**
  * Base skeleton shimmer effect
@@ -103,23 +103,19 @@ function Skeleton({
   animate = true,
   style,
 }: {
-  className?: string;
-  animate?: boolean;
-  style?: React.CSSProperties;
+  className?: string
+  animate?: boolean
+  style?: React.CSSProperties
 }) {
-  const animationClass = animate ? 'animate-shimmer' : '';
+  const animationClass = animate ? 'animate-shimmer' : ''
   return (
     <div
-      className={`
-        bg-gray-200 dark:bg-gray-700 rounded
-        ${animationClass}
-        ${className}
-      `}
+      className={`rounded bg-gray-200 dark:bg-gray-700 ${animationClass} ${className} `}
       style={style}
       role="presentation"
       aria-hidden="true"
     />
-  );
+  )
 }
 
 /**
@@ -131,13 +127,13 @@ function TextSkeleton({
   widths,
   animate = true,
 }: {
-  size?: SkeletonSize;
-  lines?: number;
-  widths?: (string | number)[];
-  animate?: boolean;
+  size?: SkeletonSize
+  lines?: number
+  widths?: (string | number)[]
+  animate?: boolean
 }) {
-  const defaultWidths: (string | number)[] = ['100%', '90%', '80%'];
-  const finalWidths = widths ?? defaultWidths;
+  const defaultWidths: (string | number)[] = ['100%', '90%', '80%']
+  const finalWidths = widths ?? defaultWidths
 
   return (
     <div className="space-y-2">
@@ -150,23 +146,17 @@ function TextSkeleton({
         />
       ))}
     </div>
-  );
+  )
 }
 
 /**
  * Card variant - skeleton card with header and content
  */
-function CardSkeleton({
-  size = 'md',
-  animate = true,
-}: {
-  size?: SkeletonSize;
-  animate?: boolean;
-}) {
-  const avatarSize = size === 'sm' ? 'w-8 h-8' : size === 'lg' ? 'w-16 h-16' : 'w-12 h-12';
+function CardSkeleton({ size = 'md', animate = true }: { size?: SkeletonSize; animate?: boolean }) {
+  const avatarSize = size === 'sm' ? 'w-8 h-8' : size === 'lg' ? 'w-16 h-16' : 'w-12 h-12'
 
   return (
-    <div className="bg-white dark:bg-gray-800 rounded-lg shadow-sm p-4 space-y-4">
+    <div className="space-y-4 rounded-lg bg-white p-4 shadow-sm dark:bg-gray-800">
       {/* Header */}
       <div className="flex items-center space-x-3">
         <Skeleton className={`${avatarSize} rounded-full`} animate={animate} />
@@ -185,11 +175,17 @@ function CardSkeleton({
 
       {/* Actions */}
       <div className="flex space-x-2">
-        <Skeleton className={`${sizeClasses[size]} ${sizeWidthClasses[size]} rounded`} animate={animate} />
-        <Skeleton className={`${sizeClasses[size]} ${sizeWidthClasses[size]} rounded`} animate={animate} />
+        <Skeleton
+          className={`${sizeClasses[size]} ${sizeWidthClasses[size]} rounded`}
+          animate={animate}
+        />
+        <Skeleton
+          className={`${sizeClasses[size]} ${sizeWidthClasses[size]} rounded`}
+          animate={animate}
+        />
       </div>
     </div>
-  );
+  )
 }
 
 /**
@@ -200,26 +196,32 @@ function ListSkeleton({
   items = 3,
   animate = true,
 }: {
-  size?: SkeletonSize;
-  items?: number;
-  animate?: boolean;
+  size?: SkeletonSize
+  items?: number
+  animate?: boolean
 }) {
-  const avatarSize = size === 'sm' ? 'w-8 h-8' : size === 'lg' ? 'w-12 h-12' : 'w-10 h-10';
+  const avatarSize = size === 'sm' ? 'w-8 h-8' : size === 'lg' ? 'w-12 h-12' : 'w-10 h-10'
 
   return (
     <div className="space-y-3">
       {Array.from({ length: items }).map((_, i) => (
-        <div key={i} className="flex items-center space-x-3 p-3 bg-gray-50 dark:bg-gray-800/50 rounded-lg">
+        <div
+          key={i}
+          className="flex items-center space-x-3 rounded-lg bg-gray-50 p-3 dark:bg-gray-800/50"
+        >
           <Skeleton className={`${avatarSize} rounded-full`} animate={animate} />
           <div className="flex-1 space-y-2">
             <Skeleton className={`${sizeClasses[size]} w-3/4`} animate={animate} />
             <Skeleton className={`${sizeClasses[size]} w-1/2`} animate={animate} />
           </div>
-          <Skeleton className={`${sizeClasses[size]} ${sizeWidthClasses[size]} rounded`} animate={animate} />
+          <Skeleton
+            className={`${sizeClasses[size]} ${sizeWidthClasses[size]} rounded`}
+            animate={animate}
+          />
         </div>
       ))}
     </div>
-  );
+  )
 }
 
 /**
@@ -232,18 +234,21 @@ function TableSkeleton({
   showHeader = true,
   animate = true,
 }: {
-  size?: SkeletonSize;
-  rows?: number;
-  cols?: number;
-  showHeader?: boolean;
-  animate?: boolean;
+  size?: SkeletonSize
+  rows?: number
+  cols?: number
+  showHeader?: boolean
+  animate?: boolean
 }) {
   return (
     <div className="w-full overflow-hidden">
-      <div className="bg-white dark:bg-gray-800 rounded-lg shadow-sm">
+      <div className="rounded-lg bg-white shadow-sm dark:bg-gray-800">
         {/* Header */}
         {showHeader && (
-          <div className="grid gap-2 p-4 border-b border-gray-200 dark:border-gray-700" style={{ gridTemplateColumns: `repeat(${cols}, 1fr)` }}>
+          <div
+            className="grid gap-2 border-b border-gray-200 p-4 dark:border-gray-700"
+            style={{ gridTemplateColumns: `repeat(${cols}, 1fr)` }}
+          >
             {Array.from({ length: cols }).map((_, i) => (
               <Skeleton
                 key={`header-${i}`}
@@ -274,7 +279,7 @@ function TableSkeleton({
         </div>
       </div>
     </div>
-  );
+  )
 }
 
 /**
@@ -295,14 +300,24 @@ function SkeletonLoader({
 }: SkeletonLoaderProps) {
   const content = (
     <div className={className} style={style}>
-      {variant === 'text' && <TextSkeleton size={size} lines={lines} widths={widths} animate={animate} />}
+      {variant === 'text' && (
+        <TextSkeleton size={size} lines={lines} widths={widths} animate={animate} />
+      )}
       {variant === 'card' && <CardSkeleton size={size} animate={animate} />}
       {variant === 'list' && <ListSkeleton size={size} items={items} animate={animate} />}
-      {variant === 'table' && <TableSkeleton size={size} rows={rows} cols={cols} showHeader={showHeader} animate={animate} />}
+      {variant === 'table' && (
+        <TableSkeleton
+          size={size}
+          rows={rows}
+          cols={cols}
+          showHeader={showHeader}
+          animate={animate}
+        />
+      )}
     </div>
-  );
+  )
 
-  return content;
+  return content
 }
 
 /**
@@ -313,11 +328,11 @@ export function TextSkeletonLines({
   size = 'md',
   animate = true,
 }: {
-  lines?: number;
-  size?: SkeletonSize;
-  animate?: boolean;
+  lines?: number
+  size?: SkeletonSize
+  animate?: boolean
 }) {
-  return <SkeletonLoader variant="text" lines={lines} size={size} animate={animate} />;
+  return <SkeletonLoader variant="text" lines={lines} size={size} animate={animate} />
 }
 
 /**
@@ -327,10 +342,10 @@ export function CardSkeletonLoader({
   size = 'md',
   animate = true,
 }: {
-  size?: SkeletonSize;
-  animate?: boolean;
+  size?: SkeletonSize
+  animate?: boolean
 }) {
-  return <SkeletonLoader variant="card" size={size} animate={animate} />;
+  return <SkeletonLoader variant="card" size={size} animate={animate} />
 }
 
 /**
@@ -341,11 +356,11 @@ export function ListSkeletonLoader({
   size = 'md',
   animate = true,
 }: {
-  items?: number;
-  size?: SkeletonSize;
-  animate?: boolean;
+  items?: number
+  size?: SkeletonSize
+  animate?: boolean
 }) {
-  return <SkeletonLoader variant="list" items={items} size={size} animate={animate} />;
+  return <SkeletonLoader variant="list" items={items} size={size} animate={animate} />
 }
 
 /**
@@ -357,17 +372,17 @@ export function TableSkeletonLoader({
   size = 'md',
   animate = true,
 }: {
-  rows?: number;
-  cols?: number;
-  size?: SkeletonSize;
-  animate?: boolean;
+  rows?: number
+  cols?: number
+  size?: SkeletonSize
+  animate?: boolean
 }) {
-  return <SkeletonLoader variant="table" rows={rows} cols={cols} size={size} animate={animate} />;
+  return <SkeletonLoader variant="table" rows={rows} cols={cols} size={size} animate={animate} />
 }
 
 // Add keyframe animations for shimmer
 if (typeof document !== 'undefined') {
-  const style = document.createElement('style');
+  const style = document.createElement('style')
   style.textContent = `
     @keyframes shimmer {
       0% {
@@ -387,8 +402,8 @@ if (typeof document !== 'undefined') {
     .dark .animate-shimmer {
       background: linear-gradient(to right, #374151 4%, #4b5563 25%, #374151 36%);
     }
-  `;
-  document.head.appendChild(style);
+  `
+  document.head.appendChild(style)
 }
 
-export default memo(SkeletonLoader);
+export default memo(SkeletonLoader)

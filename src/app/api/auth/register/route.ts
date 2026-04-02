@@ -1,3 +1,4 @@
+import { NextRequest, NextResponse } from 'next/server'
 /**
  * Register API endpoint
  * POST /api/auth/register
@@ -128,96 +129,106 @@
  *           $ref: '#/components/schemas/User'
  */
 
-import { registerUser } from '@/lib/auth/service';
-import { RegisterRequest } from '@/lib/auth/types';
-import { logger } from '@/lib/logger';
+import { registerUser } from '@/lib/auth/service'
+import { RegisterRequest } from '@/lib/auth/types'
+import { logger } from '@/lib/logger'
 import {
   createValidationError,
   createRegistrationFailedError,
   createWeakPasswordError,
   createErrorResponse,
   createConflictError,
-} from '@/lib/api/error-handler';
-import { validateEmail, validatePasswordStrength, createSuccessResponse, setAuthCookies } from '@/lib/api/utils';
-import { logRequestStart, logRequestComplete, logRequestError } from '@/lib/api/api-logger';
+} from '@/lib/api/error-handler'
+import {
+  validateEmail,
+  validatePasswordStrength,
+  createSuccessResponse,
+  setAuthCookies,
+} from '@/lib/api/utils'
+import { logRequestStart, logRequestComplete, logRequestError } from '@/lib/api/api-logger'
 
 export async function POST(request: NextRequest) {
-  const startTime = Date.now();
-  const metadata = logRequestStart(request);
+  const startTime = Date.now()
+  const metadata = logRequestStart(request)
 
   try {
-    const body = await request.json();
+    const body = await request.json()
 
     // Validate request body
-    const { email, password, name }: RegisterRequest = body;
+    const { email, password, name }: RegisterRequest = body
 
     if (!email || !password || !name) {
-      const response = await createValidationError('Email, password, and name are required');
-      logRequestComplete(metadata, response, startTime);
-      return response;
+      const response = await createValidationError('Email, password, and name are required')
+      logRequestComplete(metadata, response, startTime)
+      return response
     }
 
     // Validate email format
     if (!validateEmail(email)) {
-      const response = await createValidationError('Invalid email format');
-      logRequestComplete(metadata, response, startTime);
-      return response;
+      const response = await createValidationError('Invalid email format')
+      logRequestComplete(metadata, response, startTime)
+      return response
     }
 
     // Validate password strength
-    const passwordCheck = validatePasswordStrength(password);
+    const passwordCheck = validatePasswordStrength(password)
     if (!passwordCheck.isValid) {
-      const response = await createWeakPasswordError(passwordCheck.errors[0]);
-      logRequestComplete(metadata, response, startTime);
-      return response;
+      const response = await createWeakPasswordError(passwordCheck.errors[0])
+      logRequestComplete(metadata, response, startTime)
+      return response
     }
 
     // Register user
-    const result = await registerUser({ email, password, name, role: body.role });
+    const result = await registerUser({ email, password, name, role: body.role })
 
     if (!result.success) {
       // Check if it's a conflict error (email already exists)
       if (result.error?.includes('already') || result.error?.includes('exists')) {
-        const response = await createConflictError(result.error || 'Email already exists');
-        logRequestComplete(metadata, response, startTime);
-        return response;
+        const response = await createConflictError(result.error || 'Email already exists')
+        logRequestComplete(metadata, response, startTime)
+        return response
       }
 
-      const response = await createRegistrationFailedError(result.error || 'Registration failed');
-      logRequestComplete(metadata, response, startTime);
-      return response;
+      const response = await createRegistrationFailedError(result.error || 'Registration failed')
+      logRequestComplete(metadata, response, startTime)
+      return response
     }
 
     // Create success response with tokens
-    const responseData: { user: typeof result.user; token?: string; refreshToken: string | null; expiresAt?: number } = { user: result.user };
+    const responseData: {
+      user: typeof result.user
+      token?: string
+      refreshToken?: string | null
+      expiresAt?: number
+    } = { user: result.user }
 
     if (result.token) {
-      responseData.token = result.token;
+      responseData.token = result.token
     }
     // Always include refreshToken (null if not available)
-    responseData.refreshToken = result.refreshToken || null;
+    responseData.refreshToken = result.refreshToken ?? null
 
     if (result.expiresAt) {
-      responseData.expiresAt = result.expiresAt;
+      responseData.expiresAt = result.expiresAt
     }
 
-    const response = createSuccessResponse(responseData, 201);
+    const response = createSuccessResponse(responseData, 201)
 
     // Set auth cookies if tokens are available
-    if (result.token) {
-      setAuthCookies(response, result.token, result.refreshToken, false);
+    if (result.token && result.refreshToken) {
+      setAuthCookies(response, result.token, result.refreshToken, false)
     }
 
     logger.auth('User registered successfully', {
       requestId: metadata.requestId,
       userId: result.user?.id,
       email: result.user?.email,
-    });
+    })
 
-    logRequestComplete(metadata, response, startTime);
-    return response;
+    logRequestComplete(metadata, response, startTime)
+    return response
   } catch (error) {
-    logRequestError(metadata, error, startTime);
-    return createErrorResponse(error instanceof Error ? error : new Error(String(error)));
+    logRequestError(metadata, error, startTime)
+    return createErrorResponse(error instanceof Error ? error : new Error(String(error)))
   }
 }

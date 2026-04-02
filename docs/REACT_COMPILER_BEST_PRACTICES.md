@@ -31,12 +31,14 @@ React Compiler 是 React 团队推出的自动优化编译器，它可以：
 ### 为什么使用 React Compiler？
 
 **优势**:
+
 - ✅ 自动优化，无需手动干预
 - ✅ 更少样板代码，提高开发效率
 - ✅ 更好的运行时性能
 - ✅ 遵循 React 最佳实践
 
 **权衡**:
+
 - ⚠️ 构建时间增加 5-15%
 - ⚠️ 需要遵循 Rules of Hooks
 - ⚠️ 部分第三方库可能不兼容
@@ -79,12 +81,14 @@ REACT_COMPILER_MODE=opt-in
 ```
 
 **默认包含目录**:
+
 - `src/components/features`
 - `src/components/dashboard`
 - `src/components/tasks`
 - `src/app/[locale]/dashboard`
 
 **适用场景**:
+
 - 初期测试
 - 风险规避
 - 逐步启用
@@ -100,6 +104,7 @@ REACT_COMPILER_EXCLUDE_PATTERNS=**/third-party/**,**/legacy/**
 ```
 
 **默认排除**:
+
 - `node_modules`
 - `.next`
 - `build`
@@ -108,6 +113,7 @@ REACT_COMPILER_EXCLUDE_PATTERNS=**/third-party/**,**/legacy/**
 - `src/components/legacy`
 
 **适用场景**:
+
 - 全面启用
 - 最佳性能
 - 已验证环境
@@ -122,6 +128,7 @@ REACT_COMPILER_MODE=all
 ```
 
 **适用场景**:
+
 - 特殊需求
 - 全面测试
 - 需要谨慎使用
@@ -250,12 +257,12 @@ React Compiler 启用后，可以逐步移除以下手动优化：
 ```tsx
 // ❌ 不再需要
 export default React.memo(function MyComponent({ data }) {
-  return <div>{data}</div>;
-});
+  return <div>{data}</div>
+})
 
 // ✅ 简化为
 export default function MyComponent({ data }) {
-  return <div>{data}</div>;
+  return <div>{data}</div>
 }
 ```
 
@@ -264,11 +271,11 @@ export default function MyComponent({ data }) {
 ```tsx
 // ❌ 不再需要
 const memoizedValue = useMemo(() => {
-  return computeExpensiveValue(a, b);
-}, [a, b]);
+  return computeExpensiveValue(a, b)
+}, [a, b])
 
 // ✅ 简化为
-const memoizedValue = computeExpensiveValue(a, b);
+const memoizedValue = computeExpensiveValue(a, b)
 ```
 
 **useCallback**:
@@ -276,13 +283,13 @@ const memoizedValue = computeExpensiveValue(a, b);
 ```tsx
 // ❌ 不再需要
 const memoizedCallback = useCallback(() => {
-  doSomething(a, b);
-}, [a, b]);
+  doSomething(a, b)
+}, [a, b])
 
 // ✅ 简化为
 const callback = () => {
-  doSomething(a, b);
-};
+  doSomething(a, b)
+}
 ```
 
 ### 2. 需要保留的代码
@@ -292,17 +299,20 @@ const callback = () => {
 ```tsx
 // ✅ 保留: 大型数据集的复杂计算
 const result = useMemo(() => {
-  return heavyComputation(largeDataSet);
-}, [largeDataSet]);
+  return heavyComputation(largeDataSet)
+}, [largeDataSet])
 ```
 
 **传递给子组件的引用**:
 
 ```tsx
 // ✅ 保留: 传递给大量子组件的回调
-const handleSubmit = useCallback((data) => {
-  // ...
-}, [dependencies]);
+const handleSubmit = useCallback(
+  data => {
+    // ...
+  },
+  [dependencies]
+)
 
 return (
   <div>
@@ -310,7 +320,7 @@ return (
       <Item key={item.id} onSubmit={handleSubmit} />
     ))}
   </div>
-);
+)
 ```
 
 ### 3. 构建优化
@@ -412,6 +422,7 @@ git push
 原因: Babel 配置冲突
 
 解决:
+
 ```bash
 # 移除 babel-plugin-react-compiler
 pnpm remove babel-plugin-react-compiler
@@ -425,6 +436,7 @@ mv babel.config.js babel.config.js.bak
 原因: 缺少依赖
 
 解决:
+
 ```bash
 pnpm add react-is
 ```
@@ -446,6 +458,7 @@ pnpm add react-is
 原因: 条件语句中使用了 Hooks
 
 解决:
+
 ```tsx
 // ❌ 错误
 if (condition) {
@@ -488,13 +501,13 @@ useEffect(() => {
 
 ### 1. 关键指标
 
-| 指标 | 工具 | 警告阈值 | 严重阈值 |
-|-----|------|----------|----------|
-| Web Vitals | Lighthouse | < 90 | < 80 |
-| FPS | React DevTools | < 50 | < 30 |
-| 重渲染次数 | React DevTools | +50% | +100% |
-| 错误率 | Sentry | > 1% | > 5% |
-| 构建时间 | CI/CD | +20% | +50% |
+| 指标       | 工具           | 警告阈值 | 严重阈值 |
+| ---------- | -------------- | -------- | -------- |
+| Web Vitals | Lighthouse     | < 90     | < 80     |
+| FPS        | React DevTools | < 50     | < 30     |
+| 重渲染次数 | React DevTools | +50%     | +100%    |
+| 错误率     | Sentry         | > 1%     | > 5%     |
+| 构建时间   | CI/CD          | +20%     | +50%     |
 
 ### 2. 监控工具
 
@@ -508,17 +521,14 @@ lhci autorun
 **Sentry**:
 
 ```typescript
-import * as Sentry from '@sentry/nextjs';
+import * as Sentry from '@sentry/nextjs'
 
 Sentry.init({
   dsn: process.env.NEXT_PUBLIC_SENTRY_DSN,
-  integrations: [
-    new Sentry.BrowserTracing(),
-    new Sentry.Replay(),
-  ],
+  integrations: [new Sentry.BrowserTracing(), new Sentry.Replay()],
   tracesSampleRate: 0.1,
   replaysSessionSampleRate: 0.1,
-});
+})
 ```
 
 ### 3. 告警配置
@@ -526,17 +536,17 @@ Sentry.init({
 **Web Vitals 告警**:
 
 ```typescript
-import { useReportWebVitals } from 'next/web-vitals';
+import { useReportWebVitals } from 'next/web-vitals'
 
 export function WebVitalsReporter() {
-  useReportWebVitals((metric) => {
+  useReportWebVitals(metric => {
     if (metric.name === 'LCP' && metric.value > 2500) {
       // 发送告警
-      sendAlert('LCP 过高', metric);
+      sendAlert('LCP 过高', metric)
     }
-  });
+  })
 
-  return null;
+  return null
 }
 ```
 

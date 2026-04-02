@@ -16,12 +16,12 @@
 
 从 `package.json` 提取的实际版本：
 
-| 包名 | 版本 |
-|------|------|
-| **Next.js** | ^16.2.1 |
-| **React** | ^19.2.4 |
-| **React DOM** | ^19.2.4 |
-| **Node.js** | 22.x LTS |
+| 包名          | 版本     |
+| ------------- | -------- |
+| **Next.js**   | ^16.2.1  |
+| **React**     | ^19.2.4  |
+| **React DOM** | ^19.2.4  |
+| **Node.js**   | 22.x LTS |
 
 ---
 
@@ -29,16 +29,16 @@
 
 ### 1. 版本信息修正
 
-| 文件 | 修正前 | 修正后 | 状态 |
-|------|--------|--------|------|
-| `DEV_TASK_REACT_COMPILER_20260328.md` | React 18.2.0 | React 19.2.4 | ✅ 已更新 |
-| `REACT_COMPILER_ROADMAP_20260328.md` | React 18.2.0 | React 19.2.4 | ✅ 已更新 |
-| `DOCUMENTATION_UPDATE_REPORT.md` | Next.js 15.2.1 | Next.js 16.2.1 | ✅ 已更新 |
+| 文件                                  | 修正前         | 修正后         | 状态      |
+| ------------------------------------- | -------------- | -------------- | --------- |
+| `DEV_TASK_REACT_COMPILER_20260328.md` | React 18.2.0   | React 19.2.4   | ✅ 已更新 |
+| `REACT_COMPILER_ROADMAP_20260328.md`  | React 18.2.0   | React 19.2.4   | ✅ 已更新 |
+| `DOCUMENTATION_UPDATE_REPORT.md`      | Next.js 15.2.1 | Next.js 16.2.1 | ✅ 已更新 |
 
 ### 2. 新增文档
 
-| 文档 | 路径 | 说明 |
-|------|------|------|
+| 文档                   | 路径                                | 说明                                                  |
+| ---------------------- | ----------------------------------- | ----------------------------------------------------- |
 | Agent Scheduler README | `src/lib/agent-scheduler/README.md` | AI Agent 智能调度系统文档，包含架构、使用示例、API 等 |
 
 ---
@@ -49,26 +49,26 @@
 
 以下文档的版本信息与实际一致，无需更新：
 
-| 文档 | Next.js 版本 | React 版本 |
-|------|--------------|------------|
-| `README.md` | 16.2.1 ✅ | 19.2.4 ✅ |
-| `CHANGELOG.md` | 16.2.1 ✅ | 19.2.4 ✅ |
-| `AGENT_INTEGRATION_REPORT.md` | 16.2.1 ✅ | 19.2.4 ✅ |
-| `AGENT_TRANSFORMATION_ROADMAP.md` | 16.2.1 ✅ | 19.2.4 ✅ |
-| `ARCHITECTURE_REVIEW_20260328.md` | 16.2.1 ✅ | 19.2.4 ✅ |
-| `BUNDLE_ANALYSIS_20260324.md` | 16.2.1 ✅ | 19.2.4 ✅ |
-| `REACT19_OPTIMIZATION_STATUS.md` | - | 19.2.4 ✅ |
-| `REACT19_OPTIMIZATION_FOLLOWUP.md` | 16.2.1 ✅ | 19.2.4 ✅ |
-| `TASK_V130_PLANNING_20260327.md` | 16.2.1 ✅ | 19.2.4 ✅ |
+| 文档                               | Next.js 版本 | React 版本 |
+| ---------------------------------- | ------------ | ---------- |
+| `README.md`                        | 16.2.1 ✅    | 19.2.4 ✅  |
+| `CHANGELOG.md`                     | 16.2.1 ✅    | 19.2.4 ✅  |
+| `AGENT_INTEGRATION_REPORT.md`      | 16.2.1 ✅    | 19.2.4 ✅  |
+| `AGENT_TRANSFORMATION_ROADMAP.md`  | 16.2.1 ✅    | 19.2.4 ✅  |
+| `ARCHITECTURE_REVIEW_20260328.md`  | 16.2.1 ✅    | 19.2.4 ✅  |
+| `BUNDLE_ANALYSIS_20260324.md`      | 16.2.1 ✅    | 19.2.4 ✅  |
+| `REACT19_OPTIMIZATION_STATUS.md`   | -            | 19.2.4 ✅  |
+| `REACT19_OPTIMIZATION_FOLLOWUP.md` | 16.2.1 ✅    | 19.2.4 ✅  |
+| `TASK_V130_PLANNING_20260327.md`   | 16.2.1 ✅    | 19.2.4 ✅  |
 
 ### ⚠️ 历史文档保留
 
 以下文档包含历史版本信息，属于版本记录性质，不做更新：
 
-| 文档 | 说明 |
-|------|------|
-| `UPGRADE_NEXT15.md` | 升级指南，记录从旧版本升级过程 |
-| `DOC_VERSION_UPDATE.md` | 版本更新记录文档 |
+| 文档                    | 说明                           |
+| ----------------------- | ------------------------------ |
+| `UPGRADE_NEXT15.md`     | 升级指南，记录从旧版本升级过程 |
+| `DOC_VERSION_UPDATE.md` | 版本更新记录文档               |
 
 ---
 
@@ -77,6 +77,7 @@
 ### 新增文档：`src/lib/agent-scheduler/README.md`
 
 **内容概要**:
+
 - 系统概述和架构图
 - 目录结构说明
 - 核心功能介绍（智能匹配、优先级排序、负载均衡、多 Agent 协作）

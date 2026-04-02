@@ -50,7 +50,7 @@ export default defineConfig({
 
     // 并行执行测试文件
     sequence: {
-      shuffle: false,  // 保持顺序确保稳定性
+      shuffle: false, // 保持顺序确保稳定性
       concurrent: true, // 启用并发执行
     },
 
@@ -58,7 +58,7 @@ export default defineConfig({
     poolOptions: {
       vmForks: {
         singleFork: false, // 使用多进程并行
-        isolate: true,    // 保持进程隔离
+        isolate: true, // 保持进程隔离
         execArgv: ['--max-old-space-size=3072'], // 每个进程 3GB
       },
     },

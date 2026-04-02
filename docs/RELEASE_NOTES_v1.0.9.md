@@ -28,7 +28,7 @@ v1.0.9 是一个重要的性能和兼容性更新版本，带来了：
 - **混合算法** - 结合两种算法实现最优控制
 - **限流中间件** - 简单易用的 Next.js API 路由中间件
 - **预配置规则** - 默认限流规则覆盖所有主要 API 端点
-- **标准响应头** - 所有响应包含 X-RateLimit-* 标准限流头
+- **标准响应头** - 所有响应包含 X-RateLimit-\* 标准限流头
 - **事件日志** - 完整的限流事件跟踪和分析
 - **Redis 客户端管理** - 自动连接处理，支持回退到内存限流
 
@@ -42,44 +42,38 @@ v1.0.9 是一个重要的性能和兼容性更新版本，带来了：
 
 #### 默认限流规则
 
-| 端点 | 限制 | 算法 | 突发容量 |
-|------|------|------|----------|
-| `/api/health/*` | 100 请求/60秒 | sliding-window | - |
-| `/api/auth/login` | 10 请求/60秒 | token-bucket | 15 |
-| `/api/auth/register` | 5 请求/60秒 | token-bucket | 8 |
-| `/api/auth/logout` | 20 请求/60秒 | sliding-window | - |
-| `/api/auth/refresh` | 30 请求/60秒 | sliding-window | - |
-| `/api/auth/me` | 60 请求/60秒 | sliding-window | - |
-| `/api/tasks` | 50 请求/60秒 | sliding-window | - |
-| `/api/projects` | 50 请求/60秒 | sliding-window | - |
+| 端点                 | 限制          | 算法           | 突发容量 |
+| -------------------- | ------------- | -------------- | -------- |
+| `/api/health/*`      | 100 请求/60秒 | sliding-window | -        |
+| `/api/auth/login`    | 10 请求/60秒  | token-bucket   | 15       |
+| `/api/auth/register` | 5 请求/60秒   | token-bucket   | 8        |
+| `/api/auth/logout`   | 20 请求/60秒  | sliding-window | -        |
+| `/api/auth/refresh`  | 30 请求/60秒  | sliding-window | -        |
+| `/api/auth/me`       | 60 请求/60秒  | sliding-window | -        |
+| `/api/tasks`         | 50 请求/60秒  | sliding-window | -        |
+| `/api/projects`      | 50 请求/60秒  | sliding-window | -        |
 
 #### 使用示例
 
 ```typescript
 // 基本用法（使用默认配置）
-import { withRateLimit } from '@/lib/rate-limit';
+import { withRateLimit } from '@/lib/rate-limit'
 
 export const GET = withRateLimit(async (req: NextRequest) => {
-  return NextResponse.json({ data: 'Hello World' });
-});
+  return NextResponse.json({ data: 'Hello World' })
+})
 
 // 自定义配置
-export const POST = withRateLimit(
-  handler,
-  {
-    algorithm: 'token-bucket',
-    limit: 10,
-    window: 60,
-    burstCapacity: 20,
-    refillRate: 0.167,
-  }
-);
+export const POST = withRateLimit(handler, {
+  algorithm: 'token-bucket',
+  limit: 10,
+  window: 60,
+  burstCapacity: 20,
+  refillRate: 0.167,
+})
 
 // 基于用户的限流
-export const GET = withRateLimit(
-  handler,
-  { identifier: getUserIdFromRequest(req) }
-);
+export const GET = withRateLimit(handler, { identifier: getUserIdFromRequest(req) })
 ```
 
 #### 响应头示例
@@ -107,11 +101,11 @@ Retry-After: 30  # 当被限流时
 
 #### 技术栈更新
 
-| 技术 | 版本 | 说明 |
-|------|------|------|
-| **Next.js** | 15.2.1 | App Router 支持最新的 React 19 |
-| **React** | 19.2.4 | 完整的 React 19 支持 |
-| **TypeScript** | 5.x | 类型系统完全兼容 |
+| 技术           | 版本   | 说明                           |
+| -------------- | ------ | ------------------------------ |
+| **Next.js**    | 15.2.1 | App Router 支持最新的 React 19 |
+| **React**      | 19.2.4 | 完整的 React 19 支持           |
+| **TypeScript** | 5.x    | 类型系统完全兼容               |
 
 ---
 
@@ -130,12 +124,12 @@ Retry-After: 30  # 当被限流时
 
 #### 性能对比
 
-| 指标 | 优化前 | 优化后 | 提升 |
-|------|--------|--------|------|
-| 平均查询时间 | 250ms | 30ms | **88%** |
-| 慢查询数量 | 45/小时 | 5/小时 | **89%** |
-| 并发连接数 | 50 | 200 | **300%** |
-| 内存使用 | 512MB | 380MB | **26%** |
+| 指标         | 优化前  | 优化后 | 提升     |
+| ------------ | ------- | ------ | -------- |
+| 平均查询时间 | 250ms   | 30ms   | **88%**  |
+| 慢查询数量   | 45/小时 | 5/小时 | **89%**  |
+| 并发连接数   | 50      | 200    | **300%** |
+| 内存使用     | 512MB   | 380MB  | **26%**  |
 
 ---
 
@@ -152,13 +146,13 @@ Retry-After: 30  # 当被限流时
 
 #### 优化组件列表
 
-| 组件 | 文件路径 | 优化技术 | 收益 |
-|------|----------|----------|------|
-| **DashboardClient** | `src/app/[locale]/dashboard/DashboardClient.tsx` | useMemo (t, stats) | 40-50% |
-| **StatCard** | `src/app/[locale]/dashboard/DashboardClient.tsx` | React.memo + 自定义比较 | 80-85% |
-| **MemberStatus** | `src/app/[locale]/dashboard/DashboardClient.tsx` | React.memo + useMemo | 75-80% |
-| **ActivityItemCard** | `src/components/ActivityLog.tsx` | React.memo + 自定义比较 | 60-70% |
-| **MetricCard** | `src/components/analytics/MetricCard.tsx` | React.memo + 自定义比较 | 60-70% |
+| 组件                 | 文件路径                                         | 优化技术                | 收益   |
+| -------------------- | ------------------------------------------------ | ----------------------- | ------ |
+| **DashboardClient**  | `src/app/[locale]/dashboard/DashboardClient.tsx` | useMemo (t, stats)      | 40-50% |
+| **StatCard**         | `src/app/[locale]/dashboard/DashboardClient.tsx` | React.memo + 自定义比较 | 80-85% |
+| **MemberStatus**     | `src/app/[locale]/dashboard/DashboardClient.tsx` | React.memo + useMemo    | 75-80% |
+| **ActivityItemCard** | `src/components/ActivityLog.tsx`                 | React.memo + 自定义比较 | 60-70% |
+| **MetricCard**       | `src/components/analytics/MetricCard.tsx`        | React.memo + 自定义比较 | 60-70% |
 
 ---
 
@@ -174,13 +168,13 @@ Retry-After: 30  # 当被限流时
 
 #### 测试统计
 
-| 指标 | 数值 |
-|------|------|
-| **测试文件数** | 490+ |
-| **测试覆盖率** | 72-75% |
-| **单元测试** | 100+ 文件 |
-| **集成测试** | 50+ 文件 |
-| **E2E 测试** | 30+ 场景 |
+| 指标           | 数值      |
+| -------------- | --------- |
+| **测试文件数** | 490+      |
+| **测试覆盖率** | 72-75%    |
+| **单元测试**   | 100+ 文件 |
+| **集成测试**   | 50+ 文件  |
+| **E2E 测试**   | 30+ 场景  |
 
 ---
 
@@ -231,6 +225,7 @@ Retry-After: 30  # 当被限流时
 ### 从 v1.0.8 升级
 
 1. **更新依赖**
+
    ```bash
    npm install
    # 或
@@ -238,8 +233,9 @@ Retry-After: 30  # 当被限流时
    ```
 
 2. **配置 Redis（可选）**
-   
+
    如果要使用 Redis 限流功能，请配置以下环境变量：
+
    ```env
    REDIS_URL=redis://localhost:6379
    # 或使用独立配置
@@ -251,21 +247,23 @@ Retry-After: 30  # 当被限流时
    ```
 
 3. **运行数据库迁移**（如果有）
+
    ```bash
    npm run migrate
    ```
 
 4. **运行测试**
+
    ```bash
    npm test
    ```
 
 5. **清除浏览器缓存**
-   
+
    清除浏览器缓存以获得最佳性能，特别是对于主题持久化功能。
 
 6. **审查限流配置**
-   
+
    查看默认限流规则，并根据您的需求调整配置。
 
 ---

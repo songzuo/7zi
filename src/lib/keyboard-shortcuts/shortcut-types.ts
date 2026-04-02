@@ -15,34 +15,34 @@ export type ShortcutContext =
   | 'editor'
   | 'settings'
   | 'calendar'
-  | 'notifications';
+  | 'notifications'
 
 /**
  * Keyboard shortcut definition
  */
 export interface KeyboardShortcut {
   /** Unique identifier for the shortcut */
-  id: string;
+  id: string
   /** Key code (e.g., 'a', 'Enter', 'ArrowUp') */
-  key: string;
+  key: string
   /** Context where this shortcut is active */
-  context: ShortcutContext;
+  context: ShortcutContext
   /** Whether Ctrl key is required */
-  ctrl?: boolean;
+  ctrl?: boolean
   /** Whether Meta/Cmd key is required */
-  meta?: boolean;
+  meta?: boolean
   /** Whether Alt key is required */
-  alt?: boolean;
+  alt?: boolean
   /** Whether Shift key is required */
-  shift?: boolean;
+  shift?: boolean
   /** Human-readable description */
-  description: string;
+  description: string
   /** Category for grouping in help panel */
-  category?: string;
+  category?: string
   /** Action to execute when shortcut is triggered */
-  action: (event: KeyboardEvent) => void;
+  action: (event: KeyboardEvent) => void
   /** Whether this shortcut is enabled */
-  enabled?: boolean;
+  enabled?: boolean
 }
 
 /**
@@ -50,19 +50,19 @@ export interface KeyboardShortcut {
  */
 export interface ShortcutManagerConfig {
   /** Enable debug logging */
-  debug?: boolean;
+  debug?: boolean
   /** Prevent default behavior for all shortcuts */
-  preventDefaultAll?: boolean;
+  preventDefaultAll?: boolean
   /** Custom key formatter */
-  keyFormatter?: (shortcut: KeyboardShortcut) => string;
+  keyFormatter?: (shortcut: KeyboardShortcut) => string
 }
 
 /**
  * Event listener for context changes
  */
-export type ContextChangeListener = (context: ShortcutContext) => void;
+export type ContextChangeListener = (context: ShortcutContext) => void
 
 /**
  * Event listener for shortcut triggers
  */
-export type ShortcutTriggerListener = (shortcut: KeyboardShortcut, event: KeyboardEvent) => void;
+export type ShortcutTriggerListener = (shortcut: KeyboardShortcut, event: KeyboardEvent) => void

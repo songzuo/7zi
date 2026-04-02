@@ -9,13 +9,13 @@
 
 ## 📊 Summary
 
-| Category | Count |
-|----------|-------|
-| Total API Routes in Code | 59 |
-| Total APIs Documented | 70+ |
-| Missing Documentation | 14 |
-| Phantom APIs (doc only) | 12 |
-| Incomplete Documentation | 13 |
+| Category                 | Count |
+| ------------------------ | ----- |
+| Total API Routes in Code | 59    |
+| Total APIs Documented    | 70+   |
+| Missing Documentation    | 14    |
+| Phantom APIs (doc only)  | 12    |
+| Incomplete Documentation | 13    |
 
 ---
 
@@ -25,20 +25,20 @@
 
 以下API端点在API.md中有文档，但实际代码中**不存在**：
 
-| Endpoint | Documentation Section | Status |
-|----------|----------------------|--------|
-| `/api/backup/schedule` | Backup Schedule APIs | ❌ 代码不存在 |
-| `/api/backup/schedule/[id]` | Backup Schedule APIs | ❌ 代码不存在 |
-| `/api/backup/statistics` | Backup Schedule APIs | ❌ 代码不存在 |
-| `/api/backup/jobs` | Backup Schedule APIs | ❌ 代码不存在 |
-| `/api/ws` | WebSocket APIs | ❌ 代码不存在 |
-| `/api/ws/stats` | WebSocket APIs | ❌ 代码不存在 |
-| `/api/ws/rooms/[roomId]` | WebSocket APIs | ❌ 代码不存在 |
-| `/api/ws/broadcast` | WebSocket APIs | ❌ 代码不存在 |
-| `/api/users/[userId]/activity` | User Profile APIs | ❌ 代码不存在 |
-| `/api/users/[userId]/avatar` | User Profile APIs | ❌ 代码不存在 |
-| `/api/users/batch` | Batch Operations | ❌ 代码不存在 |
-| `/api/users/batch/bulk` | Batch Operations | ❌ 代码不存在 |
+| Endpoint                       | Documentation Section | Status        |
+| ------------------------------ | --------------------- | ------------- |
+| `/api/backup/schedule`         | Backup Schedule APIs  | ❌ 代码不存在 |
+| `/api/backup/schedule/[id]`    | Backup Schedule APIs  | ❌ 代码不存在 |
+| `/api/backup/statistics`       | Backup Schedule APIs  | ❌ 代码不存在 |
+| `/api/backup/jobs`             | Backup Schedule APIs  | ❌ 代码不存在 |
+| `/api/ws`                      | WebSocket APIs        | ❌ 代码不存在 |
+| `/api/ws/stats`                | WebSocket APIs        | ❌ 代码不存在 |
+| `/api/ws/rooms/[roomId]`       | WebSocket APIs        | ❌ 代码不存在 |
+| `/api/ws/broadcast`            | WebSocket APIs        | ❌ 代码不存在 |
+| `/api/users/[userId]/activity` | User Profile APIs     | ❌ 代码不存在 |
+| `/api/users/[userId]/avatar`   | User Profile APIs     | ❌ 代码不存在 |
+| `/api/users/batch`             | Batch Operations      | ❌ 代码不存在 |
+| `/api/users/batch/bulk`        | Batch Operations      | ❌ 代码不存在 |
 
 **建议：** 删除这些文档章节，或标注为"计划中/未来版本"。
 
@@ -48,22 +48,22 @@
 
 以下API端点在代码中存在，但API.md中**缺少详细文档**：
 
-| Endpoint | Methods | Implementation Status | Doc Status |
-|----------|---------|----------------------|------------|
-| `/api/analytics/export` | GET, POST | ✅ 完整实现 | ⚠️ 仅有提及 |
-| `/api/analytics/metrics` | GET, POST | ✅ 完整实现 | ⚠️ 仅有提及 |
-| `/api/demo/task-status` | GET, POST | ✅ 完整实现 | ❌ 完全缺失 |
-| `/api/search` | GET | ✅ 完整实现 | ⚠️ 仅有提及 |
-| `/api/search/autocomplete` | GET | ✅ 完整实现 | ⚠️ 仅有提及 |
-| `/api/search/history` | GET, POST, DELETE | ✅ 完整实现 | ⚠️ 仅有提及 |
-| `/api/data/export` | GET, POST | ✅ 完整实现 | ⚠️ 仅有提及 |
-| `/api/data/import` | GET, POST | ✅ 完整实现 | ⚠️ 仅有提及 |
-| `/api/tasks` | GET, POST | ✅ 完整实现 | ⚠️ 仅有提及 |
-| `/api/user/preferences` | GET, POST, PUT | ✅ 完整实现 | ⚠️ 仅有提及 |
-| `/api/vitals` | POST | ✅ 完整实现 | ⚠️ 仅有提及 |
-| `/api/web-vitals` | POST | ✅ 完整实现 | ⚠️ 仅有提及 |
-| `/api/csp-violation` | POST | ✅ 完整实现 | ⚠️ 仅有提及 |
-| `/api/a2a/queue` | GET, POST, DELETE | ✅ 完整实现 | ⚠️ 缺少详情 |
+| Endpoint                   | Methods           | Implementation Status | Doc Status  |
+| -------------------------- | ----------------- | --------------------- | ----------- |
+| `/api/analytics/export`    | GET, POST         | ✅ 完整实现           | ⚠️ 仅有提及 |
+| `/api/analytics/metrics`   | GET, POST         | ✅ 完整实现           | ⚠️ 仅有提及 |
+| `/api/demo/task-status`    | GET, POST         | ✅ 完整实现           | ❌ 完全缺失 |
+| `/api/search`              | GET               | ✅ 完整实现           | ⚠️ 仅有提及 |
+| `/api/search/autocomplete` | GET               | ✅ 完整实现           | ⚠️ 仅有提及 |
+| `/api/search/history`      | GET, POST, DELETE | ✅ 完整实现           | ⚠️ 仅有提及 |
+| `/api/data/export`         | GET, POST         | ✅ 完整实现           | ⚠️ 仅有提及 |
+| `/api/data/import`         | GET, POST         | ✅ 完整实现           | ⚠️ 仅有提及 |
+| `/api/tasks`               | GET, POST         | ✅ 完整实现           | ⚠️ 仅有提及 |
+| `/api/user/preferences`    | GET, POST, PUT    | ✅ 完整实现           | ⚠️ 仅有提及 |
+| `/api/vitals`              | POST              | ✅ 完整实现           | ⚠️ 仅有提及 |
+| `/api/web-vitals`          | POST              | ✅ 完整实现           | ⚠️ 仅有提及 |
+| `/api/csp-violation`       | POST              | ✅ 完整实现           | ⚠️ 仅有提及 |
+| `/api/a2a/queue`           | GET, POST, DELETE | ✅ 完整实现           | ⚠️ 缺少详情 |
 
 ---
 
@@ -75,6 +75,7 @@
 **文档状态：** ⚠️ 仅在A2A Registry APIs章节简要提及
 
 **已实现方法：**
+
 - `GET` - 获取队列状态和统计
 - `POST` - 入队新消息
 - `DELETE` - 清空队列
@@ -88,11 +89,13 @@
 **代码状态：** ✅ 完整实现
 
 #### `/api/analytics/export`
+
 - 支持格式：CSV, JSON, XLSX
 - 支持分页导出
 - 动态导入ExcelJS优化bundle大小
 
 #### `/api/analytics/metrics`
+
 - 内存缓存（5分钟TTL）
 - 支持分页
 - 多维度指标：agents, users, tasks, revenue, performance
@@ -118,16 +121,19 @@
 **代码状态：** ✅ 完整实现
 
 #### `/api/search`
+
 - 全局搜索
 - 模糊匹配
 - 多目标搜索（tasks, projects, members）
 - 高级过滤
 
 #### `/api/search/autocomplete`
+
 - 自动补全建议
 - 历史记录集成
 
 #### `/api/search/history`
+
 - GET - 获取搜索历史（recent, popular, trending）
 - POST - 添加历史记录
 - DELETE - 清除历史
@@ -141,11 +147,13 @@
 **代码状态：** ✅ 完整实现
 
 #### `/api/data/export`
+
 - 支持 CSV 和 JSON 格式
 - 表选择和过滤
 - 模式导出
 
 #### `/api/data/import`
+
 - 支持 CSV 和 JSON 格式
 - 四种导入模式：insert, update, upsert, replace
 - 自动备份
@@ -161,6 +169,7 @@
 **代码状态：** ✅ 完整实现
 
 **功能：**
+
 - CRUD操作
 - 分页、筛选、排序
 - 权限保护
@@ -175,6 +184,7 @@
 **代码状态：** ✅ 完整实现
 
 **功能：**
+
 - 用户偏好设置管理
 - 语言、主题、通知设置
 - 数据库初始化
@@ -188,6 +198,7 @@
 ### Priority 1: Remove Phantom APIs
 
 删除以下不存在的API文档章节：
+
 1. **Backup Schedule APIs** - 整个章节（4个端点都不存在）
 2. **WebSocket APIs** - 整个章节（4个端点都不存在）
 3. **User Profile APIs** 中的以下端点：
@@ -199,6 +210,7 @@
 ### Priority 2: Add Missing Documentation
 
 为以下API添加详细文档：
+
 1. **Analytics APIs** - 新增完整章节
    - `/api/analytics/export`
    - `/api/analytics/metrics`

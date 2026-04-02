@@ -10,38 +10,38 @@
 
 ### 语言完成度
 
-| 语言 | 键总数 | 未翻译 | 完成率 | 状态 |
-|------|--------|--------|--------|------|
-| **zh** | 579 | 0 | 100% | ✅ 完成 |
-| **en** | 579 | 0 | 100% | ✅ 完成 |
-| **ja** | 579 | 343 | **40%** | 🔴 需翻译 |
-| **ko** | 579 | 343 | **40%** | 🔴 需翻译 |
-| **es** | 579 | 346 | **40%** | 🔴 需翻译 |
-| **fr** | 579 | ~10 | 98% | 🟡 收尾 |
-| **de** | 579 | ~10 | 98% | 🟡 收尾 |
+| 语言   | 键总数 | 未翻译 | 完成率  | 状态      |
+| ------ | ------ | ------ | ------- | --------- |
+| **zh** | 579    | 0      | 100%    | ✅ 完成   |
+| **en** | 579    | 0      | 100%    | ✅ 完成   |
+| **ja** | 579    | 343    | **40%** | 🔴 需翻译 |
+| **ko** | 579    | 343    | **40%** | 🔴 需翻译 |
+| **es** | 579    | 346    | **40%** | 🔴 需翻译 |
+| **fr** | 579    | ~10    | 98%     | 🟡 收尾   |
+| **de** | 579    | ~10    | 98%     | 🟡 收尾   |
 
 ### 未翻译键分布 (ja/ko/es 共通)
 
-| 命名空间 | 未翻译数 | 优先级 | 类型 |
-|----------|----------|--------|------|
-| **ui** | 67 | P0 | 核心UI组件 |
-| **about** | 47 | P1 | 页面内容 |
-| **errors** | 43 | P0 | 错误消息 |
-| **contact** | 31 | P1 | 页面内容 |
-| **portfolio** | 27 | P2 | 页面内容 |
-| **home** | 26 | P1 | 页面内容 |
-| **notifications** | 22 | P2 | 功能文本 |
-| **email** | 16 | P2 | 功能文本 |
-| **team** | 55 | P1 | 页面内容 |
-| **subagents** | ~20 | P2 | 功能文本 |
-| **memory** | ~15 | P2 | 功能文本 |
-| **tasks** | ~12 | P2 | 功能文本 |
-| **validation** | 12 | P0 | 表单验证 |
-| **time** | 7 | P0 | 相对时间 |
-| **mobileMenu** | ~10 | P1 | 导航 |
-| **loading** | ~8 | P2 | 加载提示 |
-| **settings** | ~12 | P2 | 设置页面 |
-| **blog** | ~20 | P2 | 博客内容 |
+| 命名空间          | 未翻译数 | 优先级 | 类型       |
+| ----------------- | -------- | ------ | ---------- |
+| **ui**            | 67       | P0     | 核心UI组件 |
+| **about**         | 47       | P1     | 页面内容   |
+| **errors**        | 43       | P0     | 错误消息   |
+| **contact**       | 31       | P1     | 页面内容   |
+| **portfolio**     | 27       | P2     | 页面内容   |
+| **home**          | 26       | P1     | 页面内容   |
+| **notifications** | 22       | P2     | 功能文本   |
+| **email**         | 16       | P2     | 功能文本   |
+| **team**          | 55       | P1     | 页面内容   |
+| **subagents**     | ~20      | P2     | 功能文本   |
+| **memory**        | ~15      | P2     | 功能文本   |
+| **tasks**         | ~12      | P2     | 功能文本   |
+| **validation**    | 12       | P0     | 表单验证   |
+| **time**          | 7        | P0     | 相对时间   |
+| **mobileMenu**    | ~10      | P1     | 导航       |
+| **loading**       | ~8       | P2     | 加载提示   |
+| **settings**      | ~12      | P2     | 设置页面   |
+| **blog**          | ~20      | P2     | 博客内容   |
 
 **总计**: 约 343 个键/语言需要翻译
 
@@ -91,16 +91,17 @@ src/i18n/messages/
 
 **目标**: 完成 ui, errors, validation, time 命名空间
 
-| 序号 | 命名空间 | 键数 | 预计时间 | 翻译方向 |
-|------|----------|------|----------|----------|
-| 1 | **validation** | 12 | 15min/语言 | zh/en → ja/ko/es |
-| 2 | **time** | 7 | 10min/语言 | zh/en → ja/ko/es |
-| 3 | **ui** | 67 | 45min/语言 | zh/en → ja/ko/es |
-| 4 | **errors** | 43 | 30min/语言 | zh/en → ja/ko/es |
+| 序号 | 命名空间       | 键数 | 预计时间   | 翻译方向         |
+| ---- | -------------- | ---- | ---------- | ---------------- |
+| 1    | **validation** | 12   | 15min/语言 | zh/en → ja/ko/es |
+| 2    | **time**       | 7    | 10min/语言 | zh/en → ja/ko/es |
+| 3    | **ui**         | 67   | 45min/语言 | zh/en → ja/ko/es |
+| 4    | **errors**     | 43   | 30min/语言 | zh/en → ja/ko/es |
 
 **小计**: 129 键，**约 2 小时/语言**
 
 #### validation 键列表
+
 ```json
 {
   "required": "必填项",
@@ -115,6 +116,7 @@ src/i18n/messages/
 ```
 
 #### time 键列表
+
 ```json
 {
   "justNow": "刚刚",
@@ -128,6 +130,7 @@ src/i18n/messages/
 ```
 
 #### ui 键结构 (67键)
+
 - `ui.button` - 按钮文本 (30+)
 - `ui.input` - 输入框 (20+)
 - `ui.modal` - 弹窗 (5)
@@ -140,13 +143,13 @@ src/i18n/messages/
 
 **目标**: 完成 about, home, team, contact, mobileMenu
 
-| 序号 | 命名空间 | 键数 | 预计时间 | 翻译方向 |
-|------|----------|------|----------|----------|
-| 1 | **home** | 26 | 30min/语言 | zh → ja/ko/es |
-| 2 | **team** | 55 | 45min/语言 | zh → ja/ko/es |
-| 3 | **about** | 47 | 30min/语言 | zh → ja/ko/es |
-| 4 | **contact** | 31 | 20min/语言 | zh → ja/ko/es |
-| 5 | **mobileMenu** | ~10 | 10min/语言 | zh → ja/ko/es |
+| 序号 | 命名空间       | 键数 | 预计时间   | 翻译方向      |
+| ---- | -------------- | ---- | ---------- | ------------- |
+| 1    | **home**       | 26   | 30min/语言 | zh → ja/ko/es |
+| 2    | **team**       | 55   | 45min/语言 | zh → ja/ko/es |
+| 3    | **about**      | 47   | 30min/语言 | zh → ja/ko/es |
+| 4    | **contact**    | 31   | 20min/语言 | zh → ja/ko/es |
+| 5    | **mobileMenu** | ~10  | 10min/语言 | zh → ja/ko/es |
 
 **小计**: ~169 键，**约 2.5 小时/语言**
 
@@ -156,18 +159,18 @@ src/i18n/messages/
 
 **目标**: 完成 portfolio, blog, notifications, email, settings
 
-| 序号 | 命名空间 | 键数 | 预计时间 |
-|------|----------|------|----------|
-| 1 | **portfolio** | 27 | 20min/语言 |
-| 2 | **blog** | ~20 | 15min/语言 |
-| 3 | **notifications** | 22 | 15min/语言 |
-| 4 | **email** | 16 | 15min/语言 |
-| 5 | **settings** | ~12 | 10min/语言 |
-| 6 | **subagents** | ~20 | 15min/语言 |
-| 7 | **memory** | ~15 | 10min/语言 |
-| 8 | **tasks** | ~12 | 10min/语言 |
-| 9 | **loading** | ~8 | 5min/语言 |
-| 10 | **dashboard** | ~15 | 10min/语言 |
+| 序号 | 命名空间          | 键数 | 预计时间   |
+| ---- | ----------------- | ---- | ---------- |
+| 1    | **portfolio**     | 27   | 20min/语言 |
+| 2    | **blog**          | ~20  | 15min/语言 |
+| 3    | **notifications** | 22   | 15min/语言 |
+| 4    | **email**         | 16   | 15min/语言 |
+| 5    | **settings**      | ~12  | 10min/语言 |
+| 6    | **subagents**     | ~20  | 15min/语言 |
+| 7    | **memory**        | ~15  | 10min/语言 |
+| 8    | **tasks**         | ~12  | 10min/语言 |
+| 9    | **loading**       | ~8   | 5min/语言  |
+| 10   | **dashboard**     | ~15  | 10min/语言 |
 
 **小计**: ~167 键，**约 2 小时/语言**
 
@@ -175,12 +178,12 @@ src/i18n/messages/
 
 ### 时间汇总
 
-| 阶段 | 键数 | 时间/语言 | 3语言总计 |
-|------|------|-----------|-----------|
-| Phase 2.1 (P0) | 129 | 2h | 6h |
-| Phase 2.2 (P1) | ~169 | 2.5h | 7.5h |
-| Phase 2.3 (P2) | ~167 | 2h | 6h |
-| **总计** | ~465 | **6.5h** | **19.5h** |
+| 阶段           | 键数 | 时间/语言 | 3语言总计 |
+| -------------- | ---- | --------- | --------- |
+| Phase 2.1 (P0) | 129  | 2h        | 6h        |
+| Phase 2.2 (P1) | ~169 | 2.5h      | 7.5h      |
+| Phase 2.3 (P2) | ~167 | 2h        | 6h        |
+| **总计**       | ~465 | **6.5h**  | **19.5h** |
 
 ---
 
@@ -191,6 +194,7 @@ src/i18n/messages/
 **文件**: `scripts/translate-i18n.py`
 
 **问题**:
+
 1. 硬编码翻译内容，维护困难
 2. 仅支持部分命名空间 (common, nav, home, team, about, contact, footer)
 3. 无法处理新增命名空间
@@ -208,6 +212,7 @@ scripts/i18n/
 ```
 
 **CSV 格式**:
+
 ```csv
 namespace,key,path,en,zh,ja,ko,es,status
 common,siteName,common.siteName,7zi Studio,7zi Studio,7zi Studio,7zi Studio,7zi Studio,done
@@ -215,6 +220,7 @@ ui,button.confirm,ui.button.confirm,Confirm,确认,確認,확인,Confirmar,pendi
 ```
 
 **优点**:
+
 - 易于批量编辑 (Excel/Numbers)
 - 清晰的进度追踪
 - 支持众包翻译
@@ -250,7 +256,7 @@ async def translate_batch(keys, source_lang, target_lang):
     prompt = f"""
     Translate the following JSON keys from {source_lang} to {target_lang}:
     {json.dumps(keys, ensure_ascii=False)}
-    
+
     Return valid JSON with translations:
     """
     response = await openai.ChatCompletion.create(
@@ -261,11 +267,13 @@ async def translate_batch(keys, source_lang, target_lang):
 ```
 
 **优势**:
+
 - 高质量翻译 (专业术语处理)
 - 批量处理效率高
 - 保持术语一致性
 
 **注意**:
+
 - 需要 API 成本
 - 需人工校验
 
@@ -299,6 +307,7 @@ async def translate_batch(keys, source_lang, target_lang):
 ### 1. 自动化验证
 
 #### 1.1 键完整性检查
+
 ```bash
 # 检查所有语言是否有相同的键
 node scripts/i18n-validate.js --check-keys
@@ -309,12 +318,14 @@ node scripts/i18n-validate.js --check-keys
 ```
 
 #### 1.2 值类型检查
+
 ```bash
 # 检查类型一致性
 node scripts/i18n-validate.js --check-types
 ```
 
 #### 1.3 占位符检查
+
 ```bash
 # 检查未翻译占位符
 node scripts/i18n-validate.js --check-placeholder
@@ -327,20 +338,20 @@ node scripts/i18n-validate.js --check-placeholder
 
 #### 2.1 翻译一致性检查
 
-| 检查项 | 说明 | 工具 |
-|--------|------|------|
+| 检查项     | 说明                         | 工具      |
+| ---------- | ---------------------------- | --------- |
 | 术语一致性 | 同一术语在同命名空间译法一致 | grep 对比 |
-| 变量占位符 | {name}, {count} 等保持原样 | 文本比对 |
-| HTML 标签 | `<b>`, `<a>` 等保持不变 | 视觉检查 |
-| 特殊字符 | &, %, $ 等保持不变 | diff |
+| 变量占位符 | {name}, {count} 等保持原样   | 文本比对  |
+| HTML 标签  | `<b>`, `<a>` 等保持不变      | 视觉检查  |
+| 特殊字符   | &, %, $ 等保持不变           | diff      |
 
 #### 2.2 文化适配检查
 
-| 语言 | 检查项 |
-|------|--------|
-| ja | 敬语使用、汉字/假名混用、日期格式 |
-| ko | 敬语阶称 (해요체/합니다체)、日期格式 |
-| es | 阴阳性一致、动词变位、地域用词 |
+| 语言 | 检查项                               |
+| ---- | ------------------------------------ |
+| ja   | 敬语使用、汉字/假名混用、日期格式    |
+| ko   | 敬语阶称 (해요체/합니다체)、日期格式 |
+| es   | 阴阳性一致、动词变位、地域用词       |
 
 #### 2.3 视觉测试
 
@@ -355,6 +366,7 @@ npm run dev
 ```
 
 **检查清单**:
+
 - [ ] 页面文字无乱码
 - [ ] 按钮/表单文本正确显示
 - [ ] 弹窗/提示消息正确显示
@@ -363,12 +375,12 @@ npm run dev
 
 ### 3. 翻译验收标准
 
-| 指标 | 目标值 | 检查方法 |
-|------|--------|----------|
-| 键覆盖率 | 100% | `i18n-audit.js --coverage` |
-| 未翻译率 | < 1% | `i18n-validate.js --untranslated` |
-| JSON 错误 | 0 | `JSON.parse()` |
-| 测试通过 | 100% | Playwright E2E |
+| 指标      | 目标值 | 检查方法                          |
+| --------- | ------ | --------------------------------- |
+| 键覆盖率  | 100%   | `i18n-audit.js --coverage`        |
+| 未翻译率  | < 1%   | `i18n-validate.js --untranslated` |
+| JSON 错误 | 0      | `JSON.parse()`                    |
+| 测试通过  | 100%   | Playwright E2E                    |
 
 ---
 
@@ -409,16 +421,19 @@ npm run dev
 ### 新增工具建议
 
 1. **i18n-audit.js** - 审计当前翻译状态
+
    ```bash
    node i18n-audit.js --lang ja,ko,es
    ```
 
 2. **i18n-validate.js** - 验证翻译质量
+
    ```bash
    node i18n-validate.js --strict
    ```
 
 3. **i18n-export-csv.js** - 导出 CSV 供翻译
+
    ```bash
    node i18n-export-csv.js --output translation.csv
    ```
@@ -433,17 +448,20 @@ npm run dev
 ## 📝 总结
 
 ### 当前状态
+
 - **3 种语言需翻译**: ja, ko, es
 - **未翻译键**: 343/语言
 - **预计工作量**: 19.5 小时
 
 ### 执行要点
+
 1. **优先翻译 P0** (ui, errors, validation, time)
 2. **使用工具辅助** (CSV/AI 批量翻译)
 3. **严格质量审查** (自动化 + 人工)
 4. **分阶段实施** (5 天完成)
 
 ### 验收目标
+
 - [x] zh/en 100% ✅
 - [ ] ja/ko/es 100% (目标)
 - [x] fr/de 98% ✅

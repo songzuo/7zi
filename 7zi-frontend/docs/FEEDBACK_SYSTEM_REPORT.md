@@ -98,60 +98,62 @@ src/app/
 
 ### 主表：feedback
 
-| 字段 | 类型 | 说明 |
-|------|------|------|
-| id | TEXT | 主键，格式：FB-{timestamp}-{random} |
-| user_id | TEXT | 用户ID |
-| user_name | TEXT | 用户名称 |
-| user_email | TEXT | 用户邮箱 |
-| type | TEXT | 反馈类型 |
-| priority | TEXT | 优先级 |
-| status | TEXT | 状态 |
-| title | TEXT | 标题 |
-| description | TEXT | 详细描述 |
-| rating | INTEGER | 评分（1-5） |
-| url | TEXT | 相关URL |
-| attachments | TEXT | 附件列表（JSON数组） |
-| tags | TEXT | 标签列表（JSON数组） |
-| admin_response | TEXT | 管理员回复 |
-| admin_id | TEXT | 回复管理员ID |
-| admin_name | TEXT | 回复管理员名称 |
-| resolved_at | INTEGER | 解决时间戳 |
-| closed_at | INTEGER | 关闭时间戳 |
-| created_at | INTEGER | 创建时间戳 |
-| updated_at | INTEGER | 更新时间戳 |
+| 字段           | 类型    | 说明                                |
+| -------------- | ------- | ----------------------------------- |
+| id             | TEXT    | 主键，格式：FB-{timestamp}-{random} |
+| user_id        | TEXT    | 用户ID                              |
+| user_name      | TEXT    | 用户名称                            |
+| user_email     | TEXT    | 用户邮箱                            |
+| type           | TEXT    | 反馈类型                            |
+| priority       | TEXT    | 优先级                              |
+| status         | TEXT    | 状态                                |
+| title          | TEXT    | 标题                                |
+| description    | TEXT    | 详细描述                            |
+| rating         | INTEGER | 评分（1-5）                         |
+| url            | TEXT    | 相关URL                             |
+| attachments    | TEXT    | 附件列表（JSON数组）                |
+| tags           | TEXT    | 标签列表（JSON数组）                |
+| admin_response | TEXT    | 管理员回复                          |
+| admin_id       | TEXT    | 回复管理员ID                        |
+| admin_name     | TEXT    | 回复管理员名称                      |
+| resolved_at    | INTEGER | 解决时间戳                          |
+| closed_at      | INTEGER | 关闭时间戳                          |
+| created_at     | INTEGER | 创建时间戳                          |
+| updated_at     | INTEGER | 更新时间戳                          |
 
 ### 评论表：feedback_comments
 
-| 字段 | 类型 | 说明 |
-|------|------|------|
-| id | TEXT | 主键 |
-| feedback_id | TEXT | 反馈ID（外键） |
-| user_id | TEXT | 用户ID |
-| user_name | TEXT | 用户名称 |
-| user_email | TEXT | 用户邮箱 |
-| comment | TEXT | 评论内容 |
-| is_admin | INTEGER | 是否管理员 |
-| created_at | INTEGER | 创建时间戳 |
+| 字段        | 类型    | 说明           |
+| ----------- | ------- | -------------- |
+| id          | TEXT    | 主键           |
+| feedback_id | TEXT    | 反馈ID（外键） |
+| user_id     | TEXT    | 用户ID         |
+| user_name   | TEXT    | 用户名称       |
+| user_email  | TEXT    | 用户邮箱       |
+| comment     | TEXT    | 评论内容       |
+| is_admin    | INTEGER | 是否管理员     |
+| created_at  | INTEGER | 创建时间戳     |
 
 ### 评分历史表：feedback_ratings
 
-| 字段 | 类型 | 说明 |
-|------|------|------|
-| id | TEXT | 主键 |
-| feedback_id | TEXT | 反馈ID（外键） |
-| user_id | TEXT | 用户ID |
-| rating | INTEGER | 评分（1-5） |
-| created_at | INTEGER | 创建时间戳 |
+| 字段        | 类型    | 说明           |
+| ----------- | ------- | -------------- |
+| id          | TEXT    | 主键           |
+| feedback_id | TEXT    | 反馈ID（外键） |
+| user_id     | TEXT    | 用户ID         |
+| rating      | INTEGER | 评分（1-5）    |
+| created_at  | INTEGER | 创建时间戳     |
 
 ---
 
 ## 🔌 API 端点
 
 ### 1. POST /api/feedback
+
 提交新反馈
 
 **请求体：**
+
 ```json
 {
   "type": "bug|feature|improvement|complaint|praise|other",
@@ -166,6 +168,7 @@ src/app/
 ```
 
 **响应：**
+
 ```json
 {
   "success": true,
@@ -181,9 +184,11 @@ src/app/
 ```
 
 ### 2. GET /api/feedback
+
 获取反馈列表
 
 **查询参数：**
+
 - `page`: 页码（默认1）
 - `limit`: 每页数量（默认20）
 - `type`: 反馈类型筛选
@@ -192,6 +197,7 @@ src/app/
 - `q`: 搜索关键词
 
 **响应：**
+
 ```json
 {
   "success": true,
@@ -205,9 +211,11 @@ src/app/
 ```
 
 ### 3. GET /api/feedback/stats
+
 获取统计信息（需管理员权限）
 
 **响应：**
+
 ```json
 {
   "success": true,
@@ -227,9 +235,11 @@ src/app/
 ```
 
 ### 4. PATCH /api/feedback
+
 更新反馈状态（需管理员权限）
 
 **请求体：**
+
 ```json
 {
   "feedbackId": "FB-XXX-XXX",
@@ -241,12 +251,15 @@ src/app/
 ```
 
 ### 5. DELETE /api/feedback?id={feedbackId}
+
 删除反馈（需管理员权限）
 
 ### 6. POST /api/feedback/response
+
 添加管理员回复
 
 **请求体：**
+
 ```json
 {
   "feedbackId": "FB-XXX-XXX",
@@ -257,9 +270,11 @@ src/app/
 ```
 
 ### 7. GET /api/feedback/export
+
 导出反馈为CSV（需管理员权限）
 
 **查询参数：**
+
 - `type`: 反馈类型筛选
 - `priority`: 优先级筛选
 - `status`: 状态筛选
@@ -502,7 +517,7 @@ const response = await fetch('/api/feedback', {
     url: 'https://example.com/login',
     tags: ['login', 'chrome'],
   }),
-});
+})
 ```
 
 ### 管理员更新状态
@@ -513,7 +528,7 @@ const response = await fetch('/api/feedback', {
   method: 'PATCH',
   headers: {
     'Content-Type': 'application/json',
-    'Authorization': `Bearer ${token}`,
+    Authorization: `Bearer ${token}`,
   },
   body: JSON.stringify({
     feedbackId: 'FB-XXX-XXX',
@@ -522,7 +537,7 @@ const response = await fetch('/api/feedback', {
     adminId: 'admin-123',
     adminName: '张三',
   }),
-});
+})
 ```
 
 ### 获取统计数据
@@ -531,11 +546,11 @@ const response = await fetch('/api/feedback', {
 // 获取统计
 const response = await fetch('/api/feedback/stats', {
   headers: {
-    'Authorization': `Bearer ${token}`,
+    Authorization: `Bearer ${token}`,
   },
-});
-const data = await response.json();
-console.log(data.data.stats);
+})
+const data = await response.json()
+console.log(data.data.stats)
 ```
 
 ---

@@ -12,23 +12,23 @@ export enum AuditAction {
 }
 
 export interface AuditLog {
-  id: string;
-  userId?: string;
-  action: AuditAction;
-  resource: string;
-  resourceId?: string;
-  changes?: Record<string, { old: unknown; new: unknown }>;
-  ip?: string;
-  userAgent?: string;
-  timestamp: Date;
+  id: string
+  userId?: string
+  action: AuditAction
+  resource: string
+  resourceId?: string
+  changes?: Record<string, { old: unknown; new: unknown }>
+  ip?: string
+  userAgent?: string
+  timestamp: Date
 }
 
 export interface AuditQuery {
-  userId?: string;
-  action?: AuditAction;
-  resource?: string;
-  startDate?: Date;
-  endDate?: Date;
-  page?: number;
-  limit?: number;
+  userId?: string
+  action?: AuditAction
+  resource?: string
+  startDate?: Date
+  endDate?: Date
+  page?: number
+  limit?: number
 }

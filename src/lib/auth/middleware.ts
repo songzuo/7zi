@@ -8,4 +8,4 @@
  */
 
 // Re-export all from RBAC middleware for backward compatibility
-export * from './middleware-rbac';
+export * from './middleware-rbac'

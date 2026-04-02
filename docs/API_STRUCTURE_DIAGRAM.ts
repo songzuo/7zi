@@ -216,4 +216,4 @@
  *    → Easy client handling
  */
 
-export default {}; // This file is for documentation only
+export default {} // This file is for documentation only

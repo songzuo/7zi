@@ -1,4 +1,4 @@
-'use client';
+'use client'
 
 /**
  * WebSocket Error Boundary
@@ -7,53 +7,53 @@
  * Provides fallback UI and recovery options
  */
 
-import React, { Component, ErrorInfo, ReactNode } from 'react';
+import React, { Component, ErrorInfo, ReactNode } from 'react'
 
 interface Props {
-  children: ReactNode;
-  fallback?: ReactNode;
-  onError?: (error: Error, errorInfo: ErrorInfo) => void;
+  children: ReactNode
+  fallback?: ReactNode
+  onError?: (error: Error, errorInfo: ErrorInfo) => void
 }
 
 interface State {
-  hasError: boolean;
-  error: Error | null;
-  errorInfo: ErrorInfo | null;
+  hasError: boolean
+  error: Error | null
+  errorInfo: ErrorInfo | null
 }
 
 export class WebSocketErrorBoundary extends Component<Props, State> {
   constructor(props: Props) {
-    super(props);
+    super(props)
     this.state = {
       hasError: false,
       error: null,
       errorInfo: null,
-    };
+    }
   }
 
   static getDerivedStateFromError(error: Error): Partial<State> {
     return {
       hasError: true,
       error,
-    };
+    }
   }
 
   componentDidCatch(error: Error, errorInfo: ErrorInfo) {
     // Log the error
-    console.error('[WebSocketErrorBoundary] Caught error:', error, errorInfo);
+    console.error('[WebSocketErrorBoundary] Caught error:', error, errorInfo)
 
     // Update state
     this.setState({
       error,
       errorInfo,
-    });
+    })
 
     // Call error callback if provided
     if (this.props.onError) {
       try {
-        this.props.onError(error, errorInfo);
+        this.props.onError(error, errorInfo)
       } catch (callbackError) {
-        console.error('[WebSocketErrorBoundary] Error callback failed:', callbackError);
+        console.error('[WebSocketErrorBoundary] Error callback failed:', callbackError)
       }
     }
   }
@@ -63,22 +63,22 @@ export class WebSocketErrorBoundary extends Component<Props, State> {
       hasError: false,
       error: null,
       errorInfo: null,
-    });
-  };
+    })
+  }
 
   render() {
     if (this.state.hasError) {
       // Use custom fallback if provided
       if (this.props.fallback) {
-        return <>{this.props.fallback}</>;
+        return <>{this.props.fallback}</>
       }
 
       // Default fallback UI
       return (
-        <div className="flex flex-col items-center justify-center p-8 bg-red-50 dark:bg-red-900/20 rounded-lg border border-red-200 dark:border-red-800">
-          <div className="text-red-600 dark:text-red-400 mb-4">
+        <div className="flex flex-col items-center justify-center rounded-lg border border-red-200 bg-red-50 p-8 dark:border-red-800 dark:bg-red-900/20">
+          <div className="mb-4 text-red-600 dark:text-red-400">
             <svg
-              className="w-12 h-12 mx-auto"
+              className="mx-auto h-12 w-12"
               fill="none"
               stroke="currentColor"
               viewBox="0 0 24 24"
@@ -92,12 +92,12 @@ export class WebSocketErrorBoundary extends Component<Props, State> {
             </svg>
           </div>
 
-          <h3 className="text-lg font-semibold text-red-800 dark:text-red-200 mb-2">
+          <h3 className="mb-2 text-lg font-semibold text-red-800 dark:text-red-200">
             WebSocket Connection Error
           </h3>
 
           {this.state.error && (
-            <p className="text-sm text-red-700 dark:text-red-300 mb-4 text-center">
+            <p className="mb-4 text-center text-sm text-red-700 dark:text-red-300">
               {this.state.error.message}
             </p>
           )}
@@ -105,13 +105,13 @@ export class WebSocketErrorBoundary extends Component<Props, State> {
           <div className="flex gap-2">
             <button
               onClick={this.handleReset}
-              className="px-4 py-2 bg-red-600 text-white rounded hover:bg-red-700 transition-colors"
+              className="rounded bg-red-600 px-4 py-2 text-white transition-colors hover:bg-red-700"
             >
               Retry
             </button>
             <button
               onClick={() => window.location.reload()}
-              className="px-4 py-2 bg-gray-600 text-white rounded hover:bg-gray-700 transition-colors"
+              className="rounded bg-gray-600 px-4 py-2 text-white transition-colors hover:bg-gray-700"
             >
               Reload Page
             </button>
@@ -122,16 +122,16 @@ export class WebSocketErrorBoundary extends Component<Props, State> {
               <summary className="cursor-pointer text-sm text-red-800 dark:text-red-200">
                 Error Details
               </summary>
-              <pre className="mt-2 p-2 bg-red-100 dark:bg-red-900/30 rounded text-xs overflow-auto">
+              <pre className="mt-2 overflow-auto rounded bg-red-100 p-2 text-xs dark:bg-red-900/30">
                 {this.state.errorInfo.componentStack}
               </pre>
             </details>
           )}
         </div>
-      );
+      )
     }
 
-    return this.props.children;
+    return this.props.children
   }
 }
 
@@ -141,19 +141,19 @@ export class WebSocketErrorBoundary extends Component<Props, State> {
 export function withWebSocketErrorBoundary<P extends object>(
   WrappedComponent: React.ComponentType<P>,
   options?: {
-    fallback?: ReactNode;
-    onError?: (error: Error, errorInfo: ErrorInfo) => void;
+    fallback?: ReactNode
+    onError?: (error: Error, errorInfo: ErrorInfo) => void
   }
 ) {
-  const displayName = WrappedComponent.displayName || WrappedComponent.name || 'Component';
+  const displayName = WrappedComponent.displayName || WrappedComponent.name || 'Component'
 
   return function WithWebSocketErrorBoundary(props: P) {
     return (
       <WebSocketErrorBoundary fallback={options?.fallback} onError={options?.onError}>
         <WrappedComponent {...props} />
       </WebSocketErrorBoundary>
-    );
-  };
+    )
+  }
 }
 
-export default WebSocketErrorBoundary;
+export default WebSocketErrorBoundary

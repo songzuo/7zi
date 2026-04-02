@@ -135,6 +135,7 @@ Skills provide your tools. When you need one, check its `SKILL.md`. Keep local n
 Located at: `openclaw-kb/`
 
 **Required for:**
+
 - Any OpenClaw configuration changes
 - Version upgrades/downgrades
 - Config file modifications
@@ -142,6 +143,7 @@ Located at: `openclaw-kb/`
 - New feature implementation
 
 **Always do first:**
+
 1. Check current version: `openclaw --version`
 2. Validate config: `openclaw config validate`
 3. Review relevant KB sections
@@ -280,6 +282,7 @@ The goal: Be helpful without being annoying. Check in a few times a day, do usef
 ### 主管职责
 
 作为主管，我的职责：
+
 1. **接收主人任务** - 理解需求和目标
 2. **分析任务** - 分解成子任务
 3. **分配子代理** - 派给合适的子代理
@@ -290,6 +293,7 @@ The goal: Be helpful without being annoying. Check in a few times a day, do usef
 ### 会议系统
 
 作为主管，我可以召开以下会议：
+
 - **每日站会** - 子代理汇报进度
 - **规划会** - 制定方案和计划
 - **问题研讨** - 分析和解决问题
@@ -298,23 +302,24 @@ The goal: Be helpful without being annoying. Check in a few times a day, do usef
 
 ### 子代理列表
 
-| 子代理 | 职责 | 提供商 |
-|--------|------|--------|
-| 🌟 智能体世界专家 | 视角转换、未来布局 | minimax |
-| 📚 咨询师 | 研究分析 | minimax |
-| 🏗️ 架构师 | 架构设计 | self-claude |
-| ⚡ Executor | 执行实现 | volcengine |
-| 🛡️ 系统管理员 | 运维部署 | bailian |
-| 🧪 测试员 | 测试调试 | minimax |
-| 🎨 设计师 | UI设计 | self-claude |
-| 📣 推广专员 | 推广SEO | volcengine |
-| 💼 销售客服 | 销售客服 | bailian |
-| 💰 财务 | 财务会计 | minimax |
-| 📺 媒体 | 媒体宣传 | self-claude |
+| 子代理            | 职责               | 提供商      |
+| ----------------- | ------------------ | ----------- |
+| 🌟 智能体世界专家 | 视角转换、未来布局 | minimax     |
+| 📚 咨询师         | 研究分析           | minimax     |
+| 🏗️ 架构师         | 架构设计           | self-claude |
+| ⚡ Executor       | 执行实现           | volcengine  |
+| 🛡️ 系统管理员     | 运维部署           | bailian     |
+| 🧪 测试员         | 测试调试           | minimax     |
+| 🎨 设计师         | UI设计             | self-claude |
+| 📣 推广专员       | 推广SEO            | volcengine  |
+| 💼 销售客服       | 销售客服           | bailian     |
+| 💰 财务           | 财务会计           | minimax     |
+| 📺 媒体           | 媒体宣传           | self-claude |
 
 ### 主人权利
 
 作为主人，你可以：
+
 - ✅ 下达任何任务
 - ✅ 参加任何会议
 - ✅ 旁观所有讨论

@@ -79,7 +79,7 @@ describe('SEO - Meta Tags 完整性测试', () => {
     it('description 应在合理长度范围内', () => {
       const testCases = Object.values(pageMetadataConfig)
 
-      testCases.forEach((config) => {
+      testCases.forEach(config => {
         const meta = generatePageMetadata(config)
         const desc = meta.description || ''
 
@@ -92,14 +92,14 @@ describe('SEO - Meta Tags 完整性测试', () => {
 
   describe('Metadata 质量检查', () => {
     it('所有页面配置应有唯一的 title', () => {
-      const titles = Object.values(pageMetadataConfig).map((config) => config.title)
+      const titles = Object.values(pageMetadataConfig).map(config => config.title)
       const uniqueTitles = new Set(titles)
 
       expect(titles.length).toBe(uniqueTitles.size)
     })
 
     it('所有页面配置应有唯一的 description', () => {
-      const descriptions = Object.values(pageMetadataConfig).map((config) => config.description)
+      const descriptions = Object.values(pageMetadataConfig).map(config => config.description)
       const uniqueDescriptions = new Set(descriptions)
 
       // 允许少量重复，但大部分应唯一
@@ -110,9 +110,9 @@ describe('SEO - Meta Tags 完整性测试', () => {
     it('keywords 应包含相关术语', () => {
       const importantKeywords = ['Next.js', 'React', 'TypeScript', '图片优化']
 
-      importantKeywords.forEach((keyword) => {
-        const found = Object.values(pageMetadataConfig).some((config) =>
-          config.keywords?.some((k) => k.toLowerCase().includes(keyword.toLowerCase()))
+      importantKeywords.forEach(keyword => {
+        const found = Object.values(pageMetadataConfig).some(config =>
+          config.keywords?.some(k => k.toLowerCase().includes(keyword.toLowerCase()))
         )
         expect(found).toBe(true)
       })

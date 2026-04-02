@@ -3,5 +3,5 @@
  * @description Test suite for the undo-redo functionality
  */
 
-export * from './middleware.test';
-export * from './manager.test';
+export * from './middleware.test'
+export * from './manager.test'

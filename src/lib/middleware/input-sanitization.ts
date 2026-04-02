@@ -10,64 +10,64 @@
  * - Command injection prevention
  */
 
-import DOMPurify from 'isomorphic-dompurify';
+import DOMPurify from 'isomorphic-dompurify'
 
 /**
  * Sanitization options
  */
 export interface SanitizationOptions {
   // Allow HTML (stripped and sanitized)
-  allowHTML?: boolean;
+  allowHTML?: boolean
 
   // Allowed HTML tags (when allowHTML is true)
-  allowedTags?: string[];
+  allowedTags?: string[]
 
   // Allowed HTML attributes (when allowHTML is true)
-  allowedAttributes?: Record<string, string[]>;
+  allowedAttributes?: Record<string, string[]>
 
   // Strip all tags (convert to plain text)
-  stripTags?: boolean;
+  stripTags?: boolean
 
   // Trim whitespace
-  trim?: boolean;
+  trim?: boolean
 
   // Maximum length
-  maxLength?: number;
+  maxLength?: number
 
   // Minimum length
-  minLength?: number;
+  minLength?: number
 
   // Allow specific characters (regex pattern)
-  allowPattern?: RegExp;
+  allowPattern?: RegExp
 
   // Block specific characters (regex pattern)
-  blockPattern?: RegExp;
+  blockPattern?: RegExp
 
   // For numbers
-  isNumber?: boolean;
-  min?: number;
-  max?: number;
-  isInteger?: boolean;
+  isNumber?: boolean
+  min?: number
+  max?: number
+  isInteger?: boolean
 
   // For emails
-  isEmail?: boolean;
+  isEmail?: boolean
 
   // For URLs
-  isURL?: boolean;
+  isURL?: boolean
 
   // For UUIDs
-  isUUID?: boolean;
+  isUUID?: boolean
 
   // For arrays
-  isArray?: boolean;
-  arrayItemSchema?: SanitizationOptions;
+  isArray?: boolean
+  arrayItemSchema?: SanitizationOptions
 
   // For objects
-  isObject?: boolean;
-  objectSchema?: Record<string, SanitizationOptions>;
+  isObject?: boolean
+  objectSchema?: Record<string, SanitizationOptions>
 
   // Custom validator
-  customValidator?: (value: unknown) => boolean;
+  customValidator?: (value: unknown) => boolean
 }
 
 /**
@@ -94,7 +94,7 @@ const DEFAULT_ALLOWED_TAGS = [
   'blockquote',
   'code',
   'pre',
-];
+]
 
 /**
  * Default allowed HTML attributes (whitelist)
@@ -102,7 +102,7 @@ const DEFAULT_ALLOWED_TAGS = [
 const DEFAULT_ALLOWED_ATTRIBUTES = {
   a: ['href', 'title'],
   img: ['src', 'alt', 'title'],
-};
+}
 
 /**
  * XSS patterns to block
@@ -114,7 +114,7 @@ const XSS_PATTERNS = [
   /data:(?!image\/)/gi,
   /on\w+\s*=/gi, // onclick, onerror, etc.
   /<\s*\/?\s*(script|iframe|object|embed|form|input|button)/gi,
-];
+]
 
 /**
  * SQL injection patterns (basic detection)
@@ -124,7 +124,7 @@ const SQL_INJECTION_PATTERNS = [
   /(--|;|\/\*|\*\/)/g,
   /('.*?(OR|AND).*?'.*?='.*)/gi,
   /(\b(1=1|1 = 1)\b)/gi,
-];
+]
 
 /**
  * NoSQL injection patterns (MongoDB)
@@ -144,7 +144,7 @@ const NOSQL_INJECTION_PATTERNS = [
   /\$exists/gi,
   /\$regex/gi,
   /\$expr/gi,
-];
+]
 
 /**
  * Path traversal patterns
@@ -156,7 +156,7 @@ const PATH_TRAVERSAL_PATTERNS = [
   /%2e%2e\\/gi,
   /..%2f/gi,
   /..%5c/gi,
-];
+]
 
 /**
  * Command injection patterns
@@ -165,7 +165,7 @@ const COMMAND_INJECTION_PATTERNS = [
   /[;&|`$()]/g,
   /\b(cat|ls|pwd|whoami|chmod|chown|rm|mv|cp)\b/gi,
   /\b(nc|netcat|curl|wget|telnet)\b/gi,
-];
+]
 
 /**
  * Sanitize a string value
@@ -174,7 +174,7 @@ export function sanitizeString(
   value: string,
   options: SanitizationOptions = {}
 ): { sanitized: string; valid: boolean; error?: string } {
-  let sanitized = value;
+  let sanitized = value
 
   // Check length constraints
   if (options.maxLength && sanitized.length > options.maxLength) {
@@ -182,7 +182,7 @@ export function sanitizeString(
       sanitized: sanitized.substring(0, options.maxLength),
       valid: false,
       error: `Value exceeds maximum length of ${options.maxLength}`,
-    };
+    }
   }
 
   if (options.minLength && sanitized.length < options.minLength) {
@@ -190,23 +190,23 @@ export function sanitizeString(
       sanitized,
       valid: false,
       error: `Value is below minimum length of ${options.minLength}`,
-    };
+    }
   }
 
   // Trim if requested
   if (options.trim !== false) {
-    sanitized = sanitized.trim();
+    sanitized = sanitized.trim()
   }
 
   // Check block pattern
   if (options.blockPattern) {
-    const matches = sanitized.match(options.blockPattern);
+    const matches = sanitized.match(options.blockPattern)
     if (matches) {
       return {
         sanitized,
         valid: false,
         error: 'Value contains blocked characters',
-      };
+      }
     }
   }
 
@@ -217,51 +217,50 @@ export function sanitizeString(
         sanitized,
         valid: false,
         error: 'Value contains invalid characters',
-      };
+      }
     }
   }
 
   // Email validation
   if (options.isEmail) {
-    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
     if (!emailRegex.test(sanitized)) {
       return {
         sanitized,
         valid: false,
         error: 'Invalid email format',
-      };
+      }
     }
   }
 
   // URL validation
   if (options.isURL) {
     try {
-      new URL(sanitized);
-    } catch {
+      new URL(sanitized)
+    } catch (error) {
       return {
         sanitized,
         valid: false,
         error: 'Invalid URL format',
-      };
+      }
     }
   }
 
   // UUID validation
   if (options.isUUID) {
-    const uuidRegex =
-      /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
+    const uuidRegex = /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i
     if (!uuidRegex.test(sanitized)) {
       return {
         sanitized,
         valid: false,
         error: 'Invalid UUID format',
-      };
+      }
     }
   }
 
   // Strip tags if requested
   if (options.stripTags) {
-    sanitized = sanitized.replace(/<[^>]*>/g, '');
+    sanitized = sanitized.replace(/<[^>]*>/g, '')
   }
 
   // Sanitize HTML if allowed
@@ -271,44 +270,44 @@ export function sanitizeString(
       ALLOWED_ATTR: options.allowedAttributes
         ? Object.values(options.allowedAttributes).flat()
         : undefined,
-    });
+    })
   } else {
     // Remove all HTML tags and decode entities
-    sanitized = DOMPurify.sanitize(sanitized, { ALLOWED_TAGS: [] });
+    sanitized = DOMPurify.sanitize(sanitized, { ALLOWED_TAGS: [] })
   }
 
   // Check for XSS patterns
   for (const pattern of XSS_PATTERNS) {
     if (pattern.test(sanitized)) {
-      sanitized = sanitized.replace(pattern, '');
+      sanitized = sanitized.replace(pattern, '')
     }
   }
 
   // Check for SQL injection patterns
   for (const pattern of SQL_INJECTION_PATTERNS) {
     if (pattern.test(sanitized)) {
-      sanitized = sanitized.replace(pattern, '');
+      sanitized = sanitized.replace(pattern, '')
     }
   }
 
   // Check for NoSQL injection patterns
   for (const pattern of NOSQL_INJECTION_PATTERNS) {
     if (pattern.test(sanitized)) {
-      sanitized = sanitized.replace(pattern, '');
+      sanitized = sanitized.replace(pattern, '')
     }
   }
 
   // Check for path traversal patterns
   for (const pattern of PATH_TRAVERSAL_PATTERNS) {
     if (pattern.test(sanitized)) {
-      sanitized = sanitized.replace(pattern, '');
+      sanitized = sanitized.replace(pattern, '')
     }
   }
 
   // Check for command injection patterns
   for (const pattern of COMMAND_INJECTION_PATTERNS) {
     if (pattern.test(sanitized)) {
-      sanitized = sanitized.replace(pattern, '');
+      sanitized = sanitized.replace(pattern, '')
     }
   }
 
@@ -318,13 +317,13 @@ export function sanitizeString(
       sanitized,
       valid: false,
       error: 'Custom validation failed',
-    };
+    }
   }
 
   return {
     sanitized,
     valid: true,
-  };
+  }
 }
 
 /**
@@ -340,10 +339,10 @@ export function sanitizeNumber(
       sanitized: 0,
       valid: false,
       error: 'Value is not a valid number',
-    };
+    }
   }
 
-  const sanitized = value;
+  const sanitized = value
 
   // Check if integer
   if (options.isInteger && !Number.isInteger(sanitized)) {
@@ -351,7 +350,7 @@ export function sanitizeNumber(
       sanitized: Math.round(sanitized),
       valid: false,
       error: 'Value must be an integer',
-    };
+    }
   }
 
   // Check min/max
@@ -360,7 +359,7 @@ export function sanitizeNumber(
       sanitized: options.min,
       valid: false,
       error: `Value must be at least ${options.min}`,
-    };
+    }
   }
 
   if (options.max !== undefined && sanitized > options.max) {
@@ -368,40 +367,38 @@ export function sanitizeNumber(
       sanitized: options.max,
       valid: false,
       error: `Value must be at most ${options.max}`,
-    };
+    }
   }
 
   return {
     sanitized,
     valid: true,
-  };
+  }
 }
 
 /**
  * Sanitize a boolean value
  */
-export function sanitizeBoolean(
-  value: unknown
-): { sanitized: boolean; valid: boolean } {
+export function sanitizeBoolean(value: unknown): { sanitized: boolean; valid: boolean } {
   if (typeof value === 'boolean') {
-    return { sanitized: value, valid: true };
+    return { sanitized: value, valid: true }
   }
 
   if (typeof value === 'string') {
-    const lower = value.toLowerCase();
+    const lower = value.toLowerCase()
     if (lower === 'true' || lower === '1') {
-      return { sanitized: true, valid: true };
+      return { sanitized: true, valid: true }
     }
     if (lower === 'false' || lower === '0') {
-      return { sanitized: false, valid: true };
+      return { sanitized: false, valid: true }
     }
   }
 
   if (typeof value === 'number') {
-    return { sanitized: value !== 0, valid: true };
+    return { sanitized: value !== 0, valid: true }
   }
 
-  return { sanitized: false, valid: false };
+  return { sanitized: false, valid: false }
 }
 
 /**
@@ -411,44 +408,44 @@ export function sanitizeArray<T>(
   value: unknown[],
   options: SanitizationOptions = {}
 ): {
-  sanitized: T[];
-  valid: boolean;
-  errors: Array<{ index: number; error: string }>;
+  sanitized: T[]
+  valid: boolean
+  errors: Array<{ index: number; error: string }>
 } {
   if (!Array.isArray(value)) {
     return {
       sanitized: [],
       valid: false,
       errors: [{ index: 0, error: 'Value is not an array' }],
-    };
+    }
   }
 
-  const sanitized: T[] = [];
-  const errors: Array<{ index: number; error: string }> = [];
+  const sanitized: T[] = []
+  const errors: Array<{ index: number; error: string }> = []
 
   value.forEach((item, index) => {
     if (options.arrayItemSchema) {
-      const result = sanitizeValue(item, options.arrayItemSchema);
+      const result = sanitizeValue(item, options.arrayItemSchema)
       if (!result.valid) {
-        errors.push({ index, error: result.error || 'Invalid item' });
+        errors.push({ index, error: result.error || 'Invalid item' })
       }
-      sanitized.push(result.sanitized as T);
+      sanitized.push(result.sanitized as T)
     } else if (typeof item === 'string') {
-      const result = sanitizeString(item);
+      const result = sanitizeString(item)
       if (!result.valid) {
-        errors.push({ index, error: result.error || 'Invalid string item' });
+        errors.push({ index, error: result.error || 'Invalid string item' })
       }
-      sanitized.push(result.sanitized as T);
+      sanitized.push(result.sanitized as T)
     } else {
-      sanitized.push(item as T);
+      sanitized.push(item as T)
     }
-  });
+  })
 
   return {
     sanitized,
     valid: errors.length === 0,
     errors,
-  };
+  }
 }
 
 /**
@@ -458,48 +455,48 @@ export function sanitizeObject<T extends Record<string, unknown>>(
   value: Record<string, unknown>,
   options: SanitizationOptions = {}
 ): {
-  sanitized: T;
-  valid: boolean;
-  errors: Record<string, string>;
+  sanitized: T
+  valid: boolean
+  errors: Record<string, string>
 } {
   if (typeof value !== 'object' || value === null || Array.isArray(value)) {
     return {
       sanitized: {} as T,
       valid: false,
       errors: { _global: 'Value is not an object' },
-    };
+    }
   }
 
-  const sanitized: Partial<T> = {};
-  const errors: Record<string, string> = {};
+  const sanitized: Partial<T> = {}
+  const errors: Record<string, string> = {}
 
   // If schema is provided, validate against it
   if (options.objectSchema) {
     for (const [key, schema] of Object.entries(options.objectSchema)) {
-      const result = sanitizeValue(value[key], schema);
+      const result = sanitizeValue(value[key], schema)
       if (!result.valid) {
-        errors[key] = result.error || 'Invalid value';
+        errors[key] = result.error || 'Invalid value'
       }
-      (sanitized as Record<string, unknown>)[key] = result.sanitized;
+      ;(sanitized as Record<string, unknown>)[key] = result.sanitized
     }
 
     // Check for unknown keys
-    const knownKeys = new Set(Object.keys(options.objectSchema));
-    const unknownKeys = Object.keys(value).filter((key) => !knownKeys.has(key));
+    const knownKeys = new Set(Object.keys(options.objectSchema))
+    const unknownKeys = Object.keys(value).filter(key => !knownKeys.has(key))
     for (const key of unknownKeys) {
-      (sanitized as Record<string, unknown>)[key] = value[key];
+      ;(sanitized as Record<string, unknown>)[key] = value[key]
     }
   } else {
     // No schema, just copy and sanitize string values
     for (const [key, item] of Object.entries(value)) {
       if (typeof item === 'string') {
-        const result = sanitizeString(item);
+        const result = sanitizeString(item)
         if (!result.valid) {
-          errors[key] = result.error || 'Invalid string value';
+          errors[key] = result.error || 'Invalid string value'
         }
-        (sanitized as Record<string, unknown>)[key] = result.sanitized;
+        ;(sanitized as Record<string, unknown>)[key] = result.sanitized
       } else {
-        (sanitized as Record<string, unknown>)[key] = item;
+        ;(sanitized as Record<string, unknown>)[key] = item
       }
     }
   }
@@ -508,7 +505,7 @@ export function sanitizeObject<T extends Record<string, unknown>>(
     sanitized: sanitized as T,
     valid: Object.keys(errors).length === 0,
     errors,
-  };
+  }
 }
 
 /**
@@ -520,50 +517,50 @@ export function sanitizeValue<T = unknown>(
 ): { sanitized: T; valid: boolean; error?: string } {
   // Handle null/undefined
   if (value === null || value === undefined) {
-    return { sanitized: null as T, valid: true };
+    return { sanitized: null as T, valid: true }
   }
 
   // Handle strings
   if (typeof value === 'string') {
     return sanitizeString(value, options) as unknown as {
-      sanitized: T;
-      valid: boolean;
-      error?: string;
-    };
+      sanitized: T
+      valid: boolean
+      error?: string
+    }
   }
 
   // Handle numbers
   if (typeof value === 'number' && options.isNumber) {
     return sanitizeNumber(value, options) as unknown as {
-      sanitized: T;
-      valid: boolean;
-      error?: string;
-    };
+      sanitized: T
+      valid: boolean
+      error?: string
+    }
   }
 
   // Handle booleans
   if (typeof value === 'boolean') {
-    return { sanitized: value as T, valid: true };
+    return { sanitized: value as T, valid: true }
   }
 
   // Handle arrays
   if (Array.isArray(value)) {
-    const result = sanitizeArray(value, options);
+    const result = sanitizeArray(value, options)
     return {
       sanitized: result.sanitized as T,
       valid: result.valid,
       error: result.errors[0]?.error,
-    };
+    }
   }
 
   // Handle objects
   if (typeof value === 'object') {
-    const result = sanitizeObject(value as Record<string, unknown>, options);
+    const result = sanitizeObject(value as Record<string, unknown>, options)
     return {
       sanitized: result.sanitized as T,
       valid: result.valid,
       error: Object.values(result.errors)[0],
-    };
+    }
   }
 
   // Unknown type
@@ -571,7 +568,7 @@ export function sanitizeValue<T = unknown>(
     sanitized: value as T,
     valid: false,
     error: 'Unsupported type for sanitization',
-  };
+  }
 }
 
 /**
@@ -581,11 +578,11 @@ export function sanitizeRequestBody<T extends Record<string, unknown>>(
   body: Record<string, unknown>,
   schema: Record<string, SanitizationOptions>
 ): {
-  sanitized: T;
-  valid: boolean;
-  errors: Record<string, string>;
+  sanitized: T
+  valid: boolean
+  errors: Record<string, string>
 } {
-  return sanitizeObject<T>(body, { objectSchema: schema });
+  return sanitizeObject<T>(body, { objectSchema: schema })
 }
 
 /**
@@ -595,48 +592,45 @@ export function sanitizeQueryParams(
   searchParams: URLSearchParams,
   schema: Record<string, SanitizationOptions>
 ): {
-  sanitized: Record<string, unknown>;
-  valid: boolean;
-  errors: Record<string, string>;
+  sanitized: Record<string, unknown>
+  valid: boolean
+  errors: Record<string, string>
 } {
-  const sanitized: Record<string, unknown> = {};
-  const errors: Record<string, string> = {};
+  const sanitized: Record<string, unknown> = {}
+  const errors: Record<string, string> = {}
 
   for (const [key, options] of Object.entries(schema)) {
-    const value = searchParams.get(key);
-    const result = sanitizeValue(value, options);
+    const value = searchParams.get(key)
+    const result = sanitizeValue(value, options)
     if (!result.valid) {
-      errors[key] = result.error || 'Invalid value';
+      errors[key] = result.error || 'Invalid value'
     }
-    sanitized[key] = result.sanitized;
+    sanitized[key] = result.sanitized
   }
 
   return {
     sanitized,
     valid: Object.keys(errors).length === 0,
     errors,
-  };
+  }
 }
 
 /**
  * Quick sanitization helper (default options)
  */
 export function sanitize(value: string): string {
-  return sanitizeString(value).sanitized;
+  return sanitizeString(value).sanitized
 }
 
 /**
  * Validate and sanitize in one step
  */
-export function validateAndSanitize<T = unknown>(
-  value: unknown,
-  options: SanitizationOptions
-): T {
-  const result = sanitizeValue<T>(value, options);
+export function validateAndSanitize<T = unknown>(value: unknown, options: SanitizationOptions): T {
+  const result = sanitizeValue<T>(value, options)
   if (!result.valid) {
-    throw new Error(result.error || 'Validation failed');
+    throw new Error(result.error || 'Validation failed')
   }
-  return result.sanitized;
+  return result.sanitized
 }
 
 /**
@@ -645,10 +639,10 @@ export function validateAndSanitize<T = unknown>(
 export function detectSQLInjection(value: string): boolean {
   for (const pattern of SQL_INJECTION_PATTERNS) {
     if (pattern.test(value)) {
-      return true;
+      return true
     }
   }
-  return false;
+  return false
 }
 
 /**
@@ -657,10 +651,10 @@ export function detectSQLInjection(value: string): boolean {
 export function detectNoSQLInjection(value: string): boolean {
   for (const pattern of NOSQL_INJECTION_PATTERNS) {
     if (pattern.test(value)) {
-      return true;
+      return true
     }
   }
-  return false;
+  return false
 }
 
 /**
@@ -669,10 +663,10 @@ export function detectNoSQLInjection(value: string): boolean {
 export function detectXSS(value: string): boolean {
   for (const pattern of XSS_PATTERNS) {
     if (pattern.test(value)) {
-      return true;
+      return true
     }
   }
-  return false;
+  return false
 }
 
 /**
@@ -681,10 +675,10 @@ export function detectXSS(value: string): boolean {
 export function detectPathTraversal(value: string): boolean {
   for (const pattern of PATH_TRAVERSAL_PATTERNS) {
     if (pattern.test(value)) {
-      return true;
+      return true
     }
   }
-  return false;
+  return false
 }
 
 /**
@@ -693,22 +687,22 @@ export function detectPathTraversal(value: string): boolean {
 export function detectCommandInjection(value: string): boolean {
   for (const pattern of COMMAND_INJECTION_PATTERNS) {
     if (pattern.test(value)) {
-      return true;
+      return true
     }
   }
-  return false;
+  return false
 }
 
 /**
  * Comprehensive security check
  */
 export function securityCheck(value: string): {
-  hasSQLInjection: boolean;
-  hasNoSQLInjection: boolean;
-  hasXSS: boolean;
-  hasPathTraversal: boolean;
-  hasCommandInjection: boolean;
-  isSafe: boolean;
+  hasSQLInjection: boolean
+  hasNoSQLInjection: boolean
+  hasXSS: boolean
+  hasPathTraversal: boolean
+  hasCommandInjection: boolean
+  isSafe: boolean
 } {
   return {
     hasSQLInjection: detectSQLInjection(value),
@@ -722,5 +716,5 @@ export function securityCheck(value: string): {
       !detectXSS(value) &&
       !detectPathTraversal(value) &&
       !detectCommandInjection(value),
-  };
+  }
 }

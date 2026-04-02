@@ -1,17 +1,21 @@
 # 主题持久化功能实现报告
 
 ## 实现时间
+
 2026-03-17 22:31 CET
 
 ## 任务概述
+
 为 7zi 项目添加主题持久化功能，确保用户选择的主题偏好能够保存在 localStorage 中，并在页面刷新后自动恢复。
 
 ## 实现状态
+
 ✅ **已完成** - 主题持久化功能已完整实现并通过测试
 
 ## 技术架构
 
 ### 核心文件
+
 - **SettingsContext**: `src/contexts/SettingsContext.tsx` - 统一的状态管理上下文
 - **ThemeProvider**: `src/components/ThemeProvider.tsx` - 向后兼容层（已弃用）
 - **ThemeToggle**: `src/components/ThemeToggle.tsx` - UI 组件
@@ -24,6 +28,7 @@
 **存储键**: `7zi-user-settings`
 
 **存储格式**:
+
 ```json
 {
   "theme": "light" | "dark" | "system",
@@ -40,6 +45,7 @@
 #### 2. 页面加载时读取主题
 
 使用 `useSyncExternalStore` 确保：
+
 - 在客户端渲染时才读取 localStorage
 - 防止服务端渲染和客户端渲染的水合不匹配
 - 同步多个标签页之间的 localStorage 变化
@@ -49,15 +55,15 @@ const mounted = useSyncExternalStore(
   subscribeToStorage,
   () => true,
   () => false
-);
+)
 
 const [settings, setSettings] = useState<UserSettings>(() => {
-  const stored = loadStoredSettings();
+  const stored = loadStoredSettings()
   return mergeSettings({
     ...userDefaults,
     ...stored,
-  });
-});
+  })
+})
 ```
 
 #### 3. 主题切换时保存到 localStorage
@@ -66,23 +72,23 @@ const [settings, setSettings] = useState<UserSettings>(() => {
 
 ```typescript
 useEffect(() => {
-  if (!mounted) return;
+  if (!mounted) return
 
-  const root = document.documentElement;
+  const root = document.documentElement
 
   if (isDark) {
-    root.classList.add('dark');
+    root.classList.add('dark')
   } else {
-    root.classList.remove('dark');
+    root.classList.remove('dark')
   }
 
   // 保存到 localStorage
   try {
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(settings));
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(settings))
   } catch (error) {
-    console.error('Failed to save settings to localStorage:', error);
+    console.error('Failed to save settings to localStorage:', error)
   }
-}, [settings, mounted, isDark]);
+}, [settings, mounted, isDark])
 ```
 
 #### 4. 首次访问时使用系统偏好
@@ -91,10 +97,10 @@ useEffect(() => {
 
 ```typescript
 const isDark = useMemo(() => {
-  if (!mounted) return false;
-  const systemDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
-  return settings.theme === 'dark' || (settings.theme === 'system' && systemDark);
-}, [settings.theme, mounted]);
+  if (!mounted) return false
+  const systemDark = window.matchMedia('(prefers-color-scheme: dark)').matches
+  return settings.theme === 'dark' || (settings.theme === 'system' && systemDark)
+}, [settings.theme, mounted])
 ```
 
 #### 5. useTheme 钩子
@@ -103,13 +109,13 @@ const isDark = useMemo(() => {
 
 ```typescript
 export function useTheme() {
-  const { settings, setTheme, toggleTheme, isDark } = useSettingsSafe();
+  const { settings, setTheme, toggleTheme, isDark } = useSettingsSafe()
   return {
     theme: settings.theme,
     setTheme,
     toggleTheme,
     isDark,
-  };
+  }
 }
 ```
 
@@ -148,6 +154,7 @@ export function useTheme() {
 ### 🎨 UI 组件
 
 **ThemeToggle 组件**:
+
 - 美观的切换按钮，支持亮色/暗色主题
 - 渐变色图标（日/月）
 - 平滑的过渡动画
@@ -156,6 +163,7 @@ export function useTheme() {
 ## 测试覆盖
 
 ### ThemeProvider 测试
+
 - ✅ 正确渲染子组件
 - ✅ 提供亮色主题上下文
 - ✅ 提供暗色主题上下文
@@ -169,6 +177,7 @@ export function useTheme() {
 - ✅ 在 Provider 外部使用时返回默认上下文
 
 ### ThemeToggle 测试
+
 - ✅ 无崩溃渲染
 - ✅ 点击切换主题
 - ✅ 正确显示当前主题状态
@@ -222,26 +231,30 @@ ThemeProvider 组件保持向后兼容，推荐使用新的 SettingsProvider：
 
 ```typescript
 // ✅ 推荐用法
-import { SettingsProvider } from '@/contexts/SettingsContext';
+import { SettingsProvider } from '@/contexts/SettingsContext'
 
 // ⚠️ 已弃用（仍可用）
-import { ThemeProvider } from '@/components/ThemeProvider';
+import { ThemeProvider } from '@/components/ThemeProvider'
 ```
 
 ## 配置
 
 ### 默认主题
+
 在 `SettingsContext.tsx` 中配置：
 
 ```typescript
 const defaultSettings: UserSettings = {
   theme: 'system', // 默认跟随系统
   language: 'zh',
-  notifications: { /* ... */ }
-};
+  notifications: {
+    /* ... */
+  },
+}
 ```
 
 ### 主题选项
+
 - `'light'` - 亮色主题
 - `'dark'` - 暗色主题
 - `'system'` - 跟随系统偏好
@@ -282,6 +295,7 @@ npm test -- --coverage
 ## 结论
 
 主题持久化功能已完整实现，包括：
+
 - localStorage 自动保存和恢复
 - 系统偏好检测和默认值处理
 - 跨标签页同步

@@ -4,10 +4,10 @@
  * Default shortcuts for the application. These can be customized by users.
  */
 
-import type { KeyboardShortcut, ShortcutContext } from './shortcut-types';
+import type { KeyboardShortcut, ShortcutContext } from './shortcut-types'
 
 // Re-export types for backward compatibility
-export type { KeyboardShortcut, ShortcutContext } from './shortcut-types';
+export type { KeyboardShortcut, ShortcutContext } from './shortcut-types'
 
 /**
  * Default shortcuts configuration
@@ -24,8 +24,8 @@ export const DEFAULT_SHORTCUTS: KeyboardShortcut[] = [
     category: 'navigation',
     action: () => {
       // Command palette action - to be implemented
-      console.log('Open command palette');
-    }
+      console.log('Open command palette')
+    },
   },
   {
     id: 'global.search',
@@ -34,8 +34,8 @@ export const DEFAULT_SHORTCUTS: KeyboardShortcut[] = [
     description: 'Open search',
     category: 'navigation',
     action: () => {
-      console.log('Open search');
-    }
+      console.log('Open search')
+    },
   },
   {
     id: 'global.escape',
@@ -44,8 +44,8 @@ export const DEFAULT_SHORTCUTS: KeyboardShortcut[] = [
     description: 'Close modal/dropdown',
     category: 'ui',
     action: () => {
-      console.log('Close all modals');
-    }
+      console.log('Close all modals')
+    },
   },
   {
     id: 'global.help',
@@ -55,8 +55,8 @@ export const DEFAULT_SHORTCUTS: KeyboardShortcut[] = [
     description: 'Show keyboard shortcuts help',
     category: 'help',
     action: () => {
-      console.log('Show shortcuts help');
-    }
+      console.log('Show shortcuts help')
+    },
   },
   {
     id: 'global.focus-search',
@@ -66,8 +66,8 @@ export const DEFAULT_SHORTCUTS: KeyboardShortcut[] = [
     description: 'Focus search input',
     category: 'navigation',
     action: () => {
-      console.log('Focus search');
-    }
+      console.log('Focus search')
+    },
   },
 
   // ========== DASHBOARD SHORTCUTS ==========
@@ -79,8 +79,8 @@ export const DEFAULT_SHORTCUTS: KeyboardShortcut[] = [
     description: 'Go to tasks (g + t)',
     category: 'navigation',
     action: () => {
-      console.log('Navigate to tasks');
-    }
+      console.log('Navigate to tasks')
+    },
   },
   {
     id: 'dashboard.go-calendar',
@@ -90,8 +90,8 @@ export const DEFAULT_SHORTCUTS: KeyboardShortcut[] = [
     description: 'Go to calendar (g + c)',
     category: 'navigation',
     action: () => {
-      console.log('Navigate to calendar');
-    }
+      console.log('Navigate to calendar')
+    },
   },
   {
     id: 'dashboard.go-settings',
@@ -101,8 +101,8 @@ export const DEFAULT_SHORTCUTS: KeyboardShortcut[] = [
     description: 'Go to settings (g + s)',
     category: 'navigation',
     action: () => {
-      console.log('Navigate to settings');
-    }
+      console.log('Navigate to settings')
+    },
   },
   {
     id: 'dashboard.go-notifications',
@@ -112,8 +112,8 @@ export const DEFAULT_SHORTCUTS: KeyboardShortcut[] = [
     description: 'Go to notifications (g + n)',
     category: 'navigation',
     action: () => {
-      console.log('Navigate to notifications');
-    }
+      console.log('Navigate to notifications')
+    },
   },
   {
     id: 'dashboard.refresh',
@@ -122,8 +122,8 @@ export const DEFAULT_SHORTCUTS: KeyboardShortcut[] = [
     description: 'Refresh dashboard',
     category: 'actions',
     action: () => {
-      console.log('Refresh dashboard');
-    }
+      console.log('Refresh dashboard')
+    },
   },
   {
     id: 'dashboard.new-task',
@@ -132,8 +132,8 @@ export const DEFAULT_SHORTCUTS: KeyboardShortcut[] = [
     description: 'Create new task',
     category: 'actions',
     action: () => {
-      console.log('Create new task');
-    }
+      console.log('Create new task')
+    },
   },
 
   // ========== TASKS SHORTCUTS ==========
@@ -144,8 +144,8 @@ export const DEFAULT_SHORTCUTS: KeyboardShortcut[] = [
     description: 'Create new task',
     category: 'actions',
     action: () => {
-      console.log('Create new task');
-    }
+      console.log('Create new task')
+    },
   },
   {
     id: 'tasks.edit-task',
@@ -154,8 +154,8 @@ export const DEFAULT_SHORTCUTS: KeyboardShortcut[] = [
     description: 'Edit selected task',
     category: 'actions',
     action: () => {
-      console.log('Edit selected task');
-    }
+      console.log('Edit selected task')
+    },
   },
   {
     id: 'tasks.delete-task',
@@ -164,8 +164,8 @@ export const DEFAULT_SHORTCUTS: KeyboardShortcut[] = [
     description: 'Delete selected task',
     category: 'actions',
     action: () => {
-      console.log('Delete selected task');
-    }
+      console.log('Delete selected task')
+    },
   },
   {
     id: 'tasks.archive-task',
@@ -174,8 +174,8 @@ export const DEFAULT_SHORTCUTS: KeyboardShortcut[] = [
     description: 'Archive selected task',
     category: 'actions',
     action: () => {
-      console.log('Archive selected task');
-    }
+      console.log('Archive selected task')
+    },
   },
   {
     id: 'tasks.complete-task',
@@ -184,8 +184,8 @@ export const DEFAULT_SHORTCUTS: KeyboardShortcut[] = [
     description: 'Toggle task completion',
     category: 'actions',
     action: () => {
-      console.log('Toggle task completion');
-    }
+      console.log('Toggle task completion')
+    },
   },
   {
     id: 'tasks.up',
@@ -194,8 +194,8 @@ export const DEFAULT_SHORTCUTS: KeyboardShortcut[] = [
     description: 'Move to previous task',
     category: 'navigation',
     action: () => {
-      console.log('Previous task');
-    }
+      console.log('Previous task')
+    },
   },
   {
     id: 'tasks.down',
@@ -204,8 +204,8 @@ export const DEFAULT_SHORTCUTS: KeyboardShortcut[] = [
     description: 'Move to next task',
     category: 'navigation',
     action: () => {
-      console.log('Next task');
-    }
+      console.log('Next task')
+    },
   },
   {
     id: 'tasks.select-all',
@@ -215,8 +215,8 @@ export const DEFAULT_SHORTCUTS: KeyboardShortcut[] = [
     description: 'Select all tasks',
     category: 'actions',
     action: () => {
-      console.log('Select all tasks');
-    }
+      console.log('Select all tasks')
+    },
   },
 
   // ========== EDITOR SHORTCUTS ==========
@@ -229,8 +229,8 @@ export const DEFAULT_SHORTCUTS: KeyboardShortcut[] = [
     description: 'Save content',
     category: 'actions',
     action: () => {
-      console.log('Save content');
-    }
+      console.log('Save content')
+    },
   },
   {
     id: 'editor.bold',
@@ -241,8 +241,8 @@ export const DEFAULT_SHORTCUTS: KeyboardShortcut[] = [
     description: 'Bold text',
     category: 'formatting',
     action: () => {
-      console.log('Toggle bold');
-    }
+      console.log('Toggle bold')
+    },
   },
   {
     id: 'editor.italic',
@@ -253,8 +253,8 @@ export const DEFAULT_SHORTCUTS: KeyboardShortcut[] = [
     description: 'Italic text',
     category: 'formatting',
     action: () => {
-      console.log('Toggle italic');
-    }
+      console.log('Toggle italic')
+    },
   },
   {
     id: 'editor.underline',
@@ -265,8 +265,8 @@ export const DEFAULT_SHORTCUTS: KeyboardShortcut[] = [
     description: 'Underline text',
     category: 'formatting',
     action: () => {
-      console.log('Toggle underline');
-    }
+      console.log('Toggle underline')
+    },
   },
   {
     id: 'editor.undo',
@@ -277,8 +277,8 @@ export const DEFAULT_SHORTCUTS: KeyboardShortcut[] = [
     description: 'Undo',
     category: 'actions',
     action: () => {
-      console.log('Undo');
-    }
+      console.log('Undo')
+    },
   },
   {
     id: 'editor.redo',
@@ -290,8 +290,8 @@ export const DEFAULT_SHORTCUTS: KeyboardShortcut[] = [
     description: 'Redo',
     category: 'actions',
     action: () => {
-      console.log('Redo');
-    }
+      console.log('Redo')
+    },
   },
   {
     id: 'editor.fullscreen',
@@ -302,8 +302,8 @@ export const DEFAULT_SHORTCUTS: KeyboardShortcut[] = [
     description: 'Toggle fullscreen',
     category: 'ui',
     action: () => {
-      console.log('Toggle fullscreen');
-    }
+      console.log('Toggle fullscreen')
+    },
   },
 
   // ========== CALENDAR SHORTCUTS ==========
@@ -314,8 +314,8 @@ export const DEFAULT_SHORTCUTS: KeyboardShortcut[] = [
     description: 'Go to today',
     category: 'navigation',
     action: () => {
-      console.log('Go to today');
-    }
+      console.log('Go to today')
+    },
   },
   {
     id: 'calendar.day-view',
@@ -324,8 +324,8 @@ export const DEFAULT_SHORTCUTS: KeyboardShortcut[] = [
     description: 'Switch to day view',
     category: 'ui',
     action: () => {
-      console.log('Day view');
-    }
+      console.log('Day view')
+    },
   },
   {
     id: 'calendar.week-view',
@@ -334,8 +334,8 @@ export const DEFAULT_SHORTCUTS: KeyboardShortcut[] = [
     description: 'Switch to week view',
     category: 'ui',
     action: () => {
-      console.log('Week view');
-    }
+      console.log('Week view')
+    },
   },
   {
     id: 'calendar.month-view',
@@ -344,8 +344,8 @@ export const DEFAULT_SHORTCUTS: KeyboardShortcut[] = [
     description: 'Switch to month view',
     category: 'ui',
     action: () => {
-      console.log('Month view');
-    }
+      console.log('Month view')
+    },
   },
   {
     id: 'calendar.new-event',
@@ -354,8 +354,8 @@ export const DEFAULT_SHORTCUTS: KeyboardShortcut[] = [
     description: 'Create new event',
     category: 'actions',
     action: () => {
-      console.log('Create new event');
-    }
+      console.log('Create new event')
+    },
   },
   {
     id: 'calendar.previous',
@@ -364,8 +364,8 @@ export const DEFAULT_SHORTCUTS: KeyboardShortcut[] = [
     description: 'Previous period',
     category: 'navigation',
     action: () => {
-      console.log('Previous period');
-    }
+      console.log('Previous period')
+    },
   },
   {
     id: 'calendar.next',
@@ -374,8 +374,8 @@ export const DEFAULT_SHORTCUTS: KeyboardShortcut[] = [
     description: 'Next period',
     category: 'navigation',
     action: () => {
-      console.log('Next period');
-    }
+      console.log('Next period')
+    },
   },
 
   // ========== NOTIFICATIONS SHORTCUTS ==========
@@ -386,8 +386,8 @@ export const DEFAULT_SHORTCUTS: KeyboardShortcut[] = [
     description: 'Mark as read',
     category: 'actions',
     action: () => {
-      console.log('Mark as read');
-    }
+      console.log('Mark as read')
+    },
   },
   {
     id: 'notifications.mark-all-read',
@@ -397,8 +397,8 @@ export const DEFAULT_SHORTCUTS: KeyboardShortcut[] = [
     description: 'Mark all as read',
     category: 'actions',
     action: () => {
-      console.log('Mark all as read');
-    }
+      console.log('Mark all as read')
+    },
   },
   {
     id: 'notifications.delete',
@@ -407,8 +407,8 @@ export const DEFAULT_SHORTCUTS: KeyboardShortcut[] = [
     description: 'Delete notification',
     category: 'actions',
     action: () => {
-      console.log('Delete notification');
-    }
+      console.log('Delete notification')
+    },
   },
 
   // ========== SETTINGS SHORTCUTS ==========
@@ -420,8 +420,8 @@ export const DEFAULT_SHORTCUTS: KeyboardShortcut[] = [
     description: 'Save settings',
     category: 'actions',
     action: () => {
-      console.log('Save settings');
-    }
+      console.log('Save settings')
+    },
   },
   {
     id: 'settings.reset',
@@ -431,10 +431,10 @@ export const DEFAULT_SHORTCUTS: KeyboardShortcut[] = [
     description: 'Reset to defaults',
     category: 'actions',
     action: () => {
-      console.log('Reset settings');
-    }
-  }
-];
+      console.log('Reset settings')
+    },
+  },
+]
 
 /**
  * Shortcut categories for organizing shortcuts in the help panel
@@ -444,8 +444,8 @@ export const SHORTCUT_CATEGORIES: Record<string, string> = {
   actions: 'Actions',
   ui: 'UI Controls',
   formatting: 'Text Formatting',
-  help: 'Help'
-};
+  help: 'Help',
+}
 
 /**
  * Platform-specific modifier keys
@@ -454,39 +454,40 @@ export const MODIFIER_KEYS = {
   ctrl: 'Ctrl',
   meta: 'Cmd', // macOS
   alt: 'Alt',
-  shift: 'Shift'
-};
+  shift: 'Shift',
+}
 
 /**
  * Get display string for a shortcut key
  */
 export function getShortcutDisplayText(shortcut: KeyboardShortcut): string {
-  const parts: string[] = [];
+  const parts: string[] = []
 
-  if (shortcut.ctrl) parts.push(MODIFIER_KEYS.ctrl);
-  if (shortcut.meta) parts.push(MODIFIER_KEYS.meta);
-  if (shortcut.alt) parts.push(MODIFIER_KEYS.alt);
-  if (shortcut.shift) parts.push(MODIFIER_KEYS.shift);
+  if (shortcut.ctrl) parts.push(MODIFIER_KEYS.ctrl)
+  if (shortcut.meta) parts.push(MODIFIER_KEYS.meta)
+  if (shortcut.alt) parts.push(MODIFIER_KEYS.alt)
+  if (shortcut.shift) parts.push(MODIFIER_KEYS.shift)
 
   // Format special keys
-  const keyDisplay = {
-    ' ': 'Space',
-    'ArrowUp': '↑',
-    'ArrowDown': '↓',
-    'ArrowLeft': '←',
-    'ArrowRight': '→',
-    'Enter': '↵',
-    'Escape': 'Esc',
-    'Backspace': '⌫',
-    'Delete': '⌦'
-  }[shortcut.key] || shortcut.key.toUpperCase();
+  const keyDisplay =
+    {
+      ' ': 'Space',
+      ArrowUp: '↑',
+      ArrowDown: '↓',
+      ArrowLeft: '←',
+      ArrowRight: '→',
+      Enter: '↵',
+      Escape: 'Esc',
+      Backspace: '⌫',
+      Delete: '⌦',
+    }[shortcut.key] || shortcut.key.toUpperCase()
 
-  parts.push(keyDisplay);
+  parts.push(keyDisplay)
 
-  return parts.join(' + ');
+  return parts.join(' + ')
 }
 
 /**
  * Default user customizations (empty)
  */
-export const DEFAULT_USER_SHORTCUTS: Record<string, Partial<KeyboardShortcut>> = {};
+export const DEFAULT_USER_SHORTCUTS: Record<string, Partial<KeyboardShortcut>> = {}

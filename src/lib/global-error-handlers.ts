@@ -3,14 +3,14 @@
  * @description Centralized global error handlers for unhandled promise rejections and uncaught exceptions
  */
 
-import * as Sentry from '@sentry/nextjs';
-import { logger } from './logger';
-import { captureError, ErrorCategory, ErrorSeverity } from '@/lib/monitoring/errors';
+import * as Sentry from '@sentry/nextjs'
+import { logger } from './logger'
+import { captureError, ErrorCategory, ErrorSeverity } from '@/lib/monitoring/errors'
 
 // Extend global interface to track setup state
 declare global {
-  var __globalErrorHandlersSetup: boolean | undefined;
-  var __browserErrorHandlersSetup: boolean | undefined;
+  var __globalErrorHandlersSetup: boolean | undefined
+  var __browserErrorHandlersSetup: boolean | undefined
 }
 
 /**
@@ -20,7 +20,7 @@ declare global {
 export function setupGlobalErrorHandlers(): void {
   // Only setup once
   if (typeof globalThis !== 'undefined' && globalThis.__globalErrorHandlersSetup) {
-    return;
+    return
   }
 
   // Handle unhandled promise rejections
@@ -30,41 +30,38 @@ export function setupGlobalErrorHandlers(): void {
         reason: reason instanceof Error ? reason.message : String(reason),
         stack: reason instanceof Error ? reason.stack : undefined,
         promise,
-      });
+      })
 
       // Capture to Sentry with category
-      captureError(
-        reason instanceof Error ? reason : new Error(String(reason)),
-        {
-          category: ErrorCategory.APPLICATION,
-          severity: ErrorSeverity.ERROR,
-          tags: {
-            type: 'unhandledRejection',
-          },
-          extra: {
-            promise: String(promise),
-          },
-        }
-      );
+      captureError(reason instanceof Error ? reason : new Error(String(reason)), {
+        category: ErrorCategory.APPLICATION,
+        severity: ErrorSeverity.ERROR,
+        tags: {
+          type: 'unhandledRejection',
+        },
+        extra: {
+          promise: String(promise),
+        },
+      })
 
       // In development, log full details
       if (process.env.NODE_ENV === 'development') {
-        console.error('Unhandled Promise Rejection:', reason);
+        console.error('Unhandled Promise Rejection:', reason)
       }
 
       // Don't exit the process in production - let the application continue
       // In development, we want to see the error immediately
       if (process.env.NODE_ENV === 'development') {
-        process.exit(1);
+        process.exit(1)
       }
-    });
+    })
 
     // Handle uncaught exceptions
     process.on('uncaughtException', (error: Error) => {
       logger.error('Uncaught Exception', {
         message: error.message,
         stack: error.stack,
-      });
+      })
 
       // Capture to Sentry with fatal severity
       captureError(error, {
@@ -73,17 +70,17 @@ export function setupGlobalErrorHandlers(): void {
         tags: {
           type: 'uncaughtException',
         },
-      });
+      })
 
       // Log full error
-      console.error('Uncaught Exception:', error);
+      console.error('Uncaught Exception:', error)
 
       // Exit the process - the application is in an unknown state
       // Give time for logs to flush
       setTimeout(() => {
-        process.exit(1);
-      }, 1000);
-    });
+        process.exit(1)
+      }, 1000)
+    })
 
     // Handle uncaught exception monitor (Node.js 15+)
     if (process.on) {
@@ -91,8 +88,8 @@ export function setupGlobalErrorHandlers(): void {
         logger.warn('Uncaught Exception Monitor', {
           message: error.message,
           stack: error.stack,
-        });
-      });
+        })
+      })
     }
 
     // Handle warning events
@@ -101,16 +98,16 @@ export function setupGlobalErrorHandlers(): void {
         logger.warn('Process Warning', {
           message: warning.message,
           stack: warning.stack,
-        });
-      });
+        })
+      })
     }
 
     // Mark as setup
     if (typeof globalThis !== 'undefined') {
-      globalThis.__globalErrorHandlersSetup = true;
+      globalThis.__globalErrorHandlersSetup = true
     }
 
-    logger.info('Global error handlers initialized');
+    logger.info('Global error handlers initialized')
   }
 }
 
@@ -119,39 +116,37 @@ export function setupGlobalErrorHandlers(): void {
  */
 export function setupBrowserErrorHandlers(): void {
   if (typeof window === 'undefined') {
-    return;
+    return
   }
 
   // Only setup once
   if (window.__browserErrorHandlersSetup) {
-    return;
+    return
   }
 
   // Handle unhandled promise rejections
   window.addEventListener('unhandledrejection', (event: PromiseRejectionEvent) => {
     logger.error('Browser Unhandled Promise Rejection', {
       reason: String(event.reason),
-    });
+    })
 
     // Capture to Sentry
-    const error = event.reason instanceof Error
-      ? event.reason
-      : new Error(String(event.reason));
+    const error = event.reason instanceof Error ? event.reason : new Error(String(event.reason))
 
     Sentry.captureException(error, {
       tags: {
         type: 'browserUnhandledRejection',
       },
-    });
+    })
 
     // Prevent default console error
-    event.preventDefault();
+    event.preventDefault()
 
     // In development, log full details
     if (process.env.NODE_ENV === 'development') {
-      console.error('Browser Unhandled Promise Rejection:', event.reason);
+      console.error('Browser Unhandled Promise Rejection:', event.reason)
     }
-  });
+  })
 
   // Handle uncaught errors
   window.addEventListener('error', (event: ErrorEvent) => {
@@ -161,10 +156,10 @@ export function setupBrowserErrorHandlers(): void {
       lineno: event.lineno,
       colno: event.colno,
       error: event.error,
-    });
+    })
 
     // Capture to Sentry
-    const error = event.error || new Error(event.message);
+    const error = event.error || new Error(event.message)
     Sentry.captureException(error, {
       tags: {
         type: 'browserUncaughtError',
@@ -174,10 +169,10 @@ export function setupBrowserErrorHandlers(): void {
         lineno: event.lineno,
         colno: event.colno,
       },
-    });
-  });
+    })
+  })
 
   // Mark as setup
-  window.__browserErrorHandlersSetup = true;
-  logger.info('Browser error handlers initialized');
+  window.__browserErrorHandlersSetup = true
+  logger.info('Browser error handlers initialized')
 }

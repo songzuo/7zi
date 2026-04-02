@@ -1,6 +1,7 @@
 # 测试覆盖率提升报告 V2 (Test Coverage V2 Report)
 
 ## 执行时间
+
 2026-03-22 08:50
 
 ## 当前状态分析
@@ -83,6 +84,7 @@ src/lib/permissions/types.ts      ✗
 **总计**: 7 个文件无测试
 
 权限模块包含的核心功能：
+
 - 基于角色的访问控制 (RBAC)
 - 权限中间件
 - 权限仓储
@@ -93,14 +95,14 @@ src/lib/permissions/types.ts      ✗
 
 以下测试文件存在多个失败：
 
-1. **src/lib/middleware/__tests__/user-rate-limit.test.ts** (9/35 failed)
+1. **src/lib/middleware/**tests**/user-rate-limit.test.ts** (9/35 failed)
    - JWT token 提取问题
    - API key 提取问题
    - 角色配置问题
    - 过期窗口处理问题
    - 清理日志问题
 
-2. **src/components/analytics/__tests__/integration.test.tsx** (3/18 failed)
+2. **src/components/analytics/**tests**/integration.test.tsx** (3/18 failed)
    - 自动刷新相关问题
    - 导出功能问题
 
@@ -110,17 +112,17 @@ src/lib/permissions/types.ts      ✗
    - 时间戳格式
    - 内存使用指标
 
-4. **src/app/api/multimodal/audio/__tests__/route.test.ts** (9/13 failed)
+4. **src/app/api/multimodal/audio/**tests**/route.test.ts** (9/13 failed)
    - 模块路径错误: `Cannot find module '@/lib/logger'`
    - FormData 处理错误
 
-5. **src/app/api/multimodal/image/__tests__/route.test.ts** (12/20 failed)
+5. **src/app/api/multimodal/image/**tests**/route.test.ts** (12/20 failed)
    - 模块路径错误: `Cannot find module '@/lib/logger'`, `Cannot find module '@/lib/multimodal/image-utils'`
 
-6. **src/components/ui/__tests__/Tabs.test.tsx** (16/16 failed)
+6. **src/components/ui/**tests**/Tabs.test.tsx** (16/16 failed)
    - 所有测试失败
 
-7. **src/lib/undo-redo/__tests__/middleware.test.ts** (14/16 failed)
+7. **src/lib/undo-redo/**tests**/middleware.test.ts** (14/16 failed)
    - 状态管理问题
 
 8. **src/test/hooks/useIntersectionObserver.test.ts** (20/20 failed)

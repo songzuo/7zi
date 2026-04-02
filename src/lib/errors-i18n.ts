@@ -5,7 +5,7 @@
  * Supports client-side and server-side usage.
  */
 
-import type { Locale } from '@/i18n/config';
+import type { Locale } from '@/i18n/config'
 
 /**
  * Error types that can be internationalized
@@ -18,7 +18,7 @@ export type I18nErrorType =
   | 'notFound'
   | 'validation'
   | 'server'
-  | 'unknown';
+  | 'unknown'
 
 /**
  * Error message templates for each locale
@@ -44,7 +44,7 @@ const ERROR_MESSAGES: Partial<Record<Locale, Record<I18nErrorType, string>>> = {
     server: 'Server error, please try again later',
     unknown: 'An unknown error occurred',
   },
-};
+}
 
 /**
  * Get localized error message
@@ -54,16 +54,13 @@ export function getErrorMessage(
   locale: Locale = 'zh',
   customMessage?: string
 ): string {
-  return customMessage || ERROR_MESSAGES[locale]?.[errorType] || '发生未知错误';
+  return customMessage || ERROR_MESSAGES[locale]?.[errorType] || '发生未知错误'
 }
 
 /**
  * Get error message from HTTP status code
  */
-export function getHttpErrorMessage(
-  status: number,
-  locale: Locale = 'zh'
-): string {
+export function getHttpErrorMessage(status: number, locale: Locale = 'zh'): string {
   const statusToErrorType: Record<number, I18nErrorType> = {
     400: 'validation',
     401: 'unauthorized',
@@ -74,58 +71,51 @@ export function getHttpErrorMessage(
     502: 'server',
     503: 'server',
     504: 'timeout',
-  };
+  }
 
-  const errorType = statusToErrorType[status] || 'unknown';
-  return getErrorMessage(errorType, locale);
+  const errorType = statusToErrorType[status] || 'unknown'
+  return getErrorMessage(errorType, locale)
 }
 
 /**
  * Get error message from Error object
  */
-export function getErrorFromException(
-  error: Error | unknown,
-  locale: Locale = 'zh'
-): string {
+export function getErrorFromException(error: Error | unknown, locale: Locale = 'zh'): string {
   if (error instanceof Error) {
     // Try to extract error type from message
-    const message = error.message.toLowerCase();
+    const message = error.message.toLowerCase()
 
     if (message.includes('network') || message.includes('fetch')) {
-      return getErrorMessage('network', locale);
+      return getErrorMessage('network', locale)
     }
     if (message.includes('timeout')) {
-      return getErrorMessage('timeout', locale);
+      return getErrorMessage('timeout', locale)
     }
     if (message.includes('unauthorized') || message.includes('unauthenticated')) {
-      return getErrorMessage('unauthorized', locale);
+      return getErrorMessage('unauthorized', locale)
     }
     if (message.includes('forbidden')) {
-      return getErrorMessage('forbidden', locale);
+      return getErrorMessage('forbidden', locale)
     }
     if (message.includes('not found') || message.includes('404')) {
-      return getErrorMessage('notFound', locale);
+      return getErrorMessage('notFound', locale)
     }
     if (message.includes('validation') || message.includes('invalid')) {
-      return getErrorMessage('validation', locale);
+      return getErrorMessage('validation', locale)
     }
 
     // Return original error message if it's not a known type
-    return error.message;
+    return error.message
   }
 
-  return getErrorMessage('unknown', locale);
+  return getErrorMessage('unknown', locale)
 }
 
 /**
  * Format error with additional context
  */
-export function formatErrorMessage(
-  error: string,
-  context?: string,
-  locale: Locale = 'zh'
-): string {
-  if (!context) return error;
+export function formatErrorMessage(error: string, context?: string, locale: Locale = 'zh'): string {
+  if (!context) return error
 
   const contextMessages: Partial<Record<Locale, Record<string, string>>> = {
     zh: {
@@ -138,20 +128,20 @@ export function formatErrorMessage(
       request: 'Request failed:',
       validation: 'Validation failed:',
     },
-  };
+  }
 
-  const prefix = contextMessages[locale]?.[context] || '';
-  return `${prefix}${error}`;
+  const prefix = contextMessages[locale]?.[context] || ''
+  return `${prefix}${error}`
 }
 
 /**
  * Server-side error response interface
  */
 export interface ErrorResponse {
-  error: string;
-  message?: string;
-  code?: number;
-  details?: unknown;
+  error: string
+  message?: string
+  code?: number
+  details?: unknown
 }
 
 /**
@@ -168,5 +158,5 @@ export function createErrorResponse(
     message: getErrorMessage(errorType, locale),
     code,
     details,
-  };
+  }
 }

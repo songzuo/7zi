@@ -1,15 +1,15 @@
-'use client';
+'use client'
 
 /**
  * Dashboard 页面 - AI Agent 调度监控面板
- * 
+ *
  * @version 1.6.0
  * @date 2026-03-30
  */
 
-import React, { useState, useCallback } from 'react';
-import { useTranslation } from 'react-i18next';
-import { AgentStatusPanel, Agent } from './AgentStatusPanel';
+import React, { useState, useCallback } from 'react'
+import { useTranslation } from 'react-i18next'
+import { AgentStatusPanel, Agent } from './AgentStatusPanel'
 
 // ============================================
 // Mock 数据
@@ -123,46 +123,40 @@ const MOCK_AGENTS: Agent[] = [
     lastActiveAt: new Date(Date.now() - 1800000).toISOString(),
     enabled: true,
   },
-];
+]
 
 // ============================================
 // Dashboard 页面组件
 // ============================================
 
 export default function DashboardPage() {
-  const { t } = useTranslation('dashboard');
-  const [agents, setAgents] = useState<Agent[]>(MOCK_AGENTS);
+  const { t } = useTranslation('dashboard')
+  const [agents, setAgents] = useState<Agent[]>(MOCK_AGENTS)
 
   const handleRefresh = useCallback(() => {
-    console.log('[Dashboard] 刷新 Agent 状态...');
+    console.log('[Dashboard] 刷新 Agent 状态...')
     // 模拟刷新
-  }, []);
+  }, [])
 
   const handleViewDetails = useCallback((agent: Agent) => {
-    console.log('[Dashboard] 查看 Agent 详情:', agent);
-    alert(`查看 Agent 详情: ${agent.name}\n\n${JSON.stringify(agent, null, 2)}`);
-  }, []);
+    console.log('[Dashboard] 查看 Agent 详情:', agent)
+    alert(`查看 Agent 详情: ${agent.name}\n\n${JSON.stringify(agent, null, 2)}`)
+  }, [])
 
   const handleToggleAgent = useCallback((agentId: string, enabled: boolean) => {
-    console.log('[Dashboard] 切换 Agent 状态:', agentId, enabled);
-    setAgents(prev => prev.map(agent => 
-      agent.id === agentId 
-        ? { ...agent, enabled } 
-        : agent
-    ));
-  }, []);
+    console.log('[Dashboard] 切换 Agent 状态:', agentId, enabled)
+    setAgents(prev => prev.map(agent => (agent.id === agentId ? { ...agent, enabled } : agent)))
+  }, [])
 
   return (
     <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+      <div className="mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8">
         {/* 页面标题 */}
         <div className="mb-8">
           <h1 className="text-2xl font-bold text-gray-900 dark:text-gray-100">
             AI Agent {t('title')}
           </h1>
-          <p className="mt-1 text-sm text-gray-500 dark:text-gray-400">
-            {t('subtitle')}
-          </p>
+          <p className="mt-1 text-sm text-gray-500 dark:text-gray-400">{t('subtitle')}</p>
         </div>
 
         {/* Agent 状态面板 */}
@@ -176,5 +170,5 @@ export default function DashboardPage() {
         />
       </div>
     </div>
-  );
+  )
 }

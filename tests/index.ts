@@ -1,8 +1,8 @@
 /**
  * 测试入口文件 v1.5.0
- * 
+ *
  * 提供全局测试工具和配置的统一导出
- * 
+ *
  * @module tests
  */
 
@@ -11,8 +11,8 @@
 // ============================================
 
 // 从 setup 目录导出测试工具
-export * from './setup/test-utils';
-export * from './setup/test-env';
+export * from './setup/test-utils'
+export * from './setup/test-env'
 
 // ============================================
 // 测试辅助函数
@@ -27,7 +27,7 @@ export function createMockDb() {
     execute: vi.fn(),
     transaction: vi.fn(),
     close: vi.fn(),
-  };
+  }
 }
 
 /**
@@ -39,7 +39,7 @@ export function createMockSession(overrides = {}) {
     email: 'test@example.com',
     role: 'user',
     ...overrides,
-  };
+  }
 }
 
 /**
@@ -53,7 +53,7 @@ export function createMockRequest(overrides = {}) {
     json: vi.fn(),
     text: vi.fn(),
     ...overrides,
-  };
+  }
 }
 
 /**
@@ -63,22 +63,22 @@ export function createMockResponse(data: unknown, options: ResponseInit = {}) {
   return new Response(JSON.stringify(data), {
     headers: { 'Content-Type': 'application/json' },
     ...options,
-  });
+  })
 }
 
 /**
  * 等待指定毫秒
  */
 export function sleep(ms: number) {
-  return new Promise(resolve => setTimeout(resolve, ms));
+  return new Promise(resolve => setTimeout(resolve, ms))
 }
 
 /**
  * 重置所有模拟
  */
 export function resetAllMocks() {
-  vi.clearAllMocks();
-  vi.resetAllMocks();
+  vi.clearAllMocks()
+  vi.resetAllMocks()
 }
 
 // ============================================
@@ -89,26 +89,26 @@ export const TEST_CONSTANTS = {
   // 测试用户
   TEST_USER_ID: 'test-user-id',
   TEST_EMAIL: 'test@example.com',
-  
+
   // 测试项目
   TEST_PROJECT_ID: 'test-project-id',
-  
+
   // 测试任务
   TEST_TASK_ID: 'test-task-id',
-  
+
   // 测试时间
   TEST_TIMEOUT: 5000,
   TEST_LONG_TIMEOUT: 30000,
-};
+}
 
 // ============================================
 // 测试类型
 // ============================================
 
 export interface TestContext {
-  db: ReturnType<typeof createMockDb>;
-  session: ReturnType<typeof createMockSession>;
-  request: ReturnType<typeof createMockRequest>;
+  db: ReturnType<typeof createMockDb>
+  session: ReturnType<typeof createMockSession>
+  request: ReturnType<typeof createMockRequest>
 }
 
 /**
@@ -120,5 +120,5 @@ export function createTestContext(overrides = {}): TestContext {
     session: createMockSession(),
     request: createMockRequest(),
     ...overrides,
-  };
+  }
 }

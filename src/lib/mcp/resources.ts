@@ -1,62 +1,62 @@
 /**
  * MCP Resource Management
- * 
+ *
  * Provides resource access interface, subscription, notification, and caching:
  * - Resource access interface
  * - Resource subscription and notifications
  * - Resource caching strategies
  * - Resource change detection
  * - Resource metadata
- * 
+ *
  * @module mcp/resources
  */
 
-import { z } from 'zod';
+import { z } from 'zod'
 
 /**
  * Resource type
  */
-export type ResourceType = 'file' | 'directory' | 'database' | 'api' | 'memory' | 'cache' | 'stream';
+export type ResourceType = 'file' | 'directory' | 'database' | 'api' | 'memory' | 'cache' | 'stream'
 
 /**
  * Resource content type
  */
-export type ResourceContentType = 'text' | 'binary' | 'json' | 'yaml' | 'markdown' | 'html' | 'xml';
+export type ResourceContentType = 'text' | 'binary' | 'json' | 'yaml' | 'markdown' | 'html' | 'xml'
 
 /**
  * Resource metadata
  */
 export interface ResourceMetadata {
   /** Unique resource identifier */
-  uri: string;
+  uri: string
   /** Resource name */
-  name: string;
+  name: string
   /** Resource type */
-  type: ResourceType;
+  type: ResourceType
   /** Content type */
-  contentType: ResourceContentType;
+  contentType: ResourceContentType
   /** Description */
-  description?: string;
+  description?: string
   /** MIME type */
-  mimeType?: string;
+  mimeType?: string
   /** Size in bytes */
-  size?: number;
+  size?: number
   /** Last modified timestamp */
-  lastModified?: Date;
+  lastModified?: Date
   /** ETag for change detection */
-  etag?: string;
+  etag?: string
   /** Author */
-  author?: string;
+  author?: string
   /** Tags */
-  tags: string[];
+  tags: string[]
   /** Whether resource is mutable */
-  mutable: boolean;
+  mutable: boolean
   /** Whether resource requires authentication */
-  requiresAuth: boolean;
+  requiresAuth: boolean
   /** Rate limit per minute */
-  rateLimit?: number;
+  rateLimit?: number
   /** Custom metadata */
-  custom: Record<string, unknown>;
+  custom: Record<string, unknown>
 }
 
 /**
@@ -64,15 +64,15 @@ export interface ResourceMetadata {
  */
 export interface ResourceContent {
   /** Text content (for text-based resources) */
-  text?: string;
+  text?: string
   /** Binary data (base64 encoded) */
-  binary?: string;
+  binary?: string
   /** JSON data */
-  json?: unknown;
+  json?: unknown
   /** URI to resource (if external) */
-  uri?: string;
+  uri?: string
   /** Metadata */
-  metadata: ResourceMetadata;
+  metadata: ResourceMetadata
 }
 
 /**
@@ -80,13 +80,13 @@ export interface ResourceContent {
  */
 export interface ResourceSubscriptionFilter {
   /** Resource URIs to watch (empty = watch all) */
-  uris?: string[];
+  uris?: string[]
   /** Resource types to watch */
-  types?: ResourceType[];
+  types?: ResourceType[]
   /** Tags to filter by */
-  tags?: string[];
+  tags?: string[]
   /** Pattern matching (glob) */
-  pattern?: string;
+  pattern?: string
 }
 
 /**
@@ -94,17 +94,17 @@ export interface ResourceSubscriptionFilter {
  */
 export interface ResourceChangeEvent {
   /** Event type */
-  type: 'created' | 'updated' | 'deleted';
+  type: 'created' | 'updated' | 'deleted'
   /** Resource URI */
-  uri: string;
+  uri: string
   /** Resource metadata */
-  metadata: ResourceMetadata;
+  metadata: ResourceMetadata
   /** Previous value (for updates/deletions) */
-  previous?: ResourceContent;
+  previous?: ResourceContent
   /** Current value (for creations/updates) */
-  current?: ResourceContent;
+  current?: ResourceContent
   /** Change timestamp */
-  timestamp: Date;
+  timestamp: Date
 }
 
 /**
@@ -112,40 +112,45 @@ export interface ResourceChangeEvent {
  */
 export interface ResourceSubscription {
   /** Subscription ID */
-  id: string;
+  id: string
   /** Session ID */
-  sessionId: string;
+  sessionId: string
   /** Filter criteria */
-  filter: ResourceSubscriptionFilter;
+  filter: ResourceSubscriptionFilter
   /** Subscribed timestamp */
-  subscribedAt: Date;
+  subscribedAt: Date
   /** Last activity timestamp */
-  lastActivity: Date;
+  lastActivity: Date
   /** Whether subscription is active */
-  active: boolean;
+  active: boolean
 }
 
 /**
  * Cache policy
  */
-export type CachePolicy = 'no-cache' | 'cache-first' | 'network-first' | 'stale-while-revalidate' | 'stale-if-error';
+export type CachePolicy =
+  | 'no-cache'
+  | 'cache-first'
+  | 'network-first'
+  | 'stale-while-revalidate'
+  | 'stale-if-error'
 
 /**
  * Cache entry
  */
 export interface CacheEntry {
   /** Resource content */
-  content: ResourceContent;
+  content: ResourceContent
   /** Cached timestamp */
-  cachedAt: Date;
+  cachedAt: Date
   /** Expires timestamp */
-  expiresAt?: Date;
+  expiresAt?: Date
   /** ETag */
-  etag?: string;
+  etag?: string
   /** Cache hit count */
-  hitCount: number;
+  hitCount: number
   /** Cache policy */
-  policy: CachePolicy;
+  policy: CachePolicy
 }
 
 /**
@@ -153,15 +158,15 @@ export interface CacheEntry {
  */
 export interface ResourceReadOptions {
   /** Cache policy */
-  cachePolicy?: CachePolicy;
+  cachePolicy?: CachePolicy
   /** Maximum age in milliseconds (for cache validation) */
-  maxAge?: number;
+  maxAge?: number
   /** Include metadata only (no content) */
-  metadataOnly?: boolean;
+  metadataOnly?: boolean
   /** Range (for large resources) */
-  range?: { start: number; end: number };
+  range?: { start: number; end: number }
   /** Context for request */
-  context?: ResourceContext;
+  context?: ResourceContext
 }
 
 /**
@@ -169,13 +174,13 @@ export interface ResourceReadOptions {
  */
 export interface ResourceContext {
   /** Session ID */
-  sessionId: string;
+  sessionId: string
   /** User ID if authenticated */
-  userId?: string;
+  userId?: string
   /** Request ID */
-  requestId: string;
+  requestId: string
   /** Timestamp */
-  timestamp: Date;
+  timestamp: Date
 }
 
 /**
@@ -183,51 +188,51 @@ export interface ResourceContext {
  */
 export interface ResourceProvider {
   /** Provider name */
-  name: string;
+  name: string
   /** Supported resource types */
-  supportedTypes: ResourceType[];
+  supportedTypes: ResourceType[]
   /** Check if provider handles a URI */
-  handles(uri: string): boolean;
+  handles(uri: string): boolean
   /** List resources */
-  list?(filter?: ResourceSubscriptionFilter): Promise<ResourceMetadata[]>;
+  list?(filter?: ResourceSubscriptionFilter): Promise<ResourceMetadata[]>
   /** Read resource */
-  read(uri: string, options?: ResourceReadOptions): Promise<ResourceContent>;
+  read(uri: string, options?: ResourceReadOptions): Promise<ResourceContent>
   /** Write resource (optional) */
-  write?(uri: string, content: ResourceContent, options?: ResourceReadOptions): Promise<void>;
+  write?(uri: string, content: ResourceContent, options?: ResourceReadOptions): Promise<void>
   /** Delete resource (optional) */
-  delete?(uri: string, options?: ResourceReadOptions): Promise<void>;
+  delete?(uri: string, options?: ResourceReadOptions): Promise<void>
   /** Watch for changes (optional) */
-  watch?(uri: string, callback: (event: ResourceChangeEvent) => void): () => void;
+  watch?(uri: string, callback: (event: ResourceChangeEvent) => void): () => void
 }
 
 /**
  * MCP Resource Manager
- * 
+ *
  * Manages resources with providers, caching, and subscriptions.
  */
 export class MCPResourceManager {
-  private providers: Map<string, ResourceProvider> = new Map();
-  private cache: Map<string, CacheEntry> = new Map();
-  private subscriptions: Map<string, ResourceSubscription> = new Map();
-  private changeListeners: Map<string, Set<(event: ResourceChangeEvent) => void>> = new Map();
+  private providers: Map<string, ResourceProvider> = new Map()
+  private cache: Map<string, CacheEntry> = new Map()
+  private subscriptions: Map<string, ResourceSubscription> = new Map()
+  private changeListeners: Map<string, Set<(event: ResourceChangeEvent) => void>> = new Map()
   private cacheStats = {
     hits: 0,
     misses: 0,
     evictions: 0,
-  };
+  }
 
   /**
    * Register a resource provider
    */
   registerProvider(provider: ResourceProvider): void {
-    this.providers.set(provider.name, provider);
+    this.providers.set(provider.name, provider)
   }
 
   /**
    * Unregister a resource provider
    */
   unregisterProvider(name: string): boolean {
-    return this.providers.delete(name);
+    return this.providers.delete(name)
   }
 
   /**
@@ -236,72 +241,72 @@ export class MCPResourceManager {
   private getProvider(uri: string): ResourceProvider | undefined {
     for (const provider of this.providers.values()) {
       if (provider.handles(uri)) {
-        return provider;
+        return provider
       }
     }
-    return undefined;
+    return undefined
   }
 
   /**
    * List all available resources
    */
   async list(filter?: ResourceSubscriptionFilter): Promise<ResourceMetadata[]> {
-    const results: ResourceMetadata[] = [];
+    const results: ResourceMetadata[] = []
 
     for (const provider of this.providers.values()) {
       if (provider.list) {
-        const resources = await provider.list(filter);
+        const resources = await provider.list(filter)
         if (filter && filter.uris) {
-          results.push(...resources.filter(r => filter.uris!.includes(r.uri)));
+          results.push(...resources.filter(r => filter.uris!.includes(r.uri)))
         } else if (filter && filter.types) {
-          results.push(...resources.filter(r => filter.types!.includes(r.type)));
+          results.push(...resources.filter(r => filter.types!.includes(r.type)))
         } else if (filter && filter.tags) {
-          results.push(...resources.filter(r => filter.tags!.some(t => r.tags.includes(t))));
+          results.push(...resources.filter(r => filter.tags!.some(t => r.tags.includes(t))))
         } else if (filter && filter.pattern) {
-          const glob = await import('glob');
-          const matches = await glob.glob(filter.pattern);
-          results.push(...resources.filter(r => matches.includes(r.uri)));
+          const glob = await import('glob')
+          const matches = await glob.glob(filter.pattern)
+          results.push(...resources.filter(r => matches.includes(r.uri)))
         } else {
-          results.push(...resources);
+          results.push(...resources)
         }
       }
     }
 
-    return results;
+    return results
   }
 
   /**
    * Read a resource
    */
   async read(uri: string, options: ResourceReadOptions = {}): Promise<ResourceContent> {
-    const policy = options.cachePolicy || 'cache-first';
-    const cacheKey = this.getCacheKey(uri, options);
+    const policy = options.cachePolicy || 'cache-first'
+    const cacheKey = this.getCacheKey(uri, options)
 
     // Check cache for cache-first or stale-while-revalidate
     if (policy === 'cache-first' || policy === 'stale-while-revalidate') {
-      const cached = this.cache.get(cacheKey);
+      const cached = this.cache.get(cacheKey)
       if (cached && !this.isCacheExpired(cached, options.maxAge)) {
-        this.cacheStats.hits++;
+        this.cacheStats.hits++
         if (policy === 'stale-while-revalidate') {
           // Revalidate in background
           this.revalidateResource(uri, options).catch(err => {
-            console.error(`Cache revalidation failed for ${uri}:`, err);
-          });
+            console.error(`Cache revalidation failed for ${uri}:`, err)
+          })
         }
-        return cached.content;
+        return cached.content
       }
     }
 
     // Cache miss or not using cache
-    this.cacheStats.misses++;
+    this.cacheStats.misses++
 
     // Fetch from provider
-    const provider = this.getProvider(uri);
+    const provider = this.getProvider(uri)
     if (!provider) {
-      throw new MCPResourceError(`No provider found for URI: ${uri}`, 'NO_PROVIDER');
+      throw new MCPResourceError(`No provider found for URI: ${uri}`, 'NO_PROVIDER')
     }
 
-    const content = await provider.read(uri, options);
+    const content = await provider.read(uri, options)
 
     // Update cache (unless no-cache)
     if (policy !== 'no-cache') {
@@ -311,29 +316,33 @@ export class MCPResourceManager {
         etag: content.metadata.etag,
         hitCount: 0,
         policy,
-      });
+      })
 
       // Enforce cache size limit
-      this.enforceCacheLimit();
+      this.enforceCacheLimit()
     }
 
-    return content;
+    return content
   }
 
   /**
    * Write a resource
    */
-  async write(uri: string, content: ResourceContent, options: ResourceReadOptions = {}): Promise<void> {
-    const provider = this.getProvider(uri);
+  async write(
+    uri: string,
+    content: ResourceContent,
+    options: ResourceReadOptions = {}
+  ): Promise<void> {
+    const provider = this.getProvider(uri)
     if (!provider || !provider.write) {
-      throw new MCPResourceError(`Write not supported for URI: ${uri}`, 'WRITE_NOT_SUPPORTED');
+      throw new MCPResourceError(`Write not supported for URI: ${uri}`, 'WRITE_NOT_SUPPORTED')
     }
 
-    await provider.write(uri, content, options);
+    await provider.write(uri, content, options)
 
     // Invalidate cache
-    const cacheKey = this.getCacheKey(uri, options);
-    this.cache.delete(cacheKey);
+    const cacheKey = this.getCacheKey(uri, options)
+    this.cache.delete(cacheKey)
 
     // Notify subscribers
     this.emitChange({
@@ -342,31 +351,31 @@ export class MCPResourceManager {
       metadata: content.metadata,
       current: content,
       timestamp: new Date(),
-    });
+    })
   }
 
   /**
    * Delete a resource
    */
   async delete(uri: string, options: ResourceReadOptions = {}): Promise<void> {
-    const provider = this.getProvider(uri);
+    const provider = this.getProvider(uri)
     if (!provider || !provider.delete) {
-      throw new MCPResourceError(`Delete not supported for URI: ${uri}`, 'DELETE_NOT_SUPPORTED');
+      throw new MCPResourceError(`Delete not supported for URI: ${uri}`, 'DELETE_NOT_SUPPORTED')
     }
 
     // Get current content before deletion
-    let previous: ResourceContent | undefined;
+    let previous: ResourceContent | undefined
     try {
-      previous = await provider.read(uri, { ...options, metadataOnly: true });
-    } catch {
+      previous = await provider.read(uri, { ...options, metadataOnly: true })
+    } catch (error) {
       // Resource might not exist
     }
 
-    await provider.delete(uri, options);
+    await provider.delete(uri, options)
 
     // Invalidate cache
-    const cacheKey = this.getCacheKey(uri, options);
-    this.cache.delete(cacheKey);
+    const cacheKey = this.getCacheKey(uri, options)
+    this.cache.delete(cacheKey)
 
     // Notify subscribers
     if (previous) {
@@ -376,7 +385,7 @@ export class MCPResourceManager {
         metadata: previous.metadata,
         previous,
         timestamp: new Date(),
-      });
+      })
     }
   }
 
@@ -391,39 +400,39 @@ export class MCPResourceManager {
       subscribedAt: new Date(),
       lastActivity: new Date(),
       active: true,
-    };
+    }
 
-    this.subscriptions.set(subscription.id, subscription);
+    this.subscriptions.set(subscription.id, subscription)
 
     // Setup watchers for specific URIs
     if (filter.uris) {
       for (const uri of filter.uris) {
-        const provider = this.getProvider(uri);
+        const provider = this.getProvider(uri)
         if (provider?.watch) {
-          provider.watch(uri, (event) => {
-            this.handleResourceChange(subscription.id, event, filter);
-          });
+          provider.watch(uri, event => {
+            this.handleResourceChange(subscription.id, event, filter)
+          })
         }
       }
     }
 
-    return subscription.id;
+    return subscription.id
   }
 
   /**
    * Unsubscribe from resource changes
    */
   unsubscribe(subscriptionId: string): boolean {
-    const subscription = this.subscriptions.get(subscriptionId);
-    if (!subscription) return false;
+    const subscription = this.subscriptions.get(subscriptionId)
+    if (!subscription) return false
 
-    subscription.active = false;
-    this.subscriptions.delete(subscriptionId);
+    subscription.active = false
+    this.subscriptions.delete(subscriptionId)
 
     // Remove change listeners for this subscription
-    this.changeListeners.delete(subscriptionId);
+    this.changeListeners.delete(subscriptionId)
 
-    return true;
+    return true
   }
 
   /**
@@ -434,19 +443,19 @@ export class MCPResourceManager {
     callback: (event: ResourceChangeEvent) => void
   ): () => void {
     if (!this.changeListeners.has(subscriptionId)) {
-      this.changeListeners.set(subscriptionId, new Set());
+      this.changeListeners.set(subscriptionId, new Set())
     }
-    this.changeListeners.get(subscriptionId)!.add(callback);
+    this.changeListeners.get(subscriptionId)!.add(callback)
 
     return () => {
-      const listeners = this.changeListeners.get(subscriptionId);
+      const listeners = this.changeListeners.get(subscriptionId)
       if (listeners) {
-        listeners.delete(callback);
+        listeners.delete(callback)
         if (listeners.size === 0) {
-          this.changeListeners.delete(subscriptionId);
+          this.changeListeners.delete(subscriptionId)
         }
       }
-    };
+    }
   }
 
   /**
@@ -454,16 +463,16 @@ export class MCPResourceManager {
    */
   clearCache(pattern?: string): void {
     if (pattern) {
-      const regex = new RegExp(pattern);
+      const regex = new RegExp(pattern)
       for (const key of this.cache.keys()) {
         if (regex.test(key)) {
-          this.cache.delete(key);
-          this.cacheStats.evictions++;
+          this.cache.delete(key)
+          this.cacheStats.evictions++
         }
       }
     } else {
-      this.cacheStats.evictions += this.cache.size;
-      this.cache.clear();
+      this.cacheStats.evictions += this.cache.size
+      this.cache.clear()
     }
   }
 
@@ -474,43 +483,42 @@ export class MCPResourceManager {
     return {
       ...this.cacheStats,
       size: this.cache.size,
-      hitRate: this.cacheStats.hits + this.cacheStats.misses > 0
-        ? (this.cacheStats.hits / (this.cacheStats.hits + this.cacheStats.misses)) * 100
-        : 0,
-    };
+      hitRate:
+        this.cacheStats.hits + this.cacheStats.misses > 0
+          ? (this.cacheStats.hits / (this.cacheStats.hits + this.cacheStats.misses)) * 100
+          : 0,
+    }
   }
 
   /**
    * Get subscription info
    */
   getSubscription(subscriptionId: string): ResourceSubscription | undefined {
-    return this.subscriptions.get(subscriptionId);
+    return this.subscriptions.get(subscriptionId)
   }
 
   /**
    * Get all subscriptions for a session
    */
   getSessionSubscriptions(sessionId: string): ResourceSubscription[] {
-    return Array.from(this.subscriptions.values()).filter(
-      sub => sub.sessionId === sessionId
-    );
+    return Array.from(this.subscriptions.values()).filter(sub => sub.sessionId === sessionId)
   }
 
   /**
    * Clean up expired subscriptions
    */
   cleanupExpiredSubscriptions(maxAge: number = 3600000): number {
-    const now = Date.now();
-    let cleaned = 0;
+    const now = Date.now()
+    let cleaned = 0
 
     for (const [id, subscription] of this.subscriptions) {
       if (!subscription.active || now - subscription.lastActivity.getTime() > maxAge) {
-        this.unsubscribe(id);
-        cleaned++;
+        this.unsubscribe(id)
+        cleaned++
       }
     }
 
-    return cleaned;
+    return cleaned
   }
 
   /**
@@ -522,18 +530,18 @@ export class MCPResourceManager {
     filter: ResourceSubscriptionFilter
   ): void {
     // Apply filter
-    if (filter.uris && !filter.uris.includes(event.uri)) return;
-    if (filter.types && !filter.types.includes(event.metadata.type)) return;
-    if (filter.tags && !filter.tags.some(t => event.metadata.tags.includes(t))) return;
+    if (filter.uris && !filter.uris.includes(event.uri)) return
+    if (filter.types && !filter.types.includes(event.metadata.type)) return
+    if (filter.tags && !filter.tags.some(t => event.metadata.tags.includes(t))) return
 
     // Notify listeners
-    const listeners = this.changeListeners.get(subscriptionId);
+    const listeners = this.changeListeners.get(subscriptionId)
     if (listeners) {
       for (const callback of listeners) {
         try {
-          callback(event);
-        } catch (_error) {
-          console.error('Resource change listener error:', error);
+          callback(event)
+        } catch (error) {
+          console.error('Resource change listener error:', error)
         }
       }
     }
@@ -544,9 +552,9 @@ export class MCPResourceManager {
    */
   private emitChange(event: ResourceChangeEvent): void {
     for (const [subscriptionId, subscription] of this.subscriptions) {
-      if (!subscription.active) continue;
+      if (!subscription.active) continue
 
-      this.handleResourceChange(subscriptionId, event, subscription.filter);
+      this.handleResourceChange(subscriptionId, event, subscription.filter)
     }
   }
 
@@ -555,14 +563,14 @@ export class MCPResourceManager {
    */
   private async revalidateResource(uri: string, options: ResourceReadOptions): Promise<void> {
     try {
-      const provider = this.getProvider(uri);
-      if (!provider) return;
+      const provider = this.getProvider(uri)
+      if (!provider) return
 
-      const content = await provider.read(uri, options);
-      const cacheKey = this.getCacheKey(uri, options);
+      const content = await provider.read(uri, options)
+      const cacheKey = this.getCacheKey(uri, options)
 
       // Update cache if etag changed
-      const cached = this.cache.get(cacheKey);
+      const cached = this.cache.get(cacheKey)
       if (!cached || cached.etag !== content.metadata.etag) {
         this.cache.set(cacheKey, {
           content,
@@ -570,10 +578,10 @@ export class MCPResourceManager {
           etag: content.metadata.etag,
           hitCount: cached?.hitCount || 0,
           policy: cached?.policy || 'cache-first',
-        });
+        })
       }
-    } catch (_error) {
-      console.error(`Revalidation failed for ${uri}:`, error);
+    } catch (error) {
+      console.error(`Revalidation failed for ${uri}:`, error)
     }
   }
 
@@ -582,38 +590,37 @@ export class MCPResourceManager {
    */
   private isCacheExpired(entry: CacheEntry, maxAge?: number): boolean {
     if (maxAge) {
-      return Date.now() - entry.cachedAt.getTime() > maxAge;
+      return Date.now() - entry.cachedAt.getTime() > maxAge
     }
     if (entry.expiresAt) {
-      return Date.now() > entry.expiresAt.getTime();
+      return Date.now() > entry.expiresAt.getTime()
     }
-    return false;
+    return false
   }
 
   /**
    * Get cache key
    */
   private getCacheKey(uri: string, options: ResourceReadOptions): string {
-    const rangePart = options.range
-      ? `:${options.range.start}-${options.range.end}`
-      : '';
-    return `${uri}${rangePart}`;
+    const rangePart = options.range ? `:${options.range.start}-${options.range.end}` : ''
+    return `${uri}${rangePart}`
   }
 
   /**
    * Enforce cache size limit
    */
   private enforceCacheLimit(maxSize: number = 1000): void {
-    if (this.cache.size <= maxSize) return;
+    if (this.cache.size <= maxSize) return
 
     // Evict least recently used entries
-    const entries = Array.from(this.cache.entries())
-      .sort((a, b) => a[1].cachedAt.getTime() - b[1].cachedAt.getTime());
+    const entries = Array.from(this.cache.entries()).sort(
+      (a, b) => a[1].cachedAt.getTime() - b[1].cachedAt.getTime()
+    )
 
-    const toEvict = entries.length - maxSize;
+    const toEvict = entries.length - maxSize
     for (let i = 0; i < toEvict; i++) {
-      this.cache.delete(entries[i][0]);
-      this.cacheStats.evictions++;
+      this.cache.delete(entries[i][0])
+      this.cacheStats.evictions++
     }
   }
 }
@@ -626,8 +633,8 @@ export class MCPResourceError extends Error {
     message: string,
     public code: string
   ) {
-    super(message);
-    this.name = 'MCPResourceError';
+    super(message)
+    this.name = 'MCPResourceError'
   }
 }
 
@@ -635,32 +642,32 @@ export class MCPResourceError extends Error {
  * File system resource provider
  */
 export class FileSystemResourceProvider implements ResourceProvider {
-  name = 'filesystem';
-  supportedTypes: ResourceType[] = ['file', 'directory'];
+  name = 'filesystem'
+  supportedTypes: ResourceType[] = ['file', 'directory']
 
   handles(uri: string): boolean {
-    return uri.startsWith('file://') || uri.startsWith('/') || /^[a-zA-Z]:/.test(uri);
+    return uri.startsWith('file://') || uri.startsWith('/') || /^[a-zA-Z]:/.test(uri)
   }
 
   async list(filter?: ResourceSubscriptionFilter): Promise<ResourceMetadata[]> {
-    const fs = await import('fs/promises');
-    const path = await import('path');
-    const glob = await import('glob');
+    const fs = await import('fs/promises')
+    const path = await import('path')
+    const glob = await import('glob')
 
-    let uris: string[] = [];
+    let uris: string[] = []
 
     if (filter?.pattern) {
-      uris = await glob.glob(filter.pattern);
+      uris = await glob.glob(filter.pattern)
     } else if (filter?.uris) {
-      uris = filter.uris;
+      uris = filter.uris
     }
 
-    const results: ResourceMetadata[] = [];
+    const results: ResourceMetadata[] = []
 
     for (const uri of uris) {
       try {
-        const stats = await fs.stat(uri);
-        const mimeType = await this.getMimeType(uri);
+        const stats = await fs.stat(uri)
+        const mimeType = await this.getMimeType(uri)
 
         results.push({
           uri: uri.startsWith('file://') ? uri : `file://${uri}`,
@@ -674,23 +681,23 @@ export class FileSystemResourceProvider implements ResourceProvider {
           mutable: true,
           requiresAuth: false,
           custom: {},
-        });
-      } catch (_error) {
+        })
+      } catch (error) {
         // Skip inaccessible files
       }
     }
 
-    return results;
+    return results
   }
 
   async read(uri: string, options?: ResourceReadOptions): Promise<ResourceContent> {
-    const fs = await import('fs/promises');
-    const filePath = uri.startsWith('file://') ? uri.slice(7) : uri;
+    const fs = await import('fs/promises')
+    const filePath = uri.startsWith('file://') ? uri.slice(7) : uri
 
     if (options?.metadataOnly) {
-      const stats = await fs.stat(filePath);
-      const mimeType = await this.getMimeType(filePath);
-      
+      const stats = await fs.stat(filePath)
+      const mimeType = await this.getMimeType(filePath)
+
       return {
         metadata: {
           uri,
@@ -706,11 +713,11 @@ export class FileSystemResourceProvider implements ResourceProvider {
           requiresAuth: false,
           custom: {},
         },
-      };
+      }
     }
 
-    const content = await fs.readFile(filePath);
-    
+    const content = await fs.readFile(filePath)
+
     return {
       text: content.toString('utf-8'),
       binary: content.toString('base64'),
@@ -728,24 +735,26 @@ export class FileSystemResourceProvider implements ResourceProvider {
         requiresAuth: false,
         custom: {},
       },
-    };
+    }
   }
 
   async write(uri: string, content: ResourceContent): Promise<void> {
-    const fs = await import('fs/promises');
-    const filePath = uri.startsWith('file://') ? uri.slice(7) : uri;
-    const data = content.binary ? Buffer.from(content.binary, 'base64') : Buffer.from(content.text || '', 'utf-8');
-    await fs.writeFile(filePath, data);
+    const fs = await import('fs/promises')
+    const filePath = uri.startsWith('file://') ? uri.slice(7) : uri
+    const data = content.binary
+      ? Buffer.from(content.binary, 'base64')
+      : Buffer.from(content.text || '', 'utf-8')
+    await fs.writeFile(filePath, data)
   }
 
   async delete(uri: string): Promise<void> {
-    const fs = await import('fs/promises');
-    const filePath = uri.startsWith('file://') ? uri.slice(7) : uri;
-    await fs.unlink(filePath);
+    const fs = await import('fs/promises')
+    const filePath = uri.startsWith('file://') ? uri.slice(7) : uri
+    await fs.unlink(filePath)
   }
 
   private inferContentType(path: string): ResourceContentType {
-    const ext = path.split('.').pop()?.toLowerCase() || '';
+    const ext = path.split('.').pop()?.toLowerCase() || ''
     const types: Record<string, ResourceContentType> = {
       json: 'json',
       yaml: 'yaml',
@@ -754,12 +763,12 @@ export class FileSystemResourceProvider implements ResourceProvider {
       html: 'html',
       xml: 'xml',
       txt: 'text',
-    };
-    return types[ext] || 'text';
+    }
+    return types[ext] || 'text'
   }
 
   private async getMimeType(path: string): Promise<string> {
-    const ext = path.split('.').pop()?.toLowerCase() || '';
+    const ext = path.split('.').pop()?.toLowerCase() || ''
     const mimeTypes: Record<string, string> = {
       json: 'application/json',
       yaml: 'application/x-yaml',
@@ -779,17 +788,17 @@ export class FileSystemResourceProvider implements ResourceProvider {
       pdf: 'application/pdf',
       zip: 'application/zip',
       tar: 'application/x-tar',
-    };
-    return mimeTypes[ext] || 'application/octet-stream';
+    }
+    return mimeTypes[ext] || 'application/octet-stream'
   }
 }
 
 /**
  * Global resource manager instance
  */
-export const mcpResourceManager = new MCPResourceManager();
+export const mcpResourceManager = new MCPResourceManager()
 
 // Register default providers
-mcpResourceManager.registerProvider(new FileSystemResourceProvider());
+mcpResourceManager.registerProvider(new FileSystemResourceProvider())
 
-export default MCPResourceManager;
+export default MCPResourceManager

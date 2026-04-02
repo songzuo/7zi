@@ -34,9 +34,9 @@
 ### 支持语言
 
 | 语言代码 | 语言名称 | Flag | 区域设置 |
-|---------|---------|------|---------|
-| `zh` | 中文 | 🇨🇳 | zh_CN |
-| `en` | English | 🇺🇸 | en_US |
+| -------- | -------- | ---- | -------- |
+| `zh`     | 中文     | 🇨🇳   | zh_CN    |
+| `en`     | English  | 🇺🇸   | en_US    |
 
 ---
 
@@ -52,14 +52,14 @@
 
 ### 选择 next-intl 的理由
 
-| 特性 | next-intl | 其他方案 |
-|-----|-----------|---------|
-| App Router 支持 | ✅ 原生支持 | ⚠️ 需额外配置 |
-| 服务端渲染 | ✅ 内置 SSR/SSG | ⚠️ 需手动处理 |
-| 路由集成 | ✅ 自动路由前缀 | ❌ 需手动配置 |
-| TypeScript | ✅ 类型安全 | ⚠️ 部分支持 |
-| SEO 优化 | ✅ hreflang 自动生成 | ❌ 需手动配置 |
-| 维护状态 | ✅ 活跃维护 | ⚠️ 参差不齐 |
+| 特性            | next-intl            | 其他方案      |
+| --------------- | -------------------- | ------------- |
+| App Router 支持 | ✅ 原生支持          | ⚠️ 需额外配置 |
+| 服务端渲染      | ✅ 内置 SSR/SSG      | ⚠️ 需手动处理 |
+| 路由集成        | ✅ 自动路由前缀      | ❌ 需手动配置 |
+| TypeScript      | ✅ 类型安全          | ⚠️ 部分支持   |
+| SEO 优化        | ✅ hreflang 自动生成 | ❌ 需手动配置 |
+| 维护状态        | ✅ 活跃维护          | ⚠️ 参差不齐   |
 
 ---
 
@@ -103,42 +103,43 @@ src/
 ### 1. 语言配置 (`src/i18n/config.ts`)
 
 ```typescript
-import { Pathnames, LocalePrefix } from 'next-intl/routing';
+import { Pathnames, LocalePrefix } from 'next-intl/routing'
 
-export const locales = ['zh', 'en'] as const;
-export type Locale = (typeof locales)[number];
+export const locales = ['zh', 'en'] as const
+export type Locale = (typeof locales)[number]
 
-export const defaultLocale: Locale = 'zh';
+export const defaultLocale: Locale = 'zh'
 
 export const pathnames: Pathnames<typeof locales> = {
   '/': '/',
   '/about': {
     zh: '/about',
-    en: '/about'
+    en: '/about',
   },
   '/team': {
     zh: '/team',
-    en: '/team'
+    en: '/team',
   },
   '/contact': {
     zh: '/contact',
-    en: '/contact'
+    en: '/contact',
   },
   '/blog': {
     zh: '/blog',
-    en: '/blog'
+    en: '/blog',
   },
   '/dashboard': {
     zh: '/dashboard',
-    en: '/dashboard'
-  }
-};
+    en: '/dashboard',
+  },
+}
 
 // 静态导出模式下使用 'always' 前缀策略
-export const localePrefix: LocalePrefix<typeof locales> = 'always';
+export const localePrefix: LocalePrefix<typeof locales> = 'always'
 ```
 
 **关键点**:
+
 - `locales`: 支持的语言列表
 - `defaultLocale`: 默认语言
 - `pathnames`: 路径映射（可本地化）
@@ -147,23 +148,23 @@ export const localePrefix: LocalePrefix<typeof locales> = 'always';
 ### 2. 路由配置 (`src/i18n/routing.ts`)
 
 ```typescript
-import { createNavigation } from 'next-intl/navigation';
-import { defineRouting } from 'next-intl/routing';
-import { locales, defaultLocale, pathnames, localePrefix } from './config';
+import { createNavigation } from 'next-intl/navigation'
+import { defineRouting } from 'next-intl/routing'
+import { locales, defaultLocale, pathnames, localePrefix } from './config'
 
 export const routing = defineRouting({
   locales,
   defaultLocale,
   pathnames,
-  localePrefix
-});
+  localePrefix,
+})
 
 // 创建导航工具
-export const { Link, redirect, usePathname, useRouter, getPathname } =
-  createNavigation(routing);
+export const { Link, redirect, usePathname, useRouter, getPathname } = createNavigation(routing)
 ```
 
 **导出的导航工具**:
+
 - `Link`: 多语言链接组件
 - `redirect`: 服务端重定向
 - `usePathname`: 获取当前路径
@@ -173,17 +174,18 @@ export const { Link, redirect, usePathname, useRouter, getPathname } =
 ### 3. 中间件 (`src/proxy.ts`)
 
 ```typescript
-import createMiddleware from 'next-intl/middleware';
-import { routing } from './i18n/routing';
+import createMiddleware from 'next-intl/middleware'
+import { routing } from './i18n/routing'
 
-export default createMiddleware(routing);
+export default createMiddleware(routing)
 
 export const config = {
-  matcher: ['/', '/(zh|en)/:path*', '/((?!api|_next|_vercel|.*\\..*).*)']
-};
+  matcher: ['/', '/(zh|en)/:path*', '/((?!api|_next|_vercel|.*\\..*).*)'],
+}
 ```
 
 **功能**:
+
 - 自动语言检测
 - URL 前缀处理
 - 语言切换重定向
@@ -191,21 +193,21 @@ export const config = {
 ### 4. 请求配置 (`src/i18n/request.ts`)
 
 ```typescript
-import { getRequestConfig } from 'next-intl/server';
-import { locales, defaultLocale, Locale } from './config';
+import { getRequestConfig } from 'next-intl/server'
+import { locales, defaultLocale, Locale } from './config'
 
 export default getRequestConfig(async ({ requestLocale }) => {
-  let locale = await requestLocale;
-  
+  let locale = await requestLocale
+
   if (!locale || !locales.includes(locale as Locale)) {
-    locale = defaultLocale;
+    locale = defaultLocale
   }
 
   return {
     locale,
-    messages: (await import(`./messages/${locale}.json`)).default
-  };
-});
+    messages: (await import(`./messages/${locale}.json`)).default,
+  }
+})
 ```
 
 ---
@@ -223,7 +225,7 @@ import { Locale } from '@/i18n/config';
 // 在 Server Component 中
 export default async function Page({ params }: { params: { locale: Locale } }) {
   const t = await getTranslations({ locale: params.locale, namespace: 'home' });
-  
+
   return (
     <div>
       <h1>{t('hero.title1')}</h1>
@@ -236,7 +238,7 @@ export default async function Page({ params }: { params: { locale: Locale } }) {
 #### 嵌套命名空间
 
 ```typescript
-const t = await getTranslations({ locale, namespace: 'about.intro' });
+const t = await getTranslations({ locale, namespace: 'about.intro' })
 // 访问 about.intro.p1
 ```
 
@@ -252,7 +254,7 @@ import { useTranslations, useLocale } from '@/i18n/client';
 export function MyComponent() {
   const t = useTranslations('home');
   const locale = useLocale();
-  
+
   return (
     <div>
       <h1>{t('hero.title1')}</h1>
@@ -265,13 +267,13 @@ export function MyComponent() {
 #### 使用原生 next-intl
 
 ```typescript
-'use client';
+'use client'
 
-import { useTranslations, useLocale } from 'next-intl';
+import { useTranslations, useLocale } from 'next-intl'
 
 export function MyComponent() {
-  const t = useTranslations('home');
-  const locale = useLocale();
+  const t = useTranslations('home')
+  const locale = useLocale()
   // ... 同上
 }
 ```
@@ -279,20 +281,20 @@ export function MyComponent() {
 ### 辅助函数
 
 ```typescript
-import { getServerTranslations, formatDate, formatNumber } from '@/i18n/utils';
+import { getServerTranslations, formatDate, formatNumber } from '@/i18n/utils'
 
 // 服务端获取翻译
-const { t } = await getServerTranslations(locale, 'namespace');
+const { t } = await getServerTranslations(locale, 'namespace')
 
 // 格式化日期
-const dateStr = formatDate('zh', new Date(), { 
-  year: 'numeric', 
-  month: 'long' 
-});
+const dateStr = formatDate('zh', new Date(), {
+  year: 'numeric',
+  month: 'long',
+})
 // 输出: "2026年3月"
 
 // 格式化数字
-const numStr = formatNumber('en', 1234567.89);
+const numStr = formatNumber('en', 1234567.89)
 // 输出: "1,234,567.89"
 ```
 
@@ -307,8 +309,8 @@ const numStr = formatNumber('en', 1234567.89);
   "namespace": {
     "component": {
       "element": "翻译文本"
+    }
   }
-}
 }
 ```
 
@@ -334,10 +336,10 @@ const numStr = formatNumber('en', 1234567.89);
 
 ```typescript
 // ✅ 推荐: 明确命名空间
-const t = useTranslations('home.hero');
+const t = useTranslations('home.hero')
 
 // ❌ 不推荐: 无命名空间
-const t = useTranslations();
+const t = useTranslations()
 ```
 
 ### 3. 避免硬编码
@@ -374,8 +376,8 @@ t('items', { count: 5 })
 ```
 
 ```typescript
-t('items', { count: 1 });  // "1 项"
-t('items', { count: 5 });  // "5 项"
+t('items', { count: 1 }) // "1 项"
+t('items', { count: 5 }) // "5 项"
 ```
 
 ### 6. 富文本翻译
@@ -384,11 +386,11 @@ t('items', { count: 5 });  // "5 项"
 // 使用 Trans 组件处理富文本
 import { Trans } from 'next-intl';
 
-<Trans 
+<Trans
   i18nKey="agreement"
   values={{ link: '/terms' }}
-  components={{ 
-    a: <a className="text-cyan-500" /> 
+  components={{
+    a: <a className="text-cyan-500" />
   }}
 />
 ```
@@ -408,6 +410,7 @@ import { Trans } from 'next-intl';
 ```
 
 功能:
+
 - 显示当前语言和 flag
 - 悬停展开下拉菜单
 - 保持当前路由切换语言
@@ -419,6 +422,7 @@ import { Trans } from 'next-intl';
 ```
 
 功能:
+
 - 仅显示切换目标语言 flag
 - 点击直接切换
 - 适合 header 空间有限场景
@@ -458,13 +462,13 @@ import { useRouter, usePathname } from '@/i18n/routing';
 function Navigation() {
   const router = useRouter();
   const pathname = usePathname();
-  
+
   const handleNavigate = () => {
     router.push('/about');
     // 或带参数
     router.push('/blog', { query: { id: '123' } });
   };
-  
+
   return <button onClick={handleNavigate}>Navigate</button>;
 }
 ```
@@ -478,8 +482,8 @@ function Navigation() {
 ```typescript
 // src/app/[locale]/layout.tsx
 export async function generateMetadata({ params }) {
-  const { locale } = await params;
-  
+  const { locale } = await params
+
   return {
     alternates: {
       canonical: `${baseUrl}/${locale}`,
@@ -489,7 +493,7 @@ export async function generateMetadata({ params }) {
         'x-default': `${baseUrl}/zh`,
       },
     },
-  };
+  }
 }
 ```
 
@@ -550,41 +554,41 @@ describe('LanguageSwitcher', () => {
 
 ```typescript
 // e2e/i18n.spec.ts
-import { test, expect } from '@playwright/test';
+import { test, expect } from '@playwright/test'
 
 test('language switch preserves route', async ({ page }) => {
-  await page.goto('/zh/about');
-  await page.click('[aria-label="Switch language"]');
-  await page.click('text=English');
-  await expect(page).toHaveURL('/en/about');
-});
+  await page.goto('/zh/about')
+  await page.click('[aria-label="Switch language"]')
+  await page.click('text=English')
+  await expect(page).toHaveURL('/en/about')
+})
 ```
 
 ### 翻译完整性测试
 
 ```typescript
 // scripts/check-translations.ts
-import zh from '../src/i18n/messages/zh.json';
-import en from '../src/i18n/messages/en.json';
+import zh from '../src/i18n/messages/zh.json'
+import en from '../src/i18n/messages/en.json'
 
 function checkKeys(obj1: any, obj2: any, path = '') {
-  const keys1 = Object.keys(obj1);
-  const keys2 = Object.keys(obj2);
-  
-  const missing = keys1.filter(k => !keys2.includes(k));
+  const keys1 = Object.keys(obj1)
+  const keys2 = Object.keys(obj2)
+
+  const missing = keys1.filter(k => !keys2.includes(k))
   if (missing.length > 0) {
-    console.warn(`Missing keys in en.json at ${path}:`, missing);
+    console.warn(`Missing keys in en.json at ${path}:`, missing)
   }
-  
+
   // 递归检查嵌套对象
   keys1.forEach(k => {
     if (typeof obj1[k] === 'object') {
-      checkKeys(obj1[k], obj2[k] || {}, `${path}.${k}`);
+      checkKeys(obj1[k], obj2[k] || {}, `${path}.${k}`)
     }
-  });
+  })
 }
 
-checkKeys(zh, en);
+checkKeys(zh, en)
 ```
 
 ---
@@ -634,25 +638,25 @@ checkKeys(zh, en);
 
 ```typescript
 // 服务端
-import { getLocale } from 'next-intl/server';
-const locale = await getLocale();
+import { getLocale } from 'next-intl/server'
+const locale = await getLocale()
 
 // 客户端
-import { useLocale } from 'next-intl';
-const locale = useLocale();
+import { useLocale } from 'next-intl'
+const locale = useLocale()
 ```
 
 ### Q: 如何在非页面组件中使用翻译？
 
 ```typescript
 // 服务端组件
-import { getTranslations } from 'next-intl/server';
-const t = await getTranslations('namespace');
+import { getTranslations } from 'next-intl/server'
+const t = await getTranslations('namespace')
 
 // 客户端组件
-'use client';
-import { useTranslations } from 'next-intl';
-const t = useTranslations('namespace');
+;('use client')
+import { useTranslations } from 'next-intl'
+const t = useTranslations('namespace')
 ```
 
 ---
@@ -671,7 +675,7 @@ messages: (await import(`./messages/${locale}.json`)).default
 ```typescript
 // layout.tsx
 export function generateStaticParams() {
-  return routing.locales.map((locale) => ({ locale }));
+  return routing.locales.map(locale => ({ locale }))
 }
 ```
 
@@ -701,10 +705,10 @@ messages/
 
 ```typescript
 // 当前
-import Link from 'next/link';
+import Link from 'next/link'
 
 // 推荐
-import { Link } from '@/i18n/routing';
+import { Link } from '@/i18n/routing'
 ```
 
 ### 2. 导航项国际化
@@ -721,7 +725,7 @@ const NAV_ITEMS = [
 
 function Navigation() {
   const t = useTranslations();
-  
+
   return (
     // ...
     <Link href={item.href}>
@@ -737,13 +741,13 @@ function Navigation() {
 
 ```typescript
 // 在 middleware 或 layout 中保存用户偏好
-import { cookies } from 'next/headers';
+import { cookies } from 'next/headers'
 
 // 保存语言偏好
-cookies().set('locale', locale, { maxAge: 60 * 60 * 24 * 365 });
+cookies().set('locale', locale, { maxAge: 60 * 60 * 24 * 365 })
 
 // 读取语言偏好
-const savedLocale = cookies().get('locale')?.value;
+const savedLocale = cookies().get('locale')?.value
 ```
 
 ---

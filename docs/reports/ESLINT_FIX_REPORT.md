@@ -3,6 +3,7 @@
 ## Problem
 
 When running `npx next lint`, the command failed with the error:
+
 ```
 Invalid project directory provided, no such directory: /root/.openclaw/workspace/7zi-project/lint
 ```
@@ -20,42 +21,44 @@ Invalid project directory provided, no such directory: /root/.openclaw/workspace
 ### 1. Fixed ESLint Configuration
 
 **Before (incorrect):**
+
 ```javascript
-import { defineConfig, globalIgnores } from "eslint/config";
-import nextVitals from "eslint-config-next/core-web-vitals";
-import nextTs from "eslint-config-next/typescript";
+import { defineConfig, globalIgnores } from 'eslint/config'
+import nextVitals from 'eslint-config-next/core-web-vitals'
+import nextTs from 'eslint-config-next/typescript'
 
 const eslintConfig = defineConfig([
   ...nextVitals,
   ...nextTs,
   globalIgnores([
-    ".next/**",
-    "out/**",
+    '.next/**',
+    'out/**',
     // ... more ignores
   ]),
-]);
+])
 
-export default eslintConfig;
+export default eslintConfig
 ```
 
 **After (correct):**
+
 ```javascript
-import nextVitals from "eslint-config-next/core-web-vitals";
-import nextTs from "eslint-config-next/typescript";
+import nextVitals from 'eslint-config-next/core-web-vitals'
+import nextTs from 'eslint-config-next/typescript'
 
 const eslintConfig = [
   ...nextVitals,
   ...nextTs,
   {
     ignores: [
-      ".next/**",
-      "out/**",
+      '.next/**',
+      'out/**',
       // ... more ignores
     ],
   },
-];
+]
 
-export default eslintConfig;
+export default eslintConfig
 ```
 
 ### 2. Updated package.json Scripts
@@ -63,11 +66,13 @@ export default eslintConfig;
 Changed the lint script from `next lint` to directly use `eslint src`:
 
 **Before:**
+
 ```json
 "lint": "next lint",
 ```
 
 **After:**
+
 ```json
 "lint": "eslint src",
 "lint:fix": "eslint src --fix",
@@ -87,6 +92,7 @@ Running `npm run lint` successfully runs ESLint on the `src` directory and repor
 ### Issues Found
 
 The lint check identified:
+
 - **898 errors**: Mostly TypeScript type issues (`@typescript-eslint/no-explicit-any`, `@typescript-eslint/no-unsafe-function-type`)
 - **928 warnings**: Mostly unused variables (`@typescript-eslint/no-unused-vars`)
 

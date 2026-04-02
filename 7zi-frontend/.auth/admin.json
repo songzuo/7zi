@@ -1,0 +1,29 @@
+{
+  "cookies": [
+    {
+      "name": "auth_token",
+      "value": "mock-admin-token-67890",
+      "domain": "localhost",
+      "path": "/",
+      "expires": -1,
+      "httpOnly": true,
+      "secure": false,
+      "sameSite": "Lax"
+    }
+  ],
+  "origins": [
+    {
+      "origin": "http://localhost:3000",
+      "localStorage": [
+        {
+          "name": "auth_token",
+          "value": "mock-admin-token-67890"
+        },
+        {
+          "name": "user_session",
+          "value": "{\"token\":\"mock-admin-token-67890\",\"userId\":\"admin-user-1\",\"role\":\"admin\"}"
+        }
+      ]
+    }
+  ]
+}

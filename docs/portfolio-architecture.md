@@ -70,178 +70,166 @@ public/
 // src/types/portfolio.ts
 
 /** 项目状态 */
-export type ProjectStatus = 'active' | 'completed' | 'archived';
+export type ProjectStatus = 'active' | 'completed' | 'archived'
 
 /** 项目类型 */
-export type ProjectType = 
-  | 'web-app' 
-  | 'mobile-app' 
-  | 'desktop-app' 
-  | 'library' 
-  | 'tool' 
-  | 'design';
+export type ProjectType = 'web-app' | 'mobile-app' | 'desktop-app' | 'library' | 'tool' | 'design'
 
 /** 项目可见性 */
-export type ProjectVisibility = 'public' | 'private' | 'featured';
+export type ProjectVisibility = 'public' | 'private' | 'featured'
 
 /** 技术栈 */
 export interface TechStack {
-  name: string;           // 技术名称
-  category: TechCategory; // 分类
-  icon?: string;          // 图标路径或 URL
-  url?: string;           // 官网链接
+  name: string // 技术名称
+  category: TechCategory // 分类
+  icon?: string // 图标路径或 URL
+  url?: string // 官网链接
 }
 
-export type TechCategory = 
-  | 'frontend' 
-  | 'backend' 
-  | 'database' 
-  | 'devops' 
-  | 'design' 
-  | 'other';
+export type TechCategory = 'frontend' | 'backend' | 'database' | 'devops' | 'design' | 'other'
 
 /** 项目链接 */
 export interface ProjectLink {
-  type: 'github' | 'demo' | 'website' | 'docs' | 'other';
-  url: string;
-  label?: string;
+  type: 'github' | 'demo' | 'website' | 'docs' | 'other'
+  url: string
+  label?: string
 }
 
 /** 项目图片 */
 export interface ProjectImage {
-  src: string;
-  alt: string;
-  type: 'cover' | 'screenshot' | 'diagram';
-  width?: number;
-  height?: number;
+  src: string
+  alt: string
+  type: 'cover' | 'screenshot' | 'diagram'
+  width?: number
+  height?: number
 }
 
 /** 团队成员 */
 export interface ProjectMember {
-  name: string;
-  role: string;
-  avatar?: string;
-  url?: string;
+  name: string
+  role: string
+  avatar?: string
+  url?: string
 }
 
 /** 项目元数据 (SEO) */
 export interface ProjectSEO {
-  title: string;
-  description: string;
-  keywords: string[];
-  ogImage?: string;
+  title: string
+  description: string
+  keywords: string[]
+  ogImage?: string
 }
 
 /** 多语言内容 */
 export interface ProjectContent {
-  en: ProjectLocalizedContent;
-  zh: ProjectLocalizedContent;
+  en: ProjectLocalizedContent
+  zh: ProjectLocalizedContent
 }
 
 export interface ProjectLocalizedContent {
-  title: string;
-  subtitle?: string;
-  description: string;
-  challenge?: string;
-  solution?: string;
-  results?: string[];
-  highlights?: string[];
+  title: string
+  subtitle?: string
+  description: string
+  challenge?: string
+  solution?: string
+  results?: string[]
+  highlights?: string[]
 }
 
 /** 项目实体 */
 export interface Project {
-  id: string;
-  slug: string;
-  visibility: ProjectVisibility;
-  status: ProjectStatus;
-  type: ProjectType;
-  
+  id: string
+  slug: string
+  visibility: ProjectVisibility
+  status: ProjectStatus
+  type: ProjectType
+
   // 多语言内容
-  content: ProjectContent;
-  
+  content: ProjectContent
+
   // 媒体
-  images: ProjectImage[];
-  
+  images: ProjectImage[]
+
   // 技术
-  techStack: TechStack[];
-  
+  techStack: TechStack[]
+
   // 链接
-  links: ProjectLink[];
-  
+  links: ProjectLink[]
+
   // 团队
-  team?: ProjectMember[];
-  
+  team?: ProjectMember[]
+
   // 时间
-  startDate: string;
-  endDate?: string;
-  
+  startDate: string
+  endDate?: string
+
   // 统计
-  stats?: ProjectStats;
-  
+  stats?: ProjectStats
+
   // SEO
-  seo: ProjectSEO;
-  
+  seo: ProjectSEO
+
   // 分类/标签
-  categories: string[];
-  tags: string[];
-  
+  categories: string[]
+  tags: string[]
+
   // 排序权重
-  featured: boolean;
-  order: number;
-  
+  featured: boolean
+  order: number
+
   // 时间戳
-  createdAt: string;
-  updatedAt: string;
+  createdAt: string
+  updatedAt: string
 }
 
 /** 项目统计 */
 export interface ProjectStats {
-  users?: number;
-  downloads?: number;
-  stars?: number;
-  forks?: number;
-  views?: number;
+  users?: number
+  downloads?: number
+  stars?: number
+  forks?: number
+  views?: number
 }
 
 /** 项目列表项 (简化版) */
 export interface ProjectListItem {
-  id: string;
-  slug: string;
-  title: string;
-  subtitle?: string;
-  description: string;
-  coverImage: string;
-  type: ProjectType;
-  status: ProjectStatus;
-  techStack: string[];
-  links: ProjectLink[];
-  featured: boolean;
-  createdAt: string;
+  id: string
+  slug: string
+  title: string
+  subtitle?: string
+  description: string
+  coverImage: string
+  type: ProjectType
+  status: ProjectStatus
+  techStack: string[]
+  links: ProjectLink[]
+  featured: boolean
+  createdAt: string
 }
 
 /** 筛选参数 */
 export interface ProjectFilterParams {
-  type?: ProjectType;
-  status?: ProjectStatus;
-  category?: string;
-  tag?: string;
-  search?: string;
-  featured?: boolean;
+  type?: ProjectType
+  status?: ProjectStatus
+  category?: string
+  tag?: string
+  search?: string
+  featured?: boolean
 }
 
 /** 分页参数 */
 export interface PaginationParams {
-  page: number;
-  limit: number;
+  page: number
+  limit: number
 }
 
 /** 分页响应 */
 export interface PaginatedResponse<T> {
-  data: T[];
-  total: number;
-  page: number;
-  limit: number;
-  hasMore: boolean;
+  data: T[]
+  total: number
+  page: number
+  limit: number
+  hasMore: boolean
 }
 ```
 
@@ -291,47 +279,47 @@ ProjectDetailPage
 ```typescript
 // ProjectCard
 interface ProjectCardProps {
-  project: ProjectListItem;
-  locale: Locale;
-  className?: string;
+  project: ProjectListItem
+  locale: Locale
+  className?: string
 }
 
 // ProjectGrid
 interface ProjectGridProps {
-  projects: ProjectListItem[];
-  locale: Locale;
-  loading?: boolean;
-  columns?: 2 | 3 | 4;
-  className?: string;
+  projects: ProjectListItem[]
+  locale: Locale
+  loading?: boolean
+  columns?: 2 | 3 | 4
+  className?: string
 }
 
 // ProjectFilter
 interface ProjectFilterProps {
-  onFilterChange: (params: ProjectFilterParams) => void;
-  initialParams?: ProjectFilterParams;
-  className?: string;
+  onFilterChange: (params: ProjectFilterParams) => void
+  initialParams?: ProjectFilterParams
+  className?: string
 }
 
 // ProjectDetail
 interface ProjectDetailProps {
-  project: Project;
-  locale: Locale;
-  className?: string;
+  project: Project
+  locale: Locale
+  className?: string
 }
 
 // ProjectGallery
 interface ProjectGalleryProps {
-  images: ProjectImage[];
-  projectTitle: string;
-  className?: string;
+  images: ProjectImage[]
+  projectTitle: string
+  className?: string
 }
 
 // TechStackBadge
 interface TechStackBadgeProps {
-  tech: TechStack;
-  size?: 'sm' | 'md' | 'lg';
-  showIcon?: boolean;
-  className?: string;
+  tech: TechStack
+  size?: 'sm' | 'md' | 'lg'
+  showIcon?: boolean
+  className?: string
 }
 ```
 
@@ -341,42 +329,43 @@ interface TechStackBadgeProps {
 
 ```typescript
 // src/stores/portfolioStore.ts
-import { create } from 'zustand';
+import { create } from 'zustand'
 
 interface PortfolioState {
   // 筛选状态
-  filters: ProjectFilterParams;
-  setFilter: (key: keyof ProjectFilterParams, value: any) => void;
-  resetFilters: () => void;
-  
+  filters: ProjectFilterParams
+  setFilter: (key: keyof ProjectFilterParams, value: any) => void
+  resetFilters: () => void
+
   // 视图状态
-  viewMode: 'grid' | 'list';
-  setViewMode: (mode: 'grid' | 'list') => void;
-  
+  viewMode: 'grid' | 'list'
+  setViewMode: (mode: 'grid' | 'list') => void
+
   // 缓存
-  cachedProjects: Map<string, Project>;
-  setCachedProject: (slug: string, project: Project) => void;
-  getCachedProject: (slug: string) => Project | undefined;
+  cachedProjects: Map<string, Project>
+  setCachedProject: (slug: string, project: Project) => void
+  getCachedProject: (slug: string) => Project | undefined
 }
 
 export const usePortfolioStore = create<PortfolioState>((set, get) => ({
   filters: {},
-  setFilter: (key, value) => set((state) => ({
-    filters: { ...state.filters, [key]: value }
-  })),
+  setFilter: (key, value) =>
+    set(state => ({
+      filters: { ...state.filters, [key]: value },
+    })),
   resetFilters: () => set({ filters: {} }),
-  
+
   viewMode: 'grid',
-  setViewMode: (mode) => set({ viewMode: mode }),
-  
+  setViewMode: mode => set({ viewMode: mode }),
+
   cachedProjects: new Map(),
   setCachedProject: (slug, project) => {
-    const map = new Map(get().cachedProjects);
-    map.set(slug, project);
-    set({ cachedProjects: map });
+    const map = new Map(get().cachedProjects)
+    map.set(slug, project)
+    set({ cachedProjects: map })
   },
-  getCachedProject: (slug) => get().cachedProjects.get(slug),
-}));
+  getCachedProject: slug => get().cachedProjects.get(slug),
+}))
 ```
 
 ### 数据获取 Hook
@@ -386,14 +375,14 @@ export const usePortfolioStore = create<PortfolioState>((set, get) => ({
 export function useProjects(params?: ProjectFilterParams) {
   return useFetch<PaginatedResponse<ProjectListItem>>('/api/portfolio', {
     params,
-    cache: { enabled: true, ttl: 5 * 60 * 1000 } // 5分钟缓存
-  });
+    cache: { enabled: true, ttl: 5 * 60 * 1000 }, // 5分钟缓存
+  })
 }
 
 export function useProject(slug: string) {
   return useFetch<Project>(`/api/portfolio/${slug}`, {
-    cache: { enabled: true, ttl: 10 * 60 * 1000 } // 10分钟缓存
-  });
+    cache: { enabled: true, ttl: 10 * 60 * 1000 }, // 10分钟缓存
+  })
 }
 ```
 
@@ -404,6 +393,7 @@ export function useProject(slug: string) {
 获取项目列表，支持筛选和分页。
 
 **Query Parameters:**
+
 - `type` - 项目类型筛选
 - `status` - 项目状态筛选
 - `category` - 分类筛选
@@ -414,6 +404,7 @@ export function useProject(slug: string) {
 - `limit` - 每页数量 (默认 12)
 
 **Response:**
+
 ```json
 {
   "data": [...],
@@ -429,6 +420,7 @@ export function useProject(slug: string) {
 获取单个项目详情。
 
 **Response:**
+
 ```json
 {
   "id": "project-1",
@@ -457,7 +449,7 @@ export default async function PortfolioPage({ params }) {
   const { locale } = await params;
   const projects = await getProjects(locale);
   const t = await getTranslations('portfolio');
-  
+
   return (
     <main>
       <h1>{t('title')}</h1>
@@ -489,7 +481,7 @@ export const revalidate = 3600;
 export async function generateMetadata({ params }) {
   const { locale, slug } = await params;
   const project = await getProject(slug, locale);
-  
+
   return {
     title: project.seo.title,
     description: project.seo.description,
@@ -503,7 +495,7 @@ export async function generateMetadata({ params }) {
 export default async function ProjectPage({ params }) {
   const { locale, slug } = await params;
   const project = await getProject(slug, locale);
-  
+
   return <ProjectDetail project={project} locale={locale} />;
 }
 ```
@@ -515,8 +507,8 @@ export default async function ProjectPage({ params }) {
 ```typescript
 // 每个项目页面独立 SEO
 export async function generateMetadata({ params }): Promise<Metadata> {
-  const project = await getProject(params.slug, params.locale);
-  
+  const project = await getProject(params.slug, params.locale)
+
   return {
     title: project.seo.title,
     description: project.seo.description,
@@ -539,11 +531,11 @@ export async function generateMetadata({ params }): Promise<Metadata> {
     alternates: {
       canonical: `https://7zi.com/portfolio/${project.slug}`,
       languages: {
-        'en': `https://7zi.com/en/portfolio/${project.slug}`,
-        'zh': `https://7zi.com/zh/portfolio/${project.slug}`,
+        en: `https://7zi.com/en/portfolio/${project.slug}`,
+        zh: `https://7zi.com/zh/portfolio/${project.slug}`,
       },
     },
-  };
+  }
 }
 ```
 
@@ -552,24 +544,24 @@ export async function generateMetadata({ params }): Promise<Metadata> {
 ```typescript
 // 项目详情页添加结构化数据
 const jsonLd = {
-  "@context": "https://schema.org",
-  "@type": "SoftwareApplication",
-  "name": project.content.en.title,
-  "description": project.content.en.description,
-  "applicationCategory": "BusinessApplication",
-  "operatingSystem": "Web",
-  "offers": {
-    "@type": "Offer",
-    "price": "0",
-    "priceCurrency": "USD"
+  '@context': 'https://schema.org',
+  '@type': 'SoftwareApplication',
+  name: project.content.en.title,
+  description: project.content.en.description,
+  applicationCategory: 'BusinessApplication',
+  operatingSystem: 'Web',
+  offers: {
+    '@type': 'Offer',
+    price: '0',
+    priceCurrency: 'USD',
   },
-  "author": {
-    "@type": "Organization",
-    "name": "7zi"
+  author: {
+    '@type': 'Organization',
+    name: '7zi',
   },
-  "datePublished": project.createdAt,
-  "dateModified": project.updatedAt,
-};
+  datePublished: project.createdAt,
+  dateModified: project.updatedAt,
+}
 ```
 
 ## 性能优化
@@ -595,9 +587,9 @@ const jsonLd = {
 // 动态导入大型组件
 const ProjectGallery = dynamic(
   () => import('@/components/portfolio/ProjectGallery'),
-  { 
+  {
     loading: () => <GallerySkeleton />,
-    ssr: false 
+    ssr: false
   }
 );
 ```
@@ -607,15 +599,15 @@ const ProjectGallery = dynamic(
 ```typescript
 // API 响应缓存
 export async function getProjects(locale: Locale) {
-  const cacheKey = `portfolio:${locale}`;
-  const cached = await cache.get(cacheKey);
-  
-  if (cached) return cached;
-  
-  const projects = await fetchProjectsFromSource(locale);
-  await cache.set(cacheKey, projects, 5 * 60 * 1000); // 5分钟
-  
-  return projects;
+  const cacheKey = `portfolio:${locale}`
+  const cached = await cache.get(cacheKey)
+
+  if (cached) return cached
+
+  const projects = await fetchProjectsFromSource(locale)
+  await cache.set(cacheKey, projects, 5 * 60 * 1000) // 5分钟
+
+  return projects
 }
 ```
 
@@ -623,7 +615,7 @@ export async function getProjects(locale: Locale) {
 
 ```typescript
 // 预加载下一页数据
-<Link 
+<Link
   href={`/portfolio/${project.slug}`}
   onMouseEnter={() => prefetchProject(project.slug)}
 >
@@ -695,9 +687,9 @@ class GitHubDataSource implements PortfolioDataSource { ... }
 ```typescript
 // 可选功能模块
 interface PortfolioFeature {
-  name: string;
-  enabled: boolean;
-  component?: React.ComponentType;
+  name: string
+  enabled: boolean
+  component?: React.ComponentType
 }
 
 const features: PortfolioFeature[] = [
@@ -705,7 +697,7 @@ const features: PortfolioFeature[] = [
   { name: 'comments', enabled: false },
   { name: 'analytics', enabled: true },
   { name: 'sharing', enabled: true },
-];
+]
 ```
 
 ### 3. 主题定制
@@ -713,23 +705,25 @@ const features: PortfolioFeature[] = [
 ```typescript
 // 支持自定义主题
 interface PortfolioTheme {
-  cardStyle: 'default' | 'minimal' | 'featured';
-  gridColumns: number;
-  showTechStack: boolean;
-  showTeam: boolean;
-  animationEnabled: boolean;
+  cardStyle: 'default' | 'minimal' | 'featured'
+  gridColumns: number
+  showTechStack: boolean
+  showTeam: boolean
+  animationEnabled: boolean
 }
 ```
 
 ## 实施计划
 
 ### 阶段 1: 基础架构 (Day 1)
+
 - [x] 创建类型定义 `src/types/portfolio.ts`
 - [x] 创建示例数据 `data/portfolio-projects.json`
 - [x] 创建工具函数 `src/lib/portfolio/`
 - [x] 创建 API 路由
 
 ### 阶段 2: 核心组件 (Day 2)
+
 - [ ] 实现 ProjectCard 组件
 - [ ] 实现 ProjectGrid 组件
 - [ ] 实现 ProjectFilter 组件
@@ -738,18 +732,21 @@ interface PortfolioTheme {
 - [ ] 实现 ProjectGallery 组件
 
 ### 阶段 3: 页面实现 (Day 3)
+
 - [ ] 创建项目列表页 `/portfolio`
 - [ ] 创建项目详情页 `/portfolio/[slug]`
 - [ ] 配置 SSG/ISR
 - [ ] 添加 SEO 元数据
 
 ### 阶段 4: 测试与优化 (Day 4)
+
 - [ ] 编写组件单元测试
 - [ ] 编写 API 集成测试
 - [ ] 性能优化
 - [ ] 可访问性检查
 
 ### 阶段 5: 文档与部署 (Day 5)
+
 - [ ] 更新用户文档
 - [ ] 添加示例数据
 - [ ] 部署测试
@@ -770,5 +767,5 @@ interface PortfolioTheme {
 
 ---
 
-*文档版本: 1.0*
-*最后更新: 2026-03-06*
+_文档版本: 1.0_
+_最后更新: 2026-03-06_

@@ -27,4 +27,4 @@ export enum ErrorType {
 /**
  * Type alias for the ErrorType enum values
  */
-export type ErrorTypeValue = ErrorType;
+export type ErrorTypeValue = ErrorType

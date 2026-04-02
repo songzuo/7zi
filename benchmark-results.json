@@ -1,0 +1,55 @@
+{
+  "version": "1.9.0",
+  "runtime": "volcengine",
+  "nodeVersion": "v22.22.1",
+  "platform": "linux",
+  "timestamp": "2026-04-02T16:36:53.593Z",
+  "results": [
+    {
+      "name": "API Response Time",
+      "iterations": 1000,
+      "totalTime": "1583.850",
+      "avgTime": "1.584",
+      "minTime": "0.059",
+      "maxTime": "10.412",
+      "opsPerSecond": "631.37",
+      "timestamp": "2026-04-02T16:36:53.491Z"
+    },
+    {
+      "name": "Memory Usage",
+      "iterations": 10000,
+      "totalTime": "53.555",
+      "avgTime": "0.005",
+      "minTime": "0.002",
+      "maxTime": "4.288",
+      "opsPerSecond": "186725.22",
+      "timestamp": "2026-04-02T16:36:53.557Z"
+    },
+    {
+      "name": "WebSocket Message Processing",
+      "iterations": 5000,
+      "totalTime": "14.183",
+      "avgTime": "0.003",
+      "minTime": "0.002",
+      "maxTime": "0.075",
+      "opsPerSecond": "352538.90",
+      "timestamp": "2026-04-02T16:36:53.573Z"
+    },
+    {
+      "name": "Exception Detection Latency",
+      "iterations": 5000,
+      "totalTime": "17.669",
+      "avgTime": "0.004",
+      "minTime": "0.002",
+      "maxTime": "1.093",
+      "opsPerSecond": "282987.13",
+      "timestamp": "2026-04-02T16:36:53.593Z"
+    }
+  ],
+  "summary": {
+    "totalTests": 4,
+    "totalTime": "1669.257",
+    "fastest": "WebSocket Message Processing",
+    "slowest": "API Response Time"
+  }
+}

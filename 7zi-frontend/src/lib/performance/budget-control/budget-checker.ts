@@ -9,48 +9,52 @@ import {
   PerformanceBudgetConfig,
   PageBudget,
   DEFAULT_BUDGET_CONFIG,
-} from './types';
+} from './types'
 
 export interface PerformanceMetrics {
-  LCP?: number;
-  FID?: number;
-  CLS?: number;
-  TTFB?: number;
-  FCP?: number;
-  INP?: number;
-  [key: string]: number | undefined;
+  LCP?: number
+  FID?: number
+  CLS?: number
+  TTFB?: number
+  FCP?: number
+  INP?: number
+  [key: string]: number | undefined
 }
 
 export interface ResourceMetrics {
-  js: number;
-  css: number;
-  images: number;
-  total: number;
+  js: number
+  css: number
+  images: number
+  total: number
 }
 
 export class BudgetChecker {
-  private config: PerformanceBudgetConfig;
+  private config: PerformanceBudgetConfig
 
   constructor(config: Partial<PerformanceBudgetConfig> = {}) {
-    this.config = { ...DEFAULT_BUDGET_CONFIG, ...config };
+    this.config = { ...DEFAULT_BUDGET_CONFIG, ...config }
   }
 
   /**
    * Check budget for a page
    * 检查页面预算
    */
-  checkBudget(page: string, metrics: PerformanceMetrics, resources?: ResourceMetrics): BudgetCheckResult {
-    const budget = this.getBudgetForPage(page);
-    const violations: BudgetViolation[] = [];
+  checkBudget(
+    page: string,
+    metrics: PerformanceMetrics,
+    resources?: ResourceMetrics
+  ): BudgetCheckResult {
+    const budget = this.getBudgetForPage(page)
+    const violations: BudgetViolation[] = []
 
     // 检查时间预算
     if (budget.timings) {
       for (const timing of budget.timings) {
-        const actual = metrics[timing.metric];
+        const actual = metrics[timing.metric]
         if (actual !== undefined) {
-          const violation = this.checkTimingBudget(timing, actual);
+          const violation = this.checkTimingBudget(timing, actual)
           if (violation) {
-            violations.push(violation);
+            violations.push(violation)
           }
         }
       }
@@ -58,19 +62,19 @@ export class BudgetChecker {
 
     // 检查资源预算
     if (resources && budget.resources) {
-      const resourceViolations = this.checkResourceBudgets(budget.resources, resources);
-      violations.push(...resourceViolations);
+      const resourceViolations = this.checkResourceBudgets(budget.resources, resources)
+      violations.push(...resourceViolations)
     }
 
     // 计算分数
-    const score = this.calculateScore(violations, budget);
+    const score = this.calculateScore(violations, budget)
 
     return {
       passed: violations.length === 0,
       violations,
       score,
       checkedAt: Date.now(),
-    };
+    }
   }
 
   /**
@@ -81,15 +85,15 @@ export class BudgetChecker {
     timing: { metric: string; budget: number; tolerance: number; unit: string },
     actual: number
   ): BudgetViolation | null {
-    const threshold = timing.budget * (1 + timing.tolerance);
-    const percentOver = ((actual - threshold) / threshold) * 100;
+    const threshold = timing.budget * (1 + timing.tolerance)
+    const percentOver = ((actual - threshold) / threshold) * 100
 
     if (actual > threshold) {
-      let severity: 'minor' | 'major' | 'critical' = 'minor';
+      let severity: 'minor' | 'major' | 'critical' = 'minor'
       if (percentOver > 50) {
-        severity = 'critical';
+        severity = 'critical'
       } else if (percentOver > 20) {
-        severity = 'major';
+        severity = 'major'
       }
 
       return {
@@ -99,10 +103,10 @@ export class BudgetChecker {
         threshold,
         percentOver,
         severity,
-      };
+      }
     }
 
-    return null;
+    return null
   }
 
   /**
@@ -113,7 +117,7 @@ export class BudgetChecker {
     budgetResources: NonNullable<PageBudget['resources']>,
     actualResources: ResourceMetrics
   ): BudgetViolation[] {
-    const violations: BudgetViolation[] = [];
+    const violations: BudgetViolation[] = []
 
     const checkResource = (
       type: keyof NonNullable<PageBudget['resources']>,
@@ -121,15 +125,15 @@ export class BudgetChecker {
       actual?: number
     ) => {
       if (budget !== undefined && actual !== undefined) {
-        const threshold = budget * 1.1; // 10% 容差
-        const percentOver = ((actual - threshold) / threshold) * 100;
+        const threshold = budget * 1.1 // 10% 容差
+        const percentOver = ((actual - threshold) / threshold) * 100
 
         if (actual > threshold) {
-          let severity: 'minor' | 'major' | 'critical' = 'minor';
+          let severity: 'minor' | 'major' | 'critical' = 'minor'
           if (percentOver > 100) {
-            severity = 'critical';
+            severity = 'critical'
           } else if (percentOver > 50) {
-            severity = 'major';
+            severity = 'major'
           }
 
           violations.push({
@@ -139,17 +143,17 @@ export class BudgetChecker {
             threshold,
             percentOver,
             severity,
-          });
+          })
         }
       }
-    };
+    }
 
-    checkResource('js', budgetResources.js, actualResources.js);
-    checkResource('css', budgetResources.css, actualResources.css);
-    checkResource('images', budgetResources.images, actualResources.images);
-    checkResource('total', budgetResources.total, actualResources.total);
+    checkResource('js', budgetResources.js, actualResources.js)
+    checkResource('css', budgetResources.css, actualResources.css)
+    checkResource('images', budgetResources.images, actualResources.images)
+    checkResource('total', budgetResources.total, actualResources.total)
 
-    return violations;
+    return violations
   }
 
   /**
@@ -158,29 +162,29 @@ export class BudgetChecker {
    */
   getBudgetForPage(page: string): PageBudget {
     // 首先尝试精确匹配
-    const exactMatch = this.config.budgets.find((b) => b.path === page);
+    const exactMatch = this.config.budgets.find(b => b.path === page)
     if (exactMatch) {
-      return exactMatch;
+      return exactMatch
     }
 
     // 尝试通配符匹配
-    const wildcardMatch = this.config.budgets.find((b) => {
+    const wildcardMatch = this.config.budgets.find(b => {
       if (b.path.endsWith('*')) {
-        const prefix = b.path.slice(0, -1);
-        return page.startsWith(prefix);
+        const prefix = b.path.slice(0, -1)
+        return page.startsWith(prefix)
       }
-      return false;
-    });
+      return false
+    })
 
     if (wildcardMatch) {
       // Copy and set the actual page path
-      return { ...wildcardMatch, path: page };
+      return { ...wildcardMatch, path: page }
     }
 
     // 返回默认预算（创建一个包含请求路径的新对象）
-    const defaultBudget = this.config.budgets.find((b) => b.path === '/');
+    const defaultBudget = this.config.budgets.find(b => b.path === '/')
     if (defaultBudget) {
-      return { ...defaultBudget, path: page };
+      return { ...defaultBudget, path: page }
     }
 
     // 如果连 / 都没有配置，返回硬编码的默认值
@@ -191,7 +195,7 @@ export class BudgetChecker {
         { metric: 'FID', budget: 100, tolerance: 0.15, unit: 'ms' },
         { metric: 'CLS', budget: 0.1, tolerance: 0.2, unit: 'score' },
       ],
-    };
+    }
   }
 
   /**
@@ -200,27 +204,27 @@ export class BudgetChecker {
    */
   private calculateScore(violations: BudgetViolation[], budget: PageBudget): number {
     if (violations.length === 0) {
-      return 100;
+      return 100
     }
 
     // 基于违规的严重程度扣分
-    let deductions = 0;
+    let deductions = 0
     for (const violation of violations) {
       switch (violation.severity) {
         case 'critical':
-          deductions += 30;
-          break;
+          deductions += 30
+          break
         case 'major':
-          deductions += 15;
-          break;
+          deductions += 15
+          break
         case 'minor':
-          deductions += 5;
-          break;
+          deductions += 5
+          break
       }
     }
 
     // 确保分数在 0-100 之间
-    return Math.max(0, 100 - deductions);
+    return Math.max(0, 100 - deductions)
   }
 
   /**
@@ -230,14 +234,14 @@ export class BudgetChecker {
   checkAllBudgets(
     pages: Array<{ path: string; metrics: PerformanceMetrics; resources?: ResourceMetrics }>
   ): Map<string, BudgetCheckResult> {
-    const results = new Map<string, BudgetCheckResult>();
+    const results = new Map<string, BudgetCheckResult>()
 
     for (const page of pages) {
-      const result = this.checkBudget(page.path, page.metrics, page.resources);
-      results.set(page.path, result);
+      const result = this.checkBudget(page.path, page.metrics, page.resources)
+      results.set(page.path, result)
     }
 
-    return results;
+    return results
   }
 
   /**
@@ -245,20 +249,17 @@ export class BudgetChecker {
    * 获取预算摘要
    */
   getBudgetSummary(): {
-    totalPages: number;
-    totalMetrics: number;
-    budgets: PageBudget[];
+    totalPages: number
+    totalMetrics: number
+    budgets: PageBudget[]
   } {
-    const totalMetrics = this.config.budgets.reduce(
-      (sum, b) => sum + b.timings.length,
-      0
-    );
+    const totalMetrics = this.config.budgets.reduce((sum, b) => sum + b.timings.length, 0)
 
     return {
       totalPages: this.config.budgets.length,
       totalMetrics,
       budgets: this.config.budgets,
-    };
+    }
   }
 
   /**
@@ -267,11 +268,11 @@ export class BudgetChecker {
    */
   addBudget(budget: PageBudget): void {
     // 检查是否已存在
-    const existingIndex = this.config.budgets.findIndex((b) => b.path === budget.path);
+    const existingIndex = this.config.budgets.findIndex(b => b.path === budget.path)
     if (existingIndex >= 0) {
-      this.config.budgets[existingIndex] = budget;
+      this.config.budgets[existingIndex] = budget
     } else {
-      this.config.budgets.push(budget);
+      this.config.budgets.push(budget)
     }
   }
 
@@ -280,12 +281,12 @@ export class BudgetChecker {
    * 移除页面预算
    */
   removeBudget(path: string): boolean {
-    const index = this.config.budgets.findIndex((b) => b.path === path);
+    const index = this.config.budgets.findIndex(b => b.path === path)
     if (index >= 0) {
-      this.config.budgets.splice(index, 1);
-      return true;
+      this.config.budgets.splice(index, 1)
+      return true
     }
-    return false;
+    return false
   }
 
   /**
@@ -293,7 +294,7 @@ export class BudgetChecker {
    * 更新配置
    */
   updateConfig(partialConfig: Partial<PerformanceBudgetConfig>): void {
-    this.config = { ...this.config, ...partialConfig };
+    this.config = { ...this.config, ...partialConfig }
   }
 
   /**
@@ -301,7 +302,7 @@ export class BudgetChecker {
    * 导出预算配置
    */
   exportConfig(): PerformanceBudgetConfig {
-    return { ...this.config };
+    return { ...this.config }
   }
 
   /**
@@ -309,9 +310,9 @@ export class BudgetChecker {
    * 导入预算配置
    */
   importConfig(config: PerformanceBudgetConfig): void {
-    this.config = { ...config };
+    this.config = { ...config }
   }
 }
 
 // Export singleton instance
-export const budgetChecker = new BudgetChecker();
+export const budgetChecker = new BudgetChecker()

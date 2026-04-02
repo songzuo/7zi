@@ -6,12 +6,12 @@
  * Generates all required icon sizes for PWA from the source icon
  */
 
-const sharp = require('sharp');
-const fs = require('fs').promises;
-const path = require('path');
+const sharp = require('sharp')
+const fs = require('fs').promises
+const path = require('path')
 
-const SOURCE_ICON = './public/logo.png';
-const OUTPUT_DIR = './public';
+const SOURCE_ICON = './public/logo.png'
+const OUTPUT_DIR = './public'
 
 const ICONS = [
   // Standard PWA icons
@@ -44,35 +44,35 @@ const ICONS = [
   { size: 96, name: 'shortcut-projects.png', color: '#06b6d4' },
   { size: 96, name: 'shortcut-agents.png', color: '#8b5cf6' },
   { size: 96, name: 'shortcut-new.png', color: '#10b981' },
-];
+]
 
 async function generateIcon(config) {
-  const { size, name, width, height, maskable, color, startup } = config;
-  const outputPath = path.join(OUTPUT_DIR, name);
-  const targetWidth = width || size;
-  const targetHeight = height || size;
+  const { size, name, width, height, maskable, color, startup } = config
+  const outputPath = path.join(OUTPUT_DIR, name)
+  const targetWidth = width || size
+  const targetHeight = height || size
 
-  console.log(`Generating ${name} (${targetWidth}x${targetHeight})...`);
+  console.log(`Generating ${name} (${targetWidth}x${targetHeight})...`)
 
   try {
-    let transformer = sharp(SOURCE_ICON);
+    let transformer = sharp(SOURCE_ICON)
 
     // Resize
     transformer = transformer.resize(targetWidth, targetHeight, {
       fit: 'cover',
       position: 'center',
-    });
+    })
 
     // For maskable icons, add padding
     if (maskable) {
-      const padding = Math.floor(size * 0.1); // 10% padding
+      const padding = Math.floor(size * 0.1) // 10% padding
       transformer = transformer.extend({
         top: padding,
         bottom: padding,
         left: padding,
         right: padding,
         background: '#06b6d4',
-      });
+      })
     }
 
     // For shortcut icons, add colored background
@@ -89,7 +89,7 @@ async function generateIcon(config) {
           input: await transformer.toBuffer(),
           gravity: 'center',
         },
-      ]);
+      ])
     }
 
     // For startup image, create centered logo with background
@@ -98,7 +98,7 @@ async function generateIcon(config) {
         .resize(Math.floor(targetWidth * 0.3), Math.floor(targetWidth * 0.3), {
           fit: 'inside',
         })
-        .toBuffer();
+        .toBuffer()
 
       transformer = sharp({
         create: {
@@ -112,18 +112,18 @@ async function generateIcon(config) {
           input: logo,
           gravity: 'center',
         },
-      ]);
+      ])
     }
 
-    await transformer.png({ quality: 90 }).toFile(outputPath);
-    console.log(`✓ Generated ${name}`);
+    await transformer.png({ quality: 90 }).toFile(outputPath)
+    console.log(`✓ Generated ${name}`)
   } catch (error) {
-    console.error(`✗ Failed to generate ${name}:`, error.message);
+    console.error(`✗ Failed to generate ${name}:`, error.message)
   }
 }
 
 async function generateScreenshots() {
-  console.log('\nGenerating screenshot placeholders...');
+  console.log('\nGenerating screenshot placeholders...')
 
   // Wide screenshot (desktop)
   try {
@@ -134,7 +134,7 @@ async function generateScreenshots() {
         channels: 3,
         background: '#f0f9ff',
       },
-    });
+    })
 
     // Add gradient
     const gradient = sharp({
@@ -160,12 +160,12 @@ async function generateScreenshots() {
           </svg>`
         ),
       },
-    ]);
+    ])
 
-    await gradient.png().toFile(path.join(OUTPUT_DIR, 'screenshot-wide.png'));
-    console.log('✓ Generated screenshot-wide.png');
+    await gradient.png().toFile(path.join(OUTPUT_DIR, 'screenshot-wide.png'))
+    console.log('✓ Generated screenshot-wide.png')
   } catch (error) {
-    console.error('✗ Failed to generate screenshot-wide.png:', error.message);
+    console.error('✗ Failed to generate screenshot-wide.png:', error.message)
   }
 
   // Narrow screenshot (mobile)
@@ -177,7 +177,7 @@ async function generateScreenshots() {
         channels: 4,
         background: { r: 6, g: 182, b: 212, alpha: 1 },
       },
-    });
+    })
 
     const gradient = Buffer.from(
       `<svg width="750" height="1334">
@@ -190,40 +190,40 @@ async function generateScreenshots() {
         <rect width="750" height="1334" fill="url(#grad)"/>
         <text x="375" y="667" font-family="Arial, sans-serif" font-size="48" fill="white" text-anchor="middle" font-weight="bold">7zi Studio</text>
       </svg>`
-    );
+    )
 
-    await sharp(gradient).png().toFile(path.join(OUTPUT_DIR, 'screenshot-narrow.png'));
-    console.log('✓ Generated screenshot-narrow.png');
+    await sharp(gradient).png().toFile(path.join(OUTPUT_DIR, 'screenshot-narrow.png'))
+    console.log('✓ Generated screenshot-narrow.png')
   } catch (error) {
-    console.error('✗ Failed to generate screenshot-narrow.png:', error.message);
+    console.error('✗ Failed to generate screenshot-narrow.png:', error.message)
   }
 }
 
 async function main() {
-  console.log('🎨 PWA Icon Generator\n');
-  console.log(`Source: ${SOURCE_ICON}`);
-  console.log(`Output: ${OUTPUT_DIR}\n`);
+  console.log('🎨 PWA Icon Generator\n')
+  console.log(`Source: ${SOURCE_ICON}`)
+  console.log(`Output: ${OUTPUT_DIR}\n`)
 
   // Check if source icon exists
   try {
-    await fs.access(SOURCE_ICON);
+    await fs.access(SOURCE_ICON)
   } catch {
-    console.error(`✗ Source icon not found: ${SOURCE_ICON}`);
-    console.error('Please ensure the source icon exists before running this script.');
-    process.exit(1);
+    console.error(`✗ Source icon not found: ${SOURCE_ICON}`)
+    console.error('Please ensure the source icon exists before running this script.')
+    process.exit(1)
   }
 
   // Generate all icons
-  console.log('Generating icons...\n');
+  console.log('Generating icons...\n')
   for (const icon of ICONS) {
-    await generateIcon(icon);
+    await generateIcon(icon)
   }
 
   // Generate screenshots
-  await generateScreenshots();
+  await generateScreenshots()
 
-  console.log('\n✨ All icons generated successfully!');
-  console.log(`\nGenerated ${ICONS.length} icons and 2 screenshots.`);
+  console.log('\n✨ All icons generated successfully!')
+  console.log(`\nGenerated ${ICONS.length} icons and 2 screenshots.`)
 }
 
-main().catch(console.error);
+main().catch(console.error)

@@ -1,8 +1,8 @@
-'use client';
+'use client'
 
 /**
  * Dashboard 统计卡片组件
- * 
+ *
  * 功能:
  * - 显示活跃任务数、已完成任务、团队成员在线数、Agent 调度效率
  * - 使用 Card 基础组件
@@ -10,10 +10,10 @@
  * - 响应式布局
  */
 
-import React from 'react';
-import { Card } from '@/components/ui/Card';
-import { clsx, type ClassValue } from 'clsx';
-import { twMerge } from 'tailwind-merge';
+import React from 'react'
+import { Card } from '@/components/ui/Card'
+import { clsx, type ClassValue } from 'clsx'
+import { twMerge } from 'tailwind-merge'
 import {
   Activity,
   CheckCircle2,
@@ -22,33 +22,33 @@ import {
   TrendingUp,
   TrendingDown,
   Minus,
-  type LucideIcon
-} from 'lucide-react';
+  type LucideIcon,
+} from 'lucide-react'
 
 // ============================================================================
 // 类型定义
 // ============================================================================
 
 export interface StatItem {
-  id: string;
-  label: string;
-  labelEn?: string;
-  value: number;
-  unit?: string;
-  icon?: LucideIcon;
-  trend?: 'up' | 'down' | 'neutral';
-  trendValue?: string;
-  color?: 'blue' | 'green' | 'yellow' | 'purple' | 'cyan' | 'orange' | 'slate';
-  description?: string;
+  id: string
+  label: string
+  labelEn?: string
+  value: number
+  unit?: string
+  icon?: LucideIcon
+  trend?: 'up' | 'down' | 'neutral'
+  trendValue?: string
+  color?: 'blue' | 'green' | 'yellow' | 'purple' | 'cyan' | 'orange' | 'slate'
+  description?: string
 }
 
 export interface DashboardStatsProps {
-  stats: StatItem[];
-  locale?: string;
-  loading?: boolean;
-  className?: ClassValue;
-  columns?: 2 | 3 | 4;
-  variant?: 'default' | 'compact' | 'detailed';
+  stats: StatItem[]
+  locale?: string
+  loading?: boolean
+  className?: ClassValue
+  columns?: 2 | 3 | 4
+  variant?: 'default' | 'compact' | 'detailed'
 }
 
 // ============================================================================
@@ -56,7 +56,7 @@ export interface DashboardStatsProps {
 // ============================================================================
 
 function cn(...inputs: ClassValue[]) {
-  return twMerge(clsx(inputs));
+  return twMerge(clsx(inputs))
 }
 
 // ============================================================================
@@ -106,154 +106,170 @@ const colorConfig = {
     border: 'border-slate-200 dark:border-slate-700',
     icon: 'text-slate-500 dark:text-slate-400',
   },
-};
+}
 
 const defaultIcons: Record<string, LucideIcon> = {
   tasks: Activity,
   completed: CheckCircle2,
   members: Users,
   efficiency: Zap,
-};
+}
 
 // ============================================================================
 // 子组件
 // ============================================================================
 
 interface StatCardProps {
-  stat: StatItem;
-  locale: string;
-  variant: 'default' | 'compact' | 'detailed';
+  stat: StatItem
+  locale: string
+  variant: 'default' | 'compact' | 'detailed'
 }
 
 const StatCard: React.FC<StatCardProps> = React.memo(({ stat, locale, variant }) => {
-  const color = stat.color || 'blue';
-  const config = colorConfig[color];
-  const Icon = stat.icon || defaultIcons[stat.id] || Activity;
-  
-  const displayLabel = locale === 'en' && stat.labelEn ? stat.labelEn : stat.label;
-  
-  const TrendIcon = stat.trend === 'up' 
-    ? TrendingUp 
-    : stat.trend === 'down' 
-      ? TrendingDown 
-      : Minus;
+  const color = stat.color || 'blue'
+  const config = colorConfig[color]
+  const Icon = stat.icon || defaultIcons[stat.id] || Activity
 
-  const trendColor = stat.trend === 'up' 
-    ? 'text-green-500' 
-    : stat.trend === 'down' 
-      ? 'text-red-500' 
-      : 'text-zinc-400';
+  const displayLabel = locale === 'en' && stat.labelEn ? stat.labelEn : stat.label
+
+  const TrendIcon = stat.trend === 'up' ? TrendingUp : stat.trend === 'down' ? TrendingDown : Minus
+
+  const trendColor =
+    stat.trend === 'up'
+      ? 'text-green-500'
+      : stat.trend === 'down'
+        ? 'text-red-500'
+        : 'text-zinc-400'
 
   if (variant === 'compact') {
     return (
-      <Card className={cn(
-        config.bg,
-        config.border,
-        'border hover:shadow-md transition-all duration-300 hover:scale-[1.02] active:scale-[0.98]',
-        'group cursor-default'
-      )}>
+      <Card
+        className={cn(
+          config.bg,
+          config.border,
+          'border transition-all duration-300 hover:scale-[1.02] hover:shadow-md active:scale-[0.98]',
+          'group cursor-default'
+        )}
+      >
         <div className="flex items-center gap-3">
-          <div className={cn('p-2 rounded-lg bg-white/50 dark:bg-black/20', config.icon)}>
-            <Icon className="w-4 h-4" />
+          <div className={cn('rounded-lg bg-white/50 p-2 dark:bg-black/20', config.icon)}>
+            <Icon className="h-4 w-4" />
           </div>
-          <div className="flex-1 min-w-0">
-            <p className="text-xs font-medium text-zinc-600 dark:text-zinc-400 truncate">
+          <div className="min-w-0 flex-1">
+            <p className="truncate text-xs font-medium text-zinc-600 dark:text-zinc-400">
               {displayLabel}
             </p>
             <p className={cn('text-lg font-bold', config.text)}>
-              {stat.value.toLocaleString()}{stat.unit}
+              {stat.value.toLocaleString()}
+              {stat.unit}
             </p>
           </div>
         </div>
       </Card>
-    );
+    )
   }
 
   if (variant === 'detailed') {
     return (
-      <Card className={cn(
-        config.bg,
-        config.border,
-        'border hover:shadow-lg transition-all duration-300 hover:scale-[1.02] active:scale-[0.98]',
-        'group cursor-default'
-      )}>
+      <Card
+        className={cn(
+          config.bg,
+          config.border,
+          'border transition-all duration-300 hover:scale-[1.02] hover:shadow-lg active:scale-[0.98]',
+          'group cursor-default'
+        )}
+      >
         <div className="space-y-3">
           <div className="flex items-center justify-between">
-            <div className={cn('p-2.5 rounded-xl bg-white/60 dark:bg-black/30', config.icon)}>
-              <Icon className="w-5 h-5" />
+            <div className={cn('rounded-xl bg-white/60 p-2.5 dark:bg-black/30', config.icon)}>
+              <Icon className="h-5 w-5" />
             </div>
             {stat.trend && (
               <div className={cn('flex items-center gap-1 text-xs font-medium', trendColor)}>
-                <TrendIcon className="w-3.5 h-3.5" />
+                <TrendIcon className="h-3.5 w-3.5" />
                 <span>{stat.trendValue}</span>
               </div>
             )}
           </div>
-          
+
           <div>
-            <p className="text-xs sm:text-sm font-medium text-zinc-600 dark:text-zinc-400 truncate">
+            <p className="truncate text-xs font-medium text-zinc-600 sm:text-sm dark:text-zinc-400">
               {displayLabel}
             </p>
-            <p className={cn('text-2xl sm:text-3xl font-bold mt-1 group-hover:scale-105 transition-transform origin-left', config.text)}>
-              {stat.value.toLocaleString()}{stat.unit}
+            <p
+              className={cn(
+                'mt-1 origin-left text-2xl font-bold transition-transform group-hover:scale-105 sm:text-3xl',
+                config.text
+              )}
+            >
+              {stat.value.toLocaleString()}
+              {stat.unit}
             </p>
           </div>
-          
+
           {stat.description && (
-            <p className="text-xs text-zinc-500 dark:text-zinc-400 line-clamp-2">
+            <p className="line-clamp-2 text-xs text-zinc-500 dark:text-zinc-400">
               {stat.description}
             </p>
           )}
         </div>
       </Card>
-    );
+    )
   }
 
   // Default variant
   return (
-    <Card className={cn(
-      config.bg,
-      config.border,
-      'border hover:shadow-lg transition-all duration-300 hover:scale-[1.02] active:scale-[0.98]',
-      'group cursor-default'
-    )}>
-      <div className="flex items-center justify-between mb-2">
-        <div className={cn('p-2 rounded-lg bg-white/50 dark:bg-black/20', config.icon)}>
-          <Icon className="w-4 h-4" />
+    <Card
+      className={cn(
+        config.bg,
+        config.border,
+        'border transition-all duration-300 hover:scale-[1.02] hover:shadow-lg active:scale-[0.98]',
+        'group cursor-default'
+      )}
+    >
+      <div className="mb-2 flex items-center justify-between">
+        <div className={cn('rounded-lg bg-white/50 p-2 dark:bg-black/20', config.icon)}>
+          <Icon className="h-4 w-4" />
         </div>
         {stat.trend && (
           <div className={cn('flex items-center gap-1 text-xs font-medium', trendColor)}>
-            <TrendIcon className="w-3 h-3" />
+            <TrendIcon className="h-3 w-3" />
             <span>{stat.trendValue}</span>
           </div>
         )}
       </div>
-      <p className="text-xs sm:text-sm font-medium text-zinc-600 dark:text-zinc-400 truncate group-hover:opacity-100 opacity-80 transition-opacity">
+      <p className="truncate text-xs font-medium text-zinc-600 opacity-80 transition-opacity group-hover:opacity-100 sm:text-sm dark:text-zinc-400">
         {displayLabel}
       </p>
-      <p className={cn('text-xl sm:text-2xl font-bold mt-1 group-hover:scale-110 transition-transform origin-left', config.text)}>
-        {stat.value.toLocaleString()}{stat.unit}
+      <p
+        className={cn(
+          'mt-1 origin-left text-xl font-bold transition-transform group-hover:scale-110 sm:text-2xl',
+          config.text
+        )}
+      >
+        {stat.value.toLocaleString()}
+        {stat.unit}
       </p>
     </Card>
-  );
-});
+  )
+})
 
-StatCard.displayName = 'StatCard';
+StatCard.displayName = 'StatCard'
 
 // ============================================================================
 // 加载骨架屏
 // ============================================================================
 
 const StatSkeleton: React.FC = () => (
-  <Card className="border border-zinc-200 dark:border-zinc-700 animate-pulse">
-    <div className="flex items-center justify-between mb-2">
-      <div className="w-8 h-8 bg-zinc-200 dark:bg-zinc-700 rounded-lg" />
-      <div className="w-12 h-4 bg-zinc-200 dark:bg-zinc-700 rounded" />
+  <Card className="animate-pulse border border-zinc-200 dark:border-zinc-700">
+    <div className="mb-2 flex items-center justify-between">
+      <div className="h-8 w-8 rounded-lg bg-zinc-200 dark:bg-zinc-700" />
+      <div className="h-4 w-12 rounded bg-zinc-200 dark:bg-zinc-700" />
     </div>
-    <div className="w-20 h-3 bg-zinc-200 dark:bg-zinc-700 rounded mb-2" />
-    <div className="w-16 h-6 bg-zinc-200 dark:bg-zinc-700 rounded" />
+    <div className="mb-2 h-3 w-20 rounded bg-zinc-200 dark:bg-zinc-700" />
+    <div className="h-6 w-16 rounded bg-zinc-200 dark:bg-zinc-700" />
   </Card>
-);
+)
 
 // ============================================================================
 // 主组件
@@ -271,7 +287,7 @@ export const DashboardStats: React.FC<DashboardStatsProps> = ({
     2: 'grid-cols-2',
     3: 'grid-cols-1 sm:grid-cols-2 lg:grid-cols-3',
     4: 'grid-cols-2 sm:grid-cols-3 md:grid-cols-4',
-  };
+  }
 
   if (loading) {
     return (
@@ -280,24 +296,19 @@ export const DashboardStats: React.FC<DashboardStatsProps> = ({
           <StatSkeleton key={i} />
         ))}
       </div>
-    );
+    )
   }
 
   return (
     <div className={cn('grid gap-3 md:gap-4', gridCols[columns], className)}>
-      {stats.map((stat) => (
-        <StatCard 
-          key={stat.id} 
-          stat={stat} 
-          locale={locale}
-          variant={variant}
-        />
+      {stats.map(stat => (
+        <StatCard key={stat.id} stat={stat} locale={locale} variant={variant} />
       ))}
     </div>
-  );
-};
+  )
+}
 
-DashboardStats.displayName = 'DashboardStats';
+DashboardStats.displayName = 'DashboardStats'
 
 // ============================================================================
 // 预设配置
@@ -308,10 +319,10 @@ DashboardStats.displayName = 'DashboardStats';
  */
 export function createDefaultStats(
   data: {
-    activeTasks?: number;
-    completedTasks?: number;
-    onlineMembers?: number;
-    efficiency?: number;
+    activeTasks?: number
+    completedTasks?: number
+    onlineMembers?: number
+    efficiency?: number
   } = {}
 ): StatItem[] {
   return [
@@ -353,7 +364,7 @@ export function createDefaultStats(
       trend: 'up',
       trendValue: '+5%',
     },
-  ];
+  ]
 }
 
-export default DashboardStats;
+export default DashboardStats

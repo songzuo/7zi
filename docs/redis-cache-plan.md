@@ -10,11 +10,13 @@
 ## 📋 概述
 
 ### 当前状态
+
 - Redis 已安装但未使用
 - API 响应时间: ~300ms
 - 数据库查询压力大
 
 ### 目标状态
+
 - Redis 缓存命中率 > 80%
 - API 响应时间: < 100ms (缓存命中)
 - 数据库负载降低 70%+
@@ -71,36 +73,36 @@
 
 ### 高优先级（频繁访问）
 
-| 端点 | 缓存键模式 | TTL | 说明 |
-|------|-----------|-----|------|
-| `/api/projects` | `projects:user:{userId}` | 5m | 用户项目列表 |
-| `/api/projects/{id}` | `project:{id}` | 10m | 单个项目详情 |
-| `/api/users/me` | `user:{userId}` | 30m | 当前用户信息 |
-| `/api/search` | `search:{query_hash}` | 2m | 搜索结果 |
+| 端点                 | 缓存键模式               | TTL | 说明         |
+| -------------------- | ------------------------ | --- | ------------ |
+| `/api/projects`      | `projects:user:{userId}` | 5m  | 用户项目列表 |
+| `/api/projects/{id}` | `project:{id}`           | 10m | 单个项目详情 |
+| `/api/users/me`      | `user:{userId}`          | 30m | 当前用户信息 |
+| `/api/search`        | `search:{query_hash}`    | 2m  | 搜索结果     |
 
 ### 中优先级（定期访问）
 
-| 端点 | 缓存键模式 | TTL | 说明 |
-|------|-----------|-----|------|
-| `/api/ratings` | `ratings:project:{id}` | 15m | 项目评分 |
-| `/api/notifications` | `notifications:user:{userId}` | 1m | 通知列表 |
-| `/api/comments` | `comments:project:{id}` | 5m | 评论列表 |
+| 端点                 | 缓存键模式                    | TTL | 说明     |
+| -------------------- | ----------------------------- | --- | -------- |
+| `/api/ratings`       | `ratings:project:{id}`        | 15m | 项目评分 |
+| `/api/notifications` | `notifications:user:{userId}` | 1m  | 通知列表 |
+| `/api/comments`      | `comments:project:{id}`       | 5m  | 评论列表 |
 
 ### 低优先级（偶尔访问）
 
-| 端点 | 缓存键模式 | TTL | 说明 |
-|------|-----------|-----|------|
-| `/api/settings` | `settings:user:{userId}` | 1h | 用户设置 |
-| `/api/stats` | `stats:global` | 10m | 全局统计 |
+| 端点            | 缓存键模式               | TTL | 说明     |
+| --------------- | ------------------------ | --- | -------- |
+| `/api/settings` | `settings:user:{userId}` | 1h  | 用户设置 |
+| `/api/stats`    | `stats:global`           | 10m | 全局统计 |
 
 ### 不缓存的内容
 
-| 端点 | 原因 |
-|------|------|
-| `/api/auth/*` | 安全敏感 |
-| `/api/payment/*` | 实时性要求 |
-| `/api/webhooks/*` | 外部回调 |
-| WebSocket 消息 | 实时通信 |
+| 端点              | 原因       |
+| ----------------- | ---------- |
+| `/api/auth/*`     | 安全敏感   |
+| `/api/payment/*`  | 实时性要求 |
+| `/api/webhooks/*` | 外部回调   |
+| WebSocket 消息    | 实时通信   |
 
 ---
 
@@ -121,15 +123,15 @@
 
 ### 键前缀分类
 
-| 前缀 | 用途 | 示例 |
-|------|------|------|
-| `project:` | 单个项目 | `project:123` |
-| `projects:` | 项目列表 | `projects:user:456` |
-| `user:` | 用户信息 | `user:123` |
-| `search:` | 搜索缓存 | `search:a1b2c3` |
-| `session:` | 会话数据 | `session:token123` |
+| 前缀          | 用途     | 示例                |
+| ------------- | -------- | ------------------- |
+| `project:`    | 单个项目 | `project:123`       |
+| `projects:`   | 项目列表 | `projects:user:456` |
+| `user:`       | 用户信息 | `user:123`          |
+| `search:`     | 搜索缓存 | `search:a1b2c3`     |
+| `session:`    | 会话数据 | `session:token123`  |
 | `rate_limit:` | 限流计数 | `rate_limit:api:ip` |
-| `cache:` | 通用缓存 | `cache:feature:xyz` |
+| `cache:`      | 通用缓存 | `cache:feature:xyz` |
 
 ### 键过期策略
 
@@ -137,21 +139,21 @@
 // 缓存 TTL 配置
 const CACHE_TTL = {
   // 短期缓存（频繁变化）
-  SEARCH_RESULTS: 120,        // 2 分钟
-  NOTIFICATIONS: 60,          // 1 分钟
-  ONLINE_STATUS: 30,          // 30 秒
+  SEARCH_RESULTS: 120, // 2 分钟
+  NOTIFICATIONS: 60, // 1 分钟
+  ONLINE_STATUS: 30, // 30 秒
 
   // 中期缓存（适度变化）
-  PROJECT_LIST: 300,          // 5 分钟
-  PROJECT_DETAIL: 600,        // 10 分钟
-  USER_PROFILE: 1800,         // 30 分钟
-  COMMENTS: 300,              // 5 分钟
+  PROJECT_LIST: 300, // 5 分钟
+  PROJECT_DETAIL: 600, // 10 分钟
+  USER_PROFILE: 1800, // 30 分钟
+  COMMENTS: 300, // 5 分钟
 
   // 长期缓存（很少变化）
-  USER_SETTINGS: 3600,        // 1 小时
-  STATIC_CONFIG: 86400,       // 24 小时
-  FEATURE_FLAGS: 3600,        // 1 小时
-} as const;
+  USER_SETTINGS: 3600, // 1 小时
+  STATIC_CONFIG: 86400, // 24 小时
+  FEATURE_FLAGS: 3600, // 1 小时
+} as const
 ```
 
 ---
@@ -162,9 +164,9 @@ const CACHE_TTL = {
 
 ```typescript
 // lib/redis.ts
-import Redis from 'ioredis';
+import Redis from 'ioredis'
 
-const globalForRedis = global as unknown as { redis: Redis };
+const globalForRedis = global as unknown as { redis: Redis }
 
 export const redis =
   globalForRedis.redis ||
@@ -173,37 +175,37 @@ export const redis =
     retryDelayOnFailover: 100,
     enableReadyCheck: true,
     lazyConnect: true,
-  });
+  })
 
 if (process.env.NODE_ENV !== 'production') {
-  globalForRedis.redis = redis;
+  globalForRedis.redis = redis
 }
 
 // 连接事件处理
 redis.on('connect', () => {
-  console.log('[Redis] Connected');
-});
+  console.log('[Redis] Connected')
+})
 
-redis.on('error', (err) => {
-  console.error('[Redis] Error:', err);
-});
+redis.on('error', err => {
+  console.error('[Redis] Error:', err)
+})
 
 redis.on('close', () => {
-  console.log('[Redis] Connection closed');
-});
+  console.log('[Redis] Connection closed')
+})
 ```
 
 ### 缓存工具函数
 
 ```typescript
 // lib/cache/redis-cache.ts
-import { redis } from '../redis';
+import { redis } from '../redis'
 
 export interface CacheOptions {
-  ttl?: number;           // 过期时间（秒）
-  prefix?: string;        // 键前缀
-  compress?: boolean;     // 是否压缩
-  skipCache?: boolean;    // 跳过缓存
+  ttl?: number // 过期时间（秒）
+  prefix?: string // 键前缀
+  compress?: boolean // 是否压缩
+  skipCache?: boolean // 跳过缓存
 }
 
 /**
@@ -214,47 +216,43 @@ export async function getCached<T>(
   fetchFn: () => Promise<T>,
   options: CacheOptions = {}
 ): Promise<T> {
-  const { ttl = 300, prefix = '', skipCache = false } = options;
-  const cacheKey = prefix ? `${prefix}:${key}` : key;
+  const { ttl = 300, prefix = '', skipCache = false } = options
+  const cacheKey = prefix ? `${prefix}:${key}` : key
 
   // 跳过缓存（开发环境或强制刷新）
   if (skipCache || process.env.CACHE_DISABLED === 'true') {
-    return fetchFn();
+    return fetchFn()
   }
 
   try {
     // 尝试从缓存获取
-    const cached = await redis.get(cacheKey);
+    const cached = await redis.get(cacheKey)
     if (cached) {
-      return JSON.parse(cached) as T;
+      return JSON.parse(cached) as T
     }
   } catch (error) {
-    console.error(`[Cache] Get error for key ${cacheKey}:`, error);
+    console.error(`[Cache] Get error for key ${cacheKey}:`, error)
   }
 
   // 从数据源获取
-  const data = await fetchFn();
+  const data = await fetchFn()
 
   // 写入缓存（异步，不阻塞响应）
-  setCache(cacheKey, data, ttl).catch((err) => {
-    console.error(`[Cache] Set error for key ${cacheKey}:`, err);
-  });
+  setCache(cacheKey, data, ttl).catch(err => {
+    console.error(`[Cache] Set error for key ${cacheKey}:`, err)
+  })
 
-  return data;
+  return data
 }
 
 /**
  * 设置缓存
  */
-export async function setCache<T>(
-  key: string,
-  data: T,
-  ttl: number = 300
-): Promise<void> {
+export async function setCache<T>(key: string, data: T, ttl: number = 300): Promise<void> {
   try {
-    await redis.setex(key, ttl, JSON.stringify(data));
+    await redis.setex(key, ttl, JSON.stringify(data))
   } catch (error) {
-    console.error(`[Cache] Set error for key ${key}:`, error);
+    console.error(`[Cache] Set error for key ${key}:`, error)
   }
 }
 
@@ -263,9 +261,9 @@ export async function setCache<T>(
  */
 export async function deleteCache(key: string): Promise<void> {
   try {
-    await redis.del(key);
+    await redis.del(key)
   } catch (error) {
-    console.error(`[Cache] Delete error for key ${key}:`, error);
+    console.error(`[Cache] Delete error for key ${key}:`, error)
   }
 }
 
@@ -274,25 +272,23 @@ export async function deleteCache(key: string): Promise<void> {
  */
 export async function deleteCachePattern(pattern: string): Promise<number> {
   try {
-    const keys = await redis.keys(pattern);
+    const keys = await redis.keys(pattern)
     if (keys.length > 0) {
-      await redis.del(...keys);
-      return keys.length;
+      await redis.del(...keys)
+      return keys.length
     }
-    return 0;
+    return 0
   } catch (error) {
-    console.error(`[Cache] Delete pattern error for ${pattern}:`, error);
-    return 0;
+    console.error(`[Cache] Delete pattern error for ${pattern}:`, error)
+    return 0
   }
 }
 
 /**
  * 缓存失效（数据更新时调用）
  */
-export async function invalidateCache(
-  patterns: string[]
-): Promise<void> {
-  await Promise.all(patterns.map((p) => deleteCachePattern(p)));
+export async function invalidateCache(patterns: string[]): Promise<void> {
+  await Promise.all(patterns.map(p => deleteCachePattern(p)))
 }
 
 /**
@@ -300,9 +296,9 @@ export async function invalidateCache(
  */
 export async function hasCache(key: string): Promise<boolean> {
   try {
-    return (await redis.exists(key)) === 1;
+    return (await redis.exists(key)) === 1
   } catch {
-    return false;
+    return false
   }
 }
 
@@ -311,9 +307,9 @@ export async function hasCache(key: string): Promise<boolean> {
  */
 export async function getCacheTTL(key: string): Promise<number> {
   try {
-    return await redis.ttl(key);
+    return await redis.ttl(key)
   } catch {
-    return -1;
+    return -1
   }
 }
 ```
@@ -322,36 +318,29 @@ export async function getCacheTTL(key: string): Promise<number> {
 
 ```typescript
 // app/api/projects/route.ts
-import { getCached, invalidateCache } from '@/lib/cache/redis-cache';
-import { CACHE_TTL } from '@/lib/cache/constants';
+import { getCached, invalidateCache } from '@/lib/cache/redis-cache'
+import { CACHE_TTL } from '@/lib/cache/constants'
 
 export async function GET(request: Request) {
-  const { searchParams } = new URL(request.url);
-  const userId = searchParams.get('userId');
+  const { searchParams } = new URL(request.url)
+  const userId = searchParams.get('userId')
 
-  const projects = await getCached(
-    `projects:user:${userId}`,
-    () => fetchProjects(userId),
-    {
-      ttl: CACHE_TTL.PROJECT_LIST,
-      prefix: 'api',
-    }
-  );
+  const projects = await getCached(`projects:user:${userId}`, () => fetchProjects(userId), {
+    ttl: CACHE_TTL.PROJECT_LIST,
+    prefix: 'api',
+  })
 
-  return Response.json(projects);
+  return Response.json(projects)
 }
 
 export async function POST(request: Request) {
-  const data = await request.json();
-  const project = await createProject(data);
+  const data = await request.json()
+  const project = await createProject(data)
 
   // 失效相关缓存
-  await invalidateCache([
-    `api:projects:user:${data.userId}`,
-    `api:project:*`,
-  ]);
+  await invalidateCache([`api:projects:user:${data.userId}`, `api:project:*`])
 
-  return Response.json(project);
+  return Response.json(project)
 }
 ```
 
@@ -359,48 +348,35 @@ export async function POST(request: Request) {
 
 ```typescript
 // app/api/projects/[id]/route.ts
-import { getCached, deleteCache } from '@/lib/cache/redis-cache';
-import { CACHE_TTL } from '@/lib/cache/constants';
+import { getCached, deleteCache } from '@/lib/cache/redis-cache'
+import { CACHE_TTL } from '@/lib/cache/constants'
 
-export async function GET(
-  request: Request,
-  { params }: { params: { id: string } }
-) {
-  const project = await getCached(
-    `project:${params.id}`,
-    () => fetchProjectById(params.id),
-    {
-      ttl: CACHE_TTL.PROJECT_DETAIL,
-      prefix: 'api',
-    }
-  );
+export async function GET(request: Request, { params }: { params: { id: string } }) {
+  const project = await getCached(`project:${params.id}`, () => fetchProjectById(params.id), {
+    ttl: CACHE_TTL.PROJECT_DETAIL,
+    prefix: 'api',
+  })
 
-  return Response.json(project);
+  return Response.json(project)
 }
 
-export async function PUT(
-  request: Request,
-  { params }: { params: { id: string } }
-) {
-  const data = await request.json();
-  const project = await updateProject(params.id, data);
+export async function PUT(request: Request, { params }: { params: { id: string } }) {
+  const data = await request.json()
+  const project = await updateProject(params.id, data)
 
   // 删除该项目缓存
-  await deleteCache(`api:project:${params.id}`);
+  await deleteCache(`api:project:${params.id}`)
 
-  return Response.json(project);
+  return Response.json(project)
 }
 
-export async function DELETE(
-  request: Request,
-  { params }: { params: { id: string } }
-) {
-  await deleteProject(params.id);
+export async function DELETE(request: Request, { params }: { params: { id: string } }) {
+  await deleteProject(params.id)
 
   // 删除相关缓存
-  await deleteCache(`api:project:${params.id}`);
+  await deleteCache(`api:project:${params.id}`)
 
-  return new Response(null, { status: 204 });
+  return new Response(null, { status: 204 })
 }
 ```
 
@@ -408,21 +384,18 @@ export async function DELETE(
 
 ```typescript
 // app/api/search/route.ts
-import crypto from 'crypto';
-import { getCached } from '@/lib/cache/redis-cache';
-import { CACHE_TTL } from '@/lib/cache/constants';
+import crypto from 'crypto'
+import { getCached } from '@/lib/cache/redis-cache'
+import { CACHE_TTL } from '@/lib/cache/constants'
 
 export async function GET(request: Request) {
-  const { searchParams } = new URL(request.url);
-  const query = searchParams.get('q') || '';
-  const page = searchParams.get('page') || '1';
-  const filters = searchParams.get('filters') || '';
+  const { searchParams } = new URL(request.url)
+  const query = searchParams.get('q') || ''
+  const page = searchParams.get('page') || '1'
+  const filters = searchParams.get('filters') || ''
 
   // 生成缓存键（基于查询参数哈希）
-  const queryHash = crypto
-    .createHash('md5')
-    .update(`${query}:${page}:${filters}`)
-    .digest('hex');
+  const queryHash = crypto.createHash('md5').update(`${query}:${page}:${filters}`).digest('hex')
 
   const results = await getCached(
     `search:${queryHash}`,
@@ -431,9 +404,9 @@ export async function GET(request: Request) {
       ttl: CACHE_TTL.SEARCH_RESULTS,
       prefix: 'api',
     }
-  );
+  )
 
-  return Response.json(results);
+  return Response.json(results)
 }
 ```
 
@@ -447,13 +420,13 @@ export async function GET(request: Request) {
 // 数据更新时主动清除缓存
 
 // 1. 创建项目后失效用户项目列表
-await invalidateCache([`api:projects:user:${userId}`]);
+await invalidateCache([`api:projects:user:${userId}`])
 
 // 2. 更新项目后失效项目详情
-await deleteCache(`api:project:${projectId}`);
+await deleteCache(`api:project:${projectId}`)
 
 // 3. 用户修改资料后失效用户信息
-await deleteCache(`api:user:${userId}`);
+await deleteCache(`api:user:${userId}`)
 ```
 
 ### 定时刷新
@@ -465,17 +438,13 @@ await deleteCache(`api:user:${userId}`);
  * 预热缓存（启动时或定时执行）
  */
 export async function warmupCache() {
-  console.log('[Cache] Starting warmup...');
+  console.log('[Cache] Starting warmup...')
 
   // 预加载热门数据
-  const hotProjects = await getHotProjectIds();
-  await Promise.all(
-    hotProjects.map((id) =>
-      getCached(`project:${id}`, () => fetchProjectById(id))
-    )
-  );
+  const hotProjects = await getHotProjectIds()
+  await Promise.all(hotProjects.map(id => getCached(`project:${id}`, () => fetchProjectById(id))))
 
-  console.log('[Cache] Warmup complete');
+  console.log('[Cache] Warmup complete')
 }
 
 /**
@@ -493,41 +462,41 @@ export async function refreshStaleCache() {
 
 ### 关键指标
 
-| 指标 | 计算方式 | 目标值 |
-|------|---------|--------|
-| 缓存命中率 | 命中次数 / 总请求 | > 80% |
-| 平均响应时间 | 缓存命中时 | < 50ms |
-| 内存使用量 | used_memory | < 500MB |
-| 键数量 | keys count | < 100,000 |
+| 指标         | 计算方式          | 目标值    |
+| ------------ | ----------------- | --------- |
+| 缓存命中率   | 命中次数 / 总请求 | > 80%     |
+| 平均响应时间 | 缓存命中时        | < 50ms    |
+| 内存使用量   | used_memory       | < 500MB   |
+| 键数量       | keys count        | < 100,000 |
 
 ### 监控实现
 
 ```typescript
 // lib/cache/metrics.ts
-import { redis } from '../redis';
+import { redis } from '../redis'
 
 export interface CacheMetrics {
-  hits: number;
-  misses: number;
-  hitRate: number;
-  memoryUsage: string;
-  keyCount: number;
+  hits: number
+  misses: number
+  hitRate: number
+  memoryUsage: string
+  keyCount: number
 }
 
 export async function getCacheMetrics(): Promise<CacheMetrics> {
-  const info = await redis.info('stats');
-  const memoryInfo = await redis.info('memory');
+  const info = await redis.info('stats')
+  const memoryInfo = await redis.info('memory')
 
   // 解析命中率
-  const hits = parseInfoValue(info, 'keyspace_hits');
-  const misses = parseInfoValue(info, 'keyspace_misses');
-  const total = hits + misses;
+  const hits = parseInfoValue(info, 'keyspace_hits')
+  const misses = parseInfoValue(info, 'keyspace_misses')
+  const total = hits + misses
 
   // 解析内存使用
-  const usedMemory = parseInfoValue(memoryInfo, 'used_memory_human');
+  const usedMemory = parseInfoValue(memoryInfo, 'used_memory_human')
 
   // 获取键数量
-  const dbSize = await redis.dbsize();
+  const dbSize = await redis.dbsize()
 
   return {
     hits,
@@ -535,12 +504,12 @@ export async function getCacheMetrics(): Promise<CacheMetrics> {
     hitRate: total > 0 ? (hits / total) * 100 : 0,
     memoryUsage: usedMemory,
     keyCount: dbSize,
-  };
+  }
 }
 
 function parseInfoValue(info: string, key: string): number {
-  const match = info.match(new RegExp(`${key}:(\\d+)`));
-  return match ? parseInt(match[1], 10) : 0;
+  const match = info.match(new RegExp(`${key}:(\\d+)`))
+  return match ? parseInt(match[1], 10) : 0
 }
 ```
 
@@ -548,21 +517,21 @@ function parseInfoValue(info: string, key: string): number {
 
 ```typescript
 // app/api/health/cache/route.ts
-import { getCacheMetrics } from '@/lib/cache/metrics';
-import { redis } from '@/lib/redis';
+import { getCacheMetrics } from '@/lib/cache/metrics'
+import { redis } from '@/lib/redis'
 
 export async function GET() {
   try {
     // 测试连接
-    await redis.ping();
+    await redis.ping()
 
     // 获取指标
-    const metrics = await getCacheMetrics();
+    const metrics = await getCacheMetrics()
 
     return Response.json({
       status: 'healthy',
       ...metrics,
-    });
+    })
   } catch (error) {
     return Response.json(
       {
@@ -570,7 +539,7 @@ export async function GET() {
         error: String(error),
       },
       { status: 503 }
-    );
+    )
   }
 }
 ```
@@ -606,14 +575,14 @@ services:
     deploy:
       resources:
         limits:
-          cpus: "0.25"
+          cpus: '0.25'
           memory: 256M
         reservations:
-          cpus: "0.1"
+          cpus: '0.1'
           memory: 128M
 
     healthcheck:
-      test: ["CMD", "redis-cli", "ping"]
+      test: ['CMD', 'redis-cli', 'ping']
       interval: 30s
       timeout: 5s
       retries: 3
@@ -667,19 +636,19 @@ REDIS_URL=redis://:${REDIS_PASSWORD}@redis:6379
 # 只允许内部网络访问 Redis
 networks:
   7zi-network:
-    internal: true  # 不暴露到外部
+    internal: true # 不暴露到外部
 ```
 
 ---
 
 ## 📈 预期收益
 
-| 指标 | 当前 | 优化后 | 改善 |
-|------|------|--------|------|
-| API 响应时间 | 300ms | 50ms (缓存命中) | -83% |
-| 数据库查询数 | 1000/min | 200/min | -80% |
-| 服务器 CPU | 60% | 40% | -33% |
-| 并发能力 | 100 req/s | 500 req/s | +400% |
+| 指标         | 当前      | 优化后          | 改善  |
+| ------------ | --------- | --------------- | ----- |
+| API 响应时间 | 300ms     | 50ms (缓存命中) | -83%  |
+| 数据库查询数 | 1000/min  | 200/min         | -80%  |
+| 服务器 CPU   | 60%       | 40%             | -33%  |
+| 并发能力     | 100 req/s | 500 req/s       | +400% |
 
 ---
 

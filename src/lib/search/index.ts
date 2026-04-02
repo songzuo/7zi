@@ -22,7 +22,7 @@ export {
   clearAllCaches,
   getCacheStats,
   toggleSortDirection,
-} from '../search-filter';
+} from '../search-filter'
 
 // ============================================================================
 // Enhanced features
@@ -39,7 +39,7 @@ export {
   getGlobalDebounceManager,
   resetGlobalDebounceManager,
   SEARCH_DEBOUNCE_DELAYS,
-} from './debounce';
+} from './debounce'
 
 export {
   // Multi-field search
@@ -48,7 +48,7 @@ export {
   createRequiredFieldsConfig,
   toStandardSearchResult,
   getMultiFieldSearchStats,
-} from './multi-field-search';
+} from './multi-field-search'
 
 // ============================================================================
 // Search managers
@@ -62,7 +62,7 @@ export {
   highlightSearchTerm as fuseHighlightSearchTerm,
   parseSearchQuery,
   buildSearchQuery,
-} from './advanced-search';
+} from './advanced-search'
 
 export {
   // Search index manager
@@ -73,14 +73,14 @@ export {
   convertToProjectEntity,
   convertToMemberEntity,
   convertToAgentEntity,
-} from './index-manager';
+} from './index-manager'
 
 export {
   // Search history manager
   SearchHistoryManager,
   getGlobalHistoryManager,
   resetGlobalHistoryManager,
-} from './history-manager';
+} from './history-manager'
 
 // ============================================================================
 // Types
@@ -92,18 +92,16 @@ export type {
   FieldSearchConfig,
   MultiFieldSearchResult,
   FieldMatch,
-} from './multi-field-search';
+} from './multi-field-search'
 
 export type {
   // Advanced search types
   SearchHistoryEntry,
   AutocompleteSuggestion,
   SearchIndex,
-} from './advanced-search';
+} from './advanced-search'
 
-export type {
-  AutocompleteSuggestionType,
-} from './types';
+export type { AutocompleteSuggestionType } from './types'
 
 export type {
   // Index manager types
@@ -114,19 +112,25 @@ export type {
   ProjectEntity,
   MemberEntity,
   AgentEntity,
-} from './types';
+} from './types'
 
 export type {
   // History manager types
   SearchHistoryEntry as HistoryEntry,
   SearchHistoryStorage,
-} from './types';
+} from './types'
 
 // ============================================================================
 // Re-exports from types
 // ============================================================================
 
-export type { SearchConfig, SearchResult, FilterConfig, SortConfig, ActiveFilters } from '@/types/search-filter';
+export type {
+  SearchConfig,
+  SearchResult,
+  FilterConfig,
+  SortConfig,
+  ActiveFilters,
+} from '@/types/search-filter'
 
 // ============================================================================
 // Utility types
@@ -136,23 +140,23 @@ export type { SearchConfig, SearchResult, FilterConfig, SortConfig, ActiveFilter
  * Search event for tracking and analytics
  */
 export interface SearchEvent {
-  type: 'search' | 'filter-change' | 'history-add' | 'cache-hit' | 'cache-miss';
-  timestamp: number;
-  query?: string;
-  resultCount?: number;
-  target?: string;
-  metadata?: Record<string, unknown>;
+  type: 'search' | 'filter-change' | 'history-add' | 'cache-hit' | 'cache-miss'
+  timestamp: number
+  query?: string
+  resultCount?: number
+  target?: string
+  metadata?: Record<string, unknown>
 }
 
 /**
  * Search performance metrics
  */
 export interface SearchPerformanceMetrics {
-  query: string;
-  executionTime: number;
-  resultCount: number;
-  cacheHit: boolean;
-  timestamp: number;
+  query: string
+  executionTime: number
+  resultCount: number
+  cacheHit: boolean
+  timestamp: number
 }
 
 /**
@@ -160,17 +164,17 @@ export interface SearchPerformanceMetrics {
  */
 export interface SearchOptions {
   /** Query string */
-  query: string;
+  query: string
   /** Search configuration */
-  config?: import('./multi-field-search').MultiFieldSearchConfig;
+  config?: import('./multi-field-search').MultiFieldSearchConfig
   /** Field filters */
-  filters?: Record<string, unknown[]>;
+  filters?: Record<string, unknown[]>
   /** Sort configuration */
-  sort?: import('@/types/search-filter').SortConfig<unknown>;
+  sort?: import('@/types/search-filter').SortConfig<unknown>
   /** Result limit */
-  limit?: number;
+  limit?: number
   /** Offset for pagination */
-  offset?: number;
+  offset?: number
 }
 
 /**
@@ -178,18 +182,18 @@ export interface SearchOptions {
  */
 export interface CompleteSearchResult<T> {
   /** Search results */
-  results: import('@/types/search-filter').SearchResult<T>[];
+  results: import('@/types/search-filter').SearchResult<T>[]
   /** Pagination info */
   pagination: {
-    total: number;
-    page: number;
-    pageSize: number;
-    hasMore: boolean;
-  };
+    total: number
+    page: number
+    pageSize: number
+    hasMore: boolean
+  }
   /** Performance metrics */
-  performance: SearchPerformanceMetrics;
+  performance: SearchPerformanceMetrics
   /** Active filters count */
-  activeFilterCount: number;
+  activeFilterCount: number
 }
 
 // ============================================================================
@@ -203,7 +207,7 @@ export const DEFAULT_SEARCH_OPTIONS: SearchOptions = {
   query: '',
   limit: 50,
   offset: 0,
-};
+}
 
 /**
  * Performance thresholds
@@ -217,7 +221,7 @@ export const PERFORMANCE_THRESHOLDS = {
   SLOW: 500,
   /** Very slow search threshold (ms) */
   VERY_SLOW: 1000,
-} as const;
+} as const
 
 /**
  * Cache sizes
@@ -231,4 +235,4 @@ export const CACHE_SIZES = {
   LARGE: 500,
   /** Extra large cache */
   EXTRA_LARGE: 1000,
-} as const;
+} as const

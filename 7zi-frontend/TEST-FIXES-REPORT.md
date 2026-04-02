@@ -7,11 +7,13 @@
 ## 当前测试状态
 
 ### 测试结果统计
+
 - **测试文件**: 11 个失败 | 71 个通过 | 1 个跳过 (共 83 个)
 - **测试用例**: 9 个失败 | 1677 个通过 | 13 个跳过 (共 1699 个)
 - **通过率**: 99.47%
 
 ### 修复前后对比
+
 - **修复前**: 约 18 个失败测试
 - **修复后**: 9 个失败测试
 - **改善**: 修复了 9 个测试 (50% 改善)
@@ -21,10 +23,12 @@
 ### 1. Agent Scheduler 测试 (`src/lib/agents/scheduler/__tests__/scheduler.test.ts`)
 
 **问题**:
+
 - 单例实例在测试间没有重置状态，导致测试互相干扰
 - 任务重试逻辑中的竞态条件
 
 **修复**:
+
 - 添加 `clear()` 方法到 `AgentScheduler` 类
 - 在 `beforeEach` 中调用 `scheduler.clear()` 重置状态
 - 修复 `updateTask()` 方法的执行顺序，先处理重试逻辑，再释放 agent
@@ -35,11 +39,13 @@
 ### 2. Sitemap 测试 (`src/test/seo/seo-sitemap.test.ts`)
 
 **问题**:
+
 - 使用 `if (!sitemap)` 条件跳过测试
 - 域名配置不一致 (使用 `7zi.com` 而非 `7zi.studio`)
 - 缺少类型导入
 
 **修复**:
+
 - 移除 `if (!sitemap)` 条件检查
 - 更新默认域名为 `https://7zi.studio`
 - 添加 `MetadataRoute` 类型导入
@@ -50,10 +56,12 @@
 ### 3. i18n Client 测试 (`src/lib/i18n/__tests__/client.test.ts`)
 
 **问题**:
+
 - Mock 配置不当，导致 `initReactI18next` 未被正确调用
 - 测试期望检查 mock 调用但 mock 未被追踪
 
 **修复**:
+
 - 重构 mock 配置，使用明确的 mock 变量
 - 添加 `beforeAll` 和 `afterAll` 处理模块导入
 - 更新测试断言检查正确的 mock 调用 (`mockUse`)
@@ -63,10 +71,12 @@
 ### 4. Auth Store 测试 (`src/stores/__tests__/auth-store.test.ts`)
 
 **问题**:
+
 - localStorage 恢复测试超时
 - 测试期望与 zustand persist 中间件行为不匹配
 
 **修复**:
+
 - 简化恢复测试，只验证 localStorage 存储的正确性
 - 移除异步恢复等待，因为测试环境中的 hydration 可能不可靠
 
@@ -75,9 +85,11 @@
 ### 5. Robots 测试 (`src/test/seo/seo-robots.test.ts`)
 
 **问题**:
+
 - 域名配置与实际文件不一致
 
 **修复**:
+
 - 更新测试默认域名为 `https://7zi.studio`
 
 **结果**: ✅ 所有 robots 测试通过
@@ -85,9 +97,11 @@
 ### 6. SEO Meta Tags 测试 (`src/test/seo/seo-meta-tags.test.ts`)
 
 **问题**:
+
 - 部分页面 description 长度不足 30 字符
 
 **修复**:
+
 - 扩展 `feedback` 页面的 description
 - 扩展 `knowledgeLattice` 和 `monitoringExample` 的 description
 
@@ -96,10 +110,12 @@
 ### 7. Auth 模块测试 (`src/lib/__tests__/auth.test.ts`)
 
 **问题**:
+
 - `getPasswordStrength()` 函数对短密码的强度评估不准确
 - 长度不足的密码被标记为 medium
 
 **修复**:
+
 - 修改 `getPasswordStrength()` 逻辑
 - 添加 `isLongEnough` 检查
 - 强制长度不足 8 位的密码为 `weak` 等级
@@ -109,10 +125,12 @@
 ### 8. Vitest 配置优化
 
 **问题**:
+
 - 并行进程数过多 (maxForks: 4)
 - 测试超时设置较短 (10秒)
 
 **修复**:
+
 - 减少并行进程数: `maxForks: 2`
 - 增加测试超时: `testTimeout: 15000`
 - 添加 flaky test 保护: `retry: 1`
@@ -165,6 +183,7 @@
 当前测试覆盖率数据未生成（需要运行 `npm run test:coverage`）。
 
 建议后续运行：
+
 ```bash
 npm run test:coverage
 ```

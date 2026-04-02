@@ -8,20 +8,20 @@
 
 ### 初始状态（95个错误）
 
-| 错误类型 | 数量 | 优先级 |
-|---------|------|--------|
-| 测试文件 mock 问题 (dark-mode.test.tsx) | ~65 | 高 |
-| 类型重复定义 (websocket/index.ts) | 2 | 高 |
-| 缺少模块 (react-compiler/diagnostics) | 2 | 高 |
-| Response mock 类型 (github/commits test) | 2 | 中 |
-| UserPreferences 类型不匹配 (user/preferences test) | 9 | 中 |
-| UIState 缺少属性 (GlobalLoader.test.tsx) | 7 | 中 |
-| UIState 缺少属性 (SettingsButton.test.tsx) | 1 | 中 |
-| null vs undefined (anomaly-detector.ts) | 1 | 中 |
-| Function 类型约束 (message-store.ts) | 1 | 中 |
-| 未导出类型 (websocket/rooms.test) | 1 | 低 |
-| 类型比较问题 (language-switching.spec) | 1 | 低 |
-| 可能为 null/undefined (seo-meta-tags.test) | 13 | 低 |
+| 错误类型                                           | 数量 | 优先级 |
+| -------------------------------------------------- | ---- | ------ |
+| 测试文件 mock 问题 (dark-mode.test.tsx)            | ~65  | 高     |
+| 类型重复定义 (websocket/index.ts)                  | 2    | 高     |
+| 缺少模块 (react-compiler/diagnostics)              | 2    | 高     |
+| Response mock 类型 (github/commits test)           | 2    | 中     |
+| UserPreferences 类型不匹配 (user/preferences test) | 9    | 中     |
+| UIState 缺少属性 (GlobalLoader.test.tsx)           | 7    | 中     |
+| UIState 缺少属性 (SettingsButton.test.tsx)         | 1    | 中     |
+| null vs undefined (anomaly-detector.ts)            | 1    | 中     |
+| Function 类型约束 (message-store.ts)               | 1    | 中     |
+| 未导出类型 (websocket/rooms.test)                  | 1    | 低     |
+| 类型比较问题 (language-switching.spec)             | 1    | 低     |
+| 可能为 null/undefined (seo-meta-tags.test)         | 13   | 低     |
 
 ### 最终状态
 
@@ -37,6 +37,7 @@
 **问题描述**: 缺少 localStorage 和 matchMedia 的 mock 定义，以及 SettingsProvider 未定义
 
 **修复方案**:
+
 - 添加 localStorage mock 对象
 - 添加 matchMedia mock 函数
 - 创建简单的 SettingsProvider mock 组件
@@ -70,6 +71,7 @@ const SettingsProvider = ({ children }: { children: React.ReactNode }) => {
 **问题描述**: `Room` 类型在 `server.ts` 和 `rooms.ts` 中都有定义，导致重复导出
 
 **修复方案**:
+
 - 将 `server.ts` 中的 `Room` 改为 `ServerRoom`
 - 使用 `rooms.ts` 中的 `Room` 作为主要类型
 
@@ -80,8 +82,8 @@ export type {
   AuthenticatedSocket,
   TaskStatusUpdate,
   RoomUser,
-  Room as ServerRoom,  // 重命名为 ServerRoom
-} from './server';
+  Room as ServerRoom, // 重命名为 ServerRoom
+} from './server'
 
 export type {
   RoomType,
@@ -89,11 +91,11 @@ export type {
   RoomParticipant,
   RoomConfig,
   RoomData,
-  Room,  // 使用 rooms.ts 中的 Room 作为主要类型
+  Room, // 使用 rooms.ts 中的 Room 作为主要类型
   CreateRoomOptions,
   JoinRoomOptions,
   RoomEventCallbacks,
-} from './rooms';
+} from './rooms'
 ```
 
 ### 3. 缺少模块 (react-compiler/diagnostics)
@@ -103,20 +105,21 @@ export type {
 **修复方案**: 创建缺失的模块文件
 
 **修复文件**:
+
 - `src/lib/react-compiler/diagnostics/migration-guide.ts`
 - `src/lib/react-compiler/diagnostics/reporter.ts`
 
 ```typescript
 // migration-guide.ts
 export interface MigrationGuide {
-  totalSteps: number;
-  estimatedTotalTime: string;
-  steps: MigrationStep[];
+  totalSteps: number
+  estimatedTotalTime: string
+  steps: MigrationStep[]
   priorityIssues: Array<{
-    file: string;
-    issue: CompilerIssue;
-    fix: string;
-  }>;
+    file: string
+    issue: CompilerIssue
+    fix: string
+  }>
 }
 
 export function generateMigrationGuide(scanResult: ScanResult): MigrationGuide {
@@ -125,21 +128,21 @@ export function generateMigrationGuide(scanResult: ScanResult): MigrationGuide {
 
 // reporter.ts
 export interface CompatibilityReport {
-  format: 'json' | 'markdown' | 'html';
-  generatedAt: string;
-  scanResult: ScanResult;
+  format: 'json' | 'markdown' | 'html'
+  generatedAt: string
+  scanResult: ScanResult
   summary: {
-    totalFiles: number;
-    compatibleFiles: number;
-    incompatibleFiles: number;
-    compatibilityRate: number;
-  };
+    totalFiles: number
+    compatibleFiles: number
+    incompatibleFiles: number
+    compatibilityRate: number
+  }
   details?: {
-    highSeverityIssues: IncompatibilityReport[];
-    mediumSeverityIssues: IncompatibilityReport[];
-    lowSeverityIssues: IncompatibilityReport[];
-  };
-  recommendations: string[];
+    highSeverityIssues: IncompatibilityReport[]
+    mediumSeverityIssues: IncompatibilityReport[]
+    lowSeverityIssues: IncompatibilityReport[]
+  }
+  recommendations: string[]
 }
 
 export function generateCompatibilityReport(
@@ -163,19 +166,21 @@ vi.mocked(global.fetch).mockResolvedValueOnce({
   ok: true,
   status: 200,
   statusText: 'OK',
-  json: async () => { /* ... */ },
+  json: async () => {
+    /* ... */
+  },
   headers: new Headers(),
   type: 'basic' as ResponseType,
   url: 'http://test.com',
   redirected: false,
   body: null,
   bodyUsed: false,
-  clone: () => ({ ok: true, status: 200 } as Response),
+  clone: () => ({ ok: true, status: 200 }) as Response,
   text: async () => '',
   arrayBuffer: async () => new ArrayBuffer(0),
   blob: async () => new Blob(),
   formData: async () => new FormData(),
-} as unknown as Response);
+} as unknown as Response)
 ```
 
 ### 5. UserPreferences 类型不匹配 (user/preferences test)
@@ -190,12 +195,12 @@ vi.mocked(global.fetch).mockResolvedValueOnce({
 const newPreferences = {
   user_id: 'user-new',
   locale: 'en',
-  theme: 'light' as const,  // 使用 as const 确保字面量类型
+  theme: 'light' as const, // 使用 as const 确保字面量类型
   timezone: 'America/New_York',
   notifications_enabled: false,
   email_notifications: false,
   sound_enabled: false,
-};
+}
 
 // 对于部分数据，补充缺失的必需字段
 vi.mocked(createUserPreferences).mockResolvedValue({
@@ -205,7 +210,7 @@ vi.mocked(createUserPreferences).mockResolvedValue({
   notifications_enabled: true,
   email_notifications: true,
   sound_enabled: true,
-});
+})
 ```
 
 ### 6. UIState 缺少属性 (GlobalLoader.test.tsx & SettingsButton.test.tsx)
@@ -215,6 +220,7 @@ vi.mocked(createUserPreferences).mockResolvedValue({
 **修复方案**: 创建 `createMockUIState` 辅助函数，生成完整的 mock 对象
 
 **修复文件**:
+
 - `src/components/__tests__/GlobalLoader.test.tsx`
 - `src/test/components/SettingsButton.test.tsx`
 
@@ -223,7 +229,7 @@ vi.mocked(createUserPreferences).mockResolvedValue({
 function createMockUIState(overrides: Partial<any> = {}) {
   return {
     globalLoading: false,
-    loadingMessage: undefined,  // 使用 undefined 而不是 null
+    loadingMessage: undefined, // 使用 undefined 而不是 null
     sidebar: { isOpen: false, isCollapsed: false, width: 280 },
     activeModal: null,
     modalHistory: [],
@@ -236,7 +242,7 @@ function createMockUIState(overrides: Partial<any> = {}) {
     openSidebar: mockSetGlobalLoading,
     // ... 其他函数
     ...overrides,
-  };
+  }
 }
 ```
 
@@ -268,14 +274,14 @@ calculateBaseline(metric: string): Baseline | undefined {
 
 ```typescript
 export function getMessageStore(config?: {
-  maxHistorySize?: number;
-  offlineMessageTTL?: number;
-  maxOfflineMessages?: number;
+  maxHistorySize?: number
+  offlineMessageTTL?: number
+  maxOfflineMessages?: number
 }): MessageStore {
   if (!messageStoreInstance) {
-    messageStoreInstance = new MessageStore(config);
+    messageStoreInstance = new MessageStore(config)
   }
-  return messageStoreInstance;
+  return messageStoreInstance
 }
 ```
 
@@ -288,8 +294,8 @@ export function getMessageStore(config?: {
 **修复文件**: `src/lib/websocket/rooms.ts`
 
 ```typescript
-import { PermissionManager, getPermissionManager, UserRole, Permission } from './permissions';
-export type { UserRole } from './permissions'; // Re-export UserRole for consumers
+import { PermissionManager, getPermissionManager, UserRole, Permission } from './permissions'
+export type { UserRole } from './permissions' // Re-export UserRole for consumers
 ```
 
 ### 10. 类型比较问题 (language-switching.spec)
@@ -301,14 +307,14 @@ export type { UserRole } from './permissions'; // Re-export UserRole for consume
 **修复文件**: `src/test/e2e/language-switching.spec.ts`
 
 ```typescript
-const langSwitcherHandle = await langSwitcher.elementHandle();
+const langSwitcherHandle = await langSwitcher.elementHandle()
 
 if (langSwitcherHandle) {
   const isLangSwitcher = await focusedElement.evaluate((el, handle) => {
-    return el === handle;
-  }, langSwitcherHandle);
+    return el === handle
+  }, langSwitcherHandle)
 
-  expect(isLangSwitcher).toBeTruthy();
+  expect(isLangSwitcher).toBeTruthy()
 }
 ```
 
@@ -330,8 +336,8 @@ it('应支持自定义 OG 图片', () => {
 
   expect(customImageMeta.openGraph).toBeDefined()
   expect(customImageMeta.openGraph?.images).toBeDefined()
-  const images = customImageMeta.openGraph?.images;
-  const firstImage = Array.isArray(images) ? images[0] : images;
+  const images = customImageMeta.openGraph?.images
+  const firstImage = Array.isArray(images) ? images[0] : images
   expect(firstImage).toContain('/images/custom-og.jpg')
 })
 ```
@@ -349,25 +355,29 @@ report.details = {
   highSeverityIssues: result.reports.filter((r: IncompatibilityReport) =>
     r.issues.some((i: CompilerIssue) => i.severity === 'high')
   ),
-  mediumSeverityIssues: result.reports.filter((r: IncompatibilityReport) =>
-    r.issues.some((i: CompilerIssue) => i.severity === 'medium') &&
-    !r.issues.some((i: CompilerIssue) => i.severity === 'high')
+  mediumSeverityIssues: result.reports.filter(
+    (r: IncompatibilityReport) =>
+      r.issues.some((i: CompilerIssue) => i.severity === 'medium') &&
+      !r.issues.some((i: CompilerIssue) => i.severity === 'high')
   ),
-  lowSeverityIssues: result.reports.filter((r: IncompatibilityReport) =>
-    r.issues.some((i: CompilerIssue) => i.severity === 'low') &&
-    !r.issues.some((i: CompilerIssue) => i.severity === 'high' || i.severity === 'medium')
+  lowSeverityIssues: result.reports.filter(
+    (r: IncompatibilityReport) =>
+      r.issues.some((i: CompilerIssue) => i.severity === 'low') &&
+      !r.issues.some((i: CompilerIssue) => i.severity === 'high' || i.severity === 'medium')
   ),
-};
+}
 ```
 
 ### 13. budget-checker.test.ts 类型错误
 
 **问题描述**:
+
 - `checkBatch` 方法不存在
 - 空对象不能赋值给 `BudgetConfig`
 - 无效的 metric 类型
 
 **修复方案**:
+
 - 使用 `checkBudget` 替代 `checkBatch`
 - 添加必需的 `budgets` 数组
 - 使用 `as any` 绕过类型检查
@@ -415,11 +425,13 @@ timings: [{ metric: 'INVALID' as any, budget: 2500, tolerance: 0.1 }],
 ### 维护建议
 
 1. **定期运行类型检查**
+
    ```bash
    npx tsc --noEmit
    ```
 
 2. **启用严格模式**
+
    ```json
    {
      "compilerOptions": {
@@ -442,10 +454,10 @@ timings: [{ metric: 'INVALID' as any, budget: 2500, tolerance: 0.1 }],
 
 ## 📈 进度总结
 
-| 阶段 | 错误数 | 状态 |
-|------|-------|------|
-| 初始 | 95 | ❌ |
-| 修复后 | 0 | ✅ |
+| 阶段   | 错误数 | 状态 |
+| ------ | ------ | ---- |
+| 初始   | 95     | ❌   |
+| 修复后 | 0      | ✅   |
 
 **成功率**: 100% (95/95 错误已修复)
 

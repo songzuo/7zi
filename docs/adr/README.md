@@ -4,17 +4,17 @@
 
 ## ADR 索引
 
-| ADR | 标题 | 状态 | 日期 | 关联功能 |
-|-----|------|------|------|---------|
-| 0001 | 使用 Zustand 进行状态管理 | Accepted | 2026-01-15 | 全局状态 |
-| 0002 | 使用 Socket.IO 实现 WebSocket | Accepted | 2026-02-01 | 实时通信 |
-| 0003 | 使用 Redis 进行缓存 | Accepted | 2026-02-15 | 性能优化 |
-| 0004 | 启用 TypeScript Strict Mode | Accepted | 2026-03-01 | 类型安全 |
-| 0005 | 使用 Vitest 作为测试框架 | Accepted | 2026-03-10 | 测试 |
-| 0006 | Agent Scheduler 架构 | Accepted | 2026-03-29 | AI Agent 调度 |
-| 0007 | 性能监控架构 | Accepted | 2026-03-29 | 性能监控 |
-| 0008 | WebSocket 房间系统设计 | Accepted | 2026-03-29 | WebSocket 高级功能 |
-| 0009 | React Compiler 采用策略 | Accepted | 2026-03-29 | 性能优化 |
+| ADR  | 标题                          | 状态     | 日期       | 关联功能           |
+| ---- | ----------------------------- | -------- | ---------- | ------------------ |
+| 0001 | 使用 Zustand 进行状态管理     | Accepted | 2026-01-15 | 全局状态           |
+| 0002 | 使用 Socket.IO 实现 WebSocket | Accepted | 2026-02-01 | 实时通信           |
+| 0003 | 使用 Redis 进行缓存           | Accepted | 2026-02-15 | 性能优化           |
+| 0004 | 启用 TypeScript Strict Mode   | Accepted | 2026-03-01 | 类型安全           |
+| 0005 | 使用 Vitest 作为测试框架      | Accepted | 2026-03-10 | 测试               |
+| 0006 | Agent Scheduler 架构          | Accepted | 2026-03-29 | AI Agent 调度      |
+| 0007 | 性能监控架构                  | Accepted | 2026-03-29 | 性能监控           |
+| 0008 | WebSocket 房间系统设计        | Accepted | 2026-03-29 | WebSocket 高级功能 |
+| 0009 | React Compiler 采用策略       | Accepted | 2026-03-29 | 性能优化           |
 
 ## ADR 模板
 
@@ -24,21 +24,27 @@
 # ADR-XXXX: [标题]
 
 ## 状态
+
 Proposed / Accepted / Deprecated / Superseded
 
 ## 上下文
+
 描述做出决策的背景和问题。
 
 ## 决策
+
 描述实际采取的决策和实现方案。
 
 ## 权衡
+
 描述考虑的替代方案及其优缺点。
 
 ## 后果
+
 描述决策的后果，包括正面和负面影响。
 
 ## 相关决策
+
 列出关联的其他 ADR。
 ```
 

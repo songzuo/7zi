@@ -1,8 +1,8 @@
 /**
  * Performance Monitoring - Alerting Module
- * 
+ *
  * Multi-level alert system with suppression, aggregation, and history tracking
- * 
+ *
  * @module performance/alerting
  */
 
@@ -10,8 +10,8 @@
 // Core Classes
 // ========================================
 
-export { PerformanceAlerter, DashboardChannel } from './alerter';
-export { performanceAlerter } from './alerter';
+export { PerformanceAlerter, DashboardChannel } from './alerter'
+export { performanceAlerter } from './alerter'
 
 // ========================================
 // Types
@@ -31,7 +31,7 @@ export type {
   AlertStats,
   AlertChannel,
   DashboardAlertMessage,
-} from './alerter';
+} from './alerter'
 
 // ========================================
 // Utilities
@@ -47,10 +47,10 @@ export {
   createPerformanceAlert,
   formatAlertForLog,
   filterAlerts,
-} from './alerter';
+} from './alerter'
 
 // ========================================
 // Default Export
 // ========================================
 
-export { default } from './alerter';
+export { default } from './alerter'

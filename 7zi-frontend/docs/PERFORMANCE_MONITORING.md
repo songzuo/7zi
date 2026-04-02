@@ -1,4 +1,5 @@
 # Performance Monitoring Guide
+
 # 性能监控使用指南
 
 ## Overview 概述
@@ -26,33 +27,39 @@ Additional metrics tracked:
 ### 2. Custom Metrics 自定义指标
 
 #### Page Performance
+
 - `pageLoadTime` - Page load time 页面完全加载时间
 - `domContentLoaded` - DOM content loaded event DOM 内容加载完成时间
 - `firstPaint` - First paint event 首次绘制时间
 - `firstContentfulPaint` - First contentful paint event 首次内容绘制时间
 
 #### Network Metrics
+
 - `dnsLookup` - DNS query time DNS 查询时间
 - `tcpConnection` - TCP connection time TCP 连接时间
 - `tlsHandshake` - TLS handshake time TLS 握手时间
 - `serverResponse` - Server response time 服务器响应时间
 
 #### WebSocket Metrics
+
 - `wsConnectTime` - WebSocket connection time WebSocket 连接时间
 - `wsLatency` - WebSocket latency (ping-pong) WebSocket 延迟
 - `wsMessagesPerSecond` - Messages per second 每秒消息数
 - `wsReconnectCount` - Reconnection count 重连次数
 
 #### API Metrics
+
 - `apiAverageResponseTime` - Average API response time API 平均响应时间
 - `apiSuccessRate` - API success rate API 成功率
 - `apiErrorRate` - API error rate API 错误率
 
 #### Error Metrics
+
 - `errorCount` - Total error count 错误总数
 - `errorRate` - Error rate (errors/requests) 错误率
 
 #### Memory Metrics
+
 - `memoryUsage` - Memory usage (MB) 内存使用量
 - `memoryUsagePercent` - Memory usage percentage 内存使用百分比
 
@@ -88,11 +95,11 @@ npm install web-vitals --legacy-peer-deps
 Import and initialize the monitoring system in your app:
 
 ```tsx
-import { initWebVitalsMonitoring, initCustomMetricsTracking } from '@/lib/performance';
+import { initWebVitalsMonitoring, initCustomMetricsTracking } from '@/lib/performance'
 
 // Initialize monitoring on app startup
-initWebVitalsMonitoring();
-initCustomMetricsTracking();
+initWebVitalsMonitoring()
+initCustomMetricsTracking()
 ```
 
 ### Next.js Integration
@@ -101,18 +108,18 @@ For Next.js applications, initialize in a client component:
 
 ```tsx
 // app/layout.tsx or app/_app.tsx
-'use client';
+'use client'
 
-import { useEffect } from 'react';
-import { initWebVitalsMonitoring, initCustomMetricsTracking } from '@/lib/performance';
+import { useEffect } from 'react'
+import { initWebVitalsMonitoring, initCustomMetricsTracking } from '@/lib/performance'
 
 export default function RootLayout({ children }) {
   useEffect(() => {
-    initWebVitalsMonitoring();
-    initCustomMetricsTracking();
-  }, []);
+    initWebVitalsMonitoring()
+    initCustomMetricsTracking()
+  }, [])
 
-  return <html>{children}</html>;
+  return <html>{children}</html>
 }
 ```
 
@@ -123,7 +130,7 @@ export default function RootLayout({ children }) {
 Use the `monitoredFetch` wrapper to automatically track API requests:
 
 ```tsx
-import { monitoredFetch } from '@/lib/monitoring';
+import { monitoredFetch } from '@/lib/monitoring'
 
 async function fetchUsers() {
   const response = await monitoredFetch('/api/users', {
@@ -132,10 +139,10 @@ async function fetchUsers() {
       operation: 'load_users',
       source: 'user_list_page',
     },
-  });
+  })
 
-  const data = await response.json();
-  return data;
+  const data = await response.json()
+  return data
 }
 ```
 
@@ -144,34 +151,38 @@ async function fetchUsers() {
 Use `withPerformanceTracking` for async operations:
 
 ```tsx
-import { withPerformanceTracking } from '@/lib/monitoring';
+import { withPerformanceTracking } from '@/lib/monitoring'
 
 async function processData(userId: string) {
-  return withPerformanceTracking('process_user_data', async () => {
-    // Your operation logic here
-    const result = await someAsyncOperation(userId);
-    return result;
-  }, {
-    userId,
-    customField: 'value',
-  });
+  return withPerformanceTracking(
+    'process_user_data',
+    async () => {
+      // Your operation logic here
+      const result = await someAsyncOperation(userId)
+      return result
+    },
+    {
+      userId,
+      customField: 'value',
+    }
+  )
 }
 ```
 
 Manual operation tracking:
 
 ```tsx
-import { monitor } from '@/lib/monitoring';
+import { monitor } from '@/lib/monitoring'
 
 function startProcessing() {
-  const opId = monitor.startOperation('data_processing');
+  const opId = monitor.startOperation('data_processing')
 
   // ... perform operation ...
 
   monitor.endOperation(opId, true, {
     success: true,
     processedItems: 10,
-  });
+  })
 }
 ```
 
@@ -180,77 +191,72 @@ function startProcessing() {
 Manual error tracking:
 
 ```tsx
-import { monitor } from '@/lib/monitoring';
+import { monitor } from '@/lib/monitoring'
 
 try {
   // Some operation
 } catch (error) {
-  await monitor.trackError(
-    'OperationError',
-    error.message,
-    error.stack,
-    {
-      operation: 'data_processing',
-      userId: '123',
-    }
-  );
+  await monitor.trackError('OperationError', error.message, error.stack, {
+    operation: 'data_processing',
+    userId: '123',
+  })
 }
 ```
 
 ### 4. Tracking Custom Metrics 追踪自定义指标
 
 ```tsx
-import { monitor } from '@/lib/monitoring';
+import { monitor } from '@/lib/monitoring'
 
 // Track any custom metric
 await monitor.trackCustomMetric('cache_hit_rate', 85, '%', {
   cacheType: 'redis',
   endpoint: '/api/users',
-});
+})
 
-await monitor.trackCustomMetric('queue_length', 42, 'count');
-await monitor.trackCustomMetric('processing_time', 1250, 'ms');
+await monitor.trackCustomMetric('queue_length', 42, 'count')
+await monitor.trackCustomMetric('processing_time', 1250, 'ms')
 ```
 
 ### 5. Monitoring WebSocket Performance 监控 WebSocket 性能
 
 ```tsx
-import { customMetricsTracker } from '@/lib/performance';
+import { customMetricsTracker } from '@/lib/performance'
 
-const ws = new WebSocket('wss://example.com/ws');
+const ws = new WebSocket('wss://example.com/ws')
 
 // Track WebSocket metrics
-customMetricsTracker.trackWebSocketLatency(ws);
+customMetricsTracker.trackWebSocketLatency(ws)
 ```
 
 ### 6. Using Performance Budget 使用性能预算
 
 ```tsx
-import { budgetManager } from '@/lib/performance';
-import { webVitalsMonitor, customMetricsTracker } from '@/lib/performance';
+import { budgetManager } from '@/lib/performance'
+import { webVitalsMonitor, customMetricsTracker } from '@/lib/performance'
 
 // Check for budget violations
 const triggeredAlarms = await budgetManager.checkAlarms(
   webVitalsMonitor.getMetrics(),
   customMetricsTracker.getMetrics()
-);
+)
 
 // Get budget report
 const report = budgetManager.calculateBudgetReport(
   webVitalsMonitor.getMetrics(),
   customMetricsTracker.getMetrics()
-);
+)
 
-console.log('Overall Score:', report.overallScore);
-console.log('Status:', report.status);
-console.log('Violations:', report.violations);
-console.log('Recommendations:', report.recommendations);
+console.log('Overall Score:', report.overallScore)
+console.log('Status:', report.status)
+console.log('Violations:', report.violations)
+console.log('Recommendations:', report.recommendations)
 ```
 
 Custom budget configuration:
 
 ```tsx
-import { initPerformanceBudget } from '@/lib/performance';
+import { initPerformanceBudget } from '@/lib/performance'
 
 initPerformanceBudget({
   webVitals: {
@@ -266,13 +272,13 @@ initPerformanceBudget({
     memoryUsagePercent: { threshold: 80, weight: 1.0 },
     wsLatency: { threshold: 50, weight: 1.0 },
   },
-});
+})
 ```
 
 ### 7. Adding Custom Alarm Rules 添加自定义告警规则
 
 ```tsx
-import { budgetManager } from '@/lib/performance';
+import { budgetManager } from '@/lib/performance'
 
 // Add a custom alarm rule
 budgetManager.addAlarmRule({
@@ -286,14 +292,14 @@ budgetManager.addAlarmRule({
   severity: 'high',
   enabled: true,
   cooldownMs: 600000, // 10 minutes cooldown
-});
+})
 
 // Toggle alarm rule
-budgetManager.toggleAlarmRule('high-api-latency', false); // Disable
-budgetManager.toggleAlarmRule('high-api-latency', true); // Enable
+budgetManager.toggleAlarmRule('high-api-latency', false) // Disable
+budgetManager.toggleAlarmRule('high-api-latency', true) // Enable
 
 // Remove alarm rule
-budgetManager.removeAlarmRule('high-api-latency');
+budgetManager.removeAlarmRule('high-api-latency')
 ```
 
 ## Dashboard Components 仪表板组件
@@ -303,23 +309,20 @@ budgetManager.removeAlarmRule('high-api-latency');
 Basic dashboard with essential metrics:
 
 ```tsx
-import { SimplePerformanceDashboard } from '@/components/SimplePerformanceDashboard';
+import { SimplePerformanceDashboard } from '@/components/SimplePerformanceDashboard'
 
 export default function DashboardPage() {
   return (
     <div>
       <h1>Performance Monitor</h1>
-      <SimplePerformanceDashboard
-        refreshInterval={5000}
-        showAlarms={true}
-        className="mb-6"
-      />
+      <SimplePerformanceDashboard refreshInterval={5000} showAlarms={true} className="mb-6" />
     </div>
-  );
+  )
 }
 ```
 
 Props:
+
 - `refreshInterval?: number` - Refresh interval in ms (default: 5000)
 - `showAlarms?: boolean` - Show active alarms (default: true)
 - `className?: string` - Additional CSS classes
@@ -329,7 +332,7 @@ Props:
 Full-featured dashboard with Web Vitals, custom metrics, and budget:
 
 ```tsx
-import { EnhancedPerformanceDashboard } from '@/components/EnhancedPerformanceDashboard';
+import { EnhancedPerformanceDashboard } from '@/components/EnhancedPerformanceDashboard'
 
 export default function DashboardPage() {
   return (
@@ -343,11 +346,12 @@ export default function DashboardPage() {
         className="mb-6"
       />
     </div>
-  );
+  )
 }
 ```
 
 Props:
+
 - `refreshInterval?: number` - Refresh interval in ms (default: 5000)
 - `showAlarms?: boolean` - Show active alarms (default: true)
 - `showBudget?: boolean` - Show budget violations and recommendations (default: true)
@@ -371,7 +375,7 @@ export const DEFAULT_MONITORING_CONFIG: MonitoringConfig = {
     operationDuration: { threshold: 3000, windowMs: 5 * 60 * 1000, enabled: true },
   },
   storageType: 'memory', // or 'localStorage'
-};
+}
 ```
 
 ### Environment-Specific Config
@@ -396,13 +400,13 @@ export const ENV_SPECIFIC_CONFIG: Partial<MonitoringConfig> = {
   test: {
     enabled: false, // Disable in tests
   },
-};
+}
 ```
 
 ### Web Vitals Config
 
 ```typescript
-import { initWebVitalsMonitoring } from '@/lib/performance';
+import { initWebVitalsMonitoring } from '@/lib/performance'
 
 initWebVitalsMonitoring({
   enabled: true,
@@ -413,17 +417,17 @@ initWebVitalsMonitoring({
     INP: 200,
   },
   trackAllMetrics: true,
-  sendToAnalytics: (metric) => {
+  sendToAnalytics: metric => {
     // Send to your analytics service
-    console.log('Web Vital:', metric);
+    console.log('Web Vital:', metric)
   },
-});
+})
 ```
 
 ### Custom Metrics Config
 
 ```typescript
-import { initCustomMetricsTracking } from '@/lib/performance';
+import { initCustomMetricsTracking } from '@/lib/performance'
 
 initCustomMetricsTracking({
   trackMemory: true,
@@ -431,7 +435,7 @@ initCustomMetricsTracking({
   trackNetwork: true,
   trackResources: true,
   resourceTypes: ['script', 'stylesheet', 'image', 'font', 'fetch', 'xhr'],
-});
+})
 ```
 
 ## API Reference API 参考
@@ -439,106 +443,106 @@ initCustomMetricsTracking({
 ### Performance Monitor
 
 ```typescript
-import { monitor } from '@/lib/monitoring';
+import { monitor } from '@/lib/monitoring'
 
 // Track API request
-await monitor.trackAPIRequest(method, endpoint, statusCode, responseTime, metadata);
+await monitor.trackAPIRequest(method, endpoint, statusCode, responseTime, metadata)
 
 // Track error
-await monitor.trackError(errorType, errorMessage, stackTrace, context);
+await monitor.trackError(errorType, errorMessage, stackTrace, context)
 
 // Start operation
-const opId = monitor.startOperation(operationName);
+const opId = monitor.startOperation(operationName)
 
 // End operation
-await monitor.endOperation(opId, success, metadata);
+await monitor.endOperation(opId, success, metadata)
 
 // Track custom metric
-await monitor.trackCustomMetric(name, value, unit, metadata);
+await monitor.trackCustomMetric(name, value, unit, metadata)
 
 // Get aggregated metrics
-const metrics = await monitor.getAggregatedMetrics(timeWindowMs);
+const metrics = await monitor.getAggregatedMetrics(timeWindowMs)
 
 // Get alarms
-const alarms = await monitor.getAlarms(startTime);
+const alarms = await monitor.getAlarms(startTime)
 
 // Clear all data
-await monitor.clearAllData();
+await monitor.clearAllData()
 ```
 
 ### Web Vitals Monitor
 
 ```typescript
-import { webVitalsMonitor } from '@/lib/performance';
+import { webVitalsMonitor } from '@/lib/performance'
 
 // Initialize
-webVitalsMonitor.init();
+webVitalsMonitor.init()
 
 // Get all metrics
-const metrics = webVitalsMonitor.getMetrics();
+const metrics = webVitalsMonitor.getMetrics()
 
 // Get single metric
-const lcp = webVitalsMonitor.getMetric('LCP');
+const lcp = webVitalsMonitor.getMetric('LCP')
 
 // Check if metric is good
-const isGood = webVitalsMonitor.isMetricGood('LCP');
+const isGood = webVitalsMonitor.isMetricGood('LCP')
 
 // Get overall score
-const scores = webVitalsMonitor.getOverallScore();
+const scores = webVitalsMonitor.getOverallScore()
 ```
 
 ### Custom Metrics Tracker
 
 ```typescript
-import { customMetricsTracker } from '@/lib/performance';
+import { customMetricsTracker } from '@/lib/performance'
 
 // Initialize
-customMetricsTracker.init();
+customMetricsTracker.init()
 
 // Track WebSocket latency
-customMetricsTracker.trackWebSocketLatency(ws);
+customMetricsTracker.trackWebSocketLatency(ws)
 
 // Update API metrics
-await customMetricsTracker.updateAPIMetrics();
+await customMetricsTracker.updateAPIMetrics()
 
 // Update error metrics
-await customMetricsTracker.updateErrorMetrics();
+await customMetricsTracker.updateErrorMetrics()
 
 // Get all metrics
-const metrics = customMetricsTracker.getMetrics();
+const metrics = customMetricsTracker.getMetrics()
 
 // Get single metric
-const memory = customMetricsTracker.getMetric('memoryUsage');
+const memory = customMetricsTracker.getMetric('memoryUsage')
 ```
 
 ### Performance Budget Manager
 
 ```typescript
-import { budgetManager } from '@/lib/performance';
+import { budgetManager } from '@/lib/performance'
 
 // Check alarms
-const alarms = await budgetManager.checkAlarms(webVitals, customMetrics);
+const alarms = await budgetManager.checkAlarms(webVitals, customMetrics)
 
 // Calculate budget report
-const report = budgetManager.calculateBudgetReport(webVitals, customMetrics);
+const report = budgetManager.calculateBudgetReport(webVitals, customMetrics)
 
 // Add alarm rule
-budgetManager.addAlarmRule(rule);
+budgetManager.addAlarmRule(rule)
 
 // Get active notifications
-const notifications = budgetManager.getActiveNotifications();
+const notifications = budgetManager.getActiveNotifications()
 
 // Acknowledge alarm
-budgetManager.acknowledgeAlarm(notificationId);
+budgetManager.acknowledgeAlarm(notificationId)
 
 // Resolve alarm
-budgetManager.resolveAlarm(notificationId);
+budgetManager.resolveAlarm(notificationId)
 
 // Update budget config
-budgetManager.updateBudget(partialBudget);
+budgetManager.updateBudget(partialBudget)
 
 // Clear all notifications
-budgetManager.clearAllNotifications();
+budgetManager.clearAllNotifications()
 ```
 
 ## Best Practices 最佳实践
@@ -562,11 +566,11 @@ Adjust thresholds based on your application's requirements:
 initPerformanceBudget({
   webVitals: {
     LCP: { threshold: 2500, weight: 1.0 }, // Good: < 2.5s
-    FID: { threshold: 100, weight: 1.0 },   // Good: < 100ms
-    CLS: { threshold: 0.1, weight: 1.0 },  // Good: < 0.1
-    INP: { threshold: 200, weight: 1.0 },  // Good: < 200ms
+    FID: { threshold: 100, weight: 1.0 }, // Good: < 100ms
+    CLS: { threshold: 0.1, weight: 1.0 }, // Good: < 0.1
+    INP: { threshold: 200, weight: 1.0 }, // Good: < 200ms
   },
-});
+})
 ```
 
 ### 3. Use Cooldown Periods 使用冷却期
@@ -584,7 +588,7 @@ budgetManager.addAlarmRule({
   severity: 'high',
   enabled: true,
   cooldownMs: 600000, // Wait 10 minutes before triggering again
-});
+})
 ```
 
 ### 4. Set Retention Periods 设置保留期
@@ -611,7 +615,7 @@ Track memory and CPU to detect performance issues:
 initCustomMetricsTracking({
   trackMemory: true,
   memoryCheckInterval: 5000, // Check every 5 seconds
-});
+})
 
 // Set up alarm for high memory usage
 budgetManager.addAlarmRule({
@@ -624,7 +628,7 @@ budgetManager.addAlarmRule({
   severity: 'high',
   enabled: true,
   cooldownMs: 120000,
-});
+})
 ```
 
 ### 6. Test in Different Environments 在不同环境中测试
@@ -652,6 +656,7 @@ production: {
 **Problem**: Dashboard shows no metrics or all zeros.
 
 **Solutions**:
+
 1. Ensure monitoring is initialized: `initWebVitalsMonitoring()`
 2. Check if monitoring is enabled in config
 3. Verify sampling rate is not 0
@@ -662,6 +667,7 @@ production: {
 **Problem**: Web Vitals metrics are not updating.
 
 **Solutions**:
+
 1. Ensure you're running in a browser environment (not SSR)
 2. Check that `web-vitals` package is installed
 3. Wait for page to fully load before checking metrics
@@ -672,6 +678,7 @@ production: {
 **Problem**: Monitoring system using too much memory.
 
 **Solutions**:
+
 1. Reduce sample rate in production: `sampleRate: 0.1`
 2. Shorten retention period: `retentionPeriodMs: 60 * 60 * 1000`
 3. Disable resource tracking: `trackResources: false`
@@ -682,6 +689,7 @@ production: {
 **Problem**: Alarms are not triggering when thresholds are exceeded.
 
 **Solutions**:
+
 1. Check that alarm rules are enabled: `enabled: true`
 2. Verify cooldown period has elapsed
 3. Ensure metric names match exactly
@@ -691,11 +699,15 @@ production: {
 
 ```tsx
 // app/layout.tsx
-'use client';
+'use client'
 
-import { useEffect } from 'react';
-import { initWebVitalsMonitoring, initCustomMetricsTracking, initPerformanceBudget } from '@/lib/performance';
-import { EnhancedPerformanceDashboard } from '@/components/EnhancedPerformanceDashboard';
+import { useEffect } from 'react'
+import {
+  initWebVitalsMonitoring,
+  initCustomMetricsTracking,
+  initPerformanceBudget,
+} from '@/lib/performance'
+import { EnhancedPerformanceDashboard } from '@/components/EnhancedPerformanceDashboard'
 
 export default function RootLayout({ children }) {
   useEffect(() => {
@@ -703,13 +715,13 @@ export default function RootLayout({ children }) {
     initWebVitalsMonitoring({
       enabled: true,
       trackAllMetrics: true,
-    });
+    })
 
     initCustomMetricsTracking({
       trackMemory: true,
       trackNetwork: true,
       trackResources: true,
-    });
+    })
 
     // Set up performance budget
     initPerformanceBudget({
@@ -726,8 +738,8 @@ export default function RootLayout({ children }) {
         memoryUsagePercent: { threshold: 85, weight: 1.0 },
         wsLatency: { threshold: 100, weight: 1.0 },
       },
-    });
-  }, []);
+    })
+  }, [])
 
   return (
     <html>
@@ -737,7 +749,7 @@ export default function RootLayout({ children }) {
         <EnhancedPerformanceDashboard />
       </body>
     </html>
-  );
+  )
 }
 ```
 

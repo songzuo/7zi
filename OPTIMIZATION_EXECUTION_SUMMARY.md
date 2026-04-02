@@ -1,6 +1,7 @@
 ## 代码优化和 React 19 兼容性改进总结
 
 ### 执行时间
+
 2026-03-22 20:10
 
 ---
@@ -17,6 +18,7 @@
 - **设置组件**: 使用 `useSyncExternalStore` 处理 localStorage
 
 **关键文件**:
+
 - `src/app/[locale]/dashboard/DashboardClient.tsx`
 - `src/components/MemberCard.tsx`
 - `src/components/TaskBoard.tsx`
@@ -30,16 +32,19 @@
 ##### React 19 并发特性
 
 **useDeferredValue 应用**:
+
 - ✅ `src/components/TaskBoard.tsx`: 延迟处理筛选状态
 - ✅ `src/app/[locale]/portfolio/components/PortfolioGrid.tsx`: 延迟渲染项目列表
 
 **useTransition 应用**:
+
 - ✅ `src/app/[locale]/portfolio/components/PortfolioGrid.tsx`: 优化更新交互
 - ✅ `src/app/[locale]/portfolio/components/CategoryFilterWrapper.tsx`: 优化分类切换
 
 #### 2.2 已有的优化（之前完成）
 
 **React.memo 优化**:
+
 - ✅ MemberCard - 自定义比较函数
 - ✅ TaskCard - 任务卡片优化
 - ✅ TaskBoard - 看板组件优化
@@ -48,6 +53,7 @@
 - ✅ PortfolioGrid - 作品网格优化
 
 **useMemo/useCallback 优化**:
+
 - ✅ DashboardClient - 多语言文本和统计信息缓存
 - ✅ SettingsContext - 计算和 setter 函数优化
 - ✅ CategoryFilterWrapper - 多语言标签缓存
@@ -57,6 +63,7 @@
 **调试代码检查结果**: ✅ 全部合理
 
 发现的 console 语句都是生产代码：
+
 - `timing.ts` - 11 个日志（性能监控）
 - `performance-optimization.ts` - 3 个日志（性能监控）
 - `audio-utils.ts` - 2 个警告（占位符实现）
@@ -71,23 +78,23 @@
 
 ### 性能提升预估
 
-| 指标 | 优化前 | 优化后 | 提升 |
-|------|-------|-------|------|
-| 首次渲染 (FCP) | ~1.2s | ~1.0s | ~17% ↓ |
-| 最大内容绘制 (LCP) | ~1.8s | ~1.5s | ~17% ↓ |
-| 首次输入延迟 (FID) | ~80ms | ~50ms | ~38% ↓ |
-| 累积布局偏移 (CLS) | ~0.08 | ~0.05 | ~38% ↓ |
-| Time to Interactive (TTI) | ~2.5s | ~2.0s | ~20% ↓ |
+| 指标                      | 优化前 | 优化后 | 提升   |
+| ------------------------- | ------ | ------ | ------ |
+| 首次渲染 (FCP)            | ~1.2s  | ~1.0s  | ~17% ↓ |
+| 最大内容绘制 (LCP)        | ~1.8s  | ~1.5s  | ~17% ↓ |
+| 首次输入延迟 (FID)        | ~80ms  | ~50ms  | ~38% ↓ |
+| 累积布局偏移 (CLS)        | ~0.08  | ~0.05  | ~38% ↓ |
+| Time to Interactive (TTI) | ~2.5s  | ~2.0s  | ~20% ↓ |
 
 ### React 19 特性使用情况
 
-| 特性 | 使用组件 | 效果 |
-|------|---------|------|
-| `useDeferredValue` | 2 个 | 减少 40-50% 不必要渲染 |
-| `useTransition` | 2 个 | 提升 50-60% 交互流畅度 |
-| `React.memo` | 7 个 | 减少 30-40% 重新渲染 |
-| `useMemo` | 5 处 | 减少 20-30% 重复计算 |
-| `useCallback` | 4 处 | 减少 15-20% 函数重建 |
+| 特性               | 使用组件 | 效果                   |
+| ------------------ | -------- | ---------------------- |
+| `useDeferredValue` | 2 个     | 减少 40-50% 不必要渲染 |
+| `useTransition`    | 2 个     | 提升 50-60% 交互流畅度 |
+| `React.memo`       | 7 个     | 减少 30-40% 重新渲染   |
+| `useMemo`          | 5 处     | 减少 20-30% 重复计算   |
+| `useCallback`      | 4 处     | 减少 15-20% 函数重建   |
 
 ---
 
@@ -119,6 +126,7 @@
 ### 评估结果: 🟢 优秀 (92/100)
 
 **评分明细**:
+
 - ✅ 组件声明正确性: 20/20
 - ✅ SSR/CSR 边界处理: 19/20
 - ✅ 并发特性使用: 18/20
@@ -126,12 +134,14 @@
 - ✅ 代码质量: 17/20
 
 **优势**:
+
 1. 大部分组件已使用 React.memo 优化
 2. 代码分割策略合理（Next.js dynamic）
 3. 正确处理 SSR/CSR 边界
 4. 类型定义完整
 
 **改进空间**:
+
 1. 部分大型列表可添加虚拟化
 2. 图片加载可进一步优化
 3. 可添加更多 Suspense 边界
@@ -142,24 +152,28 @@
 ## 后续建议
 
 ### 优先级 P0（立即实施）
+
 - [x] 添加 useDeferredValue 到筛选组件
 - [x] 添加 useTransition 到交互组件
 - [x] 优化 memo 比较函数
 - [ ] 添加性能监控埋点
 
 ### 优先级 P1（本周）
+
 - [ ] 实现虚拟列表（当数据 > 50）
 - [ ] 优化图片加载策略（blurDataURL）
 - [ ] 添加骨架屏加载状态
 - [ ] 实现 Suspense 边界
 
 ### 优先级 P2（本月）
+
 - [ ] 评估状态管理方案（Zustand/Jotai）
 - [ ] 实现 React Server Components
 - [ ] 添加单元测试覆盖
 - [ ] 性能基准测试
 
 ### 优先级 P3（长期）
+
 - [ ] 启用 React Compiler（稳定后）
 - [ ] 实现 Streaming SSR
 - [ ] 添加 Web Vitals 监控
@@ -172,32 +186,28 @@
 ### useDeferredValue 优化示例
 
 ```tsx
-const [filter, setFilter] = useState('all');
-const deferredFilter = useDeferredValue(filter);
+const [filter, setFilter] = useState('all')
+const deferredFilter = useDeferredValue(filter)
 
-const filteredItems = useMemo(() => 
-  items.filter(item => 
-    deferredFilter === 'all' || item.status === deferredFilter
-  ),
+const filteredItems = useMemo(
+  () => items.filter(item => deferredFilter === 'all' || item.status === deferredFilter),
   [items, deferredFilter]
-);
+)
 ```
 
 ### useTransition 优化示例
 
 ```tsx
-const [isPending, startTransition] = useTransition();
+const [isPending, startTransition] = useTransition()
 
 const handleChange = (value: string) => {
-  setFilter(value); // 立即更新 UI
+  setFilter(value) // 立即更新 UI
   startTransition(() => {
-    onFilterChange(value); // 后台执行
-  });
-};
+    onFilterChange(value) // 后台执行
+  })
+}
 
-<div className={isPending ? 'opacity-50' : ''}>
-  {/* 内容 */}
-</div>
+;<div className={isPending ? 'opacity-50' : ''}>{/* 内容 */}</div>
 ```
 
 ---
@@ -239,11 +249,13 @@ const handleChange = (value: string) => {
 ## 附录：技术栈信息
 
 ### 当前版本
+
 - Next.js: 16.2.1
 - React: 19.2.4
 - TypeScript: 5.x
 
 ### 已安装的关键库
+
 - `@react-three/fiber` - 3D 渲染
 - `@react-three/drei` - 3D 组件
 - `next-intl` - 国际化

@@ -25,6 +25,7 @@ src/lib/mcp/
 ### 1. Tool Registry (`registry.ts`)
 
 **Capabilities:**
+
 - Dynamic tool registration and discovery
 - Tool metadata (name, description, parameters, return values)
 - Tool categories (search, code, data, file, system, network, database, ai, media, communication, custom)
@@ -35,13 +36,14 @@ src/lib/mcp/
 - Event listeners for lifecycle events
 
 **Key Classes:**
+
 - `MCPToolRegistry` - Main registry class
 - `MCPRegistryError` - Registry-specific errors
 
 **Example Usage:**
 
 ```typescript
-import { mcpRegistry, defineTool, z } from './mcp';
+import { mcpRegistry, defineTool, z } from './mcp'
 
 // Define a tool
 const myTool = defineTool({
@@ -63,21 +65,22 @@ const myTool = defineTool({
     // Tool implementation
     return {
       content: [{ type: 'text', text: JSON.stringify(results) }],
-    };
+    }
   },
-});
+})
 
 // Register tool
-mcpRegistry.register(myTool);
+mcpRegistry.register(myTool)
 
 // Search for tools
-const searchResults = mcpRegistry.search('file');
-const fileTools = mcpRegistry.getByCategory('file');
+const searchResults = mcpRegistry.search('file')
+const fileTools = mcpRegistry.getByCategory('file')
 ```
 
 ### 2. Resource Management (`resources.ts`)
 
 **Capabilities:**
+
 - Resource access interface
 - Resource subscription and notifications
 - Resource caching strategies (no-cache, cache-first, network-first, stale-while-revalidate)
@@ -86,6 +89,7 @@ const fileTools = mcpRegistry.getByCategory('file');
 - Multiple resource providers
 
 **Key Classes:**
+
 - `MCPResourceManager` - Main resource manager
 - `FileSystemResourceProvider` - File system provider
 - `MCPResourceError` - Resource-specific errors
@@ -93,41 +97,43 @@ const fileTools = mcpRegistry.getByCategory('file');
 **Example Usage:**
 
 ```typescript
-import { mcpResourceManager } from './mcp';
+import { mcpResourceManager } from './mcp'
 
 // List resources
 const resources = await mcpResourceManager.list({
   types: ['file'],
   pattern: '**/*.ts',
-});
+})
 
 // Read a resource
 const content = await mcpResourceManager.read('file:///path/to/file.txt', {
   cachePolicy: 'cache-first',
   maxAge: 300000, // 5 minutes
-});
+})
 
 // Subscribe to changes
-const subscriptionId = await mcpResourceManager.subscribe(
-  'session-id',
-  { uris: ['file:///path/to/file.txt'] }
-);
+const subscriptionId = await mcpResourceManager.subscribe('session-id', {
+  uris: ['file:///path/to/file.txt'],
+})
 
 // Add change listener
-mcpResourceManager.addChangeListener(subscriptionId, (event) => {
-  console.log('Resource changed:', event);
-});
+mcpResourceManager.addChangeListener(subscriptionId, event => {
+  console.log('Resource changed:', event)
+})
 
 // Write to resource
 await mcpResourceManager.write('file:///path/to/file.txt', {
   text: 'Hello, world!',
-  metadata: { /* ... */ },
-});
+  metadata: {
+    /* ... */
+  },
+})
 ```
 
 ### 3. Prompt Templates (`prompts.ts`)
 
 **Capabilities:**
+
 - Predefined prompt template library
 - Template parameterization and validation
 - Template market interface
@@ -136,6 +142,7 @@ await mcpResourceManager.write('file:///path/to/file.txt', {
 - Default templates included (code-review, data-analysis, security-audit)
 
 **Key Classes:**
+
 - `MCPPromptsManager` - Main prompts manager
 - `MarketplaceClient` - Marketplace client interface
 - `DefaultMarketplaceClient` - Default client (placeholder)
@@ -144,16 +151,16 @@ await mcpResourceManager.write('file:///path/to/file.txt', {
 **Example Usage:**
 
 ```typescript
-import { mcpPromptsManager } from './mcp';
+import { mcpPromptsManager } from './mcp'
 
 // Compile a template
 const compiled = mcpPromptsManager.compile('code-review', {
   code: 'function add(a, b) { return a + b; }',
   language: 'typescript',
   additionalContext: 'This is a simple utility function',
-});
+})
 
-console.log(compiled.content);
+console.log(compiled.content)
 
 // Register a new template
 mcpPromptsManager.register({
@@ -181,16 +188,17 @@ mcpPromptsManager.register({
     },
   ],
   examples: [],
-});
+})
 
 // Search templates
-const codingTemplates = mcpPromptsManager.getByCategory('coding');
-const searchResults = mcpPromptsManager.search('review');
+const codingTemplates = mcpPromptsManager.getByCategory('coding')
+const searchResults = mcpPromptsManager.search('review')
 ```
 
 ### 4. Authentication & Authorization (`auth.ts`)
 
 **Capabilities:**
+
 - Tool access permissions
 - Resource access control
 - Role-based access control (RBAC)
@@ -199,6 +207,7 @@ const searchResults = mcpPromptsManager.search('review');
 - Built-in roles (guest, user, developer, admin)
 
 **Key Classes:**
+
 - `MCPAuthManager` - Main auth manager
 - `ConsoleAuditLogger` - Console audit logger
 - `FileAuditLogger` - File-based audit logger
@@ -207,10 +216,10 @@ const searchResults = mcpPromptsManager.search('review');
 **Example Usage:**
 
 ```typescript
-import { mcpAuthManager, createAccessRequest, withAuth } from './mcp';
+import { mcpAuthManager, createAccessRequest, withAuth } from './mcp'
 
 // Create a session
-const sessionId = mcpAuthManager.createSession('user-123', ['user']);
+const sessionId = mcpAuthManager.createSession('user-123', ['user'])
 
 // Check access
 const decision = await mcpAuthManager.checkAccess({
@@ -219,25 +228,22 @@ const decision = await mcpAuthManager.checkAccess({
   resource: 'search_files',
   action: 'execute',
   level: 'execute',
-});
+})
 
-console.log(decision.granted); // boolean
-console.log(decision.reason);
+console.log(decision.granted) // boolean
+console.log(decision.reason)
 
 // Use with middleware
-await withAuth(
-  createAccessRequest(sessionId, 'tools', 'search_files', 'execute'),
-  async () => {
-    // Execute tool
-  }
-);
+await withAuth(createAccessRequest(sessionId, 'tools', 'search_files', 'execute'), async () => {
+  // Execute tool
+})
 
 // Query audit logs
 const logs = await mcpAuthManager.queryAuditLogs({
   sessionId,
   granted: false,
   startTimestamp: new Date(Date.now() - 86400000), // Last 24h
-});
+})
 
 // Custom role
 mcpAuthManager.addRole({
@@ -253,12 +259,13 @@ mcpAuthManager.addRole({
       level: 'execute',
     },
   ],
-});
+})
 ```
 
 ### 5. Streaming Support (`streaming.ts`)
 
 **Capabilities:**
+
 - Server-Sent Events (SSE) implementation
 - Streaming tool execution
 - Progress callbacks and notifications
@@ -266,6 +273,7 @@ mcpAuthManager.addRole({
 - Connection management
 
 **Key Classes:**
+
 - `MCPStreamServer` - SSE server
 - `StreamingToolExecutor` - Streaming tool executor
 - `SSEResponse` - SSE response helper
@@ -275,20 +283,20 @@ mcpAuthManager.addRole({
 **Example Usage:**
 
 ```typescript
-import { mcpStreamServer, streamingExecutor, SSEResponse } from './mcp';
+import { mcpStreamServer, streamingExecutor, SSEResponse } from './mcp'
 
 // Create a stream
 const streamId = mcpStreamServer.createStream({
   sessionId: 'session-id',
   requestId: 'request-id',
   clientId: 'client-id',
-});
+})
 
 // Send events
 await mcpStreamServer.sendEvent(streamId, {
   event: 'message',
   data: 'Hello, client!',
-});
+})
 
 await mcpStreamServer.sendProgress(streamId, {
   id: 'progress-1',
@@ -296,34 +304,34 @@ await mcpStreamServer.sendProgress(streamId, {
   total: 10,
   percentage: 50,
   message: 'Processing...',
-});
+})
 
 // Execute tool with streaming
 const result = await streamingExecutor.executeWithStreaming(
   {
     toolName: 'search_files',
     arguments: { path: '.', pattern: '**/*.ts' },
-    onProgress: async (progress) => {
-      await mcpStreamServer.sendProgress(streamId, progress);
+    onProgress: async progress => {
+      await mcpStreamServer.sendProgress(streamId, progress)
     },
     timeout: 30000,
   },
   async (params, reportProgress) => {
     // Report progress
-    await reportProgress({ current: 1, percentage: 25, message: 'Scanning...' });
-    
+    await reportProgress({ current: 1, percentage: 25, message: 'Scanning...' })
+
     // Execute work
-    const results = await searchFiles(params.path, params.pattern);
-    
-    await reportProgress({ current: 2, percentage: 100, message: 'Done!' });
-    return results;
+    const results = await searchFiles(params.path, params.pattern)
+
+    await reportProgress({ current: 2, percentage: 100, message: 'Done!' })
+    return results
   }
-);
+)
 
 // SSE Response (for HTTP)
-const sseResponse = new SSEResponse();
-sseResponse.send({ event: 'message', data: 'Connected!' });
-return sseResponse.getResponse();
+const sseResponse = new SSEResponse()
+sseResponse.send({ event: 'message', data: 'Connected!' })
+return sseResponse.getResponse()
 ```
 
 ## API Endpoints
@@ -380,19 +388,23 @@ The implementation follows the Anthropic MCP Protocol Specification:
 The following tools are pre-registered:
 
 ### File Operations
+
 - `read_file` - Read file contents
 - `write_file` - Write file contents
 - `list_directory` - List directory contents
 - `delete_file` - Delete a file
 
 ### System Operations
+
 - `execute_command` - Execute shell command
 - `get_system_info` - Get system information
 
 ### Network Operations
+
 - `http_request` - Make HTTP request
 
 ### Search
+
 - `search_files` - Search files by pattern
 
 ## Built-in Prompt Templates
@@ -410,11 +422,11 @@ The following prompt templates are included:
 Sessions are managed via `MCPSessionManager`:
 
 ```typescript
-import { sessionManager } from './mcp';
+import { sessionManager } from './mcp'
 
-const sessionId = sessionManager.createSession();
-const session = sessionManager.getSession(sessionId);
-sessionManager.deleteSession(sessionId);
+const sessionId = sessionManager.createSession()
+const session = sessionManager.getSession(sessionId)
+sessionManager.deleteSession(sessionId)
 ```
 
 ### Cache Configuration
@@ -422,19 +434,20 @@ sessionManager.deleteSession(sessionId);
 Resource cache can be configured:
 
 ```typescript
-import { mcpResourceManager } from './mcp';
+import { mcpResourceManager } from './mcp'
 
 // Clear cache
-mcpResourceManager.clearCache();
+mcpResourceManager.clearCache()
 
 // Get cache stats
-const stats = mcpResourceManager.getCacheStats();
-console.log(stats); // { hits: 10, misses: 2, evictions: 0, size: 5, hitRate: 83.33 }
+const stats = mcpResourceManager.getCacheStats()
+console.log(stats) // { hits: 10, misses: 2, evictions: 0, size: 5, hitRate: 83.33 }
 ```
 
 ### Role Configuration
 
 Default roles:
+
 - `guest` - Read-only access
 - `user` - Standard access with execute permissions
 - `developer` - Extended access with write permissions
@@ -445,19 +458,19 @@ Default roles:
 To test the MCP Server:
 
 ```typescript
-import { getMcpServer } from './mcp';
+import { getMcpServer } from './mcp'
 
-const server = getMcpServer();
+const server = getMcpServer()
 
 // Start stdio transport
-await server.startStdio();
+await server.startStdio()
 
 // Or use HTTP transport
 const response = await server.handleRequest({
   jsonrpc: '2.0',
   id: 1,
   method: 'tools/list',
-});
+})
 ```
 
 ## Performance Considerations

@@ -8,7 +8,7 @@
  * 4. 验证触摸友好性和可访问性
  */
 
-import { defineConfig, devices } from '@playwright/test';
+import { defineConfig, devices } from '@playwright/test'
 
 export default defineConfig({
   testDir: './tests/mobile',
@@ -103,4 +103,4 @@ export default defineConfig({
     url: 'http://localhost:3000',
     reuseExistingServer: !process.env.CI,
   },
-});
+})

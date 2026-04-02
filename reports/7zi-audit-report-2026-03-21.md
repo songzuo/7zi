@@ -10,21 +10,22 @@
 
 ## 📊 总评分表
 
-| 维度 | 上次 | 本次 | 备注 |
-|------|------|------|------|
-| 代码安全 | 2 | **4** | 有改善但仍有硬编码密钥 |
-| 代码质量 | 4 | **7** | TypeScript + Zod 验证 + 错误处理提升明显 |
-| 架构设计 | 5 | **6** | 模块化合理，但混入无关项目 |
-| 测试覆盖 | 3 | **8** | 400+ 用例、85%+ 覆盖率，这是最大进步 |
-| CI/CD | 3 | **7** | 4 个 workflow、Docker 多阶段构建 |
-| 文档 | 4 | **7** | API.md + CHANGELOG + DEPLOYMENT 全有 |
-| 项目整洁度 | 3 | **3** | 大量无关文件仍然存在 |
+| 维度       | 上次 | 本次  | 备注                                     |
+| ---------- | ---- | ----- | ---------------------------------------- |
+| 代码安全   | 2    | **4** | 有改善但仍有硬编码密钥                   |
+| 代码质量   | 4    | **7** | TypeScript + Zod 验证 + 错误处理提升明显 |
+| 架构设计   | 5    | **6** | 模块化合理，但混入无关项目               |
+| 测试覆盖   | 3    | **8** | 400+ 用例、85%+ 覆盖率，这是最大进步     |
+| CI/CD      | 3    | **7** | 4 个 workflow、Docker 多阶段构建         |
+| 文档       | 4    | **7** | API.md + CHANGELOG + DEPLOYMENT 全有     |
+| 项目整洁度 | 3    | **3** | 大量无关文件仍然存在                     |
 
 ---
 
 ## ✅ 显著改善（相比上次 4 分）
 
 ### 1. 测试系统大幅升级 — 从 3 → 8
+
 - **400+ 测试用例**，覆盖组件、API、Hooks、安全、集成
 - 语句覆盖 85%+，分支覆盖 78%+，函数覆盖 82%+
 - Vitest 4.1 + Testing Library 16 + Playwright 1.58
@@ -32,6 +33,7 @@
 - ✅ 这是项目最大的亮点
 
 ### 2. 安全基础设施成型 — 从 2 → 4
+
 - CSRF Token 机制（服务端生成 + httpOnly cookie + 时间安全比较）
 - AES-256-CBC 加密 API Key（`crypto` 模块）
 - JWT 认证（jose 库，带 issuer/audience 验证）
@@ -39,12 +41,14 @@
 - API 参数验证（Zod schema）
 
 ### 3. CI/CD 成熟 — 从 3 → 7
+
 - 4 个 GitHub Actions workflow（ci, ci-cd, deploy, tests）
 - Docker 多阶段构建（Alpine + Distroless 两个目标）
 - 非 root 用户运行、HEALTHCHECK 配置
 - 支持 Vercel + 自建服务器部署
 
 ### 4. 监控体系
+
 - Sentry 集成（client/server/edge 三个配置）
 - 健康检查 API（liveness/readiness/detailed）
 - Web Vitals 性能监控
@@ -75,6 +79,7 @@ const secret = process.env.AGENT_ENCRYPTION_SECRET || 'default-agent-secret-key'
 ### 2. 🔴 `.env.production` 被提交到 Git
 
 虽然密钥被注释掉，但文件名暗示这是生产配置，且包含 `NEXT_PUBLIC_PLAUSIBLE_ID=7zi.com` 等实际值。`.gitignore` 中有 `.env.production` 但文件已被追踪。需要：
+
 ```bash
 git rm --cached .env.production
 ```
@@ -119,18 +124,18 @@ remotePatterns: [{ protocol: 'https', hostname: '**' }]
 
 仓库根目录包含大量**不应出现在公开项目仓库中的文件**：
 
-| 文件 | 问题 |
-|------|------|
+| 文件                                             | 问题                                  |
+| ------------------------------------------------ | ------------------------------------- |
 | `AGENTS.md`, `SOUL.md`, `IDENTITY.md`, `USER.md` | OpenClaw 工作区文件，暴露 AI 代理配置 |
-| `MEMORY.md`, `memory/` | AI 代理的记忆/日志 |
-| `TOOLS.md`, `HEARTBEAT.md`, `BOOTSTRAP.md` | 同上 |
-| `promotions/` (15+ 文件) | 营销文案、销售页面、公关稿 |
-| `openclaw-kb/` | OpenClaw 知识库配置 |
-| `subagents/`, `state/` | AI 代理状态文件 |
-| `skills/email/SKILL.md` | 技能定义文件 |
-| `server-monitor.json` (18KB) | 服务器监控配置 |
-| `moltbook-gateway/` | 完全无关的子项目 |
-| `architecture/` | 独立架构文档和代码 |
+| `MEMORY.md`, `memory/`                           | AI 代理的记忆/日志                    |
+| `TOOLS.md`, `HEARTBEAT.md`, `BOOTSTRAP.md`       | 同上                                  |
+| `promotions/` (15+ 文件)                         | 营销文案、销售页面、公关稿            |
+| `openclaw-kb/`                                   | OpenClaw 知识库配置                   |
+| `subagents/`, `state/`                           | AI 代理状态文件                       |
+| `skills/email/SKILL.md`                          | 技能定义文件                          |
+| `server-monitor.json` (18KB)                     | 服务器监控配置                        |
+| `moltbook-gateway/`                              | 完全无关的子项目                      |
+| `architecture/`                                  | 独立架构文档和代码                    |
 
 这些文件让仓库看起来像**个人工作站备份**而非正式开源项目。
 
@@ -139,17 +144,20 @@ remotePatterns: [{ protocol: 'https', hostname: '**' }]
 ## 📋 关键修复建议（按优先级）
 
 ### P0 — 立即修复
+
 1. **删除所有硬编码密钥**，改为启动时强制检查环境变量，缺失则报错退出
 2. **`git rm --cached .env.production`** 并重新生成任何可能泄露的凭据
 3. **审查 moltbook-gateway 中的 API Key**，如已暴露则立即轮换
 
 ### P1 — 本周修复
+
 4. WebSocket CORS 收紧为实际域名白名单
 5. 移除 CSP 中的 `unsafe-eval`，评估 `unsafe-inline` 替代方案（nonce/hash）
 6. 实现 GitHub Webhook 签名验证
 7. 限制 `images.remotePatterns` 为实际使用的域名
 
 ### P2 — 本月清理
+
 8. 从仓库删除所有 OpenClaw 工作区文件（移入 `.gitignore`）
 9. 将 `moltbook-gateway`、`architecture/`、`promotions/` 等移出或删除
 10. 清理 `tools/` 目录中与项目无关的脚本
@@ -159,11 +167,13 @@ remotePatterns: [{ protocol: 'https', hostname: '**' }]
 ## 🎯 评分说明：5.5 分
 
 **从 4 → 5.5 的提升**来自：
+
 - 测试体系从近乎空白到 400+ 用例、85%+ 覆盖率（+2 分）
 - CI/CD 从基本脚本到成熟的 GitHub Actions + Docker 多阶段构建（+1.5 分）
 - API 设计从无序到 Zod 验证 + 错误处理 + 监控（+1 分）
 
 **没能达到 8 分的原因**：
+
 - 硬编码密钥问题从上次到现在**完全没有修复**（-2 分）
 - 项目整洁度**没有改善**，反而增加了更多无关文件（-1 分）
 - WebSocket CORS、CSP、SSRF 等安全问题仍然存在（-1 分）

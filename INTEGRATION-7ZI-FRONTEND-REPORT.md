@@ -18,6 +18,7 @@
 **位置:** `src/lib/security/`
 
 **集成的文件:**
+
 - `headers.ts` - 安全头部配置模块
   - CSP (Content Security Policy) 支持
   - HSTS (HTTP Strict Transport Security)
@@ -38,6 +39,7 @@
 - `README.md` - 使用文档
 
 **修复的类型问题:**
+
 1. ✅ 修复了 `headers.test.ts` 中的 `PermissionsPolicyConfig` 类型注解
 2. ✅ 修复了 `prototype-pollution-guard.ts` 中的泛型类型约束问题
 
@@ -48,6 +50,7 @@
 **位置:** `tests/api-integration/`
 
 **新增测试文件 (5个):**
+
 1. `a2a-jsonrpc.test.ts` - JSON-RPC API 测试
 2. `a2a-queue.test.ts` - 任务队列 API 测试
 3. `a2a-registry.test.ts` - Agent 注册表 API 测试
@@ -64,20 +67,22 @@
 
 主项目和 7zi-frontend 都实现了 A2A API，但架构不同：
 
-| 项目 | A2A 实现路径 | 特点 |
-|------|-------------|------|
-| **主项目** | `@/lib/a2a/*` | 使用 jsonrpc-handler, task-store, message-queue 等 |
-| **7zi-frontend** | `@/lib/agent-scheduler/*` | 使用 agentScheduler 单例模式 |
+| 项目             | A2A 实现路径              | 特点                                               |
+| ---------------- | ------------------------- | -------------------------------------------------- |
+| **主项目**       | `@/lib/a2a/*`             | 使用 jsonrpc-handler, task-store, message-queue 等 |
+| **7zi-frontend** | `@/lib/agent-scheduler/*` | 使用 agentScheduler 单例模式                       |
 
 **决策:** 保留主项目的实现
 
 **理由:**
+
 1. 主项目的 A2A 实现更加模块化
 2. 支持更完整的 JSON-RPC 2.0 规范
 3. 已有完整的错误处理和验证
 4. 与现有代码架构一致
 
 **API 路由保留:**
+
 - `src/app/api/a2a/jsonrpc/route.ts` ✅
 - `src/app/api/a2a/queue/route.ts` ✅
 - `src/app/api/a2a/registry/route.ts` ✅
@@ -90,14 +95,15 @@
 
 主项目已有更高级的智能调度器实现：
 
-| 项目 | 调度器路径 | 特点 |
-|------|-----------|------|
-| **主项目** | `src/lib/agent-scheduler/core/` | 支持负载均衡、自动扩缩容、智能匹配 |
-| **7zi-frontend** | `src/lib/agent-scheduler/scheduler.ts` | 基础的单例调度器 |
+| 项目             | 调度器路径                             | 特点                               |
+| ---------------- | -------------------------------------- | ---------------------------------- |
+| **主项目**       | `src/lib/agent-scheduler/core/`        | 支持负载均衡、自动扩缩容、智能匹配 |
+| **7zi-frontend** | `src/lib/agent-scheduler/scheduler.ts` | 基础的单例调度器                   |
 
 **决策:** 保留主项目的实现
 
 **理由:**
+
 1. 主项目调度器功能更完整
 2. 包含负载均衡器 (`load-balancer.ts`)
 3. 支持智能匹配算法 (`matching.ts`)
@@ -105,6 +111,7 @@
 5. 支持自动扩缩容决策
 
 **调度器文件保留:**
+
 - `src/lib/agent-scheduler/core/scheduler.ts` ✅
 - `src/lib/agent-scheduler/core/load-balancer.ts` ✅
 - `src/lib/agent-scheduler/core/matching.ts` ✅
@@ -117,9 +124,11 @@
 ### 对比分析
 
 **7zi-frontend (v1.3.0) 独有依赖:**
+
 - 无（主项目已包含所有依赖）
 
 **主项目 (v1.4.0) 独有依赖:**
+
 - `@modelcontextprotocol/sdk` - MCP SDK
 - `@sentry/nextjs` - Sentry 错误追踪
 - `exceljs` - Excel 处理
@@ -140,11 +149,13 @@
 **执行命令:** `npx tsc --noEmit`
 
 **结果:**
+
 - ✅ `src/lib/security/` - 无类型错误（已修复）
 - ✅ `src/lib/agent-scheduler/` - 无类型错误
 - ✅ `tests/api-integration/` - 无类型错误
 
 **仍有类型错误的文件（非本次集成范围）:**
+
 - `src/lib/monitoring/root-cause/bottleneck-detector.test.ts`
 - `src/lib/performance-monitoring/root-cause-analysis/call-chain-tracer.test.ts`
 - `src/lib/react-compiler/__tests__/reporter.test.ts`
@@ -173,15 +184,18 @@ pnpm type-check
 ## 需要注意的问题
 
 ### 1. 架构一致性
+
 - A2A API 使用主项目的 `@/lib/a2a/*` 实现
 - 智能调度器使用主项目的 `@/lib/agent-scheduler/core/` 实现
 - 测试代码导入路径可能需要相应调整
 
 ### 2. 测试覆盖
+
 - 新增 5 个 API 集成测试，增加了测试覆盖率
 - 建议运行完整测试套件确保无回归
 
 ### 3. 安全头部使用
+
 - 集成的安全头部需要在应用中间件中应用
 - 建议参考 `src/lib/middleware/security-headers.ts`
 
@@ -192,6 +206,7 @@ pnpm type-check
 根据任务约束，以下操作未执行：
 
 ### 1. ❌ 未安装依赖
+
 **原因:** 依赖项检查确认无需新依赖
 
 ```bash
@@ -200,6 +215,7 @@ pnpm type-check
 ```
 
 ### 2. ❌ 未删除 7zi-frontend 目录
+
 **原因:** 任务要求保留子模块
 
 ---
@@ -207,6 +223,7 @@ pnpm type-check
 ## 总结
 
 ### ✅ 成功完成
+
 1. 集成安全头部配置模块（headers.ts + tests）
 2. 集成原型污染防护模块
 3. 添加 5 个 API 集成测试
@@ -214,10 +231,12 @@ pnpm type-check
 5. 验证依赖项兼容性
 
 ### ⚠️ 架构决策
+
 1. **保留主项目的 A2A API 实现**（更模块化）
 2. **保留主项目的智能调度器**（功能更完整）
 
 ### 📝 后续建议
+
 1. 运行完整测试套件验证功能
 2. 在应用中间件中应用新的安全头部配置
 3. 考虑整合安全模块到现有的安全架构中

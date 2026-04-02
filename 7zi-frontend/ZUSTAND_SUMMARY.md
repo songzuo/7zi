@@ -21,6 +21,7 @@
 ### 解决方案：Zustand
 
 **选择理由**:
+
 - ✅ 零样板代码
 - ✅ 优秀的性能（细粒度选择器）
 - ✅ 完整 TypeScript 支持
@@ -29,6 +30,7 @@
 - ✅ 学习成本低
 
 **性能预期**:
+
 - 组件重渲染次数 ↓ 70-90%
 - 平均渲染时间 ↓ 50%
 - 包体积仅增加 ~2KB
@@ -41,13 +43,10 @@
 
 1. **authStore** - 认证和用户状态
    - 用户信息、会话管理、登录/登出
-   
 2. **notificationStore** - 通知状态
    - 通知列表、未读计数、Socket.IO 连接管理
-   
 3. **uiStore** - UI 状态
    - 主题、侧边栏、模态框、Toast 通知
-   
 4. **cacheStore** - 缓存状态
    - API 缓存、TTL 管理、过期清理
 
@@ -55,14 +54,14 @@
 
 ```typescript
 // ✅ 推荐：细粒度选择器
-const unreadCount = useNotificationStore(state => state.unreadCount);
+const unreadCount = useNotificationStore(state => state.unreadCount)
 
 // ✅ 推荐：使用 shallow 比较多个状态
-import { shallow } from 'zustand/shallow';
+import { shallow } from 'zustand/shallow'
 const { notifications, unreadCount } = useNotificationStore(
   state => ({ notifications: state.notifications, unreadCount: state.unreadCount }),
   shallow
-);
+)
 ```
 
 ---
@@ -71,14 +70,14 @@ const { notifications, unreadCount } = useNotificationStore(
 
 ### 6 个阶段，预计 3-4 周
 
-| 阶段 | 内容 | 时间 |
-|------|------|------|
-| 1. 准备 | 安装依赖、创建结构 | 2-3 天 |
-| 2. 实现 | 实现 4 个 Store | 3-4 天 |
-| 3. 迁移 | 迁移现有组件 | 5-7 天 |
+| 阶段    | 内容                 | 时间   |
+| ------- | -------------------- | ------ |
+| 1. 准备 | 安装依赖、创建结构   | 2-3 天 |
+| 2. 实现 | 实现 4 个 Store      | 3-4 天 |
+| 3. 迁移 | 迁移现有组件         | 5-7 天 |
 | 4. 优化 | 清理旧代码、性能优化 | 3-4 天 |
-| 5. 测试 | 单元/集成/E2E 测试 | 3-4 天 |
-| 6. 部署 | 预发布、灰度、全量 | 1.5 天 |
+| 5. 测试 | 单元/集成/E2E 测试   | 3-4 天 |
+| 6. 部署 | 预发布、灰度、全量   | 1.5 天 |
 
 ### 迁移优先级
 
@@ -92,12 +91,12 @@ const { notifications, unreadCount } = useNotificationStore(
 
 ### 技术风险
 
-| 风险 | 影响 | 概率 | 缓解 |
-|------|------|------|------|
-| Socket.IO 集成 | 高 | 中 | 隔离测试、完整集成测试 |
-| 状态同步 | 高 | 中 | 乐观更新、重试机制 |
-| 性能退化 | 中 | 低 | React Profiler 监控 |
-| TypeScript 类型 | 中 | 中 | 严格类型检查 |
+| 风险            | 影响 | 概率 | 缓解                   |
+| --------------- | ---- | ---- | ---------------------- |
+| Socket.IO 集成  | 高   | 中   | 隔离测试、完整集成测试 |
+| 状态同步        | 高   | 中   | 乐观更新、重试机制     |
+| 性能退化        | 中   | 低   | React Profiler 监控    |
+| TypeScript 类型 | 中   | 中   | 严格类型检查           |
 
 ### 兼容性风险
 
@@ -143,24 +142,28 @@ const { notifications, unreadCount } = useNotificationStore(
 ## 📋 关键检查清单
 
 ### 准备阶段
+
 - [ ] 安装 Zustand
 - [ ] 创建 Store 目录
 - [ ] 添加 TypeScript 类型
 - [ ] 配置测试环境
 
 ### 实现阶段
+
 - [ ] authStore
 - [ ] notificationStore
 - [ ] uiStore
 - [ ] cacheStore
 
 ### 迁移阶段
+
 - [ ] NotificationProvider
 - [ ] Demo 页面
 - [ ] 高优先级组件
 - [ ] 中/低优先级组件
 
 ### 测试阶段
+
 - [ ] 单元测试
 - [ ] 集成测试
 - [ ] E2E 测试
@@ -216,6 +219,7 @@ const { notifications, unreadCount } = useNotificationStore(
 ### 可选：创建 PoC
 
 建议先创建一个 PoC 验证：
+
 - Socket.IO 与 Zustand 集成
 - 选择器性能优化
 - 持久化兼容性
@@ -227,6 +231,7 @@ const { notifications, unreadCount } = useNotificationStore(
 ## 📞 联系方式
 
 如有疑问，请联系：
+
 - 📚 咨询师（方案设计）
 - 🏗️ 架构师（技术评审）
 

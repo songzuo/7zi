@@ -1,3 +1,3 @@
-'use client';
+'use client'
 
-export { TeamError as default } from '@/components/errors';
+export { TeamError as default } from '@/components/errors'

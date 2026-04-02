@@ -51,17 +51,18 @@ WebSocket v1.4.0 introduces **major enhancements** to our real-time communicatio
 
 #### Role Hierarchy
 
-| Role | Access Level | Use Case |
-|------|--------------|----------|
-| **Owner** | Full control | Room creator |
-| **Admin** | Management | Project managers |
-| **Moderator** | Content moderation | Team leads |
-| **Member** | Standard participation | Team members |
-| **Guest** | Read-only | Observers, clients |
+| Role          | Access Level           | Use Case           |
+| ------------- | ---------------------- | ------------------ |
+| **Owner**     | Full control           | Room creator       |
+| **Admin**     | Management             | Project managers   |
+| **Moderator** | Content moderation     | Team leads         |
+| **Member**    | Standard participation | Team members       |
+| **Guest**     | Read-only              | Observers, clients |
 
 #### 16 Granular Permissions
 
 **Room Permissions** (7)
+
 - `room:join` - Join rooms
 - `room:leave` - Leave rooms
 - `room:manage` - Manage room settings
@@ -71,6 +72,7 @@ WebSocket v1.4.0 introduces **major enhancements** to our real-time communicatio
 - `room:ban` - Ban users from room
 
 **Message Permissions** (6)
+
 - `message:send` - Send messages
 - `message:edit` - Edit own messages
 - `message:delete` - Delete messages
@@ -79,6 +81,7 @@ WebSocket v1.4.0 introduces **major enhancements** to our real-time communicatio
 - `message:view_history` - View message history
 
 **Admin Permissions** (3)
+
 - `admin:manage_users` - Manage user roles
 - `admin:manage_rooms` - Manage room settings
 - `admin:manage_permissions` - Change permissions
@@ -119,9 +122,9 @@ WebSocket v1.4.0 introduces **major enhancements** to our real-time communicatio
 ### Creating a Project Room
 
 ```typescript
-import { getRoomManager } from '@/lib/websocket';
+import { getRoomManager } from '@/lib/websocket'
 
-const roomManager = getRoomManager();
+const roomManager = getRoomManager()
 
 // Create a private project room
 const room = roomManager.create({
@@ -135,7 +138,7 @@ const room = roomManager.create({
     messageHistoryEnabled: true,
     autoCleanupMinutes: 60,
   },
-});
+})
 ```
 
 ### Joining a Room
@@ -147,32 +150,32 @@ const result = roomManager.join('project-alpha-2024', {
   userName: 'John Doe',
   email: 'john@example.com',
   avatar: 'https://...',
-});
+})
 
 if (result.success) {
-  console.log('Joined room:', result.room);
-  console.log('Offline messages:', result.offlineMessages);
+  console.log('Joined room:', result.room)
+  console.log('Offline messages:', result.offlineMessages)
 }
 ```
 
 ### Managing Permissions
 
 ```typescript
-import { getPermissionManager } from '@/lib/websocket';
+import { getPermissionManager } from '@/lib/websocket'
 
-const permissionManager = getPermissionManager();
+const permissionManager = getPermissionManager()
 
 // Set user role
 permissionManager.setUserRole(
-  'user-456',           // User ID
+  'user-456', // User ID
   'project-alpha-2024', // Room ID
-  'admin',              // Role
-  'user-123'            // Authorizer (must be owner/admin)
-);
+  'admin', // Role
+  'user-123' // Authorizer (must be owner/admin)
+)
 
 // Check if user can kick others
 if (permissionManager.hasPermission('user-456', 'project-alpha-2024', 'room:kick')) {
-  console.log('User can kick users from this room');
+  console.log('User can kick users from this room')
 }
 
 // Grant temporary permission (expires in 24 hours)
@@ -180,16 +183,16 @@ permissionManager.grantPermission(
   'user-789',
   'project-alpha-2024',
   'message:pin',
-  Date.now() + (24 * 60 * 60 * 1000)
-);
+  Date.now() + 24 * 60 * 60 * 1000
+)
 ```
 
 ### Sending and Retrieving Messages
 
 ```typescript
-import { getMessageStore } from '@/lib/websocket';
+import { getMessageStore } from '@/lib/websocket'
 
-const messageStore = getMessageStore();
+const messageStore = getMessageStore()
 
 // Store a message
 const message = messageStore.store({
@@ -199,20 +202,20 @@ const message = messageStore.store({
   userName: 'John Doe',
   type: 'text',
   content: 'Hello team! Project kickoff meeting tomorrow at 10am.',
-});
+})
 
 // Get message history with filters
 const history = messageStore.getHistory({
   roomId: 'project-alpha-2024',
   limit: 50,
   includeDeleted: false,
-});
+})
 
 // Add reaction to a message
-messageStore.addReaction('msg-123456', '👍', 'user-789', 'Jane Doe');
+messageStore.addReaction('msg-123456', '👍', 'user-789', 'Jane Doe')
 
 // Pin an important message
-messageStore.pinMessage('msg-123456', 'user-456');
+messageStore.pinMessage('msg-123456', 'user-456')
 ```
 
 ---
@@ -224,6 +227,7 @@ messageStore.pinMessage('msg-123456', 'user-456');
 **Description**: A clean sidebar showing all rooms the user is a member of.
 
 **Elements to capture**:
+
 - Room name and icon (task, project, chat, document, voice, video)
 - Visibility indicator (public 🔓, private 🔒)
 - Participant count with avatars
@@ -240,6 +244,7 @@ messageStore.pinMessage('msg-123456', 'user-456');
 **Description**: Main collaboration area showing messages, participants, and room settings.
 
 **Elements to capture**:
+
 - Room header with name, type, and settings button
 - Message history with timestamps, reactions, and pinned indicators
 - User avatars and names
@@ -256,6 +261,7 @@ messageStore.pinMessage('msg-123456', 'user-456');
 **Description**: Modal for managing user roles and permissions within a room.
 
 **Elements to capture**:
+
 - User list with current role assignments
 - Permission checkboxes organized by category (room, message, admin)
 - Role hierarchy visual indicator
@@ -272,6 +278,7 @@ messageStore.pinMessage('msg-123456', 'user-456');
 **Description**: Search and filter interface for message history.
 
 **Elements to capture**:
+
 - Search bar with filter options
 - Date range picker (before/after)
 - User filter dropdown
@@ -288,6 +295,7 @@ messageStore.pinMessage('msg-123456', 'user-456');
 **Description**: Toast notification showing messages received while offline.
 
 **Elements to capture**:
+
 - Notification count badge
 - List of offline messages with sender info
 - "Mark All as Read" button
@@ -310,15 +318,15 @@ messageStore.pinMessage('msg-123456', 'user-456');
 
 ### Visual Cues
 
-| Element | Meaning |
-|---------|---------|
-| 🔒 Private Room | Invite-only access |
-| 🔓 Public Room | Anyone can join |
-| 👑 Owner | Room creator with full control |
-| 🛡️ Admin | Room administrator |
-| ✏️ Moderator | Content moderator |
-| 📌 Pinned | Important message |
-| ✏️ Edited | Message was edited |
+| Element         | Meaning                         |
+| --------------- | ------------------------------- |
+| 🔒 Private Room | Invite-only access              |
+| 🔓 Public Room  | Anyone can join                 |
+| 👑 Owner        | Room creator with full control  |
+| 🛡️ Admin        | Room administrator              |
+| ✏️ Moderator    | Content moderator               |
+| 📌 Pinned       | Important message               |
+| ✏️ Edited       | Message was edited              |
 | 🗑️ Soft Deleted | Message deleted but recoverable |
 
 ---
@@ -335,18 +343,18 @@ To use the new room, permission, and persistence features, update your code:
 
 ```typescript
 // Before (v1.3.0)
-import { useCollaboration } from '@/lib/websocket';
+import { useCollaboration } from '@/lib/websocket'
 
-const { isConnected, participants } = useCollaboration();
+const { isConnected, participants } = useCollaboration()
 
 // After (v1.4.0) - Optional: Use new features
-import { getRoomManager } from '@/lib/websocket/rooms';
-import { getPermissionManager } from '@/lib/websocket/permissions';
-import { getMessageStore } from '@/lib/websocket/message-store';
+import { getRoomManager } from '@/lib/websocket/rooms'
+import { getPermissionManager } from '@/lib/websocket/permissions'
+import { getMessageStore } from '@/lib/websocket/message-store'
 
-const roomManager = getRoomManager();
-const permissionManager = getPermissionManager();
-const messageStore = getMessageStore();
+const roomManager = getRoomManager()
+const permissionManager = getPermissionManager()
+const messageStore = getMessageStore()
 ```
 
 ### No Breaking Changes
@@ -360,14 +368,14 @@ const messageStore = getMessageStore();
 
 ## 📈 Performance Improvements
 
-| Metric | v1.3.0 | v1.4.0 | Improvement |
-|--------|--------|--------|-------------|
-| Connection Stability | 95% | 99%+ | +4% |
-| Message Delivery | 95% | 99.9% | +4.9% |
-| Offline Message Recovery | 0% | 100% | +100% |
-| Permission Checks | O(n) | O(1) | Instant |
-| Message Storage | N/A | O(1) | Instant |
-| Memory Usage | ~50MB | ~55MB | +10% (acceptable) |
+| Metric                   | v1.3.0 | v1.4.0 | Improvement       |
+| ------------------------ | ------ | ------ | ----------------- |
+| Connection Stability     | 95%    | 99%+   | +4%               |
+| Message Delivery         | 95%    | 99.9%  | +4.9%             |
+| Offline Message Recovery | 0%     | 100%   | +100%             |
+| Permission Checks        | O(n)   | O(1)   | Instant           |
+| Message Storage          | N/A    | O(1)   | Instant           |
+| Memory Usage             | ~50MB  | ~55MB  | +10% (acceptable) |
 
 ---
 
@@ -410,12 +418,12 @@ const messageStore = getMessageStore();
 
 ### Test Breakdown
 
-| Component | Tests | Status |
-|-----------|-------|--------|
-| Permission System | 25 | ✅ All Passing |
-| Room Management | 35 | ✅ All Passing |
-| Message Store | 26 | ✅ All Passing |
-| **Total** | **86** | **✅ 100%** |
+| Component         | Tests  | Status         |
+| ----------------- | ------ | -------------- |
+| Permission System | 25     | ✅ All Passing |
+| Room Management   | 35     | ✅ All Passing |
+| Message Store     | 26     | ✅ All Passing |
+| **Total**         | **86** | **✅ 100%**    |
 
 ---
 

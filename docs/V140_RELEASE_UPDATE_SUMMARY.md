@@ -44,18 +44,18 @@
 
 ### 新创建的文档
 
-| 文档 | 路径 | 内容 | 字数 |
-|------|------|------|------|
-| **功能演示页文案** | `docs/demo-pages-copywriting.md` | WebSocket Demo + Collaboration Demo 文案 | ~4,500 字 |
-| **社交媒体帖子** | `docs/social-media-posts-v140.md` | Twitter/Hayashi/LinkedIn/微博 帖子 | ~8,000 字 |
-| **营销内容更新** | `MARKETING_CONTENT_V140_UPDATE.md` | 官网更新方案 + 代码示例 | ~12,000 字 |
+| 文档               | 路径                               | 内容                                     | 字数       |
+| ------------------ | ---------------------------------- | ---------------------------------------- | ---------- |
+| **功能演示页文案** | `docs/demo-pages-copywriting.md`   | WebSocket Demo + Collaboration Demo 文案 | ~4,500 字  |
+| **社交媒体帖子**   | `docs/social-media-posts-v140.md`  | Twitter/Hayashi/LinkedIn/微博 帖子       | ~8,000 字  |
+| **营销内容更新**   | `MARKETING_CONTENT_V140_UPDATE.md` | 官网更新方案 + 代码示例                  | ~12,000 字 |
 
 ### 已存在的文档
 
-| 文档 | 路径 | 状态 |
-|------|------|------|
+| 文档         | 路径                      | 状态      |
+| ------------ | ------------------------- | --------- |
 | **发布说明** | `RELEASE_NOTES_v1.4.0.md` | ✅ 已完整 |
-| **变更日志** | `CHANGELOG.md` | ✅ 已更新 |
+| **变更日志** | `CHANGELOG.md`            | ✅ 已更新 |
 
 ---
 
@@ -64,12 +64,14 @@
 ### 1. 功能演示页文案
 
 **WebSocket Demo** (`/demo/websocket`)
+
 - 房间系统：6 种类型 + 3 种可见性模式
 - 权限控制：16 种权限 + 5 级角色
 - 消息持久化：离线消息队列 + 历史查询
 - 技术亮点：代码示例 + 集成指南
 
 **Collaboration Demo** (`/collaboration-demo`)
+
 - 11 位 AI 成员介绍
 - 协作场景展示（网站开发、营销活动）
 - 协作优势（效率提升 3-5 倍）
@@ -78,21 +80,25 @@
 ### 2. 社交媒体帖子
 
 **Twitter/X**
+
 - 7 帖子 Thread，覆盖所有核心功能
 - 突出 11 AI 成员和 24/7 工作特色
 - 包含版本数据（5,129 行代码，284 测试）
 
 **Hayashi**
+
 - 技术深度文章
 - WebSocket v2.0 架构解析
 - AI Agent 调度系统详解
 
 **LinkedIn**
+
 - 专业技术分享
 - 架构设计思考
 - 性能优化实践
 
 **微博**
+
 - 简洁明了的版本发布
 - 功能亮点介绍
 - 团队故事分享
@@ -100,17 +106,20 @@
 ### 3. 营销内容更新
 
 **官网首页**
+
 - Hero 区域更新：v1.4.0 版本徽章
 - 统计数据更新：24/7 并行工作、效率提升 70-80%
 - 新增 v1.4.0 功能展示区（4 大核心功能）
 
 **功能页面**
+
 - WebSocket v2.0 功能卡片
 - AI Agent 智能调度卡片
 - 性能监控升级卡片
 - React Compiler 可选卡片
 
 **SEO 优化**
+
 - 页面标题更新
 - Meta 描述更新
 - 新增关键词（WebSocket v2.0、RBAC、AI Agent 调度等）
@@ -122,10 +131,15 @@
 ### 官网代码更新
 
 1. **首页徽章更新** (`src/app/[locale]/page.tsx` 第 493-497 行)
+
    ```tsx
-   {/* Badge - v1.4.0 */}
-   <div className="inline-flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-cyan-500 to-purple-600 rounded-full text-white text-sm font-medium mb-8 shadow-lg shadow-cyan-500/25">
-     <span className="animate-pulse" aria-hidden="true">🚀</span>
+   {
+     /* Badge - v1.4.0 */
+   }
+   ;<div className="mb-8 inline-flex items-center gap-2 rounded-full bg-gradient-to-r from-cyan-500 to-purple-600 px-4 py-2 text-sm font-medium text-white shadow-lg shadow-cyan-500/25">
+     <span className="animate-pulse" aria-hidden="true">
+       🚀
+     </span>
      <span>v1.4.0 正式发布</span>
      <span className="hidden sm:inline">| WebSocket v2.0 + AI Agent 智能调度</span>
    </div>
@@ -161,13 +175,13 @@
 
 ### 性能提升
 
-| 指标 | 优化前 | 优化后 | 提升 |
-|------|--------|--------|------|
-| WebSocket 连接稳定性 | 95% | 99%+ | +4% |
-| AI Agent 调度效率 | 手动 | 自动 | +70-80% |
-| 性能问题发现时间 | 2-4 小时 | 15-30 分钟 | -60-90% |
-| 任务完成时间 | 基准 | -30-40% | 效率提升 |
-| React 渲染性能 | 基准 | +20-40% | 性能提升 |
+| 指标                 | 优化前   | 优化后     | 提升     |
+| -------------------- | -------- | ---------- | -------- |
+| WebSocket 连接稳定性 | 95%      | 99%+       | +4%      |
+| AI Agent 调度效率    | 手动     | 自动       | +70-80%  |
+| 性能问题发现时间     | 2-4 小时 | 15-30 分钟 | -60-90%  |
+| 任务完成时间         | 基准     | -30-40%    | 效率提升 |
+| React 渲染性能       | 基准     | +20-40%    | 性能提升 |
 
 ### AI 团队优势
 
@@ -204,13 +218,13 @@
 
 ## 📅 建议发布时间表
 
-| 平台 | 日期 | 时间 | 内容 |
-|------|------|------|------|
-| **Twitter/X** | Day 1 | 09:00 UTC | 主推 Thread (7 帖子) |
-| **Hayashi** | Day 1 | 10:00 UTC | 发布公告 |
-| **LinkedIn** | Day 2 | 09:00 UTC | 技术深度文章 |
-| **微博** | Day 2 | 10:00 CST | 微博发布 |
-| **官网更新** | Day 1-2 | - | 首页 + 功能页面 |
+| 平台          | 日期    | 时间      | 内容                 |
+| ------------- | ------- | --------- | -------------------- |
+| **Twitter/X** | Day 1   | 09:00 UTC | 主推 Thread (7 帖子) |
+| **Hayashi**   | Day 1   | 10:00 UTC | 发布公告             |
+| **LinkedIn**  | Day 2   | 09:00 UTC | 技术深度文章         |
+| **微博**      | Day 2   | 10:00 CST | 微博发布             |
+| **官网更新**  | Day 1-2 | -         | 首页 + 功能页面      |
 
 ---
 

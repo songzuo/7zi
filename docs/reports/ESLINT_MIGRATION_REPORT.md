@@ -11,6 +11,7 @@
 Successfully migrated the 7zi Frontend project from legacy ESLint configuration to the new Flat Config format (ESLint 9). Applied automatic fixes to resolve code quality issues.
 
 **Results:**
+
 - ✅ Flat config created and working
 - ✅ Installed missing dependency: `eslint-plugin-storybook`
 - ✅ Reduced issues from **13,023 → 1,322** (90% reduction)
@@ -24,18 +25,21 @@ Successfully migrated the 7zi Frontend project from legacy ESLint configuration 
 ### 1. Initial State Assessment
 
 **Before Migration:**
+
 - Existing `eslint.config.mjs` (incomplete, missing storybook plugin)
 - Legacy `.eslintignore` file present
 - No old `.eslintrc.*` files found
 - ESLint 9 installed in package.json
 
 **Initial Issues:**
+
 - Missing `eslint-plugin-storybook` dependency
 - Configuration incomplete
 
 ### 2. Configuration Setup
 
 **Actions Taken:**
+
 1. Installed `eslint-plugin-storybook` package
 2. Reviewed and validated `eslint.config.mjs`
 3. Enhanced ignore patterns to exclude:
@@ -45,11 +49,12 @@ Successfully migrated the 7zi Frontend project from legacy ESLint configuration 
    - Migration scripts
 
 **Final Configuration:**
+
 ```javascript
 // eslint.config.mjs
-import storybook from "eslint-plugin-storybook";
-import nextVitals from "eslint-config-next/core-web-vitals";
-import nextTs from "eslint-config-next/typescript";
+import storybook from 'eslint-plugin-storybook'
+import nextVitals from 'eslint-config-next/core-web-vitals'
+import nextTs from 'eslint-config-next/typescript'
 
 const eslintConfig = [
   ...nextVitals,
@@ -57,70 +62,73 @@ const eslintConfig = [
   {
     ignores: [
       // Default Next.js ignores
-      ".next/**",
-      "out/**",
-      "build/**",
-      "next-env.d.ts",
+      '.next/**',
+      'out/**',
+      'build/**',
+      'next-env.d.ts',
 
       // Built/minified files
-      "node_modules/**",
-      "dist/**",
-      "html/**",
-      "**/*.min.js",
-      "**/*.min.css",
-      "public/**",
+      'node_modules/**',
+      'dist/**',
+      'html/**',
+      '**/*.min.js',
+      '**/*.min.css',
+      'public/**',
 
       // Backups and archives
-      "_app_backup/**",
-      "archive/**",
-      "**/backup/**",
+      '_app_backup/**',
+      'archive/**',
+      '**/backup/**',
 
       // Test files
-      "src/test/**",
-      "**/*.test.ts",
-      "**/*.test.tsx",
-      "**/*.spec.ts",
-      "**/*.spec.tsx",
-      "__tests__/**",
-      "__mocks__/**",
+      'src/test/**',
+      '**/*.test.ts',
+      '**/*.test.tsx',
+      '**/*.spec.ts',
+      '**/*.spec.tsx',
+      '__tests__/**',
+      '__mocks__/**',
 
       // Config files
-      "*.config.js",
-      "*.config.ts",
-      "*.config.mjs",
+      '*.config.js',
+      '*.config.ts',
+      '*.config.mjs',
 
       // Migration scripts
-      "*-migration*.js",
-      "validate-*.js",
-      "verify-*.js",
+      '*-migration*.js',
+      'validate-*.js',
+      'verify-*.js',
 
       // 7zi-frontend specific
-      "7zi-frontend/html/**",
-      "7zi-frontend/.next/**",
-      "7zi-frontend/out/**",
+      '7zi-frontend/html/**',
+      '7zi-frontend/.next/**',
+      '7zi-frontend/out/**',
     ],
   },
-  ...storybook.configs["flat/recommended"]
-];
+  ...storybook.configs['flat/recommended'],
+]
 
-export default eslintConfig;
+export default eslintConfig
 ```
 
 ### 3. Automatic Fixes Applied
 
 **Commands Executed:**
+
 ```bash
 npm install --save-dev eslint-plugin-storybook
 npx eslint . --fix
 ```
 
 **Fixed Issues:**
+
 - Unused imports and variables
 - Import ordering
 - Formatting issues
 - Minor syntax problems
 
 **Manual Fixes:**
+
 - Replaced `<a>` with `<Link>` in `/7zi-frontend/src/app/design-system/page.tsx`
 - Added `@ts-ignore` directive to `/7zi-frontend/e2e/fixtures/test.fixtures.ts`
 - Changed `any` types to `Record<string, unknown>` in test fixtures
@@ -193,6 +201,7 @@ npx eslint . --fix
 ### Immediate Actions
 
 1. **Apply selective auto-fix:**
+
    ```bash
    # Fix require imports automatically
    npx eslint . --fix --rule "@typescript-eslint/no-require-imports: error"
@@ -218,14 +227,17 @@ npx eslint . --fix
 ## Configuration Notes
 
 ### Installed Dependencies
+
 - `eslint`: ^9
 - `eslint-config-next`: ^16.2.1
 - `eslint-plugin-storybook`: ^0.11.2 (newly installed)
 
 ### Legacy Files Removed
+
 - `.eslintignore` (functionality moved to `eslint.config.mjs`)
 
 ### Files Modified During Migration
+
 1. `/root/.openclaw/workspace/eslint.config.mjs` - Enhanced ignore patterns
 2. `/root/.openclaw/workspace/7zi-frontend/src/app/design-system/page.tsx` - Fixed `<a>` tag
 3. `/root/.openclaw/workspace/7zi-frontend/e2e/fixtures/test.fixtures.ts` - Added eslint disable
@@ -235,6 +247,7 @@ npx eslint . --fix
 ## Validation
 
 **Final Status Check:**
+
 ```bash
 npx eslint .
 # ✖ 1322 problems (479 errors, 843 warnings)

@@ -141,21 +141,21 @@ const room = roomManager.create({
     maxParticipants: 50,
     messageHistoryEnabled: true,
   },
-});
+})
 ```
 
 **Room Types**
 
 Six room types cover most collaboration scenarios:
 
-| Type | Use Case |
-|------|----------|
-| `task` | Task-specific discussions and updates |
-| `project` | Project-wide collaboration |
-| `chat` | Informal team communication |
-| `document` | Real-time document co-editing |
-| `voice` | Voice call rooms |
-| `video` | Video conference rooms |
+| Type       | Use Case                              |
+| ---------- | ------------------------------------- |
+| `task`     | Task-specific discussions and updates |
+| `project`  | Project-wide collaboration            |
+| `chat`     | Informal team communication           |
+| `document` | Real-time document co-editing         |
+| `voice`    | Voice call rooms                      |
+| `video`    | Video conference rooms                |
 
 **Visibility Controls**
 
@@ -182,11 +182,11 @@ v1.4.0 implements a comprehensive RBAC (Role-Based Access Control) system with 5
 
 ```typescript
 // Role hierarchy (highest to lowest)
-type RoomRole = 'owner' | 'admin' | 'moderator' | 'member' | 'guest';
+type RoomRole = 'owner' | 'admin' | 'moderator' | 'member' | 'guest'
 
 // Check if user can kick others
 if (permissionManager.hasPermission('user-123', 'room-456', 'room:kick')) {
-  roomManager.kick('room-456', 'user-789', 'user-123', 'Spamming');
+  roomManager.kick('room-456', 'user-789', 'user-123', 'Spamming')
 }
 
 // Grant temporary permission (expires in 24 hours)
@@ -194,8 +194,8 @@ permissionManager.grantPermission(
   'user-456',
   'room-456',
   'message:pin',
-  Date.now() + (24 * 60 * 60 * 1000)
-);
+  Date.now() + 24 * 60 * 60 * 1000
+)
 ```
 
 **The 16 Permissions**
@@ -227,13 +227,14 @@ v1.4.0 introduces comprehensive message persistence with:
    - Automatic delivery on reconnection
 
 2. **Message History Queries**
+
    ```typescript
    const history = messageStore.getHistory({
      roomId: 'project-2024-q1',
      limit: 50,
-     before: Date.now() - (24 * 60 * 60 * 1000), // Last 24 hours
+     before: Date.now() - 24 * 60 * 60 * 1000, // Last 24 hours
      includeDeleted: false,
-   });
+   })
    ```
 
 3. **Rich Message Features**
@@ -262,12 +263,12 @@ v1.4.0 isn't just about features—it's about reliable, production-ready code.
 
 **Performance Improvements**
 
-| Metric | Improvement |
-|--------|-------------|
-| Permission checks | O(1) instant |
-| Message storage | O(1) instant |
-| Connection stability | 99%+ |
-| Memory efficiency | +10% (acceptable) |
+| Metric               | Improvement       |
+| -------------------- | ----------------- |
+| Permission checks    | O(1) instant      |
+| Message storage      | O(1) instant      |
+| Connection stability | 99%+              |
+| Memory efficiency    | +10% (acceptable) |
 
 **Backward Compatibility**
 
@@ -312,9 +313,9 @@ npm update @7zi/websocket
 All your existing code continues to work. New features are opt-in:
 
 ```typescript
-import { getRoomManager } from '@/lib/websocket/rooms';
-import { getPermissionManager } from '@/lib/websocket/permissions';
-import { getMessageStore } from '@/lib/websocket/message-store';
+import { getRoomManager } from '@/lib/websocket/rooms'
+import { getPermissionManager } from '@/lib/websocket/permissions'
+import { getMessageStore } from '@/lib/websocket/message-store'
 ```
 
 Full documentation available at `docs/WHATS_NEW_v1.4.0.md`.
@@ -397,67 +398,130 @@ The 7zi Team
 ```html
 <!DOCTYPE html>
 <html>
-<head>
-  <style>
-    body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; line-height: 1.6; max-width: 600px; margin: 0 auto; padding: 20px; }
-    h1 { color: #1a1a1a; }
-    h2 { color: #333; border-bottom: 2px solid #007bff; padding-bottom: 8px; }
-    .feature { background: #f8f9fa; padding: 16px; border-radius: 8px; margin: 16px 0; }
-    .feature h3 { margin-top: 0; color: #007bff; }
-    .stats { display: flex; gap: 16px; margin: 24px 0; }
-    .stat { flex: 1; text-align: center; padding: 16px; background: #e3f2fd; border-radius: 8px; }
-    .stat-number { font-size: 24px; font-weight: bold; color: #007bff; }
-    .stat-label { font-size: 12px; color: #666; }
-    .cta { background: #007bff; color: white; padding: 12px 24px; border-radius: 4px; text-decoration: none; display: inline-block; margin: 16px 0; }
-    code { background: #f1f1f1; padding: 2px 6px; border-radius: 4px; font-family: 'Monaco', 'Menlo', monospace; font-size: 14px; }
-  </style>
-</head>
-<body>
-  <h1>🚀 WebSocket v1.4.0 Released</h1>
-  
-  <p>We're excited to announce a major release that transforms our real-time infrastructure into a full collaboration platform.</p>
-  
-  <div class="stats">
-    <div class="stat">
-      <div class="stat-number">86</div>
-      <div class="stat-label">Tests Passing</div>
-    </div>
-    <div class="stat">
-      <div class="stat-number">16</div>
-      <div class="stat-label">Permissions</div>
-    </div>
-    <div class="stat">
-      <div class="stat-number">0</div>
-      <div class="stat-label">Breaking Changes</div>
-    </div>
-  </div>
+  <head>
+    <style>
+      body {
+        font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+        line-height: 1.6;
+        max-width: 600px;
+        margin: 0 auto;
+        padding: 20px;
+      }
+      h1 {
+        color: #1a1a1a;
+      }
+      h2 {
+        color: #333;
+        border-bottom: 2px solid #007bff;
+        padding-bottom: 8px;
+      }
+      .feature {
+        background: #f8f9fa;
+        padding: 16px;
+        border-radius: 8px;
+        margin: 16px 0;
+      }
+      .feature h3 {
+        margin-top: 0;
+        color: #007bff;
+      }
+      .stats {
+        display: flex;
+        gap: 16px;
+        margin: 24px 0;
+      }
+      .stat {
+        flex: 1;
+        text-align: center;
+        padding: 16px;
+        background: #e3f2fd;
+        border-radius: 8px;
+      }
+      .stat-number {
+        font-size: 24px;
+        font-weight: bold;
+        color: #007bff;
+      }
+      .stat-label {
+        font-size: 12px;
+        color: #666;
+      }
+      .cta {
+        background: #007bff;
+        color: white;
+        padding: 12px 24px;
+        border-radius: 4px;
+        text-decoration: none;
+        display: inline-block;
+        margin: 16px 0;
+      }
+      code {
+        background: #f1f1f1;
+        padding: 2px 6px;
+        border-radius: 4px;
+        font-family: 'Monaco', 'Menlo', monospace;
+        font-size: 14px;
+      }
+    </style>
+  </head>
+  <body>
+    <h1>🚀 WebSocket v1.4.0 Released</h1>
 
-  <h2>What's New</h2>
-  
-  <div class="feature">
-    <h3>🏠 Multi-Room System</h3>
-    <p>Multiple concurrent rooms per user with public, private, and invite-only access. Six room types cover all collaboration scenarios.</p>
-  </div>
-  
-  <div class="feature">
-    <h3>🔐 Fine-Grained Permissions</h3>
-    <p>5 roles with 16 granular permissions. Permission expiration support and comprehensive user ban system.</p>
-  </div>
-  
-  <div class="feature">
-    <h3>💾 Message Persistence</h3>
-    <p>Offline message queue with 7-day retention. Full message history with reactions, pinning, and soft delete.</p>
-  </div>
-  
-  <h2>Upgrade Now</h2>
-  <p><code>npm update @7zi/websocket</code></p>
-  
-  <a href="https://github.com/7zi/websocket" class="cta">View on GitHub →</a>
-  
-  <p>Questions? Reply to this email or open an issue on GitHub.</p>
-  
-  <p>Best,<br>The 7zi Team</p>
-</body>
+    <p>
+      We're excited to announce a major release that transforms our real-time infrastructure into a
+      full collaboration platform.
+    </p>
+
+    <div class="stats">
+      <div class="stat">
+        <div class="stat-number">86</div>
+        <div class="stat-label">Tests Passing</div>
+      </div>
+      <div class="stat">
+        <div class="stat-number">16</div>
+        <div class="stat-label">Permissions</div>
+      </div>
+      <div class="stat">
+        <div class="stat-number">0</div>
+        <div class="stat-label">Breaking Changes</div>
+      </div>
+    </div>
+
+    <h2>What's New</h2>
+
+    <div class="feature">
+      <h3>🏠 Multi-Room System</h3>
+      <p>
+        Multiple concurrent rooms per user with public, private, and invite-only access. Six room
+        types cover all collaboration scenarios.
+      </p>
+    </div>
+
+    <div class="feature">
+      <h3>🔐 Fine-Grained Permissions</h3>
+      <p>
+        5 roles with 16 granular permissions. Permission expiration support and comprehensive user
+        ban system.
+      </p>
+    </div>
+
+    <div class="feature">
+      <h3>💾 Message Persistence</h3>
+      <p>
+        Offline message queue with 7-day retention. Full message history with reactions, pinning,
+        and soft delete.
+      </p>
+    </div>
+
+    <h2>Upgrade Now</h2>
+    <p><code>npm update @7zi/websocket</code></p>
+
+    <a href="https://github.com/7zi/websocket" class="cta">View on GitHub →</a>
+
+    <p>Questions? Reply to this email or open an issue on GitHub.</p>
+
+    <p>Best,<br />The 7zi Team</p>
+  </body>
 </html>
 ```
 
@@ -467,12 +531,12 @@ The 7zi Team
 
 ### Primary Keywords
 
-| Keyword | Search Volume | Competition | Target Page |
-|---------|---------------|-------------|-------------|
-| WebSocket collaboration | Medium | Low | WHATS_NEW_v1.4.0.md |
-| Real-time room system | Low | Low | ADR-0008 |
-| WebSocket permissions | Low | Low | Implementation Report |
-| Message persistence WebSocket | Low | Low | WEBSOCKET.md |
+| Keyword                       | Search Volume | Competition | Target Page           |
+| ----------------------------- | ------------- | ----------- | --------------------- |
+| WebSocket collaboration       | Medium        | Low         | WHATS_NEW_v1.4.0.md   |
+| Real-time room system         | Low           | Low         | ADR-0008              |
+| WebSocket permissions         | Low           | Low         | Implementation Report |
+| Message persistence WebSocket | Low           | Low         | WEBSOCKET.md          |
 
 ### Secondary Keywords
 
@@ -486,11 +550,13 @@ The 7zi Team
 ### Meta Information
 
 #### Page Title (60 chars max)
+
 ```
 WebSocket v1.4.0 - Multi-Room, Permissions & Message Persistence
 ```
 
 #### Meta Description (160 chars max)
+
 ```
 WebSocket v1.4.0 introduces multi-room collaboration, 16 granular permissions, and message persistence. 100% backward compatible. 86 tests passing.
 ```
@@ -498,20 +564,29 @@ WebSocket v1.4.0 introduces multi-room collaboration, 16 granular permissions, a
 #### Open Graph Tags
 
 ```html
-<meta property="og:title" content="WebSocket v1.4.0 - Multi-Room, Permissions & Message Persistence">
-<meta property="og:description" content="Transform your real-time app into a full collaboration platform with multi-room support, fine-grained permissions, and offline message persistence.">
-<meta property="og:type" content="article">
-<meta property="og:image" content="/images/websocket-v1.4.0-og.png">
-<meta property="og:url" content="https://7zi.com/docs/WHATS_NEW_v1.4.0">
+<meta
+  property="og:title"
+  content="WebSocket v1.4.0 - Multi-Room, Permissions & Message Persistence"
+/>
+<meta
+  property="og:description"
+  content="Transform your real-time app into a full collaboration platform with multi-room support, fine-grained permissions, and offline message persistence."
+/>
+<meta property="og:type" content="article" />
+<meta property="og:image" content="/images/websocket-v1.4.0-og.png" />
+<meta property="og:url" content="https://7zi.com/docs/WHATS_NEW_v1.4.0" />
 ```
 
 #### Twitter Card Tags
 
 ```html
-<meta name="twitter:card" content="summary_large_image">
-<meta name="twitter:title" content="WebSocket v1.4.0 - Major Release">
-<meta name="twitter:description" content="Multi-room collaboration, 16 granular permissions, and message persistence. Zero breaking changes.">
-<meta name="twitter:image" content="/images/websocket-v1.4.0-twitter.png">
+<meta name="twitter:card" content="summary_large_image" />
+<meta name="twitter:title" content="WebSocket v1.4.0 - Major Release" />
+<meta
+  name="twitter:description"
+  content="Multi-room collaboration, 16 granular permissions, and message persistence. Zero breaking changes."
+/>
+<meta name="twitter:image" content="/images/websocket-v1.4.0-twitter.png" />
 ```
 
 ### Content Optimization
@@ -526,18 +601,26 @@ WebSocket v1.4.0 introduces multi-room collaboration, 16 granular permissions, a
 
 ```markdown
 # WebSocket v1.4.0 (H1)
+
 ## Overview (H2)
+
 ## New Features (H2)
+
 ### Multi-Room System (H3)
+
 ### Permission Control (H3)
+
 ### Message Persistence (H3)
+
 ## Usage Examples (H2)
+
 ## Technical Specs (H2)
 ```
 
 #### Internal Linking
 
 Link to related documentation:
+
 - [WebSocket Documentation](./WEBSOCKET.md)
 - [Architecture Overview](./ARCHITECTURE.md)
 - [API Reference](./API.md)
@@ -550,9 +633,11 @@ Link to related documentation:
 ### Required Screenshots (6 total)
 
 #### 1. Hero Shot: Room List
+
 **Purpose**: Show multi-room functionality at a glance
 **Dimensions**: 1200x800px (landscape)
 **Elements**:
+
 - Sidebar with 4-6 rooms of different types
 - Room icons (task, project, chat, document)
 - Visibility indicators (lock icons)
@@ -565,9 +650,11 @@ Link to related documentation:
 ---
 
 #### 2. Room Detail: Message Stream
+
 **Purpose**: Show collaboration in action
 **Dimensions**: 1200x800px (landscape)
 **Elements**:
+
 - Room header with name and settings
 - Message stream with avatars and timestamps
 - Message reactions (👍, ❤️, 🎉)
@@ -580,9 +667,11 @@ Link to related documentation:
 ---
 
 #### 3. Permission Management Dialog
+
 **Purpose**: Demonstrate fine-grained permissions
 **Dimensions**: 800x600px (portrait)
 **Elements**:
+
 - User list with role badges
 - Permission checkboxes organized by category
 - Role hierarchy visualization
@@ -594,9 +683,11 @@ Link to related documentation:
 ---
 
 #### 4. Message History Search
+
 **Purpose**: Show persistence and search capabilities
 **Dimensions**: 1000x700px (landscape)
 **Elements**:
+
 - Search bar with query
 - Filter panel (date, user, type)
 - Search results with highlights
@@ -608,9 +699,11 @@ Link to related documentation:
 ---
 
 #### 5. Offline Message Notification
+
 **Purpose**: Show offline sync feature
 **Dimensions**: 400x300px (portrait)
 **Elements**:
+
 - Notification count badge
 - Message list with sender info
 - "Mark All as Read" button
@@ -622,9 +715,11 @@ Link to related documentation:
 ---
 
 #### 6. Code Example with Syntax Highlighting
+
 **Purpose**: Show developer-friendly API
 **Dimensions**: 900x600px (landscape)
 **Elements**:
+
 - Code snippet with syntax highlighting
 - Line numbers
 - Comments explaining functionality
@@ -637,6 +732,7 @@ Link to related documentation:
 ### Screenshot Style Guide
 
 **Colors**
+
 - Primary: #007bff (blue)
 - Success: #28a745 (green)
 - Warning: #ffc107 (yellow)
@@ -645,16 +741,19 @@ Link to related documentation:
 - Text: #1a1a1a (near black)
 
 **Typography**
+
 - Headings: Inter, SF Pro, or system font
 - Body: Inter, SF Pro, or system font
 - Code: Monaco, Menlo, or monospace
 
 **Spacing**
+
 - Consistent 16px grid
 - 8px padding on cards
 - 16px margins between elements
 
 **Accessibility**
+
 - Minimum 4.5:1 contrast ratio
 - Visible focus states
 - Clear visual hierarchy
@@ -735,16 +834,17 @@ Get started in minutes, not months.
 
 This document provides comprehensive promotional materials for WebSocket v1.4.0:
 
-| Material | Use Case | Length |
-|----------|----------|--------|
-| Social Media | Twitter, LinkedIn, WeChat | 100-280 chars |
-| Technical Blog | Developer audience | 800+ words |
-| Email/Announcement | User communication | 200-400 words |
-| SEO Guide | Search optimization | Meta + keywords |
-| Screenshot Specs | Visual content creation | 6 screenshots |
-| Marketing Copy | Various audiences | 100-200 words each |
+| Material           | Use Case                  | Length             |
+| ------------------ | ------------------------- | ------------------ |
+| Social Media       | Twitter, LinkedIn, WeChat | 100-280 chars      |
+| Technical Blog     | Developer audience        | 800+ words         |
+| Email/Announcement | User communication        | 200-400 words      |
+| SEO Guide          | Search optimization       | Meta + keywords    |
+| Screenshot Specs   | Visual content creation   | 6 screenshots      |
+| Marketing Copy     | Various audiences         | 100-200 words each |
 
 All materials emphasize:
+
 - **Zero breaking changes** (reduces upgrade anxiety)
 - **86 tests passing** (builds trust)
 - **Real use cases** (shows practical value)

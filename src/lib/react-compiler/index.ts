@@ -9,7 +9,7 @@ export {
   getNextReactCompilerConfig,
   DEFAULT_REACT_COMPILER_CONFIG,
   type ReactCompilerConfig,
-} from './config/compiler.config';
+} from './config/compiler.config'
 
 // Diagnostics
 export {
@@ -18,7 +18,7 @@ export {
   type CompilerIssue,
   type IncompatibilityReport,
   type ScanResult,
-} from './diagnostics/scanner';
+} from './diagnostics/scanner'
 
 // Performance
 export {
@@ -27,7 +27,7 @@ export {
   type PerformanceMetrics,
   type PerformanceComparison,
   type BenchmarkResult,
-} from './performance/measurer';
+} from './performance/measurer'
 
 // Migration
 export {
@@ -35,4 +35,4 @@ export {
   generateBatchGuides,
   type MigrationStep,
   type MigrationGuide,
-} from './migration/guide-generator';
+} from './migration/guide-generator'

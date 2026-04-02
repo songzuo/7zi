@@ -5,55 +5,55 @@
 global:
   enabled: true
   algorithm: token-bucket
-  rate: 1000              # requests per second
-  burst: 2000              # burst capacity
-  strategy: degrade        # reject, queue, degrade, charge
+  rate: 1000 # requests per second
+  burst: 2000 # burst capacity
+  strategy: degrade # reject, queue, degrade, charge
 
 # ==================== API Key 套餐 ====================
 apiKeys:
   enabled: true
   algorithm: token-bucket
-  rate: 10                 # 默认速率
-  burst: 30                # 默认突发
+  rate: 10 # 默认速率
+  burst: 30 # 默认突发
   tiers:
     free:
       name: free
       rate: 2
       burst: 10
       dailyLimit: 1000
-      description: "免费用户 - 2 req/s, 1000/天"
+      description: '免费用户 - 2 req/s, 1000/天'
     basic:
       name: basic
       rate: 10
       burst: 30
       dailyLimit: 10000
-      description: "基础版 - 10 req/s, 10000/天"
+      description: '基础版 - 10 req/s, 10000/天'
     pro:
       name: pro
       rate: 50
       burst: 150
       dailyLimit: 100000
-      description: "专业版 - 50 req/s, 100000/天"
+      description: '专业版 - 50 req/s, 100000/天'
     enterprise:
       name: enterprise
       rate: 100
       burst: 300
       dailyLimit: 1000000
-      description: "企业版 - 100 req/s, 1000000/天"
+      description: '企业版 - 100 req/s, 1000000/天'
 
   # 超额策略
   overage:
-    enabled: false         # 暂未启用
-    chargePerRequest: 0.001    # $0.001 per request
-    maxDailyOverage: 10000     # 最大超额请求数
+    enabled: false # 暂未启用
+    chargePerRequest: 0.001 # $0.001 per request
+    maxDailyOverage: 10000 # 最大超额请求数
 
 # ==================== 用户级别 ====================
 user:
   enabled: true
   algorithm: sliding-window
-  windowMs: 60000              # 1 minute
+  windowMs: 60000 # 1 minute
   maxRequests: 100
-  
+
   # 不同用户类型
   types:
     anonymous:
@@ -67,47 +67,47 @@ user:
 ip:
   enabled: true
   algorithm: sliding-window
-  windowMs: 60000              # 1 minute
+  windowMs: 60000 # 1 minute
   maxRequests: 50
-  
+
   # 信任的 IP 不限流
   trustedRanges:
-    - "10.0.0.0/8"
-    - "172.16.0.0/12"
-    - "192.168.0.0/16"
-    - "127.0.0.1"
-    - "::1"
+    - '10.0.0.0/8'
+    - '172.16.0.0/12'
+    - '192.168.0.0/16'
+    - '127.0.0.1'
+    - '::1'
 
 # ==================== 白名单 ====================
 whitelist:
   ips:
-    - "127.0.0.1"
-    - "::1"
-    - "10.0.0.0/8"
-    - "172.16.0.0/12"
-    - "192.168.0.0/16"
-  
+    - '127.0.0.1'
+    - '::1'
+    - '10.0.0.0/8'
+    - '172.16.0.0/12'
+    - '192.168.0.0/16'
+
   apiKeys:
-    - "internal-system-key"
-    - "monitoring-key"
-    - "admin-key"
-  
+    - 'internal-system-key'
+    - 'monitoring-key'
+    - 'admin-key'
+
   users:
-    - "admin-user-id"
-    - "system-user-id"
-  
+    - 'admin-user-id'
+    - 'system-user-id'
+
   userAgents:
-    - "OpenClaw-Monitor"
-    - "HealthCheck-Bot"
+    - 'OpenClaw-Monitor'
+    - 'HealthCheck-Bot'
 
 # ==================== 黑名单（永久封禁） ====================
 blacklist:
   ips:
-    - "malicious.ip.address"
+    - 'malicious.ip.address'
   apiKeys:
-    - "revoked-api-key"
+    - 'revoked-api-key'
   users:
-    - "banned-user-id"
+    - 'banned-user-id'
 
 # ==================== Redis 配置 ====================
 redis:
@@ -118,21 +118,21 @@ redis:
   db: ${REDIS_DB:0}
   poolSize: ${REDIS_POOL_SIZE:10}
   connectTimeout: 5000
-  keyPrefix: "ratelimit"
+  keyPrefix: 'ratelimit'
   localCacheTTL: 5000
 
 # ==================== 监控和告警 ====================
 monitoring:
   enabled: true
   logRateLimitHits: true
-  
+
   alerts:
     global:
-      threshold: 0.8           # 80% 使用率告警
+      threshold: 0.8 # 80% 使用率告警
     apiKeyOverage:
-      threshold: 100           # 超额 100 次告警
+      threshold: 100 # 超额 100 次告警
     ipRateLimit:
-      threshold: 10            # IP 被限流 10 次告警
+      threshold: 10 # IP 被限流 10 次告警
 
   # Prometheus 指标导出
   prometheus:
@@ -142,15 +142,15 @@ monitoring:
 
 # ==================== 错误处理 ====================
 errorHandling:
-  failOpen: true              # Redis 故障时允许请求通过
-  retryAfter: 60               # 默认重试等待时间（秒）
+  failOpen: true # Redis 故障时允许请求通过
+  retryAfter: 60 # 默认重试等待时间（秒）
   includeStatusCode: true
   disableStackTrace: true
 
 # ==================== 响应配置 ====================
 response:
   includeRateLimitHeaders: true
-  showDetails: false           # 是否显示详细错误信息
+  showDetails: false # 是否显示详细错误信息
   customMessage: null
 
 # ==================== 性能优化 ====================

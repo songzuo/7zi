@@ -11,6 +11,7 @@
 ## 修复前的问题描述
 
 根据测试报告，存在以下问题：
+
 - `@/middleware/auth.middleware` 模块缺失
 - 影响 2+ 个测试文件
 
@@ -21,6 +22,7 @@
 ### 1. 文件存在性验证 ✅
 
 文件已存在于正确位置：
+
 ```
 /root/.openclaw/workspace/7zi-frontend/src/middleware/auth.middleware.ts
 ```
@@ -29,14 +31,14 @@
 
 该中间件模块包含以下导出函数：
 
-| 导出名称 | 类型 | 描述 |
-|---------|------|------|
-| `AuthResult` | interface | 认证结果类型 |
-| `authMiddleware` | function | 主认证中间件函数 |
-| `checkPermissions` | function | 权限检查中间件工厂 |
-| `requireAuth` | function | 严格认证要求函数 |
-| `getUserId` | function | 从请求获取用户ID |
-| `getUserRole` | function | 从请求获取用户角色 |
+| 导出名称           | 类型      | 描述               |
+| ------------------ | --------- | ------------------ |
+| `AuthResult`       | interface | 认证结果类型       |
+| `authMiddleware`   | function  | 主认证中间件函数   |
+| `checkPermissions` | function  | 权限检查中间件工厂 |
+| `requireAuth`      | function  | 严格认证要求函数   |
+| `getUserId`        | function  | 从请求获取用户ID   |
+| `getUserRole`      | function  | 从请求获取用户角色 |
 
 ### 3. 引用该模块的文件
 
@@ -52,6 +54,7 @@
   "@/*": ["./src/*"]
 }
 ```
+
 别名配置正确，`@/middleware/auth.middleware` 能正确解析到 `src/middleware/auth.middleware.ts`
 
 ---

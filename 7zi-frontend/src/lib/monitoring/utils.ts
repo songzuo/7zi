@@ -3,7 +3,7 @@
  * 监控工具函数
  */
 
-import { monitor } from './monitor';
+import { monitor } from './monitor'
 
 /**
  * Higher-order function to track async operations
@@ -14,23 +14,23 @@ export async function withPerformanceTracking<T>(
   operation: () => Promise<T>,
   metadata?: Record<string, any>
 ): Promise<T> {
-  const operationId = monitor.startOperation(operationName);
-  const startTime = Date.now();
+  const operationId = monitor.startOperation(operationName)
+  const startTime = Date.now()
 
   try {
-    const result = await operation();
+    const result = await operation()
     await monitor.endOperation(operationId, true, {
       ...metadata,
       duration: Date.now() - startTime,
-    });
-    return result;
+    })
+    return result
   } catch (error) {
     await monitor.endOperation(operationId, false, {
       ...metadata,
       duration: Date.now() - startTime,
       error: error instanceof Error ? error.message : String(error),
-    });
-    throw error;
+    })
+    throw error
   }
 }
 
@@ -42,39 +42,34 @@ export async function monitoredFetch(
   input: RequestInfo | URL,
   init?: RequestInit & { metadata?: Record<string, any> }
 ): Promise<Response> {
-  const method = (init?.method || 'GET') as 'GET' | 'POST' | 'PUT' | 'DELETE' | 'PATCH';
-  const url = typeof input === 'string' ? input : input instanceof URL ? input.toString() : input.url;
-  const startTime = Date.now();
+  const method = (init?.method || 'GET') as 'GET' | 'POST' | 'PUT' | 'DELETE' | 'PATCH'
+  const url =
+    typeof input === 'string' ? input : input instanceof URL ? input.toString() : input.url
+  const startTime = Date.now()
 
   try {
-    const response = await fetch(input, init);
-    const responseTime = Date.now() - startTime;
+    const response = await fetch(input, init)
+    const responseTime = Date.now() - startTime
 
-    await monitor.trackAPIRequest(
-      method,
-      url,
-      response.status,
-      responseTime,
-      init?.metadata
-    );
+    await monitor.trackAPIRequest(method, url, response.status, responseTime, init?.metadata)
 
-    return response;
+    return response
   } catch (error) {
-    const responseTime = Date.now() - startTime;
+    const responseTime = Date.now() - startTime
 
     await monitor.trackAPIRequest(method, url, 0, responseTime, {
       ...init?.metadata,
       error: error instanceof Error ? error.message : String(error),
-    });
+    })
 
     await monitor.trackError(
       'FetchError',
       error instanceof Error ? error.message : String(error),
       error instanceof Error ? error.stack : undefined,
       { url, method }
-    );
+    )
 
-    throw error;
+    throw error
   }
 }
 
@@ -85,14 +80,14 @@ export async function monitoredFetch(
 export function trackReactError(
   error: Error,
   errorInfo: {
-    componentStack: string;
-    digest?: string;
+    componentStack: string
+    digest?: string
   }
 ): void {
   monitor.trackError('ReactError', error.message, error.stack, {
     componentStack: errorInfo.componentStack,
     digest: errorInfo.digest,
-  });
+  })
 }
 
 /**
@@ -105,9 +100,9 @@ export function createPerformanceTracker(name: string) {
     end: (id: string, success: boolean = true, metadata?: Record<string, any>) =>
       monitor.endOperation(id, success, metadata),
     async track<T>(fn: () => Promise<T>, metadata?: Record<string, any>): Promise<T> {
-      return withPerformanceTracking(name, fn, metadata);
+      return withPerformanceTracking(name, fn, metadata)
     },
-  };
+  }
 }
 
 /**
@@ -115,26 +110,38 @@ export function createPerformanceTracker(name: string) {
  * 记录浏览器性能指标
  */
 export function logBrowserMetrics(): void {
-  if (typeof window === 'undefined') return;
+  if (typeof window === 'undefined') return
 
   // Web Vitals
   if (window.performance && window.performance.getEntriesByType) {
-    const navigation = window.performance
-      .getEntriesByType('navigation')
-      .pop() as PerformanceNavigationTiming | undefined;
+    const navigation = window.performance.getEntriesByType('navigation').pop() as
+      | PerformanceNavigationTiming
+      | undefined
 
     if (navigation) {
-      monitor.trackCustomMetric('page_load_time', navigation.loadEventEnd - navigation.fetchStart, 'ms');
-      monitor.trackCustomMetric('dom_content_loaded', navigation.domContentLoadedEventEnd - navigation.fetchStart, 'ms');
-      monitor.trackCustomMetric('first_paint', navigation.responseStart - navigation.fetchStart, 'ms');
+      monitor.trackCustomMetric(
+        'page_load_time',
+        navigation.loadEventEnd - navigation.fetchStart,
+        'ms'
+      )
+      monitor.trackCustomMetric(
+        'dom_content_loaded',
+        navigation.domContentLoadedEventEnd - navigation.fetchStart,
+        'ms'
+      )
+      monitor.trackCustomMetric(
+        'first_paint',
+        navigation.responseStart - navigation.fetchStart,
+        'ms'
+      )
     }
   }
 
   // Paint timing
-  const paintEntries = window.performance.getEntriesByType('paint');
+  const paintEntries = window.performance.getEntriesByType('paint')
   paintEntries.forEach((entry: PerformanceEntry) => {
-    monitor.trackCustomMetric(`paint_${entry.name}`, entry.startTime, 'ms');
-  });
+    monitor.trackCustomMetric(`paint_${entry.name}`, entry.startTime, 'ms')
+  })
 }
 
 /**
@@ -142,13 +149,13 @@ export function logBrowserMetrics(): void {
  * 初始化浏览器性能追踪
  */
 export function initBrowserTracking(): void {
-  if (typeof window === 'undefined') return;
+  if (typeof window === 'undefined') return
 
   // Track initial page load
   if (document.readyState === 'complete') {
-    logBrowserMetrics();
+    logBrowserMetrics()
   } else {
-    window.addEventListener('load', logBrowserMetrics);
+    window.addEventListener('load', logBrowserMetrics)
   }
 
   // Track route changes (for Next.js)
@@ -163,8 +170,8 @@ export function initBrowserTracking(): void {
  */
 export function usePerformanceTracker(operationName: string) {
   const startTracking = () => {
-    return monitor.startOperation(operationName);
-  };
+    return monitor.startOperation(operationName)
+  }
 
-  return { startTracking, monitor };
+  return { startTracking, monitor }
 }

@@ -1,10 +1,10 @@
 /**
  * Performance utilities
- * 
+ *
  * @module lib/utils/perf
  */
 
-import { isClient } from './env';
+import { isClient } from './env'
 
 /**
  * Optimize image URL with Next.js Image Optimization
@@ -15,13 +15,9 @@ import { isClient } from './env';
  * @example
  * optimizeImageUrl('https://example.com/image.jpg', 1200, 85)
  */
-export function optimizeImageUrl(
-  url: string,
-  width: number = 800,
-  quality: number = 75
-): string {
+export function optimizeImageUrl(url: string, width: number = 800, quality: number = 75): string {
   // For external images, use Next.js image optimization
-  return `/api/image?url=${encodeURIComponent(url)}&w=${width}&q=${quality}`;
+  return `/api/image?url=${encodeURIComponent(url)}&w=${width}&q=${quality}`
 }
 
 /**
@@ -36,16 +32,16 @@ export function optimizeImageUrl(
 export function preloadResources(
   resources: Array<{ href: string; as?: string; type?: string }>
 ): void {
-  if (typeof document === 'undefined') return;
+  if (typeof document === 'undefined') return
 
   resources.forEach(({ href, as, type }) => {
-    const link = document.createElement('link');
-    link.rel = 'preload';
-    link.href = href;
-    if (as) link.setAttribute('as', as);
-    if (type) link.setAttribute('type', type);
-    document.head.appendChild(link);
-  });
+    const link = document.createElement('link')
+    link.rel = 'preload'
+    link.href = href
+    if (as) link.setAttribute('as', as)
+    if (type) link.setAttribute('type', type)
+    document.head.appendChild(link)
+  })
 }
 
 /**
@@ -59,5 +55,5 @@ export function preloadResources(
 export function lazyLoadComponent<T>(
   importFunc: () => Promise<{ default: React.ComponentType<T> }>
 ) {
-  return importFunc;
+  return importFunc
 }

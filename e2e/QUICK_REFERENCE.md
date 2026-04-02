@@ -56,18 +56,18 @@ e2e/
 
 ## 🎯 Key User Flows
 
-| # | Flow | Test Files | Tests |
-|---|------|------------|-------|
-| 1 | Authentication | auth-flow, login-flow-pom | 34 |
-| 2 | Registration | user-registration | 18 |
-| 3 | Dashboard | dashboard, dashboard-analytics | 51 |
-| 4 | Task Management | task-creation, task-creation-pom | 43 |
-| 5 | Team Management | team | 27 |
-| 6 | Navigation | navigation, navigation-pom, integration | 35 |
-| 7 | User Settings | user-management | 23 |
-| 8 | Notifications | notifications | 30 |
-| 9 | Analytics | dashboard-analytics | 30 |
-| 10 | Real-time | websocket-realtime | 27 |
+| #   | Flow            | Test Files                              | Tests |
+| --- | --------------- | --------------------------------------- | ----- |
+| 1   | Authentication  | auth-flow, login-flow-pom               | 34    |
+| 2   | Registration    | user-registration                       | 18    |
+| 3   | Dashboard       | dashboard, dashboard-analytics          | 51    |
+| 4   | Task Management | task-creation, task-creation-pom        | 43    |
+| 5   | Team Management | team                                    | 27    |
+| 6   | Navigation      | navigation, navigation-pom, integration | 35    |
+| 7   | User Settings   | user-management                         | 23    |
+| 8   | Notifications   | notifications                           | 30    |
+| 9   | Analytics       | dashboard-analytics                     | 30    |
+| 10  | Real-time       | websocket-realtime                      | 27    |
 
 ## 🌐 Browser Coverage
 
@@ -112,8 +112,8 @@ import {
   AnalyticsPage,
   NotificationsPage,
   UserManagementPage,
-  NavigationPage
-} from './pages';
+  NavigationPage,
+} from './pages'
 ```
 
 ## 🛠️ Test Helpers Available
@@ -145,13 +145,13 @@ import {
   uploadFile,
   retry,
   // ... and 20+ more
-} from './helpers/test-helpers';
+} from './helpers/test-helpers'
 ```
 
 ## 📦 Test Data Factory
 
 ```typescript
-import { testData } from './fixtures/test-data';
+import { testData } from './fixtures/test-data'
 
 // Users
 testData.users.admin
@@ -184,15 +184,15 @@ testData.generateFormData({ key: 'value' })
 
 ## 📊 Test Categories
 
-| Category | Tests | Description |
-|----------|-------|-------------|
-| Functional | ~200 | Core feature testing |
-| Integration | ~50 | Multi-page workflows |
-| Visual Regression | ~48 | Screenshot comparison |
-| Accessibility | ~30 | ARIA & keyboard nav |
-| Performance | ~15 | Load times & API |
-| Real-time | ~135 | WebSocket & live updates |
-| Error Handling | ~50 | API & validation errors |
+| Category          | Tests | Description              |
+| ----------------- | ----- | ------------------------ |
+| Functional        | ~200  | Core feature testing     |
+| Integration       | ~50   | Multi-page workflows     |
+| Visual Regression | ~48   | Screenshot comparison    |
+| Accessibility     | ~30   | ARIA & keyboard nav      |
+| Performance       | ~15   | Load times & API         |
+| Real-time         | ~135  | WebSocket & live updates |
+| Error Handling    | ~50   | API & validation errors  |
 
 ## 🎨 Visual Regression
 
@@ -208,13 +208,14 @@ testData.generateFormData({ key: 'value' })
 - Chinese (zh)
 - English (en)
 - Language switching
-- URL structure (/zh/*, /en/*)
+- URL structure (/zh/_, /en/_)
 - Content localization
 - Form localization
 
 ## 📐 Responsive Design
 
 Viewports tested:
+
 - 1920x1080 (Desktop)
 - 1366x768 (Laptop)
 - 768x1024 (Tablet)

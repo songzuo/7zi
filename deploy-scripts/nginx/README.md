@@ -69,31 +69,31 @@ echo "✅ 文件部署完成！"
 server {
     listen 80;
     server_name your-domain.com;  # 替换为你的域名或 IP
-    
+
     root /var/www/myapp;
     index index.html index.htm;
-    
+
     # 日志
     access_log /var/log/nginx/myapp-access.log;
     error_log /var/log/nginx/myapp-error.log;
-    
+
     # 静态文件缓存
     location ~* \.(jpg|jpeg|png|gif|ico|css|js|svg|woff|woff2)$ {
         expires 30d;
         add_header Cache-Control "public, immutable";
     }
-    
+
     # SPA 路由支持（React/Vue 等）
     location / {
         try_files $uri $uri/ /index.html;
     }
-    
+
     # Gzip 压缩
     gzip on;
     gzip_vary on;
     gzip_min_length 1024;
-    gzip_types text/plain text/css text/xml text/javascript 
-               application/javascript application/xml+rss 
+    gzip_types text/plain text/css text/xml text/javascript
+               application/javascript application/xml+rss
                application/json image/svg+xml;
 }
 ```
@@ -110,21 +110,21 @@ server {
 server {
     listen 443 ssl http2;
     server_name your-domain.com;
-    
+
     # SSL 证书
     ssl_certificate /etc/letsencrypt/live/your-domain.com/fullchain.pem;
     ssl_certificate_key /etc/letsencrypt/live/your-domain.com/privkey.pem;
-    
+
     # SSL 优化
     ssl_protocols TLSv1.2 TLSv1.3;
     ssl_prefer_server_ciphers on;
     ssl_ciphers ECDHE-ECDSA-AES128-GCM-SHA256:ECDHE-RSA-AES128-GCM-SHA256;
     ssl_session_cache shared:SSL:10m;
     ssl_session_timeout 10m;
-    
+
     root /var/www/myapp;
     index index.html;
-    
+
     # ... 其他配置同上
 }
 ```
@@ -221,16 +221,19 @@ echo "✅ 部署完成！"
 ### 常见问题
 
 1. **权限错误**
+
    ```bash
    ssh root@server "chown -R www-data:www-data /var/www/myapp"
    ```
 
 2. **Nginx 不生效**
+
    ```bash
    ssh root@server "nginx -t && systemctl reload nginx"
    ```
 
 3. **SELinux 阻止访问**（CentOS/RHEL）
+
    ```bash
    ssh root@server "setsebool -P httpd_can_network_connect 1"
    ```

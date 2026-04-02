@@ -11,22 +11,22 @@
 
 ### 关键发现
 
-| 维度 | 当前状态 | 优化潜力 | 优先级 |
-|------|---------|---------|--------|
-| **CDN/带宽** | 静态资源 2.2MB | 可减少 20-30% | 🟡 中 |
-| **API 调用** | 9个 API 路由组 | 缓存策略可优化 | 🟡 中 |
-| **数据库** | SQLite (better-sqlite3) | 查询优化空间 | 🟢 低 |
-| **第三方服务** | Resend 邮件 | 无替代方案 | 🟢 低 |
-| **容器资源** | 512MB 内存限制 | 可收紧至 384MB | 🟡 中 |
+| 维度           | 当前状态                | 优化潜力       | 优先级 |
+| -------------- | ----------------------- | -------------- | ------ |
+| **CDN/带宽**   | 静态资源 2.2MB          | 可减少 20-30%  | 🟡 中  |
+| **API 调用**   | 9个 API 路由组          | 缓存策略可优化 | 🟡 中  |
+| **数据库**     | SQLite (better-sqlite3) | 查询优化空间   | 🟢 低  |
+| **第三方服务** | Resend 邮件             | 无替代方案     | 🟢 低  |
+| **容器资源**   | 512MB 内存限制          | 可收紧至 384MB | 🟡 中  |
 
 ### 预估月度节省
 
-| 项目 | 当前成本 | 优化后 | 节省 |
-|------|---------|--------|------|
-| CDN 带宽 | ~$20/月 | ~$15/月 | **$5/月** |
-| 容器资源 | 0.5 CPU, 512MB | 0.25 CPU, 384MB | **$8/月** |
-| 构建时间 | ~5分钟 | ~3分钟 | **人工时间** |
-| **合计** | - | - | **~$13/月 + 人工** |
+| 项目     | 当前成本       | 优化后          | 节省               |
+| -------- | -------------- | --------------- | ------------------ |
+| CDN 带宽 | ~$20/月        | ~$15/月         | **$5/月**          |
+| 容器资源 | 0.5 CPU, 512MB | 0.25 CPU, 384MB | **$8/月**          |
+| 构建时间 | ~5分钟         | ~3分钟          | **人工时间**       |
+| **合计** | -              | -               | **~$13/月 + 人工** |
 
 ---
 
@@ -41,6 +41,7 @@ node_modules:  932MB    (依赖)
 ```
 
 **问题:**
+
 - `.next/static` 包含 28 个 JS chunk
 - 未使用 `Turbopack` 生产构建
 - 图片未启用 WebP/AVIF 自动转换
@@ -71,6 +72,7 @@ npm run build:turbo
 ```
 
 **配置检查:**
+
 ```typescript
 // next.config.js - 已添加 turbopack 配置
 turbopack: {
@@ -125,12 +127,12 @@ src/app/api/
 
 ```typescript
 // src/app/api/search/route.ts
-import { cache } from 'react';
+import { cache } from 'react'
 
 // 缓存搜索结果 60 秒
 export const getCachedSearch = cache(async (query: string) => {
-  return await searchDatabase(query);
-}, 'search');
+  return await searchDatabase(query)
+}, 'search')
 ```
 
 #### 🟢 低优先级: 添加 Redis 缓存层
@@ -145,17 +147,17 @@ REDIS_URL=redis://localhost:6379
 
 ```typescript
 // lib/cache/redis.ts
-import Redis from 'ioredis';
+import Redis from 'ioredis'
 
-const redis = new Redis(process.env.REDIS_URL);
+const redis = new Redis(process.env.REDIS_URL)
 
 export async function getCached(key: string, ttl = 300) {
-  const cached = await redis.get(key);
-  if (cached) return JSON.parse(cached);
-  
-  const value = await fetchFreshData();
-  await redis.setex(key, ttl, JSON.stringify(value));
-  return value;
+  const cached = await redis.get(key)
+  if (cached) return JSON.parse(cached)
+
+  const value = await fetchFreshData()
+  await redis.setex(key, ttl, JSON.stringify(value))
+  return value
 }
 ```
 
@@ -183,23 +185,23 @@ export async function getCached(key: string, ttl = 300) {
 const db = new Database('7zi.db', {
   // 开启 WAL 模式，提升并发性能
   mode: 'write',
-});
+})
 
 // 优化 PRAGMA 设置
-db.pragma('journal_mode = WAL');
-db.pragma('synchronous = NORMAL');
-db.pragma('cache_size = -64000'); // 64MB 缓存
-db.pragma('temp_store = MEMORY');
+db.pragma('journal_mode = WAL')
+db.pragma('synchronous = NORMAL')
+db.pragma('cache_size = -64000') // 64MB 缓存
+db.pragma('temp_store = MEMORY')
 ```
 
 #### 🟢 低优先级: 添加数据库索引
 
 ```sql
 -- 对高频查询添加索引
-CREATE INDEX IF NOT EXISTS idx_notifications_user_id 
+CREATE INDEX IF NOT EXISTS idx_notifications_user_id
 ON notifications(user_id, created_at DESC);
 
-CREATE INDEX IF NOT EXISTS idx_projects_user_id 
+CREATE INDEX IF NOT EXISTS idx_projects_user_id
 ON projects(user_id, updated_at DESC);
 ```
 
@@ -211,17 +213,18 @@ ON projects(user_id, updated_at DESC);
 
 ### 4.1 当前集成的第三方服务
 
-| 服务 | 用途 | 成本模型 | 状态 |
-|------|------|---------|------|
-| **Resend** | 邮件发送 | 按量计费 ($0.001/封) | ✅ 已集成 |
-| **Sentry** | 错误监控 | 免费套餐 (5k events/月) | ✅ 已集成 |
-| **Google Analytics** | 网站分析 | 免费 | ✅ 可选 |
-| **Umami** | 网站分析 | 自托管 (免费) | ✅ 可选 |
-| **Plausible** | 网站分析 | €9/月 | ⚠️ 可选 |
+| 服务                 | 用途     | 成本模型                | 状态      |
+| -------------------- | -------- | ----------------------- | --------- |
+| **Resend**           | 邮件发送 | 按量计费 ($0.001/封)    | ✅ 已集成 |
+| **Sentry**           | 错误监控 | 免费套餐 (5k events/月) | ✅ 已集成 |
+| **Google Analytics** | 网站分析 | 免费                    | ✅ 可选   |
+| **Umami**            | 网站分析 | 自托管 (免费)           | ✅ 可选   |
+| **Plausible**        | 网站分析 | €9/月                   | ⚠️ 可选   |
 
 ### 4.2 Resend 邮件优化 🟡 中
 
 **当前配置:**
+
 ```typescript
 // 环境变量
 RESEND_API_KEY=${RESEND_API_KEY}
@@ -231,22 +234,24 @@ FROM_EMAIL=noreply@7zi.studio
 **优化建议:**
 
 1. **批量发送** - 收集通知，使用 digest 模式
+
 ```typescript
 // 当前: 每条通知立即发送
-await emailService.send(notification);
+await emailService.send(notification)
 
 // 优化: 批量发送
-await emailService.sendBatch(pendingNotifications);
+await emailService.sendBatch(pendingNotifications)
 ```
 
 2. **邮件模板缓存** - 避免重复渲染
+
 ```typescript
-const templateCache = new Map();
+const templateCache = new Map()
 function getTemplate(name: string) {
   if (!templateCache.has(name)) {
-    templateCache.set(name, loadTemplate(name));
+    templateCache.set(name, loadTemplate(name))
   }
-  return templateCache.get(name);
+  return templateCache.get(name)
 }
 ```
 
@@ -273,17 +278,17 @@ services:
     deploy:
       resources:
         limits:
-          cpus: "1"
+          cpus: '1'
           memory: 512M
         reservations:
-          cpus: "0.25"
+          cpus: '0.25'
           memory: 256M
 
   nginx:
     deploy:
       resources:
         limits:
-          cpus: "0.5"
+          cpus: '0.5'
           memory: 256M
 ```
 
@@ -291,7 +296,8 @@ services:
 
 #### 🟡 中优先级: 收紧资源限制
 
-**观察:** 
+**观察:**
+
 - `.next/server` 仅 15MB
 - 实际内存使用 < 256MB
 - 可以收紧限制节省成本
@@ -302,18 +308,18 @@ services:
   deploy:
     resources:
       limits:
-        cpus: "0.5"           # 0.5 CPU 足够
-        memory: 384M          # 384MB (原 512MB)
+        cpus: '0.5' # 0.5 CPU 足够
+        memory: 384M # 384MB (原 512MB)
       reservations:
-        cpus: "0.1"
+        cpus: '0.1'
         memory: 128M
 
 nginx:
   deploy:
     resources:
       limits:
-        cpus: "0.25"          # 0.25 CPU 足够
-        memory: 128M          # 128MB (原 256MB)
+        cpus: '0.25' # 0.25 CPU 足够
+        memory: 128M # 128MB (原 256MB)
 ```
 
 **预估节省:** 容器成本减少 20-30%
@@ -348,13 +354,13 @@ nginx:
 
 ### 6.2 大体积依赖分析
 
-| 依赖 | 大小估算 | 使用场景 | 优化建议 |
-|------|---------|---------|---------|
-| `next` | ~200MB | 核心框架 | ✅ 保留 |
-| `three` | ~50MB | 3D 知识图谱 | ✅ 已懒加载 |
-| `better-sqlite3` | ~15MB | 本地数据库 | ✅ 保留 |
-| `lucide-react` | ~5MB | 图标 | ✅ 保留 |
-| `i18next` | ~10MB | 国际化 | ✅ 保留 |
+| 依赖             | 大小估算 | 使用场景    | 优化建议    |
+| ---------------- | -------- | ----------- | ----------- |
+| `next`           | ~200MB   | 核心框架    | ✅ 保留     |
+| `three`          | ~50MB    | 3D 知识图谱 | ✅ 已懒加载 |
+| `better-sqlite3` | ~15MB    | 本地数据库  | ✅ 保留     |
+| `lucide-react`   | ~5MB     | 图标        | ✅ 保留     |
+| `i18next`        | ~10MB    | 国际化      | ✅ 保留     |
 
 ### 6.3 优化建议
 
@@ -375,28 +381,28 @@ npm ls --depth=0 | grep extraneous
 
 ### 🔴 高优先级 (立即执行)
 
-| # | 优化项 | 工作量 | 收益 |
-|---|--------|--------|------|
-| 1 | 收紧 Docker 内存限制至 384MB | 5分钟 | 成本节省 20% |
-| 2 | 开启 Turbopack 构建 | 5分钟 | 构建时间 -40% |
-| 3 | 创建 `/health` API 端点 (健康检查) | 10分钟 | 服务可靠性 |
+| #   | 优化项                             | 工作量 | 收益          |
+| --- | ---------------------------------- | ------ | ------------- |
+| 1   | 收紧 Docker 内存限制至 384MB       | 5分钟  | 成本节省 20%  |
+| 2   | 开启 Turbopack 构建                | 5分钟  | 构建时间 -40% |
+| 3   | 创建 `/health` API 端点 (健康检查) | 10分钟 | 服务可靠性    |
 
 ### 🟡 中优先级 (本周执行)
 
-| # | 优化项 | 工作量 | 收益 |
-|---|--------|--------|------|
-| 4 | 添加 API 缓存 (React cache) | 1小时 | 延迟 -30% |
-| 5 | SQLite WAL 模式 + 索引 | 30分钟 | 查询 +50% |
-| 6 | 优化图片尺寸配置 | 10分钟 | CDN 带宽 -20% |
-| 7 | 邮件批量发送优化 | 2小时 | 邮件费用 -40% |
+| #   | 优化项                      | 工作量 | 收益          |
+| --- | --------------------------- | ------ | ------------- |
+| 4   | 添加 API 缓存 (React cache) | 1小时  | 延迟 -30%     |
+| 5   | SQLite WAL 模式 + 索引      | 30分钟 | 查询 +50%     |
+| 6   | 优化图片尺寸配置            | 10分钟 | CDN 带宽 -20% |
+| 7   | 邮件批量发送优化            | 2小时  | 邮件费用 -40% |
 
 ### 🟢 低优先级 (有需要时执行)
 
-| # | 优化项 | 工作量 | 收益 |
-|---|--------|--------|------|
-| 8 | 添加 Redis 缓存层 | 3小时 | DB 负载 -40% |
-| 9 | 迁移到 Umami 分析 | 2小时 | GDPR 合规 |
-| 10 | 依赖清理 | 30分钟 | 磁盘 -50MB |
+| #   | 优化项            | 工作量 | 收益         |
+| --- | ----------------- | ------ | ------------ |
+| 8   | 添加 Redis 缓存层 | 3小时  | DB 负载 -40% |
+| 9   | 迁移到 Umami 分析 | 2小时  | GDPR 合规    |
+| 10  | 依赖清理          | 30分钟 | 磁盘 -50MB   |
 
 ---
 
@@ -404,13 +410,13 @@ npm ls --depth=0 | grep extraneous
 
 ### 优化前后对比
 
-| 指标 | 当前 | 优化后 | 改善 |
-|------|------|--------|------|
-| CDN 带宽 | $20/月 | $15/月 | -25% |
-| 容器成本 | $40/月 | $32/月 | -20% |
-| 邮件成本 | $10/月 | $6/月 | -40% |
-| 构建时间 | 5分钟 | 3分钟 | -40% |
-| API 响应 | 基准 | -30% | +30% |
+| 指标     | 当前       | 优化后     | 改善     |
+| -------- | ---------- | ---------- | -------- |
+| CDN 带宽 | $20/月     | $15/月     | -25%     |
+| 容器成本 | $40/月     | $32/月     | -20%     |
+| 邮件成本 | $10/月     | $6/月      | -40%     |
+| 构建时间 | 5分钟      | 3分钟      | -40%     |
+| API 响应 | 基准       | -30%       | +30%     |
 | **总计** | **$70/月** | **$53/月** | **-24%** |
 
 ### 月度节省
@@ -492,5 +498,5 @@ npm run build:turbo
 
 ---
 
-*本报告由 💰 财务 (AI Subagent) 自动生成*
-*分析维度: CDN/带宽 · API 调用 · 数据库 · 第三方服务*
+_本报告由 💰 财务 (AI Subagent) 自动生成_
+_分析维度: CDN/带宽 · API 调用 · 数据库 · 第三方服务_

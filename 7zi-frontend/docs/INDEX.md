@@ -9,12 +9,12 @@
 
 ### 当前状态
 
-| 指标 | 状态 | 备注 |
-|------|------|------|
-| 版本 | v1.3.0 | 已发布 |
-| 测试覆盖率 | 85%+ | 60+ 测试文件，346+ 测试用例 |
-| 构建 | ✅ 通过 | Next.js 16.2.1 |
-| 部署 | 🟡 测试环境 | 生产环境待配置 |
+| 指标       | 状态        | 备注                        |
+| ---------- | ----------- | --------------------------- |
+| 版本       | v1.3.0      | 已发布                      |
+| 测试覆盖率 | 85%+        | 60+ 测试文件，346+ 测试用例 |
+| 构建       | ✅ 通过     | Next.js 16.2.1              |
+| 部署       | 🟡 测试环境 | 生产环境待配置              |
 
 ### 技术栈
 
@@ -33,6 +33,7 @@
 ### 已完成功能 ✅
 
 #### 国际化 (i18n Phase 2) - 100%
+
 - [x] react-i18next 集成
 - [x] 中英文支持 (zh/en)
 - [x] 自动语言检测
@@ -46,6 +47,7 @@
 **文档**: `docs/I18N_IMPLEMENTATION.md`
 
 #### 图片优化 - 100%
+
 - [x] AVIF/WebP 支持
 - [x] 6 种预设尺寸
 - [x] OptimizedImage 组件
@@ -58,6 +60,7 @@
 **文档**: `docs/IMAGE_OPTIMIZATION_GUIDE.md`
 
 #### 安全加固 - 100%
+
 - [x] JWT 认证系统
 - [x] 认证中间件
 - [x] 原型污染防护
@@ -71,6 +74,7 @@
 **文档**: `docs/SECURITY_HARDENING.md`
 
 #### E2E 测试 - 100%
+
 - [x] Playwright 配置
 - [x] 登录流程测试
 - [x] 通知系统测试
@@ -81,6 +85,7 @@
 **文档**: `docs/E2E_TEST_COMPLETION_REPORT.md`
 
 #### 深色模式 - 100%
+
 - [x] 主题系统
 - [x] 主题切换组件
 - [x] 自动检测
@@ -91,6 +96,7 @@
 **文档**: `DARK_MODE_IMPLEMENTATION_REPORT.md`
 
 #### 性能监控 - 100%
+
 - [x] 性能 Dashboard
 - [x] Web Vitals 监控
 - [x] 历史记录
@@ -142,52 +148,52 @@
 
 ### 核心文档
 
-| 文档 | 描述 | 状态 |
-|------|------|------|
-| [API.md](./API.md) | API 端点文档 | ✅ 最新 |
-| [CHANGELOG.md](../CHANGELOG.md) | 版本变更日志 | ✅ 最新 |
-| [TESTING_STRATEGY.md](./TESTING_STRATEGY.md) | 测试策略 | ✅ 最新 |
+| 文档                                         | 描述         | 状态    |
+| -------------------------------------------- | ------------ | ------- |
+| [API.md](./API.md)                           | API 端点文档 | ✅ 最新 |
+| [CHANGELOG.md](../CHANGELOG.md)              | 版本变更日志 | ✅ 最新 |
+| [TESTING_STRATEGY.md](./TESTING_STRATEGY.md) | 测试策略     | ✅ 最新 |
 
 ### 功能文档
 
-| 文档 | 描述 | 版本 |
-|------|------|------|
-| [I18N_IMPLEMENTATION.md](./I18N_IMPLEMENTATION.md) | 国际化实现 | v1.3.0 |
-| [IMAGE_OPTIMIZATION_GUIDE.md](./IMAGE_OPTIMIZATION_GUIDE.md) | 图片优化指南 | v1.3.0 |
-| [SECURITY_HARDENING.md](./SECURITY_HARDENING.md) | 安全加固 | v1.3.0 |
+| 文档                                                             | 描述         | 版本   |
+| ---------------------------------------------------------------- | ------------ | ------ |
+| [I18N_IMPLEMENTATION.md](./I18N_IMPLEMENTATION.md)               | 国际化实现   | v1.3.0 |
+| [IMAGE_OPTIMIZATION_GUIDE.md](./IMAGE_OPTIMIZATION_GUIDE.md)     | 图片优化指南 | v1.3.0 |
+| [SECURITY_HARDENING.md](./SECURITY_HARDENING.md)                 | 安全加固     | v1.3.0 |
 | [E2E_TEST_COMPLETION_REPORT.md](./E2E_TEST_COMPLETION_REPORT.md) | E2E 测试报告 | v1.3.0 |
-| [PERFORMANCE_MONITORING.md](./PERFORMANCE_MONITORING.md) | 性能监控 | v1.3.0 |
+| [PERFORMANCE_MONITORING.md](./PERFORMANCE_MONITORING.md)         | 性能监控     | v1.3.0 |
 
 ### 架构文档
 
-| 文档 | 描述 |
-|------|------|
-| [MICROFRONTEND_ARCHITECTURE.md](./MICROFRONTEND_ARCHITECTURE.md) | 微前端架构 |
+| 文档                                                                                   | 描述         |
+| -------------------------------------------------------------------------------------- | ------------ |
+| [MICROFRONTEND_ARCHITECTURE.md](./MICROFRONTEND_ARCHITECTURE.md)                       | 微前端架构   |
 | [FEATURE_ARCHITECTURE_MIGRATION_REPORT.md](./FEATURE_ARCHITECTURE_MIGRATION_REPORT.md) | 功能架构迁移 |
-| [DESIGN_SYSTEM.md](./DESIGN_SYSTEM.md) | 设计系统 |
+| [DESIGN_SYSTEM.md](./DESIGN_SYSTEM.md)                                                 | 设计系统     |
 
 ### MCP 协议
 
-| 文档 | 描述 |
-|------|------|
-| [MCP-IMPLEMENTATION.md](./MCP-IMPLEMENTATION.md) | MCP 协议实现 |
-| [FEEDBACK_IMPLEMENTATION_SUMMARY.md](./FEEDBACK_IMPLEMENTATION_SUMMARY.md) | 反馈系统 |
+| 文档                                                                       | 描述         |
+| -------------------------------------------------------------------------- | ------------ |
+| [MCP-IMPLEMENTATION.md](./MCP-IMPLEMENTATION.md)                           | MCP 协议实现 |
+| [FEEDBACK_IMPLEMENTATION_SUMMARY.md](./FEEDBACK_IMPLEMENTATION_SUMMARY.md) | 反馈系统     |
 
 ### 测试相关
 
-| 文档 | 描述 |
-|------|------|
+| 文档                                                   | 描述         |
+| ------------------------------------------------------ | ------------ |
 | [TEST_COVERAGE_SUMMARY.md](./TEST_COVERAGE_SUMMARY.md) | 测试覆盖总结 |
-| [TESTING_STRATEGY.md](./TESTING_STRATEGY.md) | 测试策略 |
+| [TESTING_STRATEGY.md](./TESTING_STRATEGY.md)           | 测试策略     |
 
 ### 其他
 
-| 文档 | 描述 |
-|------|------|
-| [mobile-ux-report.md](./mobile-ux-report.md) | 移动端 UX 报告 |
-| [mobile-optimization-summary.md](./mobile-optimization-summary.md) | 移动端优化总结 |
-| [CICD_IMPROVEMENT_REPORT.md](./CICD_IMPROVEMENT_REPORT.md) | CI/CD 改进报告 |
-| [nextjs-upgrade-roadmap.md](./nextjs-upgrade-roadmap.md) | Next.js 升级路线 |
+| 文档                                                               | 描述             |
+| ------------------------------------------------------------------ | ---------------- |
+| [mobile-ux-report.md](./mobile-ux-report.md)                       | 移动端 UX 报告   |
+| [mobile-optimization-summary.md](./mobile-optimization-summary.md) | 移动端优化总结   |
+| [CICD_IMPROVEMENT_REPORT.md](./CICD_IMPROVEMENT_REPORT.md)         | CI/CD 改进报告   |
+| [nextjs-upgrade-roadmap.md](./nextjs-upgrade-roadmap.md)           | Next.js 升级路线 |
 
 ---
 
@@ -195,23 +201,23 @@
 
 ### Web Vitals 目标
 
-| 指标 | 目标 | 当前状态 |
-|------|------|---------|
-| LCP | < 2.5s | ✅ ~1.5s |
-| FID | < 100ms | ✅ ~50ms |
-| CLS | < 0.1 | ✅ ~0.05 |
-| FCP | < 1.8s | ✅ ~1.2s |
+| 指标 | 目标    | 当前状态  |
+| ---- | ------- | --------- |
+| LCP  | < 2.5s  | ✅ ~1.5s  |
+| FID  | < 100ms | ✅ ~50ms  |
+| CLS  | < 0.1   | ✅ ~0.05  |
+| FCP  | < 1.8s  | ✅ ~1.2s  |
 | TTFB | < 600ms | ✅ ~400ms |
-| TTI | < 3.8s | ✅ ~2.0s |
+| TTI  | < 3.8s  | ✅ ~2.0s  |
 
 ### Lighthouse 评分
 
-| 类别 | 目标 | 当前 |
-|------|------|------|
-| Performance | 90+ | ✅ 90+ |
-| Accessibility | 90+ | ✅ 95+ |
-| Best Practices | 90+ | ✅ 95+ |
-| SEO | 90+ | ✅ 90+ |
+| 类别           | 目标 | 当前   |
+| -------------- | ---- | ------ |
+| Performance    | 90+  | ✅ 90+ |
+| Accessibility  | 90+  | ✅ 95+ |
+| Best Practices | 90+  | ✅ 95+ |
+| SEO            | 90+  | ✅ 90+ |
 
 ---
 
@@ -256,34 +262,34 @@ npm run lint
 
 ### 代码统计
 
-| 类型 | 数量 |
-|------|------|
+| 类型            | 数量  |
+| --------------- | ----- |
 | TypeScript 文件 | ~200+ |
-| 组件 | ~80+ |
-| API 端点 | 16 |
-| 测试用例 | 346+ |
-| 翻译键 | 500+ |
+| 组件            | ~80+  |
+| API 端点        | 16    |
+| 测试用例        | 346+  |
+| 翻译键          | 500+  |
 
 ### 测试统计
 
-| 类型 | 数量 | 通过率 |
-|------|------|--------|
-| 单元测试 | 346+ | 100% |
-| E2E 测试 | 20+ | 100% |
-| 覆盖率 | 85%+ | - |
+| 类型     | 数量 | 通过率 |
+| -------- | ---- | ------ |
+| 单元测试 | 346+ | 100%   |
+| E2E 测试 | 20+  | 100%   |
+| 覆盖率   | 85%+ | -      |
 
 ---
 
 ## 🎯 里程碑
 
-| 版本 | 目标 | 状态 | 完成日期 |
-|------|------|------|---------|
-| v1.0.0 | 项目初始化 | ✅ | 2026-03-01 |
-| v1.1.0 | 基础功能 | ✅ | 2026-03-15 |
-| v1.2.0 | MCP/通知系统 | ✅ | 2026-03-22 |
-| v1.3.0 | i18n/优化/安全 | ✅ | 2026-03-28 |
-| v1.4.0 | Agent 协作 | 📋 | Q2 2026 |
-| v1.5.0 | 工作流/协作 | 📋 | Q3 2026 |
+| 版本   | 目标           | 状态 | 完成日期   |
+| ------ | -------------- | ---- | ---------- |
+| v1.0.0 | 项目初始化     | ✅   | 2026-03-01 |
+| v1.1.0 | 基础功能       | ✅   | 2026-03-15 |
+| v1.2.0 | MCP/通知系统   | ✅   | 2026-03-22 |
+| v1.3.0 | i18n/优化/安全 | ✅   | 2026-03-28 |
+| v1.4.0 | Agent 协作     | 📋   | Q2 2026    |
+| v1.5.0 | 工作流/协作    | 📋   | Q3 2026    |
 
 ---
 

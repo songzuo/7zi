@@ -1,26 +1,26 @@
-import type { NextConfig } from 'next';
-import createNextIntlPlugin from 'next-intl/plugin';
+import type { NextConfig } from 'next'
+import createNextIntlPlugin from 'next-intl/plugin'
 
 // 创建 next-intl 插件，指定配置文件路径
-const withNextIntl = createNextIntlPlugin('./src/i18n/request.ts');
+const withNextIntl = createNextIntlPlugin('./src/i18n/request.ts')
 
 // ============================================================================
 // React Compiler 配置
 // ============================================================================
 // 服务端环境变量，用于构建时控制
-const reactCompilerEnabled = process.env.ENABLE_REACT_COMPILER === 'true';
-const reactCompilerMode = process.env.REACT_COMPILER_MODE || 'opt-out';
-const reactCompilerExcludePatterns = process.env.REACT_COMPILER_EXCLUDE_PATTERNS || '';
+const reactCompilerEnabled = process.env.ENABLE_REACT_COMPILER === 'true'
+const reactCompilerMode = process.env.REACT_COMPILER_MODE || 'opt-out'
+const reactCompilerExcludePatterns = process.env.REACT_COMPILER_EXCLUDE_PATTERNS || ''
 
 // 解析排除模式
 const excludePatterns = reactCompilerExcludePatterns
   ? reactCompilerExcludePatterns.split(',').map(p => p.trim())
-  : [];
+  : []
 
 // ============================================================================
 // Security Configuration (P1 Security Enhancements)
 // ============================================================================
-const isProduction = process.env.NODE_ENV === 'production';
+const isProduction = process.env.NODE_ENV === 'production'
 
 const nextConfig: NextConfig = {
   reactStrictMode: true,
@@ -40,47 +40,48 @@ const nextConfig: NextConfig = {
           // Security Headers
           {
             key: 'X-DNS-Prefetch-Control',
-            value: 'on'
+            value: 'on',
           },
           {
             key: 'Strict-Transport-Security',
-            value: isProduction ? 'max-age=63072000; includeSubDomains; preload' : 'max-age=0'
+            value: isProduction ? 'max-age=63072000; includeSubDomains; preload' : 'max-age=0',
           },
           {
             key: 'X-Frame-Options',
-            value: isProduction ? 'DENY' : 'SAMEORIGIN'
+            value: isProduction ? 'DENY' : 'SAMEORIGIN',
           },
           {
             key: 'X-Content-Type-Options',
-            value: 'nosniff'
+            value: 'nosniff',
           },
           {
             key: 'X-XSS-Protection',
-            value: '1; mode=block'
+            value: '1; mode=block',
           },
           {
             key: 'Referrer-Policy',
-            value: 'strict-origin-when-cross-origin'
+            value: 'strict-origin-when-cross-origin',
           },
           {
             key: 'Permissions-Policy',
-            value: 'camera=(), microphone=(), geolocation=(self), payment=(self), usb=(), magnetometer=(), accelerometer=(), gyroscope=(), fullscreen=(self), screen-wake-lock=(self)'
+            value:
+              'camera=(), microphone=(), geolocation=(self), payment=(self), usb=(), magnetometer=(), accelerometer=(), gyroscope=(), fullscreen=(self), screen-wake-lock=(self)',
           },
           {
             key: 'Cross-Origin-Opener-Policy',
-            value: 'same-origin'
+            value: 'same-origin',
           },
           {
             key: 'Cross-Origin-Resource-Policy',
-            value: 'same-site'
+            value: 'same-site',
           },
           {
             key: 'Cross-Origin-Embedder-Policy',
-            value: isProduction ? 'require-corp' : 'unsafe-none'
+            value: isProduction ? 'require-corp' : 'unsafe-none',
           },
           {
             key: 'X-Permitted-Cross-Domain-Policies',
-            value: 'none'
+            value: 'none',
           },
           {
             key: 'Content-Security-Policy',
@@ -96,21 +97,38 @@ const nextConfig: NextConfig = {
         headers: [
           {
             key: 'Content-Security-Policy',
-            value: "default-src 'self'; script-src 'none'; style-src 'none'; img-src 'self' data:; font-src 'none'; connect-src 'self'; media-src 'none'; object-src 'none'; frame-src 'none'; base-uri 'self'; form-action 'self';",
+            value:
+              "default-src 'self'; script-src 'none'; style-src 'none'; img-src 'self' data:; font-src 'none'; connect-src 'self'; media-src 'none'; object-src 'none'; frame-src 'none'; base-uri 'self'; form-action 'self';",
           },
         ],
       },
-    ];
+    ]
   },
 
-  // 图片优化
+  // v1.8.0 性能优化: 图片优化配置
   images: {
-    domains: ['avatars.githubusercontent.com', 'github'],
+    // 使用 remotePatterns 替代已废弃的 domains
+    remotePatterns: [
+      {
+        protocol: 'https',
+        hostname: 'avatars.githubusercontent.com',
+      },
+      {
+        protocol: 'https',
+        hostname: 'github.com',
+      },
+      {
+        protocol: 'https',
+        hostname: 'cdn.jsdelivr.net',
+      },
+    ],
     formats: ['image/avif', 'image/webp'],
     deviceSizes: [640, 750, 828, 1080, 1200, 1920, 2048, 3840],
     imageSizes: [16, 32, 48, 64, 96, 128, 256, 384],
     dangerouslyAllowSVG: false,
     unoptimized: false,
+    // v1.8.0: 启用图片压缩
+    minimumCacheTTL: 60,
   },
 
   // React Compiler 配置 (Next.js 16+: 顶级配置)
@@ -118,12 +136,15 @@ const nextConfig: NextConfig = {
     reactCompiler: {
       // 源文件过滤函数
       sources: (filename: string) => {
-        const normalizedPath = filename.replace(/\\/g, '/');
+        const normalizedPath = filename.replace(/\\/g, '/')
 
         // 检查排除模式
         for (const pattern of excludePatterns) {
-          if (normalizedPath.includes(pattern) || normalizedPath.match(pattern.replace(/\*\*/g, '.*'))) {
-            return false;
+          if (
+            normalizedPath.includes(pattern) ||
+            normalizedPath.match(pattern.replace(/\*\*/g, '.*'))
+          ) {
+            return false
           }
         }
 
@@ -136,11 +157,11 @@ const nextConfig: NextConfig = {
           'src/lib/third-party',
           'src/components/legacy',
           'src/app/standalone', // Next.js standalone 输出
-        ];
+        ]
 
         for (const pattern of alwaysExclude) {
           if (normalizedPath.includes(pattern)) {
-            return false;
+            return false
           }
         }
 
@@ -151,17 +172,17 @@ const nextConfig: NextConfig = {
             'src/components/dashboard',
             'src/components/tasks',
             'src/app/[locale]/dashboard',
-          ];
+          ]
           for (const pattern of includePatterns) {
             if (normalizedPath.includes(pattern)) {
-              return true;
+              return true
             }
           }
-          return false;
+          return false
         }
 
         // opt-out 模式或 all 模式：编译除黑名单外的所有文件
-        return true;
+        return true
       },
     },
   }),
@@ -169,26 +190,122 @@ const nextConfig: NextConfig = {
   // 实验性功能
   experimental: {
     optimizeCss: true,
-    optimizePackageImports: ['lucide-react', '@radix-ui/react-icons'],
+    optimizePackageImports: [
+      'lucide-react',
+      '@radix-ui/react-icons',
+      // v1.8.0 性能优化: 扩展 tree-shaking 优化
+      '@radix-ui/react-dropdown-menu',
+      '@radix-ui/react-dialog',
+      '@radix-ui/react-select',
+      '@radix-ui/react-tabs',
+      '@radix-ui/react-tooltip',
+      '@radix-ui/react-popover',
+      '@radix-ui/react-accordion',
+      '@radix-ui/react-avatar',
+      '@radix-ui/react-checkbox',
+      '@radix-ui/react-switch',
+      '@radix-ui/react-slider',
+      'recharts',
+      'framer-motion',
+    ],
   },
 
   // 编译器选项
   compiler: {
-    removeConsole: process.env.NODE_ENV === 'production' ? {
-      exclude: ['error', 'warn'],
-    } : false,
+    removeConsole:
+      process.env.NODE_ENV === 'production'
+        ? {
+            exclude: ['error', 'warn'],
+          }
+        : false,
   },
 
-  // Webpack 配置
-  webpack: (config) => {
-    config.externals = config.externals || [];
+  // v1.8.0 性能优化: 增强的 Webpack 配置
+  webpack: (config, { isServer }) => {
+    config.externals = config.externals || []
     config.externals.push({
       'utf-8-validate': 'commonjs utf-8-validate',
-      'bufferutil': 'commonjs bufferutil',
-    });
+      bufferutil: 'commonjs bufferutil',
+    })
 
-    return config;
+    // 优化 1: 代码分割策略 - 将大型依赖分离到独立 chunk
+    if (!isServer) {
+      config.optimization = config.optimization || {}
+      config.optimization.splitChunks = {
+        chunks: 'all',
+        cacheGroups: {
+          // React 核心库单独打包
+          react: {
+            test: /[\\/]node_modules[\\/](react|react-dom|scheduler)[\\/]/,
+            name: 'react-core',
+            priority: 100,
+            reuseExistingChunk: true,
+          },
+          // UI 组件库 (Radix UI) 单独打包
+          radix: {
+            test: /[\\/]node_modules[\\/]@radix-ui[\\/]/,
+            name: 'radix-ui',
+            priority: 90,
+            reuseExistingChunk: true,
+          },
+          // 图表库单独打包
+          charts: {
+            test: /[\\/]node_modules[\\/](recharts|d3-.*|victory)[\\/]/,
+            name: 'chart-libs',
+            priority: 80,
+            reuseExistingChunk: true,
+          },
+          // 3D 库单独打包 (动态加载)
+          three: {
+            test: /[\\/]node_modules[\\/](three|@react-three)[\\/]/,
+            name: 'three-libs',
+            priority: 80,
+            reuseExistingChunk: true,
+          },
+          // 动画库单独打包
+          motion: {
+            test: /[\\/]node_modules[\\/](framer-motion|popmotion)[\\/]/,
+            name: 'motion-libs',
+            priority: 70,
+            reuseExistingChunk: true,
+          },
+          // 工具库单独打包
+          utils: {
+            test: /[\\/]node_modules[\\/](lodash|date-fns|dayjs|uuid)[\\/]/,
+            name: 'utils-libs',
+            priority: 60,
+            reuseExistingChunk: true,
+          },
+          // 其他 vendor 代码
+          vendor: {
+            test: /[\\/]node_modules[\\/]/,
+            name: 'vendors',
+            priority: 10,
+            reuseExistingChunk: true,
+            minChunks: 2,
+          },
+        },
+        maxInitialRequests: 25,
+        maxAsyncRequests: 25,
+        minSize: 20000,
+      }
+    }
+
+    // 优化 2: Tree Shaking 增强
+    config.optimization = config.optimization || {}
+    config.optimization.usedExports = true
+    config.optimization.sideEffects = true
+
+    // 优化 3: 模块解析优化
+    config.resolve = config.resolve || {}
+    config.resolve.alias = {
+      ...config.resolve.alias,
+      // 优化 lodash 导入
+      'lodash': 'lodash-es',
+    }
+
+    return config
   },
-};
+}
 
-export default withNextIntl(nextConfig);
+export default withNextIntl(nextConfig)

@@ -60,9 +60,9 @@
 
 ### 环境配置
 
-| 环境 | 容器名 | 端口 | 状态 |
-|------|--------|------|------|
-| Blue | `7zi-frontend-blue` | 3000 | 当前活跃/待机 |
+| 环境  | 容器名               | 端口 | 状态          |
+| ----- | -------------------- | ---- | ------------- |
+| Blue  | `7zi-frontend-blue`  | 3000 | 当前活跃/待机 |
 | Green | `7zi-frontend-green` | 3001 | 当前待机/活跃 |
 
 ### 工作原理
@@ -94,34 +94,36 @@ graph LR
 ### CI 流程 (ci.yml)
 
 **触发条件**:
+
 - Push 到 `main` 或 `develop` 分支
 - Pull Request 到 `main` 或 `develop` 分支
 
 **执行步骤**:
 
-| 步骤 | 描述 | 超时 | 缓存 |
-|------|------|------|------|
-| Lint & Type Check | ESLint + TypeScript | 5min | ✅ node_modules |
-| Unit Tests | Vitest + Coverage | 5min | ✅ node_modules |
-| Build | Turbopack 构建 | 10min | ✅ node_modules + .next/cache |
-| E2E Tests | Playwright | 10min | ✅ node_modules |
-| Security Scan | npm audit + Snyk | 5min | ✅ node_modules |
+| 步骤              | 描述                | 超时  | 缓存                          |
+| ----------------- | ------------------- | ----- | ----------------------------- |
+| Lint & Type Check | ESLint + TypeScript | 5min  | ✅ node_modules               |
+| Unit Tests        | Vitest + Coverage   | 5min  | ✅ node_modules               |
+| Build             | Turbopack 构建      | 10min | ✅ node_modules + .next/cache |
+| E2E Tests         | Playwright          | 10min | ✅ node_modules               |
+| Security Scan     | npm audit + Snyk    | 5min  | ✅ node_modules               |
 
 ### CD 流程 (cd-blue-green.yml)
 
 **触发条件**:
+
 - Push 到 `main` 分支
 - 手动触发
 
 **执行步骤**:
 
-| 步骤 | 描述 | 超时 | 关键操作 |
-|------|------|------|----------|
-| Build & Push | 构建并推送 Docker 镜像 | 15min | 多层缓存 |
-| Deploy | 蓝绿部署 | 10min | 自动切换 |
-| Health Check | 健康检查 | 2min | 30次重试 |
-| Smoke Tests | 冒烟测试 | 5min | Playwright |
-| Performance | 性能检查 | 5min | Lighthouse |
+| 步骤         | 描述                   | 超时  | 关键操作   |
+| ------------ | ---------------------- | ----- | ---------- |
+| Build & Push | 构建并推送 Docker 镜像 | 15min | 多层缓存   |
+| Deploy       | 蓝绿部署               | 10min | 自动切换   |
+| Health Check | 健康检查               | 2min  | 30次重试   |
+| Smoke Tests  | 冒烟测试               | 5min  | Playwright |
+| Performance  | 性能检查               | 5min  | Lighthouse |
 
 ---
 
@@ -178,12 +180,12 @@ cd /root/7zi-frontend
 
 ### 部署脚本列表
 
-| 脚本 | 用途 | 示例 |
-|------|------|------|
-| `blue-green-deploy.sh` | 蓝绿部署主脚本 | `./blue-green-deploy.sh auto [image]` |
-| `verify-deploy.sh` | 部署验证 | `./verify-deploy.sh production` |
-| `rollback.sh` | 回滚操作 | `./rollback.sh` |
-| `quick-deploy.sh` | 快速部署 | `./quick-deploy.sh production [image]` |
+| 脚本                   | 用途           | 示例                                   |
+| ---------------------- | -------------- | -------------------------------------- |
+| `blue-green-deploy.sh` | 蓝绿部署主脚本 | `./blue-green-deploy.sh auto [image]`  |
+| `verify-deploy.sh`     | 部署验证       | `./verify-deploy.sh production`        |
+| `rollback.sh`          | 回滚操作       | `./rollback.sh`                        |
+| `quick-deploy.sh`      | 快速部署       | `./quick-deploy.sh production [image]` |
 
 ---
 
@@ -409,7 +411,7 @@ jobs:
 - name: Checkout
   uses: actions/checkout@v4
   with:
-    fetch-depth: 1  # 只克隆最新提交
+    fetch-depth: 1 # 只克隆最新提交
 ```
 
 **效果**: 克隆时间从 30-60 秒降至 5-10 秒
@@ -442,13 +444,13 @@ jobs:
 
 ### 性能基准
 
-| 指标 | 优化前 | 优化后 | 改进 |
-|------|--------|--------|------|
-| CI 总时间 | 20-30 分钟 | 8-12 分钟 | -60% |
-| 构建时间 | 5-8 分钟 | 1-3 分钟 | -70% |
-| Docker 构建 | 5-10 分钟 | 1-2 分钟 | -80% |
-| 部署时间 | 5-10 分钟 | 2-4 分钟 | -60% |
-| 回滚时间 | 10-15 分钟 | 1-2 分钟 | -85% |
+| 指标        | 优化前     | 优化后    | 改进 |
+| ----------- | ---------- | --------- | ---- |
+| CI 总时间   | 20-30 分钟 | 8-12 分钟 | -60% |
+| 构建时间    | 5-8 分钟   | 1-3 分钟  | -70% |
+| Docker 构建 | 5-10 分钟  | 1-2 分钟  | -80% |
+| 部署时间    | 5-10 分钟  | 2-4 分钟  | -60% |
+| 回滚时间    | 10-15 分钟 | 1-2 分钟  | -85% |
 
 ---
 
@@ -470,11 +472,11 @@ curl https://7zi.com/api/health
 
 ### 监控指标
 
-| 指标 | 阈值 | 告警 |
-|------|------|------|
-| 响应时间 | > 5s | ⚠️ Warning |
-| 错误率 | > 1% | 🔴 Critical |
-| CPU 使用率 | > 80% | ⚠️ Warning |
+| 指标       | 阈值  | 告警        |
+| ---------- | ----- | ----------- |
+| 响应时间   | > 5s  | ⚠️ Warning  |
+| 错误率     | > 1%  | 🔴 Critical |
+| CPU 使用率 | > 80% | ⚠️ Warning  |
 | 内存使用率 | > 90% | 🔴 Critical |
 | 磁盘使用率 | > 90% | 🔴 Critical |
 

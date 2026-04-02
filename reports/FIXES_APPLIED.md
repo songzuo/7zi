@@ -14,34 +14,36 @@
 **Impact:** Unblocks ~30+ authentication tests
 
 **Problem:**
+
 - `better-sqlite3` doesn't support multiple SQL statements in a single `db.exec()` call for security reasons
 - The function was passing a large multi-statement string containing CREATE TABLE and CREATE INDEX statements
 
 **Solution:**
+
 - Split the large SQL schema string into an array of individual statements
 - Execute each statement separately in a try-catch loop
 - Maintains the same error handling logic (ignores "already exists" errors)
 
 **Code Change:**
+
 ```typescript
 // BEFORE:
-const schema = `CREATE TABLE...; CREATE INDEX...;`;
-db.exec(schema);
+const schema = `CREATE TABLE...; CREATE INDEX...;`
+db.exec(schema)
 
 // AFTER:
-const statements = [
-  `CREATE TABLE...`,
-  `CREATE INDEX...`,
-  `CREATE INDEX...`,
-];
+const statements = [`CREATE TABLE...`, `CREATE INDEX...`, `CREATE INDEX...`]
 for (const statement of statements) {
   try {
-    db.exec(statement);
-  } catch (error) { /* error handling */ }
+    db.exec(statement)
+  } catch (error) {
+    /* error handling */
+  }
 }
 ```
 
 **Expected Test Impact:**
+
 - All auth tests in `src/lib/auth/__tests__/auth.test.ts` should now pass
 - Password reset tests should pass
 - User creation and token management tests should pass
@@ -55,15 +57,18 @@ for (const statement of statements) {
 **Impact:** Unblocks 1 test
 
 **Problem:**
+
 - Test was expecting `sameSite: 'lax'`
 - Implementation actually uses `sameSite: 'strict'` (more secure)
 - This was a test expectation mismatch, not a bug
 
 **Solution:**
+
 - Updated test expectation from `'lax'` to `'strict'`
 - The more secure setting is maintained
 
 **Code Change:**
+
 ```typescript
 // BEFORE:
 expect(mockCookieStore.set).toHaveBeenCalledWith(
@@ -83,6 +88,7 @@ expect(mockCookieStore.set).toHaveBeenCalledWith(
 ```
 
 **Expected Test Impact:**
+
 - CSRF token test should now pass
 
 ---
@@ -94,15 +100,18 @@ expect(mockCookieStore.set).toHaveBeenCalledWith(
 **Impact:** Unblocks 1 test
 
 **Problem:**
+
 - Permission value was `'user:manage:role'` (contains two colons)
 - Test expected all permissions to match pattern `/^[a-z]+:[a-z]+$/` (single colon only)
 - This was a test assertion that caught inconsistent naming
 
 **Solution:**
+
 - Changed from `'user:manage:role'` to `'user:manage_role'` (single colon, underscores for multi-word actions)
 - Maintains semantic meaning while following the naming pattern
 
 **Code Change:**
+
 ```typescript
 // BEFORE:
 USER_MANAGE_ROLE = 'user:manage:role',  // ❌ Two colons
@@ -112,6 +121,7 @@ USER_MANAGE_ROLE = 'user:manage_role',  // ✅ One colon, underscore
 ```
 
 **Expected Test Impact:**
+
 - Permission naming pattern test should now pass
 
 ---
@@ -119,12 +129,14 @@ USER_MANAGE_ROLE = 'user:manage_role',  // ✅ One colon, underscore
 ## 📊 Overall Impact
 
 ### Tests Expected to Pass After Fixes:
+
 - **Auth Tests:** ~30 tests (database multi-statement fix)
 - **CSRF Test:** 1 test (cookie expectation fix)
 - **Permission Test:** 1 test (naming pattern fix)
 - **Total:** ~32 additional tests passing
 
 ### Remaining Issues:
+
 - **Status Route Tests:** 23 tests (require NextRequest mock fixes - Priority 1)
 - **Performance Analyzer:** 15 tests (require proper database mocking - Priority 1)
 - **WebSocket Tests:** 3 tests (require timeout/mock adjustments - Priority 2)

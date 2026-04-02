@@ -1,7 +1,7 @@
 # AgentScheduler 扩展性设计建议
 
 > 📚 咨询师 + 🌟 智能体世界专家 联合设计
-> 
+>
 > 日期: 2026-03-29
 
 ## 执行摘要
@@ -33,12 +33,12 @@
 
 ### 1.2 现有限制
 
-| 限制 | 影响 | 优先级 |
-|------|------|--------|
-| Agent 类型固定 | 新增 Agent 需要修改代码 | 高 |
-| 单机部署 | 无法水平扩展 | 高 |
-| 静态优先级 | 无法动态调整 | 中 |
-| 无实验能力 | 无法灰度发布 | 中 |
+| 限制           | 影响                    | 优先级 |
+| -------------- | ----------------------- | ------ |
+| Agent 类型固定 | 新增 Agent 需要修改代码 | 高     |
+| 单机部署       | 无法水平扩展            | 高     |
+| 静态优先级     | 无法动态调整            | 中     |
+| 无实验能力     | 无法灰度发布            | 中     |
 
 ---
 
@@ -96,21 +96,21 @@
 ```typescript
 // Agent 类型定义
 interface Agent {
-  id: string;
-  type: AgentType;
-  capabilities: string[];
-  metadata: Record<string, any>;
-  healthCheck(): Promise<HealthStatus>;
-  execute(task: Task): Promise<TaskResult>;
+  id: string
+  type: AgentType
+  capabilities: string[]
+  metadata: Record<string, any>
+  healthCheck(): Promise<HealthStatus>
+  execute(task: Task): Promise<TaskResult>
 }
 
 enum AgentType {
-  LLM = 'llm',           // 大语言模型 Agent
-  TOOL = 'tool',         // 工具 Agent (API 调用)
-  HUMAN = 'human',       // 人机协作 Agent
+  LLM = 'llm', // 大语言模型 Agent
+  TOOL = 'tool', // 工具 Agent (API 调用)
+  HUMAN = 'human', // 人机协作 Agent
   WORKFLOW = 'workflow', // 工作流 Agent (组合)
-  PLUGIN = 'plugin',     // 插件 Agent (动态加载)
-  HYBRID = 'hybrid',     // 混合 Agent
+  PLUGIN = 'plugin', // 插件 Agent (动态加载)
+  HYBRID = 'hybrid', // 混合 Agent
 }
 ```
 
@@ -129,26 +129,26 @@ type AgentRegistry struct {
 func (r *AgentRegistry) Register(agent Agent) error {
     r.Lock()
     defer r.Unlock()
-    
+
     // 1. 验证 Agent 有效性
     if err := agent.Validate(); err != nil {
         return err
     }
-    
+
     // 2. 健康检查
     if health := agent.HealthCheck(); !health.Healthy {
         return fmt.Errorf("agent unhealthy: %v", health.Message)
     }
-    
+
     // 3. 注册到中心
     r.agents[agent.ID()] = agent
-    
+
     // 4. 更新索引
     r.typeIndex[agent.Type()] = append(r.typeIndex[agent.Type()], agent.ID())
     for _, cap := range agent.Capabilities() {
         r.capIndex[cap] = append(r.capIndex[cap], agent.ID())
     }
-    
+
     return nil
 }
 
@@ -156,7 +156,7 @@ func (r *AgentRegistry) Register(agent Agent) error {
 func (r *AgentRegistry) DiscoverByCapability(cap string) []Agent {
     r.RLock()
     defer r.RUnlock()
-    
+
     var agents []Agent
     for _, id := range r.capIndex[cap] {
         agents = append(agents, r.agents[id])
@@ -197,7 +197,7 @@ func (a *LLMAgent) Execute(ctx context.Context, task *Task) (*Result, error) {
     if err := a.rateLimiter.Wait(ctx); err != nil {
         return nil, err
     }
-    
+
     // 调用 LLM
     return a.provider.Call(ctx, a.model, task.Input)
 }
@@ -222,7 +222,7 @@ func (a *ToolAgent) Execute(ctx context.Context, task *Task) (*Result, error) {
     if err != nil {
         return nil, err
     }
-    
+
     // 带重试的执行
     var result *Result
     err = a.retryPolicy.Execute(func() error {
@@ -233,7 +233,7 @@ func (a *ToolAgent) Execute(ctx context.Context, task *Task) (*Result, error) {
         result = a.parseResponse(resp)
         return nil
     })
-    
+
     return result, err
 }
 ```
@@ -256,17 +256,17 @@ func (a *HumanAgent) Execute(ctx context.Context, task *Task) (*Result, error) {
     if err != nil {
         return nil, err
     }
-    
+
     // 2. 等待响应
     ctx, cancel := context.WithTimeout(ctx, a.timeout)
     defer cancel()
-    
+
     response, err := a.waitForResponse(ctx, msgID)
     if err != nil {
         // 超时处理
         return nil, &HumanTimeoutError{AgentID: a.id}
     }
-    
+
     return &Result{Output: response}, nil
 }
 ```
@@ -291,23 +291,23 @@ type WorkflowStep struct {
 
 func (a *WorkflowAgent) Execute(ctx context.Context, task *Task) (*Result, error) {
     results := make(map[string]*Result)
-    
+
     for i, step := range a.steps {
         // 获取 Agent
         agent := a.registry.Get(step.AgentID)
-        
+
         // 准备输入
         input := a.prepareInput(step, task, results)
-        
+
         // 执行
         result, err := agent.Execute(ctx, &Task{Input: input})
         if err != nil {
             return nil, fmt.Errorf("step %d failed: %w", i, err)
         }
-        
+
         results[fmt.Sprintf("step_%d", i)] = result
     }
-    
+
     return a.aggregateResults(results), nil
 }
 ```
@@ -335,7 +335,7 @@ func (a *PluginAgent) Load() error {
     if err != nil {
         return err
     }
-    
+
     a.plugin = plugin
     a.capabilities = plugin.Capabilities()
     return nil
@@ -362,13 +362,13 @@ func (f *AgentFactory) Create(templateID string, overrides ...ConfigOption) (Age
     if !ok {
         return nil, fmt.Errorf("template %s not found", templateID)
     }
-    
+
     // 应用覆盖配置
     config := template.Config
     for _, opt := range overrides {
         opt(config)
     }
-    
+
     // 创建实例
     switch template.Type {
     case AgentTypeLLM:
@@ -445,16 +445,16 @@ type Coordinator struct {
 func (c *Coordinator) Start() error {
     // 1. 启动服务发现
     c.discovery.Start()
-    
+
     // 2. 启动调度器
     go c.scheduler.Run()
-    
+
     // 3. 启动健康检查
     go c.healthCheckLoop()
-    
+
     // 4. 启动负载均衡
     go c.balanceLoop()
-    
+
     return nil
 }
 
@@ -488,13 +488,13 @@ func (w *Worker) Start() error {
     if err := w.register(); err != nil {
         return err
     }
-    
+
     // 2. 启动心跳
     go w.heartbeat.Run()
-    
+
     // 3. 启动任务执行
     go w.taskLoop()
-    
+
     return nil
 }
 
@@ -506,10 +506,10 @@ func (w *Worker) taskLoop() {
             time.Sleep(100 * time.Millisecond)
             continue
         }
-        
+
         // 执行任务
         result := w.executeTask(task)
-        
+
         // 上报结果
         w.reportResult(task.ID, result)
     }
@@ -528,17 +528,17 @@ type StateManager struct {
 func (s *StateManager) SaveTaskState(taskID string, state *TaskState) error {
     ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
     defer cancel()
-    
+
     key := fmt.Sprintf("%s/tasks/%s", s.prefix, taskID)
     value, _ := json.Marshal(state)
-    
+
     _, err := s.client.Put(ctx, key, string(value))
     return err
 }
 
 func (s *StateManager) WatchTaskChanges() <-chan TaskChangeEvent {
     ch := make(chan TaskChangeEvent)
-    
+
     go func() {
         watchCh := s.client.Watch(context.Background(), s.prefix+"/tasks/", clientv3.WithPrefix())
         for resp := range watchCh {
@@ -551,7 +551,7 @@ func (s *StateManager) WatchTaskChanges() <-chan TaskChangeEvent {
             }
         }
     }()
-    
+
     return ch
 }
 ```
@@ -579,7 +579,7 @@ func (s *DistributedScheduler) Schedule(task *Task) (*Worker, error) {
     if len(workers) == 0 {
         return nil, errors.New("no healthy workers")
     }
-    
+
     switch s.strategy {
     case StrategyRoundRobin:
         return s.roundRobin(workers), nil
@@ -597,7 +597,7 @@ func (s *DistributedScheduler) Schedule(task *Task) (*Worker, error) {
 func (s *DistributedScheduler) leastLoaded(workers []*Worker) *Worker {
     var selected *Worker
     minLoad := math.MaxInt64
-    
+
     for _, w := range workers {
         load := w.CurrentLoad()
         if load < minLoad {
@@ -605,7 +605,7 @@ func (s *DistributedScheduler) leastLoaded(workers []*Worker) *Worker {
             selected = w
         }
     }
-    
+
     return selected
 }
 ```
@@ -617,15 +617,15 @@ func (s *DistributedScheduler) leastLoaded(workers []*Worker) *Worker {
 func (c *Coordinator) handleWorkerFailure(worker *Worker) {
     // 1. 标记 worker 不可用
     worker.MarkUnhealthy()
-    
+
     // 2. 获取该 worker 的进行中任务
     tasks := c.stateMgr.GetRunningTasks(worker.ID)
-    
+
     // 3. 重新调度任务
     for _, task := range tasks {
         c.rescheduleTask(task)
     }
-    
+
     // 4. 通知其他组件
     c.notifyWorkerDown(worker.ID)
 }
@@ -634,7 +634,7 @@ func (c *Coordinator) rescheduleTask(task *Task) {
     // 恢复任务状态
     task.Status = TaskStatusPending
     task.Attempts++
-    
+
     // 重新入队
     c.scheduler.Enqueue(task)
 }
@@ -703,21 +703,21 @@ func (a *DeadlineAdjuster) Adjust(task *Task, now time.Time) Priority {
     if task.Deadline == nil {
         return task.Priority
     }
-    
+
     timeUntilDeadline := task.Deadline.Sub(now)
-    
+
     if timeUntilDeadline <= 0 {
         // 已过期，最高优先级
         return PriorityCritical
     }
-    
+
     if timeUntilDeadline <= a.urgentThreshold {
         // 临近截止，提升优先级
-        boost := int(float64(PriorityCritical) * 
+        boost := int(float64(PriorityCritical) *
             (1 - float64(timeUntilDeadline) / float64(a.urgentThreshold)))
         return task.Priority + Priority(boost)
     }
-    
+
     return task.Priority
 }
 
@@ -728,16 +728,16 @@ func (a *SLAAdjuster) Adjust(task *Task, now time.Time) Priority {
     if task.SLA == nil {
         return task.Priority
     }
-    
+
     // 根据 SLA 目标调整
     if task.WaitTime > task.SLA.TargetWaitTime {
         // 超过目标等待时间，提升优先级
-        boost := int(float64(task.Priority) * 
-            float64(task.WaitTime-task.SLA.TargetWaitTime) / 
+        boost := int(float64(task.Priority) *
+            float64(task.WaitTime-task.SLA.TargetWaitTime) /
             float64(task.SLA.TargetWaitTime))
         return task.Priority + Priority(boost)
     }
-    
+
     return task.Priority
 }
 
@@ -753,13 +753,13 @@ type PriorityRule struct {
 
 func (a *BusinessRuleAdjuster) Adjust(task *Task, now time.Time) Priority {
     priority := task.Priority
-    
+
     for _, rule := range a.rules {
         if rule.Condition(task) {
             priority += rule.Boost
         }
     }
-    
+
     return priority
 }
 ```
@@ -787,10 +787,10 @@ func (h TaskHeap) Swap(i, j int) { h[i], h[j] = h[j], h[i] }
 func (pq *PriorityQueue) Push(task *Task) {
     pq.mu.Lock()
     defer pq.mu.Unlock()
-    
+
     // 应用动态优先级调整
     task.Priority = pq.priorityMgr.Adjust(task, time.Now())
-    
+
     heap.Push(&pq.heap, task)
     pq.index[task.ID] = len(pq.heap) - 1
 }
@@ -798,14 +798,14 @@ func (pq *PriorityQueue) Push(task *Task) {
 func (pq *PriorityQueue) Pop() *Task {
     pq.mu.Lock()
     defer pq.mu.Unlock()
-    
+
     if len(pq.heap) == 0 {
         return nil
     }
-    
+
     task := heap.Pop(&pq.heap).(*Task)
     delete(pq.index, task.ID)
-    
+
     return task
 }
 
@@ -813,12 +813,12 @@ func (pq *PriorityQueue) Pop() *Task {
 func (pq *PriorityQueue) RefreshPriorities() {
     pq.mu.Lock()
     defer pq.mu.Unlock()
-    
+
     now := time.Now()
     for _, task := range pq.heap {
         task.Priority = pq.priorityMgr.Adjust(task, now)
     }
-    
+
     heap.Init(&pq.heap)
 }
 ```
@@ -832,10 +832,10 @@ func (s *Scheduler) UpdatePriority(taskID string, newPriority Priority) error {
     if !ok {
         return errors.New("task not found")
     }
-    
+
     task.BasePriority = newPriority
     task.Priority = s.priorityMgr.Adjust(task, time.Now())
-    
+
     s.queue.Reheap()
     return nil
 }
@@ -893,20 +893,20 @@ type Experiment struct {
     Name        string
     Description string
     Status      ExperimentStatus
-    
+
     // 流量分配
     TrafficSplit []TrafficAllocation
-    
+
     // 策略变体
     Variants    map[string]*SchedulerVariant
-    
+
     // 指标
     Metrics     []MetricDefinition
-    
+
     // 时间
     StartTime   time.Time
     EndTime     *time.Time
-    
+
     // 停止条件
     StopConditions []StopCondition
 }
@@ -943,23 +943,23 @@ func (s *TrafficSplitter) GetVariant(experimentID string, taskID string) string 
     if !ok {
         return "control"
     }
-    
+
     // 一致性哈希，确保同一任务的分配稳定
     s.hasher.Reset()
     s.hasher.Write([]byte(taskID))
     hash := s.hasher.Sum64()
-    
+
     // 按权重分配
     threshold := float64(hash%10000) / 10000.0
     cumulative := 0.0
-    
+
     for _, alloc := range exp.TrafficSplit {
         cumulative += alloc.Weight
         if threshold < cumulative {
             return alloc.VariantID
         }
     }
-    
+
     return "control"
 }
 
@@ -971,7 +971,7 @@ func (s *TrafficSplitter) SetExperiment(exp *Experiment) {
 // 灰度发布
 func (s *TrafficSplitter) GradualRollout(experimentID string, targetWeight float64) {
     exp := s.experiments[experimentID]
-    
+
     // 逐步增加流量
     for i := range exp.TrafficSplit {
         if exp.TrafficSplit[i].VariantID == "treatment" {
@@ -1011,17 +1011,17 @@ type VariantStats struct {
 func (a *ResultsAnalyzer) RecordResult(experimentID, variantID string, result *TaskResult) {
     stats := a.experiments[experimentID]
     variant := stats.Variants[variantID]
-    
+
     variant.TaskCount++
-    
+
     if result.Success {
-        variant.SuccessRate = (variant.SuccessRate*float64(variant.TaskCount-1) + 1) / 
+        variant.SuccessRate = (variant.SuccessRate*float64(variant.TaskCount-1) + 1) /
             float64(variant.TaskCount)
     }
-    
+
     // 更新延迟统计
     variant.AvgLatency = time.Duration(
-        (int64(variant.AvgLatency)*int64(variant.TaskCount-1) + int64(result.Latency)) / 
+        (int64(variant.AvgLatency)*int64(variant.TaskCount-1) + int64(result.Latency)) /
         int64(variant.TaskCount),
     )
 }
@@ -1029,19 +1029,19 @@ func (a *ResultsAnalyzer) RecordResult(experimentID, variantID string, result *T
 // 生成报告
 func (a *ResultsAnalyzer) GenerateReport(experimentID string) *ExperimentReport {
     stats := a.experiments[experimentID]
-    
+
     report := &ExperimentReport{
         ExperimentID: experimentID,
         GeneratedAt:  time.Now(),
         Variants:     stats.Variants,
     }
-    
+
     // 计算统计显著性
     report.StatisticalSignificance = a.calculateSignificance(stats)
-    
+
     // 生成建议
     report.Recommendation = a.generateRecommendation(report)
-    
+
     return report
 }
 ```
@@ -1059,7 +1059,7 @@ func (s *Scheduler) CreateExperiment(config *ExperimentConfig) (*Experiment, err
         Variants:    config.Variants,
         StartTime:   time.Now(),
     }
-    
+
     s.experimentMgr.SetExperiment(exp)
     return exp, nil
 }
@@ -1081,7 +1081,7 @@ func (s *Scheduler) CanaryRollout(variantID string, percentage float64) error {
             {VariantID: variantID, Weight: percentage},
         },
     }
-    
+
     return s.experimentMgr.SetExperiment(exp)
 }
 ```
@@ -1103,13 +1103,13 @@ type DecisionRule struct {
 
 func (e *AutoDecisionEngine) Evaluate(experimentID string) error {
     report := e.analyzer.GenerateReport(experimentID)
-    
+
     for _, rule := range e.rules {
         if rule.Condition(report) {
             return rule.Action(e.scheduler, experimentID)
         }
     }
-    
+
     return nil
 }
 
@@ -1155,15 +1155,15 @@ func defaultDecisionRules() []DecisionRule {
 
 ### 7.1 国产大模型集成
 
-| 提供商 | 模型 | 特点 | 集成建议 |
-|--------|------|------|----------|
-| **阿里云** | 通义千问 (Qwen) | 中文能力强，多模态 | 优先集成 |
-| **百度** | 文心一言 (ERNIE) | 知识图谱，行业定制 | B端场景 |
-| **智谱AI** | GLM-4 | 学术背景，代码能力强 | 技术场景 |
-| **百川智能** | Baichuan | 开源友好 | 私有部署 |
-| **MiniMax** | abab | 多模态，长上下文 | 已集成 |
-| **火山引擎** | 豆包 (Doubao) | 字节生态 | 已集成 |
-| **百炼** | 千问衍生 | 阿里云托管 | 已集成 |
+| 提供商       | 模型             | 特点                 | 集成建议 |
+| ------------ | ---------------- | -------------------- | -------- |
+| **阿里云**   | 通义千问 (Qwen)  | 中文能力强，多模态   | 优先集成 |
+| **百度**     | 文心一言 (ERNIE) | 知识图谱，行业定制   | B端场景  |
+| **智谱AI**   | GLM-4            | 学术背景，代码能力强 | 技术场景 |
+| **百川智能** | Baichuan         | 开源友好             | 私有部署 |
+| **MiniMax**  | abab             | 多模态，长上下文     | 已集成   |
+| **火山引擎** | 豆包 (Doubao)    | 字节生态             | 已集成   |
+| **百炼**     | 千问衍生         | 阿里云托管           | 已集成   |
 
 ### 7.2 合规与安全
 
@@ -1173,15 +1173,15 @@ type ComplianceConfig struct {
     // 数据本地化
     DataLocalization   bool   // 数据必须存储在中国境内
     AllowedRegions     []string // 允许的数据中心区域
-    
+
     // 内容安全
     ContentModeration  bool   // 内容审核
     SensitiveWords     []string // 敏感词列表
-    
+
     // 审计
     AuditLogEnabled    bool   // 审计日志
     AuditLogRetention  int    // 日志保留天数
-    
+
     // 隐私保护
     DataEncryption     bool   // 数据加密
     Anonymization      bool   // 数据脱敏
@@ -1195,12 +1195,12 @@ func (s *Scheduler) checkContentSafety(input string) error {
             return &ContentSafetyError{Reason: "敏感内容"}
         }
     }
-    
+
     // 2. 数据脱敏
     if s.config.Anonymization {
         input = s.anonymizer.Anonymize(input)
     }
-    
+
     return nil
 }
 ```
@@ -1213,14 +1213,14 @@ type NetworkConfig struct {
     // 国内加速
     UseCDN           bool
     CDNDomains       map[string]string
-    
+
     // 边缘节点
     EdgeNodes        []EdgeNode
-    
+
     // 超时配置
     ConnectTimeout   time.Duration
     ReadTimeout      time.Duration
-    
+
     // 重试策略
     MaxRetries       int
     RetryBackoff     time.Duration
@@ -1230,10 +1230,10 @@ type NetworkConfig struct {
 func (s *Scheduler) selectEdgeNode(task *Task) *EdgeNode {
     // 根据地理位置选择最近的边缘节点
     userLocation := task.Metadata["location"]
-    
+
     var nearest *EdgeNode
     minLatency := math.MaxFloat64
-    
+
     for _, node := range s.config.EdgeNodes {
         latency := s.getLatency(userLocation, node.Location)
         if latency < minLatency {
@@ -1241,7 +1241,7 @@ func (s *Scheduler) selectEdgeNode(task *Task) *EdgeNode {
             nearest = &node
         }
     }
-    
+
     return nearest
 }
 ```
@@ -1255,7 +1255,7 @@ services:
   scheduler:
     image: agentscheduler:latest
     ports:
-      - "8080:8080"
+      - '8080:8080'
     environment:
       - DEPLOYMENT_MODE=private
       - DATABASE_TYPE=postgresql
@@ -1263,17 +1263,17 @@ services:
     volumes:
       - ./config:/app/config
       - ./plugins:/app/plugins
-  
+
   postgres:
     image: postgres:15
     volumes:
       - pgdata:/var/lib/postgresql/data
-  
+
   redis:
     image: redis:7
     volumes:
       - redisdata:/data
-  
+
   etcd:
     image: bitnami/etcd:3.5
     volumes:
@@ -1319,12 +1319,12 @@ Phase 4 (Q4 2026): 实验能力
 
 ### 8.2 资源需求
 
-| 阶段 | 开发人员 | 周期 | 基础设施 |
-|------|----------|------|----------|
-| Phase 1 | 2-3 人 | 2-3 月 | 开发环境 |
-| Phase 2 | 3-4 人 | 3-4 月 | 测试集群 |
-| Phase 3 | 2-3 人 | 2-3 月 | 性能测试环境 |
-| Phase 4 | 2-3 人 | 2-3 月 | 实验平台 |
+| 阶段    | 开发人员 | 周期   | 基础设施     |
+| ------- | -------- | ------ | ------------ |
+| Phase 1 | 2-3 人   | 2-3 月 | 开发环境     |
+| Phase 2 | 3-4 人   | 3-4 月 | 测试集群     |
+| Phase 3 | 2-3 人   | 2-3 月 | 性能测试环境 |
+| Phase 4 | 2-3 人   | 2-3 月 | 实验平台     |
 
 ---
 
@@ -1387,5 +1387,5 @@ Phase 4 (Q4 2026): 实验能力
 
 ---
 
-*文档完成于 2026-03-29*
-*下次更新: Phase 1 设计评审后*
+_文档完成于 2026-03-29_
+_下次更新: Phase 1 设计评审后_

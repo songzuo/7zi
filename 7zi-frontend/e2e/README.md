@@ -19,6 +19,7 @@ e2e/
 ## 测试覆盖
 
 ### 1. 登录流程 (login-flow.spec.ts)
+
 - ✅ 表单显示和验证
 - ✅ 用户名/密码格式验证
 - ✅ 成功登录和跳转
@@ -32,6 +33,7 @@ e2e/
 - ✅ 键盘导航支持
 
 ### 2. 通知系统 (notifications.spec.ts)
+
 - ✅ 通知接收和显示
 - ✅ 通知中心交互
 - ✅ 标记已读/未读
@@ -47,6 +49,7 @@ e2e/
 - ✅ 虚拟滚动
 
 ### 3. WebSocket 连接 (websocket.spec.ts)
+
 - ✅ 连接建立和状态显示
 - ✅ 消息收发
 - ✅ Echo 响应
@@ -63,6 +66,7 @@ e2e/
 - ✅ 安全连接 (WSS)
 
 ### 4. 错误处理 (error-handling.spec.ts)
+
 - ✅ 网络连接失败
 - ✅ 网络重试机制
 - ✅ 请求超时
@@ -162,143 +166,157 @@ npx playwright show-report
 ## 测试夹具
 
 ### authenticatedPage
+
 已认证的页面实例，自动完成登录。
 
 ```typescript
 test('应该显示用户信息', async ({ authenticatedPage }) => {
-  await expect(authenticatedPage.getByText('欢迎')).toBeVisible();
-});
+  await expect(authenticatedPage.getByText('欢迎')).toBeVisible()
+})
 ```
 
 ### user
+
 模拟用户数据。
 
 ```typescript
 test('应该使用用户数据', async ({ user }) => {
-  expect(user.email).toBe('test@example.com');
-});
+  expect(user.email).toBe('test@example.com')
+})
 ```
 
 ### mockAPI
+
 API 模拟函数。
 
 ```typescript
 test('应该模拟 API', async ({ mockAPI }) => {
-  await mockAPI('/api/users', [{ id: 1, name: 'Test' }]);
-});
+  await mockAPI('/api/users', [{ id: 1, name: 'Test' }])
+})
 ```
 
 ## 页面对象
 
 ### LoginPage
+
 登录页面的页面对象。
 
 ```typescript
-const loginPage = new LoginPage(page);
-await loginPage.goto();
-await loginPage.login('user@example.com', 'password');
+const loginPage = new LoginPage(page)
+await loginPage.goto()
+await loginPage.login('user@example.com', 'password')
 ```
 
 ### NotificationPage
+
 通知页面的页面对象。
 
 ```typescript
-const notifPage = new NotificationPage(page);
-await notifPage.openNotificationCenter();
-const count = await notifPage.getNotificationCount();
+const notifPage = new NotificationPage(page)
+await notifPage.openNotificationCenter()
+const count = await notifPage.getNotificationCount()
 ```
 
 ### WebSocketPage
+
 WebSocket 页面的页面对象。
 
 ```typescript
-const wsPage = new WebSocketPage(page);
-await wsPage.sendMessage('Hello');
-await wsPage.expectConnected();
+const wsPage = new WebSocketPage(page)
+await wsPage.sendMessage('Hello')
+await wsPage.expectConnected()
 ```
 
 ## 辅助函数
 
 ### checkToast(page, message)
+
 验证 Toast 消息显示。
 
 ```typescript
-await checkToast(page, '登录成功');
+await checkToast(page, '登录成功')
 ```
 
 ### fillForm(page, fields)
+
 填充表单字段。
 
 ```typescript
 await fillForm(page, {
-  '用户名': 'testuser',
-  '邮箱': 'test@example.com',
-});
+  用户名: 'testuser',
+  邮箱: 'test@example.com',
+})
 ```
 
 ### takeScreenshot(page, name)
+
 截取屏幕截图。
 
 ```typescript
-await takeScreenshot(page, 'login-scenario');
+await takeScreenshot(page, 'login-scenario')
 ```
 
 ### setAuthToken(page, token)
+
 设置认证 token。
 
 ```typescript
-await setAuthToken(page, 'test_token_123');
+await setAuthToken(page, 'test_token_123')
 ```
 
 ## 测试最佳实践
 
 ### 1. 使用页面对象模式
+
 ```typescript
 // ✅ 好的做法
-const loginPage = new LoginPage(page);
-await loginPage.login(email, password);
+const loginPage = new LoginPage(page)
+await loginPage.login(email, password)
 
 // ❌ 差的做法
-await page.getByLabel('用户名').fill(email);
-await page.getByLabel('密码').fill(password);
-await page.getByRole('button').click();
+await page.getByLabel('用户名').fill(email)
+await page.getByLabel('密码').fill(password)
+await page.getByRole('button').click()
 ```
 
 ### 2. 使用可访问选择器
+
 ```typescript
 // ✅ 好的做法
-await page.getByRole('button', { name: '登录' }).click();
-await page.getByLabel('用户名').fill('test');
+await page.getByRole('button', { name: '登录' }).click()
+await page.getByLabel('用户名').fill('test')
 
 // ❌ 差的做法
-await page.locator('#login-btn').click();
-await page.locator('.username-input').fill('test');
+await page.locator('#login-btn').click()
+await page.locator('.username-input').fill('test')
 ```
 
 ### 3. 等待元素可见
+
 ```typescript
 // ✅ 好的做法
-await expect(page.getByText('登录成功')).toBeVisible();
+await expect(page.getByText('登录成功')).toBeVisible()
 
 // ❌ 差的做法
-await page.waitForTimeout(1000);
+await page.waitForTimeout(1000)
 ```
 
 ### 4. 使用测试夹具
+
 ```typescript
 // ✅ 好的做法
 test('应该显示数据', async ({ authenticatedPage }) => {
   // 已自动登录
-  await expect(authenticatedPage.getByText('用户名')).toBeVisible();
-});
+  await expect(authenticatedPage.getByText('用户名')).toBeVisible()
+})
 
 // ❌ 差的做法
 test('应该显示数据', async ({ page }) => {
-  await page.goto('/login');
-  await page.getByLabel('用户名').fill('test');
+  await page.goto('/login')
+  await page.getByLabel('用户名').fill('test')
   // ... 登录逻辑
-  await expect(page.getByText('用户名')).toBeVisible();
-});
+  await expect(page.getByText('用户名')).toBeVisible()
+})
 ```
 
 ## CI/CD 集成
@@ -330,65 +348,77 @@ jobs:
 ## 调试技巧
 
 ### 1. 使用 Playwright Inspector
+
 ```bash
 npx playwright test --debug
 ```
 
 ### 2. 生成测试代码
+
 运行时自动录制操作生成代码。
 
 ### 3. 查看追踪文件
+
 ```bash
 npx playwright show-trace trace.zip
 ```
 
 ### 4. 慢动作模式
+
 ```javascript
-test.use({ actionTimeout: 10000 });
+test.use({ actionTimeout: 10000 })
 ```
 
 ## 测试数据管理
 
 ### 使用固定测试数据
+
 ```typescript
 const mockUser = {
   id: 'test-user-1',
   email: 'test@example.com',
   password: 'Test123456!',
-};
+}
 ```
 
 ### 生成随机数据
+
 ```typescript
-const email = generateEmail();
-const username = generateUsername();
+const email = generateEmail()
+const username = generateUsername()
 ```
 
 ### Mock API 响应
+
 ```typescript
-await page.route('**/api/users', async (route) => {
+await page.route('**/api/users', async route => {
   await route.fulfill({
     status: 200,
     body: JSON.stringify({ users: [] }),
-  });
-});
+  })
+})
 ```
 
 ## 故障排除
 
 ### 测试超时
+
 增加超时时间：
+
 ```typescript
-test.setTimeout(60000);
+test.setTimeout(60000)
 ```
 
 ### 浏览器启动失败
+
 重新安装浏览器：
+
 ```bash
 npx playwright install --force
 ```
 
 ### 端口冲突
+
 修改配置中的端口或关闭占用端口的进程。
 
 ---

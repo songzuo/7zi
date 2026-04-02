@@ -9,18 +9,31 @@
  * 5. Connection status indicator
  */
 
-import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
-import { render, screen, fireEvent, waitFor, act } from '@testing-library/react';
-import userEvent from '@testing-library/user-event';
-import { RoomManager } from './RoomManager';
-import type { Room, RoomType, RoomVisibility } from '@/lib/websocket/rooms';
+import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest'
+import { render, screen, fireEvent, waitFor, act } from '@testing-library/react'
+import userEvent from '@testing-library/user-event'
+import { RoomManager } from './RoomManager'
+import type { Room, RoomType, RoomVisibility } from '@/lib/websocket/rooms'
 
 // ============================================================================
 // Mocks
 // ============================================================================
 
 // Mock the WebSocket store
-const mockStore = {
+const mockStore: {
+  currentRoomId: string | null
+  currentUserId: string | null
+  currentUserName: string | null
+  rooms: unknown[]
+  setCurrentRoom: ReturnType<typeof vi.fn>
+  setCurrentUser: ReturnType<typeof vi.fn>
+  setRooms: ReturnType<typeof vi.fn>
+  addRoom: ReturnType<typeof vi.fn>
+  updateRoom: ReturnType<typeof vi.fn>
+  removeRoom: ReturnType<typeof vi.fn>
+  setRoomsLoading: ReturnType<typeof vi.fn>
+  setRoomsError: ReturnType<typeof vi.fn>
+} = {
   currentRoomId: null,
   currentUserId: null,
   currentUserName: null,
@@ -33,16 +46,16 @@ const mockStore = {
   removeRoom: vi.fn(),
   setRoomsLoading: vi.fn(),
   setRoomsError: vi.fn(),
-};
+}
 
 vi.mock('@/lib/websocket/dashboard/websocket-store', () => ({
-  useWebSocketStore: vi.fn((selector) => {
+  useWebSocketStore: vi.fn(selector => {
     if (typeof selector === 'function') {
-      return selector(mockStore);
+      return selector(mockStore)
     }
-    return mockStore;
+    return mockStore
   }),
-}));
+}))
 
 // Mock RoomList component
 vi.mock('@/lib/websocket/dashboard/RoomList', () => ({
@@ -54,49 +67,34 @@ vi.mock('@/lib/websocket/dashboard/RoomList', () => ({
       >
         创建房间
       </button>
-      <button
-        data-testid="select-room-btn"
-        onClick={() => onSelectRoom?.('room-1')}
-      >
+      <button data-testid="select-room-btn" onClick={() => onSelectRoom?.('room-1')}>
         选择房间
       </button>
-      <button
-        data-testid="leave-room-btn"
-        onClick={() => onLeaveRoom?.('room-1')}
-      >
+      <button data-testid="leave-room-btn" onClick={() => onLeaveRoom?.('room-1')}>
         离开房间
       </button>
     </div>
   )),
-}));
+}))
 
 // Mock RoomView component
 vi.mock('@/lib/websocket/dashboard/RoomView', () => ({
   default: vi.fn(({ onSendMessage, onReactMessage, onLeaveRoom }) => (
     <div data-testid="room-view">
       <span data-testid="room-view-label">房间视图</span>
-      <button
-        data-testid="send-message-btn"
-        onClick={() => onSendMessage?.('测试消息')}
-      >
+      <button data-testid="send-message-btn" onClick={() => onSendMessage?.('测试消息')}>
         发送消息
       </button>
-      <button
-        data-testid="react-message-btn"
-        onClick={() => onReactMessage?.('msg-1', '👍')}
-      >
+      <button data-testid="react-message-btn" onClick={() => onReactMessage?.('msg-1', '👍')}>
         反应
       </button>
-      <button
-        data-testid="leave-btn"
-        onClick={() => onLeaveRoom?.()}
-      >
+      <button data-testid="leave-btn" onClick={() => onLeaveRoom?.()}>
         离开
       </button>
     </div>
   )),
   __esModule: true,
-}));
+}))
 
 // Mock RoomSettings component
 vi.mock('./RoomSettings', () => ({
@@ -106,7 +104,7 @@ vi.mock('./RoomSettings', () => ({
       <button onClick={onClose}>关闭设置</button>
     </div>
   )),
-}));
+}))
 
 // ============================================================================
 // Test Suite
@@ -114,20 +112,20 @@ vi.mock('./RoomSettings', () => ({
 
 describe('RoomManager', () => {
   beforeEach(() => {
-    vi.clearAllMocks();
-    vi.useFakeTimers();
+    vi.clearAllMocks()
+    vi.useFakeTimers()
 
     // Reset store state
-    mockStore.currentRoomId = null;
-    mockStore.currentUserId = null;
-    mockStore.currentUserName = null;
-    mockStore.rooms = [];
-  });
+    mockStore.currentRoomId = null
+    mockStore.currentUserId = null
+    mockStore.currentUserName = null
+    mockStore.rooms = []
+  })
 
   afterEach(() => {
-    vi.useRealTimers();
-    vi.clearAllMocks();
-  });
+    vi.useRealTimers()
+    vi.clearAllMocks()
+  })
 
   // ==========================================================================
   // Rendering Tests
@@ -135,30 +133,30 @@ describe('RoomManager', () => {
 
   describe('Rendering', () => {
     it('should render main components', () => {
-      render(<RoomManager />);
+      render(<RoomManager />)
 
       // Header
-      expect(screen.getByText(/WebSocket 房间/i)).toBeInTheDocument();
+      expect(screen.getByText(/WebSocket 房间/i)).toBeInTheDocument()
 
       // Room list sidebar
-      expect(screen.getByTestId('room-list')).toBeInTheDocument();
+      expect(screen.getByTestId('room-list')).toBeInTheDocument()
 
       // Connection status (will be connecting initially)
-      expect(screen.getByText(/连接中/i)).toBeInTheDocument();
-    });
+      expect(screen.getByText(/连接中/i)).toBeInTheDocument()
+    })
 
     it('should render user info', () => {
-      render(<RoomManager userName="测试用户" />);
+      render(<RoomManager userName="测试用户" />)
 
-      expect(screen.getByText('测试用户')).toBeInTheDocument();
-    });
+      expect(screen.getByText('测试用户')).toBeInTheDocument()
+    })
 
     it('should show user avatar initial', () => {
-      render(<RoomManager userName="张三" />);
+      render(<RoomManager userName="张三" />)
 
-      expect(screen.getByText('张')).toBeInTheDocument();
-    });
-  });
+      expect(screen.getByText('张')).toBeInTheDocument()
+    })
+  })
 
   // ==========================================================================
   // Connection Status Tests
@@ -166,43 +164,43 @@ describe('RoomManager', () => {
 
   describe('Connection Status', () => {
     it('should show connecting status initially', () => {
-      render(<RoomManager autoConnect={true} />);
+      render(<RoomManager autoConnect={true} />)
 
-      expect(screen.getByText('连接中...')).toBeInTheDocument();
-    });
+      expect(screen.getByText('连接中...')).toBeInTheDocument()
+    })
 
     it('should show connected status after connection', async () => {
-      render(<RoomManager autoConnect={true} />);
+      render(<RoomManager autoConnect={true} />)
 
       // Advance timers to simulate connection
       await act(async () => {
-        vi.advanceTimersByTime(1000);
-      });
+        vi.advanceTimersByTime(1000)
+      })
 
       await waitFor(() => {
-        expect(screen.getByText('已连接')).toBeInTheDocument();
-      });
-    });
+        expect(screen.getByText('已连接')).toBeInTheDocument()
+      })
+    })
 
     it('should not auto connect when autoConnect is false', () => {
-      render(<RoomManager autoConnect={false} />);
+      render(<RoomManager autoConnect={false} />)
 
       // Should show "未连接" or no status
-      expect(screen.queryByText('连接中...')).not.toBeInTheDocument();
-    });
+      expect(screen.queryByText('连接中...')).not.toBeInTheDocument()
+    })
 
     it('should load mock rooms after connection', async () => {
-      render(<RoomManager autoConnect={true} />);
+      render(<RoomManager autoConnect={true} />)
 
       await act(async () => {
-        vi.advanceTimersByTime(1000);
-      });
+        vi.advanceTimersByTime(1000)
+      })
 
       await waitFor(() => {
-        expect(mockStore.setRooms).toHaveBeenCalled();
-      });
-    });
-  });
+        expect(mockStore.setRooms).toHaveBeenCalled()
+      })
+    })
+  })
 
   // ==========================================================================
   // User Initialization Tests
@@ -210,36 +208,26 @@ describe('RoomManager', () => {
 
   describe('User Initialization', () => {
     it('should set current user on mount', () => {
-      render(
-        <RoomManager
-          userId="user-123"
-          userName="测试用户"
-        />
-      );
+      render(<RoomManager userId="user-123" userName="测试用户" />)
 
-      expect(mockStore.setCurrentUser).toHaveBeenCalledWith('user-123', '测试用户');
-    });
+      expect(mockStore.setCurrentUser).toHaveBeenCalledWith('user-123', '测试用户')
+    })
 
     it('should generate random user ID if not provided', () => {
-      render(<RoomManager />);
+      render(<RoomManager />)
 
-      expect(mockStore.setCurrentUser).toHaveBeenCalled();
-      const call = mockStore.setCurrentUser.mock.calls[0];
-      expect(call[0]).toMatch(/^user-/);
-      expect(call[1]).toBe('匿名用户');
-    });
+      expect(mockStore.setCurrentUser).toHaveBeenCalled()
+      const call = mockStore.setCurrentUser.mock.calls[0]
+      expect(call[0]).toMatch(/^user-/)
+      expect(call[1]).toBe('匿名用户')
+    })
 
     it('should use provided user ID and name', () => {
-      render(
-        <RoomManager
-          userId="custom-user-456"
-          userName="自定义用户"
-        />
-      );
+      render(<RoomManager userId="custom-user-456" userName="自定义用户" />)
 
-      expect(mockStore.setCurrentUser).toHaveBeenCalledWith('custom-user-456', '自定义用户');
-    });
-  });
+      expect(mockStore.setCurrentUser).toHaveBeenCalledWith('custom-user-456', '自定义用户')
+    })
+  })
 
   // ==========================================================================
   // Room List Tests
@@ -247,36 +235,36 @@ describe('RoomManager', () => {
 
   describe('Room List', () => {
     it('should create a new room', async () => {
-      const user = userEvent.setup({ advanceTimers: vi.advanceTimersByTime });
+      const user = userEvent.setup({ advanceTimers: vi.advanceTimersByTime })
 
-      render(<RoomManager userId="user-1" userName="张三" autoConnect={true} />);
+      render(<RoomManager userId="user-1" userName="张三" autoConnect={true} />)
 
       await act(async () => {
-        vi.advanceTimersByTime(1000);
-      });
+        vi.advanceTimersByTime(1000)
+      })
 
-      const createButton = screen.getByTestId('create-room-btn');
-      await user.click(createButton);
+      const createButton = screen.getByTestId('create-room-btn')
+      await user.click(createButton)
 
-      expect(mockStore.addRoom).toHaveBeenCalled();
-      expect(mockStore.setCurrentRoom).toHaveBeenCalled();
-    });
+      expect(mockStore.addRoom).toHaveBeenCalled()
+      expect(mockStore.setCurrentRoom).toHaveBeenCalled()
+    })
 
     it('should select a room', async () => {
-      const user = userEvent.setup({ advanceTimers: vi.advanceTimersByTime });
+      const user = userEvent.setup({ advanceTimers: vi.advanceTimersByTime })
 
-      render(<RoomManager userId="user-1" userName="张三" autoConnect={true} />);
+      render(<RoomManager userId="user-1" userName="张三" autoConnect={true} />)
 
       await act(async () => {
-        vi.advanceTimersByTime(1000);
-      });
+        vi.advanceTimersByTime(1000)
+      })
 
-      const selectButton = screen.getByTestId('select-room-btn');
-      await user.click(selectButton);
+      const selectButton = screen.getByTestId('select-room-btn')
+      await user.click(selectButton)
 
-      expect(mockStore.setCurrentRoom).toHaveBeenCalledWith('room-1');
-    });
-  });
+      expect(mockStore.setCurrentRoom).toHaveBeenCalledWith('room-1')
+    })
+  })
 
   // ==========================================================================
   // Room View Tests
@@ -284,7 +272,7 @@ describe('RoomManager', () => {
 
   describe('Room View', () => {
     it('should show room view when a room is selected', async () => {
-      mockStore.currentRoomId = 'room-1';
+      mockStore.currentRoomId = 'room-1'
       mockStore.rooms = [
         {
           id: 'room-1',
@@ -294,16 +282,19 @@ describe('RoomManager', () => {
           visibility: 'public',
           ownerId: 'user-1',
           participants: new Map([
-            ['user-1', {
-              id: 'user-1',
-              name: '张三',
-              color: '#3b82f6',
-              role: 'owner',
-              joinedAt: new Date(),
-              isTyping: false,
-              lastActivity: new Date(),
-              isOnline: true,
-            }],
+            [
+              'user-1',
+              {
+                id: 'user-1',
+                name: '张三',
+                color: '#3b82f6',
+                role: 'owner',
+                joinedAt: new Date(),
+                isTyping: false,
+                lastActivity: new Date(),
+                isOnline: true,
+              },
+            ],
           ]),
           data: { content: '', revision: 0 },
           config: {
@@ -319,22 +310,22 @@ describe('RoomManager', () => {
           lastActivity: new Date(),
           invites: new Set(),
         },
-      ];
+      ]
 
-      render(<RoomManager userId="user-1" userName="张三" autoConnect={true} />);
+      render(<RoomManager userId="user-1" userName="张三" autoConnect={true} />)
 
       await act(async () => {
-        vi.advanceTimersByTime(1000);
-      });
+        vi.advanceTimersByTime(1000)
+      })
 
-      expect(screen.getByTestId('room-view')).toBeInTheDocument();
-    });
+      expect(screen.getByTestId('room-view')).toBeInTheDocument()
+    })
 
     it('should handle send message', async () => {
-      const user = userEvent.setup({ advanceTimers: vi.advanceTimersByTime });
-      const consoleSpy = vi.spyOn(console, 'log');
+      const user = userEvent.setup({ advanceTimers: vi.advanceTimersByTime })
+      const consoleSpy = vi.spyOn(console, 'log')
 
-      mockStore.currentRoomId = 'room-1';
+      mockStore.currentRoomId = 'room-1'
       mockStore.rooms = [
         {
           id: 'room-1',
@@ -358,32 +349,27 @@ describe('RoomManager', () => {
           lastActivity: new Date(),
           invites: new Set(),
         },
-      ];
+      ]
 
-      render(<RoomManager userId="user-1" userName="张三" autoConnect={true} />);
+      render(<RoomManager userId="user-1" userName="张三" autoConnect={true} />)
 
       await act(async () => {
-        vi.advanceTimersByTime(1000);
-      });
+        vi.advanceTimersByTime(1000)
+      })
 
-      const sendButton = screen.getByTestId('send-message-btn');
-      await user.click(sendButton);
+      const sendButton = screen.getByTestId('send-message-btn')
+      await user.click(sendButton)
 
-      expect(consoleSpy).toHaveBeenCalledWith(
-        'Send message:',
-        '测试消息',
-        'reply to:',
-        undefined
-      );
+      expect(consoleSpy).toHaveBeenCalledWith('Send message:', '测试消息', 'reply to:', undefined)
 
-      consoleSpy.mockRestore();
-    });
+      consoleSpy.mockRestore()
+    })
 
     it('should handle react to message', async () => {
-      const user = userEvent.setup({ advanceTimers: vi.advanceTimersByTime });
-      const consoleSpy = vi.spyOn(console, 'log');
+      const user = userEvent.setup({ advanceTimers: vi.advanceTimersByTime })
+      const consoleSpy = vi.spyOn(console, 'log')
 
-      mockStore.currentRoomId = 'room-1';
+      mockStore.currentRoomId = 'room-1'
       mockStore.rooms = [
         {
           id: 'room-1',
@@ -407,27 +393,22 @@ describe('RoomManager', () => {
           lastActivity: new Date(),
           invites: new Set(),
         },
-      ];
+      ]
 
-      render(<RoomManager userId="user-1" userName="张三" autoConnect={true} />);
+      render(<RoomManager userId="user-1" userName="张三" autoConnect={true} />)
 
       await act(async () => {
-        vi.advanceTimersByTime(1000);
-      });
+        vi.advanceTimersByTime(1000)
+      })
 
-      const reactButton = screen.getByTestId('react-message-btn');
-      await user.click(reactButton);
+      const reactButton = screen.getByTestId('react-message-btn')
+      await user.click(reactButton)
 
-      expect(consoleSpy).toHaveBeenCalledWith(
-        'React to message:',
-        'msg-1',
-        'emoji:',
-        '👍'
-      );
+      expect(consoleSpy).toHaveBeenCalledWith('React to message:', 'msg-1', 'emoji:', '👍')
 
-      consoleSpy.mockRestore();
-    });
-  });
+      consoleSpy.mockRestore()
+    })
+  })
 
   // ==========================================================================
   // Room Settings Tests
@@ -435,11 +416,11 @@ describe('RoomManager', () => {
 
   describe('Room Settings', () => {
     it('should not show settings panel by default', () => {
-      render(<RoomManager />);
+      render(<RoomManager />)
 
-      expect(screen.queryByTestId('room-settings')).not.toBeInTheDocument();
-    });
-  });
+      expect(screen.queryByTestId('room-settings')).not.toBeInTheDocument()
+    })
+  })
 
   // ==========================================================================
   // Leave Room Tests
@@ -447,7 +428,7 @@ describe('RoomManager', () => {
 
   describe('Leave Room', () => {
     it('should leave a room', async () => {
-      const user = userEvent.setup({ advanceTimers: vi.advanceTimersByTime });
+      const user = userEvent.setup({ advanceTimers: vi.advanceTimersByTime })
 
       mockStore.rooms = [
         {
@@ -458,16 +439,19 @@ describe('RoomManager', () => {
           visibility: 'public',
           ownerId: 'user-2', // Different owner
           participants: new Map([
-            ['user-1', {
-              id: 'user-1',
-              name: '张三',
-              color: '#3b82f6',
-              role: 'member',
-              joinedAt: new Date(),
-              isTyping: false,
-              lastActivity: new Date(),
-              isOnline: true,
-            }],
+            [
+              'user-1',
+              {
+                id: 'user-1',
+                name: '张三',
+                color: '#3b82f6',
+                role: 'member',
+                joinedAt: new Date(),
+                isTyping: false,
+                lastActivity: new Date(),
+                isOnline: true,
+              },
+            ],
           ]),
           data: { content: '', revision: 0 },
           config: {
@@ -483,23 +467,23 @@ describe('RoomManager', () => {
           lastActivity: new Date(),
           invites: new Set(),
         },
-      ];
+      ]
 
-      render(<RoomManager userId="user-1" userName="张三" autoConnect={true} />);
+      render(<RoomManager userId="user-1" userName="张三" autoConnect={true} />)
 
       await act(async () => {
-        vi.advanceTimersByTime(1000);
-      });
+        vi.advanceTimersByTime(1000)
+      })
 
-      const leaveButton = screen.getByTestId('leave-room-btn');
-      await user.click(leaveButton);
+      const leaveButton = screen.getByTestId('leave-room-btn')
+      await user.click(leaveButton)
 
-      expect(mockStore.updateRoom).toHaveBeenCalled();
-    });
+      expect(mockStore.updateRoom).toHaveBeenCalled()
+    })
 
     it('should not allow owner to leave room', async () => {
-      const user = userEvent.setup({ advanceTimers: vi.advanceTimersByTime });
-      const alertSpy = vi.spyOn(window, 'alert').mockImplementation(() => {});
+      const user = userEvent.setup({ advanceTimers: vi.advanceTimersByTime })
+      const alertSpy = vi.spyOn(window, 'alert').mockImplementation(() => {})
 
       mockStore.rooms = [
         {
@@ -510,16 +494,19 @@ describe('RoomManager', () => {
           visibility: 'public',
           ownerId: 'user-1', // Current user is owner
           participants: new Map([
-            ['user-1', {
-              id: 'user-1',
-              name: '张三',
-              color: '#3b82f6',
-              role: 'owner',
-              joinedAt: new Date(),
-              isTyping: false,
-              lastActivity: new Date(),
-              isOnline: true,
-            }],
+            [
+              'user-1',
+              {
+                id: 'user-1',
+                name: '张三',
+                color: '#3b82f6',
+                role: 'owner',
+                joinedAt: new Date(),
+                isTyping: false,
+                lastActivity: new Date(),
+                isOnline: true,
+              },
+            ],
           ]),
           data: { content: '', revision: 0 },
           config: {
@@ -535,22 +522,22 @@ describe('RoomManager', () => {
           lastActivity: new Date(),
           invites: new Set(),
         },
-      ];
+      ]
 
-      render(<RoomManager userId="user-1" userName="张三" autoConnect={true} />);
+      render(<RoomManager userId="user-1" userName="张三" autoConnect={true} />)
 
       await act(async () => {
-        vi.advanceTimersByTime(1000);
-      });
+        vi.advanceTimersByTime(1000)
+      })
 
-      const leaveButton = screen.getByTestId('leave-room-btn');
-      await user.click(leaveButton);
+      const leaveButton = screen.getByTestId('leave-room-btn')
+      await user.click(leaveButton)
 
-      expect(alertSpy).toHaveBeenCalledWith(expect.stringContaining('房主'));
+      expect(alertSpy).toHaveBeenCalledWith(expect.stringContaining('房主'))
 
-      alertSpy.mockRestore();
-    });
-  });
+      alertSpy.mockRestore()
+    })
+  })
 
   // ==========================================================================
   // Error Handling Tests
@@ -560,13 +547,13 @@ describe('RoomManager', () => {
     it('should show error state when there is an error', () => {
       // This would require modifying the component state
       // For now, just test that the error UI exists in the component
-      render(<RoomManager autoConnect={true} />);
+      render(<RoomManager autoConnect={true} />)
 
       // Error UI is only shown when error state is set
       // This is a basic test to ensure the component handles errors
-      expect(screen.getByText(/WebSocket 房间/i)).toBeInTheDocument();
-    });
-  });
+      expect(screen.getByText(/WebSocket 房间/i)).toBeInTheDocument()
+    })
+  })
 
   // ==========================================================================
   // Dark Mode Tests
@@ -574,16 +561,16 @@ describe('RoomManager', () => {
 
   describe('Dark Mode', () => {
     it('should apply dark mode styles', () => {
-      document.documentElement.classList.add('dark');
+      document.documentElement.classList.add('dark')
 
-      render(<RoomManager />);
+      render(<RoomManager />)
 
-      const container = screen.getByText(/WebSocket 房间/i).closest('div');
-      expect(container).toBeInTheDocument();
+      const container = screen.getByText(/WebSocket 房间/i).closest('div')
+      expect(container).toBeInTheDocument()
 
-      document.documentElement.classList.remove('dark');
-    });
-  });
+      document.documentElement.classList.remove('dark')
+    })
+  })
 
   // ==========================================================================
   // Responsive Layout Tests
@@ -591,12 +578,12 @@ describe('RoomManager', () => {
 
   describe('Responsive Layout', () => {
     it('should have room list sidebar', () => {
-      render(<RoomManager />);
+      render(<RoomManager />)
 
-      const sidebar = screen.getByTestId('room-list').closest('div');
-      expect(sidebar).toHaveClass(/w-80/);
-    });
-  });
+      const sidebar = screen.getByTestId('room-list').closest('div')
+      expect(sidebar).toHaveClass(/w-80/)
+    })
+  })
 
   // ==========================================================================
   // Props Tests
@@ -604,24 +591,19 @@ describe('RoomManager', () => {
 
   describe('Props', () => {
     it('should use custom WebSocket URL', () => {
-      render(<RoomManager wsUrl="wss://custom.server.com" />);
+      render(<RoomManager wsUrl="wss://custom.server.com" />)
 
       // URL is used internally, just check component renders
-      expect(screen.getByText(/WebSocket 房间/i)).toBeInTheDocument();
-    });
+      expect(screen.getByText(/WebSocket 房间/i)).toBeInTheDocument()
+    })
 
     it('should use custom user avatar', () => {
-      render(
-        <RoomManager
-          userName="张三"
-          userAvatar="https://example.com/avatar.jpg"
-        />
-      );
+      render(<RoomManager userName="张三" userAvatar="https://example.com/avatar.jpg" />)
 
       // Avatar is used internally
-      expect(screen.getByText('张三')).toBeInTheDocument();
-    });
-  });
+      expect(screen.getByText('张三')).toBeInTheDocument()
+    })
+  })
 
   // ==========================================================================
   // Cleanup Tests
@@ -629,13 +611,13 @@ describe('RoomManager', () => {
 
   describe('Cleanup', () => {
     it('should cleanup on unmount', () => {
-      const { unmount } = render(<RoomManager autoConnect={true} />);
+      const { unmount } = render(<RoomManager autoConnect={true} />)
 
-      unmount();
+      unmount()
 
       // Timer should be cleared
       // This is more of an internal implementation detail
-      expect(true).toBe(true);
-    });
-  });
-});
+      expect(true).toBe(true)
+    })
+  })
+})

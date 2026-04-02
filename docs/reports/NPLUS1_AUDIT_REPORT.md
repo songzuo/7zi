@@ -23,41 +23,46 @@ This audit identified **3 critical N+1 query issues** in the `/api/users/batch` 
 **File Path:** `/root/.openclaw/workspace/src/app/api/users/batch/route.ts`
 
 **Current Code:**
+
 ```typescript
 const users = await Promise.all(
-  ids.map(async (id) => {
+  ids.map(async id => {
     try {
-      const user = await getUserById(id);
-      return user ? { id, user, error: null } : { id, user: null, error: 'User not found' };
+      const user = await getUserById(id)
+      return user ? { id, user, error: null } : { id, user: null, error: 'User not found' }
     } catch (error) {
-      const errorMsg = error instanceof Error ? error.message : 'Unknown error';
-      return { id, user: null, error: errorMsg };
+      const errorMsg = error instanceof Error ? error.message : 'Unknown error'
+      return { id, user: null, error: errorMsg }
     }
   })
-);
+)
 ```
 
 **Problem:**
+
 - Executes **N separate database queries** for N user IDs
 - For 100 users = 100 separate queries
 - Network latency compounds with each query
 
 **Performance Impact:**
+
 - 10 users: ~50ms → 10 queries × 5ms = 50ms
 - 100 users: ~50ms → 100 queries × 5ms = 500ms
 - **10x slower with 100 users**
 
 **Optimized Solution:**
+
 ```typescript
 // Single query with WHERE IN clause
-const placeholders = ids.map(() => '?').join(',');
+const placeholders = ids.map(() => '?').join(',')
 const users = await db.query(
   `SELECT id, email, name, role, status, created_at, updated_at FROM users WHERE id IN (${placeholders})`,
   ids
-);
+)
 ```
 
 **Expected Improvement:**
+
 - 100 users: 500ms → **~50ms** (10x faster)
 
 ---
@@ -68,37 +73,42 @@ const users = await db.query(
 **File Path:** `/root/.openclaw/workspace/src/app/api/users/batch/route.ts`
 
 **Current Code:**
+
 ```typescript
 const existingEmails = await Promise.all(
-  emails.map(async (email) => {
-    const existing = await getUserByEmail(email);
-    return existing ? email : null;
+  emails.map(async email => {
+    const existing = await getUserByEmail(email)
+    return existing ? email : null
   })
-);
+)
 ```
 
 **Problem:**
+
 - Executes **N separate database queries** for email validation
 - For 50 new users = 50 separate queries
 - Each query adds network round-trip time
 
 **Performance Impact:**
+
 - 10 users: ~50ms → 10 queries × 5ms = 50ms
 - 50 users: ~50ms → 50 queries × 5ms = 250ms
 - **5x slower with 50 users**
 
 **Optimized Solution:**
+
 ```typescript
 // Single query to check all emails at once
-const placeholders = emails.map(() => '?').join(',');
+const placeholders = emails.map(() => '?').join(',')
 const existingEmailRecords = await db.query(
   `SELECT email FROM users WHERE email IN (${placeholders})`,
   emails
-);
-const existingEmails = existingEmailRecords.map(r => r.email);
+)
+const existingEmails = existingEmailRecords.map(r => r.email)
 ```
 
 **Expected Improvement:**
+
 - 50 users: 250ms → **~50ms** (5x faster)
 
 ---
@@ -109,42 +119,46 @@ const existingEmails = existingEmailRecords.map(r => r.email);
 **File Path:** `/root/.openclaw/workspace/src/app/api/users/batch/route.ts`
 
 **Current Code:**
+
 ```typescript
 const results = await Promise.all(
   updates.map(async (update: any, index: number) => {
     try {
-      const { id, ...updateData } = update;
-      const updated = await updateUser(id, updateData);
+      const { id, ...updateData } = update
+      const updated = await updateUser(id, updateData)
       return {
         index,
         id,
         user: updated,
         error: !updated ? 'User not found' : null,
-      };
+      }
     } catch (error) {
-      const errorMsg = error instanceof Error ? error.message : 'Unknown error';
+      const errorMsg = error instanceof Error ? error.message : 'Unknown error'
       return {
         index,
         id: update.id,
         user: null,
         error: errorMsg,
-      };
+      }
     }
   })
-);
+)
 ```
 
 **Problem:**
+
 - Executes **N separate UPDATE statements**
 - For 100 updates = 100 separate UPDATE queries
 - Each UPDATE has its own transaction overhead
 
 **Performance Impact:**
+
 - 10 updates: ~100ms → 10 queries × 10ms = 100ms
 - 100 updates: ~100ms → 100 queries × 10ms = 1000ms
 - **10x slower with 100 updates**
 
 **Optimized Solution:**
+
 ```typescript
 // Option 1: Use CASE WHEN for single query
 const sql = `
@@ -157,14 +171,15 @@ const sql = `
       ${updates.map(u => `WHEN ? THEN ?`).join('\n      ')}
     END
   WHERE id IN (${updates.map(() => '?').join(',')})
-`;
+`
 
 // Option 2: Use the existing batchUpdate utility
-import { batchUpdate } from '@/lib/db/batch-operations';
-const result = await batchUpdate('users', 'id', updates);
+import { batchUpdate } from '@/lib/db/batch-operations'
+const result = await batchUpdate('users', 'id', updates)
 ```
 
 **Expected Improvement:**
+
 - 100 updates: 1000ms → **~100ms** (10x faster)
 
 ---
@@ -201,6 +216,7 @@ const result = await batchUpdate('users', 'id', updates);
 ### Code Review Checklist
 
 Before merging code, check for:
+
 - [ ] Loops with database queries inside
 - [ ] `Promise.all()` with individual queries
 - [ ] Missing `WHERE IN` clauses for bulk operations
@@ -213,19 +229,19 @@ Before merging code, check for:
 
 ### Current Performance (Estimated)
 
-| Operation | Records | Queries | Time (estimated) |
-|-----------|---------|---------|------------------|
-| GET users | 100 | 100 | ~500ms |
-| Create users | 50 | 50 (email check) | ~250ms |
-| Update users | 100 | 100 | ~1000ms |
+| Operation    | Records | Queries          | Time (estimated) |
+| ------------ | ------- | ---------------- | ---------------- |
+| GET users    | 100     | 100              | ~500ms           |
+| Create users | 50      | 50 (email check) | ~250ms           |
+| Update users | 100     | 100              | ~1000ms          |
 
 ### After Optimization (Projected)
 
-| Operation | Records | Queries | Time (estimated) | Improvement |
-|-----------|---------|---------|------------------|-------------|
-| GET users | 100 | 1 | ~50ms | **10x faster** |
-| Create users | 50 | 1 | ~50ms | **5x faster** |
-| Update users | 100 | 1 | ~100ms | **10x faster** |
+| Operation    | Records | Queries | Time (estimated) | Improvement    |
+| ------------ | ------- | ------- | ---------------- | -------------- |
+| GET users    | 100     | 1       | ~50ms            | **10x faster** |
+| Create users | 50      | 1       | ~50ms            | **5x faster**  |
+| Update users | 100     | 1       | ~100ms           | **10x faster** |
 
 ---
 

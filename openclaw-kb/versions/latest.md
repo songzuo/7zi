@@ -51,17 +51,20 @@
 ## 版本升级注意事项
 
 ### 升级前检查清单
+
 1. 运行 `openclaw config validate` 验证配置
 2. 检查 Breaking Changes 部分
 3. 备份配置文件
 4. 查看完整发布说明
 
 ### 升级命令
+
 ```bash
 openclaw update --yes
 ```
 
 ### 回滚(如需要)
+
 ```bash
 openclaw update --channel <previous-channel>
 # 或手动安装特定版本

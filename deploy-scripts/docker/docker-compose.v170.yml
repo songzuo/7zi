@@ -26,41 +26,47 @@ services:
     container_name: ai-team-dashboard-v170
     restart: unless-stopped
     ports:
-      - "${APP_PORT:-3000}:3000"
+      - '${APP_PORT:-3000}:3000'
     environment:
       # 基础配置
       - NODE_ENV=production
       - PORT=3000
       - HOSTNAME=0.0.0.0
-      
+
       # v1.7.0 Multi-Agent 协作配置
       - MULTI_AGENT_ENABLED=true
       - AGENT_COLLABORATION_MAX_INSTANCES=50
       - AGENT_TASK_QUEUE_SIZE=200
       - AGENT_HEARTBEAT_INTERVAL=30000
       - AGENT_TIMEOUT_MS=30000
-      
+
       # APM 监控配置
       - APM_ENABLED=true
       - SENTRY_DSN=${SENTRY_DSN:-}
       - SENTRY_TRACES_SAMPLE_RATE=0.1
       - SENTRY_PROFILES_SAMPLE_RATE=0.05
-      
+
       # 告警服务配置
       - ALERT_EMAIL_ENABLED=${ALERT_EMAIL_ENABLED:-true}
       - ALERT_SLACK_ENABLED=${ALERT_SLACK_ENABLED:-false}
       - ALERT_SLACK_WEBHOOK=${ALERT_SLACK_WEBHOOK:-}
-      
+
       # Redis 配置
       - REDIS_URL=redis://redis:6379
       - REDIS_PASSWORD=${REDIS_PASSWORD:-7zi-redis-password}
-      
+
       # 数据库配置 (如需要)
       # - DATABASE_URL=postgresql://...
     env_file:
       - ../../.env.production
     healthcheck:
-      test: ["CMD", "node", "-e", "require('http').get('http://localhost:3000/api/health', (r) => {process.exit(r.statusCode === 200 ? 0 : 1)})"]
+      test:
+        [
+          'CMD',
+          'node',
+          '-e',
+          "require('http').get('http://localhost:3000/api/health', (r) => {process.exit(r.statusCode === 200 ? 0 : 1)})",
+        ]
       interval: 15s
       timeout: 10s
       retries: 3
@@ -68,10 +74,10 @@ services:
     deploy:
       resources:
         limits:
-          cpus: "3"
+          cpus: '3'
           memory: 1536M
         reservations:
-          cpus: "1"
+          cpus: '1'
           memory: 512M
       restart_policy:
         condition: on-failure
@@ -80,14 +86,14 @@ services:
     networks:
       - 7zi-network
     logging:
-      driver: "json-file"
+      driver: 'json-file'
       options:
-        max-size: "50m"
-        max-file: "5"
-        tag: "app-v170/{{.ID}}"
+        max-size: '50m'
+        max-file: '5'
+        tag: 'app-v170/{{.ID}}'
     labels:
-      - "version=v1.7.0"
-      - "release-date=2026-04-01"
+      - 'version=v1.7.0'
+      - 'release-date=2026-04-01'
 
   # ============================================
   # Redis 缓存服务 (v1.7.0 升级)
@@ -97,7 +103,7 @@ services:
     container_name: 7zi-redis-v170
     restart: unless-stopped
     ports:
-      - "${REDIS_PORT:-6379}:6379"
+      - '${REDIS_PORT:-6379}:6379'
     volumes:
       - redis-data:/data
       - ../cluster/redis/redis.conf:/usr/local/etc/redis/redis.conf:ro
@@ -108,27 +114,27 @@ services:
       --maxmemory-policy allkeys-lru
       --requirepass ${REDIS_PASSWORD:-7zi-redis-password}
     healthcheck:
-      test: ["CMD", "redis-cli", "-a", "${REDIS_PASSWORD:-7zi-redis-password}", "ping"]
+      test: ['CMD', 'redis-cli', '-a', '${REDIS_PASSWORD:-7zi-redis-password}', 'ping']
       interval: 10s
       timeout: 5s
       retries: 3
     deploy:
       resources:
         limits:
-          cpus: "1"
+          cpus: '1'
           memory: 1G
         reservations:
-          cpus: "0.25"
+          cpus: '0.25'
           memory: 256M
     networks:
       - 7zi-network
     logging:
-      driver: "json-file"
+      driver: 'json-file'
       options:
-        max-size: "20m"
-        max-file: "3"
+        max-size: '20m'
+        max-file: '3'
     labels:
-      - "version=v1.7.0"
+      - 'version=v1.7.0'
 
   # ============================================
   # Nginx 反向代理
@@ -138,8 +144,8 @@ services:
     container_name: 7zi-nginx-v170
     restart: unless-stopped
     ports:
-      - "${HTTP_PORT:-80}:80"
-      - "${HTTPS_PORT:-443}:443"
+      - '${HTTP_PORT:-80}:80'
+      - '${HTTPS_PORT:-443}:443'
     volumes:
       - ./nginx/nginx.conf:/etc/nginx/nginx.conf:ro
       - ./nginx/ssl:/etc/nginx/ssl:ro
@@ -148,27 +154,27 @@ services:
       app:
         condition: service_healthy
     healthcheck:
-      test: ["CMD", "wget", "-q", "--spider", "http://localhost/health"]
+      test: ['CMD', 'wget', '-q', '--spider', 'http://localhost/health']
       interval: 20s
       timeout: 10s
       retries: 3
     deploy:
       resources:
         limits:
-          cpus: "1"
+          cpus: '1'
           memory: 512M
         reservations:
-          cpus: "0.25"
+          cpus: '0.25'
           memory: 128M
     networks:
       - 7zi-network
     logging:
-      driver: "json-file"
+      driver: 'json-file'
       options:
-        max-size: "30m"
-        max-file: "5"
+        max-size: '30m'
+        max-file: '5'
     labels:
-      - "version=v1.7.0"
+      - 'version=v1.7.0'
 
   # ============================================
   # 告警服务 (v1.7.0 新增)
@@ -193,20 +199,20 @@ services:
     deploy:
       resources:
         limits:
-          cpus: "0.5"
+          cpus: '0.5'
           memory: 256M
         reservations:
-          cpus: "0.1"
+          cpus: '0.1'
           memory: 64M
     networks:
       - 7zi-network
     logging:
-      driver: "json-file"
+      driver: 'json-file'
       options:
-        max-size: "10m"
-        max-file: "3"
+        max-size: '10m'
+        max-file: '3'
     labels:
-      - "version=v1.7.0"
+      - 'version=v1.7.0'
 
   # ============================================
   # 监控服务 (可选)
@@ -216,7 +222,7 @@ services:
     container_name: 7zi-prometheus
     restart: unless-stopped
     ports:
-      - "${PROMETHEUS_PORT:-9090}:9090"
+      - '${PROMETHEUS_PORT:-9090}:9090'
     volumes:
       - ./monitoring/prometheus.yml:/etc/prometheus/prometheus.yml:ro
       - prometheus-data:/prometheus
@@ -229,14 +235,14 @@ services:
     networks:
       - 7zi-network
     labels:
-      - "version=v1.7.0"
+      - 'version=v1.7.0'
 
   grafana:
     image: grafana/grafana:10.2.2
     container_name: 7zi-grafana
     restart: unless-stopped
     ports:
-      - "${GRAFANA_PORT:-3001}:3000"
+      - '${GRAFANA_PORT:-3001}:3000'
     volumes:
       - grafana-data:/var/lib/grafana
       - ./monitoring/dashboards:/etc/grafana/provisioning/dashboards:ro
@@ -250,7 +256,7 @@ services:
     networks:
       - 7zi-network
     labels:
-      - "version=v1.7.0"
+      - 'version=v1.7.0'
 
 # ============================================
 # Networks

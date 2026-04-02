@@ -12,38 +12,38 @@ export enum UserRole {
 
 // 基础用户类型
 export interface User {
-  id: string;
-  email: string;
-  name?: string;
-  role: UserRole;
-  createdAt?: Date;
-  updatedAt?: Date;
+  id: string
+  email: string
+  name?: string
+  role: UserRole
+  createdAt?: Date
+  updatedAt?: Date
 }
 
 // API 响应类型
 export interface ApiResponse<T = unknown> {
-  success: boolean;
-  data?: T;
-  error?: string;
-  message?: string;
+  success: boolean
+  data?: T
+  error?: string
+  message?: string
 }
 
 // 分页类型
 export interface PaginationParams {
-  page: number;
-  limit: number;
-  total?: number;
+  page: number
+  limit: number
+  total?: number
 }
 
 export interface PaginatedResponse<T> extends ApiResponse<T[]> {
-  pagination: PaginationParams;
+  pagination: PaginationParams
 }
 
 // 通用 ID 类型
-export type ID = string;
+export type ID = string
 
 // 时间戳类型
 export interface Timestamped {
-  createdAt: Date;
-  updatedAt: Date;
+  createdAt: Date
+  updatedAt: Date
 }

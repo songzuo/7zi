@@ -10,21 +10,21 @@ export enum WebSocketStatus {
 }
 
 export interface WebSocketMessage {
-  type: string;
-  payload: unknown;
-  timestamp?: Date;
+  type: string
+  payload: unknown
+  timestamp?: Date
 }
 
 export interface WebSocketConfig {
-  url: string;
-  reconnectInterval?: number;
-  maxReconnectAttempts?: number;
-  heartbeatInterval?: number;
+  url: string
+  reconnectInterval?: number
+  maxReconnectAttempts?: number
+  heartbeatInterval?: number
 }
 
 export interface WebSocketState {
-  status: WebSocketStatus;
-  lastMessage?: WebSocketMessage;
-  error?: Error;
-  connectionTime?: Date;
+  status: WebSocketStatus
+  lastMessage?: WebSocketMessage
+  error?: Error
+  connectionTime?: Date
 }

@@ -3,17 +3,17 @@
  * Simple implementation without external dependencies
  */
 
-'use client';
+'use client'
 
-import React, { useRef, useMemo, useState, useEffect } from 'react';
+import React, { useRef, useMemo, useState, useEffect } from 'react'
 
 interface VirtualizedListProps<T extends Record<string, unknown>> {
-  items: T[];
-  renderItem: (item: T, index: number) => React.ReactNode;
-  itemHeight: number;
-  containerHeight: number;
-  overscan?: number;
-  className?: string;
+  items: T[]
+  renderItem: (item: T, index: number) => React.ReactNode
+  itemHeight: number
+  containerHeight: number
+  overscan?: number
+  className?: string
 }
 
 export function VirtualizedList<T extends Record<string, unknown>>({
@@ -22,38 +22,38 @@ export function VirtualizedList<T extends Record<string, unknown>>({
   itemHeight,
   containerHeight,
   overscan = 5,
-  className = ''
+  className = '',
 }: VirtualizedListProps<T>) {
-  const [scrollTop, setScrollTop] = useState(0);
-  const containerRef = useRef<HTMLDivElement>(null);
+  const [scrollTop, setScrollTop] = useState(0)
+  const containerRef = useRef<HTMLDivElement>(null)
 
   // Calculate visible range
   const { startIndex, endIndex, offsetY } = useMemo(() => {
-    const startIndex = Math.max(0, Math.floor(scrollTop / itemHeight) - overscan);
+    const startIndex = Math.max(0, Math.floor(scrollTop / itemHeight) - overscan)
     const endIndex = Math.min(
       items.length - 1,
       Math.ceil((scrollTop + containerHeight) / itemHeight) + overscan
-    );
-    const offsetY = startIndex * itemHeight;
+    )
+    const offsetY = startIndex * itemHeight
 
-    return { startIndex, endIndex, offsetY };
-  }, [scrollTop, itemHeight, containerHeight, overscan, items.length]);
+    return { startIndex, endIndex, offsetY }
+  }, [scrollTop, itemHeight, containerHeight, overscan, items.length])
 
   // Handle scroll
   const handleScroll = (e: React.UIEvent<HTMLDivElement>) => {
-    setScrollTop(e.currentTarget.scrollTop);
-  };
+    setScrollTop(e.currentTarget.scrollTop)
+  }
 
   // Total height of all items
-  const totalHeight = items.length * itemHeight;
+  const totalHeight = items.length * itemHeight
 
   // Visible items
   const visibleItems = useMemo(() => {
     return items.slice(startIndex, endIndex + 1).map((item, index) => ({
       item,
-      index: startIndex + index
-    }));
-  }, [items, startIndex, endIndex]);
+      index: startIndex + index,
+    }))
+  }, [items, startIndex, endIndex])
 
   return (
     <div
@@ -72,21 +72,21 @@ export function VirtualizedList<T extends Record<string, unknown>>({
         </div>
       </div>
     </div>
-  );
+  )
 }
 
 // Virtualized Table Component
 interface VirtualizedTableProps<T extends Record<string, unknown>> {
-  data: T[];
+  data: T[]
   columns: {
-    key: string;
-    header: string;
-    render?: (value: unknown, row: T) => React.ReactNode;
-    width?: string;
-  }[];
-  rowHeight: number;
-  containerHeight: number;
-  className?: string;
+    key: string
+    header: string
+    render?: (value: unknown, row: T) => React.ReactNode
+    width?: string
+  }[]
+  rowHeight: number
+  containerHeight: number
+  className?: string
 }
 
 export function VirtualizedTable<T extends Record<string, unknown>>({
@@ -94,25 +94,24 @@ export function VirtualizedTable<T extends Record<string, unknown>>({
   columns,
   rowHeight,
   containerHeight,
-  className = ''
+  className = '',
 }: VirtualizedTableProps<T>) {
-  const headerHeight = 50;
+  const headerHeight = 50
 
   return (
-    <div className={`border border-zinc-200 dark:border-zinc-700 rounded-lg overflow-hidden ${className}`}>
+    <div
+      className={`overflow-hidden rounded-lg border border-zinc-200 dark:border-zinc-700 ${className}`}
+    >
       {/* Header */}
       <div
-        className="bg-zinc-50 dark:bg-zinc-800 border-b border-zinc-200 dark:border-zinc-700 grid items-center px-4"
+        className="grid items-center border-b border-zinc-200 bg-zinc-50 px-4 dark:border-zinc-700 dark:bg-zinc-800"
         style={{
-          gridTemplateColumns: columns.map((col) => col.width || '1fr').join(' '),
-          height: headerHeight
+          gridTemplateColumns: columns.map(col => col.width || '1fr').join(' '),
+          height: headerHeight,
         }}
       >
-        {columns.map((col) => (
-          <div
-            key={col.key}
-            className="text-sm font-semibold text-zinc-900 dark:text-white"
-          >
+        {columns.map(col => (
+          <div key={col.key} className="text-sm font-semibold text-zinc-900 dark:text-white">
             {col.header}
           </div>
         ))}
@@ -121,22 +120,20 @@ export function VirtualizedTable<T extends Record<string, unknown>>({
       {/* Virtualized Body */}
       <VirtualizedList<Record<string, unknown>>
         items={data as Record<string, unknown>[]}
-        renderItem={(row) => (
+        renderItem={row => (
           <div
-            className="grid items-center px-4 border-b border-zinc-100 dark:border-zinc-800 hover:bg-zinc-50 dark:hover:bg-zinc-800/50 transition-colors"
+            className="grid items-center border-b border-zinc-100 px-4 transition-colors hover:bg-zinc-50 dark:border-zinc-800 dark:hover:bg-zinc-800/50"
             style={{
-              gridTemplateColumns: columns.map((col) => col.width || '1fr').join(' '),
-              height: rowHeight
+              gridTemplateColumns: columns.map(col => col.width || '1fr').join(' '),
+              height: rowHeight,
             }}
           >
-            {columns.map((col) => (
+            {columns.map(col => (
               <div
                 key={`${row.id}-${col.key}`}
                 className="text-sm text-zinc-700 dark:text-zinc-300"
               >
-                {col.render
-                  ? col.render(row[col.key], row as T)
-                  : String(row[col.key] ?? '')}
+                {col.render ? col.render(row[col.key], row as T) : String(row[col.key] ?? '')}
               </div>
             ))}
           </div>
@@ -146,26 +143,27 @@ export function VirtualizedTable<T extends Record<string, unknown>>({
         className=""
       />
     </div>
-  );
+  )
 }
 
 // Hook for auto-adjusting container height
 export function useVirtualContainerHeight(defaultHeight: number = 400) {
-  const [height, setHeight] = useState(defaultHeight);
-  const containerRef = useRef<HTMLDivElement>(null);
+  const [height, setHeight] = useState(defaultHeight)
+  const containerRef = useRef<HTMLDivElement>(null)
 
   useEffect(() => {
     const updateHeight = () => {
       if (containerRef.current) {
-        const availableHeight = window.innerHeight - containerRef.current.getBoundingClientRect().top - 100;
-        setHeight(Math.max(defaultHeight, Math.min(availableHeight, 800)));
+        const availableHeight =
+          window.innerHeight - containerRef.current.getBoundingClientRect().top - 100
+        setHeight(Math.max(defaultHeight, Math.min(availableHeight, 800)))
       }
-    };
+    }
 
-    updateHeight();
-    window.addEventListener('resize', updateHeight);
-    return () => window.removeEventListener('resize', updateHeight);
-  }, [defaultHeight]);
+    updateHeight()
+    window.addEventListener('resize', updateHeight)
+    return () => window.removeEventListener('resize', updateHeight)
+  }, [defaultHeight])
 
-  return { height, containerRef };
+  return { height, containerRef }
 }

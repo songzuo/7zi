@@ -3,10 +3,10 @@
  * @description 单个通知的展示组件
  */
 
-'use client';
+'use client'
 
-import type { NotificationItemProps, NotificationType } from './types';
-import type { FC, MouseEvent } from 'react';
+import type { NotificationItemProps, NotificationType } from './types'
+import type { FC, MouseEvent } from 'react'
 
 /** 类型对应的颜色配置 */
 const typeColors: Record<NotificationType, { bg: string; text: string; icon: string }> = {
@@ -30,24 +30,24 @@ const typeColors: Record<NotificationType, { bg: string; text: string; icon: str
     text: 'text-red-600 dark:text-red-400',
     icon: '✕',
   },
-};
+}
 
 /** 格式化相对时间 */
 const formatRelativeTime = (date: Date): string => {
-  const now = new Date();
-  const diffMs = now.getTime() - new Date(date).getTime();
-  const diffSec = Math.floor(diffMs / 1000);
-  const diffMin = Math.floor(diffSec / 60);
-  const diffHour = Math.floor(diffMin / 60);
-  const diffDay = Math.floor(diffHour / 24);
+  const now = new Date()
+  const diffMs = now.getTime() - new Date(date).getTime()
+  const diffSec = Math.floor(diffMs / 1000)
+  const diffMin = Math.floor(diffSec / 60)
+  const diffHour = Math.floor(diffMin / 60)
+  const diffDay = Math.floor(diffHour / 24)
 
-  if (diffSec < 60) return '刚刚';
-  if (diffMin < 60) return `${diffMin} 分钟前`;
-  if (diffHour < 24) return `${diffHour} 小时前`;
-  if (diffDay < 7) return `${diffDay} 天前`;
+  if (diffSec < 60) return '刚刚'
+  if (diffMin < 60) return `${diffMin} 分钟前`
+  if (diffHour < 24) return `${diffHour} 小时前`
+  if (diffDay < 7) return `${diffDay} 天前`
 
-  return new Date(date).toLocaleDateString('zh-CN');
-};
+  return new Date(date).toLocaleDateString('zh-CN')
+}
 
 /** 通知项组件 */
 export const NotificationItem: FC<NotificationItemProps> = ({
@@ -55,55 +55,55 @@ export const NotificationItem: FC<NotificationItemProps> = ({
   onMarkAsRead,
   onDelete,
 }) => {
-  const colors = typeColors[notification.type];
-  const formattedTime = formatRelativeTime(notification.createdAt);
+  const colors = typeColors[notification.type]
+  const formattedTime = formatRelativeTime(notification.createdAt)
 
   const handleClick = () => {
     if (!notification.read && onMarkAsRead) {
-      onMarkAsRead(notification.id);
+      onMarkAsRead(notification.id)
     }
     if (notification.link) {
-      window.location.href = notification.link;
+      window.location.href = notification.link
     }
-  };
+  }
 
   const handleMarkAsRead = (e: React.MouseEvent) => {
-    e.stopPropagation();
-    onMarkAsRead?.(notification.id);
-  };
+    e.stopPropagation()
+    onMarkAsRead?.(notification.id)
+  }
 
   const handleDelete = (e: React.MouseEvent) => {
-    e.stopPropagation();
-    onDelete?.(notification.id);
-  };
+    e.stopPropagation()
+    onDelete?.(notification.id)
+  }
 
   return (
     <li
-      className={`relative px-4 py-3 hover:bg-zinc-50 dark:hover:bg-zinc-800/50 transition-colors cursor-pointer ${
+      className={`relative cursor-pointer px-4 py-3 transition-colors hover:bg-zinc-50 dark:hover:bg-zinc-800/50 ${
         !notification.read ? 'bg-blue-50/50 dark:bg-blue-900/10' : ''
       }`}
       onClick={handleClick}
       role="button"
       tabIndex={0}
-      onKeyDown={(e) => {
+      onKeyDown={e => {
         if (e.key === 'Enter' || e.key === ' ') {
-          handleClick();
+          handleClick()
         }
       }}
     >
       <div className="flex gap-3">
         {/* 类型图标 */}
         <div
-          className={`flex-shrink-0 w-8 h-8 rounded-full flex items-center justify-center text-sm ${colors.bg} ${colors.text}`}
+          className={`flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-full text-sm ${colors.bg} ${colors.text}`}
         >
           {notification.icon || colors.icon}
         </div>
 
         {/* 内容区 */}
-        <div className="flex-1 min-w-0">
+        <div className="min-w-0 flex-1">
           <div className="flex items-start justify-between gap-2">
             <p
-              className={`text-sm font-medium truncate ${
+              className={`truncate text-sm font-medium ${
                 notification.read
                   ? 'text-zinc-700 dark:text-zinc-300'
                   : 'text-zinc-900 dark:text-white'
@@ -112,34 +112,27 @@ export const NotificationItem: FC<NotificationItemProps> = ({
               {notification.title}
             </p>
             {!notification.read && (
-              <span className="flex-shrink-0 w-2 h-2 rounded-full bg-blue-500" />
+              <span className="h-2 w-2 flex-shrink-0 rounded-full bg-blue-500" />
             )}
           </div>
 
-          <p className="mt-1 text-sm text-zinc-500 dark:text-zinc-400 line-clamp-2">
+          <p className="mt-1 line-clamp-2 text-sm text-zinc-500 dark:text-zinc-400">
             {notification.message}
           </p>
 
-          <p className="mt-1 text-xs text-zinc-400 dark:text-zinc-500">
-            {formattedTime}
-          </p>
+          <p className="mt-1 text-xs text-zinc-400 dark:text-zinc-500">{formattedTime}</p>
         </div>
 
         {/* 操作按钮 */}
-        <div className="flex-shrink-0 flex items-start gap-1">
+        <div className="flex flex-shrink-0 items-start gap-1">
           {!notification.read && onMarkAsRead && (
             <button
               onClick={handleMarkAsRead}
-              className="p-1 text-zinc-400 hover:text-blue-500 dark:hover:text-blue-400 transition-colors"
+              className="p-1 text-zinc-400 transition-colors hover:text-blue-500 dark:hover:text-blue-400"
               title="标记已读"
               aria-label="标记已读"
             >
-              <svg
-                className="w-4 h-4"
-                fill="none"
-                stroke="currentColor"
-                viewBox="0 0 24 24"
-              >
+              <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path
                   strokeLinecap="round"
                   strokeLinejoin="round"
@@ -152,16 +145,11 @@ export const NotificationItem: FC<NotificationItemProps> = ({
           {onDelete && (
             <button
               onClick={handleDelete}
-              className="p-1 text-zinc-400 hover:text-red-500 dark:hover:text-red-400 transition-colors"
+              className="p-1 text-zinc-400 transition-colors hover:text-red-500 dark:hover:text-red-400"
               title="删除通知"
               aria-label="删除通知"
             >
-              <svg
-                className="w-4 h-4"
-                fill="none"
-                stroke="currentColor"
-                viewBox="0 0 24 24"
-              >
+              <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path
                   strokeLinecap="round"
                   strokeLinejoin="round"
@@ -174,7 +162,7 @@ export const NotificationItem: FC<NotificationItemProps> = ({
         </div>
       </div>
     </li>
-  );
-};
+  )
+}
 
-export default NotificationItem;
+export default NotificationItem

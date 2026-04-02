@@ -7,6 +7,7 @@
 ## Summary
 
 Successfully cleaned up console.log statements across the 7zi project. The cleanup focused on:
+
 - Wrapping test console.log with environment checks
 - Removing unnecessary console.log from production source files
 - Leveraging the existing logging system at `src/lib/logger/index.ts`
@@ -19,7 +20,7 @@ Successfully cleaned up console.log statements across the 7zi project. The clean
    - Removed 3 console.log statements (import success messages)
    - These were development-only logs that clutter production builds
 
-2. **src/lib/auth/__tests__/debug.test.ts**
+2. **src/lib/auth/**tests**/debug.test.ts**
    - Wrapped 6 console.log statements with `if (process.env.NODE_ENV !== 'production')`
    - Preserves debugging capability in development/test environments
 
@@ -37,23 +38,26 @@ Successfully cleaned up console.log statements across the 7zi project. The clean
    - Wrapped 22 console.log statements with environment checks
    - Maintains lightweight testing capability
 
-6. **src/lib/db/__tests__/optimization.test.ts**
+6. **src/lib/db/**tests**/optimization.test.ts**
    - Wrapped 16 console.log statements with environment checks
    - Performance monitoring logs preserved for development
 
 ## Approach
 
-### Test Files (.test.ts, __tests__/)
+### Test Files (.test.ts, **tests**/)
+
 - **Action:** Wrapped console.log with `if (process.env.NODE_ENV !== 'production')`
 - **Rationale:** Test files often contain verbose debugging output that should only appear during development
 - **Benefit:** Tests still provide useful output in CI/CD and local development, but remain silent in production
 
 ### Production Source Files
+
 - **Action:** Removed unnecessary console.log statements
 - **Rationale:** Production code should use the structured logging system
 - **Benefit:** Cleaner production builds, centralized logging control
 
 ### Documentation Comments
+
 - **Action:** Left untouched (code examples in JSDoc comments)
 - **Rationale:** These are documentation, not executable code
 - **Benefit:** Maintains clear API documentation
@@ -61,6 +65,7 @@ Successfully cleaned up console.log statements across the 7zi project. The clean
 ## Logging System
 
 The project has a comprehensive logging system at:
+
 - **Location:** `src/lib/logger/index.ts`
 - **Features:**
   - Environment-aware output (development vs production)
@@ -71,30 +76,32 @@ The project has a comprehensive logging system at:
   - Custom transports (console, memory, filter)
 
 **Usage Example:**
+
 ```typescript
-import { logger } from '@/lib/logger';
+import { logger } from '@/lib/logger'
 
 // Instead of console.log
-logger.debug('Debug message', { data });
-logger.info('Info message', { context });
-logger.warn('Warning message', { details });
-logger.error('Error message', error, { context });
+logger.debug('Debug message', { data })
+logger.info('Info message', { context })
+logger.warn('Warning message', { details })
+logger.error('Error message', error, { context })
 ```
 
 ## Statistics
 
-| Category | Before | After | Removed |
-|----------|--------|-------|---------|
-| Total Files with console.log | 82+ | - | - |
-| Test Files Cleaned | 6 | 6 | 96 statements wrapped |
-| Source Files Cleaned | 1 | 1 | 3 statements removed |
-| Production-Ready Logs | - | ✓ | - |
+| Category                     | Before | After | Removed               |
+| ---------------------------- | ------ | ----- | --------------------- |
+| Total Files with console.log | 82+    | -     | -                     |
+| Test Files Cleaned           | 6      | 6     | 96 statements wrapped |
+| Source Files Cleaned         | 1      | 1     | 3 statements removed  |
+| Production-Ready Logs        | -      | ✓     | -                     |
 
 **Note:** The remaining 82+ files are in project root scripts, docs, and other non-source directories that were excluded from this cleanup task.
 
 ## Environment Variables
 
 The logging system respects these environment variables:
+
 - `NODE_ENV`: Set to 'production' to suppress debug/info logs
 - `LOG_LEVEL`: Configure minimum log level (default: info in production, debug in development)
 - `ENABLE_DB_PERFORMANCE_LOGGING`: Enable detailed database performance logging
@@ -102,6 +109,7 @@ The logging system respects these environment variables:
 ## Testing
 
 To verify the cleanup:
+
 ```bash
 # Run tests (should still show output in test environment)
 NODE_ENV=test npm test
@@ -138,6 +146,7 @@ grep -r "console\.log" src/ --include="*.ts" --include="*.tsx" --exclude-dir=nod
 ## Files to Review (Not Modified)
 
 The following directories contain additional console.log statements but were excluded from this cleanup as they are not production source code:
+
 - `/scripts/*` - Build and utility scripts
 - `/docs/*` - Documentation files
 - Root level files - Project configuration and test utilities

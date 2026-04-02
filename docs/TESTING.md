@@ -18,12 +18,12 @@
 
 ### 核心工具
 
-| 工具 | 版本 | 用途 |
-|------|------|------|
-| **Vitest** | 4.0.18 | 现代化测试框架，兼容 Jest API |
-| **React Testing Library** | 16.x | React 组件测试工具 |
-| **JSDOM** | 28.x | 浏览器环境模拟 |
-| **@vitest/coverage-v8** | 最新 | 代码覆盖率收集 |
+| 工具                      | 版本   | 用途                          |
+| ------------------------- | ------ | ----------------------------- |
+| **Vitest**                | 4.0.18 | 现代化测试框架，兼容 Jest API |
+| **React Testing Library** | 16.x   | React 组件测试工具            |
+| **JSDOM**                 | 28.x   | 浏览器环境模拟                |
+| **@vitest/coverage-v8**   | 最新   | 代码覆盖率收集                |
 
 ### 为什么选择 Vitest？
 
@@ -52,12 +52,7 @@ export default defineConfig({
     coverage: {
       provider: 'v8',
       reporter: ['text', 'json', 'html'],
-      exclude: [
-        'node_modules/',
-        '__tests__/',
-        '**/*.d.ts',
-        '**/*.config.*',
-      ],
+      exclude: ['node_modules/', '__tests__/', '**/*.d.ts', '**/*.config.*'],
       thresholds: {
         lines: 80,
         functions: 80,
@@ -199,7 +194,7 @@ describe('Button Component', () => {
     it('calls onClick when clicked', () => {
       const handleClick = vi.fn()
       render(<Button onClick={handleClick}>Click</Button>)
-      
+
       fireEvent.click(screen.getByRole('button'))
       expect(handleClick).toHaveBeenCalledTimes(1)
     })
@@ -207,7 +202,7 @@ describe('Button Component', () => {
     it('does not call onClick when disabled', () => {
       const handleClick = vi.fn()
       render(<Button onClick={handleClick} disabled>Click</Button>)
-      
+
       fireEvent.click(screen.getByRole('button'))
       expect(handleClick).not.toHaveBeenCalled()
     })
@@ -248,32 +243,32 @@ describe('useCounter Hook', () => {
 
   it('increments count', () => {
     const { result } = renderHook(() => useCounter())
-    
+
     act(() => {
       result.current.increment()
     })
-    
+
     expect(result.current.count).toBe(1)
   })
 
   it('decrements count', () => {
     const { result } = renderHook(() => useCounter(5))
-    
+
     act(() => {
       result.current.decrement()
     })
-    
+
     expect(result.current.count).toBe(4)
   })
 
   it('resets to initial value', () => {
     const { result } = renderHook(() => useCounter(10))
-    
+
     act(() => {
       result.current.increment()
       result.current.reset()
     })
-    
+
     expect(result.current.count).toBe(10)
   })
 })
@@ -304,19 +299,19 @@ describe('UserProfile', () => {
 
   it('displays user data after loading', async () => {
     render(<UserProfile userId={1} />)
-    
+
     await waitFor(() => {
       expect(screen.getByText('John Doe')).toBeInTheDocument()
     })
-    
+
     expect(screen.getByText('john@example.com')).toBeInTheDocument()
   })
 
   it('handles error state', async () => {
     vi.mocked(fetchUser).mockRejectedValueOnce(new Error('Network error'))
-    
+
     render(<UserProfile userId={1} />)
-    
+
     await waitFor(() => {
       expect(screen.getByText(/error/i)).toBeInTheDocument()
     })
@@ -341,7 +336,7 @@ mockFn.mockReturnValue('hello')
 mockFn.mockReturnValueOnce('first call')
 
 // 设置实现
-mockFn.mockImplementation((x) => x * 2)
+mockFn.mockImplementation(x => x * 2)
 
 // Mock Promise
 mockFn.mockResolvedValue('async result')
@@ -366,7 +361,7 @@ vi.mock('./api', () => ({
 }))
 
 // Mock 部分导出
-vi.mock('./utils', async (importOriginal) => {
+vi.mock('./utils', async importOriginal => {
   const mod = await importOriginal()
   return {
     ...mod,
@@ -392,19 +387,19 @@ afterEach(() => {
 it('calls callback after delay', () => {
   const callback = vi.fn()
   setTimeout(callback, 1000)
-  
+
   // 快进时间
   vi.advanceTimersByTime(1000)
-  
+
   expect(callback).toHaveBeenCalled()
 })
 
 it('handles intervals', () => {
   const callback = vi.fn()
   setInterval(callback, 100)
-  
+
   vi.advanceTimersByTime(350) // 3.5 次
-  
+
   expect(callback).toHaveBeenCalledTimes(3)
 })
 ```
@@ -517,10 +512,10 @@ it('displays error message when API fails', () => {})
 it('increments counter on button click', () => {
   // Arrange - 准备
   render(<Counter />)
-  
+
   // Act - 执行
   fireEvent.click(screen.getByText('+'))
-  
+
   // Assert - 断言
   expect(screen.getByText('1')).toBeInTheDocument()
 })
@@ -623,4 +618,4 @@ it.skip('this test is skipped', () => {})
 
 ---
 
-*最后更新: 2026-03-06*
+_最后更新: 2026-03-06_

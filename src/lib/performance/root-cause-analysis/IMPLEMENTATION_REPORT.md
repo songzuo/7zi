@@ -47,6 +47,7 @@ src/lib/performance-monitoring/root-cause-analysis/
 ### 功能特性
 
 **核心能力**:
+
 - 识别多个相关异常的共同根因
 - 5种关联类型：temporal、contextual、causal、cluster、cascading
 - 关联强度评分 (0-1)
@@ -57,12 +58,12 @@ src/lib/performance-monitoring/root-cause-analysis/
 ```typescript
 // 关联类型
 type CorrelationType =
-  | 'temporal'      // 时间接近的事件
-  | 'contextual'    // 共享相似上下文
-  | 'causal'        // 一个事件触发另一个
-  | 'cluster'       // 同一组件的多个事件
-  | 'cascading'      // 相关事件链
-  | 'simultaneous';  // 同时发生
+  | 'temporal' // 时间接近的事件
+  | 'contextual' // 共享相似上下文
+  | 'causal' // 一个事件触发另一个
+  | 'cluster' // 同一组件的多个事件
+  | 'cascading' // 相关事件链
+  | 'simultaneous' // 同时发生
 ```
 
 **关键算法**:
@@ -101,6 +102,7 @@ type CorrelationType =
 ### 功能特性
 
 **核心能力**:
+
 - 分析性能问题的时间序列因果链
 - 3种分析方法：规则、Granger因果检验、相关滞后
 - 多跳因果链构建
@@ -111,24 +113,24 @@ type CorrelationType =
 ```typescript
 // 分析方法
 type AnalysisMethod =
-  | 'granger'           // Granger因果检验
-  | 'transfer-entropy'   // 传递熵
-  | 'correlation-lag'    // 相关滞后分析
-  | 'rule-based';       // 基于规则
+  | 'granger' // Granger因果检验
+  | 'transfer-entropy' // 传递熵
+  | 'correlation-lag' // 相关滞后分析
+  | 'rule-based' // 基于规则
 ```
 
 **预定义因果规则** (8条):
 
 ```typescript
-[
-  'database-query-time → api-response-time',      // DB 查询 → API 响应
-  'api-response-time → lcp',                      // API 响应 → LCP
-  'memory-usage → gc-pause-time',                 // 内存 → GC 暂停
-  'cpu-usage → long-tasks',                       // CPU → 长任务
-  'long-tasks → fid',                             // 长任务 → FID
-  'network-latency → lcp',                        // 网络延迟 → LCP
-  'connection-pool-usage → database-query-time',   // 连接池 → DB 时间
-  'bundle-size → fcp'                            // 包大小 → FCP
+;[
+  'database-query-time → api-response-time', // DB 查询 → API 响应
+  'api-response-time → lcp', // API 响应 → LCP
+  'memory-usage → gc-pause-time', // 内存 → GC 暂停
+  'cpu-usage → long-tasks', // CPU → 长任务
+  'long-tasks → fid', // 长任务 → FID
+  'network-latency → lcp', // 网络延迟 → LCP
+  'connection-pool-usage → database-query-time', // 连接池 → DB 时间
+  'bundle-size → fcp', // 包大小 → FCP
 ]
 ```
 
@@ -167,6 +169,7 @@ type AnalysisMethod =
 ### 功能特性
 
 **核心能力**:
+
 - 跨模块/跨API的调用链追踪
 - 10种节点类型支持
 - 完整的调用树构建
@@ -177,16 +180,16 @@ type AnalysisMethod =
 ```typescript
 // 调用节点类型
 type CallNodeType =
-  | 'api'        // API 调用
-  | 'database'   // 数据库查询
-  | 'function'   // 函数调用
-  | 'component'   // React 组件
-  | 'service'     // 服务调用
-  | 'external'    // 外部服务
-  | 'worker'      // Web Worker
-  | 'cache'       // 缓存操作
-  | 'file'        // 文件操作
-  | 'network';    // 网络请求
+  | 'api' // API 调用
+  | 'database' // 数据库查询
+  | 'function' // 函数调用
+  | 'component' // React 组件
+  | 'service' // 服务调用
+  | 'external' // 外部服务
+  | 'worker' // Web Worker
+  | 'cache' // 缓存操作
+  | 'file' // 文件操作
+  | 'network' // 网络请求
 ```
 
 **关键功能**:
@@ -285,16 +288,17 @@ export type { ... } from './call-chain-tracer';
 
 ### 测试覆盖率
 
-| 模块 | 测试数 | 通过率 | 覆盖率 |
-|------|--------|--------|--------|
-| **CorrelationEngine** | 22 | 100% | 100% |
-| **CausalityAnalyzer** | 32 | 100% | 100% |
-| **CallChainTracer** | 46 | 100% | 100% |
-| **总计** | **100** | **100%** | **100%** ✅ |
+| 模块                  | 测试数  | 通过率   | 覆盖率      |
+| --------------------- | ------- | -------- | ----------- |
+| **CorrelationEngine** | 22      | 100%     | 100%        |
+| **CausalityAnalyzer** | 32      | 100%     | 100%        |
+| **CallChainTracer**   | 46      | 100%     | 100%        |
+| **总计**              | **100** | **100%** | **100%** ✅ |
 
 ### 测试分类
 
 **CorrelationEngine (22 tests)**:
+
 - Event Management (4 tests)
 - Temporal Correlations (2 tests)
 - Contextual Correlations (3 tests)
@@ -307,6 +311,7 @@ export type { ... } from './call-chain-tracer';
 - Edge Cases (2 tests)
 
 **CausalityAnalyzer (32 tests)**:
+
 - Data Management (5 tests)
 - Rule-Based Analysis (3 tests)
 - Granger Causality Test (2 tests)
@@ -318,6 +323,7 @@ export type { ... } from './call-chain-tracer';
 - Edge Cases (8 tests)
 
 **CallChainTracer (46 tests)**:
+
 - Chain Management (6 tests)
 - Node Management (8 tests)
 - Chain Retrieval (6 tests)
@@ -336,9 +342,9 @@ export type { ... } from './call-chain-tracer';
 ### 示例 1: 异常事件关联
 
 ```typescript
-import { CorrelationEngine } from './correlation-engine';
+import { CorrelationEngine } from './correlation-engine'
 
-const engine = new CorrelationEngine();
+const engine = new CorrelationEngine()
 
 // 添加异常事件
 engine.addEvent({
@@ -347,76 +353,76 @@ engine.addEvent({
   metric: 'lcp',
   value: 3500,
   severity: 'high',
-  context: { route: '/dashboard', userId: 'user-123' }
-});
+  context: { route: '/dashboard', userId: 'user-123' },
+})
 
 // 分析关联
-const correlations = engine.analyzeCorrelations();
+const correlations = engine.analyzeCorrelations()
 
 // 生成分组报告
-const groups = engine.groupCorrelations();
+const groups = engine.groupCorrelations()
 
-console.log(`发现 ${correlations.length} 个关联，${groups.length} 个分组`);
+console.log(`发现 ${correlations.length} 个关联，${groups.length} 个分组`)
 ```
 
 ### 示例 2: 因果分析
 
 ```typescript
-import { CausalityAnalyzer } from './causality-analyzer';
+import { CausalityAnalyzer } from './causality-analyzer'
 
-const analyzer = new CausalityAnalyzer();
+const analyzer = new CausalityAnalyzer()
 
 // 添加时序数据
 analyzer.addDataPoint({
   timestamp: Date.now(),
   value: 500,
-  metric: 'database-query-time'
-});
+  metric: 'database-query-time',
+})
 
 // 分析因果链
-const chains = analyzer.analyzeCausalChains('api-response-time', Date.now());
+const chains = analyzer.analyzeCausalChains('api-response-time', Date.now())
 
 // 构建多跳因果链
-const multiHop = analyzer.buildMultiHopChains('lcp', Date.now());
+const multiHop = analyzer.buildMultiHopChains('lcp', Date.now())
 
-console.log(`发现 ${chains.length} 个因果链`);
+console.log(`发现 ${chains.length} 个因果链`)
 ```
 
 ### 示例 3: 调用链追踪
 
 ```typescript
-import { CallChainTracer } from './call-chain-tracer';
+import { CallChainTracer } from './call-chain-tracer'
 
-const tracer = new CallChainTracer();
+const tracer = new CallChainTracer()
 
 // 开始追踪
 const chainId = tracer.startChain({
   name: 'user-login',
   type: 'api',
-  traceId: 'trace-123'
-});
+  traceId: 'trace-123',
+})
 
 // 添加子节点
 const dbNodeId = tracer.addNode(chainId, rootId, {
   type: 'database',
   name: 'query-user',
-  metadata: { query: 'SELECT * FROM users WHERE id = ?', table: 'users' }
-});
+  metadata: { query: 'SELECT * FROM users WHERE id = ?', table: 'users' },
+})
 
 // 结束节点
 tracer.endNode(chainId, dbNodeId, 'success', {
   dbQueries: 1,
-  rowCount: 1
-});
+  rowCount: 1,
+})
 
 // 结束追踪
-tracer.endChain(chainId, 'success');
+tracer.endChain(chainId, 'success')
 
 // 分析调用链
-const analysis = tracer.analyzeChain(chainId);
+const analysis = tracer.analyzeChain(chainId)
 
-console.log(`发现 ${analysis.bottlenecks.length} 个瓶颈`);
-console.log(`生成 ${analysis.recommendations.length} 条建议`);
+console.log(`发现 ${analysis.bottlenecks.length} 个瓶颈`)
+console.log(`生成 ${analysis.recommendations.length} 条建议`)
 ```
 
 ### 示例 4: 综合分析
@@ -426,31 +432,31 @@ import {
   RootCauseAnalyzer,
   CorrelationEngine,
   CausalityAnalyzer,
-  CallChainTracer
-} from './root-cause-analysis';
+  CallChainTracer,
+} from './root-cause-analysis'
 
 // 创建分析器
-const rootCauseAnalyzer = new RootCauseAnalyzer();
-const correlationEngine = new CorrelationEngine();
-const causalityAnalyzer = new CausalityAnalyzer();
-const callChainTracer = new CallChainTracer();
+const rootCauseAnalyzer = new RootCauseAnalyzer()
+const correlationEngine = new CorrelationEngine()
+const causalityAnalyzer = new CausalityAnalyzer()
+const callChainTracer = new CallChainTracer()
 
 // 收集数据
 // ... 添加性能数据 ...
 
 // 关联分析
-const correlations = correlationEngine.analyzeCorrelations();
+const correlations = correlationEngine.analyzeCorrelations()
 
 // 因果分析
-const causalChains = causalityAnalyzer.analyzeCausalChains('lcp', Date.now());
+const causalChains = causalityAnalyzer.analyzeCausalChains('lcp', Date.now())
 
 // 调用链分析
-const chainAnalysis = callChainTracer.analyzeChain(chainId);
+const chainAnalysis = callChainTracer.analyzeChain(chainId)
 
 // 综合根因报告
-const report = rootCauseAnalyzer.generateReport();
+const report = rootCauseAnalyzer.generateReport()
 
-console.log(report.summary);
+console.log(report.summary)
 ```
 
 ---
@@ -459,20 +465,20 @@ console.log(report.summary);
 
 ### ✅ 核心验收标准
 
-| 验收标准 | 目标 | 实际 | 状态 |
-|---------|------|------|------|
-| 单元测试覆盖率 | >80% | 100% | ✅ 超额完成 |
-| 所有测试通过 | 100% | 100% (100/100) | ✅ 完成 |
-| 生成详细的分析报告 | 详细 | ✅ 完成 | ✅ 完成 |
+| 验收标准           | 目标 | 实际           | 状态        |
+| ------------------ | ---- | -------------- | ----------- |
+| 单元测试覆盖率     | >80% | 100%           | ✅ 超额完成 |
+| 所有测试通过       | 100% | 100% (100/100) | ✅ 完成     |
+| 生成详细的分析报告 | 详细 | ✅ 完成        | ✅ 完成     |
 
 ### ✅ 功能验收标准
 
-| 功能 | 描述 | 状态 |
-|------|------|------|
+| 功能                 | 描述                           | 状态    |
+| -------------------- | ------------------------------ | ------- |
 | **异常事件关联分析** | 将多个相关异常关联到同一个根因 | ✅ 完成 |
-| **时序因果分析** | 分析性能问题的时间序列因果链 | ✅ 完成 |
-| **调用链追踪** | 追踪跨模块/跨 API 的调用链 | ✅ 完成 |
-| **根因推理引擎** | 基于规则的专家系统推理 | ✅ 完成 |
+| **时序因果分析**     | 分析性能问题的时间序列因果链   | ✅ 完成 |
+| **调用链追踪**       | 追踪跨模块/跨 API 的调用链     | ✅ 完成 |
+| **根因推理引擎**     | 基于规则的专家系统推理         | ✅ 完成 |
 
 ---
 
@@ -480,13 +486,13 @@ console.log(report.summary);
 
 ### 性能指标
 
-| 指标 | 目标 | 实际 |
-|------|------|------|
-| 事件处理能力 | >1000 events/sec | ✅ 满足 |
-| 关联分析延迟 | <100ms (100 events) | ✅ ~90ms |
-| 因果分析延迟 | <500ms (20 points) | ✅ ~300ms |
-| 调用链深度 | 支持 >50 层 | ✅ 支持 |
-| 调用链广度 | 支持 >100 子节点 | ✅ 支持 |
+| 指标         | 目标                | 实际      |
+| ------------ | ------------------- | --------- |
+| 事件处理能力 | >1000 events/sec    | ✅ 满足   |
+| 关联分析延迟 | <100ms (100 events) | ✅ ~90ms  |
+| 因果分析延迟 | <500ms (20 points)  | ✅ ~300ms |
+| 调用链深度   | 支持 >50 层         | ✅ 支持   |
+| 调用链广度   | 支持 >100 子节点    | ✅ 支持   |
 
 ### 内存优化
 
@@ -603,11 +609,11 @@ console.log(report.summary);
 
 ### 🎯 验收达成
 
-| 标准 | 要求 | 实际 | 达成 |
-|------|------|------|------|
+| 标准       | 要求 | 实际 | 达成    |
+| ---------- | ---- | ---- | ------- |
 | 测试覆盖率 | >80% | 100% | ✅ 125% |
 | 测试通过率 | 100% | 100% | ✅ 100% |
-| 功能完整性 | 4/4 | 4/4 | ✅ 100% |
+| 功能完整性 | 4/4  | 4/4  | ✅ 100% |
 | 文档完整性 | 详细 | 详细 | ✅ 100% |
 
 ### 🏆 超额完成

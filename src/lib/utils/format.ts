@@ -1,6 +1,6 @@
 /**
  * Format utilities - formatFileSize, formatNumber
- * 
+ *
  * @module lib/utils/format
  */
 
@@ -14,18 +14,18 @@
  * formatFileSize(1048576) // "1.0 MB"
  */
 export function formatFileSize(bytes: number, decimals: number = 1): string {
-  if (isNaN(bytes)) return 'NaN B';
-  if (!isFinite(bytes)) return 'Infinity B';
-  if (bytes === 0) return `${(0).toFixed(decimals)} B`;
+  if (isNaN(bytes)) return 'NaN B'
+  if (!isFinite(bytes)) return 'Infinity B'
+  if (bytes === 0) return `${(0).toFixed(decimals)} B`
 
-  const units = ['B', 'KB', 'MB', 'GB', 'TB', 'PB'];
-  const k = 1024;
-  const i = Math.floor(Math.log(bytes) / Math.log(k));
+  const units = ['B', 'KB', 'MB', 'GB', 'TB', 'PB']
+  const k = 1024
+  const i = Math.floor(Math.log(bytes) / Math.log(k))
 
-  const value = bytes / Math.pow(k, i);
-  const formattedValue = value.toFixed(decimals);
+  const value = bytes / Math.pow(k, i)
+  const formattedValue = value.toFixed(decimals)
 
-  return `${formattedValue} ${units[i]}`;
+  return `${formattedValue} ${units[i]}`
 }
 
 /**
@@ -38,5 +38,5 @@ export function formatFileSize(bytes: number, decimals: number = 1): string {
  * formatNumber(1000000, ".") // "1.000.000"
  */
 export function formatNumber(num: number, separator: string = ','): string {
-  return num.toString().replace(/\B(?=(\d{3})+(?!\d))/g, separator);
+  return num.toString().replace(/\B(?=(\d{3})+(?!\d))/g, separator)
 }

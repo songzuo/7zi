@@ -9,13 +9,13 @@
 
 经过全面审查，发现以下需要优化的 SEO 问题：
 
-| 优先级 | 问题 | 影响范围 |
-|--------|------|----------|
-| 🔴 高 | robots.txt 未禁止爬取 /api 目录 | 服务器资源、SEO 性能 |
-| 🔴 高 | 博客文章页面缺少 ArticleSchema 结构化数据 | 富媒体搜索结果 |
-| 🟡 中 | 博客列表页缺少 BreadcrumbSchema 结构化数据 | 搜索体验优化 |
-| 🟡 中 | 各页面缺少页面特定的结构化数据 | 搜索结果丰富度 |
-| 🟢 低 | Google Search Console 未集成 | 监控和诊断 |
+| 优先级 | 问题                                       | 影响范围             |
+| ------ | ------------------------------------------ | -------------------- |
+| 🔴 高  | robots.txt 未禁止爬取 /api 目录            | 服务器资源、SEO 性能 |
+| 🔴 高  | 博客文章页面缺少 ArticleSchema 结构化数据  | 富媒体搜索结果       |
+| 🟡 中  | 博客列表页缺少 BreadcrumbSchema 结构化数据 | 搜索体验优化         |
+| 🟡 中  | 各页面缺少页面特定的结构化数据             | 搜索结果丰富度       |
+| 🟢 低  | Google Search Console 未集成               | 监控和诊断           |
 
 ---
 
@@ -109,6 +109,7 @@ Crawl-delay: 2
 ```
 
 **预期效果:**
+
 - 减少 404 错误（API 端点被爬取）
 - 节省服务器资源
 - 避免爬虫访问敏感路由
@@ -129,13 +130,13 @@ Crawl-delay: 2
 在 `page.tsx` 顶部导入并使用 `ArticleSchema`:
 
 ```tsx
-import { ArticleSchema } from '@/components/SEO';
-import { BlogPostingJsonLd } from 'next-seo'; // 或使用项目现有的 SEO 组件
+import { ArticleSchema } from '@/components/SEO'
+import { BlogPostingJsonLd } from 'next-seo' // 或使用项目现有的 SEO 组件
 
 // 在 generateMetadata 中添加
 export async function generateMetadata({ params }: { params: Params }): Promise<Metadata> {
-  const { locale, slug } = await params;
-  const post = getBlogPost(slug, locale); // 获取文章数据
+  const { locale, slug } = await params
+  const post = getBlogPost(slug, locale) // 获取文章数据
 
   // ... 现有 metadata 代码
 
@@ -143,20 +144,20 @@ export async function generateMetadata({ params }: { params: Params }): Promise<
     // ... 现有 metadata
     openGraph: {
       // ... 添加 og:type: 'article'
-      type: "article",
+      type: 'article',
       publishedTime: post.date,
       modifiedTime: post.date,
       authors: [post.author],
       tags: post.tags,
       // ... 其他 OG 设置
     },
-  };
+  }
 }
 
 // 在页面组件中添加结构化数据
 export default async function BlogPostPage({ params }: { params: Params }) {
-  const { locale, slug } = await params;
-  const post = getBlogPost(slug, locale);
+  const { locale, slug } = await params
+  const post = getBlogPost(slug, locale)
 
   return (
     <>
@@ -173,15 +174,14 @@ export default async function BlogPostPage({ params }: { params: Params }) {
       />
 
       {/* 页面内容 */}
-      <article>
-        {/* ... 现有页面内容 */}
-      </article>
+      <article>{/* ... 现有页面内容 */}</article>
     </>
-  );
+  )
 }
 ```
 
 **预期效果:**
+
 - Google 搜索结果显示作者、发布日期、阅读时间
 - 获取 "文章" 富媒体结果
 - 提高点击率（CTR）
@@ -195,16 +195,16 @@ export default async function BlogPostPage({ params }: { params: Params }) {
 **优化建议:**
 
 ```tsx
-import { StructuredData } from '@/components/SEO';
+import { StructuredData } from '@/components/SEO'
 
 export default async function BlogPage({ params }: { params: Params }) {
-  const { locale } = await params;
+  const { locale } = await params
 
   // 定义面包屑
   const breadcrumbs = [
     { name: '首页', nameEn: 'Home', path: '/' },
     { name: '博客', nameEn: 'Blog', path: '/blog' },
-  ];
+  ]
 
   return (
     <>
@@ -218,7 +218,7 @@ export default async function BlogPage({ params }: { params: Params }) {
       {/* 现有页面内容 */}
       <div>...</div>
     </>
-  );
+  )
 }
 ```
 
@@ -227,15 +227,14 @@ export default async function BlogPage({ params }: { params: Params }) {
 ### 2.3 各页面添加特定结构化数据
 
 **首页:**
+
 ```tsx
 // src/app/[locale]/page.tsx
-<StructuredData
-  locale={locale as 'zh' | 'en'}
-  schemas={['website', 'organization']}
-/>
+<StructuredData locale={locale as 'zh' | 'en'} schemas={['website', 'organization']} />
 ```
 
 **关于我们页:**
+
 ```tsx
 // src/app/[locale]/about/page.tsx
 <ServiceSchema
@@ -249,10 +248,13 @@ export default async function BlogPage({ params }: { params: Params }) {
 ```
 
 **团队成员页:**
+
 ```tsx
 // src/app/[locale]/team/page.tsx
-{/* 使用 Organization schema 并包含团队成员 */}
-<StructuredData
+{
+  /* 使用 Organization schema 并包含团队成员 */
+}
+;<StructuredData
   locale={locale as 'zh' | 'en'}
   schemas={['website', 'organization']}
   customSchemas={[
@@ -266,8 +268,8 @@ export default async function BlogPage({ params }: { params: Params }) {
         name: member.name,
         jobTitle: member.role,
         description: member.description,
-      }))
-    }
+      })),
+    },
   ]}
 />
 ```
@@ -391,14 +393,7 @@ import { locales } from '@/i18n/config'
 
 export default function sitemap(): MetadataRoute.Sitemap {
   const baseUrl = 'https://7zi.studio'
-  const pages = [
-    '',
-    '/about',
-    '/team',
-    '/blog',
-    '/contact',
-    '/dashboard',
-  ]
+  const pages = ['', '/about', '/team', '/blog', '/contact', '/dashboard']
 
   const urls: MetadataRoute.Sitemap = []
 
@@ -411,10 +406,8 @@ export default function sitemap(): MetadataRoute.Sitemap {
         changeFrequency: 'weekly',
         priority: page === '' ? 1.0 : 0.8,
         alternates: {
-          languages: Object.fromEntries(
-            locales.map(l => [l, `${baseUrl}/${l}${page}`])
-          )
-        }
+          languages: Object.fromEntries(locales.map(l => [l, `${baseUrl}/${l}${page}`])),
+        },
       })
     }
   }
@@ -432,6 +425,7 @@ export default function sitemap(): MetadataRoute.Sitemap {
 ✅ **已正确实现:**
 
 1. **layout.tsx 中的 hreflang 标签:**
+
 ```tsx
 <link rel="alternate" hrefLang="zh-CN" href={`${baseUrl}/zh`} />
 <link rel="alternate" hrefLang="en-US" href={`${baseUrl}/en`} />
@@ -439,6 +433,7 @@ export default function sitemap(): MetadataRoute.Sitemap {
 ```
 
 2. **sitemap.xml 中的 hreflang:**
+
 ```xml
 <xhtml:link rel="alternate" hreflang="zh-CN" href="https://7zi.studio/zh"/>
 <xhtml:link rel="alternate" hreflang="en-US" href="https://7zi.studio/en"/>
@@ -446,6 +441,7 @@ export default function sitemap(): MetadataRoute.Sitemap {
 ```
 
 3. **metadata 中的 alternates:**
+
 ```tsx
 alternates: {
   canonical: `${baseUrl}/${locale}`,
@@ -466,7 +462,7 @@ alternates: {
 ```tsx
 // 在每个页面的 generateMetadata 中
 export async function generateMetadata({ params }: { params: Params }): Promise<Metadata> {
-  const { locale } = await params;
+  const { locale } = await params
 
   return {
     alternates: {
@@ -477,7 +473,7 @@ export async function generateMetadata({ params }: { params: Params }): Promise<
         'x-default': `${baseUrl}/zh/current-path`,
       },
     },
-  };
+  }
 }
 ```
 
@@ -485,14 +481,14 @@ export async function generateMetadata({ params }: { params: Params }): Promise<
 
 ## 6. 实施优先级和时间表
 
-| 任务 | 优先级 | 预计时间 | 负责人 |
-|------|--------|----------|--------|
-| 更新 robots.txt | 🔴 高 | 15 分钟 | 系统管理员 |
-| 博客文章添加 ArticleSchema | 🔴 高 | 2 小时 | 开发者 |
-| 博客列表添加 BreadcrumbSchema | 🟡 中 | 1 小时 | 开发者 |
-| 各页面添加结构化数据 | 🟡 中 | 3 小时 | 开发者 |
-| Google Search Console 集成 | 🟢 低 | 30 分钟 | SEO 专员 |
-| 自动生成 sitemap | 🟢 低 | 2 小时 | 开发者 |
+| 任务                          | 优先级 | 预计时间 | 负责人     |
+| ----------------------------- | ------ | -------- | ---------- |
+| 更新 robots.txt               | 🔴 高  | 15 分钟  | 系统管理员 |
+| 博客文章添加 ArticleSchema    | 🔴 高  | 2 小时   | 开发者     |
+| 博客列表添加 BreadcrumbSchema | 🟡 中  | 1 小时   | 开发者     |
+| 各页面添加结构化数据          | 🟡 中  | 3 小时   | 开发者     |
+| Google Search Console 集成    | 🟢 低  | 30 分钟  | SEO 专员   |
+| 自动生成 sitemap              | 🟢 低  | 2 小时   | 开发者     |
 
 **总计:** 约 8.5 小时开发时间
 

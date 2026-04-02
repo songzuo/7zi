@@ -4,8 +4,8 @@
  * Displays skeleton screens while portfolio data is being fetched.
  */
 
-import { CardGridLoading } from '@/components/PageLoadingTemplate';
+import { CardGridLoading } from '@/components/PageLoadingTemplate'
 
 export default function PortfolioPageLoading() {
-  return <CardGridLoading />;
+  return <CardGridLoading />
 }

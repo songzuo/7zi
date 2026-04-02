@@ -2,9 +2,9 @@
  * useRoomWebSocket Hook Tests
  */
 
-import { describe, it, expect, beforeEach, vi } from 'vitest';
-import { renderHook, act } from '@testing-library/react';
-import { useRoomWebSocket } from '../useRoomWebSocket';
+import { describe, it, expect, beforeEach, vi } from 'vitest'
+import { renderHook, act } from '@testing-library/react'
+import { useRoomWebSocket } from '../useRoomWebSocket'
 
 // Mock dependencies
 vi.mock('@/lib/websocket-manager', () => ({
@@ -36,10 +36,10 @@ vi.mock('@/lib/websocket-manager', () => ({
     RECONNECTING: 'reconnecting',
     ERROR: 'error',
   },
-}));
+}))
 
 vi.mock('@/stores/room-store', () => ({
-  useRoomStore: vi.fn((selector) => {
+  useRoomStore: vi.fn(selector => {
     const state = {
       currentRoom: null,
       currentUserId: 'test-user',
@@ -50,10 +50,10 @@ vi.mock('@/stores/room-store', () => ({
       updateMember: vi.fn(),
       updateRoom: vi.fn(),
       removeRoom: vi.fn(),
-    };
-    return selector(state);
+    }
+    return selector(state)
   }),
-}));
+}))
 
 vi.mock('@/lib/logger', () => ({
   logger: {
@@ -61,92 +61,92 @@ vi.mock('@/lib/logger', () => ({
     error: vi.fn(),
     warn: vi.fn(),
   },
-}));
+}))
 
 describe('useRoomWebSocket', () => {
   beforeEach(() => {
-    vi.clearAllMocks();
-  });
+    vi.clearAllMocks()
+  })
 
   describe('Initialization', () => {
     it('should initialize WebSocket manager on mount', () => {
       const { result } = renderHook(() =>
         useRoomWebSocket('ws://localhost:8080', { autoConnect: false })
-      );
+      )
 
-      expect(result.current.manager).toBeDefined();
-      expect(result.current.isConnected).toBe(false);
-    });
+      expect(result.current.manager).toBeDefined()
+      expect(result.current.isConnected).toBe(false)
+    })
 
     it('should return correct initial state', () => {
       const { result } = renderHook(() =>
         useRoomWebSocket('ws://localhost:8080', { autoConnect: false })
-      );
+      )
 
-      expect(result.current.isConnected).toBe(false);
-      expect(result.current.isConnecting).toBe(false);
-      expect(result.current.isReconnecting).toBe(false);
-    });
-  });
+      expect(result.current.isConnected).toBe(false)
+      expect(result.current.isConnecting).toBe(false)
+      expect(result.current.isReconnecting).toBe(false)
+    })
+  })
 
   describe('Connection Actions', () => {
     it('should provide connect action', () => {
       const { result } = renderHook(() =>
         useRoomWebSocket('ws://localhost:8080', { autoConnect: false })
-      );
+      )
 
-      expect(result.current.connect).toBeDefined();
-      expect(typeof result.current.connect).toBe('function');
-    });
+      expect(result.current.connect).toBeDefined()
+      expect(typeof result.current.connect).toBe('function')
+    })
 
     it('should provide disconnect action', () => {
       const { result } = renderHook(() =>
         useRoomWebSocket('ws://localhost:8080', { autoConnect: false })
-      );
+      )
 
-      expect(result.current.disconnect).toBeDefined();
-      expect(typeof result.current.disconnect).toBe('function');
-    });
-  });
+      expect(result.current.disconnect).toBeDefined()
+      expect(typeof result.current.disconnect).toBe('function')
+    })
+  })
 
   describe('Message Actions', () => {
     it('should provide sendMessage action', () => {
       const { result } = renderHook(() =>
         useRoomWebSocket('ws://localhost:8080', { autoConnect: false })
-      );
+      )
 
-      expect(result.current.sendMessage).toBeDefined();
-      expect(typeof result.current.sendMessage).toBe('function');
-    });
+      expect(result.current.sendMessage).toBeDefined()
+      expect(typeof result.current.sendMessage).toBe('function')
+    })
 
     it('should provide joinRoom action', () => {
       const { result } = renderHook(() =>
         useRoomWebSocket('ws://localhost:8080', { autoConnect: false })
-      );
+      )
 
-      expect(result.current.joinRoom).toBeDefined();
-      expect(typeof result.current.joinRoom).toBe('function');
-    });
+      expect(result.current.joinRoom).toBeDefined()
+      expect(typeof result.current.joinRoom).toBe('function')
+    })
 
     it('should provide leaveRoom action', () => {
       const { result } = renderHook(() =>
         useRoomWebSocket('ws://localhost:8080', { autoConnect: false })
-      );
+      )
 
-      expect(result.current.leaveRoom).toBeDefined();
-      expect(typeof result.current.leaveRoom).toBe('function');
-    });
-  });
+      expect(result.current.leaveRoom).toBeDefined()
+      expect(typeof result.current.leaveRoom).toBe('function')
+    })
+  })
 
   describe('sendMessage', () => {
     it('should return false when manager is null', () => {
       const { result } = renderHook(() =>
         useRoomWebSocket('ws://localhost:8080', { autoConnect: false })
-      );
+      )
 
       // Manager might be initialized in useEffect
       // So we just test the function exists
-      expect(result.current.sendMessage).toBeDefined();
-    });
-  });
-});
+      expect(result.current.sendMessage).toBeDefined()
+    })
+  })
+})

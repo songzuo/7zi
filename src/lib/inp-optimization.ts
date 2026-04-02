@@ -1,23 +1,23 @@
 /**
  * INP Optimization Helper
  * 专门优化 Interaction to Next Paint (INP) 和 First Input Delay (FID)
- * 
+ *
  * INP 是衡量交互响应性的最重要指标
- * 
+ *
  * INP 优化包括：
  * 1. 减少主线程阻塞
  * 2. 使用 requestIdleCallback
  * 3. 事件委托
  * 4. Web Workers
- * 
+ *
  * @module lib/inp-optimization
  */
 
-import { debounce as importedDebounce, throttle as importedThrottle } from './utils/async';
+import { debounce as importedDebounce, throttle as importedThrottle } from './utils/async'
 
 // Re-export for convenience
-export const debounce = importedDebounce;
-export const throttle = importedThrottle;
+export const debounce = importedDebounce
+export const throttle = importedThrottle
 
 // ============================================
 // 主线程优化
@@ -25,9 +25,9 @@ export const throttle = importedThrottle;
 
 /**
  * 将大任务分解为小任务
- * 
+ *
  * 使用 requestIdleCallback 或 setTimeout 来让出主线程
- * 
+ *
  * 使用方法：
  * ```ts
  * await runInIdle(() => {
@@ -39,41 +39,42 @@ export async function runInIdle<T>(
   task: () => T,
   options: { maxDuration?: number; timeout?: number } = {}
 ): Promise<T> {
-  const { maxDuration = 50, timeout = 2000 } = options;
+  const { maxDuration = 50, timeout = 2000 } = options
 
   return new Promise((resolve, reject) => {
-    const startTime = performance.now();
-    let result: T;
+    const startTime = performance.now()
+    let result: T
 
     const executeStep = () => {
       try {
-        result = task();
-        
+        result = task()
+
         // 检查是否超过时间限制
         if (performance.now() - startTime > maxDuration) {
           // 让出主线程
-          const yieldFn = typeof requestIdleCallback !== 'undefined'
-            ? (cb: () => void) => requestIdleCallback(cb, { timeout })
-            : (cb: () => void) => setTimeout(cb, 0);
-          
-          yieldFn(executeStep);
-        } else {
-          resolve(result);
-        }
-      } catch (_error) {
-        reject(error);
-      }
-    };
+          const yieldFn =
+            typeof requestIdleCallback !== 'undefined'
+              ? (cb: () => void) => requestIdleCallback(cb, { timeout })
+              : (cb: () => void) => setTimeout(cb, 0)
 
-    executeStep();
-  });
+          yieldFn(executeStep)
+        } else {
+          resolve(result)
+        }
+      } catch (error) {
+        reject(error)
+      }
+    }
+
+    executeStep()
+  })
 }
 
 /**
  * 批量处理任务
- * 
+ *
  * 将大数组分成小块处理，避免阻塞主线程
- * 
+ *
  * 使用方法：
  * ```ts
  * await processBatch(array, async (item) => {
@@ -86,17 +87,17 @@ export async function processBatch<T>(
   processor: (item: T) => void | Promise<void>,
   options: { batchSize?: number; delay?: number } = {}
 ): Promise<void> {
-  const { batchSize = 100, delay = 0 } = options;
+  const { batchSize = 100, delay = 0 } = options
 
   for (let i = 0; i < items.length; i += batchSize) {
-    const batch = items.slice(i, i + batchSize);
-    
+    const batch = items.slice(i, i + batchSize)
+
     // 处理当前批次
-    await Promise.all(batch.map(processor));
-    
+    await Promise.all(batch.map(processor))
+
     // 让出主线程
     if (i + batchSize < items.length) {
-      await new Promise((resolve) => setTimeout(resolve, delay));
+      await new Promise(resolve => setTimeout(resolve, delay))
     }
   }
 }
@@ -109,13 +110,17 @@ export function scheduleIdleTask(
   options?: IdleRequestOptions
 ): number {
   if (typeof requestIdleCallback !== 'undefined') {
-    return requestIdleCallback(callback, options);
+    return requestIdleCallback(callback, options)
   } else {
     // Fallback to setTimeout
-    return setTimeout(() => callback({
-      didTimeout: false,
-      timeRemaining: () => 50,
-    }), 1) as unknown as number;
+    return setTimeout(
+      () =>
+        callback({
+          didTimeout: false,
+          timeRemaining: () => 50,
+        }),
+      1
+    ) as unknown as number
   }
 }
 
@@ -124,9 +129,9 @@ export function scheduleIdleTask(
  */
 export function cancelIdleTask(handle: number) {
   if (typeof cancelIdleCallback !== 'undefined') {
-    cancelIdleCallback(handle);
+    cancelIdleCallback(handle)
   } else {
-    clearTimeout(handle);
+    clearTimeout(handle)
   }
 }
 
@@ -136,7 +141,7 @@ export function cancelIdleTask(handle: number) {
 
 /**
  * 被动事件监听器
- * 
+ *
  * 使用 passive: true 可以提高滚动和触摸事件的性能
  *
  * 使用方法：
@@ -150,7 +155,7 @@ export function addPassiveEventListener(
   handler: EventListenerOrEventListenerObject,
   options: AddEventListenerOptions = { passive: true }
 ): void {
-  element.addEventListener(event, handler, options);
+  element.addEventListener(event, handler, options)
 }
 
 /**
@@ -171,12 +176,12 @@ export function delegateEvent<T extends HTMLElement>(
   event: string,
   handler: (e: Event, target: T) => void
 ): void {
-  container.addEventListener(event, (e) => {
-    const target = (e.target as HTMLElement).closest(selector) as T | null;
+  container.addEventListener(event, e => {
+    const target = (e.target as HTMLElement).closest(selector) as T | null
     if (target) {
-      handler(e, target);
+      handler(e, target)
     }
-  });
+  })
 }
 
 // ============================================
@@ -185,7 +190,7 @@ export function delegateEvent<T extends HTMLElement>(
 
 /**
  * 在 Web Worker 中运行计算密集型任务
- * 
+ *
  * 使用方法：
  * ```ts
  * const result = await runInWorker((data) => {
@@ -194,10 +199,7 @@ export function delegateEvent<T extends HTMLElement>(
  * }, [1, 2, 3, 4, 5]);
  * ```
  */
-export function runInWorker<T, R>(
-  workerFn: (data: T) => R,
-  data: T
-): Promise<R> {
+export function runInWorker<T, R>(workerFn: (data: T) => R, data: T): Promise<R> {
   return new Promise((resolve, reject) => {
     // 将函数转换为 Blob URL
     const workerCode = `
@@ -205,35 +207,35 @@ export function runInWorker<T, R>(
         try {
           const result = (${workerFn.toString()})(e.data);
           self.postMessage(result);
-        } catch (_error) {
+        } catch (error) {
           self.postMessage({ error: error.message });
         }
       };
-    `;
+    `
 
-    const blob = new Blob([workerCode], { type: 'application/javascript' });
-    const workerUrl = URL.createObjectURL(blob);
+    const blob = new Blob([workerCode], { type: 'application/javascript' })
+    const workerUrl = URL.createObjectURL(blob)
 
-    const worker = new Worker(workerUrl);
+    const worker = new Worker(workerUrl)
 
-    worker.onmessage = (e) => {
+    worker.onmessage = e => {
       if (e.data.error) {
-        reject(new Error(e.data.error));
+        reject(new Error(e.data.error))
       } else {
-        resolve(e.data);
+        resolve(e.data)
       }
-      worker.terminate();
-      URL.revokeObjectURL(workerUrl);
-    };
+      worker.terminate()
+      URL.revokeObjectURL(workerUrl)
+    }
 
-    worker.onerror = (error) => {
-      reject(error);
-      worker.terminate();
-      URL.revokeObjectURL(workerUrl);
-    };
+    worker.onerror = error => {
+      reject(error)
+      worker.terminate()
+      URL.revokeObjectURL(workerUrl)
+    }
 
-    worker.postMessage(data);
-  });
+    worker.postMessage(data)
+  })
 }
 
 // ============================================
@@ -242,9 +244,9 @@ export function runInWorker<T, R>(
 
 /**
  * 优化输入事件
- * 
+ *
  * 防止输入事件阻塞主线程
- * 
+ *
  * 使用方法：
  * ```ts
  * input.addEventListener('input', optimizeInput((e) => {
@@ -256,34 +258,32 @@ export function optimizeInput(
   handler: (e: InputEvent) => void,
   options: { debounceMs?: number } = {}
 ): (e: InputEvent) => void {
-  const { debounceMs = 100 } = options;
-  const debouncedHandler = debounce(handler, debounceMs);
+  const { debounceMs = 100 } = options
+  const debouncedHandler = debounce(handler, debounceMs)
 
   return (e: InputEvent) => {
     // 立即更新 UI（如果需要）
     requestAnimationFrame(() => {
-      debouncedHandler(e);
-    });
-  };
+      debouncedHandler(e)
+    })
+  }
 }
 
 /**
  * 优化点击事件
- * 
+ *
  * 确保点击事件快速响应
  */
-export function optimizeClick(
-  handler: (e: MouseEvent) => void
-): (e: MouseEvent) => void {
+export function optimizeClick(handler: (e: MouseEvent) => void): (e: MouseEvent) => void {
   return (e: MouseEvent) => {
     // 立即执行关键逻辑
-    handler(e);
-    
+    handler(e)
+
     // 非关键逻辑延迟执行
     requestIdleCallback(() => {
       // 可以在这里执行非关键逻辑
-    });
-  };
+    })
+  }
 }
 
 // ============================================
@@ -292,46 +292,46 @@ export function optimizeClick(
 
 /**
  * 使用 requestAnimationFrame 优化动画
- * 
+ *
  * 确保动画与浏览器刷新率同步
  */
 export function optimizeAnimation(
   callback: (timestamp: number) => void,
   options: { sync?: boolean } = {}
 ): () => void {
-  const { sync = true } = options;
-  let rafId: number | null = null;
+  const { sync = true } = options
+  let rafId: number | null = null
 
   const animate = (timestamp: number) => {
-    callback(timestamp);
-    
+    callback(timestamp)
+
     if (sync) {
-      rafId = requestAnimationFrame(animate);
+      rafId = requestAnimationFrame(animate)
     }
-  };
+  }
 
   if (sync) {
-    rafId = requestAnimationFrame(animate);
+    rafId = requestAnimationFrame(animate)
   } else {
-    callback(performance.now());
+    callback(performance.now())
   }
 
   return () => {
     if (rafId !== null) {
-      cancelAnimationFrame(rafId);
+      cancelAnimationFrame(rafId)
     }
-  };
+  }
 }
 
 /**
  * 批量 DOM 更新
- * 
+ *
  * 将多个 DOM 更新合并到一次重绘中
  */
 export function batchDOMUpdates(updates: Array<() => void>): void {
   requestAnimationFrame(() => {
-    updates.forEach((update) => update());
-  });
+    updates.forEach(update => update())
+  })
 }
 
 // ============================================
@@ -340,56 +340,54 @@ export function batchDOMUpdates(updates: Array<() => void>): void {
 
 /**
  * 监控长任务
- * 
+ *
  * 长任务会阻塞主线程，影响 INP
  */
-export function observeLongTasks(
-  callback: (entries: PerformanceEntry[]) => void
-): () => void {
+export function observeLongTasks(callback: (entries: PerformanceEntry[]) => void): () => void {
   if (!('PerformanceObserver' in window)) {
-    return () => {};
+    return () => {}
   }
 
   try {
-    const observer = new PerformanceObserver((list) => {
-      callback(list.getEntries());
-    });
+    const observer = new PerformanceObserver(list => {
+      callback(list.getEntries())
+    })
 
-    observer.observe({ type: 'longtask', buffered: true });
+    observer.observe({ type: 'longtask', buffered: true })
 
-    return () => observer.disconnect();
-  } catch {
-    return () => {};
+    return () => observer.disconnect()
+  } catch (error) {
+    return () => {}
   }
 }
 
 /**
  * 监控交互延迟
- * 
+ *
  * 使用 Event Timing API 监控交互响应时间
  */
 export function observeInteractionDelay(
   callback: (entry: PerformanceEventTiming) => void
 ): () => void {
   if (!('PerformanceObserver' in window)) {
-    return () => {};
+    return () => {}
   }
 
   try {
-    const observer = new PerformanceObserver((list) => {
-      list.getEntries().forEach((entry) => {
+    const observer = new PerformanceObserver(list => {
+      list.getEntries().forEach(entry => {
         if (entry.entryType === 'event' || entry.entryType === 'first-input') {
-          callback(entry as PerformanceEventTiming);
+          callback(entry as PerformanceEventTiming)
         }
-      });
-    });
+      })
+    })
 
-    observer.observe({ type: 'event', buffered: true });
-    observer.observe({ type: 'first-input', buffered: true });
+    observer.observe({ type: 'event', buffered: true })
+    observer.observe({ type: 'first-input', buffered: true })
 
-    return () => observer.disconnect();
-  } catch {
-    return () => {};
+    return () => observer.disconnect()
+  } catch (error) {
+    return () => {}
   }
 }
 
@@ -399,31 +397,31 @@ export function observeInteractionDelay(
 
 /**
  * 自动应用 INP 优化
- * 
+ *
  * 在应用启动时调用此函数
  */
 export function initINPOptimizations() {
-  if (typeof window === 'undefined') return;
+  if (typeof window === 'undefined') return
 
   // 监控长任务
-  observeLongTasks((entries) => {
-    entries.forEach((entry) => {
+  observeLongTasks(entries => {
+    entries.forEach(entry => {
       if (entry.duration > 50) {
-        console.warn(`[INP] Long task detected: ${entry.duration.toFixed(0)}ms`, entry);
+        console.warn(`[INP] Long task detected: ${entry.duration.toFixed(0)}ms`, entry)
       }
-    });
-  });
+    })
+  })
 
   // 监控交互延迟
-  observeInteractionDelay((entry) => {
-    const delay = entry.processingStart - entry.startTime;
+  observeInteractionDelay(entry => {
+    const delay = entry.processingStart - entry.startTime
     if (delay > 100) {
-      console.warn(`[INP] High input delay: ${delay.toFixed(0)}ms`, entry);
+      console.warn(`[INP] High input delay: ${delay.toFixed(0)}ms`, entry)
     }
-  });
+  })
 
   // 添加性能标记
   if (typeof performance !== 'undefined') {
-    performance.mark('inp-optimizations-init');
+    performance.mark('inp-optimizations-init')
   }
 }

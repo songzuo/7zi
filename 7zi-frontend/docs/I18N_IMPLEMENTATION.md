@@ -3,6 +3,7 @@
 ## 概述
 
 本项目已实现完整的中英文国际化方案，支持：
+
 - ✅ react-i18next 集成
 - ✅ 中英文切换
 - ✅ 语言自动检测（Cookie + Accept-Language header）
@@ -56,30 +57,30 @@ src/
 ### 1. 在服务端组件中使用
 
 ```tsx
-import { useServerTranslation } from '@/shared/hooks';
+import { useServerTranslation } from '@/shared/hooks'
 
 export default async function DashboardPage() {
-  const { t } = await useServerTranslation('dashboard');
+  const { t } = await useServerTranslation('dashboard')
 
   return (
     <div>
       <h1>{t('title')}</h1>
       <p>{t('welcome', { name: 'User' })}</p>
     </div>
-  );
+  )
 }
 ```
 
 ### 2. 在客户端组件中使用
 
 ```tsx
-'use client';
+'use client'
 
-import { useTranslation } from 'react-i18next';
-import { LanguageSwitcher } from '@/shared/components';
+import { useTranslation } from 'react-i18next'
+import { LanguageSwitcher } from '@/shared/components'
 
 export default function UserProfile() {
-  const { t } = useTranslation('common');
+  const { t } = useTranslation('common')
 
   return (
     <div>
@@ -87,49 +88,47 @@ export default function UserProfile() {
       <h2>{t('profile')}</h2>
       <p>{t('email')}: user@example.com</p>
     </div>
-  );
+  )
 }
 ```
 
 ### 3. 在 API 路由中使用
 
 ```tsx
-import { createServerI18n } from '@/lib/i18n/server';
-import { NextRequest, NextResponse } from 'next/server';
+import { createServerI18n } from '@/lib/i18n/server'
+import { NextRequest, NextResponse } from 'next/server'
 
 export async function GET(request: NextRequest) {
   // 从 Cookie 获取语言
-  const lng = request.cookies.get('i18next')?.value || 'zh';
-  
+  const lng = request.cookies.get('i18next')?.value || 'zh'
+
   // 创建 i18n 实例
-  const i18n = await createServerI18n(lng, 'errors');
-  const t = i18n.getFixedT(lng, 'errors');
-  
+  const i18n = await createServerI18n(lng, 'errors')
+  const t = i18n.getFixedT(lng, 'errors')
+
   return NextResponse.json({
     error: t('generic'),
-  });
+  })
 }
 ```
 
 ### 4. 在根布局中添加 LanguageProvider
 
 ```tsx
-import { LanguageProvider } from '@/shared/components';
-import { cookies } from 'next/headers';
+import { LanguageProvider } from '@/shared/components'
+import { cookies } from 'next/headers'
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
-  const cookieStore = cookies();
-  const initialLanguage = cookieStore.get('i18next')?.value;
+  const cookieStore = cookies()
+  const initialLanguage = cookieStore.get('i18next')?.value
 
   return (
     <html lang={initialLanguage || 'zh'}>
       <body>
-        <LanguageProvider initialLanguage={initialLanguage}>
-          {children}
-        </LanguageProvider>
+        <LanguageProvider initialLanguage={initialLanguage}>{children}</LanguageProvider>
       </body>
     </html>
-  );
+  )
 }
 ```
 
@@ -161,7 +160,7 @@ LanguageSwitcher 组件提供三种显示模式：
 <LanguageSwitcher
   variant="buttons"
   className="my-custom-class"
-  onChange={(lng) => console.log('Language changed:', lng)}
+  onChange={lng => console.log('Language changed:', lng)}
 />
 ```
 
@@ -183,8 +182,8 @@ LanguageSwitcher 组件提供三种显示模式：
 2. 在组件中使用：
 
 ```tsx
-const { t } = useTranslation('newFeature');
-console.log(t('title')); // "新功能"
+const { t } = useTranslation('newFeature')
+console.log(t('title')) // "新功能"
 ```
 
 ### 添加新的命名空间
@@ -205,7 +204,7 @@ src/locales/en/newNamespace.json
 3. 在组件中使用：
 
 ```tsx
-const { t } = useTranslation('newNamespace');
+const { t } = useTranslation('newNamespace')
 ```
 
 ## 语言检测
@@ -237,13 +236,13 @@ const { t } = useTranslation('newNamespace');
 ```ts
 function detectLanguage(request: NextRequest): string {
   // 1. 检查 Cookie
-  const cookieLang = request.cookies.get('i18next')?.value;
-  
+  const cookieLang = request.cookies.get('i18next')?.value
+
   // 2. 检查 Accept-Language header
-  const acceptLang = request.headers.get('accept-language');
-  
+  const acceptLang = request.headers.get('accept-language')
+
   // 3. 返回默认语言
-  return normalizedLanguage || defaultLanguage;
+  return normalizedLanguage || defaultLanguage
 }
 ```
 
@@ -255,8 +254,8 @@ function detectLanguage(request: NextRequest): string {
 
 ```tsx
 export default async function ServerComponent() {
-  const { t, lng } = await useServerTranslation('common');
-  return <div>{t('welcome')}</div>;
+  const { t, lng } = await useServerTranslation('common')
+  return <div>{t('welcome')}</div>
 }
 ```
 
@@ -265,12 +264,12 @@ export default async function ServerComponent() {
 使用 `useTranslation` Hook：
 
 ```tsx
-'use client';
-import { useTranslation } from 'react-i18next';
+'use client'
+import { useTranslation } from 'react-i18next'
 
 export function ClientComponent() {
-  const { t } = useTranslation('common');
-  return <div>{t('welcome')}</div>;
+  const { t } = useTranslation('common')
+  return <div>{t('welcome')}</div>
 }
 ```
 
@@ -279,21 +278,21 @@ export function ClientComponent() {
 ```tsx
 // 服务端部分
 export default async function Page() {
-  const { t } = await useServerTranslation('common');
-  
+  const { t } = await useServerTranslation('common')
+
   return (
     <div>
       <h1>{t('title')}</h1>
       <ClientPart />
     </div>
-  );
+  )
 }
 
 // 客户端部分
-'use client';
+;('use client')
 function ClientPart() {
-  const { t } = useTranslation('common');
-  return <p>{t('description')}</p>;
+  const { t } = useTranslation('common')
+  return <p>{t('description')}</p>
 }
 ```
 
@@ -314,7 +313,7 @@ export const i18nConfig: InitOptions = {
   react: {
     useSuspense: false, // SSR 兼容
   },
-};
+}
 ```
 
 ## 测试
@@ -334,13 +333,13 @@ npm run test:coverage
 ### 添加测试
 
 ```tsx
-import { render, screen } from '@testing-library/react';
-import { LanguageSwitcher } from '@/shared/components';
+import { render, screen } from '@testing-library/react'
+import { LanguageSwitcher } from '@/shared/components'
 
 it('should render language switcher', () => {
-  render(<LanguageSwitcher />);
-  expect(screen.getByRole('combobox')).toBeInTheDocument();
-});
+  render(<LanguageSwitcher />)
+  expect(screen.getByRole('combobox')).toBeInTheDocument()
+})
 ```
 
 ## 最佳实践
@@ -383,7 +382,7 @@ t('count', { count: 5 });
 使用格式化功能：
 
 ```tsx
-t('date', { val: new Date(), formatParams: { val: { year: 'numeric' } } });
+t('date', { val: new Date(), formatParams: { val: { year: 'numeric' } } })
 ```
 
 ## 故障排除
@@ -391,6 +390,7 @@ t('date', { val: new Date(), formatParams: { val: { year: 'numeric' } } });
 ### 问题：翻译不显示
 
 **解决方案**：
+
 1. 检查翻译文件是否存在
 2. 检查命名空间是否正确
 3. 检查翻译键是否拼写正确
@@ -399,6 +399,7 @@ t('date', { val: new Date(), formatParams: { val: { year: 'numeric' } } });
 ### 问题：语言不切换
 
 **解决方案**：
+
 1. 检查 Cookie 是否设置
 2. 检查中间件是否正确配置
 3. 清除浏览器缓存和 Cookie
@@ -407,6 +408,7 @@ t('date', { val: new Date(), formatParams: { val: { year: 'numeric' } } });
 ### 问题：SSR 水合错误
 
 **解决方案**：
+
 1. 确保 `useSuspense: false` 在配置中
 2. 使用 `LanguageProvider` 包裹根组件
 3. 使用 `useServerTranslation` 在服务端组件中
@@ -414,6 +416,7 @@ t('date', { val: new Date(), formatParams: { val: { year: 'numeric' } } });
 ### 问题：翻译文件过大
 
 **解决方案**：
+
 1. 按功能拆分命名空间
 2. 使用代码分割
 3. 按需加载翻译
@@ -424,8 +427,8 @@ t('date', { val: new Date(), formatParams: { val: { year: 'numeric' } } });
 
 ```ts
 // 按命名空间拆分
-import zhAuth from '@/locales/zh/auth.json';
-import enAuth from '@/locales/en/auth.json';
+import zhAuth from '@/locales/zh/auth.json'
+import enAuth from '@/locales/en/auth.json'
 ```
 
 ### 2. 懒加载
@@ -434,7 +437,7 @@ import enAuth from '@/locales/en/auth.json';
 // 延迟加载翻译
 i18n.loadNamespaces(['lazy-namespace'], () => {
   // 加载完成后回调
-});
+})
 ```
 
 ### 3. 缓存
@@ -454,7 +457,7 @@ i18n.loadNamespaces(['lazy-namespace'], () => {
 1. 在 `src/lib/i18n/config.ts` 中添加语言：
 
 ```ts
-export const supportedLanguages = ['zh', 'en', 'ja'] as const;
+export const supportedLanguages = ['zh', 'en', 'ja'] as const
 ```
 
 2. 创建翻译文件：
@@ -473,7 +476,7 @@ export const languageNames = {
   zh: '中文',
   en: 'English',
   ja: '日本語',
-};
+}
 ```
 
 ### 添加翻译管理工具
@@ -481,7 +484,7 @@ export const languageNames = {
 使用 i18next-locize-backend 或类似工具进行翻译管理：
 
 ```ts
-import Backend from 'i18next-locize-backend';
+import Backend from 'i18next-locize-backend'
 
 i18n.use(Backend).init({
   backend: {
@@ -489,7 +492,7 @@ i18n.use(Backend).init({
     apiKey: 'your-api-key',
     referenceLng: 'zh',
   },
-});
+})
 ```
 
 ## 参考资料

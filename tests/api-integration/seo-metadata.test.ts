@@ -1,8 +1,8 @@
 /**
  * SEO Metadata 测试
- * 
+ *
  * 验证页面元标签和结构化数据的正确性
- * 
+ *
  * @date 2026-03-28
  */
 
@@ -22,12 +22,12 @@ describe('SEO Metadata Tests', () => {
 
     it('should have required meta tags configured', () => {
       // title 验证
-      expect(layoutContent).toContain("title:")
+      expect(layoutContent).toContain('title:')
       expect(layoutContent).toContain('7zi Frontend')
-      
+
       // description 验证
       expect(layoutContent).toContain('description:')
-      
+
       // keywords 验证
       expect(layoutContent).toContain('keywords:')
     })

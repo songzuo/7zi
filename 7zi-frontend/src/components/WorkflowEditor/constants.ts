@@ -5,19 +5,12 @@
  * 创建日期: 2026-04-01
  */
 
-import type { NodeTemplate, NodeType } from './types';
+import type { NodeTemplate, NodeType } from './types'
 
 /**
  * 节点类型定义
  */
-export const NODE_TYPES: NodeType[] = [
-  'start',
-  'end',
-  'agent',
-  'condition',
-  'parallel',
-  'wait',
-];
+export const NODE_TYPES: NodeType[] = ['start', 'end', 'agent', 'condition', 'parallel', 'wait', 'humanInput']
 
 /**
  * 节点模板
@@ -89,7 +82,18 @@ export const NODE_TEMPLATES: Record<NodeType, NodeTemplate> = {
       timeout: 30000,
     },
   },
-};
+  humanInput: {
+    type: 'humanInput',
+    label: 'Human Input',
+    icon: '👤',
+    description: '等待人工输入或审批',
+    category: 'flow',
+    defaultConfig: {
+      waitForEvent: 'user.input',
+      timeout: 3600000, // 1小时
+    },
+  },
+}
 
 /**
  * 节点颜色
@@ -125,7 +129,7 @@ export const NODE_COLORS = {
     dark: '#22D3EE', // Cyan 400
     bg: '#CFFAFE', // Cyan 100
   },
-} as const;
+} as const
 
 /**
  * 键盘快捷键
@@ -143,7 +147,7 @@ export const KEYBOARD_SHORTCUTS = {
   DUPLICATE: 'Ctrl+D',
   AUTO_LAYOUT: 'Ctrl+L',
   FIND: 'Ctrl+F',
-} as const;
+} as const
 
 /**
  * 响应式断点
@@ -154,7 +158,7 @@ export const BREAKPOINTS = {
   LG: 1024,
   XL: 1280,
   '2XL': 1536,
-} as const;
+} as const
 
 /**
  * 画布配置
@@ -167,7 +171,7 @@ export const CANVAS_CONFIG = {
   PAN_SPEED: 1,
   GRID_SIZE: 20,
   SNAP_TO_GRID: true,
-} as const;
+} as const
 
 /**
  * 执行状态颜色
@@ -180,7 +184,7 @@ export const EXECUTION_STATUS_COLORS = {
   FAILED: '#EF4444',
   CANCELLED: '#6B7280',
   TIMEOUT: '#DC2626',
-} as const;
+} as const
 
 /**
  * 验证规则
@@ -193,4 +197,4 @@ export const VALIDATION_RULES = {
   MIN_TIMEOUT: 1000,
   MAX_TIMEOUT: 3600000, // 1小时
   MAX_RETRIES: 10,
-} as const;
+} as const

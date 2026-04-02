@@ -11,6 +11,7 @@
 ### 1. 优化备份策略
 
 **改进内容**:
+
 - ✅ 新增 SHA256 校验和验证
 - ✅ 优化备份内容（排除 node_modules、.next 等大文件）
 - ✅ 分类保留策略：
@@ -21,6 +22,7 @@
 - ✅ 新增状态文件备份
 
 **脚本更新**:
+
 - `/root/.backup/backup.sh` - 优化备份脚本 v2.0
 - `/root/.backup/restore.sh` - 恢复脚本 v2.0（带验证）
 - `/root/.backup/monitor.sh` - 监控脚本（新增）
@@ -29,12 +31,14 @@
 ### 2. 测试恢复
 
 **测试结果**:
+
 - ✅ 备份完整性验证通过（27411 文件）
 - ✅ 恢复测试模式测试通过
 - ✅ 校验和验证通过
 - ✅ 恢复到临时目录测试成功
 
 **恢复命令**:
+
 ```bash
 # 测试恢复（不覆盖）
 /root/.backup/restore.sh <backup_file> --test
@@ -49,12 +53,14 @@
 ### 3. 自动化
 
 **Crontab 配置**:
+
 ```
 0 3 * * *   /root/.backup/backup.sh     # 每日备份
 0 8 * * *   /root/.backup/monitor.sh    # 状态监控
 ```
 
 **监控功能**:
+
 - ✅ 备份年龄检查（>26 小时告警）
 - ✅ 备份大小检查（<1MB 告警）
 - ✅ 校验和自动验证
@@ -63,20 +69,21 @@
 - ✅ Telegram 通知支持（可选）
 
 **状态报告**:
+
 - 每日报告生成：`/root/.openclaw/workspace/reports/backup-status-YYYY-MM-DD.md`
 
 ---
 
 ## 📊 当前备份状态
 
-| 项目 | 状态 |
-|------|------|
+| 项目     | 状态                             |
+| -------- | -------------------------------- |
 | 最新备份 | workspace_20260306_090514.tar.gz |
-| 备份大小 | 148MB |
-| 文件数量 | 27411 |
-| 校验和 | ✅ 已验证 |
-| 磁盘使用 | 14% |
-| 自动化 | ✅ 已配置 |
+| 备份大小 | 148MB                            |
+| 文件数量 | 27411                            |
+| 校验和   | ✅ 已验证                        |
+| 磁盘使用 | 14%                              |
+| 自动化   | ✅ 已配置                        |
 
 ---
 
@@ -106,21 +113,25 @@
 ## 🔧 使用说明
 
 ### 查看备份状态
+
 ```bash
 /root/.backup/monitor.sh
 ```
 
 ### 生成状态报告
+
 ```bash
 /root/.backup/report.sh
 ```
 
 ### 手动执行备份
+
 ```bash
 /root/.backup/backup.sh
 ```
 
 ### 测试恢复
+
 ```bash
 /root/.backup/restore.sh /root/.backup/daily/workspace_*.tar.gz --test
 ```

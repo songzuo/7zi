@@ -28,6 +28,7 @@ Wait for the server to start (you should see "Ready in Xms" or similar).
 ### Step 2: Open Demo Page
 
 Open your browser and navigate to:
+
 ```
 http://localhost:3000/collaboration-demo
 ```
@@ -62,18 +63,21 @@ http://localhost:3000/collaboration-demo
 ### Step 2: Configure Different Users
 
 **Tab 1 - Alice:**
+
 - User ID: `alice`
 - User Name: `Alice`
 - Click "Connect"
 - Click "Join Room" (use Room ID: `test-task-1`)
 
 **Tab 2 - Bob:**
+
 - User ID: `bob`
 - User Name: `Bob`
 - Click "Connect"
 - Click "Join Room" (use same Room ID: `test-task-1`)
 
 **Tab 3 - Charlie** (if using):
+
 - User ID: `charlie`
 - User Name: `Charlie`
 - Click "Connect"
@@ -158,6 +162,7 @@ http://localhost:3000/collaboration-demo
 ### Test 1: Connection Status Component
 
 **Expected Behavior**:
+
 - ✅ Shows colored status indicator (green/yellow/red)
 - ✅ Displays "Connected" when connected
 - ✅ Shows "Connecting..." when connecting
@@ -167,6 +172,7 @@ http://localhost:3000/collaboration-demo
 - ✅ Shows "Reconnect" button when disconnected
 
 **Test Steps**:
+
 1. Observe status when not connected (red, "Disconnected")
 2. Click "Connect" - status should change to yellow ("Connecting...")
 3. Wait for connection - status should change to green ("Connected")
@@ -179,6 +185,7 @@ http://localhost:3000/collaboration-demo
 ### Test 2: User List Component
 
 **Expected Behavior**:
+
 - ✅ Shows colored circles or avatars for each user
 - ✅ Different users have different colors
 - ✅ Tooltips show user names
@@ -186,6 +193,7 @@ http://localhost:3000/collaboration-demo
 - ✅ Updates when users join/leave
 
 **Test Steps**:
+
 1. Join room with one user - verify 1 circle appears
 2. Open second tab with different user - verify 2 circles
 3. Open third tab - verify 3 circles
@@ -197,6 +205,7 @@ http://localhost:3000/collaboration-demo
 ### Test 3: Remote Cursor Component
 
 **Expected Behavior**:
+
 - ✅ Shows colored cursor caret
 - ✅ Displays user name label above cursor
 - ✅ Cursor follows remote user's position
@@ -204,6 +213,7 @@ http://localhost:3000/collaboration-demo
 - ✅ Updates in real-time
 
 **Test Steps**:
+
 1. Open demo in Tab 1 and Tab 2
 2. Join same room with different users
 3. In Tab 1, click in the textarea at different positions
@@ -216,6 +226,7 @@ http://localhost:3000/collaboration-demo
 ### Test 4: Selection Highlight Component
 
 **Expected Behavior**:
+
 - ✅ Highlights text selected by remote users
 - ✅ Highlight color matches user color
 - ✅ Shows user name tooltip on selection
@@ -223,6 +234,7 @@ http://localhost:3000/collaboration-demo
 - ✅ Updates in real-time
 
 **Test Steps**:
+
 1. Open demo in Tab 1 and Tab 2
 2. Join same room with different users
 3. In Tab 1, select some text in the document
@@ -236,6 +248,7 @@ http://localhost:3000/collaboration-demo
 ### Test 5: Typing Indicator Component
 
 **Expected Behavior**:
+
 - ✅ Shows animated typing dots
 - ✅ Displays "X users are typing..."
 - ✅ Appears when users type
@@ -243,6 +256,7 @@ http://localhost:3000/collaboration-demo
 - ✅ Updates in real-time
 
 **Test Steps**:
+
 1. Open demo in Tab 1 and Tab 2
 2. Join same room
 3. In Tab 1, start typing in textarea
@@ -363,6 +377,7 @@ Test the collaboration features in different browsers:
 - ✅ Edge
 
 For each browser:
+
 1. Open demo page
 2. Connect and join room
 3. Test basic editing
@@ -390,6 +405,7 @@ For each browser:
 **Symptoms**: Connection stays yellow or turns red
 
 **Solutions**:
+
 1. Check that dev server is running (`npm run dev`)
 2. Verify WebSocket URL is correct
 3. Check browser console for errors
@@ -400,6 +416,7 @@ For each browser:
 **Symptoms**: You don't see cursors from other users
 
 **Solutions**:
+
 1. Verify both users are in the same room
 2. Check that room ID matches exactly
 3. Ensure both users are connected
@@ -410,6 +427,7 @@ For each browser:
 **Symptoms**: Changes don't appear for other users
 
 **Solutions**:
+
 1. Verify room ID matches across tabs
 2. Check that document ID is the same
 3. Ensure operations are being sent (check activity log)
@@ -420,6 +438,7 @@ For each browser:
 **Symptoms**: Typing status doesn't show for other users
 
 **Solutions**:
+
 1. Verify typing status is being sent
 2. Check that you're in the same room
 3. Ensure both users are connected

@@ -18,6 +18,7 @@ AgentStatusPanel 是一个用于实时监控所有 AI Agent 运行状态的 Dash
 ### 📊 Agent 能力雷达图
 
 雷达图展示 6 个维度：
+
 - 并发能力
 - 成功率
 - 响应速度
@@ -35,14 +36,14 @@ AgentStatusPanel 是一个用于实时监控所有 AI Agent 运行状态的 Dash
 ## 使用方法
 
 ```tsx
-import { AgentStatusPanel } from '@/lib/agent-scheduler/dashboard/AgentStatusPanel';
+import { AgentStatusPanel } from '@/lib/agent-scheduler/dashboard/AgentStatusPanel'
 
 export default function DashboardPage() {
   return (
     <div>
       <AgentStatusPanel />
     </div>
-  );
+  )
 }
 ```
 
@@ -58,19 +59,19 @@ export default function DashboardPage() {
 
 ## 11 位 Agent
 
-| Agent ID | 名称 | 角色 | Emoji |
-|----------|------|------|-------|
-| `agent-expert` | 智能体世界专家 | 视角转换、未来布局 | 🌟 |
-| `consultant` | 咨询师 | 研究分析 | 📚 |
-| `architect` | 架构师 | 架构设计 | 🏗️ |
-| `executor` | Executor | 执行实现 | ⚡ |
-| `sysadmin` | 系统管理员 | 运维部署 | 🛡️ |
-| `tester` | 测试员 | 测试调试 | 🧪 |
-| `designer` | 设计师 | UI设计 | 🎨 |
-| `promoter` | 推广专员 | 推广SEO | 📣 |
-| `sales` | 销售客服 | 销售客服 | 💼 |
-| `finance` | 财务 | 财务会计 | 💰 |
-| `media` | 媒体 | 媒体宣传 | 📺 |
+| Agent ID       | 名称           | 角色               | Emoji |
+| -------------- | -------------- | ------------------ | ----- |
+| `agent-expert` | 智能体世界专家 | 视角转换、未来布局 | 🌟    |
+| `consultant`   | 咨询师         | 研究分析           | 📚    |
+| `architect`    | 架构师         | 架构设计           | 🏗️    |
+| `executor`     | Executor       | 执行实现           | ⚡    |
+| `sysadmin`     | 系统管理员     | 运维部署           | 🛡️    |
+| `tester`       | 测试员         | 测试调试           | 🧪    |
+| `designer`     | 设计师         | UI设计             | 🎨    |
+| `promoter`     | 推广专员       | 推广SEO            | 📣    |
+| `sales`        | 销售客服       | 销售客服           | 💼    |
+| `finance`      | 财务           | 财务会计           | 💰    |
+| `media`        | 媒体           | 媒体宣传           | 📺    |
 
 ## 技术栈
 
@@ -90,6 +91,7 @@ npm test -- src/lib/agent-scheduler/dashboard/AgentStatusPanel.spec.tsx
 ```
 
 **测试覆盖**:
+
 - 组件渲染
 - 统计摘要显示
 - 筛选下拉框
@@ -117,6 +119,7 @@ npm test -- src/lib/agent-scheduler/dashboard/AgentStatusPanel.spec.tsx
 ## 下一步
 
 根据 V140_PLANNING_20260329.md，接下来的任务是：
+
 - Day 6: 开发 `TaskQueueView.tsx` - 任务队列视图
 - Day 7: 性能监控异常检测启动
 

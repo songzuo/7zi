@@ -39,11 +39,11 @@ docker run -p 3000:3000 -e NODE_ENV=production 7zi-frontend:test
 
 ## 📊 镜像大小对比
 
-| 配置 | 大小 | 说明 |
-|------|------|------|
-| 传统方案 | ~800MB | 包含所有依赖 |
+| 配置     | 大小   | 说明                |
+| -------- | ------ | ------------------- |
+| 传统方案 | ~800MB | 包含所有依赖        |
 | 优化方案 | ~250MB | 多阶段 + standalone |
-| 压缩后 | ~80MB | Docker Registry |
+| 压缩后   | ~80MB  | Docker Registry     |
 
 ---
 
@@ -83,10 +83,12 @@ docker-compose -f docker-compose.prod.yml build --no-cache
 ## 📝 环境变量
 
 必须设置的变量：
+
 - `JWT_SECRET` - JWT 密钥
 - `RESEND_API_KEY` - 邮件服务密钥
 
 可选变量：
+
 - `NEXT_PUBLIC_GA_ID` - Google Analytics
 - `NEXT_PUBLIC_UMAMI_ID` - Umami Analytics
 
@@ -95,6 +97,7 @@ docker-compose -f docker-compose.prod.yml build --no-cache
 ## 🔧 常见问题
 
 ### 1. 内存不足
+
 ```bash
 # 增加内存限制
 # 在 docker-compose.prod.yml 中修改：
@@ -102,12 +105,14 @@ memory: 1G
 ```
 
 ### 2. 构建失败
+
 ```bash
 # 清理缓存重新构建
 docker-compose -f docker-compose.prod.yml build --no-cache
 ```
 
 ### 3. 端口冲突
+
 ```bash
 # 修改端口
 # 在 docker-compose.prod.yml 中修改：

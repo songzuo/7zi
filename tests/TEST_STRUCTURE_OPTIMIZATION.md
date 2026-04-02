@@ -4,16 +4,17 @@
 
 ### 测试文件分布（共 540 个测试文件）
 
-| 位置 | 数量 | 问题 |
-|------|------|------|
-| `tests/` 根目录 | 98 | 与 src 下的测试重复 |
-| `src/**/__tests__/` | 235 | 分散在源码各处 |
-| `src/` 内联测试（与源码同级）| 146 | 混乱，难以管理 |
-| `src/test/` | 61 | 与 tests/ 目录重复 |
+| 位置                          | 数量 | 问题                |
+| ----------------------------- | ---- | ------------------- |
+| `tests/` 根目录               | 98   | 与 src 下的测试重复 |
+| `src/**/__tests__/`           | 235  | 分散在源码各处      |
+| `src/` 内联测试（与源码同级） | 146  | 混乱，难以管理      |
+| `src/test/`                   | 61   | 与 tests/ 目录重复  |
 
 ### 重复测试问题
 
 #### 1. Load Balancer 测试（5 个重复文件）
+
 - `tests/lib/agent-scheduler/load-balancer.test.ts`
 - `tests/lib/agents/scheduler/load-balancer.test.ts`
 - `tests/integration/load-balancer.test.ts`
@@ -21,6 +22,7 @@
 - `tests/unit/agent-scheduler/load-balancer.test.ts`
 
 #### 2. Scheduler 测试（7 个重复文件）
+
 - `tests/lib/agents/scheduler/scheduler.test.ts`
 - `tests/lib/agent-scheduler/scheduler.test.ts`
 - `tests/unit/agent-scheduler/core/scheduler.test.ts`
@@ -28,18 +30,22 @@
 - `src/lib/agents/scheduler/__tests__/scheduler.test.ts` (7zi-frontend)
 
 #### 3. Ranking 测试（3 个重复文件）
+
 - `tests/lib/agents/scheduler/ranking.test.ts`
 - `tests/lib/agent-scheduler/ranking.test.ts`
 - `tests/unit/agent-scheduler/core/ranking.test.ts`
 
 #### 4. Matching 测试（2 个重复文件）
+
 - `tests/lib/agent-scheduler/matching.test.ts`
 - `tests/unit/agent-scheduler/core/matching.test.ts`
 
 #### 5. WebSocket 测试（大量分散）
+
 - 17 个不同位置的 WebSocket 测试文件
 
 #### 6. Permissions 测试（多处重复）
+
 - 多个位置的权限测试文件
 
 ### 命名不一致问题
@@ -111,6 +117,7 @@ tests/
 ### 阶段 1：合并 agent-scheduler 测试（高优先级）
 
 合并以下测试文件：
+
 - Load Balancer: 5 → 1
 - Scheduler: 7 → 1
 - Ranking: 3 → 1

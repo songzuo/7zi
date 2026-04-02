@@ -17,8 +17,8 @@
  * }
  */
 
-import { NextResponse } from 'next/server';
-import { logger } from '../logger';
+import { NextResponse } from 'next/server'
+import { logger } from '../logger'
 
 /**
  * Error types for different error categories
@@ -46,11 +46,11 @@ function isRetryableError(errorType: ApiErrorType, statusCode: number): boolean 
     ApiErrorType.TIMEOUT,
     ApiErrorType.SERVICE_UNAVAILABLE,
     ApiErrorType.INTERNAL,
-  ];
+  ]
 
-  const retryableStatusCodes = [408, 429, 500, 502, 503, 504];
+  const retryableStatusCodes = [408, 429, 500, 502, 503, 504]
 
-  return retryableTypes.includes(errorType) || retryableStatusCodes.includes(statusCode);
+  return retryableTypes.includes(errorType) || retryableStatusCodes.includes(statusCode)
 }
 
 /**
@@ -65,12 +65,12 @@ export class EnhancedApiError extends Error {
     public retryable: boolean = false,
     public retryAfter?: number
   ) {
-    super(message);
-    this.name = 'EnhancedApiError';
+    super(message)
+    this.name = 'EnhancedApiError'
 
     // 自动判断是否可重试
     if (this.retryable === false) {
-      this.retryable = isRetryableError(type, statusCode);
+      this.retryable = isRetryableError(type, statusCode)
     }
   }
 }
@@ -79,16 +79,16 @@ export class EnhancedApiError extends Error {
  * Enhanced error response interface
  */
 export interface EnhancedErrorResponse {
-  success: false;
+  success: false
   error: {
-    type: ApiErrorType;
-    message: string;
-    code?: string;
-    details?: Record<string, unknown>;
-    retryable: boolean;
-    retryAfter?: number;
-    timestamp: string;
-  };
+    type: ApiErrorType
+    message: string
+    code?: string
+    details?: Record<string, unknown>
+    retryable: boolean
+    retryAfter?: number
+    timestamp: string
+  }
 }
 
 /**
@@ -99,7 +99,7 @@ export function createEnhancedErrorResponse(
   statusCode?: number,
   details?: Record<string, unknown>
 ): NextResponse<EnhancedErrorResponse> {
-  const timestamp = new Date().toISOString();
+  const timestamp = new Date().toISOString()
 
   // 如果是 EnhancedApiError，使用它
   if (error instanceof EnhancedApiError) {
@@ -113,53 +113,53 @@ export function createEnhancedErrorResponse(
         retryAfter: error.retryAfter,
         timestamp,
       },
-    };
+    }
 
-    const headers: HeadersInit = {};
+    const headers: HeadersInit = {}
 
     // 添加重试头
     if (error.retryAfter) {
-      headers['Retry-After'] = String(error.retryAfter);
+      headers['Retry-After'] = String(error.retryAfter)
     }
 
     return NextResponse.json(response, {
       status: error.statusCode,
       headers,
-    });
+    })
   }
 
   // 处理普通错误
   logger.error('API Error', error instanceof Error ? error : new Error(String(error)), {
     category: 'api',
-  });
+  })
 
   // 判断错误类型
-  let errorType = ApiErrorType.INTERNAL;
-  let status = statusCode ?? 500;
-  let retryable = false;
-  let retryAfter: number | undefined;
+  let errorType = ApiErrorType.INTERNAL
+  let status = statusCode ?? 500
+  let retryable = false
+  let retryAfter: number | undefined
 
-  const message = error.message || 'An internal error occurred';
+  const message = error.message || 'An internal error occurred'
 
   // 根据消息判断错误类型
-  const lowerMessage = message.toLowerCase();
+  const lowerMessage = message.toLowerCase()
   if (lowerMessage.includes('network') || lowerMessage.includes('fetch')) {
-    errorType = ApiErrorType.NETWORK_ERROR;
-    status = 503;
-    retryable = true;
+    errorType = ApiErrorType.NETWORK_ERROR
+    status = 503
+    retryable = true
   } else if (lowerMessage.includes('timeout')) {
-    errorType = ApiErrorType.TIMEOUT;
-    status = 504;
-    retryable = true;
+    errorType = ApiErrorType.TIMEOUT
+    status = 504
+    retryable = true
   } else if (lowerMessage.includes('not found') || lowerMessage.includes('404')) {
-    errorType = ApiErrorType.NOT_FOUND;
-    status = 404;
+    errorType = ApiErrorType.NOT_FOUND
+    status = 404
   } else if (lowerMessage.includes('unauthorized') || lowerMessage.includes('401')) {
-    errorType = ApiErrorType.UNAUTHORIZED;
-    status = 401;
+    errorType = ApiErrorType.UNAUTHORIZED
+    status = 401
   } else if (lowerMessage.includes('forbidden') || lowerMessage.includes('403')) {
-    errorType = ApiErrorType.FORBIDDEN;
-    status = 403;
+    errorType = ApiErrorType.FORBIDDEN
+    status = 403
   }
 
   const response = {
@@ -172,9 +172,9 @@ export function createEnhancedErrorResponse(
       retryAfter,
       timestamp,
     },
-  };
+  }
 
-  return NextResponse.json(response, { status });
+  return NextResponse.json(response, { status })
 }
 
 /**
@@ -185,54 +185,30 @@ export function createValidationErrorResponse(
   message: string,
   details?: Record<string, unknown>
 ): NextResponse<EnhancedErrorResponse> {
-  const error = new EnhancedApiError(
-    ApiErrorType.VALIDATION,
-    message,
-    400,
-    details,
-    false
-  );
-  return createEnhancedErrorResponse(error);
+  const error = new EnhancedApiError(ApiErrorType.VALIDATION, message, 400, details, false)
+  return createEnhancedErrorResponse(error)
 }
 
 export function createNotFoundErrorResponse(
   message: string,
   details?: Record<string, unknown>
 ): NextResponse<EnhancedErrorResponse> {
-  const error = new EnhancedApiError(
-    ApiErrorType.NOT_FOUND,
-    message,
-    404,
-    details,
-    false
-  );
-  return createEnhancedErrorResponse(error);
+  const error = new EnhancedApiError(ApiErrorType.NOT_FOUND, message, 404, details, false)
+  return createEnhancedErrorResponse(error)
 }
 
 export function createUnauthorizedErrorResponse(
   message: string = 'Unauthorized access'
 ): NextResponse<EnhancedErrorResponse> {
-  const error = new EnhancedApiError(
-    ApiErrorType.UNAUTHORIZED,
-    message,
-    401,
-    undefined,
-    false
-  );
-  return createEnhancedErrorResponse(error);
+  const error = new EnhancedApiError(ApiErrorType.UNAUTHORIZED, message, 401, undefined, false)
+  return createEnhancedErrorResponse(error)
 }
 
 export function createForbiddenErrorResponse(
   message: string = 'Access forbidden'
 ): NextResponse<EnhancedErrorResponse> {
-  const error = new EnhancedApiError(
-    ApiErrorType.FORBIDDEN,
-    message,
-    403,
-    undefined,
-    false
-  );
-  return createEnhancedErrorResponse(error);
+  const error = new EnhancedApiError(ApiErrorType.FORBIDDEN, message, 403, undefined, false)
+  return createEnhancedErrorResponse(error)
 }
 
 export function createRateLimitErrorResponse(
@@ -246,8 +222,8 @@ export function createRateLimitErrorResponse(
     undefined,
     true,
     retryAfter
-  );
-  return createEnhancedErrorResponse(error);
+  )
+  return createEnhancedErrorResponse(error)
 }
 
 export function createServiceUnavailableErrorResponse(
@@ -261,8 +237,8 @@ export function createServiceUnavailableErrorResponse(
     undefined,
     true,
     retryAfter
-  );
-  return createEnhancedErrorResponse(error);
+  )
+  return createEnhancedErrorResponse(error)
 }
 
 export function createNetworkErrorResponse(
@@ -276,8 +252,8 @@ export function createNetworkErrorResponse(
     undefined,
     true,
     retryAfter
-  );
-  return createEnhancedErrorResponse(error);
+  )
+  return createEnhancedErrorResponse(error)
 }
 
 export function createTimeoutErrorResponse(
@@ -291,23 +267,21 @@ export function createTimeoutErrorResponse(
     undefined,
     true,
     retryAfter
-  );
-  return createEnhancedErrorResponse(error);
+  )
+  return createEnhancedErrorResponse(error)
 }
 
 /**
  * 增强的错误处理包装器
  */
-export function withEnhancedErrorHandling<T extends (...args: unknown[]) => Promise<NextResponse<unknown>>>(
-  handler: T
-): T {
+export function withEnhancedErrorHandling<
+  T extends (...args: unknown[]) => Promise<NextResponse<unknown>>,
+>(handler: T): T {
   return (async (...args: unknown[]) => {
     try {
-      return await handler(...(args as Parameters<T>));
-    } catch (_error) {
-      return createEnhancedErrorResponse(
-        error instanceof Error ? error : new Error(String(error))
-      );
+      return await handler(...(args as Parameters<T>))
+    } catch (error) {
+      return createEnhancedErrorResponse(error instanceof Error ? error : new Error(String(error)))
     }
-  }) as unknown as T;
+  }) as unknown as T
 }

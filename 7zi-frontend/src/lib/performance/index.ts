@@ -9,6 +9,7 @@
  * - Anomaly Detection
  * - Root Cause Analysis
  * - Alerting System
+ * - Metrics Collection & Aggregation (v1.9.0)
  */
 
 // ============================================================================
@@ -23,48 +24,72 @@ export {
   calculateWebVitalsScore,
   type WebVitalsMetrics,
   type WebVitalsConfig,
-} from './web-vitals';
+} from './web-vitals'
 
 // Custom Metrics
 export {
   CustomMetricsTracker,
   customMetricsTracker,
   initCustomMetricsTracking,
-  type CustomMetrics,
-  type MetricsTrackerConfig,
-} from './custom-metrics';
+} from './custom-metrics'
 
 // Performance Budget Manager (Legacy - kept for backward compatibility)
+export { PerformanceBudgetManager, budgetManager, initPerformanceBudget } from './budget-manager'
+
+// ============================================================================
+// Metrics Collection & Aggregation (v1.9.0)
+// ============================================================================
+
+// Metrics Types
+export type {
+  SystemMetrics,
+  ResponseTimeMetrics,
+  ErrorRateMetrics,
+  ThroughputMetrics,
+  PerformanceMetrics,
+  MetricDataPoint,
+  MetricsCollectorConfig,
+  AggregatedMetricResult,
+  MetricsHistory,
+  ReportFormat,
+  MetricsReportConfig,
+  MetricsThreshold,
+  MetricStatus,
+  MetricsHealthCheck,
+} from './metrics-types'
+
+// Metrics Collector
+export { MetricsCollector, metricsCollector } from './metrics-collector'
+
+// Metrics Aggregator
+export { MetricsAggregator, metricsAggregator } from './metrics-aggregator'
+
+// Metrics Report Generator
 export {
-  PerformanceBudgetManager,
-  budgetManager,
-  initPerformanceBudget,
-  type PerformanceBudget,
-  type AlarmRule,
-  type AlarmNotification,
-  type PerformanceBudgetReport,
-  type BudgetViolation,
-} from './budget-manager';
+  MetricsReportGenerator,
+  metricsReportGenerator,
+  generateHealthCheck,
+} from './metrics-report'
 
 // ============================================================================
 // Advanced Performance Monitoring (from performance-monitoring merge)
 // ============================================================================
 
 // Anomaly Detection
-export { PerformanceAnomalyDetector, anomalyDetector } from './anomaly-detection/detector';
-export { BaselineManager } from './anomaly-detection/baseline';
+export { PerformanceAnomalyDetector, anomalyDetector } from './anomaly-detection/detector'
+export { BaselineManager } from './anomaly-detection/baseline'
 export {
   detectAnomalyZScore,
   calculateZScore,
   interpretZScore,
   detectAnomalyPercentile,
   calculatePercentChange,
-} from './anomaly-detection/algorithms/z-score';
+} from './anomaly-detection/algorithms/z-score'
 export {
   buildIsolationForest,
   detectAnomalyIsolationForest,
   trainAndDetect,
-} from './anomaly-detection/algorithms/isolation-forest';
+} from './anomaly-detection/algorithms/isolation-forest'
 export {
   createCooldownFilter,
   createConfidenceFilter,
@@ -73,22 +98,22 @@ export {
   createTrendFilter,
   CompositeFilter,
   createDefaultFilters,
-} from './anomaly-detection/filters';
+} from './anomaly-detection/filters'
 
 // Root Cause Analysis
-export { RootCauseAnalyzer, rootCauseAnalyzer } from './root-cause-analysis/analyzer';
-export { DatabaseTracker, databaseTracker } from './root-cause-analysis/database-tracker';
-export { APITracker, apiTracker } from './root-cause-analysis/api-tracker';
+export { RootCauseAnalyzer, rootCauseAnalyzer } from './root-cause-analysis/analyzer'
+export { DatabaseTracker, databaseTracker } from './root-cause-analysis/database-tracker'
+export { APITracker, apiTracker } from './root-cause-analysis/api-tracker'
 
 // Alerting System
-export { PerformanceAlerter, performanceAlerter } from './alerting/alerter';
+export { PerformanceAlerter, performanceAlerter } from './alerting/alerter'
 export {
   EmailChannel,
   SlackChannel,
   DashboardChannel,
   WebhookChannel,
   TelegramChannel,
-} from './alerting/channels';
+} from './alerting/channels'
 
 // Budget Control (Advanced)
 export {
@@ -99,17 +124,14 @@ export {
   BudgetAlertManager,
   budgetAlertManager,
   DEFAULT_BUDGET_ALERT_CONFIG,
-} from './budget-control/index';
+} from './budget-control/index'
 
 // ============================================================================
 // Types
 // ============================================================================
 
 // Core Types
-export type {
-  CustomMetrics,
-  MetricsTrackerConfig,
-} from './custom-metrics';
+export type { CustomMetrics, MetricsTrackerConfig } from './custom-metrics'
 
 export type {
   PerformanceBudget,
@@ -117,12 +139,10 @@ export type {
   AlarmNotification,
   PerformanceBudgetReport,
   BudgetViolation,
-} from './budget-manager';
+} from './budget-manager'
 
 // Advanced Types (from performance-monitoring)
-export type {
-  MetricDataPoint,
-} from './anomaly-detection/types';
+export type { MetricDataPoint } from './anomaly-detection/types'
 
 export type {
   PerformanceContext,
@@ -132,7 +152,7 @@ export type {
   SlowAPICall,
   RenderingMetrics,
   ResourceMetrics,
-} from './root-cause-analysis/types';
+} from './root-cause-analysis/types'
 
 export type {
   PerformanceAlert,
@@ -145,7 +165,7 @@ export type {
   AlertingConfig,
   AlertStats,
   SuppressionConfig,
-} from './alerting/types';
+} from './alerting/types'
 
 export type {
   BudgetThreshold,
@@ -155,12 +175,12 @@ export type {
   BudgetAlertConfig,
   BudgetConfigOptions,
   BudgetValidationResult,
-} from './budget-control/index';
+} from './budget-control/index'
 
 // ============================================================================
 // Constants
 // ============================================================================
 
-export { DEFAULT_ANOMALY_CONFIG } from './anomaly-detection/types';
-export { DEFAULT_ROOT_CAUSE_CONFIG } from './root-cause-analysis/types';
-export { DEFAULT_BUDGET_CONFIG } from './budget-control/types';
+export { DEFAULT_ANOMALY_CONFIG } from './anomaly-detection/types'
+export { DEFAULT_ROOT_CAUSE_CONFIG } from './root-cause-analysis/types'
+export { DEFAULT_BUDGET_CONFIG } from './budget-control/types'

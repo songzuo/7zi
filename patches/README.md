@@ -22,13 +22,13 @@ for patch in patches/*.patch; do patch -p1 < "$patch"; done
 
 ## Patches Overview
 
-| # | Patch Name | Priority | Area | Description |
-|---|------------|----------|------|-------------|
-| 001 | Fix Import Error | P0 | Test | Remove non-existent imports from test file |
-| 002 | Fix React Import | P0 | Component | Add missing `memo` import to FeedbackWidget |
-| 003 | Add Admin Auth | P0 | API | Implement admin authentication for performance API |
-| 004 | Implement Error Toast | P1 | Meeting | Add error toast notification for meeting errors |
-| 005 | Implement Task Handlers | P1 | Tasks | Implement backend API calls for task management |
+| #   | Patch Name              | Priority | Area      | Description                                        |
+| --- | ----------------------- | -------- | --------- | -------------------------------------------------- |
+| 001 | Fix Import Error        | P0       | Test      | Remove non-existent imports from test file         |
+| 002 | Fix React Import        | P0       | Component | Add missing `memo` import to FeedbackWidget        |
+| 003 | Add Admin Auth          | P0       | API       | Implement admin authentication for performance API |
+| 004 | Implement Error Toast   | P1       | Meeting   | Add error toast notification for meeting errors    |
+| 005 | Implement Task Handlers | P1       | Tasks     | Implement backend API calls for task management    |
 
 ## Pre-Apply Checklist
 
@@ -43,12 +43,14 @@ for patch in patches/*.patch; do patch -p1 < "$patch"; done
 After applying all patches:
 
 1. **Set up ADMIN_SECRET environment variable**
+
    ```bash
    # In .env.local
    ADMIN_SECRET=your-random-secret-here
    ```
 
 2. **Test the admin authentication**
+
    ```bash
    curl -X DELETE http://localhost:3000/api/performance/clear \
      -H "Authorization: Bearer your-random-secret-here"

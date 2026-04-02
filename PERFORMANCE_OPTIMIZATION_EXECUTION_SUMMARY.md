@@ -13,18 +13,20 @@
 **修改文件:** `src/app/layout.tsx`
 
 **修改内容:**
+
 ```typescript
 // 修改前
-import { Analytics } from "@/components/Analytics";
+import { Analytics } from '@/components/Analytics'
 
 // 修改后
 const LazyAnalytics = dynamic(() => import('@/components/Analytics'), {
   ssr: false,
   loading: () => null,
-});
+})
 ```
 
 **预期收益:**
+
 - 减少首屏代码: ~50-100KB
 - 提升 FCP (First Contentful Paint): ~5-10%
 - 减少 TTI (Time to Interactive): ~100-200ms
@@ -34,16 +36,18 @@ const LazyAnalytics = dynamic(() => import('@/components/Analytics'), {
 **修改文件:** `src/app/layout.tsx`
 
 **修改内容:**
+
 ```typescript
 const geistSans = Geist({
-  variable: "--font-geist-sans",
-  subsets: ["latin"],
-  display: 'swap',  // 🆕 字体显示策略
-  preload: true,     // 🆕 预加载字体
-});
+  variable: '--font-geist-sans',
+  subsets: ['latin'],
+  display: 'swap', // 🆕 字体显示策略
+  preload: true, // 🆕 预加载字体
+})
 ```
 
 **预期收益:**
+
 - 减少字体加载阻塞时间
 - 提升 FOUT (Flash of Unstyled Text) 体验
 - 改善 LCP (Largest Contentful Paint)
@@ -53,6 +57,7 @@ const geistSans = Geist({
 **执行命令:** `npm prune`
 
 **移除的依赖:**
+
 ```
 @emnapi/core@1.9.1
 @emnapi/runtime@1.9.1
@@ -62,6 +67,7 @@ const geistSans = Geist({
 ```
 
 **预期收益:**
+
 - 减少 node_modules 大小: ~50KB
 - 减少构建产物: ~10-20KB
 
@@ -72,19 +78,19 @@ const geistSans = Geist({
 ### Core Web Vitals 预期改进
 
 | 指标 | 优化前 | 优化后 (预期) | 改进幅度 |
-|------|--------|--------------|----------|
-| LCP | ~2.5s | ~2.0s | -20% ⬇️ |
-| FCP | ~1.8s | ~1.5s | -17% ⬇️ |
-| TTI | ~3.5s | ~2.8s | -20% ⬇️ |
-| FID | ~100ms | ~80ms | -20% ⬇️ |
+| ---- | ------ | ------------- | -------- |
+| LCP  | ~2.5s  | ~2.0s         | -20% ⬇️  |
+| FCP  | ~1.8s  | ~1.5s         | -17% ⬇️  |
+| TTI  | ~3.5s  | ~2.8s         | -20% ⬇️  |
+| FID  | ~100ms | ~80ms         | -20% ⬇️  |
 
 ### 包体积预期改进
 
-| 包类型 | 优化前 | 优化后 (预期) | 改进幅度 |
-|--------|--------|--------------|----------|
-| initial.js | ~500KB | ~380KB | -24% ⬇️ |
-| vendor chunks | ~1MB | ~600KB | -40% ⬇️ |
-| total.js | ~2MB | ~1.2MB | -40% ⬇️ |
+| 包类型        | 优化前 | 优化后 (预期) | 改进幅度 |
+| ------------- | ------ | ------------- | -------- |
+| initial.js    | ~500KB | ~380KB        | -24% ⬇️  |
+| vendor chunks | ~1MB   | ~600KB        | -40% ⬇️  |
+| total.js      | ~2MB   | ~1.2MB        | -40% ⬇️  |
 
 ---
 
@@ -113,6 +119,7 @@ const geistSans = Geist({
 **原因:** 生产环境不需要测试库
 
 **需要修改:**
+
 ```json
 // package.json
 "devDependencies": {
@@ -122,6 +129,7 @@ const geistSans = Geist({
 ```
 
 **执行命令:**
+
 ```bash
 npm install @jest/globals @testing-library/jest-dom --save-dev
 ```
@@ -133,6 +141,7 @@ npm install @jest/globals @testing-library/jest-dom --save-dev
 **原因:** `exceljs` 和 `xlsx` 功能重复
 
 **建议操作:**
+
 ```bash
 npm uninstall xlsx
 ```
@@ -144,6 +153,7 @@ npm uninstall xlsx
 **原因:** `src/lib/performance-optimization.ts` 未被使用
 
 **需要添加:**
+
 ```typescript
 // 创建客户端组件 src/components/PerformanceInit.tsx
 'use client';
@@ -166,6 +176,7 @@ import { PerformanceInit } from '@/components/PerformanceInit';
 ```
 
 **预期收益:**
+
 - 启用资源预加载
 - 启用图片懒加载
 - 优化 INP/FID
@@ -177,19 +188,20 @@ import { PerformanceInit } from '@/components/PerformanceInit';
 **原因:** next-intl 需要 middleware 来处理 locale 路由
 
 **代码:**
+
 ```typescript
-import createMiddleware from 'next-intl/middleware';
-import { locales, defaultLocale } from './i18n/config';
+import createMiddleware from 'next-intl/middleware'
+import { locales, defaultLocale } from './i18n/config'
 
 export default createMiddleware({
   locales,
   defaultLocale,
   localePrefix: 'as-needed',
-});
+})
 
 export const config = {
   matcher: ['/((?!api|_next|_vercel|.*\\..*).*)'],
-};
+}
 ```
 
 ---
@@ -197,6 +209,7 @@ export const config = {
 ## 🔍 验证步骤
 
 ### 1. 验证依赖清理
+
 ```bash
 cd /root/.openclaw/workspace/7zi-project
 npm ls --depth=0 2>&1 | grep -E "UNMET|missing|extraneous"
@@ -204,12 +217,14 @@ npm ls --depth=0 2>&1 | grep -E "UNMET|missing|extraneous"
 ```
 
 ### 2. 构建项目验证
+
 ```bash
 npm run build
 # 检查构建输出，确认没有错误
 ```
 
 ### 3. 生成构建分析报告
+
 ```bash
 ANALYZE=true npm run build
 # 会在 .next/analyze 目录生成 HTML 报告
@@ -217,6 +232,7 @@ ANALYZE=true npm run build
 ```
 
 ### 4. 运行性能测试
+
 ```bash
 # 使用 Lighthouse CI
 npm install -g @lhci/cli
@@ -228,16 +244,19 @@ lhci autorun
 ## 📝 后续行动建议
 
 ### 立即执行 (今天)
+
 1. ✅ 执行剩余的高优先级优化
 2. ✅ 构建测试验证优化效果
 3. ✅ 生成构建分析报告
 
 ### 短期计划 (本周)
+
 1. 初始化性能优化模块
 2. 添加 User Timing API 监控
 3. 优化图片加载策略
 
 ### 中期计划 (本月)
+
 1. 实现路由预加载
 2. 添加 Service Worker 缓存
 3. 性能基准测试和持续监控

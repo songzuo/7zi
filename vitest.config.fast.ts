@@ -21,11 +21,7 @@ export default defineConfig({
     include: ['src/**/*.{test,spec}.{js,ts,jsx,tsx}', 'app/**/*.{test,spec}.{js,ts,jsx,tsx}'],
 
     // 排除高复杂度文件
-    exclude: [
-      'node_modules/**',
-      '**/*.test.integration.{ts,tsx}',
-      '**/*.e2e.{ts,tsx}',
-    ],
+    exclude: ['node_modules/**', '**/*.test.integration.{ts,tsx}', '**/*.e2e.{ts,tsx}'],
 
     pool: 'vmForks',
 

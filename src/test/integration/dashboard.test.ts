@@ -30,9 +30,7 @@ describe('Dashboard Data Flow Integration Tests', () => {
           { date: '2024-01-01', value: 100 },
           { date: '2024-01-02', value: 120 },
         ],
-        recentActivity: [
-          { id: 1, action: 'page_view', timestamp: new Date().toISOString() },
-        ],
+        recentActivity: [{ id: 1, action: 'page_view', timestamp: new Date().toISOString() }],
       }
 
       mockFetch.mockResolvedValueOnce({
@@ -65,15 +63,14 @@ describe('Dashboard Data Flow Integration Tests', () => {
     })
 
     it('should handle network timeout', async () => {
-      mockFetch.mockImplementationOnce(() => 
-        new Promise((_, reject) => 
-          setTimeout(() => reject(new Error('Request timeout')), 100)
-        )
+      mockFetch.mockImplementationOnce(
+        () =>
+          new Promise((_, reject) => setTimeout(() => reject(new Error('Request timeout')), 100))
       )
 
       try {
         await fetch('/api/dashboard')
-      } catch (_error) {
+      } catch (error) {
         expect(error).toBeInstanceOf(Error)
         expect((error as Error).message).toContain('timeout')
       }
@@ -81,7 +78,7 @@ describe('Dashboard Data Flow Integration Tests', () => {
 
     it('should retry failed requests', async () => {
       let attemptCount = 0
-      
+
       mockFetch.mockImplementation(async () => {
         attemptCount++
         if (attemptCount < 3) {
@@ -93,10 +90,10 @@ describe('Dashboard Data Flow Integration Tests', () => {
       // First two attempts fail, third succeeds
       await fetch('/api/dashboard')
       expect(attemptCount).toBe(1)
-      
+
       await fetch('/api/dashboard')
       expect(attemptCount).toBe(2)
-      
+
       const response = await fetch('/api/dashboard')
       expect(response.ok).toBe(true)
     })
@@ -136,7 +133,7 @@ describe('Dashboard Data Flow Integration Tests', () => {
 
       // Check if cache is valid
       const cached = cache.get(cacheKey)
-      const isValid = cached && (Date.now() - cached.timestamp) < cacheTTL
+      const isValid = cached && Date.now() - cached.timestamp < cacheTTL
 
       expect(isValid).toBe(true)
     })
@@ -154,7 +151,7 @@ describe('Dashboard Data Flow Integration Tests', () => {
 
       // Check if cache is expired
       const cached = cache.get(cacheKey)
-      const isExpired = cached && (Date.now() - cached.timestamp) >= cacheTTL
+      const isExpired = cached && Date.now() - cached.timestamp >= cacheTTL
 
       expect(isExpired).toBe(true)
     })
@@ -164,10 +161,10 @@ describe('Dashboard Data Flow Integration Tests', () => {
       const cacheKey = 'dashboard-data'
 
       cache.set(cacheKey, { data: { cached: true }, timestamp: Date.now() })
-      
+
       // Manual invalidation
       cache.delete(cacheKey)
-      
+
       expect(cache.has(cacheKey)).toBe(false)
     })
   })
@@ -175,7 +172,7 @@ describe('Dashboard Data Flow Integration Tests', () => {
   describe('Real-time Updates', () => {
     it('should poll for updates at specified interval', async () => {
       vi.useFakeTimers()
-      
+
       let updateCount = 0
       const pollInterval = 5000 // 5 seconds
 
@@ -218,7 +215,7 @@ describe('Dashboard Data Flow Integration Tests', () => {
 
     it('should reconnect on connection loss', async () => {
       let connectionAttempts = 0
-      
+
       const connect = () => {
         connectionAttempts++
         return connectionAttempts < 3 ? false : true
@@ -227,7 +224,7 @@ describe('Dashboard Data Flow Integration Tests', () => {
       // First two attempts fail
       expect(connect()).toBe(false)
       expect(connect()).toBe(false)
-      
+
       // Third attempt succeeds
       expect(connect()).toBe(true)
       expect(connectionAttempts).toBe(3)
@@ -259,10 +256,13 @@ describe('Dashboard Data Flow Integration Tests', () => {
         { visitors: 200, pageViews: 1000 },
       ]
 
-      const total = metrics.reduce((acc, m) => ({
-        visitors: acc.visitors + m.visitors,
-        pageViews: acc.pageViews + m.pageViews,
-      }), { visitors: 0, pageViews: 0 })
+      const total = metrics.reduce(
+        (acc, m) => ({
+          visitors: acc.visitors + m.visitors,
+          pageViews: acc.pageViews + m.pageViews,
+        }),
+        { visitors: 0, pageViews: 0 }
+      )
 
       expect(total.visitors).toBe(450)
       expect(total.pageViews).toBe(2250)
@@ -304,7 +304,7 @@ describe('Dashboard Data Flow Integration Tests', () => {
 
       try {
         await fetch('/api/dashboard')
-      } catch (_error) {
+      } catch (error) {
         expect(error).toBeInstanceOf(Error)
       }
     })
@@ -331,7 +331,7 @@ describe('Dashboard Data Flow Integration Tests', () => {
       // First attempt fails
       try {
         await fetch('/api/dashboard')
-      } catch {
+      } catch (error) {
         // Expected
       }
 
@@ -369,20 +369,22 @@ describe('Dashboard Performance', () => {
     }
 
     const unsubscribe = subscribe(() => {})
-    
+
     expect(subscriptions.length).toBe(1)
-    
+
     unsubscribe()
-    
+
     expect(subscriptions.length).toBe(0)
   })
 
   it('should handle large datasets efficiently', async () => {
     // Generate large dataset
-    const largeDataset = Array(10000).fill(null).map((_, i) => ({
-      id: i,
-      value: Math.random(),
-    }))
+    const largeDataset = Array(10000)
+      .fill(null)
+      .map((_, i) => ({
+        id: i,
+        value: Math.random(),
+      }))
 
     mockFetch.mockResolvedValueOnce({
       ok: true,
@@ -416,7 +418,7 @@ describe('Dashboard Filtering and Sorting', () => {
     }
 
     const filtered = filterByDateRange(data, '2024-01-01', '2024-01-31')
-    
+
     expect(filtered).toHaveLength(2)
   })
 
@@ -441,19 +443,17 @@ describe('Dashboard Filtering and Sorting', () => {
       { name: 'Profile', description: 'User profile dashboard' },
     ]
 
-    const searchFilter = (
-      data: Array<{ name: string; description: string }>,
-      query: string
-    ) => {
+    const searchFilter = (data: Array<{ name: string; description: string }>, query: string) => {
       const lowerQuery = query.toLowerCase()
-      return data.filter(item => 
-        item.name.toLowerCase().includes(lowerQuery) ||
-        item.description.toLowerCase().includes(lowerQuery)
+      return data.filter(
+        item =>
+          item.name.toLowerCase().includes(lowerQuery) ||
+          item.description.toLowerCase().includes(lowerQuery)
       )
     }
 
     const results = searchFilter(data, 'dashboard')
-    
+
     expect(results).toHaveLength(2)
   })
 })

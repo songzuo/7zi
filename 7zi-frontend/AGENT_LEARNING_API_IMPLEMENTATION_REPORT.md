@@ -28,6 +28,7 @@ The `AdaptiveLearner` class provides:
 - **Data Export** - Backup and analysis capabilities
 
 **Key Features:**
+
 - In-memory storage with configurable history limit (10,000 records)
 - Automatic score recalculation with time decay
 - Confidence-based predictions (requires minimum 5 samples)
@@ -42,6 +43,7 @@ The `AdaptiveLearner` class provides:
 **Endpoint:** `GET /api/agents/learning`
 
 **Features:**
+
 - Returns all registered agents with learning statistics
 - Merges scheduler status with learning data
 - Includes overall and capability-specific scores
@@ -49,10 +51,12 @@ The `AdaptiveLearner` class provides:
 - Optional system-wide statistics
 
 **Query Parameters:**
+
 - `period`: Time period for aggregated stats
 - `includeSystem`: Include overall system statistics
 
 **Response:**
+
 ```json
 {
   "success": true,
@@ -73,6 +77,7 @@ The `AdaptiveLearner` class provides:
 **Endpoint:** `GET /api/agents/learning/:agentId`
 
 **Features:**
+
 - Detailed performance metrics for specific agent
 - Registration information from scheduler
 - Capability breakdown with performance ratings
@@ -81,6 +86,7 @@ The `AdaptiveLearner` class provides:
 - Performance prediction
 
 **Response:**
+
 ```json
 {
   "success": true,
@@ -105,12 +111,14 @@ The `AdaptiveLearner` class provides:
 **Endpoint:** `GET/POST /api/agents/learning/adjust`
 
 **Features:**
+
 - View available agents and task types for adjustment
 - Manually adjust agent weights (-1.0 to 1.0)
 - Clamping to valid score range (0-1)
 - Audit trail with reason logging
 
 **POST Request:**
+
 ```json
 {
   "agentId": "agent_123",
@@ -121,6 +129,7 @@ The `AdaptiveLearner` class provides:
 ```
 
 **Response:**
+
 ```json
 {
   "success": true,
@@ -194,11 +203,11 @@ adaptiveLearner.recordTaskCompletion(
   retryCount,
   agentLoadAtStart,
   errorType
-);
+)
 
 // Predict time before scheduling
-const prediction = adaptiveLearner.predictCompletionTime(features);
-console.log(`Estimated: ${prediction.estimatedTime}ms`);
+const prediction = adaptiveLearner.predictCompletionTime(features)
+console.log(`Estimated: ${prediction.estimatedTime}ms`)
 ```
 
 ### Authentication
@@ -285,13 +294,13 @@ Weighted average of three components:
 
 ### Performance Ratings
 
-| Rating | Success Rate | Description |
-|--------|--------------|-------------|
-| `excellent` | ≥ 95% | Outstanding performance |
-| `good` | 85% - 94% | Above average |
-| `average` | 70% - 84% | Acceptable |
-| `below_average` | 50% - 69% | Below expectations |
-| `needs_improvement` | < 50% | Poor performance |
+| Rating              | Success Rate | Description             |
+| ------------------- | ------------ | ----------------------- |
+| `excellent`         | ≥ 95%        | Outstanding performance |
+| `good`              | 85% - 94%    | Above average           |
+| `average`           | 70% - 84%    | Acceptable              |
+| `below_average`     | 50% - 69%    | Below expectations      |
+| `needs_improvement` | < 50%        | Poor performance        |
 
 ---
 

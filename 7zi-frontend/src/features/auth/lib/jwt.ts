@@ -4,7 +4,7 @@
  * 用于生成和验证 JWT 令牌
  */
 
-import { SignJWT, jwtVerify, type JWTPayload as JoseJWTPayload } from 'jose';
+import { SignJWT, jwtVerify, type JWTPayload as JoseJWTPayload } from 'jose'
 
 /**
  * 获取 JWT 密钥
@@ -17,78 +17,78 @@ import { SignJWT, jwtVerify, type JWTPayload as JoseJWTPayload } from 'jose';
  * 生成方法: node -e "console.log(require('crypto').randomBytes(64).toString('hex'))"
  */
 function getJWTSecret(): Uint8Array {
-  const secret = process.env.JWT_SECRET;
+  const secret = process.env.JWT_SECRET
 
   if (!secret) {
     // 生产环境必须设置 JWT_SECRET
     if (process.env.NODE_ENV === 'production') {
       throw new Error(
         '[JWT] FATAL: JWT_SECRET environment variable is required in production. ' +
-        'Generate a secure key: node -e "console.log(require(\'crypto\').randomBytes(64).toString(\'hex\'))"'
-      );
+          "Generate a secure key: node -e \"console.log(require('crypto').randomBytes(64).toString('hex'))\""
+      )
     }
 
     // 开发环境使用临时密钥，但记录警告
     console.warn(
       '[JWT] WARNING: JWT_SECRET is not set. Using temporary development key. ' +
-      'This is NOT secure for production! Set JWT_SECRET environment variable.'
-    );
+        'This is NOT secure for production! Set JWT_SECRET environment variable.'
+    )
 
     // 开发环境使用固定的开发密钥（仅用于本地开发）
-    return new TextEncoder().encode('dev-secret-key-not-for-production-use-' + 'x'.repeat(32));
+    return new TextEncoder().encode('dev-secret-key-not-for-production-use-' + 'x'.repeat(32))
   }
 
   // 验证密钥长度（至少 64 字符）
   if (secret.length < 64) {
     console.warn(
       `[JWT] WARNING: JWT_SECRET is too short (${secret.length} chars). ` +
-      'Recommended minimum length is 64 characters for HS256 algorithm.'
-    );
+        'Recommended minimum length is 64 characters for HS256 algorithm.'
+    )
   }
 
-  return new TextEncoder().encode(secret);
+  return new TextEncoder().encode(secret)
 }
 
 // 延迟初始化密钥（只在首次使用时获取，允许更好的错误处理）
-let _jwtSecret: Uint8Array | null = null;
+let _jwtSecret: Uint8Array | null = null
 
 function getJWTSecretLazy(): Uint8Array {
   if (!_jwtSecret) {
-    _jwtSecret = getJWTSecret();
+    _jwtSecret = getJWTSecret()
   }
-  return _jwtSecret;
+  return _jwtSecret
 }
 
 // 导出获取函数，而不是直接导出密钥
 const JWT_SECRET = new Proxy({} as Uint8Array, {
   get(target, prop) {
-    const secret = getJWTSecretLazy();
-    return Reflect.get(secret, prop, secret);
+    const secret = getJWTSecretLazy()
+    return Reflect.get(secret, prop, secret)
   },
   getOwnPropertyDescriptor(target, prop) {
-    const secret = getJWTSecretLazy();
-    return Object.getOwnPropertyDescriptor(secret, prop);
+    const secret = getJWTSecretLazy()
+    return Object.getOwnPropertyDescriptor(secret, prop)
   },
   ownKeys() {
-    const secret = getJWTSecretLazy();
-    return Reflect.ownKeys(secret);
+    const secret = getJWTSecretLazy()
+    return Reflect.ownKeys(secret)
   },
   getPrototypeOf() {
-    const secret = getJWTSecretLazy();
-    return Object.getPrototypeOf(secret);
+    const secret = getJWTSecretLazy()
+    return Object.getPrototypeOf(secret)
   },
-});
+})
 
 /**
  * JWT 负载接口
  */
 export interface JWTPayload {
-  userId: string;
-  username: string;
-  email: string;
-  role: 'admin' | 'user' | 'guest';
-  iat?: number;
-  exp?: number;
+  userId: string
+  username: string
+  email: string
+  role: 'admin' | 'user' | 'guest'
+  iat?: number
+  exp?: number
 }
 
 /**
@@ -100,12 +100,12 @@ export async function generateJWT(payload: Omit<JWTPayload, 'iat' | 'exp'>): Pro
       .setProtectedHeader({ alg: 'HS256' })
       .setIssuedAt()
       .setExpirationTime('24h')
-      .sign(JWT_SECRET);
+      .sign(JWT_SECRET)
 
-    return token;
+    return token
   } catch (error) {
-    console.error('[JWT] Failed to generate token:', error);
-    throw new Error('Token generation failed');
+    console.error('[JWT] Failed to generate token:', error)
+    throw new Error('Token generation failed')
   }
 }
 
@@ -114,10 +114,10 @@ export async function generateJWT(payload: Omit<JWTPayload, 'iat' | 'exp'>): Pro
  */
 export async function verifyJWT(token: string): Promise<JWTPayload> {
   try {
-    const { payload } = await jwtVerify(token, JWT_SECRET);
+    const { payload } = await jwtVerify(token, JWT_SECRET)
     // 验证 payload 包含必需的字段
     if (!payload.userId || !payload.username || !payload.email || !payload.role) {
-      throw new Error('Invalid JWT payload structure');
+      throw new Error('Invalid JWT payload structure')
     }
     return {
       userId: payload.userId as string,
@@ -126,10 +126,10 @@ export async function verifyJWT(token: string): Promise<JWTPayload> {
       role: payload.role as 'admin' | 'user' | 'guest',
       iat: payload.iat,
       exp: payload.exp,
-    };
+    }
   } catch (error) {
-    console.error('[JWT] Token verification failed:', error);
-    throw new Error('Invalid or expired token');
+    console.error('[JWT] Token verification failed:', error)
+    throw new Error('Invalid or expired token')
   }
 }
 
@@ -138,37 +138,37 @@ export async function verifyJWT(token: string): Promise<JWTPayload> {
  */
 export function decodeJWT(token: string): JWTPayload | null {
   try {
-    const parts = token.split('.');
+    const parts = token.split('.')
     if (parts.length !== 3) {
-      return null;
+      return null
     }
 
-    const payload = JSON.parse(
-      Buffer.from(parts[1], 'base64url').toString()
-    );
+    const payload = JSON.parse(Buffer.from(parts[1], 'base64url').toString())
 
-    return payload as JWTPayload;
+    return payload as JWTPayload
   } catch (error) {
-    console.error('[JWT] Failed to decode token:', error);
-    return null;
+    console.error('[JWT] Failed to decode token:', error)
+    return null
   }
 }
 
 /**
  * 生成刷新令牌
  */
-export async function generateRefreshToken(payload: Omit<JWTPayload, 'iat' | 'exp'>): Promise<string> {
+export async function generateRefreshToken(
+  payload: Omit<JWTPayload, 'iat' | 'exp'>
+): Promise<string> {
   try {
     const token = await new SignJWT({ userId: payload.userId })
       .setProtectedHeader({ alg: 'HS256' })
       .setIssuedAt()
       .setExpirationTime('7d')
-      .sign(JWT_SECRET);
+      .sign(JWT_SECRET)
 
-    return token;
+    return token
   } catch (error) {
-    console.error('[JWT] Failed to generate refresh token:', error);
-    throw new Error('Refresh token generation failed');
+    console.error('[JWT] Failed to generate refresh token:', error)
+    throw new Error('Refresh token generation failed')
   }
 }
 
@@ -177,10 +177,10 @@ export async function generateRefreshToken(payload: Omit<JWTPayload, 'iat' | 'ex
  */
 export async function verifyRefreshToken(token: string): Promise<{ userId: string }> {
   try {
-    const { payload } = await jwtVerify(token, JWT_SECRET);
-    return payload as { userId: string };
+    const { payload } = await jwtVerify(token, JWT_SECRET)
+    return payload as { userId: string }
   } catch (error) {
-    console.error('[JWT] Refresh token verification failed:', error);
-    throw new Error('Invalid or expired refresh token');
+    console.error('[JWT] Refresh token verification failed:', error)
+    throw new Error('Invalid or expired refresh token')
   }
 }

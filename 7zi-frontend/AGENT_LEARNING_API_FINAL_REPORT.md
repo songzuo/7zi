@@ -9,19 +9,20 @@ Successfully implemented the Agent Learning System API with all requested endpoi
 ## Deliverables
 
 ### 1. Core Learning Engine
+
 - **File**: `src/lib/agents/learning/adaptive-learner.ts` (210 lines)
 - **File**: `src/lib/agents/learning/types.ts` (101 lines)
 - **File**: `src/lib/agents/learning/index.ts` (2 lines)
 
 ### 2. API Endpoints (710 lines total)
 
-| Endpoint | Method | File | Lines |
-|-----------|---------|------|-------|
-| `/api/agents/learning` | GET | `src/app/api/agents/learning/route.ts` | 71 |
-| `/api/agents/learning/:agentId` | GET | `src/app/api/agents/learning/[agentId]/route.ts` | 50 |
-| `/api/agents/learning/adjust` | GET/POST | `src/app/api/agents/learning/adjust/route.ts` | 81 |
-| Tests | - | `src/app/api/agents/learning/__tests__/learning-api.test.ts` | 195 |
-| Documentation | - | `docs/API_LEARNING_SYSTEM.md` | 10779 bytes |
+| Endpoint                        | Method   | File                                                         | Lines       |
+| ------------------------------- | -------- | ------------------------------------------------------------ | ----------- |
+| `/api/agents/learning`          | GET      | `src/app/api/agents/learning/route.ts`                       | 71          |
+| `/api/agents/learning/:agentId` | GET      | `src/app/api/agents/learning/[agentId]/route.ts`             | 50          |
+| `/api/agents/learning/adjust`   | GET/POST | `src/app/api/agents/learning/adjust/route.ts`                | 81          |
+| Tests                           | -        | `src/app/api/agents/learning/__tests__/learning-api.test.ts` | 195         |
+| Documentation                   | -        | `docs/API_LEARNING_SYSTEM.md`                                | 10779 bytes |
 
 ### 3. Documentation
 
@@ -34,21 +35,29 @@ Successfully implemented the Agent Learning System API with all requested endpoi
 ## API Endpoints
 
 ### GET /api/agents/learning
+
 Get all agents' learning statistics
+
 - Query: `period` (hour/day/week/month), `includeSystem` (boolean)
 - Returns: Array of agents with scores, capabilities, and performance metrics
 
 ### GET /api/agents/learning/:agentId
+
 Get detailed learning data for a specific agent
+
 - Returns: Detailed stats, capability breakdown, performance prediction
 
 ### GET /api/agents/learning/adjust
+
 Get agents available for weight adjustment
+
 - Query: `agentId` (optional filter)
 - Returns: Agent adjustment info with current scores
 
 ### POST /api/agents/learning/adjust
+
 Manually adjust agent weights
+
 - Body: `agentId`, `taskType`, `adjustment` (-1 to 1), `reason`
 - Returns: Previous/new scores with audit trail
 
@@ -57,23 +66,27 @@ Manually adjust agent weights
 ## Core Features
 
 ### Performance Scoring
+
 - **Overall Score** (0-1): Weighted average of reliability, speed, quality
 - **Reliability** (40%): Success rate from recent tasks
 - **Speed** (30%): Inverse of execution time
 - **Quality** (30%): Low retry and error rates
 
 ### Capability Tracking
+
 - Per-task-type metrics (avg time, success rate, samples)
 - Trend detection (improving/stable/declining)
 - Performance rating (excellent/needs_improvement)
 
 ### Time Prediction
+
 - Historical average (fallback)
 - Agent-specific (preferred)
 - Adjustments for: input size, priority, load, time of day
 - Confidence score based on sample count
 
 ### System Statistics
+
 - Total/active agents
 - Tasks processed, avg time, success rate
 - Aggregated by period (hour/day/week/month)
@@ -86,24 +99,37 @@ Manually adjust agent weights
 ### With Agent Scheduler
 
 ```typescript
-import { adaptiveLearner } from '@/lib/agents/learning';
+import { adaptiveLearner } from '@/lib/agents/learning'
 
 // After task completion
 adaptiveLearner.recordTaskCompletion(
-  taskId, taskType, agentId,
-  createdAt, startedAt, completedAt,
-  status, priority,
-  inputSize, outputSize,
-  retryCount, agentLoadAtStart,
+  taskId,
+  taskType,
+  agentId,
+  createdAt,
+  startedAt,
+  completedAt,
+  status,
+  priority,
+  inputSize,
+  outputSize,
+  retryCount,
+  agentLoadAtStart,
   errorType
-);
+)
 
 // Predict time before scheduling
 const prediction = adaptiveLearner.predictCompletionTime({
-  taskType, inputSize, priority, agentId,
-  timeOfDay, dayOfWeek,
-  historicalAvgTime, queueDepth, agentLoad
-});
+  taskType,
+  inputSize,
+  priority,
+  agentId,
+  timeOfDay,
+  dayOfWeek,
+  historicalAvgTime,
+  queueDepth,
+  agentLoad,
+})
 ```
 
 ---
@@ -111,11 +137,13 @@ const prediction = adaptiveLearner.predictCompletionTime({
 ## Testing
 
 ### Test Suite
+
 - Unit tests for core methods
 - Integration tests for API endpoints
 - Manual verification script (`verify-learning-system.js`)
 
 ### Coverage
+
 - Task completion recording
 - Agent statistics calculation
 - Time prediction

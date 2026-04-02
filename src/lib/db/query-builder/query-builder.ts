@@ -20,9 +20,9 @@
  */
 export interface QueryCondition {
   /** SQL 条件表达式 (如 "status = ?") */
-  condition: string;
+  condition: string
   /** 条件参数值 */
-  value: unknown;
+  value: unknown
 }
 
 /**
@@ -30,13 +30,13 @@ export interface QueryCondition {
  */
 export interface JoinConfig {
   /** JOIN 类型: INNER, LEFT, RIGHT, FULL */
-  type: 'INNER' | 'LEFT' | 'RIGHT' | 'FULL';
+  type: 'INNER' | 'LEFT' | 'RIGHT' | 'FULL'
   /** 要连接的表名或子查询 */
-  table: string;
+  table: string
   /** 连接条件 (如 "agents.id = tasks.agent_id") */
-  on: string;
+  on: string
   /** 可选的表别名 */
-  alias?: string;
+  alias?: string
 }
 
 /**
@@ -44,27 +44,27 @@ export interface JoinConfig {
  */
 export interface SubqueryConfig {
   /** 子查询别名 */
-  alias: string;
+  alias: string
   /** 子查询的构建器或 SQL */
-  query: QueryBuilder | string;
+  query: QueryBuilder | string
   /** 子查询参数 (仅当 query 为字符串时使用) */
-  params?: unknown[];
+  params?: unknown[]
 }
 
 /**
  * 分页选项
  */
 export interface PaginationOptions {
-  limit?: number;
-  offset?: number;
+  limit?: number
+  offset?: number
 }
 
 /**
  * 排序选项
  */
 export interface SortOptions {
-  orderBy?: string;
-  sortOrder?: 'ASC' | 'DESC';
+  orderBy?: string
+  sortOrder?: 'ASC' | 'DESC'
 }
 
 /**
@@ -72,33 +72,33 @@ export interface SortOptions {
  */
 export interface QueryBuilderConfig {
   /** 基础表名或子查询 */
-  from: string;
+  from: string
   /** 查询条件列表 (按添加顺序) */
-  conditions?: QueryCondition[];
+  conditions?: QueryCondition[]
   /** 分页选项 */
-  pagination?: PaginationOptions;
+  pagination?: PaginationOptions
   /** 排序选项 */
-  sort?: SortOptions;
+  sort?: SortOptions
   /** 要选择的列 (默认: *) */
-  select?: string[];
+  select?: string[]
   /** JOIN 查询配置 */
-  joins?: JoinConfig[];
+  joins?: JoinConfig[]
   /** 子查询配置 */
-  subqueries?: SubqueryConfig[];
+  subqueries?: SubqueryConfig[]
   /** GROUP BY 子句 */
-  groupBy?: string[];
+  groupBy?: string[]
   /** HAVING 条件 */
-  having?: QueryCondition[];
+  having?: QueryCondition[]
   /** 是否使用 DISTINCT */
-  distinct?: boolean;
+  distinct?: boolean
 }
 
 /**
  * 构建后的查询和参数
  */
 export interface BuiltQuery {
-  sql: string;
-  params: unknown[];
+  sql: string
+  params: unknown[]
 }
 
 /**
@@ -106,13 +106,13 @@ export interface BuiltQuery {
  */
 export interface BatchResult {
   /** 成功的行数 */
-  successCount: number;
+  successCount: number
   /** 失败的行数 */
-  failureCount: number;
+  failureCount: number
   /** 失败的行索引 */
-  failedIndices: number[];
+  failedIndices: number[]
   /** 错误信息 */
-  errors: Error[];
+  errors: Error[]
 }
 
 /**
@@ -120,11 +120,11 @@ export interface BatchResult {
  */
 export interface QueryCacheConfig {
   /** 缓存 TTL (毫秒) */
-  ttl?: number;
+  ttl?: number
   /** 最大缓存条目数 */
-  maxSize?: number;
+  maxSize?: number
   /** 是否启用缓存 (默认: false) */
-  enabled?: boolean;
+  enabled?: boolean
 }
 
 /**
@@ -138,74 +138,77 @@ export interface QueryCacheConfig {
  * const { sql, params } = builder.build();
  */
 export class QueryBuilder {
-  private config: QueryBuilderConfig;
-  private _cachedQuery: BuiltQuery | null = null;
-  private _cacheInvalidated = true;
-  private _indexHint: string | null = null;
-  private _cacheConfig: QueryCacheConfig = { enabled: false, ttl: 60000, maxSize: 50 };
+  private config: QueryBuilderConfig
+  private _cachedQuery: BuiltQuery | null = null
+  private _cacheInvalidated = true
+  private _indexHint: string | null = null
+  private _cacheConfig: QueryCacheConfig = { enabled: false, ttl: 60000, maxSize: 50 }
 
   // 静态属性：全局查询缓存
-  private static _globalCache = new Map<string, { data: unknown; timestamp: number; hits: number }>();
-  private static _cacheHits = 0;
-  private static _cacheMisses = 0;
+  private static _globalCache = new Map<
+    string,
+    { data: unknown; timestamp: number; hits: number }
+  >()
+  private static _cacheHits = 0
+  private static _cacheMisses = 0
 
   constructor(config: QueryBuilderConfig) {
     this.config = {
       conditions: [],
       select: ['*'],
       ...config,
-    };
+    }
   }
 
   /**
    * 标记缓存失效
    */
   _invalidateCache(): void {
-    this._cacheInvalidated = true;
-    this._cachedQuery = null;
+    this._cacheInvalidated = true
+    this._cachedQuery = null
   }
 
   /**
    * 获取缓存配置
    */
   _getCacheConfig(): QueryCacheConfig {
-    return this._cacheConfig;
+    return this._cacheConfig
   }
 
   /**
    * 设置缓存配置
    */
   _setCacheConfig(config: QueryCacheConfig): void {
-    this._cacheConfig = { ...this._cacheConfig, ...config };
+    this._cacheConfig = { ...this._cacheConfig, ...config }
   }
 
   /**
    * 获取索引提示
    */
   _getIndexHint(): string | null {
-    return this._indexHint;
+    return this._indexHint
   }
 
   /**
    * 设置索引提示
    */
   _setIndexHint(hint: string | null): void {
-    this._indexHint = hint;
-    this._invalidateCache();
+    this._indexHint = hint
+    this._invalidateCache()
   }
 
   /**
    * 获取配置
    */
   _getConfig(): QueryBuilderConfig {
-    return this.config;
+    return this.config
   }
 
   /**
    * 获取索引提示 (用于 analytics)
    */
   _getIndexHintForAnalytics(): string | null {
-    return this._indexHint;
+    return this._indexHint
   }
 
   /**
@@ -217,9 +220,9 @@ export class QueryBuilder {
    * builder.where('status = ?', 'active');
    */
   where(condition: string, value: unknown): this {
-    this.config.conditions!.push({ condition, value });
-    this._invalidateCache();
-    return this;
+    this.config.conditions!.push({ condition, value })
+    this._invalidateCache()
+    return this
   }
 
   /**
@@ -233,8 +236,8 @@ export class QueryBuilder {
    * ]);
    */
   whereMany(conditions: QueryCondition[]): this {
-    conditions.forEach(({ condition, value }) => this.where(condition, value));
-    return this;
+    conditions.forEach(({ condition, value }) => this.where(condition, value))
+    return this
   }
 
   /**
@@ -247,9 +250,9 @@ export class QueryBuilder {
    */
   whereIf(condition: string, value: unknown): this {
     if (value !== undefined && value !== null && value !== '') {
-      this.where(condition, value);
+      this.where(condition, value)
     }
-    return this;
+    return this
   }
 
   /**
@@ -266,10 +269,10 @@ export class QueryBuilder {
   whereOptional(filters: Record<string, unknown>, prefix: string = ''): this {
     Object.entries(filters).forEach(([field, value]) => {
       if (value !== undefined && value !== null && value !== '') {
-        this.where(`${prefix}${field} = ?`, value);
+        this.where(`${prefix}${field} = ?`, value)
       }
-    });
-    return this;
+    })
+    return this
   }
 
   /**
@@ -281,9 +284,9 @@ export class QueryBuilder {
    * builder.orderBy('created_at', 'DESC');
    */
   orderBy(column: string, order: 'ASC' | 'DESC' = 'ASC'): this {
-    this.config.sort = { orderBy: column, sortOrder: order };
-    this._invalidateCache();
-    return this;
+    this.config.sort = { orderBy: column, sortOrder: order }
+    this._invalidateCache()
+    return this
   }
 
   /**
@@ -296,9 +299,9 @@ export class QueryBuilder {
    * builder.paginate(10, 10); // 第2页
    */
   paginate(limit: number, offset: number = 0): this {
-    this.config.pagination = { limit, offset };
-    this._invalidateCache();
-    return this;
+    this.config.pagination = { limit, offset }
+    this._invalidateCache()
+    return this
   }
 
   /**
@@ -309,9 +312,9 @@ export class QueryBuilder {
    * builder.select(['id', 'name', 'status']);
    */
   select(columns: string[]): this {
-    this.config.select = columns;
-    this._invalidateCache();
-    return this;
+    this.config.select = columns
+    this._invalidateCache()
+    return this
   }
 
   /**
@@ -327,11 +330,11 @@ export class QueryBuilder {
    */
   join(type: JoinConfig['type'], table: string, on: string, alias?: string): this {
     if (!this.config.joins) {
-      this.config.joins = [];
+      this.config.joins = []
     }
-    this.config.joins.push({ type, table, on, alias });
-    this._invalidateCache();
-    return this;
+    this.config.joins.push({ type, table, on, alias })
+    this._invalidateCache()
+    return this
   }
 
   /**
@@ -344,7 +347,7 @@ export class QueryBuilder {
    * builder.innerJoin('wallets', 'agents.id = wallets.agent_id', 'w');
    */
   innerJoin(table: string, on: string, alias?: string): this {
-    return this.join('INNER', table, on, alias);
+    return this.join('INNER', table, on, alias)
   }
 
   /**
@@ -357,7 +360,7 @@ export class QueryBuilder {
    * builder.leftJoin('tasks', 'agents.id = tasks.agent_id', 't');
    */
   leftJoin(table: string, on: string, alias?: string): this {
-    return this.join('LEFT', table, on, alias);
+    return this.join('LEFT', table, on, alias)
   }
 
   /**
@@ -372,11 +375,11 @@ export class QueryBuilder {
    */
   subquery(alias: string, query: QueryBuilder | string, params?: unknown[]): this {
     if (!this.config.subqueries) {
-      this.config.subqueries = [];
+      this.config.subqueries = []
     }
-    this.config.subqueries.push({ alias, query, params });
-    this._invalidateCache();
-    return this;
+    this.config.subqueries.push({ alias, query, params })
+    this._invalidateCache()
+    return this
   }
 
   /**
@@ -387,9 +390,9 @@ export class QueryBuilder {
    * builder.groupBy(['status', 'type']);
    */
   groupBy(columns: string[]): this {
-    this.config.groupBy = columns;
-    this._invalidateCache();
-    return this;
+    this.config.groupBy = columns
+    this._invalidateCache()
+    return this
   }
 
   /**
@@ -402,11 +405,11 @@ export class QueryBuilder {
    */
   having(condition: string, value: unknown): this {
     if (!this.config.having) {
-      this.config.having = [];
+      this.config.having = []
     }
-    this.config.having.push({ condition, value });
-    this._invalidateCache();
-    return this;
+    this.config.having.push({ condition, value })
+    this._invalidateCache()
+    return this
   }
 
   /**
@@ -417,9 +420,9 @@ export class QueryBuilder {
    * builder.distinct(true);
    */
   distinct(distinct: boolean = true): this {
-    this.config.distinct = distinct;
-    this._invalidateCache();
-    return this;
+    this.config.distinct = distinct
+    this._invalidateCache()
+    return this
   }
 
   /**
@@ -433,112 +436,124 @@ export class QueryBuilder {
   build(): BuiltQuery {
     // 如果缓存有效,直接返回缓存的结果
     if (!this._cacheInvalidated && this._cachedQuery) {
-      return { ...this._cachedQuery, params: [...this._cachedQuery.params] };
+      return { ...this._cachedQuery, params: [...this._cachedQuery.params] }
     }
 
-    const { from, conditions, pagination, sort, select, joins, subqueries, groupBy, having, distinct } = this.config;
+    const {
+      from,
+      conditions,
+      pagination,
+      sort,
+      select,
+      joins,
+      subqueries,
+      groupBy,
+      having,
+      distinct,
+    } = this.config
 
     // 处理子查询，构建 FROM 子句
-    let fromClause = from;
+    let fromClause = from
     if (subqueries && subqueries.length > 0) {
-      const subqueryParts: string[] = [];
+      const subqueryParts: string[] = []
       for (const subquery of subqueries) {
         if (subquery.query instanceof QueryBuilder) {
-          const { sql: subSql, params: subParams } = subquery.query.build();
-          subqueryParts.push(`(${subSql}) AS ${subquery.alias}`);
+          const { sql: subSql, params: subParams } = subquery.query.build()
+          subqueryParts.push(`(${subSql}) AS ${subquery.alias}`)
         } else {
-          subqueryParts.push(`(${subquery.query}) AS ${subquery.alias}`);
+          subqueryParts.push(`(${subquery.query}) AS ${subquery.alias}`)
         }
       }
       // 如果有多个子查询，组合成 CTE
       if (subqueryParts.length === 1) {
-        fromClause = subqueryParts[0];
+        fromClause = subqueryParts[0]
       } else {
-        fromClause = subqueryParts.join(', ');
+        fromClause = subqueryParts.join(', ')
       }
     }
 
     // 构建 SELECT 子句
-    const distinctClause = distinct ? 'DISTINCT ' : '';
-    const selectClause = select ? select.join(', ') : '*';
+    const distinctClause = distinct ? 'DISTINCT ' : ''
+    const selectClause = select ? select.join(', ') : '*'
 
     // 构建 JOIN 子句
-    let joinClause = '';
+    let joinClause = ''
     if (joins && joins.length > 0) {
       joinClause = joins
         .map(join => {
-          const alias = join.alias ? ` AS ${join.alias}` : '';
-          return `${join.type} JOIN ${join.table}${alias} ON ${join.on}`;
+          const alias = join.alias ? ` AS ${join.alias}` : ''
+          return `${join.type} JOIN ${join.table}${alias} ON ${join.on}`
         })
-        .join(' ');
+        .join(' ')
     }
 
     // 构建 WHERE 子句
-    let whereClause = '';
-    const params: unknown[] = [];
+    let whereClause = ''
+    const params: unknown[] = []
     if (conditions && conditions.length > 0) {
-      const conditionStr = conditions.map(c => c.condition).join(' AND ');
-      whereClause = `WHERE ${conditionStr}`;
-      params.push(...conditions.map(c => c.value));
+      const conditionStr = conditions.map(c => c.condition).join(' AND ')
+      whereClause = `WHERE ${conditionStr}`
+      params.push(...conditions.map(c => c.value))
     }
 
     // 添加子查询参数
     if (subqueries) {
       for (const subquery of subqueries) {
         if (typeof subquery.query === 'string' && subquery.params) {
-          params.push(...subquery.params);
+          params.push(...subquery.params)
         } else if (subquery.query instanceof QueryBuilder) {
-          const subParams = subquery.query.build().params;
-          params.push(...subParams);
+          const subParams = subquery.query.build().params
+          params.push(...subParams)
         }
       }
     }
 
     // 构建 GROUP BY 子句
-    let groupByClause = '';
+    let groupByClause = ''
     if (groupBy && groupBy.length > 0) {
-      groupByClause = `GROUP BY ${groupBy.join(', ')}`;
+      groupByClause = `GROUP BY ${groupBy.join(', ')}`
     }
 
     // 构建 HAVING 子句
-    let havingClause = '';
+    let havingClause = ''
     if (having && having.length > 0) {
-      const havingStr = having.map(h => h.condition).join(' AND ');
-      havingClause = `HAVING ${havingStr}`;
-      params.push(...having.map(h => h.value));
+      const havingStr = having.map(h => h.condition).join(' AND ')
+      havingClause = `HAVING ${havingStr}`
+      params.push(...having.map(h => h.value))
     }
 
     // 构建 ORDER BY 子句
-    let orderClause = '';
+    let orderClause = ''
     if (sort && sort.orderBy) {
-      orderClause = `ORDER BY ${sort.orderBy} ${sort.sortOrder || 'ASC'}`;
+      orderClause = `ORDER BY ${sort.orderBy} ${sort.sortOrder || 'ASC'}`
     }
 
     // 构建 LIMIT 和 OFFSET 子句
-    let limitClause = '';
+    let limitClause = ''
     if (pagination && pagination.limit) {
-      limitClause = `LIMIT ?`;
-      params.push(pagination.limit);
+      limitClause = `LIMIT ?`
+      params.push(pagination.limit)
       if (pagination.offset) {
-        limitClause += ` OFFSET ?`;
-        params.push(pagination.offset);
+        limitClause += ` OFFSET ?`
+        params.push(pagination.offset)
       }
     }
 
     // 添加索引提示 (如果存在)
-    let indexHintClause = '';
+    let indexHintClause = ''
     if (this._indexHint) {
-      indexHintClause = ` ${this._indexHint}`;
+      indexHintClause = ` ${this._indexHint}`
     }
 
     // 组合完整的 SQL
-    const sql = `SELECT ${distinctClause}${selectClause} FROM ${fromClause}${indexHintClause} ${joinClause} ${whereClause} ${groupByClause} ${havingClause} ${orderClause} ${limitClause}`.trim();
+    const sql =
+      `SELECT ${distinctClause}${selectClause} FROM ${fromClause}${indexHintClause} ${joinClause} ${whereClause} ${groupByClause} ${havingClause} ${orderClause} ${limitClause}`.trim()
 
     // 缓存构建结果
-    this._cachedQuery = { sql, params: [...params] };
-    this._cacheInvalidated = false;
+    this._cachedQuery = { sql, params: [...params] }
+    this._cacheInvalidated = false
 
-    return { sql, params };
+    return { sql, params }
   }
 
   /**
@@ -551,15 +566,15 @@ export class QueryBuilder {
    * builder.where('status = ?', 'inactive');
    */
   reset(): this {
-    const { from, select } = this.config;
+    const { from, select } = this.config
     this.config = {
       from,
       conditions: [],
       select,
-    };
-    this._invalidateCache();
-    this._indexHint = null;
-    return this;
+    }
+    this._invalidateCache()
+    this._indexHint = null
+    return this
   }
 
   /**
@@ -567,7 +582,7 @@ export class QueryBuilder {
    * @returns 当前配置对象的浅拷贝
    */
   getConfig(): QueryBuilderConfig {
-    return { ...this.config, conditions: [...(this.config.conditions || [])] };
+    return { ...this.config, conditions: [...(this.config.conditions || [])] }
   }
 
   /**
@@ -579,19 +594,20 @@ export class QueryBuilder {
       size: QueryBuilder._globalCache.size,
       hits: QueryBuilder._cacheHits,
       misses: QueryBuilder._cacheMisses,
-      hitRate: QueryBuilder._globalCache.size > 0
-        ? QueryBuilder._cacheHits / (QueryBuilder._cacheHits + QueryBuilder._cacheMisses)
-        : 0,
-    };
+      hitRate:
+        QueryBuilder._globalCache.size > 0
+          ? QueryBuilder._cacheHits / (QueryBuilder._cacheHits + QueryBuilder._cacheMisses)
+          : 0,
+    }
   }
 
   /**
    * 清空全局查询缓存
    */
   static clearGlobalCache() {
-    QueryBuilder._globalCache.clear();
-    QueryBuilder._cacheHits = 0;
-    QueryBuilder._cacheMisses = 0;
+    QueryBuilder._globalCache.clear()
+    QueryBuilder._cacheHits = 0
+    QueryBuilder._cacheMisses = 0
   }
 
   /**
@@ -599,7 +615,7 @@ export class QueryBuilder {
    * @internal
    */
   static _getGlobalCache(): Map<string, { data: unknown; timestamp: number; hits: number }> {
-    return QueryBuilder._globalCache;
+    return QueryBuilder._globalCache
   }
 
   /**
@@ -607,7 +623,7 @@ export class QueryBuilder {
    * @internal
    */
   static _incrementCacheHits(): void {
-    QueryBuilder._cacheHits++;
+    QueryBuilder._cacheHits++
   }
 
   /**
@@ -615,7 +631,7 @@ export class QueryBuilder {
    * @internal
    */
   static _incrementCacheMisses(): void {
-    QueryBuilder._cacheMisses++;
+    QueryBuilder._cacheMisses++
   }
 
   /**
@@ -623,9 +639,9 @@ export class QueryBuilder {
    * @internal
    */
   static _incrementCacheItemHits(cacheKey: string): void {
-    const cached = QueryBuilder._globalCache.get(cacheKey);
+    const cached = QueryBuilder._globalCache.get(cacheKey)
     if (cached) {
-      cached.hits++;
+      cached.hits++
     }
   }
 }
@@ -642,7 +658,7 @@ export class QueryBuilder {
  *   .build();
  */
 export function buildQuery(from: string): QueryBuilder {
-  return new QueryBuilder({ from });
+  return new QueryBuilder({ from })
 }
 
 /**
@@ -665,35 +681,35 @@ export function buildWhereQuery(
   tableName: string,
   filters: Record<string, unknown>,
   options?: {
-    prefix?: string;
-    limit?: number;
-    offset?: number;
-    orderBy?: string;
-    sortOrder?: 'ASC' | 'DESC';
-    select?: string[];
+    prefix?: string
+    limit?: number
+    offset?: number
+    orderBy?: string
+    sortOrder?: 'ASC' | 'DESC'
+    select?: string[]
   }
 ): BuiltQuery {
-  const builder = new QueryBuilder({ from: tableName });
+  const builder = new QueryBuilder({ from: tableName })
 
   // 添加可选过滤器
   if (filters && Object.keys(filters).length > 0) {
-    builder.whereOptional(filters, options?.prefix || '');
+    builder.whereOptional(filters, options?.prefix || '')
   }
 
   // 添加排序
   if (options?.orderBy) {
-    builder.orderBy(options.orderBy, options.sortOrder || 'DESC');
+    builder.orderBy(options.orderBy, options.sortOrder || 'DESC')
   }
 
   // 添加分页
   if (options?.limit !== undefined) {
-    builder.paginate(options.limit, options.offset || 0);
+    builder.paginate(options.limit, options.offset || 0)
   }
 
   // 设置选择的列
   if (options?.select) {
-    builder.select(options.select);
+    builder.select(options.select)
   }
 
-  return builder.build();
+  return builder.build()
 }

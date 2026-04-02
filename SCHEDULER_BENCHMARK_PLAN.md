@@ -1,7 +1,7 @@
 # AgentScheduler 性能基准测试计划
 
 > 📚 咨询师 + 🌟 智能体世界专家 联合制定
-> 
+>
 > 日期: 2026-03-29
 
 ## 执行摘要
@@ -14,20 +14,20 @@
 
 ### 1.1 核心指标
 
-| 指标类别 | 具体指标 | 目标值 | 重要性 |
-|----------|----------|--------|--------|
-| **调度延迟** | P50 调度延迟 | < 10ms | 🔴 关键 |
-| | P99 调度延迟 | < 50ms | 🔴 关键 |
-| | 最大调度延迟 | < 200ms | 🟡 重要 |
-| **吞吐量** | 任务提交速率 | 1000 tasks/s | 🔴 关键 |
-| | 任务完成速率 | 500 tasks/s | 🔴 关键 |
-| | 系统容量 | 10000 并发任务 | 🟡 重要 |
-| **资源利用率** | CPU 利用率 | < 70% | 🟡 重要 |
-| | 内存利用率 | < 80% | 🟡 重要 |
-| | 网络带宽 | < 50% | 🟢 一般 |
-| **可靠性** | 任务成功率 | > 99.9% | 🔴 关键 |
-| | 错误恢复时间 | < 5s | 🟡 重要 |
-| | 系统可用性 | > 99.95% | 🔴 关键 |
+| 指标类别       | 具体指标     | 目标值         | 重要性  |
+| -------------- | ------------ | -------------- | ------- |
+| **调度延迟**   | P50 调度延迟 | < 10ms         | 🔴 关键 |
+|                | P99 调度延迟 | < 50ms         | 🔴 关键 |
+|                | 最大调度延迟 | < 200ms        | 🟡 重要 |
+| **吞吐量**     | 任务提交速率 | 1000 tasks/s   | 🔴 关键 |
+|                | 任务完成速率 | 500 tasks/s    | 🔴 关键 |
+|                | 系统容量     | 10000 并发任务 | 🟡 重要 |
+| **资源利用率** | CPU 利用率   | < 70%          | 🟡 重要 |
+|                | 内存利用率   | < 80%          | 🟡 重要 |
+|                | 网络带宽     | < 50%          | 🟢 一般 |
+| **可靠性**     | 任务成功率   | > 99.9%        | 🔴 关键 |
+|                | 错误恢复时间 | < 5s           | 🟡 重要 |
+|                | 系统可用性   | > 99.95%       | 🔴 关键 |
 
 ### 1.2 测试场景
 
@@ -60,21 +60,21 @@
 
 #### 2.1.1 生产级配置
 
-| 组件 | 配置 | 数量 | 用途 |
-|------|------|------|------|
-| **Coordinator** | 8 Core / 16GB / 100GB SSD | 3 | 调度主节点 |
-| **Worker** | 4 Core / 8GB / 50GB SSD | 10 | 任务执行节点 |
-| **Redis** | 4 Core / 8GB / 50GB SSD | 3 | 任务队列 |
-| **PostgreSQL** | 8 Core / 32GB / 500GB SSD | 2 | 状态存储 |
-| **etcd** | 4 Core / 8GB / 50GB SSD | 3 | 分布式状态 |
+| 组件            | 配置                      | 数量 | 用途         |
+| --------------- | ------------------------- | ---- | ------------ |
+| **Coordinator** | 8 Core / 16GB / 100GB SSD | 3    | 调度主节点   |
+| **Worker**      | 4 Core / 8GB / 50GB SSD   | 10   | 任务执行节点 |
+| **Redis**       | 4 Core / 8GB / 50GB SSD   | 3    | 任务队列     |
+| **PostgreSQL**  | 8 Core / 32GB / 500GB SSD | 2    | 状态存储     |
+| **etcd**        | 4 Core / 8GB / 50GB SSD   | 3    | 分布式状态   |
 
 #### 2.1.2 测试环境配置
 
-| 组件 | 配置 | 数量 | 备注 |
-|------|------|------|------|
-| **测试客户端** | 4 Core / 8GB | 5 | 模拟并发请求 |
-| **监控服务** | 4 Core / 8GB | 1 | Prometheus + Grafana |
-| **日志服务** | 4 Core / 16GB | 1 | ELK Stack |
+| 组件           | 配置          | 数量 | 备注                 |
+| -------------- | ------------- | ---- | -------------------- |
+| **测试客户端** | 4 Core / 8GB  | 5    | 模拟并发请求         |
+| **监控服务**   | 4 Core / 8GB  | 1    | Prometheus + Grafana |
+| **日志服务**   | 4 Core / 16GB | 1    | ELK Stack            |
 
 ### 2.2 软件版本
 
@@ -83,18 +83,18 @@
 software:
   os: Ubuntu 22.04 LTS
   kernel: 5.15.x
-  
+
   runtime:
     go: 1.21+
     node: 18.x
-    
+
   infrastructure:
     redis: 7.0+
     postgresql: 15+
     etcd: 3.5+
     prometheus: 2.45+
     grafana: 10.0+
-    
+
   agentscheduler:
     version: 2.0.0-beta
     build: latest
@@ -153,7 +153,7 @@ import (
     "sync"
     "sync/atomic"
     "time"
-    
+
     "github.com/prometheus/client_golang/api"
     "github.com/prometheus/client_golang/api/prometheus/v1"
 )
@@ -163,7 +163,7 @@ type LoadGenerator struct {
     client       *SchedulerClient
     metrics      *MetricsCollector
     taskTemplates []*TaskTemplate
-    
+
     // 统计
     totalTasks   int64
     successCount int64
@@ -175,18 +175,18 @@ type LoadConfig struct {
     // 并发配置
     ConcurrentUsers    int
     TasksPerUser       int
-    
+
     // 时间配置
     RampUpDuration     time.Duration
     TestDuration       time.Duration
     RampDownDuration   time.Duration
-    
+
     // 任务分布
     TaskDistribution   map[string]float64  // taskType -> weight
-    
+
     // 优先级分布
     PriorityDistribution map[int]float64
-    
+
     // 思考时间
     ThinkTimeMin       time.Duration
     ThinkTimeMax       time.Duration
@@ -196,11 +196,11 @@ type LoadConfig struct {
 func (g *LoadGenerator) Run(ctx context.Context) *LoadTestResult {
     // 1. 预热阶段
     g.rampUp(ctx, g.config.RampUpDuration)
-    
+
     // 2. 稳定负载阶段
     var wg sync.WaitGroup
     stopCh := make(chan struct{})
-    
+
     for i := 0; i < g.config.ConcurrentUsers; i++ {
         wg.Add(1)
         go func(userID int) {
@@ -208,7 +208,7 @@ func (g *LoadGenerator) Run(ctx context.Context) *LoadTestResult {
             g.userWorker(ctx, userID, stopCh)
         }(i)
     }
-    
+
     // 运行指定时间
     select {
     case <-time.After(g.config.TestDuration):
@@ -216,12 +216,12 @@ func (g *LoadGenerator) Run(ctx context.Context) *LoadTestResult {
     case <-ctx.Done():
         close(stopCh)
     }
-    
+
     wg.Wait()
-    
+
     // 3. 收尾阶段
     g.rampDown(ctx, g.config.RampDownDuration)
-    
+
     return g.generateResult()
 }
 
@@ -234,15 +234,15 @@ func (g *LoadGenerator) userWorker(ctx context.Context, userID int, stopCh <-cha
         default:
             // 选择任务模板
             template := g.selectTemplate()
-            
+
             // 生成任务
             task := g.generateTask(template, userID)
-            
+
             // 执行任务
             start := time.Now()
             result, err := g.client.SubmitTask(ctx, task)
             latency := time.Since(start)
-            
+
             // 记录结果
             atomic.AddInt64(&g.totalTasks, 1)
             if err != nil {
@@ -251,7 +251,7 @@ func (g *LoadGenerator) userWorker(ctx context.Context, userID int, stopCh <-cha
                 atomic.AddInt64(&g.successCount, 1)
             }
             g.recordLatency(latency)
-            
+
             // 思考时间
             thinkTime := g.randomThinkTime()
             time.Sleep(thinkTime)
@@ -267,7 +267,7 @@ type LoadTestResult struct {
     FailCount        int64
     SuccessRate      float64
     Throughput       float64  // tasks/s
-    
+
     LatencyStats     LatencyStats
     ErrorBreakdown   map[string]int
     ResourceUsage    []ResourceSnapshot
@@ -289,130 +289,130 @@ type LatencyStats struct {
 
 ```javascript
 // k6 测试脚本 - scheduler_load_test.js
-import http from 'k6/http';
-import { check, sleep } from 'k6';
-import { Rate, Trend, Counter } from 'k6/metrics';
+import http from 'k6/http'
+import { check, sleep } from 'k6'
+import { Rate, Trend, Counter } from 'k6/metrics'
 
 // 自定义指标
-const successRate = new Rate('success_rate');
-const scheduleLatency = new Trend('schedule_latency');
-const taskCompleteLatency = new Trend('task_complete_latency');
-const taskCount = new Counter('task_count');
+const successRate = new Rate('success_rate')
+const scheduleLatency = new Trend('schedule_latency')
+const taskCompleteLatency = new Trend('task_complete_latency')
+const taskCount = new Counter('task_count')
 
 // 测试配置
 export const options = {
-    scenarios: {
-        // 场景1: 稳定负载
-        steady_load: {
-            executor: 'constant-vus',
-            vus: 100,
-            duration: '10m',
-            startTime: '0s',
-        },
-        // 场景2: 阶梯负载
-        ramping_load: {
-            executor: 'ramping-vus',
-            stages: [
-                { duration: '2m', target: 50 },
-                { duration: '5m', target: 100 },
-                { duration: '2m', target: 200 },
-                { duration: '5m', target: 200 },
-                { duration: '2m', target: 100 },
-                { duration: '2m', target: 50 },
-            ],
-            startTime: '10m',
-        },
-        // 场景3: 峰值测试
-        spike: {
-            executor: 'ramping-vus',
-            stages: [
-                { duration: '30s', target: 50 },
-                { duration: '30s', target: 500 },
-                { duration: '1m', target: 500 },
-                { duration: '30s', target: 50 },
-            ],
-            startTime: '30m',
-        },
+  scenarios: {
+    // 场景1: 稳定负载
+    steady_load: {
+      executor: 'constant-vus',
+      vus: 100,
+      duration: '10m',
+      startTime: '0s',
     },
-    thresholds: {
-        http_req_duration: ['p(95)<500', 'p(99)<1000'],
-        success_rate: ['rate>0.99'],
-        schedule_latency: ['p(95)<50', 'p(99)<100'],
+    // 场景2: 阶梯负载
+    ramping_load: {
+      executor: 'ramping-vus',
+      stages: [
+        { duration: '2m', target: 50 },
+        { duration: '5m', target: 100 },
+        { duration: '2m', target: 200 },
+        { duration: '5m', target: 200 },
+        { duration: '2m', target: 100 },
+        { duration: '2m', target: 50 },
+      ],
+      startTime: '10m',
     },
-};
+    // 场景3: 峰值测试
+    spike: {
+      executor: 'ramping-vus',
+      stages: [
+        { duration: '30s', target: 50 },
+        { duration: '30s', target: 500 },
+        { duration: '1m', target: 500 },
+        { duration: '30s', target: 50 },
+      ],
+      startTime: '30m',
+    },
+  },
+  thresholds: {
+    http_req_duration: ['p(95)<500', 'p(99)<1000'],
+    success_rate: ['rate>0.99'],
+    schedule_latency: ['p(95)<50', 'p(99)<100'],
+  },
+}
 
-const BASE_URL = __ENV.BASE_URL || 'http://localhost:8080';
+const BASE_URL = __ENV.BASE_URL || 'http://localhost:8080'
 
-export default function() {
-    // 1. 提交任务
-    const taskPayload = JSON.stringify({
-        type: randomTaskType(),
-        priority: randomPriority(),
-        input: generateRandomInput(),
-    });
-    
-    const submitStart = new Date();
-    const submitRes = http.post(`${BASE_URL}/api/v1/tasks`, taskPayload, {
-        headers: { 'Content-Type': 'application/json' },
-    });
-    
-    const submitLatency = new Date() - submitStart;
-    scheduleLatency.add(submitLatency);
-    
-    check(submitRes, {
-        'task submitted': (r) => r.status === 201,
-        'has task ID': (r) => r.json('task_id') !== undefined,
-    });
-    
-    successRate.add(submitRes.status === 201);
-    taskCount.add(1);
-    
-    if (submitRes.status === 201) {
-        const taskId = submitRes.json('task_id');
-        
-        // 2. 等待任务完成
-        const completeLatency = waitForTaskCompletion(taskId);
-        if (completeLatency > 0) {
-            taskCompleteLatency.add(completeLatency);
-        }
+export default function () {
+  // 1. 提交任务
+  const taskPayload = JSON.stringify({
+    type: randomTaskType(),
+    priority: randomPriority(),
+    input: generateRandomInput(),
+  })
+
+  const submitStart = new Date()
+  const submitRes = http.post(`${BASE_URL}/api/v1/tasks`, taskPayload, {
+    headers: { 'Content-Type': 'application/json' },
+  })
+
+  const submitLatency = new Date() - submitStart
+  scheduleLatency.add(submitLatency)
+
+  check(submitRes, {
+    'task submitted': r => r.status === 201,
+    'has task ID': r => r.json('task_id') !== undefined,
+  })
+
+  successRate.add(submitRes.status === 201)
+  taskCount.add(1)
+
+  if (submitRes.status === 201) {
+    const taskId = submitRes.json('task_id')
+
+    // 2. 等待任务完成
+    const completeLatency = waitForTaskCompletion(taskId)
+    if (completeLatency > 0) {
+      taskCompleteLatency.add(completeLatency)
     }
-    
-    // 思考时间
-    sleep(randomInt(1, 3));
+  }
+
+  // 思考时间
+  sleep(randomInt(1, 3))
 }
 
 function randomTaskType() {
-    const types = ['llm_chat', 'tool_call', 'workflow', 'batch'];
-    return types[Math.floor(Math.random() * types.length)];
+  const types = ['llm_chat', 'tool_call', 'workflow', 'batch']
+  return types[Math.floor(Math.random() * types.length)]
 }
 
 function randomPriority() {
-    const weights = [0.1, 0.2, 0.5, 0.15, 0.05]; // critical, high, normal, low, background
-    const r = Math.random();
-    let cumulative = 0;
-    for (let i = 0; i < weights.length; i++) {
-        cumulative += weights[i];
-        if (r < cumulative) return 1000 - i * 250;
-    }
-    return 500;
+  const weights = [0.1, 0.2, 0.5, 0.15, 0.05] // critical, high, normal, low, background
+  const r = Math.random()
+  let cumulative = 0
+  for (let i = 0; i < weights.length; i++) {
+    cumulative += weights[i]
+    if (r < cumulative) return 1000 - i * 250
+  }
+  return 500
 }
 
 function waitForTaskCompletion(taskId) {
-    const maxAttempts = 60;
-    const pollInterval = 1000;
-    const start = new Date();
-    
-    for (let i = 0; i < maxAttempts; i++) {
-        const res = http.get(`${BASE_URL}/api/v1/tasks/${taskId}`);
-        if (res.status === 200) {
-            const status = res.json('status');
-            if (status === 'completed' || status === 'failed') {
-                return new Date() - start;
-            }
-        }
-        sleep(pollInterval / 1000);
+  const maxAttempts = 60
+  const pollInterval = 1000
+  const start = new Date()
+
+  for (let i = 0; i < maxAttempts; i++) {
+    const res = http.get(`${BASE_URL}/api/v1/tasks/${taskId}`)
+    if (res.status === 200) {
+      const status = res.json('status')
+      if (status === 'completed' || status === 'failed') {
+        return new Date() - start
+      }
     }
-    return -1; // 超时
+    sleep(pollInterval / 1000)
+  }
+  return -1 // 超时
 }
 ```
 
@@ -460,37 +460,37 @@ var (
         Name: "scheduler_tasks_submitted_total",
         Help: "Total number of tasks submitted",
     }, []string{"type", "priority"})
-    
+
     TasksCompleted = promauto.NewCounterVec(prometheus.CounterOpts{
         Name: "scheduler_tasks_completed_total",
         Help: "Total number of tasks completed",
     }, []string{"type", "status"})
-    
+
     // 延迟指标
     ScheduleLatency = promauto.NewHistogramVec(prometheus.HistogramOpts{
         Name:    "scheduler_schedule_latency_seconds",
         Help:    "Time taken to schedule a task",
         Buckets: []float64{.001, .005, .01, .025, .05, .1, .25, .5, 1, 2.5, 5},
     }, []string{"strategy"})
-    
+
     TaskDuration = promauto.NewHistogramVec(prometheus.HistogramOpts{
         Name:    "scheduler_task_duration_seconds",
         Help:    "Time taken to complete a task",
         Buckets: []float64{.1, .5, 1, 2.5, 5, 10, 30, 60, 120, 300},
     }, []string{"type", "agent"})
-    
+
     // 队列指标
     QueueSize = promauto.NewGaugeVec(prometheus.GaugeOpts{
         Name: "scheduler_queue_size",
         Help: "Current queue size",
     }, []string{"queue", "priority"})
-    
+
     // Agent 指标
     AgentActive = promauto.NewGaugeVec(prometheus.GaugeOpts{
         Name: "scheduler_agent_active",
         Help: "Number of active agents",
     }, []string{"type"})
-    
+
     AgentLoad = promauto.NewGaugeVec(prometheus.GaugeOpts{
         Name: "scheduler_agent_load",
         Help: "Current load of agents",
@@ -589,19 +589,19 @@ phases:
       start: 0
       end: 100
     think_time: 1s
-    
+
   - name: steady_state
     duration: 10m
     users: 100
     think_time: 1s
-    
+
   - name: stress_test
     duration: 5m
     users:
       start: 100
       end: 500
     think_time: 0.5s
-    
+
   - name: cool_down
     duration: 2m
     users:
@@ -625,14 +625,14 @@ priority_mix:
 
 #### 4.1.2 预期结果
 
-| 指标 | 预期值 | 可接受范围 | 失败阈值 |
-|------|--------|------------|----------|
-| 任务提交成功率 | > 99.9% | > 99.5% | < 99% |
-| P50 调度延迟 | < 10ms | < 20ms | > 50ms |
-| P99 调度延迟 | < 50ms | < 100ms | > 200ms |
-| 系统吞吐量 | > 500 tasks/s | > 300 tasks/s | < 100 tasks/s |
-| CPU 使用率 | < 60% | < 75% | > 90% |
-| 内存使用率 | < 70% | < 80% | > 95% |
+| 指标           | 预期值        | 可接受范围    | 失败阈值      |
+| -------------- | ------------- | ------------- | ------------- |
+| 任务提交成功率 | > 99.9%       | > 99.5%       | < 99%         |
+| P50 调度延迟   | < 10ms        | < 20ms        | > 50ms        |
+| P99 调度延迟   | < 50ms        | < 100ms       | > 200ms       |
+| 系统吞吐量     | > 500 tasks/s | > 300 tasks/s | < 100 tasks/s |
+| CPU 使用率     | < 60%         | < 75%         | > 90%         |
+| 内存使用率     | < 70%         | < 80%         | > 95%         |
 
 #### 4.1.3 测试脚本
 
@@ -678,7 +678,7 @@ test_cases:
       concurrent: 1
       rate: 10/s
     duration: 5m
-    
+
   # 测试2: 轻负载延迟
   - name: light_load_latency
     description: 轻负载下的调度延迟
@@ -688,7 +688,7 @@ test_cases:
       concurrent: 10
       rate: 50/s
     duration: 5m
-    
+
   # 测试3: 中等负载延迟
   - name: medium_load_latency
     description: 中等负载下的调度延迟
@@ -698,7 +698,7 @@ test_cases:
       concurrent: 50
       rate: 200/s
     duration: 5m
-    
+
   # 测试4: 高负载延迟
   - name: high_load_latency
     description: 高负载下的调度延迟
@@ -708,7 +708,7 @@ test_cases:
       concurrent: 200
       rate: 500/s
     duration: 5m
-    
+
   # 测试5: 不同优先级延迟
   - name: priority_latency
     description: 不同优先级的调度延迟差异
@@ -735,10 +735,10 @@ from scipy import stats
 
 def analyze_latency(data_path: str):
     """分析调度延迟数据"""
-    
+
     # 加载数据
     df = pd.read_csv(data_path)
-    
+
     # 基础统计
     stats = {
         'count': len(df),
@@ -751,17 +751,17 @@ def analyze_latency(data_path: str):
         'p95': df['latency_ms'].quantile(0.95),
         'p99': df['latency_ms'].quantile(0.99),
     }
-    
+
     # 分布分析
     plt.figure(figsize=(12, 8))
-    
+
     # 直方图
     plt.subplot(2, 2, 1)
     plt.hist(df['latency_ms'], bins=50, edgecolor='black')
     plt.xlabel('Latency (ms)')
     plt.ylabel('Frequency')
     plt.title('Latency Distribution')
-    
+
     # CDF
     plt.subplot(2, 2, 2)
     sorted_latency = np.sort(df['latency_ms'])
@@ -770,7 +770,7 @@ def analyze_latency(data_path: str):
     plt.xlabel('Latency (ms)')
     plt.ylabel('CDF')
     plt.title('Cumulative Distribution')
-    
+
     # 按优先级分组
     plt.subplot(2, 2, 3)
     priority_groups = df.groupby('priority')['latency_ms'].mean()
@@ -778,32 +778,32 @@ def analyze_latency(data_path: str):
     plt.xlabel('Priority')
     plt.ylabel('Mean Latency (ms)')
     plt.title('Latency by Priority')
-    
+
     # 时间序列
     plt.subplot(2, 2, 4)
     plt.plot(df['timestamp'], df['latency_ms'], 'b.', alpha=0.5)
     plt.xlabel('Time')
     plt.ylabel('Latency (ms)')
     plt.title('Latency Over Time')
-    
+
     plt.tight_layout()
     plt.savefig('latency_analysis.png')
-    
+
     return stats
 
 def detect_outliers(df: pd.DataFrame) -> pd.DataFrame:
     """检测延迟异常值"""
-    
+
     # IQR 方法
     Q1 = df['latency_ms'].quantile(0.25)
     Q3 = df['latency_ms'].quantile(0.75)
     IQR = Q3 - Q1
-    
+
     lower_bound = Q1 - 1.5 * IQR
     upper_bound = Q3 + 1.5 * IQR
-    
+
     outliers = df[(df['latency_ms'] < lower_bound) | (df['latency_ms'] > upper_bound)]
-    
+
     return outliers
 ```
 
@@ -816,11 +816,11 @@ def detect_outliers(df: pd.DataFrame) -> pd.DataFrame:
 name: system_throughput
 description: 测试系统最大吞吐量
 
-method: binary_search  # 二分查找最大吞吐量
+method: binary_search # 二分查找最大吞吐量
 
-initial_rate: 100  # 初始请求速率
-max_rate: 5000     # 最大请求速率
-rate_step: 100     # 速率递增步长
+initial_rate: 100 # 初始请求速率
+max_rate: 5000 # 最大请求速率
+rate_step: 100 # 速率递增步长
 
 success_criteria:
   success_rate: 0.999
@@ -835,12 +835,12 @@ test_cases:
     task_type: llm_chat
     initial_rate: 50
     max_rate: 1000
-    
+
   - name: tool_call_throughput
     task_type: tool_call
     initial_rate: 100
     max_rate: 2000
-    
+
   - name: mixed_throughput
     task_mix:
       llm_chat: 40%
@@ -894,23 +894,23 @@ type ThroughputResult struct {
 // 运行吞吐量测试
 func (t *ThroughputTest) Run(ctx context.Context) error {
     currentRate := t.config.InitialRate
-    
+
     for currentRate <= t.config.MaxRate {
         result := t.runAtRate(ctx, currentRate)
         t.results = append(t.results, result)
-        
+
         fmt.Printf("Rate: %d/s, Actual: %.2f/s, Success: %.2f%%, P99: %v, Met: %v\n",
-            currentRate, result.ActualRate, result.SuccessRate*100, 
+            currentRate, result.ActualRate, result.SuccessRate*100,
             result.P99Latency, result.MetCriteria)
-        
+
         if !result.MetCriteria {
             // 找到上限，进行精细搜索
             return t.fineSearch(ctx, currentRate-t.config.RateStep, currentRate)
         }
-        
+
         currentRate += t.config.RateStep
     }
-    
+
     return nil
 }
 
@@ -919,14 +919,14 @@ func (t *ThroughputTest) fineSearch(ctx context.Context, lower, upper int) error
     for lower < upper-10 {
         mid := (lower + upper) / 2
         result := t.runAtRate(ctx, mid)
-        
+
         if result.MetCriteria {
             lower = mid
         } else {
             upper = mid
         }
     }
-    
+
     fmt.Printf("Maximum sustainable throughput: %d tasks/s\n", lower)
     return nil
 }
@@ -937,47 +937,47 @@ func (t *ThroughputTest) runAtRate(ctx context.Context, rate int) *ThroughputRes
         Rate:     rate,
         Duration: t.config.DurationPerStep,
     }
-    
+
     // 计算需要的并发数
     concurrency := rate * int(t.config.DurationPerStep.Seconds())
-    
+
     var wg sync.WaitGroup
     var successCount, failCount int64
     latencies := make([]time.Duration, 0, concurrency)
     latenciesMu := sync.Mutex{}
-    
+
     // 创建速率限制器
     ticker := time.NewTicker(time.Second / time.Duration(rate))
     defer ticker.Stop()
-    
+
     startTime := time.Now()
-    
+
     for i := 0; i < concurrency; i++ {
         <-ticker.C
-        
+
         wg.Add(1)
         go func() {
             defer wg.Done()
-            
+
             taskStart := time.Now()
             _, err := t.client.SubmitTask(ctx, generateTask())
             latency := time.Since(taskStart)
-            
+
             if err != nil {
                 atomic.AddInt64(&failCount, 1)
             } else {
                 atomic.AddInt64(&successCount, 1)
             }
-            
+
             latenciesMu.Lock()
             latencies = append(latencies, latency)
             latenciesMu.Unlock()
         }()
     }
-    
+
     wg.Wait()
     totalDuration := time.Since(startTime)
-    
+
     result.TotalTasks = successCount + failCount
     result.SuccessCount = successCount
     result.FailCount = failCount
@@ -985,7 +985,7 @@ func (t *ThroughputTest) runAtRate(ctx context.Context, rate int) *ThroughputRes
     result.ActualRate = float64(result.TotalTasks) / totalDuration.Seconds()
     result.P99Latency = percentile(latencies, 99)
     result.MetCriteria = t.evaluateCriteria(result)
-    
+
     return result
 }
 
@@ -1016,25 +1016,25 @@ test_phases:
   - name: idle
     duration: 5m
     load: 0
-    
+
   - name: low_load
     duration: 10m
     load:
       concurrent: 20
       rate: 50/s
-    
+
   - name: medium_load
     duration: 10m
     load:
       concurrent: 100
       rate: 200/s
-    
+
   - name: high_load
     duration: 10m
     load:
       concurrent: 500
       rate: 500/s
-    
+
   - name: recovery
     duration: 5m
     load: 0
@@ -1069,21 +1069,21 @@ end_time=$((start_time + DURATION))
 
 while [ $(date +%s) -lt $end_time ]; do
     timestamp=$(date +%s%3N)
-    
+
     # CPU 使用率
     cpu_usage=$(top -bn1 | grep "Cpu(s)" | sed "s/.*, *\([0-9.]*\)%* id.*/\1/" | awk '{print 100 - $1}')
-    
+
     # 内存使用率
     mem_usage=$(free | grep Mem | awk '{print ($3/$2) * 100.0}')
-    
+
     # Go 运行时指标
     goroutines=$(curl -s http://localhost:6060/debug/vars | jq '.cmdline' | wc -l)
-    
+
     # GC 暂停
     gc_pause=$(curl -s http://localhost:6060/debug/vars | jq '.memstats.PauseTotalNs')
-    
+
     echo "$timestamp,$cpu_usage,$mem_usage,$goroutines,$gc_pause" >> $OUTPUT_DIR/system.csv
-    
+
     sleep 1
 done
 
@@ -1102,39 +1102,39 @@ import matplotlib.pyplot as plt
 
 def analyze_resources(test_id: str):
     """分析资源使用情况"""
-    
+
     df = pd.read_csv(f'results/{test_id}/resources/system.csv')
-    
+
     # 时间序列图
     fig, axes = plt.subplots(2, 2, figsize=(15, 10))
-    
+
     # CPU 使用率
     axes[0, 0].plot(df['timestamp'], df['cpu_usage'])
     axes[0, 0].set_title('CPU Usage Over Time')
     axes[0, 0].set_ylabel('CPU Usage (%)')
     axes[0, 0].axhline(y=70, color='r', linestyle='--', label='Warning threshold')
     axes[0, 0].legend()
-    
+
     # 内存使用率
     axes[0, 1].plot(df['timestamp'], df['mem_usage'])
     axes[0, 1].set_title('Memory Usage Over Time')
     axes[0, 1].set_ylabel('Memory Usage (%)')
     axes[0, 1].axhline(y=80, color='r', linestyle='--', label='Warning threshold')
     axes[0, 1].legend()
-    
+
     # Goroutines 数量
     axes[1, 0].plot(df['timestamp'], df['goroutines'])
     axes[1, 0].set_title('Goroutines Count')
     axes[1, 0].set_ylabel('Count')
-    
+
     # GC 暂停时间
     axes[1, 1].plot(df['timestamp'], df['gc_pause'] / 1e6)  # 转换为毫秒
     axes[1, 1].set_title('GC Pause Time')
     axes[1, 1].set_ylabel('Pause (ms)')
-    
+
     plt.tight_layout()
     plt.savefig(f'results/{test_id}/resource_analysis.png')
-    
+
     # 统计摘要
     summary = {
         'cpu_mean': df['cpu_usage'].mean(),
@@ -1144,7 +1144,7 @@ def analyze_resources(test_id: str):
         'goroutines_max': df['goroutines'].max(),
         'gc_pause_total_ms': df['gc_pause'].sum() / 1e6,
     }
-    
+
     return summary
 ```
 
@@ -1265,86 +1265,112 @@ echo "报告已生成: results/$TEST_ID/report.html"
 <!-- report_template.html -->
 <!DOCTYPE html>
 <html>
-<head>
+  <head>
     <title>AgentScheduler Performance Report</title>
     <style>
-        body { font-family: Arial, sans-serif; margin: 40px; }
-        .metric { margin: 20px 0; padding: 15px; background: #f5f5f5; border-radius: 5px; }
-        .pass { color: green; }
-        .fail { color: red; }
-        .warn { color: orange; }
-        table { width: 100%; border-collapse: collapse; margin: 20px 0; }
-        th, td { border: 1px solid #ddd; padding: 12px; text-align: left; }
-        th { background-color: #4CAF50; color: white; }
+      body {
+        font-family: Arial, sans-serif;
+        margin: 40px;
+      }
+      .metric {
+        margin: 20px 0;
+        padding: 15px;
+        background: #f5f5f5;
+        border-radius: 5px;
+      }
+      .pass {
+        color: green;
+      }
+      .fail {
+        color: red;
+      }
+      .warn {
+        color: orange;
+      }
+      table {
+        width: 100%;
+        border-collapse: collapse;
+        margin: 20px 0;
+      }
+      th,
+      td {
+        border: 1px solid #ddd;
+        padding: 12px;
+        text-align: left;
+      }
+      th {
+        background-color: #4caf50;
+        color: white;
+      }
     </style>
-</head>
-<body>
+  </head>
+  <body>
     <h1>AgentScheduler 性能测试报告</h1>
-    
+
     <div class="metric">
-        <h2>测试概要</h2>
-        <p>测试 ID: {{test_id}}</p>
-        <p>测试时间: {{test_time}}</p>
-        <p>测试时长: {{duration}}</p>
+      <h2>测试概要</h2>
+      <p>测试 ID: {{test_id}}</p>
+      <p>测试时间: {{test_time}}</p>
+      <p>测试时长: {{duration}}</p>
     </div>
-    
+
     <div class="metric">
-        <h2>核心指标</h2>
-        <table>
-            <tr>
-                <th>指标</th>
-                <th>目标值</th>
-                <th>实际值</th>
-                <th>状态</th>
-            </tr>
-            <tr>
-                <td>P50 调度延迟</td>
-                <td>< 10ms</td>
-                <td>{{p50_latency}}</td>
-                <td class="{{p50_status}}">{{p50_status}}</td>
-            </tr>
-            <tr>
-                <td>P99 调度延迟</td>
-                <td>< 50ms</td>
-                <td>{{p99_latency}}</td>
-                <td class="{{p99_status}}">{{p99_status}}</td>
-            </tr>
-            <tr>
-                <td>系统吞吐量</td>
-                <td>> 500 tasks/s</td>
-                <td>{{throughput}}</td>
-                <td class="{{throughput_status}}">{{throughput_status}}</td>
-            </tr>
-            <tr>
-                <td>成功率</td>
-                <td>> 99.9%</td>
-                <td>{{success_rate}}</td>
-                <td class="{{success_status}}">{{success_status}}</td>
-            </tr>
-        </table>
+      <h2>核心指标</h2>
+      <table>
+        <tr>
+          <th>指标</th>
+          <th>目标值</th>
+          <th>实际值</th>
+          <th>状态</th>
+        </tr>
+        <tr>
+          <td>P50 调度延迟</td>
+          <td>< 10ms</td>
+          <td>{{p50_latency}}</td>
+          <td class="{{p50_status}}">{{p50_status}}</td>
+        </tr>
+        <tr>
+          <td>P99 调度延迟</td>
+          <td>< 50ms</td>
+          <td>{{p99_latency}}</td>
+          <td class="{{p99_status}}">{{p99_status}}</td>
+        </tr>
+        <tr>
+          <td>系统吞吐量</td>
+          <td>> 500 tasks/s</td>
+          <td>{{throughput}}</td>
+          <td class="{{throughput_status}}">{{throughput_status}}</td>
+        </tr>
+        <tr>
+          <td>成功率</td>
+          <td>> 99.9%</td>
+          <td>{{success_rate}}</td>
+          <td class="{{success_status}}">{{success_status}}</td>
+        </tr>
+      </table>
     </div>
-    
+
     <div class="metric">
-        <h2>详细分析</h2>
-        <h3>延迟分布</h3>
-        <img src="latency_distribution.png" alt="Latency Distribution">
-        
-        <h3>吞吐量趋势</h3>
-        <img src="throughput_trend.png" alt="Throughput Trend">
-        
-        <h3>资源使用</h3>
-        <img src="resource_usage.png" alt="Resource Usage">
+      <h2>详细分析</h2>
+      <h3>延迟分布</h3>
+      <img src="latency_distribution.png" alt="Latency Distribution" />
+
+      <h3>吞吐量趋势</h3>
+      <img src="throughput_trend.png" alt="Throughput Trend" />
+
+      <h3>资源使用</h3>
+      <img src="resource_usage.png" alt="Resource Usage" />
     </div>
-    
+
     <div class="metric">
-        <h2>结论与建议</h2>
-        <ul>
-            {{#recommendations}}
-            <li>{{.}}</li>
-            {{/recommendations}}
-        </ul>
+      <h2>结论与建议</h2>
+      <ul>
+        {{#recommendations}}
+        <li>{{.}}</li>
+        {{/recommendations}}
+      </ul>
     </div>
-</body>
+  </body>
 </html>
 ```
 
@@ -1354,8 +1380,8 @@ echo "报告已生成: results/$TEST_ID/report.html"
 # baseline.yaml
 # 性能基准线 - 用于对比测试结果
 
-version: "1.0"
-updated: "2026-03-29"
+version: '1.0'
+updated: '2026-03-29'
 
 metrics:
   latency:
@@ -1371,7 +1397,7 @@ metrics:
       target: 200
       acceptable: 500
       warning: 1000
-      
+
   throughput:
     tasks_per_second:
       target: 500
@@ -1381,7 +1407,7 @@ metrics:
       target: 1000
       acceptable: 500
       warning: 100
-      
+
   reliability:
     success_rate:
       target: 0.999
@@ -1391,7 +1417,7 @@ metrics:
       target: 0.001
       acceptable: 0.005
       warning: 0.01
-      
+
   resources:
     cpu_usage_percent:
       target: 60
@@ -1415,45 +1441,45 @@ name: Performance Tests
 
 on:
   push:
-    branches: [ main, develop ]
+    branches: [main, develop]
   pull_request:
-    branches: [ main ]
+    branches: [main]
   schedule:
-    - cron: '0 2 * * *'  # 每天凌晨 2 点运行
+    - cron: '0 2 * * *' # 每天凌晨 2 点运行
 
 jobs:
   performance:
     runs-on: ubuntu-latest
-    
+
     steps:
       - uses: actions/checkout@v3
-      
+
       - name: Setup Go
         uses: actions/setup-go@v4
         with:
           go-version: '1.21'
-          
+
       - name: Setup k6
         run: |
           curl https://github.com/grafana/k6/releases/download/v0.45.0/k6-v0.45.0-linux-amd64.tar.gz -L | tar xz
           sudo mv k6-*/k6 /usr/local/bin/
-          
+
       - name: Start Services
         run: docker-compose -f docker-compose.test.yml up -d
-        
+
       - name: Wait for Services
         run: |
           sleep 30
           curl --retry 10 --retry-delay 5 --retry-connrefused http://localhost:8080/health
-          
+
       - name: Run Quick Performance Tests
         run: |
           k6 run --duration 5m --vus 50 tests/quick_perf_test.js
-          
+
       - name: Compare with Baseline
         run: |
           python scripts/compare_baseline.py results/latest baseline.yaml
-          
+
       - name: Upload Results
         uses: actions/upload-artifact@v3
         with:
@@ -1472,13 +1498,13 @@ from typing import Dict, Any
 def detect_regression(current: Dict[str, Any], baseline: Dict[str, Any], threshold: float = 0.1) -> list:
     """检测性能回归"""
     regressions = []
-    
+
     def compare(current_val, baseline_val, metric_name, higher_is_better=True):
         if baseline_val == 0:
             return
-        
+
         change = (current_val - baseline_val) / baseline_val
-        
+
         if higher_is_better:
             if change < -threshold:  # 性能下降超过阈值
                 regressions.append({
@@ -1497,17 +1523,17 @@ def detect_regression(current: Dict[str, Any], baseline: Dict[str, Any], thresho
                     'change': f"+{change*100:.1f}%",
                     'severity': 'high' if change > 0.2 else 'medium'
                 })
-    
+
     # 检查延迟
     compare(current['p50_latency_ms'], baseline['metrics']['latency']['p50_ms']['target'], 'P50 Latency', False)
     compare(current['p99_latency_ms'], baseline['metrics']['latency']['p99_ms']['target'], 'P99 Latency', False)
-    
+
     # 检查吞吐量
     compare(current['throughput'], baseline['metrics']['throughput']['tasks_per_second']['target'], 'Throughput', True)
-    
+
     # 检查成功率
     compare(current['success_rate'], baseline['metrics']['reliability']['success_rate']['target'], 'Success Rate', True)
-    
+
     return regressions
 
 if __name__ == '__main__':
@@ -1515,9 +1541,9 @@ if __name__ == '__main__':
         current = json.load(f)
     with open(sys.argv[2]) as f:
         baseline = json.load(f)
-    
+
     regressions = detect_regression(current, baseline)
-    
+
     if regressions:
         print("⚠️ 检测到性能回归:")
         for r in regressions:
@@ -1558,7 +1584,7 @@ test_cases:
     description: 跨区域延迟测试
     from: beijing
     to: [shanghai, guangzhou, chengdu]
-    
+
   - name: multi_region_concurrent
     description: 多区域并发测试
     regions: [beijing, shanghai, guangzhou, chengdu]
@@ -1567,12 +1593,12 @@ test_cases:
 
 ### 8.2 国产云平台测试
 
-| 平台 | 区域 | 测试内容 | 备注 |
-|------|------|----------|------|
-| **阿里云** | 华北、华东、华南 | 全量测试 | 主要生产环境 |
-| **腾讯云** | 华北、华东、华南 | 核心测试 | 备用环境 |
-| **华为云** | 华北、华东、华南 | 核心测试 | 政企场景 |
-| **火山引擎** | 华北 | 核心测试 | 字节生态 |
+| 平台         | 区域             | 测试内容 | 备注         |
+| ------------ | ---------------- | -------- | ------------ |
+| **阿里云**   | 华北、华东、华南 | 全量测试 | 主要生产环境 |
+| **腾讯云**   | 华北、华东、华南 | 核心测试 | 备用环境     |
+| **华为云**   | 华北、华东、华南 | 核心测试 | 政企场景     |
+| **火山引擎** | 华北             | 核心测试 | 字节生态     |
 
 ---
 
@@ -1658,5 +1684,5 @@ test_cases:
 
 ---
 
-*文档完成于 2026-03-29*
-*下次更新: 测试执行后*
+_文档完成于 2026-03-29_
+_下次更新: 测试执行后_

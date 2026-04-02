@@ -1,6 +1,7 @@
 # 循环依赖检测工具集成报告
 
 ## 概述
+
 成功集成 `madge` 循环依赖检测工具到项目的 CI/CD 流程中，发现并修复了 1 个循环依赖问题。
 
 ---
@@ -8,6 +9,7 @@
 ## 检测工具配置
 
 ### 工具选择: **Madge v8.0.0**
+
 - **理由**: 轻量级、支持 ES modules、TypeScript 友好
 - **安装**: 已通过 `npm install --save-dev madge` 安装
 
@@ -45,7 +47,7 @@ module.exports = {
       skipTypeImports: true,
     },
   },
-};
+}
 ```
 
 ---
@@ -54,13 +56,13 @@ module.exports = {
 
 已在 `package.json` 添加以下命令：
 
-| 命令 | 用途 |
-|------|------|
-| `pnpm run dep:check` | 检查循环依赖（失败则退出） |
-| `pnpm run dep:check:graph` | 生成依赖图 SVG 文件 |
-| `pnpm run dep:warn` | 警告模式检测循环依赖（不失败） |
-| `pnpm run check:deps` | 完整依赖检查 |
-| `pnpm run prebuild:check-deps` | 构建前检查（可选） |
+| 命令                           | 用途                           |
+| ------------------------------ | ------------------------------ |
+| `pnpm run dep:check`           | 检查循环依赖（失败则退出）     |
+| `pnpm run dep:check:graph`     | 生成依赖图 SVG 文件            |
+| `pnpm run dep:warn`            | 警告模式检测循环依赖（不失败） |
+| `pnpm run check:deps`          | 完整依赖检查                   |
+| `pnpm run prebuild:check-deps` | 构建前检查（可选）             |
 
 ---
 
@@ -77,11 +79,12 @@ module.exports = {
 ### 问题分析
 
 **循环路径**:
+
 ```
-shortcut-config.ts 
+shortcut-config.ts
   → imports KeyboardShortcut from shortcut-manager.ts
 
-shortcut-manager.ts 
+shortcut-manager.ts
   → imports DEFAULT_SHORTCUTS from shortcut-config.ts
 ```
 
@@ -92,9 +95,11 @@ shortcut-manager.ts
 ## 修复方案
 
 ### 创建共享类型文件
+
 **新文件**: `src/lib/keyboard-shortcuts/shortcut-types.ts`
 
 提取所有共享的类型定义到独立文件：
+
 - `ShortcutContext` 类型
 - `KeyboardShortcut` 接口
 - `ShortcutManagerConfig` 接口
@@ -104,6 +109,7 @@ shortcut-manager.ts
 ### 更新依赖关系
 
 **修复后的依赖图**:
+
 ```
 shortcut-types.ts (共享类型基础)
     ↑                 ↑
@@ -159,18 +165,18 @@ jobs:
           cache: 'pnpm'
       - run: pnpm install --frozen-lockfile
       - run: pnpm run dep:warn
-        continue-on-error: true  # 不阻塞 PR，只警告
+        continue-on-error: true # 不阻塞 PR，只警告
       - run: pnpm run check:deps
         continue-on-error: true
 ```
 
 ### 工作流程说明
 
-| 阶段 | 命令 | 说明 |
-|------|------|------|
-| 安装依赖 | `pnpm install --frozen-lockfile` | 使用锁文件安装 |
-| 警告检查 | `pnpm run dep:warn` | 检测但允许失败（PR 友好） |
-| 完整检查 | `pnpm run check:deps` | 严格检查（main 分支） |
+| 阶段     | 命令                             | 说明                      |
+| -------- | -------------------------------- | ------------------------- |
+| 安装依赖 | `pnpm install --frozen-lockfile` | 使用锁文件安装            |
+| 警告检查 | `pnpm run dep:warn`              | 检测但允许失败（PR 友好） |
+| 完整检查 | `pnpm run check:deps`            | 严格检查（main 分支）     |
 
 ---
 
@@ -206,14 +212,14 @@ pnpm run dep:check:graph
 
 ## 统计信息
 
-| 指标 | 数值 |
-|------|------|
-| 已发现循环依赖 | 1 |
-| 已修复循环依赖 | 1 |
-| 当前循环依赖 | 0 ✅ |
-| 扫描文件数 | 1083 |
-| 跳过文件（路径别名） | 262 |
-| 检测耗时 | ~28s |
+| 指标                 | 数值 |
+| -------------------- | ---- |
+| 已发现循环依赖       | 1    |
+| 已修复循环依赖       | 1    |
+| 当前循环依赖         | 0 ✅ |
+| 扫描文件数           | 1083 |
+| 跳过文件（路径别名） | 262  |
+| 检测耗时             | ~28s |
 
 ---
 
@@ -244,16 +250,16 @@ Madge 跳过了 262 个使用 `@/` 别名的文件。可以进一步优化：
 
 ## 文件清单
 
-| 文件 | 状态 | 说明 |
-|------|------|------|
-| `madge.config.cjs` | ✅ 新建 | Madge 配置文件 |
-| `src/lib/keyboard-shortcuts/shortcut-types.ts` | ✅ 新建 | 共享类型定义 |
-| `CIRCULAR_DEPENDENCIES.md` | ✅ 新建 | 循环依赖详细分析 |
-| `DEPENDENCY_CHECK_REPORT.md` | ✅ 新建 | 本报告 |
-| `src/lib/keyboard-shortcuts/shortcut-config.ts` | ✅ 更新 | 修改导入 |
-| `src/lib/keyboard-shortcuts/shortcut-manager.ts` | ✅ 更新 | 修改导入 |
-| `package.json` | ✅ 更新 | 添加 scripts |
-| `.github/workflows/dependency-check.yml` | ✅ 更新 | CI 配置 |
+| 文件                                             | 状态    | 说明             |
+| ------------------------------------------------ | ------- | ---------------- |
+| `madge.config.cjs`                               | ✅ 新建 | Madge 配置文件   |
+| `src/lib/keyboard-shortcuts/shortcut-types.ts`   | ✅ 新建 | 共享类型定义     |
+| `CIRCULAR_DEPENDENCIES.md`                       | ✅ 新建 | 循环依赖详细分析 |
+| `DEPENDENCY_CHECK_REPORT.md`                     | ✅ 新建 | 本报告           |
+| `src/lib/keyboard-shortcuts/shortcut-config.ts`  | ✅ 更新 | 修改导入         |
+| `src/lib/keyboard-shortcuts/shortcut-manager.ts` | ✅ 更新 | 修改导入         |
+| `package.json`                                   | ✅ 更新 | 添加 scripts     |
+| `.github/workflows/dependency-check.yml`         | ✅ 更新 | CI 配置          |
 
 ---
 

@@ -4,8 +4,8 @@
  */
 
 // Lib
-export * from './lib/logger';
-export * from './lib/types';
+export * from './lib/logger'
+export * from './lib/types'
 
 // Types
-export * from './types';
+export * from './types'

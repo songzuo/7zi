@@ -12,14 +12,14 @@ v1.5.0 版本引入了新的 `PermissionContext` 用于统一权限管理。本�
 
 ```typescript
 // 添加以下导出
-export { Role, Permission, type User } from '@/contexts/PermissionContext';
+export { Role, Permission, type User } from '@/contexts/PermissionContext'
 export {
   checkPermission,
   checkPermissions,
   checkRole,
   checkIsAdmin,
   createUserFromPayload,
-} from '@/contexts/PermissionContext/utils';
+} from '@/contexts/PermissionContext/utils'
 ```
 
 ### 2. 更新 middleware.ts
@@ -28,33 +28,31 @@ export {
 
 ```typescript
 // 添加导入
-import { createUserFromPayload, Permission, Role } from '@/contexts/PermissionContext';
+import { createUserFromPayload, Permission, Role } from '@/contexts/PermissionContext'
 
 // 在 verifyAuthToken 函数中，使用 createUserFromPayload 创建用户对象
 async function verifyAuthToken(request: NextRequest): Promise<User | null> {
-  const token = request.cookies.get('auth-token')?.value;
-  const authHeader = request.headers.get('authorization');
-  const bearerToken = authHeader?.startsWith('Bearer ')
-    ? authHeader.substring(7)
-    : null;
+  const token = request.cookies.get('auth-token')?.value
+  const authHeader = request.headers.get('authorization')
+  const bearerToken = authHeader?.startsWith('Bearer ') ? authHeader.substring(7) : null
 
-  const jwtToken = token || bearerToken;
+  const jwtToken = token || bearerToken
 
   if (!jwtToken) {
-    return null;
+    return null
   }
 
   try {
-    const payload = await verifyJWT(jwtToken);
+    const payload = await verifyJWT(jwtToken)
     // 使用新工具函数创建用户对象
     return createUserFromPayload({
       userId: payload.userId,
       username: payload.username,
       role: payload.role,
-    });
+    })
   } catch (error) {
-    console.error('[Middleware] Token verification failed:', error);
-    return null;
+    console.error('[Middleware] Token verification failed:', error)
+    return null
   }
 }
 ```
@@ -104,14 +102,14 @@ function MyComponent() {
 ### 4. 服务器端权限检查
 
 ```typescript
-import { checkPermission, Permission } from '@/contexts/PermissionContext';
-import { getUserFromRequest } from '@/lib/auth';
+import { checkPermission, Permission } from '@/contexts/PermissionContext'
+import { getUserFromRequest } from '@/lib/auth'
 
 async function handleRequest(request: Request) {
-  const user = await getUserFromRequest(request);
+  const user = await getUserFromRequest(request)
 
   if (!checkPermission(user, Permission.ADMIN).allowed) {
-    return Response.json({ error: '权限不足' }, { status: 403 });
+    return Response.json({ error: '权限不足' }, { status: 403 })
   }
 
   // 执行需要管理员权限的操作
@@ -126,10 +124,10 @@ async function handleRequest(request: Request) {
 
 ```typescript
 // 旧系统
-import { UserRole } from '@/lib/auth';
+import { UserRole } from '@/lib/auth'
 
 // 新系统
-import { Role } from '@/contexts/PermissionContext';
+import { Role } from '@/contexts/PermissionContext'
 ```
 
 ### 2. 权限检查
@@ -138,13 +136,13 @@ import { Role } from '@/contexts/PermissionContext';
 
 ```typescript
 // 旧系统
-import { hasPermission, hasAllPermissions } from '@/lib/auth';
-const result = hasPermission(user, Permission.READ);
+import { hasPermission, hasAllPermissions } from '@/lib/auth'
+const result = hasPermission(user, Permission.READ)
 
 // 新系统
-import { usePermission } from '@/contexts/PermissionContext';
-const { hasPermission } = usePermission();
-const result = hasPermission(Permission.READ);
+import { usePermission } from '@/contexts/PermissionContext'
+const { hasPermission } = usePermission()
+const result = hasPermission(Permission.READ)
 ```
 
 ### 3. 权限枚举
@@ -180,6 +178,7 @@ export enum Permission {
 3. 现有的认证流程不需要修改
 
 建议：
+
 1. 新代码使用新的 `PermissionContext`
 2. 旧代码可以逐步迁移
 3. 完全迁移后可以移除旧的权限检查函数
@@ -205,13 +204,13 @@ export enum Permission {
 对于敏感操作，必须在服务器端进行权限检查：
 
 ```typescript
-import { checkPermissions } from '@/contexts/PermissionContext';
+import { checkPermissions } from '@/contexts/PermissionContext'
 
 export async function DELETE(request: Request) {
-  const user = await getUserFromRequest(request);
+  const user = await getUserFromRequest(request)
 
   if (!checkPermissions(user, [Permission.DELETE, Permission.ADMIN]).allowed) {
-    return Response.json({ error: '权限不足' }, { status: 403 });
+    return Response.json({ error: '权限不足' }, { status: 403 })
   }
 
   // 执行删除操作
@@ -223,9 +222,9 @@ export async function DELETE(request: Request) {
 使用 `canAccessResource` 检查资源访问权限：
 
 ```typescript
-const { canAccessResource } = usePermission();
+const { canAccessResource } = usePermission()
 
-const isOwnerOrAdmin = canAccessResource(resourceOwnerId, Permission.WRITE);
+const isOwnerOrAdmin = canAccessResource(resourceOwnerId, Permission.WRITE)
 ```
 
 ## 测试清单
@@ -241,5 +240,6 @@ const isOwnerOrAdmin = canAccessResource(resourceOwnerId, Permission.WRITE);
 ## 支持
 
 如有问题，请查看：
+
 - `/root/.openclaw/workspace/7zi-frontend/src/contexts/PermissionContext/`
 - 测试文件：`src/contexts/PermissionContext/__tests__/`

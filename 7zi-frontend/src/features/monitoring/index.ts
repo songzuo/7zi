@@ -4,9 +4,9 @@
  */
 
 // Components
-export { PerformanceDashboard } from './components/PerformanceDashboard';
-export { SimplePerformanceDashboard } from './components/SimplePerformanceDashboard';
-export { EnhancedPerformanceDashboard } from './components/EnhancedPerformanceDashboard';
+export { PerformanceDashboard } from './components/PerformanceDashboard'
+export { SimplePerformanceDashboard } from './components/SimplePerformanceDashboard'
+export { EnhancedPerformanceDashboard } from './components/EnhancedPerformanceDashboard'
 
 // Lib - selectively export to avoid duplicate type exports
 export {
@@ -20,14 +20,10 @@ export {
   trackReactError,
   logBrowserMetrics,
   initBrowserTracking,
-} from './lib';
+} from './lib'
 
 // Storage (export types separately due to isolatedModules)
-export type {
-  MonitoringStorage,
-  MemoryStorage,
-  LocalStorageStorage,
-} from './lib';
+export type { MonitoringStorage, MemoryStorage, LocalStorageStorage } from './lib'
 
 // Types from lib (more detailed)
 export type {
@@ -39,10 +35,7 @@ export type {
   AlarmThreshold,
   AlarmEvent,
   MonitoringConfig,
-} from './lib/types';
+} from './lib/types'
 
 // Additional types from ./types.ts
-export type {
-  PerformanceBudget,
-  CustomMetric,
-} from './types';
+export type { PerformanceBudget, CustomMetric } from './types'

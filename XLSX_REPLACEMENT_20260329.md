@@ -44,7 +44,7 @@ xlsx not found in dependencies
 $ grep -r "import.*xlsx" src/ --include="*.ts" --include="*.js"
 No xlsx imports found
 
-$ grep -r "require.*xlsx" src/ --include="*.ts" --include="*.js"  
+$ grep -r "require.*xlsx" src/ --include="*.ts" --include="*.js"
 No xlsx requires found
 ```
 
@@ -54,14 +54,15 @@ No xlsx requires found
 
 The grep search found "xlsx" strings in the following locations, but all are **format type identifiers**, not package references:
 
-| File | Usage | Type |
-|------|-------|------|
-| `src/lib/types/analytics.ts` | `ExportFormat = 'csv' \| 'xlsx' \| 'json' \| 'pdf'` | Type definition |
-| `src/lib/export/index.ts` | `case 'xlsx':` | Format switch case |
-| `src/lib/export/index.ts` | `workbook.xlsx.writeBuffer()` | exceljs API method |
-| `src/app/api/analytics/export/route.ts` | Format handling | API route |
+| File                                    | Usage                                               | Type               |
+| --------------------------------------- | --------------------------------------------------- | ------------------ |
+| `src/lib/types/analytics.ts`            | `ExportFormat = 'csv' \| 'xlsx' \| 'json' \| 'pdf'` | Type definition    |
+| `src/lib/export/index.ts`               | `case 'xlsx':`                                      | Format switch case |
+| `src/lib/export/index.ts`               | `workbook.xlsx.writeBuffer()`                       | exceljs API method |
+| `src/app/api/analytics/export/route.ts` | Format handling                                     | API route          |
 
 **Finding:** All "xlsx" references are either:
+
 - String literals for file format types (e.g., `'xlsx'` as a format option)
 - ExcelJS API methods (e.g., `workbook.xlsx.writeBuffer()`)
 
@@ -69,12 +70,12 @@ The grep search found "xlsx" strings in the following locations, but all are **f
 
 ## Security Status
 
-| Check | Status |
-|-------|--------|
-| xlsx package installed | ❌ Not installed |
-| exceljs package installed | ✅ v4.4.0 |
-| xlsx imports in code | ❌ None found |
-| Build successful | ✅ Passed |
+| Check                     | Status           |
+| ------------------------- | ---------------- |
+| xlsx package installed    | ❌ Not installed |
+| exceljs package installed | ✅ v4.4.0        |
+| xlsx imports in code      | ❌ None found    |
+| Build successful          | ✅ Passed        |
 
 ---
 

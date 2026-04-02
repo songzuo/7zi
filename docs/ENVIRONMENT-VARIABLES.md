@@ -24,12 +24,12 @@
 
 7zi Platform 使用以下环境变量文件：
 
-| 文件 | 用途 | 提交到 Git |
-|------|------|------------|
-| `.env.example` | 环境变量示例模板 | ✅ 是 |
-| `.env.local` | 本地开发环境 (优先级最高) | ❌ 否 |
-| `.env.production` | 生产环境配置 | ❌ 否 |
-| `.env.test` | 测试环境配置 | ❌ 否 |
+| 文件              | 用途                      | 提交到 Git |
+| ----------------- | ------------------------- | ---------- |
+| `.env.example`    | 环境变量示例模板          | ✅ 是      |
+| `.env.local`      | 本地开发环境 (优先级最高) | ❌ 否      |
+| `.env.production` | 生产环境配置              | ❌ 否      |
+| `.env.test`       | 测试环境配置              | ❌ 否      |
 
 ### 加载顺序
 
@@ -46,20 +46,22 @@ Next.js 按以下顺序加载环境变量（后加载的会覆盖前面的）：
 
 ## 🔧 环境变量类型
 
-### 公开变量 (NEXT_PUBLIC_)
+### 公开变量 (NEXT*PUBLIC*)
 
 前缀为 `NEXT_PUBLIC_` 的变量会在浏览器端暴露。
 
 **使用场景**：
+
 - 前端直接使用的配置
 - API 端点
 - 第三方服务的公开密钥
 - 应用元信息
 
 **示例**：
+
 ```typescript
 // 在组件中使用
-const apiUrl = process.env.NEXT_PUBLIC_API_URL;
+const apiUrl = process.env.NEXT_PUBLIC_API_URL
 ```
 
 ### 私有变量
@@ -67,16 +69,18 @@ const apiUrl = process.env.NEXT_PUBLIC_API_URL;
 不使用 `NEXT_PUBLIC_` 前缀的变量只在服务端可用。
 
 **使用场景**：
+
 - API 密钥和密钥
 - 数据库连接字符串
 - 第三方服务私钥
 - 敏感配置信息
 
 **示例**：
+
 ```typescript
 // 在 API 路由中使用
 export async function GET() {
-  const apiKey = process.env.API_KEY;
+  const apiKey = process.env.API_KEY
   // ...
 }
 ```
@@ -318,20 +322,20 @@ CLOUDFLARE_API_TOKEN=xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
 
 #### 必需的 Secrets
 
-| Secret | 说明 | 示例 |
-|--------|------|------|
-| `DEPLOY_HOST` | 服务器地址 | 165.99.43.61 |
-| `DEPLOY_USER` | SSH 用户 | root |
-| `DEPLOY_KEY` | SSH 私钥 | `-----BEGIN RSA PRIVATE KEY-----\n...` |
-| `DEPLOY_PORT` | SSH 端口 | 22 |
+| Secret        | 说明       | 示例                                   |
+| ------------- | ---------- | -------------------------------------- |
+| `DEPLOY_HOST` | 服务器地址 | 165.99.43.61                           |
+| `DEPLOY_USER` | SSH 用户   | root                                   |
+| `DEPLOY_KEY`  | SSH 私钥   | `-----BEGIN RSA PRIVATE KEY-----\n...` |
+| `DEPLOY_PORT` | SSH 端口   | 22                                     |
 
 #### 可选的 Secrets
 
-| Secret | 说明 | 示例 |
-|--------|------|------|
-| `GITHUB_TOKEN` | GitHub Token (用于自动化) | `ghp_xxxxxx` |
-| `SENTRY_AUTH_TOKEN` | Sentry 认证令牌 | `your-token` |
-| `SLACK_WEBHOOK_URL` | Slack 通知 Webhook | `https://hooks.slack.com/...` |
+| Secret              | 说明                      | 示例                          |
+| ------------------- | ------------------------- | ----------------------------- |
+| `GITHUB_TOKEN`      | GitHub Token (用于自动化) | `ghp_xxxxxx`                  |
+| `SENTRY_AUTH_TOKEN` | Sentry 认证令牌           | `your-token`                  |
+| `SLACK_WEBHOOK_URL` | Slack 通知 Webhook        | `https://hooks.slack.com/...` |
 
 ### 在工作流中使用环境变量
 
@@ -445,10 +449,12 @@ GITHUB_TOKEN=ghp_xxxxxxxxxxxx
 ### Q1: 修改环境变量后需要重启吗？
 
 **开发环境**：
+
 - `NEXT_PUBLIC_*` 变量需要重启 `pnpm dev`
 - 其他变量在下次请求时生效
 
 **生产环境**：
+
 - 所有变量都需要重新构建和重启
 
 ### Q2: 为什么有些变量在浏览器中是 undefined？
@@ -495,18 +501,18 @@ services:
 使用 Vitest：
 
 ```typescript
-import { describe, it, expect, vi } from 'vitest';
+import { describe, it, expect, vi } from 'vitest'
 
 describe('API', () => {
   it('should use environment variable', () => {
-    const originalEnv = process.env.API_KEY;
-    process.env.API_KEY = 'test-key';
+    const originalEnv = process.env.API_KEY
+    process.env.API_KEY = 'test-key'
 
     // 测试代码...
 
-    process.env.API_KEY = originalEnv; // 恢复
-  });
-});
+    process.env.API_KEY = originalEnv // 恢复
+  })
+})
 ```
 
 或使用 `.env.test` 文件。

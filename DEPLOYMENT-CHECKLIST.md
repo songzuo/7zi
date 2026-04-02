@@ -7,9 +7,9 @@
 
 ## 📋 服务器配置
 
-| 服务器 | IP | 用户 | 密码 | 用途 |
-|--------|-----|------|------|------|
-| **7zi.com** | 165.99.43.61 | root | `ge20993344$ZZ` | 主网站 |
+| 服务器            | IP            | 用户 | 密码            | 用途     |
+| ----------------- | ------------- | ---- | --------------- | -------- |
+| **7zi.com**       | 165.99.43.61  | root | `ge20993344$ZZ` | 主网站   |
 | **bot5.szspd.cn** | 182.43.36.134 | root | `ge20993344$ZZ` | 测试机器 |
 
 ---
@@ -20,16 +20,17 @@
 
 项目包含 **4 个 Dockerfile**：
 
-| 文件 | 用途 | 状态 |
-|------|------|------|
-| `Dockerfile` | 标准多阶段构建（推荐） | ✅ 可用 |
-| `Dockerfile.optimized` | 优化版本 | ✅ 可用 |
-| `Dockerfile.production` | 生产环境专用 | ✅ 可用 |
-| `Dockerfile.static` | 静态导出版本 | ✅ 可用 |
+| 文件                    | 用途                   | 状态    |
+| ----------------------- | ---------------------- | ------- |
+| `Dockerfile`            | 标准多阶段构建（推荐） | ✅ 可用 |
+| `Dockerfile.optimized`  | 优化版本               | ✅ 可用 |
+| `Dockerfile.production` | 生产环境专用           | ✅ 可用 |
+| `Dockerfile.static`     | 静态导出版本           | ✅ 可用 |
 
 **推荐使用**: `Dockerfile` - 包含完整的多阶段构建优化
 
 **特性**:
+
 - 多阶段构建（deps → builder → runner）
 - Node.js 22 Alpine 基础镜像
 - 非 root 用户运行（uid 1001）
@@ -41,15 +42,16 @@
 
 项目包含 **3 个 docker-compose 配置**：
 
-| 文件 | 用途 | 状态 |
-|------|------|------|
-| `docker-compose.yml` | 开发/测试环境 | ✅ 可用 |
-| `docker-compose.prod.yml` | 生产环境 | ✅ 可用 |
-| `docker-compose.zero-downtime.yml` | 零停机部署 | ✅ 可用 |
+| 文件                               | 用途          | 状态    |
+| ---------------------------------- | ------------- | ------- |
+| `docker-compose.yml`               | 开发/测试环境 | ✅ 可用 |
+| `docker-compose.prod.yml`          | 生产环境      | ✅ 可用 |
+| `docker-compose.zero-downtime.yml` | 零停机部署    | ✅ 可用 |
 
 **推荐使用**: `docker-compose.prod.yml` - 专为生产环境优化
 
 **特性**:
+
 - 健康检查配置
 - 资源限制（CPU/内存）
 - 日志轮转配置
@@ -63,24 +65,24 @@
 
 ### 主部署脚本
 
-| 脚本 | 用途 | 目标服务器 | 状态 |
-|------|------|-----------|------|
-| `deploy-remote.sh` | 远程部署（推荐） | 7zi.com | ✅ 可用 |
-| `deploy-production.sh` | 生产部署 | 7zi.com | ✅ 可用 |
-| `deploy-cluster.sh` | 集群部署（8台） | 所有服务器 | ✅ 可用 |
-| `deploy.sh` | 快速部署 | 通用 | ✅ 可用 |
-| `deploy-zero-downtime.sh` | 零停机部署 | 7zi.com | ✅ 可用 |
+| 脚本                      | 用途             | 目标服务器 | 状态    |
+| ------------------------- | ---------------- | ---------- | ------- |
+| `deploy-remote.sh`        | 远程部署（推荐） | 7zi.com    | ✅ 可用 |
+| `deploy-production.sh`    | 生产部署         | 7zi.com    | ✅ 可用 |
+| `deploy-cluster.sh`       | 集群部署（8台）  | 所有服务器 | ✅ 可用 |
+| `deploy.sh`               | 快速部署         | 通用       | ✅ 可用 |
+| `deploy-zero-downtime.sh` | 零停机部署       | 7zi.com    | ✅ 可用 |
 
 ### 辅助脚本（deploy-scripts/）
 
-| 脚本 | 用途 | 状态 |
-|------|------|------|
-| `deploy-nginx.sh` | Nginx 部署 | ✅ 可用 |
-| `deploy-docker.sh` | Docker 部署 | ✅ 可用 |
-| `deploy-rsync.sh` | rsync 同步 | ✅ 可用 |
-| `deploy-7zi-bot5.sh` | 部署到 bot5 | ✅ 可用 |
-| `deploy-7zi-www.sh` | 部署到 www | ✅ 可用 |
-| `check-cicd.sh` | CI/CD 检查 | ✅ 可用 |
+| 脚本                       | 用途          | 状态    |
+| -------------------------- | ------------- | ------- |
+| `deploy-nginx.sh`          | Nginx 部署    | ✅ 可用 |
+| `deploy-docker.sh`         | Docker 部署   | ✅ 可用 |
+| `deploy-rsync.sh`          | rsync 同步    | ✅ 可用 |
+| `deploy-7zi-bot5.sh`       | 部署到 bot5   | ✅ 可用 |
+| `deploy-7zi-www.sh`        | 部署到 www    | ✅ 可用 |
+| `check-cicd.sh`            | CI/CD 检查    | ✅ 可用 |
 | `setup-git-hook-server.sh` | Git Hook 设置 | ✅ 可用 |
 
 **推荐使用**: `deploy-remote.sh deploy` - 完整的一键部署流程
@@ -139,11 +141,11 @@ SENTRY_PROJECT=xxx
 
 项目提供以下配置模板：
 
-| 文件 | 用途 | 状态 |
-|------|------|------|
-| `.env.example` | 完整环境变量示例 | ✅ 存在 |
-| `.env.production.example` | 生产环境示例 | ✅ 存在 |
-| `.env.production` | 实际生产配置 | ⚠️ 需要手动创建 |
+| 文件                      | 用途             | 状态            |
+| ------------------------- | ---------------- | --------------- |
+| `.env.example`            | 完整环境变量示例 | ✅ 存在         |
+| `.env.production.example` | 生产环境示例     | ✅ 存在         |
+| `.env.production`         | 实际生产配置     | ⚠️ 需要手动创建 |
 
 ---
 
@@ -151,11 +153,11 @@ SENTRY_PROJECT=xxx
 
 ### 应用端口
 
-| 服务 | 容器内端口 | 主机端口 | 说明 |
-|------|-----------|---------|------|
-| **Next.js Frontend** | 3000 | 3000 | 主应用 |
-| **Nginx** | 80/443 | 80/443 | 反向代理 |
-| **Socket.IO** | 3001 | 3001 | 实时通知（可选） |
+| 服务                 | 容器内端口 | 主机端口 | 说明             |
+| -------------------- | ---------- | -------- | ---------------- |
+| **Next.js Frontend** | 3000       | 3000     | 主应用           |
+| **Nginx**            | 80/443     | 80/443   | 反向代理         |
+| **Socket.IO**        | 3001       | 3001     | 实时通知（可选） |
 
 ### 服务器防火墙
 
@@ -202,6 +204,7 @@ cd /root/.openclaw/workspace
 ```
 
 **部署流程**：
+
 1. ✅ 检查本地依赖
 2. ✅ 检查服务器连接
 3. ✅ 检查 Docker 环境
@@ -213,6 +216,7 @@ cd /root/.openclaw/workspace
 9. ✅ 健康检查
 
 **其他命令**：
+
 ```bash
 ./deploy-remote.sh quick      # 快速部署（仅同步）
 ./deploy-remote.sh logs       # 查看日志
@@ -257,11 +261,11 @@ docker-compose -f docker-compose.prod.yml logs -f
 
 ### 最小配置
 
-| 资源 | 最低 | 推荐 |
-|------|------|------|
-| CPU | 1核 | 2核 |
-| 内存 | 512MB | 1GB |
-| 磁盘 | 10GB | 20GB |
+| 资源 | 最低          | 推荐             |
+| ---- | ------------- | ---------------- |
+| CPU  | 1核           | 2核              |
+| 内存 | 512MB         | 1GB              |
+| 磁盘 | 10GB          | 20GB             |
 | 系统 | Ubuntu 20.04+ | Ubuntu 22.04 LTS |
 
 ### 必需软件
@@ -289,10 +293,10 @@ curl, wget, rsync, git, sshpass
 
 项目提供 Nginx 配置文件：
 
-| 文件 | 用途 |
-|------|------|
-| `7zi-nginx.conf` | 主 Nginx 配置（已配置 SSL） |
-| `deploy-scripts/nginx/nginx.conf.template` | 配置模板 |
+| 文件                                       | 用途                        |
+| ------------------------------------------ | --------------------------- |
+| `7zi-nginx.conf`                           | 主 Nginx 配置（已配置 SSL） |
+| `deploy-scripts/nginx/nginx.conf.template` | 配置模板                    |
 
 ### Nginx 配置特性
 
@@ -307,6 +311,7 @@ curl, wget, rsync, git, sshpass
 ### SSL 证书
 
 证书位置：
+
 ```
 /web/ssl_unified/7zi.com.crt
 /web/ssl_unified/7zi.com.key
@@ -345,7 +350,13 @@ Docker Compose 已配置自动健康检查：
 
 ```yaml
 healthcheck:
-  test: ["CMD", "node", "-e", "require('http').get('http://localhost:3000/', (r) => {process.exit(r.statusCode === 200 ? 0 : 1)})"]
+  test:
+    [
+      'CMD',
+      'node',
+      '-e',
+      "require('http').get('http://localhost:3000/', (r) => {process.exit(r.statusCode === 200 ? 0 : 1)})",
+    ]
   interval: 30s
   timeout: 10s
   retries: 3
@@ -391,11 +402,11 @@ docker-compose -f docker-compose.zero-downtime.yml down
 
 ### 日志位置
 
-| 日志类型 | 位置 |
-|---------|------|
+| 日志类型    | 位置                          |
+| ----------- | ----------------------------- |
 | Docker 日志 | `/var/lib/docker/containers/` |
-| Nginx 日志 | `/var/log/nginx/` |
-| 应用日志 | Docker 容器内 |
+| Nginx 日志  | `/var/log/nginx/`             |
+| 应用日志    | Docker 容器内                 |
 
 ### 日志查看
 
@@ -566,13 +577,13 @@ docker log cleanup
 
 ### 相关文档
 
-| 文档 | 说明 |
-|------|------|
-| `README.md` | 项目主文档 |
-| `deploy-scripts/README.md` | 部署方案概览 |
-| `deploy-scripts/QUICKSTART.md` | 快速开始指南 |
-| `deploy-scripts/PROJECT_SUMMARY.md` | 部署方案总结 |
-| `7zi-nginx.conf` | Nginx 配置示例 |
+| 文档                                | 说明           |
+| ----------------------------------- | -------------- |
+| `README.md`                         | 项目主文档     |
+| `deploy-scripts/README.md`          | 部署方案概览   |
+| `deploy-scripts/QUICKSTART.md`      | 快速开始指南   |
+| `deploy-scripts/PROJECT_SUMMARY.md` | 部署方案总结   |
+| `7zi-nginx.conf`                    | Nginx 配置示例 |
 
 ### 在线文档
 

@@ -1,4 +1,4 @@
-'use client';
+'use client'
 
 /**
  * ThemeSelector Component
@@ -15,14 +15,14 @@
  * - Accessible keyboard navigation
  */
 
-import React, { useState } from 'react';
-import { useTheme } from '@/stores/preferencesStore';
+import React, { useState } from 'react'
+import { useTheme } from '@/stores/preferencesStore'
 
 interface ThemeOption {
-  value: 'light' | 'dark' | 'system';
-  label: string;
-  icon: React.ReactNode;
-  description: string;
+  value: 'light' | 'dark' | 'system'
+  label: string
+  icon: React.ReactNode
+  description: string
 }
 
 const THEME_OPTIONS: ThemeOption[] = [
@@ -30,7 +30,7 @@ const THEME_OPTIONS: ThemeOption[] = [
     value: 'light',
     label: '浅色模式',
     icon: (
-      <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+      <svg className="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
         <path
           strokeLinecap="round"
           strokeLinejoin="round"
@@ -45,7 +45,7 @@ const THEME_OPTIONS: ThemeOption[] = [
     value: 'dark',
     label: '深色模式',
     icon: (
-      <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+      <svg className="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
         <path
           strokeLinecap="round"
           strokeLinejoin="round"
@@ -60,7 +60,7 @@ const THEME_OPTIONS: ThemeOption[] = [
     value: 'system',
     label: '跟随系统',
     icon: (
-      <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+      <svg className="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
         <path
           strokeLinecap="round"
           strokeLinejoin="round"
@@ -71,49 +71,35 @@ const THEME_OPTIONS: ThemeOption[] = [
     ),
     description: '自动适应系统设置',
   },
-];
+]
 
 interface ThemeSelectorProps {
-  className?: string;
-  variant?: 'compact' | 'full';
+  className?: string
+  variant?: 'compact' | 'full'
 }
 
 export function ThemeSelector({ className = '', variant = 'full' }: ThemeSelectorProps) {
-  const { theme, setTheme, isDark } = useTheme();
-  const [isOpen, setIsOpen] = useState(false);
+  const { theme, setTheme, isDark } = useTheme()
+  const [isOpen, setIsOpen] = useState(false)
 
   if (variant === 'compact') {
     return (
       <button
         onClick={() => setTheme(isDark ? 'light' : 'dark')}
-        className={`
-          relative w-12 h-6 rounded-full
-          bg-zinc-200 dark:bg-zinc-700
-          transition-colors duration-300
-          focus:outline-none focus:ring-2 focus:ring-cyan-500
-          focus:ring-offset-2 dark:focus:ring-offset-zinc-900
-          ${className}
-        `}
+        className={`relative h-6 w-12 rounded-full bg-zinc-200 transition-colors duration-300 focus:ring-2 focus:ring-cyan-500 focus:ring-offset-2 focus:outline-none dark:bg-zinc-700 dark:focus:ring-offset-zinc-900 ${className} `}
         aria-label="Toggle theme"
       >
         <span
-          className={`
-            absolute top-1 left-1 w-4 h-4 rounded-full
-            bg-gradient-to-br
-            from-yellow-400 to-orange-500
-            dark:from-cyan-400 dark:to-blue-500
-            transition-transform duration-300 shadow-md
-            ${isDark ? 'translate-x-6' : 'translate-x-0'}
-          `}
+          className={`absolute top-1 left-1 h-4 w-4 rounded-full bg-gradient-to-br from-yellow-400 to-orange-500 shadow-md transition-transform duration-300 dark:from-cyan-400 dark:to-blue-500 ${isDark ? 'translate-x-6' : 'translate-x-0'} `}
         />
-        <span className="absolute left-1.5 top-1.5 text-[10px] transition-opacity duration-300 dark:opacity-0">
+        <span className="absolute top-1.5 left-1.5 text-[10px] transition-opacity duration-300 dark:opacity-0">
           ☀️
         </span>
-        <span className="absolute right-1.5 top-1.5 text-[10px] opacity-0 transition-opacity duration-300 dark:opacity-100">
+        <span className="absolute top-1.5 right-1.5 text-[10px] opacity-0 transition-opacity duration-300 dark:opacity-100">
           🌙
         </span>
       </button>
-    );
+    )
   }
 
   return (
@@ -121,14 +107,7 @@ export function ThemeSelector({ className = '', variant = 'full' }: ThemeSelecto
       {/* Dropdown Trigger */}
       <button
         onClick={() => setIsOpen(!isOpen)}
-        className="
-          flex items-center gap-2 px-4 py-2
-          bg-zinc-100 dark:bg-zinc-800
-          hover:bg-zinc-200 dark:hover:bg-zinc-700
-          rounded-lg transition-colors
-          focus:outline-none focus:ring-2 focus:ring-cyan-500
-          min-h-[44px] min-w-[44px]
-        "
+        className="flex min-h-[44px] min-w-[44px] items-center gap-2 rounded-lg bg-zinc-100 px-4 py-2 transition-colors hover:bg-zinc-200 focus:ring-2 focus:ring-cyan-500 focus:outline-none dark:bg-zinc-800 dark:hover:bg-zinc-700"
         aria-haspopup="listbox"
         aria-expanded={isOpen}
         aria-label="Select theme"
@@ -142,19 +121,14 @@ export function ThemeSelector({ className = '', variant = 'full' }: ThemeSelecto
           {THEME_OPTIONS.find(opt => opt.value === theme)?.label}
         </span>
         <svg
-          className={`w-4 h-4 text-zinc-500 dark:text-zinc-400 transition-transform ${
+          className={`h-4 w-4 text-zinc-500 transition-transform dark:text-zinc-400 ${
             isOpen ? 'rotate-180' : ''
           }`}
           fill="none"
           stroke="currentColor"
           viewBox="0 0 24 24"
         >
-          <path
-            strokeLinecap="round"
-            strokeLinejoin="round"
-            strokeWidth={2}
-            d="M19 9l-7 7-7-7"
-          />
+          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
         </svg>
       </button>
 
@@ -162,53 +136,39 @@ export function ThemeSelector({ className = '', variant = 'full' }: ThemeSelecto
       {isOpen && (
         <>
           {/* Backdrop */}
-          <div
-            className="fixed inset-0 z-40"
-            onClick={() => setIsOpen(false)}
-          />
+          <div className="fixed inset-0 z-40" onClick={() => setIsOpen(false)} />
 
           {/* Menu */}
           <div
-            className="
-              absolute right-0 top-full mt-2 w-64
-              bg-white dark:bg-zinc-900
-              border border-zinc-200 dark:border-zinc-800
-              rounded-xl shadow-lg z-50
-              p-2 space-y-1
-            "
+            className="absolute top-full right-0 z-50 mt-2 w-64 space-y-1 rounded-xl border border-zinc-200 bg-white p-2 shadow-lg dark:border-zinc-800 dark:bg-zinc-900"
             role="listbox"
           >
-            {THEME_OPTIONS.map((option) => {
-              const isActive = theme === option.value;
+            {THEME_OPTIONS.map(option => {
+              const isActive = theme === option.value
 
               return (
                 <button
                   key={option.value}
                   onClick={() => {
-                    setTheme(option.value);
-                    setIsOpen(false);
+                    setTheme(option.value)
+                    setIsOpen(false)
                   }}
                   role="option"
                   aria-selected={isActive}
-                  className={`
-                    w-full flex items-center gap-3 px-4 py-3
-                    rounded-lg transition-all
-                    min-h-[44px] text-left
-                    ${
-                      isActive
-                        ? 'bg-cyan-50 dark:bg-cyan-900/20 text-cyan-700 dark:text-cyan-300'
-                        : 'hover:bg-zinc-100 dark:hover:bg-zinc-800 text-zinc-700 dark:text-zinc-300'
-                    }
-                  `}
+                  className={`flex min-h-[44px] w-full items-center gap-3 rounded-lg px-4 py-3 text-left transition-all ${
+                    isActive
+                      ? 'bg-cyan-50 text-cyan-700 dark:bg-cyan-900/20 dark:text-cyan-300'
+                      : 'text-zinc-700 hover:bg-zinc-100 dark:text-zinc-300 dark:hover:bg-zinc-800'
+                  } `}
                 >
                   <span className="text-xl">{option.icon}</span>
-                  <div className="flex-1 min-w-0">
+                  <div className="min-w-0 flex-1">
                     <div className="text-sm font-medium">{option.label}</div>
                     <div className="text-xs opacity-70">{option.description}</div>
                   </div>
                   {isActive && (
                     <svg
-                      className="w-5 h-5 text-cyan-600 dark:text-cyan-400"
+                      className="h-5 w-5 text-cyan-600 dark:text-cyan-400"
                       fill="currentColor"
                       viewBox="0 0 20 20"
                     >
@@ -220,50 +180,36 @@ export function ThemeSelector({ className = '', variant = 'full' }: ThemeSelecto
                     </svg>
                   )}
                 </button>
-              );
+              )
             })}
           </div>
         </>
       )}
     </div>
-  );
+  )
 }
 
 /**
  * Compact theme toggle button that cycles through themes
  */
 export function ThemeToggleCycle({ className = '' }: { className?: string }) {
-  const { theme, isDark, toggleTheme } = useTheme();
+  const { theme, isDark, toggleTheme } = useTheme()
 
   return (
     <button
       onClick={toggleTheme}
-      className={`
-        relative w-12 h-6 rounded-full
-        bg-zinc-200 dark:bg-zinc-700
-        transition-colors duration-300
-        focus:outline-none focus:ring-2 focus:ring-cyan-500
-        focus:ring-offset-2 dark:focus:ring-offset-zinc-900
-        ${className}
-      `}
+      className={`relative h-6 w-12 rounded-full bg-zinc-200 transition-colors duration-300 focus:ring-2 focus:ring-cyan-500 focus:ring-offset-2 focus:outline-none dark:bg-zinc-700 dark:focus:ring-offset-zinc-900 ${className} `}
       aria-label={`Current theme: ${theme}. Click to toggle.`}
     >
       <span
-        className={`
-          absolute top-1 left-1 w-4 h-4 rounded-full
-          bg-gradient-to-br
-          from-yellow-400 to-orange-500
-          dark:from-cyan-400 dark:to-blue-500
-          transition-transform duration-300 shadow-md
-          ${isDark ? 'translate-x-6' : 'translate-x-0'}
-        `}
+        className={`absolute top-1 left-1 h-4 w-4 rounded-full bg-gradient-to-br from-yellow-400 to-orange-500 shadow-md transition-transform duration-300 dark:from-cyan-400 dark:to-blue-500 ${isDark ? 'translate-x-6' : 'translate-x-0'} `}
       />
-      <span className="absolute left-1.5 top-1.5 text-[10px] transition-opacity duration-300 dark:opacity-0">
+      <span className="absolute top-1.5 left-1.5 text-[10px] transition-opacity duration-300 dark:opacity-0">
         ☀️
       </span>
-      <span className="absolute right-1.5 top-1.5 text-[10px] opacity-0 transition-opacity duration-300 dark:opacity-100">
+      <span className="absolute top-1.5 right-1.5 text-[10px] opacity-0 transition-opacity duration-300 dark:opacity-100">
         🌙
       </span>
     </button>
-  );
+  )
 }

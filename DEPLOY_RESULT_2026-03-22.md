@@ -43,6 +43,7 @@ Error occurred prerendering page "/examples.disabled/realtime-dashboard"
 ## 已完成的操作
 
 ### 1. 代码修复
+
 ```bash
 # 删除有问题的 disabled 目录
 rm -rf /root/.openclaw/workspace/7zi-project/src/app/examples.disabled
@@ -52,6 +53,7 @@ rm -rf /root/.openclaw/workspace/7zi-project/src/app/examples.disabled
 ```
 
 ### 2. 修改的文件
+
 - `/root/.openclaw/workspace/7zi-project/src/app/undo-redo-example/page.tsx`
 
 ## 建议的解决方案
@@ -59,6 +61,7 @@ rm -rf /root/.openclaw/workspace/7zi-project/src/app/examples.disabled
 ### 短期方案
 
 1. **禁用问题页面进行部署**
+
    ```bash
    # 重命名示例页面，跳过构建
    mv /root/.openclaw/workspace/7zi-project/src/app/undo-redo-example \
@@ -80,6 +83,7 @@ rm -rf /root/.openclaw/workspace/7zi-project/src/app/examples.disabled
    - 避免在生产构建中包含
 
 2. **优化构建配置**
+
    ```ts
    // next.config.ts
    export default {
@@ -88,7 +92,7 @@ rm -rf /root/.openclaw/workspace/7zi-project/src/app/examples.disabled
        workerThreads: false,
        // 跳过 TypeScript 检查（生产环境）
        typedRoutes: false,
-     }
+     },
    }
    ```
 

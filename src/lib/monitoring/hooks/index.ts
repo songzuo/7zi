@@ -15,4 +15,4 @@ export {
   type PerformanceSummary,
   type UsePerformanceMonitorOptions,
   type UsePerformanceMonitorReturn,
-} from '../use-performance';
+} from '../use-performance'

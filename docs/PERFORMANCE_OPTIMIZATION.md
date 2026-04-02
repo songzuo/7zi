@@ -16,11 +16,13 @@
 ### 1. ProgressBar.tsx
 
 **优化前问题:**
+
 - 缺少 `React.memo` 包装
 - 每次渲染重新创建 `sizeClasses` 和 `colorClasses` 对象
 - 缺少 `useMemo` 缓存计算结果
 
 **优化措施:**
+
 - 使用 `memo` 包装 `ProgressBar`、`CircularProgress`、`MultiProgressBar` 组件
 - 将 `SIZE_CLASSES` 和 `COLOR_CLASSES` 配置移到模块级别
 - 使用 `useMemo` 缓存 `percentage`、`strokeDashoffset` 等计算结果
@@ -41,12 +43,14 @@ const ProgressBar = memo(function ProgressBar({ ... }) {
 ### 2. ThemeToggle.tsx
 
 **优化前问题:**
+
 - 缺少 `React.memo` 包装
 - 每次渲染重新创建 `THEME_OPTIONS` 数组
 - 主题选项渲染使用内联函数
 - 缺少 `useMemo` 缓存
 
 **优化措施:**
+
 - 使用 `memo` 包装整个组件
 - 将 `THEME_OPTIONS` 和 `SIZE_CLASSES` 移到模块级别
 - 提取 `ThemeOptionButton` 子组件并使用 `memo`
@@ -55,16 +59,12 @@ const ProgressBar = memo(function ProgressBar({ ... }) {
 
 ```tsx
 // 子组件提取
-const ThemeOptionButton = memo(function ThemeOptionButton({
-  option,
-  isSelected,
-  onSelect,
-}) {
+const ThemeOptionButton = memo(function ThemeOptionButton({ option, isSelected, onSelect }) {
   const handleClick = useCallback(() => {
-    onSelect(option.value);
-  }, [option.value, onSelect]);
+    onSelect(option.value)
+  }, [option.value, onSelect])
   // ...
-});
+})
 ```
 
 ---
@@ -72,12 +72,14 @@ const ThemeOptionButton = memo(function ThemeOptionButton({
 ### 3. LanguageSwitcher.tsx
 
 **优化前问题:**
+
 - 缺少 `React.memo` 包装
 - 每次渲染重新创建 `sizeClasses` 和 `iconSizes` 对象
 - `getCurrentLocale` 函数在每次渲染时重新定义
 - 语言选项渲染使用内联函数
 
 **优化措施:**
+
 - 使用 `memo` 包装整个组件
 - 将 `SIZE_CLASSES` 和 `ICON_SIZES` 移到模块级别
 - 提取 `LanguageOption` 子组件并使用 `memo`
@@ -86,16 +88,12 @@ const ThemeOptionButton = memo(function ThemeOptionButton({
 
 ```tsx
 // 子组件提取
-const LanguageOption = memo(function LanguageOption({
-  locale,
-  isCurrent,
-  onSelect,
-}) {
+const LanguageOption = memo(function LanguageOption({ locale, isCurrent, onSelect }) {
   const handleClick = useCallback(() => {
-    onSelect(locale);
-  }, [locale, onSelect]);
+    onSelect(locale)
+  }, [locale, onSelect])
   // ...
-});
+})
 ```
 
 ---
@@ -103,11 +101,13 @@ const LanguageOption = memo(function LanguageOption({
 ### 4. Loading.tsx
 
 **优化前问题:**
+
 - `LoadingPage`、`LoadingContent`、`LoadingWithProgress` 缺少 `memo`
 - 条件渲染逻辑在每次渲染时重新计算
 - 缺少 `useMemo` 缓存
 
 **优化措施:**
+
 - 使用 `memo` 包装所有三个导出组件
 - 使用 `useMemo` 缓存渲染内容
 - 减少不必要的条件判断
@@ -131,22 +131,22 @@ export const LoadingPage = memo(function LoadingPage({
 
 以下组件在之前的优化中已经应用了性能优化措施：
 
-| 组件 | 优化措施 |
-|------|----------|
-| ActivityLog.tsx | memo, useCallback, useMemo |
-| BatchOperationsToolbar.tsx | memo, useRef 稳定回调, 常量外部化 |
-| ContributionChart.tsx | memo, useMemo, 子组件分离 |
-| ErrorBoundary.tsx | 类组件 (无需 memo) |
-| FeedbackSystem.tsx | memo, useCallback, useMemo |
-| MemberCard.tsx | memo, 自定义比较函数, useCallback |
-| Navigation.tsx | memo, useCallback, 子组件分离 |
-| NotificationToast.tsx | memo, useCallback, useRef |
-| ProfilePage.tsx | memo, useCallback, useMemo, 子组件分离 |
-| RealtimeChart.tsx | memo, useMemo, 常量外部化 |
-| RealtimeCollaborationPanel.tsx | memo, useCallback, useMemo |
-| TaskBoard.tsx | memo, useCallback, useMemo, 自定义比较函数 |
-| ThemeCustomizer.tsx | memo, useCallback, useMemo |
-| Rating.tsx | memo, useCallback |
+| 组件                           | 优化措施                                   |
+| ------------------------------ | ------------------------------------------ |
+| ActivityLog.tsx                | memo, useCallback, useMemo                 |
+| BatchOperationsToolbar.tsx     | memo, useRef 稳定回调, 常量外部化          |
+| ContributionChart.tsx          | memo, useMemo, 子组件分离                  |
+| ErrorBoundary.tsx              | 类组件 (无需 memo)                         |
+| FeedbackSystem.tsx             | memo, useCallback, useMemo                 |
+| MemberCard.tsx                 | memo, 自定义比较函数, useCallback          |
+| Navigation.tsx                 | memo, useCallback, 子组件分离              |
+| NotificationToast.tsx          | memo, useCallback, useRef                  |
+| ProfilePage.tsx                | memo, useCallback, useMemo, 子组件分离     |
+| RealtimeChart.tsx              | memo, useMemo, 常量外部化                  |
+| RealtimeCollaborationPanel.tsx | memo, useCallback, useMemo                 |
+| TaskBoard.tsx                  | memo, useCallback, useMemo, 自定义比较函数 |
+| ThemeCustomizer.tsx            | memo, useCallback, useMemo                 |
+| Rating.tsx                     | memo, useCallback                          |
 
 ---
 
@@ -157,15 +157,18 @@ export const LoadingPage = memo(function LoadingPage({
 ```tsx
 // 推荐：命名函数便于调试
 const MyComponent = memo(function MyComponent({ data }) {
-  return <div>{data}</div>;
-});
+  return <div>{data}</div>
+})
 
 // 推荐：自定义比较函数
-const ExpensiveComponent = memo(function ExpensiveComponent({ item }) {
-  return <div>{item.name}</div>;
-}, (prevProps, nextProps) => {
-  return prevProps.item.id === nextProps.item.id;
-});
+const ExpensiveComponent = memo(
+  function ExpensiveComponent({ item }) {
+    return <div>{item.name}</div>
+  },
+  (prevProps, nextProps) => {
+    return prevProps.item.id === nextProps.item.id
+  }
+)
 ```
 
 ### 2. useCallback 使用
@@ -173,29 +176,32 @@ const ExpensiveComponent = memo(function ExpensiveComponent({ item }) {
 ```tsx
 // 推荐：缓存事件处理函数
 const handleClick = useCallback((id: string) => {
-  setSelected(id);
-}, []);
+  setSelected(id)
+}, [])
 
 // 推荐：依赖项完整
-const handleSubmit = useCallback((data: FormData) => {
-  submitForm(data, userId);
-}, [userId]);
+const handleSubmit = useCallback(
+  (data: FormData) => {
+    submitForm(data, userId)
+  },
+  [userId]
+)
 ```
 
 ### 3. useMemo 使用
 
 ```tsx
 // 推荐：缓存计算结果
-const sortedData = useMemo(
-  () => [...data].sort((a, b) => a.name.localeCompare(b.name)),
-  [data]
-);
+const sortedData = useMemo(() => [...data].sort((a, b) => a.name.localeCompare(b.name)), [data])
 
 // 推荐：缓存对象/数组
-const config = useMemo(() => ({
-  enabled: isEnabled,
-  timeout: 5000,
-}), [isEnabled]);
+const config = useMemo(
+  () => ({
+    enabled: isEnabled,
+    timeout: 5000,
+  }),
+  [isEnabled]
+)
 ```
 
 ### 4. 常量外部化
@@ -206,11 +212,11 @@ const SIZE_CLASSES = {
   sm: 'p-2 text-sm',
   md: 'p-3 text-base',
   lg: 'p-4 text-lg',
-} as const;
+} as const
 
 const MyComponent = memo(function MyComponent({ size }) {
-  return <div className={SIZE_CLASSES[size]}>...</div>;
-});
+  return <div className={SIZE_CLASSES[size]}>...</div>
+})
 ```
 
 ### 5. 子组件分离
@@ -222,8 +228,8 @@ const ItemRow = memo(function ItemRow({ item, onSelect }) {
     <tr onClick={() => onSelect(item.id)}>
       <td>{item.name}</td>
     </tr>
-  );
-});
+  )
+})
 
 const ItemList = memo(function ItemList({ items }) {
   return (
@@ -232,8 +238,8 @@ const ItemList = memo(function ItemList({ items }) {
         <ItemRow key={item.id} item={item} onSelect={handleSelect} />
       ))}
     </table>
-  );
-});
+  )
+})
 ```
 
 ---
@@ -259,6 +265,7 @@ const ItemList = memo(function ItemList({ items }) {
 ## 更新日志
 
 ### 2024-03-07
+
 - 优化 ProgressBar.tsx：添加 memo, useMemo
 - 优化 ThemeToggle.tsx：添加 memo, useCallback, 子组件分离
 - 优化 LanguageSwitcher.tsx：添加 memo, useMemo, 子组件分离
@@ -266,6 +273,7 @@ const ItemList = memo(function ItemList({ items }) {
 - 创建性能优化文档
 
 ### 之前优化
+
 - 优化核心组件：ActivityLog, BatchOperationsToolbar, ContributionChart 等
 - 优化 UI 组件：Navigation, NotificationToast, Rating 等
 - 优化业务组件：TaskBoard, ProfilePage, ThemeCustomizer 等

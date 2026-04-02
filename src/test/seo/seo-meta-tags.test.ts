@@ -35,8 +35,8 @@ describe('SEO - Meta Tags 完整性测试', () => {
 
       expect(customImageMeta.openGraph).toBeDefined()
       expect(customImageMeta.openGraph?.images).toBeDefined()
-      const images = customImageMeta.openGraph?.images;
-      const firstImage = Array.isArray(images) ? images[0] : images;
+      const images = customImageMeta.openGraph?.images
+      const firstImage = Array.isArray(images) ? images[0] : images
       expect(firstImage).toContain('/images/custom-og.jpg')
     })
 
@@ -48,7 +48,7 @@ describe('SEO - Meta Tags 完整性测试', () => {
       })
 
       expect(noIndexMeta.robots).toBeDefined()
-      const robots = noIndexMeta.robots;
+      const robots = noIndexMeta.robots
       if (typeof robots === 'object' && robots !== null) {
         expect(robots.index).toBe(false)
         expect(robots.follow).toBe(false)
@@ -69,7 +69,7 @@ describe('SEO - Meta Tags 完整性测试', () => {
       })
 
       expect(i18nMeta.alternates).toBeDefined()
-      const alternates = i18nMeta.alternates;
+      const alternates = i18nMeta.alternates
       if (alternates && typeof alternates === 'object') {
         expect(alternates.canonical).toBeDefined()
         expect(alternates.languages).toBeDefined()
@@ -83,7 +83,7 @@ describe('SEO - Meta Tags 完整性测试', () => {
     it('description 应在合理长度范围内', () => {
       const testCases = Object.values(pageMetadataConfig)
 
-      testCases.forEach((config) => {
+      testCases.forEach(config => {
         const meta = generatePageMetadata(config)
         const desc = meta.description || ''
 
@@ -97,14 +97,14 @@ describe('SEO - Meta Tags 完整性测试', () => {
 
   describe('Metadata 质量检查', () => {
     it('所有页面配置应有唯一的 title', () => {
-      const titles = Object.values(pageMetadataConfig).map((config) => config.title)
+      const titles = Object.values(pageMetadataConfig).map(config => config.title)
       const uniqueTitles = new Set(titles)
 
       expect(titles.length).toBe(uniqueTitles.size)
     })
 
     it('所有页面配置应有唯一的 description', () => {
-      const descriptions = Object.values(pageMetadataConfig).map((config) => config.description)
+      const descriptions = Object.values(pageMetadataConfig).map(config => config.description)
       const uniqueDescriptions = new Set(descriptions)
 
       // 允许少量重复，但大部分应唯一
@@ -115,9 +115,9 @@ describe('SEO - Meta Tags 完整性测试', () => {
     it('keywords 应包含相关术语', () => {
       const importantKeywords = ['Next.js', 'React', 'TypeScript', '图片优化']
 
-      importantKeywords.forEach((keyword) => {
-        const found = Object.values(pageMetadataConfig).some((config) =>
-          config.keywords?.some((k) => k.toLowerCase().includes(keyword.toLowerCase()))
+      importantKeywords.forEach(keyword => {
+        const found = Object.values(pageMetadataConfig).some(config =>
+          config.keywords?.some(k => k.toLowerCase().includes(keyword.toLowerCase()))
         )
         expect(found).toBe(true)
       })

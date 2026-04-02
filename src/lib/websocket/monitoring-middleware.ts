@@ -5,9 +5,11 @@
  * @version 1.8.0
  */
 
-import { Server as SocketIOServer } from "socket.io";
-import { wsMonitor } from "@/lib/monitoring/websocket-monitor";
-import { logger } from "@/lib/logger";
+import { Server as SocketIOServer } from 'socket.io'
+import type { Socket as ServerSocket } from 'socket.io'
+import type { Socket as ClientSocket } from 'socket.io-client'
+import { wsMonitor } from '@/lib/monitoring/websocket-monitor'
+import { logger } from '@/lib/logger'
 
 /**
  * 设置服务端 WebSocket 监控
@@ -19,31 +21,31 @@ export function setupWebSocketMonitoring(io: SocketIOServer): void {
     latencyWarningThreshold: 200,
     latencyCriticalThreshold: 500,
     autoReport: true,
-    verbose: process.env.NODE_ENV === "development",
-  });
+    verbose: process.env.NODE_ENV === 'development',
+  })
 
   // 监控服务端
-  wsMonitor.trackSocketServer(io, "server");
+  wsMonitor.trackSocketServer(io, 'server')
 
   // 监控每个客户端连接
-  io.on("connection", (socket: any) => {
-    const namespace = `client_${socket.id}`;
-    
+  io.on('connection', (socket: ServerSocket) => {
+    const namespace = `client_${socket.id}`
+
     // 设置 ping/pong 处理
-    socket.on("ping", (data: { timestamp: number }) => {
-      const latency = Date.now() - data.timestamp;
-      
-      socket.emit("pong", { 
+    socket.on('ping', (data: { timestamp: number }) => {
+      const latency = Date.now() - data.timestamp
+
+      socket.emit('pong', {
         timestamp: data.timestamp,
         serverTime: Date.now(),
-      });
+      })
 
       // 记录服务端延迟
-      logger.debug(`[WS Monitor] Client ${socket.id} latency: ${latency}ms`);
-    });
-  });
+      logger.debug(`[WS Monitor] Client ${socket.id} latency: ${latency}ms`)
+    })
+  })
 
-  logger.info("[WS Monitor] WebSocket monitoring initialized");
+  logger.info('[WS Monitor] WebSocket monitoring initialized')
 }
 
 /**
@@ -51,31 +53,31 @@ export function setupWebSocketMonitoring(io: SocketIOServer): void {
  * 用于客户端 Socket.IO 连接监控
  */
 export function useWebSocketMonitoring(
-  socket: any,
-  namespace: string = "default"
+  socket: ClientSocket,
+  namespace: string = 'default'
 ): () => void {
-  return wsMonitor.trackSocketClient(socket, namespace);
+  return wsMonitor.trackSocketClient(socket, namespace)
 }
 
 /**
  * 获取 WebSocket 监控统计
  */
 export function getWebSocketStats() {
-  return wsMonitor.getStats();
+  return wsMonitor.getStats()
 }
 
 /**
  * 获取 WebSocket 延迟历史
  */
 export function getWebSocketLatencyHistory(namespace?: string) {
-  return wsMonitor.getLatencyHistory(namespace);
+  return wsMonitor.getLatencyHistory(namespace)
 }
 
 /**
  * 获取 WebSocket 事件历史
  */
 export function getWebSocketEventHistory() {
-  return wsMonitor.getEventHistory();
+  return wsMonitor.getEventHistory()
 }
 
-export { wsMonitor };
+export { wsMonitor }

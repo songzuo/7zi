@@ -1,9 +1,9 @@
-'use client';
+'use client'
 
 /**
  * @fileoverview 性能优化 - 懒加载图片组件
  * @description 提供优化的图片加载体验
- * 
+ *
  * 优化策略:
  * 1. 视口懒加载 - 只有进入视口才加载
  * 2. 模糊占位符 - 加载前显示模糊预览
@@ -11,22 +11,22 @@
  * 4. 错误处理 - 加载失败时显示占位符
  */
 
-import { useState, useRef, useEffect, CSSProperties } from 'react';
+import { useState, useRef, useEffect, CSSProperties } from 'react'
 
 interface OptimizedImageProps {
-  src: string;
-  alt: string;
-  width?: number;
-  height?: number;
-  className?: string;
-  style?: CSSProperties;
-  priority?: boolean;
-  blurDataURL?: string;
-  placeholder?: 'blur' | 'empty';
-  quality?: number;
-  sizes?: string;
-  onLoad?: () => void;
-  onError?: () => void;
+  src: string
+  alt: string
+  width?: number
+  height?: number
+  className?: string
+  style?: CSSProperties
+  priority?: boolean
+  blurDataURL?: string
+  placeholder?: 'blur' | 'empty'
+  quality?: number
+  sizes?: string
+  onLoad?: () => void
+  onError?: () => void
 }
 
 /**
@@ -47,49 +47,50 @@ export function OptimizedImage({
   onLoad,
   onError,
 }: OptimizedImageProps) {
-  const [isLoaded, setIsLoaded] = useState(false);
-  const [hasError, setHasError] = useState(false);
-  const [isInView, setIsInView] = useState(priority);
-  const imgRef = useRef<HTMLDivElement>(null);
+  const [isLoaded, setIsLoaded] = useState(false)
+  const [hasError, setHasError] = useState(false)
+  const [isInView, setIsInView] = useState(priority)
+  const imgRef = useRef<HTMLDivElement>(null)
 
   // 视口检测
   useEffect(() => {
-    if (priority) return;
+    if (priority) return
 
     const observer = new IntersectionObserver(
       ([entry]) => {
         if (entry.isIntersecting) {
-          setIsInView(true);
-          observer.disconnect();
+          setIsInView(true)
+          observer.disconnect()
         }
       },
       {
         rootMargin: '100px',
         threshold: 0.1,
       }
-    );
+    )
 
     if (imgRef.current) {
-      observer.observe(imgRef.current);
+      observer.observe(imgRef.current)
     }
 
-    return () => observer.disconnect();
-  }, [priority]);
+    return () => observer.disconnect()
+  }, [priority])
 
   const handleLoad = () => {
-    setIsLoaded(true);
-    onLoad?.();
-  };
+    setIsLoaded(true)
+    onLoad?.()
+  }
 
   const handleError = () => {
-    setHasError(true);
-    onError?.();
-  };
+    setHasError(true)
+    onError?.()
+  }
 
   // 构建优化后的 URL (如果使用 Next.js Image Optimization API)
-  const optimizedSrc = src.startsWith('http') || src.startsWith('/')
-    ? src
-    : `/_next/image?url=${encodeURIComponent(src)}&w=${width || 640}&q=${quality}`;
+  const optimizedSrc =
+    src.startsWith('http') || src.startsWith('/')
+      ? src
+      : `/_next/image?url=${encodeURIComponent(src)}&w=${width || 640}&q=${quality}`
 
   return (
     <div
@@ -104,25 +105,20 @@ export function OptimizedImage({
       {/* 占位符 */}
       {(!isLoaded || hasError) && (
         <div
-          className="absolute inset-0 bg-zinc-200 dark:bg-zinc-800 animate-pulse"
+          className="absolute inset-0 animate-pulse bg-zinc-200 dark:bg-zinc-800"
           aria-hidden="true"
         >
           {placeholder === 'blur' && blurDataURL && !hasError && (
             <img
               src={blurDataURL}
               alt=""
-              className="w-full h-full object-cover blur-sm scale-110"
+              className="h-full w-full scale-110 object-cover blur-sm"
               aria-hidden="true"
             />
           )}
           {hasError && (
-            <div className="w-full h-full flex items-center justify-center text-zinc-400">
-              <svg
-                className="w-8 h-8"
-                fill="none"
-                viewBox="0 0 24 24"
-                stroke="currentColor"
-              >
+            <div className="flex h-full w-full items-center justify-center text-zinc-400">
+              <svg className="h-8 w-8" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path
                   strokeLinecap="round"
                   strokeLinejoin="round"
@@ -147,21 +143,21 @@ export function OptimizedImage({
           decoding="async"
           onLoad={handleLoad}
           onError={handleError}
-          className={`w-full h-full object-cover transition-opacity duration-500 ${
+          className={`h-full w-full object-cover transition-opacity duration-500 ${
             isLoaded ? 'opacity-100' : 'opacity-0'
           }`}
         />
       )}
     </div>
-  );
+  )
 }
 
 /**
  * 响应式图片组件
  */
 interface ResponsiveImageProps extends Omit<OptimizedImageProps, 'width' | 'height'> {
-  aspectRatio?: '16/9' | '4/3' | '1/1' | '3/4' | '2/3';
-  fill?: boolean;
+  aspectRatio?: '16/9' | '4/3' | '1/1' | '3/4' | '2/3'
+  fill?: boolean
 }
 
 export function ResponsiveImage({
@@ -178,13 +174,9 @@ export function ResponsiveImage({
         ...(fill && { position: 'absolute', inset: 0 }),
       }}
     >
-      <OptimizedImage
-        {...props}
-        className="w-full h-full"
-        style={{ objectFit: 'cover' }}
-      />
+      <OptimizedImage {...props} className="h-full w-full" style={{ objectFit: 'cover' }} />
     </div>
-  );
+  )
 }
 
-export default OptimizedImage;
+export default OptimizedImage

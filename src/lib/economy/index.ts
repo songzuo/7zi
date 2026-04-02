@@ -4,33 +4,17 @@
  */
 
 // 类型定义
-export * from './types.js';
+export * from './types.js'
 
 // 钱包模块
-export {
-  WalletService,
-  InMemoryWalletRepository,
-  InMemoryTransactionRepository,
-} from './wallet.js';
+export { WalletService, InMemoryWalletRepository, InMemoryTransactionRepository } from './wallet.js'
 
 // 定价模块
-export {
-  PricingService,
-  InMemoryPricingRepository,
-  InMemoryCouponRepository,
-} from './pricing.js';
+export { PricingService, InMemoryPricingRepository, InMemoryCouponRepository } from './pricing.js'
 
 // 信用评分模块
-export {
-  CreditScoreService,
-  InMemoryCreditScoreRepository,
-  DEFAULT_WEIGHTS,
-} from './credit.js';
+export { CreditScoreService, InMemoryCreditScoreRepository, DEFAULT_WEIGHTS } from './credit.js'
 
 // 支付模块
-export {
-  PaymentService,
-  InMemoryPaymentRepository,
-  MockPaymentGateway,
-} from './payment.js';
-export type { IPaymentGateway } from './payment.js';
+export { PaymentService, InMemoryPaymentRepository, MockPaymentGateway } from './payment'
+export type { IPaymentGateway } from './payment'

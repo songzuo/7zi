@@ -4,7 +4,7 @@
  * 权限检查工具函数，与现有 auth 系统兼容
  */
 
-import { Role, Permission, User, CheckPermissionOptions, PermissionCheckResult } from './types';
+import { Role, Permission, User, CheckPermissionOptions, PermissionCheckResult } from './types'
 
 /**
  * 角色权限映射
@@ -23,21 +23,16 @@ const ROLE_PERMISSIONS: Record<Role, Permission[]> = {
     Permission.SETTINGS,
     Permission.AUDIT,
   ],
-  [Role.USER]: [
-    Permission.READ,
-    Permission.WRITE,
-    Permission.DELETE,
-  ],
-  [Role.GUEST]: [
-    Permission.READ,
-  ],
-};
+  [Role.USER]: [Permission.READ, Permission.WRITE, Permission.DELETE],
+  [Role.GUEST]: [Permission.READ],
+}
 
 /**
  * 获取角色的默认权限
  */
 export function getDefaultPermissions(role: Role): Permission[] {
-  return [...ROLE_PERMISSIONS[role]] || [];
+  const permissions = ROLE_PERMISSIONS[role]
+  return permissions ? [...permissions] : []
 }
 
 /**
@@ -46,20 +41,20 @@ export function getDefaultPermissions(role: Role): Permission[] {
 export function checkPermission(user: User | null, permission: Permission): PermissionCheckResult {
   // 用户未登录
   if (!user) {
-    return { allowed: false, reason: '用户未登录' };
+    return { allowed: false, reason: '用户未登录' }
   }
 
   // 管理员拥有所有权限
   if (user.role === Role.ADMIN) {
-    return { allowed: true };
+    return { allowed: true }
   }
 
   // 检查用户权限列表
   if (user.permissions.includes(permission)) {
-    return { allowed: true };
+    return { allowed: true }
   }
 
-  return { allowed: false, reason: '权限不足' };
+  return { allowed: false, reason: '权限不足' }
 }
 
 /**
@@ -71,27 +66,27 @@ export function checkAnyPermission(
 ): PermissionCheckResult {
   // 用户未登录
   if (!user) {
-    return { allowed: false, reason: '用户未登录' };
+    return { allowed: false, reason: '用户未登录' }
   }
 
   // 空数组意味着不需要任何权限
   if (permissions.length === 0) {
-    return { allowed: true };
+    return { allowed: true }
   }
 
   // 管理员拥有所有权限
   if (user.role === Role.ADMIN) {
-    return { allowed: true };
+    return { allowed: true }
   }
 
   // 检查用户是否有任一权限
-  const hasPermission = permissions.some(permission => user.permissions.includes(permission));
+  const hasPermission = permissions.some(permission => user.permissions.includes(permission))
 
   if (hasPermission) {
-    return { allowed: true };
+    return { allowed: true }
   }
 
-  return { allowed: false, reason: '权限不足' };
+  return { allowed: false, reason: '权限不足' }
 }
 
 /**
@@ -103,22 +98,22 @@ export function checkAllPermissions(
 ): PermissionCheckResult {
   // 用户未登录
   if (!user) {
-    return { allowed: false, reason: '用户未登录' };
+    return { allowed: false, reason: '用户未登录' }
   }
 
   // 管理员拥有所有权限
   if (user.role === Role.ADMIN) {
-    return { allowed: true };
+    return { allowed: true }
   }
 
   // 检查用户是否有所有权限
-  const hasAll = permissions.every(permission => user.permissions.includes(permission));
+  const hasAll = permissions.every(permission => user.permissions.includes(permission))
 
   if (hasAll) {
-    return { allowed: true };
+    return { allowed: true }
   }
 
-  return { allowed: false, reason: '权限不足' };
+  return { allowed: false, reason: '权限不足' }
 }
 
 /**
@@ -126,17 +121,17 @@ export function checkAllPermissions(
  */
 export function checkRole(user: User | null, role: Role): boolean {
   if (!user) {
-    return false;
+    return false
   }
 
-  return user.role === role;
+  return user.role === role
 }
 
 /**
  * 检查用户是否是管理员
  */
 export function checkIsAdmin(user: User | null): boolean {
-  return checkRole(user, Role.ADMIN);
+  return checkRole(user, Role.ADMIN)
 }
 
 /**
@@ -149,21 +144,21 @@ export function checkResourceAccess(
 ): PermissionCheckResult {
   // 用户未登录
   if (!user) {
-    return { allowed: false, reason: '用户未登录' };
+    return { allowed: false, reason: '用户未登录' }
   }
 
   // 管理员可以访问所有资源
   if (user.role === Role.ADMIN) {
-    return { allowed: true };
+    return { allowed: true }
   }
 
   // 资源所有者可以访问自己的资源
   if (user.id === resourceOwnerId) {
-    return { allowed: true };
+    return { allowed: true }
   }
 
   // 检查是否有必需的权限
-  return checkPermission(user, requiredPermission);
+  return checkPermission(user, requiredPermission)
 }
 
 /**
@@ -176,33 +171,33 @@ export function checkPermissions(
 ): PermissionCheckResult {
   // 用户未登录
   if (!user) {
-    return { allowed: false, reason: '用户未登录' };
+    return { allowed: false, reason: '用户未登录' }
   }
 
   // 管理员拥有所有权限
   if (user.role === Role.ADMIN) {
-    return { allowed: true };
+    return { allowed: true }
   }
 
   // 如果有资源所有者检查
   if (options?.resourceOwnerId) {
     // 用户是资源所有者，允许访问
     if (user.id === options.resourceOwnerId) {
-      return { allowed: true };
+      return { allowed: true }
     }
   }
 
   // 空权限列表
   if (permissions.length === 0) {
-    return { allowed: true };
+    return { allowed: true }
   }
 
   // 检查权限
   if (options?.requireAll) {
-    return checkAllPermissions(user, permissions);
+    return checkAllPermissions(user, permissions)
   }
 
-  return checkAnyPermission(user, permissions);
+  return checkAnyPermission(user, permissions)
 }
 
 /**
@@ -213,12 +208,12 @@ export function createUser(
   username: string,
   role: Role,
   options?: {
-    email?: string;
-    permissions?: Permission[];
+    email?: string
+    permissions?: Permission[]
   }
 ): User {
-  const defaultPermissions = getDefaultPermissions(role);
-  const userPermissions = options?.permissions ?? defaultPermissions;
+  const defaultPermissions = getDefaultPermissions(role)
+  const userPermissions = options?.permissions ?? defaultPermissions
 
   return {
     id,
@@ -226,23 +221,25 @@ export function createUser(
     email: options?.email,
     role,
     permissions: userPermissions,
-  };
+  }
 }
 
 /**
  * 从 JWT payload 创建用户
  * 与现有 auth.middleware 兼容
  */
-export function createUserFromPayload(
-  payload: { userId: string; username: string; role: string }
-): User {
-  const role = payload.role as Role;
-  const permissions = getDefaultPermissions(role);
+export function createUserFromPayload(payload: {
+  userId: string
+  username: string
+  role: string
+}): User {
+  const role = payload.role as Role
+  const permissions = getDefaultPermissions(role)
 
   return {
     id: payload.userId,
     username: payload.username,
     role,
     permissions,
-  };
+  }
 }

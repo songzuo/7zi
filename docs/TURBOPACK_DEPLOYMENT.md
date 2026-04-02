@@ -29,12 +29,12 @@ Turbopack 是 Vercel 开发的 Rust 编写的下一代打包工具，是 Next.js
 
 ### 1.2 核心优势
 
-| 特性 | Turbopack | Webpack | 提升 |
-|------|-----------|---------|------|
-| 冷启动构建 | ~45s | ~120s | **2.7x** |
-| 增量构建 | ~3s | ~30s | **10x** |
-| HMR 速度 | ~2ms | ~800ms | **400x** |
-| 内存占用 | 低 | 高 | - |
+| 特性       | Turbopack | Webpack | 提升     |
+| ---------- | --------- | ------- | -------- |
+| 冷启动构建 | ~45s      | ~120s   | **2.7x** |
+| 增量构建   | ~3s       | ~30s    | **10x**  |
+| HMR 速度   | ~2ms      | ~800ms  | **400x** |
+| 内存占用   | 低        | 高      | -        |
 
 ### 1.3 项目支持状态
 
@@ -52,9 +52,9 @@ Turbopack 状态: ✅ 生产就绪
 
 ```typescript
 // src/i18n/config.ts
-import createNextIntlPlugin from 'next-intl/plugin';
+import createNextIntlPlugin from 'next-intl/plugin'
 
-const withNextIntl = createNextIntlPlugin('./src/i18n/request.ts');
+const withNextIntl = createNextIntlPlugin('./src/i18n/request.ts')
 
 /** @type {import('next').NextConfig} */
 const nextConfig = {
@@ -71,29 +71,40 @@ const nextConfig = {
   experimental: {
     // 启用 Turbopack 文件系统缓存（开发环境）
     turbopackFileSystemCacheForDev: true,
-    
+
     // 生产构建缓存
     turbopackFileSystemCacheForBuild: true,
-    
+
     // Tree-shaking 优化
     turbopackTreeShaking: true,
-    
+
     // Scope hoisting
     turbopackScopeHoisting: true,
-    
+
     // 移除未使用的导入
     turbopackRemoveUnusedImports: true,
-    
+
     // 移除未使用的导出
     turbopackRemoveUnusedExports: true,
-    
+
     // 优化包导入
     optimizePackageImports: [
-      'next-intl', '@sentry/nextjs', 'zustand', 'web-vitals', 'lucide-react',
-      'three', '@react-three/fiber', '@react-three/drei', 'recharts',
-      '@radix-ui/react-dialog', '@radix-ui/react-dropdown-menu',
-      '@radix-ui/react-tabs', '@radix-ui/react-accordion',
-      'date-fns', 'clsx', 'tailwind-merge',
+      'next-intl',
+      '@sentry/nextjs',
+      'zustand',
+      'web-vitals',
+      'lucide-react',
+      'three',
+      '@react-three/fiber',
+      '@react-three/drei',
+      'recharts',
+      '@radix-ui/react-dialog',
+      '@radix-ui/react-dropdown-menu',
+      '@radix-ui/react-tabs',
+      '@radix-ui/react-accordion',
+      'date-fns',
+      'clsx',
+      'tailwind-merge',
     ],
   },
 
@@ -102,11 +113,11 @@ const nextConfig = {
     if (process.env.USE_WEBPACK === 'true') {
       // ... 复杂的 webpack 配置
     }
-    return config;
+    return config
   },
-};
+}
 
-export default withNextIntl(nextConfig);
+export default withNextIntl(nextConfig)
 ```
 
 ### 2.2 turbo.json
@@ -180,12 +191,12 @@ npm run dev:turbo
 
 ### 3.2 Turbopack 特性
 
-| 功能 | 状态 | 说明 |
-|------|------|------|
-| HMR | ✅ | ~2ms 刷新 |
-| 快速刷新 | ✅ | 组件级更新 |
-| 错误覆盖 | ✅ | 编译时错误 |
-| 增量编译 | ✅ | 智能缓存 |
+| 功能     | 状态 | 说明       |
+| -------- | ---- | ---------- |
+| HMR      | ✅   | ~2ms 刷新  |
+| 快速刷新 | ✅   | 组件级更新 |
+| 错误覆盖 | ✅   | 编译时错误 |
+| 增量编译 | ✅   | 智能缓存   |
 
 ### 3.3 文件系统缓存
 
@@ -253,13 +264,13 @@ open .next/analyze/client.html
 
 ### 5.2 预期的 Chunk 分布
 
-| Chunk 类型 | 大小范围 | 说明 |
-|------------|----------|------|
-| framework | ~250 KB | React + Next.js |
-| main | ~150 KB | 应用代码 |
-| commons | ~100 KB | 共享模块 |
-| lib-X | ~50 KB | 库分割 |
-| page-X | ~30 KB | 页面代码 |
+| Chunk 类型 | 大小范围 | 说明            |
+| ---------- | -------- | --------------- |
+| framework  | ~250 KB  | React + Next.js |
+| main       | ~150 KB  | 应用代码        |
+| commons    | ~100 KB  | 共享模块        |
+| lib-X      | ~50 KB   | 库分割          |
+| page-X     | ~30 KB   | 页面代码        |
 
 ### 5.3 监控指标
 
@@ -271,7 +282,7 @@ export const bundleMetrics = {
   targetLCP: 2500, // 2.5s
   targetFID: 100, // 100ms
   targetCLS: 0.1,
-};
+}
 ```
 
 ---
@@ -338,7 +349,7 @@ services:
       context: .
       dockerfile: Dockerfile
     ports:
-      - "3000:3000"
+      - '3000:3000'
     environment:
       - NODE_ENV=production
       - NEXT_TELEMETRY_DISABLED=1
@@ -351,30 +362,32 @@ services:
 
 ### 7.1 构建性能
 
-| 指标 | Turbopack | Webpack | 对比 |
-|------|-----------|---------|------|
-| 冷启动 | ~45s | ~120s | **2.7x** |
-| 增量构建 | ~3s | ~30s | **10x** |
-| HMR | ~2ms | ~800ms | **400x** |
-| 内存占用 | ~512MB | ~1.5GB | **3x** |
+| 指标     | Turbopack | Webpack | 对比     |
+| -------- | --------- | ------- | -------- |
+| 冷启动   | ~45s      | ~120s   | **2.7x** |
+| 增量构建 | ~3s       | ~30s    | **10x**  |
+| HMR      | ~2ms      | ~800ms  | **400x** |
+| 内存占用 | ~512MB    | ~1.5GB  | **3x**   |
 
 ### 7.2 运行时性能
 
-| 指标 | 目标值 | 测量方法 |
-|------|--------|----------|
-| LCP | < 2.5s | Lighthouse |
-| FID | < 100ms | Lighthouse |
-| CLS | < 0.1 | Lighthouse |
-| TTI | < 3.5s | Lighthouse |
+| 指标 | 目标值  | 测量方法   |
+| ---- | ------- | ---------- |
+| LCP  | < 2.5s  | Lighthouse |
+| FID  | < 100ms | Lighthouse |
+| CLS  | < 0.1   | Lighthouse |
+| TTI  | < 3.5s  | Lighthouse |
 
 ### 7.3 缓存策略
 
 #### 开发环境
+
 - **文件系统缓存**: `.next/cache/turbopack/`
 - **内存缓存**: Turbopack 内置
 - **清理命令**: `rm -rf .next`
 
 #### 生产环境
+
 - **CDN 缓存**: `/_next/static/` 一年
 - **边缘缓存**: Vercel/AWS CloudFront
 - **浏览器缓存**: `Cache-Control: immutable`
@@ -450,13 +463,13 @@ npm run build:analyze
 
 ### 8.3 兼容性提示
 
-| 功能 | Turbopack | Webpack | 说明 |
-|------|-----------|---------|------|
-| `import` 别名 | ✅ | ✅ | `@/` 两者都支持 |
-| CSS Modules | ✅ | ✅ | 完整支持 |
-| Tree-shaking | ✅ | ✅ | Turbopack 更激进 |
-| splitChunks | ⚠️ | ✅ | Turbopack 使用智能分割 |
-| DefinePlugin | ⚠️ | ✅ | Turbopack 不支持 |
+| 功能          | Turbopack | Webpack | 说明                   |
+| ------------- | --------- | ------- | ---------------------- |
+| `import` 别名 | ✅        | ✅      | `@/` 两者都支持        |
+| CSS Modules   | ✅        | ✅      | 完整支持               |
+| Tree-shaking  | ✅        | ✅      | Turbopack 更激进       |
+| splitChunks   | ⚠️        | ✅      | Turbopack 使用智能分割 |
+| DefinePlugin  | ⚠️        | ✅      | Turbopack 不支持       |
 
 ---
 
@@ -551,23 +564,23 @@ docker build --build-arg BUNDLER=webpack -t 7zi-frontend:rollback .
 
 ## 相关文档
 
-| 文档 | 说明 |
-|------|------|
-| [TURBOPACK_PRODUCTION_ASSESSMENT.md](./TURBOPACK_PRODUCTION_ASSESSMENT.md) | Turbopack 生产可行性评估 |
-| [TASK_TURBOPACK_INTEGRATION_20260328.md](./TASK_TURBOPACK_INTEGRATION_20260328.md) | 集成实施报告 |
-| [DEPLOYMENT.md](./DEPLOYMENT.md) | 部署指南 |
-| [CHANGELOG.md](./CHANGELOG.md) | 版本变更日志 |
+| 文档                                                                               | 说明                     |
+| ---------------------------------------------------------------------------------- | ------------------------ |
+| [TURBOPACK_PRODUCTION_ASSESSMENT.md](./TURBOPACK_PRODUCTION_ASSESSMENT.md)         | Turbopack 生产可行性评估 |
+| [TASK_TURBOPACK_INTEGRATION_20260328.md](./TASK_TURBOPACK_INTEGRATION_20260328.md) | 集成实施报告             |
+| [DEPLOYMENT.md](./DEPLOYMENT.md)                                                   | 部署指南                 |
+| [CHANGELOG.md](./CHANGELOG.md)                                                     | 版本变更日志             |
 
 ---
 
 ## 更新日志
 
-| 日期 | 版本 | 变更 |
-|------|------|------|
-| 2026-03-28 | 1.0 | 初始文档创建 |
-| 2026-03-28 | 1.1 | 添加 Docker 配置和回滚方案 |
-| 2026-03-28 | 1.2 | 完善故障排除章节 |
+| 日期       | 版本 | 变更                       |
+| ---------- | ---- | -------------------------- |
+| 2026-03-28 | 1.0  | 初始文档创建               |
+| 2026-03-28 | 1.1  | 添加 Docker 配置和回滚方案 |
+| 2026-03-28 | 1.2  | 完善故障排除章节           |
 
 ---
 
-*文档版本: v1.2 | 最后更新: 2026-03-28*
+_文档版本: v1.2 | 最后更新: 2026-03-28_

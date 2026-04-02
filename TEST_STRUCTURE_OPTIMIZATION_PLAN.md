@@ -5,6 +5,7 @@
 ### 1. 当前测试文件分布
 
 #### 主目录结构
+
 ```
 tests/
 ├── api/                     # API路由测试 (8个文件)
@@ -32,6 +33,7 @@ tests/
 ### 2. 命名不一致问题
 
 #### 问题 1: 混合使用 `.test.ts` 和 `.spec.ts`
+
 - `api-integration/` 目录：
   - 主要使用 `.test.ts`
   - 但包含 `cache-api.spec.ts`（不一致！）
@@ -41,6 +43,7 @@ tests/
   - 统一使用 `.test.ts`
 
 #### 问题 2: 测试文件位置不统一
+
 - 部分测试直接放在 `tests/` 根目录：
   - `alert-system-edge-cases.test.ts`
   - `direct-sqlite-test.test.ts`
@@ -49,7 +52,9 @@ tests/
 - 大部分测试放在子目录中
 
 #### 问题 3: 测试重复或分散
+
 **agent-scheduler 测试分散在 4 个位置：**
+
 ```
 tests/unit/agent-scheduler/              # 11个文件
 tests/lib/agent-scheduler/               # 4个文件
@@ -58,12 +63,14 @@ tests/integration/                        # 包含相关测试
 ```
 
 **load-balancer 测试重复：**
+
 - `tests/lib/agent-scheduler/load-balancer.test.ts`
 - `tests/lib/agents/scheduler/load-balancer.test.ts`
 - `tests/unit/agent-scheduler/core/load-balancer.test.ts`
 - `tests/unit/agent-scheduler/load-balancer.test.ts`
 
 **scheduler 测试重复：**
+
 - `tests/lib/agent-scheduler/scheduler.test.ts`
 - `tests/lib/agents/scheduler/scheduler.test.ts`
 - `tests/unit/agent-scheduler/core/scheduler.test.ts`
@@ -72,6 +79,7 @@ tests/integration/                        # 包含相关测试
 ### 3. 缺少适当的分组
 
 #### 缺少的测试分组：
+
 - **认证/授权测试**：分散在 `api/` 和 `api-integration/`
 - **WebSocket 测试**：分散在 `websocket/` 和 `api-integration/`
 - **性能测试**：分散在 `performance/`、`api-integration/`、`lib/performance-optimization.test.ts`
@@ -79,6 +87,7 @@ tests/integration/                        # 包含相关测试
 - **数据库测试**：分散在 `lib/db.test.ts`、`lib/db-direct.test.ts`、根目录文件
 
 #### 其他项目测试文件（botmem/）
+
 ```
 botmem/xunshi-inspector/tests/        # 6个文件
 botmem/commander/tests/                # 6个文件
@@ -163,6 +172,7 @@ tests/
 ### 2. 命名规范建议
 
 #### 文件后缀规范
+
 - **单元测试**：统一使用 `.test.ts`
 - **集成测试**：统一使用 `.integration.test.ts`
 - **E2E测试**：统一使用 `.spec.ts`（Playwright约定）
@@ -170,6 +180,7 @@ tests/
 - **边缘情况测试**：统一使用 `.edge-cases.test.ts`
 
 #### 文件命名模式
+
 ```
 # 单元测试
 <module>/<feature>.test.ts
@@ -191,6 +202,7 @@ performance/<feature>.performance.test.ts
 ### 3. 测试分组策略
 
 #### 按功能模块分组
+
 1. **认证授权模块**：
    - `unit/auth/`
    - `integration/api/auth.integration.test.ts`
@@ -216,6 +228,7 @@ performance/<feature>.performance.test.ts
    - `integration/cache/`
 
 #### 按测试类型分层
+
 1. **单元测试** (`unit/`)：测试独立功能
 2. **集成测试** (`integration/`)：测试模块间交互
 3. **E2E测试** (`e2e/`)：测试完整用户流程
@@ -228,6 +241,7 @@ performance/<feature>.performance.test.ts
 ### 第一步：清理和合并重复测试
 
 #### 1.1 合并 agent-scheduler 测试
+
 ```bash
 # 移动和合并 agent-scheduler 相关测试
 tests/lib/agent-scheduler/          → tests/unit/agent-scheduler/
@@ -236,6 +250,7 @@ tests/unit/agent-scheduler/         → tests/unit/agent-scheduler/
 ```
 
 #### 1.2 移动根目录测试
+
 ```bash
 # 移动根目录独立测试到合适位置
 alert-system-edge-cases.test.ts        → tests/unit/alert/edge-cases.test.ts
@@ -247,12 +262,14 @@ web-vitals-db.test.js                  → tests/integration/performance/web-vit
 ### 第二步：统一命名规范
 
 #### 2.1 重命名 api-integration/ 中的测试
+
 ```bash
 cache-api.spec.ts                      → cache-api.integration.test.ts
 *.test.ts                              → *.integration.test.ts
 ```
 
 #### 2.2 确保所有目录使用一致命名
+
 - `unit/`：所有文件使用 `.test.ts`
 - `integration/`：所有文件使用 `.integration.test.ts`
 - `e2e/`：所有文件使用 `.spec.ts`
@@ -261,6 +278,7 @@ cache-api.spec.ts                      → cache-api.integration.test.ts
 ### 第三步：创建测试索引文件
 
 #### 3.1 创建 `tests/index.ts`
+
 ```typescript
 // tests/index.ts
 /**
@@ -268,16 +286,17 @@ cache-api.spec.ts                      → cache-api.integration.test.ts
  * 提供全局测试工具和配置
  */
 
-export * from './setup/test-utils';
-export * from './setup/test-env';
+export * from './setup/test-utils'
+export * from './setup/test-env'
 
 // 导出常用测试辅助函数
 export const testUtils = {
   // ... 测试工具
-};
+}
 ```
 
 #### 3.2 创建各子目录的 README.md
+
 - `tests/unit/README.md`
 - `tests/integration/README.md`
 - `tests/e2e/README.md`
@@ -286,30 +305,28 @@ export const testUtils = {
 ### 第四步：更新测试配置
 
 #### 4.1 更新 vitest 配置
+
 ```typescript
 // vitest.config.ts
 export default defineConfig({
-  testMatch: [
-    '**/*.test.ts',
-    '**/*.integration.test.ts',
-    '**/*.performance.test.ts',
-  ],
+  testMatch: ['**/*.test.ts', '**/*.integration.test.ts', '**/*.performance.test.ts'],
   exclude: [
     'node_modules',
     'tests/e2e', // E2E测试使用Playwright
   ],
   // ...
-});
+})
 ```
 
 #### 4.2 更新 playwright 配置
+
 ```typescript
 // playwright.config.ts
 export default defineConfig({
   testDir: './tests/e2e',
   testMatch: '**/*.spec.ts',
   // ...
-});
+})
 ```
 
 ---
@@ -319,6 +336,7 @@ export default defineConfig({
 优化完成后，必须满足：
 
 1. **所有测试仍然通过**
+
    ```bash
    npm run test:unit
    npm run test:integration
@@ -343,34 +361,38 @@ export default defineConfig({
 
 ### 优化前后对比
 
-| 指标 | 优化前 | 优化后 | 改进 |
-|------|--------|--------|------|
-| 测试文件重复 | 8+ | 0 | -100% |
-| 命名不一致 | 多处 | 0 | -100% |
-| 测试分组 | 分散 | 清晰 | ✅ |
-| agent-scheduler 测试位置 | 4处 | 1处 | ✅ |
-| 文档完整性 | 部分 | 完整 | ✅ |
+| 指标                     | 优化前 | 优化后 | 改进  |
+| ------------------------ | ------ | ------ | ----- |
+| 测试文件重复             | 8+     | 0      | -100% |
+| 命名不一致               | 多处   | 0      | -100% |
+| 测试分组                 | 分散   | 清晰   | ✅    |
+| agent-scheduler 测试位置 | 4处    | 1处    | ✅    |
+| 文档完整性               | 部分   | 完整   | ✅    |
 
 ---
 
 ## 🔄 执行计划
 
 ### 阶段1：分析和规划（当前阶段）✅
+
 - ✅ 分析当前测试结构
 - ✅ 识别问题和重复
 - ✅ 制定优化方案
 
 ### 阶段2：基础优化（下一步）
+
 - [ ] 合并重复测试
 - [ ] 移动根目录测试
 - [ ] 统一命名规范
 
 ### 阶段3：文档和配置
+
 - [ ] 创建测试索引文件
 - [ ] 添加各目录 README.md
 - [ ] 更新测试配置
 
 ### 阶段4：验证和测试
+
 - [ ] 运行所有测试
 - [ ] 检查测试覆盖率
 - [ ] 确认无回归

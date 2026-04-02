@@ -11,19 +11,19 @@
 
 ### 1.1 技术栈全景
 
-| 领域 | 技术 | 版本 | 演进潜力 | 备注 |
-|------|------|------|----------|------|
-| **框架** | Next.js | 16.2.1 | ⭐⭐⭐⭐⭐ | 最新稳定版，支持 Turbopack |
-| **UI 库** | React | 19.2.4 | ⭐⭐⭐⭐⭐ | 支持 Server Components |
-| **类型** | TypeScript | 5.x | ⭐⭐⭐⭐⭐ | strict 模式 |
-| **样式** | Tailwind CSS | 4.x | ⭐⭐⭐⭐ | 原子化 CSS |
-| **状态** | Zustand | 5.0.11 | ⭐⭐⭐⭐ | 轻量级，迁移中 |
-| **国际化** | next-intl | 4.8.3 | ⭐⭐⭐⭐ | App Router 原生支持 |
-| **测试 (单元)** | Vitest | 4.0.18 | ⭐⭐⭐⭐ | Vite 生态 |
-| **测试 (E2E)** | Playwright | 1.58.2 | ⭐⭐⭐⭐⭐ | 跨浏览器 |
-| **监控** | Sentry | 10.42.0 | ⭐⭐⭐⭐ | 错误追踪 |
-| **邮件** | Resend | 6.9.3 | ⭐⭐⭐ | 现代邮件 API |
-| **Web Vitals** | web-vitals | 4.2.4 | ⭐⭐⭐⭐ | 性能指标 |
+| 领域            | 技术         | 版本    | 演进潜力   | 备注                       |
+| --------------- | ------------ | ------- | ---------- | -------------------------- |
+| **框架**        | Next.js      | 16.2.1  | ⭐⭐⭐⭐⭐ | 最新稳定版，支持 Turbopack |
+| **UI 库**       | React        | 19.2.4  | ⭐⭐⭐⭐⭐ | 支持 Server Components     |
+| **类型**        | TypeScript   | 5.x     | ⭐⭐⭐⭐⭐ | strict 模式                |
+| **样式**        | Tailwind CSS | 4.x     | ⭐⭐⭐⭐   | 原子化 CSS                 |
+| **状态**        | Zustand      | 5.0.11  | ⭐⭐⭐⭐   | 轻量级，迁移中             |
+| **国际化**      | next-intl    | 4.8.3   | ⭐⭐⭐⭐   | App Router 原生支持        |
+| **测试 (单元)** | Vitest       | 4.0.18  | ⭐⭐⭐⭐   | Vite 生态                  |
+| **测试 (E2E)**  | Playwright   | 1.58.2  | ⭐⭐⭐⭐⭐ | 跨浏览器                   |
+| **监控**        | Sentry       | 10.42.0 | ⭐⭐⭐⭐   | 错误追踪                   |
+| **邮件**        | Resend       | 6.9.3   | ⭐⭐⭐     | 现代邮件 API               |
+| **Web Vitals**  | web-vitals   | 4.2.4   | ⭐⭐⭐⭐   | 性能指标                   |
 
 ### 1.2 架构成熟度评估
 
@@ -51,13 +51,13 @@
 
 ### 1.3 技术债务清单
 
-| 类别 | 问题 | 严重性 | 影响 |
-|------|------|--------|------|
-| **路由结构** | `[locale]` 和扁平路由混合 | 🟡 中 | 维护复杂度 |
-| **状态管理** | Context → Zustand 迁移未完成 | 🟡 中 | 数据流不一致 |
-| **组件优化** | 部分组件未 memo 化 | 🟢 低 | 性能损失 |
-| **类型定义** | 部分 any 类型残留 | 🟢 低 | 类型安全 |
-| **测试覆盖** | E2E 测试场景不完整 | 🟡 中 | 回归风险 |
+| 类别         | 问题                         | 严重性 | 影响         |
+| ------------ | ---------------------------- | ------ | ------------ |
+| **路由结构** | `[locale]` 和扁平路由混合    | 🟡 中  | 维护复杂度   |
+| **状态管理** | Context → Zustand 迁移未完成 | 🟡 中  | 数据流不一致 |
+| **组件优化** | 部分组件未 memo 化           | 🟢 低  | 性能损失     |
+| **类型定义** | 部分 any 类型残留            | 🟢 低  | 类型安全     |
+| **测试覆盖** | E2E 测试场景不完整           | 🟡 中  | 回归风险     |
 
 ---
 
@@ -67,15 +67,15 @@
 
 基于 Next.js 官方博客和行业动态分析：
 
-| 趋势 | 影响度 | 时间窗口 | 建议行动 |
-|------|--------|----------|----------|
-| **AI-Agent 开发范式** | 🔥🔥🔥🔥🔥 | 2026 Q1-Q2 | 优先集成 |
-| **Turbopack 生产构建** | 🔥🔥🔥🔥 | 2026 Q2 | 评估采用 |
-| **React Server Components 安全** | 🔥🔥🔥🔥🔥 | 立即 | 安全更新 |
-| **Partial Prerendering (PPR)** | 🔥🔥🔥 | 2026 Q3 | 实验性采用 |
-| **'use cache' 指令** | 🔥🔥🔥 | 2026 Q2 | 学习准备 |
-| **Edge Runtime 成熟** | 🔥🔥🔥 | 2026 Q4 | 监控发展 |
-| **Web Components 互操作** | 🔥🔥 | 2027+ | 长期观察 |
+| 趋势                             | 影响度     | 时间窗口   | 建议行动   |
+| -------------------------------- | ---------- | ---------- | ---------- |
+| **AI-Agent 开发范式**            | 🔥🔥🔥🔥🔥 | 2026 Q1-Q2 | 优先集成   |
+| **Turbopack 生产构建**           | 🔥🔥🔥🔥   | 2026 Q2    | 评估采用   |
+| **React Server Components 安全** | 🔥🔥🔥🔥🔥 | 立即       | 安全更新   |
+| **Partial Prerendering (PPR)**   | 🔥🔥🔥     | 2026 Q3    | 实验性采用 |
+| **'use cache' 指令**             | 🔥🔥🔥     | 2026 Q2    | 学习准备   |
+| **Edge Runtime 成熟**            | 🔥🔥🔥     | 2026 Q4    | 监控发展   |
+| **Web Components 互操作**        | 🔥🔥       | 2027+      | 长期观察   |
 
 ### 2.2 AI-Agent 开发范式
 
@@ -84,6 +84,7 @@ Next.js 官方已将 **AI 编码代理** 作为一等公民：
 > "We've spent the past year making Next.js work better with AI coding agents. From an experimental in-browser agent to MCP integration and improved logging, we learned that the key is treating agents as first-class users."
 
 **关键启示**：
+
 1. **MCP (Model Context Protocol) 集成** - 为 AI 代理提供更好的上下文
 2. **改进的日志系统** - 便于 AI 理解运行时状态
 3. **Agent-First API 设计** - 考虑 AI 可操作性
@@ -91,6 +92,7 @@ Next.js 官方已将 **AI 编码代理** 作为一等公民：
 ### 2.3 安全态势
 
 2025 年底 React Server Components 发现多个严重漏洞：
+
 - **CVE-2025-66478**: RCE 漏洞 (CVSS 10.0)
 - **CVE-2025-55184**: DoS 漏洞
 - **CVE-2025-55183**: 源码暴露
@@ -136,6 +138,7 @@ src/stores/
 ```
 
 **行动项**:
+
 - [ ] 完成 Chat Store 迁移
 - [ ] 完成 GitHub Store 迁移
 - [ ] 创建 Notification Store
@@ -176,12 +179,12 @@ app/
 
 #### 3.2.4 测试覆盖提升
 
-| 模块 | 当前覆盖 | 目标覆盖 |
-|------|----------|----------|
-| Components | 60% | 85% |
-| Hooks | 40% | 80% |
-| API Routes | 30% | 90% |
-| E2E 关键路径 | 50% | 100% |
+| 模块         | 当前覆盖 | 目标覆盖 |
+| ------------ | -------- | -------- |
+| Components   | 60%      | 85%      |
+| Hooks        | 40%      | 80%      |
+| API Routes   | 30%      | 90%      |
+| E2E 关键路径 | 50%      | 100%     |
 
 ---
 
@@ -200,6 +203,7 @@ next build --turbopack
 ```
 
 **预期收益**:
+
 - 构建时间减少 50-70%
 - 热更新 < 100ms
 - 更好的 Tree Shaking
@@ -214,7 +218,7 @@ const imageOptimization = {
   lazyLoading: true,
   placeholder: 'blur',
   priority: ['hero', 'above-fold'],
-};
+}
 ```
 
 #### 3.3.3 智能代码分割
@@ -237,13 +241,13 @@ const HeavyComponents = {
 
 ```typescript
 // 'use cache' 指令采用
-'use cache';
+'use cache'
 
 // 细粒度缓存控制
 export async function getGitHubData() {
-  'use cache';
-  cacheTag('github-data');
-  cacheLife('hours', 1);
+  'use cache'
+  cacheTag('github-data')
+  cacheLife('hours', 1)
   // ...
 }
 ```
@@ -266,11 +270,11 @@ const mcpConfig = {
     },
   },
   capabilities: {
-    resources: true,  // 文件访问
-    tools: true,      // 命令执行
-    prompts: true,    // 提示模板
+    resources: true, // 文件访问
+    tools: true, // 命令执行
+    prompts: true, // 提示模板
   },
-};
+}
 ```
 
 #### 3.4.2 Agent-First 日志
@@ -285,7 +289,7 @@ logger.info('user-action', {
     language: detectedLanguage,
   },
   suggestions: ['可能的性能问题', '建议的优化方向'],
-});
+})
 ```
 
 #### 3.4.3 智能组件
@@ -293,8 +297,8 @@ logger.info('user-action', {
 ```typescript
 // AI 辅助组件
 interface SmartComponentProps {
-  content: string;
-  aiSuggestions?: boolean;
+  content: string
+  aiSuggestions?: boolean
 }
 
 export function SmartContent({ content, aiSuggestions }: SmartComponentProps) {
@@ -334,7 +338,7 @@ export default function Page() {
 
 ```typescript
 // 中间件 Edge 化
-export const runtime = 'edge';
+export const runtime = 'edge'
 
 export function middleware(request: NextRequest) {
   // 全球边缘执行
@@ -345,6 +349,7 @@ export function middleware(request: NextRequest) {
 #### 3.5.3 微前端评估
 
 **评估维度**:
+
 - 团队规模与独立性
 - 部署频率需求
 - 技术栈多样性
@@ -360,13 +365,13 @@ export function middleware(request: NextRequest) {
 
 #### 3.6.1 性能基准测试
 
-| 指标 | 当前 | 目标 (Q1 2027) |
-|------|------|----------------|
-| LCP | 2.5s | < 1.8s |
-| FID | 100ms | < 50ms |
-| CLS | 0.1 | < 0.05 |
-| TTFB | 600ms | < 300ms |
-| Bundle Size | 180KB | < 120KB |
+| 指标        | 当前  | 目标 (Q1 2027) |
+| ----------- | ----- | -------------- |
+| LCP         | 2.5s  | < 1.8s         |
+| FID         | 100ms | < 50ms         |
+| CLS         | 0.1   | < 0.05         |
+| TTFB        | 600ms | < 300ms        |
+| Bundle Size | 180KB | < 120KB        |
 
 #### 3.6.2 技术雷达监控
 
@@ -377,15 +382,15 @@ technologies:
     - Turbopack
     - PPR
     - MCP
-  
+
   trial:
     - Edge Runtime
     - React Compiler
-  
+
   assess:
     - React 20 features
     - Web Components
-  
+
   hold:
     - Webpack (被 Turbopack 取代)
     - Class Components
@@ -397,13 +402,13 @@ technologies:
 
 ### 4.1 风险矩阵
 
-| 风险 | 概率 | 影响 | 缓解策略 |
-|------|------|------|----------|
-| **依赖版本冲突** | 中 | 高 | 使用 lockfile，定期更新 |
-| **安全漏洞** | 高 | 严重 | 自动化扫描，快速响应 |
-| **性能退化** | 中 | 中 | 持续监控，性能预算 |
-| **技术选型错误** | 低 | 高 | 小规模试验，渐进采用 |
-| **团队知识断层** | 中 | 中 | 文档化，培训分享 |
+| 风险             | 概率 | 影响 | 缓解策略                |
+| ---------------- | ---- | ---- | ----------------------- |
+| **依赖版本冲突** | 中   | 高   | 使用 lockfile，定期更新 |
+| **安全漏洞**     | 高   | 严重 | 自动化扫描，快速响应    |
+| **性能退化**     | 中   | 中   | 持续监控，性能预算      |
+| **技术选型错误** | 低   | 高   | 小规模试验，渐进采用    |
+| **团队知识断层** | 中   | 中   | 文档化，培训分享        |
 
 ### 4.2 债务偿还优先级
 
@@ -437,13 +442,13 @@ budgets:
   bundleSize:
     warning: 150KB
     error: 200KB
-  
+
   lighthouse:
     performance: 90
     accessibility: 95
     bestPractices: 95
     seo: 100
-  
+
   webVitals:
     lcp: 2500ms
     fid: 100ms
@@ -456,24 +461,24 @@ budgets:
 
 ### 5.1 时间估算
 
-| Phase | 工作量 | 周期 | 所需人力 |
-|-------|--------|------|----------|
-| Phase 1 | 120h | 4周 | 1.5 FTE |
-| Phase 2 | 80h | 3周 | 1 FTE |
-| Phase 3 | 100h | 4周 | 1.5 FTE |
-| Phase 4 | 60h | 3周 | 1 FTE |
-| Phase 5 | 持续 | - | 0.5 FTE |
+| Phase    | 工作量   | 周期      | 所需人力     |
+| -------- | -------- | --------- | ------------ |
+| Phase 1  | 120h     | 4周       | 1.5 FTE      |
+| Phase 2  | 80h      | 3周       | 1 FTE        |
+| Phase 3  | 100h     | 4周       | 1.5 FTE      |
+| Phase 4  | 60h      | 3周       | 1 FTE        |
+| Phase 5  | 持续     | -         | 0.5 FTE      |
 | **总计** | **360h** | **~14周** | **~1.2 FTE** |
 
 ### 5.2 技能需求
 
-| 技能 | 当前水平 | 目标水平 | 差距 |
-|------|----------|----------|------|
-| Next.js 16 | ⭐⭐⭐⭐ | ⭐⭐⭐⭐⭐ | PPR, Turbopack |
-| React 19 | ⭐⭐⭐⭐ | ⭐⭐⭐⭐⭐ | RSC 深入 |
-| 状态管理 | ⭐⭐⭐ | ⭐⭐⭐⭐ | Zustand 最佳实践 |
-| 性能优化 | ⭐⭐⭐ | ⭐⭐⭐⭐ | 高级优化技术 |
-| AI 工具集成 | ⭐⭐ | ⭐⭐⭐⭐ | MCP, Agent |
+| 技能        | 当前水平 | 目标水平   | 差距             |
+| ----------- | -------- | ---------- | ---------------- |
+| Next.js 16  | ⭐⭐⭐⭐ | ⭐⭐⭐⭐⭐ | PPR, Turbopack   |
+| React 19    | ⭐⭐⭐⭐ | ⭐⭐⭐⭐⭐ | RSC 深入         |
+| 状态管理    | ⭐⭐⭐   | ⭐⭐⭐⭐   | Zustand 最佳实践 |
+| 性能优化    | ⭐⭐⭐   | ⭐⭐⭐⭐   | 高级优化技术     |
+| AI 工具集成 | ⭐⭐     | ⭐⭐⭐⭐   | MCP, Agent       |
 
 ---
 
@@ -481,23 +486,25 @@ budgets:
 
 ### 6.1 关键绩效指标 (KPI)
 
-| 指标 | 当前 | Q2 目标 | Q4 目标 | 2027 Q1 |
-|------|------|---------|---------|---------|
-| **构建时间** | 45s | 20s | 15s | 10s |
-| **测试覆盖率** | 60% | 75% | 85% | 90% |
-| **Lighthouse 分数** | 85 | 90 | 95 | 98 |
-| **安全漏洞** | 0 | 0 | 0 | 0 |
-| **开发者满意度** | 7/10 | 8/10 | 9/10 | 9/10 |
+| 指标                | 当前 | Q2 目标 | Q4 目标 | 2027 Q1 |
+| ------------------- | ---- | ------- | ------- | ------- |
+| **构建时间**        | 45s  | 20s     | 15s     | 10s     |
+| **测试覆盖率**      | 60%  | 75%     | 85%     | 90%     |
+| **Lighthouse 分数** | 85   | 90      | 95      | 98      |
+| **安全漏洞**        | 0    | 0       | 0       | 0       |
+| **开发者满意度**    | 7/10 | 8/10    | 9/10    | 9/10    |
 
 ### 6.2 验收标准
 
 Phase 1 完成标准:
+
 - [ ] 所有状态迁移到 Zustand
 - [ ] 路由结构统一到 `[locale]`
 - [ ] 无高危安全漏洞
 - [ ] 测试覆盖率 > 75%
 
 Phase 2 完成标准:
+
 - [ ] Turbopack 生产构建成功
 - [ ] Lighthouse Performance > 90
 - [ ] Bundle Size < 150KB
@@ -509,13 +516,13 @@ Phase 2 完成标准:
 
 ### A. 技术选型对比
 
-| 选项 | Zustand | Redux Toolkit | Jotai | Recoil |
-|------|---------|---------------|-------|--------|
-| 学习曲线 | ⭐⭐⭐⭐⭐ | ⭐⭐⭐ | ⭐⭐⭐⭐ | ⭐⭐⭐ |
-| 性能 | ⭐⭐⭐⭐⭐ | ⭐⭐⭐⭐ | ⭐⭐⭐⭐⭐ | ⭐⭐⭐ |
-| 生态 | ⭐⭐⭐⭐ | ⭐⭐⭐⭐⭐ | ⭐⭐⭐ | ⭐⭐⭐ |
-| TypeScript | ⭐⭐⭐⭐⭐ | ⭐⭐⭐⭐ | ⭐⭐⭐⭐⭐ | ⭐⭐⭐ |
-| **推荐** | ✅ | - | 备选 | - |
+| 选项       | Zustand    | Redux Toolkit | Jotai      | Recoil |
+| ---------- | ---------- | ------------- | ---------- | ------ |
+| 学习曲线   | ⭐⭐⭐⭐⭐ | ⭐⭐⭐        | ⭐⭐⭐⭐   | ⭐⭐⭐ |
+| 性能       | ⭐⭐⭐⭐⭐ | ⭐⭐⭐⭐      | ⭐⭐⭐⭐⭐ | ⭐⭐⭐ |
+| 生态       | ⭐⭐⭐⭐   | ⭐⭐⭐⭐⭐    | ⭐⭐⭐     | ⭐⭐⭐ |
+| TypeScript | ⭐⭐⭐⭐⭐ | ⭐⭐⭐⭐      | ⭐⭐⭐⭐⭐ | ⭐⭐⭐ |
+| **推荐**   | ✅         | -             | 备选       | -      |
 
 ### B. 参考资源
 
@@ -528,10 +535,10 @@ Phase 2 完成标准:
 
 ### C. 变更日志
 
-| 日期 | 版本 | 变更内容 |
-|------|------|----------|
-| 2026-03-07 | 1.0 | 初始版本创建 |
+| 日期       | 版本 | 变更内容     |
+| ---------- | ---- | ------------ |
+| 2026-03-07 | 1.0  | 初始版本创建 |
 
 ---
 
-*本路线图将每季度评审更新，确保与行业趋势和项目需求保持一致。*
+_本路线图将每季度评审更新，确保与行业趋势和项目需求保持一致。_

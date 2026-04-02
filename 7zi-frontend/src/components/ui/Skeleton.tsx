@@ -1,15 +1,15 @@
-'use client';
+'use client'
 
 /**
  * 骨架屏组件
  * 用于加载状态的占位符
- * 
+ *
  * @version 1.0.0
  * @date 2026-03-29
  */
 
-import { forwardRef, memo, useState, useEffect, type CSSProperties, type ReactNode } from 'react';
-import { cn } from '@/lib/utils';
+import { forwardRef, memo, useState, useEffect, type CSSProperties, type ReactNode } from 'react'
+import { cn } from '@/lib/utils'
 
 // ============================================
 // 基础骨架屏组件
@@ -17,34 +17,32 @@ import { cn } from '@/lib/utils';
 
 interface SkeletonProps {
   /** CSS 类名 */
-  className?: string;
+  className?: string
   /** 动画是否开启 */
-  animate?: boolean;
+  animate?: boolean
   /** 自定义样式 */
-  style?: CSSProperties;
+  style?: CSSProperties
   /** 子元素 */
-  children?: ReactNode;
+  children?: ReactNode
 }
 
-export const Skeleton = memo(forwardRef<HTMLDivElement, SkeletonProps>(
-  ({ className, animate = true, style, children, ...props }, ref) => {
-    return (
-      <div
-        ref={ref}
-        className={cn(
-          'bg-gray-200 dark:bg-gray-800',
-          animate && 'animate-pulse',
-          className
-        )}
-        style={style}
-        {...props}
-      >
-        {children}
-      </div>
-    );
-  }
-));
-Skeleton.displayName = 'Skeleton';
+export const Skeleton = memo(
+  forwardRef<HTMLDivElement, SkeletonProps>(
+    ({ className, animate = true, style, children, ...props }, ref) => {
+      return (
+        <div
+          ref={ref}
+          className={cn('bg-gray-200 dark:bg-gray-800', animate && 'animate-pulse', className)}
+          style={style}
+          {...props}
+        >
+          {children}
+        </div>
+      )
+    }
+  )
+)
+Skeleton.displayName = 'Skeleton'
 
 // ============================================
 // 文本骨架屏
@@ -52,25 +50,17 @@ Skeleton.displayName = 'Skeleton';
 
 interface SkeletonTextProps extends Omit<SkeletonProps, 'children'> {
   /** 行数 */
-  lines?: number;
+  lines?: number
   /** 每行高度 */
-  height?: number;
+  height?: number
   /** 行间距 */
-  gap?: number;
+  gap?: number
   /** 最后一行宽度百分比 */
-  lastLineWidth?: number;
+  lastLineWidth?: number
 }
 
 export const SkeletonText = memo<SkeletonTextProps>(
-  ({
-    className,
-    lines = 3,
-    height = 16,
-    gap = 8,
-    lastLineWidth = 70,
-    style,
-    ...props
-  }) => {
+  ({ className, lines = 3, height = 16, gap = 8, lastLineWidth = 70, style, ...props }) => {
     return (
       <div className={cn('space-y-1', className)} style={style}>
         {Array.from({ length: lines }).map((_, index) => (
@@ -78,20 +68,17 @@ export const SkeletonText = memo<SkeletonTextProps>(
             key={index}
             className="rounded"
             style={{
-              width:
-                index === lines - 1
-                  ? `${lastLineWidth}%`
-                  : '100%',
+              width: index === lines - 1 ? `${lastLineWidth}%` : '100%',
               height: `${height}px`,
               marginBottom: index < lines - 1 ? `${gap}px` : 0,
             }}
           />
         ))}
       </div>
-    );
+    )
   }
-);
-SkeletonText.displayName = 'SkeletonText';
+)
+SkeletonText.displayName = 'SkeletonText'
 
 // ============================================
 // 圆形头像骨架屏
@@ -99,9 +86,9 @@ SkeletonText.displayName = 'SkeletonText';
 
 interface SkeletonAvatarProps extends Omit<SkeletonProps, 'children'> {
   /** 尺寸 */
-  size?: number;
+  size?: number
   /** 是否为圆形 */
-  circle?: boolean;
+  circle?: boolean
 }
 
 export const SkeletonAvatar = memo<SkeletonAvatarProps>(
@@ -116,10 +103,10 @@ export const SkeletonAvatar = memo<SkeletonAvatarProps>(
         }}
         {...props}
       />
-    );
+    )
   }
-);
-SkeletonAvatar.displayName = 'SkeletonAvatar';
+)
+SkeletonAvatar.displayName = 'SkeletonAvatar'
 
 // ============================================
 // 卡片骨架屏
@@ -127,23 +114,23 @@ SkeletonAvatar.displayName = 'SkeletonAvatar';
 
 interface SkeletonCardProps {
   /** CSS 类名 */
-  className?: string;
+  className?: string
   /** 是否显示头像 */
-  showAvatar?: boolean;
+  showAvatar?: boolean
   /** 头像大小 */
-  avatarSize?: number;
+  avatarSize?: number
   /** 是否显示标题 */
-  showTitle?: boolean;
+  showTitle?: boolean
   /** 标题宽度 */
-  titleWidth?: number;
+  titleWidth?: number
   /** 是否显示描述 */
-  showDescription?: boolean;
+  showDescription?: boolean
   /** 描述行数 */
-  descriptionLines?: number;
+  descriptionLines?: number
   /** 是否显示底部操作栏 */
-  showActions?: boolean;
+  showActions?: boolean
   /** 动作数量 */
-  actionCount?: number;
+  actionCount?: number
 }
 
 export const SkeletonCard = memo<SkeletonCardProps>(
@@ -159,34 +146,23 @@ export const SkeletonCard = memo<SkeletonCardProps>(
     actionCount = 2,
   }) => {
     return (
-      <div className={cn('p-4 border rounded-lg', className)}>
+      <div className={cn('rounded-lg border p-4', className)}>
         {/* 头部和头像 */}
         {(showAvatar || showTitle) && (
-          <div className="flex items-center gap-3 mb-3">
-            {showAvatar && (
-              <SkeletonAvatar size={avatarSize} />
-            )}
+          <div className="mb-3 flex items-center gap-3">
+            {showAvatar && <SkeletonAvatar size={avatarSize} />}
             {showTitle && (
-              <Skeleton
-                className="rounded"
-                style={{ width: `${titleWidth}%`, height: '20px' }}
-              />
+              <Skeleton className="rounded" style={{ width: `${titleWidth}%`, height: '20px' }} />
             )}
           </div>
         )}
 
         {/* 描述 */}
-        {showDescription && (
-          <SkeletonText
-            lines={descriptionLines}
-            height={14}
-            className="mb-3"
-          />
-        )}
+        {showDescription && <SkeletonText lines={descriptionLines} height={14} className="mb-3" />}
 
         {/* 操作栏 */}
         {showActions && (
-          <div className="flex gap-2 mt-4">
+          <div className="mt-4 flex gap-2">
             {Array.from({ length: actionCount }).map((_, index) => (
               <Skeleton
                 key={index}
@@ -200,10 +176,10 @@ export const SkeletonCard = memo<SkeletonCardProps>(
           </div>
         )}
       </div>
-    );
+    )
   }
-);
-SkeletonCard.displayName = 'SkeletonCard';
+)
+SkeletonCard.displayName = 'SkeletonCard'
 
 // ============================================
 // 列表骨架屏
@@ -211,9 +187,9 @@ SkeletonCard.displayName = 'SkeletonCard';
 
 interface SkeletonListProps extends Omit<SkeletonProps, 'children'> {
   /** 列表项数量 */
-  count?: number;
+  count?: number
   /** 列表项配置 */
-  itemProps?: SkeletonCardProps;
+  itemProps?: SkeletonCardProps
 }
 
 export const SkeletonList = memo<SkeletonListProps>(
@@ -224,10 +200,10 @@ export const SkeletonList = memo<SkeletonListProps>(
           <SkeletonCard key={index} {...itemProps} />
         ))}
       </div>
-    );
+    )
   }
-);
-SkeletonList.displayName = 'SkeletonList';
+)
+SkeletonList.displayName = 'SkeletonList'
 
 // ============================================
 // 表格骨架屏
@@ -235,27 +211,20 @@ SkeletonList.displayName = 'SkeletonList';
 
 interface SkeletonTableProps extends Omit<SkeletonProps, 'children'> {
   /** 行数 */
-  rows?: number;
+  rows?: number
   /** 列数 */
-  columns?: number;
+  columns?: number
   /** 是否显示表头 */
-  showHeader?: boolean;
+  showHeader?: boolean
   /** 单元格高度 */
-  cellHeight?: number;
+  cellHeight?: number
 }
 
 export const SkeletonTable = memo<SkeletonTableProps>(
-  ({
-    className,
-    rows = 5,
-    columns = 4,
-    showHeader = true,
-    cellHeight = 40,
-    style,
-  }) => {
+  ({ className, rows = 5, columns = 4, showHeader = true, cellHeight = 40, style }) => {
     return (
       <div className={cn('w-full', className)} style={style}>
-        <div className="border rounded-lg overflow-hidden">
+        <div className="overflow-hidden rounded-lg border">
           {/* 表头 */}
           {showHeader && (
             <div className="grid bg-gray-50 dark:bg-gray-900">
@@ -267,9 +236,7 @@ export const SkeletonTable = memo<SkeletonTableProps>(
                     width: `${100 / columns}%`,
                   }}
                 >
-                  <Skeleton
-                    style={{ height: `${cellHeight * 0.6}px` }}
-                  />
+                  <Skeleton style={{ height: `${cellHeight * 0.6}px` }} />
                 </div>
               ))}
             </div>
@@ -293,10 +260,10 @@ export const SkeletonTable = memo<SkeletonTableProps>(
           ))}
         </div>
       </div>
-    );
+    )
   }
-);
-SkeletonTable.displayName = 'SkeletonTable';
+)
+SkeletonTable.displayName = 'SkeletonTable'
 
 // ============================================
 // 图片骨架屏
@@ -304,28 +271,18 @@ SkeletonTable.displayName = 'SkeletonTable';
 
 interface SkeletonImageProps extends Omit<SkeletonProps, 'children'> {
   /** 宽度 */
-  width?: number | string;
+  width?: number | string
   /** 高度 */
-  height?: number | string;
+  height?: number | string
   /** 圆角 */
-  borderRadius?: number | string;
+  borderRadius?: number | string
   /** 宽高比 (16:9, 4:3, 1:1 等) */
-  aspectRatio?: string;
+  aspectRatio?: string
 }
 
 export const SkeletonImage = memo<SkeletonImageProps>(
-  ({
-    className,
-    width = '100%',
-    height,
-    borderRadius,
-    aspectRatio,
-    style,
-    ...props
-  }) => {
-    const aspectStyle = aspectRatio
-      ? { aspectRatio }
-      : { width, height };
+  ({ className, width = '100%', height, borderRadius, aspectRatio, style, ...props }) => {
+    const aspectStyle = aspectRatio ? { aspectRatio } : { width, height }
 
     return (
       <Skeleton
@@ -337,10 +294,10 @@ export const SkeletonImage = memo<SkeletonImageProps>(
         }}
         {...props}
       />
-    );
+    )
   }
-);
-SkeletonImage.displayName = 'SkeletonImage';
+)
+SkeletonImage.displayName = 'SkeletonImage'
 
 // ============================================
 // 导航骨架屏
@@ -348,23 +305,17 @@ SkeletonImage.displayName = 'SkeletonImage';
 
 interface SkeletonNavigationProps extends Omit<SkeletonProps, 'children'> {
   /** 导航项数量 */
-  items?: number;
+  items?: number
   /** 导航项高度 */
-  itemHeight?: number;
+  itemHeight?: number
   /** 是否显示 Logo */
-  showLogo?: boolean;
+  showLogo?: boolean
   /** Logo 高度 */
-  logoHeight?: number;
+  logoHeight?: number
 }
 
 export const SkeletonNavigation = memo<SkeletonNavigationProps>(
-  ({
-    className,
-    items = 5,
-    itemHeight = 40,
-    showLogo = true,
-    logoHeight = 32,
-  }) => {
+  ({ className, items = 5, itemHeight = 40, showLogo = true, logoHeight = 32 }) => {
     return (
       <div className={cn('flex flex-col', className)}>
         {/* Logo */}
@@ -394,10 +345,10 @@ export const SkeletonNavigation = memo<SkeletonNavigationProps>(
           ))}
         </div>
       </div>
-    );
+    )
   }
-);
-SkeletonNavigation.displayName = 'SkeletonNavigation';
+)
+SkeletonNavigation.displayName = 'SkeletonNavigation'
 
 // ============================================
 // 加载状态包装器
@@ -405,43 +356,38 @@ SkeletonNavigation.displayName = 'SkeletonNavigation';
 
 interface LoadingWrapperProps {
   /** 是否加载中 */
-  loading: boolean;
+  loading: boolean
   /** 加载中的骨架屏 */
-  skeleton?: ReactNode;
+  skeleton?: ReactNode
   /** 加载完成后的内容 */
-  children: ReactNode;
+  children: ReactNode
   /** 延迟显示加载状态 */
-  delay?: number;
+  delay?: number
 }
 
-export function LoadingWrapper({
-  loading,
-  skeleton,
-  children,
-  delay = 200,
-}: LoadingWrapperProps) {
-  const [showLoading, setShowLoading] = useState(false);
+export function LoadingWrapper({ loading, skeleton, children, delay = 200 }: LoadingWrapperProps) {
+  const [showLoading, setShowLoading] = useState(false)
 
   useEffect(() => {
     if (loading) {
       const timer = setTimeout(() => {
-        setShowLoading(true);
-      }, delay);
-      return () => clearTimeout(timer);
+        setShowLoading(true)
+      }, delay)
+      return () => clearTimeout(timer)
     } else {
-      setShowLoading(false);
+      setShowLoading(false)
     }
-  }, [loading, delay]);
+  }, [loading, delay])
 
   if (showLoading) {
-    return <>{skeleton}</>;
+    return <>{skeleton}</>
   }
 
-  return <>{children}</>;
+  return <>{children}</>
 }
 
 // ============================================
 // 默认导出
 // ============================================
 
-export default Skeleton;
+export default Skeleton

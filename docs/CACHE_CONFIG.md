@@ -8,27 +8,34 @@
 ## 推荐缓存策略
 
 ### 1. 静态资源 (CSS, JS, Fonts)
+
 ```
 Cache-Control: public, max-age=31536000, immutable
 ```
+
 - 有效期：1年
 - 适用于带 hash 的文件
 
 ### 2. 图片资源
+
 ```
 Cache-Control: public, max-age=31536000, immutable
 ```
+
 - 有效期：1年
 - Next.js 生成的优化图片会自动添加 hash
 
 ### 3. HTML 文件
+
 ```
 Cache-Control: public, max-age=0, must-revalidate
 ```
+
 - 不缓存，验证后使用
 - 或使用较短的缓存时间
 
 ### 4. 页面跳转
+
 ```
 Cache-Control: no-cache, no-store, must-revalidate
 ```

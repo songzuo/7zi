@@ -55,6 +55,7 @@ SENTRY_REPLAYS_ON_ERROR_SAMPLE_RATE=0.5
 ### Error Filtering
 
 Ignored errors:
+
 - Browser extension errors
 - ResizeObserver loop errors
 - Network errors (user's network issue)
@@ -102,6 +103,7 @@ npm run build
 ## Changelog
 
 ### 2024-04-02
+
 - Verified Sentry configuration files exist and are properly configured
 - Fixed turbopack configuration warning in next.config.ts
 - Build successful with Sentry integration

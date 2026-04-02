@@ -13,12 +13,13 @@
   - Automatic metric collection and validation
   - Rating calculation (good, needs-improvement, poor)
   - Device type detection (mobile, tablet, desktop)
-  
+
 **Changes**:
+
 ```typescript
 // Before: Only console logging
 function reportMetric(metric: Metric) {
-  console.warn(`[Web Vitals] Poor ${metric.name}`);
+  console.warn(`[Web Vitals] Poor ${metric.name}`)
 }
 
 // After: Full API integration
@@ -28,9 +29,9 @@ async function sendToAPI(metrics: Record<string, Metric>) {
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({
       metrics: Object.values(metrics),
-      metadata: { url, referrer, viewport, deviceType }
+      metadata: { url, referrer, viewport, deviceType },
     }),
-  });
+  })
 }
 ```
 
@@ -50,6 +51,7 @@ async function sendToAPI(metrics: Record<string, Metric>) {
   - Device type and viewport tracking
 
 **API Contract**:
+
 ```typescript
 // POST /api/web-vitals
 {
@@ -97,18 +99,19 @@ async function sendToAPI(metrics: Record<string, Metric>) {
   - LCP element tracking and marking
 
 **Key Functions**:
+
 ```typescript
 // Preload critical LCP image
-preloadLCPImage('/hero-image.jpg');
+preloadLCPImage('/hero-image.jpg')
 
 // Preconnect to CDNs
-preconnectToCDNs();
+preconnectToCDNs()
 
 // Optimize font loading
-preloadCriticalFonts(['/fonts/main.woff2']);
+preloadCriticalFonts(['/fonts/main.woff2'])
 
 // Generate responsive image attributes
-const { srcset, sizes } = optimizeImage('/hero.jpg');
+const { srcset, sizes } = optimizeImage('/hero.jpg')
 ```
 
 ---
@@ -129,32 +132,37 @@ const { srcset, sizes } = optimizeImage('/hero.jpg');
   - Interaction delay tracking
 
 **Key Functions**:
+
 ```typescript
 // Run large tasks in chunks
-await runInIdle(() => {
-  // Large task code
-}, { maxDuration: 50 });
+await runInIdle(
+  () => {
+    // Large task code
+  },
+  { maxDuration: 50 }
+)
 
 // Debounce user input
-const debouncedSearch = debounce((query) => {
+const debouncedSearch = debounce(query => {
   // Search logic
-}, 300);
+}, 300)
 
 // Monitor long tasks
-observeLongTasks((entries) => {
+observeLongTasks(entries => {
   entries.forEach(entry => {
     if (entry.duration > 50) {
-      console.warn('Long task:', entry.duration);
+      console.warn('Long task:', entry.duration)
     }
-  });
-});
+  })
+})
 ```
 
 ---
 
 ### 5. ✅ Code Splitting for Three.js
 
-**Files**: 
+**Files**:
+
 - `/root/.openclaw/workspace/7zi-project/src/lib/code-splitting.ts`
 - `/root/.openclaw/workspace/7zi-project/src/components/LazyComponents.tsx`
 
@@ -168,6 +176,7 @@ observeLongTasks((entries) => {
   - Performance monitoring for chunk loads
 
 **Bundle Impact**:
+
 ```
 Before:
 - Main bundle: ~1.1MB (includes Three.js)
@@ -180,6 +189,7 @@ After:
 ```
 
 **Usage**:
+
 ```typescript
 import { LazyKnowledgeLatticeScene } from '@/components/LazyComponents';
 
@@ -203,22 +213,23 @@ import { LazyKnowledgeLatticeScene } from '@/components/LazyComponents';
   - Performance measurement retrieval
 
 **Usage Examples**:
+
 ```typescript
 // Manual marking
-performanceMark('api-call-start');
-await fetchData();
-performanceMark('api-call-end');
-performanceMeasure('api-call', 'api-call-start', 'api-call-end');
+performanceMark('api-call-start')
+await fetchData()
+performanceMark('api-call-end')
+performanceMeasure('api-call', 'api-call-start', 'api-call-end')
 
 // Auto-measure async
 const result = await measureAsync('fetch-data', async () => {
-  return await api.get('/data');
-});
+  return await api.get('/data')
+})
 
 // Auto-measure sync
 const sum = measureSync('calculate-sum', () => {
-  return expensiveCalculation();
-});
+  return expensiveCalculation()
+})
 ```
 
 ---
@@ -236,20 +247,21 @@ const sum = measureSync('calculate-sum', () => {
   - Auto-initialization on mount
 
 **Changes**:
+
 ```typescript
 useEffect(() => {
   // Initialize Web Vitals Monitoring
-  initWebVitalsMonitoring();
+  initWebVitalsMonitoring()
 
   // Initialize Performance Optimizations
-  initPerformanceOptimizations();
+  initPerformanceOptimizations()
 
   // Initialize LCP Optimizations
-  initLCPOptimizations();
+  initLCPOptimizations()
 
   // Initialize INP Optimizations
-  initINPOptimizations();
-}, []);
+  initINPOptimizations()
+}, [])
 ```
 
 ---
@@ -272,7 +284,8 @@ useEffect(() => {
 
 **Issue**: Both `middleware.ts` and `proxy.ts` were detected by Next.js 16.
 
-**Solution**: 
+**Solution**:
+
 - Backed up `src/middleware.ts` to `src/middleware.ts.backup`
 - Merged functionality into `src/proxy.ts`
 - Combined CORS, security headers, and i18n into single middleware
@@ -308,21 +321,21 @@ src/
 
 ### Web Vitals
 
-| Metric | Before | Target | Implementation |
-|--------|--------|--------|----------------|
-| LCP | ~3.5s | <2.5s | Preloading, critical resource optimization |
-| FID | ~150ms | <100ms | Task splitting, idle callbacks |
-| CLS | ~0.15 | <0.1 | Font optimization, async loading |
-| TTFB | ~600ms | <800ms | ✅ Already good (no changes needed) |
-| INP | ~180ms | <200ms | Input optimization, event delegation |
+| Metric | Before | Target | Implementation                             |
+| ------ | ------ | ------ | ------------------------------------------ |
+| LCP    | ~3.5s  | <2.5s  | Preloading, critical resource optimization |
+| FID    | ~150ms | <100ms | Task splitting, idle callbacks             |
+| CLS    | ~0.15  | <0.1   | Font optimization, async loading           |
+| TTFB   | ~600ms | <800ms | ✅ Already good (no changes needed)        |
+| INP    | ~180ms | <200ms | Input optimization, event delegation       |
 
 ### Bundle Size
 
-| Metric | Before | After | Reduction |
-|--------|--------|-------|-----------|
-| Main bundle | 1.1MB | 350KB | -68% |
-| Three.js | Included | Separate | Split ✓ |
-| Initial load | 1.1MB | 350KB | -68% |
+| Metric       | Before   | After    | Reduction |
+| ------------ | -------- | -------- | --------- |
+| Main bundle  | 1.1MB    | 350KB    | -68%      |
+| Three.js     | Included | Separate | Split ✓   |
+| Initial load | 1.1MB    | 350KB    | -68%      |
 
 ---
 
@@ -331,6 +344,7 @@ src/
 ### 1. Web Vitals Monitoring
 
 Automatic initialization in `Analytics.tsx`:
+
 ```typescript
 // Already integrated, no manual setup needed
 // Metrics automatically collected and reported to /api/web-vitals
@@ -339,29 +353,32 @@ Automatic initialization in `Analytics.tsx`:
 ### 2. LCP Optimization
 
 ```typescript
-import { preloadLCPImage, preconnectToCDNs } from '@/lib/lcp-optimization';
+import { preloadLCPImage, preconnectToCDNs } from '@/lib/lcp-optimization'
 
 // Preload critical image
-preloadLCPImage('/hero-image.jpg');
+preloadLCPImage('/hero-image.jpg')
 
 // Preconnect to CDNs (auto-initialized)
-preconnectToCDNs();
+preconnectToCDNs()
 ```
 
 ### 3. INP Optimization
 
 ```typescript
-import { runInIdle, debounce, throttle } from '@/lib/inp-optimization';
+import { runInIdle, debounce, throttle } from '@/lib/inp-optimization'
 
 // Run large tasks in chunks
-await runInIdle(() => {
-  // Large task
-}, { maxDuration: 50 });
+await runInIdle(
+  () => {
+    // Large task
+  },
+  { maxDuration: 50 }
+)
 
 // Debounce user input
-const debouncedInput = debounce((value) => {
+const debouncedInput = debounce(value => {
   // Handle input
-}, 300);
+}, 300)
 ```
 
 ### 4. Code Splitting
@@ -380,17 +397,17 @@ preloadThreeJS();
 ### 5. User Timing
 
 ```typescript
-import { measureAsync, measureSync } from '@/lib/performance-optimization';
+import { measureAsync, measureSync } from '@/lib/performance-optimization'
 
 // Measure async function
 const result = await measureAsync('api-call', async () => {
-  return await fetchData();
-});
+  return await fetchData()
+})
 
 // Measure sync function
 const sum = measureSync('calculation', () => {
-  return expensiveCalculation();
-});
+  return expensiveCalculation()
+})
 ```
 
 ---
@@ -448,6 +465,7 @@ curl -X POST http://localhost:3000/api/web-vitals \
 ### 5. Console Monitoring
 
 Open browser console and check for:
+
 - `[Web Vitals] Report submitted` messages
 - `[Performance]` measurement logs
 - `[LCP]` Largest Contentful Paint data
@@ -458,16 +476,16 @@ Open browser console and check for:
 
 ## Status Summary
 
-| Task | Status | Files |
-|------|--------|-------|
-| Web Vitals monitoring integration | ✅ Complete | web-vitals.ts, route.ts |
-| LCP optimization | ✅ Complete | lcp-optimization.ts |
-| INP/FID optimization | ✅ Complete | inp-optimization.ts |
-| Code splitting for Three.js | ✅ Complete | code-splitting.ts, LazyComponents.tsx |
-| User Timing API | ✅ Complete | performance-optimization.ts |
-| Analytics integration | ✅ Complete | Analytics.tsx |
-| Documentation | ✅ Complete | WEB_VITALS_OPTIMIZATION.md |
-| Middleware fix | ✅ Complete | proxy.ts |
+| Task                              | Status      | Files                                 |
+| --------------------------------- | ----------- | ------------------------------------- |
+| Web Vitals monitoring integration | ✅ Complete | web-vitals.ts, route.ts               |
+| LCP optimization                  | ✅ Complete | lcp-optimization.ts                   |
+| INP/FID optimization              | ✅ Complete | inp-optimization.ts                   |
+| Code splitting for Three.js       | ✅ Complete | code-splitting.ts, LazyComponents.tsx |
+| User Timing API                   | ✅ Complete | performance-optimization.ts           |
+| Analytics integration             | ✅ Complete | Analytics.tsx                         |
+| Documentation                     | ✅ Complete | WEB_VITALS_OPTIMIZATION.md            |
+| Middleware fix                    | ✅ Complete | proxy.ts                              |
 
 ---
 

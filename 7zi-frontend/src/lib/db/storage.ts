@@ -8,126 +8,126 @@
  * 存储项接口
  */
 export interface StorageItem<T = unknown> {
-  value: T;
-  expiresAt?: number;
-  createdAt: number;
-  updatedAt: number;
+  value: T
+  expiresAt?: number
+  createdAt: number
+  updatedAt: number
 }
 
 /**
  * 查询条件接口
  */
 export interface QueryCondition<T = unknown> {
-  key?: string | RegExp;
-  value?: T | ((value: T) => boolean);
-  expiresAt?: { before?: number; after?: number };
-  createdAt?: { before?: number; after?: number };
-  updatedAt?: { before?: number; after?: number };
+  key?: string | RegExp
+  value?: T | ((value: T) => boolean)
+  expiresAt?: { before?: number; after?: number }
+  createdAt?: { before?: number; after?: number }
+  updatedAt?: { before?: number; after?: number }
 }
 
 /**
  * 存储选项接口
  */
 export interface StorageOptions<T = unknown> {
-  ttl?: number; // Time to live in milliseconds
-  serializer?: (value: T) => string;
-  deserializer?: (value: string) => T;
+  ttl?: number // Time to live in milliseconds
+  serializer?: (value: T) => string
+  deserializer?: (value: string) => T
 }
 
 /**
  * 事务操作接口
  */
 export interface TransactionOperation {
-  type: 'set' | 'delete' | 'clear';
-  key?: string;
-  value?: unknown;
+  type: 'set' | 'delete' | 'clear'
+  key?: string
+  value?: unknown
 }
 
 /**
  * 统计信息接口
  */
 export interface StorageStats {
-  itemCount: number;
-  expiredCount: number;
-  totalSize: number;
-  keys: string[];
+  itemCount: number
+  expiredCount: number
+  totalSize: number
+  keys: string[]
 }
 
 /**
  * 内存存储类
  */
 export class InMemoryStorage<T = unknown> {
-  private store: Map<string, StorageItem<T>> = new Map();
-  private options: StorageOptions<T> = {};
+  private store: Map<string, StorageItem<T>> = new Map()
+  private options: StorageOptions<T> = {}
 
   constructor(options: StorageOptions<T> = {}) {
     this.options = {
       ttl: options.ttl,
       serializer: options.serializer,
       deserializer: options.deserializer,
-    };
+    }
   }
 
   /**
    * 设置值
    */
   set(key: string, value: T, ttl?: number): void {
-    const now = Date.now();
-    const expiresAt = ttl || this.options.ttl ? now + (ttl || this.options.ttl!) : undefined;
+    const now = Date.now()
+    const expiresAt = ttl || this.options.ttl ? now + (ttl || this.options.ttl!) : undefined
 
     this.store.set(key, {
       value,
       expiresAt,
       createdAt: now,
       updatedAt: now,
-    });
+    })
   }
 
   /**
    * 获取值
    */
   get(key: string): T | undefined {
-    const item = this.store.get(key);
+    const item = this.store.get(key)
 
     if (!item) {
-      return undefined;
+      return undefined
     }
 
     // 检查是否过期
     if (item.expiresAt && item.expiresAt < Date.now()) {
-      this.store.delete(key);
-      return undefined;
+      this.store.delete(key)
+      return undefined
     }
 
-    return item.value;
+    return item.value
   }
 
   /**
    * 检查键是否存在
    */
   has(key: string): boolean {
-    return this.get(key) !== undefined;
+    return this.get(key) !== undefined
   }
 
   /**
    * 删除值
    */
   delete(key: string): boolean {
-    return this.store.delete(key);
+    return this.store.delete(key)
   }
 
   /**
    * 清空所有值
    */
   clear(): void {
-    this.store.clear();
+    this.store.clear()
   }
 
   /**
    * 获取所有键
    */
   keys(): string[] {
-    return Array.from(this.store.keys());
+    return Array.from(this.store.keys())
   }
 
   /**
@@ -136,7 +136,7 @@ export class InMemoryStorage<T = unknown> {
   values(): T[] {
     return this.keys()
       .map(key => this.get(key))
-      .filter((value): value is T => value !== undefined);
+      .filter((value): value is T => value !== undefined)
   }
 
   /**
@@ -145,7 +145,7 @@ export class InMemoryStorage<T = unknown> {
   entries(): [string, T][] {
     return this.keys()
       .map(key => [key, this.get(key)] as [string, T | undefined])
-      .filter((entry): entry is [string, T] => entry[1] !== undefined);
+      .filter((entry): entry is [string, T] => entry[1] !== undefined)
   }
 
   /**
@@ -153,79 +153,85 @@ export class InMemoryStorage<T = unknown> {
    */
   size(): number {
     // 过滤掉过期的项
-    let count = 0;
+    let count = 0
     for (const item of this.store.values()) {
       if (!item.expiresAt || item.expiresAt > Date.now()) {
-        count++;
+        count++
       }
     }
-    return count;
+    return count
   }
 
   /**
    * 检查是否为空
    */
   isEmpty(): boolean {
-    return this.size() === 0;
+    return this.size() === 0
   }
 
   /**
    * 查询存储
    */
   query(condition: QueryCondition<T>): [string, T][] {
-    const now = Date.now();
-    const results: [string, T][] = [];
+    const now = Date.now()
+    const results: [string, T][] = []
 
     for (const [key, item] of this.store.entries()) {
       // 跳过过期项
       if (item.expiresAt && item.expiresAt < now) {
-        continue;
+        continue
       }
 
       // 检查键条件
       if (condition.key) {
         if (condition.key instanceof RegExp) {
-          if (!condition.key.test(key)) continue;
+          if (!condition.key.test(key)) continue
         } else if (key !== condition.key) {
-          continue;
+          continue
         }
       }
 
       // 检查值条件
       if (condition.value !== undefined) {
         if (typeof condition.value === 'function') {
-          if (!(condition.value as (val: T) => boolean)(item.value)) continue;
+          if (!(condition.value as (val: T) => boolean)(item.value)) continue
         } else if (item.value !== condition.value) {
-          continue;
+          continue
         }
       }
 
       // 检查过期时间条件
       if (condition.expiresAt) {
-        if (condition.expiresAt.before && (!item.expiresAt || item.expiresAt > condition.expiresAt.before)) {
-          continue;
+        if (
+          condition.expiresAt.before &&
+          (!item.expiresAt || item.expiresAt > condition.expiresAt.before)
+        ) {
+          continue
         }
-        if (condition.expiresAt.after && (!item.expiresAt || item.expiresAt < condition.expiresAt.after)) {
-          continue;
+        if (
+          condition.expiresAt.after &&
+          (!item.expiresAt || item.expiresAt < condition.expiresAt.after)
+        ) {
+          continue
         }
       }
 
       // 检查创建时间条件
       if (condition.createdAt) {
-        if (condition.createdAt.before && item.createdAt >= condition.createdAt.before) continue;
-        if (condition.createdAt.after && item.createdAt <= condition.createdAt.after) continue;
+        if (condition.createdAt.before && item.createdAt >= condition.createdAt.before) continue
+        if (condition.createdAt.after && item.createdAt <= condition.createdAt.after) continue
       }
 
       // 检查更新时间条件
       if (condition.updatedAt) {
-        if (condition.updatedAt.before && item.updatedAt >= condition.updatedAt.before) continue;
-        if (condition.updatedAt.after && item.updatedAt <= condition.updatedAt.after) continue;
+        if (condition.updatedAt.before && item.updatedAt >= condition.updatedAt.before) continue
+        if (condition.updatedAt.after && item.updatedAt <= condition.updatedAt.after) continue
       }
 
-      results.push([key, item.value]);
+      results.push([key, item.value])
     }
 
-    return results;
+    return results
   }
 
   /**
@@ -233,7 +239,7 @@ export class InMemoryStorage<T = unknown> {
    */
   setMany(items: Record<string, T>, ttl?: number): void {
     for (const [key, value] of Object.entries(items)) {
-      this.set(key, value, ttl);
+      this.set(key, value, ttl)
     }
   }
 
@@ -241,79 +247,79 @@ export class InMemoryStorage<T = unknown> {
    * 批量获取
    */
   getMany(keys: string[]): Map<string, T> {
-    const result = new Map<string, T>();
+    const result = new Map<string, T>()
     for (const key of keys) {
-      const value = this.get(key);
+      const value = this.get(key)
       if (value !== undefined) {
-        result.set(key, value);
+        result.set(key, value)
       }
     }
-    return result;
+    return result
   }
 
   /**
    * 批量删除
    */
   deleteMany(keys: string[]): number {
-    let count = 0;
+    let count = 0
     for (const key of keys) {
       if (this.delete(key)) {
-        count++;
+        count++
       }
     }
-    return count;
+    return count
   }
 
   /**
    * 清理过期项
    */
   cleanup(): number {
-    const now = Date.now();
-    let count = 0;
+    const now = Date.now()
+    let count = 0
 
     for (const [key, item] of this.store.entries()) {
       if (item.expiresAt && item.expiresAt < now) {
-        this.store.delete(key);
-        count++;
+        this.store.delete(key)
+        count++
       }
     }
 
-    return count;
+    return count
   }
 
   /**
    * 获取过期时间
    */
   getExpiresAt(key: string): number | undefined {
-    const item = this.store.get(key);
-    return item?.expiresAt;
+    const item = this.store.get(key)
+    return item?.expiresAt
   }
 
   /**
    * 检查是否过期
    */
   isExpired(key: string): boolean {
-    const item = this.store.get(key);
+    const item = this.store.get(key)
     if (!item) {
-      return true;
+      return true
     }
     if (!item.expiresAt) {
-      return false;
+      return false
     }
-    return item.expiresAt < Date.now();
+    return item.expiresAt < Date.now()
   }
 
   /**
    * 延长过期时间
    */
   extendTTL(key: string, ttl: number): boolean {
-    const item = this.store.get(key);
+    const item = this.store.get(key)
     if (!item) {
-      return false;
+      return false
     }
 
-    item.expiresAt = Date.now() + ttl;
-    return true;
+    item.expiresAt = Date.now() + ttl
+    return true
   }
 
   /**
@@ -321,9 +327,9 @@ export class InMemoryStorage<T = unknown> {
    */
   transaction(operations: TransactionOperation[]): boolean {
     // Deep copy the store for backup (including all StorageItem properties)
-    const backup = new Map<string, StorageItem<T>>();
+    const backup = new Map<string, StorageItem<T>>()
     for (const [key, item] of this.store.entries()) {
-      backup.set(key, { ...item });
+      backup.set(key, { ...item })
     }
 
     try {
@@ -331,27 +337,27 @@ export class InMemoryStorage<T = unknown> {
         switch (op.type) {
           case 'set':
             if (op.key !== undefined && op.value !== undefined) {
-              this.set(op.key, op.value as T);
+              this.set(op.key, op.value as T)
             }
-            break;
+            break
           case 'delete':
             if (op.key !== undefined) {
-              this.delete(op.key);
+              this.delete(op.key)
             }
-            break;
+            break
           case 'clear':
-            this.clear();
-            break;
+            this.clear()
+            break
         }
       }
-      return true;
+      return true
     } catch (error) {
       // 回滚 - restore full backup
-      this.store.clear();
+      this.store.clear()
       for (const [key, item] of backup.entries()) {
-        this.store.set(key, { ...item });
+        this.store.set(key, { ...item })
       }
-      return false;
+      return false
     }
   }
 
@@ -359,22 +365,22 @@ export class InMemoryStorage<T = unknown> {
    * 获取统计信息
    */
   getStats(): StorageStats {
-    const now = Date.now();
-    let itemCount = 0;
-    let expiredCount = 0;
-    let totalSize = 0;
-    const keys: string[] = [];
+    const now = Date.now()
+    let itemCount = 0
+    let expiredCount = 0
+    let totalSize = 0
+    const keys: string[] = []
 
     for (const [key, item] of this.store.entries()) {
       if (item.expiresAt && item.expiresAt < now) {
-        expiredCount++;
+        expiredCount++
       } else {
-        itemCount++;
-        keys.push(key);
+        itemCount++
+        keys.push(key)
       }
 
       // 估算大小（简化版）
-      totalSize += key.length + JSON.stringify(item.value).length;
+      totalSize += key.length + JSON.stringify(item.value).length
     }
 
     return {
@@ -382,14 +388,17 @@ export class InMemoryStorage<T = unknown> {
       expiredCount,
       totalSize,
       keys,
-    };
+    }
   }
 
   /**
    * 导出数据
    */
   export(): Record<string, { value: T; expiresAt?: number; createdAt: number; updatedAt: number }> {
-    const result: Record<string, { value: T; expiresAt?: number; createdAt: number; updatedAt: number }> = {};
+    const result: Record<
+      string,
+      { value: T; expiresAt?: number; createdAt: number; updatedAt: number }
+    > = {}
 
     for (const [key, item] of this.store.entries()) {
       result[key] = {
@@ -397,19 +406,21 @@ export class InMemoryStorage<T = unknown> {
         expiresAt: item.expiresAt,
         createdAt: item.createdAt,
         updatedAt: item.updatedAt,
-      };
+      }
     }
 
-    return result;
+    return result
   }
 
   /**
    * 导入数据
    */
-  import(data: Record<string, { value: T; expiresAt?: number; createdAt: number; updatedAt: number }>): void {
-    this.clear();
+  import(
+    data: Record<string, { value: T; expiresAt?: number; createdAt: number; updatedAt: number }>
+  ): void {
+    this.clear()
     for (const [key, item] of Object.entries(data)) {
-      this.store.set(key, item);
+      this.store.set(key, item)
     }
   }
 }
@@ -417,4 +428,4 @@ export class InMemoryStorage<T = unknown> {
 /**
  * 创建默认的存储实例
  */
-export const storage = new InMemoryStorage();
+export const storage = new InMemoryStorage()

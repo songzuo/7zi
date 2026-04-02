@@ -3,7 +3,7 @@
  * Audit Log Database Module Tests
  */
 
-import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
+import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest'
 import {
   initializeAuditLogsTable,
   createAuditLog,
@@ -18,13 +18,13 @@ import {
   AuditAction,
   AuditStatus,
   type AuditLog,
-} from '../audit-log';
-import { getDatabaseAsync } from '../index';
+} from '../audit-log'
+import { getDatabaseAsync } from '../index'
 
 // Mock dependencies
 vi.mock('../index', () => ({
   getDatabaseAsync: vi.fn(),
-}));
+}))
 
 vi.mock('../../logger', () => ({
   logger: {
@@ -32,108 +32,105 @@ vi.mock('../../logger', () => ({
     debug: vi.fn(),
     error: vi.fn(),
   },
-}));
+}))
 
 /**
  * Mock statement interface
  */
 interface MockStatement {
-  run: ReturnType<typeof vi.fn>;
-  get: ReturnType<typeof vi.fn>;
-  all: ReturnType<typeof vi.fn>;
+  run: ReturnType<typeof vi.fn>
+  get: ReturnType<typeof vi.fn>
+  all: ReturnType<typeof vi.fn>
 }
 
 /**
  * Mock database interface
  */
 interface MockDatabase {
-  exec: ReturnType<typeof vi.fn>;
-  prepare: ReturnType<typeof vi.fn>;
-  query: ReturnType<typeof vi.fn>;
+  exec: ReturnType<typeof vi.fn>
+  prepare: ReturnType<typeof vi.fn>
+  query: ReturnType<typeof vi.fn>
 }
 
 describe('audit-log', () => {
-  let mockDb: MockDatabase;
+  let mockDb: MockDatabase
 
   beforeEach(() => {
     // Reset all mocks
-    vi.clearAllMocks();
+    vi.clearAllMocks()
 
     // Create mock database
     mockDb = {
       exec: vi.fn(),
       prepare: vi.fn(),
       query: vi.fn(),
-    };
+    }
 
     // Setup prepare to return prepared statements
     const mockStmt = {
       run: vi.fn(),
       get: vi.fn(),
       all: vi.fn(),
-    };
+    }
 
-    mockDb.prepare.mockReturnValue(mockStmt);
+    mockDb.prepare.mockReturnValue(mockStmt)
 
     // Mock getDatabaseAsync
-    vi.mocked(getDatabaseAsync).mockResolvedValue(mockDb);
-  });
+    vi.mocked(getDatabaseAsync).mockResolvedValue(mockDb)
+  })
 
   afterEach(() => {
-    vi.restoreAllMocks();
-  });
+    vi.restoreAllMocks()
+  })
 
   describe('initializeAuditLogsTable', () => {
     it('should create audit_logs table with correct schema', async () => {
-      await initializeAuditLogsTable();
+      await initializeAuditLogsTable()
 
-      expect(mockDb.exec).toHaveBeenCalled();
-      const sql = mockDb.exec.mock.calls[0][0];
-      expect(sql).toContain('CREATE TABLE IF NOT EXISTS audit_logs');
-      expect(sql).toContain('id TEXT PRIMARY KEY');
-      expect(sql).toContain('user_id TEXT');
-      expect(sql).toContain('action TEXT NOT NULL');
-      expect(sql).toContain('entity_type TEXT NOT NULL');
-      expect(sql).toContain('status TEXT NOT NULL DEFAULT');
-      expect(sql).toContain('FOREIGN KEY (user_id) REFERENCES users(id)');
-    });
+      expect(mockDb.exec).toHaveBeenCalled()
+      const sql = mockDb.exec.mock.calls[0][0]
+      expect(sql).toContain('CREATE TABLE IF NOT EXISTS audit_logs')
+      expect(sql).toContain('id TEXT PRIMARY KEY')
+      expect(sql).toContain('user_id TEXT')
+      expect(sql).toContain('action TEXT NOT NULL')
+      expect(sql).toContain('entity_type TEXT NOT NULL')
+      expect(sql).toContain('status TEXT NOT NULL DEFAULT')
+      expect(sql).toContain('FOREIGN KEY (user_id) REFERENCES users(id)')
+    })
 
     it('should create indexes for common queries', async () => {
-      await initializeAuditLogsTable();
+      await initializeAuditLogsTable()
 
-      const sql = mockDb.exec.mock.calls[0][0];
-      expect(sql).toContain('CREATE INDEX IF NOT EXISTS idx_audit_logs_user_id');
-      expect(sql).toContain('CREATE INDEX IF NOT EXISTS idx_audit_logs_action');
-      expect(sql).toContain('CREATE INDEX IF NOT EXISTS idx_audit_logs_entity');
-      expect(sql).toContain('CREATE INDEX IF NOT EXISTS idx_audit_logs_status');
-      expect(sql).toContain('CREATE INDEX IF NOT EXISTS idx_audit_logs_created_at');
-    });
+      const sql = mockDb.exec.mock.calls[0][0]
+      expect(sql).toContain('CREATE INDEX IF NOT EXISTS idx_audit_logs_user_id')
+      expect(sql).toContain('CREATE INDEX IF NOT EXISTS idx_audit_logs_action')
+      expect(sql).toContain('CREATE INDEX IF NOT EXISTS idx_audit_logs_entity')
+      expect(sql).toContain('CREATE INDEX IF NOT EXISTS idx_audit_logs_status')
+      expect(sql).toContain('CREATE INDEX IF NOT EXISTS idx_audit_logs_created_at')
+    })
 
     it('should log successful initialization', async () => {
-      await initializeAuditLogsTable();
+      await initializeAuditLogsTable()
 
-      const { logger } = await import('../../logger');
-      expect(logger.info).toHaveBeenCalledWith(
-        'Audit logs table initialized',
-        { category: 'db' }
-      );
-    });
+      const { logger } = await import('../../logger')
+      expect(logger.info).toHaveBeenCalledWith('Audit logs table initialized', { category: 'db' })
+    })
 
     it('should handle initialization errors', async () => {
-      const error = new Error('Database error');
+      const error = new Error('Database error')
       mockDb.exec.mockImplementationOnce(() => {
-        throw error;
-      });
+        throw error
+      })
 
-      await expect(initializeAuditLogsTable()).rejects.toThrow('Database error');
+      await expect(initializeAuditLogsTable()).rejects.toThrow('Database error')
 
-      const { logger } = await import('../../logger');
-      expect(logger.error).toHaveBeenCalledWith(
-        'Failed to initialize audit logs table',
-        { category: 'db', error }
-      );
-    });
-  });
+      const { logger } = await import('../../logger')
+      expect(logger.error).toHaveBeenCalledWith('Failed to initialize audit logs table', {
+        category: 'db',
+        error,
+      })
+    })
+  })
 
   describe('createAuditLog', () => {
     it('should create audit log entry with generated ID', async () => {
@@ -144,22 +141,22 @@ describe('audit-log', () => {
         entity_id: 'user123',
         details: { username: 'testuser' },
         status: AuditStatus.SUCCESS,
-      };
+      }
 
       const mockStmt = {
         run: vi.fn(),
-      };
-      mockDb.prepare.mockReturnValue(mockStmt);
+      }
+      mockDb.prepare.mockReturnValue(mockStmt)
 
-      const result = await createAuditLog(entry);
+      const result = await createAuditLog(entry)
 
-      expect(result).toHaveProperty('id');
-      expect(result.id).toMatch(/^audit_\d+_[a-z0-9]+$/);
-      expect(result.user_id).toBe('user123');
-      expect(result.action).toBe(AuditAction.USER_CREATED);
-      expect(result).toHaveProperty('created_at');
-      expect(mockStmt.run).toHaveBeenCalled();
-    });
+      expect(result).toHaveProperty('id')
+      expect(result.id).toMatch(/^audit_\d+_[a-z0-9]+$/)
+      expect(result.user_id).toBe('user123')
+      expect(result.action).toBe(AuditAction.USER_CREATED)
+      expect(result).toHaveProperty('created_at')
+      expect(mockStmt.run).toHaveBeenCalled()
+    })
 
     it('should handle null user_id', async () => {
       const entry: Omit<AuditLog, 'id' | 'created_at'> = {
@@ -169,16 +166,16 @@ describe('audit-log', () => {
         entity_id: null,
         details: { ip: '192.168.1.1' },
         status: AuditStatus.FAILED,
-      };
+      }
 
       const mockStmt = {
         run: vi.fn(),
-      };
-      mockDb.prepare.mockReturnValue(mockStmt);
+      }
+      mockDb.prepare.mockReturnValue(mockStmt)
 
-      const result = await createAuditLog(entry);
+      const result = await createAuditLog(entry)
 
-      expect(result.user_id).toBeNull();
+      expect(result.user_id).toBeNull()
       expect(mockStmt.run).toHaveBeenCalledWith(
         expect.any(String),
         null,
@@ -193,8 +190,8 @@ describe('audit-log', () => {
         AuditStatus.FAILED,
         null,
         expect.any(String)
-      );
-    });
+      )
+    })
 
     it('should serialize details to JSON', async () => {
       const entry: Omit<AuditLog, 'id' | 'created_at'> = {
@@ -204,18 +201,18 @@ describe('audit-log', () => {
         entity_id: 'doc123',
         details: { title: 'Test Document', count: 5, nested: { value: 'test' } },
         status: AuditStatus.SUCCESS,
-      };
+      }
 
       const mockStmt = {
         run: vi.fn(),
-      };
-      mockDb.prepare.mockReturnValue(mockStmt);
+      }
+      mockDb.prepare.mockReturnValue(mockStmt)
 
-      await createAuditLog(entry);
+      await createAuditLog(entry)
 
-      const callArgs = mockStmt.run.mock.calls[0];
-      expect(callArgs[7]).toBe(JSON.stringify(entry.details));
-    });
+      const callArgs = mockStmt.run.mock.calls[0]
+      expect(callArgs[7]).toBe(JSON.stringify(entry.details))
+    })
 
     it('should log debug message on success', async () => {
       const entry: Omit<AuditLog, 'id' | 'created_at'> = {
@@ -225,23 +222,23 @@ describe('audit-log', () => {
         entity_id: null,
         details: {},
         status: AuditStatus.SUCCESS,
-      };
+      }
 
       const mockStmt = {
         run: vi.fn(),
-      };
-      mockDb.prepare.mockReturnValue(mockStmt);
+      }
+      mockDb.prepare.mockReturnValue(mockStmt)
 
-      await createAuditLog(entry);
+      await createAuditLog(entry)
 
-      const { logger } = await import('../../logger');
+      const { logger } = await import('../../logger')
       expect(logger.debug).toHaveBeenCalledWith('Audit log created', {
         category: 'audit',
         action: AuditAction.LOGIN,
         user_id: 'user123',
         entity_type: 'auth',
-      });
-    });
+      })
+    })
 
     it('should handle creation errors', async () => {
       const entry: Omit<AuditLog, 'id' | 'created_at'> = {
@@ -251,19 +248,19 @@ describe('audit-log', () => {
         entity_id: null,
         details: {},
         status: AuditStatus.SUCCESS,
-      };
+      }
 
-      const error = new Error('Insert failed');
+      const error = new Error('Insert failed')
       const mockStmt = {
         run: vi.fn().mockImplementation(() => {
-          throw error;
+          throw error
         }),
-      };
-      mockDb.prepare.mockReturnValue(mockStmt);
+      }
+      mockDb.prepare.mockReturnValue(mockStmt)
 
-      await expect(createAuditLog(entry)).rejects.toThrow('Insert failed');
-    });
-  });
+      await expect(createAuditLog(entry)).rejects.toThrow('Insert failed')
+    })
+  })
 
   describe('getAuditLogById', () => {
     it('should return audit log by ID', async () => {
@@ -281,21 +278,21 @@ describe('audit-log', () => {
         status: AuditStatus.SUCCESS,
         error_message: null,
         created_at: '2024-01-01T00:00:00Z',
-      };
+      }
 
       const mockStmt = {
         get: vi.fn().mockReturnValue(mockRow),
-      };
-      mockDb.prepare.mockReturnValue(mockStmt);
+      }
+      mockDb.prepare.mockReturnValue(mockStmt)
 
-      const result = await getAuditLogById('audit_1');
+      const result = await getAuditLogById('audit_1')
 
-      expect(result).not.toBeNull();
-      expect(result!.id).toBe('audit_1');
-      expect(result!.user_id).toBe('user123');
-      expect(result!.action).toBe(AuditAction.LOGIN);
-      expect(result!.status).toBe(AuditStatus.SUCCESS);
-    });
+      expect(result).not.toBeNull()
+      expect(result!.id).toBe('audit_1')
+      expect(result!.user_id).toBe('user123')
+      expect(result!.action).toBe(AuditAction.LOGIN)
+      expect(result!.status).toBe(AuditStatus.SUCCESS)
+    })
 
     it('should parse details JSON', async () => {
       const mockRow = {
@@ -312,41 +309,41 @@ describe('audit-log', () => {
         status: AuditStatus.SUCCESS,
         error_message: null,
         created_at: '2024-01-01T00:00:00Z',
-      };
+      }
 
       const mockStmt = {
         get: vi.fn().mockReturnValue(mockRow),
-      };
-      mockDb.prepare.mockReturnValue(mockStmt);
+      }
+      mockDb.prepare.mockReturnValue(mockStmt)
 
-      const result = await getAuditLogById('audit_1');
+      const result = await getAuditLogById('audit_1')
 
-      expect(result!.details).toEqual({ key: 'value', count: 5 });
-    });
+      expect(result!.details).toEqual({ key: 'value', count: 5 })
+    })
 
     it('should return null for non-existent ID', async () => {
       const mockStmt = {
         get: vi.fn().mockReturnValue(undefined),
-      };
-      mockDb.prepare.mockReturnValue(mockStmt);
+      }
+      mockDb.prepare.mockReturnValue(mockStmt)
 
-      const result = await getAuditLogById('nonexistent');
+      const result = await getAuditLogById('nonexistent')
 
-      expect(result).toBeNull();
-    });
+      expect(result).toBeNull()
+    })
 
     it('should handle query errors', async () => {
-      const error = new Error('Query failed');
+      const error = new Error('Query failed')
       const mockStmt = {
         get: vi.fn().mockImplementation(() => {
-          throw error;
+          throw error
         }),
-      };
-      mockDb.prepare.mockReturnValue(mockStmt);
+      }
+      mockDb.prepare.mockReturnValue(mockStmt)
 
-      await expect(getAuditLogById('audit_1')).rejects.toThrow('Query failed');
-    });
-  });
+      await expect(getAuditLogById('audit_1')).rejects.toThrow('Query failed')
+    })
+  })
 
   describe('queryAuditLogs', () => {
     it('should query with no filters', async () => {
@@ -366,105 +363,105 @@ describe('audit-log', () => {
           error_message: null,
           created_at: '2024-01-01T00:00:00Z',
         },
-      ];
+      ]
 
       const mockStmt = {
         get: vi.fn().mockReturnValue({ count: 1 }),
         all: vi.fn().mockReturnValue(mockRows),
-      };
-      mockDb.prepare.mockReturnValue(mockStmt);
+      }
+      mockDb.prepare.mockReturnValue(mockStmt)
 
-      const result = await queryAuditLogs({});
+      const result = await queryAuditLogs({})
 
-      expect(result.logs).toHaveLength(1);
-      expect(result.total).toBe(1);
-      expect(result.logs[0].id).toBe('audit_1');
-    });
+      expect(result.logs).toHaveLength(1)
+      expect(result.total).toBe(1)
+      expect(result.logs[0].id).toBe('audit_1')
+    })
 
     it('should filter by user_id', async () => {
       const mockStmt = {
         get: vi.fn().mockReturnValue({ count: 1 }),
         all: vi.fn().mockReturnValue([]),
-      };
-      mockDb.prepare.mockReturnValue(mockStmt);
+      }
+      mockDb.prepare.mockReturnValue(mockStmt)
 
-      await queryAuditLogs({ user_id: 'user123' });
+      await queryAuditLogs({ user_id: 'user123' })
 
-      const countSql = mockDb.prepare.mock.calls[0][0];
-      expect(countSql).toContain('user_id = ?');
-    });
+      const countSql = mockDb.prepare.mock.calls[0][0]
+      expect(countSql).toContain('user_id = ?')
+    })
 
     it('should filter by action', async () => {
       const mockStmt = {
         get: vi.fn().mockReturnValue({ count: 1 }),
         all: vi.fn().mockReturnValue([]),
-      };
-      mockDb.prepare.mockReturnValue(mockStmt);
+      }
+      mockDb.prepare.mockReturnValue(mockStmt)
 
-      await queryAuditLogs({ action: AuditAction.LOGIN });
+      await queryAuditLogs({ action: AuditAction.LOGIN })
 
-      const countSql = mockDb.prepare.mock.calls[0][0];
-      expect(countSql).toContain('action = ?');
-    });
+      const countSql = mockDb.prepare.mock.calls[0][0]
+      expect(countSql).toContain('action = ?')
+    })
 
     it('should filter by status', async () => {
       const mockStmt = {
         get: vi.fn().mockReturnValue({ count: 1 }),
         all: vi.fn().mockReturnValue([]),
-      };
-      mockDb.prepare.mockReturnValue(mockStmt);
+      }
+      mockDb.prepare.mockReturnValue(mockStmt)
 
-      await queryAuditLogs({ status: AuditStatus.FAILED });
+      await queryAuditLogs({ status: AuditStatus.FAILED })
 
-      const countSql = mockDb.prepare.mock.calls[0][0];
-      expect(countSql).toContain('status = ?');
-    });
+      const countSql = mockDb.prepare.mock.calls[0][0]
+      expect(countSql).toContain('status = ?')
+    })
 
     it('should filter by date range', async () => {
       const mockStmt = {
         get: vi.fn().mockReturnValue({ count: 1 }),
         all: vi.fn().mockReturnValue([]),
-      };
-      mockDb.prepare.mockReturnValue(mockStmt);
+      }
+      mockDb.prepare.mockReturnValue(mockStmt)
 
       await queryAuditLogs({
         start_date: '2024-01-01',
         end_date: '2024-01-31',
-      });
+      })
 
-      const countSql = mockDb.prepare.mock.calls[0][0];
-      expect(countSql).toContain('created_at >= ?');
-      expect(countSql).toContain('created_at <= ?');
-    });
+      const countSql = mockDb.prepare.mock.calls[0][0]
+      expect(countSql).toContain('created_at >= ?')
+      expect(countSql).toContain('created_at <= ?')
+    })
 
     it('should apply limit and offset', async () => {
       const mockStmt = {
         get: vi.fn().mockReturnValue({ count: 10 }),
         all: vi.fn().mockReturnValue([]),
-      };
-      mockDb.prepare.mockReturnValue(mockStmt);
+      }
+      mockDb.prepare.mockReturnValue(mockStmt)
 
-      await queryAuditLogs({ limit: 20, offset: 10 });
+      await queryAuditLogs({ limit: 20, offset: 10 })
 
-      const dataSql = mockDb.prepare.mock.calls[1][0];
-      expect(dataSql).toContain('LIMIT ? OFFSET ?');
-      expect(mockStmt.all).toHaveBeenCalled();
-    });
+      const dataSql = mockDb.prepare.mock.calls[1][0]
+      expect(dataSql).toContain('LIMIT ? OFFSET ?')
+      expect(mockStmt.all).toHaveBeenCalled()
+    })
 
     it('should use default limit of 50', async () => {
       const mockStmt = {
         get: vi.fn().mockReturnValue({ count: 1 }),
         all: vi.fn().mockReturnValue([]),
-      };
-      mockDb.prepare.mockReturnValue(mockStmt);
+      }
+      mockDb.prepare.mockReturnValue(mockStmt)
 
-      await queryAuditLogs({});
+      await queryAuditLogs({})
 
-      const dataSql = mockDb.prepare.mock.calls[1][0];
-      expect(dataSql).toContain('LIMIT ? OFFSET ?');
-      expect(mockStmt.all).toHaveBeenCalled();
-    });
-  });
+      const dataSql = mockDb.prepare.mock.calls[1][0]
+      expect(dataSql).toContain('LIMIT ? OFFSET ?')
+      expect(mockStmt.all).toHaveBeenCalled()
+    })
+  })
 
   describe('getUserAuditLogs', () => {
     it('should get logs for a specific user', async () => {
@@ -487,14 +484,14 @@ describe('audit-log', () => {
             created_at: '2024-01-01T00:00:00Z',
           },
         ]),
-      };
-      mockDb.prepare.mockReturnValue(mockStmt);
+      }
+      mockDb.prepare.mockReturnValue(mockStmt)
 
-      const result = await getUserAuditLogs('user123');
+      const result = await getUserAuditLogs('user123')
 
-      expect(result).toHaveLength(1);
-      expect(result[0].user_id).toBe('user123');
-    });
+      expect(result).toHaveLength(1)
+      expect(result[0].user_id).toBe('user123')
+    })
 
     it('should filter by actions when specified', async () => {
       const mockStmt = {
@@ -531,32 +528,28 @@ describe('audit-log', () => {
             created_at: '2024-01-01T00:00:00Z',
           },
         ]),
-      };
-      mockDb.prepare.mockReturnValue(mockStmt);
+      }
+      mockDb.prepare.mockReturnValue(mockStmt)
 
       const result = await getUserAuditLogs('user123', {
         actions: [AuditAction.LOGIN, AuditAction.LOGOUT],
-      });
+      })
 
-      expect(result).toHaveLength(2);
-    });
+      expect(result).toHaveLength(2)
+    })
 
     it('should use custom limit when specified', async () => {
       const mockStmt = {
         get: vi.fn().mockReturnValue({ count: 100 }),
         all: vi.fn().mockReturnValue([]),
-      };
-      mockDb.prepare.mockReturnValue(mockStmt);
+      }
+      mockDb.prepare.mockReturnValue(mockStmt)
 
-      await getUserAuditLogs('user123', { limit: 100 });
+      await getUserAuditLogs('user123', { limit: 100 })
 
-      expect(mockStmt.all).toHaveBeenCalledWith(
-        expect.anything(),
-        100,
-        0
-      );
-    });
-  });
+      expect(mockStmt.all).toHaveBeenCalledWith(expect.anything(), 100, 0)
+    })
+  })
 
   describe('getEntityAuditLogs', () => {
     it('should get logs for a specific entity', async () => {
@@ -579,16 +572,16 @@ describe('audit-log', () => {
             created_at: '2024-01-01T00:00:00Z',
           },
         ]),
-      };
-      mockDb.prepare.mockReturnValue(mockStmt);
+      }
+      mockDb.prepare.mockReturnValue(mockStmt)
 
-      const result = await getEntityAuditLogs('document', 'doc123');
+      const result = await getEntityAuditLogs('document', 'doc123')
 
-      expect(result).toHaveLength(1);
-      expect(result[0].entity_type).toBe('document');
-      expect(result[0].entity_id).toBe('doc123');
-    });
-  });
+      expect(result).toHaveLength(1)
+      expect(result[0].entity_type).toBe('document')
+      expect(result[0].entity_id).toBe('doc123')
+    })
+  })
 
   describe('getFailedLoginAttempts', () => {
     it('should get failed login attempts for a user', async () => {
@@ -610,42 +603,42 @@ describe('audit-log', () => {
             created_at: new Date().toISOString(),
           },
         ]),
-      };
-      mockDb.prepare.mockReturnValue(mockStmt);
+      }
+      mockDb.prepare.mockReturnValue(mockStmt)
 
-      const result = await getFailedLoginAttempts('user123', 15);
+      const result = await getFailedLoginAttempts('user123', 15)
 
-      expect(result).toHaveLength(1);
-      expect(result[0].action).toBe(AuditAction.LOGIN_FAILED);
-      expect(result[0].status).toBe(AuditStatus.FAILED);
-    });
+      expect(result).toHaveLength(1)
+      expect(result[0].action).toBe(AuditAction.LOGIN_FAILED)
+      expect(result[0].status).toBe(AuditStatus.FAILED)
+    })
 
     it('should get all failed login attempts when userId is null', async () => {
       const mockStmt = {
         all: vi.fn().mockReturnValue([]),
-      };
-      mockDb.prepare.mockReturnValue(mockStmt);
+      }
+      mockDb.prepare.mockReturnValue(mockStmt)
 
-      await getFailedLoginAttempts(null, 15);
+      await getFailedLoginAttempts(null, 15)
 
-      const sql = mockDb.prepare.mock.calls[0][0];
-      expect(sql).not.toContain('user_id = ?');
-    });
+      const sql = mockDb.prepare.mock.calls[0][0]
+      expect(sql).not.toContain('user_id = ?')
+    })
 
     it('should use custom time window', async () => {
       const mockStmt = {
         all: vi.fn().mockReturnValue([]),
-      };
-      mockDb.prepare.mockReturnValue(mockStmt);
+      }
+      mockDb.prepare.mockReturnValue(mockStmt)
 
-      await getFailedLoginAttempts('user123', 30);
+      await getFailedLoginAttempts('user123', 30)
 
-      const sql = mockDb.prepare.mock.calls[0][0];
-      expect(sql).toContain('action = ?');
-      expect(sql).toContain('status = ?');
-      expect(sql).toContain('created_at >= ?');
-    });
-  });
+      const sql = mockDb.prepare.mock.calls[0][0]
+      expect(sql).toContain('action = ?')
+      expect(sql).toContain('status = ?')
+      expect(sql).toContain('created_at >= ?')
+    })
+  })
 
   describe('hasExcessiveFailedLogins', () => {
     it('should return true when threshold is exceeded', async () => {
@@ -663,17 +656,17 @@ describe('audit-log', () => {
         status: AuditStatus.FAILED,
         error_message: 'Invalid password',
         created_at: new Date().toISOString(),
-      }));
+      }))
 
       const mockStmt = {
         all: vi.fn().mockReturnValue(mockRows),
-      };
-      mockDb.prepare.mockReturnValue(mockStmt);
+      }
+      mockDb.prepare.mockReturnValue(mockStmt)
 
-      const result = await hasExcessiveFailedLogins('user123', 5, 15);
+      const result = await hasExcessiveFailedLogins('user123', 5, 15)
 
-      expect(result).toBe(true);
-    });
+      expect(result).toBe(true)
+    })
 
     it('should return false when below threshold', async () => {
       const mockRows = Array.from({ length: 2 }, (_, i) => ({
@@ -690,97 +683,98 @@ describe('audit-log', () => {
         status: AuditStatus.FAILED,
         error_message: 'Invalid password',
         created_at: new Date().toISOString(),
-      }));
+      }))
 
       const mockStmt = {
         all: vi.fn().mockReturnValue(mockRows),
-      };
-      mockDb.prepare.mockReturnValue(mockStmt);
+      }
+      mockDb.prepare.mockReturnValue(mockStmt)
 
-      const result = await hasExcessiveFailedLogins('user123', 5, 15);
+      const result = await hasExcessiveFailedLogins('user123', 5, 15)
 
-      expect(result).toBe(false);
-    });
+      expect(result).toBe(false)
+    })
 
     it('should use default threshold and time window', async () => {
       const mockStmt = {
         all: vi.fn().mockReturnValue([]),
-      };
-      mockDb.prepare.mockReturnValue(mockStmt);
+      }
+      mockDb.prepare.mockReturnValue(mockStmt)
 
-      await hasExcessiveFailedLogins('user123');
+      await hasExcessiveFailedLogins('user123')
 
-      expect(mockStmt.all).toHaveBeenCalled();
-    });
-  });
+      expect(mockStmt.all).toHaveBeenCalled()
+    })
+  })
 
   describe('cleanupOldAuditLogs', () => {
     it('should delete logs older than specified days', async () => {
       const mockStmt = {
         run: vi.fn().mockReturnValue({ changes: 10 }),
-      };
-      mockDb.prepare.mockReturnValue(mockStmt);
+      }
+      mockDb.prepare.mockReturnValue(mockStmt)
 
-      const deleted = await cleanupOldAuditLogs(90);
+      const deleted = await cleanupOldAuditLogs(90)
 
-      expect(deleted).toBe(10);
-      expect(mockStmt.run).toHaveBeenCalled();
-      expect(mockDb.prepare).toHaveBeenCalledWith(
-        'DELETE FROM audit_logs WHERE created_at < ?'
-      );
-    });
+      expect(deleted).toBe(10)
+      expect(mockStmt.run).toHaveBeenCalled()
+      expect(mockDb.prepare).toHaveBeenCalledWith('DELETE FROM audit_logs WHERE created_at < ?')
+    })
 
     it('should log when logs are deleted', async () => {
       const mockStmt = {
         run: vi.fn().mockReturnValue({ changes: 10 }),
-      };
-      mockDb.prepare.mockReturnValue(mockStmt);
+      }
+      mockDb.prepare.mockReturnValue(mockStmt)
 
-      await cleanupOldAuditLogs(90);
+      await cleanupOldAuditLogs(90)
 
-      const { logger } = await import('../../logger');
-      expect(logger.info).toHaveBeenCalledWith(
-        'Old audit logs cleaned up',
-        { category: 'db', deleted: 10, daysToKeep: 90 }
-      );
-    });
+      const { logger } = await import('../../logger')
+      expect(logger.info).toHaveBeenCalledWith('Old audit logs cleaned up', {
+        category: 'db',
+        deleted: 10,
+        daysToKeep: 90,
+      })
+    })
 
     it('should not log when no logs are deleted', async () => {
       const mockStmt = {
         run: vi.fn().mockReturnValue({ changes: 0 }),
-      };
-      mockDb.prepare.mockReturnValue(mockStmt);
+      }
+      mockDb.prepare.mockReturnValue(mockStmt)
 
-      await cleanupOldAuditLogs(90);
+      await cleanupOldAuditLogs(90)
 
-      const { logger } = await import('../../logger');
+      const { logger } = await import('../../logger')
       // Logger.info is called by initializeAuditLogsTable, but not by cleanup
       const cleanupLogCalls = logger.info.mock.calls.filter(
         (call: unknown[]) => call[0] === 'Old audit logs cleaned up'
-      );
-      expect(cleanupLogCalls).toHaveLength(0);
-    });
+      )
+      expect(cleanupLogCalls).toHaveLength(0)
+    })
 
     it('should use default of 90 days', async () => {
       const mockStmt = {
         run: vi.fn().mockReturnValue({ changes: 0 }),
-      };
-      mockDb.prepare.mockReturnValue(mockStmt);
+      }
+      mockDb.prepare.mockReturnValue(mockStmt)
 
-      await cleanupOldAuditLogs();
+      await cleanupOldAuditLogs()
 
-      expect(mockDb.prepare).toHaveBeenCalled();
-    });
-  });
+      expect(mockDb.prepare).toHaveBeenCalled()
+    })
+  })
 
   describe('getAuditStatistics', () => {
     it('should return statistics with all fields', async () => {
       const mockStmt = {
-        get: vi.fn()
+        get: vi
+          .fn()
           .mockReturnValueOnce({ count: 100 })
           .mockReturnValueOnce({ count: 100 })
           .mockReturnValueOnce({ count: 80 }),
-        all: vi.fn()
+        all: vi
+          .fn()
           .mockReturnValueOnce([
             { status: 'success', count: 80 },
             { status: 'failed', count: 20 },
@@ -794,10 +788,10 @@ describe('audit-log', () => {
             { user_id: 'user1', count: 50 },
             { user_id: 'user2', count: 30 },
           ]),
-      };
-      mockDb.prepare.mockReturnValue(mockStmt);
+      }
+      mockDb.prepare.mockReturnValue(mockStmt)
 
-      const result = await getAuditStatistics();
+      const result = await getAuditStatistics()
 
       expect(result).toEqual({
         totalLogs: 100,
@@ -812,59 +806,50 @@ describe('audit-log', () => {
           { user_id: 'user1', count: 50 },
           { user_id: 'user2', count: 30 },
         ],
-      });
-    });
+      })
+    })
 
     it('should filter by date range when provided', async () => {
       const mockStmt = {
         get: vi.fn().mockReturnValue({ count: 50 }),
-        all: vi.fn()
-          .mockReturnValueOnce([])
-          .mockReturnValueOnce([])
-          .mockReturnValueOnce([]),
-      };
-      mockDb.prepare.mockReturnValue(mockStmt);
+        all: vi.fn().mockReturnValueOnce([]).mockReturnValueOnce([]).mockReturnValueOnce([]),
+      }
+      mockDb.prepare.mockReturnValue(mockStmt)
 
       await getAuditStatistics({
         start_date: '2024-01-01',
         end_date: '2024-01-31',
-      });
+      })
 
-      const sql = mockDb.prepare.mock.calls[0][0];
-      expect(sql).toContain('created_at >= ?');
-      expect(sql).toContain('created_at <= ?');
-    });
+      const sql = mockDb.prepare.mock.calls[0][0]
+      expect(sql).toContain('created_at >= ?')
+      expect(sql).toContain('created_at <= ?')
+    })
 
     it('should handle no status rows', async () => {
       const mockStmt = {
         get: vi.fn().mockReturnValue({ count: 100 }),
-        all: vi.fn()
-          .mockReturnValueOnce([])
-          .mockReturnValueOnce([])
-          .mockReturnValueOnce([]),
-      };
-      mockDb.prepare.mockReturnValue(mockStmt);
+        all: vi.fn().mockReturnValueOnce([]).mockReturnValueOnce([]).mockReturnValueOnce([]),
+      }
+      mockDb.prepare.mockReturnValue(mockStmt)
 
-      const result = await getAuditStatistics();
+      const result = await getAuditStatistics()
 
-      expect(result.successCount).toBe(0);
-      expect(result.failedCount).toBe(0);
-    });
+      expect(result.successCount).toBe(0)
+      expect(result.failedCount).toBe(0)
+    })
 
     it('should handle no top users', async () => {
       const mockStmt = {
         get: vi.fn().mockReturnValue({ count: 0 }),
-        all: vi.fn()
-          .mockReturnValueOnce([])
-          .mockReturnValueOnce([])
-          .mockReturnValueOnce([]),
-      };
-      mockDb.prepare.mockReturnValue(mockStmt);
+        all: vi.fn().mockReturnValueOnce([]).mockReturnValueOnce([]).mockReturnValueOnce([]),
+      }
+      mockDb.prepare.mockReturnValue(mockStmt)
 
-      const result = await getAuditStatistics();
+      const result = await getAuditStatistics()
 
-      expect(result.totalLogs).toBe(0);
-      expect(result.topUsers).toEqual([]);
-    });
-  });
-});
+      expect(result.totalLogs).toBe(0)
+      expect(result.topUsers).toEqual([])
+    })
+  })
+})

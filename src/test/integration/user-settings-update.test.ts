@@ -15,7 +15,11 @@ global.fetch = mockFetch
 // Mock Zustand stores
 vi.mock('@/stores/preferencesStore', () => ({
   usePreferencesStore: vi.fn(() => ({
-    settings: { theme: 'system', language: 'zh', notifications: { enabled: true, sound: true, email: false, push: true } },
+    settings: {
+      theme: 'system',
+      language: 'zh',
+      notifications: { enabled: true, sound: true, email: false, push: true },
+    },
     isLoaded: true,
     isDark: false,
     setTheme: vi.fn(),

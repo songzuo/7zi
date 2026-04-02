@@ -11,7 +11,7 @@ import {
   isRetryableErrorType,
   getDefaultStatusCode,
   ErrorCodes,
-} from './unified-types';
+} from './unified-types'
 
 /**
  * 统一应用错误类
@@ -23,37 +23,37 @@ export class UnifiedAppError extends Error implements UnifiedErrorInfo {
   /**
    * 错误类型
    */
-  public readonly type: UnifiedErrorType;
+  public readonly type: UnifiedErrorType
 
   /**
    * 错误代码 (用于国际化)
    */
-  public readonly code?: string;
+  public readonly code?: string
 
   /**
    * HTTP 状态码
    */
-  public readonly statusCode: number;
+  public readonly statusCode: number
 
   /**
    * 额外的错误详情
    */
-  public readonly details?: Record<string, unknown>;
+  public readonly details?: Record<string, unknown>
 
   /**
    * 是否可重试
    */
-  public readonly retryable: boolean;
+  public readonly retryable: boolean
 
   /**
    * 重试等待时间 (秒)
    */
-  public readonly retryAfter?: number;
+  public readonly retryAfter?: number
 
   /**
    * 错误时间戳
    */
-  public readonly timestamp: string;
+  public readonly timestamp: string
 
   constructor(
     type: UnifiedErrorType,
@@ -64,35 +64,35 @@ export class UnifiedAppError extends Error implements UnifiedErrorInfo {
     retryAfter?: number,
     code?: string
   ) {
-    super(message);
+    super(message)
 
     // 设置错误名称
-    this.name = 'UnifiedAppError';
+    this.name = 'UnifiedAppError'
 
     // 设置类型
-    this.type = type;
+    this.type = type
 
     // 设置状态码 (自动判断或使用提供的值)
-    this.statusCode = statusCode ?? getDefaultStatusCode(type);
+    this.statusCode = statusCode ?? getDefaultStatusCode(type)
 
     // 设置详情
-    this.details = details;
+    this.details = details
 
     // 设置可重试标志 (自动判断或使用提供的值)
-    this.retryable = retryable ?? isRetryableErrorType(type);
+    this.retryable = retryable ?? isRetryableErrorType(type)
 
     // 设置重试等待时间
-    this.retryAfter = retryAfter;
+    this.retryAfter = retryAfter
 
     // 设置错误代码
-    this.code = code;
+    this.code = code
 
     // 设置时间戳
-    this.timestamp = new Date().toISOString();
+    this.timestamp = new Date().toISOString()
 
     // 保持正确的堆栈跟踪 (仅限 V8)
     if (Error.captureStackTrace) {
-      Error.captureStackTrace(this, UnifiedAppError);
+      Error.captureStackTrace(this, UnifiedAppError)
     }
   }
 
@@ -108,7 +108,7 @@ export class UnifiedAppError extends Error implements UnifiedErrorInfo {
       details: this.details,
       retryable: this.retryable,
       retryAfter: this.retryAfter,
-    };
+    }
   }
 
   /**
@@ -123,7 +123,7 @@ export class UnifiedAppError extends Error implements UnifiedErrorInfo {
       false,
       undefined,
       ErrorCodes.VALIDATION_ERROR
-    );
+    )
   }
 
   /**
@@ -138,7 +138,7 @@ export class UnifiedAppError extends Error implements UnifiedErrorInfo {
       false,
       undefined,
       ErrorCodes.NOT_FOUND
-    );
+    )
   }
 
   /**
@@ -153,7 +153,7 @@ export class UnifiedAppError extends Error implements UnifiedErrorInfo {
       false,
       undefined,
       ErrorCodes.UNAUTHORIZED
-    );
+    )
   }
 
   /**
@@ -168,7 +168,7 @@ export class UnifiedAppError extends Error implements UnifiedErrorInfo {
       false,
       undefined,
       ErrorCodes.FORBIDDEN
-    );
+    )
   }
 
   /**
@@ -183,13 +183,16 @@ export class UnifiedAppError extends Error implements UnifiedErrorInfo {
       true,
       retryAfter,
       ErrorCodes.RATE_LIMIT
-    );
+    )
   }
 
   /**
    * 创建内部错误
    */
-  static internal(message: string = 'Internal server error', details?: Record<string, unknown>): UnifiedAppError {
+  static internal(
+    message: string = 'Internal server error',
+    details?: Record<string, unknown>
+  ): UnifiedAppError {
     return new UnifiedAppError(
       UnifiedErrorType.INTERNAL,
       message,
@@ -198,13 +201,16 @@ export class UnifiedAppError extends Error implements UnifiedErrorInfo {
       true,
       undefined,
       ErrorCodes.SERVER_ERROR
-    );
+    )
   }
 
   /**
    * 创建服务不可用错误
    */
-  static serviceUnavailable(message: string = 'Service temporarily unavailable', retryAfter?: number): UnifiedAppError {
+  static serviceUnavailable(
+    message: string = 'Service temporarily unavailable',
+    retryAfter?: number
+  ): UnifiedAppError {
     return new UnifiedAppError(
       UnifiedErrorType.SERVICE_UNAVAILABLE,
       message,
@@ -212,7 +218,7 @@ export class UnifiedAppError extends Error implements UnifiedErrorInfo {
       undefined,
       true,
       retryAfter
-    );
+    )
   }
 
   /**
@@ -227,27 +233,23 @@ export class UnifiedAppError extends Error implements UnifiedErrorInfo {
       true,
       retryAfter,
       ErrorCodes.NETWORK_ERROR
-    );
+    )
   }
 
   /**
    * 创建超时错误
    */
   static timeout(message: string = 'Request timeout', retryAfter?: number): UnifiedAppError {
-    return new UnifiedAppError(
-      UnifiedErrorType.TIMEOUT,
-      message,
-      504,
-      undefined,
-      true,
-      retryAfter
-    );
+    return new UnifiedAppError(UnifiedErrorType.TIMEOUT, message, 504, undefined, true, retryAfter)
   }
 
   /**
    * 创建注册失败错误
    */
-  static registrationFailed(message: string = 'Registration failed', details?: Record<string, unknown>): UnifiedAppError {
+  static registrationFailed(
+    message: string = 'Registration failed',
+    details?: Record<string, unknown>
+  ): UnifiedAppError {
     return new UnifiedAppError(
       UnifiedErrorType.REGISTRATION_FAILED,
       message,
@@ -256,13 +258,16 @@ export class UnifiedAppError extends Error implements UnifiedErrorInfo {
       false,
       undefined,
       ErrorCodes.REGISTRATION_FAILED
-    );
+    )
   }
 
   /**
    * 创建弱密码错误
    */
-  static weakPassword(message: string = 'Password is too weak', details?: Record<string, unknown>): UnifiedAppError {
+  static weakPassword(
+    message: string = 'Password is too weak',
+    details?: Record<string, unknown>
+  ): UnifiedAppError {
     return new UnifiedAppError(
       UnifiedErrorType.WEAK_PASSWORD,
       message,
@@ -271,7 +276,7 @@ export class UnifiedAppError extends Error implements UnifiedErrorInfo {
       false,
       undefined,
       ErrorCodes.WEAK_PASSWORD
-    );
+    )
   }
 
   /**
@@ -286,20 +291,14 @@ export class UnifiedAppError extends Error implements UnifiedErrorInfo {
       false,
       undefined,
       ErrorCodes.UNAUTHORIZED
-    );
+    )
   }
 
   /**
    * 创建冲突错误
    */
   static conflict(message: string, details?: Record<string, unknown>): UnifiedAppError {
-    return new UnifiedAppError(
-      UnifiedErrorType.CONFLICT,
-      message,
-      409,
-      details,
-      false
-    );
+    return new UnifiedAppError(UnifiedErrorType.CONFLICT, message, 409, details, false)
   }
 }
 
@@ -310,49 +309,49 @@ export class UnifiedAppError extends Error implements UnifiedErrorInfo {
 export function toUnifiedError(error: unknown): UnifiedAppError {
   // 如果已经是 UnifiedAppError,直接返回
   if (error instanceof UnifiedAppError) {
-    return error;
+    return error
   }
 
   // 如果是普通 Error 对象
   if (error instanceof Error) {
     // 尝试从消息推断错误类型
-    const message = error.message.toLowerCase();
+    const message = error.message.toLowerCase()
 
     if (message.includes('network') || message.includes('fetch')) {
-      return UnifiedAppError.network(error.message);
+      return UnifiedAppError.network(error.message)
     }
 
     if (message.includes('timeout')) {
-      return UnifiedAppError.timeout(error.message);
+      return UnifiedAppError.timeout(error.message)
     }
 
     if (message.includes('not found') || message.includes('404')) {
-      return UnifiedAppError.notFound(error.message);
+      return UnifiedAppError.notFound(error.message)
     }
 
     if (message.includes('unauthorized') || message.includes('401')) {
-      return UnifiedAppError.unauthorized(error.message);
+      return UnifiedAppError.unauthorized(error.message)
     }
 
     if (message.includes('forbidden') || message.includes('403')) {
-      return UnifiedAppError.forbidden(error.message);
+      return UnifiedAppError.forbidden(error.message)
     }
 
     if (message.includes('rate limit') || message.includes('429')) {
-      return UnifiedAppError.rateLimit(error.message);
+      return UnifiedAppError.rateLimit(error.message)
     }
 
     // 默认返回内部错误
-    return UnifiedAppError.internal(error.message);
+    return UnifiedAppError.internal(error.message)
   }
 
   // 如果是字符串
   if (typeof error === 'string') {
-    return UnifiedAppError.internal(error);
+    return UnifiedAppError.internal(error)
   }
 
   // 默认返回内部错误
-  return UnifiedAppError.internal('An unknown error occurred');
+  return UnifiedAppError.internal('An unknown error occurred')
 }
 
 /**
@@ -360,7 +359,7 @@ export function toUnifiedError(error: unknown): UnifiedAppError {
  * Check if an error is a unified error
  */
 export function isUnifiedError(error: unknown): error is UnifiedAppError {
-  return error instanceof UnifiedAppError;
+  return error instanceof UnifiedAppError
 }
 
 /**
@@ -368,6 +367,6 @@ export function isUnifiedError(error: unknown): error is UnifiedAppError {
  * Extract error information from an error
  */
 export function extractErrorInfo(error: unknown): UnifiedErrorInfo {
-  const unifiedError = toUnifiedError(error);
-  return unifiedError.toJSON();
+  const unifiedError = toUnifiedError(error)
+  return unifiedError.toJSON()
 }

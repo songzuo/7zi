@@ -4,35 +4,35 @@
  * GET /api/search - 搜索功能（需要认证）
  */
 
-import { NextRequest, NextResponse } from 'next/server';
-import { authMiddleware } from '@/middleware/auth.middleware';
-import { searchSchema, sanitizeHtml } from '@/shared/lib/validation-schemas';
+import { NextRequest, NextResponse } from 'next/server'
+import { authMiddleware } from '@/middleware/auth.middleware'
+import { searchSchema, sanitizeHtml } from '@/shared/lib/validation-schemas'
 
 /**
  * GET /api/search - 搜索功能（需要认证）
  */
 export async function GET(request: NextRequest) {
   // 验证认证
-  const authResponse = authMiddleware(request);
+  const authResponse = authMiddleware(request)
   if (authResponse.status !== 200) {
-    return authResponse;
+    return authResponse
   }
 
-  const userId = request.headers.get('x-user-id');
-  const { searchParams } = new URL(request.url);
+  const userId = request.headers.get('x-user-id')
+  const { searchParams } = new URL(request.url)
 
-  const query = searchParams.get('q');
-  const page = parseInt(searchParams.get('page') || '1');
-  const limit = parseInt(searchParams.get('limit') || '10');
-  const type = searchParams.get('type') as 'all' | 'projects' | 'users' | 'notifications' | null;
-  const sortBy = searchParams.get('sort') as 'relevance' | 'date' | 'name' | null;
+  const query = searchParams.get('q')
+  const page = parseInt(searchParams.get('page') || '1')
+  const limit = parseInt(searchParams.get('limit') || '10')
+  const type = searchParams.get('type') as 'all' | 'projects' | 'users' | 'notifications' | null
+  const sortBy = searchParams.get('sort') as 'relevance' | 'date' | 'name' | null
 
   // 验证搜索参数
   const validationResult = searchSchema.safeParse({
     query,
     page,
     limit,
-  });
+  })
 
   if (!validationResult.success) {
     return NextResponse.json(
@@ -45,13 +45,11 @@ export async function GET(request: NextRequest) {
         })),
       },
       { status: 400 }
-    );
+    )
   }
 
   // 防止搜索注入攻击
-  const sanitizedQuery = validationResult.data.query
-    .replace(/[^\w\s\u4e00-\u9fa5-]/g, '')
-    .trim();
+  const sanitizedQuery = validationResult.data.query.replace(/[^\w\s\u4e00-\u9fa5-]/g, '').trim()
 
   if (sanitizedQuery.length === 0) {
     return NextResponse.json(
@@ -61,11 +59,11 @@ export async function GET(request: NextRequest) {
         message: '搜索关键词无效',
       },
       { status: 400 }
-    );
+    )
   }
 
   // 验证类型参数
-  const validTypes = ['all', 'projects', 'users', 'notifications'];
+  const validTypes = ['all', 'projects', 'users', 'notifications']
   if (type && !validTypes.includes(type)) {
     return NextResponse.json(
       {
@@ -74,11 +72,11 @@ export async function GET(request: NextRequest) {
         message: '无效的搜索类型',
       },
       { status: 400 }
-    );
+    )
   }
 
   // 验证排序参数
-  const validSorts = ['relevance', 'date', 'name'];
+  const validSorts = ['relevance', 'date', 'name']
   if (sortBy && !validSorts.includes(sortBy)) {
     return NextResponse.json(
       {
@@ -87,7 +85,7 @@ export async function GET(request: NextRequest) {
         message: '无效的排序方式',
       },
       { status: 400 }
-    );
+    )
   }
 
   try {
@@ -124,7 +122,7 @@ export async function GET(request: NextRequest) {
           description: '前端开发工程师',
         },
       },
-    ];
+    ]
 
     return NextResponse.json({
       success: true,
@@ -141,9 +139,9 @@ export async function GET(request: NextRequest) {
         searchTime: 0.05, // 搜索耗时（秒）
         timestamp: new Date().toISOString(),
       },
-    });
+    })
   } catch (error) {
-    console.error('[Search API] Error:', error);
+    console.error('[Search API] Error:', error)
     return NextResponse.json(
       {
         success: false,
@@ -151,7 +149,7 @@ export async function GET(request: NextRequest) {
         message: '搜索失败，请稍后重试',
       },
       { status: 500 }
-    );
+    )
   }
 }
 
@@ -160,32 +158,30 @@ export async function GET(request: NextRequest) {
  */
 export async function SUGGESTIONS(request: NextRequest) {
   // 验证认证
-  const authResponse = authMiddleware(request);
+  const authResponse = authMiddleware(request)
   if (authResponse.status !== 200) {
-    return authResponse;
+    return authResponse
   }
 
-  const userId = request.headers.get('x-user-id');
-  const { searchParams } = new URL(request.url);
+  const userId = request.headers.get('x-user-id')
+  const { searchParams } = new URL(request.url)
 
-  const query = searchParams.get('q');
+  const query = searchParams.get('q')
 
   if (!query || query.trim().length === 0) {
-    return NextResponse.json(
-      {
-        success: true,
-        data: {
-          suggestions: [],
-        },
-      }
-    );
+    return NextResponse.json({
+      success: true,
+      data: {
+        suggestions: [],
+      },
+    })
   }
 
   // 清理查询
   const sanitizedQuery = query
     .replace(/[^\w\s\u4e00-\u9fa5]/g, '')
     .trim()
-    .substring(0, 50);
+    .substring(0, 50)
 
   // TODO: 获取搜索建议
   // 1. 基于历史搜索记录
@@ -201,7 +197,7 @@ export async function SUGGESTIONS(request: NextRequest) {
       text: sanitizedQuery + ' 用户',
       type: 'history',
     },
-  ];
+  ]
 
   return NextResponse.json({
     success: true,
@@ -209,5 +205,5 @@ export async function SUGGESTIONS(request: NextRequest) {
       query: sanitizedQuery,
       suggestions: mockSuggestions,
     },
-  });
+  })
 }

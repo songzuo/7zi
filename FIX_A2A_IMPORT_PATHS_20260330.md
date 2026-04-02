@@ -16,18 +16,18 @@
 
 ### 主要测试文件 (3个)
 
-| 文件路径 | 修改内容 |
-|---------|---------|
-| `/root/.openclaw/workspace/tests/api-integration/a2a-jsonrpc.test.ts` | 更新 2 处导入路径 |
-| `/root/.openclaw/workspace/tests/api-integration/a2a-queue.test.ts` | 更新 1 处导入路径 |
+| 文件路径                                                               | 修改内容          |
+| ---------------------------------------------------------------------- | ----------------- |
+| `/root/.openclaw/workspace/tests/api-integration/a2a-jsonrpc.test.ts`  | 更新 2 处导入路径 |
+| `/root/.openclaw/workspace/tests/api-integration/a2a-queue.test.ts`    | 更新 1 处导入路径 |
 | `/root/.openclaw/workspace/tests/api-integration/a2a-registry.test.ts` | 更新 1 处导入路径 |
 
 ### 复制测试文件 (3个 - 7zi-frontend)
 
-| 文件路径 | 修改内容 |
-|---------|---------|
-| `/root/.openclaw/workspace/7zi-frontend/tests/api-integration/a2a-jsonrpc.test.ts` | 更新 2 处导入路径 |
-| `/root/.openclaw/workspace/7zi-frontend/tests/api-integration/a2a-queue.test.ts` | 更新 1 处导入路径 |
+| 文件路径                                                                            | 修改内容          |
+| ----------------------------------------------------------------------------------- | ----------------- |
+| `/root/.openclaw/workspace/7zi-frontend/tests/api-integration/a2a-jsonrpc.test.ts`  | 更新 2 处导入路径 |
+| `/root/.openclaw/workspace/7zi-frontend/tests/api-integration/a2a-queue.test.ts`    | 更新 1 处导入路径 |
 | `/root/.openclaw/workspace/7zi-frontend/tests/api-integration/a2a-registry.test.ts` | 更新 1 处导入路径 |
 
 ---
@@ -89,19 +89,20 @@ Test Files  2 passed (2)
 
 以下文件也被发现使用了过时的导入路径并已修复：
 
-| 文件路径 |
-|---------|
-| `/root/.openclaw/workspace/tests/integration/scheduler.integration.test.ts` |
-| `/root/.openclaw/workspace/tests/integration/scheduler-api.test.ts` |
-| `/root/.openclaw/workspace/tests/integration/agent-availability.test.ts` |
-| `/root/.openclaw/workspace/tests/integration/load-balancer.test.ts` |
-| `/root/.openclaw/workspace/tests/performance/scheduler-performance.test.ts` |
+| 文件路径                                                                          |
+| --------------------------------------------------------------------------------- |
+| `/root/.openclaw/workspace/tests/integration/scheduler.integration.test.ts`       |
+| `/root/.openclaw/workspace/tests/integration/scheduler-api.test.ts`               |
+| `/root/.openclaw/workspace/tests/integration/agent-availability.test.ts`          |
+| `/root/.openclaw/workspace/tests/integration/load-balancer.test.ts`               |
+| `/root/.openclaw/workspace/tests/performance/scheduler-performance.test.ts`       |
 | `/root/.openclaw/workspace/tests/unit/agent-scheduler/core/load-balancer.test.ts` |
-| `/root/.openclaw/workspace/tests/unit/agent-scheduler/core/matching.test.ts` |
-| `/root/.openclaw/workspace/tests/unit/agent-scheduler/core/ranking.test.ts` |
-| `/root/.openclaw/workspace/tests/unit/agent-scheduler/core/scheduler.test.ts` |
+| `/root/.openclaw/workspace/tests/unit/agent-scheduler/core/matching.test.ts`      |
+| `/root/.openclaw/workspace/tests/unit/agent-scheduler/core/ranking.test.ts`       |
+| `/root/.openclaw/workspace/tests/unit/agent-scheduler/core/scheduler.test.ts`     |
 
 **修改内容：**
+
 ```diff
 - @/lib/agent-scheduler/core/
 + @/lib/agents/scheduler/core/
@@ -112,8 +113,8 @@ Test Files  2 passed (2)
 
 ### 仍需注意的文件 (1个)
 
-| 文件路径 | 状态 |
-|---------|------|
+| 文件路径                                                                              | 状态            |
+| ------------------------------------------------------------------------------------- | --------------- |
 | `/root/.openclaw/workspace/tests/unit/agent-scheduler/stores/scheduler-store.test.ts` | ⚠️ 需要手动检查 |
 
 该文件仍引用 `@/lib/agent-scheduler/models/task-model`，可能需要调整。但由于 `@/lib/agents/scheduler/index.ts` 已重新导出相关类型，建议验证是否能正常编译。
@@ -147,11 +148,11 @@ src/lib/agents/scheduler/
 
 ```typescript
 // 推荐：使用主导出文件
-import { Scheduler, createTask } from '@/lib/agents/scheduler';
+import { Scheduler, createTask } from '@/lib/agents/scheduler'
 
 // 或者：直接导入子模块
-import { AgentScheduler } from '@/lib/agents/scheduler/core/scheduler';
-import { createTask, TaskPriority } from '@/lib/agents/scheduler/models/task-model';
+import { AgentScheduler } from '@/lib/agents/scheduler/core/scheduler'
+import { createTask, TaskPriority } from '@/lib/agents/scheduler/models/task-model'
 ```
 
 ---
@@ -159,14 +160,17 @@ import { createTask, TaskPriority } from '@/lib/agents/scheduler/models/task-mod
 ## 结论
 
 ✅ **修复完成**
+
 - 3 个主要 A2A 测试文件已修复并验证通过
 - 7zi-frontend 中的 3 个复制测试文件也已修复
 - 9 个其他测试文件也同步修复
 
 ⚠️ **待确认**
+
 - 1 个文件 (scheduler-store.test.ts) 仍需验证是否能正常编译
 
 📊 **测试状态**
+
 - 115 个测试全部通过
 - 所有 A2A 相关功能测试正常
 

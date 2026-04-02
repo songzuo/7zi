@@ -22,10 +22,14 @@ reactCompiler: {
 在组件顶部添加 `'use memo'` 指令即可启用优化：
 
 ```tsx
-'use memo';
+'use memo'
 
 function MyComponent({ name, count }: Props) {
-  return <div>Hello {name}: {count}</div>;
+  return (
+    <div>
+      Hello {name}: {count}
+    </div>
+  )
 }
 ```
 
@@ -65,14 +69,14 @@ function MyComponent({ name, count }: Props) {
 **基础使用**:
 
 ```tsx
-import { SmartPrefetch } from '@/components/performance/SmartPrefetch';
+import { SmartPrefetch } from '@/components/performance/SmartPrefetch'
 
 function App() {
   const configs = [
     { url: '/dashboard', type: 'page', priority: 8 },
     { url: '/api/user', type: 'api', priority: 6 },
     { url: '/hero-image.jpg', type: 'image', priority: 7 },
-  ];
+  ]
 
   return (
     <SmartPrefetch
@@ -84,16 +88,15 @@ function App() {
     >
       {/* 你的应用内容 */}
     </SmartPrefetch>
-  );
+  )
 }
 ```
 
 **悬停预加载链接**:
 
 ```tsx
-import { PrefetchLink } from '@/components/performance/SmartPrefetch';
-
-<PrefetchLink
+import { PrefetchLink } from '@/components/performance/SmartPrefetch'
+;<PrefetchLink
   href="/settings"
   prefetchType="page"
   prefetchOnHover={true}
@@ -106,18 +109,16 @@ import { PrefetchLink } from '@/components/performance/SmartPrefetch';
 **Hook 使用**:
 
 ```tsx
-import { useSmartPrefetch } from '@/components/performance/SmartPrefetch';
+import { useSmartPrefetch } from '@/components/performance/SmartPrefetch'
 
 function MyComponent() {
-  const { prefetchNow } = useSmartPrefetch([
-    { url: '/data', type: 'api', priority: 8 },
-  ]);
+  const { prefetchNow } = useSmartPrefetch([{ url: '/data', type: 'api', priority: 8 }])
 
   const handleLoadData = () => {
-    prefetchNow('/data', 'api');
-  };
+    prefetchNow('/data', 'api')
+  }
 
-  return <button onClick={handleLoadData}>加载数据</button>;
+  return <button onClick={handleLoadData}>加载数据</button>
 }
 ```
 
@@ -130,8 +131,8 @@ function MyComponent() {
 **使用方式**:
 
 ```tsx
-import { NavigationWithSkeleton } from '@/components/ui/NavigationSkeleton';
-import { Navigation } from '@/components/Navigation';
+import { NavigationWithSkeleton } from '@/components/ui/NavigationSkeleton'
+import { Navigation } from '@/components/Navigation'
 
 function Layout({ children, isLoading }: Props) {
   return (
@@ -141,7 +142,7 @@ function Layout({ children, isLoading }: Props) {
       </NavigationWithSkeleton>
       {children}
     </>
-  );
+  )
 }
 ```
 
@@ -150,6 +151,7 @@ function Layout({ children, isLoading }: Props) {
 **文件位置**: `/root/.openclaw/workspace/7zi-frontend/src/components/ui/TaskCard.tsx`
 
 **改进内容**:
+
 - 悬停时卡片上浮和阴影增强
 - 状态指示条（左侧彩色条）
 - 平滑的过渡动画
@@ -158,7 +160,7 @@ function Layout({ children, isLoading }: Props) {
 **使用方式**:
 
 ```tsx
-import { TaskList, TaskCard } from '@/components/ui/TaskCard';
+import { TaskList, TaskCard } from '@/components/ui/TaskCard'
 
 const tasks = [
   {
@@ -170,17 +172,17 @@ const tasks = [
     assignee: '张三',
     dueDate: '2026-04-01',
   },
-];
+]
 
 function TaskPage() {
   return (
     <TaskList
       tasks={tasks}
-      onEdit={(task) => console.log('编辑', task)}
-      onDelete={(id) => console.log('删除', id)}
+      onEdit={task => console.log('编辑', task)}
+      onDelete={id => console.log('删除', id)}
       onStatusChange={(id, status) => console.log('状态变更', id, status)}
     />
-  );
+  )
 }
 ```
 
@@ -189,6 +191,7 @@ function TaskPage() {
 **文件位置**: `/root/.openclaw/workspace/7zi-frontend/src/components/ui/Button.tsx`
 
 **改进内容**:
+
 - Material Design 涟漪效果
 - 增强的 hover 阴影
 - 点击缩放反馈
@@ -219,6 +222,7 @@ import { Button, IconButton, ButtonGroup } from '@/components/ui/Button';
 **文件位置**: `/root/.openclaw/workspace/7zi-frontend/src/components/ui/Card.tsx`
 
 **改进内容**:
+
 - 悬停时卡片上浮和阴影增强
 - 可选边框高亮
 - 图片缩放效果
@@ -227,13 +231,14 @@ import { Button, IconButton, ButtonGroup } from '@/components/ui/Button';
 **使用方式**:
 
 ```tsx
-import { Card, CardHeader, CardBody, CardActions, CardImage, CardBadge } from '@/components/ui/Card';
-
-<Card hoverable bordered>
+import { Card, CardHeader, CardBody, CardActions, CardImage, CardBadge } from '@/components/ui/Card'
+;<Card hoverable bordered>
   <CardImage src="/cover.jpg" alt="封面" zoomOnHover />
   <CardHeader>
     <h3>标题</h3>
-    <CardBadge color="blue" variant="soft">新</CardBadge>
+    <CardBadge color="blue" variant="soft">
+      新
+    </CardBadge>
   </CardHeader>
   <CardBody>
     <p>内容描述...</p>
@@ -249,6 +254,7 @@ import { Card, CardHeader, CardBody, CardActions, CardImage, CardBadge } from '@
 **文件位置**: `/root/.openclaw/workspace/7zi-frontend/src/components/ui/Input.tsx`
 
 **改进内容**:
+
 - 实时验证状态显示
 - 成功/错误/警告图标
 - 彩色边框和背景反馈
@@ -286,6 +292,7 @@ import { Input, Textarea } from '@/components/ui/Input';
 **文件位置**: `/root/.openclaw/workspace/7zi-frontend/src/components/ui/Skeleton.tsx`
 
 **可用组件**:
+
 - `Skeleton` - 基础骨架屏
 - `SkeletonText` - 文本骨架
 - `SkeletonAvatar` - 头像骨架
@@ -319,16 +326,19 @@ import { Skeleton, SkeletonCard, SkeletonList, LoadingWrapper } from '@/componen
 ## 性能优化总结
 
 ### React Compiler 预期收益
+
 - 重新渲染减少: 30-50%
 - 内存使用优化: 20-30%
 - 交互响应提升: 20-40%
 
 ### 智能预加载预期收益
+
 - 页面切换速度: 提升 40-60%
 - 感知加载时间: 减少 30-50%
 - 用户满意度: 显著提升
 
 ### 交互反馈改进收益
+
 - 用户操作信心: 提升
 - 错误率: 降低
 - 可用性评分: 提升
@@ -336,6 +346,7 @@ import { Skeleton, SkeletonCard, SkeletonList, LoadingWrapper } from '@/componen
 ## 代码风格
 
 所有新组件遵循以下原则:
+
 - TypeScript 严格类型
 - `'use memo'` 指令启用编译器优化
 - React Hooks 最佳实践

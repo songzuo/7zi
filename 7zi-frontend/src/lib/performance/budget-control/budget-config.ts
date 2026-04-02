@@ -9,33 +9,29 @@
  * - Generating budget reports
  */
 
-import {
-  PerformanceBudgetConfig,
-  PageBudget,
-  BudgetThreshold,
-} from './types';
+import { PerformanceBudgetConfig, PageBudget, BudgetThreshold } from './types'
 
 export interface BudgetConfigOptions {
   /**
    * Path to custom budget configuration file
    */
-  configPath?: string;
+  configPath?: string
 
   /**
    * Merge with default configuration
    */
-  mergeWithDefault?: boolean;
+  mergeWithDefault?: boolean
 
   /**
    * Validate configuration on load
    */
-  validate?: boolean;
+  validate?: boolean
 }
 
 export interface BudgetValidationResult {
-  valid: boolean;
-  errors: string[];
-  warnings: string[];
+  valid: boolean
+  errors: string[]
+  warnings: string[]
 }
 
 /**
@@ -43,7 +39,7 @@ export interface BudgetValidationResult {
  * 预算配置管理器
  */
 export class BudgetConfigManager {
-  private config: PerformanceBudgetConfig;
+  private config: PerformanceBudgetConfig
 
   constructor(
     initialConfig?: Partial<PerformanceBudgetConfig>,
@@ -57,7 +53,7 @@ export class BudgetConfigManager {
       warningThreshold: 0.9,
       errorThreshold: 1.1,
       ...initialConfig,
-    };
+    }
   }
 
   /**
@@ -68,21 +64,21 @@ export class BudgetConfigManager {
     json: Partial<PerformanceBudgetConfig>,
     options?: { mergeWithDefault?: boolean }
   ): BudgetValidationResult {
-    const validation = this.validateConfig(json);
+    const validation = this.validateConfig(json)
 
     if (!validation.valid) {
-      return validation;
+      return validation
     }
 
-    const shouldMerge = options?.mergeWithDefault ?? this.options.mergeWithDefault ?? false;
+    const shouldMerge = options?.mergeWithDefault ?? this.options.mergeWithDefault ?? false
 
     if (shouldMerge) {
-      this.config = this.mergeConfigs(this.config, json);
+      this.config = this.mergeConfigs(this.config, json)
     } else {
-      this.config = { ...this.config, ...json };
+      this.config = { ...this.config, ...json }
     }
 
-    return validation;
+    return validation
   }
 
   /**
@@ -90,24 +86,24 @@ export class BudgetConfigManager {
    * 验证预算配置
    */
   validateConfig(config: Partial<PerformanceBudgetConfig>): BudgetValidationResult {
-    const errors: string[] = [];
-    const warnings: string[] = [];
+    const errors: string[] = []
+    const warnings: string[] = []
 
     // Check enabled flag
     if (config.enabled !== undefined && typeof config.enabled !== 'boolean') {
-      errors.push('enabled must be a boolean');
+      errors.push('enabled must be a boolean')
     }
 
     // Check budgets array
     if (config.budgets) {
       if (!Array.isArray(config.budgets)) {
-        errors.push('budgets must be an array');
+        errors.push('budgets must be an array')
       } else {
         for (let i = 0; i < config.budgets.length; i++) {
-          const budget = config.budgets[i];
-          const budgetErrors = this.validatePageBudget(budget, i);
-          errors.push(...budgetErrors.errors);
-          warnings.push(...budgetErrors.warnings);
+          const budget = config.budgets[i]
+          const budgetErrors = this.validatePageBudget(budget, i)
+          errors.push(...budgetErrors.errors)
+          warnings.push(...budgetErrors.warnings)
         }
       }
     }
@@ -115,13 +111,13 @@ export class BudgetConfigManager {
     // Check thresholds
     if (config.warningThreshold !== undefined) {
       if (typeof config.warningThreshold !== 'number' || config.warningThreshold < 0) {
-        errors.push('warningThreshold must be a positive number');
+        errors.push('warningThreshold must be a positive number')
       }
     }
 
     if (config.errorThreshold !== undefined) {
       if (typeof config.errorThreshold !== 'number' || config.errorThreshold < 0) {
-        errors.push('errorThreshold must be a positive number');
+        errors.push('errorThreshold must be a positive number')
       }
     }
 
@@ -129,7 +125,7 @@ export class BudgetConfigManager {
       valid: errors.length === 0,
       errors,
       warnings,
-    };
+    }
   }
 
   /**
@@ -140,36 +136,36 @@ export class BudgetConfigManager {
     budget: Partial<PageBudget>,
     index: number
   ): { errors: string[]; warnings: string[] } {
-    const errors: string[] = [];
-    const warnings: string[] = [];
+    const errors: string[] = []
+    const warnings: string[] = []
 
     // Check path
     if (!budget.path) {
-      errors.push(`budgets[${index}]: path is required`);
+      errors.push(`budgets[${index}]: path is required`)
     } else if (typeof budget.path !== 'string') {
-      errors.push(`budgets[${index}]: path must be a string`);
+      errors.push(`budgets[${index}]: path must be a string`)
     }
 
     // Check timings
     if (!budget.timings) {
-      warnings.push(`budgets[${index}]: timings not specified, no metrics will be checked`);
+      warnings.push(`budgets[${index}]: timings not specified, no metrics will be checked`)
     } else if (!Array.isArray(budget.timings)) {
-      errors.push(`budgets[${index}]: timings must be an array`);
+      errors.push(`budgets[${index}]: timings must be an array`)
     } else {
       for (let j = 0; j < budget.timings.length; j++) {
-        const timing = budget.timings[j];
-        const timingErrors = this.validateTimingThreshold(timing, index, j);
-        errors.push(...timingErrors);
+        const timing = budget.timings[j]
+        const timingErrors = this.validateTimingThreshold(timing, index, j)
+        errors.push(...timingErrors)
       }
     }
 
     // Check resources
     if (budget.resources) {
-      const resourceErrors = this.validateResources(budget.resources, index);
-      errors.push(...resourceErrors);
+      const resourceErrors = this.validateResources(budget.resources, index)
+      errors.push(...resourceErrors)
     }
 
-    return { errors, warnings };
+    return { errors, warnings }
   }
 
   /**
@@ -181,34 +177,34 @@ export class BudgetConfigManager {
     budgetIndex: number,
     timingIndex: number
   ): string[] {
-    const errors: string[] = [];
-    const prefix = `budgets[${budgetIndex}].timings[${timingIndex}]`;
+    const errors: string[] = []
+    const prefix = `budgets[${budgetIndex}].timings[${timingIndex}]`
 
     if (!timing.metric) {
-      errors.push(`${prefix}: metric is required`);
+      errors.push(`${prefix}: metric is required`)
     } else if (typeof timing.metric !== 'string') {
-      errors.push(`${prefix}: metric must be a string`);
+      errors.push(`${prefix}: metric must be a string`)
     }
 
     if (timing.budget === undefined) {
-      errors.push(`${prefix}: budget is required`);
+      errors.push(`${prefix}: budget is required`)
     } else if (typeof timing.budget !== 'number' || timing.budget <= 0) {
-      errors.push(`${prefix}: budget must be a positive number`);
+      errors.push(`${prefix}: budget must be a positive number`)
     }
 
     if (timing.tolerance !== undefined) {
       if (typeof timing.tolerance !== 'number' || timing.tolerance < 0 || timing.tolerance > 1) {
-        errors.push(`${prefix}: tolerance must be between 0 and 1`);
+        errors.push(`${prefix}: tolerance must be between 0 and 1`)
       }
     }
 
     if (!timing.unit) {
-      errors.push(`${prefix}: unit is required`);
+      errors.push(`${prefix}: unit is required`)
     } else if (typeof timing.unit !== 'string') {
-      errors.push(`${prefix}: unit must be a string`);
+      errors.push(`${prefix}: unit must be a string`)
     }
 
-    return errors;
+    return errors
   }
 
   /**
@@ -219,23 +215,23 @@ export class BudgetConfigManager {
     resources: NonNullable<PageBudget['resources']>,
     budgetIndex: number
   ): string[] {
-    const errors: string[] = [];
-    const prefix = `budgets[${budgetIndex}].resources`;
+    const errors: string[] = []
+    const prefix = `budgets[${budgetIndex}].resources`
 
     const validateResource = (name: string, value: unknown) => {
       if (value !== undefined) {
         if (typeof value !== 'number' || value <= 0) {
-          errors.push(`${prefix}.${name} must be a positive number`);
+          errors.push(`${prefix}.${name} must be a positive number`)
         }
       }
-    };
+    }
 
-    validateResource('js', resources.js);
-    validateResource('css', resources.css);
-    validateResource('images', resources.images);
-    validateResource('total', resources.total);
+    validateResource('js', resources.js)
+    validateResource('css', resources.css)
+    validateResource('images', resources.images)
+    validateResource('total', resources.total)
 
-    return errors;
+    return errors
   }
 
   /**
@@ -253,26 +249,26 @@ export class BudgetConfigManager {
       failOnViolation: override.failOnViolation ?? base.failOnViolation,
       warningThreshold: override.warningThreshold ?? base.warningThreshold,
       errorThreshold: override.errorThreshold ?? base.errorThreshold,
-    };
+    }
 
     // Merge budgets by path
     if (override.budgets) {
       for (const overrideBudget of override.budgets) {
-        const existingIndex = merged.budgets.findIndex((b) => b.path === overrideBudget.path);
+        const existingIndex = merged.budgets.findIndex(b => b.path === overrideBudget.path)
         if (existingIndex >= 0) {
           // Merge with existing budget
           merged.budgets[existingIndex] = this.mergePageBudgets(
             merged.budgets[existingIndex],
             overrideBudget
-          );
+          )
         } else {
           // Add new budget
-          merged.budgets.push(overrideBudget);
+          merged.budgets.push(overrideBudget)
         }
       }
     }
 
-    return merged;
+    return merged
   }
 
   /**
@@ -284,16 +280,16 @@ export class BudgetConfigManager {
       path: base.path,
       timings: [...base.timings],
       resources: { ...base.resources },
-    };
+    }
 
     // Merge timings
     if (override.timings) {
       for (const overrideTiming of override.timings) {
-        const existingIndex = merged.timings.findIndex((t) => t.metric === overrideTiming.metric);
+        const existingIndex = merged.timings.findIndex(t => t.metric === overrideTiming.metric)
         if (existingIndex >= 0) {
-          merged.timings[existingIndex] = overrideTiming;
+          merged.timings[existingIndex] = overrideTiming
         } else {
-          merged.timings.push(overrideTiming);
+          merged.timings.push(overrideTiming)
         }
       }
     }
@@ -305,10 +301,10 @@ export class BudgetConfigManager {
         css: override.resources.css ?? merged.resources?.css,
         images: override.resources.images ?? merged.resources?.images,
         total: override.resources.total ?? merged.resources?.total,
-      };
+      }
     }
 
-    return merged;
+    return merged
   }
 
   /**
@@ -316,7 +312,7 @@ export class BudgetConfigManager {
    * 获取当前配置
    */
   getConfig(): PerformanceBudgetConfig {
-    return { ...this.config };
+    return { ...this.config }
   }
 
   /**
@@ -324,7 +320,7 @@ export class BudgetConfigManager {
    * 设置配置
    */
   setConfig(config: PerformanceBudgetConfig): BudgetValidationResult {
-    return this.loadFromJSON(config);
+    return this.loadFromJSON(config)
   }
 
   /**
@@ -332,7 +328,7 @@ export class BudgetConfigManager {
    * 获取特定页面的预算
    */
   getPageBudget(path: string): PageBudget | undefined {
-    return this.config.budgets.find((b) => b.path === path);
+    return this.config.budgets.find(b => b.path === path)
   }
 
   /**
@@ -340,14 +336,14 @@ export class BudgetConfigManager {
    * 添加或更新页面预算
    */
   setPageBudget(budget: PageBudget): BudgetValidationResult {
-    const validation = this.validatePageBudget(budget, this.config.budgets.length);
+    const validation = this.validatePageBudget(budget, this.config.budgets.length)
 
     if (validation.errors.length === 0) {
-      const existingIndex = this.config.budgets.findIndex((b) => b.path === budget.path);
+      const existingIndex = this.config.budgets.findIndex(b => b.path === budget.path)
       if (existingIndex >= 0) {
-        this.config.budgets[existingIndex] = budget;
+        this.config.budgets[existingIndex] = budget
       } else {
-        this.config.budgets.push(budget);
+        this.config.budgets.push(budget)
       }
     }
 
@@ -355,7 +351,7 @@ export class BudgetConfigManager {
       valid: validation.errors.length === 0,
       errors: validation.errors,
       warnings: validation.warnings,
-    };
+    }
   }
 
   /**
@@ -363,12 +359,12 @@ export class BudgetConfigManager {
    * 移除页面预算
    */
   removePageBudget(path: string): boolean {
-    const index = this.config.budgets.findIndex((b) => b.path === path);
+    const index = this.config.budgets.findIndex(b => b.path === path)
     if (index >= 0) {
-      this.config.budgets.splice(index, 1);
-      return true;
+      this.config.budgets.splice(index, 1)
+      return true
     }
-    return false;
+    return false
   }
 
   /**
@@ -376,13 +372,13 @@ export class BudgetConfigManager {
    * 获取所有预算中的所有指标
    */
   getAllMetrics(): string[] {
-    const metrics = new Set<string>();
+    const metrics = new Set<string>()
     for (const budget of this.config.budgets) {
       for (const timing of budget.timings) {
-        metrics.add(timing.metric);
+        metrics.add(timing.metric)
       }
     }
-    return Array.from(metrics);
+    return Array.from(metrics)
   }
 
   /**
@@ -390,11 +386,11 @@ export class BudgetConfigManager {
    * 获取页面上特定指标的预算
    */
   getMetricBudget(path: string, metric: string): BudgetThreshold | undefined {
-    const budget = this.getPageBudget(path);
+    const budget = this.getPageBudget(path)
     if (budget) {
-      return budget.timings.find((t) => t.metric === metric);
+      return budget.timings.find(t => t.metric === metric)
     }
-    return undefined;
+    return undefined
   }
 
   /**
@@ -402,41 +398,41 @@ export class BudgetConfigManager {
    * 设置页面的指标预算
    */
   setMetricBudget(path: string, threshold: BudgetThreshold): BudgetValidationResult {
-    const budget = this.getPageBudget(path);
+    const budget = this.getPageBudget(path)
     if (!budget) {
       return {
         valid: false,
         errors: [`Page budget not found for path: ${path}`],
         warnings: [],
-      };
+      }
     }
 
     const timingErrors = this.validateTimingThreshold(
       threshold,
       this.config.budgets.indexOf(budget),
       budget.timings.length
-    );
+    )
 
     if (timingErrors.length > 0) {
       return {
         valid: false,
         errors: timingErrors,
         warnings: [],
-      };
+      }
     }
 
-    const existingIndex = budget.timings.findIndex((t) => t.metric === threshold.metric);
+    const existingIndex = budget.timings.findIndex(t => t.metric === threshold.metric)
     if (existingIndex >= 0) {
-      budget.timings[existingIndex] = threshold;
+      budget.timings[existingIndex] = threshold
     } else {
-      budget.timings.push(threshold);
+      budget.timings.push(threshold)
     }
 
     return {
       valid: true,
       errors: [],
       warnings: [],
-    };
+    }
   }
 
   /**
@@ -444,24 +440,24 @@ export class BudgetConfigManager {
    * 生成预算配置摘要
    */
   generateSummary(): {
-    totalPages: number;
-    totalMetrics: number;
-    metricsBreakdown: Record<string, number>;
-    resourcesConfigured: number;
+    totalPages: number
+    totalMetrics: number
+    metricsBreakdown: Record<string, number>
+    resourcesConfigured: number
   } {
-    const metricsBreakdown: Record<string, number> = {};
-    let totalMetrics = 0;
-    let resourcesConfigured = 0;
+    const metricsBreakdown: Record<string, number> = {}
+    let totalMetrics = 0
+    let resourcesConfigured = 0
 
     for (const budget of this.config.budgets) {
-      totalMetrics += budget.timings.length;
+      totalMetrics += budget.timings.length
 
       for (const timing of budget.timings) {
-        metricsBreakdown[timing.metric] = (metricsBreakdown[timing.metric] || 0) + 1;
+        metricsBreakdown[timing.metric] = (metricsBreakdown[timing.metric] || 0) + 1
       }
 
       if (budget.resources) {
-        resourcesConfigured++;
+        resourcesConfigured++
       }
     }
 
@@ -470,7 +466,7 @@ export class BudgetConfigManager {
       totalMetrics,
       metricsBreakdown,
       resourcesConfigured,
-    };
+    }
   }
 
   /**
@@ -478,7 +474,7 @@ export class BudgetConfigManager {
    * 导出配置为 JSON 字符串
    */
   exportJSON(): string {
-    return JSON.stringify(this.config, null, 2);
+    return JSON.stringify(this.config, null, 2)
   }
 
   /**
@@ -487,14 +483,16 @@ export class BudgetConfigManager {
    */
   importJSON(jsonString: string): BudgetValidationResult {
     try {
-      const config = JSON.parse(jsonString);
-      return this.loadFromJSON(config);
+      const config = JSON.parse(jsonString)
+      return this.loadFromJSON(config)
     } catch (error) {
       return {
         valid: false,
-        errors: [`Failed to parse JSON: ${error instanceof Error ? error.message : 'Unknown error'}`],
+        errors: [
+          `Failed to parse JSON: ${error instanceof Error ? error.message : 'Unknown error'}`,
+        ],
         warnings: [],
-      };
+      }
     }
   }
 
@@ -510,9 +508,9 @@ export class BudgetConfigManager {
       failOnViolation: false,
       warningThreshold: 0.9,
       errorThreshold: 1.1,
-    };
+    }
   }
 }
 
 // Export singleton instance
-export const budgetConfigManager = new BudgetConfigManager();
+export const budgetConfigManager = new BudgetConfigManager()

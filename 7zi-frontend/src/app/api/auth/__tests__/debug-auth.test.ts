@@ -1,6 +1,6 @@
-import { describe, it, expect, vi, beforeEach } from 'vitest';
-import { POST } from '../route';
-import { NextRequest } from 'next/server';
+import { describe, it, expect, vi, beforeEach } from 'vitest'
+import { POST } from '../route'
+import { NextRequest } from 'next/server'
 
 vi.mock('@/lib/audit/logger', () => ({
   AuditLogger: {
@@ -9,30 +9,30 @@ vi.mock('@/lib/audit/logger', () => ({
     logPasswordReset: vi.fn().mockResolvedValue(undefined),
     logApiAccess: vi.fn().mockResolvedValue(undefined),
   },
-}));
+}))
 
 vi.mock('@/lib/rate-limit/limiter', () => ({
   getClientIP: vi.fn(() => '127.0.0.1'),
-}));
+}))
 
 describe('Auth API Debug', () => {
   beforeEach(() => {
-    vi.clearAllMocks();
-  });
+    vi.clearAllMocks()
+  })
 
   it('debug full POST flow with missing username - show response', async () => {
     const request = new NextRequest('http://localhost:3000/api/auth', {
       method: 'POST',
       body: JSON.stringify({ password: 'password123' }),
-    });
+    })
 
-    const response = await POST(request);
-    const data = await response.json();
-    
+    const response = await POST(request)
+    const data = await response.json()
+
     // Log the full response
-    console.log('FULL RESPONSE:', { status: response.status, body: data });
-    
+    console.log('FULL RESPONSE:', { status: response.status, body: data })
+
     // This should fail showing us the actual status
-    expect(response.status).toBe(400);
-  });
-});
+    expect(response.status).toBe(400)
+  })
+})

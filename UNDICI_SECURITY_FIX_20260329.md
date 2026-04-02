@@ -13,14 +13,14 @@
 
 ## 🔍 漏洞详情
 
-| 漏洞 | 严重性 | 描述 |
-|------|--------|------|
-| WebSocket 长度溢出 | High | WebSocket 帧长度处理溢出漏洞 |
-| HTTP 请求走私 | Moderate | HTTP 请求走私漏洞 |
-| WebSocket 内存耗尽 | High | WebSocket 连接内存耗尽漏洞 |
-| WebSocket 未处理异常 | High | WebSocket 异常未正确处理 |
-| CRLF 注入 | Moderate | CRLF 字符注入漏洞 |
-| DeduplicationHandler 内存耗尽 | Moderate | 去重处理器内存耗尽漏洞 |
+| 漏洞                          | 严重性   | 描述                         |
+| ----------------------------- | -------- | ---------------------------- |
+| WebSocket 长度溢出            | High     | WebSocket 帧长度处理溢出漏洞 |
+| HTTP 请求走私                 | Moderate | HTTP 请求走私漏洞            |
+| WebSocket 内存耗尽            | High     | WebSocket 连接内存耗尽漏洞   |
+| WebSocket 未处理异常          | High     | WebSocket 异常未正确处理     |
+| CRLF 注入                     | Moderate | CRLF 字符注入漏洞            |
+| DeduplicationHandler 内存耗尽 | Moderate | 去重处理器内存耗尽漏洞       |
 
 ---
 
@@ -28,26 +28,26 @@
 
 ### 项目级别 (根目录 /root/.openclaw/workspace)
 
-| 位置 | 修复前 | 修复后 | 状态 |
-|------|--------|--------|------|
+| 位置                   | 修复前  | 修复后  | 状态            |
+| ---------------------- | ------- | ------- | --------------- |
 | workspace/package.json | ^7.24.6 | ^7.24.6 | ✅ 已是安全版本 |
-| workspace/node_modules | 7.24.6 | 7.24.6 | ✅ 已是安全版本 |
+| workspace/node_modules | 7.24.6  | 7.24.6  | ✅ 已是安全版本 |
 
 ### 项目级别 (7zi-frontend)
 
-| 位置 | 修复前 | 修复后 | 状态 |
-|------|--------|--------|------|
+| 位置                      | 修复前  | 修复后  | 状态            |
+| ------------------------- | ------- | ------- | --------------- |
 | 7zi-frontend/package.json | ^7.24.6 | ^7.24.6 | ✅ 已是安全版本 |
-| 7zi-frontend/node_modules | 7.24.6 | 7.24.6 | ✅ 已是安全版本 |
+| 7zi-frontend/node_modules | 7.24.6  | 7.24.6  | ✅ 已是安全版本 |
 
 ### 全局依赖
 
-| 包名 | 修复前 | 修复后 | 状态 |
-|------|--------|--------|------|
-| clawhub@0.8.0 | undici@7.24.3 | undici@7.24.3 | ✅ 安全版本 |
-| openclaw@2026.3.13 | undici@7.24.2 | undici@7.24.2 | ✅ 安全版本 |
-| wrangler@4.71.0 | undici@7.18.2 | undici@7.24.4 | ✅ 已升级 |
-| vercel@50.28.0 | undici@5.28.4/6.23.0 | undici@5.28.4/6.23.0 | ⚠️ Vercel 官方包依赖 |
+| 包名               | 修复前               | 修复后               | 状态                 |
+| ------------------ | -------------------- | -------------------- | -------------------- |
+| clawhub@0.8.0      | undici@7.24.3        | undici@7.24.3        | ✅ 安全版本          |
+| openclaw@2026.3.13 | undici@7.24.2        | undici@7.24.2        | ✅ 安全版本          |
+| wrangler@4.71.0    | undici@7.18.2        | undici@7.24.4        | ✅ 已升级            |
+| vercel@50.28.0     | undici@5.28.4/6.23.0 | undici@5.28.4/6.23.0 | ⚠️ Vercel 官方包依赖 |
 
 ---
 
@@ -81,6 +81,7 @@ npm update -g vercel wrangler
 ```
 
 **结果**:
+
 - vercel: 50.28.0 → 50.37.3 (内部 undici 依赖未更新)
 - wrangler: 4.71.0 → 4.78.0 (undici 升级到 7.24.4)
 
@@ -116,7 +117,7 @@ pnpm build
 ./src/lib/websocket/server.ts:1353:17
 Server Actions must be async functions.
 - checkUserPermission
-- getUserRoomRole  
+- getUserRoomRole
 - isUserBannedFromRoom
 ```
 
@@ -128,18 +129,18 @@ Server Actions must be async functions.
 
 ### 已修复
 
-| 项目 | undici 版本 | 安全状态 |
-|------|-------------|----------|
-| workspace | 7.24.6 | ✅ 安全 |
-| 7zi-frontend | 7.24.6 | ✅ 安全 |
-| openclaw (全局) | 7.24.2 | ✅ 安全 |
-| clawhub (全局) | 7.24.3 | ✅ 安全 |
-| wrangler (全局) | 7.24.4 | ✅ 安全 |
+| 项目            | undici 版本 | 安全状态 |
+| --------------- | ----------- | -------- |
+| workspace       | 7.24.6      | ✅ 安全  |
+| 7zi-frontend    | 7.24.6      | ✅ 安全  |
+| openclaw (全局) | 7.24.2      | ✅ 安全  |
+| clawhub (全局)  | 7.24.3      | ✅ 安全  |
+| wrangler (全局) | 7.24.4      | ✅ 安全  |
 
 ### 待观察
 
-| 项目 | 问题 | 建议 |
-|------|------|------|
+| 项目          | 问题                      | 建议                 |
+| ------------- | ------------------------- | -------------------- |
 | vercel (全局) | 使用 undici@5.28.4/6.23.0 | 等待 Vercel 官方更新 |
 
 ---

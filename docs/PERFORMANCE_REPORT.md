@@ -1,6 +1,7 @@
 # API Performance Report
 
 ## 生成时间
+
 2026-03-19 23:45:00 UTC
 
 ## 执行摘要
@@ -68,34 +69,32 @@
 #### API 包装器
 
 ```typescript
-export function withApiPerformanceTracking(
-  handler: (request: NextRequest) => Promise<NextResponse>
-)
+export function withApiPerformanceTracking(handler: (request: NextRequest) => Promise<NextResponse>)
 ```
 
 使用方式：
 
 ```typescript
-import { withApiPerformanceTracking } from '@/lib/middleware/api-performance';
+import { withApiPerformanceTracking } from '@/lib/middleware/api-performance'
 
 export const GET = withApiPerformanceTracking(async (request: NextRequest) => {
   // 你的 API 逻辑
-  return NextResponse.json({ success: true });
-});
+  return NextResponse.json({ success: true })
+})
 ```
 
 #### 性能数据结构
 
 ```typescript
 interface ApiPerformanceData {
-  requestId: string;
-  method: string;
-  path: string;
-  statusCode: number;
-  duration: number;
-  timestamp: number;
-  success: boolean;
-  errorMessage?: string;
+  requestId: string
+  method: string
+  path: string
+  statusCode: number
+  duration: number
+  timestamp: number
+  success: boolean
+  errorMessage?: string
 }
 ```
 
@@ -111,6 +110,7 @@ interface ApiPerformanceData {
 #### 告警方式
 
 1. **日志记录**
+
    ```typescript
    // 慢查询警告
    logger.warn('[API Performance] Slow request detected', {
@@ -120,7 +120,7 @@ interface ApiPerformanceData {
      statusCode,
      duration,
      timestamp,
-   });
+   })
 
    // 严重性能问题错误
    logger.error('[API Performance] Critical slow request detected', {
@@ -130,16 +130,17 @@ interface ApiPerformanceData {
      statusCode,
      duration,
      timestamp,
-   });
+   })
    ```
 
 2. **自定义指标记录**
+
    ```typescript
    recordCustomMetric(`api.${path}`, duration, 'api', {
      method,
      statusCode,
      success,
-   });
+   })
    ```
 
 3. **响应头**
@@ -264,43 +265,43 @@ DELETE /api/performance/report
 #### 方式 1: 使用包装器（推荐）
 
 ```typescript
-import { withApiPerformanceTracking } from '@/lib/middleware/api-performance';
-import { NextRequest, NextResponse } from 'next/server';
+import { withApiPerformanceTracking } from '@/lib/middleware/api-performance'
+import { NextRequest, NextResponse } from 'next/server'
 
 export const POST = withApiPerformanceTracking(async (request: NextRequest) => {
   // 你的 API 逻辑
-  return NextResponse.json({ success: true });
-});
+  return NextResponse.json({ success: true })
+})
 ```
 
 #### 方式 2: 手动记录
 
 ```typescript
-import { NextRequest, NextResponse } from 'next/server';
-import { logRequestStart, logRequestComplete, logRequestError } from '@/lib/api/api-logger';
-import { recordCustomMetric } from '@/lib/monitoring';
+import { NextRequest, NextResponse } from 'next/server'
+import { logRequestStart, logRequestComplete, logRequestError } from '@/lib/api/api-logger'
+import { recordCustomMetric } from '@/lib/monitoring'
 
 export async function POST(request: NextRequest) {
-  const startTime = Date.now();
-  const metadata = logRequestStart(request);
+  const startTime = Date.now()
+  const metadata = logRequestStart(request)
 
   try {
     // 你的 API 逻辑
-    const response = NextResponse.json({ success: true });
+    const response = NextResponse.json({ success: true })
 
     // 记录性能
-    const duration = Date.now() - startTime;
+    const duration = Date.now() - startTime
     recordCustomMetric(`api.${request.nextUrl.pathname}`, duration, 'api', {
       method: request.method,
       statusCode: response.status,
       success: true,
-    });
+    })
 
-    logRequestComplete(metadata, response, startTime);
-    return response;
+    logRequestComplete(metadata, response, startTime)
+    return response
   } catch (error) {
-    logRequestError(metadata, error, startTime);
-    throw error;
+    logRequestError(metadata, error, startTime)
+    throw error
   }
 }
 ```
@@ -330,11 +331,11 @@ http://localhost:3000/api/performance/report?action=slow
 
 ### 核心指标
 
-| 指标 | 说明 | 良好值 | 需关注 | 严重 |
-|------|------|--------|--------|------|
+| 指标         | 说明             | 良好值  | 需关注    | 严重    |
+| ------------ | ---------------- | ------- | --------- | ------- |
 | **响应时间** | API 请求处理时间 | < 200ms | 200-500ms | > 500ms |
-| **错误率** | 失败请求占比 | < 1% | 1-5% | > 5% |
-| **慢查询率** | >500ms 请求占比 | < 5% | 5-10% | > 10% |
+| **错误率**   | 失败请求占比     | < 1%    | 1-5%      | > 5%    |
+| **慢查询率** | >500ms 请求占比  | < 5%    | 5-10%     | > 10%   |
 
 ### 路由级别指标
 
@@ -446,6 +447,7 @@ http://localhost:3000/api/performance/report?action=slow
 ## 联系方式
 
 如有问题或建议，请联系：
+
 - 项目负责人: 7zi AI Team
 - 技术支持: 通过项目 Issue 反馈
 

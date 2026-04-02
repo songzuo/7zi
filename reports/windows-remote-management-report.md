@@ -11,16 +11,19 @@
 ### 方案 A: RDP (Remote Desktop Protocol) ⭐ 推荐
 
 **优点:**
+
 - Windows 原生支持，无需额外安装
 - 图形界面完整，操作直观
 - 性能优秀，延迟低
 - 支持剪贴板共享、文件传输
 
 **缺点:**
+
 - 需要图形环境 (或使用 headless 截图)
 - Windows 需开启远程桌面
 
 **Linux 客户端:**
+
 ```bash
 # FreeRDP (推荐)
 sudo apt install freerdp2-x11  # 或 freerdp3-x11
@@ -36,6 +39,7 @@ xfreerdp /v:192.168.1.100 /u:Admin /p:password123 \
 ```
 
 **Windows 配置:**
+
 ```powershell
 # PowerShell (管理员)
 # 启用 RDP
@@ -50,16 +54,19 @@ Enable-NetFirewallRule -DisplayGroup "Remote Desktop"
 ### 方案 B: SSH (Windows OpenSSH Server) ⭐ 推荐
 
 **优点:**
+
 - 命令行操作，资源占用少
 - 适合自动化脚本
 - 支持端口转发、隧道
 - Windows 10/11/Server 2019+ 内置
 
 **缺点:**
+
 - 无图形界面
 - 需要熟悉 PowerShell/CMD
 
 **Linux 客户端:**
+
 ```bash
 # 已安装 sshpass，可直接使用
 sshpass -p 'PASSWORD' ssh USERNAME@WINDOWS_IP
@@ -70,6 +77,7 @@ ssh-copy-id USERNAME@WINDOWS_IP
 ```
 
 **Windows 配置:**
+
 ```powershell
 # PowerShell (管理员)
 # 安装 OpenSSH Server
@@ -88,15 +96,18 @@ New-NetFirewallRule -Name sshd -DisplayName 'OpenSSH Server' -Enabled True -Dire
 ### 方案 C: VNC
 
 **优点:**
+
 - 跨平台通用
 - 可远程查看桌面
 
 **缺点:**
+
 - 需要在 Windows 上安装 VNC Server
 - 性能不如 RDP
 - 安全性需要额外配置
 
 **方案:**
+
 ```bash
 # Linux 客户端
 sudo apt install tigervnc-viewer
@@ -110,11 +121,13 @@ vncviewer WINDOWS_IP:5900
 ### 方案 D: WinRM (Windows Remote Management)
 
 **优点:**
+
 - 原生 PowerShell 远程
 - 适合批量管理
 - 支持脚本自动化
 
 **Linux 客户端:**
+
 ```bash
 # 使用 pywinrm
 pip install pywinrm
@@ -133,12 +146,14 @@ print(result.std_out)
 ### 方案 A: Playwright (Node.js) ⭐ 推荐
 
 **优点:**
+
 - 跨浏览器支持 (Chromium, Firefox, WebKit)
 - 自动截图、录屏
 - 支持无头模式
 - API 简洁
 
 **安装:**
+
 ```bash
 # 安装 Playwright
 npm install -g playwright
@@ -151,32 +166,33 @@ npx playwright install
 ```
 
 **测试脚本示例:**
-```javascript
-const { chromium } = require('playwright');
 
-(async () => {
+```javascript
+const { chromium } = require('playwright')
+
+;(async () => {
   const browser = await chromium.launch({
-    headless: true  // 无头模式
-  });
-  const page = await browser.newPage();
-  
+    headless: true, // 无头模式
+  })
+  const page = await browser.newPage()
+
   // 访问网站
-  await page.goto('https://7zi.com');
-  
+  await page.goto('https://7zi.com')
+
   // 截图
-  await page.screenshot({ path: '7zi-homepage.png', fullPage: true });
-  
+  await page.screenshot({ path: '7zi-homepage.png', fullPage: true })
+
   // 获取页面信息
-  const title = await page.title();
-  console.log('Page title:', title);
-  
+  const title = await page.title()
+  console.log('Page title:', title)
+
   // 测试登录 (如果有)
   // await page.fill('#username', 'user');
   // await page.fill('#password', 'pass');
   // await page.click('#login-button');
-  
-  await browser.close();
-})();
+
+  await browser.close()
+})()
 ```
 
 ---
@@ -184,11 +200,13 @@ const { chromium } = require('playwright');
 ### 方案 B: Puppeteer
 
 **优点:**
+
 - Google 官方维护
 - 专注于 Chrome/Chromium
 - 文档丰富
 
 **安装:**
+
 ```bash
 npm install puppeteer
 ```
@@ -198,11 +216,13 @@ npm install puppeteer
 ### 方案 C: Selenium + WebDriver
 
 **优点:**
+
 - 成熟稳定
 - 多语言支持
 - 可远程执行
 
 **缺点:**
+
 - 配置复杂
 - 需要 WebDriver
 
@@ -227,6 +247,7 @@ ssh Admin@WINDOWS_IP "powershell -c \"Add-Type -AssemblyName System.Windows.Form
 ### 🎯 最佳方案: SSH + Playwright (远程执行)
 
 **架构:**
+
 ```
 Linux (bot6) --SSH--> Windows Server --Playwright--> 7zi.com
                               |
@@ -244,6 +265,7 @@ Linux (bot6) --SSH--> Windows Server --Playwright--> 7zi.com
    - 安装 Node.js + Playwright
 
 2. **Linux 自动化脚本:**
+
 ```bash
 #!/bin/bash
 # test-7zi.sh - 自动化测试脚本
@@ -333,13 +355,13 @@ const { chromium } = require('playwright');
 (async () => {
   const browser = await chromium.launch({ headless: true });
   const page = await browser.newPage();
-  
+
   await page.goto(process.env.TEST_URL || 'https://7zi.com');
   await page.screenshot({ path: 'C:/temp/screenshot.png', fullPage: true });
-  
+
   console.log('Title:', await page.title());
   console.log('URL:', page.url());
-  
+
   await browser.close();
 })();
 EOF
@@ -363,7 +385,9 @@ echo "Screenshot saved to ~/screenshots/"
 主人提供 Windows 服务器后，需要确认:
 
 ### ✅ 必需配置
+
 - [ ] **启用 OpenSSH Server**
+
   ```powershell
   Add-WindowsCapability -Online -Name OpenSSH.Server~~~~0.0.1.0
   Start-Service sshd
@@ -381,6 +405,7 @@ echo "Screenshot saved to ~/screenshots/"
   ```
 
 ### 📋 可选配置
+
 - [ ] **启用 RDP** (如需图形界面)
 - [ ] **配置防火墙规则** (开放 22/3389)
 - [ ] **创建测试目录** `mkdir C:\temp`
@@ -407,19 +432,20 @@ sshpass -p 'PASSWORD' ssh Administrator@WINDOWS_IP "cd C:/temp && node test-7zi.
 
 ## 📊 方案总结
 
-| 方案 | 用途 | 复杂度 | 推荐度 |
-|------|------|--------|--------|
-| **SSH** | 命令行管理 | ⭐ | ⭐⭐⭐⭐⭐ |
-| **RDP** | 图形界面 | ⭐⭐ | ⭐⭐⭐⭐ |
+| 方案                      | 用途       | 复杂度 | 推荐度     |
+| ------------------------- | ---------- | ------ | ---------- |
+| **SSH**                   | 命令行管理 | ⭐     | ⭐⭐⭐⭐⭐ |
+| **RDP**                   | 图形界面   | ⭐⭐   | ⭐⭐⭐⭐   |
 | **Playwright on Windows** | 网页自动化 | ⭐⭐⭐ | ⭐⭐⭐⭐⭐ |
-| **VNC** | 备用图形 | ⭐⭐⭐ | ⭐⭐ |
+| **VNC**                   | 备用图形   | ⭐⭐⭐ | ⭐⭐       |
 
 **最终推荐: SSH + Playwright 组合**
+
 - 最轻量、最高效
 - 适合自动化测试
 - 易于脚本化
 
 ---
 
-*报告生成时间: 2026-03-07*
-*作者: 系统管理员子代理*
+_报告生成时间: 2026-03-07_
+_作者: 系统管理员子代理_

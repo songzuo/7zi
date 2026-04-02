@@ -54,7 +54,7 @@ export const viewport = {
     email: false,
     address: false,
   },
-};
+}
 
 // Type definition for Next.js
-export type Viewport = typeof viewport;
+export type Viewport = typeof viewport

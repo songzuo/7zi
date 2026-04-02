@@ -17,6 +17,7 @@
 #### 新增翻译 Key（Dashboard 相关）
 
 **英文翻译** (`src/locales/en/dashboard.json`):
+
 - 新增 `subtitle`: "v1.5.0 - Monitor and manage your AI Agent team in real-time"
 - 新增 `stats.avgCpu`: "Avg CPU"
 - 新增 `stats.avgMemory`: "Avg Memory"
@@ -40,6 +41,7 @@
 - 新增 `filters.all`: "All"
 
 **中文翻译** (`src/locales/zh/dashboard.json`):
+
 - 对应所有英文 key 的中文翻译
 
 ### 2. 组件国际化改造
@@ -47,12 +49,14 @@
 #### AgentStatusPanel 组件 (`src/app/dashboard/AgentStatusPanel.tsx`)
 
 **变更内容:**
+
 1. 引入 `useTranslation` hook
 2. 所有硬编码中文文本替换为翻译 key
 3. 根据当前语言动态设置日期格式化 locale
 4. 移除静态配置对象中的文本，改为动态获取
 
 **关键修改:**
+
 ```typescript
 // 之前（硬编码）
 const STATUS_CONFIG = {
@@ -71,19 +75,21 @@ const STATUS_COLORS = { /* 只保留颜色配置 */ };
 const lastActiveText = useMemo(() => {
   return formatDistanceToNow(new Date(agent.lastActiveAt), {
     addSuffix: true,
-    locale: i18n.language === 'zh' ? zhCN : enUS
-  });
-}, [agent.lastActiveText, i18n.language]);
+    locale: i18n.language === 'zh' ? zhCN : enUS,
+  })
+}, [agent.lastActiveText, i18n.language])
 ```
 
 #### Dashboard 页面 (`src/app/dashboard/page.tsx`)
 
 **变更内容:**
+
 1. 引入 `useTranslation` hook
 2. 页面标题和副标题使用国际化
 3. 更新版本号为 v1.6.0
 
 **关键修改:**
+
 ```typescript
 const { t } = useTranslation('dashboard');
 
@@ -96,51 +102,61 @@ const { t } = useTranslation('dashboard');
 在构建过程中发现并修复了多个无关问题：
 
 #### 错误 1: ErrorBoundary 导出问题
+
 - **位置:** `src/components/ui/feedback/index.ts`
 - **问题:** 导出了不存在的组件 `SimpleErrorFallback`, `FullErrorFallback`, `CardErrorFallback`
 - **修复:** 移除不存在的导出
 
 #### 错误 2: ToastType 类型导出
+
 - **位置:** `src/components/ui/feedback/useToast.ts`
 - **问题:** ToastType 在 ToastProvider 中定义，但导出位置不对
 - **修复:** 从 `./Toast` 导出 ToastType
 
 #### 错误 3: createErrorResponse 参数类型
+
 - **位置:** `src/app/api/projects/route.ts`
 - **问题:** 传递字符串参数，期望对象
 - **修复:** 改为传递空对象 `{}`
 
 #### 错误 4: RoomList 缺少 EmptyState 组件
+
 - **位置:** `src/components/rooms/RoomList.tsx`
 - **问题:** 组件不存在
 - **修复:** 在组件内部定义临时空状态组件
 
 #### 错误 5: roomsClient 导出问题
+
 - **位置:** `src/lib/api-clients.ts`, `src/lib/api/rooms/index.ts`
 - **问题:** 导出函数不存在
 - **修复:** 导出 roomsClient 对象而非单个函数
 
 #### 错误 6: RoomEventType 缺失
+
 - **位置:** `src/lib/api/rooms/client.ts`
 - **问题:** 类型未导入
 - **修复:** 添加导入
 
 #### 错误 7: RoomCreateModal rightElement 属性
+
 - **位置:** `src/components/rooms/RoomCreateModal.tsx`
 - **问题:** Input 组件不支持该属性
 - **修复:** 使用相对定位实现
 
 #### 错误 8: 权限系统 User 类型冲突
+
 - **位置:** `src/stores/permission-store.ts`
 - **问题:** 两个 User 类型定义不一致
 - **修复:** 类型转换和重命名
 
 #### 错误 9: stores index.ts 类型导出
+
 - **位置:** `src/stores/index.ts`
 - **问题:** isolatedModules 要求类型使用 export type
 - **修复:** 使用 export type 导出类型
 
 #### 错误 10: 删除有问题的演示页面
+
 - **位置:** 多个 demo 页面
 - **问题:** 服务端渲染错误
 - **修复:** 删除或重构有问题的页面
@@ -149,14 +165,14 @@ const { t } = useTranslation('dashboard');
 
 ### 已国际化的组件
 
-| 组件 | 状态 | 备注 |
-|------|------|------|
-| Dashboard 主页 | ✅ 完成 | 标题、副标题 |
-| AgentStatusPanel | ✅ 完成 | 所有文本 |
-| StatsSummary | ✅ 完成 | 统计数据标签 |
-| FilterBar | ✅ 完成 | 搜索框、筛选按钮、刷新按钮 |
-| AgentCard | ✅ 完成 | 状态、类型、操作按钮 |
-| 分页组件 | ✅ 完成 | 上一页/下一页 |
+| 组件             | 状态    | 备注                       |
+| ---------------- | ------- | -------------------------- |
+| Dashboard 主页   | ✅ 完成 | 标题、副标题               |
+| AgentStatusPanel | ✅ 完成 | 所有文本                   |
+| StatsSummary     | ✅ 完成 | 统计数据标签               |
+| FilterBar        | ✅ 完成 | 搜索框、筛选按钮、刷新按钮 |
+| AgentCard        | ✅ 完成 | 状态、类型、操作按钮       |
+| 分页组件         | ✅ 完成 | 上一页/下一页              |
 
 ### 翻译覆盖率
 
@@ -228,11 +244,11 @@ const { t } = useTranslation('dashboard');
 使用 `date-fns` 库支持多语言：
 
 ```typescript
-import { formatDistanceToNow } from 'date-fns';
-import { zhCN, enUS } from 'date-fns/locale';
+import { formatDistanceToNow } from 'date-fns'
+import { zhCN, enUS } from 'date-fns/locale'
 
-const locale = i18n.language === 'zh' ? zhCN : enUS;
-formatDistanceToNow(date, { addSuffix: true, locale });
+const locale = i18n.language === 'zh' ? zhCN : enUS
+formatDistanceToNow(date, { addSuffix: true, locale })
 ```
 
 ## 发现的问题

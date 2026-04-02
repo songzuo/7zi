@@ -52,42 +52,42 @@
 
 ### 关键用户流程
 
-| 流程 | 优先级 | 测试文件 | 状态 |
-|------|--------|----------|------|
-| 用户登录 | P0 | `auth-flow.spec.ts` | ✅ |
-| 用户登出 | P0 | `auth-flow.spec.ts` | ✅ |
-| 创建任务 | P0 | `task-creation.spec.ts` | ✅ |
-| 查看任务列表 | P0 | `dashboard.spec.ts` | ✅ |
-| 导航主要页面 | P0 | `navigation.spec.ts` | ✅ |
-| 编辑任务 | P1 | `task-creation.spec.ts` | ✅ |
-| 删除任务 | P1 | `task-creation.spec.ts` | ✅ |
-| 搜索任务 | P1 | `dashboard.spec.ts` | ✅ |
-| 筛选任务 | P1 | `dashboard.spec.ts` | ✅ |
-| 团队页面 | P2 | `team.spec.ts` | ✅ |
-| 设置页面 | P2 | `settings.spec.ts` | - |
-| 联系表单 | P2 | `form.spec.ts` | ✅ |
-| 博客页面 | P2 | `blog.spec.ts` | - |
+| 流程         | 优先级 | 测试文件                | 状态 |
+| ------------ | ------ | ----------------------- | ---- |
+| 用户登录     | P0     | `auth-flow.spec.ts`     | ✅   |
+| 用户登出     | P0     | `auth-flow.spec.ts`     | ✅   |
+| 创建任务     | P0     | `task-creation.spec.ts` | ✅   |
+| 查看任务列表 | P0     | `dashboard.spec.ts`     | ✅   |
+| 导航主要页面 | P0     | `navigation.spec.ts`    | ✅   |
+| 编辑任务     | P1     | `task-creation.spec.ts` | ✅   |
+| 删除任务     | P1     | `task-creation.spec.ts` | ✅   |
+| 搜索任务     | P1     | `dashboard.spec.ts`     | ✅   |
+| 筛选任务     | P1     | `dashboard.spec.ts`     | ✅   |
+| 团队页面     | P2     | `team.spec.ts`          | ✅   |
+| 设置页面     | P2     | `settings.spec.ts`      | -    |
+| 联系表单     | P2     | `form.spec.ts`          | ✅   |
+| 博客页面     | P2     | `blog.spec.ts`          | -    |
 
 ### 视觉回归测试
 
-| 页面 | 视口 | 主题 | 状态 |
-|------|------|------|------|
-| 首页 | 全部 | Light/Dark | ✅ |
-| Dashboard | 全部 | Light/Dark | ✅ |
-| 团队页面 | 全部 | Light/Dark | ✅ |
-| 关于页面 | 全部 | Light/Dark | ✅ |
-| 联系页面 | 全部 | Light | ✅ |
-| 博客页面 | 全部 | Light | ✅ |
+| 页面      | 视口 | 主题       | 状态 |
+| --------- | ---- | ---------- | ---- |
+| 首页      | 全部 | Light/Dark | ✅   |
+| Dashboard | 全部 | Light/Dark | ✅   |
+| 团队页面  | 全部 | Light/Dark | ✅   |
+| 关于页面  | 全部 | Light/Dark | ✅   |
+| 联系页面  | 全部 | Light      | ✅   |
+| 博客页面  | 全部 | Light      | ✅   |
 
 ### 跨浏览器测试
 
-| 浏览器 | 版本 | 视口 | 状态 |
-|---------|------|------|------|
-| Chromium | Latest | Desktop | ✅ |
-| Firefox | Latest | Desktop | ✅ |
-| WebKit | Latest | Desktop | ✅ |
-| Chrome | Latest | Mobile (Pixel 5) | ✅ |
-| Safari | Latest | Mobile (iPhone 12) | ✅ |
+| 浏览器   | 版本   | 视口               | 状态 |
+| -------- | ------ | ------------------ | ---- |
+| Chromium | Latest | Desktop            | ✅   |
+| Firefox  | Latest | Desktop            | ✅   |
+| WebKit   | Latest | Desktop            | ✅   |
+| Chrome   | Latest | Mobile (Pixel 5)   | ✅   |
+| Safari   | Latest | Mobile (iPhone 12) | ✅   |
 
 ---
 
@@ -95,11 +95,11 @@
 
 ### 核心工具
 
-| 工具 | 版本 | 用途 |
-|------|------|------|
-| **Playwright** | 1.58.2 | E2E 测试框架 |
-| **TypeScript** | 5.x | 类型安全 |
-| **POM Pattern** | - | 页面对象模型 |
+| 工具            | 版本   | 用途         |
+| --------------- | ------ | ------------ |
+| **Playwright**  | 1.58.2 | E2E 测试框架 |
+| **TypeScript**  | 5.x    | 类型安全     |
+| **POM Pattern** | -      | 页面对象模型 |
 
 ### 为什么选择 Playwright？
 
@@ -156,29 +156,29 @@ e2e/
 ### 测试结构
 
 ```typescript
-import { test, expect } from '@playwright/test';
-import { LoginPage, DashboardPage } from './pages';
+import { test, expect } from '@playwright/test'
+import { LoginPage, DashboardPage } from './pages'
 
 test.describe('功能名称', () => {
-  let loginPage: LoginPage;
-  let dashboardPage: DashboardPage;
+  let loginPage: LoginPage
+  let dashboardPage: DashboardPage
 
   test.beforeEach(async ({ page }) => {
-    loginPage = new LoginPage(page);
-    dashboardPage = new DashboardPage(page);
-  });
+    loginPage = new LoginPage(page)
+    dashboardPage = new DashboardPage(page)
+  })
 
   test('should do something', async ({ page }) => {
     // Arrange
-    await loginPage.goto();
+    await loginPage.goto()
 
     // Act
-    await loginPage.login('user@example.com', 'password');
+    await loginPage.login('user@example.com', 'password')
 
     // Assert
-    expect(page.url()).toContain('/dashboard');
-  });
-});
+    expect(page.url()).toContain('/dashboard')
+  })
+})
 ```
 
 ---
@@ -188,18 +188,21 @@ test.describe('功能名称', () => {
 ### DO ✅
 
 1. **使用页面对象模型**
+
    ```typescript
-   const loginPage = new LoginPage(page);
-   await loginPage.login('user@example.com', 'password');
+   const loginPage = new LoginPage(page)
+   await loginPage.login('user@example.com', 'password')
    ```
 
 2. **等待页面稳定**
+
    ```typescript
-   await page.waitForLoadState('networkidle');
-   await page.waitForTimeout(500); // 等待动画
+   await page.waitForLoadState('networkidle')
+   await page.waitForTimeout(500) // 等待动画
    ```
 
 3. **使用语义化定位器**
+
    ```typescript
    // ✅ 好的定位器
    page.locator('button:has-text("提交")')
@@ -211,32 +214,35 @@ test.describe('功能名称', () => {
    ```
 
 4. **编写描述性测试名称**
+
    ```typescript
    test('should display error when email is invalid') {}
    ```
 
 5. **使用测试数据工厂**
+
    ```typescript
-   const taskData = testData.generateTaskTitle();
+   const taskData = testData.generateTaskTitle()
    ```
 
 6. **清理测试状态**
    ```typescript
    test.afterEach(async ({ page }) => {
      // 清理创建的数据
-     await cleanupTestData();
-   });
+     await cleanupTestData()
+   })
    ```
 
 ### DON'T ❌
 
 1. **不要硬编码等待时间**
+
    ```typescript
    // ❌ 避免
-   await page.waitForTimeout(5000);
+   await page.waitForTimeout(5000)
 
    // ✅ 使用智能等待
-   await page.waitForSelector('.loading', { state: 'hidden' });
+   await page.waitForSelector('.loading', { state: 'hidden' })
    ```
 
 2. **不要过度使用截图**
@@ -248,6 +254,7 @@ test.describe('功能名称', () => {
    - 使用测试数据库
 
 4. **不要编写脆弱的选择器**
+
    ```typescript
    // ❌ 脆弱的选择器
    page.locator('div > div > button')
@@ -369,12 +376,13 @@ jobs:
 **问题**: 测试在等待元素时超时
 
 **解决方案**:
+
 ```typescript
 // 增加超时时间
-test.setTimeout(60000);
+test.setTimeout(60000)
 
 // 使用更智能的等待
-await page.waitForSelector('.element', { timeout: 30000 });
+await page.waitForSelector('.element', { timeout: 30000 })
 ```
 
 #### 2. 元素未找到
@@ -382,12 +390,13 @@ await page.waitForSelector('.element', { timeout: 30000 });
 **问题**: 选择器找不到元素
 
 **解决方案**:
+
 ```typescript
 // 使用 Playwright Inspector 查找正确的选择器
 // npx playwright codegen http://localhost:3000
 
 // 使用更灵活的选择器
-await page.locator('button:has-text("Submit")').click();
+await page.locator('button:has-text("Submit")').click()
 ```
 
 #### 3. 测试不稳定（Flaky）
@@ -395,17 +404,22 @@ await page.locator('button:has-text("Submit")').click();
 **问题**: 测试有时通过，有时失败
 
 **解决方案**:
+
 ```typescript
 // 等待网络空闲
-await page.waitForLoadState('networkidle');
+await page.waitForLoadState('networkidle')
 
 // 等待动画完成
-await page.waitForTimeout(500);
+await page.waitForTimeout(500)
 
 // 使用重试
-test('should do something', async ({ page }) => {
-  // 测试逻辑
-}, { retries: 3 });
+test(
+  'should do something',
+  async ({ page }) => {
+    // 测试逻辑
+  },
+  { retries: 3 }
+)
 ```
 
 #### 4. 视觉回归失败
@@ -413,6 +427,7 @@ test('should do something', async ({ page }) => {
 **问题**: 截图对比失败
 
 **解决方案**:
+
 ```bash
 # 更新基线截图
 npx playwright test --update-snapshots
@@ -426,6 +441,7 @@ npx playwright show-report
 **问题**: 浏览器在测试过程中崩溃
 
 **解决方案**:
+
 ```bash
 # 清理缓存
 rm -rf test-results/
@@ -464,4 +480,4 @@ npx playwright test --headed --slowMo=1000
 
 ---
 
-*最后更新: 2026-03-21*
+_最后更新: 2026-03-21_

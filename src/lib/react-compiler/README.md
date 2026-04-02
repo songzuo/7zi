@@ -5,10 +5,10 @@ Comprehensive React Compiler integration for Next.js projects with diagnostics, 
 ## Features
 
 - **🔍 Compatibility Diagnostics**: Automatically detect incompatible components
-- **⚙️  Fine-grained Configuration**: Control which files are compiled
+- **⚙️ Fine-grained Configuration**: Control which files are compiled
 - **📊 Performance Tracking**: Measure optimization improvements
 - **📈 Detailed Reports**: Export compatibility reports in JSON, Markdown, or HTML
-- **🎛️  Dashboard UI**: Real-time monitoring and control interface
+- **🎛️ Dashboard UI**: Real-time monitoring and control interface
 - **🔧 Migration Guide**: Automated fix suggestions and migration planning
 
 ## Installation
@@ -20,9 +20,9 @@ This module is part of the project's `src/lib/` structure. No additional install
 ### 1. Enable React Compiler
 
 ```typescript
-import { enableCompiler } from '@/lib/react-compiler';
+import { enableCompiler } from '@/lib/react-compiler'
 
-enableCompiler();
+enableCompiler()
 ```
 
 Or via environment variable:
@@ -34,44 +34,44 @@ export ENABLE_REACT_COMPILER=true
 ### 2. Scan for Compatibility
 
 ```typescript
-import { scanDiagnostics } from '@/lib/react-compiler';
+import { scanDiagnostics } from '@/lib/react-compiler'
 
-const result = await scanDiagnostics('/path/to/project');
+const result = await scanDiagnostics('/path/to/project')
 
-console.log(`Compatibility: ${result.compatibilityRate}%`);
-console.log(`Components: ${result.totalComponents}`);
-console.log(`Issues: ${result.errors} errors, ${result.warnings} warnings`);
+console.log(`Compatibility: ${result.compatibilityRate}%`)
+console.log(`Components: ${result.totalComponents}`)
+console.log(`Issues: ${result.errors} errors, ${result.warnings} warnings`)
 ```
 
 ### 3. Check File Compilation
 
 ```typescript
-import { checkFile } from '@/lib/react-compiler';
+import { checkFile } from '@/lib/react-compiler'
 
 if (checkFile('/src/components/MyComponent.tsx')) {
-  console.log('This component will be compiled with React Compiler');
+  console.log('This component will be compiled with React Compiler')
 }
 ```
 
 ### 4. Track Performance
 
 ```typescript
-import { getPerformanceTracker } from '@/lib/react-compiler';
+import { getPerformanceTracker } from '@/lib/react-compiler'
 
-const tracker = getPerformanceTracker();
+const tracker = getPerformanceTracker()
 
 // Start tracking
-tracker.startTracking();
+tracker.startTracking()
 
 // Your app runs...
 
 // Stop tracking
-tracker.stopTracking();
+tracker.stopTracking()
 
 // Get stats
-const stats = tracker.getAllStats();
-console.log(`Total renders: ${stats.totalRenders}`);
-console.log(`Avg render time: ${stats.avgRenderTime}ms`);
+const stats = tracker.getAllStats()
+console.log(`Total renders: ${stats.totalRenders}`)
+console.log(`Avg render time: ${stats.avgRenderTime}ms`)
 ```
 
 ## Configuration
@@ -88,46 +88,46 @@ const defaultConfig = {
     'src/components/third-party/**',
     'src/components/legacy/**',
     '**/*.test.{ts,tsx}',
-    '**/*.spec.{ts,tsx}'
+    '**/*.spec.{ts,tsx}',
   ],
-  only: [] // Empty means compile all non-ignored files
-};
+  only: [], // Empty means compile all non-ignored files
+}
 ```
 
 ### Custom Configuration
 
 ```typescript
-import { getConfigManager } from '@/lib/react-compiler';
+import { getConfigManager } from '@/lib/react-compiler'
 
-const configManager = getConfigManager();
+const configManager = getConfigManager()
 
 // Enable React Compiler
-configManager.enable();
+configManager.enable()
 
 // Add files to ignore list
-configManager.addToIgnore('src/components/experimental/**');
+configManager.addToIgnore('src/components/experimental/**')
 
 // Add files to "only" list (compile only these)
-configManager.addToOnly('src/components/core/**');
+configManager.addToOnly('src/components/core/**')
 
 // Check configuration
-const config = configManager.getConfig();
-console.log(config);
+const config = configManager.getConfig()
+console.log(config)
 ```
 
 ### Ignore List Presets
 
 ```typescript
-import { getIgnoreListByPreset } from '@/lib/react-compiler';
+import { getIgnoreListByPreset } from '@/lib/react-compiler'
 
 // Conservative: ignore only definitely incompatible files
-const conservative = getIgnoreListByPreset('conservative');
+const conservative = getIgnoreListByPreset('conservative')
 
 // Moderate: ignore potentially incompatible patterns
-const moderate = getIgnoreListByPreset('moderate');
+const moderate = getIgnoreListByPreset('moderate')
 
 // Aggressive: compile only specific, well-tested components
-const aggressive = getIgnoreListByPreset('aggressive');
+const aggressive = getIgnoreListByPreset('aggressive')
 ```
 
 ## Diagnostics
@@ -144,18 +144,18 @@ The scanner detects incompatible patterns in your components:
 - **Functional state updates**: Compatible
 
 ```typescript
-import { createDiagnostics } from '@/lib/react-compiler';
+import { createDiagnostics } from '@/lib/react-compiler'
 
-const diagnostics = createDiagnostics('/path/to/project');
-const result = await diagnostics.scan();
+const diagnostics = createDiagnostics('/path/to/project')
+const result = await diagnostics.scan()
 
 // View all issues
 for (const report of result.components) {
   if (!report.isCompatible) {
-    console.log(`${report.component} is incompatible:`);
+    console.log(`${report.component} is incompatible:`)
     for (const issue of report.issues) {
-      console.log(`  [${issue.severity}] ${issue.message}`);
-      console.log(`    Line ${issue.line}: ${issue.suggestion}`);
+      console.log(`  [${issue.severity}] ${issue.message}`)
+      console.log(`    Line ${issue.line}: ${issue.suggestion}`)
     }
   }
 }
@@ -166,23 +166,24 @@ for (const report of result.components) {
 Generate detailed compatibility reports:
 
 ```typescript
-import { createReporter } from '@/lib/react-compiler';
+import { createReporter } from '@/lib/react-compiler'
 
-const reporter = createReporter();
-const detailedReport = reporter.generateDetailedReport(reports, scanTime);
+const reporter = createReporter()
+const detailedReport = reporter.generateDetailedReport(reports, scanTime)
 
 // Export to different formats
-const json = reporter.exportReport(detailedReport, 'json');
-const markdown = reporter.exportReport(detailedReport, 'markdown');
-const html = reporter.exportReport(detailedReport, 'html');
+const json = reporter.exportReport(detailedReport, 'json')
+const markdown = reporter.exportReport(detailedReport, 'markdown')
+const html = reporter.exportReport(detailedReport, 'html')
 
 // Print summary to console
-reporter.printSummary(detailedReport);
+reporter.printSummary(detailedReport)
 ```
 
 ### Export Formats
 
 #### JSON
+
 ```json
 {
   "totalComponents": 100,
@@ -197,19 +198,22 @@ reporter.printSummary(detailedReport);
 ```
 
 #### Markdown
+
 ```markdown
 # React Compiler Compatibility Report
 
 ## Summary
-| Metric | Value |
-|--------|-------|
-| Total Components | 100 |
-| Compatible | 85 |
-| Incompatible | 15 |
+
+| Metric             | Value |
+| ------------------ | ----- |
+| Total Components   | 100   |
+| Compatible         | 85    |
+| Incompatible       | 15    |
 | Compatibility Rate | 85.0% |
 ```
 
 #### HTML
+
 Full HTML report with styling for web viewing.
 
 ## Performance Tracking
@@ -259,17 +263,17 @@ function MyComponent() {
 ### Event Listening
 
 ```typescript
-import { getPerformanceTracker } from '@/lib/react-compiler';
+import { getPerformanceTracker } from '@/lib/react-compiler'
 
-const tracker = getPerformanceTracker();
+const tracker = getPerformanceTracker()
 
 // Listen for render events
-const unsubscribe = tracker.addListener((event) => {
-  console.log(`[${event.type}] ${event.component}:`, event.data);
-});
+const unsubscribe = tracker.addListener(event => {
+  console.log(`[${event.type}] ${event.component}:`, event.data)
+})
 
 // Stop listening
-unsubscribe();
+unsubscribe()
 ```
 
 ## Dashboard
@@ -285,12 +289,13 @@ export default function DashboardPage() {
 ```
 
 Dashboard features:
+
 - 📊 Overall statistics (total, compatible, incompatible, issues)
 - 📈 Compatibility rate with progress bar
 - 📋 Component list with status indicators
 - 🔍 Detailed issue view with fix suggestions
 - ⚡ Performance comparison (before/after compiler)
-- 🎛️  Toggle switch to enable/disable compiler
+- 🎛️ Toggle switch to enable/disable compiler
 - 📄 Export reports
 
 ## Migration Guide
@@ -305,6 +310,7 @@ ENABLE_REACT_COMPILER=true npm run scan:compatibility
 ### Step 2: Review Compatibility Report
 
 Check the generated report for incompatible components:
+
 - 🔴 **Errors**: Must be fixed before enabling compiler
 - 🟡 **Warnings**: Should be fixed for better optimization
 - 🔵 **Info**: Notes about potential optimization limits
@@ -312,6 +318,7 @@ Check the generated report for incompatible components:
 ### Step 3: Fix High-priority Issues
 
 Start with error-level issues:
+
 - Convert class components to function components
 - Replace ref.current with useState
 - Use immutable patterns instead of mutations
@@ -320,30 +327,30 @@ Start with error-level issues:
 ### Step 4: Enable Gradually
 
 ```typescript
-import { getConfigManager } from '@/lib/react-compiler';
+import { getConfigManager } from '@/lib/react-compiler'
 
 // Start with "only" list - compile only well-tested components
-const configManager = getConfigManager();
-configManager.addToOnly('src/components/core/**');
-configManager.enable();
+const configManager = getConfigManager()
+configManager.addToOnly('src/components/core/**')
+configManager.enable()
 
 // Monitor and expand gradually
-configManager.addToOnly('src/components/features/**');
+configManager.addToOnly('src/components/features/**')
 ```
 
 ### Step 5: Measure Performance
 
 ```typescript
-import { getPerformanceTracker } from '@/lib/react-compiler';
+import { getPerformanceTracker } from '@/lib/react-compiler'
 
-const tracker = getPerformanceTracker();
-tracker.startTracking();
+const tracker = getPerformanceTracker()
+tracker.startTracking()
 
 // Run your app with compiler enabled...
 
-tracker.stopTracking();
-const stats = tracker.getAllStats();
-console.log('Performance improvements:', stats);
+tracker.stopTracking()
+const stats = tracker.getAllStats()
+console.log('Performance improvements:', stats)
 ```
 
 ### Step 6: Roll Back if Needed
@@ -364,16 +371,17 @@ disableCompiler();
 **Problem**: You're accessing `ref.current` in your component.
 
 **Solution**: Use `useState` for values that should trigger re-renders:
+
 ```typescript
 // ❌ Before
-const ref = useRef(0);
-ref.current = 1;
-console.log(ref.current);
+const ref = useRef(0)
+ref.current = 1
+console.log(ref.current)
 
 // ✅ After
-const [value, setValue] = useState(0);
-setValue(1);
-console.log(value);
+const [value, setValue] = useState(0)
+setValue(1)
+console.log(value)
 ```
 
 ### Issue: "Direct object mutation detected"
@@ -381,14 +389,15 @@ console.log(value);
 **Problem**: You're mutating objects directly.
 
 **Solution**: Use immutable patterns:
+
 ```typescript
 // ❌ Before
-const obj = { a: 1, b: 2 };
-obj.a = 3; // mutation!
+const obj = { a: 1, b: 2 }
+obj.a = 3 // mutation!
 
 // ✅ After
-const obj = { a: 1, b: 2 };
-const newObj = { ...obj, a: 3 }; // immutable!
+const obj = { a: 1, b: 2 }
+const newObj = { ...obj, a: 3 } // immutable!
 ```
 
 ### Issue: "Class component is not supported"
@@ -396,6 +405,7 @@ const newObj = { ...obj, a: 3 }; // immutable!
 **Problem**: You're using a class component.
 
 **Solution**: Convert to a function component:
+
 ```typescript
 // ❌ Before
 class MyComponent extends React.Component {
@@ -459,11 +469,11 @@ npm test src/lib/react-compiler/__tests__/scanner.test.ts
 
 Based on v1.3.0 feasibility validation:
 
-| Metric | Before | After | Improvement |
-|--------|--------|-------|-------------|
-| Unnecessary re-renders | ~150-200/min | ~90-120/min | 20-40% ↓ |
-| UI response time | baseline | 15-25% faster | 15-25% ↑ |
-| Memory usage | baseline | 10-15% less | 10-15% ↓ |
+| Metric                 | Before       | After         | Improvement |
+| ---------------------- | ------------ | ------------- | ----------- |
+| Unnecessary re-renders | ~150-200/min | ~90-120/min   | 20-40% ↓    |
+| UI response time       | baseline     | 15-25% faster | 15-25% ↑    |
+| Memory usage           | baseline     | 10-15% less   | 10-15% ↓    |
 
 ## Files Structure
 

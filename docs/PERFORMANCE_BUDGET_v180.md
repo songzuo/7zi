@@ -2,7 +2,7 @@
 
 **版本**: v1.8.0  
 **日期**: 2026-04-02  
-**状态**: 正式发布  
+**状态**: 正式发布
 
 ---
 
@@ -32,12 +32,12 @@
 
 基于项目规模（1,217 个 TS 文件，227 个客户端组件）和行业最佳实践：
 
-| 指标 | 预算阈值 | 严重级别 | 说明 |
-|------|----------|----------|------|
-| **主 Bundle (JS)** | ≤ 300 KB | P1 | 首屏必需 |
-| **总计 JS** | ≤ 500 KB | P2 | 所有 JS 文件 |
-| **第三方库** | ≤ 200 KB | P2 | vendor  chunk |
-| **动态导入** | ≤ 100 KB | P3 | 按需加载 |
+| 指标               | 预算阈值 | 严重级别 | 说明         |
+| ------------------ | -------- | -------- | ------------ |
+| **主 Bundle (JS)** | ≤ 300 KB | P1       | 首屏必需     |
+| **总计 JS**        | ≤ 500 KB | P2       | 所有 JS 文件 |
+| **第三方库**       | ≤ 200 KB | P2       | vendor chunk |
+| **动态导入**       | ≤ 100 KB | P3       | 按需加载     |
 
 **配置方式** - `lighthouserc.json`:
 
@@ -63,18 +63,18 @@
 
 基于 Google Core Web Vitals 标准，结合 7zi 业务需求：
 
-| 指标 | 预算阈值 | 百分位 | 目标 | 严重级别 |
-|------|----------|--------|------|----------|
-| **LCP** (Largest Contentful Paint) | ≤ 2.5s | P75 | 优秀 | P1 |
-| **LCP** | ≤ 4.0s | P75 | 需要改进 | P2 |
-| **FID** (First Input Delay) | ≤ 100ms | P75 | 优秀 | P1 |
-| **FID** | ≤ 300ms | P75 | 需要改进 | P2 |
-| **CLS** (Cumulative Layout Shift) | ≤ 0.1 | P75 | 优秀 | P1 |
-| **CLS** | ≤ 0.25 | P75 | 需要改进 | P2 |
-| **INP** (Interaction to Next Paint) | ≤ 200ms | P75 | 优秀 | P1 |
-| **INP** | ≤ 500ms | P75 | 需要改进 | P2 |
-| **FCP** (First Contentful Paint) | ≤ 1.8s | P75 | 良好 | P2 |
-| **TTFB** (Time to First Byte) | ≤ 600ms | P75 | 良好 | P2 |
+| 指标                                | 预算阈值 | 百分位 | 目标     | 严重级别 |
+| ----------------------------------- | -------- | ------ | -------- | -------- |
+| **LCP** (Largest Contentful Paint)  | ≤ 2.5s   | P75    | 优秀     | P1       |
+| **LCP**                             | ≤ 4.0s   | P75    | 需要改进 | P2       |
+| **FID** (First Input Delay)         | ≤ 100ms  | P75    | 优秀     | P1       |
+| **FID**                             | ≤ 300ms  | P75    | 需要改进 | P2       |
+| **CLS** (Cumulative Layout Shift)   | ≤ 0.1    | P75    | 优秀     | P1       |
+| **CLS**                             | ≤ 0.25   | P75    | 需要改进 | P2       |
+| **INP** (Interaction to Next Paint) | ≤ 200ms  | P75    | 优秀     | P1       |
+| **INP**                             | ≤ 500ms  | P75    | 需要改进 | P2       |
+| **FCP** (First Contentful Paint)    | ≤ 1.8s   | P75    | 良好     | P2       |
+| **TTFB** (Time to First Byte)       | ≤ 600ms  | P75    | 良好     | P2       |
 
 **Sentry 性能监控配置**:
 
@@ -95,7 +95,7 @@
     if (measurement) {
       // 添加性能预算标记
       event.tags = event.tags || {};
-      
+
       if (measurement.lcp > 4000) {
         event.tags.perf_budget_exceeded = 'lcp';
       }
@@ -168,24 +168,24 @@
 
 基于业务场景和用户体验研究：
 
-| 端点类型 | P50 | P95 | P99 | 严重级别 |
-|----------|-----|-----|-----|----------|
-| **简单查询** | 50ms | 150ms | 300ms | P2 |
-| **列表查询** | 100ms | 300ms | 500ms | P1 |
-| **复杂查询** | 200ms | 500ms | 1000ms | P1 |
-| **写操作** | 100ms | 300ms | 800ms | P1 |
-| **认证** | 50ms | 150ms | 300ms | P1 |
-| **WebSocket** | 20ms | 50ms | 100ms | P2 |
+| 端点类型      | P50   | P95   | P99    | 严重级别 |
+| ------------- | ----- | ----- | ------ | -------- |
+| **简单查询**  | 50ms  | 150ms | 300ms  | P2       |
+| **列表查询**  | 100ms | 300ms | 500ms  | P1       |
+| **复杂查询**  | 200ms | 500ms | 1000ms | P1       |
+| **写操作**    | 100ms | 300ms | 800ms  | P1       |
+| **认证**      | 50ms  | 150ms | 300ms  | P1       |
+| **WebSocket** | 20ms  | 50ms  | 100ms  | P2       |
 
 ### 3.2 全局 API 预算
 
-| 指标 | 阈值 | 百分位 | 严重级别 |
-|------|------|--------|----------|
-| **平均响应时间** | 200ms | P50 | P2 |
-| **P95 响应时间** | 500ms | P95 | P1 |
-| **P99 响应时间** | 1000ms | P99 | P2 |
-| **错误率** | 0.5% | - | P1 |
-| **超时率** | 0.1% | - | P0 |
+| 指标             | 阈值   | 百分位 | 严重级别 |
+| ---------------- | ------ | ------ | -------- |
+| **平均响应时间** | 200ms  | P50    | P2       |
+| **P95 响应时间** | 500ms  | P95    | P1       |
+| **P99 响应时间** | 1000ms | P99    | P2       |
+| **错误率**       | 0.5%   | -      | P1       |
+| **超时率**       | 0.1%   | -      | P0       |
 
 ### 3.3 Sentry 告警配置
 
@@ -193,58 +193,58 @@
 # API 性能告警规则
 api_performance_alerts:
   # P0: API 完全不可用
-  - name: "API Complete Failure"
+  - name: 'API Complete Failure'
     condition:
-      type: "transaction"
-      op: "http.server"
+      type: 'transaction'
+      op: 'http.server'
       failure_rate: 100
-      time_window: "5m"
-    severity: "critical"
+      time_window: '5m'
+    severity: 'critical'
     notification:
-      channels: ["slack", "email", "sms"]
+      channels: ['slack', 'email', 'sms']
 
   # P1: P95 响应时间超限
-  - name: "API P95 Latency"
+  - name: 'API P95 Latency'
     condition:
-      type: "performance"
-      metric: "p95"
+      type: 'performance'
+      metric: 'p95'
       threshold: 500
-      time_window: "15m"
-    severity: "high"
+      time_window: '15m'
+    severity: 'high'
     notification:
-      channels: ["slack", "email"]
+      channels: ['slack', 'email']
 
   # P1: 错误率过高
-  - name: "API Error Rate"
+  - name: 'API Error Rate'
     condition:
-      type: "error_rate"
+      type: 'error_rate'
       threshold: 0.5
-      time_window: "15m"
-    severity: "high"
+      time_window: '15m'
+    severity: 'high'
     notification:
-      channels: ["slack", "email"]
+      channels: ['slack', 'email']
 
   # P2: P99 响应时间告警
-  - name: "API P99 Latency"
+  - name: 'API P99 Latency'
     condition:
-      type: "performance"
-      metric: "p99"
+      type: 'performance'
+      metric: 'p99'
       threshold: 1000
-      time_window: "15m"
-    severity: "warning"
+      time_window: '15m'
+    severity: 'warning'
     notification:
-      channels: ["slack"]
+      channels: ['slack']
 
   # P2: 慢请求增加
-  - name: "Slow Requests Spike"
+  - name: 'Slow Requests Spike'
     condition:
-      type: "slow_requests"
+      type: 'slow_requests'
       threshold: 10
-      time_window: "15m"
-      baseline: "1d"
-    severity: "warning"
+      time_window: '15m'
+      baseline: '1d'
+    severity: 'warning'
     notification:
-      channels: ["slack"]
+      channels: ['slack']
 ```
 
 ---
@@ -255,20 +255,20 @@ api_performance_alerts:
 
 基于 `docs/BUILD_PERFORMANCE_ANALYSIS.md`:
 
-| 阶段 | 当前 | 目标 | 差距 |
-|------|------|------|------|
-| **Turbopack 编译** | 3.5 分钟 | 60 秒 | 150 秒 |
+| 阶段                | 当前     | 目标  | 差距   |
+| ------------------- | -------- | ----- | ------ |
+| **Turbopack 编译**  | 3.5 分钟 | 60 秒 | 150 秒 |
 | **TypeScript 检查** | 6.5 分钟 | 30 秒 | 360 秒 |
-| **总构建时间** | 10 分钟 | 60 秒 | 540 秒 |
+| **总构建时间**      | 10 分钟  | 60 秒 | 540 秒 |
 
 ### 4.2 构建时间预算
 
-| 阶段 | 警告阈值 | 错误阈值 | 严重级别 |
-|------|----------|----------|----------|
-| **开发构建** | 30 秒 | 60 秒 | P2 |
-| **生产构建** | 5 分钟 | 10 分钟 | P1 |
-| **类型检查** | 2 分钟 | 5 分钟 | P1 |
-| **增量构建** | 10 秒 | 30 秒 | P2 |
+| 阶段         | 警告阈值 | 错误阈值 | 严重级别 |
+| ------------ | -------- | -------- | -------- |
+| **开发构建** | 30 秒    | 60 秒    | P2       |
+| **生产构建** | 5 分钟   | 10 分钟  | P1       |
+| **类型检查** | 2 分钟   | 5 分钟   | P1       |
+| **增量构建** | 10 秒    | 30 秒    | P2       |
 
 ### 4.3 构建预算配置
 
@@ -297,61 +297,61 @@ api_performance_alerts:
 ```javascript
 #!/usr/bin/env node
 
-const fs = require('fs');
-const path = require('path');
+const fs = require('fs')
+const path = require('path')
 
 // 读取构建输出
-const buildJsonPath = path.join(__dirname, '../.next/build-manifest.json');
-const outputPath = path.join(process.cwd(), 'build-budget-report.json');
+const buildJsonPath = path.join(__dirname, '../.next/build-manifest.json')
+const outputPath = path.join(process.cwd(), 'build-budget-report.json')
 
 const BUDGETS = {
-  maxBuildTime: 600000,     // 10 分钟
+  maxBuildTime: 600000, // 10 分钟
   maxTypeCheckTime: 300000, // 5 分钟
-  maxBundleSize: 500000,    // 500KB
-  maxMainBundleSize: 300000 // 300KB
-};
+  maxBundleSize: 500000, // 500KB
+  maxMainBundleSize: 300000, // 300KB
+}
 
 function checkBudgets() {
-  const warnings = [];
-  const errors = [];
-  
+  const warnings = []
+  const errors = []
+
   // 检查 bundle 大小
   if (fs.existsSync(buildJsonPath)) {
-    const manifest = JSON.parse(fs.readFileSync(buildJsonPath));
+    const manifest = JSON.parse(fs.readFileSync(buildJsonPath))
     const totalSize = Object.values(manifest.pages)
       .flat()
-      .reduce((sum, f) => sum + (f.size || 0), 0);
-    
+      .reduce((sum, f) => sum + (f.size || 0), 0)
+
     if (totalSize > BUDGETS.maxBundleSize) {
-      errors.push(`Bundle size ${totalSize} exceeds budget ${BUDGETS.maxBundleSize}`);
+      errors.push(`Bundle size ${totalSize} exceeds budget ${BUDGETS.maxBundleSize}`)
     }
   }
-  
+
   // 输出报告
   const report = {
     timestamp: new Date().toISOString(),
     budgets: BUDGETS,
     warnings,
     errors,
-    status: errors.length > 0 ? 'FAILED' : warnings.length > 0 ? 'WARNING' : 'PASSED'
-  };
-  
-  fs.writeFileSync(outputPath, JSON.stringify(report, null, 2));
-  console.log(`Build budget report: ${outputPath}`);
-  
-  if (errors.length > 0) {
-    console.error('Build budget FAILED:');
-    errors.forEach(e => console.error(`  - ${e}`));
-    process.exit(1);
+    status: errors.length > 0 ? 'FAILED' : warnings.length > 0 ? 'WARNING' : 'PASSED',
   }
-  
+
+  fs.writeFileSync(outputPath, JSON.stringify(report, null, 2))
+  console.log(`Build budget report: ${outputPath}`)
+
+  if (errors.length > 0) {
+    console.error('Build budget FAILED:')
+    errors.forEach(e => console.error(`  - ${e}`))
+    process.exit(1)
+  }
+
   if (warnings.length > 0) {
-    console.warn('Build budget warnings:');
-    warnings.forEach(w => console.warn(`  - ${w}`));
+    console.warn('Build budget warnings:')
+    warnings.forEach(w => console.warn(`  - ${w}`))
   }
 }
 
-checkBudgets();
+checkBudgets()
 ```
 
 ---
@@ -360,12 +360,12 @@ checkBudgets();
 
 ### 5.1 告警严重级别定义
 
-| 级别 | 响应时间 | 通知渠道 | 示例 |
-|------|----------|----------|------|
-| **P0 Critical** | 立即 | Slack + Email + SMS | 服务宕机、100% 错误率 |
-| **P1 High** | 15 分钟 | Slack + Email | 错误率 > 5%、P95 > 500ms |
-| **P2 Warning** | 1 小时 | Slack | LCP > 4s、CLS > 0.25 |
-| **P3 Info** | 24 小时 | Email | 性能退化趋势 |
+| 级别            | 响应时间 | 通知渠道            | 示例                     |
+| --------------- | -------- | ------------------- | ------------------------ |
+| **P0 Critical** | 立即     | Slack + Email + SMS | 服务宕机、100% 错误率    |
+| **P1 High**     | 15 分钟  | Slack + Email       | 错误率 > 5%、P95 > 500ms |
+| **P2 Warning**  | 1 小时   | Slack               | LCP > 4s、CLS > 0.25     |
+| **P3 Info**     | 24 小时  | Email               | 性能退化趋势             |
 
 ### 5.2 性能告警规则（YAML）
 
@@ -381,208 +381,208 @@ checkBudgets();
 
 frontend_performance:
   # LCP - Largest Contentful Paint
-  - name: "LCP Budget Exceeded (Critical)"
-    type: "web_vital"
-    metric: "lcp"
+  - name: 'LCP Budget Exceeded (Critical)'
+    type: 'web_vital'
+    metric: 'lcp'
     threshold: 4000
     percentile: 75
-    time_window: "1h"
-    severity: "warning"
-    channels: ["slack"]
-    description: "Largest Contentful Paint 超过 4 秒"
-    
-  - name: "LCP Budget Exceeded (Needs Improvement)"
-    type: "web_vital"
-    metric: "lcp"
+    time_window: '1h'
+    severity: 'warning'
+    channels: ['slack']
+    description: 'Largest Contentful Paint 超过 4 秒'
+
+  - name: 'LCP Budget Exceeded (Needs Improvement)'
+    type: 'web_vital'
+    metric: 'lcp'
     threshold: 2500
     percentile: 75
-    time_window: "1h"
-    severity: "high"
-    channels: ["slack", "email"]
-    description: "Largest Contentful Paint 超过 2.5 秒（预算超标）"
+    time_window: '1h'
+    severity: 'high'
+    channels: ['slack', 'email']
+    description: 'Largest Contentful Paint 超过 2.5 秒（预算超标）'
 
   # CLS - Cumulative Layout Shift
-  - name: "CLS Budget Exceeded (Critical)"
-    type: "web_vital"
-    metric: "cls"
+  - name: 'CLS Budget Exceeded (Critical)'
+    type: 'web_vital'
+    metric: 'cls'
     threshold: 0.25
     percentile: 75
-    time_window: "1h"
-    severity: "warning"
-    channels: ["slack"]
-    description: "Cumulative Layout Shift 超过 0.25"
-    
-  - name: "CLS Budget Exceeded (Needs Improvement)"
-    type: "web_vital"
-    metric: "cls"
+    time_window: '1h'
+    severity: 'warning'
+    channels: ['slack']
+    description: 'Cumulative Layout Shift 超过 0.25'
+
+  - name: 'CLS Budget Exceeded (Needs Improvement)'
+    type: 'web_vital'
+    metric: 'cls'
     threshold: 0.1
     percentile: 75
-    time_window: "1h"
-    severity: "high"
-    channels: ["slack", "email"]
-    description: "Cumulative Layout Shift 超过 0.1（预算超标）"
+    time_window: '1h'
+    severity: 'high'
+    channels: ['slack', 'email']
+    description: 'Cumulative Layout Shift 超过 0.1（预算超标）'
 
   # FID - First Input Delay
-  - name: "FID Budget Exceeded"
-    type: "web_vital"
-    metric: "fid"
+  - name: 'FID Budget Exceeded'
+    type: 'web_vital'
+    metric: 'fid'
     threshold: 300
     percentile: 75
-    time_window: "1h"
-    severity: "warning"
-    channels: ["slack"]
-    description: "First Input Delay 超过 300ms"
+    time_window: '1h'
+    severity: 'warning'
+    channels: ['slack']
+    description: 'First Input Delay 超过 300ms'
 
   # INP - Interaction to Next Paint
-  - name: "INP Budget Exceeded"
-    type: "web_vital"
-    metric: "inp"
+  - name: 'INP Budget Exceeded'
+    type: 'web_vital'
+    metric: 'inp'
     threshold: 500
     percentile: 75
-    time_window: "1h"
-    severity: "warning"
-    channels: ["slack"]
-    description: "Interaction to Next Paint 超过 500ms"
+    time_window: '1h'
+    severity: 'warning'
+    channels: ['slack']
+    description: 'Interaction to Next Paint 超过 500ms'
 
 # ============================================
 # Bundle Size 告警
 # ============================================
 
 bundle_size:
-  - name: "Main Bundle Size Exceeded"
-    type: "bundle_size"
-    metric: "main_js"
+  - name: 'Main Bundle Size Exceeded'
+    type: 'bundle_size'
+    metric: 'main_js'
     threshold: 300000
     change_percent: 20
-    severity: "high"
-    channels: ["slack", "email"]
-    description: "主 JavaScript Bundle 超过 300KB 或增长超过 20%"
-    
-  - name: "Total Bundle Size Exceeded"
-    type: "bundle_size"
-    metric: "total_js"
+    severity: 'high'
+    channels: ['slack', 'email']
+    description: '主 JavaScript Bundle 超过 300KB 或增长超过 20%'
+
+  - name: 'Total Bundle Size Exceeded'
+    type: 'bundle_size'
+    metric: 'total_js'
     threshold: 500000
     change_percent: 20
-    severity: "warning"
-    channels: ["slack"]
-    description: "总 JavaScript Bundle 超过 500KB"
+    severity: 'warning'
+    channels: ['slack']
+    description: '总 JavaScript Bundle 超过 500KB'
 
 # ============================================
 # API 性能告警
 # ============================================
 
 api_performance:
-  - name: "API P95 Latency Exceeded"
-    type: "api_latency"
+  - name: 'API P95 Latency Exceeded'
+    type: 'api_latency'
     percentile: 95
     threshold: 500
-    time_window: "15m"
-    severity: "high"
-    channels: ["slack", "email"]
-    description: "API P95 响应时间超过 500ms"
-    
-  - name: "API P99 Latency Exceeded"
-    type: "api_latency"
+    time_window: '15m'
+    severity: 'high'
+    channels: ['slack', 'email']
+    description: 'API P95 响应时间超过 500ms'
+
+  - name: 'API P99 Latency Exceeded'
+    type: 'api_latency'
     percentile: 99
     threshold: 1000
-    time_window: "15m"
-    severity: "warning"
-    channels: ["slack"]
-    description: "API P99 响应时间超过 1000ms"
-    
-  - name: "API Error Rate High"
-    type: "error_rate"
+    time_window: '15m'
+    severity: 'warning'
+    channels: ['slack']
+    description: 'API P99 响应时间超过 1000ms'
+
+  - name: 'API Error Rate High'
+    type: 'error_rate'
     threshold: 0.5
-    time_window: "15m"
-    severity: "high"
-    channels: ["slack", "email"]
-    description: "API 错误率超过 0.5%"
-    
-  - name: "API Timeout Rate High"
-    type: "timeout_rate"
+    time_window: '15m'
+    severity: 'high'
+    channels: ['slack', 'email']
+    description: 'API 错误率超过 0.5%'
+
+  - name: 'API Timeout Rate High'
+    type: 'timeout_rate'
     threshold: 0.1
-    time_window: "15m"
-    severity: "critical"
-    channels: ["slack", "email", "sms"]
-    description: "API 超时率超过 0.1%"
+    time_window: '15m'
+    severity: 'critical'
+    channels: ['slack', 'email', 'sms']
+    description: 'API 超时率超过 0.1%'
 
 # ============================================
 # 构建性能告警
 # ============================================
 
 build_performance:
-  - name: "Build Time Exceeded"
-    type: "build_time"
+  - name: 'Build Time Exceeded'
+    type: 'build_time'
     threshold: 600000
-    environment: "production"
-    severity: "high"
-    channels: ["slack", "email"]
-    description: "生产构建时间超过 10 分钟"
-    
-  - name: "Type Check Time Exceeded"
-    type: "type_check_time"
+    environment: 'production'
+    severity: 'high'
+    channels: ['slack', 'email']
+    description: '生产构建时间超过 10 分钟'
+
+  - name: 'Type Check Time Exceeded'
+    type: 'type_check_time'
     threshold: 300000
-    severity: "warning"
-    channels: ["slack"]
-    description: "TypeScript 类型检查时间超过 5 分钟"
-    
-  - name: "Build Failed"
-    type: "build_status"
-    status: "failed"
-    severity: "critical"
-    channels: ["slack", "email", "sms"]
-    description: "构建失败"
+    severity: 'warning'
+    channels: ['slack']
+    description: 'TypeScript 类型检查时间超过 5 分钟'
+
+  - name: 'Build Failed'
+    type: 'build_status'
+    status: 'failed'
+    severity: 'critical'
+    channels: ['slack', 'email', 'sms']
+    description: '构建失败'
 
 # ============================================
 # 智能体任务性能告警
 # ============================================
 
 agent_performance:
-  - name: "Agent Task Timeout"
-    type: "task_duration"
+  - name: 'Agent Task Timeout'
+    type: 'task_duration'
     threshold: 300000
     percentile: 95
-    time_window: "1h"
-    severity: "warning"
-    channels: ["slack"]
-    description: "智能体任务执行时间超过 5 分钟 (P95)"
-    
-  - name: "Agent Task Failure Rate"
-    type: "task_failure_rate"
+    time_window: '1h'
+    severity: 'warning'
+    channels: ['slack']
+    description: '智能体任务执行时间超过 5 分钟 (P95)'
+
+  - name: 'Agent Task Failure Rate'
+    type: 'task_failure_rate'
     threshold: 0.1
-    time_window: "1h"
-    severity: "high"
-    channels: ["slack", "email"]
-    description: "智能体任务失败率超过 10%"
-    
-  - name: "Agent Collaboration Latency"
-    type: "collab_duration"
+    time_window: '1h'
+    severity: 'high'
+    channels: ['slack', 'email']
+    description: '智能体任务失败率超过 10%'
+
+  - name: 'Agent Collaboration Latency'
+    type: 'collab_duration'
     threshold: 60000
-    time_window: "1h"
-    severity: "warning"
-    channels: ["slack"]
-    description: "智能体间协作延迟超过 1 分钟"
+    time_window: '1h'
+    severity: 'warning'
+    channels: ['slack']
+    description: '智能体间协作延迟超过 1 分钟'
 
 # ============================================
 # 资源使用告警
 # ============================================
 
 resources:
-  - name: "Memory Usage High"
-    type: "memory"
+  - name: 'Memory Usage High'
+    type: 'memory'
     threshold: 85
-    time_window: "5m"
-    severity: "warning"
-    channels: ["slack"]
-    description: "内存使用率超过 85%"
-    
-  - name: "CPU Usage High"
-    type: "cpu"
+    time_window: '5m'
+    severity: 'warning'
+    channels: ['slack']
+    description: '内存使用率超过 85%'
+
+  - name: 'CPU Usage High'
+    type: 'cpu'
     threshold: 90
-    time_window: "5m"
-    severity: "warning"
-    channels: ["slack"]
-    description: "CPU 使用率超过 90%"
+    time_window: '5m'
+    severity: 'warning'
+    channels: ['slack']
+    description: 'CPU 使用率超过 90%'
 
 # ============================================
 # 通知渠道配置
@@ -590,24 +590,24 @@ resources:
 
 notification_channels:
   slack:
-    webhook_url: "${SLACK_WEBHOOK_URL}"
+    webhook_url: '${SLACK_WEBHOOK_URL}'
     channels:
-      critical: "#alerts-critical"
-      high: "#alerts-high"
-      warning: "#alerts-warning"
-      info: "#alerts-info"
-      
+      critical: '#alerts-critical'
+      high: '#alerts-high'
+      warning: '#alerts-warning'
+      info: '#alerts-info'
+
   email:
     recipients:
-      critical: ["admin@7zi.studio", "ops@7zi.studio"]
-      high: ["admin@7zi.studio", "dev@7zi.studio"]
-      warning: ["dev@7zi.studio"]
-      info: ["dev@7zi.studio"]
-      
+      critical: ['admin@7zi.studio', 'ops@7zi.studio']
+      high: ['admin@7zi.studio', 'dev@7zi.studio']
+      warning: ['dev@7zi.studio']
+      info: ['dev@7zi.studio']
+
   sms:
-    provider: "twilio"
+    provider: 'twilio'
     recipients:
-      critical: ["+86-xxx-xxxx-xxxx"]
+      critical: ['+86-xxx-xxxx-xxxx']
 
 # ============================================
 # 告警抑制规则
@@ -615,16 +615,16 @@ notification_channels:
 
 suppression:
   maintenance_windows:
-    - name: "Weekly Maintenance"
-      start: "Sunday 02:00 UTC"
-      duration: "2h"
-      
+    - name: 'Weekly Maintenance'
+      start: 'Sunday 02:00 UTC'
+      duration: '2h'
+
   ignore_patterns:
-    - "ResizeObserver loop limit exceeded"
-    - "Network request failed"
-    - "Script error"
-    
-  deployment_grace_period: "5m"
+    - 'ResizeObserver loop limit exceeded'
+    - 'Network request failed'
+    - 'Script error'
+
+  deployment_grace_period: '5m'
 ```
 
 ### 5.3 Sentry 告警配置示例
@@ -687,20 +687,20 @@ suppression:
 
 ### 7.1 性能预算汇总表
 
-| 类别 | 指标 | 预算阈值 | 严重级别 |
-|------|------|----------|----------|
-| **Bundle** | 主 JS | ≤ 300 KB | P1 |
-| **Bundle** | 总 JS | ≤ 500 KB | P2 |
-| **LCP** | P75 | ≤ 2.5s | P1 |
-| **LCP** | P75 | ≤ 4.0s | P2 |
-| **CLS** | P75 | ≤ 0.1 | P1 |
-| **CLS** | P75 | ≤ 0.25 | P2 |
-| **FID** | P75 | ≤ 100ms | P1 |
-| **INP** | P75 | ≤ 200ms | P1 |
-| **API** | P95 | ≤ 500ms | P1 |
-| **API** | 错误率 | ≤ 0.5% | P1 |
-| **构建** | 生产 | ≤ 10 分钟 | P1 |
-| **构建** | 开发 | ≤ 60 秒 | P2 |
+| 类别       | 指标   | 预算阈值  | 严重级别 |
+| ---------- | ------ | --------- | -------- |
+| **Bundle** | 主 JS  | ≤ 300 KB  | P1       |
+| **Bundle** | 总 JS  | ≤ 500 KB  | P2       |
+| **LCP**    | P75    | ≤ 2.5s    | P1       |
+| **LCP**    | P75    | ≤ 4.0s    | P2       |
+| **CLS**    | P75    | ≤ 0.1     | P1       |
+| **CLS**    | P75    | ≤ 0.25    | P2       |
+| **FID**    | P75    | ≤ 100ms   | P1       |
+| **INP**    | P75    | ≤ 200ms   | P1       |
+| **API**    | P95    | ≤ 500ms   | P1       |
+| **API**    | 错误率 | ≤ 0.5%    | P1       |
+| **构建**   | 生产   | ≤ 10 分钟 | P1       |
+| **构建**   | 开发   | ≤ 60 秒   | P2       |
 
 ### 7.2 相关文档
 
@@ -711,8 +711,8 @@ suppression:
 
 ### 7.3 更新日志
 
-| 版本 | 日期 | 变更 |
-|------|------|------|
+| 版本  | 日期       | 变更                              |
+| ----- | ---------- | --------------------------------- |
 | 1.8.0 | 2026-04-02 | 初始版本 - 性能预算和告警系统方案 |
 
 ---

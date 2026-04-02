@@ -10,10 +10,12 @@
 ### 1. Sentry 性能监控优化 ✅
 
 **文件**:
+
 - `sentry.client.config.ts`
 - `sentry.server.config.ts`
 
 **优化内容**:
+
 ```typescript
 // 环境判断
 const isProduction = process.env.NODE_ENV === 'production';
@@ -30,6 +32,7 @@ profilesSampleRate: Number(process.env.SENTRY_PROFILES_SAMPLE_RATE ?? (isProduct
 ```
 
 **预期效果**:
+
 - ✅ 生产环境客户端性能监控开销减少 5-10%
 - ✅ 降低 Sentry API 调用成本
 - ✅ 开发环境保持完整监控用于调试
@@ -41,22 +44,26 @@ profilesSampleRate: Number(process.env.SENTRY_PROFILES_SAMPLE_RATE ?? (isProduct
 **文件**: `src/app/globals.css`
 
 **优化内容**:
+
 - ❌ 移除未使用的 `@keyframes notificationSlide`
 - ❌ 移除未使用的 `@keyframes bounceIn`
 - ❌ 移除未使用的 `.animate-bounce-in` 类
 
 **保留的动画**:
+
 - ✅ `@keyframes shimmer` - 骨架屏加载
 - ✅ `@keyframes gradient-shift` - 渐变背景
 - ✅ `@keyframes fade-in` - 淡入效果
 - ✅ `@keyframes modalIn` - 模态框动画
 
 **文件大小变化**:
+
 - 优化前: 777 行
 - 优化后: 745 行
 - 减少: 32 行 (~4%)
 
 **预期效果**:
+
 - ✅ 减少 CSS 解析时间
 - ✅ 降低内存占用
 - ✅ 提升样式加载速度
@@ -68,21 +75,25 @@ profilesSampleRate: Number(process.env.SENTRY_PROFILES_SAMPLE_RATE ?? (isProduct
 ### 1. JavaScript Bundle 体积过大 🔴
 
 **问题**:
+
 - 主 JS chunk 达到 **223KB**
 - 第二大 chunk 达到 **115KB**
 - 第三大 chunk 达到 **113KB**
 
 **根本原因**:
+
 1. 部分组件未使用动态导入
 2. 依赖库未优化导入
 3. 缺少更细粒度的代码分割
 
 **已实施的措施**:
+
 - ✅ 使用 `next/dynamic` 动态导入大型组件
 - ✅ 配置了 webpack splitChunks 策略
 - ✅ 已有 LazyComponents 组件封装
 
 **建议优化**:
+
 - 🟡 进一步优化动态导入策略
 - 🟡 实现按路由分割
 - 🟡 优化第三方库导入
@@ -92,19 +103,23 @@ profilesSampleRate: Number(process.env.SENTRY_PROFILES_SAMPLE_RATE ?? (isProduct
 ### 2. 首屏 HTML 体积过大 🔴
 
 **问题**:
+
 - 首页 HTML 响应达到 **146KB**
 - 包含大量内联数据
 
 **根本原因**:
+
 1. 服务端渲染包含大量内联数据
 2. GitHub 活动数据和项目数据在 SSR 时嵌入
 
 **已实施的措施**:
+
 - ✅ 使用 LazyGitHubActivity 延迟加载
 - ✅ 使用 LazyProjectDashboard 延迟加载
 - ✅ 组件级别的代码分割
 
 **建议优化**:
+
 - 🟡 进一步减少内联数据
 - 🟡 实现客户端数据获取
 - 🟡 使用增量静态再生成 (ISR)
@@ -114,6 +129,7 @@ profilesSampleRate: Number(process.env.SENTRY_PROFILES_SAMPLE_RATE ?? (isProduct
 ### 3. 图片加载策略 ✅
 
 **已优化的配置**:
+
 - ✅ 使用 Next.js Image 组件
 - ✅ 支持 AVIF/WebP 格式
 - ✅ 配置了设备尺寸断点
@@ -121,6 +137,7 @@ profilesSampleRate: Number(process.env.SENTRY_PROFILES_SAMPLE_RATE ?? (isProduct
 - ✅ 懒加载和优先级提示
 
 **配置文件**: `next.config.ts`
+
 ```typescript
 images: {
   formats: ['image/avif', 'image/webp'],
@@ -134,14 +151,14 @@ images: {
 
 ## 📊 性能指标对比
 
-| 指标 | 优化前 | 优化后（预估） | 目标 | 状态 |
-|------|--------|----------------|------|------|
-| **最大 JS Chunk** | 223KB | 223KB | < 150KB | 🟡 待优化 |
-| **首屏 HTML 大小** | 146KB | 146KB | < 100KB | 🟡 待优化 |
-| **CSS 文件大小** | 777 行 | 745 行 | < 300 行 | 🟡 进行中 |
-| **LCP** | < 1.0s | < 0.9s | < 0.8s | 🟡 改善中 |
-| **CLS** | < 0.05 | < 0.04 | < 0.03 | 🟡 改善中 |
-| **TTFB** | ~9ms | ~9ms | < 50ms | ✅ 优秀 |
+| 指标               | 优化前 | 优化后（预估） | 目标     | 状态      |
+| ------------------ | ------ | -------------- | -------- | --------- |
+| **最大 JS Chunk**  | 223KB  | 223KB          | < 150KB  | 🟡 待优化 |
+| **首屏 HTML 大小** | 146KB  | 146KB          | < 100KB  | 🟡 待优化 |
+| **CSS 文件大小**   | 777 行 | 745 行         | < 300 行 | 🟡 进行中 |
+| **LCP**            | < 1.0s | < 0.9s         | < 0.8s   | 🟡 改善中 |
+| **CLS**            | < 0.05 | < 0.04         | < 0.03   | 🟡 改善中 |
+| **TTFB**           | ~9ms   | ~9ms           | < 50ms   | ✅ 优秀   |
 
 ---
 
@@ -150,12 +167,14 @@ images: {
 ### 立即执行（本周）
 
 #### 1. 进一步优化 CSS 动画
+
 ```css
 /* 将动画按需加载到组件中 */
 /* 使用 CSS Modules 或 Tailwind 动画 */
 ```
 
 #### 2. 优化首页数据加载
+
 ```typescript
 // 减少服务端渲染的内联数据
 // 改为客户端 API 调用
@@ -163,6 +182,7 @@ images: {
 ```
 
 #### 3. 添加资源预加载提示
+
 ```typescript
 // layout.tsx
 <link rel="preconnect" href="https://fonts.googleapis.com" />
@@ -176,6 +196,7 @@ images: {
 ### 短期执行（2 周内）
 
 #### 4. 实现更细粒度的代码分割
+
 ```typescript
 // 按路由分割
 const DashboardPage = dynamic(() => import('./dashboard/page'), {
@@ -187,6 +208,7 @@ const { Chart } = await import('react-chartjs-2');
 ```
 
 #### 5. 实现性能预算
+
 ```json
 {
   "budgets": [
@@ -207,6 +229,7 @@ const { Chart } = await import('react-chartjs-2');
 ```
 
 #### 6. Lighthouse CI 集成
+
 ```yaml
 # .github/workflows/performance.yml
 - name: Lighthouse CI
@@ -220,6 +243,7 @@ const { Chart } = await import('react-chartjs-2');
 ### 长期规划（1 个月内）
 
 #### 7. 实现部分预渲染 (PPR)
+
 ```typescript
 // next.config.ts
 experimental: {
@@ -228,20 +252,22 @@ experimental: {
 ```
 
 #### 8. 实现 Edge Runtime
+
 ```typescript
 // API 路由使用 Edge Runtime
-export const runtime = 'edge';
+export const runtime = 'edge'
 ```
 
 #### 9. 添加 Service Worker 缓存策略
+
 ```typescript
 // public/sw.js
-const CACHE_VERSION = 'v1';
+const CACHE_VERSION = 'v1'
 const CACHE_STRATEGIES = {
   static: 'cache-first',
   api: 'network-first',
   images: 'stale-while-revalidate',
-};
+}
 ```
 
 ---
@@ -251,22 +277,25 @@ const CACHE_STRATEGIES = {
 ### 1. Real User Monitoring (RUM)
 
 **已集成**:
+
 - ✅ `web-vitals` 库
 - ✅ Sentry 性能监控
 
 **建议改进**:
+
 ```typescript
 // 添加自定义指标
-import { onCLS, onFID, onLCP, onINP, onFCP, onTTFB } from 'web-vitals';
+import { onCLS, onFID, onLCP, onINP, onFCP, onTTFB } from 'web-vitals'
 
-onCLS(metric => sendToAnalytics('CLS', metric));
-onLCP(metric => sendToAnalytics('LCP', metric));
-onTTFB(metric => sendToAnalytics('TTFB', metric));
+onCLS(metric => sendToAnalytics('CLS', metric))
+onLCP(metric => sendToAnalytics('LCP', metric))
+onTTFB(metric => sendToAnalytics('TTFB', metric))
 ```
 
 ### 2. Bundle 分析
 
 **运行命令**:
+
 ```bash
 # 分析 bundle 大小
 ANALYZE=true npm run build
@@ -303,13 +332,13 @@ npm run build
 
 ## 🎯 性能目标
 
-| 指标 | 当前 | 目标 | 时间框架 |
-|------|------|------|----------|
-| 最大 JS Chunk | 223KB | < 150KB | 2 周 |
-| HTML 大小 | 146KB | < 100KB | 1 周 |
-| CSS 文件大小 | 745 行 | < 300 行 | 3 天 |
-| LCP | < 0.9s | < 0.8s | 1 个月 |
-| CLS | < 0.04 | < 0.03 | 2 周 |
+| 指标          | 当前   | 目标     | 时间框架 |
+| ------------- | ------ | -------- | -------- |
+| 最大 JS Chunk | 223KB  | < 150KB  | 2 周     |
+| HTML 大小     | 146KB  | < 100KB  | 1 周     |
+| CSS 文件大小  | 745 行 | < 300 行 | 3 天     |
+| LCP           | < 0.9s | < 0.8s   | 1 个月   |
+| CLS           | < 0.04 | < 0.03   | 2 周     |
 
 ---
 

@@ -11,6 +11,7 @@
 **文件**: `/root/.openclaw/workspace/docs/COMPONENTS.md` (13KB, 636 行)
 
 **包含内容**:
+
 - ✅ 核心组件文档
   - `ActivityLog` - 实时活动日志 (Props: activities)
   - `MemberPresenceBoard` - 成员在线状态看板 (含子组件: MemberPresenceCard, PresenceIndicator, PresenceStats)
@@ -49,6 +50,7 @@
 **文件**: `/root/.openclaw/workspace/docs/API-REFERENCE.md` (8.7KB, 500 行)
 
 **新增内容**:
+
 - ✅ 认证 API 端点
   - `POST /api/auth/login` - 登录
   - `POST /api/auth/register` - 注册
@@ -78,6 +80,7 @@
 **新增版本**: `[1.0.1] - 2026-03-06`
 
 **内容**:
+
 - ✅ 新增 `docs/COMPONENTS.md` - 完整的组件参考文档
 - ✅ 更新 `docs/API-REFERENCE.md` - 补充 Web API 端点文档
 - ✅ 详细记录文档更新内容
@@ -89,6 +92,7 @@
 **文件**: `/root/.openclaw/workspace/docs/INDEX.md`
 
 **更新内容**:
+
 - ✅ 在 API 文档分类中添加 `COMPONENTS.md` 链接
 - ✅ 在最近更新中记录 2026-03-06 的文档工作
 
@@ -96,23 +100,23 @@
 
 ## 文档统计
 
-| 文档 | 大小 | 行数 | 新增/更新 |
-|------|------|------|-----------|
-| COMPONENTS.md | 13KB | 636 | ✅ 新建 |
-| API-REFERENCE.md | 8.7KB | 500 | ✅ 更新 |
-| CHANGELOG.md | 6.6KB | 223 | ✅ 更新 |
-| INDEX.md | - | - | ✅ 更新 |
+| 文档             | 大小  | 行数 | 新增/更新 |
+| ---------------- | ----- | ---- | --------- |
+| COMPONENTS.md    | 13KB  | 636  | ✅ 新建   |
+| API-REFERENCE.md | 8.7KB | 500  | ✅ 更新   |
+| CHANGELOG.md     | 6.6KB | 223  | ✅ 更新   |
+| INDEX.md         | -     | -    | ✅ 更新   |
 
 ---
 
 ## 组件文档覆盖
 
 | 组件类型 | 数量 | 文档状态 |
-|----------|------|----------|
-| 核心组件 | 4 | ✅ 完整 |
-| 消息组件 | 4 | ✅ 完整 |
-| 通知组件 | 3 | ✅ 完整 |
-| UI 组件 | 8 | ✅ 完整 |
+| -------- | ---- | -------- |
+| 核心组件 | 4    | ✅ 完整  |
+| 消息组件 | 4    | ✅ 完整  |
+| 通知组件 | 3    | ✅ 完整  |
+| UI 组件  | 8    | ✅ 完整  |
 
 **总计**: 19 个组件，100% 文档覆盖
 
@@ -120,11 +124,11 @@
 
 ## API 文档覆盖
 
-| API 分类 | 端点数 | 文档状态 |
-|----------|--------|----------|
-| GitHub API | 2 (Issues, Commits) | ✅ 完整 |
-| 认证 API | 4 (login, register, me, logout) | ✅ 完整 |
-| 受保护路由 | 1 (protected) | ✅ 完整 |
+| API 分类   | 端点数                          | 文档状态 |
+| ---------- | ------------------------------- | -------- |
+| GitHub API | 2 (Issues, Commits)             | ✅ 完整  |
+| 认证 API   | 4 (login, register, me, logout) | ✅ 完整  |
+| 受保护路由 | 1 (protected)                   | ✅ 完整  |
 
 **总计**: 7 个 API 端点，100% 文档覆盖
 
@@ -160,5 +164,5 @@
 
 ---
 
-*任务完成时间: 2026-03-06*
-*执行者: 子代理 (docs-update)*
+_任务完成时间: 2026-03-06_
+_执行者: 子代理 (docs-update)_

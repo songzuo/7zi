@@ -46,26 +46,26 @@ AgentScheduler 是一个 AI 智能调度系统，负责协调和管理 11 位 AI
 
 ### 最低要求
 
-| 组件 | 版本要求 | 说明 |
-|------|---------|------|
-| Node.js | v18.17.0 或 v20.0.0+ | 推荐使用 LTS 版本 |
-| npm | 9.0.0+ 或 pnpm 8.0.0+ | 包管理器 |
-| TypeScript | 5.0.0+ | 编译目标 ES2020 |
-| PostgreSQL | 13.0+ | 数据库存储 |
-| Redis | 6.0+ | 生产环境必需（缓存和队列） |
-| 内存 | 2GB+ | 开发环境最低配置 |
-| 磁盘 | 10GB+ | 包含日志和数据存储 |
+| 组件       | 版本要求              | 说明                       |
+| ---------- | --------------------- | -------------------------- |
+| Node.js    | v18.17.0 或 v20.0.0+  | 推荐使用 LTS 版本          |
+| npm        | 9.0.0+ 或 pnpm 8.0.0+ | 包管理器                   |
+| TypeScript | 5.0.0+                | 编译目标 ES2020            |
+| PostgreSQL | 13.0+                 | 数据库存储                 |
+| Redis      | 6.0+                  | 生产环境必需（缓存和队列） |
+| 内存       | 2GB+                  | 开发环境最低配置           |
+| 磁盘       | 10GB+                 | 包含日志和数据存储         |
 
 ### 推荐配置（生产环境）
 
-| 组件 | 规格 |
-|------|------|
-| CPU | 4 核心以上 |
-| 内存 | 8GB+ |
-| 磁盘 | SSD 50GB+ |
-| PostgreSQL | 15.0+ （独立服务器） |
-| Redis | 7.0+ （独立服务器或集群） |
-| 备份 | 每日自动备份 |
+| 组件       | 规格                      |
+| ---------- | ------------------------- |
+| CPU        | 4 核心以上                |
+| 内存       | 8GB+                      |
+| 磁盘       | SSD 50GB+                 |
+| PostgreSQL | 15.0+ （独立服务器）      |
+| Redis      | 7.0+ （独立服务器或集群） |
+| 备份       | 每日自动备份              |
 
 ### 依赖软件
 
@@ -329,17 +329,17 @@ kubectl logs -f deployment/agent-scheduler -n agent-scheduler
 
 **配置项说明**:
 
-| 字段 | 类型 | 说明 |
-|------|------|------|
-| `id` | string | 代理唯一标识符 |
-| `name` | string | 代理显示名称 |
-| `type` | string | 代理类型（strategic, research, technical, etc.） |
-| `technicalStack` | string[] | 技术栈数组 |
-| `taskTypes` | string[] | 可处理的任务类型 |
-| `maxConcurrentTasks` | number | 最大并发任务数 |
-| `successRate` | number | 成功率（0-1） |
-| `avgResponseTime` | number | 平均响应时间（秒） |
-| `availability` | boolean | 是否可用 |
+| 字段                 | 类型     | 说明                                             |
+| -------------------- | -------- | ------------------------------------------------ |
+| `id`                 | string   | 代理唯一标识符                                   |
+| `name`               | string   | 代理显示名称                                     |
+| `type`               | string   | 代理类型（strategic, research, technical, etc.） |
+| `technicalStack`     | string[] | 技术栈数组                                       |
+| `taskTypes`          | string[] | 可处理的任务类型                                 |
+| `maxConcurrentTasks` | number   | 最大并发任务数                                   |
+| `successRate`        | number   | 成功率（0-1）                                    |
+| `avgResponseTime`    | number   | 平均响应时间（秒）                               |
+| `availability`       | boolean  | 是否可用                                         |
 
 ### 2. 调度规则配置
 
@@ -374,13 +374,13 @@ kubectl logs -f deployment/agent-scheduler -n agent-scheduler
 
 **配置项说明**:
 
-| 字段 | 类型 | 说明 |
-|------|------|------|
-| `autoScheduleInterval` | number | 自动调度间隔（毫秒） |
-| `maxBatchSize` | number | 单次批量处理的最大任务数 |
-| `loadThresholds` | object | 负载阈值（低/中/高/危急） |
-| `priorityWeights` | object | 优先级权重 |
-| `scoreWeights` | object | 评分权重（影响调度决策） |
+| 字段                   | 类型   | 说明                      |
+| ---------------------- | ------ | ------------------------- |
+| `autoScheduleInterval` | number | 自动调度间隔（毫秒）      |
+| `maxBatchSize`         | number | 单次批量处理的最大任务数  |
+| `loadThresholds`       | object | 负载阈值（低/中/高/危急） |
+| `priorityWeights`      | object | 优先级权重                |
+| `scoreWeights`         | object | 评分权重（影响调度决策）  |
 
 ### 3. 环境配置
 
@@ -390,23 +390,23 @@ kubectl logs -f deployment/agent-scheduler -n agent-scheduler
 
 ```typescript
 export interface SchedulerEnvironmentConfig {
-  env: Environment;
-  debug: boolean;
-  scheduleInterval: number;
-  database: { url: string; poolSize: number };
-  redis: { enabled: boolean; url?: string; prefix: string };
-  api: { port: number; corsOrigins: string[]; rateLimit: number };
-  monitoring: { enabled: boolean; logLevel: 'debug' | 'info' | 'warn' | 'error' };
+  env: Environment
+  debug: boolean
+  scheduleInterval: number
+  database: { url: string; poolSize: number }
+  redis: { enabled: boolean; url?: string; prefix: string }
+  api: { port: number; corsOrigins: string[]; rateLimit: number }
+  monitoring: { enabled: boolean; logLevel: 'debug' | 'info' | 'warn' | 'error' }
 }
 ```
 
 **环境说明**:
 
-| 环境 | 调度间隔 | 调试模式 | 监控 |
-|------|---------|---------|------|
-| `development` | 60s | ✅ | 部分 |
-| `testing` | 10s | ✅ | 关闭 |
-| `production` | 30s | ❌ | 完整 |
+| 环境          | 调度间隔 | 调试模式 | 监控 |
+| ------------- | -------- | -------- | ---- |
+| `development` | 60s      | ✅       | 部分 |
+| `testing`     | 10s      | ✅       | 关闭 |
+| `production`  | 30s      | ❌       | 完整 |
 
 ---
 
@@ -571,20 +571,22 @@ journalctl -u agent-scheduler -n 10 --no-pager | grep -i error || echo "No error
 
 ### 1. 日志级别
 
-| 级别 | 用途 | 示例场景 |
-|------|------|---------|
-| `debug` | 详细调试信息 | 调度算法详细步骤 |
-| `info` | 一般信息 | 任务分配成功 |
-| `warn` | 警告信息 | 负载接近阈值 |
-| `error` | 错误信息 | 任务失败、代理不可用 |
+| 级别    | 用途         | 示例场景             |
+| ------- | ------------ | -------------------- |
+| `debug` | 详细调试信息 | 调度算法详细步骤     |
+| `info`  | 一般信息     | 任务分配成功         |
+| `warn`  | 警告信息     | 负载接近阈值         |
+| `error` | 错误信息     | 任务失败、代理不可用 |
 
 ### 2. 日志位置
 
 **开发环境**:
+
 - 控制台输出（使用 Winston）
 - 日志目录: `logs/agent-scheduler.log`
 
 **生产环境**:
+
 - 系统日志: `/var/log/agent-scheduler/`
 - Docker 日志: `docker-compose logs -f scheduler`
 - Kubernetes 日志: `kubectl logs -f deployment/agent-scheduler`
@@ -645,14 +647,14 @@ iostat -x 1
 
 #### 告警规则
 
-| 条件 | 严重级别 | 通知方式 |
-|------|---------|---------|
-| 调度器停止运行 | 🔴 Critical | Telegram, Email |
-| 数据库连接失败 | 🔴 Critical | Telegram, Email |
-| Redis 连接失败 | 🟠 Warning | Telegram |
-| 任务失败率 > 10% | 🟠 Warning | Telegram |
-| 代理负载 > 80% | 🟡 Info | 日志 |
-| 待处理任务积压 > 50 | 🟡 Info | 日志 |
+| 条件                | 严重级别    | 通知方式        |
+| ------------------- | ----------- | --------------- |
+| 调度器停止运行      | 🔴 Critical | Telegram, Email |
+| 数据库连接失败      | 🔴 Critical | Telegram, Email |
+| Redis 连接失败      | 🟠 Warning  | Telegram        |
+| 任务失败率 > 10%    | 🟠 Warning  | Telegram        |
+| 代理负载 > 80%      | 🟡 Info     | 日志            |
+| 待处理任务积压 > 50 | 🟡 Info     | 日志            |
 
 #### 告警通知（Telegram）
 
@@ -661,22 +663,22 @@ iostat -x 1
 ```typescript
 // 发送告警消息
 async function sendAlert(message: string, level: string) {
-  const botToken = process.env.TELEGRAM_BOT_TOKEN;
-  const chatId = process.env.TELEGRAM_CHAT_ID;
-  
+  const botToken = process.env.TELEGRAM_BOT_TOKEN
+  const chatId = process.env.TELEGRAM_CHAT_ID
+
   const emoji = {
     critical: '🔴',
     warning: '🟠',
-    info: '🟡'
-  };
-  
-  const text = `${emoji[level] || '⚠️'} [AgentScheduler] ${message}`;
-  
+    info: '🟡',
+  }
+
+  const text = `${emoji[level] || '⚠️'} [AgentScheduler] ${message}`
+
   await fetch(`https://api.telegram.org/bot${botToken}/sendMessage`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ chat_id: chatId, text })
-  });
+    body: JSON.stringify({ chat_id: chatId, text }),
+  })
 }
 ```
 
@@ -989,14 +991,14 @@ NODE_OPTIONS=--max-old-space-size=4096
 
 ### B. 端口参考
 
-| 端口 | 服务 | 环境 |
-|------|------|------|
-| 3000 | 生产 API | Production |
-| 3001 | 开发 API | Development |
-| 3002 | 测试 API | Testing |
-| 5432 | PostgreSQL | All |
-| 6379 | Redis | Production/Testing |
-| 9090 | Metrics | Production |
+| 端口 | 服务       | 环境               |
+| ---- | ---------- | ------------------ |
+| 3000 | 生产 API   | Production         |
+| 3001 | 开发 API   | Development        |
+| 3002 | 测试 API   | Testing            |
+| 5432 | PostgreSQL | All                |
+| 6379 | Redis      | Production/Testing |
+| 9090 | Metrics    | Production         |
 
 ### C. 目录结构
 
@@ -1037,4 +1039,4 @@ k8s/
 
 **文档结束**
 
-*最后更新: 2026-03-29*
+_最后更新: 2026-03-29_

@@ -4,28 +4,28 @@
  * Provides a feedback submission form with enhanced features
  */
 
-'use client';
+'use client'
 
-import { useState } from 'react';
-import FeedbackModal from '@/components/feedback/FeedbackModal';
-import EnhancedFeedbackModal from '@/components/feedback/EnhancedFeedbackModal';
-import { Button } from '@/components/ui/Button';
-import { MessageSquare, Lightbulb } from 'lucide-react';
-import type { FeedbackData } from '@/components/feedback/FeedbackModal';
+import { useState } from 'react'
+import FeedbackModal from '@/components/feedback/FeedbackModal'
+import EnhancedFeedbackModal from '@/components/feedback/EnhancedFeedbackModal'
+import { Button } from '@/components/ui/Button'
+import { MessageSquare, Lightbulb } from 'lucide-react'
+import type { FeedbackData } from '@/components/feedback/FeedbackModal'
 
 // Note: metadata cannot be exported from 'use client' components
 // Use layout.tsx or a separate metadata file for SEO metadata
 
 export default function FeedbackPage() {
-  const [isModalOpen, setIsModalOpen] = useState(false);
-  const [useEnhanced, setUseEnhanced] = useState(true);
-  const [submittedFeedback, setSubmittedFeedback] = useState<FeedbackData | null>(null);
+  const [isModalOpen, setIsModalOpen] = useState(false)
+  const [useEnhanced, setUseEnhanced] = useState(true)
+  const [submittedFeedback, setSubmittedFeedback] = useState<FeedbackData | null>(null)
 
   // Simulate similar feedback check
   const checkSimilarFeedbacks = async (title: string) => {
     // This would call an API in production
-    return [];
-  };
+    return []
+  }
 
   const handleSubmit = async (feedback: FeedbackData) => {
     try {
@@ -35,35 +35,33 @@ export default function FeedbackPage() {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify(feedback),
-      });
+      })
 
-      const data = await response.json();
-      
+      const data = await response.json()
+
       if (data.success) {
-        setSubmittedFeedback(feedback);
-        setIsModalOpen(false);
-        alert('感谢您的反馈！我们会尽快处理。');
+        setSubmittedFeedback(feedback)
+        setIsModalOpen(false)
+        alert('感谢您的反馈！我们会尽快处理。')
       } else {
-        alert('提交失败：' + (data.message || '请稍后重试'));
+        alert('提交失败：' + (data.message || '请稍后重试'))
       }
     } catch (error) {
-      console.error('Failed to submit feedback:', error);
-      alert('提交失败，请稍后重试');
+      console.error('Failed to submit feedback:', error)
+      alert('提交失败，请稍后重试')
     }
-  };
+  }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-50 py-12 px-4">
-      <div className="max-w-4xl mx-auto">
+    <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-50 px-4 py-12">
+      <div className="mx-auto max-w-4xl">
         {/* Header */}
-        <div className="text-center mb-12">
-          <div className="inline-flex items-center justify-center w-16 h-16 bg-blue-500 rounded-full mb-4">
-            <MessageSquare className="w-8 h-8 text-white" />
+        <div className="mb-12 text-center">
+          <div className="mb-4 inline-flex h-16 w-16 items-center justify-center rounded-full bg-blue-500">
+            <MessageSquare className="h-8 w-8 text-white" />
           </div>
-          <h1 className="text-4xl font-bold text-gray-900 mb-4">
-            欢迎反馈
-          </h1>
-          <p className="text-lg text-gray-600 max-w-2xl mx-auto">
+          <h1 className="mb-4 text-4xl font-bold text-gray-900">欢迎反馈</h1>
+          <p className="mx-auto max-w-2xl text-lg text-gray-600">
             您的意见对我们非常重要。无论是问题报告、功能建议还是其他反馈，
             我们都欢迎您的声音，并会认真对待每一条反馈。
           </p>
@@ -71,12 +69,12 @@ export default function FeedbackPage() {
 
         {/* Success Message */}
         {submittedFeedback && (
-          <div className="mb-8 p-6 bg-green-50 border border-green-200 rounded-lg">
+          <div className="mb-8 rounded-lg border border-green-200 bg-green-50 p-6">
             <div className="flex items-start space-x-4">
               <div className="flex-shrink-0">
-                <div className="w-12 h-12 bg-green-500 rounded-full flex items-center justify-center">
+                <div className="flex h-12 w-12 items-center justify-center rounded-full bg-green-500">
                   <svg
-                    className="w-6 h-6 text-white"
+                    className="h-6 w-6 text-white"
                     fill="none"
                     viewBox="0 0 24 24"
                     stroke="currentColor"
@@ -91,17 +89,11 @@ export default function FeedbackPage() {
                 </div>
               </div>
               <div className="flex-1">
-                <h3 className="text-lg font-medium text-green-900 mb-2">
-                  反馈已提交成功！
-                </h3>
-                <p className="text-sm text-green-700 mb-3">
+                <h3 className="mb-2 text-lg font-medium text-green-900">反馈已提交成功！</h3>
+                <p className="mb-3 text-sm text-green-700">
                   感谢您的反馈！我们会尽快处理并给您回复。
                 </p>
-                <Button
-                  variant="outline"
-                  size="sm"
-                  onClick={() => setSubmittedFeedback(null)}
-                >
+                <Button variant="outline" size="sm" onClick={() => setSubmittedFeedback(null)}>
                   提交新反馈
                 </Button>
               </div>
@@ -110,23 +102,21 @@ export default function FeedbackPage() {
         )}
 
         {/* Feedback Type Cards */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-12">
+        <div className="mb-12 grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3">
           <button
             onClick={() => {
-              setUseEnhanced(true);
-              setIsModalOpen(true);
+              setUseEnhanced(true)
+              setIsModalOpen(true)
             }}
-            className="p-6 bg-white rounded-xl shadow-sm hover:shadow-md transition-all border-2 border-transparent hover:border-blue-500 text-left group"
+            className="group rounded-xl border-2 border-transparent bg-white p-6 text-left shadow-sm transition-all hover:border-blue-500 hover:shadow-md"
           >
-            <div className="flex items-center justify-between mb-4">
+            <div className="mb-4 flex items-center justify-between">
               <span className="text-4xl">🐛</span>
-              <div className="w-10 h-10 bg-blue-100 rounded-full flex items-center justify-center group-hover:bg-blue-500 transition-colors">
-                <MessageSquare className="w-5 h-5 text-blue-600 group-hover:text-white transition-colors" />
+              <div className="flex h-10 w-10 items-center justify-center rounded-full bg-blue-100 transition-colors group-hover:bg-blue-500">
+                <MessageSquare className="h-5 w-5 text-blue-600 transition-colors group-hover:text-white" />
               </div>
             </div>
-            <h3 className="text-lg font-semibold text-gray-900 mb-2">
-              问题报告
-            </h3>
+            <h3 className="mb-2 text-lg font-semibold text-gray-900">问题报告</h3>
             <p className="text-sm text-gray-600">
               报告您遇到的问题、错误或异常行为，帮助我们改进产品质量。
             </p>
@@ -134,20 +124,18 @@ export default function FeedbackPage() {
 
           <button
             onClick={() => {
-              setUseEnhanced(true);
-              setIsModalOpen(true);
+              setUseEnhanced(true)
+              setIsModalOpen(true)
             }}
-            className="p-6 bg-white rounded-xl shadow-sm hover:shadow-md transition-all border-2 border-transparent hover:border-blue-500 text-left group"
+            className="group rounded-xl border-2 border-transparent bg-white p-6 text-left shadow-sm transition-all hover:border-blue-500 hover:shadow-md"
           >
-            <div className="flex items-center justify-between mb-4">
+            <div className="mb-4 flex items-center justify-between">
               <span className="text-4xl">💡</span>
-              <div className="w-10 h-10 bg-blue-100 rounded-full flex items-center justify-center group-hover:bg-blue-500 transition-colors">
-                <Lightbulb className="w-5 h-5 text-blue-600 group-hover:text-white transition-colors" />
+              <div className="flex h-10 w-10 items-center justify-center rounded-full bg-blue-100 transition-colors group-hover:bg-blue-500">
+                <Lightbulb className="h-5 w-5 text-blue-600 transition-colors group-hover:text-white" />
               </div>
             </div>
-            <h3 className="text-lg font-semibold text-gray-900 mb-2">
-              功能建议
-            </h3>
+            <h3 className="mb-2 text-lg font-semibold text-gray-900">功能建议</h3>
             <p className="text-sm text-gray-600">
               提出新的功能想法或改进建议，帮助我们打造更好的产品。
             </p>
@@ -155,16 +143,16 @@ export default function FeedbackPage() {
 
           <button
             onClick={() => {
-              setUseEnhanced(true);
-              setIsModalOpen(true);
+              setUseEnhanced(true)
+              setIsModalOpen(true)
             }}
-            className="p-6 bg-white rounded-xl shadow-sm hover:shadow-md transition-all border-2 border-transparent hover:border-blue-500 text-left group"
+            className="group rounded-xl border-2 border-transparent bg-white p-6 text-left shadow-sm transition-all hover:border-blue-500 hover:shadow-md"
           >
-            <div className="flex items-center justify-between mb-4">
+            <div className="mb-4 flex items-center justify-between">
               <span className="text-4xl">✨</span>
-              <div className="w-10 h-10 bg-blue-100 rounded-full flex items-center justify-center group-hover:bg-blue-500 transition-colors">
+              <div className="flex h-10 w-10 items-center justify-center rounded-full bg-blue-100 transition-colors group-hover:bg-blue-500">
                 <svg
-                  className="w-5 h-5 text-blue-600 group-hover:text-white transition-colors"
+                  className="h-5 w-5 text-blue-600 transition-colors group-hover:text-white"
                   fill="none"
                   viewBox="0 0 24 24"
                   stroke="currentColor"
@@ -178,26 +166,22 @@ export default function FeedbackPage() {
                 </svg>
               </div>
             </div>
-            <h3 className="text-lg font-semibold text-gray-900 mb-2">
-              改进建议
-            </h3>
-            <p className="text-sm text-gray-600">
-              提供改进意见，帮助我们优化现有功能和用户体验。
-            </p>
+            <h3 className="mb-2 text-lg font-semibold text-gray-900">改进建议</h3>
+            <p className="text-sm text-gray-600">提供改进意见，帮助我们优化现有功能和用户体验。</p>
           </button>
 
           <button
             onClick={() => {
-              setUseEnhanced(true);
-              setIsModalOpen(true);
+              setUseEnhanced(true)
+              setIsModalOpen(true)
             }}
-            className="p-6 bg-white rounded-xl shadow-sm hover:shadow-md transition-all border-2 border-transparent hover:border-blue-500 text-left group"
+            className="group rounded-xl border-2 border-transparent bg-white p-6 text-left shadow-sm transition-all hover:border-blue-500 hover:shadow-md"
           >
-            <div className="flex items-center justify-between mb-4">
+            <div className="mb-4 flex items-center justify-between">
               <span className="text-4xl">👍</span>
-              <div className="w-10 h-10 bg-green-100 rounded-full flex items-center justify-center group-hover:bg-green-500 transition-colors">
+              <div className="flex h-10 w-10 items-center justify-center rounded-full bg-green-100 transition-colors group-hover:bg-green-500">
                 <svg
-                  className="w-5 h-5 text-green-600 group-hover:text-white transition-colors"
+                  className="h-5 w-5 text-green-600 transition-colors group-hover:text-white"
                   fill="none"
                   viewBox="0 0 24 24"
                   stroke="currentColor"
@@ -211,26 +195,22 @@ export default function FeedbackPage() {
                 </svg>
               </div>
             </div>
-            <h3 className="text-lg font-semibold text-gray-900 mb-2">
-              表扬与感谢
-            </h3>
-            <p className="text-sm text-gray-600">
-              分享您的正面体验和感谢，激励我们持续做得更好。
-            </p>
+            <h3 className="mb-2 text-lg font-semibold text-gray-900">表扬与感谢</h3>
+            <p className="text-sm text-gray-600">分享您的正面体验和感谢，激励我们持续做得更好。</p>
           </button>
 
           <button
             onClick={() => {
-              setUseEnhanced(true);
-              setIsModalOpen(true);
+              setUseEnhanced(true)
+              setIsModalOpen(true)
             }}
-            className="p-6 bg-white rounded-xl shadow-sm hover:shadow-md transition-all border-2 border-transparent hover:border-blue-500 text-left group"
+            className="group rounded-xl border-2 border-transparent bg-white p-6 text-left shadow-sm transition-all hover:border-blue-500 hover:shadow-md"
           >
-            <div className="flex items-center justify-between mb-4">
+            <div className="mb-4 flex items-center justify-between">
               <span className="text-4xl">⚠️</span>
-              <div className="w-10 h-10 bg-orange-100 rounded-full flex items-center justify-center group-hover:bg-orange-500 transition-colors">
+              <div className="flex h-10 w-10 items-center justify-center rounded-full bg-orange-100 transition-colors group-hover:bg-orange-500">
                 <svg
-                  className="w-5 h-5 text-orange-600 group-hover:text-white transition-colors"
+                  className="h-5 w-5 text-orange-600 transition-colors group-hover:text-white"
                   fill="none"
                   viewBox="0 0 24 24"
                   stroke="currentColor"
@@ -244,9 +224,7 @@ export default function FeedbackPage() {
                 </svg>
               </div>
             </div>
-            <h3 className="text-lg font-semibold text-gray-900 mb-2">
-              投诉
-            </h3>
+            <h3 className="mb-2 text-lg font-semibold text-gray-900">投诉</h3>
             <p className="text-sm text-gray-600">
               如果您有任何不满或投诉，请告诉我们，我们会认真处理。
             </p>
@@ -254,16 +232,16 @@ export default function FeedbackPage() {
 
           <button
             onClick={() => {
-              setUseEnhanced(false);
-              setIsModalOpen(true);
+              setUseEnhanced(false)
+              setIsModalOpen(true)
             }}
-            className="p-6 bg-white rounded-xl shadow-sm hover:shadow-md transition-all border-2 border-transparent hover:border-blue-500 text-left group"
+            className="group rounded-xl border-2 border-transparent bg-white p-6 text-left shadow-sm transition-all hover:border-blue-500 hover:shadow-md"
           >
-            <div className="flex items-center justify-between mb-4">
+            <div className="mb-4 flex items-center justify-between">
               <span className="text-4xl">📝</span>
-              <div className="w-10 h-10 bg-gray-100 rounded-full flex items-center justify-center group-hover:bg-gray-500 transition-colors">
+              <div className="flex h-10 w-10 items-center justify-center rounded-full bg-gray-100 transition-colors group-hover:bg-gray-500">
                 <svg
-                  className="w-5 h-5 text-gray-600 group-hover:text-white transition-colors"
+                  className="h-5 w-5 text-gray-600 transition-colors group-hover:text-white"
                   fill="none"
                   viewBox="0 0 24 24"
                   stroke="currentColor"
@@ -277,48 +255,42 @@ export default function FeedbackPage() {
                 </svg>
               </div>
             </div>
-            <h3 className="text-lg font-semibold text-gray-900 mb-2">
-              其他反馈
-            </h3>
-            <p className="text-sm text-gray-600">
-              任何其他类型的反馈或建议，我们欢迎您的声音。
-            </p>
+            <h3 className="mb-2 text-lg font-semibold text-gray-900">其他反馈</h3>
+            <p className="text-sm text-gray-600">任何其他类型的反馈或建议，我们欢迎您的声音。</p>
           </button>
         </div>
 
         {/* Tips */}
-        <div className="bg-white rounded-xl p-8 shadow-sm">
-          <h2 className="text-xl font-semibold text-gray-900 mb-4">
-            反馈小贴士
-          </h2>
+        <div className="rounded-xl bg-white p-8 shadow-sm">
+          <h2 className="mb-4 text-xl font-semibold text-gray-900">反馈小贴士</h2>
           <ul className="space-y-3">
             <li className="flex items-start space-x-3">
-              <div className="flex-shrink-0 w-6 h-6 bg-blue-100 rounded-full flex items-center justify-center mt-0.5">
-                <span className="text-blue-600 font-semibold text-sm">1</span>
+              <div className="mt-0.5 flex h-6 w-6 flex-shrink-0 items-center justify-center rounded-full bg-blue-100">
+                <span className="text-sm font-semibold text-blue-600">1</span>
               </div>
               <p className="text-gray-700">
                 尽量详细地描述问题或建议，包括复现步骤（如果适用）、期望结果和实际结果。
               </p>
             </li>
             <li className="flex items-start space-x-3">
-              <div className="flex-shrink-0 w-6 h-6 bg-blue-100 rounded-full flex items-center justify-center mt-0.5">
-                <span className="text-blue-600 font-semibold text-sm">2</span>
+              <div className="mt-0.5 flex h-6 w-6 flex-shrink-0 items-center justify-center rounded-full bg-blue-100">
+                <span className="text-sm font-semibold text-blue-600">2</span>
               </div>
               <p className="text-gray-700">
                 如果遇到问题，请提供相关的截图或录屏，帮助我们更好地理解问题。
               </p>
             </li>
             <li className="flex items-start space-x-3">
-              <div className="flex-shrink-0 w-6 h-6 bg-blue-100 rounded-full flex items-center justify-center mt-0.5">
-                <span className="text-blue-600 font-semibold text-sm">3</span>
+              <div className="mt-0.5 flex h-6 w-6 flex-shrink-0 items-center justify-center rounded-full bg-blue-100">
+                <span className="text-sm font-semibold text-blue-600">3</span>
               </div>
               <p className="text-gray-700">
                 选择合适的反馈类型和优先级，帮助我们更好地分类和处理您的反馈。
               </p>
             </li>
             <li className="flex items-start space-x-3">
-              <div className="flex-shrink-0 w-6 h-6 bg-blue-100 rounded-full flex items-center justify-center mt-0.5">
-                <span className="text-blue-600 font-semibold text-sm">4</span>
+              <div className="mt-0.5 flex h-6 w-6 flex-shrink-0 items-center justify-center rounded-full bg-blue-100">
+                <span className="text-sm font-semibold text-blue-600">4</span>
               </div>
               <p className="text-gray-700">
                 提供相关页面的 URL（如果适用），帮助我们快速定位问题。
@@ -344,5 +316,5 @@ export default function FeedbackPage() {
         />
       )}
     </div>
-  );
+  )
 }

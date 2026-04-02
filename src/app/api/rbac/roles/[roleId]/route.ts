@@ -1,10 +1,11 @@
+import { NextRequest, NextResponse } from 'next/server'
 /**
  * RBAC API - Single Role Management
  * 管理单个角色的详细信息
  */
 
-import { withAdmin } from '@/lib/auth/middleware-rbac';
-import { Role, Permission } from '@/lib/permissions/types';
+import { withAdmin } from '@/lib/auth/middleware-rbac'
+import { Role, Permission } from '@/lib/permissions/types'
 import {
   getRoleById,
   updateRole,
@@ -12,28 +13,25 @@ import {
   assignPermissionsToRole,
   removePermissionsFromRole,
   getPermissionsByRole,
-} from '@/lib/permissions/repository';
-import { getRoleDefinition } from '@/lib/permissions/rbac';
-import { logger } from '@/lib/logger';
+} from '@/lib/permissions/repository'
+import { getRoleDefinition } from '@/lib/permissions/rbac'
+import { logger } from '@/lib/logger'
 
 interface RouteContext {
-  params: Promise<{ roleId: string }>;
+  params: Promise<{ roleId: string }>
 }
 
 /**
  * GET /api/rbac/roles/[roleId] - 获取角色详情
  */
-export async function GET(
-  request: NextRequest,
-  { params }: RouteContext
-) {
+export async function GET(request: NextRequest, { params }: RouteContext) {
   return withAdmin(request, async (_req, context) => {
     try {
-      const { roleId } = await params;
-      const searchParams = request.nextUrl.searchParams;
-      const includePermissions = searchParams.get('includePermissions') === 'true';
+      const { roleId } = await params
+      const searchParams = request.nextUrl.searchParams
+      const includePermissions = searchParams.get('includePermissions') === 'true'
 
-      let role = await getRoleById(roleId);
+      let role = await getRoleById(roleId)
 
       if (!role) {
         return NextResponse.json(
@@ -45,21 +43,21 @@ export async function GET(
             },
           },
           { status: 404 }
-        );
+        )
       }
 
       // 如果需要包含权限
       if (includePermissions) {
-        const permissions = await getPermissionsByRole(role.id as Role);
-        role = { ...role, permissions };
+        const permissions = await getPermissionsByRole(role.id as Role)
+        role = { ...role, permissions }
       }
 
       return NextResponse.json({
         success: true,
         data: role,
-      });
-    } catch (_error) {
-      logger.error('Failed to fetch role:', { error, userId: context.userId });
+      })
+    } catch (error) {
+      logger.error('Failed to fetch role:', { error, userId: context.userId })
       return NextResponse.json(
         {
           success: false,
@@ -69,26 +67,23 @@ export async function GET(
           },
         },
         { status: 500 }
-      );
+      )
     }
-  });
+  })
 }
 
 /**
  * PUT /api/rbac/roles/[roleId] - 更新角色
  */
-export async function PUT(
-  request: NextRequest,
-  { params }: RouteContext
-) {
+export async function PUT(request: NextRequest, { params }: RouteContext) {
   return withAdmin(request, async (req, context) => {
     try {
-      const { roleId } = await params;
-      const body = await req.json();
-      const { name, description, permissions } = body;
+      const { roleId } = await params
+      const body = await req.json()
+      const { name, description, permissions } = body
 
       // 检查角色是否存在
-      const existingRole = await getRoleById(roleId);
+      const existingRole = await getRoleById(roleId)
       if (!existingRole) {
         return NextResponse.json(
           {
@@ -99,7 +94,7 @@ export async function PUT(
             },
           },
           { status: 404 }
-        );
+        )
       }
 
       // 系统角色不能修改 ID
@@ -115,66 +110,66 @@ export async function PUT(
               },
             },
             { status: 403 }
-          );
+          )
         }
 
         if (name !== undefined || description !== undefined) {
           await updateRole(roleId, {
             name: name || existingRole.name,
             description: description !== undefined ? description : existingRole.description,
-          });
+          })
 
           logger.info('System role updated', {
             roleId,
             updatedBy: context.userId,
-          });
+          })
 
-          const updatedRole = await getRoleById(roleId);
+          const updatedRole = await getRoleById(roleId)
           return NextResponse.json({
             success: true,
             data: updatedRole,
             message: 'Role updated successfully',
-          });
+          })
         }
 
         return NextResponse.json({
           success: true,
           data: existingRole,
-        });
+        })
       }
 
       // 自定义角色可以完全修改
-      const updateData: { name?: string; description?: string; permissions?: Permission[] } = {};
+      const updateData: { name?: string; description?: string; permissions?: Permission[] } = {}
 
-      if (name !== undefined) updateData.name = name;
-      if (description !== undefined) updateData.description = description;
+      if (name !== undefined) updateData.name = name
+      if (description !== undefined) updateData.description = description
 
       if (permissions !== undefined) {
         const validPermissions = Array.isArray(permissions)
           ? permissions.filter((p): p is Permission => Object.values(Permission).includes(p))
-          : [];
-        updateData.permissions = validPermissions;
+          : []
+        updateData.permissions = validPermissions
 
         // 更新权限映射
         if (validPermissions.length > 0) {
-          await assignPermissionsToRole(roleId as Role, validPermissions, context.userId);
+          await assignPermissionsToRole(roleId as Role, validPermissions, context.userId)
         }
       }
 
-      const updatedRole = await updateRole(roleId, updateData);
+      const updatedRole = await updateRole(roleId, updateData)
 
       logger.info('Custom role updated', {
         roleId,
         updatedBy: context.userId,
-      });
+      })
 
       return NextResponse.json({
         success: true,
         data: updatedRole,
         message: 'Role updated successfully',
-      });
-    } catch (_error) {
-      logger.error('Failed to update role:', { error, userId: context.userId });
+      })
+    } catch (error) {
+      logger.error('Failed to update role:', { error, userId: context.userId })
       return NextResponse.json(
         {
           success: false,
@@ -184,24 +179,21 @@ export async function PUT(
           },
         },
         { status: 500 }
-      );
+      )
     }
-  });
+  })
 }
 
 /**
  * DELETE /api/rbac/roles/[roleId] - 删除角色
  */
-export async function DELETE(
-  request: NextRequest,
-  { params }: RouteContext
-) {
+export async function DELETE(request: NextRequest, { params }: RouteContext) {
   return withAdmin(request, async (_req, context) => {
     try {
-      const { roleId } = await params;
+      const { roleId } = await params
 
       // 检查角色是否存在
-      const existingRole = await getRoleById(roleId);
+      const existingRole = await getRoleById(roleId)
       if (!existingRole) {
         return NextResponse.json(
           {
@@ -212,7 +204,7 @@ export async function DELETE(
             },
           },
           { status: 404 }
-        );
+        )
       }
 
       // 系统角色不能删除
@@ -226,22 +218,22 @@ export async function DELETE(
             },
           },
           { status: 403 }
-        );
+        )
       }
 
-      await deleteRole(roleId);
+      await deleteRole(roleId)
 
       logger.info('Custom role deleted', {
         roleId,
         deletedBy: context.userId,
-      });
+      })
 
       return NextResponse.json({
         success: true,
         message: 'Role deleted successfully',
-      });
-    } catch (_error) {
-      logger.error('Failed to delete role:', { error, userId: context.userId });
+      })
+    } catch (error) {
+      logger.error('Failed to delete role:', { error, userId: context.userId })
       return NextResponse.json(
         {
           success: false,
@@ -251,7 +243,7 @@ export async function DELETE(
           },
         },
         { status: 500 }
-      );
+      )
     }
-  });
+  })
 }

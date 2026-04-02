@@ -4,51 +4,55 @@
  * Provides fallback UIs for failed component loads
  */
 
-'use client';
+'use client'
 
-import React from 'react';
+import React from 'react'
 
-export type FallbackVariant = 'skeleton' | 'error' | 'compact' | 'inline';
+export type FallbackVariant = 'skeleton' | 'error' | 'compact' | 'inline'
 
 export interface ComponentFallbackProps {
   /** Fallback variant */
-  variant?: FallbackVariant;
+  variant?: FallbackVariant
   /** Error message */
-  message?: string;
+  message?: string
   /** Custom fallback component */
-  fallback?: React.ReactNode;
+  fallback?: React.ReactNode
   /** Show retry button */
-  showRetry?: boolean;
+  showRetry?: boolean
   /** Retry handler */
-  onRetry?: () => void;
+  onRetry?: () => void
   /** Show loading indicator */
-  showLoading?: boolean;
+  showLoading?: boolean
   /** Loading text */
-  loadingText?: string;
+  loadingText?: string
   /** Error */
-  error?: Error;
+  error?: Error
   /** Custom className */
-  className?: string;
+  className?: string
   /** Children to render */
-  children?: React.ReactNode;
+  children?: React.ReactNode
 }
 
 /**
  * Skeleton fallback for loading state
  */
-function SkeletonFallback({ loadingText, className }: { loadingText?: string; className?: string }) {
+function SkeletonFallback({
+  loadingText,
+  className,
+}: {
+  loadingText?: string
+  className?: string
+}) {
   return (
     <div className={`animate-pulse space-y-4 ${className}`}>
-      <div className="h-4 bg-zinc-200 dark:bg-zinc-800 rounded w-3/4" />
-      <div className="h-4 bg-zinc-200 dark:bg-zinc-800 rounded w-1/2" />
-      <div className="h-4 bg-zinc-200 dark:bg-zinc-800 rounded w-5/6" />
+      <div className="h-4 w-3/4 rounded bg-zinc-200 dark:bg-zinc-800" />
+      <div className="h-4 w-1/2 rounded bg-zinc-200 dark:bg-zinc-800" />
+      <div className="h-4 w-5/6 rounded bg-zinc-200 dark:bg-zinc-800" />
       {loadingText && (
-        <p className="text-sm text-zinc-400 dark:text-zinc-600 text-center py-8">
-          {loadingText}
-        </p>
+        <p className="py-8 text-center text-sm text-zinc-400 dark:text-zinc-600">{loadingText}</p>
       )}
     </div>
-  );
+  )
 }
 
 /**
@@ -61,19 +65,19 @@ function ErrorFallback({
   error,
   className,
 }: {
-  message?: string;
-  showRetry?: boolean;
-  onRetry?: () => void;
-  error?: Error;
-  className?: string;
+  message?: string
+  showRetry?: boolean
+  onRetry?: () => void
+  error?: Error
+  className?: string
 }) {
   return (
     <div
-      className={`flex flex-col items-center justify-center p-8 text-center bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg ${className}`}
+      className={`flex flex-col items-center justify-center rounded-lg border border-red-200 bg-red-50 p-8 text-center dark:border-red-800 dark:bg-red-900/20 ${className}`}
     >
       {/* Error icon */}
       <svg
-        className="w-12 h-12 text-red-500 mb-4"
+        className="mb-4 h-12 w-12 text-red-500"
         fill="none"
         viewBox="0 0 24 24"
         stroke="currentColor"
@@ -87,19 +91,17 @@ function ErrorFallback({
       </svg>
 
       {/* Error message */}
-      <p className="text-red-700 dark:text-red-300 font-medium mb-2">{message}</p>
+      <p className="mb-2 font-medium text-red-700 dark:text-red-300">{message}</p>
 
       {/* Error details (development only) */}
       {error && process.env.NODE_ENV === 'development' && (
-        <details className="text-left w-full mt-4">
-          <summary className="cursor-pointer text-sm text-red-600 dark:text-red-400 mb-2">
+        <details className="mt-4 w-full text-left">
+          <summary className="mb-2 cursor-pointer text-sm text-red-600 dark:text-red-400">
             错误详情
           </summary>
-          <div className="bg-red-100 dark:bg-red-900/40 p-3 rounded text-xs font-mono overflow-auto max-h-32">
+          <div className="max-h-32 overflow-auto rounded bg-red-100 p-3 font-mono text-xs dark:bg-red-900/40">
             <div>{error.message}</div>
-            {error.stack && (
-              <pre className="mt-2 whitespace-pre-wrap">{error.stack}</pre>
-            )}
+            {error.stack && <pre className="mt-2 whitespace-pre-wrap">{error.stack}</pre>}
           </div>
         </details>
       )}
@@ -108,13 +110,13 @@ function ErrorFallback({
       {showRetry && onRetry && (
         <button
           onClick={onRetry}
-          className="mt-4 px-4 py-2 bg-red-500 hover:bg-red-600 text-white rounded-lg transition-colors text-sm font-medium"
+          className="mt-4 rounded-lg bg-red-500 px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-red-600"
         >
           重试
         </button>
       )}
     </div>
-  );
+  )
 }
 
 /**
@@ -126,17 +128,17 @@ function CompactErrorFallback({
   onRetry,
   className,
 }: {
-  message?: string;
-  showRetry?: boolean;
-  onRetry?: () => void;
-  className?: string;
+  message?: string
+  showRetry?: boolean
+  onRetry?: () => void
+  className?: string
 }) {
   return (
     <div
-      className={`flex items-center gap-3 p-4 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg ${className}`}
+      className={`flex items-center gap-3 rounded-lg border border-red-200 bg-red-50 p-4 dark:border-red-800 dark:bg-red-900/20 ${className}`}
     >
       <svg
-        className="w-5 h-5 text-red-500 flex-shrink-0"
+        className="h-5 w-5 flex-shrink-0 text-red-500"
         fill="none"
         viewBox="0 0 24 24"
         stroke="currentColor"
@@ -152,13 +154,13 @@ function CompactErrorFallback({
       {showRetry && onRetry && (
         <button
           onClick={onRetry}
-          className="text-sm text-red-600 dark:text-red-400 hover:text-red-800 dark:hover:text-red-200 font-medium"
+          className="text-sm font-medium text-red-600 hover:text-red-800 dark:text-red-400 dark:hover:text-red-200"
         >
           重试
         </button>
       )}
     </div>
-  );
+  )
 }
 
 /**
@@ -177,19 +179,19 @@ export function ComponentFallback({
 }: ComponentFallbackProps) {
   // Custom fallback
   if (fallback) {
-    return <>{fallback}</>;
+    return <>{fallback}</>
   }
 
   // Loading state
   if (showLoading) {
-    return <SkeletonFallback loadingText={loadingText} className={className} />;
+    return <SkeletonFallback loadingText={loadingText} className={className} />
   }
 
   // Error state
   if (error) {
     switch (variant) {
       case 'skeleton':
-        return <SkeletonFallback loadingText={message} className={className} />;
+        return <SkeletonFallback loadingText={message} className={className} />
       case 'compact':
         return (
           <CompactErrorFallback
@@ -198,7 +200,7 @@ export function ComponentFallback({
             onRetry={onRetry}
             className={className}
           />
-        );
+        )
       case 'inline':
         return (
           <CompactErrorFallback
@@ -207,7 +209,7 @@ export function ComponentFallback({
             onRetry={onRetry}
             className={className}
           />
-        );
+        )
       case 'error':
       default:
         return (
@@ -218,12 +220,12 @@ export function ComponentFallback({
             error={error}
             className={className}
           />
-        );
+        )
     }
   }
 
   // Default loading state
-  return <SkeletonFallback loadingText={loadingText} className={className} />;
+  return <SkeletonFallback loadingText={loadingText} className={className} />
 }
 
 /**
@@ -234,20 +236,20 @@ export function withFallback<P extends object>(
   fallbackProps?: Omit<ComponentFallbackProps, 'error' | 'showLoading'>
 ): React.FC<P & { fallback?: ComponentFallbackProps }> {
   const WrappedComponent = React.memo((props: P & { fallback?: ComponentFallbackProps }) => {
-    const [error, setError] = React.useState<Error | null>(null);
-    const [showLoading, setShowLoading] = React.useState(true);
-    const [retryKey, setRetryKey] = React.useState(0);
+    const [error, setError] = React.useState<Error | null>(null)
+    const [showLoading, setShowLoading] = React.useState(true)
+    const [retryKey, setRetryKey] = React.useState(0)
 
     const handleRetry = React.useCallback(() => {
-      setError(null);
-      setShowLoading(true);
-      setRetryKey((prev) => prev + 1);
-    }, []);
+      setError(null)
+      setShowLoading(true)
+      setRetryKey(prev => prev + 1)
+    }, [])
 
     const handleError = React.useCallback((err: Error) => {
-      setError(err);
-      setShowLoading(false);
-    }, []);
+      setError(err)
+      setShowLoading(false)
+    }, [])
 
     return (
       <ComponentFallback
@@ -265,12 +267,12 @@ export function withFallback<P extends object>(
           onLoad={() => setShowLoading(false)}
         />
       </ComponentFallback>
-    );
-  });
+    )
+  })
 
-  WrappedComponent.displayName = `withFallback(${Component.displayName || Component.name})`;
+  WrappedComponent.displayName = `withFallback(${Component.displayName || Component.name})`
 
-  return WrappedComponent;
+  return WrappedComponent
 }
 
-export default ComponentFallback;
+export default ComponentFallback

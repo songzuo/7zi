@@ -3,27 +3,27 @@
  * @description Demo page showing undo-redo functionality
  */
 
-'use client';
+'use client'
 
-export const dynamic = 'force-dynamic';
+export const dynamic = 'force-dynamic'
 
-import { useState, useEffect } from 'react';
-import { Card } from '@/components/ui/Card';
-import { Button } from '@/components/ui/Button';
-import { UndoRedo, HistoryViewer } from '@/components/undo-redo';
-import { Input } from '@/components/ui/Input';
-import { useUndoRedo } from '@/lib/undo-redo';
-import { createHistoryEntry, pushOperation } from '@/lib/undo-redo';
-import { Undo2, Redo2, Plus, Trash2, RefreshCw } from 'lucide-react';
+import { useState, useEffect } from 'react'
+import { Card } from '@/components/ui/Card'
+import { Button } from '@/components/ui/Button'
+import { UndoRedo, HistoryViewer } from '@/components/undo-redo'
+import { Input } from '@/components/ui/Input'
+import { useUndoRedo } from '@/lib/undo-redo'
+import { createHistoryEntry, pushOperation } from '@/lib/undo-redo'
+import { Undo2, Redo2, Plus, Trash2, RefreshCw } from 'lucide-react'
 
 // ============================================================================
 // Types
 // ============================================================================
 
 interface TodoItem {
-  id: string;
-  text: string;
-  completed: boolean;
+  id: string
+  text: string
+  completed: boolean
 }
 
 // ============================================================================
@@ -36,150 +36,141 @@ export default function UndoRedoExamplePage() {
     { id: '1', text: '学习 Zustand', completed: true },
     { id: '2', text: '实现 Undo-Redo 功能', completed: false },
     { id: '3', text: '编写测试用例', completed: false },
-  ]);
-  const [newTodo, setNewTodo] = useState('');
-  const [isMounted, setIsMounted] = useState(false);
-  const { undo, redo, canUndo, canRedo } = useUndoRedo();
+  ])
+  const [newTodo, setNewTodo] = useState('')
+  const [isMounted, setIsMounted] = useState(false)
+  const { undo, redo, canUndo, canRedo } = useUndoRedo()
 
   useEffect(() => {
     // eslint-disable-next-line react-hooks/set-state-in-effect
-    setIsMounted(true);
-  }, []);
+    setIsMounted(true)
+  }, [])
 
   // Skip SSR
   if (!isMounted) {
-    return null;
+    return null
   }
 
   // Add todo with undo-redo
   const addTodo = () => {
-    if (!newTodo.trim()) return;
+    if (!newTodo.trim()) return
 
     const todo: TodoItem = {
       id: crypto.randomUUID(),
       text: newTodo,
       completed: false,
-    };
+    }
 
-    setTodos((prev) => [...prev, todo]);
+    setTodos(prev => [...prev, todo])
 
     pushOperation(
       'create',
       `添加待办事项: ${todo.text}`,
       () => {
-        setTodos((prev) => prev.filter((t) => t.id !== todo.id));
+        setTodos(prev => prev.filter(t => t.id !== todo.id))
       },
       () => {
-        setTodos((prev) => [...prev, todo]);
+        setTodos(prev => [...prev, todo])
       }
-    );
+    )
 
-    setNewTodo('');
-  };
+    setNewTodo('')
+  }
 
   // Delete todo with undo-redo
   const deleteTodo = (id: string, text: string) => {
-    setTodos((prev) => prev.filter((t) => t.id !== id));
+    setTodos(prev => prev.filter(t => t.id !== id))
 
     pushOperation(
       'delete',
       `删除待办事项: ${text}`,
       () => {
-        setTodos((prev) => [...prev, { id, text, completed: false }]);
+        setTodos(prev => [...prev, { id, text, completed: false }])
       },
       () => {
-        setTodos((prev) => prev.filter((t) => t.id !== id));
+        setTodos(prev => prev.filter(t => t.id !== id))
       }
-    );
-  };
+    )
+  }
 
   // Toggle todo with undo-redo
   const toggleTodo = (id: string, text: string) => {
-    const previousState = todos.find((t) => t.id === id);
-    if (!previousState) return;
+    const previousState = todos.find(t => t.id === id)
+    if (!previousState) return
 
-    const newCompleted = !previousState.completed;
+    const newCompleted = !previousState.completed
 
-    setTodos((prev) =>
-      prev.map((t) => (t.id === id ? { ...t, completed: newCompleted } : t))
-    );
+    setTodos(prev => prev.map(t => (t.id === id ? { ...t, completed: newCompleted } : t)))
 
     pushOperation(
       'update',
       `切换状态: ${text}`,
       () => {
-        setTodos((prev) =>
-          prev.map((t) => (t.id === id ? { ...t, completed: previousState.completed } : t))
-        );
+        setTodos(prev =>
+          prev.map(t => (t.id === id ? { ...t, completed: previousState.completed } : t))
+        )
       },
       () => {
-        setTodos((prev) =>
-          prev.map((t) => (t.id === id ? { ...t, completed: newCompleted } : t))
-        );
+        setTodos(prev => prev.map(t => (t.id === id ? { ...t, completed: newCompleted } : t)))
       }
-    );
-  };
+    )
+  }
 
   // Clear all todos with undo-redo
   const clearAllTodos = () => {
-    const previousTodos = [...todos];
+    const previousTodos = [...todos]
 
-    setTodos([]);
+    setTodos([])
 
     pushOperation(
       'delete',
       `清空所有待办事项 (${previousTodos.length} 条)`,
       () => {
-        setTodos(previousTodos);
+        setTodos(previousTodos)
       },
       () => {
-        setTodos([]);
+        setTodos([])
       }
-    );
-  };
+    )
+  }
 
   // Bulk operations with grouping
   const markAllComplete = () => {
-    const incompleteTodos = todos.filter((t) => !t.completed);
+    const incompleteTodos = todos.filter(t => !t.completed)
 
-    if (incompleteTodos.length === 0) return;
+    if (incompleteTodos.length === 0) return
 
-    const previousStates = incompleteTodos.map((t) => ({
+    const previousStates = incompleteTodos.map(t => ({
       id: t.id,
       completed: t.completed,
-    }));
+    }))
 
-    setTodos((prev) => prev.map((t) => ({ ...t, completed: true })));
+    setTodos(prev => prev.map(t => ({ ...t, completed: true })))
 
     const manager = createHistoryEntry(
       'update',
       `批量标记完成 (${incompleteTodos.length} 条)`,
       () => {
-        setTodos((prev) =>
-          prev.map((t) => {
-            const previousState = previousStates.find((ps) => ps.id === t.id);
-            return previousState ? { ...t, completed: previousState.completed } : t;
+        setTodos(prev =>
+          prev.map(t => {
+            const previousState = previousStates.find(ps => ps.id === t.id)
+            return previousState ? { ...t, completed: previousState.completed } : t
           })
-        );
+        )
       },
       () => {
-        setTodos((prev) => prev.map((t) => ({ ...t, completed: true })));
+        setTodos(prev => prev.map(t => ({ ...t, completed: true })))
       }
-    );
+    )
 
-    pushOperation(
-      manager.type,
-      manager.description,
-      manager.undo!,
-      manager.redo!
-    );
-  };
+    pushOperation(manager.type, manager.description, manager.undo!, manager.redo!)
+  }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 to-slate-100 dark:from-slate-900 dark:to-slate-800 p-8">
-      <div className="max-w-6xl mx-auto space-y-8">
+    <div className="min-h-screen bg-gradient-to-br from-slate-50 to-slate-100 p-8 dark:from-slate-900 dark:to-slate-800">
+      <div className="mx-auto max-w-6xl space-y-8">
         {/* Header */}
-        <div className="text-center space-y-4">
+        <div className="space-y-4 text-center">
           <h1 className="text-4xl font-bold text-slate-900 dark:text-slate-100">
             Undo-Redo 功能演示
           </h1>
@@ -189,32 +180,25 @@ export default function UndoRedoExamplePage() {
 
           {/* Undo-Redo Controls */}
           <div className="flex items-center justify-center gap-4">
-            <UndoRedo
-              size="lg"
-              variant="primary"
-              showCount
-              showTooltips
-            />
-            <span className="text-sm text-muted-foreground">
-              快捷键: Ctrl+Z / Ctrl+Y
-            </span>
+            <UndoRedo size="lg" variant="primary" showCount showTooltips />
+            <span className="text-muted-foreground text-sm">快捷键: Ctrl+Z / Ctrl+Y</span>
           </div>
         </div>
 
         {/* Main Content */}
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+        <div className="grid grid-cols-1 gap-8 lg:grid-cols-2">
           {/* Todo List */}
           <Card className="p-6">
-            <div className="flex items-center justify-between mb-6">
+            <div className="mb-6 flex items-center justify-between">
               <h2 className="text-xl font-semibold">待办事项列表</h2>
               <div className="flex gap-2">
                 <Button
                   variant="outline"
                   size="sm"
                   onClick={markAllComplete}
-                  disabled={todos.filter((t) => !t.completed).length === 0}
+                  disabled={todos.filter(t => !t.completed).length === 0}
                 >
-                  <RefreshCw className="h-4 w-4 mr-2" />
+                  <RefreshCw className="mr-2 h-4 w-4" />
                   全部完成
                 </Button>
                 <Button
@@ -223,26 +207,26 @@ export default function UndoRedoExamplePage() {
                   onClick={clearAllTodos}
                   disabled={todos.length === 0}
                 >
-                  <Trash2 className="h-4 w-4 mr-2" />
+                  <Trash2 className="mr-2 h-4 w-4" />
                   清空
                 </Button>
               </div>
             </div>
 
             {/* Add Todo Input */}
-            <div className="flex gap-2 mb-6">
+            <div className="mb-6 flex gap-2">
               <Input
                 placeholder="添加新的待办事项..."
                 value={newTodo}
-                onChange={(e) => setNewTodo(e.target.value)}
-                onKeyDown={(e) => {
+                onChange={e => setNewTodo(e.target.value)}
+                onKeyDown={e => {
                   if (e.key === 'Enter') {
-                    addTodo();
+                    addTodo()
                   }
                 }}
               />
               <Button onClick={addTodo} disabled={!newTodo.trim()}>
-                <Plus className="h-4 w-4 mr-2" />
+                <Plus className="mr-2 h-4 w-4" />
                 添加
               </Button>
             </div>
@@ -250,14 +234,12 @@ export default function UndoRedoExamplePage() {
             {/* Todo List */}
             <div className="space-y-2">
               {todos.length === 0 ? (
-                <div className="text-center py-8 text-muted-foreground">
-                  暂无待办事项
-                </div>
+                <div className="text-muted-foreground py-8 text-center">暂无待办事项</div>
               ) : (
-                todos.map((todo) => (
+                todos.map(todo => (
                   <div
                     key={todo.id}
-                    className="flex items-center gap-3 p-3 rounded-lg border bg-card hover:bg-muted/50 transition-colors"
+                    className="bg-card hover:bg-muted/50 flex items-center gap-3 rounded-lg border p-3 transition-colors"
                   >
                     <input
                       type="checkbox"
@@ -267,9 +249,7 @@ export default function UndoRedoExamplePage() {
                     />
                     <span
                       className={`flex-1 ${
-                        todo.completed
-                          ? 'line-through text-muted-foreground'
-                          : ''
+                        todo.completed ? 'text-muted-foreground line-through' : ''
                       }`}
                     >
                       {todo.text}
@@ -301,64 +281,42 @@ export default function UndoRedoExamplePage() {
 
         {/* Feature List */}
         <Card className="p-6">
-          <h2 className="text-xl font-semibold mb-4">功能特性</h2>
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+          <h2 className="mb-4 text-xl font-semibold">功能特性</h2>
+          <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3">
             <div className="space-y-2">
-              <h3 className="font-medium flex items-center gap-2">
-                <Undo2 className="h-5 w-5 text-primary" />
+              <h3 className="flex items-center gap-2 font-medium">
+                <Undo2 className="text-primary h-5 w-5" />
                 撤销/重做
               </h3>
-              <p className="text-sm text-muted-foreground">
-                完整的撤销和重做功能，支持多步操作
-              </p>
+              <p className="text-muted-foreground text-sm">完整的撤销和重做功能，支持多步操作</p>
             </div>
             <div className="space-y-2">
-              <h3 className="font-medium flex items-center gap-2">
-                📝 历史记录
-              </h3>
-              <p className="text-sm text-muted-foreground">
-                详细的操作历史，可查看每一步的变化
-              </p>
+              <h3 className="flex items-center gap-2 font-medium">📝 历史记录</h3>
+              <p className="text-muted-foreground text-sm">详细的操作历史，可查看每一步的变化</p>
             </div>
             <div className="space-y-2">
-              <h3 className="font-medium flex items-center gap-2">
-                ⌨️ 键盘快捷键
-              </h3>
-              <p className="text-sm text-muted-foreground">
-                支持 Ctrl+Z 撤销和 Ctrl+Y 重做
-              </p>
+              <h3 className="flex items-center gap-2 font-medium">⌨️ 键盘快捷键</h3>
+              <p className="text-muted-foreground text-sm">支持 Ctrl+Z 撤销和 Ctrl+Y 重做</p>
             </div>
             <div className="space-y-2">
-              <h3 className="font-medium flex items-center gap-2">
-                📦 操作分组
-              </h3>
-              <p className="text-sm text-muted-foreground">
-                批量操作可自动分组，一次性撤销
-              </p>
+              <h3 className="flex items-center gap-2 font-medium">📦 操作分组</h3>
+              <p className="text-muted-foreground text-sm">批量操作可自动分组，一次性撤销</p>
             </div>
             <div className="space-y-2">
-              <h3 className="font-medium flex items-center gap-2">
-                💾 导入导出
-              </h3>
-              <p className="text-sm text-muted-foreground">
-                支持历史记录的导入和导出
-              </p>
+              <h3 className="flex items-center gap-2 font-medium">💾 导入导出</h3>
+              <p className="text-muted-foreground text-sm">支持历史记录的导入和导出</p>
             </div>
             <div className="space-y-2">
-              <h3 className="font-medium flex items-center gap-2">
-                🔧 Zustand 集成
-              </h3>
-              <p className="text-sm text-muted-foreground">
-                可作为 Zustand 中间件使用
-              </p>
+              <h3 className="flex items-center gap-2 font-medium">🔧 Zustand 集成</h3>
+              <p className="text-muted-foreground text-sm">可作为 Zustand 中间件使用</p>
             </div>
           </div>
         </Card>
 
         {/* Usage Example */}
         <Card className="p-6">
-          <h2 className="text-xl font-semibold mb-4">代码示例</h2>
-          <pre className="bg-muted p-4 rounded-lg overflow-x-auto text-sm">
+          <h2 className="mb-4 text-xl font-semibold">代码示例</h2>
+          <pre className="bg-muted overflow-x-auto rounded-lg p-4 text-sm">
             <code>{`// 1. 创建带 Undo-Redo 的 Store
 import { create } from 'zustand';
 import { undoRedo } from '@/lib/undo-redo/middleware';
@@ -397,5 +355,5 @@ pushOperation(
         </Card>
       </div>
     </div>
-  );
+  )
 }

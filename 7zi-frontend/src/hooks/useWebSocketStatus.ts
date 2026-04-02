@@ -10,29 +10,29 @@
  * - Connection state and statistics tracking
  */
 
-'use client';
+'use client'
 
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback } from 'react'
 import {
   WebSocketManager,
   ConnectionState,
   ConnectionStats,
   type WebSocketManagerOptions,
-} from '@/lib/websocket-manager';
+} from '@/lib/websocket-manager'
 
 /**
  * Hook options
  */
 export interface UseWebSocketStatusOptions {
-  updateInterval?: number; // Stats update interval in ms (default: 1000)
-  enabled?: boolean; // Whether to track stats (default: true)
+  updateInterval?: number // Stats update interval in ms (default: 1000)
+  enabled?: boolean // Whether to track stats (default: true)
 }
 
 /**
  * Hook options for auto mode
  */
 export interface UseWebSocketStatusAutoOptions extends UseWebSocketStatusOptions {
-  managerOptions?: Partial<Omit<WebSocketManagerOptions, 'url'>>;
+  managerOptions?: Partial<Omit<WebSocketManagerOptions, 'url'>>
 }
 
 /**
@@ -40,23 +40,23 @@ export interface UseWebSocketStatusAutoOptions extends UseWebSocketStatusOptions
  */
 export interface UseWebSocketStatusReturn {
   // Connection state
-  state: ConnectionState;
-  isConnected: boolean;
-  isConnecting: boolean;
-  isReconnecting: boolean;
-  isError: boolean;
+  state: ConnectionState
+  isConnected: boolean
+  isConnecting: boolean
+  isReconnecting: boolean
+  isError: boolean
 
   // Statistics
-  stats: ConnectionStats;
+  stats: ConnectionStats
 
   // Queue
-  queueSize: number;
+  queueSize: number
 
   // Actions
-  getManager: () => WebSocketManager | null;
-  connect: () => void;
-  disconnect: () => void;
-  resetStats: () => void;
+  getManager: () => WebSocketManager | null
+  connect: () => void
+  disconnect: () => void
+  resetStats: () => void
 }
 
 /**
@@ -65,7 +65,7 @@ export interface UseWebSocketStatusReturn {
 const DEFAULT_OPTIONS: Required<UseWebSocketStatusOptions> = {
   updateInterval: 1000,
   enabled: true,
-};
+}
 
 /**
  * useWebSocketStatus Hook
@@ -74,12 +74,12 @@ export function useWebSocketStatus(
   wsManager: WebSocketManager | null,
   options: UseWebSocketStatusOptions = {}
 ): UseWebSocketStatusReturn {
-  const { updateInterval, enabled } = { ...DEFAULT_OPTIONS, ...options };
+  const { updateInterval, enabled } = { ...DEFAULT_OPTIONS, ...options }
 
   // State
   const [state, setState] = useState<ConnectionState>(
     wsManager?.getState() ?? ConnectionState.DISCONNECTED
-  );
+  )
   const [stats, setStats] = useState<ConnectionStats>(
     wsManager?.getStats() ??
       ({
@@ -91,76 +91,79 @@ export function useWebSocketStatus(
         currentPingLatency: 0,
         averagePingLatency: 0,
       } as ConnectionStats)
-  );
-  const [queueSize, setQueueSize] = useState(wsManager?.getQueueSize() ?? 0);
+  )
+  const [queueSize, setQueueSize] = useState(wsManager?.getQueueSize() ?? 0)
 
   /**
    * Subscribe to connection state changes
    */
   useEffect(() => {
-    if (!wsManager) return;
+    if (!wsManager) return
 
     const handleStateChange = (newState: ConnectionState) => {
-      setState(newState);
-    };
+      setState(newState)
+    }
 
-    wsManager.onStateChange(handleStateChange);
+    wsManager.onStateChange(handleStateChange)
 
     return () => {
-      wsManager.offStateChange(handleStateChange);
-    };
-  }, [wsManager]);
+      wsManager.offStateChange(handleStateChange)
+    }
+  }, [wsManager])
 
   /**
    * Periodic stats update
    */
   useEffect(() => {
-    if (!wsManager || !enabled) return;
+    if (!wsManager || !enabled) return
 
     const updateStats = () => {
-      setStats(wsManager.getStats());
-      setQueueSize(wsManager.getQueueSize());
-    };
+      setStats(wsManager.getStats())
+      setQueueSize(wsManager.getQueueSize())
+    }
 
-    const interval = setInterval(updateStats, updateInterval);
+    const interval = setInterval(updateStats, updateInterval)
 
-    return () => clearInterval(interval);
-  }, [wsManager, updateInterval, enabled]);
+    return () => clearInterval(interval)
+  }, [wsManager, updateInterval, enabled])
 
   /**
    * Connect action
    */
   const connect = useCallback(() => {
-    wsManager?.connect();
-  }, [wsManager]);
+    wsManager?.connect()
+  }, [wsManager])
 
   /**
    * Disconnect action
    */
   const disconnect = useCallback(() => {
-    wsManager?.disconnect();
-  }, [wsManager]);
+    wsManager?.disconnect()
+  }, [wsManager])
 
   /**
    * Reset statistics
    */
   const resetStats = useCallback(() => {
-    wsManager?.resetStats();
-    setStats(wsManager?.getStats() ?? {
-      messagesSent: 0,
-      messagesReceived: 0,
-      totalReconnections: 0,
-      lastActiveTime: Date.now(),
-      lastPingTime: 0,
-      currentPingLatency: 0,
-      averagePingLatency: 0,
-    } as ConnectionStats);
-  }, [wsManager]);
+    wsManager?.resetStats()
+    setStats(
+      wsManager?.getStats() ??
+        ({
+          messagesSent: 0,
+          messagesReceived: 0,
+          totalReconnections: 0,
+          lastActiveTime: Date.now(),
+          lastPingTime: 0,
+          currentPingLatency: 0,
+          averagePingLatency: 0,
+        } as ConnectionStats)
+    )
+  }, [wsManager])
 
   /**
    * Get manager instance
    */
-  const getManager = useCallback(() => wsManager, [wsManager]);
+  const getManager = useCallback(() => wsManager, [wsManager])
 
   return {
     // Connection state
@@ -181,7 +184,7 @@ export function useWebSocketStatus(
     connect,
     disconnect,
     resetStats,
-  };
+  }
 }
 
 /**
@@ -196,24 +199,24 @@ export function useWebSocketStatusAuto(
   socketUrl: string,
   options: UseWebSocketStatusAutoOptions = {}
 ): UseWebSocketStatusReturn {
-  const { managerOptions, ...hookOptions } = options;
+  const { managerOptions, ...hookOptions } = options
 
   // Create manager on mount
   const [manager] = useState(() => {
     return new WebSocketManager({
       url: socketUrl,
       ...managerOptions,
-    });
-  });
+    })
+  })
 
-  const status = useWebSocketStatus(manager, hookOptions);
+  const status = useWebSocketStatus(manager, hookOptions)
 
   // Cleanup on unmount
   useEffect(() => {
     return () => {
-      manager.disconnect();
-    };
-  }, [manager]);
+      manager.disconnect()
+    }
+  }, [manager])
 
-  return status;
+  return status
 }

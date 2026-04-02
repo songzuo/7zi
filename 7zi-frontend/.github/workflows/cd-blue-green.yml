@@ -44,7 +44,7 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
         with:
-          fetch-depth: 1  # 浅克隆加速
+          fetch-depth: 1 # 浅克隆加速
 
       # 缓存优化：使用 pnpm 缓存
       - name: Setup Node.js with Cache

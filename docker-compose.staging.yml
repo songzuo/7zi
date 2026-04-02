@@ -3,7 +3,7 @@
 # 用于预发布测试
 # ============================================
 
-version: "3.8"
+version: '3.8'
 
 services:
   # Next.js Frontend (standalone 模式)
@@ -18,7 +18,7 @@ services:
     restart: unless-stopped
 
     ports:
-      - "${PORT:-3001}:3000"
+      - '${PORT:-3001}:3000'
 
     env_file:
       - .env.staging
@@ -31,7 +31,13 @@ services:
 
     # 健康检查
     healthcheck:
-      test: ["CMD", "node", "-e", "require('http').get('http://localhost:3000/', (r) => {process.exit(r.statusCode === 200 ? 0 : 1)})"]
+      test:
+        [
+          'CMD',
+          'node',
+          '-e',
+          "require('http').get('http://localhost:3000/', (r) => {process.exit(r.statusCode === 200 ? 0 : 1)})",
+        ]
       interval: 30s
       timeout: 10s
       retries: 3
@@ -41,10 +47,10 @@ services:
     deploy:
       resources:
         limits:
-          cpus: "1"
+          cpus: '1'
           memory: 512M
         reservations:
-          cpus: "0.25"
+          cpus: '0.25'
           memory: 128M
       restart_policy:
         condition: on-failure
@@ -54,12 +60,12 @@ services:
 
     # 日志配置
     logging:
-      driver: "json-file"
+      driver: 'json-file'
       options:
-        max-size: "20m"
-        max-file: "3"
-        labels: "service,environment"
-        tag: "{{.Name}}/{{.ID}}"
+        max-size: '20m'
+        max-file: '3'
+        labels: 'service,environment'
+        tag: '{{.Name}}/{{.ID}}'
 
     # 安全配置
     security_opt:
@@ -75,8 +81,8 @@ services:
     restart: unless-stopped
 
     ports:
-      - "8080:80"
-      - "8443:443"
+      - '8080:80'
+      - '8443:443'
 
     volumes:
       - ./nginx/nginx.conf:/etc/nginx/nginx.conf:ro
@@ -89,7 +95,7 @@ services:
 
     # 健康检查
     healthcheck:
-      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost/health"]
+      test: ['CMD', 'wget', '--no-verbose', '--tries=1', '--spider', 'http://localhost/health']
       interval: 30s
       timeout: 10s
       retries: 3
@@ -98,18 +104,18 @@ services:
     deploy:
       resources:
         limits:
-          cpus: "0.25"
+          cpus: '0.25'
           memory: 128M
         reservations:
-          cpus: "0.1"
+          cpus: '0.1'
           memory: 32M
 
     # 日志配置
     logging:
-      driver: "json-file"
+      driver: 'json-file'
       options:
-        max-size: "10m"
-        max-file: "3"
+        max-size: '10m'
+        max-file: '3'
 
     networks:
       - 7zi-network

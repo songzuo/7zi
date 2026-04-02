@@ -1,6 +1,6 @@
 /**
  * Array utilities
- * 
+ *
  * @module lib/utils/array
  */
 
@@ -14,11 +14,11 @@
  * batch([1, 2, 3, 4, 5], 2) // [[1, 2], [3, 4], [5]]
  */
 export function batch<T>(array: T[], size: number): T[][] {
-  const batches: T[][] = [];
+  const batches: T[][] = []
   for (let i = 0; i < array.length; i += size) {
-    batches.push(array.slice(i, i + size));
+    batches.push(array.slice(i, i + size))
   }
-  return batches;
+  return batches
 }
 
 /**
@@ -30,12 +30,12 @@ export function batch<T>(array: T[], size: number): T[][] {
  * shuffle([1, 2, 3, 4, 5]) // [3, 1, 5, 2, 4] (random order)
  */
 export function shuffle<T>(array: T[]): T[] {
-  const arr = [...array];
+  const arr = [...array]
   for (let i = arr.length - 1; i > 0; i--) {
-    const j = Math.floor(Math.random() * (i + 1));
-    [arr[i], arr[j]] = [arr[j], arr[i]];
+    const j = Math.floor(Math.random() * (i + 1))
+    ;[arr[i], arr[j]] = [arr[j], arr[i]]
   }
-  return arr;
+  return arr
 }
 
 /**
@@ -47,7 +47,7 @@ export function shuffle<T>(array: T[]): T[] {
  * randomItem([1, 2, 3]) // 2 (random)
  */
 export function randomItem<T>(array: T[]): T {
-  return array[Math.floor(Math.random() * array.length)];
+  return array[Math.floor(Math.random() * array.length)]
 }
 
 /**
@@ -59,7 +59,7 @@ export function randomItem<T>(array: T[]): T {
  * unique([1, 2, 2, 3, 3, 3]) // [1, 2, 3]
  */
 export function unique<T>(array: T[]): T[] {
-  return Array.from(new Set(array));
+  return Array.from(new Set(array))
 }
 
 /**
@@ -79,14 +79,14 @@ export function groupBy<T, K extends string | number>(
   array: T[],
   keyFn: (item: T) => K
 ): Map<K, T[]> {
-  const groups = new Map<K, T[]>();
+  const groups = new Map<K, T[]>()
   for (const item of array) {
-    const key = keyFn(item);
-    const group = groups.get(key) || [];
-    group.push(item);
-    groups.set(key, group);
+    const key = keyFn(item)
+    const group = groups.get(key) || []
+    group.push(item)
+    groups.set(key, group)
   }
-  return groups;
+  return groups
 }
 
 /**
@@ -100,13 +100,13 @@ export function groupBy<T, K extends string | number>(
  * pick({ a: 1, b: 2, c: 3 }, ['a', 'c']) // { a: 1, c: 3 }
  */
 export function pick<T extends object, K extends keyof T>(obj: T, keys: K[]): Pick<T, K> {
-  const result = {} as Pick<T, K>;
+  const result = {} as Pick<T, K>
   keys.forEach(key => {
     if (key in obj) {
-      result[key] = obj[key];
+      result[key] = obj[key]
     }
-  });
-  return result;
+  })
+  return result
 }
 
 /**
@@ -120,9 +120,9 @@ export function pick<T extends object, K extends keyof T>(obj: T, keys: K[]): Pi
  * omit({ a: 1, b: 2, c: 3 }, ['b']) // { a: 1, c: 3 }
  */
 export function omit<T, K extends keyof T>(obj: T, keys: K[]): Omit<T, K> {
-  const result = { ...obj };
+  const result = { ...obj }
   keys.forEach(key => {
-    delete result[key];
-  });
-  return result;
+    delete result[key]
+  })
+  return result
 }

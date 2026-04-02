@@ -66,87 +66,87 @@ export interface AuditLogEntry {
   /**
    * 唯一标识符
    */
-  id: string;
+  id: string
 
   /**
    * 事件类型
    */
-  eventType: AuditEventType;
+  eventType: AuditEventType
 
   /**
    * 日志级别
    */
-  level: AuditLogLevel;
+  level: AuditLogLevel
 
   /**
    * 用户 ID（如果已认证）
    */
-  userId?: string;
+  userId?: string
 
   /**
    * 用户名（如果已认证）
    */
-  username?: string;
+  username?: string
 
   /**
    * IP 地址
    */
-  ipAddress: string;
+  ipAddress: string
 
   /**
    * User-Agent
    */
-  userAgent?: string;
+  userAgent?: string
 
   /**
    * 请求路径
    */
-  path?: string;
+  path?: string
 
   /**
    * HTTP 方法
    */
-  method?: string;
+  method?: string
 
   /**
    * 事件描述
    */
-  message: string;
+  message: string
 
   /**
    * 事件详情（JSON 格式）
    */
-  details?: Record<string, unknown>;
+  details?: Record<string, unknown>
 
   /**
    * 资源类型
    */
-  resourceType?: string;
+  resourceType?: string
 
   /**
    * 资源 ID
    */
-  resourceId?: string;
+  resourceId?: string
 
   /**
    * 操作结果
    */
-  success: boolean;
+  success: boolean
 
   /**
    * 错误信息（如果失败）
    */
-  error?: string;
+  error?: string
 
   /**
    * 时间戳
    */
-  timestamp: Date;
+  timestamp: Date
 
   /**
    * 会话 ID
    */
-  sessionId?: string;
+  sessionId?: string
 }
 
 /**
@@ -156,67 +156,67 @@ export interface AuditLogQuery {
   /**
    * 用户 ID
    */
-  userId?: string;
+  userId?: string
 
   /**
    * 事件类型
    */
-  eventType?: AuditEventType | AuditEventType[];
+  eventType?: AuditEventType | AuditEventType[]
 
   /**
    * 日志级别
    */
-  level?: AuditLogLevel | AuditLogLevel[];
+  level?: AuditLogLevel | AuditLogLevel[]
 
   /**
    * IP 地址
    */
-  ipAddress?: string;
+  ipAddress?: string
 
   /**
    * 资源类型
    */
-  resourceType?: string;
+  resourceType?: string
 
   /**
    * 资源 ID
    */
-  resourceId?: string;
+  resourceId?: string
 
   /**
    * 开始时间
    */
-  startDate?: Date;
+  startDate?: Date
 
   /**
    * 结束时间
    */
-  endDate?: Date;
+  endDate?: Date
 
   /**
    * 操作结果
    */
-  success?: boolean;
+  success?: boolean
 
   /**
    * 分页偏移量
    */
-  offset?: number;
+  offset?: number
 
   /**
    * 分页限制
    */
-  limit?: number;
+  limit?: number
 
   /**
    * 排序字段
    */
-  sortBy?: 'timestamp' | 'level' | 'eventType';
+  sortBy?: 'timestamp' | 'level' | 'eventType'
 
   /**
    * 排序方向
    */
-  sortOrder?: 'asc' | 'desc';
+  sortOrder?: 'asc' | 'desc'
 }
 
 /**
@@ -226,38 +226,38 @@ export interface AuditLogStats {
   /**
    * 总日志数
    */
-  totalLogs: number;
+  totalLogs: number
 
   /**
    * 成功操作数
    */
-  successCount: number;
+  successCount: number
 
   /**
    * 失败操作数
    */
-  failureCount: number;
+  failureCount: number
 
   /**
    * 按事件类型分组统计
    */
-  byEventType: Record<string, number>;
+  byEventType: Record<string, number>
 
   /**
    * 按日志级别分组统计
    */
-  byLevel: Record<string, number>;
+  byLevel: Record<string, number>
 
   /**
    * 按用户分组统计
    */
-  byUser: Record<string, number>;
+  byUser: Record<string, number>
 
   /**
    * 时间范围
    */
   dateRange: {
-    start: Date;
-    end: Date;
-  };
+    start: Date
+    end: Date
+  }
 }

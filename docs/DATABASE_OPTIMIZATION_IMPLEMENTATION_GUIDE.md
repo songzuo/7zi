@@ -1,4 +1,5 @@
 # Database Performance Optimization Implementation Guide
+
 # 数据库性能优化实施指南
 
 ## Overview / 概述
@@ -48,7 +49,7 @@ This guide provides comprehensive documentation for the database performance opt
 ### 1.2 Usage / 使用方法
 
 ```typescript
-import { getConnectionPool, type PoolConfig } from '@/lib/db/connection-pool';
+import { getConnectionPool, type PoolConfig } from '@/lib/db/connection-pool'
 
 // Get or create connection pool
 const pool = getConnectionPool({
@@ -60,42 +61,42 @@ const pool = getConnectionPool({
   healthCheckInterval: 60000,
   maxConnectionAge: 3600000,
   enableWAL: true,
-});
+})
 
 // Acquire a connection
-const db = await pool.acquire();
+const db = await pool.acquire()
 
 // Use the connection
-const stmt = db.prepare('SELECT * FROM agents WHERE status = ?');
-const agents = stmt.all('active');
+const stmt = db.prepare('SELECT * FROM agents WHERE status = ?')
+const agents = stmt.all('active')
 
 // Release the connection back to the pool
-pool.release(db);
+pool.release(db)
 
 // Get pool statistics
-const stats = pool.getStats();
-console.log('Pool stats:', stats);
+const stats = pool.getStats()
+console.log('Pool stats:', stats)
 
 // Perform health check
-const health = await pool.performHealthCheck();
-console.log('Health status:', health);
+const health = await pool.performHealthCheck()
+console.log('Health status:', health)
 
 // Shutdown the pool
-await pool.shutdown();
+await pool.shutdown()
 ```
 
 ### 1.3 Configuration / 配置
 
 ```typescript
 interface PoolConfig {
-  databasePath: string;           // Database file path
-  maxConnections: number;          // Max connections (default: 10)
-  minConnections: number;          // Min connections (default: 2)
-  connectionTimeout: number;       // Timeout in ms (default: 30000)
-  idleTimeout: number;            // Idle timeout in ms (default: 300000)
-  healthCheckInterval: number;     // Health check interval (default: 60000)
-  maxConnectionAge: number;       // Max connection age in ms (default: 3600000)
-  enableWAL: boolean;             // Enable WAL mode (default: true)
+  databasePath: string // Database file path
+  maxConnections: number // Max connections (default: 10)
+  minConnections: number // Min connections (default: 2)
+  connectionTimeout: number // Timeout in ms (default: 30000)
+  idleTimeout: number // Idle timeout in ms (default: 300000)
+  healthCheckInterval: number // Health check interval (default: 60000)
+  maxConnectionAge: number // Max connection age in ms (default: 3600000)
+  enableWAL: boolean // Enable WAL mode (default: true)
 }
 ```
 
@@ -122,34 +123,34 @@ interface PoolConfig {
 ### 2.2 Usage / 使用方法
 
 ```typescript
-import { getSlowQueryLogger } from '@/lib/db/slow-query-logger';
+import { getSlowQueryLogger } from '@/lib/db/slow-query-logger'
 
 // Get slow query logger instance
-const logger = getSlowQueryLogger();
+const logger = getSlowQueryLogger()
 
 // Set thresholds
-logger.setSlowQueryThreshold(100);  // Slow query threshold in ms
-logger.setVerySlowQueryThreshold(1000);  // Very slow query threshold in ms
+logger.setSlowQueryThreshold(100) // Slow query threshold in ms
+logger.setVerySlowQueryThreshold(1000) // Very slow query threshold in ms
 
 // Get slow queries
-const slowQueries = logger.getSlowQueries(10);  // Get top 10 slow queries
+const slowQueries = logger.getSlowQueries(10) // Get top 10 slow queries
 
 // Get performance metrics
-const metrics = logger.getMetrics();
-console.log('Total queries:', metrics.totalQueries);
-console.log('Average time:', metrics.avgExecutionTime);
+const metrics = logger.getMetrics()
+console.log('Total queries:', metrics.totalQueries)
+console.log('Average time:', metrics.avgExecutionTime)
 
 // Get slow query statistics
-const stats = logger.getSlowQueryStats();
-console.log('Slow queries:', stats.total);
-console.log('Average slow query time:', stats.avgTime);
+const stats = logger.getSlowQueryStats()
+console.log('Slow queries:', stats.total)
+console.log('Average slow query time:', stats.avgTime)
 
 // Generate performance report
-const report = logger.generateReport();
-console.log(report);
+const report = logger.generateReport()
+console.log(report)
 
 // Clear logs
-logger.clear();
+logger.clear()
 ```
 
 ---
@@ -182,66 +183,63 @@ import {
   executeCursorPaginatedQuery,
   type PaginationOptions,
   type PaginatedResult,
-} from '@/lib/db/pagination';
+} from '@/lib/db/pagination'
 
 // Offset-based pagination
 const options: PaginationOptions = {
   page: 1,
   limit: 20,
   maxLimit: 100,
-};
+}
 
 // Build pagination clause
-const { clause, params } = buildPaginationClause(options);
-const sql = `SELECT * FROM agents ${clause}`;
+const { clause, params } = buildPaginationClause(options)
+const sql = `SELECT * FROM agents ${clause}`
 
 // Execute paginated query
 const result = await executePaginatedQuery(
   async (limit, offset) => {
-    const db = await getDatabase();
-    const stmt = db.prepare(`SELECT * FROM agents LIMIT ? OFFSET ?`);
-    return stmt.all(limit, offset);
+    const db = await getDatabase()
+    const stmt = db.prepare(`SELECT * FROM agents LIMIT ? OFFSET ?`)
+    return stmt.all(limit, offset)
   },
   async () => {
-    const db = await getDatabase();
-    const stmt = db.prepare('SELECT COUNT(*) as count FROM agents');
-    const { count } = stmt.get() as { count: number };
-    return count;
+    const db = await getDatabase()
+    const stmt = db.prepare('SELECT COUNT(*) as count FROM agents')
+    const { count } = stmt.get() as { count: number }
+    return count
   },
   options
-);
+)
 
-console.log('Items:', result.items);
-console.log('Page:', result.meta.currentPage);
-console.log('Total:', result.meta.total);
-console.log('Has next:', result.meta.hasNext);
+console.log('Items:', result.items)
+console.log('Page:', result.meta.currentPage)
+console.log('Total:', result.meta.total)
+console.log('Has next:', result.meta.hasNext)
 
 // Cursor-based pagination
 const cursorOptions: PaginationOptions = {
   limit: 20,
-  cursor: 'first',  // or use cursor from previous page
+  cursor: 'first', // or use cursor from previous page
   cursorField: 'id',
-};
+}
 
-const cursorResult = await executeCursorPaginatedQuery(
-  async (limit, cursor) => {
-    const db = await getDatabase();
-    let sql = `SELECT * FROM agents ORDER BY id ASC LIMIT ?`;
-    let params = [limit];
+const cursorResult = await executeCursorPaginatedQuery(async (limit, cursor) => {
+  const db = await getDatabase()
+  let sql = `SELECT * FROM agents ORDER BY id ASC LIMIT ?`
+  let params = [limit]
 
-    if (cursor) {
-      sql = `SELECT * FROM agents WHERE id > ? ORDER BY id ASC LIMIT ?`;
-      params = [cursor, limit];
-    }
+  if (cursor) {
+    sql = `SELECT * FROM agents WHERE id > ? ORDER BY id ASC LIMIT ?`
+    params = [cursor, limit]
+  }
 
-    const stmt = db.prepare(sql);
-    return stmt.all(...params);
-  },
-  cursorOptions
-);
+  const stmt = db.prepare(sql)
+  return stmt.all(...params)
+}, cursorOptions)
 
-console.log('Items:', cursorResult.items);
-console.log('Next cursor:', cursorResult.meta.nextCursor);
+console.log('Items:', cursorResult.items)
+console.log('Next cursor:', cursorResult.meta.nextCursor)
 ```
 
 ---
@@ -267,27 +265,32 @@ console.log('Next cursor:', cursorResult.meta.nextCursor);
 ### 4.2 Usage / 使用方法
 
 ```typescript
-import { getNPlus1Detector, createBatchQuery, executeBatchQuery, eagerLoad } from '@/lib/db/nplus1-detector';
+import {
+  getNPlus1Detector,
+  createBatchQuery,
+  executeBatchQuery,
+  eagerLoad,
+} from '@/lib/db/nplus1-detector'
 
 // Get N+1 detector
-const detector = getNPlus1Detector();
+const detector = getNPlus1Detector()
 
 // Start tracking a request
-detector.startRequest('request-123');
+detector.startRequest('request-123')
 
 // Record queries (this is typically done automatically)
-detector.recordQuery('SELECT * FROM agents WHERE id = 1', 5);
-detector.recordQuery('SELECT * FROM agents WHERE id = 2', 5);
-detector.recordQuery('SELECT * FROM agents WHERE id = 3', 5);
+detector.recordQuery('SELECT * FROM agents WHERE id = 1', 5)
+detector.recordQuery('SELECT * FROM agents WHERE id = 2', 5)
+detector.recordQuery('SELECT * FROM agents WHERE id = 3', 5)
 
 // End tracking and analyze
-const detection = detector.endRequest('request-123');
+const detection = detector.endRequest('request-123')
 
 if (detection.detected) {
-  console.warn('N+1 query detected!');
-  console.warn('Severity:', detection.severity);
-  console.warn('Patterns:', detection.patterns);
-  console.warn('Suggestions:', detection.suggestions);
+  console.warn('N+1 query detected!')
+  console.warn('Severity:', detection.severity)
+  console.warn('Patterns:', detection.patterns)
+  console.warn('Suggestions:', detection.suggestions)
 }
 
 // Create batch query
@@ -295,12 +298,12 @@ const individualQueries = [
   { sql: 'SELECT * FROM agents WHERE id = ?', params: [1] },
   { sql: 'SELECT * FROM agents WHERE id = ?', params: [2] },
   { sql: 'SELECT * FROM agents WHERE id = ?', params: [3] },
-];
+]
 
-const batchQuery = createBatchQuery(individualQueries);
+const batchQuery = createBatchQuery(individualQueries)
 if (batchQuery) {
-  const results = await executeBatchQuery(batchQuery);
-  console.log('Batch results:', results);
+  const results = await executeBatchQuery(batchQuery)
+  console.log('Batch results:', results)
 }
 
 // Eager load related entities
@@ -308,17 +311,13 @@ const agents = [
   { id: 1, wallet_id: 100 },
   { id: 2, wallet_id: 101 },
   { id: 3, wallet_id: 102 },
-];
+]
 
-const agentsWithWallets = await eagerLoad(
-  agents,
-  'wallet_id',
-  async (walletIds) => {
-    const db = await getDatabase();
-    const stmt = db.prepare('SELECT * FROM wallets WHERE id IN (...)');
-    return stmt.all(walletIds);
-  }
-);
+const agentsWithWallets = await eagerLoad(agents, 'wallet_id', async walletIds => {
+  const db = await getDatabase()
+  const stmt = db.prepare('SELECT * FROM wallets WHERE id IN (...)')
+  return stmt.all(walletIds)
+})
 ```
 
 ---
@@ -348,7 +347,7 @@ import {
   getDatabaseHealth,
   getPerformanceReport,
   clearPerformanceMetrics,
-} from '@/lib/db/enhanced-db';
+} from '@/lib/db/enhanced-db'
 
 // Initialize enhanced database
 await initializeEnhancedDatabase({
@@ -361,38 +360,35 @@ await initializeEnhancedDatabase({
   slowQueryThreshold: 100,
   enableCaching: true,
   defaultCacheTTL: 30000,
-});
+})
 
 // Get enhanced database connection
-const db = await getEnhancedDatabase();
+const db = await getEnhancedDatabase()
 
 // Use like normal database connection
-const agents = await db.query('SELECT * FROM agents WHERE status = ?', ['active']);
+const agents = await db.query('SELECT * FROM agents WHERE status = ?', ['active'])
 
 // Use pagination
-const paginatedAgents = await db.paginate(
-  'SELECT * FROM agents',
-  { page: 1, limit: 20 }
-);
+const paginatedAgents = await db.paginate('SELECT * FROM agents', { page: 1, limit: 20 })
 
 // Get slow queries
-const slowQueries = db.getSlowQueries?.();
-console.log('Slow queries:', slowQueries);
+const slowQueries = db.getSlowQueries?.()
+console.log('Slow queries:', slowQueries)
 
 // Get performance metrics
-const metrics = db.getMetrics?.();
-console.log('Metrics:', metrics);
+const metrics = db.getMetrics?.()
+console.log('Metrics:', metrics)
 
 // Get database health
-const health = await getDatabaseHealth();
-console.log('Health:', health);
+const health = await getDatabaseHealth()
+console.log('Health:', health)
 
 // Get performance report
-const report = await getPerformanceReport();
-console.log(report);
+const report = await getPerformanceReport()
+console.log(report)
 
 // Clear metrics
-clearPerformanceMetrics();
+clearPerformanceMetrics()
 ```
 
 ---

@@ -1,6 +1,6 @@
 /**
  * Environment detection utilities
- * 
+ *
  * @module lib/utils/env
  */
 
@@ -9,7 +9,7 @@
  * @returns {boolean} True if running on client
  */
 export function isClient(): boolean {
-  return typeof window !== 'undefined';
+  return typeof window !== 'undefined'
 }
 
 /**
@@ -17,7 +17,7 @@ export function isClient(): boolean {
  * @returns {boolean} True if running on server
  */
 export function isServer(): boolean {
-  return typeof window === 'undefined';
+  return typeof window === 'undefined'
 }
 
 /**
@@ -25,7 +25,7 @@ export function isServer(): boolean {
  * @returns {boolean} True if running in a browser
  */
 export function isBrowser(): boolean {
-  return typeof window !== 'undefined' && typeof document !== 'undefined';
+  return typeof window !== 'undefined' && typeof document !== 'undefined'
 }
 
 /**
@@ -33,7 +33,7 @@ export function isBrowser(): boolean {
  * @returns {boolean} True if running in Node.js
  */
 export function isNode(): boolean {
-  return typeof process !== 'undefined' && process.versions != null && process.versions.node != null;
+  return typeof process !== 'undefined' && process.versions != null && process.versions.node != null
 }
 
 /**
@@ -43,8 +43,8 @@ export function isNode(): boolean {
  * @private
  */
 function checkMediaQuery(query: string): boolean {
-  if (typeof window === 'undefined') return false;
-  return window.matchMedia(query).matches;
+  if (typeof window === 'undefined') return false
+  return window.matchMedia(query).matches
 }
 
 /**
@@ -52,7 +52,7 @@ function checkMediaQuery(query: string): boolean {
  * @returns {boolean} True if prefers reduced motion
  */
 export function prefersReducedMotion(): boolean {
-  return checkMediaQuery('(prefers-reduced-motion: reduce)');
+  return checkMediaQuery('(prefers-reduced-motion: reduce)')
 }
 
 /**
@@ -60,7 +60,7 @@ export function prefersReducedMotion(): boolean {
  * @returns {boolean} True if prefers dark mode
  */
 export function prefersDarkMode(): boolean {
-  return checkMediaQuery('(prefers-color-scheme: dark)');
+  return checkMediaQuery('(prefers-color-scheme: dark)')
 }
 
 /**
@@ -68,7 +68,7 @@ export function prefersDarkMode(): boolean {
  * @returns {boolean} True if prefers light mode
  */
 export function prefersLightMode(): boolean {
-  return checkMediaQuery('(prefers-color-scheme: light)');
+  return checkMediaQuery('(prefers-color-scheme: light)')
 }
 
 /**
@@ -76,13 +76,13 @@ export function prefersLightMode(): boolean {
  * @returns {boolean} True if touch device
  */
 export function isTouchDevice(): boolean {
-  if (typeof window === 'undefined') return false;
+  if (typeof window === 'undefined') return false
   return (
     'ontouchstart' in window ||
     navigator.maxTouchPoints > 0 ||
     // @ts-expect-error - vendor prefixed property
     navigator.msMaxTouchPoints > 0
-  );
+  )
 }
 
 /**
@@ -90,15 +90,15 @@ export function isTouchDevice(): boolean {
  * @returns {'desktop' | 'tablet' | 'mobile'} Device type
  */
 export function getDeviceType(): 'desktop' | 'tablet' | 'mobile' {
-  if (typeof window === 'undefined') return 'desktop';
+  if (typeof window === 'undefined') return 'desktop'
 
-  const ua = navigator.userAgent;
-  const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(ua);
-  const isTablet = /iPad|Android(?!.*Mobile)|Tablet/i.test(ua) && !isMobile;
+  const ua = navigator.userAgent
+  const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(ua)
+  const isTablet = /iPad|Android(?!.*Mobile)|Tablet/i.test(ua) && !isMobile
 
-  if (isTablet) return 'tablet';
-  if (isMobile) return 'mobile';
-  return 'desktop';
+  if (isTablet) return 'tablet'
+  if (isMobile) return 'mobile'
+  return 'desktop'
 }
 
 /**
@@ -107,11 +107,11 @@ export function getDeviceType(): 'desktop' | 'tablet' | 'mobile' {
  */
 export function getViewportSize(): { width: number; height: number } {
   if (typeof window === 'undefined') {
-    return { width: 0, height: 0 };
+    return { width: 0, height: 0 }
   }
 
   return {
     width: window.innerWidth || document.documentElement.clientWidth || 0,
     height: window.innerHeight || document.documentElement.clientHeight || 0,
-  };
+  }
 }

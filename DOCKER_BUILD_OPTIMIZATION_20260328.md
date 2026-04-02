@@ -13,13 +13,13 @@
 
 ### 关键指标
 
-| 指标 | 优化前 | 优化后 | 变化 |
-|------|--------|--------|------|
-| **构建成功率** | ❌ 失败 | ✅ 成功 | +100% |
-| **构建时间** | - | ~105秒 | 新基准 |
-| **镜像大小** | 211MB | 279MB | +32% |
-| **构建上下文大小** | - | 4.26MB | 新基准 |
-| **Docker 层数** | ~18 | 27 | +50% |
+| 指标               | 优化前  | 优化后  | 变化   |
+| ------------------ | ------- | ------- | ------ |
+| **构建成功率**     | ❌ 失败 | ✅ 成功 | +100%  |
+| **构建时间**       | -       | ~105秒  | 新基准 |
+| **镜像大小**       | 211MB   | 279MB   | +32%   |
+| **构建上下文大小** | -       | 4.26MB  | 新基准 |
+| **Docker 层数**    | ~18     | 27      | +50%   |
 
 **⚠️ 注意**: 由于原始 Dockerfile 使用 Alpine + Turbopack 存在构建失败问题（lightningcss 兼容性），无法建立有效的构建时间基准对比。优化版本成功解决了构建问题，为后续优化提供了稳定的起点。
 
@@ -51,6 +51,7 @@
 ### 1. 基础镜像切换: Alpine → Debian slim
 
 **变更**:
+
 ```dockerfile
 # 优化前
 FROM node:20-alpine AS deps
@@ -60,11 +61,13 @@ FROM node:20-slim AS base
 ```
 
 **原因**:
+
 - 更好的 glibc 兼容性，支持原生模块
 - 避免 Alpine 的 musl libc 与某些包的兼容性问题
 - 更稳定的构建环境
 
 **影响**:
+
 - ✅ 构建成功率提升
 - ❌ 镜像体积增加 32% (211MB → 279MB)
 - ⚠️ 首次构建需重新下载依赖
@@ -74,6 +77,7 @@ FROM node:20-slim AS base
 ### 2. 多阶段构建优化
 
 **变更**:
+
 ```dockerfile
 # Stage 1: Base & System Dependencies
 FROM node:20-slim AS base
@@ -96,6 +100,7 @@ COPY --from=builder /app/.next/standalone ./
 ```
 
 **优势**:
+
 - ✅ 依赖变更时只重建 deps 阶段
 - ✅ 代码变更时只重建 builder 阶段
 - ✅ runner 镜像最小化（仅包含运行时）
@@ -105,10 +110,12 @@ COPY --from=builder /app/.next/standalone ./
 ### 3. 构建缓存策略
 
 **变更**:
+
 - 先复制 `package.json` 和 `package-lock.json`（依赖文件）
 - 再复制源代码
 
 **效果**:
+
 - ✅ 依赖未变更时使用缓存（~50秒节省）
 - ✅ 仅代码变更时跳过依赖安装（~40秒节省）
 
@@ -117,6 +124,7 @@ COPY --from=builder /app/.next/standalone ./
 ### 4. Webpack 构建模式
 
 **变更**:
+
 ```dockerfile
 # 优化前
 npm run build  # 使用 Turbopack
@@ -126,10 +134,12 @@ npx next build --webpack --experimental-build-mode compile
 ```
 
 **原因**:
+
 - 避免 Turbopack 与 postcss/tailwind 的兼容性问题
 - 使用 compile 模式避免构建时的数据库初始化
 
 **效果**:
+
 - ✅ 构建稳定性大幅提升
 - ✅ 成功构建生产镜像
 - ✅ 包含所有必要的文件
@@ -139,6 +149,7 @@ npx next build --webpack --experimental-build-mode compile
 ### 5. 依赖安装优化
 
 **变更**:
+
 ```dockerfile
 # 使用 npm ci 而非 npm install
 RUN npm ci --legacy-peer-deps
@@ -149,6 +160,7 @@ RUN rm -rf .next/cache
 ```
 
 **效果**:
+
 - ✅ 确定性的依赖安装
 - ✅ 减小 runner 镜像体积
 - ✅ 避免依赖冲突
@@ -158,6 +170,7 @@ RUN rm -rf .next/cache
 ### 6. .dockerignore 优化
 
 **新增忽略**:
+
 - `node_modules`
 - `*.test.ts`, `*.spec.ts`（测试文件）
 - `coverage/`, `.next/`（构建产物）
@@ -165,6 +178,7 @@ RUN rm -rf .next/cache
 - `.openclaw/`, 等开发工具配置
 
 **效果**:
+
 - ✅ 构建上下文从潜在的大幅减小到 4.26MB
 - ✅ 加速构建上下文传输
 
@@ -173,6 +187,7 @@ RUN rm -rf .next/cache
 ### 7. 安全增强
 
 **变更**:
+
 ```dockerfile
 # 创建非 root 用户
 RUN groupadd --system --gid 1001 nodejs && \
@@ -186,6 +201,7 @@ ENTRYPOINT ["dumb-init", "--"]
 ```
 
 **效果**:
+
 - ✅ 容器以非特权用户运行
 - ✅ 正确的信号处理（SIGTERM、SIGINT）
 - ✅ 孤儿进程清理
@@ -195,12 +211,14 @@ ENTRYPOINT ["dumb-init", "--"]
 ### 8. 健康检查
 
 **变更**:
+
 ```dockerfile
 HEALTHCHECK --interval=30s --timeout=10s --start-period=15s --retries=3 \
     CMD ["/usr/local/bin/healthcheck.sh"]
 ```
 
 **效果**:
+
 - ✅ 自动监控应用健康状态
 - ✅ 容器编排更好的管理
 - ✅ 快速故障检测
@@ -211,21 +229,21 @@ HEALTHCHECK --interval=30s --timeout=10s --start-period=15s --retries=3 \
 
 ### 当前构建时间
 
-| 阶段 | 时间 | 占比 |
-|------|------|------|
-| 系统依赖安装 | ~20秒 | 19% |
-| 依赖安装 (npm ci) | ~51秒 | 49% |
-| Next.js 构建 (webpack) | ~22秒 | 21% |
-| 镜像组装 | ~12秒 | 11% |
-| **总计** | **~105秒** | **100%** |
+| 阶段                   | 时间       | 占比     |
+| ---------------------- | ---------- | -------- |
+| 系统依赖安装           | ~20秒      | 19%      |
+| 依赖安装 (npm ci)      | ~51秒      | 49%      |
+| Next.js 构建 (webpack) | ~22秒      | 21%      |
+| 镜像组装               | ~12秒      | 11%      |
+| **总计**               | **~105秒** | **100%** |
 
 ### 缓存命中场景
 
-| 场景 | 时间 | 节省 |
-|------|------|------|
-| 完全缓存 | ~5秒 | ~95% |
-| 仅代码变更 | ~40秒 | ~62% |
-| 依赖变更 | ~105秒 | 0% |
+| 场景       | 时间   | 节省 |
+| ---------- | ------ | ---- |
+| 完全缓存   | ~5秒   | ~95% |
+| 仅代码变更 | ~40秒  | ~62% |
+| 依赖变更   | ~105秒 | 0%   |
 
 ---
 
@@ -234,6 +252,7 @@ HEALTHCHECK --interval=30s --timeout=10s --start-period=15s --retries=3 \
 ### 短期优化（1-2周）
 
 1. **减小镜像体积**
+
    ```dockerfile
    # 尝试切换回 Alpine（需要解决 lightningcss 问题）
    # 或使用多阶段编译 + 最终 Alpine runner
@@ -241,6 +260,7 @@ HEALTHCHECK --interval=30s --timeout=10s --start-period=15s --retries=3 \
    ```
 
 2. **并行构建**
+
    ```bash
    docker buildx build --platform linux/amd64,linux/arm64 -t 7zi-frontend:multiarch .
    ```
@@ -253,6 +273,7 @@ HEALTHCHECK --interval=30s --timeout=10s --start-period=15s --retries=3 \
 ### 中期优化（1个月）
 
 1. **远程构建缓存**
+
    ```bash
    docker buildx build --cache-from=type=registry,ref=7zi/cache:latest \
                       --cache-to=type=registry,ref=7zi/cache:latest \
@@ -279,11 +300,11 @@ HEALTHCHECK --interval=30s --timeout=10s --start-period=15s --retries=3 \
 
 ### 生成/修改的文件
 
-| 文件 | 状态 | 说明 |
-|------|------|------|
-| `Dockerfile.optimized` | ✅ 新建 | 优化的 Dockerfile |
-| `.dockerignore` | ✅ 更新 | 优化的构建上下文排除规则 |
-| `package.json` | ⚠️ 修改 | 临时添加 @tailwindcss/postcss（应回退） |
+| 文件                   | 状态    | 说明                                    |
+| ---------------------- | ------- | --------------------------------------- |
+| `Dockerfile.optimized` | ✅ 新建 | 优化的 Dockerfile                       |
+| `.dockerignore`        | ✅ 更新 | 优化的构建上下文排除规则                |
+| `package.json`         | ⚠️ 修改 | 临时添加 @tailwindcss/postcss（应回退） |
 
 ### 日志文件
 

@@ -5,6 +5,7 @@
 获取批量操作的选项和支持的操作类型。
 
 **Response (200 OK):**
+
 ```json
 {
   "success": true,
@@ -41,6 +42,7 @@
 执行批量用户操作。
 
 **Request Body:**
+
 ```json
 {
   "operation": "update",
@@ -58,15 +60,16 @@
 }
 ```
 
-| Field | Type | Required | Description |
-|-------|------|----------|-------------|
-| `operation` | string | Yes | 操作类型: "create", "update", "delete", "activate", "deactivate", "change_role" |
-| `users` | array | Yes | 用户对象数组或文件标识 |
-| `dryRun` | boolean | No | 试运行模式，不实际执行 (默认: false) |
+| Field       | Type    | Required | Description                                                                     |
+| ----------- | ------- | -------- | ------------------------------------------------------------------------------- |
+| `operation` | string  | Yes      | 操作类型: "create", "update", "delete", "activate", "deactivate", "change_role" |
+| `users`     | array   | Yes      | 用户对象数组或文件标识                                                          |
+| `dryRun`    | boolean | No       | 试运行模式，不实际执行 (默认: false)                                            |
 
 **Supported Operations:**
 
 #### Create
+
 ```json
 {
   "operation": "create",
@@ -88,6 +91,7 @@
 ```
 
 #### Update
+
 ```json
 {
   "operation": "update",
@@ -102,28 +106,25 @@
 ```
 
 #### Delete
+
 ```json
 {
   "operation": "delete",
-  "users": [
-    { "id": "user_123" },
-    { "id": "user_456" }
-  ]
+  "users": [{ "id": "user_123" }, { "id": "user_456" }]
 }
 ```
 
 #### Activate/Deactivate
+
 ```json
 {
   "operation": "activate",
-  "users": [
-    { "id": "user_123" },
-    { "id": "user_456" }
-  ]
+  "users": [{ "id": "user_123" }, { "id": "user_456" }]
 }
 ```
 
 #### Change Role
+
 ```json
 {
   "operation": "change_role",
@@ -135,6 +136,7 @@
 ```
 
 **Response (200 OK):**
+
 ```json
 {
   "success": true,
@@ -162,6 +164,7 @@
 ```
 
 **Response (200 OK) - Partial Failure:**
+
 ```json
 {
   "success": true,
@@ -194,6 +197,7 @@
 ```
 
 **Errors:**
+
 - `400` - 验证错误
 - `401` - 未授权
 - `403` - 权限不足（需要 ADMIN 或 MANAGER 角色）
@@ -209,14 +213,15 @@
 
 **Request Body:** `multipart/form-data`
 
-| Field | Type | Required | Description |
-|-------|------|----------|-------------|
-| `file` | File | Yes | 用户数据文件 (CSV 或 JSON) |
-| `format` | string | No | 文件格式 (可选，自动检测) |
-| `onConflict` | string | No | 冲突处理: "error", "skip", "update" (默认: "error") |
-| `sendInvite` | boolean | No | 是否发送邀请邮件 (默认: false) |
+| Field        | Type    | Required | Description                                         |
+| ------------ | ------- | -------- | --------------------------------------------------- |
+| `file`       | File    | Yes      | 用户数据文件 (CSV 或 JSON)                          |
+| `format`     | string  | No       | 文件格式 (可选，自动检测)                           |
+| `onConflict` | string  | No       | 冲突处理: "error", "skip", "update" (默认: "error") |
+| `sendInvite` | boolean | No       | 是否发送邀请邮件 (默认: false)                      |
 
 **CSV Format Example:**
+
 ```csv
 email,password,name,role,department
 user1@example.com,Password123,John Doe,MEMBER,Engineering
@@ -224,6 +229,7 @@ user2@example.com,Password123,Jane Smith,MANAGER,Marketing
 ```
 
 **JSON Format Example:**
+
 ```json
 [
   {
@@ -244,6 +250,7 @@ user2@example.com,Password123,Jane Smith,MANAGER,Marketing
 ```
 
 **Response (200 OK):**
+
 ```json
 {
   "success": true,
@@ -275,6 +282,7 @@ user2@example.com,Password123,Jane Smith,MANAGER,Marketing
 ```
 
 **Errors:**
+
 - `400` - 文件格式错误或验证失败
 - `401` - 未授权
 - `403` - 权限不足
@@ -307,6 +315,7 @@ user2@example.com,Password123,Jane Smith,MANAGER,Marketing
 | `offset` | number | No | 偏移量 (默认: 0) |
 
 **Examples:**
+
 ```
 GET /api/ratings?entityType=task&entityId=task_123
 GET /api/ratings?userId=user_456&minScore=4
@@ -314,6 +323,7 @@ GET /api/ratings?sortBy=score&sortOrder=desc&limit=10
 ```
 
 **Response (200 OK):**
+
 ```json
 {
   "success": true,
@@ -365,12 +375,14 @@ GET /api/ratings?sortBy=score&sortOrder=desc&limit=10
 为实体创建评分。
 
 **Headers:**
+
 ```
 Authorization: Bearer <token>
 Content-Type: application/json
 ```
 
 **Request Body:**
+
 ```json
 {
   "entityType": "task",
@@ -380,14 +392,15 @@ Content-Type: application/json
 }
 ```
 
-| Field | Type | Required | Description |
-|-------|------|----------|-------------|
-| `entityType` | string | Yes | 实体类型: "task", "project", "user", "comment" |
-| `entityId` | string | Yes | 实体ID |
-| `score` | number | Yes | 评分 (1-5) |
-| `comment` | string | No | 评论内容 |
+| Field        | Type   | Required | Description                                    |
+| ------------ | ------ | -------- | ---------------------------------------------- |
+| `entityType` | string | Yes      | 实体类型: "task", "project", "user", "comment" |
+| `entityId`   | string | Yes      | 实体ID                                         |
+| `score`      | number | Yes      | 评分 (1-5)                                     |
+| `comment`    | string | No       | 评论内容                                       |
 
 **Response (201 Created):**
+
 ```json
 {
   "success": true,
@@ -408,6 +421,7 @@ Content-Type: application/json
 ```
 
 **Errors:**
+
 - `400` - 验证错误（评分必须在 1-5 之间）
 - `401` - 未授权
 - `409` - 用户已经为该实体评分过
@@ -427,6 +441,7 @@ Content-Type: application/json
 | `id` | string | Yes | 评分ID |
 
 **Response (200 OK):**
+
 ```json
 {
   "success": true,
@@ -464,12 +479,14 @@ Content-Type: application/json
 | `id` | string | Yes | 评分ID |
 
 **Headers:**
+
 ```
 Authorization: Bearer <token>
 Content-Type: application/json
 ```
 
 **Request Body:**
+
 ```json
 {
   "score": 4,
@@ -477,12 +494,13 @@ Content-Type: application/json
 }
 ```
 
-| Field | Type | Required | Description |
-|-------|------|----------|-------------|
-| `score` | number | No | 新评分 (1-5) |
-| `comment` | string | No | 新评论 |
+| Field     | Type   | Required | Description  |
+| --------- | ------ | -------- | ------------ |
+| `score`   | number | No       | 新评分 (1-5) |
+| `comment` | string | No       | 新评论       |
 
 **Response (200 OK):**
+
 ```json
 {
   "success": true,
@@ -503,6 +521,7 @@ Content-Type: application/json
 ```
 
 **Errors:**
+
 - `400` - 验证错误
 - `401` - 未授权
 - `403` - 权限不足（只能更新自己的评分或管理员权限）
@@ -523,11 +542,13 @@ Content-Type: application/json
 | `id` | string | Yes | 评分ID |
 
 **Headers:**
+
 ```
 Authorization: Bearer <token>
 ```
 
 **Response (200 OK):**
+
 ```json
 {
   "success": true,
@@ -536,6 +557,7 @@ Authorization: Bearer <token>
 ```
 
 **Errors:**
+
 - `401` - 未授权
 - `403` - 权限不足
 - `404` - 评分未找到
@@ -555,22 +577,25 @@ Authorization: Bearer <token>
 | `id` | string | Yes | 评分ID |
 
 **Headers:**
+
 ```
 Authorization: Bearer <token>
 ```
 
 **Request Body:**
+
 ```json
 {
   "helpful": true
 }
 ```
 
-| Field | Type | Required | Description |
-|-------|------|----------|-------------|
-| `helpful` | boolean | Yes | 标记为有用 (true) 或取消 (false) |
+| Field     | Type    | Required | Description                      |
+| --------- | ------- | -------- | -------------------------------- |
+| `helpful` | boolean | Yes      | 标记为有用 (true) 或取消 (false) |
 
 **Response (200 OK):**
+
 ```json
 {
   "success": true,
@@ -584,6 +609,7 @@ Authorization: Bearer <token>
 ```
 
 **Response (200 OK) - Unmark:**
+
 ```json
 {
   "success": true,
@@ -597,6 +623,7 @@ Authorization: Bearer <token>
 ```
 
 **Errors:**
+
 - `400` - 验证错误
 - `401` - 未授权
 - `404` - 评分未找到
@@ -615,6 +642,7 @@ Authorization: Bearer <token>
 建立 WebSocket 连接。
 
 **Request Headers:**
+
 ```
 Upgrade: websocket
 Connection: Upgrade
@@ -628,6 +656,7 @@ Authorization: Bearer <token> (可选)
 **WebSocket Events:**
 
 #### Server → Client Events
+
 ```javascript
 // 连接成功
 {
@@ -673,6 +702,7 @@ Authorization: Bearer <token> (可选)
 ```
 
 #### Client → Server Events
+
 ```javascript
 // 订阅事件
 {
@@ -706,12 +736,14 @@ Authorization: Bearer <token> (可选)
 向所有连接的 WebSocket 客户端广播消息。
 
 **Headers:**
+
 ```
 Authorization: Bearer <token>
 Content-Type: application/json
 ```
 
 **Request Body:**
+
 ```json
 {
   "event": "notification",
@@ -724,14 +756,15 @@ Content-Type: application/json
 }
 ```
 
-| Field | Type | Required | Description |
-|-------|------|----------|-------------|
-| `event` | string | Yes | 事件类型 |
-| `data` | object | Yes | 事件数据 |
-| `excludeSocketId` | string | No | 排除的连接ID |
-| `room` | string | No | 仅向特定房间的客户端广播 |
+| Field             | Type   | Required | Description              |
+| ----------------- | ------ | -------- | ------------------------ |
+| `event`           | string | Yes      | 事件类型                 |
+| `data`            | object | Yes      | 事件数据                 |
+| `excludeSocketId` | string | No       | 排除的连接ID             |
+| `room`            | string | No       | 仅向特定房间的客户端广播 |
 
 **Response (200 OK):**
+
 ```json
 {
   "success": true,
@@ -745,6 +778,7 @@ Content-Type: application/json
 ```
 
 **Errors:**
+
 - `400` - 验证错误
 - `401` - 未授权
 - `403` - 权限不足
@@ -764,6 +798,7 @@ Content-Type: application/json
 | `roomId` | string | Yes | 房间ID |
 
 **Response (200 OK):**
+
 ```json
 {
   "success": true,
@@ -784,6 +819,7 @@ Content-Type: application/json
 ```
 
 **Errors:**
+
 - `404` - 房间未找到
 - `500` - 内部服务器错误
 
@@ -796,11 +832,13 @@ Content-Type: application/json
 获取 WebSocket 服务器统计信息。
 
 **Headers:**
+
 ```
 Authorization: Bearer <token> (可选，管理员可查看详细信息)
 ```
 
 **Response (200 OK) - Anonymous:**
+
 ```json
 {
   "success": true,
@@ -813,6 +851,7 @@ Authorization: Bearer <token> (可选，管理员可查看详细信息)
 ```
 
 **Response (200 OK) - Admin:**
+
 ```json
 {
   "success": true,
@@ -850,6 +889,7 @@ Authorization: Bearer <token> (可选，管理员可查看详细信息)
 ```
 
 **Errors:**
+
 - `500` - 内部服务器错误
 
 ---
@@ -874,6 +914,7 @@ Authorization: Bearer <token> (可选，管理员可查看详细信息)
 | `groupBy` | string | No | 分组: "day", "week", "month" (默认: "day") |
 
 **Example:**
+
 ```
 GET /api/analytics/export?format=csv&startDate=2026-03-01&endDate=2026-03-22&groupBy=day
 ```
@@ -883,6 +924,7 @@ GET /api/analytics/export?format=csv&startDate=2026-03-01&endDate=2026-03-22&gro
 返回 CSV 文件下载。
 
 **CSV Format:**
+
 ```csv
 date,tasks_completed,tasks_created,active_users,avg_response_time
 2026-03-01,25,30,15,120
@@ -891,6 +933,7 @@ date,tasks_completed,tasks_created,active_users,avg_response_time
 ```
 
 **Response (200 OK) - JSON:**
+
 ```json
 {
   "startDate": "2026-03-01",
@@ -915,6 +958,7 @@ date,tasks_completed,tasks_created,active_users,avg_response_time
 ```
 
 **Errors:**
+
 - `400` - 验证错误
 - `500` - 内部服务器错误
 
@@ -933,11 +977,13 @@ date,tasks_completed,tasks_created,active_users,avg_response_time
 | `categories` | string | No | 分类 (逗号分隔): "tasks", "users", "performance" (默认: all) |
 
 **Example:**
+
 ```
 GET /api/analytics/metrics?period=7d&categories=tasks,users
 ```
 
 **Response (200 OK):**
+
 ```json
 {
   "success": true,
@@ -982,6 +1028,7 @@ GET /api/analytics/metrics?period=7d&categories=tasks,users
 ```
 
 **Errors:**
+
 - `500` - 内部服务器错误
 
 ---
@@ -1004,11 +1051,13 @@ GET /api/analytics/metrics?period=7d&categories=tasks,users
 | `limit` | number | No | 返回数量 (默认: 50) |
 
 **Example:**
+
 ```
 GET /api/performance/alerts?status=active&severity=critical
 ```
 
 **Response (200 OK):**
+
 ```json
 {
   "success": true,
@@ -1054,6 +1103,7 @@ GET /api/performance/alerts?status=active&severity=critical
 ```
 
 **Errors:**
+
 - `500` - 内部服务器错误
 
 ---
@@ -1069,6 +1119,7 @@ GET /api/performance/alerts?status=active&severity=critical
 获取系统核心健康指标。
 
 **Response (200 OK):**
+
 ```json
 {
   "success": true,
@@ -1113,6 +1164,7 @@ GET /api/performance/alerts?status=active&severity=critical
 获取 Web 性能指标（用于前端监控）。
 
 **Response (200 OK):**
+
 ```json
 {
   "success": true,
@@ -1157,6 +1209,7 @@ GET /api/performance/alerts?status=active&severity=critical
 演示端点，用于测试任务状态功能。
 
 **Response (200 OK):**
+
 ```json
 {
   "success": true,

@@ -22,13 +22,13 @@
 
 ### 架构亮点
 
-| 方面 | 方案 | 优势 |
-|------|------|------|
-| **前端渲染** | React Flow + SVG自定义节点 | 成熟方案、性能优秀、定制灵活 |
-| **状态管理** | Zustand + 持久化中间件 | 轻量级、开发体验好、自动持久化 |
-| **实时通信** | Socket.IO + Room机制 | 高效广播、按需订阅、低延迟 |
-| **工作流引擎** | 状态机 + 执行器模式 | 可扩展、易测试、清晰的状态转换 |
-| **数据持久化** | SQLite/PostgreSQL + Redis缓存 | 快速开发、生产可靠、缓存加速 |
+| 方面           | 方案                          | 优势                           |
+| -------------- | ----------------------------- | ------------------------------ |
+| **前端渲染**   | React Flow + SVG自定义节点    | 成熟方案、性能优秀、定制灵活   |
+| **状态管理**   | Zustand + 持久化中间件        | 轻量级、开发体验好、自动持久化 |
+| **实时通信**   | Socket.IO + Room机制          | 高效广播、按需订阅、低延迟     |
+| **工作流引擎** | 状态机 + 执行器模式           | 可扩展、易测试、清晰的状态转换 |
+| **数据持久化** | SQLite/PostgreSQL + Redis缓存 | 快速开发、生产可靠、缓存加速   |
 
 ### 目录
 
@@ -61,17 +61,17 @@
 
 ### 1.2 核心功能
 
-| 功能模块 | 描述 | 优先级 |
-|---------|------|--------|
-| 可视化画布 | 无限画布、缩放、网格对齐 | P0 |
-| 节点编辑器 | 拖拽节点、属性配置 | P0 |
-| 连线系统 | 节点间连线、条件分支 | P0 |
-| 工作流引擎 | 解析、验证、执行工作流 | P0 |
-| 执行监控 | 实时状态、进度跟踪 | P0 |
-| 版本管理 | 工作流版本历史 | P1 |
-| 模板库 | 预定义工作流模板 | P1 |
-| 导入导出 | JSON/YAML格式 | P2 |
-| 协作编辑 | 多人实时编辑 | P2 |
+| 功能模块   | 描述                     | 优先级 |
+| ---------- | ------------------------ | ------ |
+| 可视化画布 | 无限画布、缩放、网格对齐 | P0     |
+| 节点编辑器 | 拖拽节点、属性配置       | P0     |
+| 连线系统   | 节点间连线、条件分支     | P0     |
+| 工作流引擎 | 解析、验证、执行工作流   | P0     |
+| 执行监控   | 实时状态、进度跟踪       | P0     |
+| 版本管理   | 工作流版本历史           | P1     |
+| 模板库     | 预定义工作流模板         | P1     |
+| 导入导出   | JSON/YAML格式            | P2     |
+| 协作编辑   | 多人实时编辑             | P2     |
 
 ### 1.3 系统边界
 
@@ -107,13 +107,13 @@
 
 #### 2.1.1 渲染技术对比
 
-| 技术方案 | 优势 | 劣势 | 适用场景 | 推荐度 |
-|---------|------|------|---------|--------|
-| **React Flow** | 专为工作流设计、开箱即用、拖拽优化良好、节点系统完善 | 定制化程度有限、依赖库更新 | 快速开发、标准工作流 | ⭐⭐⭐⭐⭐ |
-| **SVG + React** | 完全可控、DOM事件友好、样式灵活 | 大规模节点性能差、需要手写交互 | 中小型工作流 | ⭐⭐⭐⭐ |
-| **HTML Canvas** | 高性能、适合大量节点 | 无DOM、事件处理复杂、无障碍性差 | 复杂可视化 | ⭐⭐⭐ |
-| **D3.js** | 强大的数据绑定、动画能力 | 学习曲线陡、不适合交互式编辑 | 数据可视化 | ⭐⭐ |
-| **React Three Fiber** | 3D可视化、沉浸式体验 | 3D交互复杂、性能开销大 | 创新UI | ⭐⭐ |
+| 技术方案              | 优势                                                 | 劣势                            | 适用场景             | 推荐度     |
+| --------------------- | ---------------------------------------------------- | ------------------------------- | -------------------- | ---------- |
+| **React Flow**        | 专为工作流设计、开箱即用、拖拽优化良好、节点系统完善 | 定制化程度有限、依赖库更新      | 快速开发、标准工作流 | ⭐⭐⭐⭐⭐ |
+| **SVG + React**       | 完全可控、DOM事件友好、样式灵活                      | 大规模节点性能差、需要手写交互  | 中小型工作流         | ⭐⭐⭐⭐   |
+| **HTML Canvas**       | 高性能、适合大量节点                                 | 无DOM、事件处理复杂、无障碍性差 | 复杂可视化           | ⭐⭐⭐     |
+| **D3.js**             | 强大的数据绑定、动画能力                             | 学习曲线陡、不适合交互式编辑    | 数据可视化           | ⭐⭐       |
+| **React Three Fiber** | 3D可视化、沉浸式体验                                 | 3D交互复杂、性能开销大          | 创新UI               | ⭐⭐       |
 
 #### 2.1.2 最终选择：React Flow + SVG混合方案
 
@@ -136,6 +136,7 @@
    - 条件标签显示
 
 **技术栈**：
+
 ```json
 {
   "核心": "reactflow@^11.10.0",
@@ -178,64 +179,64 @@
 // workflow-store.ts
 interface WorkflowStore {
   // 工作流定义
-  workflows: Map<string, WorkflowDefinition>;
-  currentWorkflowId: string | null;
+  workflows: Map<string, WorkflowDefinition>
+  currentWorkflowId: string | null
 
   // 运行时实例
-  instances: Map<string, WorkflowInstance>;
-  currentInstanceId: string | null;
+  instances: Map<string, WorkflowInstance>
+  currentInstanceId: string | null
 
   // UI状态
-  selectedNodeId: string | null;
-  editingNodeId: string | null;
-  isExecuting: boolean;
+  selectedNodeId: string | null
+  editingNodeId: string | null
+  isExecuting: boolean
 
   // 画布状态
   canvas: {
-    zoom: number;
-    pan: { x: number; y: number };
-    gridSize: number;
-    snapToGrid: boolean;
-  };
+    zoom: number
+    pan: { x: number; y: number }
+    gridSize: number
+    snapToGrid: boolean
+  }
 
   // Actions
-  createWorkflow: (name: string) => string;
-  updateWorkflow: (id: string, updates: Partial<WorkflowDefinition>) => void;
-  deleteWorkflow: (id: string) => void;
-  loadWorkflow: (id: string) => void;
-  saveWorkflow: () => Promise<void>;
+  createWorkflow: (name: string) => string
+  updateWorkflow: (id: string, updates: Partial<WorkflowDefinition>) => void
+  deleteWorkflow: (id: string) => void
+  loadWorkflow: (id: string) => void
+  saveWorkflow: () => Promise<void>
 
   // 节点操作
-  addNode: (node: WorkflowNode) => void;
-  updateNode: (nodeId: string, updates: Partial<WorkflowNode>) => void;
-  deleteNode: (nodeId: string) => void;
-  selectNode: (nodeId: string | null) => void;
+  addNode: (node: WorkflowNode) => void
+  updateNode: (nodeId: string, updates: Partial<WorkflowNode>) => void
+  deleteNode: (nodeId: string) => void
+  selectNode: (nodeId: string | null) => void
 
   // 边操作
-  addEdge: (edge: WorkflowEdge) => void;
-  deleteEdge: (edgeId: string) => void;
+  addEdge: (edge: WorkflowEdge) => void
+  deleteEdge: (edgeId: string) => void
 
   // 执行操作
-  executeWorkflow: (inputs?: Record<string, any>) => Promise<string>;
-  pauseWorkflow: (instanceId: string) => void;
-  resumeWorkflow: (instanceId: string) => void;
-  cancelWorkflow: (instanceId: string) => void;
+  executeWorkflow: (inputs?: Record<string, any>) => Promise<string>
+  pauseWorkflow: (instanceId: string) => void
+  resumeWorkflow: (instanceId: string) => void
+  cancelWorkflow: (instanceId: string) => void
 
   // 画布操作
-  setZoom: (zoom: number) => void;
-  setPan: (pan: { x: number; y: number }) => void;
-  toggleSnapToGrid: () => void;
+  setZoom: (zoom: number) => void
+  setPan: (pan: { x: number; y: number }) => void
+  toggleSnapToGrid: () => void
 }
 ```
 
 #### 2.2.3 持久化策略
 
-| 状态类型 | 存储方式 | 同步策略 | 备份 |
-|---------|---------|---------|------|
-| 工作流定义 | SQLite数据库 | 编辑时自动保存（防抖） | 每日备份 |
-| 运行时实例 | 内存 + Redis缓存 | 实时同步 | 不备份 |
-| 用户偏好设置 | localStorage | 本地持久化 | - |
-| 画布状态 | URL query参数 | 深链接支持 | - |
+| 状态类型     | 存储方式         | 同步策略               | 备份     |
+| ------------ | ---------------- | ---------------------- | -------- |
+| 工作流定义   | SQLite数据库     | 编辑时自动保存（防抖） | 每日备份 |
+| 运行时实例   | 内存 + Redis缓存 | 实时同步               | 不备份   |
+| 用户偏好设置 | localStorage     | 本地持久化             | -        |
+| 画布状态     | URL query参数    | 深链接支持             | -        |
 
 ### 2.3 后端技术
 
@@ -262,26 +263,26 @@ interface WorkflowStore {
 ```typescript
 enum NodeType {
   // 控制节点
-  START = "start",           // 开始节点
-  END = "end",               // 结束节点
-  CONDITION = "condition",   // 条件分支
-  PARALLEL = "parallel",     // 并行分支
-  MERGE = "merge",           // 合并节点
+  START = 'start', // 开始节点
+  END = 'end', // 结束节点
+  CONDITION = 'condition', // 条件分支
+  PARALLEL = 'parallel', // 并行分支
+  MERGE = 'merge', // 合并节点
 
   // 执行节点
-  AGENT = "agent",           // Agent执行
-  WAIT = "wait",             // 等待
-  HUMAN_INPUT = "human_input", // 人工输入
-  WEBHOOK = "webhook",       // Webhook触发
+  AGENT = 'agent', // Agent执行
+  WAIT = 'wait', // 等待
+  HUMAN_INPUT = 'human_input', // 人工输入
+  WEBHOOK = 'webhook', // Webhook触发
 
   // 数据节点
-  TRANSFORM = "transform",   // 数据转换
-  VALIDATE = "validate",     // 数据验证
-  AGGREGATE = "aggregate",   // 数据聚合
+  TRANSFORM = 'transform', // 数据转换
+  VALIDATE = 'validate', // 数据验证
+  AGGREGATE = 'aggregate', // 数据聚合
 
   // 扩展节点
-  CUSTOM = "custom",         // 自定义节点
-  SUBWORKFLOW = "subworkflow" // 子工作流
+  CUSTOM = 'custom', // 自定义节点
+  SUBWORKFLOW = 'subworkflow', // 子工作流
 }
 ```
 
@@ -289,13 +290,13 @@ enum NodeType {
 
 ```typescript
 enum NodeStatus {
-  IDLE = "idle",             // 待执行
-  RUNNING = "running",       // 运行中
-  SUCCESS = "success",       // 成功
-  FAILED = "failed",         // 失败
-  SKIPPED = "skipped",       // 跳过
-  PENDING = "pending",       // 等待中
-  CANCELLED = "cancelled"    // 已取消
+  IDLE = 'idle', // 待执行
+  RUNNING = 'running', // 运行中
+  SUCCESS = 'success', // 成功
+  FAILED = 'failed', // 失败
+  SKIPPED = 'skipped', // 跳过
+  PENDING = 'pending', // 等待中
+  CANCELLED = 'cancelled', // 已取消
 }
 ```
 
@@ -303,11 +304,11 @@ enum NodeStatus {
 
 ```typescript
 enum EdgeType {
-  SEQUENCE = "sequence",     // 顺序连接
-  CONDITION = "condition",   // 条件连接
-  PARALLEL = "parallel",     // 并行连接
-  DEFAULT = "default",       // 默认分支
-  ERROR = "error"            // 错误处理分支
+  SEQUENCE = 'sequence', // 顺序连接
+  CONDITION = 'condition', // 条件连接
+  PARALLEL = 'parallel', // 并行连接
+  DEFAULT = 'default', // 默认分支
+  ERROR = 'error', // 错误处理分支
 }
 ```
 
@@ -316,42 +317,42 @@ enum EdgeType {
 ```typescript
 interface WorkflowDefinition {
   // 基本信息
-  id: string;                    // 工作流唯一ID
-  name: string;                  // 名称
-  description?: string;          // 描述
-  version: number;               // 版本号
-  status: WorkflowStatus;        // 状态
+  id: string // 工作流唯一ID
+  name: string // 名称
+  description?: string // 描述
+  version: number // 版本号
+  status: WorkflowStatus // 状态
 
   // 流程图
-  nodes: WorkflowNode[];         // 节点列表
-  edges: WorkflowEdge[];         // 边列表
+  nodes: WorkflowNode[] // 节点列表
+  edges: WorkflowEdge[] // 边列表
 
   // 全局配置
   config: {
-    timeout?: number;            // 全局超时（秒）
+    timeout?: number // 全局超时（秒）
     retryPolicy?: {
-      maxRetries: number;
-      backoff: "fixed" | "exponential";
-      interval: number;
-    };
-    variables?: Record<string, any>;
-    executionMode?: "sync" | "async";
-  };
+      maxRetries: number
+      backoff: 'fixed' | 'exponential'
+      interval: number
+    }
+    variables?: Record<string, any>
+    executionMode?: 'sync' | 'async'
+  }
 
   // 元数据
   metadata: {
-    createdAt: string;
-    updatedAt: string;
-    createdBy: string;
-    updatedBy: string;
-    tags?: string[];
-  };
+    createdAt: string
+    updatedAt: string
+    createdBy: string
+    updatedBy: string
+    tags?: string[]
+  }
 
   // 版本信息
   versionInfo?: {
-    parentVersion?: number;
-    changelog?: string;
-  };
+    parentVersion?: number
+    changelog?: string
+  }
 }
 ```
 
@@ -359,86 +360,86 @@ interface WorkflowDefinition {
 
 ```typescript
 interface WorkflowNode {
-  id: string;
-  type: NodeType;
-  name: string;
-  description?: string;
+  id: string
+  type: NodeType
+  name: string
+  description?: string
 
   // 视觉属性
   position: {
-    x: number;
-    y: number;
-  };
+    x: number
+    y: number
+  }
   size?: {
-    width: number;
-    height: number;
-  };
+    width: number
+    height: number
+  }
   style?: {
-    color?: string;
-    icon?: string;
-    shape?: "rectangle" | "circle" | "diamond";
-  };
+    color?: string
+    icon?: string
+    shape?: 'rectangle' | 'circle' | 'diamond'
+  }
 
   // Agent节点配置
   agentConfig?: {
-    agentId: string;
-    agentType: string;
-    prompt?: string;
-    model?: string;
-    timeout?: number;
-    retryCount?: number;
-    parameters?: Record<string, any>;
-  };
+    agentId: string
+    agentType: string
+    prompt?: string
+    model?: string
+    timeout?: number
+    retryCount?: number
+    parameters?: Record<string, any>
+  }
 
   // 条件节点配置
   conditionConfig?: {
-    expression: string;          // 条件表达式（支持JavaScript）
-    trueLabel?: string;
-    falseLabel?: string;
-    variables?: string[];
-  };
+    expression: string // 条件表达式（支持JavaScript）
+    trueLabel?: string
+    falseLabel?: string
+    variables?: string[]
+  }
 
   // 等待节点配置
   waitConfig?: {
-    duration?: number;           // 等待时长（秒）
-    waitForEvent?: string;        // 等待事件
-    timeoutAction?: "continue" | "fail";
-  };
+    duration?: number // 等待时长（秒）
+    waitForEvent?: string // 等待事件
+    timeoutAction?: 'continue' | 'fail'
+  }
 
   // 人工输入配置
   humanInputConfig?: {
-    formSchema: Record<string, any>;
-    requiredApprovals?: number;
-    approvers?: string[];
-    timeout?: number;
-  };
+    formSchema: Record<string, any>
+    requiredApprovals?: number
+    approvers?: string[]
+    timeout?: number
+  }
 
   // 通用配置
   config?: {
-    timeout?: number;
+    timeout?: number
     retryPolicy?: {
-      maxRetries: number;
-      backoff: "fixed" | "exponential";
-      interval: number;
-    };
-    inputs?: Record<string, any>;
-    outputs?: Record<string, any>;
-    async?: boolean;
-    continueOnError?: boolean;
-  };
+      maxRetries: number
+      backoff: 'fixed' | 'exponential'
+      interval: number
+    }
+    inputs?: Record<string, any>
+    outputs?: Record<string, any>
+    async?: boolean
+    continueOnError?: boolean
+  }
 
   // 数据绑定
   dataBindings?: {
     inputs?: Array<{
-      source: string;           // 来源节点或变量
-      target: string;           // 目标参数
-      transform?: string;       // 转换表达式
-    }>;
+      source: string // 来源节点或变量
+      target: string // 目标参数
+      transform?: string // 转换表达式
+    }>
     outputs?: Array<{
-      source: string;
-      target: string;
-    }>;
-  };
+      source: string
+      target: string
+    }>
+  }
 }
 ```
 
@@ -446,31 +447,31 @@ interface WorkflowNode {
 
 ```typescript
 interface WorkflowEdge {
-  id: string;
-  source: string;               // 源节点ID
-  target: string;               // 目标节点ID
-  type: EdgeType;
+  id: string
+  source: string // 源节点ID
+  target: string // 目标节点ID
+  type: EdgeType
 
   // 条件边配置
   conditionConfig?: {
-    condition: string;          // 条件表达式
-    label?: string;             // 显示标签
-    expression?: string;         // 完整表达式
-  };
+    condition: string // 条件表达式
+    label?: string // 显示标签
+    expression?: string // 完整表达式
+  }
 
   // 样式配置
   style?: {
-    color?: string;
-    width?: number;
-    style?: "solid" | "dashed" | "dotted";
-    animated?: boolean;
-  };
+    color?: string
+    width?: number
+    style?: 'solid' | 'dashed' | 'dotted'
+    animated?: boolean
+  }
 
   // 数据传递
   dataMapping?: {
-    filter?: string;             // 数据过滤表达式
-    transform?: string;         // 数据转换
-  };
+    filter?: string // 数据过滤表达式
+    transform?: string // 数据转换
+  }
 }
 ```
 
@@ -478,55 +479,55 @@ interface WorkflowEdge {
 
 ```typescript
 interface WorkflowInstance {
-  id: string;
-  workflowId: string;
-  workflowVersion: number;
-  status: InstanceStatus;
+  id: string
+  workflowId: string
+  workflowVersion: number
+  status: InstanceStatus
 
   // 执行进度
   progress: {
-    total: number;
-    completed: number;
-    failed: number;
-    percentage: number;
-    currentPath: string[];      // 当前执行路径
-  };
+    total: number
+    completed: number
+    failed: number
+    percentage: number
+    currentPath: string[] // 当前执行路径
+  }
 
   // 节点执行结果
-  nodeResults: Map<string, NodeExecutionResult>;
+  nodeResults: Map<string, NodeExecutionResult>
 
   // 实例数据
   data: {
-    inputs?: Record<string, any>;
-    outputs?: Record<string, any>;
-    variables?: Record<string, any>;
-    context?: Record<string, any>;
-  };
+    inputs?: Record<string, any>
+    outputs?: Record<string, any>
+    variables?: Record<string, any>
+    context?: Record<string, any>
+  }
 
   // 错误信息
   error?: {
-    nodeId: string;
-    code: string;
-    message: string;
-    stack?: string;
-  };
+    nodeId: string
+    code: string
+    message: string
+    stack?: string
+  }
 
   // 重试信息
   retryInfo?: {
-    retryCount: number;
-    maxRetries: number;
-    lastRetryAt: string;
-  };
+    retryCount: number
+    maxRetries: number
+    lastRetryAt: string
+  }
 
   // 元数据
   metadata: {
-    startedAt: string;
-    endedAt?: string;
-    duration?: number;
-    triggeredBy: string;
-    triggerType: "manual" | "api" | "scheduled" | "webhook";
-    triggerSource?: string;    // API endpoint or webhook URL
-  };
+    startedAt: string
+    endedAt?: string
+    duration?: number
+    triggeredBy: string
+    triggerType: 'manual' | 'api' | 'scheduled' | 'webhook'
+    triggerSource?: string // API endpoint or webhook URL
+  }
 }
 ```
 
@@ -534,42 +535,42 @@ interface WorkflowInstance {
 
 ```typescript
 interface NodeExecutionResult {
-  nodeId: string;
-  status: NodeStatus;
-  startTime: string;
-  endTime?: string;
-  duration?: number;
+  nodeId: string
+  status: NodeStatus
+  startTime: string
+  endTime?: string
+  duration?: number
 
   // 执行数据
-  input?: Record<string, any>;
-  output?: Record<string, any>;
+  input?: Record<string, any>
+  output?: Record<string, any>
   logs?: Array<{
-    level: "info" | "warn" | "error";
-    message: string;
-    timestamp: string;
-  }>;
+    level: 'info' | 'warn' | 'error'
+    message: string
+    timestamp: string
+  }>
 
   // 错误信息
   error?: {
-    code: string;
-    message: string;
-    stack?: string;
-    retryable?: boolean;
-  };
+    code: string
+    message: string
+    stack?: string
+    retryable?: boolean
+  }
 
   // 重试历史
   retryHistory?: Array<{
-    attempt: number;
-    timestamp: string;
-    error?: string;
-  }>;
+    attempt: number
+    timestamp: string
+    error?: string
+  }>
 
   // 性能指标
   metrics?: {
-    memoryUsage?: number;
-    cpuTime?: number;
-    networkTime?: number;
-  };
+    memoryUsage?: number
+    cpuTime?: number
+    networkTime?: number
+  }
 }
 ```
 
@@ -809,12 +810,14 @@ CREATE TABLE workflow_versions (
 #### 4.2.1 WorkflowEngine (工作流引擎)
 
 **职责**:
+
 - 工作流解析和验证
 - 节点执行顺序控制
 - 状态管理和转换
 - 错误处理和重试
 
 **关键方法**:
+
 ```typescript
 class WorkflowEngine {
   // 工作流管理
@@ -867,7 +870,7 @@ class AgentNodeExecutor implements NodeExecutor {
       type: config.agentType,
       parameters: config.parameters,
       inputs,
-      ...config
+      ...config,
     })
 
     // 3. 提交给调度器
@@ -879,7 +882,7 @@ class AgentNodeExecutor implements NodeExecutor {
     return {
       status: result.success ? NodeStatus.SUCCESS : NodeStatus.FAILED,
       output: result.data,
-      logs: result.logs
+      logs: result.logs,
     }
   }
 }
@@ -898,7 +901,7 @@ class ConditionNodeExecutor implements NodeExecutor {
 
     return {
       status: NodeStatus.SUCCESS,
-      output: { condition: result }
+      output: { condition: result },
     }
   }
 }
@@ -964,7 +967,7 @@ class WorkflowStateMachine {
       paused: ['running', 'cancelled'],
       completed: ['archived'],
       failed: ['pending', 'archived'], // failed可以重试
-      cancelled: ['archived']
+      cancelled: ['archived'],
     }
   }
 
@@ -1090,17 +1093,17 @@ const useWorkflowEditorStore = create<WorkflowEditorState>((set, get) => ({
     zoom: 1,
     pan: { x: 0, y: 0 },
     gridSize: 20,
-    snapToGrid: true
+    snapToGrid: true,
   },
   nodePalette: {
     visible: true,
     filter: '',
-    categories: ['control', 'agent', 'data', 'custom']
+    categories: ['control', 'agent', 'data', 'custom'],
   },
   history: {
     past: [],
     future: [],
-    currentIndex: -1
+    currentIndex: -1,
   },
 
   // 实现方法...
@@ -1116,12 +1119,12 @@ import { persist, createJSONStorage } from 'zustand/middleware'
 const persistConfig = {
   name: 'workflow-editor-storage',
   storage: createJSONStorage(() => localStorage),
-  partialize: (state) => ({
+  partialize: state => ({
     // 只持久化必要的状态
     workflows: state.workflows,
     canvas: state.canvas,
-    nodePalette: state.nodePalette
-  })
+    nodePalette: state.nodePalette,
+  }),
 }
 
 export const useWorkflowEditorStore = create(
@@ -1140,8 +1143,8 @@ export const useWorkflowEditorStore = create(
 // stores/middleware/sync.ts
 import { socket } from '@/lib/socket'
 
-const syncMiddleware = (config) => (set, get, api) => {
-  const newSet = (args) => {
+const syncMiddleware = config => (set, get, api) => {
+  const newSet = args => {
     const oldState = get()
     set(args)
     const newState = get()
@@ -1156,7 +1159,7 @@ const syncMiddleware = (config) => (set, get, api) => {
 }
 
 // 监听服务器推送
-socket.on('workflow:updated', (workflow) => {
+socket.on('workflow:updated', workflow => {
   useWorkflowEditorStore.getState().updateWorkflowFromServer(workflow)
 })
 ```
@@ -1307,13 +1310,7 @@ export const ConditionEdge = ({
 import { useEffect, useRef } from 'react'
 import { animated, useSpring } from '@react-spring/web'
 
-export const ExecutionAnimation = ({
-  edgeId,
-  isActive
-}: {
-  edgeId: string
-  isActive: boolean
-}) => {
+export const ExecutionAnimation = ({ edgeId, isActive }: { edgeId: string; isActive: boolean }) => {
   const edgeRef = useRef<SVGPathElement>(null)
 
   useEffect(() => {
@@ -1326,13 +1323,13 @@ export const ExecutionAnimation = ({
     edge.style.strokeDashoffset = `${totalLength}`
 
     // 动画效果
-    const animation = edge.animate([
-      { strokeDashoffset: totalLength },
-      { strokeDashoffset: -totalLength }
-    ], {
-      duration: 2000,
-      iterations: Infinity
-    })
+    const animation = edge.animate(
+      [{ strokeDashoffset: totalLength }, { strokeDashoffset: -totalLength }],
+      {
+        duration: 2000,
+        iterations: Infinity,
+      }
+    )
 
     return () => animation.cancel()
   }, [isActive])
@@ -1456,13 +1453,13 @@ export class AgentNodeExecutor implements NodeExecutor {
         dependencies: [],
         parameters: {
           ...config.parameters,
-          inputs
+          inputs,
         },
         metadata: {
           workflowId: instance.workflowId,
           instanceId: instance.id,
-          nodeId: node.id
-        }
+          nodeId: node.id,
+        },
       })
 
       // 3. 调用调度器
@@ -1480,7 +1477,7 @@ export class AgentNodeExecutor implements NodeExecutor {
         status: result.success ? NodeStatus.SUCCESS : NodeStatus.FAILED,
         output: result.data,
         logs: result.logs,
-        error: result.error
+        error: result.error,
       }
     } catch (error) {
       return {
@@ -1488,20 +1485,20 @@ export class AgentNodeExecutor implements NodeExecutor {
         error: {
           code: 'AGENT_EXECUTION_FAILED',
           message: error.message,
-          retryable: true
-        }
+          retryable: true,
+        },
       }
     }
   }
 
-  private async monitorExecution(
-    agentId: string,
-    task: Task
-  ): Promise<TaskResult> {
+  private async monitorExecution(agentId: string, task: Task): Promise<TaskResult> {
     return new Promise((resolve, reject) => {
-      const timeout = setTimeout(() => {
-        reject(new Error('Task execution timeout'))
-      }, task.estimatedDuration * 60 * 1000)
+      const timeout = setTimeout(
+        () => {
+          reject(new Error('Task execution timeout'))
+        },
+        task.estimatedDuration * 60 * 1000
+      )
 
       // 监听任务完成事件
       const handler = (completedTask: Task) => {
@@ -1514,7 +1511,7 @@ export class AgentNodeExecutor implements NodeExecutor {
             success: completedTask.status === 'completed',
             data: completedTask.result,
             logs: completedTask.logs,
-            error: completedTask.error
+            error: completedTask.error,
           })
         }
       }
@@ -1541,10 +1538,7 @@ export class DataFlowManager {
   /**
    * 准备节点输入数据
    */
-  prepareInputs(
-    node: WorkflowNode,
-    variables: Record<string, any>
-  ): Record<string, any> {
+  prepareInputs(node: WorkflowNode, variables: Record<string, any>): Record<string, any> {
     if (!node.dataBindings?.inputs) {
       return variables
     }
@@ -1565,10 +1559,7 @@ export class DataFlowManager {
   /**
    * 解析数据绑定
    */
-  private resolveBinding(
-    source: string,
-    variables: Record<string, any>
-  ): any {
+  private resolveBinding(source: string, variables: Record<string, any>): any {
     // 支持点号路径: "node_1.output.result"
     const parts = source.split('.')
     let value = variables
@@ -1669,7 +1660,7 @@ export async function GET(request: NextRequest) {
       userId: user.id,
       status: status as WorkflowStatus,
       page,
-      limit
+      limit,
     })
 
     return NextResponse.json({
@@ -1679,14 +1670,11 @@ export async function GET(request: NextRequest) {
         total: result.total,
         page,
         limit,
-        pages: Math.ceil(result.total / limit)
-      }
+        pages: Math.ceil(result.total / limit),
+      },
     })
   } catch (error) {
-    return NextResponse.json(
-      { success: false, error: error.message },
-      { status: 500 }
-    )
+    return NextResponse.json({ success: false, error: error.message }, { status: 500 })
   }
 }
 
@@ -1701,27 +1689,24 @@ export async function POST(request: NextRequest) {
     // 验证
     const validation = validateRequest(body, workflowCreateSchema)
     if (!validation.valid) {
-      return NextResponse.json(
-        { success: false, errors: validation.errors },
-        { status: 400 }
-      )
+      return NextResponse.json({ success: false, errors: validation.errors }, { status: 400 })
     }
 
     // 创建工作流
     const workflow = await workflowService.createWorkflow({
       ...body,
-      createdBy: user.id
+      createdBy: user.id,
     })
 
-    return NextResponse.json({
-      success: true,
-      data: workflow
-    }, { status: 201 })
-  } catch (error) {
     return NextResponse.json(
-      { success: false, error: error.message },
-      { status: 500 }
+      {
+        success: true,
+        data: workflow,
+      },
+      { status: 201 }
     )
+  } catch (error) {
+    return NextResponse.json({ success: false, error: error.message }, { status: 500 })
   }
 }
 ```
@@ -1740,11 +1725,11 @@ socket.emit('instance:completed', instance)
 socket.emit('instance:failed', { instance, error })
 
 // 客户端订阅
-socket.on('instance:progress', (data) => {
+socket.on('instance:progress', data => {
   updateInstanceProgress(data.instanceId, data.progress)
 })
 
-socket.on('instance:node:completed', (data) => {
+socket.on('instance:node:completed', data => {
   updateNodeResult(data.instanceId, data.nodeId, data.result)
 })
 ```
@@ -1763,7 +1748,7 @@ enum WorkflowPermission {
   UPDATE = 'workflow:update',
   DELETE = 'workflow:delete',
   EXECUTE = 'workflow:execute',
-  ADMIN = 'workflow:admin'
+  ADMIN = 'workflow:admin',
 }
 
 // 权限检查中间件
@@ -1784,11 +1769,10 @@ export async function checkWorkflowPermission(
   }
 
   // 检查RBAC权限
-  const hasPermission = await rbacService.checkPermission(
-    userId,
-    permission,
-    { resourceType: 'workflow', resourceId: workflowId }
-  )
+  const hasPermission = await rbacService.checkPermission(userId, permission, {
+    resourceType: 'workflow',
+    resourceId: workflowId,
+  })
 
   return hasPermission
 }
@@ -1803,7 +1787,7 @@ const workflowCreateSchema = z.object({
   description: z.string().max(500).optional(),
   nodes: z.array(nodeSchema).min(1),
   edges: z.array(edgeSchema),
-  config: configSchema.optional()
+  config: configSchema.optional(),
 })
 
 const nodeSchema = z.object({
@@ -1812,7 +1796,7 @@ const nodeSchema = z.object({
   name: z.string().min(1).max(100),
   position: z.object({
     x: z.number().min(0).max(10000),
-    y: z.number().min(0).max(10000)
+    y: z.number().min(0).max(10000),
   }),
   agentConfig: agentConfigSchema.optional(),
   conditionConfig: conditionConfigSchema.optional(),
@@ -1830,7 +1814,7 @@ function validateConditionExpression(expression: string): boolean {
     /process\./,
     /global\./,
     /window\./,
-    /document\./
+    /document\./,
   ]
 
   return !dangerousPatterns.some(pattern => pattern.test(expression))
@@ -1849,7 +1833,7 @@ export class SafeExpressionEvaluator {
   constructor() {
     this.vm = new VM({
       timeout: 1000, // 1秒超时
-      sandbox: {} // 空沙箱，只允许访问传入的变量
+      sandbox: {}, // 空沙箱，只允许访问传入的变量
     })
   }
 
@@ -1880,7 +1864,7 @@ export class SafeExpressionEvaluator {
     // 白名单模式：只允许特定语法
     const allowedPatterns = [
       /^[\w\s\.\[\]\(\)\+\-\*\/\%\<\>\=\!\&\|\?]*$/,
-      /^(context|variables|data|result)/
+      /^(context|variables|data|result)/,
     ]
 
     return allowedPatterns.every(pattern => pattern.test(expression))
@@ -1912,10 +1896,10 @@ await auditService.log({
   resourceId: workflow.id,
   details: {
     name: workflow.name,
-    nodeCount: workflow.nodes.length
+    nodeCount: workflow.nodes.length,
   },
   ipAddress: request.ip,
-  userAgent: request.headers['user-agent']
+  userAgent: request.headers['user-agent'],
 })
 ```
 
@@ -1929,16 +1913,19 @@ await auditService.log({
 
 ```typescript
 // 使用memo避免不必要的渲染
-export const WorkflowNode = memo(({ data, selected }: NodeProps) => {
-  // ...
-}, (prevProps, nextProps) => {
-  // 自定义比较函数
-  return (
-    prevProps.data.id === nextProps.data.id &&
-    prevProps.data.status === nextProps.data.status &&
-    prevProps.selected === nextProps.selected
-  )
-})
+export const WorkflowNode = memo(
+  ({ data, selected }: NodeProps) => {
+    // ...
+  },
+  (prevProps, nextProps) => {
+    // 自定义比较函数
+    return (
+      prevProps.data.id === nextProps.data.id &&
+      prevProps.data.status === nextProps.data.status &&
+      prevProps.selected === nextProps.selected
+    )
+  }
+)
 
 // 使用useMemo缓存计算结果
 const sortedNodes = useMemo(() => {
@@ -1946,9 +1933,12 @@ const sortedNodes = useMemo(() => {
 }, [nodes])
 
 // 使用useCallback缓存回调
-const handleNodeClick = useCallback((nodeId: string) => {
-  selectNode(nodeId)
-}, [selectNode])
+const handleNodeClick = useCallback(
+  (nodeId: string) => {
+    selectNode(nodeId)
+  },
+  [selectNode]
+)
 ```
 
 #### 10.1.2 虚拟化
@@ -2037,11 +2027,7 @@ export class WorkflowCache {
     const workflow = await workflowRepository.findById(id)
 
     if (workflow) {
-      await this.redis.setex(
-        `${this.prefix}${id}`,
-        this.ttl,
-        JSON.stringify(workflow)
-      )
+      await this.redis.setex(`${this.prefix}${id}`, this.ttl, JSON.stringify(workflow))
     }
 
     return workflow
@@ -2059,7 +2045,8 @@ export class WorkflowCache {
 // 批量查询实例
 async function getInstancesWithProgress(instanceIds: string[]) {
   // 使用IN查询
-  const instances = await db.query(`
+  const instances = await db.query(
+    `
     SELECT i.*,
            COUNT(n.id) as node_count,
            SUM(CASE WHEN n.status = 'completed' THEN 1 ELSE 0 END) as completed_count
@@ -2067,7 +2054,9 @@ async function getInstancesWithProgress(instanceIds: string[]) {
     LEFT JOIN node_executions n ON i.id = n.instance_id
     WHERE i.id IN (?)
     GROUP BY i.id
-  `, [instanceIds])
+  `,
+    [instanceIds]
+  )
 
   return instances
 }
@@ -2097,6 +2086,7 @@ const debouncedEmit = debounce((instanceId, progress) => {
 #### 第一阶段：核心功能（P0）- 4周
 
 **Week 1-2: 基础架构**
+
 - [ ] 数据模型定义和数据库迁移
 - [ ] WorkflowEngine核心实现
 - [ ] 基础节点执行器（Start, End, Agent, Condition）
@@ -2104,6 +2094,7 @@ const debouncedEmit = debounce((instanceId, progress) => {
 - [ ] 基础API实现（CRUD）
 
 **Week 3-4: 可视化编辑器**
+
 - [ ] React Flow集成
 - [ ] 自定义节点组件（4-5种核心节点）
 - [ ] 拖拽交互实现
@@ -2113,6 +2104,7 @@ const debouncedEmit = debounce((instanceId, progress) => {
 #### 第二阶段：执行监控（P0）- 2周
 
 **Week 5-6: 运行时功能**
+
 - [ ] 实例执行流程
 - [ ] 实时状态更新（WebSocket）
 - [ ] 执行动画效果
@@ -2122,18 +2114,21 @@ const debouncedEmit = debounce((instanceId, progress) => {
 #### 第三阶段：高级功能（P1）- 3周
 
 **Week 7: Agent集成**
+
 - [ ] AgentNodeExecutor完善
 - [ ] 与AgentScheduler集成
 - [ ] 任务队列管理
 - [ ] 负载均衡
 
 **Week 8: 版本管理**
+
 - [ ] 版本快照保存
 - [ ] 版本历史查看
 - [ ] 版本对比
 - [ ] 回滚功能
 
 **Week 9: 模板和导入导出**
+
 - [ ] 模板库系统
 - [ ] JSON/YAML导入导出
 - [ ] 模板分享
@@ -2141,12 +2136,14 @@ const debouncedEmit = debounce((instanceId, progress) => {
 #### 第四阶段：优化和测试（P2）- 2周
 
 **Week 10: 性能优化**
+
 - [ ] 虚拟化渲染
 - [ ] 缓存优化
 - [ ] 数据库查询优化
 - [ ] 压力测试
 
 **Week 11: 测试和文档**
+
 - [ ] 单元测试
 - [ ] 集成测试
 - [ ] E2E测试
@@ -2155,13 +2152,13 @@ const debouncedEmit = debounce((instanceId, progress) => {
 
 ### 11.2 里程碑
 
-| 里程碑 | 日期 | 交付物 |
-|--------|------|--------|
-| M1: 核心引擎 | 第2周末 | 可执行的工作流引擎 |
-| M2: 可视化编辑器 | 第4周末 | 可视化设计界面 |
-| M3: 执行监控 | 第6周末 | 完整的执行流程 |
-| M4: Agent集成 | 第7周末 | 与AgentScheduler集成 |
-| M5: 生产就绪 | 第11周末 | 可部署的生产版本 |
+| 里程碑           | 日期     | 交付物               |
+| ---------------- | -------- | -------------------- |
+| M1: 核心引擎     | 第2周末  | 可执行的工作流引擎   |
+| M2: 可视化编辑器 | 第4周末  | 可视化设计界面       |
+| M3: 执行监控     | 第6周末  | 完整的执行流程       |
+| M4: Agent集成    | 第7周末  | 与AgentScheduler集成 |
+| M5: 生产就绪     | 第11周末 | 可部署的生产版本     |
 
 ### 11.3 依赖关系
 
@@ -2175,23 +2172,23 @@ M1 (核心引擎)
 
 ### 11.4 风险和缓解
 
-| 风险 | 影响 | 概率 | 缓解措施 |
-|------|------|------|---------|
-| React Flow学习曲线 | 中 | 高 | 提前技术调研，准备备选方案（SVG） |
-| Agent集成复杂度 | 高 | 中 | 清晰定义接口，逐步集成 |
-| 性能瓶颈 | 高 | 中 | 尽早进行性能测试，实施优化策略 |
-| 并发执行问题 | 高 | 中 | 详细设计并发模型，充分测试 |
-| 用户体验不佳 | 中 | 低 | 早期用户测试，快速迭代 |
+| 风险               | 影响 | 概率 | 缓解措施                          |
+| ------------------ | ---- | ---- | --------------------------------- |
+| React Flow学习曲线 | 中   | 高   | 提前技术调研，准备备选方案（SVG） |
+| Agent集成复杂度    | 高   | 中   | 清晰定义接口，逐步集成            |
+| 性能瓶颈           | 高   | 中   | 尽早进行性能测试，实施优化策略    |
+| 并发执行问题       | 高   | 中   | 详细设计并发模型，充分测试        |
+| 用户体验不佳       | 中   | 低   | 早期用户测试，快速迭代            |
 
 ### 11.5 成功指标
 
-| 指标 | 目标值 | 测量方法 |
-|------|--------|---------|
-| 工作流创建时间 | <5分钟 | 用户测试 |
-| 100节点渲染性能 | <100ms | 性能测试 |
-| API响应时间 | <200ms (P95) | APM监控 |
-| 实例执行成功率 | >95% | 系统监控 |
-| 用户满意度 | >4.0/5.0 | 用户反馈 |
+| 指标            | 目标值       | 测量方法 |
+| --------------- | ------------ | -------- |
+| 工作流创建时间  | <5分钟       | 用户测试 |
+| 100节点渲染性能 | <100ms       | 性能测试 |
+| API响应时间     | <200ms (P95) | APM监控  |
+| 实例执行成功率  | >95%         | 系统监控 |
+| 用户满意度      | >4.0/5.0     | 用户反馈 |
 
 ---
 
@@ -2233,17 +2230,17 @@ M1 (核心引擎)
 
 ### 12.3 术语表
 
-| 术语 | 定义 |
-|------|------|
-| 工作流 (Workflow) | 由节点和边组成的有向图，定义任务执行流程 |
-| 节点 (Node) | 工作流中的执行单元，代表一个具体操作 |
-| 边 (Edge) | 节点间的连接，定义执行顺序和数据流转 |
-| 实例 (Instance) | 工作流的一次具体执行 |
-| Agent | 具有特定能力的AI代理 |
-| 调度器 (Scheduler) | 负责分配任务给Agent的系统组件 |
+| 术语               | 定义                                     |
+| ------------------ | ---------------------------------------- |
+| 工作流 (Workflow)  | 由节点和边组成的有向图，定义任务执行流程 |
+| 节点 (Node)        | 工作流中的执行单元，代表一个具体操作     |
+| 边 (Edge)          | 节点间的连接，定义执行顺序和数据流转     |
+| 实例 (Instance)    | 工作流的一次具体执行                     |
+| Agent              | 具有特定能力的AI代理                     |
+| 调度器 (Scheduler) | 负责分配任务给Agent的系统组件            |
 
 ---
 
 **文档结束**
 
-*本架构设计文档将随着开发进展持续更新。如有疑问或建议，请联系架构师团队。*
+_本架构设计文档将随着开发进展持续更新。如有疑问或建议，请联系架构师团队。_

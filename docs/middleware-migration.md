@@ -19,9 +19,9 @@ This document explains the migration from global Next.js middleware to API route
 
 ```typescript
 export function middleware(request: NextRequest) {
-  const requestId = crypto.randomUUID();
-  const requestHeaders = new Headers(request.headers);
-  requestHeaders.set('x-request-id', requestId);
+  const requestId = crypto.randomUUID()
+  const requestHeaders = new Headers(request.headers)
+  requestHeaders.set('x-request-id', requestId)
 
   logger.info(`Incoming request: ${request.method} ${request.nextUrl.pathname}`, {
     requestId,
@@ -29,19 +29,19 @@ export function middleware(request: NextRequest) {
     path: request.nextUrl.pathname,
     userAgent: request.headers.get('user-agent'),
     ip: request.headers.get('x-forwarded-for') || request.headers.get('x-real-ip'),
-  });
+  })
 
   const response = NextResponse.next({
     request: { headers: requestHeaders },
-  });
+  })
 
-  response.headers.set('x-request-id', requestId);
-  return response;
+  response.headers.set('x-request-id', requestId)
+  return response
 }
 
 export const config = {
   matcher: ['/api/:path*', '/((?!_next/static|_next/image|favicon.ico).*)'],
-};
+}
 ```
 
 ### After (API Route Wrappers)
@@ -49,14 +49,14 @@ export const config = {
 `src/lib/middleware/with-request-id.ts` provides a wrapper for individual API routes:
 
 ```typescript
-import { withRequestId } from '@/lib/middleware/with-request-id';
+import { withRequestId } from '@/lib/middleware/with-request-id'
 
 export const GET = withRequestId(async (request, context) => {
-  const requestId = context.requestId;
+  const requestId = context.requestId
 
   // Your API logic here
-  return NextResponse.json({ requestId, data });
-});
+  return NextResponse.json({ requestId, data })
+})
 ```
 
 ## How to Use
@@ -64,31 +64,32 @@ export const GET = withRequestId(async (request, context) => {
 ### Basic Usage
 
 ```typescript
-import { NextResponse } from 'next/server';
-import { withRequestId } from '@/lib/middleware/with-request-id';
+import { NextResponse } from 'next/server'
+import { withRequestId } from '@/lib/middleware/with-request-id'
 
 export const GET = withRequestId(async (request, context) => {
-  const { requestId } = context;
+  const { requestId } = context
 
   return NextResponse.json({
     requestId,
     message: 'Hello, World!',
-  });
-});
+  })
+})
 
 export const POST = withRequestId(async (request, context) => {
-  const body = await request.json();
+  const body = await request.json()
 
   return NextResponse.json({
     requestId: context.requestId,
     received: body,
-  });
-});
+  })
+})
 ```
 
 ### With Request Logging
 
 The wrapper automatically logs:
+
 - Request start (method, path, user agent, IP)
 - Request completion (status code, duration)
 - Slow requests (>500ms warning, >2000ms error)
@@ -100,10 +101,10 @@ If you want to disable automatic logging for a specific route:
 ```typescript
 export const GET = withRequestId(
   async (request, context) => {
-    return NextResponse.json({ data });
+    return NextResponse.json({ data })
   },
   { skipLogging: true }
-);
+)
 ```
 
 ### Access Request ID
@@ -111,29 +112,32 @@ export const GET = withRequestId(
 You can access the request ID in multiple ways:
 
 1. From the context parameter:
+
    ```typescript
    export const GET = withRequestId(async (request, context) => {
-     const requestId = context.requestId;
+     const requestId = context.requestId
      // ...
-   });
+   })
    ```
 
 2. From request headers:
+
    ```typescript
-   export const GET = withRequestId(async (request) => {
-     const requestId = request.headers.get('x-request-id');
+   export const GET = withRequestId(async request => {
+     const requestId = request.headers.get('x-request-id')
      // ...
-   });
+   })
    ```
 
 3. Using the helper function:
-   ```typescript
-   import { getRequestId } from '@/lib/middleware/with-request-id';
 
-   export const GET = withRequestId(async (request) => {
-     const requestId = getRequestId(request);
+   ```typescript
+   import { getRequestId } from '@/lib/middleware/with-request-id'
+
+   export const GET = withRequestId(async request => {
+     const requestId = getRequestId(request)
      // ...
-   });
+   })
    ```
 
 ### Custom Request Logger
@@ -141,19 +145,19 @@ You can access the request ID in multiple ways:
 For detailed logging within your handler:
 
 ```typescript
-import { createRequestLoggerForHandler } from '@/lib/middleware/with-request-id';
+import { createRequestLoggerForHandler } from '@/lib/middleware/with-request-id'
 
 export const GET = withRequestId(async (request, context) => {
-  const requestLogger = createRequestLoggerForHandler(context);
+  const requestLogger = createRequestLoggerForHandler(context)
 
-  requestLogger.info('Processing user data', { userId: '123' });
+  requestLogger.info('Processing user data', { userId: '123' })
 
   // Your logic here
 
-  requestLogger.info('User data processed successfully');
+  requestLogger.info('User data processed successfully')
 
-  return NextResponse.json({ data });
-});
+  return NextResponse.json({ data })
+})
 ```
 
 ## Migration Steps for Existing API Routes
@@ -161,39 +165,43 @@ export const GET = withRequestId(async (request, context) => {
 ### Step 1: Import the wrapper
 
 ```typescript
-import { withRequestId } from '@/lib/middleware/with-request-id';
+import { withRequestId } from '@/lib/middleware/with-request-id'
 ```
 
 ### Step 2: Wrap your handler functions
 
 **Before:**
+
 ```typescript
 export async function GET(request: NextRequest) {
   // Your logic
-  return NextResponse.json({ data });
+  return NextResponse.json({ data })
 }
 ```
 
 **After:**
+
 ```typescript
 export const GET = withRequestId(async (request, context) => {
   // Your logic
-  return NextResponse.json({ data });
-});
+  return NextResponse.json({ data })
+})
 ```
 
 ### Step 3: Update any request ID references
 
 **Before:**
+
 ```typescript
-const requestId = request.headers.get('x-request-id');
+const requestId = request.headers.get('x-request-id')
 ```
 
 **After:**
+
 ```typescript
-const requestId = context.requestId;
+const requestId = context.requestId
 // or
-const requestId = request.headers.get('x-request-id'); // Still works
+const requestId = request.headers.get('x-request-id') // Still works
 ```
 
 ## Benefits
@@ -209,18 +217,18 @@ const requestId = request.headers.get('x-request-id'); // Still works
 You can combine `withRequestId` with other middleware wrappers:
 
 ```typescript
-import { withRequestId } from '@/lib/middleware/with-request-id';
-import { withAuth } from '@/lib/middleware/with-auth';
-import { withValidation } from '@/lib/middleware/with-validation';
+import { withRequestId } from '@/lib/middleware/with-request-id'
+import { withAuth } from '@/lib/middleware/with-auth'
+import { withValidation } from '@/lib/middleware/with-validation'
 
 export const POST = withRequestId(
   withAuth(
     withValidation(async (request, context) => {
       // Your logic here
-      return NextResponse.json({ data });
+      return NextResponse.json({ data })
     }, schema)
   )
-);
+)
 ```
 
 ## Response Headers
@@ -270,12 +278,14 @@ Content-Type: application/json
 ### Request ID Not Found
 
 If you can't find the request ID, ensure:
+
 1. You've wrapped your handler with `withRequestId`
 2. You're accessing it from the correct parameter (`context.requestId` or `request.headers.get('x-request-id')`)
 
 ### Missing Logs
 
 If logs aren't appearing:
+
 1. Check that `skipLogging` is not set to `true`
 2. Verify logger configuration in `src/lib/logger/index.ts`
 3. Check log level settings

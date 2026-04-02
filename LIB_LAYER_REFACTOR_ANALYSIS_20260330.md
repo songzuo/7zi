@@ -20,16 +20,16 @@
 
 `src/lib/` 目录下共有 **43 个一级子目录**，包括：
 
-| 类别 | 目录 | 数量 |
-|------|------|------|
-| 核心功能 | `db/`, `auth/`, `api/`, `cache/`, `redis/` | 5 |
-| Agent相关 | `agents/` (已合并) | 1 |
-| 通信协作 | `websocket/`, `sse/`, `realtime/`, `collaboration/` | 4 |
-| 安全相关 | `crypto/`, `security/`, `permissions/`, `rate-limit/` | 4 |
-| 性能优化 | `performance/`, `performance-monitoring/`, `prefetch/` | 3 |
-| 业务功能 | `notifications/`, `feedback/`, `search/`, `voice-meeting/` | 4 |
-| 工具类 | `utils/`, `logger/`, `validation/`, `types/` | 4 |
-| 其他 | `hooks/`, `middleware/`, `errors/`, `export/` 等 | 18 |
+| 类别      | 目录                                                       | 数量 |
+| --------- | ---------------------------------------------------------- | ---- |
+| 核心功能  | `db/`, `auth/`, `api/`, `cache/`, `redis/`                 | 5    |
+| Agent相关 | `agents/` (已合并)                                         | 1    |
+| 通信协作  | `websocket/`, `sse/`, `realtime/`, `collaboration/`        | 4    |
+| 安全相关  | `crypto/`, `security/`, `permissions/`, `rate-limit/`      | 4    |
+| 性能优化  | `performance/`, `performance-monitoring/`, `prefetch/`     | 3    |
+| 业务功能  | `notifications/`, `feedback/`, `search/`, `voice-meeting/` | 4    |
+| 工具类    | `utils/`, `logger/`, `validation/`, `types/`               | 4    |
+| 其他      | `hooks/`, `middleware/`, `errors/`, `export/` 等           | 18   |
 
 ### 1.2 agents/ 目录详细结构
 
@@ -82,6 +82,7 @@ src/lib/agents/
 ```
 
 **代码统计**:
+
 - 总代码量: ~11,785 行 (不含测试)
 - 测试文件: 12 个 (仅 a2a/ 有测试)
 - 源文件: 35 个
@@ -125,6 +126,7 @@ scheduler/core/
 ```
 
 **依赖分析结果**:
+
 - ✅ 无循环依赖
 - ✅ 依赖方向正确 (向下依赖)
 - ✅ 子模块间耦合度低
@@ -133,16 +135,17 @@ scheduler/core/
 
 发现两个不同的 `Task` 类型定义：
 
-| 位置 | 用途 | 处理方式 |
-|------|------|----------|
-| `scheduler/models/task-model.ts` | 调度任务 | 保持 `Task` |
-| `a2a/types.ts` | A2A协议任务 | 重命名为 `A2ATask` |
+| 位置                             | 用途        | 处理方式           |
+| -------------------------------- | ----------- | ------------------ |
+| `scheduler/models/task-model.ts` | 调度任务    | 保持 `Task`        |
+| `a2a/types.ts`                   | A2A协议任务 | 重命名为 `A2ATask` |
 
 **解决方案** (已在 `index.ts` 中实现):
+
 ```typescript
 export type {
-  Task as A2ATask,  // 重命名避免冲突
-} from './a2a';
+  Task as A2ATask, // 重命名避免冲突
+} from './a2a'
 ```
 
 ---
@@ -151,10 +154,10 @@ export type {
 
 ### 3.1 旧目录检查
 
-| 旧目录 | 状态 | 说明 |
-|--------|------|------|
-| `lib/a2a/` | ✅ 已删除 | 合并到 `agents/a2a/` |
-| `lib/agent-scheduler/` | ✅ 已删除 | 合并到 `agents/scheduler/` |
+| 旧目录                     | 状态      | 说明                                 |
+| -------------------------- | --------- | ------------------------------------ |
+| `lib/a2a/`                 | ✅ 已删除 | 合并到 `agents/a2a/`                 |
+| `lib/agent-scheduler/`     | ✅ 已删除 | 合并到 `agents/scheduler/`           |
 | `lib/agent-communication/` | ✅ 已删除 | 合并到 `agents/agent/communication/` |
 
 ### 3.2 导入路径更新检查
@@ -189,11 +192,13 @@ agent/
 ```
 
 **问题**:
+
 1. 维护困难: 需要同时维护多个版本
 2. 代码重复: 大量相似代码
 3. 选择困难: 使用者不清楚应该用哪个版本
 
 **建议方案**:
+
 1. 确定一个主版本（推荐 `optimized-v2`）
 2. 将其他版本标记为 `@deprecated`
 3. 在下一个版本中删除废弃版本
@@ -203,15 +208,18 @@ agent/
 #### 问题 2: 测试覆盖不完整
 
 **现状**:
+
 - `a2a/`: 12 个测试文件 ✅
 - `agent/`: 0 个测试文件 ❌
 - `scheduler/`: 0 个测试文件 ❌
 
 **风险**:
+
 - 核心业务逻辑缺少测试保障
 - 重构时容易引入回归bug
 
 **建议方案**:
+
 1. 为 `agent/` 添加单元测试（优先级高）
 2. 为 `scheduler/` 添加单元测试
 3. 目标覆盖率: 80%+
@@ -223,12 +231,14 @@ agent/
 #### 问题 3: tools/ 目录过于简单
 
 **现状**:
+
 ```
 agents/tools/
 └── index.ts  # 仅8行代码
 ```
 
 **建议**:
+
 1. 考虑将 `lib/tools/` 合并到 `agents/tools/`
 2. 或者删除该目录，使用 `lib/tools/`
 
@@ -239,14 +249,15 @@ agents/tools/
 **现状**: `index.ts` 中有大量显式导出，可能遗漏新增功能
 
 **建议**:
+
 ```typescript
 // 当前方式
-export { func1, func2, func3 } from './module';
+export { func1, func2, func3 } from './module'
 
 // 建议方式 (更易维护)
-export * from './module';
+export * from './module'
 // 仅对需要重命名的使用显式导出
-export { Task as A2ATask } from './a2a';
+export { Task as A2ATask } from './a2a'
 ```
 
 **预计工时**: 30 分钟
@@ -257,21 +268,23 @@ export { Task as A2ATask } from './a2a';
 
 ### 5.1 重构风险评估
 
-| 风险项 | 等级 | 说明 | 缓解措施 |
-|--------|------|------|----------|
-| 循环依赖 | 🟢 低 | 已验证无循环依赖 | - |
-| 导入路径遗漏 | 🟢 低 | 已验证所有路径更新 | - |
-| 类型冲突 | 🟢 低 | 已通过重命名解决 | - |
-| 测试覆盖不足 | 🟡 中 | agent/scheduler 缺少测试 | 添加测试 |
-| 多版本维护 | 🟡 中 | 存在重复代码 | 废弃旧版本 |
+| 风险项       | 等级  | 说明                     | 缓解措施   |
+| ------------ | ----- | ------------------------ | ---------- |
+| 循环依赖     | 🟢 低 | 已验证无循环依赖         | -          |
+| 导入路径遗漏 | 🟢 低 | 已验证所有路径更新       | -          |
+| 类型冲突     | 🟢 低 | 已通过重命名解决         | -          |
+| 测试覆盖不足 | 🟡 中 | agent/scheduler 缺少测试 | 添加测试   |
+| 多版本维护   | 🟡 中 | 存在重复代码             | 废弃旧版本 |
 
 ### 5.2 影响范围分析
 
 **直接影响**:
+
 - 导入路径变更: 已全部更新 ✅
 - 类型重命名: `Task` → `A2ATask` (仅a2a模块)
 
 **间接影响**:
+
 - 无其他模块依赖旧路径
 - 无API变更
 
@@ -309,14 +322,14 @@ export { Task as A2ATask } from './a2a';
 
 ### 7.1 重构完成度评估
 
-| 检查项 | 状态 | 备注 |
-|--------|------|------|
-| 目录合并 | ✅ 完成 | 3个目录已合并 |
-| 导入更新 | ✅ 完成 | 无遗漏 |
-| 循环依赖 | ✅ 无 | 已验证 |
-| 类型冲突 | ✅ 解决 | 重命名处理 |
-| 测试覆盖 | ⚠️ 部分 | 仅a2a有测试 |
-| 代码清理 | ⚠️ 待优化 | 多版本共存 |
+| 检查项   | 状态      | 备注          |
+| -------- | --------- | ------------- |
+| 目录合并 | ✅ 完成   | 3个目录已合并 |
+| 导入更新 | ✅ 完成   | 无遗漏        |
+| 循环依赖 | ✅ 无     | 已验证        |
+| 类型冲突 | ✅ 解决   | 重命名处理    |
+| 测试覆盖 | ⚠️ 部分   | 仅a2a有测试   |
+| 代码清理 | ⚠️ 待优化 | 多版本共存    |
 
 **总体评估**: 重构 **90% 完成**，核心目标已达成，剩余为优化项。
 
@@ -389,5 +402,5 @@ src/lib/agents/
 
 ---
 
-*报告生成时间: 2026-03-30 14:40 GMT+2*
-*分析工具: grep, find, wc, madge*
+_报告生成时间: 2026-03-30 14:40 GMT+2_
+_分析工具: grep, find, wc, madge_

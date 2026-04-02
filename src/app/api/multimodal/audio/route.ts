@@ -1,3 +1,4 @@
+import { NextRequest, NextResponse } from 'next/server'
 /**
  * Multimodal API - Audio Transcription Endpoint
  * POST /api/multimodal/audio
@@ -90,24 +91,24 @@
  *         description: Internal server error
  */
 
-import { getMultimodalService } from '@/lib/multimodal/multimodal-service';
-import { audioToBuffer, validateAudio, formatDuration } from '@/lib/multimodal/audio-utils';
+import { getMultimodalService } from '@/lib/multimodal/multimodal-service'
+import { audioToBuffer, validateAudio, formatDuration } from '@/lib/multimodal/audio-utils'
 import type {
   AudioTranscriptionOptions,
   AudioTranscriptionResult,
-  TranscriptionSegment
-} from '@/lib/multimodal/types';
+  TranscriptionSegment,
+} from '@/lib/multimodal/types'
 import {
   createValidationError,
   createErrorResponse,
   createBadRequestError,
   ErrorType,
-} from '@/lib/api/error-handler';
-import { logger } from '@/lib/logger';
-import { createSuccessResponse } from '@/lib/api/utils';
+} from '@/lib/api/error-handler'
+import { logger } from '@/lib/logger'
+import { createSuccessResponse } from '@/lib/api/utils'
 
-export const runtime = 'nodejs';
-export const maxDuration = 120; // 2 minute timeout for longer audio files
+export const runtime = 'nodejs'
+export const maxDuration = 120 // 2 minute timeout for longer audio files
 
 // ============================================
 // Type Definitions
@@ -117,34 +118,34 @@ export const maxDuration = 120; // 2 minute timeout for longer audio files
  * Formatted transcription data for API response
  */
 interface FormattedTranscriptionData {
-  text: string;
-  segments: TranscriptionSegment[];
-  language: string;
-  duration: number;
-  durationFormatted: string;
-  confidence: number;
-  speakerDiarization: boolean;
-  wordCount: number;
+  text: string
+  segments: TranscriptionSegment[]
+  language: string
+  duration: number
+  durationFormatted: string
+  confidence: number
+  speakerDiarization: boolean
+  wordCount: number
 }
 
 /**
  * Metadata for transcription response
  */
 interface TranscriptionMetadata {
-  originalSize: number;
-  detectedType?: string;
-  filename: string;
-  type: string;
-  duration: number;
-  language: string;
-  model: string;
+  originalSize: number
+  detectedType?: string
+  filename: string
+  type: string
+  duration: number
+  language: string
+  model: string
 }
 
 // ============================================
 // Constants and Configuration
 // ============================================
 
-const MAX_AUDIO_SIZE = 100 * 1024 * 1024; // 100MB default max size
+const MAX_AUDIO_SIZE = 100 * 1024 * 1024 // 100MB default max size
 const SUPPORTED_AUDIO_TYPES = [
   'audio/mpeg',
   'audio/mp3',
@@ -155,37 +156,49 @@ const SUPPORTED_AUDIO_TYPES = [
   'audio/flac',
   'audio/aac',
   'audio/m4a',
-];
+]
 
 const SUPPORTED_LANGUAGES = [
-  'zh-CN', 'zh-TW', 'en-US', 'en-GB', 'ja-JP', 'ko-KR', 'es-ES', 'fr-FR', 'de-DE', 'it-IT', 'pt-BR',
-];
+  'zh-CN',
+  'zh-TW',
+  'en-US',
+  'en-GB',
+  'ja-JP',
+  'ko-KR',
+  'es-ES',
+  'fr-FR',
+  'de-DE',
+  'it-IT',
+  'pt-BR',
+]
 
 // ============================================
 // Validation Schemas
 // ============================================
 
 interface AudioProcessingFormData {
-  audio: File;
-  provider?: string;
-  language: string;
-  model?: string;
-  timestamps: boolean;
-  speakerDiarization: boolean;
+  audio: File
+  provider?: string
+  language: string
+  model?: string
+  timestamps: boolean
+  speakerDiarization: boolean
 }
 
 /**
  * Validate and parse form data
  */
-function validateAndParseFormData(formData: FormData): { success: true; data: AudioProcessingFormData } | { success: false; error: string } {
-  const file = formData.get('audio') as File;
+function validateAndParseFormData(
+  formData: FormData
+): { success: true; data: AudioProcessingFormData } | { success: false; error: string } {
+  const file = formData.get('audio') as File
 
   if (!file) {
-    return { success: false, error: 'No audio file provided' };
+    return { success: false, error: 'No audio file provided' }
   }
 
   if (!(file instanceof File)) {
-    return { success: false, error: 'Invalid audio file' };
+    return { success: false, error: 'Invalid audio file' }
   }
 
   // Validate file type
@@ -193,7 +206,7 @@ function validateAndParseFormData(formData: FormData): { success: true; data: Au
     return {
       success: false,
       error: `Unsupported audio type: ${file.type}. Supported types: ${SUPPORTED_AUDIO_TYPES.join(', ')}`,
-    };
+    }
   }
 
   // Validate file size
@@ -201,34 +214,34 @@ function validateAndParseFormData(formData: FormData): { success: true; data: Au
     return {
       success: false,
       error: `Audio file too large. Maximum size: ${(MAX_AUDIO_SIZE / (1024 * 1024)).toFixed(0)}MB`,
-    };
+    }
   }
 
   // Parse options
-  const language = (formData.get('language') as string) || 'zh-CN';
+  const language = (formData.get('language') as string) || 'zh-CN'
 
   if (!SUPPORTED_LANGUAGES.includes(language)) {
     return {
       success: false,
       error: `Unsupported language: ${language}. Supported languages: ${SUPPORTED_LANGUAGES.join(', ')}`,
-    };
+    }
   }
 
-  const model = formData.get('model') as string || undefined;
-  const timestamps = formData.get('timestamps') === 'true';
-  const speakerDiarization = formData.get('speakerDiarization') === 'true';
+  const model = (formData.get('model') as string) || undefined
+  const timestamps = formData.get('timestamps') === 'true'
+  const speakerDiarization = formData.get('speakerDiarization') === 'true'
 
   return {
     success: true,
     data: {
       audio: file,
-      provider: formData.get('provider') as string || undefined,
+      provider: (formData.get('provider') as string) || undefined,
       language,
       model,
       timestamps,
       speakerDiarization,
     },
-  };
+  }
 }
 
 /**
@@ -238,18 +251,22 @@ function logAudioProcessingError(
   stage: string,
   error: unknown,
   context: {
-    filename?: string;
-    fileType?: string;
-    fileSize?: number;
-    duration?: number;
-    provider?: string;
-    language?: string;
-    model?: string;
-    timestamps?: boolean;
-    speakerDiarization?: boolean;
+    filename?: string
+    fileType?: string
+    fileSize?: number
+    duration?: number
+    provider?: string
+    language?: string
+    model?: string
+    timestamps?: boolean
+    speakerDiarization?: boolean
   }
 ): void {
-  logger.error(`Audio processing error at ${stage}`, error instanceof Error ? error : new Error(String(error)), context);
+  logger.error(
+    `Audio processing error at ${stage}`,
+    error instanceof Error ? error : new Error(String(error)),
+    context
+  )
 }
 
 /**
@@ -261,8 +278,8 @@ function formatTranscriptionResult(
   file: File,
   validation: { valid: boolean; error?: string; detectedType?: string }
 ): {
-  data: FormattedTranscriptionData;
-  metadata: TranscriptionMetadata;
+  data: FormattedTranscriptionData
+  metadata: TranscriptionMetadata
 } {
   try {
     // Format segments with durations
@@ -270,7 +287,7 @@ function formatTranscriptionResult(
       ...seg,
       startFormatted: seg.start !== undefined ? formatDuration(seg.start) : undefined,
       endFormatted: seg.end !== undefined ? formatDuration(seg.end) : undefined,
-    }));
+    }))
 
     return {
       data: {
@@ -292,11 +309,14 @@ function formatTranscriptionResult(
         language: result.data?.language || 'unknown',
         model: result.data?.model || 'default',
       },
-    };
-  } catch (_error) {
+    }
+  } catch (error) {
     try {
-      logger.error('Failed to format transcription result', error instanceof Error ? error : new Error(String(error)));
-    } catch (_err) {}
+      logger.error(
+        'Failed to format transcription result',
+        error instanceof Error ? error : new Error(String(error))
+      )
+    } catch (err) {}
 
     // Return basic format on error
     return {
@@ -319,7 +339,7 @@ function formatTranscriptionResult(
         language: 'unknown',
         model: 'default',
       },
-    };
+    }
   }
 }
 
@@ -327,10 +347,10 @@ function formatTranscriptionResult(
  * Create service unavailable error helper
  */
 function createServiceUnavailableError(message: string) {
-  const error = new Error(message);
-  (error as { type?: string; statusCode?: number }).type = ErrorType.SERVICE_UNAVAILABLE;
-  (error as { type?: string; statusCode?: number }).statusCode = 503;
-  return createErrorResponse(error as Error);
+  const error = new Error(message)
+  ;(error as { type?: string; statusCode?: number }).type = ErrorType.SERVICE_UNAVAILABLE
+  ;(error as { type?: string; statusCode?: number }).statusCode = 503
+  return createErrorResponse(error as Error)
 }
 
 // ============================================
@@ -338,43 +358,49 @@ function createServiceUnavailableError(message: string) {
 // ============================================
 
 export async function POST(request: NextRequest) {
-  const requestId = crypto.randomUUID();
-  const startTime = performance.now();
+  const requestId = crypto.randomUUID()
+  const startTime = performance.now()
 
   try {
     try {
       logger.info('Audio transcription request received', {
         requestId,
-      });
-    } catch (_err) {
+      })
+    } catch (err) {
       // Logger might not be available in test environment
     }
 
     // Parse form data
-    let formData: FormData;
+    let formData: FormData
     try {
-      formData = await request.formData();
-    } catch (_error) {
-      logger.error('Failed to parse form data', error instanceof Error ? error : new Error(String(error)), {
-        requestId,
-      });
-      return createBadRequestError('Failed to parse form data - ensure Content-Type is multipart/form-data');
+      formData = await request.formData()
+    } catch (error) {
+      logger.error(
+        'Failed to parse form data',
+        error instanceof Error ? error : new Error(String(error)),
+        {
+          requestId,
+        }
+      )
+      return createBadRequestError(
+        'Failed to parse form data - ensure Content-Type is multipart/form-data'
+      )
     }
 
     // Validate form data
-    const validation = validateAndParseFormData(formData);
+    const validation = validateAndParseFormData(formData)
 
     if (!validation.success) {
       try {
         logger.warn('Audio validation failed', {
           requestId,
           error: validation.error,
-        });
-      } catch (_err) {}
-      return createValidationError(validation.error);
+        })
+      } catch (err) {}
+      return createValidationError(validation.error)
     }
 
-    const { audio, provider, language, model, timestamps, speakerDiarization } = validation.data;
+    const { audio, provider, language, model, timestamps, speakerDiarization } = validation.data
 
     // Log file details
     try {
@@ -388,23 +414,23 @@ export async function POST(request: NextRequest) {
         model: model || 'default',
         timestamps,
         speakerDiarization,
-      });
-    } catch (_err) {}
+      })
+    } catch (err) {}
 
     // Read audio buffer
-    let buffer: Buffer;
+    let buffer: Buffer
     try {
-      buffer = Buffer.from(await audio.arrayBuffer());
-    } catch (_error) {
+      buffer = Buffer.from(await audio.arrayBuffer())
+    } catch (error) {
       logAudioProcessingError('buffer-creation', error, {
         filename: audio.name,
         fileType: audio.type,
-      });
-      return createBadRequestError('Failed to read audio file');
+      })
+      return createBadRequestError('Failed to read audio file')
     }
 
     // Validate audio content
-    const contentValidation = await validateAudio(buffer);
+    const contentValidation = await validateAudio(buffer)
 
     if (!contentValidation.valid) {
       try {
@@ -412,31 +438,35 @@ export async function POST(request: NextRequest) {
           requestId,
           error: contentValidation.error,
           filename: audio.name,
-        });
-      } catch (_err) {}
+        })
+      } catch (err) {}
 
-      return createValidationError(
-        contentValidation.error || 'Audio validation failed',
-        { filename: audio.name, fileType: audio.type }
-      );
+      return createValidationError(contentValidation.error || 'Audio validation failed', {
+        filename: audio.name,
+        fileType: audio.type,
+      })
     }
 
     // Get multimodal service
-    let service;
+    let service
     try {
-      service = getMultimodalService();
-    } catch (_error) {
+      service = getMultimodalService()
+    } catch (error) {
       try {
-        logger.error('Failed to get multimodal service', error instanceof Error ? error : new Error(String(error)), {
-          requestId,
-          provider,
-        });
-      } catch (_err) {}
-      return createServiceUnavailableError('Audio transcription service temporarily unavailable');
+        logger.error(
+          'Failed to get multimodal service',
+          error instanceof Error ? error : new Error(String(error)),
+          {
+            requestId,
+            provider,
+          }
+        )
+      } catch (err) {}
+      return createServiceUnavailableError('Audio transcription service temporarily unavailable')
     }
 
     // Process audio
-    let result;
+    let result
     try {
       try {
         logger.debug('Starting audio transcription', {
@@ -446,19 +476,19 @@ export async function POST(request: NextRequest) {
           model,
           timestamps,
           speakerDiarization,
-        });
-      } catch (_err) {}
+        })
+      } catch (err) {}
 
       const options: AudioTranscriptionOptions = {
         language,
         model,
         timestamps,
         speakerDiarization,
-      };
+      }
 
-      result = await service.processAudio(buffer, options, provider);
+      result = await service.processAudio(buffer, options, provider)
 
-      const processingTime = performance.now() - startTime;
+      const processingTime = performance.now() - startTime
 
       try {
         logger.info('Audio transcription completed', {
@@ -467,9 +497,9 @@ export async function POST(request: NextRequest) {
           processingTime: processingTime.toFixed(2),
           success: result.success,
           duration: result.data?.duration || 0,
-        });
-      } catch (_err) {}
-    } catch (_error) {
+        })
+      } catch (err) {}
+    } catch (error) {
       logAudioProcessingError('transcription', error, {
         filename: audio.name,
         provider,
@@ -477,16 +507,21 @@ export async function POST(request: NextRequest) {
         model,
         timestamps,
         speakerDiarization,
-      });
+      })
 
       // Check for timeout
-      if (error instanceof Error && error.name === 'AbortError' || error instanceof Error && error.message.includes('timeout')) {
+      if (
+        (error instanceof Error && error.name === 'AbortError') ||
+        (error instanceof Error && error.message.includes('timeout'))
+      ) {
         return createServiceUnavailableError(
           'Audio transcription timeout - file may be too long or service is overloaded'
-        );
+        )
       }
 
-      return createBadRequestError('Failed to transcribe audio - please try again or contact support');
+      return createBadRequestError(
+        'Failed to transcribe audio - please try again or contact support'
+      )
     }
 
     // Check result
@@ -495,43 +530,40 @@ export async function POST(request: NextRequest) {
         filename: audio.name,
         provider: result.provider,
         language,
-      });
+      })
 
       // Map specific error types to appropriate responses
-      const errorLower = (result.error || '').toLowerCase();
+      const errorLower = (result.error || '').toLowerCase()
 
       if (errorLower.includes('format') || errorLower.includes('unsupported')) {
-        return createValidationError(
-          `Unsupported audio format: ${result.error}`,
-          { filename: audio.name, fileType: audio.type }
-        );
+        return createValidationError(`Unsupported audio format: ${result.error}`, {
+          filename: audio.name,
+          fileType: audio.type,
+        })
       }
 
       if (errorLower.includes('size') || errorLower.includes('too large')) {
-        return createValidationError(
-          `Audio size issue: ${result.error}`,
-          { filename: audio.name, fileSize: buffer.length }
-        );
+        return createValidationError(`Audio size issue: ${result.error}`, {
+          filename: audio.name,
+          fileSize: buffer.length,
+        })
       }
 
       if (errorLower.includes('language') || errorLower.includes('not supported')) {
-        return createValidationError(
-          `Language not supported: ${result.error}`,
-          { language }
-        );
+        return createValidationError(`Language not supported: ${result.error}`, { language })
       }
 
       if (errorLower.includes('provider') || errorLower.includes('service')) {
         return createServiceUnavailableError(
           `Audio transcription provider unavailable: ${provider || 'default'}`
-        );
+        )
       }
 
-      return createBadRequestError(result.error || 'Audio transcription failed');
+      return createBadRequestError(result.error || 'Audio transcription failed')
     }
 
     // Format and return result
-    const formatted = formatTranscriptionResult(result, buffer, audio, contentValidation);
+    const formatted = formatTranscriptionResult(result, buffer, audio, contentValidation)
 
     return createSuccessResponse({
       data: formatted.data,
@@ -540,11 +572,10 @@ export async function POST(request: NextRequest) {
         provider: result.provider,
         processingTime: ((performance.now() - startTime) / 1000).toFixed(3),
       },
-    });
-
-  } catch (_error) {
-    logAudioProcessingError('unexpected', error, {});
-    return createErrorResponse(error instanceof Error ? error : new Error('Internal server error'));
+    })
+  } catch (error) {
+    logAudioProcessingError('unexpected', error, {})
+    return createErrorResponse(error instanceof Error ? error : new Error('Internal server error'))
   }
 }
 
@@ -554,31 +585,34 @@ export async function POST(request: NextRequest) {
 
 export async function GET() {
   try {
-    const service = getMultimodalService();
-    const providers = service.getProviders();
+    const service = getMultimodalService()
+    const providers = service.getProviders()
 
     // Filter for audio providers
-    const audioProviders = providers.filter(p =>
-      p.capabilities.includes('audio') || p.capabilities.includes('transcription')
-    );
+    const audioProviders = providers.filter(
+      p => p.capabilities.includes('audio') || p.capabilities.includes('transcription')
+    )
 
     // Get health status for each provider
-    let health;
+    let health
     try {
-      health = await service.healthCheck();
-    } catch (_error) {
+      health = await service.healthCheck()
+    } catch (error) {
       try {
-        logger.error('Failed to get provider health status', error instanceof Error ? error : new Error(String(error)));
-      } catch (_err) {}
+        logger.error(
+          'Failed to get provider health status',
+          error instanceof Error ? error : new Error(String(error))
+        )
+      } catch (err) {}
       // Continue with empty health status
-      health = {};
+      health = {}
     }
 
     const providerStatus = audioProviders.map(p => ({
       ...p,
       healthy: health[p.name] || false,
       status: health[p.name] ? 'operational' : 'unavailable',
-    }));
+    }))
 
     return createSuccessResponse({
       providers: providerStatus,
@@ -588,11 +622,16 @@ export async function GET() {
       supportedTypes: SUPPORTED_AUDIO_TYPES,
       maxSizeBytes: MAX_AUDIO_SIZE,
       maxSizeMB: (MAX_AUDIO_SIZE / (1024 * 1024)).toFixed(0),
-    });
-  } catch (_error) {
+    })
+  } catch (error) {
     try {
-      logger.error('Audio provider listing error', error instanceof Error ? error : new Error(String(error)));
-    } catch (_err) {}
-    return createErrorResponse(error instanceof Error ? error : new Error('Failed to list audio transcription providers'));
+      logger.error(
+        'Audio provider listing error',
+        error instanceof Error ? error : new Error(String(error))
+      )
+    } catch (err) {}
+    return createErrorResponse(
+      error instanceof Error ? error : new Error('Failed to list audio transcription providers')
+    )
   }
 }

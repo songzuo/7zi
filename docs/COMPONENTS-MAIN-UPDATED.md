@@ -85,7 +85,7 @@
 #### 使用示例
 
 ```tsx
-import { Navigation } from '@/components';
+import { Navigation } from '@/components'
 
 export default function Layout({ children }) {
   return (
@@ -93,7 +93,7 @@ export default function Layout({ children }) {
       <Navigation />
       <main>{children}</main>
     </>
-  );
+  )
 }
 ```
 
@@ -121,7 +121,7 @@ export default function Layout({ children }) {
 #### 使用示例
 
 ```tsx
-import { MobileMenu } from '@/components';
+import { MobileMenu } from '@/components'
 
 export function Header() {
   return (
@@ -130,7 +130,7 @@ export function Header() {
       <nav className="hidden lg:flex">{/* 桌面导航 */}</nav>
       <MobileMenu />
     </header>
-  );
+  )
 }
 ```
 
@@ -145,7 +145,7 @@ export function Header() {
 #### 使用示例
 
 ```tsx
-import { Footer } from '@/components';
+import { Footer } from '@/components'
 
 export default function Page() {
   return (
@@ -154,7 +154,7 @@ export default function Page() {
       <main>{/* 页面内容 */}</main>
       <Footer />
     </>
-  );
+  )
 }
 ```
 
@@ -171,7 +171,7 @@ export default function Page() {
 #### 使用示例
 
 ```tsx
-import { ThemeToggle } from '@/components';
+import { ThemeToggle } from '@/components'
 
 export function Header() {
   return (
@@ -180,7 +180,7 @@ export function Header() {
       <nav>{/* 导航 */}</nav>
       <ThemeToggle />
     </header>
-  );
+  )
 }
 ```
 
@@ -204,16 +204,16 @@ export function Header() {
 
 #### 导出组件
 
-| 组件 | 说明 |
-|------|------|
-| `SkeletonText` | 文本骨架 |
-| `SkeletonAvatar` | 头像骨架 |
-| `SkeletonCard` | 卡片骨架 |
-| `SkeletonList` | 列表骨架 |
-| `SkeletonTable` | 表格骨架 |
+| 组件               | 说明         |
+| ------------------ | ------------ |
+| `SkeletonText`     | 文本骨架     |
+| `SkeletonAvatar`   | 头像骨架     |
+| `SkeletonCard`     | 卡片骨架     |
+| `SkeletonList`     | 列表骨架     |
+| `SkeletonTable`    | 表格骨架     |
 | `SkeletonStatCard` | 统计卡片骨架 |
-| `SkeletonNav` | 导航骨架 |
-| `SkeletonPage` | 页面骨架 |
+| `SkeletonNav`      | 导航骨架     |
+| `SkeletonPage`     | 页面骨架     |
 
 #### 使用示例
 
@@ -242,32 +242,25 @@ import { SkeletonCard, SkeletonList, SkeletonTable } from '@/components';
 
 ```tsx
 interface LazyImageProps {
-  src: string;
-  alt: string;
-  width?: number;
-  height?: number;
-  className?: string;
-  placeholderColor?: string;
-  priority?: boolean;
-  fill?: boolean;
-  sizes?: string;
-  quality?: number;
-  objectFit?: 'contain' | 'cover' | 'fill' | 'none';
+  src: string
+  alt: string
+  width?: number
+  height?: number
+  className?: string
+  placeholderColor?: string
+  priority?: boolean
+  fill?: boolean
+  sizes?: string
+  quality?: number
+  objectFit?: 'contain' | 'cover' | 'fill' | 'none'
 }
 ```
 
 #### 使用示例
 
 ```tsx
-import { LazyImage } from '@/components';
-
-<LazyImage
-  src="/images/hero.jpg"
-  alt="Hero image"
-  width={800}
-  height={600}
-  priority
-/>
+import { LazyImage } from '@/components'
+;<LazyImage src="/images/hero.jpg" alt="Hero image" width={800} height={600} priority />
 ```
 
 ---
@@ -289,9 +282,8 @@ import { LazyImage } from '@/components';
 #### 使用示例
 
 ```tsx
-import { LoadingSpinner } from '@/components';
-
-<LoadingSpinner />
+import { LoadingSpinner } from '@/components'
+;<LoadingSpinner />
 ```
 
 ---
@@ -305,9 +297,8 @@ import { LoadingSpinner } from '@/components';
 #### 使用示例
 
 ```tsx
-import { GlobalLoader } from '@/components';
-
-<GlobalLoader />
+import { GlobalLoader } from '@/components'
+;<GlobalLoader />
 ```
 
 ---
@@ -324,27 +315,27 @@ AI 团队成员卡片组件，使用 React.memo 优化渲染。
 
 ```tsx
 interface AIMember {
-  id: string;
-  name: string;
-  role: string;
-  emoji: string;
-  avatar: string;
-  status: 'idle' | 'working' | 'busy' | 'offline';
-  provider: string;
-  currentTask?: string;
-  completedTasks: number;
+  id: string
+  name: string
+  role: string
+  emoji: string
+  avatar: string
+  status: 'idle' | 'working' | 'busy' | 'offline'
+  provider: string
+  currentTask?: string
+  completedTasks: number
 }
 
 interface MemberCardProps {
-  member: AIMember;
-  compact?: boolean;
+  member: AIMember
+  compact?: boolean
 }
 ```
 
 #### 使用示例
 
 ```tsx
-import { MemberCard } from '@/components';
+import { MemberCard } from '@/components'
 
 const member: AIMember = {
   id: '1',
@@ -356,9 +347,9 @@ const member: AIMember = {
   provider: 'volcengine',
   currentTask: '重构官网组件',
   completedTasks: 42,
-};
+}
 
-<MemberCard member={member} />
+;<MemberCard member={member} />
 ```
 
 ---
@@ -372,9 +363,8 @@ GitHub 仓库活动展示组件，显示提交记录和统计。
 #### 使用示例
 
 ```tsx
-import { GitHubActivity } from '@/components';
-
-<GitHubActivity />
+import { GitHubActivity } from '@/components'
+;<GitHubActivity />
 ```
 
 ---
@@ -388,9 +378,8 @@ import { GitHubActivity } from '@/components';
 #### 使用示例
 
 ```tsx
-import { ProjectDashboard } from '@/components';
-
-<ProjectDashboard />
+import { ProjectDashboard } from '@/components'
+;<ProjectDashboard />
 ```
 
 #### 功能特性
@@ -412,18 +401,18 @@ GitHub Issues 任务看板组件。
 
 ```tsx
 interface TaskBoardProps {
-  issues: GitHubIssue[];
+  issues: GitHubIssue[]
 }
 ```
 
 #### 使用示例
 
 ```tsx
-import { TaskBoard } from '@/components';
+import { TaskBoard } from '@/components'
 
-const issues = await fetchGitHubIssues();
+const issues = await fetchGitHubIssues()
 
-<TaskBoard issues={issues} />
+;<TaskBoard issues={issues} />
 ```
 
 ---
@@ -445,9 +434,8 @@ const issues = await fetchGitHubIssues();
 #### 使用示例
 
 ```tsx
-import { RealtimeDashboard } from '@/components';
-
-<RealtimeDashboard />
+import { RealtimeDashboard } from '@/components'
+;<RealtimeDashboard />
 ```
 
 ---
@@ -461,9 +449,8 @@ import { RealtimeDashboard } from '@/components';
 #### 使用示例
 
 ```tsx
-import { HealthDashboard } from '@/components';
-
-<HealthDashboard />
+import { HealthDashboard } from '@/components'
+;<HealthDashboard />
 ```
 
 ---
@@ -480,16 +467,15 @@ import { HealthDashboard } from '@/components';
 
 ```tsx
 interface ContactFormProps {
-  locale?: 'zh' | 'en';
+  locale?: 'zh' | 'en'
 }
 ```
 
 #### 使用示例
 
 ```tsx
-import { ContactForm } from '@/components';
-
-<ContactForm locale="zh" />
+import { ContactForm } from '@/components'
+;<ContactForm locale="zh" />
 ```
 
 ---
@@ -511,9 +497,8 @@ import { ContactForm } from '@/components';
 #### 使用示例
 
 ```tsx
-import { BatchEditPanel } from '@/components';
-
-<BatchEditPanel items={items} />
+import { BatchEditPanel } from '@/components'
+;<BatchEditPanel items={items} />
 ```
 
 ---
@@ -527,12 +512,8 @@ import { BatchEditPanel } from '@/components';
 #### 使用示例
 
 ```tsx
-import { SearchFilter } from '@/components';
-
-<SearchFilter
-  data={data}
-  onFilter={handleFilter}
-/>
+import { SearchFilter } from '@/components'
+;<SearchFilter data={data} onFilter={handleFilter} />
 ```
 
 ---
@@ -548,29 +529,28 @@ AI 聊天窗口组件，支持移动端优化和团队状态显示。
 #### 使用示例
 
 ```tsx
-import { AIChat } from '@/components';
-
-<AIChat />
+import { AIChat } from '@/components'
+;<AIChat />
 ```
 
 #### 子组件
 
 聊天模块包含以下子组件（通过 `./chat` 导出）：
 
-| 组件 | 说明 |
-|------|------|
-| `ChatHeader` | 聊天头部 |
-| `ChatMessage` | 消息气泡 |
-| `ChatInput` | 输入框 |
-| `QuickActions` | 快捷操作 |
+| 组件              | 说明         |
+| ----------------- | ------------ |
+| `ChatHeader`      | 聊天头部     |
+| `ChatMessage`     | 消息气泡     |
+| `ChatInput`       | 输入框       |
+| `QuickActions`    | 快捷操作     |
 | `TeamStatusPanel` | 团队状态面板 |
-| `MemberSelector` | 成员选择器 |
-| `TypingIndicator` | 打字指示器 |
+| `MemberSelector`  | 成员选择器   |
+| `TypingIndicator` | 打字指示器   |
 
 #### Hook
 
 ```tsx
-import { useChat } from '@/components/chat';
+import { useChat } from '@/components/chat'
 
 const {
   messages,
@@ -580,7 +560,7 @@ const {
   handleSend,
   handleQuickAction,
   setSelectedMemberId,
-} = useChat(teamMembers);
+} = useChat(teamMembers)
 ```
 
 ---
@@ -597,32 +577,26 @@ Next.js 页面级错误边界组件。
 
 ```tsx
 interface ErrorBoundaryProps {
-  error: Error & { digest?: string };
-  reset: () => void;
-  title?: string;
-  showReset?: boolean;
+  error: Error & { digest?: string }
+  reset: () => void
+  title?: string
+  showReset?: boolean
 }
 ```
 
 #### 使用示例
 
 ```tsx
-import { ErrorBoundary } from '@/components';
+import { ErrorBoundary } from '@/components'
 
 export default function Error({
   error,
   reset,
 }: {
-  error: Error & { digest?: string };
-  reset: () => void;
+  error: Error & { digest?: string }
+  reset: () => void
 }) {
-  return (
-    <ErrorBoundary
-      error={error}
-      reset={reset}
-      title="页面加载失败"
-    />
-  );
+  return <ErrorBoundary error={error} reset={reset} title="页面加载失败" />
 }
 ```
 
@@ -646,25 +620,20 @@ export default function Error({
 
 ```tsx
 interface ErrorDisplayProps {
-  title?: string;
-  message?: string;
-  showReset?: boolean;
-  onReset?: () => void;
-  errorDigest?: string;
-  variant?: 'default' | 'compact' | 'fullscreen';
+  title?: string
+  message?: string
+  showReset?: boolean
+  onReset?: () => void
+  errorDigest?: string
+  variant?: 'default' | 'compact' | 'fullscreen'
 }
 ```
 
 #### 使用示例
 
 ```tsx
-import { ErrorDisplay } from '@/components';
-
-<ErrorDisplay
-  title="加载失败"
-  message="无法获取数据，请稍后重试"
-  onReset={() => refetch()}
-/>
+import { ErrorDisplay } from '@/components'
+;<ErrorDisplay title="加载失败" message="无法获取数据，请稍后重试" onReset={() => refetch()} />
 ```
 
 ---
@@ -695,15 +664,15 @@ SEO 相关组件集合，包含结构化数据和元数据。
 
 #### 导出组件
 
-| 组件 | 说明 |
-|------|------|
+| 组件             | 说明               |
+| ---------------- | ------------------ |
 | `StructuredData` | JSON-LD 结构化数据 |
-| `ArticleSchema` | 文章结构化数据 |
-| `ServiceSchema` | 服务结构化数据 |
-| `ProductSchema` | 产品结构化数据 |
-| `Breadcrumbs` | 面包屑导航 |
-| `CanonicalUrl` | 规范链接 |
-| `HreflangLinks` | 多语言链接 |
+| `ArticleSchema`  | 文章结构化数据     |
+| `ServiceSchema`  | 服务结构化数据     |
+| `ProductSchema`  | 产品结构化数据     |
+| `Breadcrumbs`    | 面包屑导航         |
+| `CanonicalUrl`   | 规范链接           |
+| `HreflangLinks`  | 多语言链接         |
 
 ---
 
@@ -718,12 +687,8 @@ SEO 相关组件集合，包含结构化数据和元数据。
 #### 使用示例
 
 ```tsx
-import { ExportPanel } from '@/components';
-
-<ExportPanel
-  data={data}
-  formats={['json', 'csv', 'pdf']}
-/>
+import { ExportPanel } from '@/components'
+;<ExportPanel data={data} formats={['json', 'csv', 'pdf']} />
 ```
 
 ---
@@ -739,9 +704,8 @@ import { ExportPanel } from '@/components';
 #### 使用示例
 
 ```tsx
-import { PerformanceMonitor } from '@/components';
-
-<PerformanceMonitor />
+import { PerformanceMonitor } from '@/components'
+;<PerformanceMonitor />
 ```
 
 ---
@@ -763,13 +727,8 @@ import { PerformanceMonitor } from '@/components';
 #### 使用示例
 
 ```tsx
-import { AnimatedProgressBar } from '@/components';
-
-<AnimatedProgressBar
-  progress={75}
-  animated
-  showLabel
-/>
+import { AnimatedProgressBar } from '@/components'
+;<AnimatedProgressBar progress={75} animated showLabel />
 ```
 
 ---
@@ -818,17 +777,16 @@ Agent 钱包组件。
 
 ```tsx
 interface SettingsPanelProps {
-  onClose?: () => void;
-  className?: string;
+  onClose?: () => void
+  className?: string
 }
 ```
 
 #### 使用示例
 
 ```tsx
-import { SettingsPanel } from '@/components';
-
-<SettingsPanel onClose={() => setIsOpen(false)} />
+import { SettingsPanel } from '@/components'
+;<SettingsPanel onClose={() => setIsOpen(false)} />
 ```
 
 ---
@@ -874,9 +832,8 @@ Service Worker 注册组件。
 #### 使用示例
 
 ```tsx
-import { Hero3D } from '@/components';
-
-<Hero3D />
+import { Hero3D } from '@/components'
+;<Hero3D />
 ```
 
 ---
@@ -891,18 +848,17 @@ import { Hero3D } from '@/components';
 
 ```tsx
 interface SocialLinksProps {
-  variant?: 'horizontal' | 'vertical' | 'grid';
-  size?: 'sm' | 'md' | 'lg';
-  className?: string;
+  variant?: 'horizontal' | 'vertical' | 'grid'
+  size?: 'sm' | 'md' | 'lg'
+  className?: string
 }
 ```
 
 #### 使用示例
 
 ```tsx
-import { SocialLinks } from '@/components';
-
-<SocialLinks variant="horizontal" size="sm" />
+import { SocialLinks } from '@/components'
+;<SocialLinks variant="horizontal" size="sm" />
 ```
 
 ---
@@ -953,16 +909,16 @@ import {
   ContactForm,
   ErrorBoundary,
   // ...
-} from '@/components';
+} from '@/components'
 ```
 
 ### 按需导入
 
 ```tsx
-import { Navigation } from '@/components/Navigation';
-import { MemberCard } from '@/components/MemberCard';
-import { Card, ProgressBar, EmptyState } from '@/components/shared';
-import { useChat, ChatMessage } from '@/components/chat';
+import { Navigation } from '@/components/Navigation'
+import { MemberCard } from '@/components/MemberCard'
+import { Card, ProgressBar, EmptyState } from '@/components/shared'
+import { useChat, ChatMessage } from '@/components/chat'
 ```
 
 ---
@@ -1026,11 +982,11 @@ import { useChat, ChatMessage } from '@/components/chat';
 1. **懒加载组件**: 使用 `dynamic` 导入非首屏组件
 
 ```tsx
-import dynamic from 'next/dynamic';
+import dynamic from 'next/dynamic'
 
 const AIChat = dynamic(() => import('@/components/AIChat'), {
   ssr: false,
-});
+})
 ```
 
 2. **图片优化**: 使用 `LazyImage` 或 `OptimizedImage`
@@ -1046,14 +1002,16 @@ const AIChat = dynamic(() => import('@/components/AIChat'), {
 ## 📝 更新日志
 
 ### 2026-03-18
+
 - 完整更新组件文档
 - 添加 10+ 个新组件文档
 - 更新组件列表至 44 个组件
 - 修正组件路径引用
 
 ### 2024-03-07
+
 - 创建初始组件库文档
 
 ---
 
-*本文档由 🤖 7zi AI 团队维护*
+_本文档由 🤖 7zi AI 团队维护_

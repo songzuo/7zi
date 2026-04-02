@@ -12,13 +12,13 @@ AI Agent Scheduler Dashboard 是一套完整的 React 组件，用于可视化�
 
 ### 核心组件
 
-| 组件 | 功能描述 |
-|------|----------|
-| `AgentStatusPanel` | 实时显示所有 Agent 状态和负载 |
-| `TaskQueueView` | 任务队列视图，支持筛选和重新分配 |
-| `ScheduleHistory` | 调度决策历史，包含推理过程 |
-| `ManualOverride` | 手动干预界面，覆盖自动调度 |
-| `Dashboard` | 主容器，整合所有子组件 |
+| 组件               | 功能描述                         |
+| ------------------ | -------------------------------- |
+| `AgentStatusPanel` | 实时显示所有 Agent 状态和负载    |
+| `TaskQueueView`    | 任务队列视图，支持筛选和重新分配 |
+| `ScheduleHistory`  | 调度决策历史，包含推理过程       |
+| `ManualOverride`   | 手动干预界面，覆盖自动调度       |
+| `Dashboard`        | 主容器，整合所有子组件           |
 
 ### 功能特性
 
@@ -36,18 +36,18 @@ AI Agent Scheduler Dashboard 是一套完整的 React 组件，用于可视化�
 Dashboard 从 Zustand store (`src/lib/agent-scheduler/stores/scheduler-store.ts`) 获取数据：
 
 ```typescript
-import { useSchedulerStore } from '@/lib/agent-scheduler/stores/scheduler-store';
+import { useSchedulerStore } from '@/lib/agent-scheduler/stores/scheduler-store'
 
 const {
-  agents,              // 所有 Agent 列表
-  tasks,               // 所有任务列表
-  decisions,           // 调度决策历史
+  agents, // 所有 Agent 列表
+  tasks, // 所有任务列表
+  decisions, // 调度决策历史
   isLoading,
   initialize,
   refresh,
   assignTask,
-  overrideDecision
-} = useSchedulerStore();
+  overrideDecision,
+} = useSchedulerStore()
 ```
 
 ---
@@ -62,29 +62,29 @@ const {
 
 ```typescript
 interface AgentStatusPanelProps {
-  refreshInterval?: number;      // 自动刷新间隔（毫秒），默认 30000
-  showOfflineAgents?: boolean;   // 是否显示离线 Agent，默认 true
-  enableRadarChart?: boolean;    // 是否启用雷达图，默认 true
-  onAgentClick?: (agentId: string) => void;  // Agent 点击回调
+  refreshInterval?: number // 自动刷新间隔（毫秒），默认 30000
+  showOfflineAgents?: boolean // 是否显示离线 Agent，默认 true
+  enableRadarChart?: boolean // 是否启用雷达图，默认 true
+  onAgentClick?: (agentId: string) => void // Agent 点击回调
 }
 ```
 
 #### 使用示例
 
 ```tsx
-import { AgentStatusPanel } from '@/lib/agent-scheduler/dashboard/AgentStatusPanel';
+import { AgentStatusPanel } from '@/lib/agent-scheduler/dashboard/AgentStatusPanel'
 
 export default function DashboardPage() {
   return (
     <div className="p-6">
       <h1>AI Agent 状态监控</h1>
-      <AgentStatusPanel 
+      <AgentStatusPanel
         refreshInterval={30000}
         enableRadarChart={true}
-        onAgentClick={(agentId) => console.log('Agent clicked:', agentId)}
+        onAgentClick={agentId => console.log('Agent clicked:', agentId)}
       />
     </div>
-  );
+  )
 }
 ```
 
@@ -98,19 +98,19 @@ export default function DashboardPage() {
 
 #### 11 位 Agent 列表
 
-| Agent ID | 名称 | 角色 | Emoji | 技术栈 |
-|----------|------|------|-------|--------|
-| `agent-expert` | 智能体世界专家 | 视角转换、未来布局 | 🌟 | AI, 架构设计 |
-| `consultant` | 咨询师 | 研究分析 | 📚 | 数据分析, 文档 |
-| `architect` | 架构师 | 架构设计 | 🏗️ | TypeScript, React |
-| `executor` | Executor | 执行实现 | ⚡ | 编码, 部署 |
-| `sysadmin` | 系统管理员 | 运维部署 | 🛡️ | Docker, CI/CD |
-| `tester` | 测试员 | 测试调试 | 🧪 | 测试自动化 |
-| `designer` | 设计师 | UI设计 | 🎨 | React, CSS |
-| `promoter` | 推广专员 | 推广SEO | 📣 | SEO, 内容营销 |
-| `sales` | 销售客服 | 销售客服 | 💼 | 沟通, 问题解决 |
-| `finance` | 财务 | 财务会计 | 💰 | 数据分析, 报表 |
-| `media` | 媒体 | 媒体宣传 | 📺 | 文案, 视频制作 |
+| Agent ID       | 名称           | 角色               | Emoji | 技术栈            |
+| -------------- | -------------- | ------------------ | ----- | ----------------- |
+| `agent-expert` | 智能体世界专家 | 视角转换、未来布局 | 🌟    | AI, 架构设计      |
+| `consultant`   | 咨询师         | 研究分析           | 📚    | 数据分析, 文档    |
+| `architect`    | 架构师         | 架构设计           | 🏗️    | TypeScript, React |
+| `executor`     | Executor       | 执行实现           | ⚡    | 编码, 部署        |
+| `sysadmin`     | 系统管理员     | 运维部署           | 🛡️    | Docker, CI/CD     |
+| `tester`       | 测试员         | 测试调试           | 🧪    | 测试自动化        |
+| `designer`     | 设计师         | UI设计             | 🎨    | React, CSS        |
+| `promoter`     | 推广专员       | 推广SEO            | 📣    | SEO, 内容营销     |
+| `sales`        | 销售客服       | 销售客服           | 💼    | 沟通, 问题解决    |
+| `finance`      | 财务           | 财务会计           | 💰    | 数据分析, 报表    |
+| `media`        | 媒体           | 媒体宣传           | 📺    | 文案, 视频制作    |
 
 ---
 
@@ -122,32 +122,32 @@ export default function DashboardPage() {
 
 ```typescript
 interface TaskQueueViewProps {
-  showCompleted?: boolean;     // 是否显示已完成任务，默认 false
-  autoRefresh?: boolean;       // 是否自动刷新，默认 true
-  refreshInterval?: number;    // 刷新间隔（毫秒），默认 15000
-  onTaskClick?: (taskId: string) => void;
-  onReassign?: (taskId: string, newAgentId: string) => void;
-  onCancel?: (taskId: string) => void;
+  showCompleted?: boolean // 是否显示已完成任务，默认 false
+  autoRefresh?: boolean // 是否自动刷新，默认 true
+  refreshInterval?: number // 刷新间隔（毫秒），默认 15000
+  onTaskClick?: (taskId: string) => void
+  onReassign?: (taskId: string, newAgentId: string) => void
+  onCancel?: (taskId: string) => void
 }
 ```
 
 #### 使用示例
 
 ```tsx
-import { TaskQueueView } from '@/lib/agent-scheduler/dashboard/TaskQueueView';
+import { TaskQueueView } from '@/lib/agent-scheduler/dashboard/TaskQueueView'
 
 export default function TaskQueuePage() {
   return (
     <div className="p-6">
       <h1>任务队列</h1>
-      <TaskQueueView 
+      <TaskQueueView
         showCompleted={false}
         autoRefresh={true}
         refreshInterval={15000}
-        onTaskClick={(taskId) => console.log('Task clicked:', taskId)}
+        onTaskClick={taskId => console.log('Task clicked:', taskId)}
       />
     </div>
-  );
+  )
 }
 ```
 
@@ -174,32 +174,32 @@ export default function TaskQueuePage() {
 
 ```typescript
 interface ScheduleHistoryProps {
-  limit?: number;                    // 显示的最大记录数，默认 50
-  showReasoning?: boolean;           // 是否显示推理过程，默认 true
-  showAlternatives?: boolean;        // 是否显示替代方案，默认 true
-  autoRefresh?: boolean;             // 是否自动刷新，默认 true
-  refreshInterval?: number;          // 刷新间隔（毫秒），默认 20000
-  onDecisionClick?: (decisionId: string) => void;
+  limit?: number // 显示的最大记录数，默认 50
+  showReasoning?: boolean // 是否显示推理过程，默认 true
+  showAlternatives?: boolean // 是否显示替代方案，默认 true
+  autoRefresh?: boolean // 是否自动刷新，默认 true
+  refreshInterval?: number // 刷新间隔（毫秒），默认 20000
+  onDecisionClick?: (decisionId: string) => void
 }
 ```
 
 #### 使用示例
 
 ```tsx
-import { ScheduleHistory } from '@/lib/agent-scheduler/dashboard/ScheduleHistory';
+import { ScheduleHistory } from '@/lib/agent-scheduler/dashboard/ScheduleHistory'
 
 export default function HistoryPage() {
   return (
     <div className="p-6">
       <h1>调度历史</h1>
-      <ScheduleHistory 
+      <ScheduleHistory
         limit={50}
         showReasoning={true}
         showAlternatives={true}
-        onDecisionClick={(decisionId) => console.log('Decision clicked:', decisionId)}
+        onDecisionClick={decisionId => console.log('Decision clicked:', decisionId)}
       />
     </div>
-  );
+  )
 }
 ```
 
@@ -229,31 +229,31 @@ export default function HistoryPage() {
 
 ```typescript
 interface ManualOverrideProps {
-  requireConfirmation?: boolean;    // 是否需要确认对话框，默认 true
-  logReasoning?: boolean;           // 是否记录干预原因，默认 true
-  onOverride?: (decisionId: string, newAgentId: string, reason: string) => void;
-  onCancel?: () => void;
+  requireConfirmation?: boolean // 是否需要确认对话框，默认 true
+  logReasoning?: boolean // 是否记录干预原因，默认 true
+  onOverride?: (decisionId: string, newAgentId: string, reason: string) => void
+  onCancel?: () => void
 }
 ```
 
 #### 使用示例
 
 ```tsx
-import { ManualOverride } from '@/lib/agent-scheduler/dashboard/ManualOverride';
+import { ManualOverride } from '@/lib/agent-scheduler/dashboard/ManualOverride'
 
 export default function OverridePage() {
   return (
     <div className="p-6">
       <h1>手动干预</h1>
-      <ManualOverride 
+      <ManualOverride
         requireConfirmation={true}
         logReasoning={true}
         onOverride={(decisionId, newAgentId, reason) => {
-          console.log('Override:', decisionId, newAgentId, reason);
+          console.log('Override:', decisionId, newAgentId, reason)
         }}
       />
     </div>
-  );
+  )
 }
 ```
 
@@ -267,6 +267,7 @@ export default function OverridePage() {
 #### 审计追踪
 
 每次手动干预都会记录：
+
 - 干预时间
 - 原始调度决策
 - 新的 Agent 分配
@@ -283,27 +284,20 @@ export default function OverridePage() {
 
 ```typescript
 interface DashboardProps {
-  layout?: 'grid' | 'tabs' | 'accordion';  // 布局模式，默认 'grid'
-  refreshInterval?: number;               // 全局刷新间隔
-  enableNotifications?: boolean;           // 是否启用通知，默认 true
-  theme?: 'light' | 'dark' | 'system';    // 主题模式
+  layout?: 'grid' | 'tabs' | 'accordion' // 布局模式，默认 'grid'
+  refreshInterval?: number // 全局刷新间隔
+  enableNotifications?: boolean // 是否启用通知，默认 true
+  theme?: 'light' | 'dark' | 'system' // 主题模式
 }
 ```
 
 #### 使用示例
 
 ```tsx
-import { Dashboard } from '@/lib/agent-scheduler/dashboard/Dashboard';
+import { Dashboard } from '@/lib/agent-scheduler/dashboard/Dashboard'
 
 export default function SchedulerDashboardPage() {
-  return (
-    <Dashboard 
-      layout="grid"
-      refreshInterval={30000}
-      enableNotifications={true}
-      theme="dark"
-    />
-  );
+  return <Dashboard layout="grid" refreshInterval={30000} enableNotifications={true} theme="dark" />
 }
 ```
 
@@ -317,14 +311,14 @@ export default function SchedulerDashboardPage() {
 
 ## 技术栈
 
-| 技术 | 版本 | 用途 |
-|------|------|------|
-| React | 19.2.4 | UI 框架 |
-| TypeScript | 5.x | 类型安全 |
-| Tailwind CSS | 4.x | 样式 |
-| Recharts | latest | 雷达图可视化 |
-| Zustand | 5.0.12 | 状态管理 |
-| Lucide React | 0.577.0 | 图标库 |
+| 技术         | 版本    | 用途         |
+| ------------ | ------- | ------------ |
+| React        | 19.2.4  | UI 框架      |
+| TypeScript   | 5.x     | 类型安全     |
+| Tailwind CSS | 4.x     | 样式         |
+| Recharts     | latest  | 雷达图可视化 |
+| Zustand      | 5.0.12  | 状态管理     |
+| Lucide React | 0.577.0 | 图标库       |
 
 ---
 
@@ -335,8 +329,8 @@ export default function SchedulerDashboardPage() {
 ```typescript
 // 使用 useMemo 缓存计算结果
 const filteredTasks = useMemo(() => {
-  return tasks.filter(task => task.status !== 'completed');
-}, [tasks]);
+  return tasks.filter(task => task.status !== 'completed')
+}, [tasks])
 ```
 
 ### 2. 虚拟滚动
@@ -363,12 +357,9 @@ import { FixedSizeList } from 'react-window';
 ### 3. 防抖刷新
 
 ```typescript
-import { useDebouncedCallback } from '@/lib/hooks/useDebounce';
+import { useDebouncedCallback } from '@/lib/hooks/useDebounce'
 
-const debouncedRefresh = useDebouncedCallback(
-  () => refresh(),
-  3000
-);
+const debouncedRefresh = useDebouncedCallback(() => refresh(), 3000)
 ```
 
 ---
@@ -391,13 +382,13 @@ npm test -- Dashboard.integration.spec.tsx
 
 ### 测试覆盖
 
-| 组件 | 单元测试 | 集成测试 | 覆盖率 |
-|------|---------|---------|--------|
-| AgentStatusPanel | ✅ | ✅ | 95%+ |
-| TaskQueueView | ✅ | ✅ | 90%+ |
-| ScheduleHistory | ✅ | ✅ | 92%+ |
-| ManualOverride | ✅ | ✅ | 88%+ |
-| Dashboard | ✅ | ✅ | 85%+ |
+| 组件             | 单元测试 | 集成测试 | 覆盖率 |
+| ---------------- | -------- | -------- | ------ |
+| AgentStatusPanel | ✅       | ✅       | 95%+   |
+| TaskQueueView    | ✅       | ✅       | 90%+   |
+| ScheduleHistory  | ✅       | ✅       | 92%+   |
+| ManualOverride   | ✅       | ✅       | 88%+   |
+| Dashboard        | ✅       | ✅       | 85%+   |
 
 ---
 
@@ -423,12 +414,12 @@ const { t } = useTranslation('dashboard');
 Dashboard 支持三种主题模式：
 
 ```typescript
-import { useTheme } from '@/hooks/useTheme';
+import { useTheme } from '@/hooks/useTheme'
 
-const { theme, setTheme } = useTheme();
+const { theme, setTheme } = useTheme()
 
 // 切换主题
-setTheme('dark');  // dark | light | system
+setTheme('dark') // dark | light | system
 ```
 
 ---
@@ -487,11 +478,11 @@ useEffect(() => {
 // 清理定时器
 useEffect(() => {
   const interval = setInterval(() => {
-    refresh();
-  }, refreshInterval);
+    refresh()
+  }, refreshInterval)
 
-  return () => clearInterval(interval);
-}, [refreshInterval, refresh]);
+  return () => clearInterval(interval)
+}, [refreshInterval, refresh])
 ```
 
 ### 3. 大列表优化
@@ -522,13 +513,15 @@ const VirtualizedTaskList = React.memo(({ tasks }) => {
 ### Q: 为什么 Agent 状态不更新？
 
 **A**: 检查：
+
 1. 刷新间隔是否设置合理（默认 30 秒）
 2. WebSocket 连接是否正常
 3. Agent 是否正常发送心跳
 
 ### Q: 如何提高任务调度效率？
 
-**A**: 
+**A**:
+
 1. 优化任务优先级设置
 2. 调整 Agent 能力配置
 3. 使用手动干预覆盖不合理的调度
@@ -536,6 +529,7 @@ const VirtualizedTaskList = React.memo(({ tasks }) => {
 ### Q: Dashboard 性能如何优化？
 
 **A**:
+
 1. 启用虚拟滚动（大列表）
 2. 合理设置刷新间隔
 3. 使用 useMemo 和 useCallback 缓存

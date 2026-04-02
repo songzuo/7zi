@@ -3,11 +3,11 @@
  * Get single rating by ID
  */
 
-import { NextRequest } from 'next/server';
-import { GET_RATING } from '../route';
+import { NextRequest } from 'next/server'
+import { GET_RATING } from '../route'
 
 export async function GET(request: NextRequest, { params }: { params: { id: string } }) {
-  return GET_RATING(request, { params });
+  return GET_RATING(request, { params })
 }
 
 /**
@@ -15,8 +15,8 @@ export async function GET(request: NextRequest, { params }: { params: { id: stri
  * Delete rating
  */
 
-import { DELETE_RATING } from '../route';
+import { DELETE_RATING } from '../route'
 
 export async function DELETE(request: NextRequest, { params }: { params: { id: string } }) {
-  return DELETE_RATING(request, { params });
+  return DELETE_RATING(request, { params })
 }

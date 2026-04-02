@@ -24,8 +24,8 @@ export type {
   AnalyticsResponse,
   AnalyticsError,
   Statistic,
-  TrendAnalysis
-} from '../analytics';
+  TrendAnalysis,
+} from '../analytics'
 
 // Real-time analytics types
 export type {
@@ -38,5 +38,5 @@ export type {
   RealtimePerformanceMetrics,
   RealtimeUpdateMessage,
   RealtimeAnalyticsState,
-  RealtimeWebSocketConfig
-} from './realtime';
+  RealtimeWebSocketConfig,
+} from './realtime'

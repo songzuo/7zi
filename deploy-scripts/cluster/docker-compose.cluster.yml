@@ -8,7 +8,7 @@
 # - 1个监控节点（monitor）：健康检查和自动故障转移
 # ============================================
 
-version: "3.8"
+version: '3.8'
 
 services:
   # ============================================
@@ -25,7 +25,7 @@ services:
     restart: unless-stopped
     hostname: app1
     ports:
-      - "${APP1_PORT:-3001}:3000"
+      - '${APP1_PORT:-3001}:3000'
     environment:
       - NODE_ENV=production
       - PORT=3000
@@ -36,7 +36,13 @@ services:
     env_file:
       - ../../.env.production
     healthcheck:
-      test: ["CMD", "node", "-e", "require('http').get('http://localhost:3000/api/health', (r) => {process.exit(r.statusCode === 200 ? 0 : 1)})"]
+      test:
+        [
+          'CMD',
+          'node',
+          '-e',
+          "require('http').get('http://localhost:3000/api/health', (r) => {process.exit(r.statusCode === 200 ? 0 : 1)})",
+        ]
       interval: 15s
       timeout: 10s
       retries: 3
@@ -44,10 +50,10 @@ services:
     deploy:
       resources:
         limits:
-          cpus: "2"
+          cpus: '2'
           memory: 1G
         reservations:
-          cpus: "0.5"
+          cpus: '0.5'
           memory: 256M
       restart_policy:
         condition: on-failure
@@ -56,11 +62,11 @@ services:
     networks:
       - 7zi-cluster-network
     logging:
-      driver: "json-file"
+      driver: 'json-file'
       options:
-        max-size: "50m"
-        max-file: "5"
-        tag: "app1/{{.ID}}"
+        max-size: '50m'
+        max-file: '5'
+        tag: 'app1/{{.ID}}'
 
   # ============================================
   # 应用节点 2 (Next.js Frontend)
@@ -76,7 +82,7 @@ services:
     restart: unless-stopped
     hostname: app2
     ports:
-      - "${APP2_PORT:-3002}:3000"
+      - '${APP2_PORT:-3002}:3000'
     environment:
       - NODE_ENV=production
       - PORT=3000
@@ -87,7 +93,13 @@ services:
     env_file:
       - ../../.env.production
     healthcheck:
-      test: ["CMD", "node", "-e", "require('http').get('http://localhost:3000/api/health', (r) => {process.exit(r.statusCode === 200 ? 0 : 1)})"]
+      test:
+        [
+          'CMD',
+          'node',
+          '-e',
+          "require('http').get('http://localhost:3000/api/health', (r) => {process.exit(r.statusCode === 200 ? 0 : 1)})",
+        ]
       interval: 15s
       timeout: 10s
       retries: 3
@@ -95,10 +107,10 @@ services:
     deploy:
       resources:
         limits:
-          cpus: "2"
+          cpus: '2'
           memory: 1G
         reservations:
-          cpus: "0.5"
+          cpus: '0.5'
           memory: 256M
       restart_policy:
         condition: on-failure
@@ -107,11 +119,11 @@ services:
     networks:
       - 7zi-cluster-network
     logging:
-      driver: "json-file"
+      driver: 'json-file'
       options:
-        max-size: "50m"
-        max-file: "5"
-        tag: "app2/{{.ID}}"
+        max-size: '50m'
+        max-file: '5'
+        tag: 'app2/{{.ID}}'
 
   # ============================================
   # 应用节点 3 (Next.js Frontend)
@@ -127,7 +139,7 @@ services:
     restart: unless-stopped
     hostname: app3
     ports:
-      - "${APP3_PORT:-3003}:3000"
+      - '${APP3_PORT:-3003}:3000'
     environment:
       - NODE_ENV=production
       - PORT=3000
@@ -138,7 +150,13 @@ services:
     env_file:
       - ../../.env.production
     healthcheck:
-      test: ["CMD", "node", "-e", "require('http').get('http://localhost:3000/api/health', (r) => {process.exit(r.statusCode === 200 ? 0 : 1)})"]
+      test:
+        [
+          'CMD',
+          'node',
+          '-e',
+          "require('http').get('http://localhost:3000/api/health', (r) => {process.exit(r.statusCode === 200 ? 0 : 1)})",
+        ]
       interval: 15s
       timeout: 10s
       retries: 3
@@ -146,10 +164,10 @@ services:
     deploy:
       resources:
         limits:
-          cpus: "2"
+          cpus: '2'
           memory: 1G
         reservations:
-          cpus: "0.5"
+          cpus: '0.5'
           memory: 256M
       restart_policy:
         condition: on-failure
@@ -158,11 +176,11 @@ services:
     networks:
       - 7zi-cluster-network
     logging:
-      driver: "json-file"
+      driver: 'json-file'
       options:
-        max-size: "50m"
-        max-file: "5"
-        tag: "app3/{{.ID}}"
+        max-size: '50m'
+        max-file: '5'
+        tag: 'app3/{{.ID}}'
 
   # ============================================
   # Redis Master 主节点
@@ -173,23 +191,23 @@ services:
     restart: unless-stopped
     hostname: redis-master
     ports:
-      - "${REDIS_MASTER_PORT:-6379}:6379"
+      - '${REDIS_MASTER_PORT:-6379}:6379'
     volumes:
       - redis-master-data:/data
       - ./redis/redis.conf:/usr/local/etc/redis/redis.conf:ro
     command: redis-server /usr/local/etc/redis/redis.conf --appendonly yes --requirepass ${REDIS_PASSWORD:-7zi-redis-password}
     healthcheck:
-      test: ["CMD", "redis-cli", "--raw", "incr", "ping"]
+      test: ['CMD', 'redis-cli', '--raw', 'incr', 'ping']
       interval: 10s
       timeout: 5s
       retries: 3
     networks:
       - 7zi-cluster-network
     logging:
-      driver: "json-file"
+      driver: 'json-file'
       options:
-        max-size: "20m"
-        max-file: "3"
+        max-size: '20m'
+        max-file: '3'
 
   # ============================================
   # Redis Replica 1 (从节点)
@@ -200,7 +218,7 @@ services:
     restart: unless-stopped
     hostname: redis-replica1
     ports:
-      - "${REDIS_REPLICA1_PORT:-6380}:6379"
+      - '${REDIS_REPLICA1_PORT:-6380}:6379'
     volumes:
       - redis-replica1-data:/data
       - ./redis/redis-replica.conf:/usr/local/etc/redis/redis.conf:ro
@@ -209,17 +227,17 @@ services:
       redis-master:
         condition: service_healthy
     healthcheck:
-      test: ["CMD", "redis-cli", "--raw", "incr", "ping"]
+      test: ['CMD', 'redis-cli', '--raw', 'incr', 'ping']
       interval: 10s
       timeout: 5s
       retries: 3
     networks:
       - 7zi-cluster-network
     logging:
-      driver: "json-file"
+      driver: 'json-file'
       options:
-        max-size: "20m"
-        max-file: "3"
+        max-size: '20m'
+        max-file: '3'
 
   # ============================================
   # Redis Replica 2 (从节点)
@@ -230,7 +248,7 @@ services:
     restart: unless-stopped
     hostname: redis-replica2
     ports:
-      - "${REDIS_REPLICA2_PORT:-6381}:6379"
+      - '${REDIS_REPLICA2_PORT:-6381}:6379'
     volumes:
       - redis-replica2-data:/data
       - ./redis/redis-replica.conf:/usr/local/etc/redis/redis.conf:ro
@@ -239,17 +257,17 @@ services:
       redis-master:
         condition: service_healthy
     healthcheck:
-      test: ["CMD", "redis-cli", "--raw", "incr", "ping"]
+      test: ['CMD', 'redis-cli', '--raw', 'incr', 'ping']
       interval: 10s
       timeout: 5s
       retries: 3
     networks:
       - 7zi-cluster-network
     logging:
-      driver: "json-file"
+      driver: 'json-file'
       options:
-        max-size: "20m"
-        max-file: "3"
+        max-size: '20m'
+        max-file: '3'
 
   # ============================================
   # Nginx 负载均衡器
@@ -260,8 +278,8 @@ services:
     restart: unless-stopped
     hostname: nginx-lb
     ports:
-      - "${HTTP_PORT:-80}:80"
-      - "${HTTPS_PORT:-443}:443"
+      - '${HTTP_PORT:-80}:80'
+      - '${HTTPS_PORT:-443}:443'
     volumes:
       - ./nginx/nginx-cluster.conf:/etc/nginx/nginx.conf:ro
       - ./nginx/ssl:/etc/nginx/ssl:ro
@@ -272,25 +290,26 @@ services:
       - app2
       - app3
     healthcheck:
-      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost/health-check"]
+      test:
+        ['CMD', 'wget', '--no-verbose', '--tries=1', '--spider', 'http://localhost/health-check']
       interval: 20s
       timeout: 10s
       retries: 3
     deploy:
       resources:
         limits:
-          cpus: "1"
+          cpus: '1'
           memory: 512M
         reservations:
-          cpus: "0.25"
+          cpus: '0.25'
           memory: 128M
     networks:
       - 7zi-cluster-network
     logging:
-      driver: "json-file"
+      driver: 'json-file'
       options:
-        max-size: "30m"
-        max-file: "5"
+        max-size: '30m'
+        max-file: '5'
 
   # ============================================
   # 监控和故障转移节点
@@ -324,10 +343,10 @@ services:
     networks:
       - 7zi-cluster-network
     logging:
-      driver: "json-file"
+      driver: 'json-file'
       options:
-        max-size: "20m"
-        max-file: "3"
+        max-size: '20m'
+        max-file: '3'
 
 # ============================================
 # Volumes - 数据持久化

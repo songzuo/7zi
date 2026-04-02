@@ -1,2 +1,2 @@
 // Backward compatibility - re-export from new feature location
-export * from '@/features/notifications';
+export * from '@/features/notifications'

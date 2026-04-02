@@ -54,16 +54,19 @@ tests/unit/agent-scheduler/
 ### 1. Agent 能力模型 (`agent-capability.ts`)
 
 **功能**:
+
 - 定义 11 位 AI 成员的完整能力画像
 - 技术栈、任务类型、并发能力、成功率
 - 实时状态追踪（负载、可用性）
 
 **关键特性**:
+
 - 11 种 Agent 类型完整定义
 - 能力评分系统 (0-100 分)
 - 支持扩展和自定义
 
 **代码统计**:
+
 - 文件大小: 8,241 字节
 - 接口定义: 3 个
 - Agent 配置: 11 个
@@ -71,18 +74,21 @@ tests/unit/agent-scheduler/
 ### 2. 任务模型 (`task-model.ts`)
 
 **功能**:
+
 - 任务生命周期管理（pending → assigned → in_progress → completed）
 - 优先级队列（low, medium, high, urgent）
 - 依赖关系管理
 - 截止时间处理
 
 **关键特性**:
+
 - 任务依赖检查
 - 优先级自动排序
 - 超期任务检测
 - 任务统计
 
 **代码统计**:
+
 - 文件大小: 6,717 字节
 - 类定义: TaskQueue
 - 方法数: 15+
@@ -90,18 +96,21 @@ tests/unit/agent-scheduler/
 ### 3. 调度决策模型 (`schedule-decision.ts`)
 
 **功能**:
+
 - 记录调度决策
 - 决策透明化（推理过程）
 - 备选 Agent 管理
 - 调度历史追踪
 
 **关键特性**:
+
 - 决策置信度评分
 - 手动干预支持
 - 性能指标统计
 - Agent 利用率分析
 
 **代码统计**:
+
 - 文件大小: 7,483 字节
 - 类定义: ScheduleHistory
 - 方法数: 20+
@@ -109,6 +118,7 @@ tests/unit/agent-scheduler/
 ### 4. 任务匹配算法 (`matching.ts`)
 
 **功能**:
+
 - 基于能力匹配的候选 Agent 查找
 - 多维度评分（能力、负载、性能、响应时间）
 - 智能排序
@@ -116,7 +126,7 @@ tests/unit/agent-scheduler/
 **评分算法**:
 
 ```typescript
-总评分 = 
+总评分 =
   能力评分 × 0.4 +    // 40% 权重
   负载评分 × 0.3 +    // 30% 权重
   性能评分 × 0.2 +    // 20% 权重
@@ -124,6 +134,7 @@ tests/unit/agent-scheduler/
 ```
 
 **代码统计**:
+
 - 文件大小: 9,596 字节
 - 类定义: TaskMatcher
 - 方法数: 15+
@@ -131,6 +142,7 @@ tests/unit/agent-scheduler/
 ### 5. 任务排序算法 (`ranking.ts`)
 
 **功能**:
+
 - 基于优先级排序
 - 截止时间紧急度计算
 - 依赖关系处理
@@ -139,7 +151,7 @@ tests/unit/agent-scheduler/
 **排序算法**:
 
 ```typescript
-总评分 = 
+总评分 =
   优先级 × 0.4 +      // 40% 权重
   紧急度 × 0.3 +      // 30% 权重
   依赖度 × 0.2 +      // 20% 权重
@@ -147,6 +159,7 @@ tests/unit/agent-scheduler/
 ```
 
 **代码统计**:
+
 - 文件大小: 7,774 字节
 - 类定义: TaskRanker
 - 方法数: 18+
@@ -154,17 +167,20 @@ tests/unit/agent-scheduler/
 ### 6. 负载均衡 (`load-balancer.ts`)
 
 **功能**:
+
 - 防止单个 Agent 过载
 - 负载分布统计
 - 自动扩缩容建议
 
 **关键特性**:
+
 - 最大负载阈值 (90%)
 - 繁忙阈值 (70%)
 - Agent 性能追踪
 - 系统负载监控
 
 **代码统计**:
+
 - 文件大小: 10,149 字节
 - 类定义: LoadBalancer
 - 方法数: 20+
@@ -172,18 +188,21 @@ tests/unit/agent-scheduler/
 ### 7. 调度器核心 (`scheduler.ts`)
 
 **功能**:
+
 - 主调度器协调
 - 自动调度（定时）
 - 手动干预
 - 批量调度
 
 **关键特性**:
+
 - 自动调度间隔: 30 秒
 - 最大批量: 10 任务
 - 手动干预支持
 - 状态持久化
 
 **代码统计**:
+
 - 文件大小: 13,753 字节
 - 类定义: AgentScheduler
 - 方法数: 30+
@@ -191,17 +210,20 @@ tests/unit/agent-scheduler/
 ### 8. 状态管理 (`scheduler-store.ts`)
 
 **功能**:
+
 - Zustand store 集成
 - 响应式状态更新
 - 选择器优化
 
 **关键特性**:
+
 - 自动状态同步
 - 错误处理
 - 加载状态
 - 统计数据
 
 **代码统计**:
+
 - 文件大小: 9,125 字节
 - Store 定义: useSchedulerStore
 - Actions: 15+
@@ -213,16 +235,17 @@ tests/unit/agent-scheduler/
 
 ### 测试统计
 
-| 测试文件 | 测试数量 | 通过率 | 耗时 |
-|---------|---------|--------|------|
-| agent-capability.test.ts | 16 | 100% | 26ms |
-| task-model.test.ts | 19 | 100% | 16ms |
-| task-matching.test.ts | 17 | 100% | 16ms |
-| **总计** | **52** | **100%** | **58ms** |
+| 测试文件                 | 测试数量 | 通过率   | 耗时     |
+| ------------------------ | -------- | -------- | -------- |
+| agent-capability.test.ts | 16       | 100%     | 26ms     |
+| task-model.test.ts       | 19       | 100%     | 16ms     |
+| task-matching.test.ts    | 17       | 100%     | 16ms     |
+| **总计**                 | **52**   | **100%** | **58ms** |
 
 ### 测试覆盖范围
 
 #### Agent 能力测试 (16 个)
+
 - ✅ 创建 Agent 能力实例
 - ✅ 初始化所有 11 位 Agent
 - ✅ Agent 配置验证
@@ -231,6 +254,7 @@ tests/unit/agent-scheduler/
 - ✅ 成功率范围验证
 
 #### 任务模型测试 (19 个)
+
 - ✅ 任务创建（默认值、自定义值）
 - ✅ 任务队列管理
 - ✅ 优先级排序
@@ -240,6 +264,7 @@ tests/unit/agent-scheduler/
 - ✅ 统计功能
 
 #### 匹配算法测试 (17 个)
+
 - ✅ 候选 Agent 查找
 - ✅ 可用性过滤
 - ✅ 负载容量检查
@@ -313,16 +338,16 @@ matcher.calculateMatchScore(agent: AgentCapability, task: Task): ScoreResult
 ### 基础使用
 
 ```typescript
-import { AgentScheduler } from '@/lib/agent-scheduler';
-import { createTask } from '@/lib/agent-scheduler/models/task-model';
+import { AgentScheduler } from '@/lib/agent-scheduler'
+import { createTask } from '@/lib/agent-scheduler/models/task-model'
 
 // 初始化调度器
 const scheduler = new AgentScheduler({
   autoSchedule: true,
-  maxBatchSize: 10
-});
+  maxBatchSize: 10,
+})
 
-scheduler.initialize();
+scheduler.initialize()
 
 // 创建任务
 const task = createTask({
@@ -332,43 +357,39 @@ const task = createTask({
   priority: 'high',
   requiredCapabilities: ['typescript', 'react', 'nextjs'],
   estimatedDuration: 120,
-  deadline: Date.now() + 3600000 // 1 小时后
-});
+  deadline: Date.now() + 3600000, // 1 小时后
+})
 
 // 添加任务
-scheduler.addTask(task);
+scheduler.addTask(task)
 
 // 手动调度单个任务
-const decision = await scheduler.scheduleTask('task-001');
-console.log(`Assigned to: ${decision?.assignedAgent}`);
-console.log(`Confidence: ${decision?.confidence}`);
+const decision = await scheduler.scheduleTask('task-001')
+console.log(`Assigned to: ${decision?.assignedAgent}`)
+console.log(`Confidence: ${decision?.confidence}`)
 
 // 获取统计信息
-const stats = scheduler.getTaskStats();
-console.log(`Pending: ${stats.pending}, Completed: ${stats.completed}`);
+const stats = scheduler.getTaskStats()
+console.log(`Pending: ${stats.pending}, Completed: ${stats.completed}`)
 ```
 
 ### React 组件中使用
 
 ```tsx
-import { useSchedulerStore } from '@/lib/agent-scheduler/stores/scheduler-store';
+import { useSchedulerStore } from '@/lib/agent-scheduler/stores/scheduler-store'
 
 function SchedulerDashboard() {
-  const { 
-    agents, 
-    tasks, 
-    stats, 
-    addTask, 
-    scheduleNextBatch 
-  } = useSchedulerStore();
+  const { agents, tasks, stats, addTask, scheduleNextBatch } = useSchedulerStore()
 
   const handleAddTask = () => {
-    addTask(createTask({
-      id: 'new-task',
-      type: 'testing',
-      title: '测试新功能'
-    }));
-  };
+    addTask(
+      createTask({
+        id: 'new-task',
+        type: 'testing',
+        title: '测试新功能',
+      })
+    )
+  }
 
   return (
     <div>
@@ -377,7 +398,7 @@ function SchedulerDashboard() {
       <p>待处理: {stats.pendingTasks}</p>
       <button onClick={scheduleNextBatch}>调度下一批</button>
     </div>
-  );
+  )
 }
 ```
 
@@ -387,12 +408,12 @@ function SchedulerDashboard() {
 
 根据 v1.4.0 规划，AI Agent 智能调度系统预期带来以下收益：
 
-| 指标 | 优化前 | 优化后 | 提升 |
-|------|--------|--------|------|
-| **任务分配效率** | 手动分配 | 智能调度 | 70-80% ↑ |
+| 指标               | 优化前   | 优化后   | 提升      |
+| ------------------ | -------- | -------- | --------- |
+| **任务分配效率**   | 手动分配 | 智能调度 | 70-80% ↑  |
 | **Agent 负载均衡** | 可能过载 | 自动均衡 | 100% 覆盖 |
-| **任务完成时间** | 基准 | -30-40% | 效率提升 |
-| **主人干预需求** | 高 | 低 | 50% ↓ |
+| **任务完成时间**   | 基准     | -30-40%  | 效率提升  |
+| **主人干预需求**   | 高       | 低       | 50% ↓     |
 
 ---
 

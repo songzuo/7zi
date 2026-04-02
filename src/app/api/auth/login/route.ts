@@ -1,3 +1,4 @@
+import { NextRequest, NextResponse } from 'next/server'
 /**
  * Login API endpoint
  * POST /api/auth/login
@@ -128,49 +129,55 @@
  *           description: Token expiration timestamp
  */
 
-import { loginUser } from '@/lib/auth/service';
-import { LoginRequest } from '@/lib/auth/types';
-import { logger } from '@/lib/logger';
+import { loginUser } from '@/lib/auth/service'
+import { LoginRequest } from '@/lib/auth/types'
+import { logger } from '@/lib/logger'
 import {
   createValidationError,
   createUnauthorizedError,
   createErrorResponse,
-} from '@/lib/api/error-handler';
-import { validateEmail, setAuthCookies, createSuccessResponse } from '@/lib/api/utils';
-import { logRequestStart, logRequestComplete, logRequestError, logAuthError, sanitizeUrlForLogging } from '@/lib/api/api-logger';
+} from '@/lib/api/error-handler'
+import { validateEmail, setAuthCookies, createSuccessResponse } from '@/lib/api/utils'
+import {
+  logRequestStart,
+  logRequestComplete,
+  logRequestError,
+  logAuthError,
+  sanitizeUrlForLogging,
+} from '@/lib/api/api-logger'
 
 export async function POST(request: NextRequest) {
-  const startTime = Date.now();
-  const metadata = logRequestStart(request);
-  const _sanitizedUrl = sanitizeUrlForLogging(request.url);
+  const startTime = Date.now()
+  const metadata = logRequestStart(request)
+  const _sanitizedUrl = sanitizeUrlForLogging(request.url)
 
   try {
-    const body = await request.json();
+    const body = await request.json()
 
     // Validate request body
-    const { email, password, rememberMe }: LoginRequest = body;
+    const { email, password, rememberMe }: LoginRequest = body
 
     if (!email || !password) {
-      const response = await createValidationError('Email and password are required');
-      logRequestComplete(metadata, response, startTime);
-      return response;
+      const response = await createValidationError('Email and password are required')
+      logRequestComplete(metadata, response, startTime)
+      return response
     }
 
     // Validate email format
     if (!validateEmail(email)) {
-      const response = await createValidationError('Invalid email format');
-      logRequestComplete(metadata, response, startTime);
-      return response;
+      const response = await createValidationError('Invalid email format')
+      logRequestComplete(metadata, response, startTime)
+      return response
     }
 
     // Login user
-    const result = await loginUser({ email, password, rememberMe });
+    const result = await loginUser({ email, password, rememberMe })
 
     if (!result.success) {
-      logAuthError(metadata, 'authentication', result.error || 'Login failed');
-      const response = await createUnauthorizedError(result.error || 'Login failed');
-      logRequestComplete(metadata, response, startTime);
-      return response;
+      logAuthError(metadata, 'authentication', result.error || 'Login failed')
+      const response = await createUnauthorizedError(result.error || 'Login failed')
+      logRequestComplete(metadata, response, startTime)
+      return response
     }
 
     // Create response with standardized format
@@ -179,22 +186,22 @@ export async function POST(request: NextRequest) {
       token: result.token,
       refreshToken: result.refreshToken,
       expiresAt: result.expiresAt?.toISOString(),
-    });
+    })
 
     // Set secure cookies for auth tokens
-    setAuthCookies(response, result.token, result.refreshToken, rememberMe);
+    setAuthCookies(response, result.token, result.refreshToken, rememberMe)
 
     logger.auth('User logged in successfully', {
       requestId: metadata.requestId,
       userId: result.user?.id,
       email: result.user?.email,
       // Never log tokens in logs
-    });
+    })
 
-    logRequestComplete(metadata, response, startTime);
-    return response;
+    logRequestComplete(metadata, response, startTime)
+    return response
   } catch (error) {
-    logRequestError(metadata, error, startTime);
-    return createErrorResponse(error instanceof Error ? error : new Error(String(error)));
+    logRequestError(metadata, error, startTime)
+    return createErrorResponse(error instanceof Error ? error : new Error(String(error)))
   }
 }

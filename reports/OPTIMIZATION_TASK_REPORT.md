@@ -20,50 +20,55 @@ Successfully implemented significant optimizations to the 7zi project's database
 ### New Features Added
 
 #### 1.1 JOIN Query Support
+
 - **INNER JOIN**, **LEFT JOIN**, **RIGHT JOIN**, **FULL JOIN** support
 - Table aliases for complex queries
 - Chained JOIN operations
 
 **Example:**
+
 ```typescript
 builder
   .innerJoin('wallets', 'agents.id = wallets.agent_id', 'w')
-  .leftJoin('tasks', 'agents.id = tasks.agent_id', 't');
+  .leftJoin('tasks', 'agents.id = tasks.agent_id', 't')
 ```
 
 #### 1.2 Subquery Support
+
 - Subqueries in FROM clause with CTE (Common Table Expression) support
 - Both QueryBuilder objects and raw SQL strings supported
 - Automatic parameter binding
 
 **Example:**
+
 ```typescript
 builder
   .subquery('active_agents', buildQuery('agents').where('status = ?', 'active'))
-  .subquery('stats', 'SELECT COUNT(*) as total FROM agents');
+  .subquery('stats', 'SELECT COUNT(*) as total FROM agents')
 ```
 
 #### 1.3 Aggregation Support
+
 - **GROUP BY** clause
 - **HAVING** clause for post-aggregation filtering
 - **DISTINCT** keyword support
 
 **Example:**
+
 ```typescript
-builder
-  .groupBy(['status', 'type'])
-  .having('COUNT(*) > ?', 10)
-  .distinct(true);
+builder.groupBy(['status', 'type']).having('COUNT(*) > ?', 10).distinct(true)
 ```
 
 #### 1.4 Intelligent Index Suggestions
+
 - Analyzes WHERE, JOIN, and ORDER BY clauses
 - Recommends optimal indexes based on query patterns
 - Generates CREATE INDEX statements automatically
 
 **Example:**
+
 ```typescript
-const suggestions = builder.suggestIndexes();
+const suggestions = builder.suggestIndexes()
 // Returns: [
 //   {
 //     table: 'agents',
@@ -95,9 +100,11 @@ const suggestions = builder.suggestIndexes();
 ### New Features Added
 
 #### 2.1 MemoizationCache Class
+
 A comprehensive memoization system for caching function execution results.
 
 **Key Methods:**
+
 - `memoize()`: Memoize async functions
 - `memoizeSync()`: Memoize synchronous functions
 - `clearPrefix()`: Clear cached results by prefix
@@ -106,6 +113,7 @@ A comprehensive memoization system for caching function execution results.
 - `cleanExpired()`: Clean expired entries
 
 #### 2.2 Memoization Options
+
 - **keyPrefix**: Cache key prefix for grouping
 - **ttl**: Custom time-to-live (default: 5 min, expensive: 10 min)
 - **useArgsAsKey**: Use function arguments as cache key
@@ -113,6 +121,7 @@ A comprehensive memoization system for caching function execution results.
 - **expensive**: Mark as expensive operation (longer TTL)
 
 #### 2.3 Memoization Statistics
+
 - **hits/misses**: Cache hit/miss counts
 - **hitRate**: Cache hit ratio
 - **totalCalls**: Total function invocations
@@ -122,42 +131,45 @@ A comprehensive memoization system for caching function execution results.
 ### Usage Examples
 
 #### Async Function Memoization
+
 ```typescript
 const getAgent = memoize(
   async (id: string) => {
-    const db = await getDatabaseAsync();
-    return db.prepare('SELECT * FROM agents WHERE id = ?').get(id);
+    const db = await getDatabaseAsync()
+    return db.prepare('SELECT * FROM agents WHERE id = ?').get(id)
   },
   { keyPrefix: 'agent:by-id', ttl: 300000 }
-);
+)
 
 // First call: executes query
-const agent1 = await getAgent('agent-123');
+const agent1 = await getAgent('agent-123')
 
 // Second call: returns cached result
-const agent2 = await getAgent('agent-123');
+const agent2 = await getAgent('agent-123')
 ```
 
 #### Synchronous Function Memoization
-```typescript
-const calculateHash = memoizeSync(
-  (data: string) => expensiveHashFunction(data),
-  { keyPrefix: 'hash', expensive: true }
-);
 
-const hash1 = calculateHash('data'); // Executes
-const hash2 = calculateHash('data'); // Cached
+```typescript
+const calculateHash = memoizeSync((data: string) => expensiveHashFunction(data), {
+  keyPrefix: 'hash',
+  expensive: true,
+})
+
+const hash1 = calculateHash('data') // Executes
+const hash2 = calculateHash('data') // Cached
 ```
 
 #### Query Memoization
+
 ```typescript
 const getActiveAgents = memoizedQuery(
   async () => {
-    const db = await getDatabaseAsync();
-    return db.prepare('SELECT * FROM agents WHERE status = ?').all('active');
+    const db = await getDatabaseAsync()
+    return db.prepare('SELECT * FROM agents WHERE status = ?').all('active')
   },
   { keyPrefix: 'agents:active', ttl: 30000 }
-);
+)
 ```
 
 ### Performance Benefits
@@ -173,12 +185,15 @@ const getActiveAgents = memoizedQuery(
 ## 3. Documentation Improvements
 
 ### 3.1 Comprehensive JSDoc Comments
+
 - Every public method documented with parameters, return types, and examples
 - TypeScript interfaces fully documented
 - Usage examples provided for complex features
 
 ### 3.2 Code Examples
+
 Added 20+ practical examples demonstrating:
+
 - JOIN queries (INNER, LEFT, RIGHT)
 - Subquery usage
 - Aggregation with GROUP BY/HAVING
@@ -203,6 +218,7 @@ All changes are **fully backward compatible**:
 ### 5.1 Immediate Actions
 
 1. **Index Creation:** Review and apply index suggestions for slow queries
+
    ```sql
    -- Example from suggestions
    CREATE INDEX idx_agents_status ON agents (status);
@@ -210,26 +226,28 @@ All changes are **fully backward compatible**:
    ```
 
 2. **Memoize Expensive Queries:** Identify frequently called queries and add memoization
+
    ```typescript
    // Example: Stats queries are good candidates
    const getAgentStats = memoizedQuery(
      async () => db.prepare('SELECT status, COUNT(*) FROM agents GROUP BY status').all(),
      { keyPrefix: 'stats:agents', ttl: 60000 }
-   );
+   )
    ```
 
 3. **Use JOINs for Related Data:** Replace multiple queries with single JOIN queries
+
    ```typescript
    // Before: Multiple queries
-   const agent = getAgent(id);
-   const wallet = getWallet(id);
+   const agent = getAgent(id)
+   const wallet = getWallet(id)
 
    // After: Single JOIN query
    const result = buildQuery('agents')
      .select(['agents.*', 'wallets.balance'])
      .innerJoin('wallets', 'agents.id = wallets.agent_id', 'w')
      .where('agents.id = ?', id)
-     .build();
+     .build()
    ```
 
 ### 5.2 Long-term Improvements
@@ -244,11 +262,13 @@ All changes are **fully backward compatible**:
 ## 6. Performance Impact Estimates
 
 ### Query Builder
+
 - **Development Time:** -40% (less manual SQL writing)
 - **Error Rate:** -60% (type safety + parameter binding)
 - **Query Performance:** +20-50% (proper indexing)
 
 ### Cache Memoization
+
 - **Database Load:** -30-70% (depending on cache hit rate)
 - **Response Time:** -50-90% for cached queries
 - **Memory Usage:** +10-50MB (configurable)

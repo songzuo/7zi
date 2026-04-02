@@ -10,10 +10,10 @@
 
 ```typescript
 // 方式 1: 从统一入口导入 (推荐)
-import { useAuthStore, useNotificationStore, useAppStore, useWebSocketStore } from '@/stores';
+import { useAuthStore, useNotificationStore, useAppStore, useWebSocketStore } from '@/stores'
 
 // 方式 2: 从具体 Store 文件导入
-import { useAuthStore } from '@/stores/auth-store';
+import { useAuthStore } from '@/stores/auth-store'
 ```
 
 ---
@@ -429,15 +429,15 @@ function GlobalLoading() {
 ```typescript
 // ❌ 不好 - 整个 store 变化都会触发重渲染
 function MyComponent() {
-  const { user, notifications, sidebarOpen } = useAppStore();
+  const { user, notifications, sidebarOpen } = useAppStore()
   // ...
 }
 
 // ✅ 好 - 只订阅需要的切片
 function MyComponent() {
-  const user = useAuthStore((state) => state.user);
-  const notifications = useNotificationStore((state) => state.notifications);
-  const sidebarOpen = useAppStore((state) => state.settings.sidebarOpen);
+  const user = useAuthStore(state => state.user)
+  const notifications = useNotificationStore(state => state.notifications)
+  const sidebarOpen = useAppStore(state => state.settings.sidebarOpen)
   // ...
 }
 ```
@@ -445,17 +445,17 @@ function MyComponent() {
 ### 2. 使用浅比较
 
 ```typescript
-import { shallow } from 'zustand/shallow';
+import { shallow } from 'zustand/shallow'
 
 // ✅ 多个属性使用浅比较
 function MyComponent() {
   const { user, token } = useAuthStore(
-    (state) => ({
+    state => ({
       user: state.user,
       token: state.token,
     }),
     shallow
-  );
+  )
   // ...
 }
 ```
@@ -505,25 +505,30 @@ function App() {
 ## 🧪 测试 Store
 
 ```typescript
-import { renderHook, act } from '@testing-library/react';
-import { useAuthStore } from '@/stores';
+import { renderHook, act } from '@testing-library/react'
+import { useAuthStore } from '@/stores'
 
 describe('useAuthStore', () => {
   beforeEach(() => {
-    useAuthStore.getState().reset();
-  });
+    useAuthStore.getState().reset()
+  })
 
   it('应该能登录', () => {
-    const { result } = renderHook(() => useAuthStore());
+    const { result } = renderHook(() => useAuthStore())
 
     act(() => {
-      result.current.loginWithToken('token', { id: '1', name: 'Test', email: 'test@test.com', role: 'user' });
-    });
+      result.current.loginWithToken('token', {
+        id: '1',
+        name: 'Test',
+        email: 'test@test.com',
+        role: 'user',
+      })
+    })
 
-    expect(result.current.isAuthenticated).toBe(true);
-    expect(result.current.user?.name).toBe('Test');
-  });
-});
+    expect(result.current.isAuthenticated).toBe(true)
+    expect(result.current.user?.name).toBe('Test')
+  })
+})
 ```
 
 ---

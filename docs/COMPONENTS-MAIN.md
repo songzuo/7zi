@@ -64,7 +64,7 @@
 #### 使用示例
 
 ```tsx
-import { Navigation } from '@/components';
+import { Navigation } from '@/components'
 
 export default function Layout({ children }) {
   return (
@@ -72,7 +72,7 @@ export default function Layout({ children }) {
       <Navigation />
       <main>{children}</main>
     </>
-  );
+  )
 }
 ```
 
@@ -106,7 +106,7 @@ export default function Layout({ children }) {
 #### 使用示例
 
 ```tsx
-import { MobileMenu } from '@/components/MobileMenu';
+import { MobileMenu } from '@/components/MobileMenu'
 
 export function Header() {
   return (
@@ -115,7 +115,7 @@ export function Header() {
       <nav className="hidden lg:flex">{/* 桌面导航 */}</nav>
       <MobileMenu />
     </header>
-  );
+  )
 }
 ```
 
@@ -141,7 +141,7 @@ export function Header() {
 #### 使用示例
 
 ```tsx
-import { Footer } from '@/components';
+import { Footer } from '@/components'
 
 export default function Page() {
   return (
@@ -150,7 +150,7 @@ export default function Page() {
       <main>{/* 页面内容 */}</main>
       <Footer />
     </>
-  );
+  )
 }
 ```
 
@@ -159,24 +159,24 @@ export default function Page() {
 ```tsx
 // 快速链接
 const quickLinks = [
-  { name: "首页", href: "/" },
-  { name: "关于我们", href: "/about" },
+  { name: '首页', href: '/' },
+  { name: '关于我们', href: '/about' },
   // ...
-];
+]
 
 // 服务项目
 const services = [
-  { name: "网站开发", href: "#services" },
-  { name: "品牌设计", href: "#services" },
+  { name: '网站开发', href: '#services' },
+  { name: '品牌设计', href: '#services' },
   // ...
-];
+]
 
 // 联系方式
 const contactInfo = [
-  { icon: "📧", label: "邮箱", value: "business@7zi.studio" },
-  { icon: "🌐", label: "网站", value: "7zi.studio" },
+  { icon: '📧', label: '邮箱', value: 'business@7zi.studio' },
+  { icon: '🌐', label: '网站', value: '7zi.studio' },
   // ...
-];
+]
 ```
 
 ---
@@ -196,7 +196,7 @@ const contactInfo = [
 #### 使用示例
 
 ```tsx
-import { ThemeToggle } from '@/components';
+import { ThemeToggle } from '@/components'
 
 export function Header() {
   return (
@@ -205,7 +205,7 @@ export function Header() {
       <nav>{/* 导航 */}</nav>
       <ThemeToggle />
     </header>
-  );
+  )
 }
 ```
 
@@ -232,23 +232,19 @@ export function Header() {
 
 ```tsx
 interface ThemeProviderProps {
-  children: React.ReactNode;
-  defaultTheme?: 'light' | 'dark' | 'system';
-  storageKey?: string; // 已弃用，保留兼容性
+  children: React.ReactNode
+  defaultTheme?: 'light' | 'dark' | 'system'
+  storageKey?: string // 已弃用，保留兼容性
 }
 ```
 
 #### 使用示例
 
 ```tsx
-import { ThemeProvider } from '@/components';
+import { ThemeProvider } from '@/components'
 
 export default function RootLayout({ children }) {
-  return (
-    <ThemeProvider defaultTheme="system">
-      {children}
-    </ThemeProvider>
-  );
+  return <ThemeProvider defaultTheme="system">{children}</ThemeProvider>
 }
 ```
 
@@ -256,14 +252,10 @@ export default function RootLayout({ children }) {
 
 ```tsx
 // 推荐方式
-import { SettingsProvider } from '@/contexts/SettingsContext';
+import { SettingsProvider } from '@/contexts/SettingsContext'
 
 export default function RootLayout({ children }) {
-  return (
-    <SettingsProvider defaultSettings={{ theme: 'system' }}>
-      {children}
-    </SettingsProvider>
-  );
+  return <SettingsProvider defaultSettings={{ theme: 'system' }}>{children}</SettingsProvider>
 }
 ```
 
@@ -277,16 +269,16 @@ export default function RootLayout({ children }) {
 
 #### 导出组件
 
-| 组件 | 说明 |
-|------|------|
-| `SkeletonText` | 文本骨架 |
-| `SkeletonAvatar` | 头像骨架 |
-| `SkeletonCard` | 卡片骨架 |
-| `SkeletonList` | 列表骨架 |
-| `SkeletonTable` | 表格骨架 |
+| 组件               | 说明         |
+| ------------------ | ------------ |
+| `SkeletonText`     | 文本骨架     |
+| `SkeletonAvatar`   | 头像骨架     |
+| `SkeletonCard`     | 卡片骨架     |
+| `SkeletonList`     | 列表骨架     |
+| `SkeletonTable`    | 表格骨架     |
 | `SkeletonStatCard` | 统计卡片骨架 |
-| `SkeletonNav` | 导航骨架 |
-| `SkeletonPage` | 页面骨架 |
+| `SkeletonNav`      | 导航骨架     |
+| `SkeletonPage`     | 页面骨架     |
 
 #### Props
 
@@ -294,9 +286,9 @@ export default function RootLayout({ children }) {
 
 ```tsx
 interface SkeletonTextProps {
-  lines?: number;        // 行数，默认 1
-  className?: string;
-  lastLineWidth?: string; // 最后一行宽度，默认 '60%'
+  lines?: number // 行数，默认 1
+  className?: string
+  lastLineWidth?: string // 最后一行宽度，默认 '60%'
 }
 ```
 
@@ -304,8 +296,8 @@ interface SkeletonTextProps {
 
 ```tsx
 interface SkeletonAvatarProps {
-  size?: 'sm' | 'md' | 'lg' | 'xl';
-  className?: string;
+  size?: 'sm' | 'md' | 'lg' | 'xl'
+  className?: string
 }
 ```
 
@@ -313,40 +305,35 @@ interface SkeletonAvatarProps {
 
 ```tsx
 interface SkeletonCardProps {
-  showAvatar?: boolean;  // 是否显示头像，默认 true
-  lines?: number;        // 文本行数，默认 3
-  className?: string;
+  showAvatar?: boolean // 是否显示头像，默认 true
+  lines?: number // 文本行数，默认 3
+  className?: string
 }
 ```
 
 #### 使用示例
 
 ```tsx
-import { 
-  SkeletonCard, 
-  SkeletonList, 
-  SkeletonTable,
-  SkeletonPage 
-} from '@/components';
+import { SkeletonCard, SkeletonList, SkeletonTable, SkeletonPage } from '@/components'
 
 // 卡片加载
 function CardLoading() {
-  return <SkeletonCard showAvatar lines={4} />;
+  return <SkeletonCard showAvatar lines={4} />
 }
 
 // 列表加载
 function ListLoading() {
-  return <SkeletonList items={5} showAvatar />;
+  return <SkeletonList items={5} showAvatar />
 }
 
 // 表格加载
 function TableLoading() {
-  return <SkeletonTable rows={10} columns={4} />;
+  return <SkeletonTable rows={10} columns={4} />
 }
 
 // 全页面加载
 function PageLoading() {
-  return <SkeletonPage showNav showFooter />;
+  return <SkeletonPage showNav showFooter />
 }
 ```
 
@@ -368,17 +355,17 @@ function PageLoading() {
 
 ```tsx
 interface LazyImageProps {
-  src: string;
-  alt: string;
-  width?: number;
-  height?: number;
-  className?: string;
-  placeholderColor?: string;
-  priority?: boolean;      // 优先加载
-  fill?: boolean;          // 填充父容器
-  sizes?: string;          // 响应式尺寸
-  quality?: number;        // 图片质量，默认 75
-  objectFit?: 'contain' | 'cover' | 'fill' | 'none';
+  src: string
+  alt: string
+  width?: number
+  height?: number
+  className?: string
+  placeholderColor?: string
+  priority?: boolean // 优先加载
+  fill?: boolean // 填充父容器
+  sizes?: string // 响应式尺寸
+  quality?: number // 图片质量，默认 75
+  objectFit?: 'contain' | 'cover' | 'fill' | 'none'
 }
 ```
 
@@ -443,14 +430,14 @@ const images = [
 #### 使用示例
 
 ```tsx
-import { LoadingSpinner } from '@/components';
+import { LoadingSpinner } from '@/components'
 
 function LoadingState() {
   return (
-    <div className="flex items-center justify-center h-64">
+    <div className="flex h-64 items-center justify-center">
       <LoadingSpinner />
     </div>
-  );
+  )
 }
 ```
 
@@ -468,20 +455,20 @@ AI 团队成员卡片组件，使用 React.memo 优化渲染。
 
 ```tsx
 interface AIMember {
-  id: string;
-  name: string;
-  role: string;
-  emoji: string;
-  avatar: string;
-  status: 'idle' | 'working' | 'busy' | 'offline';
-  provider: string;
-  currentTask?: string;
-  completedTasks: number;
+  id: string
+  name: string
+  role: string
+  emoji: string
+  avatar: string
+  status: 'idle' | 'working' | 'busy' | 'offline'
+  provider: string
+  currentTask?: string
+  completedTasks: number
 }
 
 interface MemberCardProps {
-  member: AIMember;
-  compact?: boolean;  // 紧凑模式
+  member: AIMember
+  compact?: boolean // 紧凑模式
 }
 ```
 
@@ -511,12 +498,12 @@ const member: AIMember = {
 
 #### 状态映射
 
-| 状态 | 颜色 | 标签 |
-|------|------|------|
+| 状态      | 颜色 | 标签   |
+| --------- | ---- | ------ |
 | `working` | 绿色 | 工作中 |
-| `busy` | 黄色 | 忙碌 |
-| `idle` | 灰色 | 空闲 |
-| `offline` | 浅灰 | 离线 |
+| `busy`    | 黄色 | 忙碌   |
+| `idle`    | 灰色 | 空闲   |
+| `offline` | 浅灰 | 离线   |
 
 #### 性能优化
 
@@ -524,13 +511,13 @@ const member: AIMember = {
 
 ```tsx
 // 比较函数
-(prevProps, nextProps) => {
+;(prevProps, nextProps) => {
   return (
     prevProps.member.id === nextProps.member.id &&
     prevProps.member.status === nextProps.member.status &&
     prevProps.member.currentTask === nextProps.member.currentTask &&
     prevProps.member.completedTasks === nextProps.member.completedTasks
-  );
+  )
 }
 ```
 
@@ -549,14 +536,14 @@ GitHub 仓库活动展示组件，显示提交记录和统计。
 #### 使用示例
 
 ```tsx
-import { GitHubActivity } from '@/components';
+import { GitHubActivity } from '@/components'
 
 export function ActivitySection() {
   return (
     <section>
       <GitHubActivity />
     </section>
-  );
+  )
 }
 ```
 
@@ -569,7 +556,7 @@ const { commits, stats, isLoading } = useGitHubData({
   owner: '7zi-studio',
   repo: '7zi-frontend',
   refreshInterval: 5 * 60 * 1000, // 5分钟刷新
-});
+})
 ```
 
 ---
@@ -587,14 +574,14 @@ const { commits, stats, isLoading } = useGitHubData({
 #### 使用示例
 
 ```tsx
-import { ProjectDashboard } from '@/components';
+import { ProjectDashboard } from '@/components'
 
 export function DashboardPage() {
   return (
     <div className="container mx-auto">
       <ProjectDashboard />
     </div>
-  );
+  )
 }
 ```
 
@@ -617,18 +604,18 @@ GitHub Issues 任务看板组件。
 
 ```tsx
 interface TaskBoardProps {
-  issues: GitHubIssue[];
+  issues: GitHubIssue[]
 }
 ```
 
 #### 使用示例
 
 ```tsx
-import { TaskBoard } from '@/components';
+import { TaskBoard } from '@/components'
 
-const issues = await fetchGitHubIssues();
+const issues = await fetchGitHubIssues()
 
-<TaskBoard issues={issues} />
+;<TaskBoard issues={issues} />
 ```
 
 #### 功能特性
@@ -652,7 +639,7 @@ const issues = await fetchGitHubIssues();
 
 ```tsx
 interface ContactFormProps {
-  locale?: 'zh' | 'en';
+  locale?: 'zh' | 'en'
 }
 ```
 
@@ -670,13 +657,13 @@ import { ContactForm } from '@/components';
 
 #### 表单字段
 
-| 字段 | 必填 | 验证规则 |
-|------|------|----------|
-| name | ✅ | 非空 |
-| email | ✅ | 邮箱格式 |
-| company | ❌ | - |
-| subject | ❌ | 下拉选择 |
-| message | ✅ | 最少 10 字符 |
+| 字段    | 必填 | 验证规则     |
+| ------- | ---- | ------------ |
+| name    | ✅   | 非空         |
+| email   | ✅   | 邮箱格式     |
+| company | ❌   | -            |
+| subject | ❌   | 下拉选择     |
+| message | ✅   | 最少 10 字符 |
 
 #### API 端点
 
@@ -694,8 +681,8 @@ import { ContactForm } from '@/components';
 
 ```tsx
 interface SettingsPanelProps {
-  onClose?: () => void;
-  className?: string;
+  onClose?: () => void
+  className?: string
 }
 ```
 
@@ -735,7 +722,7 @@ AI 聊天窗口组件，支持移动端优化和团队状态显示。
 #### 使用示例
 
 ```tsx
-import { AIChat } from '@/components';
+import { AIChat } from '@/components'
 
 export function Layout({ children }) {
   return (
@@ -743,7 +730,7 @@ export function Layout({ children }) {
       {children}
       <AIChat />
     </>
-  );
+  )
 }
 ```
 
@@ -751,20 +738,20 @@ export function Layout({ children }) {
 
 聊天模块包含以下子组件（通过 `./chat` 导出）：
 
-| 组件 | 说明 |
-|------|------|
-| `ChatHeader` | 聊天头部 |
-| `ChatMessage` | 消息气泡 |
-| `ChatInput` | 输入框 |
-| `QuickActions` | 快捷操作 |
+| 组件              | 说明         |
+| ----------------- | ------------ |
+| `ChatHeader`      | 聊天头部     |
+| `ChatMessage`     | 消息气泡     |
+| `ChatInput`       | 输入框       |
+| `QuickActions`    | 快捷操作     |
 | `TeamStatusPanel` | 团队状态面板 |
-| `MemberSelector` | 成员选择器 |
-| `TypingIndicator` | 打字指示器 |
+| `MemberSelector`  | 成员选择器   |
+| `TypingIndicator` | 打字指示器   |
 
 #### Hook
 
 ```tsx
-import { useChat } from '@/components/chat';
+import { useChat } from '@/components/chat'
 
 const {
   messages,
@@ -774,7 +761,7 @@ const {
   handleSend,
   handleQuickAction,
   setSelectedMemberId,
-} = useChat(teamMembers);
+} = useChat(teamMembers)
 ```
 
 #### 特性
@@ -799,10 +786,10 @@ Next.js 页面级错误边界组件。
 
 ```tsx
 interface ErrorBoundaryProps {
-  error: Error & { digest?: string };
-  reset: () => void;
-  title?: string;
-  showReset?: boolean;
+  error: Error & { digest?: string }
+  reset: () => void
+  title?: string
+  showReset?: boolean
 }
 ```
 
@@ -812,24 +799,18 @@ interface ErrorBoundaryProps {
 
 ```tsx
 // app/error.tsx
-'use client';
+'use client'
 
-import { ErrorBoundary } from '@/components';
+import { ErrorBoundary } from '@/components'
 
 export default function Error({
   error,
   reset,
 }: {
-  error: Error & { digest?: string };
-  reset: () => void;
+  error: Error & { digest?: string }
+  reset: () => void
 }) {
-  return (
-    <ErrorBoundary
-      error={error}
-      reset={reset}
-      title="页面加载失败"
-    />
-  );
+  return <ErrorBoundary error={error} reset={reset} title="页面加载失败" />
 }
 ```
 
@@ -851,12 +832,12 @@ export default function Error({
 
 ```tsx
 interface ErrorDisplayProps {
-  title?: string;
-  message?: string;
-  showReset?: boolean;
-  onReset?: () => void;
-  errorDigest?: string;
-  variant?: 'default' | 'compact' | 'fullscreen';
+  title?: string
+  message?: string
+  showReset?: boolean
+  onReset?: () => void
+  errorDigest?: string
+  variant?: 'default' | 'compact' | 'fullscreen'
 }
 ```
 
@@ -900,24 +881,24 @@ SEO 相关组件集合，包含结构化数据和元数据。
 
 #### 导出组件
 
-| 组件 | 说明 |
-|------|------|
+| 组件             | 说明               |
+| ---------------- | ------------------ |
 | `StructuredData` | JSON-LD 结构化数据 |
-| `ArticleSchema` | 文章结构化数据 |
-| `ServiceSchema` | 服务结构化数据 |
-| `ProductSchema` | 产品结构化数据 |
-| `Breadcrumbs` | 面包屑导航 |
-| `CanonicalUrl` | 规范链接 |
-| `HreflangLinks` | 多语言链接 |
+| `ArticleSchema`  | 文章结构化数据     |
+| `ServiceSchema`  | 服务结构化数据     |
+| `ProductSchema`  | 产品结构化数据     |
+| `Breadcrumbs`    | 面包屑导航         |
+| `CanonicalUrl`   | 规范链接           |
+| `HreflangLinks`  | 多语言链接         |
 
 #### 使用示例
 
 ```tsx
-import { 
-  StructuredData, 
+import {
+  StructuredData,
   ArticleSchema,
   Breadcrumbs,
-  HreflangLinks 
+  HreflangLinks
 } from '@/components';
 
 // 结构化数据
@@ -962,21 +943,21 @@ import {
 
 ```tsx
 interface NotificationCenterProps {
-  notifications: Notification[];
-  onMarkAsRead?: (id: string) => void;
-  onMarkAllAsRead?: () => void;
-  onClearAll?: () => void;
-  onDelete?: (id: string) => void;
-  showUnreadBadge?: boolean;
-  maxVisible?: number;
-  className?: string;
+  notifications: Notification[]
+  onMarkAsRead?: (id: string) => void
+  onMarkAllAsRead?: () => void
+  onClearAll?: () => void
+  onDelete?: (id: string) => void
+  showUnreadBadge?: boolean
+  maxVisible?: number
+  className?: string
 }
 ```
 
 #### 使用示例
 
 ```tsx
-import { NotificationCenter } from '@/components/NotificationCenter';
+import { NotificationCenter } from '@/components/NotificationCenter'
 
 const notifications = [
   {
@@ -988,11 +969,11 @@ const notifications = [
     createdAt: new Date().toISOString(),
   },
   // ...
-];
+]
 
-<NotificationCenter
+;<NotificationCenter
   notifications={notifications}
-  onMarkAsRead={(id) => markAsRead(id)}
+  onMarkAsRead={id => markAsRead(id)}
   onMarkAllAsRead={() => markAllAsRead()}
   onClearAll={() => clearAll()}
   showUnreadBadge
@@ -1018,19 +999,18 @@ const notifications = [
 
 ```tsx
 interface CardProps {
-  children: React.ReactNode;
-  className?: string;
-  hover?: boolean;        // 悬浮效果
-  padding?: 'none' | 'sm' | 'md' | 'lg';
+  children: React.ReactNode
+  className?: string
+  hover?: boolean // 悬浮效果
+  padding?: 'none' | 'sm' | 'md' | 'lg'
 }
 ```
 
 #### 使用示例
 
 ```tsx
-import { Card } from '@/components/shared';
-
-<Card padding="lg" hover>
+import { Card } from '@/components/shared'
+;<Card padding="lg" hover>
   <h3>卡片标题</h3>
   <p>卡片内容</p>
 </Card>
@@ -1048,24 +1028,19 @@ import { Card } from '@/components/shared';
 
 ```tsx
 interface ProgressBarProps {
-  progress: number;
-  color?: 'default' | 'success' | 'warning';
-  showLabel?: boolean;
-  size?: 'sm' | 'md' | 'lg';
-  animated?: boolean;
+  progress: number
+  color?: 'default' | 'success' | 'warning'
+  showLabel?: boolean
+  size?: 'sm' | 'md' | 'lg'
+  animated?: boolean
 }
 ```
 
 #### 使用示例
 
 ```tsx
-import { ProgressBar } from '@/components/shared';
-
-<ProgressBar 
-  progress={75} 
-  showLabel 
-  color="success" 
-/>
+import { ProgressBar } from '@/components/shared'
+;<ProgressBar progress={75} showLabel color="success" />
 ```
 
 ---
@@ -1080,18 +1055,17 @@ import { ProgressBar } from '@/components/shared';
 
 ```tsx
 interface StatusBadgeProps {
-  status: MemberStatus;  // 'idle' | 'working' | 'busy' | 'offline'
-  showDot?: boolean;
-  size?: 'sm' | 'md';
+  status: MemberStatus // 'idle' | 'working' | 'busy' | 'offline'
+  showDot?: boolean
+  size?: 'sm' | 'md'
 }
 ```
 
 #### 使用示例
 
 ```tsx
-import { StatusBadge } from '@/components/shared';
-
-<StatusBadge status="working" showDot />
+import { StatusBadge } from '@/components/shared'
+;<StatusBadge status="working" showDot />
 ```
 
 ---
@@ -1106,26 +1080,19 @@ import { StatusBadge } from '@/components/shared';
 
 ```tsx
 interface AvatarProps {
-  src?: string;
-  name: string;
-  size?: 'sm' | 'md' | 'lg' | 'xl';
-  status?: MemberStatus;
-  showStatus?: boolean;
+  src?: string
+  name: string
+  size?: 'sm' | 'md' | 'lg' | 'xl'
+  status?: MemberStatus
+  showStatus?: boolean
 }
 ```
 
 #### 使用示例
 
 ```tsx
-import { Avatar } from '@/components/shared';
-
-<Avatar
-  src="/avatar.png"
-  name="Executor"
-  size="lg"
-  status="working"
-  showStatus
-/>
+import { Avatar } from '@/components/shared'
+;<Avatar src="/avatar.png" name="Executor" size="lg" status="working" showStatus />
 ```
 
 ---
@@ -1140,19 +1107,18 @@ import { Avatar } from '@/components/shared';
 
 ```tsx
 interface EmptyStateProps {
-  icon?: string;
-  title: string;
-  description?: string;
-  action?: React.ReactNode;
+  icon?: string
+  title: string
+  description?: string
+  action?: React.ReactNode
 }
 ```
 
 #### 使用示例
 
 ```tsx
-import { EmptyState } from '@/components/shared';
-
-<EmptyState
+import { EmptyState } from '@/components/shared'
+;<EmptyState
   icon="📭"
   title="暂无数据"
   description="还没有任何内容"
@@ -1172,24 +1138,18 @@ import { EmptyState } from '@/components/shared';
 
 ```tsx
 interface StatCardProps {
-  value: number | string;
-  label: string;
-  icon?: string;
-  color?: 'cyan' | 'purple' | 'green' | 'pink' | 'orange';
+  value: number | string
+  label: string
+  icon?: string
+  color?: 'cyan' | 'purple' | 'green' | 'pink' | 'orange'
 }
 ```
 
 #### 使用示例
 
 ```tsx
-import { StatCard } from '@/components/shared';
-
-<StatCard
-  value={42}
-  label="完成任务"
-  icon="✅"
-  color="cyan"
-/>
+import { StatCard } from '@/components/shared'
+;<StatCard value={42} label="完成任务" icon="✅" color="cyan" />
 ```
 
 ---
@@ -1205,7 +1165,7 @@ import { StatCard } from '@/components/shared';
 #### 使用示例
 
 ```tsx
-import { Hero3D } from '@/components';
+import { Hero3D } from '@/components'
 
 export function HomePage() {
   return (
@@ -1213,7 +1173,7 @@ export function HomePage() {
       <Hero3D />
       {/* 其他内容 */}
     </>
-  );
+  )
 }
 ```
 
@@ -1236,9 +1196,9 @@ export function HomePage() {
 
 ```tsx
 interface SocialLinksProps {
-  variant?: 'horizontal' | 'vertical' | 'grid';
-  size?: 'sm' | 'md' | 'lg';
-  className?: string;
+  variant?: 'horizontal' | 'vertical' | 'grid'
+  size?: 'sm' | 'md' | 'lg'
+  className?: string
 }
 ```
 
@@ -1259,14 +1219,14 @@ import { SocialLinks } from '@/components';
 
 #### 内置平台
 
-| 平台 | 图标 |
-|------|------|
-| 微信公众号 | 💬 |
-| GitHub | 🐙 |
-| Twitter | 🐦 |
-| LinkedIn | 💼 |
-| Discord | 🎮 |
-| YouTube | 📺 |
+| 平台       | 图标 |
+| ---------- | ---- |
+| 微信公众号 | 💬   |
+| GitHub     | 🐙   |
+| Twitter    | 🐦   |
+| LinkedIn   | 💼   |
+| Discord    | 🎮   |
+| YouTube    | 📺   |
 
 ---
 
@@ -1285,24 +1245,24 @@ import {
   ContactForm,
   ErrorBoundary,
   // ...
-} from '@/components';
+} from '@/components'
 ```
 
 ### 按需导入
 
 ```tsx
 // 导入特定组件
-import { Navigation } from '@/components/Navigation';
-import { MemberCard } from '@/components/MemberCard';
+import { Navigation } from '@/components/Navigation'
+import { MemberCard } from '@/components/MemberCard'
 
 // 导入共享组件
-import { Card, ProgressBar, EmptyState } from '@/components/shared';
+import { Card, ProgressBar, EmptyState } from '@/components/shared'
 
 // 导入聊天模块
-import { useChat, ChatMessage, ChatInput } from '@/components/chat';
+import { useChat, ChatMessage, ChatInput } from '@/components/chat'
 
 // 导入通知中心
-import { NotificationCenter } from '@/components/NotificationCenter';
+import { NotificationCenter } from '@/components/NotificationCenter'
 ```
 
 ---
@@ -1316,13 +1276,13 @@ import { NotificationCenter } from '@/components/NotificationCenter';
 ```css
 :root {
   /* 主色 */
-  --primary: #06b6d4;        /* cyan-500 */
-  --primary-hover: #0891b2;  /* cyan-600 */
-  
+  --primary: #06b6d4; /* cyan-500 */
+  --primary-hover: #0891b2; /* cyan-600 */
+
   /* 背景 */
   --bg-primary: #ffffff;
   --bg-secondary: #f4f4f5;
-  
+
   /* 文本 */
   --text-primary: #18181b;
   --text-secondary: #71717a;
@@ -1340,23 +1300,23 @@ import { NotificationCenter } from '@/components/NotificationCenter';
 
 ```css
 /* 组件内边距 */
---padding-sm: 0.75rem;   /* 12px */
---padding-md: 1rem;      /* 16px */
---padding-lg: 1.5rem;    /* 24px */
+--padding-sm: 0.75rem; /* 12px */
+--padding-md: 1rem; /* 16px */
+--padding-lg: 1.5rem; /* 24px */
 
 /* 组件间距 */
---gap-sm: 0.5rem;        /* 8px */
---gap-md: 1rem;          /* 16px */
---gap-lg: 1.5rem;        /* 24px */
+--gap-sm: 0.5rem; /* 8px */
+--gap-md: 1rem; /* 16px */
+--gap-lg: 1.5rem; /* 24px */
 ```
 
 ### 圆角规范
 
 ```css
---radius-sm: 0.5rem;     /* 8px */
---radius-md: 0.75rem;    /* 12px */
---radius-lg: 1rem;       /* 16px */
---radius-full: 9999px;   /* 完全圆角 */
+--radius-sm: 0.5rem; /* 8px */
+--radius-md: 0.75rem; /* 12px */
+--radius-lg: 1rem; /* 16px */
+--radius-full: 9999px; /* 完全圆角 */
 ```
 
 ---
@@ -1366,11 +1326,11 @@ import { NotificationCenter } from '@/components/NotificationCenter';
 1. **懒加载组件**: 使用 `dynamic` 导入非首屏组件
 
 ```tsx
-import dynamic from 'next/dynamic';
+import dynamic from 'next/dynamic'
 
 const AIChat = dynamic(() => import('@/components/AIChat'), {
   ssr: false,
-});
+})
 ```
 
 2. **图片优化**: 使用 `LazyImage` 替代原生 `<img>`
@@ -1386,10 +1346,11 @@ const AIChat = dynamic(() => import('@/components/AIChat'), {
 ## 📝 更新日志
 
 ### 2024-03-07
+
 - 创建完整的组件库文档
 - 添加所有组件的 Props 定义
 - 添加代码示例和最佳实践
 
 ---
 
-*本文档由 🎨 设计师维护，如有问题请联系团队。*
+_本文档由 🎨 设计师维护，如有问题请联系团队。_

@@ -4,79 +4,79 @@
  */
 
 export interface MetricBaseline {
-  metric: string;
-  mean: number;
-  stdDev: number;
-  min: number;
-  max: number;
-  p50: number;
-  p95: number;
-  p99: number;
-  sampleSize: number;
-  lastUpdated: number;
+  metric: string
+  mean: number
+  stdDev: number
+  min: number
+  max: number
+  p50: number
+  p95: number
+  p99: number
+  sampleSize: number
+  lastUpdated: number
 }
 
 export interface AnomalyDetection {
-  isAnomaly: boolean;
-  severity: 'low' | 'medium' | 'high' | 'critical';
-  metric: string;
-  value: number;
-  baseline: MetricBaseline;
-  zScore?: number;
-  percentChange?: number;
-  confidence: number; // 0-1
-  reason: string;
-  detectedAt: number;
-  algorithm: 'z-score' | 'isolation-forest' | 'threshold';
+  isAnomaly: boolean
+  severity: 'low' | 'medium' | 'high' | 'critical'
+  metric: string
+  value: number
+  baseline: MetricBaseline
+  zScore?: number
+  percentChange?: number
+  confidence: number // 0-1
+  reason: string
+  detectedAt: number
+  algorithm: 'z-score' | 'isolation-forest' | 'threshold'
 }
 
 export interface AnomalyDetectionConfig {
-  enabled: boolean;
+  enabled: boolean
   algorithms: {
     zScore: {
-      enabled: boolean;
-      threshold: number; // 默认 3，超过此值的 Z-score 视为异常
-    };
+      enabled: boolean
+      threshold: number // 默认 3，超过此值的 Z-score 视为异常
+    }
     isolationForest: {
-      enabled: boolean;
-      contamination: number; // 异常数据比例期望，默认 0.1
-      numTrees?: number; // 树的数量
-      subSamplingSize?: number; // 子采样大小
-    };
+      enabled: boolean
+      contamination: number // 异常数据比例期望，默认 0.1
+      numTrees?: number // 树的数量
+      subSamplingSize?: number // 子采样大小
+    }
     threshold: {
-      enabled: boolean;
-      minThreshold?: number;
-      maxThreshold?: number;
-    };
-  };
+      enabled: boolean
+      minThreshold?: number
+      maxThreshold?: number
+    }
+  }
   baseline: {
-    minSampleSize: number; // 最小样本数，默认 30
-    updateIntervalMs: number; // 基线更新间隔，默认 1 小时
-    windowSizeMs: number; // 基线计算窗口，默认 24 小时
-  };
+    minSampleSize: number // 最小样本数，默认 30
+    updateIntervalMs: number // 基线更新间隔，默认 1 小时
+    windowSizeMs: number // 基线计算窗口，默认 24 小时
+  }
   filters: {
-    enablePseudoAnomalyFilter: boolean; // 启用伪异常过滤
-    cooldownMs: number; // 同一指标冷却时间，默认 5 分钟
-    minConfidence: number; // 最小置信度，默认 0.7
-  };
+    enablePseudoAnomalyFilter: boolean // 启用伪异常过滤
+    cooldownMs: number // 同一指标冷却时间，默认 5 分钟
+    minConfidence: number // 最小置信度，默认 0.7
+  }
 }
 
 export interface MetricDataPoint {
-  timestamp: number;
-  value: number;
-  metadata?: Record<string, any>;
+  timestamp: number
+  value: number
+  metadata?: Record<string, any>
 }
 
 export interface AnomalyEvent {
-  id: string;
-  detection: AnomalyDetection;
-  acknowledged: boolean;
-  acknowledgedAt?: number;
-  acknowledgedBy?: string;
-  resolved: boolean;
-  resolvedAt?: number;
-  falsePositive: boolean;
-  notes?: string;
+  id: string
+  detection: AnomalyDetection
+  acknowledged: boolean
+  acknowledgedAt?: number
+  acknowledgedBy?: string
+  resolved: boolean
+  resolvedAt?: number
+  falsePositive: boolean
+  notes?: string
 }
 
 export const DEFAULT_ANOMALY_CONFIG: AnomalyDetectionConfig = {
@@ -104,4 +104,4 @@ export const DEFAULT_ANOMALY_CONFIG: AnomalyDetectionConfig = {
     cooldownMs: 5 * 60 * 1000, // 5 分钟
     minConfidence: 0.7,
   },
-};
+}

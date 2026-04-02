@@ -43,123 +43,123 @@ export enum NotificationStatus {
  * Notification database record
  */
 export interface Notification {
-  id: string;
-  user_id: string;
-  type: NotificationType;
-  title: string;
-  content: string;
-  priority: NotificationPriority;
-  status: NotificationStatus;
-  group_id?: string;
-  related_id?: string;
-  related_type?: string;
-  metadata?: Record<string, unknown>;
-  created_at: string;
-  updated_at: string;
-  read_at?: string;
+  id: string
+  user_id: string
+  type: NotificationType
+  title: string
+  content: string
+  priority: NotificationPriority
+  status: NotificationStatus
+  group_id?: string
+  related_id?: string
+  related_type?: string
+  metadata?: Record<string, unknown>
+  created_at: string
+  updated_at: string
+  read_at?: string
 }
 
 /**
  * Notification creation payload
  */
 export interface CreateNotificationDto {
-  user_id: string;
-  type: NotificationType;
-  title: string;
-  content: string;
-  priority?: NotificationPriority;
-  group_id?: string;
-  related_id?: string;
-  related_type?: string;
-  metadata?: Record<string, unknown>;
+  user_id: string
+  type: NotificationType
+  title: string
+  content: string
+  priority?: NotificationPriority
+  group_id?: string
+  related_id?: string
+  related_type?: string
+  metadata?: Record<string, unknown>
 }
 
 /**
  * Notification update payload
  */
 export interface UpdateNotificationDto {
-  title?: string;
-  content?: string;
-  status?: NotificationStatus;
-  metadata?: Record<string, unknown>;
+  title?: string
+  content?: string
+  status?: NotificationStatus
+  metadata?: Record<string, unknown>
 }
 
 /**
  * Notification query filters
  */
 export interface NotificationFilters {
-  user_id?: string;
-  type?: NotificationType | NotificationType[];
-  status?: NotificationStatus;
-  priority?: NotificationPriority;
-  group_id?: string;
-  related_id?: string;
-  related_type?: string;
-  start_date?: string;
-  end_date?: string;
-  search?: string;
+  user_id?: string
+  type?: NotificationType | NotificationType[]
+  status?: NotificationStatus
+  priority?: NotificationPriority
+  group_id?: string
+  related_id?: string
+  related_type?: string
+  start_date?: string
+  end_date?: string
+  search?: string
 }
 
 /**
  * Notification list response with pagination
  */
 export interface NotificationListResponse {
-  notifications: Notification[];
+  notifications: Notification[]
   meta: {
-    total: number;
-    unread_count: number;
-    page: number;
-    per_page: number;
-    total_pages: number;
-  };
+    total: number
+    unread_count: number
+    page: number
+    per_page: number
+    total_pages: number
+  }
 }
 
 /**
  * Notification statistics
  */
 export interface NotificationStats {
-  total: number;
-  unread: number;
-  by_type: Record<NotificationType, number>;
-  by_priority: Record<NotificationPriority, number>;
+  total: number
+  unread: number
+  by_type: Record<NotificationType, number>
+  by_priority: Record<NotificationPriority, number>
 }
 
 /**
  * WebSocket notification event
  */
 export interface NotificationEvent {
-  type: 'notification_created' | 'notification_updated' | 'notification_deleted';
-  notification: Notification;
-  user_id: string;
+  type: 'notification_created' | 'notification_updated' | 'notification_deleted'
+  notification: Notification
+  user_id: string
 }
 
 /**
  * Bulk action options
  */
 export interface BulkNotificationAction {
-  notification_ids: string[];
-  action: 'mark_read' | 'mark_unread' | 'archive' | 'delete';
+  notification_ids: string[]
+  action: 'mark_read' | 'mark_unread' | 'archive' | 'delete'
 }
 
 /**
  * Notification preferences per user
  */
 export interface NotificationPreferences {
-  user_id: string;
-  enabled_types: NotificationType[];
-  enabled: boolean;
-  email_enabled: boolean;
-  sound_enabled: boolean;
+  user_id: string
+  enabled_types: NotificationType[]
+  enabled: boolean
+  email_enabled: boolean
+  sound_enabled: boolean
 }
 
 /**
  * Template for notification messages
  */
 export interface NotificationTemplate {
-  type: NotificationType;
-  default_title: string;
-  default_content: string;
-  priority: NotificationPriority;
+  type: NotificationType
+  default_title: string
+  default_content: string
+  priority: NotificationPriority
 }
 
 /**
@@ -232,4 +232,4 @@ export const NOTIFICATION_TEMPLATES: Record<NotificationType, NotificationTempla
     default_content: 'Your report "{{report_name}}" is ready for download',
     priority: NotificationPriority.NORMAL,
   },
-};
+}

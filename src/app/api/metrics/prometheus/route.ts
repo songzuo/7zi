@@ -1,3 +1,4 @@
+import { NextRequest, NextResponse } from 'next/server'
 /**
  * Prometheus Metrics Endpoint
  * Prometheus 格式的指标导出端点
@@ -9,8 +10,8 @@
  * - Import Grafana dashboard from monitoring/grafana-dashboard.json
  */
 
-import { exportPrometheusMetrics } from '@/lib/monitoring/prometheus';
-import { logger } from '@/lib/logger';
+import { exportPrometheusMetrics } from '@/lib/monitoring/prometheus'
+import { logger } from '@/lib/logger'
 
 /**
  * GET /api/metrics/prometheus
@@ -19,7 +20,7 @@ import { logger } from '@/lib/logger';
 export async function GET() {
   try {
     // Generate Prometheus metrics
-    const metrics = await exportPrometheusMetrics();
+    const metrics = await exportPrometheusMetrics()
 
     // Return metrics with plain text content type
     return new NextResponse(metrics, {
@@ -28,27 +29,27 @@ export async function GET() {
         'Content-Type': 'text/plain; version=0.0.4; charset=utf-8',
         'Cache-Control': 'no-store, no-cache, must-revalidate, proxy-revalidate, max-age=0',
       },
-    });
-  } catch (_error) {
+    })
+  } catch (error) {
     logger.error('[Prometheus Metrics] Failed to export metrics', {
       error: error instanceof Error ? error.message : String(error),
       stack: error instanceof Error ? error.stack : undefined,
-    });
+    })
 
     // Return error metrics
     const errorMetrics = `# ERROR: Failed to export metrics
 # ${error instanceof Error ? error.message : String(error)}
 # Time: ${new Date().toISOString()}
-`;
+`
 
     return new NextResponse(errorMetrics, {
       status: 500,
       headers: {
         'Content-Type': 'text/plain; version=0.0.4; charset=utf-8',
       },
-    });
+    })
   }
 }
 
 // 禁用缓存以获取最新指标
-export const dynamic = 'force-dynamic';
+export const dynamic = 'force-dynamic'

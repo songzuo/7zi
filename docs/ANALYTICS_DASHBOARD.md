@@ -9,6 +9,7 @@
 ### 1. 数据分析模型和 API
 
 #### 数据模型 (`src/lib/types/analytics.ts`)
+
 - `AnalyticsMetrics` - 核心指标集合
   - `AgentMetrics` - AI 代理指标（总数、活跃、空闲、离线、工作时长、完成任务、Token使用、按提供商分类）
   - `UserMetrics` - 用户指标（总数、今日活跃、本周活跃、新用户、留存率、平均会话时长）
@@ -17,6 +18,7 @@
   - `PerformanceMetrics` - 性能指标（CPU/内存使用、响应时间、正常运行时间、错误率、吞吐量、缓存命中率）
 
 #### API 端点
+
 - `GET /api/analytics/metrics` - 获取分析指标（支持查询参数）
 - `POST /api/analytics/metrics` - 使用自定义过滤器获取指标
 - `GET /api/analytics/export` - 获取导出选项
@@ -25,7 +27,9 @@
 ### 2. 数据可视化图表
 
 #### Chart.js 版本 (`AnalyticsChartChartJS`)
+
 支持 6 种图表类型：
+
 - **折线图** (Line) - 趋势分析
 - **面积图** (Area) - 堆叠趋势
 - **柱状图** (Bar) - 分类对比
@@ -34,6 +38,7 @@
 - **雷达图** (Radar) - 多维对比
 
 **特性：**
+
 - 响应式设计
 - 暗色模式支持
 - 自定义 Tooltip 和 Legend
@@ -41,11 +46,13 @@
 - 交互式图表
 
 #### Recharts 版本 (`AnalyticsChart`)
+
 作为 Chart.js 的替代方案，提供相同的功能集。
 
 ### 3. KPI 卡片组件 (`MetricCard` / `StatsCard`)
 
 **功能：**
+
 - 显示关键业务指标
 - 趋势指示器（增长/下降/稳定）
 - 多种格式支持：
@@ -62,6 +69,7 @@
 ### 4. 实时数据更新机制
 
 **实现方式：**
+
 - 自动刷新（可配置间隔，默认 30 秒）
 - 手动刷新按钮
 - WebSocket 支持（预留）
@@ -69,6 +77,7 @@
 - 加载状态管理
 
 **特性：**
+
 - 可开启/关闭自动刷新
 - 防抖处理
 - 错误重试机制
@@ -77,7 +86,9 @@
 ### 5. 数据筛选和日期范围选择
 
 #### DateRangePicker (`DateRangePicker`)
+
 **预设时间范围：**
+
 - 今天 (Today)
 - 最近 7 天 (Last 7 Days)
 - 最近 30 天 (Last 30 Days)
@@ -86,7 +97,9 @@
 - 自定义 (Custom) - 支持日期选择器
 
 #### FilterPanel (`FilterPanel`)
+
 **可筛选维度：**
+
 - 任务状态（已完成、进行中、待处理、已取消）
 - 任务优先级（高、中、低）
 - 任务类型（分析、实现、测试、设计）
@@ -94,6 +107,7 @@
 - 指标选择（活跃代理、活跃用户、任务、Token使用、收入、错误）
 
 **特性：**
+
 - 折叠/展开面板
 - 复选框选择
 - 一键清除全部
@@ -102,6 +116,7 @@
 ### 6. 测试用例
 
 #### 单元测试 (`src/components/analytics/__tests__/analytics.test.tsx`)
+
 - `MetricCard` - 测试各种格式、趋势、颜色、尺寸
 - `DateRangePicker` - 测试时间范围选择、自定义日期、中英文
 - `FilterPanel` - 测试筛选功能、展开/折叠、清除
@@ -109,12 +124,14 @@
 - `AnalyticsChartChartJS` - 测试 Chart.js 版本
 
 #### API 集成测试 (`src/app/api/analytics/__tests__/api.test.ts`)
+
 - `/api/analytics/metrics` - GET/POST 端点测试
 - `/api/analytics/export` - 导出功能测试（CSV/XLSX/JSON）
 - 数据验证测试
 - 错误处理测试
 
 #### 集成测试 (`src/components/analytics/__tests__/integration.test.tsx`)
+
 - 完整仪表盘功能测试
 - 实时更新测试
 - 导出功能测试
@@ -171,17 +188,17 @@ src/
 ### 基础使用
 
 ```tsx
-import { AnalyticsDashboard } from '@/components/analytics';
+import { AnalyticsDashboard } from '@/components/analytics'
 
 export default function AnalyticsPage() {
-  return <AnalyticsDashboard locale="en" />;
+  return <AnalyticsDashboard locale="en" />
 }
 ```
 
 ### 自定义配置
 
 ```tsx
-import { AnalyticsDashboard } from '@/components/analytics';
+import { AnalyticsDashboard } from '@/components/analytics'
 
 export default function CustomAnalyticsPage() {
   return (
@@ -191,19 +208,24 @@ export default function CustomAnalyticsPage() {
       refreshInterval={60000}
       className="custom-dashboard"
     />
-  );
+  )
 }
 ```
 
 ### 使用单个组件
 
 ```tsx
-import { MetricCard, DateRangePicker, FilterPanel, AnalyticsChartChartJS } from '@/components/analytics';
-import { Activity } from 'lucide-react';
+import {
+  MetricCard,
+  DateRangePicker,
+  FilterPanel,
+  AnalyticsChartChartJS,
+} from '@/components/analytics'
+import { Activity } from 'lucide-react'
 
 export default function CustomDashboard() {
-  const [timeRange, setTimeRange] = useState<TimeRange>('week');
-  const [filters, setFilters] = useState<AnalyticsFilters>({ timeRange });
+  const [timeRange, setTimeRange] = useState<TimeRange>('week')
+  const [filters, setFilters] = useState<AnalyticsFilters>({ timeRange })
 
   return (
     <div className="space-y-6">
@@ -213,25 +235,17 @@ export default function CustomDashboard() {
           label: 'Active Users',
           value: 1234,
           format: 'number',
-          change: { value: 12.5, period: 'last week', type: 'increase' }
+          change: { value: 12.5, period: 'last week', type: 'increase' },
         }}
         icon={Activity}
         color="blue"
       />
 
       {/* 日期范围选择器 */}
-      <DateRangePicker
-        selectedRange={timeRange}
-        onChange={setTimeRange}
-        locale="en"
-      />
+      <DateRangePicker selectedRange={timeRange} onChange={setTimeRange} locale="en" />
 
       {/* 筛选面板 */}
-      <FilterPanel
-        filters={filters}
-        onFiltersChange={setFilters}
-        locale="en"
-      />
+      <FilterPanel filters={filters} onFiltersChange={setFilters} locale="en" />
 
       {/* 图表 */}
       <AnalyticsChartChartJS
@@ -240,11 +254,11 @@ export default function CustomDashboard() {
           title: 'Activity Overview',
           data: timeSeriesData,
           metrics: ['agents', 'users'],
-          height: 350
+          height: 350,
         }}
       />
     </div>
-  );
+  )
 }
 ```
 
@@ -273,6 +287,7 @@ npm test -- --coverage
 ## 🚀 部署注意事项
 
 ### 环境变量
+
 ```env
 # 可选：GitHub API 用于真实数据
 NEXT_PUBLIC_GITHUB_OWNER=your-github-username
@@ -284,6 +299,7 @@ DATABASE_URL=your-database-url
 ```
 
 ### 性能优化
+
 1. **服务端渲染** - 数据在服务端获取，客户端只负责展示
 2. **缓存策略** - API 响应缓存 60 秒，陈旧时重新验证
 3. **懒加载** - 图表组件按需加载
@@ -291,6 +307,7 @@ DATABASE_URL=your-database-url
 5. **数据分页** - 大数据集分页加载
 
 ### 监控建议
+
 - 使用 Sentry 收集错误
 - 使用 Vercel Analytics 监控性能
 - 设置 Updown.io 或类似服务监控 API 健康状态
@@ -298,12 +315,14 @@ DATABASE_URL=your-database-url
 ## 📈 扩展建议
 
 ### 短期扩展
+
 1. **实时 WebSocket** - 推送实时数据更新
 2. **更多图表类型** - 热力图、散点图、漏斗图
 3. **数据对比** - 支持多时间段对比
 4. **自定义布局** - 拖拽式仪表盘布局编辑器
 
 ### 长期扩展
+
 1. **机器学习预测** - 基于历史数据预测趋势
 2. **告警系统** - KPI 阈值告警（邮件/短信/Webhook）
 3. **多租户支持** - 支持多组织数据分析
@@ -315,30 +334,30 @@ DATABASE_URL=your-database-url
 
 ```typescript
 interface AnalyticsMetrics {
-  agents: AgentMetrics;
-  users: UserMetrics;
-  tasks: TaskMetrics;
-  revenue: RevenueMetrics;
-  performance: PerformanceMetrics;
+  agents: AgentMetrics
+  users: UserMetrics
+  tasks: TaskMetrics
+  revenue: RevenueMetrics
+  performance: PerformanceMetrics
 }
 ```
 
 ### TimeRange
 
 ```typescript
-type TimeRange = 'today' | 'week' | 'month' | 'quarter' | 'year' | 'custom';
+type TimeRange = 'today' | 'week' | 'month' | 'quarter' | 'year' | 'custom'
 ```
 
 ### ExportFormat
 
 ```typescript
-type ExportFormat = 'csv' | 'xlsx' | 'json' | 'pdf';
+type ExportFormat = 'csv' | 'xlsx' | 'json' | 'pdf'
 ```
 
 ### ChartType
 
 ```typescript
-type ChartType = 'line' | 'area' | 'bar' | 'pie' | 'donut' | 'radar' | 'scatter' | 'heatmap';
+type ChartType = 'line' | 'area' | 'bar' | 'pie' | 'donut' | 'radar' | 'scatter' | 'heatmap'
 ```
 
 ## 🤝 贡献指南

@@ -16,14 +16,14 @@ Successfully created comprehensive unit tests for the `src/lib/utils/` module wi
 
 ### Coverage Breakdown by File
 
-| File      | Statements | Branch | Functions | Lines | Coverage |
-|-----------|------------|---------|------------|-------|----------|
-| array.ts  | 100%       | 100%    | 100%       | 100%  | ✅       |
-| format.ts | 100%       | 100%    | 100%       | 100%  | ✅       |
-| math.ts   | 100%       | 100%    | 100%       | 100%  | ✅       |
-| validation.ts | 100%   | 100%    | 100%       | 100%  | ✅       |
-| env.ts    | 76.92%     | 53.57%  | 100%       | 95.23% | ⚠️       |
-| id.ts     | 22.22%     | 31.57%  | 50%        | 22.22% | ⚠️       |
+| File          | Statements | Branch | Functions | Lines  | Coverage |
+| ------------- | ---------- | ------ | --------- | ------ | -------- |
+| array.ts      | 100%       | 100%   | 100%      | 100%   | ✅       |
+| format.ts     | 100%       | 100%   | 100%      | 100%   | ✅       |
+| math.ts       | 100%       | 100%   | 100%      | 100%   | ✅       |
+| validation.ts | 100%       | 100%   | 100%      | 100%   | ✅       |
+| env.ts        | 76.92%     | 53.57% | 100%      | 95.23% | ⚠️       |
+| id.ts         | 22.22%     | 31.57% | 50%       | 22.22% | ⚠️       |
 
 **Note**: `id.ts` has lower coverage due to fallback paths that are hard to test in a Node.js/Vitest environment. The main production code paths are covered. The overall coverage still exceeds the 80% requirement.
 

@@ -89,28 +89,28 @@ pnpm dev
 
 ```typescript
 // 方式 1: 从统一入口导入（推荐）
-import { 
-  useDashboardStore, 
-  usePermissionStore, 
+import {
+  useDashboardStore,
+  usePermissionStore,
   useUIStore,
   useWalletStore,
   usePreferencesStore,
-  useFilterStore 
-} from '@/stores';
+  useFilterStore,
+} from '@/stores'
 
 // 方式 2: 从具体 store 导入
-import { useDashboardStore } from '@/stores/dashboardStore';
+import { useDashboardStore } from '@/stores/dashboardStore'
 ```
 
 ### 1.3 Dashboard Store 使用
 
 ```typescript
-import { 
+import {
   useDashboardStore,
   useMembers,
   useIssues,
   useActivities,
-  refreshDashboardData 
+  refreshDashboardData
 } from '@/stores';
 
 function DashboardPage() {
@@ -133,9 +133,9 @@ function DashboardPage() {
       <h1>Dashboard</h1>
       {loading && <div>Loading...</div>}
       {error && <div>Error: {error}</div>}
-      
+
       <button onClick={handleRefresh}>Refresh</button>
-      
+
       {members.map(member => (
         <div key={member.id}>{member.name}</div>
       ))}
@@ -219,7 +219,7 @@ function WalletPage() {
           <p>余额: {wallet.balance}</p>
         </div>
       ))}
-      
+
       <h3>交易记录</h3>
       {transactions.map(tx => (
         <div key={tx.id}>
@@ -264,7 +264,7 @@ function AdminPanel() {
 }
 
 function TaskButton() {
-  const hasPermission = usePermissionStore(state => 
+  const hasPermission = usePermissionStore(state =>
     state.hasPermission('task:create')
   );
 
@@ -283,7 +283,7 @@ function MyComponent() {
   const { hasPermission, isAdmin, loading } = usePermissions();
 
   if (loading) return <div>Loading...</div>;
-  
+
   if (!hasPermission('content:read')) {
     return <div>Access denied</div>;
   }
@@ -315,44 +315,41 @@ function MyPage() {
 ### 2.5 权限检查函数
 
 ```typescript
-import {
-  usePermissionStore,
-  usePermissionHelpers
-} from '@/stores';
+import { usePermissionStore, usePermissionHelpers } from '@/stores'
 
 function PermissionCheck() {
-  const helpers = usePermissionHelpers();
+  const helpers = usePermissionHelpers()
 
   // 检查单个权限
   if (helpers.hasPermission('task:create')) {
-    console.log('Can create tasks');
+    console.log('Can create tasks')
   }
 
   // 检查任意权限
   if (helpers.hasAnyPermission(['task:create', 'task:update'])) {
-    console.log('Can create or update tasks');
+    console.log('Can create or update tasks')
   }
 
   // 检查所有权限
   if (helpers.hasAllPermissions(['task:create', 'task:read'])) {
-    console.log('Full task access');
+    console.log('Full task access')
   }
 
   // 检查角色
   if (helpers.hasRole('admin')) {
-    console.log('Is admin');
+    console.log('Is admin')
   }
 
   // 便捷方法
   if (helpers.isAdmin()) {
-    console.log('Is admin');
+    console.log('Is admin')
   }
 
   if (helpers.isManagerOrAdmin()) {
-    console.log('Is manager or higher');
+    console.log('Is manager or higher')
   }
 
-  return null;
+  return null
 }
 ```
 
@@ -383,68 +380,68 @@ src/lib/
 ### 3.2 日志系统使用
 
 ```typescript
-import { logger } from '@/lib/logger';
+import { logger } from '@/lib/logger'
 
 // 不同级别的日志
-logger.debug('Debug message', { data: 'value' });
-logger.info('User logged in', { userId: '123' });
-logger.warn('Warning message', { issue: 'low memory' });
-logger.error('Error occurred', error);
+logger.debug('Debug message', { data: 'value' })
+logger.info('User logged in', { userId: '123' })
+logger.warn('Warning message', { issue: 'low memory' })
+logger.error('Error occurred', error)
 
 // 结构化日志
 logger.info('Task completed', {
   taskId: '123',
   duration: 5000,
   agentId: 'agent-1',
-});
+})
 ```
 
 ### 3.3 数据库使用
 
 ```typescript
-import { db } from '@/lib/db';
+import { db } from '@/lib/db'
 
 // 查询
-const users = db.prepare('SELECT * FROM users').all();
+const users = db.prepare('SELECT * FROM users').all()
 
 // 单条查询
-const user = db.prepare('SELECT * FROM users WHERE id = ?').get(userId);
+const user = db.prepare('SELECT * FROM users WHERE id = ?').get(userId)
 
 // 插入
-const result = db.prepare('INSERT INTO users (name, email) VALUES (?, ?)').run(name, email);
+const result = db.prepare('INSERT INTO users (name, email) VALUES (?, ?)').run(name, email)
 
 // 更新
-db.prepare('UPDATE users SET name = ? WHERE id = ?').run(newName, userId);
+db.prepare('UPDATE users SET name = ? WHERE id = ?').run(newName, userId)
 
 // 删除
-db.prepare('DELETE FROM users WHERE id = ?').run(userId);
+db.prepare('DELETE FROM users WHERE id = ?').run(userId)
 ```
 
 ### 3.4 缓存使用
 
 ```typescript
-import { apiCache } from '@/lib/cache';
+import { apiCache } from '@/lib/cache'
 
 // 设置缓存
-apiCache.set('user:123', userData);
+apiCache.set('user:123', userData)
 
 // 获取缓存
-const cached = apiCache.get('user:123');
+const cached = apiCache.get('user:123')
 if (cached) {
-  console.log('From cache:', cached);
+  console.log('From cache:', cached)
 }
 
 // 删除缓存
-apiCache.delete('user:123');
+apiCache.delete('user:123')
 
 // 清空缓存
-apiCache.clear();
+apiCache.clear()
 ```
 
 ### 3.5 搜索功能使用
 
 ```typescript
-import { searchService } from '@/lib/search';
+import { searchService } from '@/lib/search'
 
 // 全局搜索
 const results = await searchService.search({
@@ -454,42 +451,42 @@ const results = await searchService.search({
     status: 'active',
   },
   limit: 20,
-});
+})
 
 // 搜索建议
-const suggestions = await searchService.getSuggestions('keyword');
+const suggestions = await searchService.getSuggestions('keyword')
 
 // 获取搜索历史
-const history = await searchService.getSearchHistory();
+const history = await searchService.getSearchHistory()
 ```
 
 ### 3.6 WebSocket 通信
 
 ```typescript
-import { wsClient } from '@/lib/websocket';
+import { wsClient } from '@/lib/websocket'
 
 // 连接
-wsClient.connect();
+wsClient.connect()
 
 // 发送消息
-wsClient.send('chat', { text: 'Hello' });
+wsClient.send('chat', { text: 'Hello' })
 
 // 监听消息
-wsClient.on('message', (data) => {
-  console.log('Received:', data);
-});
+wsClient.on('message', data => {
+  console.log('Received:', data)
+})
 
 // 监听连接状态
 wsClient.on('connected', () => {
-  console.log('Connected');
-});
+  console.log('Connected')
+})
 
 wsClient.on('disconnected', () => {
-  console.log('Disconnected');
-});
+  console.log('Disconnected')
+})
 
 // 断开连接
-wsClient.disconnect();
+wsClient.disconnect()
 ```
 
 ---
@@ -507,7 +504,7 @@ Agent Learning System 提供以下功能：
 ### 4.2 任务时间预测
 
 ```typescript
-import { predictCompletionTime } from '@/lib/agents/learning';
+import { predictCompletionTime } from '@/lib/agents/learning'
 
 // 预测任务完成时间
 const features = {
@@ -519,28 +516,28 @@ const features = {
   historicalAvgTime: 5000,
   queueDepth: 0,
   agentLoad: 0.5,
-};
+}
 
-const prediction = predictCompletionTime(features, 'agent-1');
-console.log('Estimated time:', prediction.estimatedTime);
-console.log('Confidence:', prediction.confidence);
+const prediction = predictCompletionTime(features, 'agent-1')
+console.log('Estimated time:', prediction.estimatedTime)
+console.log('Confidence:', prediction.confidence)
 ```
 
 ### 4.3 Agent 能力评估
 
 ```typescript
-import { assessAgentCapability } from '@/lib/agents/learning';
+import { assessAgentCapability } from '@/lib/agents/learning'
 
 // 评估 Agent 能力
-const assessment = assessAgentCapability('agent-1');
-console.log('Overall score:', assessment.overallScore);
-console.log('Technical score:', assessment.dimensions.technical.score);
-console.log('Speed score:', assessment.dimensions.speed.score);
-console.log('Recommendations:', assessment.recommendations);
+const assessment = assessAgentCapability('agent-1')
+console.log('Overall score:', assessment.overallScore)
+console.log('Technical score:', assessment.dimensions.technical.score)
+console.log('Speed score:', assessment.dimensions.speed.score)
+console.log('Recommendations:', assessment.recommendations)
 
 // 获取趋势
-const trend = getCapabilityTrend('agent-1', 'text-generation');
-console.log('Trend:', trend); // 'improving' | 'stable' | 'declining'
+const trend = getCapabilityTrend('agent-1', 'text-generation')
+console.log('Trend:', trend) // 'improving' | 'stable' | 'declining'
 ```
 
 ### 4.4 学习数据持久化
@@ -549,12 +546,11 @@ console.log('Trend:', trend); // 'improving' | 'stable' | 'declining'
 import {
   initializeLearningPersistence,
   saveLearningData,
-  addTaskRecord
-} from '@/lib/agents/learning';
+  addTaskRecord,
+} from '@/lib/agents/learning'
 
 // 初始化学习系统
-const { persistence, timePredictor, capabilityAssessor } = 
-  await initializeLearningPersistence();
+const { persistence, timePredictor, capabilityAssessor } = await initializeLearningPersistence()
 
 // 添加任务记录
 await addTaskRecord({
@@ -569,37 +565,36 @@ await addTaskRecord({
   inputSize: 1000,
   priority: 'normal',
   agentLoadAtStart: 0.5,
-});
+})
 
 // 保存学习数据
-await saveLearningData();
+await saveLearningData()
 
 // 查询历史
-const history = persistence.getTaskHistory('agent-1', 'text-generation', 100);
+const history = persistence.getTaskHistory('agent-1', 'text-generation', 100)
 ```
 
 ### 4.5 与调度器集成
 
 ```typescript
-import { AgentScheduler } from '@/lib/agents/scheduler';
-import { initializeLearningPersistence } from '@/lib/agents/learning';
+import { AgentScheduler } from '@/lib/agents/scheduler'
+import { initializeLearningPersistence } from '@/lib/agents/learning'
 
 async function createSchedulerWithLearning() {
   // 初始化学习系统
-  const { persistence, timePredictor, capabilityAssessor } = 
-    await initializeLearningPersistence();
+  const { persistence, timePredictor, capabilityAssessor } = await initializeLearningPersistence()
 
   // 创建调度器
   const scheduler = new AgentScheduler({
     enableLearning: true,
     timePredictor,
     capabilityAssessor,
-  });
+  })
 
   // 启动
-  await scheduler.start();
+  await scheduler.start()
 
-  return scheduler;
+  return scheduler
 }
 ```
 
@@ -611,11 +606,11 @@ async function createSchedulerWithLearning() {
 
 项目支持多种部署方式：
 
-| 部署方式 | 适用场景 | 文档链接 |
-|---------|---------|---------|
-| **Docker** | 容器化部署、生产环境 | [DEPLOYMENT.md](../DEPLOYMENT.md) |
-| **Vercel** | Next.js 原生部署、快速部署 | [vercel.json 配置](../vercel.json) |
-| **GitHub Actions** | CI/CD 自动化部署 | [CI/CD 配置](../.github/workflows/) |
+| 部署方式           | 适用场景                   | 文档链接                            |
+| ------------------ | -------------------------- | ----------------------------------- |
+| **Docker**         | 容器化部署、生产环境       | [DEPLOYMENT.md](../DEPLOYMENT.md)   |
+| **Vercel**         | Next.js 原生部署、快速部署 | [vercel.json 配置](../vercel.json)  |
+| **GitHub Actions** | CI/CD 自动化部署           | [CI/CD 配置](../.github/workflows/) |
 
 ### 5.2 Docker 部署
 
@@ -644,14 +639,14 @@ services:
       context: .
       dockerfile: Dockerfile
     ports:
-      - "3000:3000"
+      - '3000:3000'
     environment:
       - NODE_ENV=production
       - NEXT_PUBLIC_GITHUB_OWNER=songzuo
       - NEXT_PUBLIC_GITHUB_REPO=7zi
     restart: unless-stopped
     healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:3000/api/health"]
+      test: ['CMD', 'curl', '-f', 'http://localhost:3000/api/health']
       interval: 30s
       timeout: 10s
       retries: 3
@@ -760,26 +755,26 @@ ENABLE_REACT_COMPILER=true pnpm build
 
 ```typescript
 // 使用 ISR 缓存
-export const revalidate = 3600; // 1小时
+export const revalidate = 3600 // 1小时
 
 // 使用 Server Actions 缓存 API
-import { updateTag } from '@/lib/cache/server-actions';
+import { updateTag } from '@/lib/cache/server-actions'
 
-await updateTag('dashboard-data');
+await updateTag('dashboard-data')
 ```
 
 #### 监控配置
 
 ```typescript
 // 启用性能监控
-import { performanceMonitor } from '@/lib/performance/monitor';
+import { performanceMonitor } from '@/lib/performance/monitor'
 
 performanceMonitor.recordMetric({
   operation: 'api-request',
   duration: 150,
   status: 'success',
-  timestamp: Date.now()
-});
+  timestamp: Date.now(),
+})
 ```
 
 ---
@@ -794,10 +789,10 @@ A: 使用选择器只订阅需要的字段：
 
 ```typescript
 // ✅ 好 - 只订阅需要的字段
-const user = useAuthStore(state => state.user);
+const user = useAuthStore(state => state.user)
 
 // ❌ 不好 - 订阅整个 store
-const { user, token, permissions } = useAuthStore();
+const { user, token, permissions } = useAuthStore()
 ```
 
 **Q: 如何在组件外部更新状态？**
@@ -805,11 +800,11 @@ const { user, token, permissions } = useAuthStore();
 A: 使用 store 的 getState 方法：
 
 ```typescript
-import { useAuthStore } from '@/stores';
+import { useAuthStore } from '@/stores'
 
 // 在组件外部
-const authStore = useAuthStore.getState();
-authStore.setUser(userData);
+const authStore = useAuthStore.getState()
+authStore.setUser(userData)
 ```
 
 ### 6.2 权限系统
@@ -823,7 +818,7 @@ A: 可以逐步迁移。旧的 `usePermissions()` hook 仍然可用，内部已�
 A: 使用 Zustand store 的测试工具：
 
 ```typescript
-import { usePermissionStore } from '@/stores';
+import { usePermissionStore } from '@/stores'
 
 describe('Permission Check', () => {
   it('should check admin permission', () => {
@@ -831,13 +826,13 @@ describe('Permission Check', () => {
     usePermissionStore.getState().initializeFromAuthData({
       user: { id: '1', roles: ['admin'] },
       permissions: ['all'],
-    });
+    })
 
     // 测试
-    const isAdmin = usePermissionStore.getState().isAdmin();
-    expect(isAdmin).toBe(true);
-  });
-});
+    const isAdmin = usePermissionStore.getState().isAdmin()
+    expect(isAdmin).toBe(true)
+  })
+})
 ```
 
 ### 6.3 lib/ 工具
@@ -872,7 +867,7 @@ A: 修改 docker-compose.yml 中的端口映射：
 services:
   app:
     ports:
-      - "3001:3000"  # 修改为其他端口
+      - '3001:3000' # 修改为其他端口
 ```
 
 **Q: Vercel 部署时环境变量不生效？**
@@ -893,15 +888,15 @@ REACT_COMPILER_MODE=opt-out
 A: 集成性能监控系统：
 
 ```typescript
-import { performanceMonitor } from '@/lib/performance/monitor';
+import { performanceMonitor } from '@/lib/performance/monitor'
 
 // 配置 Sentry（可选）
-import * as Sentry from '@sentry/nextjs';
+import * as Sentry from '@sentry/nextjs'
 
 Sentry.init({
   dsn: process.env.NEXT_PUBLIC_SENTRY_DSN,
-  environment: process.env.NODE_ENV
-});
+  environment: process.env.NODE_ENV,
+})
 ```
 
 ### 6.6 开发调试
@@ -969,7 +964,8 @@ pnpm type-check
 
 ---
 
-**需要帮助？** 
+**需要帮助？**
+
 - 📧 邮件: support@7zi.com
 - 🐛 提交 Issue: https://github.com/songzuo/7zi/issues
 - 💬 GitHub Discussions: https://github.com/songzuo/7zi/discussions

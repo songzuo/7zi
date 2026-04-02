@@ -9,6 +9,7 @@
 ## 高优先级
 
 ### 1. [performance-optimization.ts] CSS 清理工具实现
+
 - **位置**: `src/lib/performance-optimization.ts:98`
 - **类型**: TODO
 - **难度**: 中等
@@ -24,6 +25,7 @@
 ## 中优先级
 
 ### 2. [api.test.ts] 测试框架替换
+
 - **位置**: `src/app/api/analytics/__tests__/api.test.ts:7`
 - **类型**: TODO
 - **难度**: 简单
@@ -37,6 +39,7 @@
 ---
 
 ### 3. [RealtimeTeamEfficiency.tsx] 计算趋势数据
+
 - **位置**: `src/components/analytics/RealtimeTeamEfficiency.tsx:220`
 - **类型**: TODO
 - **难度**: 中等
@@ -51,6 +54,7 @@
 ---
 
 ### 4. [MeetingRoom.tsx] Toast 错误提示实现
+
 - **位置**: `src/components/meeting/MeetingRoom.tsx:412`
 - **类型**: TODO
 - **难度**: 简单
@@ -65,25 +69,25 @@
 
 ## 统计信息
 
-| 类型 | 数量 |
-|------|------|
-| TODO | 4 |
-| FIXME | 0 |
-| XXX | 0 |
-| HACK | 0 |
+| 类型     | 数量  |
+| -------- | ----- |
+| TODO     | 4     |
+| FIXME    | 0     |
+| XXX      | 0     |
+| HACK     | 0     |
 | **总计** | **4** |
 
 | 优先级 | 数量 |
-|--------|------|
-| 高 | 1 |
-| 中 | 3 |
-| 低 | 0 |
+| ------ | ---- |
+| 高     | 1    |
+| 中     | 3    |
+| 低     | 0    |
 
 | 难度 | 数量 |
-|------|------|
-| 简单 | 2 |
-| 中等 | 2 |
-| 复杂 | 0 |
+| ---- | ---- |
+| 简单 | 2    |
+| 中等 | 2    |
+| 复杂 | 0    |
 
 ---
 

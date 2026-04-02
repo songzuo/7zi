@@ -10,17 +10,17 @@
 // ============================================================================
 
 export interface SanitizationConfig {
-  maskChar?: string;
-  maskLength?: number;
-  preservePrefixLength?: number;
-  preserveSuffixLength?: number;
-  redactedText?: string;
+  maskChar?: string
+  maskLength?: number
+  preservePrefixLength?: number
+  preserveSuffixLength?: number
+  redactedText?: string
 }
 
 export interface SensitiveField {
-  pattern: RegExp;
-  type: 'email' | 'phone' | 'ssn' | 'credit-card' | 'api-key' | 'password' | 'token' | 'custom';
-  maskType?: 'full' | 'partial' | 'hash';
+  pattern: RegExp
+  type: 'email' | 'phone' | 'ssn' | 'credit-card' | 'api-key' | 'password' | 'token' | 'custom'
+  maskType?: 'full' | 'partial' | 'hash'
 }
 
 // ============================================================================
@@ -33,7 +33,7 @@ const DEFAULT_CONFIG: Required<SanitizationConfig> = {
   preservePrefixLength: 2,
   preserveSuffixLength: 2,
   redactedText: '[REDACTED]',
-};
+}
 
 /**
  * Default sensitive field patterns
@@ -124,7 +124,7 @@ const SENSITIVE_PATTERNS: SensitiveField[] = [
     type: 'password',
     maskType: 'full',
   },
-];
+]
 
 /**
  * Regex patterns for detecting sensitive values
@@ -160,7 +160,7 @@ const VALUE_PATTERNS = [
     pattern: /\b[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}\b/gi,
     type: 'token' as const,
   },
-];
+]
 
 // ============================================================================
 // Masking Functions
@@ -173,26 +173,23 @@ const VALUE_PATTERNS = [
  * @param config - Masking configuration
  * @returns Masked value
  */
-export function maskValue(
-  value: string,
-  config: SanitizationConfig = {}
-): string {
-  const finalConfig = { ...DEFAULT_CONFIG, ...config };
+export function maskValue(value: string, config: SanitizationConfig = {}): string {
+  const finalConfig = { ...DEFAULT_CONFIG, ...config }
 
   if (!value || value.length === 0) {
-    return value;
+    return value
   }
 
   // Full mask
   if (value.length <= finalConfig.preservePrefixLength + finalConfig.preserveSuffixLength) {
-    return finalConfig.maskChar.repeat(finalConfig.maskLength);
+    return finalConfig.maskChar.repeat(finalConfig.maskLength)
   }
 
   // Partial mask
-  const prefix = value.substring(0, finalConfig.preservePrefixLength);
-  const suffix = value.substring(value.length - finalConfig.preserveSuffixLength);
+  const prefix = value.substring(0, finalConfig.preservePrefixLength)
+  const suffix = value.substring(value.length - finalConfig.preserveSuffixLength)
 
-  return `${prefix}${finalConfig.maskChar.repeat(finalConfig.maskLength)}${suffix}`;
+  return `${prefix}${finalConfig.maskChar.repeat(finalConfig.maskLength)}${suffix}`
 }
 
 /**
@@ -202,23 +199,23 @@ export function maskValue(
  * @param config - Masking configuration
  * @returns Masked email
  */
-export function maskEmail(
-  email: string,
-  config: SanitizationConfig = {}
-): string {
-  const finalConfig = { ...DEFAULT_CONFIG, ...config };
+export function maskEmail(email: string, config: SanitizationConfig = {}): string {
+  const finalConfig = { ...DEFAULT_CONFIG, ...config }
 
   if (!email || !email.includes('@')) {
-    return maskValue(email, config);
+    return maskValue(email, config)
   }
 
-  const [localPart, domain] = email.split('@');
+  const [localPart, domain] = email.split('@')
 
-  const maskedLocal = localPart.length > 2
-    ? localPart.charAt(0) + finalConfig.maskChar.repeat(3) + localPart.charAt(localPart.length - 1)
-    : finalConfig.maskChar.repeat(4);
+  const maskedLocal =
+    localPart.length > 2
+      ? localPart.charAt(0) +
+        finalConfig.maskChar.repeat(3) +
+        localPart.charAt(localPart.length - 1)
+      : finalConfig.maskChar.repeat(4)
 
-  return `${maskedLocal}@${domain}`;
+  return `${maskedLocal}@${domain}`
 }
 
 /**
@@ -228,23 +225,20 @@ export function maskEmail(
  * @param config - Masking configuration
  * @returns Masked phone
  */
-export function maskPhone(
-  phone: string,
-  config: SanitizationConfig = {}
-): string {
-  const finalConfig = { ...DEFAULT_CONFIG, ...config };
+export function maskPhone(phone: string, config: SanitizationConfig = {}): string {
+  const finalConfig = { ...DEFAULT_CONFIG, ...config }
 
-  const digits = phone.replace(/\D/g, '');
+  const digits = phone.replace(/\D/g, '')
 
   if (digits.length < 7) {
-    return finalConfig.maskChar.repeat(finalConfig.maskLength);
+    return finalConfig.maskChar.repeat(finalConfig.maskLength)
   }
 
   // Keep last 4 digits
-  const lastFour = digits.slice(-4);
-  const masked = finalConfig.maskChar.repeat(Math.min(6, digits.length - 4));
+  const lastFour = digits.slice(-4)
+  const masked = finalConfig.maskChar.repeat(Math.min(6, digits.length - 4))
 
-  return `${masked}-${lastFour}`;
+  return `${masked}-${lastFour}`
 }
 
 /**
@@ -254,22 +248,19 @@ export function maskPhone(
  * @param config - Masking configuration
  * @returns Masked card
  */
-export function maskCreditCard(
-  card: string,
-  config: SanitizationConfig = {}
-): string {
-  const digits = card.replace(/\D/g, '');
+export function maskCreditCard(card: string, config: SanitizationConfig = {}): string {
+  const digits = card.replace(/\D/g, '')
 
   if (digits.length < 4) {
-    return DEFAULT_CONFIG.maskChar.repeat(DEFAULT_CONFIG.maskLength);
+    return DEFAULT_CONFIG.maskChar.repeat(DEFAULT_CONFIG.maskLength)
   }
 
   // Keep first 4 and last 4 digits
-  const firstFour = digits.slice(0, 4);
-  const lastFour = digits.slice(-4);
-  const masked = DEFAULT_CONFIG.maskChar.repeat(digits.length - 8);
+  const firstFour = digits.slice(0, 4)
+  const lastFour = digits.slice(-4)
+  const masked = DEFAULT_CONFIG.maskChar.repeat(digits.length - 8)
 
-  return `${firstFour}${masked}${lastFour}`;
+  return `${firstFour}${masked}${lastFour}`
 }
 
 /**
@@ -279,7 +270,7 @@ export function maskCreditCard(
  * @returns Redacted text
  */
 export function redactValue(config: SanitizationConfig = {}): string {
-  return config.redactedText || DEFAULT_CONFIG.redactedText;
+  return config.redactedText || DEFAULT_CONFIG.redactedText
 }
 
 // ============================================================================
@@ -293,15 +284,15 @@ export function redactValue(config: SanitizationConfig = {}): string {
  * @returns Sensitive field info or undefined
  */
 export function isSensitiveField(fieldName: string): SensitiveField | undefined {
-  const lowerName = fieldName.toLowerCase();
+  const lowerName = fieldName.toLowerCase()
 
   for (const field of SENSITIVE_PATTERNS) {
     if (field.pattern.test(fieldName) || field.pattern.test(lowerName)) {
-      return field;
+      return field
     }
   }
 
-  return undefined;
+  return undefined
 }
 
 /**
@@ -318,42 +309,42 @@ export function sanitizeValue(
   config: SanitizationConfig = {}
 ): unknown {
   if (value === null || value === undefined) {
-    return value;
+    return value
   }
 
-  const sensitiveField = isSensitiveField(fieldName);
+  const sensitiveField = isSensitiveField(fieldName)
 
   if (!sensitiveField) {
     // Check if value matches sensitive patterns
     if (typeof value === 'string') {
-      return sanitizeStringValue(value, config);
+      return sanitizeStringValue(value, config)
     }
-    return value;
+    return value
   }
 
-  const stringValue = typeof value === 'string' ? value : JSON.stringify(value);
+  const stringValue = typeof value === 'string' ? value : JSON.stringify(value)
 
   switch (sensitiveField.maskType) {
     case 'full':
-      return redactValue(config);
+      return redactValue(config)
 
     case 'partial':
       switch (sensitiveField.type) {
         case 'email':
-          return maskEmail(stringValue, config);
+          return maskEmail(stringValue, config)
         case 'phone':
-          return maskPhone(stringValue, config);
+          return maskPhone(stringValue, config)
         case 'credit-card':
-          return maskCreditCard(stringValue, config);
+          return maskCreditCard(stringValue, config)
         default:
-          return maskValue(stringValue, config);
+          return maskValue(stringValue, config)
       }
 
     case 'hash':
-      return `[HASH:${stringValue.length} chars]`;
+      return `[HASH:${stringValue.length} chars]`
 
     default:
-      return maskValue(stringValue, config);
+      return maskValue(stringValue, config)
   }
 }
 
@@ -364,28 +355,25 @@ export function sanitizeValue(
  * @param config - Sanitization configuration
  * @returns Sanitized string
  */
-export function sanitizeStringValue(
-  value: string,
-  config: SanitizationConfig = {}
-): string {
-  let sanitized = value;
+export function sanitizeStringValue(value: string, config: SanitizationConfig = {}): string {
+  let sanitized = value
 
   for (const { pattern, type } of VALUE_PATTERNS) {
-    sanitized = sanitized.replace(pattern, (match) => {
+    sanitized = sanitized.replace(pattern, match => {
       switch (type) {
         case 'email':
-          return maskEmail(match, config);
+          return maskEmail(match, config)
         case 'credit-card':
-          return maskCreditCard(match, config);
+          return maskCreditCard(match, config)
         case 'phone':
-          return maskPhone(match, config);
+          return maskPhone(match, config)
         default:
-          return maskValue(match, config);
+          return maskValue(match, config)
       }
-    });
+    })
   }
 
-  return sanitized;
+  return sanitized
 }
 
 /**
@@ -403,32 +391,32 @@ export function sanitizeObject(
 ): unknown {
   // Prevent deep recursion
   if (depth > 10) {
-    return '[MAX_DEPTH_EXCEEDED]';
+    return '[MAX_DEPTH_EXCEEDED]'
   }
 
   if (obj === null || obj === undefined) {
-    return obj;
+    return obj
   }
 
   if (typeof obj === 'string') {
-    return sanitizeStringValue(obj, config);
+    return sanitizeStringValue(obj, config)
   }
 
   if (typeof obj !== 'object') {
-    return obj;
+    return obj
   }
 
   if (Array.isArray(obj)) {
-    return obj.map((item) => sanitizeObject(item, config, depth + 1));
+    return obj.map(item => sanitizeObject(item, config, depth + 1))
   }
 
-  const sanitized: Record<string, unknown> = {};
+  const sanitized: Record<string, unknown> = {}
 
   for (const [key, value] of Object.entries(obj)) {
-    sanitized[key] = sanitizeValue(key, sanitizeObject(value, config, depth + 1), config);
+    sanitized[key] = sanitizeValue(key, sanitizeObject(value, config, depth + 1), config)
   }
 
-  return sanitized;
+  return sanitized
 }
 
 /**
@@ -442,7 +430,7 @@ export function sanitizeLogEntry(
   entry: Record<string, unknown>,
   config: SanitizationConfig = {}
 ): Record<string, unknown> {
-  return sanitizeObject(entry, config) as Record<string, unknown>;
+  return sanitizeObject(entry, config) as Record<string, unknown>
 }
 
 /**
@@ -456,22 +444,22 @@ export function sanitizeHeaders(
   headers: Headers | Record<string, string>,
   config: SanitizationConfig = {}
 ): Record<string, string> {
-  const sanitized: Record<string, string> = {};
+  const sanitized: Record<string, string> = {}
 
   const iterateHeaders = (callback: (key: string, value: string) => void) => {
     if (headers instanceof Headers) {
-      headers.forEach((value, key) => callback(key, value));
+      headers.forEach((value, key) => callback(key, value))
     } else {
-      Object.entries(headers).forEach(([key, value]) => callback(key, value));
+      Object.entries(headers).forEach(([key, value]) => callback(key, value))
     }
-  };
+  }
 
   iterateHeaders((key, value) => {
-    const sanitizedValue = sanitizeValue(key, value, config);
-    sanitized[key] = typeof sanitizedValue === 'string' ? sanitizedValue : String(sanitizedValue);
-  });
+    const sanitizedValue = sanitizeValue(key, value, config)
+    sanitized[key] = typeof sanitizedValue === 'string' ? sanitizedValue : String(sanitizedValue)
+  })
 
-  return sanitized;
+  return sanitized
 }
 
 /**
@@ -481,24 +469,28 @@ export function sanitizeHeaders(
  * @param config - Sanitization configuration
  * @returns Sanitized URL
  */
-export function sanitizeURL(
-  url: string,
-  config: SanitizationConfig = {}
-): string {
+export function sanitizeURL(url: string, config: SanitizationConfig = {}): string {
   try {
-    const parsedUrl = new URL(url);
+    const parsedUrl = new URL(url)
 
     // Sanitize query parameters
-    const searchParams = new URLSearchParams();
+    const searchParams = new URLSearchParams()
     parsedUrl.searchParams.forEach((value, key) => {
-      const sanitizedValue = sanitizeValue(key, value, config);
-      searchParams.set(key, typeof sanitizedValue === 'string' ? sanitizedValue : String(sanitizedValue));
-    });
+      const sanitizedValue = sanitizeValue(key, value, config)
+      searchParams.set(
+        key,
+        typeof sanitizedValue === 'string' ? sanitizedValue : String(sanitizedValue)
+      )
+    })
 
-    return parsedUrl.origin + parsedUrl.pathname + (searchParams.toString() ? `?${searchParams.toString()}` : '');
-  } catch {
+    return (
+      parsedUrl.origin +
+      parsedUrl.pathname +
+      (searchParams.toString() ? `?${searchParams.toString()}` : '')
+    )
+  } catch (error) {
     // Invalid URL, return sanitized string
-    return sanitizeStringValue(url, config);
+    return sanitizeStringValue(url, config)
   }
 }
 
@@ -518,10 +510,10 @@ export function sanitizeError(
       name: error.name,
       message: sanitizeStringValue(error.message, config),
       stack: error.stack ? sanitizeStringValue(error.stack, config) : undefined,
-    };
+    }
   }
 
-  return sanitizeObject(error, config) as Record<string, unknown>;
+  return sanitizeObject(error, config) as Record<string, unknown>
 }
 
 // ============================================================================
@@ -534,7 +526,7 @@ export function sanitizeError(
  * @param pattern - Pattern to add
  */
 export function addSensitivePattern(field: SensitiveField): void {
-  SENSITIVE_PATTERNS.push(field);
+  SENSITIVE_PATTERNS.push(field)
 }
 
 /**
@@ -543,15 +535,18 @@ export function addSensitivePattern(field: SensitiveField): void {
  * @param pattern - Pattern to add
  * @param type - Pattern type
  */
-export function addValuePattern(pattern: RegExp, type: typeof VALUE_PATTERNS[number]['type']): void {
-  VALUE_PATTERNS.push({ pattern, type });
+export function addValuePattern(
+  pattern: RegExp,
+  type: (typeof VALUE_PATTERNS)[number]['type']
+): void {
+  VALUE_PATTERNS.push({ pattern, type })
 }
 
 /**
  * Reset patterns to defaults (for testing)
  */
 export function resetPatterns(): void {
-  SENSITIVE_PATTERNS.length = 0;
+  SENSITIVE_PATTERNS.length = 0
   SENSITIVE_PATTERNS.push(
     ...[
       {
@@ -575,5 +570,5 @@ export function resetPatterns(): void {
         maskType: 'partial' as const,
       },
     ]
-  );
+  )
 }

@@ -15,26 +15,26 @@
  * );
  */
 
-import { logger } from '../logger';
+import { logger } from '../logger'
 
 /**
  * Retry configuration options
  */
 export interface RetryConfig {
   /** Maximum number of retry attempts (default: 3) */
-  maxRetries?: number;
+  maxRetries?: number
   /** Initial delay in milliseconds (default: 1000) */
-  initialDelay?: number;
+  initialDelay?: number
   /** Maximum delay in milliseconds (default: 10000) */
-  maxDelay?: number;
+  maxDelay?: number
   /** Backoff multiplier (default: 2) */
-  backoffMultiplier?: number;
+  backoffMultiplier?: number
   /** Error codes/statuses that should trigger retry (default: [503, 502, 504, 'ECONNRESET', 'ETIMEDOUT']) */
-  retryableErrors?: (number | string)[];
+  retryableErrors?: (number | string)[]
   /** Custom function to determine if an error should be retried */
-  shouldRetry?: (error: Error, attempt: number) => boolean;
+  shouldRetry?: (error: Error, attempt: number) => boolean
   /** Add jitter to prevent thundering herd (default: true) */
-  jitter?: boolean;
+  jitter?: boolean
 }
 
 /**
@@ -48,7 +48,7 @@ const DEFAULT_RETRY_CONFIG: Required<RetryConfig> = {
   retryableErrors: [503, 502, 504, 429, 'ECONNRESET', 'ETIMEDOUT', 'ENOTFOUND', 'EAI_AGAIN'],
   shouldRetry: () => true,
   jitter: true,
-};
+}
 
 /**
  * Calculate delay with exponential backoff and optional jitter
@@ -58,17 +58,17 @@ const DEFAULT_RETRY_CONFIG: Required<RetryConfig> = {
  * @returns Delay in milliseconds
  */
 function calculateDelay(attempt: number, config: Required<RetryConfig>): number {
-  const baseDelay = config.initialDelay * Math.pow(config.backoffMultiplier, attempt);
-  const delay = Math.min(baseDelay, config.maxDelay);
+  const baseDelay = config.initialDelay * Math.pow(config.backoffMultiplier, attempt)
+  const delay = Math.min(baseDelay, config.maxDelay)
 
   // Add jitter to prevent thundering herd
   if (config.jitter) {
-    const jitterAmount = delay * 0.1; // 10% jitter
-    const jitter = (Math.random() - 0.5) * 2 * jitterAmount;
-    return Math.max(0, Math.round(delay + jitter));
+    const jitterAmount = delay * 0.1 // 10% jitter
+    const jitter = (Math.random() - 0.5) * 2 * jitterAmount
+    return Math.max(0, Math.round(delay + jitter))
   }
 
-  return Math.round(delay);
+  return Math.round(delay)
 }
 
 /**
@@ -82,17 +82,17 @@ function calculateDelay(attempt: number, config: Required<RetryConfig>): number 
 function isRetryable(error: Error, config: Required<RetryConfig>, attempt: number): boolean {
   // Check custom retry condition first
   if (!config.shouldRetry(error, attempt)) {
-    return false;
+    return false
   }
 
   // Check if error matches retryable error codes
-  const errorMessage = error.message.toLowerCase();
-  const errorStack = error.stack?.toLowerCase() || '';
+  const errorMessage = error.message.toLowerCase()
+  const errorStack = error.stack?.toLowerCase() || ''
 
   return config.retryableErrors.some(code => {
-    const codeStr = String(code).toLowerCase();
-    return errorMessage.includes(codeStr) || errorStack.includes(codeStr);
-  });
+    const codeStr = String(code).toLowerCase()
+    return errorMessage.includes(codeStr) || errorStack.includes(codeStr)
+  })
 }
 
 /**
@@ -108,14 +108,17 @@ function enrichErrorWithRetryInfo(
   totalAttempts: number,
   config: Required<RetryConfig>
 ): Error & { __retryAttempts?: number; __retryConfig?: Partial<RetryConfig> } {
-  const enrichedError = error as Error & { __retryAttempts?: number; __retryConfig?: Partial<RetryConfig> };
-  enrichedError.__retryAttempts = totalAttempts;
+  const enrichedError = error as Error & {
+    __retryAttempts?: number
+    __retryConfig?: Partial<RetryConfig>
+  }
+  enrichedError.__retryAttempts = totalAttempts
   enrichedError.__retryConfig = {
     maxRetries: config.maxRetries,
     initialDelay: config.initialDelay,
     backoffMultiplier: config.backoffMultiplier,
-  };
-  return enrichedError;
+  }
+  return enrichedError
 }
 
 /**
@@ -158,16 +161,16 @@ export function withRetry<T extends (...args: unknown[]) => Promise<unknown>>(
   fn: T,
   config: RetryConfig = {}
 ): T {
-  const options = { ...DEFAULT_RETRY_CONFIG, ...config };
+  const options = { ...DEFAULT_RETRY_CONFIG, ...config }
 
   return (async (...args: Parameters<T>) => {
-    let lastError: Error | undefined;
-    let attempt = 0;
+    let lastError: Error | undefined
+    let attempt = 0
 
     while (attempt <= options.maxRetries) {
       try {
         // Execute the function
-        const result = await fn(...args);
+        const result = await fn(...args)
 
         // Log successful retry if this was a retry attempt
         if (attempt > 0) {
@@ -175,12 +178,12 @@ export function withRetry<T extends (...args: unknown[]) => Promise<unknown>>(
             function: fn.name || 'anonymous',
             attempts: attempt + 1,
             totalDelay: calculateTotalDelay(attempt, options),
-          });
+          })
         }
 
-        return result;
-      } catch (_error) {
-        lastError = error instanceof Error ? error : new Error(String(error));
+        return result
+      } catch (error) {
+        lastError = error instanceof Error ? error : new Error(String(error))
 
         // Check if we should retry
         if (!isRetryable(lastError, options, attempt)) {
@@ -188,8 +191,8 @@ export function withRetry<T extends (...args: unknown[]) => Promise<unknown>>(
             function: fn.name || 'anonymous',
             attempt: attempt + 1,
             error: lastError.message,
-          });
-          break;
+          })
+          break
         }
 
         // Check if we've reached max retries
@@ -198,28 +201,28 @@ export function withRetry<T extends (...args: unknown[]) => Promise<unknown>>(
             function: fn.name || 'anonymous',
             maxRetries: options.maxRetries,
             finalError: lastError.message,
-          });
-          break;
+          })
+          break
         }
 
         // Calculate delay and wait
-        const delay = calculateDelay(attempt, options);
+        const delay = calculateDelay(attempt, options)
 
         logger.warn(`Retry attempt ${attempt + 1}/${options.maxRetries + 1}`, {
           function: fn.name || 'anonymous',
           error: lastError.message,
           delayMs: delay,
-        });
+        })
 
-        await new Promise(resolve => setTimeout(resolve, delay));
+        await new Promise(resolve => setTimeout(resolve, delay))
 
-        attempt++;
+        attempt++
       }
     }
 
     // Enrich error with retry information before throwing
-    throw enrichErrorWithRetryInfo(lastError!, attempt, options);
-  }) as T;
+    throw enrichErrorWithRetryInfo(lastError!, attempt, options)
+  }) as T
 }
 
 /**
@@ -230,11 +233,11 @@ export function withRetry<T extends (...args: unknown[]) => Promise<unknown>>(
  * @returns Total delay in milliseconds
  */
 function calculateTotalDelay(attempts: number, config: Required<RetryConfig>): number {
-  let total = 0;
+  let total = 0
   for (let i = 0; i < attempts; i++) {
-    total += calculateDelay(i, config);
+    total += calculateDelay(i, config)
   }
-  return total;
+  return total
 }
 
 /**
@@ -273,7 +276,7 @@ export const RetryPresets = {
   once: {
     maxRetries: 0,
   } as RetryConfig,
-};
+}
 
 /**
  * Extract retry information from an error
@@ -285,13 +288,16 @@ export function getRetryInfo(
   error: Error | unknown
 ): { attempts: number; config: Partial<RetryConfig> } | null {
   if (error instanceof Error) {
-    const enriched = error as Error & { __retryAttempts?: number; __retryConfig?: Partial<RetryConfig> };
+    const enriched = error as Error & {
+      __retryAttempts?: number
+      __retryConfig?: Partial<RetryConfig>
+    }
     if (enriched.__retryAttempts !== undefined) {
       return {
         attempts: enriched.__retryAttempts,
         config: enriched.__retryConfig || {},
-      };
+      }
     }
   }
-  return null;
+  return null
 }

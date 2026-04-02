@@ -12,13 +12,13 @@
 
 ### 关键发现
 
-| 类别 | 严重程度 | 数量 |
-|------|----------|------|
-| 循环依赖风险 | 高 | 2 |
-| 未使用的导入 | 中 | 4 |
-| 类型安全问题 | 中 | 3 |
-| 性能瓶颈 | 中 | 5 |
-| 代码重复 | 低 | 2 |
+| 类别         | 严重程度 | 数量 |
+| ------------ | -------- | ---- |
+| 循环依赖风险 | 高       | 2    |
+| 未使用的导入 | 中       | 4    |
+| 类型安全问题 | 中       | 3    |
+| 性能瓶颈     | 中       | 5    |
+| 代码重复     | 低       | 2    |
 
 ---
 
@@ -31,6 +31,7 @@
 **实际情况**: 查询构建器位于 `src/lib/db/query-builder.ts` 文件中。
 
 **建议**:
+
 - 如需模块化，考虑将 `query-builder.ts` 重构为目录结构
 - 或更新文档以反映实际文件结构
 
@@ -43,18 +44,21 @@
 **位置**: `src/lib/data-import-export.ts`
 
 **问题**:
+
 ```typescript
-import { getDatabaseAsync } from './db';
-import { logger } from './logger';
-import { memoize } from './utils/async';
+import { getDatabaseAsync } from './db'
+import { logger } from './logger'
+import { memoize } from './utils/async'
 ```
 
 **分析**:
+
 - 文件导入了 `./db`，但没有指定具体文件
 - 这可能导致模块解析时的歧义
 - 需要确认 `./db/index.ts` 是否导入了 `data-import-export.ts`
 
 **建议**:
+
 1. 明确导入路径：`import { getDatabaseAsync } from './db/index'`
 2. 检查 `src/lib/db/index.ts` 是否有循环导入
 3. 考虑将数据库相关功能移至 `src/lib/db/` 目录下
@@ -75,11 +79,13 @@ const { onCLS, onFID, onFCP, onLCP, onTTFB } = await import('web-vitals');
 ```
 
 **分析**:
+
 - 两个模块功能重叠，可能导致维护困难
 - 可能存在循环依赖风险（如果一个模块引用另一个）
 - 重复的动态导入可能导致性能问题
 
 **建议**:
+
 1. 合并这两个模块为一个统一的性能监控系统
 2. 将 `web-vitals` 库的导入提升到文件顶部（使用静态导入）
 3. 明确模块边界和职责
@@ -93,14 +99,16 @@ const { onCLS, onFID, onFCP, onLCP, onTTFB } = await import('web-vitals');
 **位置**: `src/lib/data-import-export.ts:7`
 
 ```typescript
-import { memoize } from './utils/async';
+import { memoize } from './utils/async'
 ```
 
 **问题**:
+
 - 导入了 `memoize` 但在整个文件中未使用
 - 注释声称 `getTableSchema` 使用了 memoization，但实际代码中没有实现
 
 **建议**:
+
 - 移除未使用的导入，或
 - 实现 `getTableSchema` 的 memoization 以提高性能
 
@@ -112,14 +120,16 @@ import { memoize } from './utils/async';
 export {
   // Legacy export for backwards compatibility
   initWebVitalsMonitoring as initMonitoring,
-};
+}
 ```
 
 **问题**:
+
 - 声明了向后兼容的导出，但没有实际使用证据
 - 可能导致命名空间污染
 
 **建议**:
+
 - 如果确实需要，添加 JSDoc 注释说明用途
 - 考虑使用 `@deprecated` 标记
 - 如果无人使用，建议移除
@@ -129,14 +139,16 @@ export {
 **位置**: `src/lib/db/query-builder.ts:257`
 
 ```typescript
-return entry.stmt as { all: (...params: unknown[]) => unknown[] };
+return entry.stmt as { all: (...params: unknown[]) => unknown[] }
 ```
 
 **问题**:
+
 - 频繁的类型断言可能导致类型安全问题
 - 应该使用更好的类型定义或泛型
 
 **建议**:
+
 - 定义明确的接口类型
 - 减少类型断言的使用
 
@@ -158,22 +170,24 @@ for (const col of columns) {
 ```
 
 **问题**:
+
 - 直接从数据库查询结果进行类型断言
 - 没有运行时类型验证
 - 如果数据库返回的结构不符合预期，可能导致运行时错误
 
 **建议**:
+
 ```typescript
 interface PRAGMAColumnInfo {
-  name: string;
-  type: string;
-  notnull: number;
-  pk: number;
+  name: string
+  type: string
+  notnull: number
+  pk: number
 }
 
 // 然后使用
 for (const col of columns as PRAGMAColumnInfo[]) {
-  const { name, type, notnull, pk } = col;
+  const { name, type, notnull, pk } = col
   // ...
 }
 ```
@@ -183,18 +197,20 @@ for (const col of columns as PRAGMAColumnInfo[]) {
 **位置**: `src/lib/monitoring/web-vitals.ts:42`
 
 ```typescript
-declare const performance: Performance;
+declare const performance: Performance
 ```
 
 **问题**:
+
 - 简单的 `declare` 不能保证运行时安全性
 - 在 Node.js 环境中这些 API 不存在
 - 缺少运行时环境检查
 
 **建议**:
+
 ```typescript
 function isBrowser(): boolean {
-  return typeof window !== 'undefined' && typeof performance !== 'undefined';
+  return typeof window !== 'undefined' && typeof performance !== 'undefined'
 }
 
 // 使用时
@@ -210,25 +226,27 @@ if (isBrowser()) {
 ```typescript
 declare global {
   interface Window {
-    va?: (event: string, data: Record<string, unknown>) => void;
-    webkitAudioContext?: typeof AudioContext;
+    va?: (event: string, data: Record<string, unknown>) => void
+    webkitAudioContext?: typeof AudioContext
   }
 
   interface Performance {
     memory?: {
-      usedJSHeapSize: number;
-      totalJSHeapSize: number;
-      jsHeapSizeLimit: number;
-    };
+      usedJSHeapSize: number
+      totalJSHeapSize: number
+      jsHeapSizeLimit: number
+    }
   }
 }
 ```
 
 **问题**:
+
 - 在服务端代码中扩展 `Window` 接口（`query-builder.ts` 应该是服务端代码）
 - 这可能导致类型污染和混淆
 
 **建议**:
+
 - 将这些类型定义移到专门的 `src/types/global.d.ts` 文件
 - 或在客户端专用的类型文件中定义
 
@@ -242,28 +260,32 @@ declare global {
 
 ```typescript
 export const getTableSchema = async (tableName: string): Promise<Record<string, string>> => {
-  const db = await getDatabaseAsync();
+  const db = await getDatabaseAsync()
   const columns = db.queryRows(`
       PRAGMA table_info(${tableName})
-    `);
+    `)
   // ...
-};
+}
 ```
 
 **问题**:
+
 - 注释声称使用了 memoization，但实际没有实现
 - 每次调用都会执行数据库查询
 - 在导入大量数据时会被频繁调用
 
 **建议**:
-```typescript
-import { memoize } from './utils/async';
 
-export const getTableSchema = memoize(async (tableName: string): Promise<Record<string, string>> => {
-  const db = await getDatabaseAsync();
-  const columns = db.queryRows(`PRAGMA table_info(${tableName})`);
-  // ...
-});
+```typescript
+import { memoize } from './utils/async'
+
+export const getTableSchema = memoize(
+  async (tableName: string): Promise<Record<string, string>> => {
+    const db = await getDatabaseAsync()
+    const columns = db.queryRows(`PRAGMA table_info(${tableName})`)
+    // ...
+  }
+)
 ```
 
 ### 5.2 🟡 中优先级：`data-import-export.ts` 中的批量操作
@@ -271,14 +293,21 @@ export const getTableSchema = memoize(async (tableName: string): Promise<Record<
 **位置**: `src/lib/data-import-export.ts:424`
 
 ```typescript
-const batchSize = options.batchSize || 100;
+const batchSize = options.batchSize || 100
 for (let i = 0; i < rows.length; i += batchSize) {
-  const batch = rows.slice(i, i + batchSize);
+  const batch = rows.slice(i, i + batchSize)
 
   for (const row of batch) {
     try {
       if (!options.dryRun) {
-        await importRow(db, table, row as Record<string, unknown>, options.mode, primaryKey, options.skipDuplicates);
+        await importRow(
+          db,
+          table,
+          row as Record<string, unknown>,
+          options.mode,
+          primaryKey,
+          options.skipDuplicates
+        )
       }
       // ...
     } catch (error) {
@@ -289,11 +318,13 @@ for (let i = 0; i < rows.length; i += batchSize) {
 ```
 
 **问题**:
+
 - 使用了 `await` 在循环中，导致串行处理
 - 批量操作没有真正批量化
 - 每个行都单独执行一个数据库操作
 
 **建议**:
+
 1. 使用真正的批量插入/更新语句
 2. 或使用 Promise.all() 并行处理独立操作
 3. 考虑使用事务包裹批量操作
@@ -311,18 +342,22 @@ import('web-vitals').then(({ onLCP: onLCPWeb, ... }) => {
 ```
 
 **问题**:
+
 - 动态导入增加了代码分割和加载时间
 - `web-vitals` 应应该在构建时打包
 - 可能导致监控延迟启动
 
 **建议**:
+
 ```typescript
-import { onLCP, onFID, onCLS, onTTFB, onFCP, onINP } from 'web-vitals';
+import { onLCP, onFID, onCLS, onTTFB, onFCP, onINP } from 'web-vitals'
 
 // 在模块初始化时直接使用
 export function initWebVitalsMonitoring(config: WebVitalsConfig = {}) {
   // 直接使用导入的函数
-  onLCP((metric) => { /* ... */ });
+  onLCP(metric => {
+    /* ... */
+  })
   // ...
 }
 ```
@@ -333,34 +368,46 @@ export function initWebVitalsMonitoring(config: WebVitalsConfig = {}) {
 
 ```typescript
 const recordMetric = (name: string, value: number) => {
-  const rating = getMetricRating(name, value);
-  metrics.push({ name, value, rating, timestamp: Date.now() });
-};
+  const rating = getMetricRating(name, value)
+  metrics.push({ name, value, rating, timestamp: Date.now() })
+}
 
 // ...
 
 // Wait a bit for metrics to be collected
-await new Promise(resolve => setTimeout(resolve, 100));
+await new Promise(resolve => setTimeout(resolve, 100))
 ```
 
 **问题**:
+
 - 使用固定的 100ms 延迟等待指标收集
 - 这不是可靠的方式，可能不足或过长
 - 没有保证所有指标都已收集
 
 **建议**:
+
 ```typescript
 // 使用 Promise.race 或更好的收集机制
 const metricPromises = [
-  new Promise<void>(resolve => onCLS(m => { recordMetric('CLS', m.value); resolve(); })),
-  new Promise<void>(resolve => onFID(m => { recordMetric('FID', m.value); resolve(); })),
+  new Promise<void>(resolve =>
+    onCLS(m => {
+      recordMetric('CLS', m.value)
+      resolve()
+    })
+  ),
+  new Promise<void>(resolve =>
+    onFID(m => {
+      recordMetric('FID', m.value)
+      resolve()
+    })
+  ),
   // ...
-];
+]
 
 await Promise.race([
   Promise.all(metricPromises),
-  new Promise(resolve => setTimeout(resolve, 5000)) // 5秒超时
-]);
+  new Promise(resolve => setTimeout(resolve, 5000)), // 5秒超时
+])
 ```
 
 ### 5.5 🟡 中优先级：`query-builder.ts` 中的缓存键生成
@@ -380,11 +427,13 @@ private _getCacheKey(): string {
 ```
 
 **问题**:
+
 - 使用 `JSON.stringify` 生成缓存键，对于复杂对象可能较慢
 - 没有处理对象属性的顺序问题
 - 大量查询时可能成为瓶颈
 
 **建议**:
+
 1. 使用更高效的哈希算法（如 `object-hash` 库）
 2. 或手动构建缓存键字符串
 3. 考虑缓存 `_getCacheKey()` 的结果
@@ -398,11 +447,13 @@ private _getCacheKey(): string {
 **位置**: `src/lib/monitoring/web-vitals.ts` 和 `src/lib/performance-monitor.ts`
 
 **问题**:
+
 - 两个模块都实现了 Core Web Vitals 的收集
 - 阈值定义重复 (`THRESHOLDS` vs `PERFORMANCE_METRICS`)
 - 评分逻辑重复
 
 **建议**:
+
 - 将通用逻辑提取到共享模块 `src/lib/monitoring/shared.ts`
 - 统一阈值常量定义
 - 一个模块作为主要实现，另一个作为适配器
@@ -410,6 +461,7 @@ private _getCacheKey(): string {
 ### 6.2 🟢 低优先级：阈值定义不一致
 
 **位置**:
+
 - `src/lib/monitoring/web-vitals.ts:63`
 - `src/lib/performance-monitor.ts:16`
 
@@ -419,21 +471,23 @@ const THRESHOLDS = {
   LCP: { good: 2500, needsImprovement: 4000, poor: 4000 },
   TTFB: { good: 800, needsImprovement: 1800, poor: 1800 },
   // ...
-};
+}
 
 // performance-monitor.ts
 export const PERFORMANCE_METRICS = {
   LCP: { good: 2500, needsImprovement: 4000 },
-  TTFB: { good: 600, needsImprovement: 1000 },  // 不同！
+  TTFB: { good: 600, needsImprovement: 1000 }, // 不同！
   // ...
-};
+}
 ```
 
 **问题**:
+
 - `TTFB` 阈值不一致（800 vs 600）
 - 可能导致评分差异
 
 **建议**:
+
 - 使用单一真相来源
 - 从官方 Core Web Vitals 文档获取准确阈值
 
@@ -462,11 +516,13 @@ export const getTableSchema = async ...
 **位置**: 多处
 
 **问题**:
+
 - 大部分 async 函数缺少 try-catch
 - 错误传播可能导致调用栈难以追踪
 - 缺少统一的错误处理策略
 
 **建议**:
+
 - 添加全局错误处理中间件
 - 为公共 API 添加错误类型定义
 - 使用结构化错误信息
@@ -476,11 +532,13 @@ export const getTableSchema = async ...
 **位置**: 多处
 
 **问题**:
+
 - 有些模块使用 `logger`，有些使用 `console`
 - 日志级别不统一
 - 缺少结构化日志
 
 **建议**:
+
 - 统一使用 `logger` 模块
 - 定义日志级别规范
 - 考虑添加请求ID追踪
@@ -541,24 +599,28 @@ export const getTableSchema = async ...
 ## 9. 建议的重构计划
 
 ### Phase 1: 紧急修复（1-2天）
+
 - [ ] 合并性能监控模块
 - [ ] 修复循环依赖
 - [ ] 实现 `getTableSchema` 缓存
 - [ ] 移除未使用的导入
 
 ### Phase 2: 性能优化（3-5天）
+
 - [ ] 优化批量操作
 - [ ] 改进缓存键生成
 - [ ] 添加静态导入替代动态导入
 - [ ] 优化 Promise 等待机制
 
 ### Phase 3: 类型安全（2-3天）
+
 - [ ] 减少类型断言
 - [ ] 添加环境检查
 - [ ] 改进类型定义
 - [ ] 分离客户端/服务端类型
 
 ### Phase 4: 代码质量（持续）
+
 - [ ] 统一日志记录
 - [ ] 改进错误处理
 - [ ] 添加单元测试
@@ -571,15 +633,18 @@ export const getTableSchema = async ...
 为验证优化效果，建议添加以下测试：
 
 ### 性能测试
+
 - 批量导入/导出性能基准测试
 - 查询缓存命中率测试
 - 内存泄漏检测
 
 ### 类型测试
+
 - TypeScript 类型检查
 - 运行时类型验证测试
 
 ### 集成测试
+
 - 数据导入导出完整流程测试
 - 性能监控数据准确性测试
 - 循环依赖检测
@@ -623,4 +688,4 @@ export const getTableSchema = async ...
 
 **报告结束**
 
-*注：本报告基于静态代码分析，建议结合实际运行数据和性能测试进行验证。*
+_注：本报告基于静态代码分析，建议结合实际运行数据和性能测试进行验证。_

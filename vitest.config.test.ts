@@ -15,7 +15,7 @@ export default defineConfig({
   poolOptions: {
     vmForks: {
       singleFork: true, // 使用单进程执行以减少内存占用和构建阻塞
-      isolate: true,    // 确保 fork 之间的隔离
+      isolate: true, // 确保 fork 之间的隔离
     },
   },
 
@@ -33,20 +33,20 @@ export default defineConfig({
     include: [
       'tests/**/*.{test,spec}.{js,ts,jsx,tsx}',
       '7zi-frontend/src/**/*.{test,spec}.{js,ts,jsx,tsx}',
-      'src/**/*.{test,spec}.{js,ts,jsx,tsx}'
+      'src/**/*.{test,spec}.{js,ts,jsx,tsx}',
     ],
 
     // Vitest 4: 性能优化：使用 vmForks 线程池减少内存占用
     pool: 'vmForks',
 
     // 测试超时配置
-    testTimeout: 15000,  // 增加到 15 秒以防止慢测试超时
+    testTimeout: 15000, // 增加到 15 秒以防止慢测试超时
     hookTimeout: 10000,
     // 失败时重试
     retry: 1,
 
     // 文件级别的超时配置
-    fileTimeout: 60000,  // 增加到 60 秒
+    fileTimeout: 60000, // 增加到 60 秒
 
     // 性能优化：测试隔离模式（单进程模式下使用 isolate: true 确保测试独立性）
     isolate: true,
@@ -56,7 +56,7 @@ export default defineConfig({
 
     // 测试顺序：随机顺序以发现隐藏的依赖关系
     sequence: {
-      shuffle: false,  // 保持顺序以确保稳定性
+      shuffle: false, // 保持顺序以确保稳定性
       concurrent: false, // 串行执行
     },
 

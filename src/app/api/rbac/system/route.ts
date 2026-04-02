@@ -1,16 +1,17 @@
+import { NextRequest, NextResponse } from 'next/server'
 /**
  * RBAC API - System Initialization and Management
  * RBAC 系统初始化和管理
  */
 
-import { withAdmin } from '@/lib/auth/middleware-rbac';
+import { withAdmin } from '@/lib/auth/middleware-rbac'
 import {
   seedDefaultRolesAndPermissions,
   needsSeeding,
   getSeedingStats,
   resetToDefaults,
-} from '@/lib/permissions/seed';
-import { logger } from '@/lib/logger';
+} from '@/lib/permissions/seed'
+import { logger } from '@/lib/logger'
 
 /**
  * GET /api/rbac/system - 获取 RBAC 系统状态
@@ -18,7 +19,7 @@ import { logger } from '@/lib/logger';
 export async function GET(request: NextRequest) {
   return withAdmin(request, async (_req, context) => {
     try {
-      const stats = await getSeedingStats();
+      const stats = await getSeedingStats()
 
       return NextResponse.json({
         success: true,
@@ -29,9 +30,9 @@ export async function GET(request: NextRequest) {
           defaultRolesCount: stats.defaultRolesCount,
           needsSeeding: stats.needsSeeding,
         },
-      });
-    } catch (_error) {
-      logger.error('Failed to get RBAC system status:', { error, userId: context.userId });
+      })
+    } catch (error) {
+      logger.error('Failed to get RBAC system status:', { error, userId: context.userId })
       return NextResponse.json(
         {
           success: false,
@@ -41,9 +42,9 @@ export async function GET(request: NextRequest) {
           },
         },
         { status: 500 }
-      );
+      )
     }
-  });
+  })
 }
 
 /**
@@ -52,11 +53,11 @@ export async function GET(request: NextRequest) {
 export async function POST(request: NextRequest) {
   return withAdmin(request, async (req, context) => {
     try {
-      const body = await req.json();
-      const { force = false } = body;
+      const body = await req.json()
+      const { force = false } = body
 
       // 检查是否需要初始化
-      const needsInit = await needsSeeding();
+      const needsInit = await needsSeeding()
 
       if (!needsInit && !force) {
         return NextResponse.json({
@@ -65,11 +66,11 @@ export async function POST(request: NextRequest) {
             message: 'RBAC system already initialized',
             initialized: false,
           },
-        });
+        })
       }
 
       // 执行初始化
-      const result = await seedDefaultRolesAndPermissions();
+      const result = await seedDefaultRolesAndPermissions()
 
       if (!result.success) {
         return NextResponse.json(
@@ -81,14 +82,14 @@ export async function POST(request: NextRequest) {
             },
           },
           { status: 500 }
-        );
+        )
       }
 
       logger.info('RBAC system initialized', {
         userId: context.userId,
         rolesSeeded: result.rolesSeeded.length,
         permissionsSeeded: result.permissionsSeeded,
-      });
+      })
 
       return NextResponse.json({
         success: true,
@@ -97,9 +98,9 @@ export async function POST(request: NextRequest) {
           initialized: true,
         },
         message: 'RBAC system initialized successfully',
-      });
-    } catch (_error) {
-      logger.error('Failed to initialize RBAC system:', { error, userId: context.userId });
+      })
+    } catch (error) {
+      logger.error('Failed to initialize RBAC system:', { error, userId: context.userId })
       return NextResponse.json(
         {
           success: false,
@@ -109,9 +110,9 @@ export async function POST(request: NextRequest) {
           },
         },
         { status: 500 }
-      );
+      )
     }
-  });
+  })
 }
 
 /**
@@ -120,7 +121,7 @@ export async function POST(request: NextRequest) {
 export async function DELETE(request: NextRequest) {
   return withAdmin(request, async (_req, context) => {
     try {
-      const result = await resetToDefaults();
+      const result = await resetToDefaults()
 
       if (!result.success) {
         return NextResponse.json(
@@ -132,12 +133,12 @@ export async function DELETE(request: NextRequest) {
             },
           },
           { status: 500 }
-        );
+        )
       }
 
       logger.warn('RBAC system reset to defaults', {
         userId: context.userId,
-      });
+      })
 
       return NextResponse.json({
         success: true,
@@ -145,9 +146,9 @@ export async function DELETE(request: NextRequest) {
           ...result,
         },
         message: 'RBAC system reset to defaults successfully',
-      });
-    } catch (_error) {
-      logger.error('Failed to reset RBAC system:', { error, userId: context.userId });
+      })
+    } catch (error) {
+      logger.error('Failed to reset RBAC system:', { error, userId: context.userId })
       return NextResponse.json(
         {
           success: false,
@@ -157,7 +158,7 @@ export async function DELETE(request: NextRequest) {
           },
         },
         { status: 500 }
-      );
+      )
     }
-  });
+  })
 }

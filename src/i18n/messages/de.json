@@ -54,29 +54,17 @@
       "web": {
         "title": "Webentwicklung",
         "description": "Vom Design bis zur Umsetzung – hochleistungsfähige moderne Websites und Webanwendungen",
-        "features": [
-          "Responsives Design",
-          "Performance-Optimierung",
-          "SEO-freundlich"
-        ]
+        "features": ["Responsives Design", "Performance-Optimierung", "SEO-freundlich"]
       },
       "design": {
         "title": "Markendesign",
         "description": "Professionelles UI/UX-Design zur Schaffung einer einzigartigen visuellen Markenidentität",
-        "features": [
-          "Logo-Design",
-          "Visuelle Identität",
-          "Benutzererlebnis"
-        ]
+        "features": ["Logo-Design", "Visuelle Identität", "Benutzererlebnis"]
       },
       "marketing": {
         "title": "Marketing & Promotion",
         "description": "SEO-Optimierung, Content-Marketing und Social-Media-Management zur Stärkung der Markenbekanntheit",
-        "features": [
-          "SEO-Optimierung",
-          "Content-Strategie",
-          "Social Media"
-        ]
+        "features": ["SEO-Optimierung", "Content-Strategie", "Social Media"]
       }
     },
     "whyUs": {
@@ -138,111 +126,67 @@
         "name": "KI-Welt-Experte",
         "role": "Strategie & Zukunftsplanung",
         "description": "Fokussiert auf KI-Agent-Entwicklungstrends und Zukunftsgestaltung, bietet dem Team strategische Perspektiven und vorausschauendes Denken.",
-        "skills": [
-          "Strategische Analyse",
-          "Trendvorhersage",
-          "Innovatives Denken"
-        ]
+        "skills": ["Strategische Analyse", "Trendvorhersage", "Innovatives Denken"]
       },
       "consultant": {
         "name": "Berater",
         "role": "Forschung & Analyse",
         "description": "Tiefe Forschung zu Marktdynamik und Technologie-Trends, bietet datengestützte Entscheidungsunterstützung für Projekte.",
-        "skills": [
-          "Marktforschung",
-          "Datenanalyse",
-          "Entscheidungsunterstützung"
-        ]
+        "skills": ["Marktforschung", "Datenanalyse", "Entscheidungsunterstützung"]
       },
       "architect": {
         "name": "Architekt",
         "role": "Design & Planung",
         "description": "Entwirft Systemarchitektur und technische Lösungen, stellt Projektdurchführbarkeit und Skalierbarkeit sicher.",
-        "skills": [
-          "Systemarchitektur",
-          "Technologie-Auswahl",
-          "Lösungsdesign"
-        ]
+        "skills": ["Systemarchitektur", "Technologie-Auswahl", "Lösungsdesign"]
       },
       "executor": {
         "name": "Executor",
         "role": "Ausführung & Implementierung",
         "description": "Führt Aufgaben effizient aus, transformiert Design-Lösungen in hochwertige Code-Implementierungen.",
-        "skills": [
-          "Code-Implementierung",
-          "Aufgabenausführung",
-          "Effizienzoptimierung"
-        ]
+        "skills": ["Code-Implementierung", "Aufgabenausführung", "Effizienzoptimierung"]
       },
       "admin": {
         "name": "Systemadministrator",
         "role": "Betrieb & Bereitstellung",
         "description": "Verantwortlich für Systembetrieb, Server-Management und automatisierte Bereitstellung für stabilen Servicebetrieb.",
-        "skills": [
-          "Systembetrieb",
-          "Auto-Bereitstellung",
-          "Sicherheits-Härtung"
-        ]
+        "skills": ["Systembetrieb", "Auto-Bereitstellung", "Sicherheits-Härtung"]
       },
       "tester": {
         "name": "Tester",
         "role": "Testen & Debugging",
         "description": "Schreibt Testfälle, führt funktionale Tests und Leistungsoptimierung durch, um Produktqualität zu gewährleisten.",
-        "skills": [
-          "Funktionale Tests",
-          "Leistungsoptimierung",
-          "Qualitätssicherung"
-        ]
+        "skills": ["Funktionale Tests", "Leistungsoptimierung", "Qualitätssicherung"]
       },
       "designer": {
         "name": "Designer",
         "role": "UI & Frontend-Design",
         "description": "Erstellt schöne und benutzerfreundliche Schnittstellen, bietet hervorragendes User-Experience-Design.",
-        "skills": [
-          "UI-Design",
-          "User Experience",
-          "Visuelle Kreativität"
-        ]
+        "skills": ["UI-Design", "User Experience", "Visuelle Kreativität"]
       },
       "promoter": {
         "name": "Marketing-Spezialist",
         "role": "Promotion & SEO",
         "description": "Entwickelt Promotionsstrategien, optimiert Suchmaschinen-Rankings und stärkt die Markenbekanntheit.",
-        "skills": [
-          "SEO-Optimierung",
-          "Content-Marketing",
-          "Marken-Promotion"
-        ]
+        "skills": ["SEO-Optimierung", "Content-Marketing", "Marken-Promotion"]
       },
       "sales": {
         "name": "Vertrieb & Support",
         "role": "Vertrieb & Kundenservice",
         "description": "Kommuniziert mit Kunden, versteht Bedürfnisse, bietet Lösungen und qualitativ hochwertige Service-Unterstützung.",
-        "skills": [
-          "Kundenkommunikation",
-          "Bedarfsanalyse",
-          "Lösungen"
-        ]
+        "skills": ["Kundenkommunikation", "Bedarfsanalyse", "Lösungen"]
       },
       "finance": {
         "name": "Finanzen",
         "role": "Buchhaltung & Revision",
         "description": "Verwaltet finanzielle Einnahmen und Ausgaben, führt Kostenrechnung und Finanzanalyse durch, um finanzielle Gesundheit zu gewährleisten.",
-        "skills": [
-          "Finanzmanagement",
-          "Kostenkontrolle",
-          "Finanzanalyse"
-        ]
+        "skills": ["Finanzmanagement", "Kostenkontrolle", "Finanzanalyse"]
       },
       "media": {
         "name": "Medien",
         "role": "Medien & Öffentlichkeit",
         "description": "Plant und produziert Inhalte, verbreitet über mehrere Kanäle, um Markeneinfluss zu stärken.",
-        "skills": [
-          "Content-Planung",
-          "Medienbetrieb",
-          "Markenkommunikation"
-        ]
+        "skills": ["Content-Planung", "Medienbetrieb", "Markenkommunikation"]
       }
     },
     "availability": "24/7 verfügbar",

@@ -3,7 +3,7 @@
  * Sends performance alerts to PagerDuty
  */
 
-import type { PerformanceAlert } from '../alerter';
+import type { PerformanceAlert } from '../alerter'
 
 // ========================================
 // Types
@@ -11,58 +11,58 @@ import type { PerformanceAlert } from '../alerter';
 
 export interface PagerDutyConfig {
   /** PagerDuty integration key (routing key) */
-  integrationKey: string;
+  integrationKey: string
   /** API endpoint (default: v2 events API) */
-  apiEndpoint?: string;
+  apiEndpoint?: string
 }
 
 export interface PagerDutyAlertOptions {
   /** Deduplication key (default: auto-generated) */
-  deduplicationKey?: string;
+  deduplicationKey?: string
   /** Event action (trigger, acknowledge, resolve) */
-  action?: 'trigger' | 'acknowledge' | 'resolve';
+  action?: 'trigger' | 'acknowledge' | 'resolve'
   /** Severity (critical, error, warning, info) */
-  severity?: 'critical' | 'error' | 'warning' | 'info';
+  severity?: 'critical' | 'error' | 'warning' | 'info'
   /** Event source */
-  source?: string;
+  source?: string
   /** Event component */
-  component?: string;
+  component?: string
   /** Event group */
-  group?: string;
+  group?: string
   /** Event class */
-  eventClass?: string;
+  eventClass?: string
   /** Custom details */
-  customDetails?: Record<string, unknown>;
+  customDetails?: Record<string, unknown>
   /** Include all metadata as custom details */
-  includeMetadata?: boolean;
+  includeMetadata?: boolean
   /** Add links to alert details */
-  addLinks?: boolean;
+  addLinks?: boolean
   /** Alert dashboard URL */
-  dashboardUrl?: string;
+  dashboardUrl?: string
 }
 
-type PagerDutyAction = 'trigger' | 'acknowledge' | 'resolve';
+type PagerDutyAction = 'trigger' | 'acknowledge' | 'resolve'
 
 interface PagerDutyPayload {
-  routing_key: string;
-  deduplication_key: string;
-  event_action: PagerDutyAction;
+  routing_key: string
+  deduplication_key: string
+  event_action: PagerDutyAction
   payload: {
-    summary: string;
-    severity: 'critical' | 'error' | 'warning' | 'info';
-    source: string;
-    timestamp: string;
-    component?: string;
-    group?: string;
-    class?: string;
-    custom_details?: Record<string, unknown>;
-  };
-  client?: string;
-  client_url?: string;
+    summary: string
+    severity: 'critical' | 'error' | 'warning' | 'info'
+    source: string
+    timestamp: string
+    component?: string
+    group?: string
+    class?: string
+    custom_details?: Record<string, unknown>
+  }
+  client?: string
+  client_url?: string
   links?: Array<{
-    href: string;
-    text: string;
-  }>;
+    href: string
+    text: string
+  }>
 }
 
 // ========================================
@@ -70,47 +70,47 @@ interface PagerDutyPayload {
 // ========================================
 
 export class PagerDutyChannel {
-  name = 'pagerduty';
-  private integrationKey: string;
-  private apiEndpoint: string;
-  private options: PagerDutyAlertOptions;
+  name = 'pagerduty'
+  private integrationKey: string
+  private apiEndpoint: string
+  private options: PagerDutyAlertOptions
 
   constructor(config: PagerDutyConfig, options?: PagerDutyAlertOptions) {
-    this.integrationKey = config.integrationKey;
-    this.apiEndpoint = config.apiEndpoint || 'https://events.pagerduty.com/v2/enqueue';
-    this.options = options || {};
+    this.integrationKey = config.integrationKey
+    this.apiEndpoint = config.apiEndpoint || 'https://events.pagerduty.com/v2/enqueue'
+    this.options = options || {}
   }
 
   /**
    * Send alert to PagerDuty
    */
   async send(alert: PerformanceAlert): Promise<void> {
-    const payload = this.buildPagerDutyPayload(alert);
+    const payload = this.buildPagerDutyPayload(alert)
 
     try {
       const response = await fetch(this.apiEndpoint, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          'Accept': 'application/json',
+          Accept: 'application/json',
         },
         body: JSON.stringify(payload),
-      });
+      })
 
       if (!response.ok) {
-        const errorText = await response.text();
-        throw new Error(`PagerDuty API failed: ${response.status} ${errorText}`);
+        const errorText = await response.text()
+        throw new Error(`PagerDuty API failed: ${response.status} ${errorText}`)
       }
 
-      const result = await response.json();
+      const result = await response.json()
       if (result.status === 'rate_limited') {
-        console.warn('[PagerDutyChannel] Rate limited, message may be delayed');
+        console.warn('[PagerDutyChannel] Rate limited, message may be delayed')
       }
 
-      console.log(`[PagerDutyChannel] Alert sent to PagerDuty: ${alert.id}`);
-    } catch (_error) {
-      console.error('[PagerDutyChannel] Failed to send alert:', error);
-      throw error;
+      console.log(`[PagerDutyChannel] Alert sent to PagerDuty: ${alert.id}`)
+    } catch (error) {
+      console.error('[PagerDutyChannel] Failed to send alert:', error)
+      throw error
     }
   }
 
@@ -118,10 +118,10 @@ export class PagerDutyChannel {
    * Build PagerDuty payload
    */
   private buildPagerDutyPayload(alert: PerformanceAlert): PagerDutyPayload {
-    const timestamp = new Date(alert.createdAt).toISOString();
-    const deduplicationKey = this.options.deduplicationKey || this.generateDeduplicationKey(alert);
-    const action = this.determineAction(alert);
-    const severity = this.mapLevelToSeverity(alert.level);
+    const timestamp = new Date(alert.createdAt).toISOString()
+    const deduplicationKey = this.options.deduplicationKey || this.generateDeduplicationKey(alert)
+    const action = this.determineAction(alert)
+    const severity = this.mapLevelToSeverity(alert.level)
 
     // Build custom details
     const customDetails: Record<string, unknown> = {
@@ -130,35 +130,35 @@ export class PagerDutyChannel {
       category: alert.category,
       status: alert.status,
       occurrence_count: alert.occurrenceCount,
-    };
+    }
 
     // Add metric details
     if (alert.metric) {
-      customDetails.metric = alert.metric;
+      customDetails.metric = alert.metric
       if (alert.currentValue !== undefined) {
-        customDetails.current_value = alert.currentValue;
+        customDetails.current_value = alert.currentValue
       }
       if (alert.threshold !== undefined) {
-        customDetails.threshold = alert.threshold;
+        customDetails.threshold = alert.threshold
       }
     }
 
     // Add acknowledged info
     if (alert.acknowledgedBy) {
-      customDetails.acknowledged_by = alert.acknowledgedBy;
+      customDetails.acknowledged_by = alert.acknowledgedBy
       if (alert.acknowledgedAt) {
-        customDetails.acknowledged_at = new Date(alert.acknowledgedAt).toISOString();
+        customDetails.acknowledged_at = new Date(alert.acknowledgedAt).toISOString()
       }
     }
 
     // Add resolved info
     if (alert.resolvedAt) {
-      customDetails.resolved_at = new Date(alert.resolvedAt).toISOString();
+      customDetails.resolved_at = new Date(alert.resolvedAt).toISOString()
     }
 
     // Add metadata
     if (this.options.includeMetadata && alert.metadata) {
-      Object.assign(customDetails, alert.metadata);
+      Object.assign(customDetails, alert.metadata)
     }
 
     // Build payload
@@ -177,32 +177,32 @@ export class PagerDutyChannel {
         custom_details: Object.keys(customDetails).length > 0 ? customDetails : undefined,
       },
       client: 'Performance Alerting System',
-    };
+    }
 
     // Add dashboard link
     if (this.options.addLinks && this.options.dashboardUrl) {
-      payload.client_url = this.options.dashboardUrl;
-      payload.links = [{
-        href: `${this.options.dashboardUrl}/alerts/${alert.id}`,
-        text: 'View Alert',
-      }];
+      payload.client_url = this.options.dashboardUrl
+      payload.links = [
+        {
+          href: `${this.options.dashboardUrl}/alerts/${alert.id}`,
+          text: 'View Alert',
+        },
+      ]
     }
 
-    return payload;
+    return payload
   }
 
   /**
    * Generate deduplication key for alert
    */
   private generateDeduplicationKey(alert: PerformanceAlert): string {
-    const parts = [
-      alert.title,
-      alert.level,
-      alert.category,
-      alert.source,
-      alert.metric || 'none',
-    ];
-    return parts.join('-').toLowerCase().replace(/\s+/g, '-').replace(/[^a-z0-9-]/g, '');
+    const parts = [alert.title, alert.level, alert.category, alert.source, alert.metric || 'none']
+    return parts
+      .join('-')
+      .toLowerCase()
+      .replace(/\s+/g, '-')
+      .replace(/[^a-z0-9-]/g, '')
   }
 
   /**
@@ -211,16 +211,16 @@ export class PagerDutyChannel {
   private determineAction(alert: PerformanceAlert): PagerDutyAction {
     // If user explicitly set action
     if (this.options.action) {
-      return this.options.action;
+      return this.options.action
     }
 
     // Auto-determine based on alert status
     if (alert.status === 'resolved') {
-      return 'resolve';
+      return 'resolve'
     } else if (alert.status === 'acknowledged') {
-      return 'acknowledge';
+      return 'acknowledge'
     } else {
-      return 'trigger';
+      return 'trigger'
     }
   }
 
@@ -233,8 +233,8 @@ export class PagerDutyChannel {
       error: 'error',
       warning: 'warning',
       info: 'info',
-    };
-    return mapping[level] || 'warning';
+    }
+    return mapping[level] || 'warning'
   }
 
   /**
@@ -257,27 +257,27 @@ export class PagerDutyChannel {
           },
         },
         client: 'Performance Alerting System',
-      };
+      }
 
       const response = await fetch(this.apiEndpoint, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          'Accept': 'application/json',
+          Accept: 'application/json',
         },
         body: JSON.stringify(testPayload),
-      });
+      })
 
       if (!response.ok) {
-        console.error('[PagerDutyChannel] Test failed:', response.status);
-        return false;
+        console.error('[PagerDutyChannel] Test failed:', response.status)
+        return false
       }
 
-      const result = await response.json();
-      return result.status === 'success' || result.status === 'rate_limited';
-    } catch (_error) {
-      console.error('[PagerDutyChannel] Test error:', error);
-      return false;
+      const result = await response.json()
+      return result.status === 'success' || result.status === 'rate_limited'
+    } catch (error) {
+      console.error('[PagerDutyChannel] Test error:', error)
+      return false
     }
   }
 
@@ -285,13 +285,13 @@ export class PagerDutyChannel {
    * Update channel options
    */
   updateOptions(options: Partial<PagerDutyAlertOptions>): void {
-    this.options = { ...this.options, ...options };
+    this.options = { ...this.options, ...options }
   }
 
   /**
    * Get current options
    */
   getOptions(): PagerDutyAlertOptions {
-    return { ...this.options };
+    return { ...this.options }
   }
 }

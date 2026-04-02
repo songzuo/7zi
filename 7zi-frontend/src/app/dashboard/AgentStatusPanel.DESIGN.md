@@ -28,75 +28,75 @@ AgentStatusPanel 是 AI Agent 调度 Dashboard 的核心组件，用于实时显
 ```typescript
 export interface Agent {
   /** Agent 唯一标识符 */
-  id: string;
+  id: string
 
   /** Agent 名称 */
-  name: string;
+  name: string
 
   /** Agent 类型（如：设计师、开发者、测试员等） */
-  type: 'designer' | 'developer' | 'tester' | 'manager' | 'custom';
+  type: 'designer' | 'developer' | 'tester' | 'manager' | 'custom'
 
   /** Agent 状态 */
-  status: 'active' | 'idle' | 'offline' | 'error';
+  status: 'active' | 'idle' | 'offline' | 'error'
 
   /** Agent 描述 */
-  description?: string;
+  description?: string
 
   /** 当前正在执行的任务 */
-  currentTask?: AgentTask;
+  currentTask?: AgentTask
 
   /** 资源使用情况 */
-  resourceUsage?: ResourceUsage;
+  resourceUsage?: ResourceUsage
 
   /** 最后活动时间 */
-  lastActiveAt: string;
+  lastActiveAt: string
 
   /** 是否启用 */
-  enabled: boolean;
+  enabled: boolean
 }
 
 export interface AgentTask {
   /** 任务 ID */
-  id: string;
+  id: string
 
   /** 任务名称 */
-  title: string;
+  title: string
 
   /** 任务类型 */
-  type: string;
+  type: string
 
   /** 任务状态 */
-  status: 'pending' | 'running' | 'completed' | 'failed';
+  status: 'pending' | 'running' | 'completed' | 'failed'
 
   /** 任务进度 (0-100) */
-  progress: number;
+  progress: number
 
   /** 开始时间 */
-  startedAt: string;
+  startedAt: string
 
   /** 预计完成时间 */
-  estimatedCompletionAt?: string;
+  estimatedCompletionAt?: string
 }
 
 export interface ResourceUsage {
   /** CPU 使用率 (0-100) */
-  cpu: number;
+  cpu: number
 
   /** 内存使用率 (0-100) */
-  memory: number;
+  memory: number
 
   /** 网络流量 (字节) */
   network?: {
-    inbound: number;
-    outbound: number;
-  };
+    inbound: number
+    outbound: number
+  }
 
   /** 自定义指标 */
   custom?: {
-    name: string;
-    value: number;
-    unit: string;
-  }[];
+    name: string
+    value: number
+    unit: string
+  }[]
 }
 ```
 
@@ -109,34 +109,34 @@ export interface ResourceUsage {
 ```typescript
 export interface AgentStatusPanelProps {
   /** Agent 列表数据 */
-  agents: Agent[];
+  agents: Agent[]
 
   /** 是否加载中 */
-  loading?: boolean;
+  loading?: boolean
 
   /** 刷新回调 */
-  onRefresh?: () => void;
+  onRefresh?: () => void
 
   /** Agent 详情查看回调 */
-  onViewDetails?: (agent: Agent) => void;
+  onViewDetails?: (agent: Agent) => void
 
   /** Agent 启用/禁用切换回调 */
-  onToggleAgent?: (agentId: string, enabled: boolean) => void;
+  onToggleAgent?: (agentId: string, enabled: boolean) => void
 
   /** 自定义类名 */
-  className?: string;
+  className?: string
 
   /** 每页显示数量 */
-  pageSize?: number;
+  pageSize?: number
 
   /** 是否显示资源使用详情 */
-  showResourceDetails?: boolean;
+  showResourceDetails?: boolean
 
   /** 刷新间隔（毫秒） */
-  refreshInterval?: number;
+  refreshInterval?: number
 
   /** 状态筛选 */
-  statusFilter?: Agent['status'][];
+  statusFilter?: Agent['status'][]
 }
 ```
 
@@ -147,19 +147,19 @@ export interface AgentStatusPanelProps {
 ```typescript
 interface AgentStatusPanelState {
   /** 当前选中的筛选状态 */
-  selectedStatus: Agent['status'] | 'all';
+  selectedStatus: Agent['status'] | 'all'
 
   /** 排序方式 */
-  sortBy: 'name' | 'status' | 'lastActive';
+  sortBy: 'name' | 'status' | 'lastActive'
 
   /** 排序方向 */
-  sortDirection: 'asc' | 'desc';
+  sortDirection: 'asc' | 'desc'
 
   /** 搜索关键词 */
-  searchQuery: string;
+  searchQuery: string
 
   /** 当前页码 */
-  currentPage: number;
+  currentPage: number
 }
 ```
 
@@ -169,20 +169,20 @@ interface AgentStatusPanelState {
 
 ### 状态颜色映射
 
-| 状态 | 颜色 | Badge 变体 | 说明 |
-|------|------|-----------|------|
-| active | green | soft | Agent 正在执行任务 |
-| idle | blue | soft | Agent 空闲，等待任务 |
-| offline | gray | soft | Agent 离线 |
-| error | red | soft | Agent 发生错误 |
+| 状态    | 颜色  | Badge 变体 | 说明                 |
+| ------- | ----- | ---------- | -------------------- |
+| active  | green | soft       | Agent 正在执行任务   |
+| idle    | blue  | soft       | Agent 空闲，等待任务 |
+| offline | gray  | soft       | Agent 离线           |
+| error   | red   | soft       | Agent 发生错误       |
 
 ### 资源使用率颜色
 
-| 使用率 | 颜色 | 警告级别 |
-|--------|------|---------|
-| 0-50% | green | 正常 |
-| 50-80% | yellow | 需要关注 |
-| 80-100% | red | 警告 |
+| 使用率  | 颜色   | 警告级别 |
+| ------- | ------ | -------- |
+| 0-50%   | green  | 正常     |
+| 50-80%  | yellow | 需要关注 |
+| 80-100% | red    | 警告     |
 
 ### 布局结构
 
@@ -235,20 +235,21 @@ interface AgentStatusPanelState {
 ```typescript
 export interface AgentCardProps {
   /** Agent 数据 */
-  agent: Agent;
+  agent: Agent
 
   /** 是否显示资源详情 */
-  showResourceDetails?: boolean;
+  showResourceDetails?: boolean
 
   /** 详情查看回调 */
-  onViewDetails?: (agent: Agent) => void;
+  onViewDetails?: (agent: Agent) => void
 
   /** 启用/禁用切换回调 */
-  onToggle?: (agentId: string, enabled: boolean) => void;
+  onToggle?: (agentId: string, enabled: boolean) => void
 }
 ```
 
 **UI 元素**:
+
 - 状态指示条（左侧彩色边框）
 - 状态 Badge
 - 名称和类型图标
@@ -264,11 +265,12 @@ export interface AgentCardProps {
 ```typescript
 export interface StatsSummaryProps {
   /** Agent 列表 */
-  agents: Agent[];
+  agents: Agent[]
 }
 ```
 
 **UI 元素**:
+
 - 总 Agent 数量
 - 各状态 Agent 数量（带颜色标识）
 - 平均资源使用率
@@ -281,17 +283,19 @@ export interface StatsSummaryProps {
 
 ```typescript
 // 基础布局
-const layoutClasses = 'space-y-6';
+const layoutClasses = 'space-y-6'
 
 // 卡片基础样式
-const cardBaseClasses = 'bg-white dark:bg-gray-800 rounded-lg shadow-md border border-gray-200 dark:border-gray-700';
+const cardBaseClasses =
+  'bg-white dark:bg-gray-800 rounded-lg shadow-md border border-gray-200 dark:border-gray-700'
 
 // 状态指示条
-const statusIndicatorClasses = 'absolute left-0 top-4 bottom-4 w-1 rounded-full transition-all duration-300';
+const statusIndicatorClasses =
+  'absolute left-0 top-4 bottom-4 w-1 rounded-full transition-all duration-300'
 
 // 资源进度条
-const progressBaseClasses = 'h-2 rounded-full overflow-hidden bg-gray-200 dark:bg-gray-700';
-const progressFillClasses = 'h-full transition-all duration-500 ease-out';
+const progressBaseClasses = 'h-2 rounded-full overflow-hidden bg-gray-200 dark:bg-gray-700'
+const progressFillClasses = 'h-full transition-all duration-500 ease-out'
 ```
 
 ### 响应式断点

@@ -87,6 +87,7 @@ The 7zi project implements a comprehensive error handling system that provides:
 The `ErrorType` enum categorizes all error types in the system. Use these values for consistent error classification.
 
 ### Location
+
 `src/lib/api/error-handler.ts`
 
 ### Error Types
@@ -109,19 +110,19 @@ export enum ErrorType {
 
 ### Error Type Mapping
 
-| ErrorType | HTTP Status | Use Case |
-|-----------|-------------|----------|
-| `VALIDATION` | 400 | Invalid input data |
-| `NOT_FOUND` | 404 | Resource doesn't exist |
-| `UNAUTHORIZED` | 401 | Missing or invalid authentication |
-| `FORBIDDEN` | 403 | Insufficient permissions |
-| `RATE_LIMIT` | 429 | Too many requests |
-| `INTERNAL` | 500 | Unexpected server errors |
-| `BAD_REQUEST` | 400 | Malformed request |
-| `SERVICE_UNAVAILABLE` | 503 | Service is down |
-| `REGISTRATION_FAILED` | 400 | User registration errors |
-| `WEAK_PASSWORD` | 400 | Password doesn't meet requirements |
-| `MISSING_TOKEN` | 401 | Authentication token missing |
+| ErrorType             | HTTP Status | Use Case                           |
+| --------------------- | ----------- | ---------------------------------- |
+| `VALIDATION`          | 400         | Invalid input data                 |
+| `NOT_FOUND`           | 404         | Resource doesn't exist             |
+| `UNAUTHORIZED`        | 401         | Missing or invalid authentication  |
+| `FORBIDDEN`           | 403         | Insufficient permissions           |
+| `RATE_LIMIT`          | 429         | Too many requests                  |
+| `INTERNAL`            | 500         | Unexpected server errors           |
+| `BAD_REQUEST`         | 400         | Malformed request                  |
+| `SERVICE_UNAVAILABLE` | 503         | Service is down                    |
+| `REGISTRATION_FAILED` | 400         | User registration errors           |
+| `WEAK_PASSWORD`       | 400         | Password doesn't meet requirements |
+| `MISSING_TOKEN`       | 401         | Authentication token missing       |
 
 ---
 
@@ -133,13 +134,13 @@ All API errors follow this standardized format:
 
 ```typescript
 interface ErrorResponse {
-  success: false;
+  success: false
   error: {
-    type: ErrorType;
-    message: string;
-    details?: Record<string, unknown>;
-    timestamp: string;
-  };
+    type: ErrorType
+    message: string
+    details?: Record<string, unknown>
+    timestamp: string
+  }
 }
 ```
 
@@ -147,9 +148,9 @@ interface ErrorResponse {
 
 ```typescript
 interface SuccessResponse<T = unknown> {
-  success: true;
-  data: T;
-  timestamp: string;
+  success: true
+  data: T
+  timestamp: string
 }
 ```
 
@@ -160,16 +161,16 @@ interface SuccessResponse<T = unknown> {
 Creates a standardized success response.
 
 ```typescript
-import { createSuccessResponse } from '@/lib/api/error-handler';
+import { createSuccessResponse } from '@/lib/api/error-handler'
 
 // Basic usage
 export async function GET(request: NextRequest) {
-  const data = { id: 1, name: 'Test' };
-  return createSuccessResponse(data);
+  const data = { id: 1, name: 'Test' }
+  return createSuccessResponse(data)
 }
 
 // With custom status code
-return createSuccessResponse(data, 201); // Created
+return createSuccessResponse(data, 201) // Created
 ```
 
 #### 2. `createErrorResponse`
@@ -177,17 +178,17 @@ return createSuccessResponse(data, 201); // Created
 Creates a standardized error response from an error object.
 
 ```typescript
-import { createErrorResponse, ApiError, ErrorType } from '@/lib/api/error-handler';
+import { createErrorResponse, ApiError, ErrorType } from '@/lib/api/error-handler'
 
 // From ApiError
-const error = new ApiError(ErrorType.VALIDATION, 'Invalid email format', 400);
-return createErrorResponse(error);
+const error = new ApiError(ErrorType.VALIDATION, 'Invalid email format', 400)
+return createErrorResponse(error)
 
 // From generic Error
 try {
   // some operation
 } catch (error) {
-  return createErrorResponse(error instanceof Error ? error : new Error(String(error)));
+  return createErrorResponse(error instanceof Error ? error : new Error(String(error)))
 }
 ```
 
@@ -196,18 +197,18 @@ try {
 Higher-order function that wraps API route handlers with automatic error handling.
 
 ```typescript
-import { withErrorHandling, createSuccessResponse } from '@/lib/api/error-handler';
+import { withErrorHandling, createSuccessResponse } from '@/lib/api/error-handler'
 
 export const GET = withErrorHandling(async (request: Request) => {
-  const data = await fetchData();
-  return createSuccessResponse(data);
-});
+  const data = await fetchData()
+  return createSuccessResponse(data)
+})
 
 export const POST = withErrorHandling(async (request: Request) => {
-  const body = await request.json();
+  const body = await request.json()
   // Handler logic
-  return createSuccessResponse(result);
-});
+  return createSuccessResponse(result)
+})
 ```
 
 ### Helper Functions
@@ -225,87 +226,92 @@ import {
   createRegistrationFailedError,
   createWeakPasswordError,
   createBadRequestError,
-  createMissingTokenError
-} from '@/lib/api/error-handler';
+  createMissingTokenError,
+} from '@/lib/api/error-handler'
 
 // Validation error
-return createValidationError('Email is required', { field: 'email' });
+return createValidationError('Email is required', { field: 'email' })
 
 // Not found error
-return createNotFoundError('User not found', { userId: '123' });
+return createNotFoundError('User not found', { userId: '123' })
 
 // Unauthorized error
-return createUnauthorizedError('Please log in to continue');
+return createUnauthorizedError('Please log in to continue')
 
 // Forbidden error
-return createForbiddenError('You do not have permission to access this resource');
+return createForbiddenError('You do not have permission to access this resource')
 
 // Rate limit error
-return createRateLimitError('Too many requests, please try again later');
+return createRateLimitError('Too many requests, please try again later')
 
 // Service unavailable error
-return createServiceUnavailableError('Database maintenance in progress');
+return createServiceUnavailableError('Database maintenance in progress')
 
 // Registration failed error
-return createRegistrationFailedError('Email already registered', { email: 'test@example.com' });
+return createRegistrationFailedError('Email already registered', { email: 'test@example.com' })
 
 // Weak password error
 return createWeakPasswordError('Password must be at least 8 characters', {
-  minLength: 8
-});
+  minLength: 8,
+})
 
 // Bad request error
-return createBadRequestError('Invalid request format');
+return createBadRequestError('Invalid request format')
 
 // Missing token error
-return createMissingTokenError();
+return createMissingTokenError()
 ```
 
 ### Complete API Route Example
 
 ```typescript
-import { NextRequest } from 'next/server';
-import { withErrorHandling, createSuccessResponse, createValidationError, createNotFoundError } from '@/lib/api/error-handler';
-import { logger } from '@/lib/logger';
+import { NextRequest } from 'next/server'
+import {
+  withErrorHandling,
+  createSuccessResponse,
+  createValidationError,
+  createNotFoundError,
+} from '@/lib/api/error-handler'
+import { logger } from '@/lib/logger'
 
 interface CreateUserRequest {
-  email: string;
-  password: string;
-  name: string;
+  email: string
+  password: string
+  name: string
 }
 
 export const POST = withErrorHandling(async (request: NextRequest) => {
-  const body: CreateUserRequest = await request.json();
+  const body: CreateUserRequest = await request.json()
 
   // Validate input
   if (!body.email || !body.password || !body.name) {
     return createValidationError('All fields are required', {
-      missingFields: ['email', 'password', 'name'].filter(field => !body[field])
-    });
+      missingFields: ['email', 'password', 'name'].filter(field => !body[field]),
+    })
   }
 
   // Check password strength
   if (body.password.length < 8) {
     return createWeakPasswordError('Password must be at least 8 characters', {
       minLength: 8,
-      actualLength: body.password.length
-    });
+      actualLength: body.password.length,
+    })
   }
 
   // Check if user exists
-  const existingUser = await findUserByEmail(body.email);
+  const existingUser = await findUserByEmail(body.email)
   if (existingUser) {
-    return createRegistrationFailedError('Email already registered', { email: body.email });
+    return createRegistrationFailedError('Email already registered', { email: body.email })
   }
 
   // Create user
-  const user = await createUser(body);
+  const user = await createUser(body)
 
   // Log success (non-sensitive)
-  logger.info('User created successfully', { userId: user.id, email: body.email });
+  logger.info('User created successfully', { userId: user.id, email: body.email })
 
-  return createSuccessResponse(user, 201);
-});
+  return createSuccessResponse(user, 201)
+})
 ```
 
 ---
@@ -327,18 +333,14 @@ The `ErrorBoundaryWrapper` is a class-based React error boundary that catches Ja
 #### Basic Usage
 
 ```tsx
-import { ErrorBoundaryWrapper } from '@/components/ErrorBoundaryWrapper';
+import { ErrorBoundaryWrapper } from '@/components/ErrorBoundaryWrapper'
 
 function MyComponent() {
   return (
-    <ErrorBoundaryWrapper
-      title="加载失败"
-      showReset
-      variant="compact"
-    >
+    <ErrorBoundaryWrapper title="加载失败" showReset variant="compact">
       <ChildComponent />
     </ErrorBoundaryWrapper>
-  );
+  )
 }
 ```
 
@@ -346,14 +348,14 @@ function MyComponent() {
 
 ```typescript
 interface Props {
-  children: ReactNode;
-  fallback?: ReactNode;              // Custom fallback UI
-  onError?: (error: Error, errorInfo: React.ErrorInfo) => void;
-  title?: string;                    // Error title
-  showReset?: boolean;               // Show retry button
-  variant?: 'default' | 'compact' | 'fullscreen';
-  logError?: boolean;                // Log to Sentry (default: true)
-  showReportLink?: boolean;          // Show report error link
+  children: ReactNode
+  fallback?: ReactNode // Custom fallback UI
+  onError?: (error: Error, errorInfo: React.ErrorInfo) => void
+  title?: string // Error title
+  showReset?: boolean // Show retry button
+  variant?: 'default' | 'compact' | 'fullscreen'
+  logError?: boolean // Log to Sentry (default: true)
+  showReportLink?: boolean // Show report error link
 }
 ```
 
@@ -362,11 +364,9 @@ interface Props {
 ```tsx
 <ErrorBoundaryWrapper
   fallback={
-    <div className="p-4 bg-red-50 rounded">
+    <div className="rounded bg-red-50 p-4">
       <p>Something went wrong</p>
-      <button onClick={() => window.location.reload()}>
-        Reload Page
-      </button>
+      <button onClick={() => window.location.reload()}>Reload Page</button>
     </div>
   }
 >
@@ -379,18 +379,18 @@ interface Props {
 Wrap components with error boundary for reuse:
 
 ```tsx
-import { withErrorBoundary } from '@/components/ErrorBoundaryWrapper';
+import { withErrorBoundary } from '@/components/ErrorBoundaryWrapper'
 
 // Wrap component
 const SafeComponent = withErrorBoundary(MyComponent, {
   title: '加载失败',
   showReset: true,
-  variant: 'compact'
-});
+  variant: 'compact',
+})
 
 // Use wrapped component
 function Parent() {
-  return <SafeComponent />;
+  return <SafeComponent />
 }
 ```
 
@@ -416,9 +416,8 @@ Reusable error display UI with multiple variants.
 #### Usage
 
 ```tsx
-import { ErrorDisplay } from '@/components/ErrorDisplay';
-
-<ErrorDisplay
+import { ErrorDisplay } from '@/components/ErrorDisplay'
+;<ErrorDisplay
   title="Network Error"
   message="Unable to connect to the server"
   errorType="network"
@@ -433,10 +432,10 @@ import { ErrorDisplay } from '@/components/ErrorDisplay';
 For use with React.lazy and Suspense:
 
 ```tsx
-import { AsyncErrorBoundary } from '@/components/ErrorBoundaryWrapper';
-import { Suspense } from 'react';
+import { AsyncErrorBoundary } from '@/components/ErrorBoundaryWrapper'
+import { Suspense } from 'react'
 
-const LazyComponent = lazy(() => import('./LazyComponent'));
+const LazyComponent = lazy(() => import('./LazyComponent'))
 
 function App() {
   return (
@@ -445,7 +444,7 @@ function App() {
         <LazyComponent />
       </Suspense>
     </AsyncErrorBoundary>
-  );
+  )
 }
 ```
 
@@ -456,24 +455,24 @@ The error boundary automatically analyzes error types:
 ```typescript
 function analyzeErrorType(error: Error): ErrorType {
   if (isNetworkError(error)) {
-    return 'network';
+    return 'network'
   }
 
-  const code = getErrorCode(error);
-  
+  const code = getErrorCode(error)
+
   switch (code) {
     case ErrorCodes.NOT_FOUND:
-      return 'not-found';
+      return 'not-found'
     case ErrorCodes.UNAUTHORIZED:
-      return 'unauthorized';
+      return 'unauthorized'
     case ErrorCodes.FORBIDDEN:
-      return 'forbidden';
+      return 'forbidden'
     case ErrorCodes.SERVER_ERROR:
-      return 'server';
+      return 'server'
     case ErrorCodes.NETWORK_ERROR:
-      return 'network';
+      return 'network'
     default:
-      return 'generic';
+      return 'generic'
   }
 }
 ```
@@ -490,14 +489,14 @@ Catches app-wide errors and displays a clean recovery UI.
 
 ```tsx
 // src/app/global-error.tsx
-'use client';
+'use client'
 
 export default function GlobalError({
   error,
   reset,
 }: {
-  error: Error & { digest?: string };
-  reset: () => void;
+  error: Error & { digest?: string }
+  reset: () => void
 }) {
   return (
     <html>
@@ -510,7 +509,7 @@ export default function GlobalError({
         />
       </body>
     </html>
-  );
+  )
 }
 ```
 
@@ -520,16 +519,16 @@ Route-level error handling.
 
 ```tsx
 // src/app/[locale]/error.tsx
-'use client';
+'use client'
 
 export default function Error({
   error,
   reset,
 }: {
-  error: Error & { digest?: string };
-  reset: () => void;
+  error: Error & { digest?: string }
+  reset: () => void
 }) {
-  return <ErrorBoundaryWrapper error={error} reset={reset} />;
+  return <ErrorBoundaryWrapper error={error} reset={reset} />
 }
 ```
 
@@ -538,14 +537,14 @@ export default function Error({
 Create reusable page-level error boundaries:
 
 ```tsx
-import { createPageErrorBoundary } from '@/components/errors';
+import { createPageErrorBoundary } from '@/components/errors'
 
 // Create custom error boundary
-const MyPageError = createPageErrorBoundary('My Page Error');
+const MyPageError = createPageErrorBoundary('My Page Error')
 
 // Use in error.tsx
 export default function Error({ error, reset }: ErrorProps) {
-  return <MyPageError error={error} reset={reset} />;
+  return <MyPageError error={error} reset={reset} />
 }
 ```
 
@@ -574,16 +573,16 @@ componentDidCatch(error: Error, errorInfo: React.ErrorInfo) {
 ### Manual Logging
 
 ```typescript
-import * as Sentry from '@sentry/nextjs';
+import * as Sentry from '@sentry/nextjs'
 
 try {
   // Operation
 } catch (error) {
-  Sentry.withScope((scope) => {
-    scope.setTag('category', 'api');
-    scope.setContext('request', { userId, endpoint });
-    Sentry.captureException(error);
-  });
+  Sentry.withScope(scope => {
+    scope.setTag('category', 'api')
+    scope.setContext('request', { userId, endpoint })
+    Sentry.captureException(error)
+  })
 }
 ```
 
@@ -610,15 +609,15 @@ if (process.env.NODE_ENV === 'production') {
 
 ```typescript
 export const POST = withErrorHandling(async (request: Request) => {
-  const body = await request.json();
-  
+  const body = await request.json()
+
   if (!body.email) {
-    return createValidationError('Email is required');
+    return createValidationError('Email is required')
   }
-  
-  const result = await createUser(body);
-  return createSuccessResponse(result, 201);
-});
+
+  const result = await createUser(body)
+  return createSuccessResponse(result, 201)
+})
 ```
 
 ❌ **DON'T:**
@@ -626,15 +625,15 @@ export const POST = withErrorHandling(async (request: Request) => {
 ```typescript
 export const POST = async (request: Request) => {
   try {
-    const body = await request.json();
-    const result = await createUser(body);
-    return NextResponse.json(result);
+    const body = await request.json()
+    const result = await createUser(body)
+    return NextResponse.json(result)
   } catch (error) {
     // ❌ Exposes error details
-    console.error(error);
-    return NextResponse.json({ error: error.message }, { status: 500 });
+    console.error(error)
+    return NextResponse.json({ error: error.message }, { status: 500 })
   }
-};
+}
 ```
 
 ### Component Error Boundaries
@@ -642,11 +641,7 @@ export const POST = async (request: Request) => {
 ✅ **DO:**
 
 ```tsx
-<ErrorBoundaryWrapper
-  title="组件加载失败"
-  showReset
-  variant="compact"
->
+<ErrorBoundaryWrapper title="组件加载失败" showReset variant="compact">
   <AsyncComponent />
 </ErrorBoundaryWrapper>
 ```
@@ -663,20 +658,20 @@ export const POST = async (request: Request) => {
 ✅ **DO:**
 
 ```typescript
-import { logger } from '@/lib/logger';
+import { logger } from '@/lib/logger'
 
 logger.error('Failed to process request', error, {
   category: 'api',
   endpoint: '/api/users',
-  sensitive: false
-});
+  sensitive: false,
+})
 ```
 
 ❌ **DON'T:**
 
 ```typescript
 // ❌ Logs sensitive data in production
-console.error('Failed to encrypt backup:', error);
+console.error('Failed to encrypt backup:', error)
 ```
 
 ### Error Messages
@@ -685,14 +680,14 @@ console.error('Failed to encrypt backup:', error);
 
 ```typescript
 // User-friendly, actionable message
-return createUnauthorizedError('Please log in to continue');
+return createUnauthorizedError('Please log in to continue')
 ```
 
 ❌ **DON'T:**
 
 ```typescript
 // ❌ Technical details exposed to users
-return createUnauthorizedError('JWT token missing in Authorization header');
+return createUnauthorizedError('JWT token missing in Authorization header')
 ```
 
 ---
@@ -717,9 +712,9 @@ return createUnauthorizedError('JWT token missing in Authorization header');
 3. **Use environment-aware logging**:
    ```typescript
    if (process.env.NODE_ENV === 'production') {
-     logger.error('Operation failed', { action: 'encrypt_backup' });
+     logger.error('Operation failed', { action: 'encrypt_backup' })
    } else {
-     logger.error('Operation failed', error);
+     logger.error('Operation failed', error)
    }
    ```
 
@@ -729,20 +724,20 @@ return createUnauthorizedError('JWT token missing in Authorization header');
 
 ```typescript
 // backup/encryption.ts
-console.error('Failed to encrypt backup:', error);  // ⚠️ Exposes encryption details
+console.error('Failed to encrypt backup:', error) // ⚠️ Exposes encryption details
 ```
 
 #### ✅ SAFE (Required change)
 
 ```typescript
 // backup/encryption.ts
-import { logger } from '@/lib/logger';
+import { logger } from '@/lib/logger'
 
 logger.error('Backup encryption failed', error, {
   category: 'backup',
   operation: 'encrypt',
-  sensitive: true  // Mark as sensitive for sanitization
-});
+  sensitive: true, // Mark as sensitive for sanitization
+})
 ```
 
 ### Error Response Sanitization
@@ -781,32 +776,36 @@ The `createErrorResponse` function automatically sanitizes errors in production:
 ### Pattern 1: API Route with Validation
 
 ```typescript
-import { withErrorHandling, createSuccessResponse, createValidationError } from '@/lib/api/error-handler';
+import {
+  withErrorHandling,
+  createSuccessResponse,
+  createValidationError,
+} from '@/lib/api/error-handler'
 
 export const POST = withErrorHandling(async (request: Request) => {
-  const { email, password } = await request.json();
+  const { email, password } = await request.json()
 
   // Validation
   if (!email || !password) {
-    return createValidationError('Email and password are required');
+    return createValidationError('Email and password are required')
   }
 
   if (!isValidEmail(email)) {
-    return createValidationError('Invalid email format', { field: 'email' });
+    return createValidationError('Invalid email format', { field: 'email' })
   }
 
   // Business logic
-  const user = await authenticateUser(email, password);
-  
-  return createSuccessResponse({ token: user.token });
-});
+  const user = await authenticateUser(email, password)
+
+  return createSuccessResponse({ token: user.token })
+})
 ```
 
 ### Pattern 2: Async Component with Error Boundary
 
 ```tsx
-import { ErrorBoundaryWrapper } from '@/components/ErrorBoundaryWrapper';
-import { Suspense } from 'react';
+import { ErrorBoundaryWrapper } from '@/components/ErrorBoundaryWrapper'
+import { Suspense } from 'react'
 
 function UserProfile() {
   return (
@@ -815,7 +814,7 @@ function UserProfile() {
         <UserData />
       </Suspense>
     </ErrorBoundaryWrapper>
-  );
+  )
 }
 ```
 
@@ -823,37 +822,37 @@ function UserProfile() {
 
 ```tsx
 function ContactForm() {
-  const [status, setStatus] = useState<'idle' | 'loading' | 'success' | 'error'>('idle');
-  const [error, setError] = useState<string | null>(null);
+  const [status, setStatus] = useState<'idle' | 'loading' | 'success' | 'error'>('idle')
+  const [error, setError] = useState<string | null>(null)
 
   const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setStatus('loading');
-    setError(null);
+    e.preventDefault()
+    setStatus('loading')
+    setError(null)
 
     try {
       const response = await fetch('/api/contact', {
         method: 'POST',
-        body: JSON.stringify(formData)
-      });
+        body: JSON.stringify(formData),
+      })
 
-      const result = await response.json();
+      const result = await response.json()
 
       if (!result.success) {
-        setError(result.error.message);
-        setStatus('error');
-        return;
+        setError(result.error.message)
+        setStatus('error')
+        return
       }
 
-      setStatus('success');
+      setStatus('success')
     } catch (err) {
-      setError('网络错误，请稍后重试');
-      setStatus('error');
+      setError('网络错误，请稍后重试')
+      setStatus('error')
     }
-  };
+  }
 
   if (status === 'error') {
-    return <ErrorDisplay title="发送失败" message={error} />;
+    return <ErrorDisplay title="发送失败" message={error} />
   }
 
   // Render form...
@@ -863,15 +862,15 @@ function ContactForm() {
 ### Pattern 4: Data Fetching with Retry
 
 ```tsx
-import { ErrorDisplay } from '@/components/ErrorDisplay';
+import { ErrorDisplay } from '@/components/ErrorDisplay'
 
 function DataLoader() {
   const { data, error, isLoading, refetch } = useQuery({
     queryKey: ['data'],
-    queryFn: fetchData
-  });
+    queryFn: fetchData,
+  })
 
-  if (isLoading) return <LoadingSpinner />;
+  if (isLoading) return <LoadingSpinner />
 
   if (error) {
     return (
@@ -882,10 +881,10 @@ function DataLoader() {
         showReset
         onReset={() => refetch()}
       />
-    );
+    )
   }
 
-  return <DataView data={data} />;
+  return <DataView data={data} />
 }
 ```
 
@@ -893,16 +892,16 @@ function DataLoader() {
 
 ```tsx
 // app/dashboard/error.tsx
-'use client';
+'use client'
 
-import { ErrorBoundaryWrapper } from '@/components/ErrorBoundaryWrapper';
+import { ErrorBoundaryWrapper } from '@/components/ErrorBoundaryWrapper'
 
 export default function DashboardError({
   error,
   reset,
 }: {
-  error: Error & { digest?: string };
-  reset: () => void;
+  error: Error & { digest?: string }
+  reset: () => void
 }) {
   return (
     <ErrorBoundaryWrapper
@@ -911,7 +910,7 @@ export default function DashboardError({
       title="Dashboard 加载失败"
       variant="default"
     />
-  );
+  )
 }
 ```
 
@@ -926,15 +925,12 @@ export default function DashboardError({
 ```typescript
 export async function POST(request: Request) {
   try {
-    const data = await request.json();
-    const result = await processData(data);
-    return NextResponse.json(result);
+    const data = await request.json()
+    const result = await processData(data)
+    return NextResponse.json(result)
   } catch (error) {
-    console.error('Error:', error);
-    return NextResponse.json(
-      { error: error.message },
-      { status: 500 }
-    );
+    console.error('Error:', error)
+    return NextResponse.json({ error: error.message }, { status: 500 })
   }
 }
 ```
@@ -942,13 +938,13 @@ export async function POST(request: Request) {
 **After:**
 
 ```typescript
-import { withErrorHandling, createSuccessResponse } from '@/lib/api/error-handler';
+import { withErrorHandling, createSuccessResponse } from '@/lib/api/error-handler'
 
 export const POST = withErrorHandling(async (request: Request) => {
-  const data = await request.json();
-  const result = await processData(data);
-  return createSuccessResponse(result);
-});
+  const data = await request.json()
+  const result = await processData(data)
+  return createSuccessResponse(result)
+})
 ```
 
 ### Migrating 7zi-Frontend API Routes
@@ -961,25 +957,25 @@ The 7zi-frontend subproject needs to migrate to use the unified error handler:
 // 7zi-frontend/src/app/api/projects/route.ts
 export async function GET() {
   if (!hasPermission) {
-    return NextResponse.json({ error: 'Permission denied' }, { status: 403 });
+    return NextResponse.json({ error: 'Permission denied' }, { status: 403 })
   }
-  const projects = await getProjects();
-  return NextResponse.json(projects);
+  const projects = await getProjects()
+  return NextResponse.json(projects)
 }
 ```
 
 **After:**
 
 ```typescript
-import { createForbiddenError, createSuccessResponse } from '@/lib/api/error-handler';
+import { createForbiddenError, createSuccessResponse } from '@/lib/api/error-handler'
 
 export const GET = withErrorHandling(async () => {
   if (!hasPermission) {
-    return createForbiddenError('You do not have permission to access projects');
+    return createForbiddenError('You do not have permission to access projects')
   }
-  const projects = await getProjects();
-  return createSuccessResponse(projects);
-});
+  const projects = await getProjects()
+  return createSuccessResponse(projects)
+})
 ```
 
 ---

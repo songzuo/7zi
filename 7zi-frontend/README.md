@@ -48,17 +48,17 @@
 
 ### ✅ 已完成功能
 
-| 功能模块 | 状态 | 说明 |
-|---------|------|------|
-| WebSocket 高级功能 | ✅ 完成 | 房间系统、权限控制、消息持久化 |
-| AI Agent 智能调度 | ✅ 完成 | 任务匹配、负载均衡、Dashboard UI |
-| 性能监控升级 | 🟢 60% | 异常检测完成，告警待实现 |
-| React Compiler 可选 | ✅ 完成 | 环境变量控制，兼容性检测 |
-| 国际化 (i18n) | ✅ 完成 | 中英文支持，500+ 翻译键 |
-| 图片优化 | ✅ 完成 | AVIF/WebP，6 种预设尺寸 |
-| 安全加固 | ✅ 完成 | JWT 认证、权限控制、速率限制 |
-| E2E 测试 | ✅ 完成 | Playwright 框架，完整覆盖 |
-| 深色模式 | ✅ 完成 | 主题切换、系统偏好检测 |
+| 功能模块            | 状态    | 说明                             |
+| ------------------- | ------- | -------------------------------- |
+| WebSocket 高级功能  | ✅ 完成 | 房间系统、权限控制、消息持久化   |
+| AI Agent 智能调度   | ✅ 完成 | 任务匹配、负载均衡、Dashboard UI |
+| 性能监控升级        | 🟢 60%  | 异常检测完成，告警待实现         |
+| React Compiler 可选 | ✅ 完成 | 环境变量控制，兼容性检测         |
+| 国际化 (i18n)       | ✅ 完成 | 中英文支持，500+ 翻译键          |
+| 图片优化            | ✅ 完成 | AVIF/WebP，6 种预设尺寸          |
+| 安全加固            | ✅ 完成 | JWT 认证、权限控制、速率限制     |
+| E2E 测试            | ✅ 完成 | Playwright 框架，完整覆盖        |
+| 深色模式            | ✅ 完成 | 主题切换、系统偏好检测           |
 
 ---
 
@@ -92,6 +92,7 @@ npm run dev
 运行 `npm run dev` 后：
 
 1. **启动信息**
+
    ```
    ▲ Next.js 16.2.1
    - Local:        http://localhost:3000
@@ -108,7 +109,7 @@ npm run dev
 
 4. **访问地址**
    - 开发服务器：http://localhost:3000
-   - API 端点：http://localhost:3000/api/*
+   - API 端点：http://localhost:3000/api/\*
    - WebSocket：ws://localhost:3000/ws
 
 ### 常用命令
@@ -199,18 +200,18 @@ npm run storybook        # 启动组件文档
 
 `src/lib/` 采用分层架构设计：
 
-| 目录 | 职责 | 说明 |
-|------|------|------|
-| `agents/` | AI Agent 核心 | 智能调度、任务匹配 |
-| `api/` | API 工具层 | 请求处理、响应格式化 |
-| `auth.ts` | 认证逻辑 | JWT 验证、会话管理 |
-| `db/` | 数据访问层 | 数据库连接、查询封装 |
-| `i18n/` | 国际化 | 翻译资源、语言检测 |
-| `mcp/` | 协议层 | Model Context Protocol 实现 |
-| `performance/` | 性能优化 | 缓存、懒加载 |
-| `security/` | 安全层 | XSS 防护、输入验证 |
-| `services/` | 业务服务 | 领域逻辑封装 |
-| `utils/` | 工具函数 | 通用工具、格式化 |
+| 目录           | 职责          | 说明                        |
+| -------------- | ------------- | --------------------------- |
+| `agents/`      | AI Agent 核心 | 智能调度、任务匹配          |
+| `api/`         | API 工具层    | 请求处理、响应格式化        |
+| `auth.ts`      | 认证逻辑      | JWT 验证、会话管理          |
+| `db/`          | 数据访问层    | 数据库连接、查询封装        |
+| `i18n/`        | 国际化        | 翻译资源、语言检测          |
+| `mcp/`         | 协议层        | Model Context Protocol 实现 |
+| `performance/` | 性能优化      | 缓存、懒加载                |
+| `security/`    | 安全层        | XSS 防护、输入验证          |
+| `services/`    | 业务服务      | 领域逻辑封装                |
+| `utils/`       | 工具函数      | 通用工具、格式化            |
 
 ---
 
@@ -279,17 +280,20 @@ REACT_COMPILER_MODE=optimize
 ### 开发流程
 
 1. **创建功能分支**
+
    ```bash
    git checkout -b feature/your-feature
    ```
 
 2. **开发与测试**
+
    ```bash
    npm run dev       # 启动开发服务器
    npm run test      # 运行测试
    ```
 
 3. **提交代码**
+
    ```bash
    git add .
    git commit -m "feat: 添加新功能"
@@ -323,50 +327,51 @@ REACT_COMPILER_MODE=optimize
 #### 使用示例
 
 ```typescript
-import { authMiddleware, checkPermissions, getUserId } from '@/middleware/auth.middleware';
+import { authMiddleware, checkPermissions, getUserId } from '@/middleware/auth.middleware'
 
 // 基础认证
 export async function GET(request: NextRequest) {
-  const authResponse = authMiddleware(request);
+  const authResponse = authMiddleware(request)
   if (authResponse.status !== 200) {
-    return authResponse; // 返回 401 Unauthorized
+    return authResponse // 返回 401 Unauthorized
   }
-  
-  const userId = getUserId(request);
+
+  const userId = getUserId(request)
   // 处理认证后的请求
 }
 
 // 角色权限检查
-const adminOnly = checkPermissions(['admin', 'superadmin']);
+const adminOnly = checkPermissions(['admin', 'superadmin'])
 ```
 
 #### 保护路径
 
 默认保护以下路径：
+
 - `/api/search`
 - `/api/data/import`
 - `/api/data/export`
 
 #### 导出函数
 
-| 函数 | 说明 |
-|------|------|
-| `authMiddleware(request)` | 基础认证中间件 |
-| `checkPermissions(roles)` | 创建角色检查中间件 |
-| `requireAuth(request)` | 严格认证（所有路径） |
-| `getUserId(request)` | 获取用户 ID |
-| `getUserRole(request)` | 获取用户角色 |
+| 函数                      | 说明                 |
+| ------------------------- | -------------------- |
+| `authMiddleware(request)` | 基础认证中间件       |
+| `checkPermissions(roles)` | 创建角色检查中间件   |
+| `requireAuth(request)`    | 严格认证（所有路径） |
+| `getUserId(request)`      | 获取用户 ID          |
+| `getUserRole(request)`    | 获取用户角色         |
 
 ### API 端点
 
-| 端点 | 方法 | 认证 | 说明 |
-|------|------|------|------|
-| `/api/auth/login` | POST | ❌ | 用户登录 |
-| `/api/auth/register` | POST | ❌ | 用户注册 |
-| `/api/search` | GET | ✅ | 搜索接口 |
-| `/api/data/import` | POST | ✅ | 数据导入 |
-| `/api/data/export` | GET | ✅ | 数据导出 |
-| `/api/a2a/*` | * | ❌ | Agent-to-Agent 协议 |
+| 端点                 | 方法 | 认证 | 说明                |
+| -------------------- | ---- | ---- | ------------------- |
+| `/api/auth/login`    | POST | ❌   | 用户登录            |
+| `/api/auth/register` | POST | ❌   | 用户注册            |
+| `/api/search`        | GET  | ✅   | 搜索接口            |
+| `/api/data/import`   | POST | ✅   | 数据导入            |
+| `/api/data/export`   | GET  | ✅   | 数据导出            |
+| `/api/a2a/*`         | \*   | ❌   | Agent-to-Agent 协议 |
 
 ---
 
@@ -393,12 +398,12 @@ npm run test:all          # 单元测试 + E2E 测试
 
 当前覆盖率：**~98%**
 
-| 模块 | 覆盖率 |
-|------|--------|
-| Agent Scheduler | 100% |
-| WebSocket | 100% |
+| 模块                | 覆盖率 |
+| ------------------- | ------ |
+| Agent Scheduler     | 100%   |
+| WebSocket           | 100%   |
 | Performance Monitor | 98.91% |
-| 整体 | ~98% |
+| 整体                | ~98%   |
 
 ### 测试文件位置
 
@@ -475,28 +480,33 @@ npm run start
 ### 开发流程
 
 1. **拉取最新代码**
+
    ```bash
    git pull origin main
    ```
 
 2. **安装依赖**
+
    ```bash
    npm install
    ```
 
 3. **创建分支并开发**
+
    ```bash
    git checkout -b feature/your-feature
    npm run dev
    ```
 
 4. **运行测试确保通过**
+
    ```bash
    npm run test
    npm run lint
    ```
 
 5. **提交并推送**
+
    ```bash
    git add .
    git commit -m "feat: your feature description"

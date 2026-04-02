@@ -49,7 +49,7 @@ export {
   generateSpanId,
   generateUUIDv4,
   type TraceManagerOptions,
-} from "./TraceManager";
+} from './TraceManager'
 
 // ============================================
 // StructuredLogger
@@ -65,7 +65,7 @@ export {
   type LogEntry,
   type TraceContextFields,
   type LogError,
-} from "./StructuredLogger";
+} from './StructuredLogger'
 
 // ============================================
 // Middleware
@@ -80,7 +80,7 @@ export {
   injectTraceIdToResponse,
   getTraceContextFromRequest,
   type TraceMiddlewareOptions,
-} from "./middleware";
+} from './middleware'
 
 // ============================================
 // Shared Types
@@ -94,10 +94,7 @@ export type {
   SpanStatus,
   TraceContext,
   TraceMetadata,
-} from "../tracing/types";
+} from '../tracing/types'
 
-export {
-  SpanStatusCode,
-  SpanKind,
-  OperationType,
-} from "../tracing/types";
+export { SpanStatusCode, SpanKind } from '../tracing/types'
+export type { OperationType } from '../tracing/types'

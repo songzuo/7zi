@@ -11,8 +11,9 @@
 ### 1. 性能分析报告
 
 创建了详细的性能优化分析报告：
+
 - **文件**: `PERFORMANCE_LCP_OPTIMIZATION_20260329.md`
-- **内容**: 
+- **内容**:
   - 当前问题分析
   - 优化方案设计 (A/B/C/D 四个方案)
   - 实施计划 (4 个阶段)
@@ -21,6 +22,7 @@
 ### 2. 关键 CSS 提取
 
 创建了首屏关键 CSS 文件：
+
 - **文件**: `src/app/critical.css`
 - **大小**: ~14KB (符合最佳实践)
 - **特性**:
@@ -34,6 +36,7 @@
 ### 3. 骨架屏组件
 
 创建了完整的骨架屏组件库：
+
 - **文件**: `src/components/skeletons/HeroSkeleton.tsx`
 - **包含组件**:
   - `HeroSkeleton` - Hero 区域骨架屏
@@ -50,6 +53,7 @@
 ### 4. 优化页面示例
 
 创建了使用 React Suspense 的优化示例：
+
 - **文件**: `src/app/[locale]/page.optimized.example.tsx`
 - **特性**:
   - 关键内容立即渲染 (Hero, Navigation)
@@ -62,6 +66,7 @@
 ### 5. 性能测试脚本
 
 创建了自动化性能测试脚本：
+
 - **文件**: `scripts/test-lcp-performance.js`
 - **功能**:
   - 检查关键 CSS
@@ -77,6 +82,7 @@
 ### Phase 1: 快速优化 (1-2 小时)
 
 - [ ] **内联关键 CSS 到 layout.tsx**
+
   ```tsx
   // src/app/[locale]/layout.tsx
   <head>
@@ -85,24 +91,21 @@
   ```
 
 - [ ] **设置 LCP 图片优先级**
+
   ```tsx
   // src/app/[locale]/layout.tsx
-  <link 
-    rel="preload" 
-    href="/og-image.svg" 
-    as="image" 
-    fetchPriority="high" 
-  />
+  <link rel="preload" href="/og-image.svg" as="image" fetchPriority="high" />
   ```
 
 - [ ] **优化字体预加载**
+
   ```tsx
-  <link 
-    rel="preload" 
-    href="/fonts/geist-sans.woff2" 
-    as="font" 
-    type="font/woff2" 
-    crossOrigin="anonymous" 
+  <link
+    rel="preload"
+    href="/fonts/geist-sans.woff2"
+    as="font"
+    type="font/woff2"
+    crossOrigin="anonymous"
   />
   ```
 
@@ -147,6 +150,7 @@
 ### Phase 4: 验证测试 (1-2 小时)
 
 - [ ] **运行 Lighthouse 测试**
+
   ```bash
   npm run build
   npm start
@@ -173,12 +177,12 @@
 
 ### 性能指标
 
-| 指标 | 优化前 | 目标 | 预期优化后 | 提升幅度 |
-|------|--------|------|------------|----------|
-| **LCP** | 2.5s | <1.0s | **0.8-1.2s** | 52-68% ↓ |
-| **FCP** | 1.8s | <1.8s | **1.0-1.3s** | 28-44% ↓ |
-| **TTFB** | 800ms | <800ms | **400-600ms** | 25-50% ↓ |
-| **FID** | 100ms | <100ms | **50-80ms** | 20-50% ↓ |
+| 指标     | 优化前 | 目标   | 预期优化后    | 提升幅度 |
+| -------- | ------ | ------ | ------------- | -------- |
+| **LCP**  | 2.5s   | <1.0s  | **0.8-1.2s**  | 52-68% ↓ |
+| **FCP**  | 1.8s   | <1.8s  | **1.0-1.3s**  | 28-44% ↓ |
+| **TTFB** | 800ms  | <800ms | **400-600ms** | 25-50% ↓ |
+| **FID**  | 100ms  | <100ms | **50-80ms**   | 20-50% ↓ |
 
 ### 用户体验
 

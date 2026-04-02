@@ -3,50 +3,50 @@
  * Configuration for different deployment environments
  */
 
-export type Environment = 'development' | 'testing' | 'production';
+export type Environment = 'development' | 'testing' | 'production'
 
 export interface SchedulerEnvironmentConfig {
   /** Environment name */
-  env: Environment;
-  
+  env: Environment
+
   /** Enable debug logging */
-  debug: boolean;
-  
+  debug: boolean
+
   /** Scheduler interval in milliseconds */
-  scheduleInterval: number;
-  
+  scheduleInterval: number
+
   /** Maximum concurrent tasks per agent */
-  maxConcurrency: number;
-  
+  maxConcurrency: number
+
   /** Task timeout in milliseconds */
-  taskTimeout: number;
-  
+  taskTimeout: number
+
   /** Database configuration */
   database: {
-    url: string;
-    poolSize: number;
-  };
-  
+    url: string
+    poolSize: number
+  }
+
   /** Redis configuration */
   redis: {
-    enabled: boolean;
-    url?: string;
-    prefix: string;
-  };
-  
+    enabled: boolean
+    url?: string
+    prefix: string
+  }
+
   /** API configuration */
   api: {
-    port: number;
-    corsOrigins: string[];
-    rateLimit: number;
-  };
-  
+    port: number
+    corsOrigins: string[]
+    rateLimit: number
+  }
+
   /** Monitoring configuration */
   monitoring: {
-    enabled: boolean;
-    metricsPort?: number;
-    logLevel: 'debug' | 'info' | 'warn' | 'error';
-  };
+    enabled: boolean
+    metricsPort?: number
+    logLevel: 'debug' | 'info' | 'warn' | 'error'
+  }
 }
 
 /**
@@ -60,22 +60,22 @@ export const developmentConfig: SchedulerEnvironmentConfig = {
   taskTimeout: 1800000, // 30 minutes
   database: {
     url: process.env.DATABASE_URL || 'postgresql://localhost:5432/agent_scheduler_dev',
-    poolSize: 5
+    poolSize: 5,
   },
   redis: {
     enabled: false,
-    prefix: 'scheduler:dev:'
+    prefix: 'scheduler:dev:',
   },
   api: {
     port: 3001,
     corsOrigins: ['http://localhost:3000', 'http://localhost:5173'],
-    rateLimit: 1000
+    rateLimit: 1000,
   },
   monitoring: {
     enabled: true,
-    logLevel: 'debug'
-  }
-};
+    logLevel: 'debug',
+  },
+}
 
 /**
  * Testing environment configuration
@@ -88,22 +88,22 @@ export const testingConfig: SchedulerEnvironmentConfig = {
   taskTimeout: 600000, // 10 minutes
   database: {
     url: process.env.DATABASE_URL || 'postgresql://localhost:5432/agent_scheduler_test',
-    poolSize: 3
+    poolSize: 3,
   },
   redis: {
     enabled: false,
-    prefix: 'scheduler:test:'
+    prefix: 'scheduler:test:',
   },
   api: {
     port: 3002,
     corsOrigins: ['*'],
-    rateLimit: 5000
+    rateLimit: 5000,
   },
   monitoring: {
     enabled: false,
-    logLevel: 'info'
-  }
-};
+    logLevel: 'info',
+  },
+}
 
 /**
  * Production environment configuration
@@ -116,41 +116,41 @@ export const productionConfig: SchedulerEnvironmentConfig = {
   taskTimeout: 3600000, // 1 hour
   database: {
     url: process.env.DATABASE_URL || 'postgresql://localhost:5432/agent_scheduler_prod',
-    poolSize: 20
+    poolSize: 20,
   },
   redis: {
     enabled: true,
     url: process.env.REDIS_URL || 'redis://localhost:6379',
-    prefix: 'scheduler:prod:'
+    prefix: 'scheduler:prod:',
   },
   api: {
     port: parseInt(process.env.PORT || '3000'),
     corsOrigins: process.env.CORS_ORIGINS?.split(',') || ['https://7zi.com'],
-    rateLimit: 100
+    rateLimit: 100,
   },
   monitoring: {
     enabled: true,
     metricsPort: 9090,
-    logLevel: 'info'
-  }
-};
+    logLevel: 'info',
+  },
+}
 
 /**
  * Get configuration for the current environment
  */
 export function getEnvironmentConfig(env?: Environment): SchedulerEnvironmentConfig {
-  const environment = env || (process.env.NODE_ENV as Environment) || 'development';
-  
+  const environment = env || (process.env.NODE_ENV as Environment) || 'development'
+
   switch (environment) {
     case 'development':
-      return developmentConfig;
+      return developmentConfig
     case 'testing':
-      return testingConfig;
+      return testingConfig
     case 'production':
-      return productionConfig;
+      return productionConfig
     default:
-      console.warn(`Unknown environment: ${environment}, falling back to development`);
-      return developmentConfig;
+      console.warn(`Unknown environment: ${environment}, falling back to development`)
+      return developmentConfig
   }
 }
 
@@ -158,32 +158,32 @@ export function getEnvironmentConfig(env?: Environment): SchedulerEnvironmentCon
  * Validate environment variables
  */
 export function validateEnvironment(): { valid: boolean; missing: string[] } {
-  const required = ['DATABASE_URL'];
-  const missing: string[] = [];
-  
+  const required = ['DATABASE_URL']
+  const missing: string[] = []
+
   for (const varName of required) {
     if (!process.env[varName]) {
-      missing.push(varName);
+      missing.push(varName)
     }
   }
-  
+
   // Production-specific requirements
   if (process.env.NODE_ENV === 'production') {
-    const prodRequired = ['REDIS_URL', 'CORS_ORIGINS'];
+    const prodRequired = ['REDIS_URL', 'CORS_ORIGINS']
     for (const varName of prodRequired) {
       if (!process.env[varName]) {
-        missing.push(varName);
+        missing.push(varName)
       }
     }
   }
-  
+
   return {
     valid: missing.length === 0,
-    missing
-  };
+    missing,
+  }
 }
 
 /**
  * Default export
  */
-export default getEnvironmentConfig;
+export default getEnvironmentConfig

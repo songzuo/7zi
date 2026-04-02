@@ -19,6 +19,7 @@
 ## IMPORTANT: Conservative Approach
 
 After initial analysis, I discovered that **many exports marked as "unused" are actually used**:
+
 - Through dynamic imports
 - By test files
 - In integration code
@@ -37,6 +38,7 @@ Therefore, this report documents findings rather than making aggressive deletion
 **All Selectors - STATUS: ✅ KEEP ALL**
 
 While some selectors like `selectTaskByStatus`, `selectTasksByAgent`, etc. are not directly imported, they are:
+
 - Available for future use
 - Used by potential consumers
 - Part of the public API
@@ -48,6 +50,7 @@ While some selectors like `selectTaskByStatus`, `selectTasksByAgent`, etc. are n
 **Status:** ✅ KEEP ALL
 
 The dashboard components are re-exported for:
+
 - Clean import paths
 - Future enablement
 - Module organization
@@ -59,6 +62,7 @@ The dashboard components are re-exported for:
 **Status:** ⚠️ No imports but **RUNTIME USE**
 
 **Reason:** Environment configuration is used at:
+
 - Build time
 - Runtime initialization
 - Configuration loading
@@ -70,6 +74,7 @@ Even if no direct imports exist, this is critical infrastructure.
 #### 1.4 `src/lib/agent-scheduler/models/agent-capability.ts`
 
 **Changes Made:**
+
 - Marked `AgentCapabilities` as inline type (removed export)
 - Marked `AGENT_CAPABILITIES_CONFIG` as internal (not exported)
 - Marked `createAgentCapability` as internal function
@@ -79,6 +84,7 @@ Even if no direct imports exist, this is critical infrastructure.
 #### 1.5 `src/lib/agent-scheduler/models/schedule-decision.ts`
 
 **Changes Made:**
+
 - Marked `SchedulingMetrics` as internal interface (not exported)
 
 **Reason:** Only used internally by `ScheduleHistory` class.
@@ -92,6 +98,7 @@ Even if no direct imports exist, this is critical infrastructure.
 **Status:** ✅ KEEP ALL
 
 While some exports like `generateRequestId`, `getUserAgent`, etc. are not directly imported in the analysis:
+
 - They are utility functions used by the logging system itself
 - Available for future API routes
 - Part of the public API for middleware
@@ -104,6 +111,7 @@ While some exports like `generateRequestId`, `getUserAgent`, etc. are not direct
 **Status:** ⚠️ UNUSED - Keep for Future
 
 The enhanced error handlers are not currently used but:
+
 - Provide alternative error handling patterns
 - Could be enabled for better API responses
 - Document best practices
@@ -119,6 +127,7 @@ The enhanced error handlers are not currently used but:
 **Status:** Many exports unused but **KEEP**
 
 The A2A protocol defines a complete type system. Even if not all types are used:
+
 - They provide protocol completeness
 - Future implementations may need them
 - Documentation of protocol capabilities
@@ -134,6 +143,7 @@ The A2A protocol defines a complete type system. Even if not all types are used:
 **Status:** ⚠️ Most exports unused but **INFRASTRUCTURE**
 
 This is the main entry point for the agent system:
+
 - Provides type definitions
 - Centralized re-exports
 - Future authentication/authorization features
@@ -149,6 +159,7 @@ This is the main entry point for the agent system:
 The `src/stores/index.ts` file is clean - all exports are actively used.
 
 **Exports:**
+
 - ✅ Dashboard store
 - ✅ Wallet store
 - ✅ Preferences store
@@ -165,6 +176,7 @@ The `src/stores/index.ts` file is clean - all exports are actively used.
 ### 1. Minor Type Cleanup
 
 **File:** `src/lib/agent-scheduler/models/agent-capability.ts`
+
 - Changed `AgentCapabilities` from exported interface to inline type
 - Made `AGENT_CAPABILITIES_CONFIG` internal (non-exported)
 - Made `createAgentCapability` internal (non-exported)
@@ -174,6 +186,7 @@ The `src/stores/index.ts` file is clean - all exports are actively used.
 ### 2. Internal Interface
 
 **File:** `src/lib/agent-scheduler/models/schedule-decision.ts`
+
 - Changed `SchedulingMetrics` from exported to internal interface
 
 **Rationale:** Only used internally by `ScheduleHistory` class.
@@ -185,6 +198,7 @@ The `src/stores/index.ts` file is clean - all exports are actively used.
 ### 1. False Positives in Analysis
 
 The `ts-prune` tool and similar static analysis have limitations:
+
 - Cannot detect dynamic imports
 - Cannot detect usage in test files
 - Cannot detect usage in monorepo packages
@@ -193,6 +207,7 @@ The `ts-prune` tool and similar static analysis have limitations:
 ### 2. Infrastructure vs Application Code
 
 Many exports are infrastructure:
+
 - Type definitions for API consumers
 - Configuration loaders
 - Re-exports for clean APIs
@@ -201,12 +216,14 @@ Many exports are infrastructure:
 ### 3. Risk vs Reward
 
 **Deleting risks:**
+
 - Breaking changes for external consumers
 - Breaking tests that were not in scope
 - Breaking build-time tools
 - Breaking integration code
 
 **Keeping costs:**
+
 - Small bundle size impact (tree-shaking handles unused exports)
 - Minimal maintenance burden
 - Keeps API flexible
@@ -214,6 +231,7 @@ Many exports are infrastructure:
 ### 4. Tree-Shaking Handles Most Cases
 
 Modern bundlers (Webpack, Vite, etc.) with tree-shaking will:
+
 - Remove truly unused exports from production builds
 - Only keep what's actually imported
 - Have better visibility than static analysis
@@ -241,11 +259,14 @@ Before removing any export:
 4. Remove only if confirmed unused
 
 Example:
+
 ```typescript
 /**
  * @deprecated Use `withApiErrorMiddleware` instead. Will be removed in v3.0
  */
-export function withApiErrorMiddleware() { /* ... */ }
+export function withApiErrorMiddleware() {
+  /* ... */
+}
 ```
 
 ### 3. Module Consolidation
@@ -253,6 +274,7 @@ export function withApiErrorMiddleware() { /* ... */ }
 Instead of removing unused exports, consolidate duplicate code:
 
 **Duplicate Permissions:**
+
 - `src/lib/auth/service.ts` - `hasPermission()`
 - `src/lib/auth/service-unified.ts` - `hasPermission()`
 - `src/lib/agent/auth-service-optimized.ts` - `hasPermission()`
@@ -260,6 +282,7 @@ Instead of removing unused exports, consolidate duplicate code:
 → **Action:** Keep one canonical implementation, others use re-export
 
 **Duplicate Error Handling:**
+
 - `src/lib/error-handling.ts`
 - `src/lib/api/error-handler.ts`
 - `src/lib/api/enhanced-error-handler.ts`
@@ -304,14 +327,14 @@ pnpm build --analyze
 
 ## Statistics
 
-| Metric | Value |
-|--------|-------|
-| Total Files Analyzed | 520 |
-| Files with Unused Exports | 471 |
-| Total Unused Exports (reported) | 3,301 |
-| Actual Exports Removed | 2 (types marked internal) |
-| Lines Changed | ~50 |
-| Breaking Changes | 0 |
+| Metric                          | Value                     |
+| ------------------------------- | ------------------------- |
+| Total Files Analyzed            | 520                       |
+| Files with Unused Exports       | 471                       |
+| Total Unused Exports (reported) | 3,301                     |
+| Actual Exports Removed          | 2 (types marked internal) |
+| Lines Changed                   | ~50                       |
+| Breaking Changes                | 0                         |
 
 ---
 

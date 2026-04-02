@@ -4,10 +4,10 @@
  * 批量修复 ESLint 错误的脚本
  */
 
-const fs = require('fs');
-const path = require('path');
+const fs = require('fs')
+const path = require('path')
 
-console.log('🔧 批量修复 ESLint 错误...\n');
+console.log('🔧 批量修复 ESLint 错误...\n')
 
 // 修复模式列表
 const fixPatterns = [
@@ -17,7 +17,7 @@ const fixPatterns = [
     pattern: /catch\s*\(\s*(err|error)\s*\)/g,
     replacement: 'catch (_$1)',
   },
-];
+]
 
 // 需要修复的文件清单（从 eslint_output.txt 提取的关键文件）
 const filesToFix = [
@@ -47,43 +47,43 @@ const filesToFix = [
   'src/app/api/multimodal/audio/route.ts',
   'src/lib/hooks/useWebVitals.ts',
   'src/lib/prefetch/hooks/use-prefetch.ts',
-];
+]
 
-let totalFixed = 0;
-let totalFiles = 0;
+let totalFixed = 0
+let totalFiles = 0
 
 filesToFix.forEach(file => {
-  const filePath = path.join(process.cwd(), file);
+  const filePath = path.join(process.cwd(), file)
 
   if (!fs.existsSync(filePath)) {
-    console.log(`⚠️  跳过: ${file} (不存在)`);
-    return;
+    console.log(`⚠️  跳过: ${file} (不存在)`)
+    return
   }
 
   try {
-    let content = fs.readFileSync(filePath, 'utf8');
-    let originalContent = content;
-    let fileFixed = 0;
+    let content = fs.readFileSync(filePath, 'utf8')
+    let originalContent = content
+    let fileFixed = 0
 
     // 应用所有修复模式
     fixPatterns.forEach(({ name, pattern, replacement }) => {
-      const matches = content.match(pattern);
+      const matches = content.match(pattern)
       if (matches) {
-        content = content.replace(pattern, replacement);
-        fileFixed += matches.length;
+        content = content.replace(pattern, replacement)
+        fileFixed += matches.length
       }
-    });
+    })
 
     if (content !== originalContent) {
-      fs.writeFileSync(filePath, content, 'utf8');
-      totalFiles++;
-      totalFixed += fileFixed;
-      console.log(`✅ ${file} (修复 ${fileFixed} 处)`);
+      fs.writeFileSync(filePath, content, 'utf8')
+      totalFiles++
+      totalFixed += fileFixed
+      console.log(`✅ ${file} (修复 ${fileFixed} 处)`)
     }
   } catch (error) {
-    console.error(`❌ ${file}: ${error.message}`);
+    console.error(`❌ ${file}: ${error.message}`)
   }
-});
+})
 
-console.log(`\n${'='.repeat(60)}`);
-console.log(`完成! 修复了 ${totalFiles} 个文件，共 ${totalFixed} 处错误`);
+console.log(`\n${'='.repeat(60)}`)
+console.log(`完成! 修复了 ${totalFiles} 个文件，共 ${totalFixed} 处错误`)

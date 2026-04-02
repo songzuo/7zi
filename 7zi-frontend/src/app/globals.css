@@ -9,7 +9,10 @@
 
 * {
   /* 平滑过渡主题切换 */
-  transition: background-color 0.3s ease, color 0.3s ease, border-color 0.3s ease;
+  transition:
+    background-color 0.3s ease,
+    color 0.3s ease,
+    border-color 0.3s ease;
 }
 
 /* 禁用首次加载时的过渡动画，防止闪烁 */
@@ -137,7 +140,8 @@ a:hover {
 }
 
 /* 代码块样式 */
-code, pre {
+code,
+pre {
   font-family: var(--font-family-mono);
   background-color: var(--color-gray-100);
   border-radius: var(--radius-md);

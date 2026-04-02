@@ -91,15 +91,17 @@
 
 ```typescript
 // src/lib/validation-schemas.ts
-import { z } from 'zod';
+import { z } from 'zod'
 
 // 使用 Zod 进行严格的类型验证
-export const safeObjectSchema = z.object({
-  // 明确定义所有允许的字段
-  name: z.string(),
-  value: z.number(),
-  // ...
-}).passthrough(false); // 拒绝未定义的字段
+export const safeObjectSchema = z
+  .object({
+    // 明确定义所有允许的字段
+    name: z.string(),
+    value: z.number(),
+    // ...
+  })
+  .passthrough(false) // 拒绝未定义的字段
 ```
 
 ##### 1.2 Object 原型保护
@@ -108,27 +110,27 @@ export const safeObjectSchema = z.object({
 // 在应用启动时执行 (src/lib/security/prototype-pollution-guard.ts)
 export function protectPrototype() {
   // 冻结 Object.prototype
-  Object.freeze(Object.prototype);
+  Object.freeze(Object.prototype)
 
   // 监控原型链污染
-  const originalObjectCreate = Object.create;
-  Object.create = function(proto: object | null, propertiesObject?: PropertyDescriptorMap) {
+  const originalObjectCreate = Object.create
+  Object.create = function (proto: object | null, propertiesObject?: PropertyDescriptorMap) {
     if (proto && proto !== Object.prototype && typeof proto === 'object') {
       // 检查是否有可疑属性
-      const suspiciousProps = ['__proto__', 'constructor', 'prototype'];
+      const suspiciousProps = ['__proto__', 'constructor', 'prototype']
       for (const prop of suspiciousProps) {
         if (prop in proto) {
-          console.warn(`[Security] Attempted prototype pollution via property: ${prop}`);
+          console.warn(`[Security] Attempted prototype pollution via property: ${prop}`)
         }
       }
     }
-    return originalObjectCreate.call(this, proto, propertiesObject);
-  };
+    return originalObjectCreate.call(this, proto, propertiesObject)
+  }
 }
 
 // 在 src/app/layout.tsx 或入口文件中调用
 if (typeof window !== 'undefined') {
-  protectPrototype();
+  protectPrototype()
 }
 ```
 
@@ -138,23 +140,23 @@ if (typeof window !== 'undefined') {
 // src/lib/security/json-parser.ts
 export function safeParseJSON<T>(json: string): T | null {
   try {
-    const parsed = JSON.parse(json);
+    const parsed = JSON.parse(json)
 
     // 检查原型污染特征
     if (parsed && typeof parsed === 'object') {
-      const suspiciousKeys = ['__proto__', 'constructor', 'prototype'];
+      const suspiciousKeys = ['__proto__', 'constructor', 'prototype']
       for (const key of suspiciousKeys) {
         if (key in parsed) {
-          console.warn(`[Security] Detected potential prototype pollution in JSON: ${key}`);
-          delete parsed[key];
+          console.warn(`[Security] Detected potential prototype pollution in JSON: ${key}`)
+          delete parsed[key]
         }
       }
     }
 
-    return parsed as T;
+    return parsed as T
   } catch (error) {
-    console.error('[Security] JSON parse error:', error);
-    return null;
+    console.error('[Security] JSON parse error:', error)
+    return null
   }
 }
 ```
@@ -164,48 +166,48 @@ export function safeParseJSON<T>(json: string): T | null {
 如果未来需要使用 `xlsx` 或类似库处理 Excel 文件：
 
 1. **使用安全版本**
+
    ```bash
    npm install xlsx@latest --save-exact
    npm audit
    ```
 
 2. **沙箱化处理**
+
    ```typescript
-   import * as XLSX from 'xlsx';
+   import * as XLSX from 'xlsx'
 
    export function safelyParseExcel(buffer: Buffer) {
      // 限制文件大小 (最大 10MB)
-     const MAX_SIZE = 10 * 1024 * 1024;
+     const MAX_SIZE = 10 * 1024 * 1024
      if (buffer.length > MAX_SIZE) {
-       throw new Error('File too large');
+       throw new Error('File too large')
      }
 
      // 创建干净的工作簿对象
      const workbook = XLSX.read(buffer, {
        type: 'buffer',
-       cellFormula: false,  // 禁用公式
-       cellHTML: false,     // 禁用 HTML
-       cellNF: false,        // 禁用数字格式
-       cellDates: false,    // 禁用日期解析
-     });
+       cellFormula: false, // 禁用公式
+       cellHTML: false, // 禁用 HTML
+       cellNF: false, // 禁用数字格式
+       cellDates: false, // 禁用日期解析
+     })
 
      // 白名单验证
-     const allowedSheets = ['Sheet1', 'Data'];
-     const sheets = workbook.SheetNames.filter(name =>
-       allowedSheets.includes(name)
-     );
+     const allowedSheets = ['Sheet1', 'Data']
+     const sheets = workbook.SheetNames.filter(name => allowedSheets.includes(name))
 
      // 只处理白名单中的工作表
      const data = sheets.map(sheetName => {
-       const sheet = workbook.Sheets[sheetName];
+       const sheet = workbook.Sheets[sheetName]
        return XLSX.utils.sheet_to_json(sheet, {
-         header: ['id', 'name', 'value'],  // 限制列
-         raw: false,                        // 不保留原始格式
-         defval: null,                      // 默认值
-       });
-     });
+         header: ['id', 'name', 'value'], // 限制列
+         raw: false, // 不保留原始格式
+         defval: null, // 默认值
+       })
+     })
 
-     return data;
+     return data
    }
    ```
 
@@ -217,49 +219,41 @@ export function safeParseJSON<T>(json: string): T | null {
 
 根据任务要求，以下端点需要认证保护：
 
-| 端点路径 | 认证要求 | 状态 | 实现方式 |
-|---------|---------|------|---------|
+| 端点路径           | 认证要求 | 状态      | 实现方式       |
+| ------------------ | -------- | --------- | -------------- |
 | `/api/data/import` | 必须认证 | 🟡 待创建 | JWT 验证中间件 |
-| `/api/feedback` | 必须认证 | 🟡 待创建 | JWT 验证中间件 |
-| `/api/search` | 必须认证 | 🟡 待创建 | JWT 验证中间件 |
+| `/api/feedback`    | 必须认证 | 🟡 待创建 | JWT 验证中间件 |
+| `/api/search`      | 必须认证 | 🟡 待创建 | JWT 验证中间件 |
 
 ### 1. 创建认证中间件
 
 ```typescript
 // src/middleware/auth.middleware.ts
-import { NextRequest, NextResponse } from 'next/server';
-import { verifyJWT } from '../lib/auth/jwt';
+import { NextRequest, NextResponse } from 'next/server'
+import { verifyJWT } from '../lib/auth/jwt'
 
 /**
  * 需要认证的路径列表
  */
-const AUTHENTICATED_PATHS = [
-  '/api/data/import',
-  '/api/feedback',
-  '/api/search',
-];
+const AUTHENTICATED_PATHS = ['/api/data/import', '/api/feedback', '/api/search']
 
 /**
  * 跳过认证的路径
  */
-const PUBLIC_PATHS = [
-  '/api/auth/login',
-  '/api/auth/register',
-  '/api/auth/reset-password',
-];
+const PUBLIC_PATHS = ['/api/auth/login', '/api/auth/register', '/api/auth/reset-password']
 
 /**
  * 检查路径是否需要认证
  */
 function requiresAuth(pathname: string): boolean {
-  return AUTHENTICATED_PATHS.some(path => pathname.startsWith(path));
+  return AUTHENTICATED_PATHS.some(path => pathname.startsWith(path))
 }
 
 /**
  * 检查路径是否公开
  */
 function isPublicPath(pathname: string): boolean {
-  return PUBLIC_PATHS.some(path => pathname.startsWith(path));
+  return PUBLIC_PATHS.some(path => pathname.startsWith(path))
 }
 
 /**
@@ -267,26 +261,24 @@ function isPublicPath(pathname: string): boolean {
  */
 function verifyAuthToken(request: NextRequest): { userId: string } | null {
   // 从 Cookie 获取令牌
-  const token = request.cookies.get('auth-token')?.value;
+  const token = request.cookies.get('auth-token')?.value
 
   // 从 Authorization 头获取令牌
-  const authHeader = request.headers.get('authorization');
-  const bearerToken = authHeader?.startsWith('Bearer ')
-    ? authHeader.substring(7)
-    : null;
+  const authHeader = request.headers.get('authorization')
+  const bearerToken = authHeader?.startsWith('Bearer ') ? authHeader.substring(7) : null
 
-  const jwtToken = token || bearerToken;
+  const jwtToken = token || bearerToken
 
   if (!jwtToken) {
-    return null;
+    return null
   }
 
   try {
-    const payload = verifyJWT(jwtToken);
-    return { userId: payload.userId };
+    const payload = verifyJWT(jwtToken)
+    return { userId: payload.userId }
   } catch (error) {
-    console.error('[Auth] Token verification failed:', error);
-    return null;
+    console.error('[Auth] Token verification failed:', error)
+    return null
   }
 }
 
@@ -294,16 +286,16 @@ function verifyAuthToken(request: NextRequest): { userId: string } | null {
  * 认证中间件
  */
 export function authMiddleware(request: NextRequest) {
-  const { pathname } = request.nextUrl;
+  const { pathname } = request.nextUrl
 
   // 公开路径不需要认证
   if (isPublicPath(pathname)) {
-    return NextResponse.next();
+    return NextResponse.next()
   }
 
   // 检查是否需要认证
   if (requiresAuth(pathname)) {
-    const user = verifyAuthToken(request);
+    const user = verifyAuthToken(request)
 
     if (!user) {
       // 未认证：返回 401
@@ -313,17 +305,17 @@ export function authMiddleware(request: NextRequest) {
           message: '请先登录',
         },
         { status: 401 }
-      );
+      )
     }
 
     // 添加用户信息到请求头（供后续使用）
-    const response = NextResponse.next();
-    response.headers.set('x-user-id', user.userId);
-    return response;
+    const response = NextResponse.next()
+    response.headers.set('x-user-id', user.userId)
+    return response
   }
 
   // 其他路径正常处理
-  return NextResponse.next();
+  return NextResponse.next()
 }
 ```
 
@@ -331,18 +323,18 @@ export function authMiddleware(request: NextRequest) {
 
 ```typescript
 // src/lib/auth/jwt.ts
-import { SignJWT, jwtVerify } from 'jose';
+import { SignJWT, jwtVerify } from 'jose'
 
 const JWT_SECRET = new TextEncoder().encode(
   process.env.JWT_SECRET || 'default-secret-change-in-production'
-);
+)
 
 export interface JWTPayload {
-  userId: string;
-  username: string;
-  role: string;
-  iat?: number;
-  exp?: number;
+  userId: string
+  username: string
+  role: string
+  iat?: number
+  exp?: number
 }
 
 /**
@@ -353,9 +345,9 @@ export async function generateJWT(payload: Omit<JWTPayload, 'iat' | 'exp'>): Pro
     .setProtectedHeader({ alg: 'HS256' })
     .setIssuedAt()
     .setExpirationTime('24h')
-    .sign(JWT_SECRET);
+    .sign(JWT_SECRET)
 
-  return token;
+  return token
 }
 
 /**
@@ -363,10 +355,10 @@ export async function generateJWT(payload: Omit<JWTPayload, 'iat' | 'exp'>): Pro
  */
 export async function verifyJWT(token: string): Promise<JWTPayload> {
   try {
-    const { payload } = await jwtVerify(token, JWT_SECRET);
-    return payload as JWTPayload;
+    const { payload } = await jwtVerify(token, JWT_SECRET)
+    return payload as JWTPayload
   } catch (error) {
-    throw new Error('Invalid or expired token');
+    throw new Error('Invalid or expired token')
   }
 }
 
@@ -375,16 +367,14 @@ export async function verifyJWT(token: string): Promise<JWTPayload> {
  */
 export function decodeJWT(token: string): JWTPayload | null {
   try {
-    const parts = token.split('.');
-    if (parts.length !== 3) return null;
+    const parts = token.split('.')
+    if (parts.length !== 3) return null
 
-    const payload = JSON.parse(
-      Buffer.from(parts[1], 'base64url').toString()
-    );
+    const payload = JSON.parse(Buffer.from(parts[1], 'base64url').toString())
 
-    return payload;
+    return payload
   } catch (error) {
-    return null;
+    return null
   }
 }
 ```
@@ -393,10 +383,10 @@ export function decodeJWT(token: string): JWTPayload | null {
 
 ```typescript
 // src/app/api/data/import/route.ts
-import { NextRequest, NextResponse } from 'next/server';
-import { authMiddleware } from '../../../middleware/auth.middleware';
-import { validateAndSanitizeBody } from '../../../lib/validation-schemas';
-import { z } from 'zod';
+import { NextRequest, NextResponse } from 'next/server'
+import { authMiddleware } from '../../../middleware/auth.middleware'
+import { validateAndSanitizeBody } from '../../../lib/validation-schemas'
+import { z } from 'zod'
 
 /**
  * 导入数据验证模式
@@ -404,23 +394,23 @@ import { z } from 'zod';
 const importDataSchema = z.object({
   data: z.array(z.record(z.unknown())).max(1000, '单次最多导入 1000 条数据'),
   format: z.enum(['json', 'csv', 'xlsx']).default('json'),
-});
+})
 
 /**
  * POST /api/data/import - 导入数据（需要认证）
  */
 export async function POST(request: NextRequest) {
   // 验证认证
-  const authResponse = authMiddleware(request);
+  const authResponse = authMiddleware(request)
   if (authResponse.status !== 200) {
-    return authResponse;
+    return authResponse
   }
 
-  const userId = request.headers.get('x-user-id');
+  const userId = request.headers.get('x-user-id')
 
   try {
-    const body = await request.json();
-    const validationResult = await validateAndSanitizeBody(body, importDataSchema, 'nosql');
+    const body = await request.json()
+    const validationResult = await validateAndSanitizeBody(body, importDataSchema, 'nosql')
 
     if (!validationResult.success) {
       return NextResponse.json(
@@ -429,10 +419,10 @@ export async function POST(request: NextRequest) {
           errors: validationResult.error.errors,
         },
         { status: 400 }
-      );
+      )
     }
 
-    const { data, format } = validationResult.data;
+    const { data, format } = validationResult.data
 
     // TODO: 实际的数据导入逻辑
     // 1. 验证数据格式
@@ -444,7 +434,7 @@ export async function POST(request: NextRequest) {
       success: true,
       message: `成功导入 ${data.length} 条数据`,
       imported: data.length,
-    });
+    })
   } catch (error) {
     return NextResponse.json(
       {
@@ -452,17 +442,17 @@ export async function POST(request: NextRequest) {
         message: '数据导入失败',
       },
       { status: 500 }
-    );
+    )
   }
 }
 ```
 
 ```typescript
 // src/app/api/feedback/route.ts
-import { NextRequest, NextResponse } from 'next/server';
-import { authMiddleware } from '../../middleware/auth.middleware';
-import { validateAndSanitizeBody } from '../../lib/validation-schemas';
-import { z } from 'zod';
+import { NextRequest, NextResponse } from 'next/server'
+import { authMiddleware } from '../../middleware/auth.middleware'
+import { validateAndSanitizeBody } from '../../lib/validation-schemas'
+import { z } from 'zod'
 
 /**
  * 反馈验证模式
@@ -474,23 +464,23 @@ const feedbackSchema = z.object({
   url: z.string().url().optional(),
   email: z.string().email().optional(),
   attachments: z.array(z.string()).max(5).optional(),
-});
+})
 
 /**
  * POST /api/feedback - 提交反馈（需要认证）
  */
 export async function POST(request: NextRequest) {
   // 验证认证
-  const authResponse = authMiddleware(request);
+  const authResponse = authMiddleware(request)
   if (authResponse.status !== 200) {
-    return authResponse;
+    return authResponse
   }
 
-  const userId = request.headers.get('x-user-id');
+  const userId = request.headers.get('x-user-id')
 
   try {
-    const body = await request.json();
-    const validationResult = await validateAndSanitizeBody(body, feedbackSchema, 'html');
+    const body = await request.json()
+    const validationResult = await validateAndSanitizeBody(body, feedbackSchema, 'html')
 
     if (!validationResult.success) {
       return NextResponse.json(
@@ -499,10 +489,10 @@ export async function POST(request: NextRequest) {
           errors: validationResult.error.errors,
         },
         { status: 400 }
-      );
+      )
     }
 
-    const { type, title, description, url, email, attachments } = validationResult.data;
+    const { type, title, description, url, email, attachments } = validationResult.data
 
     // TODO: 保存反馈到数据库
     // 1. 清理用户输入
@@ -516,7 +506,7 @@ export async function POST(request: NextRequest) {
         feedbackId: `FB-${Date.now()}`,
       },
       { status: 201 }
-    );
+    )
   } catch (error) {
     return NextResponse.json(
       {
@@ -524,7 +514,7 @@ export async function POST(request: NextRequest) {
         message: '反馈提交失败',
       },
       { status: 500 }
-    );
+    )
   }
 }
 
@@ -532,16 +522,16 @@ export async function POST(request: NextRequest) {
  * GET /api/feedback - 获取用户反馈列表（需要认证）
  */
 export async function GET(request: NextRequest) {
-  const authResponse = authMiddleware(request);
+  const authResponse = authMiddleware(request)
   if (authResponse.status !== 200) {
-    return authResponse;
+    return authResponse
   }
 
-  const userId = request.headers.get('x-user-id');
-  const { searchParams } = new URL(request.url);
+  const userId = request.headers.get('x-user-id')
+  const { searchParams } = new URL(request.url)
 
-  const page = parseInt(searchParams.get('page') || '1');
-  const limit = parseInt(searchParams.get('limit') || '20');
+  const page = parseInt(searchParams.get('page') || '1')
+  const limit = parseInt(searchParams.get('limit') || '20')
 
   // TODO: 查询用户的反馈列表
 
@@ -551,39 +541,39 @@ export async function GET(request: NextRequest) {
     total: 0,
     page,
     limit,
-  });
+  })
 }
 ```
 
 ```typescript
 // src/app/api/search/route.ts
-import { NextRequest, NextResponse } from 'next/server';
-import { authMiddleware } from '../../middleware/auth.middleware';
-import { searchSchema } from '../../lib/validation-schemas';
+import { NextRequest, NextResponse } from 'next/server'
+import { authMiddleware } from '../../middleware/auth.middleware'
+import { searchSchema } from '../../lib/validation-schemas'
 
 /**
  * GET /api/search - 搜索功能（需要认证）
  */
 export async function GET(request: NextRequest) {
   // 验证认证
-  const authResponse = authMiddleware(request);
+  const authResponse = authMiddleware(request)
   if (authResponse.status !== 200) {
-    return authResponse;
+    return authResponse
   }
 
-  const userId = request.headers.get('x-user-id');
-  const { searchParams } = new URL(request.url);
+  const userId = request.headers.get('x-user-id')
+  const { searchParams } = new URL(request.url)
 
-  const query = searchParams.get('q');
-  const page = parseInt(searchParams.get('page') || '1');
-  const limit = parseInt(searchParams.get('limit') || '10');
+  const query = searchParams.get('q')
+  const page = parseInt(searchParams.get('page') || '1')
+  const limit = parseInt(searchParams.get('limit') || '10')
 
   // 验证搜索参数
   const validationResult = searchSchema.safeParse({
     query,
     page,
     limit,
-  });
+  })
 
   if (!validationResult.success) {
     return NextResponse.json(
@@ -592,13 +582,11 @@ export async function GET(request: NextRequest) {
         errors: validationResult.error.errors,
       },
       { status: 400 }
-    );
+    )
   }
 
   // 防止搜索注入攻击
-  const sanitizedQuery = validationResult.data.query
-    .replace(/[^\w\s\u4e00-\u9fa5-]/g, '')
-    .trim();
+  const sanitizedQuery = validationResult.data.query.replace(/[^\w\s\u4e00-\u9fa5-]/g, '').trim()
 
   if (sanitizedQuery.length === 0) {
     return NextResponse.json(
@@ -607,7 +595,7 @@ export async function GET(request: NextRequest) {
         message: '搜索关键词无效',
       },
       { status: 400 }
-    );
+    )
   }
 
   // TODO: 执行搜索
@@ -622,7 +610,7 @@ export async function GET(request: NextRequest) {
     total: 0,
     page,
     limit,
-  });
+  })
 }
 ```
 
@@ -646,35 +634,35 @@ function addSecurityHeaders(response: NextResponse): NextResponse {
     "font-src 'self' data:",
     "connect-src 'self' https:",
     "frame-ancestors 'none'",
-  ].join('; ');
+  ].join('; ')
 
-  response.headers.set('Content-Security-Policy', csp);
-  response.headers.set('X-Frame-Options', 'DENY');
-  response.headers.set('X-Content-Type-Options', 'nosniff');
-  response.headers.set('X-XSS-Protection', '1; mode=block');
-  response.headers.set('Referrer-Policy', 'strict-origin-when-cross-origin');
-  response.headers.set('Permissions-Policy', 'geolocation=(), microphone=(), camera=()');
+  response.headers.set('Content-Security-Policy', csp)
+  response.headers.set('X-Frame-Options', 'DENY')
+  response.headers.set('X-Content-Type-Options', 'nosniff')
+  response.headers.set('X-XSS-Protection', '1; mode=block')
+  response.headers.set('Referrer-Policy', 'strict-origin-when-cross-origin')
+  response.headers.set('Permissions-Policy', 'geolocation=(), microphone=(), camera=()')
 
   // HSTS (仅生产环境)
   if (process.env.NODE_ENV === 'production') {
-    response.headers.set('Strict-Transport-Security', 'max-age=31536000; includeSubDomains');
+    response.headers.set('Strict-Transport-Security', 'max-age=31536000; includeSubDomains')
   }
 
-  return response;
+  return response
 }
 ```
 
 ### 安全响应头说明
 
-| 响应头 | 作用 | 当前值 | 推荐值 |
-|-------|------|--------|--------|
-| Content-Security-Policy | 防止 XSS、数据注入攻击 | `'self'` 等 | ✅ 已配置 |
-| X-Frame-Options | 防止点击劫持 | DENY | ✅ 已配置 |
-| X-Content-Type-Options | 防止 MIME 类型混淆 | nosniff | ✅ 已配置 |
-| X-XSS-Protection | 启用浏览器 XSS 过滤 | 1; mode=block | ✅ 已配置 |
-| Referrer-Policy | 控制 Referer 信息 | strict-origin-when-cross-origin | ✅ 已配置 |
-| Permissions-Policy | 禁用浏览器功能 | geolocation=() 等 | ✅ 已配置 |
-| Strict-Transport-Security | 强制 HTTPS | max-age=31536000 | ✅ 已配置 (生产) |
+| 响应头                    | 作用                   | 当前值                          | 推荐值           |
+| ------------------------- | ---------------------- | ------------------------------- | ---------------- |
+| Content-Security-Policy   | 防止 XSS、数据注入攻击 | `'self'` 等                     | ✅ 已配置        |
+| X-Frame-Options           | 防止点击劫持           | DENY                            | ✅ 已配置        |
+| X-Content-Type-Options    | 防止 MIME 类型混淆     | nosniff                         | ✅ 已配置        |
+| X-XSS-Protection          | 启用浏览器 XSS 过滤    | 1; mode=block                   | ✅ 已配置        |
+| Referrer-Policy           | 控制 Referer 信息      | strict-origin-when-cross-origin | ✅ 已配置        |
+| Permissions-Policy        | 禁用浏览器功能         | geolocation=() 等               | ✅ 已配置        |
+| Strict-Transport-Security | 强制 HTTPS             | max-age=31536000                | ✅ 已配置 (生产) |
 
 ### CSP 策略增强建议
 
@@ -684,7 +672,7 @@ function addSecurityHeaders(response: NextResponse): NextResponse {
 // 生产环境 CSP
 const productionCsp = [
   "default-src 'self'",
-  "script-src 'self' 'sha256-xyz...' 'sha256-abc...'",  // 使用 nonce 或 hash
+  "script-src 'self' 'sha256-xyz...' 'sha256-abc...'", // 使用 nonce 或 hash
   "style-src 'self' 'nonce-xyz...'",
   "img-src 'self' data: https://cdn.example.com",
   "font-src 'self' data:",
@@ -696,8 +684,8 @@ const productionCsp = [
   "manifest-src 'self'",
   "worker-src 'self' blob:",
   "object-src 'none'",
-  "report-uri https://csp-report.example.com",
-].join('; ');
+  'report-uri https://csp-report.example.com',
+].join('; ')
 ```
 
 ---
@@ -720,7 +708,7 @@ export function sanitizeHtml(input: string): string {
     .replace(/<embed\b[^<]*(?:(?!<\/embed>)<[^<]*)*<\/embed>/gi, '')
     .replace(/javascript:/gi, '')
     .replace(/on\w+\s*=/gi, '')
-    .trim();
+    .trim()
 }
 ```
 
@@ -732,7 +720,7 @@ npm install dompurify @types/dompurify
 
 ```typescript
 // src/lib/security/html-sanitizer.ts
-import DOMPurify from 'dompurify';
+import DOMPurify from 'dompurify'
 
 /**
  * 安全的 HTML 清理器
@@ -744,9 +732,9 @@ export function sanitizeHtmlAdvanced(input: string): string {
     ALLOW_DATA_ATTR: false,
     FORBID_TAGS: ['script', 'iframe', 'object', 'embed', 'form'],
     FORBID_ATTR: ['onerror', 'onclick', 'onload'],
-  };
+  }
 
-  return DOMPurify.sanitize(input, config);
+  return DOMPurify.sanitize(input, config)
 }
 
 /**
@@ -756,7 +744,7 @@ export function sanitizeStrict(input: string): string {
   return DOMPurify.sanitize(input, {
     ALLOWED_TAGS: [],
     ALLOWED_ATTR: [],
-  });
+  })
 }
 ```
 
@@ -788,39 +776,39 @@ export function TextComponent({ content }: { content: string }) {
 
 ```typescript
 // src/lib/security/url-sanitizer.ts
-import { URL } from 'url';
+import { URL } from 'url'
 
 /**
  * 安全的 URL 验证
  */
 export function validateUrl(input: string): boolean {
   try {
-    const url = new URL(input);
+    const url = new URL(input)
 
     // 只允许 http 和 https
     if (!['http:', 'https:'].includes(url.protocol)) {
-      return false;
+      return false
     }
 
     // 检查是否包含 javascript:
     if (url.href.toLowerCase().includes('javascript:')) {
-      return false;
+      return false
     }
 
     // 检查数据 URL（可能用于 XSS）
     if (url.protocol === 'data:') {
-      return false;
+      return false
     }
 
     // 白名单域名
-    const allowedDomains = ['example.com', 'trusted.com'];
+    const allowedDomains = ['example.com', 'trusted.com']
     if (allowedDomains.includes(url.hostname)) {
-      return true;
+      return true
     }
 
-    return false;
+    return false
   } catch {
-    return false;
+    return false
   }
 }
 
@@ -829,9 +817,9 @@ export function validateUrl(input: string): boolean {
  */
 export function safeRedirect(url: string, fallback: string = '/') {
   if (validateUrl(url)) {
-    return url;
+    return url
   }
-  return fallback;
+  return fallback
 }
 ```
 
@@ -957,7 +945,7 @@ AUDIT_LOG_ENABLED=true
 
 ```typescript
 // src/lib/config/env.ts
-import { z } from 'zod';
+import { z } from 'zod'
 
 const envSchema = z.object({
   NODE_ENV: z.enum(['development', 'production', 'test']),
@@ -977,9 +965,9 @@ const envSchema = z.object({
   // 安全模式
   SECURITY_MODE: z.coerce.boolean().default(true),
   AUDIT_LOG_ENABLED: z.coerce.boolean().default(true),
-});
+})
 
-export const env = envSchema.parse(process.env);
+export const env = envSchema.parse(process.env)
 ```
 
 ---
@@ -1032,13 +1020,13 @@ export const env = envSchema.parse(process.env);
 
 ### 定期安全检查
 
-| 检查项 | 频率 | 责任人 |
-|-------|------|--------|
-| 依赖更新和漏洞扫描 | 每周 | 开发 |
-| 代码安全审查 | 每月 | 安全主管 |
-| 渗透测试 | 每季度 | 第三方 |
-| 安全配置审查 | 每季度 | DevOps |
-| 员工安全培训 | 每半年 | HR + IT |
+| 检查项             | 频率   | 责任人   |
+| ------------------ | ------ | -------- |
+| 依赖更新和漏洞扫描 | 每周   | 开发     |
+| 代码安全审查       | 每月   | 安全主管 |
+| 渗透测试           | 每季度 | 第三方   |
+| 安全配置审查       | 每季度 | DevOps   |
+| 员工安全培训       | 每半年 | HR + IT  |
 
 ---
 
@@ -1046,12 +1034,12 @@ export const env = envSchema.parse(process.env);
 
 ### 事件分类
 
-| 严重级别 | 描述 | 响应时间 |
-|---------|------|---------|
-| 🚨 P0 严重 | 数据泄露、系统入侵 | < 1 小时 |
-| ⚠️ P1 高 | 未授权访问、账户被盗 | < 4 小时 |
-| ⚡ P2 中 | 异常活动、可疑行为 | < 24 小时 |
-| 📋 P3 低 | 潜在风险、配置问题 | < 1 周 |
+| 严重级别   | 描述                 | 响应时间  |
+| ---------- | -------------------- | --------- |
+| 🚨 P0 严重 | 数据泄露、系统入侵   | < 1 小时  |
+| ⚠️ P1 高   | 未授权访问、账户被盗 | < 4 小时  |
+| ⚡ P2 中   | 异常活动、可疑行为   | < 24 小时 |
+| 📋 P3 低   | 潜在风险、配置问题   | < 1 周    |
 
 ### 响应流程
 
@@ -1087,11 +1075,11 @@ export const env = envSchema.parse(process.env);
 
 ### 紧急联系
 
-| 角色 | 姓名 | 联系方式 | 响应时间 |
-|-----|------|---------|---------|
-| 安全主管 | - | - | 24/7 |
-| DevOps 负责人 | - | - | 24/7 |
-| 开发负责人 | - | - | 工作时间 |
+| 角色          | 姓名 | 联系方式 | 响应时间 |
+| ------------- | ---- | -------- | -------- |
+| 安全主管      | -    | -        | 24/7     |
+| DevOps 负责人 | -    | -        | 24/7     |
+| 开发负责人    | -    | -        | 工作时间 |
 
 ---
 
@@ -1137,7 +1125,7 @@ export const SECURITY_HEADERS = {
   'Referrer-Policy': 'strict-origin-when-cross-origin',
   'Permissions-Policy': 'geolocation=(), microphone=(), camera=()',
   'Strict-Transport-Security': 'max-age=31536000; includeSubDomains',
-};
+}
 ```
 
 ---
@@ -1150,6 +1138,6 @@ export const SECURITY_HEADERS = {
 
 ## 变更日志
 
-| 日期 | 版本 | 变更内容 |
-|-----|------|---------|
+| 日期       | 版本  | 变更内容                    |
+| ---------- | ----- | --------------------------- |
 | 2026-03-28 | 1.0.0 | 初始版本 - 完整安全加固方案 |

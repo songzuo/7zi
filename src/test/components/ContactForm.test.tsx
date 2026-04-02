@@ -9,17 +9,17 @@ import { ContactForm } from '@/components/ContactForm'
 vi.mock('next-intl', () => ({
   useTranslations: () => (key: string) => {
     const translations: Record<string, string> = {
-      'name': '姓名',
-      'email': '邮箱',
-      'subject': '主题',
-      'message': '消息内容',
-      'submit': '发送消息',
-      'sending': '发送中...',
-      'success': '消息发送成功！',
-      'error': '发送失败，请稍后重试。',
+      name: '姓名',
+      email: '邮箱',
+      subject: '主题',
+      message: '消息内容',
+      submit: '发送消息',
+      sending: '发送中...',
+      success: '消息发送成功！',
+      error: '发送失败，请稍后重试。',
     }
     return translations[key] || key
-  }
+  },
 }))
 
 // Mock fetch
@@ -62,10 +62,10 @@ describe('ContactForm', () => {
 
   it('validates required name field', async () => {
     render(<ContactForm />)
-    
+
     const submitButton = screen.getByRole('button', { name: '发送消息' })
     fireEvent.click(submitButton)
-    
+
     await waitFor(() => {
       expect(screen.getByText('请输入您的姓名')).toBeInTheDocument()
     })
@@ -73,10 +73,10 @@ describe('ContactForm', () => {
 
   it('validates required email field', async () => {
     render(<ContactForm />)
-    
+
     const submitButton = screen.getByRole('button', { name: '发送消息' })
     fireEvent.click(submitButton)
-    
+
     await waitFor(() => {
       expect(screen.getByText('请输入您的邮箱')).toBeInTheDocument()
     })
@@ -84,17 +84,17 @@ describe('ContactForm', () => {
 
   it('validates email format - component renders email input with validation', async () => {
     render(<ContactForm />)
-    
+
     const emailInput = screen.getByLabelText(/邮箱/)
-    
+
     // Just verify the email input exists and accepts input
     expect(emailInput).toBeInTheDocument()
     expect(emailInput).toHaveAttribute('type', 'email')
-    
+
     // Test that invalid email can be entered (validation happens on submit)
     fireEvent.change(emailInput, { target: { value: 'invalid-email' } })
     expect(emailInput).toHaveValue('invalid-email')
-    
+
     // Test that valid email can be entered
     fireEvent.change(emailInput, { target: { value: 'test@example.com' } })
     expect(emailInput).toHaveValue('test@example.com')
@@ -102,10 +102,10 @@ describe('ContactForm', () => {
 
   it('validates required message field', async () => {
     render(<ContactForm />)
-    
+
     const submitButton = screen.getByRole('button', { name: '发送消息' })
     fireEvent.click(submitButton)
-    
+
     await waitFor(() => {
       expect(screen.getByText('请输入消息内容')).toBeInTheDocument()
     })
@@ -113,18 +113,18 @@ describe('ContactForm', () => {
 
   it('validates minimum message length', async () => {
     render(<ContactForm />)
-    
+
     const nameInput = screen.getByLabelText(/姓名/)
     const emailInput = screen.getByLabelText(/邮箱/)
     const messageInput = screen.getByLabelText(/消息内容/)
-    
+
     fireEvent.change(nameInput, { target: { value: '测试用户' } })
     fireEvent.change(emailInput, { target: { value: 'test@example.com' } })
     fireEvent.change(messageInput, { target: { value: '短消息' } }) // Less than 10 chars
-    
+
     const submitButton = screen.getByRole('button', { name: '发送消息' })
     fireEvent.click(submitButton)
-    
+
     await waitFor(() => {
       expect(screen.getByText('消息内容至少需要 10 个字符')).toBeInTheDocument()
     })
@@ -141,26 +141,26 @@ describe('ContactForm', () => {
 
   it('allows user to select subject', async () => {
     render(<ContactForm />)
-    
+
     const subjectSelect = screen.getByLabelText(/主题/)
     fireEvent.change(subjectSelect, { target: { value: 'cooperation' } })
-    
+
     expect(subjectSelect).toHaveValue('cooperation')
   })
 
   it('clears field error when user starts typing', async () => {
     render(<ContactForm />)
-    
+
     const submitButton = screen.getByRole('button', { name: '发送消息' })
     fireEvent.click(submitButton)
-    
+
     await waitFor(() => {
       expect(screen.getByText('请输入您的姓名')).toBeInTheDocument()
     })
-    
+
     const nameInput = screen.getByLabelText(/姓名/)
     fireEvent.change(nameInput, { target: { value: '测' } })
-    
+
     await waitFor(() => {
       expect(screen.queryByText('请输入您的姓名')).not.toBeInTheDocument()
     })
@@ -173,18 +173,18 @@ describe('ContactForm', () => {
     })
 
     render(<ContactForm />)
-    
+
     const nameInput = screen.getByLabelText(/姓名/)
     const emailInput = screen.getByLabelText(/邮箱/)
     const messageInput = screen.getByLabelText(/消息内容/)
-    
+
     fireEvent.change(nameInput, { target: { value: '测试用户' } })
     fireEvent.change(emailInput, { target: { value: 'test@example.com' } })
     fireEvent.change(messageInput, { target: { value: '这是一条测试消息内容' } })
-    
+
     const submitButton = screen.getByRole('button', { name: '发送消息' })
     fireEvent.click(submitButton)
-    
+
     await waitFor(() => {
       expect(screen.getByText(/消息发送成功/)).toBeInTheDocument()
     })
@@ -194,18 +194,18 @@ describe('ContactForm', () => {
     mockFetch.mockImplementation(() => new Promise(() => {})) // Never resolves
 
     render(<ContactForm />)
-    
+
     const nameInput = screen.getByLabelText(/姓名/)
     const emailInput = screen.getByLabelText(/邮箱/)
     const messageInput = screen.getByLabelText(/消息内容/)
-    
+
     fireEvent.change(nameInput, { target: { value: '测试用户' } })
     fireEvent.change(emailInput, { target: { value: 'test@example.com' } })
     fireEvent.change(messageInput, { target: { value: '这是一条测试消息内容' } })
-    
+
     const submitButton = screen.getByRole('button', { name: '发送消息' })
     fireEvent.click(submitButton)
-    
+
     await waitFor(() => {
       expect(screen.getByText('发送中...')).toBeInTheDocument()
       expect(submitButton).toBeDisabled()
@@ -216,18 +216,18 @@ describe('ContactForm', () => {
     mockFetch.mockRejectedValueOnce(new Error('Network error'))
 
     render(<ContactForm />)
-    
+
     const nameInput = screen.getByLabelText(/姓名/)
     const emailInput = screen.getByLabelText(/邮箱/)
     const messageInput = screen.getByLabelText(/消息内容/)
-    
+
     fireEvent.change(nameInput, { target: { value: '测试用户' } })
     fireEvent.change(emailInput, { target: { value: 'test@example.com' } })
     fireEvent.change(messageInput, { target: { value: '这是一条测试消息内容' } })
-    
+
     const submitButton = screen.getByRole('button', { name: '发送消息' })
     fireEvent.click(submitButton)
-    
+
     await waitFor(() => {
       expect(screen.getByText(/发送失败/)).toBeInTheDocument()
     })
@@ -240,18 +240,18 @@ describe('ContactForm', () => {
     })
 
     render(<ContactForm />)
-    
+
     const nameInput = screen.getByLabelText(/姓名/)
     const emailInput = screen.getByLabelText(/邮箱/)
     const messageInput = screen.getByLabelText(/消息内容/)
-    
+
     fireEvent.change(nameInput, { target: { value: '测试用户' } })
     fireEvent.change(emailInput, { target: { value: 'test@example.com' } })
     fireEvent.change(messageInput, { target: { value: '这是一条测试消息内容' } })
-    
+
     const submitButton = screen.getByRole('button', { name: '发送消息' })
     fireEvent.click(submitButton)
-    
+
     await waitFor(() => {
       expect(screen.getByText(/发送失败/)).toBeInTheDocument()
     })
@@ -321,7 +321,7 @@ describe('ContactForm', () => {
 
   it('displays subject options', () => {
     render(<ContactForm />)
-    
+
     expect(screen.getByRole('option', { name: '选择咨询主题' })).toBeInTheDocument()
     expect(screen.getByRole('option', { name: '项目咨询' })).toBeInTheDocument()
     expect(screen.getByRole('option', { name: '商务合作' })).toBeInTheDocument()

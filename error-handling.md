@@ -12,11 +12,11 @@
 
 项目中存在**三个独立的错误处理系统**,导致代码混乱和维护困难:
 
-| 文件 | 错误类 | 错误类型枚举 | 使用情况 |
-|------|--------|-------------|----------|
-| `src/lib/api/error-handler.ts` | `ApiError` | `ErrorType` | 部分 API routes |
-| `src/lib/api/enhanced-error-handler.ts` | `EnhancedApiError` | `ApiErrorType` | 未广泛使用 |
-| `src/lib/errors.ts` | `AppError` | `ErrorCodes` | 通用函数 |
+| 文件                                    | 错误类             | 错误类型枚举   | 使用情况        |
+| --------------------------------------- | ------------------ | -------------- | --------------- |
+| `src/lib/api/error-handler.ts`          | `ApiError`         | `ErrorType`    | 部分 API routes |
+| `src/lib/api/enhanced-error-handler.ts` | `EnhancedApiError` | `ApiErrorType` | 未广泛使用      |
+| `src/lib/errors.ts`                     | `AppError`         | `ErrorCodes`   | 通用函数        |
 
 ### 2. 命名不一致
 
@@ -28,6 +28,7 @@
 ### 3. 响应格式不统一
 
 **error-handler.ts:**
+
 ```typescript
 {
   success: false,
@@ -41,6 +42,7 @@
 ```
 
 **enhanced-error-handler.ts:**
+
 ```typescript
 {
   success: false,
@@ -59,6 +61,7 @@
 ### 4. 错误处理模式混乱
 
 **模式 1: 返回结果对象 (auth/service.ts)**
+
 ```typescript
 async function loginUser(request: LoginRequest): Promise<LoginSuccessResponse | LoginFailureResponse> {
   try {
@@ -72,6 +75,7 @@ async function loginUser(request: LoginRequest): Promise<LoginSuccessResponse | 
 ```
 
 **模式 2: 抛出错误 (db/index.ts)**
+
 ```typescript
 function query(sql: string, params?: unknown[]) {
   try {
@@ -84,22 +88,24 @@ function query(sql: string, params?: unknown[]) {
 ```
 
 **模式 3: 包装函数 (API routes)**
+
 ```typescript
 export async function POST(request: NextRequest) {
   try {
     // ...
   } catch (error) {
-    return createErrorResponse(error);
+    return createErrorResponse(error)
   }
 }
 ```
 
 **模式 4: Promise.catch() (某些地方)**
+
 ```typescript
 someAsyncOperation().catch(error => {
-  logger.error(error);
-  return null;
-});
+  logger.error(error)
+  return null
+})
 ```
 
 ---
@@ -135,13 +141,13 @@ export enum UnifiedErrorType {
 }
 
 export interface UnifiedError {
-  type: UnifiedErrorType;
-  message: string;
-  code?: string;      // 错误代码 (用于国际化)
-  statusCode: number;
-  details?: Record<string, unknown>;
-  retryable: boolean;
-  retryAfter?: number;
+  type: UnifiedErrorType
+  message: string
+  code?: string // 错误代码 (用于国际化)
+  statusCode: number
+  details?: Record<string, unknown>
+  retryable: boolean
+  retryAfter?: number
 }
 ```
 
@@ -158,8 +164,8 @@ export class UnifiedAppError extends Error {
     public retryable: boolean = false,
     public retryAfter?: number
   ) {
-    super(message);
-    this.name = 'UnifiedAppError';
+    super(message)
+    this.name = 'UnifiedAppError'
   }
 }
 ```
@@ -169,22 +175,22 @@ export class UnifiedAppError extends Error {
 ```typescript
 // src/lib/errors/unified-response.ts
 export interface UnifiedErrorResponse {
-  success: false;
+  success: false
   error: {
-    type: UnifiedErrorType;
-    message: string;
-    code?: string;
-    details?: Record<string, unknown>;
-    retryable: boolean;
-    retryAfter?: number;
-    timestamp: string;
-  };
+    type: UnifiedErrorType
+    message: string
+    code?: string
+    details?: Record<string, unknown>
+    retryable: boolean
+    retryAfter?: number
+    timestamp: string
+  }
 }
 
 export interface UnifiedSuccessResponse<T = unknown> {
-  success: true;
-  data: T;
-  timestamp: string;
+  success: true
+  data: T
+  timestamp: string
 }
 ```
 
@@ -197,67 +203,70 @@ export function createUnifiedError(
   message: string,
   statusCode?: number,
   details?: Record<string, unknown>
-): UnifiedAppError;
+): UnifiedAppError
 
 export function createUnifiedErrorResponse(
   error: Error | UnifiedAppError,
   statusCode?: number,
   details?: Record<string, unknown>
-): NextResponse<UnifiedErrorResponse>;
+): NextResponse<UnifiedErrorResponse>
 
 export function createUnifiedSuccessResponse<T>(
   data: T,
   status?: number
-): NextResponse<UnifiedSuccessResponse<T>>;
+): NextResponse<UnifiedSuccessResponse<T>>
 
 export function withUnifiedErrorHandling<T>(
   handler: (...args: unknown[]) => Promise<NextResponse<unknown>>
-): T;
+): T
 ```
 
 #### 5. 统一的错误处理指南
 
 **对于同步/异步操作:**
+
 ```typescript
 // ❌ 不要这样做 - 返回 { success, error } 对象
 async function getData(): Promise<{ success: boolean; data?: unknown; error?: string }> {
   try {
-    const data = await fetch();
-    return { success: true, data };
+    const data = await fetch()
+    return { success: true, data }
   } catch (error) {
-    return { success: false, error: 'Failed' };
+    return { success: false, error: 'Failed' }
   }
 }
 
 // ✅ 应该这样做 - 直接抛出错误
 async function getData(): Promise<Data> {
-  const data = await fetch();
+  const data = await fetch()
   if (!data) {
-    throw createUnifiedError(UnifiedErrorType.NOT_FOUND, 'Data not found', 404);
+    throw createUnifiedError(UnifiedErrorType.NOT_FOUND, 'Data not found', 404)
   }
-  return data;
+  return data
 }
 ```
 
 **对于 API Routes:**
+
 ```typescript
 export async function POST(request: NextRequest) {
   try {
-    const data = await getData();
-    return createUnifiedSuccessResponse(data);
+    const data = await getData()
+    return createUnifiedSuccessResponse(data)
   } catch (error) {
-    return createUnifiedErrorResponse(error);
+    return createUnifiedErrorResponse(error)
   }
 }
 
 // 或者使用包装器
 export const POST = withUnifiedErrorHandling(async (request: NextRequest) => {
-  const data = await getData();
-  return createUnifiedSuccessResponse(data);
-});
+  const data = await getData()
+  return createUnifiedSuccessResponse(data)
+})
 ```
 
 **对于数据库操作:**
+
 ```typescript
 function createUser(data: UserData): User {
   try {
@@ -286,16 +295,19 @@ function createUser(data: UserData): User {
 ### 阶段 2: 更新关键模块
 
 #### 模块 1: Authentication Service
+
 - **文件**: `src/lib/auth/service.ts`
 - **现状**: 使用返回对象模式 `{ success, error }`
 - **改进**: 改为抛出错误,让调用者处理
 
 #### 模块 2: Database Module
+
 - **文件**: `src/lib/db/index.ts`
 - **现状**: 部分地方抛出通用错误
 - **改进**: 使用统一的错误类型
 
 #### 模块 3: API Routes
+
 - **文件**: `src/app/api/**/*.ts`
 - **现状**: 混用多个错误处理器
 - **改进**: 统一使用 `createUnifiedErrorResponse`
@@ -303,6 +315,7 @@ function createUser(data: UserData): User {
 ### 阶段 3: 逐步迁移
 
 1. **保留旧接口** (向后兼容):
+
    ```typescript
    @deprecated('Use throw new UnifiedAppError() instead')
    export function createAppError(...) { ... }
@@ -364,6 +377,7 @@ function createUser(data: UserData): User {
 创建了使用统一错误处理的新版本 (`src/lib/auth/service-unified.ts`):
 
 **改进点:**
+
 - ❌ 旧代码: 返回 `{ success, error }` 对象
 - ✅ 新代码: 抛出 `UnifiedAppError`
 
@@ -371,23 +385,25 @@ function createUser(data: UserData): User {
 
 ```typescript
 // 旧代码
-async function loginUser(request: LoginRequest): Promise<LoginSuccessResponse | LoginFailureResponse> {
+async function loginUser(
+  request: LoginRequest
+): Promise<LoginSuccessResponse | LoginFailureResponse> {
   try {
     if (!user) {
-      return { success: false, error: 'Invalid email or password' };
+      return { success: false, error: 'Invalid email or password' }
     }
-    return { success: true, user, token };
+    return { success: true, user, token }
   } catch (error) {
-    return { success: false, error: 'Login failed' };
+    return { success: false, error: 'Login failed' }
   }
 }
 
 // 新代码
 async function loginUser(request: LoginRequest): Promise<UserWithToken> {
   if (!user) {
-    throw UnifiedAppError.unauthorized('Invalid email or password');
+    throw UnifiedAppError.unauthorized('Invalid email or password')
   }
-  return { user, token };
+  return { user, token }
 }
 ```
 
@@ -396,6 +412,7 @@ async function loginUser(request: LoginRequest): Promise<UserWithToken> {
 创建了使用统一错误处理的新版本 (`src/app/api/auth/login/route-unified.ts`):
 
 **改进点:**
+
 - 使用 `withUnifiedErrorHandling()` 包装器自动处理错误
 - 使用 `createUnifiedSuccessResponse()` 和 `createUnifiedErrorResponse()` 创建响应
 - 代码更简洁,逻辑更清晰
@@ -406,21 +423,21 @@ async function loginUser(request: LoginRequest): Promise<UserWithToken> {
 // 旧代码
 export async function POST(request: NextRequest) {
   try {
-    const result = await loginUser(request);
+    const result = await loginUser(request)
     if (!result.success) {
-      return createUnauthorizedError(result.error);
+      return createUnauthorizedError(result.error)
     }
-    return createSuccessResponse(result);
+    return createSuccessResponse(result)
   } catch (error) {
-    return createErrorResponse(error);
+    return createErrorResponse(error)
   }
 }
 
 // 新代码
 export const POST = withUnifiedErrorHandling(async (request: NextRequest) => {
-  const result = await loginUser(request); // 直接抛出错误
-  return createUnifiedSuccessResponse(result);
-});
+  const result = await loginUser(request) // 直接抛出错误
+  return createUnifiedSuccessResponse(result)
+})
 ```
 
 #### 2.3 Database Module
@@ -428,6 +445,7 @@ export const POST = withUnifiedErrorHandling(async (request: NextRequest) => {
 创建了使用统一错误处理的新版本 (`src/lib/db/index-unified.ts`):
 
 **改进点:**
+
 - 所有数据库操作都抛出 `UnifiedAppError`
 - 根据错误类型自动判断可重试性
 - 提供更详细的错误信息
@@ -440,8 +458,8 @@ function query(sql: string, params?: unknown[]) {
   try {
     // ... 执行查询
   } catch (error) {
-    logger.error(error);
-    throw error; // 抛出通用错误
+    logger.error(error)
+    throw error // 抛出通用错误
   }
 }
 
@@ -450,18 +468,18 @@ function query(sql: string, params?: unknown[]) {
   try {
     // ... 执行查询
   } catch (error) {
-    const errorMessage = error instanceof Error ? error.message : String(error);
+    const errorMessage = error instanceof Error ? error.message : String(error)
 
     // 根据错误类型创建合适的错误
     if (errorMessage.includes('SQLITE_BUSY')) {
-      throw UnifiedAppError.serviceUnavailable('Database is busy, please retry', 5);
+      throw UnifiedAppError.serviceUnavailable('Database is busy, please retry', 5)
     }
 
     if (errorMessage.includes('SQLITE_CONSTRAINT')) {
-      throw UnifiedAppError.conflict('Database constraint violation', { sql, params });
+      throw UnifiedAppError.conflict('Database constraint violation', { sql, params })
     }
 
-    throw UnifiedAppError.internal(`Database query failed: ${errorMessage}`, { sql, params });
+    throw UnifiedAppError.internal(`Database query failed: ${errorMessage}`, { sql, params })
   }
 }
 ```
@@ -471,6 +489,7 @@ function query(sql: string, params?: unknown[]) {
 创建了完整的使用指南 (`docs/unified-error-handling-guide.md`):
 
 **内容包括:**
+
 - 核心概念介绍
 - 详细的使用示例
 - 最佳实践
@@ -492,28 +511,30 @@ function query(sql: string, params?: unknown[]) {
 
 ## 附录: 错误类型映射
 
-| 旧类型 | 新类型 | HTTP 状态码 |
-|--------|--------|-------------|
-| ErrorType.VALIDATION | UnifiedErrorType.VALIDATION | 400 |
-| ErrorType.NOT_FOUND | UnifiedErrorType.NOT_FOUND | 404 |
-| ErrorType.UNAUTHORIZED | UnifiedErrorType.UNAUTHORIZED | 401 |
-| ErrorType.FORBIDDEN | UnifiedErrorType.FORBIDDEN | 403 |
-| ErrorType.RATE_LIMIT | UnifiedErrorType.RATE_LIMIT | 429 |
-| ErrorType.INTERNAL | UnifiedErrorType.INTERNAL | 500 |
-| ErrorType.SERVICE_UNAVAILABLE | UnifiedErrorType.SERVICE_UNAVAILABLE | 503 |
-| ApiErrorType.NETWORK_ERROR | UnifiedErrorType.NETWORK_ERROR | 503 |
-| ApiErrorType.TIMEOUT | UnifiedErrorType.TIMEOUT | 504 |
+| 旧类型                        | 新类型                               | HTTP 状态码 |
+| ----------------------------- | ------------------------------------ | ----------- |
+| ErrorType.VALIDATION          | UnifiedErrorType.VALIDATION          | 400         |
+| ErrorType.NOT_FOUND           | UnifiedErrorType.NOT_FOUND           | 404         |
+| ErrorType.UNAUTHORIZED        | UnifiedErrorType.UNAUTHORIZED        | 401         |
+| ErrorType.FORBIDDEN           | UnifiedErrorType.FORBIDDEN           | 403         |
+| ErrorType.RATE_LIMIT          | UnifiedErrorType.RATE_LIMIT          | 429         |
+| ErrorType.INTERNAL            | UnifiedErrorType.INTERNAL            | 500         |
+| ErrorType.SERVICE_UNAVAILABLE | UnifiedErrorType.SERVICE_UNAVAILABLE | 503         |
+| ApiErrorType.NETWORK_ERROR    | UnifiedErrorType.NETWORK_ERROR       | 503         |
+| ApiErrorType.TIMEOUT          | UnifiedErrorType.TIMEOUT             | 504         |
 
 ---
 
 ## 总结
 
 当前项目的错误处理存在严重的不一致性问题,主要体现在:
+
 - 多个错误处理系统并存
 - 命名和格式不统一
 - 错误处理模式混乱
 
 通过实施本报告提出的统一错误处理架构,可以实现:
+
 - ✅ 一致的错误类型和格式
 - ✅ 更清晰的代码结构
 - ✅ 更容易维护和扩展

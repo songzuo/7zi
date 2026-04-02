@@ -13,8 +13,8 @@
  * 基于 src/lib/permissions.ts 中的 RBAC 系统
  */
 
-import { create } from 'zustand';
-import { persist, createJSONStorage } from 'zustand/middleware';
+import { create } from 'zustand'
+import { persist, createJSONStorage } from 'zustand/middleware'
 import {
   Permission,
   ResourceType,
@@ -31,18 +31,18 @@ import {
   UserWithRoles,
   createUserWithRoles,
   PermissionDefinition,
-} from '@/lib/permissions';
-import { User as AuthStoreUser } from './auth-store';
-import { User } from '@/lib/auth';
+} from '@/lib/permissions'
+import { User as AuthStoreUser } from './auth-store'
+import { User } from '@/lib/auth'
 
 /**
  * 用户角色信息
  */
 export interface UserPermissionState {
-  userId: string;
-  roleIds: string[];
-  roles: RoleDefinition[];
-  permissions: Permission[]; // 直接权限（不通过角色获得的）
+  userId: string
+  roleIds: string[]
+  roles: RoleDefinition[]
+  permissions: Permission[] // 直接权限（不通过角色获得的）
 }
 
 /**
@@ -50,23 +50,23 @@ export interface UserPermissionState {
  */
 export interface PermissionState {
   // 状态
-  userPermissions: UserPermissionState | null;
-  isLoading: boolean;
-  error: string | null;
+  userPermissions: UserPermissionState | null
+  isLoading: boolean
+  error: string | null
 
   // 权限操作
-  initializePermissions: (user: AuthStoreUser, roleIds: string[]) => void;
-  clearPermissions: () => void;
+  initializePermissions: (user: AuthStoreUser, roleIds: string[]) => void
+  clearPermissions: () => void
 
   // 权限检查方法
-  hasPermission: (permission: Permission) => boolean;
-  hasAnyPermission: (permissions: Permission[]) => boolean;
-  hasAllPermissions: (permissions: Permission[]) => boolean;
+  hasPermission: (permission: Permission) => boolean
+  hasAnyPermission: (permissions: Permission[]) => boolean
+  hasAllPermissions: (permissions: Permission[]) => boolean
   checkAccess: (
     resourceType: ResourceType,
     action: ActionType,
     context?: Partial<PermissionContext>
-  ) => PermissionCheckResult;
+  ) => PermissionCheckResult
 
   // 资源级别权限检查
   canAccessResource: (
@@ -74,23 +74,23 @@ export interface PermissionState {
     action: ActionType,
     resourceOwnerId?: string,
     userId?: string
-  ) => boolean;
+  ) => boolean
 
   // 角色等级检查
-  hasRoleLevel: (minLevel: number) => boolean;
-  getUserMaxLevel: () => number;
+  hasRoleLevel: (minLevel: number) => boolean
+  getUserMaxLevel: () => number
 
   // 权限管理方法（管理员用）
-  grantPermission: (permission: Permission) => boolean;
-  revokePermission: (permission: Permission) => boolean;
-  getEffectivePermissions: () => Permission[];
+  grantPermission: (permission: Permission) => boolean
+  revokePermission: (permission: Permission) => boolean
+  getEffectivePermissions: () => Permission[]
 
   // 错误处理
-  setError: (error: string | null) => void;
-  clearError: () => void;
+  setError: (error: string | null) => void
+  clearError: () => void
 
   // 重置状态
-  reset: () => void;
+  reset: () => void
 }
 
 /**
@@ -100,7 +100,7 @@ const initialState = {
   userPermissions: null,
   isLoading: false,
   error: null,
-};
+}
 
 /**
  * 权限状态 Store
@@ -116,7 +116,7 @@ export const usePermissionStore = create<PermissionState>()(
        * 初始化用户权限
        */
       initializePermissions: (user: AuthStoreUser, roleIds: string[]) => {
-        set({ isLoading: true, error: null });
+        set({ isLoading: true, error: null })
 
         try {
           // 转换 User 类型以符合权限系统的要求
@@ -128,14 +128,12 @@ export const usePermissionStore = create<PermissionState>()(
             permissions: [], // 将从角色中获取
             createdAt: new Date(user.createdAt || new Date()),
             updatedAt: new Date(user.updatedAt || new Date()),
-          };
+          }
 
-          const userWithRoles = createUserWithRoles(permissionUser, roleIds);
+          const userWithRoles = createUserWithRoles(permissionUser, roleIds)
 
           // 获取角色权限
-          const permissions = roleIds.flatMap(id =>
-            permissionManager.getPermissionsByRole(id)
-          );
+          const permissions = roleIds.flatMap(id => permissionManager.getPermissionsByRole(id))
 
           set({
             userPermissions: {
@@ -146,13 +144,13 @@ export const usePermissionStore = create<PermissionState>()(
             },
             isLoading: false,
             error: null,
-          });
+          })
         } catch (error) {
-          const errorMessage = error instanceof Error ? error.message : '权限初始化失败';
+          const errorMessage = error instanceof Error ? error.message : '权限初始化失败'
           set({
             error: errorMessage,
             isLoading: false,
-          });
+          })
         }
       },
 
@@ -162,39 +160,37 @@ export const usePermissionStore = create<PermissionState>()(
       clearPermissions: () => {
         set({
           ...initialState,
-        });
+        })
       },
 
       /**
        * 检查是否有指定权限
        */
       hasPermission: (permission: Permission) => {
-        const { userPermissions } = get();
-        if (!userPermissions) return false;
+        const { userPermissions } = get()
+        if (!userPermissions) return false
 
         // 检查直接权限
         if (userPermissions.permissions.includes(permission)) {
-          return true;
+          return true
         }
 
         // 检查角色权限
-        return userPermissions.roles.some(role =>
-          role.permissions.includes(permission)
-        );
+        return userPermissions.roles.some(role => role.permissions.includes(permission))
       },
 
       /**
        * 检查是否有任一权限
        */
       hasAnyPermission: (permissions: Permission[]) => {
-        return permissions.some(permission => get().hasPermission(permission));
+        return permissions.some(permission => get().hasPermission(permission))
       },
 
       /**
        * 检查是否有所有权限
        */
       hasAllPermissions: (permissions: Permission[]) => {
-        return permissions.every(permission => get().hasPermission(permission));
+        return permissions.every(permission => get().hasPermission(permission))
       },
 
       /**
@@ -205,17 +201,17 @@ export const usePermissionStore = create<PermissionState>()(
         action: ActionType,
         context?: Partial<PermissionContext>
       ): PermissionCheckResult => {
-        const { userPermissions } = get();
+        const { userPermissions } = get()
         if (!userPermissions) {
           return {
             allowed: false,
             reason: 'User not authenticated',
             requiredPermissions: [`${resourceType}:${action}`],
             missingPermissions: [`${resourceType}:${action}`],
-          };
+          }
         }
 
-        const permission = `${resourceType}:${action}`;
+        const permission = `${resourceType}:${action}`
 
         // 如果用户有直接权限，直接允许
         if (userPermissions.permissions.includes(permission)) {
@@ -223,13 +219,13 @@ export const usePermissionStore = create<PermissionState>()(
             allowed: true,
             requiredPermissions: [permission],
             missingPermissions: [],
-          };
+          }
         }
 
         // 检查角色权限
         const hasRolePermission = userPermissions.roles.some(role =>
           role.permissions.includes(permission)
-        );
+        )
 
         if (!hasRolePermission) {
           return {
@@ -237,7 +233,7 @@ export const usePermissionStore = create<PermissionState>()(
             reason: `User does not have permission: ${permission}`,
             requiredPermissions: [permission],
             missingPermissions: [permission],
-          };
+          }
         }
 
         // 检查资源所有权
@@ -248,7 +244,7 @@ export const usePermissionStore = create<PermissionState>()(
               reason: 'User is not the resource owner',
               requiredPermissions: [permission],
               missingPermissions: [],
-            };
+            }
           }
         }
 
@@ -256,7 +252,7 @@ export const usePermissionStore = create<PermissionState>()(
           allowed: true,
           requiredPermissions: [permission],
           missingPermissions: [],
-        };
+        }
       },
 
       /**
@@ -271,45 +267,45 @@ export const usePermissionStore = create<PermissionState>()(
         const result = get().checkAccess(resourceType, action, {
           resourceOwnerId,
           userId,
-        });
-        return result.allowed;
+        })
+        return result.allowed
       },
 
       /**
        * 检查用户角色等级是否高于或等于指定等级
        */
       hasRoleLevel: (minLevel: number) => {
-        const { userPermissions } = get();
+        const { userPermissions } = get()
         if (!userPermissions || userPermissions.roles.length === 0) {
-          return false;
+          return false
         }
 
-        const maxLevel = Math.max(...userPermissions.roles.map(role => role.level));
-        return maxLevel >= minLevel;
+        const maxLevel = Math.max(...userPermissions.roles.map(role => role.level))
+        return maxLevel >= minLevel
       },
 
       /**
        * 获取用户最高角色等级
        */
       getUserMaxLevel: () => {
-        const { userPermissions } = get();
+        const { userPermissions } = get()
         if (!userPermissions || userPermissions.roles.length === 0) {
-          return 0;
+          return 0
         }
 
-        return Math.max(...userPermissions.roles.map(role => role.level));
+        return Math.max(...userPermissions.roles.map(role => role.level))
       },
 
       /**
        * 授予直接权限
        */
       grantPermission: (permission: Permission) => {
-        const { userPermissions } = get();
-        if (!userPermissions) return false;
+        const { userPermissions } = get()
+        if (!userPermissions) return false
 
         // 检查权限是否已存在
         if (userPermissions.permissions.includes(permission)) {
-          return false;
+          return false
         }
 
         set({
@@ -317,21 +313,21 @@ export const usePermissionStore = create<PermissionState>()(
             ...userPermissions,
             permissions: [...userPermissions.permissions, permission],
           },
-        });
+        })
 
-        return true;
+        return true
       },
 
       /**
        * 撤销直接权限
        */
       revokePermission: (permission: Permission) => {
-        const { userPermissions } = get();
-        if (!userPermissions) return false;
+        const { userPermissions } = get()
+        if (!userPermissions) return false
 
         // 检查权限是否存在
         if (!userPermissions.permissions.includes(permission)) {
-          return false;
+          return false
         }
 
         set({
@@ -339,101 +335,101 @@ export const usePermissionStore = create<PermissionState>()(
             ...userPermissions,
             permissions: userPermissions.permissions.filter(p => p !== permission),
           },
-        });
+        })
 
-        return true;
+        return true
       },
 
       /**
        * 获取所有有效权限（包括角色权限和直接权限）
        */
       getEffectivePermissions: () => {
-        const { userPermissions } = get();
-        if (!userPermissions) return [];
+        const { userPermissions } = get()
+        if (!userPermissions) return []
 
-        const rolePermissions = userPermissions.roles.flatMap(role => role.permissions);
-        const allPermissions = [...new Set([...rolePermissions, ...userPermissions.permissions])];
+        const rolePermissions = userPermissions.roles.flatMap(role => role.permissions)
+        const allPermissions = [...new Set([...rolePermissions, ...userPermissions.permissions])]
 
-        return allPermissions;
+        return allPermissions
       },
 
       /**
        * 设置错误
        */
       setError: (error: string | null) => {
-        set({ error });
+        set({ error })
       },
 
       /**
        * 清除错误
        */
       clearError: () => {
-        set({ error: null });
+        set({ error: null })
       },
 
       /**
        * 重置状态
        */
       reset: () => {
-        set(initialState);
+        set(initialState)
       },
     }),
     {
       name: '7zi-permission-storage', // localStorage key
       storage: createJSONStorage(() => localStorage),
-      partialize: (state) => ({
+      partialize: state => ({
         // 只持久化用户权限状态
         userPermissions: state.userPermissions,
       }),
     }
   )
-);
+)
 
 /**
  * 选择器 - 用于性能优化
  */
-export const selectUserPermissions = (state: PermissionState) => state.userPermissions;
-export const selectIsLoading = (state: PermissionState) => state.isLoading;
-export const selectError = (state: PermissionState) => state.error;
+export const selectUserPermissions = (state: PermissionState) => state.userPermissions
+export const selectIsLoading = (state: PermissionState) => state.isLoading
+export const selectError = (state: PermissionState) => state.error
 
 /**
  * 权限检查辅助函数
  */
 export const useHasPermission = (permission: Permission) => {
-  return usePermissionStore(state => state.hasPermission(permission));
-};
+  return usePermissionStore(state => state.hasPermission(permission))
+}
 
 export const useHasAnyPermission = (permissions: Permission[]) => {
-  return usePermissionStore(state => state.hasAnyPermission(permissions));
-};
+  return usePermissionStore(state => state.hasAnyPermission(permissions))
+}
 
 export const useHasAllPermissions = (permissions: Permission[]) => {
-  return usePermissionStore(state => state.hasAllPermissions(permissions));
-};
+  return usePermissionStore(state => state.hasAllPermissions(permissions))
+}
 
 export const useCanAccessResource = (
   resourceType: ResourceType,
   action: ActionType,
   resourceOwnerId?: string
 ) => {
-  const userId = usePermissionStore(state => state.userPermissions?.userId);
+  const userId = usePermissionStore(state => state.userPermissions?.userId)
   return usePermissionStore(state =>
     state.canAccessResource(resourceType, action, resourceOwnerId, userId)
-  );
-};
+  )
+}
 
 export const useHasRoleLevel = (minLevel: number) => {
-  return usePermissionStore(state => state.hasRoleLevel(minLevel));
-};
+  return usePermissionStore(state => state.hasRoleLevel(minLevel))
+}
 
 export const useEffectivePermissions = () => {
-  return usePermissionStore(state => state.getEffectivePermissions());
-};
+  return usePermissionStore(state => state.getEffectivePermissions())
+}
 
 /**
  * 导出权限常量
  */
-export { SYSTEM_ROLES } from '@/lib/permissions';
+export { SYSTEM_ROLES } from '@/lib/permissions'
 export type {
   ResourceType,
   ActionType,
@@ -442,7 +438,7 @@ export type {
   RoleDefinition,
   PermissionCheckResult,
   PermissionContext,
-} from '@/lib/permissions';
+} from '@/lib/permissions'
 
 /**
  * 导出常用权限常量
@@ -476,4 +472,4 @@ export const Permissions = {
 
   // MCP 权限
   MCP_EXECUTE: 'mcp:execute' as Permission,
-};
+}

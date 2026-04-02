@@ -24,16 +24,18 @@ vi.stubGlobal('document', mockDocument)
  */
 function sanitizeInput(input: string): string {
   if (!input) return ''
-  return input
-    .replace(/&/g, '&amp;')
-    .replace(/</g, '&lt;')
-    .replace(/>/g, '&gt;')
-    .replace(/"/g, '&quot;')
-    .replace(/'/g, '&#x27;')
-    .replace(/\//g, '&#x2F;')
-    // Prevent template injection patterns
-    .replace(/\$\{/g, '&#x24;&#x7B;')
-    .replace(/\{\{/g, '&#x7B;&#x7B;')
+  return (
+    input
+      .replace(/&/g, '&amp;')
+      .replace(/</g, '&lt;')
+      .replace(/>/g, '&gt;')
+      .replace(/"/g, '&quot;')
+      .replace(/'/g, '&#x27;')
+      .replace(/\//g, '&#x2F;')
+      // Prevent template injection patterns
+      .replace(/\$\{/g, '&#x24;&#x7B;')
+      .replace(/\{\{/g, '&#x7B;&#x7B;')
+  )
 }
 
 /**
@@ -137,12 +139,7 @@ describe('XSS Protection Tests', () => {
     })
 
     it('should handle Unicode characters safely', () => {
-      const unicodeInputs = [
-        '你好世界',
-        'こんにちは',
-        'Привет мир',
-        '🎉🎊🎈',
-      ]
+      const unicodeInputs = ['你好世界', 'こんにちは', 'Привет мир', '🎉🎊🎈']
 
       unicodeInputs.forEach(input => {
         const sanitized = sanitizeInput(input)
@@ -202,10 +199,25 @@ describe('XSS Protection Tests', () => {
   describe('Event Handler Injection', () => {
     it('should strip all event handlers', () => {
       const eventHandlers = [
-        'onclick', 'onload', 'onerror', 'onmouseover', 'onmouseout',
-        'onkeydown', 'onkeyup', 'onfocus', 'onblur', 'onsubmit',
-        'ondblclick', 'oncontextmenu', 'onwheel', 'ondrag', 'ondrop',
-        'onscroll', 'oncopy', 'oncut', 'onpaste',
+        'onclick',
+        'onload',
+        'onerror',
+        'onmouseover',
+        'onmouseout',
+        'onkeydown',
+        'onkeyup',
+        'onfocus',
+        'onblur',
+        'onsubmit',
+        'ondblclick',
+        'oncontextmenu',
+        'onwheel',
+        'ondrag',
+        'ondrop',
+        'onscroll',
+        'oncopy',
+        'oncut',
+        'onpaste',
       ]
 
       eventHandlers.forEach(handler => {
@@ -273,10 +285,7 @@ describe('XSS Protection Tests', () => {
     })
 
     it('should block vbscript: URLs', () => {
-      const vbscriptUrls = [
-        'vbscript:msgbox(1)',
-        'VBSCRIPT:msgbox(1)',
-      ]
+      const vbscriptUrls = ['vbscript:msgbox(1)', 'VBSCRIPT:msgbox(1)']
 
       vbscriptUrls.forEach(url => {
         expect(isSafeUrl(url)).toBe(false)
@@ -333,7 +342,7 @@ describe('XSS Protection Tests', () => {
     it('should handle mixed content', () => {
       const input = '<script>alert("XSS")</script>'
       const escaped = escapeHtml(input)
-      
+
       expect(escaped).not.toContain('<')
       expect(escaped).not.toContain('>')
       expect(escaped).toContain('&lt;')
@@ -343,7 +352,7 @@ describe('XSS Protection Tests', () => {
     it('should preserve safe text content', () => {
       const safeText = 'Hello, this is a safe message!'
       const escaped = escapeHtml(safeText)
-      
+
       expect(escaped).toBe(safeText)
     })
   })
@@ -352,7 +361,7 @@ describe('XSS Protection Tests', () => {
     it('should not allow direct innerHTML assignment with user input', () => {
       const userInput = '<img src=x onerror=alert(1)>'
       const escaped = escapeHtml(userInput)
-      
+
       // escaped content should be safe for innerHTML
       expect(escaped).not.toContain('<img')
       expect(escaped).not.toContain('onerror')
@@ -361,7 +370,7 @@ describe('XSS Protection Tests', () => {
     it('should use textContent instead of innerHTML for user content', () => {
       // This test documents the best practice
       const userInput = '<script>alert(1)</script>'
-      
+
       // textContent would render this as text, not execute it
       // The escaped version simulates what would be safe
       const escaped = escapeHtml(userInput)
@@ -406,14 +415,10 @@ describe('XSS Protection Tests', () => {
   describe('Content Security Policy Considerations', () => {
     it('should not rely on inline scripts', () => {
       // This test documents CSP best practices
-      const unsafePatterns = [
-        /javascript:/gi,
-        /on\w+\s*=/gi,
-        /<script/gi,
-      ]
+      const unsafePatterns = [/javascript:/gi, /on\w+\s*=/gi, /<script/gi]
 
       const testContent = 'User provided content'
-      
+
       unsafePatterns.forEach(pattern => {
         expect(pattern.test(testContent)).toBe(false)
       })
@@ -424,14 +429,14 @@ describe('XSS Protection Tests', () => {
     it('should handle very long strings', () => {
       const longString = 'a'.repeat(100000)
       const sanitized = sanitizeInput(longString)
-      
+
       expect(sanitized.length).toBe(100000)
     })
 
     it('should handle null bytes', () => {
       const nullByteInput = '<scr\x00ipt>alert(1)</script>'
       const sanitized = sanitizeInput(nullByteInput)
-      
+
       expect(sanitized).not.toContain('<script>')
     })
 
@@ -481,10 +486,10 @@ describe('XSS Protection Tests', () => {
     it('should not use dangerouslySetInnerHTML with user content', () => {
       // This test documents React best practices
       const userContent = '<script>alert(1)</script>'
-      
+
       // In React, we should NOT do:
       // <div dangerouslySetInnerHTML={{ __html: userContent }} />
-      
+
       // Instead, we should sanitize first or use textContent
       const sanitized = sanitizeInput(userContent)
       expect(sanitized).not.toContain('<script>')
@@ -511,7 +516,7 @@ describe('XSS Sanitization Integration', () => {
       '<img src=x onerror=alert(1)>',
       '<svg/onload=alert(1)>',
       '"><script>alert(1)</script>',
-      "javascript:alert(document.cookie)",
+      'javascript:alert(document.cookie)',
       '<a href="javascript:alert(1)">click</a>',
       '<iframe src="javascript:alert(1)"></iframe>',
     ]
@@ -521,7 +526,7 @@ describe('XSS Sanitization Integration', () => {
       let sanitized = sanitizeInput(payload)
       sanitized = stripDangerousTags(sanitized)
       sanitized = stripDangerousAttributes(sanitized)
-      
+
       // Should not contain dangerous patterns
       expect(sanitized.toLowerCase()).not.toContain('<script')
       expect(sanitized.toLowerCase()).not.toContain('javascript:')

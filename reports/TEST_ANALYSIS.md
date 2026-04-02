@@ -9,17 +9,17 @@
 
 ## 📊 Test Results Summary
 
-| Metric | Count | Percentage |
-|--------|--------|------------|
-| **Total Test Files** | 223 | 100% |
-| **Passed Files** | 171 | 76.7% |
-| **Failed Files** | 52 | 23.3% |
-| **Total Tests** | 3,222 | 100% |
-| **Passed Tests** | 2,956 | 91.8% |
-| **Failed Tests** | 265 | 8.2% |
-| **Skipped Tests** | 1 | 0.03% |
-| **Errors** | 1 | - |
-| **Test Duration** | 277.31s | - |
+| Metric               | Count   | Percentage |
+| -------------------- | ------- | ---------- |
+| **Total Test Files** | 223     | 100%       |
+| **Passed Files**     | 171     | 76.7%      |
+| **Failed Files**     | 52      | 23.3%      |
+| **Total Tests**      | 3,222   | 100%       |
+| **Passed Tests**     | 2,956   | 91.8%      |
+| **Failed Tests**     | 265     | 8.2%       |
+| **Skipped Tests**    | 1       | 0.03%      |
+| **Errors**           | 1       | -          |
+| **Test Duration**    | 277.31s | -          |
 
 ---
 
@@ -40,12 +40,14 @@
 ### 1. Database/SQLite Execution Errors ⚠️ **HIGH IMPACT**
 
 **Affected Files:**
+
 - `src/lib/db/__tests__/performance-analyzer.test.ts` (15 failures)
 - `src/lib/auth/__tests__/auth.test.ts` (multiple failures)
 
 **Root Cause:** Multiple statement execution and database connection issues
 
 **Error Pattern:**
+
 ```
 TypeError: Cannot read properties of undefined (reading 'all')
 RangeError: The supplied SQL string contains more than one statement
@@ -54,6 +56,7 @@ RangeError: The supplied SQL string contains more than one statement
 **Specific Issues:**
 
 #### Issue 1.1: Multi-Statement SQL in `initializeUserTables`
+
 **Location:** `src/lib/auth/repository.ts:112`
 
 **Problem:** The function tries to execute multiple SQL CREATE TABLE and CREATE INDEX statements in a single call to `db.exec()`, but `better-sqlite3` does not support multiple statements by default for security reasons.
@@ -61,6 +64,7 @@ RangeError: The supplied SQL string contains more than one statement
 **Failed Tests Impact:** ~30+ auth-related tests
 
 **Fix Required:**
+
 ```typescript
 // Current (BROKEN):
 db.exec(`
@@ -69,12 +73,13 @@ db.exec(`
 `)
 
 // Should be (FIXED):
-db.exec('CREATE TABLE users (...);');
-db.exec('CREATE INDEX idx_users_email ON users(email);');
+db.exec('CREATE TABLE users (...);')
+db.exec('CREATE INDEX idx_users_email ON users(email);')
 // OR use db.prepare() with multiple .run() calls
 ```
 
 #### Issue 1.2: Database Connection Not Mocked Properly
+
 **Location:** `src/lib/db/performance-analyzer.ts:55`
 
 **Problem:** Tests call database functions but the database instance is not properly initialized or mocked.
@@ -86,11 +91,13 @@ db.exec('CREATE INDEX idx_users_email ON users(email);');
 ### 2. Mock Configuration Issues 🐛 **HIGH IMPACT**
 
 **Affected Files:**
+
 - `src/app/api/__tests__/status.route.test.ts` (23/23 tests failed)
 
 **Root Cause:** `NextRequest` object not properly mocked
 
 **Error Pattern:**
+
 ```
 TypeError: Cannot read properties of undefined (reading 'url')
 ```
@@ -98,13 +105,14 @@ TypeError: Cannot read properties of undefined (reading 'url')
 **Problem:** The tests are calling the status route but the mock NextRequest object doesn't have the `url` property properly configured.
 
 **Fix Required:**
+
 ```typescript
 // In test setup:
 const mockRequest = {
   url: new URL('http://localhost:3000/api/status'),
   nextUrl: new URL('http://localhost:3000/api/status'),
   // ... other required properties
-} as NextRequest;
+} as NextRequest
 ```
 
 ---
@@ -112,11 +120,13 @@ const mockRequest = {
 ### 3. API Cookie Configuration Mismatch 🍪 **MEDIUM IMPACT**
 
 **Affected Files:**
+
 - `src/app/api/csrf-token/__tests__/route.test.ts` (1 failure)
 
 **Root Cause:** Cookie `sameSite` attribute mismatch
 
 **Error Pattern:**
+
 ```
 Expected: sameSite: "lax"
 Received: sameSite: "strict"
@@ -125,6 +135,7 @@ Received: sameSite: "strict"
 **Problem:** The implementation sets `sameSite: "strict"` but tests expect `"lax"`.
 
 **Fix Options:**
+
 - Option A: Update implementation to use `"lax"` (less secure)
 - Option B: Update test expectations to `"strict"` (more secure) ✅ **RECOMMENDED**
 
@@ -133,11 +144,13 @@ Received: sameSite: "strict"
 ### 4. Permission Naming Pattern Violation 🔑 **LOW IMPACT**
 
 **Affected Files:**
+
 - `src/lib/permissions/__tests__/permissions.test.ts` (1 failure)
 
 **Root Cause:** Permission string format doesn't match expected pattern
 
 **Error Pattern:**
+
 ```
 Expected: /^[a-z]+:[a-z]+$/
 Received: "user:manage:role"
@@ -147,6 +160,7 @@ Received: "user:manage:role"
 
 **Fix Required:**
 Either:
+
 - Change permission to single colon: `"user:manage_role"` ✅ **RECOMMENDED**
 - OR update regex to allow multiple colons: `/^[a-z]+:[a-z:]+$/`
 
@@ -155,11 +169,13 @@ Either:
 ### 5. URL Validation Logic Error 🔗 **LOW IMPACT**
 
 **Affected Files:**
+
 - `src/lib/validation/__tests__/index.test.ts` (1 failure)
 
 **Root Cause:** Invalid URL is being accepted
 
 **Error Pattern:**
+
 ```
 Test: expect(validator.rule('javascript:alert(1)')).toBe(true)
 Expected: false (should reject dangerous URLs)
@@ -175,12 +191,14 @@ Received: true (accepts dangerous URLs)
 ### 6. WebSocket Connection Timing Issues ⚡ **MEDIUM IMPACT**
 
 **Affected Files:**
+
 - `src/lib/realtime/__tests__/useWebSocket.test.ts` (2 failures)
 - `src/lib/realtime/__tests__/websocket.test.ts` (1 failure)
 
 **Root Cause:** WebSocket connection state doesn't update fast enough in tests
 
 **Error Pattern:**
+
 ```
 Expected: "open"
 Received: "closed"
@@ -196,11 +214,13 @@ AssertionError: Timeout after 500ms
 ### 7. File Tool Security Message Mismatch 📁 **LOW IMPACT**
 
 **Affected Files:**
+
 - `src/lib/tools/__tests__/executor.test.ts` (1 failure)
 
 **Root Cause:** Wrong error message returned
 
 **Error Pattern:**
+
 ```
 Expected: "File not found"
 Received: "Security error: Path is outside allowed directories"
@@ -215,9 +235,11 @@ Received: "Security error: Path is outside allowed directories"
 ### 8. React State Update Warnings ⚛️ **LOW IMPACT (Cosmetic)**
 
 **Affected Files:**
+
 - Multiple component test files
 
 **Warning Pattern:**
+
 ```
 An update to <Component> inside a test was not wrapped in act(...)
 ```
@@ -304,32 +326,35 @@ I'll now apply the **3 easiest and highest-impact fixes**:
 
 ## 🎓 Test Coverage by Category
 
-| Category | Files | Pass Rate | Status |
-|----------|--------|-----------|--------|
-| Database | 5 | ~60% | 🔴 Needs Work |
-| API Routes | 3 | ~10% | 🔴 Critical |
-| Authentication | 2 | ~70% | 🟡 Fair |
-| Realtime/WebSocket | 3 | ~80% | 🟢 Good |
-| Components | 30+ | ~98% | 🟢 Excellent |
-| Utils/Helpers | 10+ | ~95% | 🟢 Excellent |
-| Validation | 4 | ~95% | 🟢 Good |
-| Integration | 8 | ~85% | 🟢 Good |
+| Category           | Files | Pass Rate | Status        |
+| ------------------ | ----- | --------- | ------------- |
+| Database           | 5     | ~60%      | 🔴 Needs Work |
+| API Routes         | 3     | ~10%      | 🔴 Critical   |
+| Authentication     | 2     | ~70%      | 🟡 Fair       |
+| Realtime/WebSocket | 3     | ~80%      | 🟢 Good       |
+| Components         | 30+   | ~98%      | 🟢 Excellent  |
+| Utils/Helpers      | 10+   | ~95%      | 🟢 Excellent  |
+| Validation         | 4     | ~95%      | 🟢 Good       |
+| Integration        | 8     | ~85%      | 🟢 Good       |
 
 ---
 
 ## 🔍 Common Failure Patterns
 
 ### Pattern 1: "Cannot read properties of undefined"
+
 **Frequency:** ~150 occurrences
 **Cause:** Missing null checks, uninitialized mocks, or incomplete setup
 **Solution:** Add proper null checks and ensure mocks are fully initialized
 
 ### Pattern 2: Mock Configuration Issues
+
 **Frequency:** ~80 occurrences
 **Cause:** Mocked objects missing required properties
 **Solution:** Review mock object structure and ensure all required properties are present
 
 ### Pattern 3: Test Expectation Mismatches
+
 **Frequency:** ~20 occurrences
 **Cause:** Implementation changed but tests not updated, or tests expecting wrong behavior
 **Solution:** Update test expectations to match actual implementation (after verifying implementation is correct)

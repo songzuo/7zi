@@ -57,14 +57,14 @@ cd /root/7zi-frontend
 
 ## 📋 脚本速查
 
-| 脚本 | 功能 | 命令 |
-|------|------|------|
-| 蓝绿部署 | 零停机部署 | `./blue-green-deploy.sh auto [image]` |
-| 部署验证 | 10项健康检查 | `./verify-deploy.sh production` |
-| 回滚 | 一键回滚 | `./rollback.sh` |
-| 快速部署 | 跳过部分验证 | `./quick-deploy.sh prod [image]` |
-| 监控 | 实时仪表板 | `./monitor.sh` |
-| 基准测试 | 性能测试 | `./benchmark.sh` |
+| 脚本     | 功能         | 命令                                  |
+| -------- | ------------ | ------------------------------------- |
+| 蓝绿部署 | 零停机部署   | `./blue-green-deploy.sh auto [image]` |
+| 部署验证 | 10项健康检查 | `./verify-deploy.sh production`       |
+| 回滚     | 一键回滚     | `./rollback.sh`                       |
+| 快速部署 | 跳过部分验证 | `./quick-deploy.sh prod [image]`      |
+| 监控     | 实时仪表板   | `./monitor.sh`                        |
+| 基准测试 | 性能测试     | `./benchmark.sh`                      |
 
 ---
 
@@ -110,11 +110,13 @@ systemctl reload nginx
 ## 📞 需要帮助？
 
 查看完整文档：
+
 ```bash
 cat /root/.openclaw/workspace/DEPLOYMENT.md
 ```
 
 或查看优化总结：
+
 ```bash
 cat /root/.openclaw/workspace/DEPLOYMENT_OPTIMIZATION_SUMMARY.md
 ```

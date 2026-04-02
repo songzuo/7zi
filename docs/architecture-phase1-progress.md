@@ -12,11 +12,13 @@
 ### 已完成任务
 
 ✅ **任务 1: 代码重复分析** - 完成
+
 - 分析了 `permissions.ts` 的重复问题
 - 识别了依赖关系
 - 记录了修复步骤
 
 ✅ **任务 2: Zustand Store 架构创建** - 完成
+
 - 创建了 `src/stores/` 目录结构
 - 实现了 4 个核心 Stores
 - 编写了完整的类型定义和文档
@@ -24,6 +26,7 @@
 ### 下一步
 
 ⏳ **任务 3: 修复执行** - 等待 Executor 子代理执行
+
 - 删除重复的 `lib/permissions.ts`
 - 更新所有导入路径
 - 测试验证
@@ -35,10 +38,12 @@
 ### 1.1 问题确认
 
 **重复文件**:
+
 - `src/lib/permissions.ts` (22,629 bytes, 983 行)
 - `src/features/auth/lib/permissions.ts` (22,629 bytes, 983 行)
 
 **验证结果**:
+
 ```bash
 diff -q src/lib/permissions.ts src/features/auth/lib/permissions.ts
 # 无输出 - 文件完全相同
@@ -49,6 +54,7 @@ diff -q src/lib/permissions.ts src/features/auth/lib/permissions.ts
 **导入 `@/lib/permissions` 的文件** (共 24 个):
 
 **文件类型分布**:
+
 - 类型定义文件: 5 个
 - 服务层文件: 3 个
 - 中间件文件: 1 个
@@ -57,21 +63,22 @@ diff -q src/lib/permissions.ts src/features/auth/lib/permissions.ts
 
 **关键依赖**:
 
-| 文件 | 导入类型 | 影响 |
-|------|----------|------|
-| `src/lib/auth/types.ts` | Permission, Role | 高 |
-| `src/lib/auth/middleware-rbac.ts` | Permission, Role, RBAC 函数 | 高 |
-| `src/app/api/rbac/permissions/route.ts` | Permission, Repository 函数 | 高 |
-| `src/app/api/rbac/roles/route.ts` | Permission, Role, Repository 函数 | 高 |
-| `src/contexts/PermissionContext.tsx` | Permission, Role | 中 |
-| `src/middleware/auth.ts` | Role | 中 |
-| `src/app/api/projects/__tests__/route.test.ts` | Permissions 类 | 低 (测试) |
+| 文件                                           | 导入类型                          | 影响      |
+| ---------------------------------------------- | --------------------------------- | --------- |
+| `src/lib/auth/types.ts`                        | Permission, Role                  | 高        |
+| `src/lib/auth/middleware-rbac.ts`              | Permission, Role, RBAC 函数       | 高        |
+| `src/app/api/rbac/permissions/route.ts`        | Permission, Repository 函数       | 高        |
+| `src/app/api/rbac/roles/route.ts`              | Permission, Role, Repository 函数 | 高        |
+| `src/contexts/PermissionContext.tsx`           | Permission, Role                  | 中        |
+| `src/middleware/auth.ts`                       | Role                              | 中        |
+| `src/app/api/projects/__tests__/route.test.ts` | Permissions 类                    | 低 (测试) |
 
 ### 1.3 修复方案
 
 **策略**: 保留 `src/features/auth/lib/permissions.ts`，删除 `src/lib/permissions.ts`
 
 **理由**:
+
 1. `features/auth/` 是 Feature-Based 架构的正确位置
 2. 符合架构审查报告的建议
 3. 影响面相对较小 (24 个文件)
@@ -91,11 +98,11 @@ cp src/lib/permissions.ts src/lib/permissions.ts.backup
 
 **需要更新的导入模式**:
 
-| 当前导入 | 新导入 |
-|----------|--------|
-| `from '@/lib/permissions'` | `from '@/features/auth/lib/permissions'` |
-| `from '@/lib/permissions/types'` | `from '@/features/auth/lib/permissions'` (合并导入) |
-| `from '@/lib/permissions/rbac'` | `from '@/features/auth/lib/permissions'` (合并导入) |
+| 当前导入                              | 新导入                                              |
+| ------------------------------------- | --------------------------------------------------- |
+| `from '@/lib/permissions'`            | `from '@/features/auth/lib/permissions'`            |
+| `from '@/lib/permissions/types'`      | `from '@/features/auth/lib/permissions'` (合并导入) |
+| `from '@/lib/permissions/rbac'`       | `from '@/features/auth/lib/permissions'` (合并导入) |
 | `from '@/lib/permissions/repository'` | `from '@/features/auth/lib/permissions'` (合并导入) |
 
 **批量替换命令**:
@@ -143,6 +150,7 @@ npx tsc --noEmit
 **预期结果**: 无类型错误
 
 **如果出现错误**:
+
 1. 记录错误文件和行号
 2. 检查是否需要调整导出的导入
 3. 重新验证替换命令
@@ -195,12 +203,12 @@ git checkout src/
 
 ### 1.5 风险评估
 
-| 风险 | 概率 | 影响 | 缓解措施 |
-|------|------|------|----------|
-| TypeScript 类型错误 | 低 | 高 | 编译检查会立即发现 |
-| 运行时错误 | 极低 | 高 | 完整测试覆盖 |
-| 测试失败 | 低 | 中 | 检查测试 mock 配置 |
-| 破坏性更改 | 无 | - | 只是文件移动，逻辑不变 |
+| 风险                | 概率 | 影响 | 缓解措施               |
+| ------------------- | ---- | ---- | ---------------------- |
+| TypeScript 类型错误 | 低   | 高   | 编译检查会立即发现     |
+| 运行时错误          | 极低 | 高   | 完整测试覆盖           |
+| 测试失败            | 低   | 中   | 检查测试 mock 配置     |
+| 破坏性更改          | 无   | -    | 只是文件移动，逻辑不变 |
 
 ### 1.6 验收标准
 
@@ -225,6 +233,7 @@ git checkout src/
 ### 2.1 Store 架构概览
 
 **目录结构**:
+
 ```
 src/stores/
 ├── index.ts              # 统一导出 (97 行)
@@ -241,12 +250,14 @@ src/stores/
 #### 2.2.1 认证状态 (`auth-store.ts`)
 
 **功能**:
+
 - 用户登录/登出
 - 用户信息管理
 - Token 管理
 - 认证状态持久化
 
 **主要特性**:
+
 - ✅ 使用 `persist` 中间件持久化到 localStorage
 - ✅ 自动错误处理
 - ✅ 加载状态管理
@@ -284,12 +295,14 @@ function LoginComponent() {
 #### 2.2.2 通知状态 (`notification-store.ts`)
 
 **功能**:
+
 - 通知列表管理
 - 未读计数
 - 通知操作 (添加、删除、标记已读)
 - 自动消失机制
 
 **主要特性**:
+
 - ✅ 4 种通知类型 (success, error, warning, info)
 - ✅ 优先级支持 (low, normal, high, urgent)
 - ✅ 自动消失 (可配置)
@@ -327,12 +340,14 @@ function MyComponent() {
 #### 2.2.3 WebSocket 状态 (`websocket-store.ts`)
 
 **功能**:
+
 - WebSocket 连接状态管理
 - 消息队列
 - 连接统计
 - 重连策略
 
 **主要特性**:
+
 - ✅ 5 种连接状态 (connecting, connected, disconnected, reconnecting, error)
 - ✅ 消息记录 (最大 100 条)
 - ✅ 延迟统计
@@ -363,12 +378,14 @@ function App() {
 #### 2.2.4 应用设置 (`app-store.ts`)
 
 **功能**:
+
 - UI 状态管理 (侧边栏、主题)
 - 用户偏好设置
 - 语言设置
 - 设置持久化
 
 **主要特性**:
+
 - ✅ 侧边栏控制
 - ✅ 暗色模式切换
 - ✅ 语言设置
@@ -400,7 +417,7 @@ function Layout() {
 **Persist 中间件** (用于持久化):
 
 ```typescript
-import { persist, createJSONStorage } from 'zustand/middleware';
+import { persist, createJSONStorage } from 'zustand/middleware'
 
 export const useAuthStore = create<AuthState>()(
   persist(
@@ -410,7 +427,7 @@ export const useAuthStore = create<AuthState>()(
     {
       name: '7zi-auth-storage', // localStorage key
       storage: createJSONStorage(() => localStorage),
-      partialize: (state) => ({
+      partialize: state => ({
         // 只持久化必要的状态
         user: state.user,
         token: state.token,
@@ -418,7 +435,7 @@ export const useAuthStore = create<AuthState>()(
       }),
     }
   )
-);
+)
 ```
 
 #### 2.3.2 选择器优化
@@ -427,19 +444,19 @@ export const useAuthStore = create<AuthState>()(
 
 ```typescript
 // 性能优化：避免不必要的重渲染
-export const selectUser = (state: AuthState) => state.user;
-export const selectIsAuthenticated = (state: AuthState) => state.isAuthenticated;
+export const selectUser = (state: AuthState) => state.user
+export const selectIsAuthenticated = (state: AuthState) => state.isAuthenticated
 ```
 
 **使用选择器**:
 
 ```typescript
 // ✅ 好的做法 - 只订阅需要的切片
-const user = useAuthStore(selectUser);
-const isAuthenticated = useAuthStore(selectIsAuthenticated);
+const user = useAuthStore(selectUser)
+const isAuthenticated = useAuthStore(selectIsAuthenticated)
 
 // ❌ 不好的做法 - 订阅整个 store
-const { user, isAuthenticated } = useAuthStore();
+const { user, isAuthenticated } = useAuthStore()
 ```
 
 ### 2.4 迁移计划
@@ -449,11 +466,13 @@ const { user, isAuthenticated } = useAuthStore();
 **1. 认证状态迁移**
 
 当前状态:
+
 - ❌ 无全局认证状态管理
 - ❌ 每个组件独立管理
 - ✅ 有 `src/lib/auth/` 服务层
 
 迁移目标:
+
 ```typescript
 // 替换现有的认证逻辑
 // 从 src/lib/auth/service.ts 迁移到 useAuthStore
@@ -462,11 +481,13 @@ const { user, isAuthenticated } = useAuthStore();
 **2. 通知状态迁移**
 
 当前状态:
+
 - ✅ 有 `src/hooks/useNotifications.ts` (自定义 Hook)
 - ✅ 有 `src/hooks/useNotificationsStable.ts` (稳定版)
 - ✅ 有 `src/components/notifications/` 组件
 
 迁移目标:
+
 ```typescript
 // 替换 src/hooks/useNotifications.ts
 // 继续使用 src/components/notifications/ 组件
@@ -476,10 +497,12 @@ const { user, isAuthenticated } = useAuthStore();
 **3. WebSocket 状态迁移**
 
 当前状态:
+
 - ✅ 有 `src/hooks/useWebSocketStatus.ts`
 - ✅ 有 `src/lib/websocket-manager.ts`
 
 迁移目标:
+
 ```typescript
 // 替换 src/hooks/useWebSocketStatus.ts
 // WebSocketManager 继续使用，但状态管理改用 useWebSocketStore
@@ -487,25 +510,27 @@ const { user, isAuthenticated } = useAuthStore();
 
 #### 迁移优先级
 
-| Store | 优先级 | 预计时间 | 依赖 |
-|-------|--------|----------|------|
-| `app-store` | P0 | 0.5 天 | 无 |
-| `notification-store` | P0 | 1 天 | 无 |
-| `auth-store` | P1 | 2 天 | 测试准备 |
-| `websocket-store` | P1 | 1.5 天 | 测试准备 |
+| Store                | 优先级 | 预计时间 | 依赖     |
+| -------------------- | ------ | -------- | -------- |
+| `app-store`          | P0     | 0.5 天   | 无       |
+| `notification-store` | P0     | 1 天     | 无       |
+| `auth-store`         | P1     | 2 天     | 测试准备 |
+| `websocket-store`    | P1     | 1.5 天   | 测试准备 |
 
 ### 2.5 开发工具集成
 
 #### Redux DevTools
 
 **安装**:
+
 ```bash
 npm install @redux-devtools/extension
 ```
 
 **集成** (可选):
+
 ```typescript
-import { devtools } from 'zustand/middleware';
+import { devtools } from 'zustand/middleware'
 
 export const useAuthStore = create<AuthState>()(
   devtools(
@@ -517,7 +542,7 @@ export const useAuthStore = create<AuthState>()(
     ),
     { name: '7zi-auth-storage' }
   )
-);
+)
 ```
 
 ### 2.6 测试计划
@@ -526,25 +551,25 @@ export const useAuthStore = create<AuthState>()(
 
 ```typescript
 // __tests__/auth-store.test.ts
-import { act, renderHook } from '@testing-library/react';
-import { useAuthStore } from '../auth-store';
+import { act, renderHook } from '@testing-library/react'
+import { useAuthStore } from '../auth-store'
 
 describe('useAuthStore', () => {
   beforeEach(() => {
-    useAuthStore.getState().reset();
-  });
+    useAuthStore.getState().reset()
+  })
 
   it('should login successfully', async () => {
-    const { result } = renderHook(() => useAuthStore());
+    const { result } = renderHook(() => useAuthStore())
 
     await act(async () => {
-      await result.current.login('test@example.com', 'password');
-    });
+      await result.current.login('test@example.com', 'password')
+    })
 
-    expect(result.current.isAuthenticated).toBe(true);
-    expect(result.current.user).toBeTruthy();
-  });
-});
+    expect(result.current.isAuthenticated).toBe(true)
+    expect(result.current.user).toBeTruthy()
+  })
+})
 ```
 
 ### 2.7 性能考虑
@@ -558,11 +583,11 @@ describe('useAuthStore', () => {
 
 #### 预期性能提升
 
-| 指标 | 当前 | 目标 | 改善 |
-|------|------|------|------|
-| 认证状态访问 | N/A | 全局共享 | ⬆️ 可维护性 |
-| 通知重渲染 | 每个组件独立 | 全局共享 | ⬆️ 性能 20% |
-| WebSocket 连接 | 多个实例 | 单一实例 | ⬆️ 性能 30% |
+| 指标           | 当前         | 目标     | 改善        |
+| -------------- | ------------ | -------- | ----------- |
+| 认证状态访问   | N/A          | 全局共享 | ⬆️ 可维护性 |
+| 通知重渲染     | 每个组件独立 | 全局共享 | ⬆️ 性能 20% |
+| WebSocket 连接 | 多个实例     | 单一实例 | ⬆️ 性能 30% |
 
 ---
 
@@ -571,11 +596,13 @@ describe('useAuthStore', () => {
 ### Phase 1 成果
 
 ✅ **代码重复分析**:
+
 - 确认了 `permissions.ts` 的重复问题
 - 分析了 24 个依赖文件
 - 提供了详细的修复步骤
 
 ✅ **Zustand Store 架构**:
+
 - 创建了 4 个核心 Stores
 - 总代码量 776 行
 - 完整的类型定义
@@ -583,21 +610,23 @@ describe('useAuthStore', () => {
 
 ### 工作量统计
 
-| 任务 | 预估时间 | 实际时间 | 状态 |
-|------|----------|----------|------|
-| 代码重复分析 | 30 分钟 | 2 小时 | ✅ 完成 |
-| Zustand Store 创建 | 0.5 天 | 2 小时 | ✅ 完成 |
-| **总计** | **2.5 小时** | **4 小时** | ✅ 完成 |
+| 任务               | 预估时间     | 实际时间   | 状态    |
+| ------------------ | ------------ | ---------- | ------- |
+| 代码重复分析       | 30 分钟      | 2 小时     | ✅ 完成 |
+| Zustand Store 创建 | 0.5 天       | 2 小时     | ✅ 完成 |
+| **总计**           | **2.5 小时** | **4 小时** | ✅ 完成 |
 
 ### 下一步行动
 
 ⏳ **等待 Executor 子代理**:
+
 1. 执行删除重复文件
 2. 更新所有导入路径
 3. 运行测试验证
 4. 报告结果
 
 ⏳ **Phase 2 准备**:
+
 1. 开始状态迁移
 2. 优先级: app-store → notification-store → auth-store → websocket-store
 3. 逐步替换现有 Hooks
@@ -605,6 +634,7 @@ describe('useAuthStore', () => {
 ### 风险提示
 
 ⚠️ **注意事项**:
+
 1. 删除 `lib/permissions.ts` 前必须完整测试
 2. 导入路径更新后需要 TypeScript 编译检查
 3. Zustand Store 迁移前需要准备好测试

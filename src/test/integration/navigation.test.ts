@@ -86,7 +86,7 @@ describe('Navigation Integration Tests', () => {
       }
 
       const url = buildUrl('/search', { q: 'test', category: 'blog' })
-      
+
       expect(url).toContain('/search?')
       expect(url).toContain('q=test')
       expect(url).toContain('category=blog')
@@ -164,7 +164,7 @@ describe('Navigation Integration Tests', () => {
       const detectLocale = (pathname: string, supportedLocales: string[]) => {
         const segments = pathname.split('/').filter(Boolean)
         const firstSegment = segments[0]
-        
+
         if (supportedLocales.includes(firstSegment)) {
           return { locale: firstSegment, pathWithoutLocale: '/' + segments.slice(1).join('/') }
         }
@@ -184,10 +184,10 @@ describe('Navigation Integration Tests', () => {
 
     it('should preserve locale preference in localStorage', () => {
       const preferredLocale = 'zh'
-      
+
       // In real implementation, would save to localStorage
       const savedLocale = preferredLocale
-      
+
       expect(savedLocale).toBe('zh')
     })
   })
@@ -195,13 +195,13 @@ describe('Navigation Integration Tests', () => {
   describe('Navigation State', () => {
     it('should track current route', () => {
       const currentPath = '/dashboard'
-      
+
       expect(currentPath).toBe('/dashboard')
     })
 
     it('should track navigation history', () => {
       const history: string[] = []
-      
+
       const addToHistory = (path: string) => {
         history.push(path)
       }
@@ -246,16 +246,16 @@ describe('Navigation Integration Tests', () => {
   describe('Mobile Navigation', () => {
     it('should toggle mobile menu', () => {
       let isMobileMenuOpen = false
-      
+
       const toggleMobileMenu = () => {
         isMobileMenuOpen = !isMobileMenuOpen
       }
 
       expect(isMobileMenuOpen).toBe(false)
-      
+
       toggleMobileMenu()
       expect(isMobileMenuOpen).toBe(true)
-      
+
       toggleMobileMenu()
       expect(isMobileMenuOpen).toBe(false)
     })
@@ -311,11 +311,10 @@ describe('Navigation Integration Tests', () => {
   describe('404 and Error Pages', () => {
     it('should show 404 page for unknown routes', () => {
       const knownRoutes = ['/', '/about', '/contact', '/dashboard', '/team', '/blog']
-      
+
       const isKnownRoute = (path: string) => {
         // Simple check - would be more complex in reality
-        return knownRoutes.includes(path) || 
-               knownRoutes.some(route => path.startsWith(route + '/'))
+        return knownRoutes.includes(path) || knownRoutes.some(route => path.startsWith(route + '/'))
       }
 
       expect(isKnownRoute('/unknown-page')).toBe(false)
@@ -358,7 +357,7 @@ describe('Navigation Integration Tests', () => {
 
     it('should track navigation timing', () => {
       const navigationStart = Date.now()
-      
+
       // Simulate navigation
       const navigationEnd = Date.now()
       const navigationDuration = navigationEnd - navigationStart
@@ -384,19 +383,14 @@ describe('Navigation Integration Tests', () => {
 describe('Navigation Accessibility', () => {
   it('should support keyboard navigation', () => {
     const focusableElements = ['a', 'button', 'input', 'select', 'textarea']
-    
+
     focusableElements.forEach(element => {
       expect(element).toBeDefined()
     })
   })
 
   it('should have proper ARIA attributes', () => {
-    const ariaAttributes = [
-      'aria-current',
-      'aria-expanded',
-      'aria-label',
-      'aria-controls',
-    ]
+    const ariaAttributes = ['aria-current', 'aria-expanded', 'aria-label', 'aria-controls']
 
     ariaAttributes.forEach(attr => {
       expect(attr).toBeDefined()
@@ -406,13 +400,13 @@ describe('Navigation Accessibility', () => {
   it('should announce navigation changes to screen readers', () => {
     // Navigation changes should use aria-live regions
     const liveRegion = 'polite' // or 'assertive'
-    
+
     expect(liveRegion).toBeDefined()
   })
 
   it('should skip to main content', () => {
     const skipLinkTarget = '#main-content'
-    
+
     expect(skipLinkTarget).toBe('#main-content')
   })
 })

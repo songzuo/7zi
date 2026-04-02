@@ -17,10 +17,10 @@
 
 ### 核心目标
 
-| 目标 | 描述 | KPI |
-|------|------|-----|
-| 经验复用 | Agent 能从历史经验中学习，避免重复犯错 | 任务成功率提升 15% |
-| 高效协作 | 跨 Agent 消息传递延迟 <50ms | 协作效率提升 30% |
+| 目标     | 描述                                     | KPI                  |
+| -------- | ---------------------------------------- | -------------------- |
+| 经验复用 | Agent 能从历史经验中学习，避免重复犯错   | 任务成功率提升 15%   |
+| 高效协作 | 跨 Agent 消息传递延迟 <50ms              | 协作效率提升 30%     |
 | 智能监控 | 问题发现时间 <5分钟，自动告警准确率 >90% | 故障恢复时间减少 40% |
 
 ### 架构演进路线
@@ -117,16 +117,16 @@ Dashboard   Agent集成             消息路由优化
 
 ### 1.2 新增组件清单
 
-| 组件名称 | 类型 | 依赖 | 描述 |
-|---------|------|------|------|
-| **MemorySystem** | 服务 | Milvus, PostgreSQL | Agent 长期记忆和经验学习 |
-| **MessageRouter** | 服务 | Redis | 高效的跨 Agent 消息路由 |
-| **MetricsService** | 服务 | ClickHouse | 性能指标采集和存储 |
-| **AlertService** | 服务 | Redis, Slack | 智能告警和通知 |
-| **HealthChecker** | 服务 | Redis | 系统健康检查 |
-| **TraceService** | 服务 | ClickHouse | 分布式追踪 |
-| **MemoryBrowser** | 前端 | Memory API | 记忆可视化和查询界面 |
-| **MonitorDashboard** | 前端 | Monitor API | 监控告警面板 |
+| 组件名称             | 类型 | 依赖               | 描述                     |
+| -------------------- | ---- | ------------------ | ------------------------ |
+| **MemorySystem**     | 服务 | Milvus, PostgreSQL | Agent 长期记忆和经验学习 |
+| **MessageRouter**    | 服务 | Redis              | 高效的跨 Agent 消息路由  |
+| **MetricsService**   | 服务 | ClickHouse         | 性能指标采集和存储       |
+| **AlertService**     | 服务 | Redis, Slack       | 智能告警和通知           |
+| **HealthChecker**    | 服务 | Redis              | 系统健康检查             |
+| **TraceService**     | 服务 | ClickHouse         | 分布式追踪               |
+| **MemoryBrowser**    | 前端 | Memory API         | 记忆可视化和查询界面     |
+| **MonitorDashboard** | 前端 | Monitor API        | 监控告警面板             |
 
 ---
 
@@ -191,51 +191,51 @@ Dashboard   Agent集成             消息路由优化
 ```typescript
 interface Memory {
   // 基本信息
-  id: string;
-  agentId: string;
-  type: MemoryType;
-  
+  id: string
+  agentId: string
+  type: MemoryType
+
   // 内容
-  title: string;
-  content: string;
-  summary?: string;
-  
+  title: string
+  content: string
+  summary?: string
+
   // 向量
-  embedding?: number[];        // 1536维向量 (OpenAI ada-002)
-  embeddingModel?: string;
-  
+  embedding?: number[] // 1536维向量 (OpenAI ada-002)
+  embeddingModel?: string
+
   // 关联
-  taskId?: string;
-  workflowId?: string;
-  instanceId?: string;
-  relatedMemories?: string[];
-  
+  taskId?: string
+  workflowId?: string
+  instanceId?: string
+  relatedMemories?: string[]
+
   // 元数据
-  tags: string[];
-  importance: number;          // 0-1 重要性评分
-  accessCount: number;         // 访问次数
-  lastAccessedAt?: string;
-  
+  tags: string[]
+  importance: number // 0-1 重要性评分
+  accessCount: number // 访问次数
+  lastAccessedAt?: string
+
   // 学习
   learningOutcome?: {
-    type: 'success' | 'failure' | 'insight';
-    lessons: string[];
-    applicableScenarios: string[];
-  };
-  
+    type: 'success' | 'failure' | 'insight'
+    lessons: string[]
+    applicableScenarios: string[]
+  }
+
   // 时间
-  createdAt: string;
-  updatedAt: string;
-  expiresAt?: string;          // TTL
+  createdAt: string
+  updatedAt: string
+  expiresAt?: string // TTL
 }
 
 enum MemoryType {
-  EPISODIC = 'episodic',       // 事件记忆（具体经历）
-  SEMANTIC = 'semantic',       // 语义记忆（知识事实）
-  PROCEDURAL = 'procedural',   // 程序记忆（技能方法）
-  EXPERIENCE = 'experience',   // 经验教训
-  INSIGHT = 'insight',         // 洞察发现
-  DECISION = 'decision',       // 决策记录
+  EPISODIC = 'episodic', // 事件记忆（具体经历）
+  SEMANTIC = 'semantic', // 语义记忆（知识事实）
+  PROCEDURAL = 'procedural', // 程序记忆（技能方法）
+  EXPERIENCE = 'experience', // 经验教训
+  INSIGHT = 'insight', // 洞察发现
+  DECISION = 'decision', // 决策记录
 }
 ```
 
@@ -243,48 +243,48 @@ enum MemoryType {
 
 ```typescript
 interface Experience {
-  id: string;
-  agentId: string;
-  
+  id: string
+  agentId: string
+
   // 场景
   scenario: {
-    taskType: string;
-    context: Record<string, any>;
-    constraints: string[];
-  };
-  
+    taskType: string
+    context: Record<string, any>
+    constraints: string[]
+  }
+
   // 行动
   action: {
-    type: string;
-    parameters: Record<string, any>;
-    reasoning?: string;
-  };
-  
+    type: string
+    parameters: Record<string, any>
+    reasoning?: string
+  }
+
   // 结果
   outcome: {
-    success: boolean;
-    result?: any;
-    error?: string;
+    success: boolean
+    result?: any
+    error?: string
     metrics: {
-      duration: number;
-      resourceUsage?: number;
-      qualityScore?: number;
-    };
-  };
-  
+      duration: number
+      resourceUsage?: number
+      qualityScore?: number
+    }
+  }
+
   // 反思
   reflection?: {
-    whatWorked: string[];
-    whatDidntWork: string[];
-    alternatives: string[];
-    improvements: string[];
-  };
-  
+    whatWorked: string[]
+    whatDidntWork: string[]
+    alternatives: string[]
+    improvements: string[]
+  }
+
   // 向量
-  scenarioEmbedding: number[];
-  
+  scenarioEmbedding: number[]
+
   // 时间
-  timestamp: string;
+  timestamp: string
 }
 ```
 
@@ -378,22 +378,22 @@ class ExperienceLearner {
    */
   async learnFromSuccess(experience: Experience): Promise<LearningResult> {
     // 1. 提取成功模式
-    const pattern = await this.extractPattern(experience);
-    
+    const pattern = await this.extractPattern(experience)
+
     // 2. 更新知识库
-    await this.updateKnowledgeBase(pattern);
-    
+    await this.updateKnowledgeBase(pattern)
+
     // 3. 生成建议规则
-    const rules = await this.generateRules(pattern);
-    
+    const rules = await this.generateRules(pattern)
+
     // 4. 更新 Agent 决策模型
-    await this.updateAgentModel(experience.agentId, rules);
-    
+    await this.updateAgentModel(experience.agentId, rules)
+
     return {
       pattern,
       rules,
       confidence: this.calculateConfidence(experience),
-    };
+    }
   }
 
   /**
@@ -401,48 +401,38 @@ class ExperienceLearner {
    */
   async learnFromFailure(experience: Experience): Promise<LearningResult> {
     // 1. 分析失败原因
-    const rootCause = await this.analyzeFailure(experience);
-    
+    const rootCause = await this.analyzeFailure(experience)
+
     // 2. 生成避坑指南
-    const guidelines = await this.generateGuidelines(rootCause);
-    
+    const guidelines = await this.generateGuidelines(rootCause)
+
     // 3. 创建警示规则
-    const warnings = await this.createWarnings(rootCause);
-    
+    const warnings = await this.createWarnings(rootCause)
+
     // 4. 更新风险评估模型
-    await this.updateRiskModel(experience.agentId, warnings);
-    
+    await this.updateRiskModel(experience.agentId, warnings)
+
     return {
       rootCause,
       guidelines,
       warnings,
-    };
+    }
   }
 
   /**
    * 智能建议生成
    */
-  async generateSuggestion(
-    agentId: string,
-    taskContext: TaskContext
-  ): Promise<Suggestion[]> {
+  async generateSuggestion(agentId: string, taskContext: TaskContext): Promise<Suggestion[]> {
     // 1. 检索相关经验
-    const memories = await this.retrieveRelevantMemories(
-      agentId,
-      taskContext
-    );
-    
+    const memories = await this.retrieveRelevantMemories(agentId, taskContext)
+
     // 2. 分析历史决策
-    const decisions = await this.analyzeDecisions(memories);
-    
+    const decisions = await this.analyzeDecisions(memories)
+
     // 3. 生成建议
-    const suggestions = await this.synthesizeSuggestions(
-      memories,
-      decisions,
-      taskContext
-    );
-    
-    return suggestions;
+    const suggestions = await this.synthesizeSuggestions(memories, decisions, taskContext)
+
+    return suggestions
   }
 }
 ```
@@ -534,38 +524,38 @@ GET    /api/memories/trends               # 记忆趋势分析
 
 ```typescript
 interface AgentMessage {
-  id: string;
-  
+  id: string
+
   // 路由信息
-  from: AgentEndpoint;
-  to: AgentEndpoint | AgentEndpoint[];
-  routingKey?: string;          // 路由键
-  
+  from: AgentEndpoint
+  to: AgentEndpoint | AgentEndpoint[]
+  routingKey?: string // 路由键
+
   // 消息内容
-  type: MessageType;
-  subject: string;
-  payload: any;
-  
+  type: MessageType
+  subject: string
+  payload: any
+
   // 元数据
-  priority: MessagePriority;
-  ttl?: number;                 // 生存时间（秒）
-  correlationId?: string;       // 关联ID（请求-响应）
-  replyTo?: string;             // 回复地址
-  
+  priority: MessagePriority
+  ttl?: number // 生存时间（秒）
+  correlationId?: string // 关联ID（请求-响应）
+  replyTo?: string // 回复地址
+
   // 可靠性
-  persistent: boolean;          // 是否持久化
-  requireAck: boolean;          // 是否需要确认
-  ackTimeout?: number;          // 确认超时
-  
+  persistent: boolean // 是否持久化
+  requireAck: boolean // 是否需要确认
+  ackTimeout?: number // 确认超时
+
   // 时间
-  timestamp: string;
-  expiresAt?: string;
+  timestamp: string
+  expiresAt?: string
 }
 
 interface AgentEndpoint {
-  agentId: string;
-  role?: string;
-  capabilities?: string[];
+  agentId: string
+  role?: string
+  capabilities?: string[]
 }
 
 enum MessageType {
@@ -574,28 +564,28 @@ enum MessageType {
   TASK_PROGRESS = 'task.progress',
   TASK_RESULT = 'task.result',
   TASK_ERROR = 'task.error',
-  
+
   // 协作相关
   COLLABORATION_REQUEST = 'collaboration.request',
   COLLABORATION_RESPONSE = 'collaboration.response',
   KNOWLEDGE_SHARE = 'knowledge.share',
   FEEDBACK = 'feedback',
-  
+
   // 系统相关
   HEARTBEAT = 'system.heartbeat',
   STATUS_UPDATE = 'system.status',
   ALERT = 'system.alert',
-  
+
   // 工作流相关
   WORKFLOW_EVENT = 'workflow.event',
   NODE_TRIGGER = 'workflow.node.trigger',
 }
 
 enum MessagePriority {
-  CRITICAL = 0,   // 紧急（系统告警）
-  HIGH = 1,       // 高优先级（任务分配）
-  NORMAL = 2,     // 正常（常规消息）
-  LOW = 3,        // 低优先级（日志、统计）
+  CRITICAL = 0, // 紧急（系统告警）
+  HIGH = 1, // 高优先级（任务分配）
+  NORMAL = 2, // 正常（常规消息）
+  LOW = 3, // 低优先级（日志、统计）
 }
 ```
 
@@ -605,14 +595,14 @@ enum MessagePriority {
 interface TopicSubscription {
   id: string;
   agentId: string;
-  
+
   // 主题模式
   pattern: string;              // 支持通配符: *, #
   examples:
     - 'task.*'                  // 所有任务消息
     - 'agent.001.>'             // agent.001 的所有消息
     - 'workflow.node.completed' // 特定事件
-  
+
   // 过滤条件
   filter?: {
     messageTypes?: MessageType[];
@@ -620,7 +610,7 @@ interface TopicSubscription {
     fromAgents?: string[];
     customFilter?: string;      // 自定义过滤表达式
   };
-  
+
   // 配置
   config: {
     maxQueueSize: number;
@@ -628,7 +618,7 @@ interface TopicSubscription {
     autoAck: boolean;
     deadLetterQueue?: string;
   };
-  
+
   // 状态
   status: 'active' | 'paused' | 'error';
   messageCount: number;
@@ -647,27 +637,23 @@ class RouterEngine {
    */
   async route(message: AgentMessage): Promise<RoutingDecision> {
     // 1. 分析消息特征
-    const analysis = this.analyzeMessage(message);
-    
+    const analysis = this.analyzeMessage(message)
+
     // 2. 选择传输通道
-    const channel = this.selectChannel(analysis);
-    
+    const channel = this.selectChannel(analysis)
+
     // 3. 优化路由路径
-    const path = await this.optimizePath(
-      message.from,
-      message.to,
-      analysis
-    );
-    
+    const path = await this.optimizePath(message.from, message.to, analysis)
+
     // 4. 应用 QoS 策略
-    const qos = this.applyQoS(message, channel);
-    
+    const qos = this.applyQoS(message, channel)
+
     return {
       channel,
       path,
       qos,
       estimatedLatency: this.estimateLatency(path, channel),
-    };
+    }
   }
 
   /**
@@ -676,21 +662,21 @@ class RouterEngine {
   private selectChannel(analysis: MessageAnalysis): TransportChannel {
     // 低延迟实时消息 -> WebSocket
     if (analysis.urgency === 'realtime' && analysis.size < '10KB') {
-      return 'websocket';
+      return 'websocket'
     }
-    
+
     // 高吞吐量流式消息 -> gRPC
     if (analysis.throughput === 'high' && analysis.streaming) {
-      return 'grpc';
+      return 'grpc'
     }
-    
+
     // 需要持久化或广播 -> Redis PubSub
     if (analysis.persistent || analysis.broadcast) {
-      return 'redis';
+      return 'redis'
     }
-    
+
     // 默认 -> WebSocket
-    return 'websocket';
+    return 'websocket'
   }
 
   /**
@@ -701,20 +687,20 @@ class RouterEngine {
     to: AgentEndpoint | AgentEndpoint[],
     analysis: MessageAnalysis
   ): Promise<RoutingPath> {
-    const targets = Array.isArray(to) ? to : [to];
-    
+    const targets = Array.isArray(to) ? to : [to]
+
     // 单播
     if (targets.length === 1) {
-      return this.directPath(from, targets[0]);
+      return this.directPath(from, targets[0])
     }
-    
+
     // 广播（使用 Redis PubSub 优化）
     if (analysis.broadcast) {
-      return this.broadcastPath(targets);
+      return this.broadcastPath(targets)
     }
-    
+
     // 多播（分组优化）
-    return this.multicastPath(targets);
+    return this.multicastPath(targets)
   }
 }
 ```
@@ -723,24 +709,24 @@ class RouterEngine {
 
 ```typescript
 class PriorityMessageQueue {
-  private queues: Map<MessagePriority, MessageQueue>;
-  
+  private queues: Map<MessagePriority, MessageQueue>
+
   /**
    * 入队
    */
   async enqueue(message: AgentMessage): Promise<void> {
-    const queue = this.queues.get(message.priority);
-    
+    const queue = this.queues.get(message.priority)
+
     // 持久化消息
     if (message.persistent) {
-      await this.persistMessage(message);
+      await this.persistMessage(message)
     }
-    
+
     // 加入队列
-    await queue.push(message);
-    
+    await queue.push(message)
+
     // 更新指标
-    this.updateMetrics(message.priority);
+    this.updateMetrics(message.priority)
   }
 
   /**
@@ -749,16 +735,16 @@ class PriorityMessageQueue {
   async dequeue(agentId: string): Promise<AgentMessage | null> {
     // 严格优先级调度
     for (const priority of [CRITICAL, HIGH, NORMAL, LOW]) {
-      const queue = this.queues.get(priority);
-      
+      const queue = this.queues.get(priority)
+
       // 检查 Agent 订阅
-      const message = await queue.pop(agentId);
+      const message = await queue.pop(agentId)
       if (message) {
-        return message;
+        return message
       }
     }
-    
-    return null;
+
+    return null
   }
 
   /**
@@ -770,11 +756,11 @@ class PriorityMessageQueue {
       HIGH: 5,
       NORMAL: 3,
       LOW: 1,
-    };
-    
+    }
+
     // 根据权重选择队列
-    const selectedQueue = this.weightedSelect(weights);
-    return await selectedQueue.pop(agentId);
+    const selectedQueue = this.weightedSelect(weights)
+    return await selectedQueue.pop(agentId)
   }
 }
 ```
@@ -788,56 +774,53 @@ class ReliableMessaging {
    */
   async sendWithGuarantee(message: AgentMessage): Promise<SendResult> {
     // 1. 持久化消息
-    const messageId = await this.persistMessage(message);
-    
+    const messageId = await this.persistMessage(message)
+
     // 2. 发送消息
-    const result = await this.send(message);
-    
+    const result = await this.send(message)
+
     if (message.requireAck) {
       // 3. 等待确认
-      const ack = await this.waitForAck(messageId, message.ackTimeout);
-      
+      const ack = await this.waitForAck(messageId, message.ackTimeout)
+
       if (!ack) {
         // 4. 重试
-        return await this.retryWithBackoff(message);
+        return await this.retryWithBackoff(message)
       }
     }
-    
-    return { success: true, messageId };
+
+    return { success: true, messageId }
   }
 
   /**
    * 指数退避重试
    */
-  private async retryWithBackoff(
-    message: AgentMessage,
-    attempt: number = 1
-  ): Promise<SendResult> {
-    const maxRetries = 3;
-    const baseDelay = 1000;
-    
+  private async retryWithBackoff(message: AgentMessage, attempt: number = 1): Promise<SendResult> {
+    const maxRetries = 3
+    const baseDelay = 1000
+
     if (attempt > maxRetries) {
       // 发送到死信队列
-      await this.sendToDeadLetterQueue(message);
-      return { success: false, error: 'Max retries exceeded' };
+      await this.sendToDeadLetterQueue(message)
+      return { success: false, error: 'Max retries exceeded' }
     }
-    
-    const delay = baseDelay * Math.pow(2, attempt - 1);
-    await this.sleep(delay);
-    
+
+    const delay = baseDelay * Math.pow(2, attempt - 1)
+    await this.sleep(delay)
+
     try {
-      const result = await this.send(message);
-      
+      const result = await this.send(message)
+
       if (message.requireAck) {
-        const ack = await this.waitForAck(message.id, message.ackTimeout);
+        const ack = await this.waitForAck(message.id, message.ackTimeout)
         if (ack) {
-          return { success: true, messageId: message.id };
+          return { success: true, messageId: message.id }
         }
       }
-      
-      return await this.retryWithBackoff(message, attempt + 1);
+
+      return await this.retryWithBackoff(message, attempt + 1)
     } catch (error) {
-      return await this.retryWithBackoff(message, attempt + 1);
+      return await this.retryWithBackoff(message, attempt + 1)
     }
   }
 }
@@ -950,40 +933,40 @@ GET    /api/router/topology             # 路由拓扑
 interface SystemMetrics {
   // 资源使用
   cpu: {
-    usage: number;              // CPU 使用率 (%)
-    loadAverage: [number, number, number];
-    cores: number;
-  };
-  
+    usage: number // CPU 使用率 (%)
+    loadAverage: [number, number, number]
+    cores: number
+  }
+
   memory: {
-    used: number;               // 已用内存 (bytes)
-    total: number;              // 总内存
-    usage: number;              // 使用率 (%)
-    swapUsed: number;
-  };
-  
+    used: number // 已用内存 (bytes)
+    total: number // 总内存
+    usage: number // 使用率 (%)
+    swapUsed: number
+  }
+
   disk: {
-    used: number;
-    total: number;
-    usage: number;
-    readIOPS: number;
-    writeIOPS: number;
-  };
-  
+    used: number
+    total: number
+    usage: number
+    readIOPS: number
+    writeIOPS: number
+  }
+
   network: {
-    bytesIn: number;
-    bytesOut: number;
-    connections: number;
-    errors: number;
-  };
-  
+    bytesIn: number
+    bytesOut: number
+    connections: number
+    errors: number
+  }
+
   // 进程
   process: {
-    uptime: number;
-    memoryRSS: number;
-    openFiles: number;
-    threads: number;
-  };
+    uptime: number
+    memoryRSS: number
+    openFiles: number
+    threads: number
+  }
 }
 ```
 
@@ -991,41 +974,41 @@ interface SystemMetrics {
 
 ```typescript
 interface AgentMetrics {
-  agentId: string;
-  timestamp: string;
-  
+  agentId: string
+  timestamp: string
+
   // 状态
-  status: 'online' | 'offline' | 'busy' | 'error';
-  uptime: number;
-  
+  status: 'online' | 'offline' | 'busy' | 'error'
+  uptime: number
+
   // 负载
-  currentLoad: number;          // 当前负载 (0-100)
-  queueLength: number;          // 队列长度
-  activeTasks: number;          // 活跃任务数
-  
+  currentLoad: number // 当前负载 (0-100)
+  queueLength: number // 队列长度
+  activeTasks: number // 活跃任务数
+
   // 性能
-  avgResponseTime: number;      // 平均响应时间 (ms)
-  p50ResponseTime: number;
-  p95ResponseTime: number;
-  p99ResponseTime: number;
-  
+  avgResponseTime: number // 平均响应时间 (ms)
+  p50ResponseTime: number
+  p95ResponseTime: number
+  p99ResponseTime: number
+
   // 成功率
-  successRate: number;          // 成功率 (0-1)
-  errorRate: number;            // 错误率 (0-1)
-  timeoutRate: number;          // 超时率 (0-1)
-  
+  successRate: number // 成功率 (0-1)
+  errorRate: number // 错误率 (0-1)
+  timeoutRate: number // 超时率 (0-1)
+
   // 吞吐量
-  tasksCompleted: number;       // 完成任务数
-  tasksPerMinute: number;       // 每分钟任务数
-  
+  tasksCompleted: number // 完成任务数
+  tasksPerMinute: number // 每分钟任务数
+
   // 资源
-  memoryUsage: number;          // 内存使用 (bytes)
-  cpuUsage: number;             // CPU 使用 (%)
-  
+  memoryUsage: number // 内存使用 (bytes)
+  cpuUsage: number // CPU 使用 (%)
+
   // 调度
-  scheduledCount: number;       // 被调度次数
-  rejectedCount: number;        // 被拒绝次数
-  avgWaitTime: number;          // 平均等待时间
+  scheduledCount: number // 被调度次数
+  rejectedCount: number // 被拒绝次数
+  avgWaitTime: number // 平均等待时间
 }
 ```
 
@@ -1033,38 +1016,38 @@ interface AgentMetrics {
 
 ```typescript
 interface TaskMetrics {
-  taskId: string;
-  agentId: string;
-  timestamp: string;
-  
+  taskId: string
+  agentId: string
+  timestamp: string
+
   // 执行
-  status: TaskStatus;
-  duration: number;             // 执行时长 (ms)
-  waitTime: number;             // 等待时长
-  
+  status: TaskStatus
+  duration: number // 执行时长 (ms)
+  waitTime: number // 等待时长
+
   // 资源
-  memoryPeak: number;           // 峰值内存
-  cpuTime: number;              // CPU 时间
-  networkBytes: number;         // 网络传输量
-  
+  memoryPeak: number // 峰值内存
+  cpuTime: number // CPU 时间
+  networkBytes: number // 网络传输量
+
   // 质量
-  success: boolean;
-  retryCount: number;
-  errorType?: string;
-  
+  success: boolean
+  retryCount: number
+  errorType?: string
+
   // 调度
-  priority: TaskPriority;
-  scheduledAt: string;
-  startedAt: string;
-  completedAt: string;
-  
+  priority: TaskPriority
+  scheduledAt: string
+  startedAt: string
+  completedAt: string
+
   // 费用（如适用）
   cost?: {
-    compute: number;
-    storage: number;
-    network: number;
-    total: number;
-  };
+    compute: number
+    storage: number
+    network: number
+    total: number
+  }
 }
 ```
 
@@ -1072,35 +1055,35 @@ interface TaskMetrics {
 
 ```typescript
 interface WorkflowMetrics {
-  workflowId: string;
-  instanceId: string;
-  timestamp: string;
-  
+  workflowId: string
+  instanceId: string
+  timestamp: string
+
   // 执行
-  status: InstanceStatus;
-  duration: number;
-  nodeCount: number;
-  completedNodes: number;
-  failedNodes: number;
-  
+  status: InstanceStatus
+  duration: number
+  nodeCount: number
+  completedNodes: number
+  failedNodes: number
+
   // 性能
-  avgNodeDuration: number;
-  maxNodeDuration: number;
-  minNodeDuration: number;
-  
+  avgNodeDuration: number
+  maxNodeDuration: number
+  minNodeDuration: number
+
   // 资源
-  totalCpuTime: number;
-  totalMemoryUsed: number;
-  totalNetworkBytes: number;
-  
+  totalCpuTime: number
+  totalMemoryUsed: number
+  totalNetworkBytes: number
+
   // 协作
-  agentsInvolved: string[];
-  messagesExchanged: number;
-  collaborationTime: number;    // 协作等待时间
-  
+  agentsInvolved: string[]
+  messagesExchanged: number
+  collaborationTime: number // 协作等待时间
+
   // 成本
-  estimatedCost: number;
-  actualCost: number;
+  estimatedCost: number
+  actualCost: number
 }
 ```
 
@@ -1110,42 +1093,42 @@ interface WorkflowMetrics {
 
 ```typescript
 interface AlertRule {
-  id: string;
-  name: string;
-  description: string;
-  enabled: boolean;
-  
+  id: string
+  name: string
+  description: string
+  enabled: boolean
+
   // 条件
   condition: {
-    metric: string;             // 指标名称
-    operator: 'gt' | 'lt' | 'eq' | 'ne' | 'gte' | 'lte';
-    threshold: number;
-    duration?: number;          // 持续时间（秒）
-    aggregation?: 'avg' | 'max' | 'min' | 'sum' | 'count';
-  };
-  
+    metric: string // 指标名称
+    operator: 'gt' | 'lt' | 'eq' | 'ne' | 'gte' | 'lte'
+    threshold: number
+    duration?: number // 持续时间（秒）
+    aggregation?: 'avg' | 'max' | 'min' | 'sum' | 'count'
+  }
+
   // 严重级别
-  severity: 'critical' | 'high' | 'medium' | 'low';
-  
+  severity: 'critical' | 'high' | 'medium' | 'low'
+
   // 通知
   notification: {
-    channels: NotificationChannel[];
-    recipients: string[];
-    template?: string;
-    cooldown: number;           // 冷却时间（秒）
-  };
-  
+    channels: NotificationChannel[]
+    recipients: string[]
+    template?: string
+    cooldown: number // 冷却时间（秒）
+  }
+
   // 自动响应
   autoRemediation?: {
-    enabled: boolean;
-    action: string;
-    parameters?: Record<string, any>;
-  };
-  
+    enabled: boolean
+    action: string
+    parameters?: Record<string, any>
+  }
+
   // 元数据
-  tags: string[];
-  createdAt: string;
-  updatedAt: string;
+  tags: string[]
+  createdAt: string
+  updatedAt: string
 }
 
 // 示例规则
@@ -1192,42 +1175,39 @@ const alertRules: AlertRule[] = [
       cooldown: 300,
     },
   },
-];
+]
 ```
 
 #### 4.4.2 告警引擎实现
 
 ```typescript
 class AlertEngine {
-  private rules: Map<string, AlertRule>;
-  private activeAlerts: Map<string, ActiveAlert>;
-  private metricsCollector: MetricsCollector;
-  
+  private rules: Map<string, AlertRule>
+  private activeAlerts: Map<string, ActiveAlert>
+  private metricsCollector: MetricsCollector
+
   /**
    * 评估告警规则
    */
   async evaluateRules(): Promise<void> {
     for (const [ruleId, rule] of this.rules) {
-      if (!rule.enabled) continue;
-      
+      if (!rule.enabled) continue
+
       // 获取指标数据
       const metricValue = await this.getMetricValue(
         rule.condition.metric,
         rule.condition.duration,
         rule.condition.aggregation
-      );
-      
+      )
+
       // 评估条件
-      const isTriggered = this.evaluateCondition(
-        metricValue,
-        rule.condition
-      );
-      
+      const isTriggered = this.evaluateCondition(metricValue, rule.condition)
+
       // 处理告警
       if (isTriggered) {
-        await this.triggerAlert(rule, metricValue);
+        await this.triggerAlert(rule, metricValue)
       } else {
-        await this.resolveAlert(rule);
+        await this.resolveAlert(rule)
       }
     }
   }
@@ -1235,15 +1215,12 @@ class AlertEngine {
   /**
    * 触发告警
    */
-  private async triggerAlert(
-    rule: AlertRule,
-    metricValue: number
-  ): Promise<void> {
+  private async triggerAlert(rule: AlertRule, metricValue: number): Promise<void> {
     // 检查冷却期
     if (this.isInCooldown(rule.id)) {
-      return;
+      return
     }
-    
+
     // 创建告警
     const alert: ActiveAlert = {
       id: uuidv4(),
@@ -1257,42 +1234,40 @@ class AlertEngine {
         value: metricValue.toString(),
         threshold: rule.condition.threshold.toString(),
       },
-    };
-    
+    }
+
     // 保存活跃告警
-    this.activeAlerts.set(rule.id, alert);
-    
+    this.activeAlerts.set(rule.id, alert)
+
     // 发送通知
-    await this.sendNotification(alert, rule.notification);
-    
+    await this.sendNotification(alert, rule.notification)
+
     // 执行自动修复
     if (rule.autoRemediation?.enabled) {
-      await this.executeAutoRemediation(rule.autoRemediation);
+      await this.executeAutoRemediation(rule.autoRemediation)
     }
-    
+
     // 记录日志
-    await this.logAlert(alert);
+    await this.logAlert(alert)
   }
 
   /**
    * 自动修复
    */
-  private async executeAutoRemediation(
-    config: AutoRemediationConfig
-  ): Promise<void> {
+  private async executeAutoRemediation(config: AutoRemediationConfig): Promise<void> {
     switch (config.action) {
       case 'redistribute_tasks':
-        await this.redistributeTasks();
-        break;
+        await this.redistributeTasks()
+        break
       case 'restart_agent':
-        await this.restartAgent(config.parameters?.agentId);
-        break;
+        await this.restartAgent(config.parameters?.agentId)
+        break
       case 'scale_up':
-        await this.scaleUpAgents(config.parameters?.count);
-        break;
+        await this.scaleUpAgents(config.parameters?.count)
+        break
       case 'throttle_requests':
-        await this.throttleRequests(config.parameters?.rate);
-        break;
+        await this.throttleRequests(config.parameters?.rate)
+        break
     }
   }
 }
@@ -1345,35 +1320,35 @@ CREATE TABLE memories (
   id UUID PRIMARY KEY,
   agent_id TEXT NOT NULL,
   type TEXT NOT NULL,           -- episodic, semantic, procedural, experience, insight, decision
-  
+
   -- 内容
   title TEXT NOT NULL,
   content TEXT NOT NULL,
   summary TEXT,
-  
+
   -- 向量（存储在 Milvus，这里只存 ID）
   embedding_id TEXT,
   embedding_model TEXT,
-  
+
   -- 关联
   task_id UUID,
   workflow_id UUID,
   instance_id UUID,
-  
+
   -- 元数据
   tags TEXT[],
   importance REAL DEFAULT 0.5,
   access_count INTEGER DEFAULT 0,
   last_accessed_at TIMESTAMP,
-  
+
   -- 学习
   learning_outcome JSONB,
-  
+
   -- 时间
   created_at TIMESTAMP NOT NULL DEFAULT NOW(),
   updated_at TIMESTAMP NOT NULL DEFAULT NOW(),
   expires_at TIMESTAMP,
-  
+
   -- 索引
   CONSTRAINT fk_agent FOREIGN KEY (agent_id) REFERENCES agents(id)
 );
@@ -1392,29 +1367,29 @@ CREATE INDEX idx_memories_content ON memories USING GIN(to_tsvector('english', c
 CREATE TABLE experiences (
   id UUID PRIMARY KEY,
   agent_id TEXT NOT NULL,
-  
+
   -- 场景
   scenario JSONB NOT NULL,
-  
+
   -- 行动
   action JSONB NOT NULL,
-  
+
   -- 结果
   outcome JSONB NOT NULL,
-  
+
   -- 反思
   reflection JSONB,
-  
+
   -- 向量
   scenario_embedding_id TEXT,
-  
+
   -- 时间
   timestamp TIMESTAMP NOT NULL DEFAULT NOW(),
-  
+
   -- 关联
   task_id UUID,
   memory_id UUID,
-  
+
   CONSTRAINT fk_agent FOREIGN KEY (agent_id) REFERENCES agents(id),
   CONSTRAINT fk_memory FOREIGN KEY (memory_id) REFERENCES memories(id)
 );
@@ -1429,32 +1404,32 @@ CREATE INDEX idx_experiences_outcome_success ON experiences((outcome->>'success'
 ```sql
 CREATE TABLE message_routes (
   id UUID PRIMARY KEY,
-  
+
   -- 路由信息
   from_agent_id TEXT NOT NULL,
   to_agent_id TEXT NOT NULL,
   routing_key TEXT,
-  
+
   -- 消息
   message_type TEXT NOT NULL,
   message_id UUID NOT NULL,
-  
+
   -- 状态
   status TEXT NOT NULL DEFAULT 'pending',  -- pending, delivered, acked, failed
-  
+
   -- 时间
   sent_at TIMESTAMP NOT NULL,
   delivered_at TIMESTAMP,
   acked_at TIMESTAMP,
   failed_at TIMESTAMP,
-  
+
   -- 重试
   retry_count INTEGER DEFAULT 0,
   last_error TEXT,
-  
+
   -- 元数据
   latency_ms INTEGER,
-  
+
   CONSTRAINT fk_from_agent FOREIGN KEY (from_agent_id) REFERENCES agents(id),
   CONSTRAINT fk_to_agent FOREIGN KEY (to_agent_id) REFERENCES agents(id)
 );
@@ -1471,25 +1446,25 @@ CREATE INDEX idx_message_routes_sent_at ON message_routes(sent_at DESC);
 CREATE TABLE subscriptions (
   id UUID PRIMARY KEY,
   agent_id TEXT NOT NULL,
-  
+
   -- 主题
   pattern TEXT NOT NULL,
-  
+
   -- 过滤
   filter JSONB,
-  
+
   -- 配置
   config JSONB NOT NULL,
-  
+
   -- 状态
   status TEXT NOT NULL DEFAULT 'active',
   message_count INTEGER DEFAULT 0,
   last_active_at TIMESTAMP,
-  
+
   -- 时间
   created_at TIMESTAMP NOT NULL DEFAULT NOW(),
   updated_at TIMESTAMP NOT NULL DEFAULT NOW(),
-  
+
   CONSTRAINT fk_agent FOREIGN KEY (agent_id) REFERENCES agents(id)
 );
 
@@ -1508,7 +1483,7 @@ CREATE TABLE metrics (
   metric_type Enum8('gauge' = 1, 'counter' = 2, 'histogram' = 3),
   value Float64,
   labels Map(String, String),
-  
+
   -- 分区
   date Date DEFAULT toDate(timestamp)
 ) ENGINE = MergeTree()
@@ -1523,28 +1498,28 @@ TTL date + INTERVAL 90 DAY;
 CREATE TABLE alerts (
   id UUID PRIMARY KEY,
   rule_id TEXT NOT NULL,
-  
+
   -- 状态
   status TEXT NOT NULL DEFAULT 'firing',  -- firing, resolved, acknowledged
   severity TEXT NOT NULL,
-  
+
   -- 内容
   message TEXT NOT NULL,
   annotations JSONB,
-  
+
   -- 时间
   started_at TIMESTAMP NOT NULL,
   ended_at TIMESTAMP,
   acknowledged_at TIMESTAMP,
   acknowledged_by TEXT,
-  
+
   -- 通知
   notification_sent BOOLEAN DEFAULT FALSE,
   notification_channels TEXT[],
-  
+
   -- 元数据
   fingerprint TEXT,            -- 去重指纹
-  
+
   CONSTRAINT fk_rule FOREIGN KEY (rule_id) REFERENCES alert_rules(id)
 );
 
@@ -1562,19 +1537,19 @@ CREATE TABLE alert_rules (
   name TEXT NOT NULL,
   description TEXT,
   enabled BOOLEAN DEFAULT TRUE,
-  
+
   -- 条件
   condition JSONB NOT NULL,
-  
+
   -- 严重级别
   severity TEXT NOT NULL,
-  
+
   -- 通知
   notification JSONB NOT NULL,
-  
+
   -- 自动修复
   auto_remediation JSONB,
-  
+
   -- 元数据
   tags TEXT[],
   created_at TIMESTAMP NOT NULL DEFAULT NOW(),
@@ -1636,12 +1611,12 @@ collection = Collection(
 
 ### 6.1 新增 API 汇总
 
-| 模块 | 端点数量 | 描述 |
-|------|---------|------|
-| Memory API | 15 | 记忆管理和检索 |
-| Router API | 10 | 消息路由和订阅 |
-| Monitor API | 15 | 监控和告警 |
-| **总计** | **40** | |
+| 模块        | 端点数量 | 描述           |
+| ----------- | -------- | -------------- |
+| Memory API  | 15       | 记忆管理和检索 |
+| Router API  | 10       | 消息路由和订阅 |
+| Monitor API | 15       | 监控和告警     |
+| **总计**    | **40**   |                |
 
 ### 6.2 REST API 完整列表
 
@@ -1743,36 +1718,36 @@ GET    /api/monitor/dashboards/:id        # 仪表盘数据
 // 服务端 -> 客户端
 interface ServerEvents {
   // 记忆事件
-  'memory:created': (memory: Memory) => void;
-  'memory:updated': (memory: Memory) => void;
-  'memory:accessed': (memoryId: string, agentId: string) => void;
-  
+  'memory:created': (memory: Memory) => void
+  'memory:updated': (memory: Memory) => void
+  'memory:accessed': (memoryId: string, agentId: string) => void
+
   // 路由事件
-  'router:message': (message: AgentMessage) => void;
-  'router:ack': (messageId: string, status: string) => void;
-  'router:error': (error: RouterError) => void;
-  
+  'router:message': (message: AgentMessage) => void
+  'router:ack': (messageId: string, status: string) => void
+  'router:error': (error: RouterError) => void
+
   // 监控事件
-  'monitor:metrics': (metrics: MetricData[]) => void;
-  'monitor:alert': (alert: ActiveAlert) => void;
-  'monitor:alert:resolved': (alertId: string) => void;
-  'monitor:health': (health: HealthStatus) => void;
+  'monitor:metrics': (metrics: MetricData[]) => void
+  'monitor:alert': (alert: ActiveAlert) => void
+  'monitor:alert:resolved': (alertId: string) => void
+  'monitor:health': (health: HealthStatus) => void
 }
 
 // 客户端 -> 服务端
 interface ClientEvents {
   // 记忆操作
-  'memory:search': (query: SearchQuery) => void;
-  'memory:subscribe': (agentId: string) => void;
-  
+  'memory:search': (query: SearchQuery) => void
+  'memory:subscribe': (agentId: string) => void
+
   // 路由操作
-  'router:subscribe': (pattern: string) => void;
-  'router:unsubscribe': (subscriptionId: string) => void;
-  'router:ack': (messageId: string) => void;
-  
+  'router:subscribe': (pattern: string) => void
+  'router:unsubscribe': (subscriptionId: string) => void
+  'router:ack': (messageId: string) => void
+
   // 监控操作
-  'monitor:subscribe': (metrics: string[]) => void;
-  'monitor:unsubscribe': () => void;
+  'monitor:subscribe': (metrics: string[]) => void
+  'monitor:unsubscribe': () => void
 }
 ```
 
@@ -1785,12 +1760,14 @@ interface ClientEvents {
 #### 第一阶段：基础设施（3周）
 
 **Week 1-2: 数据层**
+
 - [ ] Milvus 集群部署和配置
 - [ ] ClickHouse 集群部署和配置
 - [ ] Redis 集群扩容（用于消息路由）
 - [ ] 数据库迁移脚本
 
 **Week 3: 基础服务**
+
 - [ ] MetricsService 实现
 - [ ] TraceService 实现
 - [ ] HealthChecker 实现
@@ -1799,12 +1776,14 @@ interface ClientEvents {
 #### 第二阶段：长期记忆系统（4周）
 
 **Week 4-5: 核心功能**
+
 - [ ] MemoryStore 实现
 - [ ] VectorIndex 集成
 - [ ] ExperienceLearner 实现
 - [ ] Memory API 实现
 
 **Week 6-7: 高级功能**
+
 - [ ] 语义搜索优化
 - [ ] 智能建议生成
 - [ ] 知识图谱构建
@@ -1813,12 +1792,14 @@ interface ClientEvents {
 #### 第三阶段：消息路由优化（3周）
 
 **Week 8-9: 核心功能**
+
 - [ ] MessageRouter 实现
 - [ ] TopicManager 实现
 - [ ] 优先级队列
 - [ ] Router API 实现
 
 **Week 10: 高级功能**
+
 - [ ] 智能路由决策
 - [ ] 可靠性保证
 - [ ] 性能优化
@@ -1827,12 +1808,14 @@ interface ClientEvents {
 #### 第四阶段：监控告警（3周）
 
 **Week 11-12: 核心功能**
+
 - [ ] MetricsCollector 实现
 - [ ] AlertEngine 实现
 - [ ] 监控 API 实现
 - [ ] 前端监控面板
 
 **Week 13: 高级功能**
+
 - [ ] 异常检测
 - [ ] 趋势预测
 - [ ] 自动修复
@@ -1841,12 +1824,14 @@ interface ClientEvents {
 #### 第五阶段：集成测试和优化（2周）
 
 **Week 14: 集成测试**
+
 - [ ] 端到端测试
 - [ ] 性能测试
 - [ ] 压力测试
 - [ ] 故障恢复测试
 
 **Week 15: 优化和发布**
+
 - [ ] 性能优化
 - [ ] 文档完善
 - [ ] 部署发布
@@ -1854,23 +1839,23 @@ interface ClientEvents {
 
 ### 7.2 里程碑
 
-| 里程碑 | 日期 | 交付物 | 验收标准 |
-|--------|------|--------|---------|
-| M1: 基础设施就绪 | 第3周末 | 数据层和服务层可用 | 所有服务健康检查通过 |
-| M2: 记忆系统可用 | 第7周末 | 长期记忆功能上线 | 语义搜索准确率 >85% |
-| M3: 路由优化完成 | 第10周末 | 消息路由优化上线 | 消息延迟 <50ms |
-| M4: 监控告警上线 | 第13周末 | 监控系统上线 | 告警准确率 >90% |
-| M5: 生产就绪 | 第15周末 | 完整系统上线 | 所有测试通过 |
+| 里程碑           | 日期     | 交付物             | 验收标准             |
+| ---------------- | -------- | ------------------ | -------------------- |
+| M1: 基础设施就绪 | 第3周末  | 数据层和服务层可用 | 所有服务健康检查通过 |
+| M2: 记忆系统可用 | 第7周末  | 长期记忆功能上线   | 语义搜索准确率 >85%  |
+| M3: 路由优化完成 | 第10周末 | 消息路由优化上线   | 消息延迟 <50ms       |
+| M4: 监控告警上线 | 第13周末 | 监控系统上线       | 告警准确率 >90%      |
+| M5: 生产就绪     | 第15周末 | 完整系统上线       | 所有测试通过         |
 
 ### 7.3 资源需求
 
-| 资源类型 | 数量 | 用途 |
-|---------|------|------|
-| **开发人员** | 4人 | 后端、前端、测试 |
-| **Milvus 集群** | 3节点 | 向量存储（每节点 16GB RAM） |
-| **ClickHouse** | 3节点 | 时序数据（每节点 32GB RAM） |
-| **Redis 集群** | 3节点 | 消息路由（每节点 8GB RAM） |
-| **存储** | 500GB SSD | 数据库存储 |
+| 资源类型        | 数量      | 用途                        |
+| --------------- | --------- | --------------------------- |
+| **开发人员**    | 4人       | 后端、前端、测试            |
+| **Milvus 集群** | 3节点     | 向量存储（每节点 16GB RAM） |
+| **ClickHouse**  | 3节点     | 时序数据（每节点 32GB RAM） |
+| **Redis 集群**  | 3节点     | 消息路由（每节点 8GB RAM）  |
+| **存储**        | 500GB SSD | 数据库存储                  |
 
 ### 7.4 依赖关系
 
@@ -1888,29 +1873,29 @@ M1 (基础设施)
 
 ### 8.1 技术风险
 
-| 风险 | 影响 | 概率 | 缓解措施 |
-|------|------|------|---------|
-| Milvus 性能不达标 | 高 | 中 | 提前性能测试，准备 Elasticsearch 备选 |
-| 向量检索准确率低 | 中 | 中 | 多模型对比测试，优化索引参数 |
-| 消息路由延迟超标 | 高 | 低 | 多层缓存，智能路由优化 |
-| ClickHouse 写入瓶颈 | 中 | 低 | 批量写入优化，分区策略调整 |
-| 告警风暴 | 中 | 中 | 告警聚合、冷却期、智能降噪 |
+| 风险                | 影响 | 概率 | 缓解措施                              |
+| ------------------- | ---- | ---- | ------------------------------------- |
+| Milvus 性能不达标   | 高   | 中   | 提前性能测试，准备 Elasticsearch 备选 |
+| 向量检索准确率低    | 中   | 中   | 多模型对比测试，优化索引参数          |
+| 消息路由延迟超标    | 高   | 低   | 多层缓存，智能路由优化                |
+| ClickHouse 写入瓶颈 | 中   | 低   | 批量写入优化，分区策略调整            |
+| 告警风暴            | 中   | 中   | 告警聚合、冷却期、智能降噪            |
 
 ### 8.2 资源风险
 
-| 风险 | 影响 | 概率 | 缓解措施 |
-|------|------|------|---------|
-| 开发人员不足 | 高 | 中 | 优先级排序，分阶段交付 |
-| 硬件资源不足 | 中 | 低 | 云弹性扩展，资源监控 |
-| 存储空间不足 | 中 | 低 | TTL 策略，数据归档 |
+| 风险         | 影响 | 概率 | 缓解措施               |
+| ------------ | ---- | ---- | ---------------------- |
+| 开发人员不足 | 高   | 中   | 优先级排序，分阶段交付 |
+| 硬件资源不足 | 中   | 低   | 云弹性扩展，资源监控   |
+| 存储空间不足 | 中   | 低   | TTL 策略，数据归档     |
 
 ### 8.3 业务风险
 
-| 风险 | 影响 | 概率 | 缓解措施 |
-|------|------|------|---------|
-| Agent 接受度低 | 中 | 低 | 渐进式启用，用户培训 |
-| 性能影响现有功能 | 高 | 低 | 灰度发布，性能监控 |
-| 数据隐私问题 | 高 | 低 | 数据加密，访问控制 |
+| 风险             | 影响 | 概率 | 缓解措施             |
+| ---------------- | ---- | ---- | -------------------- |
+| Agent 接受度低   | 中   | 低   | 渐进式启用，用户培训 |
+| 性能影响现有功能 | 高   | 低   | 灰度发布，性能监控   |
+| 数据隐私问题     | 高   | 低   | 数据加密，访问控制   |
 
 ---
 
@@ -1936,14 +1921,14 @@ M1 (基础设施)
 
 ### 9.2 性能指标
 
-| 指标 | 当前值 (v1.7.0) | 目标值 (v1.8.0) |
-|------|----------------|-----------------|
-| Agent 任务成功率 | 85% | 90%+ |
-| 消息传递延迟 | ~100ms | <50ms |
-| 问题发现时间 | ~30min | <5min |
-| 告警准确率 | N/A | >90% |
-| 记忆检索速度 | N/A | <100ms |
-| 向量搜索准确率 | N/A | >85% |
+| 指标             | 当前值 (v1.7.0) | 目标值 (v1.8.0) |
+| ---------------- | --------------- | --------------- |
+| Agent 任务成功率 | 85%             | 90%+            |
+| 消息传递延迟     | ~100ms          | <50ms           |
+| 问题发现时间     | ~30min          | <5min           |
+| 告警准确率       | N/A             | >90%            |
+| 记忆检索速度     | N/A             | <100ms          |
+| 向量搜索准确率   | N/A             | >85%            |
 
 ### 9.3 参考资料
 
@@ -1957,7 +1942,7 @@ M1 (基础设施)
 
 **文档结束**
 
-*本架构设计文档将随着开发进展持续更新。如有疑问或建议，请联系架构师团队。*
+_本架构设计文档将随着开发进展持续更新。如有疑问或建议，请联系架构师团队。_
 
 **维护者**: 🏗️ 架构师 (AI 团队)
 **最后更新**: 2026-04-01

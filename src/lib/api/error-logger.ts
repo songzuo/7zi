@@ -20,18 +20,18 @@
  * });
  */
 
-import { logger } from '../logger';
-import { ErrorType } from './error-handler';
-import { getRetryInfo } from './retry-decorator';
+import { logger } from '../logger'
+import { ErrorType } from './error-handler'
+import { getRetryInfo } from './retry-decorator'
 
 /**
  * Extended Error interface with additional properties
  */
 interface ExtendedError extends Error {
-  statusCode?: number;
-  status?: number;
-  type?: string;
-  code?: string;
+  statusCode?: number
+  status?: number
+  type?: string
+  code?: string
 }
 
 /**
@@ -39,21 +39,21 @@ interface ExtendedError extends Error {
  */
 export interface ErrorLogContext {
   /** Unique request identifier */
-  requestId?: string;
+  requestId?: string
   /** User identifier (if authenticated) */
-  userId?: string;
+  userId?: string
   /** Client IP address */
-  ip?: string;
+  ip?: string
   /** Request path/endpoint */
-  path?: string;
+  path?: string
   /** HTTP method */
-  method?: string;
+  method?: string
   /** User agent string */
-  userAgent?: string;
+  userAgent?: string
   /** Request duration in milliseconds */
-  duration?: number;
+  duration?: number
   /** Additional context data */
-  metadata?: Record<string, unknown>;
+  metadata?: Record<string, unknown>
 }
 
 /**
@@ -61,19 +61,19 @@ export interface ErrorLogContext {
  */
 export interface ErrorLogData {
   /** Error type from ErrorType enum or custom string */
-  type: ErrorType | string;
+  type: ErrorType | string
   /** Error message */
-  message: string;
+  message: string
   /** Error stack trace (development only) */
-  stack?: string;
+  stack?: string
   /** HTTP status code (if applicable) */
-  statusCode?: number;
+  statusCode?: number
   /** Retry information (if retry was attempted) */
-  retryInfo?: { attempts: number; config: Record<string, unknown> };
+  retryInfo?: { attempts: number; config: Record<string, unknown> }
   /** Request context */
-  context: ErrorLogContext;
+  context: ErrorLogContext
   /** ISO 8601 timestamp */
-  timestamp: string;
+  timestamp: string
 }
 
 /**
@@ -81,11 +81,11 @@ export interface ErrorLogData {
  */
 export interface SuccessLogData extends ErrorLogContext {
   /** HTTP status code */
-  statusCode: number;
+  statusCode: number
   /** Response size in bytes (if available) */
-  responseSize?: number;
+  responseSize?: number
   /** ISO 8601 timestamp */
-  timestamp: string;
+  timestamp: string
 }
 
 /**
@@ -95,9 +95,9 @@ export interface SuccessLogData extends ErrorLogContext {
  * @returns Log severity level
  */
 function getSeverityForStatusCode(statusCode: number): 'error' | 'warn' | 'info' {
-  if (statusCode >= 500) return 'error';
-  if (statusCode >= 400) return 'warn';
-  return 'info';
+  if (statusCode >= 500) return 'error'
+  if (statusCode >= 400) return 'warn'
+  return 'info'
 }
 
 /**
@@ -110,15 +110,15 @@ function getSeverityForErrorType(errorType: ErrorType): 'error' | 'warn' | 'info
   switch (errorType) {
     case ErrorType.INTERNAL:
     case ErrorType.SERVICE_UNAVAILABLE:
-      return 'error';
+      return 'error'
     case ErrorType.VALIDATION:
     case ErrorType.BAD_REQUEST:
     case ErrorType.NOT_FOUND:
     case ErrorType.UNAUTHORIZED:
     case ErrorType.FORBIDDEN:
-      return 'warn';
+      return 'warn'
     default:
-      return 'error';
+      return 'error'
   }
 }
 
@@ -129,7 +129,7 @@ function getSeverityForErrorType(errorType: ErrorType): 'error' | 'warn' | 'info
  * @returns Status code or undefined
  */
 function extractStatusCode(error: Error): number | undefined {
-  return (error as ExtendedError).statusCode || (error as ExtendedError).status;
+  return (error as ExtendedError).statusCode || (error as ExtendedError).status
 }
 
 /**
@@ -139,7 +139,7 @@ function extractStatusCode(error: Error): number | undefined {
  * @returns Error type or 'UNKNOWN'
  */
 function extractErrorType(error: Error): ErrorType | string {
-  return (error as ExtendedError).type || (error as ExtendedError).code || 'UNKNOWN';
+  return (error as ExtendedError).type || (error as ExtendedError).code || 'UNKNOWN'
 }
 
 /**
@@ -149,17 +149,17 @@ function extractErrorType(error: Error): ErrorType | string {
  * @returns Sanitized data
  */
 function sanitizeSensitiveData(data: Record<string, unknown>): Record<string, unknown> {
-  const sensitiveKeys = ['password', 'token', 'secret', 'apiKey', 'authorization'];
-  const sanitized = { ...data };
+  const sensitiveKeys = ['password', 'token', 'secret', 'apiKey', 'authorization']
+  const sanitized = { ...data }
 
   for (const key of Object.keys(sanitized)) {
-    const lowerKey = key.toLowerCase();
+    const lowerKey = key.toLowerCase()
     if (sensitiveKeys.some(sensitive => lowerKey.includes(sensitive))) {
-      sanitized[key] = '[REDACTED]';
+      sanitized[key] = '[REDACTED]'
     }
   }
 
-  return sanitized;
+  return sanitized
 }
 
 /**
@@ -172,7 +172,7 @@ function sanitizeSensitiveData(data: Record<string, unknown>): Record<string, un
  * @example
  * try {
  *   // API logic
- * } catch (_error) {
+ * } catch (error) {
  *   logApiError(error, {
  *     requestId: request.headers.get('x-request-id'),
  *     ip: request.headers.get('x-forwarded-for'),
@@ -187,12 +187,12 @@ export function logApiError(
   context: ErrorLogContext,
   isDevelopment: boolean = process.env.NODE_ENV === 'development'
 ): void {
-  const timestamp = new Date().toISOString();
-  const statusCode = extractStatusCode(error);
-  const errorType = extractErrorType(error);
+  const timestamp = new Date().toISOString()
+  const statusCode = extractStatusCode(error)
+  const errorType = extractErrorType(error)
 
   // Extract retry information if available
-  const retryInfo = getRetryInfo(error);
+  const retryInfo = getRetryInfo(error)
 
   // Build structured error data
   const errorData: ErrorLogData = {
@@ -200,33 +200,35 @@ export function logApiError(
     message: error.message,
     stack: isDevelopment ? error.stack : undefined,
     statusCode,
-    retryInfo: retryInfo ? {
-      attempts: retryInfo.attempts,
-      config: retryInfo.config,
-    } : undefined,
+    retryInfo: retryInfo
+      ? {
+          attempts: retryInfo.attempts,
+          config: retryInfo.config,
+        }
+      : undefined,
     context: {
       ...context,
       metadata: context.metadata ? sanitizeSensitiveData(context.metadata) : undefined,
     },
     timestamp,
-  };
+  }
 
   // Determine severity
   const severity = statusCode
     ? getSeverityForStatusCode(statusCode)
-    : getSeverityForErrorType(errorType as ErrorType);
+    : getSeverityForErrorType(errorType as ErrorType)
 
   // Log with appropriate severity level
   if (severity === 'error') {
-    logger.error('API Server Error', error, errorData as unknown as Record<string, unknown>);
+    logger.error('API Server Error', error, errorData as unknown as Record<string, unknown>)
   } else if (severity === 'warn') {
-    logger.warn('API Client Error', errorData as unknown as Record<string, unknown>);
+    logger.warn('API Client Error', errorData as unknown as Record<string, unknown>)
   } else {
-    logger.info('API Error', errorData as unknown as Record<string, unknown>);
+    logger.info('API Error', errorData as unknown as Record<string, unknown>)
   }
 
   // Send to external monitoring if configured
-  sendToExternalMonitoring(error, errorData);
+  sendToExternalMonitoring(error, errorData)
 }
 
 /**
@@ -244,17 +246,14 @@ export function logApiError(
  *   duration: Date.now() - startTime,
  * }, response.status);
  */
-export function logApiSuccess(
-  context: ErrorLogContext,
-  statusCode: number = 200
-): void {
+export function logApiSuccess(context: ErrorLogContext, statusCode: number = 200): void {
   const successData: SuccessLogData = {
     ...context,
     statusCode,
     timestamp: new Date().toISOString(),
-  };
+  }
 
-  logger.info('API Success', successData as unknown as Record<string, unknown>);
+  logger.info('API Success', successData as unknown as Record<string, unknown>)
 }
 
 /**
@@ -271,7 +270,7 @@ export function logApiSuccess(
  *   const context = createApiContext(request);
  *   try {
  *     // ...
- *   } catch (_error) {
+ *   } catch (error) {
  *     logApiError(error, context);
  *   }
  * }
@@ -280,18 +279,19 @@ export function createApiContext(
   request: Request,
   additionalContext?: Partial<ErrorLogContext>
 ): ErrorLogContext {
-  const url = new URL(request.url);
+  const url = new URL(request.url)
 
   return {
     requestId: (request.headers as Headers).get('x-request-id') || undefined,
-    ip: (request.headers as Headers).get('x-forwarded-for') ||
-        (request.headers as Headers).get('x-real-ip') ||
-        undefined,
+    ip:
+      (request.headers as Headers).get('x-forwarded-for') ||
+      (request.headers as Headers).get('x-real-ip') ||
+      undefined,
     path: url.pathname,
     method: request.method,
     userAgent: request.headers.get('user-agent') || undefined,
     ...additionalContext,
-  };
+  }
 }
 
 /**
@@ -301,8 +301,8 @@ export function createApiContext(
  * @returns User ID or undefined
  */
 export function extractUserId(request: Request): string | undefined {
-  const headers = request.headers as Headers;
-  return headers.get('x-user-id') || headers.get('user-id') || undefined;
+  const headers = request.headers as Headers
+  return headers.get('x-user-id') || headers.get('user-id') || undefined
 }
 
 /**
@@ -312,7 +312,7 @@ export function extractUserId(request: Request): string | undefined {
  * @returns Duration in milliseconds
  */
 export function calculateDuration(startTime: number): number {
-  return Date.now() - startTime;
+  return Date.now() - startTime
 }
 
 /**
@@ -339,7 +339,7 @@ function sendToExternalMonitoring(error: Error, errorData: ErrorLogData): void {
     //   },
     //   level: errorData.statusCode && errorData.statusCode >= 500 ? 'error' : 'warning',
     // });
-    logger.debug('Error would be sent to Sentry', { sentryDsn: process.env.SENTRY_DSN });
+    logger.debug('Error would be sent to Sentry', { sentryDsn: process.env.SENTRY_DSN })
   }
 
   // DataDog integration (placeholder)
@@ -350,7 +350,7 @@ function sendToExternalMonitoring(error: Error, errorData: ErrorLogData): void {
     //   status_code: errorData.statusCode,
     //   path: errorData.context.path,
     // });
-    logger.debug('Error would be sent to DataDog');
+    logger.debug('Error would be sent to DataDog')
   }
 }
 
@@ -369,11 +369,11 @@ export function createPerformanceLogger(
   request: Request,
   startTime: number
 ): {
-  logSuccess: (statusCode?: number, responseSize?: number) => void;
-  logError: (error: Error) => void;
-  getDuration: () => number;
+  logSuccess: (statusCode?: number, responseSize?: number) => void
+  logError: (error: Error) => void
+  getDuration: () => number
 } {
-  const context = createApiContext(request);
+  const context = createApiContext(request)
 
   return {
     logSuccess: (statusCode = 200, responseSize?: number) => {
@@ -383,28 +383,28 @@ export function createPerformanceLogger(
           duration: calculateDuration(startTime),
         },
         statusCode
-      );
+      )
 
       // Log performance metrics
-      const duration = calculateDuration(startTime);
+      const duration = calculateDuration(startTime)
       logger.info('API Performance', {
         path: context.path,
         method: context.method,
         duration,
         statusCode,
         responseSize,
-      });
+      })
     },
 
     logError: (error: Error) => {
       logApiError(error, {
         ...context,
         duration: calculateDuration(startTime),
-      });
+      })
     },
 
     getDuration: () => calculateDuration(startTime),
-  };
+  }
 }
 
 /**
@@ -412,58 +412,60 @@ export function createPerformanceLogger(
  * This can be used to track error rates and patterns
  */
 export class ErrorStatistics {
-  private stats: Map<string, { count: number; lastSeen: number }> = new Map();
-  private windowMs: number;
+  private stats: Map<string, { count: number; lastSeen: number }> = new Map()
+  private windowMs: number
 
   constructor(windowMs: number = 60000) {
     // Default: 1 minute window
-    this.windowMs = windowMs;
+    this.windowMs = windowMs
   }
 
   /**
    * Record an error occurrence
    */
   record(errorType: string, path?: string): void {
-    const key = path ? `${errorType}:${path}` : errorType;
-    const existing = this.stats.get(key) || { count: 0, lastSeen: 0 };
+    const key = path ? `${errorType}:${path}` : errorType
+    const existing = this.stats.get(key) || { count: 0, lastSeen: 0 }
 
-    existing.count++;
-    existing.lastSeen = Date.now();
-    this.stats.set(key, existing);
+    existing.count++
+    existing.lastSeen = Date.now()
+    this.stats.set(key, existing)
   }
 
   /**
    * Get error count for a specific error type
    */
   getCount(errorType: string, path?: string): number {
-    const key = path ? `${errorType}:${path}` : errorType;
-    return this.stats.get(key)?.count || 0;
+    const key = path ? `${errorType}:${path}` : errorType
+    return this.stats.get(key)?.count || 0
   }
 
   /**
    * Get all error statistics
    */
   getAll(): Record<string, { count: number; lastSeen: number }> {
-    return Object.fromEntries(this.stats);
+    return Object.fromEntries(this.stats)
   }
 
   /**
    * Reset statistics (call this periodically)
    */
   reset(): void {
-    this.stats.clear();
+    this.stats.clear()
   }
 
   /**
    * Get error types with high frequency (potential issues)
    */
-  getHighFrequencyErrors(threshold: number = 10): Array<{ key: string; count: number; lastSeen: number }> {
+  getHighFrequencyErrors(
+    threshold: number = 10
+  ): Array<{ key: string; count: number; lastSeen: number }> {
     return Array.from(this.stats.entries())
       .filter(([_, stats]) => stats.count >= threshold)
       .map(([key, stats]) => ({ key, ...stats }))
-      .sort((a, b) => b.count - a.count);
+      .sort((a, b) => b.count - a.count)
   }
 }
 
 // Global error statistics instance
-export const globalErrorStats = new ErrorStatistics();
+export const globalErrorStats = new ErrorStatistics()

@@ -1,9 +1,11 @@
 # SSH 配置指南 - 7zi.com
 
 ## 问题
+
 密码认证失败，需要配置 SSH 密钥。
 
 ## 本地 SSH 公钥
+
 ```
 ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIKUyv7pPHVE5WJ9G7aWgUuXTivNZmJHm7uV9PSgcUpxM root@bot6
 ```
@@ -30,7 +32,9 @@ exit
 ```
 
 ## 验证
+
 ```bash
 ssh -i ~/.ssh/id_ed25519 root@7zi.com
 ```
+
 应该免密登录成功！

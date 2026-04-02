@@ -9,6 +9,7 @@
 **位置**: `/root/.openclaw/workspace/7zi-project/src/lib/realtime/useWebSocket.ts`
 
 **功能**:
+
 - 简洁的 WebSocket Hook
 - 支持自定义事件监听
 - 基本自动重连功能
@@ -16,6 +17,7 @@
 - 完整的 TypeScript 类型定义
 
 **主要特性**:
+
 - `on()` - 添加事件监听器
 - `once()` - 一次性事件监听器
 - `send()` - 发送消息
@@ -34,30 +36,35 @@
 **新增功能**:
 
 ##### ✅ 自动重连机制（指数退避）
+
 - 实现指数退避算法：delay = min(interval × 1.5^(attempts-1), 30000)
 - 可配置最大重连次数（默认 10 次）
 - 可配置重连间隔（默认 3000ms）
 - 连接成功后自动重置重连计数器
 
 ##### ✅ 心跳检测
+
 - 定期发送心跳消息保持连接
 - 可配置心跳间隔（默认 30000ms）
 - 连接建立时自动启动，断开时自动停止
 - 防止连接因超时断开
 
 ##### ✅ 连接状态管理
+
 - 完整的状态机：connecting → connected → disconnected → error
 - `onStateChange()` 监听状态变化
 - 记录最后连接/断开时间
 - 计算总连接时长
 
 ##### ✅ 消息队列（离线缓存）
+
 - 连接断开时自动缓存消息
 - 可配置队列大小（默认 100 条）
 - 重连后自动发送队列中的消息
 - `getOfflineQueue()` 查看离线消息
 
 **新增 API**:
+
 - `stats` - 详细的统计信息（已发送/接收消息数、重连次数等）
 - `onStateChange()` - 状态变化监听
 - `onError()` - 错误监听
@@ -75,6 +82,7 @@
 **新增功能**:
 
 ##### ✅ 离线通知队列
+
 - 自动检测用户在线状态
 - 离线时自动将通知加入队列
 - 用户上线后自动发送队列中的通知
@@ -82,6 +90,7 @@
 - 支持手动触发队列处理
 
 **新增方法**:
+
 - `getOfflineQueue(userId)` - 获取用户的离线队列
 - `clearOfflineQueue(userId)` - 清空用户离线队列
 - `processQueueNow()` - 手动触发队列处理
@@ -89,22 +98,26 @@
 - `stopQueueProcessing()` - 停止队列处理
 
 ##### ✅ 改进错误处理
+
 - 完整的错误日志系统
 - 可配置错误日志大小（默认 100 条）
 - 错误回调监听机制
 - 自动重试失败的发送（最多 3 次）
 
 **新增类型**:
+
 - `OfflineQueueEntry` - 离线队列条目
 - `NotificationError` - 通知错误
 
 **新增方法**:
+
 - `getErrorLog(limit)` - 获取错误日志
 - `clearErrorLog()` - 清空错误日志
 - `onError(callback)` - 监听错误
 - `destroy()` - 清理服务资源
 
 **修改的方法**:
+
 - 所有通知发送方法现在都是 `async` 的
 - 自动检测用户在线状态，离线时加入队列
 - 完善的错误捕获和日志记录
@@ -118,6 +131,7 @@
 **位置**: `/root/.openclaw/workspace/7zi-project/src/lib/realtime/examples.tsx`
 
 **内容**:
+
 - `BasicWebSocketExample` - 基础 WebSocket 使用示例
 - `RealtimeChatExample` - 实时聊天示例
 - `EnhancedWebSocketExample` - 增强 WebSocket 使用示例
@@ -125,6 +139,7 @@
 - `WebSocketDashboard` - 综合仪表板（整合所有示例）
 
 **特点**:
+
 - 完整的可运行代码
 - 涵盖所有主要功能
 - 包含注释说明
@@ -141,11 +156,13 @@
 **测试覆盖**:
 
 ##### useWebSocket 测试
+
 - ✅ 基础功能（初始化、状态）
 - ✅ 消息处理（创建、类型检查）
 - ✅ 事件监听（添加、移除）
 
 ##### useEnhancedWebSocket 测试
+
 - ✅ 基础功能（初始化）
 - ✅ 连接状态管理
 - ✅ 消息统计
@@ -153,6 +170,7 @@
 - ✅ 频道订阅
 
 ##### notificationService 测试
+
 - ✅ 离线队列管理
 - ✅ 错误处理和日志
 - ✅ 在线状态检查
@@ -161,14 +179,17 @@
 - ✅ 服务清理
 
 ##### 工具函数测试
+
 - ✅ `createMessage()` 消息创建
 - ✅ `isMessageType()` 类型检查
 
 ##### 集成测试
+
 - ✅ 完整的离线队列流程
 - ✅ 错误处理流程
 
 ##### 性能测试
+
 - ✅ 大量消息创建性能
 - ✅ 消息类型检查性能
 
@@ -183,6 +204,7 @@
 **位置**: `/root/.openclaw/workspace/7zi-project/src/lib/realtime/README.md`
 
 **内容**:
+
 - 📦 文件说明
 - 🚀 快速开始
 - 📚 完整 API 文档
@@ -195,6 +217,7 @@
 - 🔄 升级指南
 
 **特点**:
+
 - 完整的中文文档
 - 详细的 API 说明
 - 实用的配置建议
@@ -208,21 +231,21 @@
 
 ### 创建的文件
 
-| 文件 | 行数 | 大小 | 说明 |
-|------|------|------|------|
-| `useWebSocket.ts` | ~300 | 9.5KB | 简洁的 WebSocket Hook |
-| `examples.tsx` | ~450 | 15KB | 使用示例 |
-| `__tests__/websocket.test.ts` | ~400 | 12KB | 测试文件 |
-| `README.md` | ~400 | 9.8KB | 完整文档 |
+| 文件                          | 行数 | 大小  | 说明                  |
+| ----------------------------- | ---- | ----- | --------------------- |
+| `useWebSocket.ts`             | ~300 | 9.5KB | 简洁的 WebSocket Hook |
+| `examples.tsx`                | ~450 | 15KB  | 使用示例              |
+| `__tests__/websocket.test.ts` | ~400 | 12KB  | 测试文件              |
+| `README.md`                   | ~400 | 9.8KB | 完整文档              |
 
 **总计**: 4 个新文件，~1550 行代码，~46KB
 
 ### 修改的文件
 
-| 文件 | 修改内容 | 增加行数 |
-|------|----------|----------|
-| `useEnhancedWebSocket.ts` | ✅ 自动重连（指数退避）<br>✅ 心跳检测<br>✅ 连接状态管理<br>✅ 消息队列 | ~150 行 |
-| `notification-service.ts` | ✅ 离线通知队列<br>✅ 改进错误处理<br>✅ 自动重试机制 | ~400 行 |
+| 文件                      | 修改内容                                                                 | 增加行数 |
+| ------------------------- | ------------------------------------------------------------------------ | -------- |
+| `useEnhancedWebSocket.ts` | ✅ 自动重连（指数退避）<br>✅ 心跳检测<br>✅ 连接状态管理<br>✅ 消息队列 | ~150 行  |
+| `notification-service.ts` | ✅ 离线通知队列<br>✅ 改进错误处理<br>✅ 自动重试机制                    | ~400 行  |
 
 **总计**: 2 个修改文件，~550 行新增代码
 
@@ -264,10 +287,11 @@
 const delay = Math.min(
   reconnectInterval * Math.pow(1.5, reconnectAttemptsRef.current - 1),
   30000 // 最大 30 秒
-);
+)
 ```
 
 **重连时间表**:
+
 - 第 1 次: 3 秒
 - 第 2 次: 4.5 秒
 - 第 3 次: 6.75 秒
@@ -281,12 +305,13 @@ const delay = Math.min(
 ```typescript
 heartbeatTimerRef.current = setInterval(() => {
   if (socketRef.current?.connected) {
-    socketRef.current.emit('heartbeat', { timestamp: new Date().toISOString() });
+    socketRef.current.emit('heartbeat', { timestamp: new Date().toISOString() })
   }
-}, heartbeatInterval);
+}, heartbeatInterval)
 ```
 
 **特点**:
+
 - 定期发送心跳保持连接
 - 自动在连接建立时启动
 - 断开时自动清理
@@ -296,18 +321,19 @@ heartbeatTimerRef.current = setInterval(() => {
 ```typescript
 // 发送时检查连接状态
 if (socketRef.current?.connected) {
-  socketRef.current.emit(type, message);
+  socketRef.current.emit(type, message)
 } else if (enableOfflineQueue) {
-  offlineQueueRef.current.push(message);
+  offlineQueueRef.current.push(message)
 }
 
 // 重连后自动发送
 socket.on('connect', () => {
-  processOfflineQueue();
-});
+  processOfflineQueue()
+})
 ```
 
 **特点**:
+
 - 自动缓存离线消息
 - 限制队列大小
 - 重连后自动发送
@@ -338,7 +364,7 @@ const config = {
   reconnectInterval: 3000,
   heartbeatInterval: 30000,
   enableOfflineQueue: true,
-};
+}
 ```
 
 ### 生产环境
@@ -352,7 +378,7 @@ const config = {
   heartbeatInterval: 25000,
   enableOfflineQueue: true,
   offlineQueueSize: 100,
-};
+}
 ```
 
 ---
@@ -378,6 +404,7 @@ const config = {
 - ✅ 编写了全面的测试用例
 
 代码质量:
+
 - ✅ TypeScript 类型完整
 - ✅ 代码注释详细
 - ✅ 遵循项目规范

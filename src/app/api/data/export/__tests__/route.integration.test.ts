@@ -3,13 +3,15 @@
  * @description 测试 /api/data/export 端点
  */
 
-import { describe, it, expect, beforeAll, afterAll, vi } from 'vitest';
-import { GET, POST } from '@/app/api/data/export/route';
-import { NextRequest } from 'next/server';
+import { describe, it, expect, beforeAll, afterAll, vi } from 'vitest'
+import { GET, POST } from '@/app/api/data/export/route'
+import { NextRequest } from 'next/server'
 
 // Mock dependencies
 vi.mock('@/lib/data-import-export', async () => {
-  const actual = await vi.importActual<typeof import('@/lib/data-import-export')>('@/lib/data-import-export');
+  const actual = await vi.importActual<typeof import('@/lib/data-import-export')>(
+    '@/lib/data-import-export'
+  )
   return {
     ...actual,
     exportData: vi.fn(),
@@ -17,8 +19,8 @@ vi.mock('@/lib/data-import-export', async () => {
     exportToJSON: vi.fn(),
     getSupportedTables: vi.fn(),
     getExportFileName: vi.fn(),
-  };
-});
+  }
+})
 
 vi.mock('@/lib/logger', () => ({
   logger: {
@@ -26,7 +28,7 @@ vi.mock('@/lib/logger', () => ({
     debug: vi.fn(),
     error: vi.fn(),
   },
-}));
+}))
 
 import {
   exportData,
@@ -34,7 +36,7 @@ import {
   exportToJSON,
   getSupportedTables,
   getExportFileName,
-} from '@/lib/data-import-export';
+} from '@/lib/data-import-export'
 
 describe('/api/data/export', () => {
   beforeAll(() => {
@@ -44,12 +46,12 @@ describe('/api/data/export', () => {
       'agent_data_access',
       'user_preferences',
       'audit_logs',
-    ]);
-  });
+    ])
+  })
 
   afterEach(() => {
-    vi.clearAllMocks();
-  });
+    vi.clearAllMocks()
+  })
 
   // ============================================================================
   // Test Suite: GET /api/data/export
@@ -57,44 +59,44 @@ describe('/api/data/export', () => {
 
   describe('GET /api/data/export', () => {
     it('should return API information and supported tables', async () => {
-      const request = new NextRequest('http://localhost:3000/api/data/export');
-      const response = await GET(request);
-      const data = await response.json();
+      const request = new NextRequest('http://localhost:3000/api/data/export')
+      const response = await GET(request)
+      const data = await response.json()
 
-      expect(response.status).toBe(200);
-      expect(data.success).toBe(true);
-      expect(data.message).toBe('Data export API');
-      expect(data.supportedTables).toContain('agents');
-      expect(data.supportedTables).toContain('agent_tokens');
-      expect(data.usage).toBeDefined();
-      expect(data.usage.method).toBe('POST');
-    });
+      expect(response.status).toBe(200)
+      expect(data.success).toBe(true)
+      expect(data.message).toBe('Data export API')
+      expect(data.supportedTables).toContain('agents')
+      expect(data.supportedTables).toContain('agent_tokens')
+      expect(data.usage).toBeDefined()
+      expect(data.usage.method).toBe('POST')
+    })
 
     it('should include correct usage documentation', async () => {
-      const request = new NextRequest('http://localhost:3000/api/data/export');
-      const response = await GET(request);
-      const data = await response.json();
+      const request = new NextRequest('http://localhost:3000/api/data/export')
+      const response = await GET(request)
+      const data = await response.json()
 
-      expect(data.usage.body).toHaveProperty('format');
-      expect(data.usage.body).toHaveProperty('tables');
-      expect(data.usage.body).toHaveProperty('filters');
-      expect(data.usage.body).toHaveProperty('includeSchema');
-    });
+      expect(data.usage.body).toHaveProperty('format')
+      expect(data.usage.body).toHaveProperty('tables')
+      expect(data.usage.body).toHaveProperty('filters')
+      expect(data.usage.body).toHaveProperty('includeSchema')
+    })
 
     it('should handle errors gracefully', async () => {
       vi.mocked(getSupportedTables).mockImplementation(() => {
-        throw new Error('Database connection failed');
-      });
+        throw new Error('Database connection failed')
+      })
 
-      const request = new NextRequest('http://localhost:3000/api/data/export');
-      const response = await GET(request);
-      const data = await response.json();
+      const request = new NextRequest('http://localhost:3000/api/data/export')
+      const response = await GET(request)
+      const data = await response.json()
 
-      expect(response.status).toBe(500);
-      expect(data.success).toBe(false);
-      expect(data.error).toBeDefined();
-    });
-  });
+      expect(response.status).toBe(500)
+      expect(data.success).toBe(false)
+      expect(data.error).toBeDefined()
+    })
+  })
 
   // ============================================================================
   // Test Suite: POST /api/data/export - JSON Format
@@ -129,11 +131,11 @@ describe('/api/data/export', () => {
         },
         stats: { totalRows: 2, tables: { agents: 2 } },
         exportedAt: '2024-01-01T00:00:00.000Z',
-      };
+      }
 
-      vi.mocked(exportData).mockResolvedValue(mockExportResult);
-      vi.mocked(exportToJSON).mockReturnValue(JSON.stringify(mockExportResult));
-      vi.mocked(getExportFileName).mockReturnValue('export-agents-20240101.json');
+      vi.mocked(exportData).mockResolvedValue(mockExportResult)
+      vi.mocked(exportToJSON).mockReturnValue(JSON.stringify(mockExportResult))
+      vi.mocked(getExportFileName).mockReturnValue('export-agents-20240101.json')
 
       const request = new NextRequest('http://localhost:3000/api/data/export', {
         method: 'POST',
@@ -141,27 +143,27 @@ describe('/api/data/export', () => {
           format: 'json',
           tables: ['agents'],
         }),
-      });
+      })
 
-      const response = await POST(request);
+      const response = await POST(request)
 
-      expect(response.status).toBe(200);
-      expect(response.headers.get('Content-Type')).toBe('application/json; charset=utf-8');
-      expect(response.headers.get('Content-Disposition')).toContain('attachment');
-      expect(response.headers.get('Content-Disposition')).toContain('filename=');
-      expect(response.headers.get('Cache-Control')).toBe('no-cache, no-store, must-revalidate');
+      expect(response.status).toBe(200)
+      expect(response.headers.get('Content-Type')).toBe('application/json; charset=utf-8')
+      expect(response.headers.get('Content-Disposition')).toContain('attachment')
+      expect(response.headers.get('Content-Disposition')).toContain('filename=')
+      expect(response.headers.get('Cache-Control')).toBe('no-cache, no-store, must-revalidate')
 
-      const text = await response.text();
-      expect(text).toContain('Test Agent 1');
-      expect(text).toContain('agent-1');
+      const text = await response.text()
+      expect(text).toContain('Test Agent 1')
+      expect(text).toContain('agent-1')
 
       expect(exportData).toHaveBeenCalledWith({
         format: 'json',
         tables: ['agents'],
         filters: undefined,
         includeSchema: false,
-      });
-    });
+      })
+    })
 
     it('should export multiple tables in JSON format', async () => {
       const mockExportResult = {
@@ -173,10 +175,10 @@ describe('/api/data/export', () => {
         },
         stats: { totalRows: 2, tables: { agents: 1, agent_tokens: 1 } },
         exportedAt: '2024-01-01T00:00:00.000Z',
-      };
+      }
 
-      vi.mocked(exportData).mockResolvedValue(mockExportResult);
-      vi.mocked(exportToJSON).mockReturnValue(JSON.stringify(mockExportResult));
+      vi.mocked(exportData).mockResolvedValue(mockExportResult)
+      vi.mocked(exportToJSON).mockReturnValue(JSON.stringify(mockExportResult))
 
       const request = new NextRequest('http://localhost:3000/api/data/export', {
         method: 'POST',
@@ -184,18 +186,18 @@ describe('/api/data/export', () => {
           format: 'json',
           tables: ['agents', 'agent_tokens'],
         }),
-      });
+      })
 
-      const response = await POST(request);
+      const response = await POST(request)
 
-      expect(response.status).toBe(200);
+      expect(response.status).toBe(200)
       expect(exportData).toHaveBeenCalledWith(
         expect.objectContaining({
           tables: ['agents', 'agent_tokens'],
-        }),
-      );
-    });
-  });
+        })
+      )
+    })
+  })
 
   // ============================================================================
   // Test Suite: POST /api/data/export - CSV Format
@@ -214,11 +216,13 @@ describe('/api/data/export', () => {
         },
         stats: { totalRows: 2, tables: { agents: 2 } },
         exportedAt: '2024-01-01T00:00:00.000Z',
-      };
+      }
 
-      vi.mocked(exportData).mockResolvedValue(mockExportResult);
-      vi.mocked(exportToCSV).mockReturnValue('id,name,type\nagent-1,Test Agent 1,worker\nagent-2,Test Agent 2,assistant');
-      vi.mocked(getExportFileName).mockReturnValue('export-agents-20240101.csv');
+      vi.mocked(exportData).mockResolvedValue(mockExportResult)
+      vi.mocked(exportToCSV).mockReturnValue(
+        'id,name,type\nagent-1,Test Agent 1,worker\nagent-2,Test Agent 2,assistant'
+      )
+      vi.mocked(getExportFileName).mockReturnValue('export-agents-20240101.csv')
 
       const request = new NextRequest('http://localhost:3000/api/data/export', {
         method: 'POST',
@@ -226,21 +230,21 @@ describe('/api/data/export', () => {
           format: 'csv',
           tables: ['agents'],
         }),
-      });
+      })
 
-      const response = await POST(request);
+      const response = await POST(request)
 
-      expect(response.status).toBe(200);
-      expect(response.headers.get('Content-Type')).toBe('text/csv; charset=utf-8');
-      expect(response.headers.get('Content-Disposition')).toContain('attachment');
+      expect(response.status).toBe(200)
+      expect(response.headers.get('Content-Type')).toBe('text/csv; charset=utf-8')
+      expect(response.headers.get('Content-Disposition')).toContain('attachment')
 
-      const text = await response.text();
-      expect(text).toContain('id,name,type');
-      expect(text).toContain('agent-1,Test Agent 1,worker');
-      expect(text).toContain('agent-2,Test Agent 2,assistant');
+      const text = await response.text()
+      expect(text).toContain('id,name,type')
+      expect(text).toContain('agent-1,Test Agent 1,worker')
+      expect(text).toContain('agent-2,Test Agent 2,assistant')
 
-      expect(exportToCSV).toHaveBeenCalledWith(mockExportResult);
-    });
+      expect(exportToCSV).toHaveBeenCalledWith(mockExportResult)
+    })
 
     it('should include headers in CSV export', async () => {
       const mockExportResult = {
@@ -251,10 +255,10 @@ describe('/api/data/export', () => {
         },
         stats: { totalRows: 1, tables: { agents: 1 } },
         exportedAt: '2024-01-01T00:00:00.000Z',
-      };
+      }
 
-      vi.mocked(exportData).mockResolvedValue(mockExportResult);
-      vi.mocked(exportToCSV).mockReturnValue('id,name,status\nagent-1,Agent 1,active');
+      vi.mocked(exportData).mockResolvedValue(mockExportResult)
+      vi.mocked(exportToCSV).mockReturnValue('id,name,status\nagent-1,Agent 1,active')
 
       const request = new NextRequest('http://localhost:3000/api/data/export', {
         method: 'POST',
@@ -262,14 +266,14 @@ describe('/api/data/export', () => {
           format: 'csv',
           tables: ['agents'],
         }),
-      });
+      })
 
-      const response = await POST(request);
-      const text = await response.text();
+      const response = await POST(request)
+      const text = await response.text()
 
-      expect(text.split('\n')[0]).toContain('id,name,status');
-    });
-  });
+      expect(text.split('\n')[0]).toContain('id,name,status')
+    })
+  })
 
   // ============================================================================
   // Test Suite: POST /api/data/export - Filters
@@ -283,10 +287,10 @@ describe('/api/data/export', () => {
         data: { agents: [] },
         stats: { totalRows: 0, tables: { agents: 0 } },
         exportedAt: '2024-01-01T00:00:00.000Z',
-      };
+      }
 
-      vi.mocked(exportData).mockResolvedValue(mockExportResult);
-      vi.mocked(exportToJSON).mockReturnValue('{"format":"json"}');
+      vi.mocked(exportData).mockResolvedValue(mockExportResult)
+      vi.mocked(exportToJSON).mockReturnValue('{"format":"json"}')
 
       const request = new NextRequest('http://localhost:3000/api/data/export', {
         method: 'POST',
@@ -301,11 +305,11 @@ describe('/api/data/export', () => {
             },
           ],
         }),
-      });
+      })
 
-      const response = await POST(request);
+      const response = await POST(request)
 
-      expect(response.status).toBe(200);
+      expect(response.status).toBe(200)
       expect(exportData).toHaveBeenCalledWith(
         expect.objectContaining({
           filters: expect.arrayContaining([
@@ -315,9 +319,9 @@ describe('/api/data/export', () => {
               params: ['active'],
             }),
           ]),
-        }),
-      );
-    });
+        })
+      )
+    })
 
     it('should export with limit filter', async () => {
       const mockExportResult = {
@@ -326,10 +330,10 @@ describe('/api/data/export', () => {
         data: { agents: [] },
         stats: { totalRows: 0, tables: { agents: 0 } },
         exportedAt: '2024-01-01T00:00:00.000Z',
-      };
+      }
 
-      vi.mocked(exportData).mockResolvedValue(mockExportResult);
-      vi.mocked(exportToJSON).mockReturnValue('{"format":"json"}');
+      vi.mocked(exportData).mockResolvedValue(mockExportResult)
+      vi.mocked(exportToJSON).mockReturnValue('{"format":"json"}')
 
       const request = new NextRequest('http://localhost:3000/api/data/export', {
         method: 'POST',
@@ -343,11 +347,11 @@ describe('/api/data/export', () => {
             },
           ],
         }),
-      });
+      })
 
-      const response = await POST(request);
+      const response = await POST(request)
 
-      expect(response.status).toBe(200);
+      expect(response.status).toBe(200)
       expect(exportData).toHaveBeenCalledWith(
         expect.objectContaining({
           filters: expect.arrayContaining([
@@ -356,10 +360,10 @@ describe('/api/data/export', () => {
               limit: 100,
             }),
           ]),
-        }),
-      );
-    });
-  });
+        })
+      )
+    })
+  })
 
   // ============================================================================
   // Test Suite: POST /api/data/export - Schema
@@ -376,10 +380,10 @@ describe('/api/data/export', () => {
         },
         stats: { totalRows: 0, tables: { agents: 0 } },
         exportedAt: '2024-01-01T00:00:00.000Z',
-      };
+      }
 
-      vi.mocked(exportData).mockResolvedValue(mockExportResult);
-      vi.mocked(exportToJSON).mockReturnValue(JSON.stringify(mockExportResult));
+      vi.mocked(exportData).mockResolvedValue(mockExportResult)
+      vi.mocked(exportToJSON).mockReturnValue(JSON.stringify(mockExportResult))
 
       const request = new NextRequest('http://localhost:3000/api/data/export', {
         method: 'POST',
@@ -388,18 +392,18 @@ describe('/api/data/export', () => {
           tables: ['agents'],
           includeSchema: true,
         }),
-      });
+      })
 
-      const response = await POST(request);
+      const response = await POST(request)
 
-      expect(response.status).toBe(200);
+      expect(response.status).toBe(200)
       expect(exportData).toHaveBeenCalledWith(
         expect.objectContaining({
           includeSchema: true,
-        }),
-      );
-    });
-  });
+        })
+      )
+    })
+  })
 
   // ============================================================================
   // Test Suite: POST /api/data/export - Error Handling
@@ -413,16 +417,16 @@ describe('/api/data/export', () => {
           format: 'json',
           tables: [],
         }),
-      });
+      })
 
-      const response = await POST(request);
-      const data = await response.json();
+      const response = await POST(request)
+      const data = await response.json()
 
-      expect(response.status).toBe(400);
-      expect(data.success).toBe(false);
-      expect(data.error).toBe('Validation error');
-      expect(data.details).toBeDefined();
-    });
+      expect(response.status).toBe(400)
+      expect(data.success).toBe(false)
+      expect(data.error).toBe('Validation error')
+      expect(data.details).toBeDefined()
+    })
 
     it('should handle invalid format', async () => {
       const request = new NextRequest('http://localhost:3000/api/data/export', {
@@ -431,18 +435,18 @@ describe('/api/data/export', () => {
           format: 'xml',
           tables: ['agents'],
         }),
-      });
+      })
 
-      const response = await POST(request);
-      const data = await response.json();
+      const response = await POST(request)
+      const data = await response.json()
 
-      expect(response.status).toBe(400);
-      expect(data.success).toBe(false);
-      expect(data.error).toBe('Validation error');
-    });
+      expect(response.status).toBe(400)
+      expect(data.success).toBe(false)
+      expect(data.error).toBe('Validation error')
+    })
 
     it('should handle export errors', async () => {
-      vi.mocked(exportData).mockRejectedValue(new Error('Database export failed'));
+      vi.mocked(exportData).mockRejectedValue(new Error('Database export failed'))
 
       const request = new NextRequest('http://localhost:3000/api/data/export', {
         method: 'POST',
@@ -450,24 +454,24 @@ describe('/api/data/export', () => {
           format: 'json',
           tables: ['agents'],
         }),
-      });
+      })
 
-      const response = await POST(request);
-      const data = await response.json();
+      const response = await POST(request)
+      const data = await response.json()
 
-      expect(response.status).toBe(500);
-      expect(data.success).toBe(false);
-      expect(data.error).toBe('Database export failed');
-    });
+      expect(response.status).toBe(500)
+      expect(data.success).toBe(false)
+      expect(data.error).toBe('Database export failed')
+    })
 
     it('should handle invalid JSON body', async () => {
       const request = new NextRequest('http://localhost:3000/api/data/export', {
         method: 'POST',
         body: 'invalid json',
-      });
+      })
 
-      await expect(POST(request)).rejects.toThrow();
-    });
+      await expect(POST(request)).rejects.toThrow()
+    })
 
     it('should handle unsupported table', async () => {
       const request = new NextRequest('http://localhost:3000/api/data/export', {
@@ -476,14 +480,14 @@ describe('/api/data/export', () => {
           format: 'json',
           tables: ['unsupported_table'],
         }),
-      });
+      })
 
-      const response = await POST(request);
+      const response = await POST(request)
 
       // Should not throw, but might return an error from exportData
-      expect(response.status).toBeGreaterThanOrEqual(200);
-    });
-  });
+      expect(response.status).toBeGreaterThanOrEqual(200)
+    })
+  })
 
   // ============================================================================
   // Test Suite: Response Headers
@@ -497,11 +501,11 @@ describe('/api/data/export', () => {
         data: { agents: [] },
         stats: { totalRows: 0, tables: { agents: 0 } },
         exportedAt: '2024-01-01T00:00:00.000Z',
-      };
+      }
 
-      vi.mocked(exportData).mockResolvedValue(mockExportResult);
-      vi.mocked(exportToJSON).mockReturnValue('{"format":"json"}');
-      vi.mocked(getExportFileName).mockReturnValue('export-agents.json');
+      vi.mocked(exportData).mockResolvedValue(mockExportResult)
+      vi.mocked(exportToJSON).mockReturnValue('{"format":"json"}')
+      vi.mocked(getExportFileName).mockReturnValue('export-agents.json')
 
       const request = new NextRequest('http://localhost:3000/api/data/export', {
         method: 'POST',
@@ -509,13 +513,13 @@ describe('/api/data/export', () => {
           format: 'json',
           tables: ['agents'],
         }),
-      });
+      })
 
-      const response = await POST(request);
+      const response = await POST(request)
 
-      expect(response.headers.get('Content-Disposition')).toContain('attachment');
-      expect(response.headers.get('Content-Disposition')).toContain('filename=');
-    });
+      expect(response.headers.get('Content-Disposition')).toContain('attachment')
+      expect(response.headers.get('Content-Disposition')).toContain('filename=')
+    })
 
     it('should include cache control headers', async () => {
       const mockExportResult = {
@@ -524,10 +528,10 @@ describe('/api/data/export', () => {
         data: { agents: [] },
         stats: { totalRows: 0, tables: { agents: 0 } },
         exportedAt: '2024-01-01T00:00:00.000Z',
-      };
+      }
 
-      vi.mocked(exportData).mockResolvedValue(mockExportResult);
-      vi.mocked(exportToJSON).mockReturnValue('{"format":"json"}');
+      vi.mocked(exportData).mockResolvedValue(mockExportResult)
+      vi.mocked(exportToJSON).mockReturnValue('{"format":"json"}')
 
       const request = new NextRequest('http://localhost:3000/api/data/export', {
         method: 'POST',
@@ -535,11 +539,11 @@ describe('/api/data/export', () => {
           format: 'json',
           tables: ['agents'],
         }),
-      });
+      })
 
-      const response = await POST(request);
+      const response = await POST(request)
 
-      expect(response.headers.get('Cache-Control')).toBe('no-cache, no-store, must-revalidate');
-    });
-  });
-});
+      expect(response.headers.get('Cache-Control')).toBe('no-cache, no-store, must-revalidate')
+    })
+  })
+})

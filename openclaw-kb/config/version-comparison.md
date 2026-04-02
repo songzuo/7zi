@@ -12,20 +12,20 @@
 ```json5
 {
   // 这是注释
-  agents: { defaults: { workspace: "~/.openclaw/workspace" } },
-  channels: { whatsapp: { allowFrom: ["+15555550123"] } }, // 尾逗号允许
+  agents: { defaults: { workspace: '~/.openclaw/workspace' } },
+  channels: { whatsapp: { allowFrom: ['+15555550123'] } }, // 尾逗号允许
 }
 ```
 
 ### 2. 字段名称的具体变化
 
-| 旧版字段路径 | 新版字段路径 | 变化说明 |
-|------------|------------|---------|
-| agent.workspace | agents.defaults.workspace | 从单智能体到多智能体默认值 |
-| agent.sandbox | agents.defaults.sandbox | 同上 |
-| ~/.openclaw/agent/* | ~/.openclaw/agents/&lt;agentId&gt;/agent/* | 目录结构变化 |
-| ~/.openclaw/sessions/ | ~/.openclaw/agents/&lt;agentId&gt;/sessions/ | 会话存储位置变化 |
-| 直接API密钥配置 | 通过auth-profiles.json管理 | 认证存储方式变化 |
+| 旧版字段路径          | 新版字段路径                                 | 变化说明                   |
+| --------------------- | -------------------------------------------- | -------------------------- |
+| agent.workspace       | agents.defaults.workspace                    | 从单智能体到多智能体默认值 |
+| agent.sandbox         | agents.defaults.sandbox                      | 同上                       |
+| ~/.openclaw/agent/\*  | ~/.openclaw/agents/&lt;agentId&gt;/agent/\*  | 目录结构变化               |
+| ~/.openclaw/sessions/ | ~/.openclaw/agents/&lt;agentId&gt;/sessions/ | 会话存储位置变化           |
+| 直接API密钥配置       | 通过auth-profiles.json管理                   | 认证存储方式变化           |
 
 ---
 
@@ -77,6 +77,7 @@
 ### 1. 存储位置对比
 
 **旧版结构**：
+
 ```
 ~/.openclaw/
 ├── credentials/
@@ -87,6 +88,7 @@
 ```
 
 **新版结构**：
+
 ```
 ~/.openclaw/
 ├── credentials/
@@ -106,12 +108,13 @@
 ### 2. 配置文件中的认证配置差异
 
 **旧版方式（直接在配置中写密钥）**：
+
 ```json
 {
   "models": {
     "providers": {
       "openai": {
-        "apiKey": "sk-..."  // 密钥直接暴露在配置中
+        "apiKey": "sk-..." // 密钥直接暴露在配置中
       }
     }
   }
@@ -119,6 +122,7 @@
 ```
 
 **新版方式（通过认证配置文件）**：
+
 ```json
 {
   "auth": {
@@ -129,7 +133,7 @@
         // 注意：这里不包含实际密钥！
       },
       "anthropic:me@example.com": {
-        "provider": "anthropic", 
+        "provider": "anthropic",
         "mode": "oauth",
         "email": "me@example.com"
       }
@@ -154,7 +158,7 @@
 ```json
 {
   "tools": {
-    "profile": "messaging",  // 可选值：minimal, coding, messaging, full
+    "profile": "messaging" // 可选值：minimal, coding, messaging, full
     // 各配置文件的工具集不同：
     // - minimal: 仅核心工具（read/exec/edit/write）
     // - coding: 包含开发相关工具
@@ -171,10 +175,10 @@
   "tools": {
     "profile": "full",
     "allow": ["read", "write", "browser", "message"],
-    "deny": ["exec"],  // 全局拒绝exec工具
+    "deny": ["exec"], // 全局拒绝exec工具
     "byProvider": {
       "anthropic/claude-opus-4-5": {
-        "allow": ["read", "write"],  // 为特定模型进一步限制
+        "allow": ["read", "write"], // 为特定模型进一步限制
         "deny": ["browser"]
       }
     }
@@ -184,8 +188,8 @@
       {
         "id": "secure-agent",
         "tools": {
-          "allow": ["read"],  // 只能进一步限制，不能恢复被拒绝的工具
-          "deny": ["write"]   // 这个智能体既不能用exec（全局拒绝），也不能用write
+          "allow": ["read"], // 只能进一步限制，不能恢复被拒绝的工具
+          "deny": ["write"] // 这个智能体既不能用exec（全局拒绝），也不能用write
         }
       }
     ]
@@ -203,15 +207,16 @@
 // 主配置文件：~/.openclaw/openclaw.json
 {
   "gateway": { "port": 18789 },
-  "agents": { 
-    "$include": "./agents.json5"  // 包含单个文件，替换整个agents对象
+  "agents": {
+    "$include": "./agents.json5" // 包含单个文件，替换整个agents对象
   },
   "broadcast": {
-    "$include": [  // 包含多个文件，按顺序深度合并
+    "$include": [
+      // 包含多个文件，按顺序深度合并
       "./clients/client1.json5",
       "./clients/client2.json5"
     ],
-    "enabled": true  // 合并后可以覆盖包含的值
+    "enabled": true // 合并后可以覆盖包含的值
   }
 }
 ```
@@ -229,6 +234,7 @@
 5. **可选的shell环境导入**（env.shellEnv.enabled: true）
 
 配置示例：
+
 ```json
 {
   "env": {
@@ -280,6 +286,7 @@ openclaw doctor --generate-gateway-token
 ### 3. 配置无效时的命令限制
 
 当配置无效时，只有诊断命令可用：
+
 - `openclaw doctor`
 - `openclaw logs`
 - `openclaw health`
@@ -299,15 +306,17 @@ openclaw doctor --generate-gateway-token
 ```json
 // openclaw.plugin.json
 {
-  "id": "voice-call",  // 必填：唯一插件ID
-  "configSchema": {    // 必填：配置的JSON Schema
+  "id": "voice-call", // 必填：唯一插件ID
+  "configSchema": {
+    // 必填：配置的JSON Schema
     "type": "object",
     "additionalProperties": false,
     "properties": {}
   },
-  "kind": "memory",    // 可选：插件类型
-  "channels": ["matrix"],  // 可选：注册的渠道
-  "uiHints": {         // 可选：UI提示信息
+  "kind": "memory", // 可选：插件类型
+  "channels": ["matrix"], // 可选：注册的渠道
+  "uiHints": {
+    // 可选：UI提示信息
     "apiKey": {
       "label": "API密钥",
       "sensitive": true
@@ -319,6 +328,7 @@ openclaw doctor --generate-gateway-token
 ### 2. 验证流程
 
 新版插件加载流程：
+
 - 解析插件清单 + schema
 - 根据schema验证配置
 - 如果缺少schema或配置无效 → 阻止插件加载
@@ -330,14 +340,14 @@ openclaw doctor --generate-gateway-token
 
 ### 1. 引导文件注入规则
 
-| 文件 | 用途 | 注入时机 | 截断限制 |
-|-----|------|---------|---------|
-| AGENTS.md | 操作指令+记忆 | 每个新会话的第一轮 | 默认20,000字符 |
-| SOUL.md | 人设、边界、语气 | 每个新会话的第一轮 | 默认20,000字符 |
-| TOOLS.md | 用户维护的工具说明 | 每个新会话的第一轮 | 默认20,000字符 |
-| BOOTSTRAP.md | 一次性首次运行仪式 | 仅全新工作区 | 完成后删除 |
-| IDENTITY.md | 智能体名称/风格/表情 | 每个新会话的第一轮 | 默认20,000字符 |
-| USER.md | 用户档案+偏好称呼 | 每个新会话的第一轮 | 默认20,000字符 |
+| 文件         | 用途                 | 注入时机           | 截断限制       |
+| ------------ | -------------------- | ------------------ | -------------- |
+| AGENTS.md    | 操作指令+记忆        | 每个新会话的第一轮 | 默认20,000字符 |
+| SOUL.md      | 人设、边界、语气     | 每个新会话的第一轮 | 默认20,000字符 |
+| TOOLS.md     | 用户维护的工具说明   | 每个新会话的第一轮 | 默认20,000字符 |
+| BOOTSTRAP.md | 一次性首次运行仪式   | 仅全新工作区       | 完成后删除     |
+| IDENTITY.md  | 智能体名称/风格/表情 | 每个新会话的第一轮 | 默认20,000字符 |
+| USER.md      | 用户档案+偏好称呼    | 每个新会话的第一轮 | 默认20,000字符 |
 
 ### 2. 总注入字符数限制
 
@@ -345,8 +355,8 @@ openclaw doctor --generate-gateway-token
 {
   "agents": {
     "defaults": {
-      "bootstrapMaxChars": 20000,       // 单个文件限制
-      "bootstrapTotalMaxChars": 150000  // 所有文件总限制
+      "bootstrapMaxChars": 20000, // 单个文件限制
+      "bootstrapTotalMaxChars": 150000 // 所有文件总限制
     }
   }
 }
@@ -381,15 +391,15 @@ openclaw agents add work --model "openai/gpt-4o"
 
 ## 总结对比表
 
-| 特性 | 旧版 / 宽松模式 | 新版 / 严格模式 |
-|------|---------------|---------------|
-| 格式验证 | 可能允许未知键 | 严格Schema验证，未知键报错 |
-| 智能体模型 | 单智能体配置 | 多智能体配置 (agents.list) |
-| 认证存储 | 分散（环境变量、oauth.json） | 集中认证配置文件 (auth-profiles.json) |
-| 工具管控 | 相对简单 | 多层精细化策略（全局、智能体、提供商、沙箱） |
-| 配置组织 | 单一文件 | 支持 $include 模块化 |
-| 环境变量 | 可能未明确优先级 | 明确优先级与"不覆盖"原则 |
-| 变更与迁移 | 可能自动迁移或静默处理 | 通过 openclaw doctor 进行显式迁移 |
+| 特性       | 旧版 / 宽松模式              | 新版 / 严格模式                              |
+| ---------- | ---------------------------- | -------------------------------------------- |
+| 格式验证   | 可能允许未知键               | 严格Schema验证，未知键报错                   |
+| 智能体模型 | 单智能体配置                 | 多智能体配置 (agents.list)                   |
+| 认证存储   | 分散（环境变量、oauth.json） | 集中认证配置文件 (auth-profiles.json)        |
+| 工具管控   | 相对简单                     | 多层精细化策略（全局、智能体、提供商、沙箱） |
+| 配置组织   | 单一文件                     | 支持 $include 模块化                         |
+| 环境变量   | 可能未明确优先级             | 明确优先级与"不覆盖"原则                     |
+| 变更与迁移 | 可能自动迁移或静默处理       | 通过 openclaw doctor 进行显式迁移            |
 
 ---
 

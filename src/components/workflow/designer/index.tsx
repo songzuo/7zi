@@ -2,33 +2,46 @@
  * 工作流设计器组件导出
  */
 
-export { WorkflowCanvas, WorkflowCanvasRef } from './canvas';
-export { WorkflowNodeComponent, NodeTypeSelector } from './node';
-export { WorkflowEdgeComponent, EdgeTypeSelector } from './edge';
-export {
-  DesignerToolbar,
-  NodeToolbar,
-  PropertyPanel,
-} from './toolbar';
+import { NodeType, EdgeType } from '@/types/workflow'
+import { WorkflowCanvas } from './canvas'
+export { WorkflowCanvas } from './canvas'
+export type { WorkflowCanvasRef } from './canvas'
+export { WorkflowNodeComponent, NodeTypeSelector } from './node'
+export { WorkflowEdgeComponent, EdgeTypeSelector } from './edge'
+import { DesignerToolbar, NodeToolbar, PropertyPanel } from './toolbar'
+export { DesignerToolbar, NodeToolbar, PropertyPanel } from './toolbar'
 
 /**
  * 工作流设计器属性
  */
 export interface WorkflowDesignerProps {
-  workflowId?: string;
-  nodes: any[];
-  edges: any[];
-  selectedNodeId?: string;
-  onNodeSelect?: (nodeId: string | undefined) => void;
-  onNodeMove?: (nodeId: string, position: { x: number; y: number }) => void;
-  onNodeAdd?: (type: string, position: { x: number; y: number }) => void;
-  onNodeDelete?: (nodeId: string) => void;
-  onEdgeAdd?: (sourceId: string, targetId: string) => void;
-  onEdgeDelete?: (edgeId: string) => void;
-  onNodeUpdate?: (nodeId: string, updates: any) => void;
-  readOnly?: boolean;
-  showToolbar?: boolean;
-  showPropertyPanel?: boolean;
+  workflowId?: string
+  nodes: Array<{
+    id: string
+    name: string
+    type: NodeType
+    position: { x: number; y: number }
+    data?: Record<string, unknown>
+    config?: Record<string, unknown>
+  }>
+  edges: Array<{
+    id: string
+    source: string
+    target: string
+    type: EdgeType
+    data?: Record<string, unknown>
+  }>
+  selectedNodeId?: string
+  onNodeSelect?: (nodeId: string | undefined) => void
+  onNodeMove?: (nodeId: string, position: { x: number; y: number }) => void
+  onNodeAdd?: (type: string, position: { x: number; y: number }) => void
+  onNodeDelete?: (nodeId: string) => void
+  onEdgeAdd?: (sourceId: string, targetId: string) => void
+  onEdgeDelete?: (edgeId: string) => void
+  onNodeUpdate?: (nodeId: string, updates: Record<string, unknown>) => void
+  readOnly?: boolean
+  showToolbar?: boolean
+  showPropertyPanel?: boolean
 }
 
 /**
@@ -51,19 +64,21 @@ export function WorkflowDesigner({
   showPropertyPanel = true,
 }: WorkflowDesignerProps) {
   // 计算选中的节点
-  const selectedNode = nodes.find((n) => n.id === selectedNodeId);
+  const selectedNode = nodes.find(n => n.id === selectedNodeId)
 
   return (
-    <div className="relative w-full h-full flex">
+    <div className="relative flex h-full w-full">
       {/* 左侧工具栏 */}
       {showToolbar && !readOnly && (
         <div className="absolute top-4 left-4 z-20">
-          <NodeToolbar onNodeAdd={(type) => {
-            // 在画布中心添加节点
-            const centerX = 400;
-            const centerY = 300;
-            onNodeAdd?.(type, { x: centerX, y: centerY });
-          }} />
+          <NodeToolbar
+            onNodeAdd={type => {
+              // 在画布中心添加节点
+              const centerX = 400
+              const centerY = 300
+              onNodeAdd?.(type, { x: centerX, y: centerY })
+            }}
+          />
         </div>
       )}
 
@@ -84,12 +99,9 @@ export function WorkflowDesigner({
       {/* 右侧属性面板 */}
       {showPropertyPanel && !readOnly && (
         <div className="absolute top-4 right-4 z-20 w-80">
-          <PropertyPanel
-            selectedNode={selectedNode}
-            onNodeUpdate={onNodeUpdate}
-          />
+          <PropertyPanel selectedNode={selectedNode} onNodeUpdate={onNodeUpdate} />
         </div>
       )}
     </div>
-  );
+  )
 }

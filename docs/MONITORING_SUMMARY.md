@@ -3,6 +3,7 @@
 ## 已完成的工作
 
 ### 1. 设计文档
+
 - **位置**: `docs/MONITORING_DESIGN.md`
 - **内容**:
   - 监控体系概述（4层金字塔）
@@ -15,32 +16,32 @@
 
 ### 2. Sentry 配置文件
 
-| 文件 | 用途 |
-|------|------|
-| `sentry.client.config.ts` | 浏览器端配置 |
-| `sentry.server.config.ts` | 服务端配置 |
-| `sentry.edge.config.ts` | Edge Runtime 配置 |
-| `.env.sentry.example` | 环境变量模板 |
+| 文件                      | 用途              |
+| ------------------------- | ----------------- |
+| `sentry.client.config.ts` | 浏览器端配置      |
+| `sentry.server.config.ts` | 服务端配置        |
+| `sentry.edge.config.ts`   | Edge Runtime 配置 |
+| `.env.sentry.example`     | 环境变量模板      |
 
 ### 3. 监控工具库 (`src/lib/monitoring/`)
 
-| 模块 | 功能 |
-|------|------|
+| 模块            | 功能                       |
+| --------------- | -------------------------- |
 | `web-vitals.ts` | Core Web Vitals 采集和上报 |
-| `errors.ts` | 错误追踪和分类 |
-| `alerts.ts` | 告警服务（Slack/Email） |
-| `health.ts` | 健康检查工具 |
-| `index.ts` | 统一导出 |
+| `errors.ts`     | 错误追踪和分类             |
+| `alerts.ts`     | 告警服务（Slack/Email）    |
+| `health.ts`     | 健康检查工具               |
+| `index.ts`      | 统一导出                   |
 
 ### 4. API 端点
 
-| 端点 | 用途 |
-|------|------|
-| `/api/health` | 基础健康检查 |
-| `/api/health/detailed` | 详细健康状态 |
-| `/api/health/live` | K8s Liveness Probe |
-| `/api/health/ready` | K8s Readiness Probe |
-| `/api/status` | 公开状态 API |
+| 端点                   | 用途                |
+| ---------------------- | ------------------- |
+| `/api/health`          | 基础健康检查        |
+| `/api/health/detailed` | 详细健康状态        |
+| `/api/health/live`     | K8s Liveness Probe  |
+| `/api/health/ready`    | K8s Readiness Probe |
+| `/api/status`          | 公开状态 API        |
 
 ### 5. 告警配置
 
@@ -147,12 +148,12 @@ curl http://localhost:3000/api/health/detailed
 
 ## 成本估算
 
-| 服务 | 套餐 | 月费用 | 说明 |
-|------|------|--------|------|
-| Sentry | Team | $26 | 错误+性能监控 |
-| UptimeRobot | Free | $0 | 可用性监控 |
-| Umami | Self-hosted | $0 | 用户分析 |
-| **总计** | | **$26/月** | |
+| 服务        | 套餐        | 月费用     | 说明          |
+| ----------- | ----------- | ---------- | ------------- |
+| Sentry      | Team        | $26        | 错误+性能监控 |
+| UptimeRobot | Free        | $0         | 可用性监控    |
+| Umami       | Self-hosted | $0         | 用户分析      |
+| **总计**    |             | **$26/月** |               |
 
 ---
 
@@ -213,6 +214,6 @@ curl http://localhost:3000/api/health/detailed
 
 ---
 
-*文档版本: 1.0*
-*创建日期: 2026-03-06*
-*作者: 架构师子代理*
+_文档版本: 1.0_
+_创建日期: 2026-03-06_
+_作者: 架构师子代理_

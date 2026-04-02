@@ -61,15 +61,15 @@ src/
 
 ### 1.3 当前架构优势
 
-| 方面 | 评价 |
-|------|------|
+| 方面         | 评价                                  |
+| ------------ | ------------------------------------- |
 | **代码组织** | ✅ 清晰的分层 (components/lib/stores) |
-| **类型安全** | ✅ 零TypeScript错误，无any类型 |
-| **测试覆盖** | ✅ 72-75%覆盖率，490+测试 |
-| **RBAC** | ✅ 5角色+45权限的细粒度控制 |
-| **实时通信** | ✅ WebSocket + SSE双通道 |
-| **性能优化** | ✅ 连接池/查询优化/React.memo |
-| **国际化** | ✅ i18n完整支持 |
+| **类型安全** | ✅ 零TypeScript错误，无any类型        |
+| **测试覆盖** | ✅ 72-75%覆盖率，490+测试             |
+| **RBAC**     | ✅ 5角色+45权限的细粒度控制           |
+| **实时通信** | ✅ WebSocket + SSE双通道              |
+| **性能优化** | ✅ 连接池/查询优化/React.memo         |
+| **国际化**   | ✅ i18n完整支持                       |
 
 ---
 
@@ -78,12 +78,14 @@ src/
 ### 2.1 数据库层 - 单点瓶颈 ⚠️
 
 **现状**:
+
 - SQLite 单文件数据库
 - better-sqlite3 同步API
 - 连接池大小: MAX_CONNECTIONS = 10
 - 无读写分离
 
 **问题**:
+
 ```
 v1.1.0 新功能影响:
 ├── 可视化工作流 → 工作流定义表 + 执行日志 → 数据量 10x
@@ -93,6 +95,7 @@ v1.1.0 新功能影响:
 ```
 
 **瓶颈**:
+
 1. SQLite 并发写入上限 ~1000 QPS（受文件锁限制）
 2. 无垂直分表，历史数据无法归档
 3. 无向量子集支持，语义搜索需全表扫描
@@ -101,11 +104,13 @@ v1.1.0 新功能影响:
 ### 2.2 缓存层 - 内存单点 ⚠️
 
 **现状**:
+
 - 内存LRU缓存 (Map-based, TTL支持)
 - Redis 用于限流和会话
 - 缓存粒度: API响应缓存 + 查询缓存
 
 **问题**:
+
 1. **无持久化** - 服务重启缓存全失
 2. **无分布式** - 多实例缓存不一致
 3. **无预热** - 冷启动延迟高
@@ -114,11 +119,13 @@ v1.1.0 新功能影响:
 ### 2.3 服务层 - 紧耦合 ⚠️
 
 **现状**:
+
 - 所有业务逻辑在 `lib/services/` 和 `lib/agents/`
 - API Routes 直接调用服务
 - 无明确的服务边界
 
 **问题**:
+
 ```
 lib/services/ 和 lib/agents/ 承担了:
 ├── Agent 生命周期管理
@@ -128,17 +135,20 @@ lib/services/ 和 lib/agents/ 承担了:
 ├── 认证/钱包/权限
 └── 备份/导出/通知
 ```
+
 → 新增工作流引擎 + 决策引擎将造成**服务膨胀**
 
 ### 2.4 API 层 - 扁平化 ⚠️
 
 **现状**:
+
 - 25+ API路由分类，65+端点
 - 全部在 `/api/*` 下扁平组织
 - 无 API 版本管理
 - 无 GraphQL/结构化查询层
 
 **问题**:
+
 1. 工作流相关API与现有API混在一起
 2. 知识管理需要灵活的图谱查询
 3. 监控分析需要聚合查询
@@ -147,11 +157,13 @@ lib/services/ 和 lib/agents/ 承担了:
 ### 2.5 前端架构 - 状态管理碎片化 ⚠️
 
 **现状**:
+
 - Zustand stores (多 store)
 - React Context (认证/主题/实时)
 - Socket.IO 状态独立管理
 
 **问题**:
+
 1. 工作流设计器的状态（画布+节点+连线）需要专用状态机
 2. 知识图谱可视化需要独立状态
 3. 跨端同步需要 CRDT 状态层
@@ -225,12 +237,14 @@ src/
 ```
 
 **优点**:
+
 - ✅ 不破坏现有代码结构
 - ✅ 新功能完全隔离
 - ✅ 便于后续拆分为微服务
 - ✅ 便于单独测试和部署
 
 **缺点**:
+
 - ⚠️ 模块间可能有隐式依赖
 - ⚠️ 需要 discipline 遵守边界
 
@@ -265,6 +279,7 @@ Data Layer:
 **不改数据库**，但做以下优化:
 
 **1. 连接池优化**:
+
 ```typescript
 // lib/db/connection-pool.ts - 现有优化基础上
 - MAX_CONNECTIONS: 10 → 20
@@ -273,6 +288,7 @@ Data Layer:
 ```
 
 **2. 表结构分区** (针对时序数据):
+
 ```sql
 -- 工作流执行日志: 按月分区
 CREATE TABLE workflow_runs (
@@ -295,6 +311,7 @@ CREATE TABLE audit_logs (
 ```
 
 **3. 索引策略**:
+
 ```sql
 -- 现有查询优化索引
 CREATE INDEX idx_workflow_runs_status ON workflow_runs(status);
@@ -305,6 +322,7 @@ CREATE INDEX idx_tasks_assignee_status ON tasks(assignee_id, status);
 #### v2.0.0 阶段: PostgreSQL 迁移 + 分片
 
 **迁移指北**:
+
 1. SQLite → PostgreSQL (使用 Prisma/Drizzle)
 2. 按用户 ID hash 分片 (4-8 片)
 3. 向量数据迁移到 Qdrant
@@ -337,20 +355,20 @@ CREATE INDEX idx_tasks_assignee_status ON tasks(assignee_id, status);
 
 interface CacheStrategy {
   // 热点数据: Redis SET + TTL
-  workflowDefinitions: { ttl: 3600, prefix: 'wf:def:' };
-  userSessions: { ttl: 86400, prefix: 'session:' };
-  
+  workflowDefinitions: { ttl: 3600; prefix: 'wf:def:' }
+  userSessions: { ttl: 86400; prefix: 'session:' }
+
   // 限流数据: Redis Stream (滑动窗口)
-  rateLimits: { type: 'stream', window: 60 };
-  
+  rateLimits: { type: 'stream'; window: 60 }
+
   // 实时数据: Redis Pub/Sub
-  notifications: { type: 'pubsub', channel: 'notifs:' };
-  
+  notifications: { type: 'pubsub'; channel: 'notifs:' }
+
   // 热点查询: Redis + 预计算
-  dashboardStats: { ttl: 300, prefix: 'stats:', precompute: true };
-  
+  dashboardStats: { ttl: 300; prefix: 'stats:'; precompute: true }
+
   // AI Agent 上下文: Redis + LRU 淘汰
-  agentContext: { ttl: 1800, max: 10000, prefix: 'agent:ctx:' };
+  agentContext: { ttl: 1800; max: 10000; prefix: 'agent:ctx:' }
 }
 ```
 
@@ -360,20 +378,16 @@ interface CacheStrategy {
 // lib/cache/warmup.ts
 async function warmupCache() {
   // 1. 加载活跃工作流定义
-  const workflows = await db.query(
-    'SELECT * FROM workflows WHERE status = "active" LIMIT 100'
-  );
-  workflows.forEach(wf => redis.set(`wf:def:${wf.id}`, JSON.stringify(wf), 'EX', 3600));
-  
+  const workflows = await db.query('SELECT * FROM workflows WHERE status = "active" LIMIT 100')
+  workflows.forEach(wf => redis.set(`wf:def:${wf.id}`, JSON.stringify(wf), 'EX', 3600))
+
   // 2. 加载常用知识条目
-  const knowledge = await db.query(
-    'SELECT * FROM knowledge WHERE access_count > 10 LIMIT 500'
-  );
-  knowledge.forEach(k => redis.set(`knowledge:${k.id}`, JSON.stringify(k), 'EX', 7200));
-  
+  const knowledge = await db.query('SELECT * FROM knowledge WHERE access_count > 10 LIMIT 500')
+  knowledge.forEach(k => redis.set(`knowledge:${k.id}`, JSON.stringify(k), 'EX', 7200))
+
   // 3. 加载团队成员上下文
-  const agents = await db.query('SELECT * FROM agents WHERE status = "online"');
-  agents.forEach(a => redis.set(`agent:ctx:${a.id}`, JSON.stringify(a.context), 'EX', 1800));
+  const agents = await db.query('SELECT * FROM agents WHERE status = "online"')
+  agents.forEach(a => redis.set(`agent:ctx:${a.id}`, JSON.stringify(a.context), 'EX', 1800))
 }
 ```
 
@@ -383,10 +397,10 @@ async function warmupCache() {
 // lib/knowledge/vector-cache.ts
 interface VectorCache {
   // 查询缓存 (近似最近邻)
-  queryCache: { ttl: 3600, maxSize: 10000 };
-  
+  queryCache: { ttl: 3600; maxSize: 10000 }
+
   // 嵌入结果缓存 (避免重复计算)
-  embeddingCache: { ttl: 86400, storage: 'redis' };
+  embeddingCache: { ttl: 86400; storage: 'redis' }
 }
 ```
 
@@ -396,22 +410,23 @@ interface VectorCache {
 
 #### 模块化得分矩阵
 
-| 模块 | 独立性 | 复杂度 | 依赖度 | 推荐方式 |
-|------|--------|--------|--------|----------|
-| **工作流编排** | 高 | 高 | 中 | 🟢 新模块 (modules/workflow) |
-| **知识管理** | 中 | 高 | 低 | 🟢 新模块 (modules/knowledge) |
-| **智能决策** | 高 | 中 | 中 | 🟢 新模块 (modules/decision) |
-| **智能监控** | 中 | 中 | 低 | 🟢 新模块 (modules/analytics) |
-| **跨平台同步** | 高 | 高 | 低 | 🟢 新模块 (modules/sync) |
-| **Agent通信** | 高 | 中 | 无 | 🟢 保留在 lib/agents (成熟) |
-| **RBAC权限** | 高 | 低 | 无 | 🟢 保留在 lib/permissions (成熟) |
-| **实时通信** | 中 | 中 | 无 | 🟢 保留在 lib/realtime (成熟) |
-| **数据库层** | - | - | - | ⚠️ 保留但优化 (lib/db) |
-| **缓存层** | - | - | - | ⚠️ 重构但保留 (lib/cache) |
+| 模块           | 独立性 | 复杂度 | 依赖度 | 推荐方式                         |
+| -------------- | ------ | ------ | ------ | -------------------------------- |
+| **工作流编排** | 高     | 高     | 中     | 🟢 新模块 (modules/workflow)     |
+| **知识管理**   | 中     | 高     | 低     | 🟢 新模块 (modules/knowledge)    |
+| **智能决策**   | 高     | 中     | 中     | 🟢 新模块 (modules/decision)     |
+| **智能监控**   | 中     | 中     | 低     | 🟢 新模块 (modules/analytics)    |
+| **跨平台同步** | 高     | 高     | 低     | 🟢 新模块 (modules/sync)         |
+| **Agent通信**  | 高     | 中     | 无     | 🟢 保留在 lib/agents (成熟)      |
+| **RBAC权限**   | 高     | 低     | 无     | 🟢 保留在 lib/permissions (成熟) |
+| **实时通信**   | 中     | 中     | 无     | 🟢 保留在 lib/realtime (成熟)    |
+| **数据库层**   | -      | -      | -      | ⚠️ 保留但优化 (lib/db)           |
+| **缓存层**     | -      | -      | -      | ⚠️ 重构但保留 (lib/cache)        |
 
 #### 推荐: 渐进式模块化 + 事件驱动
 
 **核心原则**:
+
 1. **新功能走新模块** (`src/modules/xxx`)
 2. **共享代码走 lib**
 3. **模块间通过事件通信** (而非直接调用)
@@ -420,7 +435,7 @@ interface VectorCache {
 
 ```typescript
 // modules/workflow/api/execute.ts
-import { eventBus } from '@/lib/events';
+import { eventBus } from '@/lib/events'
 
 // 工作流执行完成后发布事件
 await eventBus.publish('workflow.completed', {
@@ -428,45 +443,45 @@ await eventBus.publish('workflow.completed', {
   runId: run.id,
   duration: run.completedAt - run.startedAt,
   output: run.result,
-});
+})
 
 // modules/analytics/collector/index.ts
 // 订阅事件进行数据收集
-eventBus.subscribe('workflow.completed', async (event) => {
+eventBus.subscribe('workflow.completed', async event => {
   await analytics.record({
     type: 'workflow_completion',
     data: event,
     timestamp: Date.now(),
-  });
-});
+  })
+})
 
 // modules/knowledge/api/recommend.ts
 // 订阅事件进行知识推荐
-eventBus.subscribe('workflow.completed', async (event) => {
-  const relevant = await knowledge.findRelevant(event.output);
-  await notification.send(event.userId, 'knowledge_suggestion', relevant);
-});
+eventBus.subscribe('workflow.completed', async event => {
+  const relevant = await knowledge.findRelevant(event.output)
+  await notification.send(event.userId, 'knowledge_suggestion', relevant)
+})
 ```
 
 **事件总线实现** (基于 Redis Pub/Sub):
 
 ```typescript
 // lib/events/index.ts
-import { redis } from '@/lib/redis';
+import { redis } from '@/lib/redis'
 
 class EventBus {
-  private subscriptions = new Map<string, Function[]>();
-  
+  private subscriptions = new Map<string, Function[]>()
+
   async publish(channel: string, data: unknown) {
-    await redis.publish(channel, JSON.stringify(data));
+    await redis.publish(channel, JSON.stringify(data))
   }
-  
+
   subscribe(channel: string, handler: Function) {
     if (!this.subscriptions.has(channel)) {
-      this.subscriptions.set(channel, []);
+      this.subscriptions.set(channel, [])
       // 订阅 Redis channel
     }
-    this.subscriptions.get(channel)!.push(handler);
+    this.subscriptions.get(channel)!.push(handler)
   }
 }
 ```
@@ -477,36 +492,36 @@ class EventBus {
 
 ### 4.1 v1.1.0 必做项 (核心)
 
-| 序号 | 改进项 | 优先级 | 预计工时 | 影响 |
-|------|--------|--------|----------|------|
-| 1 | **模块目录结构创建** | 🔴 必须 | 2天 | 为新功能建立隔离空间 |
-| 2 | **事件总线实现** | 🔴 必须 | 2天 | 模块间松耦合通信 |
-| 3 | **Redis 多级缓存重构** | 🔴 必须 | 3天 | 性能提升 2-3x |
-| 4 | **数据库连接池增强** | 🔴 必须 | 1天 | 并发能力提升 |
-| 5 | **表分区策略实施** | 🟡 推荐 | 2天 | 时序数据性能优化 |
-| 6 | **API 版本化** | 🟡 推荐 | 2天 | 向后兼容保障 |
-| 7 | **工作流状态机** | 🔴 必须 | 5天 | 工作流核心 |
-| 8 | **向量缓存层** | 🔴 必须 | 3天 | 知识检索性能 |
+| 序号 | 改进项                 | 优先级  | 预计工时 | 影响                 |
+| ---- | ---------------------- | ------- | -------- | -------------------- |
+| 1    | **模块目录结构创建**   | 🔴 必须 | 2天      | 为新功能建立隔离空间 |
+| 2    | **事件总线实现**       | 🔴 必须 | 2天      | 模块间松耦合通信     |
+| 3    | **Redis 多级缓存重构** | 🔴 必须 | 3天      | 性能提升 2-3x        |
+| 4    | **数据库连接池增强**   | 🔴 必须 | 1天      | 并发能力提升         |
+| 5    | **表分区策略实施**     | 🟡 推荐 | 2天      | 时序数据性能优化     |
+| 6    | **API 版本化**         | 🟡 推荐 | 2天      | 向后兼容保障         |
+| 7    | **工作流状态机**       | 🔴 必须 | 5天      | 工作流核心           |
+| 8    | **向量缓存层**         | 🔴 必须 | 3天      | 知识检索性能         |
 
 ### 4.2 v1.1.0 选做项 (增强)
 
-| 序号 | 改进项 | 优先级 | 预计工时 | 影响 |
-|------|--------|--------|----------|------|
-| 9 | 缓存预热脚本 | 🟢 可选 | 1天 | 冷启动优化 |
-| 10 | 查询结果物化视图 | 🟢 可选 | 2天 | 仪表盘性能 |
-| 11 | 审计日志异步写入 | 🟢 可选 | 2天 | 写入性能 |
-| 12 | 静态资源 CDN | 🟢 可选 | 1天 | 首屏加载 |
+| 序号 | 改进项           | 优先级  | 预计工时 | 影响       |
+| ---- | ---------------- | ------- | -------- | ---------- |
+| 9    | 缓存预热脚本     | 🟢 可选 | 1天      | 冷启动优化 |
+| 10   | 查询结果物化视图 | 🟢 可选 | 2天      | 仪表盘性能 |
+| 11   | 审计日志异步写入 | 🟢 可选 | 2天      | 写入性能   |
+| 12   | 静态资源 CDN     | 🟢 可选 | 1天      | 首屏加载   |
 
 ### 4.3 架构质量指标
 
-| 指标 | 当前值 | v1.1.0 目标 |
-|------|--------|-------------|
-| **模块耦合度** | 高 (monolith) | 中 (模块化) |
-| **缓存命中率** | ~60% (估算) | >85% |
-| **API 响应时间 P99** | ~500ms (估算) | <200ms |
-| **数据库并发写入** | ~100 QPS | ~500 QPS |
-| **服务启动时间** | ~30s (估算) | <15s |
-| **代码模块化程度** | 30% | 60% |
+| 指标                 | 当前值        | v1.1.0 目标 |
+| -------------------- | ------------- | ----------- |
+| **模块耦合度**       | 高 (monolith) | 中 (模块化) |
+| **缓存命中率**       | ~60% (估算)   | >85%        |
+| **API 响应时间 P99** | ~500ms (估算) | <200ms      |
+| **数据库并发写入**   | ~100 QPS      | ~500 QPS    |
+| **服务启动时间**     | ~30s (估算)   | <15s        |
+| **代码模块化程度**   | 30%           | 60%         |
 
 ---
 
@@ -514,13 +529,13 @@ class EventBus {
 
 ### 5.1 主要风险
 
-| 风险 | 影响 | 概率 | 缓解 |
-|------|------|------|------|
-| **模块化不彻底** | 架构继续恶化 | 中 | 严格执行目录边界 |
-| **Redis 单点** | 缓存失效 | 低 | 后续 Cluster 部署 |
-| **SQLite 天花板** | 性能瓶颈 | 中 | 提前规划 PG 迁移 |
-| **事件总线复杂度** | 调试困难 | 中 | 完善的日志和追踪 |
-| **工作流引擎选型** | 技术债务 | 中 | 优先自研 + 成熟库 |
+| 风险               | 影响         | 概率 | 缓解              |
+| ------------------ | ------------ | ---- | ----------------- |
+| **模块化不彻底**   | 架构继续恶化 | 中   | 严格执行目录边界  |
+| **Redis 单点**     | 缓存失效     | 低   | 后续 Cluster 部署 |
+| **SQLite 天花板**  | 性能瓶颈     | 中   | 提前规划 PG 迁移  |
+| **事件总线复杂度** | 调试困难     | 中   | 完善的日志和追踪  |
+| **工作流引擎选型** | 技术债务     | 中   | 优先自研 + 成熟库 |
 
 ### 5.2 技术债务清单
 
@@ -555,5 +570,5 @@ v1.1.0 = 渐进式模块化 + 缓存增强 + 事件驱动
 
 ---
 
-*本文档由 🏗️ 架构师 创建于 2026-03-25*
-*供 v1.1.0 架构决策参考*
+_本文档由 🏗️ 架构师 创建于 2026-03-25_
+_供 v1.1.0 架构决策参考_

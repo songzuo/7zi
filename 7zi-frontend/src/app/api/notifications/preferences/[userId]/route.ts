@@ -5,14 +5,18 @@
  * Requires JWT authentication and user ownership verification
  */
 
-import { NextRequest, NextResponse } from 'next/server';
-import { enhancedNotificationService, UserNotificationPreferences, NotificationPriority } from '@/lib/services/notification-enhanced';
+import { NextRequest, NextResponse } from 'next/server'
+import {
+  enhancedNotificationService,
+  UserNotificationPreferences,
+  NotificationPriority,
+} from '@/lib/services/notification-enhanced'
 import {
   createSuccessResponse,
   createValidationError,
   createErrorResponse,
-} from '../../../../../lib/api/error-handler';
-import { authenticateJWT } from '@/lib/auth/api-auth';
+} from '../../../../../lib/api/error-handler'
+import { authenticateJWT } from '@/lib/auth/api-auth'
 
 /**
  * GET /api/notifications/preferences/[userId]
@@ -20,12 +24,9 @@ import { authenticateJWT } from '@/lib/auth/api-auth';
  * Get user notification preferences
  * Requires JWT authentication and ownership verification
  */
-export async function GET(
-  request: NextRequest,
-  { params }: { params: { userId: string } }
-) {
+export async function GET(request: NextRequest, { params }: { params: { userId: string } }) {
   // Authenticate user
-  const authResult = await authenticateJWT(request);
+  const authResult = await authenticateJWT(request)
 
   if (!authResult.authenticated) {
     return NextResponse.json(
@@ -35,7 +36,7 @@ export async function GET(
         message: authResult.error || 'Authentication required',
       },
       { status: 401 }
-    );
+    )
   }
 
   // Verify ownership - user can only access their own preferences unless admin
@@ -47,13 +48,13 @@ export async function GET(
         message: 'You can only access your own notification preferences',
       },
       { status: 403 }
-    );
+    )
   }
 
   try {
-    const userId = params.userId;
+    const userId = params.userId
 
-    const preferences = enhancedNotificationService.getUserPreferences(userId);
+    const preferences = enhancedNotificationService.getUserPreferences(userId)
 
     if (!preferences) {
       // Return default preferences
@@ -66,12 +67,12 @@ export async function GET(
         digestEnabled: false,
         digestFrequency: 'daily',
         timezone: 'UTC',
-      });
+      })
     }
 
-    return createSuccessResponse(preferences);
+    return createSuccessResponse(preferences)
   } catch (error) {
-    return createErrorResponse(error instanceof Error ? error : new Error(String(error)));
+    return createErrorResponse(error instanceof Error ? error : new Error(String(error)))
   }
 }
 
@@ -81,12 +82,9 @@ export async function GET(
  * Update user notification preferences
  * Requires JWT authentication and ownership verification
  */
-export async function PUT(
-  request: NextRequest,
-  { params }: { params: { userId: string } }
-) {
+export async function PUT(request: NextRequest, { params }: { params: { userId: string } }) {
   // Authenticate user
-  const authResult = await authenticateJWT(request);
+  const authResult = await authenticateJWT(request)
 
   if (!authResult.authenticated) {
     return NextResponse.json(
@@ -96,7 +94,7 @@ export async function PUT(
         message: authResult.error || 'Authentication required',
       },
       { status: 401 }
-    );
+    )
   }
 
   // Verify ownership - user can only modify their own preferences unless admin
@@ -108,22 +106,27 @@ export async function PUT(
         message: 'You can only modify your own notification preferences',
       },
       { status: 403 }
-    );
+    )
   }
 
   try {
-    const userId = params.userId;
-    const body = await request.json();
+    const userId = params.userId
+    const body = await request.json()
 
     // Validate priority thresholds
-    const validPriorities = [NotificationPriority.LOW, NotificationPriority.MEDIUM, NotificationPriority.HIGH, NotificationPriority.URGENT];
+    const validPriorities = [
+      NotificationPriority.LOW,
+      NotificationPriority.MEDIUM,
+      NotificationPriority.HIGH,
+      NotificationPriority.URGENT,
+    ]
 
     if (body.emailThreshold && !validPriorities.includes(body.emailThreshold)) {
-      return createValidationError('Invalid emailThreshold value');
+      return createValidationError('Invalid emailThreshold value')
     }
 
     if (body.pushThreshold && !validPriorities.includes(body.pushThreshold)) {
-      return createValidationError('Invalid pushThreshold value');
+      return createValidationError('Invalid pushThreshold value')
     }
 
     // Update preferences
@@ -138,16 +141,16 @@ export async function PUT(
       quietHoursStart: body.quietHoursStart,
       quietHoursEnd: body.quietHoursEnd,
       timezone: body.timezone || 'UTC',
-    });
+    })
 
     // Fetch updated preferences
-    const preferences = enhancedNotificationService.getUserPreferences(userId);
+    const preferences = enhancedNotificationService.getUserPreferences(userId)
 
     return createSuccessResponse({
       ...preferences,
       message: 'Preferences updated successfully',
-    });
+    })
   } catch (error) {
-    return createErrorResponse(error instanceof Error ? error : new Error(String(error)));
+    return createErrorResponse(error instanceof Error ? error : new Error(String(error)))
   }
 }

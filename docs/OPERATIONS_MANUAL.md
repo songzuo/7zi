@@ -4,12 +4,12 @@
 
 ### 告警级别
 
-| 级别 | 名称 | 响应时间 | 通知方式 |
-|------|------|----------|----------|
-| P0 | 紧急 | 5 分钟 | 电话 + SMS + Slack + Email |
-| P1 | 严重 | 15 分钟 | Slack + Email |
-| P2 | 警告 | 1 小时 | Slack |
-| P3 | 信息 | 24 小时 | Email |
+| 级别 | 名称 | 响应时间 | 通知方式                   |
+| ---- | ---- | -------- | -------------------------- |
+| P0   | 紧急 | 5 分钟   | 电话 + SMS + Slack + Email |
+| P1   | 严重 | 15 分钟  | Slack + Email              |
+| P2   | 警告 | 1 小时   | Slack                      |
+| P3   | 信息 | 24 小时  | Email                      |
 
 ---
 
@@ -49,6 +49,7 @@ curl -I http://localhost:3000/api/health
 ```
 
 **回滚方案**:
+
 ```bash
 # 如果是新版本问题，回滚到上一版本
 docker-compose down
@@ -92,6 +93,7 @@ curl -vI https://7zi.studio 2>&1 | grep -A 5 "SSL certificate"
    - 确定影响范围（用户数、页面）
 
 2. **判断根因**
+
    ```
    - 新部署的代码？ → 回滚
    - 第三方服务问题？ → 等待或切换备用
@@ -99,10 +101,11 @@ curl -vI https://7zi.studio 2>&1 | grep -A 5 "SSL certificate"
    ```
 
 3. **代码回滚**（如需要）
+
    ```bash
    # 查看最近部署
    git log --oneline -10
-   
+
    # 回滚到指定版本
    git revert HEAD
    npm run build
@@ -152,21 +155,22 @@ curl -vI https://7zi.studio 2>&1 | grep -A 5 "SSL certificate"
    ```typescript
    // LCP 优化 - 预加载关键资源
    <link rel="preload" href="/hero.jpg" as="image" />
-   
+
    // FID 优化 - 代码分割
    const HeavyComponent = dynamic(() => import('./Heavy'), {
      loading: () => <Loading />,
    });
-   
+
    // CLS 优化 - 预留空间
    <img src="..." style={{ aspectRatio: '16/9' }} />
    ```
 
 3. **检查服务器**
+
    ```bash
    # 检查 CPU/内存
    htop
-   
+
    # 检查网络
    mtr api.github.com
    ```
@@ -189,18 +193,21 @@ curl -vI https://7zi.studio 2>&1 | grep -A 5 "SSL certificate"
 ## 监控仪表板
 
 ### Sentry
+
 - **Dashboard**: https://sentry.io/organizations/7zi-studio
 - **项目**: 7zi-frontend
 - **功能**: 错误追踪、性能监控
 
 ### UptimeRobot
+
 - **Dashboard**: https://uptimerobot.com
-- **监控项**: 
+- **监控项**:
   - 7zi.studio (HTTPS)
   - 7zi.studio/api/health (HTTPS)
   - SSL 证书
 
 ### Umami
+
 - **Dashboard**: https://analytics.7zi.studio
 - **功能**: 用户行为分析
 
@@ -208,22 +215,22 @@ curl -vI https://7zi.studio 2>&1 | grep -A 5 "SSL certificate"
 
 ## 健康检查端点
 
-| 端点 | 用途 | 预期响应 |
-|------|------|----------|
-| `/api/health` | 基础健康检查 | 200 OK |
-| `/api/health/detailed` | 详细状态（含依赖） | 200 OK |
-| `/api/health/live` | K8s Liveness | 200 OK |
-| `/api/health/ready` | K8s Readiness | 200 OK |
+| 端点                   | 用途               | 预期响应 |
+| ---------------------- | ------------------ | -------- |
+| `/api/health`          | 基础健康检查       | 200 OK   |
+| `/api/health/detailed` | 详细状态（含依赖） | 200 OK   |
+| `/api/health/live`     | K8s Liveness       | 200 OK   |
+| `/api/health/ready`    | K8s Readiness      | 200 OK   |
 
 ---
 
 ## 紧急联系
 
-| 角色 | 联系方式 |
-|------|----------|
+| 角色   | 联系方式         |
+| ------ | ---------------- |
 | 主开发 | admin@7zi.studio |
-| 运维 | ops@7zi.studio |
-| Slack | #alerts-critical |
+| 运维   | ops@7zi.studio   |
+| Slack  | #alerts-critical |
 
 ---
 
@@ -254,15 +261,18 @@ docker logs 7zi-frontend --tail 50
 ## 定期维护任务
 
 ### 每日
+
 - [ ] 检查 Sentry 错误趋势
 - [ ] 检查 UptimeRobot 可用性
 
 ### 每周
+
 - [ ] 审查告警噪音，调整规则
 - [ ] 检查性能趋势
 - [ ] 清理已解决的 Sentry Issues
 
 ### 每月
+
 - [ ] 审查 SLA 达成情况
 - [ ] 检查 SSL 证书到期
 - [ ] 更新依赖版本
@@ -270,4 +280,4 @@ docker logs 7zi-frontend --tail 50
 
 ---
 
-*最后更新: 2026-03-06*
+_最后更新: 2026-03-06_

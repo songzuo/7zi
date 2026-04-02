@@ -1,7 +1,7 @@
 /**
  * EmptyState 组件 - 空状态展示
  * 用于列表、表格、搜索等空状态展示
- * 
+ *
  * @example
  * // 基本用法
  * <EmptyState
@@ -9,32 +9,32 @@
  *   description="还没有任何内容"
  *   action={{ label: '添加', onClick: handleAdd }}
  * />
- * 
+ *
  * // 使用预设变体
  * <EmptyList onAdd={handleAdd} />
  * <EmptySearch keyword="测试" />
  * <EmptyError onRetry={handleRetry} />
  */
 
-import React from 'react';
-import clsx from 'clsx';
-import { Button } from './Button';
+import React from 'react'
+import clsx from 'clsx'
+import { Button } from './Button'
 
 export interface EmptyStateProps {
   /** 图标 */
-  icon?: React.ReactNode;
+  icon?: React.ReactNode
   /** 标题 */
-  title: string;
+  title: string
   /** 描述 */
-  description?: React.ReactNode;
+  description?: React.ReactNode
   /** 操作按钮 */
   action?: {
-    label: string;
-    variant?: 'primary' | 'secondary' | 'outline' | 'ghost';
-    onClick: () => void;
-  };
+    label: string
+    variant?: 'primary' | 'secondary' | 'outline' | 'ghost'
+    onClick: () => void
+  }
   /** 自定义类名 */
-  className?: string;
+  className?: string
 }
 
 export const EmptyState: React.FC<EmptyStateProps> = ({
@@ -47,7 +47,7 @@ export const EmptyState: React.FC<EmptyStateProps> = ({
   return (
     <div
       className={clsx(
-        'flex flex-col items-center justify-center py-12 px-4 text-center',
+        'flex flex-col items-center justify-center px-4 py-12 text-center',
         className
       )}
       role="status"
@@ -58,44 +58,37 @@ export const EmptyState: React.FC<EmptyStateProps> = ({
           {icon}
         </div>
       )}
-      <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-2">
-        {title}
-      </h3>
+      <h3 className="mb-2 text-lg font-semibold text-gray-900 dark:text-white">{title}</h3>
       {description && (
-        <p className="text-sm text-gray-500 dark:text-gray-400 mb-6 max-w-sm">
-          {description}
-        </p>
+        <p className="mb-6 max-w-sm text-sm text-gray-500 dark:text-gray-400">{description}</p>
       )}
       {action && (
-        <Button
-          variant={action.variant || 'primary'}
-          onClick={action.onClick}
-        >
+        <Button variant={action.variant || 'primary'} onClick={action.onClick}>
           {action.label}
         </Button>
       )}
     </div>
-  );
-};
+  )
+}
 
 /**
  * EmptyList 组件 - 空列表状态
  * 用于列表、表格等无数据时的展示
- * 
+ *
  * @example
  * <EmptyList onAdd={() => console.log('add')} />
  */
 export interface EmptyListProps {
   /** 自定义标题 */
-  title?: string;
+  title?: string
   /** 自定义描述 */
-  description?: string;
+  description?: string
   /** 添加按钮的标签 */
-  actionLabel?: string;
+  actionLabel?: string
   /** 点击添加的回调 */
-  onAdd?: () => void;
+  onAdd?: () => void
   /** 自定义类名 */
-  className?: string;
+  className?: string
 }
 
 export const EmptyList: React.FC<EmptyListProps> = ({
@@ -108,7 +101,7 @@ export const EmptyList: React.FC<EmptyListProps> = ({
   <EmptyState
     icon={
       <svg
-        className="w-16 h-16"
+        className="h-16 w-16"
         fill="none"
         viewBox="0 0 24 24"
         stroke="currentColor"
@@ -126,41 +119,39 @@ export const EmptyList: React.FC<EmptyListProps> = ({
     action={onAdd ? { label: actionLabel, onClick: onAdd } : undefined}
     className={className}
   />
-);
+)
 
 /**
  * EmptySearch 组件 - 空搜索结果状态
  * 用于搜索无结果时的展示
- * 
+ *
  * @example
  * <EmptySearch keyword="测试" />
  */
 export interface EmptySearchProps {
   /** 搜索关键词 */
-  keyword?: string;
+  keyword?: string
   /** 自定义标题 */
-  title?: string;
+  title?: string
   /** 自定义描述 */
-  description?: string;
+  description?: string
   /** 清除搜索的回调 */
-  onClear?: () => void;
+  onClear?: () => void
   /** 自定义类名 */
-  className?: string;
+  className?: string
 }
 
 export const EmptySearch: React.FC<EmptySearchProps> = ({
   keyword,
   title = '未找到结果',
-  description = keyword 
-    ? `没有找到 "${keyword}" 相关的内容` 
-    : '没有找到相关内容，请尝试其他关键词',
+  description = keyword ? `没有找到 "${keyword}" 相关的内容` : '没有找到相关内容，请尝试其他关键词',
   onClear,
   className,
 }) => (
   <EmptyState
     icon={
       <svg
-        className="w-16 h-16"
+        className="h-16 w-16"
         fill="none"
         viewBox="0 0 24 24"
         stroke="currentColor"
@@ -178,28 +169,28 @@ export const EmptySearch: React.FC<EmptySearchProps> = ({
     action={onClear ? { label: '清除搜索', variant: 'outline', onClick: onClear } : undefined}
     className={className}
   />
-);
+)
 
 /**
  * EmptyError 组件 - 加载错误状态
  * 用于加载失败时的展示
- * 
+ *
  * @example
  * <EmptyError onRetry={() => console.log('retry')} />
  */
 export interface EmptyErrorProps {
   /** 错误信息 */
-  error?: string;
+  error?: string
   /** 自定义标题 */
-  title?: string;
+  title?: string
   /** 自定义描述 */
-  description?: string;
+  description?: string
   /** 重试按钮的标签 */
-  actionLabel?: string;
+  actionLabel?: string
   /** 点击重试的回调 */
-  onRetry?: () => void;
+  onRetry?: () => void
   /** 自定义类名 */
-  className?: string;
+  className?: string
 }
 
 export const EmptyError: React.FC<EmptyErrorProps> = ({
@@ -213,7 +204,7 @@ export const EmptyError: React.FC<EmptyErrorProps> = ({
   <EmptyState
     icon={
       <svg
-        className="w-16 h-16"
+        className="h-16 w-16"
         fill="none"
         viewBox="0 0 24 24"
         stroke="currentColor"
@@ -231,26 +222,26 @@ export const EmptyError: React.FC<EmptyErrorProps> = ({
     action={onRetry ? { label: actionLabel, variant: 'primary', onClick: onRetry } : undefined}
     className={className}
   />
-);
+)
 
 /**
  * EmptyNetwork 组件 - 网络错误状态
  * 用于网络错误时的展示
- * 
+ *
  * @example
  * <EmptyNetwork onRetry={() => console.log('retry')} />
  */
 export interface EmptyNetworkProps {
   /** 自定义标题 */
-  title?: string;
+  title?: string
   /** 自定义描述 */
-  description?: string;
+  description?: string
   /** 重试按钮的标签 */
-  actionLabel?: string;
+  actionLabel?: string
   /** 点击重试的回调 */
-  onRetry?: () => void;
+  onRetry?: () => void
   /** 自定义类名 */
-  className?: string;
+  className?: string
 }
 
 export const EmptyNetwork: React.FC<EmptyNetworkProps> = ({
@@ -263,7 +254,7 @@ export const EmptyNetwork: React.FC<EmptyNetworkProps> = ({
   <EmptyState
     icon={
       <svg
-        className="w-16 h-16"
+        className="h-16 w-16"
         fill="none"
         viewBox="0 0 24 24"
         stroke="currentColor"
@@ -281,24 +272,24 @@ export const EmptyNetwork: React.FC<EmptyNetworkProps> = ({
     action={onRetry ? { label: actionLabel, variant: 'primary', onClick: onRetry } : undefined}
     className={className}
   />
-);
+)
 
 /**
  * EmptyPermission 组件 - 权限不足状态
  * 用于权限不足时的展示
- * 
+ *
  * @example
  * <EmptyPermission />
  */
 export interface EmptyPermissionProps {
   /** 自定义标题 */
-  title?: string;
+  title?: string
   /** 自定义描述 */
-  description?: string;
+  description?: string
   /** 返回首页的回调 */
-  onBack?: () => void;
+  onBack?: () => void
   /** 自定义类名 */
-  className?: string;
+  className?: string
 }
 
 export const EmptyPermission: React.FC<EmptyPermissionProps> = ({
@@ -310,7 +301,7 @@ export const EmptyPermission: React.FC<EmptyPermissionProps> = ({
   <EmptyState
     icon={
       <svg
-        className="w-16 h-16"
+        className="h-16 w-16"
         fill="none"
         viewBox="0 0 24 24"
         stroke="currentColor"
@@ -328,26 +319,26 @@ export const EmptyPermission: React.FC<EmptyPermissionProps> = ({
     action={onBack ? { label: '返回首页', variant: 'outline', onClick: onBack } : undefined}
     className={className}
   />
-);
+)
 
 /**
  * EmptyMaintenance 组件 - 系统维护状态
  * 用于系统维护时的展示
- * 
+ *
  * @example
  * <EmptyMaintenance />
  */
 export interface EmptyMaintenanceProps {
   /** 自定义标题 */
-  title?: string;
+  title?: string
   /** 自定义描述 */
-  description?: string;
+  description?: string
   /** 预计恢复时间 */
-  estimatedTime?: string;
+  estimatedTime?: string
   /** 联系支持 */
-  onContact?: () => void;
+  onContact?: () => void
   /** 自定义类名 */
-  className?: string;
+  className?: string
 }
 
 export const EmptyMaintenance: React.FC<EmptyMaintenanceProps> = ({
@@ -360,7 +351,7 @@ export const EmptyMaintenance: React.FC<EmptyMaintenanceProps> = ({
   <EmptyState
     icon={
       <svg
-        className="w-16 h-16"
+        className="h-16 w-16"
         fill="none"
         viewBox="0 0 24 24"
         stroke="currentColor"
@@ -371,11 +362,7 @@ export const EmptyMaintenance: React.FC<EmptyMaintenanceProps> = ({
           strokeLinejoin="round"
           d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"
         />
-        <path
-          strokeLinecap="round"
-          strokeLinejoin="round"
-          d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"
-        />
+        <path strokeLinecap="round" strokeLinejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
       </svg>
     }
     title={title}
@@ -392,4 +379,4 @@ export const EmptyMaintenance: React.FC<EmptyMaintenanceProps> = ({
     action={onContact ? { label: '联系支持', variant: 'outline', onClick: onContact } : undefined}
     className={className}
   />
-);
+)

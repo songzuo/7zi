@@ -50,88 +50,88 @@ npm run test:integration -- --watch
 ### 基本结构
 
 ```typescript
-import { describe, it, expect, beforeAll, afterAll } from 'vitest';
-import { setupTestDb, teardownTestDb } from '@/tests/setup/test-db';
-import { MyApi } from '@/lib/api';
+import { describe, it, expect, beforeAll, afterAll } from 'vitest'
+import { setupTestDb, teardownTestDb } from '@/tests/setup/test-db'
+import { MyApi } from '@/lib/api'
 
 describe('Auth API Integration', () => {
-  let db: TestDb;
-  let api: MyApi;
+  let db: TestDb
+  let api: MyApi
 
   beforeAll(async () => {
     // 设置测试环境
-    db = await setupTestDb();
-    api = new MyApi({ db });
-  });
+    db = await setupTestDb()
+    api = new MyApi({ db })
+  })
 
   afterAll(async () => {
     // 清理测试环境
-    await teardownTestDb(db);
-  });
+    await teardownTestDb(db)
+  })
 
   it('should authenticate user', async () => {
     const result = await api.authenticate({
       email: 'test@example.com',
       password: 'password123',
-    });
-    
-    expect(result).toHaveProperty('token');
-    expect(result.user).toHaveProperty('id');
-  });
-});
+    })
+
+    expect(result).toHaveProperty('token')
+    expect(result.user).toHaveProperty('id')
+  })
+})
 ```
 
 ### 测试数据库集成
 
 ```typescript
-import { describe, it, expect, beforeEach } from 'vitest';
-import { createTestDb } from '@/tests/setup/test-db';
+import { describe, it, expect, beforeEach } from 'vitest'
+import { createTestDb } from '@/tests/setup/test-db'
 
 describe('Database Integration', () => {
-  let db: TestDb;
+  let db: TestDb
 
   beforeEach(async () => {
     // 每个测试前创建新的数据库
-    db = await createTestDb();
-  });
+    db = await createTestDb()
+  })
 
   it('should insert and retrieve user', async () => {
     await db.users.insert({
       email: 'test@example.com',
       name: 'Test User',
-    });
+    })
 
-    const user = await db.users.findByEmail('test@example.com');
-    
-    expect(user).not.toBeNull();
-    expect(user.email).toBe('test@example.com');
-  });
-});
+    const user = await db.users.findByEmail('test@example.com')
+
+    expect(user).not.toBeNull()
+    expect(user.email).toBe('test@example.com')
+  })
+})
 ```
 
 ### 测试 WebSocket 集成
 
 ```typescript
-import { describe, it, expect, beforeAll } from 'vitest';
-import { createTestWebSocketServer, createTestWebSocketClient } from '@/tests/setup/websocket';
+import { describe, it, expect, beforeAll } from 'vitest'
+import { createTestWebSocketServer, createTestWebSocketClient } from '@/tests/setup/websocket'
 
 describe('WebSocket Integration', () => {
-  let server: WebSocketServer;
-  let client: WebSocketClient;
+  let server: WebSocketServer
+  let client: WebSocketClient
 
   beforeAll(async () => {
-    server = await createTestWebSocketServer();
-    client = await createTestWebSocketClient(server.url);
-  });
+    server = await createTestWebSocketServer()
+    client = await createTestWebSocketClient(server.url)
+  })
 
   it('should send and receive message', async () => {
-    client.send({ type: 'ping', data: 'hello' });
+    client.send({ type: 'ping', data: 'hello' })
 
-    const response = await client.waitFor('pong');
-    
-    expect(response.data).toBe('hello');
-  });
-});
+    const response = await client.waitFor('pong')
+
+    expect(response.data).toBe('hello')
+  })
+})
 ```
 
 ## 测试设置
@@ -142,20 +142,20 @@ describe('WebSocket Integration', () => {
 
 ```typescript
 // tests/setup/test-db.ts
-import { TestDatabase } from '@/lib/test-db';
+import { TestDatabase } from '@/lib/test-db'
 
 export async function setupTestDb() {
   const db = new TestDatabase({
     url: 'sqlite::memory:',
     migrations: './migrations',
-  });
-  
-  await db.migrate();
-  return db;
+  })
+
+  await db.migrate()
+  return db
 }
 
 export async function teardownTestDb(db: TestDatabase) {
-  await db.close();
+  await db.close()
 }
 ```
 
@@ -163,15 +163,15 @@ export async function teardownTestDb(db: TestDatabase) {
 
 ```typescript
 // tests/setup/api-server.ts
-import { createServer } from '@/server';
+import { createServer } from '@/server'
 
 export async function setupTestServer() {
   const server = await createServer({
     port: 0, // 随机端口
     db: await setupTestDb(),
-  });
-  
-  return server;
+  })
+
+  return server
 }
 ```
 
@@ -191,6 +191,7 @@ npm run test:integration -- --coverage
 ```
 
 目标覆盖率：
+
 - 语句覆盖率：≥ 70%
 - 分支覆盖率：≥ 65%
 - 函数覆盖率：≥ 75%
@@ -203,7 +204,7 @@ npm run test:integration -- --coverage
 ```typescript
 it.skip('slow integration test', async () => {
   // 这个测试会被跳过
-});
+})
 ```
 
 ### Q: 如何测试外部API？
@@ -211,15 +212,15 @@ it.skip('slow integration test', async () => {
 使用 MSW (Mock Service Worker) 来模拟外部API：
 
 ```typescript
-import { setupServer } from 'msw/node';
-import { rest } from 'msw';
+import { setupServer } from 'msw/node'
+import { rest } from 'msw'
 
 const server = setupServer(
   rest.get('https://api.example.com/users', (req, res, ctx) => {
-    return res(ctx.json({ users: [] }));
+    return res(ctx.json({ users: [] }))
   })
-);
+)
 
-beforeAll(() => server.listen());
-afterAll(() => server.close());
+beforeAll(() => server.listen())
+afterAll(() => server.close())
 ```

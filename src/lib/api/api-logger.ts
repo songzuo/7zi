@@ -3,30 +3,30 @@
  * @description Middleware for logging all API requests with request ID tracking
  */
 
-import { NextRequest, NextResponse } from 'next/server';
-import { logger } from '@/lib/logger';
-import { v4 as uuidv4 } from 'uuid';
+import { NextRequest, NextResponse } from 'next/server'
+import { logger } from '@/lib/logger'
+import { v4 as uuidv4 } from 'uuid'
 
 /**
  * Request metadata interface
  */
 export interface RequestMetadata {
-  requestId: string;
-  method: string;
-  url: string;
-  userAgent?: string;
-  ip?: string;
-  userId?: string;
-  timestamp: string;
-  duration?: number;
-  statusCode?: number;
+  requestId: string
+  method: string
+  url: string
+  userAgent?: string
+  ip?: string
+  userId?: string
+  timestamp: string
+  duration?: number
+  statusCode?: number
 }
 
 /**
  * Generate a unique request ID
  */
 export function generateRequestId(): string {
-  return uuidv4();
+  return uuidv4()
 }
 
 /**
@@ -34,9 +34,9 @@ export function generateRequestId(): string {
  */
 export function getUserAgent(request: NextRequest): string | undefined {
   if (!request?.headers) {
-    return undefined;
+    return undefined
   }
-  return request.headers.get('user-agent') || undefined;
+  return request.headers.get('user-agent') || undefined
 }
 
 /**
@@ -44,28 +44,28 @@ export function getUserAgent(request: NextRequest): string | undefined {
  */
 export function getClientIp(request: NextRequest): string | undefined {
   if (!request?.headers) {
-    return undefined;
+    return undefined
   }
 
   // Check various headers for the client IP
-  const forwardedFor = request.headers.get('x-forwarded-for');
-  const realIp = request.headers.get('x-real-ip');
-  const cfConnectingIp = request.headers.get('cf-connecting-ip');
+  const forwardedFor = request.headers.get('x-forwarded-for')
+  const realIp = request.headers.get('x-real-ip')
+  const cfConnectingIp = request.headers.get('cf-connecting-ip')
 
   if (forwardedFor) {
     // X-Forwarded-For can contain multiple IPs, take the first one
-    return forwardedFor.split(',')[0].trim();
+    return forwardedFor.split(',')[0].trim()
   }
 
   if (realIp) {
-    return realIp;
+    return realIp
   }
 
   if (cfConnectingIp) {
-    return cfConnectingIp;
+    return cfConnectingIp
   }
 
-  return undefined;
+  return undefined
 }
 
 /**
@@ -79,14 +79,14 @@ export function createRequestMetadata(request: NextRequest): RequestMetadata {
     userAgent: getUserAgent(request),
     ip: getClientIp(request),
     timestamp: new Date().toISOString(),
-  };
+  }
 }
 
 /**
  * Log API request start
  */
 export function logRequestStart(request: NextRequest): RequestMetadata {
-  const metadata = createRequestMetadata(request);
+  const metadata = createRequestMetadata(request)
 
   logger.api('Request started', {
     requestId: metadata.requestId,
@@ -94,9 +94,9 @@ export function logRequestStart(request: NextRequest): RequestMetadata {
     url: metadata.url,
     userAgent: metadata.userAgent,
     ip: metadata.ip,
-  });
+  })
 
-  return metadata;
+  return metadata
 }
 
 /**
@@ -107,20 +107,24 @@ export function logRequestComplete(
   response: NextResponse,
   startTime: number
 ): void {
-  const duration = Date.now() - startTime;
-  const statusCode = response.status;
+  const duration = Date.now() - startTime
+  const statusCode = response.status
 
   const logLevel: 'info' | 'warn' | 'error' =
-    statusCode >= 500 ? 'error' : statusCode >= 400 ? 'warn' : 'info';
+    statusCode >= 500 ? 'error' : statusCode >= 400 ? 'warn' : 'info'
 
-  logger.api('Request completed', {
-    requestId: metadata.requestId,
-    method: metadata.method,
-    url: metadata.url,
-    statusCode,
-    duration,
-    durationMs: duration,
-  }, logLevel);
+  logger.api(
+    'Request completed',
+    {
+      requestId: metadata.requestId,
+      method: metadata.method,
+      url: metadata.url,
+      statusCode,
+      duration,
+      durationMs: duration,
+    },
+    logLevel
+  )
 
   // Log slow requests (阈值降低到 500ms)
   if (duration > 500) {
@@ -130,7 +134,7 @@ export function logRequestComplete(
       url: metadata.url,
       duration,
       statusCode,
-    });
+    })
   }
 
   // Log critical slow requests
@@ -141,7 +145,7 @@ export function logRequestComplete(
       url: metadata.url,
       duration,
       statusCode,
-    });
+    })
   }
 }
 
@@ -153,7 +157,7 @@ export function logRequestError(
   error: Error | unknown,
   startTime: number
 ): void {
-  const duration = Date.now() - startTime;
+  const duration = Date.now() - startTime
 
   logger.error('Request failed', error, {
     requestId: metadata.requestId,
@@ -161,7 +165,7 @@ export function logRequestError(
     url: metadata.url,
     duration,
     durationMs: duration,
-  });
+  })
 }
 
 /**
@@ -171,33 +175,33 @@ export function withApiLogging<T extends (...args: unknown[]) => Promise<NextRes
   handler: T
 ): T {
   return (async (...args: unknown[]) => {
-    const request = args[0] as NextRequest;
-    const startTime = Date.now();
-    const metadata = logRequestStart(request);
+    const request = args[0] as NextRequest
+    const startTime = Date.now()
+    const metadata = logRequestStart(request)
 
     try {
-      const response = await handler(...(args as Parameters<T>));
-      logRequestComplete(metadata, response, startTime);
-      return response;
-    } catch (_error) {
-      logRequestError(metadata, error, startTime);
-      throw error;
+      const response = await handler(...(args as Parameters<T>))
+      logRequestComplete(metadata, response, startTime)
+      return response
+    } catch (error) {
+      logRequestError(metadata, error, startTime)
+      throw error
     }
-  }) as unknown as T;
+  }) as unknown as T
 }
 
 /**
  * Set request ID in logger context
  */
 export function setRequestIdContext(requestId: string): void {
-  logger.setContext({ requestId });
+  logger.setContext({ requestId })
 }
 
 /**
  * Create a logger child with request ID context
  */
 export function createRequestLogger(requestId: string) {
-  return logger.child({ requestId });
+  return logger.child({ requestId })
 }
 
 /**
@@ -205,10 +209,10 @@ export function createRequestLogger(requestId: string) {
  */
 export function extractPath(url: string): string {
   try {
-    const urlObj = new URL(url);
-    return urlObj.pathname;
-  } catch {
-    return url;
+    const urlObj = new URL(url)
+    return urlObj.pathname
+  } catch (error) {
+    return url
   }
 }
 
@@ -217,7 +221,7 @@ export function extractPath(url: string): string {
  */
 export function sanitizeUrlForLogging(url: string): string {
   try {
-    const urlObj = new URL(url);
+    const urlObj = new URL(url)
     const sensitiveParams = [
       'token',
       'password',
@@ -239,17 +243,17 @@ export function sanitizeUrlForLogging(url: string): string {
       'otp',
       'cvc',
       'cvv',
-    ];
+    ]
 
     sensitiveParams.forEach(param => {
       if (urlObj.searchParams.has(param)) {
-        urlObj.searchParams.set(param, '[REDACTED]');
+        urlObj.searchParams.set(param, '[REDACTED]')
       }
-    });
+    })
 
-    return urlObj.toString();
-  } catch {
-    return url;
+    return urlObj.toString()
+  } catch (error) {
+    return url
   }
 }
 
@@ -265,7 +269,7 @@ export function logValidationError(
     method: metadata.method,
     url: metadata.url,
     validationErrors: validationError,
-  });
+  })
 }
 
 /**
@@ -281,5 +285,5 @@ export function logAuthError(
     method: metadata.method,
     url: metadata.url,
     reason,
-  });
+  })
 }

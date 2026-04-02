@@ -13,12 +13,12 @@
 
 ### 关键指标
 
-| 指标 | 迁移前 | 迁移后 | 改进 |
-|------|--------|--------|------|
-| lib/ 目录文件数 | 35+ | ~5 (保留) | 减少 85% |
-| 业务模块独立目录 | 0 | 7 | +7 |
-| 代码边界 | 模糊 | 清晰 | ✅ |
-| 循环依赖风险 | 高 | 低 | ✅ |
+| 指标             | 迁移前 | 迁移后    | 改进     |
+| ---------------- | ------ | --------- | -------- |
+| lib/ 目录文件数  | 35+    | ~5 (保留) | 减少 85% |
+| 业务模块独立目录 | 0      | 7         | +7       |
+| 代码边界         | 模糊   | 清晰      | ✅       |
+| 循环依赖风险     | 高     | 低        | ✅       |
 
 ---
 
@@ -49,22 +49,24 @@ src/
 
 ### 2. Shared 模块迁移
 
-| 源路径 | 目标路径 | 状态 |
-|--------|----------|------|
-| `src/lib/logger.ts` | `src/shared/lib/logger.ts` | ✅ |
-| `src/lib/validation.ts` | `src/shared/lib/validation.ts` | ✅ |
-| `src/lib/validation-schemas.ts` | `src/shared/lib/validation-schemas.ts` | ✅ |
-| `src/lib/db/storage.ts` | `src/shared/db/storage.ts` | ✅ |
-| `src/hooks/useDebounce.ts` | `src/shared/hooks/useDebounce.ts` | ✅ |
-| `src/components/ui/*` | `src/shared/components/ui/*` | ✅ |
+| 源路径                          | 目标路径                               | 状态 |
+| ------------------------------- | -------------------------------------- | ---- |
+| `src/lib/logger.ts`             | `src/shared/lib/logger.ts`             | ✅   |
+| `src/lib/validation.ts`         | `src/shared/lib/validation.ts`         | ✅   |
+| `src/lib/validation-schemas.ts` | `src/shared/lib/validation-schemas.ts` | ✅   |
+| `src/lib/db/storage.ts`         | `src/shared/db/storage.ts`             | ✅   |
+| `src/hooks/useDebounce.ts`      | `src/shared/hooks/useDebounce.ts`      | ✅   |
+| `src/components/ui/*`           | `src/shared/components/ui/*`           | ✅   |
 
 **新增文件**:
+
 - `src/shared/types/index.ts` - 全局类型定义
 - `src/shared/index.ts` - 统一导出
 
 ### 3. Auth Feature 迁移
 
 **迁移内容**:
+
 - 组件: 无 (纯逻辑模块)
 - Hooks: 无
 - Lib: `auth.ts`, `permissions.ts`, `jwt.ts`
@@ -76,6 +78,7 @@ src/
 ### 4. Notifications Feature 迁移
 
 **迁移内容**:
+
 - 组件: `NotificationCenter.tsx`, `NotificationProvider.tsx`, `NotificationToast.tsx`, `NotificationToaster.tsx`
 - Hooks: `useNotifications.ts`, `useNotificationsStable.ts`
 - Lib: `notification*.ts`, `email.ts`, `notification-storage.ts`
@@ -87,6 +90,7 @@ src/
 ### 5. WebSocket Feature 迁移
 
 **迁移内容**:
+
 - 组件: `WebSocketStatusPanel.tsx`
 - Hooks: `useWebSocketStatus.ts`
 - Lib: `websocket-manager.ts`, `socket.ts`
@@ -97,6 +101,7 @@ src/
 ### 6. Monitoring Feature 迁移
 
 **迁移内容**:
+
 - 组件: `PerformanceDashboard.tsx`, `SimplePerformanceDashboard.tsx`, `EnhancedPerformanceDashboard.tsx`
 - Lib: `monitor/` 目录下所有文件
 - Types: `types.ts`
@@ -106,6 +111,7 @@ src/
 ### 7. MCP Feature 迁移
 
 **迁移内容**:
+
 - Lib: `server.ts`, `types.ts`
 - API: `src/app/api/mcp/` → `src/features/mcp/api/`
 - Types: `types.ts`
@@ -115,6 +121,7 @@ src/
 ### 8. Rate-Limit Feature 迁移
 
 **迁移内容**:
+
 - Lib: `limiter.ts`, `storage.ts`, `memory-storage.ts`, `redis-storage.ts`, `config.ts`
 - Types: `types.ts`
 
@@ -123,6 +130,7 @@ src/
 ### 9. Audit Feature 迁移
 
 **迁移内容**:
+
 - Lib: `logger.ts`, `types.ts`
 - Types: `types.ts`
 
@@ -151,6 +159,7 @@ src/
 **问题**: `src/app/api/` 下的文件仍引用旧路径 `../../lib/` 和 `../../../lib/`
 
 **影响范围**:
+
 - `src/app/api/auth/route.ts`
 - `src/app/api/feedback/route.ts`
 - `src/app/api/data/import/route.ts`
@@ -160,6 +169,7 @@ src/
 - `src/app/api/notifications/` 下所有路由
 
 **需要更新的路径映射**:
+
 ```
 ../../lib/            → @/shared/
 ../../../lib/auth.ts  → @/features/auth/lib/
@@ -171,12 +181,14 @@ src/
 ```
 
 **建议解决方案**:
+
 1. 手动更新每个 API 路由文件的 import 路径
 2. 或者创建一个过渡层，保留旧路径但重新导出到新位置
 
 ### 2. 旧目录清理
 
 **待删除目录** (路径更新完成后):
+
 - `src/components/notifications/`
 - `src/components/websocket/`
 - `src/components/ui/`
@@ -190,6 +202,7 @@ src/
 - `src/lib/` 大部分文件
 
 **待保留文件**:
+
 - `src/lib/auth.ts` - 可能被其他模块引用
 - `src/lib/permissions.ts` - 可能被其他模块引用
 - `src/lib/logger.ts` - 可能被其他模块引用
@@ -200,6 +213,7 @@ src/
 **影响范围**: 所有 `__tests__/` 目录下的测试文件
 
 **需要更新**:
+
 - 测试文件的 import 路径
 - Mock 配置路径
 
@@ -208,6 +222,7 @@ src/
 **问题**: `next.config.js` 中包含 Next.js 14.2 不支持的配置项
 
 **无效配置**:
+
 - `turbopack` - Next.js 14.2 不支持
 - `serverExternalPackages` - 旧版本配置
 
@@ -219,38 +234,38 @@ src/
 
 ### 文件迁移统计
 
-| 类别 | 迁移文件数 | 总文件数 | 完成率 |
-|------|------------|----------|--------|
-| Shared 模块 | 8 | 8 | 100% |
-| Auth Feature | 5 | 5 | 100% |
-| Notifications Feature | 20+ | 20+ | 100% |
-| WebSocket Feature | 6 | 6 | 100% |
-| Monitoring Feature | 12+ | 12+ | 100% |
-| MCP Feature | 5 | 5 | 100% |
-| Rate-Limit Feature | 6 | 6 | 100% |
-| Audit Feature | 3 | 3 | 100% |
-| **总计** | **65+** | **65+** | **100%** |
+| 类别                  | 迁移文件数 | 总文件数 | 完成率   |
+| --------------------- | ---------- | -------- | -------- |
+| Shared 模块           | 8          | 8        | 100%     |
+| Auth Feature          | 5          | 5        | 100%     |
+| Notifications Feature | 20+        | 20+      | 100%     |
+| WebSocket Feature     | 6          | 6        | 100%     |
+| Monitoring Feature    | 12+        | 12+      | 100%     |
+| MCP Feature           | 5          | 5        | 100%     |
+| Rate-Limit Feature    | 6          | 6        | 100%     |
+| Audit Feature         | 3          | 3        | 100%     |
+| **总计**              | **65+**    | **65+**  | **100%** |
 
 ### 目录迁移统计
 
-| 目录 | 新位置 | 状态 |
-|------|--------|------|
-| `src/components/ui/` | `src/shared/components/ui/` | ✅ |
-| `src/components/notifications/` | `src/features/notifications/components/` | ✅ |
-| `src/components/websocket/` | `src/features/websocket/components/` | ✅ |
-| `src/hooks/useDebounce.ts` | `src/shared/hooks/useDebounce.ts` | ✅ |
-| `src/hooks/useNotifications*` | `src/features/notifications/hooks/` | ✅ |
-| `src/hooks/useWebSocketStatus.ts` | `src/features/websocket/hooks/` | ✅ |
-| `src/lib/logger.ts` | `src/shared/lib/logger.ts` | ✅ |
-| `src/lib/validation*.ts` | `src/shared/lib/validation*.ts` | ✅ |
-| `src/lib/auth.ts` | `src/features/auth/lib/` | ✅ |
-| `src/lib/permissions.ts` | `src/features/auth/lib/` | ✅ |
-| `src/lib/websocket-manager.ts` | `src/features/websocket/lib/` | ✅ |
-| `src/lib/notification*` | `src/features/notifications/lib/` | ✅ |
-| `src/lib/monitoring/` | `src/features/monitoring/lib/` | ✅ |
-| `src/lib/mcp/` | `src/features/mcp/lib/` | ✅ |
-| `src/lib/rate-limit/` | `src/features/rate-limit/lib/` | ✅ |
-| `src/lib/audit/` | `src/features/audit/lib/` | ✅ |
+| 目录                              | 新位置                                   | 状态 |
+| --------------------------------- | ---------------------------------------- | ---- |
+| `src/components/ui/`              | `src/shared/components/ui/`              | ✅   |
+| `src/components/notifications/`   | `src/features/notifications/components/` | ✅   |
+| `src/components/websocket/`       | `src/features/websocket/components/`     | ✅   |
+| `src/hooks/useDebounce.ts`        | `src/shared/hooks/useDebounce.ts`        | ✅   |
+| `src/hooks/useNotifications*`     | `src/features/notifications/hooks/`      | ✅   |
+| `src/hooks/useWebSocketStatus.ts` | `src/features/websocket/hooks/`          | ✅   |
+| `src/lib/logger.ts`               | `src/shared/lib/logger.ts`               | ✅   |
+| `src/lib/validation*.ts`          | `src/shared/lib/validation*.ts`          | ✅   |
+| `src/lib/auth.ts`                 | `src/features/auth/lib/`                 | ✅   |
+| `src/lib/permissions.ts`          | `src/features/auth/lib/`                 | ✅   |
+| `src/lib/websocket-manager.ts`    | `src/features/websocket/lib/`            | ✅   |
+| `src/lib/notification*`           | `src/features/notifications/lib/`        | ✅   |
+| `src/lib/monitoring/`             | `src/features/monitoring/lib/`           | ✅   |
+| `src/lib/mcp/`                    | `src/features/mcp/lib/`                  | ✅   |
+| `src/lib/rate-limit/`             | `src/features/rate-limit/lib/`           | ✅   |
+| `src/lib/audit/`                  | `src/features/audit/lib/`                | ✅   |
 
 ---
 
@@ -259,6 +274,7 @@ src/
 ### Phase 7: API 路径更新 (1-2 天)
 
 **步骤**:
+
 1. 更新 `src/app/api/` 下所有文件的 import 路径
 2. 创建 `src/shared/lib/api/` 目录，移动通用 API 工具
 3. 更新测试文件的 import 路径
@@ -267,6 +283,7 @@ src/
 ### Phase 8: 清理旧目录 (1 天)
 
 **步骤**:
+
 1. 确认所有引用已更新
 2. 删除旧的 `src/components/` 和 `src/hooks/` 下的已迁移文件
 3. 删除 `src/lib/` 下已迁移的文件
@@ -275,6 +292,7 @@ src/
 ### Phase 9: 文档更新 (0.5 天)
 
 **步骤**:
+
 1. 更新 `README.md` 架构说明
 2. 创建 `docs/FEATURE_BASED_ARCHITECTURE.md`
 3. 更新 `ARCHITECTURE_REVIEW.md`

@@ -9,12 +9,12 @@
 
 ## 📅 实施时间表
 
-| 阶段 | 时间 | 责任人 | 状态 |
-|------|------|--------|------|
-| **Phase 1: 准备与激活** | Day 1 上午 (2h) | 🛡️ 系统管理员 | ⏳ 待执行 |
-| **Phase 2: 验证与修复** | Day 1 下午 (3h) | 🏗️ 架构师 + 🧪 测试员 | ⏳ 待执行 |
-| **Phase 3: 性能基准测试** | Day 2 上午 (4h) | 🧪 测试员 | ⏳ 待执行 |
-| **Phase 4: 部署与监控** | Day 2 下午 (4h) | 🛡️ 系统管理员 | ⏳ 待执行 |
+| 阶段                      | 时间            | 责任人                | 状态      |
+| ------------------------- | --------------- | --------------------- | --------- |
+| **Phase 1: 准备与激活**   | Day 1 上午 (2h) | 🛡️ 系统管理员         | ⏳ 待执行 |
+| **Phase 2: 验证与修复**   | Day 1 下午 (3h) | 🏗️ 架构师 + 🧪 测试员 | ⏳ 待执行 |
+| **Phase 3: 性能基准测试** | Day 2 上午 (4h) | 🧪 测试员             | ⏳ 待执行 |
+| **Phase 4: 部署与监控**   | Day 2 下午 (4h) | 🛡️ 系统管理员         | ⏳ 待执行 |
 
 **总工作量**: 1-2 天
 
@@ -40,12 +40,14 @@ cat next.config.ts | grep -A 2 reactCompiler
 ```
 
 **预期输出**:
+
 ```typescript
 // Enable React Compiler for automatic optimization
 reactCompiler: true,
 ```
 
 **验证检查**:
+
 - [x] 配置已激活
 - [x] next.config.ts 包含 `reactCompiler: true`
 
@@ -64,6 +66,7 @@ pnpm list eslint-plugin-react-compiler
 ```
 
 **预期输出**:
+
 ```
 eslint-plugin-react-compiler@^1.0.0
 ```
@@ -75,7 +78,7 @@ eslint-plugin-react-compiler@^1.0.0
 **文件**: `eslint.config.mjs`
 
 ```javascript
-import reactCompiler from 'eslint-plugin-react-compiler';
+import reactCompiler from 'eslint-plugin-react-compiler'
 
 export default [
   {
@@ -88,14 +91,16 @@ export default [
       'react-compiler/react-compiler': 'warn',
     },
   },
-];
+]
 ```
 
 **配置说明**:
+
 - **warn 模式**: 仅警告，不中断构建
 - **error 模式**: 严格模式，违反规则时报错
 
 **验证检查**:
+
 - [x] eslint.config.mjs 已更新
 - [x] 规则配置正确
 
@@ -111,11 +116,13 @@ pnpm eslint src --ext .ts,.tsx 2>&1 | tee eslint-react-compiler-check.log
 ```
 
 **预期输出**:
+
 ```
 ✅ 无警告（或少数可修复警告）
 ```
 
 **处理警告**:
+
 ```bash
 # 查看警告详情
 cat eslint-react-compiler-check.log
@@ -129,6 +136,7 @@ cat eslint-react-compiler-check.log
 **常见修复示例**:
 
 #### 修复 1: 突变 props
+
 ```typescript
 // ❌ 错误：直接突变 props
 function MyComponent({ data }) {
@@ -144,6 +152,7 @@ function MyComponent({ data }) {
 ```
 
 #### 修复 2: 在渲染期间使用 ref
+
 ```typescript
 // ❌ 错误：渲染期间读取 ref
 function MyComponent({ ref }) {
@@ -162,6 +171,7 @@ function MyComponent({ ref }) {
 ```
 
 **验证检查**:
+
 - [x] ESLint 检查完成
 - [x] 所有关键警告已修复
 - [x] 记录修复日志
@@ -178,11 +188,13 @@ pnpm type-check 2>&1 | tee type-check.log
 ```
 
 **预期输出**:
+
 ```
 ✅ No TypeScript errors
 ```
 
 **验证检查**:
+
 - [x] 无 TypeScript 错误
 - [x] 类型检查通过
 
@@ -208,12 +220,14 @@ pnpm dev
 ```
 
 **浏览器控制台检查**:
+
 ```javascript
 // 在浏览器控制台运行
-__REACT_DEVTOOLS_GLOBAL_HOOK__; // 应该看到 React DevTools 已连接
+__REACT_DEVTOOLS_GLOBAL_HOOK__ // 应该看到 React DevTools 已连接
 ```
 
 **验证检查**:
+
 - [x] 开发服务器正常启动
 - [x] 页面加载正常
 - [x] 无控制台错误
@@ -234,10 +248,12 @@ pnpm test:e2e 2>&1 | tee e2e-results.log
 ```
 
 **预期结果**:
+
 - 单元测试: ~94.2% 通过率（当前基准）
 - E2E 测试: 全部通过
 
 **处理失败测试**:
+
 ```bash
 # 查看失败测试详情
 cat test-results.log
@@ -249,6 +265,7 @@ cat test-results.log
 ```
 
 **验证检查**:
+
 - [x] 单元测试通过
 - [x] E2E 测试通过
 - [x] 测试覆盖率无显著下降
@@ -271,12 +288,14 @@ cat build-results.log | grep -E "(Build error|Warning|Failed)"
 ```
 
 **预期输出**:
+
 ```
 ✅ Build successful
 ✅ No critical errors
 ```
 
 **构建时间基准**:
+
 ```
 # 基准构建时间（启用前）
 __分__秒
@@ -286,6 +305,7 @@ __分__秒
 ```
 
 **验证检查**:
+
 - [x] 构建成功
 - [x] 构建时间增加 <10%
 - [x] 无关键错误
@@ -311,13 +331,14 @@ __分__秒
 
 **指标对比**:
 
-| 指标 | 启用前 | 启用后 | 改进 |
-|------|--------|--------|------|
-| 总重渲染次数 | ~500 | ~300-400 | 20-40% ↓ |
-| 平均组件渲染时间 | 5ms | 4ms | 20% ↓ |
-| FPS (最低) | 45 FPS | 55 FPS | 22% ↑ |
+| 指标             | 启用前 | 启用后   | 改进     |
+| ---------------- | ------ | -------- | -------- |
+| 总重渲染次数     | ~500   | ~300-400 | 20-40% ↓ |
+| 平均组件渲染时间 | 5ms    | 4ms      | 20% ↓    |
+| FPS (最低)       | 45 FPS | 55 FPS   | 22% ↑    |
 
 **验证检查**:
+
 - [x] 重渲染次数减少 20-40%
 - [x] FPS 改善
 - [x] 组件渲染时间降低
@@ -338,13 +359,14 @@ npx lighthouse http://localhost:3000 --view
 
 **指标对比**:
 
-| 指标 | 启用前 | 启用后 | 改进 |
-|------|--------|--------|------|
-| LCP (Largest Contentful Paint) | 2.5s | 2.2s | 12% ↑ |
-| FID (First Input Delay) | 80ms | 60ms | 25% ↑ |
-| CLS (Cumulative Layout Shift) | 0.08 | 0.05 | 38% ↑ |
+| 指标                           | 启用前 | 启用后 | 改进  |
+| ------------------------------ | ------ | ------ | ----- |
+| LCP (Largest Contentful Paint) | 2.5s   | 2.2s   | 12% ↑ |
+| FID (First Input Delay)        | 80ms   | 60ms   | 25% ↑ |
+| CLS (Cumulative Layout Shift)  | 0.08   | 0.05   | 38% ↑ |
 
 **验证检查**:
+
 - [x] Web Vitals 改善
 - [x] LCP、FID、CLS 无退化
 
@@ -364,16 +386,17 @@ open .next/analyze/client.html
 
 **Bundle 对比**:
 
-| Bundle | 启用前 | 启用后 | 变化 |
-|--------|--------|--------|------|
-| main.js | 250KB | 255KB | +2% |
-| vendors.js | 400KB | 405KB | +1.25% |
-| framework.js | 300KB | 300KB | 0% |
-| **总计** | **950KB** | **960KB** | **+1.05%** |
+| Bundle       | 启用前    | 启用后    | 变化       |
+| ------------ | --------- | --------- | ---------- |
+| main.js      | 250KB     | 255KB     | +2%        |
+| vendors.js   | 400KB     | 405KB     | +1.25%     |
+| framework.js | 300KB     | 300KB     | 0%         |
+| **总计**     | **950KB** | **960KB** | **+1.05%** |
 
 **预期结果**: Bundle 大小变化 ±5%
 
 **验证检查**:
+
 - [x] Bundle 大小变化 <5%
 - [x] 无显著增大
 
@@ -397,15 +420,16 @@ done
 
 **构建时间对比**:
 
-| 构建 | 启用前 | 启用后 | 变化 |
-|------|--------|--------|------|
-| 冷启动 | 3:30 | 3:45 | +7% |
-| 增量 | 0:30 | 0:32 | +6.7% |
+| 构建     | 启用前   | 启用后   | 变化      |
+| -------- | -------- | -------- | --------- |
+| 冷启动   | 3:30     | 3:45     | +7%       |
+| 增量     | 0:30     | 0:32     | +6.7%     |
 | **平均** | **2:00** | **2:09** | **+7.5%** |
 
 **预期结果**: 构建时间增加 <10%
 
 **验证检查**:
+
 - [x] 构建时间增加 <10%
 - [x] 增量构建时间可接受
 
@@ -435,6 +459,7 @@ curl -I http://bot5.szspd.cn
 ```
 
 **验证检查**:
+
 - [x] Docker 镜像构建成功
 - [x] 测试环境部署成功
 - [x] 应用正常运行
@@ -444,24 +469,27 @@ curl -I http://bot5.szspd.cn
 **目标**: 监控 24 小时性能数据
 
 **监控指标**:
+
 ```typescript
 // 使用 Web Vitals API
-import { getCLS, getFID, getFCP, getLCP, getTTFB } from 'web-vitals';
+import { getCLS, getFID, getFCP, getLCP, getTTFB } from 'web-vitals'
 
 // 记录指标到 /api/performance/metrics
-getCLS(console.log);
-getFID(console.log);
-getFCP(console.log);
-getLCP(console.log);
-getTTFB(console.log);
+getCLS(console.log)
+getFID(console.log)
+getFCP(console.log)
+getLCP(console.log)
+getTTFB(console.log)
 ```
 
 **监控 Dashboard**:
+
 - 访问 `/dashboard/performance`
 - 查看重渲染趋势
 - 对比基准数据
 
 **验证检查**:
+
 - [x] 性能指标持续收集
 - [x] 无异常波动
 - [x] 重渲染次数符合预期
@@ -494,6 +522,7 @@ docker-compose logs -f --tail=100
 ```
 
 **验证检查**:
+
 - [x] 生产环境部署成功
 - [x] 应用健康检查通过
 - [x] 无错误日志
@@ -524,6 +553,7 @@ echo "Rollback complete!"
 ```
 
 **测试回滚**:
+
 ```bash
 # 在测试环境验证回滚
 cd /var/www/7zi
@@ -534,6 +564,7 @@ curl -I http://bot5.szspd.cn
 ```
 
 **验证检查**:
+
 - [x] 回滚脚本可用
 - [x] 测试环境回滚成功
 - [x] 回滚时间 <5 分钟
@@ -544,13 +575,13 @@ curl -I http://bot5.szspd.cn
 
 ### 4.1 技术指标
 
-| 指标 | 验收标准 | 测量方式 |
-|------|----------|----------|
-| **重渲染减少** | 20-40% | React Profiler |
-| **构建时间增加** | <10% | `time pnpm build` |
-| **Bundle 大小变化** | ±5% | Bundle Analyzer |
-| **测试通过率** | ≥94% | `pnpm test:run` |
-| **TypeScript 错误** | 0 | `pnpm type-check` |
+| 指标                | 验收标准 | 测量方式          |
+| ------------------- | -------- | ----------------- |
+| **重渲染减少**      | 20-40%   | React Profiler    |
+| **构建时间增加**    | <10%     | `time pnpm build` |
+| **Bundle 大小变化** | ±5%      | Bundle Analyzer   |
+| **测试通过率**      | ≥94%     | `pnpm test:run`   |
+| **TypeScript 错误** | 0        | `pnpm type-check` |
 
 ### 4.2 功能指标
 
@@ -574,6 +605,7 @@ curl -I http://bot5.szspd.cn
 **症状**: 构建失败，大量 TypeScript/ESLint 错误
 
 **应对**:
+
 1. 修复关键错误
 2. 对问题组件使用 `'use no memo'`
 3. 记录问题并提交 issue
@@ -583,6 +615,7 @@ curl -I http://bot5.szspd.cn
 **症状**: 页面崩溃，组件行为异常
 
 **应对**:
+
 1. 禁用 React Compiler (`reactCompiler: false`)
 2. 回滚到稳定版本
 3. 分析错误日志
@@ -592,6 +625,7 @@ curl -I http://bot5.szspd.cn
 **症状**: 重渲染增加，FPS 下降
 
 **应对**:
+
 1. 检查 React Profiler
 2. 定位问题组件
 3. 使用 `'use no memo'` 退出
@@ -624,6 +658,7 @@ curl -I http://bot5.szspd.cn
 ## ✅ 实施检查清单
 
 ### Phase 1 检查清单
+
 - [x] 激活 `reactCompiler: true` 配置
 - [x] 安装 `eslint-plugin-react-compiler`
 - [x] 更新 ESLint 配置
@@ -632,6 +667,7 @@ curl -I http://bot5.szspd.cn
 - [x] 通过类型检查
 
 ### Phase 2 检查清单
+
 - [x] 开发环境验证通过
 - [x] 单元测试通过
 - [x] E2E 测试通过
@@ -639,12 +675,14 @@ curl -I http://bot5.szspd.cn
 - [x] 构建时间增加 <10%
 
 ### Phase 3 检查清单
+
 - [x] 重渲染次数减少 20-40%
 - [x] Web Vitals 改善
 - [x] Bundle 大小变化 <5%
 - [x] 构建时间可接受
 
 ### Phase 4 检查清单
+
 - [x] 测试环境部署成功
 - [x] 生产环境部署成功
 - [x] 监控指标正常
@@ -654,11 +692,11 @@ curl -I http://bot5.szspd.cn
 
 ## 📞 联系人
 
-| 角色 | 负责人 | 联系方式 |
-|------|--------|----------|
-| 项目负责人 | 🤖 主管 | OpenClaw |
-| 技术负责人 | 🏗️ 架构师 | OpenClaw |
-| 测试负责人 | 🧪 测试员 | OpenClaw |
+| 角色       | 负责人        | 联系方式 |
+| ---------- | ------------- | -------- |
+| 项目负责人 | 🤖 主管       | OpenClaw |
+| 技术负责人 | 🏗️ 架构师     | OpenClaw |
+| 测试负责人 | 🧪 测试员     | OpenClaw |
 | 运维负责人 | 🛡️ 系统管理员 | OpenClaw |
 
 ---

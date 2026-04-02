@@ -13,6 +13,7 @@
 **修改位置**: `playwright.config.ts` - `projects` 配置
 
 **修改内容**:
+
 - **开发环境**: 仅运行 Chromium（移除 Firefox、WebKit、Mobile Chrome、Mobile Safari）
 - **CI 环境**: 保持所有浏览器配置不变（确保全面覆盖）
 
@@ -35,6 +36,7 @@ projects: process.env.CI ? [/* CI: 所有浏览器 */] : [
 **修改位置**: `playwright.config.ts` - `use.navigationTimeout`
 
 **修改内容**:
+
 - `navigationTimeout: 30000` → `20000` (30s → 20s)
 
 **性能提升**: 更快失败 = 更快反馈
@@ -52,6 +54,7 @@ use: {
 **修改位置**: `playwright.config.ts` - `workers`
 
 **修改内容**:
+
 - `workers: 1` → `workers: 2` (CI 环境)
 
 **性能提升**: CI 测试并行执行，速度提升约 50%
@@ -67,27 +70,33 @@ workers: process.env.CI ? 2 : undefined,
 **修改位置**: `e2e/core-features.spec.ts` - 搜索建议测试
 
 **修改内容**:
+
 - 移除硬编码 `await page.waitForTimeout(500)`
 - 改用智能等待 `waitFor({ state: 'visible', timeout: 2000 })`
 
 **性能提升**: 动态等待，不浪费时间
 
 **修改前**:
+
 ```typescript
-await page.waitForTimeout(500); // 固定等待 500ms
-const suggestions = page.getByRole('listbox').or(page.getByRole('list'));
-if (await suggestions.count() > 0) {
-  await expect(suggestions).toBeVisible();
+await page.waitForTimeout(500) // 固定等待 500ms
+const suggestions = page.getByRole('listbox').or(page.getByRole('list'))
+if ((await suggestions.count()) > 0) {
+  await expect(suggestions).toBeVisible()
 }
 ```
 
 **修改后**:
+
 ```typescript
-const suggestions = page.getByRole('listbox').or(page.getByRole('list'));
+const suggestions = page.getByRole('listbox').or(page.getByRole('list'))
 // 智能等待: 最多等待 2s，出现即继续
-await suggestions.first().waitFor({ state: 'visible', timeout: 2000 }).catch(() => {});
-if (await suggestions.count() > 0) {
-  await expect(suggestions).toBeVisible();
+await suggestions
+  .first()
+  .waitFor({ state: 'visible', timeout: 2000 })
+  .catch(() => {})
+if ((await suggestions.count()) > 0) {
+  await expect(suggestions).toBeVisible()
 }
 ```
 
@@ -95,11 +104,11 @@ if (await suggestions.count() > 0) {
 
 ## 📊 预计性能改善
 
-| 场景 | 优化前 | 优化后 | 提升 |
-|------|--------|--------|------|
-| 开发环境测试 (5 个浏览器) | ~10 分钟 | ~3 分钟 | **70%** ↓ |
-| CI 测试 (1 worker) | ~10 分钟 | ~5 分钟 | **50%** ↓ |
-| 搜索等待时间 (每次 500ms) | 固定 500ms | 0-2000ms | **灵活** |
+| 场景                      | 优化前     | 优化后   | 提升      |
+| ------------------------- | ---------- | -------- | --------- |
+| 开发环境测试 (5 个浏览器) | ~10 分钟   | ~3 分钟  | **70%** ↓ |
+| CI 测试 (1 worker)        | ~10 分钟   | ~5 分钟  | **50%** ↓ |
+| 搜索等待时间 (每次 500ms) | 固定 500ms | 0-2000ms | **灵活**  |
 
 ---
 
@@ -113,6 +122,7 @@ if (await suggestions.count() > 0) {
 - `e2e/websocket.spec.ts` (17 处，多为 WebSocket 连接等待)
 
 **建议优先级**:
+
 1. **高**: `core-features.spec.ts` ✅ (已完成)
 2. **中**: `login-flow.spec.ts`, `notifications.spec.ts`
 3. **低**: `websocket.spec.ts` (WebSocket 等待通常需要固定时间)
@@ -133,6 +143,7 @@ Config OK
 ## 📝 使用建议
 
 ### 开发环境
+
 ```bash
 # 仅运行 Chromium，快速反馈
 npx playwright test
@@ -142,12 +153,14 @@ npx playwright test e2e/core-features.spec.ts
 ```
 
 ### CI 环境
+
 ```bash
 # 运行所有浏览器，并行执行
 CI=true npx playwright test
 ```
 
 ### 调试模式
+
 ```bash
 # 单次运行，带 UI
 npx playwright test --ui

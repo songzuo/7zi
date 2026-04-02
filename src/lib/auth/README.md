@@ -56,108 +56,104 @@ The module creates the following SQLite tables:
 ### 1. User Registration
 
 ```typescript
-import { registerUser } from '@/lib/auth';
+import { registerUser } from '@/lib/auth'
 
 const result = await registerUser({
   email: 'user@example.com',
   password: 'SecurePass123!',
   name: 'John Doe',
   role: 'member', // optional, defaults to 'member'
-});
+})
 
 if (result.success) {
-  console.log('User registered:', result.user);
+  console.log('User registered:', result.user)
 } else {
-  console.error('Registration failed:', result.error);
+  console.error('Registration failed:', result.error)
 }
 ```
 
 ### 2. User Login
 
 ```typescript
-import { loginUser } from '@/lib/auth';
+import { loginUser } from '@/lib/auth'
 
 const result = await loginUser({
   email: 'user@example.com',
   password: 'SecurePass123!',
   rememberMe: true, // optional, extends token expiration
-});
+})
 
 if (result.success) {
-  const { token, refreshToken, user } = result;
+  const { token, refreshToken, user } = result
   // Store token in localStorage/cookie
-  localStorage.setItem('auth_token', token);
-  localStorage.setItem('refresh_token', refreshToken);
+  localStorage.setItem('auth_token', token)
+  localStorage.setItem('refresh_token', refreshToken)
 }
 ```
 
 ### 3. Protecting API Routes
 
 ```typescript
-import { withUserAuth, withPermissions } from '@/lib/auth/middleware';
-import { NextRequest, NextResponse } from 'next/server';
+import { withUserAuth, withPermissions } from '@/lib/auth/middleware'
+import { NextRequest, NextResponse } from 'next/server'
 
 // Require authentication
 export async function GET(request: NextRequest) {
   return withUserAuth(request, async (req, context) => {
     // context contains userId, email, role, permissions
-    return NextResponse.json({ message: 'Hello user!' });
-  });
+    return NextResponse.json({ message: 'Hello user!' })
+  })
 }
 
 // Require specific permissions
 export async function POST(request: NextRequest) {
   return withPermissions('write:tasks', 'delete:tasks')(request, async (req, context) => {
     // User has both write:tasks and delete:tasks permissions
-    return NextResponse.json({ message: 'Authorized!' });
-  });
+    return NextResponse.json({ message: 'Authorized!' })
+  })
 }
 ```
 
 ### 4. Token Refresh
 
 ```typescript
-import { refreshToken } from '@/lib/auth';
+import { refreshToken } from '@/lib/auth'
 
 const result = await refreshToken({
   refreshToken: localStorage.getItem('refresh_token'),
-});
+})
 
 if (result.success) {
-  localStorage.setItem('auth_token', result.token);
-  localStorage.setItem('refresh_token', result.refreshToken);
+  localStorage.setItem('auth_token', result.token)
+  localStorage.setItem('refresh_token', result.refreshToken)
 }
 ```
 
 ### 5. Password Change
 
 ```typescript
-import { changePassword } from '@/lib/auth';
+import { changePassword } from '@/lib/auth'
 
-const result = await changePassword(
-  userId,
-  'currentPassword',
-  'newPassword123!'
-);
+const result = await changePassword(userId, 'currentPassword', 'newPassword123!')
 
 if (result.success) {
-  console.log('Password changed successfully');
+  console.log('Password changed successfully')
 }
 ```
 
 ### 6. Password Reset
 
 ```typescript
-import { initiatePasswordReset, resetPassword } from '@/lib/auth';
+import { initiatePasswordReset, resetPassword } from '@/lib/auth'
 
 // Step 1: Send reset email
-const initResult = await initiatePasswordReset('user@example.com');
+const initResult = await initiatePasswordReset('user@example.com')
 if (initResult.success) {
   // Send initResult.token via email
 }
 
 // Step 2: Reset password with token
-const resetResult = await resetPassword(token, 'NewPassword123!');
+const resetResult = await resetPassword(token, 'NewPassword123!')
 ```
 
 ## User Roles and Permissions
@@ -171,23 +167,23 @@ const resetResult = await resetPassword(token, 'NewPassword123!');
 
 ### Default Permissions by Role
 
-| Permission | Admin | Manager | Member | Guest |
-|-------------|-------|---------|--------|-------|
-| read:profile | ✅ | ✅ | ✅ | ✅ |
-| read:tasks | ✅ | ✅ | ✅ | ❌ |
-| write:tasks | ✅ | ✅ | ✅ | ❌ |
-| delete:tasks | ✅ | ✅ | ❌ | ❌ |
-| write:users | ✅ | ❌ | ❌ | ❌ |
-| delete:users | ✅ | ❌ | ❌ | ❌ |
-| manage:system | ✅ | ❌ | ❌ | ❌ |
-| manage:team | ✅ | ✅ | ❌ | ❌ |
-| access:logs | ✅ | ❌ | ❌ | ❌ |
-| access:reports | ✅ | ✅ | ❌ | ❌ |
+| Permission     | Admin | Manager | Member | Guest |
+| -------------- | ----- | ------- | ------ | ----- |
+| read:profile   | ✅    | ✅      | ✅     | ✅    |
+| read:tasks     | ✅    | ✅      | ✅     | ❌    |
+| write:tasks    | ✅    | ✅      | ✅     | ❌    |
+| delete:tasks   | ✅    | ✅      | ❌     | ❌    |
+| write:users    | ✅    | ❌      | ❌     | ❌    |
+| delete:users   | ✅    | ❌      | ❌     | ❌    |
+| manage:system  | ✅    | ❌      | ❌     | ❌    |
+| manage:team    | ✅    | ✅      | ❌     | ❌    |
+| access:logs    | ✅    | ❌      | ❌     | ❌    |
+| access:reports | ✅    | ✅      | ❌     | ❌    |
 
 ### Permission Checking
 
 ```typescript
-import { hasPermission, hasAnyPermission, hasAllPermissions } from '@/lib/auth';
+import { hasPermission, hasAnyPermission, hasAllPermissions } from '@/lib/auth'
 
 // Single permission
 if (hasPermission(user.permissions, 'write:tasks')) {
@@ -208,9 +204,11 @@ if (hasAllPermissions(user.permissions, ['write:tasks', 'manage:team'])) {
 ## API Endpoints
 
 ### POST `/api/auth/register`
+
 Register a new user account.
 
 **Request:**
+
 ```json
 {
   "email": "user@example.com",
@@ -221,6 +219,7 @@ Register a new user account.
 ```
 
 **Response:**
+
 ```json
 {
   "success": true,
@@ -237,9 +236,11 @@ Register a new user account.
 ```
 
 ### POST `/api/auth/login`
+
 Login with email and password.
 
 **Request:**
+
 ```json
 {
   "email": "user@example.com",
@@ -249,10 +250,13 @@ Login with email and password.
 ```
 
 **Response:**
+
 ```json
 {
   "success": true,
-  "user": { /* user object */ },
+  "user": {
+    /* user object */
+  },
   "token": "jwt-access-token",
   "refreshToken": "jwt-refresh-token",
   "expiresAt": "2024-01-01T01:00:00Z"
@@ -260,14 +264,17 @@ Login with email and password.
 ```
 
 ### POST `/api/auth/logout`
+
 Logout and invalidate token.
 
 **Headers:**
+
 ```
 Authorization: Bearer <token>
 ```
 
 **Response:**
+
 ```json
 {
   "success": true,
@@ -276,9 +283,11 @@ Authorization: Bearer <token>
 ```
 
 ### POST `/api/auth/refresh`
+
 Refresh expired access token.
 
 **Request:**
+
 ```json
 {
   "refreshToken": "jwt-refresh-token"
@@ -286,6 +295,7 @@ Refresh expired access token.
 ```
 
 **Response:**
+
 ```json
 {
   "success": true,
@@ -296,42 +306,51 @@ Refresh expired access token.
 ```
 
 ### GET `/api/auth/me`
+
 Get current user information.
 
 **Headers:**
+
 ```
 Authorization: Bearer <token>
 ```
 
 **Response:**
+
 ```json
 {
   "success": true,
-  "user": { /* user object without password */ }
+  "user": {
+    /* user object without password */
+  }
 }
 ```
 
 ## Security Features
 
 ### Password Hashing
+
 - Uses PBKDF2 with SHA-512
 - 10,000 iterations
 - Random salt for each password
 - No plain text storage
 
 ### JWT Security
+
 - HS256 signing algorithm
 - Token expiration (1 hour default, 7 days with remember me)
 - Refresh token expiration (14 days)
 - Token revocation support
 
 ### Password Strength
+
 - Minimum 8 characters
 - Requires uppercase letter
 - Requires lowercase letter
 - Requires number
 
 ### Session Management
+
 - Token storage in database
 - Last used tracking
 - Bulk revocation support
@@ -411,14 +430,18 @@ The module provides several middleware helpers:
 All API responses follow a consistent format:
 
 **Success:**
+
 ```json
 {
   "success": true,
-  "data": { /* response data */ }
+  "data": {
+    /* response data */
+  }
 }
 ```
 
 **Error:**
+
 ```json
 {
   "success": false,

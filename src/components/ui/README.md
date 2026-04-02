@@ -13,7 +13,7 @@ A comprehensive collection of responsive, accessible UI components for the 7zi p
 ## 🚀 Quick Start
 
 ```tsx
-import { Button, Modal, Tabs } from '@/components/ui';
+import { Button, Modal, Tabs } from '@/components/ui'
 
 function App() {
   return (
@@ -23,7 +23,7 @@ function App() {
         Modal Content
       </Modal>
     </>
-  );
+  )
 }
 ```
 
@@ -57,18 +57,23 @@ npm test src/components/ui/__tests__/Button.test.tsx
 Each component supports multiple visual variants:
 
 ### Button
+
 - primary, secondary, outline, ghost, danger, link
 
 ### Modal
+
 - xs, sm, md, lg, xl, full
 
 ### Tabs
+
 - underline, enclosed, soft-rounded
 
 ### Toast
+
 - success, error, warning, info
 
 ### Tooltip
+
 - top, bottom, left, right
 
 ## 📱 Responsive Breakpoints
@@ -97,9 +102,8 @@ For usage examples, see [examples.tsx](./examples.tsx)
 
 ```tsx
 // View all examples
-import UIComponentExamples from '@/components/ui/examples';
-
-<UIComponentExamples />
+import UIComponentExamples from '@/components/ui/examples'
+;<UIComponentExamples />
 ```
 
 ## 🔧 Customization

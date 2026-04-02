@@ -4,10 +4,10 @@
  */
 
 // 类型定义
-export type * from './types';
+export type * from './types'
 
 // 验证规则
-export * from './validators';
+export * from './validators'
 
 // 表单验证 Hook
-export { useFormValidation } from './useFormValidation';
+export { useFormValidation } from './useFormValidation'

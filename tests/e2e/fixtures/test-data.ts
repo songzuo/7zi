@@ -4,19 +4,19 @@
  */
 
 export interface User {
-  name: string;
-  email: string;
-  password: string;
-  role?: 'admin' | 'user' | 'manager';
+  name: string
+  email: string
+  password: string
+  role?: 'admin' | 'user' | 'manager'
 }
 
 export interface Task {
-  title: string;
-  description: string;
-  priority: 'low' | 'medium' | 'high';
-  assignee?: string;
-  dueDate?: string;
-  tags?: string[];
+  title: string
+  description: string
+  priority: 'low' | 'medium' | 'high'
+  assignee?: string
+  dueDate?: string
+  tags?: string[]
 }
 
 /**
@@ -51,7 +51,7 @@ export const testUsers = {
     email: 'admin@7zi.com', // Same as admin
     password: 'duplicate123',
   },
-};
+}
 
 /**
  * Test tasks
@@ -104,7 +104,7 @@ export const testTasks = {
     description: '',
     priority: 'low' as const,
   },
-};
+}
 
 /**
  * Test page content
@@ -130,7 +130,7 @@ export const pageContent = {
     title: /分析|Analytics/i,
     charts: ['Task Distribution', 'Completion Rate', 'Team Performance'],
   },
-};
+}
 
 /**
  * Test URLs
@@ -145,7 +145,7 @@ export const testURLs = {
   analytics: '/analytics',
   settings: '/settings',
   profile: '/profile',
-};
+}
 
 /**
  * Error messages
@@ -159,7 +159,7 @@ export const errorMessages = {
   required: /必填|Required/i,
   networkError: /网络错误|Network error/i,
   unauthorized: /未授权|Unauthorized/i,
-};
+}
 
 /**
  * Success messages
@@ -172,7 +172,7 @@ export const successMessages = {
   taskDeleted: /任务删除成功|Task deleted successfully/i,
   taskCompleted: /任务已完成|Task completed/i,
   profileUpdated: /资料更新成功|Profile updated successfully/i,
-};
+}
 
 /**
  * Form validation rules
@@ -187,7 +187,7 @@ export const validationRules = {
   taskTitleMinLength: 1,
   taskTitleMaxLength: 200,
   taskDescriptionMaxLength: 2000,
-};
+}
 
 /**
  * API endpoints (for mocking)
@@ -204,7 +204,7 @@ export const apiEndpoints = {
   dashboard: '/api/dashboard/stats',
   team: '/api/team/members',
   analytics: '/api/analytics/data',
-};
+}
 
 /**
  * Mock API responses
@@ -262,23 +262,23 @@ export const mockResponses = {
       },
     ],
   },
-};
+}
 
 /**
  * Generate unique test data
  */
 export function generateUniqueUser(prefix: string = 'test'): User {
-  const timestamp = Date.now();
+  const timestamp = Date.now()
   return {
     name: `${prefix} User ${timestamp}`,
     email: `${prefix}-${timestamp}@example.com`,
     password: `test123456${timestamp}`,
     role: 'user',
-  };
+  }
 }
 
 export function generateUniqueTask(prefix: string = 'task'): Task {
-  const timestamp = Date.now();
+  const timestamp = Date.now()
   return {
     title: `${prefix} Title ${timestamp}`,
     description: `This is a test task created at ${timestamp}`,
@@ -286,7 +286,7 @@ export function generateUniqueTask(prefix: string = 'task'): Task {
     assignee: 'Test User',
     dueDate: new Date().toISOString().split('T')[0],
     tags: ['test'],
-  };
+  }
 }
 
 /**
@@ -298,4 +298,4 @@ export const testEnvironment = {
   testUserPassword: process.env.TEST_USER_PASSWORD || 'test123456',
   adminEmail: process.env.ADMIN_EMAIL || 'admin@7zi.com',
   adminPassword: process.env.ADMIN_PASSWORD || 'admin123456',
-};
+}

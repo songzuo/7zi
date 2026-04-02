@@ -28,26 +28,27 @@
 
 ### 已删除 (约 147MB)
 
-| 项目 | 大小 | 删除原因 |
-|------|------|----------|
-| `7zi-project-new-backup-2026-03-25/` | 146M | 完整备份，Git 有完整历史 |
-| `2026-03-25/` | 44K | 构建日志，无保留价值 |
-| `db-optimization-patches/` | 56K | 根目录有更完整版本 (含 APPLICATION_REPORT.md) |
+| 项目                                 | 大小 | 删除原因                                      |
+| ------------------------------------ | ---- | --------------------------------------------- |
+| `7zi-project-new-backup-2026-03-25/` | 146M | 完整备份，Git 有完整历史                      |
+| `2026-03-25/`                        | 44K  | 构建日志，无保留价值                          |
+| `db-optimization-patches/`           | 56K  | 根目录有更完整版本 (含 APPLICATION_REPORT.md) |
 
 ### 已迁移到 docs/archive/
 
-| 原位置 | 新位置 | 文件数 |
-|--------|--------|--------|
-| `archive/reports-v1.0.8/` | `docs/archive/reports/v1.0.8/` | 70+ |
-| `archive/reports-v1.0.9/` | `docs/archive/reports/v1.0.9/` | 20+ |
-| `archive/reports-v1.1.0-planning/` | `docs/archive/reports/v1.1.0-planning/` | 5 |
-| `archive/miscellaneous/` | `docs/archive/miscellaneous/` | 9 |
+| 原位置                             | 新位置                                  | 文件数 |
+| ---------------------------------- | --------------------------------------- | ------ |
+| `archive/reports-v1.0.8/`          | `docs/archive/reports/v1.0.8/`          | 70+    |
+| `archive/reports-v1.0.9/`          | `docs/archive/reports/v1.0.9/`          | 20+    |
+| `archive/reports-v1.1.0-planning/` | `docs/archive/reports/v1.1.0-planning/` | 5      |
+| `archive/miscellaneous/`           | `docs/archive/miscellaneous/`           | 9      |
 
 ---
 
 ## 📁 清理后状态
 
 ### docs/archive/ 结构
+
 ```
 docs/archive/
 ├── reports/

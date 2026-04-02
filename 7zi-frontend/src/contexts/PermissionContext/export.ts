@@ -49,11 +49,7 @@
  */
 
 // Context 和 Hook
-export {
-  PermissionProvider,
-  usePermission,
-  type PermissionContextType,
-} from './index';
+export { PermissionProvider, usePermission, type PermissionContextType } from './index'
 
 // 权限守卫组件
 export {
@@ -63,7 +59,7 @@ export {
   type PermissionGuardProps,
   type AdminGuardProps,
   type RoleGuardProps,
-} from './components';
+} from './components'
 
 // 类型和枚举
 export {
@@ -72,7 +68,7 @@ export {
   type User,
   type CheckPermissionOptions,
   type PermissionCheckResult,
-} from './types';
+} from './types'
 
 // 工具函数
 export {
@@ -86,4 +82,4 @@ export {
   checkPermissions,
   createUser,
   createUserFromPayload,
-} from './utils';
+} from './utils'

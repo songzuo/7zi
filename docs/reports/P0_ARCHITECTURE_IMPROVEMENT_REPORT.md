@@ -23,6 +23,7 @@
 **完成状态**: ✅ 100% 完成
 
 **发现**:
+
 - **目录总数**: 43 个顶级模块目录
 - **文件总数**: 443 个 TypeScript 文件
 - **结构评估**: 良好，功能划分清晰
@@ -32,39 +33,40 @@
 
 **lib/ 目录结构分类**:
 
-| 类别 | 模块数 | 模块列表 |
-|------|---------|----------|
-| **核心服务** | 3 | `db/`, `redis/`, `cache/` |
-| **认证授权** | 3 | `auth/`, `permissions/`, `approval/` |
-| **Agent 系统** | 4 | `agent/`, `agent-scheduler/`, `a2a/`, `mcp/` |
-| **通信** | 4 | `websocket/`, `realtime/`, `sse/`, `voice-meeting/` |
-| **API 工具** | 3 | `api/`, `services/`, `middleware/` |
-| **监控** | 4 | `monitoring/`, `performance/`, `performance-monitoring/`, `logger/` |
-| **功能模块** | 5 | `search/`, `export/`, `backup/`, `collaboration/`, `notifications/` |
-| **工具类** | 5 | `utils/`, `types/`, `errors/`, `validation/`, `crypto/` |
+| 类别           | 模块数 | 模块列表                                                            |
+| -------------- | ------ | ------------------------------------------------------------------- |
+| **核心服务**   | 3      | `db/`, `redis/`, `cache/`                                           |
+| **认证授权**   | 3      | `auth/`, `permissions/`, `approval/`                                |
+| **Agent 系统** | 4      | `agent/`, `agent-scheduler/`, `a2a/`, `mcp/`                        |
+| **通信**       | 4      | `websocket/`, `realtime/`, `sse/`, `voice-meeting/`                 |
+| **API 工具**   | 3      | `api/`, `services/`, `middleware/`                                  |
+| **监控**       | 4      | `monitoring/`, `performance/`, `performance-monitoring/`, `logger/` |
+| **功能模块**   | 5      | `search/`, `export/`, `backup/`, `collaboration/`, `notifications/` |
+| **工具类**     | 5      | `utils/`, `types/`, `errors/`, `validation/`, `crypto/`             |
 
 ### 2. 循环依赖检测
 
 **完成状态**: ✅ 100% 完成
 
 **工具**: madge v8.0.0
-**扫描范围**: src/lib/**/*.ts, src/lib/**/*.tsx
+**扫描范围**: src/lib/**/\*.ts, src/lib/**/\*.tsx
 **处理文件**: 481 个文件
 
 **初始发现**: 6 个循环依赖
 
 **修复详情**:
 
-| # | 循环依赖路径 | 严重程度 | 修复方案 | 状态 |
-|---|-------------|----------|----------|------|
-| 1 | `db/index.ts` → `db/batch-operations.ts` | 🔴 高 | 移除 barrel export | ✅ 已修复 |
-| 2 | `db/index.ts` → `db/migrations.ts` → `db/audit-log.ts` | 🔴 高 | 创建 `db/connection.ts` | ✅ 已修复 |
-| 3 | `db/index.ts` → `db/migrations.ts` | 🔴 高 | 创建 `db/connection.ts` | ✅ 已修复 |
-| 4 | `db/index.ts` → `db/migrations.ts` → `db/user-preferences.ts` | 🔴 高 | 创建 `db/connection.ts` | ✅ 已修复 |
-| 5 | `db/index.ts` → `db/query-optimizations.ts` | 🔴 高 | 移除 barrel export | ✅ 已修复 |
-| 6 | `monitoring/index.ts` → `monitoring/use-performance.tsx` | 🟡 中 | 创建 `monitoring/hooks/` | ✅ 已修复 |
+| #   | 循环依赖路径                                                  | 严重程度 | 修复方案                 | 状态      |
+| --- | ------------------------------------------------------------- | -------- | ------------------------ | --------- |
+| 1   | `db/index.ts` → `db/batch-operations.ts`                      | 🔴 高    | 移除 barrel export       | ✅ 已修复 |
+| 2   | `db/index.ts` → `db/migrations.ts` → `db/audit-log.ts`        | 🔴 高    | 创建 `db/connection.ts`  | ✅ 已修复 |
+| 3   | `db/index.ts` → `db/migrations.ts`                            | 🔴 高    | 创建 `db/connection.ts`  | ✅ 已修复 |
+| 4   | `db/index.ts` → `db/migrations.ts` → `db/user-preferences.ts` | 🔴 高    | 创建 `db/connection.ts`  | ✅ 已修复 |
+| 5   | `db/index.ts` → `db/query-optimizations.ts`                   | 🔴 高    | 移除 barrel export       | ✅ 已修复 |
+| 6   | `monitoring/index.ts` → `monitoring/use-performance.tsx`      | 🟡 中    | 创建 `monitoring/hooks/` | ✅ 已修复 |
 
 **最终验证结果**:
+
 ```
 npx madge --circular --extensions ts,tsx src/lib
 ✔ No circular dependency found!
@@ -79,6 +81,7 @@ npx madge --circular --extensions ts,tsx src/lib
 **文档路径**: `/root/.openclaw/workspace/ARCHITECTURE_IMPROVEMENT_PLAN_P0.md`
 
 **文档内容**:
+
 1. 当前架构分析（目录结构、边界问题）
 2. 循环依赖检测报告
 3. 重构方案设计（3 个方案）
@@ -101,11 +104,13 @@ npx madge --circular --extensions ts,tsx src/lib
 **问题**: `db/index.ts` 作为 barrel export 导致循环依赖
 
 **解决方案**:
+
 1. 创建 `db/connection.ts` - 独立的数据库连接模块
 2. 重构 `db/index.ts` - 改为 re-export 模式
 3. 更新所有子模块导入路径
 
 **修改文件**:
+
 - `src/lib/db/connection.ts` (新建, 10,429 字节)
 - `src/lib/db/index.ts` (重构, 1,552 字节)
 - `src/lib/db/migrations.ts` (更新导入)
@@ -119,11 +124,13 @@ npx madge --circular --extensions ts,tsx src/lib
 **问题**: React hooks 在 index 中导出导致循环
 
 **解决方案**:
+
 1. 创建 `monitoring/hooks/` 子目录
 2. 移动 React hooks 到独立目录
 3. 修复导入路径
 
 **修改文件**:
+
 - `src/lib/monitoring/hooks/index.ts` (新建, 422 字节)
 - `src/lib/monitoring/index.ts` (移除 React hooks 导出)
 - `src/lib/monitoring/use-performance.tsx` (修复导入路径)
@@ -133,6 +140,7 @@ npx madge --circular --extensions ts,tsx src/lib
 **完成状态**: ✅ 100% 完成
 
 **构建结果**:
+
 ```
 ✓ Compiled successfully in 30.5s
 ✓ Running TypeScript ...
@@ -140,6 +148,7 @@ npx madge --circular --extensions ts,tsx src/lib
 ```
 
 **修复的编译错误**:
+
 1. ✅ `api-tracker.ts` - `avgPayloadSize` → `averagePayloadSize`
 2. ✅ `prefetch-provider.tsx` - `PrefetchContext` 导出方式
 3. ✅ `use-prefetch.ts` - 空值检查
@@ -153,12 +162,12 @@ npx madge --circular --extensions ts,tsx src/lib
 
 ## 📊 验收标准
 
-| 验收项 | 状态 | 详情 |
-|---------|------|------|
-| 1. ✅ 完成 lib/ 层结构分析报告 | ✅ 完成 | 分析报告已包含在 ARCHITECTURE_IMPROVEMENT_PLAN_P0.md |
-| 2. ✅ 创建 ARCHITECTURE_IMPROVEMENT_PLAN_P0.md | ✅ 完成 | 文档已创建，9,313 字节 |
-| 3. ✅ 循环依赖检测报告 | ✅ 完成 | 6 个循环依赖全部修复，最终验证通过 |
-| 4. ✅ 构建通过 | ✅ 完成 | TypeScript 编译和构建全部通过 |
+| 验收项                                         | 状态    | 详情                                                 |
+| ---------------------------------------------- | ------- | ---------------------------------------------------- |
+| 1. ✅ 完成 lib/ 层结构分析报告                 | ✅ 完成 | 分析报告已包含在 ARCHITECTURE_IMPROVEMENT_PLAN_P0.md |
+| 2. ✅ 创建 ARCHITECTURE_IMPROVEMENT_PLAN_P0.md | ✅ 完成 | 文档已创建，9,313 字节                               |
+| 3. ✅ 循环依赖检测报告                         | ✅ 完成 | 6 个循环依赖全部修复，最终验证通过                   |
+| 4. ✅ 构建通过                                 | ✅ 完成 | TypeScript 编译和构建全部通过                        |
 
 ---
 
@@ -216,12 +225,12 @@ npx madge --circular --extensions ts,tsx src/lib
 
 ### 架构质量提升
 
-| 指标 | 优化前 | 优化后 | 提升 |
-|------|--------|--------|------|
-| **循环依赖数** | 6 | 0 | 100% ↓ |
-| **构建错误数** | 8 | 0 | 100% ↓ |
-| **代码可维护性** | 中 | 高 | 显著 ↑ |
-| **架构健康度** | 75% | 95% | +20% |
+| 指标             | 优化前 | 优化后 | 提升   |
+| ---------------- | ------ | ------ | ------ |
+| **循环依赖数**   | 6      | 0      | 100% ↓ |
+| **构建错误数**   | 8      | 0      | 100% ↓ |
+| **代码可维护性** | 中     | 高     | 显著 ↑ |
+| **架构健康度**   | 75%    | 95%    | +20%   |
 
 ### 开发效率提升
 
@@ -248,6 +257,7 @@ npx madge --circular --extensions ts,tsx src/lib
 ### 下一步
 
 v1.4.0 Sprint 3 可以立即开始，主要任务包括：
+
 - React Compiler 可选功能
 - Dashboard 开发完成
 - 性能监控剩余功能

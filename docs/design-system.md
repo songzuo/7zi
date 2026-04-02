@@ -83,6 +83,7 @@
 ```
 
 **行动项**:
+
 - [ ] 为所有 Button 组件添加 `focus:ring-2 focus:ring-offset-2`
 - [ ] 为所有 Input 组件确保焦点状态清晰可见
 - [ ] 为 Modal 添加焦点陷阱（focus trap）
@@ -127,6 +128,7 @@
 ```
 
 **行动项**:
+
 - [ ] 为所有图标按钮添加 `aria-label`
 - [ ] 为表单元素添加 `aria-required` 和 `aria-invalid`
 - [ ] 为 Modal 添加 `role="dialog"` 和 `aria-modal="true"`
@@ -166,6 +168,7 @@
 ```
 
 **行动项**:
+
 - [ ] 使用对比度检查工具验证所有文本颜色
 - [ ] 调整不符合 WCAG AA 的颜色
 - [ ] 在设计系统文档中添加对比度标准
@@ -179,12 +182,14 @@
 **问题**: 使用 Tailwind 硬编码颜色，未使用 CSS 变量。
 
 **当前代码**:
+
 ```tsx
 // ❌ 问题：硬编码颜色
 primary: 'bg-blue-600 text-white hover:bg-blue-700 focus:ring-blue-500',
 ```
 
 **改进方案**:
+
 ```tsx
 // ✅ 使用 CSS 变量
 primary: 'bg-[var(--color-primary-600)] text-white hover:bg-[var(--color-primary-700)] focus:ring-[var(--color-primary-500)]',
@@ -212,6 +217,7 @@ primary: 'bg-primary-600 text-white hover:bg-primary-700 focus:ring-primary-500'
 ```
 
 **行动项**:
+
 - [ ] 将 Tailwind 配置映射到 CSS 变量
 - [ ] 更新 Button 组件使用语义化颜色类
 - [ ] 确保暗色模式下颜色正确
@@ -221,11 +227,12 @@ primary: 'bg-primary-600 text-white hover:bg-primary-700 focus:ring-primary-500'
 **问题**: 缺少暗色模式适配。
 
 **改进方案**:
+
 ```tsx
 // ✅ 添加暗色模式支持
 <div
   className={clsx(
-    'relative w-full bg-white dark:bg-gray-800 rounded-lg shadow-2xl',
+    'relative w-full rounded-lg bg-white shadow-2xl dark:bg-gray-800',
     'border border-gray-200 dark:border-gray-700',
     'transform transition-all duration-300',
     isOpen ? 'scale-100 opacity-100' : 'scale-95 opacity-0',
@@ -234,18 +241,16 @@ primary: 'bg-primary-600 text-white hover:bg-primary-700 focus:ring-primary-500'
   )}
 >
   {/* 头部 */}
-  <div className="flex items-center justify-between px-6 py-4 border-b border-gray-200 dark:border-gray-700">
-    {title && (
-      <h2 className="text-xl font-semibold text-gray-900 dark:text-white">{title}</h2>
-    )}
+  <div className="flex items-center justify-between border-b border-gray-200 px-6 py-4 dark:border-gray-700">
+    {title && <h2 className="text-xl font-semibold text-gray-900 dark:text-white">{title}</h2>}
   </div>
-  
+
   {/* 内容 */}
   <div className="px-6 py-4 text-gray-700 dark:text-gray-300">{children}</div>
-  
+
   {/* 页脚 */}
   {footer && (
-    <div className="flex items-center justify-end gap-3 px-6 py-4 border-t border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-900 rounded-b-lg">
+    <div className="flex items-center justify-end gap-3 rounded-b-lg border-t border-gray-200 bg-gray-50 px-6 py-4 dark:border-gray-700 dark:bg-gray-900">
       {footer}
     </div>
   )}
@@ -253,6 +258,7 @@ primary: 'bg-primary-600 text-white hover:bg-primary-700 focus:ring-primary-500'
 ```
 
 **行动项**:
+
 - [ ] 为 Modal 添加暗色模式样式
 - [ ] 添加滚动锁定管理
 - [ ] 添加焦点陷阱功能
@@ -262,18 +268,21 @@ primary: 'bg-primary-600 text-white hover:bg-primary-700 focus:ring-primary-500'
 **问题**: 暗色模式支持不完整。
 
 **改进方案**:
+
 ```tsx
 // ✅ 完整的暗色模式支持
 const classes = clsx(
   'bg-white dark:bg-gray-800 rounded-lg',
   'border border-gray-200 dark:border-gray-700',
   shadowStyles[shadow],
-  clickable && 'cursor-pointer hover:shadow-lg dark:hover:shadow-gray-900/50 transition-shadow duration-200',
+  clickable &&
+    'cursor-pointer hover:shadow-lg dark:hover:shadow-gray-900/50 transition-shadow duration-200',
   className
-);
+)
 ```
 
 **行动项**:
+
 - [ ] 更新 Card 组件添加完整暗色模式支持
 - [ ] 更新 CardHeader, CardBody, CardFooter 子组件
 
@@ -295,20 +304,20 @@ const classes = clsx(
  * 支持多种尺寸、类型
  */
 
-import React from 'react';
-import clsx from 'clsx';
+import React from 'react'
+import clsx from 'clsx'
 
 export interface LoadingProps {
   /** 加载类型 */
-  type?: 'spinner' | 'dots' | 'skeleton' | 'pulse';
+  type?: 'spinner' | 'dots' | 'skeleton' | 'pulse'
   /** 尺寸 */
-  size?: 'sm' | 'md' | 'lg';
+  size?: 'sm' | 'md' | 'lg'
   /** 加载文本 */
-  text?: string;
+  text?: string
   /** 是否全屏 */
-  fullscreen?: boolean;
+  fullscreen?: boolean
   /** 自定义类名 */
-  className?: string;
+  className?: string
 }
 
 export const Loading: React.FC<LoadingProps> = ({
@@ -322,12 +331,18 @@ export const Loading: React.FC<LoadingProps> = ({
     sm: 'w-4 h-4',
     md: 'w-8 h-8',
     lg: 'w-12 h-12',
-  };
+  }
 
   // Spinner 类型
   if (type === 'spinner') {
     return (
-      <div className={clsx('flex flex-col items-center justify-center gap-2', fullscreen && 'fixed inset-0 bg-white/80 dark:bg-gray-900/80 z-50', className)}>
+      <div
+        className={clsx(
+          'flex flex-col items-center justify-center gap-2',
+          fullscreen && 'fixed inset-0 z-50 bg-white/80 dark:bg-gray-900/80',
+          className
+        )}
+      >
         <svg
           className={clsx('animate-spin text-blue-600', sizeStyles[size])}
           xmlns="http://www.w3.org/2000/svg"
@@ -350,84 +365,112 @@ export const Loading: React.FC<LoadingProps> = ({
         </svg>
         {text && <p className="text-sm text-gray-600 dark:text-gray-400">{text}</p>}
       </div>
-    );
+    )
   }
 
   // Dots 类型
   if (type === 'dots') {
     return (
-      <div className={clsx('flex flex-col items-center justify-center gap-2', fullscreen && 'fixed inset-0 bg-white/80 dark:bg-gray-900/80 z-50', className)}>
+      <div
+        className={clsx(
+          'flex flex-col items-center justify-center gap-2',
+          fullscreen && 'fixed inset-0 z-50 bg-white/80 dark:bg-gray-900/80',
+          className
+        )}
+      >
         <div className="flex gap-1">
-          <div className={clsx('bg-blue-600 rounded-full animate-bounce', size === 'sm' && 'w-2 h-2', size === 'md' && 'w-3 h-3', size === 'lg' && 'w-4 h-4')} style={{ animationDelay: '0ms' }} />
-          <div className={clsx('bg-blue-600 rounded-full animate-bounce', size === 'sm' && 'w-2 h-2', size === 'md' && 'w-3 h-3', size === 'lg' && 'w-4 h-4')} style={{ animationDelay: '150ms' }} />
-          <div className={clsx('bg-blue-600 rounded-full animate-bounce', size === 'sm' && 'w-2 h-2', size === 'md' && 'w-3 h-3', size === 'lg' && 'w-4 h-4')} style={{ animationDelay: '300ms' }} />
+          <div
+            className={clsx(
+              'animate-bounce rounded-full bg-blue-600',
+              size === 'sm' && 'h-2 w-2',
+              size === 'md' && 'h-3 w-3',
+              size === 'lg' && 'h-4 w-4'
+            )}
+            style={{ animationDelay: '0ms' }}
+          />
+          <div
+            className={clsx(
+              'animate-bounce rounded-full bg-blue-600',
+              size === 'sm' && 'h-2 w-2',
+              size === 'md' && 'h-3 w-3',
+              size === 'lg' && 'h-4 w-4'
+            )}
+            style={{ animationDelay: '150ms' }}
+          />
+          <div
+            className={clsx(
+              'animate-bounce rounded-full bg-blue-600',
+              size === 'sm' && 'h-2 w-2',
+              size === 'md' && 'h-3 w-3',
+              size === 'lg' && 'h-4 w-4'
+            )}
+            style={{ animationDelay: '300ms' }}
+          />
         </div>
         {text && <p className="text-sm text-gray-600 dark:text-gray-400">{text}</p>}
       </div>
-    );
+    )
   }
 
   // Skeleton 类型
   if (type === 'skeleton') {
     return (
       <div className={clsx('animate-pulse space-y-4', className)}>
-        <div className="h-4 bg-gray-200 dark:bg-gray-700 rounded w-3/4" />
-        <div className="h-4 bg-gray-200 dark:bg-gray-700 rounded w-1/2" />
-        <div className="h-4 bg-gray-200 dark:bg-gray-700 rounded w-5/6" />
+        <div className="h-4 w-3/4 rounded bg-gray-200 dark:bg-gray-700" />
+        <div className="h-4 w-1/2 rounded bg-gray-200 dark:bg-gray-700" />
+        <div className="h-4 w-5/6 rounded bg-gray-200 dark:bg-gray-700" />
       </div>
-    );
+    )
   }
 
   // Pulse 类型
   return (
-    <div className={clsx('flex flex-col items-center justify-center gap-2', fullscreen && 'fixed inset-0 bg-white/80 dark:bg-gray-900/80 z-50', className)}>
-      <div className={clsx('bg-blue-600 rounded-full animate-pulse', sizeStyles[size])} />
+    <div
+      className={clsx(
+        'flex flex-col items-center justify-center gap-2',
+        fullscreen && 'fixed inset-0 z-50 bg-white/80 dark:bg-gray-900/80',
+        className
+      )}
+    >
+      <div className={clsx('animate-pulse rounded-full bg-blue-600', sizeStyles[size])} />
       {text && <p className="text-sm text-gray-600 dark:text-gray-400">{text}</p>}
     </div>
-  );
-};
+  )
+}
 
 // Skeleton 变体
 export interface SkeletonProps {
   /** 形状 */
-  shape?: 'text' | 'circle' | 'rect';
+  shape?: 'text' | 'circle' | 'rect'
   /** 宽度 */
-  width?: string | number;
+  width?: string | number
   /** 高度 */
-  height?: string | number;
+  height?: string | number
   /** 自定义类名 */
-  className?: string;
+  className?: string
 }
 
-export const Skeleton: React.FC<SkeletonProps> = ({
-  shape = 'text',
-  width,
-  height,
-  className,
-}) => {
+export const Skeleton: React.FC<SkeletonProps> = ({ shape = 'text', width, height, className }) => {
   const shapeStyles = {
     text: 'h-4 rounded',
     circle: 'rounded-full',
     rect: 'rounded-lg',
-  };
+  }
 
   return (
     <div
-      className={clsx(
-        'bg-gray-200 dark:bg-gray-700 animate-pulse',
-        shapeStyles[shape],
-        className
-      )}
+      className={clsx('animate-pulse bg-gray-200 dark:bg-gray-700', shapeStyles[shape], className)}
       style={{
         width: width,
         height: height || (shape === 'circle' ? width : undefined),
       }}
     />
-  );
-};
+  )
+}
 ```
 
 **行动项**:
+
 - [ ] 创建 Loading 组件
 - [ ] 创建 Skeleton 组件
 - [ ] 在页面中使用统一的加载状态
@@ -446,23 +489,23 @@ export const Skeleton: React.FC<SkeletonProps> = ({
  * 用于列表、表格、搜索等空状态
  */
 
-import React from 'react';
-import { Button } from './Button';
+import React from 'react'
+import { Button } from './Button'
 
 export interface EmptyStateProps {
   /** 图标 */
-  icon?: React.ReactNode;
+  icon?: React.ReactNode
   /** 标题 */
-  title: string;
+  title: string
   /** 描述 */
-  description?: string;
+  description?: string
   /** 操作按钮 */
   action?: {
-    label: string;
-    onClick: () => void;
-  };
+    label: string
+    onClick: () => void
+  }
   /** 自定义类名 */
-  className?: string;
+  className?: string
 }
 
 export const EmptyState: React.FC<EmptyStateProps> = ({
@@ -473,19 +516,16 @@ export const EmptyState: React.FC<EmptyStateProps> = ({
   className,
 }) => {
   return (
-    <div className={clsx('flex flex-col items-center justify-center py-12 px-4 text-center', className)}>
-      {icon && (
-        <div className="mb-4 text-gray-400 dark:text-gray-500">
-          {icon}
-        </div>
+    <div
+      className={clsx(
+        'flex flex-col items-center justify-center px-4 py-12 text-center',
+        className
       )}
-      <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-2">
-        {title}
-      </h3>
+    >
+      {icon && <div className="mb-4 text-gray-400 dark:text-gray-500">{icon}</div>}
+      <h3 className="mb-2 text-lg font-semibold text-gray-900 dark:text-white">{title}</h3>
       {description && (
-        <p className="text-sm text-gray-500 dark:text-gray-400 mb-6 max-w-sm">
-          {description}
-        </p>
+        <p className="mb-6 max-w-sm text-sm text-gray-500 dark:text-gray-400">{description}</p>
       )}
       {action && (
         <Button variant="primary" onClick={action.onClick}>
@@ -493,50 +533,68 @@ export const EmptyState: React.FC<EmptyStateProps> = ({
         </Button>
       )}
     </div>
-  );
-};
+  )
+}
 
 // 预设变体
 export const EmptyList: React.FC<{ onAdd?: () => void }> = ({ onAdd }) => (
   <EmptyState
     icon={
-      <svg className="w-16 h-16" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
+      <svg className="h-16 w-16" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+        <path
+          strokeLinecap="round"
+          strokeLinejoin="round"
+          strokeWidth={1.5}
+          d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"
+        />
       </svg>
     }
     title="暂无数据"
     description="还没有任何内容，点击下方按钮添加"
     action={onAdd ? { label: '添加', onClick: onAdd } : undefined}
   />
-);
+)
 
 export const EmptySearch: React.FC<{ keyword?: string }> = ({ keyword }) => (
   <EmptyState
     icon={
-      <svg className="w-16 h-16" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+      <svg className="h-16 w-16" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+        <path
+          strokeLinecap="round"
+          strokeLinejoin="round"
+          strokeWidth={1.5}
+          d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"
+        />
       </svg>
     }
     title="未找到结果"
-    description={keyword ? `没有找到 "${keyword}" 相关的内容` : '没有找到相关内容，请尝试其他关键词'}
+    description={
+      keyword ? `没有找到 "${keyword}" 相关的内容` : '没有找到相关内容，请尝试其他关键词'
+    }
   />
-);
+)
 
 export const EmptyError: React.FC<{ onRetry?: () => void }> = ({ onRetry }) => (
   <EmptyState
     icon={
-      <svg className="w-16 h-16" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+      <svg className="h-16 w-16" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+        <path
+          strokeLinecap="round"
+          strokeLinejoin="round"
+          strokeWidth={1.5}
+          d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"
+        />
       </svg>
     }
     title="加载失败"
     description="数据加载失败，请重试"
     action={onRetry ? { label: '重试', onClick: onRetry } : undefined}
   />
-);
+)
 ```
 
 **行动项**:
+
 - [ ] 创建 EmptyState 组件
 - [ ] 创建预设变体（EmptyList, EmptySearch, EmptyError）
 - [ ] 在列表页面中使用
@@ -555,34 +613,35 @@ export const EmptyError: React.FC<{ onRetry?: () => void }> = ({ onRetry }) => (
 /* ✅ 推荐的命名规范 */
 :root {
   /* 亮色模式 */
-  --color-bg-primary: #ffffff;      /* 主要背景 */
-  --color-bg-secondary: #f9fafb;    /* 次要背景 */
-  --color-bg-tertiary: #f3f4f6;     /* 第三级背景 */
-  
-  --color-text-primary: #111827;    /* 主要文本 */
-  --color-text-secondary: #4b5563;  /* 次要文本 */
-  --color-text-tertiary: #9ca3af;   /* 第三级文本 */
-  
-  --color-border-primary: #e5e7eb;  /* 主要边框 */
-  --color-border-secondary: #d1d5db;/* 次要边框 */
+  --color-bg-primary: #ffffff; /* 主要背景 */
+  --color-bg-secondary: #f9fafb; /* 次要背景 */
+  --color-bg-tertiary: #f3f4f6; /* 第三级背景 */
+
+  --color-text-primary: #111827; /* 主要文本 */
+  --color-text-secondary: #4b5563; /* 次要文本 */
+  --color-text-tertiary: #9ca3af; /* 第三级文本 */
+
+  --color-border-primary: #e5e7eb; /* 主要边框 */
+  --color-border-secondary: #d1d5db; /* 次要边框 */
 }
 
 .dark {
   /* 暗色模式 */
-  --color-bg-primary: #0f172a;      /* 主要背景 */
-  --color-bg-secondary: #1e293b;    /* 次要背景 */
-  --color-bg-tertiary: #334155;     /* 第三级背景 */
-  
-  --color-text-primary: #f8fafc;    /* 主要文本 */
-  --color-text-secondary: #cbd5e1;  /* 次要文本 */
-  --color-text-tertiary: #64748b;   /* 第三级文本 */
-  
-  --color-border-primary: #334155;  /* 主要边框 */
-  --color-border-secondary: #475569;/* 次要边框 */
+  --color-bg-primary: #0f172a; /* 主要背景 */
+  --color-bg-secondary: #1e293b; /* 次要背景 */
+  --color-bg-tertiary: #334155; /* 第三级背景 */
+
+  --color-text-primary: #f8fafc; /* 主要文本 */
+  --color-text-secondary: #cbd5e1; /* 次要文本 */
+  --color-text-tertiary: #64748b; /* 第三级文本 */
+
+  --color-border-primary: #334155; /* 主要边框 */
+  --color-border-secondary: #475569; /* 次要边框 */
 }
 ```
 
 **行动项**:
+
 - [ ] 重构颜色命名系统
 - [ ] 更新所有组件使用新的语义化颜色
 - [ ] 更新设计系统文档
@@ -595,45 +654,45 @@ export const EmptyError: React.FC<{ onRetry?: () => void }> = ({ onRetry }) => (
 // ✅ 改进 ThemeSwitcher 组件
 // 添加过渡动画、图标动画
 
-export const ThemeSwitcher: React.FC<ThemeSwitcherProps> = ({
-  size = 'md',
-  showLabel = false,
-}) => {
-  const { theme, setTheme } = useTheme();
-  
+export const ThemeSwitcher: React.FC<ThemeSwitcherProps> = ({ size = 'md', showLabel = false }) => {
+  const { theme, setTheme } = useTheme()
+
   return (
     <button
       onClick={() => setTheme(theme === 'light' ? 'dark' : theme === 'dark' ? 'system' : 'light')}
       className={clsx(
         'inline-flex items-center gap-2 rounded-lg transition-all duration-200',
         'hover:bg-gray-100 dark:hover:bg-gray-800',
-        'focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2',
+        'focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 focus:outline-none',
         sizeStyles[size]
       )}
       aria-label={`当前主题: ${theme}，点击切换`}
     >
       {/* 添加图标旋转动画 */}
-      <div className="relative w-5 h-5">
-        <SunIcon className={clsx(
-          'absolute inset-0 transition-all duration-300',
-          theme === 'dark' ? 'rotate-90 scale-0 opacity-0' : 'rotate-0 scale-100 opacity-100'
-        )} />
-        <MoonIcon className={clsx(
-          'absolute inset-0 transition-all duration-300',
-          theme === 'light' ? '-rotate-90 scale-0 opacity-0' : 'rotate-0 scale-100 opacity-100'
-        )} />
+      <div className="relative h-5 w-5">
+        <SunIcon
+          className={clsx(
+            'absolute inset-0 transition-all duration-300',
+            theme === 'dark' ? 'scale-0 rotate-90 opacity-0' : 'scale-100 rotate-0 opacity-100'
+          )}
+        />
+        <MoonIcon
+          className={clsx(
+            'absolute inset-0 transition-all duration-300',
+            theme === 'light' ? 'scale-0 -rotate-90 opacity-0' : 'scale-100 rotate-0 opacity-100'
+          )}
+        />
       </div>
       {showLabel && (
-        <span className="text-sm font-medium text-gray-700 dark:text-gray-300">
-          {getLabel()}
-        </span>
+        <span className="text-sm font-medium text-gray-700 dark:text-gray-300">{getLabel()}</span>
       )}
     </button>
-  );
-};
+  )
+}
 ```
 
 **行动项**:
+
 - [ ] 优化主题切换动画
 - [ ] 添加系统主题跟随指示
 - [ ] 改进移动端体验
@@ -660,7 +719,8 @@ export const ThemeSwitcher: React.FC<ThemeSwitcherProps> = ({
 
 /* 移动端按钮 */
 @media (max-width: 768px) {
-  button, a {
+  button,
+  a {
     min-height: 44px;
     min-width: 44px;
   }
@@ -668,6 +728,7 @@ export const ThemeSwitcher: React.FC<ThemeSwitcherProps> = ({
 ```
 
 **行动项**:
+
 - [ ] 检查所有按钮和链接的触摸目标
 - [ ] 添加全局触摸目标最小尺寸
 
@@ -681,19 +742,20 @@ export const ThemeSwitcher: React.FC<ThemeSwitcherProps> = ({
 
 export const MobileBottomNav: React.FC = () => {
   return (
-    <nav className="fixed bottom-0 left-0 right-0 z-50 bg-white dark:bg-gray-900 border-t border-gray-200 dark:border-gray-700 md:hidden safe-bottom">
-      <div className="flex justify-around items-center h-16">
+    <nav className="safe-bottom fixed right-0 bottom-0 left-0 z-50 border-t border-gray-200 bg-white md:hidden dark:border-gray-700 dark:bg-gray-900">
+      <div className="flex h-16 items-center justify-around">
         <NavItem icon={<HomeIcon />} label="首页" href="/" />
         <NavItem icon={<SearchIcon />} label="搜索" href="/search" />
         <NavItem icon={<BellIcon />} label="通知" href="/notifications" />
         <NavItem icon={<UserIcon />} label="我的" href="/profile" />
       </div>
     </nav>
-  );
-};
+  )
+}
 ```
 
 **行动项**:
+
 - [ ] 考虑添加底部导航栏
 - [ ] 优化移动端菜单交互
 - [ ] 添加滑动手势支持
@@ -711,7 +773,9 @@ export const MobileBottomNav: React.FC = () => {
 /* 避免触发重排重绘 */
 
 .card-hover {
-  transition: transform 0.2s ease, box-shadow 0.2s ease;
+  transition:
+    transform 0.2s ease,
+    box-shadow 0.2s ease;
   will-change: transform;
 }
 
@@ -734,6 +798,7 @@ export const MobileBottomNav: React.FC = () => {
 ```
 
 **行动项**:
+
 - [ ] 优化动画性能
 - [ ] 添加 `prefers-reduced-motion` 支持
 - [ ] 使用 CSS 变量控制动画时长
@@ -758,6 +823,7 @@ export const MobileBottomNav: React.FC = () => {
 ```
 
 **行动项**:
+
 - [ ] 统一交互动画时长
 - [ ] 添加点击反馈动画
 - [ ] 优化悬停效果
@@ -776,23 +842,24 @@ export const MobileBottomNav: React.FC = () => {
 // ✅ 使用 Lucide React 图标库
 // 统一图标风格
 
-import { 
-  IconHome, 
-  IconSearch, 
-  IconBell, 
+import {
+  IconHome,
+  IconSearch,
+  IconBell,
   IconUser,
   IconSettings,
   IconX,
   IconCheck,
   IconAlertCircle,
-  IconInfo
-} from '@/components/icons';
+  IconInfo,
+} from '@/components/icons'
 
 // 统一图标尺寸
 // sm: 16px, md: 20px, lg: 24px, xl: 32px
 ```
 
 **行动项**:
+
 - [ ] 统一图标库选择
 - [ ] 创建图标组件封装
 - [ ] 规范图标使用
@@ -882,4 +949,3 @@ import {
 
 **评估完成时间**: 2026-03-29  
 **下次评估时间**: 建议 1 个月后复查
-

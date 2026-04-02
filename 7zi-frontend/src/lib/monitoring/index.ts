@@ -4,7 +4,7 @@
  */
 
 // Core monitor
-export { PerformanceMonitor, monitor } from './monitor';
+export { PerformanceMonitor, monitor } from './monitor'
 
 // Types
 export type {
@@ -16,14 +16,14 @@ export type {
   AlarmThreshold,
   AlarmEvent,
   MonitoringConfig,
-} from './types';
+} from './types'
 
 // Config
-export { DEFAULT_MONITORING_CONFIG, ENV_SPECIFIC_CONFIG, getMonitoringConfig } from './config';
+export { DEFAULT_MONITORING_CONFIG, ENV_SPECIFIC_CONFIG, getMonitoringConfig } from './config'
 
 // Storage - export type for interface when isolatedModules is enabled
-export type { MonitoringStorage } from './storage';
-export { MemoryStorage, LocalStorageStorage } from './storage';
+export type { MonitoringStorage } from './storage'
+export { MemoryStorage, LocalStorageStorage } from './storage'
 
 // Utilities
 export {
@@ -34,4 +34,4 @@ export {
   logBrowserMetrics,
   initBrowserTracking,
   usePerformanceTracker,
-} from './utils';
+} from './utils'

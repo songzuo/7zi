@@ -3,16 +3,16 @@
  * 基准线管理器 - 自动学习和更新性能基准线
  */
 
-import { MetricBaseline, MetricDataPoint, AnomalyDetectionConfig } from './types';
+import { MetricBaseline, MetricDataPoint, AnomalyDetectionConfig } from './types'
 
 export class BaselineManager {
-  private baselines: Map<string, MetricBaseline> = new Map();
-  private metricHistory: Map<string, MetricDataPoint[]> = new Map();
-  private config: AnomalyDetectionConfig;
-  private lastUpdateTime: Map<string, number> = new Map();
+  private baselines: Map<string, MetricBaseline> = new Map()
+  private metricHistory: Map<string, MetricDataPoint[]> = new Map()
+  private config: AnomalyDetectionConfig
+  private lastUpdateTime: Map<string, number> = new Map()
 
   constructor(config: AnomalyDetectionConfig) {
-    this.config = config;
+    this.config = config
   }
 
   /**
@@ -21,17 +21,17 @@ export class BaselineManager {
    */
   addDataPoint(metric: string, value: number, timestamp: number = Date.now()): void {
     if (!this.metricHistory.has(metric)) {
-      this.metricHistory.set(metric, []);
+      this.metricHistory.set(metric, [])
     }
 
-    const history = this.metricHistory.get(metric)!;
-    history.push({ timestamp, value });
+    const history = this.metricHistory.get(metric)!
+    history.push({ timestamp, value })
 
     // 清理过期数据
-    this.cleanOldHistory(metric);
+    this.cleanOldHistory(metric)
 
     // 检查是否需要更新基线
-    this.checkBaselineUpdate(metric);
+    this.checkBaselineUpdate(metric)
   }
 
   /**
@@ -39,12 +39,12 @@ export class BaselineManager {
    * 清理过期历史数据
    */
   private cleanOldHistory(metric: string): void {
-    const history = this.metricHistory.get(metric);
-    if (!history) return;
+    const history = this.metricHistory.get(metric)
+    if (!history) return
 
-    const cutoff = Date.now() - this.config.baseline.windowSizeMs;
-    const filtered = history.filter((d) => d.timestamp >= cutoff);
-    this.metricHistory.set(metric, filtered);
+    const cutoff = Date.now() - this.config.baseline.windowSizeMs
+    const filtered = history.filter(d => d.timestamp >= cutoff)
+    this.metricHistory.set(metric, filtered)
   }
 
   /**
@@ -52,16 +52,16 @@ export class BaselineManager {
    * 检查基线是否需要更新
    */
   private checkBaselineUpdate(metric: string): void {
-    const history = this.metricHistory.get(metric);
+    const history = this.metricHistory.get(metric)
     if (!history || history.length < this.config.baseline.minSampleSize) {
-      return;
+      return
     }
 
-    const lastUpdate = this.lastUpdateTime.get(metric) || 0;
-    const now = Date.now();
+    const lastUpdate = this.lastUpdateTime.get(metric) || 0
+    const now = Date.now()
 
     if (now - lastUpdate >= this.config.baseline.updateIntervalMs) {
-      this.updateBaseline(metric);
+      this.updateBaseline(metric)
     }
   }
 
@@ -70,18 +70,18 @@ export class BaselineManager {
    * 更新指标基线
    */
   updateBaseline(metric: string): MetricBaseline | null {
-    const history = this.metricHistory.get(metric);
+    const history = this.metricHistory.get(metric)
     if (!history || history.length < this.config.baseline.minSampleSize) {
-      return null;
+      return null
     }
 
-    const values = history.map((d) => d.value);
-    const baseline = this.calculateBaseline(metric, values);
-    
-    this.baselines.set(metric, baseline);
-    this.lastUpdateTime.set(metric, Date.now());
+    const values = history.map(d => d.value)
+    const baseline = this.calculateBaseline(metric, values)
 
-    return baseline;
+    this.baselines.set(metric, baseline)
+    this.lastUpdateTime.set(metric, Date.now())
+
+    return baseline
   }
 
   /**
@@ -89,20 +89,20 @@ export class BaselineManager {
    * 计算基线统计数据
    */
   private calculateBaseline(metric: string, values: number[]): MetricBaseline {
-    const n = values.length;
-    const sorted = [...values].sort((a, b) => a - b);
+    const n = values.length
+    const sorted = [...values].sort((a, b) => a - b)
 
     // 均值
-    const mean = values.reduce((sum, v) => sum + v, 0) / n;
+    const mean = values.reduce((sum, v) => sum + v, 0) / n
 
     // 标准差
-    const variance = values.reduce((sum, v) => sum + Math.pow(v - mean, 2), 0) / n;
-    const stdDev = Math.sqrt(variance);
+    const variance = values.reduce((sum, v) => sum + Math.pow(v - mean, 2), 0) / n
+    const stdDev = Math.sqrt(variance)
 
     // 百分位数
-    const p50 = this.percentile(sorted, 50);
-    const p95 = this.percentile(sorted, 95);
-    const p99 = this.percentile(sorted, 99);
+    const p50 = this.percentile(sorted, 50)
+    const p95 = this.percentile(sorted, 95)
+    const p99 = this.percentile(sorted, 99)
 
     const baseline: MetricBaseline = {
       metric,
@@ -115,9 +115,9 @@ export class BaselineManager {
       p99,
       sampleSize: n,
       lastUpdated: Date.now(),
-    };
+    }
 
-    return baseline;
+    return baseline
   }
 
   /**
@@ -125,8 +125,8 @@ export class BaselineManager {
    * 计算百分位数
    */
   private percentile(sorted: number[], p: number): number {
-    const index = Math.ceil((p / 100) * sorted.length) - 1;
-    return sorted[Math.max(0, index)];
+    const index = Math.ceil((p / 100) * sorted.length) - 1
+    return sorted[Math.max(0, index)]
   }
 
   /**
@@ -134,7 +134,7 @@ export class BaselineManager {
    * 获取指标基线
    */
   getBaseline(metric: string): MetricBaseline | null {
-    return this.baselines.get(metric) || null;
+    return this.baselines.get(metric) || null
   }
 
   /**
@@ -142,7 +142,7 @@ export class BaselineManager {
    * 获取所有基线
    */
   getAllBaselines(): MetricBaseline[] {
-    return Array.from(this.baselines.values());
+    return Array.from(this.baselines.values())
   }
 
   /**
@@ -151,7 +151,7 @@ export class BaselineManager {
    */
   updateAllBaselines(): void {
     for (const metric of this.metricHistory.keys()) {
-      this.updateBaseline(metric);
+      this.updateBaseline(metric)
     }
   }
 
@@ -160,9 +160,9 @@ export class BaselineManager {
    * 清除指标基线
    */
   clearBaseline(metric: string): void {
-    this.baselines.delete(metric);
-    this.metricHistory.delete(metric);
-    this.lastUpdateTime.delete(metric);
+    this.baselines.delete(metric)
+    this.metricHistory.delete(metric)
+    this.lastUpdateTime.delete(metric)
   }
 
   /**
@@ -170,9 +170,9 @@ export class BaselineManager {
    * 清除所有基线
    */
   clearAll(): void {
-    this.baselines.clear();
-    this.metricHistory.clear();
-    this.lastUpdateTime.clear();
+    this.baselines.clear()
+    this.metricHistory.clear()
+    this.lastUpdateTime.clear()
   }
 
   /**
@@ -180,7 +180,7 @@ export class BaselineManager {
    * 获取指标历史数据
    */
   getHistory(metric: string): MetricDataPoint[] {
-    return this.metricHistory.get(metric) || [];
+    return this.metricHistory.get(metric) || []
   }
 
   /**
@@ -188,8 +188,8 @@ export class BaselineManager {
    * 导入基线（用于持久化）
    */
   importBaseline(baseline: MetricBaseline): void {
-    this.baselines.set(baseline.metric, baseline);
-    this.lastUpdateTime.set(baseline.metric, baseline.lastUpdated);
+    this.baselines.set(baseline.metric, baseline)
+    this.lastUpdateTime.set(baseline.metric, baseline.lastUpdated)
   }
 
   /**
@@ -197,6 +197,6 @@ export class BaselineManager {
    * 导出基线（用于持久化）
    */
   exportBaselines(): MetricBaseline[] {
-    return this.getAllBaselines();
+    return this.getAllBaselines()
   }
 }

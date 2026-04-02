@@ -40,6 +40,7 @@
 ```
 
 **状态**: ✅ 已启用 Turbopack
+
 - 开发和生产构建都已使用 `--turbopack` 标志
 - Bundle Analyzer 也已配置为使用 Turbopack
 
@@ -47,13 +48,13 @@
 
 #### 关键配置项
 
-| 配置项 | 当前值 | Turbopack 支持状态 |
-|--------|--------|-------------------|
-| `output: 'standalone'` | ✅ 已配置 | ✅ 完全支持 |
-| `images` 配置 | ✅ 已配置 | ✅ 完全支持 |
-| `compiler.removeConsole` | ✅ 已配置 | ✅ 完全支持 |
-| `serverExternalPackages` | ✅ 已配置 | ✅ 完全支持 |
-| `webpack()` 函数 | ⚠️ 复杂配置 | ❌ 不支持，需迁移 |
+| 配置项                               | 当前值            | Turbopack 支持状态           |
+| ------------------------------------ | ----------------- | ---------------------------- |
+| `output: 'standalone'`               | ✅ 已配置         | ✅ 完全支持                  |
+| `images` 配置                        | ✅ 已配置         | ✅ 完全支持                  |
+| `compiler.removeConsole`             | ✅ 已配置         | ✅ 完全支持                  |
+| `serverExternalPackages`             | ✅ 已配置         | ✅ 完全支持                  |
+| `webpack()` 函数                     | ⚠️ 复杂配置       | ❌ 不支持，需迁移            |
 | `webpack().optimization.splitChunks` | ⚠️ 9个cacheGroups | ❌ 需要迁移到 Turbopack 配置 |
 
 #### Webpack 配置详解
@@ -61,19 +62,23 @@
 当前项目在 `webpack()` 函数中有以下配置：
 
 1. **路径别名**:
+
    ```typescript
-   config.resolve.alias['@/'] = __dirname + '/src';
+   config.resolve.alias['@/'] = __dirname + '/src'
    ```
+
    - ✅ Turbopack 支持通过 `turbopack.resolveAlias` 配置
 
 2. **性能预算**:
+
    ```typescript
    config.performance = {
      maxEntrypointSize: 300000,
      maxAssetSize: 250000,
      hints: 'warning',
-   };
+   }
    ```
+
    - ⚠️ Turbopack 可能不支持相同的性能警告机制
 
 3. **代码分包策略** (最复杂):
@@ -91,12 +96,14 @@
    - ⚠️ **这是最大的迁移风险点** - Turbopack 的分包策略与 webpack 不同
 
 4. **Tree-shaking 优化**:
+
    ```typescript
-   config.optimization.usedExports = true;
-   config.optimization.sideEffects = false;
-   config.optimization.providedExports = true;
-   config.optimization.concatenateModules = true;
+   config.optimization.usedExports = true
+   config.optimization.sideEffects = false
+   config.optimization.providedExports = true
+   config.optimization.concatenateModules = true
    ```
+
    - ✅ Turbopack 有内置的 tree-shaking 和优化
    - 可能需要通过 `experimental.turbopackTreeShaking` 等配置调优
 
@@ -106,29 +113,29 @@
 
 ### 2.1 架构差异
 
-| 特性 | Webpack | Turbopack |
-|------|---------|-----------|
-| **实现语言** | JavaScript | Rust |
-| **增量编译** | 基础支持 | 核心，细粒度到函数级 |
-| **构建图** | 分离的多环境 | 统一图 |
-| **内存使用** | 较高 | 更低 |
-| **编译速度** | 中等 | 快 10-700x (依赖场景) |
+| 特性         | Webpack      | Turbopack             |
+| ------------ | ------------ | --------------------- |
+| **实现语言** | JavaScript   | Rust                  |
+| **增量编译** | 基础支持     | 核心，细粒度到函数级  |
+| **构建图**   | 分离的多环境 | 统一图                |
+| **内存使用** | 较高         | 更低                  |
+| **编译速度** | 中等         | 快 10-700x (依赖场景) |
 
 ### 2.2 功能支持对比
 
-| 功能分类 | Webpack | Turbopack | 说明 |
-|----------|---------|-----------|------|
-| **基础打包** | ✅ | ✅ | 两者都支持 |
-| **Tree-shaking** | ✅ | ✅ | Turbopack 更先进 |
-| **代码分割** | ✅ 手动/自动 | ✅ 策略不同 | Turbopack 更智能 |
-| **HMR** | ✅ | ✅ | Turbopack 更快 |
-| **Source Maps** | ✅ | ✅ | |
-| **CSS Modules** | ✅ | ✅ | |
-| **PostCSS** | ✅ | ✅ | |
-| **Sass/SCSS** | ✅ | ✅ | 不支持 `sassOptions.functions` |
-| **Webpack 插件** | ✅ | ❌ | **关键差异** |
-| **Webpack Loaders** | ✅ | ⚠️ 部分支持 | 支持 JS 输出的 loader |
-| **自定义 webpack() 配置** | ✅ | ❌ | **关键差异** |
+| 功能分类                  | Webpack      | Turbopack   | 说明                           |
+| ------------------------- | ------------ | ----------- | ------------------------------ |
+| **基础打包**              | ✅           | ✅          | 两者都支持                     |
+| **Tree-shaking**          | ✅           | ✅          | Turbopack 更先进               |
+| **代码分割**              | ✅ 手动/自动 | ✅ 策略不同 | Turbopack 更智能               |
+| **HMR**                   | ✅           | ✅          | Turbopack 更快                 |
+| **Source Maps**           | ✅           | ✅          |                                |
+| **CSS Modules**           | ✅           | ✅          |                                |
+| **PostCSS**               | ✅           | ✅          |                                |
+| **Sass/SCSS**             | ✅           | ✅          | 不支持 `sassOptions.functions` |
+| **Webpack 插件**          | ✅           | ❌          | **关键差异**                   |
+| **Webpack Loaders**       | ✅           | ⚠️ 部分支持 | 支持 JS 输出的 loader          |
+| **自定义 webpack() 配置** | ✅           | ❌          | **关键差异**                   |
 
 ### 2.3 生产构建特性
 
@@ -181,17 +188,18 @@
 
 ### 3.1 版本演进
 
-| 版本 | 状态 | 说明 |
-|------|------|------|
-| Next.js 15.0.0 | Dev Stable | Turbopack 用于开发环境 |
-| Next.js 15.3.0 | Build Experimental | 生产构建实验支持 |
-| Next.js 15.5.0 | Build Beta | 生产构建进入 Beta |
+| 版本               | 状态                | 说明                           |
+| ------------------ | ------------------- | ------------------------------ |
+| Next.js 15.0.0     | Dev Stable          | Turbopack 用于开发环境         |
+| Next.js 15.3.0     | Build Experimental  | 生产构建实验支持               |
+| Next.js 15.5.0     | Build Beta          | 生产构建进入 Beta              |
 | **Next.js 16.0.0** | **Default Bundler** | **Turbopack 成为默认 bundler** |
-| Next.js 16.2.1 | Stable | 当前使用的版本 |
+| Next.js 16.2.1     | Stable              | 当前使用的版本                 |
 
 ### 3.2 生产构建支持的功能
 
 ✅ **完全支持**:
+
 - TypeScript/JavaScript 编译
 - React Server Components
 - CSS (CSS Modules, Global CSS, PostCSS)
@@ -204,11 +212,13 @@
 - Sentry 集成
 
 ⚠️ **部分支持/需迁移**:
+
 - 自定义分包策略 (需要使用 Turbopack 特定配置)
 - 性能预算检查 (可能需要不同方案)
 - 某些 webpack loaders (仅支持输出 JS 的 loaders)
 
 ❌ **不支持**:
+
 - Webpack plugins (需要找替代方案)
 - `sassOptions.functions` (Sass 自定义函数)
 - `webpack()` 配置函数
@@ -229,11 +239,13 @@
 当前项目有非常精细的分包策略，包括 9 个自定义 cacheGroups，每个都有特定的 maxSize、priority 和 minSize 设置。
 
 **影响**:
+
 - 如果直接迁移，可能导致打包体积增大
 - 首屏加载性能可能受影响
 - 缓存策略需要重新评估
 
 **缓解措施**:
+
 1. 迁移前先测试 webpack 和 Turbopack 的实际打包结果
 2. 使用 Turbopack 的内置智能分包
 3. 必要时通过 `turbopack.rules` 和模块类型进行干预
@@ -247,10 +259,12 @@
 当前使用了 `@next/bundle-analyzer`，虽然 Next.js 已集成支持，但其他潜在的 webpack 插件可能无法工作。
 
 **影响**:
+
 - Bundle Analyzer 需要确认 Turbopack 支持 (Next.js 16+ 应该支持)
 - 其他自定义插件需要替代方案
 
 **缓解措施**:
+
 1. 确认 `@next/bundle-analyzer` 与 Turbopack 的兼容性
 2. 检查是否有其他隐藏的 webpack 插件依赖
 3. 研究插件替代方案或原生功能
@@ -265,10 +279,12 @@
 webpack 的 `performance` 配置在 Turbopack 中可能不支持或表现不同。
 
 **影响**:
+
 - 构建时可能无法获得性能警告
 - 需要新的方式监控 bundle 大小
 
 **缓解措施**:
+
 1. 使用 next-bundle-analyzer 生成报告
 2. 设置 CI/CD 检查流程
 3. 自定义构建后脚本检查输出文件大小
@@ -281,10 +297,12 @@ webpack 的 `performance` 配置在 Turbopack 中可能不支持或表现不同�
 虽然 Turbopack 的 tree-shaking 更先进，但具体行为可能与 webpack 不同。
 
 **影响**:
+
 - 某些依赖可能被意外 tree-shaken
 - 某些代码可能未被 tree-shaken (预期外)
 
 **缓解措施**:
+
 1. 启用 `experimental.turbopackTreeShaking: true`
 2. 测试关键功能的运行时行为
 3. 检查 bundle 分析报告
@@ -299,9 +317,11 @@ webpack 的 `performance` 配置在 Turbopack 中可能不支持或表现不同�
 Turbopack 遵循 JS import 顺序，可能与 webpack 的某些情况不同。
 
 **影响**:
+
 - 极少数情况下可能出现样式冲突
 
 **缓解措施**:
+
 1. 检查样式冲突问题
 2. 如有问题，使用 `@import` 强制顺序或调整 import 顺序
 
@@ -314,6 +334,7 @@ Turbopack 遵循 JS import 顺序，可能与 webpack 的某些情况不同。
 #### 阶段 1: 评估和准备 (1-2 天)
 
 1. **基线测试**
+
    ```bash
    # 使用当前的 webpack 配置构建
    rm -rf .next
@@ -325,6 +346,7 @@ Turbopack 遵循 JS import 顺序，可能与 webpack 的某些情况不同。
    ```
 
 2. **Turbopack 测试构建**
+
    ```bash
    # 删除 .next 确保冷构建
    rm -rf .next
@@ -346,6 +368,7 @@ Turbopack 遵循 JS import 顺序，可能与 webpack 的某些情况不同。
 #### 阶段 2: 配置迁移 (2-3 天)
 
 1. **创建 Turbopack 配置**
+
    ```typescript
    // next.config.ts
    const nextConfig: NextConfig = {
@@ -370,15 +393,16 @@ Turbopack 遵循 JS import 顺序，可能与 webpack 的某些情况不同。
      // 实验性优化
      experimental: {
        turbopackFileSystemCacheForBuild: true, // 构建缓存 (beta)
-       turbopackTreeShaking: true,              // 高级 tree-shaking
-       turbopackScopeHoisting: true,            // Scope hoisting
-       turbopackRemoveUnusedImports: true,       // 移除未使用的导入
-       turbopackRemoveUnusedExports: true,       // 移除未使用的导出
+       turbopackTreeShaking: true, // 高级 tree-shaking
+       turbopackScopeHoisting: true, // Scope hoisting
+       turbopackRemoveUnusedImports: true, // 移除未使用的导入
+       turbopackRemoveUnusedExports: true, // 移除未使用的导出
      },
-   };
+   }
    ```
 
 2. **移除或条件化 webpack 配置**
+
    ```typescript
    webpack: (config, { isServer, dev }) => {
      // 仅在明确使用 webpack 时应用复杂配置
@@ -424,6 +448,7 @@ Turbopack 遵循 JS import 顺序，可能与 webpack 的某些情况不同。
    - Bundle 大小
 
 3. **构建性能测试**
+
    ```bash
    # 测试冷构建
    rm -rf .next
@@ -473,12 +498,14 @@ npm run build:webpack
 ### 5.3 监控指标
 
 #### 构建指标
+
 - 构建时间 (冷构建 vs 增量构建)
 - 内存使用
 - Bundle 大小
 - 警告和错误数量
 
 #### 运行时指标
+
 - Lighthouse 分数
 - Core Web Vitals
 - 错误率
@@ -490,23 +517,23 @@ npm run build:webpack
 
 ### 6.1 确认不兼容的功能
 
-| 功能 | 当前使用情况 | 迁移建议 |
-|------|-------------|----------|
-| Webpack plugins | Bundle Analyzer | Next.js 16+ 已集成支持 |
-| `webpack()` 配置函数 | 复杂的 splitChunks | 迁移到 `turbopack` 配置 |
-| `sassOptions.functions` | 未使用 | N/A |
-| Yarn PnP | 未使用 | N/A |
-| `experimental.urlImports` | 未使用 | N/A |
+| 功能                      | 当前使用情况       | 迁移建议                |
+| ------------------------- | ------------------ | ----------------------- |
+| Webpack plugins           | Bundle Analyzer    | Next.js 16+ 已集成支持  |
+| `webpack()` 配置函数      | 复杂的 splitChunks | 迁移到 `turbopack` 配置 |
+| `sassOptions.functions`   | 未使用             | N/A                     |
+| Yarn PnP                  | 未使用             | N/A                     |
+| `experimental.urlImports` | 未使用             | N/A                     |
 
 ### 6.2 需要验证的功能
 
-| 功能 | 验证方法 | 预期结果 |
-|------|---------|----------|
-| Bundle Analyzer | 运行 `npm run build:analyze` | 生成分析报告 |
-| 路径别名 | 检查 `@/` 导入 | 正常解析 |
-| 性能预算 | 检查构建输出 | 可能需要替代方案 |
-| 代码分割 | 检查 `.next/static/chunks/` | 合理的 chunk 大小 |
-| Tree-shaking | 运行测试 | 所有功能正常 |
+| 功能            | 验证方法                     | 预期结果          |
+| --------------- | ---------------------------- | ----------------- |
+| Bundle Analyzer | 运行 `npm run build:analyze` | 生成分析报告      |
+| 路径别名        | 检查 `@/` 导入               | 正常解析          |
+| 性能预算        | 检查构建输出                 | 可能需要替代方案  |
+| 代码分割        | 检查 `.next/static/chunks/`  | 合理的 chunk 大小 |
+| Tree-shaking    | 运行测试                     | 所有功能正常      |
 
 ---
 
@@ -517,6 +544,7 @@ npm run build:webpack
 ✅ **推荐迁移到 Turbopack 生产构建**
 
 **理由**:
+
 1. Turbopack 已是 Next.js 16 的默认 bundler
 2. 构建速度提升显著 (尤其是增量构建)
 3. 内置优化更先进
@@ -524,6 +552,7 @@ npm run build:webpack
 5. 当前项目已经使用 Turbopack 标志进行构建
 
 **风险等级**: 🟡 中等
+
 - 主要风险是分包策略的迁移
 - 可通过充分测试和分阶段部署缓解
 - 保留 webpack 作为回滚方案
@@ -567,6 +596,7 @@ npm run build:webpack
 4. **按需优化**: 如果出现性能问题，再通过 Turbopack 配置进行干预
 
 **不建议的做法**:
+
 - ❌ 立即完全移除所有 webpack 配置
 - ❌ 在未测试的情况下直接上线生产环境
 - ❌ 尝试完全复制 webpack 的分包策略到 Turbopack
@@ -596,18 +626,18 @@ npm run build:webpack
 ## 附录 A: 推荐的 next.config.ts 配置
 
 ```typescript
-import createNextIntlPlugin from 'next-intl/plugin';
-import type { NextConfig } from "next";
-import bundleAnalyzer from '@next/bundle-analyzer';
-import path from 'path';
+import createNextIntlPlugin from 'next-intl/plugin'
+import type { NextConfig } from 'next'
+import bundleAnalyzer from '@next/bundle-analyzer'
+import path from 'path'
 
-const withNextIntl = createNextIntlPlugin('./src/i18n/request.ts');
+const withNextIntl = createNextIntlPlugin('./src/i18n/request.ts')
 
 const withBundleAnalyzer = bundleAnalyzer({
   enabled: process.env.ANALYZE === 'true',
   openAnalyzer: false,
   analyzerMode: 'static',
-});
+})
 
 const nextConfig: NextConfig = {
   // Docker 部署使用 standalone 输出模式
@@ -633,26 +663,35 @@ const nextConfig: NextConfig = {
   poweredByHeader: false,
 
   compiler: {
-    removeConsole: process.env.NODE_ENV === 'production' ? {
-      exclude: ['error', 'warn'],
-    } : false,
+    removeConsole:
+      process.env.NODE_ENV === 'production'
+        ? {
+            exclude: ['error', 'warn'],
+          }
+        : false,
     swcMinify: true,
   },
 
   experimental: {
     // Optimize package imports for tree-shaking
     optimizePackageImports: [
-      'next-intl', '@sentry/nextjs', 'zustand', 'web-vitals', 'lucide-react',
-      'three', '@react-three/fiber', '@react-three/drei',
+      'next-intl',
+      '@sentry/nextjs',
+      'zustand',
+      'web-vitals',
+      'lucide-react',
+      'three',
+      '@react-three/fiber',
+      '@react-three/drei',
     ],
     optimizeCss: true,
 
     // Turbopack 特定优化
-    turbopackFileSystemCacheForBuild: true,  // 构建缓存
-    turbopackTreeShaking: true,                // 高级 tree-shaking
-    turbopackScopeHoisting: true,              // Scope hoisting
-    turbopackRemoveUnusedImports: true,         // 移除未使用的导入
-    turbopackRemoveUnusedExports: true,         // 移除未使用的导出
+    turbopackFileSystemCacheForBuild: true, // 构建缓存
+    turbopackTreeShaking: true, // 高级 tree-shaking
+    turbopackScopeHoisting: true, // Scope hoisting
+    turbopackRemoveUnusedImports: true, // 移除未使用的导入
+    turbopackRemoveUnusedExports: true, // 移除未使用的导出
   },
 
   // ExcelJS should be server-side only and dynamically imported
@@ -670,31 +709,31 @@ const nextConfig: NextConfig = {
   webpack: (config, { isServer, dev }) => {
     // 仅在明确使用 webpack 时应用复杂配置
     if (process.env.USE_WEBPACK === 'true') {
-      config.resolve.alias = config.resolve.alias || {};
-      config.resolve.alias['@/'] = __dirname + '/src';
+      config.resolve.alias = config.resolve.alias || {}
+      config.resolve.alias['@/'] = __dirname + '/src'
 
       if (!isServer && !dev) {
-        config.optimization = config.optimization || {};
+        config.optimization = config.optimization || {}
         config.performance = {
           maxEntrypointSize: 300000,
           maxAssetSize: 250000,
           hints: 'warning',
-        };
+        }
 
         config.optimization.splitChunks = {
           chunks: 'all',
           cacheGroups: {
             // ... 现有的复杂 cacheGroups 配置
           },
-        };
-        config.optimization.usedExports = true;
-        config.optimization.sideEffects = false;
-        config.optimization.providedExports = true;
-        config.optimization.concatenateModules = true;
+        }
+        config.optimization.usedExports = true
+        config.optimization.sideEffects = false
+        config.optimization.providedExports = true
+        config.optimization.concatenateModules = true
       }
     }
 
-    return config;
+    return config
   },
 
   headers: async () => {
@@ -703,12 +742,18 @@ const nextConfig: NextConfig = {
         source: '/:path*',
         headers: [
           { key: 'X-DNS-Prefetch-Control', value: 'on' },
-          { key: 'Strict-Transport-Security', value: 'max-age=63072000; includeSubDomains; preload' },
+          {
+            key: 'Strict-Transport-Security',
+            value: 'max-age=63072000; includeSubDomains; preload',
+          },
           { key: 'X-Frame-Options', value: 'SAMEORIGIN' },
           { key: 'X-Content-Type-Options', value: 'nosniff' },
           { key: 'X-XSS-Protection', value: '1; mode=block' },
           { key: 'Referrer-Policy', value: 'strict-origin-when-cross-origin' },
-          { key: 'Permissions-Policy', value: 'camera=(), microphone=(), geolocation=(), interest-cohort=()' },
+          {
+            key: 'Permissions-Policy',
+            value: 'camera=(), microphone=(), geolocation=(), interest-cohort=()',
+          },
         ],
       },
       {
@@ -719,15 +764,15 @@ const nextConfig: NextConfig = {
         source: '/_next/static/:path*',
         headers: [{ key: 'Cache-Control', value: 'public, max-age=31536000, immutable' }],
       },
-    ];
+    ]
   },
-};
+}
 
-export default withBundleAnalyzer(withNextIntl(nextConfig));
+export default withBundleAnalyzer(withNextIntl(nextConfig))
 ```
 
 ---
 
 **报告结束**
 
-*此报告由 ⚡ Executor 子代理生成，基于 Next.js 16.2.1 官方文档和项目实际配置分析。*
+_此报告由 ⚡ Executor 子代理生成，基于 Next.js 16.2.1 官方文档和项目实际配置分析。_

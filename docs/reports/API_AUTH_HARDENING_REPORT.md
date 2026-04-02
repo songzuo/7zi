@@ -25,23 +25,26 @@
 **文件**: `src/app/api/feedback/route.ts`
 
 **问题代码** (第 312-318 行):
+
 ```typescript
 // Check admin permissions (simplified - in production, verify JWT token)
-const isAdmin = body.admin_id === 'admin'; // Placeholder
+const isAdmin = body.admin_id === 'admin' // Placeholder
 
 if (!isAdmin) {
-  const response = await createForbiddenError('Admin access required');
-  logRequestComplete(metadata, response, startTime);
-  return response;
+  const response = await createForbiddenError('Admin access required')
+  logRequestComplete(metadata, response, startTime)
+  return response
 }
 ```
 
 **安全风险**:
+
 - ⚠️ 使用请求体中的 `admin_id === 'admin'` 进行认证
 - ⚠️ 任何人都可以在请求中发送 `{ admin_id: 'admin' }` 绕过认证
 - ⚠️ 这是一个"占位符"实现，但代码已部署在生产环境中
 
 **攻击场景**:
+
 ```bash
 # 任何人都可以修改反馈数据
 curl -X PATCH http://7zi.com/api/feedback/xxx \
@@ -54,6 +57,7 @@ curl -X PATCH http://7zi.com/api/feedback/xxx \
 ```
 
 **影响范围**:
+
 - ✗ 未授权访问反馈数据
 - ✗ 可以修改反馈状态、优先级
 - ✗ 可以添加管理员备注
@@ -68,24 +72,28 @@ curl -X PATCH http://7zi.com/api/feedback/xxx \
 **文件**: `src/app/api/feedback/route.ts`
 
 **问题代码** (第 397-400 行):
+
 ```typescript
 // Check admin permissions (simplified - in production, verify JWT token)
-const authHeader = request.headers.get('authorization');
+const authHeader = request.headers.get('authorization')
 // In production, verify JWT token here
 ```
 
 **安全风险**:
+
 - ⚠️ 获取了 `authorization` header 但**没有实际验证**
 - ⚠️ 代码中只有注释，没有 JWT token 验证逻辑
 - ⚠️ 任何人都可以删除反馈数据
 
 **攻击场景**:
+
 ```bash
 # 任何人都可以删除反馈
 curl -X DELETE http://7zi.com/api/feedback/xxx
 ```
 
 **影响范围**:
+
 - ✗ 未授权删除反馈数据
 - ✗ 数据丢失风险
 - ✗ 审计日志完整性受损
@@ -102,13 +110,14 @@ curl -X DELETE http://7zi.com/api/feedback/xxx
 
 ```typescript
 export async function POST(request: NextRequest) {
-  return withAdmin(request, POSTHandler);
+  return withAdmin(request, POSTHandler)
 }
 ```
 
 **状态**: ✅ **安全** - 正确使用 `withAdmin` 中间件
 
 **认证流程**:
+
 1. 检查 Authorization header
 2. 验证 JWT token
 3. 验证用户角色为 ADMIN
@@ -122,7 +131,7 @@ export async function POST(request: NextRequest) {
 
 ```typescript
 export async function POST(request: NextRequest) {
-  return withAdmin(request, POSTHandler);
+  return withAdmin(request, POSTHandler)
 }
 ```
 
@@ -142,11 +151,12 @@ export function withAdmin(
   request: NextRequest,
   handler: (request: NextRequest, context: RBACUserContext) => Promise<NextResponse>
 ): Promise<NextResponse> {
-  return withRole(Role.ADMIN)(request, handler);
+  return withRole(Role.ADMIN)(request, handler)
 }
 ```
 
 **认证流程**:
+
 1. ✅ 检查 `Authorization: Bearer <token>` header
 2. ✅ 验证 JWT token 签名和过期时间
 3. ✅ 验证 token 类型为 `user`
@@ -167,15 +177,16 @@ export function withAdmin(
 
 ```typescript
 function getJwtSecret(): string {
-  const secret = process.env.JWT_SECRET || process.env.AGENT_ENCRYPTION_SECRET;
+  const secret = process.env.JWT_SECRET || process.env.AGENT_ENCRYPTION_SECRET
   if (!secret) {
-    throw new Error('JWT_SECRET environment variable is required in production');
+    throw new Error('JWT_SECRET environment variable is required in production')
   }
-  return secret;
+  return secret
 }
 ```
 
 **当前配置**:
+
 - ✅ 要求配置 `JWT_SECRET` 或 `AGENT_ENCRYPTION_SECRET`
 - ✅ 生产环境未配置会抛出错误
 - ⚠️ **缺少密钥轮换机制**
@@ -183,17 +194,20 @@ function getJwtSecret(): string {
 ### 🔴 密钥轮换策略缺失
 
 **问题**:
+
 - ❌ 没有定期轮换 JWT 密钥的机制
 - ❌ 没有密钥过期策略
 - ❌ 没有多密钥支持（平滑轮换）
 - ❌ 没有密钥版本管理
 
 **安全风险**:
+
 - ⚠️ 密钥泄露后无法快速撤销
 - ⚠️ 长期使用同一密钥增加暴力破解风险
 - ⚠️ 无法应对密钥泄露事件
 
 **最佳实践建议**:
+
 1. 🔴 **立即**: 建立密钥轮换计划（建议 90 天）
 2. 🟡 **短期**: 实现多密钥支持（平滑轮换）
 3. 🟢 **长期**: 使用密钥管理服务（AWS KMS / HashiCorp Vault）
@@ -225,11 +239,13 @@ NEXT_PUBLIC_PLAUSIBLE_ID=7zi.com
 **安全状态**: ✅ **良好**
 
 **优点**:
+
 - ✅ 所有敏感密钥已注释
 - ✅ 没有 `NEXT_PUBLIC_` 前缀的服务端密钥
 - ✅ 无泄露风险
 
 **缺失配置**:
+
 ```bash
 # ⚠️ 需要在生产服务器上配置:
 JWT_SECRET=your_strong_random_secret_here  # 必须配置
@@ -251,6 +267,7 @@ GITHUB_TOKEN=ghp_xxx  # GitHub API
 **文件**: `src/app/api/feedback/route.ts`
 
 **当前代码** (第 293 行):
+
 ```typescript
 export async function PATCH(
   request: NextRequest,
@@ -383,6 +400,7 @@ export async function PATCH(
 ```
 
 **推荐**: 使用 **方案 A**，因为:
+
 - 代码更简洁
 - 与其他端点保持一致
 - 利用现有的 RBAC 系统
@@ -395,6 +413,7 @@ export async function PATCH(
 **文件**: `src/app/api/feedback/route.ts`
 
 **当前代码** (第 397 行):
+
 ```typescript
 export async function DELETE_FEEDBACK(
   request: NextRequest,
@@ -475,27 +494,26 @@ export async function DELETE(
 // src/lib/auth/rotation-service.ts
 
 export class JwtRotationService {
-  private static readonly ROTATION_DAYS = 90;
+  private static readonly ROTATION_DAYS = 90
 
   /**
    * 检查密钥是否需要轮换
    */
   static shouldRotate(): boolean {
-    const lastRotation = process.env.JWT_LAST_ROTATION;
-    if (!lastRotation) return true;
+    const lastRotation = process.env.JWT_LAST_ROTATION
+    if (!lastRotation) return true
 
-    const lastRotationDate = new Date(lastRotation);
-    const daysSinceRotation =
-      (Date.now() - lastRotationDate.getTime()) / (1000 * 60 * 60 * 24);
+    const lastRotationDate = new Date(lastRotation)
+    const daysSinceRotation = (Date.now() - lastRotationDate.getTime()) / (1000 * 60 * 60 * 24)
 
-    return daysSinceRotation >= this.ROTATION_DAYS;
+    return daysSinceRotation >= this.ROTATION_DAYS
   }
 
   /**
    * 记录密钥轮换时间
    */
   static recordRotation(): void {
-    process.env.JWT_LAST_ROTATION = new Date().toISOString();
+    process.env.JWT_LAST_ROTATION = new Date().toISOString()
     // 在生产环境中，应该更新 .env.production 文件或数据库
   }
 
@@ -503,7 +521,7 @@ export class JwtRotationService {
    * 生成新的 JWT 密钥
    */
   static generateNewSecret(): string {
-    return require('crypto').randomBytes(64).toString('hex');
+    return require('crypto').randomBytes(64).toString('hex')
   }
 }
 ```
@@ -521,42 +539,42 @@ node scripts/rotate-jwt-secret.js
 // src/lib/auth/rotation-service.ts
 
 export class JwtRotationService {
-  private static readonly ROTATION_DAYS = 90;
-  private static readonly GRACE_PERIOD_DAYS = 7;
+  private static readonly ROTATION_DAYS = 90
+  private static readonly GRACE_PERIOD_DAYS = 7
 
   /**
    * 获取当前活跃的密钥
    */
   static getActiveSecret(): string {
-    const currentSecret = process.env.JWT_SECRET;
-    const previousSecret = process.env.JWT_SECRET_PREVIOUS;
+    const currentSecret = process.env.JWT_SECRET
+    const previousSecret = process.env.JWT_SECRET_PREVIOUS
 
     // 支持双密钥：验证时尝试两个密钥
     return {
       current: currentSecret || process.env.AGENT_ENCRYPTION_SECRET || '',
       previous: previousSecret || '',
-    };
+    }
   }
 
   /**
    * 验证 token（支持多密钥）
    */
   static async verifyToken(token: string) {
-    const secrets = this.getActiveSecret();
+    const secrets = this.getActiveSecret()
 
     // 先尝试当前密钥
     try {
-      return await verifyJwtToken(token, secrets.current);
+      return await verifyJwtToken(token, secrets.current)
     } catch {
       // 尝试上一个密钥（在轮换过渡期内）
       if (secrets.previous) {
         try {
-          return await verifyJwtToken(token, secrets.previous);
+          return await verifyJwtToken(token, secrets.previous)
         } catch {
-          return null;
+          return null
         }
       }
-      return null;
+      return null
     }
   }
 
@@ -564,23 +582,23 @@ export class JwtRotationService {
    * 执行密钥轮换
    */
   static async rotateSecret(): Promise<void> {
-    const newSecret = this.generateNewSecret();
+    const newSecret = this.generateNewSecret()
 
     // 1. 保存当前密钥为 previous（在过渡期内验证旧 token）
-    process.env.JWT_SECRET_PREVIOUS = process.env.JWT_SECRET;
+    process.env.JWT_SECRET_PREVIOUS = process.env.JWT_SECRET
 
     // 2. 设置新密钥
-    process.env.JWT_SECRET = newSecret;
+    process.env.JWT_SECRET = newSecret
 
     // 3. 记录轮换时间
-    this.recordRotation();
+    this.recordRotation()
 
     // 4. 通知需要更新 .env.production
-    console.warn('\n⚠️  JWT 密钥已轮换！');
-    console.warn('⚠️  请更新生产服务器的 .env.production 文件:');
-    console.warn(`JWT_SECRET=${newSecret}`);
-    console.warn(`JWT_SECRET_PREVIOUS=${process.env.JWT_SECRET_PREVIOUS}`);
-    console.warn(`JWT_LAST_ROTATION=${new Date().toISOString()}\n`);
+    console.warn('\n⚠️  JWT 密钥已轮换！')
+    console.warn('⚠️  请更新生产服务器的 .env.production 文件:')
+    console.warn(`JWT_SECRET=${newSecret}`)
+    console.warn(`JWT_SECRET_PREVIOUS=${process.env.JWT_SECRET_PREVIOUS}`)
+    console.warn(`JWT_LAST_ROTATION=${new Date().toISOString()}\n`)
   }
 }
 ```
@@ -607,7 +625,7 @@ node scripts/generate-new-secret.js
 // src/lib/auth/kms-provider.ts
 
 export class KmsJwtProvider {
-  private static readonly KEY_ID = 'jwt-signing-key';
+  private static readonly KEY_ID = 'jwt-signing-key'
 
   /**
    * 从 KMS 获取签名密钥
@@ -619,17 +637,15 @@ export class KmsJwtProvider {
     // HashiCorp Vault
     // return await vault.read('secret/data/jwt');
 
-    throw new Error('KMS not configured');
+    throw new Error('KMS not configured')
   }
 
   /**
    * 使用 KMS 签名 token
    */
   static async signToken(payload: any): Promise<string> {
-    const key = await this.getSigningKey();
-    return await new SignJWT(payload)
-      .setProtectedHeader({ alg: 'RS256' })
-      .sign(key);
+    const key = await this.getSigningKey()
+    return await new SignJWT(payload).setProtectedHeader({ alg: 'RS256' }).sign(key)
   }
 }
 ```
@@ -640,15 +656,15 @@ export class KmsJwtProvider {
 // src/lib/auth/key-versioning.ts
 
 export interface KeyVersion {
-  version: number;
-  secret: string;
-  createdAt: string;
-  expiresAt?: string;
-  status: 'active' | 'previous' | 'deprecated';
+  version: number
+  secret: string
+  createdAt: string
+  expiresAt?: string
+  status: 'active' | 'previous' | 'deprecated'
 }
 
 export class KeyVersionManager {
-  private static versions: KeyVersion[] = [];
+  private static versions: KeyVersion[] = []
 
   /**
    * 添加新密钥版本
@@ -659,25 +675,25 @@ export class KeyVersionManager {
       secret,
       createdAt: new Date().toISOString(),
       status: 'active',
-    };
+    }
 
     // 将当前活跃密钥降级为 previous
     this.versions = this.versions.map(v => ({
       ...v,
       status: v.status === 'active' ? 'previous' : v.status,
-    }));
+    }))
 
-    this.versions.push(version);
-    return version;
+    this.versions.push(version)
+    return version
   }
 
   /**
    * 获取活跃密钥
    */
   static getActiveKey(): string {
-    const active = this.versions.find(v => v.status === 'active');
-    if (!active) throw new Error('No active key found');
-    return active.secret;
+    const active = this.versions.find(v => v.status === 'active')
+    if (!active) throw new Error('No active key found')
+    return active.secret
   }
 
   /**
@@ -686,7 +702,7 @@ export class KeyVersionManager {
   static getVerificationKeys(): string[] {
     return this.versions
       .filter(v => v.status === 'active' || v.status === 'previous')
-      .map(v => v.secret);
+      .map(v => v.secret)
   }
 }
 ```
@@ -725,19 +741,19 @@ export class KeyVersionManager {
 
 ### 当前风险等级
 
-| 问题 | 严重性 | 影响 | 可能性 | 风险等级 |
-|------|--------|------|--------|----------|
-| PATCH 认证绕过 | 🔴 高 | 数据篡改 | 高 | 🔴 **严重** |
-| DELETE 认证缺失 | 🔴 高 | 数据丢失 | 高 | 🔴 **严重** |
-| 密钥无轮换 | 🟡 中 | 长期泄露 | 中 | 🟡 **中等** |
+| 问题            | 严重性 | 影响     | 可能性 | 风险等级    |
+| --------------- | ------ | -------- | ------ | ----------- |
+| PATCH 认证绕过  | 🔴 高  | 数据篡改 | 高     | 🔴 **严重** |
+| DELETE 认证缺失 | 🔴 高  | 数据丢失 | 高     | 🔴 **严重** |
+| 密钥无轮换      | 🟡 中  | 长期泄露 | 中     | 🟡 **中等** |
 
 ### 修复后风险等级
 
-| 问题 | 严重性 | 影响 | 可能性 | 风险等级 |
-|------|--------|------|--------|----------|
-| PATCH 认证绕过 | 🟢 低 | 无 | 极低 | 🟢 **可接受** |
-| DELETE 认证缺失 | 🟢 低 | 无 | 极低 | 🟢 **可接受** |
-| 密钥无轮换 | 🟡 中 | 有限 | 低 | 🟡 **可接受** |
+| 问题            | 严重性 | 影响 | 可能性 | 风险等级      |
+| --------------- | ------ | ---- | ------ | ------------- |
+| PATCH 认证绕过  | 🟢 低  | 无   | 极低   | 🟢 **可接受** |
+| DELETE 认证缺失 | 🟢 低  | 无   | 极低   | 🟢 **可接受** |
+| 密钥无轮换      | 🟡 中  | 有限 | 低     | 🟡 **可接受** |
 
 ---
 
@@ -816,11 +832,11 @@ export class AuthMetrics {
    * 记录认证失败
    */
   static recordAuthFailure(userId: string, reason: string) {
-    logger.warn('Auth failure', { userId, reason });
+    logger.warn('Auth failure', { userId, reason })
 
     // 如果失败率超过阈值，触发告警
     if (this.getFailureRate() > 0.1) {
-      this.triggerAlert('High auth failure rate detected');
+      this.triggerAlert('High auth failure rate detected')
     }
   }
 
@@ -828,24 +844,24 @@ export class AuthMetrics {
    * 记录成功认证
    */
   static recordAuthSuccess(userId: string) {
-    logger.info('Auth success', { userId });
+    logger.info('Auth success', { userId })
   }
 
   /**
    * 检查密钥轮换提醒
    */
   static checkRotationReminder() {
-    const lastRotation = process.env.JWT_LAST_ROTATION;
+    const lastRotation = process.env.JWT_LAST_ROTATION
     if (!lastRotation) {
-      this.triggerAlert('JWT_LAST_ROTATION not set');
-      return;
+      this.triggerAlert('JWT_LAST_ROTATION not set')
+      return
     }
 
     const daysSinceRotation =
-      (Date.now() - new Date(lastRotation).getTime()) / (1000 * 60 * 60 * 24);
+      (Date.now() - new Date(lastRotation).getTime()) / (1000 * 60 * 60 * 24)
 
     if (daysSinceRotation > 85) {
-      this.triggerAlert('JWT secret rotation due in less than 5 days');
+      this.triggerAlert('JWT secret rotation due in less than 5 days')
     }
   }
 }

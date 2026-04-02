@@ -4,19 +4,19 @@
 
 declare global {
   interface Performance {
-    getEntriesByType(type: string): PerformanceEntry[];
+    getEntriesByType(type: string): PerformanceEntry[]
     memory?: {
-      usedJSHeapSize: number;
-      totalJSHeapSize: number;
-      jsHeapSizeLimit: number;
-    };
+      usedJSHeapSize: number
+      totalJSHeapSize: number
+      jsHeapSizeLimit: number
+    }
   }
 
   interface Window {
     next?: {
-      router?: unknown;
-    };
+      router?: unknown
+    }
   }
 }
 
-export {};
+export {}

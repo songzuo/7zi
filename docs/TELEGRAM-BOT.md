@@ -30,12 +30,12 @@
 
 ### Bot 信息
 
-| 项目 | 值 |
-|------|-----|
-| Bot Name | @7ziStudioBot |
-| Bot ID | (通过 Token 获取) |
+| 项目        | 值                                    |
+| ----------- | ------------------------------------- |
+| Bot Name    | @7ziStudioBot                         |
+| Bot ID      | (通过 Token 获取)                     |
 | Webhook URL | https://7zi.com/api/webhooks/telegram |
-| 状态 | ✅ 运行中 |
+| 状态        | ✅ 运行中                             |
 
 ---
 
@@ -109,8 +109,8 @@ curl -X POST "https://api.telegram.org/bot$TELEGRAM_BOT_TOKEN/sendMessage" \
 await telegram.notify({
   channel: 'telegram',
   message: '部署完成 ✅',
-  type: 'success'
-});
+  type: 'success',
+})
 ```
 
 ### 命令交互
@@ -118,8 +118,8 @@ await telegram.notify({
 ```typescript
 // 处理命令
 if (message.text === '/status') {
-  const status = await getSystemStatus();
-  await reply(message.chat.id, status);
+  const status = await getSystemStatus()
+  await reply(message.chat.id, status)
 }
 ```
 
@@ -128,13 +128,13 @@ if (message.text === '/status') {
 ```typescript
 // 定期汇报
 cron.schedule('0 */6 * * *', async () => {
-  const report = await generateReport();
+  const report = await generateReport()
   await telegram.send({
     channel: 'telegram',
     message: report,
-    parse_mode: 'Markdown'
-  });
-});
+    parse_mode: 'Markdown',
+  })
+})
 ```
 
 ### 监控告警
@@ -145,8 +145,8 @@ if (cpuUsage > 90) {
   await telegram.alert({
     level: 'critical',
     message: `⚠️ CPU 使用率过高：${cpuUsage}%`,
-    actions: ['查看监控', '重启服务']
-  });
+    actions: ['查看监控', '重启服务'],
+  })
 }
 ```
 
@@ -156,32 +156,32 @@ if (cpuUsage > 90) {
 
 ### 系统命令
 
-| 命令 | 描述 | 权限 |
-|------|------|------|
-| `/start` | 启动 Bot，显示欢迎信息 | 所有人 |
-| `/help` | 显示帮助信息 | 所有人 |
-| `/status` | 系统状态 | 管理员 |
-| `/deploy` | 触发部署 | 管理员 |
-| `/logs` | 查看日志 | 管理员 |
-| `/restart` | 重启服务 | 管理员 |
-| `/backup` | 创建备份 | 管理员 |
+| 命令       | 描述                   | 权限   |
+| ---------- | ---------------------- | ------ |
+| `/start`   | 启动 Bot，显示欢迎信息 | 所有人 |
+| `/help`    | 显示帮助信息           | 所有人 |
+| `/status`  | 系统状态               | 管理员 |
+| `/deploy`  | 触发部署               | 管理员 |
+| `/logs`    | 查看日志               | 管理员 |
+| `/restart` | 重启服务               | 管理员 |
+| `/backup`  | 创建备份               | 管理员 |
 
 ### 团队命令
 
-| 命令 | 描述 | 权限 |
-|------|------|------|
-| `/tasks` | 查看任务列表 | 团队成员 |
-| `/meeting` | 发起会议 | 团队成员 |
-| `/report` | 提交日报 | 团队成员 |
-| `/vote` | 发起投票 | 团队成员 |
+| 命令       | 描述         | 权限     |
+| ---------- | ------------ | -------- |
+| `/tasks`   | 查看任务列表 | 团队成员 |
+| `/meeting` | 发起会议     | 团队成员 |
+| `/report`  | 提交日报     | 团队成员 |
+| `/vote`    | 发起投票     | 团队成员 |
 
 ### 查询命令
 
-| 命令 | 描述 | 权限 |
-|------|------|------|
-| `/weather [城市]` | 查询天气 | 所有人 |
-| `/repo` | 仓库状态 | 团队成员 |
-| `/issues` | Issue 列表 | 团队成员 |
+| 命令              | 描述       | 权限     |
+| ----------------- | ---------- | -------- |
+| `/weather [城市]` | 查询天气   | 所有人   |
+| `/repo`           | 仓库状态   | 团队成员 |
+| `/issues`         | Issue 列表 | 团队成员 |
 
 ---
 
@@ -208,52 +208,47 @@ curl "https://api.telegram.org/bot$TELEGRAM_BOT_TOKEN/getWebhookInfo"
 ```typescript
 // /api/webhooks/telegram.ts
 export async function POST(req: Request) {
-  const update = await req.json();
-  
+  const update = await req.json()
+
   // 处理消息
   if (update.message) {
-    await handleMessage(update.message);
+    await handleMessage(update.message)
   }
-  
+
   // 处理回调查询
   if (update.callback_query) {
-    await handleCallback(update.callback_query);
+    await handleCallback(update.callback_query)
   }
-  
-  return new Response('OK', { status: 200 });
+
+  return new Response('OK', { status: 200 })
 }
 
 async function handleMessage(message: any) {
-  const { chat, from, text } = message;
-  
+  const { chat, from, text } = message
+
   // 命令处理
   if (text?.startsWith('/')) {
-    const [command, ...args] = text.split(' ');
-    await handleCommand(chat.id, command, args, from);
+    const [command, ...args] = text.split(' ')
+    await handleCommand(chat.id, command, args, from)
   } else {
     // 普通消息
-    await handleTextMessage(chat.id, text, from);
+    await handleTextMessage(chat.id, text, from)
   }
 }
 
-async function handleCommand(
-  chatId: number,
-  command: string,
-  args: string[],
-  from: any
-) {
+async function handleCommand(chatId: number, command: string, args: string[], from: any) {
   switch (command) {
     case '/start':
-      await sendWelcome(chatId, from);
-      break;
+      await sendWelcome(chatId, from)
+      break
     case '/help':
-      await sendHelp(chatId);
-      break;
+      await sendHelp(chatId)
+      break
     case '/status':
       if (await isAdmin(from.id)) {
-        await sendStatus(chatId);
+        await sendStatus(chatId)
       }
-      break;
+      break
     // ... 其他命令
   }
 }
@@ -269,19 +264,19 @@ await telegram.send({
   reply_markup: {
     inline_keyboard: [
       [{ text: '✅ 确认', callback_data: 'confirm' }],
-      [{ text: '❌ 取消', callback_data: 'cancel' }]
-    ]
-  }
-});
+      [{ text: '❌ 取消', callback_data: 'cancel' }],
+    ],
+  },
+})
 
 // 处理按钮点击
 if (data.callback_data === 'confirm') {
-  await performAction();
+  await performAction()
   await telegram.editMessage({
     chat_id: data.chat_id,
     message_id: data.message_id,
-    text: '操作已确认 ✅'
-  });
+    text: '操作已确认 ✅',
+  })
 }
 ```
 
@@ -295,8 +290,8 @@ if (data.callback_data === 'confirm') {
 await telegram.send({
   channel: 'telegram',
   message: 'Hello, World!',
-  parse_mode: 'Markdown'
-});
+  parse_mode: 'Markdown',
+})
 ```
 
 ### Markdown 格式
@@ -310,13 +305,13 @@ const message = `
 时间：${new Date().toISOString()}
 
 [查看详情](https://7zi.com)
-`;
+`
 
 await telegram.send({
   channel: 'telegram',
   message: message,
-  parse_mode: 'Markdown'
-});
+  parse_mode: 'Markdown',
+})
 ```
 
 ### 带图片
@@ -326,9 +321,9 @@ await telegram.send({
   channel: 'telegram',
   caption: '部署完成截图',
   photo: {
-    source: '/path/to/screenshot.png'
-  }
-});
+    source: '/path/to/screenshot.png',
+  },
+})
 ```
 
 ### 带文件
@@ -339,9 +334,9 @@ await telegram.send({
   caption: '日志文件',
   document: {
     source: '/path/to/log.txt',
-    filename: 'deploy.log'
-  }
-});
+    filename: 'deploy.log',
+  },
+})
 ```
 
 ---
@@ -351,6 +346,7 @@ await telegram.send({
 ### Q1: Bot 无法接收消息
 
 **检查**:
+
 1. Bot 是否已加入群组/频道
 2. 隐私模式设置是否正确
 3. Webhook 是否配置成功
@@ -365,6 +361,7 @@ curl "https://api.telegram.org/bot$TOKEN/getChatMember?chat_id=-1001234567890&us
 **错误**: `Webhook failed, last error: ...`
 
 **解决**:
+
 1. 检查 HTTPS 证书是否有效
 2. 确认服务器可公网访问
 3. 检查防火墙设置
@@ -379,6 +376,7 @@ curl -X POST "https://api.telegram.org/bot$TOKEN/deleteWebhook"
 **错误**: `chat not found` 或 `unauthorized`
 
 **解决**:
+
 1. 确认 Chat ID 正确（负数表示群组/频道）
 2. 检查 Bot Token 是否有效
 3. 确认 Bot 有发送权限
@@ -388,18 +386,19 @@ curl -X POST "https://api.telegram.org/bot$TOKEN/deleteWebhook"
 **错误**: `429 Too Many Requests`
 
 **解决**:
+
 ```typescript
 // 添加延迟
 async function sendMessageWithRetry(chatId: number, text: string) {
   try {
-    return await telegram.send({ chat_id: chatId, text });
+    return await telegram.send({ chat_id: chatId, text })
   } catch (error) {
     if (error.code === 429) {
-      const retryAfter = error.parameters?.retry_after || 1;
-      await sleep(retryAfter * 1000);
-      return await telegram.send({ chat_id: chatId, text });
+      const retryAfter = error.parameters?.retry_after || 1
+      await sleep(retryAfter * 1000)
+      return await telegram.send({ chat_id: chatId, text })
     }
-    throw error;
+    throw error
   }
 }
 ```
@@ -413,11 +412,11 @@ async function sendMessageWithRetry(chatId: number, text: string) {
 ```typescript
 async function safeSend(message: any) {
   try {
-    await telegram.send(message);
+    await telegram.send(message)
   } catch (error) {
-    logger.error('Telegram send failed', error);
+    logger.error('Telegram send failed', error)
     // 降级到备用通知方式
-    await fallbackNotify(message);
+    await fallbackNotify(message)
   }
 }
 ```
@@ -428,12 +427,12 @@ async function safeSend(message: any) {
 // 避免消息洪水
 const messageQueue = new Queue('telegram', {
   rateLimit: {
-    max: 30,  // 每秒最多 30 条
-    duration: 1000
-  }
-});
+    max: 30, // 每秒最多 30 条
+    duration: 1000,
+  },
+})
 
-await messageQueue.add('send', { chatId, text });
+await messageQueue.add('send', { chatId, text })
 ```
 
 ### 3. 日志记录
@@ -442,8 +441,8 @@ await messageQueue.add('send', { chatId, text });
 logger.info('Telegram message sent', {
   chatId: message.chat.id,
   text: message.text?.substring(0, 50),
-  timestamp: new Date().toISOString()
-});
+  timestamp: new Date().toISOString(),
+})
 ```
 
 ---
@@ -457,4 +456,4 @@ logger.info('Telegram message sent', {
 
 ---
 
-*本集成由 7zi Studio AI 团队维护*
+_本集成由 7zi Studio AI 团队维护_

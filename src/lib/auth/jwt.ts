@@ -3,15 +3,15 @@
  * @description Provides JWT token signing, verification, and decoding using the jose library
  */
 
-import { SignJWT, jwtVerify, decodeJwt, type JWTPayload } from 'jose';
-import crypto from 'crypto';
-import type { KeyObject } from 'crypto';
+import { SignJWT, jwtVerify, decodeJwt, type JWTPayload } from 'jose'
+import crypto from 'crypto'
+import type { KeyObject } from 'crypto'
 
 // Temporarily disable logger to avoid circular dependencies in tests
 // import { logger } from '../logger/index';
 
 function logError(message: string, error: unknown, options?: { category?: string }): void {
-  console.error(`[${options?.category || 'auth'}] ${message}`, error);
+  console.error(`[${options?.category || 'auth'}] ${message}`, error)
 }
 
 // ============================================================================
@@ -22,51 +22,51 @@ function logError(message: string, error: unknown, options?: { category?: string
  * JWT payload structure
  */
 export interface JwtPayload extends JWTPayload {
-  sub: string;            // Subject (user ID)
-  email: string;          // User email
-  role: string;           // User role
-  roles?: string[];       // User roles
-  permissions?: string[]; // User permissions
-  customPermissions?: string[]; // Custom permissions
-  type: 'user' | 'agent' | 'api'; // Token type
+  sub: string // Subject (user ID)
+  email: string // User email
+  role: string // User role
+  roles?: string[] // User roles
+  permissions?: string[] // User permissions
+  customPermissions?: string[] // Custom permissions
+  type: 'user' | 'agent' | 'api' // Token type
 }
 
 /**
  * Token verification result
  */
 export interface TokenVerifyResult {
-  valid: boolean;
-  payload?: JwtPayload;
-  error?: string;
+  valid: boolean
+  payload?: JwtPayload
+  error?: string
 }
 
 /**
  * Token decode result
  */
 export interface TokenDecodeResult {
-  payload?: JwtPayload;
-  error?: string;
+  payload?: JwtPayload
+  error?: string
 }
 
 /**
  * User context extracted from JWT
  */
 export interface UserContext {
-  userId: string;
-  email: string;
-  role: string;
-  roles: string[];
-  permissions: string[];
-  customPermissions: string[];
+  userId: string
+  email: string
+  role: string
+  roles: string[]
+  permissions: string[]
+  customPermissions: string[]
 }
 
 // ============================================================================
 // Configuration
 // ============================================================================
 
-const JWT_ISSUER = '7zi-api';
-const JWT_AUDIENCE = '7zi-users';
-const DEFAULT_ALGORITHM = 'HS256';
+const JWT_ISSUER = '7zi-api'
+const JWT_AUDIENCE = '7zi-users'
+const DEFAULT_ALGORITHM = 'HS256'
 
 // ============================================================================
 // Helper Functions
@@ -77,12 +77,12 @@ const DEFAULT_ALGORITHM = 'HS256';
  * @throws {Error} If no secret is available
  */
 function getJwtSecret(): string {
-  const secret = process.env.JWT_SECRET || process.env.AGENT_ENCRYPTION_SECRET;
+  const secret = process.env.JWT_SECRET || process.env.AGENT_ENCRYPTION_SECRET
   if (!secret) {
-    const error = new Error('JWT_SECRET environment variable is required in production');
-    throw error;
+    const error = new Error('JWT_SECRET environment variable is required in production')
+    throw error
   }
-  return secret;
+  return secret
 }
 
 /**
@@ -90,9 +90,9 @@ function getJwtSecret(): string {
  * jose v6 accepts Uint8Array for HMAC signing
  */
 function getSecretKey(): Uint8Array {
-  const secret = getJwtSecret();
-  const encoder = new TextEncoder();
-  return encoder.encode(secret);
+  const secret = getJwtSecret()
+  const encoder = new TextEncoder()
+  return encoder.encode(secret)
 }
 
 /**
@@ -101,15 +101,15 @@ function getSecretKey(): Uint8Array {
  */
 function secondsToDuration(seconds: number): string {
   if (seconds % 86400 === 0) {
-    return `${seconds / 86400}d`;
+    return `${seconds / 86400}d`
   }
   if (seconds % 3600 === 0) {
-    return `${seconds / 3600}h`;
+    return `${seconds / 3600}h`
   }
   if (seconds % 60 === 0) {
-    return `${seconds / 60}m`;
+    return `${seconds / 60}m`
   }
-  return `${seconds}s`;
+  return `${seconds}s`
 }
 
 // ============================================================================
@@ -128,10 +128,13 @@ function secondsToDuration(seconds: number): string {
  * const token = await sign({ sub: 'user123', email: 'user@example.com', type: 'user' }, 3600);
  * ```
  */
-export async function sign(payload: Omit<JwtPayload, 'iat' | 'exp' | 'iss' | 'aud'>, expiresIn: number = 3600): Promise<string> {
+export async function sign(
+  payload: Omit<JwtPayload, 'iat' | 'exp' | 'iss' | 'aud'>,
+  expiresIn: number = 3600
+): Promise<string> {
   try {
-    const secretKey = getSecretKey();
-    const duration = secondsToDuration(expiresIn);
+    const secretKey = getSecretKey()
+    const duration = secondsToDuration(expiresIn)
 
     const token = await new SignJWT(payload)
       .setProtectedHeader({ alg: DEFAULT_ALGORITHM })
@@ -139,13 +142,13 @@ export async function sign(payload: Omit<JwtPayload, 'iat' | 'exp' | 'iss' | 'au
       .setExpirationTime(duration)
       .setIssuer(JWT_ISSUER)
       .setAudience(JWT_AUDIENCE)
-      .sign(secretKey);
+      .sign(secretKey)
 
-    return token;
-  } catch (_error) {
-    const errorMessage = error instanceof Error ? error.message : String(error);
-    logError('Failed to sign JWT token', error, { category: 'auth' });
-    throw new Error(`Failed to sign JWT token: ${errorMessage}`);
+    return token
+  } catch (error) {
+    const errorMessage = error instanceof Error ? error.message : String(error)
+    logError('Failed to sign JWT token', error, { category: 'auth' })
+    throw new Error(`Failed to sign JWT token: ${errorMessage}`)
   }
 }
 
@@ -165,34 +168,34 @@ export async function sign(payload: Omit<JwtPayload, 'iat' | 'exp' | 'iss' | 'au
  */
 export async function verify(token: string): Promise<TokenVerifyResult> {
   try {
-    const secretKey = getSecretKey();
+    const secretKey = getSecretKey()
 
     const { payload } = await jwtVerify(token, secretKey, {
       issuer: JWT_ISSUER,
       audience: JWT_AUDIENCE,
-    });
+    })
 
     return {
       valid: true,
       payload: payload as JwtPayload,
-    };
-  } catch (_error) {
-    let errorMessage = 'Invalid token';
+    }
+  } catch (error) {
+    let errorMessage = 'Invalid token'
 
     if (error instanceof Error) {
       if (error.message.includes('exp')) {
-        errorMessage = 'Token expired';
+        errorMessage = 'Token expired'
       } else if (error.message.includes('signature')) {
-        errorMessage = 'Invalid signature';
+        errorMessage = 'Invalid signature'
       } else {
-        errorMessage = error.message;
+        errorMessage = error.message
       }
     }
 
     return {
       valid: false,
       error: errorMessage,
-    };
+    }
   }
 }
 
@@ -213,14 +216,14 @@ export async function verify(token: string): Promise<TokenVerifyResult> {
  */
 export function decode(token: string): TokenDecodeResult {
   try {
-    const payload = decodeJwt(token);
+    const payload = decodeJwt(token)
     return {
       payload: payload as JwtPayload,
-    };
-  } catch (_error) {
+    }
+  } catch (error) {
     return {
       error: error instanceof Error ? error.message : 'Invalid token format',
-    };
+    }
   }
 }
 
@@ -236,15 +239,15 @@ export function decode(token: string): TokenDecodeResult {
  * @deprecated Use verify() instead for new code
  */
 export async function verifyToken(token: string): Promise<UserContext | null> {
-  const result = await verify(token);
+  const result = await verify(token)
 
   if (!result.valid || !result.payload) {
-    return null;
+    return null
   }
 
   // Validate token type
   if (result.payload.type !== 'user') {
-    return null;
+    return null
   }
 
   return {
@@ -254,7 +257,7 @@ export async function verifyToken(token: string): Promise<UserContext | null> {
     roles: result.payload.roles || [],
     permissions: result.payload.permissions || [],
     customPermissions: result.payload.customPermissions || [],
-  };
+  }
 }
 
 /**
@@ -263,8 +266,11 @@ export async function verifyToken(token: string): Promise<UserContext | null> {
  *
  * @deprecated Use sign() instead for new code
  */
-export async function signToken(payload: Omit<JwtPayload, 'iat' | 'exp' | 'iss' | 'aud'>, expiresIn?: number): Promise<string> {
-  return sign(payload, expiresIn);
+export async function signToken(
+  payload: Omit<JwtPayload, 'iat' | 'exp' | 'iss' | 'aud'>,
+  expiresIn?: number
+): Promise<string> {
+  return sign(payload, expiresIn)
 }
 
 /**
@@ -273,24 +279,27 @@ export async function signToken(payload: Omit<JwtPayload, 'iat' | 'exp' | 'iss' 
  */
 export async function createJwtToken(
   user: {
-    id: string;
-    email: string;
-    role: string;
-    roles?: string[];
-    permissions?: string[];
-    customPermissions?: string[];
+    id: string
+    email: string
+    role: string
+    roles?: string[]
+    permissions?: string[]
+    customPermissions?: string[]
   },
   expiresIn: number = 3600
 ): Promise<string> {
-  return sign({
-    sub: user.id,
-    email: user.email,
-    role: user.role,
-    roles: user.roles || [],
-    permissions: user.permissions || [],
-    customPermissions: user.customPermissions || [],
-    type: 'user',
-  }, expiresIn);
+  return sign(
+    {
+      sub: user.id,
+      email: user.email,
+      role: user.role,
+      roles: user.roles || [],
+      permissions: user.permissions || [],
+      customPermissions: user.customPermissions || [],
+      type: 'user',
+    },
+    expiresIn
+  )
 }
 
 /**
@@ -300,7 +309,7 @@ export async function createJwtToken(
  * @deprecated Use verify() instead for new code
  */
 export async function verifyJwtToken(token: string): Promise<UserContext | null> {
-  return verifyToken(token);
+  return verifyToken(token)
 }
 
 // ============================================================================
@@ -313,18 +322,18 @@ export async function verifyJwtToken(token: string): Promise<UserContext | null>
  * @returns true if token is expired, false otherwise
  */
 export function isTokenExpired(token: string): boolean {
-  const result = decode(token);
+  const result = decode(token)
 
   if (!result.payload) {
-    return true; // Invalid tokens are considered expired
+    return true // Invalid tokens are considered expired
   }
 
-  const exp = result.payload.exp;
+  const exp = result.payload.exp
   if (!exp) {
-    return false; // No expiration time, consider it not expired
+    return false // No expiration time, consider it not expired
   }
 
-  return exp < Math.floor(Date.now() / 1000);
+  return exp < Math.floor(Date.now() / 1000)
 }
 
 /**
@@ -333,19 +342,19 @@ export function isTokenExpired(token: string): boolean {
  * @returns Time remaining in seconds, or 0 if expired/invalid
  */
 export function getTokenTimeRemaining(token: string): number {
-  const result = decode(token);
+  const result = decode(token)
 
   if (!result.payload) {
-    return 0;
+    return 0
   }
 
-  const exp = result.payload.exp;
+  const exp = result.payload.exp
   if (!exp) {
-    return Infinity; // No expiration time
+    return Infinity // No expiration time
   }
 
-  const remaining = exp - Math.floor(Date.now() / 1000);
-  return Math.max(0, remaining);
+  const remaining = exp - Math.floor(Date.now() / 1000)
+  return Math.max(0, remaining)
 }
 
 /**
@@ -355,17 +364,17 @@ export function getTokenTimeRemaining(token: string): number {
  */
 export function isValidTokenFormat(token: string): boolean {
   if (!token || typeof token !== 'string') {
-    return false;
+    return false
   }
 
   // JWT tokens have 3 parts separated by dots
-  const parts = token.split('.');
+  const parts = token.split('.')
   if (parts.length !== 3) {
-    return false;
+    return false
   }
 
   // Check that each part is non-empty
-  return parts.every(part => part.length > 0);
+  return parts.every(part => part.length > 0)
 }
 
 /**

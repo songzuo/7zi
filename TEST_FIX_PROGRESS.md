@@ -5,6 +5,7 @@
 ### ✅ 已修复 (58 tests passed)
 
 #### API 路由测试
+
 - `src/app/api/health/__tests__/route.test.ts` - **12/12 passed** ✅
   - 修复了 NextResponse mock 问题
   - 修复了测试断言逻辑
@@ -13,11 +14,13 @@
   - 修复了 response.json 调用问题
 
 #### Lib 库测试
+
 - `src/lib/utils-core.test.ts` (formatTimeAgo) - **10/10 passed** ✅
   - 修复了 formatTimeAgo 函数的边界条件
   - 修改了 24 小时显示逻辑从 < 24 改为 <= 24
 
 #### WebSocket 测试
+
 - `src/lib/websocket/__tests__/server.test.ts` - **42/42 passed** ✅
   - 修复了 OT (Operational Transformation) 测试用例
   - 修正了 insert 和 retain 操作的转换逻辑期望
@@ -55,6 +58,7 @@
 ### 🎯 下一步计划
 
 #### 优先级 1: 继续修复 API 路由测试
+
 - [ ] `src/app/api/health/detailed/__tests__/route.test.ts`
 - [ ] `src/app/api/health/ready/__tests__/route.test.ts`
 - [ ] `src/app/api/database/health/route.test.ts`
@@ -62,16 +66,18 @@
 - [ ] `src/app/api/export/__tests__/route.test.ts`
 
 #### 优先级 2: 修复组件测试
+
 - [ ] `src/components/__tests__/TaskBoard.test.tsx` (4 failed)
 - [ ] `src/test/dark-mode/dark-mode.test.tsx` (11 failed)
 - [ ] `src/test/components/ActivityLog.test.tsx` (3 failed)
 
 #### 优先级 3: 修复 Lib 库测试
+
 - [ ] `src/lib/utils/__tests__/async.test.ts` (throttle/memoize) - 13 failed
 - [ ] `src/lib/db/__tests__/connection-pool.test.ts` (超时) - 24 failed
 - [ ] `src/lib/monitoring/__tests__/performance-metrics.test.ts` - 40 failed
 
 ---
 
-*更新时间: 2026-03-24 06:49*
-*测试工程师: AI Subagent*
+_更新时间: 2026-03-24 06:49_
+_测试工程师: AI Subagent_

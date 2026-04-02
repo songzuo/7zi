@@ -22,12 +22,14 @@
 **状态**: ✅ 已正确集成
 
 **验证点**:
+
 - ✅ `scheduler.ts` 正确导入并实例化 `AdaptiveLearner`
 - ✅ 在 `completeTask()` 和 `failTask()` 中调用 `learner.recordDecision()`
 - ✅ 在调度过程中使用 `getOptimizedWeights()` 获取优化权重
 - ✅ 学习数据通过 `getLearningSummary()` 和 `getWeightAdjustments()` 暴露
 
 **集成详情**:
+
 ```typescript
 // scheduler.ts 中的集成点:
 1. 构造函数: this.learner = new AdaptiveLearner(this.config.learning);
@@ -42,27 +44,28 @@
 
 **验证内容**:
 
-| 功能 | 状态 | 说明 |
-|------|--------|------|
-| 决策记录 | ✅ | 成功和失败都被正确记录 |
-| 指标更新 | ✅ | 成功率、完成时间、趋势等实时更新 |
-| 数据结构 | ✅ | 符合 `AgentLearningMetrics` 接口 |
-| 持久化框架 | ✅ | 支持 JSON 导出/导入 |
-| 文件持久化 | ⚠️ | 框架就绪，实际IO需配置 |
+| 功能       | 状态 | 说明                             |
+| ---------- | ---- | -------------------------------- |
+| 决策记录   | ✅   | 成功和失败都被正确记录           |
+| 指标更新   | ✅   | 成功率、完成时间、趋势等实时更新 |
+| 数据结构   | ✅   | 符合 `AgentLearningMetrics` 接口 |
+| 持久化框架 | ✅   | 支持 JSON 导出/导入              |
+| 文件持久化 | ⚠️   | 框架就绪，实际IO需配置           |
 
 **关键数据结构**:
+
 ```typescript
 interface AgentLearningMetrics {
-  agentId: string;
-  totalAssigned: number;
-  totalCompleted: number;
-  totalFailed: number;
-  successRate: number;
-  avgCompletionTime: number;
-  byTaskType: Record<TaskType, TypeMetrics>;
-  confidence: number;
-  trend: 'improving' | 'stable' | 'declining';
-  lastUpdated: number;
+  agentId: string
+  totalAssigned: number
+  totalCompleted: number
+  totalFailed: number
+  successRate: number
+  avgCompletionTime: number
+  byTaskType: Record<TaskType, TypeMetrics>
+  confidence: number
+  trend: 'improving' | 'stable' | 'declining'
+  lastUpdated: number
 }
 ```
 
@@ -71,11 +74,13 @@ interface AgentLearningMetrics {
 **状态**: ⚠️ 需要后续添加
 
 **当前状态**:
+
 - ✅ 核心调度功能已实现
 - ✅ 学习系统已集成到调度器
 - ⚠️ **尚未创建 `/api/agents` 学习相关端点**
 
 **建议的 API 端点**:
+
 ```
 GET  /api/agents/schedule           - 调度任务
 GET  /api/agents/metrics          - 获取调度指标
@@ -95,6 +100,7 @@ POST /api/agents/import          - 导入学习数据
 **测试结果**: ✅ 全部通过
 
 #### 测试场景 1: 批量调度
+
 ```typescript
 ✓ should schedule multiple tasks in batch
 - 任务数: 5
@@ -103,6 +109,7 @@ POST /api/agents/import          - 导入学习数据
 ```
 
 #### 测试场景 2: 批次大小限制
+
 ```typescript
 ✓ should respect max batch size
 - 总任务数: 20
@@ -111,6 +118,7 @@ POST /api/agents/import          - 导入学习数据
 ```
 
 #### 测试场景 3: 负载均衡
+
 ```typescript
 ✓ should load balance across agents
 - 任务数: 10
@@ -123,6 +131,7 @@ POST /api/agents/import          - 导入学习数据
 **状态**: ✅ 正确工作
 
 #### 测试场景 1: 权重建议
+
 ```typescript
 ✓ should suggest weight adjustments after learning
 - 学习任务数: 5+ (超过阈值)
@@ -131,6 +140,7 @@ POST /api/agents/import          - 导入学习数据
 ```
 
 #### 测试场景 2: 权重应用
+
 ```typescript
 ✓ should apply weight adjustments to cache
 - 缓存更新: 正确
@@ -138,6 +148,7 @@ POST /api/agents/import          - 导入学习数据
 ```
 
 #### 测试场景 3: 优化评分权重
+
 ```typescript
 ✓ should provide optimized scoring weights
 - 权重总和: ~1.0
@@ -168,25 +179,26 @@ POST /api/agents/import          - 导入学习数据
 
 **已实现的指标**:
 
-| 指标 | 类型 | 说明 | 实现状态 |
-|------|------|------|----------|
-| 总决策数 | 计数 | 累计调度决策 | ✅ |
-| 平均成功率 | 百分比 | 所有代理的平均成功率 | ✅ |
-| 有学习数据的代理数 | 计数 | 达到学习阈值的代理 | ✅ |
-| 顶级代理 | 列表 | 按分数排序的前5名 | ✅ |
-| 学习启用状态 | 布尔 | 是否启用了自动学习 | ✅ |
+| 指标               | 类型   | 说明                 | 实现状态 |
+| ------------------ | ------ | -------------------- | -------- |
+| 总决策数           | 计数   | 累计调度决策         | ✅       |
+| 平均成功率         | 百分比 | 所有代理的平均成功率 | ✅       |
+| 有学习数据的代理数 | 计数   | 达到学习阈值的代理   | ✅       |
+| 顶级代理           | 列表   | 按分数排序的前5名    | ✅       |
+| 学习启用状态       | 布尔   | 是否启用了自动学习   | ✅       |
 
 **每个代理的指标**:
+
 ```typescript
 {
-  agentId: string;
-  totalAssigned: number;      // 总分配任务
-  totalCompleted: number;      // 总完成
-  totalFailed: number;         // 总失败
-  successRate: number;        // 成功率 (0-1)
-  avgCompletionTime: number;   // 平均完成时间(分钟)
-  confidence: number;          // 置信度 (0-1)
-  trend: 'improving' | 'stable' | 'declining';
+  agentId: string
+  totalAssigned: number // 总分配任务
+  totalCompleted: number // 总完成
+  totalFailed: number // 总失败
+  successRate: number // 成功率 (0-1)
+  avgCompletionTime: number // 平均完成时间(分钟)
+  confidence: number // 置信度 (0-1)
+  trend: 'improving' | 'stable' | 'declining'
 }
 ```
 
@@ -195,18 +207,20 @@ POST /api/agents/import          - 导入学习数据
 **评估方法**: 通过优化权重减少错误分配
 
 **预期改进**:
+
 1. **成功率提升**: 通过学习优先分配给高成功率代理
 2. **完成时间优化**: 通过考虑平均完成时间选择更快代理
 3. **负载均衡优化**: 动态调整避免热点代理
 
 **测量指标**:
+
 ```typescript
 interface EfficiencyMetrics {
-  initialSuccessRate: number;
-  learnedSuccessRate: number;
-  improvement: number;  // 百分比提升
-  avgTaskDuration: number;
-  agentUtilization: Record<string, number>;
+  initialSuccessRate: number
+  learnedSuccessRate: number
+  improvement: number // 百分比提升
+  avgTaskDuration: number
+  agentUtilization: Record<string, number>
 }
 ```
 
@@ -217,16 +231,16 @@ interface EfficiencyMetrics {
 ```typescript
 // 学习系统健康指标
 interface LearningHealthMetrics {
-  learningActive: boolean;
-  totalDecisions: number;
-  agentsWithLearningData: number;
-  averageConfidence: number;
-  lastLearningUpdate: number;
+  learningActive: boolean
+  totalDecisions: number
+  agentsWithLearningData: number
+  averageConfidence: number
+  lastLearningUpdate: number
   trendDistribution: {
-    improving: number;
-    stable: number;
-    declining: number;
-  };
+    improving: number
+    stable: number
+    declining: number
+  }
 }
 ```
 
@@ -242,6 +256,7 @@ interface LearningHealthMetrics {
 **执行时间**: 17ms
 
 **测试覆盖**:
+
 - ✅ 决策记录 (5 tests)
 - ✅ 趋势计算 (3 tests)
 - ✅ 摘要生成 (2 tests)
@@ -259,6 +274,7 @@ interface LearningHealthMetrics {
 **执行时间**: 24ms
 
 **测试覆盖**:
+
 - ✅ 学习数据持久化 (3 tests)
 - ✅ 多任务调度 (3 tests)
 - ✅ 权重调整逻辑 (3 tests)
@@ -293,12 +309,13 @@ interface LearningHealthMetrics {
 **影响**: 无法通过 API 访问学习数据
 
 **建议修复**:
+
 ```typescript
 // 创建 /src/app/api/agents/learning/route.ts
 export async function GET(request: NextRequest) {
-  const scheduler = getScheduler();
-  const summary = scheduler.getLearningSummary();
-  return NextResponse.json(summary);
+  const scheduler = getScheduler()
+  const summary = scheduler.getLearningSummary()
+  return NextResponse.json(summary)
 }
 ```
 
@@ -308,6 +325,7 @@ export async function GET(request: NextRequest) {
 **影响**: 服务重启后学习数据丢失
 
 **建议修复**:
+
 - 使用数据库存储学习数据
 - 或使用文件系统持久化
 
@@ -331,6 +349,7 @@ export async function GET(request: NextRequest) {
 ### 6.3 扩展性
 
 **支持规模**:
+
 - 代理数: 11 (当前配置)
 - 最大并发任务: ~50 (基于代理并发度)
 - 学习历史: 1000条 (可配置)
@@ -370,33 +389,32 @@ export async function GET(request: NextRequest) {
 **预计工作量**: 2-4小时
 
 **实施方案**:
+
 1. 创建 `/api/agents/schedule` - 调度端点
 2. 创建 `/api/agents/learning` - 学习数据端点
 3. 创建 `/api/agents/weights` - 权重管理端点
 4. 创建 `/api/agents/export` - 数据导出端点
 
 **示例代码**:
+
 ```typescript
 // src/app/api/agents/learning/route.ts
-import { NextRequest, NextResponse } from 'next/server';
-import { getScheduler } from '@/lib/agents/scheduler';
+import { NextRequest, NextResponse } from 'next/server'
+import { getScheduler } from '@/lib/agents/scheduler'
 
 export async function GET(request: NextRequest) {
   try {
-    const scheduler = getScheduler();
-    const summary = scheduler.getLearningSummary();
-    const adjustments = scheduler.getWeightAdjustments();
+    const scheduler = getScheduler()
+    const summary = scheduler.getLearningSummary()
+    const adjustments = scheduler.getWeightAdjustments()
 
     return NextResponse.json({
       summary,
       adjustments,
-      timestamp: Date.now()
-    });
+      timestamp: Date.now(),
+    })
   } catch (error) {
-    return NextResponse.json(
-      { error: 'Failed to fetch learning data' },
-      { status: 500 }
-    );
+    return NextResponse.json({ error: 'Failed to fetch learning data' }, { status: 500 })
   }
 }
 ```
@@ -407,6 +425,7 @@ export async function GET(request: NextRequest) {
 **预计工作量**: 3-5小时
 
 **实施方案**:
+
 ```typescript
 // 在 AdaptiveLearner 中实现实际文件 I/O
 private saveToDisk(): void {
@@ -435,11 +454,13 @@ private loadFromDisk(): void {
 **预计工作量**: 4-6小时
 
 **实施方案**:
+
 1. 创建 `agent_learning_metrics` 表
 2. 实现数据库 CRUD 操作
 3. 替换内存存储为数据库存储
 
 **表结构**:
+
 ```sql
 CREATE TABLE agent_learning_metrics (
   agent_id TEXT PRIMARY KEY,
@@ -524,6 +545,7 @@ CREATE TABLE agent_type_metrics (
 **生产就绪度**: 85%
 
 **评分明细**:
+
 - 核心功能: ✅ 100%
 - 测试覆盖: ✅ 100%
 - 性能: ✅ 100%
@@ -535,12 +557,12 @@ CREATE TABLE agent_type_metrics (
 
 ### 10.3 风险评估
 
-| 风险 | 级别 | 缓解措施 |
-|------|--------|----------|
-| 服务重启数据丢失 | 低 | 启用持久化后解决 |
-| API 访问受限 | 低 | 添加端点后解决 |
-| 学习准确度 | 低 | 持续监控和调整 |
-| 性能瓶颈 | 极低 | 当前性能良好 |
+| 风险             | 级别 | 缓解措施         |
+| ---------------- | ---- | ---------------- |
+| 服务重启数据丢失 | 低   | 启用持久化后解决 |
+| API 访问受限     | 低   | 添加端点后解决   |
+| 学习准确度       | 低   | 持续监控和调整   |
+| 性能瓶颈         | 极低 | 当前性能良好     |
 
 ---
 

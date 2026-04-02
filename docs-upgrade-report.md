@@ -11,6 +11,7 @@
 ### 1. 检查现有文档
 
 #### 已检查的文档
+
 - ✅ `docs/USER_GUIDE.md` - 用户使用指南
 - ✅ `docs/QUICKSTART_V150.md` - v1.5.0 快速入门指南
 - ✅ `README.md` - 项目主文档
@@ -21,13 +22,14 @@
 - ✅ `DEPLOYMENT.md` - 部署指南
 
 #### 文档版本一致性检查
-| 文档 | 版本 | 状态 |
-|------|------|------|
-| README.md | v1.5.0 | ✅ 已发布 |
-| USER_GUIDE.md | v1.5.0-dev | ⚠️ 已更新为 v1.5.0 |
+
+| 文档               | 版本       | 状态               |
+| ------------------ | ---------- | ------------------ |
+| README.md          | v1.5.0     | ✅ 已发布          |
+| USER_GUIDE.md      | v1.5.0-dev | ⚠️ 已更新为 v1.5.0 |
 | QUICKSTART_V150.md | v1.5.0-dev | ⚠️ 已更新为 v1.5.0 |
-| CONTRIBUTING.md | - | ✅ 无版本信息 |
-| 其他文档 | - | ✅ 无版本冲突 |
+| CONTRIBUTING.md    | -          | ✅ 无版本信息      |
+| 其他文档           | -          | ✅ 无版本冲突      |
 
 **处理结果**: 已将 `USER_GUIDE.md` 和 `QUICKSTART_V150.md` 的版本从 "v1.5.0-dev" 更新为 "v1.5.0"，与 README.md 保持一致。
 
@@ -40,24 +42,29 @@
 #### 主要更新
 
 **1.1 文档概述增强**
+
 - 添加了"快速开始"章节说明
 - 添加了"部署指南"章节说明
 - 明确了各章节的目标内容
 
 **1.2 新增"快速开始"章节**
+
 ```markdown
 ## 快速开始
 
 ### 环境要求
+
 - Node.js 22.x LTS 或更高版本
 - pnpm 8+ 或 npm 10+
 - Git
 
 ### 5 分钟快速部署
+
 # 完整的部署步骤
 ```
 
 **1.3 重新组织快速导航**
+
 ```markdown
 ## 🚀 快速导航
 
@@ -71,6 +78,7 @@
 ```
 
 **1.4 新增"部署说明"章节**
+
 - 5.1 部署选项（Docker、Vercel、GitHub Actions）
 - 5.2 Docker 部署（docker-compose 配置示例）
 - 5.3 Vercel 部署（vercel.json 配置示例）
@@ -79,6 +87,7 @@
 - 5.6 性能优化建议（构建、缓存、监控）
 
 **1.5 扩展"常见问题"章节**
+
 - 6.1 状态管理（原有内容）
 - 6.2 权限系统（原有内容）
 - 6.3 lib/ 工具（原有内容）
@@ -94,10 +103,12 @@
   - TypeScript 类型错误如何解决
 
 **1.6 增强"相关文档"章节**
+
 ```markdown
 ## 📚 相关文档
 
 ### 核心文档
+
 - README.md - 项目介绍和快速开始
 - QUICKSTART.md - 5 分钟快速部署
 - QUICKSTART_V150.md - v1.5.0 快速入门指南
@@ -105,6 +116,7 @@
 - DEPLOYMENT.md - 部署指南
 
 ### 技术文档
+
 - Zustand Stores 使用示例
 - PermissionContext 迁移报告
 - lib/ 层重构报告
@@ -113,20 +125,24 @@
 - API 文档
 
 ### 架构文档
+
 - ARCHITECTURE.md - 系统架构总览
 - ADR 索引 - 架构决策记录
 - API 完整文档
 
 ### 文档索引
+
 完整文档列表请查看 INDEX.md。
 
 ### 获取帮助
+
 - 📧 邮件: support@7zi.com
 - 🐛 提交 Issue: https://github.com/songzuo/7zi/issues
 - 💬 GitHub Discussions: https://github.com/songzuo/7zi/discussions
 ```
 
 #### 代码统计
+
 - **原文件大小**: 约 500 行
 - **新增内容**: 约 200 行
 - **修改内容**: 约 50 行
@@ -139,23 +155,20 @@
 #### 主要更新
 
 **2.1 版本号更新**
+
 - 将版本从 "v1.5.0-dev" 更新为 "v1.5.0"
 - 与 README.md 保持一致
 
 **2.2 新增完整页面代码示例**
 
 **Dashboard 页面示例**:
+
 ```typescript
-'use client';
+'use client'
 
-import { 
-  useDashboardStore,
-  usePermissionStore,
-  useIsAdmin,
-  toast
-} from '@/stores';
+import { useDashboardStore, usePermissionStore, useIsAdmin, toast } from '@/stores'
 
-import { logger } from '@/lib/logger';
+import { logger } from '@/lib/logger'
 
 export default function Dashboard() {
   // 完整的 Dashboard 页面实现
@@ -163,15 +176,16 @@ export default function Dashboard() {
 ```
 
 **Agent Dashboard UI 使用示例**:
-```typescript
-'use client';
 
-import { 
+```typescript
+'use client'
+
+import {
   AgentStatusPanel,
   TaskQueueView,
   ScheduleHistory,
-  ManualOverride
-} from '@/components/agent-scheduler';
+  ManualOverride,
+} from '@/components/agent-scheduler'
 
 export default function AgentSchedulerPage() {
   // 完整的 Agent 调度页面实现
@@ -179,11 +193,12 @@ export default function AgentSchedulerPage() {
 ```
 
 **WebSocket 房间系统使用示例**:
-```typescript
-'use client';
 
-import { useEffect } from 'react';
-import { wsClient } from '@/lib/websocket';
+```typescript
+'use client'
+
+import { useEffect } from 'react'
+import { wsClient } from '@/lib/websocket'
 
 export default function RoomManager() {
   // 完整的 WebSocket 房间管理实现
@@ -191,6 +206,7 @@ export default function RoomManager() {
 ```
 
 **2.3 扩展"常见问题"章节**
+
 - **权限系统**（3 个新问题）
   - 权限系统迁移后，旧的代码还能用吗？
   - 如何选择使用 Zustand 还是兼容层？
@@ -216,6 +232,7 @@ export default function RoomManager() {
   - 部署后如何验证功能正常？
 
 **2.4 增强"下一步"章节**
+
 ```markdown
 ## 🎉 下一步
 
@@ -245,6 +262,7 @@ export default function RoomManager() {
 ```
 
 #### 代码统计
+
 - **原文件大小**: 约 300 行
 - **新增内容**: 约 350 行
 - **修改内容**: 约 30 行
@@ -256,21 +274,21 @@ export default function RoomManager() {
 
 ### 与 README.md 的一致性
 
-| 项目 | README.md | USER_GUIDE.md | QUICKSTART_V150.md | 状态 |
-|------|-----------|--------------|-------------------|------|
-| **版本号** | v1.5.0 | v1.5.0 | v1.5.0 | ✅ 一致 |
-| **核心功能** | 11 AI 成员、24/7 工作 | Zustand、权限、lib/、Agent Learning | v1.5.0 新功能 | ✅ 一致 |
-| **部署方式** | Docker、Vercel | Docker、Vercel、GitHub Actions | - | ✅ 一致 |
-| **技术栈** | Next.js 16.2.1、React 19.2.4、TypeScript 5、Tailwind 4 | 一致 | 一致 | ✅ 一致 |
-| **快速开始链接** | QUICKSTART.md | QUICKSTART.md | - | ✅ 一致 |
+| 项目             | README.md                                              | USER_GUIDE.md                       | QUICKSTART_V150.md | 状态    |
+| ---------------- | ------------------------------------------------------ | ----------------------------------- | ------------------ | ------- |
+| **版本号**       | v1.5.0                                                 | v1.5.0                              | v1.5.0             | ✅ 一致 |
+| **核心功能**     | 11 AI 成员、24/7 工作                                  | Zustand、权限、lib/、Agent Learning | v1.5.0 新功能      | ✅ 一致 |
+| **部署方式**     | Docker、Vercel                                         | Docker、Vercel、GitHub Actions      | -                  | ✅ 一致 |
+| **技术栈**       | Next.js 16.2.1、React 19.2.4、TypeScript 5、Tailwind 4 | 一致                                | 一致               | ✅ 一致 |
+| **快速开始链接** | QUICKSTART.md                                          | QUICKSTART.md                       | -                  | ✅ 一致 |
 
 ### 与 CONTRIBUTING.md 的一致性
 
-| 项目 | CONTRIBUTING.md | USER_GUIDE.md | 状态 |
-|------|-----------------|--------------|------|
-| **测试覆盖要求** | 新功能 ≥80%、核心组件 ≥90% | 提及但无具体要求 | ⚠️ 不一致 |
-| **提交规范** | Conventional Commits | 未提及 | ⚠️ 需要补充 |
-| **开发工作流** | 详细的 Git 工作流 | 简单提及 | ⚠️ 需要补充 |
+| 项目             | CONTRIBUTING.md            | USER_GUIDE.md    | 状态        |
+| ---------------- | -------------------------- | ---------------- | ----------- |
+| **测试覆盖要求** | 新功能 ≥80%、核心组件 ≥90% | 提及但无具体要求 | ⚠️ 不一致   |
+| **提交规范**     | Conventional Commits       | 未提及           | ⚠️ 需要补充 |
+| **开发工作流**   | 详细的 Git 工作流          | 简单提及         | ⚠️ 需要补充 |
 
 **建议**: 在 USER_GUIDE.md 中补充"代码规范"和"提交规范"章节，与 CONTRIBUTING.md 保持一致。
 
@@ -279,21 +297,25 @@ export default function RoomManager() {
 ## 🔍 发现的不一致问题
 
 ### 1. 版本号不一致（已修复）
+
 - **问题**: USER_GUIDE.md 和 QUICKSTART_V150.md 显示 "v1.5.0-dev"
 - **修复**: 已更新为 "v1.5.0"
 - **状态**: ✅ 已解决
 
 ### 2. 测试覆盖率要求不一致（需要人工处理）
+
 - **问题**: CONTRIBUTING.md 明确要求测试覆盖率，但 USER_GUIDE.md 未提及
 - **建议**: 在 USER_GUIDE.md 中添加"测试要求"章节
 - **状态**: ⚠️ 需要人工处理
 
 ### 3. 提交规范缺失（需要人工处理）
+
 - **问题**: USER_GUIDE.md 未说明代码提交规范
 - **建议**: 添加"代码规范"章节，引用 CONTRIBUTING.md 的提交规范
 - **状态**: ⚠️ 需要人工处理
 
 ### 4. API 文档链接可能过时（需要验证）
+
 - **问题**: USER_GUIDE.md 引用了多个 API 文档，部分可能不存在或已过时
 - **建议**: 验证所有文档链接的有效性
 - **状态**: ⚠️ 需要验证
@@ -304,44 +326,48 @@ export default function RoomManager() {
 
 ### USER_GUIDE.md 新增内容
 
-| 章节 | 内容 | 行数 |
-|------|------|------|
-| 快速开始 | 环境要求、5分钟部署、v1.5.0核心更新 | ~80 |
-| 部署说明 | 5个子章节，涵盖Docker、Vercel、蓝绿部署等 | ~120 |
-| 常见问题-部署相关 | 4个部署相关的FAQ | ~40 |
-| 常见问题-开发调试 | 3个开发调试相关的FAQ | ~30 |
-| 相关文档 | 完善的文档索引和帮助渠道 | ~50 |
+| 章节              | 内容                                      | 行数 |
+| ----------------- | ----------------------------------------- | ---- |
+| 快速开始          | 环境要求、5分钟部署、v1.5.0核心更新       | ~80  |
+| 部署说明          | 5个子章节，涵盖Docker、Vercel、蓝绿部署等 | ~120 |
+| 常见问题-部署相关 | 4个部署相关的FAQ                          | ~40  |
+| 常见问题-开发调试 | 3个开发调试相关的FAQ                      | ~30  |
+| 相关文档          | 完善的文档索引和帮助渠道                  | ~50  |
 
 ### QUICKSTART_V150.md 新增内容
 
-| 章节 | 内容 | 行数 |
-|------|------|------|
-| 完整页面代码示例 | Dashboard、Agent Dashboard、WebSocket | ~120 |
-| WebSocket房间系统 | 全新章节，3个FAQ | ~40 |
-| 性能优化FAQ | 全新章节，3个FAQ | ~40 |
-| 部署相关FAQ | 全新章节，2个FAQ | ~30 |
-| 下一步 | 详细的下一步指引 | ~60 |
+| 章节              | 内容                                  | 行数 |
+| ----------------- | ------------------------------------- | ---- |
+| 完整页面代码示例  | Dashboard、Agent Dashboard、WebSocket | ~120 |
+| WebSocket房间系统 | 全新章节，3个FAQ                      | ~40  |
+| 性能优化FAQ       | 全新章节，3个FAQ                      | ~40  |
+| 部署相关FAQ       | 全新章节，2个FAQ                      | ~30  |
+| 下一步            | 详细的下一步指引                      | ~60  |
 
 ---
 
 ## ✨ 改进亮点
 
 ### 1. 结构更清晰
+
 - USER_GUIDE.md 从 5 个章节扩展到 6 个主要章节
 - 每个章节都有明确的目标和内容说明
 - 导航更加完善，便于快速查找
 
 ### 2. 内容更全面
+
 - 新增"部署说明"章节，覆盖多种部署方式
 - 扩展"常见问题"章节，从 12 个问题增加到 22 个问题
 - 提供更多实用的代码示例
 
 ### 3. 文档更专业
+
 - 版本号统一为 v1.5.0
 - 文档格式更规范
 - 引用链接更完整
 
 ### 4. 用户更友好
+
 - 提供多种帮助渠道（邮件、Issue、Discussions）
 - 详细的下一步指引
 - 清晰的FAQ分类
@@ -409,14 +435,14 @@ export default function RoomManager() {
 
 ### 统计数据
 
-| 指标 | 数值 |
-|------|------|
-| 检查的文档 | 8 个 |
-| 更新的文档 | 2 个 |
-| 新增内容 | ~550 行 |
-| 修改内容 | ~80 行 |
-| 新增FAQ | 14 个 |
-| 新增代码示例 | 3 个 |
+| 指标         | 数值    |
+| ------------ | ------- |
+| 检查的文档   | 8 个    |
+| 更新的文档   | 2 个    |
+| 新增内容     | ~550 行 |
+| 修改内容     | ~80 行  |
+| 新增FAQ      | 14 个   |
+| 新增代码示例 | 3 个    |
 
 ### 需要人工处理的问题
 

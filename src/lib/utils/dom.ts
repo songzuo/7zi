@@ -1,11 +1,11 @@
 /**
  * DOM utilities
- * 
+ *
  * @module lib/utils/dom
  */
 
-import { debounce, throttle } from './async';
-import { logger } from '../logger';
+import { debounce, throttle } from './async'
+import { logger } from '../logger'
 
 /**
  * Check if an element is in the viewport
@@ -16,13 +16,13 @@ import { logger } from '../logger';
  * isInViewport(document.getElementById('myElement'))
  */
 export function isInViewport(element: Element, offset: number = 0): boolean {
-  const rect = element.getBoundingClientRect();
+  const rect = element.getBoundingClientRect()
   return (
     rect.top >= offset &&
     rect.left >= offset &&
     rect.bottom <= (window.innerHeight || document.documentElement.clientHeight) - offset &&
     rect.right <= (window.innerWidth || document.documentElement.clientWidth) - offset
-  );
+  )
 }
 
 /**
@@ -36,7 +36,7 @@ export function scrollToElement(element: Element, center: boolean = false): void
   element.scrollIntoView({
     behavior: 'smooth',
     block: center ? 'center' : 'start',
-  });
+  })
 }
 
 /**
@@ -59,8 +59,8 @@ export function addEventListener<T extends Event>(
   handler: (event: T) => void,
   options?: AddEventListenerOptions
 ): () => void {
-  target.addEventListener(event, handler as EventListener, options);
-  return () => target.removeEventListener(event, handler as EventListener);
+  target.addEventListener(event, handler as EventListener, options)
+  return () => target.removeEventListener(event, handler as EventListener)
 }
 
 /**
@@ -72,9 +72,9 @@ export function addEventListener<T extends Event>(
  * const button = getElementById<HTMLButtonElement>('myButton');
  */
 export function getElementById<T extends Element>(id: string): T | null {
-  const element = document.getElementById(id);
+  const element = document.getElementById(id)
   // Type assertion: caller is responsible for ensuring the element matches T
-  return element ? (element as unknown as T) : null;
+  return element ? (element as unknown as T) : null
 }
 
 /**
@@ -86,7 +86,7 @@ export function getElementById<T extends Element>(id: string): T | null {
  * const buttons = querySelectorAll<HTMLButtonElement>('button.primary');
  */
 export function querySelectorAll<T extends Element>(selector: string): T[] {
-  return Array.from(document.querySelectorAll(selector)) as T[];
+  return Array.from(document.querySelectorAll(selector)) as T[]
 }
 
 /**
@@ -98,7 +98,7 @@ export function querySelectorAll<T extends Element>(selector: string): T[] {
  * const button = querySelector<HTMLButtonElement>('button.primary');
  */
 export function querySelector<T extends Element>(selector: string): T | null {
-  return document.querySelector(selector) as T | null;
+  return document.querySelector(selector) as T | null
 }
 
 /**
@@ -116,7 +116,7 @@ export function debounceDOM<T extends Event>(
   handler: (event: T) => void,
   delay: number = 100
 ): (event: T) => void {
-  return debounce(handler, delay) as (event: T) => void;
+  return debounce(handler, delay) as (event: T) => void
 }
 
 /**
@@ -134,7 +134,7 @@ export function throttleDOM<T extends Event>(
   handler: (event: T) => void,
   limit: number = 100
 ): (event: T) => void {
-  return throttle(handler, limit) as (event: T) => void;
+  return throttle(handler, limit) as (event: T) => void
 }
 
 /**
@@ -156,9 +156,9 @@ export function observeIntersection(
   callback: (entries: IntersectionObserverEntry[]) => void,
   options?: IntersectionObserverInit
 ): () => void {
-  const observer = new IntersectionObserver(callback, options);
-  observer.observe(element);
-  return () => observer.disconnect();
+  const observer = new IntersectionObserver(callback, options)
+  observer.observe(element)
+  return () => observer.disconnect()
 }
 
 /**
@@ -177,12 +177,12 @@ export function observeResize(
   callback: (entries: ResizeObserverEntry[]) => void
 ): () => void {
   if (typeof ResizeObserver === 'undefined') {
-    return () => {};
+    return () => {}
   }
 
-  const observer = new ResizeObserver(callback);
-  observer.observe(element);
-  return () => observer.disconnect();
+  const observer = new ResizeObserver(callback)
+  observer.observe(element)
+  return () => observer.disconnect()
 }
 
 /**
@@ -201,13 +201,13 @@ export function addClassWithDelay(
   delay: number = 0
 ): () => void {
   const timeout = setTimeout(() => {
-    element.classList.add(className);
-  }, delay);
+    element.classList.add(className)
+  }, delay)
 
   return () => {
-    clearTimeout(timeout);
-    element.classList.remove(className);
-  };
+    clearTimeout(timeout)
+    element.classList.remove(className)
+  }
 }
 
 /**
@@ -223,13 +223,13 @@ export function addClassWithDelay(
 export function toggleClass(element: Element, className: string, force?: boolean): boolean {
   if (force !== undefined) {
     if (force) {
-      element.classList.add(className);
+      element.classList.add(className)
     } else {
-      element.classList.remove(className);
+      element.classList.remove(className)
     }
-    return force;
+    return force
   }
-  return element.classList.toggle(className);
+  return element.classList.toggle(className)
 }
 
 /**
@@ -241,7 +241,7 @@ export function toggleClass(element: Element, className: string, force?: boolean
  * hasAllClasses(element, ['active', 'visible'])
  */
 export function hasAllClasses(element: Element, classNames: string[]): boolean {
-  return classNames.every(className => element.classList.contains(className));
+  return classNames.every(className => element.classList.contains(className))
 }
 
 /**
@@ -253,7 +253,7 @@ export function hasAllClasses(element: Element, classNames: string[]): boolean {
  * hasAnyClass(element, ['active', 'disabled'])
  */
 export function hasAnyClass(element: Element, classNames: string[]): boolean {
-  return classNames.some(className => element.classList.contains(className));
+  return classNames.some(className => element.classList.contains(className))
 }
 
 /**
@@ -265,5 +265,5 @@ export function hasAnyClass(element: Element, classNames: string[]): boolean {
  * getComputedStyleValue(element, 'color') // "rgb(255, 255, 255)"
  */
 export function getComputedStyleValue(element: Element, property: string): string {
-  return window.getComputedStyle(element).getPropertyValue(property);
+  return window.getComputedStyle(element).getPropertyValue(property)
 }

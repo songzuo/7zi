@@ -3,11 +3,11 @@
  * Provides a fully mocked database for testing without real SQLite
  */
 
-import { vi, beforeEach, afterEach } from 'vitest';
-import { DatabaseResult, DatabaseStatement, DatabaseConnection } from '../lib/db/index';
+import { vi, beforeEach, afterEach } from 'vitest'
+import { DatabaseResult, DatabaseStatement, DatabaseConnection } from '../lib/db/index'
 
 // Mock database instance
-let mockDb: DatabaseConnection;
+let mockDb: DatabaseConnection
 
 // Mock prepare statement
 function createMockStatement(
@@ -19,16 +19,16 @@ function createMockStatement(
     all: vi.fn().mockReturnValue(mockAll),
     get: vi.fn().mockReturnValue(mockGet),
     run: vi.fn().mockReturnValue(mockRun),
-  };
+  }
 }
 
 // Mock transaction
 function createMockTransaction() {
-  const mockExec = vi.fn();
+  const mockExec = vi.fn()
   return {
     exec: mockExec,
     rollback: vi.fn(),
-  };
+  }
 }
 
 /**
@@ -44,22 +44,22 @@ export function setupMockDatabase() {
       const statements = sql
         .split(';')
         .map(s => s.trim())
-        .filter(s => s.length > 0 && !s.startsWith('--'));
-      
+        .filter(s => s.length > 0 && !s.startsWith('--'))
+
       // For schema initialization, return success
       if (statements.some(s => s.match(/CREATE\s+(TABLE|INDEX)/i))) {
-        return { changes: statements.length, lastInsertRowid: 1 };
+        return { changes: statements.length, lastInsertRowid: 1 }
       }
-      
-      return { changes: 1, lastInsertRowid: 1 };
+
+      return { changes: 1, lastInsertRowid: 1 }
     }),
     prepare: vi.fn((sql: string) => {
       // Default mock statement
-      return createMockStatement([], null, { changes: 1 });
+      return createMockStatement([], null, { changes: 1 })
     }),
     pragma: vi.fn().mockReturnValue(undefined),
     batch: vi.fn().mockReturnValue([{ changes: 1 }]),
-  };
+  }
 
   // Mock the database module
   vi.doMock('../lib/db/index', () => ({
@@ -73,16 +73,16 @@ export function setupMockDatabase() {
       ok: true,
       message: 'Database is healthy',
     }),
-  }));
+  }))
 
-  return mockDb;
+  return mockDb
 }
 
 /**
  * Get the current mock database instance
  */
 export function getMockDatabase(): DatabaseConnection {
-  return mockDb;
+  return mockDb
 }
 
 /**
@@ -90,31 +90,31 @@ export function getMockDatabase(): DatabaseConnection {
  */
 export function resetMockDatabase() {
   if (!mockDb) {
-    setupMockDatabase();
-    return;
+    setupMockDatabase()
+    return
   }
 
-  mockDb.query = vi.fn();
+  mockDb.query = vi.fn()
   mockDb.exec = vi.fn().mockImplementation((sql: string, _params?: unknown[]) => {
     // Handle multi-statement SQL
     const statements = sql
       .split(';')
       .map(s => s.trim())
-      .filter(s => s.length > 0 && !s.startsWith('--'));
-    
+      .filter(s => s.length > 0 && !s.startsWith('--'))
+
     if (statements.some(s => s.match(/CREATE\s+(TABLE|INDEX)/i))) {
-      return { changes: statements.length, lastInsertRowid: 1 };
+      return { changes: statements.length, lastInsertRowid: 1 }
     }
-    
-    return { changes: 1, lastInsertRowid: 1 };
-  });
-  mockDb.pragma = vi.fn().mockReturnValue(undefined);
-  mockDb.batch = vi.fn().mockReturnValue([{ changes: 1 }]);
+
+    return { changes: 1, lastInsertRowid: 1 }
+  })
+  mockDb.pragma = vi.fn().mockReturnValue(undefined)
+  mockDb.batch = vi.fn().mockReturnValue([{ changes: 1 }])
 
   // Reset prepare to return new mock statements
   mockDb.prepare = vi.fn((sql: string) => {
-    return createMockStatement([], null, { changes: 1 });
-  });
+    return createMockStatement([], null, { changes: 1 })
+  })
 }
 
 /**
@@ -123,17 +123,17 @@ export function resetMockDatabase() {
 export function mockTableData(tableName: string, data: Record<string, unknown>[]) {
   mockDb.prepare = vi.fn((sql: string) => {
     if (sql.includes('SELECT')) {
-      return createMockStatement(data);
+      return createMockStatement(data)
     }
     if (sql.includes('INSERT')) {
-      return createMockStatement([], null, { changes: 1, lastInsertRowid: data.length + 1 });
+      return createMockStatement([], null, { changes: 1, lastInsertRowid: data.length + 1 })
     }
     if (sql.includes('UPDATE') || sql.includes('DELETE')) {
-      return createMockStatement([], null, { changes: 1 });
+      return createMockStatement([], null, { changes: 1 })
     }
     // Default mock for other queries
-    return createMockStatement();
-  });
+    return createMockStatement()
+  })
 }
 
 /**
@@ -151,25 +151,25 @@ export function mockAuthData() {
     metadata: {},
     createdAt: new Date(),
     updatedAt: new Date(),
-  };
+  }
 
   mockDb.prepare = vi.fn((sql: string) => {
     if (sql.includes('SELECT') && sql.includes('email')) {
-      return createMockStatement([mockUser], mockUser);
+      return createMockStatement([mockUser], mockUser)
     }
     if (sql.includes('SELECT') && sql.includes('id')) {
-      return createMockStatement([mockUser], mockUser);
+      return createMockStatement([mockUser], mockUser)
     }
     if (sql.includes('INSERT')) {
-      return createMockStatement([], null, { changes: 1, lastInsertRowid: 1 });
+      return createMockStatement([], null, { changes: 1, lastInsertRowid: 1 })
     }
     if (sql.includes('UPDATE') || sql.includes('DELETE')) {
-      return createMockStatement([], null, { changes: 1 });
+      return createMockStatement([], null, { changes: 1 })
     }
-    return createMockStatement();
-  });
+    return createMockStatement()
+  })
 
-  return mockUser;
+  return mockUser
 }
 
 /**
@@ -177,30 +177,26 @@ export function mockAuthData() {
  */
 export function mockPerformanceAnalyzer() {
   // Mock table list
-  const mockTables = [
-    { name: 'agents' },
-    { name: 'agent_tokens' },
-    { name: 'agent_data_access' },
-  ];
+  const mockTables = [{ name: 'agents' }, { name: 'agent_tokens' }, { name: 'agent_data_access' }]
 
   // Mock index data
   const mockIndexes = [
     { name: 'idx_agents_status', columns: ['status'], unique: false },
     { name: 'idx_agents_email', columns: ['email'], unique: true },
-  ];
+  ]
 
   mockDb.prepare = vi.fn((sql: string) => {
     if (sql.includes('sqlite_master')) {
-      return createMockStatement(mockTables);
+      return createMockStatement(mockTables)
     }
     if (sql.includes('COUNT(*)')) {
-      return createMockStatement([], { count: 100 });
+      return createMockStatement([], { count: 100 })
     }
     if (sql.includes('EXPLAIN QUERY PLAN')) {
-      return createMockStatement([{ detail: 'USING INDEX idx_agents_status' }]);
+      return createMockStatement([{ detail: 'USING INDEX idx_agents_status' }])
     }
-    return createMockStatement();
-  });
+    return createMockStatement()
+  })
 }
 
 /**
@@ -215,22 +211,22 @@ export function mockTokenData() {
     expiresAt: new Date(Date.now() + 3600000),
     refreshExpiresAt: new Date(Date.now() + 7200000),
     createdAt: new Date(),
-  };
+  }
 
   mockDb.prepare = vi.fn((sql: string) => {
     if (sql.includes('SELECT') && sql.includes('token')) {
-      return createMockStatement([mockToken], mockToken);
+      return createMockStatement([mockToken], mockToken)
     }
     if (sql.includes('INSERT')) {
-      return createMockStatement([], null, { changes: 1, lastInsertRowid: 1 });
+      return createMockStatement([], null, { changes: 1, lastInsertRowid: 1 })
     }
     if (sql.includes('DELETE')) {
-      return createMockStatement([], null, { changes: 1 });
+      return createMockStatement([], null, { changes: 1 })
     }
-    return createMockStatement();
-  });
+    return createMockStatement()
+  })
 
-  return mockToken;
+  return mockToken
 }
 
 /**
@@ -240,16 +236,16 @@ export function mockDatabaseError(errorMessage: string) {
   mockDb.prepare = vi.fn(() => {
     return {
       all: vi.fn(() => {
-        throw new Error(errorMessage);
+        throw new Error(errorMessage)
       }),
       get: vi.fn(() => {
-        throw new Error(errorMessage);
+        throw new Error(errorMessage)
       }),
       run: vi.fn(() => {
-        throw new Error(errorMessage);
+        throw new Error(errorMessage)
       }),
-    };
-  });
+    }
+  })
 }
 
 /**
@@ -257,11 +253,11 @@ export function mockDatabaseError(errorMessage: string) {
  */
 export function useMockDatabase() {
   beforeEach(() => {
-    setupMockDatabase();
-  });
+    setupMockDatabase()
+  })
 
   afterEach(() => {
-    resetMockDatabase();
-    vi.clearAllMocks();
-  });
+    resetMockDatabase()
+    vi.clearAllMocks()
+  })
 }

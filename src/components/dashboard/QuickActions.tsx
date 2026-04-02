@@ -1,8 +1,8 @@
-'use client';
+'use client'
 
 /**
  * 快捷操作面板组件
- * 
+ *
  * 功能:
  * - 创建任务、邀请成员、快速开始 Agent、学习资源
  * - 网格布局，支持响应式
@@ -10,10 +10,10 @@
  * - 支持自定义操作项
  */
 
-import React from 'react';
-import { Card } from '@/components/ui/Card';
-import { clsx, type ClassValue } from 'clsx';
-import { twMerge } from 'tailwind-merge';
+import React from 'react'
+import { Card } from '@/components/ui/Card'
+import { clsx, type ClassValue } from 'clsx'
+import { twMerge } from 'tailwind-merge'
 import {
   Plus,
   UserPlus,
@@ -24,36 +24,36 @@ import {
   BarChart3,
   Bell,
   HelpCircle,
-  type LucideIcon
-} from 'lucide-react';
+  type LucideIcon,
+} from 'lucide-react'
 
 // ============================================================================
 // 类型定义
 // ============================================================================
 
 export interface QuickAction {
-  id: string;
-  label: string;
-  labelEn?: string;
-  description?: string;
-  descriptionEn?: string;
-  icon: LucideIcon;
-  color: 'blue' | 'green' | 'purple' | 'orange' | 'cyan' | 'red' | 'slate';
-  onClick?: () => void;
-  href?: string;
-  disabled?: boolean;
-  badge?: string | number;
-  external?: boolean;
+  id: string
+  label: string
+  labelEn?: string
+  description?: string
+  descriptionEn?: string
+  icon: LucideIcon
+  color: 'blue' | 'green' | 'purple' | 'orange' | 'cyan' | 'red' | 'slate'
+  onClick?: () => void
+  href?: string
+  disabled?: boolean
+  badge?: string | number
+  external?: boolean
 }
 
 export interface QuickActionsProps {
-  actions?: QuickAction[];
-  locale?: string;
-  loading?: boolean;
-  className?: ClassValue;
-  columns?: 2 | 3 | 4;
-  variant?: 'default' | 'compact' | 'icon-only';
-  size?: 'sm' | 'md' | 'lg';
+  actions?: QuickAction[]
+  locale?: string
+  loading?: boolean
+  className?: ClassValue
+  columns?: 2 | 3 | 4
+  variant?: 'default' | 'compact' | 'icon-only'
+  size?: 'sm' | 'md' | 'lg'
 }
 
 // ============================================================================
@@ -61,7 +61,7 @@ export interface QuickActionsProps {
 // ============================================================================
 
 function cn(...inputs: ClassValue[]) {
-  return twMerge(clsx(inputs));
+  return twMerge(clsx(inputs))
 }
 
 // ============================================================================
@@ -111,7 +111,7 @@ const colorConfig = {
     border: 'border-slate-200 dark:border-slate-800',
     hover: 'hover:bg-slate-100 dark:hover:bg-slate-900/40',
   },
-};
+}
 
 // ============================================================================
 // 默认操作配置
@@ -199,65 +199,63 @@ export const defaultActions: QuickAction[] = [
     color: 'slate',
     onClick: () => console.debug('QuickAction: Help'),
   },
-];
+]
 
 // ============================================================================
 // 子组件
 // ============================================================================
 
 interface QuickActionButtonProps {
-  action: QuickAction;
-  locale: string;
-  variant: 'default' | 'compact' | 'icon-only';
-  size: 'sm' | 'md' | 'lg';
+  action: QuickAction
+  locale: string
+  variant: 'default' | 'compact' | 'icon-only'
+  size: 'sm' | 'md' | 'lg'
 }
 
 const QuickActionButton: React.FC<QuickActionButtonProps> = React.memo(
   ({ action, locale, variant, size }) => {
-    const config = colorConfig[action.color];
-    const Icon = action.icon;
-    const disabled = action.disabled;
+    const config = colorConfig[action.color]
+    const Icon = action.icon
+    const disabled = action.disabled
 
-    const displayLabel = locale === 'en' && action.labelEn ? action.labelEn : action.label;
-    const displayDescription = locale === 'en' && action.descriptionEn 
-      ? action.descriptionEn 
-      : action.description;
+    const displayLabel = locale === 'en' && action.labelEn ? action.labelEn : action.label
+    const displayDescription =
+      locale === 'en' && action.descriptionEn ? action.descriptionEn : action.description
 
     const sizeClasses = {
       sm: 'p-3',
       md: 'p-4',
       lg: 'p-5',
-    };
+    }
 
     const iconSizes = {
       sm: 'w-5 h-5',
       md: 'w-6 h-6',
       lg: 'w-7 h-7',
-    };
+    }
 
     const textSizes = {
       sm: 'text-xs',
       md: 'text-sm',
       lg: 'text-base',
-    };
+    }
 
     const baseClasses = cn(
       'rounded-xl border transition-all duration-200',
       'flex flex-col gap-2',
-      disabled ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer hover:scale-[1.02] active:scale-[0.98]',
+      disabled
+        ? 'opacity-50 cursor-not-allowed'
+        : 'cursor-pointer hover:scale-[1.02] active:scale-[0.98]',
       config.bg,
       config.border,
       !disabled && config.hover,
       sizeClasses[size]
-    );
+    )
 
     if (variant === 'icon-only') {
       return (
         <button
-          className={cn(
-            baseClasses,
-            'items-center justify-center aspect-square'
-          )}
+          className={cn(baseClasses, 'aspect-square items-center justify-center')}
           onClick={action.onClick}
           disabled={disabled}
         >
@@ -270,21 +268,18 @@ const QuickActionButton: React.FC<QuickActionButtonProps> = React.memo(
             )}
           </div>
         </button>
-      );
+      )
     }
 
     if (variant === 'compact') {
       return (
         <button
-          className={cn(
-            baseClasses,
-            'flex-row items-center justify-between group'
-          )}
+          className={cn(baseClasses, 'group flex-row items-center justify-between')}
           onClick={action.onClick}
           disabled={disabled}
         >
           <div className="flex items-center gap-3">
-            <div className={cn('p-2 rounded-lg bg-white/50 dark:bg-black/20', config.text)}>
+            <div className={cn('rounded-lg bg-white/50 p-2 dark:bg-black/20', config.text)}>
               <Icon className={iconSizes[size]} />
             </div>
             <div className="text-left">
@@ -293,18 +288,17 @@ const QuickActionButton: React.FC<QuickActionButtonProps> = React.memo(
               </p>
             </div>
           </div>
-          <ChevronRight className={cn('w-4 h-4 text-zinc-400 group-hover:translate-x-1 transition-transform')} />
+          <ChevronRight
+            className={cn('h-4 w-4 text-zinc-400 transition-transform group-hover:translate-x-1')}
+          />
         </button>
-      );
+      )
     }
 
     // Default variant
     return (
       <button
-        className={cn(
-          baseClasses,
-          'relative overflow-hidden'
-        )}
+        className={cn(baseClasses, 'relative overflow-hidden')}
         onClick={action.onClick}
         disabled={disabled}
       >
@@ -315,60 +309,67 @@ const QuickActionButton: React.FC<QuickActionButtonProps> = React.memo(
             </span>
           )}
         </div>
-        
-        <div className={cn('p-2.5 rounded-xl bg-white/60 dark:bg-black/30 w-fit', config.text)}>
+
+        <div className={cn('w-fit rounded-xl bg-white/60 p-2.5 dark:bg-black/30', config.text)}>
           <Icon className={iconSizes[size]} />
         </div>
-        
+
         <div className="flex-1 text-left">
           <p className={cn('font-semibold text-zinc-900 dark:text-white', textSizes[size])}>
             {displayLabel}
           </p>
           {displayDescription && (
-            <p className={cn('text-zinc-600 dark:text-zinc-400 line-clamp-2 mt-1', textSizes[size])}>
+            <p
+              className={cn('mt-1 line-clamp-2 text-zinc-600 dark:text-zinc-400', textSizes[size])}
+            >
               {displayDescription}
             </p>
           )}
         </div>
-        
+
         {action.external && (
-          <ChevronRight className={cn('absolute bottom-3 right-3 text-zinc-400 opacity-0 group-hover:opacity-100 transition-opacity', iconSizes[size])} />
+          <ChevronRight
+            className={cn(
+              'absolute right-3 bottom-3 text-zinc-400 opacity-0 transition-opacity group-hover:opacity-100',
+              iconSizes[size]
+            )}
+          />
         )}
       </button>
-    );
+    )
   }
-);
+)
 
-QuickActionButton.displayName = 'QuickActionButton';
+QuickActionButton.displayName = 'QuickActionButton'
 
 // ============================================================================
 // 加载骨架屏
 // ============================================================================
 
-const QuickActionsSkeleton: React.FC<{ columns: number; size: 'sm' | 'md' | 'lg' }> = ({ columns, size }) => {
+const QuickActionsSkeleton: React.FC<{ columns: number; size: 'sm' | 'md' | 'lg' }> = ({
+  columns,
+  size,
+}) => {
   const gridCols: Record<number, string> = {
     2: 'grid-cols-2',
     3: 'grid-cols-1 sm:grid-cols-3',
     4: 'grid-cols-2 sm:grid-cols-3 md:grid-cols-4',
-  };
-  
+  }
+
   const height = {
     sm: 'h-20',
     md: 'h-24',
     lg: 'h-28',
-  };
-  
+  }
+
   return (
     <div className={cn('grid gap-3', gridCols[columns])}>
       {[...Array(columns)].map((_, i) => (
-        <div 
-          key={i} 
-          className={cn('rounded-lg border animate-pulse', height[size])}
-        />
+        <div key={i} className={cn('animate-pulse rounded-lg border', height[size])} />
       ))}
     </div>
-  );
-};
+  )
+}
 
 // ============================================================================
 // 主组件
@@ -383,33 +384,33 @@ export const QuickActions: React.FC<QuickActionsProps> = ({
   variant = 'default',
   size = 'md',
 }) => {
-  const headerText = locale === 'zh' ? '快捷操作' : 'Quick Actions';
+  const headerText = locale === 'zh' ? '快捷操作' : 'Quick Actions'
   const gridCols: Record<number, string> = {
     2: 'grid-cols-2',
     3: 'grid-cols-1 sm:grid-cols-3',
     4: 'grid-cols-2 sm:grid-cols-3 md:grid-cols-4',
-  };
+  }
 
   if (loading) {
     return (
       <Card className={typeof className === 'string' ? className : undefined}>
         <QuickActionsSkeleton columns={columns} size={size} />
       </Card>
-    );
+    )
   }
 
   return (
     <Card className={typeof className === 'string' ? className : undefined}>
-      <div className="px-4 py-3 border-b border-zinc-200 dark:border-zinc-700">
-        <h3 className="text-base font-semibold text-zinc-900 dark:text-white flex items-center gap-2">
-          <Zap className="w-4 h-4" />
+      <div className="border-b border-zinc-200 px-4 py-3 dark:border-zinc-700">
+        <h3 className="flex items-center gap-2 text-base font-semibold text-zinc-900 dark:text-white">
+          <Zap className="h-4 w-4" />
           {headerText}
         </h3>
       </div>
-      
+
       <div className="p-3 sm:p-4">
         <div className={cn('grid gap-3', gridCols[columns])}>
-          {actions.map((action) => (
+          {actions.map(action => (
             <QuickActionButton
               key={action.id}
               action={action}
@@ -421,10 +422,10 @@ export const QuickActions: React.FC<QuickActionsProps> = ({
         </div>
       </div>
     </Card>
-  );
-};
+  )
+}
 
-QuickActions.displayName = 'QuickActions';
+QuickActions.displayName = 'QuickActions'
 
 // ============================================================================
 // 预设配置
@@ -438,7 +439,7 @@ export const minimalActions: QuickAction[] = [
   defaultActions[1], // invite-member
   defaultActions[2], // start-agent
   defaultActions[3], // learning-resources
-];
+]
 
 /**
  * 分析面板快捷操作
@@ -448,6 +449,6 @@ export const analyticsActions: QuickAction[] = [
   defaultActions[5], // notifications
   defaultActions[6], // settings
   defaultActions[7], // help
-];
+]
 
-export default QuickActions;
+export default QuickActions

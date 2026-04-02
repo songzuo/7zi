@@ -11,6 +11,7 @@ The 7zi platform now includes a comprehensive performance monitoring system that
 Tracks response times for all API endpoints with automatic logging of slow requests.
 
 **Key Features:**
+
 - Automatic response time measurement
 - Slow request detection (>1s)
 - Error rate tracking
@@ -24,6 +25,7 @@ Tracks response times for all API endpoints with automatic logging of slow reque
 Monitors all database queries with detailed performance metrics.
 
 **Key Features:**
+
 - Query execution time tracking
 - Slow query detection (>100ms)
 - Query error tracking
@@ -39,10 +41,12 @@ Comprehensive performance reporting endpoint for monitoring dashboards.
 **Endpoint:** `GET /api/performance/report`
 
 **Query Parameters:**
+
 - `detailed=true` - Include full slow request/query details
 - `minutes=5` - Time window for recent metrics (default: 5 minutes)
 
 **Response includes:**
+
 - Overall health status (healthy/warning/critical)
 - Performance score (0-100)
 - API metrics summary
@@ -79,16 +83,16 @@ By default, database performance logging is enabled in development mode.
 Use the `withApiPerformanceTracking` middleware for API routes:
 
 ```typescript
-import { withApiPerformanceTracking } from '@/lib/middleware/api-performance';
-import { NextRequest } from 'next/server';
+import { withApiPerformanceTracking } from '@/lib/middleware/api-performance'
+import { NextRequest } from 'next/server'
 
 async function myHandler(req: NextRequest) {
   // Your handler logic
-  return NextResponse.json({ data: '...' });
+  return NextResponse.json({ data: '...' })
 }
 
-export const GET = withApiPerformanceTracking(myHandler);
-export const POST = withApiPerformanceTracking(myHandler);
+export const GET = withApiPerformanceTracking(myHandler)
+export const POST = withApiPerformanceTracking(myHandler)
 ```
 
 ### Manual API Performance Tracking
@@ -96,13 +100,13 @@ export const POST = withApiPerformanceTracking(myHandler);
 Use the decorator for internal functions:
 
 ```typescript
-import { trackApiCall } from '@/lib/middleware/api-performance';
+import { trackApiCall } from '@/lib/middleware/api-performance'
 
 class MyService {
   @trackApiCall('user.fetchProfile')
   async fetchProfile(userId: string) {
     // Your logic
-    return profile;
+    return profile
   }
 }
 ```
@@ -114,10 +118,10 @@ Database performance logging is automatic when enabled. All queries through `get
 To manually wrap a database connection:
 
 ```typescript
-import { withPerformanceLogging } from '@/lib/middleware/db-performance';
-import { getDatabase } from '@/lib/db';
+import { withPerformanceLogging } from '@/lib/middleware/db-performance'
+import { getDatabase } from '@/lib/db'
 
-const db = withPerformanceLogging(getDatabase());
+const db = withPerformanceLogging(getDatabase())
 // All queries through db will be tracked
 ```
 
@@ -227,7 +231,7 @@ curl -X POST http://localhost:3000/api/performance/clear
 Performance metrics are automatically sent to Sentry if configured:
 
 ```typescript
-import * as Sentry from '@sentry/nextjs';
+import * as Sentry from '@sentry/nextjs'
 
 // Metrics are tracked as:
 // - Breadcrumbs for each API request
@@ -275,6 +279,7 @@ In development mode, performance warnings are logged to console:
 ### Performance Overhead
 
 The monitoring system adds minimal overhead:
+
 - API tracking: ~0.1ms per request
 - DB tracking: ~0.05ms per query
 

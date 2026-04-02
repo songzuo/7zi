@@ -13,13 +13,13 @@
 
 ### 审查概览
 
-| 类别 | 发现 | 优先级 | 状态 |
-|------|------|--------|------|
-| **目录嵌套** | src/app 最大深度6层 | 🔴 高 | 待优化 |
-| **临时文件** | exports/ 1344个文件，7.7MB | 🔴 高 | 待清理 |
-| **优化补丁** | db-optimization-patches/ 存在 | 🟡 中 | 需评估 |
-| **代码重复** | 107个文件有未使用导入 | 🟡 中 | 待清理 |
-| **死代码** | 376个文件有未使用导出 | 🟡 中 | 待清理 |
+| 类别         | 发现                          | 优先级 | 状态   |
+| ------------ | ----------------------------- | ------ | ------ |
+| **目录嵌套** | src/app 最大深度6层           | 🔴 高  | 待优化 |
+| **临时文件** | exports/ 1344个文件，7.7MB    | 🔴 高  | 待清理 |
+| **优化补丁** | db-optimization-patches/ 存在 | 🟡 中  | 需评估 |
+| **代码重复** | 107个文件有未使用导入         | 🟡 中  | 待清理 |
+| **死代码**   | 376个文件有未使用导出         | 🟡 中  | 待清理 |
 
 ---
 
@@ -64,25 +64,27 @@
 
 #### 目录组织评估
 
-| 目录 | 最大深度 | 组织性 | 评级 |
-|------|---------|--------|------|
-| src/app | 6层 | 一般 | 🟡 |
-| src/components | 3层 | 良好 | 🟢 |
-| src/lib | 4层 | 良好 | 🟢 |
-| src/hooks | 3层 | 良好 | 🟢 |
-| src/types | 2层 | 良好 | 🟢 |
+| 目录           | 最大深度 | 组织性 | 评级 |
+| -------------- | -------- | ------ | ---- |
+| src/app        | 6层      | 一般   | 🟡   |
+| src/components | 3层      | 良好   | 🟢   |
+| src/lib        | 4层      | 良好   | 🟢   |
+| src/hooks      | 3层      | 良好   | 🟢   |
+| src/types      | 2层      | 良好   | 🟢   |
 
 ### 1.2 问题目录分析
 
 #### exports/ 目录（严重问题）
 
 **基本信息**:
+
 - 文件数量: 1344个文件/目录
 - 占用空间: 7.7MB
 - 文件格式: JSON文件和目录
 - 命名模式: `export-{uuid}-{timestamp}.json` 或 `export-{uuid}-{timestamp}/`
 
 **文件示例**:
+
 ```
 exports/
 ├── export-0175bd27-13c9-4099-8461-b994ddb4e023-1774087200000.json (118B)
@@ -103,6 +105,7 @@ exports/
 #### db-optimization-patches/ 目录（需评估）
 
 **基本信息**:
+
 - 文件数量: 4个TypeScript文件 + 1个README
 - 占用空间: ~42KB
 - 文件列表:
@@ -129,6 +132,7 @@ exports/
 #### 主要问题区域
 
 **页面级组件**:
+
 ```typescript
 // src/app/[locale]/about/page.tsx
 // 未使用: MobileMenu, setRequestLocale, getTranslations, Locale, locales, Link,
@@ -144,6 +148,7 @@ exports/
 ```
 
 **API 路由**:
+
 ```typescript
 // src/app/api/analytics/export/route.ts
 // 未使用: type ExportOptions, type ExportFormat, type AnalyticsFilters,
@@ -151,6 +156,7 @@ exports/
 ```
 
 **组件层**:
+
 ```typescript
 // src/components/Analytics.tsx
 // 未使用: useEffect
@@ -162,6 +168,7 @@ exports/
 ### 2.2 未使用导出（376个文件）
 
 **高优先级未使用组件**:
+
 ```typescript
 // src/components/AIChat.tsx - 整个组件未被引用
 // src/components/ActivityLog.tsx - 未被引用
@@ -174,6 +181,7 @@ exports/
 ### 2.3 死代码（362个文件）
 
 **API 路由中的未使用处理程序**:
+
 ```typescript
 // src/app/api/a2a/jsonrpc/route.ts
 // 未使用: POST, OPTIONS (导出但路由未调用)
@@ -205,23 +213,41 @@ src/app/api/users/avatar/[userId]/__tests__/route.test.ts
 **具体操作**:
 
 1. **合并测试目录**:
+
    ```typescript
    // 当前:
-   src/app/api/users/[userId]/avatar/__tests__/
-   src/app/api/users/[userId]/activity/__tests__/
-
-   // 优化:
-   src/app/api/users/__tests__/avatar.test.ts
-   src/app/api/users/__tests__/activity.test.ts
+   src /
+     app /
+     api /
+     users /
+     [userId] /
+     avatar /
+     __tests__ /
+     src /
+     app /
+     api /
+     users /
+     [userId] /
+     activity /
+     __tests__ /
+     // 优化:
+     src /
+     app /
+     api /
+     users /
+     __tests__ /
+     avatar.test.ts
+   src / app / api / users / __tests__ / activity.test.ts
    ```
 
 2. **简化动态路由**:
+
    ```typescript
    // 当前:
-   src/app/api/rbac/users/[userId]/roles/route.ts
+   src / app / api / rbac / users / [userId] / roles / route.ts
 
    // 优化:
-   src/app/api/rbac/user-roles/[userId]/route.ts
+   src / app / api / rbac / user - roles / [userId] / route.ts
    ```
 
 #### 建议 2: 更新 .gitignore
@@ -229,6 +255,7 @@ src/app/api/users/avatar/[userId]/__tests__/route.test.ts
 **问题**: exports/ 目录和其他临时文件未被忽略
 
 **添加到 .gitignore**:
+
 ```gitignore
 # 临时导出文件
 exports/
@@ -260,30 +287,31 @@ mv exports/ /tmp/exports-backup-$(date +%Y%m%d)
 **长期方案**:
 
 1. **实现自动清理机制**:
+
    ```typescript
    // scripts/cleanup-exports.ts
-   import fs from 'fs';
-   import path from 'path';
+   import fs from 'fs'
+   import path from 'path'
 
-   const EXPORTS_DIR = path.join(process.cwd(), 'exports');
-   const MAX_AGE_MS = 24 * 60 * 60 * 1000; // 24小时
+   const EXPORTS_DIR = path.join(process.cwd(), 'exports')
+   const MAX_AGE_MS = 24 * 60 * 60 * 1000 // 24小时
 
    function cleanupOldExports() {
-     const entries = fs.readdirSync(EXPORTS_DIR);
-     const now = Date.now();
+     const entries = fs.readdirSync(EXPORTS_DIR)
+     const now = Date.now()
 
      entries.forEach(entry => {
-       const entryPath = path.join(EXPORTS_DIR, entry);
-       const stats = fs.statSync(entryPath);
+       const entryPath = path.join(EXPORTS_DIR, entry)
+       const stats = fs.statSync(entryPath)
 
        if (now - stats.mtimeMs > MAX_AGE_MS) {
-         fs.rmSync(entryPath, { recursive: true });
-         console.log(`Deleted: ${entry}`);
+         fs.rmSync(entryPath, { recursive: true })
+         console.log(`Deleted: ${entry}`)
        }
-     });
+     })
    }
 
-   cleanupOldExports();
+   cleanupOldExports()
    ```
 
 2. **添加到 cron 任务**:
@@ -297,11 +325,13 @@ mv exports/ /tmp/exports-backup-$(date +%Y%m%d)
 **执行步骤**:
 
 1. **检查补丁是否已应用**:
+
    ```bash
    grep -r "patch-1\|patch-2\|patch-3" src/ --include="*.ts"
    ```
 
 2. **如果已应用**:
+
    ```bash
    # 保留README作为记录
    mkdir -p archive/db-optimization-patches
@@ -333,6 +363,7 @@ npx eslint "src/**/*.{ts,tsx}" --fix --rule 'unused-imports/no-unused-imports: e
 **分步骤清理**:
 
 1. **第一阶段 - 安全删除**:
+
    ```bash
    # 检查组件引用
    grep -r "AIChat\|ActivityLog\|BackupList" --include="*.ts" --include="*.tsx" src/
@@ -344,26 +375,42 @@ npx eslint "src/**/*.{ts,tsx}" --fix --rule 'unused-imports/no-unused-imports: e
    ```
 
 2. **第二阶段 - 重构内部函数**:
+
    ```typescript
    // 当前:
-   export const unusedFunction = () => { /* ... */ };
-   export function usedFunction() { /* ... */ }
+   export const unusedFunction = () => {
+     /* ... */
+   }
+   export function usedFunction() {
+     /* ... */
+   }
 
    // 优化:
-   const unusedFunction = () => { /* ... */ }; // 改为内部函数
-   export function usedFunction() { /* ... */ }
+   const unusedFunction = () => {
+     /* ... */
+   } // 改为内部函数
+   export function usedFunction() {
+     /* ... */
+   }
    ```
 
 #### 建议 7: 删除死代码
 
 **API 路由清理**:
+
 ```typescript
 // 当前:
-export async function POST() { /* ... */ }
-export async function GET() { /* ... */ } // 未使用
+export async function POST() {
+  /* ... */
+}
+export async function GET() {
+  /* ... */
+} // 未使用
 
 // 优化:
-export async function POST() { /* ... */ }
+export async function POST() {
+  /* ... */
+}
 // 删除未使用的 GET 处理程序
 ```
 
@@ -471,6 +518,7 @@ git commit -m "refactor: remove unused exports"
 ```
 
 **预期收益**:
+
 - 减少107个文件的未使用导入
 - 减少376个文件的未使用导出
 - 减少362个文件的死代码
@@ -521,28 +569,28 @@ git commit -m "docs: add architecture optimization record"
 
 ### 🔴 高风险操作
 
-| 操作 | 风险 | 缓解措施 |
-|------|------|----------|
-| 删除 exports/ | 可能删除未保存的用户导出数据 | 检查是否有重要数据需要保留 |
-| 删除未使用的组件 | 可能有动态导入 | 检查是否有动态 import() 调用 |
-| 扁平化目录结构 | 可能破坏相对路径导入 | 运行测试确保无破坏 |
-| 删除数据库补丁 | 可能导致重复应用 | 确认补丁是否已应用 |
+| 操作             | 风险                         | 缓解措施                     |
+| ---------------- | ---------------------------- | ---------------------------- |
+| 删除 exports/    | 可能删除未保存的用户导出数据 | 检查是否有重要数据需要保留   |
+| 删除未使用的组件 | 可能有动态导入               | 检查是否有动态 import() 调用 |
+| 扁平化目录结构   | 可能破坏相对路径导入         | 运行测试确保无破坏           |
+| 删除数据库补丁   | 可能导致重复应用             | 确认补丁是否已应用           |
 
 ### 🟡 中风险操作
 
-| 操作 | 风险 | 缓解措施 |
-|------|------|----------|
-| 清理未使用导入 | ESLint 可能误报 | 代码审查 |
-| 清理未使用导出 | 可能在其他路径导入 | 搜索所有引用 |
-| 删除死代码 | 可能被测试使用 | 运行完整测试套件 |
+| 操作           | 风险               | 缓解措施         |
+| -------------- | ------------------ | ---------------- |
+| 清理未使用导入 | ESLint 可能误报    | 代码审查         |
+| 清理未使用导出 | 可能在其他路径导入 | 搜索所有引用     |
+| 删除死代码     | 可能被测试使用     | 运行完整测试套件 |
 
 ### 🟢 低风险操作
 
-| 操作 | 风险 | 缓解措施 |
-|------|------|----------|
-| 更新 .gitignore | 无 | 无 |
-| 归档旧文件 | 无 | 无 |
-| 添加清理脚本 | 无 | 先在测试环境运行 |
+| 操作            | 风险 | 缓解措施         |
+| --------------- | ---- | ---------------- |
+| 更新 .gitignore | 无   | 无               |
+| 归档旧文件      | 无   | 无               |
+| 添加清理脚本    | 无   | 先在测试环境运行 |
 
 ---
 
@@ -550,32 +598,32 @@ git commit -m "docs: add architecture optimization record"
 
 ### 6.1 空间优化
 
-| 项目 | 当前 | 优化后 | 改善 |
-|------|------|--------|------|
-| exports/ 文件数 | 1344 | 0 | 100% ↓ |
-| exports/ 大小 | 7.7MB | 0 | 100% ↓ |
-| 总文件数 | 897 | ~760 | 15% ↓ |
-| 未使用导入 | 107 文件 | ~10 文件 | 91% ↓ |
-| 未使用导出 | 376 文件 | ~50 文件 | 87% ↓ |
+| 项目            | 当前     | 优化后   | 改善   |
+| --------------- | -------- | -------- | ------ |
+| exports/ 文件数 | 1344     | 0        | 100% ↓ |
+| exports/ 大小   | 7.7MB    | 0        | 100% ↓ |
+| 总文件数        | 897      | ~760     | 15% ↓  |
+| 未使用导入      | 107 文件 | ~10 文件 | 91% ↓  |
+| 未使用导出      | 376 文件 | ~50 文件 | 87% ↓  |
 
 ### 6.2 性能优化
 
-| 指标 | 当前 | 优化后 | 改善 |
-|------|------|--------|------|
-| 构建时间 | 45s | ~40s | 11% ↓ |
-| TypeScript 编译 | 15s | ~12s | 20% ↓ |
-| 文件系统操作 | 慢 | 快 | 30% ↓ |
-| Git clone/checkout | 慢 | 快 | 15% ↓ |
+| 指标               | 当前 | 优化后 | 改善  |
+| ------------------ | ---- | ------ | ----- |
+| 构建时间           | 45s  | ~40s   | 11% ↓ |
+| TypeScript 编译    | 15s  | ~12s   | 20% ↓ |
+| 文件系统操作       | 慢   | 快     | 30% ↓ |
+| Git clone/checkout | 慢   | 快     | 15% ↓ |
 
 ### 6.3 可维护性改善
 
-| 方面 | 改善 |
-|------|------|
-| 目录结构 | 最大深度从6层降到4层 |
-| 代码清晰度 | 显著提升 |
-| 新开发者理解成本 | 降低 |
-| Bug 定位 | 更容易 |
-| 重构难度 | 降低 |
+| 方面             | 改善                 |
+| ---------------- | -------------------- |
+| 目录结构         | 最大深度从6层降到4层 |
+| 代码清晰度       | 显著提升             |
+| 新开发者理解成本 | 降低                 |
+| Bug 定位         | 更容易               |
+| 重构难度         | 降低                 |
 
 ---
 
@@ -585,23 +633,23 @@ git commit -m "docs: add architecture optimization record"
 
 ```javascript
 // scripts/auto-cleanup.js
-const { execSync } = require('child_process');
+const { execSync } = require('child_process')
 
-console.log('🧹 Running automated cleanup...\n');
+console.log('🧹 Running automated cleanup...\n')
 
 // 1. 清理临时导出文件（超过24小时）
-console.log('1. Cleaning old exports...');
-execSync('node scripts/cleanup-exports.js', { stdio: 'inherit' });
+console.log('1. Cleaning old exports...')
+execSync('node scripts/cleanup-exports.js', { stdio: 'inherit' })
 
 // 2. 清理未使用的导入
-console.log('2. Cleaning unused imports...');
-execSync('npx eslint --fix "src/**/*.{ts,tsx}"', { stdio: 'inherit' });
+console.log('2. Cleaning unused imports...')
+execSync('npx eslint --fix "src/**/*.{ts,tsx}"', { stdio: 'inherit' })
 
 // 3. 检查未使用的导出
-console.log('3. Checking for unused exports...');
-execSync('npx knip', { stdio: 'inherit' });
+console.log('3. Checking for unused exports...')
+execSync('npx knip', { stdio: 'inherit' })
 
-console.log('\n✅ Automated cleanup complete!');
+console.log('\n✅ Automated cleanup complete!')
 ```
 
 ### 7.2 CI/CD 集成
@@ -718,11 +766,11 @@ jobs:
 
 ### 📊 优化成果
 
-| 指标 | 优化前 | 优化后 | 改善 |
-|------|--------|--------|------|
-| exports/ 文件数 | 1344 | 0 | 100% ↓ |
-| exports/ 空间 | 7.7MB | 0 | 100% ↓ |
-| 临时文件风险 | 高 | 低 | ✅ |
+| 指标            | 优化前 | 优化后 | 改善   |
+| --------------- | ------ | ------ | ------ |
+| exports/ 文件数 | 1344   | 0      | 100% ↓ |
+| exports/ 空间   | 7.7MB  | 0      | 100% ↓ |
+| 临时文件风险    | 高     | 低     | ✅     |
 
 ### ⏳ 待完成的优化
 

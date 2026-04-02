@@ -1,4 +1,4 @@
-'use client';
+'use client'
 
 /**
  * WebSocket Status Indicator Component
@@ -7,31 +7,31 @@
  * Shows connection state, authentication status, and provides reconnect functionality.
  */
 
-import { useWebSocket } from '@/hooks/useWebSocket';
+import { useWebSocket } from '@/hooks/useWebSocket'
 
 export interface WebSocketStatusIndicatorProps {
   /**
    * Whether to show detailed information
    * @default false
    */
-  detailed?: boolean;
+  detailed?: boolean
 
   /**
    * Whether to include reconnect button
    * @default true
    */
-  showReconnect?: boolean;
+  showReconnect?: boolean
 
   /**
    * Custom class name for styling
    */
-  className?: string;
+  className?: string
 
   /**
    * Custom size variant
    * @default 'default'
    */
-  size?: 'small' | 'default' | 'large';
+  size?: 'small' | 'default' | 'large'
 }
 
 const sizeClasses = {
@@ -50,7 +50,7 @@ const sizeClasses = {
     text: 'text-base',
     button: 'text-base px-4 py-2',
   },
-};
+}
 
 export function WebSocketStatusIndicator({
   detailed = false,
@@ -60,27 +60,27 @@ export function WebSocketStatusIndicator({
 }: WebSocketStatusIndicatorProps) {
   const ws = useWebSocket({
     autoConnect: true,
-  });
+  })
 
-  const sizeStyles = sizeClasses[size];
+  const sizeStyles = sizeClasses[size]
 
   const getStatusColor = () => {
     if (ws.state.connecting) {
-      return 'bg-yellow-500 animate-pulse';
+      return 'bg-yellow-500 animate-pulse'
     }
     if (ws.state.connected) {
-      return ws.state.authenticated ? 'bg-green-500' : 'bg-orange-500';
+      return ws.state.authenticated ? 'bg-green-500' : 'bg-orange-500'
     }
-    return 'bg-red-500';
-  };
+    return 'bg-red-500'
+  }
 
   const getStatusText = () => {
-    if (ws.state.connecting) return 'Connecting...';
+    if (ws.state.connecting) return 'Connecting...'
     if (ws.state.connected) {
-      return ws.state.authenticated ? 'Connected' : 'Connected (unauth)';
+      return ws.state.authenticated ? 'Connected' : 'Connected (unauth)'
     }
-    return 'Disconnected';
-  };
+    return 'Disconnected'
+  }
 
   return (
     <div className={`flex items-center gap-3 ${className}`}>
@@ -91,9 +91,7 @@ export function WebSocketStatusIndicator({
       />
 
       {/* Status Text */}
-      <span className={`font-medium ${sizeStyles.text} text-slate-300`}>
-        {getStatusText()}
-      </span>
+      <span className={`font-medium ${sizeStyles.text} text-slate-300`}>{getStatusText()}</span>
 
       {/* Detailed Information */}
       {detailed && ws.state.connected && (
@@ -105,7 +103,8 @@ export function WebSocketStatusIndicator({
           )}
           {ws.state.userId && (
             <span className={`text-slate-500 ${sizeStyles.text}`}>
-              • User: <span className="font-mono text-slate-400">{ws.state.userId.slice(0, 8)}...</span>
+              • User:{' '}
+              <span className="font-mono text-slate-400">{ws.state.userId.slice(0, 8)}...</span>
             </span>
           )}
         </>
@@ -115,7 +114,7 @@ export function WebSocketStatusIndicator({
       {showReconnect && !ws.state.connected && (
         <button
           onClick={ws.reconnect}
-          className={`${sizeStyles.button} bg-blue-600 hover:bg-blue-700 text-white rounded transition-colors`}
+          className={`${sizeStyles.button} rounded bg-blue-600 text-white transition-colors hover:bg-blue-700`}
           title="Reconnect to WebSocket server"
         >
           Reconnect
@@ -125,14 +124,14 @@ export function WebSocketStatusIndicator({
       {/* Error Indicator */}
       {ws.state.error && (
         <span
-          className={`text-red-400 ${sizeStyles.text} truncate max-w-xs`}
+          className={`text-red-400 ${sizeStyles.text} max-w-xs truncate`}
           title={ws.state.error}
         >
           {ws.state.error}
         </span>
       )}
     </div>
-  );
+  )
 }
 
 /**
@@ -145,34 +144,34 @@ export function WebSocketStatusDot({
 }: Pick<WebSocketStatusIndicatorProps, 'className' | 'size'>) {
   const ws = useWebSocket({
     autoConnect: true,
-  });
+  })
 
-  const sizeStyles = sizeClasses[size];
+  const sizeStyles = sizeClasses[size]
 
   const getStatusColor = () => {
     if (ws.state.connecting) {
-      return 'bg-yellow-500 animate-pulse';
+      return 'bg-yellow-500 animate-pulse'
     }
     if (ws.state.connected) {
-      return ws.state.authenticated ? 'bg-green-500' : 'bg-orange-500';
+      return ws.state.authenticated ? 'bg-green-500' : 'bg-orange-500'
     }
-    return 'bg-red-500';
-  };
+    return 'bg-red-500'
+  }
 
   const getStatusText = () => {
-    if (ws.state.connecting) return 'Connecting to WebSocket...';
+    if (ws.state.connecting) return 'Connecting to WebSocket...'
     if (ws.state.connected) {
       return ws.state.authenticated
         ? 'WebSocket connected and authenticated'
-        : 'WebSocket connected (not authenticated)';
+        : 'WebSocket connected (not authenticated)'
     }
-    return 'WebSocket disconnected';
-  };
+    return 'WebSocket disconnected'
+  }
 
   return (
     <div
       className={`rounded-full ${sizeStyles.dot} ${getStatusColor()} ${className}`}
       title={getStatusText()}
     />
-  );
+  )
 }

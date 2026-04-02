@@ -25,6 +25,7 @@ Successfully migrated all 7zi-frontend API routes to use the unified error handl
 All 9 API route files were updated to use the unified error handler:
 
 #### `/7zi-frontend/src/app/api/projects/route.ts`
+
 - ✅ Replaced raw `NextResponse.json` with `createSuccessResponse`
 - ✅ Replaced `NextResponse.json({ error: '...' }, { status: 401 })` with `createUnauthorizedError`
 - ✅ Replaced `NextResponse.json({ error: '...' }, { status: 403 })` with `createForbiddenError`
@@ -33,45 +34,53 @@ All 9 API route files were updated to use the unified error handler:
 - ✅ Properly formatted PermissionDeniedError responses with details
 
 #### `/7zi-frontend/src/app/api/users/route.ts`
+
 - ✅ Migrated all endpoints (GET, POST) to use unified error handler
 - ✅ Replaced all raw NextResponse calls with standardized functions
 - ✅ Properly handled PermissionDeniedError exceptions
 
 #### `/7zi-frontend/src/app/api/mcp/rpc/route.ts`
+
 - ✅ Added import for `createErrorResponse`
 - Note: This route uses JSON-RPC 2.0 protocol which has its own error format, so it keeps protocol-specific error responses
 
 #### `/7zi-frontend/src/app/api/notifications/route.ts`
+
 - ✅ Replaced raw `NextResponse.json` with `createSuccessResponse`
 - ✅ Replaced validation errors with `createValidationError`
 - ✅ Replaced generic error responses with `createErrorResponse`
 - ✅ Removed all `console.error` calls (now handled by logger in error handler)
 
 #### `/7zi-frontend/src/app/api/notifications/preferences/[userId]/route.ts`
+
 - ✅ Migrated GET and PUT endpoints
 - ✅ Replaced validation errors with `createValidationError`
 - ✅ Replaced generic error responses with `createErrorResponse`
 - ✅ Removed all `console.error` calls
 
 #### `/7zi-frontend/src/app/api/notifications/stats/route.ts`
+
 - ✅ Migrated GET endpoint
 - ✅ Replaced raw NextResponse with `createSuccessResponse`
 - ✅ Replaced generic error responses with `createErrorResponse`
 - ✅ Removed `console.error` call
 
 #### `/7zi-frontend/src/app/api/notifications/[id]/route.ts`
+
 - ✅ Migrated GET, PATCH, DELETE endpoints
 - ✅ Replaced not found errors with `createNotFoundError`
 - ✅ Replaced generic error responses with `createErrorResponse`
 - ✅ Removed all `console.error` calls
 
 #### `/7zi-frontend/src/app/api/notifications/socket/route.ts`
+
 - ✅ Migrated GET and POST endpoints
 - ✅ Replaced raw NextResponse with `createSuccessResponse`
 - ✅ Replaced generic error responses with `createErrorResponse`
 - ✅ Removed `console.error` call
 
 #### `/7zi-frontend/src/app/api/notifications/enhanced/route.ts`
+
 - ✅ Migrated GET and POST endpoints
 - ✅ Replaced validation errors with `createValidationError`
 - ✅ Replaced generic error responses with `createErrorResponse`
@@ -118,13 +127,15 @@ All API routes now return standardized success responses:
 ## Before vs After
 
 ### Before (Poor):
+
 ```typescript
-return NextResponse.json({ error: 'Permission denied' }, { status: 403 });
-return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
-console.error('[GET /api/notifications] Error:', error);
+return NextResponse.json({ error: 'Permission denied' }, { status: 403 })
+return NextResponse.json({ error: 'Internal server error' }, { status: 500 })
+console.error('[GET /api/notifications] Error:', error)
 ```
 
 ### After (Good):
+
 ```typescript
 return createForbiddenError('Permission denied', {
   requiredPermissions: [...],

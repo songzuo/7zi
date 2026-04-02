@@ -22,7 +22,7 @@ import {
   PerformanceAlerter,
   DashboardChannel,
   createPerformanceAlert,
-} from '@/lib/performance-monitoring/alerting';
+} from '@/lib/performance-monitoring/alerting'
 ```
 
 ## Quick Start
@@ -33,17 +33,17 @@ const alerter = new PerformanceAlerter({
   minLevel: 'warning',
   suppressionWindow: 300000, // 5 minutes
   aggregationWindow: 60000, // 1 minute
-});
+})
 
 // Register dashboard channel
-const dashboardChannel = new DashboardChannel();
-alerter.registerChannel(dashboardChannel);
+const dashboardChannel = new DashboardChannel()
+alerter.registerChannel(dashboardChannel)
 
 // Subscribe to dashboard alerts
-const unsubscribe = dashboardChannel.subscribe((message) => {
-  console.log('New alert:', message);
+const unsubscribe = dashboardChannel.subscribe(message => {
+  console.log('New alert:', message)
   // Display in your UI
-});
+})
 
 // Create an alert
 const alert = await alerter.createAlert(
@@ -59,17 +59,17 @@ const alert = await alerter.createAlert(
       threshold: 3000,
     }
   )
-);
+)
 ```
 
 ## Alert Levels
 
-| Level | Priority | Use Case | Icon |
-|-------|-----------|------------|-------|
-| `info` | 0 | Informational messages | ℹ️ |
-| `warning` | 1 | Performance degradation | ⚠️ |
-| `error` | 2 | Critical errors | ❌ |
-| `critical` | 3 | System-critical issues | 🚨 |
+| Level      | Priority | Use Case                | Icon |
+| ---------- | -------- | ----------------------- | ---- |
+| `info`     | 0        | Informational messages  | ℹ️   |
+| `warning`  | 1        | Performance degradation | ⚠️   |
+| `error`    | 2        | Critical errors         | ❌   |
+| `critical` | 3        | System-critical issues  | 🚨   |
 
 ## Alert Categories
 
@@ -100,25 +100,25 @@ Suppressed
 ```typescript
 interface AlertConfig {
   // Minimum alert level to trigger
-  minLevel: AlertLevel;
-  
+  minLevel: AlertLevel
+
   // Enable/disable alerting
-  enabled: boolean;
-  
+  enabled: boolean
+
   // Time window for suppressing duplicates (ms)
-  suppressionWindow: number;
-  
+  suppressionWindow: number
+
   // Time window for aggregating similar alerts (ms)
-  aggregationWindow: number;
-  
+  aggregationWindow: number
+
   // Maximum number of history entries to keep
-  maxHistorySize: number;
-  
+  maxHistorySize: number
+
   // Enable alert aggregation
-  enableAggregation: boolean;
-  
+  enableAggregation: boolean
+
   // Custom deduplication key function
-  deduplicationKeyFn?: (alert) => string;
+  deduplicationKeyFn?: (alert) => string
 }
 ```
 
@@ -160,30 +160,30 @@ Create custom channels by implementing the `AlertChannel` interface:
 
 ```typescript
 interface AlertChannel {
-  name: string;
-  send(alert: PerformanceAlert): Promise<void>;
-  test?(): Promise<boolean>;
+  name: string
+  send(alert: PerformanceAlert): Promise<void>
+  test?(): Promise<boolean>
 }
 
 // Example: Email channel
 class EmailChannel implements AlertChannel {
-  name = 'email';
-  
+  name = 'email'
+
   async send(alert: PerformanceAlert): Promise<void> {
     await sendEmail({
       subject: `[${alert.level.toUpperCase()}] ${alert.title}`,
       body: alert.message,
       priority: this.mapLevelToPriority(alert.level),
-    });
+    })
   }
-  
+
   async test(): Promise<boolean> {
-    return await checkEmailService();
+    return await checkEmailService()
   }
 }
 
 // Register channel
-alerter.registerChannel(new EmailChannel());
+alerter.registerChannel(new EmailChannel())
 ```
 
 ## Suppression Rules
@@ -201,7 +201,7 @@ const rule = alerter.addSuppressionRule({
   active: true,
   reason: 'Maintenance window',
   createdBy: 'admin',
-});
+})
 ```
 
 ## Filtering
@@ -209,25 +209,25 @@ const rule = alerter.addSuppressionRule({
 Filter alerts using the `filterAlerts` utility:
 
 ```typescript
-import { filterAlerts } from '@/lib/performance-monitoring/alerting';
+import { filterAlerts } from '@/lib/performance-monitoring/alerting'
 
-const alerts = alerter.getActiveAlerts();
+const alerts = alerter.getActiveAlerts()
 
 // Filter by level
-const errorAlerts = filterAlerts(alerts, { level: 'error' });
+const errorAlerts = filterAlerts(alerts, { level: 'error' })
 
 // Filter by category
-const perfAlerts = filterAlerts(alerts, { category: 'performance' });
+const perfAlerts = filterAlerts(alerts, { category: 'performance' })
 
 // Filter by tags
-const urgentAlerts = filterAlerts(alerts, { tags: ['urgent'] });
+const urgentAlerts = filterAlerts(alerts, { tags: ['urgent'] })
 
 // Custom filter
 const customFiltered = filterAlerts(alerts, {
-  customFn: (alert) => {
-    return alert.metric === 'LCP' && alert.currentValue! > 3000;
+  customFn: alert => {
+    return alert.metric === 'LCP' && alert.currentValue! > 3000
   },
-});
+})
 ```
 
 ## Statistics
@@ -235,9 +235,9 @@ const customFiltered = filterAlerts(alerts, {
 Get real-time alert statistics:
 
 ```typescript
-const stats = alerter.getStats();
+const stats = alerter.getStats()
 
-console.log(stats);
+console.log(stats)
 // {
 //   byLevel: { info: 10, warning: 25, error: 5, critical: 2 },
 //   byCategory: { performance: 30, availability: 8, error: 4 },
@@ -255,14 +255,10 @@ console.log(stats);
 
 ```typescript
 // ✅ Good: Use appropriate levels
-await alerter.createAlert(
-  createPerformanceAlert('Info', 'Cache cleared', 'info')
-);
+await alerter.createAlert(createPerformanceAlert('Info', 'Cache cleared', 'info'))
 
 // ❌ Bad: Overusing critical
-await alerter.createAlert(
-  createPerformanceAlert('Minor Issue', 'Slight slowdown', 'critical')
-);
+await alerter.createAlert(createPerformanceAlert('Minor Issue', 'Slight slowdown', 'critical'))
 ```
 
 ### 2. Include Context in Alerts
@@ -281,12 +277,10 @@ await alerter.createAlert(
       rows: 15000,
     },
   })
-);
+)
 
 // ❌ Bad: Minimal information
-await alerter.createAlert(
-  createPerformanceAlert('Slow', 'Slow query', 'warning')
-);
+await alerter.createAlert(createPerformanceAlert('Slow', 'Slow query', 'warning'))
 ```
 
 ### 3. Configure Suppression Wisely
@@ -295,22 +289,22 @@ await alerter.createAlert(
 // For high-frequency metrics, use longer suppression windows
 const alerter = new PerformanceAlerter({
   suppressionWindow: 600000, // 10 minutes for CPU alerts
-});
+})
 
 // For critical alerts, use shorter windows or disable suppression
 const criticalAlerter = new PerformanceAlerter({
   minLevel: 'critical',
   suppressionWindow: 0, // No suppression for critical alerts
-});
+})
 ```
 
 ### 4. Set Up Multiple Channels
 
 ```typescript
 // Send alerts to multiple destinations
-alerter.registerChannel(new DashboardChannel());
-alerter.registerChannel(new SlackChannel(webhookUrl));
-alerter.registerChannel(new EmailChannel(smtpConfig));
+alerter.registerChannel(new DashboardChannel())
+alerter.registerChannel(new SlackChannel(webhookUrl))
+alerter.registerChannel(new EmailChannel(smtpConfig))
 
 // Each channel receives all alerts
 ```
@@ -319,11 +313,11 @@ alerter.registerChannel(new EmailChannel(smtpConfig));
 
 ```typescript
 // In your performance monitor
-import { performanceAlerter, createPerformanceAlert } from './alerting';
+import { performanceAlerter, createPerformanceAlert } from './alerting'
 
 async function checkPerformance() {
-  const metrics = await getMetrics();
-  
+  const metrics = await getMetrics()
+
   // Check LCP
   if (metrics.LCP > 3000) {
     await performanceAlerter.createAlert(
@@ -343,9 +337,9 @@ async function checkPerformance() {
           },
         }
       )
-    );
+    )
   }
-  
+
   // Check error rate
   if (metrics.errorRate > 0.01) {
     await performanceAlerter.createAlert(
@@ -361,7 +355,7 @@ async function checkPerformance() {
           threshold: 0.01,
         }
       )
-    );
+    )
   }
 }
 ```
@@ -369,23 +363,21 @@ async function checkPerformance() {
 ## Testing
 
 ```typescript
-import { describe, it, expect } from 'vitest';
-import { PerformanceAlerter, createPerformanceAlert } from './alerter';
+import { describe, it, expect } from 'vitest'
+import { PerformanceAlerter, createPerformanceAlert } from './alerter'
 
 describe('Alert System', () => {
   it('should create and send alerts', async () => {
-    const alerter = new PerformanceAlerter();
-    const channel = { name: 'test', send: vi.fn() };
-    alerter.registerChannel(channel);
-    
-    const alert = await alerter.createAlert(
-      createPerformanceAlert('Test', 'Message', 'warning')
-    );
-    
-    expect(alert.status).toBe('active');
-    expect(channel.send).toHaveBeenCalledTimes(1);
-  });
-});
+    const alerter = new PerformanceAlerter()
+    const channel = { name: 'test', send: vi.fn() }
+    alerter.registerChannel(channel)
+
+    const alert = await alerter.createAlert(createPerformanceAlert('Test', 'Message', 'warning'))
+
+    expect(alert.status).toBe('active')
+    expect(channel.send).toHaveBeenCalledTimes(1)
+  })
+})
 ```
 
 ## Performance Considerations

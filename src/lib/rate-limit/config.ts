@@ -10,21 +10,21 @@ export interface RateLimitEnvironmentConfig {
    * 环境变量: RATE_LIMIT_WINDOW_MS
    * 默认值: 60000 (1分钟)
    */
-  windowMs: number;
+  windowMs: number
 
   /**
    * 时间窗口内最大请求数
    * 环境变量: RATE_LIMIT_MAX_REQUESTS
    * 默认值: 100
    */
-  maxRequests: number;
+  maxRequests: number
 
   /**
    * 启用 Redis 分布式限流
    * 环境变量: ENABLE_REDIS_RATE_LIMIT
    * 默认值: false (使用内存限流)
    */
-  useRedis: boolean;
+  useRedis: boolean
 
   /**
    * 限流维度
@@ -32,21 +32,21 @@ export interface RateLimitEnvironmentConfig {
    * 可选值: 'ip', 'userId', 'both'
    * 默认值: 'ip'
    */
-  limitBy: 'ip' | 'userId' | 'both';
+  limitBy: 'ip' | 'userId' | 'both'
 
   /**
    * 是否在失败时放行（fail-open）
    * 环境变量: RATE_LIMIT_FAIL_OPEN
    * 默认值: true (Redis 不可用时仍然允许请求)
    */
-  failOpen: boolean;
+  failOpen: boolean
 
   /**
    * 限流器缓存 TTL（秒）
    * 环境变量: RATE_LIMIT_CACHE_TTL
    * 默认值: 3600 (1小时)
    */
-  cacheTTL: number;
+  cacheTTL: number
 }
 
 /**
@@ -60,37 +60,38 @@ export function getRateLimitEnvConfig(): RateLimitEnvironmentConfig {
     limitBy: (process.env.RATE_LIMIT_BY as 'ip' | 'userId' | 'both') || 'ip',
     failOpen: process.env.RATE_LIMIT_FAIL_OPEN !== 'false',
     cacheTTL: parseInt(process.env.RATE_LIMIT_CACHE_TTL || '3600', 10),
-  };
+  }
 }
 
 /**
  * 验证限流配置的有效性
  */
-export function validateRateLimitConfig(
-  config: RateLimitEnvironmentConfig
-): { valid: boolean; errors: string[] } {
-  const errors: string[] = [];
+export function validateRateLimitConfig(config: RateLimitEnvironmentConfig): {
+  valid: boolean
+  errors: string[]
+} {
+  const errors: string[] = []
 
   if (config.windowMs <= 0) {
-    errors.push('RATE_LIMIT_WINDOW_MS must be greater than 0');
+    errors.push('RATE_LIMIT_WINDOW_MS must be greater than 0')
   }
 
   if (config.maxRequests <= 0) {
-    errors.push('RATE_LIMIT_MAX_REQUESTS must be greater than 0');
+    errors.push('RATE_LIMIT_MAX_REQUESTS must be greater than 0')
   }
 
   if (config.cacheTTL <= 0) {
-    errors.push('RATE_LIMIT_CACHE_TTL must be greater than 0');
+    errors.push('RATE_LIMIT_CACHE_TTL must be greater than 0')
   }
 
   if (!['ip', 'userId', 'both'].includes(config.limitBy)) {
-    errors.push('RATE_LIMIT_BY must be one of: ip, userId, both');
+    errors.push('RATE_LIMIT_BY must be one of: ip, userId, both')
   }
 
   return {
     valid: errors.length === 0,
     errors,
-  };
+  }
 }
 
 /**
@@ -104,7 +105,7 @@ export function getDefaultRateLimitConfig(): RateLimitEnvironmentConfig {
     limitBy: 'ip',
     failOpen: true,
     cacheTTL: 3600,
-  };
+  }
 }
 
 /**
@@ -113,12 +114,12 @@ export function getDefaultRateLimitConfig(): RateLimitEnvironmentConfig {
 export function mergeRateLimitConfig(
   envConfig: Partial<RateLimitEnvironmentConfig> = {}
 ): RateLimitEnvironmentConfig {
-  const defaultConfig = getDefaultRateLimitConfig();
-  const envFromProcess = getRateLimitEnvConfig();
+  const defaultConfig = getDefaultRateLimitConfig()
+  const envFromProcess = getRateLimitEnvConfig()
 
   return {
     ...defaultConfig,
     ...envFromProcess,
     ...envConfig,
-  };
+  }
 }

@@ -4,9 +4,9 @@
  * Demo page showcasing the WebSocket room system UI components
  */
 
-'use client';
+'use client'
 
-import { RoomManager } from '@/components/room';
+import { RoomManager } from '@/components/room'
 
 export default function RoomSystemDemoPage() {
   return (
@@ -19,5 +19,5 @@ export default function RoomSystemDemoPage() {
         autoConnect={true}
       />
     </div>
-  );
+  )
 }

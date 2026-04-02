@@ -15,4 +15,4 @@ export {
   getUserId,
   getUserRole,
   type AuthResult,
-} from './auth.middleware';
+} from './auth.middleware'

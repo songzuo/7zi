@@ -1,30 +1,45 @@
-'use client';
+'use client'
 
 /**
  * Performance Charts Component
  * 拆分出来的图表组件，用于懒加载优化 bundle 大小
  */
 
-import React, { useMemo } from 'react';
-import { AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
+import React, { useMemo } from 'react'
+import {
+  AreaChart,
+  Area,
+  XAxis,
+  YAxis,
+  CartesianGrid,
+  Tooltip,
+  ResponsiveContainer,
+} from 'recharts'
 
 interface TimeSeriesData {
-  timestamp: number;
-  value: number;
+  timestamp: number
+  value: number
 }
 
 interface PerformanceChartsProps {
-  data: TimeSeriesData[];
-  chartType: 'line' | 'bar' | 'area';
-  xKey: string;
-  yKey: string;
-  color?: string;
-  name?: string;
+  data: TimeSeriesData[]
+  chartType: 'line' | 'bar' | 'area'
+  xKey: string
+  yKey: string
+  color?: string
+  name?: string
 }
 
-function PerformanceChartsComponent({ data, chartType, xKey, yKey, color = '#3b82f6', name }: PerformanceChartsProps) {
+function PerformanceChartsComponent({
+  data,
+  chartType,
+  xKey,
+  yKey,
+  color = '#3b82f6',
+  name,
+}: PerformanceChartsProps) {
   // 生成渐变定义
-  const gradientId = useMemo(() => `gradient-${name || 'default'}`, [name]);
+  const gradientId = useMemo(() => `gradient-${name || 'default'}`, [name])
 
   const renderChart = () => {
     if (chartType === 'area') {
@@ -36,21 +51,30 @@ function PerformanceChartsComponent({ data, chartType, xKey, yKey, color = '#3b8
               <stop offset="95%" stopColor={color} stopOpacity={0} />
             </linearGradient>
           </defs>
-          <CartesianGrid strokeDasharray="3 3" stroke="currentColor" className="stroke-gray-300 dark:stroke-gray-700" />
+          <CartesianGrid
+            strokeDasharray="3 3"
+            stroke="currentColor"
+            className="stroke-gray-300 dark:stroke-gray-700"
+          />
           <XAxis
             dataKey={xKey}
             type="number"
             domain={['dataMin', 'dataMax']}
-            tickFormatter={(value) => new Date(value).toLocaleTimeString()}
+            tickFormatter={value => new Date(value).toLocaleTimeString()}
             stroke="currentColor"
-            className="text-xs fill-gray-600 dark:fill-gray-400"
+            className="fill-gray-600 text-xs dark:fill-gray-400"
           />
-          <YAxis stroke="currentColor" className="text-xs fill-gray-600 dark:fill-gray-400" />
+          <YAxis stroke="currentColor" className="fill-gray-600 text-xs dark:fill-gray-400" />
           <Tooltip
-            labelFormatter={(value) => new Date(value).toLocaleString()}
-            formatter={(value) => {
-              const numValue = typeof value === 'number' ? value : typeof value === 'string' ? parseFloat(value) : 0;
-              return [`${numValue.toFixed(2)}`, name || 'Value'];
+            labelFormatter={value => new Date(value).toLocaleString()}
+            formatter={value => {
+              const numValue =
+                typeof value === 'number'
+                  ? value
+                  : typeof value === 'string'
+                    ? parseFloat(value)
+                    : 0
+              return [`${numValue.toFixed(2)}`, name || 'Value']
             }}
             contentStyle={{
               backgroundColor: 'rgba(255, 255, 255, 0.9)',
@@ -66,17 +90,17 @@ function PerformanceChartsComponent({ data, chartType, xKey, yKey, color = '#3b8
             fill={`url(#${gradientId})`}
           />
         </AreaChart>
-      );
+      )
     }
 
-    return null;
-  };
+    return null
+  }
 
   return (
     <ResponsiveContainer width="100%" height="100%">
       {renderChart()}
     </ResponsiveContainer>
-  );
+  )
 }
 
-export default PerformanceChartsComponent;
+export default PerformanceChartsComponent

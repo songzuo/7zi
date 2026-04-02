@@ -6,17 +6,17 @@
  * PATCH  /api/a2a/registry/[id] - Update heartbeat
  */
 
-import { NextRequest } from 'next/server';
-import { getAgentRegistry } from '@/lib/agents/a2a/agent-registry';
-import { AgentRegistration } from '@/lib/agents/a2a/types';
+import { NextRequest } from 'next/server'
+import { getAgentRegistry } from '@/lib/agents/a2a/agent-registry'
+import { AgentRegistration } from '@/lib/agents/a2a/types'
 import {
   createSuccessResponse,
   createErrorResponse,
   createNotFoundError,
-} from '@/lib/api/error-handler';
+} from '@/lib/api/error-handler'
 
 interface RouteContext {
-  params: Promise<{ id: string }>;
+  params: Promise<{ id: string }>
 }
 
 /**
@@ -25,19 +25,17 @@ interface RouteContext {
  */
 export async function GET(request: NextRequest, context: RouteContext) {
   try {
-    const { id } = await context.params;
-    const registry = getAgentRegistry();
-    const agent = registry.get(id);
+    const { id } = await context.params
+    const registry = getAgentRegistry()
+    const agent = registry.get(id)
 
     if (!agent) {
-      return createNotFoundError(`No agent found with ID: ${id}`);
+      return createNotFoundError(`No agent found with ID: ${id}`)
     }
 
-    return createSuccessResponse(agent);
-  } catch (_error) {
-    return createErrorResponse(
-      error instanceof Error ? error : new Error(String(error))
-    );
+    return createSuccessResponse(agent)
+  } catch (error) {
+    return createErrorResponse(error instanceof Error ? error : new Error(String(error)))
   }
 }
 
@@ -47,14 +45,14 @@ export async function GET(request: NextRequest, context: RouteContext) {
  */
 export async function PUT(request: NextRequest, context: RouteContext) {
   try {
-    const { id } = await context.params;
-    const body = await request.json();
+    const { id } = await context.params
+    const body = await request.json()
 
-    const registry = getAgentRegistry();
-    const existingAgent = registry.get(id);
+    const registry = getAgentRegistry()
+    const existingAgent = registry.get(id)
 
     if (!existingAgent) {
-      return createNotFoundError(`No agent found with ID: ${id}`);
+      return createNotFoundError(`No agent found with ID: ${id}`)
     }
 
     // Update agent (create new registration with updated fields)
@@ -68,20 +66,18 @@ export async function PUT(request: NextRequest, context: RouteContext) {
       load: body.load ?? existingAgent.load,
       metadata: body.metadata ?? existingAgent.metadata,
       lastHeartbeat: body.lastHeartbeat ?? existingAgent.lastHeartbeat,
-    };
+    }
 
     // Re-register with same ID
-    registry.unregister(id);
-    registry.register(updatedAgent);
+    registry.unregister(id)
+    registry.register(updatedAgent)
 
     return createSuccessResponse({
       message: 'Agent updated successfully',
       agent: registry.get(id),
-    });
-  } catch (_error) {
-    return createErrorResponse(
-      error instanceof Error ? error : new Error(String(error))
-    );
+    })
+  } catch (error) {
+    return createErrorResponse(error instanceof Error ? error : new Error(String(error)))
   }
 }
 
@@ -91,22 +87,20 @@ export async function PUT(request: NextRequest, context: RouteContext) {
  */
 export async function DELETE(request: NextRequest, context: RouteContext) {
   try {
-    const { id } = await context.params;
-    const registry = getAgentRegistry();
-    const deleted = registry.unregister(id);
+    const { id } = await context.params
+    const registry = getAgentRegistry()
+    const deleted = registry.unregister(id)
 
     if (!deleted) {
-      return createNotFoundError(`No agent found with ID: ${id}`);
+      return createNotFoundError(`No agent found with ID: ${id}`)
     }
 
     return createSuccessResponse({
       message: 'Agent unregistered successfully',
       id,
-    });
-  } catch (_error) {
-    return createErrorResponse(
-      error instanceof Error ? error : new Error(String(error))
-    );
+    })
+  } catch (error) {
+    return createErrorResponse(error instanceof Error ? error : new Error(String(error)))
   }
 }
 
@@ -116,21 +110,19 @@ export async function DELETE(request: NextRequest, context: RouteContext) {
  */
 export async function PATCH(request: NextRequest, context: RouteContext) {
   try {
-    const { id } = await context.params;
-    const registry = getAgentRegistry();
-    const updated = registry.updateHeartbeat(id);
+    const { id } = await context.params
+    const registry = getAgentRegistry()
+    const updated = registry.updateHeartbeat(id)
 
     if (!updated) {
-      return createNotFoundError(`No agent found with ID: ${id}`);
+      return createNotFoundError(`No agent found with ID: ${id}`)
     }
 
     return createSuccessResponse({
       message: 'Heartbeat updated successfully',
       agent: registry.get(id),
-    });
-  } catch (_error) {
-    return createErrorResponse(
-      error instanceof Error ? error : new Error(String(error))
-    );
+    })
+  } catch (error) {
+    return createErrorResponse(error instanceof Error ? error : new Error(String(error)))
   }
 }

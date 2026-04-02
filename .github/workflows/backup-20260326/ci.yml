@@ -56,21 +56,21 @@ jobs:
       cache-key: ${{ steps.cache-keys.outputs.key }}
     steps:
       - uses: actions/checkout@v4
-      
+
       - name: Generate cache keys
         id: cache-keys
         run: |
           echo "key=npm-${{ runner.os }}-${{ hashFiles('**/package-lock.json') }}" >> $GITHUB_OUTPUT
-      
+
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
           node-version: ${{ env.NODE_VERSION }}
           cache: 'npm'
-      
+
       - name: Install dependencies
         run: npm ci --prefer-offline
-      
+
       # 依赖安全审计
       - name: Security audit
         run: |
@@ -78,7 +78,7 @@ jobs:
           npm audit --audit-level=moderate || true
           echo "✅ Security audit complete"
         continue-on-error: true
-      
+
       # 检查过时依赖
       - name: Check outdated dependencies
         run: npm outdated || true
@@ -93,19 +93,19 @@ jobs:
     needs: [setup]
     steps:
       - uses: actions/checkout@v4
-      
+
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
           node-version: ${{ env.NODE_VERSION }}
           cache: 'npm'
-      
+
       - name: Install dependencies
         run: npm ci --prefer-offline
-      
+
       - name: Run ESLint
         run: npm run lint
-      
+
       - name: Check formatting
         run: npm run format:check
         continue-on-error: true
@@ -119,16 +119,16 @@ jobs:
     needs: [setup]
     steps:
       - uses: actions/checkout@v4
-      
+
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
           node-version: ${{ env.NODE_VERSION }}
           cache: 'npm'
-      
+
       - name: Install dependencies
         run: npm ci --prefer-offline
-      
+
       - name: TypeScript check
         run: npm run type-check
 
@@ -145,19 +145,19 @@ jobs:
         shard: [1, 2, 3, 4]
     steps:
       - uses: actions/checkout@v4
-      
+
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
           node-version: ${{ env.NODE_VERSION }}
           cache: 'npm'
-      
+
       - name: Install dependencies
         run: npm ci --prefer-offline
-      
+
       - name: Run unit tests
         run: npm run test:run -- --shard=${{ matrix.shard }}/4
-        
+
       - name: Upload coverage
         if: matrix.shard == 1
         uses: actions/upload-artifact@v4
@@ -182,29 +182,29 @@ jobs:
         # browser: [chromium, firefox, webkit]
     steps:
       - uses: actions/checkout@v4
-      
+
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
           node-version: ${{ env.NODE_VERSION }}
           cache: 'npm'
-      
+
       - name: Install dependencies
         run: npm ci --prefer-offline
-      
+
       - name: Install Playwright browsers
         run: npx playwright install --with-deps ${{ matrix.browser }}
-      
+
       - name: Build application
         run: npm run build
         env:
           NEXT_TELEMETRY_DISABLED: 1
-      
+
       - name: Run E2E tests
         run: npm run test:e2e -- --project=${{ matrix.browser }}
         env:
           CI: true
-      
+
       - name: Upload Playwright report
         uses: actions/upload-artifact@v4
         if: always()
@@ -227,13 +227,13 @@ jobs:
       build-size: ${{ steps.build-info.outputs.size }}
     steps:
       - uses: actions/checkout@v4
-      
+
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
           node-version: ${{ env.NODE_VERSION }}
           cache: 'npm'
-      
+
       # 增量构建缓存 - 优化 key 策略
       - name: Cache Next.js build
         uses: actions/cache@v4
@@ -244,16 +244,16 @@ jobs:
           restore-keys: |
             nextjs-${{ runner.os }}-${{ hashFiles('**/package-lock.json') }}-
             nextjs-${{ runner.os }}-
-      
+
       - name: Install dependencies
         run: npm ci --prefer-offline
-      
+
       - name: Build application
         run: npm run build
         env:
           NEXT_TELEMETRY_DISABLED: 1
           NODE_ENV: production
-      
+
       # 构建分析
       - name: Analyze bundle size
         id: build-info
@@ -264,19 +264,19 @@ jobs:
           echo "Static: $(du -sh .next/static/ | cut -f1)"
           echo "Server: $(du -sh .next/server/ | cut -f1)"
           echo "Standalone: $(du -sh .next/standalone/ 2>/dev/null || echo 'N/A')"
-          
+
           # 输出到 GITHUB_OUTPUT
           echo "hash=${{ github.sha }}" >> $GITHUB_OUTPUT
           BUILD_SIZE=$(du -sm .next/standalone 2>/dev/null | cut -f1 || echo "0")
           echo "size=${BUILD_SIZE}" >> $GITHUB_OUTPUT
           echo ""
           echo "📦 Standalone size: ${BUILD_SIZE}MB"
-          
+
           # 警告大构建
           if [ "$BUILD_SIZE" -gt 300 ]; then
             echo "⚠️ Warning: Build size exceeds 300MB"
           fi
-      
+
       - name: Upload build artifacts
         uses: actions/upload-artifact@v4
         with:
@@ -299,10 +299,10 @@ jobs:
       image-tag: ${{ steps.meta.outputs.version }}
     steps:
       - uses: actions/checkout@v4
-      
+
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
-      
+
       # Docker 层缓存 - 使用 gha 缓存后端（更高效）
       - name: Cache Docker layers
         uses: actions/cache@v4
@@ -312,7 +312,7 @@ jobs:
           restore-keys: |
             docker-${{ runner.os }}-${{ hashFiles('Dockerfile.optimized', '**/package-lock.json') }}-
             docker-${{ runner.os }}-
-      
+
       - name: Login to Registry
         if: github.event_name != 'pull_request'
         uses: docker/login-action@v3
@@ -320,7 +320,7 @@ jobs:
           registry: ${{ env.REGISTRY }}
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
-      
+
       - name: Extract metadata
         id: meta
         uses: docker/metadata-action@v5
@@ -330,7 +330,7 @@ jobs:
             type=ref,event=branch
             type=sha,prefix=
             type=raw,value=latest,enable={{is_default_branch}}
-      
+
       - name: Build and push
         uses: docker/build-push-action@v5
         with:
@@ -343,7 +343,7 @@ jobs:
           cache-to: type=local,dest=/tmp/.buildx-cache-new,mode=max
           build-args: |
             NEXT_TELEMETRY_DISABLED=1
-      
+
       - name: Move cache
         run: |
           rm -rf /tmp/.buildx-cache
@@ -359,36 +359,36 @@ jobs:
     if: github.ref == 'refs/heads/main'
     steps:
       - uses: actions/checkout@v4
-      
+
       - name: Download build artifacts
         uses: actions/download-artifact@v4
         with:
           name: build
           path: .
-      
+
       - name: Verify build integrity
         run: |
           echo "🔍 Running pre-deployment checks..."
-          
+
           # 检查必要文件
           test -d .next/standalone || { echo "❌ Missing standalone build"; exit 1; }
           test -d .next/static || { echo "❌ Missing static files"; exit 1; }
           test -d public || { echo "❌ Missing public directory"; exit 1; }
           test -f .next/standalone/server.js || { echo "❌ Missing server.js"; exit 1; }
-          
+
           echo "✅ All pre-deployment checks passed!"
-      
+
       - name: Security scan
         run: |
           echo "🔒 Running security scan..."
-          
+
           # 检查敏感文件
           if find . -name "*.env.local" -o -name "*.pem" -o -name "*.key" 2>/dev/null | grep -q .; then
             echo "⚠️ Warning: Potential sensitive files found"
           fi
-          
+
           echo "✅ Security scan complete"
-      
+
       - name: Generate deployment manifest
         run: |
           cat > deployment-manifest.json << EOF
@@ -403,10 +403,10 @@ jobs:
             "run_number": "${{ github.run_number }}"
           }
           EOF
-          
+
           echo "📋 Deployment manifest:"
           cat deployment-manifest.json
-      
+
       - name: Upload deployment manifest
         uses: actions/upload-artifact@v4
         with:
@@ -427,10 +427,10 @@ jobs:
       url: https://staging.7zi.com
     steps:
       - uses: actions/checkout@v4
-      
+
       - name: Install sshpass
         run: sudo apt-get install -y sshpass
-      
+
       - name: Deploy to staging
         env:
           SSH_HOST: ${{ secrets.STAGING_HOST }}
@@ -486,10 +486,10 @@ jobs:
       url: https://7zi.com
     steps:
       - uses: actions/checkout@v4
-      
+
       - name: Install sshpass
         run: sudo apt-get install -y sshpass
-      
+
       - name: Create release tag
         run: |
           git config user.name "github-actions[bot]"
@@ -498,7 +498,7 @@ jobs:
           git tag -a "$RELEASE_TAG" -m "Release $(date +%Y-%m-%d) - $RELEASE_TAG"
           git push origin --tags || true
           echo "🏷️ Created release tag: $RELEASE_TAG"
-      
+
       - name: Deploy to production
         env:
           SSH_HOST: ${{ secrets.PRODUCTION_HOST }}
@@ -562,7 +562,7 @@ jobs:
             
             exit 1
           ENDSSH
-      
+
       - name: Verify deployment
         run: |
           echo "Verifying production deployment..."

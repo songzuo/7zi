@@ -9,6 +9,7 @@
 ### 1. 一致性 (Consistency)
 
 确保所有组件和页面遵循相同的设计语言，包括：
+
 - 统一的颜色系统
 - 一致的间距和布局
 - 标准化的交互模式
@@ -16,6 +17,7 @@
 ### 2. 可访问性 (Accessibility)
 
 遵循 WCAG 2.1 AA 标准，确保：
+
 - 足够的颜色对比度
 - 键盘导航支持
 - 屏幕阅读器友好
@@ -24,6 +26,7 @@
 ### 3. 响应式 (Responsive)
 
 适配各种设备尺寸：
+
 - 移动优先的设计方法
 - 灵活的网格系统
 - 响应式图片和排版
@@ -32,6 +35,7 @@
 ### 4. 性能 (Performance)
 
 保持优秀的加载和交互性能：
+
 - 优化的组件渲染
 - 代码分割和懒加载
 - 合理的动画和过渡效果
@@ -64,10 +68,10 @@
 --font-family-sans: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
 
 /* 字体大小 */
---font-size-xs: 0.75rem;    /* 12px */
---font-size-sm: 0.875rem;   /* 14px */
---font-size-base: 1rem;     /* 16px */
---font-size-lg: 1.125rem;   /* 18px */
+--font-size-xs: 0.75rem; /* 12px */
+--font-size-sm: 0.875rem; /* 14px */
+--font-size-base: 1rem; /* 16px */
+--font-size-lg: 1.125rem; /* 18px */
 
 /* 字重 */
 --font-weight-normal: 400;
@@ -81,10 +85,10 @@
 基于 4px 网格的间距系统：
 
 ```css
---spacing-1: 0.25rem;   /* 4px */
---spacing-2: 0.5rem;    /* 8px */
---spacing-4: 1rem;      /* 16px */
---spacing-8: 2rem;      /* 32px */
+--spacing-1: 0.25rem; /* 4px */
+--spacing-2: 0.5rem; /* 8px */
+--spacing-4: 1rem; /* 16px */
+--spacing-8: 2rem; /* 32px */
 ```
 
 #### 断点 (Breakpoints)
@@ -109,6 +113,7 @@
 ```
 
 **变体**：
+
 - `primary` - 主要按钮
 - `secondary` - 次要按钮
 - `outline` - 轮廓按钮
@@ -117,6 +122,7 @@
 - `success` - 成功操作
 
 **尺寸**：
+
 - `xs` - 超小
 - `sm` - 小
 - `md` - 中等（默认）
@@ -138,6 +144,7 @@
 ```
 
 **特性**：
+
 - 支持多种输入类型（文本、密码、邮箱、电话等）
 - 内置表单验证
 - 帮助文本和错误提示
@@ -161,6 +168,7 @@
 ```
 
 **特性**：
+
 - 多种阴影级别
 - 可点击交互
 - 灵活的内部布局
@@ -177,8 +185,12 @@
   size="md"
   footer={
     <>
-      <Button variant="outline" onClick={handleClose}>取消</Button>
-      <Button variant="danger" onClick={handleConfirm}>确认</Button>
+      <Button variant="outline" onClick={handleClose}>
+        取消
+      </Button>
+      <Button variant="danger" onClick={handleConfirm}>
+        确认
+      </Button>
     </>
   }
 >
@@ -187,6 +199,7 @@
 ```
 
 **特性**：
+
 - 多种尺寸
 - 动画过渡
 - 键盘导航（ESC 关闭）
@@ -222,9 +235,7 @@
 ### Tailwind 响应式类
 
 ```tsx
-<div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3">
-  {/* 响应式网格 */}
-</div>
+<div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3">{/* 响应式网格 */}</div>
 ```
 
 ## 主题系统
@@ -254,9 +265,7 @@
 ```tsx
 // 使用 Tailwind 的 dark: 前缀
 <div className="bg-white dark:bg-gray-900">
-  <p className="text-gray-900 dark:text-gray-100">
-    主题切换示例
-  </p>
+  <p className="text-gray-900 dark:text-gray-100">主题切换示例</p>
 </div>
 ```
 
@@ -265,6 +274,7 @@
 ### 颜色对比度
 
 确保文本和背景之间有足够的对比度：
+
 - 正常文本：至少 4.5:1
 - 大号文本：至少 3:1
 - UI 组件：至少 3:1
@@ -272,6 +282,7 @@
 ### 键盘导航
 
 所有交互元素都应该可以通过键盘访问：
+
 - 使用语义化的 HTML 元素
 - 提供明显的焦点样式
 - 支持 Tab 键导航
@@ -300,20 +311,19 @@
 ### 组件懒加载
 
 ```tsx
-import dynamic from 'next/dynamic';
+import dynamic from 'next/dynamic'
 
 const Modal = dynamic(() => import('@/components/ui/Modal'), {
   loading: () => <div>Loading...</div>,
   ssr: false,
-});
+})
 ```
 
 ### 图片优化
 
 ```tsx
-import Image from 'next/image';
-
-<Image
+import Image from 'next/image'
+;<Image
   src="/hero.jpg"
   alt="Hero image"
   width={1200}
@@ -327,9 +337,9 @@ import Image from 'next/image';
 
 ```tsx
 // 动态导入
-const heavyComponent = lazy(() => import('./HeavyComponent'));
+const heavyComponent = lazy(() => import('./HeavyComponent'))
 
-<Suspense fallback={<Loading />}>
+;<Suspense fallback={<Loading />}>
   <heavyComponent />
 </Suspense>
 ```

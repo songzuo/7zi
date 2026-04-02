@@ -16,11 +16,9 @@ export function formatNumber(
 ): string {
   const defaultOptions: Intl.NumberFormatOptions = {
     maximumFractionDigits: 2,
-  };
+  }
 
-  return new Intl.NumberFormat(locale, { ...defaultOptions, ...options }).format(
-    num
-  );
+  return new Intl.NumberFormat(locale, { ...defaultOptions, ...options }).format(num)
 }
 
 /**
@@ -41,11 +39,9 @@ export function formatCurrency(
     currency,
     minimumFractionDigits: 2,
     maximumFractionDigits: 2,
-  };
+  }
 
-  return new Intl.NumberFormat(locale, { ...defaultOptions, ...options }).format(
-    amount
-  );
+  return new Intl.NumberFormat(locale, { ...defaultOptions, ...options }).format(amount)
 }
 
 /**
@@ -63,7 +59,7 @@ export function formatPercent(
     style: 'percent',
     minimumFractionDigits: decimals,
     maximumFractionDigits: decimals,
-  }).format(value);
+  }).format(value)
 }
 
 /**
@@ -72,22 +68,22 @@ export function formatPercent(
  * @param locale - 语言代码 (如 'zh-CN', 'en-US')
  */
 export function formatFileSize(bytes: number, locale: string = 'zh-CN'): string {
-  const units = ['B', 'KB', 'MB', 'GB', 'TB', 'PB'];
-  const threshold = 1024;
+  const units = ['B', 'KB', 'MB', 'GB', 'TB', 'PB']
+  const threshold = 1024
 
   if (bytes < threshold) {
-    return formatNumber(bytes, locale) + ' ' + units[0];
+    return formatNumber(bytes, locale) + ' ' + units[0]
   }
 
-  let size = bytes;
-  let unitIndex = 0;
+  let size = bytes
+  let unitIndex = 0
 
   while (size >= threshold && unitIndex < units.length - 1) {
-    size /= threshold;
-    unitIndex++;
+    size /= threshold
+    unitIndex++
   }
 
-  return formatNumber(size, locale, { maximumFractionDigits: 1 }) + ' ' + units[unitIndex];
+  return formatNumber(size, locale, { maximumFractionDigits: 1 }) + ' ' + units[unitIndex]
 }
 
 /**
@@ -96,23 +92,21 @@ export function formatFileSize(bytes: number, locale: string = 'zh-CN'): string 
  * @param locale - 语言代码 (如 'zh-CN', 'en-US')
  */
 export function formatNumberShort(num: number, locale: string = 'zh-CN'): string {
-  const suffixes = ['', 'K', 'M', 'B', 'T'];
-  const threshold = 1000;
+  const suffixes = ['', 'K', 'M', 'B', 'T']
+  const threshold = 1000
 
   if (Math.abs(num) < threshold) {
-    return formatNumber(num, locale, { maximumFractionDigits: 0 });
+    return formatNumber(num, locale, { maximumFractionDigits: 0 })
   }
 
-  let absNum = Math.abs(num);
-  let suffixIndex = 0;
+  let absNum = Math.abs(num)
+  let suffixIndex = 0
 
   while (absNum >= threshold && suffixIndex < suffixes.length - 1) {
-    absNum /= threshold;
-    suffixIndex++;
+    absNum /= threshold
+    suffixIndex++
   }
 
-  const sign = num < 0 ? '-' : '';
-  return (
-    sign + formatNumber(absNum, locale, { maximumFractionDigits: 1 }) + suffixes[suffixIndex]
-  );
+  const sign = num < 0 ? '-' : ''
+  return sign + formatNumber(absNum, locale, { maximumFractionDigits: 1 }) + suffixes[suffixIndex]
 }

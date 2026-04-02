@@ -1,31 +1,31 @@
-'use client';
+'use client'
 
-import { useState, useCallback, useEffect } from 'react';
-import { useRouter } from 'next/navigation';
+import { useState, useCallback, useEffect } from 'react'
+import { useRouter } from 'next/navigation'
 
 interface UserProfile {
-  id: string;
-  email: string;
-  name: string;
-  avatar?: string;
-  role: string;
-  status: string;
-  createdAt: Date;
-  lastLoginAt?: Date;
+  id: string
+  email: string
+  name: string
+  avatar?: string
+  role: string
+  status: string
+  createdAt: Date
+  lastLoginAt?: Date
 }
 
 interface EditableFields {
-  name: string;
-  bio: string;
+  name: string
+  bio: string
 }
 
 interface ApiResponse<T> {
-  success: boolean;
-  data?: T;
+  success: boolean
+  data?: T
   error?: {
-    code: string;
-    message: string;
-  };
+    code: string
+    message: string
+  }
 }
 
 /**
@@ -33,131 +33,131 @@ interface ApiResponse<T> {
  * Displays user profile with editing functionality
  */
 export default function UserProfile({ userId }: { userId: string }) {
-  const router = useRouter();
-  const [user, setUser] = useState<UserProfile | null>(null);
-  const [isEditing, setIsEditing] = useState(false);
-  const [isLoading, setIsLoading] = useState(true);
-  const [isSaving, setIsSaving] = useState(false);
-  const [saveError, setSaveError] = useState<string | null>(null);
+  const router = useRouter()
+  const [user, setUser] = useState<UserProfile | null>(null)
+  const [isEditing, setIsEditing] = useState(false)
+  const [isLoading, setIsLoading] = useState(true)
+  const [isSaving, setIsSaving] = useState(false)
+  const [saveError, setSaveError] = useState<string | null>(null)
   const [editedFields, setEditedFields] = useState<EditableFields>({
     name: '',
     bio: '',
-  });
-  const [avatarPreview, setAvatarPreview] = useState<string | null>(null);
-  const [avatarFile, setAvatarFile] = useState<File | null>(null);
+  })
+  const [avatarPreview, setAvatarPreview] = useState<string | null>(null)
+  const [avatarFile, setAvatarFile] = useState<File | null>(null)
 
   // Load user data
   useEffect(() => {
-    loadUser();
-  }, [userId]);
+    loadUser()
+  }, [userId])
 
   const loadUser = useCallback(async () => {
     try {
-      const response = await fetch(`/api/users/${userId}`);
-      const data: ApiResponse<UserProfile> = await response.json();
+      const response = await fetch(`/api/users/${userId}`)
+      const data: ApiResponse<UserProfile> = await response.json()
 
       if (data.success && data.data) {
-        setUser(data.data);
+        setUser(data.data)
         setEditedFields({
           name: data.data.name,
           bio: '',
-        });
-        setAvatarPreview(data.data.avatar || null);
+        })
+        setAvatarPreview(data.data.avatar || null)
       } else {
-        console.error('Failed to load user:', data.error);
+        console.error('Failed to load user:', data.error)
       }
-    } catch (_error) {
-      console.error('Error loading user:', error);
+    } catch (error) {
+      console.error('Error loading user:', error)
     } finally {
-      setIsLoading(false);
+      setIsLoading(false)
     }
-  }, [userId]);
+  }, [userId])
 
   // Handle avatar file selection
   const handleAvatarChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
+    const file = e.target.files?.[0]
     if (file) {
       // Validate file type
       if (!['image/jpeg', 'image/png', 'image/gif', 'image/webp'].includes(file.type)) {
-        setSaveError('Invalid file type. Please upload JPG, PNG, GIF, or WebP.');
-        return;
+        setSaveError('Invalid file type. Please upload JPG, PNG, GIF, or WebP.')
+        return
       }
 
       // Validate file size (5MB max)
       if (file.size > 5 * 1024 * 1024) {
-        setSaveError('File too large. Maximum size is 5MB.');
-        return;
+        setSaveError('File too large. Maximum size is 5MB.')
+        return
       }
 
-      setAvatarFile(file);
-      setSaveError(null);
+      setAvatarFile(file)
+      setSaveError(null)
 
       // Create preview
-      const reader = new FileReader();
+      const reader = new FileReader()
       reader.onloadend = () => {
-        setAvatarPreview(reader.result as string);
-      };
-      reader.readAsDataURL(file);
+        setAvatarPreview(reader.result as string)
+      }
+      reader.readAsDataURL(file)
     }
-  }, []);
+  }, [])
 
   // Handle avatar upload
   const handleAvatarUpload = useCallback(async () => {
-    if (!avatarFile) return;
+    if (!avatarFile) return
 
-    setIsSaving(true);
-    setSaveError(null);
+    setIsSaving(true)
+    setSaveError(null)
 
     try {
-      const formData = new FormData();
-      formData.append('avatar', avatarFile);
+      const formData = new FormData()
+      formData.append('avatar', avatarFile)
 
       const response = await fetch(`/api/users/${userId}/avatar`, {
         method: 'POST',
         body: formData,
-      });
+      })
 
-      const data: ApiResponse<{ avatarUrl: string }> = await response.json();
+      const data: ApiResponse<{ avatarUrl: string }> = await response.json()
 
       if (data.success && data.data) {
         // Reload user data to get updated avatar
-        await loadUser();
-        setAvatarFile(null);
+        await loadUser()
+        setAvatarFile(null)
       } else {
-        setSaveError(data.error?.message || 'Failed to upload avatar');
+        setSaveError(data.error?.message || 'Failed to upload avatar')
       }
-    } catch (_error) {
-      setSaveError(error instanceof Error ? error.message : 'Failed to upload avatar');
+    } catch (error) {
+      setSaveError(error instanceof Error ? error.message : 'Failed to upload avatar')
     } finally {
-      setIsSaving(false);
+      setIsSaving(false)
     }
-  }, [avatarFile, userId, loadUser]);
+  }, [avatarFile, userId, loadUser])
 
   // Handle avatar removal
   const handleAvatarRemove = useCallback(async () => {
-    if (!user?.avatar) return;
+    if (!user?.avatar) return
 
-    setIsSaving(true);
-    setSaveError(null);
+    setIsSaving(true)
+    setSaveError(null)
 
     try {
       const response = await fetch(`/api/users/${userId}/avatar`, {
         method: 'DELETE',
-      });
+      })
 
-      const data: ApiResponse<Record<string, unknown>> = await response.json();
+      const data: ApiResponse<Record<string, unknown>> = await response.json()
 
       if (data.success) {
-        await loadUser();
+        await loadUser()
       } else {
-        setSaveError(data.error?.message || 'Failed to remove avatar');
+        setSaveError(data.error?.message || 'Failed to remove avatar')
       }
-    } catch (_error) {
-      setSaveError(error instanceof Error ? error.message : 'Failed to remove avatar');
+    } catch (error) {
+      setSaveError(error instanceof Error ? error.message : 'Failed to remove avatar')
     } finally {
-      setIsSaving(false);
+      setIsSaving(false)
     }
-  }, [user?.avatar, userId, loadUser]);
+  }, [user?.avatar, userId, loadUser])
 
   // Handle profile edit
   const handleEdit = useCallback(() => {
@@ -165,21 +165,21 @@ export default function UserProfile({ userId }: { userId: string }) {
       setEditedFields({
         name: user.name,
         bio: '',
-      });
+      })
     }
-    setIsEditing(true);
-    setSaveError(null);
-  }, [user]);
+    setIsEditing(true)
+    setSaveError(null)
+  }, [user])
 
   // Handle profile save
   const handleSave = useCallback(async () => {
     if (!editedFields.name.trim()) {
-      setSaveError('Name is required');
-      return;
+      setSaveError('Name is required')
+      return
     }
 
-    setIsSaving(true);
-    setSaveError(null);
+    setIsSaving(true)
+    setSaveError(null)
 
     try {
       const response = await fetch(`/api/users/${userId}`, {
@@ -190,43 +190,43 @@ export default function UserProfile({ userId }: { userId: string }) {
         body: JSON.stringify({
           name: editedFields.name.trim(),
         }),
-      });
+      })
 
-      const data: ApiResponse<UserProfile> = await response.json();
+      const data: ApiResponse<UserProfile> = await response.json()
 
       if (data.success && data.data) {
-        setUser(data.data);
-        setIsEditing(false);
+        setUser(data.data)
+        setIsEditing(false)
       } else {
-        setSaveError(data.error?.message || 'Failed to update profile');
+        setSaveError(data.error?.message || 'Failed to update profile')
       }
-    } catch (_error) {
-      setSaveError(error instanceof Error ? error.message : 'Failed to update profile');
+    } catch (error) {
+      setSaveError(error instanceof Error ? error.message : 'Failed to update profile')
     } finally {
-      setIsSaving(false);
+      setIsSaving(false)
     }
-  }, [editedFields, userId]);
+  }, [editedFields, userId])
 
   // Handle cancel
   const handleCancel = useCallback(() => {
-    setIsEditing(false);
-    setAvatarFile(null);
-    setAvatarPreview(user?.avatar || null);
-    setSaveError(null);
+    setIsEditing(false)
+    setAvatarFile(null)
+    setAvatarPreview(user?.avatar || null)
+    setSaveError(null)
     if (user) {
       setEditedFields({
         name: user.name,
         bio: '',
-      });
+      })
     }
-  }, [user]);
+  }, [user])
 
   if (isLoading) {
     return (
       <div className="flex items-center justify-center p-8">
         <div className="text-zinc-500">Loading...</div>
       </div>
-    );
+    )
   }
 
   if (!user) {
@@ -234,24 +234,20 @@ export default function UserProfile({ userId }: { userId: string }) {
       <div className="flex items-center justify-center p-8">
         <div className="text-red-500">Failed to load user profile</div>
       </div>
-    );
+    )
   }
 
   return (
-    <div className="max-w-4xl mx-auto p-6">
-      <div className="bg-white dark:bg-zinc-800 rounded-2xl shadow-sm border border-zinc-200 dark:border-zinc-700 overflow-hidden">
+    <div className="mx-auto max-w-4xl p-6">
+      <div className="overflow-hidden rounded-2xl border border-zinc-200 bg-white shadow-sm dark:border-zinc-700 dark:bg-zinc-800">
         {/* Header */}
         <div className="bg-gradient-to-r from-cyan-500 to-purple-500 p-8">
           <div className="flex items-end gap-6">
             {/* Avatar */}
-            <div className="relative group">
-              <div className="w-32 h-32 rounded-full bg-white dark:bg-zinc-900 flex items-center justify-center overflow-hidden border-4 border-white dark:border-zinc-700 shadow-lg">
+            <div className="group relative">
+              <div className="flex h-32 w-32 items-center justify-center overflow-hidden rounded-full border-4 border-white bg-white shadow-lg dark:border-zinc-700 dark:bg-zinc-900">
                 {avatarPreview ? (
-                  <img
-                    src={avatarPreview}
-                    alt={user.name}
-                    className="w-full h-full object-cover"
-                  />
+                  <img src={avatarPreview} alt={user.name} className="h-full w-full object-cover" />
                 ) : (
                   <div className="text-5xl font-bold text-cyan-500">
                     {user.name.charAt(0).toUpperCase()}
@@ -260,9 +256,9 @@ export default function UserProfile({ userId }: { userId: string }) {
               </div>
 
               {/* Avatar upload button */}
-              <label className="absolute bottom-0 right-0 bg-white dark:bg-zinc-900 rounded-full p-2 shadow-lg cursor-pointer hover:bg-zinc-100 dark:hover:bg-zinc-800 transition-colors">
+              <label className="absolute right-0 bottom-0 cursor-pointer rounded-full bg-white p-2 shadow-lg transition-colors hover:bg-zinc-100 dark:bg-zinc-900 dark:hover:bg-zinc-800">
                 <svg
-                  className="w-5 h-5 text-zinc-700 dark:text-zinc-300"
+                  className="h-5 w-5 text-zinc-700 dark:text-zinc-300"
                   fill="none"
                   stroke="currentColor"
                   viewBox="0 0 24 24"
@@ -290,20 +286,20 @@ export default function UserProfile({ userId }: { userId: string }) {
 
               {/* Avatar actions */}
               {avatarFile && (
-                <div className="absolute -bottom-1 left-0 right-0 flex gap-1 justify-center">
+                <div className="absolute right-0 -bottom-1 left-0 flex justify-center gap-1">
                   <button
                     onClick={handleAvatarUpload}
                     disabled={isSaving}
-                    className="bg-green-500 text-white px-2 py-1 rounded text-xs font-medium hover:bg-green-600 disabled:opacity-50"
+                    className="rounded bg-green-500 px-2 py-1 text-xs font-medium text-white hover:bg-green-600 disabled:opacity-50"
                   >
                     {isSaving ? 'Uploading...' : 'Save'}
                   </button>
                   <button
                     onClick={() => {
-                      setAvatarFile(null);
-                      setAvatarPreview(user.avatar || null);
+                      setAvatarFile(null)
+                      setAvatarPreview(user.avatar || null)
                     }}
-                    className="bg-red-500 text-white px-2 py-1 rounded text-xs font-medium hover:bg-red-600"
+                    className="rounded bg-red-500 px-2 py-1 text-xs font-medium text-white hover:bg-red-600"
                   >
                     Cancel
                   </button>
@@ -315,11 +311,16 @@ export default function UserProfile({ userId }: { userId: string }) {
                 <button
                   onClick={handleAvatarRemove}
                   disabled={isSaving}
-                  className="absolute top-0 right-0 bg-red-500 text-white p-1 rounded-full hover:bg-red-600 disabled:opacity-50"
+                  className="absolute top-0 right-0 rounded-full bg-red-500 p-1 text-white hover:bg-red-600 disabled:opacity-50"
                   title="Remove avatar"
                 >
-                  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                  <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth={2}
+                      d="M6 18L18 6M6 6l12 12"
+                    />
                   </svg>
                 </button>
               )}
@@ -331,15 +332,15 @@ export default function UserProfile({ userId }: { userId: string }) {
                 <input
                   type="text"
                   value={editedFields.name}
-                  onChange={(e) => setEditedFields({ ...editedFields, name: e.target.value })}
-                  className="text-3xl font-bold text-white bg-transparent border-b-2 border-white/50 focus:border-white outline-none placeholder-white/50"
+                  onChange={e => setEditedFields({ ...editedFields, name: e.target.value })}
+                  className="border-b-2 border-white/50 bg-transparent text-3xl font-bold text-white placeholder-white/50 outline-none focus:border-white"
                   placeholder="Your name"
                   autoFocus
                 />
               ) : (
                 <h1 className="text-3xl font-bold text-white">{user.name}</h1>
               )}
-              <p className="text-white/80 mt-1">{user.email}</p>
+              <p className="mt-1 text-white/80">{user.email}</p>
             </div>
           </div>
         </div>
@@ -347,7 +348,7 @@ export default function UserProfile({ userId }: { userId: string }) {
         {/* Content */}
         <div className="p-6">
           {/* Actions */}
-          <div className="flex justify-between items-center mb-6">
+          <div className="mb-6 flex items-center justify-between">
             <div className="flex items-center gap-2">
               <span className="text-sm text-zinc-500 dark:text-zinc-400">Member since</span>
               <span className="text-sm font-medium text-zinc-700 dark:text-zinc-300">
@@ -359,14 +360,14 @@ export default function UserProfile({ userId }: { userId: string }) {
                 <button
                   onClick={handleCancel}
                   disabled={isSaving}
-                  className="px-4 py-2 rounded-lg border border-zinc-300 dark:border-zinc-600 text-zinc-700 dark:text-zinc-300 hover:bg-zinc-100 dark:hover:bg-zinc-700 disabled:opacity-50"
+                  className="rounded-lg border border-zinc-300 px-4 py-2 text-zinc-700 hover:bg-zinc-100 disabled:opacity-50 dark:border-zinc-600 dark:text-zinc-300 dark:hover:bg-zinc-700"
                 >
                   Cancel
                 </button>
                 <button
                   onClick={handleSave}
                   disabled={isSaving}
-                  className="px-4 py-2 rounded-lg bg-cyan-500 text-white hover:bg-cyan-600 disabled:opacity-50"
+                  className="rounded-lg bg-cyan-500 px-4 py-2 text-white hover:bg-cyan-600 disabled:opacity-50"
                 >
                   {isSaving ? 'Saving...' : 'Save Changes'}
                 </button>
@@ -374,7 +375,7 @@ export default function UserProfile({ userId }: { userId: string }) {
             ) : (
               <button
                 onClick={handleEdit}
-                className="px-4 py-2 rounded-lg bg-zinc-100 dark:bg-zinc-700 text-zinc-700 dark:text-zinc-300 hover:bg-zinc-200 dark:hover:bg-zinc-600 transition-colors"
+                className="rounded-lg bg-zinc-100 px-4 py-2 text-zinc-700 transition-colors hover:bg-zinc-200 dark:bg-zinc-700 dark:text-zinc-300 dark:hover:bg-zinc-600"
               >
                 Edit Profile
               </button>
@@ -383,7 +384,7 @@ export default function UserProfile({ userId }: { userId: string }) {
 
           {/* Error message */}
           {saveError && (
-            <div className="mb-4 p-4 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg">
+            <div className="mb-4 rounded-lg border border-red-200 bg-red-50 p-4 dark:border-red-800 dark:bg-red-900/20">
               <p className="text-sm text-red-700 dark:text-red-400">{saveError}</p>
             </div>
           )}
@@ -391,40 +392,40 @@ export default function UserProfile({ userId }: { userId: string }) {
           {/* User details */}
           <div className="grid grid-cols-2 gap-6">
             <div>
-              <h3 className="text-sm font-medium text-zinc-500 dark:text-zinc-400 mb-1">Role</h3>
-              <p className="text-zinc-900 dark:text-white font-medium capitalize">{user.role}</p>
+              <h3 className="mb-1 text-sm font-medium text-zinc-500 dark:text-zinc-400">Role</h3>
+              <p className="font-medium text-zinc-900 capitalize dark:text-white">{user.role}</p>
             </div>
             <div>
-              <h3 className="text-sm font-medium text-zinc-500 dark:text-zinc-400 mb-1">Status</h3>
+              <h3 className="mb-1 text-sm font-medium text-zinc-500 dark:text-zinc-400">Status</h3>
               <span
-                className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
+                className={`inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium ${
                   user.status === 'active'
                     ? 'bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-400'
                     : user.status === 'inactive'
-                    ? 'bg-zinc-100 text-zinc-800 dark:bg-zinc-900/30 dark:text-zinc-400'
-                    : user.status === 'suspended'
-                    ? 'bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-400'
-                    : 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900/30 dark:text-yellow-400'
+                      ? 'bg-zinc-100 text-zinc-800 dark:bg-zinc-900/30 dark:text-zinc-400'
+                      : user.status === 'suspended'
+                        ? 'bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-400'
+                        : 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900/30 dark:text-yellow-400'
                 }`}
               >
                 {user.status}
               </span>
             </div>
             <div>
-              <h3 className="text-sm font-medium text-zinc-500 dark:text-zinc-400 mb-1">Last Login</h3>
+              <h3 className="mb-1 text-sm font-medium text-zinc-500 dark:text-zinc-400">
+                Last Login
+              </h3>
               <p className="text-zinc-900 dark:text-white">
-                {user.lastLoginAt
-                  ? new Date(user.lastLoginAt).toLocaleString()
-                  : 'Never'}
+                {user.lastLoginAt ? new Date(user.lastLoginAt).toLocaleString() : 'Never'}
               </p>
             </div>
             <div>
-              <h3 className="text-sm font-medium text-zinc-500 dark:text-zinc-400 mb-1">User ID</h3>
-              <p className="text-zinc-900 dark:text-white text-sm font-mono">{user.id}</p>
+              <h3 className="mb-1 text-sm font-medium text-zinc-500 dark:text-zinc-400">User ID</h3>
+              <p className="font-mono text-sm text-zinc-900 dark:text-white">{user.id}</p>
             </div>
           </div>
         </div>
       </div>
     </div>
-  );
+  )
 }

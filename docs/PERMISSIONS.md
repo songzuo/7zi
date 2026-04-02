@@ -33,15 +33,15 @@ import {
   hasPermission,
   hasPermissions,
   withPermission,
-  permissionChecker
-} from '@/lib/permissions';
+  permissionChecker,
+} from '@/lib/permissions'
 
 // WebSocket 权限系统 (v1.4.0)
 import {
   getPermissionManager,
   UserRole,
-  Permission as WSPermission
-} from '@/lib/websocket/permissions';
+  Permission as WSPermission,
+} from '@/lib/websocket/permissions'
 ```
 
 ### 基础用法
@@ -52,30 +52,30 @@ permissionChecker.loadUserPermissions({
   userId: 'user-123',
   role: Role.MEMBER,
   permissions: [Permission.TASK_CREATE, Permission.TASK_READ],
-});
+})
 
 // 2. 检查单个权限
-const canCreateTask = hasPermission('user-123', Permission.TASK_CREATE);
-console.log(canCreateTask); // true
+const canCreateTask = hasPermission('user-123', Permission.TASK_CREATE)
+console.log(canCreateTask) // true
 
 // 3. 批量检查权限
 const canManageTasks = hasPermissions('user-123', [
   Permission.TASK_CREATE,
   Permission.TASK_READ,
   Permission.TASK_UPDATE,
-]);
-console.log(canManageTasks); // true
+])
+console.log(canManageTasks) // true
 
 // 4. 使用 PermissionChecker 类
-const checker = new PermissionChecker();
+const checker = new PermissionChecker()
 checker.loadUserPermissions({
   userId: 'user-456',
   role: Role.MANAGER,
   permissions: [Permission.TASK_ASSIGN, Permission.TEAM_INVITE],
-});
+})
 
-const result = checker.check('user-456', Permission.TASK_ASSIGN);
-console.log(result.granted); // true
+const result = checker.check('user-456', Permission.TASK_ASSIGN)
+console.log(result.granted) // true
 ```
 
 ---
@@ -121,65 +121,65 @@ v1.4.0 引入了 **WebSocket 房间权限系统**，用于控制房间内的用�
 
 ### WebSocket 角色定义
 
-| 角色 | 层级 | 描述 | 默认权限数 |
-|------|------|------|-----------|
-| `owner` | 最高 | 房间所有者，完全控制 | 16 (所有权限) |
-| `admin` | 高 | 管理员，除删除房间外 | 15 |
-| `moderator` | 中 | 版主，管理消息和用户 | 12 |
-| `member` | 低 | 成员，基础权限 | 10 |
-| `guest` | 最低 | 访客，只读权限 | 6 |
+| 角色        | 层级 | 描述                 | 默认权限数    |
+| ----------- | ---- | -------------------- | ------------- |
+| `owner`     | 最高 | 房间所有者，完全控制 | 16 (所有权限) |
+| `admin`     | 高   | 管理员，除删除房间外 | 15            |
+| `moderator` | 中   | 版主，管理消息和用户 | 12            |
+| `member`    | 低   | 成员，基础权限       | 10            |
+| `guest`     | 最低 | 访客，只读权限       | 6             |
 
 ### WebSocket 权限列表
 
 #### 房间权限 (7 种)
 
-| 权限 | 说明 | Guest | Member | Moderator | Admin | Owner |
-|------|------|-------|--------|-----------|-------|-------|
-| `room:join` | 加入房间 | ✅ | ✅ | ✅ | ✅ | ✅ |
-| `room:leave` | 离开房间 | ✅ | ✅ | ✅ | ✅ | ✅ |
-| `room:manage` | 管理房间设置 | ❌ | ❌ | ✅ | ✅ | ✅ |
-| `room:view` | 查看房间内容 | ✅ | ✅ | ✅ | ✅ | ✅ |
-| `room:invite` | 邀请用户 | ❌ | ❌ | ✅ | ✅ | ✅ |
-| `room:kick` | 踢出用户 | ❌ | ❌ | ✅ | ✅ | ✅ |
-| `room:ban` | 封禁用户 | ❌ | ❌ | ✅ | ✅ | ✅ |
+| 权限          | 说明         | Guest | Member | Moderator | Admin | Owner |
+| ------------- | ------------ | ----- | ------ | --------- | ----- | ----- |
+| `room:join`   | 加入房间     | ✅    | ✅     | ✅        | ✅    | ✅    |
+| `room:leave`  | 离开房间     | ✅    | ✅     | ✅        | ✅    | ✅    |
+| `room:manage` | 管理房间设置 | ❌    | ❌     | ✅        | ✅    | ✅    |
+| `room:view`   | 查看房间内容 | ✅    | ✅     | ✅        | ✅    | ✅    |
+| `room:invite` | 邀请用户     | ❌    | ❌     | ✅        | ✅    | ✅    |
+| `room:kick`   | 踢出用户     | ❌    | ❌     | ✅        | ✅    | ✅    |
+| `room:ban`    | 封禁用户     | ❌    | ❌     | ✅        | ✅    | ✅    |
 
 #### 消息权限 (6 种)
 
-| 权限 | 说明 | Guest | Member | Moderator | Admin | Owner |
-|------|------|-------|--------|-----------|-------|-------|
-| `message:send` | 发送消息 | ❌ | ✅ | ✅ | ✅ | ✅ |
-| `message:edit` | 编辑自己的消息 | ✅ | ✅ | ✅ | ✅ | ✅ |
-| `message:delete` | 删除自己的消息 | ✅ | ✅ | ✅ | ✅ | ✅ |
-| `message:react` | 添加反应 | ✅ | ✅ | ✅ | ✅ | ✅ |
-| `message:pin` | 置顶消息 | ❌ | ❌ | ✅ | ✅ | ✅ |
-| `message:view_history` | 查看消息历史 | ✅ | ✅ | ✅ | ✅ | ✅ |
+| 权限                   | 说明           | Guest | Member | Moderator | Admin | Owner |
+| ---------------------- | -------------- | ----- | ------ | --------- | ----- | ----- |
+| `message:send`         | 发送消息       | ❌    | ✅     | ✅        | ✅    | ✅    |
+| `message:edit`         | 编辑自己的消息 | ✅    | ✅     | ✅        | ✅    | ✅    |
+| `message:delete`       | 删除自己的消息 | ✅    | ✅     | ✅        | ✅    | ✅    |
+| `message:react`        | 添加反应       | ✅    | ✅     | ✅        | ✅    | ✅    |
+| `message:pin`          | 置顶消息       | ❌    | ❌     | ✅        | ✅    | ✅    |
+| `message:view_history` | 查看消息历史   | ✅    | ✅     | ✅        | ✅    | ✅    |
 
 #### 管理权限 (3 种)
 
-| 权限 | 说明 | Guest | Member | Moderator | Admin | Owner |
-|------|------|-------|--------|-----------|-------|-------|
-| `admin:manage_users` | 管理用户 | ❌ | ❌ | ❌ | ✅ | ✅ |
-| `admin:manage_rooms` | 管理房间设置 | ❌ | ❌ | ❌ | ✅ | ✅ |
-| `admin:manage_permissions` | 管理权限 | ❌ | ❌ | ❌ | ✅ | ✅ |
+| 权限                       | 说明         | Guest | Member | Moderator | Admin | Owner |
+| -------------------------- | ------------ | ----- | ------ | --------- | ----- | ----- |
+| `admin:manage_users`       | 管理用户     | ❌    | ❌     | ❌        | ✅    | ✅    |
+| `admin:manage_rooms`       | 管理房间设置 | ❌    | ❌     | ❌        | ✅    | ✅    |
+| `admin:manage_permissions` | 管理权限     | ❌    | ❌     | ❌        | ✅    | ✅    |
 
 ### 使用示例
 
 ```typescript
-import { getPermissionManager } from '@/lib/websocket/permissions';
+import { getPermissionManager } from '@/lib/websocket/permissions'
 
-const permissionManager = getPermissionManager();
+const permissionManager = getPermissionManager()
 
 // 设置用户角色
 permissionManager.setUserRole(
-  'user-456',           // 用户 ID
+  'user-456', // 用户 ID
   'project-alpha-2024', // 房间 ID
-  'admin',              // 角色
-  'user-123'            // 授权者 (必须是 owner/admin)
-);
+  'admin', // 角色
+  'user-123' // 授权者 (必须是 owner/admin)
+)
 
 // 检查权限
 if (permissionManager.hasPermission('user-456', 'project-alpha-2024', 'message:send')) {
-  console.log('用户可以发送消息');
+  console.log('用户可以发送消息')
 }
 
 // 授予临时权限 (24 小时后过期)
@@ -187,8 +187,8 @@ permissionManager.grantPermission(
   'user-789',
   'project-alpha-2024',
   'message:pin',
-  Date.now() + (24 * 60 * 60 * 1000)
-);
+  Date.now() + 24 * 60 * 60 * 1000
+)
 ```
 
 ### 详细文档
@@ -209,8 +209,9 @@ permissionManager.grantPermission(
 - **描述**: 拥有系统的完全控制权，可以管理所有功能和用户
 
 **典型权限**:
+
 ```typescript
-[
+;[
   Permission.TASK_CREATE,
   Permission.TASK_READ,
   Permission.TASK_UPDATE,
@@ -232,8 +233,9 @@ permissionManager.grantPermission(
 - **描述**: 可以管理任务、查看报告、邀请成员
 
 **典型权限**:
+
 ```typescript
-[
+;[
   // 任务权限（完整）
   Permission.TASK_CREATE,
   Permission.TASK_READ,
@@ -241,24 +243,24 @@ permissionManager.grantPermission(
   Permission.TASK_DELETE,
   Permission.TASK_ASSIGN,
   Permission.TASK_BATCH,
-  
+
   // 用户权限（只读）
   Permission.USER_READ,
-  
+
   // 团队权限
   Permission.TEAM_INVITE,
   Permission.TEAM_REMOVE_MEMBER,
-  
+
   // 报告权限（完整）
   Permission.REPORTS_READ,
   Permission.REPORTS_EXPORT,
   Permission.REPORTS_GENERATE,
-  
+
   // 标签权限
   Permission.TAG_CREATE,
   Permission.TAG_UPDATE,
   Permission.TAG_DELETE,
-  
+
   // 通知权限
   Permission.NOTIFICATION_SEND,
 ]
@@ -271,20 +273,21 @@ permissionManager.grantPermission(
 - **描述**: 可以创建和管理自己的任务
 
 **典型权限**:
+
 ```typescript
-[
+;[
   // 任务权限（仅自己的）
   Permission.TASK_CREATE,
   Permission.TASK_READ,
   Permission.TASK_UPDATE,
   Permission.TASK_DELETE,
-  
+
   // 用户权限（只读）
   Permission.USER_READ,
-  
+
   // 报告权限（只读）
   Permission.REPORTS_READ,
-  
+
   // 通知权限
   Permission.NOTIFICATION_SEND,
 ]
@@ -297,33 +300,30 @@ permissionManager.grantPermission(
 - **描述**: 只能查看任务和报告，不能修改
 
 **典型权限**:
+
 ```typescript
-[
-  Permission.TASK_READ,
-  Permission.USER_READ,
-  Permission.REPORTS_READ,
-]
+;[Permission.TASK_READ, Permission.USER_READ, Permission.REPORTS_READ]
 ```
 
 ### 角色层级关系
 
 ```typescript
-import { RoleHierarchy, compareRoles, canManageRole } from '@/lib/permissions';
+import { RoleHierarchy, compareRoles, canManageRole } from '@/lib/permissions'
 
 // 角色层级
-console.log(RoleHierarchy[Role.ADMIN]);   // 100
-console.log(RoleHierarchy[Role.MANAGER]); // 50
-console.log(RoleHierarchy[Role.MEMBER]);  // 20
-console.log(RoleHierarchy[Role.VIEWER]);  // 10
+console.log(RoleHierarchy[Role.ADMIN]) // 100
+console.log(RoleHierarchy[Role.MANAGER]) // 50
+console.log(RoleHierarchy[Role.MEMBER]) // 20
+console.log(RoleHierarchy[Role.VIEWER]) // 10
 
 // 比较角色
-compareRoles(Role.ADMIN, Role.MANAGER);  // 1 (Admin > Manager)
-compareRoles(Role.MEMBER, Role.ADMIN);   // -1 (Member < Admin)
-compareRoles(Role.MANAGER, Role.MANAGER); // 0 (相等)
+compareRoles(Role.ADMIN, Role.MANAGER) // 1 (Admin > Manager)
+compareRoles(Role.MEMBER, Role.ADMIN) // -1 (Member < Admin)
+compareRoles(Role.MANAGER, Role.MANAGER) // 0 (相等)
 
 // 检查是否可以管理
-canManageRole(Role.ADMIN, Role.MANAGER);  // true
-canManageRole(Role.MEMBER, Role.MANAGER); // false
+canManageRole(Role.ADMIN, Role.MANAGER) // true
+canManageRole(Role.MEMBER, Role.MANAGER) // false
 ```
 
 ---
@@ -334,75 +334,75 @@ canManageRole(Role.MEMBER, Role.MANAGER); // false
 
 ### 任务管理权限
 
-| 权限 | 值 | 说明 |
-|------|-----|------|
-| `TASK_CREATE` | `task:create` | 创建任务 |
-| `TASK_READ` | `task:read` | 查看任务 |
-| `TASK_UPDATE` | `task:update` | 更新任务 |
-| `TASK_DELETE` | `task:delete` | 删除任务 |
+| 权限          | 值            | 说明           |
+| ------------- | ------------- | -------------- |
+| `TASK_CREATE` | `task:create` | 创建任务       |
+| `TASK_READ`   | `task:read`   | 查看任务       |
+| `TASK_UPDATE` | `task:update` | 更新任务       |
+| `TASK_DELETE` | `task:delete` | 删除任务       |
 | `TASK_ASSIGN` | `task:assign` | 分配任务给他人 |
-| `TASK_BATCH` | `task:batch` | 批量操作任务 |
+| `TASK_BATCH`  | `task:batch`  | 批量操作任务   |
 
 ### 用户管理权限
 
-| 权限 | 值 | 说明 |
-|------|-----|------|
-| `USER_CREATE` | `user:create` | 创建用户 |
-| `USER_READ` | `user:read` | 查看用户信息 |
-| `USER_UPDATE` | `user:update` | 更新用户信息 |
-| `USER_DELETE` | `user:delete` | 删除用户 |
+| 权限               | 值                 | 说明         |
+| ------------------ | ------------------ | ------------ |
+| `USER_CREATE`      | `user:create`      | 创建用户     |
+| `USER_READ`        | `user:read`        | 查看用户信息 |
+| `USER_UPDATE`      | `user:update`      | 更新用户信息 |
+| `USER_DELETE`      | `user:delete`      | 删除用户     |
 | `USER_MANAGE_ROLE` | `user:manage-role` | 管理用户角色 |
 
 ### 团队管理权限
 
-| 权限 | 值 | 说明 |
-|------|-----|------|
-| `TEAM_MANAGE` | `team:manage` | 管理团队设置 |
-| `TEAM_INVITE` | `team:invite` | 邀请成员加入 |
+| 权限                 | 值                   | 说明         |
+| -------------------- | -------------------- | ------------ |
+| `TEAM_MANAGE`        | `team:manage`        | 管理团队设置 |
+| `TEAM_INVITE`        | `team:invite`        | 邀请成员加入 |
 | `TEAM_REMOVE_MEMBER` | `team:remove-member` | 移除团队成员 |
 
 ### 报告权限
 
-| 权限 | 值 | 说明 |
-|------|-----|------|
-| `REPORTS_READ` | `reports:read` | 查看报告 |
-| `REPORTS_EXPORT` | `reports:export` | 导出报告 |
+| 权限               | 值                 | 说明     |
+| ------------------ | ------------------ | -------- |
+| `REPORTS_READ`     | `reports:read`     | 查看报告 |
+| `REPORTS_EXPORT`   | `reports:export`   | 导出报告 |
 | `REPORTS_GENERATE` | `reports:generate` | 生成报告 |
 
 ### 系统设置权限
 
-| 权限 | 值 | 说明 |
-|------|-----|------|
-| `SETTINGS_READ` | `settings:read` | 查看系统设置 |
+| 权限              | 值                | 说明         |
+| ----------------- | ----------------- | ------------ |
+| `SETTINGS_READ`   | `settings:read`   | 查看系统设置 |
 | `SETTINGS_UPDATE` | `settings:update` | 更新系统设置 |
 
 ### 标签管理权限
 
-| 权限 | 值 | 说明 |
-|------|-----|------|
+| 权限         | 值           | 说明     |
+| ------------ | ------------ | -------- |
 | `TAG_CREATE` | `tag:create` | 创建标签 |
 | `TAG_UPDATE` | `tag:update` | 更新标签 |
 | `TAG_DELETE` | `tag:delete` | 删除标签 |
 
 ### 通知管理权限
 
-| 权限 | 值 | 说明 |
-|------|-----|------|
-| `NOTIFICATION_SEND` | `notification:send` | 发送通知 |
+| 权限                  | 值                    | 说明         |
+| --------------------- | --------------------- | ------------ |
+| `NOTIFICATION_SEND`   | `notification:send`   | 发送通知     |
 | `NOTIFICATION_MANAGE` | `notification:manage` | 管理通知设置 |
 
 ### 完整权限枚举
 
 ```typescript
-import { Permission } from '@/lib/permissions';
+import { Permission } from '@/lib/permissions'
 
 // 使用权限枚举
-const permission = Permission.TASK_CREATE;
-console.log(permission); // "task:create"
+const permission = Permission.TASK_CREATE
+console.log(permission) // "task:create"
 
 // 获取所有权限
-const allPermissions = Object.values(Permission);
-console.log(allPermissions.length); // 23
+const allPermissions = Object.values(Permission)
+console.log(allPermissions.length) // 23
 ```
 
 ---
@@ -412,9 +412,9 @@ console.log(allPermissions.length); // 23
 为了便于UI展示和管理，权限按功能模块分组：
 
 ```typescript
-import { PermissionGroups } from '@/lib/permissions';
+import { PermissionGroups } from '@/lib/permissions'
 
-console.log(PermissionGroups);
+console.log(PermissionGroups)
 // [
 //   { name: '任务管理', permissions: [...] },
 //   { name: '用户管理', permissions: [...] },
@@ -477,7 +477,7 @@ function PermissionMatrix() {
 #### 构造函数
 
 ```typescript
-const checker = new PermissionChecker();
+const checker = new PermissionChecker()
 ```
 
 #### 方法
@@ -498,13 +498,14 @@ interface UserPermissionInfo {
 ```
 
 **示例**:
+
 ```typescript
 checker.loadUserPermissions({
   userId: 'user-123',
   role: Role.MEMBER,
   permissions: [Permission.TASK_CREATE, Permission.TASK_READ],
   customPermissions: [Permission.TEAM_INVITE], // 可选：额外权限
-});
+})
 ```
 
 ##### check()
@@ -522,12 +523,13 @@ interface PermissionCheckResult {
 ```
 
 **示例**:
+
 ```typescript
-const result = checker.check('user-123', Permission.TASK_CREATE);
+const result = checker.check('user-123', Permission.TASK_CREATE)
 if (result.granted) {
-  console.log('权限通过');
+  console.log('权限通过')
 } else {
-  console.log('权限拒绝:', result.reason);
+  console.log('权限拒绝:', result.reason)
 }
 ```
 
@@ -543,16 +545,17 @@ checkMultiple(
 ```
 
 **示例**:
+
 ```typescript
 const results = checker.checkMultiple('user-123', [
   Permission.TASK_CREATE,
   Permission.TASK_DELETE,
   Permission.TASK_ASSIGN,
-]);
+])
 
-results[Permission.TASK_CREATE].granted; // true
-results[Permission.TASK_DELETE].granted; // false
-results[Permission.TASK_ASSIGN].granted; // false
+results[Permission.TASK_CREATE].granted // true
+results[Permission.TASK_DELETE].granted // false
+results[Permission.TASK_ASSIGN].granted // false
 ```
 
 ##### hasAll()
@@ -564,13 +567,14 @@ hasAll(userId: string, permissions: Permission[]): boolean
 ```
 
 **示例**:
+
 ```typescript
 const canFullyManage = checker.hasAll('user-123', [
   Permission.TASK_CREATE,
   Permission.TASK_READ,
   Permission.TASK_UPDATE,
   Permission.TASK_DELETE,
-]);
+])
 ```
 
 ##### hasAny()
@@ -582,11 +586,9 @@ hasAny(userId: string, permissions: Permission[]): boolean
 ```
 
 **示例**:
+
 ```typescript
-const canAccess = checker.hasAny('user-123', [
-  Permission.TASK_READ,
-  Permission.REPORTS_READ,
-]);
+const canAccess = checker.hasAny('user-123', [Permission.TASK_READ, Permission.REPORTS_READ])
 ```
 
 ##### getUserPermissions()
@@ -598,9 +600,10 @@ getUserPermissions(userId: string): Permission[]
 ```
 
 **示例**:
+
 ```typescript
-const permissions = checker.getUserPermissions('user-123');
-console.log(permissions); // ['task:create', 'task:read', ...]
+const permissions = checker.getUserPermissions('user-123')
+console.log(permissions) // ['task:create', 'task:read', ...]
 ```
 
 ##### getUserRole()
@@ -612,9 +615,10 @@ getUserRole(userId: string): Role | undefined
 ```
 
 **示例**:
+
 ```typescript
-const role = checker.getUserRole('user-123');
-console.log(role); // 'member'
+const role = checker.getUserRole('user-123')
+console.log(role) // 'member'
 ```
 
 ##### addCustomPermission()
@@ -626,8 +630,9 @@ addCustomPermission(userId: string, permission: Permission): void
 ```
 
 **示例**:
+
 ```typescript
-checker.addCustomPermission('user-123', Permission.TEAM_INVITE);
+checker.addCustomPermission('user-123', Permission.TEAM_INVITE)
 ```
 
 ##### removeCustomPermission()
@@ -639,8 +644,9 @@ removeCustomPermission(userId: string, permission: Permission): void
 ```
 
 **示例**:
+
 ```typescript
-checker.removeCustomPermission('user-123', Permission.TEAM_INVITE);
+checker.removeCustomPermission('user-123', Permission.TEAM_INVITE)
 ```
 
 ##### clearUser()
@@ -670,8 +676,9 @@ hasPermission(userId: string, permission: Permission): boolean
 ```
 
 **示例**:
+
 ```typescript
-import { hasPermission, Permission } from '@/lib/permissions';
+import { hasPermission, Permission } from '@/lib/permissions'
 
 if (hasPermission('user-123', Permission.TASK_CREATE)) {
   // 允许创建任务
@@ -687,13 +694,11 @@ hasPermissions(userId: string, permissions: Permission[]): boolean
 ```
 
 **示例**:
-```typescript
-import { hasPermissions, Permission } from '@/lib/permissions';
 
-if (hasPermissions('user-123', [
-  Permission.TASK_CREATE,
-  Permission.TASK_READ,
-])) {
+```typescript
+import { hasPermissions, Permission } from '@/lib/permissions'
+
+if (hasPermissions('user-123', [Permission.TASK_CREATE, Permission.TASK_READ])) {
   // 允许操作
 }
 ```
@@ -709,11 +714,12 @@ getRolePermissions(role: Role): Permission[]
 ```
 
 **示例**:
-```typescript
-import { getRolePermissions, Role } from '@/lib/permissions';
 
-const memberPerms = getRolePermissions(Role.MEMBER);
-console.log(memberPerms);
+```typescript
+import { getRolePermissions, Role } from '@/lib/permissions'
+
+const memberPerms = getRolePermissions(Role.MEMBER)
+console.log(memberPerms)
 // ['task:create', 'task:read', 'task:update', ...]
 ```
 
@@ -726,11 +732,12 @@ roleHasPermission(role: Role, permission: Permission): boolean
 ```
 
 **示例**:
-```typescript
-import { roleHasPermission, Role, Permission } from '@/lib/permissions';
 
-const canAssign = roleHasPermission(Role.MANAGER, Permission.TASK_ASSIGN);
-console.log(canAssign); // true
+```typescript
+import { roleHasPermission, Role, Permission } from '@/lib/permissions'
+
+const canAssign = roleHasPermission(Role.MANAGER, Permission.TASK_ASSIGN)
+console.log(canAssign) // true
 ```
 
 ##### compareRoles()
@@ -751,11 +758,12 @@ canManageRole(managerRole: Role, targetRole: Role): boolean
 ```
 
 **示例**:
-```typescript
-import { canManageRole, Role } from '@/lib/permissions';
 
-canManageRole(Role.ADMIN, Role.MANAGER);  // true
-canManageRole(Role.MEMBER, Role.MANAGER); // false
+```typescript
+import { canManageRole, Role } from '@/lib/permissions'
+
+canManageRole(Role.ADMIN, Role.MANAGER) // true
+canManageRole(Role.MEMBER, Role.MANAGER) // false
 ```
 
 ##### getAssignableRoles()
@@ -767,11 +775,12 @@ getAssignableRoles(currentRole: Role): Role[]
 ```
 
 **示例**:
-```typescript
-import { getAssignableRoles, Role } from '@/lib/permissions';
 
-const assignable = getAssignableRoles(Role.MANAGER);
-console.log(assignable); // [Role.MEMBER, Role.VIEWER]
+```typescript
+import { getAssignableRoles, Role } from '@/lib/permissions'
+
+const assignable = getAssignableRoles(Role.MANAGER)
+console.log(assignable) // [Role.MEMBER, Role.VIEWER]
 ```
 
 ---
@@ -785,18 +794,19 @@ console.log(assignable); // [Role.MEMBER, Role.VIEWER]
 单个权限检查中间件。
 
 ```typescript
-import { withPermission, Permission } from '@/lib/permissions';
-import { NextRequest, NextResponse } from 'next/server';
+import { withPermission, Permission } from '@/lib/permissions'
+import { NextRequest, NextResponse } from 'next/server'
 
-export const POST = withPermission(Permission.TASK_CREATE)(
-  async (request: NextRequest, context) => {
-    // context.user 包含认证用户信息
-    const { user } = context;
-    
-    // 处理请求...
-    return NextResponse.json({ success: true });
-  }
-);
+export const POST = withPermission(Permission.TASK_CREATE)(async (
+  request: NextRequest,
+  context
+) => {
+  // context.user 包含认证用户信息
+  const { user } = context
+
+  // 处理请求...
+  return NextResponse.json({ success: true })
+})
 ```
 
 ### withAllPermissions()
@@ -804,17 +814,15 @@ export const POST = withPermission(Permission.TASK_CREATE)(
 多权限检查中间件（需要所有权限）。
 
 ```typescript
-import { withAllPermissions, Permission } from '@/lib/permissions';
+import { withAllPermissions, Permission } from '@/lib/permissions'
 
-export const POST = withAllPermissions([
-  Permission.TASK_CREATE,
-  Permission.TASK_ASSIGN,
-])(
-  async (request, context) => {
-    // 需要同时拥有 TASK_CREATE 和 TASK_ASSIGN 权限
-    return NextResponse.json({ success: true });
-  }
-);
+export const POST = withAllPermissions([Permission.TASK_CREATE, Permission.TASK_ASSIGN])(async (
+  request,
+  context
+) => {
+  // 需要同时拥有 TASK_CREATE 和 TASK_ASSIGN 权限
+  return NextResponse.json({ success: true })
+})
 ```
 
 ### withAnyPermission()
@@ -822,17 +830,15 @@ export const POST = withAllPermissions([
 多权限检查中间件（需要任意一个权限）。
 
 ```typescript
-import { withAnyPermission, Permission } from '@/lib/permissions';
+import { withAnyPermission, Permission } from '@/lib/permissions'
 
-export const GET = withAnyPermission([
-  Permission.TASK_READ,
-  Permission.REPORTS_READ,
-])(
-  async (request, context) => {
-    // 拥有 TASK_READ 或 REPORTS_READ 任意一个即可
-    return NextResponse.json({ data: [] });
-  }
-);
+export const GET = withAnyPermission([Permission.TASK_READ, Permission.REPORTS_READ])(async (
+  request,
+  context
+) => {
+  // 拥有 TASK_READ 或 REPORTS_READ 任意一个即可
+  return NextResponse.json({ data: [] })
+})
 ```
 
 ### withRole()
@@ -840,14 +846,12 @@ export const GET = withAnyPermission([
 角色检查中间件。
 
 ```typescript
-import { withRole, Role } from '@/lib/permissions';
+import { withRole, Role } from '@/lib/permissions'
 
-export const DELETE = withRole(Role.MANAGER)(
-  async (request, context) => {
-    // 需要 MANAGER 或更高角色
-    return NextResponse.json({ success: true });
-  }
-);
+export const DELETE = withRole(Role.MANAGER)(async (request, context) => {
+  // 需要 MANAGER 或更高角色
+  return NextResponse.json({ success: true })
+})
 ```
 
 ### adminOnly()
@@ -855,12 +859,12 @@ export const DELETE = withRole(Role.MANAGER)(
 管理员专用中间件。
 
 ```typescript
-import { adminOnly } from '@/lib/permissions';
+import { adminOnly } from '@/lib/permissions'
 
 export const POST = adminOnly(async (request, context) => {
   // 仅管理员可访问
-  return NextResponse.json({ success: true });
-});
+  return NextResponse.json({ success: true })
+})
 ```
 
 ### managerOrAbove()
@@ -868,12 +872,12 @@ export const POST = adminOnly(async (request, context) => {
 经理及以上中间件。
 
 ```typescript
-import { managerOrAbove } from '@/lib/permissions';
+import { managerOrAbove } from '@/lib/permissions'
 
 export const PUT = managerOrAbove(async (request, context) => {
   // 经理及以上可访问
-  return NextResponse.json({ success: true });
-});
+  return NextResponse.json({ success: true })
+})
 ```
 
 ### withResourceOwnership()
@@ -881,27 +885,23 @@ export const PUT = managerOrAbove(async (request, context) => {
 资源所有权检查中间件。
 
 ```typescript
-import { withResourceOwnership, Permission } from '@/lib/permissions';
+import { withResourceOwnership, Permission } from '@/lib/permissions'
 
 // 假设有一个任务更新接口，只有任务所有者或管理员可以访问
-export const PUT = withResourceOwnership(
-  async (request) => {
-    // 从请求中获取资源所有者ID
-    const taskId = request.url.split('/').pop();
-    // 从数据库查询任务所有者
-    const task = await getTask(taskId);
-    return task?.ownerId || null;
-  }
-)(
-  async (request, context) => {
-    // context.isOwner 表示是否为资源所有者
-    // context.user.role === Role.ADMIN 时也会通过
-    const { user, isOwner } = context;
-    
-    // 更新任务...
-    return NextResponse.json({ success: true });
-  }
-);
+export const PUT = withResourceOwnership(async request => {
+  // 从请求中获取资源所有者ID
+  const taskId = request.url.split('/').pop()
+  // 从数据库查询任务所有者
+  const task = await getTask(taskId)
+  return task?.ownerId || null
+})(async (request, context) => {
+  // context.isOwner 表示是否为资源所有者
+  // context.user.role === Role.ADMIN 时也会通过
+  const { user, isOwner } = context
+
+  // 更新任务...
+  return NextResponse.json({ success: true })
+})
 ```
 
 ### canAssignRole()
@@ -909,22 +909,22 @@ export const PUT = withResourceOwnership(
 角色分配检查中间件。
 
 ```typescript
-import { canAssignRole, Role } from '@/lib/permissions';
-import { NextRequest, NextResponse } from 'next/server';
+import { canAssignRole, Role } from '@/lib/permissions'
+import { NextRequest, NextResponse } from 'next/server'
 
 export const POST = canAssignRole(
   async (request, context) => {
-    const { user, targetRole } = context;
-    
+    const { user, targetRole } = context
+
     // 分配角色...
-    return NextResponse.json({ success: true });
+    return NextResponse.json({ success: true })
   },
   (request: NextRequest) => {
     // 从请求中提取目标角色
-    const body = await request.json();
-    return body.role as Role;
+    const body = await request.json()
+    return body.role as Role
   }
-);
+)
 ```
 
 ---
@@ -935,31 +935,30 @@ export const POST = canAssignRole(
 
 ```typescript
 // app/api/tasks/route.ts
-import { withPermission, Permission } from '@/lib/permissions';
-import { NextRequest, NextResponse } from 'next/server';
+import { withPermission, Permission } from '@/lib/permissions'
+import { NextRequest, NextResponse } from 'next/server'
 
 // 创建任务 - 需要 TASK_CREATE 权限
-export const POST = withPermission(Permission.TASK_CREATE)(
-  async (request: NextRequest, context) => {
-    const { user } = context;
-    const body = await request.json();
-    
-    const task = await createTask({
-      ...body,
-      createdBy: user.id,
-    });
-    
-    return NextResponse.json(task);
-  }
-);
+export const POST = withPermission(Permission.TASK_CREATE)(async (
+  request: NextRequest,
+  context
+) => {
+  const { user } = context
+  const body = await request.json()
+
+  const task = await createTask({
+    ...body,
+    createdBy: user.id,
+  })
+
+  return NextResponse.json(task)
+})
 
 // 查看任务 - 需要 TASK_READ 权限
-export const GET = withPermission(Permission.TASK_READ)(
-  async (request: NextRequest, context) => {
-    const tasks = await getTasks();
-    return NextResponse.json(tasks);
-  }
-);
+export const GET = withPermission(Permission.TASK_READ)(async (request: NextRequest, context) => {
+  const tasks = await getTasks()
+  return NextResponse.json(tasks)
+})
 ```
 
 ### 示例 2: 条件渲染 UI 组件
@@ -972,13 +971,13 @@ import { useSession } from 'next-auth/react';
 export function TaskActions({ taskId }: { taskId: string }) {
   const { data: session } = useSession();
   const userId = session?.user?.id;
-  
+
   if (!userId) return null;
-  
+
   const canEdit = hasPermission(userId, Permission.TASK_UPDATE);
   const canDelete = hasPermission(userId, Permission.TASK_DELETE);
   const canAssign = hasPermission(userId, Permission.TASK_ASSIGN);
-  
+
   return (
     <div className="flex gap-2">
       {canEdit && (
@@ -999,34 +998,28 @@ export function TaskActions({ taskId }: { taskId: string }) {
 
 ```typescript
 // lib/task-actions.ts
-import { PermissionChecker, Permission } from '@/lib/permissions';
+import { PermissionChecker, Permission } from '@/lib/permissions'
 
-const checker = new PermissionChecker();
+const checker = new PermissionChecker()
 
-export async function batchUpdateTasks(
-  userId: string,
-  taskIds: string[],
-  updates: any
-) {
+export async function batchUpdateTasks(userId: string, taskIds: string[], updates: any) {
   // 加载用户权限
-  await loadUserPermissions(userId, checker);
-  
+  await loadUserPermissions(userId, checker)
+
   // 检查是否有批量操作权限
   if (!checker.check(userId, Permission.TASK_BATCH).granted) {
-    throw new Error('没有批量操作权限');
+    throw new Error('没有批量操作权限')
   }
-  
+
   // 检查是否有更新权限
   if (!checker.check(userId, Permission.TASK_UPDATE).granted) {
-    throw new Error('没有任务更新权限');
+    throw new Error('没有任务更新权限')
   }
-  
+
   // 执行批量更新
-  const results = await Promise.all(
-    taskIds.map(id => updateTask(id, updates))
-  );
-  
-  return results;
+  const results = await Promise.all(taskIds.map(id => updateTask(id, updates)))
+
+  return results
 }
 ```
 
@@ -1034,99 +1027,97 @@ export async function batchUpdateTasks(
 
 ```typescript
 // app/api/users/[id]/permissions/route.ts
-import { withPermission, Permission, permissionChecker } from '@/lib/permissions';
-import { NextRequest, NextResponse } from 'next/server';
+import { withPermission, Permission, permissionChecker } from '@/lib/permissions'
+import { NextRequest, NextResponse } from 'next/server'
 
 // 为用户添加自定义权限
-export const POST = withPermission(Permission.USER_MANAGE_ROLE)(
-  async (request: NextRequest, context) => {
-    const { id } = request.params;
-    const { permission } = await request.json();
-    
-    // 添加自定义权限
-    permissionChecker.addCustomPermission(id, permission);
-    
-    // 保存到数据库
-    await saveUserCustomPermission(id, permission);
-    
-    return NextResponse.json({ success: true });
-  }
-);
+export const POST = withPermission(Permission.USER_MANAGE_ROLE)(async (
+  request: NextRequest,
+  context
+) => {
+  const { id } = request.params
+  const { permission } = await request.json()
+
+  // 添加自定义权限
+  permissionChecker.addCustomPermission(id, permission)
+
+  // 保存到数据库
+  await saveUserCustomPermission(id, permission)
+
+  return NextResponse.json({ success: true })
+})
 
 // 移除用户自定义权限
-export const DELETE = withPermission(Permission.USER_MANAGE_ROLE)(
-  async (request: NextRequest, context) => {
-    const { id } = request.params;
-    const { permission } = await request.json();
-    
-    permissionChecker.removeCustomPermission(id, permission);
-    await removeUserCustomPermission(id, permission);
-    
-    return NextResponse.json({ success: true });
-  }
-);
+export const DELETE = withPermission(Permission.USER_MANAGE_ROLE)(async (
+  request: NextRequest,
+  context
+) => {
+  const { id } = request.params
+  const { permission } = await request.json()
+
+  permissionChecker.removeCustomPermission(id, permission)
+  await removeUserCustomPermission(id, permission)
+
+  return NextResponse.json({ success: true })
+})
 ```
 
 ### 示例 5: 角色管理
 
 ```typescript
 // app/api/users/[id]/role/route.ts
-import { 
-  withPermission, 
-  Permission, 
-  canAssignRole,
-  getAssignableRoles 
-} from '@/lib/permissions';
-import { NextRequest, NextResponse } from 'next/server';
+import { withPermission, Permission, canAssignRole, getAssignableRoles } from '@/lib/permissions'
+import { NextRequest, NextResponse } from 'next/server'
 
 // 获取可分配的角色列表
-export const GET = withPermission(Permission.USER_MANAGE_ROLE)(
-  async (request: NextRequest, context) => {
-    const { user } = context;
-    const assignable = getAssignableRoles(user.role);
-    
-    return NextResponse.json({ roles: assignable });
-  }
-);
+export const GET = withPermission(Permission.USER_MANAGE_ROLE)(async (
+  request: NextRequest,
+  context
+) => {
+  const { user } = context
+  const assignable = getAssignableRoles(user.role)
+
+  return NextResponse.json({ roles: assignable })
+})
 
 // 分配角色
 export const POST = canAssignRole(
   async (request: NextRequest, context) => {
-    const { id } = request.params;
-    const { user, targetRole } = context;
-    
+    const { id } = request.params
+    const { user, targetRole } = context
+
     // 更新用户角色
-    await updateUserRole(id, targetRole);
-    
+    await updateUserRole(id, targetRole)
+
     // 清除权限缓存
-    permissionChecker.clearUser(id);
-    
-    return NextResponse.json({ success: true });
+    permissionChecker.clearUser(id)
+
+    return NextResponse.json({ success: true })
   },
   async (request: NextRequest) => {
-    const body = await request.json();
-    return body.role;
+    const body = await request.json()
+    return body.role
   }
-);
+)
 ```
 
 ### 示例 6: 权限矩阵展示
 
 ```typescript
 // components/PermissionMatrix.tsx
-import { 
-  PermissionGroups, 
-  Role, 
+import {
+  PermissionGroups,
+  Role,
   RoleLabels,
   RoleDescriptions,
-  roleHasPermission 
+  roleHasPermission
 } from '@/lib/permissions';
 
 export function PermissionMatrix() {
   return (
     <div className="permission-matrix">
       <h2>权限矩阵</h2>
-      
+
       {/* 角色说明 */}
       <div className="roles-info">
         {Object.values(Role).map(role => (
@@ -1136,7 +1127,7 @@ export function PermissionMatrix() {
           </div>
         ))}
       </div>
-      
+
       {/* 权限矩阵表格 */}
       <table>
         <thead>
@@ -1192,14 +1183,14 @@ checker.loadUserPermissions({
   userId: 'user-123',
   role: Role.MEMBER, // 从最低权限开始
   permissions: [Permission.TASK_CREATE, Permission.TASK_READ],
-});
+})
 
 // ❌ 不好的做法：授予过多权限
 checker.loadUserPermissions({
   userId: 'user-123',
   role: Role.ADMIN, // 不必要的高权限
   permissions: Object.values(Permission),
-});
+})
 ```
 
 ### 2. 使用中间件保护 API
@@ -1231,18 +1222,18 @@ function CreateTaskButton() {
 
 ```typescript
 // ✅ 好的做法：使用全局检查器缓存
-import { permissionChecker } from '@/lib/permissions';
+import { permissionChecker } from '@/lib/permissions'
 
 // 应用启动时加载
-permissionChecker.loadUserPermissions(userInfo);
+permissionChecker.loadUserPermissions(userInfo)
 
 // 后续检查使用缓存
-hasPermission(userId, Permission.TASK_CREATE);
+hasPermission(userId, Permission.TASK_CREATE)
 
 // ❌ 不好的做法：每次都查询数据库
 async function checkPermission(userId, permission) {
-  const user = await db.user.findUnique({ where: { id: userId } });
-  return user.permissions.includes(permission);
+  const user = await db.user.findUnique({ where: { id: userId } })
+  return user.permissions.includes(permission)
 }
 ```
 
@@ -1252,15 +1243,15 @@ async function checkPermission(userId, permission) {
 
 ```typescript
 // 用户角色变更后
-await updateUserRole(userId, newRole);
-permissionChecker.clearUser(userId);
+await updateUserRole(userId, newRole)
+permissionChecker.clearUser(userId)
 
 // 或重新加载
 permissionChecker.loadUserPermissions({
   userId,
   role: newRole,
   permissions: getRolePermissions(newRole),
-});
+})
 ```
 
 ### 5. 使用类型安全
@@ -1269,12 +1260,12 @@ permissionChecker.loadUserPermissions({
 
 ```typescript
 // ✅ 好的做法：使用枚举
-import { Permission } from '@/lib/permissions';
+import { Permission } from '@/lib/permissions'
 
-hasPermission(userId, Permission.TASK_CREATE); // 类型安全
+hasPermission(userId, Permission.TASK_CREATE) // 类型安全
 
 // ❌ 不好的做法：使用字符串
-hasPermission(userId, 'task:create'); // 容易拼写错误
+hasPermission(userId, 'task:create') // 容易拼写错误
 ```
 
 ### 6. 记录权限变更
@@ -1283,11 +1274,11 @@ hasPermission(userId, 'task:create'); // 容易拼写错误
 
 ```typescript
 async function assignRole(userId: string, newRole: Role, assignedBy: string) {
-  const oldRole = await getUserRole(userId);
-  
-  await updateUserRole(userId, newRole);
-  permissionChecker.clearUser(userId);
-  
+  const oldRole = await getUserRole(userId)
+
+  await updateUserRole(userId, newRole)
+  permissionChecker.clearUser(userId)
+
   // 记录审计日志
   await auditLog.create({
     action: 'ROLE_CHANGE',
@@ -1296,7 +1287,7 @@ async function assignRole(userId: string, newRole: Role, assignedBy: string) {
     newRole,
     assignedBy,
     timestamp: new Date(),
-  });
+  })
 }
 ```
 
@@ -1306,33 +1297,25 @@ async function assignRole(userId: string, newRole: Role, assignedBy: string) {
 
 ```typescript
 // ✅ 好的做法：清晰的错误信息
-export const POST = withPermission(Permission.TASK_CREATE)(
-  async (request, context) => {
-    // 处理请求
-  }
-);
+export const POST = withPermission(Permission.TASK_CREATE)(async (request, context) => {
+  // 处理请求
+})
 // 返回: { "error": "Permission denied: task:create", "code": "FORBIDDEN" }
 
 // 也可以自定义错误处理
 export const POST = async (request: NextRequest) => {
-  const user = extractUserFromRequest(request);
-  
+  const user = extractUserFromRequest(request)
+
   if (!user) {
-    return NextResponse.json(
-      { error: '请先登录', code: 'UNAUTHORIZED' },
-      { status: 401 }
-    );
+    return NextResponse.json({ error: '请先登录', code: 'UNAUTHORIZED' }, { status: 401 })
   }
-  
+
   if (!hasPermission(user.id, Permission.TASK_CREATE)) {
-    return NextResponse.json(
-      { error: '您没有创建任务的权限', code: 'FORBIDDEN' },
-      { status: 403 }
-    );
+    return NextResponse.json({ error: '您没有创建任务的权限', code: 'FORBIDDEN' }, { status: 403 })
   }
-  
+
   // 处理请求
-};
+}
 ```
 
 ### 8. 资源级权限
@@ -1344,18 +1327,18 @@ export const POST = async (request: NextRequest) => {
 async function canEditTask(userId: string, taskId: string): boolean {
   // 1. 检查基础权限
   if (!hasPermission(userId, Permission.TASK_UPDATE)) {
-    return false;
+    return false
   }
-  
+
   // 2. 检查资源所有权（对于 MEMBER 角色）
-  const userRole = permissionChecker.getUserRole(userId);
+  const userRole = permissionChecker.getUserRole(userId)
   if (userRole === Role.MEMBER) {
-    const task = await getTask(taskId);
-    return task.createdBy === userId;
+    const task = await getTask(taskId)
+    return task.createdBy === userId
   }
-  
+
   // 3. MANAGER 和 ADMIN 可以编辑所有任务
-  return true;
+  return true
 }
 ```
 
@@ -1372,7 +1355,7 @@ async function canEditTask(userId: string, taskId: string): boolean {
 ```typescript
 export enum Permission {
   // ... 现有权限
-  
+
   // 新功能权限
   FEATURE_NEW = 'feature:new',
   FEATURE_NEW_ADVANCED = 'feature:new:advanced',
@@ -1386,12 +1369,9 @@ export const PermissionGroups: PermissionGroup[] = [
   // ... 现有分组
   {
     name: '新功能',
-    permissions: [
-      Permission.FEATURE_NEW,
-      Permission.FEATURE_NEW_ADVANCED,
-    ],
+    permissions: [Permission.FEATURE_NEW, Permission.FEATURE_NEW_ADVANCED],
   },
-];
+]
 ```
 
 3. 在 `role-config.ts` 中为角色分配权限：
@@ -1399,31 +1379,29 @@ export const PermissionGroups: PermissionGroup[] = [
 ```typescript
 export const RolePermissions: Record<Role, Permission[]> = {
   [Role.ADMIN]: [...Object.values(Permission)],
-  
+
   [Role.MANAGER]: [
     // ... 现有权限
     Permission.FEATURE_NEW,
   ],
-  
+
   [Role.MEMBER]: [
     // ... 现有权限
     Permission.FEATURE_NEW,
   ],
-  
+
   [Role.VIEWER]: [
     // 不给观察者权限
   ],
-};
+}
 ```
 
 4. 在 API 中使用权限：
 
 ```typescript
-export const POST = withPermission(Permission.FEATURE_NEW)(
-  async (request, context) => {
-    // 处理请求
-  }
-);
+export const POST = withPermission(Permission.FEATURE_NEW)(async (request, context) => {
+  // 处理请求
+})
 ```
 
 ### Q2: 如何实现临时权限授予？
@@ -1432,7 +1410,7 @@ export const POST = withPermission(Permission.FEATURE_NEW)(
 
 ```typescript
 // 授予临时权限
-permissionChecker.addCustomPermission(userId, Permission.REPORTS_EXPORT);
+permissionChecker.addCustomPermission(userId, Permission.REPORTS_EXPORT)
 
 // 设置过期时间（需要自己实现）
 await db.temporaryPermission.create({
@@ -1441,17 +1419,17 @@ await db.temporaryPermission.create({
     permission: Permission.REPORTS_EXPORT,
     expiresAt: new Date(Date.now() + 24 * 60 * 60 * 1000), // 24小时后过期
   },
-});
+})
 
 // 定期清理过期权限
 async function cleanupExpiredPermissions() {
   const expired = await db.temporaryPermission.findMany({
     where: { expiresAt: { lt: new Date() } },
-  });
-  
+  })
+
   for (const perm of expired) {
-    permissionChecker.removeCustomPermission(perm.userId, perm.permission);
-    await db.temporaryPermission.delete({ where: { id: perm.id } });
+    permissionChecker.removeCustomPermission(perm.userId, perm.permission)
+    await db.temporaryPermission.delete({ where: { id: perm.id } })
   }
 }
 ```
@@ -1466,11 +1444,11 @@ async function cleanupExpiredPermissions() {
 
 // 检查时使用角色比较
 function requireMinRole(minRole: Role) {
-  return withRole(minRole);
+  return withRole(minRole)
 }
 
 // 使用示例
-export const POST = requireMinRole(Role.MANAGER)(handler);
+export const POST = requireMinRole(Role.MANAGER)(handler)
 // MANAGER 和 ADMIN 都可以访问
 ```
 
@@ -1516,30 +1494,30 @@ teamChecker.loadUserPermissions({
 
 ```typescript
 // 优化前：多次单独检查
-if (hasPermission(userId, Permission.TASK_READ) &&
-    hasPermission(userId, Permission.TASK_UPDATE) &&
-    hasPermission(userId, Permission.TASK_DELETE)) {
+if (
+  hasPermission(userId, Permission.TASK_READ) &&
+  hasPermission(userId, Permission.TASK_UPDATE) &&
+  hasPermission(userId, Permission.TASK_DELETE)
+) {
   // ...
 }
 
 // 优化后：批量检查
-if (hasPermissions(userId, [
-  Permission.TASK_READ,
-  Permission.TASK_UPDATE,
-  Permission.TASK_DELETE,
-])) {
+if (
+  hasPermissions(userId, [Permission.TASK_READ, Permission.TASK_UPDATE, Permission.TASK_DELETE])
+) {
   // ...
 }
 
 // 优化后：先检查角色（更快）
-const role = permissionChecker.getUserRole(userId);
+const role = permissionChecker.getUserRole(userId)
 if (role === Role.ADMIN) {
   // 管理员直接通过，无需检查具体权限
-  return true;
+  return true
 }
 
 // 对于其他角色，再检查具体权限
-return hasPermission(userId, Permission.TASK_CREATE);
+return hasPermission(userId, Permission.TASK_CREATE)
 ```
 
 ### Q6: 如何测试权限逻辑？
@@ -1548,38 +1526,38 @@ return hasPermission(userId, Permission.TASK_CREATE);
 
 ```typescript
 // 单元测试示例
-import { describe, it, expect, beforeEach } from 'vitest';
-import { PermissionChecker, Permission, Role } from '@/lib/permissions';
+import { describe, it, expect, beforeEach } from 'vitest'
+import { PermissionChecker, Permission, Role } from '@/lib/permissions'
 
 describe('PermissionChecker', () => {
-  let checker: PermissionChecker;
+  let checker: PermissionChecker
 
   beforeEach(() => {
-    checker = new PermissionChecker();
-  });
+    checker = new PermissionChecker()
+  })
 
   it('should grant permission for admin', () => {
     checker.loadUserPermissions({
       userId: 'admin-1',
       role: Role.ADMIN,
       permissions: Object.values(Permission),
-    });
+    })
 
-    expect(checker.check('admin-1', Permission.TASK_CREATE).granted).toBe(true);
-    expect(checker.check('admin-1', Permission.USER_DELETE).granted).toBe(true);
-  });
+    expect(checker.check('admin-1', Permission.TASK_CREATE).granted).toBe(true)
+    expect(checker.check('admin-1', Permission.USER_DELETE).granted).toBe(true)
+  })
 
   it('should deny permission for viewer', () => {
     checker.loadUserPermissions({
       userId: 'viewer-1',
       role: Role.VIEWER,
       permissions: [Permission.TASK_READ, Permission.USER_READ, Permission.REPORTS_READ],
-    });
+    })
 
-    expect(checker.check('viewer-1', Permission.TASK_CREATE).granted).toBe(false);
-    expect(checker.check('viewer-1', Permission.TASK_READ).granted).toBe(true);
-  });
-});
+    expect(checker.check('viewer-1', Permission.TASK_CREATE).granted).toBe(false)
+    expect(checker.check('viewer-1', Permission.TASK_READ).granted).toBe(true)
+  })
+})
 
 // 集成测试示例（API）
 describe('Tasks API', () => {
@@ -1591,11 +1569,11 @@ describe('Tasks API', () => {
         'x-user-role': 'viewer',
       },
       body: JSON.stringify({ title: 'New Task' }),
-    });
+    })
 
-    expect(response.status).toBe(403);
-  });
-});
+    expect(response.status).toBe(403)
+  })
+})
 ```
 
 ### Q7: 如何在前端和后端共享权限逻辑？
@@ -1622,10 +1600,10 @@ app/
 
 ```typescript
 // 前端组件
-import { hasPermission, Permission } from '@/lib/permissions';
+import { hasPermission, Permission } from '@/lib/permissions'
 
 // API 路由
-import { withPermission, Permission } from '@/lib/permissions';
+import { withPermission, Permission } from '@/lib/permissions'
 ```
 
 ### Q8: 如何处理动态权限（基于数据）？
@@ -1637,40 +1615,36 @@ import { withPermission, Permission } from '@/lib/permissions';
 async function updateTask(userId: string, taskId: string, updates: any) {
   // 检查基础权限
   if (!hasPermission(userId, Permission.TASK_UPDATE)) {
-    throw new Error('No permission to update tasks');
+    throw new Error('No permission to update tasks')
   }
 
   // 检查数据所有权
-  const task = await db.task.findUnique({ where: { id: taskId } });
-  const userRole = permissionChecker.getUserRole(userId);
-  
+  const task = await db.task.findUnique({ where: { id: taskId } })
+  const userRole = permissionChecker.getUserRole(userId)
+
   // MEMBER 只能更新自己的任务
   if (userRole === Role.MEMBER && task.createdBy !== userId) {
-    throw new Error('Can only update own tasks');
+    throw new Error('Can only update own tasks')
   }
 
   // MANAGER 和 ADMIN 可以更新所有任务
-  return db.task.update({ where: { id: taskId }, data: updates });
+  return db.task.update({ where: { id: taskId }, data: updates })
 }
 
 // 方案2：使用中间件
-export const PUT = withResourceOwnership(
-  async (request) => {
-    const taskId = request.url.split('/').pop();
-    const task = await db.task.findUnique({ where: { id: taskId } });
-    return task?.createdBy || null;
-  }
-)(async (request, context) => {
-  const { isOwner, user } = context;
-  
+export const PUT = withResourceOwnership(async request => {
+  const taskId = request.url.split('/').pop()
+  const task = await db.task.findUnique({ where: { id: taskId } })
+  return task?.createdBy || null
+})(async (request, context) => {
+  const { isOwner, user } = context
+
   // isOwner 为 true 或用户是 ADMIN
-  const taskId = request.url.split('/').pop();
-  const updates = await request.json();
-  
-  return NextResponse.json(
-    await db.task.update({ where: { id: taskId }, data: updates })
-  );
-});
+  const taskId = request.url.split('/').pop()
+  const updates = await request.json()
+
+  return NextResponse.json(await db.task.update({ where: { id: taskId }, data: updates }))
+})
 ```
 
 ### Q9: 如何实现权限的细粒度控制？
@@ -1701,13 +1675,10 @@ const canFullyManage = hasPermissions(userId, [
   Permission.TASK_UPDATE,
   Permission.TASK_DELETE,
   Permission.TASK_ASSIGN,
-]);
+])
 
 // 只需满足任意一个条件
-const canAccess = hasAnyPermission(userId, [
-  Permission.TASK_READ,
-  Permission.REPORTS_READ,
-]);
+const canAccess = hasAnyPermission(userId, [Permission.TASK_READ, Permission.REPORTS_READ])
 ```
 
 3. **使用自定义权限扩展**：
@@ -1720,9 +1691,9 @@ permissionChecker.loadUserPermissions({
   permissions: getRolePermissions(Role.MEMBER),
   customPermissions: [
     Permission.REPORTS_EXPORT, // 额外授权
-    Permission.TEAM_INVITE,    // 额外授权
+    Permission.TEAM_INVITE, // 额外授权
   ],
-});
+})
 ```
 
 ### Q10: 如何迁移现有的权限系统？
@@ -1734,26 +1705,26 @@ permissionChecker.loadUserPermissions({
 ```typescript
 // 旧系统 -> 新系统
 const roleMapping = {
-  'super_admin': Role.ADMIN,
-  'team_lead': Role.MANAGER,
-  'developer': Role.MEMBER,
-  'guest': Role.VIEWER,
-};
+  super_admin: Role.ADMIN,
+  team_lead: Role.MANAGER,
+  developer: Role.MEMBER,
+  guest: Role.VIEWER,
+}
 ```
 
 2. **迁移数据**：
 
 ```typescript
 async function migrateUserRoles() {
-  const users = await db.user.findMany();
-  
+  const users = await db.user.findMany()
+
   for (const user of users) {
-    const newRole = roleMapping[user.oldRole] || Role.VIEWER;
-    
+    const newRole = roleMapping[user.oldRole] || Role.VIEWER
+
     await db.user.update({
       where: { id: user.id },
       data: { role: newRole },
-    });
+    })
   }
 }
 ```
@@ -1767,11 +1738,9 @@ if (user.role === 'super_admin') {
 }
 
 // 新代码
-export const POST = withPermission(Permission.USER_DELETE)(
-  async (request, context) => {
-    // ...
-  }
-);
+export const POST = withPermission(Permission.USER_DELETE)(async (request, context) => {
+  // ...
+})
 ```
 
 4. **逐步替换**：可以先在新功能中使用新系统，旧功能保持不变，逐步迁移。
@@ -1782,58 +1751,58 @@ export const POST = withPermission(Permission.USER_DELETE)(
 
 ### 完整权限列表
 
-| 权限 | 枚举值 | Admin | Manager | Member | Viewer |
-|------|--------|:-----:|:-------:|:------:|:------:|
-| **任务管理** |
-| TASK_CREATE | task:create | ✓ | ✓ | ✓ | ✗ |
-| TASK_READ | task:read | ✓ | ✓ | ✓ | ✓ |
-| TASK_UPDATE | task:update | ✓ | ✓ | ✓ | ✗ |
-| TASK_DELETE | task:delete | ✓ | ✓ | ✓ | ✗ |
-| TASK_ASSIGN | task:assign | ✓ | ✓ | ✗ | ✗ |
-| TASK_BATCH | task:batch | ✓ | ✓ | ✗ | ✗ |
-| **用户管理** |
-| USER_CREATE | user:create | ✓ | ✗ | ✗ | ✗ |
-| USER_READ | user:read | ✓ | ✓ | ✓ | ✓ |
-| USER_UPDATE | user:update | ✓ | ✗ | ✗ | ✗ |
-| USER_DELETE | user:delete | ✓ | ✗ | ✗ | ✗ |
-| USER_MANAGE_ROLE | user:manage-role | ✓ | ✗ | ✗ | ✗ |
-| **团队管理** |
-| TEAM_MANAGE | team:manage | ✓ | ✗ | ✗ | ✗ |
-| TEAM_INVITE | team:invite | ✓ | ✓ | ✗ | ✗ |
-| TEAM_REMOVE_MEMBER | team:remove-member | ✓ | ✓ | ✗ | ✗ |
-| **报告管理** |
-| REPORTS_READ | reports:read | ✓ | ✓ | ✓ | ✓ |
-| REPORTS_EXPORT | reports:export | ✓ | ✓ | ✗ | ✗ |
-| REPORTS_GENERATE | reports:generate | ✓ | ✓ | ✗ | ✗ |
-| **系统设置** |
-| SETTINGS_READ | settings:read | ✓ | ✗ | ✗ | ✗ |
-| SETTINGS_UPDATE | settings:update | ✓ | ✗ | ✗ | ✗ |
-| **标签管理** |
-| TAG_CREATE | tag:create | ✓ | ✓ | ✗ | ✗ |
-| TAG_UPDATE | tag:update | ✓ | ✓ | ✗ | ✗ |
-| TAG_DELETE | tag:delete | ✓ | ✓ | ✗ | ✗ |
-| **通知管理** |
-| NOTIFICATION_SEND | notification:send | ✓ | ✓ | ✓ | ✗ |
-| NOTIFICATION_MANAGE | notification:manage | ✓ | ✗ | ✗ | ✗ |
+| 权限                | 枚举值              | Admin | Manager | Member | Viewer |
+| ------------------- | ------------------- | :---: | :-----: | :----: | :----: |
+| **任务管理**        |
+| TASK_CREATE         | task:create         |   ✓   |    ✓    |   ✓    |   ✗    |
+| TASK_READ           | task:read           |   ✓   |    ✓    |   ✓    |   ✓    |
+| TASK_UPDATE         | task:update         |   ✓   |    ✓    |   ✓    |   ✗    |
+| TASK_DELETE         | task:delete         |   ✓   |    ✓    |   ✓    |   ✗    |
+| TASK_ASSIGN         | task:assign         |   ✓   |    ✓    |   ✗    |   ✗    |
+| TASK_BATCH          | task:batch          |   ✓   |    ✓    |   ✗    |   ✗    |
+| **用户管理**        |
+| USER_CREATE         | user:create         |   ✓   |    ✗    |   ✗    |   ✗    |
+| USER_READ           | user:read           |   ✓   |    ✓    |   ✓    |   ✓    |
+| USER_UPDATE         | user:update         |   ✓   |    ✗    |   ✗    |   ✗    |
+| USER_DELETE         | user:delete         |   ✓   |    ✗    |   ✗    |   ✗    |
+| USER_MANAGE_ROLE    | user:manage-role    |   ✓   |    ✗    |   ✗    |   ✗    |
+| **团队管理**        |
+| TEAM_MANAGE         | team:manage         |   ✓   |    ✗    |   ✗    |   ✗    |
+| TEAM_INVITE         | team:invite         |   ✓   |    ✓    |   ✗    |   ✗    |
+| TEAM_REMOVE_MEMBER  | team:remove-member  |   ✓   |    ✓    |   ✗    |   ✗    |
+| **报告管理**        |
+| REPORTS_READ        | reports:read        |   ✓   |    ✓    |   ✓    |   ✓    |
+| REPORTS_EXPORT      | reports:export      |   ✓   |    ✓    |   ✗    |   ✗    |
+| REPORTS_GENERATE    | reports:generate    |   ✓   |    ✓    |   ✗    |   ✗    |
+| **系统设置**        |
+| SETTINGS_READ       | settings:read       |   ✓   |    ✗    |   ✗    |   ✗    |
+| SETTINGS_UPDATE     | settings:update     |   ✓   |    ✗    |   ✗    |   ✗    |
+| **标签管理**        |
+| TAG_CREATE          | tag:create          |   ✓   |    ✓    |   ✗    |   ✗    |
+| TAG_UPDATE          | tag:update          |   ✓   |    ✓    |   ✗    |   ✗    |
+| TAG_DELETE          | tag:delete          |   ✓   |    ✓    |   ✗    |   ✗    |
+| **通知管理**        |
+| NOTIFICATION_SEND   | notification:send   |   ✓   |    ✓    |   ✓    |   ✗    |
+| NOTIFICATION_MANAGE | notification:manage |   ✓   |    ✗    |   ✗    |   ✗    |
 
 ### 角色对比表
 
-| 特性 | Admin | Manager | Member | Viewer |
-|------|:-----:|:-------:|:------:|:------:|
-| 层级 | 100 | 50 | 20 | 10 |
-| 创建任务 | ✓ | ✓ | ✓ | ✗ |
-| 查看任务 | ✓ | ✓ | ✓ | ✓ |
-| 编辑任务 | ✓ | ✓ | 仅自己的 | ✗ |
-| 删除任务 | ✓ | ✓ | 仅自己的 | ✗ |
-| 分配任务 | ✓ | ✓ | ✗ | ✗ |
-| 批量操作 | ✓ | ✓ | ✗ | ✗ |
-| 管理用户 | ✓ | ✗ | ✗ | ✗ |
-| 邀请成员 | ✓ | ✓ | ✗ | ✗ |
-| 移除成员 | ✓ | ✓ | ✗ | ✗ |
-| 查看报告 | ✓ | ✓ | ✓ | ✓ |
-| 导出报告 | ✓ | ✓ | ✗ | ✗ |
-| 生成报告 | ✓ | ✓ | ✗ | ✗ |
-| 系统设置 | ✓ | ✗ | ✗ | ✗ |
+| 特性     | Admin | Manager |  Member  | Viewer |
+| -------- | :---: | :-----: | :------: | :----: |
+| 层级     |  100  |   50    |    20    |   10   |
+| 创建任务 |   ✓   |    ✓    |    ✓     |   ✗    |
+| 查看任务 |   ✓   |    ✓    |    ✓     |   ✓    |
+| 编辑任务 |   ✓   |    ✓    | 仅自己的 |   ✗    |
+| 删除任务 |   ✓   |    ✓    | 仅自己的 |   ✗    |
+| 分配任务 |   ✓   |    ✓    |    ✗     |   ✗    |
+| 批量操作 |   ✓   |    ✓    |    ✗     |   ✗    |
+| 管理用户 |   ✓   |    ✗    |    ✗     |   ✗    |
+| 邀请成员 |   ✓   |    ✓    |    ✗     |   ✗    |
+| 移除成员 |   ✓   |    ✓    |    ✗     |   ✗    |
+| 查看报告 |   ✓   |    ✓    |    ✓     |   ✓    |
+| 导出报告 |   ✓   |    ✓    |    ✗     |   ✗    |
+| 生成报告 |   ✓   |    ✓    |    ✗     |   ✗    |
+| 系统设置 |   ✓   |    ✗    |    ✗     |   ✗    |
 
 ### 类型定义参考
 
@@ -1855,30 +1824,30 @@ enum Role {
 
 // 权限检查结果
 interface PermissionCheckResult {
-  granted: boolean;
-  permission: Permission;
-  reason?: string;
+  granted: boolean
+  permission: Permission
+  reason?: string
 }
 
 // 用户权限信息
 interface UserPermissionInfo {
-  userId: string;
-  role: Role;
-  permissions: Permission[];
-  customPermissions?: Permission[];
+  userId: string
+  role: Role
+  permissions: Permission[]
+  customPermissions?: Permission[]
 }
 
 // 权限分组
 interface PermissionGroup {
-  name: string;
-  permissions: Permission[];
+  name: string
+  permissions: Permission[]
 }
 
 // 认证用户
 interface AuthenticatedUser {
-  id: string;
-  role: Role;
-  permissions: Permission[];
+  id: string
+  role: Role
+  permissions: Permission[]
 }
 ```
 
@@ -1896,7 +1865,7 @@ interface AuthenticatedUser {
 ✅ **自定义权限** - 在角色基础上扩展  
 ✅ **角色层级** - 支持角色比较和管理  
 ✅ **完整类型定义** - TypeScript 类型安全  
-✅ **测试覆盖** - 包含单元测试  
+✅ **测试覆盖** - 包含单元测试
 
 使用本系统可以轻松实现细粒度的访问控制，保护应用的安全性和数据完整性。
 

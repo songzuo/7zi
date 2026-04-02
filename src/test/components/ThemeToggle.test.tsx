@@ -7,9 +7,15 @@ const localStorageMock = (() => {
   let store: Record<string, string> = {}
   return {
     getItem: vi.fn((key: string) => store[key] || null),
-    setItem: vi.fn((key: string, value: string) => { store[key] = value }),
-    removeItem: vi.fn((key: string) => { delete store[key] }),
-    clear: vi.fn(() => { store = {} }),
+    setItem: vi.fn((key: string, value: string) => {
+      store[key] = value
+    }),
+    removeItem: vi.fn((key: string) => {
+      delete store[key]
+    }),
+    clear: vi.fn(() => {
+      store = {}
+    }),
   }
 })()
 
@@ -29,7 +35,7 @@ describe('ThemeToggle', () => {
 
   it('renders without crashing', async () => {
     render(<TestWrapper />)
-    
+
     await waitFor(() => {
       const button = screen.getByRole('button')
       expect(button).toBeInTheDocument()
@@ -38,7 +44,7 @@ describe('ThemeToggle', () => {
 
   it('has aria-label', async () => {
     render(<TestWrapper />)
-    
+
     await waitFor(() => {
       const button = screen.getByRole('button')
       expect(button).toBeInTheDocument()
@@ -48,18 +54,18 @@ describe('ThemeToggle', () => {
 
   it('toggles theme when clicked', async () => {
     render(<TestWrapper defaultTheme="light" />)
-    
+
     await waitFor(() => {
       const button = screen.getByRole('button')
       expect(button).toBeInTheDocument()
     })
-    
+
     const button = screen.getByRole('button')
-    
+
     await act(async () => {
       fireEvent.click(button)
     })
-    
+
     await waitFor(() => {
       expect(document.documentElement.classList.contains('dark')).toBe(true)
     })
@@ -67,11 +73,11 @@ describe('ThemeToggle', () => {
 
   it('shows correct initial state for light theme', async () => {
     render(<TestWrapper defaultTheme="light" />)
-    
+
     await waitFor(() => {
       const button = screen.getByRole('button')
       expect(button).toBeInTheDocument()
-      
+
       // Check if the toggle span has the correct transform class
       const toggleSpan = button.querySelector('span')
       expect(toggleSpan?.className).toContain('translate-x-0')
@@ -81,11 +87,11 @@ describe('ThemeToggle', () => {
 
   it('shows correct initial state for dark theme', async () => {
     render(<TestWrapper defaultTheme="dark" />)
-    
+
     await waitFor(() => {
       const button = screen.getByRole('button')
       expect(button).toBeInTheDocument()
-      
+
       // Check if the toggle span has the correct transform class
       const toggleSpan = button.querySelector('span')
       expect(toggleSpan?.className).toContain('translate-x-6')

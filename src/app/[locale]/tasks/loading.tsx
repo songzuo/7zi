@@ -5,8 +5,8 @@
  * This improves perceived performance and provides immediate visual feedback.
  */
 
-import { TasksLoading } from '@/components/PageLoadingTemplate';
+import { TasksLoading } from '@/components/PageLoadingTemplate'
 
 export default function TasksPageLoading() {
-  return <TasksLoading />;
+  return <TasksLoading />
 }

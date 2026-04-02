@@ -1,13 +1,13 @@
-import '@testing-library/jest-dom';
-import { cleanup } from '@testing-library/react';
-import { afterEach, vi, beforeEach } from 'vitest';
+import '@testing-library/jest-dom'
+import { cleanup } from '@testing-library/react'
+import { afterEach, vi, beforeEach } from 'vitest'
 
 // Polyfill ReadableStream for jsdom environment (Node.js 18+)
 if (typeof ReadableStream === 'undefined') {
-  const { ReadableStream, WritableStream, TransformStream } = require('node:stream/web');
-  global.ReadableStream = ReadableStream as any;
-  global.WritableStream = WritableStream as any;
-  global.TransformStream = TransformStream as any;
+  const { ReadableStream, WritableStream, TransformStream } = require('node:stream/web')
+  global.ReadableStream = ReadableStream as any
+  global.WritableStream = WritableStream as any
+  global.TransformStream = TransformStream as any
 }
 
 // Import vi-mocks to set up database and collaboration mocks
@@ -92,9 +92,9 @@ vi.mock('better-sqlite3', () => {
   })
 
   // Return a mock constructor function
-  const MockDatabase = function(this: typeof MockDatabase.prototype) {
+  const MockDatabase = function (this: typeof MockDatabase.prototype) {
     return createMockDatabase.call(this)
-  } as unknown as { new(): ReturnType<typeof createMockDatabase> }
+  } as unknown as { new (): ReturnType<typeof createMockDatabase> }
 
   // Create proper prototype from the mock object
   MockDatabase.prototype = Object.create(createMockDatabase())
@@ -145,10 +145,10 @@ const canvasContextMock = {
   transform: vi.fn(),
   rect: vi.fn(),
   clip: vi.fn(),
-};
+}
 
 // @ts-expect-error - Canvas context mock
-HTMLCanvasElement.prototype.getContext = vi.fn(() => canvasContextMock);
+HTMLCanvasElement.prototype.getContext = vi.fn(() => canvasContextMock)
 
 HTMLCanvasElement.prototype.toDataURL = vi.fn(() => 'data:image/png;base64,mock')
 
@@ -163,18 +163,24 @@ vi.mock('next/navigation', () => ({
 }))
 
 // Mock next-intl hooks
-const mockUseLocale = vi.fn(() => 'zh');
-const mockUseTranslations = vi.fn(() => (key: string) => key);
+const mockUseLocale = vi.fn(() => 'zh')
+const mockUseTranslations = vi.fn(() => (key: string) => key)
 
 vi.mock('next-intl', () => ({
   useLocale: () => mockUseLocale(),
   useTranslations: () => mockUseTranslations(),
-  NextIntlClientProvider: ({ children, locale }: { children: React.ReactNode; locale?: string }) => {
+  NextIntlClientProvider: ({
+    children,
+    locale,
+  }: {
+    children: React.ReactNode
+    locale?: string
+  }) => {
     // Update the mock locale when provider is called with a locale
     if (locale) {
-      mockUseLocale.mockReturnValue(locale);
+      mockUseLocale.mockReturnValue(locale)
     }
-    return <>{children}</>;
+    return <>{children}</>
   },
 }))
 
@@ -190,9 +196,9 @@ vi.mock('next/image', () => ({
 declare global {
   namespace Vi {
     interface MockInstance<T = unknown> {
-      mockResolvedValueOnce: (value: PromiseLike<T> | T) => MockInstance<T>;
-      mockRejectedValueOnce: (reason: unknown) => MockInstance<T>;
-      mockImplementation: (fn: (...args: unknown[]) => unknown) => MockInstance<T>;
+      mockResolvedValueOnce: (value: PromiseLike<T> | T) => MockInstance<T>
+      mockRejectedValueOnce: (reason: unknown) => MockInstance<T>
+      mockImplementation: (fn: (...args: unknown[]) => unknown) => MockInstance<T>
     }
   }
 }

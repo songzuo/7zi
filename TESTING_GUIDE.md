@@ -37,26 +37,31 @@ The 7zi-project has a comprehensive automated testing system built with **Vitest
 ## Quick Start
 
 ### Run All Tests
+
 ```bash
 npm run test:all
 ```
 
 ### Run Unit Tests Only
+
 ```bash
 npm run test:run
 ```
 
 ### Run With Coverage
+
 ```bash
 npm run test:coverage
 ```
 
 ### Watch Mode
+
 ```bash
 npm run test:watch
 ```
 
 ### Run Specific Test Suite
+
 ```bash
 npm run test:api          # API route tests
 npm run test:components   # Component tests
@@ -65,6 +70,7 @@ npm run test:integration  # Integration tests
 ```
 
 ### E2E Tests
+
 ```bash
 npm run test:e2e          # Run E2E tests
 npm run test:e2e:ui       # Run with UI
@@ -74,11 +80,13 @@ npm run test:e2e:debug    # Debug mode
 ## Test Categories
 
 ### 1. Unit Tests
+
 Test individual functions and components in isolation.
 
 **Location:** `src/**/__tests__/*.test.ts` and `src/**/*.test.ts`
 
 **Examples:**
+
 - Utility functions
 - Component logic
 - Data transformations
@@ -100,11 +108,13 @@ describe('validateEmail', () => {
 ```
 
 ### 2. Integration Tests
+
 Test how multiple parts work together.
 
 **Location:** `src/test/integration/*.test.ts`
 
 **Examples:**
+
 - API route + database operations
 - Component + store interactions
 - Cache + data fetching
@@ -120,11 +130,13 @@ describe('User Integration', () => {
 ```
 
 ### 3. API Route Tests
+
 Test API endpoints with mocked dependencies.
 
 **Location:** `src/app/api/**/route.test.ts`
 
 **Examples:**
+
 - Request validation
 - Authentication flow
 - Error handling
@@ -137,7 +149,7 @@ describe('POST /api/auth/login', () => {
   it('should authenticate user with valid credentials', async () => {
     const request = mockRequest({
       email: 'user@example.com',
-      password: 'password123'
+      password: 'password123',
     })
     const response = await POST(request)
     expect(response.status).toBe(200)
@@ -146,11 +158,13 @@ describe('POST /api/auth/login', () => {
 ```
 
 ### 4. E2E Tests
+
 Test user flows through the browser.
 
 **Location:** `e2e/*.spec.ts`
 
 **Examples:**
+
 - Login/logout flows
 - CRUD operations
 - Navigation
@@ -171,24 +185,28 @@ test('user can login', async ({ page }) => {
 ## Coverage Requirements
 
 ### Current Thresholds
+
 - **Lines:** 60%
 - **Functions:** 60%
 - **Branches:** 50%
 - **Statements:** 60%
 
 ### Goal Thresholds
+
 - **Lines:** 80%
 - **Functions:** 80%
 - **Branches:** 70%
 - **Statements:** 80%
 
 ### View Coverage Report
+
 ```bash
 npm run test:coverage
 open coverage/index.html
 ```
 
 ### Check Coverage With CI
+
 ```bash
 npm run test:coverage:check
 ```
@@ -241,7 +259,7 @@ import { externalDependency } from './external'
 
 // Mock entire module
 vi.mock('./external', () => ({
-  externalDependency: vi.fn()
+  externalDependency: vi.fn(),
 }))
 
 // In your test
@@ -266,10 +284,7 @@ describe('async operations', () => {
   })
 
   it('should timeout after 5 seconds', async () => {
-    await expect(
-      slowOperation(),
-      { timeout: 5000 }
-    ).resolves.toBe('done')
+    await expect(slowOperation(), { timeout: 5000 }).resolves.toBe('done')
   })
 })
 ```
@@ -324,7 +339,7 @@ describe('API Route', () => {
 
   it('should handle POST request', async () => {
     mockRequest.json = vi.fn().mockResolvedValue({
-      email: 'test@example.com'
+      email: 'test@example.com',
     })
 
     const response = await POST(mockRequest)
@@ -341,6 +356,7 @@ describe('API Route', () => {
 ### Red-Green-Refactor Cycle
 
 1. **Red:** Write a failing test
+
 ```typescript
 it('should calculate tax', () => {
   expect(calculateTax(100, 0.1)).toBe(10)
@@ -348,6 +364,7 @@ it('should calculate tax', () => {
 ```
 
 2. **Green:** Make it pass
+
 ```typescript
 export function calculateTax(price: number, rate: number): number {
   return price * rate
@@ -355,6 +372,7 @@ export function calculateTax(price: number, rate: number): number {
 ```
 
 3. **Refactor:** Improve the code
+
 ```typescript
 export function calculateTax(price: number, rate: number): number {
   const validatedRate = Math.max(0, Math.min(1, rate))
@@ -367,6 +385,7 @@ export function calculateTax(price: number, rate: number): number {
 ### GitHub Actions
 
 Tests run automatically on:
+
 - Push to `main` or `develop`
 - Pull requests
 - Manual workflow dispatch
@@ -388,6 +407,7 @@ npm run test:ci
 ### DO ✅
 
 1. **Write descriptive test names**
+
    ```typescript
    it('should return 400 when email is invalid')
    ```
@@ -398,6 +418,7 @@ npm run test:ci
    - **Assert** - Verify results
 
 3. **Test behavior, not implementation**
+
    ```typescript
    // Good
    expect(response.status).toBe(200)
@@ -407,6 +428,7 @@ npm run test:ci
    ```
 
 4. **Use beforeEach to clean state**
+
    ```typescript
    beforeEach(() => {
      vi.clearAllMocks()
@@ -419,6 +441,7 @@ npm run test:ci
 ### DON'T ❌
 
 1. **Don't test external libraries**
+
    ```typescript
    // Bad
    it('should work like fetch', async () => {
@@ -488,6 +511,7 @@ npm run test:run
 ## Support
 
 For test-related questions:
+
 1. Check existing test files for examples
 2. Review this guide
 3. Consult Vitest/Playwright docs

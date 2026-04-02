@@ -54,29 +54,17 @@
       "web": {
         "title": "Développement Web",
         "description": "Du design à l'implémentation, construire des sites web et applications web modernes haute performance",
-        "features": [
-          "Design adaptatif",
-          "Optimisation des performances",
-          "Optimisé pour le SEO"
-        ]
+        "features": ["Design adaptatif", "Optimisation des performances", "Optimisé pour le SEO"]
       },
       "design": {
         "title": "Design de Marque",
         "description": "Design UI/UX professionnel pour créer une identité visuelle de marque unique",
-        "features": [
-          "Design de logo",
-          "Identité visuelle",
-          "Expérience utilisateur"
-        ]
+        "features": ["Design de logo", "Identité visuelle", "Expérience utilisateur"]
       },
       "marketing": {
         "title": "Marketing et Promotion",
         "description": "Optimisation SEO, marketing de contenu et gestion des réseaux sociaux pour améliorer l'influence de la marque",
-        "features": [
-          "Optimisation SEO",
-          "Stratégie de contenu",
-          "Réseaux sociaux"
-        ]
+        "features": ["Optimisation SEO", "Stratégie de contenu", "Réseaux sociaux"]
       }
     },
     "whyUs": {
@@ -138,111 +126,67 @@
         "name": "Expert Monde IA",
         "role": "Stratégie et Planification Futuriste",
         "description": "Se concentre sur les tendances de développement des agents IA et la disposition future, fournissant des perspectives stratégiques et une pensée avant-gardiste à l'équipe.",
-        "skills": [
-          "Analyse stratégique",
-          "Prédiction des tendances",
-          "Pensée innovante"
-        ]
+        "skills": ["Analyse stratégique", "Prédiction des tendances", "Pensée innovante"]
       },
       "consultant": {
         "name": "Consultant",
         "role": "Recherche et Analyse",
         "description": "Recherche approfondie sur la dynamique du marché et les tendances technologiques, fournissant un support décisionnel basé sur les données pour les projets.",
-        "skills": [
-          "Recherche de marché",
-          "Analyse de données",
-          "Support décisionnel"
-        ]
+        "skills": ["Recherche de marché", "Analyse de données", "Support décisionnel"]
       },
       "architect": {
         "name": "Architecte",
         "role": "Design et Planification",
         "description": "Conçoit l'architecture système et les solutions techniques, assurant la faisabilité et l'évolutivité du projet.",
-        "skills": [
-          "Architecture système",
-          "Sélection technologique",
-          "Design de solutions"
-        ]
+        "skills": ["Architecture système", "Sélection technologique", "Design de solutions"]
       },
       "executor": {
         "name": "Exécuteur",
         "role": "Exécution et Implémentation",
         "description": "Exécute efficacement les tâches, transformant les solutions de conception en implémentations de code de haute qualité.",
-        "skills": [
-          "Implémentation de code",
-          "Exécution de tâches",
-          "Optimisation de l'efficacité"
-        ]
+        "skills": ["Implémentation de code", "Exécution de tâches", "Optimisation de l'efficacité"]
       },
       "admin": {
         "name": "Administrateur Système",
         "role": "Opérations et Déploiement",
         "description": "Responsable des opérations système, de la gestion des serveurs et du déploiement automatisé pour assurer un fonctionnement stable du service.",
-        "skills": [
-          "Opérations système",
-          "Déploiement automatique",
-          "Sécurisation"
-        ]
+        "skills": ["Opérations système", "Déploiement automatique", "Sécurisation"]
       },
       "tester": {
         "name": "Testeur",
         "role": "Tests et Débogage",
         "description": "Écrit des cas de test, effectue des tests fonctionnels et l'optimisation des performances pour assurer la qualité du produit.",
-        "skills": [
-          "Tests fonctionnels",
-          "Optimisation des performances",
-          "Assurance qualité"
-        ]
+        "skills": ["Tests fonctionnels", "Optimisation des performances", "Assurance qualité"]
       },
       "designer": {
         "name": "Designer",
         "role": "Design UI et Frontend",
         "description": "Crée des interfaces belles et conviviales, fournissant un excellent design d'expérience utilisateur.",
-        "skills": [
-          "Design UI",
-          "Expérience utilisateur",
-          "Créativité visuelle"
-        ]
+        "skills": ["Design UI", "Expérience utilisateur", "Créativité visuelle"]
       },
       "promoter": {
         "name": "Spécialiste Marketing",
         "role": "Promotion et SEO",
         "description": "Développe des stratégies de promotion, optimise les classements des moteurs de recherche et améliore la notoriété de la marque.",
-        "skills": [
-          "Optimisation SEO",
-          "Marketing de contenu",
-          "Promotion de marque"
-        ]
+        "skills": ["Optimisation SEO", "Marketing de contenu", "Promotion de marque"]
       },
       "sales": {
         "name": "Ventes et Support",
         "role": "Ventes et Service Client",
         "description": "Communique avec les clients, comprend les besoins, fournit des solutions et un support de service de qualité.",
-        "skills": [
-          "Communication client",
-          "Analyse des besoins",
-          "Solutions"
-        ]
+        "skills": ["Communication client", "Analyse des besoins", "Solutions"]
       },
       "finance": {
         "name": "Finance",
         "role": "Comptabilité et Audit",
         "description": "Gère les revenus et dépenses financiers, effectue la comptabilité des coûts et l'analyse financière pour assurer la santé financière.",
-        "skills": [
-          "Gestion financière",
-          "Contrôle des coûts",
-          "Analyse financière"
-        ]
+        "skills": ["Gestion financière", "Contrôle des coûts", "Analyse financière"]
       },
       "media": {
         "name": "Média",
         "role": "Média et Publicité",
         "description": "Planifie et produit du contenu, diffusant par plusieurs canaux pour améliorer l'influence de la marque.",
-        "skills": [
-          "Planification de contenu",
-          "Opérations média",
-          "Communication de marque"
-        ]
+        "skills": ["Planification de contenu", "Opérations média", "Communication de marque"]
       }
     },
     "availability": "24/7",

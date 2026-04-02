@@ -8,6 +8,7 @@
 ## 一、任务概述
 
 根据健康检查报告，Next.js 应用存在以下运行时错误：
+
 1. `TypeError: Cannot read properties of undefined (reading 'siteName')`
 2. `Error: MISSING_MESSAGE: home.hero.title1Prefix (zh)` - 翻译键缺失
 3. `Error: Failed to find Server Action "x"` - Server Action 版本不匹配
@@ -21,6 +22,7 @@
 **问题**: `home.hero.title1Prefix` 在 zh 翻译文件中缺失
 
 **分析**:
+
 - 检查了 `src/locales/` 目录下的所有翻译文件
 - 现有翻译文件:
   - `zh/common.json`, `en/common.json`
@@ -43,8 +45,10 @@
 **问题**: `TypeError: Cannot read properties of undefined (reading 'siteName')`
 
 **分析**:
+
 - `siteName` 在 `src/lib/seo/metadata.ts` 中使用
 - 配置如下:
+
   ```typescript
   export const siteConfig = {
     name: '7zi Frontend',
@@ -60,6 +64,7 @@
   ```
 
 **检查结果**:
+
 - `siteConfig` 已正确导出
 - `siteConfig.name` 已定义 (`'7zi Frontend'`)
 - 代码逻辑正确
@@ -71,11 +76,13 @@
 ### 2.3 i18n 初始化问题 ✅ 已修复
 
 **构建警告**:
+
 ```
 react-i18next:: useTranslation: You will need to pass in an i18next instance by using initReactI18next { code: 'NO_I18NEXT_INSTANCE' }
 ```
 
 **分析**:
+
 - i18n 初始化在 `src/lib/i18n/client.ts` 中完成
 - 在客户端使用 `useTranslation` 的页面:
   - `src/app/dashboard/page.tsx`
@@ -85,6 +92,7 @@ react-i18next:: useTranslation: You will need to pass in an i18next instance by 
 **问题根因**: 缺少 i18n Provider 包装
 
 **修复内容**:
+
 1. 创建了 `src/app/providers/I18nProvider.tsx`
 2. 更新 `src/app/layout.tsx` 添加 Provider 包装
 
@@ -95,12 +103,14 @@ react-i18next:: useTranslation: You will need to pass in an i18next instance by 
 ### 2.4 metadataBase 警告 ✅ 已修复
 
 **警告信息**:
+
 ```
 ⚠ metadataBase property in metadata export is not set for resolving social open graph or twitter images
 ```
 
 **修复内容**:
 在 `src/app/layout.tsx` 中添加 `metadataBase`:
+
 ```typescript
 export const metadata: Metadata = {
   metadataBase: new URL(process.env.NEXT_PUBLIC_SITE_URL || 'https://7zi.com'),
@@ -117,6 +127,7 @@ export const metadata: Metadata = {
 **错误**: 多个 API 路由文件中的 TypeScript 类型推断错误
 
 **涉及文件**:
+
 - `src/app/api/agents/learning/[agentId]/route.ts`
 - `src/app/api/agents/learning/adjust/route.ts`
 - `src/app/api/agents/learning/route.ts`
@@ -132,6 +143,7 @@ export const metadata: Metadata = {
 ### 2.6 Server Action 版本不匹配
 
 **分析**:
+
 - 检查了构建输出中的 Server Actions
 - 构建成功完成，无 Server Action 错误
 - 所有动态路由正常生成
@@ -179,13 +191,13 @@ NODE_ENV=production next build --webpack
 
 ## 四、修复文件列表
 
-| 文件 | 操作 |
-|------|------|
-| `src/app/providers/I18nProvider.tsx` | 新建 |
-| `src/app/layout.tsx` | 添加 I18nProvider 和 metadataBase |
-| `src/app/api/agents/learning/[agentId]/route.ts` | 修复 TypeScript 类型 |
-| `src/app/api/agents/learning/adjust/route.ts` | 修复 TypeScript 类型 |
-| `src/app/api/agents/learning/route.ts` | 修复 TypeScript 类型 |
+| 文件                                             | 操作                              |
+| ------------------------------------------------ | --------------------------------- |
+| `src/app/providers/I18nProvider.tsx`             | 新建                              |
+| `src/app/layout.tsx`                             | 添加 I18nProvider 和 metadataBase |
+| `src/app/api/agents/learning/[agentId]/route.ts` | 修复 TypeScript 类型              |
+| `src/app/api/agents/learning/adjust/route.ts`    | 修复 TypeScript 类型              |
+| `src/app/api/agents/learning/route.ts`           | 修复 TypeScript 类型              |
 
 ---
 
@@ -193,14 +205,14 @@ NODE_ENV=production next build --webpack
 
 ### 5.1 问题总结
 
-| 问题 | 状态 | 说明 |
-|------|------|------|
+| 问题                          | 状态        | 说明                 |
+| ----------------------------- | ----------- | -------------------- |
 | `home.hero.title1Prefix` 缺失 | ✅ 无需修复 | 翻译键未在代码中使用 |
-| `siteName` undefined | ✅ 配置正确 | 配置已存在且正确 |
-| Server Action 不匹配 | ✅ 无需修复 | 构建正常 |
-| i18n 初始化警告 | ✅ 已修复 | 添加了 Provider |
-| metadataBase 警告 | ✅ 已修复 | 添加了配置 |
-| TypeScript 类型错误 | ✅ 已修复 | 修复了类型断言 |
+| `siteName` undefined          | ✅ 配置正确 | 配置已存在且正确     |
+| Server Action 不匹配          | ✅ 无需修复 | 构建正常             |
+| i18n 初始化警告               | ✅ 已修复   | 添加了 Provider      |
+| metadataBase 警告             | ✅ 已修复   | 添加了配置           |
+| TypeScript 类型错误           | ✅ 已修复   | 修复了类型断言       |
 
 ### 5.2 后续建议
 

@@ -20,11 +20,11 @@
 
 ### 1.1 项目概况
 
-| 项目属性 | 值 |
-|---------|-----|
-| 框架 | Next.js 16.2.1 |
-| React | 19.2.4 |
-| 代码规模 | ~11,216 行 TypeScript/TSX |
+| 项目属性 | 值                             |
+| -------- | ------------------------------ |
+| 框架     | Next.js 16.2.1                 |
+| React    | 19.2.4                         |
+| 代码规模 | ~11,216 行 TypeScript/TSX      |
 | 主要功能 | 展示网站 + Dashboard + AI 聊天 |
 
 ### 1.2 当前状态管理方式
@@ -33,11 +33,11 @@
 
 #### 使用的模式
 
-| 模式 | 使用场景 | 代码位置 |
-|------|---------|---------|
-| **useState + useEffect** | 组件内状态、数据获取 | `useFetch.ts`, `useChat.ts`, `useDashboardData.ts` |
-| **Context API** | 全局设置（主题、用户偏好） | `SettingsContext.tsx`, `ThemeProvider.tsx` |
-| **Custom Hooks** | 封装业务逻辑 | `useLocalStorage.ts`, `useFetch.ts`, `useGitHubData.ts` |
+| 模式                     | 使用场景                   | 代码位置                                                |
+| ------------------------ | -------------------------- | ------------------------------------------------------- |
+| **useState + useEffect** | 组件内状态、数据获取       | `useFetch.ts`, `useChat.ts`, `useDashboardData.ts`      |
+| **Context API**          | 全局设置（主题、用户偏好） | `SettingsContext.tsx`, `ThemeProvider.tsx`              |
+| **Custom Hooks**         | 封装业务逻辑               | `useLocalStorage.ts`, `useFetch.ts`, `useGitHubData.ts` |
 
 #### 现有 Context 列表
 
@@ -83,7 +83,7 @@ src/hooks/
 ```
 痛点 1: 数据获取逻辑重复
 - useFetch.ts (70 行)
-- useDashboardData.ts (180 行)  
+- useDashboardData.ts (180 行)
 - useGitHubData.ts (200 行)
 → 都实现了 loading/error/refetch 逻辑
 
@@ -120,41 +120,41 @@ Zustand 是一个极简的状态管理库，基于 Flux 模式但去除了样板
 
 ```typescript
 // 极简 API
-import { create } from 'zustand';
+import { create } from 'zustand'
 
-const useStore = create((set) => ({
+const useStore = create(set => ({
   count: 0,
-  increment: () => set((state) => ({ count: state.count + 1 })),
-}));
+  increment: () => set(state => ({ count: state.count + 1 })),
+}))
 
 // 使用
 function Component() {
-  const count = useStore((state) => state.count);
-  const increment = useStore((state) => state.increment);
+  const count = useStore(state => state.count)
+  const increment = useStore(state => state.increment)
 }
 ```
 
 #### 优点 ✅
 
-| 优点 | 说明 |
-|------|------|
-| **极小体积** | ~1.2KB gzipped |
-| **零样板代码** | 无需 actions/reducers/types |
-| **选择器优化** | 自动避免不必要的重渲染 |
-| **TypeScript 友好** | 类型推断完善 |
-| **中间件生态** | persist, devtools, immer, etc. |
-| **React 18/19 支持** | 完美支持 Concurrent Mode |
-| **无需 Provider** | 可在组件外使用 |
-| **SSR 友好** | Next.js 集成简单 |
+| 优点                 | 说明                           |
+| -------------------- | ------------------------------ |
+| **极小体积**         | ~1.2KB gzipped                 |
+| **零样板代码**       | 无需 actions/reducers/types    |
+| **选择器优化**       | 自动避免不必要的重渲染         |
+| **TypeScript 友好**  | 类型推断完善                   |
+| **中间件生态**       | persist, devtools, immer, etc. |
+| **React 18/19 支持** | 完美支持 Concurrent Mode       |
+| **无需 Provider**    | 可在组件外使用                 |
+| **SSR 友好**         | Next.js 集成简单               |
 
 #### 缺点 ❌
 
-| 缺点 | 说明 |
-|------|------|
-| **非响应式** | 需要手动调用 set |
+| 缺点             | 说明                           |
+| ---------------- | ------------------------------ |
+| **非响应式**     | 需要手动调用 set               |
 | **缺乏数据获取** | 需要自己实现或配合 React Query |
-| **学习曲线** | 独特的 API 风格需要适应 |
-| **社区较小** | 相比 Redux 生态较小 |
+| **学习曲线**     | 独特的 API 风格需要适应        |
+| **社区较小**     | 相比 Redux 生态较小            |
 
 #### 适用场景
 
@@ -167,26 +167,26 @@ function Component() {
 
 ```typescript
 // stores/settingsStore.ts
-import { create } from 'zustand';
-import { persist, createJSONStorage } from 'zustand/middleware';
+import { create } from 'zustand'
+import { persist, createJSONStorage } from 'zustand/middleware'
 
 interface UserSettings {
-  theme: 'light' | 'dark' | 'system';
-  language: string;
+  theme: 'light' | 'dark' | 'system'
+  language: string
   notifications: {
-    enabled: boolean;
-    sound: boolean;
-    email: boolean;
-    push: boolean;
-  };
+    enabled: boolean
+    sound: boolean
+    email: boolean
+    push: boolean
+  }
 }
 
 interface SettingsStore {
-  settings: UserSettings;
-  setTheme: (theme: UserSettings['theme']) => void;
-  setLanguage: (language: string) => void;
-  setNotifications: (notifications: Partial<UserSettings['notifications']>) => void;
-  resetSettings: () => void;
+  settings: UserSettings
+  setTheme: (theme: UserSettings['theme']) => void
+  setLanguage: (language: string) => void
+  setNotifications: (notifications: Partial<UserSettings['notifications']>) => void
+  resetSettings: () => void
 }
 
 const defaultSettings: UserSettings = {
@@ -198,24 +198,27 @@ const defaultSettings: UserSettings = {
     email: false,
     push: true,
   },
-};
+}
 
 export const useSettingsStore = create<SettingsStore>()(
   persist(
-    (set) => ({
+    set => ({
       settings: defaultSettings,
-      setTheme: (theme) => set((state) => ({ 
-        settings: { ...state.settings, theme } 
-      })),
-      setLanguage: (language) => set((state) => ({ 
-        settings: { ...state.settings, language } 
-      })),
-      setNotifications: (notifications) => set((state) => ({ 
-        settings: { 
-          ...state.settings, 
-          notifications: { ...state.settings.notifications, ...notifications } 
-        } 
-      })),
+      setTheme: theme =>
+        set(state => ({
+          settings: { ...state.settings, theme },
+        })),
+      setLanguage: language =>
+        set(state => ({
+          settings: { ...state.settings, language },
+        })),
+      setNotifications: notifications =>
+        set(state => ({
+          settings: {
+            ...state.settings,
+            notifications: { ...state.settings.notifications, ...notifications },
+          },
+        })),
       resetSettings: () => set({ settings: defaultSettings }),
     }),
     {
@@ -223,14 +226,14 @@ export const useSettingsStore = create<SettingsStore>()(
       storage: createJSONStorage(() => localStorage),
     }
   )
-);
+)
 
 // 使用
 function SettingsPanel() {
-  const { settings, setTheme, setLanguage } = useSettingsStore();
-  
+  const { settings, setTheme, setLanguage } = useSettingsStore()
+
   // 自动选择器优化，只有 settings.theme 变化才重渲染
-  const theme = useSettingsStore((state) => state.settings.theme);
+  const theme = useSettingsStore(state => state.settings.theme)
 }
 ```
 
@@ -250,39 +253,39 @@ Jotai 是原子化状态管理库，灵感来自 Recoil，但更轻量。
 
 ```typescript
 // 原子 - 最小状态单元
-import { atom, useAtom } from 'jotai';
+import { atom, useAtom } from 'jotai'
 
-const countAtom = atom(0);
+const countAtom = atom(0)
 
 // 派生原子
-const doubleAtom = atom((get) => get(countAtom) * 2);
+const doubleAtom = atom(get => get(countAtom) * 2)
 
 // 使用
 function Component() {
-  const [count, setCount] = useAtom(countAtom);
+  const [count, setCount] = useAtom(countAtom)
 }
 ```
 
 #### 优点 ✅
 
-| 优点 | 说明 |
-|------|------|
-| **原子化设计** | 细粒度更新，最小化重渲染 |
-| **极小体积** | ~2.5KB gzipped |
-| **派生状态** | 自动计算依赖关系 |
-| **异步支持** | 原生支持 async/await |
-| **TypeScript 友好** | 完善的类型推断 |
-| **无需 Provider** | 可选的 Provider 模式 |
-| **React 18/19 支持** | Concurrent Mode 兼容 |
+| 优点                 | 说明                     |
+| -------------------- | ------------------------ |
+| **原子化设计**       | 细粒度更新，最小化重渲染 |
+| **极小体积**         | ~2.5KB gzipped           |
+| **派生状态**         | 自动计算依赖关系         |
+| **异步支持**         | 原生支持 async/await     |
+| **TypeScript 友好**  | 完善的类型推断           |
+| **无需 Provider**    | 可选的 Provider 模式     |
+| **React 18/19 支持** | Concurrent Mode 兼容     |
 
 #### 缺点 ❌
 
-| 缺点 | 说明 |
-|------|------|
-| **概念新颖** | 需要理解原子思维 |
-| **缺乏数据获取** | 需要配合其他库 |
-| **调试工具较弱** | DevTools 功能有限 |
-| **社区较小** | 相对较新，生态不成熟 |
+| 缺点             | 说明                 |
+| ---------------- | -------------------- |
+| **概念新颖**     | 需要理解原子思维     |
+| **缺乏数据获取** | 需要配合其他库       |
+| **调试工具较弱** | DevTools 功能有限    |
+| **社区较小**     | 相对较新，生态不成熟 |
 
 #### 适用场景
 
@@ -331,7 +334,7 @@ export const isDarkAtom = atom((get) => {
 function ThemeToggle() {
   const [theme, setTheme] = useAtom(themeAtom);
   const isDark = useAtomValue(isDarkAtom);
-  
+
   return (
     <button onClick={() => setTheme(isDark ? 'light' : 'dark')}>
       {isDark ? '🌙' : '☀️'}
@@ -355,44 +358,44 @@ React Query (TanStack Query) 是强大的服务端状态管理库，专注于数
 #### 核心概念
 
 ```typescript
-import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 
 // 查询
 const { data, isLoading, error } = useQuery({
   queryKey: ['issues', owner, repo],
   queryFn: () => fetchIssues(owner, repo),
-});
+})
 
 // 变更
 const mutation = useMutation({
   mutationFn: updateIssue,
   onSuccess: () => {
-    queryClient.invalidateQueries({ queryKey: ['issues'] });
+    queryClient.invalidateQueries({ queryKey: ['issues'] })
   },
-});
+})
 ```
 
 #### 优点 ✅
 
-| 优点 | 说明 |
-|------|------|
+| 优点             | 说明                   |
+| ---------------- | ---------------------- |
 | **专注数据获取** | 最佳实践的数据获取方案 |
-| **自动缓存** | 智能缓存策略 |
-| **后台刷新** | 自动重新验证数据 |
-| **请求去重** | 避免重复请求 |
-| **乐观更新** | 即时 UI 反馈 |
-| **DevTools** | 强大的调试工具 |
-| **SSR 支持** | Next.js 集成完善 |
-| **离线支持** | 配合 Persistence 插件 |
+| **自动缓存**     | 智能缓存策略           |
+| **后台刷新**     | 自动重新验证数据       |
+| **请求去重**     | 避免重复请求           |
+| **乐观更新**     | 即时 UI 反馈           |
+| **DevTools**     | 强大的调试工具         |
+| **SSR 支持**     | Next.js 集成完善       |
+| **离线支持**     | 配合 Persistence 插件  |
 
 #### 缺点 ❌
 
-| 缺点 | 说明 |
-|------|------|
-| **非全功能** | 只管理服务端状态，需要配合其他方案 |
-| **学习曲线** | 概念较多（Query, Mutation, Invalidation） |
-| **体积较大** | ~13KB gzipped |
-| **需要 Provider** | QueryClientProvider 包裹 |
+| 缺点              | 说明                                      |
+| ----------------- | ----------------------------------------- |
+| **非全功能**      | 只管理服务端状态，需要配合其他方案        |
+| **学习曲线**      | 概念较多（Query, Mutation, Invalidation） |
+| **体积较大**      | ~13KB gzipped                             |
+| **需要 Provider** | QueryClientProvider 包裹                  |
 
 #### 适用场景
 
@@ -405,31 +408,31 @@ const mutation = useMutation({
 
 ```typescript
 // hooks/useGitHubQuery.ts
-import { useQuery } from '@tanstack/react-query';
+import { useQuery } from '@tanstack/react-query'
 
 export function useGitHubIssues(owner: string, repo: string, token?: string) {
   return useQuery({
     queryKey: ['github', 'issues', owner, repo],
     queryFn: async () => {
       const headers: HeadersInit = {
-        'Accept': 'application/vnd.github.v3+json',
-      };
-      if (token) headers['Authorization'] = `token ${token}`;
-      
+        Accept: 'application/vnd.github.v3+json',
+      }
+      if (token) headers['Authorization'] = `token ${token}`
+
       const response = await fetch(
         `https://api.github.com/repos/${owner}/${repo}/issues?state=all&per_page=50`,
         { headers }
-      );
-      
-      if (!response.ok) throw new Error('Failed to fetch issues');
-      
-      const data = await response.json();
-      return data.filter((item: any) => !item.pull_request);
+      )
+
+      if (!response.ok) throw new Error('Failed to fetch issues')
+
+      const data = await response.json()
+      return data.filter((item: any) => !item.pull_request)
     },
     staleTime: 5 * 60 * 1000, // 5 分钟
     gcTime: 10 * 60 * 1000, // 10 分钟
     refetchOnWindowFocus: true,
-  });
+  })
 }
 
 // hooks/useGitHubCommits.ts
@@ -440,14 +443,20 @@ export function useGitHubCommits(owner: string, repo: string, token?: string) {
       // ... fetch logic
     },
     staleTime: 5 * 60 * 1000,
-  });
+  })
 }
 
 // 使用
 function Dashboard() {
-  const { data: issues, isLoading: loadingIssues } = useGitHubIssues('songzhuo', 'openclaw-workspace');
-  const { data: commits, isLoading: loadingCommits } = useGitHubCommits('songzhuo', 'openclaw-workspace');
-  
+  const { data: issues, isLoading: loadingIssues } = useGitHubIssues(
+    'songzhuo',
+    'openclaw-workspace'
+  )
+  const { data: commits, isLoading: loadingCommits } = useGitHubCommits(
+    'songzhuo',
+    'openclaw-workspace'
+  )
+
   // 自动缓存、去重、后台刷新
 }
 ```
@@ -467,45 +476,45 @@ Redux Toolkit (RTK) 是 Redux 官方推荐的方式，大幅简化 Redux 使用�
 #### 核心概念
 
 ```typescript
-import { createSlice, configureStore } from '@reduxjs/toolkit';
+import { createSlice, configureStore } from '@reduxjs/toolkit'
 
 const settingsSlice = createSlice({
   name: 'settings',
   initialState: { theme: 'system' },
   reducers: {
     setTheme: (state, action) => {
-      state.theme = action.payload;
+      state.theme = action.payload
     },
   },
-});
+})
 
 const store = configureStore({
   reducer: {
     settings: settingsSlice.reducer,
   },
-});
+})
 ```
 
 #### 优点 ✅
 
-| 优点 | 说明 |
-|------|------|
-| **官方标准** | Redux 生态成熟，文档完善 |
-| **DevTools** | 最强大的调试工具 |
-| **中间件生态** | thunk, saga, observable, etc. |
-| **可预测性** | 单一 Store，时间旅行调试 |
-| **RTK Query** | 内置数据获取方案 |
-| **TypeScript 支持** | 良好的类型推断 |
+| 优点                | 说明                          |
+| ------------------- | ----------------------------- |
+| **官方标准**        | Redux 生态成熟，文档完善      |
+| **DevTools**        | 最强大的调试工具              |
+| **中间件生态**      | thunk, saga, observable, etc. |
+| **可预测性**        | 单一 Store，时间旅行调试      |
+| **RTK Query**       | 内置数据获取方案              |
+| **TypeScript 支持** | 良好的类型推断                |
 
 #### 缺点 ❌
 
-| 缺点 | 说明 |
-|------|------|
-| **体积较大** | ~11KB gzipped (RTK) + Redux |
-| **概念多** | Store, Slice, Reducer, Action, Dispatch, Selector |
-| **样板代码** | 相比其他方案仍有冗余 |
-| **学习曲线陡** | 需要理解 Redux 模式 |
-| **过度工程** | 对小型项目来说太重 |
+| 缺点           | 说明                                              |
+| -------------- | ------------------------------------------------- |
+| **体积较大**   | ~11KB gzipped (RTK) + Redux                       |
+| **概念多**     | Store, Slice, Reducer, Action, Dispatch, Selector |
+| **样板代码**   | 相比其他方案仍有冗余                              |
+| **学习曲线陡** | 需要理解 Redux 模式                               |
+| **过度工程**   | 对小型项目来说太重                                |
 
 #### 适用场景
 
@@ -518,17 +527,17 @@ const store = configureStore({
 
 ```typescript
 // store/settingsSlice.ts
-import { createSlice } from '@reduxjs/toolkit';
+import { createSlice } from '@reduxjs/toolkit'
 
 interface SettingsState {
-  theme: 'light' | 'dark' | 'system';
-  language: string;
+  theme: 'light' | 'dark' | 'system'
+  language: string
   notifications: {
-    enabled: boolean;
-    sound: boolean;
-    email: boolean;
-    push: boolean;
-  };
+    enabled: boolean
+    sound: boolean
+    email: boolean
+    push: boolean
+  }
 }
 
 const initialState: SettingsState = {
@@ -540,54 +549,54 @@ const initialState: SettingsState = {
     email: false,
     push: true,
   },
-};
+}
 
 const settingsSlice = createSlice({
   name: 'settings',
   initialState,
   reducers: {
     setTheme: (state, action) => {
-      state.theme = action.payload;
+      state.theme = action.payload
     },
     setLanguage: (state, action) => {
-      state.language = action.payload;
+      state.language = action.payload
     },
     setNotifications: (state, action) => {
-      state.notifications = { ...state.notifications, ...action.payload };
+      state.notifications = { ...state.notifications, ...action.payload }
     },
     resetSettings: () => initialState,
   },
-});
+})
 
-export const { setTheme, setLanguage, setNotifications, resetSettings } = settingsSlice.actions;
-export default settingsSlice.reducer;
+export const { setTheme, setLanguage, setNotifications, resetSettings } = settingsSlice.actions
+export default settingsSlice.reducer
 
 // store/index.ts
-import { configureStore } from '@reduxjs/toolkit';
-import settingsReducer from './settingsSlice';
+import { configureStore } from '@reduxjs/toolkit'
+import settingsReducer from './settingsSlice'
 
 export const store = configureStore({
   reducer: {
     settings: settingsReducer,
   },
-});
+})
 
-export type RootState = ReturnType<typeof store.getState>;
-export type AppDispatch = typeof store.dispatch;
+export type RootState = ReturnType<typeof store.getState>
+export type AppDispatch = typeof store.dispatch
 
 // hooks/useSettings.ts
-import { useSelector, useDispatch } from 'react-redux';
-import { setTheme } from '@/store/settingsSlice';
+import { useSelector, useDispatch } from 'react-redux'
+import { setTheme } from '@/store/settingsSlice'
 
 export function useSettings() {
-  const dispatch = useDispatch();
-  const settings = useSelector((state: RootState) => state.settings);
-  
+  const dispatch = useDispatch()
+  const settings = useSelector((state: RootState) => state.settings)
+
   const handleSetTheme = (theme: 'light' | 'dark' | 'system') => {
-    dispatch(setTheme(theme));
-  };
-  
-  return { settings, setTheme: handleSetTheme };
+    dispatch(setTheme(theme))
+  }
+
+  return { settings, setTheme: handleSetTheme }
 }
 ```
 
@@ -597,42 +606,42 @@ export function useSettings() {
 
 ### 3.1 核心指标对比
 
-| 指标 | Zustand | Jotai | React Query + Context | Redux Toolkit |
-|------|---------|-------|----------------------|---------------|
-| **体积 (gzipped)** | ~1.2KB | ~2.5KB | ~13KB + Context | ~11KB |
-| **学习曲线** | 低 | 中 | 中 | 高 |
-| **样板代码** | 极少 | 少 | 中 | 中 |
-| **TypeScript** | ⭐⭐⭐⭐⭐ | ⭐⭐⭐⭐⭐ | ⭐⭐⭐⭐ | ⭐⭐⭐⭐ |
-| **DevTools** | ⭐⭐⭐⭐ | ⭐⭐⭐ | ⭐⭐⭐⭐⭐ | ⭐⭐⭐⭐⭐ |
-| **性能** | ⭐⭐⭐⭐⭐ | ⭐⭐⭐⭐⭐ | ⭐⭐⭐⭐ | ⭐⭐⭐⭐ |
-| **SSR 支持** | ⭐⭐⭐⭐⭐ | ⭐⭐⭐⭐ | ⭐⭐⭐⭐⭐ | ⭐⭐⭐⭐ |
-| **数据获取** | ❌ | ❌ | ⭐⭐⭐⭐⭐ | RTK Query ⭐⭐⭐⭐⭐ |
-| **中间件** | ⭐⭐⭐⭐ | ⭐⭐⭐ | ⭐⭐⭐ | ⭐⭐⭐⭐⭐ |
-| **社区规模** | 中 | 小 | 大 | 大 |
+| 指标               | Zustand    | Jotai      | React Query + Context | Redux Toolkit        |
+| ------------------ | ---------- | ---------- | --------------------- | -------------------- |
+| **体积 (gzipped)** | ~1.2KB     | ~2.5KB     | ~13KB + Context       | ~11KB                |
+| **学习曲线**       | 低         | 中         | 中                    | 高                   |
+| **样板代码**       | 极少       | 少         | 中                    | 中                   |
+| **TypeScript**     | ⭐⭐⭐⭐⭐ | ⭐⭐⭐⭐⭐ | ⭐⭐⭐⭐              | ⭐⭐⭐⭐             |
+| **DevTools**       | ⭐⭐⭐⭐   | ⭐⭐⭐     | ⭐⭐⭐⭐⭐            | ⭐⭐⭐⭐⭐           |
+| **性能**           | ⭐⭐⭐⭐⭐ | ⭐⭐⭐⭐⭐ | ⭐⭐⭐⭐              | ⭐⭐⭐⭐             |
+| **SSR 支持**       | ⭐⭐⭐⭐⭐ | ⭐⭐⭐⭐   | ⭐⭐⭐⭐⭐            | ⭐⭐⭐⭐             |
+| **数据获取**       | ❌         | ❌         | ⭐⭐⭐⭐⭐            | RTK Query ⭐⭐⭐⭐⭐ |
+| **中间件**         | ⭐⭐⭐⭐   | ⭐⭐⭐     | ⭐⭐⭐                | ⭐⭐⭐⭐⭐           |
+| **社区规模**       | 中         | 小         | 大                    | 大                   |
 
 ### 3.2 功能对比
 
-| 功能需求 | Zustand | Jotai | React Query | Redux Toolkit |
-|----------|---------|-------|-------------|---------------|
-| **客户端状态** | ⭐⭐⭐⭐⭐ | ⭐⭐⭐⭐⭐ | ⭐⭐ | ⭐⭐⭐⭐⭐ |
-| **服务端状态** | ⭐⭐ | ⭐⭐ | ⭐⭐⭐⭐⭐ | RTK Query ⭐⭐⭐⭐ |
-| **表单状态** | ⭐⭐⭐⭐ | ⭐⭐⭐ | ⭐⭐ | ⭐⭐⭐⭐ |
-| **UI 状态** | ⭐⭐⭐⭐⭐ | ⭐⭐⭐⭐⭐ | ⭐⭐ | ⭐⭐⭐⭐ |
-| **持久化** | ⭐⭐⭐⭐⭐ | ⭐⭐⭐⭐ | ⭐⭐⭐ | ⭐⭐⭐⭐ |
-| **实时更新** | ⭐⭐⭐ | ⭐⭐⭐ | ⭐⭐⭐⭐⭐ | ⭐⭐⭐⭐ |
-| **复杂派生** | ⭐⭐⭐⭐ | ⭐⭐⭐⭐⭐ | ⭐⭐⭐ | ⭐⭐⭐⭐ |
+| 功能需求       | Zustand    | Jotai      | React Query | Redux Toolkit      |
+| -------------- | ---------- | ---------- | ----------- | ------------------ |
+| **客户端状态** | ⭐⭐⭐⭐⭐ | ⭐⭐⭐⭐⭐ | ⭐⭐        | ⭐⭐⭐⭐⭐         |
+| **服务端状态** | ⭐⭐       | ⭐⭐       | ⭐⭐⭐⭐⭐  | RTK Query ⭐⭐⭐⭐ |
+| **表单状态**   | ⭐⭐⭐⭐   | ⭐⭐⭐     | ⭐⭐        | ⭐⭐⭐⭐           |
+| **UI 状态**    | ⭐⭐⭐⭐⭐ | ⭐⭐⭐⭐⭐ | ⭐⭐        | ⭐⭐⭐⭐           |
+| **持久化**     | ⭐⭐⭐⭐⭐ | ⭐⭐⭐⭐   | ⭐⭐⭐      | ⭐⭐⭐⭐           |
+| **实时更新**   | ⭐⭐⭐     | ⭐⭐⭐     | ⭐⭐⭐⭐⭐  | ⭐⭐⭐⭐           |
+| **复杂派生**   | ⭐⭐⭐⭐   | ⭐⭐⭐⭐⭐ | ⭐⭐⭐      | ⭐⭐⭐⭐           |
 
 ### 3.3 场景匹配度
 
 针对 7zi-frontend 项目的具体需求：
 
-| 场景 | Zustand | Jotai | React Query + Context | Redux Toolkit |
-|------|---------|-------|----------------------|---------------|
-| **用户设置管理** | ⭐⭐⭐⭐⭐ | ⭐⭐⭐⭐ | ⭐⭐⭐ | ⭐⭐⭐⭐ |
-| **GitHub API 数据** | ⭐⭐ | ⭐⭐ | ⭐⭐⭐⭐⭐ | RTK Query ⭐⭐⭐⭐ |
-| **AI 聊天状态** | ⭐⭐⭐⭐⭐ | ⭐⭐⭐⭐⭐ | ⭐⭐ | ⭐⭐⭐⭐ |
-| **主题切换** | ⭐⭐⭐⭐⭐ | ⭐⭐⭐⭐⭐ | ⭐⭐⭐ | ⭐⭐⭐⭐ |
-| **团队规模（小）** | ⭐⭐⭐⭐⭐ | ⭐⭐⭐⭐ | ⭐⭐⭐⭐ | ⭐⭐⭐ |
+| 场景                | Zustand    | Jotai      | React Query + Context | Redux Toolkit      |
+| ------------------- | ---------- | ---------- | --------------------- | ------------------ |
+| **用户设置管理**    | ⭐⭐⭐⭐⭐ | ⭐⭐⭐⭐   | ⭐⭐⭐                | ⭐⭐⭐⭐           |
+| **GitHub API 数据** | ⭐⭐       | ⭐⭐       | ⭐⭐⭐⭐⭐            | RTK Query ⭐⭐⭐⭐ |
+| **AI 聊天状态**     | ⭐⭐⭐⭐⭐ | ⭐⭐⭐⭐⭐ | ⭐⭐                  | ⭐⭐⭐⭐           |
+| **主题切换**        | ⭐⭐⭐⭐⭐ | ⭐⭐⭐⭐⭐ | ⭐⭐⭐                | ⭐⭐⭐⭐           |
+| **团队规模（小）**  | ⭐⭐⭐⭐⭐ | ⭐⭐⭐⭐   | ⭐⭐⭐⭐              | ⭐⭐⭐             |
 
 ---
 
@@ -685,11 +694,11 @@ export function useSettings() {
 
 #### 为什么不选其他方案？
 
-| 方案 | 不选理由 |
-|------|---------|
-| **Jotai** | 原子化思维与项目风格不符，生态较小 |
+| 方案              | 不选理由                           |
+| ----------------- | ---------------------------------- |
+| **Jotai**         | 原子化思维与项目风格不符，生态较小 |
 | **Redux Toolkit** | 对当前项目规模过度工程，学习成本高 |
-| **纯 Context** | 无法解决数据获取和缓存问题 |
+| **纯 Context**    | 无法解决数据获取和缓存问题         |
 
 ### 4.3 架构设计
 
@@ -726,25 +735,25 @@ Phase 1: 准备工作 (1 天)
     ├── 安装依赖
     ├── 配置 React Query
     └── 创建基础结构
-    
+
     ↓
-    
+
 Phase 2: Zustand 迁移 (2 天)
     │
     ├── 迁移 SettingsContext → settingsStore
     ├── 迁移 ThemeProvider → themeStore
     └── 更新组件使用新 Store
-    
+
     ↓
-    
+
 Phase 3: React Query 迁移 (2 天)
     │
     ├── 迁移 useDashboardData → useGitHubIssues/Commits
     ├── 迁移 useFetch → React Query
     └── 移除旧的 Hooks
-    
+
     ↓
-    
+
 Phase 4: 测试与优化 (1 天)
     │
     ├── 更新测试
@@ -770,7 +779,7 @@ pnpm add @tanstack/react-query
 
 ```typescript
 // src/lib/queryClient.ts
-import { QueryClient } from '@tanstack/react-query';
+import { QueryClient } from '@tanstack/react-query'
 
 export const queryClient = new QueryClient({
   defaultOptions: {
@@ -781,7 +790,7 @@ export const queryClient = new QueryClient({
       retry: 1,
     },
   },
-});
+})
 ```
 
 ```typescript
@@ -823,27 +832,27 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
 
 ```typescript
 // src/stores/settingsStore.ts
-import { create } from 'zustand';
-import { persist, createJSONStorage } from 'zustand/middleware';
-import type { Locale } from '@/i18n/config';
+import { create } from 'zustand'
+import { persist, createJSONStorage } from 'zustand/middleware'
+import type { Locale } from '@/i18n/config'
 
 export interface UserSettings {
-  theme: 'light' | 'dark' | 'system';
-  language: Locale;
+  theme: 'light' | 'dark' | 'system'
+  language: Locale
   notifications: {
-    enabled: boolean;
-    sound: boolean;
-    email: boolean;
-    push: boolean;
-  };
+    enabled: boolean
+    sound: boolean
+    email: boolean
+    push: boolean
+  }
 }
 
 interface SettingsStore {
-  settings: UserSettings;
-  setTheme: (theme: UserSettings['theme']) => void;
-  setLanguage: (language: Locale) => void;
-  setNotifications: (notifications: Partial<UserSettings['notifications']>) => void;
-  resetSettings: () => void;
+  settings: UserSettings
+  setTheme: (theme: UserSettings['theme']) => void
+  setLanguage: (language: Locale) => void
+  setNotifications: (notifications: Partial<UserSettings['notifications']>) => void
+  resetSettings: () => void
 }
 
 const defaultSettings: UserSettings = {
@@ -855,24 +864,27 @@ const defaultSettings: UserSettings = {
     email: false,
     push: true,
   },
-};
+}
 
 export const useSettingsStore = create<SettingsStore>()(
   persist(
-    (set) => ({
+    set => ({
       settings: defaultSettings,
-      setTheme: (theme) => set((state) => ({ 
-        settings: { ...state.settings, theme } 
-      })),
-      setLanguage: (language) => set((state) => ({ 
-        settings: { ...state.settings, language } 
-      })),
-      setNotifications: (notifications) => set((state) => ({ 
-        settings: { 
-          ...state.settings, 
-          notifications: { ...state.settings.notifications, ...notifications } 
-        } 
-      })),
+      setTheme: theme =>
+        set(state => ({
+          settings: { ...state.settings, theme },
+        })),
+      setLanguage: language =>
+        set(state => ({
+          settings: { ...state.settings, language },
+        })),
+      setNotifications: notifications =>
+        set(state => ({
+          settings: {
+            ...state.settings,
+            notifications: { ...state.settings.notifications, ...notifications },
+          },
+        })),
       resetSettings: () => set({ settings: defaultSettings }),
     }),
     {
@@ -880,29 +892,29 @@ export const useSettingsStore = create<SettingsStore>()(
       storage: createJSONStorage(() => localStorage),
     }
   )
-);
+)
 
 // 选择器 Hooks（优化性能）
-export const useTheme = () => useSettingsStore((state) => state.settings.theme);
-export const useLanguage = () => useSettingsStore((state) => state.settings.language);
-export const useNotifications = () => useSettingsStore((state) => state.settings.notifications);
+export const useTheme = () => useSettingsStore(state => state.settings.theme)
+export const useLanguage = () => useSettingsStore(state => state.settings.language)
+export const useNotifications = () => useSettingsStore(state => state.settings.notifications)
 ```
 
 #### 2. 更新组件使用
 
 ```typescript
 // src/components/SettingsPanel.tsx (更新)
-import { useSettingsStore, useTheme, useNotifications } from '@/stores/settingsStore';
+import { useSettingsStore, useTheme, useNotifications } from '@/stores/settingsStore'
 
 export function SettingsPanel() {
   // 旧方式
   // const { settings, setTheme, setNotifications } = useSettings();
-  
+
   // 新方式
-  const { settings, setTheme, setLanguage, setNotifications, resetSettings } = useSettingsStore();
-  const theme = useTheme();
-  const notifications = useNotifications();
-  
+  const { settings, setTheme, setLanguage, setNotifications, resetSettings } = useSettingsStore()
+  const theme = useTheme()
+  const notifications = useNotifications()
+
   // 组件代码基本不变
 }
 ```
@@ -920,99 +932,96 @@ rm src/contexts/SettingsContext.tsx
 
 ```typescript
 // src/hooks/useGitHubIssues.ts
-import { useQuery } from '@tanstack/react-query';
+import { useQuery } from '@tanstack/react-query'
 
 export function useGitHubIssues(owner: string, repo: string, token?: string | null) {
   return useQuery({
     queryKey: ['github', 'issues', owner, repo],
     queryFn: async () => {
       const headers: HeadersInit = {
-        'Accept': 'application/vnd.github.v3+json',
-      };
-      if (token) headers['Authorization'] = `token ${token}`;
-      
+        Accept: 'application/vnd.github.v3+json',
+      }
+      if (token) headers['Authorization'] = `token ${token}`
+
       const response = await fetch(
         `https://api.github.com/repos/${owner}/${repo}/issues?state=all&per_page=50`,
         { headers }
-      );
-      
+      )
+
       if (!response.ok) {
-        if (response.status === 404) throw new Error(`仓库 ${owner}/${repo} 不存在`);
-        if (response.status === 403) throw new Error('GitHub API 速率限制');
-        throw new Error(`获取 Issues 失败: ${response.statusText}`);
+        if (response.status === 404) throw new Error(`仓库 ${owner}/${repo} 不存在`)
+        if (response.status === 403) throw new Error('GitHub API 速率限制')
+        throw new Error(`获取 Issues 失败: ${response.statusText}`)
       }
-      
-      const data = await response.json();
-      return data.filter((item: any) => !item.pull_request);
+
+      const data = await response.json()
+      return data.filter((item: any) => !item.pull_request)
     },
     staleTime: 5 * 60 * 1000,
     refetchOnWindowFocus: true,
-  });
+  })
 }
 ```
 
 ```typescript
 // src/hooks/useGitHubCommits.ts
-import { useQuery } from '@tanstack/react-query';
+import { useQuery } from '@tanstack/react-query'
 
 export function useGitHubCommits(owner: string, repo: string, token?: string | null) {
   return useQuery({
     queryKey: ['github', 'commits', owner, repo],
     queryFn: async () => {
       const headers: HeadersInit = {
-        'Accept': 'application/vnd.github.v3+json',
-      };
-      if (token) headers['Authorization'] = `token ${token}`;
-      
+        Accept: 'application/vnd.github.v3+json',
+      }
+      if (token) headers['Authorization'] = `token ${token}`
+
       const response = await fetch(
         `https://api.github.com/repos/${owner}/${repo}/commits?per_page=30`,
         { headers }
-      );
-      
-      if (!response.ok) throw new Error(`获取 Commits 失败: ${response.statusText}`);
-      
-      return response.json();
+      )
+
+      if (!response.ok) throw new Error(`获取 Commits 失败: ${response.statusText}`)
+
+      return response.json()
     },
     staleTime: 5 * 60 * 1000,
-  });
+  })
 }
 ```
 
 ```typescript
 // src/hooks/useGitHubStats.ts
-import { useQuery } from '@tanstack/react-query';
+import { useQuery } from '@tanstack/react-query'
 
 export function useGitHubStats(owner: string, repo: string, token?: string | null) {
   return useQuery({
     queryKey: ['github', 'stats', owner, repo],
     queryFn: async () => {
       const headers: HeadersInit = {
-        'Accept': 'application/vnd.github.v3+json',
-      };
-      if (token) headers['Authorization'] = `token ${token}`;
-      
-      const response = await fetch(
-        `https://api.github.com/repos/${owner}/${repo}`,
-        { headers }
-      );
-      
-      if (!response.ok) throw new Error(`获取统计失败: ${response.statusText}`);
-      
-      const data = await response.json();
+        Accept: 'application/vnd.github.v3+json',
+      }
+      if (token) headers['Authorization'] = `token ${token}`
+
+      const response = await fetch(`https://api.github.com/repos/${owner}/${repo}`, { headers })
+
+      if (!response.ok) throw new Error(`获取统计失败: ${response.statusText}`)
+
+      const data = await response.json()
       return {
         stars: data.stargazers_count,
         forks: data.forks_count,
         openIssues: data.open_issues_count,
-      };
+      }
     },
     staleTime: 10 * 60 * 1000, // 统计数据变化较慢
-  });
+  })
 }
 ```
 
 #### 2. 组合 Hook
 
-```typescript
+````typescript
 // src/hooks/useDashboardData.ts (重构)
 import { useGitHubIssues } from './useGitHubIssues';
 import { useGitHubCommits } from './useGitHubCommits';
@@ -1023,13 +1032,13 @@ export function useDashboardData(owner: string, repo: string, token?: string | n
   const issuesQuery = useGitHubIssues(owner, repo, token);
   const commitsQuery = useGitHubCommits(owner, repo, token);
   const statsQuery = useGitHubStats(owner, repo, token);
-  
+
   // 合并活动
   const activities = useMemo(() => {
     if (!issuesQuery.data || !commitsQuery.data) return [];
-    
+
     const items: ActivityItem[] = [];
-    
+
     commitsQuery.data.forEach(commit => {
       items.push({
         id: `commit-${commit.sha}`,
@@ -1041,7 +1050,7 @@ export function useDashboardData(owner: string, repo: string, token?: string | n
         url: commit.html_url,
       });
     });
-    
+
     issuesQuery.data.forEach(issue => {
       items.push({
         id: `issue-${issue.number}`,
@@ -1053,12 +1062,12 @@ export function useDashboardData(owner: string, repo: string, token?: string | n
         url: issue.html_url,
       });
     });
-    
+
     return items
       .sort((a, b) => new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime())
       .slice(0, 20);
   }, [issuesQuery.data, commitsQuery.data]);
-  
+
   return {
     issues: issuesQuery.data ?? [],
     commits: commitsQuery.data ?? [],
@@ -1084,7 +1093,7 @@ export default function DashboardPage() {
   const GITHUB_OWNER = process.env.NEXT_PUBLIC_GITHUB_OWNER || 'songzhuo';
   const GITHUB_REPO = process.env.NEXT_PUBLIC_GITHUB_REPO || 'openclaw-workspace';
   const GITHUB_TOKEN = process.env.NEXT_PUBLIC_GITHUB_TOKEN;
-  
+
   const {
     issues,
     commits,
@@ -1094,10 +1103,10 @@ export default function DashboardPage() {
     error,
     refetch
   } = useDashboardData(GITHUB_OWNER, GITHUB_REPO, GITHUB_TOKEN);
-  
+
   // 组件代码基本不变
 }
-```
+````
 
 #### 4. 删除旧文件
 
@@ -1113,9 +1122,9 @@ rm src/hooks/useFetch.ts
 
 ```typescript
 // src/test/stores/settingsStore.test.ts
-import { describe, it, expect, beforeEach } from 'vitest';
-import { act } from '@testing-library/react';
-import { useSettingsStore } from '@/stores/settingsStore';
+import { describe, it, expect, beforeEach } from 'vitest'
+import { act } from '@testing-library/react'
+import { useSettingsStore } from '@/stores/settingsStore'
 
 describe('settingsStore', () => {
   beforeEach(() => {
@@ -1131,47 +1140,47 @@ describe('settingsStore', () => {
           push: true,
         },
       },
-    });
-  });
+    })
+  })
 
   it('should update theme', () => {
     act(() => {
-      useSettingsStore.getState().setTheme('dark');
-    });
-    
-    expect(useSettingsStore.getState().settings.theme).toBe('dark');
-  });
+      useSettingsStore.getState().setTheme('dark')
+    })
+
+    expect(useSettingsStore.getState().settings.theme).toBe('dark')
+  })
 
   it('should update notifications', () => {
     act(() => {
-      useSettingsStore.getState().setNotifications({ sound: false });
-    });
-    
-    expect(useSettingsStore.getState().settings.notifications.sound).toBe(false);
-  });
+      useSettingsStore.getState().setNotifications({ sound: false })
+    })
+
+    expect(useSettingsStore.getState().settings.notifications.sound).toBe(false)
+  })
 
   it('should reset settings', () => {
     act(() => {
-      useSettingsStore.getState().setTheme('dark');
-      useSettingsStore.getState().resetSettings();
-    });
-    
-    expect(useSettingsStore.getState().settings.theme).toBe('system');
-  });
-});
+      useSettingsStore.getState().setTheme('dark')
+      useSettingsStore.getState().resetSettings()
+    })
+
+    expect(useSettingsStore.getState().settings.theme).toBe('system')
+  })
+})
 ```
 
 #### 2. 性能验证
 
 ```typescript
 // 验证选择器优化
-import { useSettingsStore } from '@/stores/settingsStore';
+import { useSettingsStore } from '@/stores/settingsStore'
 
 // ❌ 不好：整个 settings 对象变化都会重渲染
-const { settings } = useSettingsStore();
+const { settings } = useSettingsStore()
 
 // ✅ 好：只有 theme 变化才重渲染
-const theme = useSettingsStore((state) => state.settings.theme);
+const theme = useSettingsStore(state => state.settings.theme)
 ```
 
 ---
@@ -1180,31 +1189,31 @@ const theme = useSettingsStore((state) => state.settings.theme);
 
 ### 6.1 最终推荐
 
-| 方案 | 推荐度 | 适用场景 |
-|------|--------|---------|
+| 方案                      | 推荐度     | 适用场景              |
+| ------------------------- | ---------- | --------------------- |
 | **Zustand + React Query** | ⭐⭐⭐⭐⭐ | **7zi-frontend 项目** |
-| Zustand 单独使用 | ⭐⭐⭐⭐ | 纯客户端状态 |
-| Jotai | ⭐⭐⭐ | 原子化思维团队 |
-| Redux Toolkit | ⭐⭐⭐ | 大型企业级应用 |
+| Zustand 单独使用          | ⭐⭐⭐⭐   | 纯客户端状态          |
+| Jotai                     | ⭐⭐⭐     | 原子化思维团队        |
+| Redux Toolkit             | ⭐⭐⭐     | 大型企业级应用        |
 
 ### 6.2 预期收益
 
-| 收益项 | 说明 |
-|--------|------|
-| **包体积** | +1.2KB (Zustand) + 13KB (React Query) ≈ +14KB |
-| **代码减少** | 预计减少 300-500 行重复代码 |
-| **性能提升** | 缓存命中率 80%+，减少 60% API 请求 |
-| **开发效率** | 新功能开发提速 30% |
-| **维护性** | 统一模式，降低认知负担 |
+| 收益项       | 说明                                          |
+| ------------ | --------------------------------------------- |
+| **包体积**   | +1.2KB (Zustand) + 13KB (React Query) ≈ +14KB |
+| **代码减少** | 预计减少 300-500 行重复代码                   |
+| **性能提升** | 缓存命中率 80%+，减少 60% API 请求            |
+| **开发效率** | 新功能开发提速 30%                            |
+| **维护性**   | 统一模式，降低认知负担                        |
 
 ### 6.3 风险与缓解
 
-| 风险 | 缓解措施 |
-|------|---------|
-| 学习曲线 | 提供培训文档，1 天上手 |
-| 迁移 Bug | 分阶段迁移，保留旧代码备份 |
+| 风险     | 缓解措施                             |
+| -------- | ------------------------------------ |
+| 学习曲线 | 提供培训文档，1 天上手               |
+| 迁移 Bug | 分阶段迁移，保留旧代码备份           |
 | SSR 问题 | Zustand 和 React Query 都有 SSR 指南 |
-| 类型错误 | 严格的 TypeScript 配置 |
+| 类型错误 | 严格的 TypeScript 配置               |
 
 ### 6.4 后续行动
 

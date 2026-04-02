@@ -26,6 +26,7 @@
 ### 迁移建议
 
 **推荐采用渐进式迁移策略**：
+
 1. 第一阶段：创建 Turbopack 配置，条件化 webpack 配置
 2. 第二阶段：在测试环境验证功能和性能
 3. 第三阶段：生产环境灰度发布
@@ -51,6 +52,7 @@
 ```
 
 **状态**: ✅ 已启用 Turbopack
+
 - 开发和生产构建都使用 `--turbopack`
 - Bundle Analyzer 已配置为 Turbopack 模式
 - 无需修改构建脚本
@@ -59,27 +61,27 @@
 
 #### 支持的配置项 ✅
 
-| 配置项 | 值 | Turbopack 支持状态 |
-|--------|-----|-------------------|
-| `output: 'standalone'` | ✅ | 完全支持 |
-| `images` | ✅ | 完全支持 |
-| `compiler.removeConsole` | ✅ | 完全支持 |
-| `compress` | ✅ | 完全支持 |
-| `reactStrictMode` | ✅ | 完全支持 |
-| `poweredByHeader` | ✅ | 完全支持 |
-| `serverExternalPackages` | ✅ | 完全支持 |
-| `experimental.optimizePackageImports` | ✅ | 完全支持 |
-| `experimental.optimizeCss` | ✅ | 完全支持 |
-| `experimental.turbopackFileSystemCacheForDev` | ✅ | 完全支持 |
+| 配置项                                        | 值  | Turbopack 支持状态 |
+| --------------------------------------------- | --- | ------------------ |
+| `output: 'standalone'`                        | ✅  | 完全支持           |
+| `images`                                      | ✅  | 完全支持           |
+| `compiler.removeConsole`                      | ✅  | 完全支持           |
+| `compress`                                    | ✅  | 完全支持           |
+| `reactStrictMode`                             | ✅  | 完全支持           |
+| `poweredByHeader`                             | ✅  | 完全支持           |
+| `serverExternalPackages`                      | ✅  | 完全支持           |
+| `experimental.optimizePackageImports`         | ✅  | 完全支持           |
+| `experimental.optimizeCss`                    | ✅  | 完全支持           |
+| `experimental.turbopackFileSystemCacheForDev` | ✅  | 完全支持           |
 
 #### 需要迁移的配置 ⚠️
 
-| 配置项 | 当前配置 | 迁移策略 |
-|--------|----------|----------|
-| `webpack.resolve.alias` | `@/` → `__dirname + '/src'` | 迁移到 `turbopack.resolveAlias` |
-| `webpack.performance` | maxEntrypointSize: 300KB | 使用外部脚本或 CI/CD 检查 |
-| `webpack.optimization.splitChunks` | 9 个 cacheGroups | 依赖 Turbopack 智能分割或使用 Turbopack 配置 |
-| Tree-shaking 配置 | usedExports, sideEffects, etc. | Turbopack 内置，可通过 `experimental.turbopackTreeShaking` 调优 |
+| 配置项                             | 当前配置                       | 迁移策略                                                        |
+| ---------------------------------- | ------------------------------ | --------------------------------------------------------------- |
+| `webpack.resolve.alias`            | `@/` → `__dirname + '/src'`    | 迁移到 `turbopack.resolveAlias`                                 |
+| `webpack.performance`              | maxEntrypointSize: 300KB       | 使用外部脚本或 CI/CD 检查                                       |
+| `webpack.optimization.splitChunks` | 9 个 cacheGroups               | 依赖 Turbopack 智能分割或使用 Turbopack 配置                    |
+| Tree-shaking 配置                  | usedExports, sideEffects, etc. | Turbopack 内置，可通过 `experimental.turbopackTreeShaking` 调优 |
 
 ---
 
@@ -88,11 +90,13 @@
 ### 2.1 路径别名迁移
 
 **当前配置**:
+
 ```typescript
-config.resolve.alias['@/'] = __dirname + '/src';
+config.resolve.alias['@/'] = __dirname + '/src'
 ```
 
 **Turbopack 配置**:
+
 ```typescript
 turbopack: {
   resolveAlias: {
@@ -102,6 +106,7 @@ turbopack: {
 ```
 
 **风险等级**: 🟢 低
+
 - 迁移简单
 - 功能等价
 - 无运行时影响
@@ -109,12 +114,13 @@ turbopack: {
 ### 2.2 性能预算检查
 
 **当前配置**:
+
 ```typescript
 config.performance = {
-  maxEntrypointSize: 300000,  // 300 KB
-  maxAssetSize: 250000,       // 250 KB
+  maxEntrypointSize: 300000, // 300 KB
+  maxAssetSize: 250000, // 250 KB
   hints: 'warning',
-};
+}
 ```
 
 **问题**: Turbopack 不支持 `performance` 配置
@@ -122,34 +128,36 @@ config.performance = {
 **迁移策略**:
 
 **方案 1: 构建后脚本检查**
+
 ```typescript
 // scripts/check-bundle-size.mjs
-import fs from 'fs';
-import path from 'path';
+import fs from 'fs'
+import path from 'path'
 
-const maxEntrypointSize = 300000; // 300 KB
-const maxAssetSize = 250000;      // 250 KB
+const maxEntrypointSize = 300000 // 300 KB
+const maxAssetSize = 250000 // 250 KB
 
-const buildDir = '.next/server/app';
-const staticDir = '.next/static';
+const buildDir = '.next/server/app'
+const staticDir = '.next/static'
 
 function checkFileSize(filePath, maxSize) {
-  const stats = fs.statSync(filePath);
-  const sizeKB = (stats.size / 1024).toFixed(2);
+  const stats = fs.statSync(filePath)
+  const sizeKB = (stats.size / 1024).toFixed(2)
 
   if (stats.size > maxSize) {
-    console.error(`❌ ${filePath}: ${sizeKB} KB exceeds ${maxSize / 1024} KB`);
-    return false;
+    console.error(`❌ ${filePath}: ${sizeKB} KB exceeds ${maxSize / 1024} KB`)
+    return false
   }
 
-  console.log(`✅ ${filePath}: ${sizeKB} KB`);
-  return true;
+  console.log(`✅ ${filePath}: ${sizeKB} KB`)
+  return true
 }
 
 // Check files...
 ```
 
 **方案 2: CI/CD 集成**
+
 ```yaml
 # .github/workflows/bundle-size.yml
 - name: Check bundle size
@@ -157,6 +165,7 @@ function checkFileSize(filePath, maxSize) {
 ```
 
 **风险等级**: 🟡 中
+
 - 需要额外脚本
 - 可能丢失构建时的即时反馈
 - 可通过 CI/CD 缓解
@@ -165,22 +174,23 @@ function checkFileSize(filePath, maxSize) {
 
 **当前配置**: 9 个自定义 cacheGroups
 
-| CacheGroup | 用途 | maxSize | priority |
-|------------|------|---------|----------|
-| `three-libs` | Three.js 生态 | 300 KB | 60 |
-| `chart-libs` | 图表库 | 200 KB | 50 |
-| `realtime-libs` | Socket.IO | 30 KB | 45 |
-| `ui-libs` | Radix UI, Lucide | 20 KB | 40 |
-| `framework` | React, Next.js | 400 KB | 35 |
-| `vendor-utils` | 工具库 | 20 KB | 30 |
-| `forms-libs` | 表单验证 | 20 KB | 25 |
-| `excel-libs` | ExcelJS | 50 KB | 20 |
-| `vendors` | 通用 node_modules | 200 KB | 10 |
-| `common` | 公共代码 | 20 KB | 5 |
+| CacheGroup      | 用途              | maxSize | priority |
+| --------------- | ----------------- | ------- | -------- |
+| `three-libs`    | Three.js 生态     | 300 KB  | 60       |
+| `chart-libs`    | 图表库            | 200 KB  | 50       |
+| `realtime-libs` | Socket.IO         | 30 KB   | 45       |
+| `ui-libs`       | Radix UI, Lucide  | 20 KB   | 40       |
+| `framework`     | React, Next.js    | 400 KB  | 35       |
+| `vendor-utils`  | 工具库            | 20 KB   | 30       |
+| `forms-libs`    | 表单验证          | 20 KB   | 25       |
+| `excel-libs`    | ExcelJS           | 50 KB   | 20       |
+| `vendors`       | 通用 node_modules | 200 KB  | 10       |
+| `common`        | 公共代码          | 20 KB   | 5        |
 
 **挑战**: Turbopack 使用不同的分割策略，无法直接复制 webpack 的配置
 
 **Turbopack 的优势**:
+
 - 智能代码分割，基于实际使用情况
 - 更好的 tree-shaking
 - 自动优化 chunk 大小
@@ -189,6 +199,7 @@ function checkFileSize(filePath, maxSize) {
 **迁移策略**:
 
 **阶段 1: 使用 Turbopack 默认策略**
+
 ```typescript
 // 完全依赖 Turbopack 的智能分割
 turbopack: {
@@ -199,6 +210,7 @@ turbopack: {
 ```
 
 **阶段 2: 使用 Turbopack 规则进行干预 (如果需要)**
+
 ```typescript
 turbopack: {
   resolveAlias: {
@@ -210,11 +222,13 @@ turbopack: {
 ```
 
 **风险等级**: 🔴 高
+
 - 可能导致打包体积变化
 - 首屏加载性能可能受影响
 - 需要充分测试和对比
 
 **缓解措施**:
+
 1. 对比 webpack 和 Turbopack 的 Bundle Analyzer 报告
 2. 测试首屏加载性能
 3. 必要时通过动态导入调整分割策略
@@ -223,14 +237,16 @@ turbopack: {
 ### 2.4 Tree-shaking 配置
 
 **当前配置**:
+
 ```typescript
-config.optimization.usedExports = true;
-config.optimization.sideEffects = false;
-config.optimization.providedExports = true;
-config.optimization.concatenateModules = true;
+config.optimization.usedExports = true
+config.optimization.sideEffects = false
+config.optimization.providedExports = true
+config.optimization.concatenateModules = true
 ```
 
 **Turbopack 配置**:
+
 ```typescript
 experimental: {
   turbopackTreeShaking: true,
@@ -241,6 +257,7 @@ experimental: {
 ```
 
 **风险等级**: 🟢 低
+
 - Turbopack 的 tree-shaking 更先进
 - 配置更简单
 - 性能更好
@@ -251,71 +268,74 @@ experimental: {
 
 ### 3.1 核心依赖 (已验证 ✅)
 
-| 依赖 | 版本 | 兼容性 | 说明 |
-|------|------|--------|------|
-| `next` | ^16.2.1 | ✅ 完全支持 | Turbopack 是默认 bundler |
-| `react` | ^19.2.4 | ✅ 完全支持 | React 19 与 Turbopack 兼容 |
-| `react-dom` | ^19.2.4 | ✅ 完全支持 | - |
-| `next-intl` | ^4.8.3 | ✅ 完全支持 | SSR/SSG 支持 |
+| 依赖        | 版本    | 兼容性      | 说明                       |
+| ----------- | ------- | ----------- | -------------------------- |
+| `next`      | ^16.2.1 | ✅ 完全支持 | Turbopack 是默认 bundler   |
+| `react`     | ^19.2.4 | ✅ 完全支持 | React 19 与 Turbopack 兼容 |
+| `react-dom` | ^19.2.4 | ✅ 完全支持 | -                          |
+| `next-intl` | ^4.8.3  | ✅ 完全支持 | SSR/SSG 支持               |
 
 ### 3.2 UI/图形库 (需验证 ⚠️)
 
-| 依赖 | 版本 | 兼容性 | 潜在问题 |
-|------|------|--------|----------|
-| `three` | ^0.183.2 | ✅ 应该支持 | 大型库，可能需要动态导入 |
-| `@react-three/fiber` | ^9.5.0 | ✅ 应该支持 | - |
-| `@react-three/drei` | ^10.7.7 | ✅ 应该支持 | - |
-| `lucide-react` | ^0.577.0 | ✅ 完全支持 | 已在 optimizePackageImports |
-| `recharts` | ^3.8.0 | ✅ 应该支持 | 可能需要 tree-shaking 测试 |
+| 依赖                 | 版本     | 兼容性      | 潜在问题                    |
+| -------------------- | -------- | ----------- | --------------------------- |
+| `three`              | ^0.183.2 | ✅ 应该支持 | 大型库，可能需要动态导入    |
+| `@react-three/fiber` | ^9.5.0   | ✅ 应该支持 | -                           |
+| `@react-three/drei`  | ^10.7.7  | ✅ 应该支持 | -                           |
+| `lucide-react`       | ^0.577.0 | ✅ 完全支持 | 已在 optimizePackageImports |
+| `recharts`           | ^3.8.0   | ✅ 应该支持 | 可能需要 tree-shaking 测试  |
 
 **建议**:
+
 - Three.js 生态库通常体积较大，确保使用动态导入
 - 验证 tree-shaking 是否正确移除未使用的代码
 
 ### 3.3 工具库 (兼容 ✅)
 
-| 依赖 | 版本 | 兼容性 | 说明 |
-|------|------|--------|------|
-| `zustand` | ^5.0.12 | ✅ 完全支持 | 已在 optimizePackageImports |
-| `zod` | ^4.3.6 | ✅ 完全支持 | - |
-| `uuid` | ^13.0.0 | ✅ 完全支持 | serverExternalPackages |
-| `web-vitals` | ^5.1.0 | ✅ 完全支持 | 已在 optimizePackageImports |
+| 依赖         | 版本    | 兼容性      | 说明                        |
+| ------------ | ------- | ----------- | --------------------------- |
+| `zustand`    | ^5.0.12 | ✅ 完全支持 | 已在 optimizePackageImports |
+| `zod`        | ^4.3.6  | ✅ 完全支持 | -                           |
+| `uuid`       | ^13.0.0 | ✅ 完全支持 | serverExternalPackages      |
+| `web-vitals` | ^5.1.0  | ✅ 完全支持 | 已在 optimizePackageImports |
 
 ### 3.4 服务端库 (兼容 ✅)
 
-| 依赖 | 版本 | 兼容性 | 说明 |
-|------|------|--------|------|
-| `sharp` | ^0.34.5 | ✅ 完全支持 | serverExternalPackages |
-| `better-sqlite3` | ^12.8.0 | ✅ 完全支持 | serverExternalPackages |
-| `jose` | ^6.2.1 | ✅ 完全支持 | serverExternalPackages |
-| `exceljs` | ^4.4.0 | ✅ 完全支持 | serverExternalPackages，动态导入 |
+| 依赖             | 版本    | 兼容性      | 说明                             |
+| ---------------- | ------- | ----------- | -------------------------------- |
+| `sharp`          | ^0.34.5 | ✅ 完全支持 | serverExternalPackages           |
+| `better-sqlite3` | ^12.8.0 | ✅ 完全支持 | serverExternalPackages           |
+| `jose`           | ^6.2.1  | ✅ 完全支持 | serverExternalPackages           |
+| `exceljs`        | ^4.4.0  | ✅ 完全支持 | serverExternalPackages，动态导入 |
 
 ### 3.5 实时通信 (兼容 ✅)
 
-| 依赖 | 版本 | 兼容性 | 说明 |
-|------|------|--------|------|
-| `socket.io-client` | ^4.8.3 | ✅ 应该支持 | - |
+| 依赖               | 版本   | 兼容性      | 说明 |
+| ------------------ | ------ | ----------- | ---- |
+| `socket.io-client` | ^4.8.3 | ✅ 应该支持 | -    |
 
 ### 3.6 开发工具 (兼容 ✅)
 
-| 依赖 | 版本 | 兼容性 | 说明 |
-|------|------|--------|------|
-| `@next/bundle-analyzer` | ^16.2.1 | ✅ 完全支持 | 支持 Turbopack |
-| `@sentry/nextjs` | ^10.44.0 | ✅ 完全支持 | 已在 optimizePackageImports |
-| `@playwright/test` | ^1.58.2 | ✅ 完全支持 | 不受影响 |
-| `vitest` | ^4.1.0 | ✅ 完全支持 | 不受影响 |
-| `@tailwindcss/postcss` | ^4 | ✅ 完全支持 | 不受影响 |
+| 依赖                    | 版本     | 兼容性      | 说明                        |
+| ----------------------- | -------- | ----------- | --------------------------- |
+| `@next/bundle-analyzer` | ^16.2.1  | ✅ 完全支持 | 支持 Turbopack              |
+| `@sentry/nextjs`        | ^10.44.0 | ✅ 完全支持 | 已在 optimizePackageImports |
+| `@playwright/test`      | ^1.58.2  | ✅ 完全支持 | 不受影响                    |
+| `vitest`                | ^4.1.0   | ✅ 完全支持 | 不受影响                    |
+| `@tailwindcss/postcss`  | ^4       | ✅ 完全支持 | 不受影响                    |
 
 ### 3.7 潜在兼容性问题
 
 #### 问题 1: 大型库的 Tree-shaking
 
 **受影响的库**:
+
 - `three` (~600 KB)
 - `@react-three/drei` (~200 KB)
 - `recharts` (~500 KB)
 
 **验证方法**:
+
 ```bash
 # 使用 Bundle Analyzer 对比
 npm run build:analyze
@@ -325,6 +345,7 @@ ls -lh .next/static/chunks/
 ```
 
 **缓解措施**:
+
 - 使用动态导入: `const { ThreeCanvas } = await import('@react-three/fiber')`
 - 启用 `experimental.turbopackTreeShaking: true`
 - 配置 `optimizePackageImports`
@@ -332,6 +353,7 @@ ls -lh .next/static/chunks/
 #### 问题 2: 自定义 Webpack Loaders
 
 **检查**: 项目中是否有自定义 loaders
+
 - ✅ 未在 package.json 中发现
 - ✅ next.config.ts 中没有自定义 loaders
 
@@ -340,6 +362,7 @@ ls -lh .next/static/chunks/
 #### 问题 3: Webpack Plugins
 
 **检查**: 使用的 plugins
+
 - ✅ `@next/bundle-analyzer` - Next.js 原生支持 Turbopack
 - ✅ 未发现其他 webpack plugins
 
@@ -382,18 +405,18 @@ du -sh .next >> reports/baseline/metrics.txt
 
 ```typescript
 // next.config.ts (更新版本)
-import createNextIntlPlugin from 'next-intl/plugin';
-import type { NextConfig } from "next";
-import bundleAnalyzer from '@next/bundle-analyzer';
-import path from 'path';
+import createNextIntlPlugin from 'next-intl/plugin'
+import type { NextConfig } from 'next'
+import bundleAnalyzer from '@next/bundle-analyzer'
+import path from 'path'
 
-const withNextIntl = createNextIntlPlugin('./src/i18n/request.ts');
+const withNextIntl = createNextIntlPlugin('./src/i18n/request.ts')
 
 const withBundleAnalyzer = bundleAnalyzer({
   enabled: process.env.ANALYZE === 'true',
   openAnalyzer: false,
   analyzerMode: 'static',
-});
+})
 
 const nextConfig: NextConfig = {
   // === 现有配置保持不变 ===
@@ -418,26 +441,35 @@ const nextConfig: NextConfig = {
   poweredByHeader: false,
 
   compiler: {
-    removeConsole: process.env.NODE_ENV === 'production' ? {
-      exclude: ['error', 'warn'],
-    } : false,
+    removeConsole:
+      process.env.NODE_ENV === 'production'
+        ? {
+            exclude: ['error', 'warn'],
+          }
+        : false,
     swcMinify: true,
   },
 
   experimental: {
     optimizePackageImports: [
-      'next-intl', '@sentry/nextjs', 'zustand', 'web-vitals', 'lucide-react',
-      'three', '@react-three/fiber', '@react-three/drei',
+      'next-intl',
+      '@sentry/nextjs',
+      'zustand',
+      'web-vitals',
+      'lucide-react',
+      'three',
+      '@react-three/fiber',
+      '@react-three/drei',
     ],
     optimizeCss: true,
     turbopackFileSystemCacheForDev: true,
 
     // === Turbopack 优化选项 ===
-    turbopackFileSystemCacheForBuild: true,  // 构建缓存
-    turbopackTreeShaking: true,                // 高级 tree-shaking
-    turbopackScopeHoisting: true,              // Scope hoisting
-    turbopackRemoveUnusedImports: true,         // 移除未使用的导入
-    turbopackRemoveUnusedExports: true,         // 移除未使用的导出
+    turbopackFileSystemCacheForBuild: true, // 构建缓存
+    turbopackTreeShaking: true, // 高级 tree-shaking
+    turbopackScopeHoisting: true, // Scope hoisting
+    turbopackRemoveUnusedImports: true, // 移除未使用的导入
+    turbopackRemoveUnusedExports: true, // 移除未使用的导出
   },
 
   serverExternalPackages: ['sharp', 'better-sqlite3', 'jose', 'uuid', 'exceljs'],
@@ -457,16 +489,16 @@ const nextConfig: NextConfig = {
   webpack: (config, { isServer, dev }) => {
     // 仅在明确使用 webpack 时应用复杂配置
     if (process.env.USE_WEBPACK === 'true') {
-      config.resolve.alias = config.resolve.alias || {};
-      config.resolve.alias['@/'] = __dirname + '/src';
+      config.resolve.alias = config.resolve.alias || {}
+      config.resolve.alias['@/'] = __dirname + '/src'
 
       if (!isServer && !dev) {
-        config.optimization = config.optimization || {};
+        config.optimization = config.optimization || {}
         config.performance = {
           maxEntrypointSize: 300000,
           maxAssetSize: 250000,
           hints: 'warning',
-        };
+        }
 
         config.optimization.splitChunks = {
           chunks: 'all',
@@ -505,7 +537,7 @@ const nextConfig: NextConfig = {
               enforce: true,
               minSize: 20000,
             },
-            'framework': {
+            framework: {
               test: /[\\/]node_modules[\\/](react|react-dom|scheduler|next)[\\/]/,
               name: 'framework',
               priority: 35,
@@ -556,16 +588,16 @@ const nextConfig: NextConfig = {
           maxSize: 200000,
           minChunks: 1,
           enforceSizeThreshold: 30000,
-        };
+        }
 
-        config.optimization.usedExports = true;
-        config.optimization.sideEffects = false;
-        config.optimization.providedExports = true;
-        config.optimization.concatenateModules = true;
+        config.optimization.usedExports = true
+        config.optimization.sideEffects = false
+        config.optimization.providedExports = true
+        config.optimization.concatenateModules = true
       }
     }
 
-    return config;
+    return config
   },
 
   headers: async () => {
@@ -574,12 +606,18 @@ const nextConfig: NextConfig = {
         source: '/:path*',
         headers: [
           { key: 'X-DNS-Prefetch-Control', value: 'on' },
-          { key: 'Strict-Transport-Security', value: 'max-age=63072000; includeSubDomains; preload' },
+          {
+            key: 'Strict-Transport-Security',
+            value: 'max-age=63072000; includeSubDomains; preload',
+          },
           { key: 'X-Frame-Options', value: 'SAMEORIGIN' },
           { key: 'X-Content-Type-Options', value: 'nosniff' },
           { key: 'X-XSS-Protection', value: '1; mode=block' },
           { key: 'Referrer-Policy', value: 'strict-origin-when-cross-origin' },
-          { key: 'Permissions-Policy', value: 'camera=(), microphone=(), geolocation=(), interest-cohort=()' },
+          {
+            key: 'Permissions-Policy',
+            value: 'camera=(), microphone=(), geolocation=(), interest-cohort=()',
+          },
         ],
       },
       {
@@ -590,97 +628,99 @@ const nextConfig: NextConfig = {
         source: '/_next/static/:path*',
         headers: [{ key: 'Cache-Control', value: 'public, max-age=31536000, immutable' }],
       },
-    ];
+    ]
   },
-};
+}
 
-export default withBundleAnalyzer(withNextIntl(nextConfig));
+export default withBundleAnalyzer(withNextIntl(nextConfig))
 ```
 
 #### 步骤 2: 创建 bundle size 检查脚本
 
 ```typescript
 // scripts/check-bundle-size.mjs
-import fs from 'fs';
-import path from 'path';
+import fs from 'fs'
+import path from 'path'
 
-const MAX_ENTRYPOINT_SIZE = 300000; // 300 KB
-const MAX_ASSET_SIZE = 250000;      // 250 KB
-const BUILD_DIR = '.next';
-const STATIC_DIR = path.join(BUILD_DIR, 'static');
+const MAX_ENTRYPOINT_SIZE = 300000 // 300 KB
+const MAX_ASSET_SIZE = 250000 // 250 KB
+const BUILD_DIR = '.next'
+const STATIC_DIR = path.join(BUILD_DIR, 'static')
 
 function formatSize(bytes) {
-  return (bytes / 1024).toFixed(2) + ' KB';
+  return (bytes / 1024).toFixed(2) + ' KB'
 }
 
 function checkFile(filePath, maxSize, type) {
   try {
-    const stats = fs.statSync(filePath);
+    const stats = fs.statSync(filePath)
 
     if (stats.size > maxSize) {
-      console.error(`❌ ${type} ${path.relative(BUILD_DIR, filePath)}: ${formatSize(stats.size)} exceeds ${formatSize(maxSize)}`);
-      return false;
+      console.error(
+        `❌ ${type} ${path.relative(BUILD_DIR, filePath)}: ${formatSize(stats.size)} exceeds ${formatSize(maxSize)}`
+      )
+      return false
     }
 
-    console.log(`✅ ${type} ${path.relative(BUILD_DIR, filePath)}: ${formatSize(stats.size)}`);
-    return true;
+    console.log(`✅ ${type} ${path.relative(BUILD_DIR, filePath)}: ${formatSize(stats.size)}`)
+    return true
   } catch (error) {
-    console.warn(`⚠️  Could not read ${filePath}: ${error.message}`);
-    return true;
+    console.warn(`⚠️  Could not read ${filePath}: ${error.message}`)
+    return true
   }
 }
 
 function walkDirectory(dir, callback) {
-  const entries = fs.readdirSync(dir, { withFileTypes: true });
+  const entries = fs.readdirSync(dir, { withFileTypes: true })
 
   for (const entry of entries) {
-    const fullPath = path.join(dir, entry.name);
+    const fullPath = path.join(dir, entry.name)
 
     if (entry.isDirectory()) {
-      walkDirectory(fullPath, callback);
+      walkDirectory(fullPath, callback)
     } else if (entry.isFile()) {
-      callback(fullPath);
+      callback(fullPath)
     }
   }
 }
 
-console.log('📊 Checking bundle sizes...\n');
+console.log('📊 Checking bundle sizes...\n')
 
-let allPassed = true;
+let allPassed = true
 
 // Check static chunks
-const chunksDir = path.join(STATIC_DIR, 'chunks');
+const chunksDir = path.join(STATIC_DIR, 'chunks')
 if (fs.existsSync(chunksDir)) {
-  console.log('📦 Checking chunks:');
-  walkDirectory(chunksDir, (filePath) => {
+  console.log('📦 Checking chunks:')
+  walkDirectory(chunksDir, filePath => {
     if (!checkFile(filePath, MAX_ASSET_SIZE, 'chunk')) {
-      allPassed = false;
+      allPassed = false
     }
-  });
-  console.log();
+  })
+  console.log()
 }
 
 // Check server app directory (for SSR)
-const serverAppDir = path.join(BUILD_DIR, 'server', 'app');
+const serverAppDir = path.join(BUILD_DIR, 'server', 'app')
 if (fs.existsSync(serverAppDir)) {
-  console.log('🖥️  Checking server app:');
-  walkDirectory(serverAppDir, (filePath) => {
+  console.log('🖥️  Checking server app:')
+  walkDirectory(serverAppDir, filePath => {
     if (filePath.endsWith('.js')) {
       if (!checkFile(filePath, MAX_ENTRYPOINT_SIZE, 'server')) {
-        allPassed = false;
+        allPassed = false
       }
     }
-  });
-  console.log();
+  })
+  console.log()
 }
 
 // Summary
 if (allPassed) {
-  console.log('✅ All bundle size checks passed!');
-  process.exit(0);
+  console.log('✅ All bundle size checks passed!')
+  process.exit(0)
 } else {
-  console.error('❌ Some bundles exceed size limits!');
-  process.exit(1);
+  console.error('❌ Some bundles exceed size limits!')
+  process.exit(1)
 }
 ```
 
@@ -783,16 +823,19 @@ npm run test:api
 #### 灰度发布策略
 
 **Week 1: 10% 流量**
+
 - 部署到测试环境
 - 监控错误日志
 - 收集性能指标
 
 **Week 2: 50% 流量**
+
 - 扩展到部分生产实例
 - 持续监控
 - 准备回滚
 
 **Week 3: 100% 流量**
+
 - 全量发布
 - 全面监控
 - 优化调整
@@ -841,53 +884,58 @@ npm run test:api
 
 ### 5.1 测试矩阵
 
-| 测试类型 | 工具 | 覆盖范围 | 优先级 |
-|----------|------|----------|--------|
-| 单元测试 | Vitest | 核心逻辑 | 高 |
-| E2E 测试 | Playwright | 用户流程 | 高 |
-| API 测试 | Supertest | API 端点 | 高 |
-| 性能测试 | Lighthouse | 性能指标 | 中 |
-| 构建测试 | Build script | 构建过程 | 高 |
-| 集成测试 | Manual | 端到端流程 | 中 |
+| 测试类型 | 工具         | 覆盖范围   | 优先级 |
+| -------- | ------------ | ---------- | ------ |
+| 单元测试 | Vitest       | 核心逻辑   | 高     |
+| E2E 测试 | Playwright   | 用户流程   | 高     |
+| API 测试 | Supertest    | API 端点   | 高     |
+| 性能测试 | Lighthouse   | 性能指标   | 中     |
+| 构建测试 | Build script | 构建过程   | 高     |
+| 集成测试 | Manual       | 端到端流程 | 中     |
 
 ### 5.2 关键测试场景
 
 #### 1. 3D 场景渲染
+
 - Three.js 模型加载
 - 交互功能
 - 性能表现
 
 #### 2. 图表显示
+
 - Recharts 图表渲染
 - 数据更新
 - 交互功能
 
 #### 3. 实时通信
+
 - Socket.IO 连接
 - 消息发送/接收
 - 断线重连
 
 #### 4. 表单验证
+
 - Zod 验证
 - 错误处理
 - 提交功能
 
 #### 5. 国际化
+
 - 语言切换
 - 文本翻译
 - 日期/数字格式
 
 ### 5.3 性能基准
 
-| 指标 | 目标值 | 测量方法 |
-|------|--------|----------|
-| 冷构建时间 | < 2 min | `time npm run build` |
-| 增量构建时间 | < 30 s | `time npm run build` (修改文件后) |
-| 首屏加载时间 | < 2 s | Lighthouse FCP |
-| 总 bundle 大小 | < 1 MB | Bundle Analyzer |
-| LCP | < 2.5 s | Lighthouse |
-| FID | < 100 ms | Lighthouse |
-| CLS | < 0.1 | Lighthouse |
+| 指标           | 目标值   | 测量方法                          |
+| -------------- | -------- | --------------------------------- |
+| 冷构建时间     | < 2 min  | `time npm run build`              |
+| 增量构建时间   | < 30 s   | `time npm run build` (修改文件后) |
+| 首屏加载时间   | < 2 s    | Lighthouse FCP                    |
+| 总 bundle 大小 | < 1 MB   | Bundle Analyzer                   |
+| LCP            | < 2.5 s  | Lighthouse                        |
+| FID            | < 100 ms | Lighthouse                        |
+| CLS            | < 0.1    | Lighthouse                        |
 
 ---
 
@@ -895,28 +943,28 @@ npm run test:api
 
 ### 6.1 完全不支持的功能
 
-| 功能 | 影响范围 | 缓解方案 |
-|------|----------|----------|
-| Webpack plugins | 当前未使用 | N/A |
-| `sassOptions.functions` | 未使用 | N/A |
-| Yarn PnP | 未使用 | N/A |
-| `experimental.urlImports` | 未使用 | N/A |
+| 功能                      | 影响范围   | 缓解方案 |
+| ------------------------- | ---------- | -------- |
+| Webpack plugins           | 当前未使用 | N/A      |
+| `sassOptions.functions`   | 未使用     | N/A      |
+| Yarn PnP                  | 未使用     | N/A      |
+| `experimental.urlImports` | 未使用     | N/A      |
 
 ### 6.2 需要迁移的配置
 
-| 配置 | 影响范围 | 缓解方案 |
-|------|----------|----------|
-| `webpack.performance` | 构建警告 | 外部脚本检查 |
-| `webpack.optimization.splitChunks` | 代码分割 | Turbopack 智能分割 |
-| `webpack.resolve.alias` | 路径别名 | `turbopack.resolveAlias` |
+| 配置                               | 影响范围 | 缓解方案                 |
+| ---------------------------------- | -------- | ------------------------ |
+| `webpack.performance`              | 构建警告 | 外部脚本检查             |
+| `webpack.optimization.splitChunks` | 代码分割 | Turbopack 智能分割       |
+| `webpack.resolve.alias`            | 路径别名 | `turbopack.resolveAlias` |
 
 ### 6.3 可能受影响的库
 
-| 库 | 版本 | 风险等级 | 验证方法 |
-|----|------|----------|----------|
-| `three` | ^0.183.2 | 🟡 中 | Bundle Analyzer + 功能测试 |
-| `@react-three/drei` | ^10.7.7 | 🟡 中 | 功能测试 |
-| `recharts` | ^3.8.0 | 🟡 中 | Bundle Analyzer |
+| 库                  | 版本     | 风险等级 | 验证方法                   |
+| ------------------- | -------- | -------- | -------------------------- |
+| `three`             | ^0.183.2 | 🟡 中    | Bundle Analyzer + 功能测试 |
+| `@react-three/drei` | ^10.7.7  | 🟡 中    | 功能测试                   |
+| `recharts`          | ^3.8.0   | 🟡 中    | Bundle Analyzer            |
 
 **建议**: 这些库体积较大，确保使用动态导入和 tree-shaking。
 
@@ -926,13 +974,13 @@ npm run test:api
 
 ### 7.1 风险矩阵
 
-| 风险 | 概率 | 影响 | 严重性 | 缓解措施 |
-|------|------|------|--------|----------|
-| 代码分割策略失效 | 高 | 高 | 🔴 高 | 充分测试、对比报告、动态导入 |
-| 打包体积增大 | 中 | 中 | 🟡 中 | Bundle Analyzer、优化导入 |
-| 性能下降 | 低 | 高 | 🟡 中 | 性能测试、监控指标 |
-| 树-shaking 问题 | 低 | 中 | 🟢 低 | 功能测试、代码审查 |
-| 构建失败 | 低 | 高 | 🟡 中 | 回滚方案、CI/CD 检查 |
+| 风险             | 概率 | 影响 | 严重性 | 缓解措施                     |
+| ---------------- | ---- | ---- | ------ | ---------------------------- |
+| 代码分割策略失效 | 高   | 高   | 🔴 高  | 充分测试、对比报告、动态导入 |
+| 打包体积增大     | 中   | 中   | 🟡 中  | Bundle Analyzer、优化导入    |
+| 性能下降         | 低   | 高   | 🟡 中  | 性能测试、监控指标           |
+| 树-shaking 问题  | 低   | 中   | 🟢 低  | 功能测试、代码审查           |
+| 构建失败         | 低   | 高   | 🟡 中  | 回滚方案、CI/CD 检查         |
 
 ### 7.2 回滚方案
 
@@ -956,3 +1004,4 @@ git checkout HEAD~1 -- next.config.ts
 npm run build
 
 # 3. 部
+```

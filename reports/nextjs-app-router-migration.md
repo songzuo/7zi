@@ -12,6 +12,7 @@
 ### 关键发现
 
 **项目当前状态**:
+
 - ✅ **已使用 App Router 架构** (`src/app/` 目录结构)
 - ✅ **Next.js 16.2.1** (最新版本，无需升级)
 - ✅ **React 19.2.4** (最新版本)
@@ -23,6 +24,7 @@
 **❌ 无需迁移到 App Router - 项目已完全采用 App Router 架构！**
 
 **原因**:
+
 1. 项目使用 `src/app/` 目录结构 (App Router 标志)
 2. API 路由使用 `route.ts` (App Router 标准)
 3. 无 `src/pages/` 目录 (Pages Router 标志)
@@ -37,26 +39,26 @@
 
 #### ✅ 已采用 App Router 特性
 
-| 特性 | 状态 | 证据 |
-|------|------|------|
-| **目录结构** | ✅ App Router | 使用 `src/app/` 而非 `src/pages/` |
-| **API 路由** | ✅ App Router | 使用 `route.ts` 文件 |
-| **服务器组件** | ✅ 支持 | 默认为 RSC (React Server Components) |
-| **Route Handlers** | ✅ 使用 | `src/app/api/*/route.ts` |
-| **中间件** | ✅ 使用 | `src/proxy.ts` + `src/middleware-optimized.ts` |
-| **TypeScript** | ✅ 完整 | 全项目 TypeScript 覆盖 |
-| **React 19** | ✅ 最新 | 完全支持 |
+| 特性               | 状态          | 证据                                           |
+| ------------------ | ------------- | ---------------------------------------------- |
+| **目录结构**       | ✅ App Router | 使用 `src/app/` 而非 `src/pages/`              |
+| **API 路由**       | ✅ App Router | 使用 `route.ts` 文件                           |
+| **服务器组件**     | ✅ 支持       | 默认为 RSC (React Server Components)           |
+| **Route Handlers** | ✅ 使用       | `src/app/api/*/route.ts`                       |
+| **中间件**         | ✅ 使用       | `src/proxy.ts` + `src/middleware-optimized.ts` |
+| **TypeScript**     | ✅ 完整       | 全项目 TypeScript 覆盖                         |
+| **React 19**       | ✅ 最新       | 完全支持                                       |
 
 #### 📊 项目规模统计
 
-| 指标 | 数值 |
-|------|------|
-| **总代码行数** | 30,810+ 行 |
-| **API 路由文件** | 7 个 route.ts (919 行) |
-| **组件文件** | 23+ 个组件 |
-| **测试文件** | 197+ 个 |
-| **第三方依赖** | 核心依赖 15+ |
-| **TypeScript 覆盖** | 100% |
+| 指标                | 数值                   |
+| ------------------- | ---------------------- |
+| **总代码行数**      | 30,810+ 行             |
+| **API 路由文件**    | 7 个 route.ts (919 行) |
+| **组件文件**        | 23+ 个组件             |
+| **测试文件**        | 197+ 个                |
+| **第三方依赖**      | 核心依赖 15+           |
+| **TypeScript 覆盖** | 100%                   |
 
 ### 2. 依赖项分析
 
@@ -64,13 +66,13 @@
 
 ```json
 {
-  "next": "^16.2.1",           // ✅ 最新版本
-  "react": "^19.2.4",          // ✅ 最新版本
-  "react-dom": "^19.2.4",      // ✅ 最新版本
-  "typescript": "^5",          // ✅ 最新版本
-  "next-intl": "^4.8.3",       // ✅ App Router 兼容
-  "tailwindcss": "^4.x",       // ✅ 最新版本
-  "zustand": "^5.0.12",        // ✅ App Router 兼容
+  "next": "^16.2.1", // ✅ 最新版本
+  "react": "^19.2.4", // ✅ 最新版本
+  "react-dom": "^19.2.4", // ✅ 最新版本
+  "typescript": "^5", // ✅ 最新版本
+  "next-intl": "^4.8.3", // ✅ App Router 兼容
+  "tailwindcss": "^4.x", // ✅ 最新版本
+  "zustand": "^5.0.12", // ✅ App Router 兼容
   "socket.io-client": "^4.8.3" // ✅ App Router 兼容
 }
 ```
@@ -146,27 +148,27 @@ src/app/
 
 ### 架构差异
 
-| 特性 | Pages Router | App Router | 7zi 项目状态 |
-|------|--------------|------------|--------------|
-| **目录结构** | `pages/` | `app/` | ✅ 使用 `app/` |
-| **文件命名** | `index.tsx`, `about.tsx` | `page.tsx`, `about/page.tsx` | ✅ 使用 `route.ts` |
-| **数据获取** | `getServerSideProps`, `getStaticProps` | Server Components, `fetch` | ✅ 使用 Server Components |
-| **API 路由** | `pages/api/hello.ts` | `app/api/hello/route.ts` | ✅ 使用 `route.ts` |
-| **布局** | `_app.tsx` | `layout.tsx` | ✅ 布局支持 |
-| **加载状态** | 自定义实现 | `loading.tsx` | ✅ 支持 |
-| **错误处理** | `_error.tsx` | `error.tsx` | ✅ 支持 |
-| **404 页面** | `404.tsx` | `not-found.tsx` | ✅ 支持 |
-| **动态路由** | `[id].tsx` | `[id]/page.tsx` | ✅ 支持 |
+| 特性         | Pages Router                           | App Router                   | 7zi 项目状态              |
+| ------------ | -------------------------------------- | ---------------------------- | ------------------------- |
+| **目录结构** | `pages/`                               | `app/`                       | ✅ 使用 `app/`            |
+| **文件命名** | `index.tsx`, `about.tsx`               | `page.tsx`, `about/page.tsx` | ✅ 使用 `route.ts`        |
+| **数据获取** | `getServerSideProps`, `getStaticProps` | Server Components, `fetch`   | ✅ 使用 Server Components |
+| **API 路由** | `pages/api/hello.ts`                   | `app/api/hello/route.ts`     | ✅ 使用 `route.ts`        |
+| **布局**     | `_app.tsx`                             | `layout.tsx`                 | ✅ 布局支持               |
+| **加载状态** | 自定义实现                             | `loading.tsx`                | ✅ 支持                   |
+| **错误处理** | `_error.tsx`                           | `error.tsx`                  | ✅ 支持                   |
+| **404 页面** | `404.tsx`                              | `not-found.tsx`              | ✅ 支持                   |
+| **动态路由** | `[id].tsx`                             | `[id]/page.tsx`              | ✅ 支持                   |
 
 ### 性能对比
 
-| 指标 | Pages Router | App Router | 提升幅度 |
-|------|--------------|------------|----------|
-| **初始加载** | 基准 | 快 20-30% | ⬆️ 20-30% |
-| **服务端渲染** | 需要手动优化 | 自动优化 | ⬆️ 15-25% |
-| **代码分割** | 需要手动配置 | 自动分割 | ⬆️ 40-50% |
-| **流式渲染** | 不支持 | 原生支持 | ✅ 新特性 |
-| **Server Components** | 不支持 | 原生支持 | ✅ 新特性 |
+| 指标                  | Pages Router | App Router | 提升幅度  |
+| --------------------- | ------------ | ---------- | --------- |
+| **初始加载**          | 基准         | 快 20-30%  | ⬆️ 20-30% |
+| **服务端渲染**        | 需要手动优化 | 自动优化   | ⬆️ 15-25% |
+| **代码分割**          | 需要手动配置 | 自动分割   | ⬆️ 40-50% |
+| **流式渲染**          | 不支持       | 原生支持   | ✅ 新特性 |
+| **Server Components** | 不支持       | 原生支持   | ✅ 新特性 |
 
 ---
 
@@ -175,6 +177,7 @@ src/app/
 ### ❌ 无需迁移 (已使用 App Router)
 
 **原因**:
+
 1. ✅ 项目已完全采用 App Router 架构
 2. ✅ 无 Pages Router 代码残留
 3. ✅ Next.js 16.2.1 已是最新版本
@@ -184,25 +187,25 @@ src/app/
 
 #### 工作量估算
 
-| 任务 | 工作量 | 复杂度 |
-|------|--------|--------|
-| **目录结构调整** | 2-4 天 | 🟡 中等 |
-| **API 路由迁移** | 1-2 天 | 🟢 简单 |
-| **数据获取重构** | 3-5 天 | 🔴 复杂 |
-| **测试更新** | 2-3 天 | 🟡 中等 |
-| **文档更新** | 1-2 天 | 🟢 简单 |
-| **部署验证** | 1 天 | 🟢 简单 |
-| **总计** | **10-17 天** | 🟡 中等 |
+| 任务             | 工作量       | 复杂度  |
+| ---------------- | ------------ | ------- |
+| **目录结构调整** | 2-4 天       | 🟡 中等 |
+| **API 路由迁移** | 1-2 天       | 🟢 简单 |
+| **数据获取重构** | 3-5 天       | 🔴 复杂 |
+| **测试更新**     | 2-3 天       | 🟡 中等 |
+| **文档更新**     | 1-2 天       | 🟢 简单 |
+| **部署验证**     | 1 天         | 🟢 简单 |
+| **总计**         | **10-17 天** | 🟡 中等 |
 
 #### 潜在风险
 
-| 风险 | 严重性 | 缓解措施 |
-|------|--------|----------|
-| **第三方库不兼容** | 🔴 高 | 提前测试依赖兼容性 |
-| **数据获取逻辑重写** | 🟡 中 | 逐步迁移，保留旧版本 |
-| **测试覆盖率下降** | 🟡 中 | 并行更新测试 |
-| **部署回滚困难** | 🟡 中 | 蓝绿部署，快速回滚 |
-| **性能回退** | 🟢 低 | 性能基准测试 |
+| 风险                 | 严重性 | 缓解措施             |
+| -------------------- | ------ | -------------------- |
+| **第三方库不兼容**   | 🔴 高  | 提前测试依赖兼容性   |
+| **数据获取逻辑重写** | 🟡 中  | 逐步迁移，保留旧版本 |
+| **测试覆盖率下降**   | 🟡 中  | 并行更新测试         |
+| **部署回滚困难**     | 🟡 中  | 蓝绿部署，快速回滚   |
+| **性能回退**         | 🟢 低  | 性能基准测试         |
 
 ---
 
@@ -244,18 +247,18 @@ src/app/
 
 ### ✅ 已完成项目
 
-| 检查项 | 状态 | 说明 |
-|--------|------|------|
-| **使用 `app/` 目录** | ✅ | `src/app/` 结构 |
-| **使用 `route.ts` 文件** | ✅ | API 路由使用 `route.ts` |
-| **Server Components** | ✅ | 默认启用 |
-| **TypeScript 配置** | ✅ | 完整类型覆盖 |
-| **中间件配置** | ✅ | `src/proxy.ts` + 优化版 |
-| **错误处理** | ✅ | 错误边界 + 全局处理 |
-| **环境变量** | ✅ | `.env.production` 配置 |
-| **安全头** | ✅ | CSP, HSTS, X-Frame-Options |
-| **性能优化** | ✅ | 代码分割、懒加载 |
-| **测试覆盖** | ✅ | 197+ 测试文件 |
+| 检查项                   | 状态 | 说明                       |
+| ------------------------ | ---- | -------------------------- |
+| **使用 `app/` 目录**     | ✅   | `src/app/` 结构            |
+| **使用 `route.ts` 文件** | ✅   | API 路由使用 `route.ts`    |
+| **Server Components**    | ✅   | 默认启用                   |
+| **TypeScript 配置**      | ✅   | 完整类型覆盖               |
+| **中间件配置**           | ✅   | `src/proxy.ts` + 优化版    |
+| **错误处理**             | ✅   | 错误边界 + 全局处理        |
+| **环境变量**             | ✅   | `.env.production` 配置     |
+| **安全头**               | ✅   | CSP, HSTS, X-Frame-Options |
+| **性能优化**             | ✅   | 代码分割、懒加载           |
+| **测试覆盖**             | ✅   | 197+ 测试文件              |
 
 ### 🎯 进一步优化建议
 
@@ -358,24 +361,24 @@ export default function LocaleLayout({ children, params: { locale } }) {
 
 ### 当前性能指标 (基于 Next.js 16 + App Router)
 
-| 指标 | 数值 | 目标 |
-|------|------|------|
-| **First Contentful Paint (FCP)** | < 1.0s | ✅ 良好 |
-| **Largest Contentful Paint (LCP)** | < 2.5s | ✅ 良好 |
-| **Cumulative Layout Shift (CLS)** | < 0.1 | ✅ 良好 |
-| **First Input Delay (FID)** | < 100ms | ✅ 良好 |
+| 指标                                | 数值    | 目标    |
+| ----------------------------------- | ------- | ------- |
+| **First Contentful Paint (FCP)**    | < 1.0s  | ✅ 良好 |
+| **Largest Contentful Paint (LCP)**  | < 2.5s  | ✅ 良好 |
+| **Cumulative Layout Shift (CLS)**   | < 0.1   | ✅ 良好 |
+| **First Input Delay (FID)**         | < 100ms | ✅ 良好 |
 | **Interaction to Next Paint (INP)** | < 200ms | ✅ 良好 |
-| **Time to First Byte (TTFB)** | < 600ms | ✅ 良好 |
+| **Time to First Byte (TTFB)**       | < 600ms | ✅ 良好 |
 
 ### 已实现的优化
 
-| 优化项 | 状态 | 效果 |
-|--------|------|------|
-| **代码分割** | ✅ | 减少 30% 初始包大小 |
-| **React.memo** | ✅ | 减少 30-60% 重渲染 |
-| **懒加载** | ✅ | 减少 40% 初始加载时间 |
-| **图片优化** | ✅ | AVIF + WebP 格式 |
-| **包导入优化** | ✅ | 15+ 包优化导入 |
+| 优化项         | 状态 | 效果                  |
+| -------------- | ---- | --------------------- |
+| **代码分割**   | ✅   | 减少 30% 初始包大小   |
+| **React.memo** | ✅   | 减少 30-60% 重渲染    |
+| **懒加载**     | ✅   | 减少 40% 初始加载时间 |
+| **图片优化**   | ✅   | AVIF + WebP 格式      |
+| **包导入优化** | ✅   | 15+ 包优化导入        |
 
 ---
 
@@ -383,27 +386,27 @@ export default function LocaleLayout({ children, params: { locale } }) {
 
 ### ✅ 已实现安全措施
 
-| 安全措施 | 状态 | 说明 |
-|----------|------|------|
-| **CSP (Content Security Policy)** | ✅ | 严格 CSP 策略 |
-| **HSTS (Strict-Transport-Security)** | ✅ | max-age=63072000 |
-| **X-Frame-Options** | ✅ | SAMEORIGIN |
-| **X-Content-Type-Options** | ✅ | nosniff |
-| **X-XSS-Protection** | ✅ | 1; mode=block |
-| **Referrer-Policy** | ✅ | strict-origin-when-cross-origin |
-| **Permissions-Policy** | ✅ | 限制浏览器功能 |
-| **JWT 认证** | ✅ | jose 库实现 |
-| **RBAC 权限控制** | ✅ | 5 角色 45 权限 |
-| **Sentry 错误追踪** | ✅ | 错误监控 |
+| 安全措施                             | 状态 | 说明                            |
+| ------------------------------------ | ---- | ------------------------------- |
+| **CSP (Content Security Policy)**    | ✅   | 严格 CSP 策略                   |
+| **HSTS (Strict-Transport-Security)** | ✅   | max-age=63072000                |
+| **X-Frame-Options**                  | ✅   | SAMEORIGIN                      |
+| **X-Content-Type-Options**           | ✅   | nosniff                         |
+| **X-XSS-Protection**                 | ✅   | 1; mode=block                   |
+| **Referrer-Policy**                  | ✅   | strict-origin-when-cross-origin |
+| **Permissions-Policy**               | ✅   | 限制浏览器功能                  |
+| **JWT 认证**                         | ✅   | jose 库实现                     |
+| **RBAC 权限控制**                    | ✅   | 5 角色 45 权限                  |
+| **Sentry 错误追踪**                  | ✅   | 错误监控                        |
 
 ### App Router 安全优势
 
-| 安全特性 | Pages Router | App Router |
-|----------|--------------|------------|
-| **默认 RSC** | ❌ | ✅ 减少客户端代码 |
-| **自动 XSS 防护** | ⚠️ 部分 | ✅ 增强 |
-| **CSRF 保护** | 手动 | 内置 |
-| **安全元数据** | 手动 | 自动生成 |
+| 安全特性          | Pages Router | App Router        |
+| ----------------- | ------------ | ----------------- |
+| **默认 RSC**      | ❌           | ✅ 减少客户端代码 |
+| **自动 XSS 防护** | ⚠️ 部分      | ✅ 增强           |
+| **CSRF 保护**     | 手动         | 内置              |
+| **安全元数据**    | 手动         | 自动生成          |
 
 ---
 
@@ -509,16 +512,16 @@ export default function LocaleLayout({ children, params: { locale } }) {
 
 ### B. API 路由清单
 
-| 端点 | 方法 | 描述 |
-|------|------|------|
-| `/api/health` | GET | 健康检查 |
-| `/api/health/live` | GET | 存活探针 |
-| `/api/health/ready` | GET | 就绪探针 |
-| `/api/health/detailed` | GET | 详细健康信息 |
-| `/api/status` | GET | 系统状态 |
-| `/api/backup` | POST | 数据备份 |
-| `/api/export` | POST | 数据导出 |
-| `/api/github/commits` | GET | GitHub 提交记录 |
+| 端点                   | 方法 | 描述            |
+| ---------------------- | ---- | --------------- |
+| `/api/health`          | GET  | 健康检查        |
+| `/api/health/live`     | GET  | 存活探针        |
+| `/api/health/ready`    | GET  | 就绪探针        |
+| `/api/health/detailed` | GET  | 详细健康信息    |
+| `/api/status`          | GET  | 系统状态        |
+| `/api/backup`          | POST | 数据备份        |
+| `/api/export`          | POST | 数据导出        |
+| `/api/github/commits`  | GET  | GitHub 提交记录 |
 
 ### C. 性能优化配置
 

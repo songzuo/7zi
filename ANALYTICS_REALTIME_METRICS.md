@@ -14,6 +14,7 @@
 **组件**: `RealtimeConnectionStatus`
 
 实时显示 WebSocket 连接状态，包括：
+
 - 连接状态（已连接、连接中、断开、错误、重连中）
 - 网络延迟（毫秒）
 - 消息收发统计
@@ -22,6 +23,7 @@
 - 重连尝试次数
 
 **功能**：
+
 - 自动重连机制
 - 心跳检测
 - 手动刷新/重连按钮
@@ -32,6 +34,7 @@
 **组件**: `RealtimeTaskStatusChart`
 
 实时可视化任务状态分布：
+
 - 环形图展示各状态占比
 - 6 种状态类型：
   - 已完成 (Completed) - 绿色
@@ -48,6 +51,7 @@
 **组件**: `RealtimeTeamEfficiency`
 
 实时监控团队工作状态：
+
 - **核心指标卡片**：
   - 在线代理数
   - 工作中代理数
@@ -72,6 +76,7 @@
 **组件**: `RealtimeMetricsDashboard` (主集成组件)
 
 系统集成性能指标：
+
 - CPU 使用率
 - 内存使用率
 - 网络延迟
@@ -104,6 +109,7 @@ src/
 #### 1. WebSocket Hook (`useRealtimeAnalytics`)
 
 **功能**：
+
 - 自动连接管理
 - 心跳检测和延迟计算
 - 自动重连机制（可配置重试次数和间隔）
@@ -112,13 +118,14 @@ src/
 - React 状态管理优化（使用 useCallback, useRef）
 
 **配置选项**：
+
 ```typescript
 interface RealtimeWebSocketConfig {
-  url: string;                          // WebSocket 服务器地址
-  reconnectInterval?: number;           // 重连间隔（默认 5000ms）
-  maxReconnectAttempts?: number;        // 最大重连次数（默认 10）
-  heartbeatInterval?: number;           // 心跳间隔（默认 30000ms）
-  enabledMetrics?: string[];            // 启用的指标类型
+  url: string // WebSocket 服务器地址
+  reconnectInterval?: number // 重连间隔（默认 5000ms）
+  maxReconnectAttempts?: number // 最大重连次数（默认 10）
+  heartbeatInterval?: number // 心跳间隔（默认 30000ms）
+  enabledMetrics?: string[] // 启用的指标类型
 }
 ```
 
@@ -142,6 +149,7 @@ interface RealtimeWebSocketConfig {
 #### 3. 类型安全
 
 完整的 TypeScript 类型定义：
+
 - `WebSocketConnectionMetrics` - 连接状态
 - `TaskStatusDistribution` - 任务分布
 - `TeamEfficiencyMetrics` - 效率指标
@@ -153,7 +161,7 @@ interface RealtimeWebSocketConfig {
 ### 基本使用
 
 ```tsx
-import { RealtimeMetricsDashboard } from '@/components/analytics';
+import { RealtimeMetricsDashboard } from '@/components/analytics'
 
 export function MyDashboard() {
   return (
@@ -164,11 +172,11 @@ export function MyDashboard() {
         wsConfig={{
           url: 'ws://localhost:3001',
           reconnectInterval: 5000,
-          maxReconnectAttempts: 10
+          maxReconnectAttempts: 10,
         }}
       />
     </div>
-  );
+  )
 }
 ```
 
@@ -178,35 +186,24 @@ export function MyDashboard() {
 import {
   RealtimeConnectionStatus,
   RealtimeTaskStatusChart,
-  RealtimeTeamEfficiency
-} from '@/components/analytics';
-import { useRealtimeAnalytics } from '@/lib/hooks/useRealtimeAnalytics';
+  RealtimeTeamEfficiency,
+} from '@/components/analytics'
+import { useRealtimeAnalytics } from '@/lib/hooks/useRealtimeAnalytics'
 
 export function CustomDashboard() {
-  const { connection, taskDistribution, teamEfficiency, refresh } = useRealtimeAnalytics();
+  const { connection, taskDistribution, teamEfficiency, refresh } = useRealtimeAnalytics()
 
   return (
     <div className="space-y-6">
-      <RealtimeConnectionStatus
-        connection={connection}
-        onRefresh={refresh}
-        locale="zh"
-      />
+      <RealtimeConnectionStatus connection={connection} onRefresh={refresh} locale="zh" />
 
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        <RealtimeTaskStatusChart
-          distribution={taskDistribution}
-          locale="zh"
-        />
+      <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
+        <RealtimeTaskStatusChart distribution={taskDistribution} locale="zh" />
 
-        <RealtimeTeamEfficiency
-          metrics={teamEfficiency}
-          showDetails={true}
-          locale="zh"
-        />
+        <RealtimeTeamEfficiency metrics={teamEfficiency} showDetails={true} locale="zh" />
       </div>
     </div>
-  );
+  )
 }
 ```
 
@@ -214,54 +211,56 @@ export function CustomDashboard() {
 
 #### RealtimeMetricsDashboard Props
 
-| 属性 | 类型 | 默认值 | 说明 |
-|------|------|--------|------|
-| `enabled` | `boolean` | `true` | 是否启用实时功能 |
-| `showConnectionStatus` | `boolean` | `true` | 是否显示连接状态 |
-| `showTaskStatus` | `boolean` | `true` | 是否显示任务状态 |
-| `showTeamEfficiency` | `boolean` | `true` | 是否显示团队效率 |
-| `locale` | `'en' \| 'zh'` | `'en'` | 语言设置 |
-| `refreshInterval` | `number` | `30000` | 自动刷新间隔（毫秒） |
-| `wsConfig` | `object` | - | WebSocket 配置 |
+| 属性                   | 类型           | 默认值  | 说明                 |
+| ---------------------- | -------------- | ------- | -------------------- |
+| `enabled`              | `boolean`      | `true`  | 是否启用实时功能     |
+| `showConnectionStatus` | `boolean`      | `true`  | 是否显示连接状态     |
+| `showTaskStatus`       | `boolean`      | `true`  | 是否显示任务状态     |
+| `showTeamEfficiency`   | `boolean`      | `true`  | 是否显示团队效率     |
+| `locale`               | `'en' \| 'zh'` | `'en'`  | 语言设置             |
+| `refreshInterval`      | `number`       | `30000` | 自动刷新间隔（毫秒） |
+| `wsConfig`             | `object`       | -       | WebSocket 配置       |
 
 #### RealtimeConnectionStatus Props
 
-| 属性 | 类型 | 默认值 | 说明 |
-|------|------|--------|------|
-| `connection` | `WebSocketConnectionMetrics` | - | 连接状态对象 |
-| `onRefresh` | `function` | - | 刷新回调 |
-| `onReconnect` | `function` | - | 重连回调 |
-| `showDetails` | `boolean` | `true` | 是否显示详细信息 |
-| `locale` | `'en' \| 'zh'` | `'en'` | 语言设置 |
+| 属性          | 类型                         | 默认值 | 说明             |
+| ------------- | ---------------------------- | ------ | ---------------- |
+| `connection`  | `WebSocketConnectionMetrics` | -      | 连接状态对象     |
+| `onRefresh`   | `function`                   | -      | 刷新回调         |
+| `onReconnect` | `function`                   | -      | 重连回调         |
+| `showDetails` | `boolean`                    | `true` | 是否显示详细信息 |
+| `locale`      | `'en' \| 'zh'`               | `'en'` | 语言设置         |
 
 #### RealtimeTaskStatusChart Props
 
-| 属性 | 类型 | 默认值 | 说明 |
-|------|------|--------|------|
-| `distribution` | `TaskStatusDistribution \| null` | - | 任务分布数据 |
-| `history` | `TaskStatusHistoryPoint[]` | `[]` | 历史数据 |
-| `showHistory` | `boolean` | `true` | 是否显示历史趋势 |
-| `showChanges` | `boolean` | `true` | 是否显示变化指示 |
-| `locale` | `'en' \| 'zh'` | `'en'` | 语言设置 |
-| `height` | `number` | `300` | 图表高度（像素） |
+| 属性           | 类型                             | 默认值 | 说明             |
+| -------------- | -------------------------------- | ------ | ---------------- |
+| `distribution` | `TaskStatusDistribution \| null` | -      | 任务分布数据     |
+| `history`      | `TaskStatusHistoryPoint[]`       | `[]`   | 历史数据         |
+| `showHistory`  | `boolean`                        | `true` | 是否显示历史趋势 |
+| `showChanges`  | `boolean`                        | `true` | 是否显示变化指示 |
+| `locale`       | `'en' \| 'zh'`                   | `'en'` | 语言设置         |
+| `height`       | `number`                         | `300`  | 图表高度（像素） |
 
 #### RealtimeTeamEfficiency Props
 
-| 属性 | 类型 | 默认值 | 说明 |
-|------|------|--------|------|
-| `metrics` | `TeamEfficiencyMetrics \| null` | - | 效率指标数据 |
-| `showDetails` | `boolean` | `true` | 是否显示详细信息 |
-| `locale` | `'en' \| 'zh'` | `'en'` | 语言设置 |
+| 属性          | 类型                            | 默认值 | 说明             |
+| ------------- | ------------------------------- | ------ | ---------------- |
+| `metrics`     | `TeamEfficiencyMetrics \| null` | -      | 效率指标数据     |
+| `showDetails` | `boolean`                       | `true` | 是否显示详细信息 |
+| `locale`      | `'en' \| 'zh'`                  | `'en'` | 语言设置         |
 
 ## 主题系统兼容性
 
 所有组件完全支持：
+
 - **亮色模式**（默认）
 - **暗色模式**（dark mode）
 - **Tailwind CSS** 颜色系统
 - **自定义主题变量**
 
 颜色类名使用模式：
+
 ```css
 /* 亮色模式 */
 bg-white, text-zinc-900, border-zinc-200
@@ -320,6 +319,7 @@ dark:bg-zinc-800, dark:text-white, dark:border-zinc-700
 #### 服务器 → 客户端
 
 **任务状态更新**：
+
 ```json
 {
   "type": "task_status_update",
@@ -343,6 +343,7 @@ dark:bg-zinc-800, dark:text-white, dark:border-zinc-700
 ```
 
 **效率指标更新**：
+
 ```json
 {
   "type": "efficiency_update",
@@ -362,6 +363,7 @@ dark:bg-zinc-800, dark:text-white, dark:border-zinc-700
 ```
 
 **性能指标更新**：
+
 ```json
 {
   "type": "performance_update",
@@ -387,6 +389,7 @@ dark:bg-zinc-800, dark:text-white, dark:border-zinc-700
 - Edge 90+
 
 要求支持：
+
 - WebSocket API
 - ES6+ JavaScript
 - CSS Grid 和 Flexbox
@@ -412,6 +415,7 @@ dark:bg-zinc-800, dark:text-white, dark:border-zinc-700
 ## 变更日志
 
 ### v1.1.4 (2026-03-25)
+
 - ✅ 添加 WebSocket 连接状态实时显示
 - ✅ 添加任务状态分布图表
 - ✅ 添加团队工作效率指标
@@ -484,4 +488,3 @@ dark:bg-zinc-800, dark:text-white, dark:border-zinc-700
 **维护者**: Executor
 **审核状态**: ✅ 已实现
 **测试状态**: ⏳ 待测试
-

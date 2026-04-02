@@ -22,13 +22,9 @@ import {
   type DatabaseConnection,
   type DatabaseResult,
   type DatabaseStatement,
-} from './connection';
+} from './connection'
 
-import {
-  migrate,
-  optimizeDatabase,
-  getDatabaseHealth,
-} from './migrations';
+import { migrate, optimizeDatabase, getDatabaseHealth } from './migrations'
 
 // Re-export for named exports
 export {
@@ -45,13 +41,13 @@ export {
   type DatabaseConnection,
   type DatabaseResult,
   type DatabaseStatement,
-};
+}
 
 // Re-export batch operations
-export * from './batch-operations';
+export * from './batch-operations'
 
 // Re-export query optimizations
-export * from './query-optimizations';
+export * from './query-optimizations'
 
 // Export default for backward compatibility
 export default {
@@ -65,4 +61,4 @@ export default {
   migrate,
   optimizeDatabase,
   getDatabaseHealth,
-};
+}

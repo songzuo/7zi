@@ -3,6 +3,7 @@
 ## 功能
 
 ### 发送邮件
+
 ```bash
 gog gmail send \
   --account lengningtu@gmail.com \
@@ -12,6 +13,7 @@ gog gmail send \
 ```
 
 ### 读取收件箱
+
 ```bash
 gog gmail list \
   --account lengningtu@gmail.com \
@@ -20,6 +22,7 @@ gog gmail list \
 ```
 
 ### 读取单封邮件
+
 ```bash
 gog gmail get \
   --account lengningtu@gmail.com \
@@ -27,6 +30,7 @@ gog gmail get \
 ```
 
 ### 回复邮件
+
 ```bash
 gog gmail reply \
   --account lengningtu@gmail.com \
@@ -35,6 +39,7 @@ gog gmail reply \
 ```
 
 ### 搜索邮件
+
 ```bash
 gog gmail search \
   --account lengningtu@gmail.com \
@@ -44,14 +49,17 @@ gog gmail search \
 ## 使用场景
 
 ### 客服
+
 - 自动回复用户咨询
 - 邮件分类和优先级标记
 
 ### 营销
+
 - 发送产品更新
 - 媒体合作联络
 
 ### 通知
+
 - 重要事件邮件通知
 - 日报/周报发送
 

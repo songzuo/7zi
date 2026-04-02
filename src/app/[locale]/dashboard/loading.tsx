@@ -5,8 +5,8 @@
  * This improves perceived performance and provides immediate visual feedback.
  */
 
-import { DashboardLoading } from '@/components/PageLoadingTemplate';
+import { DashboardLoading } from '@/components/PageLoadingTemplate'
 
 export default function DashboardPageLoading() {
-  return <DashboardLoading />;
+  return <DashboardLoading />
 }

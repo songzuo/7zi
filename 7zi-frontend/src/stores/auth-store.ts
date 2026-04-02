@@ -11,20 +11,20 @@
  * - 认证状态持久化
  */
 
-import { create } from 'zustand';
-import { persist, createJSONStorage } from 'zustand/middleware';
+import { create } from 'zustand'
+import { persist, createJSONStorage } from 'zustand/middleware'
 
 /**
  * 用户信息接口
  */
 export interface User {
-  id: string;
-  name: string;
-  email: string;
-  role: string;
-  avatar?: string;
-  createdAt?: string;
-  updatedAt?: string;
+  id: string
+  name: string
+  email: string
+  role: string
+  avatar?: string
+  createdAt?: string
+  updatedAt?: string
 }
 
 /**
@@ -32,32 +32,32 @@ export interface User {
  */
 export interface AuthState {
   // 状态
-  user: User | null;
-  token: string | null;
-  isAuthenticated: boolean;
-  isLoading: boolean;
-  error: string | null;
+  user: User | null
+  token: string | null
+  isAuthenticated: boolean
+  isLoading: boolean
+  error: string | null
 
   // 登录操作
-  login: (email: string, password: string) => Promise<void>;
-  loginWithToken: (token: string, user: User) => void;
+  login: (email: string, password: string) => Promise<void>
+  loginWithToken: (token: string, user: User) => void
 
   // 登出操作
-  logout: () => void;
+  logout: () => void
 
   // 用户信息更新
-  updateProfile: (data: Partial<User>) => void;
-  setAvatar: (avatar: string) => void;
+  updateProfile: (data: Partial<User>) => void
+  setAvatar: (avatar: string) => void
 
   // 错误处理
-  setError: (error: string | null) => void;
-  clearError: () => void;
+  setError: (error: string | null) => void
+  clearError: () => void
 
   // 加载状态
-  setLoading: (loading: boolean) => void;
+  setLoading: (loading: boolean) => void
 
   // 重置状态
-  reset: () => void;
+  reset: () => void
 }
 
 /**
@@ -69,7 +69,7 @@ const initialState = {
   isAuthenticated: false,
   isLoading: false,
   error: null,
-};
+}
 
 /**
  * 认证状态 Store
@@ -85,21 +85,21 @@ export const useAuthStore = create<AuthState>()(
        * 用户登录
        */
       login: async (email: string, password: string) => {
-        set({ isLoading: true, error: null });
+        set({ isLoading: true, error: null })
 
         try {
           const response = await fetch('/api/auth/login', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ email, password }),
-          });
+          })
 
           if (!response.ok) {
-            const errorData = await response.json().catch(() => ({}));
-            throw new Error(errorData.message || '登录失败');
+            const errorData = await response.json().catch(() => ({}))
+            throw new Error(errorData.message || '登录失败')
           }
 
-          const { user, token } = await response.json();
+          const { user, token } = await response.json()
 
           set({
             user,
@@ -107,17 +107,17 @@ export const useAuthStore = create<AuthState>()(
             isAuthenticated: true,
             isLoading: false,
             error: null,
-          });
+          })
         } catch (error) {
-          const errorMessage = error instanceof Error ? error.message : '登录失败';
+          const errorMessage = error instanceof Error ? error.message : '登录失败'
           set({
             error: errorMessage,
             isLoading: false,
             isAuthenticated: false,
             user: null,
             token: null,
-          });
-          throw error;
+          })
+          throw error
         }
       },
 
@@ -131,7 +131,7 @@ export const useAuthStore = create<AuthState>()(
           isAuthenticated: true,
           isLoading: false,
           error: null,
-        });
+        })
       },
 
       /**
@@ -141,22 +141,22 @@ export const useAuthStore = create<AuthState>()(
         // 可以在这里调用登出 API
         fetch('/api/auth/logout', { method: 'POST' }).catch(() => {
           // 忽略错误，本地清除即可
-        });
+        })
 
         set({
           ...initialState,
-        });
+        })
       },
 
       /**
        * 更新用户资料
        */
       updateProfile: (data: Partial<User>) => {
-        const { user } = get();
+        const { user } = get()
         if (user) {
           set({
             user: { ...user, ...data, updatedAt: new Date().toISOString() },
-          });
+          })
         }
       },
 
@@ -164,11 +164,11 @@ export const useAuthStore = create<AuthState>()(
        * 设置头像
        */
       setAvatar: (avatar: string) => {
-        const { user } = get();
+        const { user } = get()
         if (user) {
           set({
             user: { ...user, avatar },
-          });
+          })
         }
       },
 
@@ -176,34 +176,34 @@ export const useAuthStore = create<AuthState>()(
        * 设置错误
        */
       setError: (error: string | null) => {
-        set({ error });
+        set({ error })
       },
 
       /**
        * 清除错误
        */
       clearError: () => {
-        set({ error: null });
+        set({ error: null })
       },
 
       /**
        * 设置加载状态
        */
       setLoading: (loading: boolean) => {
-        set({ isLoading: loading });
+        set({ isLoading: loading })
       },
 
       /**
        * 重置状态
        */
       reset: () => {
-        set(initialState);
+        set(initialState)
       },
     }),
     {
       name: '7zi-auth-storage', // localStorage key
       storage: createJSONStorage(() => localStorage),
-      partialize: (state) => ({
+      partialize: state => ({
         // 只持久化必要的状态
         user: state.user,
         token: state.token,
@@ -211,13 +211,13 @@ export const useAuthStore = create<AuthState>()(
       }),
     }
   )
-);
+)
 
 /**
  * 选择器 - 用于性能优化
  */
-export const selectUser = (state: AuthState) => state.user;
-export const selectIsAuthenticated = (state: AuthState) => state.isAuthenticated;
-export const selectToken = (state: AuthState) => state.token;
-export const selectIsLoading = (state: AuthState) => state.isLoading;
-export const selectError = (state: AuthState) => state.error;
+export const selectUser = (state: AuthState) => state.user
+export const selectIsAuthenticated = (state: AuthState) => state.isAuthenticated
+export const selectToken = (state: AuthState) => state.token
+export const selectIsLoading = (state: AuthState) => state.isLoading
+export const selectError = (state: AuthState) => state.error

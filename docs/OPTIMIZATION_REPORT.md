@@ -10,17 +10,18 @@
 
 ### 总体评分: B+ (85/100)
 
-| 类别 | 评分 | 状态 |
-|------|------|------|
-| 配置优化 | A | ✅ 优秀 |
-| 代码分割 | A- | ✅ 良好 |
-| 图片优化 | B+ | ✅ 良好 |
-| 字体优化 | A | ✅ 优秀 |
-| 安全配置 | A | ✅ 优秀 |
-| Bundle 大小 | B | ⚠️ 需改进 |
-| TypeScript | C+ | ⚠️ 有问题 |
+| 类别        | 评分 | 状态      |
+| ----------- | ---- | --------- |
+| 配置优化    | A    | ✅ 优秀   |
+| 代码分割    | A-   | ✅ 良好   |
+| 图片优化    | B+   | ✅ 良好   |
+| 字体优化    | A    | ✅ 优秀   |
+| 安全配置    | A    | ✅ 优秀   |
+| Bundle 大小 | B    | ⚠️ 需改进 |
+| TypeScript  | C+   | ⚠️ 有问题 |
 
 ### 已修复问题
+
 1. ✅ `AlertConfig` 类型未导出 → 已修复
 2. ✅ `LoadingSpinner` size 类型定义 → 已修复
 3. ✅ `LazyComponents` 缺少 'use client' → 已修复
@@ -66,7 +67,7 @@ const nextConfig: NextConfig = {
   turbopack: {
     root: __dirname,
   },
-};
+}
 ```
 
 #### 1.2 Middleware 已弃用警告
@@ -76,6 +77,7 @@ const nextConfig: NextConfig = {
 ```
 
 **建议**: Next.js 16 推荐使用新的 Proxy 系统，但 middleware 仍然可用。可以：
+
 - 保持现状（短期）
 - 迁移到 Proxy（长期）
 
@@ -106,11 +108,9 @@ const nextConfig: NextConfig = {
 
   // 生产环境移除 console.log
   compiler: {
-    removeConsole: process.env.NODE_ENV === 'production' 
-      ? { exclude: ['error', 'warn'] } 
-      : false,
+    removeConsole: process.env.NODE_ENV === 'production' ? { exclude: ['error', 'warn'] } : false,
   },
-};
+}
 ```
 
 ---
@@ -120,6 +120,7 @@ const nextConfig: NextConfig = {
 ### 当前实现
 
 **配置 (next.config.ts)**:
+
 ```typescript
 images: {
   remotePatterns: [{ protocol: 'https', hostname: '**' }],
@@ -131,6 +132,7 @@ images: {
 ```
 
 **LazyImage 组件** (`src/components/LazyImage.tsx`):
+
 - ✅ 使用 Intersection Observer 懒加载
 - ✅ 响应式 sizes 属性
 - ✅ 占位符和加载状态
@@ -140,13 +142,14 @@ images: {
 
 #### 2.1 图片优化
 
-| 文件 | 当前大小 | 优化建议 |
-|------|---------|---------|
-| logo.png | 52KB | 转换为 WebP/AVIF，预计 20-30KB |
-| icon-512.png | 52KB | 可优化至 ~15KB |
-| favicon.ico | 26KB | 使用 SVG favicon 替代 |
+| 文件         | 当前大小 | 优化建议                       |
+| ------------ | -------- | ------------------------------ |
+| logo.png     | 52KB     | 转换为 WebP/AVIF，预计 20-30KB |
+| icon-512.png | 52KB     | 可优化至 ~15KB                 |
+| favicon.ico  | 26KB     | 使用 SVG favicon 替代          |
 
 **建议命令**:
+
 ```bash
 # 使用 sharp 或 imagemin 优化
 npx sharp-cli resize 512 512 --format webp --quality 80 public/logo.png -o public/logo.webp
@@ -163,10 +166,10 @@ images: {
     { protocol: 'https', hostname: 'github.com' },
     // 添加实际需要的域名
   ],
-  
+
   // 增加缓存时间
   minimumCacheTTL: 3600, // 1小时
-  
+
   // 添加 dangerouslyAllowSVG（如果需要 SVG 优化）
   dangerouslyAllowSVG: true,
   contentDispositionType: 'attachment',
@@ -177,10 +180,11 @@ images: {
 #### 2.3 Priority 图片预加载
 
 首页应标记关键图片为 priority:
+
 ```tsx
-<Image 
-  src="/logo.webp" 
-  alt="7zi Studio" 
+<Image
+  src="/logo.webp"
+  alt="7zi Studio"
   priority // 首屏 logo
   fetchPriority="high"
 />
@@ -195,17 +199,18 @@ images: {
 ```typescript
 // src/app/layout.tsx
 const geistSans = Geist({
-  variable: "--font-geist-sans",
-  subsets: ["latin"],
-});
+  variable: '--font-geist-sans',
+  subsets: ['latin'],
+})
 
 const geistMono = Geist_Mono({
-  variable: "--font-geist-mono",
-  subsets: ["latin"],
-});
+  variable: '--font-geist-mono',
+  subsets: ['latin'],
+})
 ```
 
 ### ✅ 优点
+
 - 使用 Next.js 字体优化（自动子集化）
 - CSS 变量方式使用
 - 预加载自动处理
@@ -215,12 +220,12 @@ const geistMono = Geist_Mono({
 ```typescript
 // 添加 display 和 preload 控制
 const geistSans = Geist({
-  variable: "--font-geist-sans",
-  subsets: ["latin"],
-  display: "swap", // FOUT 策略
+  variable: '--font-geist-sans',
+  subsets: ['latin'],
+  display: 'swap', // FOUT 策略
   preload: true,
   adjustFontFallback: true, // 减少布局偏移
-});
+})
 
 // 考虑添加中文字体子集（如果需要）
 // 使用 next/font/local 加载本地优化后的中文字体
@@ -241,13 +246,13 @@ const geistSans = Geist({
 
 ### 主要 JS Chunk 分析
 
-| Chunk | 大小 | 可能包含 |
-|-------|------|---------|
+| Chunk       | 大小  | 可能包含             |
+| ----------- | ----- | -------------------- |
 | 030df4f9.js | 223KB | React + Next.js 核心 |
-| dcce311d.js | 119KB | next-intl 或 Sentry |
-| a6dad97d.js | 112KB | UI 组件库 |
-| 9bdd2098.js | 45KB | 页面特定代码 |
-| 9b50e572.js | 40KB | 工具函数 |
+| dcce311d.js | 119KB | next-intl 或 Sentry  |
+| a6dad97d.js | 112KB | UI 组件库            |
+| 9bdd2098.js | 45KB  | 页面特定代码         |
+| 9b50e572.js | 40KB  | 工具函数             |
 
 ### CSS 分析
 
@@ -281,15 +286,16 @@ peer next@"^13.2.0 || ^14.0 || ^15.0.0-rc.0" from @sentry/nextjs@9.47.1
 ```
 
 **建议**:
+
 1. 等待 Sentry 发布兼容 Next.js 16 的版本
 2. 或考虑使用 Sentry 的 tree-shaking:
 
 ```typescript
 // sentry.client.config.ts
-import * as Sentry from '@sentry/nextjs';
+import * as Sentry from '@sentry/nextjs'
 
 // 只导入需要的功能
-const { captureException, init } = Sentry;
+const { captureException, init } = Sentry
 ```
 
 #### 4.3 建议添加 Bundle 分析
@@ -309,9 +315,9 @@ const { captureException, init } = Sentry;
 // next.config.ts
 const withBundleAnalyzer = require('@next/bundle-analyzer')({
   enabled: process.env.ANALYZE === 'true',
-});
+})
 
-export default withNextIntl(withBundleAnalyzer(nextConfig));
+export default withNextIntl(withBundleAnalyzer(nextConfig))
 ```
 
 #### 4.4 动态导入优化
@@ -324,8 +330,8 @@ export const preloadAIChat = () => import('./AIChat');
 export const preloadSettings = () => import('./SettingsPanel');
 
 // 在 Navigation 悬停时调用
-<Link 
-  to="/dashboard" 
+<Link
+  to="/dashboard"
   onMouseEnter={preloadAIChat}
 >
 ```
@@ -338,17 +344,18 @@ export const preloadSettings = () => import('./SettingsPanel');
 
 ```typescript
 // src/proxy.ts
-import createMiddleware from 'next-intl/middleware';
-import { routing } from './i18n/routing';
+import createMiddleware from 'next-intl/middleware'
+import { routing } from './i18n/routing'
 
-export default createMiddleware(routing);
+export default createMiddleware(routing)
 
 export const config = {
-  matcher: ['/', '/(zh|en)/:path*', '/((?!api|_next|_vercel|.*\\..*).*)']
-};
+  matcher: ['/', '/(zh|en)/:path*', '/((?!api|_next|_vercel|.*\\..*).*)'],
+}
 ```
 
 ### ✅ 优点
+
 - 正确使用 next-intl 中间件
 - 合理的 matcher 配置
 
@@ -383,6 +390,7 @@ app/
 #### 5.1 重复路由问题
 
 存在 `/about` 和 `/[locale]/about` 两套路由，建议统一:
+
 - 方案 A: 只使用 `[locale]` 路由，根路径重定向
 - 方案 B: 只使用非 locale 路由，locale 仅影响内容
 
@@ -390,16 +398,19 @@ app/
 
 ```typescript
 // 建议: 添加速率限制和缓存
-export const runtime = 'edge'; // 使用 Edge Runtime 更快
-export const dynamic = 'force-dynamic'; // 或静态生成
+export const runtime = 'edge' // 使用 Edge Runtime 更快
+export const dynamic = 'force-dynamic' // 或静态生成
 
 // api/health/route.ts
 export async function GET() {
-  return Response.json({ status: 'ok' }, {
-    headers: {
-      'Cache-Control': 'public, max-age=10', // 10秒缓存
-    },
-  });
+  return Response.json(
+    { status: 'ok' },
+    {
+      headers: {
+        'Cache-Control': 'public, max-age=10', // 10秒缓存
+      },
+    }
+  )
 }
 ```
 
@@ -410,6 +421,7 @@ export async function GET() {
 ### 当前状态: ⚠️ 有错误
 
 主要问题:
+
 1. `web-vitals` 模块类型 - **已修复**
 2. 测试文件类型不匹配
 3. E2E 测试类型问题
@@ -433,10 +445,10 @@ npm install --save-dev @types/web-vitals
 ```typescript
 // src/test/lib/utils.test.ts
 // 修复 Mock 类型
-import { vi, describe, it, expect } from 'vitest';
+import { vi, describe, it, expect } from 'vitest'
 
 // 使用 vi.fn() 的泛型
-const mockFn = vi.fn<(x: number) => number>();
+const mockFn = vi.fn<(x: number) => number>()
 ```
 
 ---
@@ -447,7 +459,6 @@ const mockFn = vi.fn<(x: number) => number>();
 
 1. **修复 Sentry 依赖冲突**
    - 升级 @sentry/nextjs 或降级 Next.js
-   
 2. **优化大型图片**
    - logo.png/icon-512.png 转换为 WebP
    - 预计节省: 50-70KB
@@ -485,20 +496,20 @@ const mockFn = vi.fn<(x: number) => number>();
 ## 8️⃣ 建议的 next.config.ts 更新
 
 ```typescript
-import createNextIntlPlugin from 'next-intl/plugin';
-import type { NextConfig } from "next";
+import createNextIntlPlugin from 'next-intl/plugin'
+import type { NextConfig } from 'next'
 
-const withNextIntl = createNextIntlPlugin('./src/i18n/request.ts');
+const withNextIntl = createNextIntlPlugin('./src/i18n/request.ts')
 
 const nextConfig: NextConfig = {
   // Docker 部署使用 standalone 输出模式
   output: 'standalone',
-  
+
   // 修复 Turbopack 警告
   turbopack: {
     root: __dirname,
   },
-  
+
   // 图片优化配置
   images: {
     remotePatterns: [
@@ -522,42 +533,40 @@ const nextConfig: NextConfig = {
     dangerouslyAllowSVG: true,
     contentDispositionType: 'attachment',
   },
-  
+
   // 压缩配置
   compress: true,
-  
+
   // React 严格模式
   reactStrictMode: true,
-  
+
   // 禁用 x-powered-by 头
   poweredByHeader: false,
-  
+
   // 实验性优化
   experimental: {
     optimizePackageImports: ['@sentry/nextjs', 'next-intl'],
   },
-  
+
   // 生产环境移除 console.log
   compiler: {
-    removeConsole: process.env.NODE_ENV === 'production' 
-      ? { exclude: ['error', 'warn'] } 
-      : false,
+    removeConsole: process.env.NODE_ENV === 'production' ? { exclude: ['error', 'warn'] } : false,
   },
-  
+
   // 模块化导入优化
   modularizeImports: {
     'next-intl': {
       transform: 'next-intl/{{member}}',
     },
   },
-  
+
   // 安全头配置 (保持现有)
   headers: async () => [
     // ... 现有配置
   ],
-};
+}
 
-export default withNextIntl(nextConfig);
+export default withNextIntl(nextConfig)
 ```
 
 ---
@@ -601,16 +610,19 @@ export default withNextIntl(nextConfig);
 ## 📋 行动清单
 
 ### 立即执行 (本周)
+
 - [ ] 修复 Sentry 依赖冲突
 - [ ] 优化 public/ 目录下的图片
 - [ ] 添加 Bundle Analyzer
 
 ### 短期 (本月)
+
 - [ ] 统一路由结构
 - [ ] 修复 TypeScript 错误
 - [ ] 添加性能预算检查
 
 ### 长期 (下季度)
+
 - [ ] 迁移到 Next.js Proxy
 - [ ] 实现完整的 PWA 离线支持
 - [ ] 考虑使用 Edge Runtime
@@ -626,4 +638,4 @@ export default withNextIntl(nextConfig);
 
 ---
 
-*报告由架构师生成 - 7zi Studio*
+_报告由架构师生成 - 7zi Studio_

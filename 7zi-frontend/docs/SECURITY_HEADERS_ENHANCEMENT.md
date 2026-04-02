@@ -42,6 +42,7 @@ block-all-mixed-content;   // 新增
 ```
 
 **改进点**:
+
 - ✅ 移除 `unsafe-inline`（生产环境）
 - ✅ 移除 `unsafe-eval`（生产环境）
 - ✅ 添加 `upgrade-insecure-requests`（强制 HTTPS）
@@ -63,6 +64,7 @@ Strict-Transport-Security: max-age=63072000; includeSubDomains
 ```
 
 **参数说明**:
+
 - `max-age=63072000`: 2 年（推荐值）
 - `includeSubDomains`: 包含所有子域名
 - `preload`: 可选，需要向 hstspreload.org 申请
@@ -116,6 +118,7 @@ Referrer-Policy: strict-origin-when-cross-origin
 ```
 
 **行为**:
+
 - 同源请求：发送完整 URL
 - 跨域请求：只发送源（origin）
 - 降级请求（HTTPS → HTTP）：不发送 Referrer
@@ -143,6 +146,7 @@ Permissions-Policy:
 ```
 
 **改进点**:
+
 - ✅ 禁用所有设备权限（地理位置、麦克风、摄像头等）
 - ✅ 禁用 FLoC（`interest-cohort=none`）
 - ✅ 只允许同源自动播放和全屏
@@ -181,6 +185,7 @@ npm test -- src/lib/security/headers.test.ts
 ```
 
 **结果**:
+
 - ✅ Test Files: 1 passed (1)
 - ✅ Tests: 48 passed (48)
 - ✅ Duration: 3.79s
@@ -188,17 +193,17 @@ npm test -- src/lib/security/headers.test.ts
 
 ### 测试覆盖
 
-| 模块 | 测试数 | 状态 |
-|------|--------|------|
-| 环境配置 | 3 | ✅ 通过 |
-| CSP 生成 | 8 | ✅ 通过 |
-| HSTS 生成 | 4 | ✅ 通过 |
-| Permissions-Policy | 4 | ✅ 通过 |
-| 安全头部应用 | 8 | ✅ 通过 |
-| CSP Report-Only | 2 | ✅ 通过 |
-| CSP 验证 | 6 | ✅ 通过 |
-| 默认配置 | 8 | ✅ 通过 |
-| Cross-Origin 策略 | 3 | ✅ 通过 |
+| 模块               | 测试数 | 状态    |
+| ------------------ | ------ | ------- |
+| 环境配置           | 3      | ✅ 通过 |
+| CSP 生成           | 8      | ✅ 通过 |
+| HSTS 生成          | 4      | ✅ 通过 |
+| Permissions-Policy | 4      | ✅ 通过 |
+| 安全头部应用       | 8      | ✅ 通过 |
+| CSP Report-Only    | 2      | ✅ 通过 |
+| CSP 验证           | 6      | ✅ 通过 |
+| 默认配置           | 8      | ✅ 通过 |
+| Cross-Origin 策略  | 3      | ✅ 通过 |
 
 ---
 
@@ -208,18 +213,18 @@ npm test -- src/lib/security/headers.test.ts
 
 ```typescript
 // 导入新模块
-import { getSecurityHeaders } from './lib/security/headers';
+import { getSecurityHeaders } from './lib/security/headers'
 
 // 应用安全头部
 function addSecurityHeaders(response: NextResponse): NextResponse {
-  const environment = process.env.NODE_ENV === 'development' ? 'development' : 'production';
-  const headers = getSecurityHeaders(environment);
+  const environment = process.env.NODE_ENV === 'development' ? 'development' : 'production'
+  const headers = getSecurityHeaders(environment)
 
   Object.entries(headers).forEach(([name, value]) => {
-    response.headers.set(name, value);
-  });
+    response.headers.set(name, value)
+  })
 
-  return response;
+  return response
 }
 ```
 
@@ -231,10 +236,10 @@ function addSecurityHeaders(response: NextResponse): NextResponse {
 
 ### 使用 Security Headers (securityheaders.com) 测试
 
-| 环境 | 评分 | 备注 |
-|------|------|------|
-| **开发环境** | B+ | 宽松模式，便于开发调试 |
-| **生产环境** | A+ | 严格模式，最佳实践 |
+| 环境         | 评分 | 备注                   |
+| ------------ | ---- | ---------------------- |
+| **开发环境** | B+   | 宽松模式，便于开发调试 |
+| **生产环境** | A+   | 严格模式，最佳实践     |
 
 ---
 
@@ -271,10 +276,10 @@ function addSecurityHeaders(response: NextResponse): NextResponse {
 
 ```typescript
 // ❌ 之前：使用 eval
-const result = eval(code);
+const result = eval(code)
 
 // ✅ 之后：使用安全的替代方案
-const result = JSON.parse(code); // 如果是 JSON
+const result = JSON.parse(code) // 如果是 JSON
 // 或使用 Web Workers 执行不受信任的代码
 ```
 
@@ -283,12 +288,12 @@ const result = JSON.parse(code); // 如果是 JSON
 如果需要加载外部资源（如 CDN），需要更新 CSP 配置：
 
 ```typescript
-import { getSecurityConfig } from '@/lib/security/headers';
+import { getSecurityConfig } from '@/lib/security/headers'
 
-const config = getSecurityConfig('production');
-config.csp.scriptSrc.push('https://cdn.example.com');
-config.csp.styleSrc.push('https://fonts.googleapis.com');
-config.csp.connectSrc.push('https://api.example.com');
+const config = getSecurityConfig('production')
+config.csp.scriptSrc.push('https://cdn.example.com')
+config.csp.styleSrc.push('https://fonts.googleapis.com')
+config.csp.connectSrc.push('https://api.example.com')
 ```
 
 ---
@@ -298,12 +303,14 @@ config.csp.connectSrc.push('https://api.example.com');
 ### 1. CSP 严格模式影响
 
 **影响**: 禁用 `unsafe-inline` 和 `unsafe-eval` 后，以下功能可能失效：
+
 - 内联 JavaScript 事件（`onclick`, `onload` 等）
 - 内联样式（`style` 属性）
 - `eval()` 和 `new Function()`
 - 模板字符串动态代码执行
 
 **解决方案**:
+
 - 使用外部脚本和 CSS
 - 使用事件监听器（`addEventListener`）
 - 使用 Web Workers 执行不受信任的代码
@@ -311,11 +318,13 @@ config.csp.connectSrc.push('https://api.example.com');
 ### 2. 开发/生产环境差异
 
 **开发环境**:
+
 - 允许 `unsafe-inline` 和 `unsafe-eval`
 - X-Frame-Options 为 SAMEORIGIN
 - 不启用 HSTS
 
 **生产环境**:
+
 - 禁用 `unsafe-inline` 和 `unsafe-eval`
 - X-Frame-Options 为 DENY
 - 启用 HSTS（2 年）
@@ -325,6 +334,7 @@ config.csp.connectSrc.push('https://api.example.com');
 **注意**: `preload` 选项需要向 [hstspreload.org](https://hstspreload.org/) 申请，申请后无法撤销。
 
 **建议**:
+
 - 先在生产环境测试 HSTS（不启用 preload）
 - 确认无误后再申请 preload
 
@@ -334,22 +344,22 @@ config.csp.connectSrc.push('https://api.example.com');
 
 ### 安全性提升
 
-| 指标 | 优化前 | 优化后 | 提升 |
-|------|--------|--------|------|
-| **XSS 防护** | 基础 | 严格 CSP | +80% |
-| **点击劫持防护** | SAMEORIGIN | DENY | +50% |
-| **HTTPS 强制** | 无 | HSTS 2 年 | +100% |
-| **设备权限保护** | 部分限制 | 完全禁用 | +100% |
-| **FLoC 禁用** | 未禁用 | 已禁用 | +100% |
+| 指标             | 优化前     | 优化后    | 提升  |
+| ---------------- | ---------- | --------- | ----- |
+| **XSS 防护**     | 基础       | 严格 CSP  | +80%  |
+| **点击劫持防护** | SAMEORIGIN | DENY      | +50%  |
+| **HTTPS 强制**   | 无         | HSTS 2 年 | +100% |
+| **设备权限保护** | 部分限制   | 完全禁用  | +100% |
+| **FLoC 禁用**    | 未禁用     | 已禁用    | +100% |
 
 ### 合规性
 
-| 合规标准 | 状态 |
-|---------|------|
-| OWASP Top 10 | ✅ 符合 |
-| GDPR | ✅ 符合（禁用设备权限） |
-| PCI DSS | ✅ 符合（HSTS、CSP） |
-| ISO 27001 | ✅ 符合（全面安全头部） |
+| 合规标准     | 状态                    |
+| ------------ | ----------------------- |
+| OWASP Top 10 | ✅ 符合                 |
+| GDPR         | ✅ 符合（禁用设备权限） |
+| PCI DSS      | ✅ 符合（HSTS、CSP）    |
+| ISO 27001    | ✅ 符合（全面安全头部） |
 
 ---
 
@@ -364,17 +374,17 @@ config.csp.connectSrc.push('https://api.example.com');
 
 ## ✅ 验收标准完成情况
 
-| 验收标准 | 状态 |
-|---------|------|
-| CSP 升级（移除 unsafe-inline 和 unsafe-eval） | ✅ 完成 |
-| HSTS 配置（生产环境 2 年） | ✅ 完成 |
-| X-Frame-Options、X-Content-Type-Options、X-XSS-Protection | ✅ 完成 |
-| Referrer-Policy | ✅ 完成 |
-| Permissions-Policy | ✅ 完成 |
-| 支持开发/生产环境不同配置 | ✅ 完成 |
-| 兼容现有功能（不破坏） | ✅ 完成 |
-| 文档说明 | ✅ 完成 |
-| 单元测试覆盖率 > 80% | ✅ 完成（~98%） |
+| 验收标准                                                  | 状态            |
+| --------------------------------------------------------- | --------------- |
+| CSP 升级（移除 unsafe-inline 和 unsafe-eval）             | ✅ 完成         |
+| HSTS 配置（生产环境 2 年）                                | ✅ 完成         |
+| X-Frame-Options、X-Content-Type-Options、X-XSS-Protection | ✅ 完成         |
+| Referrer-Policy                                           | ✅ 完成         |
+| Permissions-Policy                                        | ✅ 完成         |
+| 支持开发/生产环境不同配置                                 | ✅ 完成         |
+| 兼容现有功能（不破坏）                                    | ✅ 完成         |
+| 文档说明                                                  | ✅ 完成         |
+| 单元测试覆盖率 > 80%                                      | ✅ 完成（~98%） |
 
 ---
 

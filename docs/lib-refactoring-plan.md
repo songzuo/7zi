@@ -91,19 +91,20 @@ src/lib/
 
 ### 3.2 模块职责分析
 
-| 模块 | 当前职责 | 问题 |
-|------|----------|------|
-| `agents/agent/` | 认证、仓库、钱包、中间件 | 职责清晰 |
-| `agents/agent/communication/` | 消息构建 | ❌ 位置不合理，应在 a2a/ 下 |
-| `agents/a2a/` | Agent-to-Agent 通信协议 | 职责清晰，但与 multi-agent 重叠 |
-| `agents/scheduler/` | 任务调度和负载均衡 | 职责清晰 |
-| `agents/learning/` | 学习模块 | 需确认是否有使用 |
-| `agents/tools/` | 工具函数 | 职责清晰 |
-| `multi-agent/` | 多智能体协作 | ❌ 与 a2a 功能重叠 |
+| 模块                          | 当前职责                 | 问题                            |
+| ----------------------------- | ------------------------ | ------------------------------- |
+| `agents/agent/`               | 认证、仓库、钱包、中间件 | 职责清晰                        |
+| `agents/agent/communication/` | 消息构建                 | ❌ 位置不合理，应在 a2a/ 下     |
+| `agents/a2a/`                 | Agent-to-Agent 通信协议  | 职责清晰，但与 multi-agent 重叠 |
+| `agents/scheduler/`           | 任务调度和负载均衡       | 职责清晰                        |
+| `agents/learning/`            | 学习模块                 | 需确认是否有使用                |
+| `agents/tools/`               | 工具函数                 | 职责清晰                        |
+| `multi-agent/`                | 多智能体协作             | ❌ 与 a2a 功能重叠              |
 
 ### 3.3 依赖分析
 
 **API 路由直接依赖**:
+
 - `@/lib/agents/a2a/agent-registry`
 - `@/lib/agents/a2a/types`
 - `@/lib/agents/a2a/jsonrpc-handler`
@@ -129,6 +130,7 @@ agents/a2a/                    vs    multi-agent/
 ```
 
 **重叠点**:
+
 1. **消息处理**: `message-queue.ts` vs `message-bus.ts`
 2. **注册表**: `agent-registry.ts` vs `registry.ts`
 3. **协议定义**: `a2a/types.ts` vs `multi-agent/protocol.ts`
@@ -231,13 +233,13 @@ src/lib/agents/
 
 ### 6.2 变更说明
 
-| 原路径 | 新路径 | 说明 |
-|--------|--------|------|
-| `agents/agent/` | `agents/core/` | 更清晰的命名 |
-| `agents/agent/communication/` | `agents/communication/message-builder/` | 移到通信模块下 |
-| `agents/a2a/` | `agents/communication/a2a/` | 归入通信模块 |
-| `multi-agent/` | `agents/communication/multi-agent/` | 归入通信模块 |
-| - | `agents/communication/shared/` | 新增共享基础设施 |
+| 原路径                        | 新路径                                  | 说明             |
+| ----------------------------- | --------------------------------------- | ---------------- |
+| `agents/agent/`               | `agents/core/`                          | 更清晰的命名     |
+| `agents/agent/communication/` | `agents/communication/message-builder/` | 移到通信模块下   |
+| `agents/a2a/`                 | `agents/communication/a2a/`             | 归入通信模块     |
+| `multi-agent/`                | `agents/communication/multi-agent/`     | 归入通信模块     |
+| -                             | `agents/communication/shared/`          | 新增共享基础设施 |
 
 ---
 
@@ -248,12 +250,14 @@ src/lib/agents/
 **目标**: 梳理依赖，创建迁移基础设施
 
 **步骤**:
+
 1. 创建详细的导入路径映射文档
 2. 识别所有依赖点（API 路由、测试文件、其他模块）
 3. 创建测试覆盖率报告
 4. 设置迁移脚本
 
 **产出**:
+
 - `/docs/migration/import-mapping.md` - 导入路径映射
 - `/docs/migration/dependency-analysis.md` - 依赖分析报告
 
@@ -266,16 +270,19 @@ src/lib/agents/
 **目标**: 创建新目录，不删除旧代码
 
 **步骤**:
+
 1. 创建新目录结构
 2. 复制文件到新位置（不移动）
 3. 更新新文件的导入路径
 4. 创建 index.ts 导出
 
 **产出**:
+
 - 新目录结构就位
 - 新文件可单独导入
 
 **命令示例**:
+
 ```bash
 # 创建目录
 mkdir -p src/lib/agents/core/{auth,repository,middleware}
@@ -295,6 +302,7 @@ cp src/lib/agents/agent/repository.ts src/lib/agents/core/repository/agent-repos
 **目标**: 提供向后兼容的导入路径
 
 **步骤**:
+
 1. 在旧路径创建 re-export 文件
 2. 使用 TypeScript path mapping
 3. 更新 tsconfig.json
@@ -306,16 +314,17 @@ cp src/lib/agents/agent/repository.ts src/lib/agents/core/repository/agent-repos
 /**
  * @deprecated Use '@/lib/agents/core' instead
  */
-export * from '../core';
+export * from '../core'
 
 // src/lib/agents/agent/communication/index.ts
 /**
  * @deprecated Use '@/lib/agents/communication/message-builder' instead
  */
-export * from '../../communication/message-builder';
+export * from '../../communication/message-builder'
 ```
 
 **tsconfig.json 配置**:
+
 ```json
 {
   "compilerOptions": {
@@ -337,12 +346,14 @@ export * from '../../communication/message-builder';
 **目标**: 确保所有测试通过
 
 **步骤**:
+
 1. 更新测试文件的导入路径
 2. 运行所有测试
 3. 修复失败的测试
 4. 添加新的集成测试
 
 **测试更新脚本**:
+
 ```bash
 # 查找需要更新的测试文件
 grep -r "from.*@/lib/agents/agent" src --include="*.test.ts" -l
@@ -352,6 +363,7 @@ find src -name "*.test.ts" -exec sed -i 's|@/lib/agents/agent/|@/lib/agents/core
 ```
 
 **产出**:
+
 - 所有测试通过
 - 测试覆盖率保持或提高
 
@@ -364,19 +376,21 @@ find src -name "*.test.ts" -exec sed -i 's|@/lib/agents/agent/|@/lib/agents/core
 **目标**: 更新 API 路由使用新路径
 
 **步骤**:
+
 1. 更新 `src/app/api/a2a/` 下的路由
 2. 每次迁移一个路由文件
 3. 测试 API 功能
 4. 记录变更
 
 **示例更新**:
+
 ```typescript
 // src/app/api/a2a/registry/route.ts
 // 之前
-import { getAgentRegistry } from '@/lib/agents/a2a/agent-registry';
+import { getAgentRegistry } from '@/lib/agents/a2a/agent-registry'
 
 // 之后
-import { getAgentRegistry } from '@/lib/agents/communication/a2a/agent-registry';
+import { getAgentRegistry } from '@/lib/agents/communication/a2a/agent-registry'
 ```
 
 **风险**: 中 - 需要逐个测试
@@ -388,6 +402,7 @@ import { getAgentRegistry } from '@/lib/agents/communication/a2a/agent-registry'
 **目标**: 消除 `a2a/` 和 `multi-agent/` 之间的重复
 
 **步骤**:
+
 1. 分析 `message-queue.ts` vs `message-bus.ts`
 2. 提取共享接口到 `communication/shared/`
 3. 实现统一的通信接口
@@ -398,10 +413,10 @@ import { getAgentRegistry } from '@/lib/agents/communication/a2a/agent-registry'
 ```typescript
 // src/lib/agents/communication/shared/registry-base.ts
 export interface IAgentRegistry {
-  register(agent: AgentRegistration): Promise<void>;
-  unregister(agentId: string): Promise<void>;
-  getAgent(agentId: string): Promise<AgentCard | null>;
-  listAgents(): Promise<AgentCard[]>;
+  register(agent: AgentRegistration): Promise<void>
+  unregister(agentId: string): Promise<void>
+  getAgent(agentId: string): Promise<AgentCard | null>
+  listAgents(): Promise<AgentCard[]>
 }
 
 // a2a 和 multi-agent 都实现这个接口
@@ -416,12 +431,14 @@ export interface IAgentRegistry {
 **目标**: 移除旧代码，更新文档
 
 **步骤**:
+
 1. 移除旧的兼容层（如果不再需要）
 2. 更新 README 文档
 3. 更新 API 文档
 4. 创建迁移指南
 
 **产出**:
+
 - `/docs/lib-agents-migration-guide.md`
 - 更新的 README
 
@@ -433,11 +450,11 @@ export interface IAgentRegistry {
 
 ### 8.1 已识别的循环依赖风险
 
-| 风险 | 描述 | 缓解措施 |
-|------|------|----------|
-| `core` ↔ `communication` | 核心模块可能需要通信类型 | 使用 `types.ts` 作为共享类型层 |
-| `a2a` ↔ `multi-agent` | 两个通信模块可能相互依赖 | 通过 `shared/` 层解耦 |
-| `scheduler` → `communication` | 调度器依赖消息队列 | 单向依赖，通过接口解耦 |
+| 风险                          | 描述                     | 缓解措施                       |
+| ----------------------------- | ------------------------ | ------------------------------ |
+| `core` ↔ `communication`      | 核心模块可能需要通信类型 | 使用 `types.ts` 作为共享类型层 |
+| `a2a` ↔ `multi-agent`         | 两个通信模块可能相互依赖 | 通过 `shared/` 层解耦          |
+| `scheduler` → `communication` | 调度器依赖消息队列       | 单向依赖，通过接口解耦         |
 
 ### 8.2 依赖规则
 
@@ -481,14 +498,17 @@ npx madge --circular src/lib/agents/
 ### 9.1 三层兼容策略
 
 **Layer 1: 文件系统层**
+
 - 保留旧文件作为 re-export
 - 使用 `@deprecated` JSDoc 注释
 
 **Layer 2: TypeScript 层**
+
 - 使用 path mapping
 - 在 tsconfig.json 中配置别名
 
 **Layer 3: 运行时层**
+
 - 提供 deprecation warning
 - 使用 `console.warn` 提示迁移
 
@@ -501,26 +521,26 @@ npx madge --circular src/lib/agents/
  * This file will be removed in v2.0.0.
  * @see {@link https://docs.7zi.com/migration/lib-agents}
  */
-import * as CoreModule from '../core';
+import * as CoreModule from '../core'
 
 // 运行时警告（仅开发环境）
 if (process.env.NODE_ENV === 'development') {
   console.warn(
     '[Deprecation] Import from @/lib/agents/agent is deprecated. ' +
-    'Use @/lib/agents/core instead.'
-  );
+      'Use @/lib/agents/core instead.'
+  )
 }
 
-export * from '../core';
+export * from '../core'
 ```
 
 ### 9.3 迁移时间线
 
-| 版本 | 状态 |
-|------|------|
-| v1.5.0 | 添加新结构 + 兼容层 |
+| 版本   | 状态                           |
+| ------ | ------------------------------ |
+| v1.5.0 | 添加新结构 + 兼容层            |
 | v1.6.0 | 默认使用新路径，兼容层弃用警告 |
-| v2.0.0 | 移除兼容层 |
+| v2.0.0 | 移除兼容层                     |
 
 ---
 
@@ -528,13 +548,13 @@ export * from '../core';
 
 ### 10.1 测试覆盖计划
 
-| 模块 | 当前测试数 | 目标覆盖率 |
-|------|-----------|-----------|
-| `core/auth` | ~5 | 90% |
-| `core/repository` | ~8 | 85% |
-| `communication/a2a` | ~10 | 85% |
-| `communication/multi-agent` | ~4 | 80% |
-| `scheduler` | ~15 | 85% |
+| 模块                        | 当前测试数 | 目标覆盖率 |
+| --------------------------- | ---------- | ---------- |
+| `core/auth`                 | ~5         | 90%        |
+| `core/repository`           | ~8         | 85%        |
+| `communication/a2a`         | ~10        | 85%        |
+| `communication/multi-agent` | ~4         | 80%        |
+| `scheduler`                 | ~15        | 85%        |
 
 ### 10.2 测试类型
 
@@ -562,12 +582,12 @@ npm run test:imports
 
 ### 11.1 风险矩阵
 
-| 风险 | 可能性 | 影响 | 等级 | 缓解措施 |
-|------|--------|------|------|----------|
-| 循环依赖 | 中 | 高 | 🔴 高 | 详细依赖分析，分模块迁移 |
-| 测试失败 | 高 | 中 | 🟡 中 | 分阶段迁移，每阶段运行测试 |
-| API 破坏 | 低 | 高 | 🟡 中 | 兼容层 + 集成测试 |
-| 迁移时间超期 | 中 | 中 | 🟡 中 | 预留 20% 缓冲时间 |
+| 风险         | 可能性 | 影响 | 等级  | 缓解措施                   |
+| ------------ | ------ | ---- | ----- | -------------------------- |
+| 循环依赖     | 中     | 高   | 🔴 高 | 详细依赖分析，分模块迁移   |
+| 测试失败     | 高     | 中   | 🟡 中 | 分阶段迁移，每阶段运行测试 |
+| API 破坏     | 低     | 高   | 🟡 中 | 兼容层 + 集成测试          |
+| 迁移时间超期 | 中     | 中   | 🟡 中 | 预留 20% 缓冲时间          |
 
 ### 11.2 回滚计划
 
@@ -587,13 +607,13 @@ git tag -a lib-refactor-phase-2 -m "Phase 2: New structure created"
 
 ### A. 导入路径映射表
 
-| 旧路径 | 新路径 |
-|--------|--------|
-| `@/lib/agents/agent/auth-service` | `@/lib/agents/core/auth/auth-service` |
-| `@/lib/agents/agent/repository` | `@/lib/agents/core/repository/agent-repository` |
-| `@/lib/agents/agent/communication` | `@/lib/agents/communication/message-builder` |
-| `@/lib/agents/a2a/*` | `@/lib/agents/communication/a2a/*` |
-| `@/lib/multi-agent/*` | `@/lib/agents/communication/multi-agent/*` |
+| 旧路径                             | 新路径                                          |
+| ---------------------------------- | ----------------------------------------------- |
+| `@/lib/agents/agent/auth-service`  | `@/lib/agents/core/auth/auth-service`           |
+| `@/lib/agents/agent/repository`    | `@/lib/agents/core/repository/agent-repository` |
+| `@/lib/agents/agent/communication` | `@/lib/agents/communication/message-builder`    |
+| `@/lib/agents/a2a/*`               | `@/lib/agents/communication/a2a/*`              |
+| `@/lib/multi-agent/*`              | `@/lib/agents/communication/multi-agent/*`      |
 
 ### B. 相关文档
 
@@ -609,4 +629,5 @@ git tag -a lib-refactor-phase-2 -m "Phase 2: New structure created"
 ---
 
 **文档版本历史**:
+
 - v1.0 (2026-03-31) - 初始草案

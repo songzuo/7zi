@@ -11,36 +11,36 @@
 
 ### Core Methods
 
-| Method | Description | Returns |
-|--------|-------------|---------|
-| `set(key, value, ttl?)` | Stores a value (async) | `Promise<void>` |
-| `setSync(key, value, ttl?)` | Stores a value (sync) | `void` |
-| `get(key)` | Retrieves a value (async) | `Promise<T \| null>` |
-| `getSync(key)` | Retrieves a value (sync) | `T \| null` |
-| `delete(key)` | Deletes a specific entry (async) | `Promise<void>` |
-| `deleteSync(key)` | Deletes a specific entry (sync) | `void` |
-| `clear()` | Clears all entries (async) | `Promise<void>` |
-| `clearSync()` | Clears all entries (sync) | `void` |
-| `has(key)` | Checks if key exists (async) | `Promise<boolean>` |
-| `hasSync(key)` | Checks if key exists (sync) | `boolean` |
+| Method                      | Description                      | Returns              |
+| --------------------------- | -------------------------------- | -------------------- |
+| `set(key, value, ttl?)`     | Stores a value (async)           | `Promise<void>`      |
+| `setSync(key, value, ttl?)` | Stores a value (sync)            | `void`               |
+| `get(key)`                  | Retrieves a value (async)        | `Promise<T \| null>` |
+| `getSync(key)`              | Retrieves a value (sync)         | `T \| null`          |
+| `delete(key)`               | Deletes a specific entry (async) | `Promise<void>`      |
+| `deleteSync(key)`           | Deletes a specific entry (sync)  | `void`               |
+| `clear()`                   | Clears all entries (async)       | `Promise<void>`      |
+| `clearSync()`               | Clears all entries (sync)        | `void`               |
+| `has(key)`                  | Checks if key exists (async)     | `Promise<boolean>`   |
+| `hasSync(key)`              | Checks if key exists (sync)      | `boolean`            |
 
 ### Batch Operations
 
-| Method | Description | Returns |
-|--------|-------------|---------|
-| `setMany(entries)` | Batch set [key, value, ttl?][] | `Promise<void>` |
-| `getMany(keys)` | Batch get multiple keys | `Promise<Map<string, T>>` |
-| `deleteMany(keys)` | Batch delete multiple keys | `Promise<void>` |
+| Method             | Description                    | Returns                   |
+| ------------------ | ------------------------------ | ------------------------- |
+| `setMany(entries)` | Batch set [key, value, ttl?][] | `Promise<void>`           |
+| `getMany(keys)`    | Batch get multiple keys        | `Promise<Map<string, T>>` |
+| `deleteMany(keys)` | Batch delete multiple keys     | `Promise<void>`           |
 
 ### Utility Methods
 
-| Method | Description | Returns |
-|--------|-------------|---------|
-| `size` | Current cache size (getter) | `number` |
-| `getStats()` | Get cache statistics | `CacheStats` |
-| `resetStats()` | Reset statistics | `void` |
-| `cleanupExpired()` | Manually cleanup expired entries | `void` |
-| `destroy()` | Destroy cache and stop cleanup | `void` |
+| Method             | Description                      | Returns      |
+| ------------------ | -------------------------------- | ------------ |
+| `size`             | Current cache size (getter)      | `number`     |
+| `getStats()`       | Get cache statistics             | `CacheStats` |
+| `resetStats()`     | Reset statistics                 | `void`       |
+| `cleanupExpired()` | Manually cleanup expired entries | `void`       |
+| `destroy()`        | Destroy cache and stop cleanup   | `void`       |
 
 ### Factory Function
 
@@ -80,11 +80,11 @@ The L1 Cache uses JavaScript's `Map` object, which maintains **insertion order**
 
 ### Why Map Over数组/链表?
 
-| Approach | get | set | evict | Memory |
-|----------|-----|-----|-------|--------|
-| Map (this impl) | O(1) | O(1) | O(1) | Moderate |
-| Array | O(n) | O(1) | O(n) | Low |
-| Linked List | O(n) | O(1) | O(1) | High |
+| Approach        | get  | set  | evict | Memory   |
+| --------------- | ---- | ---- | ----- | -------- |
+| Map (this impl) | O(1) | O(1) | O(1)  | Moderate |
+| Array           | O(n) | O(1) | O(n)  | Low      |
+| Linked List     | O(n) | O(1) | O(1)  | High     |
 
 ---
 
@@ -102,16 +102,16 @@ The L1 Cache uses JavaScript's `Map` object, which maintains **insertion order**
 ```typescript
 interface L1CacheOptions {
   /** Maximum number of entries (default: 1000) */
-  maxSize?: number;
-  
+  maxSize?: number
+
   /** Default TTL in milliseconds (default: 5 minutes = 300000ms) */
-  defaultTTL?: number;
-  
+  defaultTTL?: number
+
   /** Automatic cleanup interval (default: 60 seconds) */
-  cleanupInterval?: number;
-  
+  cleanupInterval?: number
+
   /** Enable statistics tracking (default: true) */
-  enableStats?: boolean;
+  enableStats?: boolean
 }
 ```
 
@@ -119,7 +119,7 @@ interface L1CacheOptions {
 
 - **Minimum**: 5 minutes (300,000 ms)
 - **Maximum**: 30 minutes (1,800,000 ms)
-- **Recommended**: 
+- **Recommended**:
   - Sessions: 30 minutes
   - Permissions: 10 minutes
   - Config: 15 minutes
@@ -132,21 +132,21 @@ const sessionCache = new L1Cache<SessionData>({
   maxSize: 500,
   defaultTTL: 30 * 60 * 1000, // 30 minutes
   cleanupInterval: 5 * 60 * 1000, // Clean every 5 min
-});
+})
 
 // Permission checks
 const permissionCache = createL1Cache<Permission[]>({
   maxSize: 1000,
   defaultTTL: 10 * 60 * 1000, // 10 minutes
   cleanupInterval: 2 * 60 * 1000,
-});
+})
 
 // App configuration
 const configCache = createL1Cache<AppConfig>({
   maxSize: 100,
   defaultTTL: 15 * 60 * 1000, // 15 minutes
   cleanupInterval: 3 * 60 * 1000,
-});
+})
 ```
 
 ---
@@ -161,10 +161,10 @@ const configCache = createL1Cache<AppConfig>({
 
 ### Async vs Sync API
 
-| API | Use Case | Benefit |
-|-----|----------|---------|
-| `async/await` | I/O-bound data fetching | Non-blocking |
-| `Sync` | Hot paths, high-frequency access | Lower overhead |
+| API           | Use Case                         | Benefit        |
+| ------------- | -------------------------------- | -------------- |
+| `async/await` | I/O-bound data fetching          | Non-blocking   |
+| `Sync`        | Hot paths, high-frequency access | Lower overhead |
 
 ### Batch Operations
 
@@ -173,16 +173,17 @@ Use batch operations for better performance when dealing with multiple keys:
 ```typescript
 // ❌ Not recommended (multiple round trips)
 for (const key of keys) {
-  await cache.set(key, values[key]);
+  await cache.set(key, values[key])
 }
 
 // ✅ Recommended (single batch operation)
-await cache.setMany(keys.map(k => [k, values[k]]));
+await cache.setMany(keys.map(k => [k, values[k]]))
 ```
 
 ### Statistics Tracking
 
 The cache tracks:
+
 - `hits`: Successful cache retrievals
 - `misses`: Failed retrievals (not found or expired)
 - `sets`: Total entries set
@@ -214,13 +215,13 @@ src/lib/cache/
 
 ## ✅ Acceptance Criteria Verification
 
-| Criteria | Status |
-|----------|--------|
-| L1 cache class implemented | ✅ Complete |
-| LRU eviction strategy | ✅ Implemented |
-| TTL expiration mechanism | ✅ Working |
-| Usage examples provided | ✅ Complete |
-| TypeScript type checking | ✅ Passing |
+| Criteria                   | Status         |
+| -------------------------- | -------------- |
+| L1 cache class implemented | ✅ Complete    |
+| LRU eviction strategy      | ✅ Implemented |
+| TTL expiration mechanism   | ✅ Working     |
+| Usage examples provided    | ✅ Complete    |
+| TypeScript type checking   | ✅ Passing     |
 
 ---
 

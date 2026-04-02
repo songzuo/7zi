@@ -4,7 +4,7 @@
  * 提供认证相关的工具函数，包括密码哈希、令牌验证、权限检查等
  */
 
-import { isValidEmail, isStrongPassword, isValidUsername } from './validation';
+import { isValidEmail, isStrongPassword, isValidUsername } from './validation'
 
 /**
  * 用户角色枚举
@@ -29,78 +29,81 @@ export enum Permission {
  * 用户信息接口
  */
 export interface User {
-  id: string;
-  username: string;
-  email: string;
-  role: UserRole;
-  permissions: Permission[];
-  createdAt: Date;
-  updatedAt: Date;
+  id: string
+  username: string
+  email: string
+  role: UserRole
+  permissions: Permission[]
+  createdAt: Date
+  updatedAt: Date
 }
 
 /**
  * 登录凭证接口
  */
 export interface Credentials {
-  username: string;
-  password: string;
+  username: string
+  password: string
 }
 
 /**
  * 会话信息接口
  */
 export interface Session {
-  token: string;
-  userId: string;
-  expiresAt: Date;
-  createdAt: Date;
+  token: string
+  userId: string
+  expiresAt: Date
+  createdAt: Date
 }
 
 /**
  * 认证结果接口
  */
 export interface AuthResult {
-  success: boolean;
-  user?: User;
-  session?: Session;
-  error?: string;
+  success: boolean
+  user?: User
+  session?: Session
+  error?: string
 }
 
 /**
  * 验证登录凭证
  */
-export function validateCredentials(credentials: Credentials): { valid: boolean; errors: string[] } {
-  const errors: string[] = [];
+export function validateCredentials(credentials: Credentials): {
+  valid: boolean
+  errors: string[]
+} {
+  const errors: string[] = []
 
   // 验证用户名或邮箱 - 如果两个都无效才报错
-  const isEmail = isValidEmail(credentials.username);
-  const isUsername = isValidUsername(credentials.username);
+  const isEmail = isValidEmail(credentials.username)
+  const isUsername = isValidUsername(credentials.username)
 
   if (!credentials.username) {
-    errors.push('用户名不能为空');
+    errors.push('用户名不能为空')
   } else if (!isEmail && !isUsername) {
-    errors.push('用户名或邮箱格式无效');
+    errors.push('用户名或邮箱格式无效')
   }
 
   // 验证密码 - 逐项检查以返回多个错误
   if (!credentials.password) {
-    errors.push('密码不能为空');
+    errors.push('密码不能为空')
   } else {
     if (credentials.password.length < 6) {
-      errors.push('密码长度至少为6位');
+      errors.push('密码长度至少为6位')
     }
     if (!/[a-zA-Z]/.test(credentials.password)) {
-      errors.push('密码应包含字母');
+      errors.push('密码应包含字母')
     }
     if (!/[0-9]/.test(credentials.password)) {
-      errors.push('密码应包含数字');
+      errors.push('密码应包含数字')
     }
   }
 
   return {
     valid: errors.length === 0,
     errors,
-  };
+  }
 }
 
 /**
@@ -109,10 +112,10 @@ export function validateCredentials(credentials: Credentials): { valid: boolean;
 export function hasPermission(user: User, permission: Permission): boolean {
   // 管理员拥有所有权限
   if (user.role === UserRole.ADMIN) {
-    return true;
+    return true
   }
 
-  return user.permissions.includes(permission);
+  return user.permissions.includes(permission)
 }
 
 /**
@@ -121,15 +124,15 @@ export function hasPermission(user: User, permission: Permission): boolean {
 export function hasAnyPermission(user: User, permissions: Permission[]): boolean {
   // 空数组意味着不需要任何权限，应该返回 true
   if (permissions.length === 0) {
-    return true;
+    return true
   }
 
   // 管理员拥有所有权限
   if (user.role === UserRole.ADMIN) {
-    return true;
+    return true
   }
 
-  return permissions.some(permission => user.permissions.includes(permission));
+  return permissions.some(permission => user.permissions.includes(permission))
 }
 
 /**
@@ -138,28 +141,28 @@ export function hasAnyPermission(user: User, permissions: Permission[]): boolean
 export function hasAllPermissions(user: User, permissions: Permission[]): boolean {
   // 管理员拥有所有权限
   if (user.role === UserRole.ADMIN) {
-    return true;
+    return true
   }
 
-  return permissions.every(permission => user.permissions.includes(permission));
+  return permissions.every(permission => user.permissions.includes(permission))
 }
 
 /**
  * 检查会话是否过期
  */
 export function isSessionExpired(session: Session): boolean {
-  return new Date() > session.expiresAt;
+  return new Date() > session.expiresAt
 }
 
 /**
  * 检查会话是否即将过期（5分钟内）
  */
 export function isSessionExpiringSoon(session: Session, minutes = 5): boolean {
-  const now = new Date();
-  const expiryTime = new Date(session.expiresAt);
-  const warningTime = new Date(expiryTime.getTime() - minutes * 60 * 1000);
+  const now = new Date()
+  const expiryTime = new Date(session.expiresAt)
+  const warningTime = new Date(expiryTime.getTime() - minutes * 60 * 1000)
 
-  return now > warningTime && now < expiryTime;
+  return now > warningTime && now < expiryTime
 }
 
 /**
@@ -168,141 +171,137 @@ export function isSessionExpiringSoon(session: Session, minutes = 5): boolean {
 export function isValidToken(token: string): boolean {
   // 实际应用中应该使用 JWT 或其他令牌验证库
   // 这里只做基本的格式验证
-  return token.length > 0 && /^[a-zA-Z0-9\-_\.]+$/.test(token);
+  return token.length > 0 && /^[a-zA-Z0-9\-_\.]+$/.test(token)
 }
 
 /**
  * 生成随机令牌
  */
 export function generateToken(length = 32): string {
-  const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
-  let result = '';
+  const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789'
+  let result = ''
 
   // 使用 crypto.randomValues 如果可用，否则使用 Math.random
   if (typeof crypto !== 'undefined' && crypto.getRandomValues) {
-    const array = new Uint8Array(length);
-    crypto.getRandomValues(array);
+    const array = new Uint8Array(length)
+    crypto.getRandomValues(array)
     for (let i = 0; i < length; i++) {
-      result += chars[array[i] % chars.length];
+      result += chars[array[i] % chars.length]
     }
   } else {
     for (let i = 0; i < length; i++) {
-      result += chars.charAt(Math.floor(Math.random() * chars.length));
+      result += chars.charAt(Math.floor(Math.random() * chars.length))
     }
   }
 
-  return result;
+  return result
 }
 
 /**
  * 创建会话
  */
 export function createSession(userId: string, expiresInMinutes = 60): Session {
-  const now = new Date();
-  const expiresAt = new Date(now.getTime() + expiresInMinutes * 60 * 1000);
+  const now = new Date()
+  const expiresAt = new Date(now.getTime() + expiresInMinutes * 60 * 1000)
 
   return {
     token: generateToken(),
     userId,
     expiresAt,
     createdAt: now,
-  };
+  }
 }
 
 /**
  * 刷新会话
  */
 export function refreshSession(session: Session, expiresInMinutes = 60): Session {
-  const now = Date.now();
+  const now = Date.now()
   // Ensure new expiresAt is at least 1ms after the old one to avoid equality issues in tests
-  const minExpiresAt = session.expiresAt.getTime() + 1;
-  const expiresAtMs = Math.max(now + expiresInMinutes * 60 * 1000, minExpiresAt);
+  const minExpiresAt = session.expiresAt.getTime() + 1
+  const expiresAtMs = Math.max(now + expiresInMinutes * 60 * 1000, minExpiresAt)
 
   return {
     ...session,
     token: generateToken(),
     expiresAt: new Date(expiresAtMs),
-  };
+  }
 }
 
 /**
  * 验证密码强度（带等级返回）
  */
 export function getPasswordStrength(password: string): {
-  strength: 'weak' | 'medium' | 'strong';
-  score: number;
-  feedback: string[];
+  strength: 'weak' | 'medium' | 'strong'
+  score: number
+  feedback: string[]
 } {
-  const feedback: string[] = [];
-  let score = 0;
+  const feedback: string[] = []
+  let score = 0
 
   // 长度检查 - 长度不足直接降低强度
-  const isLongEnough = password.length >= 8;
+  const isLongEnough = password.length >= 8
   if (isLongEnough) {
-    score += 1;
+    score += 1
   } else {
-    feedback.push('密码长度至少为8位');
+    feedback.push('密码长度至少为8位')
   }
 
   if (password.length >= 12) {
-    score += 1;
+    score += 1
   }
 
   // 复杂度检查
-  const hasLowercase = /[a-z]/.test(password);
-  const hasUppercase = /[A-Z]/.test(password);
-  const hasNumber = /[0-9]/.test(password);
-  const hasSpecial = /[!@#$%^&*(),.?":{}|<>]/.test(password);
+  const hasLowercase = /[a-z]/.test(password)
+  const hasUppercase = /[A-Z]/.test(password)
+  const hasNumber = /[0-9]/.test(password)
+  const hasSpecial = /[!@#$%^&*(),.?":{}|<>]/.test(password)
 
   if (hasLowercase && hasUppercase) {
-    score += 1;
+    score += 1
   } else {
-    feedback.push('密码应包含大小写字母');
+    feedback.push('密码应包含大小写字母')
   }
 
   if (hasNumber) {
-    score += 1;
+    score += 1
   } else {
-    feedback.push('密码应包含数字');
+    feedback.push('密码应包含数字')
   }
 
   if (hasSpecial) {
-    score += 1;
+    score += 1
   } else {
-    feedback.push('密码应包含特殊字符');
+    feedback.push('密码应包含特殊字符')
   }
 
   // 确定强度等级
-  let strength: 'weak' | 'medium' | 'strong' = 'weak';
-  
+  let strength: 'weak' | 'medium' | 'strong' = 'weak'
+
   // 如果长度不足8位，强制为weak
   if (!isLongEnough) {
-    strength = 'weak';
+    strength = 'weak'
   }
   // Strong passwords (5-6 points)
   else if (score >= 5) {
-    strength = 'strong';
+    strength = 'strong'
     // Clear feedback for strong passwords
-    feedback.length = 0;
-  } 
+    feedback.length = 0
+  }
   // Medium passwords (3-4 points)
   else if (score >= 3) {
-    strength = 'medium';
+    strength = 'medium'
     // Keep feedback for medium passwords, to suggest improvements
     // Only clear feedback if there are no actual issues
-    const allCriteriaMet = 
-      password.length >= 8 &&
-      hasLowercase &&
-      hasUppercase &&
-      hasNumber &&
-      hasSpecial;
-    
+    const allCriteriaMet =
+      password.length >= 8 && hasLowercase && hasUppercase && hasNumber && hasSpecial
+
     if (allCriteriaMet) {
-      feedback.length = 0;
+      feedback.length = 0
     }
   }
-  
-  return { strength, score, feedback };
+
+  return { strength, score, feedback }
 }
 
 /**
@@ -315,21 +314,21 @@ export function canAccessResource(
 ): boolean {
   // 管理员可以访问所有资源
   if (user.role === UserRole.ADMIN) {
-    return true;
+    return true
   }
 
   // 检查是否有必需的权限
   if (!hasPermission(user, requiredPermission)) {
-    return false;
+    return false
   }
 
   // 资源所有者可以访问自己的资源
   if (user.id === resourceOwnerId) {
-    return true;
+    return true
   }
 
   // 其他情况根据权限判断
-  return false;
+  return false
 }
 
 /**
@@ -338,13 +337,13 @@ export function canAccessResource(
 export function getDefaultPermissions(role: UserRole): Permission[] {
   switch (role) {
     case UserRole.ADMIN:
-      return [Permission.READ, Permission.WRITE, Permission.DELETE, Permission.ADMIN];
+      return [Permission.READ, Permission.WRITE, Permission.DELETE, Permission.ADMIN]
     case UserRole.USER:
-      return [Permission.READ, Permission.WRITE];
+      return [Permission.READ, Permission.WRITE]
     case UserRole.GUEST:
-      return [Permission.READ];
+      return [Permission.READ]
     default:
-      return [];
+      return []
   }
 }
 
@@ -361,74 +360,74 @@ export function createMockUser(overrides: Partial<User> = {}): User {
     createdAt: new Date(),
     updatedAt: new Date(),
     ...overrides,
-  };
+  }
 }
 
 /**
  * 验证注册信息
  */
 export function validateRegistration(data: {
-  username: string;
-  email: string;
-  password: string;
-  confirmPassword: string;
+  username: string
+  email: string
+  password: string
+  confirmPassword: string
 }): { valid: boolean; errors: string[] } {
-  const errors: string[] = [];
+  const errors: string[] = []
 
   // 验证用户名
   if (!isValidUsername(data.username)) {
-    errors.push('用户名格式无效：3-20个字符，只允许字母、数字、下划线');
+    errors.push('用户名格式无效：3-20个字符，只允许字母、数字、下划线')
   }
 
   // 验证邮箱
   if (!isValidEmail(data.email)) {
-    errors.push('邮箱格式无效');
+    errors.push('邮箱格式无效')
   }
 
   // 验证密码
   if (!isStrongPassword(data.password)) {
-    errors.push('密码强度不足：至少8位，包含字母和数字');
+    errors.push('密码强度不足：至少8位，包含字母和数字')
   }
 
   // 验证确认密码
   if (data.password !== data.confirmPassword) {
-    errors.push('两次输入的密码不一致');
+    errors.push('两次输入的密码不一致')
   }
 
   return {
     valid: errors.length === 0,
     errors,
-  };
+  }
 }
 
 /**
  * 生成安全密码
  */
 export function generateSecurePassword(length = 16): string {
-  const lowercase = 'abcdefghijklmnopqrstuvwxyz';
-  const uppercase = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
-  const numbers = '0123456789';
-  const special = '!@#$%^&*()_+-=[]{}|;:,.<>?';
+  const lowercase = 'abcdefghijklmnopqrstuvwxyz'
+  const uppercase = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ'
+  const numbers = '0123456789'
+  const special = '!@#$%^&*()_+-=[]{}|;:,.<>?'
 
-  const allChars = lowercase + uppercase + numbers + special;
-  let password = '';
+  const allChars = lowercase + uppercase + numbers + special
+  let password = ''
 
   // 确保至少包含每种类型的字符
-  password += lowercase[Math.floor(Math.random() * lowercase.length)];
-  password += uppercase[Math.floor(Math.random() * uppercase.length)];
-  password += numbers[Math.floor(Math.random() * numbers.length)];
-  password += special[Math.floor(Math.random() * special.length)];
+  password += lowercase[Math.floor(Math.random() * lowercase.length)]
+  password += uppercase[Math.floor(Math.random() * uppercase.length)]
+  password += numbers[Math.floor(Math.random() * numbers.length)]
+  password += special[Math.floor(Math.random() * special.length)]
 
   // 填充剩余长度
   for (let i = password.length; i < length; i++) {
-    password += allChars[Math.floor(Math.random() * allChars.length)];
+    password += allChars[Math.floor(Math.random() * allChars.length)]
   }
 
   // 打乱密码顺序
   return password
     .split('')
     .sort(() => Math.random() - 0.5)
-    .join('');
+    .join('')
 }
 
 /**
@@ -444,7 +443,7 @@ export {
   type User as NewUser,
   type CheckPermissionOptions,
   type PermissionCheckResult,
-} from '@/contexts/PermissionContext/types';
+} from '@/contexts/PermissionContext/types'
 
 // 重新导出新系统的工具函数
 export {
@@ -458,14 +457,14 @@ export {
   checkPermissions,
   createUser,
   createUserFromPayload,
-} from '@/contexts/PermissionContext/utils';
+} from '@/contexts/PermissionContext/utils'
 
 // 重新导出 Context 和 Hook
 export {
   PermissionProvider as NewPermissionProvider,
   usePermission,
   type PermissionContextType,
-} from '@/contexts/PermissionContext';
+} from '@/contexts/PermissionContext'
 
 // 重新导出权限守卫组件
 export {
@@ -475,5 +474,4 @@ export {
   type PermissionGuardProps,
   type AdminGuardProps,
   type RoleGuardProps,
-} from '@/contexts/PermissionContext/components';
-
+} from '@/contexts/PermissionContext/components'

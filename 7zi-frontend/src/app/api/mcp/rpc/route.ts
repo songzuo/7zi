@@ -253,16 +253,16 @@
  *       name: X-API-Key
  */
 
-import { NextRequest, NextResponse } from "next/server";
-import { mcpServer } from "@/lib/mcp/server";
-import { authenticateAPIKey, getMCPCORSHeaders } from "@/lib/auth/api-auth";
+import { NextRequest, NextResponse } from 'next/server'
+import { mcpServer } from '@/lib/mcp/server'
+import { authenticateAPIKey, getMCPCORSHeaders } from '@/lib/auth/api-auth'
 
 /**
  * 处理 OPTIONS 请求（CORS 预检）
  */
 export async function OPTIONS(request: NextRequest) {
-  const corsHeaders = getMCPCORSHeaders(request);
-  return new NextResponse(null, { status: 204, headers: corsHeaders });
+  const corsHeaders = getMCPCORSHeaders(request)
+  return new NextResponse(null, { status: 204, headers: corsHeaders })
 }
 
 /**
@@ -271,86 +271,86 @@ export async function OPTIONS(request: NextRequest) {
  */
 export async function POST(request: NextRequest) {
   // Authenticate with API key
-  const authResult = authenticateAPIKey(request);
-  const corsHeaders = getMCPCORSHeaders(request);
+  const authResult = authenticateAPIKey(request)
+  const corsHeaders = getMCPCORSHeaders(request)
 
   if (!authResult.authenticated) {
     return NextResponse.json(
       {
-        jsonrpc: "2.0",
+        jsonrpc: '2.0',
         id: null,
         error: {
           code: -32001,
-          message: "Unauthorized: Invalid or missing API key",
+          message: 'Unauthorized: Invalid or missing API key',
         },
       },
-      { 
+      {
         status: 401,
         headers: corsHeaders,
       }
-    );
+    )
   }
 
   try {
     // 解析 JSON-RPC 请求
-    const body = await request.json();
+    const body = await request.json()
 
     // 检查是否是批量请求
     if (Array.isArray(body)) {
-      const response = await mcpServer.handleRequest(body);
+      const response = await mcpServer.handleRequest(body)
       return NextResponse.json(response, {
         headers: corsHeaders,
-      });
+      })
     }
 
     // 验证请求格式（单个请求）
-    if (!body.jsonrpc || body.jsonrpc !== "2.0") {
+    if (!body.jsonrpc || body.jsonrpc !== '2.0') {
       return NextResponse.json(
         {
-          jsonrpc: "2.0",
+          jsonrpc: '2.0',
           id: body.id || null,
           error: {
             code: -32600,
-            message: "Invalid Request: jsonrpc version must be 2.0",
+            message: 'Invalid Request: jsonrpc version must be 2.0',
           },
         },
         { status: 400, headers: corsHeaders }
-      );
+      )
     }
 
     if (!body.method) {
       return NextResponse.json(
         {
-          jsonrpc: "2.0",
+          jsonrpc: '2.0',
           id: body.id || null,
           error: {
             code: -32600,
-            message: "Invalid Request: method is required",
+            message: 'Invalid Request: method is required',
           },
         },
         { status: 400, headers: corsHeaders }
-      );
+      )
     }
 
     // 处理 MCP 请求
-    const response = await mcpServer.handleRequest(body);
+    const response = await mcpServer.handleRequest(body)
 
     return NextResponse.json(response, {
       headers: corsHeaders,
-    });
+    })
   } catch {
     // JSON 解析错误
     return NextResponse.json(
       {
-        jsonrpc: "2.0",
+        jsonrpc: '2.0',
         id: null,
         error: {
           code: -32700,
-          message: "Parse error: Invalid JSON",
+          message: 'Parse error: Invalid JSON',
         },
       },
       { status: 400, headers: corsHeaders }
-    );
+    )
   }
 }
 
@@ -358,26 +358,26 @@ export async function POST(request: NextRequest) {
  * GET 方法：返回 MCP Server 信息
  */
 export async function GET(request: NextRequest) {
-  const corsHeaders = getMCPCORSHeaders(request);
-  
+  const corsHeaders = getMCPCORSHeaders(request)
+
   return NextResponse.json(
     {
-      name: "OpenClaw MCP Server",
-      version: "1.0.0",
-      protocol: "Model Context Protocol (MCP)",
-      specification: "https://modelcontextprotocol.io/specification",
+      name: 'OpenClaw MCP Server',
+      version: '1.0.0',
+      protocol: 'Model Context Protocol (MCP)',
+      specification: 'https://modelcontextprotocol.io/specification',
       endpoints: {
-        rpc: "/api/mcp/rpc",
+        rpc: '/api/mcp/rpc',
       },
       methods: {
-        "tools/list": "List available tools",
-        "tools/call": "Execute a tool",
+        'tools/list': 'List available tools',
+        'tools/call': 'Execute a tool',
       },
       auth: {
-        method: "API Key",
-        header: "X-API-Key",
+        method: 'API Key',
+        header: 'X-API-Key',
       },
     },
     { headers: corsHeaders }
-  );
+  )
 }

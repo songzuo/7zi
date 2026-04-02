@@ -3,12 +3,12 @@
  * @description Enhanced dashboard store with undo-redo functionality
  */
 
-import { create } from 'zustand';
-import { devtools } from 'zustand/middleware';
-import { undoRedo } from '@/lib/undo-redo/middleware';
-import type { UnifiedTeamMember } from '@/types/members';
-import type { GitHubIssue, GitHubCommit } from '@/types/common';
-import type { HistoryState } from '@/lib/undo-redo/types';
+import { create } from 'zustand'
+import { devtools } from 'zustand/middleware'
+import { undoRedo } from '@/lib/undo-redo/middleware'
+import type { UnifiedTeamMember } from '@/types/members'
+import type { GitHubIssue, GitHubCommit } from '@/types/common'
+import type { HistoryState } from '@/lib/undo-redo/types'
 
 // ============================================================================
 // Types
@@ -16,55 +16,55 @@ import type { HistoryState } from '@/lib/undo-redo/types';
 
 export interface DashboardState {
   // Data
-  members: UnifiedTeamMember[];
-  issues: GitHubIssue[];
-  activities: ActivityItem[];
+  members: UnifiedTeamMember[]
+  issues: GitHubIssue[]
+  activities: ActivityItem[]
 
   // Loading state
-  isLoading: boolean;
-  error: string | null;
-  lastUpdated: Date | null;
+  isLoading: boolean
+  error: string | null
+  lastUpdated: Date | null
 
   // Configuration
-  owner: string;
-  repo: string;
-  token: string | null;
-  refreshInterval: number;
+  owner: string
+  repo: string
+  token: string | null
+  refreshInterval: number
 
   // Actions
-  setConfig: (owner: string, repo: string, token?: string) => void;
-  fetchAllData: () => Promise<void>;
-  updateMemberStatus: (memberId: string, status: UnifiedTeamMember['status']) => void;
-  updateMemberTask: (memberId: string, task: string | undefined) => void;
-  addMember: (member: UnifiedTeamMember) => void;
-  removeMember: (memberId: string) => void;
-  refreshData: () => Promise<void>;
-  clearError: () => void;
+  setConfig: (owner: string, repo: string, token?: string) => void
+  fetchAllData: () => Promise<void>
+  updateMemberStatus: (memberId: string, status: UnifiedTeamMember['status']) => void
+  updateMemberTask: (memberId: string, task: string | undefined) => void
+  addMember: (member: UnifiedTeamMember) => void
+  removeMember: (memberId: string) => void
+  refreshData: () => Promise<void>
+  clearError: () => void
 }
 
 export interface DashboardStateWithUndoRedo extends DashboardState {
   // Undo-redo actions (added by middleware)
-  undo: () => void;
-  redo: () => void;
-  clearHistory: () => void;
-  skipNextHistoryPush: () => void;
-  canUndo: boolean;
-  canRedo: boolean;
-  pastStatesCount: number;
-  futureStatesCount: number;
-  getHistorySnapshot: () => HistoryState;
-  exportHistory: () => string;
-  importHistory: (json: string) => { success: boolean; error?: string };
+  undo: () => void
+  redo: () => void
+  clearHistory: () => void
+  skipNextHistoryPush: () => void
+  canUndo: boolean
+  canRedo: boolean
+  pastStatesCount: number
+  futureStatesCount: number
+  getHistorySnapshot: () => HistoryState
+  exportHistory: () => string
+  importHistory: (json: string) => { success: boolean; error?: string }
 }
 
 export interface ActivityItem {
-  id: string;
-  type: 'commit' | 'issue' | 'comment';
-  title: string;
-  author: string;
-  avatar?: string;
-  timestamp: string;
-  url: string;
+  id: string
+  type: 'commit' | 'issue' | 'comment'
+  title: string
+  author: string
+  avatar?: string
+  timestamp: string
+  url: string
 }
 
 // ============================================================================
@@ -81,7 +81,7 @@ const AI_MEMBERS: UnifiedTeamMember[] = [
     status: 'working',
     provider: 'minimax',
     currentTask: '#42 分析市场趋势',
-    completedTasks: 156
+    completedTasks: 156,
   },
   {
     id: 'consultant',
@@ -92,7 +92,7 @@ const AI_MEMBERS: UnifiedTeamMember[] = [
     status: 'working',
     provider: 'minimax',
     currentTask: '#38 竞品调研报告',
-    completedTasks: 203
+    completedTasks: 203,
   },
   {
     id: 'architect',
@@ -103,7 +103,7 @@ const AI_MEMBERS: UnifiedTeamMember[] = [
     status: 'busy',
     provider: 'self-claude',
     currentTask: '#45 系统架构评审',
-    completedTasks: 178
+    completedTasks: 178,
   },
   {
     id: 'executor',
@@ -114,7 +114,7 @@ const AI_MEMBERS: UnifiedTeamMember[] = [
     status: 'working',
     provider: 'volcengine',
     currentTask: '#51 实现看板功能',
-    completedTasks: 312
+    completedTasks: 312,
   },
   {
     id: 'sysadmin',
@@ -125,7 +125,7 @@ const AI_MEMBERS: UnifiedTeamMember[] = [
     status: 'idle',
     provider: 'bailian',
     currentTask: undefined,
-    completedTasks: 145
+    completedTasks: 145,
   },
   {
     id: 'tester',
@@ -136,7 +136,7 @@ const AI_MEMBERS: UnifiedTeamMember[] = [
     status: 'working',
     provider: 'minimax',
     currentTask: '#49 单元测试编写',
-    completedTasks: 267
+    completedTasks: 267,
   },
   {
     id: 'designer',
@@ -147,7 +147,7 @@ const AI_MEMBERS: UnifiedTeamMember[] = [
     status: 'busy',
     provider: 'self-claude',
     currentTask: '#47 界面优化',
-    completedTasks: 189
+    completedTasks: 189,
   },
   {
     id: 'marketing',
@@ -158,7 +158,7 @@ const AI_MEMBERS: UnifiedTeamMember[] = [
     status: 'idle',
     provider: 'volcengine',
     currentTask: undefined,
-    completedTasks: 134
+    completedTasks: 134,
   },
   {
     id: 'sales',
@@ -169,7 +169,7 @@ const AI_MEMBERS: UnifiedTeamMember[] = [
     status: 'offline',
     provider: 'bailian',
     currentTask: undefined,
-    completedTasks: 98
+    completedTasks: 98,
   },
   {
     id: 'finance',
@@ -180,7 +180,7 @@ const AI_MEMBERS: UnifiedTeamMember[] = [
     status: 'idle',
     provider: 'minimax',
     currentTask: undefined,
-    completedTasks: 76
+    completedTasks: 76,
   },
   {
     id: 'media',
@@ -191,43 +191,40 @@ const AI_MEMBERS: UnifiedTeamMember[] = [
     status: 'working',
     provider: 'self-claude',
     currentTask: '#44 宣传文案撰写',
-    completedTasks: 112
-  }
-];
+    completedTasks: 112,
+  },
+]
 
-const DEFAULT_REFRESH_INTERVAL = 30000; // 30 seconds
+const DEFAULT_REFRESH_INTERVAL = 30000 // 30 seconds
 
 // ============================================================================
 // Helper Functions
 // ============================================================================
 
-async function fetchGitHubAPI<T>(
-  url: string,
-  token?: string | null
-): Promise<T> {
+async function fetchGitHubAPI<T>(url: string, token?: string | null): Promise<T> {
   const headers: HeadersInit = {
     Accept: 'application/vnd.github.v3+json',
     'Content-Type': 'application/json',
-  };
-
-  if (token) {
-    headers.Authorization = `token ${token}`;
   }
 
-  const response = await fetch(url, { headers });
+  if (token) {
+    headers.Authorization = `token ${token}`
+  }
+
+  const response = await fetch(url, { headers })
 
   if (!response.ok) {
     if (response.status === 404) {
-      throw new Error('仓库不存在');
+      throw new Error('仓库不存在')
     } else if (response.status === 401) {
-      throw new Error('GitHub Token 无效');
+      throw new Error('GitHub Token 无效')
     } else if (response.status === 403) {
-      throw new Error('GitHub API 速率限制，请稍后重试');
+      throw new Error('GitHub API 速率限制，请稍后重试')
     }
-    throw new Error(`请求失败：${response.statusText}`);
+    throw new Error(`请求失败：${response.statusText}`)
   }
 
-  return response.json();
+  return response.json()
 }
 
 async function fetchIssues(
@@ -238,9 +235,9 @@ async function fetchIssues(
   const data = await fetchGitHubAPI<GitHubIssue[]>(
     `https://api.github.com/repos/${owner}/${repo}/issues?state=all&per_page=50`,
     token
-  );
+  )
   // Filter out PRs (GitHub API returns PRs as issues)
-  return data.filter((item) => !('pull_request' in item));
+  return data.filter(item => !('pull_request' in item))
 }
 
 async function fetchCommits(
@@ -251,17 +248,14 @@ async function fetchCommits(
   return fetchGitHubAPI<GitHubCommit[]>(
     `https://api.github.com/repos/${owner}/${repo}/commits?per_page=30`,
     token
-  );
+  )
 }
 
-function mergeActivities(
-  issues: GitHubIssue[],
-  commits: GitHubCommit[]
-): ActivityItem[] {
-  const activities: ActivityItem[] = [];
+function mergeActivities(issues: GitHubIssue[], commits: GitHubCommit[]): ActivityItem[] {
+  const activities: ActivityItem[] = []
 
   // Add Commits
-  commits.forEach((commit) => {
+  commits.forEach(commit => {
     activities.push({
       id: `commit-${commit.sha}`,
       type: 'commit',
@@ -270,11 +264,11 @@ function mergeActivities(
       avatar: commit.author?.avatar_url,
       timestamp: commit.commit.author.date,
       url: commit.html_url,
-    });
-  });
+    })
+  })
 
   // Add Issues
-  issues.forEach((issue) => {
+  issues.forEach(issue => {
     activities.push({
       id: `issue-${issue.number}`,
       type: 'issue',
@@ -283,16 +277,14 @@ function mergeActivities(
       avatar: issue.assignee?.avatar_url,
       timestamp: issue.updated_at,
       url: issue.html_url,
-    });
-  });
+    })
+  })
 
   // Sort by time
-  activities.sort(
-    (a, b) => new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime()
-  );
+  activities.sort((a, b) => new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime())
 
   // Keep only last 20
-  return activities.slice(0, 20);
+  return activities.slice(0, 20)
 }
 
 // ============================================================================
@@ -324,66 +316,70 @@ export const useDashboardStore = create<DashboardStateWithUndoRedo>()(
         canRedo: false,
         pastStatesCount: 0,
         futureStatesCount: 0,
-        getHistorySnapshot: () => ({ past: [], present: get(), future: [], currentIndex: 0, isUndoing: false, isRedoing: false }),
+        getHistorySnapshot: () => ({
+          past: [],
+          present: get(),
+          future: [],
+          currentIndex: 0,
+          isUndoing: false,
+          isRedoing: false,
+        }),
         exportHistory: () => '',
         importHistory: () => ({ success: false }),
 
         // Set config (not recorded in history)
         setConfig: (owner, repo, token) => {
-          get().skipNextHistoryPush();
-          set({ owner, repo, token: token || null });
+          get().skipNextHistoryPush()
+          set({ owner, repo, token: token || null })
         },
 
         // Fetch all data (not recorded in history)
         fetchAllData: async () => {
-          const { owner, repo, token } = get();
+          const { owner, repo, token } = get()
 
-          get().skipNextHistoryPush();
-          set({ isLoading: true, error: null });
+          get().skipNextHistoryPush()
+          set({ isLoading: true, error: null })
 
           try {
             // Parallel fetch Issues and Commits
             const [issuesData, commitsData] = await Promise.all([
-              fetchIssues(owner, repo, token).catch((err) => {
-                console.warn('Issues fetch failed:', err);
-                return [];
+              fetchIssues(owner, repo, token).catch(err => {
+                console.warn('Issues fetch failed:', err)
+                return []
               }),
-              fetchCommits(owner, repo, token).catch((err) => {
-                console.warn('Commits fetch failed:', err);
-                return [];
+              fetchCommits(owner, repo, token).catch(err => {
+                console.warn('Commits fetch failed:', err)
+                return []
               }),
-            ]);
+            ])
 
             // Merge activities
-            const mergedActivities = mergeActivities(issuesData, commitsData);
+            const mergedActivities = mergeActivities(issuesData, commitsData)
 
             set({
               issues: issuesData,
               activities: mergedActivities,
               isLoading: false,
               lastUpdated: new Date(),
-            });
-          } catch (_error) {
-            const errorMessage =
-              error instanceof Error ? error.message : '数据加载失败';
+            })
+          } catch (error) {
+            const errorMessage = error instanceof Error ? error.message : '数据加载失败'
             set({
               error: errorMessage,
               isLoading: false,
-            });
+            })
           }
         },
 
         // Update member status
         updateMemberStatus: (memberId, status) => {
-          const currentState = get();
-          const member = currentState.members.find(m => m.id === memberId);
-          const previousStatus = member?.status;
+          const currentState = get()
+          const member = currentState.members.find(m => m.id === memberId)
+          const previousStatus = member?.status
 
-          set((state) => ({
-            members: state.members.map((m) =>
-              m.id === memberId ? { ...m, status } : m
-            ),
-          }));
+          set(state => ({
+            members: state.members.map(m => (m.id === memberId ? { ...m, status } : m)),
+          }))
 
           // Record in undo-redo manager
           if (previousStatus) {
@@ -392,27 +388,25 @@ export const useDashboardStore = create<DashboardStateWithUndoRedo>()(
                 'update',
                 `更新成员状态: ${member?.name} ${previousStatus} → ${status}`,
                 () => {
-                  useDashboardStore.getState().updateMemberStatus(memberId, previousStatus);
+                  useDashboardStore.getState().updateMemberStatus(memberId, previousStatus)
                 },
                 () => {
-                  useDashboardStore.getState().updateMemberStatus(memberId, status);
+                  useDashboardStore.getState().updateMemberStatus(memberId, status)
                 }
-              );
-            });
+              )
+            })
           }
         },
 
         // Update member task
         updateMemberTask: (memberId, task) => {
-          const currentState = get();
-          const member = currentState.members.find(m => m.id === memberId);
-          const previousTask = member?.currentTask;
+          const currentState = get()
+          const member = currentState.members.find(m => m.id === memberId)
+          const previousTask = member?.currentTask
 
-          set((state) => ({
-            members: state.members.map((m) =>
-              m.id === memberId ? { ...m, currentTask: task } : m
-            ),
-          }));
+          set(state => ({
+            members: state.members.map(m => (m.id === memberId ? { ...m, currentTask: task } : m)),
+          }))
 
           // Record in undo-redo manager
           if (previousTask !== undefined || task !== undefined) {
@@ -421,21 +415,21 @@ export const useDashboardStore = create<DashboardStateWithUndoRedo>()(
                 'update',
                 `更新成员任务: ${member?.name}`,
                 () => {
-                  useDashboardStore.getState().updateMemberTask(memberId, previousTask);
+                  useDashboardStore.getState().updateMemberTask(memberId, previousTask)
                 },
                 () => {
-                  useDashboardStore.getState().updateMemberTask(memberId, task);
+                  useDashboardStore.getState().updateMemberTask(memberId, task)
                 }
-              );
-            });
+              )
+            })
           }
         },
 
         // Add member
-        addMember: (member) => {
-          set((state) => ({
+        addMember: member => {
+          set(state => ({
             members: [...state.members, member],
-          }));
+          }))
 
           // Record in undo-redo manager
           import('@/lib/undo-redo').then(({ pushOperation }) => {
@@ -443,52 +437,54 @@ export const useDashboardStore = create<DashboardStateWithUndoRedo>()(
               'create',
               `添加成员: ${member.name}`,
               () => {
-                useDashboardStore.getState().removeMember(String(member.id));
+                useDashboardStore.getState().removeMember(String(member.id))
               },
               () => {
-                useDashboardStore.getState().addMember(member);
+                useDashboardStore.getState().addMember(member)
               }
-            );
-          });
+            )
+          })
         },
 
         // Remove member
-        removeMember: (memberId) => {
-          const currentState = get();
-          const member = currentState.members.find(m => m.id === memberId);
+        removeMember: memberId => {
+          const currentState = get()
+          const member = currentState.members.find(m => m.id === memberId)
 
-          set((state) => ({
-            members: state.members.filter((m) => m.id !== memberId),
-          }));
+          set(state => ({
+            members: state.members.filter(m => m.id !== memberId),
+          }))
 
           // Record in undo-redo manager
           if (member) {
-            import('@/lib/undo-redo').then(({ pushOperation }) => {
-              pushOperation(
-                'delete',
-                `删除成员: ${member.name}`,
-                () => {
-                  useDashboardStore.getState().addMember(member);
-                },
-                () => {
-                  useDashboardStore.getState().removeMember(memberId);
-                }
-              );
-            }).catch(() => {
-              // Silently ignore undo-redo recording errors
-            });
+            import('@/lib/undo-redo')
+              .then(({ pushOperation }) => {
+                pushOperation(
+                  'delete',
+                  `删除成员: ${member.name}`,
+                  () => {
+                    useDashboardStore.getState().addMember(member)
+                  },
+                  () => {
+                    useDashboardStore.getState().removeMember(memberId)
+                  }
+                )
+              })
+              .catch(() => {
+                // Silently ignore undo-redo recording errors
+              })
           }
         },
 
         // Refresh data (not recorded in history)
         refreshData: async () => {
-          await get().fetchAllData();
+          await get().fetchAllData()
         },
 
         // Clear error (not recorded in history)
         clearError: () => {
-          get().skipNextHistoryPush();
-          set({ error: null });
+          get().skipNextHistoryPush()
+          set({ error: null })
         },
       }),
       {
@@ -498,7 +494,7 @@ export const useDashboardStore = create<DashboardStateWithUndoRedo>()(
     ),
     { name: 'dashboard-store' }
   )
-);
+)
 
 // ============================================================================
 // Selector Hooks
@@ -507,63 +503,63 @@ export const useDashboardStore = create<DashboardStateWithUndoRedo>()(
 /**
  * Get all members
  */
-export const useMembers = () => useDashboardStore((s) => s.members);
+export const useMembers = () => useDashboardStore(s => s.members)
 
 /**
  * Get all Issues
  */
-export const useIssues = () => useDashboardStore((s) => s.issues);
+export const useIssues = () => useDashboardStore(s => s.issues)
 
 /**
  * Get activity log
  */
-export const useActivities = () => useDashboardStore((s) => s.activities);
+export const useActivities = () => useDashboardStore(s => s.activities)
 
 /**
  * Get loading state
  */
-export const useDashboardLoading = () => useDashboardStore((s) => s.isLoading);
+export const useDashboardLoading = () => useDashboardStore(s => s.isLoading)
 
 /**
  * Get error message
  */
-export const useDashboardError = () => useDashboardStore((s) => s.error);
+export const useDashboardError = () => useDashboardStore(s => s.error)
 
 /**
  * Get last update time
  */
-export const useLastUpdated = () => useDashboardStore((s) => s.lastUpdated);
+export const useLastUpdated = () => useDashboardStore(s => s.lastUpdated)
 
 /**
  * Get statistics (derived data)
  */
 export const useDashboardStats = () =>
-  useDashboardStore((s) => ({
+  useDashboardStore(s => ({
     totalMembers: s.members.length,
-    working: s.members.filter((m) => m.status === 'working').length,
-    busy: s.members.filter((m) => m.status === 'busy').length,
-    idle: s.members.filter((m) => m.status === 'idle').length,
-    offline: s.members.filter((m) => m.status === 'offline').length,
-    openIssues: s.issues.filter((i) => i.state === 'open').length,
-    closedIssues: s.issues.filter((i) => i.state === 'closed').length,
-  }));
+    working: s.members.filter(m => m.status === 'working').length,
+    busy: s.members.filter(m => m.status === 'busy').length,
+    idle: s.members.filter(m => m.status === 'idle').length,
+    offline: s.members.filter(m => m.status === 'offline').length,
+    openIssues: s.issues.filter(i => i.state === 'open').length,
+    closedIssues: s.issues.filter(i => i.state === 'closed').length,
+  }))
 
 /**
  * Get members grouped by status
  */
 export const useMembersByStatus = () =>
-  useDashboardStore((s) => ({
-    working: s.members.filter((m) => m.status === 'working'),
-    busy: s.members.filter((m) => m.status === 'busy'),
-    idle: s.members.filter((m) => m.status === 'idle'),
-    offline: s.members.filter((m) => m.status === 'offline'),
-  }));
+  useDashboardStore(s => ({
+    working: s.members.filter(m => m.status === 'working'),
+    busy: s.members.filter(m => m.status === 'busy'),
+    idle: s.members.filter(m => m.status === 'idle'),
+    offline: s.members.filter(m => m.status === 'offline'),
+  }))
 
 /**
  * Get single member
  */
 export const useMember = (memberId: string) =>
-  useDashboardStore((s) => s.members.find((m) => m.id === memberId));
+  useDashboardStore(s => s.members.find(m => m.id === memberId))
 
 // ============================================================================
 // Undo-Redo Hooks
@@ -573,13 +569,13 @@ export const useMember = (memberId: string) =>
  * Get undo/redo functions
  */
 export const useDashboardUndoRedo = () =>
-  useDashboardStore((s) => ({
+  useDashboardStore(s => ({
     undo: s.undo,
     redo: s.redo,
     canUndo: s.canUndo,
     canRedo: s.canRedo,
     clearHistory: s.clearHistory,
-  }));
+  }))
 
 // ============================================================================
 // External API (for non-React environment)
@@ -588,18 +584,18 @@ export const useDashboardUndoRedo = () =>
 /**
  * Get dashboard state snapshot
  */
-export const getDashboardSnapshot = () => useDashboardStore.getState();
+export const getDashboardSnapshot = () => useDashboardStore.getState()
 
 /**
  * Set dashboard config (external call)
  */
 export const setDashboardConfig = (owner: string, repo: string, token?: string) => {
-  useDashboardStore.getState().setConfig(owner, repo, token);
-};
+  useDashboardStore.getState().setConfig(owner, repo, token)
+}
 
 /**
  * Trigger data refresh (external call)
  */
 export const refreshDashboardData = async () => {
-  await useDashboardStore.getState().fetchAllData();
-};
+  await useDashboardStore.getState().fetchAllData()
+}

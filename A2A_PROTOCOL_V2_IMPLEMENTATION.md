@@ -20,6 +20,7 @@ This document summarizes the improvements made to the A2A (Agent-to-Agent) multi
 **File:** `src/lib/a2a/message-queue.ts`
 
 Features:
+
 - **Priority-based queuing**: Messages are queued with 4 priority levels (low, normal, high, critical)
 - **Retry mechanism**: Automatic retry with configurable attempts and delay
 - **Queue size limit**: Configurable maximum queue size to prevent memory overflow
@@ -28,21 +29,23 @@ Features:
 - **Persistence option**: File-based queue for persistence (with auto-flush)
 
 **Key Classes:**
+
 - `PriorityMessageQueue`: In-memory priority queue implementation
 - `FileMessageQueue`: File-based persistent queue (with auto-flush every 30 seconds)
 
 **API Methods:**
+
 ```typescript
-queue.enqueue(message)          // Add message to queue
-queue.dequeue()                  // Remove highest priority message
-queue.peek()                     // Look at next message without removing
-queue.remove(messageId)          // Remove specific message
-queue.size()                     // Get total queue size
-queue.getMessagesByAgent(id)     // Get messages for specific agent
-queue.getMessagesByPriority(p)   // Get messages by priority
-queue.retry(messageId)           // Retry a failed message
-queue.getStats()                 // Get queue statistics
-queue.subscribe(listener)         // Subscribe to queue events
+queue.enqueue(message) // Add message to queue
+queue.dequeue() // Remove highest priority message
+queue.peek() // Look at next message without removing
+queue.remove(messageId) // Remove specific message
+queue.size() // Get total queue size
+queue.getMessagesByAgent(id) // Get messages for specific agent
+queue.getMessagesByPriority(p) // Get messages by priority
+queue.retry(messageId) // Retry a failed message
+queue.getStats() // Get queue statistics
+queue.subscribe(listener) // Subscribe to queue events
 ```
 
 ### 2. Agent Registry
@@ -50,6 +53,7 @@ queue.subscribe(listener)         // Subscribe to queue events
 **File:** `src/lib/a2a/agent-registry.ts`
 
 Features:
+
 - **Agent registration**: Register and manage available agents
 - **Capability matching**: Find agents by capabilities (e.g., "streaming", "chat")
 - **Skill matching**: Find agents by skills (e.g., "conversation", "analysis")
@@ -58,23 +62,25 @@ Features:
 - **Status management**: Track agent status (online, offline, busy)
 
 **Key Classes:**
+
 - `InMemoryAgentRegistry`: In-memory agent registry with auto-cleanup
 - `FileAgentRegistry`: File-based persistent registry (with auto-flush every 30 seconds)
 
 **API Methods:**
+
 ```typescript
-registry.register(agent)                 // Register a new agent
-registry.unregister(agentId)              // Unregister an agent
-registry.get(agentId)                    // Get agent by ID
-registry.getAll()                        // Get all agents
-registry.getByCapability(cap)             // Get agents with specific capability
-registry.getBySkill(skill)               // Get agents with specific skill
-registry.getAvailable()                  // Get available (online) agents
-registry.updateStatus(agentId, status)   // Update agent status
-registry.updateHeartbeat(agentId)        // Update agent heartbeat
-registry.cleanupInactive(timeoutMs)      // Remove inactive agents
-registry.findBestAgent(options)          // Find best agent for task
-registry.getStats()                      // Get registry statistics
+registry.register(agent) // Register a new agent
+registry.unregister(agentId) // Unregister an agent
+registry.get(agentId) // Get agent by ID
+registry.getAll() // Get all agents
+registry.getByCapability(cap) // Get agents with specific capability
+registry.getBySkill(skill) // Get agents with specific skill
+registry.getAvailable() // Get available (online) agents
+registry.updateStatus(agentId, status) // Update agent status
+registry.updateHeartbeat(agentId) // Update agent heartbeat
+registry.cleanupInactive(timeoutMs) // Remove inactive agents
+registry.findBestAgent(options) // Find best agent for task
+registry.getStats() // Get registry statistics
 ```
 
 ### 3. Enhanced Task Store
@@ -82,6 +88,7 @@ registry.getStats()                      // Get registry statistics
 **File:** `src/lib/a2a/task-store.ts` (Enhanced)
 
 New Features:
+
 - **Task priorities**: Assign priority levels to tasks
 - **Async task status tracking**: Track progress and current step
 - **Priority-based task listing**: Get tasks by priority
@@ -89,14 +96,15 @@ New Features:
 - **Task completion tracking**: Mark tasks as completed with timestamps
 
 **New Methods:**
+
 ```typescript
-store.createTaskWithPriority(context, message, priority)  // Create task with priority
-store.updateTaskPriority(taskId, priority)                // Update task priority
-store.getTasksByPriority(priority)                        // Get tasks by priority
-store.getHighestPriorityTasks(limit)                      // Get top N priority tasks
-store.markTaskCompleted(taskId)                           // Mark task as completed
-store.getAsyncTaskStatus(taskId)                          // Get async task progress
-store.updateAsyncTaskProgress(taskId, progress, step)     // Update task progress
+store.createTaskWithPriority(context, message, priority) // Create task with priority
+store.updateTaskPriority(taskId, priority) // Update task priority
+store.getTasksByPriority(priority) // Get tasks by priority
+store.getHighestPriorityTasks(limit) // Get top N priority tasks
+store.markTaskCompleted(taskId) // Mark task as completed
+store.getAsyncTaskStatus(taskId) // Get async task progress
+store.updateAsyncTaskProgress(taskId, progress, step) // Update task progress
 ```
 
 ### 4. Enhanced Type Definitions
@@ -104,62 +112,63 @@ store.updateAsyncTaskProgress(taskId, progress, step)     // Update task progres
 **File:** `src/lib/a2a/types.ts` (Extended)
 
 New Types:
+
 ```typescript
 // Task priority levels
-type TaskPriority = 'low' | 'normal' | 'high' | 'critical';
+type TaskPriority = 'low' | 'normal' | 'high' | 'critical'
 
 // Message queue types
 interface QueueMessage {
-  id: string;
-  taskId: string;
-  agentId: string;
-  priority: TaskPriority;
-  payload: Record<string, unknown>;
-  createdAt: string;
-  attempts: number;
-  maxAttempts: number;
-  nextRetryAt?: string;
+  id: string
+  taskId: string
+  agentId: string
+  priority: TaskPriority
+  payload: Record<string, unknown>
+  createdAt: string
+  attempts: number
+  maxAttempts: number
+  nextRetryAt?: string
 }
 
 interface MessageQueue {
-  enqueue(message: QueueMessage): void;
-  dequeue(): QueueMessage | null;
-  peek(): QueueMessage | null;
-  remove(messageId: string): boolean;
-  size(): number;
-  getMessagesByAgent(agentId: string): QueueMessage[];
-  getMessagesByPriority(priority: TaskPriority): QueueMessage[];
-  retry(messageId: string): boolean;
+  enqueue(message: QueueMessage): void
+  dequeue(): QueueMessage | null
+  peek(): QueueMessage | null
+  remove(messageId: string): boolean
+  size(): number
+  getMessagesByAgent(agentId: string): QueueMessage[]
+  getMessagesByPriority(priority: TaskPriority): QueueMessage[]
+  retry(messageId: string): boolean
 }
 
 // Agent registry types
 interface AgentRegistration {
-  id: string;
-  name: string;
-  url: string;
-  capabilities: string[];
-  skills: string[];
-  status: 'online' | 'offline' | 'busy';
-  lastHeartbeat: string;
-  load?: number;
-  metadata?: Record<string, unknown>;
+  id: string
+  name: string
+  url: string
+  capabilities: string[]
+  skills: string[]
+  status: 'online' | 'offline' | 'busy'
+  lastHeartbeat: string
+  load?: number
+  metadata?: Record<string, unknown>
 }
 
 // Enhanced task with priority
 interface TaskWithPriority extends Task {
-  priority: TaskPriority;
-  createdAt: string;
-  scheduledAt?: string;
-  completedAt?: string;
-  retryCount?: number;
+  priority: TaskPriority
+  createdAt: string
+  scheduledAt?: string
+  completedAt?: string
+  retryCount?: number
 }
 
 // Queue events
 interface QueueEvent {
-  type: 'enqueued' | 'dequeued' | 'retry' | 'failed' | 'completed';
-  message: QueueMessage;
-  timestamp: string;
-  error?: string;
+  type: 'enqueued' | 'dequeued' | 'retry' | 'failed' | 'completed'
+  message: QueueMessage
+  timestamp: string
+  error?: string
 }
 ```
 
@@ -168,6 +177,7 @@ interface QueueEvent {
 ### Agent Registry API
 
 #### List Agents
+
 ```
 GET /api/a2a/registry
 Query Params:
@@ -184,6 +194,7 @@ Response:
 ```
 
 #### Register Agent
+
 ```
 POST /api/a2a/registry
 Body:
@@ -205,6 +216,7 @@ Response:
 ```
 
 #### Get Specific Agent
+
 ```
 GET /api/a2a/registry/:id
 
@@ -212,6 +224,7 @@ Response: AgentRegistration
 ```
 
 #### Update Agent
+
 ```
 PUT /api/a2a/registry/:id
 Body: AgentRegistration (partial update)
@@ -224,6 +237,7 @@ Response:
 ```
 
 #### Delete Agent
+
 ```
 DELETE /api/a2a/registry/:id
 
@@ -235,6 +249,7 @@ Response:
 ```
 
 #### Agent Heartbeat
+
 ```
 POST /api/a2a/registry/:id/heartbeat
 Body:
@@ -254,6 +269,7 @@ Response:
 ### Message Queue API
 
 #### Get Queue Status
+
 ```
 GET /api/a2a/queue
 
@@ -271,6 +287,7 @@ Response:
 ```
 
 #### Enqueue Message
+
 ```
 POST /api/a2a/queue
 Body:
@@ -291,6 +308,7 @@ Response:
 ```
 
 #### Clear Queue
+
 ```
 DELETE /api/a2a/queue
 Query Params:
@@ -311,9 +329,9 @@ Response:
 ### Registering an Agent
 
 ```typescript
-import { getAgentRegistry } from '@/lib/a2a/agent-registry';
+import { getAgentRegistry } from '@/lib/a2a/agent-registry'
 
-const registry = getAgentRegistry();
+const registry = getAgentRegistry()
 
 registry.register({
   id: 'agent-1',
@@ -323,22 +341,22 @@ registry.register({
   skills: ['conversation', 'question-answering'],
   status: 'online',
   load: 0.2,
-});
+})
 
 // Find best agent for a task
 const bestAgent = registry.findBestAgent({
   capabilities: ['chat', 'streaming'],
   maxLoad: 0.5,
-});
+})
 ```
 
 ### Enqueuing a Task
 
 ```typescript
-import { getMessageQueue } from '@/lib/a2a/message-queue';
-import { QueueMessage } from '@/lib/a2a/types';
+import { getMessageQueue } from '@/lib/a2a/message-queue'
+import { QueueMessage } from '@/lib/a2a/types'
 
-const queue = getMessageQueue();
+const queue = getMessageQueue()
 
 queue.enqueue({
   id: 'msg-1',
@@ -351,48 +369,44 @@ queue.enqueue({
   createdAt: new Date().toISOString(),
   attempts: 0,
   maxAttempts: 3,
-});
+})
 
 // Subscribe to queue events
-queue.subscribe((event) => {
-  console.log(`Queue event: ${event.type}`, event);
-});
+queue.subscribe(event => {
+  console.log(`Queue event: ${event.type}`, event)
+})
 ```
 
 ### Creating Priority Tasks
 
 ```typescript
-import { getTaskStore } from '@/lib/a2a/task-store';
+import { getTaskStore } from '@/lib/a2a/task-store'
 
-const store = getTaskStore();
+const store = getTaskStore()
 
 // Create a high-priority task
-const task = store.createTaskWithPriority(
-  'context-1',
-  message,
-  'critical'
-);
+const task = store.createTaskWithPriority('context-1', message, 'critical')
 
 // Get highest priority tasks for processing
-const priorityTasks = store.getHighestPriorityTasks(10);
+const priorityTasks = store.getHighestPriorityTasks(10)
 ```
 
 ### Updating Task Progress
 
 ```typescript
-import { getTaskStore } from '@/lib/a2a/task-store';
+import { getTaskStore } from '@/lib/a2a/task-store'
 
-const store = getTaskStore();
+const store = getTaskStore()
 
 // Update task progress
-store.updateAsyncTaskProgress('task-123', 50, 'Processing data');
+store.updateAsyncTaskProgress('task-123', 50, 'Processing data')
 
 // Mark task as completed
-store.markTaskCompleted('task-123');
+store.markTaskCompleted('task-123')
 
 // Get async task status
-const status = store.getAsyncTaskStatus('task-123');
-console.log(status);
+const status = store.getAsyncTaskStatus('task-123')
+console.log(status)
 // {
 //   state: 'completed',
 //   progress: 100,
@@ -430,6 +444,7 @@ npm test -- src/lib/a2a/__tests__/
 ### Test Results
 
 All tests passing:
+
 - ✓ 11/11 Message Queue tests
 - ✓ 19/19 Agent Registry tests
 
@@ -438,32 +453,32 @@ All tests passing:
 ### Message Queue Configuration
 
 ```typescript
-import { getMessageQueue } from '@/lib/a2a/message-queue';
+import { getMessageQueue } from '@/lib/a2a/message-queue'
 
 const queue = getMessageQueue({
   maxRetries: 3,
   retryDelayMs: 5000,
   maxQueueSize: 1000,
-});
+})
 
 // Update configuration at runtime
 queue.updateConfig({
   maxQueueSize: 2000,
-});
+})
 ```
 
 ### Agent Registry Configuration
 
 ```typescript
-import { getAgentRegistry } from '@/lib/a2a/agent-registry';
+import { getAgentRegistry } from '@/lib/a2a/agent-registry'
 
-const registry = getAgentRegistry();
+const registry = getAgentRegistry()
 
 // Auto-cleanup runs every 60 seconds (default)
 // Agents inactive for 5 minutes are automatically removed
 
 // Manually trigger cleanup
-registry.cleanupInactive(300000); // 5 minutes
+registry.cleanupInactive(300000) // 5 minutes
 ```
 
 ## Performance Considerations
@@ -494,6 +509,7 @@ registry.cleanupInactive(300000); // 5 minutes
 ## Conclusion
 
 The A2A protocol v2 implementation provides a robust, production-ready foundation for multi-agent communication with:
+
 - Priority-based message queuing
 - Dynamic agent registry with load balancing
 - Enhanced task management with progress tracking

@@ -1,3 +1,3 @@
-'use client';
+'use client'
 
-export { ContactError as default } from '@/components/errors';
+export { ContactError as default } from '@/components/errors'

@@ -1,17 +1,17 @@
 /**
  * Tests for Performance Metrics
- * 
+ *
  * Note: These tests verify the performance metrics collection logic.
  */
 
-import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
+import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest'
 import {
   queueMetric,
   flushMetrics,
   recordCustomMetric,
   recordApiResponse,
   recordComponentRender,
-} from '@/lib/monitoring/performance-metrics';
+} from '@/lib/monitoring/performance-metrics'
 
 // Mock logger
 vi.mock('@/lib/logger', () => ({
@@ -21,13 +21,13 @@ vi.mock('@/lib/logger', () => ({
     warn: vi.fn(),
     debug: vi.fn(),
   },
-}));
+}))
 
-import { logger } from '@/lib/logger';
+import { logger } from '@/lib/logger'
 
 describe('queueMetric', () => {
   beforeEach(() => {
-    vi.clearAllMocks();
+    vi.clearAllMocks()
     // Mock window object
     Object.defineProperty(global, 'window', {
       value: {
@@ -45,15 +45,15 @@ describe('queueMetric', () => {
         },
       },
       writable: true,
-    });
-  });
+    })
+  })
 
   afterEach(() => {
-    vi.resetAllMocks();
-  });
+    vi.resetAllMocks()
+  })
 
   it('should queue metric with good rating', () => {
-    queueMetric('test-metric', 100, 'good');
+    queueMetric('test-metric', 100, 'good')
 
     expect(logger.info).toHaveBeenCalledWith(
       'Performance metric collected',
@@ -62,11 +62,11 @@ describe('queueMetric', () => {
         value: 100,
         rating: 'good',
       })
-    );
-  });
+    )
+  })
 
   it('should queue metric with needsImprovement rating', () => {
-    queueMetric('test-metric', 300, 'needsImprovement');
+    queueMetric('test-metric', 300, 'needsImprovement')
 
     expect(logger.info).toHaveBeenCalledWith(
       'Performance metric collected',
@@ -75,11 +75,11 @@ describe('queueMetric', () => {
         value: 300,
         rating: 'needsImprovement',
       })
-    );
-  });
+    )
+  })
 
   it('should queue metric with poor rating', () => {
-    queueMetric('test-metric', 1000, 'poor');
+    queueMetric('test-metric', 1000, 'poor')
 
     expect(logger.info).toHaveBeenCalledWith(
       'Performance metric collected',
@@ -88,24 +88,24 @@ describe('queueMetric', () => {
         value: 1000,
         rating: 'poor',
       })
-    );
-  });
+    )
+  })
 
   it('should not queue metric when window is undefined', () => {
     Object.defineProperty(global, 'window', {
       value: undefined,
       writable: true,
-    });
+    })
 
-    queueMetric('test-metric', 100, 'good');
+    queueMetric('test-metric', 100, 'good')
 
-    expect(logger.info).not.toHaveBeenCalled();
-  });
-});
+    expect(logger.info).not.toHaveBeenCalled()
+  })
+})
 
 describe('flushMetrics', () => {
   beforeEach(() => {
-    vi.clearAllMocks();
+    vi.clearAllMocks()
     Object.defineProperty(global, 'window', {
       value: {
         location: {
@@ -122,25 +122,25 @@ describe('flushMetrics', () => {
         },
       },
       writable: true,
-    });
+    })
     // Mock fetch
-    global.fetch = vi.fn();
-  });
+    global.fetch = vi.fn()
+  })
 
   afterEach(() => {
-    vi.resetAllMocks();
-  });
+    vi.resetAllMocks()
+  })
 
   it('should flush queued metrics to API', async () => {
-    queueMetric('metric1', 100, 'good');
-    queueMetric('metric2', 200, 'good');
+    queueMetric('metric1', 100, 'good')
+    queueMetric('metric2', 200, 'good')
 
     vi.mocked(global.fetch).mockResolvedValueOnce({
       ok: true,
       status: 200,
-    } as Response);
+    } as Response)
 
-    await flushMetrics();
+    await flushMetrics()
 
     expect(global.fetch).toHaveBeenCalledWith(
       '/api/performance/metrics',
@@ -150,57 +150,57 @@ describe('flushMetrics', () => {
           'Content-Type': 'application/json',
         },
       })
-    );
-  });
+    )
+  })
 
   it('should handle successful API response', async () => {
-    queueMetric('metric1', 100, 'good');
+    queueMetric('metric1', 100, 'good')
 
     vi.mocked(global.fetch).mockResolvedValueOnce({
       ok: true,
       status: 200,
-    } as Response);
+    } as Response)
 
-    await flushMetrics();
+    await flushMetrics()
 
     expect(logger.info).toHaveBeenCalledWith(
       'Performance metrics sent successfully',
       expect.objectContaining({
         count: 1,
       })
-    );
-  });
+    )
+  })
 
   it('should handle failed API response', async () => {
-    queueMetric('metric1', 100, 'good');
+    queueMetric('metric1', 100, 'good')
 
     vi.mocked(global.fetch).mockResolvedValueOnce({
       ok: false,
       status: 500,
-    } as Response);
+    } as Response)
 
-    await flushMetrics();
+    await flushMetrics()
 
-    expect(logger.warn).toHaveBeenCalled();
-  });
+    expect(logger.warn).toHaveBeenCalled()
+  })
 
   it('should handle network errors', async () => {
-    queueMetric('metric1', 100, 'good');
+    queueMetric('metric1', 100, 'good')
 
-    vi.mocked(global.fetch).mockRejectedValueOnce(new Error('Network error'));
+    vi.mocked(global.fetch).mockRejectedValueOnce(new Error('Network error'))
 
-    await flushMetrics();
+    await flushMetrics()
 
     expect(logger.warn).toHaveBeenCalledWith(
       'Error sending performance metrics',
       expect.any(Object)
-    );
-  });
-});
+    )
+  })
+})
 
 describe('recordCustomMetric', () => {
   beforeEach(() => {
-    vi.clearAllMocks();
+    vi.clearAllMocks()
     Object.defineProperty(global, 'window', {
       value: {
         location: {
@@ -217,15 +217,15 @@ describe('recordCustomMetric', () => {
         },
       },
       writable: true,
-    });
-  });
+    })
+  })
 
   afterEach(() => {
-    vi.resetAllMocks();
-  });
+    vi.resetAllMocks()
+  })
 
   it('should record custom metric with good rating', () => {
-    recordCustomMetric('custom-metric', 150, 'good');
+    recordCustomMetric('custom-metric', 150, 'good')
 
     expect(logger.info).toHaveBeenCalledWith(
       'Performance metric collected',
@@ -234,11 +234,11 @@ describe('recordCustomMetric', () => {
         value: 150,
         rating: 'good',
       })
-    );
-  });
+    )
+  })
 
   it('should record custom metric with default rating', () => {
-    recordCustomMetric('custom-metric', 300);
+    recordCustomMetric('custom-metric', 300)
 
     expect(logger.info).toHaveBeenCalledWith(
       'Performance metric collected',
@@ -247,24 +247,24 @@ describe('recordCustomMetric', () => {
         value: 300,
         rating: 'needsImprovement',
       })
-    );
-  });
+    )
+  })
 
   it('should not record metric when window is undefined', () => {
     Object.defineProperty(global, 'window', {
       value: undefined,
       writable: true,
-    });
+    })
 
-    recordCustomMetric('custom-metric', 100);
+    recordCustomMetric('custom-metric', 100)
 
-    expect(logger.info).not.toHaveBeenCalled();
-  });
-});
+    expect(logger.info).not.toHaveBeenCalled()
+  })
+})
 
 describe('recordApiResponse', () => {
   beforeEach(() => {
-    vi.clearAllMocks();
+    vi.clearAllMocks()
     Object.defineProperty(global, 'window', {
       value: {
         location: {
@@ -281,15 +281,15 @@ describe('recordApiResponse', () => {
         },
       },
       writable: true,
-    });
-  });
+    })
+  })
 
   afterEach(() => {
-    vi.resetAllMocks();
-  });
+    vi.resetAllMocks()
+  })
 
   it('should record fast API response as good', () => {
-    recordApiResponse('/api/test', 150);
+    recordApiResponse('/api/test', 150)
 
     expect(logger.info).toHaveBeenCalledWith(
       'Performance metric collected',
@@ -298,11 +298,11 @@ describe('recordApiResponse', () => {
         value: 150,
         rating: 'good',
       })
-    );
-  });
+    )
+  })
 
   it('should record slow API response', () => {
-    recordApiResponse('/api/test', 500);
+    recordApiResponse('/api/test', 500)
 
     expect(logger.info).toHaveBeenCalledWith(
       'Performance metric collected',
@@ -310,13 +310,13 @@ describe('recordApiResponse', () => {
         name: 'API-/api/test',
         value: 500,
       })
-    );
-  });
-});
+    )
+  })
+})
 
 describe('recordComponentRender', () => {
   beforeEach(() => {
-    vi.clearAllMocks();
+    vi.clearAllMocks()
     Object.defineProperty(global, 'window', {
       value: {
         location: {
@@ -333,15 +333,15 @@ describe('recordComponentRender', () => {
         },
       },
       writable: true,
-    });
-  });
+    })
+  })
 
   afterEach(() => {
-    vi.resetAllMocks();
-  });
+    vi.resetAllMocks()
+  })
 
   it('should record fast component render', () => {
-    recordComponentRender('TestComponent', 10);
+    recordComponentRender('TestComponent', 10)
 
     expect(logger.info).toHaveBeenCalledWith(
       'Performance metric collected',
@@ -350,11 +350,11 @@ describe('recordComponentRender', () => {
         value: 10,
         rating: 'good',
       })
-    );
-  });
+    )
+  })
 
   it('should record slow component render', () => {
-    recordComponentRender('TestComponent', 50);
+    recordComponentRender('TestComponent', 50)
 
     expect(logger.info).toHaveBeenCalledWith(
       'Performance metric collected',
@@ -362,11 +362,11 @@ describe('recordComponentRender', () => {
         name: 'Render-TestComponent',
         value: 50,
       })
-    );
-  });
+    )
+  })
 
   it('should record very slow component render', () => {
-    recordComponentRender('TestComponent', 200);
+    recordComponentRender('TestComponent', 200)
 
     expect(logger.info).toHaveBeenCalledWith(
       'Performance metric collected',
@@ -375,13 +375,13 @@ describe('recordComponentRender', () => {
         value: 200,
         rating: 'poor',
       })
-    );
-  });
-});
+    )
+  })
+})
 
 describe('Metric Rating Logic', () => {
   beforeEach(() => {
-    vi.clearAllMocks();
+    vi.clearAllMocks()
     Object.defineProperty(global, 'window', {
       value: {
         location: {
@@ -398,15 +398,15 @@ describe('Metric Rating Logic', () => {
         },
       },
       writable: true,
-    });
-  });
+    })
+  })
 
   afterEach(() => {
-    vi.resetAllMocks();
-  });
+    vi.resetAllMocks()
+  })
 
   it('should record LCP metric with rating', () => {
-    queueMetric('LCP', 2500, 'good');
+    queueMetric('LCP', 2500, 'good')
     expect(logger.info).toHaveBeenCalledWith(
       'Performance metric collected',
       expect.objectContaining({
@@ -414,11 +414,11 @@ describe('Metric Rating Logic', () => {
         value: 2500,
         rating: 'good',
       })
-    );
-  });
+    )
+  })
 
   it('should record CLS metric with rating', () => {
-    queueMetric('CLS', 0.05, 'good');
+    queueMetric('CLS', 0.05, 'good')
     expect(logger.info).toHaveBeenCalledWith(
       'Performance metric collected',
       expect.objectContaining({
@@ -426,11 +426,11 @@ describe('Metric Rating Logic', () => {
         value: 0.05,
         rating: 'good',
       })
-    );
-  });
+    )
+  })
 
   it('should record TTFB metric with rating', () => {
-    queueMetric('TTFB', 600, 'good');
+    queueMetric('TTFB', 600, 'good')
     expect(logger.info).toHaveBeenCalledWith(
       'Performance metric collected',
       expect.objectContaining({
@@ -438,11 +438,11 @@ describe('Metric Rating Logic', () => {
         value: 600,
         rating: 'good',
       })
-    );
-  });
+    )
+  })
 
   it('should record FCP metric with rating', () => {
-    queueMetric('FCP', 1500, 'good');
+    queueMetric('FCP', 1500, 'good')
     expect(logger.info).toHaveBeenCalledWith(
       'Performance metric collected',
       expect.objectContaining({
@@ -450,11 +450,11 @@ describe('Metric Rating Logic', () => {
         value: 1500,
         rating: 'good',
       })
-    );
-  });
+    )
+  })
 
   it('should record INP metric with rating', () => {
-    queueMetric('INP', 150, 'good');
+    queueMetric('INP', 150, 'good')
     expect(logger.info).toHaveBeenCalledWith(
       'Performance metric collected',
       expect.objectContaining({
@@ -462,11 +462,11 @@ describe('Metric Rating Logic', () => {
         value: 150,
         rating: 'good',
       })
-    );
-  });
+    )
+  })
 
   it('should include route and device info in metrics', () => {
-    queueMetric('test', 100, 'good');
+    queueMetric('test', 100, 'good')
 
     expect(logger.info).toHaveBeenCalledWith(
       'Performance metric collected',
@@ -475,6 +475,6 @@ describe('Metric Rating Logic', () => {
         value: 100,
         rating: 'good',
       })
-    );
-  });
-});
+    )
+  })
+})

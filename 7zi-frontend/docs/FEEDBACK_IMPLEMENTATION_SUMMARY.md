@@ -3,12 +3,14 @@
 ## 📦 已创建文件清单
 
 ### 数据库层
+
 - ✅ `src/lib/db/feedback-storage.ts` (500+ 行)
   - FeedbackStorage 类实现
   - SQLite 数据库操作
   - CRUD、查询、统计、评论功能
 
 ### 前端组件
+
 - ✅ `src/components/feedback/FeedbackModal.tsx` (500+ 行)
   - 基础反馈提交模态框
   - 支持多种反馈类型、附件、评分
@@ -27,6 +29,7 @@
   - 状态管理和回复功能
 
 ### API 路由
+
 - ✅ `src/app/api/feedback/route.ts` (400+ 行)
   - GET - 获取反馈列表
   - POST - 提交新反馈
@@ -43,6 +46,7 @@
   - GET - 导出反馈数据为 CSV
 
 ### 页面
+
 - ✅ `src/app/feedback/page.tsx` (400+ 行)
   - 用户反馈提交页面
   - 反馈类型选择卡片
@@ -54,6 +58,7 @@
   - 集成管理面板
 
 ### 文档
+
 - ✅ `docs/FEEDBACK_SYSTEM_REPORT.md` (9000+ 字)
   - 完整系统文档
   - API 接口说明
@@ -63,6 +68,7 @@
 ## 🎯 核心功能实现
 
 ### 用户功能
+
 - [x] 反馈提交（6种类型）
 - [x] 优先级选择（4个级别）
 - [x] 评分系统（1-5星）
@@ -75,6 +81,7 @@
 - [x] 快速模板
 
 ### 管理功能
+
 - [x] 反馈列表查看
 - [x] 筛选和搜索
 - [x] 详情查看
@@ -104,16 +111,19 @@
 ## 🚀 快速开始
 
 ### 安装依赖
+
 ```bash
 cd /root/.openclaw/workspace/7zi-frontend
 npm install better-sqlite3 --legacy-peer-deps
 ```
 
 ### 访问页面
+
 - 用户反馈: `http://localhost:3000/feedback`
 - 管理后台: `http://localhost:3000/admin/feedback`
 
 ### API 端点
+
 - POST `/api/feedback` - 提交反馈
 - GET `/api/feedback` - 获取反馈列表
 - GET `/api/feedback/stats` - 获取统计（管理员）

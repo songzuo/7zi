@@ -4,7 +4,7 @@
  */
 
 import { describe, it, expect, vi, beforeAll, afterAll, type MockedFunction } from 'vitest'
-import { NextRequest } from 'next/server';
+import { NextRequest } from 'next/server'
 
 // Mock environment variables
 const originalEnv = { ...process.env }
@@ -12,13 +12,13 @@ const originalEnv = { ...process.env }
 describe('GitHub API Proxy - Commits Route', () => {
   beforeAll(() => {
     // Use Object.defineProperty to override read-only property
-    Object.defineProperty(process, 'NODE_ENV', { value: 'test' });
-    (process.env as Record<string, string>).NEXT_PUBLIC_GITHUB_OWNER = 'test-owner';
-    (process.env as Record<string, string>).NEXT_PUBLIC_GITHUB_REPO = 'test-repo';
+    Object.defineProperty(process, 'NODE_ENV', { value: 'test' })
+    ;(process.env as Record<string, string>).NEXT_PUBLIC_GITHUB_OWNER = 'test-owner'
+    ;(process.env as Record<string, string>).NEXT_PUBLIC_GITHUB_REPO = 'test-repo'
   })
 
   afterAll(() => {
-    process.env = originalEnv;
+    process.env = originalEnv
   })
 
   describe('Normal Request Scenarios', () => {
@@ -58,7 +58,9 @@ describe('GitHub API Proxy - Commits Route', () => {
       })
 
       const { GET } = await import('@/app/api/github/commits/route')
-      const request = new NextRequest('http://localhost:3000/api/github/commits?owner=custom-owner&repo=custom-repo')
+      const request = new NextRequest(
+        'http://localhost:3000/api/github/commits?owner=custom-owner&repo=custom-repo'
+      )
       const response = await GET(request)
 
       expect(global.fetch).toHaveBeenCalledWith(
@@ -222,11 +224,11 @@ describe('GitHub API Proxy - Commits Route', () => {
     })
 
     it('should handle GitHub API timeout', async () => {
-      global.fetch = vi.fn().mockImplementationOnce(() =>
-        new Promise((_, reject) =>
-          setTimeout(() => reject(new Error('Timeout')), 100)
+      global.fetch = vi
+        .fn()
+        .mockImplementationOnce(
+          () => new Promise((_, reject) => setTimeout(() => reject(new Error('Timeout')), 100))
         )
-      )
 
       const { GET } = await import('@/app/api/github/commits/route')
       const request = new NextRequest('http://localhost:3000/api/github/commits')
@@ -308,14 +310,14 @@ describe('CSRF Token Logic', () => {
 
       expect(typeof token).toBe('string')
       expect(token.length).toBe(64) // 32 bytes * 2 (hex)
-      
+
       const hexRegex = /^[0-9a-f]{64}$/
       expect(hexRegex.test(token)).toBe(true)
     })
 
     it('should generate unique tokens on each call', async () => {
       const { randomBytes } = await import('crypto')
-      
+
       const token1 = randomBytes(32).toString('hex')
       const token2 = randomBytes(32).toString('hex')
 
@@ -327,7 +329,7 @@ describe('CSRF Token Logic', () => {
     it('should handle concurrent token generation', async () => {
       const { randomBytes } = await import('crypto')
 
-      const promises = Array.from({ length: 10 }, () => 
+      const promises = Array.from({ length: 10 }, () =>
         Promise.resolve(randomBytes(32).toString('hex'))
       )
       const tokens = await Promise.all(promises)
@@ -335,7 +337,7 @@ describe('CSRF Token Logic', () => {
       tokens.forEach(token => {
         expect(typeof token).toBe('string')
         expect(token.length).toBe(64)
-        
+
         const hexRegex = /^[0-9a-f]{64}$/
         expect(hexRegex.test(token)).toBe(true)
       })
@@ -362,7 +364,7 @@ describe('CSRF Token Logic', () => {
       const { randomBytes } = await import('crypto')
 
       const start = Date.now()
-      const promises = Array.from({ length: 50 }, () => 
+      const promises = Array.from({ length: 50 }, () =>
         Promise.resolve(randomBytes(32).toString('hex'))
       )
       const tokens = await Promise.all(promises)

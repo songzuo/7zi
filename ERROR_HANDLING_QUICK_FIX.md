@@ -9,15 +9,16 @@
 **问题**: 公开暴露内存和数据库信息
 
 **立即修复**:
+
 ```typescript
 // 添加认证检查
-import { withAuth } from '@/middleware/auth';
+import { withAuth } from '@/middleware/auth'
 
 export async function GET(request: NextRequest): Promise<NextResponse<DetailedHealthResponse>> {
   // 添加认证
   return withAuth(request, async () => {
     // ... 现有代码
-  });
+  })
 }
 ```
 
@@ -55,10 +56,10 @@ export async function GET(request: NextRequest): Promise<NextResponse<DetailedHe
 ```typescript
 // src/app/api/health/detailed/route.ts
 
-import { NextRequest, NextResponse } from 'next/server';
-import logger from '@/lib/logger';
-import { getDatabase, getDatabaseSize } from '@/lib/db';
-import { withAuth } from '@/middleware/auth';  // ✅ 新增
+import { NextRequest, NextResponse } from 'next/server'
+import logger from '@/lib/logger'
+import { getDatabase, getDatabaseSize } from '@/lib/db'
+import { withAuth } from '@/middleware/auth' // ✅ 新增
 
 // ... types 保持不变
 
@@ -66,8 +67,8 @@ export async function GET(request: NextRequest): Promise<NextResponse<DetailedHe
   // ✅ 添加认证
   return withAuth(request, async () => {
     try {
-      const db = getDatabase();
-      const dbSize = getDatabaseSize();
+      const db = getDatabase()
+      const dbSize = getDatabaseSize()
 
       return NextResponse.json({
         success: true,
@@ -85,9 +86,9 @@ export async function GET(request: NextRequest): Promise<NextResponse<DetailedHe
           uptime: process.uptime(),
           timestamp: new Date().toISOString(),
         },
-      });
+      })
     } catch (error) {
-      logger.error('Detailed health check failed', error);
+      logger.error('Detailed health check failed', error)
       return NextResponse.json(
         {
           success: false,
@@ -100,9 +101,9 @@ export async function GET(request: NextRequest): Promise<NextResponse<DetailedHe
           },
         } as DetailedHealthResponse,
         { status: 503 }
-      );
+      )
     }
-  });
+  })
 }
 ```
 
@@ -111,80 +112,83 @@ export async function GET(request: NextRequest): Promise<NextResponse<DetailedHe
 ```typescript
 // src/app/api/backup/route.ts
 
-import { NextRequest } from 'next/server';
-import logger from '@/lib/logger';
-import { withAuth } from '@/middleware/auth';
+import { NextRequest } from 'next/server'
+import logger from '@/lib/logger'
+import { withAuth } from '@/middleware/auth'
 import {
   createSuccessResponse,
   createErrorResponseJson,
   createInternalServerError,
   withErrorHandler,
-} from '@/lib/api/error-handler';
+} from '@/lib/api/error-handler'
 import {
   logApiError,
   logApiSuccess,
   createApiContext,
   createPerformanceLogger,
-} from '@/lib/api/error-logger';
+} from '@/lib/api/error-logger'
 
 // ... types 保持不变
 
 export const GET = withErrorHandler(async (request: NextRequest) => {
   return withAuth(request, async () => {
-    const perf = createPerformanceLogger(request, Date.now());
-    const context = createApiContext(request);
+    const perf = createPerformanceLogger(request, Date.now())
+    const context = createApiContext(request)
 
     try {
-      const backups = await getAvailableBackups();
+      const backups = await getAvailableBackups()
 
-      perf.logSuccess(200);
-      logApiSuccess(context, 200);
+      perf.logSuccess(200)
+      logApiSuccess(context, 200)
 
       return createSuccessResponse({
         backups,
         count: backups.length,
-      });
+      })
     } catch (error) {
-      perf.logError(error as Error);
-      logApiError(error as Error, context);
+      perf.logError(error as Error)
+      logApiError(error as Error, context)
 
-      throw createInternalServerError('Failed to list backups');
+      throw createInternalServerError('Failed to list backups')
     }
-  });
-});
+  })
+})
 
 export const POST = withErrorHandler(async (request: NextRequest) => {
   return withAuth(request, async () => {
-    const perf = createPerformanceLogger(request, Date.now());
-    const context = createApiContext(request);
+    const perf = createPerformanceLogger(request, Date.now())
+    const context = createApiContext(request)
 
     try {
-      const body = await request.json() as CreateBackupRequest;
+      const body = (await request.json()) as CreateBackupRequest
 
       // Backup creation logic would go here
-      const backup = await createBackup(body);
+      const backup = await createBackup(body)
 
-      perf.logSuccess(201);
-      logApiSuccess(context, 201);
+      perf.logSuccess(201)
+      logApiSuccess(context, 201)
 
-      return createSuccessResponse({
-        id: backup.id,
-        message: 'Backup created',
-        timestamp: new Date().toISOString(),
-      }, 201);
+      return createSuccessResponse(
+        {
+          id: backup.id,
+          message: 'Backup created',
+          timestamp: new Date().toISOString(),
+        },
+        201
+      )
     } catch (error) {
-      perf.logError(error as Error);
-      logApiError(error as Error, context);
+      perf.logError(error as Error)
+      logApiError(error as Error, context)
 
-      throw createInternalServerError('Backup creation failed');
+      throw createInternalServerError('Backup creation failed')
     }
-  });
-});
+  })
+})
 
 // Helper function
 async function createBackup(options: CreateBackupRequest): Promise<{ id: string }> {
   // TODO: 实现备份创建逻辑
-  return { id: `backup-${Date.now()}` };
+  return { id: `backup-${Date.now()}` }
 }
 ```
 
@@ -193,27 +197,27 @@ async function createBackup(options: CreateBackupRequest): Promise<{ id: string 
 ```typescript
 // src/app/api/export/route.ts
 
-import { NextRequest } from 'next/server';
-import logger from '@/lib/logger';
-import { withAuth } from '@/middleware/auth';
+import { NextRequest } from 'next/server'
+import logger from '@/lib/logger'
+import { withAuth } from '@/middleware/auth'
 import {
   createSuccessResponse,
   createInternalServerError,
   withErrorHandler,
-} from '@/lib/api/error-handler';
+} from '@/lib/api/error-handler'
 import {
   logApiError,
   logApiSuccess,
   createApiContext,
   createPerformanceLogger,
-} from '@/lib/api/error-logger';
+} from '@/lib/api/error-logger'
 
 // ... types 保持不变
 
 export const GET = withErrorHandler(async (request: NextRequest) => {
   return withAuth(request, async () => {
-    const perf = createPerformanceLogger(request, Date.now());
-    const context = createApiContext(request);
+    const perf = createPerformanceLogger(request, Date.now())
+    const context = createApiContext(request)
 
     try {
       // Export formats configuration
@@ -222,23 +226,30 @@ export const GET = withErrorHandler(async (request: NextRequest) => {
         default: 'json',
         maxRecords: 10000,
         fields: [
-          'id', 'title', 'description', 'status',
-          'priority', 'dueDate', 'tags', 'createdAt', 'updatedAt'
-        ]
-      };
+          'id',
+          'title',
+          'description',
+          'status',
+          'priority',
+          'dueDate',
+          'tags',
+          'createdAt',
+          'updatedAt',
+        ],
+      }
 
-      perf.logSuccess(200);
-      logApiSuccess(context, 200);
+      perf.logSuccess(200)
+      logApiSuccess(context, 200)
 
-      return createSuccessResponse(exportOptions);
+      return createSuccessResponse(exportOptions)
     } catch (error) {
-      perf.logError(error as Error);
-      logApiError(error as Error, context);
+      perf.logError(error as Error)
+      logApiError(error as Error, context)
 
-      throw createInternalServerError('Export request failed');
+      throw createInternalServerError('Export request failed')
     }
-  });
-});
+  })
+})
 ```
 
 ### 修复 4: /api/status 使用标准错误处理
@@ -246,46 +257,46 @@ export const GET = withErrorHandler(async (request: NextRequest) => {
 ```typescript
 // src/app/api/status/route.ts
 
-import { NextRequest } from 'next/server';
-import logger from '@/lib/logger';
-import { withAuth } from '@/middleware/auth';
+import { NextRequest } from 'next/server'
+import logger from '@/lib/logger'
+import { withAuth } from '@/middleware/auth'
 import {
   createSuccessResponse,
   createInternalServerError,
   withErrorHandler,
-} from '@/lib/api/error-handler';
+} from '@/lib/api/error-handler'
 import {
   logApiError,
   logApiSuccess,
   createApiContext,
   createPerformanceLogger,
-} from '@/lib/api/error-logger';
+} from '@/lib/api/error-logger'
 
 // ... types 保持不变
 
 export const GET = withErrorHandler(async (request: NextRequest) => {
   return withAuth(request, async () => {
-    const perf = createPerformanceLogger(request, Date.now());
-    const context = createApiContext(request);
+    const perf = createPerformanceLogger(request, Date.now())
+    const context = createApiContext(request)
 
     try {
-      perf.logSuccess(200);
-      logApiSuccess(context, 200);
+      perf.logSuccess(200)
+      logApiSuccess(context, 200)
 
       // 返回最小信息，防止信息泄露
       return createSuccessResponse({
         status: 'ok',
         timestamp: new Date().toISOString(),
         uptime: Math.floor(process.uptime()),
-      });
+      })
     } catch (error) {
-      perf.logError(error as Error);
-      logApiError(error as Error, context);
+      perf.logError(error as Error)
+      logApiError(error as Error, context)
 
-      throw createInternalServerError('Status check failed');
+      throw createInternalServerError('Status check failed')
     }
-  });
-});
+  })
+})
 ```
 
 ### 修复 5: /api/health 添加详细日志
@@ -293,32 +304,32 @@ export const GET = withErrorHandler(async (request: NextRequest) => {
 ```typescript
 // src/app/api/health/route.ts
 
-import { NextRequest, NextResponse } from 'next/server';
-import logger from '@/lib/logger';
-import { getDatabase } from '@/lib/db';
+import { NextRequest, NextResponse } from 'next/server'
+import logger from '@/lib/logger'
+import { getDatabase } from '@/lib/db'
 import {
   logApiError,
   logApiSuccess,
   createApiContext,
   createPerformanceLogger,
-} from '@/lib/api/error-logger';
+} from '@/lib/api/error-logger'
 
 // ... types 保持不变
 
 export async function GET(request: NextRequest): Promise<NextResponse<HealthCheckResponse>> {
-  const perf = createPerformanceLogger(request, Date.now());
-  const context = createApiContext(request);
+  const perf = createPerformanceLogger(request, Date.now())
+  const context = createApiContext(request)
 
   try {
     // Check database connection
-    let dbStatus = 'ok';
+    let dbStatus = 'ok'
     try {
-      const db = getDatabase();
+      const db = getDatabase()
       if (!db) {
-        dbStatus = 'error';
+        dbStatus = 'error'
       }
     } catch (error) {
-      dbStatus = 'error';
+      dbStatus = 'error'
     }
 
     const response = NextResponse.json({
@@ -328,15 +339,15 @@ export async function GET(request: NextRequest): Promise<NextResponse<HealthChec
         database: dbStatus,
         timestamp: new Date().toISOString(),
       },
-    });
+    })
 
-    perf.logSuccess(response.status);
-    logApiSuccess(context, response.status);
+    perf.logSuccess(response.status)
+    logApiSuccess(context, response.status)
 
-    return response;
+    return response
   } catch (error) {
-    perf.logError(error as Error);
-    logApiError(error as Error, context);
+    perf.logError(error as Error)
+    logApiError(error as Error, context)
 
     return NextResponse.json(
       {
@@ -348,7 +359,7 @@ export async function GET(request: NextRequest): Promise<NextResponse<HealthChec
         },
       } as HealthCheckResponse,
       { status: 503 }
-    );
+    )
   }
 }
 ```
@@ -358,38 +369,38 @@ export async function GET(request: NextRequest): Promise<NextResponse<HealthChec
 ```typescript
 // src/app/api/github/commits/route.ts
 
-import { NextRequest, NextResponse } from 'next/server';
-import logger from '@/lib/logger';
+import { NextRequest, NextResponse } from 'next/server'
+import logger from '@/lib/logger'
 import {
   createSuccessResponse,
   createInternalServerError,
   createBadRequestError,
   withErrorHandler,
-} from '@/lib/api/error-handler';
+} from '@/lib/api/error-handler'
 import {
   logApiError,
   logApiSuccess,
   createApiContext,
   createPerformanceLogger,
-} from '@/lib/api/error-logger';
+} from '@/lib/api/error-logger'
 
 // ... types 保持不变
 
 export const GET = withErrorHandler(async (request: NextRequest) => {
-  const perf = createPerformanceLogger(request, Date.now());
-  const context = createApiContext(request);
+  const perf = createPerformanceLogger(request, Date.now())
+  const context = createApiContext(request)
 
-  const { searchParams } = new URL(request.url);
-  const owner = searchParams.get('owner') || 'owner';
-  const repo = searchParams.get('repo') || 'repo';
-  const branch = searchParams.get('branch') || 'main';
+  const { searchParams } = new URL(request.url)
+  const owner = searchParams.get('owner') || 'owner'
+  const repo = searchParams.get('repo') || 'repo'
+  const branch = searchParams.get('branch') || 'main'
 
   // 参数验证
   if (!owner || !repo || !branch) {
     throw createBadRequestError('Missing required parameters', {
       required: ['owner', 'repo', 'branch'],
       provided: { owner, repo, branch },
-    });
+    })
   }
 
   try {
@@ -402,10 +413,10 @@ export const GET = withErrorHandler(async (request: NextRequest) => {
         author: 'John Doe',
         date: new Date().toISOString(),
       },
-    ];
+    ]
 
-    perf.logSuccess(200);
-    logApiSuccess(context, 200);
+    perf.logSuccess(200)
+    logApiSuccess(context, 200)
 
     return createSuccessResponse({
       data: commits,
@@ -415,14 +426,14 @@ export const GET = withErrorHandler(async (request: NextRequest) => {
         branch,
         count: commits.length,
       },
-    });
+    })
   } catch (error) {
-    perf.logError(error as Error);
-    logApiError(error as Error, context);
+    perf.logError(error as Error)
+    logApiError(error as Error, context)
 
-    throw createInternalServerError('Failed to fetch commits');
+    throw createInternalServerError('Failed to fetch commits')
   }
-});
+})
 ```
 
 ---

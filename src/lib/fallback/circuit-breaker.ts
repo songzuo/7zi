@@ -16,32 +16,32 @@ export enum CircuitState {
 
 export interface CircuitBreakerConfig {
   /** Number of failures before opening circuit (default: 5) */
-  failureThreshold?: number;
+  failureThreshold?: number
   /** Number of successes before closing circuit (default: 2) */
-  successThreshold?: number;
+  successThreshold?: number
   /** Time in ms before attempting recovery (default: 60000) */
-  recoveryTimeout?: number;
+  recoveryTimeout?: number
   /** Percentage of failures to trigger circuit (default: 50) */
-  failurePercentageThreshold?: number;
+  failurePercentageThreshold?: number
   /** Minimum requests before triggering (default: 10) */
-  minimumRequests?: number;
+  minimumRequests?: number
   /** Timeout for individual requests (default: 30000) */
-  requestTimeout?: number;
+  requestTimeout?: number
   /** Circuit name for logging */
-  name?: string;
+  name?: string
 }
 
 interface CircuitStats {
   /** Total requests */
-  total: number;
+  total: number
   /** Successful requests */
-  successes: number;
+  successes: number
   /** Failed requests */
-  failures: number;
+  failures: number
   /** Last failure time */
-  lastFailureTime?: number;
+  lastFailureTime?: number
   /** Last success time */
-  lastSuccessTime?: number;
+  lastSuccessTime?: number
 }
 
 /**
@@ -63,13 +63,13 @@ interface CircuitStats {
  * ```
  */
 export class CircuitBreaker {
-  private state: CircuitState = CircuitState.CLOSED;
+  private state: CircuitState = CircuitState.CLOSED
   private stats: CircuitStats = {
     total: 0,
     successes: 0,
     failures: 0,
-  };
-  private config: Required<CircuitBreakerConfig>;
+  }
+  private config: Required<CircuitBreakerConfig>
 
   constructor(config?: CircuitBreakerConfig) {
     this.config = {
@@ -80,7 +80,7 @@ export class CircuitBreaker {
       minimumRequests: config?.minimumRequests ?? 10,
       requestTimeout: config?.requestTimeout ?? 30000,
       name: config?.name ?? 'circuit-breaker',
-    };
+    }
   }
 
   /**
@@ -89,53 +89,53 @@ export class CircuitBreaker {
   getState(): CircuitState {
     // Check if we should transition from OPEN to HALF_OPEN
     if (this.state === CircuitState.OPEN) {
-      const timeSinceLastFailure = Date.now() - (this.stats.lastFailureTime || 0);
+      const timeSinceLastFailure = Date.now() - (this.stats.lastFailureTime || 0)
       if (timeSinceLastFailure >= this.config.recoveryTimeout) {
-        this.setState(CircuitState.HALF_OPEN);
+        this.setState(CircuitState.HALF_OPEN)
       }
     }
 
-    return this.state;
+    return this.state
   }
 
   /**
    * Get circuit statistics
    */
   getStats(): CircuitStats {
-    return { ...this.stats };
+    return { ...this.stats }
   }
 
   /**
    * Execute a function through the circuit breaker
    */
   async execute<T>(fn: () => Promise<T>): Promise<T> {
-    const state = this.getState();
+    const state = this.getState()
 
     // If circuit is open, fail immediately
     if (state === CircuitState.OPEN) {
-      const timeSinceLastFailure = Date.now() - (this.stats.lastFailureTime || 0);
-      const remainingTime = this.config.recoveryTimeout - timeSinceLastFailure;
+      const timeSinceLastFailure = Date.now() - (this.stats.lastFailureTime || 0)
+      const remainingTime = this.config.recoveryTimeout - timeSinceLastFailure
 
       throw new CircuitBreakerOpenError(
         `Circuit breaker is open for ${this.config.name}. Retry after ${Math.ceil(remainingTime / 1000)}s`,
         state,
         remainingTime
-      );
+      )
     }
 
     try {
       // Execute the function with timeout
-      const result = await this.withTimeout(fn, this.config.requestTimeout);
+      const result = await this.withTimeout(fn, this.config.requestTimeout)
 
       // Record success
-      this.recordSuccess();
+      this.recordSuccess()
 
-      return result;
-    } catch (_error) {
+      return result
+    } catch (error) {
       // Record failure
-      this.recordFailure();
+      this.recordFailure()
 
-      throw error;
+      throw error
     }
   }
 
@@ -143,33 +143,33 @@ export class CircuitBreaker {
    * Execute function without circuit breaker (direct call)
    */
   async executeDirect<T>(fn: () => Promise<T>): Promise<T> {
-    return this.withTimeout(fn, this.config.requestTimeout);
+    return this.withTimeout(fn, this.config.requestTimeout)
   }
 
   /**
    * Reset circuit breaker to closed state
    */
   reset(): void {
-    this.setState(CircuitState.CLOSED);
+    this.setState(CircuitState.CLOSED)
     this.stats = {
       total: 0,
       successes: 0,
       failures: 0,
-    };
+    }
   }
 
   /**
    * Manually open the circuit
    */
   open(): void {
-    this.setState(CircuitState.OPEN);
+    this.setState(CircuitState.OPEN)
   }
 
   /**
    * Manually close the circuit
    */
   close(): void {
-    this.reset();
+    this.reset()
   }
 
   /**
@@ -177,7 +177,7 @@ export class CircuitBreaker {
    */
   private setState(state: CircuitState): void {
     if (this.state !== state) {
-      this.state = state;
+      this.state = state
     }
   }
 
@@ -185,19 +185,19 @@ export class CircuitBreaker {
    * Record a successful request
    */
   private recordSuccess(): void {
-    this.stats.total++;
-    this.stats.successes++;
-    this.stats.lastSuccessTime = Date.now();
+    this.stats.total++
+    this.stats.successes++
+    this.stats.lastSuccessTime = Date.now()
 
     // If in HALF_OPEN, close circuit after enough successes
     if (
       this.state === CircuitState.HALF_OPEN &&
       this.stats.successes >= this.config.successThreshold
     ) {
-      this.setState(CircuitState.CLOSED);
+      this.setState(CircuitState.CLOSED)
       // Reset stats for closed state
-      this.stats.successes = 0;
-      this.stats.failures = 0;
+      this.stats.successes = 0
+      this.stats.failures = 0
     }
   }
 
@@ -205,18 +205,18 @@ export class CircuitBreaker {
    * Record a failed request
    */
   private recordFailure(): void {
-    this.stats.total++;
-    this.stats.failures++;
-    this.stats.lastFailureTime = Date.now();
+    this.stats.total++
+    this.stats.failures++
+    this.stats.lastFailureTime = Date.now()
 
     // Check if we should open the circuit
     if (this.shouldOpenCircuit()) {
-      this.setState(CircuitState.OPEN);
+      this.setState(CircuitState.OPEN)
     }
 
     // If in HALF_OPEN, any failure opens circuit again
     if (this.state === CircuitState.HALF_OPEN) {
-      this.setState(CircuitState.OPEN);
+      this.setState(CircuitState.OPEN)
     }
   }
 
@@ -226,17 +226,17 @@ export class CircuitBreaker {
   private shouldOpenCircuit(): boolean {
     // Not enough data
     if (this.stats.total < this.config.minimumRequests) {
-      return false;
+      return false
     }
 
     // Check absolute failure count
     if (this.stats.failures >= this.config.failureThreshold) {
-      return true;
+      return true
     }
 
     // Check failure percentage
-    const failurePercentage = (this.stats.failures / this.stats.total) * 100;
-    return failurePercentage >= this.config.failurePercentageThreshold;
+    const failurePercentage = (this.stats.failures / this.stats.total) * 100
+    return failurePercentage >= this.config.failurePercentageThreshold
   }
 
   /**
@@ -245,32 +245,31 @@ export class CircuitBreaker {
   private async withTimeout<T>(fn: () => Promise<T>, timeoutMs: number): Promise<T> {
     const timeoutPromise = new Promise<never>((_, reject) => {
       setTimeout(() => {
-        reject(new Error(`Request timeout after ${timeoutMs}ms`));
-      }, timeoutMs);
-    });
+        reject(new Error(`Request timeout after ${timeoutMs}ms`))
+      }, timeoutMs)
+    })
 
-    return Promise.race([fn(), timeoutPromise]);
+    return Promise.race([fn(), timeoutPromise])
   }
 
   /**
    * Get health status
    */
   getHealth(): {
-    state: CircuitState;
-    stats: CircuitStats;
-    isHealthy: boolean;
-    failureRate: number;
+    state: CircuitState
+    stats: CircuitStats
+    isHealthy: boolean
+    failureRate: number
   } {
-    const state = this.getState();
-    const failureRate =
-      this.stats.total > 0 ? (this.stats.failures / this.stats.total) * 100 : 0;
+    const state = this.getState()
+    const failureRate = this.stats.total > 0 ? (this.stats.failures / this.stats.total) * 100 : 0
 
     return {
       state,
       stats: { ...this.stats },
       isHealthy: state === CircuitState.CLOSED,
       failureRate,
-    };
+    }
   }
 }
 
@@ -278,14 +277,14 @@ export class CircuitBreaker {
  * Circuit breaker open error
  */
 export class CircuitBreakerOpenError extends Error {
-  public readonly state: CircuitState;
-  public readonly retryAfter: number;
+  public readonly state: CircuitState
+  public readonly retryAfter: number
 
   constructor(message: string, state: CircuitState, retryAfter: number) {
-    super(message);
-    this.name = 'CircuitBreakerOpenError';
-    this.state = state;
-    this.retryAfter = retryAfter;
+    super(message)
+    this.name = 'CircuitBreakerOpenError'
+    this.state = state
+    this.retryAfter = retryAfter
   }
 }
 
@@ -293,51 +292,51 @@ export class CircuitBreakerOpenError extends Error {
  * Circuit breaker registry for managing multiple breakers
  */
 export class CircuitBreakerRegistry {
-  private static instance: CircuitBreakerRegistry;
-  private breakers = new Map<string, CircuitBreaker>();
+  private static instance: CircuitBreakerRegistry
+  private breakers = new Map<string, CircuitBreaker>()
 
   private constructor() {}
 
   static getInstance(): CircuitBreakerRegistry {
     if (!CircuitBreakerRegistry.instance) {
-      CircuitBreakerRegistry.instance = new CircuitBreakerRegistry();
+      CircuitBreakerRegistry.instance = new CircuitBreakerRegistry()
     }
-    return CircuitBreakerRegistry.instance;
+    return CircuitBreakerRegistry.instance
   }
 
   /**
    * Get or create a circuit breaker
    */
   getBreaker(name: string, config?: CircuitBreakerConfig): CircuitBreaker {
-    let breaker = this.breakers.get(name);
+    let breaker = this.breakers.get(name)
 
     if (!breaker) {
-      breaker = new CircuitBreaker({ ...config, name });
-      this.breakers.set(name, breaker);
+      breaker = new CircuitBreaker({ ...config, name })
+      this.breakers.set(name, breaker)
     }
 
-    return breaker;
+    return breaker
   }
 
   /**
    * Remove a circuit breaker
    */
   removeBreaker(name: string): void {
-    this.breakers.delete(name);
+    this.breakers.delete(name)
   }
 
   /**
    * Get all circuit breakers
    */
   getAllBreakers(): Map<string, CircuitBreaker> {
-    return new Map(this.breakers);
+    return new Map(this.breakers)
   }
 
   /**
    * Reset all circuit breakers
    */
   resetAll(): void {
-    this.breakers.forEach((breaker) => breaker.reset());
+    this.breakers.forEach(breaker => breaker.reset())
   }
 }
 
@@ -345,7 +344,7 @@ export class CircuitBreakerRegistry {
  * Convenience function to get circuit breaker from registry
  */
 export function getCircuitBreaker(name: string, config?: CircuitBreakerConfig): CircuitBreaker {
-  return CircuitBreakerRegistry.getInstance().getBreaker(name, config);
+  return CircuitBreakerRegistry.getInstance().getBreaker(name, config)
 }
 
 /**
@@ -355,12 +354,9 @@ export function withCircuitBreaker<T extends (...args: unknown[]) => Promise<unk
   fn: T,
   config?: CircuitBreakerConfig
 ): T {
-  const breaker = getCircuitBreaker(
-    config?.name || fn.name || 'anonymous',
-    config
-  );
+  const breaker = getCircuitBreaker(config?.name || fn.name || 'anonymous', config)
 
   return (async (...args: Parameters<T>) => {
-    return breaker.execute(() => fn(...args));
-  }) as T;
+    return breaker.execute(() => fn(...args))
+  }) as T
 }

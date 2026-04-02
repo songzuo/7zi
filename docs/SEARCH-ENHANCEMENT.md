@@ -55,7 +55,7 @@
 const results = searchItems(items, '搜素', {
   fuzzyMatch: true,
   fuzzyThreshold: 1,
-});
+})
 // 会找到包含 "搜索" 的项目
 ```
 
@@ -67,11 +67,11 @@ const results = searchItems(items, '搜素', {
 
 **评分因素：**
 
-| 因素 | 说明 | 权重 |
-|------|------|------|
+| 因素     | 说明                                      | 权重                  |
+| -------- | ----------------------------------------- | --------------------- |
 | 匹配类型 | 完全匹配 > 子串匹配 > 模糊匹配 > 拼音匹配 | 3.0 > 2.0 > 0.8 > 0.7 |
-| 匹配位置 | 文本开头匹配分数更高 | 0-0.5 的额外分数 |
-| 字段权重 | 不同字段的重要性不同 | 可自定义（默认 1.0） |
+| 匹配位置 | 文本开头匹配分数更高                      | 0-0.5 的额外分数      |
+| 字段权重 | 不同字段的重要性不同                      | 可自定义（默认 1.0）  |
 
 **评分公式：**
 
@@ -84,11 +84,11 @@ score = (基础分数 + 位置加成) × 字段权重 × 匹配类型系数
 ```typescript
 const results = searchItems(items, '搜索', {
   fieldWeights: {
-    title: 2.0,      // 标题匹配更重要
+    title: 2.0, // 标题匹配更重要
     description: 1.0,
     status: 0.5,
   },
-});
+})
 // 标题中包含 "搜索" 的项目会排在前面
 ```
 
@@ -121,7 +121,7 @@ const results = searchItems(items, '搜索', {
 // 搜索 "renwu"（"任务" 的拼音）
 const results = searchItems(items, 'renwu', {
   pinyinMatch: true,
-});
+})
 // 会找到包含 "任务" 的项目
 ```
 
@@ -145,11 +145,11 @@ const results = searchItems(items, 'renwu', {
 ```typescript
 const results = searchItems(items, '设计', {
   fieldWeights: {
-    title: 2.0,       // 标题匹配得双倍分数
+    title: 2.0, // 标题匹配得双倍分数
     description: 1.0, // 描述匹配得正常分数
-    priority: 0.5,    // 优先级匹配得一半分数
+    priority: 0.5, // 优先级匹配得一半分数
   },
-});
+})
 ```
 
 ---
@@ -174,7 +174,7 @@ const results = searchItems(items, '设计', {
 const results = searchItems(items, '测试', {
   fuzzyMatch: true,
   minScore: 0.5, // 只保留高质量匹配
-});
+})
 ```
 
 ---
@@ -186,36 +186,36 @@ const results = searchItems(items, '测试', {
 ```typescript
 export interface SearchConfig {
   /** 搜索目标类型 */
-  target: SearchTarget;
+  target: SearchTarget
 
   /** 是否区分大小写（默认: false） */
-  caseSensitive?: boolean;
+  caseSensitive?: boolean
 
   /** 是否完全匹配（默认: false） */
-  exactMatch?: boolean;
+  exactMatch?: boolean
 
   /** 搜索字段（可选，不指定则搜索所有字段） */
-  fields?: string[];
+  fields?: string[]
 
   // ========== 新增功能 ==========
 
   /** 是否启用模糊匹配（默认: false） */
-  fuzzyMatch?: boolean;
+  fuzzyMatch?: boolean
 
   /** 模糊匹配的最大编辑距离（0-3，默认: 1） */
-  fuzzyThreshold?: number;
+  fuzzyThreshold?: number
 
   /** 是否启用拼音模糊匹配（默认: false） */
-  pinyinMatch?: boolean;
+  pinyinMatch?: boolean
 
   /** 字段权重（用于相关性评分） */
-  fieldWeights?: Record<string, number>;
+  fieldWeights?: Record<string, number>
 
   /** 最低相关性分数阈值（0-1，默认: 0） */
-  minScore?: number;
+  minScore?: number
 
   /** 是否在结果中包含高亮（默认: true） */
-  includeHighlights?: boolean;
+  includeHighlights?: boolean
 }
 ```
 
@@ -240,21 +240,21 @@ export function searchItems<T extends object>(
 ```typescript
 export interface SearchResult<T = unknown> {
   /** 匹配的项目 */
-  item: T;
+  item: T
 
   /** 匹配的字段 */
-  matchedFields: string[];
+  matchedFields: string[]
 
   /** 匹配的文本片段（高亮显示） */
   highlights: {
-    field: string;
-    text: string;
-    start: number;
-    end: number;
-  }[];
+    field: string
+    text: string
+    start: number
+    end: number
+  }[]
 
   /** 相关性分数 */
-  score: number;
+  score: number
 }
 ```
 
@@ -265,18 +265,18 @@ export interface SearchResult<T = unknown> {
 ### 示例 1: 基础模糊搜索
 
 ```typescript
-import { searchItems } from '@/lib/search-filter';
+import { searchItems } from '@/lib/search-filter'
 
 const items = [
   { id: 1, title: '任务管理系统', description: '完整的任务管理平台' },
   { id: 2, title: '搜索功能优化', description: '增强搜索算法' },
-];
+]
 
 // 用户输入 "搜素"（拼写错误）
 const results = searchItems(items, '搜素', {
   fuzzyMatch: true,
   fuzzyThreshold: 1,
-});
+})
 
 // 结果会包含 "搜索功能优化"（编辑距离为 1）
 ```
@@ -287,7 +287,7 @@ const results = searchItems(items, '搜素', {
 // 用户输入拼音 "renwu"
 const results = searchItems(items, 'renwu', {
   pinyinMatch: true,
-});
+})
 
 // 结果会包含 "任务管理系统"
 ```
@@ -298,13 +298,13 @@ const results = searchItems(items, 'renwu', {
 const results = searchItems(items, '设计', {
   fuzzyMatch: true,
   fieldWeights: {
-    title: 2.0,      // 标题最重要
+    title: 2.0, // 标题最重要
     description: 1.0,
     status: 0.5,
     priority: 0.3,
   },
   minScore: 0.4,
-});
+})
 
 // 标题中包含 "设计" 的结果会排在前面
 ```
@@ -315,15 +315,15 @@ const results = searchItems(items, '设计', {
 const results = searchItems(items, 'sousuo', {
   target: 'all',
   fuzzyMatch: true,
-  fuzzyThreshold: 2,      // 允许 2 个字符错误
-  pinyinMatch: true,       // 启用拼音搜索
+  fuzzyThreshold: 2, // 允许 2 个字符错误
+  pinyinMatch: true, // 启用拼音搜索
   fieldWeights: {
     title: 2.0,
     description: 1.0,
   },
-  minScore: 0.5,           // 过滤低质量结果
+  minScore: 0.5, // 过滤低质量结果
   includeHighlights: true, // 包含高亮信息
-});
+})
 
 // 综合使用所有功能
 ```
@@ -331,15 +331,15 @@ const results = searchItems(items, 'sousuo', {
 ### 示例 5: 高亮显示
 
 ```typescript
-import { highlightSearchTerm } from '@/lib/search-filter';
+import { highlightSearchTerm } from '@/lib/search-filter'
 
-const text = '任务管理系统';
-const query = '任务';
+const text = '任务管理系统'
+const query = '任务'
 
 const highlighted = highlightSearchTerm(text, query, {
   fuzzyMatch: true,
   pinyinMatch: true,
-});
+})
 
 // 结果: "<mark class="bg-yellow-200 dark:bg-yellow-700 px-0.5 rounded">任务</mark>管理系统"
 ```
@@ -350,11 +350,11 @@ const highlighted = highlightSearchTerm(text, query, {
 
 ### 时间复杂度
 
-| 操作 | 时间复杂度 | 说明 |
-|------|-----------|------|
-| 精确匹配 | O(n × m) | n = 项目数，m = 平均字段数 |
+| 操作     | 时间复杂度       | 说明                       |
+| -------- | ---------------- | -------------------------- |
+| 精确匹配 | O(n × m)         | n = 项目数，m = 平均字段数 |
 | 模糊匹配 | O(n × m × a × b) | a = 查询长度，b = 文本长度 |
-| 拼音匹配 | O(n × m × k) | k = 文本长度 |
+| 拼音匹配 | O(n × m × k)     | k = 文本长度               |
 
 **优化建议：**
 
@@ -371,9 +371,9 @@ const highlighted = highlightSearchTerm(text, query, {
 **清空缓存：**
 
 ```typescript
-import { clearAllCaches } from '@/lib/search-filter';
+import { clearAllCaches } from '@/lib/search-filter'
 
-clearAllCaches(); // 释放所有缓存
+clearAllCaches() // 释放所有缓存
 ```
 
 ### 性能调优
@@ -382,18 +382,18 @@ clearAllCaches(); // 释放所有缓存
 // 1. 限制搜索字段
 const results = searchItems(items, query, {
   fields: ['title', 'description'], // 只搜索重要字段
-});
+})
 
 // 2. 适当提高 minScore
 const results = searchItems(items, query, {
   minScore: 0.6, // 过滤更多低质量结果
-});
+})
 
 // 3. 控制模糊阈值
 const results = searchItems(items, query, {
   fuzzyMatch: true,
   fuzzyThreshold: 1, // 不要设置太大，避免过慢
-});
+})
 ```
 
 ---
@@ -407,7 +407,7 @@ const results = searchItems(items, query, {
 const config = {
   fuzzyMatch: false,
   pinyinMatch: false,
-};
+}
 
 // 场景 B: 用户友好搜索（推荐）
 const config = {
@@ -418,30 +418,30 @@ const config = {
     title: 2.0,
     description: 1.0,
   },
-};
+}
 
 // 场景 C: 高精度搜索（严格）
 const config = {
   exactMatch: true,
   minScore: 0.7,
   fuzzyMatch: false,
-};
+}
 ```
 
 ### 2. 实时搜索防抖
 
 ```typescript
-import { debounce } from 'lodash-es';
+import { debounce } from 'lodash-es'
 
 const debouncedSearch = debounce((query: string) => {
-  const results = searchItems(items, query, searchConfig);
-  updateResults(results);
-}, 300); // 300ms 防抖
+  const results = searchItems(items, query, searchConfig)
+  updateResults(results)
+}, 300) // 300ms 防抖
 
 // 在输入框变化时调用
-input.addEventListener('input', (e) => {
-  debouncedSearch(e.target.value);
-});
+input.addEventListener('input', e => {
+  debouncedSearch(e.target.value)
+})
 ```
 
 ### 3. 显示搜索建议
@@ -452,30 +452,30 @@ const results = searchItems(items, query, {
   fuzzyMatch: true,
   pinyinMatch: true,
   minScore: 0.3, // 较低阈值以获得更多建议
-});
+})
 
 const suggestions = results
   .slice(0, 5) // 只显示前 5 个
-  .map(r => r.item.title);
+  .map(r => r.item.title)
 ```
 
 ### 4. 处理空结果
 
 ```typescript
-const results = searchItems(items, query, config);
+const results = searchItems(items, query, config)
 
 if (results.length === 0) {
   // 尝试放宽条件
   const relaxedResults = searchItems(items, query, {
     ...config,
-    fuzzyThreshold: 2,  // 增加模糊阈值
-    minScore: 0.3,      // 降低分数阈值
-  });
+    fuzzyThreshold: 2, // 增加模糊阈值
+    minScore: 0.3, // 降低分数阈值
+  })
 
   if (relaxedResults.length > 0) {
-    showSuggestion('没有找到精确匹配，以下是相近结果：', relaxedResults);
+    showSuggestion('没有找到精确匹配，以下是相近结果：', relaxedResults)
   } else {
-    showNoResults();
+    showNoResults()
   }
 }
 ```
@@ -484,16 +484,16 @@ if (results.length === 0) {
 
 ```typescript
 try {
-  const results = searchItems(items, query, config);
-  return { success: true, results };
+  const results = searchItems(items, query, config)
+  return { success: true, results }
 } catch (error) {
-  console.error('搜索失败:', error);
+  console.error('搜索失败:', error)
   // 降级到简单搜索
   const fallbackResults = searchItems(items, query, {
     fuzzyMatch: false,
     pinyinMatch: false,
-  });
-  return { success: true, results: fallbackResults, isFallback: true };
+  })
+  return { success: true, results: fallbackResults, isFallback: true }
 }
 ```
 
@@ -509,14 +509,14 @@ try {
 
 ```typescript
 // 旧代码继续工作，无需任何修改
-const results = searchItems(items, query);
+const results = searchItems(items, query)
 
 // 或者使用旧版配置
 const results = searchItems(items, query, {
   target: 'all',
   caseSensitive: false,
   exactMatch: false,
-});
+})
 ```
 
 ### 渐进式增强
@@ -525,16 +525,16 @@ const results = searchItems(items, query, {
 
 ```typescript
 // 阶段 1: 保持现状
-const results = searchItems(items, query);
+const results = searchItems(items, query)
 
 // 阶段 2: 添加模糊匹配
-const results = searchItems(items, query, { fuzzyMatch: true });
+const results = searchItems(items, query, { fuzzyMatch: true })
 
 // 阶段 3: 添加拼音搜索
 const results = searchItems(items, query, {
   fuzzyMatch: true,
   pinyinMatch: true,
-});
+})
 
 // 阶段 4: 完整配置
 const results = searchItems(items, query, {
@@ -543,7 +543,7 @@ const results = searchItems(items, query, {
   pinyinMatch: true,
   fieldWeights: { title: 2.0, description: 1.0 },
   minScore: 0.5,
-});
+})
 ```
 
 ---
@@ -594,7 +594,7 @@ const defaultSearchConfig: SearchConfig = {
   },
   minScore: 0.4,
   includeHighlights: true,
-};
+}
 ```
 
 ---
@@ -612,10 +612,10 @@ npm install pinyin-engine
 ```
 
 ```typescript
-import PinyinEngine from 'pinyin-engine';
+import PinyinEngine from 'pinyin-engine'
 
-const engine = new PinyinEngine(items, ['title', 'description']);
-const results = engine.search(query);
+const engine = new PinyinEngine(items, ['title', 'description'])
+const results = engine.search(query)
 ```
 
 ### B. 算法参考

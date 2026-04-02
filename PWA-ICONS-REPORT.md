@@ -9,6 +9,7 @@
 ## Findings
 
 ### Initial State
+
 - Project already had PWA icons in `/public` directory
 - Some icons had incorrect dimensions (e.g., maskable-icon-512.png was 614x614 instead of 512x512)
 - Icons were in 8-bit grayscale format instead of color
@@ -16,6 +17,7 @@
 ### Manifest Requirements (from manifest.json)
 
 **Main Icons:**
+
 - icon-72.png (72x72)
 - icon-96.png (96x96)
 - icon-128.png (128x128)
@@ -26,9 +28,11 @@
 - icon-512.png (512x512) - Purpose: any maskable
 
 **Maskable Icon:**
+
 - maskable-icon-512.png (512x512) - Purpose: maskable
 
 **Shortcut Icons:**
+
 - shortcut-projects.png (96x96)
 - shortcut-agents.png (96x96)
 - shortcut-new.png (96x96)
@@ -38,16 +42,20 @@
 ## Actions Taken
 
 ### 1. Source Selection
+
 Used existing `logo.png` (512x512, 8-bit/color RGBA) as the source image for all icons to maintain brand consistency.
 
 ### 2. Icon Generation
+
 - Resized logo.png to all required dimensions using ImageMagick
 - Generated all 8 main icons (72x72, 96x96, 128x128, 144x144, 152x152, 192x192, 384x384, 512x512)
 - Generated maskable-icon-512.png (512x512)
 - Generated 3 shortcut icons (96x96 each)
 
 ### 3. Format Compliance
+
 All icons now comply with PWA standards:
+
 - ✓ PNG format
 - ✓ Exact dimensions as specified in manifest.json
 - ✓ 8-bit/color RGBA format (full color with alpha transparency)
@@ -58,22 +66,23 @@ All icons now comply with PWA standards:
 
 ### All Required Icons Present and Correct:
 
-| Icon File | Dimensions | Format | Purpose |
-|-----------|-------------|--------|---------|
-| icon-72.png | 72×72 | PNG/RGBA | any |
-| icon-96.png | 96×96 | PNG/RGBA | any |
-| icon-128.png | 128×128 | PNG/RGBA | any |
-| icon-144.png | 144×144 | PNG/RGBA | any |
-| icon-152.png | 152×152 | PNG/RGBA | any |
-| icon-192.png | 192×192 | PNG/RGBA | any maskable |
-| icon-384.png | 384×384 | PNG/RGBA | any maskable |
-| icon-512.png | 512×512 | PNG/RGBA | any maskable |
-| maskable-icon-512.png | 512×512 | PNG/RGBA | maskable |
-| shortcut-projects.png | 96×96 | PNG/RGBA | - |
-| shortcut-agents.png | 96×96 | PNG/RGBA | - |
-| shortcut-new.png | 96×96 | PNG/RGBA | - |
+| Icon File             | Dimensions | Format   | Purpose      |
+| --------------------- | ---------- | -------- | ------------ |
+| icon-72.png           | 72×72      | PNG/RGBA | any          |
+| icon-96.png           | 96×96      | PNG/RGBA | any          |
+| icon-128.png          | 128×128    | PNG/RGBA | any          |
+| icon-144.png          | 144×144    | PNG/RGBA | any          |
+| icon-152.png          | 152×152    | PNG/RGBA | any          |
+| icon-192.png          | 192×192    | PNG/RGBA | any maskable |
+| icon-384.png          | 384×384    | PNG/RGBA | any maskable |
+| icon-512.png          | 512×512    | PNG/RGBA | any maskable |
+| maskable-icon-512.png | 512×512    | PNG/RGBA | maskable     |
+| shortcut-projects.png | 96×96      | PNG/RGBA | -            |
+| shortcut-agents.png   | 96×96      | PNG/RGBA | -            |
+| shortcut-new.png      | 96×96      | PNG/RGBA | -            |
 
 ### PWA Compliance Check:
+
 - ✓ All required icons present
 - ✓ Exact dimensions match manifest.json specifications
 - ✓ PNG format with alpha channel
@@ -85,6 +94,7 @@ All icons now comply with PWA standards:
 ## Additional Icons (Bonus)
 
 The project also includes additional icons for compatibility:
+
 - icon-16.png (16×16)
 - icon-32.png (32×32)
 - icon-120.png (120×120)

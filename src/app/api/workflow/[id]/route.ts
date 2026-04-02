@@ -5,17 +5,17 @@
  * DELETE /api/workflow/[id] - 删除工作流
  */
 
-import { NextRequest } from 'next/server';
-import { WorkflowEngine, workflowEngine } from '@/lib/workflow/engine';
+import { NextRequest } from 'next/server'
+import { WorkflowEngine, workflowEngine } from '@/lib/workflow/engine'
 import {
   createSuccessResponse,
   createErrorResponse,
   createValidationError,
   createNotFoundError,
-} from '@/lib/api/error-handler';
+} from '@/lib/api/error-handler'
 
 interface RouteParams {
-  params: Promise<{ id: string }>;
+  params: Promise<{ id: string }>
 }
 
 /**
@@ -24,7 +24,7 @@ interface RouteParams {
  */
 export async function GET(request: NextRequest, { params }: RouteParams) {
   try {
-    const { id } = await params;
+    const { id } = await params
 
     // 模拟数据 - 实际实现应该从数据库读取
     const workflow = {
@@ -148,17 +148,15 @@ export async function GET(request: NextRequest, { params }: RouteParams) {
         createdBy: 'user_1',
         updatedBy: 'user_1',
       },
-    };
-
-    if (!workflow) {
-      return createNotFoundError('工作流不存在');
     }
 
-    return createSuccessResponse(workflow);
-  } catch (_error) {
-    return createErrorResponse(
-      error instanceof Error ? error : new Error(String(error))
-    );
+    if (!workflow) {
+      return createNotFoundError('工作流不存在')
+    }
+
+    return createSuccessResponse(workflow)
+  } catch (error) {
+    return createErrorResponse(error instanceof Error ? error : new Error(String(error)))
   }
 }
 
@@ -168,8 +166,8 @@ export async function GET(request: NextRequest, { params }: RouteParams) {
  */
 export async function PUT(request: NextRequest, { params }: RouteParams) {
   try {
-    const { id } = await params;
-    const body = await request.json();
+    const { id } = await params
+    const body = await request.json()
 
     // 模拟更新 - 实际实现应该更新数据库
     const updatedWorkflow = {
@@ -187,22 +185,17 @@ export async function PUT(request: NextRequest, { params }: RouteParams) {
         createdBy: body.metadata?.createdBy || 'system',
         updatedBy: body.userId || 'system',
       },
-    };
-
-    // 验证工作流
-    const validation = workflowEngine.validateWorkflow(updatedWorkflow);
-    if (!validation.valid) {
-      return createValidationError(
-        '工作流验证失败',
-        { errors: validation.errors }
-      );
     }
 
-    return createSuccessResponse(updatedWorkflow);
-  } catch (_error) {
-    return createErrorResponse(
-      error instanceof Error ? error : new Error(String(error))
-    );
+    // 验证工作流
+    const validation = workflowEngine.validateWorkflow(updatedWorkflow)
+    if (!validation.valid) {
+      return createValidationError('工作流验证失败', { errors: validation.errors })
+    }
+
+    return createSuccessResponse(updatedWorkflow)
+  } catch (error) {
+    return createErrorResponse(error instanceof Error ? error : new Error(String(error)))
   }
 }
 
@@ -212,7 +205,7 @@ export async function PUT(request: NextRequest, { params }: RouteParams) {
  */
 export async function DELETE(request: NextRequest, { params }: RouteParams) {
   try {
-    const { id } = await params;
+    const { id } = await params
 
     // 模拟删除 - 实际实现应该从数据库删除
     // 同时应该删除相关的运行实例
@@ -220,10 +213,8 @@ export async function DELETE(request: NextRequest, { params }: RouteParams) {
     return createSuccessResponse({
       id,
       message: '工作流已删除',
-    });
-  } catch (_error) {
-    return createErrorResponse(
-      error instanceof Error ? error : new Error(String(error))
-    );
+    })
+  } catch (error) {
+    return createErrorResponse(error instanceof Error ? error : new Error(String(error)))
   }
 }

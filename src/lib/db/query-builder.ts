@@ -20,9 +20,9 @@
  */
 export interface QueryCondition {
   /** SQL 条件表达式 (如 "status = ?") */
-  condition: string;
+  condition: string
   /** 条件参数值 */
-  value: unknown;
+  value: unknown
 }
 
 /**
@@ -30,13 +30,13 @@ export interface QueryCondition {
  */
 export interface JoinConfig {
   /** JOIN 类型: INNER, LEFT, RIGHT, FULL */
-  type: 'INNER' | 'LEFT' | 'RIGHT' | 'FULL';
+  type: 'INNER' | 'LEFT' | 'RIGHT' | 'FULL'
   /** 要连接的表名或子查询 */
-  table: string;
+  table: string
   /** 连接条件 (如 "agents.id = tasks.agent_id") */
-  on: string;
+  on: string
   /** 可选的表别名 */
-  alias?: string;
+  alias?: string
 }
 
 /**
@@ -44,27 +44,27 @@ export interface JoinConfig {
  */
 export interface SubqueryConfig {
   /** 子查询别名 */
-  alias: string;
+  alias: string
   /** 子查询的构建器或 SQL */
-  query: QueryBuilder | string;
+  query: QueryBuilder | string
   /** 子查询参数 (仅当 query 为字符串时使用) */
-  params?: unknown[];
+  params?: unknown[]
 }
 
 /**
  * 分页选项
  */
 export interface PaginationOptions {
-  limit?: number;
-  offset?: number;
+  limit?: number
+  offset?: number
 }
 
 /**
  * 排序选项
  */
 export interface SortOptions {
-  orderBy?: string;
-  sortOrder?: 'ASC' | 'DESC';
+  orderBy?: string
+  sortOrder?: 'ASC' | 'DESC'
 }
 
 /**
@@ -72,33 +72,33 @@ export interface SortOptions {
  */
 export interface QueryBuilderConfig {
   /** 基础表名或子查询 */
-  from: string;
+  from: string
   /** 查询条件列表 (按添加顺序) */
-  conditions?: QueryCondition[];
+  conditions?: QueryCondition[]
   /** 分页选项 */
-  pagination?: PaginationOptions;
+  pagination?: PaginationOptions
   /** 排序选项 */
-  sort?: SortOptions;
+  sort?: SortOptions
   /** 要选择的列 (默认: *) */
-  select?: string[];
+  select?: string[]
   /** JOIN 查询配置 */
-  joins?: JoinConfig[];
+  joins?: JoinConfig[]
   /** 子查询配置 */
-  subqueries?: SubqueryConfig[];
+  subqueries?: SubqueryConfig[]
   /** GROUP BY 子句 */
-  groupBy?: string[];
+  groupBy?: string[]
   /** HAVING 条件 */
-  having?: QueryCondition[];
+  having?: QueryCondition[]
   /** 是否使用 DISTINCT */
-  distinct?: boolean;
+  distinct?: boolean
 }
 
 /**
  * 构建后的查询和参数
  */
 export interface BuiltQuery {
-  sql: string;
-  params: unknown[];
+  sql: string
+  params: unknown[]
 }
 
 /**
@@ -106,13 +106,13 @@ export interface BuiltQuery {
  */
 export interface BatchResult {
   /** 成功的行数 */
-  successCount: number;
+  successCount: number
   /** 失败的行数 */
-  failureCount: number;
+  failureCount: number
   /** 失败的行索引 */
-  failedIndices: number[];
+  failedIndices: number[]
   /** 错误信息 */
-  errors: Error[];
+  errors: Error[]
 }
 
 /**
@@ -120,56 +120,60 @@ export interface BatchResult {
  */
 export interface QueryCacheConfig {
   /** 缓存 TTL (毫秒) */
-  ttl?: number;
+  ttl?: number
   /** 最大缓存条目数 */
-  maxSize?: number;
+  maxSize?: number
   /** 是否启用缓存 (默认: false) */
-  enabled?: boolean;
+  enabled?: boolean
 }
 
 /**
  * 预编译语句缓存条目
  */
 interface PreparedStatementCacheEntry {
-  sql: string;
-  stmt: { all: (...params: unknown[]) => unknown[] };
-  lastUsed: number;
-  useCount: number;
+  sql: string
+  stmt: { all: (...params: unknown[]) => unknown[] }
+  lastUsed: number
+  useCount: number
 }
 
 /**
  * 全局预编译语句缓存 (单例模式)
  */
 class PreparedStatementCache {
-  private static instance: PreparedStatementCache;
-  private cache = new Map<string, PreparedStatementCacheEntry>();
-  private readonly DEFAULT_TTL = 5 * 60 * 1000; // 5分钟
-  private readonly MAX_SIZE = 100;
+  private static instance: PreparedStatementCache
+  private cache = new Map<string, PreparedStatementCacheEntry>()
+  private readonly DEFAULT_TTL = 5 * 60 * 1000 // 5分钟
+  private readonly MAX_SIZE = 100
 
   private constructor() {}
 
   static getInstance(): PreparedStatementCache {
     if (!PreparedStatementCache.instance) {
-      PreparedStatementCache.instance = new PreparedStatementCache();
+      PreparedStatementCache.instance = new PreparedStatementCache()
     }
-    return PreparedStatementCache.instance;
+    return PreparedStatementCache.instance
   }
 
   get(db: { prepare: (sql: string) => unknown }, sql: string) {
-    const entry = this.cache.get(sql);
+    const entry = this.cache.get(sql)
     if (entry) {
-      entry.lastUsed = Date.now();
-      entry.useCount++;
+      entry.lastUsed = Date.now()
+      entry.useCount++
       // 类型断言 - 我们知道这是有效的 prepared statement
-      return entry.stmt as { all: (...params: unknown[]) => unknown[] };
+      return entry.stmt as { all: (...params: unknown[]) => unknown[] }
     }
-    return null;
+    return null
   }
 
-  set(db: { prepare: (sql: string) => unknown }, sql: string, stmt: { all: (...params: unknown[]) => unknown[] }) {
+  set(
+    db: { prepare: (sql: string) => unknown },
+    sql: string,
+    stmt: { all: (...params: unknown[]) => unknown[] }
+  ) {
     // 检查缓存大小限制
     if (this.cache.size >= this.MAX_SIZE) {
-      this.evictOldest();
+      this.evictOldest()
     }
 
     this.cache.set(sql, {
@@ -177,26 +181,26 @@ class PreparedStatementCache {
       stmt,
       lastUsed: Date.now(),
       useCount: 1,
-    });
+    })
   }
 
   clear() {
-    this.cache.clear();
+    this.cache.clear()
   }
 
   private evictOldest() {
-    let oldestKey: string | null = null;
-    let oldestTime = Date.now();
+    let oldestKey: string | null = null
+    let oldestTime = Date.now()
 
     Array.from(this.cache.entries()).forEach(([key, entry]) => {
       if (entry.lastUsed < oldestTime) {
-        oldestTime = entry.lastUsed;
-        oldestKey = key;
+        oldestTime = entry.lastUsed
+        oldestKey = key
       }
-    });
+    })
 
     if (oldestKey) {
-      this.cache.delete(oldestKey);
+      this.cache.delete(oldestKey)
     }
   }
 }
@@ -212,21 +216,24 @@ class PreparedStatementCache {
  * const { sql, params } = builder.build();
  */
 export class QueryBuilder {
-  private config: QueryBuilderConfig;
-  private _cachedQuery: BuiltQuery | null = null;
-  private _cacheInvalidated = true;
-  private _indexHint: string | null = null;
-  private _cacheConfig: QueryCacheConfig = { enabled: false, ttl: 60000, maxSize: 50 };
-  private static _globalCache = new Map<string, { data: unknown; timestamp: number; hits: number }>();
-  private static _cacheHits = 0;
-  private static _cacheMisses = 0;
+  private config: QueryBuilderConfig
+  private _cachedQuery: BuiltQuery | null = null
+  private _cacheInvalidated = true
+  private _indexHint: string | null = null
+  private _cacheConfig: QueryCacheConfig = { enabled: false, ttl: 60000, maxSize: 50 }
+  private static _globalCache = new Map<
+    string,
+    { data: unknown; timestamp: number; hits: number }
+  >()
+  private static _cacheHits = 0
+  private static _cacheMisses = 0
 
   constructor(config: QueryBuilderConfig) {
     this.config = {
       conditions: [],
       select: ['*'],
       ...config,
-    };
+    }
   }
 
   /**
@@ -237,8 +244,8 @@ export class QueryBuilder {
    * builder.setCacheConfig({ enabled: true, ttl: 30000 }); // 30秒缓存
    */
   setCacheConfig(config: QueryCacheConfig): this {
-    this._cacheConfig = { ...this._cacheConfig, ...config };
-    return this;
+    this._cacheConfig = { ...this._cacheConfig, ...config }
+    return this
   }
 
   /**
@@ -250,19 +257,20 @@ export class QueryBuilder {
       size: QueryBuilder._globalCache.size,
       hits: QueryBuilder._cacheHits,
       misses: QueryBuilder._cacheMisses,
-      hitRate: QueryBuilder._globalCache.size > 0
-        ? QueryBuilder._cacheHits / (QueryBuilder._cacheHits + QueryBuilder._cacheMisses)
-        : 0,
-    };
+      hitRate:
+        QueryBuilder._globalCache.size > 0
+          ? QueryBuilder._cacheHits / (QueryBuilder._cacheHits + QueryBuilder._cacheMisses)
+          : 0,
+    }
   }
 
   /**
    * 清空全局查询缓存
    */
   static clearGlobalCache() {
-    QueryBuilder._globalCache.clear();
-    QueryBuilder._cacheHits = 0;
-    QueryBuilder._cacheMisses = 0;
+    QueryBuilder._globalCache.clear()
+    QueryBuilder._cacheHits = 0
+    QueryBuilder._cacheMisses = 0
   }
 
   /**
@@ -274,9 +282,9 @@ export class QueryBuilder {
    * builder.withIndexHint('FORCE INDEX (idx_status_type)');
    */
   withIndexHint(hint: string): this {
-    this._indexHint = hint;
-    this._invalidateCache();
-    return this;
+    this._indexHint = hint
+    this._invalidateCache()
+    return this
   }
 
   /**
@@ -284,17 +292,17 @@ export class QueryBuilder {
    * @returns this - 链式调用支持
    */
   removeIndexHint(): this {
-    this._indexHint = null;
-    this._invalidateCache();
-    return this;
+    this._indexHint = null
+    this._invalidateCache()
+    return this
   }
 
   /**
    * 标记缓存失效
    */
   private _invalidateCache(): void {
-    this._cacheInvalidated = true;
-    this._cachedQuery = null;
+    this._cacheInvalidated = true
+    this._cachedQuery = null
   }
 
   /**
@@ -302,7 +310,7 @@ export class QueryBuilder {
    * @returns 缓存键字符串
    */
   private _getCacheKey(): string {
-    const config = this.config;
+    const config = this.config
     const key = JSON.stringify({
       from: config.from,
       conditions: config.conditions?.map(c => ({ condition: c.condition, type: typeof c.value })),
@@ -314,8 +322,8 @@ export class QueryBuilder {
       having: config.having?.map(h => h.condition),
       distinct: config.distinct,
       indexHint: this._indexHint,
-    });
-    return key;
+    })
+    return key
   }
 
   /**
@@ -327,9 +335,9 @@ export class QueryBuilder {
    * builder.where('status = ?', 'active');
    */
   where(condition: string, value: unknown): this {
-    this.config.conditions!.push({ condition, value });
-    this._invalidateCache();
-    return this;
+    this.config.conditions!.push({ condition, value })
+    this._invalidateCache()
+    return this
   }
 
   /**
@@ -343,8 +351,8 @@ export class QueryBuilder {
    * ]);
    */
   whereMany(conditions: QueryCondition[]): this {
-    conditions.forEach(({ condition, value }) => this.where(condition, value));
-    return this;
+    conditions.forEach(({ condition, value }) => this.where(condition, value))
+    return this
   }
 
   /**
@@ -357,9 +365,9 @@ export class QueryBuilder {
    */
   whereIf(condition: string, value: unknown): this {
     if (value !== undefined && value !== null && value !== '') {
-      this.where(condition, value);
+      this.where(condition, value)
     }
-    return this;
+    return this
   }
 
   /**
@@ -376,10 +384,10 @@ export class QueryBuilder {
   whereOptional(filters: Record<string, unknown>, prefix: string = ''): this {
     Object.entries(filters).forEach(([field, value]) => {
       if (value !== undefined && value !== null && value !== '') {
-        this.where(`${prefix}${field} = ?`, value);
+        this.where(`${prefix}${field} = ?`, value)
       }
-    });
-    return this;
+    })
+    return this
   }
 
   /**
@@ -391,9 +399,9 @@ export class QueryBuilder {
    * builder.orderBy('created_at', 'DESC');
    */
   orderBy(column: string, order: 'ASC' | 'DESC' = 'ASC'): this {
-    this.config.sort = { orderBy: column, sortOrder: order };
-    this._invalidateCache();
-    return this;
+    this.config.sort = { orderBy: column, sortOrder: order }
+    this._invalidateCache()
+    return this
   }
 
   /**
@@ -406,9 +414,9 @@ export class QueryBuilder {
    * builder.paginate(10, 10); // 第2页
    */
   paginate(limit: number, offset: number = 0): this {
-    this.config.pagination = { limit, offset };
-    this._invalidateCache();
-    return this;
+    this.config.pagination = { limit, offset }
+    this._invalidateCache()
+    return this
   }
 
   /**
@@ -419,9 +427,9 @@ export class QueryBuilder {
    * builder.select(['id', 'name', 'status']);
    */
   select(columns: string[]): this {
-    this.config.select = columns;
-    this._invalidateCache();
-    return this;
+    this.config.select = columns
+    this._invalidateCache()
+    return this
   }
 
   /**
@@ -437,11 +445,11 @@ export class QueryBuilder {
    */
   join(type: JoinConfig['type'], table: string, on: string, alias?: string): this {
     if (!this.config.joins) {
-      this.config.joins = [];
+      this.config.joins = []
     }
-    this.config.joins.push({ type, table, on, alias });
-    this._invalidateCache();
-    return this;
+    this.config.joins.push({ type, table, on, alias })
+    this._invalidateCache()
+    return this
   }
 
   /**
@@ -454,7 +462,7 @@ export class QueryBuilder {
    * builder.innerJoin('wallets', 'agents.id = wallets.agent_id', 'w');
    */
   innerJoin(table: string, on: string, alias?: string): this {
-    return this.join('INNER', table, on, alias);
+    return this.join('INNER', table, on, alias)
   }
 
   /**
@@ -467,7 +475,7 @@ export class QueryBuilder {
    * builder.leftJoin('tasks', 'agents.id = tasks.agent_id', 't');
    */
   leftJoin(table: string, on: string, alias?: string): this {
-    return this.join('LEFT', table, on, alias);
+    return this.join('LEFT', table, on, alias)
   }
 
   /**
@@ -482,11 +490,11 @@ export class QueryBuilder {
    */
   subquery(alias: string, query: QueryBuilder | string, params?: unknown[]): this {
     if (!this.config.subqueries) {
-      this.config.subqueries = [];
+      this.config.subqueries = []
     }
-    this.config.subqueries.push({ alias, query, params });
-    this._invalidateCache();
-    return this;
+    this.config.subqueries.push({ alias, query, params })
+    this._invalidateCache()
+    return this
   }
 
   /**
@@ -497,9 +505,9 @@ export class QueryBuilder {
    * builder.groupBy(['status', 'type']);
    */
   groupBy(columns: string[]): this {
-    this.config.groupBy = columns;
-    this._invalidateCache();
-    return this;
+    this.config.groupBy = columns
+    this._invalidateCache()
+    return this
   }
 
   /**
@@ -512,11 +520,11 @@ export class QueryBuilder {
    */
   having(condition: string, value: unknown): this {
     if (!this.config.having) {
-      this.config.having = [];
+      this.config.having = []
     }
-    this.config.having.push({ condition, value });
-    this._invalidateCache();
-    return this;
+    this.config.having.push({ condition, value })
+    this._invalidateCache()
+    return this
   }
 
   /**
@@ -527,9 +535,9 @@ export class QueryBuilder {
    * builder.distinct(true);
    */
   distinct(distinct: boolean = true): this {
-    this.config.distinct = distinct;
-    this._invalidateCache();
-    return this;
+    this.config.distinct = distinct
+    this._invalidateCache()
+    return this
   }
 
   /**
@@ -544,65 +552,65 @@ export class QueryBuilder {
     db: { prepare: (sql: string) => { all: (...params: unknown[]) => T[] } },
     useCache?: boolean
   ): T[] {
-    const cacheEnabled = useCache ?? this._cacheConfig.enabled;
-    const { sql, params } = this.build();
+    const cacheEnabled = useCache ?? this._cacheConfig.enabled
+    const { sql, params } = this.build()
 
     // 如果启用了缓存,尝试从缓存获取
     if (cacheEnabled) {
-      const cacheKey = this._getCacheKey();
-      const cached = QueryBuilder._globalCache.get(cacheKey);
+      const cacheKey = this._getCacheKey()
+      const cached = QueryBuilder._globalCache.get(cacheKey)
 
       if (cached) {
-        const now = Date.now();
-        const ttl = this._cacheConfig.ttl || 60000;
+        const now = Date.now()
+        const ttl = this._cacheConfig.ttl || 60000
 
         // 检查缓存是否过期
         if (now - cached.timestamp < ttl) {
-          QueryBuilder._cacheHits++;
-          cached.hits++;
-          return cached.data as T[];
+          QueryBuilder._cacheHits++
+          cached.hits++
+          return cached.data as T[]
         } else {
           // 缓存过期,删除
-          QueryBuilder._globalCache.delete(cacheKey);
+          QueryBuilder._globalCache.delete(cacheKey)
         }
       }
     }
 
     // 未启用缓存或缓存未命中,执行查询
-    QueryBuilder._cacheMisses++;
+    QueryBuilder._cacheMisses++
 
     // 使用预编译语句缓存
-    const stmtCache = PreparedStatementCache.getInstance();
-    let stmt = stmtCache.get(db, sql);
+    const stmtCache = PreparedStatementCache.getInstance()
+    let stmt = stmtCache.get(db, sql)
 
     if (!stmt) {
-      const prepared = db.prepare(sql);
-      stmt = prepared as { all: (...params: unknown[]) => T[] };
-      stmtCache.set(db, sql, stmt);
+      const prepared = db.prepare(sql)
+      stmt = prepared as { all: (...params: unknown[]) => T[] }
+      stmtCache.set(db, sql, stmt)
     }
 
-    const result = stmt.all(...params);
+    const result = stmt.all(...params)
 
     // 如果启用了缓存,保存结果
     if (cacheEnabled) {
-      const cacheKey = this._getCacheKey();
+      const cacheKey = this._getCacheKey()
 
       // 检查缓存大小限制
-      const maxSize = this._cacheConfig.maxSize || 50;
+      const maxSize = this._cacheConfig.maxSize || 50
       if (QueryBuilder._globalCache.size >= maxSize) {
         // 简单的 LRU: 删除最旧的条目
-        let oldestKey: string | null = null;
-        let oldestTime = Date.now();
+        let oldestKey: string | null = null
+        let oldestTime = Date.now()
 
         Array.from(QueryBuilder._globalCache.entries()).forEach(([key, entry]) => {
           if (entry.timestamp < oldestTime) {
-            oldestTime = entry.timestamp;
-            oldestKey = key;
+            oldestTime = entry.timestamp
+            oldestKey = key
           }
-        });
+        })
 
         if (oldestKey) {
-          QueryBuilder._globalCache.delete(oldestKey);
+          QueryBuilder._globalCache.delete(oldestKey)
         }
       }
 
@@ -610,10 +618,10 @@ export class QueryBuilder {
         data: result,
         timestamp: Date.now(),
         hits: 1,
-      });
+      })
     }
 
-    return result as T[];
+    return result as T[]
   }
 
   /**
@@ -627,112 +635,124 @@ export class QueryBuilder {
   build(): BuiltQuery {
     // 如果缓存有效,直接返回缓存的结果
     if (!this._cacheInvalidated && this._cachedQuery) {
-      return { ...this._cachedQuery, params: [...this._cachedQuery.params] };
+      return { ...this._cachedQuery, params: [...this._cachedQuery.params] }
     }
 
-    const { from, conditions, pagination, sort, select, joins, subqueries, groupBy, having, distinct } = this.config;
+    const {
+      from,
+      conditions,
+      pagination,
+      sort,
+      select,
+      joins,
+      subqueries,
+      groupBy,
+      having,
+      distinct,
+    } = this.config
 
     // 处理子查询，构建 FROM 子句
-    let fromClause = from;
+    let fromClause = from
     if (subqueries && subqueries.length > 0) {
-      const subqueryParts: string[] = [];
+      const subqueryParts: string[] = []
       for (const subquery of subqueries) {
         if (subquery.query instanceof QueryBuilder) {
-          const { sql: subSql, params: subParams } = subquery.query.build();
-          subqueryParts.push(`(${subSql}) AS ${subquery.alias}`);
+          const { sql: subSql, params: subParams } = subquery.query.build()
+          subqueryParts.push(`(${subSql}) AS ${subquery.alias}`)
         } else {
-          subqueryParts.push(`(${subquery.query}) AS ${subquery.alias}`);
+          subqueryParts.push(`(${subquery.query}) AS ${subquery.alias}`)
         }
       }
       // 如果有多个子查询，组合成 CTE
       if (subqueryParts.length === 1) {
-        fromClause = subqueryParts[0];
+        fromClause = subqueryParts[0]
       } else {
-        fromClause = subqueryParts.join(', ');
+        fromClause = subqueryParts.join(', ')
       }
     }
 
     // 构建 SELECT 子句
-    const distinctClause = distinct ? 'DISTINCT ' : '';
-    const selectClause = select ? select.join(', ') : '*';
+    const distinctClause = distinct ? 'DISTINCT ' : ''
+    const selectClause = select ? select.join(', ') : '*'
 
     // 构建 JOIN 子句
-    let joinClause = '';
+    let joinClause = ''
     if (joins && joins.length > 0) {
       joinClause = joins
         .map(join => {
-          const alias = join.alias ? ` AS ${join.alias}` : '';
-          return `${join.type} JOIN ${join.table}${alias} ON ${join.on}`;
+          const alias = join.alias ? ` AS ${join.alias}` : ''
+          return `${join.type} JOIN ${join.table}${alias} ON ${join.on}`
         })
-        .join(' ');
+        .join(' ')
     }
 
     // 构建 WHERE 子句
-    let whereClause = '';
-    const params: unknown[] = [];
+    let whereClause = ''
+    const params: unknown[] = []
     if (conditions && conditions.length > 0) {
-      const conditionStr = conditions.map(c => c.condition).join(' AND ');
-      whereClause = `WHERE ${conditionStr}`;
-      params.push(...conditions.map(c => c.value));
+      const conditionStr = conditions.map(c => c.condition).join(' AND ')
+      whereClause = `WHERE ${conditionStr}`
+      params.push(...conditions.map(c => c.value))
     }
 
     // 添加子查询参数
     if (subqueries) {
       for (const subquery of subqueries) {
         if (typeof subquery.query === 'string' && subquery.params) {
-          params.push(...subquery.params);
+          params.push(...subquery.params)
         } else if (subquery.query instanceof QueryBuilder) {
-          const subParams = subquery.query.build().params;
-          params.push(...subParams);
+          const subParams = subquery.query.build().params
+          params.push(...subParams)
         }
       }
     }
 
     // 构建 GROUP BY 子句
-    let groupByClause = '';
+    let groupByClause = ''
     if (groupBy && groupBy.length > 0) {
-      groupByClause = `GROUP BY ${groupBy.join(', ')}`;
+      groupByClause = `GROUP BY ${groupBy.join(', ')}`
     }
 
     // 构建 HAVING 子句
-    let havingClause = '';
+    let havingClause = ''
     if (having && having.length > 0) {
-      const havingStr = having.map(h => h.condition).join(' AND ');
-      havingClause = `HAVING ${havingStr}`;
-      params.push(...having.map(h => h.value));
+      const havingStr = having.map(h => h.condition).join(' AND ')
+      havingClause = `HAVING ${havingStr}`
+      params.push(...having.map(h => h.value))
     }
 
     // 构建 ORDER BY 子句
-    let orderClause = '';
+    let orderClause = ''
     if (sort && sort.orderBy) {
-      orderClause = `ORDER BY ${sort.orderBy} ${sort.sortOrder || 'ASC'}`;
+      orderClause = `ORDER BY ${sort.orderBy} ${sort.sortOrder || 'ASC'}`
     }
 
     // 构建 LIMIT 和 OFFSET 子句
-    let limitClause = '';
+    let limitClause = ''
     if (pagination && pagination.limit) {
-      limitClause = `LIMIT ?`;
-      params.push(pagination.limit);
+      limitClause = `LIMIT ?`
+      params.push(pagination.limit)
       if (pagination.offset) {
-        limitClause += ` OFFSET ?`;
-        params.push(pagination.offset);
+        limitClause += ` OFFSET ?`
+        params.push(pagination.offset)
       }
     }
 
     // 添加索引提示 (如果存在)
-    let indexHintClause = '';
+    let indexHintClause = ''
     if (this._indexHint) {
-      indexHintClause = ` ${this._indexHint}`;
+      indexHintClause = ` ${this._indexHint}`
     }
 
     // 组合完整的 SQL
-    const sql = `SELECT ${distinctClause}${selectClause} FROM ${fromClause}${indexHintClause} ${joinClause} ${whereClause} ${groupByClause} ${havingClause} ${orderClause} ${limitClause}`.trim();
+    const sql =
+      `SELECT ${distinctClause}${selectClause} FROM ${fromClause}${indexHintClause} ${joinClause} ${whereClause} ${groupByClause} ${havingClause} ${orderClause} ${limitClause}`.trim()
 
     // 缓存构建结果
-    this._cachedQuery = { sql, params: [...params] };
-    this._cacheInvalidated = false;
+    this._cachedQuery = { sql, params: [...params] }
+    this._cacheInvalidated = false
 
-    return { sql, params };
+    return { sql, params }
   }
 
   /**
@@ -745,15 +765,15 @@ export class QueryBuilder {
    * builder.where('status = ?', 'inactive');
    */
   reset(): this {
-    const { from, select } = this.config;
+    const { from, select } = this.config
     this.config = {
       from,
       conditions: [],
       select,
-    };
-    this._invalidateCache();
-    this._indexHint = null;
-    return this;
+    }
+    this._invalidateCache()
+    this._indexHint = null
+    return this
   }
 
   /**
@@ -761,7 +781,7 @@ export class QueryBuilder {
    * @returns 当前配置对象的浅拷贝
    */
   getConfig(): QueryBuilderConfig {
-    return { ...this.config, conditions: [...(this.config.conditions || [])] };
+    return { ...this.config, conditions: [...(this.config.conditions || [])] }
   }
 
   /**
@@ -772,55 +792,55 @@ export class QueryBuilder {
    * // 返回: [{ table: 'agents', columns: ['status', 'type'], type: 'composite', reason: '...', createSql: '...' }]
    */
   suggestIndexes(): Array<{
-    table: string;
-    columns: string[];
-    type: 'index' | 'composite';
-    reason: string;
-    createSql: string;
-    priority: number;
+    table: string
+    columns: string[]
+    type: 'index' | 'composite'
+    reason: string
+    createSql: string
+    priority: number
   }> {
     const suggestions: Array<{
-      table: string;
-      columns: string[];
-      type: 'index' | 'composite';
-      reason: string;
-      createSql: string;
-      priority: number;
-    }> = [];
+      table: string
+      columns: string[]
+      type: 'index' | 'composite'
+      reason: string
+      createSql: string
+      priority: number
+    }> = []
 
-    const { from, conditions, joins, sort, groupBy } = this.config;
+    const { from, conditions, joins, sort, groupBy } = this.config
 
     // 辅助函数: 解析列名
     const parseColumnName = (condition: string): { table: string; column: string } | null => {
-      const match = condition.match(/(\w+(?:\.\w+)?)\s*[=<>!]/);
+      const match = condition.match(/(\w+(?:\.\w+)?)\s*[=<>!]/)
       if (match) {
-        const fullColumn = match[1];
+        const fullColumn = match[1]
         if (fullColumn.includes('.')) {
-          const [table, column] = fullColumn.split('.');
-          return { table, column };
+          const [table, column] = fullColumn.split('.')
+          return { table, column }
         } else {
-          return { table: from, column: fullColumn };
+          return { table: from, column: fullColumn }
         }
       }
-      return null;
-    };
+      return null
+    }
 
     // 1. 分析 WHERE 条件中的列 (高优先级)
     if (conditions && conditions.length > 0) {
-      const whereColumns = new Map<string, { columns: string[]; conditions: string[] }>();
+      const whereColumns = new Map<string, { columns: string[]; conditions: string[] }>()
 
       for (const cond of conditions) {
-        const parsed = parseColumnName(cond.condition);
+        const parsed = parseColumnName(cond.condition)
         if (parsed) {
-          const key = parsed.table;
+          const key = parsed.table
           if (!whereColumns.has(key)) {
-            whereColumns.set(key, { columns: [], conditions: [] });
+            whereColumns.set(key, { columns: [], conditions: [] })
           }
-          const entry = whereColumns.get(key)!;
+          const entry = whereColumns.get(key)!
           if (!entry.columns.includes(parsed.column)) {
-            entry.columns.push(parsed.column);
+            entry.columns.push(parsed.column)
           }
-          entry.conditions.push(cond.condition);
+          entry.conditions.push(cond.condition)
         }
       }
 
@@ -833,7 +853,7 @@ export class QueryBuilder {
             reason: `WHERE clause frequently filters on ${columns[0]}`,
             createSql: `CREATE INDEX idx_${table}_${columns[0]} ON ${table} (${columns[0]});`,
             priority: 90,
-          });
+          })
         } else if (columns.length > 1) {
           suggestions.push({
             table,
@@ -842,25 +862,25 @@ export class QueryBuilder {
             reason: `WHERE clause frequently filters on ${columns.join(', ')}`,
             createSql: `CREATE INDEX idx_${table}_${columns.join('_')} ON ${table} (${columns.join(', ')});`,
             priority: 85,
-          });
+          })
         }
-      });
+      })
     }
 
     // 2. 分析 JOIN 条件中的列 (高优先级)
     if (joins && joins.length > 0) {
       for (const join of joins) {
-        const joinColumns: string[] = [];
-        const table = join.alias || join.table.split('(')[0].trim();
+        const joinColumns: string[] = []
+        const table = join.alias || join.table.split('(')[0].trim()
 
         // 解析 JOIN ON 条件中的列
-        const matchRegex = /(\w+)\.(\w+)/g;
-        let match: RegExpExecArray | null;
+        const matchRegex = /(\w+)\.(\w+)/g
+        let match: RegExpExecArray | null
         while ((match = matchRegex.exec(join.on)) !== null) {
-          const [, tableName, columnName] = match;
+          const [, tableName, columnName] = match
           if (tableName === table) {
             if (!joinColumns.includes(columnName)) {
-              joinColumns.push(columnName);
+              joinColumns.push(columnName)
             }
           }
         }
@@ -873,14 +893,14 @@ export class QueryBuilder {
             reason: `JOIN condition: ${join.on}`,
             createSql: `CREATE INDEX idx_${table}_join_${joinColumns.join('_')} ON ${table} (${joinColumns.join(', ')});`,
             priority: 95,
-          });
+          })
         }
       }
     }
 
     // 3. 分析 GROUP BY 中的列 (中优先级)
     if (groupBy && groupBy.length > 0) {
-      const columns = groupBy.filter(col => !col.includes('.')).map(col => col.trim());
+      const columns = groupBy.filter(col => !col.includes('.')).map(col => col.trim())
       if (columns.length > 0) {
         suggestions.push({
           table: from,
@@ -889,16 +909,16 @@ export class QueryBuilder {
           reason: `GROUP BY on ${columns.join(', ')}`,
           createSql: `CREATE INDEX idx_${from}_group_${columns.join('_')} ON ${from} (${columns.join(', ')});`,
           priority: 70,
-        });
+        })
       }
     }
 
     // 4. 分析 ORDER BY 中的列 (中优先级)
     if (sort && sort.orderBy) {
-      const parsed = parseColumnName(sort.orderBy);
+      const parsed = parseColumnName(sort.orderBy)
       if (parsed) {
-        const colName = parsed.column;
-        const table = parsed.table;
+        const colName = parsed.column
+        const table = parsed.table
 
         suggestions.push({
           table,
@@ -907,12 +927,12 @@ export class QueryBuilder {
           reason: `ORDER BY uses column ${colName}`,
           createSql: `CREATE INDEX idx_${table}_${colName}_order ON ${table} (${colName} ${sort.sortOrder || 'ASC'});`,
           priority: 75,
-        });
+        })
       }
     }
 
     // 按优先级排序
-    return suggestions.sort((a, b) => b.priority - a.priority);
+    return suggestions.sort((a, b) => b.priority - a.priority)
   }
 
   /**
@@ -920,18 +940,18 @@ export class QueryBuilder {
    * @returns 索引提示字符串或 null
    */
   getRecommendedIndexHint(): string | null {
-    const suggestions = this.suggestIndexes();
+    const suggestions = this.suggestIndexes()
     if (suggestions.length === 0) {
-      return null;
+      return null
     }
 
     // 使用最高优先级的索引建议
-    const topSuggestion = suggestions[0];
+    const topSuggestion = suggestions[0]
 
     if (topSuggestion.columns.length === 1) {
-      return `USE INDEX (idx_${topSuggestion.table}_${topSuggestion.columns[0]})`;
+      return `USE INDEX (idx_${topSuggestion.table}_${topSuggestion.columns[0]})`
     } else {
-      return `USE INDEX (idx_${topSuggestion.table}_${topSuggestion.columns.join('_')})`;
+      return `USE INDEX (idx_${topSuggestion.table}_${topSuggestion.columns.join('_')})`
     }
   }
 }
@@ -948,7 +968,7 @@ export class QueryBuilder {
  *   .build();
  */
 export function buildQuery(from: string): QueryBuilder {
-  return new QueryBuilder({ from });
+  return new QueryBuilder({ from })
 }
 
 /**
@@ -971,37 +991,37 @@ export function buildWhereQuery(
   tableName: string,
   filters: Record<string, unknown>,
   options?: {
-    prefix?: string;
-    limit?: number;
-    offset?: number;
-    orderBy?: string;
-    sortOrder?: 'ASC' | 'DESC';
-    select?: string[];
+    prefix?: string
+    limit?: number
+    offset?: number
+    orderBy?: string
+    sortOrder?: 'ASC' | 'DESC'
+    select?: string[]
   }
 ): BuiltQuery {
-  const builder = new QueryBuilder({ from: tableName });
+  const builder = new QueryBuilder({ from: tableName })
 
   // 添加可选过滤器
   if (filters && Object.keys(filters).length > 0) {
-    builder.whereOptional(filters, options?.prefix || '');
+    builder.whereOptional(filters, options?.prefix || '')
   }
 
   // 添加排序
   if (options?.orderBy) {
-    builder.orderBy(options.orderBy, options.sortOrder || 'DESC');
+    builder.orderBy(options.orderBy, options.sortOrder || 'DESC')
   }
 
   // 添加分页
   if (options?.limit !== undefined) {
-    builder.paginate(options.limit, options.offset || 0);
+    builder.paginate(options.limit, options.offset || 0)
   }
 
   // 设置选择的列
   if (options?.select) {
-    builder.select(options.select);
+    builder.select(options.select)
   }
 
-  return builder.build();
+  return builder.build()
 }
 
 /**
@@ -1026,39 +1046,39 @@ export function executeQuery<T extends Record<string, unknown> = Record<string, 
   tableName: string,
   filters: Record<string, unknown>,
   options?: {
-    prefix?: string;
-    limit?: number;
-    offset?: number;
-    orderBy?: string;
-    sortOrder?: 'ASC' | 'DESC';
-    select?: string[];
-    useCache?: boolean;
+    prefix?: string
+    limit?: number
+    offset?: number
+    orderBy?: string
+    sortOrder?: 'ASC' | 'DESC'
+    select?: string[]
+    useCache?: boolean
   }
 ): T[] {
-  const builder = new QueryBuilder({ from: tableName });
+  const builder = new QueryBuilder({ from: tableName })
 
   // 添加可选过滤器
   if (filters && Object.keys(filters).length > 0) {
-    builder.whereOptional(filters, options?.prefix || '');
+    builder.whereOptional(filters, options?.prefix || '')
   }
 
   // 添加排序
   if (options?.orderBy) {
-    builder.orderBy(options.orderBy, options.sortOrder || 'DESC');
+    builder.orderBy(options.orderBy, options.sortOrder || 'DESC')
   }
 
   // 添加分页
   if (options?.limit !== undefined) {
-    builder.paginate(options.limit, options.offset || 0);
+    builder.paginate(options.limit, options.offset || 0)
   }
 
   // 设置选择的列
   if (options?.select) {
-    builder.select(options.select);
+    builder.select(options.select)
   }
 
   // 使用优化后的 execute 方法
-  return builder.execute<T>(db, options?.useCache);
+  return builder.execute<T>(db, options?.useCache)
 }
 
 /**
@@ -1079,7 +1099,7 @@ export function batchInsert<T extends Record<string, unknown> = Record<string, u
   rows: T[]
 ): BatchResult {
   if (rows.length === 0) {
-    return { successCount: 0, failureCount: 0, failedIndices: [], errors: [] };
+    return { successCount: 0, failureCount: 0, failedIndices: [], errors: [] }
   }
 
   const result: BatchResult = {
@@ -1087,37 +1107,37 @@ export function batchInsert<T extends Record<string, unknown> = Record<string, u
     failureCount: 0,
     failedIndices: [],
     errors: [],
-  };
-
-  // 获取列名 (从第一行)
-  const columns = Object.keys(rows[0]);
-  const placeholders = columns.map(() => '?').join(', ');
-  const sql = `INSERT INTO ${tableName} (${columns.join(', ')}) VALUES (${placeholders})`;
-
-  try {
-    const stmt = db.prepare(sql) as { run: (...params: unknown[]) => { changes: number } };
-
-    for (let i = 0; i < rows.length; i++) {
-      const row = rows[i];
-      const values = columns.map(col => row[col]);
-
-      try {
-        stmt.run(...values);
-        result.successCount++;
-      } catch (_error) {
-        result.failureCount++;
-        result.failedIndices.push(i);
-        result.errors.push(error as Error);
-      }
-    }
-  } catch (_error) {
-    // 如果 prepare 失败,所有行都失败
-    result.failureCount = rows.length;
-    result.failedIndices = Array.from({ length: rows.length }, (_, i) => i);
-    result.errors = Array.from({ length: rows.length }, () => error as Error);
   }
 
-  return result;
+  // 获取列名 (从第一行)
+  const columns = Object.keys(rows[0])
+  const placeholders = columns.map(() => '?').join(', ')
+  const sql = `INSERT INTO ${tableName} (${columns.join(', ')}) VALUES (${placeholders})`
+
+  try {
+    const stmt = db.prepare(sql) as { run: (...params: unknown[]) => { changes: number } }
+
+    for (let i = 0; i < rows.length; i++) {
+      const row = rows[i]
+      const values = columns.map(col => row[col])
+
+      try {
+        stmt.run(...values)
+        result.successCount++
+      } catch (error) {
+        result.failureCount++
+        result.failedIndices.push(i)
+        result.errors.push(error as Error)
+      }
+    }
+  } catch (error) {
+    // 如果 prepare 失败,所有行都失败
+    result.failureCount = rows.length
+    result.failedIndices = Array.from({ length: rows.length }, (_, i) => i)
+    result.errors = Array.from({ length: rows.length }, () => error as Error)
+  }
+
+  return result
 }
 
 /**
@@ -1140,7 +1160,7 @@ export function batchUpdate<T extends Record<string, unknown> = Record<string, u
   conditionColumns: string[]
 ): BatchResult {
   if (updates.length === 0) {
-    return { successCount: 0, failureCount: 0, failedIndices: [], errors: [] };
+    return { successCount: 0, failureCount: 0, failedIndices: [], errors: [] }
   }
 
   const result: BatchResult = {
@@ -1148,48 +1168,48 @@ export function batchUpdate<T extends Record<string, unknown> = Record<string, u
     failureCount: 0,
     failedIndices: [],
     errors: [],
-  };
+  }
 
   // 获取要更新的列 (排除条件列)
-  const allColumns = Object.keys(updates[0]);
-  const updateColumns = allColumns.filter(col => !conditionColumns.includes(col));
+  const allColumns = Object.keys(updates[0])
+  const updateColumns = allColumns.filter(col => !conditionColumns.includes(col))
 
   if (updateColumns.length === 0) {
-    return result;
+    return result
   }
 
   // 构建 SET 子句
-  const setClause = updateColumns.map(col => `${col} = ?`).join(', ');
+  const setClause = updateColumns.map(col => `${col} = ?`).join(', ')
   // 构建 WHERE 子句
-  const whereClause = conditionColumns.map(col => `${col} = ?`).join(' AND ');
-  const sql = `UPDATE ${tableName} SET ${setClause} WHERE ${whereClause}`;
+  const whereClause = conditionColumns.map(col => `${col} = ?`).join(' AND ')
+  const sql = `UPDATE ${tableName} SET ${setClause} WHERE ${whereClause}`
 
   try {
-    const stmt = db.prepare(sql) as { run: (...params: unknown[]) => { changes: number } };
+    const stmt = db.prepare(sql) as { run: (...params: unknown[]) => { changes: number } }
 
     for (let i = 0; i < updates.length; i++) {
-      const row = updates[i];
-      const updateValues = updateColumns.map(col => row[col]);
-      const conditionValues = conditionColumns.map(col => row[col]);
-      const values = [...updateValues, ...conditionValues];
+      const row = updates[i]
+      const updateValues = updateColumns.map(col => row[col])
+      const conditionValues = conditionColumns.map(col => row[col])
+      const values = [...updateValues, ...conditionValues]
 
       try {
-        stmt.run(...values);
-        result.successCount++;
-      } catch (_error) {
-        result.failureCount++;
-        result.failedIndices.push(i);
-        result.errors.push(error as Error);
+        stmt.run(...values)
+        result.successCount++
+      } catch (error) {
+        result.failureCount++
+        result.failedIndices.push(i)
+        result.errors.push(error as Error)
       }
     }
-  } catch (_error) {
+  } catch (error) {
     // 如果 prepare 失败,所有行都失败
-    result.failureCount = updates.length;
-    result.failedIndices = Array.from({ length: updates.length }, (_, i) => i);
-    result.errors = Array.from({ length: updates.length }, () => error as Error);
+    result.failureCount = updates.length
+    result.failedIndices = Array.from({ length: updates.length }, (_, i) => i)
+    result.errors = Array.from({ length: updates.length }, () => error as Error)
   }
 
-  return result;
+  return result
 }
 
 /**
@@ -1212,7 +1232,7 @@ export function batchDelete<T extends Record<string, unknown> = Record<string, u
   conditionColumns: string[]
 ): BatchResult {
   if (conditions.length === 0) {
-    return { successCount: 0, failureCount: 0, failedIndices: [], errors: [] };
+    return { successCount: 0, failureCount: 0, failedIndices: [], errors: [] }
   }
 
   const result: BatchResult = {
@@ -1220,36 +1240,36 @@ export function batchDelete<T extends Record<string, unknown> = Record<string, u
     failureCount: 0,
     failedIndices: [],
     errors: [],
-  };
-
-  // 构建 WHERE 子句
-  const whereClause = conditionColumns.map(col => `${col} = ?`).join(' AND ');
-  const sql = `DELETE FROM ${tableName} WHERE ${whereClause}`;
-
-  try {
-    const stmt = db.prepare(sql) as { run: (...params: unknown[]) => { changes: number } };
-
-    for (let i = 0; i < conditions.length; i++) {
-      const condition = conditions[i];
-      const values = conditionColumns.map(col => condition[col]);
-
-      try {
-        stmt.run(...values);
-        result.successCount++;
-      } catch (_error) {
-        result.failureCount++;
-        result.failedIndices.push(i);
-        result.errors.push(error as Error);
-      }
-    }
-  } catch (_error) {
-    // 如果 prepare 失败,所有行都失败
-    result.failureCount = conditions.length;
-    result.failedIndices = Array.from({ length: conditions.length }, (_, i) => i);
-    result.errors = Array.from({ length: conditions.length }, () => error as Error);
   }
 
-  return result;
+  // 构建 WHERE 子句
+  const whereClause = conditionColumns.map(col => `${col} = ?`).join(' AND ')
+  const sql = `DELETE FROM ${tableName} WHERE ${whereClause}`
+
+  try {
+    const stmt = db.prepare(sql) as { run: (...params: unknown[]) => { changes: number } }
+
+    for (let i = 0; i < conditions.length; i++) {
+      const condition = conditions[i]
+      const values = conditionColumns.map(col => condition[col])
+
+      try {
+        stmt.run(...values)
+        result.successCount++
+      } catch (error) {
+        result.failureCount++
+        result.failedIndices.push(i)
+        result.errors.push(error as Error)
+      }
+    }
+  } catch (error) {
+    // 如果 prepare 失败,所有行都失败
+    result.failureCount = conditions.length
+    result.failedIndices = Array.from({ length: conditions.length }, (_, i) => i)
+    result.errors = Array.from({ length: conditions.length }, () => error as Error)
+  }
+
+  return result
 }
 
 /**
@@ -1258,8 +1278,8 @@ export function batchDelete<T extends Record<string, unknown> = Record<string, u
  * clearAllCaches();
  */
 export function clearAllCaches() {
-  QueryBuilder.clearGlobalCache();
-  PreparedStatementCache.getInstance().clear();
+  QueryBuilder.clearGlobalCache()
+  PreparedStatementCache.getInstance().clear()
 }
 
 /**
@@ -1267,14 +1287,14 @@ export function clearAllCaches() {
  * @returns 缓存统计
  */
 export function getCacheStats() {
-  const cacheInstance = PreparedStatementCache.getInstance();
+  const cacheInstance = PreparedStatementCache.getInstance()
   // Cast through unknown to access private property safely
-  const cacheSize = (cacheInstance as unknown as { cache?: Map<string, unknown> }).cache?.size ?? 0;
+  const cacheSize = (cacheInstance as unknown as { cache?: Map<string, unknown> }).cache?.size ?? 0
 
   return {
     queryCache: QueryBuilder.getCacheStats(),
     preparedStatementCache: {
       size: cacheSize,
     },
-  };
+  }
 }

@@ -7,12 +7,14 @@ This module implements a comprehensive performance alerting system as specified 
 ## Features Implemented
 
 ### 1. Multi-Level Alerts ✅
+
 - **info**: Informational alerts
 - **warning**: Warning level alerts
 - **error**: Error level alerts
 - **critical**: Critical alerts requiring immediate attention
 
 ### 2. Multi-Channel Notifications ✅
+
 - **EmailChannel**: Email notifications with formatted messages
 - **SlackChannel**: Slack webhook integration with rich formatting
 - **DashboardChannel**: In-app toast notifications and sound alerts
@@ -20,24 +22,30 @@ This module implements a comprehensive performance alerting system as specified 
 - **TelegramChannel**: Telegram bot notifications with emoji support
 
 ### 3. Alert Suppression ✅
+
 Prevents alert storms through multiple mechanisms:
+
 - **Cooldown period**: Limits alerts for the same metric within a configurable time window
 - **Max active alerts**: Caps the total number of active alerts
 - **Deduplication**: Suppresses duplicate alerts based on configurable fields (metric, severity, message, value, threshold)
 
 ### 4. Alert Aggregation ✅
+
 Reduces noise by combining similar alerts:
+
 - Groups alerts by metric and severity
 - Adds occurrence count to alert messages
 - Configurable aggregation window
 
 ### 5. Rule-Based Alerting ✅
+
 - Declarative alert rules with comparison operators (>, >=, <, <=, ==, !=)
 - Per-rule cooldown periods
 - Per-rule channel routing
 - Per-rule severity levels
 
 ### 6. Alert Management ✅
+
 - Alert acknowledgment tracking (who, when)
 - Alert resolution tracking
 - Flexible filtering (by level, metric, time range, status)
@@ -48,7 +56,9 @@ Reduces noise by combining similar alerts:
 ### Core Components
 
 #### PerformanceAlerter Class
+
 Main alert orchestrator with responsibilities:
+
 - Alert creation and sending
 - Suppression logic
 - Aggregation logic
@@ -57,11 +67,12 @@ Main alert orchestrator with responsibilities:
 - Alert lifecycle management
 
 #### Channel Implementations
+
 All channels implement the `AlertChannel` interface:
 
 ```typescript
 interface AlertChannel {
-  send(alert: PerformanceAlert): Promise<void>;
+  send(alert: PerformanceAlert): Promise<void>
 }
 ```
 
@@ -69,31 +80,31 @@ interface AlertChannel {
 
 ```typescript
 // Alert severity levels
-type AlertSeverity = 'info' | 'warning' | 'error' | 'critical';
+type AlertSeverity = 'info' | 'warning' | 'error' | 'critical'
 
 // Performance alert structure
 interface PerformanceAlert {
-  id: string;
-  severity: AlertSeverity;
-  metric: string;
-  message: string;
-  value: number;
-  threshold: number;
-  timestamp: number;
-  context?: Record<string, any>;
-  acknowledged?: boolean;
-  resolved?: boolean;
-  suppressed?: boolean;
+  id: string
+  severity: AlertSeverity
+  metric: string
+  message: string
+  value: number
+  threshold: number
+  timestamp: number
+  context?: Record<string, any>
+  acknowledged?: boolean
+  resolved?: boolean
+  suppressed?: boolean
 }
 
 // Alert channel types
-type AlertChannelType = 'email' | 'slack' | 'dashboard' | 'webhook' | 'telegram';
+type AlertChannelType = 'email' | 'slack' | 'dashboard' | 'webhook' | 'telegram'
 
 // Alert suppression configuration
 interface SuppressionConfig {
-  windowMs: number;      // Time window for suppression
-  maxAlerts: number;      // Maximum active alerts
-  deduplicateBy?: string[]; // Fields to deduplicate by
+  windowMs: number // Time window for suppression
+  maxAlerts: number // Maximum active alerts
+  deduplicateBy?: string[] // Fields to deduplicate by
 }
 ```
 
@@ -102,7 +113,7 @@ interface SuppressionConfig {
 ### Basic Usage
 
 ```typescript
-import { performanceAlerter } from './alerting';
+import { performanceAlerter } from './alerting'
 
 // Create and send an alert
 await performanceAlerter.createAlert({
@@ -111,14 +122,14 @@ await performanceAlerter.createAlert({
   metric: 'responseTime',
   value: 2500,
   threshold: 2000,
-  context: { endpoint: '/api/users', duration: 2500 }
-});
+  context: { endpoint: '/api/users', duration: 2500 },
+})
 ```
 
 ### Custom Channel Configuration
 
 ```typescript
-import { PerformanceAlerter, EmailChannel, SlackChannel } from './alerting';
+import { PerformanceAlerter, EmailChannel, SlackChannel } from './alerting'
 
 const alerter = new PerformanceAlerter({
   channels: [
@@ -127,19 +138,19 @@ const alerter = new PerformanceAlerter({
       enabled: true,
       config: {
         recipients: ['admin@example.com'],
-        subject: 'Performance Alert'
-      }
+        subject: 'Performance Alert',
+      },
     },
     {
       type: 'slack',
       enabled: true,
       config: {
         webhookUrl: 'https://hooks.slack.com/services/...',
-        channel: '#alerts'
-      }
-    }
-  ]
-});
+        channel: '#alerts',
+      },
+    },
+  ],
+})
 ```
 
 ### Rule-Based Alerting
@@ -158,43 +169,43 @@ alerter.updateConfig({
       level: 'warning',
       channels: ['dashboard', 'slack'],
       cooldown: 300, // 5 minutes
-      aggregation: { enabled: true, window: 300, maxAlerts: 5 }
-    }
-  ]
-});
+      aggregation: { enabled: true, window: 300, maxAlerts: 5 },
+    },
+  ],
+})
 
 // Check metrics against rules
-const alerts = await alerter.checkRules('cpu', 90);
+const alerts = await alerter.checkRules('cpu', 90)
 ```
 
 ### Alert Suppression Configuration
 
 ```typescript
 alerter.updateSuppressionConfig({
-  windowMs: 60000,      // 1 minute window
-  maxAlerts: 10,         // Max 10 active alerts
-  deduplicateBy: ['metric', 'severity']  // Dedupe by metric and severity
-});
+  windowMs: 60000, // 1 minute window
+  maxAlerts: 10, // Max 10 active alerts
+  deduplicateBy: ['metric', 'severity'], // Dedupe by metric and severity
+})
 ```
 
 ### Alert Management
 
 ```typescript
 // Acknowledge an alert
-alerter.acknowledgeAlert(alertId, 'admin');
+alerter.acknowledgeAlert(alertId, 'admin')
 
 // Resolve an alert
-alerter.resolveAlert(alertId);
+alerter.resolveAlert(alertId)
 
 // Get filtered alerts
 const criticalAlerts = alerter.getAlerts({
   level: 'critical',
-  resolved: false
-});
+  resolved: false,
+})
 
 // Get statistics
-const stats = alerter.getStats(3600000); // Last hour
-console.log(stats);
+const stats = alerter.getStats(3600000) // Last hour
+console.log(stats)
 /*
 {
   totalAlerts: 42,
@@ -222,6 +233,7 @@ src/lib/performance-monitoring/alerting/
 ## Test Coverage
 
 ### Test Statistics
+
 - **Total Tests**: 44
 - **Passed**: 44 (100%)
 - **Coverage**: >80% (estimated based on test scenarios)
@@ -295,13 +307,13 @@ src/lib/performance-monitoring/alerting/
 
 ## Acceptance Criteria Status
 
-| Criterion | Status | Notes |
-|-----------|--------|-------|
-| ✅ Supports 4 alert levels | Complete | info, warning, error, critical |
-| ✅ Alert suppression prevents alert storms | Complete | Cooldown, max alerts, deduplication |
-| ✅ Alert aggregation reduces duplicates | Complete | Groups by metric/severity with occurrence count |
-| ✅ Extensible channel interface | Complete | 5 channels implemented, easy to add more |
-| ✅ Unit tests > 80% coverage | Complete | 44 tests, 100% pass rate |
+| Criterion                                  | Status   | Notes                                           |
+| ------------------------------------------ | -------- | ----------------------------------------------- |
+| ✅ Supports 4 alert levels                 | Complete | info, warning, error, critical                  |
+| ✅ Alert suppression prevents alert storms | Complete | Cooldown, max alerts, deduplication             |
+| ✅ Alert aggregation reduces duplicates    | Complete | Groups by metric/severity with occurrence count |
+| ✅ Extensible channel interface            | Complete | 5 channels implemented, easy to add more        |
+| ✅ Unit tests > 80% coverage               | Complete | 44 tests, 100% pass rate                        |
 
 ## Configuration
 
@@ -370,10 +382,10 @@ This alerting system integrates seamlessly with other performance monitoring mod
 ### Example Integration
 
 ```typescript
-import { anomalyDetector, performanceAlerter } from './performance-monitoring';
+import { anomalyDetector, performanceAlerter } from './performance-monitoring'
 
 // Detect anomaly
-const detection = anomalyDetector.detectAnomaly('responseTime', 5000);
+const detection = anomalyDetector.detectAnomaly('responseTime', 5000)
 
 // Trigger alert if anomaly detected
 if (detection.isAnomaly) {
@@ -383,14 +395,15 @@ if (detection.isAnomaly) {
     metric: 'responseTime',
     value: 5000,
     threshold: detection.baseline?.mean || 2000,
-    context: { zScore: detection.zScore, confidence: detection.confidence }
-  });
+    context: { zScore: detection.zScore, confidence: detection.confidence },
+  })
 }
 ```
 
 ## Future Enhancements
 
 Potential future improvements:
+
 - Alert escalation (auto-escalate after timeout)
 - Alert silencing (temporary mute)
 - Alert routing based on on-call schedules

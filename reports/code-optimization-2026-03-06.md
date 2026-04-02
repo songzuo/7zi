@@ -9,6 +9,7 @@
 ## 📋 执行摘要
 
 本次分析覆盖了 AI 团队看板项目的核心代码，包括：
+
 - **Lib 库文件:** 6 个核心模块 (auth, users, presence, comments, export, messages, notifications)
 - **Hooks:** 4 个自定义 React Hooks
 - **Components:** 20+ 个 UI 组件
@@ -25,11 +26,13 @@
 #### 🔴 API 请求头构建重复 (3 处)
 
 **位置:**
+
 - `lib/comments.ts` (4 处函数)
 - `hooks/useDashboardData.ts` (2 处 fetch 函数)
 - `app/api/auth/*/route.ts` (多处 cookie 设置)
 
 **问题代码示例:**
+
 ```typescript
 // lib/comments.ts - 重复 4 次
 const headers: HeadersInit = {
@@ -48,40 +51,43 @@ headers: {
 ```
 
 **建议:** 创建统一的 API 客户端工具
+
 ```typescript
 // lib/api-client.ts
 export function createGitHubHeaders(token?: string | null): HeadersInit {
   return {
-    'Accept': 'application/vnd.github.v3+json',
+    Accept: 'application/vnd.github.v3+json',
     'Content-Type': 'application/json',
     ...(token ? { Authorization: `token ${token}` } : {}),
-  };
+  }
 }
 
 export async function githubFetch(
   endpoint: string,
   options: { token?: string; method?: string; body?: object } = {}
 ) {
-  const { token, method = 'GET', body } = options;
+  const { token, method = 'GET', body } = options
   const response = await fetch(`https://api.github.com/${endpoint}`, {
     method,
     headers: createGitHubHeaders(token),
     ...(body ? { body: JSON.stringify(body) } : {}),
-  });
+  })
   if (!response.ok) {
-    throw new Error(`GitHub API Error: ${response.statusText}`);
+    throw new Error(`GitHub API Error: ${response.statusText}`)
   }
-  return response.json();
+  return response.json()
 }
 ```
 
 #### 🟡 Cookie 设置逻辑重复 (2 处)
 
 **位置:**
+
 - `app/api/auth/login/route.ts`
 - `app/api/auth/register/route.ts`
 
 **问题代码:**
+
 ```typescript
 // 两处完全相同的 cookie 设置代码
 response.cookies.set('auth-token', token, {
@@ -89,11 +95,12 @@ response.cookies.set('auth-token', token, {
   secure: process.env.NODE_ENV === 'production',
   sameSite: 'lax',
   maxAge: 60 * 60 * 24 * 7,
-  path: '/'
-});
+  path: '/',
+})
 ```
 
 **建议:** 提取为 auth 工具函数
+
 ```typescript
 // lib/auth.ts
 export function setAuthCookie(response: NextResponse, token: string) {
@@ -102,14 +109,15 @@ export function setAuthCookie(response: NextResponse, token: string) {
     secure: process.env.NODE_ENV === 'production',
     sameSite: 'lax',
     maxAge: 60 * 60 * 24 * 7,
-    path: '/'
-  });
+    path: '/',
+  })
 }
 ```
 
 #### 🟡 状态映射对象重复 (多处组件)
 
 **位置:**
+
 - `components/MemberCard.tsx`
 - `components/TaskBoard.tsx`
 - `dashboard/page.tsx`
@@ -117,6 +125,7 @@ export function setAuthCookie(response: NextResponse, token: string) {
 **问题:** 多处定义相似的状态颜色和标签映射
 
 **建议:** 提取为共享常量
+
 ```typescript
 // lib/constants.ts
 export const STATUS_CONFIG = {
@@ -124,7 +133,7 @@ export const STATUS_CONFIG = {
   busy: { label: '忙碌', color: 'bg-yellow-500', bg: 'bg-yellow-100' },
   idle: { label: '空闲', color: 'bg-gray-400', bg: 'bg-gray-100' },
   offline: { label: '离线', color: 'bg-gray-500', bg: 'bg-gray-500' },
-} as const;
+} as const
 ```
 
 ### 1.2 中等优先级重复
@@ -132,25 +141,27 @@ export const STATUS_CONFIG = {
 #### 时间格式化函数重复
 
 **位置:**
+
 - `components/TaskBoard.tsx` - `formatTimeAgo`
 - `components/ActivityLog.tsx` - 类似逻辑
 
 **建议:** 统一为日期工具函数
+
 ```typescript
 // lib/utils/date.ts
 export function formatTimeAgo(dateString: string): string {
-  const date = new Date(dateString);
-  const now = new Date();
-  const diffMs = now.getTime() - date.getTime();
-  const diffMins = Math.floor(diffMs / 60000);
-  const diffHours = Math.floor(diffMs / 3600000);
-  const diffDays = Math.floor(diffMs / 86400000);
+  const date = new Date(dateString)
+  const now = new Date()
+  const diffMs = now.getTime() - date.getTime()
+  const diffMins = Math.floor(diffMs / 60000)
+  const diffHours = Math.floor(diffMs / 3600000)
+  const diffDays = Math.floor(diffMs / 86400000)
 
-  if (diffMins < 1) return '刚刚';
-  if (diffMins < 60) return `${diffMins} 分钟前`;
-  if (diffHours < 24) return `${diffHours} 小时前`;
-  if (diffDays < 7) return `${diffDays} 天前`;
-  return date.toLocaleDateString();
+  if (diffMins < 1) return '刚刚'
+  if (diffMins < 60) return `${diffMins} 分钟前`
+  if (diffHours < 24) return `${diffHours} 小时前`
+  if (diffDays < 7) return `${diffDays} 天前`
+  return date.toLocaleDateString()
 }
 ```
 
@@ -165,41 +176,44 @@ export function formatTimeAgo(dateString: string): string {
 **位置:** `lib/users.ts`
 
 **问题代码:**
+
 ```typescript
 // 每次模块加载时都执行
 async function initUsers() {
-  const hashedPassword = await bcrypt.hash('admin123', 10);
-  users[0].password = hashedPassword;
+  const hashedPassword = await bcrypt.hash('admin123', 10)
+  users[0].password = hashedPassword
   users.push({
     id: '2',
     email: 'user@7zi.com',
     password: await bcrypt.hash('user123', 10),
     // ...
-  });
+  })
 }
 
-initUsers(); // ⚠️ 没有 await，竞态条件
+initUsers() // ⚠️ 没有 await，竞态条件
 ```
 
 **风险:**
+
 1. 异步初始化没有等待，可能导致数据不一致
 2. 每次热重载都会重新哈希密码
 3. 内存中的数组不是持久化存储
 
 **建议:**
+
 ```typescript
 // 改为惰性初始化或使用单例模式
-let usersInitialized = false;
+let usersInitialized = false
 
 async function ensureUsersInitialized() {
-  if (usersInitialized) return;
+  if (usersInitialized) return
   // ... 初始化逻辑
-  usersInitialized = true;
+  usersInitialized = true
 }
 
 export async function findUserByEmail(email: string): Promise<User | undefined> {
-  await ensureUsersInitialized();
-  return users.find(u => u.email === email);
+  await ensureUsersInitialized()
+  return users.find(u => u.email === email)
 }
 ```
 
@@ -208,11 +222,12 @@ export async function findUserByEmail(email: string): Promise<User | undefined> 
 **位置:** `hooks/useWebSocket.ts:182`
 
 **问题:**
+
 ```typescript
 useEffect(() => {
-  connect();
-  return () => cleanup();
-}, [url]); // ⚠️ 依赖不完整，eslint 报错
+  connect()
+  return () => cleanup()
+}, [url]) // ⚠️ 依赖不完整，eslint 报错
 ```
 
 **风险:** 可能导致闭包捕获过时的值
@@ -224,9 +239,10 @@ useEffect(() => {
 **位置:** `hooks/useRealtimeDashboard.ts`
 
 **问题:**
+
 ```typescript
-const { 
-  isConnected: isRealtimeConnected, 
+const {
+  isConnected: isRealtimeConnected,
   lastMessage,      // ⚠️ 未使用
   subscribe,
   unsubscribe,      // ⚠️ 未使用
@@ -250,27 +266,35 @@ const {
 **位置:** `dashboard/page.tsx`
 
 **问题代码:**
+
 ```typescript
-const stats = useMemo(() => ({
-  totalMembers: AI_MEMBERS.length,
-  working: AI_MEMBERS.filter((m) => m.status === 'working').length,
-  busy: AI_MEMBERS.filter((m) => m.status === 'busy').length,
-  idle: AI_MEMBERS.filter((m) => m.status === 'idle').length,
-  offline: AI_MEMBERS.filter((m) => m.status === 'offline').length,
-  // ...
-}), [issues]); // ⚠️ 依赖 issues 但 AI_MEMBERS 是常量
+const stats = useMemo(
+  () => ({
+    totalMembers: AI_MEMBERS.length,
+    working: AI_MEMBERS.filter(m => m.status === 'working').length,
+    busy: AI_MEMBERS.filter(m => m.status === 'busy').length,
+    idle: AI_MEMBERS.filter(m => m.status === 'idle').length,
+    offline: AI_MEMBERS.filter(m => m.status === 'offline').length,
+    // ...
+  }),
+  [issues]
+) // ⚠️ 依赖 issues 但 AI_MEMBERS 是常量
 ```
 
 **建议:** 移出组件或使用常量
+
 ```typescript
 // 在组件外计算（AI_MEMBERS 是常量）
 const MEMBER_STATS = {
   total: AI_MEMBERS.length,
-  byStatus: AI_MEMBERS.reduce((acc, m) => {
-    acc[m.status] = (acc[m.status] || 0) + 1;
-    return acc;
-  }, {} as Record<string, number>),
-};
+  byStatus: AI_MEMBERS.reduce(
+    (acc, m) => {
+      acc[m.status] = (acc[m.status] || 0) + 1
+      return acc
+    },
+    {} as Record<string, number>
+  ),
+}
 ```
 
 ---
@@ -284,36 +308,41 @@ const MEMBER_STATS = {
 **统计:** 共 16 处 `any` 类型
 
 **位置:**
+
 - `hooks/useDashboardData.ts:85` - GitHub API 响应过滤
 - `hooks/useWebSocket.ts:9, 76` - WebSocket 消息数据
 - `hooks/useWebVitals.ts` - 多处指标处理 (6 处)
 
 **问题代码:**
+
 ```typescript
-const issuesOnly = data.filter((item: any) => !item.pull_request);
+const issuesOnly = data.filter((item: any) => !item.pull_request)
 ```
 
 **建议:** 定义明确的类型
+
 ```typescript
 interface GitHubIssueResponse {
-  pull_request?: object;
-  number: number;
-  title: string;
+  pull_request?: object
+  number: number
+  title: string
   // ...
 }
 
 const issuesOnly = data.filter(
   (item: GitHubIssueResponse): item is GitHubIssue => !item.pull_request
-);
+)
 ```
 
 #### 🟡 未使用的变量
 
 **位置:**
+
 - `hooks/useRealtimeDashboard.ts` - `lastMessage`, `unsubscribe`
 - `hooks/useWebVitals.ts` - 多处 catch 块的 `e`
 
 **建议:** 移除或标记为有意忽略
+
 ```typescript
 try {
   // ...
@@ -327,11 +356,13 @@ try {
 **当前违规:** 16 个错误
 
 **主要问题:**
+
 1. `@typescript-eslint/no-explicit-any` - 10 处
 2. `@typescript-eslint/no-unused-vars` - 6 处
 3. `react-hooks/exhaustive-deps` - 1 处 (规则未找到，需安装插件)
 
 **建议修复顺序:**
+
 ```bash
 # 安装缺失的 eslint 插件
 npm install -D eslint-plugin-react-hooks
@@ -345,6 +376,7 @@ npm run lint:fix
 **统计:** 22 处 `console.*` 调用
 
 **位置:**
+
 - `hooks/useWebSocket.ts` - 8 处
 - `hooks/useWebVitals.ts` - 6 处
 - `lib/messages/useMessages.ts` - 2 处
@@ -352,16 +384,17 @@ npm run lint:fix
 - `components/ui/Toast.tsx` - 4 处
 
 **建议:** 创建日志工具，生产环境自动禁用
+
 ```typescript
 // lib/logger.ts
-const isDev = process.env.NODE_ENV === 'development';
+const isDev = process.env.NODE_ENV === 'development'
 
 export const logger = {
   log: (...args: any[]) => isDev && console.log(...args),
   error: (...args: any[]) => console.error(...args), // 错误始终记录
   warn: (...args: any[]) => isDev && console.warn(...args),
   info: (...args: any[]) => isDev && console.info(...args),
-};
+}
 ```
 
 ---
@@ -371,6 +404,7 @@ export const logger = {
 ### 4.1 当前结构评估
 
 **现有结构:**
+
 ```
 app/
 ├── lib/           # ✅ 好的：工具库
@@ -436,30 +470,30 @@ app/
 **文件:** `lib/api/github.ts`
 
 ```typescript
-import { createGitHubHeaders } from './client';
-import type { GitHubIssue, GitHubCommit } from '@/types/github';
+import { createGitHubHeaders } from './client'
+import type { GitHubIssue, GitHubCommit } from '@/types/github'
 
-const GITHUB_API_BASE = 'https://api.github.com';
+const GITHUB_API_BASE = 'https://api.github.com'
 
 export class GitHubAPI {
-  private token?: string;
+  private token?: string
 
   constructor(token?: string) {
-    this.token = token;
+    this.token = token
   }
 
   async getIssues(owner: string, repo: string): Promise<GitHubIssue[]> {
     const response = await fetch(
       `${GITHUB_API_BASE}/repos/${owner}/${repo}/issues?state=all&per_page=50`,
       { headers: createGitHubHeaders(this.token) }
-    );
-    
+    )
+
     if (!response.ok) {
-      throw this.handleError(response);
+      throw this.handleError(response)
     }
-    
-    const data = await response.json();
-    return data.filter((item: any) => !item.pull_request);
+
+    const data = await response.json()
+    return data.filter((item: any) => !item.pull_request)
   }
 
   async getCommits(owner: string, repo: string): Promise<GitHubCommit[]> {
@@ -468,10 +502,14 @@ export class GitHubAPI {
 
   private handleError(response: Response): Error {
     switch (response.status) {
-      case 401: return new Error('GitHub Token 无效');
-      case 403: return new Error('GitHub API 速率限制');
-      case 404: return new Error(`仓库不存在`);
-      default: return new Error(`GitHub API 错误：${response.statusText}`);
+      case 401:
+        return new Error('GitHub Token 无效')
+      case 403:
+        return new Error('GitHub API 速率限制')
+      case 404:
+        return new Error(`仓库不存在`)
+      default:
+        return new Error(`GitHub API 错误：${response.statusText}`)
     }
   }
 }
@@ -484,20 +522,20 @@ export class GitHubAPI {
 ```typescript
 export const AI_MEMBERS = [
   // ... 11 位成员配置
-] as const;
+] as const
 
 export const STATUS_CONFIG = {
   working: { label: '工作中', color: 'bg-green-500' },
   busy: { label: '忙碌', color: 'bg-yellow-500' },
   idle: { label: '空闲', color: 'bg-gray-400' },
   offline: { label: '离线', color: 'bg-gray-500' },
-} as const;
+} as const
 
 export const NAV_ITEMS = [
   { href: '/', label: '首页', icon: '🏠' },
   { href: '/dashboard', label: '实时看板', icon: '📊' },
   // ...
-] as const;
+] as const
 ```
 
 #### 创建类型定义文件
@@ -506,31 +544,31 @@ export const NAV_ITEMS = [
 
 ```typescript
 export interface GitHubIssue {
-  number: number;
-  title: string;
-  state: 'open' | 'closed';
-  labels: Array<{ name: string; color: string }>;
-  assignee?: { login: string; avatar_url: string } | null;
-  created_at: string;
-  updated_at: string;
-  html_url: string;
-  pull_request?: object;
+  number: number
+  title: string
+  state: 'open' | 'closed'
+  labels: Array<{ name: string; color: string }>
+  assignee?: { login: string; avatar_url: string } | null
+  created_at: string
+  updated_at: string
+  html_url: string
+  pull_request?: object
 }
 
 export interface GitHubCommit {
-  sha: string;
+  sha: string
   commit: {
-    message: string;
-    author: { name: string; date: string };
-  };
-  html_url: string;
-  author?: { avatar_url: string } | null;
+    message: string
+    author: { name: string; date: string }
+  }
+  html_url: string
+  author?: { avatar_url: string } | null
 }
 
 export interface GitHubUser {
-  login: string;
-  avatar_url: string;
-  html_url: string;
+  login: string
+  avatar_url: string
+  html_url: string
 }
 ```
 
@@ -545,16 +583,17 @@ export interface GitHubUser {
 **位置:** `lib/auth.ts:4`
 
 ```typescript
-const secretKey = process.env.JWT_SECRET || 'your-secret-key-change-in-production';
+const secretKey = process.env.JWT_SECRET || 'your-secret-key-change-in-production'
 ```
 
 **风险:** 默认密钥可能被使用
 
 **建议:**
+
 ```typescript
-const secretKey = process.env.JWT_SECRET;
+const secretKey = process.env.JWT_SECRET
 if (!secretKey) {
-  throw new Error('JWT_SECRET environment variable is required');
+  throw new Error('JWT_SECRET environment variable is required')
 }
 ```
 
@@ -571,6 +610,7 @@ if (!secretKey) {
 **当前测试文件:** 16 个测试文件
 
 **建议:**
+
 - 增加 API 集成测试
 - 增加 WebSocket 连接测试
 - 增加导出功能测试
@@ -578,11 +618,13 @@ if (!secretKey) {
 ### 5.3 文档完整性
 
 **现有文档:**
+
 - ✅ README.md (6.6KB)
 - ✅ IMPLEMENTATION.md (5.2KB)
 - ✅ .env.example
 
 **建议补充:**
+
 - API 文档 (OpenAPI/Swagger)
 - 组件使用示例
 - 部署指南
@@ -593,28 +635,28 @@ if (!secretKey) {
 
 ### 立即修复 (P0)
 
-| 问题 | 文件 | 工作量 | 影响 |
-|------|------|--------|------|
-| JWT 密钥验证 | `lib/auth.ts` | 10min | 🔴 高 |
-| any 类型替换 | hooks/*.ts | 1h | 🟡 中 |
-| 未使用变量清理 | hooks/*.ts | 30min | 🟢 低 |
+| 问题           | 文件          | 工作量 | 影响  |
+| -------------- | ------------- | ------ | ----- |
+| JWT 密钥验证   | `lib/auth.ts` | 10min  | 🔴 高 |
+| any 类型替换   | hooks/\*.ts   | 1h     | 🟡 中 |
+| 未使用变量清理 | hooks/\*.ts   | 30min  | 🟢 低 |
 
 ### 短期优化 (P1 - 1 周内)
 
-| 问题 | 工作量 | 影响 |
-|------|--------|------|
-| 创建 API 客户端层 | 2h | 🔴 高 |
-| 提取共享常量 | 1h | 🟡 中 |
-| 日志工具封装 | 30min | 🟡 中 |
-| ESLint 规则修复 | 1h | 🟡 中 |
+| 问题              | 工作量 | 影响  |
+| ----------------- | ------ | ----- |
+| 创建 API 客户端层 | 2h     | 🔴 高 |
+| 提取共享常量      | 1h     | 🟡 中 |
+| 日志工具封装      | 30min  | 🟡 中 |
+| ESLint 规则修复   | 1h     | 🟡 中 |
 
 ### 中期重构 (P2 - 1 月内)
 
-| 问题 | 工作量 | 影响 |
-|------|--------|------|
-| 目录结构重组 | 4h | 🔴 高 |
-| 类型定义完善 | 2h | 🟡 中 |
-| 测试覆盖率提升 | 8h | 🟡 中 |
+| 问题           | 工作量 | 影响  |
+| -------------- | ------ | ----- |
+| 目录结构重组   | 4h     | 🔴 高 |
+| 类型定义完善   | 2h     | 🟡 中 |
+| 测试覆盖率提升 | 8h     | 🟡 中 |
 
 ---
 
@@ -622,14 +664,14 @@ if (!secretKey) {
 
 ### 代码质量评分
 
-| 维度 | 评分 | 说明 |
-|------|------|------|
-| 类型安全 | ⭐⭐⭐☆☆ | 过度使用 any |
-| 代码重复 | ⭐⭐⭐☆☆ | 多处重复逻辑 |
-| 性能优化 | ⭐⭐⭐⭐☆ | 已使用 useMemo/useCallback |
-| 模块化 | ⭐⭐⭐☆☆ | 结构合理但可改进 |
-| 文档完整性 | ⭐⭐⭐⭐☆ | 基础文档齐全 |
-| **总体** | **⭐⭐⭐☆☆** | **中等偏上，有优化空间** |
+| 维度       | 评分         | 说明                       |
+| ---------- | ------------ | -------------------------- |
+| 类型安全   | ⭐⭐⭐☆☆     | 过度使用 any               |
+| 代码重复   | ⭐⭐⭐☆☆     | 多处重复逻辑               |
+| 性能优化   | ⭐⭐⭐⭐☆    | 已使用 useMemo/useCallback |
+| 模块化     | ⭐⭐⭐☆☆     | 结构合理但可改进           |
+| 文档完整性 | ⭐⭐⭐⭐☆    | 基础文档齐全               |
+| **总体**   | **⭐⭐⭐☆☆** | **中等偏上，有优化空间**   |
 
 ### 关键行动项
 

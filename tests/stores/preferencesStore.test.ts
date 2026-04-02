@@ -3,7 +3,7 @@
  * Tests for src/stores/preferencesStore.ts
  */
 
-import { describe, it, expect, beforeEach, vi } from 'vitest';
+import { describe, it, expect, beforeEach, vi } from 'vitest'
 import {
   usePreferencesStore,
   getSettings,
@@ -12,34 +12,34 @@ import {
   setLanguage,
   type Theme,
   type Locale,
-} from '@/stores/preferencesStore';
+} from '@/stores/preferencesStore'
 
 // Mock localStorage
 const localStorageMock = (() => {
-  let store: Record<string, string> = {};
+  let store: Record<string, string> = {}
 
   return {
     getItem: (key: string) => store[key] || null,
     setItem: (key: string, value: string) => {
-      store[key] = value.toString();
+      store[key] = value.toString()
     },
     removeItem: (key: string) => {
-      delete store[key];
+      delete store[key]
     },
     clear: () => {
-      store = {};
+      store = {}
     },
-  };
-})();
+  }
+})()
 
 Object.defineProperty(global, 'localStorage', {
   value: localStorageMock,
-});
+})
 
 // Mock window.matchMedia
 Object.defineProperty(window, 'matchMedia', {
   writable: true,
-  value: vi.fn().mockImplementation((query) => ({
+  value: vi.fn().mockImplementation(query => ({
     matches: false,
     media: query,
     onchange: null,
@@ -49,7 +49,7 @@ Object.defineProperty(window, 'matchMedia', {
     removeEventListener: vi.fn(),
     dispatchEvent: vi.fn(),
   })),
-});
+})
 
 // Mock document.documentElement
 const mockDocumentElement = {
@@ -57,12 +57,12 @@ const mockDocumentElement = {
     add: vi.fn(),
     remove: vi.fn(),
   },
-};
+}
 
 Object.defineProperty(document, 'documentElement', {
   value: mockDocumentElement,
   writable: true,
-});
+})
 
 describe('Preferences Store', () => {
   beforeEach(() => {
@@ -80,446 +80,446 @@ describe('Preferences Store', () => {
       },
       isLoaded: false,
       isDark: false,
-    });
+    })
 
     // Clear localStorage
-    localStorageMock.clear();
+    localStorageMock.clear()
 
     // Clear all mocks
-    vi.clearAllMocks();
-  });
+    vi.clearAllMocks()
+  })
 
   describe('initial state', () => {
     it('should initialize with default settings', () => {
-      const state = usePreferencesStore.getState();
+      const state = usePreferencesStore.getState()
 
-      expect(state.settings.theme).toBe('system');
-      expect(state.settings.language).toBe('zh');
-      expect(state.settings.notifications.enabled).toBe(true);
-      expect(state.settings.notifications.sound).toBe(true);
-      expect(state.settings.notifications.email).toBe(false);
-      expect(state.settings.notifications.push).toBe(true);
-    });
+      expect(state.settings.theme).toBe('system')
+      expect(state.settings.language).toBe('zh')
+      expect(state.settings.notifications.enabled).toBe(true)
+      expect(state.settings.notifications.sound).toBe(true)
+      expect(state.settings.notifications.email).toBe(false)
+      expect(state.settings.notifications.push).toBe(true)
+    })
 
     it('should have isLoaded flag', () => {
-      const state = usePreferencesStore.getState();
+      const state = usePreferencesStore.getState()
 
-      expect(typeof state.isLoaded).toBe('boolean');
-    });
+      expect(typeof state.isLoaded).toBe('boolean')
+    })
 
     it('should have isDark flag', () => {
-      const state = usePreferencesStore.getState();
+      const state = usePreferencesStore.getState()
 
-      expect(typeof state.isDark).toBe('boolean');
-    });
+      expect(typeof state.isDark).toBe('boolean')
+    })
 
     it('should have setTheme action', () => {
-      const state = usePreferencesStore.getState();
+      const state = usePreferencesStore.getState()
 
-      expect(typeof state.setTheme).toBe('function');
-    });
+      expect(typeof state.setTheme).toBe('function')
+    })
 
     it('should have toggleTheme action', () => {
-      const state = usePreferencesStore.getState();
+      const state = usePreferencesStore.getState()
 
-      expect(typeof state.toggleTheme).toBe('function');
-    });
+      expect(typeof state.toggleTheme).toBe('function')
+    })
 
     it('should have setLanguage action', () => {
-      const state = usePreferencesStore.getState();
+      const state = usePreferencesStore.getState()
 
-      expect(typeof state.setLanguage).toBe('function');
-    });
+      expect(typeof state.setLanguage).toBe('function')
+    })
 
     it('should have setNotifications action', () => {
-      const state = usePreferencesStore.getState();
+      const state = usePreferencesStore.getState()
 
-      expect(typeof state.setNotifications).toBe('function');
-    });
+      expect(typeof state.setNotifications).toBe('function')
+    })
 
     it('should have resetSettings action', () => {
-      const state = usePreferencesStore.getState();
+      const state = usePreferencesStore.getState()
 
-      expect(typeof state.resetSettings).toBe('function');
-    });
-  });
+      expect(typeof state.resetSettings).toBe('function')
+    })
+  })
 
   describe('setTheme', () => {
     it('should set theme to light', () => {
-      const { setTheme } = usePreferencesStore.getState();
+      const { setTheme } = usePreferencesStore.getState()
 
-      setTheme('light');
+      setTheme('light')
 
-      const state = usePreferencesStore.getState();
-      expect(state.settings.theme).toBe('light');
-      expect(state.isDark).toBe(false);
-    });
+      const state = usePreferencesStore.getState()
+      expect(state.settings.theme).toBe('light')
+      expect(state.isDark).toBe(false)
+    })
 
     it('should set theme to dark', () => {
-      const { setTheme } = usePreferencesStore.getState();
+      const { setTheme } = usePreferencesStore.getState()
 
-      setTheme('dark');
+      setTheme('dark')
 
-      const state = usePreferencesStore.getState();
-      expect(state.settings.theme).toBe('dark');
-      expect(state.isDark).toBe(true);
-    });
+      const state = usePreferencesStore.getState()
+      expect(state.settings.theme).toBe('dark')
+      expect(state.isDark).toBe(true)
+    })
 
     it('should set theme to system', () => {
-      const { setTheme } = usePreferencesStore.getState();
+      const { setTheme } = usePreferencesStore.getState()
 
-      setTheme('system');
+      setTheme('system')
 
-      const state = usePreferencesStore.getState();
-      expect(state.settings.theme).toBe('system');
-    });
+      const state = usePreferencesStore.getState()
+      expect(state.settings.theme).toBe('system')
+    })
 
     it('should sync theme to DOM', () => {
-      const { setTheme } = usePreferencesStore.getState();
+      const { setTheme } = usePreferencesStore.getState()
 
-      setTheme('dark');
+      setTheme('dark')
 
-      expect(mockDocumentElement.classList.add).toHaveBeenCalledWith('dark');
+      expect(mockDocumentElement.classList.add).toHaveBeenCalledWith('dark')
 
-      setTheme('light');
+      setTheme('light')
 
-      expect(mockDocumentElement.classList.remove).toHaveBeenCalledWith('dark');
-    });
+      expect(mockDocumentElement.classList.remove).toHaveBeenCalledWith('dark')
+    })
 
     it('should preserve other settings when changing theme', () => {
-      const { setTheme, setLanguage } = usePreferencesStore.getState();
+      const { setTheme, setLanguage } = usePreferencesStore.getState()
 
-      setLanguage('en');
-      setTheme('dark');
+      setLanguage('en')
+      setTheme('dark')
 
-      const state = usePreferencesStore.getState();
-      expect(state.settings.language).toBe('en');
-      expect(state.settings.theme).toBe('dark');
-    });
-  });
+      const state = usePreferencesStore.getState()
+      expect(state.settings.language).toBe('en')
+      expect(state.settings.theme).toBe('dark')
+    })
+  })
 
   describe('toggleTheme', () => {
     it('should toggle from light to dark', () => {
-      const { setTheme, toggleTheme } = usePreferencesStore.getState();
+      const { setTheme, toggleTheme } = usePreferencesStore.getState()
 
-      setTheme('light');
-      toggleTheme();
+      setTheme('light')
+      toggleTheme()
 
-      const state = usePreferencesStore.getState();
-      expect(state.settings.theme).toBe('dark');
-      expect(state.isDark).toBe(true);
-    });
+      const state = usePreferencesStore.getState()
+      expect(state.settings.theme).toBe('dark')
+      expect(state.isDark).toBe(true)
+    })
 
     it('should toggle from dark to light', () => {
-      const { setTheme, toggleTheme } = usePreferencesStore.getState();
+      const { setTheme, toggleTheme } = usePreferencesStore.getState()
 
-      setTheme('dark');
-      toggleTheme();
+      setTheme('dark')
+      toggleTheme()
 
-      const state = usePreferencesStore.getState();
-      expect(state.settings.theme).toBe('light');
-      expect(state.isDark).toBe(false);
-    });
+      const state = usePreferencesStore.getState()
+      expect(state.settings.theme).toBe('light')
+      expect(state.isDark).toBe(false)
+    })
 
     it('should toggle from system based on system preference', () => {
-      const { setTheme, toggleTheme } = usePreferencesStore.getState();
+      const { setTheme, toggleTheme } = usePreferencesStore.getState()
 
-      setTheme('system');
-      toggleTheme();
+      setTheme('system')
+      toggleTheme()
 
-      const state = usePreferencesStore.getState();
-      expect(['light', 'dark']).toContain(state.settings.theme);
-    });
+      const state = usePreferencesStore.getState()
+      expect(['light', 'dark']).toContain(state.settings.theme)
+    })
 
     it('should sync theme to DOM after toggle', () => {
-      const { setTheme, toggleTheme } = usePreferencesStore.getState();
+      const { setTheme, toggleTheme } = usePreferencesStore.getState()
 
-      setTheme('light');
-      toggleTheme();
+      setTheme('light')
+      toggleTheme()
 
-      expect(mockDocumentElement.classList.add).toHaveBeenCalledWith('dark');
-    });
-  });
+      expect(mockDocumentElement.classList.add).toHaveBeenCalledWith('dark')
+    })
+  })
 
   describe('setLanguage', () => {
     it('should set language to zh', () => {
-      const { setLanguage } = usePreferencesStore.getState();
+      const { setLanguage } = usePreferencesStore.getState()
 
-      setLanguage('zh');
+      setLanguage('zh')
 
-      const state = usePreferencesStore.getState();
-      expect(state.settings.language).toBe('zh');
-    });
+      const state = usePreferencesStore.getState()
+      expect(state.settings.language).toBe('zh')
+    })
 
     it('should set language to en', () => {
-      const { setLanguage } = usePreferencesStore.getState();
+      const { setLanguage } = usePreferencesStore.getState()
 
-      setLanguage('en');
+      setLanguage('en')
 
-      const state = usePreferencesStore.getState();
-      expect(state.settings.language).toBe('en');
-    });
+      const state = usePreferencesStore.getState()
+      expect(state.settings.language).toBe('en')
+    })
 
     it('should set language to ja', () => {
-      const { setLanguage } = usePreferencesStore.getState();
+      const { setLanguage } = usePreferencesStore.getState()
 
-      setLanguage('ja');
+      setLanguage('ja')
 
-      const state = usePreferencesStore.getState();
-      expect(state.settings.language).toBe('ja');
-    });
+      const state = usePreferencesStore.getState()
+      expect(state.settings.language).toBe('ja')
+    })
 
     it('should preserve other settings when changing language', () => {
-      const { setLanguage, setTheme } = usePreferencesStore.getState();
+      const { setLanguage, setTheme } = usePreferencesStore.getState()
 
-      setTheme('dark');
-      setLanguage('en');
+      setTheme('dark')
+      setLanguage('en')
 
-      const state = usePreferencesStore.getState();
-      expect(state.settings.theme).toBe('dark');
-      expect(state.settings.language).toBe('en');
-    });
-  });
+      const state = usePreferencesStore.getState()
+      expect(state.settings.theme).toBe('dark')
+      expect(state.settings.language).toBe('en')
+    })
+  })
 
   describe('setNotifications', () => {
     it('should update enabled notification', () => {
-      const { setNotifications } = usePreferencesStore.getState();
+      const { setNotifications } = usePreferencesStore.getState()
 
-      setNotifications({ enabled: false });
+      setNotifications({ enabled: false })
 
-      const state = usePreferencesStore.getState();
-      expect(state.settings.notifications.enabled).toBe(false);
-    });
+      const state = usePreferencesStore.getState()
+      expect(state.settings.notifications.enabled).toBe(false)
+    })
 
     it('should update sound notification', () => {
-      const { setNotifications } = usePreferencesStore.getState();
+      const { setNotifications } = usePreferencesStore.getState()
 
-      setNotifications({ sound: false });
+      setNotifications({ sound: false })
 
-      const state = usePreferencesStore.getState();
-      expect(state.settings.notifications.sound).toBe(false);
-    });
+      const state = usePreferencesStore.getState()
+      expect(state.settings.notifications.sound).toBe(false)
+    })
 
     it('should update email notification', () => {
-      const { setNotifications } = usePreferencesStore.getState();
+      const { setNotifications } = usePreferencesStore.getState()
 
-      setNotifications({ email: true });
+      setNotifications({ email: true })
 
-      const state = usePreferencesStore.getState();
-      expect(state.settings.notifications.email).toBe(true);
-    });
+      const state = usePreferencesStore.getState()
+      expect(state.settings.notifications.email).toBe(true)
+    })
 
     it('should update push notification', () => {
-      const { setNotifications } = usePreferencesStore.getState();
+      const { setNotifications } = usePreferencesStore.getState()
 
-      setNotifications({ push: false });
+      setNotifications({ push: false })
 
-      const state = usePreferencesStore.getState();
-      expect(state.settings.notifications.push).toBe(false);
-    });
+      const state = usePreferencesStore.getState()
+      expect(state.settings.notifications.push).toBe(false)
+    })
 
     it('should update multiple notification settings', () => {
-      const { setNotifications } = usePreferencesStore.getState();
+      const { setNotifications } = usePreferencesStore.getState()
 
-      setNotifications({ enabled: false, sound: false });
+      setNotifications({ enabled: false, sound: false })
 
-      const state = usePreferencesStore.getState();
-      expect(state.settings.notifications.enabled).toBe(false);
-      expect(state.settings.notifications.sound).toBe(false);
-    });
+      const state = usePreferencesStore.getState()
+      expect(state.settings.notifications.enabled).toBe(false)
+      expect(state.settings.notifications.sound).toBe(false)
+    })
 
     it('should preserve other notification settings when updating one', () => {
-      const { setNotifications, setTheme } = usePreferencesStore.getState();
+      const { setNotifications, setTheme } = usePreferencesStore.getState()
 
-      setTheme('dark');
-      setNotifications({ enabled: false });
+      setTheme('dark')
+      setNotifications({ enabled: false })
 
-      const state = usePreferencesStore.getState();
-      expect(state.settings.notifications.sound).toBe(true);
-      expect(state.settings.notifications.email).toBe(false);
-      expect(state.settings.notifications.push).toBe(true);
-      expect(state.settings.theme).toBe('dark');
-    });
-  });
+      const state = usePreferencesStore.getState()
+      expect(state.settings.notifications.sound).toBe(true)
+      expect(state.settings.notifications.email).toBe(false)
+      expect(state.settings.notifications.push).toBe(true)
+      expect(state.settings.theme).toBe('dark')
+    })
+  })
 
   describe('resetSettings', () => {
     it('should reset to default settings', () => {
       const { setTheme, setLanguage, setNotifications, resetSettings } =
-        usePreferencesStore.getState();
+        usePreferencesStore.getState()
 
-      setTheme('dark');
-      setLanguage('en');
-      setNotifications({ enabled: false });
-      resetSettings();
+      setTheme('dark')
+      setLanguage('en')
+      setNotifications({ enabled: false })
+      resetSettings()
 
-      const state = usePreferencesStore.getState();
-      expect(state.settings.theme).toBe('system');
-      expect(state.settings.language).toBe('zh');
-      expect(state.settings.notifications.enabled).toBe(true);
-    });
+      const state = usePreferencesStore.getState()
+      expect(state.settings.theme).toBe('system')
+      expect(state.settings.language).toBe('zh')
+      expect(state.settings.notifications.enabled).toBe(true)
+    })
 
     it('should sync default theme to DOM', () => {
-      const { setTheme, resetSettings } = usePreferencesStore.getState();
+      const { setTheme, resetSettings } = usePreferencesStore.getState()
 
-      setTheme('dark');
-      expect(mockDocumentElement.classList.add).toHaveBeenCalledWith('dark');
+      setTheme('dark')
+      expect(mockDocumentElement.classList.add).toHaveBeenCalledWith('dark')
 
-      resetSettings();
-      expect(mockDocumentElement.classList.remove).toHaveBeenCalledWith('dark');
-    });
-  });
+      resetSettings()
+      expect(mockDocumentElement.classList.remove).toHaveBeenCalledWith('dark')
+    })
+  })
 
   describe('external API - getSettings', () => {
     it('should return current settings', () => {
-      const { setLanguage } = usePreferencesStore.getState();
+      const { setLanguage } = usePreferencesStore.getState()
 
-      setLanguage('en');
+      setLanguage('en')
 
-      const settings = getSettings();
-      expect(settings.language).toBe('en');
-    });
-  });
+      const settings = getSettings()
+      expect(settings.language).toBe('en')
+    })
+  })
 
   describe('external API - setTheme', () => {
     it('should set theme externally', () => {
-      setTheme('dark');
+      setTheme('dark')
 
-      const state = usePreferencesStore.getState();
-      expect(state.settings.theme).toBe('dark');
-    });
-  });
+      const state = usePreferencesStore.getState()
+      expect(state.settings.theme).toBe('dark')
+    })
+  })
 
   describe('external API - toggleTheme', () => {
     it('should toggle theme externally', () => {
-      const { setTheme } = usePreferencesStore.getState();
-      setTheme('light');
+      const { setTheme } = usePreferencesStore.getState()
+      setTheme('light')
 
-      toggleTheme();
+      toggleTheme()
 
-      const state = usePreferencesStore.getState();
-      expect(state.settings.theme).toBe('dark');
-    });
-  });
+      const state = usePreferencesStore.getState()
+      expect(state.settings.theme).toBe('dark')
+    })
+  })
 
   describe('external API - setLanguage', () => {
     it('should set language externally', () => {
-      setLanguage('en');
+      setLanguage('en')
 
-      const state = usePreferencesStore.getState();
-      expect(state.settings.language).toBe('en');
-    });
-  });
+      const state = usePreferencesStore.getState()
+      expect(state.settings.language).toBe('en')
+    })
+  })
 
   describe('integration scenarios', () => {
     it('should handle multiple theme changes', () => {
-      const { setTheme } = usePreferencesStore.getState();
+      const { setTheme } = usePreferencesStore.getState()
 
-      setTheme('light');
-      expect(usePreferencesStore.getState().settings.theme).toBe('light');
+      setTheme('light')
+      expect(usePreferencesStore.getState().settings.theme).toBe('light')
 
-      setTheme('dark');
-      expect(usePreferencesStore.getState().settings.theme).toBe('dark');
+      setTheme('dark')
+      expect(usePreferencesStore.getState().settings.theme).toBe('dark')
 
-      setTheme('system');
-      expect(usePreferencesStore.getState().settings.theme).toBe('system');
-    });
+      setTheme('system')
+      expect(usePreferencesStore.getState().settings.theme).toBe('system')
+    })
 
     it('should handle theme and language changes together', () => {
-      const { setTheme, setLanguage } = usePreferencesStore.getState();
+      const { setTheme, setLanguage } = usePreferencesStore.getState()
 
-      setTheme('dark');
-      setLanguage('en');
+      setTheme('dark')
+      setLanguage('en')
 
-      const state = usePreferencesStore.getState();
-      expect(state.settings.theme).toBe('dark');
-      expect(state.settings.language).toBe('en');
-    });
+      const state = usePreferencesStore.getState()
+      expect(state.settings.theme).toBe('dark')
+      expect(state.settings.language).toBe('en')
+    })
 
     it('should handle complete settings workflow', () => {
       const { setTheme, setLanguage, setNotifications, resetSettings } =
-        usePreferencesStore.getState();
+        usePreferencesStore.getState()
 
       // Change all settings
-      setTheme('dark');
-      setLanguage('en');
-      setNotifications({ enabled: false, email: true });
+      setTheme('dark')
+      setLanguage('en')
+      setNotifications({ enabled: false, email: true })
 
-      let state = usePreferencesStore.getState();
-      expect(state.settings.theme).toBe('dark');
-      expect(state.settings.language).toBe('en');
-      expect(state.settings.notifications.enabled).toBe(false);
-      expect(state.settings.notifications.email).toBe(true);
+      let state = usePreferencesStore.getState()
+      expect(state.settings.theme).toBe('dark')
+      expect(state.settings.language).toBe('en')
+      expect(state.settings.notifications.enabled).toBe(false)
+      expect(state.settings.notifications.email).toBe(true)
 
       // Reset
-      resetSettings();
+      resetSettings()
 
-      state = usePreferencesStore.getState();
-      expect(state.settings.theme).toBe('system');
-      expect(state.settings.language).toBe('zh');
-      expect(state.settings.notifications.enabled).toBe(true);
-      expect(state.settings.notifications.email).toBe(false);
-    });
+      state = usePreferencesStore.getState()
+      expect(state.settings.theme).toBe('system')
+      expect(state.settings.language).toBe('zh')
+      expect(state.settings.notifications.enabled).toBe(true)
+      expect(state.settings.notifications.email).toBe(false)
+    })
 
     it('should work with external API functions', () => {
-      setTheme('dark');
-      expect(getSettings().theme).toBe('dark');
+      setTheme('dark')
+      expect(getSettings().theme).toBe('dark')
 
-      setLanguage('en');
-      expect(getSettings().language).toBe('en');
+      setLanguage('en')
+      expect(getSettings().language).toBe('en')
 
-      toggleTheme();
-      expect(getSettings().theme).toBe('light');
-    });
-  });
+      toggleTheme()
+      expect(getSettings().theme).toBe('light')
+    })
+  })
 
   describe('edge cases', () => {
     it('should handle rapid theme changes', () => {
-      const { setTheme } = usePreferencesStore.getState();
+      const { setTheme } = usePreferencesStore.getState()
 
-      setTheme('light');
-      setTheme('dark');
-      setTheme('light');
-      setTheme('dark');
+      setTheme('light')
+      setTheme('dark')
+      setTheme('light')
+      setTheme('dark')
 
-      const state = usePreferencesStore.getState();
-      expect(state.settings.theme).toBe('dark');
-    });
+      const state = usePreferencesStore.getState()
+      expect(state.settings.theme).toBe('dark')
+    })
 
     it('should handle rapid language changes', () => {
-      const { setLanguage } = usePreferencesStore.getState();
+      const { setLanguage } = usePreferencesStore.getState()
 
-      setLanguage('en');
-      setLanguage('zh');
-      setLanguage('en');
-      setLanguage('zh');
+      setLanguage('en')
+      setLanguage('zh')
+      setLanguage('en')
+      setLanguage('zh')
 
-      const state = usePreferencesStore.getState();
-      expect(state.settings.language).toBe('zh');
-    });
+      const state = usePreferencesStore.getState()
+      expect(state.settings.language).toBe('zh')
+    })
 
     it('should handle setting same value multiple times', () => {
-      const { setTheme } = usePreferencesStore.getState();
+      const { setTheme } = usePreferencesStore.getState()
 
-      setTheme('dark');
-      setTheme('dark');
-      setTheme('dark');
+      setTheme('dark')
+      setTheme('dark')
+      setTheme('dark')
 
-      const state = usePreferencesStore.getState();
-      expect(state.settings.theme).toBe('dark');
-    });
+      const state = usePreferencesStore.getState()
+      expect(state.settings.theme).toBe('dark')
+    })
 
     it('should handle empty notifications update', () => {
-      const { setNotifications } = usePreferencesStore.getState();
+      const { setNotifications } = usePreferencesStore.getState()
 
-      setNotifications({});
+      setNotifications({})
 
-      const state = usePreferencesStore.getState();
+      const state = usePreferencesStore.getState()
       expect(state.settings.notifications).toEqual({
         enabled: true,
         sound: true,
         email: false,
         push: true,
-      });
-    });
-  });
-});
+      })
+    })
+  })
+})

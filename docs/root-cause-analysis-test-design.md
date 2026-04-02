@@ -37,55 +37,55 @@ v1.8.0 计划实现的根因分析自动化功能基于以下核心模块：
 
 #### 2.1.1 数据库异常场景
 
-| 场景 ID | 场景名称 | 注入方式 | 预期根因 |
-|---------|----------|----------|----------|
-| DB-001 | 查询超时 | 模拟慢查询 (>5s) | 数据库索引缺失或查询优化不足 |
-| DB-002 | 连接池耗尽 | 限制连接数 | 连接池配置不当或连接泄漏 |
-| DB-003 | 死锁 | 循环依赖锁 | 事务顺序不当或锁粒度过大 |
-| DB-004 | N+1 查询 | 批量查询拆分为单条 | ORM 查询模式问题 |
-| DB-005 | 大结果集 | 返回超过内存阈值的数据 | 分页缺失或 LIMIT 未设置 |
+| 场景 ID | 场景名称   | 注入方式               | 预期根因                     |
+| ------- | ---------- | ---------------------- | ---------------------------- |
+| DB-001  | 查询超时   | 模拟慢查询 (>5s)       | 数据库索引缺失或查询优化不足 |
+| DB-002  | 连接池耗尽 | 限制连接数             | 连接池配置不当或连接泄漏     |
+| DB-003  | 死锁       | 循环依赖锁             | 事务顺序不当或锁粒度过大     |
+| DB-004  | N+1 查询   | 批量查询拆分为单条     | ORM 查询模式问题             |
+| DB-005  | 大结果集   | 返回超过内存阈值的数据 | 分页缺失或 LIMIT 未设置      |
 
 #### 2.1.2 API 异常场景
 
-| 场景 ID | 场景名称 | 注入方式 | 预期根因 |
-|---------|----------|----------|----------|
-| API-001 | 请求超时 | 延迟响应 (>30s) | 外部服务响应慢或网络问题 |
-| API-002 | 503 服务不可用 | 返回 503 状态码 | 服务端资源不足或维护状态 |
-| API-003 | 429 限流 | 返回 429 + Retry-After | 客户端请求频率超限 |
-| API-004 | 401 认证失败 | 返回 401 状态码 | Token 过期或权限配置错误 |
-| API-005 | 响应体过大 | 返回 >10MB 响应 | 未实现分页或流式处理 |
+| 场景 ID | 场景名称       | 注入方式               | 预期根因                 |
+| ------- | -------------- | ---------------------- | ------------------------ |
+| API-001 | 请求超时       | 延迟响应 (>30s)        | 外部服务响应慢或网络问题 |
+| API-002 | 503 服务不可用 | 返回 503 状态码        | 服务端资源不足或维护状态 |
+| API-003 | 429 限流       | 返回 429 + Retry-After | 客户端请求频率超限       |
+| API-004 | 401 认证失败   | 返回 401 状态码        | Token 过期或权限配置错误 |
+| API-005 | 响应体过大     | 返回 >10MB 响应        | 未实现分页或流式处理     |
 
 #### 2.1.3 前端异常场景
 
-| 场景 ID | 场景名称 | 注入方式 | 预期根因 |
-|---------|----------|----------|----------|
-| FE-001 | React 组件崩溃 | 抛出未捕获异常 | 组件状态异常或 undefined 访问 |
-| FE-002 | 内存泄漏 | 累积未释放的引用 | 事件监听器未清理或闭包引用 |
-| FE-003 | 渲染阻塞 | 长任务 (>50ms) | 大数据渲染或计算密集型操作 |
-| FE-004 | LCP 超过阈值 | 延迟加载首屏资源 | 资源加载顺序不当 |
-| FE-005 | CLS 突变 | 动态插入 DOM 元素 | 图片/广告未指定尺寸 |
+| 场景 ID | 场景名称       | 注入方式          | 预期根因                      |
+| ------- | -------------- | ----------------- | ----------------------------- |
+| FE-001  | React 组件崩溃 | 抛出未捕获异常    | 组件状态异常或 undefined 访问 |
+| FE-002  | 内存泄漏       | 累积未释放的引用  | 事件监听器未清理或闭包引用    |
+| FE-003  | 渲染阻塞       | 长任务 (>50ms)    | 大数据渲染或计算密集型操作    |
+| FE-004  | LCP 超过阈值   | 延迟加载首屏资源  | 资源加载顺序不当              |
+| FE-005  | CLS 突变       | 动态插入 DOM 元素 | 图片/广告未指定尺寸           |
 
 ### 2.2 日志分析场景
 
 #### 2.2.1 日志模式识别
 
-| 场景 ID | 场景名称 | 测试目标 | 断言策略 |
-|---------|----------|----------|----------|
-| LOG-001 | 错误日志聚类 | 将相似错误日志归类 | 验证聚类结果包含正确模式 |
-| LOG-002 | 时序异常检测 | 识别时间序列中的异常点 | 验证异常点标记正确 |
-| LOG-003 | 日志根因追溯 | 从错误日志追溯到根因 | 验证根因推断链完整性 |
-| LOG-004 | 多源日志关联 | 关联不同服务的日志 | 验证关联正确性和覆盖率 |
-| LOG-005 | 日志模式学习 | 从历史日志学习正常模式 | 验证异常检测准确率 |
+| 场景 ID | 场景名称     | 测试目标               | 断言策略                 |
+| ------- | ------------ | ---------------------- | ------------------------ |
+| LOG-001 | 错误日志聚类 | 将相似错误日志归类     | 验证聚类结果包含正确模式 |
+| LOG-002 | 时序异常检测 | 识别时间序列中的异常点 | 验证异常点标记正确       |
+| LOG-003 | 日志根因追溯 | 从错误日志追溯到根因   | 验证根因推断链完整性     |
+| LOG-004 | 多源日志关联 | 关联不同服务的日志     | 验证关联正确性和覆盖率   |
+| LOG-005 | 日志模式学习 | 从历史日志学习正常模式 | 验证异常检测准确率       |
 
 ### 2.3 端到端根因分析场景
 
-| 场景 ID | 场景名称 | 涉及组件 | 预期输出 |
-|---------|----------|----------|----------|
-| E2E-001 | 用户请求慢 | TraceManager → RootCauseAnalyzer | 完整调用链 + 性能瓶颈分析 |
-| E2E-002 | API 调用失败 | API Tracker → CorrelationEngine | 失败原因 + 重试建议 |
-| E2E-003 | 数据库死锁 | DB Tracker → CausalityAnalyzer | 死锁图 + 解决方案 |
-| E2E-004 | 前端性能下降 | Rendering Tracker → Analyzer | 性能趋势 + 优化建议 |
-| E2E-005 | 分布式追踪 | TraceManager → CallChainTracer | 全链路拓扑 + 依赖分析 |
+| 场景 ID | 场景名称     | 涉及组件                         | 预期输出                  |
+| ------- | ------------ | -------------------------------- | ------------------------- |
+| E2E-001 | 用户请求慢   | TraceManager → RootCauseAnalyzer | 完整调用链 + 性能瓶颈分析 |
+| E2E-002 | API 调用失败 | API Tracker → CorrelationEngine  | 失败原因 + 重试建议       |
+| E2E-003 | 数据库死锁   | DB Tracker → CausalityAnalyzer   | 死锁图 + 解决方案         |
+| E2E-004 | 前端性能下降 | Rendering Tracker → Analyzer     | 性能趋势 + 优化建议       |
+| E2E-005 | 分布式追踪   | TraceManager → CallChainTracer   | 全链路拓扑 + 依赖分析     |
 
 ---
 
@@ -120,37 +120,34 @@ v1.8.0 计划实现的根因分析自动化功能基于以下核心模块：
 
 ```typescript
 // 数据完整性断言示例
-expect(traceData.spans).toBeDefined();
-expect(traceData.spans.size).toBeGreaterThan(0);
+expect(traceData.spans).toBeDefined()
+expect(traceData.spans.size).toBeGreaterThan(0)
 
 // 时序连续性
-const sortedSpans = Array.from(traceData.spans.values())
-  .sort((a, b) => a.startTime - b.startTime);
+const sortedSpans = Array.from(traceData.spans.values()).sort((a, b) => a.startTime - b.startTime)
 sortedSpans.forEach((span, idx) => {
   if (idx > 0) {
-    expect(span.startTime).toBeGreaterThanOrEqual(
-      sortedSpans[idx - 1].endTime
-    );
+    expect(span.startTime).toBeGreaterThanOrEqual(sortedSpans[idx - 1].endTime)
   }
-});
+})
 
 // 根因准确性断言
-const analysisResult = analyzer.analyze(traceData);
-expect(analysisResult.rootCauses).toContain('database-query-optimization');
-expect(analysisResult.confidence).toBeGreaterThan(0.7);
+const analysisResult = analyzer.analyze(traceData)
+expect(analysisResult.rootCauses).toContain('database-query-optimization')
+expect(analysisResult.confidence).toBeGreaterThan(0.7)
 
 // 性能断言
-const startTime = performance.now();
-analyzer.analyze(traceData);
-const duration = performance.now() - startTime;
-expect(duration).toBeLessThan(5000); // 5秒内完成
+const startTime = performance.now()
+analyzer.analyze(traceData)
+const duration = performance.now() - startTime
+expect(duration).toBeLessThan(5000) // 5秒内完成
 
 // 建议可行性断言
 analysisResult.recommendations.forEach(rec => {
-  expect(rec.action).toBeDefined();
-  expect(rec.priority).toMatch(/high|medium|low/);
-  expect(rec.estimatedImpact).toBeGreaterThan(0);
-});
+  expect(rec.action).toBeDefined()
+  expect(rec.priority).toMatch(/high|medium|low/)
+  expect(rec.estimatedImpact).toBeGreaterThan(0)
+})
 ```
 
 ### 3.3 断言辅助函数
@@ -158,22 +155,22 @@ analysisResult.recommendations.forEach(rec => {
 创建 `src/test/assertions/root-cause-assertions.ts` 断言库：
 
 ```typescript
-import { type CallChain, type AnalysisReport } from '@/lib/performance/root-cause-analysis/types';
+import { type CallChain, type AnalysisReport } from '@/lib/performance/root-cause-analysis/types'
 
 /**
  * 断言调用链的完整性
  */
 export function assertCallChainComplete(chain: CallChain): void {
-  expect(chain.id).toBeDefined();
-  expect(chain.root).toBeDefined();
-  expect(chain.nodes.size).toBeGreaterThan(0);
-  
+  expect(chain.id).toBeDefined()
+  expect(chain.root).toBeDefined()
+  expect(chain.nodes.size).toBeGreaterThan(0)
+
   // 验证父子关系
-  chain.nodes.forEach((node) => {
+  chain.nodes.forEach(node => {
     if (node.parent) {
-      expect(chain.nodes.has(node.parent)).toBe(true);
+      expect(chain.nodes.has(node.parent)).toBe(true)
     }
-  });
+  })
 }
 
 /**
@@ -181,31 +178,31 @@ export function assertCallChainComplete(chain: CallChain): void {
  */
 export function assertAnalysisQuality(report: AnalysisReport): void {
   // 根因数量合理
-  expect(report.rootCauses.length).toBeLessThanOrEqual(10);
-  
+  expect(report.rootCauses.length).toBeLessThanOrEqual(10)
+
   // 每个根因有置信度
-  report.rootCauses.forEach((cause) => {
-    expect(cause.confidence).toBeGreaterThanOrEqual(0);
-    expect(cause.confidence).toBeLessThanOrEqual(1);
-  });
-  
+  report.rootCauses.forEach(cause => {
+    expect(cause.confidence).toBeGreaterThanOrEqual(0)
+    expect(cause.confidence).toBeLessThanOrEqual(1)
+  })
+
   // 建议可执行
-  report.recommendations.forEach((rec) => {
-    expect(rec.action).toBeDefined();
-    expect(rec.action.type).toMatch(/optimization|configuration|refactor/);
-  });
+  report.recommendations.forEach(rec => {
+    expect(rec.action).toBeDefined()
+    expect(rec.action.type).toMatch(/optimization|configuration|refactor/)
+  })
 }
 
 /**
  * 断言时序正确性
  */
 export function assertTemporalOrder(chain: CallChain): void {
-  const nodes = Array.from(chain.nodes.values());
-  nodes.forEach((node) => {
+  const nodes = Array.from(chain.nodes.values())
+  nodes.forEach(node => {
     if (node.startTime && node.endTime) {
-      expect(node.endTime).toBeGreaterThanOrEqual(node.startTime);
+      expect(node.endTime).toBeGreaterThanOrEqual(node.startTime)
     }
-  });
+  })
 }
 ```
 
@@ -230,24 +227,18 @@ src/test/
 
 ```typescript
 // src/test/mocks/root-cause/trace-mock.ts
-import type { CallChain, CallNode, CallNodeType } from '@/lib/performance/root-cause-analysis/types';
+import type { CallChain, CallNode, CallNodeType } from '@/lib/performance/root-cause-analysis/types'
 
 export interface TraceMockOptions {
-  depth?: number;
-  breadth?: number;
-  errorRate?: number;
-  slowCalls?: number;
-  includeNested?: boolean;
+  depth?: number
+  breadth?: number
+  errorRate?: number
+  slowCalls?: number
+  includeNested?: boolean
 }
 
 export function generateMockTrace(options: TraceMockOptions = {}): CallChain {
-  const {
-    depth = 3,
-    breadth = 3,
-    errorRate = 0.1,
-    slowCalls = 1,
-    includeNested = true,
-  } = options;
+  const { depth = 3, breadth = 3, errorRate = 0.1, slowCalls = 1, includeNested = true } = options
 
   const chain: CallChain = {
     id: `trace-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
@@ -257,33 +248,33 @@ export function generateMockTrace(options: TraceMockOptions = {}): CallChain {
     endedAt: Date.now(),
     status: errorRate > Math.random() ? 'error' : 'success',
     parentSpanId: null,
-  };
+  }
 
   // 构建调用树
-  buildCallTree(chain.root, chain.nodes, depth, breadth, 0);
-  
+  buildCallTree(chain.root, chain.nodes, depth, breadth, 0)
+
   // 标记错误节点
   if (chain.status === 'error') {
-    const nodes = Array.from(chain.nodes.values());
-    const errorNode = nodes[Math.floor(Math.random() * nodes.length)];
-    errorNode.status = 'error';
+    const nodes = Array.from(chain.nodes.values())
+    const errorNode = nodes[Math.floor(Math.random() * nodes.length)]
+    errorNode.status = 'error'
     errorNode.error = {
       name: 'DatabaseError',
       message: 'Connection timeout after 5000ms',
       stack: 'Error: Connection timeout...',
-    };
+    }
   }
 
   // 标记慢调用
-  let slowCount = 0;
-  chain.nodes.forEach((node) => {
+  let slowCount = 0
+  chain.nodes.forEach(node => {
     if (slowCount < slowCalls && Math.random() > 0.7) {
-      node.duration = 5000 + Math.random() * 10000;
-      slowCount++;
+      node.duration = 5000 + Math.random() * 10000
+      slowCount++
     }
-  });
+  })
 
-  return chain;
+  return chain
 }
 
 function createMockNode(name: string, type: CallNodeType, level: number): CallNode {
@@ -299,7 +290,7 @@ function createMockNode(name: string, type: CallNodeType, level: number): CallNo
     children: [],
     metadata: {},
     metrics: {},
-  };
+  }
 }
 
 function buildCallTree(
@@ -309,23 +300,23 @@ function buildCallTree(
   breadth: number,
   currentDepth: number
 ): void {
-  if (currentDepth >= maxDepth) return;
+  if (currentDepth >= maxDepth) return
 
-  const childCount = Math.floor(Math.random() * breadth) + 1;
-  const nodeTypes: CallNodeType[] = ['database', 'api', 'cache', 'function'];
+  const childCount = Math.floor(Math.random() * breadth) + 1
+  const nodeTypes: CallNodeType[] = ['database', 'api', 'cache', 'function']
 
   for (let i = 0; i < childCount; i++) {
     const node = createMockNode(
       `${parent.name}-child-${i}`,
       nodeTypes[currentDepth % nodeTypes.length],
       currentDepth + 1
-    );
-    node.parent = parent.id;
-    parent.children.push(node.id);
-    nodes.set(node.id, node);
+    )
+    node.parent = parent.id
+    parent.children.push(node.id)
+    nodes.set(node.id, node)
 
     if (currentDepth < maxDepth - 1) {
-      buildCallTree(node, nodes, maxDepth, breadth, currentDepth + 1);
+      buildCallTree(node, nodes, maxDepth, breadth, currentDepth + 1)
     }
   }
 }
@@ -336,29 +327,29 @@ function buildCallTree(
 ```typescript
 // src/test/mocks/root-cause/log-mock.ts
 export interface LogEntry {
-  timestamp: number;
-  level: 'debug' | 'info' | 'warn' | 'error';
-  message: string;
-  service: string;
-  traceId?: string;
-  metadata?: Record<string, unknown>;
+  timestamp: number
+  level: 'debug' | 'info' | 'warn' | 'error'
+  message: string
+  service: string
+  traceId?: string
+  metadata?: Record<string, unknown>
 }
 
 export function generateMockLogs(options: {
-  count?: number;
-  errorRate?: number;
-  timeRange?: number;
-  services?: string[];
+  count?: number
+  errorRate?: number
+  timeRange?: number
+  services?: string[]
 }): LogEntry[] {
   const {
     count = 100,
     errorRate = 0.1,
     timeRange = 60000, // 1 minute
     services = ['api-gateway', 'user-service', 'database'],
-  } = options;
+  } = options
 
-  const logs: LogEntry[] = [];
-  const baseTime = Date.now() - timeRange;
+  const logs: LogEntry[] = []
+  const baseTime = Date.now() - timeRange
 
   const errorPatterns = [
     'Connection timeout',
@@ -366,18 +357,18 @@ export function generateMockLogs(options: {
     'NullPointerException',
     'Database locked',
     'Request failed with status 500',
-  ];
+  ]
 
   const infoPatterns = [
     'Request processed successfully',
     'User authenticated',
     'Cache hit',
     'Database query completed',
-  ];
+  ]
 
   for (let i = 0; i < count; i++) {
-    const isError = Math.random() < errorRate;
-    const timeOffset = Math.random() * timeRange;
+    const isError = Math.random() < errorRate
+    const timeOffset = Math.random() * timeRange
 
     logs.push({
       timestamp: baseTime + timeOffset,
@@ -388,10 +379,10 @@ export function generateMockLogs(options: {
       service: services[Math.floor(Math.random() * services.length)],
       traceId: `trace-${Math.random().toString(36).substr(2, 9)}`,
       metadata: isError ? { stack: 'Error stack trace...' } : undefined,
-    });
+    })
   }
 
-  return logs.sort((a, b) => a.timestamp - b.timestamp);
+  return logs.sort((a, b) => a.timestamp - b.timestamp)
 }
 ```
 
@@ -399,9 +390,13 @@ export function generateMockLogs(options: {
 
 ```typescript
 // src/test/mocks/root-cause/anomaly-mock.ts
-import type { AnalysisReport, RootCause, PerformanceAnomaly } from '@/lib/performance/root-cause-analysis/types';
+import type {
+  AnalysisReport,
+  RootCause,
+  PerformanceAnomaly,
+} from '@/lib/performance/root-cause-analysis/types'
 
-export type AnomalyType = 
+export type AnomalyType =
   | 'slow-query'
   | 'connection-pool-exhaustion'
   | 'deadlock'
@@ -409,14 +404,14 @@ export type AnomalyType =
   | 'memory-leak'
   | 'api-timeout'
   | 'rate-limit'
-  | 'render-blocking';
+  | 'render-blocking'
 
 export interface AnomalyScenario {
-  type: AnomalyType;
-  name: string;
-  description: string;
-  generateTrace: () => ReturnType<typeof import('./trace-mock').generateMockTrace>;
-  expectedRootCauses: string[];
+  type: AnomalyType
+  name: string
+  description: string
+  generateTrace: () => ReturnType<typeof import('./trace-mock').generateMockTrace>
+  expectedRootCauses: string[]
 }
 
 export const anomalyScenarios: Record<AnomalyType, AnomalyScenario> = {
@@ -435,7 +430,7 @@ export const anomalyScenarios: Record<AnomalyType, AnomalyScenario> = {
     expectedRootCauses: ['pool-size-too-small', 'connection-leak', 'long-running-query'],
   },
   // ... 其他异常场景
-};
+}
 
 function generateSlowQueryTrace() {
   // 实现：生成包含慢查询的调用链
@@ -482,12 +477,12 @@ src/lib/performance/root-cause-analysis/
 
 ### 5.2 测试分类
 
-| 测试类型 | 文件后缀 | 目的 | 运行频率 |
-|----------|----------|------|----------|
-| 单元测试 | `.test.ts` | 验证单个模块功能 | 每次提交 |
-| 集成测试 | `.integration.test.ts` | 验证模块间协作 | 每次 PR |
-| 端到端测试 | `.e2e.test.ts` | 验证完整业务流程 | 每日构建 |
-| 性能测试 | `.performance.test.ts` | 验证性能指标 | 每周构建 |
+| 测试类型   | 文件后缀               | 目的             | 运行频率 |
+| ---------- | ---------------------- | ---------------- | -------- |
+| 单元测试   | `.test.ts`             | 验证单个模块功能 | 每次提交 |
+| 集成测试   | `.integration.test.ts` | 验证模块间协作   | 每次 PR  |
+| 端到端测试 | `.e2e.test.ts`         | 验证完整业务流程 | 每日构建 |
+| 性能测试   | `.performance.test.ts` | 验证性能指标     | 每周构建 |
 
 ---
 
@@ -521,16 +516,16 @@ root-cause-analysis:
   runs-on: ubuntu-latest
   steps:
     - uses: actions/checkout@v4
-    
+
     - name: Run Root Cause Analysis Tests
       run: npm test -- --grep "root-cause" --coverage
-    
+
     - name: Upload Coverage Report
       uses: codecov/codecov-action@v3
       with:
         files: ./coverage/lcov.info
         flags: root-cause-analysis
-    
+
     - name: Generate Test Report
       if: always()
       run: |

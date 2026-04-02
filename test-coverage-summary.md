@@ -1,5 +1,7 @@
 # 测试覆盖率改进报告
+
 ## 项目信息
+
 - 项目路径: /root/.openclaw/workspace/7zi-project
 - 总源文件数 (TS/TSX): 594
 - 现有测试文件数: 需统计
@@ -8,6 +10,7 @@
 ## 测试执行状态
 
 ### 测试结果总结
+
 测试套件已运行完成，发现以下问题：
 
 #### 主要问题类别：
@@ -37,6 +40,7 @@
 基于测试执行结果，识别以下覆盖盲区：
 
 ### 1. 关键业务逻辑
+
 - [ ] 用户限流中间件 (user-rate-limit) - 部分失败
 - [ ] API 性能监控 (api-performance) - 18/19 失败
 - [ ] WebSocket 协作 (websocket/collaboration) - 17/35 失败
@@ -44,6 +48,7 @@
 - [ ] 数据库索引优化 (db/v3-migration) - 部分失败
 
 ### 2. 组件层面
+
 - [ ] 主题切换 (ThemeToggle) - 4/5 失败
 - [ ] 联系表单 (ContactForm) - Act 包装问题
 - [ ] 评分系统 (RatingList) - 11/16 失败
@@ -51,12 +56,14 @@
 - [ ] 分析仪表盘 (AnalyticsDashboard) - 9/18 失败
 
 ### 3. 功能模块
+
 - [ ] 多模态图像 API (multimodal/image) - 导入路径错误
 - [ ] 批量用户 API (users/batch) - 数据库连接问题
 - [ ] 健康检查 API (health) - 10/13 失败
 - [ ] 搜索过滤增强 (search-filter-enhanced) - 4/42 失败
 
 ### 4. 工具函数
+
 - [ ] 异步工具 (utils/async) - 2/19 失败
 - [ ] 撤销管理 (undo-redo/manager) - 7/22 失败
 - [ ] 下载工具 (utils/download) - 2/10 失败
@@ -66,13 +73,16 @@
 ## 测试覆盖率估算
 
 ### 当前状态
+
 根据测试输出，粗略估算：
+
 - **总测试数**: ~2219 个
 - **通过测试数**: ~1600 个 (约 72%)
 - **失败测试数**: ~619 个 (约 28%)
 - **跳过测试数**: 16 个
 
 ### 代码覆盖率 (估算)
+
 - 由于未生成覆盖率报告，无法精确计算
 - 估算当前覆盖率: **40-50%**
 - 目标覆盖率: **> 80%**
@@ -80,6 +90,7 @@
 ## 改进建议
 
 ### 优先级 1: 修复现有测试
+
 1. **修复导入路径问题**
    - 将 @/ 前缀替换为相对路径
    - 更新测试文件导入
@@ -97,6 +108,7 @@
    - 优化慢速测试
 
 ### 优先级 2: 添加缺失测试
+
 1. **关键组件渲染测试**
    - 为未测试的组件添加基础渲染测试
    - 使用 React Testing Library
@@ -110,6 +122,7 @@
    - 覆盖边界情况
 
 ### 优先级 3: 提升测试质量
+
 1. **添加覆盖率报告**
    - 配置 c8 或 istanbul
    - 自动生成报告
@@ -133,13 +146,15 @@
 ## 需要修复的关键文件
 
 ### 测试文件需要修复
-1. src/app/api/multimodal/image/__tests__/route.test.ts
-2. src/lib/middleware/__tests__/user-rate-limit.test.ts
+
+1. src/app/api/multimodal/image/**tests**/route.test.ts
+2. src/lib/middleware/**tests**/user-rate-limit.test.ts
 3. src/components/ContactForm.test.tsx
-4. src/components/rating/__tests__/RatingList.test.tsx
+4. src/components/rating/**tests**/RatingList.test.tsx
 5. src/test/components/ErrorDisplay.test.tsx
 
 ### 需要添加测试的源文件
+
 1. 核心业务逻辑组件
 2. API 路由处理
 3. 数据库操作函数

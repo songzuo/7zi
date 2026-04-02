@@ -1,6 +1,6 @@
 /**
  * Performance Monitoring Types
- * 
+ *
  * Types for performance metrics tracking and alerts
  */
 
@@ -10,19 +10,19 @@
 
 export interface PerformanceMetrics {
   // API Response Time (ms)
-  apiResponseTime: number;
+  apiResponseTime: number
 
   // Page Load Time (ms)
-  pageLoadTime: number;
+  pageLoadTime: number
 
   // Error Rate (percentage, 0-100)
-  errorRate: number;
+  errorRate: number
 
   // Active Users Count
-  activeUsers: number;
+  activeUsers: number
 
   // Timestamp of the measurement
-  timestamp: number;
+  timestamp: number
 }
 
 // ============================================================================
@@ -30,8 +30,8 @@ export interface PerformanceMetrics {
 // ============================================================================
 
 export interface MetricsHistory {
-  data: PerformanceMetrics[];
-  timeframe: '1h' | '6h' | '24h' | '7d';
+  data: PerformanceMetrics[]
+  timeframe: '1h' | '6h' | '24h' | '7d'
 }
 
 // ============================================================================
@@ -40,27 +40,27 @@ export interface MetricsHistory {
 
 export interface AlertThreshold {
   // Metric name
-  metric: keyof PerformanceMetrics;
+  metric: keyof PerformanceMetrics
 
   // Warning threshold
-  warningThreshold: number;
+  warningThreshold: number
 
   // Critical threshold
-  criticalThreshold: number;
+  criticalThreshold: number
 
   // Alert enabled
-  enabled: boolean;
+  enabled: boolean
 }
 
 export interface PerformanceAlert {
-  id: string;
-  metric: keyof PerformanceMetrics;
-  severity: 'warning' | 'critical';
-  value: number;
-  threshold: number;
-  message: string;
-  timestamp: number;
-  acknowledged: boolean;
+  id: string
+  metric: keyof PerformanceMetrics
+  severity: 'warning' | 'critical'
+  value: number
+  threshold: number
+  message: string
+  timestamp: number
+  acknowledged: boolean
 }
 
 // ============================================================================
@@ -68,12 +68,12 @@ export interface PerformanceAlert {
 // ============================================================================
 
 export interface PerformanceDashboardState {
-  currentMetrics: PerformanceMetrics | null;
-  history: PerformanceMetrics[];
-  alerts: PerformanceAlert[];
-  isLoading: boolean;
-  error: string | null;
-  lastUpdated: number | null;
+  currentMetrics: PerformanceMetrics | null
+  history: PerformanceMetrics[]
+  alerts: PerformanceAlert[]
+  isLoading: boolean
+  error: string | null
+  lastUpdated: number | null
 }
 
 // ============================================================================
@@ -81,15 +81,15 @@ export interface PerformanceDashboardState {
 // ============================================================================
 
 export interface MetricsApiResponse {
-  success: boolean;
-  data: PerformanceMetrics;
-  alerts?: PerformanceAlert[];
-  timestamp: number;
+  success: boolean
+  data: PerformanceMetrics
+  alerts?: PerformanceAlert[]
+  timestamp: number
 }
 
 export interface MetricsHistoryResponse {
-  success: boolean;
-  data: PerformanceMetrics[];
-  timeframe: string;
-  timestamp: number;
+  success: boolean
+  data: PerformanceMetrics[]
+  timeframe: string
+  timestamp: number
 }

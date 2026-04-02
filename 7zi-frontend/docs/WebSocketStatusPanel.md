@@ -20,15 +20,16 @@ Real-time WebSocket connection monitoring component for React 18 applications.
 Full-featured status panel with detailed information.
 
 ```tsx
-import { WebSocketStatusPanel } from '@/components/websocket';
-import { WebSocketManager } from '@/lib/websocket-manager';
+import { WebSocketStatusPanel } from '@/components/websocket'
+import { WebSocketManager } from '@/lib/websocket-manager'
 
-const wsManager = new WebSocketManager({ url: 'ws://...' });
+const wsManager = new WebSocketManager({ url: 'ws://...' })
 
-<WebSocketStatusPanel wsManager={wsManager} showDetails={true} />
+;<WebSocketStatusPanel wsManager={wsManager} showDetails={true} />
 ```
 
 **Props:**
+
 - `wsManager: WebSocketManager` - WebSocket manager instance
 - `showDetails?: boolean` - Show/hide detailed stats (default: true)
 - `className?: string` - Additional CSS classes
@@ -38,12 +39,12 @@ const wsManager = new WebSocketManager({ url: 'ws://...' });
 Minimal status indicator for header/toolbar.
 
 ```tsx
-import { WebSocketStatusBadge } from '@/components/websocket';
-
-<WebSocketStatusBadge wsManager={wsManager} />
+import { WebSocketStatusBadge } from '@/components/websocket'
+;<WebSocketStatusBadge wsManager={wsManager} />
 ```
 
 **Props:**
+
 - `wsManager: WebSocketManager` - WebSocket manager instance
 - `className?: string` - Additional CSS classes
 
@@ -52,19 +53,11 @@ import { WebSocketStatusBadge } from '@/components/websocket';
 React hook for programmatic access to WebSocket status.
 
 ```tsx
-import { useWebSocketStatus } from '@/hooks';
+import { useWebSocketStatus } from '@/hooks'
 
 function MyComponent() {
-  const {
-    state,
-    isConnected,
-    isReconnecting,
-    stats,
-    queueSize,
-    connect,
-    disconnect,
-    resetStats,
-  } = useWebSocketStatus(wsManager);
+  const { state, isConnected, isReconnecting, stats, queueSize, connect, disconnect, resetStats } =
+    useWebSocketStatus(wsManager)
 
   return (
     <div>
@@ -73,11 +66,12 @@ function MyComponent() {
       <p>Messages Sent: {stats.messagesSent}</p>
       <p>Latency: {stats.currentPingLatency}ms</p>
     </div>
-  );
+  )
 }
 ```
 
 **Return Values:**
+
 - `state: ConnectionState` - Current connection state
 - `isConnected: boolean` - Whether connected
 - `isConnecting: boolean` - Whether connecting
@@ -95,7 +89,7 @@ function MyComponent() {
 Automatically creates and manages WebSocketManager.
 
 ```tsx
-import { useWebSocketStatusAuto } from '@/hooks';
+import { useWebSocketStatusAuto } from '@/hooks'
 
 function MyComponent() {
   const { isConnected, stats } = useWebSocketStatusAuto('ws://...', {
@@ -105,7 +99,7 @@ function MyComponent() {
       autoConnect: true,
       heartbeatInterval: 25000,
     },
-  });
+  })
 
   // Component automatically connects on mount
   // and disconnects on unmount
@@ -113,6 +107,7 @@ function MyComponent() {
 ```
 
 **Parameters:**
+
 - `socketUrl: string` - WebSocket server URL
 - `options: UseWebSocketStatusOptions & { managerOptions?: any }` - Configuration
 
@@ -120,11 +115,11 @@ function MyComponent() {
 
 ```typescript
 enum ConnectionState {
-  DISCONNECTED = 'disconnected',  // Not connected
-  CONNECTING = 'connecting',      // Attempting to connect
-  CONNECTED = 'connected',        // Successfully connected
-  RECONNECTING = 'reconnecting',  // Attempting to reconnect
-  ERROR = 'error',                // Connection error
+  DISCONNECTED = 'disconnected', // Not connected
+  CONNECTING = 'connecting', // Attempting to connect
+  CONNECTED = 'connected', // Successfully connected
+  RECONNECTING = 'reconnecting', // Attempting to reconnect
+  ERROR = 'error', // Connection error
 }
 ```
 
@@ -132,13 +127,13 @@ enum ConnectionState {
 
 ```typescript
 interface ConnectionStats {
-  messagesSent: number;        // Total messages sent
-  messagesReceived: number;    // Total messages received
-  totalReconnections: number;   // Total reconnection attempts
-  lastActiveTime: number;      // Timestamp of last activity
-  lastPingTime: number;        // Timestamp of last ping
-  currentPingLatency: number;  // Current round-trip time (ms)
-  averagePingLatency: number;  // Average round-trip time (ms)
+  messagesSent: number // Total messages sent
+  messagesReceived: number // Total messages received
+  totalReconnections: number // Total reconnection attempts
+  lastActiveTime: number // Timestamp of last activity
+  lastPingTime: number // Timestamp of last ping
+  currentPingLatency: number // Current round-trip time (ms)
+  averagePingLatency: number // Average round-trip time (ms)
 }
 ```
 
@@ -147,7 +142,7 @@ interface ConnectionStats {
 ### Dashboard Integration
 
 ```tsx
-import { WebSocketStatusPanel } from '@/components/websocket';
+import { WebSocketStatusPanel } from '@/components/websocket'
 
 function Dashboard() {
   return (
@@ -155,39 +150,39 @@ function Dashboard() {
       <WebSocketStatusPanel wsManager={wsManager} />
       {/* Other dashboard content */}
     </div>
-  );
+  )
 }
 ```
 
 ### Header Integration (Badge)
 
 ```tsx
-import { WebSocketStatusBadge } from '@/components/websocket';
+import { WebSocketStatusBadge } from '@/components/websocket'
 
 function Header() {
   return (
-    <header className="flex items-center gap-4 p-4 bg-white shadow">
+    <header className="flex items-center gap-4 bg-white p-4 shadow">
       <h1>My App</h1>
       <div className="ml-auto">
         <WebSocketStatusBadge wsManager={wsManager} />
       </div>
     </header>
-  );
+  )
 }
 ```
 
 ### Custom Status Display
 
 ```tsx
-import { useWebSocketStatus } from '@/hooks';
+import { useWebSocketStatus } from '@/hooks'
 
 function CustomStatus() {
-  const { state, isConnected, stats } = useWebSocketStatus(wsManager);
+  const { state, isConnected, stats } = useWebSocketStatus(wsManager)
 
   return (
-    <div className={`p-4 rounded ${isConnected ? 'bg-green-100' : 'bg-red-100'}`}>
+    <div className={`rounded p-4 ${isConnected ? 'bg-green-100' : 'bg-red-100'}`}>
       <div className="flex items-center gap-2">
-        <div className={`w-3 h-3 rounded-full ${isConnected ? 'bg-green-500' : 'bg-red-500'}`} />
+        <div className={`h-3 w-3 rounded-full ${isConnected ? 'bg-green-500' : 'bg-red-500'}`} />
         <span className="font-medium">{state}</span>
       </div>
       <div className="mt-2 text-sm text-gray-600">
@@ -196,18 +191,18 @@ function CustomStatus() {
         <div>Latency: {stats.currentPingLatency}ms</div>
       </div>
     </div>
-  );
+  )
 }
 ```
 
 ### Multiple WebSocket Connections
 
 ```tsx
-import { WebSocketStatusBadge } from '@/components/websocket';
+import { WebSocketStatusBadge } from '@/components/websocket'
 
 function MultiConnectionMonitor() {
-  const primaryWs = useMemo(() => new WebSocketManager({ url: 'ws://primary...' }), []);
-  const secondaryWs = useMemo(() => new WebSocketManager({ url: 'ws://secondary...' }), []);
+  const primaryWs = useMemo(() => new WebSocketManager({ url: 'ws://primary...' }), [])
+  const secondaryWs = useMemo(() => new WebSocketManager({ url: 'ws://secondary...' }), [])
 
   return (
     <div className="flex gap-4">
@@ -220,7 +215,7 @@ function MultiConnectionMonitor() {
         <WebSocketStatusBadge wsManager={secondaryWs} />
       </div>
     </div>
-  );
+  )
 }
 ```
 
@@ -242,10 +237,7 @@ The component uses Tailwind CSS classes. You can customize appearance by:
 Example:
 
 ```tsx
-<WebSocketStatusPanel
-  wsManager={wsManager}
-  className="w-full max-w-2xl shadow-lg"
-/>
+<WebSocketStatusPanel wsManager={wsManager} className="w-full max-w-2xl shadow-lg" />
 ```
 
 ## Demo Page

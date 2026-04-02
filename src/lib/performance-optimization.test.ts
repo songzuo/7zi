@@ -4,7 +4,7 @@
  * Performance Optimization Module
  */
 
-import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
+import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest'
 import {
   preloadCriticalResources,
   preconnectToDomains,
@@ -15,7 +15,7 @@ import {
   cancelIdleTask,
   performanceMark,
   performanceMeasure,
-} from './performance-optimization';
+} from './performance-optimization'
 
 describe('performance-optimization.ts', () => {
   beforeEach(() => {
@@ -31,11 +31,11 @@ describe('performance-optimization.ts', () => {
         },
         querySelector: vi.fn(),
         querySelectorAll: vi.fn(() => []),
-      } as unknown as Document;
+      } as unknown as Document
     }
 
     if (typeof window === 'undefined') {
-      global.window = {} as Window;
+      global.window = {} as Window
     }
 
     // Mock performance if not available
@@ -45,15 +45,15 @@ describe('performance-optimization.ts', () => {
         mark: vi.fn(),
         measure: vi.fn(),
         getEntriesByName: vi.fn(() => []),
-      } as unknown as Performance;
+      } as unknown as Performance
     }
 
-    vi.clearAllMocks();
-  });
+    vi.clearAllMocks()
+  })
 
   afterEach(() => {
-    vi.clearAllMocks();
-  });
+    vi.clearAllMocks()
+  })
 
   describe('preloadCriticalResources', () => {
     it('should handle the function gracefully', () => {
@@ -61,461 +61,461 @@ describe('performance-optimization.ts', () => {
       expect(() => {
         preloadCriticalResources({
           images: ['/test.jpg'],
-        });
-      }).not.toThrow();
-    });
+        })
+      }).not.toThrow()
+    })
 
     it('should preload images', () => {
-      const createElementSpy = vi.spyOn(document, 'createElement');
-      const appendChildSpy = vi.spyOn(document.head, 'appendChild');
-      const querySelectorSpy = vi.spyOn(document, 'querySelector').mockReturnValue(null);
+      const createElementSpy = vi.spyOn(document, 'createElement')
+      const appendChildSpy = vi.spyOn(document.head, 'appendChild')
+      const querySelectorSpy = vi.spyOn(document, 'querySelector').mockReturnValue(null)
 
       preloadCriticalResources({
         images: ['/test1.jpg', '/test2.png'],
-      });
+      })
 
-      expect(createElementSpy).toHaveBeenCalled();
-      expect(appendChildSpy).toHaveBeenCalled();
-      expect(querySelectorSpy).toHaveBeenCalled();
-    });
+      expect(createElementSpy).toHaveBeenCalled()
+      expect(appendChildSpy).toHaveBeenCalled()
+      expect(querySelectorSpy).toHaveBeenCalled()
+    })
 
     it('should preload fonts', () => {
-      const createElementSpy = vi.spyOn(document, 'createElement');
-      const appendChildSpy = vi.spyOn(document.head, 'appendChild');
-      const querySelectorSpy = vi.spyOn(document, 'querySelector').mockReturnValue(null);
+      const createElementSpy = vi.spyOn(document, 'createElement')
+      const appendChildSpy = vi.spyOn(document.head, 'appendChild')
+      const querySelectorSpy = vi.spyOn(document, 'querySelector').mockReturnValue(null)
 
       preloadCriticalResources({
         fonts: ['/font1.woff2', '/font2.woff2'],
-      });
+      })
 
-      expect(createElementSpy).toHaveBeenCalled();
-      expect(appendChildSpy).toHaveBeenCalled();
-    });
+      expect(createElementSpy).toHaveBeenCalled()
+      expect(appendChildSpy).toHaveBeenCalled()
+    })
 
     it('should preload stylesheets', () => {
-      const createElementSpy = vi.spyOn(document, 'createElement');
-      const appendChildSpy = vi.spyOn(document.head, 'appendChild');
-      const querySelectorSpy = vi.spyOn(document, 'querySelector').mockReturnValue(null);
+      const createElementSpy = vi.spyOn(document, 'createElement')
+      const appendChildSpy = vi.spyOn(document.head, 'appendChild')
+      const querySelectorSpy = vi.spyOn(document, 'querySelector').mockReturnValue(null)
 
       preloadCriticalResources({
         stylesheets: ['/style1.css', '/style2.css'],
-      });
+      })
 
-      expect(createElementSpy).toHaveBeenCalled();
-      expect(appendChildSpy).toHaveBeenCalled();
-    });
+      expect(createElementSpy).toHaveBeenCalled()
+      expect(appendChildSpy).toHaveBeenCalled()
+    })
 
     it('should preload scripts', () => {
-      const createElementSpy = vi.spyOn(document, 'createElement');
-      const appendChildSpy = vi.spyOn(document.head, 'appendChild');
-      const querySelectorSpy = vi.spyOn(document, 'querySelector').mockReturnValue(null);
+      const createElementSpy = vi.spyOn(document, 'createElement')
+      const appendChildSpy = vi.spyOn(document.head, 'appendChild')
+      const querySelectorSpy = vi.spyOn(document, 'querySelector').mockReturnValue(null)
 
       preloadCriticalResources({
         scripts: ['/script1.js', '/script2.js'],
-      });
+      })
 
-      expect(createElementSpy).toHaveBeenCalled();
-      expect(appendChildSpy).toHaveBeenCalled();
-    });
+      expect(createElementSpy).toHaveBeenCalled()
+      expect(appendChildSpy).toHaveBeenCalled()
+    })
 
     it('should not duplicate preloaded resources', () => {
-      const createElementSpy = vi.spyOn(document, 'createElement');
-      const appendChildSpy = vi.spyOn(document.head, 'appendChild');
-      const querySelectorSpy = vi.spyOn(document, 'querySelector').mockReturnValue({} as any);
+      const createElementSpy = vi.spyOn(document, 'createElement')
+      const appendChildSpy = vi.spyOn(document.head, 'appendChild')
+      const querySelectorSpy = vi.spyOn(document, 'querySelector').mockReturnValue({} as any)
 
       preloadCriticalResources({
         images: ['/test.jpg'],
-      });
+      })
 
       // Should not append if resource already exists
-      expect(appendChildSpy).not.toHaveBeenCalled();
-    });
+      expect(appendChildSpy).not.toHaveBeenCalled()
+    })
 
     it('should handle empty resources', () => {
-      const appendChildSpy = vi.spyOn(document.head, 'appendChild');
+      const appendChildSpy = vi.spyOn(document.head, 'appendChild')
 
       expect(() => {
-        preloadCriticalResources({});
-      }).not.toThrow();
-    });
-  });
+        preloadCriticalResources({})
+      }).not.toThrow()
+    })
+  })
 
   describe('preconnectToDomains', () => {
     it('should handle the function gracefully', () => {
       // Just verify it doesn't crash
       expect(() => {
-        preconnectToDomains(['https://example.com']);
-      }).not.toThrow();
-    });
+        preconnectToDomains(['https://example.com'])
+      }).not.toThrow()
+    })
 
     it('should preconnect to domains', () => {
-      const createElementSpy = vi.spyOn(document, 'createElement');
-      const appendChildSpy = vi.spyOn(document.head, 'appendChild');
+      const createElementSpy = vi.spyOn(document, 'createElement')
+      const appendChildSpy = vi.spyOn(document.head, 'appendChild')
 
-      preconnectToDomains(['https://example.com', 'https://cdn.example.com']);
+      preconnectToDomains(['https://example.com', 'https://cdn.example.com'])
 
-      expect(createElementSpy).toHaveBeenCalled();
-      expect(appendChildSpy).toHaveBeenCalled();
-    });
+      expect(createElementSpy).toHaveBeenCalled()
+      expect(appendChildSpy).toHaveBeenCalled()
+    })
 
     it('should handle empty domains list', () => {
-      const appendChildSpy = vi.spyOn(document.head, 'appendChild');
+      const appendChildSpy = vi.spyOn(document.head, 'appendChild')
 
       expect(() => {
-        preconnectToDomains([]);
-      }).not.toThrow();
-    });
+        preconnectToDomains([])
+      }).not.toThrow()
+    })
 
     it('should handle single domain', () => {
-      const createElementSpy = vi.spyOn(document, 'createElement');
-      const appendChildSpy = vi.spyOn(document.head, 'appendChild');
+      const createElementSpy = vi.spyOn(document, 'createElement')
+      const appendChildSpy = vi.spyOn(document.head, 'appendChild')
 
-      preconnectToDomains(['https://example.com']);
+      preconnectToDomains(['https://example.com'])
 
-      expect(createElementSpy).toHaveBeenCalled();
-      expect(appendChildSpy).toHaveBeenCalled();
-    });
-  });
+      expect(createElementSpy).toHaveBeenCalled()
+      expect(appendChildSpy).toHaveBeenCalled()
+    })
+  })
 
   describe('removeUnusedCSS', () => {
     it('should handle the function gracefully', () => {
       // The function checks for document and window.performance
       // Just verify it doesn't crash
       expect(() => {
-        removeUnusedCSS();
-      }).not.toThrow();
-    });
-  });
+        removeUnusedCSS()
+      }).not.toThrow()
+    })
+  })
 
   describe('runInChunks', () => {
     it('should execute synchronous tasks', async () => {
-      const task = vi.fn(() => 42);
+      const task = vi.fn(() => 42)
 
-      const result = await runInChunks(task);
+      const result = await runInChunks(task)
 
-      expect(task).toHaveBeenCalled();
-      expect(result).toBe(42);
-    });
+      expect(task).toHaveBeenCalled()
+      expect(result).toBe(42)
+    })
 
     it('should handle tasks that complete quickly', async () => {
       const task = vi.fn(() => {
-        let sum = 0;
+        let sum = 0
         for (let i = 0; i < 1000; i++) {
-          sum += i;
+          sum += i
         }
-        return sum;
-      });
+        return sum
+      })
 
-      const result = await runInChunks(task, { maxDuration: 100 });
+      const result = await runInChunks(task, { maxDuration: 100 })
 
-      expect(result).toBe(499500);
-    });
+      expect(result).toBe(499500)
+    })
 
     it('should handle custom options', async () => {
-      const task = vi.fn(() => 'test');
+      const task = vi.fn(() => 'test')
 
       const result = await runInChunks(task, {
         maxDuration: 50,
         yieldDuration: 10,
-      });
+      })
 
-      expect(result).toBe('test');
-    });
+      expect(result).toBe('test')
+    })
 
     it('should handle task errors', async () => {
       const task = vi.fn(() => {
-        throw new Error('Task failed');
-      });
+        throw new Error('Task failed')
+      })
 
-      await expect(runInChunks(task)).rejects.toThrow('Task failed');
-    });
+      await expect(runInChunks(task)).rejects.toThrow('Task failed')
+    })
 
     it('should work with async-like tasks', async () => {
       const task = vi.fn(() => {
-        return { success: true };
-      });
+        return { success: true }
+      })
 
-      const result = await runInChunks(task);
+      const result = await runInChunks(task)
 
-      expect(result).toEqual({ success: true });
-    });
-  });
+      expect(result).toEqual({ success: true })
+    })
+  })
 
   describe('deferNonCriticalScripts', () => {
     it('should handle the function gracefully', () => {
       // Just verify it doesn't crash
       expect(() => {
-        deferNonCriticalScripts();
-      }).not.toThrow();
-    });
+        deferNonCriticalScripts()
+      }).not.toThrow()
+    })
 
     it('should add event listener for window load', () => {
-      const addEventListenerSpy = vi.spyOn(window, 'addEventListener');
+      const addEventListenerSpy = vi.spyOn(window, 'addEventListener')
 
       expect(() => {
-        deferNonCriticalScripts();
-      }).not.toThrow();
+        deferNonCriticalScripts()
+      }).not.toThrow()
 
-      expect(addEventListenerSpy).toHaveBeenCalledWith('load', expect.any(Function));
-    });
-  });
+      expect(addEventListenerSpy).toHaveBeenCalledWith('load', expect.any(Function))
+    })
+  })
 
   describe('scheduleIdleTask', () => {
     it('should schedule idle task when requestIdleCallback is available', () => {
-      const callback = vi.fn();
-      const mockRequestIdleCallback = vi.fn((cb) => setTimeout(cb, 10) as unknown as number);
-      global.requestIdleCallback = mockRequestIdleCallback;
+      const callback = vi.fn()
+      const mockRequestIdleCallback = vi.fn(cb => setTimeout(cb, 10) as unknown as number)
+      global.requestIdleCallback = mockRequestIdleCallback
 
-      const handle = scheduleIdleTask(callback, { timeout: 1000 });
+      const handle = scheduleIdleTask(callback, { timeout: 1000 })
 
-      expect(mockRequestIdleCallback).toHaveBeenCalledWith(callback, { timeout: 1000 });
-      expect(typeof handle).toBe('number');
-    });
+      expect(mockRequestIdleCallback).toHaveBeenCalledWith(callback, { timeout: 1000 })
+      expect(typeof handle).toBe('number')
+    })
 
     it('should fallback to setTimeout when requestIdleCallback is not available', () => {
-      const originalRIC = global.requestIdleCallback;
+      const originalRIC = global.requestIdleCallback
       // @ts-expect-error
-      delete global.requestIdleCallback;
+      delete global.requestIdleCallback
 
-      const callback = vi.fn();
-      const setTimeoutSpy = vi.spyOn(global, 'setTimeout');
+      const callback = vi.fn()
+      const setTimeoutSpy = vi.spyOn(global, 'setTimeout')
 
-      const handle = scheduleIdleTask(callback);
+      const handle = scheduleIdleTask(callback)
 
-      expect(setTimeoutSpy).toHaveBeenCalled();
-      expect(typeof handle).toBe('number');
+      expect(setTimeoutSpy).toHaveBeenCalled()
+      expect(typeof handle).toBe('number')
 
-      global.requestIdleCallback = originalRIC;
-    });
+      global.requestIdleCallback = originalRIC
+    })
 
     it('should handle callback without options', () => {
-      const callback = vi.fn();
-      const mockRequestIdleCallback = vi.fn((cb) => 123 as unknown as number);
-      global.requestIdleCallback = mockRequestIdleCallback;
+      const callback = vi.fn()
+      const mockRequestIdleCallback = vi.fn(cb => 123 as unknown as number)
+      global.requestIdleCallback = mockRequestIdleCallback
 
-      const handle = scheduleIdleTask(callback);
+      const handle = scheduleIdleTask(callback)
 
-      expect(mockRequestIdleCallback).toHaveBeenCalledWith(callback, undefined);
-      expect(handle).toBe(123);
-    });
-  });
+      expect(mockRequestIdleCallback).toHaveBeenCalledWith(callback, undefined)
+      expect(handle).toBe(123)
+    })
+  })
 
   describe('cancelIdleTask', () => {
     it('should cancel task when cancelIdleCallback is available', () => {
-      const mockCancelIdleCallback = vi.fn();
-      global.cancelIdleCallback = mockCancelIdleCallback;
+      const mockCancelIdleCallback = vi.fn()
+      global.cancelIdleCallback = mockCancelIdleCallback
 
       expect(() => {
-        cancelIdleTask(123);
-      }).not.toThrow();
+        cancelIdleTask(123)
+      }).not.toThrow()
 
-      expect(mockCancelIdleCallback).toHaveBeenCalledWith(123);
-    });
+      expect(mockCancelIdleCallback).toHaveBeenCalledWith(123)
+    })
 
     it('should fallback to clearTimeout when cancelIdleCallback is not available', () => {
-      const originalCIC = global.cancelIdleCallback;
+      const originalCIC = global.cancelIdleCallback
       // @ts-expect-error
-      delete global.cancelIdleCallback;
+      delete global.cancelIdleCallback
 
-      const clearTimeoutSpy = vi.spyOn(global, 'clearTimeout');
+      const clearTimeoutSpy = vi.spyOn(global, 'clearTimeout')
 
       expect(() => {
-        cancelIdleTask(123);
-      }).not.toThrow();
+        cancelIdleTask(123)
+      }).not.toThrow()
 
-      expect(clearTimeoutSpy).toHaveBeenCalledWith(123);
+      expect(clearTimeoutSpy).toHaveBeenCalledWith(123)
 
-      global.cancelIdleCallback = originalCIC;
-    });
-  });
+      global.cancelIdleCallback = originalCIC
+    })
+  })
 
   describe('performanceMark', () => {
     it('should create performance mark when performance.mark exists', () => {
-      const markSpy = vi.fn();
+      const markSpy = vi.fn()
       Object.defineProperty(performance, 'mark', {
         value: markSpy,
         writable: true,
         configurable: true,
-      });
+      })
 
       expect(() => {
-        performanceMark('test-mark');
-      }).not.toThrow();
+        performanceMark('test-mark')
+      }).not.toThrow()
 
       if (markSpy) {
-        expect(markSpy).toHaveBeenCalled();
+        expect(markSpy).toHaveBeenCalled()
       }
-    });
+    })
 
     it('should create performance mark with detail when performance.mark exists', () => {
-      const markSpy = vi.fn();
+      const markSpy = vi.fn()
       Object.defineProperty(performance, 'mark', {
         value: markSpy,
         writable: true,
         configurable: true,
-      });
-      const detail = { test: 'data' };
+      })
+      const detail = { test: 'data' }
 
       expect(() => {
-        performanceMark('test-mark', detail);
-      }).not.toThrow();
+        performanceMark('test-mark', detail)
+      }).not.toThrow()
 
       if (markSpy) {
-        expect(markSpy).toHaveBeenCalledWith('test-mark', { detail });
+        expect(markSpy).toHaveBeenCalledWith('test-mark', { detail })
       }
-    });
+    })
 
     it('should handle mark creation errors', () => {
       const markSpy = vi.fn(() => {
-        throw new Error('Mark exists');
-      });
+        throw new Error('Mark exists')
+      })
       Object.defineProperty(performance, 'mark', {
         value: markSpy,
         writable: true,
         configurable: true,
-      });
-      const consoleWarnSpy = vi.spyOn(console, 'warn').mockImplementation(() => {});
+      })
+      const consoleWarnSpy = vi.spyOn(console, 'warn').mockImplementation(() => {})
 
       expect(() => {
-        performanceMark('test-mark');
-      }).not.toThrow();
+        performanceMark('test-mark')
+      }).not.toThrow()
 
-      consoleWarnSpy.mockRestore();
-    });
-  });
+      consoleWarnSpy.mockRestore()
+    })
+  })
 
   describe('performanceMeasure', () => {
     it('should create performance measure when performance.measure exists', () => {
-      const measureSpy = vi.fn();
-      const getEntriesSpy = vi.fn(() => []);
+      const measureSpy = vi.fn()
+      const getEntriesSpy = vi.fn(() => [])
       Object.defineProperty(performance, 'measure', {
         value: measureSpy,
         writable: true,
         configurable: true,
-      });
+      })
       Object.defineProperty(performance, 'getEntriesByName', {
         value: getEntriesSpy,
         writable: true,
         configurable: true,
-      });
+      })
 
       expect(() => {
-        performanceMeasure('test-measure', 'start-mark', 'end-mark');
-      }).not.toThrow();
+        performanceMeasure('test-measure', 'start-mark', 'end-mark')
+      }).not.toThrow()
 
       if (measureSpy) {
-        expect(measureSpy).toHaveBeenCalled();
+        expect(measureSpy).toHaveBeenCalled()
       }
-    });
+    })
 
     it('should create performance measure with only start mark when performance.measure exists', () => {
-      const measureSpy = vi.fn();
-      const getEntriesSpy = vi.fn(() => []);
+      const measureSpy = vi.fn()
+      const getEntriesSpy = vi.fn(() => [])
       Object.defineProperty(performance, 'measure', {
         value: measureSpy,
         writable: true,
         configurable: true,
-      });
+      })
       Object.defineProperty(performance, 'getEntriesByName', {
         value: getEntriesSpy,
         writable: true,
         configurable: true,
-      });
+      })
 
       expect(() => {
-        performanceMeasure('test-measure', 'start-mark');
-      }).not.toThrow();
+        performanceMeasure('test-measure', 'start-mark')
+      }).not.toThrow()
 
       if (measureSpy) {
-        expect(measureSpy).toHaveBeenCalledWith('test-measure', 'start-mark', undefined);
+        expect(measureSpy).toHaveBeenCalledWith('test-measure', 'start-mark', undefined)
       }
-    });
+    })
 
     it('should handle measure creation errors', () => {
       const measureSpy = vi.fn(() => {
-        throw new Error('Measure failed');
-      });
+        throw new Error('Measure failed')
+      })
       Object.defineProperty(performance, 'measure', {
         value: measureSpy,
         writable: true,
         configurable: true,
-      });
-      const consoleWarnSpy = vi.spyOn(console, 'warn').mockImplementation(() => {});
+      })
+      const consoleWarnSpy = vi.spyOn(console, 'warn').mockImplementation(() => {})
 
       expect(() => {
-        performanceMeasure('test-measure', 'start-mark', 'end-mark');
-      }).not.toThrow();
+        performanceMeasure('test-measure', 'start-mark', 'end-mark')
+      }).not.toThrow()
 
-      consoleWarnSpy.mockRestore();
-    });
-  });
+      consoleWarnSpy.mockRestore()
+    })
+  })
 
   describe('integration tests', () => {
     it('should handle multiple preloads', () => {
-      const createElementSpy = vi.spyOn(document, 'createElement');
-      const appendChildSpy = vi.spyOn(document.head, 'appendChild');
-      const querySelectorSpy = vi.spyOn(document, 'querySelector').mockReturnValue(null);
+      const createElementSpy = vi.spyOn(document, 'createElement')
+      const appendChildSpy = vi.spyOn(document.head, 'appendChild')
+      const querySelectorSpy = vi.spyOn(document, 'querySelector').mockReturnValue(null)
 
       preloadCriticalResources({
         images: ['/img.jpg'],
         fonts: ['/font.woff2'],
         stylesheets: ['/style.css'],
         scripts: ['/script.js'],
-      });
+      })
 
-      expect(appendChildSpy).toHaveBeenCalled();
-    });
+      expect(appendChildSpy).toHaveBeenCalled()
+    })
 
     it('should handle idle task lifecycle', () => {
-      const callback = vi.fn();
-      const mockRIC = vi.fn((cb) => {
-        cb({ didTimeout: false, timeRemaining: () => 50 });
-        return 123;
-      });
-      const mockCIC = vi.fn();
-      global.requestIdleCallback = mockRIC;
-      global.cancelIdleCallback = mockCIC;
+      const callback = vi.fn()
+      const mockRIC = vi.fn(cb => {
+        cb({ didTimeout: false, timeRemaining: () => 50 })
+        return 123
+      })
+      const mockCIC = vi.fn()
+      global.requestIdleCallback = mockRIC
+      global.cancelIdleCallback = mockCIC
 
-      const handle = scheduleIdleTask(callback);
+      const handle = scheduleIdleTask(callback)
 
-      expect(callback).toHaveBeenCalled();
+      expect(callback).toHaveBeenCalled()
 
-      cancelIdleTask(handle);
+      cancelIdleTask(handle)
 
-      expect(mockCIC).toHaveBeenCalledWith(123);
-    });
+      expect(mockCIC).toHaveBeenCalledWith(123)
+    })
 
     it('should handle performance measurement workflow', () => {
-      const markSpy = vi.fn();
-      const measureSpy = vi.fn();
-      const getEntriesSpy = vi.fn(() => []);
+      const markSpy = vi.fn()
+      const measureSpy = vi.fn()
+      const getEntriesSpy = vi.fn(() => [])
 
       Object.defineProperty(performance, 'mark', {
         value: markSpy,
         writable: true,
         configurable: true,
-      });
+      })
       Object.defineProperty(performance, 'measure', {
         value: measureSpy,
         writable: true,
         configurable: true,
-      });
+      })
       Object.defineProperty(performance, 'getEntriesByName', {
         value: getEntriesSpy,
         writable: true,
         configurable: true,
-      });
+      })
 
-      performanceMark('task-start');
-      performanceMark('task-end');
-      performanceMeasure('task', 'task-start', 'task-end');
+      performanceMark('task-start')
+      performanceMark('task-end')
+      performanceMeasure('task', 'task-start', 'task-end')
 
       if (markSpy) {
-        expect(markSpy).toHaveBeenCalled();
+        expect(markSpy).toHaveBeenCalled()
       }
       if (measureSpy) {
-        expect(measureSpy).toHaveBeenCalled();
+        expect(measureSpy).toHaveBeenCalled()
       }
-    });
-  });
-});
+    })
+  })
+})

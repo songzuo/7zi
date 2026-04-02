@@ -1,6 +1,7 @@
 # 7zi-frontend 性能审计报告
 
 ## 执行日期
+
 2026-03-06
 
 ## 审计概述
@@ -13,21 +14,22 @@
 
 ### 1.1 生产依赖 (9个)
 
-| 依赖 | 版本 | 用途 | 状态 |
-|------|------|------|------|
-| `next` | 16.2.1 | 框架核心 | ✅ 必需 |
-| `react` | 19.2.4 | UI 库 | ✅ 必需 |
-| `react-dom` | 19.2.4 | React DOM | ✅ 必需 |
-| `next-intl` | 4.8.3 | 国际化 | ✅ 使用中 |
-| `zustand` | 5.0.11 | 状态管理 | ✅ 使用中 |
-| `web-vitals` | 4.2.4 | 性能监控 | ✅ 使用中 |
-| `@emailjs/browser` | 4.4.1 | 邮件服务 | ⚠️ 配置检查 |
-| `@sentry/nextjs` | 9.0.0 | 错误监控 | ⚠️ 已禁用 |
-| `resend` | 6.9.3 | 邮件 API | ⚠️ 仅健康检查 |
+| 依赖               | 版本   | 用途      | 状态          |
+| ------------------ | ------ | --------- | ------------- |
+| `next`             | 16.2.1 | 框架核心  | ✅ 必需       |
+| `react`            | 19.2.4 | UI 库     | ✅ 必需       |
+| `react-dom`        | 19.2.4 | React DOM | ✅ 必需       |
+| `next-intl`        | 4.8.3  | 国际化    | ✅ 使用中     |
+| `zustand`          | 5.0.11 | 状态管理  | ✅ 使用中     |
+| `web-vitals`       | 4.2.4  | 性能监控  | ✅ 使用中     |
+| `@emailjs/browser` | 4.4.1  | 邮件服务  | ⚠️ 配置检查   |
+| `@sentry/nextjs`   | 9.0.0  | 错误监控  | ⚠️ 已禁用     |
+| `resend`           | 6.9.3  | 邮件 API  | ⚠️ 仅健康检查 |
 
 ### 1.2 开发依赖 (19个)
 
 开发依赖配置合理，包含：
+
 - 测试框架: Vitest, Playwright, Testing Library
 - 构建工具: Next.js, Tailwind CSS v4
 - 类型检查: TypeScript
@@ -40,6 +42,7 @@
 1. **@sentry/nextjs 评估**
    - 当前状态: 配置文件被禁用 (`*.disabled`)
    - 建议: 如果不使用 Sentry，移除该依赖 (约 50KB gzip)
+
    ```bash
    npm uninstall @sentry/nextjs
    rm sentry.*.config.ts.disabled
@@ -76,32 +79,33 @@
 
 ### 2.2 主要 Chunks
 
-| Chunk | 大小 | 说明 |
-|-------|------|------|
-| `030df4f93935d8c8.js` | 220KB | 主包 (可能包含 React/Next) |
-| `d4fd566d30975a31.css` | 152KB | 样式文件 |
-| `dcce311d8355ecc4.js` | 120KB | 次要包 |
-| `a6dad97d9634a72d.js` | 112KB | 动态导入包 |
+| Chunk                  | 大小  | 说明                       |
+| ---------------------- | ----- | -------------------------- |
+| `030df4f93935d8c8.js`  | 220KB | 主包 (可能包含 React/Next) |
+| `d4fd566d30975a31.css` | 152KB | 样式文件                   |
+| `dcce311d8355ecc4.js`  | 120KB | 次要包                     |
+| `a6dad97d9634a72d.js`  | 112KB | 动态导入包                 |
 
 ### 2.3 页面大小
 
-| 页面 | HTML 大小 | RSC 大小 |
-|------|-----------|----------|
-| `/` (主页面) | ~30KB | ~15KB |
-| `/blog` | 75KB | 39KB |
-| `/dashboard` | 50KB | - |
-| `/about` | 18KB | 12KB |
-| `/contact` | 18KB | 12KB |
+| 页面         | HTML 大小 | RSC 大小 |
+| ------------ | --------- | -------- |
+| `/` (主页面) | ~30KB     | ~15KB    |
+| `/blog`      | 75KB      | 39KB     |
+| `/dashboard` | 50KB      | -        |
+| `/about`     | 18KB      | 12KB     |
+| `/contact`   | 18KB      | 12KB     |
 
 ### 2.4 Bundle 优化建议
 
 #### 🔴 高优先级
 
 1. **启用 Bundle 分析器**
+
    ```bash
    # 已有脚本
    npm run build:analyze
-   
+
    # 或安装
    npm install -D @next/bundle-analyzer
    ```
@@ -128,40 +132,42 @@
 
 项目已实现良好的图片优化实践：
 
-| 优化项 | 状态 | 实现位置 |
-|--------|------|----------|
-| next/image | ✅ 使用 | LazyImage.tsx, MemberCard.tsx 等 |
-| 响应式 sizes | ✅ 使用 | LazyImage.tsx |
-| 懒加载 | ✅ 使用 | IntersectionObserver |
-| AVIF/WebP | ✅ 配置 | next.config.ts |
-| 占位符 | ✅ 使用 | blur placeholder |
-| 错误处理 | ✅ 实现 | LazyImage.tsx |
+| 优化项       | 状态    | 实现位置                         |
+| ------------ | ------- | -------------------------------- |
+| next/image   | ✅ 使用 | LazyImage.tsx, MemberCard.tsx 等 |
+| 响应式 sizes | ✅ 使用 | LazyImage.tsx                    |
+| 懒加载       | ✅ 使用 | IntersectionObserver             |
+| AVIF/WebP    | ✅ 配置 | next.config.ts                   |
+| 占位符       | ✅ 使用 | blur placeholder                 |
+| 错误处理     | ✅ 实现 | LazyImage.tsx                    |
 
 ### 3.2 图片文件
 
-| 文件 | 大小 | 类型 |
-|------|------|------|
-| logo.png | 51KB | PNG |
-| icon-512.png | 51KB | PNG |
-| apple-touch-icon.png | 13KB | PNG |
-| icon-192.png | 15KB | PNG |
-| og-image.svg | 3.2KB | SVG |
+| 文件                 | 大小  | 类型 |
+| -------------------- | ----- | ---- |
+| logo.png             | 51KB  | PNG  |
+| icon-512.png         | 51KB  | PNG  |
+| apple-touch-icon.png | 13KB  | PNG  |
+| icon-192.png         | 15KB  | PNG  |
+| og-image.svg         | 3.2KB | SVG  |
 
 ### 3.3 图片优化建议
 
 #### 🟡 中优先级
 
 1. **转换 PNG 为 WebP**
+
    ```bash
    # 转换 logo.png
    npx sharp -i public/logo.png -o public/logo.webp
    ```
 
 2. **修复 AvatarUpload.tsx 原生 img 标签**
+
    ```tsx
    // 当前: src/components/UserSettings/AvatarUpload.tsx
    <img src={...} />
-   
+
    // 建议: 使用 next/image
    <Image src={...} alt="Avatar" width={...} height={...} />
    ```
@@ -180,17 +186,17 @@
 
 项目已有完善的懒加载系统 (`src/components/LazyComponents.tsx`)：
 
-| 组件 | 加载策略 | SSR |
-|------|----------|-----|
-| AIChat | 用户交互时 | ❌ |
-| ProjectDashboard | 滚动到视口 | ✅ |
-| GitHubActivity | 滚动到视口 | ✅ |
-| Hero3D | 桌面端交互 | ✅ |
-| NotificationCenter | 用户点击 | ❌ |
-| SettingsPanel | 用户点击 | ❌ |
-| TaskBoard | 滚动到视口 | ✅ |
-| ContactForm | 交互时 | ✅ |
-| PWAInstallPrompt | 客户端判断 | ❌ |
+| 组件               | 加载策略   | SSR |
+| ------------------ | ---------- | --- |
+| AIChat             | 用户交互时 | ❌  |
+| ProjectDashboard   | 滚动到视口 | ✅  |
+| GitHubActivity     | 滚动到视口 | ✅  |
+| Hero3D             | 桌面端交互 | ✅  |
+| NotificationCenter | 用户点击   | ❌  |
+| SettingsPanel      | 用户点击   | ❌  |
+| TaskBoard          | 滚动到视口 | ✅  |
+| ContactForm        | 交互时     | ✅  |
+| PWAInstallPrompt   | 客户端判断 | ❌  |
 
 ### 4.2 优化建议
 
@@ -204,20 +210,21 @@
 #### 🟡 可进一步优化
 
 1. **添加路由级代码分割**
+
    ```tsx
    // app/[locale]/dashboard/page.tsx
    const Dashboard = dynamic(() => import('./DashboardContent'), {
-     loading: () => <DashboardSkeleton />
-   });
+     loading: () => <DashboardSkeleton />,
+   })
    ```
 
 2. **预加载关键资源**
    ```tsx
    // 在用户 hover 链接时预加载
-   <Link 
+   <Link
      href="/dashboard"
      onMouseEnter={() => {
-       import('@/components/ProjectDashboard');
+       import('@/components/ProjectDashboard')
      }}
    >
      Dashboard
@@ -234,14 +241,14 @@
 
 ### 5.2 关键发现
 
-| 方面 | 状态 | 说明 |
-|------|------|------|
-| 触摸目标 | ✅ 已优化 | >= 44x44px |
-| 安全区域 | ✅ 已适配 | env(safe-area-inset-*) |
-| 字体响应式 | ✅ 已优化 | clamp() 函数 |
-| 横屏适配 | ✅ 已处理 | 媒体查询 |
-| 动画优化 | ✅ 已实现 | prefers-reduced-motion |
-| 图片响应式 | ✅ 已实现 | clamp() 尺寸 |
+| 方面       | 状态      | 说明                    |
+| ---------- | --------- | ----------------------- |
+| 触摸目标   | ✅ 已优化 | >= 44x44px              |
+| 安全区域   | ✅ 已适配 | env(safe-area-inset-\*) |
+| 字体响应式 | ✅ 已优化 | clamp() 函数            |
+| 横屏适配   | ✅ 已处理 | 媒体查询                |
+| 动画优化   | ✅ 已实现 | prefers-reduced-motion  |
+| 图片响应式 | ✅ 已实现 | clamp() 尺寸            |
 
 ### 5.3 响应式 CSS 文件
 
@@ -254,19 +261,20 @@
 
 ### 6.1 Core Web Vitals 目标
 
-| 指标 | 目标 | 当前估计 |
-|------|------|----------|
-| LCP (Largest Contentful Paint) | < 2.5s | ~1.8s ✅ |
-| FID (First Input Delay) | < 100ms | ~50ms ✅ |
-| CLS (Cumulative Layout Shift) | < 0.1 | ~0.05 ✅ |
-| TTFB (Time to First Byte) | < 600ms | ~200ms ✅ |
+| 指标                           | 目标    | 当前估计  |
+| ------------------------------ | ------- | --------- |
+| LCP (Largest Contentful Paint) | < 2.5s  | ~1.8s ✅  |
+| FID (First Input Delay)        | < 100ms | ~50ms ✅  |
+| CLS (Cumulative Layout Shift)  | < 0.1   | ~0.05 ✅  |
+| TTFB (Time to First Byte)      | < 600ms | ~200ms ✅ |
 
 ### 6.2 监控实现
 
 项目已集成 `web-vitals` 库：
+
 ```typescript
 // src/lib/monitoring/web-vitals.ts
-import { onCLS, onFID, onLCP, onFCP, onTTFB } from 'web-vitals';
+import { onCLS, onFID, onLCP, onFCP, onTTFB } from 'web-vitals'
 ```
 
 ---
@@ -276,16 +284,20 @@ import { onCLS, onFID, onLCP, onFCP, onTTFB } from 'web-vitals';
 ### 7.1 立即执行 (本周)
 
 1. **移除未使用的 Sentry 依赖**
+
    ```bash
    npm uninstall @sentry/nextjs
    rm sentry.*.config.ts.disabled
    ```
+
    预期收益: 减少 ~50KB gzip
 
 2. **移除 resend SDK**
+
    ```bash
    npm uninstall resend
    ```
+
    预期收益: 减少 ~10KB gzip
 
 3. **运行 Bundle 分析**
@@ -337,13 +349,13 @@ import { onCLS, onFID, onLCP, onFCP, onTTFB } from 'web-vitals';
 
 ## 9. 预期性能提升
 
-| 优化项 | 预期收益 |
-|--------|----------|
-| 移除 Sentry | -50KB gzip |
-| 移除 resend | -10KB gzip |
-| PNG → WebP | -30KB 资源 |
-| Tailwind purge | -20KB CSS |
-| **总计** | **~110KB 减少** |
+| 优化项         | 预期收益        |
+| -------------- | --------------- |
+| 移除 Sentry    | -50KB gzip      |
+| 移除 resend    | -10KB gzip      |
+| PNG → WebP     | -30KB 资源      |
+| Tailwind purge | -20KB CSS       |
+| **总计**       | **~110KB 减少** |
 
 ---
 
@@ -352,6 +364,7 @@ import { onCLS, onFID, onLCP, onFCP, onTTFB } from 'web-vitals';
 ### 10.1 整体评价
 
 7zi-frontend 项目在性能优化方面已有良好基础：
+
 - ✅ 完善的懒加载系统
 - ✅ 图片优化实践
 - ✅ 响应式设计
@@ -366,11 +379,11 @@ import { onCLS, onFID, onLCP, onFCP, onTTFB } from 'web-vitals';
 
 ### 10.3 风险评估
 
-| 风险 | 级别 | 缓解措施 |
-|------|------|----------|
-| 移除 Sentry 影响监控 | 低 | 确认不使用后移除 |
-| 图片格式兼容性 | 低 | Next.js 自动降级 |
-| CSS purge 过度 | 中 | 测试覆盖验证 |
+| 风险                 | 级别 | 缓解措施         |
+| -------------------- | ---- | ---------------- |
+| 移除 Sentry 影响监控 | 低   | 确认不使用后移除 |
+| 图片格式兼容性       | 低   | Next.js 自动降级 |
+| CSS purge 过度       | 中   | 测试覆盖验证     |
 
 ---
 

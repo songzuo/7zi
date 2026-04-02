@@ -10,30 +10,30 @@ export async function getRateLimitStatus(
   path: string,
   identifier?: string,
   customConfig?: Partial<{
-    algorithm: 'sliding-window' | 'token-bucket';
-    limit: number;
-    window: number;
+    algorithm: 'sliding-window' | 'token-bucket'
+    limit: number
+    window: number
   }>
 ): Promise<{
-  allowed: boolean;
-  remaining: number;
-  resetTime: number;
-  limit: number;
-  algorithm: 'sliding-window' | 'token-bucket';
-  currentCount?: number;
-  tokensAvailable?: number;
+  allowed: boolean
+  remaining: number
+  resetTime: number
+  limit: number
+  algorithm: 'sliding-window' | 'token-bucket'
+  currentCount?: number
+  tokensAvailable?: number
 } | null> {
-  const { checkSlidingWindow, getSlidingWindowStatus } = await import('./sliding-window');
-  const { checkTokenBucket, getTokenBucketStatus } = await import('./token-bucket');
+  const { checkSlidingWindow, getSlidingWindowStatus } = await import('./sliding-window')
+  const { checkTokenBucket, getTokenBucketStatus } = await import('./token-bucket')
 
-  const algorithm = customConfig?.algorithm || 'sliding-window';
-  const limit = customConfig?.limit || 60;
-  const window = customConfig?.window || 60;
-  const safeIdentifier = identifier || 'unknown';
-  const key = `${path}:${safeIdentifier}`;
+  const algorithm = customConfig?.algorithm || 'sliding-window'
+  const limit = customConfig?.limit || 60
+  const window = customConfig?.window || 60
+  const safeIdentifier = identifier || 'unknown'
+  const key = `${path}:${safeIdentifier}`
 
   if (algorithm === 'sliding-window') {
-    const swStatus = await getSlidingWindowStatus(key, window);
+    const swStatus = await getSlidingWindowStatus(key, window)
     return {
       allowed: swStatus.count < limit,
       remaining: Math.max(0, limit - swStatus.count),
@@ -41,9 +41,9 @@ export async function getRateLimitStatus(
       limit,
       algorithm: 'sliding-window',
       currentCount: swStatus.count,
-    };
+    }
   } else {
-    const tbStatus = await getTokenBucketStatus(key);
+    const tbStatus = await getTokenBucketStatus(key)
     return {
       allowed: (tbStatus.tokens || 0) >= 1,
       remaining: Math.floor(tbStatus.tokens || 0),
@@ -51,6 +51,6 @@ export async function getRateLimitStatus(
       limit,
       algorithm: 'token-bucket',
       tokensAvailable: tbStatus.tokens,
-    };
+    }
   }
 }

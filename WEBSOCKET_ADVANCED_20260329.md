@@ -145,20 +145,20 @@ class WebSocketAdvancedService {
 
 #### 房间类型
 
-| 类型 | 描述 | 权限控制 |
-|------|------|----------|
-| `public` | 公开房间，任何人可加入 | 加入后根据角色分配权限 |
-| `private` | 私有房间，仅邀请可加入 | 需要管理员邀请 |
-| `password-protected` | 密码保护房间 | 需要正确密码才能加入 |
+| 类型                 | 描述                   | 权限控制               |
+| -------------------- | ---------------------- | ---------------------- |
+| `public`             | 公开房间，任何人可加入 | 加入后根据角色分配权限 |
+| `private`            | 私有房间，仅邀请可加入 | 需要管理员邀请         |
+| `password-protected` | 密码保护房间           | 需要正确密码才能加入   |
 
 #### 成员角色
 
-| 角色 | 权限 |
-|------|------|
-| `owner` | 读、写、管理、主持、邀请、踢出 |
-| `admin` | 读、写、主持、邀请、踢出 |
-| `member` | 读、写 |
-| `guest` | 只读 |
+| 角色     | 权限                           |
+| -------- | ------------------------------ |
+| `owner`  | 读、写、管理、主持、邀请、踢出 |
+| `admin`  | 读、写、主持、邀请、踢出       |
+| `member` | 读、写                         |
+| `guest`  | 只读                           |
 
 #### 功能列表
 
@@ -174,27 +174,28 @@ class WebSocketAdvancedService {
 
 #### 权限动作
 
-| 动作 | 描述 |
-|------|------|
-| `read` | 读取房间消息 |
-| `write` | 发送消息 |
-| `manage` | 管理房间设置 |
+| 动作       | 描述               |
+| ---------- | ------------------ |
+| `read`     | 读取房间消息       |
+| `write`    | 发送消息           |
+| `manage`   | 管理房间设置       |
 | `moderate` | 主持（删除消息等） |
-| `invite` | 邀请成员 |
-| `kick` | 踢出成员 |
+| `invite`   | 邀请成员           |
+| `kick`     | 踢出成员           |
 
 #### 权限规则
 
 ```typescript
 interface PermissionRule {
-  role: MemberRole;
-  action: PermissionAction;
-  allowed: boolean;
-  conditions?: PermissionCondition[];
+  role: MemberRole
+  action: PermissionAction
+  allowed: boolean
+  conditions?: PermissionCondition[]
 }
 ```
 
 支持条件权限：
+
 - 时间条件（限制特定时间段）
 - 计数条件（限制操作次数）
 - 自定义条件
@@ -203,14 +204,14 @@ interface PermissionRule {
 
 #### 消息类型
 
-| 类型 | 描述 |
-|------|------|
-| `text` | 文本消息 |
-| `file` | 文件消息 |
-| `image` | 图片消息 |
-| `audio` | 音频消息 |
-| `video` | 视频消息 |
-| `system` | 系统消息 |
+| 类型           | 描述     |
+| -------------- | -------- |
+| `text`         | 文本消息 |
+| `file`         | 文件消息 |
+| `image`        | 图片消息 |
+| `audio`        | 音频消息 |
+| `video`        | 视频消息 |
+| `system`       | 系统消息 |
 | `notification` | 通知消息 |
 
 #### 功能列表
@@ -229,15 +230,15 @@ interface PermissionRule {
 
 ```typescript
 interface MessageSearchOptions {
-  roomId?: string;        // 房间 ID
-  senderId?: string;      // 发送者 ID
-  type?: MessageType;     // 消息类型
-  startDate?: number;     // 开始时间
-  endDate?: number;       // 结束时间
-  query?: string;         // 搜索文本
-  limit?: number;         // 结果限制
-  before?: number;        // 时间点之前
-  after?: number;         // 时间点之后
+  roomId?: string // 房间 ID
+  senderId?: string // 发送者 ID
+  type?: MessageType // 消息类型
+  startDate?: number // 开始时间
+  endDate?: number // 结束时间
+  query?: string // 搜索文本
+  limit?: number // 结果限制
+  before?: number // 时间点之前
+  after?: number // 时间点之后
 }
 ```
 
@@ -247,12 +248,12 @@ interface MessageSearchOptions {
 
 ### 测试统计
 
-| 模块 | 测试文件 | 测试用例数 | 覆盖率 |
-|------|----------|------------|--------|
-| RoomManager | room-manager.test.ts | 25+ | ~90% |
-| MessagePersistence | persistence.test.ts | 20+ | ~88% |
-| Integration | integration.test.ts | 15+ | ~85% |
-| **总计** | 3 个文件 | **60+** | **~88%** |
+| 模块               | 测试文件             | 测试用例数 | 覆盖率   |
+| ------------------ | -------------------- | ---------- | -------- |
+| RoomManager        | room-manager.test.ts | 25+        | ~90%     |
+| MessagePersistence | persistence.test.ts  | 20+        | ~88%     |
+| Integration        | integration.test.ts  | 15+        | ~85%     |
+| **总计**           | 3 个文件             | **60+**    | **~88%** |
 
 ### 测试分类
 
@@ -315,7 +316,7 @@ interface MessageSearchOptions {
 ### 创建房间
 
 ```typescript
-import { websocketAdvancedService } from '@/features/websocket/lib/websocket-advanced';
+import { websocketAdvancedService } from '@/features/websocket/lib/websocket-advanced'
 
 // 创建公开房间
 const { room } = await websocketAdvancedService.createRoom(
@@ -325,20 +326,16 @@ const { room } = await websocketAdvancedService.createRoom(
     ownerId: 'user123',
   },
   'John Doe'
-);
+)
 
-console.log(`Room created: ${room.id}`);
+console.log(`Room created: ${room.id}`)
 ```
 
 ### 加入房间并发送消息
 
 ```typescript
 // 加入房间
-const joinResult = await websocketAdvancedService.joinRoom(
-  room.id,
-  'user456',
-  'Jane Doe'
-);
+const joinResult = await websocketAdvancedService.joinRoom(room.id, 'user456', 'Jane Doe')
 
 if (joinResult.success) {
   // 发送消息
@@ -348,9 +345,9 @@ if (joinResult.success) {
     'Jane Doe',
     { text: '大家好！' },
     'text'
-  );
+  )
 
-  console.log(`Message sent: ${message.id}`);
+  console.log(`Message sent: ${message.id}`)
 }
 ```
 
@@ -360,25 +357,25 @@ if (joinResult.success) {
 const messages = await websocketAdvancedService.searchMessages('user456', {
   roomId: room.id,
   query: '大家好',
-  limit: 10
-});
+  limit: 10,
+})
 
-console.log(`Found ${messages.length} messages`);
+console.log(`Found ${messages.length} messages`)
 ```
 
 ### 同步离线消息
 
 ```typescript
 // 用户上线
-websocketAdvancedService.userOnline('user456');
+websocketAdvancedService.userOnline('user456')
 
 // 同步离线消息
-const offlineMessages = await websocketAdvancedService.syncOfflineMessages('user456');
+const offlineMessages = await websocketAdvancedService.syncOfflineMessages('user456')
 
-console.log(`Synced ${offlineMessages.length} offline messages`);
+console.log(`Synced ${offlineMessages.length} offline messages`)
 
 // 获取未读计数
-const unreadCounts = await websocketAdvancedService.getUnreadCounts('user456');
+const unreadCounts = await websocketAdvancedService.getUnreadCounts('user456')
 ```
 
 ---

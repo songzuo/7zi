@@ -18,13 +18,13 @@ Failed at step EXEC spawning /web/good/app-7yjgrzlwtatd/node_modules/.bin/taro: 
 
 ## 问题根因
 
-| 检查项 | 状态 | 说明 |
-|--------|------|------|
-| Service 配置 | ✅ 正确 | ExecStart 路径配置正确 |
-| WorkingDirectory | ✅ 正确 | /web/good/app-7yjgrzlwtatd |
-| node_modules 目录 | ❌ 缺失 | 目录不存在 |
-| taro 可执行文件 | ❌ 缺失 | 因 node_modules 不存在 |
-| pnpm | ✅ 可用 | v10.33.0 |
+| 检查项            | 状态    | 说明                       |
+| ----------------- | ------- | -------------------------- |
+| Service 配置      | ✅ 正确 | ExecStart 路径配置正确     |
+| WorkingDirectory  | ✅ 正确 | /web/good/app-7yjgrzlwtatd |
+| node_modules 目录 | ❌ 缺失 | 目录不存在                 |
+| taro 可执行文件   | ❌ 缺失 | 因 node_modules 不存在     |
+| pnpm              | ✅ 可用 | v10.33.0                   |
 
 **结论**: `node_modules` 目录被删除或从未正确安装，导致 `taro` 命令无法找到。
 
@@ -33,30 +33,36 @@ Failed at step EXEC spawning /web/good/app-7yjgrzlwtatd/node_modules/.bin/taro: 
 ## 修复步骤
 
 1. **SSH 连接到服务器**
+
    ```bash
    ssh root@165.99.43.61
    ```
 
 2. **检查服务状态**
+
    ```bash
    systemctl status good.7zi.com.service
    ```
 
 3. **检查应用目录**
+
    ```bash
    ls -la /web/good/app-7yjgrzlwtatd/
    # 发现 node_modules 目录不存在
    ```
 
 4. **安装依赖**
+
    ```bash
    cd /web/good/app-7yjgrzlwtatd
    pnpm install
    ```
+
    - 安装时间: ~13.7秒
    - 状态: ✅ 成功
 
 5. **验证 taro 命令**
+
    ```bash
    ls -la /web/good/app-7yjgrzlwtatd/node_modules/.bin/taro
    # -rwxr-xr-x 1 root root 1514 Mar 30 11:40 ...
@@ -71,13 +77,13 @@ Failed at step EXEC spawning /web/good/app-7yjgrzlwtatd/node_modules/.bin/taro: 
 
 ## 修复结果
 
-| 项目 | 状态 |
-|------|------|
-| 服务状态 | ✅ **active (running)** |
-| 主进程 PID | 3697215 |
-| 进程命令 | `node /web/good/app-7yjgrzlwtatd/node_modules/.bin/../@tarojs/cli/bin/taro build --type h5 --watch` |
-| 监听端口 | 10087 |
-| 服务已稳定运行 | ✅ 17秒+ 无异常 |
+| 项目           | 状态                                                                                                |
+| -------------- | --------------------------------------------------------------------------------------------------- |
+| 服务状态       | ✅ **active (running)**                                                                             |
+| 主进程 PID     | 3697215                                                                                             |
+| 进程命令       | `node /web/good/app-7yjgrzlwtatd/node_modules/.bin/../@tarojs/cli/bin/taro build --type h5 --watch` |
+| 监听端口       | 10087                                                                                               |
+| 服务已稳定运行 | ✅ 17秒+ 无异常                                                                                     |
 
 **服务已成功启动，监听在**: `http://165.99.43.61:10087/`
 

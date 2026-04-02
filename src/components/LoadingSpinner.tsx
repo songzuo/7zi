@@ -6,42 +6,49 @@
  * @module components/LoadingSpinner
  */
 
-import { cn } from '@/lib/utils';
-import type { FC, CSSProperties } from 'react';
+import { cn } from '@/lib/utils'
+import type { FC, CSSProperties } from 'react'
 
 /**
  * Loading spinner variant types
  */
-export type LoadingVariant = 'spin' | 'pulse' | 'bounce' | 'dots' | 'bars' | 'wave';
+export type LoadingVariant = 'spin' | 'pulse' | 'bounce' | 'dots' | 'bars' | 'wave'
 
 /**
  * Loading spinner size presets
  */
-export type LoadingSize = 'xs' | 'sm' | 'md' | 'lg' | 'xl';
+export type LoadingSize = 'xs' | 'sm' | 'md' | 'lg' | 'xl'
 
 /**
  * Loading spinner color variants
  */
-export type LoadingColor = 'primary' | 'secondary' | 'success' | 'warning' | 'error' | 'info' | 'current';
+export type LoadingColor =
+  | 'primary'
+  | 'secondary'
+  | 'success'
+  | 'warning'
+  | 'error'
+  | 'info'
+  | 'current'
 
 /**
  * LoadingSpinner component props
  */
 interface LoadingSpinnerProps {
   /** Loading variant (default: 'spin') */
-  variant?: LoadingVariant;
+  variant?: LoadingVariant
   /** Size preset (default: 'md') */
-  size?: LoadingSize;
+  size?: LoadingSize
   /** Color variant (default: 'primary') */
-  color?: LoadingColor;
+  color?: LoadingColor
   /** Custom class name */
-  className?: string;
+  className?: string
   /** Additional inline styles */
-  style?: CSSProperties;
+  style?: CSSProperties
   /** Custom label text */
-  label?: string;
+  label?: string
   /** Label position ('top', 'bottom', 'hidden') */
-  labelPosition?: 'top' | 'bottom' | 'hidden';
+  labelPosition?: 'top' | 'bottom' | 'hidden'
 }
 
 /**
@@ -53,7 +60,7 @@ const SIZE_CONFIG: Record<LoadingSize, string> = {
   md: 'w-8 h-8',
   lg: 'w-12 h-12',
   xl: 'w-16 h-16',
-};
+}
 
 /**
  * Color configurations
@@ -66,7 +73,7 @@ const COLOR_CONFIG: Record<LoadingColor, string> = {
   error: 'text-red-600 dark:text-red-400',
   info: 'text-cyan-600 dark:text-cyan-400',
   current: 'text-current',
-};
+}
 
 /**
  * Spin variant - rotating spinner
@@ -80,7 +87,7 @@ const SpinVariant: FC<{ size: LoadingSize; color: LoadingColor }> = ({ size, col
       COLOR_CONFIG[color]
     )}
   />
-);
+)
 
 /**
  * Pulse variant - pulsing circle
@@ -88,34 +95,25 @@ const SpinVariant: FC<{ size: LoadingSize; color: LoadingColor }> = ({ size, col
 const PulseVariant: FC<{ size: LoadingSize; color: LoadingColor }> = ({ size, color }) => (
   <div className={cn('relative', SIZE_CONFIG[size])}>
     <div
-      className={cn(
-        'absolute inset-0 rounded-full animate-ping opacity-75',
-        COLOR_CONFIG[color]
-      )}
+      className={cn('absolute inset-0 animate-ping rounded-full opacity-75', COLOR_CONFIG[color])}
       style={{ backgroundColor: 'currentColor' }}
     />
     <div
-      className={cn(
-        'relative rounded-full',
-        COLOR_CONFIG[color]
-      )}
+      className={cn('relative rounded-full', COLOR_CONFIG[color])}
       style={{ backgroundColor: 'currentColor' }}
     />
   </div>
-);
+)
 
 /**
  * Bounce variant - bouncing dots
  */
 const BounceVariant: FC<{ size: LoadingSize; color: LoadingColor }> = ({ size, color }) => (
   <div className={cn('flex items-center space-x-1', SIZE_CONFIG[size])}>
-    {[0, 1, 2].map((i) => (
+    {[0, 1, 2].map(i => (
       <div
         key={i}
-        className={cn(
-          'rounded-full animate-bounce',
-          COLOR_CONFIG[color]
-        )}
+        className={cn('animate-bounce rounded-full', COLOR_CONFIG[color])}
         style={{
           width: '30%',
           height: '30%',
@@ -125,24 +123,28 @@ const BounceVariant: FC<{ size: LoadingSize; color: LoadingColor }> = ({ size, c
       />
     ))}
   </div>
-);
+)
 
 /**
  * Dots variant - pulsing dots
  */
 const DotsVariant: FC<{ size: LoadingSize; color: LoadingColor }> = ({ size, color }) => {
-  const dotSize = size === 'xs' ? 'w-1 h-1' : size === 'sm' ? 'w-1.5 h-1.5' : size === 'md' ? 'w-2 h-2' : size === 'lg' ? 'w-2.5 h-2.5' : 'w-3 h-3';
+  const dotSize =
+    size === 'xs'
+      ? 'w-1 h-1'
+      : size === 'sm'
+        ? 'w-1.5 h-1.5'
+        : size === 'md'
+          ? 'w-2 h-2'
+          : size === 'lg'
+            ? 'w-2.5 h-2.5'
+            : 'w-3 h-3'
   return (
     <div className="flex items-center space-x-2">
-      {[0, 1, 2].map((i) => (
+      {[0, 1, 2].map(i => (
         <div
           key={i}
-          className={cn(
-            dotSize,
-            'rounded-full',
-            COLOR_CONFIG[color],
-            'animate-pulse'
-          )}
+          className={cn(dotSize, 'rounded-full', COLOR_CONFIG[color], 'animate-pulse')}
           style={{
             backgroundColor: 'currentColor',
             animationDelay: `${i * 0.15}s`,
@@ -150,23 +152,29 @@ const DotsVariant: FC<{ size: LoadingSize; color: LoadingColor }> = ({ size, col
         />
       ))}
     </div>
-  );
-};
+  )
+}
 
 /**
  * Bars variant - pulsing bars
  */
 const BarsVariant: FC<{ size: LoadingSize; color: LoadingColor }> = ({ size, color }) => {
-  const barHeight = size === 'xs' ? 'h-4' : size === 'sm' ? 'h-6' : size === 'md' ? 'h-8' : size === 'lg' ? 'h-12' : 'h-16';
+  const barHeight =
+    size === 'xs'
+      ? 'h-4'
+      : size === 'sm'
+        ? 'h-6'
+        : size === 'md'
+          ? 'h-8'
+          : size === 'lg'
+            ? 'h-12'
+            : 'h-16'
   return (
     <div className={cn('flex items-end space-x-1', barHeight)}>
-      {[0, 1, 2, 3].map((i) => (
+      {[0, 1, 2, 3].map(i => (
         <div
           key={i}
-          className={cn(
-            'w-1 animate-pulse',
-            COLOR_CONFIG[color]
-          )}
+          className={cn('w-1 animate-pulse', COLOR_CONFIG[color])}
           style={{
             backgroundColor: 'currentColor',
             height: `${40 + i * 20}%`,
@@ -175,17 +183,26 @@ const BarsVariant: FC<{ size: LoadingSize; color: LoadingColor }> = ({ size, col
         />
       ))}
     </div>
-  );
-};
+  )
+}
 
 /**
  * Wave variant - wave animation
  */
 const WaveVariant: FC<{ size: LoadingSize; color: LoadingColor }> = ({ size, color }) => {
-  const barHeight = size === 'xs' ? 'h-4' : size === 'sm' ? 'h-6' : size === 'md' ? 'h-8' : size === 'lg' ? 'h-12' : 'h-16';
+  const barHeight =
+    size === 'xs'
+      ? 'h-4'
+      : size === 'sm'
+        ? 'h-6'
+        : size === 'md'
+          ? 'h-8'
+          : size === 'lg'
+            ? 'h-12'
+            : 'h-16'
   return (
     <div className={cn('flex items-end space-x-1', barHeight)}>
-      {[0, 1, 2, 3, 4].map((i) => (
+      {[0, 1, 2, 3, 4].map(i => (
         <div
           key={i}
           className={cn('w-1', COLOR_CONFIG[color])}
@@ -204,8 +221,8 @@ const WaveVariant: FC<{ size: LoadingSize; color: LoadingColor }> = ({ size, col
         }
       `}</style>
     </div>
-  );
-};
+  )
+}
 
 /**
  * Main LoadingSpinner component
@@ -222,21 +239,21 @@ export const LoadingSpinner: FC<LoadingSpinnerProps> = ({
   const renderSpinner = () => {
     switch (variant) {
       case 'spin':
-        return <SpinVariant size={size} color={color} />;
+        return <SpinVariant size={size} color={color} />
       case 'pulse':
-        return <PulseVariant size={size} color={color} />;
+        return <PulseVariant size={size} color={color} />
       case 'bounce':
-        return <BounceVariant size={size} color={color} />;
+        return <BounceVariant size={size} color={color} />
       case 'dots':
-        return <DotsVariant size={size} color={color} />;
+        return <DotsVariant size={size} color={color} />
       case 'bars':
-        return <BarsVariant size={size} color={color} />;
+        return <BarsVariant size={size} color={color} />
       case 'wave':
-        return <WaveVariant size={size} color={color} />;
+        return <WaveVariant size={size} color={color} />
       default:
-        return <SpinVariant size={size} color={color} />;
+        return <SpinVariant size={size} color={color} />
     }
-  };
+  }
 
   return (
     <div
@@ -253,10 +270,10 @@ export const LoadingSpinner: FC<LoadingSpinnerProps> = ({
         <p className="text-sm font-medium text-zinc-700 dark:text-zinc-300">{label}</p>
       )}
     </div>
-  );
-};
+  )
+}
 
 /**
  * Default export
  */
-export default LoadingSpinner;
+export default LoadingSpinner

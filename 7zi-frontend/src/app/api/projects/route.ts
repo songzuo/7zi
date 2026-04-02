@@ -4,7 +4,7 @@
  * 演示资源级别权限控制
  */
 
-import { NextRequest, NextResponse } from 'next/server';
+import { NextRequest, NextResponse } from 'next/server'
 import {
   UserWithRoles,
   createUserWithRoles,
@@ -16,8 +16,8 @@ import {
   Permissions,
   PermissionContext,
   canAccessResource,
-} from '@/lib/permissions';
-import { UserRole } from '@/lib/auth';
+} from '@/lib/permissions'
+import { UserRole } from '@/lib/auth'
 import {
   createSuccessResponse,
   createUnauthorizedError,
@@ -25,15 +25,15 @@ import {
   createNotFoundError,
   createErrorResponse,
   ErrorType,
-} from '@/lib/api/error-handler';
+} from '@/lib/api/error-handler'
 
 /**
  * API 上下文
  */
 interface ApiContext {
-  user: UserWithRoles;
-  request: NextRequest;
-  params?: Record<string, string>;
+  user: UserWithRoles
+  request: NextRequest
+  params?: Record<string, string>
 }
 
 /**
@@ -76,23 +76,23 @@ const users: Record<string, UserWithRoles> = {
     },
     ['developer']
   ),
-};
+}
 
 /**
  * 模拟的项目数据
  */
 interface Project {
-  id: string;
-  name: string;
-  description: string;
-  ownerId: string;
-  createdAt: Date;
-  updatedAt: Date;
+  id: string
+  name: string
+  description: string
+  ownerId: string
+  createdAt: Date
+  updatedAt: Date
 }
 
 interface ProjectCreateData {
-  name: string;
-  description: string;
+  name: string
+  description: string
 }
 
 const projects: Record<string, Project> = {
@@ -112,7 +112,7 @@ const projects: Record<string, Project> = {
     createdAt: new Date(),
     updatedAt: new Date(),
   },
-};
+}
 
 /**
  * GET /api/projects - 列出所有项目
@@ -120,26 +120,26 @@ const projects: Record<string, Project> = {
  */
 export async function GET(request: NextRequest) {
   try {
-    const userId = request.headers.get('x-user-id') || 'user-3';
-    const user = users[userId];
+    const userId = request.headers.get('x-user-id') || 'user-3'
+    const user = users[userId]
 
     if (!user) {
-      return createUnauthorizedError('User not found');
+      return createUnauthorizedError('User not found')
     }
 
-    const ctx: ApiContext = { user, request };
-    const projectController = new ProjectController();
+    const ctx: ApiContext = { user, request }
+    const projectController = new ProjectController()
 
-    return await projectController.listProjects(ctx);
+    return await projectController.listProjects(ctx)
   } catch (error) {
     if (error instanceof PermissionDeniedError) {
       return createForbiddenError(error.message, {
         requiredPermissions: error.requiredPermissions,
         missingPermissions: error.missingPermissions,
-      });
+      })
     }
 
-    return createErrorResponse(error instanceof Error ? error : new Error(String(error)));
+    return createErrorResponse(error instanceof Error ? error : new Error(String(error)))
   }
 }
 
@@ -149,56 +149,44 @@ export async function GET(request: NextRequest) {
  */
 export async function POST(request: NextRequest) {
   try {
-    const userId = request.headers.get('x-user-id') || 'user-3';
-    const user = users[userId];
+    const userId = request.headers.get('x-user-id') || 'user-3'
+    const user = users[userId]
 
     if (!user) {
-      return createUnauthorizedError('User not found');
+      return createUnauthorizedError('User not found')
     }
 
-    const ctx: ApiContext = { user, request };
-    const projectController = new ProjectController();
+    const ctx: ApiContext = { user, request }
+    const projectController = new ProjectController()
 
-    let body: unknown;
+    let body: unknown
     try {
-      body = await request.json();
+      body = await request.json()
     } catch (error) {
-      return createErrorResponse(
-        new Error('Invalid JSON'),
-        400,
-        {}
-      );
+      return createErrorResponse(new Error('Invalid JSON'), 400, {})
     }
 
     // Validate required fields
     if (!body || typeof body !== 'object') {
-      return createErrorResponse(
-        new Error('Invalid request body'),
-        400,
-        {}
-      );
+      return createErrorResponse(new Error('Invalid request body'), 400, {})
     }
 
-    const data = body as ProjectCreateData;
+    const data = body as ProjectCreateData
 
     if (!data.name || typeof data.name !== 'string' || data.name.trim().length === 0) {
-      return createErrorResponse(
-        new Error('Project name is required'),
-        400,
-        {}
-      );
+      return createErrorResponse(new Error('Project name is required'), 400, {})
     }
 
-    return await projectController.createProject(ctx, data);
+    return await projectController.createProject(ctx, data)
   } catch (error) {
     if (error instanceof PermissionDeniedError) {
       return createForbiddenError(error.message, {
         requiredPermissions: error.requiredPermissions,
         missingPermissions: error.missingPermissions,
-      });
+      })
     }
 
-    return createErrorResponse(error instanceof Error ? error : new Error(String(error)));
+    return createErrorResponse(error instanceof Error ? error : new Error(String(error)))
   }
 }
 
@@ -211,7 +199,7 @@ class ProjectController {
    */
   @RequirePermission(ResourceType.PROJECT, ActionType.READ)
   async listProjects(ctx: ApiContext): Promise<NextResponse> {
-    const { user } = ctx;
+    const { user } = ctx
 
     // 实际业务逻辑：根据权限过滤项目
     // 这里简单返回所有项目
@@ -221,9 +209,9 @@ class ProjectController {
       description: p.description,
       ownerId: p.ownerId,
       isOwner: p.ownerId === user.id,
-    }));
+    }))
 
-    return createSuccessResponse(projectList);
+    return createSuccessResponse(projectList)
   }
 
   /**
@@ -231,9 +219,9 @@ class ProjectController {
    */
   @RequirePermission(ResourceType.PROJECT, ActionType.CREATE)
   async createProject(ctx: ApiContext, projectData: unknown): Promise<NextResponse> {
-    const { user } = ctx;
+    const { user } = ctx
 
-    const data = projectData as ProjectCreateData;
+    const data = projectData as ProjectCreateData
 
     const newProject: Project = {
       id: `project-${Date.now()}`,
@@ -242,22 +230,22 @@ class ProjectController {
       ownerId: user.id,
       createdAt: new Date(),
       updatedAt: new Date(),
-    };
+    }
 
-    projects[newProject.id] = newProject;
+    projects[newProject.id] = newProject
 
-    return createSuccessResponse(newProject, 201);
+    return createSuccessResponse(newProject, 201)
   }
 
   /**
    * 更新项目 - 需要 project:update 权限，并且必须是项目所有者或管理员
    */
   async updateProject(ctx: ApiContext, projectId: string, updates: unknown): Promise<NextResponse> {
-    const { user } = ctx;
+    const { user } = ctx
 
-    const project = projects[projectId];
+    const project = projects[projectId]
     if (!project) {
-      return createNotFoundError('Project not found');
+      return createNotFoundError('Project not found')
     }
 
     // 检查权限（资源级别）
@@ -266,7 +254,7 @@ class ProjectController {
       resourceOwnerId: project.ownerId,
       resourceId: projectId,
       resourceType: ResourceType.PROJECT,
-    };
+    }
 
     // 如果是项目所有者或超级管理员，允许更新
     if (project.ownerId === user.id || user.roles.some(r => r.level >= 100)) {
@@ -274,22 +262,27 @@ class ProjectController {
         ...project,
         ...(updates as Partial<Project>),
         updatedAt: new Date(),
-      };
+      }
 
-      projects[projectId] = updatedProject;
+      projects[projectId] = updatedProject
 
-      return createSuccessResponse(updatedProject);
+      return createSuccessResponse(updatedProject)
     }
 
     // 否则检查是否有 project:manage 权限
-    const permissionCheck = canAccessResource(user, ResourceType.PROJECT, ActionType.UPDATE, permissionContext);
+    const permissionCheck = canAccessResource(
+      user,
+      ResourceType.PROJECT,
+      ActionType.UPDATE,
+      permissionContext
+    )
 
     if (!permissionCheck.allowed) {
       throw new PermissionDeniedError(
         permissionCheck.requiredPermissions,
         permissionCheck.missingPermissions,
         permissionCheck.reason
-      );
+      )
     }
 
     // 执行更新
@@ -297,22 +290,22 @@ class ProjectController {
       ...project,
       ...(updates as Partial<Project>),
       updatedAt: new Date(),
-    };
+    }
 
-    projects[projectId] = updatedProject;
+    projects[projectId] = updatedProject
 
-    return createSuccessResponse(updatedProject);
+    return createSuccessResponse(updatedProject)
   }
 
   /**
    * 删除项目 - 需要 project:delete 权限，并且必须是项目所有者或管理员
    */
   async deleteProject(ctx: ApiContext, projectId: string): Promise<NextResponse> {
-    const { user } = ctx;
+    const { user } = ctx
 
-    const project = projects[projectId];
+    const project = projects[projectId]
     if (!project) {
-      return createNotFoundError('Project not found');
+      return createNotFoundError('Project not found')
     }
 
     // 检查权限（资源级别）
@@ -321,34 +314,39 @@ class ProjectController {
       resourceOwnerId: project.ownerId,
       resourceId: projectId,
       resourceType: ResourceType.PROJECT,
-    };
+    }
 
     // 如果是项目所有者或超级管理员，允许删除
     if (project.ownerId === user.id || user.roles.some(r => r.level >= 100)) {
-      delete projects[projectId];
+      delete projects[projectId]
 
       return createSuccessResponse({
         message: `Project ${projectId} deleted`,
-      });
+      })
     }
 
     // 否则检查是否有 project:delete 权限
-    const permissionCheck = canAccessResource(user, ResourceType.PROJECT, ActionType.DELETE, permissionContext);
+    const permissionCheck = canAccessResource(
+      user,
+      ResourceType.PROJECT,
+      ActionType.DELETE,
+      permissionContext
+    )
 
     if (!permissionCheck.allowed) {
       throw new PermissionDeniedError(
         permissionCheck.requiredPermissions,
         permissionCheck.missingPermissions,
         permissionCheck.reason
-      );
+      )
     }
 
     // 执行删除
-    delete projects[projectId];
+    delete projects[projectId]
 
     return createSuccessResponse({
       message: `Project ${projectId} deleted`,
-    });
+    })
   }
 
   /**
@@ -356,17 +354,17 @@ class ProjectController {
    */
   @RequireRoleLevel(60)
   async manageProject(ctx: ApiContext, projectId: string): Promise<NextResponse> {
-    const { user } = ctx;
+    const { user } = ctx
 
-    const project = projects[projectId];
+    const project = projects[projectId]
     if (!project) {
-      return createNotFoundError('Project not found');
+      return createNotFoundError('Project not found')
     }
 
     return createSuccessResponse({
       project,
       canManage: true,
-    });
+    })
   }
 
   /**
@@ -374,25 +372,25 @@ class ProjectController {
    */
   @RequirePermission(ResourceType.DATA, ActionType.EXPORT)
   async exportProject(ctx: ApiContext, projectId: string): Promise<NextResponse> {
-    const { user } = ctx;
+    const { user } = ctx
 
-    const project = projects[projectId];
+    const project = projects[projectId]
     if (!project) {
-      return createNotFoundError('Project not found');
+      return createNotFoundError('Project not found')
     }
 
-    return createSuccessResponse(project);
+    return createSuccessResponse(project)
   }
 
   /**
    * 获取单个项目 - 需要 project:read 权限
    */
   async getProject(ctx: ApiContext, projectId: string): Promise<NextResponse> {
-    const { user } = ctx;
+    const { user } = ctx
 
-    const project = projects[projectId];
+    const project = projects[projectId]
     if (!project) {
-      return createNotFoundError('Project not found');
+      return createNotFoundError('Project not found')
     }
 
     // 检查项目读取权限
@@ -401,25 +399,30 @@ class ProjectController {
       resourceOwnerId: project.ownerId,
       resourceId: projectId,
       resourceType: ResourceType.PROJECT,
-    };
+    }
 
     // 项目所有者或管理员可以读取
     if (project.ownerId === user.id || user.roles.some(r => r.level >= 100)) {
-      return createSuccessResponse(project);
+      return createSuccessResponse(project)
     }
 
     // 否则检查是否有 project:read 权限
-    const permissionCheck = canAccessResource(user, ResourceType.PROJECT, ActionType.READ, permissionContext);
+    const permissionCheck = canAccessResource(
+      user,
+      ResourceType.PROJECT,
+      ActionType.READ,
+      permissionContext
+    )
 
     if (!permissionCheck.allowed) {
       throw new PermissionDeniedError(
         permissionCheck.requiredPermissions,
         permissionCheck.missingPermissions,
         permissionCheck.reason
-      );
+      )
     }
 
-    return createSuccessResponse(project);
+    return createSuccessResponse(project)
   }
 }
 
@@ -428,25 +431,25 @@ class ProjectController {
  */
 export async function getProject(request: NextRequest, { params }: { params: { id: string } }) {
   try {
-    const userId = request.headers.get('x-user-id') || 'user-3';
-    const user = users[userId];
+    const userId = request.headers.get('x-user-id') || 'user-3'
+    const user = users[userId]
 
     if (!user) {
-      return createUnauthorizedError('User not found');
+      return createUnauthorizedError('User not found')
     }
 
-    const ctx: ApiContext = { user, request, params };
-    const projectController = new ProjectController();
+    const ctx: ApiContext = { user, request, params }
+    const projectController = new ProjectController()
 
-    return await projectController.getProject(ctx, params.id);
+    return await projectController.getProject(ctx, params.id)
   } catch (error) {
     if (error instanceof PermissionDeniedError) {
       return createForbiddenError(error.message, {
         requiredPermissions: error.requiredPermissions,
         missingPermissions: error.missingPermissions,
-      });
+      })
     }
 
-    return createErrorResponse(error instanceof Error ? error : new Error(String(error)));
+    return createErrorResponse(error instanceof Error ? error : new Error(String(error)))
   }
 }

@@ -7,44 +7,44 @@
  * @module @/middleware/auth.middleware
  */
 
-import { NextRequest, NextResponse } from 'next/server';
+import { NextRequest, NextResponse } from 'next/server'
 
 /**
  * Authentication result type
  */
 export interface AuthResult {
-  success: boolean;
-  userId?: string;
-  email?: string;
-  role?: string;
-  error?: string;
+  success: boolean
+  userId?: string
+  email?: string
+  role?: string
+  error?: string
 }
 
 /**
  * Default protected paths that require authentication
  */
-const PROTECTED_PATHS = ['/api/search', '/api/data/import', '/api/data/export'];
+const PROTECTED_PATHS = ['/api/search', '/api/data/import', '/api/data/export']
 
 /**
  * Check if a path requires authentication
  */
 function isProtectedPath(path: string): boolean {
-  return PROTECTED_PATHS.some(protectedPath => path.startsWith(protectedPath));
+  return PROTECTED_PATHS.some(protectedPath => path.startsWith(protectedPath))
 }
 
 /**
  * Extract user information from request headers
  */
 function extractUserFromHeaders(request: NextRequest): AuthResult {
-  const userId = request.headers.get('x-user-id');
-  const email = request.headers.get('x-user-email');
-  const role = request.headers.get('x-user-role');
+  const userId = request.headers.get('x-user-id')
+  const email = request.headers.get('x-user-email')
+  const role = request.headers.get('x-user-role')
 
   if (!userId) {
     return {
       success: false,
       error: 'Missing authentication credentials',
-    };
+    }
   }
 
   return {
@@ -52,7 +52,7 @@ function extractUserFromHeaders(request: NextRequest): AuthResult {
     userId,
     email: email || undefined,
     role: role || 'user',
-  };
+  }
 }
 
 /**
@@ -82,15 +82,15 @@ function extractUserFromHeaders(request: NextRequest): AuthResult {
  */
 export function authMiddleware(request: NextRequest): NextResponse {
   // Only check protected paths
-  const pathname = new URL(request.url).pathname;
+  const pathname = new URL(request.url).pathname
 
   // Allow non-protected paths without auth
   if (!isProtectedPath(pathname)) {
-    return NextResponse.next();
+    return NextResponse.next()
   }
 
   // Extract user from headers
-  const authResult = extractUserFromHeaders(request);
+  const authResult = extractUserFromHeaders(request)
 
   if (!authResult.success) {
     return NextResponse.json(
@@ -100,25 +100,25 @@ export function authMiddleware(request: NextRequest): NextResponse {
         message: authResult.error || 'Authentication required',
       },
       { status: 401 }
-    );
+    )
   }
 
   // Create response with user info in headers
-  const headers = new Headers(request.headers);
-  headers.set('x-user-id', authResult.userId!);
+  const headers = new Headers(request.headers)
+  headers.set('x-user-id', authResult.userId!)
 
   if (authResult.email) {
-    headers.set('x-user-email', authResult.email);
+    headers.set('x-user-email', authResult.email)
   }
 
   if (authResult.role) {
-    headers.set('x-user-role', authResult.role);
+    headers.set('x-user-role', authResult.role)
   }
 
   return new NextResponse(null, {
     status: 200,
     headers,
-  });
+  })
 }
 
 /**
@@ -137,8 +137,8 @@ export function authMiddleware(request: NextRequest): NextResponse {
  */
 export function checkPermissions(requiredRoles: string[]) {
   return (request: NextRequest): NextResponse => {
-    const userRole = request.headers.get('x-user-role');
-    const userId = request.headers.get('x-user-id');
+    const userRole = request.headers.get('x-user-role')
+    const userId = request.headers.get('x-user-id')
 
     // If no auth headers, reject
     if (!userId) {
@@ -149,7 +149,7 @@ export function checkPermissions(requiredRoles: string[]) {
           message: 'Authentication required',
         },
         { status: 401 }
-      );
+      )
     }
 
     // Check role if roles are required
@@ -161,11 +161,11 @@ export function checkPermissions(requiredRoles: string[]) {
           message: 'Insufficient permissions',
         },
         { status: 403 }
-      );
+      )
     }
 
-    return NextResponse.next();
-  };
+    return NextResponse.next()
+  }
 }
 
 /**
@@ -175,7 +175,7 @@ export function checkPermissions(requiredRoles: string[]) {
  * Use for highly sensitive endpoints.
  */
 export function requireAuth(request: NextRequest): NextResponse {
-  const userId = request.headers.get('x-user-id');
+  const userId = request.headers.get('x-user-id')
 
   if (!userId) {
     return NextResponse.json(
@@ -185,10 +185,10 @@ export function requireAuth(request: NextRequest): NextResponse {
         message: 'Authentication required',
       },
       { status: 401 }
-    );
+    )
   }
 
-  return NextResponse.next();
+  return NextResponse.next()
 }
 
 /**
@@ -198,7 +198,7 @@ export function requireAuth(request: NextRequest): NextResponse {
  * @returns User ID or null if not authenticated
  */
 export function getUserId(request: NextRequest): string | null {
-  return request.headers.get('x-user-id');
+  return request.headers.get('x-user-id')
 }
 
 /**
@@ -208,5 +208,5 @@ export function getUserId(request: NextRequest): string | null {
  * @returns User role or null if not authenticated
  */
 export function getUserRole(request: NextRequest): string | null {
-  return request.headers.get('x-user-role');
+  return request.headers.get('x-user-role')
 }

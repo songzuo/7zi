@@ -8,7 +8,7 @@ name: Security Scan
 on:
   # 每天运行一次
   schedule:
-    - cron: '0 2 * * *'  # UTC 2:00 (CET 3:00)
+    - cron: '0 2 * * *' # UTC 2:00 (CET 3:00)
   # 手动触发
   workflow_dispatch:
     inputs:
@@ -103,7 +103,7 @@ jobs:
     steps:
       - uses: actions/checkout@v4
         with:
-          fetch-depth: 0  # Full history for better detection
+          fetch-depth: 0 # Full history for better detection
 
       - name: TruffleHog Secret Scan
         uses: trufflesecurity/trufflehog@main

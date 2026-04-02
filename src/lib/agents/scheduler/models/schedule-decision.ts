@@ -3,47 +3,47 @@
  * Defines the structure of scheduling decisions made by the system
  */
 
-import { TaskPriority, TaskType } from './task-model';
+import { TaskPriority, TaskType } from './task-model'
 
 /**
  * Schedule decision with detailed reasoning
  */
 export interface ScheduleDecision {
   /** Task being scheduled */
-  taskId: string;
-  
+  taskId: string
+
   /** Agent assigned to task */
-  assignedAgent: string;
-  
+  assignedAgent: string
+
   /** Confidence in this decision (0-1) */
-  confidence: number;
-  
+  confidence: number
+
   /** Reasoning for the decision */
-  reasoning: string;
-  
+  reasoning: string
+
   /** Alternative agents in order of preference */
-  alternativeAgents: string[];
-  
+  alternativeAgents: string[]
+
   /** Estimated completion timestamp */
-  estimatedCompletion: number;
-  
+  estimatedCompletion: number
+
   /** Decision timestamp */
-  decisionTime: number;
-  
+  decisionTime: number
+
   /** Scores used in decision */
   scores: {
-    capability: number;
-    load: number;
-    performance: number;
-    response: number;
-    total: number;
-  };
-  
+    capability: number
+    load: number
+    performance: number
+    response: number
+    total: number
+  }
+
   /** Whether this was a manual override */
-  manualOverride?: boolean;
-  
+  manualOverride?: boolean
+
   /** User who made manual override */
-  overrideBy?: string;
+  overrideBy?: string
 }
 
 /**
@@ -51,110 +51,112 @@ export interface ScheduleDecision {
  */
 export interface SchedulingMetrics {
   /** Total decisions made */
-  totalDecisions: number;
-  
+  totalDecisions: number
+
   /** Automatic decisions */
-  automaticDecisions: number;
-  
+  automaticDecisions: number
+
   /** Manual overrides */
-  manualOverrides: number;
-  
+  manualOverrides: number
+
   /** Average confidence */
-  averageConfidence: number;
-  
+  averageConfidence: number
+
   /** Distribution by task type */
-  byTaskType: Record<TaskType, number>;
-  
+  byTaskType: Record<TaskType, number>
+
   /** Distribution by priority */
-  byPriority: Record<TaskPriority, number>;
-  
+  byPriority: Record<TaskPriority, number>
+
   /** Agent utilization */
-  agentUtilization: Record<string, {
-    assigned: number;
-    completed: number;
-    failed: number;
-    averageCompletionTime: number;
-  }>;
+  agentUtilization: Record<
+    string,
+    {
+      assigned: number
+      completed: number
+      failed: number
+      averageCompletionTime: number
+    }
+  >
 }
 
 /**
  * Scheduling history for analysis
  */
 export class ScheduleHistory {
-  private decisions: ScheduleDecision[] = [];
-  private metrics: SchedulingMetrics;
+  private decisions: ScheduleDecision[] = []
+  private metrics: SchedulingMetrics
 
   constructor() {
-    this.metrics = this.initializeMetrics();
+    this.metrics = this.initializeMetrics()
   }
 
   /**
    * Add a decision to history
    */
   addDecision(decision: ScheduleDecision): void {
-    this.decisions.push(decision);
-    this.updateMetrics(decision);
+    this.decisions.push(decision)
+    this.updateMetrics(decision)
   }
 
   /**
    * Get decision for a specific task
    */
   getDecision(taskId: string): ScheduleDecision | undefined {
-    return this.decisions.find(d => d.taskId === taskId);
+    return this.decisions.find(d => d.taskId === taskId)
   }
 
   /**
    * Get all decisions
    */
   getAllDecisions(): ScheduleDecision[] {
-    return [...this.decisions];
+    return [...this.decisions]
   }
 
   /**
    * Get decisions by agent
    */
   getAgentDecisions(agentId: string): ScheduleDecision[] {
-    return this.decisions.filter(d => d.assignedAgent === agentId);
+    return this.decisions.filter(d => d.assignedAgent === agentId)
   }
 
   /**
    * Get decisions in time range
    */
   getDecisionsInRange(startTime: number, endTime: number): ScheduleDecision[] {
-    return this.decisions.filter(d => 
-      d.decisionTime >= startTime && d.decisionTime <= endTime
-    );
+    return this.decisions.filter(d => d.decisionTime >= startTime && d.decisionTime <= endTime)
   }
 
   /**
    * Get recent decisions
    */
   getRecentDecisions(count: number = 10): ScheduleDecision[] {
-    return this.decisions.slice(-count);
+    return this.decisions.slice(-count)
   }
 
   /**
    * Get scheduling metrics
    */
   getMetrics(): SchedulingMetrics {
-    return { ...this.metrics };
+    return { ...this.metrics }
   }
 
   /**
    * Update metrics based on new decision
    */
   private updateMetrics(decision: ScheduleDecision): void {
-    this.metrics.totalDecisions++;
-    
+    this.metrics.totalDecisions++
+
     if (decision.manualOverride) {
-      this.metrics.manualOverrides++;
+      this.metrics.manualOverrides++
     } else {
-      this.metrics.automaticDecisions++;
+      this.metrics.automaticDecisions++
     }
 
     // Update average confidence
-    const totalConfidence = this.metrics.averageConfidence * (this.decisions.length - 1) + decision.confidence;
-    this.metrics.averageConfidence = totalConfidence / this.decisions.length;
+    const totalConfidence =
+      this.metrics.averageConfidence * (this.decisions.length - 1) + decision.confidence
+    this.metrics.averageConfidence = totalConfidence / this.decisions.length
 
     // Initialize agent metrics if needed
     if (!this.metrics.agentUtilization[decision.assignedAgent]) {
@@ -162,41 +164,41 @@ export class ScheduleHistory {
         assigned: 0,
         completed: 0,
         failed: 0,
-        averageCompletionTime: 0
-      };
+        averageCompletionTime: 0,
+      }
     }
 
-    this.metrics.agentUtilization[decision.assignedAgent].assigned++;
+    this.metrics.agentUtilization[decision.assignedAgent].assigned++
   }
 
   /**
    * Record task completion
    */
   recordCompletion(taskId: string, success: boolean, completionTime: number): void {
-    const decision = this.getDecision(taskId);
-    if (!decision) return;
+    const decision = this.getDecision(taskId)
+    if (!decision) return
 
-    const agentMetrics = this.metrics.agentUtilization[decision.assignedAgent];
-    if (!agentMetrics) return;
+    const agentMetrics = this.metrics.agentUtilization[decision.assignedAgent]
+    if (!agentMetrics) return
 
     if (success) {
-      agentMetrics.completed++;
+      agentMetrics.completed++
     } else {
-      agentMetrics.failed++;
+      agentMetrics.failed++
     }
 
     // Update average completion time
-    const totalCompleted = agentMetrics.completed + agentMetrics.failed;
-    const totalTime = agentMetrics.averageCompletionTime * (totalCompleted - 1) + completionTime;
-    agentMetrics.averageCompletionTime = totalTime / totalCompleted;
+    const totalCompleted = agentMetrics.completed + agentMetrics.failed
+    const totalTime = agentMetrics.averageCompletionTime * (totalCompleted - 1) + completionTime
+    agentMetrics.averageCompletionTime = totalTime / totalCompleted
   }
 
   /**
    * Clear history
    */
   clear(): void {
-    this.decisions = [];
-    this.metrics = this.initializeMetrics();
+    this.decisions = []
+    this.metrics = this.initializeMetrics()
   }
 
   /**
@@ -219,28 +221,28 @@ export class ScheduleHistory {
         sales: 0,
         finance: 0,
         media: 0,
-        general: 0
+        general: 0,
       },
       byPriority: {
         low: 0,
         medium: 0,
         high: 0,
-        urgent: 0
+        urgent: 0,
       },
-      agentUtilization: {}
-    };
+      agentUtilization: {},
+    }
   }
 
   /**
    * Get decision accuracy (decisions where top choice agent completed successfully)
    */
   getAccuracy(): number {
-    const completed = this.decisions.filter(d => d.manualOverride !== true);
-    if (completed.length === 0) return 0;
+    const completed = this.decisions.filter(d => d.manualOverride !== true)
+    if (completed.length === 0) return 0
 
     // This would need to be tracked separately in a real implementation
     // For now, return the average confidence as a proxy
-    return this.metrics.averageConfidence;
+    return this.metrics.averageConfidence
   }
 
   /**
@@ -250,22 +252,26 @@ export class ScheduleHistory {
     const agents = Object.entries(this.metrics.agentUtilization)
       .map(([agentId, metrics]) => ({
         agentId,
-        score: metrics.completed * 10 - metrics.failed * 20
+        score: metrics.completed * 10 - metrics.failed * 20,
       }))
-      .sort((a, b) => b.score - a.score);
+      .sort((a, b) => b.score - a.score)
 
-    return agents.slice(0, count);
+    return agents.slice(0, count)
   }
 
   /**
    * Export history to JSON
    */
   export(): string {
-    return JSON.stringify({
-      decisions: this.decisions,
-      metrics: this.metrics,
-      exportTime: Date.now()
-    }, null, 2);
+    return JSON.stringify(
+      {
+        decisions: this.decisions,
+        metrics: this.metrics,
+        exportTime: Date.now(),
+      },
+      null,
+      2
+    )
   }
 
   /**
@@ -273,11 +279,11 @@ export class ScheduleHistory {
    */
   import(json: string): void {
     try {
-      const data = JSON.parse(json);
-      this.decisions = data.decisions || [];
-      this.metrics = data.metrics || this.initializeMetrics();
-    } catch (_error) {
-      throw new Error('Invalid history data format');
+      const data = JSON.parse(json)
+      this.decisions = data.decisions || []
+      this.metrics = data.metrics || this.initializeMetrics()
+    } catch (error) {
+      throw new Error('Invalid history data format')
     }
   }
 }
@@ -286,21 +292,21 @@ export class ScheduleHistory {
  * Create a schedule decision
  */
 export function createScheduleDecision(params: {
-  taskId: string;
-  assignedAgent: string;
-  confidence: number;
-  reasoning: string;
-  alternativeAgents: string[];
-  estimatedCompletion: number;
+  taskId: string
+  assignedAgent: string
+  confidence: number
+  reasoning: string
+  alternativeAgents: string[]
+  estimatedCompletion: number
   scores: {
-    capability: number;
-    load: number;
-    performance: number;
-    response: number;
-    total: number;
-  };
-  manualOverride?: boolean;
-  overrideBy?: string;
+    capability: number
+    load: number
+    performance: number
+    response: number
+    total: number
+  }
+  manualOverride?: boolean
+  overrideBy?: string
 }): ScheduleDecision {
   return {
     taskId: params.taskId,
@@ -312,6 +318,6 @@ export function createScheduleDecision(params: {
     decisionTime: Date.now(),
     scores: params.scores,
     manualOverride: params.manualOverride,
-    overrideBy: params.overrideBy
-  };
+    overrideBy: params.overrideBy,
+  }
 }

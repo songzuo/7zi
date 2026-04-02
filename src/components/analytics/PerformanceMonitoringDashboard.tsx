@@ -1,4 +1,4 @@
-'use client';
+'use client'
 
 /**
  * PerformanceMonitoringDashboard Component
@@ -10,12 +10,12 @@
  * - PageLoadWaterfall (瀑布流)
  */
 
-import React, { useState } from 'react';
-import { Activity, RefreshCw, Settings, Download, AlertCircle } from 'lucide-react';
-import { useWebVitals } from '@/lib/hooks/useWebVitals';
-import { PerformanceMetrics } from './PerformanceMetrics';
-import { RealTimeCharts } from './RealTimeCharts';
-import { PageLoadWaterfall } from './PageLoadWaterfall';
+import React, { useState } from 'react'
+import { Activity, RefreshCw, Settings, Download, AlertCircle } from 'lucide-react'
+import { useWebVitals } from '@/lib/hooks/useWebVitals'
+import { PerformanceMetrics } from './PerformanceMetrics'
+import { RealTimeCharts } from './RealTimeCharts'
+import { PageLoadWaterfall } from './PageLoadWaterfall'
 
 // ============================================
 // Type Definitions
@@ -23,20 +23,20 @@ import { PageLoadWaterfall } from './PageLoadWaterfall';
 
 export interface PerformanceMonitoringDashboardProps {
   /** 是否启用实时数据收集 */
-  enabled?: boolean;
+  enabled?: boolean
   /** WebSocket URL 用于实时更新 */
-  wsUrl?: string;
+  wsUrl?: string
   /** 语言 */
-  locale?: 'en' | 'zh';
+  locale?: 'en' | 'zh'
   /** 显示的组件 */
   showComponents?: {
-    metrics?: boolean;
-    charts?: boolean;
-    waterfall?: boolean;
-  };
+    metrics?: boolean
+    charts?: boolean
+    waterfall?: boolean
+  }
   /** 刷新间隔（毫秒） */
-  refreshInterval?: number;
-  className?: string;
+  refreshInterval?: number
+  className?: string
 }
 
 // ============================================
@@ -51,14 +51,14 @@ export const PerformanceMonitoringDashboard: React.FC<PerformanceMonitoringDashb
   refreshInterval = 5000,
   className = '',
 }) => {
-  const [isRefreshing, setIsRefreshing] = useState(false);
-  const [showSettings, setShowSettings] = useState(false);
-  const [showComponents, setShowComponents] = useState(initialShowComponents);
+  const [isRefreshing, setIsRefreshing] = useState(false)
+  const [showSettings, setShowSettings] = useState(false)
+  const [showComponents, setShowComponents] = useState(initialShowComponents)
 
   // Web Vitals collection
   const { metrics, history, isCollecting } = useWebVitals({
     reportToApi: true,
-  });
+  })
 
   const t = {
     title: locale === 'zh' ? '性能监控仪表板' : 'Performance Monitoring Dashboard',
@@ -69,14 +69,14 @@ export const PerformanceMonitoringDashboard: React.FC<PerformanceMonitoringDashb
     collected: locale === 'zh' ? '已收集' : 'Collected',
     lastUpdate: locale === 'zh' ? '最后更新' : 'Last updated',
     export: locale === 'zh' ? '导出数据' : 'Export Data',
-  };
+  }
 
   // Refresh function
   const handleRefresh = async () => {
-    setIsRefreshing(true);
+    setIsRefreshing(true)
     // Trigger a reload to re-collect metrics
-    window.location.reload();
-  };
+    window.location.reload()
+  }
 
   // Export data function
   const handleExport = () => {
@@ -86,50 +86,53 @@ export const PerformanceMonitoringDashboard: React.FC<PerformanceMonitoringDashb
       timestamp: new Date().toISOString(),
       url: window.location.href,
       userAgent: navigator.userAgent,
-    };
+    }
 
     const blob = new Blob([JSON.stringify(exportData, null, 2)], {
       type: 'application/json',
-    });
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement('a');
-    a.href = url;
-    a.download = `performance-metrics-${Date.now()}.json`;
-    document.body.appendChild(a);
-    a.click();
-    document.body.removeChild(a);
-    URL.revokeObjectURL(url);
-  };
+    })
+    const url = URL.createObjectURL(blob)
+    const a = document.createElement('a')
+    a.href = url
+    a.download = `performance-metrics-${Date.now()}.json`
+    document.body.appendChild(a)
+    a.click()
+    document.body.removeChild(a)
+    URL.revokeObjectURL(url)
+  }
 
   if (!enabled) {
-    return null;
+    return null
   }
 
   return (
     <div className={`space-y-6 ${className}`}>
       {/* Header */}
-      <div className="bg-white dark:bg-zinc-800 rounded-lg border border-zinc-200 dark:border-zinc-700 p-6">
+      <div className="rounded-lg border border-zinc-200 bg-white p-6 dark:border-zinc-700 dark:bg-zinc-800">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-3">
-            <div className="p-2 bg-blue-100 dark:bg-blue-900/30 rounded-lg">
-              <Activity className="w-5 h-5 text-blue-600 dark:text-blue-400" />
+            <div className="rounded-lg bg-blue-100 p-2 dark:bg-blue-900/30">
+              <Activity className="h-5 w-5 text-blue-600 dark:text-blue-400" />
             </div>
             <div>
-              <h2 className="text-xl font-bold text-zinc-900 dark:text-white">
-                {t.title}
-              </h2>
-              <div className="flex items-center gap-2 mt-1">
+              <h2 className="text-xl font-bold text-zinc-900 dark:text-white">{t.title}</h2>
+              <div className="mt-1 flex items-center gap-2">
                 <span
                   className={`flex items-center gap-1 text-xs ${
-                    isCollecting ? 'text-green-600 dark:text-green-400' : 'text-zinc-500 dark:text-zinc-400'
+                    isCollecting
+                      ? 'text-green-600 dark:text-green-400'
+                      : 'text-zinc-500 dark:text-zinc-400'
                   }`}
                 >
-                  <span className={`w-2 h-2 rounded-full ${isCollecting ? 'bg-green-500 animate-pulse' : 'bg-zinc-400'}`} />
+                  <span
+                    className={`h-2 w-2 rounded-full ${isCollecting ? 'animate-pulse bg-green-500' : 'bg-zinc-400'}`}
+                  />
                   {isCollecting ? t.collecting : t.collected}
                 </span>
                 {history.length > 0 && (
                   <span className="text-xs text-zinc-500 dark:text-zinc-400">
-                    {t.lastUpdate}: {new Date(history[history.length - 1].timestamp).toLocaleTimeString()}
+                    {t.lastUpdate}:{' '}
+                    {new Date(history[history.length - 1].timestamp).toLocaleTimeString()}
                   </span>
                 )}
               </div>
@@ -141,43 +144,43 @@ export const PerformanceMonitoringDashboard: React.FC<PerformanceMonitoringDashb
             <button
               onClick={handleRefresh}
               disabled={isRefreshing}
-              className="flex items-center gap-2 px-3 py-2 text-sm font-medium text-zinc-700 dark:text-zinc-300 bg-white dark:bg-zinc-700 border border-zinc-300 dark:border-zinc-600 rounded-lg hover:bg-zinc-50 dark:hover:bg-zinc-600 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+              className="flex items-center gap-2 rounded-lg border border-zinc-300 bg-white px-3 py-2 text-sm font-medium text-zinc-700 transition-colors hover:bg-zinc-50 disabled:cursor-not-allowed disabled:opacity-50 dark:border-zinc-600 dark:bg-zinc-700 dark:text-zinc-300 dark:hover:bg-zinc-600"
             >
-              <RefreshCw className={`w-4 h-4 ${isRefreshing ? 'animate-spin' : ''}`} />
+              <RefreshCw className={`h-4 w-4 ${isRefreshing ? 'animate-spin' : ''}`} />
               {t.refresh}
             </button>
 
             {/* Export button */}
             <button
               onClick={handleExport}
-              className="flex items-center gap-2 px-3 py-2 text-sm font-medium text-zinc-700 dark:text-zinc-300 bg-white dark:bg-zinc-700 border border-zinc-300 dark:border-zinc-600 rounded-lg hover:bg-zinc-50 dark:hover:bg-zinc-600 transition-colors"
+              className="flex items-center gap-2 rounded-lg border border-zinc-300 bg-white px-3 py-2 text-sm font-medium text-zinc-700 transition-colors hover:bg-zinc-50 dark:border-zinc-600 dark:bg-zinc-700 dark:text-zinc-300 dark:hover:bg-zinc-600"
             >
-              <Download className="w-4 h-4" />
+              <Download className="h-4 w-4" />
               {t.export}
             </button>
 
             {/* Settings button */}
             <button
               onClick={() => setShowSettings(!showSettings)}
-              className="flex items-center gap-2 px-3 py-2 text-sm font-medium text-zinc-700 dark:text-zinc-300 bg-white dark:bg-zinc-700 border border-zinc-300 dark:border-zinc-600 rounded-lg hover:bg-zinc-50 dark:hover:bg-zinc-600 transition-colors"
+              className="flex items-center gap-2 rounded-lg border border-zinc-300 bg-white px-3 py-2 text-sm font-medium text-zinc-700 transition-colors hover:bg-zinc-50 dark:border-zinc-600 dark:bg-zinc-700 dark:text-zinc-300 dark:hover:bg-zinc-600"
             >
-              <Settings className="w-4 h-4" />
+              <Settings className="h-4 w-4" />
             </button>
           </div>
         </div>
 
         {/* Settings panel */}
         {showSettings && (
-          <div className="mt-4 pt-4 border-t border-zinc-200 dark:border-zinc-700">
-            <h4 className="text-sm font-medium text-zinc-700 dark:text-zinc-300 mb-3">
+          <div className="mt-4 border-t border-zinc-200 pt-4 dark:border-zinc-700">
+            <h4 className="mb-3 text-sm font-medium text-zinc-700 dark:text-zinc-300">
               {t.settings}
             </h4>
             <div className="flex flex-wrap gap-4">
-              <label className="flex items-center gap-2 cursor-pointer">
+              <label className="flex cursor-pointer items-center gap-2">
                 <input
                   type="checkbox"
                   checked={showComponents.metrics}
-                  onChange={(e) =>
+                  onChange={e =>
                     setShowComponents({
                       ...showComponents,
                       metrics: e.target.checked,
@@ -189,11 +192,11 @@ export const PerformanceMonitoringDashboard: React.FC<PerformanceMonitoringDashb
                   {locale === 'zh' ? '指标卡片' : 'Metrics Cards'}
                 </span>
               </label>
-              <label className="flex items-center gap-2 cursor-pointer">
+              <label className="flex cursor-pointer items-center gap-2">
                 <input
                   type="checkbox"
                   checked={showComponents.charts}
-                  onChange={(e) =>
+                  onChange={e =>
                     setShowComponents({
                       ...showComponents,
                       charts: e.target.checked,
@@ -205,11 +208,11 @@ export const PerformanceMonitoringDashboard: React.FC<PerformanceMonitoringDashb
                   {locale === 'zh' ? '实时图表' : 'Real-time Charts'}
                 </span>
               </label>
-              <label className="flex items-center gap-2 cursor-pointer">
+              <label className="flex cursor-pointer items-center gap-2">
                 <input
                   type="checkbox"
                   checked={showComponents.waterfall}
-                  onChange={(e) =>
+                  onChange={e =>
                     setShowComponents({
                       ...showComponents,
                       waterfall: e.target.checked,
@@ -228,11 +231,7 @@ export const PerformanceMonitoringDashboard: React.FC<PerformanceMonitoringDashb
 
       {/* Performance Metrics */}
       {showComponents.metrics && (
-        <PerformanceMetrics
-          metrics={metrics}
-          locale={locale}
-          showRating={true}
-        />
+        <PerformanceMetrics metrics={metrics} locale={locale} showRating={true} />
       )}
 
       {/* Real-time Charts */}
@@ -259,13 +258,13 @@ export const PerformanceMonitoringDashboard: React.FC<PerformanceMonitoringDashb
 
       {/* Warning if no data */}
       {Object.keys(metrics).length === 0 && (
-        <div className="bg-yellow-50 dark:bg-yellow-900/20 border border-yellow-200 dark:border-yellow-800 rounded-lg p-4 flex items-start gap-3">
-          <AlertCircle className="w-5 h-5 text-yellow-600 dark:text-yellow-400 flex-shrink-0 mt-0.5" />
+        <div className="flex items-start gap-3 rounded-lg border border-yellow-200 bg-yellow-50 p-4 dark:border-yellow-800 dark:bg-yellow-900/20">
+          <AlertCircle className="mt-0.5 h-5 w-5 flex-shrink-0 text-yellow-600 dark:text-yellow-400" />
           <div>
             <h4 className="text-sm font-medium text-yellow-800 dark:text-yellow-200">
               {locale === 'zh' ? '正在收集性能数据...' : 'Collecting performance data...'}
             </h4>
-            <p className="text-sm text-yellow-700 dark:text-yellow-300 mt-1">
+            <p className="mt-1 text-sm text-yellow-700 dark:text-yellow-300">
               {locale === 'zh'
                 ? 'Web Vitals 指标正在收集中，请稍等片刻。'
                 : 'Web Vitals metrics are being collected. Please wait a moment.'}
@@ -274,7 +273,7 @@ export const PerformanceMonitoringDashboard: React.FC<PerformanceMonitoringDashb
         </div>
       )}
     </div>
-  );
-};
+  )
+}
 
-export default PerformanceMonitoringDashboard;
+export default PerformanceMonitoringDashboard

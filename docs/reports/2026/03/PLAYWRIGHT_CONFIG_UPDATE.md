@@ -9,6 +9,7 @@
 ## 📋 概述
 
 本次优化针对 `playwright.config.ts` 进行了以下改进：
+
 - 明确 CI 环境下的 workers 并行配置
 - 简化浏览器项目配置，移除冗余设置
 
@@ -21,18 +22,21 @@
 **位置**: `workers` 配置项
 
 **修改前**:
+
 ```typescript
 // CI 上限制并行 workers
 workers: process.env.CI ? 4 : undefined,
 ```
 
 **修改后**:
+
 ```typescript
 // CI 环境下使用 4 个并行 workers
 workers: process.env.CI ? 4 : undefined,
 ```
 
 **变更说明**:
+
 - 配置值保持不变（CI 环境下 4 个并行 workers）
 - 注释更清晰地说明配置目的和用途
 - 提升配置可读性和维护性
@@ -44,6 +48,7 @@ workers: process.env.CI ? 4 : undefined,
 **位置**: `projects` 数组
 
 #### 变更前
+
 ```typescript
 projects: [
   // 主要桌面浏览器
@@ -81,6 +86,7 @@ projects: [
 ```
 
 #### 变更后
+
 ```typescript
 projects: [
   // 主要桌面浏览器
@@ -125,18 +131,23 @@ projects: [
 ## ✅ 验证结果
 
 ### 1. 配置语法检查
+
 ```bash
 npx tsc --noEmit playwright.config.ts
 ```
+
 **结果**: ✅ 通过（退出码 0）
 
 ### 2. 测试列表验证
+
 ```bash
 CI=true npx playwright test --list
 ```
+
 **结果**: ✅ 成功列出所有测试用例，配置生效
 
 **测试统计**:
+
 - [chromium] 项目：正常加载
 - [firefox] 项目：正常加载
 - [webkit] 项目：正常加载
@@ -146,24 +157,26 @@ CI=true npx playwright test --list
 
 ## 📊 配置对比总结
 
-| 项目 | 变更前 | 变更后 | 影响 |
-|------|--------|--------|------|
-| Workers 注释 | "CI 上限制并行 workers" | "CI 环境下使用 4 个并行 workers" | 更清晰的文档 |
-| Chromium 项目 | 包含重复 viewport | 仅使用设备预设 | 代码简化 |
-| Mobile Chrome | 存在 | 移除 | 减少测试矩阵 |
-| Visual Regression | 包含重复 viewport/deviceScaleFactor | 仅使用设备预设 | 代码简化 |
-| 项目总数 | 5 个 | 4 个 | 减少约 20% |
+| 项目              | 变更前                              | 变更后                           | 影响         |
+| ----------------- | ----------------------------------- | -------------------------------- | ------------ |
+| Workers 注释      | "CI 上限制并行 workers"             | "CI 环境下使用 4 个并行 workers" | 更清晰的文档 |
+| Chromium 项目     | 包含重复 viewport                   | 仅使用设备预设                   | 代码简化     |
+| Mobile Chrome     | 存在                                | 移除                             | 减少测试矩阵 |
+| Visual Regression | 包含重复 viewport/deviceScaleFactor | 仅使用设备预设                   | 代码简化     |
+| 项目总数          | 5 个                                | 4 个                             | 减少约 20%   |
 
 ---
 
 ## 🎯 优化效果
 
 ### 性能影响
+
 - **配置加载**: 更快（移除冗余配置）
 - **测试执行时间**: 无显著变化（workers 数量未变）
 - **维护性**: 提升（代码更清晰、更少重复）
 
 ### 测试覆盖影响
+
 - **桌面浏览器**: 保持不变（Chromium, Firefox, WebKit）
 - **移动端测试**: 暂时移除（如需要可恢复）
 - **视觉回归**: 保持不变（专用 Chromium 项目）
@@ -173,11 +186,13 @@ CI=true npx playwright test --list
 ## 📝 遗留建议
 
 ### 可选优化
+
 1. **考虑添加 Mobile Chrome 项目**: 如需移动端覆盖
 2. **动态 Workers 配置**: 根据机器规格自动调整
 3. **条件性项目加载**: 通过环境变量控制测试矩阵
 
 ### 监控建议
+
 1. 观察 CI 环境下 4 个 workers 的资源使用情况
 2. 如发现内存/CPU 压力，考虑降低到 2-3 个 workers
 3. 记录测试执行时间，评估进一步优化空间
@@ -213,10 +228,10 @@ use: {
 
 ### 环境变量行为
 
-| 环境 | Workers 数量 | 重试次数 | forbidOnly |
-|------|-------------|---------|-----------|
-| CI (CI=true) | 4 | 2 | true |
-| 本地开发 | CPU 核心数 | 0 | false |
+| 环境         | Workers 数量 | 重试次数 | forbidOnly |
+| ------------ | ------------ | -------- | ---------- |
+| CI (CI=true) | 4            | 2        | true       |
+| 本地开发     | CPU 核心数   | 0        | false      |
 
 ---
 

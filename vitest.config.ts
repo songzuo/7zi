@@ -15,7 +15,7 @@ export default defineConfig({
   poolOptions: {
     forks: {
       singleFork: false, // 允许并行执行以提高测试速度
-      isolate: true,     // 确保 fork 之间的隔离
+      isolate: true, // 确保 fork 之间的隔离
     },
   },
 
@@ -30,19 +30,23 @@ export default defineConfig({
     environment: 'jsdom', // 使用 jsdom 环境以支持 React 组件测试
     globals: true,
     setupFiles: [path.resolve(__dirname, './tests/setup.ts')],
-    include: ['src/**/*.{test,spec}.{js,ts,jsx,tsx}', 'app/**/*.{test,spec}.{js,ts,jsx,tsx}', 'tests/**/*.{test,spec}.{js,ts,jsx,tsx}'],
+    include: [
+      'src/**/*.{test,spec}.{js,ts,jsx,tsx}',
+      'app/**/*.{test,spec}.{js,ts,jsx,tsx}',
+      'tests/**/*.{test,spec}.{js,ts,jsx,tsx}',
+    ],
 
     // Vitest 4: 性能优化：使用 forks 线程池减少内存占用（jose 库需要真实 Node.js 环境）
     pool: 'forks',
 
     // 测试超时配置
-    testTimeout: 60000,  // 增加到 60 秒以防止慢测试超时
+    testTimeout: 60000, // 增加到 60 秒以防止慢测试超时
     hookTimeout: 10000,
     // 失败时不重试
     retry: 0,
 
     // 文件级别的超时配置
-    fileTimeout: 180000,  // 增加到 180 秒
+    fileTimeout: 180000, // 增加到 180 秒
 
     // 性能优化：测试隔离模式（单进程模式下使用 isolate: true 确保测试独立性）
     isolate: true,
@@ -52,7 +56,7 @@ export default defineConfig({
 
     // 测试顺序：随机顺序以发现隐藏的依赖关系
     sequence: {
-      shuffle: false,  // 保持顺序以确保稳定性
+      shuffle: false, // 保持顺序以确保稳定性
     },
 
     // 限制工作线程的生命周期
@@ -63,12 +67,7 @@ export default defineConfig({
       provider: 'v8',
       reporter: ['text', 'json', 'html', 'lcov'],
       // 排除不需要覆盖的文件
-      exclude: [
-        'node_modules/**',
-        'src/test/**',
-        '**/*.d.ts',
-        '**/*.config.*',
-      ],
+      exclude: ['node_modules/**', 'src/test/**', '**/*.d.ts', '**/*.config.*'],
       // 覆盖率阈值
       thresholds: {
         lines: 50,

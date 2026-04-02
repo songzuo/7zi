@@ -1,71 +1,82 @@
 /**
  * MCP Server Index
- * 
+ *
  * Main entry point for MCP functionality.
- * 
+ *
  * @module mcp
  */
 
 // Core server
-export { SevenZiMcpServer, getMcpServer, mcpServer, type McpServerConfig, type ToolDefinition } from './server';
+export { SevenZiMcpServer, getMcpServer, mcpServer } from './server'
+export type { McpServerConfig, ToolDefinition } from './server'
 
 // HTTP transport
-export { MCPHttpTransport, sessionManager, toSSE, parseSSE, MCPSessionManager } from './http-transport';
+export {
+  MCPHttpTransport,
+  sessionManager,
+  toSSE,
+  parseSSE,
+  MCPSessionManager,
+} from './http-transport'
 
 // Tools
-export { toolRegistry, ToolRegistry, initializeDefaultTools, type ToolCategory, type ExtendedToolDefinition } from './tools';
+export { toolRegistry, ToolRegistry, initializeDefaultTools } from './tools'
+export type { ToolCategory, ExtendedToolDefinition } from './tools'
 
 // Registry (new)
-export {
-  MCPToolRegistry,
-  mcpRegistry,
-  defineTool,
-  type ToolMetadata,
-  type ToolParameter,
-  type ToolReturn,
-  type ToolContext,
-  type ToolResult,
-  type RegistryEvent,
-  type RegistrySnapshot,
-  MCPRegistryError,
-} from './registry';
+export { MCPToolRegistry, mcpRegistry, defineTool, MCPRegistryError } from './registry'
+// Re-export z from zod for convenience
+export { z } from 'zod'
+export type {
+  ToolMetadata,
+  ToolParameter,
+  ToolReturn,
+  ToolContext,
+  ToolResult,
+  RegistryEvent,
+  RegistrySnapshot,
+} from './registry'
 
 // Resources (new)
 export {
   MCPResourceManager,
   mcpResourceManager,
   FileSystemResourceProvider,
-  ResourceProvider,
-  type ResourceType,
-  type ResourceContentType,
-  type ResourceMetadata,
-  type ResourceContent,
-  type ResourceSubscription,
-  type ResourceChangeEvent,
-  type ResourceSubscriptionFilter,
-  type CachePolicy,
-  type ResourceReadOptions,
-  type ResourceContext,
   MCPResourceError,
-} from './resources';
+} from './resources'
+export type {
+  ResourceProvider,
+  ResourceType,
+  ResourceContentType,
+  ResourceMetadata,
+  ResourceContent,
+  ResourceSubscription,
+  ResourceChangeEvent,
+  ResourceSubscriptionFilter,
+  CachePolicy,
+  ResourceReadOptions,
+  ResourceContext,
+} from './resources'
 
 // Prompts (new)
 export {
   MCPPromptsManager,
   mcpPromptsManager,
-  MarketplaceClient,
   DefaultMarketplaceClient,
-  type PromptTemplate,
-  type PromptMetadata,
-  type PromptParameter,
-  type CompiledPrompt,
-  type MarketplaceTemplate,
-  type MarketplaceFilter,
-  type PromptCategory,
-  type PromptStatus,
   initializeDefaultPrompts,
   MCPPromptsError,
-} from './prompts';
+} from './prompts'
+export type {
+  MarketplaceClient,
+  PromptTemplate,
+  PromptMetadata,
+  PromptParameter,
+  CompiledPrompt,
+  MarketplaceTemplate,
+  MarketplaceFilter,
+  PromptCategory,
+  PromptStatus,
+} from './prompts'
 
 // Auth (new)
 export {
@@ -75,17 +86,19 @@ export {
   FileAuditLogger,
   withAuth,
   createAccessRequest,
-  type Role,
-  type Permission,
-  type UserSession,
-  type AccessRequest,
-  type AccessDecision,
-  type AuditLogEntry,
-  type AuditQuery,
-  type PermissionLevel,
-  type ResourceScope,
   MCPAuthError,
-} from './auth';
+} from './auth'
+export type {
+  Role,
+  Permission,
+  UserSession,
+  AccessRequest,
+  AccessDecision,
+  AuditLogEntry,
+  AuditQuery,
+  PermissionLevel,
+  ResourceScope,
+} from './auth'
 
 // Streaming (new)
 export {
@@ -95,14 +108,16 @@ export {
   streamingExecutor,
   SSEResponse,
   SSEParser,
-  type SSEEvent,
-  type SSEEventType,
-  type ProgressInfo,
-  type StreamingContext,
-  type StreamInfo,
-  type StreamState,
-  type StreamingToolOptions,
-  type StreamingToolResult,
-  type ProgressCallback,
   MCPStreamError,
-} from './streaming';
+} from './streaming'
+export type {
+  SSEEvent,
+  SSEEventType,
+  ProgressInfo,
+  StreamingContext,
+  StreamInfo,
+  StreamState,
+  StreamingToolOptions,
+  StreamingToolResult,
+  ProgressCallback,
+} from './streaming'

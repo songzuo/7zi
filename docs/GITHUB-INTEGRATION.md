@@ -29,14 +29,14 @@
 
 ### 集成能力
 
-| 功能 | 状态 | 说明 |
-|------|------|------|
-| 仓库读取 | ✅ | 读取代码、分支、标签 |
-| Issue 管理 | ✅ | 创建/更新/关闭 Issue |
-| PR 自动化 | ✅ | 自动审查、标签、分配 |
-| Actions 触发 | ✅ | 通过 API 触发工作流 |
-| Webhook 接收 | ✅ | 接收 Push、PR、Issue 事件 |
-| 代码提交 | ✅ | 创建/更新文件 |
+| 功能         | 状态 | 说明                      |
+| ------------ | ---- | ------------------------- |
+| 仓库读取     | ✅   | 读取代码、分支、标签      |
+| Issue 管理   | ✅   | 创建/更新/关闭 Issue      |
+| PR 自动化    | ✅   | 自动审查、标签、分配      |
+| Actions 触发 | ✅   | 通过 API 触发工作流       |
+| Webhook 接收 | ✅   | 接收 Push、PR、Issue 事件 |
+| 代码提交     | ✅   | 创建/更新文件             |
 
 ---
 
@@ -87,19 +87,19 @@ git secrets --add "ghp_.*"
 #### 获取仓库信息
 
 ```typescript
-import { Octokit } from '@octokit/rest';
+import { Octokit } from '@octokit/rest'
 
 const octokit = new Octokit({
-  auth: process.env.GITHUB_TOKEN
-});
+  auth: process.env.GITHUB_TOKEN,
+})
 
 async function getRepoInfo() {
   const { data } = await octokit.repos.get({
     owner: process.env.GITHUB_OWNER!,
-    repo: process.env.GITHUB_REPO!
-  });
-  
-  return data;
+    repo: process.env.GITHUB_REPO!,
+  })
+
+  return data
 }
 ```
 
@@ -112,10 +112,10 @@ async function createIssue(title: string, body: string, labels?: string[]) {
     repo: process.env.GITHUB_REPO!,
     title,
     body,
-    labels
-  });
-  
-  return data;
+    labels,
+  })
+
+  return data
 }
 ```
 
@@ -126,29 +126,26 @@ async function getPullRequests(state: 'open' | 'closed' | 'all' = 'open') {
   const { data } = await octokit.pulls.list({
     owner: process.env.GITHUB_OWNER!,
     repo: process.env.GITHUB_REPO!,
-    state
-  });
-  
-  return data;
+    state,
+  })
+
+  return data
 }
 ```
 
 #### 提交文件
 
 ```typescript
-async function commitFile(
-  path: string,
-  content: string,
-  message: string,
-  branch: string = 'main'
-) {
+async function commitFile(path: string, content: string, message: string, branch: string = 'main') {
   // 获取当前文件 SHA
-  const { data: file } = await octokit.repos.getContent({
-    owner: process.env.GITHUB_OWNER!,
-    repo: process.env.GITHUB_REPO!,
-    path,
-    ref: branch
-  }).catch(() => ({ data: null }));
+  const { data: file } = await octokit.repos
+    .getContent({
+      owner: process.env.GITHUB_OWNER!,
+      repo: process.env.GITHUB_REPO!,
+      path,
+      ref: branch,
+    })
+    .catch(() => ({ data: null }))
 
   // 创建/更新文件
   const { data } = await octokit.repos.createOrUpdateFileContents({
@@ -158,23 +155,23 @@ async function commitFile(
     message,
     content: Buffer.from(content).toString('base64'),
     sha: file?.sha,
-    branch
-  });
+    branch,
+  })
 
-  return data;
+  return data
 }
 ```
 
 ### GraphQL API 示例
 
 ```typescript
-import { graphql } from '@octokit/graphql';
+import { graphql } from '@octokit/graphql'
 
 const graphqlWithAuth = graphql.defaults({
   headers: {
-    authorization: `token ${process.env.GITHUB_TOKEN}`
-  }
-});
+    authorization: `token ${process.env.GITHUB_TOKEN}`,
+  },
+})
 
 async function getRepositoryInfo() {
   const query = `
@@ -202,14 +199,14 @@ async function getRepositoryInfo() {
         }
       }
     }
-  `;
+  `
 
   const result = await graphqlWithAuth(query, {
     owner: process.env.GITHUB_OWNER!,
-    repo: process.env.GITHUB_REPO!
-  });
+    repo: process.env.GITHUB_REPO!,
+  })
 
-  return result.repository;
+  return result.repository
 }
 ```
 
@@ -234,75 +231,71 @@ gh api \
 
 ### 2. 支持的事件
 
-| 事件 | 触发条件 | 用途 |
-|------|---------|------|
-| `push` | 代码推送 | 触发部署、更新缓存 |
+| 事件           | 触发条件     | 用途               |
+| -------------- | ------------ | ------------------ |
+| `push`         | 代码推送     | 触发部署、更新缓存 |
 | `pull_request` | PR 创建/更新 | 自动审查、运行测试 |
-| `issues` | Issue 操作 | 同步到任务系统 |
-| `release` | 发布新版本 | 触发构建流程 |
-| `workflow_run` | Actions 完成 | 通知状态 |
+| `issues`       | Issue 操作   | 同步到任务系统     |
+| `release`      | 发布新版本   | 触发构建流程       |
+| `workflow_run` | Actions 完成 | 通知状态           |
 
 ### 3. Webhook 处理
 
 ```typescript
 // /api/webhooks/github.ts
-import { verify } from '@octokit/webhooks-methods';
+import { verify } from '@octokit/webhooks-methods'
 
 export async function POST(req: Request) {
-  const signature = req.headers.get('x-hub-signature-256');
-  const event = req.headers.get('x-github-event');
-  const body = await req.text();
+  const signature = req.headers.get('x-hub-signature-256')
+  const event = req.headers.get('x-github-event')
+  const body = await req.text()
 
   // 验证签名
-  const isValid = await verify(
-    process.env.GITHUB_WEBHOOK_SECRET!,
-    body,
-    signature!
-  );
+  const isValid = await verify(process.env.GITHUB_WEBHOOK_SECRET!, body, signature!)
 
   if (!isValid) {
-    return new Response('Invalid signature', { status: 401 });
+    return new Response('Invalid signature', { status: 401 })
   }
 
-  const payload = JSON.parse(body);
+  const payload = JSON.parse(body)
 
   // 处理不同事件
   switch (event) {
     case 'push':
-      await handlePush(payload);
-      break;
+      await handlePush(payload)
+      break
     case 'pull_request':
-      await handlePullRequest(payload);
-      break;
+      await handlePullRequest(payload)
+      break
     case 'issues':
-      await handleIssue(payload);
-      break;
+      await handleIssue(payload)
+      break
   }
 
-  return new Response('OK', { status: 200 });
+  return new Response('OK', { status: 200 })
 }
 
 async function handlePush(payload: any) {
-  const { repository, ref, commits } = payload;
-  
+  const { repository, ref, commits } = payload
+
   // 记录推送
-  console.log(`Push to ${ref} by ${payload.sender.login}`);
-  
+  console.log(`Push to ${ref} by ${payload.sender.login}`)
+
   // 触发部署
   if (ref === 'refs/heads/main') {
-    await triggerDeployment();
+    await triggerDeployment()
   }
 }
 
 async function handlePullRequest(payload: any) {
-  const { action, pull_request } = payload;
-  
+  const { action, pull_request } = payload
+
   if (action === 'opened') {
     // 自动添加标签
-    await addLabels(pull_request.number);
-    
+    await addLabels(pull_request.number)
+
     // 分配审查者
-    await assignReviewers(pull_request.number);
+    await assignReviewers(pull_request.number)
   }
 }
 ```
@@ -333,17 +326,17 @@ async function triggerWorkflow(
     repo: process.env.GITHUB_REPO!,
     workflow_id: workflowId,
     ref,
-    inputs
-  });
+    inputs,
+  })
 
-  return data;
+  return data
 }
 
 // 使用示例
 await triggerWorkflow('deploy.yml', 'main', {
   environment: 'production',
-  version: '1.0.0'
-});
+  version: '1.0.0',
+})
 ```
 
 ### 工作流文件示例
@@ -368,7 +361,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      
+
       - name: Deploy to 7zi.com
         run: |
           ./deploy.sh ${{ github.event.inputs.environment }}
@@ -385,6 +378,7 @@ jobs:
 **错误**: `403 Forbidden`
 
 **解决**:
+
 1. 检查 Token 的 scopes 设置
 2. 重新生成 Token 并授予所需权限
 3. 更新环境变量
@@ -394,14 +388,15 @@ jobs:
 **错误**: `403 rate limit exceeded`
 
 **解决**:
+
 ```typescript
 // 检查速率限制
-const { data } = await octokit.rateLimit.get();
-console.log(data.resources.core.remaining);
+const { data } = await octokit.rateLimit.get()
+console.log(data.resources.core.remaining)
 
 // 使用重试逻辑
-import { retry } from "@octokit/plugin-retry";
-const MyOctokit = Octokit.plugin(retry);
+import { retry } from '@octokit/plugin-retry'
+const MyOctokit = Octokit.plugin(retry)
 ```
 
 ### Q3: Webhook 签名验证失败
@@ -409,6 +404,7 @@ const MyOctokit = Octokit.plugin(retry);
 **错误**: `Invalid signature`
 
 **解决**:
+
 1. 确认 Webhook Secret 一致
 2. 检查编码格式 (UTF-8)
 3. 使用原始 body 进行验证
@@ -418,6 +414,7 @@ const MyOctokit = Octokit.plugin(retry);
 **错误**: `file too large`
 
 **解决**:
+
 - 使用 Git LFS 管理大文件
 - 或使用 GitHub Contents API 的分块上传
 
@@ -429,14 +426,14 @@ const MyOctokit = Octokit.plugin(retry);
 
 ```typescript
 try {
-  await octokit.repos.get({ owner, repo });
+  await octokit.repos.get({ owner, repo })
 } catch (error) {
   if (error.status === 404) {
-    console.error('Repository not found');
+    console.error('Repository not found')
   } else if (error.status === 403) {
-    console.error('Permission denied');
+    console.error('Permission denied')
   } else {
-    console.error('GitHub API error:', error);
+    console.error('GitHub API error:', error)
   }
 }
 ```
@@ -444,35 +441,37 @@ try {
 ### 2. 缓存
 
 ```typescript
-import NodeCache from 'node-cache';
+import NodeCache from 'node-cache'
 
-const cache = new NodeCache({ stdTTL: 300 }); // 5 分钟
+const cache = new NodeCache({ stdTTL: 300 }) // 5 分钟
 
 async function getCachedRepoInfo() {
-  const cached = cache.get('repo-info');
-  if (cached) return cached;
+  const cached = cache.get('repo-info')
+  if (cached) return cached
 
-  const info = await getRepoInfo();
-  cache.set('repo-info', info);
-  return info;
+  const info = await getRepoInfo()
+  cache.set('repo-info', info)
+  return info
 }
 ```
 
 ### 3. 日志记录
 
 ```typescript
-import { logger } from '../utils/logger';
+import { logger } from '../utils/logger'
 
 async function createIssue(title: string, body: string) {
-  logger.info('Creating GitHub issue', { title });
-  
+  logger.info('Creating GitHub issue', { title })
+
   try {
-    const result = await octokit.issues.create({ /* ... */ });
-    logger.info('Issue created', { id: result.data.id });
-    return result.data;
+    const result = await octokit.issues.create({
+      /* ... */
+    })
+    logger.info('Issue created', { id: result.data.id })
+    return result.data
   } catch (error) {
-    logger.error('Failed to create issue', { error, title });
-    throw error;
+    logger.error('Failed to create issue', { error, title })
+    throw error
   }
 }
 ```
@@ -488,4 +487,4 @@ async function createIssue(title: string, body: string) {
 
 ---
 
-*本集成由 7zi Studio AI 团队维护*
+_本集成由 7zi Studio AI 团队维护_

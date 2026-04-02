@@ -3,11 +3,11 @@
  * @description Type definitions for the advanced search system
  */
 
-import Fuse from 'fuse.js';
-import type { SearchConfig, SearchResult } from '@/types/search-filter';
+import Fuse from 'fuse.js'
+import type { SearchConfig, SearchResult } from '@/types/search-filter'
 
 // Re-export SearchResult for convenience
-export type { SearchResult };
+export type { SearchResult }
 
 // ============================================================================
 // Search History Types
@@ -18,21 +18,21 @@ export type { SearchResult };
  */
 export interface SearchHistoryEntry {
   /** The search query */
-  query: string;
+  query: string
   /** Timestamp when the search was performed */
-  timestamp: number;
+  timestamp: number
   /** Number of results returned */
-  resultCount: number;
+  resultCount: number
   /** Search target type */
-  target: 'all' | 'tasks' | 'projects' | 'members' | 'agents';
+  target: 'all' | 'tasks' | 'projects' | 'members' | 'agents'
 }
 
 /**
  * Search history storage
  */
 export interface SearchHistoryStorage {
-  entries: SearchHistoryEntry[];
-  maxSize: number;
+  entries: SearchHistoryEntry[]
+  maxSize: number
 }
 
 // ============================================================================
@@ -42,34 +42,34 @@ export interface SearchHistoryStorage {
 /**
  * Autocomplete suggestion type
  */
-export type AutocompleteSuggestionType = 'history' | 'suggestion' | 'entity';
+export type AutocompleteSuggestionType = 'history' | 'suggestion' | 'entity'
 
 /**
  * Autocomplete suggestion
  */
 export interface AutocompleteSuggestion {
   /** Suggestion text */
-  text: string;
+  text: string
   /** Suggestion type */
-  type: AutocompleteSuggestionType;
+  type: AutocompleteSuggestionType
   /** Relevance score (0-1) */
-  score?: number;
+  score?: number
   /** Entity information (if type is 'entity') */
   entity?: {
-    id: string;
-    type: 'task' | 'project' | 'member' | 'agent';
-    name: string;
-    avatar?: string;
-  };
+    id: string
+    type: 'task' | 'project' | 'member' | 'agent'
+    name: string
+    avatar?: string
+  }
 }
 
 /**
  * Autocomplete result
  */
 export interface AutocompleteResult {
-  suggestions: AutocompleteSuggestion[];
-  query: string;
-  hasMore: boolean;
+  suggestions: AutocompleteSuggestion[]
+  query: string
+  hasMore: boolean
 }
 
 // ============================================================================
@@ -80,12 +80,12 @@ export interface AutocompleteResult {
  * Search index metadata
  */
 export interface SearchIndexMetadata {
-  id: string;
-  name: string;
-  itemCount: number;
-  lastUpdated: number;
-  fields: string[];
-  enabled: boolean;
+  id: string
+  name: string
+  itemCount: number
+  lastUpdated: number
+  fields: string[]
+  enabled: boolean
 }
 
 /**
@@ -93,20 +93,20 @@ export interface SearchIndexMetadata {
  */
 export interface SearchIndexConfig {
   /** Index identifier */
-  id: string;
+  id: string
   /** Human-readable name */
-  name: string;
+  name: string
   /** Fields to index */
-  fields: string[];
+  fields: string[]
   /** Fuse.js options */
   fuseOptions?: {
-    threshold?: number;
-    distance?: number;
-    minMatchCharLength?: number;
-    useExtendedSearch?: boolean;
-  };
+    threshold?: number
+    distance?: number
+    minMatchCharLength?: number
+    useExtendedSearch?: boolean
+  }
   /** Whether this index is enabled */
-  enabled?: boolean;
+  enabled?: boolean
 }
 
 // ============================================================================
@@ -118,34 +118,34 @@ export interface SearchIndexConfig {
  */
 export interface AdvancedSearchQuery {
   /** Main search text */
-  text: string;
+  text: string
   /** Key-value filters (e.g., status:open) */
-  filters: SearchFilters;
+  filters: SearchFilters
   /** Search configuration */
-  config?: SearchConfig;
+  config?: SearchConfig
   /** Limit number of results */
-  limit?: number;
+  limit?: number
   /** Offset for pagination */
-  offset?: number;
+  offset?: number
 }
 
 /**
  * Search filters
  */
 export interface SearchFilters {
-  status?: string[];
-  priority?: string[];
-  labels?: string[];
-  assignees?: string[];
+  status?: string[]
+  priority?: string[]
+  labels?: string[]
+  assignees?: string[]
   dateRange?: {
-    start: string;
-    end: string;
-  };
-  createdAfter?: string;
-  createdBefore?: string;
-  updatedAfter?: string;
-  updatedBefore?: string;
-  custom?: Record<string, string[]>;
+    start: string
+    end: string
+  }
+  createdAfter?: string
+  createdBefore?: string
+  updatedAfter?: string
+  updatedBefore?: string
+  custom?: Record<string, string[]>
 }
 
 /**
@@ -153,15 +153,15 @@ export interface SearchFilters {
  */
 export interface PaginatedSearchResult<T> {
   /** Search results */
-  results: SearchResult<T>[];
+  results: SearchResult<T>[]
   /** Total number of results (before pagination) */
-  total: number;
+  total: number
   /** Current page */
-  page: number;
+  page: number
   /** Page size */
-  pageSize: number;
+  pageSize: number
   /** Whether there are more results */
-  hasMore: boolean;
+  hasMore: boolean
 }
 
 // ============================================================================
@@ -173,17 +173,17 @@ export interface PaginatedSearchResult<T> {
  */
 export interface SearchStatistics {
   /** Total number of searches performed */
-  totalSearches: number;
+  totalSearches: number
   /** Average result count */
-  averageResultCount: number;
+  averageResultCount: number
   /** Most common queries */
-  topQueries: Array<{ query: string; count: number }>;
+  topQueries: Array<{ query: string; count: number }>
   /** Searches by target type */
-  searchesByTarget: Record<string, number>;
+  searchesByTarget: Record<string, number>
   /** Cache hit rate */
-  cacheHitRate: number;
+  cacheHitRate: number
   /** Average search time (ms) */
-  averageSearchTime: number;
+  averageSearchTime: number
 }
 
 // ============================================================================
@@ -195,13 +195,13 @@ export interface SearchStatistics {
  */
 export interface SearchCacheEntry<T> {
   /** Cached search results */
-  results: SearchResult<T>[];
+  results: SearchResult<T>[]
   /** Timestamp when cached */
-  timestamp: number;
+  timestamp: number
   /** Query string */
-  query: string;
+  query: string
   /** Result count */
-  resultCount: number;
+  resultCount: number
 }
 
 /**
@@ -209,15 +209,15 @@ export interface SearchCacheEntry<T> {
  */
 export interface CacheStatistics {
   /** Current cache size */
-  size: number;
+  size: number
   /** Maximum cache size */
-  maxSize: number;
+  maxSize: number
   /** Number of cache hits */
-  hits: number;
+  hits: number
   /** Number of cache misses */
-  misses: number;
+  misses: number
   /** Cache hit rate */
-  hitRate: number;
+  hitRate: number
 }
 
 // ============================================================================
@@ -229,99 +229,95 @@ export interface CacheStatistics {
  */
 export interface SearchableEntity {
   /** Unique identifier */
-  id: string;
+  id: string
   /** Entity type */
-  type: 'task' | 'project' | 'member' | 'agent';
+  type: 'task' | 'project' | 'member' | 'agent'
   /** Display name */
-  name: string;
+  name: string
   /** Description */
-  description?: string;
+  description?: string
   /** Search keywords/tags */
-  keywords?: string[];
+  keywords?: string[]
 }
 
 /**
  * Task entity
  */
 export interface TaskEntity extends SearchableEntity {
-  type: 'task';
+  type: 'task'
   /** Task title */
-  title: string;
+  title: string
   /** Task status */
-  status: 'open' | 'closed' | 'in_progress';
+  status: 'open' | 'closed' | 'in_progress'
   /** Task priority */
-  priority: 'high' | 'medium' | 'low';
+  priority: 'high' | 'medium' | 'low'
   /** Assignee */
-  assignee?: string;
+  assignee?: string
   /** Labels */
-  labels?: Array<{ name: string; color: string }>;
+  labels?: Array<{ name: string; color: string }>
   /** Created date */
-  createdAt: string;
+  createdAt: string
   /** Updated date */
-  updatedAt: string;
+  updatedAt: string
 }
 
 /**
  * Project entity
  */
 export interface ProjectEntity extends SearchableEntity {
-  type: 'project';
+  type: 'project'
   /** Project name */
-  title: string;
+  title: string
   /** Project status */
-  status: 'active' | 'archived' | 'completed';
+  status: 'active' | 'archived' | 'completed'
   /** Owner */
-  owner: string;
+  owner: string
   /** Members */
-  members: string[];
+  members: string[]
   /** Created date */
-  createdAt: string;
+  createdAt: string
   /** Updated date */
-  updatedAt: string;
+  updatedAt: string
 }
 
 /**
  * Member entity
  */
 export interface MemberEntity extends SearchableEntity {
-  type: 'member';
+  type: 'member'
   /** Username */
-  login: string;
+  login: string
   /** Display name */
-  displayName?: string;
+  displayName?: string
   /** Avatar URL */
-  avatarUrl?: string;
+  avatarUrl?: string
   /** Role */
-  role: string;
+  role: string
   /** Email */
-  email?: string;
+  email?: string
 }
 
 /**
  * Agent entity
  */
 export interface AgentEntity extends SearchableEntity {
-  type: 'agent';
+  type: 'agent'
   /** Agent name */
-  title: string;
+  title: string
   /** Agent status */
-  status: 'active' | 'inactive' | 'maintenance';
+  status: 'active' | 'inactive' | 'maintenance'
   /** Agent type */
-  agentType: string;
+  agentType: string
   /** Capabilities */
-  capabilities: string[];
+  capabilities: string[]
   /** Last active */
-  lastActive?: string;
+  lastActive?: string
 }
 
 /**
  * Unified searchable entity
  */
-export type UnifiedEntity =
-  | TaskEntity
-  | ProjectEntity
-  | MemberEntity
-  | AgentEntity;
+export type UnifiedEntity = TaskEntity | ProjectEntity | MemberEntity | AgentEntity
 
 // ============================================================================
 // Search Settings Types
@@ -332,23 +328,23 @@ export type UnifiedEntity =
  */
 export interface SearchPreferences {
   /** Default search target */
-  defaultTarget: 'all' | 'tasks' | 'projects' | 'members' | 'agents';
+  defaultTarget: 'all' | 'tasks' | 'projects' | 'members' | 'agents'
   /** Enable fuzzy search */
-  enableFuzzySearch: boolean;
+  enableFuzzySearch: boolean
   /** Fuzzy search threshold (0-1) */
-  fuzzyThreshold: number;
+  fuzzyThreshold: number
   /** Enable search history */
-  enableHistory: boolean;
+  enableHistory: boolean
   /** Maximum history size */
-  maxHistorySize: number;
+  maxHistorySize: number
   /** Enable autocomplete */
-  enableAutocomplete: boolean;
+  enableAutocomplete: boolean
   /** Default result limit */
-  defaultResultLimit: number;
+  defaultResultLimit: number
   /** Enable result highlighting */
-  enableHighlighting: boolean;
+  enableHighlighting: boolean
   /** Case sensitive search */
-  caseSensitive: boolean;
+  caseSensitive: boolean
 }
 
 /**
@@ -364,7 +360,7 @@ export const DEFAULT_SEARCH_PREFERENCES: SearchPreferences = {
   defaultResultLimit: 50,
   enableHighlighting: true,
   caseSensitive: false,
-};
+}
 
 // ============================================================================
 // Search Event Types
@@ -379,21 +375,21 @@ export type SearchEventType =
   | 'history-add'
   | 'history-clear'
   | 'cache-clear'
-  | 'index-update';
+  | 'index-update'
 
 /**
  * Search event
  */
 export interface SearchEvent {
-  type: SearchEventType;
-  timestamp: number;
-  data: unknown;
+  type: SearchEventType
+  timestamp: number
+  data: unknown
 }
 
 /**
  * Search event listener
  */
-export type SearchEventListener = (event: SearchEvent) => void;
+export type SearchEventListener = (event: SearchEvent) => void
 
 // ============================================================================
 // Utility Types
@@ -403,19 +399,19 @@ export type SearchEventListener = (event: SearchEvent) => void;
  * Search result group by entity type
  */
 export type SearchResultsByType<T> = {
-  [K in UnifiedEntity['type']]?: SearchResult<T>[];
-};
+  [K in UnifiedEntity['type']]?: SearchResult<T>[]
+}
 
 /**
  * Search index options
  */
 export interface SearchIndexOptions<T> {
   /** Index identifier */
-  id: string;
+  id: string
   /** Items to index */
-  items: T[];
+  items: T[]
   /** Fields to search */
-  fields: string[];
+  fields: string[]
   /** Fuse.js configuration */
-  fuseOptions?: Partial<import('fuse.js').IFuseOptions<T>>;
+  fuseOptions?: Partial<import('fuse.js').IFuseOptions<T>>
 }

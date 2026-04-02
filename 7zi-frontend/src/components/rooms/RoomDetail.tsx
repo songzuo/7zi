@@ -11,70 +11,70 @@
  * - Room settings for admins (rename, password, transfer ownership)
  */
 
-'use client';
+'use client'
 
-import { useState, useMemo } from 'react';
-import { useTranslation } from 'react-i18next';
-import clsx from 'clsx';
-import type { Room, RoomMember, RoomSettings } from '@/types/rooms';
-import { useRoomStore } from '@/stores/room-store';
-import { Button } from '@/components/ui/Button';
-import { Modal } from '@/components/ui/Modal';
-import { Input } from '@/components/ui/Input';
-import { RoomInvite } from './RoomInvite';
+import { useState, useMemo } from 'react'
+import { useTranslation } from 'react-i18next'
+import clsx from 'clsx'
+import type { Room, RoomMember, RoomSettings } from '@/types/rooms'
+import { useRoomStore } from '@/stores/room-store'
+import { Button } from '@/components/ui/Button'
+import { Modal } from '@/components/ui/Modal'
+import { Input } from '@/components/ui/Input'
+import { RoomInvite } from './RoomInvite'
 
 export interface RoomDetailProps {
   /** Room data */
-  room: Room;
+  room: Room
   /** Is current user admin/owner */
-  isAdmin?: boolean;
+  isAdmin?: boolean
   /** Additional CSS classes */
-  className?: string;
+  className?: string
 }
 
 /**
  * Room Detail Component
  */
 export function RoomDetail({ room, isAdmin = false, className }: RoomDetailProps) {
-  const { t } = useTranslation('rooms');
-  const { updateRoom, addMember, removeMember, currentUserId } = useRoomStore();
+  const { t } = useTranslation('rooms')
+  const { updateRoom, addMember, removeMember, currentUserId } = useRoomStore()
 
-  const [activeTab, setActiveTab] = useState<'info' | 'members' | 'invite' | 'settings'>('info');
-  const [showInviteModal, setShowInviteModal] = useState(false);
-  const [showSettingsModal, setShowSettingsModal] = useState(false);
-  const [showTransferModal, setShowTransferModal] = useState(false);
+  const [activeTab, setActiveTab] = useState<'info' | 'members' | 'invite' | 'settings'>('info')
+  const [showInviteModal, setShowInviteModal] = useState(false)
+  const [showSettingsModal, setShowSettingsModal] = useState(false)
+  const [showTransferModal, setShowTransferModal] = useState(false)
 
   const [settingsForm, setSettingsForm] = useState<RoomSettings>({
     name: room.name,
     description: room.description,
     password: '',
-  });
+  })
 
-  const [transferToId, setTransferToId] = useState('');
+  const [transferToId, setTransferToId] = useState('')
 
   // Format timestamp
   const formatDate = (timestamp: number) => {
-    return new Date(timestamp).toLocaleString();
-  };
+    return new Date(timestamp).toLocaleString()
+  }
 
   // Format duration
   const formatDuration = (timestamp: number) => {
-    const now = Date.now();
-    const diff = now - timestamp;
+    const now = Date.now()
+    const diff = now - timestamp
 
-    const minutes = Math.floor(diff / 60000);
-    const hours = Math.floor(diff / 3600000);
-    const days = Math.floor(diff / 86400000);
+    const minutes = Math.floor(diff / 60000)
+    const hours = Math.floor(diff / 3600000)
+    const days = Math.floor(diff / 86400000)
 
-    if (days > 0) return `${days}d`;
-    if (hours > 0) return `${hours}h`;
-    if (minutes > 0) return `${minutes}m`;
-    return 'Just now';
-  };
+    if (days > 0) return `${days}d`
+    if (hours > 0) return `${hours}h`
+    if (minutes > 0) return `${minutes}m`
+    return 'Just now'
+  }
 
   // Save settings
   const handleSaveSettings = async (e: React.FormEvent) => {
-    e.preventDefault();
+    e.preventDefault()
 
     try {
       // TODO: Replace with actual API call
@@ -82,26 +82,26 @@ export function RoomDetail({ room, isAdmin = false, className }: RoomDetailProps
         method: 'PATCH',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(settingsForm),
-      });
+      })
 
       if (!response.ok) {
-        throw new Error(t('messages.error'));
+        throw new Error(t('messages.error'))
       }
 
-      const updatedRoom = await response.json();
+      const updatedRoom = await response.json()
 
       // Update in store
-      updateRoom(room.id, updatedRoom);
+      updateRoom(room.id, updatedRoom)
 
-      setShowSettingsModal(false);
+      setShowSettingsModal(false)
     } catch (error) {
-      console.error('Failed to update room:', error);
+      console.error('Failed to update room:', error)
     }
-  };
+  }
 
   // Transfer ownership
   const handleTransferOwnership = async () => {
-    if (!confirm(t('transferConfirm', { name: transferToId }))) return;
+    if (!confirm(t('transferConfirm', { name: transferToId }))) return
 
     try {
       // TODO: Replace with actual API call
@@ -109,68 +109,68 @@ export function RoomDetail({ room, isAdmin = false, className }: RoomDetailProps
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ newOwnerId: transferToId }),
-      });
+      })
 
       if (!response.ok) {
-        throw new Error(t('messages.error'));
+        throw new Error(t('messages.error'))
       }
 
-      const updatedRoom = await response.json();
+      const updatedRoom = await response.json()
 
       // Update in store
-      updateRoom(room.id, updatedRoom);
+      updateRoom(room.id, updatedRoom)
 
-      setShowTransferModal(false);
-      setTransferToId('');
+      setShowTransferModal(false)
+      setTransferToId('')
     } catch (error) {
-      console.error('Failed to transfer ownership:', error);
+      console.error('Failed to transfer ownership:', error)
     }
-  };
+  }
 
   // Delete room
   const handleDeleteRoom = async () => {
-    if (!confirm(t('deleteConfirm'))) return;
+    if (!confirm(t('deleteConfirm'))) return
 
     try {
       // TODO: Replace with actual API call
       const response = await fetch(`/api/rooms/${room.id}`, {
         method: 'DELETE',
-      });
+      })
 
       if (!response.ok) {
-        throw new Error(t('messages.error'));
+        throw new Error(t('messages.error'))
       }
 
       // Navigate back to room list
-      window.location.href = '/rooms';
+      window.location.href = '/rooms'
     } catch (error) {
-      console.error('Failed to delete room:', error);
+      console.error('Failed to delete room:', error)
     }
-  };
+  }
 
   // Member role badge
   const getRoleBadge = (role: string) => {
     switch (role) {
       case 'owner':
         return (
-          <span className="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-yellow-100 text-yellow-800 dark:bg-yellow-900/30 dark:text-yellow-300">
+          <span className="inline-flex items-center rounded bg-yellow-100 px-2 py-0.5 text-xs font-medium text-yellow-800 dark:bg-yellow-900/30 dark:text-yellow-300">
             👑 {role}
           </span>
-        );
+        )
       case 'admin':
         return (
-          <span className="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-purple-100 text-purple-800 dark:bg-purple-900/30 dark:text-purple-300">
+          <span className="inline-flex items-center rounded bg-purple-100 px-2 py-0.5 text-xs font-medium text-purple-800 dark:bg-purple-900/30 dark:text-purple-300">
             🛡️ {role}
           </span>
-        );
+        )
       default:
         return (
-          <span className="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-gray-100 text-gray-800 dark:bg-gray-700 dark:text-gray-300">
+          <span className="inline-flex items-center rounded bg-gray-100 px-2 py-0.5 text-xs font-medium text-gray-800 dark:bg-gray-700 dark:text-gray-300">
             👤 {role}
           </span>
-        );
+        )
     }
-  };
+  }
 
   // Tabs
   const tabs = [
@@ -178,15 +178,15 @@ export function RoomDetail({ room, isAdmin = false, className }: RoomDetailProps
     { id: 'members', label: `${t('members')} (${room.memberCount})` },
     { id: 'invite', label: t('invite') },
     ...(isAdmin ? [{ id: 'settings', label: t('settings') }] : []),
-  ];
+  ]
 
   return (
     <div className={clsx('space-y-4', className)}>
       {/* Room Header */}
-      <div className="bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 p-6">
+      <div className="rounded-lg border border-gray-200 bg-white p-6 dark:border-gray-700 dark:bg-gray-800">
         <div className="flex items-start justify-between">
           <div>
-            <h1 className="text-2xl font-bold text-gray-900 dark:text-gray-100 mb-2">
+            <h1 className="mb-2 text-2xl font-bold text-gray-900 dark:text-gray-100">
               {room.name}
             </h1>
             {room.description && (
@@ -195,7 +195,7 @@ export function RoomDetail({ room, isAdmin = false, className }: RoomDetailProps
           </div>
 
           {room.password && (
-            <span className="inline-flex items-center gap-1 px-3 py-1.5 bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-300 rounded-lg text-sm font-medium">
+            <span className="inline-flex items-center gap-1 rounded-lg bg-blue-100 px-3 py-1.5 text-sm font-medium text-blue-800 dark:bg-blue-900/30 dark:text-blue-300">
               🔒 {t('roomPassword')}
             </span>
           )}
@@ -204,33 +204,39 @@ export function RoomDetail({ room, isAdmin = false, className }: RoomDetailProps
         <div className="mt-4 flex flex-wrap gap-4 text-sm text-gray-600 dark:text-gray-400">
           <div className="flex items-center gap-2">
             <span className="text-gray-400">👑</span>
-            <span>{t('creator')}: {room.ownerName}</span>
+            <span>
+              {t('creator')}: {room.ownerName}
+            </span>
           </div>
 
           <div className="flex items-center gap-2">
             <span className="text-gray-400">📅</span>
-            <span>{t('createdAt')}: {formatDate(room.createdAt)}</span>
+            <span>
+              {t('createdAt')}: {formatDate(room.createdAt)}
+            </span>
           </div>
 
           <div className="flex items-center gap-2">
             <span className="text-gray-400">⏱️</span>
-            <span>{t('lastActivity')}: {formatDuration(room.lastActivityAt)}</span>
+            <span>
+              {t('lastActivity')}: {formatDuration(room.lastActivityAt)}
+            </span>
           </div>
         </div>
       </div>
 
       {/* Tabs */}
       <div className="border-b border-gray-200 dark:border-gray-700">
-        <nav className="flex -mb-px space-x-4 overflow-x-auto">
-          {tabs.map((tab) => (
+        <nav className="-mb-px flex space-x-4 overflow-x-auto">
+          {tabs.map(tab => (
             <button
               key={tab.id}
               onClick={() => setActiveTab(tab.id as any)}
               className={clsx(
-                'whitespace-nowrap px-4 py-3 text-sm font-medium border-b-2 transition-colors',
+                'border-b-2 px-4 py-3 text-sm font-medium whitespace-nowrap transition-colors',
                 activeTab === tab.id
                   ? 'border-blue-500 text-blue-600 dark:text-blue-400'
-                  : 'border-transparent text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300 hover:border-gray-300'
+                  : 'border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-300'
               )}
               type="button"
             >
@@ -241,45 +247,37 @@ export function RoomDetail({ room, isAdmin = false, className }: RoomDetailProps
       </div>
 
       {/* Tab Content */}
-      <div className="bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 p-6">
+      <div className="rounded-lg border border-gray-200 bg-white p-6 dark:border-gray-700 dark:bg-gray-800">
         {/* Info Tab */}
         {activeTab === 'info' && (
           <div className="space-y-4">
             <div className="grid grid-cols-2 gap-4 sm:grid-cols-4">
-              <div className="bg-gray-50 dark:bg-gray-900/50 rounded-lg p-4 text-center">
+              <div className="rounded-lg bg-gray-50 p-4 text-center dark:bg-gray-900/50">
                 <div className="text-2xl font-bold text-gray-900 dark:text-gray-100">
                   {room.memberCount}
                 </div>
-                <div className="text-sm text-gray-600 dark:text-gray-400">
-                  {t('members')}
-                </div>
+                <div className="text-sm text-gray-600 dark:text-gray-400">{t('members')}</div>
               </div>
 
-              <div className="bg-gray-50 dark:bg-gray-900/50 rounded-lg p-4 text-center">
+              <div className="rounded-lg bg-gray-50 p-4 text-center dark:bg-gray-900/50">
                 <div className="text-2xl font-bold text-green-600 dark:text-green-400">
                   {room.onlineCount}
                 </div>
-                <div className="text-sm text-gray-600 dark:text-gray-400">
-                  {t('online')}
-                </div>
+                <div className="text-sm text-gray-600 dark:text-gray-400">{t('online')}</div>
               </div>
 
-              <div className="bg-gray-50 dark:bg-gray-900/50 rounded-lg p-4 text-center">
+              <div className="rounded-lg bg-gray-50 p-4 text-center dark:bg-gray-900/50">
                 <div className="text-2xl font-bold text-gray-900 dark:text-gray-100">
-                  {room.members.filter((m) => m.role === 'admin').length}
+                  {room.members.filter(m => m.role === 'admin').length}
                 </div>
-                <div className="text-sm text-gray-600 dark:text-gray-400">
-                  Admins
-                </div>
+                <div className="text-sm text-gray-600 dark:text-gray-400">Admins</div>
               </div>
 
-              <div className="bg-gray-50 dark:bg-gray-900/50 rounded-lg p-4 text-center">
+              <div className="rounded-lg bg-gray-50 p-4 text-center dark:bg-gray-900/50">
                 <div className="text-2xl font-bold text-gray-900 dark:text-gray-100">
                   {formatDuration(room.createdAt)}
                 </div>
-                <div className="text-sm text-gray-600 dark:text-gray-400">
-                  Age
-                </div>
+                <div className="text-sm text-gray-600 dark:text-gray-400">Age</div>
               </div>
             </div>
           </div>
@@ -289,19 +287,17 @@ export function RoomDetail({ room, isAdmin = false, className }: RoomDetailProps
         {activeTab === 'members' && (
           <div className="space-y-2">
             {room.members.length === 0 ? (
-              <p className="text-center text-gray-500 dark:text-gray-400 py-8">
-                No members yet
-              </p>
+              <p className="py-8 text-center text-gray-500 dark:text-gray-400">No members yet</p>
             ) : (
-              room.members.map((member) => (
+              room.members.map(member => (
                 <div
                   key={member.id}
-                  className="flex items-center justify-between p-3 bg-gray-50 dark:bg-gray-900/50 rounded-lg"
+                  className="flex items-center justify-between rounded-lg bg-gray-50 p-3 dark:bg-gray-900/50"
                 >
                   <div className="flex items-center gap-3">
                     <div
                       className={clsx(
-                        'w-10 h-10 rounded-full flex items-center justify-center text-white font-medium',
+                        'flex h-10 w-10 items-center justify-center rounded-full font-medium text-white',
                         member.isOnline ? 'bg-green-500' : 'bg-gray-400'
                       )}
                     >
@@ -309,7 +305,7 @@ export function RoomDetail({ room, isAdmin = false, className }: RoomDetailProps
                         <img
                           src={member.avatar}
                           alt={member.name}
-                          className="w-full h-full rounded-full object-cover"
+                          className="h-full w-full rounded-full object-cover"
                         />
                       ) : (
                         member.name.charAt(0).toUpperCase()
@@ -324,7 +320,9 @@ export function RoomDetail({ room, isAdmin = false, className }: RoomDetailProps
                         {getRoleBadge(member.role)}
                       </div>
                       <div className="text-sm text-gray-600 dark:text-gray-400">
-                        {member.isOnline ? 'Online' : `Last seen: ${formatDuration(member.lastActiveAt)}`}
+                        {member.isOnline
+                          ? 'Online'
+                          : `Last seen: ${formatDuration(member.lastActiveAt)}`}
                       </div>
                     </div>
                   </div>
@@ -348,23 +346,20 @@ export function RoomDetail({ room, isAdmin = false, className }: RoomDetailProps
         {activeTab === 'invite' && (
           <div>
             <div className="mb-4">
-              <Button
-                variant="primary"
-                onClick={() => setShowInviteModal(true)}
-              >
+              <Button variant="primary" onClick={() => setShowInviteModal(true)}>
                 Show Invite Options
               </Button>
             </div>
 
-            <div className="bg-gray-50 dark:bg-gray-900/50 rounded-lg p-4">
-              <div className="flex items-center gap-2 mb-2">
+            <div className="rounded-lg bg-gray-50 p-4 dark:bg-gray-900/50">
+              <div className="mb-2 flex items-center gap-2">
                 <span className="text-gray-400">📋</span>
                 <span className="text-sm font-medium text-gray-700 dark:text-gray-300">
                   Quick Copy
                 </span>
               </div>
               <div className="flex items-center gap-2">
-                <code className="flex-1 bg-white dark:bg-gray-900 px-3 py-2 rounded text-sm font-mono">
+                <code className="flex-1 rounded bg-white px-3 py-2 font-mono text-sm dark:bg-gray-900">
                   {room.inviteCode}
                 </code>
                 <Button variant="outline" size="sm">
@@ -379,31 +374,19 @@ export function RoomDetail({ room, isAdmin = false, className }: RoomDetailProps
         {activeTab === 'settings' && isAdmin && (
           <div className="space-y-4">
             <div className="space-y-3">
-              <Button
-                variant="outline"
-                onClick={() => setShowSettingsModal(true)}
-              >
+              <Button variant="outline" onClick={() => setShowSettingsModal(true)}>
                 {t('rename')}
               </Button>
 
-              <Button
-                variant="outline"
-                onClick={() => setShowSettingsModal(true)}
-              >
+              <Button variant="outline" onClick={() => setShowSettingsModal(true)}>
                 {t('changePassword')}
               </Button>
 
-              <Button
-                variant="outline"
-                onClick={() => setShowTransferModal(true)}
-              >
+              <Button variant="outline" onClick={() => setShowTransferModal(true)}>
                 {t('transferOwnership')}
               </Button>
 
-              <Button
-                variant="danger"
-                onClick={handleDeleteRoom}
-              >
+              <Button variant="danger" onClick={handleDeleteRoom}>
                 {t('delete')}
               </Button>
             </div>
@@ -412,11 +395,7 @@ export function RoomDetail({ room, isAdmin = false, className }: RoomDetailProps
       </div>
 
       {/* Invite Modal */}
-      <Modal
-        isOpen={showInviteModal}
-        onClose={() => setShowInviteModal(false)}
-        title={t('invite')}
-      >
+      <Modal isOpen={showInviteModal} onClose={() => setShowInviteModal(false)} title={t('invite')}>
         <RoomInvite inviteCode={room.inviteCode} />
       </Modal>
 
@@ -430,14 +409,14 @@ export function RoomDetail({ room, isAdmin = false, className }: RoomDetailProps
           <Input
             label={t('roomName')}
             value={settingsForm.name}
-            onChange={(e) => setSettingsForm({ ...settingsForm, name: e.target.value })}
+            onChange={e => setSettingsForm({ ...settingsForm, name: e.target.value })}
             required
           />
 
           <Input
             label={t('roomDescription')}
             value={settingsForm.description}
-            onChange={(e) => setSettingsForm({ ...settingsForm, description: e.target.value })}
+            onChange={e => setSettingsForm({ ...settingsForm, description: e.target.value })}
           />
 
           <Input
@@ -445,20 +424,14 @@ export function RoomDetail({ room, isAdmin = false, className }: RoomDetailProps
             type="password"
             placeholder={t('placeholder.enterPassword')}
             value={settingsForm.password}
-            onChange={(e) => setSettingsForm({ ...settingsForm, password: e.target.value })}
+            onChange={e => setSettingsForm({ ...settingsForm, password: e.target.value })}
           />
 
           <div className="flex gap-3 pt-4">
-            <Button
-              variant="ghost"
-              onClick={() => setShowSettingsModal(false)}
-              type="button"
-            >
+            <Button variant="ghost" onClick={() => setShowSettingsModal(false)} type="button">
               {t('cancel')}
             </Button>
-            <Button type="submit">
-              {t('save')}
-            </Button>
+            <Button type="submit">{t('save')}</Button>
           </div>
         </form>
       </Modal>
@@ -471,18 +444,18 @@ export function RoomDetail({ room, isAdmin = false, className }: RoomDetailProps
       >
         <div className="space-y-4">
           <div>
-            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+            <label className="mb-2 block text-sm font-medium text-gray-700 dark:text-gray-300">
               {t('transferTo')}
             </label>
             <select
               value={transferToId}
-              onChange={(e) => setTransferToId(e.target.value)}
-              className="w-full px-3 py-2 bg-white dark:bg-gray-900 border border-gray-300 dark:border-gray-700 rounded-lg text-gray-900 dark:text-gray-100"
+              onChange={e => setTransferToId(e.target.value)}
+              className="w-full rounded-lg border border-gray-300 bg-white px-3 py-2 text-gray-900 dark:border-gray-700 dark:bg-gray-900 dark:text-gray-100"
             >
               <option value="">Select member...</option>
               {room.members
-                .filter((m) => m.role !== 'owner' && m.id !== currentUserId)
-                .map((member) => (
+                .filter(m => m.role !== 'owner' && m.id !== currentUserId)
+                .map(member => (
                   <option key={member.id} value={member.id}>
                     {member.name} ({member.role})
                   </option>
@@ -491,11 +464,7 @@ export function RoomDetail({ room, isAdmin = false, className }: RoomDetailProps
           </div>
 
           <div className="flex gap-3 pt-4">
-            <Button
-              variant="ghost"
-              onClick={() => setShowTransferModal(false)}
-              type="button"
-            >
+            <Button variant="ghost" onClick={() => setShowTransferModal(false)} type="button">
               {t('cancel')}
             </Button>
             <Button variant="primary" onClick={handleTransferOwnership} disabled={!transferToId}>
@@ -505,7 +474,7 @@ export function RoomDetail({ room, isAdmin = false, className }: RoomDetailProps
         </div>
       </Modal>
     </div>
-  );
+  )
 }
 
-export default RoomDetail;
+export default RoomDetail

@@ -32,6 +32,7 @@
 ### 2. API 兼容层
 
 #### PermissionContext API (已实现)
+
 - ✅ `usePermission()` Hook
 - ✅ `hasPermission(permission)` - 检查单个权限
 - ✅ `hasPermissions(permissions, options)` - 检查多个权限
@@ -42,6 +43,7 @@
 - ✅ `clearUser()` - 清除用户
 
 #### 服务端工具函数 (已实现)
+
 - ✅ `createUserFromPayload(payload)` - 从 JWT payload 创建用户
 - ✅ `checkPermission(user, permission)` - 服务端权限检查
 - ✅ `checkPermissions(user, permissions, options)` - 服务端多权限检查
@@ -50,6 +52,7 @@
 - ✅ `checkResourceAccess(user, ownerId, permission)` - 服务端资源访问检查
 
 #### RBAC API (保留)
+
 - ✅ `initializePermissions(user, roleIds)` - 初始化权限
 - ✅ `hasPermission(permission)` - RBAC 权限检查
 - ✅ `hasAnyPermission(permissions)` - 检查任一权限
@@ -184,18 +187,14 @@ function MyComponent() {
 ### 方式 4: 服务端
 
 ```typescript
-import {
-  checkPermissions,
-  createUserFromPayload,
-  ContextPermission
-} from '@/stores';
+import { checkPermissions, createUserFromPayload, ContextPermission } from '@/stores'
 
 async function handleRequest(request: Request) {
-  const payload = await verifyJWT(token);
-  const user = createUserFromPayload(payload);
+  const payload = await verifyJWT(token)
+  const user = createUserFromPayload(payload)
 
   if (!checkPermissions(user, [ContextPermission.ADMIN]).allowed) {
-    return Response.json({ error: '权限不足' }, { status: 403 });
+    return Response.json({ error: '权限不足' }, { status: 403 })
   }
 
   // 执行需要管理员权限的操作
@@ -222,35 +221,35 @@ export default function App() {
 
 ## API 映射
 
-| PermissionContext API | Zustand API | 说明 |
-|---------------------|-------------|------|
-| `usePermission()` | `usePermission()` | ✅ 完全相同 |
-| `hasPermission(p)` | `checkSimplePermission(p)` | ✅ 功能相同 |
-| `hasPermissions(ps, opt)` | `checkSimplePermissions(ps, opt)` | ✅ 功能相同 |
-| `hasRole(r)` | `checkRole(r)` | ✅ 功能相同 |
-| `isAdmin()` | `checkIsAdmin()` | ✅ 功能相同 |
-| `canAccessResource(id, p)` | `checkResourceAccess(id, p)` | ✅ 功能相同 |
-| `setUser(u)` | `setUser(u)` | ✅ 功能相同 |
-| `clearUser()` | `clearUser()` | ✅ 功能相同 |
+| PermissionContext API      | Zustand API                       | 说明        |
+| -------------------------- | --------------------------------- | ----------- |
+| `usePermission()`          | `usePermission()`                 | ✅ 完全相同 |
+| `hasPermission(p)`         | `checkSimplePermission(p)`        | ✅ 功能相同 |
+| `hasPermissions(ps, opt)`  | `checkSimplePermissions(ps, opt)` | ✅ 功能相同 |
+| `hasRole(r)`               | `checkRole(r)`                    | ✅ 功能相同 |
+| `isAdmin()`                | `checkIsAdmin()`                  | ✅ 功能相同 |
+| `canAccessResource(id, p)` | `checkResourceAccess(id, p)`      | ✅ 功能相同 |
+| `setUser(u)`               | `setUser(u)`                      | ✅ 功能相同 |
+| `clearUser()`              | `clearUser()`                     | ✅ 功能相同 |
 
-| PermissionContext 工具函数 | Zustand 工具函数 | 说明 |
-|---------------------------|------------------|------|
-| `createUserFromPayload()` | `createUserFromPayload()` | ✅ 完全相同 |
-| `checkPermission()` | `checkPermission()` | ✅ 完全相同 |
-| `checkPermissions()` | `checkPermissions()` | ✅ 完全相同 |
-| `checkRole()` | `checkRole()` | ✅ 完全相同 |
-| `checkIsAdmin()` | `checkIsAdmin()` | ✅ 完全相同 |
-| `checkResourceAccess()` | `checkResourceAccess()` | ✅ 完全相同 |
+| PermissionContext 工具函数 | Zustand 工具函数          | 说明        |
+| -------------------------- | ------------------------- | ----------- |
+| `createUserFromPayload()`  | `createUserFromPayload()` | ✅ 完全相同 |
+| `checkPermission()`        | `checkPermission()`       | ✅ 完全相同 |
+| `checkPermissions()`       | `checkPermissions()`      | ✅ 完全相同 |
+| `checkRole()`              | `checkRole()`             | ✅ 完全相同 |
+| `checkIsAdmin()`           | `checkIsAdmin()`          | ✅ 完全相同 |
+| `checkResourceAccess()`    | `checkResourceAccess()`   | ✅ 完全相同 |
 
-| PermissionContext 组件 | Zustand 组件 | 说明 |
-|----------------------|-------------|------|
-| `PermissionGuard` | `PermissionGuard` | ✅ 功能相同 |
-| `AdminGuard` | `AdminGuard` | ✅ 功能相同 |
-| `RoleGuard` | `RoleGuard` | ✅ 功能相同 |
+| PermissionContext 组件 | Zustand 组件      | 说明        |
+| ---------------------- | ----------------- | ----------- |
+| `PermissionGuard`      | `PermissionGuard` | ✅ 功能相同 |
+| `AdminGuard`           | `AdminGuard`      | ✅ 功能相同 |
+| `RoleGuard`            | `RoleGuard`       | ✅ 功能相同 |
 
-| PermissionContext Provider | Zustand Provider | 说明 |
-|---------------------------|------------------|------|
-| `PermissionProvider` | `PermissionProvider` | ✅ 新增 |
+| PermissionContext Provider | Zustand Provider     | 说明    |
+| -------------------------- | -------------------- | ------- |
+| `PermissionProvider`       | `PermissionProvider` | ✅ 新增 |
 
 ---
 
@@ -369,8 +368,8 @@ import {
   PermissionGuard,
   AdminGuard,
   checkPermission,
-  createUserFromPayload
-} from '@/stores';
+  createUserFromPayload,
+} from '@/stores'
 
 // 替代方式 (向后兼容)
 import {
@@ -380,8 +379,8 @@ import {
   PermissionGuard,
   AdminGuard,
   checkPermission,
-  createUserFromPayload
-} from '@/contexts/PermissionContext';
+  createUserFromPayload,
+} from '@/contexts/PermissionContext'
 ```
 
 ### 权限类型
@@ -397,7 +396,7 @@ enum ContextPermission {
 }
 
 // 完整权限 (RBAC 风格)
-type Permission = string; // 例如: 'user:read', 'data:export'
+type Permission = string // 例如: 'user:read', 'data:export'
 ```
 
 ### 角色类型

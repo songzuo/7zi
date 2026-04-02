@@ -19,6 +19,7 @@ Fixed critical security vulnerabilities in the `/api/health/detailed` endpoint t
 ### 1. **Unauthenticated Access to Sensitive Health Information** 🔴 CRITICAL
 
 **Issue:** The `/api/health/detailed` endpoint was accessible without authentication, exposing:
+
 - System uptime and version information
 - External dependency status (GitHub API, Email Service)
 - Memory usage statistics
@@ -88,17 +89,17 @@ Fixed critical security vulnerabilities in the `/api/health/detailed` endpoint t
 
 ```typescript
 // Authentication check
-const authHeader = request.headers.get('authorization');
+const authHeader = request.headers.get('authorization')
 if (!authHeader || !authHeader.startsWith('Bearer ')) {
-  logger.warn('Unauthorized access attempt', { clientIp, requestId });
-  return await createUnauthorizedError('Authentication required');
+  logger.warn('Unauthorized access attempt', { clientIp, requestId })
+  return await createUnauthorizedError('Authentication required')
 }
 
 // Token validation
-const authResult = await authenticateToken(token);
+const authResult = await authenticateToken(token)
 if (!authResult) {
-  logger.warn('Invalid or expired token', { userId, clientIp });
-  return await createUnauthorizedError('Invalid or expired token');
+  logger.warn('Invalid or expired token', { userId, clientIp })
+  return await createUnauthorizedError('Invalid or expired token')
 }
 ```
 
@@ -149,16 +150,16 @@ logger.warn('Unauthorized access attempt to /api/health/detailed', {
   endpoint: '/api/health/detailed',
   clientIp: '192.168.1.100',
   hasAuthHeader: false,
-  requestId: 'req_1711234567890_abc123def'
-});
+  requestId: 'req_1711234567890_abc123def',
+})
 
 // Successful access
 logger.info('Successful access to /api/health/detailed', {
   endpoint: '/api/health/detailed',
   clientIp: '192.168.1.100',
   userId: 'user-123',
-  requestId: 'req_1711234567890_abc123def'
-});
+  requestId: 'req_1711234567890_abc123def',
+})
 ```
 
 ---
@@ -170,6 +171,7 @@ logger.info('Successful access to /api/health/detailed', {
 **File:** `/root/.openclaw/workspace/7zi-project/src/app/api/health/detailed/__tests__/route.test.ts`
 
 **Test Results:**
+
 ```
 ✓ src/app/api/health/detailed/__tests__/route.test.ts (9 tests) 141ms
 

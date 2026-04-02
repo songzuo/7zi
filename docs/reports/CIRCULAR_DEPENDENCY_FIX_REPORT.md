@@ -17,6 +17,7 @@
 ### 1. keyboard-shortcuts 模块循环依赖
 
 **循环路径**:
+
 ```
 src/lib/keyboard-shortcuts/shortcut-config.ts
   → imports KeyboardShortcut type from shortcut-manager.ts
@@ -30,6 +31,7 @@ src/lib/keyboard-shortcuts/shortcut-manager.ts
 **修复方案**: 创建共享类型文件 `shortcut-types.ts`
 
 **修复后的依赖关系**:
+
 ```
 shortcut-types.ts ← shortcut-config.ts (导入 ShortcutContext, KeyboardShortcut)
                  ← shortcut-manager.ts (导入 ShortcutContext, KeyboardShortcut)
@@ -42,6 +44,7 @@ shortcut-manager.ts → shortcut-config.ts (导入 DEFAULT_SHORTCUTS)
 ### 2. websocket ↔ voice-meeting 循环依赖
 
 **循环路径**:
+
 ```
 src/lib/websocket/server.ts
   → imports setupVoiceMeetingHandlers from voice-meeting/signaling.ts
@@ -55,6 +58,7 @@ src/lib/voice-meeting/signaling.ts
 **修复方案**: 创建共享类型文件 `websocket/types.ts`
 
 **修复后的依赖关系**:
+
 ```
 websocket/types.ts ← websocket/server.ts (导入 AuthenticatedSocket, WebSocketMessage)
                   ← voice-meeting/signaling.ts (导入 AuthenticatedSocket)
@@ -108,13 +112,13 @@ websocket/server.ts → voice-meeting/signaling.ts (导入 setupVoiceMeetingHand
 
 ### Madge 循环依赖检查
 
-| 模块 | 文件数 | 循环依赖 | 状态 |
-|------|--------|----------|------|
-| src/lib/agent-scheduler/ | 17 | 0 | ✅ |
-| src/lib/websocket/ | 38 | 0 | ✅ |
-| src/lib/performance-monitoring/ | 34 | 0 | ✅ |
-| src/lib/keyboard-shortcuts/ | 3 | 0 | ✅ |
-| 全局扫描 | 1157 | 0 | ✅ |
+| 模块                            | 文件数 | 循环依赖 | 状态 |
+| ------------------------------- | ------ | -------- | ---- |
+| src/lib/agent-scheduler/        | 17     | 0        | ✅   |
+| src/lib/websocket/              | 38     | 0        | ✅   |
+| src/lib/performance-monitoring/ | 34     | 0        | ✅   |
+| src/lib/keyboard-shortcuts/     | 3      | 0        | ✅   |
+| 全局扫描                        | 1157   | 0        | ✅   |
 
 ### TypeScript 编译检查
 
@@ -156,13 +160,14 @@ websocket/server.ts → voice-meeting/signaling.ts (导入 setupVoiceMeetingHand
 module.exports = {
   detectiveOptions: {
     ts: {
-      tsConfigPath: './tsconfig.json'
-    }
-  }
-};
+      tsConfigPath: './tsconfig.json',
+    },
+  },
+}
 ```
 
 此配置支持：
+
 - TypeScript 路径别名（`@/`）
 - 更准确的依赖分析
 - 减少误报
@@ -172,11 +177,13 @@ module.exports = {
 ## 测试情况
 
 ### 单元测试
+
 - 现有 381 个测试文件
 - WebSocket 模块测试运行：354 个测试，322 通过，32 失败
 - ⚠️ 失败的测试是预先存在的问题，与循环依赖修复无关
 
 ### 测试失败原因（预先存在）
+
 1. 多用户场景集成测试
 2. 服务器统计测试预期值不匹配
 3. 操作转换测试逻辑问题
@@ -195,11 +202,12 @@ module.exports = {
 - **websocket/server.ts**: re-export 共享类型
 
 外部导入不受影响：
+
 ```typescript
 // 这些导入仍然有效
-import { KeyboardShortcut } from '@/lib/keyboard-shortcuts/shortcut-manager';
-import { ShortcutContext } from '@/lib/keyboard-shortcuts/shortcut-config';
-import { AuthenticatedSocket } from '@/lib/websocket/server';
+import { KeyboardShortcut } from '@/lib/keyboard-shortcuts/shortcut-manager'
+import { ShortcutContext } from '@/lib/keyboard-shortcuts/shortcut-config'
+import { AuthenticatedSocket } from '@/lib/websocket/server'
 ```
 
 ---
@@ -207,16 +215,19 @@ import { AuthenticatedSocket } from '@/lib/websocket/server';
 ## 架构改进
 
 ### 代码组织
+
 - ✅ 类型定义集中化
 - ✅ 模块职责更清晰
 - ✅ 依赖关系更合理
 
 ### 可维护性
+
 - ✅ 减少循环依赖风险
 - ✅ 提高代码可读性
 - ✅ 便于后续重构
 
 ### 性能影响
+
 - ✅ 无性能影响
 - ✅ TypeScript 类型检查无影响
 - ✅ 运行时无影响（类型在编译时移除）
@@ -246,6 +257,7 @@ import { AuthenticatedSocket } from '@/lib/websocket/server';
 ## 总结
 
 ✅ **任务完成情况**: 100%
+
 - ✅ 发现并修复了 2 个循环依赖
 - ✅ 验证了核心模块无循环依赖
 - ✅ 保持 API 兼容性
@@ -253,11 +265,13 @@ import { AuthenticatedSocket } from '@/lib/websocket/server';
 - ✅ 配置了工具支持
 
 ✅ **架构质量提升**
+
 - 模块解耦度提高
 - 类型定义集中化
 - 依赖关系清晰
 
 ✅ **开发体验改善**
+
 - 更容易理解模块关系
 - 更安全的重构
 - 更好的 IDE 支持

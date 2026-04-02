@@ -10,12 +10,12 @@
 
 当前项目已启用 Turbopack，但配置中存在 **过时选项**、**未验证的实验性选项** 和 **潜在的稳定性和兼容性问题**。本报告提供具体的修复和优化建议。
 
-| 问题类型 | 严重程度 | 影响 |
-|----------|----------|------|
-| 使用废弃的 `swcMinify` 选项 | ⚠️ 高 | 构建设置可能被忽略 |
-| 使用未公开的 `experimental.turbopack*` 选项 | ⚠️ 高 | 选项可能无效 |
-| 多个 next.config 文件内容混杂 | 🔴 严重 | 配置冲突 |
-| Lockfile 检测警告 | ⚠️ 中 | 根目录解析问题 |
+| 问题类型                                    | 严重程度 | 影响               |
+| ------------------------------------------- | -------- | ------------------ |
+| 使用废弃的 `swcMinify` 选项                 | ⚠️ 高    | 构建设置可能被忽略 |
+| 使用未公开的 `experimental.turbopack*` 选项 | ⚠️ 高    | 选项可能无效       |
+| 多个 next.config 文件内容混杂               | 🔴 严重  | 配置冲突           |
+| Lockfile 检测警告                           | ⚠️ 中    | 根目录解析问题     |
 
 ---
 
@@ -31,11 +31,13 @@ compiler: {
 ```
 
 **Next.js 16+ 行为**:
+
 - SWC minification 已默认启用，无法禁用
 - `swcMinify` 选项已被完全移除
 - 设置此选项会导致配置警告：`Unrecognized key(s) in object: 'swcMinify' at "compiler"`
 
 **修复方案**:
+
 ```typescript
 // ✅ 正确 - 移除 swcMinify
 compiler: {
@@ -49,24 +51,24 @@ compiler: {
 
 以下选项**不在 Next.js 官方文档中**，可能无效或行为不符预期：
 
-| 选项 | 状态 | 建议 |
-|------|------|------|
-| `turbopackFileSystemCacheForDev` | ❌ 未公开 | 移除 |
+| 选项                               | 状态      | 建议 |
+| ---------------------------------- | --------- | ---- |
+| `turbopackFileSystemCacheForDev`   | ❌ 未公开 | 移除 |
 | `turbopackFileSystemCacheForBuild` | ❌ 未公开 | 移除 |
-| `turbopackTreeShaking` | ❌ 未公开 | 移除 |
-| `turbopackScopeHoisting` | ❌ 未公开 | 移除 |
-| `turbopackRemoveUnusedImports` | ❌ 未公开 | 移除 |
-| `turbopackRemoveUnusedExports` | ❌ 未公开 | 移除 |
+| `turbopackTreeShaking`             | ❌ 未公开 | 移除 |
+| `turbopackScopeHoisting`           | ❌ 未公开 | 移除 |
+| `turbopackRemoveUnusedImports`     | ❌ 未公开 | 移除 |
+| `turbopackRemoveUnusedExports`     | ❌ 未公开 | 移除 |
 
 **官方 `turbopack` 配置选项** (截至 Next.js 16.2.1):
 
-| 选项 | 说明 |
-|------|------|
-| `root` | 应用根目录（绝对路径） |
-| `rules` | webpack loader 规则 |
-| `resolveAlias` | 导入别名映射 |
-| `resolveExtensions` | 解析的文件扩展名 |
-| `debugIds` | 启用 debug IDs |
+| 选项                | 说明                   |
+| ------------------- | ---------------------- |
+| `root`              | 应用根目录（绝对路径） |
+| `rules`             | webpack loader 规则    |
+| `resolveAlias`      | 导入别名映射           |
+| `resolveExtensions` | 解析的文件扩展名       |
+| `debugIds`          | 启用 debug IDs         |
 
 ### 1.3 路径别名配置重复
 
@@ -110,6 +112,7 @@ Detected additional lockfiles: pnpm-lock.yaml
 **原因**: 项目目录或父目录存在 `pnpm-lock.yaml`，但可能不是主要包管理器。
 
 **修复方案**:
+
 ```typescript
 turbopack: {
   root: __dirname,  // 显式设置根目录
@@ -123,18 +126,18 @@ turbopack: {
 ### 2.1 清洁的 next.config.ts
 
 ```typescript
-import createNextIntlPlugin from 'next-intl/plugin';
-import type { NextConfig } from "next";
-import bundleAnalyzer from '@next/bundle-analyzer';
-import path from 'path';
+import createNextIntlPlugin from 'next-intl/plugin'
+import type { NextConfig } from 'next'
+import bundleAnalyzer from '@next/bundle-analyzer'
+import path from 'path'
 
-const withNextIntl = createNextIntlPlugin('./src/i18n/request.ts');
+const withNextIntl = createNextIntlPlugin('./src/i18n/request.ts')
 
 const withBundleAnalyzer = bundleAnalyzer({
   enabled: process.env.ANALYZE === 'true',
   openAnalyzer: false,
   analyzerMode: 'static',
-});
+})
 
 const nextConfig: NextConfig = {
   // ============================================
@@ -142,7 +145,7 @@ const nextConfig: NextConfig = {
   // ============================================
   reactStrictMode: true,
   poweredByHeader: false,
-  output: 'standalone',  // Docker 部署
+  output: 'standalone', // Docker 部署
 
   // ============================================
   // 图片优化
@@ -170,9 +173,12 @@ const nextConfig: NextConfig = {
   // 编译器选项 (已移除废弃的 swcMinify)
   // ============================================
   compiler: {
-    removeConsole: process.env.NODE_ENV === 'production' ? {
-      exclude: ['error', 'warn'],
-    } : false,
+    removeConsole:
+      process.env.NODE_ENV === 'production'
+        ? {
+            exclude: ['error', 'warn'],
+          }
+        : false,
   },
 
   // ============================================
@@ -211,29 +217,23 @@ const nextConfig: NextConfig = {
   // ============================================
   // 服务端外部包
   // ============================================
-  serverExternalPackages: [
-    'sharp',
-    'better-sqlite3',
-    'jose',
-    'uuid',
-    'exceljs',
-  ],
+  serverExternalPackages: ['sharp', 'better-sqlite3', 'jose', 'uuid', 'exceljs'],
 
   // ============================================
   // Webpack 后备配置 (仅当 USE_WEBPACK=true 时)
   // ============================================
   webpack: (config, { isServer, dev }) => {
     if (process.env.USE_WEBPACK === 'true') {
-      config.resolve.alias = config.resolve.alias || {};
-      config.resolve.alias['@/'] = __dirname + '/src';
+      config.resolve.alias = config.resolve.alias || {}
+      config.resolve.alias['@/'] = __dirname + '/src'
 
       if (!isServer && !dev) {
-        config.optimization = config.optimization || {};
+        config.optimization = config.optimization || {}
         config.performance = {
           maxEntrypointSize: 300000,
           maxAssetSize: 250000,
           hints: 'warning',
-        };
+        }
 
         config.optimization.splitChunks = {
           chunks: 'all',
@@ -272,7 +272,7 @@ const nextConfig: NextConfig = {
               enforce: true,
               minSize: 20000,
             },
-            'framework': {
+            framework: {
               test: /[\\/]node_modules[\\/](react|react-dom|next)[\\/]/,
               name: 'framework',
               priority: 35,
@@ -323,16 +323,16 @@ const nextConfig: NextConfig = {
           maxSize: 200000,
           minChunks: 1,
           enforceSizeThreshold: 30000,
-        };
+        }
 
-        config.optimization.usedExports = true;
-        config.optimization.sideEffects = false;
-        config.optimization.providedExports = true;
-        config.optimization.concatenateModules = true;
+        config.optimization.usedExports = true
+        config.optimization.sideEffects = false
+        config.optimization.providedExports = true
+        config.optimization.concatenateModules = true
       }
     }
 
-    return config;
+    return config
   },
 
   // ============================================
@@ -344,12 +344,18 @@ const nextConfig: NextConfig = {
         source: '/:path*',
         headers: [
           { key: 'X-DNS-Prefetch-Control', value: 'on' },
-          { key: 'Strict-Transport-Security', value: 'max-age=63072000; includeSubDomains; preload' },
+          {
+            key: 'Strict-Transport-Security',
+            value: 'max-age=63072000; includeSubDomains; preload',
+          },
           { key: 'X-Frame-Options', value: 'SAMEORIGIN' },
           { key: 'X-Content-Type-Options', value: 'nosniff' },
           { key: 'X-XSS-Protection', value: '1; mode=block' },
           { key: 'Referrer-Policy', value: 'strict-origin-when-cross-origin' },
-          { key: 'Permissions-Policy', value: 'camera=(), microphone=(), geolocation=(), interest-cohort=()' },
+          {
+            key: 'Permissions-Policy',
+            value: 'camera=(), microphone=(), geolocation=(), interest-cohort=()',
+          },
         ],
       },
       {
@@ -360,11 +366,11 @@ const nextConfig: NextConfig = {
         source: '/_next/static/:path*',
         headers: [{ key: 'Cache-Control', value: 'public, max-age=31536000, immutable' }],
       },
-    ];
+    ]
   },
-};
+}
 
-export default withBundleAnalyzer(withNextIntl(nextConfig));
+export default withBundleAnalyzer(withNextIntl(nextConfig))
 ```
 
 ---
@@ -436,6 +442,7 @@ NODE_OPTIONS="--max-old-space-size=4096" npm run build
 ### 3.5 增量构建缓存
 
 Turbopack 自带增量构建优化，无需额外配置文件系统缓存。确保：
+
 - `.next` 目录在部署时被保留在构建服务器上
 - CI/CD 流水线利用层缓存
 
@@ -481,13 +488,13 @@ Turbopack 自带增量构建优化，无需额外配置文件系统缓存。确�
 
 ## 五、预期收益
 
-| 优化项 | 收益 |
-|--------|------|
-| 移除废弃选项 | 消除构建设置警告 |
-| 清理无效选项 | 配置更清晰，行为可预测 |
-| 统一路径别名 | 减少模块解析问题 |
-| Turbopack 构建 | 构建速度提升约 2x |
-| 内存优化 | 构建过程更稳定 |
+| 优化项         | 收益                   |
+| -------------- | ---------------------- |
+| 移除废弃选项   | 消除构建设置警告       |
+| 清理无效选项   | 配置更清晰，行为可预测 |
+| 统一路径别名   | 减少模块解析问题       |
+| Turbopack 构建 | 构建速度提升约 2x      |
+| 内存优化       | 构建过程更稳定         |
 
 ---
 
@@ -506,4 +513,4 @@ Turbopack 自带增量构建优化，无需额外配置文件系统缓存。确�
 
 **报告结束**
 
-*由 📚 咨询师子代理生成 - 2026-03-28*
+_由 📚 咨询师子代理生成 - 2026-03-28_

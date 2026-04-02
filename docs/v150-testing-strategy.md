@@ -19,14 +19,15 @@
 
 #### 1. AI Agent 调度 Dashboard UI
 
-| 组件 | 文件位置 | 功能描述 | 测试优先级 |
-|------|----------|----------|------------|
-| `AgentStatusPanel` | `src/components/dashboard/AgentStatusPanel.tsx` | 11 位 Agent 实时状态显示、负载可视化、响应时间趋势 | 🔴 P0 |
-| `TaskQueueView` | `src/components/dashboard/TaskQueueView.tsx` | 待处理任务列表、优先级排序、拖拽重排、批量操作 | 🔴 P0 |
-| `ScheduleHistory` | `src/components/dashboard/ScheduleHistory.tsx` | 调度决策历史、置信度分布图、异常标记 | 🔴 P0 |
-| `ManualOverride` | `src/components/dashboard/ManualOverride.tsx` | 手动干预、强制分配、优先级调整、审计日志 | 🔴 P0 |
+| 组件               | 文件位置                                        | 功能描述                                           | 测试优先级 |
+| ------------------ | ----------------------------------------------- | -------------------------------------------------- | ---------- |
+| `AgentStatusPanel` | `src/components/dashboard/AgentStatusPanel.tsx` | 11 位 Agent 实时状态显示、负载可视化、响应时间趋势 | 🔴 P0      |
+| `TaskQueueView`    | `src/components/dashboard/TaskQueueView.tsx`    | 待处理任务列表、优先级排序、拖拽重排、批量操作     | 🔴 P0      |
+| `ScheduleHistory`  | `src/components/dashboard/ScheduleHistory.tsx`  | 调度决策历史、置信度分布图、异常标记               | 🔴 P0      |
+| `ManualOverride`   | `src/components/dashboard/ManualOverride.tsx`   | 手动干预、强制分配、优先级调整、审计日志           | 🔴 P0      |
 
 **关键测试点**：
+
 - Agent 状态实时更新（WebSocket 连接）
 - 任务队列 CRUD 操作
 - 拖拽排序功能
@@ -35,13 +36,14 @@
 
 #### 2. 权限系统重构 (PermissionContext → Zustand)
 
-| 模块 | 文件位置 | 功能描述 | 测试优先级 |
-|------|----------|----------|------------|
-| `permissionStore` | `src/stores/permissionStore.ts` | Zustand 状态管理、权限持久化 | 🔴 P0 |
-| `PermissionContext` | `src/contexts/PermissionContext.tsx` | 废弃的 Context（需验证迁移） | 🟡 P1 |
-| `permission-migration` | `src/lib/auth/permission-migration.ts` | 迁移工具函数 | 🔴 P0 |
+| 模块                   | 文件位置                               | 功能描述                     | 测试优先级 |
+| ---------------------- | -------------------------------------- | ---------------------------- | ---------- |
+| `permissionStore`      | `src/stores/permissionStore.ts`        | Zustand 状态管理、权限持久化 | 🔴 P0      |
+| `PermissionContext`    | `src/contexts/PermissionContext.tsx`   | 废弃的 Context（需验证迁移） | 🟡 P1      |
+| `permission-migration` | `src/lib/auth/permission-migration.ts` | 迁移工具函数                 | 🔴 P0      |
 
 **关键测试点**：
+
 - 权限状态正确初始化
 - 权限检查函数（hasPermission、hasAnyPermission）
 - 角色层级验证
@@ -50,13 +52,14 @@
 
 #### 3. lib/ 层重构
 
-| 模块 | 变更内容 | 测试优先级 |
-|------|----------|------------|
-| `src/lib/agent/` | 合并至 `src/lib/agents/` | 🔴 P0 |
-| `src/lib/agent-communication/` | 合并至 `src/lib/agents/communication/` | 🔴 P0 |
-| 所有导入引用 | 更新导入路径 | 🔴 P0 |
+| 模块                           | 变更内容                               | 测试优先级 |
+| ------------------------------ | -------------------------------------- | ---------- |
+| `src/lib/agent/`               | 合并至 `src/lib/agents/`               | 🔴 P0      |
+| `src/lib/agent-communication/` | 合并至 `src/lib/agents/communication/` | 🔴 P0      |
+| 所有导入引用                   | 更新导入路径                           | 🔴 P0      |
 
 **关键测试点**：
+
 - 所有模块导入正确
 - 无循环依赖
 - 功能无回归
@@ -65,25 +68,25 @@
 
 #### 4. Agent 学习优化系统
 
-| 功能 | 描述 | 测试优先级 |
-|------|------|------------|
-| 任务完成时间预测 | 基于历史数据预测 | 🟡 P1 |
-| Agent 能力评估 | 自动更新能力值 | 🟡 P1 |
-| 调度策略优化 | 自动调优参数 | 🟡 P1 |
+| 功能             | 描述             | 测试优先级 |
+| ---------------- | ---------------- | ---------- |
+| 任务完成时间预测 | 基于历史数据预测 | 🟡 P1      |
+| Agent 能力评估   | 自动更新能力值   | 🟡 P1      |
+| 调度策略优化     | 自动调优参数     | 🟡 P1      |
 
 #### 5. WebSocket 房间系统 UI
 
-| 组件 | 功能 | 测试优先级 |
-|------|------|------------|
-| 房间创建/加入 | 房间管理操作 | 🟡 P1 |
-| 参与者列表 | 实时状态显示 | 🟡 P1 |
-| 权限管理 UI | 角色分配界面 | 🟡 P1 |
+| 组件          | 功能         | 测试优先级 |
+| ------------- | ------------ | ---------- |
+| 房间创建/加入 | 房间管理操作 | 🟡 P1      |
+| 参与者列表    | 实时状态显示 | 🟡 P1      |
+| 权限管理 UI   | 角色分配界面 | 🟡 P1      |
 
 #### 6. 循环依赖检测
 
-| 功能 | 描述 | 测试优先级 |
-|------|------|------------|
-| dependency-cruiser 集成 | CI/CD 自动检测 | 🟢 P2 |
+| 功能                    | 描述           | 测试优先级 |
+| ----------------------- | -------------- | ---------- |
+| dependency-cruiser 集成 | CI/CD 自动检测 | 🟢 P2      |
 
 ---
 
@@ -116,6 +119,7 @@
 
 **主框架**: Vitest 4.x
 **已配置特性**：
+
 - Forks 线程池（支持 better-sqlite3）
 - 并行测试（maxThreads: 6）
 - 覆盖率报告（V8 provider）
@@ -123,13 +127,13 @@
 
 ### 单元测试覆盖率目标
 
-| 模块类型 | 行覆盖率 | 分支覆盖率 | 函数覆盖率 | 语句覆盖率 |
-|----------|----------|------------|------------|------------|
-| 核心 Store | ≥ 95% | ≥ 90% | ≥ 95% | ≥ 95% |
-| 工具函数 | ≥ 90% | ≥ 85% | ≥ 90% | ≥ 90% |
-| React Hooks | ≥ 85% | ≥ 80% | ≥ 85% | ≥ 85% |
-| 组件 | ≥ 80% | ≥ 75% | ≥ 80% | ≥ 80% |
-| **总体目标** | **≥ 90%** | **≥ 85%** | **≥ 90%** | **≥ 90%** |
+| 模块类型     | 行覆盖率  | 分支覆盖率 | 函数覆盖率 | 语句覆盖率 |
+| ------------ | --------- | ---------- | ---------- | ---------- |
+| 核心 Store   | ≥ 95%     | ≥ 90%      | ≥ 95%      | ≥ 95%      |
+| 工具函数     | ≥ 90%     | ≥ 85%      | ≥ 90%      | ≥ 90%      |
+| React Hooks  | ≥ 85%     | ≥ 80%      | ≥ 85%      | ≥ 85%      |
+| 组件         | ≥ 80%     | ≥ 75%      | ≥ 80%      | ≥ 80%      |
+| **总体目标** | **≥ 90%** | **≥ 85%**  | **≥ 90%**  | **≥ 90%**  |
 
 ### 关键单元测试用例
 
@@ -256,12 +260,12 @@ describe('RoomManager', () => {
 
 ### 集成测试覆盖范围
 
-| 集成场景 | 测试重点 | 工具 |
-|----------|----------|------|
+| 集成场景          | 测试重点     | 工具                     |
+| ----------------- | ------------ | ------------------------ |
 | Store + Component | 状态管理集成 | Vitest + Testing Library |
-| API + Store | 数据流集成 | Vitest + MSW |
-| WebSocket + UI | 实时更新集成 | Vitest + Mock WebSocket |
-| Auth + Permission | 权限验证集成 | Vitest |
+| API + Store       | 数据流集成   | Vitest + MSW             |
+| WebSocket + UI    | 实时更新集成 | Vitest + Mock WebSocket  |
+| Auth + Permission | 权限验证集成 | Vitest                   |
 
 ### 关键集成测试用例
 
@@ -345,6 +349,7 @@ describe('WebSocket 房间系统集成', () => {
 
 **主框架**: Playwright
 **已配置特性**：
+
 - Chromium 主浏览器
 - Mobile Chrome 移动端测试
 - 视觉回归测试项目
@@ -353,12 +358,12 @@ describe('WebSocket 房间系统集成', () => {
 
 ### E2E 测试覆盖范围
 
-| 用户流程 | 测试场景 | 优先级 |
-|----------|----------|--------|
-| 权限验证流程 | 登录 → 权限加载 → 功能访问 | 🔴 P0 |
-| Dashboard 操作 | 状态查看 → 任务调度 → 手动干预 | 🔴 P0 |
-| 房间协作流程 | 创建房间 → 邀请成员 → 协作操作 | 🟡 P1 |
-| 错误处理流程 | 断网重连 → 权限错误 → 错误恢复 | 🟡 P1 |
+| 用户流程       | 测试场景                       | 优先级 |
+| -------------- | ------------------------------ | ------ |
+| 权限验证流程   | 登录 → 权限加载 → 功能访问     | 🔴 P0  |
+| Dashboard 操作 | 状态查看 → 任务调度 → 手动干预 | 🔴 P0  |
+| 房间协作流程   | 创建房间 → 邀请成员 → 协作操作 | 🟡 P1  |
+| 错误处理流程   | 断网重连 → 权限错误 → 错误恢复 | 🟡 P1  |
 
 ### 关键 E2E 测试用例
 
@@ -370,42 +375,42 @@ describe('WebSocket 房间系统集成', () => {
 test.describe('权限系统 E2E', () => {
   test('管理员应能访问 Dashboard 手动干预', async ({ page }) => {
     // 登录管理员账户
-    await page.goto('/login');
-    await page.fill('[name="email"]', 'admin@7zi.com');
-    await page.fill('[name="password"]', 'admin-password');
-    await page.click('button[type="submit"]');
-    
+    await page.goto('/login')
+    await page.fill('[name="email"]', 'admin@7zi.com')
+    await page.fill('[name="password"]', 'admin-password')
+    await page.click('button[type="submit"]')
+
     // 验证权限加载
-    await expect(page.locator('[data-testid="dashboard-link"]')).toBeVisible();
-    
+    await expect(page.locator('[data-testid="dashboard-link"]')).toBeVisible()
+
     // 访问 Dashboard
-    await page.click('[data-testid="dashboard-link"]');
-    await expect(page.locator('[data-testid="manual-override"]')).toBeVisible();
-  });
+    await page.click('[data-testid="dashboard-link"]')
+    await expect(page.locator('[data-testid="manual-override"]')).toBeVisible()
+  })
 
   test('普通用户不应看到管理员功能', async ({ page }) => {
     // 登录普通用户
-    await page.goto('/login');
-    await page.fill('[name="email"]', 'user@7zi.com');
-    await page.fill('[name="password"]', 'user-password');
-    await page.click('button[type="submit"]');
-    
+    await page.goto('/login')
+    await page.fill('[name="email"]', 'user@7zi.com')
+    await page.fill('[name="password"]', 'user-password')
+    await page.click('button[type="submit"]')
+
     // 验证管理员功能不可见
-    await expect(page.locator('[data-testid="manual-override"]')).not.toBeVisible();
-  });
+    await expect(page.locator('[data-testid="manual-override"]')).not.toBeVisible()
+  })
 
   test('权限应在刷新后保持', async ({ page }) => {
     // 登录并刷新
-    await loginAsUser(page, 'manager@7zi.com');
-    await page.goto('/dashboard');
-    
+    await loginAsUser(page, 'manager@7zi.com')
+    await page.goto('/dashboard')
+
     // 刷新页面
-    await page.reload();
-    
+    await page.reload()
+
     // 验证权限保持
-    await expect(page.locator('[data-testid="task-queue"]')).toBeVisible();
-  });
-});
+    await expect(page.locator('[data-testid="task-queue"]')).toBeVisible()
+  })
+})
 ```
 
 #### 2. Dashboard E2E 测试
@@ -415,38 +420,38 @@ test.describe('权限系统 E2E', () => {
 
 test.describe('Dashboard E2E', () => {
   test.beforeEach(async ({ page }) => {
-    await loginAsAdmin(page);
-    await page.goto('/dashboard');
-  });
+    await loginAsAdmin(page)
+    await page.goto('/dashboard')
+  })
 
   test('应显示所有 Agent 状态', async ({ page }) => {
-    const agentCards = page.locator('[data-testid="agent-card"]');
-    await expect(agentCards).toHaveCount(11);
-  });
+    const agentCards = page.locator('[data-testid="agent-card"]')
+    await expect(agentCards).toHaveCount(11)
+  })
 
   test('任务拖拽重排应生效', async ({ page }) => {
-    const firstTask = page.locator('[data-testid="task-item"]').first();
-    const secondTask = page.locator('[data-testid="task-item"]').nth(1);
-    
-    await firstTask.dragTo(secondTask);
-    
+    const firstTask = page.locator('[data-testid="task-item"]').first()
+    const secondTask = page.locator('[data-testid="task-item"]').nth(1)
+
+    await firstTask.dragTo(secondTask)
+
     // 验证排序变更
-    await expect(page.locator('[data-testid="task-item"]').first()).toContainText('Task 2');
-  });
+    await expect(page.locator('[data-testid="task-item"]').first()).toContainText('Task 2')
+  })
 
   test('手动干预应记录审计日志', async ({ page }) => {
     // 打开手动干预面板
-    await page.click('[data-testid="manual-override"]');
-    
+    await page.click('[data-testid="manual-override"]')
+
     // 强制分配任务
-    await page.selectOption('[data-testid="agent-select"]', 'agent-1');
-    await page.click('[data-testid="assign-button"]');
-    
+    await page.selectOption('[data-testid="agent-select"]', 'agent-1')
+    await page.click('[data-testid="assign-button"]')
+
     // 验证审计日志
-    await page.click('[data-testid="audit-log-tab"]');
-    await expect(page.locator('[data-testid="audit-entry"]').last()).toContainText('强制分配');
-  });
-});
+    await page.click('[data-testid="audit-log-tab"]')
+    await expect(page.locator('[data-testid="audit-entry"]').last()).toContainText('强制分配')
+  })
+})
 ```
 
 #### 3. WebSocket 房间 E2E 测试
@@ -457,34 +462,34 @@ test.describe('Dashboard E2E', () => {
 test.describe('WebSocket 房间协作', () => {
   test('多人房间应实时同步', async ({ browser }) => {
     // 创建两个浏览器上下文
-    const user1 = await browser.newContext();
-    const user2 = await browser.newContext();
-    
-    const page1 = await user1.newPage();
-    const page2 = await user2.newPage();
-    
+    const user1 = await browser.newContext()
+    const user2 = await browser.newContext()
+
+    const page1 = await user1.newPage()
+    const page2 = await user2.newPage()
+
     // 用户1 创建房间
-    await loginAsUser(page1, 'user1@7zi.com');
-    await page1.goto('/rooms');
-    await page1.click('[data-testid="create-room"]');
-    await page1.fill('[name="room-name"]', 'Test Room');
-    await page1.click('button[type="submit"]');
-    
+    await loginAsUser(page1, 'user1@7zi.com')
+    await page1.goto('/rooms')
+    await page1.click('[data-testid="create-room"]')
+    await page1.fill('[name="room-name"]', 'Test Room')
+    await page1.click('button[type="submit"]')
+
     // 获取房间邀请链接
-    const inviteLink = await page1.locator('[data-testid="invite-link"]').inputValue();
-    
+    const inviteLink = await page1.locator('[data-testid="invite-link"]').inputValue()
+
     // 用户2 加入房间
-    await loginAsUser(page2, 'user2@7zi.com');
-    await page2.goto(inviteLink);
-    
+    await loginAsUser(page2, 'user2@7zi.com')
+    await page2.goto(inviteLink)
+
     // 验证用户2 在用户1 的列表中显示
-    await expect(page1.locator('[data-testid="participant-list"]')).toContainText('user2');
-    
+    await expect(page1.locator('[data-testid="participant-list"]')).toContainText('user2')
+
     // 清理
-    await user1.close();
-    await user2.close();
-  });
-});
+    await user1.close()
+    await user2.close()
+  })
+})
 ```
 
 ---
@@ -493,21 +498,21 @@ test.describe('WebSocket 房间协作', () => {
 
 ### 已配置工具
 
-| 工具 | 版本 | 用途 | 配置文件 |
-|------|------|------|----------|
-| Vitest | 4.x | 单元/集成测试 | `vitest.config.ts` |
-| Playwright | 最新 | E2E 测试 | `playwright.config.ts` |
-| @testing-library/react | 最新 | React 组件测试 | 已集成 |
-| MSW | 最新 | API Mock | `src/test/mocks/` |
+| 工具                   | 版本 | 用途           | 配置文件               |
+| ---------------------- | ---- | -------------- | ---------------------- |
+| Vitest                 | 4.x  | 单元/集成测试  | `vitest.config.ts`     |
+| Playwright             | 最新 | E2E 测试       | `playwright.config.ts` |
+| @testing-library/react | 最新 | React 组件测试 | 已集成                 |
+| MSW                    | 最新 | API Mock       | `src/test/mocks/`      |
 
 ### 推荐新增工具
 
-| 工具 | 用途 | 安装命令 |
-|------|------|----------|
-| `@vitest/coverage-v8` | 覆盖率报告 | 已配置 |
+| 工具                          | 用途         | 安装命令                                  |
+| ----------------------------- | ------------ | ----------------------------------------- |
+| `@vitest/coverage-v8`         | 覆盖率报告   | 已配置                                    |
 | `@testing-library/user-event` | 用户交互模拟 | `pnpm add -D @testing-library/user-event` |
-| `dependency-cruiser` | 循环依赖检测 | `pnpm add -D dependency-cruiser` |
-| `faker` | 测试数据生成 | `pnpm add -D @faker-js/faker` |
+| `dependency-cruiser`          | 循环依赖检测 | `pnpm add -D dependency-cruiser`          |
+| `faker`                       | 测试数据生成 | `pnpm add -D @faker-js/faker`             |
 
 ### CI/CD 集成建议
 
@@ -562,26 +567,26 @@ jobs:
 
 ### 模块级覆盖率目标
 
-| 模块 | 当前覆盖率 | v1.5.0 目标 | 关键关注点 |
-|------|------------|-------------|------------|
-| `src/stores/` | ~94% | ≥ 95% | permissionStore 新增测试 |
-| `src/lib/websocket/` | ~98% | ≥ 98% | 保持现有覆盖 |
-| `src/lib/agents/` | ~95% | ≥ 95% | 重构后验证 |
-| `src/components/dashboard/` | 新模块 | ≥ 90% | 新组件全面测试 |
-| `src/contexts/` | ~90% | ≥ 85% | 迁移后回归测试 |
-| **总体** | **~94%** | **≥ 95%** | **提升 1%+** |
+| 模块                        | 当前覆盖率 | v1.5.0 目标 | 关键关注点               |
+| --------------------------- | ---------- | ----------- | ------------------------ |
+| `src/stores/`               | ~94%       | ≥ 95%       | permissionStore 新增测试 |
+| `src/lib/websocket/`        | ~98%       | ≥ 98%       | 保持现有覆盖             |
+| `src/lib/agents/`           | ~95%       | ≥ 95%       | 重构后验证               |
+| `src/components/dashboard/` | 新模块     | ≥ 90%       | 新组件全面测试           |
+| `src/contexts/`             | ~90%       | ≥ 85%       | 迁移后回归测试           |
+| **总体**                    | **~94%**   | **≥ 95%**   | **提升 1%+**             |
 
 ### 功能级测试覆盖矩阵
 
-| 功能 | 单元测试 | 集成测试 | E2E 测试 | 状态 |
-|------|----------|----------|----------|------|
-| AgentStatusPanel | ✅ 计划 | ✅ 计划 | ✅ 计划 | 待开发 |
-| TaskQueueView | ✅ 计划 | ✅ 计划 | ✅ 计划 | 待开发 |
-| ScheduleHistory | ✅ 计划 | ✅ 计划 | ✅ 计划 | 待开发 |
-| ManualOverride | ✅ 计划 | ✅ 计划 | ✅ 计划 | 待开发 |
-| permissionStore | ✅ 已有 | ✅ 计划 | ✅ 计划 | 部分完成 |
-| PermissionContext 迁移 | ✅ 计划 | ✅ 计划 | ✅ 计划 | 待开发 |
-| lib/ 重构 | ✅ 计划 | ✅ 计划 | - | 待开发 |
+| 功能                   | 单元测试 | 集成测试 | E2E 测试 | 状态     |
+| ---------------------- | -------- | -------- | -------- | -------- |
+| AgentStatusPanel       | ✅ 计划  | ✅ 计划  | ✅ 计划  | 待开发   |
+| TaskQueueView          | ✅ 计划  | ✅ 计划  | ✅ 计划  | 待开发   |
+| ScheduleHistory        | ✅ 计划  | ✅ 计划  | ✅ 计划  | 待开发   |
+| ManualOverride         | ✅ 计划  | ✅ 计划  | ✅ 计划  | 待开发   |
+| permissionStore        | ✅ 已有  | ✅ 计划  | ✅ 计划  | 部分完成 |
+| PermissionContext 迁移 | ✅ 计划  | ✅ 计划  | ✅ 计划  | 待开发   |
+| lib/ 重构              | ✅ 计划  | ✅ 计划  | -        | 待开发   |
 
 ---
 
@@ -589,12 +594,12 @@ jobs:
 
 ### 测试风险
 
-| 风险 | 概率 | 影响 | 缓解措施 |
-|------|------|------|----------|
-| Dashboard UI 变更频繁 | 中 | 测试维护成本高 | 使用稳定的 data-testid，组件测试优先 |
-| WebSocket 测试不稳定 | 中 | CI 失败率高 | Mock WebSocket，增加重试机制 |
-| 权限迁移遗漏 | 中 | 功能回归 | 全局搜索引用，E2E 回归测试 |
-| lib/ 重构破坏导入 | 低 | 编译失败 | TypeScript 严格模式，自动化测试 |
+| 风险                  | 概率 | 影响           | 缓解措施                             |
+| --------------------- | ---- | -------------- | ------------------------------------ |
+| Dashboard UI 变更频繁 | 中   | 测试维护成本高 | 使用稳定的 data-testid，组件测试优先 |
+| WebSocket 测试不稳定  | 中   | CI 失败率高    | Mock WebSocket，增加重试机制         |
+| 权限迁移遗漏          | 中   | 功能回归       | 全局搜索引用，E2E 回归测试           |
+| lib/ 重构破坏导入     | 低   | 编译失败       | TypeScript 严格模式，自动化测试      |
 
 ### 质量门禁
 
@@ -604,19 +609,19 @@ quality_gates:
   - name: 单元测试通过率
     threshold: 100%
     action: 阻止合并
-  
+
   - name: 单元测试覆盖率
     threshold: 95%
     action: 警告
-  
+
   - name: E2E 测试通过率
     threshold: 100%
     action: 阻止合并
-  
+
   - name: TypeScript 编译
     threshold: 0 errors
     action: 阻止合并
-  
+
   - name: 循环依赖检测
     threshold: 0 循环
     action: 阻止合并
@@ -628,21 +633,21 @@ quality_gates:
 
 ### 开发阶段测试
 
-| 阶段 | 测试活动 | 时间安排 |
-|------|----------|----------|
-| 开发前 | 编写测试用例设计 | 每个 Sprint 第 1 天 |
-| 开发中 | 单元测试编写（TDD） | 持续进行 |
-| 功能完成 | 集成测试编写 | 功能完成后 1 天内 |
-| 合并前 | 代码审查 + 测试审查 | PR 提交时 |
+| 阶段     | 测试活动            | 时间安排            |
+| -------- | ------------------- | ------------------- |
+| 开发前   | 编写测试用例设计    | 每个 Sprint 第 1 天 |
+| 开发中   | 单元测试编写（TDD） | 持续进行            |
+| 功能完成 | 集成测试编写        | 功能完成后 1 天内   |
+| 合并前   | 代码审查 + 测试审查 | PR 提交时           |
 
 ### 发布前测试
 
-| 阶段 | 测试活动 | 时间安排 |
-|------|----------|----------|
-| Beta 测试 | E2E 完整回归 | 发布前 3 天 |
-| 性能测试 | 负载测试、内存泄漏检测 | 发布前 2 天 |
-| 安全测试 | 权限穿透测试、SQL 注入测试 | 发布前 2 天 |
-| 最终验证 | 全量测试通过 | 发布前 1 天 |
+| 阶段      | 测试活动                   | 时间安排    |
+| --------- | -------------------------- | ----------- |
+| Beta 测试 | E2E 完整回归               | 发布前 3 天 |
+| 性能测试  | 负载测试、内存泄漏检测     | 发布前 2 天 |
+| 安全测试  | 权限穿透测试、SQL 注入测试 | 发布前 2 天 |
+| 最终验证  | 全量测试通过               | 发布前 1 天 |
 
 ---
 
@@ -650,12 +655,12 @@ quality_gates:
 
 ### 必需文档
 
-| 文档 | 位置 | 更新频率 |
-|------|------|----------|
-| 测试策略 | `docs/v150-testing-strategy.md` | 版本发布时 |
-| 测试用例 | `tests/` 目录 | 功能变更时 |
-| 测试报告 | `test-results/` | 每次测试执行 |
-| 覆盖率报告 | `coverage/` | 每次测试执行 |
+| 文档       | 位置                            | 更新频率     |
+| ---------- | ------------------------------- | ------------ |
+| 测试策略   | `docs/v150-testing-strategy.md` | 版本发布时   |
+| 测试用例   | `tests/` 目录                   | 功能变更时   |
+| 测试报告   | `test-results/`                 | 每次测试执行 |
+| 覆盖率报告 | `coverage/`                     | 每次测试执行 |
 
 ### 测试报告模板
 
@@ -663,20 +668,24 @@ quality_gates:
 ## 测试执行报告 - [日期]
 
 ### 执行摘要
+
 - 总测试数: XXX
 - 通过: XXX
 - 失败: XXX
 - 跳过: XXX
 
 ### 覆盖率
+
 - 行覆盖率: XX%
 - 分支覆盖率: XX%
 - 函数覆盖率: XX%
 
 ### 失败测试分析
+
 [失败测试详情]
 
 ### 建议改进
+
 [改进建议]
 ```
 

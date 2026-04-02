@@ -1,39 +1,41 @@
-'use client';
+'use client'
 
-import { useEffect, useState } from 'react';
-import Link from 'next/link';
-import { RefreshCw, WifiOff, Home } from 'lucide-react';
+import { useEffect, useState } from 'react'
+import Link from 'next/link'
+import { RefreshCw, WifiOff, Home } from 'lucide-react'
 
 export default function OfflinePage() {
-  const [isOnline, setIsOnline] = useState(() => navigator.onLine);
+  const [isOnline, setIsOnline] = useState(() => navigator.onLine)
 
   useEffect(() => {
-    const handleOnline = () => setIsOnline(true);
-    const handleOffline = () => setIsOnline(false);
+    const handleOnline = () => setIsOnline(true)
+    const handleOffline = () => setIsOnline(false)
 
-    window.addEventListener('online', handleOnline);
-    window.addEventListener('offline', handleOffline);
+    window.addEventListener('online', handleOnline)
+    window.addEventListener('offline', handleOffline)
 
     return () => {
-      window.removeEventListener('online', handleOnline);
-      window.removeEventListener('offline', handleOffline);
-    };
-  }, []);
+      window.removeEventListener('online', handleOnline)
+      window.removeEventListener('offline', handleOffline)
+    }
+  }, [])
 
   const handleRetry = () => {
-    window.location.reload();
-  };
+    window.location.reload()
+  }
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-gray-50 to-gray-100 dark:from-gray-900 dark:to-gray-800 px-4">
-      <div className="max-w-md w-full space-y-8 text-center">
+    <div className="flex min-h-screen items-center justify-center bg-gradient-to-br from-gray-50 to-gray-100 px-4 dark:from-gray-900 dark:to-gray-800">
+      <div className="w-full max-w-md space-y-8 text-center">
         {/* Icon */}
         <div className="flex justify-center">
-          <div className={`p-6 rounded-full ${isOnline ? 'bg-cyan-100 dark:bg-cyan-900/30' : 'bg-zinc-200 dark:bg-zinc-700'}`}>
+          <div
+            className={`rounded-full p-6 ${isOnline ? 'bg-cyan-100 dark:bg-cyan-900/30' : 'bg-zinc-200 dark:bg-zinc-700'}`}
+          >
             {isOnline ? (
-              <RefreshCw className="w-16 h-16 text-cyan-600 dark:text-cyan-400 animate-spin" />
+              <RefreshCw className="h-16 w-16 animate-spin text-cyan-600 dark:text-cyan-400" />
             ) : (
-              <WifiOff className="w-16 h-16 text-zinc-600 dark:text-zinc-400" />
+              <WifiOff className="h-16 w-16 text-zinc-600 dark:text-zinc-400" />
             )}
           </div>
         </div>
@@ -44,18 +46,14 @@ export default function OfflinePage() {
             {isOnline ? '正在重新连接...' : '您离线了'}
           </h1>
           <p className="text-zinc-600 dark:text-zinc-400">
-            {isOnline
-              ? '请稍等，我们正在努力恢复连接'
-              : '请检查您的网络连接，稍后再试'}
+            {isOnline ? '请稍等，我们正在努力恢复连接' : '请检查您的网络连接，稍后再试'}
           </p>
         </div>
 
         {/* Cached Content Info */}
-        <div className="bg-white dark:bg-zinc-800 rounded-lg p-6 shadow-sm border border-zinc-200 dark:border-zinc-700">
-          <h2 className="text-lg font-semibold text-zinc-900 dark:text-white mb-2">
-            离线可用功能
-          </h2>
-          <ul className="text-left text-sm text-zinc-600 dark:text-zinc-400 space-y-1">
+        <div className="rounded-lg border border-zinc-200 bg-white p-6 shadow-sm dark:border-zinc-700 dark:bg-zinc-800">
+          <h2 className="mb-2 text-lg font-semibold text-zinc-900 dark:text-white">离线可用功能</h2>
+          <ul className="space-y-1 text-left text-sm text-zinc-600 dark:text-zinc-400">
             <li>✓ 浏览已缓存的项目和代理信息</li>
             <li>✓ 查看之前加载的页面内容</li>
             <li>✓ 基本的页面导航</li>
@@ -67,17 +65,17 @@ export default function OfflinePage() {
           <button
             onClick={handleRetry}
             disabled={isOnline}
-            className="w-full px-4 py-3 text-sm font-medium text-white bg-cyan-600 hover:bg-cyan-700 disabled:bg-zinc-400 disabled:cursor-not-allowed rounded-lg transition-colors flex items-center justify-center gap-2"
+            className="flex w-full items-center justify-center gap-2 rounded-lg bg-cyan-600 px-4 py-3 text-sm font-medium text-white transition-colors hover:bg-cyan-700 disabled:cursor-not-allowed disabled:bg-zinc-400"
           >
-            <RefreshCw className="w-4 h-4" />
+            <RefreshCw className="h-4 w-4" />
             重新加载页面
           </button>
 
           <Link
             href="/"
-            className="w-full px-4 py-3 text-sm font-medium text-zinc-700 dark:text-zinc-300 bg-white dark:bg-zinc-800 hover:bg-zinc-50 dark:hover:bg-zinc-700 rounded-lg transition-colors flex items-center justify-center gap-2 border border-zinc-300 dark:border-zinc-600"
+            className="flex w-full items-center justify-center gap-2 rounded-lg border border-zinc-300 bg-white px-4 py-3 text-sm font-medium text-zinc-700 transition-colors hover:bg-zinc-50 dark:border-zinc-600 dark:bg-zinc-800 dark:text-zinc-300 dark:hover:bg-zinc-700"
           >
-            <Home className="w-4 h-4" />
+            <Home className="h-4 w-4" />
             返回首页
           </Link>
         </div>
@@ -88,5 +86,5 @@ export default function OfflinePage() {
         </div>
       </div>
     </div>
-  );
+  )
 }

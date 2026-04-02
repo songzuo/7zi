@@ -14,6 +14,7 @@ The security audit identified **1 high severity vulnerability** in the project d
 ### 🔴 High Severity (1)
 
 #### 1. xlsx - Prototype Pollution in sheetJS
+
 - **Package:** xlsx (all versions)
 - **Severity:** High
 - **Advisory:** GHSA-4r6h-8v6p-xvw6
@@ -25,11 +26,13 @@ The security audit identified **1 high severity vulnerability** in the project d
 SheetJS (xlsx) is vulnerable to prototype pollution, which could allow attackers to modify the JavaScript object prototype. This can lead to application-level denial of service, data tampering, or remote code execution in certain scenarios.
 
 **Impact:**
+
 - Potential for prototype pollution attacks
 - Could lead to denial of service
 - May enable data manipulation or code execution in specific contexts
 
 **Recommendations:**
+
 - Review usage of xlsx package in the application
 - Consider using alternative libraries for Excel file processing (e.g., exceljs, papaparse for CSVs)
 - If xlsx must be used, implement strict input validation and sanitization
@@ -39,6 +42,7 @@ SheetJS (xlsx) is vulnerable to prototype pollution, which could allow attackers
 ---
 
 #### 2. xlsx - SheetJS Regular Expression Denial of Service (ReDoS)
+
 - **Package:** xlsx (all versions)
 - **Severity:** High
 - **Advisory:** GHSA-5pgg-2g8v-p4x9
@@ -50,11 +54,13 @@ SheetJS (xlsx) is vulnerable to prototype pollution, which could allow attackers
 SheetJS contains regular expressions vulnerable to ReDoS attacks. Maliciously crafted Excel files could cause excessive CPU usage and application slowdown or crash.
 
 **Impact:**
+
 - Application denial of service
 - Resource exhaustion (CPU, memory)
 - Potential cascading failures in dependent systems
 
 **Recommendations:**
+
 - Implement file size limits for Excel file uploads
 - Add timeouts for file processing operations
 - Process Excel files asynchronously or in background workers
@@ -66,6 +72,7 @@ SheetJS contains regular expressions vulnerable to ReDoS attacks. Maliciously cr
 ## Dependencies Overview
 
 ### Production Dependencies (16 packages)
+
 - @a2a-js/sdk: ^0.3.13
 - @emailjs/browser: ^4.4.1
 - @modelcontextprotocol/sdk: ^1.27.1
@@ -84,6 +91,7 @@ SheetJS contains regular expressions vulnerable to ReDoS attacks. Maliciously cr
 - zustand: ^5.0.12
 
 ### Development Dependencies (19 packages)
+
 - @next/bundle-analyzer: ^16.2.1
 - @playwright/test: ^1.58.2
 - @tailwindcss/postcss: ^4
@@ -111,6 +119,7 @@ SheetJS contains regular expressions vulnerable to ReDoS attacks. Maliciously cr
 ## Recommendations Summary
 
 ### Immediate Actions Required
+
 1. **Evaluate xlsx usage**: Determine if Excel file processing is critical to the application
 2. **Consider alternatives**: Research safer alternatives like:
    - exceljs (actively maintained)
@@ -118,6 +127,7 @@ SheetJS contains regular expressions vulnerable to ReDoS attacks. Maliciously cr
    - @xlsx/lsx (SheetJS community fork)
 
 ### Short-term Mitigations
+
 1. Implement strict file validation
 2. Add file size restrictions
 3. Set timeouts for file processing
@@ -125,6 +135,7 @@ SheetJS contains regular expressions vulnerable to ReDoS attacks. Maliciously cr
 5. Add rate limiting to upload endpoints
 
 ### Long-term Solutions
+
 1. Migrate to a safer Excel processing library
 2. Implement comprehensive input sanitization
 3. Add automated security scanning to CI/CD pipeline
@@ -134,12 +145,12 @@ SheetJS contains regular expressions vulnerable to ReDoS attacks. Maliciously cr
 
 ## Risk Assessment
 
-| Category | Risk Level | Notes |
-|----------|------------|-------|
+| Category         | Risk Level      | Notes                                       |
+| ---------------- | --------------- | ------------------------------------------- |
 | Overall Security | **Medium-High** | One high severity vulnerability with no fix |
-| Exposure | **Medium** | Depends on user file upload functionality |
-| Impact | **High** | Potential for DoS and prototype pollution |
-| Urgency | **Medium-High** | Address within 1-2 weeks |
+| Exposure         | **Medium**      | Depends on user file upload functionality   |
+| Impact           | **High**        | Potential for DoS and prototype pollution   |
+| Urgency          | **Medium-High** | Address within 1-2 weeks                    |
 
 ---
 

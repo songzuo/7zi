@@ -7,18 +7,22 @@ The project already has CSP headers configured in `next.config.ts`, but it uses 
 ## Security Improvements
 
 ### 1. Remove 'unsafe-inline' from script-src
+
 - Use nonce for legitimate inline scripts (JSON-LD, SEO scripts)
 - Only allow trusted external domains
 
 ### 2. Keep 'unsafe-inline' for style-src
+
 - CSS-in-JS libraries (Tailwind, styled-components) require this
 - Less risk than script injection
 
 ### 3. Add nonce support
+
 - Next.js 16 automatically generates nonces for scripts
 - Use `nonce` prop in next/script components
 
 ### 4. Report-Only Mode
+
 - Test CSP in report-only mode first
 - Monitor for violations
 - Fix issues before enforcing
@@ -26,17 +30,21 @@ The project already has CSP headers configured in `next.config.ts`, but it uses 
 ## Implementation
 
 ### Phase 1: Report-Only Mode
+
 Add `Content-Security-Policy-Report-Only` header to test without blocking.
 
 ### Phase 2: Enforce with Nonce
+
 Update scripts to use nonce and remove 'unsafe-inline'.
 
 ### Phase 3: Monitor
+
 Regularly check CSP reports for violations.
 
 ## Trusted Domains
 
 Required for 7zi-project:
+
 - `self` - Same origin
 - `https://va.vercel-scripts.com` - Vercel Analytics
 - `https://cdn.jsdelivr.net` - CDN for libraries

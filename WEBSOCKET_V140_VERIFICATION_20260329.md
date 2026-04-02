@@ -8,12 +8,12 @@
 
 ## 📋 执行摘要
 
-| 模块 | 实现状态 | 测试覆盖 | 集成状态 | 总体评估 |
-|------|---------|---------|---------|---------|
-| 房间系统 (rooms.ts) | ✅ 完整 | ✅ 完整 | ⚠️ 未集成 | 🟡 需要集成 |
-| 权限控制 (permissions.ts) | ✅ 完整 | ✅ 完整 | ⚠️ 未集成 | 🟡 需要集成 |
-| 消息持久化 (message-store.ts) | ✅ 完整 | ✅ 完整 | ⚠️ 未集成 | 🟡 需要集成 |
-| WebSocket 服务器 (server.ts) | ⚠️ 部分实现 | ✅ 协作测试 | ⚠️ 未集成 | 🟡 需要更新 |
+| 模块                          | 实现状态    | 测试覆盖    | 集成状态  | 总体评估    |
+| ----------------------------- | ----------- | ----------- | --------- | ----------- |
+| 房间系统 (rooms.ts)           | ✅ 完整     | ✅ 完整     | ⚠️ 未集成 | 🟡 需要集成 |
+| 权限控制 (permissions.ts)     | ✅ 完整     | ✅ 完整     | ⚠️ 未集成 | 🟡 需要集成 |
+| 消息持久化 (message-store.ts) | ✅ 完整     | ✅ 完整     | ⚠️ 未集成 | 🟡 需要集成 |
+| WebSocket 服务器 (server.ts)  | ⚠️ 部分实现 | ✅ 协作测试 | ⚠️ 未集成 | 🟡 需要更新 |
 
 ---
 
@@ -21,19 +21,19 @@
 
 ### ✅ 已实现功能
 
-| 功能 | 状态 | 说明 |
-|------|------|------|
-| 创建房间 | ✅ | 支持多种房间类型 (task/project/chat/document/voice/video) |
-| 加入房间 | ✅ | 自动角色分配、容量检查 |
-| 离开房间 | ✅ | 用户跟踪、自动清理调度 |
-| 房间邀请 | ✅ | `invite()` 方法，私有房间邀请列表 |
-| 可见性控制 | ✅ | public/private/invite-only 三种模式 |
-| 自动清理 | ✅ | 空房间定时清理机制 |
-| 用户踢出 | ✅ | 权限检查、角色层级 |
-| 用户封禁 | ✅ | 封禁列表、阻止重新加入 |
-| 角色管理 | ✅ | 5种角色动态切换 |
-| 光标/打字状态 | ✅ | 实时协作状态追踪 |
-| 回调系统 | ✅ | 完整的事件回调机制 |
+| 功能          | 状态 | 说明                                                      |
+| ------------- | ---- | --------------------------------------------------------- |
+| 创建房间      | ✅   | 支持多种房间类型 (task/project/chat/document/voice/video) |
+| 加入房间      | ✅   | 自动角色分配、容量检查                                    |
+| 离开房间      | ✅   | 用户跟踪、自动清理调度                                    |
+| 房间邀请      | ✅   | `invite()` 方法，私有房间邀请列表                         |
+| 可见性控制    | ✅   | public/private/invite-only 三种模式                       |
+| 自动清理      | ✅   | 空房间定时清理机制                                        |
+| 用户踢出      | ✅   | 权限检查、角色层级                                        |
+| 用户封禁      | ✅   | 封禁列表、阻止重新加入                                    |
+| 角色管理      | ✅   | 5种角色动态切换                                           |
+| 光标/打字状态 | ✅   | 实时协作状态追踪                                          |
+| 回调系统      | ✅   | 完整的事件回调机制                                        |
 
 ### 📊 测试覆盖
 
@@ -63,30 +63,30 @@
 
 ### ✅ 已实现功能
 
-| 功能 | 状态 | 说明 |
-|------|------|------|
-| RBAC 角色系统 | ✅ | owner/admin/moderator/member/guest |
-| 权限定义 | ✅ | 16种权限（7房间 + 6消息 + 6管理员） |
-| 权限检查 | ✅ | `hasPermission()` 带过期检查 |
-| 权限授予/撤销 | ✅ | 细粒度权限控制 |
-| 权限过期 | ✅ | `expiresAt` 时间检查 |
-| 用户封禁 | ✅ | 封禁列表管理 |
-| 角色层级 | ✅ | `canManageUser()` 层级判断 |
-| 全局角色 | ✅ | 跨房间角色设置 |
+| 功能          | 状态 | 说明                                |
+| ------------- | ---- | ----------------------------------- |
+| RBAC 角色系统 | ✅   | owner/admin/moderator/member/guest  |
+| 权限定义      | ✅   | 16种权限（7房间 + 6消息 + 6管理员） |
+| 权限检查      | ✅   | `hasPermission()` 带过期检查        |
+| 权限授予/撤销 | ✅   | 细粒度权限控制                      |
+| 权限过期      | ✅   | `expiresAt` 时间检查                |
+| 用户封禁      | ✅   | 封禁列表管理                        |
+| 角色层级      | ✅   | `canManageUser()` 层级判断          |
+| 全局角色      | ✅   | 跨房间角色设置                      |
 
 ### 📊 权限矩阵
 
-| 权限类型 | Owner | Admin | Moderator | Member | Guest |
-|----------|-------|-------|-----------|--------|-------|
-| room:join | ✅ | ✅ | ✅ | ✅ | ✅ |
-| room:manage | ✅ | ✅ | ❌ | ❌ | ❌ |
-| room:invite | ✅ | ✅ | ✅ | ✅ | ❌ |
-| room:kick | ✅ | ✅ | ✅ | ❌ | ❌ |
-| room:ban | ✅ | ✅ | ❌ | ❌ | ❌ |
-| message:send | ✅ | ✅ | ✅ | ✅ | ✅ |
-| message:edit | ✅ | ✅ | ✅ | ✅ | ❌ |
-| message:delete | ✅ | ✅ | ✅ | ❌ | ❌ |
-| admin:* | ✅ | 部分 | ❌ | ❌ | ❌ |
+| 权限类型       | Owner | Admin | Moderator | Member | Guest |
+| -------------- | ----- | ----- | --------- | ------ | ----- |
+| room:join      | ✅    | ✅    | ✅        | ✅     | ✅    |
+| room:manage    | ✅    | ✅    | ❌        | ❌     | ❌    |
+| room:invite    | ✅    | ✅    | ✅        | ✅     | ❌    |
+| room:kick      | ✅    | ✅    | ✅        | ❌     | ❌    |
+| room:ban       | ✅    | ✅    | ❌        | ❌     | ❌    |
+| message:send   | ✅    | ✅    | ✅        | ✅     | ✅    |
+| message:edit   | ✅    | ✅    | ✅        | ✅     | ❌    |
+| message:delete | ✅    | ✅    | ✅        | ❌     | ❌    |
+| admin:\*       | ✅    | 部分  | ❌        | ❌     | ❌    |
 
 ### 📊 测试覆盖
 
@@ -112,17 +112,17 @@
 
 ### ✅ 已实现功能
 
-| 功能 | 状态 | 说明 |
-|------|------|------|
-| 消息存储 | ✅ | 内存存储，按房间组织 |
-| 消息检索 | ✅ | 按ID/房间检索 |
-| 消息编辑 | ✅ | 编辑标记和时间戳 |
-| 消息删除 | ✅ | 软删除（标记删除） |
-| 消息反应 | ✅ | Emoji 反应，用户去重 |
-| 消息置顶 | ✅ | 置顶标记和列表 |
-| 历史查询 | ✅ | 分页、时间范围、用户过滤 |
-| 离线队列 | ✅ | TTL 过期、送达标记 |
-| 统计信息 | ✅ | 消息数、房间分布 |
+| 功能     | 状态 | 说明                     |
+| -------- | ---- | ------------------------ |
+| 消息存储 | ✅   | 内存存储，按房间组织     |
+| 消息检索 | ✅   | 按ID/房间检索            |
+| 消息编辑 | ✅   | 编辑标记和时间戳         |
+| 消息删除 | ✅   | 软删除（标记删除）       |
+| 消息反应 | ✅   | Emoji 反应，用户去重     |
+| 消息置顶 | ✅   | 置顶标记和列表           |
+| 历史查询 | ✅   | 分页、时间范围、用户过滤 |
+| 离线队列 | ✅   | TTL 过期、送达标记       |
+| 统计信息 | ✅   | 消息数、房间分布         |
 
 ### 📊 测试覆盖
 
@@ -153,12 +153,14 @@
 
 **文件**: `src/lib/websocket/server.ts`
 
-**问题描述**: 
+**问题描述**:
+
 - `server.ts` 使用独立的、简化的房间管理逻辑
 - 没有导入或使用 `RoomManager`, `PermissionManager`, `MessageStore`
 - 新模块的高级功能完全未被利用
 
 **影响**:
+
 - ❌ 权限检查不生效
 - ❌ 消息不被持久化
 - ❌ 私有房间访问控制无效
@@ -166,16 +168,17 @@
 - ❌ 用户封禁无效
 
 **证据**:
+
 ```typescript
 // server.ts 中的简化实现
-const rooms = new Map<string, Room>();  // 未使用 RoomManager
+const rooms = new Map<string, Room>() // 未使用 RoomManager
 
 // 缺少权限检查
-socket.on('room:join', (data) => {
+socket.on('room:join', data => {
   // 直接加入，没有权限检查
-  const room = ensureRoom(roomId, type, documentId, name);
+  const room = ensureRoom(roomId, type, documentId, name)
   // ...
-});
+})
 ```
 
 ---
@@ -185,6 +188,7 @@ socket.on('room:join', (data) => {
 #### 2. 缺少权限相关的 Socket 事件
 
 **缺失事件**:
+
 - `room:invite` - 邀请用户
 - `room:kick` - 踢出用户
 - `room:ban` - 封禁用户
@@ -210,6 +214,7 @@ socket.on('room:join', (data) => {
 #### 5. 清理机制重复
 
 两处都有房间清理逻辑：
+
 - `server.ts`: `scheduleRoomCleanup()`
 - `rooms.ts`: `scheduleCleanup()`
 
@@ -223,64 +228,64 @@ socket.on('room:join', (data) => {
 
 ```typescript
 // 在 server.ts 顶部添加
-import { getRoomManager, RoomManager } from './rooms';
-import { getPermissionManager } from './permissions';
-import { getMessageStore } from './message-store';
+import { getRoomManager, RoomManager } from './rooms'
+import { getPermissionManager } from './permissions'
+import { getMessageStore } from './message-store'
 
 // 初始化
-const roomManager = getRoomManager();
-const permissionManager = getPermissionManager();
-const messageStore = getMessageStore();
+const roomManager = getRoomManager()
+const permissionManager = getPermissionManager()
+const messageStore = getMessageStore()
 ```
 
 #### 2. 修改 room:join 事件处理
 
 ```typescript
-socket.on('room:join', (data) => {
-  const { roomId, type, documentId, name } = data;
-  
+socket.on('room:join', data => {
+  const { roomId, type, documentId, name } = data
+
   // 使用 RoomManager
   const result = roomManager.join(roomId, {
     userId: user.id,
     userName: user.name,
     email: user.email,
     avatar: user.avatar,
-  });
-  
+  })
+
   if (!result.success) {
-    socket.emit('system:error', { message: result.error });
-    return;
+    socket.emit('system:error', { message: result.error })
+    return
   }
-  
+
   // ... 处理成功加入
-});
+})
 ```
 
 #### 3. 添加权限检查
 
 ```typescript
-socket.on('room:kick', (data) => {
-  const { roomId, targetUserId, reason } = data;
-  
+socket.on('room:kick', data => {
+  const { roomId, targetUserId, reason } = data
+
   // 权限检查通过 RoomManager 自动完成
-  const result = roomManager.kick(roomId, targetUserId, user.id, reason);
-  
+  const result = roomManager.kick(roomId, targetUserId, user.id, reason)
+
   if (!result.success) {
-    socket.emit('system:error', { message: result.error });
-    return;
+    socket.emit('system:error', { message: result.error })
+    return
   }
-  
+
   // 通知被踢用户
-  io.to(`user:${targetUserId}`).emit('room:kicked', { roomId, reason });
-});
+  io.to(`user:${targetUserId}`).emit('room:kicked', { roomId, reason })
+})
 ```
 
 #### 4. 添加消息持久化
 
 ```typescript
-socket.on('message:send', (data) => {
-  const { roomId, content, type } = data;
-  
+socket.on('message:send', data => {
+  const { roomId, content, type } = data
+
   // 存储消息
   const message = messageStore.store({
     id: crypto.randomUUID(),
@@ -289,11 +294,11 @@ socket.on('message:send', (data) => {
     userName: user.name,
     type: type || 'text',
     content,
-  });
-  
+  })
+
   // 广播消息
-  broadcastToRoom(roomId, 'message:new', message);
-});
+  broadcastToRoom(roomId, 'message:new', message)
+})
 ```
 
 ---
@@ -303,6 +308,7 @@ socket.on('message:send', (data) => {
 #### 5. 添加缺失的 Socket 事件处理
 
 需要添加的事件处理器：
+
 - `room:invite`
 - `room:kick`
 - `room:ban`
@@ -344,16 +350,16 @@ socket.on('message:send', (data) => {
 
 ### 完全实现 ✅
 
-| 模块 | 功能 |
-|------|------|
-| rooms.ts | 创建房间、加入/离开、邀请、可见性、清理、踢出、封禁、角色管理 |
-| permissions.ts | RBAC、权限检查、授予/撤销、过期、封禁、角色层级 |
-| message-store.ts | 存储、检索、编辑、删除、反应、置顶、历史、离线队列 |
+| 模块             | 功能                                                          |
+| ---------------- | ------------------------------------------------------------- |
+| rooms.ts         | 创建房间、加入/离开、邀请、可见性、清理、踢出、封禁、角色管理 |
+| permissions.ts   | RBAC、权限检查、授予/撤销、过期、封禁、角色层级               |
+| message-store.ts | 存储、检索、编辑、删除、反应、置顶、历史、离线队列            |
 
 ### 需要集成 ⚠️
 
-| 模块 | 缺失 |
-|------|------|
+| 模块      | 缺失                                                        |
+| --------- | ----------------------------------------------------------- |
 | server.ts | RoomManager 集成、PermissionManager 集成、MessageStore 集成 |
 
 ### 测试状态 ✅
@@ -367,18 +373,18 @@ socket.on('message:send', (data) => {
 
 ### 模块实现评估
 
-| 模块 | 评估 |
-|------|------|
-| 房间系统 | ⭐⭐⭐⭐⭐ 完整实现，测试充分 |
-| 权限控制 | ⭐⭐⭐⭐⭐ 完整实现，测试充分 |
+| 模块       | 评估                          |
+| ---------- | ----------------------------- |
+| 房间系统   | ⭐⭐⭐⭐⭐ 完整实现，测试充分 |
+| 权限控制   | ⭐⭐⭐⭐⭐ 完整实现，测试充分 |
 | 消息持久化 | ⭐⭐⭐⭐⭐ 完整实现，测试充分 |
 
 ### 集成评估
 
-| 方面 | 评估 |
-|------|------|
-| WebSocket 服务器集成 | ⭐⭐ 需要更新 |
-| API 端点 | ⭐⭐ 需要添加权限/消息事件 |
+| 方面                 | 评估                       |
+| -------------------- | -------------------------- |
+| WebSocket 服务器集成 | ⭐⭐ 需要更新              |
+| API 端点             | ⭐⭐ 需要添加权限/消息事件 |
 
 ### 总体评估
 
@@ -391,7 +397,7 @@ socket.on('message:send', (data) => {
 ## 📌 下一步行动
 
 1. [ ] 更新 `server.ts` 集成 RoomManager
-2. [ ] 更新 `server.ts` 集成 PermissionManager  
+2. [ ] 更新 `server.ts` 集成 PermissionManager
 3. [ ] 更新 `server.ts` 集成 MessageStore
 4. [ ] 添加缺失的 Socket 事件处理
 5. [ ] 编写端到端集成测试

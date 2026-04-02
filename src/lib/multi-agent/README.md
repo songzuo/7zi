@@ -14,7 +14,7 @@
 ### 1. 创建 Multi-Agent 系统
 
 ```typescript
-import { createMultiAgentSystem, TransportType } from '@/lib/multi-agent';
+import { createMultiAgentSystem, TransportType } from '@/lib/multi-agent'
 
 const system = createMultiAgentSystem({
   transport: {
@@ -24,9 +24,9 @@ const system = createMultiAgentSystem({
     defaultTimeout: 30000,
     maxRetryCount: 3,
   },
-});
+})
 
-const { messageBus, registry, taskDecomposer, createProtocol } = system;
+const { messageBus, registry, taskDecomposer, createProtocol } = system
 ```
 
 ### 2. 注册 Agent
@@ -48,13 +48,13 @@ await registry.register({
   status: 'online',
   lastSeen: Date.now(),
   metadata: {},
-});
+})
 ```
 
 ### 3. 创建协议实例
 
 ```typescript
-const protocol = createProtocol('my-agent-id');
+const protocol = createProtocol('my-agent-id')
 ```
 
 ### 4. 委托任务
@@ -67,19 +67,19 @@ const taskId = await protocol.delegateTask('agent-coder', {
   input: { language: 'typescript', framework: 'express' },
   requiredCapabilities: ['code-generation'],
   priority: MessagePriority.HIGH,
-});
+})
 ```
 
 ### 5. 监听事件
 
 ```typescript
-protocol.on('task.result.received', (event) => {
-  console.log('Task completed:', event.output);
-});
+protocol.on('task.result.received', event => {
+  console.log('Task completed:', event.output)
+})
 
-protocol.on('task.status.updated', (event) => {
-  console.log('Task status:', event.status, event.progress);
-});
+protocol.on('task.status.updated', event => {
+  console.log('Task status:', event.status, event.progress)
+})
 ```
 
 ## 核心组件
@@ -98,48 +98,41 @@ await messageBus.send({
     timestamp: Date.now(),
   },
   body: { data: 'hello' },
-});
+})
 
 // 订阅主题
 const unsubscribe = messageBus.subscribe('events.*', async ({ message }) => {
-  console.log('Received:', message.body);
-});
+  console.log('Received:', message.body)
+})
 
 // 广播消息
-await messageBus.broadcast('announcements', { message: 'Hello everyone' });
+await messageBus.broadcast('announcements', { message: 'Hello everyone' })
 
 // 请求-响应模式
-const response = await messageBus.request(
-  'agent-2',
-  { query: 'status' },
-  { timeout: 10000 }
-);
+const response = await messageBus.request('agent-2', { query: 'status' }, { timeout: 10000 })
 ```
 
 ### AgentRegistry (注册表)
 
 ```typescript
 // 查找具备特定能力的 Agent
-const agents = registry.findAgentsByCapability('code-generation');
+const agents = registry.findAgentsByCapability('code-generation')
 
 // 查找具备多个能力的 Agent
-const agents = registry.findAgentsByCapabilities([
-  'code-generation',
-  'testing',
-]);
+const agents = registry.findAgentsByCapabilities(['code-generation', 'testing'])
 
 // 查找最佳 Agent
-const bestAgent = registry.findBestAgent(['code-generation']);
+const bestAgent = registry.findBestAgent(['code-generation'])
 
 // 搜索 Agent
 const results = registry.searchAgents({
   type: 'llm',
   status: 'online',
   keyword: 'code',
-});
+})
 
 // 更新心跳
-await registry.heartbeat('agent-coder');
+await registry.heartbeat('agent-coder')
 ```
 
 ### TaskDecomposer (任务分解)
@@ -154,13 +147,13 @@ const task = await taskDecomposer.createTask(
     requesterId: 'user-1',
     priority: MessagePriority.HIGH,
   }
-);
+)
 
 // 执行任务
-const result = await taskDecomposer.executeTask(task.id);
+const result = await taskDecomposer.executeTask(task.id)
 
 // 取消任务
-await taskDecomposer.cancelTask(task.id);
+await taskDecomposer.cancelTask(task.id)
 ```
 
 ### AgentCollaborationProtocol (协作协议)
@@ -217,7 +210,7 @@ const task = await taskDecomposer.createTask(
   {
     template: taskDecomposer.getTemplate('code-review'),
   }
-);
+)
 
 // 使用文档生成模板
 const task = await taskDecomposer.createTask(
@@ -227,7 +220,7 @@ const task = await taskDecomposer.createTask(
   {
     template: taskDecomposer.getTemplate('doc-generation'),
   }
-);
+)
 ```
 
 ## WebSocket 传输
@@ -244,7 +237,7 @@ const system = createMultiAgentSystem({
       maxRetries: 10,
     },
   },
-});
+})
 ```
 
 ## 事件系统
@@ -339,25 +332,25 @@ npm test src/lib/multi-agent/__tests__/message-bus.test.ts
 ```typescript
 interface MultiAgentConfig {
   messageBus: {
-    defaultTimeout: number;      // 默认超时时间 (ms)
-    maxRetryCount: number;       // 最大重试次数
-    retryDelay: number;         // 重试延迟 (ms)
-    bufferSize: number;         // 消息队列大小
-  };
+    defaultTimeout: number // 默认超时时间 (ms)
+    maxRetryCount: number // 最大重试次数
+    retryDelay: number // 重试延迟 (ms)
+    bufferSize: number // 消息队列大小
+  }
 
   registry: {
-    heartbeatInterval: number;    // 心跳间隔 (ms)
-    heartbeatTimeout: number;    // 心跳超时 (ms)
-    cleanupInterval: number;     // 清理间隔 (ms)
-  };
+    heartbeatInterval: number // 心跳间隔 (ms)
+    heartbeatTimeout: number // 心跳超时 (ms)
+    cleanupInterval: number // 清理间隔 (ms)
+  }
 
   taskDecomposer: {
-    maxSubTasks: number;        // 最大子任务数
-    defaultPriority: number;     // 默认优先级
-    enableAutoRetry: boolean;    // 启用自动重试
-  };
+    maxSubTasks: number // 最大子任务数
+    defaultPriority: number // 默认优先级
+    enableAutoRetry: boolean // 启用自动重试
+  }
 
-  transport: TransportConfig;    // 传输配置
+  transport: TransportConfig // 传输配置
 }
 ```
 

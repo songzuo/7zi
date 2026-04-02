@@ -12,7 +12,7 @@ describe('errors', () => {
   describe('createAppError', () => {
     it('creates an error with message only', () => {
       const error = createAppError('Test error')
-      
+
       expect(error).toBeInstanceOf(Error)
       expect(error.message).toBe('Test error')
       expect(error.code).toBeUndefined()
@@ -21,14 +21,14 @@ describe('errors', () => {
 
     it('creates an error with code', () => {
       const error = createAppError('Test error', 'TEST_CODE')
-      
+
       expect(error.message).toBe('Test error')
       expect(error.code).toBe('TEST_CODE')
     })
 
     it('creates an error with code and status code', () => {
       const error = createAppError('Test error', 'TEST_CODE', 404)
-      
+
       expect(error.message).toBe('Test error')
       expect(error.code).toBe('TEST_CODE')
       expect(error.statusCode).toBe(404)
@@ -143,11 +143,15 @@ describe('errors', () => {
     })
 
     it('returns friendly message for NETWORK_ERROR', () => {
-      expect(getUserFriendlyMessage(ErrorCodes.NETWORK_ERROR)).toBe('网络连接失败，请检查您的网络设置')
+      expect(getUserFriendlyMessage(ErrorCodes.NETWORK_ERROR)).toBe(
+        '网络连接失败，请检查您的网络设置'
+      )
     })
 
     it('returns friendly message for SERVER_ERROR', () => {
-      expect(getUserFriendlyMessage(ErrorCodes.SERVER_ERROR)).toBe('服务器暂时无法处理您的请求，请稍后重试')
+      expect(getUserFriendlyMessage(ErrorCodes.SERVER_ERROR)).toBe(
+        '服务器暂时无法处理您的请求，请稍后重试'
+      )
     })
 
     it('returns default message for unknown codes', () => {

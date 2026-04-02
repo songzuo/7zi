@@ -1,3 +1,4 @@
+import { NextRequest, NextResponse } from 'next/server'
 /**
  * Database Optimization and Health API Endpoints
  *
@@ -61,23 +62,20 @@
  *         description: Internal server error
  */
 
-import { getDatabaseHealth, optimizeDatabase, vacuumDatabase, getDatabaseStats } from '@/lib/db';
-import { getConnectionPool, type PoolConfig } from '@/lib/db/connection-pool';
-import { generatePerformanceReport } from '@/lib/db/performance-analyzer';
-import { logger } from '@/lib/logger';
-import {
-  createValidationError,
-  createErrorResponse,
-} from '@/lib/api/error-handler';
-import { z } from 'zod';
-import { withAdmin, RBACUserContext } from '@/lib/auth/middleware-rbac';
+import { getDatabaseHealth, optimizeDatabase, vacuumDatabase, getDatabaseStats } from '@/lib/db'
+import { getConnectionPool, type PoolConfig } from '@/lib/db/connection-pool'
+import { generatePerformanceReport } from '@/lib/db/performance-analyzer'
+import { logger } from '@/lib/logger'
+import { createValidationError, createErrorResponse } from '@/lib/api/error-handler'
+import { z } from 'zod'
+import { withAdmin, RBACUserContext } from '@/lib/auth/middleware-rbac'
 
 /**
  * Database operation schema
  */
 const dbOperationsSchema = z.object({
   operations: z.array(z.enum(['vacuum', 'analyze', 'clear_metrics', 'rebuild_indexes'])).min(1),
-});
+})
 
 /**
  * GET /api/database/optimize/health
@@ -85,10 +83,10 @@ const dbOperationsSchema = z.object({
  */
 export async function GET(request: NextRequest) {
   try {
-    const health = await getDatabaseHealth();
-    const performanceReport = await generatePerformanceReport();
-    const pool = getConnectionPool();
-    const stats = getDatabaseStats();
+    const health = await getDatabaseHealth()
+    const performanceReport = await generatePerformanceReport()
+    const pool = getConnectionPool()
+    const stats = getDatabaseStats()
 
     return NextResponse.json({
       success: true,
@@ -117,10 +115,12 @@ export async function GET(request: NextRequest) {
         stats,
         timestamp: new Date().toISOString(),
       },
-    });
-  } catch (_error) {
-    logger.error('Failed to get database health', error);
-    return createErrorResponse(error instanceof Error ? error : new Error('Failed to get database health'));
+    })
+  } catch (error) {
+    logger.error('Failed to get database health', error)
+    return createErrorResponse(
+      error instanceof Error ? error : new Error('Failed to get database health')
+    )
   }
 }
 
@@ -128,73 +128,75 @@ export async function GET(request: NextRequest) {
  * POST /api/database/optimize
  * Run database optimization operations (requires admin privileges)
  */
-async function POSTHandler(
-  request: NextRequest,
-  context: RBACUserContext
-) {
+async function POSTHandler(request: NextRequest, context: RBACUserContext) {
   try {
-    const body = await request.json();
+    const body = await request.json()
 
     // Validate request body
-    const validation = dbOperationsSchema.safeParse(body);
+    const validation = dbOperationsSchema.safeParse(body)
 
     if (!validation.success) {
-      const errors: Record<string, string> = {};
-      validation.error.issues.forEach((issue) => {
-        errors[issue.path.join('.')] = issue.message;
-      });
-      return createValidationError('Invalid request body', { fields: errors });
+      const errors: Record<string, string> = {}
+      validation.error.issues.forEach(issue => {
+        errors[issue.path.join('.')] = issue.message
+      })
+      return createValidationError('Invalid request body', { fields: errors })
     }
 
-    const { operations } = validation.data;
+    const { operations } = validation.data
 
     logger.info(`Database optimization requested by admin: ${context.userId}`, {
       operations,
       userId: context.userId,
-    });
+    })
 
-    const results: Array<{ operation: string; success: boolean; message?: string; error?: string }> = [];
+    const results: Array<{
+      operation: string
+      success: boolean
+      message?: string
+      error?: string
+    }> = []
 
     for (const operation of operations) {
       try {
         switch (operation) {
           case 'vacuum':
-            vacuumDatabase();
+            vacuumDatabase()
             results.push({
               operation,
               success: true,
               message: 'Database vacuumed successfully',
-            });
-            break;
+            })
+            break
 
           case 'analyze':
-            await optimizeDatabase();
+            await optimizeDatabase()
             results.push({
               operation,
               success: true,
               message: 'Database analyzed and optimized successfully',
-            });
-            break;
+            })
+            break
 
           case 'clear_metrics':
             // Performance metrics are cleared as part of optimizeDatabase
-            await optimizeDatabase();
+            await optimizeDatabase()
             results.push({
               operation,
               success: true,
               message: 'Performance metrics cleared',
-            });
-            break;
+            })
+            break
 
           case 'rebuild_indexes':
             // Rebuild indexes by running optimize
-            await optimizeDatabase();
+            await optimizeDatabase()
             results.push({
               operation,
               success: true,
               message: 'Indexes rebuilt successfully',
-            });
-            break;
+            })
+            break
 
           default:
             // This should never happen due to Zod validation
@@ -202,22 +204,25 @@ async function POSTHandler(
               operation,
               success: false,
               error: `Unknown operation: ${operation}`,
-            });
+            })
         }
-      } catch (_error) {
-        logger.error(`Database operation failed: ${operation}`, error);
+      } catch (error) {
+        logger.error(`Database operation failed: ${operation}`, error)
         results.push({
           operation,
           success: false,
           error: error instanceof Error ? error.message : 'Unknown error',
-        });
+        })
       }
     }
 
-    logger.info(`Database optimization completed: ${results.filter(r => r.success).length}/${results.length} successful`, {
-      userId: context.userId,
-      results,
-    });
+    logger.info(
+      `Database optimization completed: ${results.filter(r => r.success).length}/${results.length} successful`,
+      {
+        userId: context.userId,
+        results,
+      }
+    )
 
     return NextResponse.json({
       success: true,
@@ -225,15 +230,17 @@ async function POSTHandler(
         results,
         timestamp: new Date().toISOString(),
       },
-    });
-  } catch (_error) {
-    logger.error('Failed to run database optimization', error);
-    return createErrorResponse(error instanceof Error ? error : new Error('Failed to run database optimization'));
+    })
+  } catch (error) {
+    logger.error('Failed to run database optimization', error)
+    return createErrorResponse(
+      error instanceof Error ? error : new Error('Failed to run database optimization')
+    )
   }
 }
 
-export async function POST(_request: NextRequest) {
-  return withAdmin(request, POSTHandler);
+export async function POST(request: NextRequest) {
+  return withAdmin(request, POSTHandler)
 }
 
 /**
@@ -275,28 +282,25 @@ export async function POST(_request: NextRequest) {
  *       500:
  *         description: Internal server error
  */
-async function PUTHandler(
-  request: NextRequest,
-  context: RBACUserContext
-) {
+async function PUTHandler(request: NextRequest, context: RBACUserContext) {
   try {
-    const body = await request.json();
+    const body = await request.json()
 
     if (!body || typeof body !== 'object' || !body.config) {
-      return createValidationError('Missing config parameter in request body');
+      return createValidationError('Missing config parameter in request body')
     }
 
-    const config: Partial<PoolConfig> = body.config;
+    const config: Partial<PoolConfig> = body.config
 
     // Get current pool stats before update
-    const pool = getConnectionPool();
-    const oldStats = pool.getStats();
+    const pool = getConnectionPool()
+    const oldStats = pool.getStats()
 
     logger.info(`Database pool configuration update requested by admin: ${context.userId}`, {
       oldConfig: oldStats,
       newConfig: config,
       userId: context.userId,
-    });
+    })
 
     // Note: Reconfiguring pool requires restart in production
     // For now, just return validation info
@@ -308,13 +312,15 @@ async function PUTHandler(
         newConfig: config,
         timestamp: new Date().toISOString(),
       },
-    });
-  } catch (_error) {
-    logger.error('Failed to update pool configuration', error);
-    return createErrorResponse(error instanceof Error ? error : new Error('Failed to update pool configuration'));
+    })
+  } catch (error) {
+    logger.error('Failed to update pool configuration', error)
+    return createErrorResponse(
+      error instanceof Error ? error : new Error('Failed to update pool configuration')
+    )
   }
 }
 
 export async function PUT(request: NextRequest) {
-  return withAdmin(request, PUTHandler);
+  return withAdmin(request, PUTHandler)
 }

@@ -5,28 +5,28 @@
  * Uses SHA-256 HMAC for token generation
  */
 
-import { createHash, randomBytes, timingSafeEqual } from 'crypto';
+import { createHash, randomBytes, timingSafeEqual } from 'crypto'
 
 // ============================================================================
 // Types
 // ============================================================================
 
 export interface CSRFTokenOptions {
-  secret: string;
-  salt?: string;
-  expiresIn?: number; // milliseconds
+  secret: string
+  salt?: string
+  expiresIn?: number // milliseconds
 }
 
 export interface CSRFToken {
-  token: string;
-  expiresAt: number;
+  token: string
+  expiresAt: number
 }
 
 // ============================================================================
 // Default Configuration
 // ============================================================================
 
-const DEFAULT_EXPIRY = 24 * 60 * 60 * 1000; // 24 hours
+const DEFAULT_EXPIRY = 24 * 60 * 60 * 1000 // 24 hours
 
 // ============================================================================
 // Token Generation
@@ -39,37 +39,37 @@ const DEFAULT_EXPIRY = 24 * 60 * 60 * 1000; // 24 hours
  * @returns CSRF token object
  */
 export function generateCSRFToken(options: CSRFTokenOptions): CSRFToken {
-  const { secret, salt, expiresIn = DEFAULT_EXPIRY } = options;
+  const { secret, salt, expiresIn = DEFAULT_EXPIRY } = options
 
   // Generate random token
-  const randomToken = randomBytes(32).toString('hex');
+  const randomToken = randomBytes(32).toString('hex')
 
   // Create HMAC signature
-  const hmac = createHMAC(randomToken, secret, salt);
+  const hmac = createHMAC(randomToken, secret, salt)
 
   // Combine: randomToken.signature
-  const token = `${randomToken}.${hmac}`;
+  const token = `${randomToken}.${hmac}`
 
   return {
     token,
     expiresAt: Date.now() + expiresIn,
-  };
+  }
 }
 
 /**
  * Create HMAC signature
  */
 function createHMAC(data: string, secret: string, salt?: string): string {
-  const hmac = createHash('sha256');
+  const hmac = createHash('sha256')
 
   if (salt) {
-    hmac.update(salt);
+    hmac.update(salt)
   }
 
-  hmac.update(secret);
-  hmac.update(data);
+  hmac.update(secret)
+  hmac.update(data)
 
-  return hmac.digest('hex');
+  return hmac.digest('hex')
 }
 
 // ============================================================================
@@ -84,29 +84,22 @@ function createHMAC(data: string, secret: string, salt?: string): string {
  * @param salt - Salt used to generate token (optional)
  * @returns True if valid
  */
-export function validateCSRFToken(
-  token: string,
-  secret: string,
-  salt?: string
-): boolean {
+export function validateCSRFToken(token: string, secret: string, salt?: string): boolean {
   try {
     // Split token
-    const [randomToken, signature] = token.split('.');
+    const [randomToken, signature] = token.split('.')
 
     if (!randomToken || !signature) {
-      return false;
+      return false
     }
 
     // Recompute HMAC
-    const expectedSignature = createHMAC(randomToken, secret, salt);
+    const expectedSignature = createHMAC(randomToken, secret, salt)
 
     // Use timing-safe comparison to prevent timing attacks
-    return timingSafeEqual(
-      Buffer.from(signature, 'hex'),
-      Buffer.from(expectedSignature, 'hex')
-    );
-  } catch (_error) {
-    return false;
+    return timingSafeEqual(Buffer.from(signature, 'hex'), Buffer.from(expectedSignature, 'hex'))
+  } catch (error) {
+    return false
   }
 }
 
@@ -125,11 +118,11 @@ export function validateCSRFTokenWithExpiry(
 ): boolean {
   // Check expiry
   if (Date.now() > tokenData.expiresAt) {
-    return false;
+    return false
   }
 
   // Validate token
-  return validateCSRFToken(tokenData.token, secret, salt);
+  return validateCSRFToken(tokenData.token, secret, salt)
 }
 
 // ============================================================================
@@ -143,13 +136,10 @@ export function validateCSRFTokenWithExpiry(
  * @param secret - Secret key
  * @returns CSRF token
  */
-export function generateSessionCSRFToken(
-  sessionId: string,
-  secret: string
-): string {
-  const data = `${sessionId}.${randomBytes(16).toString('hex')}`;
-  const signature = createHMAC(data, secret);
-  return `${data}.${signature}`;
+export function generateSessionCSRFToken(sessionId: string, secret: string): string {
+  const data = `${sessionId}.${randomBytes(16).toString('hex')}`
+  const signature = createHMAC(data, secret)
+  return `${data}.${signature}`
 }
 
 /**
@@ -166,26 +156,23 @@ export function validateSessionCSRFToken(
   secret: string
 ): boolean {
   try {
-    const [data, signature] = token.split('.');
+    const [data, signature] = token.split('.')
 
     if (!data || !signature) {
-      return false;
+      return false
     }
 
-    const [expectedSessionId] = data.split('.');
+    const [expectedSessionId] = data.split('.')
 
     if (expectedSessionId !== sessionId) {
-      return false;
+      return false
     }
 
-    const expectedSignature = createHMAC(data, secret);
+    const expectedSignature = createHMAC(data, secret)
 
-    return timingSafeEqual(
-      Buffer.from(signature, 'hex'),
-      Buffer.from(expectedSignature, 'hex')
-    );
-  } catch (_error) {
-    return false;
+    return timingSafeEqual(Buffer.from(signature, 'hex'), Buffer.from(expectedSignature, 'hex'))
+  } catch (error) {
+    return false
   }
 }
 
@@ -205,30 +192,30 @@ export function getCSRFTokenFromRequest(
   body?: Record<string, unknown>
 ): string | undefined {
   // Try header first
-  let headerToken: string | undefined;
+  let headerToken: string | undefined
   if (headers instanceof Headers) {
-    headerToken = headers.get('x-csrf-token') ?? undefined;
+    headerToken = headers.get('x-csrf-token') ?? undefined
   } else {
-    headerToken = headers['x-csrf-token'] as string | undefined;
+    headerToken = headers['x-csrf-token'] as string | undefined
   }
   if (headerToken) {
-    return headerToken;
+    return headerToken
   }
 
   // Try body
   if (body) {
-    const bodyToken = body.csrfToken as string | undefined;
+    const bodyToken = body.csrfToken as string | undefined
     if (bodyToken) {
-      return bodyToken;
+      return bodyToken
     }
 
-    const bodyToken2 = body._csrf as string | undefined;
+    const bodyToken2 = body._csrf as string | undefined
     if (bodyToken2) {
-      return bodyToken2;
+      return bodyToken2
     }
   }
 
-  return undefined;
+  return undefined
 }
 
 /**
@@ -237,11 +224,8 @@ export function getCSRFTokenFromRequest(
  * @param headers - Response headers
  * @param token - CSRF token
  */
-export function setCSRFTokenInResponse(
-  headers: Headers,
-  token: string
-): void {
-  headers.set('X-CSRF-Token', token);
+export function setCSRFTokenInResponse(headers: Headers, token: string): void {
+  headers.set('X-CSRF-Token', token)
 }
 
 /**
@@ -250,11 +234,11 @@ export function setCSRFTokenInResponse(
  * @returns CSRF secret
  */
 export function getCSRFSecret(): string {
-  const secret = process.env.CSRF_SECRET;
+  const secret = process.env.CSRF_SECRET
   if (!secret) {
-    throw new Error('CSRF_SECRET environment variable is required');
+    throw new Error('CSRF_SECRET environment variable is required')
   }
-  return secret;
+  return secret
 }
 
 /**
@@ -267,7 +251,7 @@ export function generateCSRFFromEnv(expiresIn?: number): CSRFToken {
   return generateCSRFToken({
     secret: getCSRFSecret(),
     expiresIn,
-  });
+  })
 }
 
 /**
@@ -277,7 +261,7 @@ export function generateCSRFFromEnv(expiresIn?: number): CSRFToken {
  * @returns True if valid
  */
 export function validateCSFFromEnv(token: string): boolean {
-  return validateCSRFToken(token, getCSRFSecret());
+  return validateCSRFToken(token, getCSRFSecret())
 }
 
 // ============================================================================
@@ -291,8 +275,8 @@ export function validateCSFFromEnv(token: string): boolean {
  * @returns True if should be protected
  */
 export function shouldProtectFromCSRF(method: string): boolean {
-  const safeMethods = ['GET', 'HEAD', 'OPTIONS', 'TRACE'];
-  return !safeMethods.includes(method.toUpperCase());
+  const safeMethods = ['GET', 'HEAD', 'OPTIONS', 'TRACE']
+  return !safeMethods.includes(method.toUpperCase())
 }
 
 /**
@@ -306,8 +290,8 @@ export function hasCSRFToken(
   headers: Headers | Record<string, string>,
   body?: Record<string, unknown>
 ): boolean {
-  const token = getCSRFTokenFromRequest(headers, body);
-  return token !== undefined && token.length > 0;
+  const token = getCSRFTokenFromRequest(headers, body)
+  return token !== undefined && token.length > 0
 }
 
 // ============================================================================
@@ -321,7 +305,7 @@ export function hasCSRFToken(
  * @returns True if expired
  */
 export function isTokenExpired(tokenData: CSRFToken): boolean {
-  return Date.now() > tokenData.expiresAt;
+  return Date.now() > tokenData.expiresAt
 }
 
 /**
@@ -331,7 +315,7 @@ export function isTokenExpired(tokenData: CSRFToken): boolean {
  * @returns Remaining time in milliseconds
  */
 export function getTokenRemainingTime(tokenData: CSRFToken): number {
-  return Math.max(0, tokenData.expiresAt - Date.now());
+  return Math.max(0, tokenData.expiresAt - Date.now())
 }
 
 /**
@@ -341,20 +325,20 @@ export function getTokenRemainingTime(tokenData: CSRFToken): number {
  * @returns Formatted expiry time
  */
 export function formatTokenExpiry(tokenData: CSRFToken): string {
-  const remaining = getTokenRemainingTime(tokenData);
+  const remaining = getTokenRemainingTime(tokenData)
 
   if (remaining === 0) {
-    return 'Expired';
+    return 'Expired'
   }
 
-  const hours = Math.floor(remaining / (60 * 60 * 1000));
-  const minutes = Math.floor((remaining % (60 * 60 * 1000)) / (60 * 1000));
+  const hours = Math.floor(remaining / (60 * 60 * 1000))
+  const minutes = Math.floor((remaining % (60 * 60 * 1000)) / (60 * 1000))
 
   if (hours > 0) {
-    return `${hours}h ${minutes}m`;
+    return `${hours}h ${minutes}m`
   } else if (minutes > 0) {
-    return `${minutes}m`;
+    return `${minutes}m`
   } else {
-    return '< 1m';
+    return '< 1m'
   }
 }

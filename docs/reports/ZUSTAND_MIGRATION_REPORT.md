@@ -10,18 +10,18 @@
 
 ### ✅ 新增 Stores
 
-| Store | 文件 | 功能描述 | 测试状态 |
-|-------|------|----------|----------|
-| **preferencesStore** | `src/stores/preferencesStore.ts` | 用户偏好管理（主题、语言、通知） | ✅ 14/14 通过 |
-| **filterStore** | `src/stores/filterStore.ts` | 全局过滤、排序、分页状态管理 | ✅ 19/19 通过 |
-| **uiStore** | `src/stores/uiStore.ts` | UI 状态（Toast、Modal、Sidebar、表单草稿） | ✅ 33/33 通过 |
+| Store                | 文件                             | 功能描述                                   | 测试状态      |
+| -------------------- | -------------------------------- | ------------------------------------------ | ------------- |
+| **preferencesStore** | `src/stores/preferencesStore.ts` | 用户偏好管理（主题、语言、通知）           | ✅ 14/14 通过 |
+| **filterStore**      | `src/stores/filterStore.ts`      | 全局过滤、排序、分页状态管理               | ✅ 19/19 通过 |
+| **uiStore**          | `src/stores/uiStore.ts`          | UI 状态（Toast、Modal、Sidebar、表单草稿） | ✅ 33/33 通过 |
 
 ### 📦 已存在的 Stores
 
-| Store | 文件 | 功能 |
-|-------|------|------|
+| Store              | 文件                           | 功能                                 |
+| ------------------ | ------------------------------ | ------------------------------------ |
 | **dashboardStore** | `src/stores/dashboardStore.ts` | Dashboard 数据、AI 成员、GitHub 数据 |
-| **walletStore** | `src/stores/walletStore.ts` | 智能体钱包、交易管理 |
+| **walletStore**    | `src/stores/walletStore.ts`    | 智能体钱包、交易管理                 |
 
 ---
 
@@ -30,6 +30,7 @@
 ### 1. Preferences Store
 
 **功能：**
+
 - 主题管理（light/dark/system）
 - 语言切换（zh/en/ja/ko/fr/de）
 - 通知偏好设置
@@ -37,11 +38,12 @@
 - SSR 兼容（hydrate 模式）
 
 **API 示例：**
-```typescript
-import { useTheme, useLanguage } from '@/stores';
 
-const { theme, toggleTheme, isDark } = useTheme();
-const { language, setLanguage } = useLanguage();
+```typescript
+import { useTheme, useLanguage } from '@/stores'
+
+const { theme, toggleTheme, isDark } = useTheme()
+const { language, setLanguage } = useLanguage()
 ```
 
 **替代：** `SettingsContext.tsx`
@@ -51,6 +53,7 @@ const { language, setLanguage } = useLanguage();
 ### 2. Filter Store
 
 **功能：**
+
 - 多命名空间隔离（不同页面/组件状态隔离）
 - 过滤条件管理（多种操作符：equals, contains, gt, lt, in, between 等）
 - 排序状态管理（asc/desc）
@@ -59,18 +62,19 @@ const { language, setLanguage } = useLanguage();
 - localStorage 持久化
 
 **API 示例：**
+
 ```typescript
-import { useFilters, useSort, usePagination } from '@/stores';
+import { useFilters, useSort, usePagination } from '@/stores'
 
 // 使用命名空间 'dashboard' 隔离状态
-const filters = useFilters('dashboard');
-const sort = useSort('dashboard');
-const pagination = usePagination('dashboard');
+const filters = useFilters('dashboard')
+const sort = useSort('dashboard')
+const pagination = usePagination('dashboard')
 
 // 操作
-const { setSearchQuery, clearFilters } = useFilterActions('dashboard');
-const { toggleSort, setSort } = useSortActions('dashboard');
-const { setPage, setPageSize } = usePaginationActions('dashboard');
+const { setSearchQuery, clearFilters } = useFilterActions('dashboard')
+const { toggleSort, setSort } = useSortActions('dashboard')
+const { setPage, setPageSize } = usePaginationActions('dashboard')
 ```
 
 **替代：** 本地 `useState` 管理的过滤状态
@@ -80,6 +84,7 @@ const { setPage, setPageSize } = usePaginationActions('dashboard');
 ### 3. UI Store
 
 **功能：**
+
 - **Toast 通知：** 支持 5 种类型（success, error, warning, info, loading）
 - **Modal 对话框：** 多尺寸、可配置回调
 - **Sidebar 状态：** 展开/收起、折叠
@@ -87,6 +92,7 @@ const { setPage, setPageSize } = usePaginationActions('dashboard');
 - **全局加载状态：** 页面级加载指示器
 
 **API 示例：**
+
 ```typescript
 import { toast, useModalActions, useSidebar } from '@/stores';
 
@@ -125,6 +131,7 @@ npm test -- src/stores/__tests__/preferencesStore.test.ts src/stores/__tests__/f
 ```
 
 **结果：**
+
 ```
 ✓ src/stores/__tests__/preferencesStore.test.ts (14 tests)
 ✓ src/stores/__tests__/uiStore.test.ts (33 tests)
@@ -186,6 +193,7 @@ export const usePreferencesStore = create<PreferencesState>()(
 ```
 
 **避免 Hydration 错误的方法：**
+
 1. 使用 `isLoaded` 标志确保只在客户端完全加载后才渲染
 2. 条件渲染避免服务端和客户端不一致
 
@@ -202,6 +210,7 @@ function MyComponent() {
 ## 迁移清单
 
 ### 已完成 ✅
+
 - [x] 创建 `preferencesStore`
 - [x] 创建 `filterStore`
 - [x] 创建 `uiStore`
@@ -210,6 +219,7 @@ function MyComponent() {
 - [x] 编写迁移指南 `ZUSTAND_MIGRATION_GUIDE.md`
 
 ### 待完成 📋
+
 - [ ] 识别并迁移使用 `SettingsContext` 的组件
 - [ ] 识别并迁移使用 `useNotifications` Hook 的组件
 - [ ] 识别并迁移使用本地 `useState` 管理过滤状态的组件
@@ -249,12 +259,11 @@ npm run dev
    - 最后迁移核心组件（SettingsContext）
 
 2. **废弃警告**
+
    ```typescript
    // 在旧的 Context/Hook 中添加警告
    if (process.env.NODE_ENV === 'development') {
-     console.warn(
-       'useSettings is deprecated. Use useTheme and useLanguage from @/stores instead.'
-     );
+     console.warn('useSettings is deprecated. Use useTheme and useLanguage from @/stores instead.')
    }
    ```
 

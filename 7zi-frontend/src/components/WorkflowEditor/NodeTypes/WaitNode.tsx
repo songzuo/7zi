@@ -4,26 +4,26 @@
  * 等待时间或事件
  */
 
-import React from 'react';
-import { Handle, Position, type NodeProps } from 'reactflow';
-import { NODE_COLORS } from '../constants';
-import type { WorkflowNodeData } from '../types';
+import React from 'react'
+import { Handle, Position, type NodeProps } from 'reactflow'
+import { NODE_COLORS } from '../constants'
+import type { WorkflowNodeData } from '../types'
 
 export function WaitNode({ data, selected }: NodeProps<WorkflowNodeData>) {
-  const colors = NODE_COLORS.wait;
+  const colors = NODE_COLORS.wait
 
   const getWaitInfo = () => {
     if (data.config.waitType === 'duration' && data.config.duration) {
-      const seconds = data.config.duration / 1000;
-      if (seconds < 60) return `${seconds.toFixed(0)}s`;
-      if (seconds < 3600) return `${(seconds / 60).toFixed(0)}m`;
-      return `${(seconds / 3600).toFixed(1)}h`;
+      const seconds = data.config.duration / 1000
+      if (seconds < 60) return `${seconds.toFixed(0)}s`
+      if (seconds < 3600) return `${(seconds / 60).toFixed(0)}m`
+      return `${(seconds / 3600).toFixed(1)}h`
     }
     if (data.config.waitType === 'event' && data.config.waitForEvent) {
-      return `Event: ${data.config.waitForEvent}`;
+      return `Event: ${data.config.waitForEvent}`
     }
-    return 'Waiting...';
-  };
+    return 'Waiting...'
+  }
 
   return (
     <div
@@ -53,31 +53,31 @@ export function WaitNode({ data, selected }: NodeProps<WorkflowNodeData>) {
       <div className="flex items-center gap-2">
         <span className="text-xl">⏸️</span>
         <div>
-          <div className="font-semibold text-gray-900 dark:text-white">
-            {data.label || 'Wait'}
-          </div>
-          <div className="text-xs text-cyan-600 dark:text-cyan-400">
-            {getWaitInfo()}
-          </div>
+          <div className="font-semibold text-gray-900 dark:text-white">{data.label || 'Wait'}</div>
+          <div className="text-xs text-cyan-600 dark:text-cyan-400">{getWaitInfo()}</div>
         </div>
       </div>
 
       {/* 执行状态指示器 */}
       {data.executionStatus && (
         <div
-          className="absolute -right-1 -top-1 flex h-4 w-4 items-center justify-center rounded-full text-xs font-bold text-white"
+          className="absolute -top-1 -right-1 flex h-4 w-4 items-center justify-center rounded-full text-xs font-bold text-white"
           style={{
             backgroundColor:
               data.executionStatus === 'SUCCESS'
                 ? '#10B981'
                 : data.executionStatus === 'FAILED'
-                ? '#EF4444'
-                : '#3B82F6',
+                  ? '#EF4444'
+                  : '#3B82F6',
           }}
         >
-          {data.executionStatus === 'SUCCESS' ? '✓' : data.executionStatus === 'FAILED' ? '✗' : '⏳'}
+          {data.executionStatus === 'SUCCESS'
+            ? '✓'
+            : data.executionStatus === 'FAILED'
+              ? '✗'
+              : '⏳'}
         </div>
       )}
     </div>
-  );
+  )
 }

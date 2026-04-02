@@ -200,16 +200,19 @@ Returns active alerts and recent alert history.
 All APM endpoints support distributed tracing via the following headers:
 
 **W3C Trace Context:**
+
 ```
 traceparent: 00-{traceId}-{spanId}-{traceFlags}
 ```
 
 **Sentry Trace:**
+
 ```
 sentry-trace: {traceId}-{spanId}-{sampled}
 ```
 
 **B3 Propagation:**
+
 ```
 X-B3-TraceId: {traceId}
 X-B3-SpanId: {spanId}
@@ -221,13 +224,13 @@ X-B3-Sampled: 1
 To extract trace context from incoming requests:
 
 ```typescript
-import { extractTraceContext } from '@/lib/tracing/context';
+import { extractTraceContext } from '@/lib/tracing/context'
 
-const traceContext = extractTraceContext(request.headers, 'w3c');
+const traceContext = extractTraceContext(request.headers, 'w3c')
 // or
-const traceContext = extractTraceContext(request.headers, 'sentry');
+const traceContext = extractTraceContext(request.headers, 'sentry')
 // or
-const traceContext = extractTraceContext(request.headers, 'b3');
+const traceContext = extractTraceContext(request.headers, 'b3')
 ```
 
 ### Injecting Trace Context
@@ -235,10 +238,10 @@ const traceContext = extractTraceContext(request.headers, 'b3');
 To inject trace context into outgoing requests:
 
 ```typescript
-import { injectTraceContext } from '@/lib/tracing/context';
+import { injectTraceContext } from '@/lib/tracing/context'
 
-const headers = injectTraceContext(traceContext, 'w3c');
-fetch(url, { headers });
+const headers = injectTraceContext(traceContext, 'w3c')
+fetch(url, { headers })
 ```
 
 ## Agent Task Monitoring
@@ -248,7 +251,7 @@ fetch(url, { headers });
 Use the `agentTracker` to monitor agent task execution:
 
 ```typescript
-import { startTask } from '@/lib/monitoring';
+import { startTask } from '@/lib/monitoring'
 
 const { end } = startTask({
   taskId: 'task-123',
@@ -257,16 +260,16 @@ const { end } = startTask({
   taskType: 'research',
   taskName: 'Research Project',
   priority: 'high',
-});
+})
 
 try {
   // Execute task
-  const result = await doTask();
-  end('completed');
-  return result;
+  const result = await doTask()
+  end('completed')
+  return result
 } catch (error) {
-  end('failed', error);
-  throw error;
+  end('failed', error)
+  throw error
 }
 ```
 
@@ -275,17 +278,17 @@ try {
 Track agent-to-agent collaboration:
 
 ```typescript
-import { trackCollaboration } from '@/lib/monitoring';
+import { trackCollaboration } from '@/lib/monitoring'
 
 const { end } = trackCollaboration(
   'collab-123',
   { id: 'agent-1', name: 'Agent A' },
   { id: 'agent-2', name: 'Agent B' },
   'delegate'
-);
+)
 
 // ... collaboration logic
-end('completed');
+end('completed')
 ```
 
 ## Performance Monitoring
@@ -295,16 +298,16 @@ end('completed');
 Record custom performance metrics:
 
 ```typescript
-import { recordCustomMetric } from '@/lib/monitoring';
+import { recordCustomMetric } from '@/lib/monitoring'
 
 recordCustomMetric('custom_operation', {
   category: 'business_logic',
   value: performance.now(),
   tags: {
     operation: 'payment_processing',
-    method: 'credit_card'
-  }
-});
+    method: 'credit_card',
+  },
+})
 ```
 
 ### API Performance
@@ -312,14 +315,14 @@ recordCustomMetric('custom_operation', {
 Track API endpoint performance automatically using middleware:
 
 ```typescript
-import { withApiMonitoring } from '@/lib/monitoring';
+import { withApiMonitoring } from '@/lib/monitoring'
 
 export async function GET(request: Request) {
-  return withApiMonitoring(request, async (req) => {
+  return withApiMonitoring(request, async req => {
     // Your handler logic
-    const data = await getData();
-    return NextResponse.json({ data });
-  });
+    const data = await getData()
+    return NextResponse.json({ data })
+  })
 }
 ```
 
@@ -330,18 +333,18 @@ export async function GET(request: Request) {
 Define custom alert rules:
 
 ```typescript
-import { getAlertManager } from '@/lib/monitoring';
+import { getAlertManager } from '@/lib/monitoring'
 
-const alertManager = getAlertManager();
+const alertManager = getAlertManager()
 
 alertManager.addRule({
   id: 'high-error-rate',
   name: 'High Error Rate',
   severity: 'critical',
-  condition: (metrics) => metrics.errorRate > 0.05,
+  condition: metrics => metrics.errorRate > 0.05,
   channels: ['slack', 'email'],
   throttle: 300000, // 5 minutes
-});
+})
 ```
 
 ### Sending Alerts
@@ -349,7 +352,7 @@ alertManager.addRule({
 Send alerts programmatically:
 
 ```typescript
-import { sendAlert } from '@/lib/monitoring';
+import { sendAlert } from '@/lib/monitoring'
 
 await sendAlert({
   severity: 'critical',
@@ -358,9 +361,9 @@ await sendAlert({
   channels: ['slack', 'email'],
   tags: {
     database: 'postgres',
-    region: 'us-east-1'
-  }
-});
+    region: 'us-east-1',
+  },
+})
 ```
 
 ## Error Tracking
@@ -370,21 +373,21 @@ await sendAlert({
 Capture exceptions with context:
 
 ```typescript
-import { captureException } from '@/lib/monitoring';
+import { captureException } from '@/lib/monitoring'
 
 try {
-  await riskyOperation();
+  await riskyOperation()
 } catch (error) {
   captureException(error, {
     tags: {
       operation: 'risky_operation',
-      userId: user.id
+      userId: user.id,
     },
     extra: {
       input: data,
-      environment: process.env.NODE_ENV
-    }
-  });
+      environment: process.env.NODE_ENV,
+    },
+  })
 }
 ```
 
@@ -393,16 +396,16 @@ try {
 Track errors with custom categories:
 
 ```typescript
-import { captureError } from '@/lib/monitoring';
+import { captureError } from '@/lib/monitoring'
 
 captureError(error, {
   category: 'validation',
   severity: 'warning',
   context: {
     field: 'email',
-    value: 'invalid-email'
-  }
-});
+    value: 'invalid-email',
+  },
+})
 ```
 
 ## Metrics Export
@@ -416,6 +419,7 @@ curl http://localhost:3000/api/metrics/prometheus
 ```
 
 Response:
+
 ```
 # HELP http_requests_total Total number of HTTP requests
 # TYPE http_requests_total counter
@@ -454,12 +458,12 @@ NEXT_PUBLIC_SENTRY_DEBUG=true
 Adjust sampling rates per environment:
 
 ```typescript
-import { sentryClient } from '@/lib/monitoring';
+import { sentryClient } from '@/lib/monitoring'
 
 await sentryClient.init({
   tracesSampleRate: 0.1, // 10% in production
-  profilesSampleRate: 0.05 // 5% profiling
-});
+  profilesSampleRate: 0.05, // 5% profiling
+})
 ```
 
 ## Health Checks

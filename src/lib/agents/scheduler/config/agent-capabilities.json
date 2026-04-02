@@ -28,12 +28,7 @@
       "id": "consultant",
       "name": "咨询师",
       "type": "research",
-      "technicalStack": [
-        "research",
-        "analysis",
-        "data-science",
-        "documentation"
-      ],
+      "technicalStack": ["research", "analysis", "data-science", "documentation"],
       "taskTypes": ["research", "general"],
       "maxConcurrentTasks": 4,
       "successRate": 0.97,
@@ -74,13 +69,7 @@
       "id": "executor",
       "name": "Executor",
       "type": "execution",
-      "technicalStack": [
-        "javascript",
-        "typescript",
-        "python",
-        "automation",
-        "testing"
-      ],
+      "technicalStack": ["javascript", "typescript", "python", "automation", "testing"],
       "taskTypes": ["implementation", "testing"],
       "maxConcurrentTasks": 5,
       "successRate": 0.94,
@@ -97,14 +86,7 @@
       "id": "sysadmin",
       "name": "系统管理员",
       "type": "operations",
-      "technicalStack": [
-        "docker",
-        "kubernetes",
-        "aws",
-        "linux",
-        "monitoring",
-        "ci-cd"
-      ],
+      "technicalStack": ["docker", "kubernetes", "aws", "linux", "monitoring", "ci-cd"],
       "taskTypes": ["devops", "implementation"],
       "maxConcurrentTasks": 3,
       "successRate": 0.98,
@@ -121,13 +103,7 @@
       "id": "tester",
       "name": "测试员",
       "type": "quality",
-      "technicalStack": [
-        "jest",
-        "vitest",
-        "playwright",
-        "testing",
-        "debugging"
-      ],
+      "technicalStack": ["jest", "vitest", "playwright", "testing", "debugging"],
       "taskTypes": ["testing", "implementation"],
       "maxConcurrentTasks": 4,
       "successRate": 0.95,
@@ -144,13 +120,7 @@
       "id": "designer",
       "name": "设计师",
       "type": "creative",
-      "technicalStack": [
-        "react",
-        "css",
-        "tailwind",
-        "figma",
-        "ux-design"
-      ],
+      "technicalStack": ["react", "css", "tailwind", "figma", "ux-design"],
       "taskTypes": ["design", "implementation"],
       "maxConcurrentTasks": 3,
       "successRate": 0.93,
@@ -167,12 +137,7 @@
       "id": "promoter",
       "name": "推广专员",
       "type": "marketing",
-      "technicalStack": [
-        "seo",
-        "content-marketing",
-        "analytics",
-        "social-media"
-      ],
+      "technicalStack": ["seo", "content-marketing", "analytics", "social-media"],
       "taskTypes": ["marketing", "research"],
       "maxConcurrentTasks": 4,
       "successRate": 0.92,
@@ -189,12 +154,7 @@
       "id": "sales",
       "name": "销售客服",
       "type": "business",
-      "technicalStack": [
-        "crm",
-        "communication",
-        "customer-success",
-        "analytics"
-      ],
+      "technicalStack": ["crm", "communication", "customer-success", "analytics"],
       "taskTypes": ["sales", "general"],
       "maxConcurrentTasks": 5,
       "successRate": 0.96,
@@ -211,12 +171,7 @@
       "id": "finance",
       "name": "财务",
       "type": "business",
-      "technicalStack": [
-        "accounting",
-        "financial-analysis",
-        "budgeting",
-        "reporting"
-      ],
+      "technicalStack": ["accounting", "financial-analysis", "budgeting", "reporting"],
       "taskTypes": ["finance", "research"],
       "maxConcurrentTasks": 2,
       "successRate": 0.98,
@@ -233,12 +188,7 @@
       "id": "media",
       "name": "媒体",
       "type": "creative",
-      "technicalStack": [
-        "content-creation",
-        "social-media",
-        "video",
-        "branding"
-      ],
+      "technicalStack": ["content-creation", "social-media", "video", "branding"],
       "taskTypes": ["media", "marketing"],
       "maxConcurrentTasks": 3,
       "successRate": 0.91,

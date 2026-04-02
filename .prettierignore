@@ -1,0 +1,29 @@
+# Dependencies
+node_modules/
+
+# Build outputs
+.next/
+dist/
+build/
+out/
+
+# Generated files
+*.generated.*
+*.d.ts
+
+# Config files
+*.config.js
+*.config.ts
+
+# Test coverage
+coverage/
+
+# Cache
+.cache/
+.turbo/
+
+# Public assets (already formatted)
+public/
+
+# Large generated directories
+src/lib/supabase/generated/

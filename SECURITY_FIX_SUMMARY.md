@@ -18,6 +18,7 @@ Successfully fixed all 7 security vulnerabilities identified in the v1.2.0 secur
 **Issue:** Unauthorized access to user preferences - any user could access/modify any user's preferences
 
 **Fix Applied:**
+
 - ✅ Added JWT authentication
 - ✅ Implemented user ownership verification
 - ✅ Users can only access their own preferences (unless admin)
@@ -31,6 +32,7 @@ Successfully fixed all 7 security vulnerabilities identified in the v1.2.0 secur
 **Issue:** CORS open (`*`), no API key authentication
 
 **Fix Applied:**
+
 - ✅ Added API Key authentication via `X-API-Key` header or `api_key` query param
 - ✅ Restricted CORS origins to configurable whitelist
 - ✅ Returns 401 for invalid/missing API keys
@@ -45,6 +47,7 @@ Successfully fixed all 7 security vulnerabilities identified in the v1.2.0 secur
 **Issue:** No authentication - anyone could create/view notifications
 
 **Fix Applied:**
+
 - ✅ Added JWT authentication
 - ✅ Enforced user ownership - users can only see their own notifications
 - ✅ Admin users can view all notifications
@@ -58,6 +61,7 @@ Successfully fixed all 7 security vulnerabilities identified in the v1.2.0 secur
 **Issue:** No authentication or ownership verification
 
 **Fix Applied:**
+
 - ✅ Added JWT authentication
 - ✅ Implemented ownership check on GET, PATCH, DELETE operations
 - ✅ Returns 403 if user doesn't own the notification
@@ -71,6 +75,7 @@ Successfully fixed all 7 security vulnerabilities identified in the v1.2.0 secur
 **Issue:** No authentication - exposed sensitive system statistics
 
 **Fix Applied:**
+
 - ✅ Added JWT authentication
 - ✅ Admin role requirement
 - ✅ Returns 403 for non-admin users
@@ -84,6 +89,7 @@ Successfully fixed all 7 security vulnerabilities identified in the v1.2.0 secur
 **Issue:** No authentication - could initialize/monitor socket server
 
 **Fix Applied:**
+
 - ✅ Added JWT authentication
 - ✅ Admin role requirement for GET and POST
 - ✅ Returns 403 for non-admin users
@@ -97,6 +103,7 @@ Successfully fixed all 7 security vulnerabilities identified in the v1.2.0 secur
 **Issue:** No authentication - anyone could create/view enhanced notifications
 
 **Fix Applied:**
+
 - ✅ Added JWT authentication
 - ✅ Enforced user ownership - users limited to their own notifications
 - ✅ Admin users can access all notifications
@@ -125,6 +132,7 @@ Export file for auth library
 ### 3. `/root/.openclaw/workspace/SECURITY_FIXES_v1.2.1.md`
 
 Complete security patch documentation including:
+
 - Detailed vulnerability descriptions
 - Implementation details
 - Environment variable configuration
@@ -178,6 +186,7 @@ JWT_SECRET=your-jwt-secret-change-in-production
 **After:** Requires valid API key via `X-API-Key` header
 
 **Action Required:**
+
 - Update MCP clients to include `X-API-Key` header
 - Configure `ALLOWED_MCP_ORIGINS` for CORS whitelist
 
@@ -187,6 +196,7 @@ JWT_SECRET=your-jwt-secret-change-in-production
 **After:** Requires JWT authentication + ownership verification
 
 **Action Required:**
+
 - Update frontend to include JWT tokens in requests
 - Users can only access their own notifications
 
@@ -196,6 +206,7 @@ JWT_SECRET=your-jwt-secret-change-in-production
 **After:** Requires admin role
 
 **Action Required:**
+
 - Ensure admin accounts have correct role assignment
 
 ---

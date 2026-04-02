@@ -19,35 +19,35 @@
  *         description: Service unavailable
  */
 
-import { NextRequest } from 'next/server';
-import { performanceCollector } from '@/lib/monitoring/performance.monitor';
-import { detailedHealthCheck } from '@/lib/monitoring/health';
-import { getGlobalStreamManager } from '@/lib/sse/stream';
-import { getSSEHeaders, isValidSSEConnection } from '@/lib/sse/utils';
+import { NextRequest } from 'next/server'
+import { performanceCollector } from '@/lib/monitoring/performance.monitor'
+import { detailedHealthCheck } from '@/lib/monitoring/health'
+import { getGlobalStreamManager } from '@/lib/sse/stream'
+import { getSSEHeaders, isValidSSEConnection } from '@/lib/sse/utils'
 import {
   createValidationError,
   createServiceUnavailableError,
   ErrorType,
-} from '@/lib/api/error-handler';
-import { getLocaleFromRequest } from '@/lib/api/user-messages';
-import { createApiContext, logApiError, logApiSuccess } from '@/lib/api/error-logger';
-import { logger } from '@/lib/logger';
+} from '@/lib/api/error-handler'
+import { getLocaleFromRequest } from '@/lib/api/user-messages'
+import { createApiContext, logApiError, logApiSuccess } from '@/lib/api/error-logger'
+import { logger } from '@/lib/logger'
 
 /**
  * Health event data
  */
 interface HealthEvent {
-  type: 'metrics' | 'status' | 'alert' | 'error';
-  timestamp: string;
+  type: 'metrics' | 'status' | 'alert' | 'error'
+  timestamp: string
   data: {
-    apiLatency?: number;
-    memoryUsage?: number;
-    status?: 'ok' | 'degraded' | 'error';
-    checks?: Record<string, unknown>;
-    uptime?: number;
-    errorMessage?: string;
-    errorDetails?: unknown;
-  };
+    apiLatency?: number
+    memoryUsage?: number
+    status?: 'ok' | 'degraded' | 'error'
+    checks?: Record<string, unknown>
+    uptime?: number
+    errorMessage?: string
+    errorDetails?: unknown
+  }
 }
 
 /**
@@ -59,8 +59,8 @@ class SSEStreamError extends Error {
     public statusCode: number = 500,
     public details?: Record<string, unknown>
   ) {
-    super(message);
-    this.name = 'SSEStreamError';
+    super(message)
+    this.name = 'SSEStreamError'
   }
 }
 
@@ -74,17 +74,17 @@ function safeEnqueue(
   context: { clientId: string; userId?: string }
 ): boolean {
   try {
-    controller.enqueue(encoder.encode(data));
-    return true;
-  } catch (_error) {
+    controller.enqueue(encoder.encode(data))
+    return true
+  } catch (error) {
     // Client disconnected - log and return false
     logger.warn('Failed to enqueue SSE event - client likely disconnected', {
       error: error instanceof Error ? error.message : String(error),
       clientId: context.clientId,
       userId: context.userId,
       category: 'stream',
-    });
-    return false;
+    })
+    return false
   }
 }
 
@@ -94,21 +94,22 @@ function safeEnqueue(
 async function gatherHealthMetrics(): Promise<HealthEvent> {
   try {
     // Get API metrics
-    const metrics = performanceCollector.getMetrics();
-    const apiMetrics = metrics.get('TTFB');
-    const apiLatency = apiMetrics && apiMetrics.length > 0
-      ? apiMetrics[apiMetrics.length - 1].value
-      : 0;
+    const metrics = performanceCollector.getMetrics()
+    const apiMetrics = metrics.get('TTFB')
+    const apiLatency =
+      apiMetrics && apiMetrics.length > 0 ? apiMetrics[apiMetrics.length - 1].value : 0
 
     // Get memory usage
-    let memoryUsage = 0;
+    let memoryUsage = 0
     if (typeof performance !== 'undefined' && 'memory' in performance) {
-      const memory = (performance as Performance & {
-        memory?: { usedJSHeapSize: number };
-      }).memory;
+      const memory = (
+        performance as Performance & {
+          memory?: { usedJSHeapSize: number }
+        }
+      ).memory
 
       if (memory) {
-        memoryUsage = memory.usedJSHeapSize / (1024 * 1024); // MB
+        memoryUsage = memory.usedJSHeapSize / (1024 * 1024) // MB
       }
     }
 
@@ -119,20 +120,21 @@ async function gatherHealthMetrics(): Promise<HealthEvent> {
         apiLatency: Math.round(apiLatency),
         memoryUsage: Math.round(memoryUsage * 10) / 10,
       },
-    };
-  } catch (_error) {
-    logger.error('Failed to gather health metrics', error, { category: 'health' });
+    }
+  } catch (error) {
+    logger.error('Failed to gather health metrics', error, { category: 'health' })
 
     return {
       type: 'error',
       timestamp: new Date().toISOString(),
       data: {
         errorMessage: 'Failed to gather health metrics',
-        errorDetails: process.env.NODE_ENV === 'development'
-          ? { originalError: error instanceof Error ? error.message : String(error) }
-          : undefined,
+        errorDetails:
+          process.env.NODE_ENV === 'development'
+            ? { originalError: error instanceof Error ? error.message : String(error) }
+            : undefined,
       },
-    };
+    }
   }
 }
 
@@ -141,7 +143,7 @@ async function gatherHealthMetrics(): Promise<HealthEvent> {
  */
 async function gatherDetailedHealth(): Promise<HealthEvent> {
   try {
-    const health = await detailedHealthCheck();
+    const health = await detailedHealthCheck()
 
     return {
       type: 'status',
@@ -151,9 +153,9 @@ async function gatherDetailedHealth(): Promise<HealthEvent> {
         checks: health.checks,
         uptime: health.uptime,
       },
-    };
-  } catch (_error) {
-    logger.error('Failed to gather detailed health check', error, { category: 'health' });
+    }
+  } catch (error) {
+    logger.error('Failed to gather detailed health check', error, { category: 'health' })
 
     return {
       type: 'error',
@@ -161,53 +163,53 @@ async function gatherDetailedHealth(): Promise<HealthEvent> {
       data: {
         status: 'error' as const,
         errorMessage: 'Failed to gather detailed health check',
-        errorDetails: process.env.NODE_ENV === 'development'
-          ? { originalError: error instanceof Error ? error.message : String(error) }
-          : undefined,
+        errorDetails:
+          process.env.NODE_ENV === 'development'
+            ? { originalError: error instanceof Error ? error.message : String(error) }
+            : undefined,
       },
-    };
+    }
   }
 }
 
 /**
  * Format SSE event
  */
-function formatSSEEvent(
-  data: unknown,
-  eventType?: string,
-  eventId?: string
-): string {
-  let event = '';
+function formatSSEEvent(data: unknown, eventType?: string, eventId?: string): string {
+  let event = ''
 
   if (eventId) {
-    event += `id: ${eventId}\n`;
+    event += `id: ${eventId}\n`
   }
 
   if (eventType) {
-    event += `event: ${eventType}\n`;
+    event += `event: ${eventType}\n`
   }
 
-  event += `data: ${JSON.stringify(data)}\n\n`;
+  event += `data: ${JSON.stringify(data)}\n\n`
 
-  return event;
+  return event
 }
 
 /**
  * Safe interval cleanup with error handling
  */
-function safeClearInterval(intervalId: NodeJS.Timeout, context: { clientId: string; intervalType: string }): void {
+function safeClearInterval(
+  intervalId: NodeJS.Timeout,
+  context: { clientId: string; intervalType: string }
+): void {
   try {
-    clearInterval(intervalId);
+    clearInterval(intervalId)
     logger.debug(`Cleared ${context.intervalType} interval`, {
       clientId: context.clientId,
       category: 'stream',
-    });
-  } catch (_error) {
+    })
+  } catch (error) {
     logger.warn(`Failed to clear ${context.intervalType} interval`, {
       error: error instanceof Error ? error.message : String(error),
       clientId: context.clientId,
       category: 'stream',
-    });
+    })
   }
 }
 
@@ -216,31 +218,42 @@ function safeClearInterval(intervalId: NodeJS.Timeout, context: { clientId: stri
  * SSE endpoint for real-time health metrics
  */
 export async function GET(request: NextRequest) {
-  const startTime = Date.now();
-  const requestId = request.headers.get('x-request-id') || crypto.randomUUID();
-  const locale = getLocaleFromRequest(request);
-  const context = createApiContext(request);
+  const startTime = Date.now()
+  const requestId = request.headers.get('x-request-id') || crypto.randomUUID()
+  const locale = getLocaleFromRequest(request)
+  const context = createApiContext(request)
 
   try {
     // Validate SSE request
     if (!isValidSSEConnection(request)) {
-      const validationError = new Error('Invalid SSE connection request - requires text/event-stream accept header');
-      logApiError(validationError, { ...context, requestId });
-      return await createValidationError('Invalid SSE connection request - requires text/event-stream accept header', undefined, locale, requestId);
+      const validationError = new Error(
+        'Invalid SSE connection request - requires text/event-stream accept header'
+      )
+      logApiError(validationError, { ...context, requestId })
+      return await createValidationError(
+        'Invalid SSE connection request - requires text/event-stream accept header',
+        undefined,
+        locale,
+        requestId
+      )
     }
 
     // Check stream manager availability
-    let streamManager;
+    let streamManager
     try {
-      streamManager = getGlobalStreamManager();
-    } catch (_error) {
-      const streamError = error instanceof Error ? error : new Error(String(error));
-      logApiError(streamError, { ...context, requestId });
-      return await createServiceUnavailableError('Streaming service temporarily unavailable', locale, requestId);
+      streamManager = getGlobalStreamManager()
+    } catch (error) {
+      const streamError = error instanceof Error ? error : new Error(String(error))
+      logApiError(streamError, { ...context, requestId })
+      return await createServiceUnavailableError(
+        'Streaming service temporarily unavailable',
+        locale,
+        requestId
+      )
     }
 
-    const clientId = crypto.randomUUID();
-    const encoder = new TextEncoder();
+    const clientId = crypto.randomUUID()
+    const encoder = new TextEncoder()
 
     logger.info(`SSE health stream connecting: ${clientId}`, {
       requestId,
@@ -248,62 +261,64 @@ export async function GET(request: NextRequest) {
       userAgent: request.headers.get('user-agent'),
       ip: request.headers.get('x-forwarded-for') || request.headers.get('x-real-ip'),
       category: 'stream',
-    });
+    })
 
     // Create a readable stream for SSE
     const stream = new ReadableStream({
       start(controller) {
-        let intervalId: NodeJS.Timeout | null = null;
-        let detailedIntervalId: NodeJS.Timeout | null = null;
-        let keepAliveId: NodeJS.Timeout | null = null;
+        let intervalId: NodeJS.Timeout | null = null
+        let detailedIntervalId: NodeJS.Timeout | null = null
+        let keepAliveId: NodeJS.Timeout | null = null
 
         try {
           // Add client to manager
-          const _client = streamManager.addClient(clientId, controller);
+          const _client = streamManager.addClient(clientId, controller)
 
           // Send initial connection event
           const connectEvent: HealthEvent = {
             type: 'metrics',
             timestamp: new Date().toISOString(),
             data: {},
-          };
+          }
 
           const connected = safeEnqueue(
             controller,
             encoder,
             formatSSEEvent(connectEvent, 'connected', clientId),
             { clientId }
-          );
+          )
 
           if (!connected) {
             // Client disconnected immediately
-            streamManager.removeClient(clientId);
-            return;
+            streamManager.removeClient(clientId)
+            return
           }
 
           // Set up periodic data push (every 5 seconds)
           intervalId = setInterval(async () => {
             try {
-              const healthData = await gatherHealthMetrics();
+              const healthData = await gatherHealthMetrics()
 
               const enqueued = safeEnqueue(
                 controller,
                 encoder,
                 formatSSEEvent(healthData, 'metrics'),
                 { clientId }
-              );
+              )
 
               if (!enqueued) {
-                if (intervalId) safeClearInterval(intervalId, { clientId, intervalType: 'metrics' });
-                if (detailedIntervalId) safeClearInterval(detailedIntervalId, { clientId, intervalType: 'detailed' });
-                if (keepAliveId) safeClearInterval(keepAliveId, { clientId, intervalType: 'keepalive' });
-                streamManager.removeClient(clientId);
+                if (intervalId) safeClearInterval(intervalId, { clientId, intervalType: 'metrics' })
+                if (detailedIntervalId)
+                  safeClearInterval(detailedIntervalId, { clientId, intervalType: 'detailed' })
+                if (keepAliveId)
+                  safeClearInterval(keepAliveId, { clientId, intervalType: 'keepalive' })
+                streamManager.removeClient(clientId)
               }
-            } catch (_error) {
+            } catch (error) {
               logger.error('Error in health metrics interval', error, {
                 clientId,
                 category: 'stream',
-              });
+              })
 
               // Send error event to client
               const errorEvent: HealthEvent = {
@@ -311,56 +326,44 @@ export async function GET(request: NextRequest) {
                 timestamp: new Date().toISOString(),
                 data: {
                   errorMessage: 'Error gathering health metrics',
-                  errorDetails: process.env.NODE_ENV === 'development'
-                    ? { originalError: error instanceof Error ? error.message : String(error) }
-                    : undefined,
+                  errorDetails:
+                    process.env.NODE_ENV === 'development'
+                      ? { originalError: error instanceof Error ? error.message : String(error) }
+                      : undefined,
                 },
-              };
+              }
 
-              safeEnqueue(
-                controller,
-                encoder,
-                formatSSEEvent(errorEvent, 'error'),
-                { clientId }
-              );
+              safeEnqueue(controller, encoder, formatSSEEvent(errorEvent, 'error'), { clientId })
             }
-          }, 5000);
+          }, 5000)
 
           // Set up detailed health check (every 30 seconds)
           detailedIntervalId = setInterval(async () => {
             try {
-              const health = await gatherDetailedHealth();
+              const health = await gatherDetailedHealth()
 
-              safeEnqueue(
-                controller,
-                encoder,
-                formatSSEEvent(health, 'status'),
-                { clientId }
-              );
-            } catch (_error) {
+              safeEnqueue(controller, encoder, formatSSEEvent(health, 'status'), { clientId })
+            } catch (error) {
               logger.error('Error in detailed health check interval', error, {
                 clientId,
                 category: 'stream',
-              });
+              })
             }
-          }, 30000);
+          }, 30000)
 
           // Send keep-alive every 15 seconds
           keepAliveId = setInterval(() => {
-            const enqueued = safeEnqueue(
-              controller,
-              encoder,
-              ': keep-alive\n\n',
-              { clientId }
-            );
+            const enqueued = safeEnqueue(controller, encoder, ': keep-alive\n\n', { clientId })
 
             if (!enqueued) {
-              if (intervalId) safeClearInterval(intervalId, { clientId, intervalType: 'metrics' });
-              if (detailedIntervalId) safeClearInterval(detailedIntervalId, { clientId, intervalType: 'detailed' });
-              if (keepAliveId) safeClearInterval(keepAliveId, { clientId, intervalType: 'keepalive' });
-              streamManager.removeClient(clientId);
+              if (intervalId) safeClearInterval(intervalId, { clientId, intervalType: 'metrics' })
+              if (detailedIntervalId)
+                safeClearInterval(detailedIntervalId, { clientId, intervalType: 'detailed' })
+              if (keepAliveId)
+                safeClearInterval(keepAliveId, { clientId, intervalType: 'keepalive' })
+              streamManager.removeClient(clientId)
             }
-          }, 15000);
+          }, 15000)
 
           // Clean up on disconnect
           request.signal.addEventListener('abort', () => {
@@ -368,35 +371,36 @@ export async function GET(request: NextRequest) {
               clientId,
               requestId,
               category: 'stream',
-            });
+            })
 
-            if (intervalId) safeClearInterval(intervalId, { clientId, intervalType: 'metrics' });
-            if (detailedIntervalId) safeClearInterval(detailedIntervalId, { clientId, intervalType: 'detailed' });
-            if (keepAliveId) safeClearInterval(keepAliveId, { clientId, intervalType: 'keepalive' });
-            streamManager.removeClient(clientId);
-          });
-
-        } catch (_error) {
+            if (intervalId) safeClearInterval(intervalId, { clientId, intervalType: 'metrics' })
+            if (detailedIntervalId)
+              safeClearInterval(detailedIntervalId, { clientId, intervalType: 'detailed' })
+            if (keepAliveId) safeClearInterval(keepAliveId, { clientId, intervalType: 'keepalive' })
+            streamManager.removeClient(clientId)
+          })
+        } catch (error) {
           // Handle startup errors
           logger.error('Failed to start SSE health stream', error, {
             clientId,
             requestId,
             category: 'stream',
-          });
+          })
 
           // Clean up any intervals that were set
-          if (intervalId) safeClearInterval(intervalId, { clientId, intervalType: 'metrics' });
-          if (detailedIntervalId) safeClearInterval(detailedIntervalId, { clientId, intervalType: 'detailed' });
-          if (keepAliveId) safeClearInterval(keepAliveId, { clientId, intervalType: 'keepalive' });
+          if (intervalId) safeClearInterval(intervalId, { clientId, intervalType: 'metrics' })
+          if (detailedIntervalId)
+            safeClearInterval(detailedIntervalId, { clientId, intervalType: 'detailed' })
+          if (keepAliveId) safeClearInterval(keepAliveId, { clientId, intervalType: 'keepalive' })
 
           try {
-            streamManager.removeClient(clientId);
+            streamManager.removeClient(clientId)
           } catch (cleanupError) {
             logger.warn('Failed to remove client during cleanup', {
               error: cleanupError instanceof Error ? cleanupError.message : String(cleanupError),
               clientId,
               category: 'stream',
-            });
+            })
           }
 
           // Try to send error event to client
@@ -406,25 +410,20 @@ export async function GET(request: NextRequest) {
             data: {
               errorMessage: 'Failed to initialize health stream',
             },
-          };
+          }
 
-          safeEnqueue(
-            controller,
-            encoder,
-            formatSSEEvent(errorEvent, 'error'),
-            { clientId }
-          );
+          safeEnqueue(controller, encoder, formatSSEEvent(errorEvent, 'error'), { clientId })
 
-          throw error;
+          throw error
         }
       },
-    });
+    })
 
     logger.info(`SSE health stream established: ${clientId}`, {
       requestId,
       clientId,
       category: 'stream',
-    });
+    })
 
     return new Response(stream, {
       headers: {
@@ -432,13 +431,12 @@ export async function GET(request: NextRequest) {
         'X-Client-ID': clientId,
         'X-Request-ID': requestId,
       },
-    });
+    })
+  } catch (error) {
+    const errorObj = error instanceof Error ? error : new Error(String(error))
+    const duration = Date.now() - startTime
 
-  } catch (_error) {
-    const errorObj = error instanceof Error ? error : new Error(String(error));
-    const duration = Date.now() - startTime;
-
-    logApiError(errorObj, { ...context, requestId, duration });
+    logApiError(errorObj, { ...context, requestId, duration })
 
     if (error instanceof SSEStreamError) {
       return new Response(
@@ -453,7 +451,7 @@ export async function GET(request: NextRequest) {
           requestId,
         }),
         { status: error.statusCode }
-      );
+      )
     }
 
     return new Response(
@@ -467,6 +465,6 @@ export async function GET(request: NextRequest) {
         requestId,
       }),
       { status: 500 }
-    );
+    )
   }
 }

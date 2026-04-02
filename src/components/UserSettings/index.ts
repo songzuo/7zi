@@ -13,7 +13,7 @@ export type {
   SaveStatus,
   ThemeValue,
   NavItem,
-} from './types';
+} from './types'
 
 // Validation utilities
 export {
@@ -21,18 +21,18 @@ export {
   validateBio,
   validatePassword,
   validateConfirmPassword,
-} from './validation';
+} from './validation'
 
 // Components
-export { default as ToggleSwitch } from './ToggleSwitch';
-export type { ToggleSwitchProps } from './ToggleSwitch';
+export { default as ToggleSwitch } from './ToggleSwitch'
+export type { ToggleSwitchProps } from './ToggleSwitch'
 
-export { default as SectionCard } from './SectionCard';
-export type { SectionCardProps } from './SectionCard';
+export { default as SectionCard } from './SectionCard'
+export type { SectionCardProps } from './SectionCard'
 
-export { default as AvatarUpload } from './AvatarUpload';
-export type { AvatarUploadProps } from './AvatarUpload';
+export { default as AvatarUpload } from './AvatarUpload'
+export type { AvatarUploadProps } from './AvatarUpload'
 
 // Main component
-export { UserSettingsPage } from './UserSettingsPage';
-export { default as default } from './UserSettingsPage';
+export { UserSettingsPage } from './UserSettingsPage'
+export { default as default } from './UserSettingsPage'

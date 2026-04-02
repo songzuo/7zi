@@ -10,15 +10,16 @@
 
 ### 整体评分: 72/100
 
-| 审查项目 | 评分 | 状态 |
-|---------|------|------|
-| v1.5.0 新增 UI (Agent Dashboard) | 90/100 | ✅ 优秀 |
-| 基础 UI 组件一致性 | 60/100 | ⚠️ 需改进 |
-| CSS 变量使用 | 50/100 | ⚠️ 需改进 |
-| 响应式设计 | 85/100 | ✅ 良好 |
-| 权限管理 UI | 55/100 | ⚠️ 需改进 |
+| 审查项目                         | 评分   | 状态      |
+| -------------------------------- | ------ | --------- |
+| v1.5.0 新增 UI (Agent Dashboard) | 90/100 | ✅ 优秀   |
+| 基础 UI 组件一致性               | 60/100 | ⚠️ 需改进 |
+| CSS 变量使用                     | 50/100 | ⚠️ 需改进 |
+| 响应式设计                       | 85/100 | ✅ 良好   |
+| 权限管理 UI                      | 55/100 | ⚠️ 需改进 |
 
 **关键发现**:
+
 - ✅ Agent Dashboard UI 设计优秀，样式统一
 - 🔴 **硬编码颜色广泛存在**（优先级 P0，影响主题切换）
 - 🟡 圆角和间距部分不一致（优先级 P1）
@@ -26,17 +27,17 @@
 - ✅ 完整的 CSS 变量系统但未充分利用
 
 **本次完成**:
+
 - ✅ 修复 Button SIZE_CONFIG 间距不一致
 - ✅ 修复 Input 间距与 Button 不一致
 - ✅ 统一 DashboardStats 阴影为 hover:shadow-lg
 
 **优先修复 (P0)**:
+
 1. 移除所有硬编码颜色，改用 CSS 变量 (3-4 天)
 2. 实现消息界面 UI (MessageList, MessageInput, MessageBubble) (5-7 天)
 
-**后续优化 (P1)**:
-3. 统一圆角大小 (0.5-1 天)
-4. 集成权限提示 UI (2-3 天)
+**后续优化 (P1)**: 3. 统一圆角大小 (0.5-1 天) 4. 集成权限提示 UI (2-3 天)
 
 ---
 
@@ -45,6 +46,7 @@
 ### 1.1 Agent Dashboard UI ✅ 90/100
 
 **审查组件**:
+
 - `AgentStatusPanel.tsx` - Agent 状态面板
 - `DashboardStats.tsx` - Dashboard 统计卡片
 - `TaskQueueView.tsx` - 任务队列视图
@@ -53,18 +55,21 @@
 #### 优点 ✨
 
 **设计一致性**:
+
 - ✅ 使用了统一的颜色配置系统 (`colorConfig` 对象)
 - ✅ 所有组件完全支持暗色模式
 - ✅ 响应式布局设计良好 (grid-cols-1 sm:cols-2 lg:cols-3)
 - ✅ 圆角使用统一 (`rounded-xl`)
 
 **代码质量**:
+
 - ✅ 完整的类型定义和 JSDoc 注释
 - ✅ 使用 `React.memo` 优化性能
 - ✅ 工具函数封装良好 (`getAgentStatus`, `formatLastActive`)
 - ✅ 支持多语言 (locale 参数)
 
 **用户体验**:
+
 - ✅ 加载骨架屏完整
 - ✅ 状态筛选功能直观
 - ✅ Hover 效果和过渡动画流畅
@@ -84,6 +89,7 @@ bg: 'bg-gradient-to-br from-blue-50 to-blue-100 dark:from-blue-900/30',  // ❌ 
 ```
 
 **建议修复**:
+
 ```typescript
 // ❌ 当前
 const colorConfig = {
@@ -109,6 +115,7 @@ const colorConfig = {
 **状态**: 未改进 (继承自 v1.4.0)
 
 **遗留问题**:
+
 - 🔴 **P0 - 消息界面 UI 完全缺失** (MessageList, MessageInput, MessageBubble)
 - 🟡 P1 - 权限提示未集成到 UI 场景
 - 🟢 P2 - 时间格式化不统一
@@ -123,6 +130,7 @@ const colorConfig = {
 **状态**: 未改进 (继承自 v1.4.0)
 
 **遗留问题**:
+
 - 🟡 **P1 - EmptyPermission 组件未集成到场景中**
 - 🟢 P2 - 缺少统一的权限检查 Hook
 - 🟢 P3 - 权限提示文案不统一
@@ -139,13 +147,13 @@ const colorConfig = {
 
 #### 发现的问题
 
-| 组件 | 硬编码颜色 | 严重程度 |
-|------|-----------|---------|
-| Button.tsx | `bg-blue-600`, `bg-blue-700` | 🔴 高 |
-| Button.tsx | `focus:ring-blue-500` | 🔴 高 |
-| Input.tsx | `border-zinc-300`, `focus:ring-blue-500` | 🔴 高 |
-| Badge.tsx | `bg-blue-100`, `text-blue-800` | 🔴 高 |
-| DashboardStats.tsx | 大量硬编码颜色 | 🔴 高 |
+| 组件               | 硬编码颜色                               | 严重程度 |
+| ------------------ | ---------------------------------------- | -------- |
+| Button.tsx         | `bg-blue-600`, `bg-blue-700`             | 🔴 高    |
+| Button.tsx         | `focus:ring-blue-500`                    | 🔴 高    |
+| Input.tsx          | `border-zinc-300`, `focus:ring-blue-500` | 🔴 高    |
+| Badge.tsx          | `bg-blue-100`, `text-blue-800`           | 🔴 高    |
+| DashboardStats.tsx | 大量硬编码颜色                           | 🔴 高    |
 
 #### 示例问题代码
 
@@ -259,6 +267,7 @@ export const Button: FC<ButtonProps> = ({ variant = 'primary', ... }) => {
 **预估工作量**: 2-3 天
 
 **影响范围**:
+
 - Button.tsx
 - Input.tsx
 - Badge.tsx
@@ -273,26 +282,27 @@ export const Button: FC<ButtonProps> = ({ variant = 'primary', ... }) => {
 
 #### 发现的问题
 
-| 组件 | 圆角值 | 建议统一 |
-|------|--------|---------|
-| Button.tsx | `rounded-lg` (8px) | ✅ 标准 |
-| Input.tsx | `rounded-lg` (8px) | ✅ 标准 |
-| Badge.tsx | `rounded-full` (9999px) | ✅ 标准（徽章） |
-| AgentStatusPanel.tsx | `rounded-xl` (12px) | ❌ 应为 `rounded-lg` |
-| DashboardStats.tsx | `rounded-xl` (12px) | ❌ 应为 `rounded-lg` |
-| DashboardStats.tsx (图标容器) | `rounded-lg` | ✅ 标准 |
+| 组件                          | 圆角值                  | 建议统一             |
+| ----------------------------- | ----------------------- | -------------------- |
+| Button.tsx                    | `rounded-lg` (8px)      | ✅ 标准              |
+| Input.tsx                     | `rounded-lg` (8px)      | ✅ 标准              |
+| Badge.tsx                     | `rounded-full` (9999px) | ✅ 标准（徽章）      |
+| AgentStatusPanel.tsx          | `rounded-xl` (12px)     | ❌ 应为 `rounded-lg` |
+| DashboardStats.tsx            | `rounded-xl` (12px)     | ❌ 应为 `rounded-lg` |
+| DashboardStats.tsx (图标容器) | `rounded-lg`            | ✅ 标准              |
 
 #### 建议规范
 
 ```css
 /* 圆角设计规范 */
---radius-sm: 4px;   /* 小元素: 图标、标签 */
---radius-md: 8px;   /* 标准组件: 按钮、输入框 */
---radius-lg: 12px;  /* 卡片: 大卡片、容器 */
---radius-full: 9999px;  /* 圆形: 徽章、头像 */
+--radius-sm: 4px; /* 小元素: 图标、标签 */
+--radius-md: 8px; /* 标准组件: 按钮、输入框 */
+--radius-lg: 12px; /* 卡片: 大卡片、容器 */
+--radius-full: 9999px; /* 圆形: 徽章、头像 */
 ```
 
 **对应 Tailwind 类**:
+
 - `rounded-sm` - 小圆角
 - `rounded` / `rounded-lg` - 标准圆角
 - `rounded-xl` - 大卡片圆角
@@ -303,12 +313,14 @@ export const Button: FC<ButtonProps> = ({ variant = 'primary', ... }) => {
 **优先级**: P1 - 2周内完成
 
 **方案**:
+
 1. 小元素（图标容器、标签）: `rounded` 或 `rounded-sm`
 2. 标准组件（按钮、输入框）: `rounded-lg`
 3. 卡片组件（Card, Panel）: `rounded-xl` ✅ 保持
 4. 徽章组件（Badge）: `rounded-full` ✅ 保持
 
 **修正**:
+
 - AgentStatusPanel.tsx 的卡片容器改为 `rounded-xl` ✅ 已正确
 - DashboardStats.tsx 的卡片容器改为 `rounded-xl` ✅ 已正确
 - 其他小型容器（图标容器）改为 `rounded` 或 `rounded-sm`
@@ -322,21 +334,24 @@ export const Button: FC<ButtonProps> = ({ variant = 'primary', ... }) => {
 #### 发现的问题
 
 **Button.tsx - SIZE_CONFIG**:
+
 ```typescript
 const SIZE_CONFIG: Record<ButtonSize, string> = {
-  xs: 'px-2 py-1 text-xs',    // 不规则间距
+  xs: 'px-2 py-1 text-xs', // 不规则间距
   sm: 'px-3 py-1.5 text-sm',
   md: 'px-4 py-2 text-base',
   lg: 'px-6 py-3 text-lg',
   xl: 'px-8 py-4 text-xl',
-};
+}
 ```
 
 **问题**:
+
 - `xs` 的垂直间距 `py-1` (4px) 过小
 - 缺少 `text-xs` 的统一字体大小定义
 
 **Input.tsx**:
+
 ```typescript
 className={`
   border border-zinc-300
@@ -359,9 +374,11 @@ className={`
 ```
 
 **对应 Tailwind 类**:
+
 - `p-1`, `p-2`, `p-3`, `p-4`, `p-5`, `p-6` ...
 
 **标准间距**:
+
 - 小元素: `p-2` (8px)
 - 标准组件: `p-3` (12px) 或 `p-4` (16px)
 - 大容器: `p-6` (24px)
@@ -369,17 +386,19 @@ className={`
 #### 修复建议
 
 **Button.tsx**:
+
 ```typescript
 const SIZE_CONFIG: Record<ButtonSize, string> = {
-  xs: 'px-3 py-1.5 text-xs',    // ✅ 调整为 py-1.5
-  sm: 'px-3 py-2 text-sm',      // ✅ 调整为 py-2
+  xs: 'px-3 py-1.5 text-xs', // ✅ 调整为 py-1.5
+  sm: 'px-3 py-2 text-sm', // ✅ 调整为 py-2
   md: 'px-4 py-2 text-base',
   lg: 'px-6 py-3 text-lg',
   xl: 'px-8 py-4 text-xl',
-};
+}
 ```
 
 **Input.tsx**:
+
 ```typescript
 className={`
   border border-zinc-300
@@ -397,24 +416,27 @@ className={`
 #### 发现的问题
 
 **Button.tsx**:
+
 ```typescript
 const VARIANT_CONFIG = {
-  primary: 'shadow-md hover:shadow-lg',     // ✅ 标准
-  secondary: 'shadow-md hover:shadow-lg',  // ✅ 标准
-  outline: '',                              // ✅ 无阴影
-  ghost: '',                                // ✅ 无阴影
-  danger: 'shadow-md hover:shadow-lg',      // ✅ 标准
-};
+  primary: 'shadow-md hover:shadow-lg', // ✅ 标准
+  secondary: 'shadow-md hover:shadow-lg', // ✅ 标准
+  outline: '', // ✅ 无阴影
+  ghost: '', // ✅ 无阴影
+  danger: 'shadow-md hover:shadow-lg', // ✅ 标准
+}
 ```
 
 **AgentStatusPanel.tsx**:
+
 ```typescript
-hover:shadow-lg  // ✅ 标准
+hover: shadow - lg // ✅ 标准
 ```
 
 **DashboardStats.tsx**:
+
 ```typescript
-hover:shadow-md  // ⚠️ 与 AgentStatusPanel 不一致
+hover: shadow - md // ⚠️ 与 AgentStatusPanel 不一致
 ```
 
 #### 建议规范
@@ -428,6 +450,7 @@ hover:shadow-md  // ⚠️ 与 AgentStatusPanel 不一致
 ```
 
 **对应 Tailwind 类**:
+
 - `shadow-sm` - 小阴影（悬浮提示）
 - `shadow-md` - 标准阴影（默认状态）
 - `shadow-lg` - 大阴影（Hover 状态）
@@ -436,12 +459,13 @@ hover:shadow-md  // ⚠️ 与 AgentStatusPanel 不一致
 #### 修复建议
 
 **DashboardStats.tsx**:
+
 ```typescript
 // ❌ 当前
-hover:shadow-md
+hover: shadow - md
 
 // ✅ 推荐
-hover:shadow-lg  // 与 AgentStatusPanel 保持一致
+hover: shadow - lg // 与 AgentStatusPanel 保持一致
 ```
 
 **预估工作量**: 0.5 天
@@ -453,6 +477,7 @@ hover:shadow-lg  // 与 AgentStatusPanel 保持一致
 ### 3.1 断点配置
 
 **Tailwind 配置** (标准):
+
 - `sm`: 640px
 - `md`: 768px
 - `lg`: 1024px
@@ -464,6 +489,7 @@ hover:shadow-lg  // 与 AgentStatusPanel 保持一致
 #### ✅ 优秀示例
 
 **AgentStatusPanel.tsx**:
+
 ```typescript
 // ✅ 头部响应式
 <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
@@ -476,13 +502,14 @@ hover:shadow-lg  // 与 AgentStatusPanel 保持一致
 ```
 
 **DashboardStats.tsx**:
+
 ```typescript
 // ✅ 动态列数
 const gridCols = {
   2: 'grid-cols-2',
   3: 'grid-cols-1 sm:grid-cols-2 lg:grid-cols-3',
   4: 'grid-cols-2 sm:grid-cols-3 md:grid-cols-4',
-};
+}
 ```
 
 #### 🟡 需要改进
@@ -516,27 +543,27 @@ const isMobile = useMediaQuery('(max-width: 640px)');
 
 ### 🔴 P0 - 阻塞问题 (立即修复)
 
-| # | 问题 | 位置 | 影响 |
-|---|------|------|------|
-| 1 | 硬编码颜色广泛存在 | 所有基础 UI 组件 | 🔴 高 |
-| 2 | 消息界面 UI 完全缺失 | 房间系统 | 🔴 高 |
+| #   | 问题                 | 位置             | 影响  |
+| --- | -------------------- | ---------------- | ----- |
+| 1   | 硬编码颜色广泛存在   | 所有基础 UI 组件 | 🔴 高 |
+| 2   | 消息界面 UI 完全缺失 | 房间系统         | 🔴 高 |
 
 ### 🟡 P1 - 高优先级 (2周内修复)
 
-| # | 问题 | 位置 | 影响 |
-|---|------|------|------|
-| 3 | 圆角大小不一致 | AgentStatusPanel, DashboardStats | 🟡 中 |
-| 4 | 间距不一致 | Button, Input | 🟡 中 |
-| 5 | 权限提示未集成 | RoomDetail, RoomList | 🟡 中 |
+| #   | 问题           | 位置                             | 影响  |
+| --- | -------------- | -------------------------------- | ----- |
+| 3   | 圆角大小不一致 | AgentStatusPanel, DashboardStats | 🟡 中 |
+| 4   | 间距不一致     | Button, Input                    | 🟡 中 |
+| 5   | 权限提示未集成 | RoomDetail, RoomList             | 🟡 中 |
 
 ### 🟢 P2 - 中优先级 (持续优化)
 
-| # | 问题 | 位置 | 影响 |
-|---|------|------|------|
-| 6 | 阴影不一致 | DashboardStats | 🟢 低 |
-| 7 | 移动端触摸目标过小 | Button.tsx (xs) | 🟢 低 |
-| 8 | 时间格式化不统一 | RoomList, RoomDetail | 🟢 低 |
-| 9 | 表情反应 UI 缺失 | 消息系统 | 🟢 低 |
+| #   | 问题               | 位置                 | 影响  |
+| --- | ------------------ | -------------------- | ----- |
+| 6   | 阴影不一致         | DashboardStats       | 🟢 低 |
+| 7   | 移动端触摸目标过小 | Button.tsx (xs)      | 🟢 低 |
+| 8   | 时间格式化不统一   | RoomList, RoomDetail | 🟢 低 |
+| 9   | 表情反应 UI 缺失   | 消息系统             | 🟢 低 |
 
 ---
 
@@ -622,10 +649,10 @@ const isMobile = useMediaQuery('(max-width: 640px)');
 #### 圆角
 
 ```css
---radius-sm: var(--border-radius-sm);      /* 4px */
---radius-md: var(--border-radius-md);      /* 8px */
---radius-lg: var(--border-radius-lg);      /* 12px */
---radius-xl: var(--border-radius-xl);      /* 16px */
+--radius-sm: var(--border-radius-sm); /* 4px */
+--radius-md: var(--border-radius-md); /* 8px */
+--radius-lg: var(--border-radius-lg); /* 12px */
+--radius-xl: var(--border-radius-xl); /* 16px */
 --radius-full: 9999px;
 ```
 
@@ -680,7 +707,8 @@ export const buttonVariants = {
   outline: {
     base: 'border-2 border-[var(--color-border)] dark:border-[var(--color-border-dark)]',
     text: 'text-[var(--color-text-primary)] dark:text-[var(--color-gray-300)]',
-    hover: 'hover:border-[var(--color-primary)] hover:text-[var(--color-primary)] dark:hover:text-[var(--color-primary-light)]',
+    hover:
+      'hover:border-[var(--color-primary)] hover:text-[var(--color-primary)] dark:hover:text-[var(--color-primary-light)]',
     ring: 'focus:ring-[var(--color-primary)]',
     shadow: '',
   },
@@ -702,7 +730,7 @@ export const buttonVariants = {
     ring: 'focus:ring-[var(--color-primary)]',
     shadow: '',
   },
-} as const;
+} as const
 
 // ============================================
 // Badge 变体
@@ -733,7 +761,7 @@ export const badgeVariants = {
     bg: 'bg-[var(--color-blue-100)] dark:bg-[var(--color-blue-900/30)]',
     text: 'text-[var(--color-blue-800)] dark:text-[var(--color-blue-400)]',
   },
-} as const;
+} as const
 
 // ============================================
 // Input 变体
@@ -755,7 +783,7 @@ export const inputVariants = {
     ring: 'focus:ring-[var(--color-error)]',
     focusBorder: 'focus:border-[var(--color-error)]',
   },
-} as const;
+} as const
 ```
 
 ### 6.3 使用示例
@@ -840,15 +868,16 @@ src/components/
 ```typescript
 // lib/ui-variants.ts
 
-export * from './ui-variants/button';
-export * from './ui-variants/input';
-export * from './ui-variants/badge';
-export * from './ui-variants/card';
-export * from './ui-variants/modal';
+export * from './ui-variants/button'
+export * from './ui-variants/input'
+export * from './ui-variants/badge'
+export * from './ui-variants/card'
+export * from './ui-variants/modal'
 // ...
 ```
 
 **优点**:
+
 - 统一管理所有变体配置
 - 易于维护和扩展
 - 便于主题切换
@@ -864,19 +893,19 @@ export * from './ui-variants/modal';
 
 ```typescript
 // 组件默认移动端样式
-className="w-full px-4 py-3"
+className = 'w-full px-4 py-3'
 
 // 小屏幕 (sm, 640px+)
-className="sm:px-6 sm:py-4"
+className = 'sm:px-6 sm:py-4'
 
 // 中屏幕 (md, 768px+)
-className="md:px-8 md:py-5"
+className = 'md:px-8 md:py-5'
 
 // 大屏幕 (lg, 1024px+)
-className="lg:px-10 lg:py-6"
+className = 'lg:px-10 lg:py-6'
 
 // 超大屏幕 (xl, 1280px+)
-className="xl:px-12 xl:py-8"
+className = 'xl:px-12 xl:py-8'
 ```
 
 ### 8.2 响应式 Grid
@@ -914,6 +943,7 @@ className="
 #### 问题 1: Button.tsx - SIZE_CONFIG 调整
 
 **修复前**:
+
 ```typescript
 const SIZE_CONFIG: Record<ButtonSize, string> = {
   xs: 'px-2 py-1 text-xs',
@@ -921,28 +951,31 @@ const SIZE_CONFIG: Record<ButtonSize, string> = {
   md: 'px-4 py-2 text-base',
   lg: 'px-6 py-3 text-lg',
   xl: 'px-8 py-4 text-xl',
-};
+}
 ```
 
 **修复后**:
+
 ```typescript
 const SIZE_CONFIG: Record<ButtonSize, string> = {
-  xs: 'px-3 py-1.5 text-xs',      // ✅ 调整为 py-1.5
-  sm: 'px-3 py-2 text-sm',        // ✅ 调整为 py-2
-  md: 'px-4 py-2 text-base',      // ✅ 保持
-  lg: 'px-6 py-3 text-lg',        // ✅ 保持
-  xl: 'px-8 py-4 text-xl',        // ✅ 保持
-};
+  xs: 'px-3 py-1.5 text-xs', // ✅ 调整为 py-1.5
+  sm: 'px-3 py-2 text-sm', // ✅ 调整为 py-2
+  md: 'px-4 py-2 text-base', // ✅ 保持
+  lg: 'px-6 py-3 text-lg', // ✅ 保持
+  xl: 'px-8 py-4 text-xl', // ✅ 保持
+}
 ```
 
 #### 问题 2: Input.tsx - 间距统一
 
 **修复前**:
+
 ```typescript
 className={`border border-zinc-300 dark:border-zinc-600 rounded-lg px-3 py-2 ...`}
 ```
 
 **修复后**:
+
 ```typescript
 className={`border border-zinc-300 dark:border-zinc-600 rounded-lg px-4 py-2 ...`}
 ```
@@ -950,13 +983,15 @@ className={`border border-zinc-300 dark:border-zinc-600 rounded-lg px-4 py-2 ...
 #### 问题 3: DashboardStats.tsx - 阴影统一
 
 **修复前**:
+
 ```typescript
-hover:shadow-md
+hover: shadow - md
 ```
 
 **修复后**:
+
 ```typescript
-hover:shadow-lg  // ✅ 与 AgentStatusPanel 保持一致
+hover: shadow - lg // ✅ 与 AgentStatusPanel 保持一致
 ```
 
 ---
@@ -1003,33 +1038,33 @@ v1.5.0 的 Agent Dashboard UI 设计优秀，代码质量高，但基础 UI 组�
 
 ### ✅ 已完成 (本次审计)
 
-| # | 问题 | 状态 |
-|---|------|------|
-| 1 | Button SIZE_CONFIG 间距不统一 | ✅ 已修复 |
-| 2 | Input 间距与 Button 不一致 | ✅ 已修复 |
-| 3 | DashboardStats 阴影不一致 | ✅ 已修复 |
+| #   | 问题                          | 状态      |
+| --- | ----------------------------- | --------- |
+| 1   | Button SIZE_CONFIG 间距不统一 | ✅ 已修复 |
+| 2   | Input 间距与 Button 不一致    | ✅ 已修复 |
+| 3   | DashboardStats 阴影不一致     | ✅ 已修复 |
 
 ### 🔴 P0 - 待修复 (立即执行)
 
-| # | 问题 | 文件 | 预估工作量 |
-|---|------|------|-----------|
-| 1 | 硬编码颜色移除 | Button.tsx, Input.tsx, Badge.tsx 等 | 3-4 天 |
-| 2 | 消息界面 UI 实现 | rooms/ 目录 | 5-7 天 |
+| #   | 问题             | 文件                                | 预估工作量 |
+| --- | ---------------- | ----------------------------------- | ---------- |
+| 1   | 硬编码颜色移除   | Button.tsx, Input.tsx, Badge.tsx 等 | 3-4 天     |
+| 2   | 消息界面 UI 实现 | rooms/ 目录                         | 5-7 天     |
 
 ### 🟡 P1 - 待修复 (2周内)
 
-| # | 问题 | 文件 | 预估工作量 |
-|---|------|------|-----------|
-| 3 | 圆角大小统一 | 多个组件 | 0.5-1 天 |
-| 4 | 权限提示集成 | RoomDetail, RoomList | 2-3 天 |
+| #   | 问题         | 文件                 | 预估工作量 |
+| --- | ------------ | -------------------- | ---------- |
+| 3   | 圆角大小统一 | 多个组件             | 0.5-1 天   |
+| 4   | 权限提示集成 | RoomDetail, RoomList | 2-3 天     |
 
 ### 🟢 P2 - 待修复 (持续优化)
 
-| # | 问题 | 文件 | 预估工作量 |
-|---|------|------|-----------|
-| 5 | 移动端触摸目标 | Button.tsx | 0.5 天 |
-| 6 | 时间格式化统一 | 多个组件 | 0.5 天 |
-| 7 | 表情反应 UI | 消息系统 | 1.5 天 |
+| #   | 问题           | 文件       | 预估工作量 |
+| --- | -------------- | ---------- | ---------- |
+| 5   | 移动端触摸目标 | Button.tsx | 0.5 天     |
+| 6   | 时间格式化统一 | 多个组件   | 0.5 天     |
+| 7   | 表情反应 UI    | 消息系统   | 1.5 天     |
 
 ---
 
@@ -1043,43 +1078,45 @@ v1.5.0 的 Agent Dashboard UI 设计优秀，代码质量高，但基础 UI 组�
 ### A.1 CSS 变量使用指南
 
 **❌ 不推荐 - 硬编码**:
+
 ```typescript
-className="bg-blue-600 hover:bg-blue-700"
-className="text-zinc-700 dark:text-zinc-300"
+className = 'bg-blue-600 hover:bg-blue-700'
+className = 'text-zinc-700 dark:text-zinc-300'
 ```
 
 **✅ 推荐 - 使用 CSS 变量**:
+
 ```typescript
-className="bg-[var(--color-primary-600)] hover:bg-[var(--color-primary-700)]"
-className="text-[var(--color-text-primary)] dark:text-[var(--color-gray-300)]"
+className = 'bg-[var(--color-primary-600)] hover:bg-[var(--color-primary-700)]'
+className = 'text-[var(--color-text-primary)] dark:text-[var(--color-gray-300)]'
 ```
 
 ### A.2 间距规范
 
-| 元素类型 | 水平间距 | 垂直间距 |
-|---------|---------|---------|
-| 小元素 (图标容器) | p-2 (8px) | p-2 (8px) |
+| 元素类型                | 水平间距    | 垂直间距   |
+| ----------------------- | ----------- | ---------- |
+| 小元素 (图标容器)       | p-2 (8px)   | p-2 (8px)  |
 | 标准组件 (按钮、输入框) | px-4 (16px) | py-2 (8px) |
-| 卡片 (Card, Panel) | p-6 (24px) | p-6 (24px) |
-| 大容器 | p-8 (32px) | p-8 (32px) |
+| 卡片 (Card, Panel)      | p-6 (24px)  | p-6 (24px) |
+| 大容器                  | p-8 (32px)  | p-8 (32px) |
 
 ### A.3 圆角规范
 
-| 组件类型 | Tailwind 类 | 像素值 |
-|---------|------------|--------|
-| 小元素 (图标) | `rounded` | 4px |
-| 标准组件 (按钮、输入框) | `rounded-lg` | 8px |
-| 卡片 (Card, Panel) | `rounded-xl` | 12px |
-| 徽章 (Badge) | `rounded-full` | 9999px |
+| 组件类型                | Tailwind 类    | 像素值 |
+| ----------------------- | -------------- | ------ |
+| 小元素 (图标)           | `rounded`      | 4px    |
+| 标准组件 (按钮、输入框) | `rounded-lg`   | 8px    |
+| 卡片 (Card, Panel)      | `rounded-xl`   | 12px   |
+| 徽章 (Badge)            | `rounded-full` | 9999px |
 
 ### A.4 阴影规范
 
-| 状态 | Tailwind 类 | 使用场景 |
-|------|------------|---------|
-| 默认 | `shadow-md` | 卡片、按钮默认状态 |
-| Hover | `shadow-lg` | 卡片 Hover 状态 |
-| 弹出层 | `shadow-xl` | Modal、Dropdown |
-| 提示 | `shadow-sm` | Tooltip |
+| 状态   | Tailwind 类 | 使用场景           |
+| ------ | ----------- | ------------------ |
+| 默认   | `shadow-md` | 卡片、按钮默认状态 |
+| Hover  | `shadow-lg` | 卡片 Hover 状态    |
+| 弹出层 | `shadow-xl` | Modal、Dropdown    |
+| 提示   | `shadow-sm` | Tooltip            |
 
 ---
 
@@ -1115,6 +1152,6 @@ className="text-[var(--color-text-primary)] dark:text-[var(--color-gray-300)]"
 
 **报告结束**
 
-*审计人*: 🎨 设计师
-*日期*: 2026-03-31
-*版本*: v1.5.0
+_审计人_: 🎨 设计师
+_日期_: 2026-03-31
+_版本_: v1.5.0

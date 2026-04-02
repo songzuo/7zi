@@ -12,23 +12,23 @@
 
 ### 关键发现
 
-| 维度 | 当前状态 | v1.4.0 预测 | 影响 | 优先级 |
-|------|---------|-------------|------|--------|
-| **服务器资源** | CPU 12%, 内存 32% | CPU 25-35%, 内存 45-55% | 需关注 | 🟡 中 |
-| **WebSocket 连接** | 未部署 | 长连接 100-500并发 | 带宽增加 | 🟢 低 |
-| **数据库** | PostgreSQL (45MB) | 增至 80-120MB | 轻微影响 | 🟢 低 |
-| **CDN 静态资源** | ~20MB | ~30MB | 轻微影响 | 🟢 低 |
-| **Sentry 错误追踪** | 未配置 | 预计 5k events/月 | 免费额度 | 🟢 低 |
+| 维度                | 当前状态          | v1.4.0 预测             | 影响     | 优先级 |
+| ------------------- | ----------------- | ----------------------- | -------- | ------ |
+| **服务器资源**      | CPU 12%, 内存 32% | CPU 25-35%, 内存 45-55% | 需关注   | 🟡 中  |
+| **WebSocket 连接**  | 未部署            | 长连接 100-500并发      | 带宽增加 | 🟢 低  |
+| **数据库**          | PostgreSQL (45MB) | 增至 80-120MB           | 轻微影响 | 🟢 低  |
+| **CDN 静态资源**    | ~20MB             | ~30MB                   | 轻微影响 | 🟢 低  |
+| **Sentry 错误追踪** | 未配置            | 预计 5k events/月       | 免费额度 | 🟢 低  |
 
 ### 月度成本预估
 
-| 项目 | 当前成本 | v1.4.0 成本 | 变化 |
-|------|---------|-------------|------|
-| **服务器基础费用** | ¥0 (已有) | ¥0 (已有) | - |
-| **CDN 带宽** | ~$20/月 | ~$28/月 | +$8 |
-| **监控/Sentry** | $0/月 | $0/月 (免费) | - |
-| **额外云服务** | $0/月 | $0/月 | - |
-| **总计** | **~$20/月** | **~$28/月** | **+$8 (+40%)** |
+| 项目               | 当前成本    | v1.4.0 成本  | 变化           |
+| ------------------ | ----------- | ------------ | -------------- |
+| **服务器基础费用** | ¥0 (已有)   | ¥0 (已有)    | -              |
+| **CDN 带宽**       | ~$20/月     | ~$28/月      | +$8            |
+| **监控/Sentry**    | $0/月       | $0/月 (免费) | -              |
+| **额外云服务**     | $0/月       | $0/月        | -              |
+| **总计**           | **~$20/月** | **~$28/月**  | **+$8 (+40%)** |
 
 ### 核心结论
 
@@ -44,6 +44,7 @@
 ### 1.1 当前资源配置
 
 **硬件配置:**
+
 ```
 CPU:     Intel Xeon E5-2673 v4 @ 2.30GHz (8 cores)
 内存:     8GB
@@ -53,6 +54,7 @@ OS:       Ubuntu 22.04 LTS
 ```
 
 **当前资源使用率:**
+
 ```
 内存:    2.5GB / 8GB (32%)
 CPU:     Load average 0.23 (空闲)
@@ -63,17 +65,18 @@ CPU:     Load average 0.23 (空闲)
 
 #### 内存使用预测
 
-| 组件 | 当前内存 | v1.4.0 预估 | 增量 |
-|------|---------|-------------|------|
-| **Next.js 服务** | 0 (未部署) | 300-500MB | +300-500MB |
-| **PostgreSQL** | 18MB | 35-50MB | +17-32MB |
-| **Redis** | 7MB | 20-30MB | +13-23MB |
-| **Nginx** | 12MB | 15-20MB | +3-8MB |
-| **WebSocket 连接** | 0 | 50-150MB | +50-150MB |
-| **Node 进程** | ~200MB | ~250MB | +50MB |
-| **总计** | ~237MB | ~620-1005MB | +383-768MB |
+| 组件               | 当前内存   | v1.4.0 预估 | 增量       |
+| ------------------ | ---------- | ----------- | ---------- |
+| **Next.js 服务**   | 0 (未部署) | 300-500MB   | +300-500MB |
+| **PostgreSQL**     | 18MB       | 35-50MB     | +17-32MB   |
+| **Redis**          | 7MB        | 20-30MB     | +13-23MB   |
+| **Nginx**          | 12MB       | 15-20MB     | +3-8MB     |
+| **WebSocket 连接** | 0          | 50-150MB    | +50-150MB  |
+| **Node 进程**      | ~200MB     | ~250MB      | +50MB      |
+| **总计**           | ~237MB     | ~620-1005MB | +383-768MB |
 
 **分析:**
+
 - v1.4.0 部署后预计内存使用: **620-1005MB (7.8-12.6%)**
 - 当前系统内存剩余: 5.3GB，**完全充足**
 - 建议 Docker 资源限制: 512MB (frontend) + 256MB (nginx)
@@ -81,6 +84,7 @@ CPU:     Load average 0.23 (空闲)
 #### CPU 使用预测
 
 **当前 CPU 负载:**
+
 ```
 Load average: 0.23, 0.17, 0.14 (非常空闲)
 CPU 使用率:   1.4% user, 2.9% system
@@ -95,6 +99,7 @@ CPU 使用率:   1.4% user, 2.9% system
 | **1000+ 并发 WebSocket** | 40-50% | 需要考虑扩容 ⚠️ |
 
 **分析:**
+
 - 100-500 并发 WebSocket: **CPU 使用率 25-35%**，安全范围内
 - 1000+ 并发: **建议扩容或负载均衡**
 - Docker CPU 限制建议: 0.5 核心 (足够使用)
@@ -102,6 +107,7 @@ CPU 使用率:   1.4% user, 2.9% system
 #### 磁盘空间分析
 
 **当前使用:**
+
 ```
 根目录 (/): 72GB / 88GB (82%) ⚠️
 剩余空间: 16GB
@@ -118,6 +124,7 @@ CPU 使用率:   1.4% user, 2.9% system
 | **月增长总计** | **235-1375MB** | **0.23-1.35GB/月** |
 
 **分析:**
+
 - 当前剩余 16GB，可支持 **12-68 个月** 无需扩容
 - **警告**: 磁盘使用率已达 82%，建议：
   1. 清理旧日志 (journalctl --vacuum-time=30d)
@@ -128,17 +135,20 @@ CPU 使用率:   1.4% user, 2.9% system
 
 **短期 (未来 3-6 个月):**
 ✅ **无需扩容** - 当前配置充足
+
 - 内存: 8GB 使用率 <15%
 - CPU: 8 核使用率 <35%
 - 磁盘: 需要监控，但短期内充足
 
 **中期 (6-12 个月):**
 🟡 **可能需要扩容** - 取决于用户增长
+
 - 如果 WebSocket 并发 > 1000，考虑升级至 16GB 内存
 - 如果磁盘增长快，增加至 120GB 或使用对象存储
 
 **长期 (1 年以上):**
 🔴 **需要扩容或架构优化**
+
 - 考虑负载均衡 + 多服务器部署
 - 数据库分离到独立服务器
 - 静态资源迁移到 CDN
@@ -150,6 +160,7 @@ CPU 使用率:   1.4% user, 2.9% system
 ### 2.1 PostgreSQL 当前状态
 
 **数据库列表:**
+
 ```
 postgres      8563 kB
 marriage_db   8913 kB
@@ -161,6 +172,7 @@ clawmail_db   8409 kB
 ```
 
 **连接数:**
+
 ```
 当前活跃连接: 7
 最大连接数:   100 (默认)
@@ -171,12 +183,14 @@ clawmail_db   8409 kB
 #### 消息持久化 (新增功能)
 
 **估算依据:**
+
 - 每房间最多 10,000 条消息
 - 消息平均大小: ~500 bytes (JSON)
 - 预计房间数量: 10-50 个
 - 预计每日消息量: 1,000-5,000 条
 
 **增长计算:**
+
 ```
 单条消息:     500 bytes
 每日消息:     1,000-5,000 条
@@ -186,6 +200,7 @@ clawmail_db   8409 kB
 ```
 
 **离线消息队列:**
+
 ```
 每用户最大:   100 条
 队列 TTL:     7 天
@@ -195,16 +210,17 @@ clawmail_db   8409 kB
 
 #### v1.4.0 总数据库增长
 
-| 项目 | 月增长 | 1年增长 | 说明 |
-|------|-------|--------|------|
-| **消息持久化** | 15-75MB | 180-900MB | 房间聊天记录 |
-| **离线消息队列** | 0-5MB | 10-20MB | 自动过期清理 |
-| **用户/项目数据** | 2-10MB | 24-120MB | 增量业务数据 |
-| **系统元数据** | 1-5MB | 12-60MB | 索引、约束等 |
-| **总计月增长** | **18-95MB** | - | - |
-| **1年后总大小** | - | **73-1105MB** | 当前 55MB + 增长 |
+| 项目              | 月增长      | 1年增长       | 说明             |
+| ----------------- | ----------- | ------------- | ---------------- |
+| **消息持久化**    | 15-75MB     | 180-900MB     | 房间聊天记录     |
+| **离线消息队列**  | 0-5MB       | 10-20MB       | 自动过期清理     |
+| **用户/项目数据** | 2-10MB      | 24-120MB      | 增量业务数据     |
+| **系统元数据**    | 1-5MB       | 12-60MB       | 索引、约束等     |
+| **总计月增长**    | **18-95MB** | -             | -                |
+| **1年后总大小**   | -           | **73-1105MB** | 当前 55MB + 增长 |
 
 **分析:**
+
 - PostgreSQL 从 55MB 增长至 **73MB-1.1GB** (1年后)
 - 增长速率: **32-2000%** (取决于活跃度)
 - **建议**: 实施定期数据归档策略
@@ -218,18 +234,18 @@ clawmail_db   8409 kB
 
 ```sql
 -- WebSocket 消息索引
-CREATE INDEX idx_websocket_messages_room_id_time 
+CREATE INDEX idx_websocket_messages_room_id_time
 ON websocket_messages(room_id, created_at DESC);
 
-CREATE INDEX idx_websocket_messages_room_user_time 
+CREATE INDEX idx_websocket_messages_room_user_time
 ON websocket_messages(room_id, user_id, created_at DESC);
 
 -- 离线消息队列索引
-CREATE INDEX idx_offline_queue_user_time 
+CREATE INDEX idx_offline_queue_user_time
 ON offline_message_queue(user_id, created_at DESC, expires_at);
 
 -- 房间参与者索引
-CREATE INDEX idx_room_participants_room_user 
+CREATE INDEX idx_room_participants_room_user
 ON room_participants(room_id, user_id);
 ```
 
@@ -238,6 +254,7 @@ ON room_participants(room_id, user_id);
 #### 连接数优化
 
 **当前配置:**
+
 ```ini
 max_connections = 100           # PostgreSQL 默认
 shared_buffers = 128MB         # 内存的 1/64 (8GB * 1/64)
@@ -246,6 +263,7 @@ work_mem = 4MB                 # 每个操作内存
 ```
 
 **v1.4.0 优化建议:**
+
 ```ini
 max_connections = 100          # 保持不变
 shared_buffers = 256MB         # 内存的 1/32 (8GB * 1/32)
@@ -255,6 +273,7 @@ maintenance_work_mem = 128MB  # VACUUM/索引构建
 ```
 
 **分析:**
+
 - 当前连接数 7/100，使用率 7%
 - v1.4.0 预计连接数 20-40，使用率 20-40%
 - **无需调整连接数，但可以优化内存配置**
@@ -266,6 +285,7 @@ maintenance_work_mem = 128MB  # VACUUM/索引构建
 ### 3.1 当前带宽使用
 
 **网络流量统计 (ifconfig):**
+
 ```
 eth0 RX: 8.76 GB  (近 5 天)
 eth0 TX: 3.73 GB  (近 5 天)
@@ -273,6 +293,7 @@ eth0 TX: 3.73 GB  (近 5 天)
 ```
 
 **分析:**
+
 - 当前日均流量: ~2.5 GB
 - 月均流量: ~75 GB
 - 主要来源: 其他项目 (today, marriage, sign, wechat 等)
@@ -283,6 +304,7 @@ eth0 TX: 3.73 GB  (近 5 天)
 #### WebSocket 流量模型
 
 **心跳包:**
+
 ```
 间隔:        25 秒
 包大小:      ~100 bytes (ping/pong)
@@ -292,6 +314,7 @@ eth0 TX: 3.73 GB  (近 5 天)
 ```
 
 **消息传输:**
+
 ```
 平均消息大小: 500 bytes
 消息频率:     10 条/分钟/连接 (中度活跃)
@@ -309,6 +332,7 @@ eth0 TX: 3.73 GB  (近 5 天)
 #### 静态资源流量
 
 **估算:**
+
 ```
 首页加载:    2-5 MB (JS/CSS/图片)
 日均访问:    100-500 次 (预估)
@@ -319,6 +343,7 @@ eth0 TX: 3.73 GB  (近 5 天)
 ### 3.3 CDN 成本预测
 
 **当前 CDN 费用估算:**
+
 - 假设使用 Cloudflare 或类似服务
 - 前 100GB/月 免费
 - 超出部分 $0.15/GB (预估)
@@ -332,6 +357,7 @@ eth0 TX: 3.73 GB  (近 5 天)
 | **重度使用** | 500 | 7.5 GB | 225 GB | ~$19/月 |
 
 **分析:**
+
 - v1.4.0 预计增加流量: **0-19$/月** (取决于并发数)
 - 100-200 并发: **免费或 $5/月**
 - 500+ 并发: **$19/月**
@@ -342,19 +368,21 @@ eth0 TX: 3.73 GB  (近 5 天)
 #### WebSocket 优化
 
 1. **启用消息压缩**
+
 ```typescript
 // Socket.IO 客户端配置
 const socket = io({
   transports: ['websocket'],
   upgrade: false,
   forceNew: false,
-  compression: true,  // 启用 permessage-deflate 压缩
-});
+  compression: true, // 启用 permessage-deflate 压缩
+})
 ```
 
 **预估节省:** 40-60% 带宽
 
 2. **优化心跳频率**
+
 ```typescript
 // 降低心跳频率 (25秒 → 30秒)
 heartbeatInterval: 30000,  // 原值 25000
@@ -363,10 +391,11 @@ heartbeatInterval: 30000,  // 原值 25000
 **预估节省:** 17% 心跳流量
 
 3. **消息批处理**
+
 ```typescript
 // 批量发送消息代替单条发送
 function batchSend(messages: Message[]) {
-  socket.emit('batch_messages', messages);
+  socket.emit('batch_messages', messages)
 }
 ```
 
@@ -375,6 +404,7 @@ function batchSend(messages: Message[]) {
 #### 静态资源优化
 
 1. **启用 Brotli 压缩** (优于 Gzip)
+
 ```nginx
 # Nginx 配置
 brotli on;
@@ -383,6 +413,7 @@ brotli_types text/plain text/css application/json application/javascript;
 ```
 
 2. **图片优化**
+
 ```typescript
 // Next.js 图片配置
 images: {
@@ -401,6 +432,7 @@ images: {
 ### 4.1 静态资源优化空间
 
 **当前静态资源大小:**
+
 ```
 .next/static:    2.2 MB (JS/CSS)
 .next/server:    15 MB  (SSR bundle)
@@ -418,6 +450,7 @@ public/:         ~5 MB  (图片、字体)
 | **总计优化后** | 22 MB | **13 MB** | **9 MB (41%)** | - |
 
 **分析:**
+
 - 优化后静态资源从 22MB 减少至 **13MB** (节省 41%)
 - 首屏加载更快，CDN 流量减少
 - **建议**: 优先实施图片优化和代码分割
@@ -442,20 +475,22 @@ location /_next/static/ {
 ```
 
 **预估收益:**
+
 - CDN 命中率: **80-90%**
 - 回源流量减少: **70-80%**
 - 延迟降低: **50-70ms**
 
 #### CDN 提供商对比
 
-| 提供商 | 免费额度 | 超出费用 | 特点 | 推荐度 |
-|--------|---------|---------|------|--------|
-| **Cloudflare** | 无限免费 | 免费 | 全球 CDN + DDoS 防护 | ⭐⭐⭐⭐⭐ |
-| **Vercel** | 100GB/月 | $40/100GB | Next.js 原生集成 | ⭐⭐⭐⭐ |
-| **Fastly** | 50GB/月 | $0.12/GB | 高性能企业级 | ⭐⭐⭐ |
-| **CloudFront** | 1TB/月 | $0.085/GB | AWS 生态 | ⭐⭐⭐⭐ |
+| 提供商         | 免费额度 | 超出费用  | 特点                 | 推荐度     |
+| -------------- | -------- | --------- | -------------------- | ---------- |
+| **Cloudflare** | 无限免费 | 免费      | 全球 CDN + DDoS 防护 | ⭐⭐⭐⭐⭐ |
+| **Vercel**     | 100GB/月 | $40/100GB | Next.js 原生集成     | ⭐⭐⭐⭐   |
+| **Fastly**     | 50GB/月  | $0.12/GB  | 高性能企业级         | ⭐⭐⭐     |
+| **CloudFront** | 1TB/月   | $0.085/GB | AWS 生态             | ⭐⭐⭐⭐   |
 
 **建议:**
+
 - **使用 Cloudflare 免费版** (无限流量 + 全球加速)
 - 或使用 **Vercel** (Next.js 原生支持，免费 100GB)
 
@@ -466,6 +501,7 @@ location /_next/static/ {
 ### 5.1 Sentry 错误追踪
 
 **免费套餐:**
+
 ```
 错误事件:     5,000 事件/月
 性能追踪:     免费包含
@@ -483,6 +519,7 @@ location /_next/static/ {
 | **总计** | **2,500-5,500** | 100% |
 
 **分析:**
+
 - v1.4.0 预计产生 2,500-5,500 事件/月
 - **在免费额度范围内** (5,000 事件/月)
 - 如果超出，升级至 Developer 套餐 ($26/月)
@@ -490,6 +527,7 @@ location /_next/static/ {
 ### 5.2 性能监控成本
 
 **Web Vitals 收集:**
+
 ```
 指标:         LCP, FID, CLS, INP, FCP, TTFB
 频率:         每个页面访问
@@ -500,6 +538,7 @@ location /_next/static/ {
 ```
 
 **Sentry 性能监控:**
+
 - **免费包含** 在错误追踪套餐内
 - 无额外费用
 - 数据保留 30 天
@@ -508,14 +547,15 @@ location /_next/static/ {
 
 #### 开源替代方案
 
-| 方案 | 成本 | 优点 | 缺点 |
-|------|------|------|------|
-| **Sentry** (自托管) | 服务器成本 | 完全控制 | 维护成本高 |
-| **GlitchTip** | 服务器成本 | Sentry 兼容 | 社区支持 |
-| **LogRocket** | $99/月 | 回放录制 | 成本高 |
-| **Sentry Cloud** | $0-26/月 | 零维护 | 数据在云端 |
+| 方案                | 成本       | 优点        | 缺点       |
+| ------------------- | ---------- | ----------- | ---------- |
+| **Sentry** (自托管) | 服务器成本 | 完全控制    | 维护成本高 |
+| **GlitchTip**       | 服务器成本 | Sentry 兼容 | 社区支持   |
+| **LogRocket**       | $99/月     | 回放录制    | 成本高     |
+| **Sentry Cloud**    | $0-26/月   | 零维护      | 数据在云端 |
 
 **建议:**
+
 - **继续使用 Sentry Cloud 免费版**
 - 监控事件量，接近上限时考虑升级或自托管
 
@@ -535,13 +575,14 @@ location /_next/static/ {
 // src/lib/websocket-manager.ts
 const socket = io(url, {
   transports: ['websocket'],
-  compression: true,  // ✅ 启用 permessage-deflate
+  compression: true, // ✅ 启用 permessage-deflate
   pingTimeout: 60000,
-  pingInterval: 30000,  // ✅ 优化心跳频率
-});
+  pingInterval: 30000, // ✅ 优化心跳频率
+})
 ```
 
 **预估收益:**
+
 - 带宽节省: 40-60%
 - CDN 费用节省: **$3-5/月**
 - 延迟降低: 10-20ms
@@ -582,6 +623,7 @@ server {
 ```
 
 **预估收益:**
+
 - CDN 命中率: 85-95%
 - 回源流量减少: 70-80%
 - 延迟降低: 50-100ms
@@ -611,7 +653,7 @@ BEGIN
   )
   INSERT INTO websocket_messages_archive
   SELECT * FROM archived;
-  
+
   GET DIAGNOSTICS archived_count = ROW_COUNT;
   RAISE NOTICE 'Archived % messages', archived_count;
 END;
@@ -622,6 +664,7 @@ $$ LANGUAGE plpgsql;
 ```
 
 **预估收益:**
+
 - 数据库增长速率: 从 35-75MB/月 → **5-15MB/月**
 - 1 年后数据库大小: 73-1105MB → **115-235MB**
 - 查询性能提升: 20-30%
@@ -636,14 +679,14 @@ $$ LANGUAGE plpgsql;
 
 ```typescript
 // src/lib/cache/redis.ts
-import Redis from 'ioredis';
+import Redis from 'ioredis'
 
 const redis = new Redis({
   host: 'localhost',
   port: 6379,
   maxRetriesPerRequest: 3,
-  retryStrategy: (times) => Math.min(times * 50, 2000),
-});
+  retryStrategy: times => Math.min(times * 50, 2000),
+})
 
 export async function getCached<T>(
   key: string,
@@ -651,18 +694,18 @@ export async function getCached<T>(
   ttl: number = 300
 ): Promise<T> {
   // 尝试从缓存获取
-  const cached = await redis.get(key);
+  const cached = await redis.get(key)
   if (cached) {
-    return JSON.parse(cached);
+    return JSON.parse(cached)
   }
-  
+
   // 缓存未命中，从数据库获取
-  const value = await fetcher();
-  
+  const value = await fetcher()
+
   // 写入缓存
-  await redis.setex(key, ttl, JSON.stringify(value));
-  
-  return value;
+  await redis.setex(key, ttl, JSON.stringify(value))
+
+  return value
 }
 
 // 使用示例
@@ -670,12 +713,13 @@ export async function getRoomMessages(roomId: string) {
   return getCached(
     `room:messages:${roomId}`,
     () => db.query('SELECT * FROM websocket_messages WHERE room_id = $1', [roomId]),
-    60  // 缓存 60 秒
-  );
+    60 // 缓存 60 秒
+  )
 }
 ```
 
 **预估收益:**
+
 - 数据库查询减少: 40-60%
 - 响应时间降低: 50-70%
 - Redis 内存使用: 额外 50-150MB
@@ -697,11 +741,11 @@ sudo apt-get install brotli
 
 http {
   # ... 其他配置 ...
-  
+
   brotli on;
   brotli_comp_level 6;
   brotli_types text/plain text/css application/json application/javascript text/xml application/xml application/xml+rss text/javascript image/svg+xml;
-  
+
   gzip on;
   gzip_comp_level 6;
   gzip_types text/plain text/css application/json application/javascript text/xml application/xml application/xml+rss text/javascript;
@@ -709,6 +753,7 @@ http {
 ```
 
 **预估收益:**
+
 - 静态资源大小减少: 15-25%
 - CDN 流量减少: 15-20%
 - 首屏加载时间: 减少 20-30%
@@ -720,6 +765,7 @@ http {
 ### 7.1 当前状态评估
 
 **资源使用预测 (v1.4.0):**
+
 ```
 CPU:     25-35%   (100-500 并发)  ✅ 充足
 内存:    7.8-12.6% (620-1005MB)   ✅ 充足
@@ -730,16 +776,19 @@ CPU:     25-35%   (100-500 并发)  ✅ 充足
 ### 7.2 扩容触发条件
 
 #### 立即扩容 🔴
+
 - 磁盘使用率 > 90%
 - 内存使用率 > 80%
 - CPU 使用率 > 80%
 
 #### 短期扩容 (1-3 个月) 🟡
+
 - WebSocket 并发 > 1000
 - 月带宽 > 500GB
 - 数据库 > 5GB
 
 #### 中期扩容 (3-6 个月) 🟢
+
 - 日均访问 > 10,000 次
 - 活跃用户 > 5,000 人
 - 实时协作房间 > 100 个
@@ -749,6 +798,7 @@ CPU:     25-35%   (100-500 并发)  ✅ 充足
 #### 方案 A: 单机升级 (低成本)
 
 **配置升级:**
+
 ```
 内存:    8GB → 16GB  (+$10-20/月)
 磁盘:    88GB → 160GB (+$5-10/月)
@@ -756,11 +806,13 @@ CPU:     保持 8 核
 ```
 
 **适用场景:**
+
 - WebSocket 并发 < 2000
 - 预算有限
 - 希望保持简单架构
 
 **成本:**
+
 - 月度成本增加: **$15-30/月**
 - 适合 6-12 个月增长
 
@@ -769,6 +821,7 @@ CPU:     保持 8 核
 #### 方案 B: 负载均衡 + 多服务器 (中等成本)
 
 **架构:**
+
 ```
                     ┌─────────┐
                     │  Nginx  │ (负载均衡)
@@ -789,6 +842,7 @@ CPU:     保持 8 核
 ```
 
 **配置:**
+
 ```
 应用服务器 (2-3 台):
   - 8GB 内存, 8 核 CPU
@@ -802,11 +856,13 @@ CPU:     保持 8 核
 ```
 
 **适用场景:**
+
 - WebSocket 并发 > 2000
 - 日均访问 > 50,000 次
 - 需要高可用性
 
 **成本:**
+
 - 月度成本增加: **$60-120/月**
 - 可支持 12-24 个月增长
 
@@ -815,6 +871,7 @@ CPU:     保持 8 核
 #### 方案 C: 云原生架构 (高成本)
 
 **架构:**
+
 ```
                ┌──────────┐
                │  CDN     │ (Cloudflare/Vercel)
@@ -847,6 +904,7 @@ CPU:     保持 8 核
 ```
 
 **配置:**
+
 ```
 基础设施:
   - Kubernetes (EKS / GKE / AKS)
@@ -860,12 +918,14 @@ CPU:     保持 8 核
 ```
 
 **适用场景:**
+
 - WebSocket 并发 > 10,000
 - 日均访问 > 500,000 次
 - 需要全球部署
 - 预算充足
 
 **成本:**
+
 - 月度成本增加: **$300-1000/月**
 - 可支持 2-5 年增长
 
@@ -875,18 +935,21 @@ CPU:     保持 8 核
 
 **短期 (0-6 个月):**
 ✅ **不扩容** - 当前配置充足
+
 - 继续使用 8GB/8核/88GB 配置
 - 重点优化代码和资源
 - 监控关键指标
 
 **中期 (6-12 个月):**
 🟡 **方案 A (单机升级)**
+
 - 升级至 16GB 内存
 - 磁盘扩容至 160GB
 - 预算增加: $15-30/月
 
 **长期 (12 个月以上):**
 🔴 **方案 B (负载均衡)**
+
 - 2 台应用服务器
 - 1 台数据库服务器
 - 预算增加: $60-120/月
@@ -899,30 +962,30 @@ CPU:     保持 8 核
 
 #### 系统资源
 
-| 指标 | 当前值 | 警告阈值 | 危险阈值 | 监控频率 |
-|------|--------|---------|---------|---------|
-| **CPU 使用率** | 12% | > 60% | > 80% | 每分钟 |
-| **内存使用率** | 32% | > 70% | > 85% | 每分钟 |
-| **磁盘使用率** | 82% | > 85% | > 90% | 每5分钟 |
-| **磁盘 I/O** | 低 | > 80% | > 95% | 每分钟 |
-| **网络带宽** | ~2.5 GB/天 | > 10 GB/天 | > 20 GB/天 | 每分钟 |
+| 指标           | 当前值     | 警告阈值   | 危险阈值   | 监控频率 |
+| -------------- | ---------- | ---------- | ---------- | -------- |
+| **CPU 使用率** | 12%        | > 60%      | > 80%      | 每分钟   |
+| **内存使用率** | 32%        | > 70%      | > 85%      | 每分钟   |
+| **磁盘使用率** | 82%        | > 85%      | > 90%      | 每5分钟  |
+| **磁盘 I/O**   | 低         | > 80%      | > 95%      | 每分钟   |
+| **网络带宽**   | ~2.5 GB/天 | > 10 GB/天 | > 20 GB/天 | 每分钟   |
 
 #### 应用指标
 
-| 指标 | 当前值 | 警告阈值 | 危险阈值 | 说明 |
-|------|--------|---------|---------|------|
-| **WebSocket 连接数** | 0 | > 500 | > 1000 | 活跃长连接 |
-| **HTTP 请求/分钟** | 0 | > 1000 | > 5000 | QPS |
-| **API 响应时间 (P95)** | N/A | > 500ms | > 1000ms | 95分位延迟 |
-| **错误率** | N/A | > 1% | > 5% | HTTP 5xx 比例 |
-| **数据库连接数** | 7 | > 50 | > 80 | 活跃连接 |
+| 指标                   | 当前值 | 警告阈值 | 危险阈值 | 说明          |
+| ---------------------- | ------ | -------- | -------- | ------------- |
+| **WebSocket 连接数**   | 0      | > 500    | > 1000   | 活跃长连接    |
+| **HTTP 请求/分钟**     | 0      | > 1000   | > 5000   | QPS           |
+| **API 响应时间 (P95)** | N/A    | > 500ms  | > 1000ms | 95分位延迟    |
+| **错误率**             | N/A    | > 1%     | > 5%     | HTTP 5xx 比例 |
+| **数据库连接数**       | 7      | > 50     | > 80     | 活跃连接      |
 
 #### 业务指标
 
-| 指标 | 目标值 | 说明 |
-|------|--------|------|
-| **在线用户数** | 100-500 | 实时协作用户 |
-| **房间数量** | 10-50 | 活跃协作房间 |
+| 指标           | 目标值          | 说明           |
+| -------------- | --------------- | -------------- |
+| **在线用户数** | 100-500         | 实时协作用户   |
+| **房间数量**   | 10-50           | 活跃协作房间   |
 | **消息吞吐量** | 1000-5000 条/天 | WebSocket 消息 |
 
 ### 8.2 警报配置
@@ -941,8 +1004,8 @@ groups:
         labels:
           severity: warning
         annotations:
-          summary: "CPU 使用率过高"
-          description: "CPU 使用率 {{ $value }}% 超过 60%"
+          summary: 'CPU 使用率过高'
+          description: 'CPU 使用率 {{ $value }}% 超过 60%'
 
       # 内存警报
       - alert: HighMemoryUsage
@@ -951,8 +1014,8 @@ groups:
         labels:
           severity: warning
         annotations:
-          summary: "内存使用率过高"
-          description: "内存使用率 {{ $value }}% 超过 70%"
+          summary: '内存使用率过高'
+          description: '内存使用率 {{ $value }}% 超过 70%'
 
       # 磁盘警报
       - alert: DiskSpaceWarning
@@ -961,8 +1024,8 @@ groups:
         labels:
           severity: warning
         annotations:
-          summary: "磁盘空间不足"
-          description: "磁盘使用率 {{ $value }}% 超过 85%"
+          summary: '磁盘空间不足'
+          description: '磁盘使用率 {{ $value }}% 超过 85%'
 
       # 磁盘危险警报
       - alert: DiskSpaceCritical
@@ -971,8 +1034,8 @@ groups:
         labels:
           severity: critical
         annotations:
-          summary: "磁盘空间严重不足"
-          description: "磁盘使用率 {{ $value }}% 超过 90%，请立即处理"
+          summary: '磁盘空间严重不足'
+          description: '磁盘使用率 {{ $value }}% 超过 90%，请立即处理'
 ```
 
 ### 8.3 监控仪表盘建议
@@ -980,6 +1043,7 @@ groups:
 #### Grafana 仪表盘面板
 
 **系统概览面板:**
+
 1. CPU 使用率 (实时 + 历史)
 2. 内存使用率 (实时 + 历史)
 3. 磁盘 I/O 和使用率
@@ -987,6 +1051,7 @@ groups:
 5. 系统负载 (1/5/15 分钟)
 
 **应用面板:**
+
 1. HTTP 请求数 (QPS)
 2. 响应时间分布 (P50/P95/P99)
 3. 错误率趋势
@@ -994,6 +1059,7 @@ groups:
 5. 活跃房间数
 
 **数据库面板:**
+
 1. 活跃连接数
 2. 查询响应时间
 3. 慢查询统计
@@ -1065,28 +1131,29 @@ groups:
 
 ### 成本总结
 
-| 项目 | 月度成本 | 备注 |
-|------|---------|------|
-| **服务器** | 已有 | 无新增费用 |
-| **CDN 带宽** | $28/月 | 含 v1.4.0 WebSocket 流量 |
-| **Sentry** | $0/月 | 免费版 |
-| **Redis** | $0/月 | 已安装 |
-| **PostgreSQL** | $0/月 | 已安装 |
-| **总计** | **~$28/月** | 较当前增加 $8 |
+| 项目           | 月度成本    | 备注                     |
+| -------------- | ----------- | ------------------------ |
+| **服务器**     | 已有        | 无新增费用               |
+| **CDN 带宽**   | $28/月      | 含 v1.4.0 WebSocket 流量 |
+| **Sentry**     | $0/月       | 免费版                   |
+| **Redis**      | $0/月       | 已安装                   |
+| **PostgreSQL** | $0/月       | 已安装                   |
+| **总计**       | **~$28/月** | 较当前增加 $8            |
 
 ### 优化收益预估
 
-| 优化项 | 月度节省 | 实施成本 |
-|--------|---------|---------|
-| WebSocket 压缩 | $3-5/月 | 30分钟 |
-| 静态资源缓存 | $2-4/月 | 1小时 |
-| 数据库归档 | $1-2/月 | 3小时 |
-| Brotli 压缩 | $1-2/月 | 2小时 |
-| **总计节省** | **$7-13/月** | **~7小时** |
+| 优化项         | 月度节省     | 实施成本   |
+| -------------- | ------------ | ---------- |
+| WebSocket 压缩 | $3-5/月      | 30分钟     |
+| 静态资源缓存   | $2-4/月      | 1小时      |
+| 数据库归档     | $1-2/月      | 3小时      |
+| Brotli 压缩    | $1-2/月      | 2小时      |
+| **总计节省**   | **$7-13/月** | **~7小时** |
 
 ### 最终建议
 
 **无需扩容** - v1.4.0 可以在当前配置下稳定运行。重点应放在：
+
 1. 优化代码性能
 2. 实施监控和警报
 3. 建立运维流程
@@ -1099,5 +1166,5 @@ groups:
 
 ---
 
-*本报告由 💰 财务 (AI Subagent) 自动生成*
-*分析维度: 服务器资源 · 数据库 · 带宽 · CDN · 监控*
+_本报告由 💰 财务 (AI Subagent) 自动生成_
+_分析维度: 服务器资源 · 数据库 · 带宽 · CDN · 监控_

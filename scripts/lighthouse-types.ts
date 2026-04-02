@@ -7,7 +7,7 @@
 /**
  * Lighthouse audit score (0-1 scale)
  */
-export type LighthouseScore = number;
+export type LighthouseScore = number
 
 /**
  * Lighthouse audit details (varies by audit type)
@@ -18,112 +18,112 @@ export type LighthouseAuditDetails =
   | DebugData
   | OpportunitiesDetails
   | DiagnosticsDetails
-  | null;
+  | null
 
 /**
  * Table details (for most audits)
  */
 export interface TableDetails {
-  type: 'table';
-  headings: Array<{ key: string; valueType: string; label: string }>;
-  items: Array<Record<string, unknown>>;
+  type: 'table'
+  headings: Array<{ key: string; valueType: string; label: string }>
+  items: Array<Record<string, unknown>>
 }
 
 /**
  * Debug data details
  */
 export interface DebugData {
-  type: 'debugdata';
-  items: Array<Record<string, unknown>>;
+  type: 'debugdata'
+  items: Array<Record<string, unknown>>
 }
 
 /**
  * Opportunities details
  */
 export interface OpportunitiesDetails {
-  type: 'opportunity';
-  headings: Array<{ key: string; valueType: string; label: string }>;
-  items: Array<Record<string, unknown>>;
-  overallSavingsMs: number;
+  type: 'opportunity'
+  headings: Array<{ key: string; valueType: string; label: string }>
+  items: Array<Record<string, unknown>>
+  overallSavingsMs: number
 }
 
 /**
  * Diagnostics details
  */
 export interface DiagnosticsDetails {
-  type: 'diagnostic';
-  headings: Array<{ key: string; valueType: string; label: string }>;
-  items: Array<Record<string, unknown>>;
+  type: 'diagnostic'
+  headings: Array<{ key: string; valueType: string; label: string }>
+  items: Array<Record<string, unknown>>
 }
 
 /**
  * Lighthouse audit entry
  */
 export interface LighthouseAudit {
-  id: string;
-  title: string;
-  description: string;
-  score: LighthouseScore | null;
-  displayValue?: string;
-  numericValue?: number;
-  details?: LighthouseAuditDetails;
+  id: string
+  title: string
+  description: string
+  score: LighthouseScore | null
+  displayValue?: string
+  numericValue?: number
+  details?: LighthouseAuditDetails
 }
 
 /**
  * Lighthouse category
  */
 export interface LighthouseCategory {
-  id: string;
-  title: string;
-  score: LighthouseScore;
-  description?: string;
+  id: string
+  title: string
+  score: LighthouseScore
+  description?: string
 }
 
 /**
  * Lighthouse report categories
  */
 export interface LighthouseCategories {
-  performance: LighthouseCategory;
-  accessibility: LighthouseCategory;
-  'best-practices': LighthouseCategory;
-  seo: LighthouseCategory;
+  performance: LighthouseCategory
+  accessibility: LighthouseCategory
+  'best-practices': LighthouseCategory
+  seo: LighthouseCategory
 }
 
 /**
  * Lighthouse audit collection
  */
-export type LighthouseAudits = Record<string, LighthouseAudit>;
+export type LighthouseAudits = Record<string, LighthouseAudit>
 
 /**
  * Lighthouse full report
  */
 export interface LighthouseReport {
-  categories: LighthouseCategories;
-  audits: LighthouseAudits;
-  categories?: Record<string, any>;
-  audits?: Record<string, any>;
+  categories: LighthouseCategories
+  audits: LighthouseAudits
+  categories?: Record<string, any>
+  audits?: Record<string, any>
 }
 
 /**
  * Extracted metrics
  */
 export interface ExtractedMetrics {
-  'First Contentful Paint': string;
-  'Speed Index': string;
-  'Largest Contentful Paint': string;
-  'Time to Interactive': string;
-  'Total Blocking Time': string;
-  'Cumulative Layout Shift': string;
+  'First Contentful Paint': string
+  'Speed Index': string
+  'Largest Contentful Paint': string
+  'Time to Interactive': string
+  'Total Blocking Time': string
+  'Cumulative Layout Shift': string
 }
 
 /**
  * Extracted issue
  */
 export interface ExtractedIssue {
-  title: string;
-  description: string;
-  score: LighthouseScore;
-  displayValue?: string;
+  title: string
+  description: string
+  score: LighthouseScore
+  displayValue?: string
 }
 
 /**
@@ -131,32 +131,32 @@ export interface ExtractedIssue {
  */
 export interface ParsedLighthouseResults {
   scores: {
-    performance: number;
-    accessibility: number;
-    bestPractices: number;
-    seo: number;
-  };
-  metrics: ExtractedMetrics;
-  issues: ExtractedIssue[];
+    performance: number
+    accessibility: number
+    bestPractices: number
+    seo: number
+  }
+  metrics: ExtractedMetrics
+  issues: ExtractedIssue[]
 }
 
 /**
  * Performance status
  */
-export type PerformanceStatus = 'excellent' | 'good' | 'needs-improvement' | 'poor';
+export type PerformanceStatus = 'excellent' | 'good' | 'needs-improvement' | 'poor'
 
 /**
  * Generated performance report
  */
 export interface PerformanceReport {
-  timestamp: string;
+  timestamp: string
   scores: {
-    performance: number;
-    accessibility: number;
-    bestPractices: number;
-    seo: number;
-  };
-  metrics: ExtractedMetrics;
-  issues: ExtractedIssue[];
-  status: PerformanceStatus;
+    performance: number
+    accessibility: number
+    bestPractices: number
+    seo: number
+  }
+  metrics: ExtractedMetrics
+  issues: ExtractedIssue[]
+  status: PerformanceStatus
 }

@@ -1,6 +1,7 @@
 # 7zi-frontend 响应式设计优化报告
 
 ## 执行日期
+
 2026-03-06
 
 ## 1. 审查发现
@@ -67,7 +68,9 @@
 
 ```css
 @media (hover: none) and (pointer: coarse) {
-  button, [role="button"], a {
+  button,
+  [role='button'],
+  a {
     min-height: 44px;
     min-width: 44px;
     padding: 12px 16px;
@@ -89,8 +92,12 @@
 
 ```css
 @media (max-width: 374px) {
-  html { font-size: 14px; }
-  h1 { font-size: 1.75rem; }
+  html {
+    font-size: 14px;
+  }
+  h1 {
+    font-size: 1.75rem;
+  }
 }
 ```
 
@@ -118,15 +125,15 @@
 
 ### 屏幕尺寸测试矩阵
 
-| 设备 | 尺寸 | 状态 |
-|------|------|------|
-| iPhone SE | 320px | ⚠️ 需要测试 |
-| iPhone 12 Mini | 375px | ✅ 优化完成 |
-| iPhone 12 | 390px | ✅ 优化完成 |
-| iPhone 14 Pro Max | 430px | ✅ 优化完成 |
-| iPad Mini | 768px | ✅ 已有适配 |
-| iPad | 1024px | ✅ 已有适配 |
-| Desktop | 1280px+ | ✅ 已有适配 |
+| 设备              | 尺寸    | 状态        |
+| ----------------- | ------- | ----------- |
+| iPhone SE         | 320px   | ⚠️ 需要测试 |
+| iPhone 12 Mini    | 375px   | ✅ 优化完成 |
+| iPhone 12         | 390px   | ✅ 优化完成 |
+| iPhone 14 Pro Max | 430px   | ✅ 优化完成 |
+| iPad Mini         | 768px   | ✅ 已有适配 |
+| iPad              | 1024px  | ✅ 已有适配 |
+| Desktop           | 1280px+ | ✅ 已有适配 |
 
 ### 横屏测试
 
@@ -152,12 +159,12 @@
 
 ### CSS 特性支持
 
-| 特性 | 支持度 |
-|------|--------|
-| CSS clamp() | 93%+ |
-| env() | 90%+ |
-| @supports | 98%+ |
-| prefers-reduced-motion | 95%+ |
+| 特性                   | 支持度 |
+| ---------------------- | ------ |
+| CSS clamp()            | 93%+   |
+| env()                  | 90%+   |
+| @supports              | 98%+   |
+| prefers-reduced-motion | 95%+   |
 
 ## 5. 性能优化
 

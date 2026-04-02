@@ -5,10 +5,11 @@
  * DELETE /api/a2a/queue - Clear the queue
  */
 
-import { getMessageQueue } from '@/lib/agents/a2a/message-queue';
-import { QueueMessage } from '@/lib/agents/a2a/types';
-import type { TaskPriority } from '@/lib/agents/a2a/types';
-import { logger } from '@/lib/logger';
+import { NextRequest, NextResponse } from 'next/server'
+import { getMessageQueue } from '@/lib/agents/a2a/message-queue'
+import { QueueMessage } from '@/lib/agents/a2a/types'
+import type { TaskPriority } from '@/lib/agents/a2a/types'
+import { logger } from '@/lib/logger'
 
 /**
  * GET /api/a2a/queue
@@ -16,11 +17,11 @@ import { logger } from '@/lib/logger';
  */
 export async function GET() {
   try {
-    const queue = getMessageQueue();
-    const stats = queue.getStats();
+    const queue = getMessageQueue()
+    const stats = queue.getStats()
 
     // Peek at next message
-    const nextMessage = queue.peek();
+    const nextMessage = queue.peek()
 
     return NextResponse.json({
       status: 'ok',
@@ -31,16 +32,16 @@ export async function GET() {
       },
       nextMessage,
       config: queue.getConfig(),
-    });
-  } catch (_error) {
-    console.error('Queue GET error:', error);
+    })
+  } catch (error) {
+    console.error('Queue GET error:', error)
     return NextResponse.json(
       {
         error: 'Failed to get queue status',
         message: error instanceof Error ? error.message : 'Unknown error',
       },
       { status: 500 }
-    );
+    )
   }
 }
 
@@ -50,7 +51,7 @@ export async function GET() {
  */
 export async function POST(request: NextRequest) {
   try {
-    const body = await request.json();
+    const body = await request.json()
 
     // Basic validation
     if (!body.taskId || !body.agentId) {
@@ -60,7 +61,7 @@ export async function POST(request: NextRequest) {
           message: 'Missing required fields: taskId, agentId',
         },
         { status: 400 }
-      );
+      )
     }
 
     const message: QueueMessage = {
@@ -73,10 +74,10 @@ export async function POST(request: NextRequest) {
       attempts: body.attempts || 0,
       maxAttempts: body.maxAttempts || 3,
       nextRetryAt: body.nextRetryAt,
-    };
+    }
 
-    const queue = getMessageQueue();
-    queue.enqueue(message);
+    const queue = getMessageQueue()
+    queue.enqueue(message)
 
     return NextResponse.json(
       {
@@ -85,16 +86,16 @@ export async function POST(request: NextRequest) {
         queuedMessage: message,
       },
       { status: 201 }
-    );
-  } catch (_error) {
-    console.error('Queue POST error:', error);
+    )
+  } catch (error) {
+    console.error('Queue POST error:', error)
     return NextResponse.json(
       {
         error: 'Failed to enqueue message',
         message: error instanceof Error ? error.message : 'Unknown error',
       },
       { status: 500 }
-    );
+    )
   }
 }
 
@@ -104,56 +105,56 @@ export async function POST(request: NextRequest) {
  */
 export async function DELETE(request: NextRequest) {
   try {
-    const { searchParams } = new URL(request.url);
-    const agentId = searchParams.get('agentId');
-    const priority = searchParams.get('priority');
+    const { searchParams } = new URL(request.url)
+    const agentId = searchParams.get('agentId')
+    const priority = searchParams.get('priority')
 
-    const queue = getMessageQueue();
+    const queue = getMessageQueue()
 
     if (agentId) {
       // Remove all messages for a specific agent
-      const messages = queue.getMessagesByAgent(agentId);
-      let removed = 0;
+      const messages = queue.getMessagesByAgent(agentId)
+      let removed = 0
       for (const message of messages) {
         if (queue.remove(message.id)) {
-          removed++;
+          removed++
         }
       }
       return NextResponse.json({
         message: `Removed ${removed} messages for agent ${agentId}`,
         removed,
         queueSize: queue.size(),
-      });
+      })
     } else if (priority) {
       // Remove all messages with a specific priority
-      const messages = queue.getMessagesByPriority(priority as TaskPriority);
-      let removed = 0;
+      const messages = queue.getMessagesByPriority(priority as TaskPriority)
+      let removed = 0
       for (const message of messages) {
         if (queue.remove(message.id)) {
-          removed++;
+          removed++
         }
       }
       return NextResponse.json({
         message: `Removed ${removed} messages with priority ${priority}`,
         removed,
         queueSize: queue.size(),
-      });
+      })
     } else {
       // Clear the entire queue
-      queue.clear();
+      queue.clear()
       return NextResponse.json({
         message: 'Queue cleared successfully',
         queueSize: queue.size(),
-      });
+      })
     }
-  } catch (_error) {
-    logger.error('Queue DELETE error', error);
+  } catch (error) {
+    logger.error('Queue DELETE error', error)
     return NextResponse.json(
       {
         error: 'Failed to clear queue',
         message: error instanceof Error ? error.message : 'Unknown error',
       },
       { status: 500 }
-    );
+    )
   }
 }

@@ -1,6 +1,6 @@
 /**
  * Math utilities
- * 
+ *
  * @module lib/utils/math
  */
 
@@ -16,7 +16,7 @@
  * clamp(15, 0, 10) // 10
  */
 export function clamp(value: number, min: number, max: number): number {
-  return Math.min(Math.max(value, min), max);
+  return Math.min(Math.max(value, min), max)
 }
 
 /**
@@ -38,7 +38,7 @@ export function mapRange(
   outMin: number,
   outMax: number
 ): number {
-  return ((value - inMin) * (outMax - outMin)) / (inMax - inMin) + outMin;
+  return ((value - inMin) * (outMax - outMin)) / (inMax - inMin) + outMin
 }
 
 /**
@@ -51,5 +51,5 @@ export function mapRange(
  * lerp(0, 100, 0.5) // 50
  */
 export function lerp(start: number, end: number, t: number): number {
-  return start + (end - start) * t;
+  return start + (end - start) * t
 }

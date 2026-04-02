@@ -15,14 +15,14 @@ v1.5.0 路线图要求实现"记忆持久化"功能，这是智能体系统的�
 
 ### 1.2 设计目标
 
-| 目标 | 描述 | 优先级 |
-|------|------|--------|
-| **跨会话记忆** | 智能体在多次会话间保持记忆 | P0 |
-| **记忆分类** | 区分短期记忆、长期记忆、情景记忆等 | P0 |
-| **语义检索** | 支持基于语义相似度的记忆检索 | P0 |
-| **多智能体共享** | 支持智能体间共享记忆 | P1 |
-| **隐私隔离** | 主会话和共享上下文的记忆隔离 | P0 |
-| **高效查询** | 快速的记忆增删改查和关联查询 | P1 |
+| 目标             | 描述                               | 优先级 |
+| ---------------- | ---------------------------------- | ------ |
+| **跨会话记忆**   | 智能体在多次会话间保持记忆         | P0     |
+| **记忆分类**     | 区分短期记忆、长期记忆、情景记忆等 | P0     |
+| **语义检索**     | 支持基于语义相似度的记忆检索       | P0     |
+| **多智能体共享** | 支持智能体间共享记忆               | P1     |
+| **隐私隔离**     | 主会话和共享上下文的记忆隔离       | P0     |
+| **高效查询**     | 快速的记忆增删改查和关联查询       | P1     |
 
 ### 1.3 记忆类型定义
 
@@ -106,11 +106,11 @@ v1.5.0 路线图要求实现"记忆持久化"功能，这是智能体系统的�
 
 ### 2.2 存储方案选择
 
-| 存储类型 | 技术选型 | 用途 | 理由 |
-|---------|---------|------|------|
-| **结构化存储** | SQLite | 元数据、索引、关系查询 | 轻量、无依赖、查询高效 |
-| **文档存储** | JSON | 完整记忆内容 | 人类可读、灵活、易迁移 |
-| **向量存储** | SQLite-vec / Chroma | 语义检索 | 轻量、无外部依赖 |
+| 存储类型       | 技术选型            | 用途                   | 理由                   |
+| -------------- | ------------------- | ---------------------- | ---------------------- |
+| **结构化存储** | SQLite              | 元数据、索引、关系查询 | 轻量、无依赖、查询高效 |
+| **文档存储**   | JSON                | 完整记忆内容           | 人类可读、灵活、易迁移 |
+| **向量存储**   | SQLite-vec / Chroma | 语义检索               | 轻量、无外部依赖       |
 
 ### 2.3 数据模型设计
 
@@ -119,59 +119,59 @@ v1.5.0 路线图要求实现"记忆持久化"功能，这是智能体系统的�
 ```typescript
 // 记忆基础结构
 interface Memory {
-  id: string;                    // UUID
-  type: MemoryType;              // 记忆类型
-  scope: MemoryScope;            // 可见范围
-  agentId?: string;              // 所属智能体 ID
-  sessionId?: string;            // 所属会话 ID
-  
+  id: string // UUID
+  type: MemoryType // 记忆类型
+  scope: MemoryScope // 可见范围
+  agentId?: string // 所属智能体 ID
+  sessionId?: string // 所属会话 ID
+
   // 内容
-  content: string;               // 记忆内容
-  embedding?: number[];          // 嵌入向量 (1536维)
-  metadata: MemoryMetadata;      // 元数据
-  
+  content: string // 记忆内容
+  embedding?: number[] // 嵌入向量 (1536维)
+  metadata: MemoryMetadata // 元数据
+
   // 时间信息
-  createdAt: Date;
-  updatedAt: Date;
-  expiresAt?: Date;              // 过期时间 (短期记忆)
-  lastAccessedAt: Date;
-  accessCount: number;           // 访问次数
-  
+  createdAt: Date
+  updatedAt: Date
+  expiresAt?: Date // 过期时间 (短期记忆)
+  lastAccessedAt: Date
+  accessCount: number // 访问次数
+
   // 关联
-  tags: string[];                // 标签
-  relatedMemoryIds: string[];    // 关联记忆
-  sourceMemoryId?: string;       // 来源记忆 (用于派生)
+  tags: string[] // 标签
+  relatedMemoryIds: string[] // 关联记忆
+  sourceMemoryId?: string // 来源记忆 (用于派生)
 }
 
 // 记忆类型枚举
 enum MemoryType {
-  SHORT_TERM = 'short_term',      // 短期记忆
-  WORKING = 'working',            // 工作记忆
-  EPISODIC = 'episodic',          // 情景记忆
-  SEMANTIC = 'semantic',          // 语义记忆
-  PROCEDURAL = 'procedural',      // 程序记忆
-  SHARED = 'shared'               // 共享记忆
+  SHORT_TERM = 'short_term', // 短期记忆
+  WORKING = 'working', // 工作记忆
+  EPISODIC = 'episodic', // 情景记忆
+  SEMANTIC = 'semantic', // 语义记忆
+  PROCEDURAL = 'procedural', // 程序记忆
+  SHARED = 'shared', // 共享记忆
 }
 
 // 记忆可见范围
 enum MemoryScope {
-  PRIVATE = 'private',            // 仅当前智能体
-  SESSION = 'session',            // 当前会话内
-  AGENT = 'agent',                // 智能体所有会话
-  TEAM = 'team',                  // 团队内共享
-  PUBLIC = 'public'               // 全局共享
+  PRIVATE = 'private', // 仅当前智能体
+  SESSION = 'session', // 当前会话内
+  AGENT = 'agent', // 智能体所有会话
+  TEAM = 'team', // 团队内共享
+  PUBLIC = 'public', // 全局共享
 }
 
 // 记忆元数据
 interface MemoryMetadata {
-  importance: number;             // 重要性 1-10
-  confidence: number;             // 置信度 0-1
-  source: string;                 // 来源 (user/system/agent)
-  category?: string;              // 分类
-  subCategory?: string;           // 子分类
-  entities?: Entity[];            // 提取的实体
-  sentiment?: string;             // 情感分析
-  language?: string;              // 语言
+  importance: number // 重要性 1-10
+  confidence: number // 置信度 0-1
+  source: string // 来源 (user/system/agent)
+  category?: string // 分类
+  subCategory?: string // 子分类
+  entities?: Entity[] // 提取的实体
+  sentiment?: string // 情感分析
+  language?: string // 语言
 }
 ```
 
@@ -185,24 +185,24 @@ CREATE TABLE memories (
   scope TEXT NOT NULL,
   agent_id TEXT,
   session_id TEXT,
-  
+
   content TEXT NOT NULL,
   embedding BLOB,  -- 向量数据序列化
-  
+
   -- 元数据 JSON
   importance INTEGER DEFAULT 5,
   confidence REAL DEFAULT 1.0,
   source TEXT DEFAULT 'system',
   category TEXT,
   metadata TEXT,  -- JSON 字符串
-  
+
   -- 时间字段
   created_at TEXT NOT NULL,
   updated_at TEXT NOT NULL,
   expires_at TEXT,
   last_accessed_at TEXT,
   access_count INTEGER DEFAULT 0,
-  
+
   -- 状态
   is_active INTEGER DEFAULT 1,
   is_pinned INTEGER DEFAULT 0
@@ -249,7 +249,7 @@ CREATE VIRTUAL TABLE memory_vectors USING vec0(
 
 -- 相似度搜索视图
 CREATE VIEW memory_similarity AS
-SELECT 
+SELECT
   m.id,
   m.content,
   m.type,
@@ -308,91 +308,91 @@ LIMIT ?;
 // 记忆管理器接口
 interface MemoryManager {
   // 创建记忆
-  create(input: CreateMemoryInput): Promise<Memory>;
-  
+  create(input: CreateMemoryInput): Promise<Memory>
+
   // 查询记忆
-  get(id: string): Promise<Memory | null>;
-  
+  get(id: string): Promise<Memory | null>
+
   // 更新记忆
-  update(id: string, input: UpdateMemoryInput): Promise<Memory>;
-  
+  update(id: string, input: UpdateMemoryInput): Promise<Memory>
+
   // 删除记忆
-  delete(id: string): Promise<void>;
-  
+  delete(id: string): Promise<void>
+
   // 搜索记忆
-  search(query: MemorySearchQuery): Promise<MemorySearchResult>;
-  
+  search(query: MemorySearchQuery): Promise<MemorySearchResult>
+
   // 语义搜索
-  semanticSearch(query: string, options?: SemanticSearchOptions): Promise<Memory[]>;
-  
+  semanticSearch(query: string, options?: SemanticSearchOptions): Promise<Memory[]>
+
   // 获取相关记忆
-  getRelated(id: string, limit?: number): Promise<Memory[]>;
-  
+  getRelated(id: string, limit?: number): Promise<Memory[]>
+
   // 记忆关联
-  relate(memoryId: string, relatedId: string, type?: string): Promise<void>;
-  
+  relate(memoryId: string, relatedId: string, type?: string): Promise<void>
+
   // 批量操作
-  batchCreate(inputs: CreateMemoryInput[]): Promise<Memory[]>;
-  batchDelete(ids: string[]): Promise<void>;
-  
+  batchCreate(inputs: CreateMemoryInput[]): Promise<Memory[]>
+  batchDelete(ids: string[]): Promise<void>
+
   // 记忆迁移
-  migrate(type: MemoryType, newType: MemoryType): Promise<void>;
-  
+  migrate(type: MemoryType, newType: MemoryType): Promise<void>
+
   // 记忆清理
-  cleanup(options?: CleanupOptions): Promise<CleanupResult>;
-  
+  cleanup(options?: CleanupOptions): Promise<CleanupResult>
+
   // 导出/导入
-  export(options?: ExportOptions): Promise<MemoryExport>;
-  import(data: MemoryExport): Promise<ImportResult>;
+  export(options?: ExportOptions): Promise<MemoryExport>
+  import(data: MemoryExport): Promise<ImportResult>
 }
 
 // 创建记忆输入
 interface CreateMemoryInput {
-  type: MemoryType;
-  scope?: MemoryScope;
-  content: string;
-  metadata?: Partial<MemoryMetadata>;
-  tags?: string[];
-  expiresAt?: Date;
-  generateEmbedding?: boolean;
+  type: MemoryType
+  scope?: MemoryScope
+  content: string
+  metadata?: Partial<MemoryMetadata>
+  tags?: string[]
+  expiresAt?: Date
+  generateEmbedding?: boolean
 }
 
 // 搜索查询
 interface MemorySearchQuery {
   // 过滤条件
-  type?: MemoryType | MemoryType[];
-  scope?: MemoryScope | MemoryScope[];
-  agentId?: string;
-  sessionId?: string;
-  tags?: string[];
-  
+  type?: MemoryType | MemoryType[]
+  scope?: MemoryScope | MemoryScope[]
+  agentId?: string
+  sessionId?: string
+  tags?: string[]
+
   // 时间范围
-  createdAfter?: Date;
-  createdBefore?: Date;
-  updatedAfter?: Date;
-  
+  createdAfter?: Date
+  createdBefore?: Date
+  updatedAfter?: Date
+
   // 内容搜索
-  contentContains?: string;
-  
+  contentContains?: string
+
   // 元数据过滤
-  minImportance?: number;
-  minConfidence?: number;
-  category?: string;
-  
+  minImportance?: number
+  minConfidence?: number
+  category?: string
+
   // 分页和排序
-  limit?: number;
-  offset?: number;
-  orderBy?: 'created_at' | 'updated_at' | 'importance' | 'access_count';
-  orderDirection?: 'asc' | 'desc';
+  limit?: number
+  offset?: number
+  orderBy?: 'created_at' | 'updated_at' | 'importance' | 'access_count'
+  orderDirection?: 'asc' | 'desc'
 }
 
 // 语义搜索选项
 interface SemanticSearchOptions {
-  types?: MemoryType[];
-  scopes?: MemoryScope[];
-  minSimilarity?: number;    // 最小相似度阈值 (0-1)
-  limit?: number;
-  includeContent?: boolean;
+  types?: MemoryType[]
+  scopes?: MemoryScope[]
+  minSimilarity?: number // 最小相似度阈值 (0-1)
+  limit?: number
+  includeContent?: boolean
 }
 ```
 
@@ -402,34 +402,34 @@ interface SemanticSearchOptions {
 // 记忆生命周期管理
 interface MemoryLifecycle {
   // 短期记忆 -> 长期记忆
-  promote(memoryId: string): Promise<Memory>;
-  
+  promote(memoryId: string): Promise<Memory>
+
   // 记忆衰减
-  decay(options: DecayOptions): Promise<DecayResult>;
-  
+  decay(options: DecayOptions): Promise<DecayResult>
+
   // 记忆压缩
-  compress(memories: Memory[]): Promise<Memory>;
-  
+  compress(memories: Memory[]): Promise<Memory>
+
   // 记忆整合 (合并相似记忆)
-  consolidate(threshold?: number): Promise<ConsolidationResult>;
-  
+  consolidate(threshold?: number): Promise<ConsolidationResult>
+
   // 记忆恢复 (从归档恢复)
-  restore(memoryId: string): Promise<Memory>;
+  restore(memoryId: string): Promise<Memory>
 }
 
 // 衰减选项
 interface DecayOptions {
   // 基于时间的衰减
-  timeBased?: boolean;
-  halfLife?: number;         // 半衰期 (天)
-  
+  timeBased?: boolean
+  halfLife?: number // 半衰期 (天)
+
   // 基于访问的衰减
-  accessBased?: boolean;
-  accessThreshold?: number;   // 访问次数阈值
-  
+  accessBased?: boolean
+  accessThreshold?: number // 访问次数阈值
+
   // 自动清理
-  autoCleanup?: boolean;
-  cleanupAge?: number;        // 清理阈值 (天)
+  autoCleanup?: boolean
+  cleanupAge?: number // 清理阈值 (天)
 }
 ```
 
@@ -439,35 +439,35 @@ interface DecayOptions {
 // 会话记忆管理
 interface SessionMemory {
   // 初始化会话记忆
-  initialize(sessionId: string, agentId?: string): Promise<void>;
-  
+  initialize(sessionId: string, agentId?: string): Promise<void>
+
   // 添加对话轮次
-  addTurn(turn: ConversationTurn): Promise<void>;
-  
+  addTurn(turn: ConversationTurn): Promise<void>
+
   // 获取会话上下文
-  getContext(maxTokens?: number): Promise<SessionContext>;
-  
+  getContext(maxTokens?: number): Promise<SessionContext>
+
   // 保存会话摘要
-  saveSummary(summary: string): Promise<void>;
-  
+  saveSummary(summary: string): Promise<void>
+
   // 结束会话 (归档记忆)
-  endSession(): Promise<SessionSummary>;
+  endSession(): Promise<SessionSummary>
 }
 
 // 对话轮次
 interface ConversationTurn {
-  role: 'user' | 'assistant' | 'system';
-  content: string;
-  timestamp: Date;
-  metadata?: TurnMetadata;
+  role: 'user' | 'assistant' | 'system'
+  content: string
+  timestamp: Date
+  metadata?: TurnMetadata
 }
 
 // 会话上下文
 interface SessionContext {
-  turns: ConversationTurn[];
-  workingMemory: Memory[];
-  relevantMemories: Memory[];
-  tokenCount: number;
+  turns: ConversationTurn[]
+  workingMemory: Memory[]
+  relevantMemories: Memory[]
+  tokenCount: number
 }
 ```
 
@@ -477,23 +477,23 @@ interface SessionContext {
 // 共享记忆管理
 interface SharedMemory {
   // 创建共享记忆
-  createShared(input: CreateMemoryInput, teamId?: string): Promise<Memory>;
-  
+  createShared(input: CreateMemoryInput, teamId?: string): Promise<Memory>
+
   // 查询共享记忆
-  getShared(options: SharedMemoryQuery): Promise<Memory[]>;
-  
+  getShared(options: SharedMemoryQuery): Promise<Memory[]>
+
   // 订阅记忆更新
-  subscribe(memoryId: string, agentId: string): Promise<void>;
-  
+  subscribe(memoryId: string, agentId: string): Promise<void>
+
   // 取消订阅
-  unsubscribe(memoryId: string, agentId: string): Promise<void>;
-  
+  unsubscribe(memoryId: string, agentId: string): Promise<void>
+
   // 获取订阅者
-  getSubscribers(memoryId: string): Promise<string[]>;
-  
+  getSubscribers(memoryId: string): Promise<string[]>
+
   // 权限管理
-  grantAccess(memoryId: string, agentId: string, permission: Permission): Promise<void>;
-  revokeAccess(memoryId: string, agentId: string): Promise<void>;
+  grantAccess(memoryId: string, agentId: string, permission: Permission): Promise<void>
+  revokeAccess(memoryId: string, agentId: string): Promise<void>
 }
 
 // 权限类型
@@ -502,7 +502,7 @@ enum Permission {
   WRITE = 'write',
   DELETE = 'delete',
   SHARE = 'share',
-  ADMIN = 'admin'
+  ADMIN = 'admin',
 }
 ```
 
@@ -562,9 +562,9 @@ class HybridRetriever {
     const [keywordResults, vectorResults, timeResults] = await Promise.all([
       this.keywordSearch(query, options),
       this.vectorSearch(query, options),
-      this.timeSearch(options)
-    ]);
-    
+      this.timeSearch(options),
+    ])
+
     // 2. 计算综合得分
     const scored = this.mergeResults(
       keywordResults,
@@ -573,42 +573,36 @@ class HybridRetriever {
       options.weights || {
         keyword: 0.3,
         vector: 0.5,
-        time: 0.2
+        time: 0.2,
       }
-    );
-    
+    )
+
     // 3. 重排序
-    const reranked = await this.rerank(scored, query);
-    
+    const reranked = await this.rerank(scored, query)
+
     // 4. 应用过滤和分页
-    return reranked.slice(0, options.limit || 10);
+    return reranked.slice(0, options.limit || 10)
   }
-  
+
   // 相关性得分计算
-  calculateRelevanceScore(
-    memory: Memory,
-    query: string,
-    options: SearchOptions
-  ): number {
+  calculateRelevanceScore(memory: Memory, query: string, options: SearchOptions): number {
     const scores = {
       // 关键词匹配度
       keyword: this.keywordMatchScore(memory, query),
-      
+
       // 语义相似度
-      semantic: memory.embedding 
-        ? this.cosineSimilarity(memory.embedding, queryEmbedding)
-        : 0,
-      
+      semantic: memory.embedding ? this.cosineSimilarity(memory.embedding, queryEmbedding) : 0,
+
       // 重要性
       importance: memory.metadata.importance / 10,
-      
+
       // 时间衰减
       recency: this.timeDecayScore(memory.createdAt, options.decayHalfLife),
-      
+
       // 访问频率
-      access: Math.min(memory.accessCount / 100, 1)
-    };
-    
+      access: Math.min(memory.accessCount / 100, 1),
+    }
+
     // 加权平均
     return (
       scores.keyword * 0.2 +
@@ -616,7 +610,7 @@ class HybridRetriever {
       scores.importance * 0.2 +
       scores.recency * 0.15 +
       scores.access * 0.15
-    );
+    )
   }
 }
 ```
@@ -631,35 +625,35 @@ class MemoryAssociation {
     // 1. 查找相似记忆
     const similar = await this.findSimilar(memory, {
       threshold: 0.8,
-      limit: 10
-    });
-    
+      limit: 10,
+    })
+
     // 2. 提取实体关联
-    const entities = await this.extractEntities(memory);
-    
+    const entities = await this.extractEntities(memory)
+
     // 3. 时间窗口关联
-    const temporalRelated = await this.findTemporalRelated(memory);
-    
+    const temporalRelated = await this.findTemporalRelated(memory)
+
     // 4. 创建关联关系
     for (const related of similar) {
       await this.createRelation({
         memoryId: memory.id,
         relatedMemoryId: related.id,
         relationType: 'similar',
-        strength: related.similarity
-      });
+        strength: related.similarity,
+      })
     }
   }
-  
+
   // 关联类型
   relationTypes = {
-    SIMILAR: 'similar',          // 语义相似
-    DERIVED: 'derived',          // 派生关系
-    TEMPORAL: 'temporal',        // 时间相关
-    CAUSAL: 'causal',            // 因果关系
-    PART_OF: 'part_of',          // 组成关系
-    REFERENCE: 'reference'       // 引用关系
-  };
+    SIMILAR: 'similar', // 语义相似
+    DERIVED: 'derived', // 派生关系
+    TEMPORAL: 'temporal', // 时间相关
+    CAUSAL: 'causal', // 因果关系
+    PART_OF: 'part_of', // 组成关系
+    REFERENCE: 'reference', // 引用关系
+  }
 }
 ```
 
@@ -673,18 +667,18 @@ class MemoryAssociation {
 // 嵌入向量管理
 interface EmbeddingManager {
   // 生成嵌入向量
-  generate(text: string): Promise<number[]>;
-  
+  generate(text: string): Promise<number[]>
+
   // 批量生成
-  batchGenerate(texts: string[]): Promise<number[][]>;
-  
+  batchGenerate(texts: string[]): Promise<number[][]>
+
   // 模型信息
   model: {
-    name: string;           // 模型名称
-    dimensions: number;     // 向量维度
-    maxTokens: number;      // 最大 token 数
-    provider: string;       // 提供商
-  };
+    name: string // 模型名称
+    dimensions: number // 向量维度
+    maxTokens: number // 最大 token 数
+    provider: string // 提供商
+  }
 }
 
 // 默认配置
@@ -693,29 +687,29 @@ const defaultEmbeddingConfig: EmbeddingManager = {
     name: 'text-embedding-3-small',
     dimensions: 1536,
     maxTokens: 8191,
-    provider: 'openai'
+    provider: 'openai',
   },
-  
+
   async generate(text: string): Promise<number[]> {
     // 1. 文本预处理
-    const processed = this.preprocess(text);
-    
+    const processed = this.preprocess(text)
+
     // 2. 调用 API
     const response = await openai.embeddings.create({
       model: this.model.name,
-      input: processed
-    });
-    
-    return response.data[0].embedding;
+      input: processed,
+    })
+
+    return response.data[0].embedding
   },
-  
+
   preprocess(text: string): string {
     // 截断过长的文本
-    const truncated = text.slice(0, this.model.maxTokens * 4);
+    const truncated = text.slice(0, this.model.maxTokens * 4)
     // 清理特殊字符
-    return truncated.replace(/[\x00-\x1F\x7F]/g, '');
-  }
-};
+    return truncated.replace(/[\x00-\x1F\x7F]/g, '')
+  },
+}
 ```
 
 ### 5.2 本地嵌入选项 (可选)
@@ -727,17 +721,17 @@ const localEmbeddingConfig: EmbeddingManager = {
     name: 'all-MiniLM-L6-v2',
     dimensions: 384,
     maxTokens: 256,
-    provider: 'local'
+    provider: 'local',
   },
-  
+
   async generate(text: string): Promise<number[]> {
     // 使用 transformers.js 或类似库
-    const { pipeline } = await import('@xenova/transformers');
-    const extractor = await pipeline('feature-extraction', this.model.name);
-    const output = await extractor(text);
-    return Array.from(output.data);
-  }
-};
+    const { pipeline } = await import('@xenova/transformers')
+    const extractor = await pipeline('feature-extraction', this.model.name)
+    const output = await extractor(text)
+    return Array.from(output.data)
+  },
+}
 ```
 
 ---
@@ -785,50 +779,41 @@ const localEmbeddingConfig: EmbeddingManager = {
 // 访问控制管理
 class AccessController {
   // 检查访问权限
-  canAccess(
-    memory: Memory,
-    context: AccessContext
-  ): boolean {
+  canAccess(memory: Memory, context: AccessContext): boolean {
     // 1. 检查记忆范围
     switch (memory.scope) {
       case MemoryScope.PRIVATE:
-        return context.isOwner && context.isMainSession;
-        
+        return context.isOwner && context.isMainSession
+
       case MemoryScope.SESSION:
-        return context.sessionId === memory.sessionId;
-        
+        return context.sessionId === memory.sessionId
+
       case MemoryScope.AGENT:
-        return context.agentId === memory.agentId;
-        
+        return context.agentId === memory.agentId
+
       case MemoryScope.TEAM:
-        return context.teamId === memory.teamId;
-        
+        return context.teamId === memory.teamId
+
       case MemoryScope.PUBLIC:
-        return true;
+        return true
     }
   }
-  
+
   // 过滤敏感记忆
-  filterSensitive(
-    memories: Memory[],
-    context: AccessContext
-  ): Memory[] {
-    return memories.filter(m => this.canAccess(m, context));
+  filterSensitive(memories: Memory[], context: AccessContext): Memory[] {
+    return memories.filter(m => this.canAccess(m, context))
   }
-  
+
   // 脱敏处理
-  sanitize(
-    memory: Memory,
-    context: AccessContext
-  ): Memory {
+  sanitize(memory: Memory, context: AccessContext): Memory {
     if (!context.isMainSession) {
       // 移除敏感字段
-      const sanitized = { ...memory };
-      delete sanitized.metadata.entities;
-      sanitized.content = this.redactSensitive(memory.content);
-      return sanitized;
+      const sanitized = { ...memory }
+      delete sanitized.metadata.entities
+      sanitized.content = this.redactSensitive(memory.content)
+      return sanitized
     }
-    return memory;
+    return memory
   }
 }
 ```
@@ -838,34 +823,32 @@ class AccessController {
 ```typescript
 // 敏感数据加密
 class MemoryEncryption {
-  private key: Buffer;
-  
+  private key: Buffer
+
   constructor(key?: string) {
-    this.key = key 
-      ? Buffer.from(key, 'hex')
-      : this.generateKey();
+    this.key = key ? Buffer.from(key, 'hex') : this.generateKey()
   }
-  
+
   // 加密记忆内容
   encrypt(content: string): string {
-    const iv = crypto.randomBytes(16);
-    const cipher = crypto.createCipheriv('aes-256-gcm', this.key, iv);
-    let encrypted = cipher.update(content, 'utf8', 'hex');
-    encrypted += cipher.final('hex');
-    const authTag = cipher.getAuthTag();
-    return `${iv.toString('hex')}:${authTag.toString('hex')}:${encrypted}`;
+    const iv = crypto.randomBytes(16)
+    const cipher = crypto.createCipheriv('aes-256-gcm', this.key, iv)
+    let encrypted = cipher.update(content, 'utf8', 'hex')
+    encrypted += cipher.final('hex')
+    const authTag = cipher.getAuthTag()
+    return `${iv.toString('hex')}:${authTag.toString('hex')}:${encrypted}`
   }
-  
+
   // 解密记忆内容
   decrypt(encrypted: string): string {
-    const [ivHex, authTagHex, content] = encrypted.split(':');
-    const iv = Buffer.from(ivHex, 'hex');
-    const authTag = Buffer.from(authTagHex, 'hex');
-    const decipher = crypto.createDecipheriv('aes-256-gcm', this.key, iv);
-    decipher.setAuthTag(authTag);
-    let decrypted = decipher.update(content, 'hex', 'utf8');
-    decrypted += decipher.final('utf8');
-    return decrypted;
+    const [ivHex, authTagHex, content] = encrypted.split(':')
+    const iv = Buffer.from(ivHex, 'hex')
+    const authTag = Buffer.from(authTagHex, 'hex')
+    const decipher = crypto.createDecipheriv('aes-256-gcm', this.key, iv)
+    decipher.setAuthTag(authTag)
+    let decrypted = decipher.update(content, 'hex', 'utf8')
+    decrypted += decipher.final('utf8')
+    return decrypted
   }
 }
 ```
@@ -880,37 +863,37 @@ class MemoryEncryption {
 // 多级缓存
 class MemoryCache {
   // L1: 内存缓存 (热点数据)
-  private l1Cache: LRUCache<string, Memory>;
-  
+  private l1Cache: LRUCache<string, Memory>
+
   // L2: 工作记忆缓存
-  private workingMemory: Map<string, Memory[]>;
-  
+  private workingMemory: Map<string, Memory[]>
+
   // L3: 数据库
-  private db: SQLiteDatabase;
-  
+  private db: SQLiteDatabase
+
   async get(id: string): Promise<Memory | null> {
     // L1 检查
     if (this.l1Cache.has(id)) {
-      return this.l1Cache.get(id)!;
+      return this.l1Cache.get(id)!
     }
-    
+
     // L2 检查
     // ... 省略
-    
+
     // L3 数据库查询
-    const memory = await this.db.get(id);
+    const memory = await this.db.get(id)
     if (memory) {
-      this.l1Cache.set(id, memory);
+      this.l1Cache.set(id, memory)
     }
-    return memory;
+    return memory
   }
-  
+
   // 缓存配置
   config = {
-    l1MaxSize: 1000,          // 最多缓存 1000 条
+    l1MaxSize: 1000, // 最多缓存 1000 条
     l1MaxAge: 1000 * 60 * 30, // 30 分钟过期
-    workingMemorySize: 50     // 工作记忆 50 条
-  };
+    workingMemorySize: 50, // 工作记忆 50 条
+  }
 }
 ```
 
@@ -919,40 +902,40 @@ class MemoryCache {
 ```typescript
 // 批量写入优化
 class BatchWriter {
-  private queue: WriteOperation[] = [];
-  private flushTimer: NodeJS.Timeout | null = null;
-  
+  private queue: WriteOperation[] = []
+  private flushTimer: NodeJS.Timeout | null = null
+
   // 添加写入操作
   add(op: WriteOperation): void {
-    this.queue.push(op);
-    
+    this.queue.push(op)
+
     // 达到阈值立即刷新
     if (this.queue.length >= 100) {
-      this.flush();
+      this.flush()
     }
     // 否则延迟刷新
     else if (!this.flushTimer) {
-      this.flushTimer = setTimeout(() => this.flush(), 1000);
+      this.flushTimer = setTimeout(() => this.flush(), 1000)
     }
   }
-  
+
   // 批量执行
   async flush(): Promise<void> {
-    if (this.queue.length === 0) return;
-    
-    const ops = [...this.queue];
-    this.queue = [];
+    if (this.queue.length === 0) return
+
+    const ops = [...this.queue]
+    this.queue = []
     if (this.flushTimer) {
-      clearTimeout(this.flushTimer);
-      this.flushTimer = null;
+      clearTimeout(this.flushTimer)
+      this.flushTimer = null
     }
-    
+
     // 事务批量执行
-    await this.db.transaction(async (tx) => {
+    await this.db.transaction(async tx => {
       for (const op of ops) {
-        await tx.execute(op.sql, op.params);
+        await tx.execute(op.sql, op.params)
       }
-    });
+    })
   }
 }
 ```
@@ -963,31 +946,29 @@ class BatchWriter {
 // 向量索引优化
 class VectorIndex {
   // 使用 HNSW 索引加速
-  private index: HNSWIndex | null = null;
-  
+  private index: HNSWIndex | null = null
+
   // 索引配置
   config = {
-    m: 16,              // 每个节点的最大连接数
+    m: 16, // 每个节点的最大连接数
     efConstruction: 200, // 构建时的搜索宽度
-    efSearch: 50        // 搜索时的搜索宽度
-  };
-  
+    efSearch: 50, // 搜索时的搜索宽度
+  }
+
   // 增量更新
   async addVector(id: string, vector: number[]): Promise<void> {
     if (this.index) {
-      this.index.addPoint(id, vector);
+      this.index.addPoint(id, vector)
     }
   }
-  
+
   // 批量构建
   async buildIndex(memories: Memory[]): Promise<void> {
-    const vectors = memories
-      .filter(m => m.embedding)
-      .map(m => ({ id: m.id, vector: m.embedding! }));
-    
-    this.index = new HNSWIndex(this.config);
+    const vectors = memories.filter(m => m.embedding).map(m => ({ id: m.id, vector: m.embedding! }))
+
+    this.index = new HNSWIndex(this.config)
     for (const { id, vector } of vectors) {
-      this.index.addPoint(id, vector);
+      this.index.addPoint(id, vector)
     }
   }
 }
@@ -1004,3 +985,4 @@ class VectorIndex {
 class MemoryMigration {
   // 从 MEMORY.md 导入
   async importFromMarkdown(path: string):
+```

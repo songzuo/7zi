@@ -21,7 +21,7 @@ This security patch addresses 7 API security vulnerabilities identified in the v
 
 2. **`/api/mcp/rpc`** - CORS open, no authentication
    - **Issue:** Open CORS policy (`*`), no API key validation
-   - **Fix:** 
+   - **Fix:**
      - Added API Key authentication via `X-API-Key` header or `api_key` query param
      - Restricted CORS origins to configurable whitelist (`ALLOWED_MCP_ORIGINS`)
      - Returns 401 for invalid/missing API keys
@@ -160,9 +160,11 @@ curl -X POST http://localhost:3000/api/mcp/rpc \
 ## Files Modified
 
 ### New Files
+
 - `/src/lib/auth/api-auth.ts` - Unified authentication utilities
 
 ### Modified Files
+
 - `/src/app/api/mcp/rpc/route.ts` - Added API key auth + CORS restrictions
 - `/src/app/api/notifications/route.ts` - Added JWT auth + ownership checks
 - `/src/app/api/notifications/[id]/route.ts` - Added JWT auth + ownership checks

@@ -12,13 +12,13 @@
 
 ### 分析概览
 
-| 类别 | 数量 | 说明 |
-|------|------|------|
-| 总文件数 | 897 | 项目中所有文件 |
-| 未使用导入的文件 | 107 | 包含未使用导入的文件 |
-| 未使用导出的文件 | 376 | 导出但未被引用的文件 |
-| 包含死代码的文件 | 362 | 有未使用函数/常量的文件 |
-| **Archive 目录文件** | 162 | 归档的旧文件 |
+| 类别                 | 数量 | 说明                    |
+| -------------------- | ---- | ----------------------- |
+| 总文件数             | 897  | 项目中所有文件          |
+| 未使用导入的文件     | 107  | 包含未使用导入的文件    |
+| 未使用导出的文件     | 376  | 导出但未被引用的文件    |
+| 包含死代码的文件     | 362  | 有未使用函数/常量的文件 |
+| **Archive 目录文件** | 162  | 归档的旧文件            |
 
 ---
 
@@ -65,6 +65,7 @@ archive/moltbook-gateway/ - 240KB (已废弃项目)
 - `智能体世界专家视角分析报告.md` (分析报告)
 
 **建议操作**：
+
 1. 将有价值的分析报告迁移到 `docs/reports/`
 2. 删除临时性和重复性的报告
 3. 保留最重要的系统文档
@@ -86,7 +87,7 @@ archive/moltbook-gateway/ - 240KB (已废弃项目)
 // 未使用: MobileMenu, setRequestLocale, getTranslations, Locale, locales, Link,
 //        LanguageSwitcher, ThemeToggle, StructuredData
 
-// src/app/[locale]/contact/page.tsx  
+// src/app/[locale]/contact/page.tsx
 // 未使用: MobileMenu, setRequestLocale, getTranslations, Locale, locales, Link,
 //        LanguageSwitcher, ThemeToggle, StructuredData, ContactForm, SocialLinks
 
@@ -100,6 +101,7 @@ archive/moltbook-gateway/ - 240KB (已废弃项目)
 ```
 
 **清理命令**：
+
 ```bash
 cd /root/.openclaw/workspace/7zi-project
 npx eslint --fix "src/app/**/page.tsx"
@@ -109,7 +111,7 @@ npx eslint --fix "src/app/**/page.tsx"
 
 ```typescript
 // src/app/api/analytics/export/route.ts
-// 未使用: type ExportOptions, type ExportFormat, type AnalyticsFilters, 
+// 未使用: type ExportOptions, type ExportFormat, type AnalyticsFilters,
 //        type TimeSeriesDataPoint, type AnalyticsResponse
 
 // src/app/api/analytics/metrics/route.ts
@@ -124,6 +126,7 @@ npx eslint --fix "src/app/**/page.tsx"
 ```
 
 **清理命令**：
+
 ```bash
 npx eslint --fix "src/app/api/**/*.ts"
 ```
@@ -145,6 +148,7 @@ npx eslint --fix "src/app/api/**/*.ts"
 ```
 
 **清理命令**：
+
 ```bash
 npx eslint --fix "src/components/**/*.tsx"
 ```
@@ -178,6 +182,7 @@ npx eslint --fix "src/components/**/*.tsx"
 ```
 
 **建议操作**：
+
 ```bash
 # 1. 检查是否有动态导入使用这些组件
 grep -r "AIChat\|ActivityLog\|BackupList" --include="*.ts" --include="*.tsx" src/
@@ -190,7 +195,7 @@ grep -r "AIChat\|ActivityLog\|BackupList" --include="*.ts" --include="*.tsx" src
 
 ```typescript
 // src/lib/utils.ts
-// 未使用导出: generateId, isEmpty, isValidEmail, debounce, throttle, 
+// 未使用导出: generateId, isEmpty, isValidEmail, debounce, throttle,
 //             LRUCache (但可能在其他地方通过其他导出使用)
 
 // src/lib/api/validation.ts
@@ -256,11 +261,11 @@ grep -r "AIChat\|ActivityLog\|BackupList" --include="*.ts" --include="*.tsx" src
 
 ```typescript
 // 问题：同一组件通过不同路径导入
-import { validateEmail } from '@/lib/utils';
-import { validateEmail } from '@/lib/utils/validation';
+import { validateEmail } from '@/lib/utils'
+import { validateEmail } from '@/lib/utils/validation'
 
 // 建议：统一导入路径
-import { validateEmail } from '@/lib/validation';
+import { validateEmail } from '@/lib/validation'
 ```
 
 #### 合并相似组件
@@ -304,13 +309,13 @@ const LazyHero3D = dynamic(() => import('@/components/Hero3D'), {
 
 ```typescript
 // 问题：导出大量未使用的函数
-export * from './utils';
-export * from './validation';
-export * from './api';
+export * from './utils'
+export * from './validation'
+export * from './api'
 
 // 建议：仅导出公开 API
-export { validateEmail, isValidUrl } from './validation';
-export { createSuccessResponse, createErrorResponse } from './api';
+export { validateEmail, isValidUrl } from './validation'
+export { createSuccessResponse, createErrorResponse } from './api'
 ```
 
 ---
@@ -410,12 +415,12 @@ npm run analyze
 
 ### 代码质量提升
 
-| 指标 | 当前 | 清理后 | 改善 |
-|------|------|--------|------|
-| 未使用导入 | 107 文件 | ~10 文件 | 91% ↓ |
-| 未使用导出 | 376 文件 | ~50 文件 | 87% ↓ |
-| 死代码 | 362 文件 | ~100 文件 | 72% ↓ |
-| 文件总数 | 897 | ~730 | 19% ↓ |
+| 指标       | 当前     | 清理后    | 改善  |
+| ---------- | -------- | --------- | ----- |
+| 未使用导入 | 107 文件 | ~10 文件  | 91% ↓ |
+| 未使用导出 | 376 文件 | ~50 文件  | 87% ↓ |
+| 死代码     | 362 文件 | ~100 文件 | 72% ↓ |
+| 文件总数   | 897      | ~730      | 19% ↓ |
 
 ### 构建性能提升
 
@@ -498,23 +503,23 @@ npm install -D jscpd
 
 ```javascript
 // scripts/cleanup.js
-const { execSync } = require('child_process');
+const { execSync } = require('child_process')
 
-console.log('🧹 Starting code cleanup...\n');
+console.log('🧹 Starting code cleanup...\n')
 
-console.log('1. Cleaning unused imports...');
-execSync('npx eslint --fix "src/**/*.{ts,tsx}"', { stdio: 'inherit' });
+console.log('1. Cleaning unused imports...')
+execSync('npx eslint --fix "src/**/*.{ts,tsx}"', { stdio: 'inherit' })
 
-console.log('\n2. Checking unused exports...');
-execSync('npx ts-unused-exports tsconfig.json', { stdio: 'inherit' });
+console.log('\n2. Checking unused exports...')
+execSync('npx ts-unused-exports tsconfig.json', { stdio: 'inherit' })
 
-console.log('\n3. Running type check...');
-execSync('npm run type-check', { stdio: 'inherit' });
+console.log('\n3. Running type check...')
+execSync('npm run type-check', { stdio: 'inherit' })
 
-console.log('\n4. Running tests...');
-execSync('npm run test', { stdio: 'inherit' });
+console.log('\n4. Running tests...')
+execSync('npm run test', { stdio: 'inherit' })
 
-console.log('\n✅ Cleanup complete!');
+console.log('\n✅ Cleanup complete!')
 ```
 
 ---

@@ -3,23 +3,23 @@
  * @description Middleware wrapper for consistent error handling across all API routes
  */
 
-import { NextRequest, NextResponse } from 'next/server';
-import { createErrorResponse, ErrorType } from './error-handler';
-import { logger } from '../logger';
-import { captureError, ErrorCategory, ErrorSeverity } from '../monitoring/errors';
+import { NextRequest, NextResponse } from 'next/server'
+import { createErrorResponse, ErrorType } from './error-handler'
+import { logger } from '../logger'
+import { captureError, ErrorCategory, ErrorSeverity } from '../monitoring/errors'
 
 /**
  * Middleware options for error handling
  */
 export interface ApiErrorMiddlewareOptions {
   // Whether to log all errors
-  logErrors?: boolean;
+  logErrors?: boolean
   // Whether to capture errors to Sentry
-  captureErrors?: boolean;
+  captureErrors?: boolean
   // Custom error handler
-  errorHandler?: (error: Error, request: NextRequest) => NextResponse;
+  errorHandler?: (error: Error, request: NextRequest) => NextResponse
   // Route-specific tags for monitoring
-  tags?: Record<string, string>;
+  tags?: Record<string, string>
 }
 
 /**
@@ -38,21 +38,16 @@ export function withApiErrorMiddleware<T extends (request: NextRequest) => Promi
   options: ApiErrorMiddlewareOptions = {}
 ): T {
   return (async (request: NextRequest) => {
-    const {
-      logErrors = true,
-      captureErrors = true,
-      errorHandler,
-      tags = {},
-    } = options;
+    const { logErrors = true, captureErrors = true, errorHandler, tags = {} } = options
 
-    const startTime = Date.now();
+    const startTime = Date.now()
 
     try {
       // Execute the handler
-      return await handler(request);
-    } catch (_error) {
-      const duration = Date.now() - startTime;
-      const errorObj = error instanceof Error ? error : new Error(String(error));
+      return await handler(request)
+    } catch (error) {
+      const duration = Date.now() - startTime
+      const errorObj = error instanceof Error ? error : new Error(String(error))
 
       // Log error
       if (logErrors) {
@@ -62,7 +57,7 @@ export function withApiErrorMiddleware<T extends (request: NextRequest) => Promi
           method: request.method,
           duration,
           ...tags,
-        });
+        })
       }
 
       // Capture to Sentry
@@ -80,18 +75,18 @@ export function withApiErrorMiddleware<T extends (request: NextRequest) => Promi
             method: request.method,
             duration,
           },
-        });
+        })
       }
 
       // Use custom error handler if provided
       if (errorHandler) {
-        return errorHandler(errorObj, request);
+        return errorHandler(errorObj, request)
       }
 
       // Default error handling
-      return createErrorResponse(errorObj);
+      return createErrorResponse(errorObj)
     }
-  }) as T;
+  }) as T
 }
 
 /**
@@ -110,18 +105,18 @@ export function withApiErrorMiddleware<T extends (request: NextRequest) => Promi
 export function withApiProtection<T extends (request: NextRequest) => Promise<NextResponse>>(
   handler: T,
   rateLimitOptions: {
-    maxRequests: number;
-    windowMs: number;
+    maxRequests: number
+    windowMs: number
   },
   errorOptions: ApiErrorMiddlewareOptions = {}
 ): T {
   return withApiErrorMiddleware(
     (async (request: NextRequest) => {
       // Rate limiting would go here (implement using withRateLimit from rate-limit middleware)
-      return await handler(request);
+      return await handler(request)
     }) as T,
     errorOptions
-  );
+  )
 }
 
 /**
@@ -131,18 +126,18 @@ export function validateRequestHeaders(
   request: NextRequest,
   requiredHeaders: string[]
 ): { valid: boolean; missing: string[] } {
-  const missing: string[] = [];
+  const missing: string[] = []
 
   for (const header of requiredHeaders) {
     if (!request.headers.get(header)) {
-      missing.push(header);
+      missing.push(header)
     }
   }
 
   return {
     valid: missing.length === 0,
     missing,
-  };
+  }
 }
 
 /**
@@ -154,22 +149,22 @@ export function createApiErrorHandler(
 ): (error: Error, request: NextRequest) => NextResponse {
   return (error: Error, request: NextRequest) => {
     // Determine error type based on error properties
-    let errorType = ErrorType.INTERNAL;
-    let statusCode = 500;
+    let errorType = ErrorType.INTERNAL
+    let statusCode = 500
 
     // Check for known error types
     if (error.message.includes('not found')) {
-      errorType = ErrorType.NOT_FOUND;
-      statusCode = 404;
+      errorType = ErrorType.NOT_FOUND
+      statusCode = 404
     } else if (error.message.includes('unauthorized') || error.message.includes('authentication')) {
-      errorType = ErrorType.UNAUTHORIZED;
-      statusCode = 401;
+      errorType = ErrorType.UNAUTHORIZED
+      statusCode = 401
     } else if (error.message.includes('forbidden') || error.message.includes('permission')) {
-      errorType = ErrorType.FORBIDDEN;
-      statusCode = 403;
+      errorType = ErrorType.FORBIDDEN
+      statusCode = 403
     } else if (error.message.includes('validation') || error.message.includes('invalid')) {
-      errorType = ErrorType.VALIDATION;
-      statusCode = 400;
+      errorType = ErrorType.VALIDATION
+      statusCode = 400
     }
 
     // Log with route context
@@ -178,7 +173,7 @@ export function createApiErrorHandler(
       route: routeName,
       url: request.url,
       method: request.method,
-    });
+    })
 
     // Return standardized error response
     return NextResponse.json(
@@ -191,6 +186,6 @@ export function createApiErrorHandler(
         },
       },
       { status: statusCode }
-    );
-  };
+    )
+  }
 }

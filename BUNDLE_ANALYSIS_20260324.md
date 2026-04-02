@@ -1,4 +1,5 @@
 # 7zi-Project Bundle Analysis Report
+
 **Date:** 2026-03-24
 **Project:** 7zi-frontend v1.1.0
 **Tech Stack:** Next.js 16.2.1 + React 19.2.4
@@ -9,33 +10,33 @@
 
 ### Client-Side Chunks (Top 10)
 
-| Rank | Chunk | Size | Description |
-|------|--------|------|-------------|
-| 1 | three-libs-628d97d9.js | 368K | Three.js + React Three Fiber + Drei |
-| 2 | three-libs-06afcb45.js | 348K | Additional Three.js components |
-| 3 | framework-1c490867.js | 196K | React + Next.js core framework |
-| 4 | framework-f7f7243c.js | 172K | Additional framework code |
-| 5 | three-libs-8743d79b.js | 144K | Three.js post-processing |
-| 6 | polyfills-42372ed1.js | 112K | Browser polyfills |
-| 7 | vendors-0e5f63c4.js | 92K | Vendor utilities |
-| 8 | chart-libs-664d7b50.js | 84K | Recharts + D3 visualization |
-| 9 | chart-libs-11c49b98.js | 68K | Additional chart components |
-| 10 | chart-libs-e42665dd.js | 52K | Chart utilities |
+| Rank | Chunk                  | Size | Description                         |
+| ---- | ---------------------- | ---- | ----------------------------------- |
+| 1    | three-libs-628d97d9.js | 368K | Three.js + React Three Fiber + Drei |
+| 2    | three-libs-06afcb45.js | 348K | Additional Three.js components      |
+| 3    | framework-1c490867.js  | 196K | React + Next.js core framework      |
+| 4    | framework-f7f7243c.js  | 172K | Additional framework code           |
+| 5    | three-libs-8743d79b.js | 144K | Three.js post-processing            |
+| 6    | polyfills-42372ed1.js  | 112K | Browser polyfills                   |
+| 7    | vendors-0e5f63c4.js    | 92K  | Vendor utilities                    |
+| 8    | chart-libs-664d7b50.js | 84K  | Recharts + D3 visualization         |
+| 9    | chart-libs-11c49b98.js | 68K  | Additional chart components         |
+| 10   | chart-libs-e42665dd.js | 52K  | Chart utilities                     |
 
 ### Server-Side Chunks (Top 10)
 
-| Rank | Chunk | Size | Description |
-|------|--------|------|-------------|
-| 1 | app/collaboration-demo/page.js | 1.5M | Demo page with heavy deps |
-| 2 | chunks/4761.js | 1004K | Large vendor bundle |
-| 3 | chunks/3283.js | 940K | Framework + instrumentation |
-| 4 | app/api/analytics/export/route.js | 824K | Excel export + analytics |
-| 5 | chunks/8295.js | 460K | WebSocket + Socket.io |
-| 6 | chunks/224.js | 320K | Core runtime |
-| 7 | middleware.js | 280K | Next.js middleware |
-| 8 | [locale]/analytics/test/page.js | 472K | Analytics test page |
-| 9 | app/api/health/detailed/route.js | Multiple | Health check (2.2M total) |
-| 10 | framework chunks | Multiple | ~500K+ total |
+| Rank | Chunk                             | Size     | Description                 |
+| ---- | --------------------------------- | -------- | --------------------------- |
+| 1    | app/collaboration-demo/page.js    | 1.5M     | Demo page with heavy deps   |
+| 2    | chunks/4761.js                    | 1004K    | Large vendor bundle         |
+| 3    | chunks/3283.js                    | 940K     | Framework + instrumentation |
+| 4    | app/api/analytics/export/route.js | 824K     | Excel export + analytics    |
+| 5    | chunks/8295.js                    | 460K     | WebSocket + Socket.io       |
+| 6    | chunks/224.js                     | 320K     | Core runtime                |
+| 7    | middleware.js                     | 280K     | Next.js middleware          |
+| 8    | [locale]/analytics/test/page.js   | 472K     | Analytics test page         |
+| 9    | app/api/health/detailed/route.js  | Multiple | Health check (2.2M total)   |
+| 10   | framework chunks                  | Multiple | ~500K+ total                |
 
 ### Total Bundle Size
 
@@ -48,26 +49,31 @@
 ## 🔍 Problem Identification
 
 ### 1. **Three.js Related Bundles** 🔴 Critical
+
 - **Total size:** ~860K (368K + 348K + 144K)
 - **Issue:** All Three.js code loaded even on pages that don't use 3D
 - **Impact:** Most pages don't need 3D but still download it
 
 ### 2. **Duplicate Framework Chunks** 🟠 High
+
 - Multiple framework chunks (196K + 172K + 72K + 68K + 60K + 48K)
 - React/Next.js split into too many chunks
 - **Impact:** Increased network requests, no code reuse
 
 ### 3. **Sentry Instrumentation Overhead** 🟡 Medium
+
 - chunk 4761.js (1004K) and 3283.js (940K) heavily instrumented
 - OpenTelemetry and Sentry instrumentation adding bulk
 - **Impact:** Production builds include dev/tracing code
 
 ### 4. **Socket.io in Multiple Chunks** 🟡 Medium
+
 - WebSocket code scattered (8295.js = 460K)
 - Loaded even when not using real-time features
 - **Impact:** Unnecessary network overhead
 
 ### 5. **Chart Libraries** 🟡 Medium
+
 - Recharts + D3 ~250K total
 - May be unused on many pages
 
@@ -156,11 +162,11 @@ const nextConfig: NextConfig = {
     tracing: {
       tracesSampleRate: 0.1, // Sample 10% instead of 100%
       // Exclude certain routes
-      exclude: ['/api/health', '/api/health/*']
+      exclude: ['/api/health', '/api/health/*'],
     },
     // Disable performance monitoring in dev
-    disablePerformance: process.env.NODE_ENV !== 'production'
-  }
+    disablePerformance: process.env.NODE_ENV !== 'production',
+  },
 }
 ```
 
@@ -216,8 +222,8 @@ webpack: (config, { isServer, dev }) => {
           reuseExistingChunk: true,
           enforce: true,
           minSize: 50000,
-        }
-      }
+        },
+      },
     }
   }
   return config
@@ -237,6 +243,7 @@ npx du --max-depth=1 node_modules | sort -hr | head -20
 ```
 
 Potentially heavy libraries to review:
+
 - `@react-three/drei` (10.7.7) - Very large bundle
 - `three` (0.183.2) - Full 3D engine, maybe use lighter alternatives
 - `recharts` (3.8.0) - Consider lighter charting libraries
@@ -247,18 +254,21 @@ Potentially heavy libraries to review:
 ## 📈 Expected Optimization Results
 
 ### Before Optimization
+
 - **Client-side:** ~4.0M
 - **Server-side:** ~6-7M
 - **Total:** ~10-11M
 - **Largest chunk:** 368K (three-libs)
 
 ### After Optimization (Expected)
+
 - **Client-side:** ~2.8-3.2M (-20-25%)
 - **Server-side:** ~5-5.5M (-15-20%)
 - **Total:** ~7.8-8.7M (-20-30%)
 - **Largest chunk:** ~200K (framework consolidated)
 
 ### Savings Breakdown
+
 1. Dynamic Three.js: ~300-400KB
 2. Dynamic Socket.io: ~200-300KB
 3. Sentry optimization: ~100-200KB
@@ -301,6 +311,7 @@ Potentially heavy libraries to review:
 ## 🔧 Monitoring Progress
 
 ### Before/After Metrics
+
 ```bash
 # Build and measure
 ANALYZE=true npm run build
@@ -313,6 +324,7 @@ du -h .next/server/**/*.js | sort -rh | head -20
 ```
 
 ### Performance Targets
+
 - ✅ First Contentful Paint (FCP): < 1.8s
 - ✅ Largest Contentful Paint (LCP): < 2.5s
 - ✅ Time to Interactive (TTI): < 3.5s

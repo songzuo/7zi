@@ -26,12 +26,14 @@
 ### 1.1 背景
 
 当前 Agent 调度系统 (`src/lib/agents/scheduler/`) 采用简单的轮询策略进行任务分配：
+
 - 基于 `findBestAgent()` 方法选择第一个空闲且匹配能力的 Agent
 - 无历史数据参考
 - 无法预测任务完成时间
 - 无法动态调整调度策略
 
 v1.5.0 规划的 P1 功能需要为调度系统添加自我学习能力，实现：
+
 - 智能任务分配
 - 完成时间预测
 - Agent 能力动态评估
@@ -39,13 +41,13 @@ v1.5.0 规划的 P1 功能需要为调度系统添加自我学习能力，实现
 
 ### 1.2 目标
 
-| 目标 | 描述 | 优先级 |
-|------|------|--------|
-| 时间预测 | 预测任务完成时间，提升用户体验 | P0 |
-| 智能分配 | 基于历史表现选择最优 Agent | P0 |
-| 能力评估 | 动态更新 Agent 能力评分 | P1 |
-| 异常检测 | 识别异常任务和 Agent 行为 | P1 |
-| 策略优化 | 自动调优调度参数 | P2 |
+| 目标     | 描述                           | 优先级 |
+| -------- | ------------------------------ | ------ |
+| 时间预测 | 预测任务完成时间，提升用户体验 | P0     |
+| 智能分配 | 基于历史表现选择最优 Agent     | P0     |
+| 能力评估 | 动态更新 Agent 能力评分        | P1     |
+| 异常检测 | 识别异常任务和 Agent 行为      | P1     |
+| 策略优化 | 自动调优调度参数               | P2     |
 
 ### 1.3 现有系统分析
 
@@ -71,6 +73,7 @@ v1.5.0 规划的 P1 功能需要为调度系统添加自我学习能力，实现
 ```
 
 **现有组件:**
+
 - `AgentScheduler`: 核心调度器类
 - `Agent`: Agent 注册信息 (id, name, type, status, capabilities)
 - `Task`: 任务信息 (id, type, priority, status, input, output)
@@ -133,35 +136,35 @@ v1.5.0 规划的 P1 功能需要为调度系统添加自我学习能力，实现
 // src/lib/agents/learning/time-predictor.ts
 
 interface TaskFeatures {
-  taskType: string;
-  inputSize: number;          // 输入数据大小
-  priority: TaskPriority;
-  agentId?: string;
-  timeOfDay: number;          // 0-23 小时
-  dayOfWeek: number;          // 0-6
-  historicalAvgTime: number;  // 该类型任务历史平均时间
-  queueDepth: number;         // 当前队列深度
-  agentLoad: number;          // Agent 当前负载
+  taskType: string
+  inputSize: number // 输入数据大小
+  priority: TaskPriority
+  agentId?: string
+  timeOfDay: number // 0-23 小时
+  dayOfWeek: number // 0-6
+  historicalAvgTime: number // 该类型任务历史平均时间
+  queueDepth: number // 当前队列深度
+  agentLoad: number // Agent 当前负载
 }
 
 interface PredictionResult {
-  estimatedTime: number;      // 预估完成时间 (ms)
-  confidence: number;         // 置信度 0-1
-  factors: string[];          // 影响因素
+  estimatedTime: number // 预估完成时间 (ms)
+  confidence: number // 置信度 0-1
+  factors: string[] // 影响因素
 }
 
 class TimePredictor {
-  private model: PredictionModel;
-  private trainingData: TrainingDataset;
-  
+  private model: PredictionModel
+  private trainingData: TrainingDataset
+
   // 预测任务完成时间
-  predict(features: TaskFeatures): PredictionResult;
-  
+  predict(features: TaskFeatures): PredictionResult
+
   // 用新数据更新模型
-  update(taskId: string, actualTime: number): void;
-  
+  update(taskId: string, actualTime: number): void
+
   // 获取特定任务类型的统计信息
-  getTaskTypeStats(taskType: string): TaskTypeStatistics;
+  getTaskTypeStats(taskType: string): TaskTypeStatistics
 }
 ```
 
@@ -171,47 +174,47 @@ class TimePredictor {
 // src/lib/agents/learning/agent-scorer.ts
 
 interface AgentScore {
-  agentId: string;
-  
+  agentId: string
+
   // 能力评分 (按任务类型)
-  capabilityScores: Map<string, CapabilityScore>;
-  
+  capabilityScores: Map<string, CapabilityScore>
+
   // 综合指标
-  overallScore: number;
-  reliabilityScore: number;   // 可靠性
-  speedScore: number;         // 速度
-  qualityScore: number;       // 质量
-  
+  overallScore: number
+  reliabilityScore: number // 可靠性
+  speedScore: number // 速度
+  qualityScore: number // 质量
+
   // 状态指标
-  currentLoad: number;        // 当前负载
-  avgResponseTime: number;    // 平均响应时间
-  successRate: number;        // 成功率
-  
+  currentLoad: number // 当前负载
+  avgResponseTime: number // 平均响应时间
+  successRate: number // 成功率
+
   // 时间衰减因子
-  lastUpdated: number;
+  lastUpdated: number
 }
 
 interface CapabilityScore {
-  taskType: string;
-  avgCompletionTime: number;
-  successRate: number;
-  sampleCount: number;
-  lastTaskTime: number;
-  trend: 'improving' | 'stable' | 'declining';
+  taskType: string
+  avgCompletionTime: number
+  successRate: number
+  sampleCount: number
+  lastTaskTime: number
+  trend: 'improving' | 'stable' | 'declining'
 }
 
 class AgentScorer {
   // 更新 Agent 评分
-  updateScore(agentId: string, task: Task, result: TaskResult): void;
-  
+  updateScore(agentId: string, task: Task, result: TaskResult): void
+
   // 获取 Agent 的最佳任务类型
-  getBestCapabilities(agentId: string): string[];
-  
+  getBestCapabilities(agentId: string): string[]
+
   // 计算任务分配得分
-  calculateAssignmentScore(agentId: string, taskType: string): number;
-  
+  calculateAssignmentScore(agentId: string, taskType: string): number
+
   // 检测 Agent 性能退化
-  detectDegradation(agentId: string): DegradationAlert | null;
+  detectDegradation(agentId: string): DegradationAlert | null
 }
 ```
 
@@ -221,42 +224,42 @@ class AgentScorer {
 // src/lib/agents/learning/history-analyzer.ts
 
 interface TaskHistory {
-  taskId: string;
-  taskType: string;
-  agentId: string;
-  
+  taskId: string
+  taskType: string
+  agentId: string
+
   // 时间信息
-  createdAt: number;
-  startedAt: number;
-  completedAt: number;
-  queueWaitTime: number;      // 排队等待时间
-  executionTime: number;      // 实际执行时间
-  
+  createdAt: number
+  startedAt: number
+  completedAt: number
+  queueWaitTime: number // 排队等待时间
+  executionTime: number // 实际执行时间
+
   // 结果信息
-  status: TaskStatus;
-  outputSize: number;
-  errorType?: string;
-  retryCount: number;
-  
+  status: TaskStatus
+  outputSize: number
+  errorType?: string
+  retryCount: number
+
   // 上下文信息
-  priority: TaskPriority;
-  inputSize: number;
-  agentLoadAtStart: number;
-  systemLoadAtStart: number;
+  priority: TaskPriority
+  inputSize: number
+  agentLoadAtStart: number
+  systemLoadAtStart: number
 }
 
 class HistoryAnalyzer {
   // 记录任务历史
-  recordTask(task: Task, agent: Agent): void;
-  
+  recordTask(task: Task, agent: Agent): void
+
   // 查询历史数据
-  query(filters: HistoryQueryFilters): TaskHistory[];
-  
+  query(filters: HistoryQueryFilters): TaskHistory[]
+
   // 生成统计报告
-  generateReport(period: TimePeriod): AnalyticsReport;
-  
+  generateReport(period: TimePeriod): AnalyticsReport
+
   // 导出数据用于离线分析
-  exportData(format: 'json' | 'csv'): string;
+  exportData(format: 'json' | 'csv'): string
 }
 ```
 
@@ -266,45 +269,45 @@ class HistoryAnalyzer {
 // src/lib/agents/learning/strategy-optimizer.ts
 
 interface SchedulingStrategy {
-  name: string;
-  
+  name: string
+
   // 权重配置
   weights: {
-    capability: number;       // 能力匹配权重
-    load: number;             // 负载均衡权重
-    speed: number;            // 速度权重
-    reliability: number;      // 可靠性权重
-  };
-  
+    capability: number // 能力匹配权重
+    load: number // 负载均衡权重
+    speed: number // 速度权重
+    reliability: number // 可靠性权重
+  }
+
   // 阈值配置
   thresholds: {
-    maxQueueSize: number;
-    maxWaitTime: number;
-    minAgentScore: number;
-  };
+    maxQueueSize: number
+    maxWaitTime: number
+    minAgentScore: number
+  }
 }
 
 interface StrategyPerformance {
-  strategy: SchedulingStrategy;
-  avgCompletionTime: number;
-  avgQueueWaitTime: number;
-  successRate: number;
-  utilizationRate: number;
-  period: TimePeriod;
+  strategy: SchedulingStrategy
+  avgCompletionTime: number
+  avgQueueWaitTime: number
+  successRate: number
+  utilizationRate: number
+  period: TimePeriod
 }
 
 class StrategyOptimizer {
   // 评估当前策略效果
-  evaluateCurrentStrategy(): StrategyPerformance;
-  
+  evaluateCurrentStrategy(): StrategyPerformance
+
   // 提出优化建议
-  suggestOptimizations(): OptimizationSuggestion[];
-  
+  suggestOptimizations(): OptimizationSuggestion[]
+
   // A/B 测试新策略
-  startABTest(newStrategy: SchedulingStrategy, ratio: number): void;
-  
+  startABTest(newStrategy: SchedulingStrategy, ratio: number): void
+
   // 自动调优
-  autoTune(): SchedulingStrategy;
+  autoTune(): SchedulingStrategy
 }
 ```
 
@@ -319,36 +322,36 @@ class StrategyOptimizer {
 
 interface TaskMetrics {
   // 核心指标
-  taskId: string;
-  taskType: string;
-  
+  taskId: string
+  taskType: string
+
   // 时间指标
   timing: {
-    createdAt: number;
-    queuedAt: number;
-    startedAt: number;
-    completedAt: number;
-    
+    createdAt: number
+    queuedAt: number
+    startedAt: number
+    completedAt: number
+
     // 计算值
-    queueWaitTime: number;    // startedAt - queuedAt
-    executionTime: number;    // completedAt - startedAt
-    totalTurnaroundTime: number; // completedAt - createdAt
-  };
-  
+    queueWaitTime: number // startedAt - queuedAt
+    executionTime: number // completedAt - startedAt
+    totalTurnaroundTime: number // completedAt - createdAt
+  }
+
   // 执行指标
   execution: {
-    status: TaskStatus;
-    retryCount: number;
-    errorType?: string;
-    errorMessage?: string;
-  };
-  
+    status: TaskStatus
+    retryCount: number
+    errorType?: string
+    errorMessage?: string
+  }
+
   // 输入输出指标
   data: {
-    inputSize: number;        // bytes
-    outputSize: number;       // bytes
-    inputComplexity: number;  // 自定义复杂度评分
-  };
+    inputSize: number // bytes
+    outputSize: number // bytes
+    inputComplexity: number // 自定义复杂度评分
+  }
 }
 
 // 收集时机
@@ -358,7 +361,7 @@ const METRICS_COLLECTION_POINTS = {
   TASK_STARTED: 'task_started',
   TASK_COMPLETED: 'task_completed',
   TASK_FAILED: 'task_failed',
-};
+}
 ```
 
 ### 3.2 Agent 指标
@@ -367,42 +370,42 @@ const METRICS_COLLECTION_POINTS = {
 // src/lib/agents/learning/metrics/agent-metrics.ts
 
 interface AgentMetrics {
-  agentId: string;
-  timestamp: number;
-  
+  agentId: string
+  timestamp: number
+
   // 状态指标
-  status: AgentStatus;
-  currentTasks: number;
-  queuedTasks: number;
-  
+  status: AgentStatus
+  currentTasks: number
+  queuedTasks: number
+
   // 性能指标
   performance: {
-    avgResponseTime: number;  // 最近 N 个任务的响应时间
-    successRate: number;      // 最近 N 个任务的成功率
-    throughput: number;       // 任务/分钟
-  };
-  
+    avgResponseTime: number // 最近 N 个任务的响应时间
+    successRate: number // 最近 N 个任务的成功率
+    throughput: number // 任务/分钟
+  }
+
   // 负载指标
   load: {
-    cpu: number;              // CPU 使用率 (如果可用)
-    memory: number;           // 内存使用率 (如果可用)
-    queueDepth: number;       // 当前队列深度
-    utilization: number;      // 利用率 (0-1)
-  };
-  
+    cpu: number // CPU 使用率 (如果可用)
+    memory: number // 内存使用率 (如果可用)
+    queueDepth: number // 当前队列深度
+    utilization: number // 利用率 (0-1)
+  }
+
   // 能力指标
   capabilities: {
-    declared: string[];       // 声明的能力
-    proven: Map<string, CapabilityMetric>; // 验证的能力
-  };
+    declared: string[] // 声明的能力
+    proven: Map<string, CapabilityMetric> // 验证的能力
+  }
 }
 
 interface CapabilityMetric {
-  taskType: string;
-  taskCount: number;
-  avgTime: number;
-  successRate: number;
-  lastUsed: number;
+  taskType: string
+  taskCount: number
+  avgTime: number
+  successRate: number
+  lastUsed: number
 }
 ```
 
@@ -412,31 +415,31 @@ interface CapabilityMetric {
 // src/lib/agents/learning/metrics/environment-metrics.ts
 
 interface EnvironmentMetrics {
-  timestamp: number;
-  
+  timestamp: number
+
   // 时间维度
   time: {
-    hour: number;             // 0-23
-    dayOfWeek: number;        // 0-6
-    isBusinessHour: boolean;  // 工作时间
-    isPeakTime: boolean;      // 高峰时段
-  };
-  
+    hour: number // 0-23
+    dayOfWeek: number // 0-6
+    isBusinessHour: boolean // 工作时间
+    isPeakTime: boolean // 高峰时段
+  }
+
   // 系统维度
   system: {
-    totalAgents: number;
-    activeAgents: number;
-    idleAgents: number;
-    totalQueueDepth: number;
-    systemLoad: number;       // 整体系统负载
-  };
-  
+    totalAgents: number
+    activeAgents: number
+    idleAgents: number
+    totalQueueDepth: number
+    systemLoad: number // 整体系统负载
+  }
+
   // 任务分布
   distribution: {
-    tasksByType: Map<string, number>;
-    tasksByPriority: Map<TaskPriority, number>;
-    avgWaitTime: number;
-  };
+    tasksByType: Map<string, number>
+    tasksByPriority: Map<TaskPriority, number>
+    avgWaitTime: number
+  }
 }
 ```
 
@@ -474,13 +477,13 @@ interface EnvironmentMetrics {
 
 ### 4.1 预测模型选型
 
-| 模型 | 适用场景 | 优点 | 缺点 | 推荐度 |
-|------|----------|------|------|--------|
-| **线性回归** | 基线预测 | 简单、可解释、低开销 | 无法处理非线性关系 | ⭐⭐⭐⭐ |
-| **决策树** | 复杂关系 | 可解释、非线性、无特征缩放 | 容易过拟合 | ⭐⭐⭐⭐ |
-| **随机森林** | 高准确度 | 高准确度、抗过拟合 | 计算开销大 | ⭐⭐⭐ |
-| **梯度提升** | 最佳性能 | 最高准确度、特征重要性 | 训练慢、调参复杂 | ⭐⭐⭐ |
-| **神经网络** | 复杂模式 | 强大表达能力 | 需要大量数据、黑盒 | ⭐⭐ |
+| 模型         | 适用场景 | 优点                       | 缺点               | 推荐度   |
+| ------------ | -------- | -------------------------- | ------------------ | -------- |
+| **线性回归** | 基线预测 | 简单、可解释、低开销       | 无法处理非线性关系 | ⭐⭐⭐⭐ |
+| **决策树**   | 复杂关系 | 可解释、非线性、无特征缩放 | 容易过拟合         | ⭐⭐⭐⭐ |
+| **随机森林** | 高准确度 | 高准确度、抗过拟合         | 计算开销大         | ⭐⭐⭐   |
+| **梯度提升** | 最佳性能 | 最高准确度、特征重要性     | 训练慢、调参复杂   | ⭐⭐⭐   |
+| **神经网络** | 复杂模式 | 强大表达能力               | 需要大量数据、黑盒 | ⭐⭐     |
 
 **推荐方案:** 分阶段实施
 
@@ -502,12 +505,12 @@ Phase 3: 集成模型 (可选)
 
 #### 方案对比
 
-| 方案 | 描述 | 适用场景 | 复杂度 |
-|------|------|----------|--------|
-| **基于规则** | 硬编码规则选择 Agent | 简单场景 | 低 |
-| **协同过滤** | 基于相似任务-Agent 对 | 数据丰富时 | 中 |
-| **内容推荐** | 基于任务特征匹配 | 特征明确时 | 中 |
-| **混合推荐** | 结合多种方法 | 最佳效果 | 高 |
+| 方案         | 描述                  | 适用场景   | 复杂度 |
+| ------------ | --------------------- | ---------- | ------ |
+| **基于规则** | 硬编码规则选择 Agent  | 简单场景   | 低     |
+| **协同过滤** | 基于相似任务-Agent 对 | 数据丰富时 | 中     |
+| **内容推荐** | 基于任务特征匹配      | 特征明确时 | 中     |
+| **混合推荐** | 结合多种方法          | 最佳效果   | 高     |
 
 **推荐方案:** 混合推荐系统
 
@@ -520,29 +523,29 @@ class AgentRecommender {
     const scores = {
       // 1. 能力匹配 (40%)
       capability: this.capabilityScore(agentId, task.type),
-      
+
       // 2. 历史表现 (30%)
       history: this.historyScore(agentId, task.type),
-      
+
       // 3. 当前负载 (20%)
       load: this.loadScore(agentId),
-      
+
       // 4. 预测完成时间 (10%)
       predictedTime: this.timeScore(agentId, task),
-    };
-    
-    return this.weightedAverage(scores, this.weights);
+    }
+
+    return this.weightedAverage(scores, this.weights)
   }
-  
+
   // 推荐最佳 Agent
   recommend(task: Task, candidates: Agent[]): AgentRecommendation {
     const scored = candidates.map(agent => ({
       agent,
       score: this.score(agent.id, task),
       breakdown: this.getBreakdown(agent.id, task),
-    }));
-    
-    return this.selectBest(scored);
+    }))
+
+    return this.selectBest(scored)
   }
 }
 ```
@@ -551,13 +554,13 @@ class AgentRecommender {
 
 #### 方法对比
 
-| 方法 | 适用场景 | 检测类型 | 实现复杂度 |
-|------|----------|----------|------------|
-| **统计方法 (Z-Score)** | 数值型指标 | 点异常 | 低 |
-| **IQR 方法** | 分布未知时 | 点异常 | 低 |
-| **移动平均** | 时间序列 | 上下文异常 | 中 |
-| **孤立森林** | 多维数据 | 集体异常 | 中 |
-| **LSTM** | 时间序列模式 | 时序异常 | 高 |
+| 方法                   | 适用场景     | 检测类型   | 实现复杂度 |
+| ---------------------- | ------------ | ---------- | ---------- |
+| **统计方法 (Z-Score)** | 数值型指标   | 点异常     | 低         |
+| **IQR 方法**           | 分布未知时   | 点异常     | 低         |
+| **移动平均**           | 时间序列     | 上下文异常 | 中         |
+| **孤立森林**           | 多维数据     | 集体异常   | 中         |
+| **LSTM**               | 时间序列模式 | 时序异常   | 高         |
 
 **推荐方案:** 分层异常检测
 
@@ -571,9 +574,9 @@ class AnomalyDetector {
       this.checkZScore(metrics.executionTime, this.baseline.avgTime),
       this.checkRateLimit(metrics.errorRate, this.thresholds.maxErrorRate),
       this.checkTimeout(metrics.waitTime, this.thresholds.maxWaitTime),
-    ].filter(Boolean);
+    ].filter(Boolean)
   }
-  
+
   // 层 2: 模式匹配 (分钟级)
   detectPatternAnomalies(history: HistorySnapshot): Anomaly[] {
     // 检测异常模式
@@ -581,13 +584,13 @@ class AnomalyDetector {
       this.detectBurstPattern(history),
       this.detectSlowDrift(history),
       this.detectSeasonalDeviation(history),
-    ].filter(Boolean);
+    ].filter(Boolean)
   }
-  
+
   // 层 3: 机器学习 (小时级)
   detectMLAnomalies(dataset: Dataset): Anomaly[] {
     // 使用训练好的模型
-    return this.mlModel.predict(dataset);
+    return this.mlModel.predict(dataset)
   }
 }
 ```
@@ -602,17 +605,18 @@ class AnomalyDetector {
 
 **任务清单:**
 
-| 任务 | 描述 | 工作量 | 依赖 |
-|------|------|--------|------|
-| 1.1 | 创建 MetricsCollector 基类 | 4h | - |
-| 1.2 | 实现 TaskMetrics 收集器 | 6h | 1.1 |
-| 1.3 | 实现 AgentMetrics 收集器 | 6h | 1.1 |
-| 1.4 | 实现 EnvironmentMetrics 收集器 | 4h | 1.1 |
-| 1.5 | 创建 MetricsStorage (SQLite) | 8h | 1.2-1.4 |
-| 1.6 | 集成到现有 Scheduler | 4h | 1.5 |
-| 1.7 | 编写单元测试 | 8h | 1.6 |
+| 任务 | 描述                           | 工作量 | 依赖    |
+| ---- | ------------------------------ | ------ | ------- |
+| 1.1  | 创建 MetricsCollector 基类     | 4h     | -       |
+| 1.2  | 实现 TaskMetrics 收集器        | 6h     | 1.1     |
+| 1.3  | 实现 AgentMetrics 收集器       | 6h     | 1.1     |
+| 1.4  | 实现 EnvironmentMetrics 收集器 | 4h     | 1.1     |
+| 1.5  | 创建 MetricsStorage (SQLite)   | 8h     | 1.2-1.4 |
+| 1.6  | 集成到现有 Scheduler           | 4h     | 1.5     |
+| 1.7  | 编写单元测试                   | 8h     | 1.6     |
 
 **交付物:**
+
 - `src/lib/agents/learning/metrics/` - 指标收集模块
 - `src/lib/agents/learning/storage/` - 存储模块
 - 测试覆盖率 > 80%
@@ -623,16 +627,17 @@ class AnomalyDetector {
 
 **任务清单:**
 
-| 任务 | 描述 | 工作量 | 依赖 |
-|------|------|--------|------|
-| 2.1 | 实现基础统计计算 (均值、方差、百分位) | 4h | Phase 1 |
-| 2.2 | 实现时间序列聚合 | 6h | 2.1 |
-| 2.3 | 创建 Analytics API | 8h | 2.2 |
-| 2.4 | 实现基础报表生成 | 6h | 2.3 |
-| 2.5 | 创建监控 Dashboard | 12h | 2.4 |
-| 2.6 | 编写集成测试 | 8h | 2.5 |
+| 任务 | 描述                                  | 工作量 | 依赖    |
+| ---- | ------------------------------------- | ------ | ------- |
+| 2.1  | 实现基础统计计算 (均值、方差、百分位) | 4h     | Phase 1 |
+| 2.2  | 实现时间序列聚合                      | 6h     | 2.1     |
+| 2.3  | 创建 Analytics API                    | 8h     | 2.2     |
+| 2.4  | 实现基础报表生成                      | 6h     | 2.3     |
+| 2.5  | 创建监控 Dashboard                    | 12h    | 2.4     |
+| 2.6  | 编写集成测试                          | 8h     | 2.5     |
 
 **交付物:**
+
 - `src/lib/agents/learning/analytics/` - 分析模块
 - `src/app/api/a2a/analytics/` - 分析 API
 - 监控 Dashboard 页面
@@ -643,18 +648,19 @@ class AnomalyDetector {
 
 **任务清单:**
 
-| 任务 | 描述 | 工作量 | 依赖 |
-|------|------|--------|------|
-| 3.1 | 设计特征工程管道 | 8h | Phase 2 |
-| 3.2 | 实现线性回归预测器 | 6h | 3.1 |
-| 3.3 | 实现决策树预测器 | 8h | 3.1 |
-| 3.4 | 实现 Agent 评分系统 | 8h | 3.1 |
-| 3.5 | 创建推荐引擎 | 12h | 3.4 |
-| 3.6 | 集成到 SmartDispatcher | 8h | 3.5 |
-| 3.7 | A/B 测试框架 | 8h | 3.6 |
-| 3.8 | 性能测试和优化 | 8h | 3.7 |
+| 任务 | 描述                   | 工作量 | 依赖    |
+| ---- | ---------------------- | ------ | ------- |
+| 3.1  | 设计特征工程管道       | 8h     | Phase 2 |
+| 3.2  | 实现线性回归预测器     | 6h     | 3.1     |
+| 3.3  | 实现决策树预测器       | 8h     | 3.1     |
+| 3.4  | 实现 Agent 评分系统    | 8h     | 3.1     |
+| 3.5  | 创建推荐引擎           | 12h    | 3.4     |
+| 3.6  | 集成到 SmartDispatcher | 8h     | 3.5     |
+| 3.7  | A/B 测试框架           | 8h     | 3.6     |
+| 3.8  | 性能测试和优化         | 8h     | 3.7     |
 
 **交付物:**
+
 - `src/lib/agents/learning/predictors/` - 预测模型
 - `src/lib/agents/learning/recommender/` - 推荐引擎
 - A/B 测试框架
@@ -665,16 +671,17 @@ class AnomalyDetector {
 
 **任务清单:**
 
-| 任务 | 描述 | 工作量 | 依赖 |
-|------|------|--------|------|
-| 4.1 | 实现策略评估器 | 6h | Phase 3 |
-| 4.2 | 实现优化建议生成 | 8h | 4.1 |
-| 4.3 | 实现自动调优器 | 10h | 4.2 |
-| 4.4 | 创建异常检测器 | 8h | 4.1 |
-| 4.5 | 集成告警系统 | 6h | 4.4 |
-| 4.6 | 端到端测试 | 8h | 4.5 |
+| 任务 | 描述             | 工作量 | 依赖    |
+| ---- | ---------------- | ------ | ------- |
+| 4.1  | 实现策略评估器   | 6h     | Phase 3 |
+| 4.2  | 实现优化建议生成 | 8h     | 4.1     |
+| 4.3  | 实现自动调优器   | 10h    | 4.2     |
+| 4.4  | 创建异常检测器   | 8h     | 4.1     |
+| 4.5  | 集成告警系统     | 6h     | 4.4     |
+| 4.6  | 端到端测试       | 8h     | 4.5     |
 
 **交付物:**
+
 - `src/lib/agents/learning/optimizer/` - 优化模块
 - `src/lib/agents/learning/anomaly/` - 异常检测模块
 - 完整的学习优化系统
@@ -738,31 +745,31 @@ POST /api/a2a/anomalies/{id}/acknowledge
 interface LearningSystemAPI {
   // 调度增强
   dispatcher: {
-    findBestAgent(task: Task): Promise<AgentRecommendation>;
-    predictCompletionTime(task: Task): Promise<PredictionResult>;
-    shouldPreempt(task: Task): Promise<boolean>;
-  };
-  
+    findBestAgent(task: Task): Promise<AgentRecommendation>
+    predictCompletionTime(task: Task): Promise<PredictionResult>
+    shouldPreempt(task: Task): Promise<boolean>
+  }
+
   // Agent 管理
   agents: {
-    updateScore(agentId: string, task: Task, result: TaskResult): void;
-    getScore(agentId: string): AgentScore;
-    getCapabilities(agentId: string): CapabilityScore[];
-  };
-  
+    updateScore(agentId: string, task: Task, result: TaskResult): void
+    getScore(agentId: string): AgentScore
+    getCapabilities(agentId: string): CapabilityScore[]
+  }
+
   // 分析
   analytics: {
-    recordMetric(metric: Metric): void;
-    getAggregates(period: TimePeriod): Aggregates;
-    generateReport(type: ReportType): Report;
-  };
-  
+    recordMetric(metric: Metric): void
+    getAggregates(period: TimePeriod): Aggregates
+    generateReport(type: ReportType): Report
+  }
+
   // 优化
   optimization: {
-    evaluate(): StrategyPerformance;
-    suggest(): OptimizationSuggestion[];
-    apply(suggestion: OptimizationSuggestion): void;
-  };
+    evaluate(): StrategyPerformance
+    suggest(): OptimizationSuggestion[]
+    apply(suggestion: OptimizationSuggestion): void
+  }
 }
 ```
 
@@ -776,11 +783,11 @@ enum LearningEventType {
   TASK_METRICS_COLLECTED = 'task:metrics:collected',
   TASK_TIME_PREDICTED = 'task:time:predicted',
   TASK_AGENT_RECOMMENDED = 'task:agent:recommended',
-  
+
   // Agent 事件
   AGENT_SCORE_UPDATED = 'agent:score:updated',
   AGENT_ANOMALY_DETECTED = 'agent:anomaly:detected',
-  
+
   // 系统事件
   STRATEGY_EVALUATED = 'strategy:evaluated',
   OPTIMIZATION_SUGGESTED = 'optimization:suggested',
@@ -788,10 +795,10 @@ enum LearningEventType {
 }
 
 interface LearningEvent {
-  type: LearningEventType;
-  timestamp: number;
-  data: unknown;
-  metadata?: Record<string, unknown>;
+  type: LearningEventType
+  timestamp: number
+  data: unknown
+  metadata?: Record<string, unknown>
 }
 ```
 
@@ -801,29 +808,29 @@ interface LearningEvent {
 
 ### 7.1 技术风险
 
-| 风险 | 影响 | 概率 | 缓解措施 |
-|------|------|------|----------|
-| 预测模型准确度不足 | 用户体验下降 | 中 | 从简单模型开始，逐步迭代；提供置信度显示 |
-| 数据收集影响性能 | 系统响应变慢 | 低 | 异步收集、批量写入、采样策略 |
-| 存储需求增长过快 | 磁盘空间不足 | 中 | 数据归档策略、冷热数据分离 |
-| 模型训练时间过长 | 实时性受影响 | 低 | 离线训练、增量更新 |
-| 异常检测误报 | 运维成本增加 | 中 | 阈值调优、白名单机制 |
+| 风险               | 影响         | 概率 | 缓解措施                                 |
+| ------------------ | ------------ | ---- | ---------------------------------------- |
+| 预测模型准确度不足 | 用户体验下降 | 中   | 从简单模型开始，逐步迭代；提供置信度显示 |
+| 数据收集影响性能   | 系统响应变慢 | 低   | 异步收集、批量写入、采样策略             |
+| 存储需求增长过快   | 磁盘空间不足 | 中   | 数据归档策略、冷热数据分离               |
+| 模型训练时间过长   | 实时性受影响 | 低   | 离线训练、增量更新                       |
+| 异常检测误报       | 运维成本增加 | 中   | 阈值调优、白名单机制                     |
 
 ### 7.2 业务风险
 
-| 风险 | 影响 | 概率 | 缓解措施 |
-|------|------|------|----------|
-| 学习系统故障影响调度 | 服务中断 | 低 | 优雅降级机制，回退到基础调度 |
-| 调度策略变更不稳定 | 性能波动 | 中 | 灰度发布、A/B 测试、快速回滚 |
-| 数据隐私问题 | 合规风险 | 低 | 数据脱敏、访问控制 |
+| 风险                 | 影响     | 概率 | 缓解措施                     |
+| -------------------- | -------- | ---- | ---------------------------- |
+| 学习系统故障影响调度 | 服务中断 | 低   | 优雅降级机制，回退到基础调度 |
+| 调度策略变更不稳定   | 性能波动 | 中   | 灰度发布、A/B 测试、快速回滚 |
+| 数据隐私问题         | 合规风险 | 低   | 数据脱敏、访问控制           |
 
 ### 7.3 运维风险
 
-| 风险 | 影响 | 概率 | 缓解措施 |
-|------|------|------|----------|
-| 监控系统复杂度增加 | 排障困难 | 中 | 完善文档、统一日志、可视化工具 |
-| 配置参数过多 | 调优困难 | 中 | 提供默认配置、自动调优 |
-| 依赖组件增加 | 故障点增加 | 低 | 健康检查、熔断机制 |
+| 风险               | 影响       | 概率 | 缓解措施                       |
+| ------------------ | ---------- | ---- | ------------------------------ |
+| 监控系统复杂度增加 | 排障困难   | 中   | 完善文档、统一日志、可视化工具 |
+| 配置参数过多       | 调优困难   | 中   | 提供默认配置、自动调优         |
+| 依赖组件增加       | 故障点增加 | 低   | 健康检查、熔断机制             |
 
 ---
 
@@ -863,30 +870,30 @@ interface LearningEvent {
 // 装饰器模式增强现有调度器
 
 class EnhancedAgentScheduler extends AgentScheduler {
-  private learningSystem: LearningSystem;
-  private fallbackEnabled: boolean = true;
-  
+  private learningSystem: LearningSystem
+  private fallbackEnabled: boolean = true
+
   override findBestAgent(task: Task): Agent | null {
     try {
       // 尝试使用学习系统
       const recommendation = this.learningSystem.recommender.recommend(
         task,
         this.getAvailableAgents()
-      );
-      
+      )
+
       if (recommendation.confidence > 0.7) {
-        return recommendation.agent;
+        return recommendation.agent
       }
     } catch (error) {
-      console.error('Learning system error, falling back:', error);
+      console.error('Learning system error, falling back:', error)
     }
-    
+
     // 优雅降级到基础调度
     if (this.fallbackEnabled) {
-      return super.findBestAgent(task);
+      return super.findBestAgent(task)
     }
-    
-    return null;
+
+    return null
   }
 }
 ```
@@ -918,11 +925,11 @@ Agent 指标:
 
 **存储方案:**
 
-| 数据类型 | 存储方案 | 保留策略 |
-|----------|----------|----------|
-| 原始指标 | SQLite + 压缩 | 7 天热数据 + 90 天冷数据 |
-| 聚合统计 | 内存缓存 + SQLite | 永久保留 |
-| 模型参数 | 文件系统 | 版本化保留 |
+| 数据类型 | 存储方案          | 保留策略                 |
+| -------- | ----------------- | ------------------------ |
+| 原始指标 | SQLite + 压缩     | 7 天热数据 + 90 天冷数据 |
+| 聚合统计 | 内存缓存 + SQLite | 永久保留                 |
+| 模型参数 | 文件系统          | 版本化保留               |
 
 ### 8.3 性能影响分析
 
@@ -977,14 +984,15 @@ Agent 指标:
 
 **目标:** 提供基本的数据洞察和预测能力
 
-| 功能 | 描述 | 价值 | 工作量 |
-|------|------|------|--------|
-| ✅ 指标收集 | 收集任务/Agent/环境指标 | 数据基础 | 2 周 |
-| ✅ 基础统计 | 均值、方差、百分位 | 洞察基础 | 1 周 |
-| ✅ 时间预测 | 线性回归预测完成时间 | 用户体验 | 1 周 |
-| ✅ 监控面板 | 可视化关键指标 | 运维效率 | 1 周 |
+| 功能        | 描述                    | 价值     | 工作量 |
+| ----------- | ----------------------- | -------- | ------ |
+| ✅ 指标收集 | 收集任务/Agent/环境指标 | 数据基础 | 2 周   |
+| ✅ 基础统计 | 均值、方差、百分位      | 洞察基础 | 1 周   |
+| ✅ 时间预测 | 线性回归预测完成时间    | 用户体验 | 1 周   |
+| ✅ 监控面板 | 可视化关键指标          | 运维效率 | 1 周   |
 
 **预期收益:**
+
 - 任务完成时间预测准确率 > 70%
 - 提供基础运维洞察
 - 为后续优化积累数据
@@ -993,14 +1001,15 @@ Agent 指标:
 
 **目标:** 提升调度智能化水平
 
-| 功能 | 描述 | 价值 | 工作量 |
-|------|------|------|--------|
-| ⭐ 决策树预测 | 更准确的非线性预测 | 准确率提升 | 1 周 |
-| ⭐ Agent 评分 | 动态能力评估 | 智能分配 | 1 周 |
-| ⭐ 智能推荐 | 混合推荐引擎 | 效率提升 | 1.5 周 |
-| ⭐ A/B 测试 | 策略验证框架 | 风险控制 | 1 周 |
+| 功能          | 描述               | 价值       | 工作量 |
+| ------------- | ------------------ | ---------- | ------ |
+| ⭐ 决策树预测 | 更准确的非线性预测 | 准确率提升 | 1 周   |
+| ⭐ Agent 评分 | 动态能力评估       | 智能分配   | 1 周   |
+| ⭐ 智能推荐   | 混合推荐引擎       | 效率提升   | 1.5 周 |
+| ⭐ A/B 测试   | 策略验证框架       | 风险控制   | 1 周   |
 
 **预期收益:**
+
 - 任务完成时间预测准确率 > 85%
 - Agent 选择准确率提升 20%
 - 平均任务完成时间降低 15%
@@ -1009,13 +1018,14 @@ Agent 指标:
 
 **目标:** 实现自适应优化
 
-| 功能 | 描述 | 价值 | 工作量 |
-|------|------|------|--------|
-| 🔮 自动调优 | 策略参数自动优化 | 持续改进 | 1 周 |
-| 🔮 异常检测 | 性能异常自动发现 | 稳定性 | 1 周 |
-| 🔮 告警集成 | 异常告警推送 | 运维效率 | 0.5 周 |
+| 功能        | 描述             | 价值     | 工作量 |
+| ----------- | ---------------- | -------- | ------ |
+| 🔮 自动调优 | 策略参数自动优化 | 持续改进 | 1 周   |
+| 🔮 异常检测 | 性能异常自动发现 | 稳定性   | 1 周   |
+| 🔮 告警集成 | 异常告警推送     | 运维效率 | 0.5 周 |
 
 **预期收益:**
+
 - 自动适应负载变化
 - 异常检测召回率 > 90%
 - 减少人工干预 50%
@@ -1131,21 +1141,21 @@ v2.0.0: 分布式学习 + 多租户支持
 
 ### B. 术语表
 
-| 术语 | 定义 |
-|------|------|
-| **Feature Engineering** | 特征工程，将原始数据转换为模型可用的特征 |
-| **Cold Start** | 冷启动，新 Agent 或新任务类型缺乏历史数据的情况 |
-| **Graceful Degradation** | 优雅降级，系统故障时保持基本功能 |
-| **A/B Testing** | 对比测试，同时运行两种策略验证效果 |
+| 术语                     | 定义                                            |
+| ------------------------ | ----------------------------------------------- |
+| **Feature Engineering**  | 特征工程，将原始数据转换为模型可用的特征        |
+| **Cold Start**           | 冷启动，新 Agent 或新任务类型缺乏历史数据的情况 |
+| **Graceful Degradation** | 优雅降级，系统故障时保持基本功能                |
+| **A/B Testing**          | 对比测试，同时运行两种策略验证效果              |
 
 ---
 
 **文档版本历史:**
 
-| 版本 | 日期 | 作者 | 变更 |
-|------|------|------|------|
+| 版本 | 日期       | 作者      | 变更         |
+| ---- | ---------- | --------- | ------------ |
 | v1.0 | 2026-03-30 | 📚 咨询师 | 初始设计文档 |
 
 ---
 
-*文档完成时间: 2026-03-30 15:45 CET*
+_文档完成时间: 2026-03-30 15:45 CET_

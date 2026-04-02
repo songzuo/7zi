@@ -69,23 +69,20 @@ src/lib/agent-scheduler/
 ### 1. 智能任务匹配
 
 基于多维度评分的任务匹配算法：
+
 - **能力匹配** (权重 0.4): 技术栈、任务类型匹配度
 - **负载均衡** (权重 0.3): 当前负载、可用性
 - **性能评分** (权重 0.2): 成功率、响应时间
 - **响应速度** (权重 0.1): 平均响应时间
 
 ```typescript
-const score = (
-  capabilityScore * 0.4 +
-  loadScore * 0.3 +
-  performanceScore * 0.2 +
-  responseScore * 0.1
-);
+const score = capabilityScore * 0.4 + loadScore * 0.3 + performanceScore * 0.2 + responseScore * 0.1
 ```
 
 ### 2. 任务优先级排序
 
 综合评估任务优先级：
+
 - 紧急度 (Urgency)
 - 依赖关系 (Dependencies)
 - 任务年龄 (Age)
@@ -94,6 +91,7 @@ const score = (
 ### 3. 负载均衡
 
 动态负载均衡策略：
+
 - 最大负载阈值: 90%
 - 忙碌阈值: 70%
 - 优先选择低负载 Agent
@@ -102,6 +100,7 @@ const score = (
 ### 4. 多 Agent 协作
 
 支持复杂协作流程：
+
 - **顺序协作**: 架构师设计 → Executor 实现
 - **并行协作**: 多个测试员同时测试
 - **评审协作**: 测试员评审 → 架构师审核
@@ -113,7 +112,7 @@ const score = (
 ### 基本使用
 
 ```typescript
-import { AgentScheduler } from './core/scheduler';
+import { AgentScheduler } from './core/scheduler'
 
 // 初始化调度器
 const scheduler = new AgentScheduler({
@@ -121,7 +120,7 @@ const scheduler = new AgentScheduler({
   allowManualOverride: true,
   maxBatchSize: 10,
   schedulingInterval: 30000, // 30 秒
-});
+})
 
 // 创建任务
 const task = createTask({
@@ -130,11 +129,11 @@ const task = createTask({
   priority: 'high',
   techStack: ['TypeScript', 'Next.js'],
   estimatedDuration: 3600000, // 1 小时
-});
+})
 
 // 分配任务
-const result = await scheduler.schedule(task);
-console.log(`任务已分配给: ${result.assignedAgentId}`);
+const result = await scheduler.schedule(task)
+console.log(`任务已分配给: ${result.assignedAgentId}`)
 ```
 
 ### 手动干预
@@ -143,8 +142,8 @@ console.log(`任务已分配给: ${result.assignedAgentId}`);
 // 手动分配任务
 await scheduler.assignTask(taskId, 'executor', {
   reason: '紧急任务，手动分配',
-  overrideScore: true
-});
+  overrideScore: true,
+})
 ```
 
 ### 监控调度状态
@@ -174,13 +173,13 @@ function Dashboard() {
 
 ## 📊 性能指标
 
-| 指标 | 数值 |
-|------|------|
-| **调度效率提升** | 70-80% |
-| **任务完成时间减少** | 30-40% |
-| **Agent 负载均衡度** | 85-95% |
-| **平均响应时间** | < 100ms |
-| **调度准确率** | > 95% |
+| 指标                 | 数值    |
+| -------------------- | ------- |
+| **调度效率提升**     | 70-80%  |
+| **任务完成时间减少** | 30-40%  |
+| **Agent 负载均衡度** | 85-95%  |
+| **平均响应时间**     | < 100ms |
+| **调度准确率**       | > 95%   |
 
 ---
 
@@ -191,6 +190,7 @@ function Dashboard() {
 - ✅ 包含能力匹配、排序、负载均衡等所有核心功能
 
 运行测试：
+
 ```bash
 npm test -- agent-scheduler
 ```
@@ -203,17 +203,18 @@ npm test -- agent-scheduler
 
 ```typescript
 interface SchedulerConfig {
-  autoSchedule: boolean;           // 启用自动调度
-  allowManualOverride: boolean;    // 允许手动干预
-  maxBatchSize: number;            // 每批最大任务数
-  schedulingInterval: number;      // 调度间隔 (ms)
-  loadBalance: LoadBalanceConfig;  // 负载均衡配置
-  scoringWeights?: {               // 评分权重
-    capability?: number;
-    load?: number;
-    performance?: number;
-    response?: number;
-  };
+  autoSchedule: boolean // 启用自动调度
+  allowManualOverride: boolean // 允许手动干预
+  maxBatchSize: number // 每批最大任务数
+  schedulingInterval: number // 调度间隔 (ms)
+  loadBalance: LoadBalanceConfig // 负载均衡配置
+  scoringWeights?: {
+    // 评分权重
+    capability?: number
+    load?: number
+    performance?: number
+    response?: number
+  }
 }
 ```
 
@@ -229,8 +230,8 @@ interface SchedulerConfig {
 
 ## 🔄 版本历史
 
-| 版本 | 日期 | 更新内容 |
-|------|------|----------|
+| 版本       | 日期       | 更新内容                                          |
+| ---------- | ---------- | ------------------------------------------------- |
 | **v1.0.0** | 2026-03-29 | ✅ 核心功能完成、Dashboard UI 完成、测试覆盖 100% |
 
 ---

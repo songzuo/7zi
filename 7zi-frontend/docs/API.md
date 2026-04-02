@@ -50,13 +50,13 @@ X-API-Key: your-api-key-here
 
 系统使用 RBAC (基于角色的访问控制)：
 
-| 角色等级 | 角色名 | 权限范围 |
-|---------|--------|---------|
-| 100 | super_admin | 完全访问 |
-| 80 | admin | 管理员权限 |
-| 60 | team_leader | 团队管理 |
-| 40 | developer | 开发权限 |
-| 20 | user | 普通用户 |
+| 角色等级 | 角色名      | 权限范围   |
+| -------- | ----------- | ---------- |
+| 100      | super_admin | 完全访问   |
+| 80       | admin       | 管理员权限 |
+| 60       | team_leader | 团队管理   |
+| 40       | developer   | 开发权限   |
+| 20       | user        | 普通用户   |
 
 ---
 
@@ -69,6 +69,7 @@ X-API-Key: your-api-key-here
 用户认证端点。
 
 **请求体**:
+
 ```json
 {
   "username": "string",
@@ -77,6 +78,7 @@ X-API-Key: your-api-key-here
 ```
 
 **响应**:
+
 ```json
 {
   "success": true,
@@ -98,6 +100,7 @@ X-API-Key: your-api-key-here
 列出所有用户（需要 `user:list` 权限）。
 
 **Headers**:
+
 - `x-user-id`: 用户 ID
 
 **查询参数**:
@@ -107,6 +110,7 @@ X-API-Key: your-api-key-here
 | limit | number | 否 | 每页数量，默认 20 |
 
 **响应**:
+
 ```json
 {
   "success": true,
@@ -130,6 +134,7 @@ X-API-Key: your-api-key-here
 创建新用户（需要 `user:create` 权限）。
 
 **请求体**:
+
 ```json
 {
   "username": "string",
@@ -149,9 +154,11 @@ X-API-Key: your-api-key-here
 列出所有项目（需要 `project:read` 权限）。
 
 **Headers**:
+
 - `x-user-id`: 用户 ID
 
 **响应**:
+
 ```json
 {
   "success": true,
@@ -176,6 +183,7 @@ X-API-Key: your-api-key-here
 创建新项目（需要 `project:create` 权限）。
 
 **请求体**:
+
 ```json
 {
   "name": "string",
@@ -207,6 +215,7 @@ X-API-Key: your-api-key-here
 | dateTo | number | 否 | 结束时间戳 |
 
 **响应**:
+
 ```json
 {
   "success": true,
@@ -238,6 +247,7 @@ X-API-Key: your-api-key-here
 提交新反馈（需要认证）。
 
 **请求体**:
+
 ```json
 {
   "type": "bug|feature|improvement|complaint|praise|other",
@@ -253,6 +263,7 @@ X-API-Key: your-api-key-here
 ```
 
 **响应**:
+
 ```json
 {
   "success": true,
@@ -274,6 +285,7 @@ X-API-Key: your-api-key-here
 更新反馈状态（需要管理员权限）。
 
 **请求体**:
+
 ```json
 {
   "feedbackId": "string",
@@ -292,6 +304,7 @@ X-API-Key: your-api-key-here
 删除反馈（需要管理员权限）。
 
 **查询参数**:
+
 - `id`: 反馈 ID
 
 **权限要求**: `admin`
@@ -303,6 +316,7 @@ X-API-Key: your-api-key-here
 获取反馈统计信息（需要管理员权限）。
 
 **响应**:
+
 ```json
 {
   "success": true,
@@ -326,6 +340,7 @@ X-API-Key: your-api-key-here
 添加管理员回复（需要管理员权限）。
 
 **请求体**:
+
 ```json
 {
   "feedbackId": "string",
@@ -375,6 +390,7 @@ X-API-Key: your-api-key-here
 获取通知统计。
 
 **响应**:
+
 ```json
 {
   "success": true,
@@ -436,6 +452,7 @@ WebSocket 连接状态。
 导入数据（需要认证）。
 
 **请求体**:
+
 ```json
 {
   "type": "string",
@@ -458,6 +475,7 @@ WebSocket 连接状态。
 获取 MCP Server 信息。
 
 **响应**:
+
 ```json
 {
   "name": "OpenClaw MCP Server",
@@ -485,9 +503,11 @@ WebSocket 连接状态。
 处理 MCP JSON-RPC 2.0 请求（需要 API Key 认证）。
 
 **Headers**:
+
 - `X-API-Key`: API 密钥
 
 **请求体** (列出工具):
+
 ```json
 {
   "jsonrpc": "2.0",
@@ -497,6 +517,7 @@ WebSocket 连接状态。
 ```
 
 **请求体** (调用工具):
+
 ```json
 {
   "jsonrpc": "2.0",
@@ -512,6 +533,7 @@ WebSocket 连接状态。
 ```
 
 **响应**:
+
 ```json
 {
   "jsonrpc": "2.0",
@@ -572,16 +594,16 @@ WebSocket 连接状态。
 
 ### HTTP 状态码
 
-| 状态码 | 描述 |
-|--------|------|
-| 200 | 成功 |
-| 201 | 创建成功 |
-| 400 | 请求参数错误 |
-| 401 | 未认证 |
-| 403 | 权限不足 |
-| 404 | 资源不存在 |
-| 429 | 请求过于频繁 |
-| 500 | 服务器内部错误 |
+| 状态码 | 描述           |
+| ------ | -------------- |
+| 200    | 成功           |
+| 201    | 创建成功       |
+| 400    | 请求参数错误   |
+| 401    | 未认证         |
+| 403    | 权限不足       |
+| 404    | 资源不存在     |
+| 429    | 请求过于频繁   |
+| 500    | 服务器内部错误 |
 
 ---
 
@@ -589,12 +611,12 @@ WebSocket 连接状态。
 
 ### 限制策略
 
-| 端点类型 | 限制 | 窗口期 |
-|---------|------|--------|
-| 认证 API | 10 次/分钟 | 60 秒 |
-| 普通用户 | 100 次/分钟 | 60 秒 |
-| 认证用户 | 300 次/分钟 | 60 秒 |
-| 管理员 | 1000 次/分钟 | 60 秒 |
+| 端点类型 | 限制         | 窗口期 |
+| -------- | ------------ | ------ |
+| 认证 API | 10 次/分钟   | 60 秒  |
+| 普通用户 | 100 次/分钟  | 60 秒  |
+| 认证用户 | 300 次/分钟  | 60 秒  |
+| 管理员   | 1000 次/分钟 | 60 秒  |
 
 ### 响应头
 
@@ -676,20 +698,22 @@ v1.3.0 引入了 Server Actions 缓存 API，提供精细的缓存控制机制�
 更新缓存标签，确保用户立即看到自己的更新（Read-Your-Writes 语义）。
 
 **参数**:
+
 - `tags`: 单个标签或标签数组
 
 **示例**:
-```typescript
-'use server';
 
-import { updateTag } from '@/lib/cache/actions';
+```typescript
+'use server'
+
+import { updateTag } from '@/lib/cache/actions'
 
 async function updateUserData(userId: string, data: any) {
   // 更新数据库
-  await db.users.update(userId, data);
+  await db.users.update(userId, data)
 
   // 立即刷新缓存
-  updateTag(`user-${userId}`);
+  updateTag(`user-${userId}`)
 }
 ```
 
@@ -700,17 +724,19 @@ async function updateUserData(userId: string, data: any) {
 仅刷新未缓存的数据，提高效率。
 
 **参数**:
+
 - `tags`: 单个标签或标签数组
 
 **示例**:
-```typescript
-'use server';
 
-import { refresh } from '@/lib/cache/actions';
+```typescript
+'use server'
+
+import { refresh } from '@/lib/cache/actions'
 
 async function refreshDashboardData(userId: string) {
   // 刷新仪表板相关缓存
-  refresh(['dashboard', `user-${userId}`]);
+  refresh(['dashboard', `user-${userId}`])
 }
 ```
 
@@ -721,68 +747,74 @@ async function refreshDashboardData(userId: string) {
 按标签重新验证缓存，支持细粒度缓存控制。
 
 **参数**:
+
 - `tag`: 要重新验证的标签
 - `cacheLife`: 可选，缓存生命周期配置
 
 **Cache Life Profiles**:
+
 - `'max'` - 最大缓存时间
 - `'hours'` - 按小时缓存
 - `'minutes'` - 按分钟缓存
 - `'min'` - 最小缓存时间
 
 **示例**:
-```typescript
-'use server';
 
-import { revalidateTag } from '@/lib/cache/actions';
-import type { CacheLifeProfile } from '@/lib/cache/types';
+```typescript
+'use server'
+
+import { revalidateTag } from '@/lib/cache/actions'
+import type { CacheLifeProfile } from '@/lib/cache/types'
 
 async function invalidatePostCache(postId: string) {
   // 使用默认缓存配置
-  revalidateTag(`post-${postId}`);
+  revalidateTag(`post-${postId}`)
 
   // 使用自定义缓存配置
-  revalidateTag(`post-${postId}`, 'minutes');
+  revalidateTag(`post-${postId}`, 'minutes')
 }
 ```
 
 ### 缓存最佳实践
 
 1. **Read-Your-Writes 语义**: 用户更新数据后立即刷新相关缓存
+
    ```typescript
-   await updateData(id, data);
-   updateTag(`data-${id}`);
+   await updateData(id, data)
+   updateTag(`data-${id}`)
    ```
 
 2. **批量刷新**: 使用标签数组批量刷新多个缓存
+
    ```typescript
-   refresh(['dashboard', 'notifications', `user-${userId}`]);
+   refresh(['dashboard', 'notifications', `user-${userId}`])
    ```
 
 3. **细粒度控制**: 根据数据更新频率选择合适的 cacheLife profile
+
    ```typescript
    // 静态数据使用 'max'
-   revalidateTag('static-config', 'max');
+   revalidateTag('static-config', 'max')
 
    // 频繁更新数据使用 'minutes'
-   revalidateTag('real-time-stats', 'minutes');
+   revalidateTag('real-time-stats', 'minutes')
    ```
 
 4. **错误处理**: 缓存操作失败不应影响业务逻辑
    ```typescript
    try {
-     await updateData(id, data);
-     updateTag(`data-${id}`);
+     await updateData(id, data)
+     updateTag(`data-${id}`)
    } catch (error) {
-     console.error('Update failed:', error);
-     throw error; // 重新抛出错误
+     console.error('Update failed:', error)
+     throw error // 重新抛出错误
    }
    ```
 
 ### 性能指标
 
-| 指标 | 优化前 | 优化后 | 提升 |
-|------|--------|--------|------|
+| 指标         | 优化前     | 优化后    | 提升     |
+| ------------ | ---------- | --------- | -------- |
 | 缓存失效延迟 | ~200-500ms | ~20-100ms | 80-90% ↓ |
 
 ### 迁移指南
@@ -790,31 +822,34 @@ async function invalidatePostCache(postId: string) {
 从 v1.2.0 迁移到 v1.3.0：
 
 1. **导入缓存函数**:
+
    ```typescript
-   import { updateTag, refresh, revalidateTag } from '@/lib/cache/actions';
+   import { updateTag, refresh, revalidateTag } from '@/lib/cache/actions'
    ```
 
 2. **在 Server Action 中使用**:
+
    ```typescript
-   'use server';
+   'use server'
 
    async function updateUser(id: string, data: any) {
      // 数据库更新
-     const result = await db.users.update(id, data);
+     const result = await db.users.update(id, data)
 
      // 缓存更新（新增）
-     updateTag(`user-${id}`);
+     updateTag(`user-${id}`)
 
-     return result;
+     return result
    }
    ```
 
 3. **配置 cacheLife profiles**（可选）:
+
    ```typescript
-   import type { CacheLifeProfile } from '@/lib/cache/types';
+   import type { CacheLifeProfile } from '@/lib/cache/types'
 
    async function cacheConfigurableData(tag: string, profile: CacheLifeProfile) {
-     revalidateTag(tag, profile);
+     revalidateTag(tag, profile)
    }
    ```
 
@@ -825,19 +860,23 @@ async function invalidatePostCache(postId: string) {
 ### v1.3.0 (2026-03-28)
 
 **新增功能**:
+
 - Server Actions 缓存 API - `updateTag()`, `refresh()`, `revalidateTag()` 支持精细缓存控制
 - cacheLife profiles - 提供 max, hours, minutes, min 四种预设配置
 
 **中间件更新**:
+
 - `middleware.ts` 重命名为 `proxy.ts`
 - 导出函数从 `middleware` 改为 `proxy`
 
 **文档更新**:
+
 - 新增 Server Actions 缓存 API 完整文档
 - 添加缓存最佳实践和迁移指南
 - 更新性能指标：缓存失效延迟从 ~200-500ms 降至 ~20-100ms (80-90% 提升)
 
 **新增端点** (v1.2.1):
+
 - `GET /api/feedback/stats` - 反馈统计
 - `POST /api/feedback/response` - 管理员回复
 - `GET /api/feedback/export` - CSV 导出
@@ -847,6 +886,7 @@ async function invalidatePostCache(postId: string) {
 - `GET /api/notifications/preferences/[userId]` - 通知偏好
 
 **安全增强** (v1.2.1):
+
 - 所有端点添加 JWT 认证支持
 - 添加速率限制
 - 添加输入验证 (Zod)

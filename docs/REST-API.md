@@ -30,10 +30,10 @@
 
 ### 测试账号
 
-| 邮箱 | 密码 | 角色 |
-|------|------|------|
+| 邮箱          | 密码     | 角色  |
+| ------------- | -------- | ----- |
 | admin@7zi.com | admin123 | admin |
-| user@7zi.com | user123 | user |
+| user@7zi.com  | user123  | user  |
 
 ---
 
@@ -222,13 +222,13 @@ GET /api/protected
 
 ### HTTP 状态码
 
-| 状态码 | 说明 |
-|--------|------|
-| 200 | 成功 |
-| 400 | 请求参数错误 |
-| 401 | 未授权 (无效或缺失 token) |
-| 409 | 资源冲突 (如用户已存在) |
-| 500 | 服务器内部错误 |
+| 状态码 | 说明                      |
+| ------ | ------------------------- |
+| 200    | 成功                      |
+| 400    | 请求参数错误              |
+| 401    | 未授权 (无效或缺失 token) |
+| 409    | 资源冲突 (如用户已存在)   |
+| 500    | 服务器内部错误            |
 
 ### 错误响应示例
 
@@ -269,18 +269,18 @@ async function login(email, password) {
   const response = await fetch('/api/auth/login', {
     method: 'POST',
     headers: {
-      'Content-Type': 'application/json'
+      'Content-Type': 'application/json',
     },
     credentials: 'include', // 重要：包含 cookies
-    body: JSON.stringify({ email, password })
-  });
-  
+    body: JSON.stringify({ email, password }),
+  })
+
   if (response.ok) {
-    const data = await response.json();
-    console.log('Logged in:', data.user);
+    const data = await response.json()
+    console.log('Logged in:', data.user)
   } else {
-    const error = await response.json();
-    console.error('Login failed:', error.error);
+    const error = await response.json()
+    console.error('Login failed:', error.error)
   }
 }
 ```
@@ -290,13 +290,13 @@ async function login(email, password) {
 ```javascript
 async function getCurrentUser() {
   const response = await fetch('/api/auth/me', {
-    credentials: 'include'
-  });
-  
+    credentials: 'include',
+  })
+
   if (response.ok) {
-    return await response.json();
+    return await response.json()
   }
-  return null;
+  return null
 }
 ```
 
@@ -306,11 +306,11 @@ async function getCurrentUser() {
 async function logout() {
   const response = await fetch('/api/auth/logout', {
     method: 'POST',
-    credentials: 'include'
-  });
-  
+    credentials: 'include',
+  })
+
   if (response.ok) {
-    console.log('Logged out successfully');
+    console.log('Logged out successfully')
   }
 }
 ```
@@ -320,13 +320,13 @@ async function logout() {
 ```javascript
 async function fetchProtectedData() {
   const response = await fetch('/api/protected', {
-    credentials: 'include'
-  });
-  
+    credentials: 'include',
+  })
+
   if (response.ok) {
-    return await response.json();
+    return await response.json()
   }
-  throw new Error('Access denied');
+  throw new Error('Access denied')
 }
 ```
 
@@ -363,31 +363,31 @@ curl -X POST https://your-domain.com/api/auth/logout \
 ### React Hook 示例
 
 ```tsx
-'use client';
+'use client'
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react'
 
 export function useAuth() {
-  const [user, setUser] = useState(null);
-  const [loading, setLoading] = useState(true);
+  const [user, setUser] = useState(null)
+  const [loading, setLoading] = useState(true)
 
   useEffect(() => {
-    fetchUser();
-  }, []);
+    fetchUser()
+  }, [])
 
   async function fetchUser() {
     try {
-      const res = await fetch('/api/auth/me', { 
-        credentials: 'include' 
-      });
+      const res = await fetch('/api/auth/me', {
+        credentials: 'include',
+      })
       if (res.ok) {
-        const data = await res.json();
-        setUser(data);
+        const data = await res.json()
+        setUser(data)
       }
     } catch (error) {
-      console.error('Failed to fetch user:', error);
+      console.error('Failed to fetch user:', error)
     } finally {
-      setLoading(false);
+      setLoading(false)
     }
   }
 
@@ -396,25 +396,25 @@ export function useAuth() {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       credentials: 'include',
-      body: JSON.stringify({ email, password })
-    });
-    
+      body: JSON.stringify({ email, password }),
+    })
+
     if (res.ok) {
-      await fetchUser();
-      return true;
+      await fetchUser()
+      return true
     }
-    return false;
+    return false
   }
 
   async function logout() {
     await fetch('/api/auth/logout', {
       method: 'POST',
-      credentials: 'include'
-    });
-    setUser(null);
+      credentials: 'include',
+    })
+    setUser(null)
   }
 
-  return { user, loading, login, logout };
+  return { user, loading, login, logout }
 }
 ```
 
@@ -424,7 +424,7 @@ export function useAuth() {
 
 1. **JWT Secret**: 确保在生产环境中设置强随机值的 `JWT_SECRET`
 2. **HTTPS**: 生产环境必须使用 HTTPS
-3. **Cookie 安全**: 
+3. **Cookie 安全**:
    - `httpOnly`: 防止 XSS 攻击
    - `secure`: 仅在 HTTPS 中传输
    - `sameSite`: 防止 CSRF 攻击
@@ -441,4 +441,4 @@ export function useAuth() {
 
 ---
 
-*文档由 7zi Studio AI 团队维护 🤖*
+_文档由 7zi Studio AI 团队维护 🤖_

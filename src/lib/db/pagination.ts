@@ -17,91 +17,91 @@
 
 export interface PaginationOptions {
   /** Page number (1-based) for offset-based pagination */
-  page?: number;
+  page?: number
   /** Number of items per page */
-  limit?: number;
+  limit?: number
   /** Offset for manual control */
-  offset?: number;
+  offset?: number
   /** Cursor for cursor-based pagination */
-  cursor?: string;
+  cursor?: string
   /** Cursor field name (default: 'id') */
-  cursorField?: string;
+  cursorField?: string
   /** Maximum limit enforced (default: 100) */
-  maxLimit?: number;
+  maxLimit?: number
   /** Default limit (default: 20) */
-  defaultLimit?: number;
+  defaultLimit?: number
 }
 
 export interface PaginationMeta {
   /** Current page number */
-  currentPage: number;
+  currentPage: number
   /** Items per page */
-  perPage: number;
+  perPage: number
   /** Total items */
-  total: number;
+  total: number
   /** Total pages */
-  totalPages: number;
+  totalPages: number
   /** Has next page */
-  hasNext: boolean;
+  hasNext: boolean
   /** Has previous page */
-  hasPrevious: boolean;
+  hasPrevious: boolean
 }
 
 export interface CursorPaginationMeta {
   /** Next cursor for fetching next page */
-  nextCursor: string | null;
+  nextCursor: string | null
   /** Previous cursor for fetching previous page */
-  prevCursor: string | null;
+  prevCursor: string | null
   /** Has next page */
-  hasNext: boolean;
+  hasNext: boolean
   /** Has previous page */
-  hasPrevious: boolean;
+  hasPrevious: boolean
   /** Current page size */
-  pageSize: number;
+  pageSize: number
 }
 
 export interface PaginatedResult<T> {
   /** Result items */
-  items: T[];
+  items: T[]
   /** Pagination metadata */
-  meta: PaginationMeta;
+  meta: PaginationMeta
 }
 
 export interface CursorPaginatedResult<T> {
   /** Result items */
-  items: T[];
+  items: T[]
   /** Cursor pagination metadata */
-  meta: CursorPaginationMeta;
+  meta: CursorPaginationMeta
 }
 
 /**
  * Parse and validate pagination options
  */
-export function parsePaginationOptions(options: PaginationOptions): Required<
-  Omit<PaginationOptions, 'page' | 'offset'>
-> & { page: number; offset: number } {
-  const defaultLimit = options.defaultLimit || 20;
-  const maxLimit = options.maxLimit || 100;
+export function parsePaginationOptions(
+  options: PaginationOptions
+): Required<Omit<PaginationOptions, 'page' | 'offset'>> & { page: number; offset: number } {
+  const defaultLimit = options.defaultLimit || 20
+  const maxLimit = options.maxLimit || 100
 
-  let limit = options.limit || defaultLimit;
+  let limit = options.limit || defaultLimit
 
   // Enforce limits
-  if (limit < 1) limit = 1;
-  if (limit > maxLimit) limit = maxLimit;
+  if (limit < 1) limit = 1
+  if (limit > maxLimit) limit = maxLimit
 
-  let page = options.page || 1;
-  let offset = options.offset || 0;
+  let page = options.page || 1
+  let offset = options.offset || 0
 
   // Respect explicit page=0
   if (options.page === 0) {
-    page = 0;
-    offset = 0;
+    page = 0
+    offset = 0
   } else if (options.page && !options.offset) {
     // Calculate offset from page
-    offset = (page - 1) * limit;
+    offset = (page - 1) * limit
   } else if (!options.page && options.offset) {
     // Calculate page from offset
-    page = Math.floor(offset / limit) + 1;
+    page = Math.floor(offset / limit) + 1
   }
 
   return {
@@ -112,39 +112,39 @@ export function parsePaginationOptions(options: PaginationOptions): Required<
     cursorField: options.cursorField || 'id',
     maxLimit,
     defaultLimit,
-  };
+  }
 }
 
 /**
  * Build LIMIT/OFFSET clause for SQL queries
  */
 export function buildPaginationClause(options: PaginationOptions): {
-  clause: string;
-  params: unknown[];
+  clause: string
+  params: unknown[]
 } {
-  const parsed = parsePaginationOptions(options);
+  const parsed = parsePaginationOptions(options)
 
   if (parsed.cursor) {
     // Cursor-based pagination
-    const clause = `ORDER BY ${parsed.cursorField} ASC LIMIT ?`;
-    const params: unknown[] = [parsed.limit + 1]; // Fetch one extra to check for more
+    const clause = `ORDER BY ${parsed.cursorField} ASC LIMIT ?`
+    const params: unknown[] = [parsed.limit + 1] // Fetch one extra to check for more
 
     if (parsed.cursor !== 'first') {
       // If not first page, add cursor filter
       return {
         clause: `WHERE ${parsed.cursorField} > ? ORDER BY ${parsed.cursorField} ASC LIMIT ?`,
         params: [parsed.cursor, parsed.limit + 1],
-      };
+      }
     }
 
-    return { clause, params };
+    return { clause, params }
   }
 
   // Offset-based pagination
   return {
     clause: `LIMIT ? OFFSET ?`,
     params: [parsed.limit, parsed.offset],
-  };
+  }
 }
 
 /**
@@ -155,8 +155,8 @@ export function paginate<T>(
   total: number,
   options: PaginationOptions
 ): PaginatedResult<T> {
-  const parsed = parsePaginationOptions(options);
-  const totalPages = Math.ceil(total / parsed.limit);
+  const parsed = parsePaginationOptions(options)
+  const totalPages = Math.ceil(total / parsed.limit)
 
   const meta: PaginationMeta = {
     currentPage: parsed.page,
@@ -165,9 +165,9 @@ export function paginate<T>(
     totalPages,
     hasNext: parsed.page < totalPages,
     hasPrevious: parsed.page > 1,
-  };
+  }
 
-  return { items, meta };
+  return { items, meta }
 }
 
 /**
@@ -178,21 +178,23 @@ export function paginateWithCursor<T>(
   options: PaginationOptions,
   cursorField: string = 'id'
 ): CursorPaginatedResult<T> {
-  const parsed = parsePaginationOptions(options);
+  const parsed = parsePaginationOptions(options)
 
   // Check if we fetched an extra item
-  const hasNext = items.length > parsed.limit;
-  const resultItems = hasNext ? items.slice(0, -1) : items;
+  const hasNext = items.length > parsed.limit
+  const resultItems = hasNext ? items.slice(0, -1) : items
 
   // Generate cursors - use type-safe property access
-  const lastItem = hasNext ? resultItems[resultItems.length - 1] : null;
-  const nextCursor = lastItem && typeof lastItem === 'object' && lastItem !== null
-    ? String((lastItem as Record<string, unknown>)[cursorField] ?? null)
-    : null;
-  const firstItem = items[0];
-  const prevCursor = parsed.offset > 0 && firstItem && typeof firstItem === 'object' && firstItem !== null
-    ? String((firstItem as Record<string, unknown>)[cursorField] ?? null)
-    : null;
+  const lastItem = hasNext ? resultItems[resultItems.length - 1] : null
+  const nextCursor =
+    lastItem && typeof lastItem === 'object' && lastItem !== null
+      ? String((lastItem as Record<string, unknown>)[cursorField] ?? null)
+      : null
+  const firstItem = items[0]
+  const prevCursor =
+    parsed.offset > 0 && firstItem && typeof firstItem === 'object' && firstItem !== null
+      ? String((firstItem as Record<string, unknown>)[cursorField] ?? null)
+      : null
 
   const meta: CursorPaginationMeta = {
     nextCursor,
@@ -200,9 +202,9 @@ export function paginateWithCursor<T>(
     hasNext,
     hasPrevious: parsed.offset > 0,
     pageSize: resultItems.length,
-  };
+  }
 
-  return { items: resultItems, meta };
+  return { items: resultItems, meta }
 }
 
 /**
@@ -213,15 +215,12 @@ export async function executePaginatedQuery<T>(
   countFn: () => Promise<number>,
   options: PaginationOptions
 ): Promise<PaginatedResult<T>> {
-  const parsed = parsePaginationOptions(options);
+  const parsed = parsePaginationOptions(options)
 
   // Execute query and count in parallel
-  const [items, total] = await Promise.all([
-    queryFn(parsed.limit, parsed.offset),
-    countFn(),
-  ]);
+  const [items, total] = await Promise.all([queryFn(parsed.limit, parsed.offset), countFn()])
 
-  return paginate(items, total, options);
+  return paginate(items, total, options)
 }
 
 /**
@@ -231,25 +230,22 @@ export async function executeCursorPaginatedQuery<T>(
   queryFn: (limit: number, cursor?: string) => Promise<T[]>,
   options: PaginationOptions
 ): Promise<CursorPaginatedResult<T>> {
-  const parsed = parsePaginationOptions(options);
+  const parsed = parsePaginationOptions(options)
 
   const items = await queryFn(
     parsed.limit + 1,
     parsed.cursor === 'first' ? undefined : parsed.cursor
-  );
+  )
 
-  return paginateWithCursor(items, options, parsed.cursorField);
+  return paginateWithCursor(items, options, parsed.cursorField)
 }
 
 /**
  * Generate SQL for paginated queries
  */
-export function buildPaginatedQuery(
-  baseQuery: string,
-  options: PaginationOptions
-): string {
-  const { clause } = buildPaginationClause(options);
-  return `${baseQuery} ${clause}`;
+export function buildPaginatedQuery(baseQuery: string, options: PaginationOptions): string {
+  const { clause } = buildPaginationClause(options)
+  return `${baseQuery} ${clause}`
 }
 
 /**
@@ -261,45 +257,43 @@ export function addCursorToWhereClause(
   cursorField: string
 ): string {
   if (!cursor || cursor === 'first') {
-    return whereClause;
+    return whereClause
   }
 
-  const cursorCondition = `${cursorField} > ?`;
-  return whereClause
-    ? `${whereClause} AND ${cursorCondition}`
-    : `WHERE ${cursorCondition}`;
+  const cursorCondition = `${cursorField} > ?`
+  return whereClause ? `${whereClause} AND ${cursorCondition}` : `WHERE ${cursorCondition}`
 }
 
 /**
  * Validate pagination parameters
  */
 export function validatePaginationParams(params: {
-  page?: number;
-  limit?: number;
-  cursor?: string;
+  page?: number
+  limit?: number
+  cursor?: string
 }): { valid: boolean; error?: string } {
   if (params.cursor) {
     // Cursor-based: just validate cursor is a string
     if (typeof params.cursor !== 'string') {
-      return { valid: false, error: 'Cursor must be a string' };
+      return { valid: false, error: 'Cursor must be a string' }
     }
   } else if (params.page !== undefined) {
     // Offset-based: validate page number
     if (params.page < 1) {
-      return { valid: false, error: 'Page number must be >= 1' };
+      return { valid: false, error: 'Page number must be >= 1' }
     }
   }
 
   if (params.limit !== undefined) {
     if (params.limit < 1) {
-      return { valid: false, error: 'Limit must be >= 1' };
+      return { valid: false, error: 'Limit must be >= 1' }
     }
     if (params.limit > 1000) {
-      return { valid: false, error: 'Limit cannot exceed 1000' };
+      return { valid: false, error: 'Limit cannot exceed 1000' }
     }
   }
 
-  return { valid: true };
+  return { valid: true }
 }
 
 /**
@@ -309,7 +303,7 @@ export function getDefaultPaginationOptions(): PaginationOptions {
   return {
     limit: parseInt(process.env.DEFAULT_PAGE_SIZE || '20', 10),
     maxLimit: parseInt(process.env.MAX_PAGE_SIZE || '100', 10),
-  };
+  }
 }
 
 /**
@@ -324,8 +318,8 @@ export function calculatePageFromCursor(
   return countFn().then(total => {
     // This is a simplified calculation - in practice you'd need to query
     // the actual position of the cursor value
-    return Math.ceil(total / pageSize);
-  });
+    return Math.ceil(total / pageSize)
+  })
 }
 
 /**
@@ -338,7 +332,7 @@ export function mergePaginationMeta<T, M extends PaginationMeta | CursorPaginati
   return {
     data,
     pagination: meta,
-  };
+  }
 }
 
 export default {
@@ -352,4 +346,4 @@ export default {
   addCursorToWhereClause,
   validatePaginationParams,
   getDefaultPaginationOptions,
-};
+}

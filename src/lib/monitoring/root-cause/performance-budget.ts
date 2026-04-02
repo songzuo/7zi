@@ -1,7 +1,7 @@
 /**
  * Performance Budget Controller
  * 性能预算控制器
- * 
+ *
  * 功能：
  * - 定义性能预算阈值（各指标阈值）
  * - 预算超限告警
@@ -13,55 +13,55 @@
 // ========================================
 
 export interface BudgetThreshold {
-  metric: string;
-  threshold: number;
-  unit: 'ms' | 'score' | 'bytes' | 'count' | '%';
-  comparison: 'lt' | 'lte' | 'gt' | 'gte'; // Less than, Less than or equal, etc.
-  severity: 'warning' | 'error';
-  category: 'web-vitals' | 'resource' | 'timing' | 'memory' | 'custom';
-  description: string;
+  metric: string
+  threshold: number
+  unit: 'ms' | 'score' | 'bytes' | 'count' | '%'
+  comparison: 'lt' | 'lte' | 'gt' | 'gte' // Less than, Less than or equal, etc.
+  severity: 'warning' | 'error'
+  category: 'web-vitals' | 'resource' | 'timing' | 'memory' | 'custom'
+  description: string
 }
 
 export interface BudgetViolation {
-  metric: string;
-  actualValue: number;
-  threshold: number;
-  unit: string;
-  severity: 'warning' | 'error';
-  deviation: number; // percentage
-  timestamp: Date;
-  url?: string;
-  details?: Record<string, unknown>;
+  metric: string
+  actualValue: number
+  threshold: number
+  unit: string
+  severity: 'warning' | 'error'
+  deviation: number // percentage
+  timestamp: Date
+  url?: string
+  details?: Record<string, unknown>
 }
 
 export interface BudgetComplianceReport {
-  timestamp: Date;
-  url?: string;
-  period: { start: Date; end: Date };
-  overallScore: number; // 0-100
-  complianceStatus: 'compliant' | 'warning' | 'violated';
-  violations: BudgetViolation[];
-  warnings: BudgetViolation[];
-  errors: BudgetViolation[];
-  passedMetrics: string[];
-  summary: string;
-  recommendations: string[];
+  timestamp: Date
+  url?: string
+  period: { start: Date; end: Date }
+  overallScore: number // 0-100
+  complianceStatus: 'compliant' | 'warning' | 'violated'
+  violations: BudgetViolation[]
+  warnings: BudgetViolation[]
+  errors: BudgetViolation[]
+  passedMetrics: string[]
+  summary: string
+  recommendations: string[]
 }
 
 export interface BudgetAlert {
-  violation: BudgetViolation;
-  suppressed: boolean;
-  suppressionReason?: string;
-  alertSent: boolean;
-  alertTimestamp?: Date;
+  violation: BudgetViolation
+  suppressed: boolean
+  suppressionReason?: string
+  alertSent: boolean
+  alertTimestamp?: Date
 }
 
 export interface BudgetHistory {
-  timestamp: Date;
-  url?: string;
-  score: number;
-  complianceStatus: 'compliant' | 'warning' | 'violated';
-  violationCount: number;
+  timestamp: Date
+  url?: string
+  score: number
+  complianceStatus: 'compliant' | 'warning' | 'violated'
+  violationCount: number
 }
 
 // ========================================
@@ -269,59 +269,58 @@ export const DEFAULT_BUDGET_THRESHOLDS: BudgetThreshold[] = [
     category: 'resource',
     description: 'DOM depth should be ≤ 32',
   },
-];
+]
 
 // ========================================
 // Performance Budget Controller Class
 // ========================================
 
 export class PerformanceBudgetController {
-  private thresholds: BudgetThreshold[] = [...DEFAULT_BUDGET_THRESHOLDS];
-  private alerts: BudgetAlert[] = [];
-  private history: BudgetHistory[] = [];
-  private readonly maxHistoryLength = 100;
-  private maxAlerts = 50;
+  private thresholds: BudgetThreshold[] = [...DEFAULT_BUDGET_THRESHOLDS]
+  private alerts: BudgetAlert[] = []
+  private history: BudgetHistory[] = []
+  private readonly maxHistoryLength = 100
+  private maxAlerts = 50
 
   /**
    * Check metrics against budget thresholds
    */
   checkBudgets(metrics: Record<string, number>, url?: string): BudgetComplianceReport {
-    const violations: BudgetViolation[] = [];
-    const passedMetrics: string[] = [];
+    const violations: BudgetViolation[] = []
+    const passedMetrics: string[] = []
 
     for (const threshold of this.thresholds) {
-      const actualValue = metrics[threshold.metric];
-      
+      const actualValue = metrics[threshold.metric]
+
       if (actualValue === undefined) {
         // Skip if metric not provided
-        continue;
+        continue
       }
 
-      const violation = this.checkThreshold(threshold, actualValue, url);
-      
+      const violation = this.checkThreshold(threshold, actualValue, url)
+
       if (violation) {
-        violations.push(violation);
+        violations.push(violation)
       } else {
-        passedMetrics.push(threshold.metric);
+        passedMetrics.push(threshold.metric)
       }
     }
 
-    const warnings = violations.filter((v) => v.severity === 'warning');
-    const errors = violations.filter((v) => v.severity === 'error');
+    const warnings = violations.filter(v => v.severity === 'warning')
+    const errors = violations.filter(v => v.severity === 'error')
 
     // Calculate overall score
-    const overallScore = this.calculateOverallScore(violations, this.thresholds.length);
+    const overallScore = this.calculateOverallScore(violations, this.thresholds.length)
 
     // Determine compliance status
-    const complianceStatus = errors.length > 0 ? 'violated' 
-      : warnings.length > 0 ? 'warning' 
-      : 'compliant';
+    const complianceStatus =
+      errors.length > 0 ? 'violated' : warnings.length > 0 ? 'warning' : 'compliant'
 
     // Generate summary
-    const summary = this.generateSummary(complianceStatus, violations);
+    const summary = this.generateSummary(complianceStatus, violations)
 
     // Generate recommendations
-    const recommendations = this.generateRecommendations(violations);
+    const recommendations = this.generateRecommendations(violations)
 
     // Store in history
     this.addToHistory({
@@ -330,11 +329,11 @@ export class PerformanceBudgetController {
       score: overallScore,
       complianceStatus,
       violationCount: violations.length,
-    });
+    })
 
     // Create alerts for new violations
     for (const violation of violations) {
-      this.createAlert(violation);
+      this.createAlert(violation)
     }
 
     return {
@@ -352,7 +351,7 @@ export class PerformanceBudgetController {
       passedMetrics,
       summary,
       recommendations,
-    };
+    }
   }
 
   /**
@@ -363,30 +362,31 @@ export class PerformanceBudgetController {
     actualValue: number,
     url?: string
   ): BudgetViolation | null {
-    let violated = false;
+    let violated = false
 
     switch (threshold.comparison) {
       case 'lt':
-        violated = actualValue >= threshold.threshold;
-        break;
+        violated = actualValue >= threshold.threshold
+        break
       case 'lte':
-        violated = actualValue > threshold.threshold;
-        break;
+        violated = actualValue > threshold.threshold
+        break
       case 'gt':
-        violated = actualValue <= threshold.threshold;
-        break;
+        violated = actualValue <= threshold.threshold
+        break
       case 'gte':
-        violated = actualValue < threshold.threshold;
-        break;
+        violated = actualValue < threshold.threshold
+        break
     }
 
     if (!violated) {
-      return null;
+      return null
     }
 
-    const deviation = threshold.threshold === 0 
-      ? 100 
-      : Math.abs((actualValue - threshold.threshold) / threshold.threshold) * 100;
+    const deviation =
+      threshold.threshold === 0
+        ? 100
+        : Math.abs((actualValue - threshold.threshold) / threshold.threshold) * 100
 
     return {
       metric: threshold.metric,
@@ -401,23 +401,23 @@ export class PerformanceBudgetController {
         category: threshold.category,
         description: threshold.description,
       },
-    };
+    }
   }
 
   /**
    * Calculate overall compliance score
    */
   private calculateOverallScore(violations: BudgetViolation[], totalThresholds: number): number {
-    if (violations.length === 0) return 100;
+    if (violations.length === 0) return 100
 
-    let totalDeduction = 0;
+    let totalDeduction = 0
     for (const violation of violations) {
-      const weight = violation.severity === 'error' ? 2 : 1;
-      totalDeduction += weight * (violation.deviation / 100);
+      const weight = violation.severity === 'error' ? 2 : 1
+      totalDeduction += weight * (violation.deviation / 100)
     }
 
-    const score = 100 - (totalDeduction / totalThresholds) * 100;
-    return Math.max(0, Math.round(score));
+    const score = 100 - (totalDeduction / totalThresholds) * 100
+    return Math.max(0, Math.round(score))
   }
 
   /**
@@ -428,37 +428,41 @@ export class PerformanceBudgetController {
     violations: BudgetViolation[]
   ): string {
     if (status === 'compliant') {
-      return 'All performance budgets are within acceptable limits.';
+      return 'All performance budgets are within acceptable limits.'
     }
 
-    const errorCount = violations.filter((v) => v.severity === 'error').length;
-    const warningCount = violations.filter((v) => v.severity === 'warning').length;
+    const errorCount = violations.filter(v => v.severity === 'error').length
+    const warningCount = violations.filter(v => v.severity === 'warning').length
 
     if (status === 'violated') {
-      return `${errorCount} critical and ${warningCount} warning budget violations detected. Immediate attention required.`;
+      return `${errorCount} critical and ${warningCount} warning budget violations detected. Immediate attention required.`
     }
 
-    return `${warningCount} budget warnings detected. Optimization recommended.`;
+    return `${warningCount} budget warnings detected. Optimization recommended.`
   }
 
   /**
    * Generate recommendations for violations
    */
   private generateRecommendations(violations: BudgetViolation[]): string[] {
-    const recommendations: string[] = [];
-    const seenMetrics = new Set<string>();
+    const recommendations: string[] = []
+    const seenMetrics = new Set<string>()
 
     for (const violation of violations) {
       if (seenMetrics.has(violation.metric)) {
-        continue;
+        continue
       }
 
-      seenMetrics.add(violation.metric);
-      const metricRecs = this.getRecommendationsForMetric(violation.metric, violation.actualValue, violation.threshold);
-      recommendations.push(...metricRecs);
+      seenMetrics.add(violation.metric)
+      const metricRecs = this.getRecommendationsForMetric(
+        violation.metric,
+        violation.actualValue,
+        violation.threshold
+      )
+      recommendations.push(...metricRecs)
     }
 
-    return recommendations.slice(0, 10); // Top 10 recommendations
+    return recommendations.slice(0, 10) // Top 10 recommendations
   }
 
   /**
@@ -560,11 +564,13 @@ export class PerformanceBudgetController {
         'Implement object pooling for frequently created objects',
         'Lazy load data and components',
       ],
-    };
+    }
 
-    return recommendations[metric] || [
-      `Optimize ${metric} to stay within the budget threshold of ${threshold}.`,
-    ];
+    return (
+      recommendations[metric] || [
+        `Optimize ${metric} to stay within the budget threshold of ${threshold}.`,
+      ]
+    )
   }
 
   /**
@@ -573,27 +579,27 @@ export class PerformanceBudgetController {
   private createAlert(violation: BudgetViolation): void {
     // Check if alert already exists for this metric
     const existingAlert = this.alerts.find(
-      (a) => 
+      a =>
         a.violation.metric === violation.metric &&
         a.violation.url === violation.url &&
         a.violation.timestamp.getTime() > Date.now() - 300000 // Last 5 minutes
-    );
+    )
 
     if (existingAlert) {
-      return;
+      return
     }
 
     const alert: BudgetAlert = {
       violation,
       suppressed: false,
       alertSent: false,
-    };
+    }
 
-    this.alerts.push(alert);
-    
+    this.alerts.push(alert)
+
     // Trim alerts
     if (this.alerts.length > this.maxAlerts) {
-      this.alerts.shift();
+      this.alerts.shift()
     }
   }
 
@@ -601,10 +607,10 @@ export class PerformanceBudgetController {
    * Add history entry
    */
   private addToHistory(entry: BudgetHistory): void {
-    this.history.push(entry);
-    
+    this.history.push(entry)
+
     if (this.history.length > this.maxHistoryLength) {
-      this.history.shift();
+      this.history.shift()
     }
   }
 
@@ -612,25 +618,25 @@ export class PerformanceBudgetController {
    * Get budget thresholds
    */
   getThresholds(): BudgetThreshold[] {
-    return [...this.thresholds];
+    return [...this.thresholds]
   }
 
   /**
    * Set budget thresholds
    */
   setThresholds(thresholds: BudgetThreshold[]): void {
-    this.thresholds = [...thresholds];
+    this.thresholds = [...thresholds]
   }
 
   /**
    * Add or update a budget threshold
    */
   setThreshold(threshold: BudgetThreshold): void {
-    const index = this.thresholds.findIndex((t) => t.metric === threshold.metric);
+    const index = this.thresholds.findIndex(t => t.metric === threshold.metric)
     if (index >= 0) {
-      this.thresholds[index] = threshold;
+      this.thresholds[index] = threshold
     } else {
-      this.thresholds.push(threshold);
+      this.thresholds.push(threshold)
     }
   }
 
@@ -638,35 +644,35 @@ export class PerformanceBudgetController {
    * Remove a budget threshold
    */
   removeThreshold(metric: string): void {
-    this.thresholds = this.thresholds.filter((t) => t.metric !== metric);
+    this.thresholds = this.thresholds.filter(t => t.metric !== metric)
   }
 
   /**
    * Get alerts
    */
   getAlerts(): BudgetAlert[] {
-    return [...this.alerts];
+    return [...this.alerts]
   }
 
   /**
    * Get history
    */
   getHistory(): BudgetHistory[] {
-    return [...this.history];
+    return [...this.history]
   }
 
   /**
    * Clear alerts
    */
   clearAlerts(): void {
-    this.alerts = [];
+    this.alerts = []
   }
 
   /**
    * Clear history
    */
   clearHistory(): void {
-    this.history = [];
+    this.history = []
   }
 
   /**
@@ -677,24 +683,22 @@ export class PerformanceBudgetController {
     startDate?: Date,
     endDate?: Date
   ): BudgetComplianceReport | null {
-    const filteredHistory = this.history.filter((h) => {
-      if (h.url !== url) return false;
-      if (startDate && h.timestamp < startDate) return false;
-      if (endDate && h.timestamp > endDate) return false;
-      return true;
-    });
+    const filteredHistory = this.history.filter(h => {
+      if (h.url !== url) return false
+      if (startDate && h.timestamp < startDate) return false
+      if (endDate && h.timestamp > endDate) return false
+      return true
+    })
 
     if (filteredHistory.length === 0) {
-      return null;
+      return null
     }
 
-    const avgScore = filteredHistory.reduce((sum, h) => sum + h.score, 0) / filteredHistory.length;
-    const violationCounts = filteredHistory.map((h) => h.violationCount);
-    const avgViolations = violationCounts.reduce((sum, c) => sum + c, 0) / violationCounts.length;
+    const avgScore = filteredHistory.reduce((sum, h) => sum + h.score, 0) / filteredHistory.length
+    const violationCounts = filteredHistory.map(h => h.violationCount)
+    const avgViolations = violationCounts.reduce((sum, c) => sum + c, 0) / violationCounts.length
 
-    const complianceStatus = avgScore >= 80 ? 'compliant' 
-      : avgScore >= 50 ? 'warning' 
-      : 'violated';
+    const complianceStatus = avgScore >= 80 ? 'compliant' : avgScore >= 50 ? 'warning' : 'violated'
 
     return {
       timestamp: new Date(),
@@ -710,26 +714,29 @@ export class PerformanceBudgetController {
       errors: [],
       passedMetrics: [],
       summary: `${complianceStatus === 'compliant' ? 'Good' : complianceStatus === 'warning' ? 'Needs improvement' : 'Poor'} compliance over ${filteredHistory.length} checks. Average score: ${Math.round(avgScore)}/100, ${Math.round(avgViolations)} violations per check.`,
-      recommendations: complianceStatus === 'violated' 
-        ? ['Review and optimize performance issues detected in recent checks']
-        : complianceStatus === 'warning'
-        ? ['Monitor performance and address minor issues before they escalate']
-        : ['Continue maintaining good performance standards'],
-    };
+      recommendations:
+        complianceStatus === 'violated'
+          ? ['Review and optimize performance issues detected in recent checks']
+          : complianceStatus === 'warning'
+            ? ['Monitor performance and address minor issues before they escalate']
+            : ['Continue maintaining good performance standards'],
+    }
   }
 
   /**
    * Get trending performance score
    */
-  getPerformanceTrend(hours: number = 24): Array<{ timestamp: Date; score: number; status: string }> {
-    const cutoffTime = new Date(Date.now() - hours * 60 * 60 * 1000);
-    const recentHistory = this.history.filter((h) => h.timestamp > cutoffTime);
+  getPerformanceTrend(
+    hours: number = 24
+  ): Array<{ timestamp: Date; score: number; status: string }> {
+    const cutoffTime = new Date(Date.now() - hours * 60 * 60 * 1000)
+    const recentHistory = this.history.filter(h => h.timestamp > cutoffTime)
 
-    return recentHistory.map((h) => ({
+    return recentHistory.map(h => ({
       timestamp: h.timestamp,
       score: h.score,
       status: h.complianceStatus,
-    }));
+    }))
   }
 
   /**
@@ -737,19 +744,16 @@ export class PerformanceBudgetController {
    */
   suppressAlert(metric: string, url?: string, reason?: string): boolean {
     const alert = this.alerts.find(
-      (a) => 
-        a.violation.metric === metric &&
-        (!url || a.violation.url === url) &&
-        !a.suppressed
-    );
+      a => a.violation.metric === metric && (!url || a.violation.url === url) && !a.suppressed
+    )
 
     if (!alert) {
-      return false;
+      return false
     }
 
-    alert.suppressed = true;
-    alert.suppressionReason = reason;
-    return true;
+    alert.suppressed = true
+    alert.suppressionReason = reason
+    return true
   }
 
   /**
@@ -757,19 +761,16 @@ export class PerformanceBudgetController {
    */
   unsuppressAlert(metric: string, url?: string): boolean {
     const alert = this.alerts.find(
-      (a) => 
-        a.violation.metric === metric &&
-        (!url || a.violation.url === url) &&
-        a.suppressed
-    );
+      a => a.violation.metric === metric && (!url || a.violation.url === url) && a.suppressed
+    )
 
     if (!alert) {
-      return false;
+      return false
     }
 
-    alert.suppressed = false;
-    alert.suppressionReason = undefined;
-    return true;
+    alert.suppressed = false
+    alert.suppressionReason = undefined
+    return true
   }
 
   /**
@@ -777,8 +778,8 @@ export class PerformanceBudgetController {
    */
   getViolatedMetrics(): string[] {
     return this.alerts
-      .filter((a) => !a.suppressed && a.violation.severity === 'error')
-      .map((a) => a.violation.metric);
+      .filter(a => !a.suppressed && a.violation.severity === 'error')
+      .map(a => a.violation.metric)
   }
 
   /**
@@ -786,17 +787,17 @@ export class PerformanceBudgetController {
    */
   getWarningMetrics(): string[] {
     return this.alerts
-      .filter((a) => !a.suppressed && a.violation.severity === 'warning')
-      .map((a) => a.violation.metric);
+      .filter(a => !a.suppressed && a.violation.severity === 'warning')
+      .map(a => a.violation.metric)
   }
 
   /**
    * Reset the controller
    */
   reset(): void {
-    this.thresholds = [...DEFAULT_BUDGET_THRESHOLDS];
-    this.alerts = [];
-    this.history = [];
+    this.thresholds = [...DEFAULT_BUDGET_THRESHOLDS]
+    this.alerts = []
+    this.history = []
   }
 }
 
@@ -833,13 +834,13 @@ export function createMockPerformanceMetrics(
     domNodeCount: overrides.domNodeCount ?? 1200,
     domDepth: overrides.domDepth ?? 20,
     ...overrides,
-  };
+  }
 }
 
 // ========================================
 // Export singleton instance
 // ========================================
 
-export const performanceBudgetController = new PerformanceBudgetController();
+export const performanceBudgetController = new PerformanceBudgetController()
 
-export default PerformanceBudgetController;
+export default PerformanceBudgetController

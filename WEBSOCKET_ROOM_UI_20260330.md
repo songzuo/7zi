@@ -12,12 +12,12 @@
 
 ### 1.1 完成的功能模块
 
-| 模块 | 功能描述 | 状态 |
-|------|----------|------|
-| 房间创建 | 创建弹窗，支持 6 种房间类型、3 种可见性级别 | ✅ 完成 |
-| 房间加入 | 通过 ID/邀请码加入，浏览可用房间列表 | ✅ 完成 |
-| 参与者管理 | 显示参与者列表，支持角色、状态展示 | ✅ 完成 |
-| 房间设置 | 多标签页配置，包括基本设置、成员、权限、通知 | ✅ 完成 |
+| 模块       | 功能描述                                     | 状态    |
+| ---------- | -------------------------------------------- | ------- |
+| 房间创建   | 创建弹窗，支持 6 种房间类型、3 种可见性级别  | ✅ 完成 |
+| 房间加入   | 通过 ID/邀请码加入，浏览可用房间列表         | ✅ 完成 |
+| 参与者管理 | 显示参与者列表，支持角色、状态展示           | ✅ 完成 |
+| 房间设置   | 多标签页配置，包括基本设置、成员、权限、通知 | ✅ 完成 |
 
 ---
 
@@ -48,6 +48,7 @@ src/i18n/messages/
 ### 3.1 RoomCreateModal - 房间创建弹窗
 
 **功能特性**:
+
 - ✅ 支持 6 种房间类型：聊天室、任务协作、项目协作、文档协作、语音会议、视频会议
 - ✅ 支持 3 种可见性：公开、私有、仅邀请
 - ✅ 高级选项：最大参与者数（2-500）、访客权限、消息历史、自动清理
@@ -56,6 +57,7 @@ src/i18n/messages/
 - ✅ 国际化支持（i18n）
 
 **UI 特点**:
+
 - 卡片式房间类型选择，带图标和描述
 - 可见性选项带清晰的图标标识
 - 滑块式参与者数量调节
@@ -69,6 +71,7 @@ src/i18n/messages/
 ### 3.2 RoomJoinPanel - 房间加入面板
 
 **功能特性**:
+
 - ✅ 通过房间 ID 和邀请码直接加入
 - ✅ 可用房间列表展示
 - ✅ 搜索功能（按房间名称/ID）
@@ -77,6 +80,7 @@ src/i18n/messages/
 - ✅ 实时统计和排序
 
 **UI 特点**:
+
 - 房间卡片设计，带状态指示条
 - 实时参与者数量和活跃时间显示
 - 类型图标和可见性标识
@@ -91,6 +95,7 @@ src/i18n/messages/
 ### 3.3 RoomParticipantList - 参与者列表
 
 **功能特性**:
+
 - ✅ 显示所有参与者信息（头像、名称、角色、状态）
 - ✅ 在线状态和输入状态显示
 - ✅ 角色管理（拥有者、管理员、版主、成员、访客）
@@ -99,6 +104,7 @@ src/i18n/messages/
 - ✅ 紧凑版本（RoomParticipantListCompact）
 
 **UI 特点**:
+
 - 彩色头像自动生成
 - 在线状态指示器（绿色/灰色）
 - 角色图标和颜色编码
@@ -114,6 +120,7 @@ src/i18n/messages/
 ### 3.4 RoomSettingsPanel - 房间设置面板
 
 **功能特性**:
+
 - ✅ 4 个标签页：基本设置、成员管理、权限设置、通知设置
 - ✅ 基本设置：房间信息、可见性、参与者限制、自动清理
 - ✅ 成员管理：统计信息、邀请新成员
@@ -122,6 +129,7 @@ src/i18n/messages/
 - ✅ 危险区域：删除房间（带确认流程）
 
 **UI 特点**:
+
 - 标签页导航
 - 权限矩阵表格
 - 角色统计卡片
@@ -145,6 +153,7 @@ src/i18n/messages/
 ### 4.2 设计规范
 
 与现有 Dashboard 组件风格一致：
+
 - 卡片式布局
 - 柔和的圆角（xl、lg）
 - 渐变色边框和背景
@@ -168,6 +177,7 @@ src/i18n/messages/
 ```
 
 **翻译覆盖**:
+
 - ✅ 房间创建：25+ 条
 - ✅ 房间加入：20+ 条
 - ✅ 参与者列表：10+ 条
@@ -181,16 +191,19 @@ src/i18n/messages/
 
 ```typescript
 // WebSocket 房间组件导出
-export { RoomCreateModal } from './RoomCreateModal';
-export { RoomJoinPanel } from './RoomJoinPanel';
-export { RoomParticipantList, RoomParticipantListCompact } from './RoomParticipantList';
-export { RoomSettingsPanel } from './RoomSettingsPanel';
+export { RoomCreateModal } from './RoomCreateModal'
+export { RoomJoinPanel } from './RoomJoinPanel'
+export { RoomParticipantList, RoomParticipantListCompact } from './RoomParticipantList'
+export { RoomSettingsPanel } from './RoomSettingsPanel'
 
 // 类型导出
-export type { RoomCreateOptions, RoomCreateModalProps } from './RoomCreateModal';
-export type { RoomJoinOptions, RoomJoinPanelProps } from './RoomJoinPanel';
-export type { RoomParticipantListProps, RoomParticipantListCompactProps } from './RoomParticipantList';
-export type { RoomSettingsPanelProps } from './RoomSettingsPanel';
+export type { RoomCreateOptions, RoomCreateModalProps } from './RoomCreateModal'
+export type { RoomJoinOptions, RoomJoinPanelProps } from './RoomJoinPanel'
+export type {
+  RoomParticipantListProps,
+  RoomParticipantListCompactProps,
+} from './RoomParticipantList'
+export type { RoomSettingsPanelProps } from './RoomSettingsPanel'
 ```
 
 ---
@@ -200,11 +213,16 @@ export type { RoomSettingsPanelProps } from './RoomSettingsPanel';
 ### 6.1 使用示例
 
 ```tsx
-import { RoomCreateModal, RoomJoinPanel, RoomParticipantList, RoomSettingsPanel } from '@/components/dashboard';
+import {
+  RoomCreateModal,
+  RoomJoinPanel,
+  RoomParticipantList,
+  RoomSettingsPanel,
+} from '@/components/dashboard'
 
 function Dashboard() {
-  const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
-  const [selectedRoom, setSelectedRoom] = useState<Room | null>(null);
+  const [isCreateModalOpen, setIsCreateModalOpen] = useState(false)
+  const [selectedRoom, setSelectedRoom] = useState<Room | null>(null)
 
   return (
     <div className="space-y-6">
@@ -245,7 +263,7 @@ function Dashboard() {
         onDestroyRoom={handleDestroyRoom}
       />
     </div>
-  );
+  )
 }
 ```
 
@@ -256,14 +274,14 @@ function Dashboard() {
 ```typescript
 // stores/room-store.ts
 interface RoomStore {
-  rooms: Room[];
-  currentRoom: Room | null;
-  joinedRooms: Room[];
+  rooms: Room[]
+  currentRoom: Room | null
+  joinedRooms: Room[]
   actions: {
-    setCurrentRoom: (room: Room | null) => void;
-    refreshRooms: () => Promise<void>;
+    setCurrentRoom: (room: Room | null) => void
+    refreshRooms: () => Promise<void>
     // ...
-  };
+  }
 }
 ```
 
@@ -274,6 +292,7 @@ interface RoomStore {
 由于当前环境无法生成截图，以下是各组件的 UI 描述：
 
 ### 7.1 RoomCreateModal
+
 - 弹窗居中显示，带半透明遮罩
 - 顶部标题栏"创建房间"和关闭按钮
 - 主体内容分为多个卡片式区域
@@ -283,6 +302,7 @@ interface RoomStore {
 - 底部按钮组：取消（灰色）、创建房间（蓝色，带 Plus 图标）
 
 ### 7.2 RoomJoinPanel
+
 - 左侧：通过 ID 加入表单（输入框 + 邀请码输入框 + 加入按钮）
 - 右侧/下方：可用房间列表
 - 每个房间卡片：
@@ -294,6 +314,7 @@ interface RoomStore {
 - 顶部搜索框 + 过滤器下拉
 
 ### 7.3 RoomParticipantList
+
 - 顶部标题栏："参与者" + 统计徽章
 - 统计徽章：
   - 绿色圆形徽章：在线人数
@@ -308,6 +329,7 @@ interface RoomStore {
 - 操作下拉菜单：更改角色、禁言/解除禁言、踢出
 
 ### 7.4 RoomSettingsPanel
+
 - 顶部标签页导航：基本设置、成员管理、权限设置、通知设置
 - 基本设置标签页：
   - 房间名称输入框
@@ -388,12 +410,14 @@ interface RoomStore {
 ✅ **一致的设计**：与现有 Dashboard 风格统一
 
 **代码质量**:
+
 - 总代码量：约 2,260 行（含注释）
 - 组件复用性：高
 - 类型覆盖率：100%
 - 国际化覆盖率：100%
 
 **后续工作**:
+
 - [ ] 添加英文翻译到 en.json
 - [ ] 集成 WebSocket 客户端
 - [ ] 创建 Zustand store

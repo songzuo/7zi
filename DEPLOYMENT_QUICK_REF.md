@@ -54,21 +54,25 @@ ENVIRONMENT=staging ./deploy.sh deploy
 ## 🔍 故障排查
 
 ### 1. SSH 连接失败
+
 ```bash
 sshpass -p 'ge20993344$ZZ' ssh root@7zi.com
 ```
 
 ### 2. 查看容器日志
+
 ```bash
 ./deploy.sh logs 7zi-frontend-blue
 ```
 
 ### 3. 检查容器状态
+
 ```bash
 ./deploy.sh status
 ```
 
 ### 4. 手动健康检查
+
 ```bash
 curl http://localhost:3000/
 curl http://localhost:3000/api/health
@@ -76,11 +80,11 @@ curl http://localhost:3000/api/health
 
 ## 🎯 环境切换
 
-| 环境 | 命令 |
-|------|------|
-| dev | `ENVIRONMENT=dev ./deploy.sh deploy` |
-| staging | `ENVIRONMENT=staging ./deploy.sh deploy` |
-| production | `./deploy.sh deploy` |
+| 环境       | 命令                                     |
+| ---------- | ---------------------------------------- |
+| dev        | `ENVIRONMENT=dev ./deploy.sh deploy`     |
+| staging    | `ENVIRONMENT=staging ./deploy.sh deploy` |
+| production | `./deploy.sh deploy`                     |
 
 ## 📊 部署流程
 
@@ -134,13 +138,13 @@ curl http://localhost:3000/api/health
 
 ## ⚠️ 常见错误
 
-| 错误 | 解决方案 |
-|------|----------|
-| SSH 连接失败 | 检查网络和密码 |
-| Docker 镜像构建失败 | 清理缓存，重试构建 |
-| 健康检查失败 | 查看日志，检查 API 端点 |
-| 端口冲突 | 检查端口占用，停止冲突容器 |
-| 容器频繁重启 | 查看日志，检查资源限制 |
+| 错误                | 解决方案                   |
+| ------------------- | -------------------------- |
+| SSH 连接失败        | 检查网络和密码             |
+| Docker 镜像构建失败 | 清理缓存，重试构建         |
+| 健康检查失败        | 查看日志，检查 API 端点    |
+| 端口冲突            | 检查端口占用，停止冲突容器 |
+| 容器频繁重启        | 查看日志，检查资源限制     |
 
 ## 📚 完整文档
 
@@ -150,19 +154,19 @@ curl http://localhost:3000/api/health
 
 ## 🔑 关键文件
 
-| 文件 | 用途 |
-|------|------|
-| `deploy.sh` | 主部署脚本 |
-| `deploy-quick.sh` | 快速部署脚本 |
-| `DEPLOYMENT_GUIDE.md` | 完整部署文档 |
+| 文件                  | 用途               |
+| --------------------- | ------------------ |
+| `deploy.sh`           | 主部署脚本         |
+| `deploy-quick.sh`     | 快速部署脚本       |
+| `DEPLOYMENT_GUIDE.md` | 完整部署文档       |
 | `deploy-history.json` | 部署历史（服务器） |
 
 ## 🌐 服务器路径
 
-| 路径 | 用途 |
-|------|------|
-| `/opt/7zi-frontend` | 部署目录 |
-| `/opt/backups/7zi-frontend` | 备份目录 |
+| 路径                                            | 用途     |
+| ----------------------------------------------- | -------- |
+| `/opt/7zi-frontend`                             | 部署目录 |
+| `/opt/backups/7zi-frontend`                     | 备份目录 |
 | `/opt/backups/7zi-frontend/deploy-history.json` | 部署历史 |
 
 ---

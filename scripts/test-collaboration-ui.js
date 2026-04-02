@@ -6,8 +6,8 @@
  * Tests the collaboration components and WebSocket functionality
  */
 
-const path = require('path');
-const fs = require('fs');
+const path = require('path')
+const fs = require('fs')
 
 // ANSI color codes
 const colors = {
@@ -17,28 +17,28 @@ const colors = {
   yellow: '\x1b[33m',
   blue: '\x1b[34m',
   cyan: '\x1b[36m',
-};
+}
 
 function log(message, color = colors.reset) {
-  console.log(`${color}${message}${colors.reset}`);
+  console.log(`${color}${message}${colors.reset}`)
 }
 
 function checkFileExists(filePath) {
-  return fs.existsSync(filePath);
+  return fs.existsSync(filePath)
 }
 
 function checkFileContent(filePath, patterns) {
   if (!checkFileExists(filePath)) {
-    return { exists: false, matches: [] };
+    return { exists: false, matches: [] }
   }
 
-  const content = fs.readFileSync(filePath, 'utf-8');
+  const content = fs.readFileSync(filePath, 'utf-8')
   const matches = patterns.map(pattern => ({
     pattern,
     found: content.includes(pattern),
-  }));
+  }))
 
-  return { exists: true, matches };
+  return { exists: true, matches }
 }
 
 // Test checks
@@ -120,70 +120,61 @@ const checks = [
   {
     name: 'Demo Page',
     file: 'src/app/collaboration-demo/page.tsx',
-    patterns: [
-      'useCollaboration',
-      'ConnectionStatus',
-      'UserList',
-      'ConnectionStatusProps',
-    ],
+    patterns: ['useCollaboration', 'ConnectionStatus', 'UserList', 'ConnectionStatusProps'],
   },
   {
     name: 'WebSocket API Route',
     file: 'src/app/api/ws/route.ts',
-    patterns: [
-      'createServer',
-      'GET',
-      'WebSocket',
-    ],
+    patterns: ['createServer', 'GET', 'WebSocket'],
   },
-];
+]
 
 // Run checks
-let allPassed = true;
+let allPassed = true
 
-log('\n' + '='.repeat(60), colors.cyan);
-log('WebSocket Collaboration UI - Component Check', colors.cyan);
-log('='.repeat(60) + '\n', colors.cyan);
+log('\n' + '='.repeat(60), colors.cyan)
+log('WebSocket Collaboration UI - Component Check', colors.cyan)
+log('='.repeat(60) + '\n', colors.cyan)
 
 checks.forEach((check, index) => {
-  log(`${index + 1}. ${check.name}`, colors.blue);
+  log(`${index + 1}. ${check.name}`, colors.blue)
 
-  const result = checkFileContent(check.file, check.patterns);
+  const result = checkFileContent(check.file, check.patterns)
 
   if (!result.exists) {
-    log(`   ❌ File not found: ${check.file}`, colors.red);
-    allPassed = false;
-    return;
+    log(`   ❌ File not found: ${check.file}`, colors.red)
+    allPassed = false
+    return
   }
 
-  log(`   ✅ File exists: ${check.file}`, colors.green);
+  log(`   ✅ File exists: ${check.file}`, colors.green)
 
-  const missingPatterns = result.matches.filter(m => !m.found);
+  const missingPatterns = result.matches.filter(m => !m.found)
   if (missingPatterns.length > 0) {
-    log(`   ⚠️  Missing patterns:`, colors.yellow);
+    log(`   ⚠️  Missing patterns:`, colors.yellow)
     missingPatterns.forEach(m => {
-      log(`      - ${m.pattern}`, colors.yellow);
-    });
+      log(`      - ${m.pattern}`, colors.yellow)
+    })
   } else {
-    log(`   ✅ All patterns found`, colors.green);
+    log(`   ✅ All patterns found`, colors.green)
   }
 
-  log('');
-});
+  log('')
+})
 
 // Summary
-log('='.repeat(60), colors.cyan);
+log('='.repeat(60), colors.cyan)
 if (allPassed) {
-  log('✅ All checks passed!', colors.green);
+  log('✅ All checks passed!', colors.green)
 } else {
-  log('❌ Some checks failed. Please review the issues above.', colors.red);
+  log('❌ Some checks failed. Please review the issues above.', colors.red)
 }
-log('='.repeat(60) + '\n', colors.cyan);
+log('='.repeat(60) + '\n', colors.cyan)
 
 // Additional info
-log('Next Steps:', colors.blue);
-log('1. Start dev server: npm run dev', colors.reset);
-log('2. Open demo page: http://localhost:3000/collaboration-demo', colors.reset);
-log('3. Open in multiple browser tabs to test collaboration', colors.reset);
-log('4. Verify remote cursors, selections, and typing indicators', colors.reset);
-log('');
+log('Next Steps:', colors.blue)
+log('1. Start dev server: npm run dev', colors.reset)
+log('2. Open demo page: http://localhost:3000/collaboration-demo', colors.reset)
+log('3. Open in multiple browser tabs to test collaboration', colors.reset)
+log('4. Verify remote cursors, selections, and typing indicators', colors.reset)
+log('')

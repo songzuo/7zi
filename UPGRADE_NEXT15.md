@@ -12,12 +12,14 @@
 基于对 Next.js 15 和 React 19 最新特性的研究，**建议升级到 Next.js 15**。升级将带来显著的性能提升和开发体验改进，但需要处理一些破坏性变更。建议在**Q2 2026**（第二季度）进行升级，给予充分的测试和调整时间。
 
 **关键收益**:
+
 - Turbopack 开发性能提升 76.7% 启动速度，96.3% 快速刷新
 - 生产构建性能提升 2-5 倍（多核环境）
 - React 19 Actions 简化表单处理
 - 更好的 TypeScript 支持
 
 **主要风险**:
+
 - 异步 Request API 需要代码重构
 - 缓存语义变更可能影响应用行为
 - React 19 移除多个废弃 API
@@ -29,12 +31,14 @@
 ### 1.1 核心性能改进
 
 #### Turbopack Dev（稳定版）
+
 - **开发服务器启动速度**: 最快提升 76.7%
 - **代码更新速度**: 最快提升 96.3%（Fast Refresh）
 - **初始路由编译**: 最快提升 45.8%
 - **状态**: 生产可用，已在 vercel.com、v0.app 等大型应用中使用
 
 #### Turbopack Builds（Beta，Next.js 15.5）
+
 - **生产构建性能**: 2-5 倍速度提升（取决于项目规模和 CPU 核心数）
   - 小型项目（10K 模块）: 4 倍（30 核机器）
   - 中型项目（40K 模块）: 2.5 倍（30 核机器）
@@ -55,52 +59,60 @@
 ### 1.3 开发体验改进
 
 #### 自动化升级工具
+
 ```bash
 npx @next/codemod@canary upgrade latest
 ```
+
 - 自动更新依赖
 - 显示可用的 codemods
 - 引导应用转换
 
 #### 静态路由指示器（开发时）
+
 - 可视化显示静态/动态路由
 - 帮助性能优化
 - 可通过配置禁用
 
 #### 增强的 Form 组件（`next/form`）
-```jsx
-import Form from 'next/form';
 
-<Form action="/search">
+```jsx
+import Form from 'next/form'
+;<Form action="/search">
   <input name="query" />
   <button type="submit">Submit</button>
 </Form>
 ```
+
 - 自动预取布局和 loading UI
 - 客户端导航（保留布局和状态）
 - 渐进式增强（JavaScript 未加载时仍可工作）
 
 #### next.config.ts 支持
+
 ```ts
-import type { NextConfig } from 'next';
+import type { NextConfig } from 'next'
 
 const nextConfig: NextConfig = {
   /* 配置选项 */
-};
+}
 
-export default nextConfig;
+export default nextConfig
 ```
 
 ### 1.4 服务器端改进
 
 #### 异步 Request APIs（破坏性变更）
+
 以下 API 现在需要 `await`:
+
 - `cookies()`
 - `headers()`
 - `params`
 - `searchParams`
 
 **示例**:
+
 ```jsx
 // ❌ Next.js 14
 import { cookies } from 'next/headers';
@@ -118,18 +130,20 @@ export default async function AdminPanel() {
 ```
 
 **自动迁移**:
+
 ```bash
 npx @next/codemod@canary next-async-request-api .
 ```
 
 #### instrumentation.js（稳定版）
+
 ```jsx
 export async function onRequestError(err, request, context) {
   // 捕获所有服务器端错误
   await fetch('https://...', {
     method: 'POST',
     body: JSON.stringify({ message: err.message, request, context }),
-  });
+  })
 }
 
 export async function register() {
@@ -138,21 +152,23 @@ export async function register() {
 ```
 
 #### unstable_after（实验性）
+
 ```jsx
-import { unstable_after as after } from 'next/server';
+import { unstable_after as after } from 'next/server'
 
 export default function Layout({ children }) {
   // 次要任务（在响应流完成后执行）
   after(() => {
-    logAnalytics();
-  });
+    logAnalytics()
+  })
 
   // 主要任务
-  return <>{children}</>;
+  return <>{children}</>
 }
 ```
 
 #### Server Actions 安全增强
+
 - 未使用的 Actions 不会暴露到客户端
 - 使用不可猜测的、非确定性的 ID
 - 定期重新计算 ID 以增强安全性
@@ -160,19 +176,22 @@ export default function Layout({ children }) {
 ### 1.5 缓存语义变更（破坏性变更）
 
 #### GET Route Handlers 不再默认缓存
+
 ```js
 // Next.js 14: 默认缓存
-export async function GET(request) { }
+export async function GET(request) {}
 
 // Next.js 15: 默认不缓存
 // 如需缓存，需显式配置
-export const dynamic = 'force-static';
+export const dynamic = 'force-static'
 ```
 
 #### 客户端路由缓存默认不缓存页面
+
 - **Next.js 14**: 页面组件默认缓存 30 秒
 - **Next.js 15**: 页面组件 staleTime = 0（始终反映最新数据）
 - **恢复旧行为**:
+
 ```ts
 // next.config.ts
 const nextConfig = {
@@ -181,12 +200,13 @@ const nextConfig = {
       dynamic: 30,
     },
   },
-};
+}
 ```
 
 ### 1.6 TypeScript 改进（Next.js 15.5）
 
 #### 类型路由（稳定）
+
 ```ts
 // next.config.ts
 const nextConfig = {
@@ -199,11 +219,13 @@ const nextConfig = {
 ```
 
 #### 路由导出验证（Turbopack）
+
 - 自动验证 pages、layouts 和 route handlers
 - 使用 TypeScript 的 `satisfies` 操作符
 - 在 `next build` 时捕获无效导出
 
 #### 路由 Props 助手
+
 ```tsx
 // 自动生成的全局类型
 export default function DashboardLayout(props: LayoutProps<'/dashboard'>) {
@@ -213,11 +235,12 @@ export default function DashboardLayout(props: LayoutProps<'/dashboard'>) {
       {props.analytics} {/* 完全类型的并行路由插槽 */}
       {props.team} {/* 完全类型的并行路由插槽 */}
     </div>
-  );
+  )
 }
 ```
 
 #### next typegen 命令
+
 ```bash
 # 手动生成类型（无需运行 dev 或 build）
 next typegen [directory]
@@ -236,28 +259,32 @@ next typegen && tsc --noEmit
 ### 1.8 其他改进
 
 #### Node.js 中间件（稳定，Next.js 15.5）
+
 ```ts
 export const config = {
   runtime: 'nodejs', // 现已稳定！
-};
+}
 
 export function middleware(request: NextRequest) {
   // 完整的 Node.js API 访问
-  const fs = require('fs');
-  const crypto = require('crypto');
+  const fs = require('fs')
+  const crypto = require('crypto')
   // ...
 }
 ```
 
 #### ESLint 9 支持
+
 - 支持 ESLint 9
 - 保持向后兼容（仍可使用 ESLint 8）
 - 升级 `eslint-plugin-react-hooks` 到 v5.0.0
 
 #### next lint 弃用（Next.js 15.5）
+
 - `next lint` 命令将在 Next.js 16 中移除
 - 新项目使用直接 ESLint 配置或 Biome
 - 迁移命令:
+
 ```bash
 npx @next/codemod@latest next-lint-to-eslint-cli .
 ```
@@ -273,40 +300,39 @@ npx @next/codemod@latest next-lint-to-eslint-cli .
 ```jsx
 // ❌ 旧方式
 function UpdateName() {
-  const [error, setError] = useState(null);
-  const [isPending, setIsPending] = useState(false);
+  const [error, setError] = useState(null)
+  const [isPending, setIsPending] = useState(false)
 
   const handleSubmit = async () => {
-    setIsPending(true);
-    const error = await updateName(name);
-    setIsPending(false);
-    if (error) setError(error);
-  };
+    setIsPending(true)
+    const error = await updateName(name)
+    setIsPending(false)
+    if (error) setError(error)
+  }
 
   return (
     <button onClick={handleSubmit} disabled={isPending}>
       Update
     </button>
-  );
+  )
 }
 
 // ✅ React 19 Actions
 function UpdateName() {
-  const [error, submitAction, isPending] = useActionState(
-    async (previousState, formData) => {
-      const error = await updateName(formData.get("name"));
-      return error;
-    },
-    null,
-  );
+  const [error, submitAction, isPending] = useActionState(async (previousState, formData) => {
+    const error = await updateName(formData.get('name'))
+    return error
+  }, null)
 
   return (
     <form action={submitAction}>
       <input type="text" name="name" />
-      <button type="submit" disabled={isPending}>Update</button>
+      <button type="submit" disabled={isPending}>
+        Update
+      </button>
       {error && <p>{error}</p>}
     </form>
-  );
+  )
 }
 ```
 
@@ -315,22 +341,22 @@ function UpdateName() {
 乐观更新 - 显示最终状态而异步请求正在进行:
 
 ```jsx
-function ChangeName({currentName, onUpdateName}) {
-  const [optimisticName, setOptimisticName] = useOptimistic(currentName);
+function ChangeName({ currentName, onUpdateName }) {
+  const [optimisticName, setOptimisticName] = useOptimistic(currentName)
 
   const submitAction = async formData => {
-    const newName = formData.get("name");
-    setOptimisticName(newName);
-    const updatedName = await updateName(newName);
-    onUpdateName(updatedName);
-  };
+    const newName = formData.get('name')
+    setOptimisticName(newName)
+    const updatedName = await updateName(newName)
+    onUpdateName(updatedName)
+  }
 
   return (
     <form action={submitAction}>
       <p>Your name is: {optimisticName}</p>
       <input type="text" name="name" disabled={currentName !== optimisticName} />
     </form>
-  );
+  )
 }
 ```
 
@@ -339,13 +365,15 @@ function ChangeName({currentName, onUpdateName}) {
 访问表单状态而无需向下传递 props:
 
 ```jsx
-import {useFormStatus} from 'react-dom';
+import { useFormStatus } from 'react-dom'
 
 function SubmitButton() {
-  const {pending} = useFormStatus();
-  return <button type="submit" disabled={pending}>
-    {pending ? 'Submitting...' : 'Submit'}
-  </button>;
+  const { pending } = useFormStatus()
+  return (
+    <button type="submit" disabled={pending}>
+      {pending ? 'Submitting...' : 'Submit'}
+    </button>
+  )
 }
 ```
 
@@ -354,20 +382,20 @@ function SubmitButton() {
 在 render 中读取资源:
 
 ```jsx
-import {use} from 'react';
+import { use } from 'react'
 
-function Comments({commentsPromise}) {
+function Comments({ commentsPromise }) {
   // use 会 Suspense 直到 promise 解析
-  const comments = use(commentsPromise);
-  return comments.map(comment => <p key={comment.id}>{comment}</p>);
+  const comments = use(commentsPromise)
+  return comments.map(comment => <p key={comment.id}>{comment}</p>)
 }
 
-function Page({commentsPromise}) {
+function Page({ commentsPromise }) {
   return (
     <Suspense fallback={<div>Loading...</div>}>
       <Comments commentsPromise={commentsPromise} />
     </Suspense>
-  );
+  )
 }
 ```
 
@@ -377,12 +405,10 @@ function Page({commentsPromise}) {
 
 ```jsx
 // ❌ 旧方式
-const MyInput = forwardRef(({placeholder}, ref) => (
-  <input placeholder={placeholder} ref={ref} />
-));
+const MyInput = forwardRef(({ placeholder }, ref) => <input placeholder={placeholder} ref={ref} />)
 
 // ✅ React 19
-function MyInput({placeholder, ref}) {
+function MyInput({ placeholder, ref }) {
   return <input placeholder={placeholder} ref={ref} />
 }
 ```
@@ -392,7 +418,7 @@ function MyInput({placeholder, ref}) {
 原生支持 `<title>`、`<link>`、`<meta>` 标签:
 
 ```jsx
-function BlogPost({post}) {
+function BlogPost({ post }) {
   return (
     <article>
       <h1>{post.title}</h1>
@@ -402,7 +428,7 @@ function BlogPost({post}) {
       <meta name="keywords" content={post.keywords} />
       <p>Eee equals em-see-squared...</p>
     </article>
-  );
+  )
 }
 ```
 
@@ -435,7 +461,7 @@ function MyComponent() {
       <script async={true} src=".../script.js" />
       Hello World
     </div>
-  );
+  )
 }
 ```
 
@@ -445,7 +471,7 @@ function MyComponent() {
 import { prefetchDNS, preconnect, preload, preinit } from 'react-dom'
 
 function MyComponent() {
-  preinit('https://.../script.js', {as: 'script' })
+  preinit('https://.../script.js', { as: 'script' })
   preload('https://.../font.woff', { as: 'font' })
   preload('https://.../stylesheet.css', { as: 'style' })
   prefetchDNS('https://...')
@@ -460,18 +486,23 @@ function MyComponent() {
 ### 3.1 Next.js 15 破坏性变更
 
 #### 1. 异步 Request APIs
+
 **影响**: 高
+
 - `cookies()`、`headers()`、`params`、`searchParams` 现在是异步的
 - 需要添加 `await` 关键字
 - 需要将组件标记为 `async`
 
 **迁移**:
+
 ```bash
 npx @next/codemod@canary next-async-request-api .
 ```
 
 #### 2. 缓存语义变更
+
 **影响**: 中-高
+
 - GET Route Handlers 默认不缓存
 - 客户端路由缓存默认 staleTime = 0
 - 可能影响应用性能和行为
@@ -479,21 +510,25 @@ npx @next/codemod@canary next-async-request-api .
 **缓解**: 使用配置选项恢复旧行为进行测试
 
 #### 3. next/image 变更
+
 - 移除 `squoosh`，使用 `sharp`
 - 默认 `Content-Disposition` 改为 `attachment`
 - `src` 的前导或尾随空格将报错
 
 #### 4. next/font 变更
+
 - 移除外部 `@next/font` 包支持
 - 移除 `font-family` 哈希
 
 #### 5. 配置变更
+
 - 默认启用 `swcMinify`
 - 默认启用 `missingSuspenseWithCSRBailout`
 - 默认启用 `outputFileTracing`
 - 移除多个已弃用选项
 
 #### 6. 移除的功能
+
 - 自动 Speed Insights instrumentation
 - `.xml` 扩展名的动态 sitemap 路由
 - `export const runtime = "experimental-edge"`（改为 `"edge"`）
@@ -501,11 +536,13 @@ npx @next/codemod@canary next-async-request-api .
 - `next/dynamic` 的 `suspense` prop
 
 #### 7. 最低 Node.js 版本
+
 - 从 18.17.0 升级到 18.18.0
 
 ### 3.2 React 19 破坏性变更
 
 #### 1. 移除 PropTypes 和函数组件的 defaultProps
+
 ```jsx
 // ❌ 已移除
 import PropTypes from 'prop-types';
@@ -530,86 +567,92 @@ function Heading({text = 'Hello, world!'}: Props) {
 ```
 
 #### 2. 移除 Legacy Context
+
 ```jsx
 // ❌ 已移除
 class Parent extends React.Component {
   static childContextTypes = {
     foo: PropTypes.string.isRequired,
-  };
+  }
   getChildContext() {
-    return { foo: 'bar' };
+    return { foo: 'bar' }
   }
 }
 
 // ✅ 使用新 Context API
-const FooContext = React.createContext();
+const FooContext = React.createContext()
 
 class Parent extends React.Component {
   render() {
     return (
-      <FooContext value='bar'>
+      <FooContext value="bar">
         <Child />
       </FooContext>
-    );
+    )
   }
 }
 ```
 
 #### 3. 移除字符串 refs
+
 ```jsx
 // ❌ 已移除
 class MyComponent extends React.Component {
   componentDidMount() {
-    this.refs.input.focus();
+    this.refs.input.focus()
   }
   render() {
-    return <input ref='input' />;
+    return <input ref="input" />
   }
 }
 
 // ✅ 使用 ref 回调
 class MyComponent extends React.Component {
   componentDidMount() {
-    this.input.focus();
+    this.input.focus()
   }
   render() {
-    return <input ref={input => this.input = input} />;
+    return <input ref={input => (this.input = input)} />
   }
 }
 ```
 
 #### 4. 移除 ReactDOM.render 和 ReactDOM.hydrate
+
 ```jsx
 // ❌ 已移除
-import {render} from 'react-dom';
-render(<App />, document.getElementById('root'));
+import { render } from 'react-dom'
+render(<App />, document.getElementById('root'))
 
 // ✅ 使用 createRoot
-import {createRoot} from 'react-dom/client';
-const root = createRoot(document.getElementById('root'));
-root.render(<App />);
+import { createRoot } from 'react-dom/client'
+const root = createRoot(document.getElementById('root'))
+root.render(<App />)
 ```
 
 #### 5. 移除 ReactDOM.findDOMNode
+
 ```jsx
 // ❌ 已移除
-import {findDOMNode} from 'react-dom';
+import { findDOMNode } from 'react-dom'
 
 // ✅ 使用 DOM refs
 function AutoselectingInput() {
-  const ref = useRef(null);
+  const ref = useRef(null)
   useEffect(() => {
-    ref.current.select();
-  }, []);
-  return <input ref={ref} defaultValue="Hello" />;
+    ref.current.select()
+  }, [])
+  return <input ref={ref} defaultValue="Hello" />
 }
 ```
 
 #### 6. 移除 UMD 构建
+
 - React 19 不再提供 UMD 构建
 - 使用 ESM CDN 如 esm.sh
 
 #### 7. 错误处理变更
+
 - 渲染中的错误不再重新抛出
 - 需要更新错误报告逻辑
 - 使用新的 `onUncaughtError` 和 `onCaughtError` 回调
@@ -617,15 +660,17 @@ function AutoselectingInput() {
 ### 3.3 TypeScript 破坏性变更
 
 #### 1. useRef 需要参数
+
 ```ts
 // ❌ 错误
-useRef();
+useRef()
 
 // ✅ 正确
-useRef(undefined);
+useRef(undefined)
 ```
 
 #### 2. ref 清理函数需要显式返回
+
 ```tsx
 // ❌ 隐式返回
 <div ref={current => (instance = current)} />
@@ -635,21 +680,23 @@ useRef(undefined);
 ```
 
 #### 3. ReactElement props 默认为 unknown
+
 ```ts
-type Example = ReactElement["props"];
+type Example = ReactElement['props']
 // 之前: 'any'
 // 现在: 'unknown'
 ```
 
 #### 4. JSX 命名空间变更
+
 ```ts
 // 需要包裹在 declare module 中
-declare module "react" {
+declare module 'react' {
   namespace JSX {
     interface IntrinsicElements {
-      "my-element": {
-        myElementProps: string;
-      };
+      'my-element': {
+        myElementProps: string
+      }
     }
   }
 }
@@ -661,27 +708,28 @@ declare module "react" {
 
 ### 4.1 技术风险
 
-| 风险项 | 严重程度 | 可能性 | 缓解措施 |
-|--------|----------|--------|----------|
-| 异步 API 重构 | 高 | 高 | 使用 codemod 自动迁移 |
-| 缓存行为变化 | 中-高 | 中 | 配置恢复测试，逐步调整 |
-| React 19 API 移除 | 中 | 中 | 升级到 React 18.3 预警 |
-| Turbopack CSS 顺序 | 低 | 低 | 监控生产，必要时回退 |
-| TypeScript 类型错误 | 中 | 中 | 使用 types-react-codemod |
-| 第三方库兼容性 | 中 | 低 | 检查依赖兼容性 |
+| 风险项              | 严重程度 | 可能性 | 缓解措施                 |
+| ------------------- | -------- | ------ | ------------------------ |
+| 异步 API 重构       | 高       | 高     | 使用 codemod 自动迁移    |
+| 缓存行为变化        | 中-高    | 中     | 配置恢复测试，逐步调整   |
+| React 19 API 移除   | 中       | 中     | 升级到 React 18.3 预警   |
+| Turbopack CSS 顺序  | 低       | 低     | 监控生产，必要时回退     |
+| TypeScript 类型错误 | 中       | 中     | 使用 types-react-codemod |
+| 第三方库兼容性      | 中       | 低     | 检查依赖兼容性           |
 
 ### 4.2 业务风险
 
-| 风险项 | 严重程度 | 可能性 | 缓解措施 |
-|--------|----------|--------|----------|
-| 升级期间停机 | 中 | 低 | 分阶段升级，充分测试 |
-| 性能回归 | 低 | 中 | 性能基准测试 |
-| 功能中断 | 低 | 低 | 全面的集成测试 |
-| 学习曲线 | 低 | 中 | 团队培训，文档更新 |
+| 风险项       | 严重程度 | 可能性 | 缓解措施             |
+| ------------ | -------- | ------ | -------------------- |
+| 升级期间停机 | 中       | 低     | 分阶段升级，充分测试 |
+| 性能回归     | 低       | 中     | 性能基准测试         |
+| 功能中断     | 低       | 低     | 全面的集成测试       |
+| 学习曲线     | 低       | 中     | 团队培训，文档更新   |
 
 ### 4.3 兼容性检查
 
 **需要检查的依赖**:
+
 - 所有 React 组件库
 - UI 框架（如 Tailwind UI、shadcn/ui 等）
 - 表单库（React Hook Form、Formik 等）
@@ -697,12 +745,14 @@ declare module "react" {
 ### 5.1 升级前准备
 
 #### 1. 备份和分支
+
 ```bash
 git checkout -b upgrade/nextjs-15
 git commit -am "备份升级前状态"
 ```
 
 #### 2. 检查当前状态
+
 ```bash
 # 检查 Node.js 版本（需要 18.18.0+）
 node --version
@@ -715,6 +765,7 @@ npm test
 ```
 
 #### 3. 创建性能基准
+
 ```bash
 # 记录构建时间
 time npm run build
@@ -726,6 +777,7 @@ time npm run dev
 ### 5.2 分阶段升级路径
 
 #### 阶段 1: React 18.3（1-2 天）
+
 ```bash
 npm install react@^18.3.0 react-dom@^18.3.0
 npm install --save-dev @types/react@^18.3.0 @types/react-dom@^18.3.0
@@ -734,11 +786,13 @@ npm install --save-dev @types/react@^18.3.0 @types/react-dom@^18.3.0
 **目的**: 检测废弃 API 使用和潜在问题
 
 **检查项**:
+
 - [ ] 所有测试通过
 - [ ] 开发服务器正常启动
 - [ ] 无废弃警告
 
 #### 阶段 2: Next.js 15（3-5 天）
+
 ```bash
 # 使用自动升级 CLI
 npx @next/codemod@canary upgrade latest
@@ -750,11 +804,13 @@ npm install next@latest react@latest react-dom@latest
 **关键步骤**:
 
 1. **异步 API 迁移**
+
 ```bash
 npx @next/codemod@canary next-async-request-api .
 ```
 
 2. **处理缓存变更**
+
 ```ts
 // next.config.ts - 临时恢复旧行为以测试
 const nextConfig = {
@@ -763,15 +819,17 @@ const nextConfig = {
       dynamic: 30,
     },
   },
-};
+}
 ```
 
 3. **更新配置**
+
 - 转换 `next.config.js` 为 `next.config.ts`
 - 移除废弃配置选项
 - 添加必要的实验性功能
 
 4. **测试关键功能**
+
 - [ ] 数据获取（async/await）
 - [ ] 表单提交
 - [ ] 路由导航
@@ -779,12 +837,14 @@ const nextConfig = {
 - [ ] Server Actions
 
 #### 阶段 3: React 19（2-3 天）
+
 ```bash
 npm install react@^19.0.0 react-dom@^19.0.0
 npm install --save-dev @types/react@^19.0.0 @types/react-dom@^19.0.0
 ```
 
 **运行 React 19 codemods**:
+
 ```bash
 # 运行所有 React 19 codemods
 npx codemod@latest react/19/migration-recipe
@@ -796,11 +856,13 @@ npx codemod@latest react/prop-types-typescript .
 ```
 
 **运行 TypeScript codemods**:
+
 ```bash
 npx types-react-codemod@latest preset-19 ./app
 ```
 
 **手动迁移项**:
+
 - [ ] PropTypes → TypeScript
 - [ ] Legacy Context → 新 Context API
 - [ ] ReactDOM.render → createRoot
@@ -809,12 +871,14 @@ npx types-react-codemod@latest preset-19 ./app
 #### 阶段 4: Turbopack 可选启用（1-2 天）
 
 **开发环境**:
+
 ```bash
 # 启用 Turbopack 开发服务器
 next dev --turbo
 ```
 
 **生产构建**（Next.js 15.5+）:
+
 ```bash
 # 启用 Turbopack 构建（Beta）
 next build --turbopack
@@ -825,6 +889,7 @@ next build --turbopack
 ### 5.3 测试清单
 
 #### 功能测试
+
 - [ ] 所有页面正常渲染
 - [ ] 客户端导航工作正常
 - [ ] 表单提交成功
@@ -834,6 +899,7 @@ next build --turbopack
 - [ ] 中间件功能正常
 
 #### 性能测试
+
 - [ ] 开发服务器启动时间
 - [ ] 热重载响应时间
 - [ ] 构建时间
@@ -842,6 +908,7 @@ next build --turbopack
 - [ ] Time to Interactive (TTI)
 
 #### 兼容性测试
+
 - [ ] 多浏览器测试（Chrome、Firefox、Safari、Edge）
 - [ ] 移动设备测试
 - [ ] 第三方集成测试
@@ -850,21 +917,24 @@ next build --turbopack
 ### 5.4 监控和回滚
 
 #### 监控指标
+
 ```javascript
 // 添加性能监控
 export function reportWebVitals(metric) {
-  console.log(metric);
+  console.log(metric)
   // 发送到分析服务
 }
 ```
 
 **关键指标**:
+
 - 错误率
 - API 响应时间
 - 页面加载时间
 - 用户交互响应
 
 #### 回滚计划
+
 ```bash
 # 如果升级失败
 git checkout -
@@ -873,6 +943,7 @@ npm run build  # 验证构建成功
 ```
 
 **回滚触发条件**:
+
 - 生产错误率 > 1%
 - 关键功能中断
 - 性能显著下降
@@ -883,6 +954,7 @@ npm run build  # 验证构建成功
 ## 六、建议的实施时间线
 
 ### 短期（1-2 周）：准备和评估
+
 - [ ] 审查当前代码库
 - [ ] 检查依赖兼容性
 - [ ] 建立性能基准
@@ -890,29 +962,35 @@ npm run build  # 验证构建成功
 - [ ] 团队培训
 
 ### 中期（3-4 周）：升级和测试
+
 **第 1 周**:
+
 - 升级到 React 18.3
 - 修复废弃警告
 - 运行测试
 
 **第 2 周**:
+
 - 升级到 Next.js 15
 - 应用 codemods
 - 修复异步 API 问题
 - 配置缓存策略
 
 **第 3 周**:
+
 - 升级到 React 19
 - 应用 React codemods
 - 手动迁移遗留代码
 - 全面的集成测试
 
 **第 4 周**:
+
 - 启用 Turbopack 开发
 - 性能优化
 - 生产环境预发布测试
 
 ### 长期（1-2 个月）：稳定和优化
+
 - [ ] 生产环境灰度发布
 - [ ] 监控和调整
 - [ ] 性能优化
@@ -920,11 +998,12 @@ npm run build  # 验证构建成功
 - [ ] 文档更新
 
 ### 里程碑
-| 里程碑 | 目标日期 | 完成标准 |
-|--------|----------|----------|
-| 完成评估 | T+1 周 | 评估报告完成，风险已知 |
-| 完成升级 | T+4 周 | 所有测试通过，性能不退化 |
-| 生产部署 | T+6 周 | 灰度发布稳定，监控正常 |
+
+| 里程碑   | 目标日期 | 完成标准                 |
+| -------- | -------- | ------------------------ |
+| 完成评估 | T+1 周   | 评估报告完成，风险已知   |
+| 完成升级 | T+4 周   | 所有测试通过，性能不退化 |
+| 生产部署 | T+6 周   | 灰度发布稳定，监控正常   |
 
 ---
 
@@ -933,6 +1012,7 @@ npm run build  # 验证构建成功
 ### 7.1 升级建议
 
 #### ✅ 建议升级的情况
+
 - 项目规模中大型，需要更好的构建性能
 - 团队有时间和资源进行升级
 - 依赖库已经支持 Next.js 15/React 19
@@ -940,12 +1020,14 @@ npm run build  # 验证构建成功
 - 可以容忍 1-2 个月的升级周期
 
 #### ⚠️ 谨慎升级的情况
+
 - 项目接近关键发布截止日期
 - 依赖库尚未兼容
 - 团队资源有限
 - 对性能要求不高的小型项目
 
 #### ❌ 建议暂缓的情况
+
 - 项目即将发布（< 3 个月）
 - 严重依赖已废弃的 API
 - 第三方库兼容性问题无法解决
@@ -954,29 +1036,34 @@ npm run build  # 验证构建成功
 ### 7.2 最佳实践
 
 #### 1. 渐进式升级
+
 - 不要一次性升级所有内容
 - 逐步验证每个阶段
 - 保持可回滚
 
 #### 2. 充分测试
+
 - 自动化测试覆盖率 > 80%
 - E2E 测试覆盖关键用户流程
 - 性能基准测试
 - 多浏览器测试
 
 #### 3. 监控和观察
+
 - 实时错误监控（Sentry、LogRocket）
 - 性能监控（Lighthouse、Web Vitals）
 - 用户反馈收集
 - A/B 测试
 
 #### 4. 文档和培训
+
 - 更新开发文档
 - 记录升级经验
 - 团队培训会
 - 编写升级指南
 
 #### 5. 社区参与
+
 - 关注 Next.js 和 React 官方博客
 - 参与 GitHub 讨论
 - 报告问题和反馈
@@ -985,12 +1072,14 @@ npm run build  # 验证构建成功
 ### 7.3 性能优化建议
 
 #### 启用 Turbopack 的条件
+
 - 项目模块数 > 10K
 - 构建时间 > 5 分钟
 - 使用多核 CPU 服务器
 - 可以容忍 CSS 顺序的细微差异
 
 #### 缓存策略
+
 ```ts
 // 推荐的缓存配置
 const nextConfig = {
@@ -998,10 +1087,11 @@ const nextConfig = {
   // 静态内容：使用静态生成
   // 动态内容：使用 revalidate
   // 实时数据：使用 force-dynamic
-};
+}
 ```
 
 #### Server Actions 优化
+
 - 使用死代码消除减少包大小
 - 合理使用 optimistic updates
 - 错误处理和重试机制
@@ -1013,6 +1103,7 @@ const nextConfig = {
 ### 8.1 官方工具
 
 #### 升级工具
+
 ```bash
 # Next.js 自动升级
 npx @next/codemod@canary upgrade latest
@@ -1025,6 +1116,7 @@ npx types-react-codemod@latest preset-19 ./app
 ```
 
 #### 开发工具
+
 ```bash
 # 类型生成
 next typegen
@@ -1039,6 +1131,7 @@ npm run build -- --analyze
 ### 8.2 推荐阅读
 
 #### 官方文档
+
 - [Next.js 15 升级指南](https://nextjs.org/docs/app/building-your-application/upgrading/version-15)
 - [React 19 升级指南](https://react.dev/blog/2024/04/25/react-19-upgrade-guide)
 - [Next.js 15 发布博客](https://nextjs.org/blog/next-15)
@@ -1046,6 +1139,7 @@ npm run build -- --analyze
 - [Turbopack 文档](https://nextjs.org/docs/app/api-reference/turbopack)
 
 #### 社区资源
+
 - [Next.js GitHub Discussions](https://github.com/vercel/next.js/discussions)
 - [React GitHub Discussions](https://github.com/facebook/react/discussions)
 - [Vercel 社区论坛](https://github.com/vercel/vercel/discussions)
@@ -1056,15 +1150,17 @@ npm run build -- --analyze
 #### 常见问题
 
 **Q: 异步 API 导致的类型错误**
+
 ```ts
 // 解决方案：显式定义返回类型
 export async function Page({ params }: { params: Promise<{ id: string }> }) {
-  const { id } = await params;
+  const { id } = await params
   // ...
 }
 ```
 
 **Q: Turbopack 构建失败**
+
 ```bash
 # 回退到 Webpack
 next build
@@ -1081,6 +1177,7 @@ const nextConfig = {
 ```
 
 **Q: React 19 第三方库不兼容**
+
 ```bash
 # 检查库的兼容性
 npm check-updates
@@ -1097,6 +1194,7 @@ npm check-updates
 **建议**: ✅ **建议升级到 Next.js 15**
 
 **理由**:
+
 1. **性能收益显著**: Turbopack 提供的开发和生产性能提升是真实的
 2. **长期技术债务**: React 19 移除的 API 需要升级，早升晚升都要升
 3. **开发体验**: 新的特性和工具大幅提升开发效率
@@ -1111,4 +1209,4 @@ npm check-updates
 ### 关键成功因素
 
 1. **充分的测试**: 自动化测试覆盖率 > 80%
-2. **渐进式
+2. \*\*渐进式

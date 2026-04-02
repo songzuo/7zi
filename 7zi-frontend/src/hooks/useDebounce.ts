@@ -1,17 +1,17 @@
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect, useRef } from 'react'
 
 /**
  * Options for useDebounce hook
  */
 export interface UseDebounceOptions<T> {
   /** Delay in milliseconds before updating the debounced value (default: 500ms) */
-  delay?: number;
+  delay?: number
   /** Whether to enable debouncing (default: true) */
-  enabled?: boolean;
+  enabled?: boolean
   /** Callback function called when debounced value updates */
-  onChange?: (debouncedValue: T) => void;
+  onChange?: (debouncedValue: T) => void
   /** Maximum wait time (for leading edge, optional) */
-  maxWait?: number;
+  maxWait?: number
 }
 
 /**
@@ -55,74 +55,71 @@ export interface UseDebounceOptions<T> {
  * });
  * ```
  */
-export function useDebounce<T>(
-  value: T,
-  options: UseDebounceOptions<T> = {}
-): T {
-  const { delay = 500, enabled = true, onChange, maxWait } = options;
-  const [debouncedValue, setDebouncedValue] = useState<T>(value);
+export function useDebounce<T>(value: T, options: UseDebounceOptions<T> = {}): T {
+  const { delay = 500, enabled = true, onChange, maxWait } = options
+  const [debouncedValue, setDebouncedValue] = useState<T>(value)
 
   useEffect(() => {
     // If debouncing is disabled, handle onChange callback only
     if (!enabled) {
       if (onChange && debouncedValue !== value) {
-        onChange(value);
+        onChange(value)
       }
-      return;
+      return
     }
 
     // Skip if value hasn't changed
     if (debouncedValue === value) {
-      return;
+      return
     }
 
-    let timeoutId: NodeJS.Timeout | null = null;
-    let maxWaitTimeoutId: NodeJS.Timeout | null = null;
-    let isCancelled = false;
+    let timeoutId: NodeJS.Timeout | null = null
+    let maxWaitTimeoutId: NodeJS.Timeout | null = null
+    let isCancelled = false
 
     const updateDebouncedValue = () => {
       if (!isCancelled) {
-        setDebouncedValue(value);
+        setDebouncedValue(value)
         if (onChange) {
-          onChange(value);
+          onChange(value)
         }
       }
-    };
+    }
 
     // Set up max wait timer if specified
     if (maxWait && maxWait > delay) {
       maxWaitTimeoutId = setTimeout(() => {
         if (timeoutId) {
-          clearTimeout(timeoutId);
-          timeoutId = null;
+          clearTimeout(timeoutId)
+          timeoutId = null
         }
-        updateDebouncedValue();
-      }, maxWait);
+        updateDebouncedValue()
+      }, maxWait)
     }
 
     // Set up main debounce timer
     timeoutId = setTimeout(() => {
       if (maxWaitTimeoutId) {
-        clearTimeout(maxWaitTimeoutId);
-        maxWaitTimeoutId = null;
+        clearTimeout(maxWaitTimeoutId)
+        maxWaitTimeoutId = null
       }
-      updateDebouncedValue();
-    }, delay);
+      updateDebouncedValue()
+    }, delay)
 
     // Cleanup function
     return () => {
-      isCancelled = true;
+      isCancelled = true
       if (timeoutId) {
-        clearTimeout(timeoutId);
+        clearTimeout(timeoutId)
       }
       if (maxWaitTimeoutId) {
-        clearTimeout(maxWaitTimeoutId);
+        clearTimeout(maxWaitTimeoutId)
       }
-    };
-  }, [value, delay, enabled, onChange, maxWait, debouncedValue]);
+    }
+  }, [value, delay, enabled, onChange, maxWait, debouncedValue])
 
   // When disabled, return value directly; otherwise return debounced value
-  return enabled ? debouncedValue : value;
+  return enabled ? debouncedValue : value
 }
 
 /**
@@ -152,92 +149,92 @@ export function useDebounceWithCancel<T>(
   value: T,
   options: UseDebounceOptions<T> = {}
 ): [T, () => void] {
-  const { delay = 500, enabled = true, onChange, maxWait } = options;
-  const [debouncedValue, setDebouncedValue] = useState<T>(value);
-  
+  const { delay = 500, enabled = true, onChange, maxWait } = options
+  const [debouncedValue, setDebouncedValue] = useState<T>(value)
+
   // Use refs to track cancellation state and timeout IDs
-  const isCancelledRef = useRef(false);
-  const timeoutIdRef = useRef<NodeJS.Timeout | null>(null);
-  const maxWaitTimeoutIdRef = useRef<NodeJS.Timeout | null>(null);
-  const valueRef = useRef(value);
-  
+  const isCancelledRef = useRef(false)
+  const timeoutIdRef = useRef<NodeJS.Timeout | null>(null)
+  const maxWaitTimeoutIdRef = useRef<NodeJS.Timeout | null>(null)
+  const valueRef = useRef(value)
+
   // Keep valueRef updated so timeout callbacks have access to latest value
   useEffect(() => {
-    valueRef.current = value;
-  }, [value]);
+    valueRef.current = value
+  }, [value])
 
   useEffect(() => {
     // If debouncing is disabled, handle onChange callback only
     if (!enabled) {
       if (onChange && debouncedValue !== value) {
-        onChange(value);
+        onChange(value)
       }
-      return;
+      return
     }
 
     if (debouncedValue === value) {
-      return;
+      return
     }
 
     // Reset cancellation flag for new effect run
-    isCancelledRef.current = false;
+    isCancelledRef.current = false
 
     const updateDebouncedValue = () => {
       if (!isCancelledRef.current) {
-        setDebouncedValue(valueRef.current);
+        setDebouncedValue(valueRef.current)
         if (onChange) {
-          onChange(valueRef.current);
+          onChange(valueRef.current)
         }
       }
-    };
+    }
 
     // Set up max wait timer if specified
     if (maxWait && maxWait > delay) {
       maxWaitTimeoutIdRef.current = setTimeout(() => {
         if (timeoutIdRef.current) {
-          clearTimeout(timeoutIdRef.current);
-          timeoutIdRef.current = null;
+          clearTimeout(timeoutIdRef.current)
+          timeoutIdRef.current = null
         }
-        updateDebouncedValue();
-      }, maxWait);
+        updateDebouncedValue()
+      }, maxWait)
     }
 
     // Set up main debounce timer
     timeoutIdRef.current = setTimeout(() => {
       if (maxWaitTimeoutIdRef.current) {
-        clearTimeout(maxWaitTimeoutIdRef.current);
-        maxWaitTimeoutIdRef.current = null;
+        clearTimeout(maxWaitTimeoutIdRef.current)
+        maxWaitTimeoutIdRef.current = null
       }
-      updateDebouncedValue();
-    }, delay);
+      updateDebouncedValue()
+    }, delay)
 
     // Cleanup function
     return () => {
-      isCancelledRef.current = true;
+      isCancelledRef.current = true
       if (timeoutIdRef.current) {
-        clearTimeout(timeoutIdRef.current);
-        timeoutIdRef.current = null;
+        clearTimeout(timeoutIdRef.current)
+        timeoutIdRef.current = null
       }
       if (maxWaitTimeoutIdRef.current) {
-        clearTimeout(maxWaitTimeoutIdRef.current);
-        maxWaitTimeoutIdRef.current = null;
+        clearTimeout(maxWaitTimeoutIdRef.current)
+        maxWaitTimeoutIdRef.current = null
       }
-    };
-  }, [value, delay, enabled, onChange, maxWait, debouncedValue]);
+    }
+  }, [value, delay, enabled, onChange, maxWait, debouncedValue])
 
   const cancel = () => {
     // Immediately mark as cancelled and clear all pending timeouts
-    isCancelledRef.current = true;
+    isCancelledRef.current = true
     if (timeoutIdRef.current) {
-      clearTimeout(timeoutIdRef.current);
-      timeoutIdRef.current = null;
+      clearTimeout(timeoutIdRef.current)
+      timeoutIdRef.current = null
     }
     if (maxWaitTimeoutIdRef.current) {
-      clearTimeout(maxWaitTimeoutIdRef.current);
-      maxWaitTimeoutIdRef.current = null;
+      clearTimeout(maxWaitTimeoutIdRef.current)
+      maxWaitTimeoutIdRef.current = null
     }
-  };
+  }
 
   // When disabled, return value directly; otherwise return debounced value
-  return [enabled ? debouncedValue : value, cancel];
+  return [enabled ? debouncedValue : value, cancel]
 }

@@ -30,24 +30,12 @@
     },
     {
       "file": "src/lib/a2a/executor.ts",
-      "unused": [
-        "ExecutionEventBus",
-        "SevenZiExecutor",
-        "createSevenZiExecutor"
-      ],
-      "used": [
-        "RequestContext",
-        "AgentExecutor",
-        "SimpleEventBus"
-      ]
+      "unused": ["ExecutionEventBus", "SevenZiExecutor", "createSevenZiExecutor"],
+      "used": ["RequestContext", "AgentExecutor", "SimpleEventBus"]
     },
     {
       "file": "src/lib/a2a/jsonrpc-handler.ts",
-      "unused": [
-        "RequestHandlerOptions",
-        "A2ARequestHandler",
-        "createRequestHandler"
-      ],
+      "unused": ["RequestHandlerOptions", "A2ARequestHandler", "createRequestHandler"],
       "used": []
     },
     {
@@ -63,14 +51,8 @@
     },
     {
       "file": "src/lib/a2a/task-store.ts",
-      "unused": [
-        "TaskWithPriority",
-        "TaskStore",
-        "getTaskStore"
-      ],
-      "used": [
-        "InMemoryTaskStore"
-      ]
+      "unused": ["TaskWithPriority", "TaskStore", "getTaskStore"],
+      "used": ["InMemoryTaskStore"]
     },
     {
       "file": "src/lib/a2a/types.ts",
@@ -126,31 +108,17 @@
     },
     {
       "file": "src/lib/agent/auth-service.ts",
-      "unused": [
-        "generateApiKey",
-        "hashApiKey",
-        "validateApiKeyFormat",
-        "hasAnyPermission"
-      ],
-      "used": [
-        "hasPermission",
-        "hasAllPermissions"
-      ]
+      "unused": ["generateApiKey", "hashApiKey", "validateApiKeyFormat", "hasAnyPermission"],
+      "used": ["hasPermission", "hasAllPermissions"]
     },
     {
       "file": "src/lib/agent/communication/index.ts",
-      "unused": [
-        "MessageBuilder"
-      ],
+      "unused": ["MessageBuilder"],
       "used": []
     },
     {
       "file": "src/lib/agent/communication/message-builder.ts",
-      "unused": [
-        "MessageBuilder",
-        "Message",
-        "MessageParser"
-      ],
+      "unused": ["MessageBuilder", "Message", "MessageParser"],
       "used": []
     },
     {
@@ -174,12 +142,7 @@
         "CommunicationStats",
         "MessageSubscription"
       ],
-      "used": [
-        "PROTOCOL_VERSION",
-        "AgentMessageEnvelope",
-        "AgentEndpoint",
-        "MessageMetadata"
-      ]
+      "used": ["PROTOCOL_VERSION", "AgentMessageEnvelope", "AgentEndpoint", "MessageMetadata"]
     },
     {
       "file": "src/lib/agent/index.ts",
@@ -225,11 +188,7 @@
     },
     {
       "file": "src/lib/agent/middleware.ts",
-      "unused": [
-        "withPermissions",
-        "withAnyPermission",
-        "AgentContext"
-      ],
+      "unused": ["withPermissions", "withAnyPermission", "AgentContext"],
       "used": []
     },
     {
@@ -245,9 +204,7 @@
         "updateAgentStatus",
         "updateAgentLastActive"
       ],
-      "used": [
-        "mapRowToAgent"
-      ]
+      "used": ["mapRowToAgent"]
     },
     {
       "file": "src/lib/agent/types.ts",
@@ -305,67 +262,38 @@
     },
     {
       "file": "src/lib/agent-scheduler/core/load-balancer.ts",
-      "unused": [
-        "LoadBalanceResult"
-      ],
-      "used": [
-        "LoadBalanceConfig",
-        "LoadBalancer"
-      ]
+      "unused": ["LoadBalanceResult"],
+      "used": ["LoadBalanceConfig", "LoadBalancer"]
     },
     {
       "file": "src/lib/agent-scheduler/core/matching.ts",
-      "unused": [
-        "MatchResult"
-      ],
-      "used": [
-        "TaskMatcher"
-      ]
+      "unused": ["MatchResult"],
+      "used": ["TaskMatcher"]
     },
     {
       "file": "src/lib/agent-scheduler/core/ranking.ts",
-      "unused": [
-        "RankedTask"
-      ],
-      "used": [
-        "TaskRanker"
-      ]
+      "unused": ["RankedTask"],
+      "used": ["TaskRanker"]
     },
     {
       "file": "src/lib/agent-scheduler/dashboard/AgentStatusPanel.tsx",
-      "unused": [
-        "default"
-      ],
-      "used": [
-        "AgentStatusPanel"
-      ]
+      "unused": ["default"],
+      "used": ["AgentStatusPanel"]
     },
     {
       "file": "src/lib/agent-scheduler/dashboard/Dashboard.tsx",
-      "unused": [
-        "DashboardTab",
-        "Dashboard",
-        "default"
-      ],
+      "unused": ["DashboardTab", "Dashboard", "default"],
       "used": []
     },
     {
       "file": "src/lib/agent-scheduler/dashboard/ManualOverride.tsx",
-      "unused": [
-        "default"
-      ],
-      "used": [
-        "ManualOverride"
-      ]
+      "unused": ["default"],
+      "used": ["ManualOverride"]
     },
     {
       "file": "src/lib/agent-scheduler/dashboard/ScheduleHistory.tsx",
-      "unused": [
-        "default"
-      ],
-      "used": [
-        "ScheduleHistory"
-      ]
+      "unused": ["default"],
+      "used": ["ScheduleHistory"]
     },
     {
       "file": "src/lib/agent-scheduler/dashboard/index.ts",
@@ -380,28 +308,13 @@
     },
     {
       "file": "src/lib/agent-scheduler/models/agent-capability.ts",
-      "unused": [
-        "AgentCapabilities",
-        "AGENT_CAPABILITIES_CONFIG",
-        "createAgentCapability"
-      ],
-      "used": [
-        "AgentProvider",
-        "TaskType",
-        "AgentCapability",
-        "initializeAgents"
-      ]
+      "unused": ["AgentCapabilities", "AGENT_CAPABILITIES_CONFIG", "createAgentCapability"],
+      "used": ["AgentProvider", "TaskType", "AgentCapability", "initializeAgents"]
     },
     {
       "file": "src/lib/agent-scheduler/models/schedule-decision.ts",
-      "unused": [
-        "SchedulingMetrics"
-      ],
-      "used": [
-        "ScheduleDecision",
-        "ScheduleHistory",
-        "createScheduleDecision"
-      ]
+      "unused": ["SchedulingMetrics"],
+      "used": ["ScheduleDecision", "ScheduleHistory", "createScheduleDecision"]
     },
     {
       "file": "src/lib/agent-scheduler/stores/scheduler-store.ts",
@@ -435,12 +348,7 @@
         "ERROR_MESSAGES",
         "ValidationError"
       ],
-      "used": [
-        "ApiErrorResponse",
-        "ApiSuccessResponse",
-        "ApiResponse",
-        "ApiError"
-      ]
+      "used": ["ApiErrorResponse", "ApiSuccessResponse", "ApiResponse", "ApiError"]
     },
     {
       "file": "src/lib/api/api-logger.ts",
@@ -524,9 +432,7 @@
         "GET",
         "withErrorHandling"
       ],
-      "used": [
-        "ErrorType"
-      ]
+      "used": ["ErrorType"]
     },
     {
       "file": "src/lib/api/error-logger.ts",
@@ -560,38 +466,22 @@
     },
     {
       "file": "src/lib/api/error-types.ts",
-      "unused": [
-        "ErrorTypeValue"
-      ],
+      "unused": ["ErrorTypeValue"],
       "used": []
     },
     {
       "file": "src/lib/api/github-helper.ts",
-      "unused": [
-        "GitHubAPIOptions",
-        "handleGitHubError"
-      ],
+      "unused": ["GitHubAPIOptions", "handleGitHubError"],
       "used": []
     },
     {
       "file": "src/lib/api/retry-decorator.ts",
-      "unused": [
-        "RetryConfig",
-        "withRetry",
-        "RetryPresets"
-      ],
-      "used": [
-        "getRetryInfo"
-      ]
+      "unused": ["RetryConfig", "withRetry", "RetryPresets"],
+      "used": ["getRetryInfo"]
     },
     {
       "file": "src/lib/api/timeout-wrapper.ts",
-      "unused": [
-        "TimeoutError",
-        "withTimeout",
-        "withTimeoutApi",
-        "TimeoutPresets"
-      ],
+      "unused": ["TimeoutError", "withTimeout", "withTimeoutApi", "TimeoutPresets"],
       "used": []
     },
     {
@@ -602,10 +492,7 @@
         "CUSTOM_ERROR_MESSAGES",
         "getCustomErrorMessage"
       ],
-      "used": [
-        "SupportedLocale",
-        "getLocaleFromRequest"
-      ]
+      "used": ["SupportedLocale", "getLocaleFromRequest"]
     },
     {
       "file": "src/lib/api/utils.ts",
@@ -687,12 +574,7 @@
     },
     {
       "file": "src/lib/auth/__mocks__/jose.ts",
-      "unused": [
-        "SignJWT",
-        "jwtVerify",
-        "decodeJwt",
-        "jwtSign"
-      ],
+      "unused": ["SignJWT", "jwtVerify", "decodeJwt", "jwtSign"],
       "used": []
     },
     {
@@ -738,48 +620,27 @@
     },
     {
       "file": "src/lib/auth/repository-optimized.ts",
-      "unused": [
-        "generateUserListCacheKey"
-      ],
+      "unused": ["generateUserListCacheKey"],
       "used": []
     },
     {
       "file": "src/lib/auth/repository.ts",
-      "unused": [
-        "PaginationOptions",
-        "PaginatedResult",
-        "getDefaultPermissions"
-      ],
-      "used": [
-        "hashPassword",
-        "verifyPassword"
-      ]
+      "unused": ["PaginationOptions", "PaginatedResult", "getDefaultPermissions"],
+      "used": ["hashPassword", "verifyPassword"]
     },
     {
       "file": "src/lib/auth/service-unified.ts",
-      "unused": [
-        "hasPermission",
-        "hasAnyPermission",
-        "hasAllPermissions"
-      ],
+      "unused": ["hasPermission", "hasAnyPermission", "hasAllPermissions"],
       "used": []
     },
     {
       "file": "src/lib/auth/service.ts",
-      "unused": [
-        "hasPermission",
-        "hasAnyPermission",
-        "hasAllPermissions"
-      ],
+      "unused": ["hasPermission", "hasAnyPermission", "hasAllPermissions"],
       "used": []
     },
     {
       "file": "src/lib/auth/types.ts",
-      "unused": [
-        "ChangePasswordRequest",
-        "ForgotPasswordRequest",
-        "ResetPasswordRequest"
-      ],
+      "unused": ["ChangePasswordRequest", "ForgotPasswordRequest", "ResetPasswordRequest"],
       "used": [
         "User",
         "UserToken",
@@ -800,20 +661,13 @@
     },
     {
       "file": "src/lib/backup/compression.ts",
-      "unused": [
-        "calculateCompressionRatio",
-        "estimateCompressedSize"
-      ],
+      "unused": ["calculateCompressionRatio", "estimateCompressedSize"],
       "used": []
     },
     {
       "file": "src/lib/backup/encryption.ts",
-      "unused": [
-        "validateEncryptionKey"
-      ],
-      "used": [
-        "generateEncryptionKey"
-      ]
+      "unused": ["validateEncryptionKey"],
+      "used": ["generateEncryptionKey"]
     },
     {
       "file": "src/lib/backup/index.ts",
@@ -841,9 +695,7 @@
     },
     {
       "file": "src/lib/backup/manager.ts",
-      "unused": [
-        "BackupManager"
-      ],
+      "unused": ["BackupManager"],
       "used": []
     },
     {
@@ -867,27 +719,17 @@
     },
     {
       "file": "src/lib/cache/CacheManager.ts",
-      "unused": [
-        "CacheManager",
-        "getCacheManager",
-        "CachePresets"
-      ],
+      "unused": ["CacheManager", "getCacheManager", "CachePresets"],
       "used": []
     },
     {
       "file": "src/lib/cache/index.ts",
-      "unused": [
-        "LRUCache",
-        "createCache"
-      ],
+      "unused": ["LRUCache", "createCache"],
       "used": []
     },
     {
       "file": "src/lib/cache/lru-cache.ts",
-      "unused": [
-        "LRUCache",
-        "createCache"
-      ],
+      "unused": ["LRUCache", "createCache"],
       "used": []
     },
     {
@@ -925,9 +767,7 @@
         "CollaborationManager",
         "default"
       ],
-      "used": [
-        "getCollaborationManager"
-      ]
+      "used": ["getCollaborationManager"]
     },
     {
       "file": "src/lib/collaboration/rooms.ts",
@@ -970,33 +810,17 @@
     },
     {
       "file": "src/lib/collaboration/server.ts",
-      "unused": [
-        "RoomUser",
-        "Room",
-        "RoomConfig"
-      ],
+      "unused": ["RoomUser", "Room", "RoomConfig"],
       "used": []
     },
     {
       "file": "src/lib/crypto/index.ts",
-      "unused": [
-        "generateUUID",
-        "encryptSensitiveData",
-        "decryptSensitiveData"
-      ],
-      "used": [
-        "encryptApiKey",
-        "decryptApiKey",
-        "getEncryptionSecret",
-        "generateSecureToken"
-      ]
+      "unused": ["generateUUID", "encryptSensitiveData", "decryptSensitiveData"],
+      "used": ["encryptApiKey", "decryptApiKey", "getEncryptionSecret", "generateSecureToken"]
     },
     {
       "file": "src/lib/csrf.ts",
-      "unused": [
-        "clearCsrfToken",
-        "validateCsrfToken"
-      ],
+      "unused": ["clearCsrfToken", "validateCsrfToken"],
       "used": []
     },
     {
@@ -1048,21 +872,12 @@
     },
     {
       "file": "src/lib/date.ts",
-      "unused": [
-        "formatTimeAgo",
-        "formatDate",
-        "formatDateTime",
-        "isToday",
-        "isYesterday"
-      ],
+      "unused": ["formatTimeAgo", "formatDate", "formatDateTime", "isToday", "isYesterday"],
       "used": []
     },
     {
       "file": "src/lib/db/audit-log.ts",
-      "unused": [
-        "AuditLog",
-        "AuditLogQuery"
-      ],
+      "unused": ["AuditLog", "AuditLogQuery"],
       "used": []
     },
     {
@@ -1096,10 +911,7 @@
         "startCacheCleanup",
         "getCacheStats"
       ],
-      "used": [
-        "CacheKeyGenerator",
-        "CacheInvalidator"
-      ]
+      "used": ["CacheKeyGenerator", "CacheInvalidator"]
     },
     {
       "file": "src/lib/db/connection-pool.ts",
@@ -1116,10 +928,7 @@
     },
     {
       "file": "src/lib/db/connection.ts",
-      "unused": [
-        "DatabaseResult",
-        "DatabaseStatement"
-      ],
+      "unused": ["DatabaseResult", "DatabaseStatement"],
       "used": [
         "DatabaseConnection",
         "getDatabase",
@@ -1132,26 +941,17 @@
     },
     {
       "file": "src/lib/db/enhanced-db.ts",
-      "unused": [
-        "EnhancedDatabase"
-      ],
+      "unused": ["EnhancedDatabase"],
       "used": []
     },
     {
       "file": "src/lib/db/feedback.ts",
-      "unused": [
-        "FeedbackStatistics",
-        "RatingStatistics"
-      ],
+      "unused": ["FeedbackStatistics", "RatingStatistics"],
       "used": []
     },
     {
       "file": "src/lib/db/index-analyzer.ts",
-      "unused": [
-        "IndexInfo",
-        "IndexUsageReport",
-        "generateIndexOptimizationSuggestions"
-      ],
+      "unused": ["IndexInfo", "IndexUsageReport", "generateIndexOptimizationSuggestions"],
       "used": []
     },
     {
@@ -1184,37 +984,21 @@
         "type DatabaseResult",
         "type DatabaseStatement"
       ],
-      "used": [
-        "getDatabase",
-        "getDatabaseAsync"
-      ]
+      "used": ["getDatabase", "getDatabaseAsync"]
     },
     {
       "file": "src/lib/db/migrations.ts",
-      "unused": [
-        "Migration",
-        "DatabaseHealthResult"
-      ],
+      "unused": ["Migration", "DatabaseHealthResult"],
       "used": []
     },
     {
       "file": "src/lib/db/nplus1-detector.ts",
-      "unused": [
-        "QueryPattern",
-        "BatchQueryOption",
-        "resetNPlus1Detector"
-      ],
-      "used": [
-        "NPlus1Detection",
-        "getNPlus1Detector"
-      ]
+      "unused": ["QueryPattern", "BatchQueryOption", "resetNPlus1Detector"],
+      "used": ["NPlus1Detection", "getNPlus1Detector"]
     },
     {
       "file": "src/lib/db/optimization-init.ts",
-      "unused": [
-        "cleanupDatabaseOptimization",
-        "getOptimizationStatus"
-      ],
+      "unused": ["cleanupDatabaseOptimization", "getOptimizationStatus"],
       "used": []
     },
     {
@@ -1240,12 +1024,7 @@
     },
     {
       "file": "src/lib/db/performance-analyzer.ts",
-      "unused": [
-        "QueryPerformance",
-        "SlowQuery",
-        "TableAnalysis",
-        "PerformanceReport"
-      ],
+      "unused": ["QueryPerformance", "SlowQuery", "TableAnalysis", "PerformanceReport"],
       "used": []
     },
     {
@@ -1291,31 +1070,16 @@
         "buildQuery",
         "buildWhereQuery"
       ],
-      "used": [
-        "BuiltQuery",
-        "BatchResult",
-        "QueryCacheConfig",
-        "QueryBuilder"
-      ]
+      "used": ["BuiltQuery", "BatchResult", "QueryCacheConfig", "QueryBuilder"]
     },
     {
       "file": "src/lib/db/query-builder/query-cache.ts",
-      "unused": [
-        "getCacheStats",
-        "clearAllCaches"
-      ],
-      "used": [
-        "PreparedStatementCache"
-      ]
+      "unused": ["getCacheStats", "clearAllCaches"],
+      "used": ["PreparedStatementCache"]
     },
     {
       "file": "src/lib/db/query-builder/query-executor.ts",
-      "unused": [
-        "executeQuery",
-        "batchInsert",
-        "batchUpdate",
-        "batchDelete"
-      ],
+      "unused": ["executeQuery", "batchInsert", "batchUpdate", "batchDelete"],
       "used": []
     },
     {
@@ -1339,9 +1103,7 @@
         "clearAllCaches",
         "getCacheStats"
       ],
-      "used": [
-        "buildWhereQuery"
-      ]
+      "used": ["buildWhereQuery"]
     },
     {
       "file": "src/lib/db/query-optimizations.ts",
@@ -1364,9 +1126,7 @@
         "resetSlowQueryLogger",
         "default"
       ],
-      "used": [
-        "getSlowQueryLogger"
-      ]
+      "used": ["getSlowQueryLogger"]
     },
     {
       "file": "src/lib/db/types.ts",
@@ -1387,9 +1147,7 @@
     },
     {
       "file": "src/lib/db/user-preferences.ts",
-      "unused": [
-        "UserPreferences"
-      ],
+      "unused": ["UserPreferences"],
       "used": []
     },
     {
@@ -1555,15 +1313,8 @@
     },
     {
       "file": "src/lib/errors/unified-types.ts",
-      "unused": [
-        "STATUS_CODE_TO_ERROR_TYPE"
-      ],
-      "used": [
-        "ErrorCodes",
-        "UnifiedErrorInfo",
-        "isRetryableErrorType",
-        "getDefaultStatusCode"
-      ]
+      "unused": ["STATUS_CODE_TO_ERROR_TYPE"],
+      "used": ["ErrorCodes", "UnifiedErrorInfo", "isRetryableErrorType", "getDefaultStatusCode"]
     },
     {
       "file": "src/lib/errors-i18n.ts",
@@ -1647,10 +1398,7 @@
         "getCircuitBreaker",
         "withCircuitBreaker"
       ],
-      "used": [
-        "CircuitBreakerConfig",
-        "CircuitBreaker"
-      ]
+      "used": ["CircuitBreakerConfig", "CircuitBreaker"]
     },
     {
       "file": "src/lib/fallback/graceful-degradation.ts",
@@ -1669,18 +1417,12 @@
     },
     {
       "file": "src/lib/global-error-handlers.ts",
-      "unused": [
-        "setupGlobalErrorHandlers",
-        "setupBrowserErrorHandlers"
-      ],
+      "unused": ["setupGlobalErrorHandlers", "setupBrowserErrorHandlers"],
       "used": []
     },
     {
       "file": "src/lib/hooks/useRealtimeAnalytics.ts",
-      "unused": [
-        "useRealtimeAnalytics",
-        "default"
-      ],
+      "unused": ["useRealtimeAnalytics", "default"],
       "used": []
     },
     {
@@ -1746,10 +1488,7 @@
     },
     {
       "file": "src/lib/keyboard-shortcuts/shortcut-config.ts",
-      "unused": [
-        "MODIFIER_KEYS",
-        "DEFAULT_USER_SHORTCUTS"
-      ],
+      "unused": ["MODIFIER_KEYS", "DEFAULT_USER_SHORTCUTS"],
       "used": [
         "ShortcutContext",
         "DEFAULT_SHORTCUTS",
@@ -1759,11 +1498,7 @@
     },
     {
       "file": "src/lib/keyboard-shortcuts/shortcut-manager.ts",
-      "unused": [
-        "ShortcutManagerConfig",
-        "ContextChangeListener",
-        "ShortcutTriggerListener"
-      ],
+      "unused": ["ShortcutManagerConfig", "ContextChangeListener", "ShortcutTriggerListener"],
       "used": [
         "KeyboardShortcut",
         "ShortcutManager",
@@ -1801,10 +1536,7 @@
         "ShortcutProviderProps",
         "useShortcutManager"
       ],
-      "used": [
-        "useKeyboardShortcuts",
-        "useShortcutsDisplay"
-      ]
+      "used": ["useKeyboardShortcuts", "useShortcutsDisplay"]
     },
     {
       "file": "src/lib/lcp-optimization.ts",
@@ -1839,17 +1571,8 @@
     },
     {
       "file": "src/lib/logger/index.ts",
-      "unused": [
-        "LogLevel",
-        "LogCategory",
-        "LogEntry",
-        "LoggerConfig",
-        "log",
-        "default"
-      ],
-      "used": [
-        "logger"
-      ]
+      "unused": ["LogLevel", "LogCategory", "LogEntry", "LoggerConfig", "log", "default"],
+      "used": ["logger"]
     },
     {
       "file": "src/lib/logger/utils.ts",
@@ -1868,9 +1591,7 @@
     },
     {
       "file": "src/lib/logger.mock.ts",
-      "unused": [
-        "logger"
-      ],
+      "unused": ["logger"],
       "used": []
     },
     {
@@ -1908,16 +1629,8 @@
     },
     {
       "file": "src/lib/mcp/server.ts",
-      "unused": [
-        "McpServerConfig",
-        "ToolDefinition",
-        "SevenZiMcpServer",
-        "mcpServer",
-        "default"
-      ],
-      "used": [
-        "getMcpServer"
-      ]
+      "unused": ["McpServerConfig", "ToolDefinition", "SevenZiMcpServer", "mcpServer", "default"],
+      "used": ["getMcpServer"]
     },
     {
       "file": "src/lib/mcp/tools.ts",
@@ -1972,9 +1685,7 @@
         "cleanupExpiredEntries",
         "getBruteForceStats"
       ],
-      "used": [
-        "withBruteForceProtection"
-      ]
+      "used": ["withBruteForceProtection"]
     },
     {
       "file": "src/lib/middleware/compression.ts",
@@ -2003,9 +1714,7 @@
         "validateCORSConfig",
         "getCORSConfig"
       ],
-      "used": [
-        "withCORS"
-      ]
+      "used": ["withCORS"]
     },
     {
       "file": "src/lib/middleware/crawler-detection.ts",
@@ -2044,11 +1753,7 @@
         "getRecentQueryMetrics",
         "exportMetrics"
       ],
-      "used": [
-        "getQueryMetricsSummary",
-        "withPerformanceLogging",
-        "getQueryInsights"
-      ]
+      "used": ["getQueryMetricsSummary", "withPerformanceLogging", "getQueryInsights"]
     },
     {
       "file": "src/lib/middleware/index.ts",
@@ -2110,11 +1815,7 @@
         "detectCommandInjection",
         "securityCheck"
       ],
-      "used": [
-        "sanitizeValue",
-        "sanitizeRequestBody",
-        "sanitizeQueryParams"
-      ]
+      "used": ["sanitizeValue", "sanitizeRequestBody", "sanitizeQueryParams"]
     },
     {
       "file": "src/lib/middleware/monitoring-wrapper.ts",
@@ -2147,9 +1848,7 @@
         "stopPeriodicCleanup",
         "getRateLimitStats"
       ],
-      "used": [
-        "withRateLimit"
-      ]
+      "used": ["withRateLimit"]
     },
     {
       "file": "src/lib/middleware/security-headers.ts",
@@ -2161,9 +1860,7 @@
         "validateCSPConfig",
         "getAPIRouteCSP"
       ],
-      "used": [
-        "withSecurityHeaders"
-      ]
+      "used": ["withSecurityHeaders"]
     },
     {
       "file": "src/lib/middleware/security.ts",
@@ -2213,11 +1910,7 @@
     },
     {
       "file": "src/lib/monitoring/alerts.ts",
-      "unused": [
-        "AlertSeverity",
-        "AlertConfig",
-        "alerts"
-      ],
+      "unused": ["AlertSeverity", "AlertConfig", "alerts"],
       "used": []
     },
     {
@@ -2256,25 +1949,12 @@
     },
     {
       "file": "src/lib/monitoring/errors.ts",
-      "unused": [
-        "TrackedError",
-        "withErrorTracking",
-        "handleApiError",
-        "addBreadcrumb"
-      ],
-      "used": [
-        "captureError"
-      ]
+      "unused": ["TrackedError", "withErrorTracking", "handleApiError", "addBreadcrumb"],
+      "used": ["captureError"]
     },
     {
       "file": "src/lib/monitoring/health.ts",
-      "unused": [
-        "HealthStatus",
-        "CheckResult",
-        "basicHealthCheck",
-        "healthResponse",
-        "probes"
-      ],
+      "unused": ["HealthStatus", "CheckResult", "basicHealthCheck", "healthResponse", "probes"],
       "used": []
     },
     {
@@ -2368,10 +2048,7 @@
     },
     {
       "file": "src/lib/monitoring/performance.alerts.ts",
-      "unused": [
-        "defaultAlertRules",
-        "performanceAlertManager"
-      ],
+      "unused": ["defaultAlertRules", "performanceAlertManager"],
       "used": []
     },
     {
@@ -2501,11 +2178,7 @@
     },
     {
       "file": "src/lib/monitoring/sentry-test.ts",
-      "unused": [
-        "testSentryIntegration",
-        "getSentryStatus",
-        "logSentryStatus"
-      ],
+      "unused": ["testSentryIntegration", "getSentryStatus", "logSentryStatus"],
       "used": []
     },
     {
@@ -2558,28 +2231,17 @@
     },
     {
       "file": "src/lib/multimodal/audio-utils.ts",
-      "unused": [
-        "AudioMetadata",
-        "ValidationResult",
-        "formatDuration",
-        "calculateAudioSize"
-      ],
+      "unused": ["AudioMetadata", "ValidationResult", "formatDuration", "calculateAudioSize"],
       "used": []
     },
     {
       "file": "src/lib/multimodal/image-utils.ts",
-      "unused": [
-        "ImageDimensions",
-        "ValidationResult"
-      ],
+      "unused": ["ImageDimensions", "ValidationResult"],
       "used": []
     },
     {
       "file": "src/lib/multimodal/multimodal-service.ts",
-      "unused": [
-        "MultimodalService",
-        "getMultimodalService"
-      ],
+      "unused": ["MultimodalService", "getMultimodalService"],
       "used": []
     },
     {
@@ -2708,20 +2370,12 @@
         "getDBConnection",
         "STORES"
       ],
-      "used": [
-        "generateId"
-      ]
+      "used": ["generateId"]
     },
     {
       "file": "src/lib/offline/sync-manager.ts",
-      "unused": [
-        "getSyncSummary",
-        "default"
-      ],
-      "used": [
-        "useSyncManager",
-        "initNetworkListener"
-      ]
+      "unused": ["getSyncSummary", "default"],
+      "used": ["useSyncManager", "initNetworkListener"]
     },
     {
       "file": "src/lib/offline/types.ts",
@@ -2738,10 +2392,7 @@
         "STORAGE_KEYS",
         "OfflineEntityType"
       ],
-      "used": [
-        "DEFAULT_SYNC_CONFIG",
-        "OFFLINE_ENTITIES"
-      ]
+      "used": ["DEFAULT_SYNC_CONFIG", "OFFLINE_ENTITIES"]
     },
     {
       "file": "src/lib/offline/useOfflineSync.ts",
@@ -2829,13 +2480,8 @@
     },
     {
       "file": "src/lib/performance-monitoring/alerting/channels/email.ts",
-      "unused": [
-        "EmailConfig",
-        "EmailAlertOptions"
-      ],
-      "used": [
-        "EmailChannel"
-      ]
+      "unused": ["EmailConfig", "EmailAlertOptions"],
+      "used": ["EmailChannel"]
     },
     {
       "file": "src/lib/performance-monitoring/alerting/channels/index.ts",
@@ -2852,23 +2498,13 @@
     },
     {
       "file": "src/lib/performance-monitoring/alerting/channels/pagerduty.ts",
-      "unused": [
-        "PagerDutyConfig",
-        "PagerDutyAlertOptions"
-      ],
-      "used": [
-        "PagerDutyChannel"
-      ]
+      "unused": ["PagerDutyConfig", "PagerDutyAlertOptions"],
+      "used": ["PagerDutyChannel"]
     },
     {
       "file": "src/lib/performance-monitoring/alerting/channels/slack.ts",
-      "unused": [
-        "SlackConfig",
-        "SlackAlertOptions"
-      ],
-      "used": [
-        "SlackChannel"
-      ]
+      "unused": ["SlackConfig", "SlackAlertOptions"],
+      "used": ["SlackChannel"]
     },
     {
       "file": "src/lib/performance-monitoring/alerting/escalation-policy.ts",
@@ -2918,20 +2554,12 @@
         "getCoreWebVitalsThresholds",
         "default"
       ],
-      "used": [
-        "BudgetChecker",
-        "budgetChecker"
-      ]
+      "used": ["BudgetChecker", "budgetChecker"]
     },
     {
       "file": "src/lib/performance-monitoring/budget-control/budget-config.ts",
-      "unused": [
-        "BudgetConfigManager"
-      ],
-      "used": [
-        "DEFAULT_THRESHOLDS",
-        "budgetConfig"
-      ]
+      "unused": ["BudgetConfigManager"],
+      "used": ["DEFAULT_THRESHOLDS", "budgetConfig"]
     },
     {
       "file": "src/lib/performance-monitoring/budget-control/budget-parser.ts",
@@ -2944,17 +2572,11 @@
         "budgetParser",
         "default"
       ],
-      "used": [
-        "BudgetParser"
-      ]
+      "used": ["BudgetParser"]
     },
     {
       "file": "src/lib/performance-monitoring/budget-control/demo.ts",
-      "unused": [
-        "demoBudgetChecker",
-        "demoBudgetConfig",
-        "demoBudgetLinter"
-      ],
+      "unused": ["demoBudgetChecker", "demoBudgetConfig", "demoBudgetLinter"],
       "used": []
     },
     {
@@ -2983,9 +2605,7 @@
         "ResourceBottleneck",
         "HotPath"
       ],
-      "used": [
-        "default"
-      ]
+      "used": ["default"]
     },
     {
       "file": "src/lib/performance-monitoring/root-cause-analysis/call-chain-tracer.ts",
@@ -3063,9 +2683,7 @@
     },
     {
       "file": "src/lib/performance-monitoring/root-cause-analysis/types.ts",
-      "unused": [
-        "WaterfallSummary"
-      ],
+      "unused": ["WaterfallSummary"],
       "used": [
         "SeverityLevel",
         "Severity",
@@ -3336,17 +2954,8 @@
     },
     {
       "file": "src/lib/prefetch/predictive-prefetcher.ts",
-      "unused": [
-        "UserBehaviorPattern",
-        "UserContext",
-        "PrefetchResult",
-        "usePredictivePrefetch"
-      ],
-      "used": [
-        "PrefetchPrediction",
-        "PredictivePrefetcher",
-        "globalPrefetcher"
-      ]
+      "unused": ["UserBehaviorPattern", "UserContext", "PrefetchResult", "usePredictivePrefetch"],
+      "used": ["PrefetchPrediction", "PredictivePrefetcher", "globalPrefetcher"]
     },
     {
       "file": "src/lib/prefetch/prefetch-provider.tsx",
@@ -3357,22 +2966,12 @@
         "usePrefetchContext",
         "default"
       ],
-      "used": [
-        "PrefetchContext"
-      ]
+      "used": ["PrefetchContext"]
     },
     {
       "file": "src/lib/prefetch/resource-prefetcher.ts",
-      "unused": [
-        "ResourceConfig",
-        "PrefetchResult",
-        "ViewportBasedConfig",
-        "PREFETCH_PRESETS"
-      ],
-      "used": [
-        "ResourcePrefetcher",
-        "globalResourcePrefetcher"
-      ]
+      "unused": ["ResourceConfig", "PrefetchResult", "ViewportBasedConfig", "PREFETCH_PRESETS"],
+      "used": ["ResourcePrefetcher", "globalResourcePrefetcher"]
     },
     {
       "file": "src/lib/prefetch/route-prefetcher.ts",
@@ -3382,34 +2981,17 @@
         "ROUTE_PREFETCH_CONFIGS",
         "ResourcePriorityManager"
       ],
-      "used": [
-        "RoutePrefetcher",
-        "globalRoutePrefetcher"
-      ]
+      "used": ["RoutePrefetcher", "globalRoutePrefetcher"]
     },
     {
       "file": "src/lib/prefetch/user-behavior.ts",
-      "unused": [
-        "UserBehaviorPattern",
-        "UserSession",
-        "UserBehaviorData"
-      ],
-      "used": [
-        "UserBehaviorAnalyzer",
-        "globalBehaviorAnalyzer"
-      ]
+      "unused": ["UserBehaviorPattern", "UserSession", "UserBehaviorData"],
+      "used": ["UserBehaviorAnalyzer", "globalBehaviorAnalyzer"]
     },
     {
       "file": "src/lib/rate-limit/config.ts",
-      "unused": [
-        "validateRateLimitConfig",
-        "getDefaultRateLimitConfig"
-      ],
-      "used": [
-        "RateLimitEnvironmentConfig",
-        "getRateLimitEnvConfig",
-        "mergeRateLimitConfig"
-      ]
+      "unused": ["validateRateLimitConfig", "getDefaultRateLimitConfig"],
+      "used": ["RateLimitEnvironmentConfig", "getRateLimitEnvConfig", "mergeRateLimitConfig"]
     },
     {
       "file": "src/lib/rate-limit/index.ts",
@@ -3420,9 +3002,7 @@
         "withRateLimit",
         "DEFAULT_LIMITS"
       ],
-      "used": [
-        "RateLimitEvent"
-      ]
+      "used": ["RateLimitEvent"]
     },
     {
       "file": "src/lib/rate-limit/middleware.ts",
@@ -3438,12 +3018,8 @@
     },
     {
       "file": "src/lib/rate-limit/sliding-window.ts",
-      "unused": [
-        "SlidingWindowResult"
-      ],
-      "used": [
-        "SlidingWindowConfig"
-      ]
+      "unused": ["SlidingWindowResult"],
+      "used": ["SlidingWindowConfig"]
     },
     {
       "file": "src/lib/rate-limit/storage-factory.ts",
@@ -3454,18 +3030,12 @@
         "getMemoryStorage",
         "clearRedisAvailabilityCache"
       ],
-      "used": [
-        "shouldUseRedis"
-      ]
+      "used": ["shouldUseRedis"]
     },
     {
       "file": "src/lib/rate-limit/token-bucket.ts",
-      "unused": [
-        "TokenBucketResult"
-      ],
-      "used": [
-        "TokenBucketConfig"
-      ]
+      "unused": ["TokenBucketResult"],
+      "used": ["TokenBucketConfig"]
     },
     {
       "file": "src/lib/react-19-examples.tsx",
@@ -3480,61 +3050,33 @@
     },
     {
       "file": "src/lib/react-compiler/config/compiler.config.ts",
-      "unused": [
-        "shouldCompile",
-        "getNextReactCompilerConfig",
-        "DEFAULT_REACT_COMPILER_CONFIG"
-      ],
-      "used": [
-        "ReactCompilerConfig",
-        "getReactCompilerConfig"
-      ]
+      "unused": ["shouldCompile", "getNextReactCompilerConfig", "DEFAULT_REACT_COMPILER_CONFIG"],
+      "used": ["ReactCompilerConfig", "getReactCompilerConfig"]
     },
     {
       "file": "src/lib/react-compiler/dashboard/CompilerDashboard.tsx",
-      "unused": [
-        "ReactCompilerToggle",
-        "ComponentScannerDashboard"
-      ],
+      "unused": ["ReactCompilerToggle", "ComponentScannerDashboard"],
       "used": []
     },
     {
       "file": "src/lib/react-compiler/dashboard/CompilerDiagnostics.tsx",
-      "unused": [
-        "CompilerDiagnostics",
-        "default"
-      ],
+      "unused": ["CompilerDiagnostics", "default"],
       "used": []
     },
     {
       "file": "src/lib/react-compiler/diagnostics/index.ts",
-      "unused": [
-        "ReactCompilerDiagnostics"
-      ],
+      "unused": ["ReactCompilerDiagnostics"],
       "used": []
     },
     {
       "file": "src/lib/react-compiler/diagnostics/migration-guide.ts",
-      "unused": [
-        "MigrationStep",
-        "ComponentMigration"
-      ],
-      "used": [
-        "MigrationGuide"
-      ]
+      "unused": ["MigrationStep", "ComponentMigration"],
+      "used": ["MigrationGuide"]
     },
     {
       "file": "src/lib/react-compiler/diagnostics/reporter.ts",
-      "unused": [
-        "ReportOptions",
-        "generateMarkdownReport",
-        "generateHTMLReport",
-        "reportToString"
-      ],
-      "used": [
-        "CompatibilityReport",
-        "generateCompatibilityReport"
-      ]
+      "unused": ["ReportOptions", "generateMarkdownReport", "generateHTMLReport", "reportToString"],
+      "used": ["CompatibilityReport", "generateCompatibilityReport"]
     },
     {
       "file": "src/lib/react-compiler/index.ts",
@@ -3636,18 +3178,11 @@
         "NotificationStats",
         "useNotificationHistory"
       ],
-      "used": [
-        "useNotificationPreferences",
-        "useNotificationBatching"
-      ]
+      "used": ["useNotificationPreferences", "useNotificationBatching"]
     },
     {
       "file": "src/lib/realtime/notification-provider.tsx",
-      "unused": [
-        "NotificationProvider",
-        "useNotificationContext",
-        "default"
-      ],
+      "unused": ["NotificationProvider", "useNotificationContext", "default"],
       "used": []
     },
     {
@@ -3659,19 +3194,12 @@
         "NotificationError",
         "default"
       ],
-      "used": [
-        "OfflineQueueEntry",
-        "notificationService"
-      ]
+      "used": ["OfflineQueueEntry", "notificationService"]
     },
     {
       "file": "src/lib/realtime/read-status.ts",
-      "unused": [
-        "default"
-      ],
-      "used": [
-        "readStatusStore"
-      ]
+      "unused": ["default"],
+      "used": ["readStatusStore"]
     },
     {
       "file": "src/lib/realtime/retry-manager.ts",
@@ -3688,12 +3216,8 @@
     },
     {
       "file": "src/lib/realtime/server.ts",
-      "unused": [
-        "default"
-      ],
-      "used": [
-        "notificationServer"
-      ]
+      "unused": ["default"],
+      "used": ["notificationServer"]
     },
     {
       "file": "src/lib/realtime/types.ts",
@@ -3727,10 +3251,7 @@
         "UseEnhancedWebSocketReturn",
         "default"
       ],
-      "used": [
-        "ConnectionState",
-        "useEnhancedWebSocket"
-      ]
+      "used": ["ConnectionState", "useEnhancedWebSocket"]
     },
     {
       "file": "src/lib/realtime/useRealtimeNotifications.ts",
@@ -3744,12 +3265,7 @@
     },
     {
       "file": "src/lib/realtime/useTaskRealtime.ts",
-      "unused": [
-        "TaskRealtimeUpdate",
-        "UseTaskRealtimeReturn",
-        "useTaskRealtime",
-        "default"
-      ],
+      "unused": ["TaskRealtimeUpdate", "UseTaskRealtimeReturn", "useTaskRealtime", "default"],
       "used": []
     },
     {
@@ -3761,12 +3277,7 @@
         "UseWebSocketReturn",
         "default"
       ],
-      "used": [
-        "useWebSocket",
-        "generateMessageId",
-        "createMessage",
-        "isMessageType"
-      ]
+      "used": ["useWebSocket", "generateMessageId", "createMessage", "isMessageType"]
     },
     {
       "file": "src/lib/realtime/utils.ts",
@@ -3811,11 +3322,7 @@
     },
     {
       "file": "src/lib/search/history-manager.ts",
-      "unused": [
-        "SearchHistoryManager",
-        "getGlobalHistoryManager",
-        "resetGlobalHistoryManager"
-      ],
+      "unused": ["SearchHistoryManager", "getGlobalHistoryManager", "resetGlobalHistoryManager"],
       "used": []
     },
     {
@@ -3954,29 +3461,17 @@
     },
     {
       "file": "src/lib/security/rate-limit/algorithms/sliding-window.ts",
-      "unused": [
-        "SlidingWindowOptions",
-        "SlidingWindowResult"
-      ],
-      "used": [
-        "SlidingWindow"
-      ]
+      "unused": ["SlidingWindowOptions", "SlidingWindowResult"],
+      "used": ["SlidingWindow"]
     },
     {
       "file": "src/lib/security/rate-limit/algorithms/token-bucket.ts",
-      "unused": [
-        "TokenBucketOptions",
-        "TokenBucketResult"
-      ],
-      "used": [
-        "TokenBucket"
-      ]
+      "unused": ["TokenBucketOptions", "TokenBucketResult"],
+      "used": ["TokenBucket"]
     },
     {
       "file": "src/lib/security/rate-limit/examples/api-route-integration.ts",
-      "unused": [
-        "POST_register"
-      ],
+      "unused": ["POST_register"],
       "used": []
     },
     {
@@ -3997,10 +3492,7 @@
         "defaultConfigManager",
         "CommonRouteConfigs"
       ],
-      "used": [
-        "DistributedRateLimiter",
-        "KeyGenerators"
-      ]
+      "used": ["DistributedRateLimiter", "KeyGenerators"]
     },
     {
       "file": "src/lib/security/rate-limit/rate-limit-config.ts",
@@ -4029,25 +3521,13 @@
     },
     {
       "file": "src/lib/security/rate-limit/rate-limiter.ts",
-      "unused": [
-        "RateLimitInfo",
-        "KeyGenerators"
-      ],
-      "used": [
-        "RateLimitConfig",
-        "RateLimitResult",
-        "DistributedRateLimiter"
-      ]
+      "unused": ["RateLimitInfo", "KeyGenerators"],
+      "used": ["RateLimitConfig", "RateLimitResult", "DistributedRateLimiter"]
     },
     {
       "file": "src/lib/security/rate-limit/redis-adapter.ts",
-      "unused": [
-        "RedisConfig",
-        "RedisAdapterOptions"
-      ],
-      "used": [
-        "RedisAdapter"
-      ]
+      "unused": ["RedisConfig", "RedisAdapterOptions"],
+      "used": ["RedisAdapter"]
     },
     {
       "file": "src/lib/security/rbac/audit-logger.ts",
@@ -4123,23 +3603,12 @@
     },
     {
       "file": "src/lib/security/rbac/rbac-cache.ts",
-      "unused": [
-        "CacheConfig",
-        "CacheStats",
-        "RBACCache",
-        "rbacCache",
-        "getCacheStats"
-      ],
+      "unused": ["CacheConfig", "CacheStats", "RBACCache", "rbacCache", "getCacheStats"],
       "used": []
     },
     {
       "file": "src/lib/seo/metadata.ts",
-      "unused": [
-        "PageMetadata",
-        "siteConfig",
-        "generatePageMetadata",
-        "pageMetadataConfig"
-      ],
+      "unused": ["PageMetadata", "siteConfig", "generatePageMetadata", "pageMetadataConfig"],
       "used": []
     },
     {
@@ -4183,10 +3652,7 @@
     },
     {
       "file": "src/lib/services/notification-storage.ts",
-      "unused": [
-        "NotificationStorage",
-        "notificationStorage"
-      ],
+      "unused": ["NotificationStorage", "notificationStorage"],
       "used": []
     },
     {
@@ -4212,23 +3678,13 @@
     },
     {
       "file": "src/lib/sse/useSSE.ts",
-      "unused": [
-        "useSSE",
-        "useHealthSSE"
-      ],
+      "unused": ["useSSE", "useHealthSSE"],
       "used": []
     },
     {
       "file": "src/lib/sse/utils.ts",
-      "unused": [
-        "parseSSEMessage",
-        "isValidSSEConnection",
-        "getClientIP"
-      ],
-      "used": [
-        "getSSEHeaders",
-        "formatSSEEvent"
-      ]
+      "unused": ["parseSSEMessage", "isValidSSEConnection", "getClientIP"],
+      "used": ["getSSEHeaders", "formatSSEEvent"]
     },
     {
       "file": "src/lib/theme-enhanced.ts",
@@ -4247,9 +3703,7 @@
     },
     {
       "file": "src/lib/theme-script-inline.ts",
-      "unused": [
-        "getThemeScriptInline"
-      ],
+      "unused": ["getThemeScriptInline"],
       "used": []
     },
     {
@@ -4379,19 +3833,11 @@
         "pushOperation",
         "executeOperation"
       ],
-      "used": [
-        "useUndoRedoManager",
-        "useCanUndo",
-        "useCanRedo"
-      ]
+      "used": ["useUndoRedoManager", "useCanUndo", "useCanRedo"]
     },
     {
       "file": "src/lib/undo-redo/middleware.ts",
-      "unused": [
-        "UndoRedoStoreActions",
-        "undoRedoImpl",
-        "undoRedo"
-      ],
+      "unused": ["UndoRedoStoreActions", "undoRedoImpl", "undoRedo"],
       "used": []
     },
     {
@@ -4413,38 +3859,18 @@
     },
     {
       "file": "src/lib/user-preferences.ts",
-      "unused": [
-        "UserPreferences",
-        "UseUserPreferencesReturn",
-        "useUserPreferences"
-      ],
+      "unused": ["UserPreferences", "UseUserPreferencesReturn", "useUserPreferences"],
       "used": []
     },
     {
       "file": "src/lib/utils/array.ts",
-      "unused": [
-        "batch",
-        "shuffle",
-        "randomItem",
-        "unique",
-        "groupBy",
-        "pick",
-        "omit"
-      ],
+      "unused": ["batch", "shuffle", "randomItem", "unique", "groupBy", "pick", "omit"],
       "used": []
     },
     {
       "file": "src/lib/utils/async.ts",
-      "unused": [
-        "sleep",
-        "LRUCache",
-        "createCache"
-      ],
-      "used": [
-        "debounce",
-        "throttle",
-        "memoize"
-      ]
+      "unused": ["sleep", "LRUCache", "createCache"],
+      "used": ["debounce", "throttle", "memoize"]
     },
     {
       "file": "src/lib/utils/breakpoints.ts",
@@ -4460,18 +3886,12 @@
     },
     {
       "file": "src/lib/utils/browser.ts",
-      "unused": [
-        "getQueryParams",
-        "updateQueryParams",
-        "downloadFile"
-      ],
+      "unused": ["getQueryParams", "updateQueryParams", "downloadFile"],
       "used": []
     },
     {
       "file": "src/lib/utils/clone.ts",
-      "unused": [
-        "deepClone"
-      ],
+      "unused": ["deepClone"],
       "used": []
     },
     {
@@ -4497,12 +3917,7 @@
     },
     {
       "file": "src/lib/utils/download.ts",
-      "unused": [
-        "downloadFile",
-        "downloadJson",
-        "downloadCsv",
-        "createDownloadLink"
-      ],
+      "unused": ["downloadFile", "downloadJson", "downloadCsv", "createDownloadLink"],
       "used": []
     },
     {
@@ -4518,24 +3933,16 @@
         "getDeviceType",
         "getViewportSize"
       ],
-      "used": [
-        "isClient"
-      ]
+      "used": ["isClient"]
     },
     {
       "file": "src/lib/utils/format.ts",
-      "unused": [
-        "formatFileSize",
-        "formatNumber"
-      ],
+      "unused": ["formatFileSize", "formatNumber"],
       "used": []
     },
     {
       "file": "src/lib/utils/id.ts",
-      "unused": [
-        "generateId",
-        "generateUUID"
-      ],
+      "unused": ["generateId", "generateUUID"],
       "used": []
     },
     {
@@ -4610,53 +4017,32 @@
     },
     {
       "file": "src/lib/utils/math.ts",
-      "unused": [
-        "clamp",
-        "mapRange",
-        "lerp"
-      ],
+      "unused": ["clamp", "mapRange", "lerp"],
       "used": []
     },
     {
       "file": "src/lib/utils/perf.ts",
-      "unused": [
-        "optimizeImageUrl",
-        "preloadResources",
-        "lazyLoadComponent"
-      ],
+      "unused": ["optimizeImageUrl", "preloadResources", "lazyLoadComponent"],
       "used": []
     },
     {
       "file": "src/lib/utils/retry.ts",
-      "unused": [
-        "RetryOptions",
-        "RetryResult",
-        "RetryCache",
-        "createRetryCache"
-      ],
+      "unused": ["RetryOptions", "RetryResult", "RetryCache", "createRetryCache"],
       "used": []
     },
     {
       "file": "src/lib/utils/ui.ts",
-      "unused": [
-        "cn"
-      ],
+      "unused": ["cn"],
       "used": []
     },
     {
       "file": "src/lib/utils/validation.ts",
-      "unused": [
-        "isValidEmail",
-        "isValidUrl",
-        "isEmpty"
-      ],
+      "unused": ["isValidEmail", "isValidUrl", "isEmpty"],
       "used": []
     },
     {
       "file": "src/lib/utils.deepClone.test-light.ts",
-      "unused": [
-        "runDeepClonePerformanceTests"
-      ],
+      "unused": ["runDeepClonePerformanceTests"],
       "used": []
     },
     {
@@ -4725,10 +4111,7 @@
         "isToday",
         "isYesterday"
       ],
-      "used": [
-        "generateId",
-        "deepClone"
-      ]
+      "used": ["generateId", "deepClone"]
     },
     {
       "file": "src/lib/validation/data-converter.ts",
@@ -4779,9 +4162,7 @@
     },
     {
       "file": "src/lib/validation/index.ts",
-      "unused": [
-        "useFormValidation"
-      ],
+      "unused": ["useFormValidation"],
       "used": []
     },
     {
@@ -4798,10 +4179,7 @@
     },
     {
       "file": "src/lib/validation/useFormValidation.ts",
-      "unused": [
-        "useFormValidation",
-        "default"
-      ],
+      "unused": ["useFormValidation", "default"],
       "used": []
     },
     {
@@ -4863,20 +4241,12 @@
     },
     {
       "file": "src/lib/websocket/dashboard/RoomList.tsx",
-      "unused": [
-        "RoomListProps",
-        "RoomList",
-        "default"
-      ],
+      "unused": ["RoomListProps", "RoomList", "default"],
       "used": []
     },
     {
       "file": "src/lib/websocket/dashboard/RoomView.tsx",
-      "unused": [
-        "RoomViewProps",
-        "RoomView",
-        "default"
-      ],
+      "unused": ["RoomViewProps", "RoomView", "default"],
       "used": []
     },
     {
@@ -4887,9 +4257,7 @@
         "selectCurrentParticipants",
         "selectFilteredRooms"
       ],
-      "used": [
-        "useWebSocketStore"
-      ]
+      "used": ["useWebSocketStore"]
     },
     {
       "file": "src/lib/websocket/index.ts",
@@ -4924,11 +4292,7 @@
         "MessageStoreStats",
         "resetMessageStore"
       ],
-      "used": [
-        "StoredMessage",
-        "MessageStore",
-        "getMessageStore"
-      ]
+      "used": ["StoredMessage", "MessageStore", "getMessageStore"]
     },
     {
       "file": "src/lib/websocket/permissions.ts",
@@ -4943,12 +4307,7 @@
         "checkPermissions",
         "resetPermissionManager"
       ],
-      "used": [
-        "Permission",
-        "UserRole",
-        "PermissionManager",
-        "getPermissionManager"
-      ]
+      "used": ["Permission", "UserRole", "PermissionManager", "getPermissionManager"]
     },
     {
       "file": "src/lib/websocket/rooms.ts",
@@ -4970,13 +4329,7 @@
     },
     {
       "file": "src/lib/websocket/server.ts",
-      "unused": [
-        "AuthenticatedSocket",
-        "RoomUser",
-        "Room",
-        "TaskStatusUpdate",
-        "default"
-      ],
+      "unused": ["AuthenticatedSocket", "RoomUser", "Room", "TaskStatusUpdate", "default"],
       "used": []
     },
     {
@@ -5056,25 +4409,17 @@
     },
     {
       "file": "src/components/AIChat.tsx",
-      "unused": [
-        "default"
-      ],
+      "unused": ["default"],
       "used": []
     },
     {
       "file": "src/components/ActivityLog.tsx",
-      "unused": [
-        "ActivityItem",
-        "ActivityLog"
-      ],
+      "unused": ["ActivityItem", "ActivityLog"],
       "used": []
     },
     {
       "file": "src/components/Analytics.tsx",
-      "unused": [
-        "Analytics",
-        "default"
-      ],
+      "unused": ["Analytics", "default"],
       "used": []
     },
     {
@@ -5090,86 +4435,53 @@
     },
     {
       "file": "src/components/BackupList.tsx",
-      "unused": [
-        "BackupList"
-      ],
+      "unused": ["BackupList"],
       "used": []
     },
     {
       "file": "src/components/BugReportForm.tsx",
-      "unused": [
-        "BugReportData",
-        "BugReportForm",
-        "default"
-      ],
+      "unused": ["BugReportData", "BugReportForm", "default"],
       "used": []
     },
     {
       "file": "src/components/ClientAnalytics.tsx",
-      "unused": [
-        "ClientAnalytics"
-      ],
+      "unused": ["ClientAnalytics"],
       "used": []
     },
     {
       "file": "src/components/ContactForm.tsx",
-      "unused": [
-        "ContactForm"
-      ],
+      "unused": ["ContactForm"],
       "used": []
     },
     {
       "file": "src/components/DataExportImport/index.tsx",
-      "unused": [
-        "DataExportImport"
-      ],
+      "unused": ["DataExportImport"],
       "used": []
     },
     {
       "file": "src/components/DataExportPanel.tsx",
-      "unused": [
-        "DataExportPanel"
-      ],
+      "unused": ["DataExportPanel"],
       "used": []
     },
     {
       "file": "src/components/EnhancedFeedbackModal.tsx",
-      "unused": [
-        "EnhancedFeedbackModal",
-        "default"
-      ],
+      "unused": ["EnhancedFeedbackModal", "default"],
       "used": []
     },
     {
       "file": "src/components/ErrorBoundary.tsx",
-      "unused": [
-        "ErrorBoundaryProps",
-        "ErrorBoundary",
-        "default"
-      ],
+      "unused": ["ErrorBoundaryProps", "ErrorBoundary", "default"],
       "used": []
     },
     {
       "file": "src/components/ErrorBoundaryWrapper.tsx",
-      "unused": [
-        "ErrorBoundaryWrapper",
-        "withErrorBoundary",
-        "AsyncErrorBoundary",
-        "default"
-      ],
+      "unused": ["ErrorBoundaryWrapper", "withErrorBoundary", "AsyncErrorBoundary", "default"],
       "used": []
     },
     {
       "file": "src/components/ErrorDisplay.tsx",
-      "unused": [
-        "ErrorVariant",
-        "ErrorDisplayProps",
-        "default"
-      ],
-      "used": [
-        "ErrorType",
-        "ErrorDisplay"
-      ]
+      "unused": ["ErrorVariant", "ErrorDisplayProps", "default"],
+      "used": ["ErrorType", "ErrorDisplay"]
     },
     {
       "file": "src/components/ExportPanel.tsx",
@@ -5184,67 +4496,43 @@
     },
     {
       "file": "src/components/FeedbackModal.tsx",
-      "unused": [
-        "FeedbackData",
-        "FeedbackModal",
-        "default"
-      ],
+      "unused": ["FeedbackData", "FeedbackModal", "default"],
       "used": []
     },
     {
       "file": "src/components/Footer.i18n.example.tsx",
-      "unused": [
-        "FooterWithI18n"
-      ],
+      "unused": ["FooterWithI18n"],
       "used": []
     },
     {
       "file": "src/components/Footer.tsx",
-      "unused": [
-        "Footer",
-        "default"
-      ],
+      "unused": ["Footer", "default"],
       "used": []
     },
     {
       "file": "src/components/GitHubActivity.tsx",
-      "unused": [
-        "GitHubActivity"
-      ],
+      "unused": ["GitHubActivity"],
       "used": []
     },
     {
       "file": "src/components/GlobalLoader.tsx",
-      "unused": [
-        "LoaderVariant",
-        "GlobalLoader",
-        "MinimalLoader",
-        "default"
-      ],
+      "unused": ["LoaderVariant", "GlobalLoader", "MinimalLoader", "default"],
       "used": []
     },
     {
       "file": "src/components/HealthDashboard.tsx",
-      "unused": [
-        "HealthDashboard"
-      ],
+      "unused": ["HealthDashboard"],
       "used": []
     },
     {
       "file": "src/components/Hero3D.tsx",
-      "unused": [
-        "Hero3D"
-      ],
+      "unused": ["Hero3D"],
       "used": []
     },
     {
       "file": "src/components/LanguageSwitcher.tsx",
-      "unused": [
-        "LanguageSwitcher"
-      ],
-      "used": [
-        "LanguageSwitcherCompact"
-      ]
+      "unused": ["LanguageSwitcher"],
+      "used": ["LanguageSwitcherCompact"]
     },
     {
       "file": "src/components/LazyComponents.tsx",
@@ -5293,81 +4581,47 @@
     },
     {
       "file": "src/components/LoadingSpinner.tsx",
-      "unused": [
-        "LoadingVariant",
-        "LoadingSize",
-        "LoadingColor",
-        "default"
-      ],
-      "used": [
-        "LoadingSpinner"
-      ]
+      "unused": ["LoadingVariant", "LoadingSize", "LoadingColor", "default"],
+      "used": ["LoadingSpinner"]
     },
     {
       "file": "src/components/MemberCard.tsx",
-      "unused": [
-        "AIMember",
-        "MemberCard"
-      ],
+      "unused": ["AIMember", "MemberCard"],
       "used": []
     },
     {
       "file": "src/components/MobileMenu.tsx",
-      "unused": [
-        "MobileMenu",
-        "default"
-      ],
+      "unused": ["MobileMenu", "default"],
       "used": []
     },
     {
       "file": "src/components/Navigation.tsx",
-      "unused": [
-        "Navigation"
-      ],
+      "unused": ["Navigation"],
       "used": []
     },
     {
       "file": "src/components/NotificationCenter/NotificationBadge.tsx",
-      "unused": [
-        "default"
-      ],
-      "used": [
-        "NotificationBadge"
-      ]
+      "unused": ["default"],
+      "used": ["NotificationBadge"]
     },
     {
       "file": "src/components/NotificationCenter/NotificationCenter.tsx",
-      "unused": [
-        "NotificationCenter",
-        "default"
-      ],
+      "unused": ["NotificationCenter", "default"],
       "used": []
     },
     {
       "file": "src/components/NotificationCenter/NotificationFilter.tsx",
-      "unused": [
-        "NotificationFilter",
-        "default"
-      ],
+      "unused": ["NotificationFilter", "default"],
       "used": []
     },
     {
       "file": "src/components/NotificationCenter/NotificationItem.tsx",
-      "unused": [
-        "default"
-      ],
-      "used": [
-        "NotificationItem"
-      ]
+      "unused": ["default"],
+      "used": ["NotificationItem"]
     },
     {
       "file": "src/components/NotificationCenter/index.ts",
-      "unused": [
-        "NotificationCenter",
-        "default",
-        "NotificationItem",
-        "NotificationBadge"
-      ],
+      "unused": ["NotificationCenter", "default", "NotificationItem", "NotificationBadge"],
       "used": []
     },
     {
@@ -5384,18 +4638,12 @@
     },
     {
       "file": "src/components/OptimizedImage.tsx",
-      "unused": [
-        "OptimizedImage",
-        "ResponsiveImage",
-        "default"
-      ],
+      "unused": ["OptimizedImage", "ResponsiveImage", "default"],
       "used": []
     },
     {
       "file": "src/components/PWAInstallPrompt.tsx",
-      "unused": [
-        "PWAInstallPrompt"
-      ],
+      "unused": ["PWAInstallPrompt"],
       "used": []
     },
     {
@@ -5413,11 +4661,7 @@
     },
     {
       "file": "src/components/PerformanceMonitor.tsx",
-      "unused": [
-        "PerformanceMonitor",
-        "ResourceTimingMonitor",
-        "default"
-      ],
+      "unused": ["PerformanceMonitor", "ResourceTimingMonitor", "default"],
       "used": []
     },
     {
@@ -5433,16 +4677,12 @@
     },
     {
       "file": "src/components/ProjectDashboard.tsx",
-      "unused": [
-        "ProjectDashboard"
-      ],
+      "unused": ["ProjectDashboard"],
       "used": []
     },
     {
       "file": "src/components/Providers.tsx",
-      "unused": [
-        "Providers"
-      ],
+      "unused": ["Providers"],
       "used": []
     },
     {
@@ -5472,37 +4712,23 @@
     },
     {
       "file": "src/components/SearchFilter.tsx",
-      "unused": [
-        "SearchFilterProps",
-        "SearchFilter"
-      ],
+      "unused": ["SearchFilterProps", "SearchFilter"],
       "used": []
     },
     {
       "file": "src/components/ServiceWorkerRegistration.tsx",
-      "unused": [
-        "ServiceWorkerRegistration"
-      ],
+      "unused": ["ServiceWorkerRegistration"],
       "used": []
     },
     {
       "file": "src/components/SettingsButton.tsx",
-      "unused": [
-        "default"
-      ],
-      "used": [
-        "SettingsButton"
-      ]
+      "unused": ["default"],
+      "used": ["SettingsButton"]
     },
     {
       "file": "src/components/SettingsPanel.tsx",
-      "unused": [
-        "SettingsPanelCompact",
-        "default"
-      ],
-      "used": [
-        "SettingsPanel"
-      ]
+      "unused": ["SettingsPanelCompact", "default"],
+      "used": ["SettingsPanel"]
     },
     {
       "file": "src/components/Skeleton.tsx",
@@ -5522,34 +4748,22 @@
     },
     {
       "file": "src/components/SocialLinks.tsx",
-      "unused": [
-        "default"
-      ],
-      "used": [
-        "SocialLinks"
-      ]
+      "unused": ["default"],
+      "used": ["SocialLinks"]
     },
     {
       "file": "src/components/StarRating.tsx",
-      "unused": [
-        "default"
-      ],
-      "used": [
-        "StarRating"
-      ]
+      "unused": ["default"],
+      "used": ["StarRating"]
     },
     {
       "file": "src/components/TaskBoard.tsx",
-      "unused": [
-        "TaskBoard"
-      ],
+      "unused": ["TaskBoard"],
       "used": []
     },
     {
       "file": "src/components/TaskBoardSearch.tsx",
-      "unused": [
-        "TaskBoardSearch"
-      ],
+      "unused": ["TaskBoardSearch"],
       "used": []
     },
     {
@@ -5566,59 +4780,37 @@
     },
     {
       "file": "src/components/ThemeProvider.tsx",
-      "unused": [
-        "useTheme",
-        "ThemeProvider"
-      ],
+      "unused": ["useTheme", "ThemeProvider"],
       "used": []
     },
     {
       "file": "src/components/UserProfile/UserProfile.tsx",
-      "unused": [
-        "default"
-      ],
+      "unused": ["default"],
       "used": []
     },
     {
       "file": "src/components/UserProfile/index.ts",
-      "unused": [
-        "default"
-      ],
+      "unused": ["default"],
       "used": []
     },
     {
       "file": "src/components/UserSettings/AvatarUpload.tsx",
-      "unused": [
-        "AvatarUploadProps"
-      ],
-      "used": [
-        "default"
-      ]
+      "unused": ["AvatarUploadProps"],
+      "used": ["default"]
     },
     {
       "file": "src/components/UserSettings/SectionCard.tsx",
-      "unused": [
-        "SectionCardProps"
-      ],
-      "used": [
-        "default"
-      ]
+      "unused": ["SectionCardProps"],
+      "used": ["default"]
     },
     {
       "file": "src/components/UserSettings/ToggleSwitch.tsx",
-      "unused": [
-        "ToggleSwitchProps"
-      ],
-      "used": [
-        "default"
-      ]
+      "unused": ["ToggleSwitchProps"],
+      "used": ["default"]
     },
     {
       "file": "src/components/UserSettings/UserSettingsPage.tsx",
-      "unused": [
-        "UserSettingsPage",
-        "default"
-      ],
+      "unused": ["UserSettingsPage", "default"],
       "used": []
     },
     {
@@ -5650,98 +4842,53 @@
     },
     {
       "file": "src/components/WebSocketStatusIndicator.tsx",
-      "unused": [
-        "WebSocketStatusIndicator"
-      ],
+      "unused": ["WebSocketStatusIndicator"],
       "used": []
     },
     {
       "file": "src/components/admin/FeedbackManagementPanel.tsx",
-      "unused": [
-        "FeedbackManagementPanel",
-        "default"
-      ],
+      "unused": ["FeedbackManagementPanel", "default"],
       "used": []
     },
     {
       "file": "src/components/analytics/AnalyticsChart.tsx",
-      "unused": [
-        "AnalyticsChartProps",
-        "default"
-      ],
-      "used": [
-        "AnalyticsChart"
-      ]
+      "unused": ["AnalyticsChartProps", "default"],
+      "used": ["AnalyticsChart"]
     },
     {
       "file": "src/components/analytics/AnalyticsDashboard.tsx",
-      "unused": [
-        "AnalyticsDashboardProps",
-        "AnalyticsDashboard",
-        "default"
-      ],
+      "unused": ["AnalyticsDashboardProps", "AnalyticsDashboard", "default"],
       "used": []
     },
     {
       "file": "src/components/analytics/DateRangePicker.tsx",
-      "unused": [
-        "DateRangePickerProps",
-        "default"
-      ],
-      "used": [
-        "DateRangePicker"
-      ]
+      "unused": ["DateRangePickerProps", "default"],
+      "used": ["DateRangePicker"]
     },
     {
       "file": "src/components/analytics/ErrorBoundary.tsx",
-      "unused": [
-        "withAnalyticsErrorBoundary"
-      ],
-      "used": [
-        "AnalyticsErrorBoundary"
-      ]
+      "unused": ["withAnalyticsErrorBoundary"],
+      "used": ["AnalyticsErrorBoundary"]
     },
     {
       "file": "src/components/analytics/FilterPanel.tsx",
-      "unused": [
-        "FilterPanelProps",
-        "default"
-      ],
-      "used": [
-        "FilterPanel"
-      ]
+      "unused": ["FilterPanelProps", "default"],
+      "used": ["FilterPanel"]
     },
     {
       "file": "src/components/analytics/MetricCard.tsx",
-      "unused": [
-        "MetricCardProps",
-        "default"
-      ],
-      "used": [
-        "MetricCard"
-      ]
+      "unused": ["MetricCardProps", "default"],
+      "used": ["MetricCard"]
     },
     {
       "file": "src/components/analytics/PageLoadWaterfall.tsx",
-      "unused": [
-        "ResourceTiming",
-        "CriticalTiming",
-        "PageLoadWaterfallProps",
-        "default"
-      ],
-      "used": [
-        "PageLoadWaterfall"
-      ]
+      "unused": ["ResourceTiming", "CriticalTiming", "PageLoadWaterfallProps", "default"],
+      "used": ["PageLoadWaterfall"]
     },
     {
       "file": "src/components/analytics/PerformanceMetrics.tsx",
-      "unused": [
-        "PerformanceMetricsProps",
-        "default"
-      ],
-      "used": [
-        "PerformanceMetrics"
-      ]
+      "unused": ["PerformanceMetricsProps", "default"],
+      "used": ["PerformanceMetrics"]
     },
     {
       "file": "src/components/analytics/PerformanceMonitoringDashboard.tsx",
@@ -5754,72 +4901,37 @@
     },
     {
       "file": "src/components/analytics/RealTimeCharts.tsx",
-      "unused": [
-        "RealTimeChartsProps",
-        "default"
-      ],
-      "used": [
-        "RealTimeCharts"
-      ]
+      "unused": ["RealTimeChartsProps", "default"],
+      "used": ["RealTimeCharts"]
     },
     {
       "file": "src/components/analytics/RealtimeConnectionStatus.tsx",
-      "unused": [
-        "RealtimeConnectionStatusProps",
-        "default"
-      ],
-      "used": [
-        "RealtimeConnectionStatus"
-      ]
+      "unused": ["RealtimeConnectionStatusProps", "default"],
+      "used": ["RealtimeConnectionStatus"]
     },
     {
       "file": "src/components/analytics/RealtimeMetricsDashboard.tsx",
-      "unused": [
-        "RealtimeMetricsDashboardProps",
-        "RealtimeMetricsDashboard",
-        "default"
-      ],
+      "unused": ["RealtimeMetricsDashboardProps", "RealtimeMetricsDashboard", "default"],
       "used": []
     },
     {
       "file": "src/components/analytics/RealtimeTaskStatusChart.tsx",
-      "unused": [
-        "RealtimeTaskStatusChartProps",
-        "default"
-      ],
-      "used": [
-        "RealtimeTaskStatusChart"
-      ]
+      "unused": ["RealtimeTaskStatusChartProps", "default"],
+      "used": ["RealtimeTaskStatusChart"]
     },
     {
       "file": "src/components/analytics/RealtimeTeamEfficiency.tsx",
-      "unused": [
-        "RealtimeTeamEfficiencyProps",
-        "default"
-      ],
-      "used": [
-        "RealtimeTeamEfficiency"
-      ]
+      "unused": ["RealtimeTeamEfficiencyProps", "default"],
+      "used": ["RealtimeTeamEfficiency"]
     },
     {
       "file": "src/components/analytics/Skeleton.tsx",
-      "unused": [
-        "Skeleton"
-      ],
-      "used": [
-        "MetricCardSkeleton",
-        "ChartSkeleton",
-        "LoadingOverlay",
-        "MetricsGridSkeleton"
-      ]
+      "unused": ["Skeleton"],
+      "used": ["MetricCardSkeleton", "ChartSkeleton", "LoadingOverlay", "MetricsGridSkeleton"]
     },
     {
       "file": "src/components/analytics/VirtualizedList.tsx",
-      "unused": [
-        "VirtualizedList",
-        "VirtualizedTable",
-        "useVirtualContainerHeight"
-      ],
+      "unused": ["VirtualizedList", "VirtualizedTable", "useVirtualContainerHeight"],
       "used": []
     },
     {
@@ -5855,49 +4967,32 @@
     },
     {
       "file": "src/components/chat/ChatHeader.tsx",
-      "unused": [
-        "ChatHeader"
-      ],
+      "unused": ["ChatHeader"],
       "used": []
     },
     {
       "file": "src/components/chat/ChatInput.tsx",
-      "unused": [
-        "ChatInput"
-      ],
+      "unused": ["ChatInput"],
       "used": []
     },
     {
       "file": "src/components/chat/ChatMessage.tsx",
-      "unused": [
-        "ChatMessage",
-        "TypingIndicator"
-      ],
+      "unused": ["ChatMessage", "TypingIndicator"],
       "used": []
     },
     {
       "file": "src/components/chat/QuickActions.tsx",
-      "unused": [
-        "QuickActions"
-      ],
+      "unused": ["QuickActions"],
       "used": []
     },
     {
       "file": "src/components/chat/TeamStatusPanel.tsx",
-      "unused": [
-        "TeamStatusPanel"
-      ],
+      "unused": ["TeamStatusPanel"],
       "used": []
     },
     {
       "file": "src/components/chat/index.ts",
-      "unused": [
-        "teamMembers",
-        "quickActions",
-        "initialMessage",
-        "ChatInput",
-        "MemberSelector"
-      ],
+      "unused": ["teamMembers", "quickActions", "initialMessage", "ChatInput", "MemberSelector"],
       "used": [
         "ChatMessage",
         "TypingIndicator",
@@ -5917,15 +5012,11 @@
         "TeamStatusPanelProps",
         "MemberSelectorProps"
       ],
-      "used": [
-        "Message"
-      ]
+      "used": ["Message"]
     },
     {
       "file": "src/components/chat/useChat.ts",
-      "unused": [
-        "useChat"
-      ],
+      "unused": ["useChat"],
       "used": []
     },
     {
@@ -5938,17 +5029,11 @@
         "SelectionManager",
         "default"
       ],
-      "used": [
-        "TypingIndicator"
-      ]
+      "used": ["TypingIndicator"]
     },
     {
       "file": "src/components/collaboration/TaskEditor.tsx",
-      "unused": [
-        "TaskEditor",
-        "TaskEditorPage",
-        "default"
-      ],
+      "unused": ["TaskEditor", "TaskEditorPage", "default"],
       "used": []
     },
     {
@@ -5963,45 +5048,27 @@
     },
     {
       "file": "src/components/dashboard/ActivityChart.tsx",
-      "unused": [
-        "ActivityDataPoint",
-        "ActivityChartProps",
-        "ActivityChart",
-        "default"
-      ],
+      "unused": ["ActivityDataPoint", "ActivityChartProps", "ActivityChart", "default"],
       "used": []
     },
     {
       "file": "src/components/dashboard/RevenueChart.tsx",
-      "unused": [
-        "RevenueDataPoint",
-        "RevenueChartProps",
-        "RevenueChart",
-        "default"
-      ],
+      "unused": ["RevenueDataPoint", "RevenueChartProps", "RevenueChart", "default"],
       "used": []
     },
     {
       "file": "src/components/dashboard/StatsCard.tsx",
-      "unused": [
-        "StatsCardProps",
-        "StatsCard",
-        "default"
-      ],
+      "unused": ["StatsCardProps", "StatsCard", "default"],
       "used": []
     },
     {
       "file": "src/components/errors/ForbiddenPage.tsx",
-      "unused": [
-        "default"
-      ],
+      "unused": ["default"],
       "used": []
     },
     {
       "file": "src/components/errors/UnauthorizedPage.tsx",
-      "unused": [
-        "default"
-      ],
+      "unused": ["default"],
       "used": []
     },
     {
@@ -6021,16 +5088,12 @@
     },
     {
       "file": "src/components/examples/StoreUsageExample.tsx",
-      "unused": [
-        "StoreUsageExample"
-      ],
+      "unused": ["StoreUsageExample"],
       "used": []
     },
     {
       "file": "src/components/examples/TaskStatusExample.tsx",
-      "unused": [
-        "TaskStatusExample"
-      ],
+      "unused": ["TaskStatusExample"],
       "used": []
     },
     {
@@ -6048,15 +5111,8 @@
     },
     {
       "file": "src/components/fallbacks/ComponentFallback.tsx",
-      "unused": [
-        "ComponentFallbackProps",
-        "withFallback",
-        "default"
-      ],
-      "used": [
-        "FallbackVariant",
-        "ComponentFallback"
-      ]
+      "unused": ["ComponentFallbackProps", "withFallback", "default"],
+      "used": ["FallbackVariant", "ComponentFallback"]
     },
     {
       "file": "src/components/form/FormField.tsx",
@@ -6077,14 +5133,7 @@
     },
     {
       "file": "src/components/form/index.ts",
-      "unused": [
-        "FormField",
-        "Input",
-        "Textarea",
-        "Select",
-        "Checkbox",
-        "useFieldValidation"
-      ],
+      "unused": ["FormField", "Input", "Textarea", "Select", "Checkbox", "useFieldValidation"],
       "used": []
     },
     {
@@ -6096,10 +5145,7 @@
         "UseFieldValidationReturn",
         "default"
       ],
-      "used": [
-        "UseFieldValidationOptions",
-        "useFieldValidation"
-      ]
+      "used": ["UseFieldValidationOptions", "useFieldValidation"]
     },
     {
       "file": "src/components/index.ts",
@@ -6188,140 +5234,87 @@
     },
     {
       "file": "src/components/knowledge-lattice/KnowledgeLattice3D.tsx",
-      "unused": [
-        "default"
-      ],
+      "unused": ["default"],
       "used": []
     },
     {
       "file": "src/components/knowledge-lattice/KnowledgeLatticeScene.tsx",
-      "unused": [
-        "default"
-      ],
+      "unused": ["default"],
       "used": []
     },
     {
       "file": "src/components/meeting/MeetingRoom.tsx",
-      "unused": [
-        "default"
-      ],
+      "unused": ["default"],
       "used": []
     },
     {
       "file": "src/components/mobile/SwipeContainer.tsx",
-      "unused": [
-        "SwipeContainer",
-        "HorizontalScroll",
-        "PullToRefresh"
-      ],
+      "unused": ["SwipeContainer", "HorizontalScroll", "PullToRefresh"],
       "used": []
     },
     {
       "file": "src/components/mobile/TaskCardMobile.tsx",
-      "unused": [
-        "TaskCardMobile"
-      ],
+      "unused": ["TaskCardMobile"],
       "used": []
     },
     {
       "file": "src/components/monitoring/MetricsDashboard.tsx",
-      "unused": [
-        "MetricsDashboard"
-      ],
+      "unused": ["MetricsDashboard"],
       "used": []
     },
     {
       "file": "src/components/multimodal/AudioTranscriptionResult.tsx",
-      "unused": [
-        "AudioTranscriptionResult"
-      ],
+      "unused": ["AudioTranscriptionResult"],
       "used": []
     },
     {
       "file": "src/components/multimodal/AudioUploader.tsx",
-      "unused": [
-        "AudioUploader"
-      ],
+      "unused": ["AudioUploader"],
       "used": []
     },
     {
       "file": "src/components/multimodal/ImageAnalysisResult.tsx",
-      "unused": [
-        "ImageAnalysisResult"
-      ],
+      "unused": ["ImageAnalysisResult"],
       "used": []
     },
     {
       "file": "src/components/multimodal/ImageUploader.tsx",
-      "unused": [
-        "ImageUploader"
-      ],
+      "unused": ["ImageUploader"],
       "used": []
     },
     {
       "file": "src/components/rating/RatingList.tsx",
-      "unused": [
-        "RatingListProps",
-        "RatingList",
-        "default"
-      ],
+      "unused": ["RatingListProps", "RatingList", "default"],
       "used": []
     },
     {
       "file": "src/components/rating/RatingStats.tsx",
-      "unused": [
-        "RatingStatsProps",
-        "RatingStats",
-        "default"
-      ],
+      "unused": ["RatingStatsProps", "RatingStats", "default"],
       "used": []
     },
     {
       "file": "src/components/rating/ReviewItem.tsx",
-      "unused": [
-        "ReviewItemProps",
-        "default"
-      ],
-      "used": [
-        "ReviewItem"
-      ]
+      "unused": ["ReviewItemProps", "default"],
+      "used": ["ReviewItem"]
     },
     {
       "file": "src/components/rating/StarRating.tsx",
-      "unused": [
-        "StarRatingProps",
-        "StarRating",
-        "default"
-      ],
+      "unused": ["StarRatingProps", "StarRating", "default"],
       "used": []
     },
     {
       "file": "src/components/rating/index.ts",
-      "unused": [
-        "StarRating",
-        "ReviewItem",
-        "RatingList",
-        "RatingStats"
-      ],
+      "unused": ["StarRating", "ReviewItem", "RatingList", "RatingStats"],
       "used": []
     },
     {
       "file": "src/components/realtime/NotificationPanel.tsx",
-      "unused": [
-        "NotificationPanelProps",
-        "NotificationPanel",
-        "default"
-      ],
+      "unused": ["NotificationPanelProps", "NotificationPanel", "default"],
       "used": []
     },
     {
       "file": "src/components/realtime/TaskUpdateFeed.tsx",
-      "unused": [
-        "TaskUpdateItem",
-        "TaskUpdateFeedProps",
-        "TaskUpdateFeed",
-        "default"
-      ],
+      "unused": ["TaskUpdateItem", "TaskUpdateFeedProps", "TaskUpdateFeed", "default"],
       "used": []
     },
     {
@@ -6336,23 +5329,17 @@
     },
     {
       "file": "src/components/search/GlobalSearch.tsx",
-      "unused": [
-        "GlobalSearch"
-      ],
+      "unused": ["GlobalSearch"],
       "used": []
     },
     {
       "file": "src/components/search/SearchHistory.tsx",
-      "unused": [
-        "SearchHistory"
-      ],
+      "unused": ["SearchHistory"],
       "used": []
     },
     {
       "file": "src/components/search/SearchResults.tsx",
-      "unused": [
-        "SearchResults"
-      ],
+      "unused": ["SearchResults"],
       "used": []
     },
     {
@@ -6393,58 +5380,37 @@
     },
     {
       "file": "src/components/team/CollaborationItemCard.tsx",
-      "unused": [
-        "CollaborationItemCard"
-      ],
+      "unused": ["CollaborationItemCard"],
       "used": []
     },
     {
       "file": "src/components/team/TeamHeroSection.tsx",
-      "unused": [
-        "TeamHeroSection"
-      ],
+      "unused": ["TeamHeroSection"],
       "used": []
     },
     {
       "file": "src/components/team/TeamMemberCard.tsx",
-      "unused": [
-        "TeamMemberCard"
-      ],
+      "unused": ["TeamMemberCard"],
       "used": []
     },
     {
       "file": "src/components/team/constants.ts",
-      "unused": [
-        "TEAM_MEMBERS",
-        "COLLABORATION_ITEMS",
-        "BASE_URL"
-      ],
+      "unused": ["TEAM_MEMBERS", "COLLABORATION_ITEMS", "BASE_URL"],
       "used": []
     },
     {
       "file": "src/components/team/translations.ts",
-      "unused": [
-        "TeamTranslations",
-        "GetTranslationsFunction"
-      ],
+      "unused": ["TeamTranslations", "GetTranslationsFunction"],
       "used": []
     },
     {
       "file": "src/components/team/types.ts",
-      "unused": [
-        "TeamMember",
-        "CollaborationItem",
-        "TeamStats",
-        "TeamMemberCategory"
-      ],
+      "unused": ["TeamMember", "CollaborationItem", "TeamStats", "TeamMemberCategory"],
       "used": []
     },
     {
       "file": "src/components/ui/Badge.tsx",
-      "unused": [
-        "BadgeProps",
-        "Badge"
-      ],
+      "unused": ["BadgeProps", "Badge"],
       "used": []
     },
     {
@@ -6464,43 +5430,27 @@
     },
     {
       "file": "src/components/ui/Card.tsx",
-      "unused": [
-        "Card",
-        "CardContent",
-        "CardHeader",
-        "CardTitle"
-      ],
+      "unused": ["Card", "CardContent", "CardHeader", "CardTitle"],
       "used": []
     },
     {
       "file": "src/components/ui/Checkbox.tsx",
-      "unused": [
-        "Checkbox"
-      ],
+      "unused": ["Checkbox"],
       "used": []
     },
     {
       "file": "src/components/ui/Input.tsx",
-      "unused": [
-        "InputProps",
-        "Input"
-      ],
+      "unused": ["InputProps", "Input"],
       "used": []
     },
     {
       "file": "src/components/ui/Select.tsx",
-      "unused": [
-        "SelectProps",
-        "Select"
-      ],
+      "unused": ["SelectProps", "Select"],
       "used": []
     },
     {
       "file": "src/components/ui/ThemeSelector.tsx",
-      "unused": [
-        "ThemeSelector",
-        "ThemeToggleCycle"
-      ],
+      "unused": ["ThemeSelector", "ThemeToggleCycle"],
       "used": []
     },
     {
@@ -6552,12 +5502,7 @@
     },
     {
       "file": "src/components/undo-redo/UndoRedo.tsx",
-      "unused": [
-        "UndoRedoProps",
-        "UndoRedo",
-        "UndoRedoShortcutsProps",
-        "UndoRedoShortcuts"
-      ],
+      "unused": ["UndoRedoProps", "UndoRedo", "UndoRedoShortcutsProps", "UndoRedoShortcuts"],
       "used": []
     },
     {
@@ -6576,20 +5521,12 @@
     },
     {
       "file": "src/components/websocket/WebSocketErrorBoundary.tsx",
-      "unused": [
-        "WebSocketErrorBoundary",
-        "withWebSocketErrorBoundary",
-        "default"
-      ],
+      "unused": ["WebSocketErrorBoundary", "withWebSocketErrorBoundary", "default"],
       "used": []
     },
     {
       "file": "src/components/websocket/WebSocketStatusIndicator.tsx",
-      "unused": [
-        "WebSocketStatusIndicatorProps",
-        "WebSocketStatusIndicator",
-        "WebSocketStatusDot"
-      ],
+      "unused": ["WebSocketStatusIndicatorProps", "WebSocketStatusIndicator", "WebSocketStatusDot"],
       "used": []
     }
   ]

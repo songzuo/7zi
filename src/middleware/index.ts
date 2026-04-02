@@ -26,9 +26,9 @@
 // ============================================
 // Imports for internal use
 // ============================================
-import { withCors as _withCors } from './cors';
-import { withCsrfProtection as _withCsrfProtection } from '../lib/middleware/csrf';
-import { withRateLimit as _withRateLimit } from '../lib/middleware/rate-limit';
+import { withCors as _withCors } from './cors'
+import { withCsrfProtection as _withCsrfProtection } from '../lib/middleware/csrf'
+import { withRateLimit as _withRateLimit } from '../lib/middleware/rate-limit'
 
 // ============================================
 // Authentication Middleware
@@ -46,13 +46,10 @@ export {
   withManagerOrAdmin,
   withOptionalAuth,
   type RBACUserContext,
-} from './auth';
+} from './auth'
 
 // Re-export types from auth middleware
-export type {
-  UserContext,
-  UserRole,
-} from '@/lib/auth/types';
+export type { UserContext, UserRole } from '@/lib/auth/types'
 
 // ============================================
 // CORS Middleware
@@ -64,7 +61,7 @@ export {
   createCorsErrorResponse,
   getEnvironmentOrigins,
   type CorsConfig,
-} from './cors';
+} from './cors'
 
 // ============================================
 // CSRF Protection
@@ -76,7 +73,7 @@ export {
   validateRequestCsrf,
   generateCsrfToken,
   type CsrfProtectionConfig,
-} from '../lib/middleware/csrf';
+} from '../lib/middleware/csrf'
 
 // ============================================
 // Rate Limiting
@@ -93,7 +90,7 @@ export {
   stopPeriodicCleanup,
   type RateLimitEntry,
   type RateLimitConfig,
-} from '../lib/middleware/rate-limit';
+} from '../lib/middleware/rate-limit'
 
 // ============================================
 // API Performance Monitoring
@@ -106,7 +103,7 @@ export {
   clearApiPerformanceData,
   type ApiPerformanceData,
   type ApiPerformanceMetrics,
-} from '../lib/middleware/api-performance';
+} from '../lib/middleware/api-performance'
 
 // ============================================
 // Monitoring Wrapper
@@ -121,7 +118,7 @@ export {
   resetMonitoringStats,
   type MonitoringOptions,
   type MonitoringStats,
-} from '../lib/middleware/monitoring-wrapper';
+} from '../lib/middleware/monitoring-wrapper'
 
 // ============================================
 // Database Performance
@@ -130,7 +127,7 @@ export {
   getQueryMetrics,
   getQueryMetricsSummary,
   type QueryMetrics,
-} from '../lib/middleware/db-performance';
+} from '../lib/middleware/db-performance'
 
 // ============================================
 // Pre-configured Middleware Chains
@@ -143,18 +140,15 @@ export {
 export function withStandardApiSecurity(
   handler: (req: import('next/server').NextRequest) => Promise<import('next/server').NextResponse>,
   config?: {
-    cors?: Partial<import('./cors').CorsConfig>;
-    rateLimit?: Partial<import('../lib/middleware/rate-limit').RateLimitConfig>;
-    csrf?: Partial<import('../lib/middleware/csrf').CsrfProtectionConfig>;
+    cors?: Partial<import('./cors').CorsConfig>
+    rateLimit?: Partial<import('../lib/middleware/rate-limit').RateLimitConfig>
+    csrf?: Partial<import('../lib/middleware/csrf').CsrfProtectionConfig>
   }
 ) {
   return _withCsrfProtection(
-    _withRateLimit(
-      _withCors(handler, config?.cors),
-      config?.rateLimit
-    ),
+    _withRateLimit(_withCors(handler, config?.cors), config?.rateLimit),
     config?.csrf
-  );
+  )
 }
 
 /**
@@ -164,14 +158,11 @@ export function withStandardApiSecurity(
 export function withPublicApiSecurity(
   handler: (req: import('next/server').NextRequest) => Promise<import('next/server').NextResponse>,
   config?: {
-    cors?: Partial<import('./cors').CorsConfig>;
-    rateLimit?: Partial<import('../lib/middleware/rate-limit').RateLimitConfig>;
+    cors?: Partial<import('./cors').CorsConfig>
+    rateLimit?: Partial<import('../lib/middleware/rate-limit').RateLimitConfig>
   }
 ) {
-  return _withRateLimit(
-    _withCors(handler, config?.cors),
-    config?.rateLimit
-  );
+  return _withRateLimit(_withCors(handler, config?.cors), config?.rateLimit)
 }
 
 /**
@@ -181,12 +172,9 @@ export function withPublicApiSecurity(
 export function withInternalApiSecurity(
   handler: (req: import('next/server').NextRequest) => Promise<import('next/server').NextResponse>,
   config?: {
-    rateLimit?: Partial<import('../lib/middleware/rate-limit').RateLimitConfig>;
-    csrf?: Partial<import('../lib/middleware/csrf').CsrfProtectionConfig>;
+    rateLimit?: Partial<import('../lib/middleware/rate-limit').RateLimitConfig>
+    csrf?: Partial<import('../lib/middleware/csrf').CsrfProtectionConfig>
   }
 ) {
-  return _withCsrfProtection(
-    _withRateLimit(handler, config?.rateLimit),
-    config?.csrf
-  );
+  return _withCsrfProtection(_withRateLimit(handler, config?.rateLimit), config?.csrf)
 }

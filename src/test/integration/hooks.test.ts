@@ -21,7 +21,7 @@ describe('useFetch Hook Integration Tests', () => {
   describe('Basic Fetching', () => {
     it('should fetch data successfully', async () => {
       const mockData = { id: 1, name: 'Test' }
-      
+
       mockFetch.mockResolvedValueOnce({
         ok: true,
         json: async () => mockData,
@@ -107,7 +107,7 @@ describe('useFetch Hook Integration Tests', () => {
       })
 
       const response = await fetch(cacheKey)
-      
+
       if (!response.ok) {
         // Don't cache errors
         expect(cache.has(cacheKey)).toBe(false)
@@ -123,10 +123,7 @@ describe('useFetch Hook Integration Tests', () => {
       })
 
       // Simulate concurrent requests (in real hook, these would be deduplicated)
-      const [r1, r2] = await Promise.all([
-        fetch('/api/test'),
-        fetch('/api/test'),
-      ])
+      const [r1, r2] = await Promise.all([fetch('/api/test'), fetch('/api/test')])
 
       expect(r1.ok).toBe(true)
       expect(r2.ok).toBe(true)
@@ -189,7 +186,7 @@ describe('useFetch Hook Integration Tests', () => {
   describe('Request Cancellation', () => {
     it('should cancel request on unmount', async () => {
       const controller = new AbortController()
-      
+
       mockFetch.mockImplementationOnce(async (_, options) => {
         // Check if signal is provided
         expect((options as { signal?: AbortSignal }).signal).toBeDefined()
@@ -212,7 +209,7 @@ describe('useFetch Hook Integration Tests', () => {
 
       try {
         await fetch('/api/test', { signal: controller.signal })
-      } catch (_error) {
+      } catch (error) {
         expect((error as DOMException).name).toBe('AbortError')
       }
     })
@@ -258,10 +255,7 @@ describe('useLocalStorage Hook Integration Tests', () => {
       const value = { data: 'new value' }
       localStorageMock.setItem('test-key', JSON.stringify(value))
 
-      expect(localStorageMock.setItem).toHaveBeenCalledWith(
-        'test-key',
-        JSON.stringify(value)
-      )
+      expect(localStorageMock.setItem).toHaveBeenCalledWith('test-key', JSON.stringify(value))
     })
 
     it('should handle JSON parsing errors', () => {
@@ -269,7 +263,7 @@ describe('useLocalStorage Hook Integration Tests', () => {
 
       try {
         JSON.parse(localStorageMock.getItem('test-key') || '{}')
-      } catch {
+      } catch (error) {
         // Should fall back to default value
         const defaultValue = {}
         expect(defaultValue).toEqual({})
@@ -296,7 +290,7 @@ describe('useLocalStorage Hook Integration Tests', () => {
 
     it('should update state when localStorage changes', () => {
       let state = 'initial'
-      
+
       const updateState = (newState: string) => {
         state = newState
         localStorageMock.setItem('test-key', newState)
@@ -322,7 +316,7 @@ describe('useDebounce Hook Integration Tests', () => {
   describe('Debounce Behavior', () => {
     it('should debounce value changes', () => {
       const debounceDelay = 300
-      
+
       let debouncedValue = 'initial'
       const updateDebounced = (value: string) => {
         debouncedValue = value
@@ -349,10 +343,10 @@ describe('useDebounce Hook Integration Tests', () => {
 
       debouncedFn()
       vi.advanceTimersByTime(200)
-      
+
       debouncedFn()
       vi.advanceTimersByTime(200)
-      
+
       // Timer was reset, should not have triggered yet
       expect(callCount).toBe(2)
 
@@ -396,7 +390,7 @@ describe('useIntersectionObserver Hook Integration Tests', () => {
 
     it('should handle threshold correctly', () => {
       const thresholds = [0, 0.25, 0.5, 0.75, 1]
-      
+
       thresholds.forEach(threshold => {
         expect(threshold).toBeGreaterThanOrEqual(0)
         expect(threshold).toBeLessThanOrEqual(1)
@@ -405,7 +399,7 @@ describe('useIntersectionObserver Hook Integration Tests', () => {
 
     it('should disconnect observer on unmount', () => {
       const mockDisconnect = vi.fn()
-      
+
       const observer = {
         disconnect: mockDisconnect,
         observe: vi.fn(),

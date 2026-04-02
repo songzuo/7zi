@@ -5,13 +5,13 @@
  * 包括: happy path, 错误处理, 边界情况
  */
 
-import { describe, it, expect, beforeEach, vi, afterEach } from 'vitest';
-import { NextRequest } from 'next/server';
+import { describe, it, expect, beforeEach, vi, afterEach } from 'vitest'
+import { NextRequest } from 'next/server'
 
 // Mock dependencies
 vi.mock('@/lib/auth/service', () => ({
   registerUser: vi.fn(),
-}));
+}))
 
 vi.mock('@/lib/logger', () => ({
   logger: {
@@ -20,7 +20,7 @@ vi.mock('@/lib/logger', () => ({
     info: vi.fn(),
     auth: vi.fn(),
   },
-}));
+}))
 
 vi.mock('@/lib/api/error-handler', () => ({
   createValidationError: vi.fn((message: string) => {
@@ -33,7 +33,7 @@ vi.mock('@/lib/api/error-handler', () => ({
           message,
         },
       }),
-    };
+    }
   }),
   createConflictError: vi.fn((message: string) => {
     return {
@@ -45,7 +45,7 @@ vi.mock('@/lib/api/error-handler', () => ({
           message,
         },
       }),
-    };
+    }
   }),
   createErrorResponse: vi.fn((error: any) => {
     return {
@@ -54,7 +54,7 @@ vi.mock('@/lib/api/error-handler', () => ({
         success: false,
         error: error.message || 'An error occurred',
       }),
-    };
+    }
   }),
   createRegistrationFailedError: vi.fn((message: string) => {
     return {
@@ -67,7 +67,7 @@ vi.mock('@/lib/api/error-handler', () => ({
         },
         timestamp: new Date().toISOString(),
       }),
-    };
+    }
   }),
   createWeakPasswordError: vi.fn((message: string) => {
     return {
@@ -79,22 +79,22 @@ vi.mock('@/lib/api/error-handler', () => ({
           message: message || 'Password is too weak',
         },
       }),
-    };
+    }
   }),
-}));
+}))
 
 vi.mock('@/lib/api/utils', () => ({
   validateEmail: vi.fn((email: string) => {
-    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    return emailRegex.test(email);
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
+    return emailRegex.test(email)
   }),
   validatePasswordStrength: vi.fn((password: string) => {
     // Minimum 8 characters, at least one uppercase, one lowercase, and one number
-    const passwordRegex = /^(?=.*[A-Z])(?=.*[a-z])(?=.*[0-9]).{8,}$/;
+    const passwordRegex = /^(?=.*[A-Z])(?=.*[a-z])(?=.*[0-9]).{8,}$/
     return {
       isValid: passwordRegex.test(password),
       errors: passwordRegex.test(password) ? [] : ['Password is too weak'],
-    };
+    }
   }),
   setAuthCookies: vi.fn(),
   createSuccessResponse: vi.fn((data: any, status?: number) => {
@@ -105,9 +105,9 @@ vi.mock('@/lib/api/utils', () => ({
         data,
         timestamp: new Date().toISOString(),
       }),
-    };
+    }
   }),
-}));
+}))
 
 vi.mock('@/lib/api/api-logger', () => ({
   logRequestStart: vi.fn(() => ({
@@ -120,21 +120,21 @@ vi.mock('@/lib/api/api-logger', () => ({
   logRequestError: vi.fn(),
   logAuthError: vi.fn(),
   sanitizeUrlForLogging: vi.fn((url: string) => url),
-}));
+}))
 
 describe('Auth Register API Route', () => {
   beforeEach(() => {
-    vi.clearAllMocks();
-  });
+    vi.clearAllMocks()
+  })
 
   afterEach(() => {
-    vi.restoreAllMocks();
-  });
+    vi.restoreAllMocks()
+  })
 
   // ==================== Happy Path Tests ====================
   describe('POST /api/auth/register - Happy path', () => {
     it('should register user successfully with valid credentials', async () => {
-      const { registerUser } = await import('@/lib/auth/service');
+      const { registerUser } = await import('@/lib/auth/service')
       vi.mocked(registerUser).mockResolvedValue({
         success: true,
         user: {
@@ -146,9 +146,9 @@ describe('Auth Register API Route', () => {
         token: 'access-token-123',
         refreshToken: 'refresh-token-123',
         expiresAt: new Date(Date.now() + 3600000),
-      });
+      })
 
-      const { POST } = await import('@/app/api/auth/register/route');
+      const { POST } = await import('@/app/api/auth/register/route')
       const request = new NextRequest('http://localhost/api/auth/register', {
         method: 'POST',
         headers: {
@@ -159,23 +159,23 @@ describe('Auth Register API Route', () => {
           password: 'SecurePass123',
           name: 'Test User',
         }),
-      });
+      })
 
-      const response = await POST(request);
-      const data = await response.json();
+      const response = await POST(request)
+      const data = await response.json()
 
-      expect(response.status).toBe(201);
-      expect(data.success).toBe(true);
-      expect(data.data.user).toHaveProperty('id', 'user-123');
-      expect(data.data.user).toHaveProperty('email', 'test@example.com');
-      expect(data.data.user).toHaveProperty('name', 'Test User');
-      expect(data.data.token).toBe('access-token-123');
-      expect(data.data.refreshToken).toBe('refresh-token-123');
-      expect(data.data.expiresAt).toBeDefined();
-    });
+      expect(response.status).toBe(201)
+      expect(data.success).toBe(true)
+      expect(data.data.user).toHaveProperty('id', 'user-123')
+      expect(data.data.user).toHaveProperty('email', 'test@example.com')
+      expect(data.data.user).toHaveProperty('name', 'Test User')
+      expect(data.data.token).toBe('access-token-123')
+      expect(data.data.refreshToken).toBe('refresh-token-123')
+      expect(data.data.expiresAt).toBeDefined()
+    })
 
     it('should register user with minimal required fields', async () => {
-      const { registerUser } = await import('@/lib/auth/service');
+      const { registerUser } = await import('@/lib/auth/service')
       vi.mocked(registerUser).mockResolvedValue({
         success: true,
         user: {
@@ -187,9 +187,9 @@ describe('Auth Register API Route', () => {
         token: 'access-token-456',
         refreshToken: null,
         expiresAt: new Date(Date.now() + 3600000),
-      });
+      })
 
-      const { POST } = await import('@/app/api/auth/register/route');
+      const { POST } = await import('@/app/api/auth/register/route')
       const request = new NextRequest('http://localhost/api/auth/register', {
         method: 'POST',
         headers: {
@@ -200,20 +200,20 @@ describe('Auth Register API Route', () => {
           password: 'Password123',
           name: 'Minimal User',
         }),
-      });
+      })
 
-      const response = await POST(request);
-      const data = await response.json();
+      const response = await POST(request)
+      const data = await response.json()
 
-      expect(response.status).toBe(201);
-      expect(data.success).toBe(true);
-      expect(data.data.user.email).toBe('minimal@example.com');
-      expect(data.data.refreshToken).toBeNull();
-    });
+      expect(response.status).toBe(201)
+      expect(data.success).toBe(true)
+      expect(data.data.user.email).toBe('minimal@example.com')
+      expect(data.data.refreshToken).toBeNull()
+    })
 
     it('should set auth cookies on successful registration', async () => {
-      const { registerUser } = await import('@/lib/auth/service');
-      const { setAuthCookies } = await import('@/lib/api/utils');
+      const { registerUser } = await import('@/lib/auth/service')
+      const { setAuthCookies } = await import('@/lib/api/utils')
 
       vi.mocked(registerUser).mockResolvedValue({
         success: true,
@@ -226,9 +226,9 @@ describe('Auth Register API Route', () => {
         token: 'access-token-789',
         refreshToken: 'refresh-token-789',
         expiresAt: new Date(Date.now() + 3600000),
-      });
+      })
 
-      const { POST } = await import('@/app/api/auth/register/route');
+      const { POST } = await import('@/app/api/auth/register/route')
       const request = new NextRequest('http://localhost/api/auth/register', {
         method: 'POST',
         headers: {
@@ -239,23 +239,23 @@ describe('Auth Register API Route', () => {
           password: 'Password123',
           name: 'Cookie User',
         }),
-      });
+      })
 
-      await POST(request);
+      await POST(request)
 
       expect(setAuthCookies).toHaveBeenCalledWith(
         expect.any(Object),
         'access-token-789',
         'refresh-token-789',
         false
-      );
-    });
-  });
+      )
+    })
+  })
 
   // ==================== Validation Error Tests ====================
   describe('POST /api/auth/register - Validation errors', () => {
     it('should return validation error when email is missing', async () => {
-      const { POST } = await import('@/app/api/auth/register/route');
+      const { POST } = await import('@/app/api/auth/register/route')
       const request = new NextRequest('http://localhost/api/auth/register', {
         method: 'POST',
         headers: {
@@ -265,19 +265,19 @@ describe('Auth Register API Route', () => {
           password: 'SecurePass123',
           name: 'Test User',
         }),
-      });
+      })
 
-      const response = await POST(request);
-      const data = await response.json();
+      const response = await POST(request)
+      const data = await response.json()
 
-      expect(response.status).toBe(400);
-      expect(data.success).toBe(false);
-      expect(data.error.code).toBe('VALIDATION_ERROR');
-      expect(data.error.message).toContain('Email, password, and name are required');
-    });
+      expect(response.status).toBe(400)
+      expect(data.success).toBe(false)
+      expect(data.error.code).toBe('VALIDATION_ERROR')
+      expect(data.error.message).toContain('Email, password, and name are required')
+    })
 
     it('should return validation error when password is missing', async () => {
-      const { POST } = await import('@/app/api/auth/register/route');
+      const { POST } = await import('@/app/api/auth/register/route')
       const request = new NextRequest('http://localhost/api/auth/register', {
         method: 'POST',
         headers: {
@@ -287,18 +287,18 @@ describe('Auth Register API Route', () => {
           email: 'test@example.com',
           name: 'Test User',
         }),
-      });
+      })
 
-      const response = await POST(request);
-      const data = await response.json();
+      const response = await POST(request)
+      const data = await response.json()
 
-      expect(response.status).toBe(400);
-      expect(data.success).toBe(false);
-      expect(data.error.code).toBe('VALIDATION_ERROR');
-    });
+      expect(response.status).toBe(400)
+      expect(data.success).toBe(false)
+      expect(data.error.code).toBe('VALIDATION_ERROR')
+    })
 
     it('should return validation error when name is missing', async () => {
-      const { POST } = await import('@/app/api/auth/register/route');
+      const { POST } = await import('@/app/api/auth/register/route')
       const request = new NextRequest('http://localhost/api/auth/register', {
         method: 'POST',
         headers: {
@@ -308,17 +308,17 @@ describe('Auth Register API Route', () => {
           email: 'test@example.com',
           password: 'SecurePass123',
         }),
-      });
+      })
 
-      const response = await POST(request);
-      const data = await response.json();
+      const response = await POST(request)
+      const data = await response.json()
 
-      expect(response.status).toBe(400);
-      expect(data.success).toBe(false);
-    });
+      expect(response.status).toBe(400)
+      expect(data.success).toBe(false)
+    })
 
     it('should return validation error for invalid email format', async () => {
-      const { POST } = await import('@/app/api/auth/register/route');
+      const { POST } = await import('@/app/api/auth/register/route')
       const request = new NextRequest('http://localhost/api/auth/register', {
         method: 'POST',
         headers: {
@@ -329,19 +329,19 @@ describe('Auth Register API Route', () => {
           password: 'SecurePass123',
           name: 'Test User',
         }),
-      });
+      })
 
-      const response = await POST(request);
-      const data = await response.json();
+      const response = await POST(request)
+      const data = await response.json()
 
-      expect(response.status).toBe(400);
-      expect(data.success).toBe(false);
-      expect(data.error.code).toBe('VALIDATION_ERROR');
-      expect(data.error.message).toContain('Invalid email format');
-    });
+      expect(response.status).toBe(400)
+      expect(data.success).toBe(false)
+      expect(data.error.code).toBe('VALIDATION_ERROR')
+      expect(data.error.message).toContain('Invalid email format')
+    })
 
     it('should return validation error for empty email', async () => {
-      const { POST } = await import('@/app/api/auth/register/route');
+      const { POST } = await import('@/app/api/auth/register/route')
       const request = new NextRequest('http://localhost/api/auth/register', {
         method: 'POST',
         headers: {
@@ -352,17 +352,17 @@ describe('Auth Register API Route', () => {
           password: 'SecurePass123',
           name: 'Test User',
         }),
-      });
+      })
 
-      const response = await POST(request);
-      const data = await response.json();
+      const response = await POST(request)
+      const data = await response.json()
 
-      expect(response.status).toBe(400);
-      expect(data.success).toBe(false);
-    });
+      expect(response.status).toBe(400)
+      expect(data.success).toBe(false)
+    })
 
     it('should return validation error for weak password (too short)', async () => {
-      const { POST } = await import('@/app/api/auth/register/route');
+      const { POST } = await import('@/app/api/auth/register/route')
       const request = new NextRequest('http://localhost/api/auth/register', {
         method: 'POST',
         headers: {
@@ -373,17 +373,17 @@ describe('Auth Register API Route', () => {
           password: 'Pass1',
           name: 'Test User',
         }),
-      });
+      })
 
-      const response = await POST(request);
-      const data = await response.json();
+      const response = await POST(request)
+      const data = await response.json()
 
-      expect(response.status).toBe(400);
-      expect(data.success).toBe(false);
-    });
+      expect(response.status).toBe(400)
+      expect(data.success).toBe(false)
+    })
 
     it('should return validation error for weak password (no numbers)', async () => {
-      const { POST } = await import('@/app/api/auth/register/route');
+      const { POST } = await import('@/app/api/auth/register/route')
       const request = new NextRequest('http://localhost/api/auth/register', {
         method: 'POST',
         headers: {
@@ -394,17 +394,17 @@ describe('Auth Register API Route', () => {
           password: 'password',
           name: 'Test User',
         }),
-      });
+      })
 
-      const response = await POST(request);
-      const data = await response.json();
+      const response = await POST(request)
+      const data = await response.json()
 
-      expect(response.status).toBe(400);
-      expect(data.success).toBe(false);
-    });
+      expect(response.status).toBe(400)
+      expect(data.success).toBe(false)
+    })
 
     it('should return validation error for empty password', async () => {
-      const { POST } = await import('@/app/api/auth/register/route');
+      const { POST } = await import('@/app/api/auth/register/route')
       const request = new NextRequest('http://localhost/api/auth/register', {
         method: 'POST',
         headers: {
@@ -415,17 +415,17 @@ describe('Auth Register API Route', () => {
           password: '',
           name: 'Test User',
         }),
-      });
+      })
 
-      const response = await POST(request);
-      const data = await response.json();
+      const response = await POST(request)
+      const data = await response.json()
 
-      expect(response.status).toBe(400);
-      expect(data.success).toBe(false);
-    });
+      expect(response.status).toBe(400)
+      expect(data.success).toBe(false)
+    })
 
     it('should return validation error for empty name', async () => {
-      const { POST } = await import('@/app/api/auth/register/route');
+      const { POST } = await import('@/app/api/auth/register/route')
       const request = new NextRequest('http://localhost/api/auth/register', {
         method: 'POST',
         headers: {
@@ -436,17 +436,17 @@ describe('Auth Register API Route', () => {
           password: 'SecurePass123',
           name: '',
         }),
-      });
+      })
 
-      const response = await POST(request);
-      const data = await response.json();
+      const response = await POST(request)
+      const data = await response.json()
 
-      expect(response.status).toBe(400);
-      expect(data.success).toBe(false);
-    });
+      expect(response.status).toBe(400)
+      expect(data.success).toBe(false)
+    })
 
     it('should return validation error for email with spaces', async () => {
-      const { POST } = await import('@/app/api/auth/register/route');
+      const { POST } = await import('@/app/api/auth/register/route')
       const request = new NextRequest('http://localhost/api/auth/register', {
         method: 'POST',
         headers: {
@@ -457,26 +457,26 @@ describe('Auth Register API Route', () => {
           password: 'SecurePass123',
           name: 'Test User',
         }),
-      });
+      })
 
-      const response = await POST(request);
-      const data = await response.json();
+      const response = await POST(request)
+      const data = await response.json()
 
-      expect(response.status).toBe(400);
-      expect(data.success).toBe(false);
-    });
-  });
+      expect(response.status).toBe(400)
+      expect(data.success).toBe(false)
+    })
+  })
 
   // ==================== Conflict Error Tests ====================
   describe('POST /api/auth/register - Conflict errors', () => {
     it('should return 409 when email already exists', async () => {
-      const { registerUser } = await import('@/lib/auth/service');
+      const { registerUser } = await import('@/lib/auth/service')
       vi.mocked(registerUser).mockResolvedValue({
         success: false,
         error: 'Email already exists',
-      });
+      })
 
-      const { POST } = await import('@/app/api/auth/register/route');
+      const { POST } = await import('@/app/api/auth/register/route')
       const request = new NextRequest('http://localhost/api/auth/register', {
         method: 'POST',
         headers: {
@@ -487,25 +487,25 @@ describe('Auth Register API Route', () => {
           password: 'SecurePass123',
           name: 'Test User',
         }),
-      });
+      })
 
-      const response = await POST(request);
-      const data = await response.json();
+      const response = await POST(request)
+      const data = await response.json()
 
-      expect(response.status).toBe(409);
-      expect(data.success).toBe(false);
-      expect(data.error.code).toBe('CONFLICT');
-      expect(data.error.message).toContain('Email already exists');
-    });
+      expect(response.status).toBe(409)
+      expect(data.success).toBe(false)
+      expect(data.error.code).toBe('CONFLICT')
+      expect(data.error.message).toContain('Email already exists')
+    })
 
     it('should return 409 when username is taken', async () => {
-      const { registerUser } = await import('@/lib/auth/service');
+      const { registerUser } = await import('@/lib/auth/service')
       vi.mocked(registerUser).mockResolvedValue({
         success: false,
         error: 'Username already taken',
-      });
+      })
 
-      const { POST } = await import('@/app/api/auth/register/route');
+      const { POST } = await import('@/app/api/auth/register/route')
       const request = new NextRequest('http://localhost/api/auth/register', {
         method: 'POST',
         headers: {
@@ -516,50 +516,50 @@ describe('Auth Register API Route', () => {
           password: 'SecurePass123',
           name: 'Existing User',
         }),
-      });
+      })
 
-      const response = await POST(request);
-      const data = await response.json();
+      const response = await POST(request)
+      const data = await response.json()
 
-      expect(response.status).toBe(409);
-      expect(data.success).toBe(false);
-    });
-  });
+      expect(response.status).toBe(409)
+      expect(data.success).toBe(false)
+    })
+  })
 
   // ==================== Edge Cases Tests ====================
   describe('POST /api/auth/register - Edge cases', () => {
     it('should handle malformed JSON in request body', async () => {
-      const { POST } = await import('@/app/api/auth/register/route');
+      const { POST } = await import('@/app/api/auth/register/route')
       const request = new NextRequest('http://localhost/api/auth/register', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
         body: 'invalid json{',
-      });
+      })
 
-      const response = await POST(request);
+      const response = await POST(request)
 
-      expect(response.status).toBe(500);
-    });
+      expect(response.status).toBe(500)
+    })
 
     it('should handle empty request body', async () => {
-      const { POST } = await import('@/app/api/auth/register/route');
+      const { POST } = await import('@/app/api/auth/register/route')
       const request = new NextRequest('http://localhost/api/auth/register', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
         body: '',
-      });
+      })
 
-      const response = await POST(request);
+      const response = await POST(request)
 
-      expect(response.status).toBe(500);
-    });
+      expect(response.status).toBe(500)
+    })
 
     it('should handle null values in request body', async () => {
-      const { POST } = await import('@/app/api/auth/register/route');
+      const { POST } = await import('@/app/api/auth/register/route')
       const request = new NextRequest('http://localhost/api/auth/register', {
         method: 'POST',
         headers: {
@@ -570,17 +570,17 @@ describe('Auth Register API Route', () => {
           password: null,
           name: null,
         }),
-      });
+      })
 
-      const response = await POST(request);
-      const data = await response.json();
+      const response = await POST(request)
+      const data = await response.json()
 
-      expect(response.status).toBe(400);
-      expect(data.success).toBe(false);
-    });
+      expect(response.status).toBe(400)
+      expect(data.success).toBe(false)
+    })
 
     it('should handle extra fields in request body gracefully', async () => {
-      const { registerUser } = await import('@/lib/auth/service');
+      const { registerUser } = await import('@/lib/auth/service')
       vi.mocked(registerUser).mockResolvedValue({
         success: true,
         user: {
@@ -592,9 +592,9 @@ describe('Auth Register API Route', () => {
         token: 'access-token-999',
         refreshToken: null,
         expiresAt: new Date(Date.now() + 3600000),
-      });
+      })
 
-      const { POST } = await import('@/app/api/auth/register/route');
+      const { POST } = await import('@/app/api/auth/register/route')
       const request = new NextRequest('http://localhost/api/auth/register', {
         method: 'POST',
         headers: {
@@ -607,20 +607,20 @@ describe('Auth Register API Route', () => {
           extraField: 'should be ignored',
           anotherField: 123,
         }),
-      });
+      })
 
-      const response = await POST(request);
-      const data = await response.json();
+      const response = await POST(request)
+      const data = await response.json()
 
-      expect(response.status).toBe(201);
-      expect(data.success).toBe(true);
-    });
+      expect(response.status).toBe(201)
+      expect(data.success).toBe(true)
+    })
 
     it('should handle service errors gracefully', async () => {
-      const { registerUser } = await import('@/lib/auth/service');
-      vi.mocked(registerUser).mockRejectedValue(new Error('Database connection failed'));
+      const { registerUser } = await import('@/lib/auth/service')
+      vi.mocked(registerUser).mockRejectedValue(new Error('Database connection failed'))
 
-      const { POST } = await import('@/app/api/auth/register/route');
+      const { POST } = await import('@/app/api/auth/register/route')
       const request = new NextRequest('http://localhost/api/auth/register', {
         method: 'POST',
         headers: {
@@ -631,26 +631,26 @@ describe('Auth Register API Route', () => {
           password: 'SecurePass123',
           name: 'Test User',
         }),
-      });
+      })
 
-      const response = await POST(request);
-      const data = await response.json();
+      const response = await POST(request)
+      const data = await response.json()
 
-      expect(response.status).toBe(500);
-      expect(data.success).toBe(false);
-    });
+      expect(response.status).toBe(500)
+      expect(data.success).toBe(false)
+    })
 
     it('should handle null user in successful registration', async () => {
-      const { registerUser } = await import('@/lib/auth/service');
+      const { registerUser } = await import('@/lib/auth/service')
       vi.mocked(registerUser).mockResolvedValue({
         success: true,
         user: null,
         token: 'token-123',
         refreshToken: null,
         expiresAt: new Date(Date.now() + 3600000),
-      });
+      })
 
-      const { POST } = await import('@/app/api/auth/register/route');
+      const { POST } = await import('@/app/api/auth/register/route')
       const request = new NextRequest('http://localhost/api/auth/register', {
         method: 'POST',
         headers: {
@@ -661,17 +661,17 @@ describe('Auth Register API Route', () => {
           password: 'SecurePass123',
           name: 'Test User',
         }),
-      });
+      })
 
-      const response = await POST(request);
-      const data = await response.json();
+      const response = await POST(request)
+      const data = await response.json()
 
-      expect(response.status).toBe(201);
-      expect(data.success).toBe(true);
-    });
+      expect(response.status).toBe(201)
+      expect(data.success).toBe(true)
+    })
 
     it('should handle very long name', async () => {
-      const { registerUser } = await import('@/lib/auth/service');
+      const { registerUser } = await import('@/lib/auth/service')
       vi.mocked(registerUser).mockResolvedValue({
         success: true,
         user: {
@@ -683,9 +683,9 @@ describe('Auth Register API Route', () => {
         token: 'token-long',
         refreshToken: null,
         expiresAt: new Date(Date.now() + 3600000),
-      });
+      })
 
-      const { POST } = await import('@/app/api/auth/register/route');
+      const { POST } = await import('@/app/api/auth/register/route')
       const request = new NextRequest('http://localhost/api/auth/register', {
         method: 'POST',
         headers: {
@@ -696,15 +696,15 @@ describe('Auth Register API Route', () => {
           password: 'SecurePass123',
           name: 'A'.repeat(100),
         }),
-      });
+      })
 
-      const response = await POST(request);
+      const response = await POST(request)
 
-      expect(response.status).toBe(201);
-    });
+      expect(response.status).toBe(201)
+    })
 
     it('should handle special characters in name', async () => {
-      const { registerUser } = await import('@/lib/auth/service');
+      const { registerUser } = await import('@/lib/auth/service')
       vi.mocked(registerUser).mockResolvedValue({
         success: true,
         user: {
@@ -716,9 +716,9 @@ describe('Auth Register API Route', () => {
         token: 'token-special',
         refreshToken: null,
         expiresAt: new Date(Date.now() + 3600000),
-      });
+      })
 
-      const { POST } = await import('@/app/api/auth/register/route');
+      const { POST } = await import('@/app/api/auth/register/route')
       const request = new NextRequest('http://localhost/api/auth/register', {
         method: 'POST',
         headers: {
@@ -729,11 +729,11 @@ describe('Auth Register API Route', () => {
           password: 'SecurePass123',
           name: 'User with émojis 🎉 and spéci@l chars!',
         }),
-      });
+      })
 
-      const response = await POST(request);
+      const response = await POST(request)
 
-      expect(response.status).toBe(201);
-    });
-  });
-});
+      expect(response.status).toBe(201)
+    })
+  })
+})

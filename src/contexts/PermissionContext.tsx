@@ -1,4 +1,4 @@
-'use client';
+'use client'
 
 /**
  * PermissionContext - Compatibility layer using Zustand store
@@ -9,15 +9,14 @@
  * @module contexts/PermissionContext
  */
 
-import { useEffect, ReactNode } from 'react';
-import type { Permission, Role } from '@/lib/permissions/types';
+import { useEffect, ReactNode, useMemo } from 'react'
+import type { Permission, Role } from '@/lib/permissions/types'
 import {
   usePermissionStore,
   usePermissionLoading,
   usePermissionError,
-  usePermissionHelpers,
   usePermissionActions,
-} from '@/stores/permissionStore';
+} from '@/stores/permissionStore'
 
 /**
  * Permission Provider
@@ -26,105 +25,151 @@ import {
  * that fetches permissions on mount and initializes the store.
  */
 interface PermissionProviderProps {
-  children: ReactNode;
-  skipFetch?: boolean; // Optional: skip fetching on mount (for testing)
+  children: ReactNode
+  skipFetch?: boolean // Optional: skip fetching on mount (for testing)
 }
 
 export function PermissionProvider({ children, skipFetch = false }: PermissionProviderProps) {
-  const { setLoading, setError, initializeFromAuthData, reset } = usePermissionActions();
-  const loading = usePermissionLoading();
-  const error = usePermissionError();
+  const { setLoading, setError, initializeFromAuthData, reset } = usePermissionActions()
+  const loading = usePermissionLoading()
+  const error = usePermissionError()
 
   useEffect(() => {
     if (skipFetch) {
-      return;
+      return
     }
 
     const fetchPermissions = async () => {
       try {
-        setLoading(true);
-        setError(null);
+        setLoading(true)
+        setError(null)
 
-        const token = typeof window !== 'undefined' ? localStorage.getItem('token') : null;
+        const token = typeof window !== 'undefined' ? localStorage.getItem('token') : null
         if (!token) {
           // No token, reset permissions
-          reset();
-          return;
+          reset()
+          return
         }
 
         const response = await fetch('/api/auth/me', {
           headers: {
             Authorization: `Bearer ${token}`,
           },
-        });
+        })
 
         if (!response.ok) {
-          throw new Error('Failed to fetch permissions');
+          throw new Error('Failed to fetch permissions')
         }
 
-        const data = await response.json();
+        const data = await response.json()
 
         if (data.success && data.user) {
-          initializeFromAuthData(data);
+          initializeFromAuthData(data)
         } else {
-          reset();
+          reset()
         }
-      } catch (_err) {
-        setError(err instanceof Error ? err.message : 'Failed to load permissions');
-        reset();
+      } catch (err) {
+        setError(err instanceof Error ? err.message : 'Failed to load permissions')
+        reset()
       } finally {
-        setLoading(false);
+        setLoading(false)
       }
-    };
+    }
 
-    fetchPermissions();
-  }, [skipFetch, setLoading, setError, initializeFromAuthData, reset]);
+    fetchPermissions()
+  }, [skipFetch, setLoading, setError, initializeFromAuthData, reset])
 
   // Store works without provider, so just render children
-  return <>{children}</>;
+  return <>{children}</>
 }
 
 /**
  * usePermissions hook
  *
  * Provides the same API as the old Context-based hook but uses Zustand internally.
+ * Uses stable references to prevent infinite re-renders.
  */
 export function usePermissions() {
-  const loading = usePermissionLoading();
-  const error = usePermissionError();
-  const helpers = usePermissionHelpers();
-  const actions = usePermissionActions();
+  const loading = usePermissionLoading()
+  const error = usePermissionError()
+  const actions = usePermissionActions()
+
+  // Get all state in one selector to minimize re-renders
+  const state = usePermissionStore(state => ({
+    userId: state.userId,
+    roles: state.roles,
+    permissions: state.permissions,
+    customPermissions: state.customPermissions,
+  }))
 
   // Build context object for backward compatibility
-  const context = usePermissionStore((state) => {
-    if (!state.userId) return null;
+  const context = useMemo(() => {
+    if (!state.userId) return null
     return {
       userId: state.userId,
       roles: state.roles,
       permissions: state.permissions,
       customPermissions: state.customPermissions || undefined,
-    };
-  });
+    }
+  }, [state.userId, state.roles, state.permissions, state.customPermissions])
 
-  return {
-    context,
-    loading,
-    error,
-    hasPermission: helpers.hasPermission,
-    hasAnyPermission: helpers.hasAnyPermission,
-    hasAllPermissions: helpers.hasAllPermissions,
-    hasRole: helpers.hasRole,
-    hasAnyRole: helpers.hasAnyRole,
-    hasAllRoles: helpers.hasAllRoles,
-    isAdmin: helpers.isAdmin,
-    isManagerOrAdmin: helpers.isManagerOrAdmin,
-    isMemberOrHigher: helpers.isMemberOrHigher,
-    refresh: () => {
-      // Trigger a refresh by fetching again
-      const token = typeof window !== 'undefined' ? localStorage.getItem('token') : null;
+  // Memoize permission/role check functions
+  const hasPermission = useMemo(
+    () => (permission: Permission) => {
+      return (
+        state.permissions.includes(permission) ||
+        (state.customPermissions?.includes(permission) ?? false)
+      )
+    },
+    [state.permissions, state.customPermissions]
+  )
+
+  const hasAnyPermission = useMemo(
+    () => (permissions: Permission[]) => permissions.some(p => hasPermission(p)),
+    [hasPermission]
+  )
+
+  const hasAllPermissions = useMemo(
+    () => (permissions: Permission[]) => permissions.every(p => hasPermission(p)),
+    [hasPermission]
+  )
+
+  const hasRole = useMemo(
+    () => (role: Role) => state.roles.includes(role),
+    [state.roles]
+  )
+
+  const hasAnyRole = useMemo(
+    () => (roles: Role[]) => roles.some(r => state.roles.includes(r)),
+    [state.roles]
+  )
+
+  const hasAllRoles = useMemo(
+    () => (roles: Role[]) => roles.every(r => state.roles.includes(r)),
+    [state.roles]
+  )
+
+  const isAdmin = useMemo(() => state.roles.includes('admin' as Role), [state.roles])
+
+  const isManagerOrAdmin = useMemo(
+    () => state.roles.includes('admin' as Role) || state.roles.includes('manager' as Role),
+    [state.roles]
+  )
+
+  const isMemberOrHigher = useMemo(
+    () =>
+      state.roles.includes('admin' as Role) ||
+      state.roles.includes('manager' as Role) ||
+      state.roles.includes('member' as Role),
+    [state.roles]
+  )
+
+  const refresh = useMemo(
+    () => () => {
+      const token = typeof window !== 'undefined' ? localStorage.getItem('token') : null
       if (!token) {
-        actions.reset();
-        return Promise.resolve();
+        actions.reset()
+        return Promise.resolve()
       }
 
       return fetch('/api/auth/me', {
@@ -132,20 +177,37 @@ export function usePermissions() {
           Authorization: `Bearer ${token}`,
         },
       })
-        .then((res) => res.json())
-        .then((data) => {
+        .then(res => res.json())
+        .then(data => {
           if (data.success && data.user) {
-            actions.initializeFromAuthData(data);
+            actions.initializeFromAuthData(data)
           } else {
-            actions.reset();
+            actions.reset()
           }
         })
-        .catch((err) => {
-          actions.setError(err instanceof Error ? err.message : 'Failed to load permissions');
-          actions.reset();
-        });
+        .catch(err => {
+          actions.setError(err instanceof Error ? err.message : 'Failed to load permissions')
+          actions.reset()
+        })
     },
-  };
+    [actions]
+  )
+
+  return {
+    context,
+    loading,
+    error,
+    hasPermission,
+    hasAnyPermission,
+    hasAllPermissions,
+    hasRole,
+    hasAnyRole,
+    hasAllRoles,
+    isAdmin,
+    isManagerOrAdmin,
+    isMemberOrHigher,
+    refresh,
+  }
 }
 
 /**
@@ -154,19 +216,19 @@ export function usePermissions() {
 export function withPermission(permission: Permission) {
   return function <P extends object>(Component: React.ComponentType<P>) {
     return function PermissionGuard(props: P) {
-      const { hasPermission, loading } = usePermissions();
+      const { hasPermission, loading } = usePermissions()
 
       if (loading) {
-        return <div>Loading...</div>;
+        return <div>Loading...</div>
       }
 
       if (!hasPermission(permission)) {
-        return <div>Access denied</div>;
+        return <div>Access denied</div>
       }
 
-      return <Component {...props} />;
-    };
-  };
+      return <Component {...props} />
+    }
+  }
 }
 
 /**
@@ -175,19 +237,19 @@ export function withPermission(permission: Permission) {
 export function withRole(role: Role) {
   return function <P extends object>(Component: React.ComponentType<P>) {
     return function RoleGuard(props: P) {
-      const { hasRole, loading } = usePermissions();
+      const { hasRole, loading } = usePermissions()
 
       if (loading) {
-        return <div>Loading...</div>;
+        return <div>Loading...</div>
       }
 
       if (!hasRole(role)) {
-        return <div>Access denied</div>;
+        return <div>Access denied</div>
       }
 
-      return <Component {...props} />;
-    };
-  };
+      return <Component {...props} />
+    }
+  }
 }
 
 /**
@@ -198,21 +260,21 @@ export function PermissionGate({
   fallback = null,
   children,
 }: {
-  permission: Permission;
-  fallback?: ReactNode;
-  children: ReactNode;
+  permission: Permission
+  fallback?: ReactNode
+  children: ReactNode
 }) {
-  const { hasPermission, loading } = usePermissions();
+  const { hasPermission, loading } = usePermissions()
 
   if (loading) {
-    return <div>Loading...</div>;
+    return <div>Loading...</div>
   }
 
   if (!hasPermission(permission)) {
-    return <>{fallback}</>;
+    return <>{fallback}</>
   }
 
-  return <>{children}</>;
+  return <>{children}</>
 }
 
 /**
@@ -223,21 +285,21 @@ export function RoleGate({
   fallback = null,
   children,
 }: {
-  role: Role;
-  fallback?: ReactNode;
-  children: ReactNode;
+  role: Role
+  fallback?: ReactNode
+  children: ReactNode
 }) {
-  const { hasRole, loading } = usePermissions();
+  const { hasRole, loading } = usePermissions()
 
   if (loading) {
-    return <div>Loading...</div>;
+    return <div>Loading...</div>
   }
 
   if (!hasRole(role)) {
-    return <>{fallback}</>;
+    return <>{fallback}</>
   }
 
-  return <>{children}</>;
+  return <>{children}</>
 }
 
 /**
@@ -248,21 +310,21 @@ export function AnyRoleGate({
   fallback = null,
   children,
 }: {
-  roles: Role[];
-  fallback?: ReactNode;
-  children: ReactNode;
+  roles: Role[]
+  fallback?: ReactNode
+  children: ReactNode
 }) {
-  const { hasAnyRole, loading } = usePermissions();
+  const { hasAnyRole, loading } = usePermissions()
 
   if (loading) {
-    return <div>Loading...</div>;
+    return <div>Loading...</div>
   }
 
   if (!hasAnyRole(roles)) {
-    return <>{fallback}</>;
+    return <>{fallback}</>
   }
 
-  return <>{children}</>;
+  return <>{children}</>
 }
 
 /**
@@ -282,4 +344,4 @@ export {
   useIsGuest,
   usePermissionActions,
   usePermissionHelpers,
-} from '@/stores/permissionStore';
+} from '@/stores/permissionStore'

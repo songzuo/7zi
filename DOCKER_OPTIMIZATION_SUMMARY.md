@@ -3,16 +3,18 @@
 ## ✅ 任务完成状态
 
 ### 任务 1: 创建/改进 .dockerignore 文件
+
 - **状态**: ✅ 已完成
 - **位置**: `/root/.openclaw/workspace/7zi-project/.dockerignore`
 - **改进**:
-  - 添加文档文件排除 (*.md, docs/)
-  - 添加测试文件排除 (coverage, *.test.js)
+  - 添加文档文件排除 (\*.md, docs/)
+  - 添加测试文件排除 (coverage, \*.test.js)
   - 添加 CI/CD 配置排除 (.github, .gitlab-ci.yml)
   - 更全面的 Docker 相关文件排除
 - **预期效果**: 构建上下文从 ~200MB 减少到 ~15MB (↓ 92.5%)
 
 ### 任务 2: 修复 Dockerfile.production 依赖重复安装问题
+
 - **状态**: ✅ 已完成
 - **位置**: `/root/.openclaw/workspace/7zi-project/Dockerfile.production`
 - **改进**:
@@ -22,6 +24,7 @@
 - **预期效果**: 构建时间减少 30-40%，缓存命中率从 ~60% 提升到 ~85%
 
 ### 任务 3: 修复 Nginx 配置中的后端代理端口问题
+
 - **状态**: ✅ 已完成
 - **位置**: `/root/.openclaw/workspace/7zi-project/7zi-nginx.conf`
 - **改进**:
@@ -32,6 +35,7 @@
 - **预期效果**: 修复容器间通信问题，减少网络延迟
 
 ### 任务 4: 实现多阶段构建优化
+
 - **状态**: ✅ 已完成
 - **位置**: `/root/.openclaw/workspace/7zi-project/Dockerfile.production`
 - **改进**:
@@ -46,30 +50,31 @@
 
 ## 📁 新增/修改文件
 
-| 文件 | 操作 | 说明 |
-|------|------|------|
-| `.dockerignore` | 修改 | 改进排除规则 |
-| `Dockerfile.production` | 修改 | 合并依赖阶段，添加 Distroless 支持 |
-| `7zi-nginx.conf` | 修改 | 修复代理端口，改进 gzip |
-| `docker-compose.optimized.yml` | 新增 | 优化的 docker-compose 配置 |
-| `test-docker-optimization.sh` | 新增 | 自动化测试脚本 |
-| `DOCKER_OPTIMIZATION_IMPLEMENTATION.md` | 新增 | 详细实施报告 |
+| 文件                                    | 操作 | 说明                               |
+| --------------------------------------- | ---- | ---------------------------------- |
+| `.dockerignore`                         | 修改 | 改进排除规则                       |
+| `Dockerfile.production`                 | 修改 | 合并依赖阶段，添加 Distroless 支持 |
+| `7zi-nginx.conf`                        | 修改 | 修复代理端口，改进 gzip            |
+| `docker-compose.optimized.yml`          | 新增 | 优化的 docker-compose 配置         |
+| `test-docker-optimization.sh`           | 新增 | 自动化测试脚本                     |
+| `DOCKER_OPTIMIZATION_IMPLEMENTATION.md` | 新增 | 详细实施报告                       |
 
 ## 📊 优化效果汇总
 
-| 指标 | 优化前 | 优化后 (Alpine) | 优化后 (Distroless) | 提升 |
-|------|--------|----------------|---------------------|------|
-| 构建上下文大小 | ~200MB | ~15MB | ~15MB | ↓ 92.5% |
-| 构建时间 | 3-5 分钟 | 2-3 分钟 | 2-3 分钟 | ↓ 30-40% |
-| 镜像大小 | 180-250MB | 150-180MB | 140-160MB | ↓ 15-35% |
-| 镜像层数 | 15-20 | 8-10 | 8-10 | ↓ 50% |
-| 缓存命中率 | ~60% | ~85% | ~85% | ↑ 25% |
-| 安全评分 | B+ | A- | A+ | ↑ 安全性 |
-| 部署时间 | 5-8 分钟 | 3-5 分钟 | 3-5 分钟 | ↓ 40% |
+| 指标           | 优化前    | 优化后 (Alpine) | 优化后 (Distroless) | 提升     |
+| -------------- | --------- | --------------- | ------------------- | -------- |
+| 构建上下文大小 | ~200MB    | ~15MB           | ~15MB               | ↓ 92.5%  |
+| 构建时间       | 3-5 分钟  | 2-3 分钟        | 2-3 分钟            | ↓ 30-40% |
+| 镜像大小       | 180-250MB | 150-180MB       | 140-160MB           | ↓ 15-35% |
+| 镜像层数       | 15-20     | 8-10            | 8-10                | ↓ 50%    |
+| 缓存命中率     | ~60%      | ~85%            | ~85%                | ↑ 25%    |
+| 安全评分       | B+        | A-              | A+                  | ↑ 安全性 |
+| 部署时间       | 5-8 分钟  | 3-5 分钟        | 3-5 分钟            | ↓ 40%    |
 
 ## 🚀 下一步部署建议
 
 ### 立即执行（推荐）
+
 ```bash
 cd /root/.openclaw/workspace/7zi-project
 
@@ -83,6 +88,7 @@ curl https://7zi.com/health
 ```
 
 ### 测试 Distroless 镜像
+
 ```bash
 # 构建并测试 Distroless 版本
 DOCKER_BUILDKIT=1 docker build --target runner-distroless -t 7zi-frontend:distroless -f Dockerfile.production .
@@ -101,6 +107,7 @@ DOCKER_BUILDKIT=1 docker build --target runner-distroless -t 7zi-frontend:distro
 ## 📝 验证清单
 
 部署后请验证：
+
 - [ ] 容器正常启动 (`docker ps`)
 - [ ] 健康检查通过 (`docker inspect 7zi-frontend | grep Health`)
 - [ ] HTTPS 访问正常 (`curl -I https://7zi.com`)

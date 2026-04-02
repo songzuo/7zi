@@ -12,6 +12,7 @@
 本报告针对 7zi Frontend 项目进行 React Compiler (babel-plugin-react-compiler) 兼容性预检，分析第三方库兼容性、试点组件风险，并制定渐进式迁移策略。
 
 **关键发现**:
+
 - ✅ React Compiler 已安装并配置 (`reactCompiler: true`)
 - ✅ React 19.2.4 完全支持 React Compiler
 - ✅ 主要第三方库（Zustand, next-intl, recharts）兼容性良好
@@ -26,17 +27,18 @@
 
 ### 1.1 技术栈
 
-| 技术 | 版本 | React Compiler 支持 |
-|-----|------|-------------------|
-| **React** | ^19.2.4 | ✅ 完全支持 |
-| **Next.js** | ^16.2.1 | ✅ 原生支持 |
-| **TypeScript** | ^5 | ✅ 完全支持 |
-| **Turbopack** | 可选 | ✅ 无缝集成 |
-| **babel-plugin-react-compiler** | ^1.0.0 | ✅ 已安装 |
+| 技术                            | 版本    | React Compiler 支持 |
+| ------------------------------- | ------- | ------------------- |
+| **React**                       | ^19.2.4 | ✅ 完全支持         |
+| **Next.js**                     | ^16.2.1 | ✅ 原生支持         |
+| **TypeScript**                  | ^5      | ✅ 完全支持         |
+| **Turbopack**                   | 可选    | ✅ 无缝集成         |
+| **babel-plugin-react-compiler** | ^1.0.0  | ✅ 已安装           |
 
 ### 1.2 当前配置
 
 **next.config.ts**:
+
 ```typescript
 const nextConfig: NextConfig = {
   reactCompiler: true, // ✅ 已全局启用
@@ -60,19 +62,20 @@ const nextConfig: NextConfig = {
 
 ### 2.1 核心库兼容性列表
 
-| 库名 | 版本 | 兼容性等级 | 说明 | 建议 |
-|-----|------|----------|------|------|
-| **zustand** | ^5.0.12 | ✅ 完全兼容 | 状态管理库，使用选择器模式 | 无需修改，编译器可优化 |
-| **next-intl** | ^4.8.3 | ✅ 完全兼容 | 国际化库，替代 react-i18next | 无需修改，编译器可优化 |
-| **recharts** | ^3.8.1 | ✅ 兼容 | 图表库，使用 React 组件 | 可能需要配置排除某些内部组件 |
-| **@react-three/fiber** | ^9.5.0 | ✅ 兼容 | 3D 渲染库 | 编译器可以优化 React 组件部分 |
-| **@react-three/drei** | ^10.7.7 | ✅ 兼容 | Three.js 辅助组件 | 编译器可以优化 |
-| **lucide-react** | ^0.577.0 | ✅ 完全兼容 | 图标库，纯函数组件 | 编译器自动优化 |
-| **socket.io-client** | ^4.8.3 | ✅ 兼容 | WebSocket 客户端 | 编译器不影响 WebSocket 逻辑 |
+| 库名                   | 版本     | 兼容性等级  | 说明                         | 建议                          |
+| ---------------------- | -------- | ----------- | ---------------------------- | ----------------------------- |
+| **zustand**            | ^5.0.12  | ✅ 完全兼容 | 状态管理库，使用选择器模式   | 无需修改，编译器可优化        |
+| **next-intl**          | ^4.8.3   | ✅ 完全兼容 | 国际化库，替代 react-i18next | 无需修改，编译器可优化        |
+| **recharts**           | ^3.8.1   | ✅ 兼容     | 图表库，使用 React 组件      | 可能需要配置排除某些内部组件  |
+| **@react-three/fiber** | ^9.5.0   | ✅ 兼容     | 3D 渲染库                    | 编译器可以优化 React 组件部分 |
+| **@react-three/drei**  | ^10.7.7  | ✅ 兼容     | Three.js 辅助组件            | 编译器可以优化                |
+| **lucide-react**       | ^0.577.0 | ✅ 完全兼容 | 图标库，纯函数组件           | 编译器自动优化                |
+| **socket.io-client**   | ^4.8.3   | ✅ 兼容     | WebSocket 客户端             | 编译器不影响 WebSocket 逻辑   |
 
 ### 2.2 Zustand 兼容性深度分析
 
 **项目使用情况**:
+
 - 发现 10+ 个 Zustand store 文件
 - 使用了 `devtools` 和 `persist` 中间件
 - 使用了选择器 hooks (如 `useDarkMode`, `useTheme`)
@@ -83,23 +86,25 @@ const nextConfig: NextConfig = {
 
 ```typescript
 // ✅ 编译器友好的用法（项目当前模式）
-export const useDarkMode = () => usePreferencesStore((s) => s.isDark);
+export const useDarkMode = () => usePreferencesStore(s => s.isDark)
 
 // ✅ 浅比较选择器
 const userData = useStore(
-  useShallow((state) => ({
+  useShallow(state => ({
     name: state.name,
     email: state.email,
   }))
-);
+)
 ```
 
 **编译器优化能力**:
+
 - ✅ 优化 store 订阅组件的重渲染
 - ✅ 自动 memoize 选择器返回值
 - ✅ 减少不必要的 store 更新触发
 
 **潜在问题**:
+
 - ⚠️ 避免在组件内部创建对象选择器（每次渲染返回新对象）
 - ⚠️ 使用 `useShallow` 进行多字段选择
 
@@ -108,6 +113,7 @@ const userData = useStore(
 ### 2.3 next-intl 兼容性深度分析
 
 **项目使用情况**:
+
 - 使用 `useTranslations` hook 获取翻译
 - 在多个组件中使用（Button, Footer, etc.）
 
@@ -117,11 +123,12 @@ const userData = useStore(
 
 ```typescript
 // ✅ 编译器友好的用法（项目当前模式）
-const t = useTranslations('footer');
-const displayText = textKey ? t(textKey) : children;
+const t = useTranslations('footer')
+const displayText = textKey ? t(textKey) : children
 ```
 
 **编译器优化能力**:
+
 - ✅ 优化翻译函数调用
 - ✅ 自动 memoize 翻译结果
 - ✅ 减少语言切换时的重渲染
@@ -131,6 +138,7 @@ const displayText = textKey ? t(textKey) : children;
 ### 2.4 Recharts 兼容性深度分析
 
 **项目使用情况**:
+
 - 用于实时监控图表
 - 在 `RealtimeTaskStatusChart`, `PerformanceMetrics` 等组件中使用
 
@@ -148,10 +156,12 @@ const displayText = textKey ? t(textKey) : children;
 ```
 
 **潜在问题**:
+
 - ⚠️ Recharts 内部使用了一些 React 优化技巧
 - ⚠️ 可能需要排除某些内部组件
 
-**建议**: 
+**建议**:
+
 ```typescript
 // 如果遇到问题，可以排除特定文件
 reactCompiler: {
@@ -162,6 +172,7 @@ reactCompiler: {
 ### 2.5 @react-three/fiber 兼容性深度分析
 
 **项目使用情况**:
+
 - 用于知识图谱 3D 可视化
 - 在 `KnowledgeLattice3D` 组件中使用
 
@@ -177,6 +188,7 @@ reactCompiler: {
 ```
 
 **编译器优化能力**:
+
 - ✅ 优化 Canvas 外部的 React 组件
 - ✅ 优化场景更新时的重渲染
 - ⚠️ Three.js 内部渲染不受 React Compiler 影响
@@ -190,23 +202,25 @@ reactCompiler: {
 ### 3.1 试点组件选择
 
 基于以下标准选择试点组件:
+
 1. **简单组件优先** - 降低风险
 2. **代表性组件** - 覆盖不同场景
 3. **已手动优化的组件** - 验证编译器替代效果
 
-| 组件名 | 路径 | 复杂度 | 现有优化 | 试点优先级 |
-|--------|------|--------|----------|-----------|
-| **LoadingSpinner** | `src/components/LoadingSpinner.tsx` | ⭐ 简单 | 无 | P0 |
-| **Button** | `src/components/ui/Button.tsx` | ⭐⭐ 中等 | 无（子组件常量） | P0 |
-| **Footer** | `src/components/Footer.tsx` | ⭐⭐ 中等 | useMemo (currentYear) | P1 |
-| **MemberCard** | `src/components/MemberCard.tsx` | ⭐⭐⭐ 复杂 | React.memo + 自定义比较 | P2 |
-| **HealthDashboard** | `src/components/HealthDashboard.tsx` | ⭐⭐⭐⭐ 复杂 | useMemo + useCallback + useEffect | P3 |
+| 组件名              | 路径                                 | 复杂度        | 现有优化                          | 试点优先级 |
+| ------------------- | ------------------------------------ | ------------- | --------------------------------- | ---------- |
+| **LoadingSpinner**  | `src/components/LoadingSpinner.tsx`  | ⭐ 简单       | 无                                | P0         |
+| **Button**          | `src/components/ui/Button.tsx`       | ⭐⭐ 中等     | 无（子组件常量）                  | P0         |
+| **Footer**          | `src/components/Footer.tsx`          | ⭐⭐ 中等     | useMemo (currentYear)             | P1         |
+| **MemberCard**      | `src/components/MemberCard.tsx`      | ⭐⭐⭐ 复杂   | React.memo + 自定义比较           | P2         |
+| **HealthDashboard** | `src/components/HealthDashboard.tsx` | ⭐⭐⭐⭐ 复杂 | useMemo + useCallback + useEffect | P3         |
 
 ### 3.2 试点组件详细分析
 
 #### 3.2.1 LoadingSpinner (⭐ 简单)
 
 **组件特性**:
+
 - 纯展示组件
 - 无 hooks
 - 6 种变体（spin, pulse, bounce, dots, bars, wave）
@@ -215,6 +229,7 @@ reactCompiler: {
 **React Compiler 兼容性**: ✅ **完美兼容**
 
 **分析**:
+
 ```typescript
 // 无 hooks，无手动优化
 export const LoadingSpinner: FC<LoadingSpinnerProps> = ({
@@ -229,11 +244,13 @@ export const LoadingSpinner: FC<LoadingSpinnerProps> = ({
 ```
 
 **预期编译器行为**:
+
 - ✅ 编译器会自动优化
 - ✅ 无需任何修改
 - ✅ 性能影响：中性（本来就很轻量）
 
-**试点建议**: 
+**试点建议**:
+
 - ✅ **立即可用** - 作为第一个试点组件
 - ✅ 无需添加 `"use memo"` 注释（全局模式已启用）
 
@@ -242,6 +259,7 @@ export const LoadingSpinner: FC<LoadingSpinnerProps> = ({
 #### 3.2.2 Button (⭐⭐ 中等)
 
 **组件特性**:
+
 - 使用 `useTranslations` (next-intl)
 - 有内部 LoadingSpinner 子组件
 - 使用常量配置对象（VARIANT_CONFIG, SIZE_CONFIG）
@@ -250,6 +268,7 @@ export const LoadingSpinner: FC<LoadingSpinnerProps> = ({
 **React Compiler 兼容性**: ✅ **完全兼容**
 
 **分析**:
+
 ```typescript
 export const Button: FC<ButtonProps> = ({
   variant = 'primary',
@@ -258,23 +277,26 @@ export const Button: FC<ButtonProps> = ({
 }) => {
   const t = useTranslations(namespace); // next-intl hook
   const tLoading = useTranslations('loading');
-  
+
   const displayText = textKey ? t(textKey) : children;
   const loadingText = tLoading('default');
-  
+
   return <button>...</button>;
 };
 ```
 
 **编译器优化能力**:
+
 - ✅ 优化 `useTranslations` 的返回值
 - ✅ 自动 memoize `displayText` 和 `loadingText`
 - ✅ 减少按钮重渲染
 
 **潜在问题**:
+
 - ⚠️ 无明显问题
 
-**试点建议**: 
+**试点建议**:
+
 - ✅ **立即可用** - 第二个试点组件
 - ✅ 无需修改
 
@@ -283,6 +305,7 @@ export const Button: FC<ButtonProps> = ({
 #### 3.2.3 Footer (⭐⭐ 中等)
 
 **组件特性**:
+
 - 使用 `useTranslations` (自定义 i18n)
 - 使用 `useMemo` 计算 currentYear
 - 多个 Link 组件
@@ -291,23 +314,27 @@ export const Button: FC<ButtonProps> = ({
 **React Compiler 兼容性**: ✅ **兼容（可优化）**
 
 **现有优化**:
+
 ```typescript
 // 当前使用 useMemo
-const currentYear = useMemo(() => new Date().getFullYear(), []);
+const currentYear = useMemo(() => new Date().getFullYear(), [])
 ```
 
 **编译器优化建议**:
+
 ```typescript
 // ✅ 编译器可以自动优化，移除 useMemo
-const currentYear = new Date().getFullYear(); // 编译器会自动 memoize
+const currentYear = new Date().getFullYear() // 编译器会自动 memoize
 ```
 
 **分析**:
+
 - ✅ `useMemo` 用于计算值，编译器可以优化
 - ✅ `useTranslations` 兼容
 - ⚠️ 可以移除 `useMemo`，简化代码
 
 **试点建议**:
+
 - ✅ **立即可用** - 第三个试点组件
 - 🔄 建议移除 `useMemo`，测试编译器效果
 
@@ -316,6 +343,7 @@ const currentYear = new Date().getFullYear(); // 编译器会自动 memoize
 #### 3.2.4 MemberCard (⭐⭐⭐ 复杂)
 
 **组件特性**:
+
 - 使用 `React.memo` + 自定义比较函数
 - 复杂的状态配置对象
 - 有选择模式逻辑
@@ -324,6 +352,7 @@ const currentYear = new Date().getFullYear(); // 编译器会自动 memoize
 **React Compiler 兼容性**: ⚠️ **需要评估**
 
 **现有优化**:
+
 ```typescript
 // 当前使用 React.memo + 自定义比较
 export const MemberCard = memo(MemberCardBase, (prevProps, nextProps) => {
@@ -335,16 +364,18 @@ export const MemberCard = memo(MemberCardBase, (prevProps, nextProps) => {
     prevProps.compact === nextProps.compact &&
     prevProps.isSelectionMode === nextProps.isSelectionMode &&
     prevProps.isSelected === nextProps.isSelected
-  );
-});
+  )
+})
 ```
 
 **分析**:
+
 - ⚠️ **自定义比较函数** - 编译器会保留
 - ⚠️ 编译器可能无法完全替代手动优化
 - ✅ 编译器会在 memo 内部进行优化
 
 **编译器行为**:
+
 ```typescript
 // 编译器会保留 React.memo
 // 但会优化 MemberCardBase 内部
@@ -356,6 +387,7 @@ export const MemberCard = memo(MemberCardBase, (prevProps, nextProps) => {
 ```
 
 **试点建议**:
+
 - ⚠️ **保留现有优化** - 不移除 React.memo
 - ✅ 可以添加 `"use memo"` 注释
 - 📝 监控性能对比
@@ -365,6 +397,7 @@ export const MemberCard = memo(MemberCardBase, (prevProps, nextProps) => {
 #### 3.2.5 HealthDashboard (⭐⭐⭐⭐ 复杂)
 
 **组件特性**:
+
 - 使用 `useEffect`, `useState`, `useMemo`, `useCallback`
 - 使用 Zustand store (`useDarkMode`, `useRealtimeNotificationStore`)
 - 使用自定义 hooks (`performanceCollector`)
@@ -374,6 +407,7 @@ export const MemberCard = memo(MemberCardBase, (prevProps, nextProps) => {
 **React Compiler 兼容性**: ✅ **兼容（需保留部分手动优化）**
 
 **现有优化**:
+
 ```typescript
 // useMemo - 用于 metrics 计算
 const metrics: HealthMetric[] = useMemo(() => [
@@ -394,11 +428,13 @@ useEffect(() => {
 ```
 
 **分析**:
+
 - ✅ `useMemo` 用于计算值 - 编译器可以优化
 - ⚠️ `useCallback` 用于 `useEffect` 依赖 - **需要保留**
 - ✅ Zustand hooks 兼容
 
 **编译器优化建议**:
+
 ```typescript
 // ✅ 可以移除 useMemo（编译器会优化）
 const metrics: HealthMetric[] = [
@@ -419,6 +455,7 @@ useEffect(() => {
 ```
 
 **试点建议**:
+
 - ✅ **可以启用** - 需要保留 `useCallback`
 - 🔄 移除不必要的 `useMemo`
 - 📝 监控性能变化
@@ -429,16 +466,17 @@ useEffect(() => {
 
 基于代码分析，识别以下潜在不兼容模式:
 
-| 模式 | 示例 | 兼容性 | 解决方案 |
-|-----|------|--------|---------|
-| **useCallback 用于 useEffect 依赖** | `useCallback(() => {}, [])` + `useEffect(() => {}, [callback])` | ⚠️ 需保留 | 保留 `useCallback` |
-| **useMemo 用于 useEffect 依赖** | `useMemo(() => val, [])` + `useEffect(() => {}, [val])` | ⚠️ 需保留 | 保留 `useMemo` |
-| **React.memo + 自定义比较** | `memo(Component, (prev, next) => ...)` | ✅ 兼容 | 编译器会保留 |
-| **复杂对象选择器** | `useStore(s => ({ ...s.user }))` | ⚠️ 需优化 | 使用 `useShallow` |
-| **条件语句中的 Hooks** | `if (condition) { useState() }` | ❌ 违反规则 | 重构代码 |
-| **修改 props** | `props.value = newValue` | ❌ 违反规则 | 使用状态或复制 |
+| 模式                                | 示例                                                            | 兼容性      | 解决方案           |
+| ----------------------------------- | --------------------------------------------------------------- | ----------- | ------------------ |
+| **useCallback 用于 useEffect 依赖** | `useCallback(() => {}, [])` + `useEffect(() => {}, [callback])` | ⚠️ 需保留   | 保留 `useCallback` |
+| **useMemo 用于 useEffect 依赖**     | `useMemo(() => val, [])` + `useEffect(() => {}, [val])`         | ⚠️ 需保留   | 保留 `useMemo`     |
+| **React.memo + 自定义比较**         | `memo(Component, (prev, next) => ...)`                          | ✅ 兼容     | 编译器会保留       |
+| **复杂对象选择器**                  | `useStore(s => ({ ...s.user }))`                                | ⚠️ 需优化   | 使用 `useShallow`  |
+| **条件语句中的 Hooks**              | `if (condition) { useState() }`                                 | ❌ 违反规则 | 重构代码           |
+| **修改 props**                      | `props.value = newValue`                                        | ❌ 违反规则 | 使用状态或复制     |
 
 **项目中未发现严重违规**:
+
 - ✅ 未发现条件语句中的 Hooks
 - ✅ 未发现 props 修改
 - ⚠️ 存在 `useCallback` 用于 `useEffect` 依赖的情况
@@ -450,6 +488,7 @@ useEffect(() => {
 ### 4.1 文件级别禁用方案
 
 **适用场景**:
+
 - 发现编译器导致问题的组件
 - 复杂的第三方库组件
 - 暂时不想迁移的组件
@@ -459,8 +498,8 @@ useEffect(() => {
 ```typescript
 // src/components/ProblematicComponent.tsx
 export function ProblematicComponent({ data }) {
-  "use no memo"; // ← 禁用编译器优化
-  
+  'use no memo' // ← 禁用编译器优化
+
   // ... 问题代码
 }
 ```
@@ -479,10 +518,7 @@ export function ProblematicComponent({ data }) {
 ```typescript
 const nextConfig = {
   reactCompiler: {
-    exclude: [
-      '**/legacy/**',
-      '**/ProblematicComponent.tsx',
-    ],
+    exclude: ['**/legacy/**', '**/ProblematicComponent.tsx'],
   },
 }
 ```
@@ -490,6 +526,7 @@ const nextConfig = {
 ### 4.2 组件白名单方案
 
 **适用场景**:
+
 - 渐进式启用（从 annotation 模式开始）
 - 只对部分组件启用编译器
 
@@ -504,14 +541,15 @@ const nextConfig = {
 }
 
 // src/components/LoadingSpinner.tsx
-export const LoadingSpinner: FC<LoadingSpinnerProps> = (props) => {
-  "use memo"; // ← 启用编译器优化
-  
+export const LoadingSpinner: FC<LoadingSpinnerProps> = props => {
+  'use memo' // ← 启用编译器优化
+
   // ...
-};
+}
 ```
 
 **推荐组件白名单** (Phase 1):
+
 ```
 ✅ src/components/LoadingSpinner.tsx
 ✅ src/components/ui/Button.tsx
@@ -566,6 +604,7 @@ Phase 4: 持续优化 (长期)
 **目标**: 确保基础设施就绪
 
 **任务清单**:
+
 - [x] ✅ 安装 `babel-plugin-react-compiler`
 - [x] ✅ 配置 `next.config.ts` (`reactCompiler: true`)
 - [ ] ⬜ 创建性能基准测试脚本
@@ -573,6 +612,7 @@ Phase 4: 持续优化 (长期)
 - [ ] ⬜ 准备回滚计划
 
 **性能基准测试脚本**:
+
 ```bash
 #!/bin/bash
 # scripts/benchmark-react-compiler.sh
@@ -612,6 +652,7 @@ npm run test:all
 | Input | P1 | 低 | 低 |
 
 **验证步骤**:
+
 ```bash
 # 1. 切换到 annotation 模式
 # next.config.ts
@@ -638,6 +679,7 @@ npm run benchmark-react-compiler
 ```
 
 **成功标准**:
+
 - ✅ 所有测试通过
 - ✅ 无功能回归
 - ✅ 性能提升 ≥ 10%
@@ -650,6 +692,7 @@ npm run benchmark-react-compiler
 **目标**: 扩展到核心功能模块
 
 **扩展范围**:
+
 ```
 ✅ src/app/[locale]/dashboard/
 ✅ src/components/analytics/
@@ -658,6 +701,7 @@ npm run benchmark-react-compiler
 ```
 
 **迁移清单**:
+
 - [ ] DashboardClient (移除 `useMemo`)
 - [ ] RealtimeDashboard (保留部分 `useMemo`)
 - [ ] MemberCard (保留 `React.memo`)
@@ -665,20 +709,29 @@ npm run benchmark-react-compiler
 - [ ] PerformanceMetrics
 
 **代码清理规则**:
+
 ```typescript
 // ✅ 可以移除
-const value = useMemo(() => compute(a, b), [a, b]); // 仅用于渲染
+const value = useMemo(() => compute(a, b), [a, b]) // 仅用于渲染
 
 // ⚠️ 需要保留
-const value = useMemo(() => compute(a, b), [a, b]);
-useEffect(() => { /* 使用 value */ }, [value]); // 用于 Effect 依赖
+const value = useMemo(() => compute(a, b), [a, b])
+useEffect(() => {
+  /* 使用 value */
+}, [value]) // 用于 Effect 依赖
 
 // ✅ 可以移除
-const handler = useCallback(() => { /* ... */ }, []); // 仅用于事件
+const handler = useCallback(() => {
+  /* ... */
+}, []) // 仅用于事件
 
 // ⚠️ 需要保留
-const handler = useCallback(() => { /* ... */ }, [dep]);
-useEffect(() => { window.addEventListener('resize', handler); }, [handler]); // 用于 Effect 依赖
+const handler = useCallback(() => {
+  /* ... */
+}, [dep])
+useEffect(() => {
+  window.addEventListener('resize', handler)
+}, [handler]) // 用于 Effect 依赖
 ```
 
 ---
@@ -688,6 +741,7 @@ useEffect(() => { window.addEventListener('resize', handler); }, [handler]); // 
 **目标**: 全局启用编译器，完成代码清理
 
 **配置切换**:
+
 ```typescript
 // next.config.ts
 const nextConfig = {
@@ -700,6 +754,7 @@ const nextConfig = {
 ```
 
 **移除冗余代码**:
+
 ```bash
 # 查找所有 memo/useMemo/useCallback
 rg "useMemo|useCallback|React\.memo" src/ -g "*.tsx" -g "*.ts"
@@ -708,6 +763,7 @@ rg "useMemo|useCallback|React\.memo" src/ -g "*.tsx" -g "*.ts"
 ```
 
 **全面测试**:
+
 ```bash
 npm run test:all
 npm run test:e2e
@@ -722,6 +778,7 @@ npm run build:analyze
 **目标**: 建立长期优化机制
 
 **监控指标**:
+
 - 构建时间
 - 包体积
 - Lighthouse 分数
@@ -741,19 +798,20 @@ npm run build:analyze
 
 ### 6.1 技术风险
 
-| 风险 | 可能性 | 影响 | 缓解措施 |
-|-----|--------|------|---------|
-| 编译器引入 Bug | 中 | 高 | 充分测试 + 渐进式启用 |
-| 性能退化 | 低 | 中 | 持续监控 + 快速回滚 |
-| 构建时间增加 | 低 | 低 | 使用 Turbopack |
-| 不兼容现有代码 | 低 | 中 | 使用 `"use no memo"` 排除 |
-| 第三方库冲突 | 低 | 中 | 配置 `exclude` 排除 |
+| 风险           | 可能性 | 影响 | 缓解措施                  |
+| -------------- | ------ | ---- | ------------------------- |
+| 编译器引入 Bug | 中     | 高   | 充分测试 + 渐进式启用     |
+| 性能退化       | 低     | 中   | 持续监控 + 快速回滚       |
+| 构建时间增加   | 低     | 低   | 使用 Turbopack            |
+| 不兼容现有代码 | 低     | 中   | 使用 `"use no memo"` 排除 |
+| 第三方库冲突   | 低     | 中   | 配置 `exclude` 排除       |
 
 ### 6.2 回滚计划
 
 **如果遇到严重问题**:
 
 1. **立即禁用编译器**:
+
    ```typescript
    // next.config.ts
    const nextConfig = {
@@ -762,6 +820,7 @@ npm run build:analyze
    ```
 
 2. **排除问题组件**:
+
    ```typescript
    reactCompiler: {
      exclude: ['**/ProblematicComponent.tsx'],
@@ -771,7 +830,7 @@ npm run build:analyze
 3. **使用 `"use no memo"`**:
    ```typescript
    export function ProblematicComponent() {
-     "use no memo";
+     'use no memo'
      // ...
    }
    ```
@@ -781,11 +840,13 @@ npm run build:analyze
 ## 📚 7. 参考资源
 
 ### 7.1 官方文档
+
 - [React Compiler 官方文档](https://react.dev/learn/react-compiler)
 - [React Compiler Working Group](https://github.com/reactwg/react-compiler)
 - [Next.js React Compiler 配置](https://nextjs.org/docs/app/api-reference/config/next-config-js/reactCompiler)
 
 ### 7.2 项目内部资源
+
 - `REACT_COMPILER_ROADMAP_20260328.md` - 详细实施路线图
 - `REACT_COMPILER_OPTIMIZATION_20260328.md` - 优化验证报告
 - `REACT_OPTIMIZATION_SUMMARY.md` - 现有优化总结
@@ -813,16 +874,17 @@ npm run build:analyze
 
 ### 8.3 预期收益
 
-| 指标 | 当前 | 启用后预期 | 提升 |
-|-----|------|-----------|------|
-| 手动优化代码 | ~500 行 | ~50 行 | -90% |
-| 构建时间 | 120s | 130s | +8% |
-| 不必要重渲染 | 基准 | -40% | -40% |
-| 维护成本 | 高 | 低 | -60% |
+| 指标         | 当前    | 启用后预期 | 提升 |
+| ------------ | ------- | ---------- | ---- |
+| 手动优化代码 | ~500 行 | ~50 行     | -90% |
+| 构建时间     | 120s    | 130s       | +8%  |
+| 不必要重渲染 | 基准    | -40%       | -40% |
+| 维护成本     | 高      | 低         | -60% |
 
 ### 8.4 下一步行动
 
 **立即行动 (本周)**:
+
 1. ✅ 创建性能基准测试脚本
 2. ✅ 切换到 annotation 模式
 3. ✅ 为 3 个试点组件添加 `"use memo"`
@@ -830,6 +892,7 @@ npm run build:analyze
 5. ✅ 记录结果
 
 **后续行动 (Week 1-3)**:
+
 1. 扩展到 10+ 个组件
 2. 处理遇到的问题
 3. 性能监控和对比

@@ -3,22 +3,22 @@
  * @description Interactive star rating component (1-5 stars) for user feedback
  */
 
-'use client';
+'use client'
 
-import React, { useState } from 'react';
+import React, { useState } from 'react'
 
 interface StarRatingProps {
-  rating: number;
-  onRatingChange?: (rating: number) => void;
-  readonly?: boolean;
-  size?: 'sm' | 'md' | 'lg';
-  showLabels?: boolean;
-  className?: string;
+  rating: number
+  onRatingChange?: (rating: number) => void
+  readonly?: boolean
+  size?: 'sm' | 'md' | 'lg'
+  showLabels?: boolean
+  className?: string
 }
 
 interface StarLabel {
-  rating: number;
-  label: string;
+  rating: number
+  label: string
 }
 
 const STAR_LABELS: StarLabel[] = [
@@ -27,13 +27,13 @@ const STAR_LABELS: StarLabel[] = [
   { rating: 3, label: '一般' },
   { rating: 4, label: '满意' },
   { rating: 5, label: '非常满意' },
-];
+]
 
 const SIZE_CLASSES = {
   sm: 'w-4 h-4',
   md: 'w-6 h-6',
   lg: 'w-8 h-8',
-};
+}
 
 export const StarRating: React.FC<StarRatingProps> = ({
   rating,
@@ -43,33 +43,33 @@ export const StarRating: React.FC<StarRatingProps> = ({
   showLabels = false,
   className = '',
 }) => {
-  const [hoveredRating, setHoveredRating] = useState<number>(0);
+  const [hoveredRating, setHoveredRating] = useState<number>(0)
 
   const handleMouseEnter = (starNumber: number) => {
     if (!readonly) {
-      setHoveredRating(starNumber);
+      setHoveredRating(starNumber)
     }
-  };
+  }
 
   const handleMouseLeave = () => {
     if (!readonly) {
-      setHoveredRating(0);
+      setHoveredRating(0)
     }
-  };
+  }
 
   const handleClick = (starNumber: number) => {
     if (!readonly && onRatingChange) {
-      onRatingChange(starNumber);
+      onRatingChange(starNumber)
     }
-  };
+  }
 
-  const displayRating = hoveredRating || rating;
+  const displayRating = hoveredRating || rating
 
   return (
     <div className={`flex flex-col items-center gap-2 ${className}`}>
       {/* Stars */}
       <div className="flex items-center gap-1">
-        {[1, 2, 3, 4, 5].map((starNumber) => (
+        {[1, 2, 3, 4, 5].map(starNumber => (
           <button
             key={starNumber}
             type="button"
@@ -77,17 +77,14 @@ export const StarRating: React.FC<StarRatingProps> = ({
             onMouseEnter={() => handleMouseEnter(starNumber)}
             onMouseLeave={handleMouseLeave}
             onClick={() => handleClick(starNumber)}
-            className={`
-              ${readonly ? 'cursor-default' : 'cursor-pointer transition-transform hover:scale-110 active:scale-95'}
-              focus:outline-none focus:ring-2 focus:ring-yellow-400 focus:ring-offset-2 rounded
-            `}
+            className={` ${readonly ? 'cursor-default' : 'cursor-pointer transition-transform hover:scale-110 active:scale-95'} rounded focus:ring-2 focus:ring-yellow-400 focus:ring-offset-2 focus:outline-none`}
             aria-label={`Rate ${starNumber} stars`}
             aria-pressed={rating >= starNumber}
           >
             <svg
               className={`${SIZE_CLASSES[size]} ${
                 displayRating >= starNumber
-                  ? 'text-yellow-400 fill-yellow-400'
+                  ? 'fill-yellow-400 text-yellow-400'
                   : 'text-zinc-300 dark:text-zinc-600'
               }`}
               fill="currentColor"
@@ -103,7 +100,7 @@ export const StarRating: React.FC<StarRatingProps> = ({
       {/* Labels */}
       {showLabels && displayRating > 0 && (
         <span className="text-sm text-zinc-600 dark:text-zinc-400">
-          {STAR_LABELS.find((l) => l.rating === displayRating)?.label}
+          {STAR_LABELS.find(l => l.rating === displayRating)?.label}
         </span>
       )}
 
@@ -114,7 +111,7 @@ export const StarRating: React.FC<StarRatingProps> = ({
         </span>
       )}
     </div>
-  );
-};
+  )
+}
 
-export default StarRating;
+export default StarRating

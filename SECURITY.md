@@ -100,16 +100,16 @@ This document outlines the security measures implemented in the 7zi application.
   - IP-based tracking
 
 ```typescript
-import { getWSSecurityManager } from '@/lib/security';
+import { getWSSecurityManager } from '@/lib/security'
 
 const wsSecurity = getWSSecurityManager({
   maxConnectionsPerIP: 5,
   maxMessagesPerMinute: 100,
   maxWarningsBeforeBan: 3,
-});
+})
 
 // Check connection
-const { allowed, reason } = wsSecurity.canConnect(ip);
+const { allowed, reason } = wsSecurity.canConnect(ip)
 if (!allowed) {
   // Reject connection
 }
@@ -124,10 +124,10 @@ if (!allowed) {
   - Timing-safe comparison
 
 ```typescript
-import { generateCSRFToken, validateCSRFToken } from '@/lib/security';
+import { generateCSRFToken, validateCSRFToken } from '@/lib/security'
 
 // Generate token
-const token = generateCSRFToken({ secret: process.env.CSRF_SECRET });
+const token = generateCSRFToken({ secret: process.env.CSRF_SECRET })
 
 // Validate token
 if (validateCSRFToken(token.token, process.env.CSRF_SECRET)) {
@@ -142,24 +142,17 @@ if (validateCSRFToken(token.token, process.env.CSRF_SECRET)) {
   - Configurable max age (default: 5 minutes)
 
 ```typescript
-import { signHTTPRequest, validateHTTPRequestSignature } from '@/lib/security';
+import { signHTTPRequest, validateHTTPRequestSignature } from '@/lib/security'
 
 // Sign request
-const { signature, timestamp } = signHTTPRequest(
-  'POST',
-  '/api/data',
-  body,
-  { secret: process.env.SIGNATURE_SECRET }
-);
+const { signature, timestamp } = signHTTPRequest('POST', '/api/data', body, {
+  secret: process.env.SIGNATURE_SECRET,
+})
 
 // Validate request
-const { valid, reason } = validateHTTPRequestSignature(
-  method,
-  path,
-  body,
-  headers,
-  { secret: process.env.SIGNATURE_SECRET }
-);
+const { valid, reason } = validateHTTPRequestSignature(method, path, body, headers, {
+  secret: process.env.SIGNATURE_SECRET,
+})
 ```
 
 - **SQL Injection Protection** (`src/lib/security/sql-injection.ts`)
@@ -169,10 +162,10 @@ const { valid, reason } = validateHTTPRequestSignature(
   - Safe query builder helpers
 
 ```typescript
-import { checkSQLInjection, validateAndSanitizeSQLInput } from '@/lib/security';
+import { checkSQLInjection, validateAndSanitizeSQLInput } from '@/lib/security'
 
 // Check input
-const result = checkSQLInjection(userInput);
+const result = checkSQLInjection(userInput)
 if (!result.safe) {
   // Handle potential injection
 }
@@ -180,7 +173,7 @@ if (!result.safe) {
 // Sanitize input
 const { sanitizedValue } = validateAndSanitizeSQLInput(input, {
   sanitizeInput: true,
-});
+})
 ```
 
 ### 3. Data Security (`src/lib/security/encryption.ts`)
@@ -192,16 +185,16 @@ const { sanitizedValue } = validateAndSanitizeSQLInput(input, {
   - Authentication tags for integrity
 
 ```typescript
-import { encryptGCM, decryptGCM, encryptApiKeyGCM } from '@/lib/security';
+import { encryptGCM, decryptGCM, encryptApiKeyGCM } from '@/lib/security'
 
 // Encrypt data
-const encrypted = await encryptGCM(sensitiveData, password);
+const encrypted = await encryptGCM(sensitiveData, password)
 
 // Decrypt data
-const decrypted = await decryptGCM(encrypted, password);
+const decrypted = await decryptGCM(encrypted, password)
 
 // Encrypt API key
-const encryptedKey = await encryptApiKeyGCM(apiKey, password);
+const encryptedKey = await encryptApiKeyGCM(apiKey, password)
 ```
 
 - **Log Sanitization** (`src/lib/security/log-sanitizer.ts`)
@@ -211,16 +204,16 @@ const encryptedKey = await encryptApiKeyGCM(apiKey, password);
   - Configurable masking strategies
 
 ```typescript
-import { sanitizeObject, sanitizeLogEntry, maskEmail } from '@/lib/security';
+import { sanitizeObject, sanitizeLogEntry, maskEmail } from '@/lib/security'
 
 // Mask email
-const masked = maskEmail('user@example.com'); // u***r@example.com
+const masked = maskEmail('user@example.com') // u***r@example.com
 
 // Sanitize object
-const sanitized = sanitizeObject(userData);
+const sanitized = sanitizeObject(userData)
 
 // Sanitize log entry
-const safeLog = sanitizeLogEntry(logData);
+const safeLog = sanitizeLogEntry(logData)
 ```
 
 - **API Key Storage**
@@ -230,15 +223,15 @@ const safeLog = sanitizeLogEntry(logData);
 
 ### 4. Security Headers (`src/lib/security/headers.ts`)
 
-| Header | Development | Production |
-|--------|-------------|------------|
-| Content-Security-Policy | Lenient | Strict |
-| Strict-Transport-Security | Disabled | 2 years + preload |
-| X-Frame-Options | SAMEORIGIN | DENY |
-| X-Content-Type-Options | nosniff | nosniff |
-| X-XSS-Protection | 1; mode=block | 1; mode=block |
-| Referrer-Policy | strict-origin-when-cross-origin | strict-origin-when-cross-origin |
-| Permissions-Policy | Restrictive | Restrictive |
+| Header                    | Development                     | Production                      |
+| ------------------------- | ------------------------------- | ------------------------------- |
+| Content-Security-Policy   | Lenient                         | Strict                          |
+| Strict-Transport-Security | Disabled                        | 2 years + preload               |
+| X-Frame-Options           | SAMEORIGIN                      | DENY                            |
+| X-Content-Type-Options    | nosniff                         | nosniff                         |
+| X-XSS-Protection          | 1; mode=block                   | 1; mode=block                   |
+| Referrer-Policy           | strict-origin-when-cross-origin | strict-origin-when-cross-origin |
+| Permissions-Policy        | Restrictive                     | Restrictive                     |
 
 ### 5. Rate Limiting (`src/lib/security/rate-limit/`)
 
@@ -270,13 +263,13 @@ SECURITY_LOG_LEVEL=warn
 ### Security Configuration Object
 
 ```typescript
-import { SecurityConfigs } from '@/lib/security';
+import { SecurityConfigs } from '@/lib/security'
 
 // Pre-configured security profiles
-const publicConfig = SecurityConfigs.public;    // Public endpoints
-const authConfig = SecurityConfigs.auth;        // Authentication endpoints
-const protectedConfig = SecurityConfigs.protected; // Protected endpoints
-const adminConfig = SecurityConfigs.admin;      // Admin endpoints
+const publicConfig = SecurityConfigs.public // Public endpoints
+const authConfig = SecurityConfigs.auth // Authentication endpoints
+const protectedConfig = SecurityConfigs.protected // Protected endpoints
+const adminConfig = SecurityConfigs.admin // Admin endpoints
 ```
 
 ---
@@ -287,15 +280,15 @@ const adminConfig = SecurityConfigs.admin;      // Admin endpoints
 
 ```typescript
 // ✅ Good: Use validation schemas
-import { z } from 'zod';
+import { z } from 'zod'
 
 const schema = z.object({
   email: z.string().email(),
   password: z.string().min(12),
-});
+})
 
 // ❌ Bad: Trust user input directly
-const email = req.body.email;
+const email = req.body.email
 ```
 
 ### 2. Database Queries
@@ -304,10 +297,10 @@ const email = req.body.email;
 // ✅ Good: Use Prisma parameterized queries
 await prisma.user.findUnique({
   where: { email: validatedEmail },
-});
+})
 
 // ❌ Bad: Raw SQL with string interpolation
-await prisma.$queryRaw`SELECT * FROM users WHERE email = ${email}`;
+await prisma.$queryRaw`SELECT * FROM users WHERE email = ${email}`
 ```
 
 ### 3. Error Handling
@@ -328,11 +321,11 @@ catch (error) {
 
 ```typescript
 // ✅ Good: Sanitized logging
-import { sanitizeObject } from '@/lib/security';
-logger.info('User action', sanitizeObject(userData));
+import { sanitizeObject } from '@/lib/security'
+logger.info('User action', sanitizeObject(userData))
 
 // ❌ Bad: Logging sensitive data
-logger.info('User data', userData);
+logger.info('User data', userData)
 ```
 
 ---
@@ -424,12 +417,12 @@ npm audit --json > audit-report.json
 
 Critical dependencies and their security status:
 
-| Package | Version | Status |
-|---------|---------|--------|
-| next | 16.2.1 | ✅ Secure |
-| react | 19.2.4 | ✅ Secure |
-| jose | 6.2.1 | ✅ Secure |
-| socket.io | 4.8.3 | ✅ Secure |
+| Package   | Version | Status    |
+| --------- | ------- | --------- |
+| next      | 16.2.1  | ✅ Secure |
+| react     | 19.2.4  | ✅ Secure |
+| jose      | 6.2.1   | ✅ Secure |
+| socket.io | 4.8.3   | ✅ Secure |
 
 ### Secret Detection
 
@@ -482,6 +475,7 @@ We follow responsible disclosure and will credit researchers who report valid vu
 ## Changelog
 
 ### v1.4.0 (2026-03-29)
+
 - Added AES-256-GCM encryption module
 - Added WebSocket security (rate limiting, message validation, auto-ban)
 - Added CSRF token protection
@@ -492,16 +486,18 @@ We follow responsible disclosure and will credit researchers who report valid vu
 - Created comprehensive SECURITY.md documentation
 
 ### v1.3.0 (2026-03-28)
+
 - Enhanced rate limiting with Redis support
 - Added RBAC system
 - Security headers improvements
 
 ### v1.2.0 (2026-03-26)
+
 - Initial security audit implementation
 - Basic rate limiting
 - Input validation enhancements
 
 ---
 
-*Last updated: 2026-03-29*
-*Security Level: P1 (Production Ready)*
+_Last updated: 2026-03-29_
+_Security Level: P1 (Production Ready)_

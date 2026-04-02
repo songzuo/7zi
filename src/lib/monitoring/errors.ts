@@ -3,7 +3,7 @@
  * Enhanced error handling with Sentry integration
  */
 
-import * as Sentry from '@sentry/nextjs';
+import * as Sentry from '@sentry/nextjs'
 
 /**
  * Error categories for better organization
@@ -40,32 +40,32 @@ export enum ErrorSeverity {
  * Custom error class with metadata
  */
 export class TrackedError extends Error {
-  public readonly category: ErrorCategory;
-  public readonly severity: ErrorSeverity;
-  public readonly metadata: Record<string, unknown>;
-  public readonly userMessage: string;
-  public readonly cause?: Error;
+  public readonly category: ErrorCategory
+  public readonly severity: ErrorSeverity
+  public readonly metadata: Record<string, unknown>
+  public readonly userMessage: string
+  public readonly cause?: Error
 
   constructor(options: {
-    message: string;
-    category?: ErrorCategory;
-    severity?: ErrorSeverity;
-    metadata?: Record<string, unknown>;
-    userMessage?: string;
-    cause?: Error;
+    message: string
+    category?: ErrorCategory
+    severity?: ErrorSeverity
+    metadata?: Record<string, unknown>
+    userMessage?: string
+    cause?: Error
   }) {
-    super(options.message);
+    super(options.message)
 
-    this.name = 'TrackedError';
-    this.category = options.category ?? ErrorCategory.APPLICATION;
-    this.severity = options.severity ?? ErrorSeverity.ERROR;
-    this.metadata = options.metadata ?? {};
-    this.userMessage = options.userMessage ?? 'An unexpected error occurred';
-    this.cause = options.cause;
+    this.name = 'TrackedError'
+    this.category = options.category ?? ErrorCategory.APPLICATION
+    this.severity = options.severity ?? ErrorSeverity.ERROR
+    this.metadata = options.metadata ?? {}
+    this.userMessage = options.userMessage ?? 'An unexpected error occurred'
+    this.cause = options.cause
 
     // Maintain proper stack trace
     if (Error.captureStackTrace) {
-      Error.captureStackTrace(this, TrackedError);
+      Error.captureStackTrace(this, TrackedError)
     }
   }
 }
@@ -76,68 +76,69 @@ export class TrackedError extends Error {
 export function captureError(
   error: Error | TrackedError | unknown,
   options?: {
-    category?: ErrorCategory;
-    severity?: ErrorSeverity;
-    tags?: Record<string, string>;
-    extra?: Record<string, unknown>;
+    category?: ErrorCategory
+    severity?: ErrorSeverity
+    tags?: Record<string, string>
+    extra?: Record<string, unknown>
     user?: {
-      id?: string;
-      email?: string;
-      username?: string;
-    };
+      id?: string
+      email?: string
+      username?: string
+    }
   }
 ) {
   // Determine error details
-  const isError = error instanceof Error;
-  const isTrackedError = error instanceof TrackedError;
+  const isError = error instanceof Error
+  const isTrackedError = error instanceof TrackedError
 
   // Build Sentry context
-  Sentry.withScope((scope) => {
+  Sentry.withScope(scope => {
     // Set tags
     if (options?.tags) {
       Object.entries(options.tags).forEach(([key, value]) => {
-        scope.setTag(key, value);
-      });
+        scope.setTag(key, value)
+      })
     }
 
     // Set category and severity
-    const category = options?.category ?? (isTrackedError ? error.category : ErrorCategory.APPLICATION);
-    const severity = options?.severity ?? (isTrackedError ? error.severity : ErrorSeverity.ERROR);
+    const category =
+      options?.category ?? (isTrackedError ? error.category : ErrorCategory.APPLICATION)
+    const severity = options?.severity ?? (isTrackedError ? error.severity : ErrorSeverity.ERROR)
 
-    scope.setTag('category', category);
-    scope.setLevel(severity);
+    scope.setTag('category', category)
+    scope.setLevel(severity)
 
     // Set user
     if (options?.user) {
-      scope.setUser(options.user);
+      scope.setUser(options.user)
     }
 
     // Set extra context
     if (options?.extra) {
       Object.entries(options.extra).forEach(([key, value]) => {
-        scope.setExtra(key, value);
-      });
+        scope.setExtra(key, value)
+      })
     }
 
     // Add TrackedError metadata
     if (isTrackedError) {
       Object.entries(error.metadata).forEach(([key, value]) => {
-        scope.setExtra(key, value);
-      });
+        scope.setExtra(key, value)
+      })
     }
 
     // Add fingerprint for grouping
     if (isTrackedError) {
-      scope.setFingerprint([error.category, error.message]);
+      scope.setFingerprint([error.category, error.message])
     }
 
     // Capture the error
     if (isError) {
-      Sentry.captureException(error);
+      Sentry.captureException(error)
     } else {
-      Sentry.captureMessage(String(error));
+      Sentry.captureMessage(String(error))
     }
-  });
+  })
 }
 
 /**
@@ -146,33 +147,33 @@ export function captureError(
 export function withErrorTracking<T extends (...args: unknown[]) => Promise<unknown>>(
   fn: T,
   options?: {
-    category?: ErrorCategory;
-    tags?: Record<string, string>;
+    category?: ErrorCategory
+    tags?: Record<string, string>
   }
 ): T {
   return (async (...args: Parameters<T>) => {
     try {
-      return await fn(...args);
-    } catch (_error) {
+      return await fn(...args)
+    } catch (error) {
       captureError(error, {
         category: options?.category,
         tags: options?.tags,
         extra: {
-          args: args.map((arg) => {
+          args: args.map(arg => {
             if (typeof arg === 'object' && arg !== null) {
               try {
-                return JSON.stringify(arg).slice(0, 500);
-              } catch {
-                return '[Object]';
+                return JSON.stringify(arg).slice(0, 500)
+              } catch (error) {
+                return '[Object]'
               }
             }
-            return arg;
+            return arg
           }),
         },
-      });
-      throw error;
+      })
+      throw error
     }
-  }) as T;
+  }) as T
 }
 
 /**
@@ -190,11 +191,11 @@ export function handleApiError(error: unknown, endpoint: string) {
         statusText: error.statusText,
         url: error.url,
       },
-    });
+    })
     return {
       message: `API request failed with status ${error.status}`,
       status: error.status,
-    };
+    }
   }
 
   if (error instanceof Error) {
@@ -203,11 +204,11 @@ export function handleApiError(error: unknown, endpoint: string) {
       tags: {
         endpoint,
       },
-    });
+    })
     return {
       message: error.message,
       status: 0,
-    };
+    }
   }
 
   captureError(String(error), {
@@ -215,25 +216,21 @@ export function handleApiError(error: unknown, endpoint: string) {
     tags: {
       endpoint,
     },
-  });
+  })
 
   return {
     message: 'Unknown error occurred',
     status: 0,
-  };
+  }
 }
 
 /**
  * Log breadcrumb for debugging
  */
-export function addBreadcrumb(
-  message: string,
-  category: string,
-  data?: Record<string, unknown>
-) {
+export function addBreadcrumb(message: string, category: string, data?: Record<string, unknown>) {
   Sentry.addBreadcrumb({
     message,
     category,
     data,
-  });
+  })
 }

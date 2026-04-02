@@ -38,13 +38,13 @@ X-User-Id: <user-id>
 
 ## 端点列表
 
-| 方法 | 端点 | 描述 |
-|------|------|------|
-| `GET` | `/api/ratings` | 获取评分列表 |
-| `POST` | `/api/ratings` | 创建评分 |
-| `GET` | `/api/ratings/:id` | 获取单个评分 |
-| `DELETE` | `/api/ratings/:id` | 删除评分 |
-| `POST` | `/api/ratings/:id/helpful` | 标记评分是否有帮助 |
+| 方法     | 端点                       | 描述               |
+| -------- | -------------------------- | ------------------ |
+| `GET`    | `/api/ratings`             | 获取评分列表       |
+| `POST`   | `/api/ratings`             | 创建评分           |
+| `GET`    | `/api/ratings/:id`         | 获取单个评分       |
+| `DELETE` | `/api/ratings/:id`         | 删除评分           |
+| `POST`   | `/api/ratings/:id/helpful` | 标记评分是否有帮助 |
 
 ---
 
@@ -54,30 +54,30 @@ X-User-Id: <user-id>
 
 ### 请求参数
 
-| 参数 | 类型 | 必需 | 默认值 | 描述 |
-|------|------|------|--------|------|
-| `user_id` | string | 否 | - | 用户 ID |
-| `target_type` | string | 否 | - | 目标类型 |
-| `target_id` | string | 否 | - | 目标 ID |
-| `rating_min` | number | 否 | - | 最小评分 (1-5) |
-| `rating_max` | number | 否 | - | 最大评分 (1-5) |
-| `status` | string | 否 | - | 状态过滤 |
-| `start_date` | string | 否 | - | 开始日期 (ISO 格式) |
-| `end_date` | string | 否 | - | 结束日期 (ISO 格式) |
-| `sort_by` | string | 否 | `created_at` | 排序字段 (`created_at` \| `rating`) |
-| `sort_order` | string | 否 | `desc` | 排序方向 (`asc` \| `desc`) |
-| `page` | number | 否 | 1 | 页码 |
-| `per_page` | number | 否 | 20 | 每页数量 (最大 100) |
+| 参数          | 类型   | 必需 | 默认值       | 描述                                |
+| ------------- | ------ | ---- | ------------ | ----------------------------------- |
+| `user_id`     | string | 否   | -            | 用户 ID                             |
+| `target_type` | string | 否   | -            | 目标类型                            |
+| `target_id`   | string | 否   | -            | 目标 ID                             |
+| `rating_min`  | number | 否   | -            | 最小评分 (1-5)                      |
+| `rating_max`  | number | 否   | -            | 最大评分 (1-5)                      |
+| `status`      | string | 否   | -            | 状态过滤                            |
+| `start_date`  | string | 否   | -            | 开始日期 (ISO 格式)                 |
+| `end_date`    | string | 否   | -            | 结束日期 (ISO 格式)                 |
+| `sort_by`     | string | 否   | `created_at` | 排序字段 (`created_at` \| `rating`) |
+| `sort_order`  | string | 否   | `desc`       | 排序方向 (`asc` \| `desc`)          |
+| `page`        | number | 否   | 1            | 页码                                |
+| `per_page`    | number | 否   | 20           | 每页数量 (最大 100)                 |
 
 ### 目标类型 (target_type)
 
-| 值 | 描述 |
-|------|------|
-| `agent` | AI Agent 评分 |
-| `task` | 任务评分 |
-| `feature` | 功能特性评分 |
-| `project` | 项目评分 |
-| `overall` | 整体评分 |
+| 值        | 描述          |
+| --------- | ------------- |
+| `agent`   | AI Agent 评分 |
+| `task`    | 任务评分      |
+| `feature` | 功能特性评分  |
+| `project` | 项目评分      |
+| `overall` | 整体评分      |
 
 ### 请求示例
 
@@ -97,17 +97,14 @@ curl -X GET "https://7zi.com/api/ratings?rating_min=4&rating_max=5" \
 
 ```javascript
 // 使用 fetch
-const response = await fetch(
-  '/api/ratings?target_type=agent&page=1&per_page=20',
-  {
-    headers: {
-      'Authorization': `Bearer ${token}`,
-    },
-  }
-);
+const response = await fetch('/api/ratings?target_type=agent&page=1&per_page=20', {
+  headers: {
+    Authorization: `Bearer ${token}`,
+  },
+})
 
-const data = await response.json();
-console.log(data.ratings);
+const data = await response.json()
+console.log(data.ratings)
 ```
 
 ### 响应格式
@@ -156,23 +153,23 @@ console.log(data.ratings);
 
 ### 响应字段说明
 
-| 字段 | 类型 | 描述 |
-|------|------|------|
-| `ratings` | array | 评分列表 |
-| `ratings[].id` | string | 评分唯一 ID |
-| `ratings[].user_id` | string | 用户 ID |
-| `ratings[].target_type` | string | 目标类型 |
-| `ratings[].target_id` | string | 目标 ID |
-| `ratings[].rating` | number | 评分 (1-5) |
-| `ratings[].title` | string | 标题 |
-| `ratings[].description` | string | 描述 |
-| `ratings[].verified` | boolean | 是否已验证 |
-| `ratings[].helpful_count` | number | 有帮助票数 |
-| `ratings[].not_helpful_count` | number | 无帮助票数 |
-| `meta` | object | 分页信息 |
-| `stats` | object | 统计信息 |
-| `stats.average` | number | 平均评分 |
-| `stats.byRating` | object | 各评分数量分布 |
+| 字段                          | 类型    | 描述           |
+| ----------------------------- | ------- | -------------- |
+| `ratings`                     | array   | 评分列表       |
+| `ratings[].id`                | string  | 评分唯一 ID    |
+| `ratings[].user_id`           | string  | 用户 ID        |
+| `ratings[].target_type`       | string  | 目标类型       |
+| `ratings[].target_id`         | string  | 目标 ID        |
+| `ratings[].rating`            | number  | 评分 (1-5)     |
+| `ratings[].title`             | string  | 标题           |
+| `ratings[].description`       | string  | 描述           |
+| `ratings[].verified`          | boolean | 是否已验证     |
+| `ratings[].helpful_count`     | number  | 有帮助票数     |
+| `ratings[].not_helpful_count` | number  | 无帮助票数     |
+| `meta`                        | object  | 分页信息       |
+| `stats`                       | object  | 统计信息       |
+| `stats.average`               | number  | 平均评分       |
+| `stats.byRating`              | object  | 各评分数量分布 |
 
 ---
 
@@ -184,14 +181,14 @@ console.log(data.ratings);
 
 ```typescript
 interface CreateRatingDto {
-  target_type: 'agent' | 'task' | 'feature' | 'project' | 'overall';
-  target_id: string;
-  rating: number; // 1-5
-  title?: string; // 最多 100 字符
-  description?: string; // 最多 1000 字符
-  user_id?: string; // 可选，默认从 Token 获取
-  verified?: boolean;
-  metadata?: Record<string, unknown>;
+  target_type: 'agent' | 'task' | 'feature' | 'project' | 'overall'
+  target_id: string
+  rating: number // 1-5
+  title?: string // 最多 100 字符
+  description?: string // 最多 1000 字符
+  user_id?: string // 可选，默认从 Token 获取
+  verified?: boolean
+  metadata?: Record<string, unknown>
 }
 ```
 
@@ -215,7 +212,7 @@ curl -X POST "https://7zi.com/api/ratings" \
 const response = await fetch('/api/ratings', {
   method: 'POST',
   headers: {
-    'Authorization': `Bearer ${token}`,
+    Authorization: `Bearer ${token}`,
     'Content-Type': 'application/json',
   },
   body: JSON.stringify({
@@ -225,10 +222,10 @@ const response = await fetch('/api/ratings', {
     title: '非常高效！',
     description: '这个 AI 助手很好地完成了任务。',
   }),
-});
+})
 
-const data = await response.json();
-console.log(data);
+const data = await response.json()
+console.log(data)
 ```
 
 ### 响应格式
@@ -382,7 +379,7 @@ curl -X DELETE "https://7zi.com/api/ratings/rating-001" \
 
 ```typescript
 interface HelpfulVoteDto {
-  is_helpful: boolean;
+  is_helpful: boolean
 }
 ```
 
@@ -406,14 +403,14 @@ curl -X POST "https://7zi.com/api/ratings/rating-001/helpful" \
 const response = await fetch('/api/ratings/rating-001/helpful', {
   method: 'POST',
   headers: {
-    'Authorization': `Bearer ${token}`,
+    Authorization: `Bearer ${token}`,
     'Content-Type': 'application/json',
   },
   body: JSON.stringify({ is_helpful: true }),
-});
+})
 
-const data = await response.json();
-console.log(data);
+const data = await response.json()
+console.log(data)
 ```
 
 ### 响应格式
@@ -435,13 +432,13 @@ console.log(data);
 
 ## 错误码
 
-| HTTP 状态码 | 错误码 | 描述 |
-|------------|--------|------|
-| 400 | `VALIDATION_ERROR` | 参数验证失败 |
-| 401 | `UNAUTHORIZED` | 未授权或反垃圾检测失败 |
-| 403 | `FORBIDDEN` | 无权限 |
-| 404 | `NOT_FOUND` | 评分不存在 |
-| 500 | `INTERNAL_ERROR` | 服务器内部错误 |
+| HTTP 状态码 | 错误码             | 描述                   |
+| ----------- | ------------------ | ---------------------- |
+| 400         | `VALIDATION_ERROR` | 参数验证失败           |
+| 401         | `UNAUTHORIZED`     | 未授权或反垃圾检测失败 |
+| 403         | `FORBIDDEN`        | 无权限                 |
+| 404         | `NOT_FOUND`        | 评分不存在             |
+| 500         | `INTERNAL_ERROR`   | 服务器内部错误         |
 
 ### 错误响应示例
 
@@ -467,19 +464,19 @@ console.log(data);
 
 ```typescript
 interface Rating {
-  id: string;
-  user_id: string;
-  target_type: 'agent' | 'task' | 'feature' | 'project' | 'overall';
-  target_id: string;
-  rating: number; // 1-5
-  title?: string;
-  description?: string;
-  verified: boolean;
-  helpful_count: number;
-  not_helpful_count: number;
-  created_at: string; // ISO 时间戳
-  updated_at: string; // ISO 时间戳
-  metadata?: Record<string, unknown>;
+  id: string
+  user_id: string
+  target_type: 'agent' | 'task' | 'feature' | 'project' | 'overall'
+  target_id: string
+  rating: number // 1-5
+  title?: string
+  description?: string
+  verified: boolean
+  helpful_count: number
+  not_helpful_count: number
+  created_at: string // ISO 时间戳
+  updated_at: string // ISO 时间戳
+  metadata?: Record<string, unknown>
 }
 ```
 
@@ -487,18 +484,18 @@ interface Rating {
 
 ```typescript
 interface RatingFilters {
-  user_id?: string;
-  target_type?: string;
-  target_id?: string;
-  rating_min?: number;
-  rating_max?: number;
-  status?: string;
-  start_date?: string;
-  end_date?: string;
-  sort_by?: 'created_at' | 'rating';
-  sort_order?: 'asc' | 'desc';
-  page?: number;
-  per_page?: number;
+  user_id?: string
+  target_type?: string
+  target_id?: string
+  rating_min?: number
+  rating_max?: number
+  status?: string
+  start_date?: string
+  end_date?: string
+  sort_by?: 'created_at' | 'rating'
+  sort_order?: 'asc' | 'desc'
+  page?: number
+  per_page?: number
 }
 ```
 
@@ -506,12 +503,12 @@ interface RatingFilters {
 
 ## 限流策略
 
-| 端点 | 限制 | 说明 |
-|------|------|------|
-| `GET /api/ratings` | 100 请求/分钟 | 查询操作 |
-| `POST /api/ratings` | 20 请求/分钟 | 创建操作 |
-| `DELETE /api/ratings/:id` | 10 请求/分钟 | 删除操作 |
-| `POST /api/ratings/:id/helpful` | 30 请求/分钟 | 投票操作 |
+| 端点                            | 限制          | 说明     |
+| ------------------------------- | ------------- | -------- |
+| `GET /api/ratings`              | 100 请求/分钟 | 查询操作 |
+| `POST /api/ratings`             | 20 请求/分钟  | 创建操作 |
+| `DELETE /api/ratings/:id`       | 10 请求/分钟  | 删除操作 |
+| `POST /api/ratings/:id/helpful` | 30 请求/分钟  | 投票操作 |
 
 ---
 
@@ -522,11 +519,9 @@ interface RatingFilters {
 ```javascript
 // 使用分页避免一次加载过多数据
 const fetchRatings = async (page = 1, perPage = 20) => {
-  const response = await fetch(
-    `/api/ratings?page=${page}&per_page=${perPage}`
-  );
-  return response.json();
-};
+  const response = await fetch(`/api/ratings?page=${page}&per_page=${perPage}`)
+  return response.json()
+}
 ```
 
 ### 2. 错误处理
@@ -537,17 +532,17 @@ try {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify(ratingData),
-  });
+  })
 
   if (!response.ok) {
-    const error = await response.json();
-    throw new Error(error.error.message);
+    const error = await response.json()
+    throw new Error(error.error.message)
   }
 
-  const data = await response.json();
-  console.log('Rating created:', data);
+  const data = await response.json()
+  console.log('Rating created:', data)
 } catch (error) {
-  console.error('Failed to create rating:', error.message);
+  console.error('Failed to create rating:', error.message)
 }
 ```
 
@@ -555,21 +550,21 @@ try {
 
 ```javascript
 // 使用 loading 状态防止重复提交
-const [isSubmitting, setIsSubmitting] = useState(false);
+const [isSubmitting, setIsSubmitting] = useState(false)
 
-const submitRating = async (ratingData) => {
-  if (isSubmitting) return;
+const submitRating = async ratingData => {
+  if (isSubmitting) return
 
-  setIsSubmitting(true);
+  setIsSubmitting(true)
   try {
     await fetch('/api/ratings', {
       method: 'POST',
       body: JSON.stringify(ratingData),
-    });
+    })
   } finally {
-    setIsSubmitting(false);
+    setIsSubmitting(false)
   }
-};
+}
 ```
 
 ---

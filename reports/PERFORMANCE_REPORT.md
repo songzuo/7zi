@@ -8,35 +8,38 @@
 
 ## 📊 执行摘要
 
-| 指标 | 数值 | 评级 |
-|------|------|------|
-| **TTFB (首字节时间)** | ~9ms | ✅ 优秀 |
-| **页面加载时间** | ~10ms | ✅ 优秀 |
-| **HTML 大小** | 146KB | ⚠️ 需关注 |
-| **服务器响应速度** | 15MB/s | ✅ 优秀 |
-| **构建输出** | standalone | ✅ 生产就绪 |
+| 指标                  | 数值       | 评级        |
+| --------------------- | ---------- | ----------- |
+| **TTFB (首字节时间)** | ~9ms       | ✅ 优秀     |
+| **页面加载时间**      | ~10ms      | ✅ 优秀     |
+| **HTML 大小**         | 146KB      | ⚠️ 需关注   |
+| **服务器响应速度**    | 15MB/s     | ✅ 优秀     |
+| **构建输出**          | standalone | ✅ 生产就绪 |
 
 ---
 
 ## 🎯 Core Web Vitals 分析
 
 ### 1. LCP (Largest Contentful Paint)
+
 - **预估时间**: < 1.0s ✅
-- **影响因素**: 
+- **影响因素**:
   - 首页 Hero 区域使用渐变背景和动画
   - 字体预加载已配置
   - 无大型首屏图片阻塞
 
 ### 2. FID (First Input Delay)
+
 - **预估时间**: < 50ms ✅
-- **优化措施**: 
+- **优化措施**:
   - 使用 async 加载非关键 JS
   - React 19 并发特性启用
   - 主线程任务拆分良好
 
 ### 3. CLS (Cumulative Layout Shift)
+
 - **预估分数**: < 0.05 ✅
-- **优化措施**: 
+- **优化措施**:
   - 图片尺寸预留
   - 字体预加载避免闪烁
   - 骨架屏加载状态
@@ -49,11 +52,11 @@
 
 #### 1. JavaScript Bundle 体积过大
 
-| 文件 | 大小 | 问题 |
-|------|------|------|
+| 文件                  | 大小  | 问题                        |
+| --------------------- | ----- | --------------------------- |
 | `0091fad7ad610f92.js` | 223KB | 最大的 JS chunk，可能是主包 |
-| `96eddf29c5bdd382.js` | 115KB | 第二大 chunk |
-| `a6dad97d9634a72d.js` | 113KB | 可能包含重复代码 |
+| `96eddf29c5bdd382.js` | 115KB | 第二大 chunk                |
+| `a6dad97d9634a72d.js` | 113KB | 可能包含重复代码            |
 
 **影响**: 增加首次加载时间，特别是移动端用户
 
@@ -73,10 +76,10 @@
 
 ```json
 {
-  "@sentry/nextjs": "^10.42.0",  // 监控 SDK
-  "next-intl": "^4.8.3",         // 国际化
-  "zustand": "^5.0.11",          // 状态管理
-  "web-vitals": "^4.2.4"         // 性能监控
+  "@sentry/nextjs": "^10.42.0", // 监控 SDK
+  "next-intl": "^4.8.3", // 国际化
+  "zustand": "^5.0.11", // 状态管理
+  "web-vitals": "^4.2.4" // 性能监控
 }
 ```
 
@@ -198,7 +201,7 @@ const AIChat = dynamic(() => import('@/components/AIChat'), {
 
 ```typescript
 // sentry.client.config.ts
-import * as Sentry from '@sentry/nextjs';
+import * as Sentry from '@sentry/nextjs'
 
 Sentry.init({
   dsn: process.env.NEXT_PUBLIC_SENTRY_DSN,
@@ -206,7 +209,7 @@ Sentry.init({
   profilesSampleRate: 0.05, // 降低到 5%
   // 仅在生产环境启用
   enabled: process.env.NODE_ENV === 'production',
-});
+})
 ```
 
 #### 3. 精简 CSS 动画
@@ -226,7 +229,7 @@ const CACHE_STRATEGIES = {
   static: 'cache-first',
   api: 'network-first',
   images: 'stale-while-revalidate',
-};
+}
 ```
 
 #### 5. 优化首页 HTML 大小
@@ -250,14 +253,14 @@ const CACHE_STRATEGIES = {
 
 ```typescript
 // Next.js 15+ 特性
-export const experimental_ppr = true;
+export const experimental_ppr = true
 ```
 
 #### 8. 考虑 Edge Runtime
 
 ```typescript
 // API 路由使用 Edge Runtime
-export const runtime = 'edge';
+export const runtime = 'edge'
 ```
 
 ---
@@ -268,12 +271,12 @@ export const runtime = 'edge';
 
 ```typescript
 // 已集成 web-vitals
-import { onCLS, onFID, onLCP, onINP } from 'web-vitals';
+import { onCLS, onFID, onLCP, onINP } from 'web-vitals'
 
-onCLS(console.log);
-onFID(console.log);
-onLCP(console.log);
-onINP(console.log);
+onCLS(console.log)
+onFID(console.log)
+onLCP(console.log)
+onINP(console.log)
 ```
 
 ### 2. 添加性能预算
@@ -312,13 +315,13 @@ onINP(console.log);
 
 ## 🎯 性能目标
 
-| 指标 | 当前 | 目标 | 时间框架 |
-|------|------|------|----------|
-| 最大 JS Chunk | 223KB | < 150KB | 2 周 |
-| HTML 大小 | 146KB | < 100KB | 1 周 |
-| LCP | < 1.0s | < 0.8s | 1 个月 |
-| CLS | < 0.05 | < 0.03 | 2 周 |
-| TTI | ~1.5s | < 1.2s | 1 个月 |
+| 指标          | 当前   | 目标    | 时间框架 |
+| ------------- | ------ | ------- | -------- |
+| 最大 JS Chunk | 223KB  | < 150KB | 2 周     |
+| HTML 大小     | 146KB  | < 100KB | 1 周     |
+| LCP           | < 1.0s | < 0.8s  | 1 个月   |
+| CLS           | < 0.05 | < 0.03  | 2 周     |
+| TTI           | ~1.5s  | < 1.2s  | 1 个月   |
 
 ---
 

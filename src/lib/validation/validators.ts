@@ -1,7 +1,7 @@
 /**
  * 内置验证规则
  */
-import type { ValidationRule } from './types';
+import type { ValidationRule } from './types'
 import {
   getRequiredErrorMessage,
   getMinLengthErrorMessage,
@@ -14,7 +14,7 @@ import {
   getNumericErrorMessage,
   getIntegerErrorMessage,
   getConfirmPasswordErrorMessage,
-} from './helpers';
+} from './helpers'
 
 /**
  * 验证器工厂函数 - 减少重复代码
@@ -25,11 +25,11 @@ function createValidator(
 ): ValidationRule {
   return {
     rule: (value: string) => {
-      if (!value) return true; // 空值由 required 处理
-      return rule(value);
+      if (!value) return true // 空值由 required 处理
+      return rule(value)
     },
     message: messageGenerator(),
-  };
+  }
 }
 
 /**
@@ -42,11 +42,11 @@ function createValidatorWithParam<T>(
 ): ValidationRule {
   return {
     rule: (value: string) => {
-      if (!value) return true; // 空值由 required 处理
-      return rule(value, param);
+      if (!value) return true // 空值由 required 处理
+      return rule(value, param)
     },
     message: messageGenerator(param),
-  };
+  }
 }
 
 /**
@@ -60,11 +60,11 @@ function createValidatorWithTwoParams<T, U>(
 ): ValidationRule {
   return {
     rule: (value: string) => {
-      if (!value) return true; // 空值由 required 处理
-      return rule(value, param1, param2);
+      if (!value) return true // 空值由 required 处理
+      return rule(value, param1, param2)
     },
     message: messageGenerator(param1, param2),
-  };
+  }
 }
 
 /**
@@ -73,12 +73,12 @@ function createValidatorWithTwoParams<T, U>(
 export const required = (message?: string): ValidationRule<unknown> => ({
   rule: (value: unknown) => {
     if (typeof value === 'string') {
-      return value.trim().length > 0;
+      return value.trim().length > 0
     }
-    return value !== null && value !== undefined;
+    return value !== null && value !== undefined
   },
   message: getRequiredErrorMessage(message),
-});
+})
 
 /**
  * 邮箱验证
@@ -87,7 +87,7 @@ export const email = (message?: string): ValidationRule =>
   createValidator(
     (value: string) => /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(value),
     () => getEmailErrorMessage(message)
-  );
+  )
 
 /**
  * 最小长度验证
@@ -96,8 +96,8 @@ export const minLength = (min: number, message?: string): ValidationRule =>
   createValidatorWithParam(
     (value: string, m: number) => value.length >= m,
     min,
-    (m) => getMinLengthErrorMessage(m, message)
-  );
+    m => getMinLengthErrorMessage(m, message)
+  )
 
 /**
  * 最大长度验证
@@ -106,8 +106,8 @@ export const maxLength = (max: number, message?: string): ValidationRule =>
   createValidatorWithParam(
     (value: string, m: number) => value.length <= m,
     max,
-    (m) => getMaxLengthErrorMessage(m, message)
-  );
+    m => getMaxLengthErrorMessage(m, message)
+  )
 
 /**
  * 正则表达式验证
@@ -116,7 +116,7 @@ export const pattern = (regex: RegExp, message?: string): ValidationRule =>
   createValidator(
     (value: string) => regex.test(value),
     () => getPatternErrorMessage(message)
-  );
+  )
 
 /**
  * 手机号验证（中国）
@@ -125,7 +125,7 @@ export const phone = (message?: string): ValidationRule =>
   createValidator(
     (value: string) => /^1[3-9]\d{9}$/.test(value),
     () => getPhoneErrorMessage(message)
-  );
+  )
 
 /**
  * URL 验证
@@ -134,14 +134,14 @@ export const url = (message?: string): ValidationRule =>
   createValidator(
     (value: string) => {
       try {
-        const parsed = new URL(value);
-        return ['http:', 'https:', 'ftp:', 'ftps:'].includes(parsed.protocol);
-      } catch {
-        return false;
+        const parsed = new URL(value)
+        return ['http:', 'https:', 'ftp:', 'ftps:'].includes(parsed.protocol)
+      } catch (error) {
+        return false
       }
     },
     () => getUrlErrorMessage(message)
-  );
+  )
 
 /**
  * 数字验证
@@ -150,7 +150,7 @@ export const numeric = (message?: string): ValidationRule =>
   createValidator(
     (value: string) => !isNaN(Number(value)) && !isNaN(parseFloat(value)),
     () => getNumericErrorMessage(message)
-  );
+  )
 
 /**
  * 整数验证
@@ -159,7 +159,7 @@ export const integer = (message?: string): ValidationRule =>
   createValidator(
     (value: string) => /^-?\d+$/.test(value),
     () => getIntegerErrorMessage(message)
-  );
+  )
 
 /**
  * 范围验证（数字）
@@ -167,27 +167,24 @@ export const integer = (message?: string): ValidationRule =>
 export const range = (min: number, max: number, message?: string): ValidationRule =>
   createValidatorWithTwoParams(
     (value: string, mn: number, mx: number) => {
-      const num = parseFloat(value);
-      return !isNaN(num) && num >= mn && num <= mx;
+      const num = parseFloat(value)
+      return !isNaN(num) && num >= mn && num <= mx
     },
     min,
     max,
     (mn, mx) => getRangeErrorMessage(mn, mx, message)
-  );
+  )
 
 /**
  * 确认密码验证
  */
-export const confirmPassword = (
-  getPassword: () => string,
-  message?: string
-): ValidationRule => ({
+export const confirmPassword = (getPassword: () => string, message?: string): ValidationRule => ({
   rule: (value: string) => {
-    if (!value) return true;
-    return value === getPassword();
+    if (!value) return true
+    return value === getPassword()
   },
   message: getConfirmPasswordErrorMessage(message),
-});
+})
 
 /**
  * 组合多个验证规则
@@ -196,12 +193,12 @@ export const compose = (...rules: ValidationRule[]) => {
   return (value: string): string | null => {
     for (const { rule, message } of rules) {
       if (!rule(value)) {
-        return message;
+        return message
       }
     }
-    return null;
-  };
-};
+    return null
+  }
+}
 
 /**
  * 验证规则集合
@@ -219,9 +216,9 @@ export const validators = {
   range,
   confirmPassword,
   compose,
-};
+}
 
 // 导出辅助函数
-export * from './helpers';
+export * from './helpers'
 
-export default validators;
+export default validators

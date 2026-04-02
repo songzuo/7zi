@@ -1,17 +1,20 @@
 # ADR-0004: 启用 TypeScript Strict Mode
 
 ## 状态
+
 Accepted
 
 ## 上下文
 
 项目使用 TypeScript，但未启用 Strict Mode，导致：
+
 - 类型安全问题（`any` 类型滥用）
 - 运行时错误（未捕获的类型错误）
 - 代码质量不一致
 - IDE 智能提示不完整
 
 在开发过程中遇到的典型问题：
+
 - `null`/`undefined` 未处理导致运行时错误
 - 对象属性访问未检查是否存在
 - 类型推断不准确
@@ -56,10 +59,12 @@ Accepted
 ### 替代方案 1: 不启用 Strict Mode
 
 **优点**:
+
 - 快速开发
 - 无类型错误修复成本
 
 **缺点**:
+
 - 类型安全问题
 - 运行时错误风险
 - 代码质量不一致
@@ -69,10 +74,12 @@ Accepted
 ### 替代方案 2: 部分启用 Strict Mode
 
 **优点**:
+
 - 渐进式迁移
 - 较小的改动成本
 
 **缺点**:
+
 - 配置复杂
 - 类型检查不一致
 
@@ -97,6 +104,7 @@ Accepted
 ### 迁移策略
 
 1. **启用 Strict Mode**:
+
    ```bash
    # 更新 tsconfig.json
    # 运行类型检查
@@ -111,19 +119,21 @@ Accepted
 3. **示例修复**:
 
    **Before**:
+
    ```typescript
    function getUser(id: string) {
-     const user = db.find(id); // any
-     return user.name; // 运行时可能错误
+     const user = db.find(id) // any
+     return user.name // 运行时可能错误
    }
    ```
 
    **After**:
+
    ```typescript
    function getUser(id: string): User | null {
-     const user = db.find(id);
-     if (!user) return null;
-     return user;
+     const user = db.find(id)
+     if (!user) return null
+     return user
    }
    ```
 

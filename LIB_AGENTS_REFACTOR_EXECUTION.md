@@ -11,14 +11,14 @@
 
 ### 1.1 完成情况
 
-| 阶段 | 状态 | 时间 |
-|------|------|------|
-| Phase 1: 备份和准备 | ✅ 完成 | 5分钟 |
-| Phase 2: 目录调整 | ✅ 完成 | 2分钟 |
-| Phase 3: 更新导入路径 | ✅ 完成 | 5分钟 |
-| Phase 4: 更新导出文件 | ✅ 完成 | 5分钟 |
-| Phase 5: 测试验证 | ⏳ 进行中 | - |
-| Phase 6: 文档更新 | ⏳ 待执行 | - |
+| 阶段                  | 状态      | 时间  |
+| --------------------- | --------- | ----- |
+| Phase 1: 备份和准备   | ✅ 完成   | 5分钟 |
+| Phase 2: 目录调整     | ✅ 完成   | 2分钟 |
+| Phase 3: 更新导入路径 | ✅ 完成   | 5分钟 |
+| Phase 4: 更新导出文件 | ✅ 完成   | 5分钟 |
+| Phase 5: 测试验证     | ⏳ 进行中 | -     |
+| Phase 6: 文档更新     | ⏳ 待执行 | -     |
 
 ### 1.2 主要变更
 
@@ -46,6 +46,7 @@
 ## 二、目录结构对比
 
 ### 2.1 重构前
+
 ```
 src/lib/agents/
 ├── a2a/
@@ -60,6 +61,7 @@ src/lib/agents/
 ```
 
 ### 2.2 重构后
+
 ```
 src/lib/agents/
 ├── a2a/                          # A2A 协议
@@ -86,32 +88,34 @@ src/lib/agents/
 
 ### 3.1 文件移动
 
-| 原路径 | 新路径 | 操作 |
-|--------|--------|------|
-| `src/lib/agents/agent/` | `src/lib/agents/core/` | 重命名 |
-| `src/lib/agents/agent/communication/` | `src/lib/agents/communication/` | 移动 |
+| 原路径                                | 新路径                          | 操作   |
+| ------------------------------------- | ------------------------------- | ------ |
+| `src/lib/agents/agent/`               | `src/lib/agents/core/`          | 重命名 |
+| `src/lib/agents/agent/communication/` | `src/lib/agents/communication/` | 移动   |
 
 ### 3.2 文件修改
 
-| 文件 | 修改类型 | 变更 |
-|------|----------|------|
-| `src/lib/agents/index.ts` | 重写 | 新统一导出 + 向后兼容 |
-| `src/lib/db/__tests__/optimization.test.ts` | 导入路径 | `agent/` → `core/` |
+| 文件                                        | 修改类型 | 变更                  |
+| ------------------------------------------- | -------- | --------------------- |
+| `src/lib/agents/index.ts`                   | 重写     | 新统一导出 + 向后兼容 |
+| `src/lib/db/__tests__/optimization.test.ts` | 导入路径 | `agent/` → `core/`    |
 
 ### 3.3 导出结构
 
 **新导出（推荐使用）**:
+
 ```typescript
 // 统一导出所有模块
-export * from './core';
-export * from './scheduler';
-export * from './a2a';
-export * from './communication';
-export * from './learning';
-export * from './tools';
+export * from './core'
+export * from './scheduler'
+export * from './a2a'
+export * from './communication'
+export * from './learning'
+export * from './tools'
 ```
 
 **向后兼容导出（已废弃）**:
+
 ```typescript
 // 旧导出路径仍然可用（通过 index.ts 重新导出）
 export { ... } from './core/auth-service';
@@ -126,38 +130,42 @@ export { ... } from './core/repository';
 ### 4.1 外部影响
 
 **直接导入检查**:
+
 - ✅ 只找到 1 个文件使用 `@/lib/agents/agent/`
 - ✅ 已修复该文件
 
 **使用统计**:
+
 - 总使用次数: ~28 个文件（来自 `@/lib/agents/`）
 - 影响范围: 极小（大部分从 `@/lib/agents/` 统一导入）
 
 ### 4.2 向后兼容性
 
-| 旧导入路径 | 新导入路径 | 状态 |
-|------------|------------|------|
-| `@/lib/agents/agent/...` | `@/lib/agents/core/...` | ✅ 已修复 |
+| 旧导入路径                             | 新导入路径                       | 状态      |
+| -------------------------------------- | -------------------------------- | --------- |
+| `@/lib/agents/agent/...`               | `@/lib/agents/core/...`          | ✅ 已修复 |
 | `@/lib/agents/agent/communication/...` | `@/lib/agents/communication/...` | ✅ 已修复 |
-| `@/lib/agents/` | `@/lib/agents/` | ✅ 无变化 |
-| `@/lib/agents/a2a/` | `@/lib/agents/a2a/` | ✅ 无变化 |
-| `@/lib/agents/scheduler/` | `@/lib/agents/scheduler/` | ✅ 无变化 |
+| `@/lib/agents/`                        | `@/lib/agents/`                  | ✅ 无变化 |
+| `@/lib/agents/a2a/`                    | `@/lib/agents/a2a/`              | ✅ 无变化 |
+| `@/lib/agents/scheduler/`              | `@/lib/agents/scheduler/`        | ✅ 无变化 |
 
 ### 4.3 迁移指南
 
 **对于开发者**:
+
 1. 新代码使用: `@/lib/agents/core/...`
 2. 旧代码仍可工作（但会显示 deprecation 警告）
 3. 建议逐步迁移
 
 **示例**:
+
 ```typescript
 // ✅ 新导入方式（推荐）
-import { createAgent } from '@/lib/agents/core/repository';
-import { MessageBuilder } from '@/lib/agents/communication';
+import { createAgent } from '@/lib/agents/core/repository'
+import { MessageBuilder } from '@/lib/agents/communication'
 
 // ⚠️ 旧导入方式（仍然可用）
-import { createAgent } from '@/lib/agents/agent/repository'; // 已废弃
+import { createAgent } from '@/lib/agents/agent/repository' // 已废弃
 ```
 
 ---
@@ -177,24 +185,28 @@ import { createAgent } from '@/lib/agents/agent/repository'; // 已废弃
 ### 5.2 验证方法
 
 **1. 目录结构验证**:
+
 ```bash
 ls -la src/lib/agents/
 # 应该看到: a2a/, communication/, core/, learning/, scheduler/, tools/
 ```
 
 **2. 导入路径检查**:
+
 ```bash
 grep -r "@/lib/agents/agent" src/ --include="*.ts" --include="*.tsx"
 # 应该只看到 index.ts 中的向后兼容导出
 ```
 
 **3. TypeScript 编译**:
+
 ```bash
 npx tsc --noEmit
 # 应该无错误
 ```
 
 **4. 测试套件**:
+
 ```bash
 npm test -- --run
 # 应该所有测试通过
@@ -206,11 +218,11 @@ npm test -- --run
 
 ### 6.1 潜在风险
 
-| 风险 | 概率 | 缓解措施 |
-|------|------|----------|
-| 导入路径遗漏更新 | 低 | grep 全局搜索 |
-| 测试失败 | 中 | 已备份数据 |
-| 运行时错误 | 低 | 导出结构保持一致 |
+| 风险             | 概率 | 缓解措施         |
+| ---------------- | ---- | ---------------- |
+| 导入路径遗漏更新 | 低   | grep 全局搜索    |
+| 测试失败         | 中   | 已备份数据       |
+| 运行时错误       | 低   | 导出结构保持一致 |
 
 ### 6.2 回滚步骤
 
@@ -270,6 +282,7 @@ npm install
 ### 8.1 成果
 
 ✅ **已完成的变更**:
+
 1. 目录结构更清晰 (`core/` vs `agent/`)
 2. 目录嵌套更扁平 (`communication/` 提升)
 3. 保持向后兼容（旧路径仍可用）

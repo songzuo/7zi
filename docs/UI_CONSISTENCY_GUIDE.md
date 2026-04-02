@@ -25,15 +25,16 @@
 
 本次 UI 一致性审查覆盖了 7zi-frontend 项目的所有核心 React 组件和样式文件。共发现 **23 个具体问题**，按严重程度分类：
 
-| 严重程度 | 数量 | 说明 |
-|----------|------|------|
-| 🔴 高 | 6 | 影响用户体验或功能 |
-| 🟡 中 | 10 | 影响一致性或可维护性 |
-| 🟢 低 | 7 | 优化建议 |
+| 严重程度 | 数量 | 说明                 |
+| -------- | ---- | -------------------- |
+| 🔴 高    | 6    | 影响用户体验或功能   |
+| 🟡 中    | 10   | 影响一致性或可维护性 |
+| 🟢 低    | 7    | 优化建议             |
 
 **整体评分**: 7.2/10
 
 **主要发现**:
+
 - ✅ 设计 Token 系统完整且定义清晰
 - ✅ 组件功能丰富，交互体验好
 - ⚠️ 暗色模式颜色设置有误
@@ -51,22 +52,24 @@
 **文件**: `src/app/globals.css:35-38`
 
 **问题代码**:
+
 ```css
 /* ❌ 错误：暗色模式下使用了错误的颜色变量 */
 .dark body {
-  color: var(--color-gray-900);  /* 应该是最亮的文本色 */
-  background-color: var(--color-gray-50);  /* 应该是最深的背景色 */
+  color: var(--color-gray-900); /* 应该是最亮的文本色 */
+  background-color: var(--color-gray-50); /* 应该是最深的背景色 */
 }
 ```
 
 **影响**: 暗色模式下文本颜色和背景颜色互换，导致可读性问题。
 
 **修复后代码**:
+
 ```css
 /* ✅ 正确：暗色模式下使用正确的颜色 */
 .dark body {
-  color: var(--color-gray-800);  /* 亮色文本 */
-  background-color: var(--color-gray-50);  /* 深色背景 (tokens.css 中定义为 #0f172a) */
+  color: var(--color-gray-800); /* 亮色文本 */
+  background-color: var(--color-gray-50); /* 深色背景 (tokens.css 中定义为 #0f172a) */
 }
 ```
 
@@ -77,6 +80,7 @@
 **文件**: `src/app/globals.css:14-19`
 
 **问题代码**:
+
 ```css
 /* ❌ 问题：所有元素都应用过渡，影响性能 */
 * {
@@ -90,13 +94,14 @@
 **影响**: 可能导致滚动和交互性能下降。
 
 **修复后代码**:
+
 ```css
 /* ✅ 修复：仅在需要的元素上应用过渡 */
 body,
 button,
 input,
 a,
-[role="button"],
+[role='button'],
 .card,
 .modal {
   transition:
@@ -113,6 +118,7 @@ a,
 **文件**: `src/components/ui/Modal.tsx:80-85`
 
 **问题代码**:
+
 ```css
 /* ❌ 使用硬编码颜色值 */
 className="... bg-white rounded-lg shadow-2xl ..."
@@ -123,6 +129,7 @@ className="... bg-gray-50 ..."
 **影响**: 样式不一致，暗色模式支持不完整。
 
 **修复后代码**:
+
 ```tsx
 // ✅ 使用 Tailwind 的 dark: 前缀支持暗色模式
 className={clsx(
@@ -144,6 +151,7 @@ className={clsx(
 **影响**: 翻译不一致，维护困难。
 
 **修复建议**:
+
 1. 创建 `src/locales/en/pricing.json` 和 `src/locales/zh/pricing.json`
 2. 重构页面使用 `useTranslation('pricing')` 钩子
 
@@ -166,28 +174,30 @@ className={clsx(
 **文件**: `src/components/ui/Button.tsx:58-65`
 
 **问题代码**:
+
 ```tsx
 // ❌ 未清理 timeout
 const cleanupRipples = useCallback(() => {
   if (rippleTimeoutRef.current) {
-    clearTimeout(rippleTimeoutRef.current);
+    clearTimeout(rippleTimeoutRef.current)
   }
   rippleTimeoutRef.current = setTimeout(() => {
-    setRipples([]);
-  }, 600);
-}, []);
+    setRipples([])
+  }, 600)
+}, [])
 ```
 
 **修复后代码**:
+
 ```tsx
 // ✅ 添加 useEffect 清理
 useEffect(() => {
   return () => {
     if (rippleTimeoutRef.current) {
-      clearTimeout(rippleTimeoutRef.current);
+      clearTimeout(rippleTimeoutRef.current)
     }
-  };
-}, []);
+  }
+}, [])
 ```
 
 ---
@@ -209,12 +219,13 @@ useEffect(() => {
 **文件**: `src/components/rooms/RoomCard.tsx:65-75`
 
 **问题代码**:
+
 ```tsx
 // ❌ 硬编码中文时间格式
-if (days > 0) return `${days}天前`;
-if (hours > 0) return `${hours}小时前`;
-if (minutes > 0) return `${minutes}分钟前`;
-return "刚刚";
+if (days > 0) return `${days}天前`
+if (hours > 0) return `${hours}小时前`
+if (minutes > 0) return `${minutes}分钟前`
+return '刚刚'
 ```
 
 **修复建议**: 使用 i18n 系统或日期格式化库（如 date-fns）。
@@ -226,9 +237,10 @@ return "刚刚";
 **文件**: `src/components/ui/Input.tsx:101-113`
 
 **问题代码**:
+
 ```tsx
 // ❌ Tailwind 不支持 animate-in, fade-in, zoom-in
-className="h-5 w-5 text-green-500 animate-in fade-in zoom-in duration-200"
+className = 'h-5 w-5 text-green-500 animate-in fade-in zoom-in duration-200'
 ```
 
 **修复建议**: 使用 Tailwind 的 `animate-pulse` 或自定义动画。
@@ -250,6 +262,7 @@ className="h-5 w-5 text-green-500 animate-in fade-in zoom-in duration-200"
 **问题描述**: 部分页面使用 `container mx-auto`，部分使用 `max-w-7xl mx-auto`。
 
 **建议**: 统一使用以下模式：
+
 ```tsx
 <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
 ```
@@ -261,6 +274,7 @@ className="h-5 w-5 text-green-500 animate-in fade-in zoom-in duration-200"
 **问题描述**: 页面间使用 `py-8`、`py-12`、`py-16` 等不同间距值。
 
 **建议**: 定义统一的页面间距 token：
+
 ```css
 :root {
   --page-padding-y: 2rem; /* py-8 */
@@ -303,8 +317,9 @@ className="h-5 w-5 text-green-500 animate-in fade-in zoom-in duration-200"
 **问题描述**: loading 状态使用 `opacity-75`，建议使用更明显的视觉反馈。
 
 **建议**:
+
 ```tsx
-loading && "opacity-70 cursor-wait pointer-events-none"
+loading && 'opacity-70 cursor-wait pointer-events-none'
 ```
 
 ---
@@ -357,21 +372,21 @@ loading && "opacity-70 cursor-wait pointer-events-none"
 
 ### 主色调 (Primary)
 
-| Token | 值 | 用途 |
-|-------|-----|------|
-| `--color-primary-50` | `#eff6ff` | 浅背景 |
+| Token                 | 值        | 用途         |
+| --------------------- | --------- | ------------ |
+| `--color-primary-50`  | `#eff6ff` | 浅背景       |
 | `--color-primary-500` | `#3b82f6` | 主按钮、链接 |
-| `--color-primary-600` | `#2563eb` | 悬停状态 |
-| `--color-primary-700` | `#1d4ed8` | 激活状态 |
+| `--color-primary-600` | `#2563eb` | 悬停状态     |
+| `--color-primary-700` | `#1d4ed8` | 激活状态     |
 
 ### 语义色
 
-| 类型 | Token | 值 | 用途 |
-|------|-------|-----|------|
+| 类型 | Token                 | 值        | 用途     |
+| ---- | --------------------- | --------- | -------- |
 | 成功 | `--color-success-500` | `#22c55e` | 成功提示 |
 | 警告 | `--color-warning-500` | `#f59e0b` | 警告提示 |
-| 错误 | `--color-error-500` | `#ef4444` | 错误提示 |
-| 信息 | `--color-info-500` | `#3b82f6` | 信息提示 |
+| 错误 | `--color-error-500`   | `#ef4444` | 错误提示 |
+| 信息 | `--color-info-500`    | `#3b82f6` | 信息提示 |
 
 ### 使用规范
 
@@ -392,10 +407,10 @@ loading && "opacity-70 cursor-wait pointer-events-none"
 
 ### 基础间距
 
-| Token | 值 | Tailwind 类 |
-|-------|-----|-------------|
-| `--spacing-1` | 4px | `p-1`, `m-1` |
-| `--spacing-2` | 8px | `p-2`, `m-2` |
+| Token         | 值   | Tailwind 类  |
+| ------------- | ---- | ------------ |
+| `--spacing-1` | 4px  | `p-1`, `m-1` |
+| `--spacing-2` | 8px  | `p-2`, `m-2` |
 | `--spacing-3` | 12px | `p-3`, `m-3` |
 | `--spacing-4` | 16px | `p-4`, `m-4` |
 | `--spacing-6` | 24px | `p-6`, `m-6` |
@@ -421,21 +436,21 @@ loading && "opacity-70 cursor-wait pointer-events-none"
 ### 字体族
 
 ```css
---font-family-sans: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
---font-family-mono: "JetBrains Mono", "Fira Code", "Consolas", monospace;
+--font-family-sans: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+--font-family-mono: 'JetBrains Mono', 'Fira Code', 'Consolas', monospace;
 ```
 
 ### 字体大小
 
-| Token | 值 | Tailwind 类 | 用途 |
-|-------|-----|-------------|------|
-| `--font-size-xs` | 12px | `text-xs` | 辅助文本 |
-| `--font-size-sm` | 14px | `text-sm` | 正文、标签 |
-| `--font-size-base` | 16px | `text-base` | 正文 |
-| `--font-size-lg` | 18px | `text-lg` | 副标题 |
-| `--font-size-xl` | 20px | `text-xl` | 标题 |
-| `--font-size-2xl` | 24px | `text-2xl` | 大标题 |
-| `--font-size-3xl` | 30px | `text-3xl` | 页面标题 |
+| Token              | 值   | Tailwind 类 | 用途       |
+| ------------------ | ---- | ----------- | ---------- |
+| `--font-size-xs`   | 12px | `text-xs`   | 辅助文本   |
+| `--font-size-sm`   | 14px | `text-sm`   | 正文、标签 |
+| `--font-size-base` | 16px | `text-base` | 正文       |
+| `--font-size-lg`   | 18px | `text-lg`   | 副标题     |
+| `--font-size-xl`   | 20px | `text-xl`   | 标题       |
+| `--font-size-2xl`  | 24px | `text-2xl`  | 大标题     |
+| `--font-size-3xl`  | 30px | `text-3xl`  | 页面标题   |
 
 ### 字重
 
@@ -486,12 +501,7 @@ loading && "opacity-70 cursor-wait pointer-events-none"
 ### Modal 组件
 
 ```tsx
-<Modal
-  isOpen={isOpen}
-  onClose={onClose}
-  title="确认操作"
-  size="md"
->
+<Modal isOpen={isOpen} onClose={onClose} title="确认操作" size="md">
   内容
 </Modal>
 ```
@@ -514,12 +524,12 @@ loading && "opacity-70 cursor-wait pointer-events-none"
 
 ### 颜色映射
 
-| 亮色模式 | 暗色模式 |
-|----------|----------|
-| `bg-white` | `dark:bg-gray-800` |
-| `bg-gray-50` | `dark:bg-gray-900` |
-| `text-gray-900` | `dark:text-white` |
-| `text-gray-600` | `dark:text-gray-400` |
+| 亮色模式          | 暗色模式               |
+| ----------------- | ---------------------- |
+| `bg-white`        | `dark:bg-gray-800`     |
+| `bg-gray-50`      | `dark:bg-gray-900`     |
+| `text-gray-900`   | `dark:text-white`      |
+| `text-gray-600`   | `dark:text-gray-400`   |
 | `border-gray-200` | `dark:border-gray-700` |
 
 ---
@@ -528,30 +538,30 @@ loading && "opacity-70 cursor-wait pointer-events-none"
 
 ### 第1阶段（紧急）- 1-2 天
 
-| 任务 | 文件 | 预估时间 |
-|------|------|----------|
-| 修复暗色模式颜色设置 | `globals.css` | 15 分钟 |
-| 修复全局过渡动画 | `globals.css` | 15 分钟 |
-| 修复 Modal 暗色模式支持 | `Modal.tsx` | 30 分钟 |
-| 修复 Button 内存泄漏 | `Button.tsx` | 15 分钟 |
+| 任务                    | 文件          | 预估时间 |
+| ----------------------- | ------------- | -------- |
+| 修复暗色模式颜色设置    | `globals.css` | 15 分钟  |
+| 修复全局过渡动画        | `globals.css` | 15 分钟  |
+| 修复 Modal 暗色模式支持 | `Modal.tsx`   | 30 分钟  |
+| 修复 Button 内存泄漏    | `Button.tsx`  | 15 分钟  |
 
 ### 第2阶段（重要）- 3-5 天
 
-| 任务 | 文件 | 预估时间 |
-|------|------|----------|
-| 重构 Pricing 页面使用 i18n | `pricing/page.tsx` | 2 小时 |
-| 创建缺失的翻译文件 | `locales/` | 1 小时 |
-| 统一容器和间距规范 | 所有页面 | 2 小时 |
-| 修复房间卡片时间格式 | `RoomCard.tsx` | 30 分钟 |
+| 任务                       | 文件               | 预估时间 |
+| -------------------------- | ------------------ | -------- |
+| 重构 Pricing 页面使用 i18n | `pricing/page.tsx` | 2 小时   |
+| 创建缺失的翻译文件         | `locales/`         | 1 小时   |
+| 统一容器和间距规范         | 所有页面           | 2 小时   |
+| 修复房间卡片时间格式       | `RoomCard.tsx`     | 30 分钟  |
 
 ### 第3阶段（优化）- 1-2 周
 
-| 任务 | 文件 | 预估时间 |
-|------|------|----------|
-| 整合动画定义 | `animations.css` | 1 小时 |
-| 完善可访问性属性 | 所有组件 | 4 小时 |
-| 优化骨架屏和空状态 | 多文件 | 2 小时 |
-| 文档化响应式断点 | 文档 | 1 小时 |
+| 任务               | 文件             | 预估时间 |
+| ------------------ | ---------------- | -------- |
+| 整合动画定义       | `animations.css` | 1 小时   |
+| 完善可访问性属性   | 所有组件         | 4 小时   |
+| 优化骨架屏和空状态 | 多文件           | 2 小时   |
+| 文档化响应式断点   | 文档             | 1 小时   |
 
 ---
 
@@ -593,7 +603,7 @@ body,
 button,
 input,
 a,
-[role="button"],
+[role='button'],
 .card,
 .modal,
 .btn {
@@ -613,22 +623,18 @@ a,
 <div
   ref={modalRef}
   className={clsx(
-    "relative w-full rounded-lg shadow-2xl",
-    "bg-white dark:bg-gray-800",
-    "transform transition-all duration-300",
-    isOpen ? "scale-100 opacity-100" : "scale-95 opacity-0",
+    'relative w-full rounded-lg shadow-2xl',
+    'bg-white dark:bg-gray-800',
+    'transform transition-all duration-300',
+    isOpen ? 'scale-100 opacity-100' : 'scale-95 opacity-0',
     sizeStyles[size],
-    className,
+    className
   )}
   // ...
 >
   {/* 头部 */}
-  <div className="flex items-center justify-between px-6 py-4 border-b border-gray-200 dark:border-gray-700">
-    {title && (
-      <h2 className="text-xl font-semibold text-gray-900 dark:text-white">
-        {title}
-      </h2>
-    )}
+  <div className="flex items-center justify-between border-b border-gray-200 px-6 py-4 dark:border-gray-700">
+    {title && <h2 className="text-xl font-semibold text-gray-900 dark:text-white">{title}</h2>}
     {/* ... */}
   </div>
 
@@ -637,7 +643,7 @@ a,
 
   {/* 页脚 */}
   {footer && (
-    <div className="flex items-center justify-end gap-3 px-6 py-4 border-t border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-900/50 rounded-b-lg">
+    <div className="flex items-center justify-end gap-3 rounded-b-lg border-t border-gray-200 bg-gray-50 px-6 py-4 dark:border-gray-700 dark:bg-gray-900/50">
       {footer}
     </div>
   )}
@@ -653,10 +659,10 @@ a,
 useEffect(() => {
   return () => {
     if (rippleTimeoutRef.current) {
-      clearTimeout(rippleTimeoutRef.current);
+      clearTimeout(rippleTimeoutRef.current)
     }
-  };
-}, []);
+  }
+}, [])
 ```
 
 ### 修复 5: RoomCard.tsx 国际化
@@ -666,23 +672,23 @@ useEffect(() => {
 
 // 修改前
 const formatLastActivity = useMemo(() => {
-  const minutes = Math.floor(diff / 60000);
-  if (days > 0) return `${days}天前`;
+  const minutes = Math.floor(diff / 60000)
+  if (days > 0) return `${days}天前`
   // ...
-}, [room.lastActivityAt]);
+}, [room.lastActivityAt])
 
 // 修改后
-import { useTranslation } from 'react-i18next';
+import { useTranslation } from 'react-i18next'
 
-const { t } = useTranslation('rooms');
+const { t } = useTranslation('rooms')
 
 const formatLastActivity = useMemo(() => {
-  const minutes = Math.floor(diff / 60000);
-  if (days > 0) return t('time.daysAgo', { count: days });
-  if (hours > 0) return t('time.hoursAgo', { count: hours });
-  if (minutes > 0) return t('time.minutesAgo', { count: minutes });
-  return t('time.justNow');
-}, [room.lastActivityAt, t]);
+  const minutes = Math.floor(diff / 60000)
+  if (days > 0) return t('time.daysAgo', { count: days })
+  if (hours > 0) return t('time.hoursAgo', { count: hours })
+  if (minutes > 0) return t('time.minutesAgo', { count: minutes })
+  return t('time.justNow')
+}, [room.lastActivityAt, t])
 ```
 
 ### 新增: locales/zh/rooms.json
@@ -704,24 +710,24 @@ const formatLastActivity = useMemo(() => {
 
 ### 核心组件
 
-| 组件 | 路径 | 状态 |
-|------|------|------|
-| Button | `src/components/ui/Button.tsx` | ✅ 良好 |
-| Card | `src/components/ui/Card.tsx` | ✅ 良好 |
-| Input | `src/components/ui/Input.tsx` | ⚠️ 需修复动画 |
-| Modal | `src/components/ui/Modal.tsx` | ⚠️ 需修复暗色模式 |
-| Loading | `src/components/ui/Loading.tsx` | ✅ 良好 |
-| Skeleton | `src/components/ui/Skeleton.tsx` | ✅ 良好 |
-| EmptyState | `src/components/ui/EmptyState.tsx` | ✅ 良好 |
+| 组件       | 路径                               | 状态              |
+| ---------- | ---------------------------------- | ----------------- |
+| Button     | `src/components/ui/Button.tsx`     | ✅ 良好           |
+| Card       | `src/components/ui/Card.tsx`       | ✅ 良好           |
+| Input      | `src/components/ui/Input.tsx`      | ⚠️ 需修复动画     |
+| Modal      | `src/components/ui/Modal.tsx`      | ⚠️ 需修复暗色模式 |
+| Loading    | `src/components/ui/Loading.tsx`    | ✅ 良好           |
+| Skeleton   | `src/components/ui/Skeleton.tsx`   | ✅ 良好           |
+| EmptyState | `src/components/ui/EmptyState.tsx` | ✅ 良好           |
 
 ### 业务组件
 
-| 组件 | 路径 | 状态 |
-|------|------|------|
-| RoomCard | `src/components/rooms/RoomCard.tsx` | ⚠️ 需国际化 |
-| RoomPanel | `src/components/rooms/RoomPanel.tsx` | ✅ 良好 |
-| TaskCard | `src/components/ui/TaskCard.tsx` | ✅ 良好 |
-| Navigation | `src/components/ui/Navigation.tsx` | ✅ 良好 |
+| 组件       | 路径                                 | 状态        |
+| ---------- | ------------------------------------ | ----------- |
+| RoomCard   | `src/components/rooms/RoomCard.tsx`  | ⚠️ 需国际化 |
+| RoomPanel  | `src/components/rooms/RoomPanel.tsx` | ✅ 良好     |
+| TaskCard   | `src/components/ui/TaskCard.tsx`     | ✅ 良好     |
+| Navigation | `src/components/ui/Navigation.tsx`   | ✅ 良好     |
 
 ---
 

@@ -50,60 +50,60 @@ The Performance Monitoring Alerting System provides a comprehensive solution for
 ### Basic Usage
 
 ```typescript
-import { AlertEngine, SlackAlertChannel, EmailAlertChannel } from "@/lib/monitoring";
+import { AlertEngine, SlackAlertChannel, EmailAlertChannel } from '@/lib/monitoring'
 
 // Create alert engine
-const engine = new AlertEngine();
+const engine = new AlertEngine()
 
 // Configure channels
 const slackChannel = new SlackAlertChannel({
   webhookUrl: process.env.SLACK_WEBHOOK_URL,
   channels: {
-    P0: "#alerts-critical",
-    P1: "#alerts-high",
-    P2: "#alerts-warning",
-    P3: "#alerts-info",
-    default: "#alerts",
+    P0: '#alerts-critical',
+    P1: '#alerts-high',
+    P2: '#alerts-warning',
+    P3: '#alerts-info',
+    default: '#alerts',
   },
-});
+})
 
 const emailChannel = new EmailAlertChannel({
-  host: "smtp.example.com",
+  host: 'smtp.example.com',
   port: 587,
-  auth: { user: "alerts@example.com", pass: "password" },
-  from: "alerts@example.com",
+  auth: { user: 'alerts@example.com', pass: 'password' },
+  from: 'alerts@example.com',
   recipients: {
-    P0: ["admin@example.com", "ops@example.com"],
-    P1: ["admin@example.com"],
-    P2: ["dev@example.com"],
-    P3: ["dev@example.com"],
+    P0: ['admin@example.com', 'ops@example.com'],
+    P1: ['admin@example.com'],
+    P2: ['dev@example.com'],
+    P3: ['dev@example.com'],
   },
-});
+})
 
 // Register channels
-engine.registerChannel("slack", slackChannel);
-engine.registerChannel("email", emailChannel);
+engine.registerChannel('slack', slackChannel)
+engine.registerChannel('email', emailChannel)
 
 // Evaluate metrics
-await engine.evaluate("errorRate", 10); // 10% error rate
-await engine.evaluate("LCP", 5000); // 5 second LCP
+await engine.evaluate('errorRate', 10) // 10% error rate
+await engine.evaluate('LCP', 5000) // 5 second LCP
 ```
 
 ### Using with Performance Monitor
 
 ```typescript
-import { monitor } from "@/lib/monitoring";
-import { alertEngine } from "@/lib/monitoring/alert-engine";
+import { monitor } from '@/lib/monitoring'
+import { alertEngine } from '@/lib/monitoring/alert-engine'
 
 // Track metric and check alerts
 async function trackAndAlert(metric: string, value: number) {
   // Update trend data for anomaly detection
-  alertEngine.updateTrendData(metric, value);
-  
+  alertEngine.updateTrendData(metric, value)
+
   // Evaluate against alert rules
-  const alerts = await alertEngine.evaluate(metric, value);
-  
-  return alerts;
+  const alerts = await alertEngine.evaluate(metric, value)
+
+  return alerts
 }
 ```
 
@@ -111,12 +111,12 @@ async function trackAndAlert(metric: string, value: number) {
 
 ### Priority Levels
 
-| Priority | Description | Response Time | Example |
-|----------|-------------|---------------|---------|
-| P0 | Critical | 5 minutes | Service down, SSL expired |
-| P1 | High | 15 minutes | Error rate > 5%, API failures |
-| P2 | Warning | 1 hour | Slow LCP, high memory usage |
-| P3 | Informational | 24 hours | Minor issues, reminders |
+| Priority | Description   | Response Time | Example                       |
+| -------- | ------------- | ------------- | ----------------------------- |
+| P0       | Critical      | 5 minutes     | Service down, SSL expired     |
+| P1       | High          | 15 minutes    | Error rate > 5%, API failures |
+| P2       | Warning       | 1 hour        | Slow LCP, high memory usage   |
+| P3       | Informational | 24 hours      | Minor issues, reminders       |
 
 ### Default Rules
 
@@ -146,21 +146,21 @@ Add custom rules for your specific needs:
 
 ```typescript
 engine.addRule({
-  id: "custom-cpu-alert",
-  name: "High CPU Usage",
-  description: "Alert when CPU usage exceeds 80%",
+  id: 'custom-cpu-alert',
+  name: 'High CPU Usage',
+  description: 'Alert when CPU usage exceeds 80%',
   enabled: true,
-  priority: "P2",
+  priority: 'P2',
   condition: {
-    type: "threshold",
-    operator: ">",
+    type: 'threshold',
+    operator: '>',
     value: 80,
   },
-  severity: "warning",
-  channels: ["slack"],
+  severity: 'warning',
+  channels: ['slack'],
   cooldown: 300, // 5 minutes
-  response_time: "1h",
-});
+  response_time: '1h',
+})
 ```
 
 ## Alert Channels
@@ -169,22 +169,22 @@ engine.addRule({
 
 ```typescript
 const emailChannel = new EmailAlertChannel({
-  host: "smtp.gmail.com",
+  host: 'smtp.gmail.com',
   port: 587,
   secure: false,
   auth: {
     user: process.env.EMAIL_USER,
     pass: process.env.EMAIL_PASS,
   },
-  from: "alerts@yourcompany.com",
+  from: 'alerts@yourcompany.com',
   recipients: {
-    P0: ["admin@company.com", "ops@company.com"],
-    P1: ["admin@company.com"],
-    P2: ["dev@company.com"],
-    P3: ["dev@company.com"],
+    P0: ['admin@company.com', 'ops@company.com'],
+    P1: ['admin@company.com'],
+    P2: ['dev@company.com'],
+    P3: ['dev@company.com'],
   },
   includeContext: true,
-});
+})
 ```
 
 ### Slack Channel
@@ -195,31 +195,31 @@ const slackChannel = new SlackAlertChannel({
   // Or use bot token for more features
   botToken: process.env.SLACK_BOT_TOKEN,
   channels: {
-    P0: "#alerts-critical",
-    P1: "#alerts-high",
-    P2: "#alerts-warning",
-    P3: "#alerts-info",
-    default: "#alerts",
+    P0: '#alerts-critical',
+    P1: '#alerts-high',
+    P2: '#alerts-warning',
+    P3: '#alerts-info',
+    default: '#alerts',
   },
-  username: "Performance Bot",
-  iconEmoji: ":chart_with_downwards_trend:",
-});
+  username: 'Performance Bot',
+  iconEmoji: ':chart_with_downwards_trend:',
+})
 ```
 
 ### Webhook Channel
 
 ```typescript
-import { WebhookChannel } from "@/lib/performance/alerting/channels";
+import { WebhookChannel } from '@/lib/performance/alerting/channels'
 
 const webhookChannel = new WebhookChannel({
-  url: "https://your-service.com/alerts",
-  method: "POST",
+  url: 'https://your-service.com/alerts',
+  method: 'POST',
   headers: {
-    "Authorization": "Bearer YOUR_TOKEN",
+    Authorization: 'Bearer YOUR_TOKEN',
   },
-});
+})
 
-engine.registerChannel("webhook", webhookChannel);
+engine.registerChannel('webhook', webhookChannel)
 ```
 
 ## Alert Suppression
@@ -231,21 +231,18 @@ engine.updateConfig({
   suppression: {
     windowMs: 60000, // 1 minute window
     maxAlerts: 50, // Max alerts per window
-    deduplicateBy: ["ruleId", "priority"],
+    deduplicateBy: ['ruleId', 'priority'],
     maintenanceWindows: [
       {
-        start: "Sunday 02:00 UTC",
-        duration: "2h",
-        description: "Weekly maintenance",
+        start: 'Sunday 02:00 UTC',
+        duration: '2h',
+        description: 'Weekly maintenance',
       },
     ],
-    ignorePatterns: [
-      "ResizeObserver loop limit exceeded",
-      "Network request failed",
-    ],
-    deploymentGracePeriod: "5m",
+    ignorePatterns: ['ResizeObserver loop limit exceeded', 'Network request failed'],
+    deploymentGracePeriod: '5m',
   },
-});
+})
 ```
 
 ## Escalation Policies
@@ -256,16 +253,16 @@ Automatically escalate unresolved alerts:
 engine.updateConfig({
   escalationPolicies: [
     {
-      priority: "P0",
+      priority: 'P0',
       steps: [
-        { after: "0m", notify: ["slack", "email"] },
-        { after: "5m", notify: ["slack", "email"], escalate_to: ["manager"] },
-        { after: "15m", notify: ["slack", "email"], escalate_to: ["director"] },
+        { after: '0m', notify: ['slack', 'email'] },
+        { after: '5m', notify: ['slack', 'email'], escalate_to: ['manager'] },
+        { after: '15m', notify: ['slack', 'email'], escalate_to: ['director'] },
       ],
     },
     // ... more policies
   ],
-});
+})
 ```
 
 ## Trend Detection
@@ -274,12 +271,12 @@ The system maintains baseline statistics for trend detection:
 
 ```typescript
 // Update trend data
-engine.updateTrendData("responseTime", 150);
-engine.updateTrendData("responseTime", 148);
-engine.updateTrendData("responseTime", 152);
+engine.updateTrendData('responseTime', 150)
+engine.updateTrendData('responseTime', 148)
+engine.updateTrendData('responseTime', 152)
 
 // Later, evaluate with anomaly detection
-const alerts = await engine.evaluate("responseTime", 500); // High spike
+const alerts = await engine.evaluate('responseTime', 500) // High spike
 ```
 
 ## API Reference
@@ -288,30 +285,30 @@ const alerts = await engine.evaluate("responseTime", 500); // High spike
 
 ```typescript
 class AlertEngine {
-  constructor(config?: Partial<AlertEngineConfig>);
-  
+  constructor(config?: Partial<AlertEngineConfig>)
+
   // Core methods
-  evaluate(metric: string, value: number, context?: Record<string, unknown>): Promise<Alert[]>;
-  updateTrendData(metric: string, value: number, timestamp?: number): void;
-  
+  evaluate(metric: string, value: number, context?: Record<string, unknown>): Promise<Alert[]>
+  updateTrendData(metric: string, value: number, timestamp?: number): void
+
   // Alert management
-  acknowledge(alertId: string, acknowledgedBy: string): boolean;
-  resolve(alertId: string): boolean;
-  getActiveAlerts(filter?: AlertFilter): Alert[];
-  getAlert(alertId: string): Alert | undefined;
-  getAlertHistory(timeWindowMs?: number): Alert[];
-  getSummary(): AlertSummary;
-  
+  acknowledge(alertId: string, acknowledgedBy: string): boolean
+  resolve(alertId: string): boolean
+  getActiveAlerts(filter?: AlertFilter): Alert[]
+  getAlert(alertId: string): Alert | undefined
+  getAlertHistory(timeWindowMs?: number): Alert[]
+  getSummary(): AlertSummary
+
   // Configuration
-  addRule(rule: AlertRule): void;
-  removeRule(ruleId: string): boolean;
-  registerChannel(name: string, channel: AlertChannel): void;
-  updateConfig(config: Partial<AlertEngineConfig>): void;
-  getConfig(): AlertEngineConfig;
-  
+  addRule(rule: AlertRule): void
+  removeRule(ruleId: string): boolean
+  registerChannel(name: string, channel: AlertChannel): void
+  updateConfig(config: Partial<AlertEngineConfig>): void
+  getConfig(): AlertEngineConfig
+
   // Cleanup
-  clearResolved(maxAgeMs?: number): number;
-  reset(): void;
+  clearResolved(maxAgeMs?: number): number
+  reset(): void
 }
 ```
 
@@ -358,5 +355,5 @@ npx vitest run src/lib/monitoring/__tests__/
 
 ---
 
-*Created: 2026-04-02*
-*Version: 1.8.0*
+_Created: 2026-04-02_
+_Version: 1.8.0_

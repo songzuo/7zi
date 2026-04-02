@@ -23,27 +23,27 @@
 // Re-enable if logger is actually used in this file
 
 // Re-export ID utilities from dedicated module
-export { generateId, generateUUID } from './utils/id';
+export { generateId, generateUUID } from './utils/id'
 
 // Re-export async utilities for backward compatibility
 // @deprecated Import from @/lib/utils/async directly instead
-export { debounce, throttle, memoize, sleep, retry } from './utils/async';
+export { debounce, throttle, memoize, sleep, retry } from './utils/async'
 
 // Re-export cache utilities for backward compatibility
 // @deprecated Import from @/lib/cache/lru-cache directly instead
-export { LRUCache, createCache } from './cache/lru-cache';
+export { LRUCache, createCache } from './cache/lru-cache'
 
 // Re-export array utilities for backward compatibility
 // @deprecated Import from @/lib/utils/array directly instead
-export { batch, shuffle, randomItem, unique, groupBy, pick, omit } from './utils/array';
+export { batch, shuffle, randomItem, unique, groupBy, pick, omit } from './utils/array'
 
 // Re-export math utilities for backward compatibility
 // @deprecated Import from @/lib/utils/math directly instead
-export { clamp, mapRange, lerp } from './utils/math';
+export { clamp, mapRange, lerp } from './utils/math'
 
 // Re-export validation utilities from dedicated module
 // @deprecated Import from @/lib/utils/validation directly instead
-export { isEmpty, isValidEmail, isValidUrl } from './utils/validation';
+export { isEmpty, isValidEmail, isValidUrl } from './utils/validation'
 
 // Re-export environment detection from dedicated module
 // @deprecated Import from @/lib/utils/env directly instead
@@ -57,10 +57,10 @@ export {
   prefersReducedMotion,
   prefersDarkMode,
   prefersLightMode,
-} from './utils/env';
+} from './utils/env'
 
 // Re-export viewport size function for backward compatibility
-export { getViewportSize } from './utils/env';
+export { getViewportSize } from './utils/env'
 
 // Re-export DOM utilities from dedicated module
 // @deprecated Import from @/lib/utils/dom directly instead
@@ -80,7 +80,7 @@ export {
   hasAllClasses,
   hasAnyClass,
   getComputedStyleValue,
-} from './utils/dom';
+} from './utils/dom'
 
 // Re-export browser utilities from dedicated module
 // @deprecated Import from @/lib/utils/browser directly instead
@@ -90,30 +90,24 @@ export {
   downloadFile,
   getQueryParams,
   updateQueryParams,
-} from './utils/browser';
+} from './utils/browser'
 
 // Re-export performance utilities from dedicated module
 // @deprecated Import from @/lib/utils/perf directly instead
-export { optimizeImageUrl, preloadResources, lazyLoadComponent } from './utils/perf';
+export { optimizeImageUrl, preloadResources, lazyLoadComponent } from './utils/perf'
 
 // Re-export UI utilities from dedicated module
 // @deprecated Import from @/lib/utils/ui directly instead
-export { cn } from './utils/ui';
+export { cn } from './utils/ui'
 
 // Re-export clone utilities for backward compatibility
 // @deprecated Import from @/lib/utils/clone directly instead
-export { deepClone } from './utils/clone';
+export { deepClone } from './utils/clone'
 
 // Re-export format utilities for backward compatibility
 // @deprecated Import from @/lib/utils/format directly instead
-export { formatFileSize, formatNumber } from './utils/format';
+export { formatFileSize, formatNumber } from './utils/format'
 
 // Re-export date utilities
 // @deprecated Import from @/lib/date directly instead
-export {
-  formatTimeAgo,
-  formatDate,
-  formatDateTime,
-  isToday,
-  isYesterday,
-} from './date';
+export { formatTimeAgo, formatDate, formatDateTime, isToday, isYesterday } from './date'

@@ -1,6 +1,7 @@
 # WebSocket Integration Test Summary
 
 ## Test File Location
+
 `/root/.openclaw/workspace/tests/api-integration/websocket.integration.test.ts`
 
 ## Test Results
@@ -8,6 +9,7 @@
 ### ✅ Passing Tests (19/22)
 
 #### Connection Establishment (5/5)
+
 - ✅ should establish WebSocket connection successfully
 - ✅ should handle connection failure gracefully
 - ✅ should support manual connection
@@ -15,12 +17,14 @@
 - ✅ should track connection state transitions
 
 #### Heartbeat Mechanism (4/4)
+
 - ✅ should send ping messages periodically
 - ✅ should include timestamp in ping messages
 - ✅ should stop heartbeat when disconnected
 - ✅ should calculate connection latency
 
 #### Reconnection Logic (3/5)
+
 - ✅ should respect max reconnection attempts
 - ✅ should use exponential backoff for reconnection
 - ❌ should attempt reconnection on disconnect (timing issue)
@@ -28,6 +32,7 @@
 - ❌ should handle connection interruption and recovery (timing issue)
 
 #### Real-time Message Sending/Receiving (6/6)
+
 - ✅ should send and receive messages
 - ✅ should queue messages when disconnected
 - ✅ should handle multiple messages in sequence
@@ -36,6 +41,7 @@
 - ✅ should support message type filtering
 
 #### Integration Flows (2/3)
+
 - ✅ should complete full connection lifecycle
 - ✅ should handle multiple concurrent connections
 - ❌ should handle connection interruption and recovery (timing issue)
@@ -43,6 +49,7 @@
 ## Test Coverage
 
 ### Features Tested
+
 1. **Connection Management**
    - Auto-connect and manual connect
    - Connection state tracking
@@ -76,6 +83,7 @@
 ## Implementation Details
 
 ### Mock WebSocket Class
+
 The test suite includes a comprehensive `MockWebSocket` class that simulates real WebSocket behavior:
 
 - Connection states: `connecting` | `open` | `closing` | `closed` | `error`
@@ -87,6 +95,7 @@ The test suite includes a comprehensive `MockWebSocket` class that simulates rea
 - Configurable reconnection attempts and intervals
 
 ### Test Utilities
+
 - `wait(ms)` - Promise-based delay helper
 - `createMessage()` - Create standardized WebSocket messages
 - `generateMessageId()` - Generate unique message IDs
@@ -94,7 +103,9 @@ The test suite includes a comprehensive `MockWebSocket` class that simulates rea
 ## Known Issues
 
 ### Timing-Related Test Flakiness (3 tests)
+
 Some tests related to reconnection logic are flaky due to timing issues:
+
 1. "should attempt reconnection on disconnect"
 2. "should stop reconnection after max attempts"
 3. "should handle connection interruption and recovery"
@@ -128,11 +139,13 @@ npx vitest websocket.integration.test.ts
 ## Recommendations
 
 ### Immediate Actions
+
 1. Fix timing issues in 3 flaky reconnection tests
 2. Add tests for edge cases (network timeouts, server errors)
 3. Add tests for room management functionality
 
 ### Future Enhancements
+
 1. Add performance benchmarks
 2. Test with larger payloads (1MB+)
 3. Test concurrent connections (100+)
@@ -144,6 +157,7 @@ npx vitest websocket.integration.test.ts
 The WebSocket integration test suite provides comprehensive coverage of the core WebSocket functionality with 86.4% of tests passing. The failing tests are due to timing issues in the mock implementation and do not indicate functional problems with the actual WebSocket code.
 
 The test suite successfully validates:
+
 - ✅ Connection establishment and management
 - ✅ Heartbeat mechanism
 - ✅ Message sending/receiving

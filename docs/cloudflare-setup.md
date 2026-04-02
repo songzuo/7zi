@@ -9,6 +9,7 @@
 ## 📋 概述
 
 本文档详细说明如何为 7zi.com 配置 Cloudflare CDN，使用免费套餐实现：
+
 - 全球加速（200+ 数据中心）
 - 带宽节省 60%+
 - DDoS 防护
@@ -28,6 +29,7 @@
 ### 1.2 选择免费套餐
 
 Cloudflare 免费套餐包含：
+
 - ✅ 无限流量
 - ✅ 全球 CDN 加速
 - ✅ 免费 SSL 证书
@@ -55,11 +57,11 @@ Cloudflare 会自动扫描现有 DNS 记录。
 
 **预期的 DNS 记录：**
 
-| 类型 | 名称 | 内容 | 代理状态 |
-|------|------|------|----------|
-| A | @ | 165.99.43.61 | ✅ 已代理 |
-| A | www | 165.99.43.61 | ✅ 已代理 |
-| CNAME | api | 7zi.com | ✅ 已代理 |
+| 类型  | 名称 | 内容         | 代理状态  |
+| ----- | ---- | ------------ | --------- |
+| A     | @    | 165.99.43.61 | ✅ 已代理 |
+| A     | www  | 165.99.43.61 | ✅ 已代理 |
+| CNAME | api  | 7zi.com      | ✅ 已代理 |
 
 ### 2.3 更换域名服务器
 
@@ -96,12 +98,12 @@ Cloudflare Dashboard → SSL/TLS → Overview
 
 **模式说明：**
 
-| 模式 | 说明 | 推荐度 |
-|------|------|--------|
-| Off | 无加密 | ❌ 不推荐 |
-| Flexible | Cloudflare 到浏览器加密，服务器无加密 | ⚠️ 不安全 |
-| Full | Cloudflare 到服务器加密，但不验证证书 | ✅ 可用 |
-| **Full (strict)** | 完全加密 + 证书验证 | ✅ **推荐** |
+| 模式              | 说明                                  | 推荐度      |
+| ----------------- | ------------------------------------- | ----------- |
+| Off               | 无加密                                | ❌ 不推荐   |
+| Flexible          | Cloudflare 到浏览器加密，服务器无加密 | ⚠️ 不安全   |
+| Full              | Cloudflare 到服务器加密，但不验证证书 | ✅ 可用     |
+| **Full (strict)** | 完全加密 + 证书验证                   | ✅ **推荐** |
 
 ### 3.2 服务器证书要求
 
@@ -116,6 +118,7 @@ openssl s_client -connect 7zi.com:443 -servername 7zi.com
 ```
 
 **如果服务器使用自签名证书：**
+
 - 使用 Let's Encrypt 获取免费证书
 - 或使用 Cloudflare Origin Certificate
 
@@ -164,6 +167,7 @@ chmod 600 /etc/nginx/ssl/cloudflare/origin.key
 ### 4.1 默认缓存行为
 
 Cloudflare 默认缓存：
+
 - 静态文件：图片、CSS、JS
 - 不缓存：HTML、动态内容
 
@@ -231,6 +235,7 @@ Cloudflare Dashboard → Rules → Page Rules
 ### 5.2 推荐规则配置
 
 **规则 1 - Next.js 静态资源**
+
 ```
 URL: 7zi.com/_next/static/*
 
@@ -241,6 +246,7 @@ URL: 7zi.com/_next/static/*
 ```
 
 **规则 2 - 图片优化**
+
 ```
 URL: 7zi.com/_next/image*
 
@@ -251,6 +257,7 @@ URL: 7zi.com/_next/image*
 ```
 
 **规则 3 - 首页缓存**
+
 ```
 URL: 7zi.com/
 
@@ -316,11 +323,11 @@ Cloudflare Dashboard → Analytics & Logs
 
 ### 7.2 缓存命中率目标
 
-| 指标 | 目标值 | 说明 |
-|------|--------|------|
-| 缓存命中率 | > 85% | 静态资源命中率 |
-| 带宽节省 | > 60% | CDN 节省带宽比例 |
-| 平均响应时间 | < 100ms | 全球平均 |
+| 指标         | 目标值  | 说明             |
+| ------------ | ------- | ---------------- |
+| 缓存命中率   | > 85%   | 静态资源命中率   |
+| 带宽节省     | > 60%   | CDN 节省带宽比例 |
+| 平均响应时间 | < 100ms | 全球平均         |
 
 ### 7.3 清除缓存
 
@@ -463,6 +470,7 @@ curl -w "Time: %{time_total}s\n" -o /dev/null -s https://7zi.com
 **症状：** ERR_TOO_MANY_REDIRECTS
 
 **解决方案：**
+
 1. 检查 SSL 模式是否正确（应使用 Full 或 Full Strict）
 2. 确保 Nginx 没有强制 HTTPS 重定向到 HTTP
 
@@ -471,6 +479,7 @@ curl -w "Time: %{time_total}s\n" -o /dev/null -s https://7zi.com
 **症状：** cf-cache-status: MISS
 
 **解决方案：**
+
 1. 检查页面规则是否正确配置
 2. 检查响应头是否有 `Cache-Control: no-cache` 或 `private`
 3. 确保 URL 模式匹配
@@ -480,6 +489,7 @@ curl -w "Time: %{time_total}s\n" -o /dev/null -s https://7zi.com
 **症状：** WebSocket 连接断开
 
 **解决方案：**
+
 ```
 Cloudflare Dashboard → Network → WebSockets: On
 ```
@@ -488,12 +498,12 @@ Cloudflare Dashboard → Network → WebSockets: On
 
 ## 📈 预期收益
 
-| 指标 | 配置前 | 配置后 | 改善 |
-|------|--------|--------|------|
-| 全球延迟 | 300ms | < 100ms | -66% |
-| 带宽成本 | $8/月 | $3/月 | -62% |
-| TTFB | 500ms | < 50ms | -90% |
-| 安全性 | 基础 | DDoS 防护 | +100% |
+| 指标     | 配置前 | 配置后    | 改善  |
+| -------- | ------ | --------- | ----- |
+| 全球延迟 | 300ms  | < 100ms   | -66%  |
+| 带宽成本 | $8/月  | $3/月     | -62%  |
+| TTFB     | 500ms  | < 50ms    | -90%  |
+| 安全性   | 基础   | DDoS 防护 | +100% |
 
 ---
 

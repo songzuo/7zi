@@ -1,6 +1,7 @@
 # React 并发和 Feedback Response 测试修复报告
 
 ## 任务完成时间
+
 2026-03-30 17:48
 
 ## 修复概览
@@ -15,12 +16,15 @@
 ## 问题 1: NotificationProvider React 并发错误
 
 ### 问题描述
+
 - 5 个测试失败
 - React 并发渲染错误提示
 - Mock 调用断言失败
 
 ### 根本原因
+
 测试中 mock useNotifications hook 的方式不正确，导致：
+
 1. Mock 函数调用方式错误
 2. React 19 并发渲染模式下，mock 实现不兼容
 3. 错误处理测试在 React 19 中不稳定
@@ -32,6 +36,7 @@
 **修改内容：**
 
 1. **重写 Mock 实现**
+
    ```typescript
    // 之前（错误）
    const mockUseNotifications = vi.fn(() => ({...}));
@@ -50,11 +55,13 @@
    ```
 
 2. **添加全局变量捕获调用参数**
+
    ```typescript
-   let capturedOptions: any = null;
+   let capturedOptions: any = null
    ```
 
 3. **修改断言方式**
+
    ```typescript
    // 之前（失败）
    expect(mockUseNotifications).toHaveBeenCalledWith(
@@ -93,12 +100,15 @@ Tests: 19 passed (19)
 ## 问题 2: Feedback Response API 测试失败
 
 ### 问题描述
+
 - 1 个测试失败：`应该为管理员成功添加回复`
 - 预期状态码 200，实际返回 404
 - 错误原因：测试中使用的 `feedbackId: 'feedback-1'` 在数据库中不存在
 
 ### 根本原因
+
 Feedback ID 格式不匹配：
+
 - 测试使用：`'feedback-1'`
 - 数据库实际格式：`FB-<timestamp>-<random>` (例如：`FB-1xy2z3-abc4d5`)
 
@@ -109,17 +119,19 @@ Feedback ID 格式不匹配：
 **修改内容：**
 
 1. **添加 beforeAll 和 afterAll 钩子**
+
    ```typescript
    beforeAll(() => {
-     feedbackStorage.initialize();
-   });
+     feedbackStorage.initialize()
+   })
 
    afterAll(() => {
-     feedbackStorage.close();
-   });
+     feedbackStorage.close()
+   })
    ```
 
 2. **在测试中创建真实的 feedback 数据**
+
    ```typescript
    it('应该为管理员成功添加回复', async () => {
      // First create a feedback to respond to
@@ -132,16 +144,16 @@ Feedback ID 格式不匹配：
        status: 'pending',
        title: 'Test Feedback',
        description: 'This is a test feedback for response',
-     });
+     })
 
      const request = new NextRequest('...', {
        body: JSON.stringify({
          feedbackId: feedback.id, // 使用真实 ID
          // ...
        }),
-     });
+     })
      // ...
-   });
+   })
    ```
 
 3. **修复所有测试用例**
@@ -187,36 +199,39 @@ Tests: 6 passed (6)
 
 ### NotificationProvider 测试
 
-| 项目 | 修复前 | 修复后 |
-|------|--------|--------|
-| 测试总数 | 20 | 19 |
-| 通过 | 15 | 19 |
-| 失败 | 5 | 0 |
-| 错误 | 1 | 0 |
+| 项目     | 修复前 | 修复后 |
+| -------- | ------ | ------ |
+| 测试总数 | 20     | 19     |
+| 通过     | 15     | 19     |
+| 失败     | 5      | 0      |
+| 错误     | 1      | 0      |
 
 ### Feedback Response API 测试
 
-| 项目 | 修复前 | 修复后 |
-|------|--------|--------|
-| 测试总数 | 6 | 6 |
-| 通过 | 5 | 6 |
-| 失败 | 1 | 0 |
+| 项目     | 修复前 | 修复后 |
+| -------- | ------ | ------ |
+| 测试总数 | 6      | 6      |
+| 通过     | 5      | 6      |
+| 失败     | 1      | 0      |
 
 ---
 
 ## 技术要点
 
 ### React 19 并发渲染
+
 - 在 React 19 中，传统的 mock 方式可能与并发渲染冲突
 - 需要使用更直接的 mock 函数实现
 - 避免在测试中使用不稳定的错误边界测试
 
 ### 测试隔离
+
 - API 测试需要创建真实的测试数据
 - 使用 beforeAll/afterAll 钩子管理测试环境
 - 每个测试应该独立，不依赖外部数据
 
 ### Mock 最佳实践
+
 - 使用全局变量捕获 mock 调用参数
 - 在 beforeEach 中重置 mock 状态
 - 使用 afterEach 清理 mock

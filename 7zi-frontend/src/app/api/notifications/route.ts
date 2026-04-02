@@ -5,14 +5,19 @@
  * Requires JWT authentication
  */
 
-import { NextRequest, NextResponse } from 'next/server';
-import { notificationService, NotificationType, NotificationPriority, NotificationFilter } from '@/lib/services/notification';
+import { NextRequest, NextResponse } from 'next/server'
+import {
+  notificationService,
+  NotificationType,
+  NotificationPriority,
+  NotificationFilter,
+} from '@/lib/services/notification'
 import {
   createSuccessResponse,
   createValidationError,
   createErrorResponse,
-} from '@/lib/api/error-handler';
-import { authenticateJWT, AuthResult } from '@/lib/auth/api-auth';
+} from '@/lib/api/error-handler'
+import { authenticateJWT, AuthResult } from '@/lib/auth/api-auth'
 
 /**
  * GET /api/notifications
@@ -22,7 +27,7 @@ import { authenticateJWT, AuthResult } from '@/lib/auth/api-auth';
  */
 export async function GET(request: NextRequest) {
   // Authenticate user
-  const authResult = await authenticateJWT(request);
+  const authResult = await authenticateJWT(request)
 
   if (!authResult.authenticated) {
     return NextResponse.json(
@@ -32,55 +37,50 @@ export async function GET(request: NextRequest) {
         message: authResult.error || 'Authentication required',
       },
       { status: 401 }
-    );
+    )
   }
 
   try {
-    const searchParams = request.nextUrl.searchParams;
+    const searchParams = request.nextUrl.searchParams
 
     // Parse filters - user can only see their own notifications unless admin
     const filter: NotificationFilter = {
       // Enforce user ownership (non-admin can only see their own notifications)
-      userId: authResult.role === 'admin' 
-        ? searchParams.get('userId') || undefined
-        : authResult.userId,
-    };
+      userId:
+        authResult.role === 'admin' ? searchParams.get('userId') || undefined : authResult.userId,
+    }
 
     if (searchParams.get('type')) {
-      filter.type = searchParams.get('type') as NotificationType;
+      filter.type = searchParams.get('type') as NotificationType
     }
 
     if (searchParams.get('priority')) {
-      filter.priority = searchParams.get('priority') as NotificationPriority;
+      filter.priority = searchParams.get('priority') as NotificationPriority
     }
 
     if (searchParams.get('teamId')) {
-      filter.teamId = searchParams.get('teamId')!;
+      filter.teamId = searchParams.get('teamId')!
     }
 
     if (searchParams.get('taskId')) {
-      filter.taskId = searchParams.get('taskId')!;
+      filter.taskId = searchParams.get('taskId')!
     }
 
     if (searchParams.get('read') !== null) {
-      filter.read = searchParams.get('read') === 'true';
+      filter.read = searchParams.get('read') === 'true'
     }
 
     if (searchParams.get('since')) {
-      filter.since = parseInt(searchParams.get('since')!, 10);
+      filter.since = parseInt(searchParams.get('since')!, 10)
     }
 
-    const limit = searchParams.get('limit')
-      ? parseInt(searchParams.get('limit')!, 10)
-      : 50;
+    const limit = searchParams.get('limit') ? parseInt(searchParams.get('limit')!, 10) : 50
 
     // Get notifications
-    const notifications = notificationService
-      .getNotifications(filter)
-      .slice(0, limit);
+    const notifications = notificationService.getNotifications(filter).slice(0, limit)
 
     // Get unread count
-    const unreadCount = notificationService.getUnreadCount(filter);
+    const unreadCount = notificationService.getUnreadCount(filter)
 
     return createSuccessResponse({
       notifications,
@@ -88,9 +88,9 @@ export async function GET(request: NextRequest) {
         count: notifications.length,
         unreadCount,
       },
-    });
+    })
   } catch (error) {
-    return createErrorResponse(error instanceof Error ? error : new Error(String(error)));
+    return createErrorResponse(error instanceof Error ? error : new Error(String(error)))
   }
 }
 
@@ -102,7 +102,7 @@ export async function GET(request: NextRequest) {
  */
 export async function POST(request: NextRequest) {
   // Authenticate user
-  const authResult = await authenticateJWT(request);
+  const authResult = await authenticateJWT(request)
 
   if (!authResult.authenticated) {
     return NextResponse.json(
@@ -112,15 +112,15 @@ export async function POST(request: NextRequest) {
         message: authResult.error || 'Authentication required',
       },
       { status: 401 }
-    );
+    )
   }
 
   try {
-    const body = await request.json();
+    const body = await request.json()
 
     // Validate required fields
     if (!body.title || !body.message) {
-      return createValidationError('title and message are required');
+      return createValidationError('title and message are required')
     }
 
     // Create notification
@@ -134,13 +134,16 @@ export async function POST(request: NextRequest) {
       teamId: body.teamId,
       taskId: body.taskId,
       expiresAt: body.expiresAt,
-    });
+    })
 
-    return createSuccessResponse({
-      id: notificationId,
-      message: 'Notification created',
-    }, 201);
+    return createSuccessResponse(
+      {
+        id: notificationId,
+        message: 'Notification created',
+      },
+      201
+    )
   } catch (error) {
-    return createErrorResponse(error instanceof Error ? error : new Error(String(error)));
+    return createErrorResponse(error instanceof Error ? error : new Error(String(error)))
   }
 }

@@ -10,10 +10,10 @@
  * - 参考：https://github.com/SebastienAhkrin/exceljs
  */
 
-import { NextRequest, NextResponse } from 'next/server';
-import { authMiddleware } from '@/middleware/auth.middleware';
-import { validateAndSanitizeBody } from '@/shared/lib/validation-schemas';
-import { z } from 'zod';
+import { NextRequest, NextResponse } from 'next/server'
+import { authMiddleware } from '@/middleware/auth.middleware'
+import { validateAndSanitizeBody } from '@/shared/lib/validation-schemas'
+import { z } from 'zod'
 
 /**
  * 导入数据验证模式
@@ -21,28 +21,30 @@ import { z } from 'zod';
 const importDataSchema = z.object({
   data: z.array(z.record(z.string(), z.any())),
   format: z.enum(['json', 'csv', 'xlsx']).default('json'),
-  options: z.object({
-    skipDuplicates: z.boolean().default(true),
-    validate: z.boolean().default(true),
-  }).optional(),
-});
+  options: z
+    .object({
+      skipDuplicates: z.boolean().default(true),
+      validate: z.boolean().default(true),
+    })
+    .optional(),
+})
 
 /**
  * POST /api/data/import - 导入数据（需要认证）
  */
 export async function POST(request: NextRequest) {
   // 验证认证
-  const authResponse = authMiddleware(request);
+  const authResponse = authMiddleware(request)
   if (authResponse.status !== 200) {
-    return authResponse;
+    return authResponse
   }
 
-  const userId = request.headers.get('x-user-id');
-  const userRole = request.headers.get('x-user-role');
+  const userId = request.headers.get('x-user-id')
+  const userRole = request.headers.get('x-user-role')
 
   try {
-    const body = await request.json();
-    const validationResult = await validateAndSanitizeBody(body, importDataSchema, 'nosql');
+    const body = await request.json()
+    const validationResult = await validateAndSanitizeBody(body, importDataSchema, 'nosql')
 
     if (!validationResult.success) {
       return NextResponse.json(
@@ -55,10 +57,10 @@ export async function POST(request: NextRequest) {
           })),
         },
         { status: 400 }
-      );
+      )
     }
 
-    const { data, format, options } = validationResult.data;
+    const { data, format, options } = validationResult.data
 
     // 验证数据格式
     if (!data || data.length === 0) {
@@ -69,7 +71,7 @@ export async function POST(request: NextRequest) {
           message: '导入数据不能为空',
         },
         { status: 400 }
-      );
+      )
     }
 
     // TODO: 实际的数据导入逻辑
@@ -81,7 +83,7 @@ export async function POST(request: NextRequest) {
     // 5. 记录审计日志
 
     // 模拟导入延迟
-    await new Promise(resolve => setTimeout(resolve, 500));
+    await new Promise(resolve => setTimeout(resolve, 500))
 
     // 返回成功结果
     return NextResponse.json({
@@ -94,9 +96,9 @@ export async function POST(request: NextRequest) {
         userId,
         timestamp: new Date().toISOString(),
       },
-    });
+    })
   } catch (error) {
-    console.error('[Import API] Error:', error);
+    console.error('[Import API] Error:', error)
     return NextResponse.json(
       {
         success: false,
@@ -104,7 +106,7 @@ export async function POST(request: NextRequest) {
         message: '数据导入失败，请稍后重试',
       },
       { status: 500 }
-    );
+    )
   }
 }
 
@@ -113,16 +115,16 @@ export async function POST(request: NextRequest) {
  */
 export async function GET(request: NextRequest) {
   // 验证认证
-  const authResponse = authMiddleware(request);
+  const authResponse = authMiddleware(request)
   if (authResponse.status !== 200) {
-    return authResponse;
+    return authResponse
   }
 
-  const userId = request.headers.get('x-user-id');
-  const { searchParams } = new URL(request.url);
+  const userId = request.headers.get('x-user-id')
+  const { searchParams } = new URL(request.url)
 
-  const page = parseInt(searchParams.get('page') || '1');
-  const limit = parseInt(searchParams.get('limit') || '20');
+  const page = parseInt(searchParams.get('page') || '1')
+  const limit = parseInt(searchParams.get('limit') || '20')
 
   // 验证分页参数
   if (page < 1 || limit < 1 || limit > 100) {
@@ -133,7 +135,7 @@ export async function GET(request: NextRequest) {
         message: '分页参数无效',
       },
       { status: 400 }
-    );
+    )
   }
 
   // TODO: 查询用户的导入历史
@@ -146,5 +148,5 @@ export async function GET(request: NextRequest) {
       page,
       limit,
     },
-  });
+  })
 }

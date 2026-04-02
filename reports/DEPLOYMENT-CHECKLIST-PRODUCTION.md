@@ -9,6 +9,7 @@
 ## 📋 部署前检查
 
 ### 1. 本地环境
+
 - [ ] 代码已提交到 Git
 - [ ] 所有测试通过 (`npm run test:run`)
 - [ ] 类型检查通过 (`npm run type-check`)
@@ -16,6 +17,7 @@
 - [ ] 本地构建成功 (`npm run build`)
 
 ### 2. 服务器环境
+
 - [ ] SSH 连接正常
 - [ ] Docker 已安装并运行
 - [ ] Docker Compose 已安装
@@ -23,6 +25,7 @@
 - [ ] 端口 80/443 可用
 
 ### 3. 配置文件
+
 - [ ] `.env.production` 已配置
   - [ ] NEXT_PUBLIC_GA_ID (Google Analytics)
   - [ ] NEXT_PUBLIC_UMAMI_ID (Umami Analytics)
@@ -31,6 +34,7 @@
   - [ ] FROM_EMAIL
 
 ### 4. SSL 证书
+
 - [ ] Let's Encrypt 证书已安装
 - [ ] 证书路径: `/etc/letsencrypt/live/7zi.com/`
 - [ ] 自动续期已配置
@@ -40,6 +44,7 @@
 ## 🔧 部署步骤
 
 ### 快速部署（推荐）
+
 ```bash
 ./deploy-zero-downtime.sh deploy
 ```
@@ -47,6 +52,7 @@
 ### 手动部署步骤
 
 1. **同步代码**
+
    ```bash
    rsync -avz --delete \
      --exclude '.git' --exclude 'node_modules' --exclude '.next' \
@@ -55,11 +61,13 @@
    ```
 
 2. **构建镜像**
+
    ```bash
    ssh root@7zi.com "cd /opt/7zi-frontend && docker-compose -f docker-compose.zero-downtime.yml build"
    ```
 
 3. **启动服务**
+
    ```bash
    ssh root@7zi.com "cd /opt/7zi-frontend && docker-compose -f docker-compose.zero-downtime.yml up -d"
    ```
@@ -74,17 +82,20 @@
 ## ✅ 部署后验证
 
 ### 1. 服务状态
+
 ```bash
 ./deploy-zero-downtime.sh status
 ```
 
 ### 2. 健康检查
+
 - [ ] https://7zi.com/api/health 返回 200
 - [ ] https://7zi.com 正常访问
 - [ ] https://7zi.com/zh 中文页面正常
 - [ ] https://7zi.com/en 英文页面正常
 
 ### 3. 功能测试
+
 - [ ] 首页加载正常
 - [ ] 关于页面正常
 - [ ] 联系表单可提交
@@ -92,11 +103,13 @@
 - [ ] 静态资源加载正常 (JS/CSS/图片)
 
 ### 4. 性能检查
+
 - [ ] 页面加载时间 < 3秒
 - [ ] Lighthouse 评分 > 80
 - [ ] 无控制台错误
 
 ### 5. 安全检查
+
 - [ ] HTTPS 正常
 - [ ] 安全头已设置 (HSTS, X-Frame-Options 等)
 - [ ] 隐藏文件不可访问
@@ -113,6 +126,7 @@
 ```
 
 或手动回滚：
+
 ```bash
 # 1. 停止当前容器
 docker stop 7zi-frontend-blue  # 或 green

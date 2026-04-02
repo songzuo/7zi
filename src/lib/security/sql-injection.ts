@@ -5,23 +5,23 @@
  * Complements Prisma's built-in parameterized queries
  */
 
-import { logger } from '@/lib/logger';
+import { logger } from '@/lib/logger'
 
 // ============================================================================
 // Types
 // ============================================================================
 
 export interface SQLInjectionCheckResult {
-  safe: boolean;
-  detectedPatterns: string[];
-  severity: 'low' | 'medium' | 'high' | 'critical';
-  sanitizedValue?: string;
+  safe: boolean
+  detectedPatterns: string[]
+  severity: 'low' | 'medium' | 'high' | 'critical'
+  sanitizedValue?: string
 }
 
 export interface SQLInjectionConfig {
-  logDetections?: boolean;
-  throwOnDetection?: boolean;
-  sanitizeInput?: boolean;
+  logDetections?: boolean
+  throwOnDetection?: boolean
+  sanitizeInput?: boolean
 }
 
 // ============================================================================
@@ -104,17 +104,28 @@ const SQL_INJECTION_PATTERNS = [
     severity: 'critical' as const,
     description: 'Case manipulation bypass pattern',
   },
-];
+]
 
 /**
  * Dangerous SQL functions
  */
 const DANGEROUS_FUNCTIONS = [
-  'EXEC', 'EXECUTE', 'xp_cmdshell', 'sp_', 'fn_',
-  'LOAD_FILE', 'INTO OUTFILE', 'INTO DUMPFILE',
-  'PG_READ_FILE', 'PG_WRITE_FILE', 'COPY',
-  'SYS', 'INFORMATION_SCHEMA', 'MYSQL', 'PG_',
-];
+  'EXEC',
+  'EXECUTE',
+  'xp_cmdshell',
+  'sp_',
+  'fn_',
+  'LOAD_FILE',
+  'INTO OUTFILE',
+  'INTO DUMPFILE',
+  'PG_READ_FILE',
+  'PG_WRITE_FILE',
+  'COPY',
+  'SYS',
+  'INFORMATION_SCHEMA',
+  'MYSQL',
+  'PG_',
+]
 
 // ============================================================================
 // Detection Functions
@@ -131,53 +142,53 @@ export function checkSQLInjection(
   input: string,
   config: SQLInjectionConfig = {}
 ): SQLInjectionCheckResult {
-  const { logDetections = true } = config;
-  const detectedPatterns: string[] = [];
-  let maxSeverity: SQLInjectionCheckResult['severity'] = 'low';
+  const { logDetections = true } = config
+  const detectedPatterns: string[] = []
+  let maxSeverity: SQLInjectionCheckResult['severity'] = 'low'
 
   for (const { pattern, severity, description } of SQL_INJECTION_PATTERNS) {
-    const matches = input.match(pattern);
+    const matches = input.match(pattern)
 
     if (matches) {
-      detectedPatterns.push(`${description}: ${matches.join(', ')}`);
+      detectedPatterns.push(`${description}: ${matches.join(', ')}`)
 
       if (severity === 'critical') {
-        maxSeverity = 'critical';
+        maxSeverity = 'critical'
       } else if (severity === 'high' && maxSeverity !== 'critical') {
-        maxSeverity = 'high';
+        maxSeverity = 'high'
       } else if (severity === 'medium' && maxSeverity !== 'critical' && maxSeverity !== 'high') {
-        maxSeverity = 'medium';
+        maxSeverity = 'medium'
       }
     }
   }
 
   // Check for dangerous function calls
-  const upperInput = input.toUpperCase();
+  const upperInput = input.toUpperCase()
   for (const func of DANGEROUS_FUNCTIONS) {
     if (upperInput.includes(func)) {
-      detectedPatterns.push(`Dangerous function: ${func}`);
+      detectedPatterns.push(`Dangerous function: ${func}`)
 
       if (maxSeverity === 'low') {
-        maxSeverity = 'medium';
+        maxSeverity = 'medium'
       }
     }
   }
 
-  const safe = detectedPatterns.length === 0;
+  const safe = detectedPatterns.length === 0
 
   if (!safe && logDetections) {
     logger.warn('SQL injection pattern detected', {
       patterns: detectedPatterns,
       severity: maxSeverity,
       input: input.substring(0, 100),
-    });
+    })
   }
 
   return {
     safe,
     detectedPatterns,
     severity: maxSeverity,
-  };
+  }
 }
 
 /**
@@ -191,45 +202,49 @@ export function checkObjectForSQLInjection(
   obj: unknown,
   config: SQLInjectionConfig = {}
 ): SQLInjectionCheckResult {
-  const allDetected: string[] = [];
-  let maxSeverity: SQLInjectionCheckResult['severity'] = 'low';
+  const allDetected: string[] = []
+  let maxSeverity: SQLInjectionCheckResult['severity'] = 'low'
 
   const checkValue = (value: unknown, path: string): void => {
     if (typeof value === 'string') {
-      const result = checkSQLInjection(value, { ...config, logDetections: false });
+      const result = checkSQLInjection(value, { ...config, logDetections: false })
 
       if (!result.safe) {
-        allDetected.push(`${path}: ${result.detectedPatterns.join(', ')}`);
+        allDetected.push(`${path}: ${result.detectedPatterns.join(', ')}`)
 
         if (result.severity === 'critical') {
-          maxSeverity = 'critical';
+          maxSeverity = 'critical'
         } else if (result.severity === 'high' && maxSeverity !== 'critical') {
-          maxSeverity = 'high';
-        } else if (result.severity === 'medium' && maxSeverity !== 'critical' && maxSeverity !== 'high') {
-          maxSeverity = 'medium';
+          maxSeverity = 'high'
+        } else if (
+          result.severity === 'medium' &&
+          maxSeverity !== 'critical' &&
+          maxSeverity !== 'high'
+        ) {
+          maxSeverity = 'medium'
         }
       }
     } else if (Array.isArray(value)) {
-      value.forEach((item, index) => checkValue(item, `${path}[${index}]`));
+      value.forEach((item, index) => checkValue(item, `${path}[${index}]`))
     } else if (typeof value === 'object' && value !== null) {
-      Object.entries(value).forEach(([key, val]) => checkValue(val, `${path}.${key}`));
+      Object.entries(value).forEach(([key, val]) => checkValue(val, `${path}.${key}`))
     }
-  };
+  }
 
-  checkValue(obj, 'root');
+  checkValue(obj, 'root')
 
   if (allDetected.length > 0 && config.logDetections !== false) {
     logger.warn('SQL injection patterns detected in object', {
       patterns: allDetected,
       severity: maxSeverity,
-    });
+    })
   }
 
   return {
     safe: allDetected.length === 0,
     detectedPatterns: allDetected,
     severity: maxSeverity,
-  };
+  }
 }
 
 // ============================================================================
@@ -243,7 +258,7 @@ export function checkObjectForSQLInjection(
  * @returns Escaped string
  */
 export function escapeSQLString(input: string): string {
-  return input.replace(/'/g, "''");
+  return input.replace(/'/g, "''")
 }
 
 /**
@@ -256,7 +271,7 @@ export function removeSQLComments(input: string): string {
   return input
     .replace(/--[^\n]*/g, '')
     .replace(/#[^\n]*/g, '')
-    .replace(/\/\*[\s\S]*?\*\//g, '');
+    .replace(/\/\*[\s\S]*?\*\//g, '')
 }
 
 /**
@@ -266,18 +281,18 @@ export function removeSQLComments(input: string): string {
  * @returns Sanitized string
  */
 export function sanitizeSQLInput(input: string): string {
-  let sanitized = input;
+  let sanitized = input
 
   // Escape single quotes
-  sanitized = escapeSQLString(sanitized);
+  sanitized = escapeSQLString(sanitized)
 
   // Remove null bytes
-  sanitized = sanitized.replace(/\0/g, '');
+  sanitized = sanitized.replace(/\0/g, '')
 
   // Remove backslash escapes
-  sanitized = sanitized.replace(/\\([%_])/g, '$1');
+  sanitized = sanitized.replace(/\\([%_])/g, '$1')
 
-  return sanitized;
+  return sanitized
 }
 
 /**
@@ -291,22 +306,22 @@ export function validateAndSanitizeSQLInput(
   input: string,
   config: SQLInjectionConfig = {}
 ): SQLInjectionCheckResult & { sanitizedValue: string } {
-  const checkResult = checkSQLInjection(input, config);
+  const checkResult = checkSQLInjection(input, config)
 
-  let sanitizedValue = input;
+  let sanitizedValue = input
 
   if (!checkResult.safe && config.sanitizeInput) {
-    sanitizedValue = sanitizeSQLInput(input);
+    sanitizedValue = sanitizeSQLInput(input)
   }
 
   if (!checkResult.safe && config.throwOnDetection) {
-    throw new Error(`SQL injection detected: ${checkResult.detectedPatterns.join(', ')}`);
+    throw new Error(`SQL injection detected: ${checkResult.detectedPatterns.join(', ')}`)
   }
 
   return {
     ...checkResult,
     sanitizedValue,
-  };
+  }
 }
 
 // ============================================================================
@@ -321,7 +336,7 @@ export function validateAndSanitizeSQLInput(
  */
 export function isValidIdentifier(identifier: string): boolean {
   // Only allow alphanumeric and underscore
-  return /^[a-zA-Z_][a-zA-Z0-9_]*$/.test(identifier);
+  return /^[a-zA-Z_][a-zA-Z0-9_]*$/.test(identifier)
 }
 
 /**
@@ -331,7 +346,7 @@ export function isValidIdentifier(identifier: string): boolean {
  * @returns True if valid
  */
 export function isValidSortDirection(direction: string): boolean {
-  return ['asc', 'ASC', 'desc', 'DESC'].includes(direction);
+  return ['asc', 'ASC', 'desc', 'DESC'].includes(direction)
 }
 
 /**
@@ -342,13 +357,13 @@ export function isValidSortDirection(direction: string): boolean {
  * @returns Validated limit or default
  */
 export function validateLimit(limit: unknown, maxLimit: number = 100): number {
-  const parsed = parseInt(String(limit), 10);
+  const parsed = parseInt(String(limit), 10)
 
   if (isNaN(parsed) || parsed < 1) {
-    return 10; // Default
+    return 10 // Default
   }
 
-  return Math.min(parsed, maxLimit);
+  return Math.min(parsed, maxLimit)
 }
 
 /**
@@ -358,13 +373,13 @@ export function validateLimit(limit: unknown, maxLimit: number = 100): number {
  * @returns Validated offset or default
  */
 export function validateOffset(offset: unknown): number {
-  const parsed = parseInt(String(offset), 10);
+  const parsed = parseInt(String(offset), 10)
 
   if (isNaN(parsed) || parsed < 0) {
-    return 0; // Default
+    return 0 // Default
   }
 
-  return parsed;
+  return parsed
 }
 
 // ============================================================================
@@ -386,29 +401,42 @@ export function buildSafeCondition(
 ): { field: string; operator: string; value: unknown } | null {
   // Validate field name
   if (!isValidIdentifier(field)) {
-    logger.warn(`Invalid field name: ${field}`);
-    return null;
+    logger.warn(`Invalid field name: ${field}`)
+    return null
   }
 
   // Validate operator
-  const validOperators = ['=', '!=', '>', '<', '>=', '<=', 'LIKE', 'NOT LIKE', 'IN', 'NOT IN', 'IS NULL', 'IS NOT NULL'];
+  const validOperators = [
+    '=',
+    '!=',
+    '>',
+    '<',
+    '>=',
+    '<=',
+    'LIKE',
+    'NOT LIKE',
+    'IN',
+    'NOT IN',
+    'IS NULL',
+    'IS NOT NULL',
+  ]
 
   if (!validOperators.includes(operator.toUpperCase())) {
-    logger.warn(`Invalid operator: ${operator}`);
-    return null;
+    logger.warn(`Invalid operator: ${operator}`)
+    return null
   }
 
   // Check value for injection
   if (typeof value === 'string') {
-    const check = checkSQLInjection(value);
+    const check = checkSQLInjection(value)
 
     if (!check.safe) {
-      logger.warn('SQL injection detected in value', { field, patterns: check.detectedPatterns });
-      return null;
+      logger.warn('SQL injection detected in value', { field, patterns: check.detectedPatterns })
+      return null
     }
   }
 
-  return { field, operator: operator.toUpperCase(), value };
+  return { field, operator: operator.toUpperCase(), value }
 }
 
 /**
@@ -423,16 +451,16 @@ export function buildSafeOrder(
   direction: string = 'ASC'
 ): { field: string; direction: string } | null {
   if (!isValidIdentifier(field)) {
-    logger.warn(`Invalid field name for ORDER BY: ${field}`);
-    return null;
+    logger.warn(`Invalid field name for ORDER BY: ${field}`)
+    return null
   }
 
   if (!isValidSortDirection(direction)) {
-    logger.warn(`Invalid sort direction: ${direction}`);
-    return null;
+    logger.warn(`Invalid sort direction: ${direction}`)
+    return null
   }
 
-  return { field, direction: direction.toUpperCase() };
+  return { field, direction: direction.toUpperCase() }
 }
 
 // ============================================================================
@@ -451,9 +479,9 @@ export function createSQLInjectionMiddleware(config: SQLInjectionConfig = {}) {
     next: () => Promise<Response>
   ): Promise<Response> {
     // Check URL parameters
-    const url = new URL(req.url);
+    const url = new URL(req.url)
     for (const [key, value] of url.searchParams) {
-      const result = checkSQLInjection(value, config);
+      const result = checkSQLInjection(value, config)
 
       if (!result.safe) {
         return Response.json(
@@ -465,15 +493,15 @@ export function createSQLInjectionMiddleware(config: SQLInjectionConfig = {}) {
             },
           },
           { status: 400 }
-        );
+        )
       }
     }
 
     // Check body for POST/PUT/PATCH
     if (['POST', 'PUT', 'PATCH'].includes(req.method)) {
       try {
-        const body = await req.json();
-        const result = checkObjectForSQLInjection(body, config);
+        const body = await req.json()
+        const result = checkObjectForSQLInjection(body, config)
 
         if (!result.safe) {
           return Response.json(
@@ -485,15 +513,15 @@ export function createSQLInjectionMiddleware(config: SQLInjectionConfig = {}) {
               },
             },
             { status: 400 }
-          );
+          )
         }
-      } catch {
+      } catch (error) {
         // Not JSON, skip body check
       }
     }
 
-    return next();
-  };
+    return next()
+  }
 }
 
 /**
@@ -504,16 +532,16 @@ export function createSQLInjectionMiddleware(config: SQLInjectionConfig = {}) {
  */
 export function isRequestSafe(request: Request): boolean {
   // Check URL parameters
-  const url = new URL(request.url);
+  const url = new URL(request.url)
 
   for (const [key, value] of url.searchParams) {
-    const result = checkSQLInjection(value, { logDetections: false });
+    const result = checkSQLInjection(value, { logDetections: false })
 
     if (!result.safe) {
-      logger.warn('SQL injection detected in URL param', { key, value: value.substring(0, 50) });
-      return false;
+      logger.warn('SQL injection detected in URL param', { key, value: value.substring(0, 50) })
+      return false
     }
   }
 
-  return true;
+  return true
 }

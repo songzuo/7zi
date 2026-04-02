@@ -11,6 +11,7 @@
 ### ✅ 任务 1: 检查项目的 SEO 基本要素
 
 **已完成检查项目**:
+
 - ✅ Meta tags（title, description, keywords）
 - ✅ Open Graph tags（og:title, og:description, og:image, og:url, og:type, og:locale）
 - ✅ Twitter Cards（twitter:card, twitter:title, twitter:description, twitter:image）
@@ -29,6 +30,7 @@ SEO 基础设施非常完善，所有必需的 meta tags、OG tags 和结构化�
 ### ✅ 任务 2: 分析项目的 SEO 元数据完整性
 
 **检查维度**:
+
 - ✅ 页面标题和描述完整性（首页、关于、团队、博客、联系）
 - ✅ 多语言元数据支持（中英文）
 - ✅ 图片 alt 属性完整性
@@ -43,6 +45,7 @@ SEO 基础设施非常完善，所有必需的 meta tags、OG tags 和结构化�
 ### ✅ 任务 3: 检查 robots.txt、sitemap、canonical URL
 
 **检查结果**:
+
 - ✅ **Robots.txt**: 配置合理，正确排除 API 目录、测试页面等低价值内容
 - ⚠️ **Sitemap.xml**: 当前是静态文件，需要手动更新
 - ✅ **Canonical URL**: 所有页面都配置了正确的 canonical URL
@@ -57,28 +60,31 @@ Robots.txt 和 canonical URL 配置正确，但 sitemap 需要改为动态生成
 
 #### 识别的 SEO 问题
 
-| 优先级 | 问题 | 影响 | 状态 |
-|--------|------|------|------|
+| 优先级 | 问题                          | 影响               | 状态      |
+| ------ | ----------------------------- | ------------------ | --------- |
 | **高** | 博客文章页面缺少动态 metadata | 搜索排名低，CTR 低 | ✅ 已修复 |
-| **高** | Sitemap 是静态文件 | 新内容无法自动收录 | ✅ 已修复 |
-| **中** | Robots.txt 是静态文件 | 环境配置不灵活 | ✅ 已修复 |
-| **中** | 博客文章缺少面包屑 | 用户体验不佳 | ✅ 已修复 |
+| **高** | Sitemap 是静态文件            | 新内容无法自动收录 | ✅ 已修复 |
+| **中** | Robots.txt 是静态文件         | 环境配置不灵活     | ✅ 已修复 |
+| **中** | 博客文章缺少面包屑            | 用户体验不佳       | ✅ 已修复 |
 
 #### 改进计划
 
 **短期（1-2 周）**:
+
 - ✅ 为博客文章页面添加动态 metadata 生成
 - ✅ 将 sitemap 改为动态生成
 - ✅ 将 robots.txt 改为动态生成
 - ✅ 为博客文章添加面包屑导航
 
 **中期（1-2 月）**:
+
 - [ ] 为所有主要页面添加 BreadcrumbSchema
 - [ ] 添加 FAQ 结构化数据
 - [ ] 为服务页面添加 ServiceSchema
 - [ ] 集成 Google Search Console
 
 **长期（3-6 月）**:
+
 - [ ] 自动化博客文章结构化数据生成
 - [ ] SEO 监控和报警系统
 - [ ] 定期 SEO 性能审计
@@ -92,6 +98,7 @@ Robots.txt 和 canonical URL 配置正确，但 sitemap 需要改为动态生成
 **文件**: `src/app/[locale]/blog/[slug]/page.tsx`
 
 **实施内容**:
+
 1. ✅ 添加 `generateMetadata()` 函数
 2. ✅ 支持多语言 metadata（zh/en）
 3. ✅ 动态生成 OG tags、Twitter Cards
@@ -101,16 +108,17 @@ Robots.txt 和 canonical URL 配置正确，但 sitemap 需要改为动态生成
 7. ✅ 文本内容国际化支持
 
 **代码亮点**:
+
 ```typescript
 export async function generateMetadata({
   params,
 }: {
-  params: Promise<{ locale: string; slug: string }>;
+  params: Promise<{ locale: string; slug: string }>
 }): Promise<Metadata> {
-  const { locale, slug } = await params;
-  const post = blogPosts.find((p) => p.id === slug) || blogPosts[0];
+  const { locale, slug } = await params
+  const post = blogPosts.find(p => p.id === slug) || blogPosts[0]
 
-  const isZh = locale === 'zh';
+  const isZh = locale === 'zh'
 
   return {
     title: `${post.title} | 7zi Studio`,
@@ -125,17 +133,19 @@ export async function generateMetadata({
       tags: post.tags,
       // ... 完整配置
     },
-  };
+  }
 }
 ```
 
 **SEO 效果**:
+
 - ✅ 每篇文章都有独立的、优化的 metadata
 - ✅ 正确的多语言 SEO 配置
 - ✅ 丰富的搜索结果显示（发布日期、作者、标签等）
 - ✅ 面包屑导航提升用户体验
 
 **预期效果**:
+
 - 搜索排名提升: 20-30%
 - 点击率 (CTR) 提升: 15-25%
 
@@ -146,6 +156,7 @@ export async function generateMetadata({
 **文件**: `src/app/sitemap.ts` (新建)
 
 **实施内容**:
+
 1. ✅ 使用 Next.js App Router 的 Metadata Route API
 2. ✅ 自动生成所有页面 URL
 3. ✅ 支持多语言 URL（zh/en）
@@ -155,21 +166,25 @@ export async function generateMetadata({
 7. ✅ 自动更新日期
 
 **代码亮点**:
+
 ```typescript
-import type { MetadataRoute } from 'next';
+import type { MetadataRoute } from 'next'
 
 export default function sitemap(): MetadataRoute.Sitemap {
-  const urls: MetadataRoute.Sitemap = [];
+  const urls: MetadataRoute.Sitemap = []
 
   for (const page of pages) {
     for (const path of page.paths) {
       const alternates = {
         canonical: `${baseUrl}/${path}`,
-        languages: languages.reduce((acc, lang) => {
-          acc[lang.code] = `${baseUrl}/${lang.label}/${fullPath || ''}`;
-          return acc;
-        }, {} as Record<string, string>),
-      };
+        languages: languages.reduce(
+          (acc, lang) => {
+            acc[lang.code] = `${baseUrl}/${lang.label}/${fullPath || ''}`
+            return acc
+          },
+          {} as Record<string, string>
+        ),
+      }
 
       urls.push({
         url: `${baseUrl}/${path}`,
@@ -177,21 +192,23 @@ export default function sitemap(): MetadataRoute.Sitemap {
         changeFrequency: page.changefreq as any,
         priority: page.priority,
         alternates, // 关键：多语言替代链接
-      });
+      })
     }
   }
 
-  return urls;
+  return urls
 }
 ```
 
 **SEO 效果**:
+
 - ✅ Sitemap 自动更新，无需手动维护
 - ✅ 支持多语言 SEO（hreflang）
 - ✅ 搜索引擎爬虫可以更快发现新内容
 - ✅ 合理的优先级设置，引导爬虫优先抓取重要页面
 
 **预期效果**:
+
 - 索引效率提升: 30-40%
 - 新内容收录速度: 2-3 天 → 1-2 天
 
@@ -202,6 +219,7 @@ export default function sitemap(): MetadataRoute.Sitemap {
 **文件**: `src/app/robots.ts` (新建)
 
 **实施内容**:
+
 1. ✅ 使用 Next.js App Router 的 Metadata Route API
 2. ✅ 支持环境变量配置（`NEXT_PUBLIC_SITE_URL`）
 3. ✅ 完整的爬虫规则（GoogleBot, Bing, 百度）
@@ -209,10 +227,11 @@ export default function sitemap(): MetadataRoute.Sitemap {
 5. ✅ 灵活的配置结构
 
 **代码亮点**:
-```typescript
-import type { MetadataRoute } from 'next';
 
-const baseUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://7zi.studio';
+```typescript
+import type { MetadataRoute } from 'next'
+
+const baseUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://7zi.studio'
 
 export default function robots(): MetadataRoute.Robots {
   return {
@@ -232,17 +251,19 @@ export default function robots(): MetadataRoute.Robots {
     ],
     sitemap: `${baseUrl}/sitemap.xml`, // 关键：自动关联 sitemap
     host: baseUrl,
-  };
+  }
 }
 ```
 
 **SEO 效果**:
+
 - ✅ 环境变量支持，便于部署到不同环境
 - ✅ 爬虫配置更灵活
 - ✅ 自动关联 sitemap
 - ✅ 减少爬虫抓取低价值内容，节省服务器资源
 
 **预期效果**:
+
 - 服务器负载降低: 15-20%
 - 404 错误减少: 30-50%
 
@@ -252,21 +273,21 @@ export default function robots(): MetadataRoute.Robots {
 
 ### 短期效果（1-2 个月）
 
-| 指标 | 优化前 | 优化后 | 提升 |
-|------|--------|--------|------|
-| 搜索排名 | 基准 | +20-30% | ⬆️ |
-| 点击率 (CTR) | 基准 | +15-25% | ⬆️ |
-| 索引效率 | 基准 | +30-40% | ⬆️ |
-| 服务器负载 | 基准 | -15-20% | ⬇️ |
-| 404 错误 | 基准 | -30-50% | ⬇️ |
+| 指标         | 优化前 | 优化后  | 提升 |
+| ------------ | ------ | ------- | ---- |
+| 搜索排名     | 基准   | +20-30% | ⬆️   |
+| 点击率 (CTR) | 基准   | +15-25% | ⬆️   |
+| 索引效率     | 基准   | +30-40% | ⬆️   |
+| 服务器负载   | 基准   | -15-20% | ⬇️   |
+| 404 错误     | 基准   | -30-50% | ⬇️   |
 
 ### 中期效果（3-6 个月）
 
-| 指标 | 优化前 | 优化后 | 提升 |
-|------|--------|--------|------|
-| 有机流量 | 基准 | +40-60% | ⬆️ |
-| 品牌搜索量 | 基准 | +25-35% | ⬆️ |
-| 转化率 | 基准 | +10-15% | ⬆️ |
+| 指标       | 优化前 | 优化后  | 提升 |
+| ---------- | ------ | ------- | ---- |
+| 有机流量   | 基准   | +40-60% | ⬆️   |
+| 品牌搜索量 | 基准   | +25-35% | ⬆️   |
+| 转化率     | 基准   | +10-15% | ⬆️   |
 
 ---
 
@@ -328,10 +349,12 @@ curl https://7zi.studio/zh/blog/ai-agent-future-work | grep 'application/ld+json
 访问: https://search.google.com/test/rich-results
 
 测试 URL:
+
 - `https://7zi.studio/zh/blog/ai-agent-future-work`
 - `https://7zi.studio/en/blog/ai-agent-future-work`
 
 期望结果:
+
 - ✅ Article schema 检测成功
 - ✅ 显示发布日期、作者等信息
 - ✅ 面包屑导航正确显示
@@ -351,27 +374,27 @@ curl https://7zi.studio/zh/blog/ai-agent-future-work | grep 'application/ld+json
 
 ### 高优先级（本周完成）
 
-| 任务 | 工作量 | 预期效果 |
-|------|--------|----------|
-| 为所有主要页面添加 BreadcrumbSchema | 2 小时 | 提升搜索结果丰富度 |
-| 更新静态 sitemap 文件为动态生成 | 0.5 小时 | 自动更新 sitemap |
-| 更新静态 robots.txt 为动态生成 | 0.5 小时 | 环境灵活配置 |
+| 任务                                | 工作量   | 预期效果           |
+| ----------------------------------- | -------- | ------------------ |
+| 为所有主要页面添加 BreadcrumbSchema | 2 小时   | 提升搜索结果丰富度 |
+| 更新静态 sitemap 文件为动态生成     | 0.5 小时 | 自动更新 sitemap   |
+| 更新静态 robots.txt 为动态生成      | 0.5 小时 | 环境灵活配置       |
 
 ### 中优先级（下周完成）
 
-| 任务 | 工作量 | 预期效果 |
-|------|--------|----------|
-| 添加 FAQ 结构化数据 | 2 小时 | 搜索结果 FAQ 问答展示 |
-| 为服务页面添加 ServiceSchema | 1 小时 | 服务信息在搜索结果展示 |
-| Google Search Console 集成 | 0.5 小时 | SEO 表现监控 |
+| 任务                         | 工作量   | 预期效果               |
+| ---------------------------- | -------- | ---------------------- |
+| 添加 FAQ 结构化数据          | 2 小时   | 搜索结果 FAQ 问答展示  |
+| 为服务页面添加 ServiceSchema | 1 小时   | 服务信息在搜索结果展示 |
+| Google Search Console 集成   | 0.5 小时 | SEO 表现监控           |
 
 ### 低优先级（下月完成）
 
-| 任务 | 工作量 | 预期效果 |
-|------|--------|----------|
-| 自动生成博客文章结构化数据 | 3 小时 | 减少手动工作量 |
-| SEO 监控和报警系统 | 2 小时 | 实时监控 SEO 问题 |
-| 性能优化（Lighthouse） | 4 小时 | 提升页面加载速度 |
+| 任务                       | 工作量 | 预期效果          |
+| -------------------------- | ------ | ----------------- |
+| 自动生成博客文章结构化数据 | 3 小时 | 减少手动工作量    |
+| SEO 监控和报警系统         | 2 小时 | 实时监控 SEO 问题 |
+| 性能优化（Lighthouse）     | 4 小时 | 提升页面加载速度  |
 
 ---
 

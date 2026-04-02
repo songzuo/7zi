@@ -1,9 +1,11 @@
 # lib/ 层重构报告
 
 ## 执行日期
+
 2026-03-29
 
 ## 任务概述
+
 执行 src/lib/ 目录结构重构，整合 agent 相关代码分散在多个子目录的问题。
 
 ## 实际执行的重构操作
@@ -95,6 +97,7 @@ src/lib/agents/
 **现象**: 运行 `pnpm build` 时提示 "Another next build process is already running"
 
 **解决方案**:
+
 - 使用 `pkill -f "next build"` 终止旧进程
 - 清理 `.next` 缓存目录
 - 重新启动构建
@@ -102,6 +105,7 @@ src/lib/agents/
 ### 问题 2: 相对路径引用错误
 
 **现象**: 移动文件后，模块内部引用错误：
+
 ```
 Cannot find module '../db' or its corresponding type declarations
 ```
@@ -110,6 +114,7 @@ Cannot find module '../db' or its corresponding type declarations
 
 **解决方案**:
 使用 sed 批量更新所有相对路径：
+
 ```bash
 sed -i "s|from '\.\./db'|from '../../db'|g" "$f"
 ```
@@ -117,10 +122,12 @@ sed -i "s|from '\.\./db'|from '../../db'|g" "$f"
 ### 问题 3: a2a 模块导出错误
 
 **现象**: TypeScript 编译错误：
+
 - `Module '"./agent-registry"' has no exported member named 'AgentRegistry'`
 - `Module '"./message-queue"' has no exported member named 'MessageQueue'`
 
 **解决方案**:
+
 - 查看实际导出的类名
 - 更新 `src/lib/agents/a2a/index.ts` 使用正确的类名
 - `AgentRegistry` → `InMemoryAgentRegistry`, `FileAgentRegistry`
@@ -131,6 +138,7 @@ sed -i "s|from '\.\./db'|from '../../db'|g" "$f"
 **现象**: 重复导出导致 TypeScript 错误
 
 **解决方案**:
+
 - 重新组织 a2a/index.ts 的导出
 - 移除重复的类型别名
 - 清理无用的重命名导出
@@ -179,9 +187,9 @@ rm -rf src/lib/a2a/
 
 ```typescript
 // 新的导入路径（推荐）
-import { AgentCapability } from '@/lib/agents/agent/types';
-import { Scheduler } from '@/lib/agents/scheduler';
-import { InMemoryAgentRegistry } from '@/lib/agents/a2a';
+import { AgentCapability } from '@/lib/agents/agent/types'
+import { Scheduler } from '@/lib/agents/scheduler'
+import { InMemoryAgentRegistry } from '@/lib/agents/a2a'
 
 // 旧路径（向后兼容）
 // import { AgentCapability } from '@/lib/agent/types';

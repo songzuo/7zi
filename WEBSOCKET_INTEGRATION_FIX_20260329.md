@@ -25,7 +25,7 @@ import {
   type CreateRoomOptions,
   type JoinRoomOptions,
   type RoomEventCallbacks,
-} from './rooms';
+} from './rooms'
 
 // permissions.ts - PermissionManager
 import {
@@ -33,7 +33,7 @@ import {
   getPermissionManager,
   type UserRole,
   type Permission,
-} from './permissions';
+} from './permissions'
 
 // message-store.ts - MessageStore
 import {
@@ -41,7 +41,7 @@ import {
   getMessageStore,
   type StoredMessage,
   type MessageHistoryOptions,
-} from './message-store';
+} from './message-store'
 ```
 
 ### 2. 全局实例管理 ✅
@@ -49,9 +49,9 @@ import {
 添加了三个核心模块的全局实例：
 
 ```typescript
-let roomManager: RoomManager | null = null;
-let permissionManager: PermissionManager | null = null;
-let messageStore: MessageStore | null = null;
+let roomManager: RoomManager | null = null
+let permissionManager: PermissionManager | null = null
+let messageStore: MessageStore | null = null
 ```
 
 ### 3. 核心模块初始化 ✅
@@ -67,29 +67,29 @@ let messageStore: MessageStore | null = null;
 
 #### 房间管理事件
 
-| 事件 | 功能 | 权限检查 |
-|------|------|----------|
-| `room:join` | 加入房间 | 检查是否被禁言 |
-| `room:leave` | 离开房间 | - |
-| `room:get_users` | 获取房间用户列表 | - |
-| `room:get_info` | 获取房间信息 | `room:view` |
-| `room:kick` | 踢出用户 | `room:kick` + 角色层级检查 |
-| `room:ban` | 封禁用户 | `room:ban` + 角色层级检查 |
-| `room:unban` | 解封用户 | `room:ban` |
-| `room:invite` | 邀请用户 | `room:invite` |
-| `room:change_role` | 更改用户角色 | `room:manage` + 角色层级检查 |
+| 事件               | 功能             | 权限检查                     |
+| ------------------ | ---------------- | ---------------------------- |
+| `room:join`        | 加入房间         | 检查是否被禁言               |
+| `room:leave`       | 离开房间         | -                            |
+| `room:get_users`   | 获取房间用户列表 | -                            |
+| `room:get_info`    | 获取房间信息     | `room:view`                  |
+| `room:kick`        | 踢出用户         | `room:kick` + 角色层级检查   |
+| `room:ban`         | 封禁用户         | `room:ban` + 角色层级检查    |
+| `room:unban`       | 解封用户         | `room:ban`                   |
+| `room:invite`      | 邀请用户         | `room:invite`                |
+| `room:change_role` | 更改用户角色     | `room:manage` + 角色层级检查 |
 
 #### 消息事件
 
-| 事件 | 功能 | 权限检查 |
-|------|------|----------|
-| `message:send` | 发送消息 | `message:send` |
-| `message:edit` | 编辑消息 | `message:edit` + 所有者检查 |
-| `message:delete` | 删除消息 | `message:delete` + 所有者检查 |
-| `message:react` | 添加反应 | `message:react` |
-| `message:pin` | 置顶消息 | `message:pin` |
-| `message:get_history` | 获取消息历史 | `message:view_history` |
-| `message:get_pinned` | 获取置顶消息 | `room:view` |
+| 事件                  | 功能         | 权限检查                      |
+| --------------------- | ------------ | ----------------------------- |
+| `message:send`        | 发送消息     | `message:send`                |
+| `message:edit`        | 编辑消息     | `message:edit` + 所有者检查   |
+| `message:delete`      | 删除消息     | `message:delete` + 所有者检查 |
+| `message:react`       | 添加反应     | `message:react`               |
+| `message:pin`         | 置顶消息     | `message:pin`                 |
+| `message:get_history` | 获取消息历史 | `message:view_history`        |
+| `message:get_pinned`  | 获取置顶消息 | `room:view`                   |
 
 ### 5. 权限检查集成 ✅
 
@@ -129,12 +129,12 @@ export function isUserBannedFromRoom(userId, roomId): boolean
 
 ```typescript
 {
-  connected,      // 当前连接数
-  rooms,          // 总房间数
-  activeRooms,    // 活跃房间数
-  totalUsers,     // 总用户数
-  messages,       // 总消息数
-  offlineMessages // 离线消息数
+  ;(connected, // 当前连接数
+    rooms, // 总房间数
+    activeRooms, // 活跃房间数
+    totalUsers, // 总用户数
+    messages, // 总消息数
+    offlineMessages) // 离线消息数
 }
 ```
 
@@ -153,9 +153,9 @@ export function isUserBannedFromRoom(userId, roomId): boolean
 为消费者重新导出了以下类型：
 
 ```typescript
-export type { RoomType as WsRoomType, RoomVisibility, UserRole, RoomParticipant } from './rooms';
-export type { Permission } from './permissions';
-export type { StoredMessage, MessageHistoryOptions } from './message-store';
+export type { RoomType as WsRoomType, RoomVisibility, UserRole, RoomParticipant } from './rooms'
+export type { Permission } from './permissions'
+export type { StoredMessage, MessageHistoryOptions } from './message-store'
 ```
 
 ## 事件流程图
@@ -190,12 +190,12 @@ initializeCoreModules (初始化核心模块)
 
 ## 文件变更
 
-| 文件 | 变更 |
-|------|------|
-| `src/lib/websocket/server.ts` | 完全重写，集成核心模块 |
-| `src/lib/websocket/rooms.ts` | 无变更 |
-| `src/lib/websocket/permissions.ts` | 无变更 |
-| `src/lib/websocket/message-store.ts` | 无变更 |
+| 文件                                 | 变更                   |
+| ------------------------------------ | ---------------------- |
+| `src/lib/websocket/server.ts`        | 完全重写，集成核心模块 |
+| `src/lib/websocket/rooms.ts`         | 无变更                 |
+| `src/lib/websocket/permissions.ts`   | 无变更                 |
+| `src/lib/websocket/message-store.ts` | 无变更                 |
 
 ## 代码统计
 

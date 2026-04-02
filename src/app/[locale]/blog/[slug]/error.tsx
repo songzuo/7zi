@@ -1,3 +1,3 @@
-'use client';
+'use client'
 
-export { BlogSlugError as default } from '@/components/errors';
+export { BlogSlugError as default } from '@/components/errors'

@@ -7,34 +7,34 @@
  * - 支持运行时动态切换
  */
 
-import { getRedisClient, isRedisAvailable } from '@/lib/redis/client';
-import { getMemoryStore, MemoryRateLimitStore } from './memory-store';
-import { logger } from '@/lib/logger';
+import { getRedisClient, isRedisAvailable } from '@/lib/redis/client'
+import { getMemoryStore, MemoryRateLimitStore } from './memory-store'
+import { logger } from '@/lib/logger'
 
 export interface StorageConfig {
   /**
    * 是否强制使用内存存储
    */
-  forceMemory?: boolean;
+  forceMemory?: boolean
 
   /**
    * 失败时是否放行（fail-open）
    */
-  failOpen?: boolean;
+  failOpen?: boolean
 }
 
 /**
  * 存储类型
  */
-export type StorageType = 'redis' | 'memory';
+export type StorageType = 'redis' | 'memory'
 
 /**
  * 存储状态
  */
 export interface StorageStatus {
-  type: StorageType;
-  redisAvailable: boolean;
-  failOpen: boolean;
+  type: StorageType
+  redisAvailable: boolean
+  failOpen: boolean
 }
 
 /**
@@ -43,33 +43,33 @@ export interface StorageStatus {
 export async function getStorageType(config: StorageConfig = {}): Promise<StorageType> {
   // 强制使用内存存储
   if (config.forceMemory) {
-    return 'memory';
+    return 'memory'
   }
 
   // 检查 Redis 可用性
-  const redisAvailable = await isRedisAvailable();
+  const redisAvailable = await isRedisAvailable()
 
   if (redisAvailable) {
-    return 'redis';
+    return 'redis'
   }
 
   // Redis 不可用，使用内存存储
-  logger.warn('Redis not available, using memory storage for rate limiting');
-  return 'memory';
+  logger.warn('Redis not available, using memory storage for rate limiting')
+  return 'memory'
 }
 
 /**
  * 获取存储状态
  */
 export async function getStorageStatus(config: StorageConfig = {}): Promise<StorageStatus> {
-  const redisAvailable = await isRedisAvailable();
-  const type = await getStorageType(config);
+  const redisAvailable = await isRedisAvailable()
+  const type = await getStorageType(config)
 
   return {
     type,
     redisAvailable,
     failOpen: config.failOpen !== false,
-  };
+  }
 }
 
 /**
@@ -78,29 +78,29 @@ export async function getStorageStatus(config: StorageConfig = {}): Promise<Stor
 export function shouldUseRedis(config: StorageConfig = {}): boolean {
   // 强制使用内存存储
   if (config.forceMemory) {
-    return false;
+    return false
   }
 
   // 检查环境变量
-  const enableRedis = process.env.ENABLE_REDIS_RATE_LIMIT === 'true';
+  const enableRedis = process.env.ENABLE_REDIS_RATE_LIMIT === 'true'
   if (!enableRedis) {
-    return false;
+    return false
   }
 
   // 检查 Redis URL
-  const hasRedisConfig = !!(process.env.REDIS_URL || process.env.REDIS_HOST);
+  const hasRedisConfig = !!(process.env.REDIS_URL || process.env.REDIS_HOST)
   if (!hasRedisConfig) {
-    return false;
+    return false
   }
 
-  return true;
+  return true
 }
 
 /**
  * 获取内存存储实例
  */
 export function getMemoryStorage(): MemoryRateLimitStore {
-  return getMemoryStore();
+  return getMemoryStore()
 }
 
 /**
@@ -111,59 +111,62 @@ export async function withFallback<T>(
   memoryOperation: () => Promise<T>,
   config: StorageConfig = {}
 ): Promise<T> {
-  const useRedis = shouldUseRedis(config);
+  const useRedis = shouldUseRedis(config)
 
   if (useRedis) {
-    const redisAvailable = await isRedisAvailable();
+    const redisAvailable = await isRedisAvailable()
 
     if (redisAvailable) {
       try {
-        return await redisOperation();
-      } catch (_error) {
-        logger.error('Redis operation failed, falling back to memory', { error });
+        return await redisOperation()
+      } catch (error) {
+        logger.error('Redis operation failed, falling back to memory', { error })
 
         if (config.failOpen !== false) {
-          return await memoryOperation();
+          return await memoryOperation()
         }
 
-        throw error;
+        throw error
       }
     }
   }
 
   // 使用内存存储
-  return await memoryOperation();
+  return await memoryOperation()
 }
 
 /**
  * 辅助函数：异步检查 Redis 可用性（带缓存）
  */
-let redisAvailabilityCache: { available: boolean; timestamp: number } | null = null;
-const REDIS_AVAILABILITY_CACHE_TTL = 5000; // 5 秒缓存
+let redisAvailabilityCache: { available: boolean; timestamp: number } | null = null
+const REDIS_AVAILABILITY_CACHE_TTL = 5000 // 5 秒缓存
 
 export async function getCachedRedisAvailability(): Promise<boolean> {
-  const now = Date.now();
+  const now = Date.now()
 
   // 检查缓存
-  if (redisAvailabilityCache && now - redisAvailabilityCache.timestamp < REDIS_AVAILABILITY_CACHE_TTL) {
-    return redisAvailabilityCache.available;
+  if (
+    redisAvailabilityCache &&
+    now - redisAvailabilityCache.timestamp < REDIS_AVAILABILITY_CACHE_TTL
+  ) {
+    return redisAvailabilityCache.available
   }
 
   // 检查 Redis 可用性
-  const available = await isRedisAvailable();
+  const available = await isRedisAvailable()
 
   // 更新缓存
   redisAvailabilityCache = {
     available,
     timestamp: now,
-  };
+  }
 
-  return available;
+  return available
 }
 
 /**
  * 清除缓存
  */
 export function clearRedisAvailabilityCache(): void {
-  redisAvailabilityCache = null;
+  redisAvailabilityCache = null
 }

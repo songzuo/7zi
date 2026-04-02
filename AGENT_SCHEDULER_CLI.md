@@ -95,9 +95,11 @@ agent-cli schedule stats
 Add a new task to the scheduling queue.
 
 **Arguments:**
+
 - `<title>` - Task title (required)
 
 **Options:**
+
 - `--type <type>` - Task type: `architecture`, `research`, `implementation`, `testing`, `devops`, `design`, `marketing`, `sales`, `finance`, `media`, `general` (default: `general`)
 - `--priority <priority>` - Task priority: `low`, `medium`, `high`, `urgent` (default: `medium`)
 - `--duration <minutes>` - Estimated duration in minutes (default: `30`)
@@ -108,6 +110,7 @@ Add a new task to the scheduling queue.
 - `--created-by <user>` - User ID creating the task
 
 **Example:**
+
 ```bash
 agent-cli task add "实现用户认证功能" \
   --type implementation \
@@ -124,6 +127,7 @@ agent-cli task add "实现用户认证功能" \
 List tasks with optional filtering.
 
 **Options:**
+
 - `--status <status>` - Filter by status: `pending`, `assigned`, `in_progress`, `completed`, `failed`, `cancelled`
 - `--type <type>` - Filter by task type
 - `--agent <agentId>` - Filter by assigned agent
@@ -133,6 +137,7 @@ List tasks with optional filtering.
 - `--limit <number>` - Limit number of results (default: `50`)
 
 **Examples:**
+
 ```bash
 # List all pending tasks
 agent-cli task list --pending
@@ -157,9 +162,11 @@ agent-cli task list --overdue
 Display detailed information about a specific task.
 
 **Arguments:**
+
 - `<taskId>` - Task ID
 
 **Example:**
+
 ```bash
 agent-cli task show 550e8400-e29b-41d4-a716-446655440000
 ```
@@ -171,9 +178,11 @@ agent-cli task show 550e8400-e29b-41d4-a716-446655440000
 Mark a task as started (status: `in_progress`).
 
 **Arguments:**
+
 - `<taskId>` - Task ID
 
 **Example:**
+
 ```bash
 agent-cli task start 550e8400-e29b-41d4-a716-446655440000
 ```
@@ -185,9 +194,11 @@ agent-cli task start 550e8400-e29b-41d4-a716-446655440000
 Mark a task as completed.
 
 **Arguments:**
+
 - `<taskId>` - Task ID
 
 **Example:**
+
 ```bash
 agent-cli task complete 550e8400-e29b-41d4-a716-446655440000
 ```
@@ -199,10 +210,12 @@ agent-cli task complete 550e8400-e29b-41d4-a716-446655440000
 Mark a task as failed with an error message.
 
 **Arguments:**
+
 - `<taskId>` - Task ID
 - `<error>` - Error message describing the failure
 
 **Example:**
+
 ```bash
 agent-cli task fail 550e8400-e29b-41d4-a716-446655440000 "API rate limit exceeded"
 ```
@@ -214,9 +227,11 @@ agent-cli task fail 550e8400-e29b-41d4-a716-446655440000 "API rate limit exceede
 Reassign a failed task to another agent.
 
 **Arguments:**
+
 - `<taskId>` - Task ID
 
 **Example:**
+
 ```bash
 agent-cli task reassign 550e8400-e29b-41d4-a716-446655440000
 ```
@@ -230,10 +245,12 @@ agent-cli task reassign 550e8400-e29b-41d4-a716-446655440000
 Display information about all registered agents.
 
 **Options:**
+
 - `--available` - Show only available agents
 - `--type <taskType>` - Show agents capable of specific task type
 
 **Examples:**
+
 ```bash
 # List all agents
 agent-cli agent list
@@ -252,9 +269,11 @@ agent-cli agent list --type architecture
 Display detailed information about a specific agent.
 
 **Arguments:**
+
 - `<agentId>` - Agent ID
 
 **Available Agents:**
+
 - `agent-expert` - 智能体世界专家 (minimax)
 - `consultant` - 咨询师 (minimax)
 - `architect` - 架构师 (self-claude)
@@ -268,6 +287,7 @@ Display detailed information about a specific agent.
 - `media` - 媒体 (self-claude)
 
 **Example:**
+
 ```bash
 agent-cli agent show architect
 ```
@@ -279,10 +299,12 @@ agent-cli agent show architect
 Set whether an agent is available for new tasks.
 
 **Arguments:**
+
 - `<agentId>` - Agent ID
 - `<available>` - Availability: `true` or `false`
 
 **Example:**
+
 ```bash
 # Set agent as unavailable
 agent-cli agent available sysadmin false
@@ -298,9 +320,11 @@ agent-cli agent available sysadmin true
 Show tasks currently assigned to an agent.
 
 **Arguments:**
+
 - `<agentId>` - Agent ID
 
 **Example:**
+
 ```bash
 agent-cli agent tasks executor
 ```
@@ -314,9 +338,11 @@ agent-cli agent tasks executor
 Manually trigger a scheduling cycle.
 
 **Options:**
+
 - `--batch-size <number>` - Maximum tasks to schedule in this batch
 
 **Example:**
+
 ```bash
 # Trigger with default batch size
 agent-cli schedule trigger
@@ -332,12 +358,14 @@ agent-cli schedule trigger --batch-size 5
 Display comprehensive scheduling statistics and metrics.
 
 **Output includes:**
+
 - Task statistics (total, pending, assigned, in progress, completed, failed)
 - Scheduling metrics (total decisions, average confidence)
 - Load balancing statistics
 - Scaling suggestions
 
 **Example:**
+
 ```bash
 agent-cli schedule stats
 ```
@@ -349,10 +377,12 @@ agent-cli schedule stats
 Display recent scheduling decisions.
 
 **Options:**
+
 - `--limit <number>` - Number of decisions to show (default: `10`)
 - `--agent <agentId>` - Filter by agent ID
 
 **Examples:**
+
 ```bash
 # Show last 10 decisions
 agent-cli schedule history
@@ -373,9 +403,11 @@ agent-cli schedule history --agent architect
 Display the web dashboard URL.
 
 **Options:**
+
 - `--url <url>` - Custom dashboard URL (default: `http://localhost:3000/dashboard`)
 
 **Example:**
+
 ```bash
 agent-cli dashboard
 ```
@@ -387,9 +419,11 @@ agent-cli dashboard
 Clear all tasks from the queue. **Use with caution!**
 
 **Options:**
+
 - `--confirm` - Confirm clearing without prompt
 
 **Example:**
+
 ```bash
 agent-cli clear --confirm
 ```
@@ -401,9 +435,11 @@ agent-cli clear --confirm
 Reset the entire scheduler state (clears tasks, history, and resets agents). **Use with caution!**
 
 **Options:**
+
 - `--confirm` - Confirm reset without prompt
 
 **Example:**
+
 ```bash
 agent-cli reset --confirm
 ```
@@ -415,9 +451,11 @@ agent-cli reset --confirm
 Export scheduler state to JSON.
 
 **Options:**
+
 - `--output <file>` - Output file path (default: stdout)
 
 **Examples:**
+
 ```bash
 # Export to stdout
 agent-cli export
@@ -433,6 +471,7 @@ agent-cli export --output scheduler-state.json
 Display current scheduler configuration and statistics.
 
 **Example:**
+
 ```bash
 agent-cli config
 ```
@@ -504,18 +543,18 @@ while true; do
   echo ""
   echo "Time: $(date)"
   echo ""
-  
+
   echo "--- Task Statistics ---"
   agent-cli schedule stats | grep -A 20 "taskStatistics"
-  
+
   echo ""
   echo "--- Agent Status ---"
   agent-cli agent list
-  
+
   echo ""
   echo "--- Recent Decisions ---"
   agent-cli schedule history --limit 5
-  
+
   sleep 30
 done
 ```
@@ -569,16 +608,16 @@ PENDING_COUNT=$(agent-cli --json task list --pending | jq '.total')
 
 if [ "$PENDING_COUNT" -gt 0 ]; then
   echo "Found $PENDING_COUNT pending tasks, triggering schedule..."
-  
+
   # Trigger scheduling
   RESULT=$(agent-cli --json schedule trigger)
-  
+
   # Check result
   SCHEDULED=$(echo "$RESULT" | jq '.stats.totalScheduled')
   FAILED=$(echo "$RESULT" | jq '.stats.totalFailed')
-  
+
   echo "Scheduled: $SCHEDULED, Failed: $FAILED"
-  
+
   # If any failed, log them
   if [ "$FAILED" -gt 0 ]; then
     echo "Failed tasks:"
@@ -592,32 +631,32 @@ fi
 ### Node.js Integration
 
 ```javascript
-const { execSync } = require('child_process');
+const { execSync } = require('child_process')
 
 function runCliCommand(args) {
-  const output = execSync(
-    `npx ts-node src/tools/agent-cli.ts --json ${args}`,
-    { encoding: 'utf8' }
-  );
-  return JSON.parse(output);
+  const output = execSync(`npx ts-node src/tools/agent-cli.ts --json ${args}`, { encoding: 'utf8' })
+  return JSON.parse(output)
 }
 
 // Example usage
 async function main() {
   // Add a task
-  const tasks = runCliCommand('task add "Test task" --type research');
-  console.log('Created task:', tasks.task.id);
+  const tasks = runCliCommand('task add "Test task" --type research')
+  console.log('Created task:', tasks.task.id)
 
   // List agents
-  const agents = runCliCommand('agent list');
-  console.log('Available agents:', agents.agents.filter(a => a.availability));
+  const agents = runCliCommand('agent list')
+  console.log(
+    'Available agents:',
+    agents.agents.filter(a => a.availability)
+  )
 
   // Trigger scheduling
-  const result = runCliCommand('schedule trigger');
-  console.log('Scheduled tasks:', result.stats.totalScheduled);
+  const result = runCliCommand('schedule trigger')
+  console.log('Scheduled tasks:', result.stats.totalScheduled)
 }
 
-main();
+main()
 ```
 
 ### Python Integration
@@ -710,7 +749,7 @@ When using `--json`, all commands output structured JSON for easy parsing:
       "scores": {
         "capability": 0.95,
         "load": 0.85,
-        "performance": 0.90,
+        "performance": 0.9,
         "response": 0.88,
         "total": 0.92
       }

@@ -42,9 +42,9 @@ GITHUB_REPO=7zi
 
 ```javascript
 // fetch-issues.js
-const GITHUB_TOKEN = process.env.GITHUB_TOKEN;
-const OWNER = 'songzuo';
-const REPO = '7zi';
+const GITHUB_TOKEN = process.env.GITHUB_TOKEN
+const OWNER = 'songzuo'
+const REPO = '7zi'
 
 async function getIssues() {
   const response = await fetch(
@@ -52,28 +52,28 @@ async function getIssues() {
     {
       headers: {
         Accept: 'application/vnd.github.v3+json',
-        Authorization: `token ${GITHUB_TOKEN}`
-      }
+        Authorization: `token ${GITHUB_TOKEN}`,
+      },
     }
-  );
-  
+  )
+
   if (!response.ok) {
-    throw new Error(`HTTP error! status: ${response.status}`);
+    throw new Error(`HTTP error! status: ${response.status}`)
   }
-  
-  const issues = await response.json();
+
+  const issues = await response.json()
   // 过滤掉 Pull Requests
-  return issues.filter(issue => !issue.pull_request);
+  return issues.filter(issue => !issue.pull_request)
 }
 
 getIssues()
   .then(issues => {
-    console.log(`获取到 ${issues.length} 个 Issues`);
+    console.log(`获取到 ${issues.length} 个 Issues`)
     issues.forEach(issue => {
-      console.log(`#${issue.number}: ${issue.title} [${issue.state}]`);
-    });
+      console.log(`#${issue.number}: ${issue.title} [${issue.state}]`)
+    })
   })
-  .catch(console.error);
+  .catch(console.error)
 ```
 
 **运行**:
@@ -102,10 +102,10 @@ def get_issues():
         "Accept": "application/vnd.github.v3+json",
         "Authorization": f"token {GITHUB_TOKEN}"
     }
-    
+
     response = requests.get(url, params=params, headers=headers)
     response.raise_for_status()
-    
+
     issues = response.json()
     # 过滤掉 Pull Requests
     return [i for i in issues if "pull_request" not in i]
@@ -132,74 +132,74 @@ python fetch_issues.py
 
 ```tsx
 // components/TeamDashboard.tsx
-'use client';
+'use client'
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react'
 
 interface Issue {
-  number: number;
-  title: string;
-  state: string;
-  assignee: { login: string } | null;
+  number: number
+  title: string
+  state: string
+  assignee: { login: string } | null
 }
 
 interface Commit {
-  sha: string;
-  commit: { message: string; author: { name: string; date: string } };
+  sha: string
+  commit: { message: string; author: { name: string; date: string } }
 }
 
 export default function TeamDashboard() {
-  const [issues, setIssues] = useState<Issue[]>([]);
-  const [commits, setCommits] = useState<Commit[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
+  const [issues, setIssues] = useState<Issue[]>([])
+  const [commits, setCommits] = useState<Commit[]>([])
+  const [loading, setLoading] = useState(true)
+  const [error, setError] = useState<string | null>(null)
 
   useEffect(() => {
     async function fetchData() {
       try {
-        const token = process.env.NEXT_PUBLIC_GITHUB_TOKEN;
+        const token = process.env.NEXT_PUBLIC_GITHUB_TOKEN
         const headers = {
           Accept: 'application/vnd.github.v3+json',
-          ...(token && { Authorization: `token ${token}` })
-        };
+          ...(token && { Authorization: `token ${token}` }),
+        }
 
         const [issuesRes, commitsRes] = await Promise.all([
           fetch('https://api.github.com/repos/songzuo/7zi/issues?state=all', { headers }),
-          fetch('https://api.github.com/repos/songzuo/7zi/commits?per_page=10', { headers })
-        ]);
+          fetch('https://api.github.com/repos/songzuo/7zi/commits?per_page=10', { headers }),
+        ])
 
         if (!issuesRes.ok || !commitsRes.ok) {
-          throw new Error('Failed to fetch data');
+          throw new Error('Failed to fetch data')
         }
 
-        const issuesData = await issuesRes.json();
-        const commitsData = await commitsRes.json();
+        const issuesData = await issuesRes.json()
+        const commitsData = await commitsRes.json()
 
-        setIssues(issuesData.filter((i: any) => !i.pull_request));
-        setCommits(commitsData);
+        setIssues(issuesData.filter((i: any) => !i.pull_request))
+        setCommits(commitsData)
       } catch (err) {
-        setError(err instanceof Error ? err.message : 'Unknown error');
+        setError(err instanceof Error ? err.message : 'Unknown error')
       } finally {
-        setLoading(false);
+        setLoading(false)
       }
     }
 
-    fetchData();
-  }, []);
+    fetchData()
+  }, [])
 
-  if (loading) return <div>加载中...</div>;
-  if (error) return <div>错误: {error}</div>;
+  if (loading) return <div>加载中...</div>
+  if (error) return <div>错误: {error}</div>
 
   return (
     <div className="p-4">
-      <h1 className="text-2xl font-bold mb-4">团队看板</h1>
-      
+      <h1 className="mb-4 text-2xl font-bold">团队看板</h1>
+
       <div className="grid grid-cols-2 gap-4">
         <div>
           <h2 className="text-xl font-semibold">活跃 Issues ({issues.length})</h2>
           <ul className="mt-2">
             {issues.slice(0, 5).map(issue => (
-              <li key={issue.number} className="py-2 border-b">
+              <li key={issue.number} className="border-b py-2">
                 #{issue.number} {issue.title}
                 <span className="ml-2 text-sm text-gray-500">
                   [{issue.assignee?.login || '未分配'}]
@@ -208,12 +208,12 @@ export default function TeamDashboard() {
             ))}
           </ul>
         </div>
-        
+
         <div>
           <h2 className="text-xl font-semibold">最近 Commits ({commits.length})</h2>
           <ul className="mt-2">
             {commits.slice(0, 5).map(commit => (
-              <li key={commit.sha} className="py-2 border-b text-sm">
+              <li key={commit.sha} className="border-b py-2 text-sm">
                 <code className="text-xs">{commit.sha.slice(0, 7)}</code>
                 <p className="truncate">{commit.commit.message}</p>
               </li>
@@ -222,7 +222,7 @@ export default function TeamDashboard() {
         </div>
       </div>
     </div>
-  );
+  )
 }
 ```
 
@@ -288,28 +288,28 @@ gh pr create --repo songzuo/7zi \
 // sync-tasks.js
 // 完整的工作流示例：同步 GitHub Issues 到本地
 
-const fs = require('fs');
-const path = require('path');
+const fs = require('fs')
+const path = require('path')
 
-const GITHUB_TOKEN = process.env.GITHUB_TOKEN;
-const OWNER = 'songzuo';
-const REPO = '7zi';
+const GITHUB_TOKEN = process.env.GITHUB_TOKEN
+const OWNER = 'songzuo'
+const REPO = '7zi'
 
 async function syncTasks() {
-  console.log('🚀 开始同步任务...');
-  
+  console.log('🚀 开始同步任务...')
+
   // 1. 获取所有 Issues
   const issuesRes = await fetch(
     `https://api.github.com/repos/${OWNER}/${REPO}/issues?state=all&per_page=100`,
     {
       headers: {
         Accept: 'application/vnd.github.v3+json',
-        Authorization: `token ${GITHUB_TOKEN}`
-      }
+        Authorization: `token ${GITHUB_TOKEN}`,
+      },
     }
-  );
-  
-  const allIssues = await issuesRes.json();
+  )
+
+  const allIssues = await issuesRes.json()
   const tasks = allIssues
     .filter(issue => !issue.pull_request)
     .map(issue => ({
@@ -320,23 +320,23 @@ async function syncTasks() {
       labels: issue.labels.map(l => l.name),
       created: issue.created_at,
       updated: issue.updated_at,
-      url: issue.html_url
-    }));
-  
+      url: issue.html_url,
+    }))
+
   // 2. 保存到本地文件
-  const outputPath = path.join(__dirname, 'data', 'tasks.json');
-  fs.mkdirSync(path.dirname(outputPath), { recursive: true });
-  fs.writeFileSync(outputPath, JSON.stringify(tasks, null, 2));
-  
-  console.log(`✅ 已同步 ${tasks.length} 个任务到 ${outputPath}`);
-  
+  const outputPath = path.join(__dirname, 'data', 'tasks.json')
+  fs.mkdirSync(path.dirname(outputPath), { recursive: true })
+  fs.writeFileSync(outputPath, JSON.stringify(tasks, null, 2))
+
+  console.log(`✅ 已同步 ${tasks.length} 个任务到 ${outputPath}`)
+
   // 3. 统计
-  const openCount = tasks.filter(t => t.state === 'open').length;
-  const closedCount = tasks.filter(t => t.state === 'closed').length;
-  console.log(`📊 统计: ${openCount} 开放 / ${closedCount} 已关闭`);
+  const openCount = tasks.filter(t => t.state === 'open').length
+  const closedCount = tasks.filter(t => t.state === 'closed').length
+  console.log(`📊 统计: ${openCount} 开放 / ${closedCount} 已关闭`)
 }
 
-syncTasks().catch(console.error);
+syncTasks().catch(console.error)
 ```
 
 ---
@@ -376,4 +376,4 @@ fetch(url, {
 
 ---
 
-*示例由 7zi Studio AI 团队维护 🤖*
+_示例由 7zi Studio AI 团队维护 🤖_

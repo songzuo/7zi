@@ -40,12 +40,14 @@
   - 决策状态和流转
 
 **v1.4.0 核心架构决策**:
+
 - **[ADR-0006: Agent Scheduler 架构](./adr/0006-agent-scheduler-architecture.md)** - AI Agent 智能调度系统
 - **[ADR-0007: 性能监控架构](./adr/0007-performance-monitoring-architecture.md)** - 智能异常检测和根因分析
 - **[ADR-0008: WebSocket 房间系统设计](./adr/0008-websocket-room-system-design.md)** - 多房间、权限控制、消息持久化
 - **[ADR-0009: React Compiler 采用策略](./adr/0009-react-compiler-adoption-strategy.md)** - 可选编译模式和回滚机制
 
 **基础架构决策**:
+
 - **[ADR-0001: 使用 Zustand 进行状态管理](./adr/0001-use-zustand-for-state-management.md)** - 全局状态管理方案
 - **[ADR-0002: 使用 Socket.IO 实现 WebSocket](./adr/0002-use-socket.io-for-websocket.md)** - 实时通信基础设施
 - **[ADR-0003: 使用 Redis 进行缓存](./adr/0003-use-redis-for-caching.md)** - 缓存层设计
@@ -80,6 +82,14 @@
   - Agent 注册和心跳
   - 任务队列管理
   - JSON-RPC 接口
+
+#### 📁 库文档 (v1.8.0 新增)
+
+- **[lib/websocket-monitoring.md](./lib/websocket-monitoring.md)** - WebSocket 监控功能 ⭐
+  - 实时延迟监控
+  - 连接状态追踪
+  - 性能指标上报
+  - 多命名空间支持
 
 #### 其他 API 文档
 
@@ -261,6 +271,7 @@
 ### 📊 报告（归档）
 
 以下报告已移至 `archive/` 目录：
+
 - API 优化报告
 - 性能测试报告
 - 测试覆盖率报告
@@ -274,12 +285,14 @@
 ## 🎯 推荐阅读顺序
 
 ### 新手入门
+
 1. [README.md](./README.md) - 快速了解项目
 2. [ARCHITECTURE.md](./ARCHITECTURE.md) - 理解整体架构
 3. [QUICKSTART.md](./QUICKSTART.md) - 快速部署
 4. [DEVELOPMENT.md](./DEVELOPMENT.md) - 开始开发
 
 ### 前端开发
+
 1. [COMPONENTS.md](./COMPONENTS.md) - 了解组件库
 2. [HOOKS.md](./HOOKS.md) - 使用自定义 Hooks
 3. [LOADING-SYSTEM.md](./LOADING-SYSTEM.md) - 全局加载系统
@@ -287,18 +300,21 @@
 5. [API.md](./API.md) - API 文档
 
 ### 后端开发
+
 1. [API.md](./API.md) - API 概览
 2. [API-REFERENCE.md](./API-REFERENCE.md) - API 参考
 3. [ARCHITECTURE.md](./ARCHITECTURE.md) - 架构理解
 4. [DEPLOYMENT.md](./DEPLOYMENT.md) - 部署配置
 
 ### DevOps / 运维
+
 1. [DEPLOYMENT.md](./DEPLOYMENT.md) - 部署配置
 2. [MONITORING.md](./MONITORING.md) - 监控系统
 3. [SECURITY-AUDIT-REPORT.md](./SECURITY-AUDIT-REPORT.md) - 安全审计
 4. [CI-CD-SETUP.md](./CI-CD-SETUP.md) - CI/CD 配置
 
 ### AI / 代理开发
+
 1. [DIRECTOR.md](./DIRECTOR.md) - AI 主管系统
 2. [SUBAGENTS.md](./SUBAGENTS.md) - 子代理团队
 3. [ARCHITECTURE.md](./ARCHITECTURE.md) - A2A Agent Communication
@@ -473,6 +489,7 @@ docs/
 ---
 
 **快速链接**:
+
 - [返回项目根目录](../README.md)
 - [快速开始](./QUICKSTART.md)
 - [架构文档](./ARCHITECTURE.md)

@@ -8,48 +8,48 @@ export interface RateLimitConfig {
   /**
    * 时间窗口（毫秒）
    */
-  windowMs: number;
+  windowMs: number
 
   /**
    * 时间窗口内最大请求数
    */
-  maxRequests: number;
+  maxRequests: number
 
   /**
    * 是否跳过成功请求（只统计失败的请求）
    */
-  skipSuccessfulRequests?: boolean;
+  skipSuccessfulRequests?: boolean
 
   /**
    * 是否跳过失败请求
    */
-  skipFailedRequests?: boolean;
+  skipFailedRequests?: boolean
 
   /**
    * 自定义键生成器（用于根据请求生成唯一标识）
    */
-  keyGenerator?: (request: Request) => string;
+  keyGenerator?: (request: Request) => string
 
   /**
    * 自定义跳过函数（用于判断是否跳过限流）
    */
-  skip?: (request: Request) => boolean;
+  skip?: (request: Request) => boolean
 
   /**
    * 是否使用 Redis（分布式部署时启用）
    */
-  useRedis?: boolean;
+  useRedis?: boolean
 
   /**
    * Redis 配置（当 useRedis=true 时需要）
    */
   redisConfig?: {
-    host?: string;
-    port?: number;
-    password?: string;
-    url?: string;
-    db?: number;
-  };
+    host?: string
+    port?: number
+    password?: string
+    url?: string
+    db?: number
+  }
 }
 
 /**
@@ -118,7 +118,7 @@ export const RateLimitPresets: Record<string, RateLimitConfig> = {
     maxRequests: 1000,
     useRedis: false,
   },
-};
+}
 
 /**
  * 路由路径映射到限流配置
@@ -146,7 +146,7 @@ export const RouteRateLimits: Record<string, keyof typeof RateLimitPresets> = {
 
   // MCP RPC - API 限流
   '/api/mcp/rpc': 'api',
-};
+}
 
 /**
  * 根据路径获取限流配置
@@ -154,18 +154,18 @@ export const RouteRateLimits: Record<string, keyof typeof RateLimitPresets> = {
 export function getRateLimitForPath(pathname: string): RateLimitConfig {
   // 精确匹配
   if (RouteRateLimits[pathname]) {
-    return RateLimitPresets[RouteRateLimits[pathname]];
+    return RateLimitPresets[RouteRateLimits[pathname]]
   }
 
   // 模式匹配（处理动态路由）
   for (const [pattern, preset] of Object.entries(RouteRateLimits)) {
-    const regexPattern = pattern.replace(/\[.*?\]/g, '[^/]+');
-    const regex = new RegExp(`^${regexPattern}$`);
+    const regexPattern = pattern.replace(/\[.*?\]/g, '[^/]+')
+    const regex = new RegExp(`^${regexPattern}$`)
     if (regex.test(pathname)) {
-      return RateLimitPresets[preset];
+      return RateLimitPresets[preset]
     }
   }
 
   // 默认返回默认配置
-  return RateLimitPresets.default;
+  return RateLimitPresets.default
 }

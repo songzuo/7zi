@@ -1,4 +1,4 @@
-'use client';
+'use client'
 
 /**
  * RoomJoinPanel - 房间加入面板组件
@@ -9,42 +9,51 @@
  * 支持国际化 (i18n)
  */
 
-import React, { useState, useMemo } from 'react';
-import { Search, Users, Clock, ArrowRight, CheckCircle, AlertCircle, Lock, Globe } from 'lucide-react';
-import { Button } from '@/components/ui/Button';
-import { Input } from '@/components/ui/Input';
-import { cn } from '@/lib/utils';
-import { useTranslations } from 'next-intl';
-import type { Room, RoomType, RoomVisibility } from '@/lib/websocket/rooms';
+import React, { useState, useMemo } from 'react'
+import {
+  Search,
+  Users,
+  Clock,
+  ArrowRight,
+  CheckCircle,
+  AlertCircle,
+  Lock,
+  Globe,
+} from 'lucide-react'
+import { Button } from '@/components/ui/Button'
+import { Input } from '@/components/ui/Input'
+import { cn } from '@/lib/utils'
+import { useTranslations } from 'next-intl'
+import type { Room, RoomType, RoomVisibility } from '@/lib/websocket/rooms'
 
 // ============================================================================
 // 类型定义
 // ============================================================================
 
 export interface RoomJoinOptions {
-  roomId: string;
-  inviteCode?: string;
+  roomId: string
+  inviteCode?: string
 }
 
 export interface RoomJoinPanelProps {
   /** 可用房间列表 */
-  availableRooms?: Room[];
+  availableRooms?: Room[]
   /** 当前用户的 ID */
-  currentUserId: string;
+  currentUserId: string
   /** 当前用户名称 */
-  currentUserName: string;
+  currentUserName: string
   /** 已加入的房间 ID 列表 */
-  joinedRoomIds?: string[];
+  joinedRoomIds?: string[]
   /** 提交回调 */
-  onJoin: (options: RoomJoinOptions) => Promise<void> | void;
+  onJoin: (options: RoomJoinOptions) => Promise<void> | void
   /** 是否加载中 */
-  isLoading?: boolean;
+  isLoading?: boolean
   /** 自定义类名 */
-  className?: string;
+  className?: string
   /** 是否显示搜索框 */
-  showSearch?: boolean;
+  showSearch?: boolean
   /** 是否显示过滤器 */
-  showFilters?: boolean;
+  showFilters?: boolean
 }
 
 // ============================================================================
@@ -56,14 +65,14 @@ export interface RoomJoinPanelProps {
  */
 function getRoomTypeIcon(type: RoomType) {
   const icons = {
-    chat: <Globe className="w-4 h-4" />,
-    task: <Search className="w-4 h-4" />,
-    project: <Users className="w-4 h-4" />,
-    document: <Lock className="w-4 h-4" />,
-    voice: <CheckCircle className="w-4 h-4" />,
-    video: <Globe className="w-4 h-4" />,
-  };
-  return icons[type] || <Globe className="w-4 h-4" />;
+    chat: <Globe className="h-4 w-4" />,
+    task: <Search className="h-4 w-4" />,
+    project: <Users className="h-4 w-4" />,
+    document: <Lock className="h-4 w-4" />,
+    voice: <CheckCircle className="h-4 w-4" />,
+    video: <Globe className="h-4 w-4" />,
+  }
+  return icons[type] || <Globe className="h-4 w-4" />
 }
 
 /**
@@ -77,15 +86,15 @@ function getRoomTypeName(type: RoomType) {
     document: '文档协作',
     voice: '语音会议',
     video: '视频会议',
-  };
-  return names[type] || type;
+  }
+  return names[type] || type
 }
 
 /**
  * 获取可见性图标
  */
 function getVisibilityIcon(visibility: RoomVisibility) {
-  return visibility === 'public' ? <Globe className="w-4 h-4" /> : <Lock className="w-4 h-4" />;
+  return visibility === 'public' ? <Globe className="h-4 w-4" /> : <Lock className="h-4 w-4" />
 }
 
 /**
@@ -96,28 +105,28 @@ function getVisibilityName(visibility: RoomVisibility) {
     public: '公开',
     private: '私有',
     'invite-only': '仅邀请',
-  };
-  return names[visibility] || visibility;
+  }
+  return names[visibility] || visibility
 }
 
 /**
  * 格式化时间差
  */
 function formatTimeDiff(timestamp: Date): string {
-  const now = new Date();
-  const diff = now.getTime() - timestamp.getTime();
+  const now = new Date()
+  const diff = now.getTime() - timestamp.getTime()
 
   if (diff < 60000) {
-    return '刚刚';
+    return '刚刚'
   } else if (diff < 3600000) {
-    const minutes = Math.floor(diff / 60000);
-    return `${minutes} 分钟前`;
+    const minutes = Math.floor(diff / 60000)
+    return `${minutes} 分钟前`
   } else if (diff < 86400000) {
-    const hours = Math.floor(diff / 3600000);
-    return `${hours} 小时前`;
+    const hours = Math.floor(diff / 3600000)
+    return `${hours} 小时前`
   } else {
-    const days = Math.floor(diff / 86400000);
-    return `${days} 天前`;
+    const days = Math.floor(diff / 86400000)
+    return `${days} 天前`
   }
 }
 
@@ -126,11 +135,11 @@ function formatTimeDiff(timestamp: Date): string {
 // ============================================================================
 
 interface RoomCardProps {
-  room: Room;
-  isJoined: boolean;
-  onJoin: () => void;
-  isLoading: boolean;
-  isCurrentUserOwner: boolean;
+  room: Room
+  isJoined: boolean
+  onJoin: () => void
+  isLoading: boolean
+  isCurrentUserOwner: boolean
 }
 
 const RoomCard: React.FC<RoomCardProps> = ({
@@ -140,47 +149,41 @@ const RoomCard: React.FC<RoomCardProps> = ({
   isLoading,
   isCurrentUserOwner,
 }) => {
-  const t = useTranslations('room.join');
+  const t = useTranslations('room.join')
 
-  const isFull = room.participants.size >= room.config.maxParticipants!;
-  const isPrivate = room.visibility !== 'public';
+  const isFull = room.participants.size >= room.config.maxParticipants!
+  const isPrivate = room.visibility !== 'public'
 
   return (
     <div
-      className={`
-        group relative overflow-hidden
-        p-4 bg-white dark:bg-zinc-800/50
-        rounded-xl border-2 transition-all duration-200
-        ${
-          isJoined
-            ? 'border-green-500 bg-green-50 dark:bg-green-900/10'
-            : 'border-zinc-200 dark:border-zinc-700 hover:border-blue-500'
-        }
-        ${isLoading ? 'opacity-50 pointer-events-none' : ''}
-      `}
+      className={`group relative overflow-hidden rounded-xl border-2 bg-white p-4 transition-all duration-200 dark:bg-zinc-800/50 ${
+        isJoined
+          ? 'border-green-500 bg-green-50 dark:bg-green-900/10'
+          : 'border-zinc-200 hover:border-blue-500 dark:border-zinc-700'
+      } ${isLoading ? 'pointer-events-none opacity-50' : ''} `}
     >
       {/* 顶部信息 */}
-      <div className="flex items-start justify-between gap-3 mb-3">
-        <div className="flex items-center gap-3 flex-1 min-w-0">
+      <div className="mb-3 flex items-start justify-between gap-3">
+        <div className="flex min-w-0 flex-1 items-center gap-3">
           {/* 房间类型图标 */}
-          <div className={`
-            w-10 h-10 rounded-lg
-            flex items-center justify-center flex-shrink-0
-            ${
-              isJoined
-                ? 'bg-green-100 dark:bg-green-900/30'
-                : 'bg-blue-50 dark:bg-blue-900/20'
-            }
-          `}>
-            <span className={isJoined ? 'text-green-600 dark:text-green-400' : 'text-blue-600 dark:text-blue-400'}>
+          <div
+            className={`flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-lg ${
+              isJoined ? 'bg-green-100 dark:bg-green-900/30' : 'bg-blue-50 dark:bg-blue-900/20'
+            } `}
+          >
+            <span
+              className={
+                isJoined ? 'text-green-600 dark:text-green-400' : 'text-blue-600 dark:text-blue-400'
+              }
+            >
               {getRoomTypeIcon(room.type)}
             </span>
           </div>
 
           {/* 房间信息 */}
-          <div className="flex-1 min-w-0">
+          <div className="min-w-0 flex-1">
             <div className="flex items-center gap-2">
-              <h4 className="font-semibold text-zinc-900 dark:text-zinc-100 truncate">
+              <h4 className="truncate font-semibold text-zinc-900 dark:text-zinc-100">
                 {room.name}
               </h4>
               {/* 可见性图标 */}
@@ -188,7 +191,7 @@ const RoomCard: React.FC<RoomCardProps> = ({
                 {getVisibilityIcon(room.visibility)}
               </span>
             </div>
-            <p className="text-xs text-zinc-500 dark:text-zinc-400 mt-1">
+            <p className="mt-1 text-xs text-zinc-500 dark:text-zinc-400">
               {getRoomTypeName(room.type)} · ID: {room.id}
             </p>
           </div>
@@ -197,32 +200,32 @@ const RoomCard: React.FC<RoomCardProps> = ({
         {/* 状态标签 */}
         {isJoined ? (
           <div className="flex items-center gap-1 text-green-600 dark:text-green-400">
-            <CheckCircle className="w-4 h-4" />
+            <CheckCircle className="h-4 w-4" />
             <span className="text-xs font-medium">已加入</span>
           </div>
         ) : isFull ? (
           <div className="flex items-center gap-1 text-red-500">
-            <AlertCircle className="w-4 h-4" />
+            <AlertCircle className="h-4 w-4" />
             <span className="text-xs font-medium">已满</span>
           </div>
         ) : isPrivate ? (
           <div className="flex items-center gap-1 text-zinc-500">
-            <Lock className="w-4 h-4" />
+            <Lock className="h-4 w-4" />
             <span className="text-xs">需邀请</span>
           </div>
         ) : null}
       </div>
 
       {/* 底部信息 */}
-      <div className="flex items-center justify-between text-xs text-zinc-500 dark:text-zinc-400 mb-3">
+      <div className="mb-3 flex items-center justify-between text-xs text-zinc-500 dark:text-zinc-400">
         <div className="flex items-center gap-2">
-          <Users className="w-3.5 h-3.5" />
+          <Users className="h-3.5 w-3.5" />
           <span>
             {room.participants.size}/{room.config.maxParticipants} {t('participants')}
           </span>
         </div>
         <div className="flex items-center gap-2">
-          <Clock className="w-3.5 h-3.5" />
+          <Clock className="h-3.5 w-3.5" />
           <span>{formatTimeDiff(room.lastActivity)}</span>
         </div>
       </div>
@@ -236,13 +239,13 @@ const RoomCard: React.FC<RoomCardProps> = ({
           disabled={isLoading}
           className="w-full"
         >
-          <ArrowRight className="w-4 h-4" />
+          <ArrowRight className="h-4 w-4" />
           {t('joinRoom')}
         </Button>
       )}
     </div>
-  );
-};
+  )
+}
 
 // ============================================================================
 // 主组件
@@ -259,18 +262,18 @@ export const RoomJoinPanel: React.FC<RoomJoinPanelProps> = ({
   showSearch = true,
   showFilters = true,
 }) => {
-  const t = useTranslations('room.join');
+  const t = useTranslations('room.join')
 
   // 搜索状态
-  const [searchQuery, setSearchQuery] = useState('');
+  const [searchQuery, setSearchQuery] = useState('')
 
   // 过滤器状态
-  const [filterType, setFilterType] = useState<RoomType | 'all'>('all');
-  const [filterVisibility, setFilterVisibility] = useState<RoomVisibility | 'all'>('all');
+  const [filterType, setFilterType] = useState<RoomType | 'all'>('all')
+  const [filterVisibility, setFilterVisibility] = useState<RoomVisibility | 'all'>('all')
 
   // 加入房间输入状态
-  const [roomIdInput, setRoomIdInput] = useState('');
-  const [inviteCodeInput, setInviteCodeInput] = useState('');
+  const [roomIdInput, setRoomIdInput] = useState('')
+  const [inviteCodeInput, setInviteCodeInput] = useState('')
 
   // 过滤房间列表
   const filteredRooms = useMemo(() => {
@@ -279,61 +282,61 @@ export const RoomJoinPanel: React.FC<RoomJoinPanelProps> = ({
       const matchesSearch =
         searchQuery === '' ||
         room.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        room.id.toLowerCase().includes(searchQuery.toLowerCase());
+        room.id.toLowerCase().includes(searchQuery.toLowerCase())
 
       // 类型过滤
-      const matchesType = filterType === 'all' || room.type === filterType;
+      const matchesType = filterType === 'all' || room.type === filterType
 
       // 可见性过滤
-      const matchesVisibility = filterVisibility === 'all' || room.visibility === filterVisibility;
+      const matchesVisibility = filterVisibility === 'all' || room.visibility === filterVisibility
 
-      return matchesSearch && matchesType && matchesVisibility;
-    });
-  }, [availableRooms, searchQuery, filterType, filterVisibility]);
+      return matchesSearch && matchesType && matchesVisibility
+    })
+  }, [availableRooms, searchQuery, filterType, filterVisibility])
 
   // 检查是否已加入
-  const isJoined = (roomId: string) => joinedRoomIds.includes(roomId);
+  const isJoined = (roomId: string) => joinedRoomIds.includes(roomId)
 
   // 检查是否是房间拥有者
-  const isOwner = (room: Room) => room.ownerId === currentUserId;
+  const isOwner = (room: Room) => room.ownerId === currentUserId
 
   // 处理通过输入框加入
   const handleJoinById = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!roomIdInput.trim()) return;
+    e.preventDefault()
+    if (!roomIdInput.trim()) return
 
     await onJoin({
       roomId: roomIdInput.trim(),
       inviteCode: inviteCodeInput.trim() || undefined,
-    });
+    })
 
-    setRoomIdInput('');
-    setInviteCodeInput('');
-  };
+    setRoomIdInput('')
+    setInviteCodeInput('')
+  }
 
   // 处理从列表加入
   const handleJoinFromList = async (roomId: string) => {
-    await onJoin({ roomId });
-  };
+    await onJoin({ roomId })
+  }
 
   return (
     <div className={cn('space-y-6', className)}>
       {/* 通过 ID/邀请码加入 */}
-      <div className="p-6 bg-white dark:bg-zinc-800/50 rounded-xl border border-zinc-200 dark:border-zinc-700">
-        <h3 className="text-lg font-semibold text-zinc-900 dark:text-zinc-100 mb-4">
+      <div className="rounded-xl border border-zinc-200 bg-white p-6 dark:border-zinc-700 dark:bg-zinc-800/50">
+        <h3 className="mb-4 text-lg font-semibold text-zinc-900 dark:text-zinc-100">
           {t('joinByCode')}
         </h3>
         <form onSubmit={handleJoinById} className="space-y-3">
           <Input
             value={roomIdInput}
-            onChange={(e) => setRoomIdInput(e.target.value)}
+            onChange={e => setRoomIdInput(e.target.value)}
             placeholder={t('roomIdPlaceholder')}
             required
             disabled={isLoading}
           />
           <Input
             value={inviteCodeInput}
-            onChange={(e) => setInviteCodeInput(e.target.value)}
+            onChange={e => setInviteCodeInput(e.target.value)}
             placeholder={t('inviteCodePlaceholder')}
             disabled={isLoading}
           />
@@ -344,7 +347,7 @@ export const RoomJoinPanel: React.FC<RoomJoinPanelProps> = ({
             className="w-full"
             loading={isLoading}
           >
-            <ArrowRight className="w-4 h-4 mr-2" />
+            <ArrowRight className="mr-2 h-4 w-4" />
             {t('join')}
           </Button>
         </form>
@@ -358,10 +361,10 @@ export const RoomJoinPanel: React.FC<RoomJoinPanelProps> = ({
             <div className="mb-4 space-y-3">
               {showSearch && (
                 <div className="relative">
-                  <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-zinc-400" />
+                  <Search className="absolute top-1/2 left-3 h-4 w-4 -translate-y-1/2 text-zinc-400" />
                   <Input
                     value={searchQuery}
-                    onChange={(e) => setSearchQuery(e.target.value)}
+                    onChange={e => setSearchQuery(e.target.value)}
                     placeholder={t('searchPlaceholder')}
                     className="pl-10"
                     disabled={isLoading}
@@ -370,13 +373,13 @@ export const RoomJoinPanel: React.FC<RoomJoinPanelProps> = ({
               )}
 
               {showFilters && (
-                <div className="flex gap-2 flex-wrap">
+                <div className="flex flex-wrap gap-2">
                   {/* 类型过滤 */}
                   <select
                     value={filterType}
-                    onChange={(e) => setFilterType(e.target.value as RoomType | 'all')}
+                    onChange={e => setFilterType(e.target.value as RoomType | 'all')}
                     disabled={isLoading}
-                    className="px-3 py-2 text-sm border border-zinc-300 dark:border-zinc-600 rounded-lg bg-white dark:bg-zinc-800 text-zinc-900 dark:text-white focus:ring-2 focus:ring-blue-500 disabled:opacity-50"
+                    className="rounded-lg border border-zinc-300 bg-white px-3 py-2 text-sm text-zinc-900 focus:ring-2 focus:ring-blue-500 disabled:opacity-50 dark:border-zinc-600 dark:bg-zinc-800 dark:text-white"
                   >
                     <option value="all">{t('allTypes')}</option>
                     <option value="chat">{t('chat')}</option>
@@ -390,9 +393,9 @@ export const RoomJoinPanel: React.FC<RoomJoinPanelProps> = ({
                   {/* 可见性过滤 */}
                   <select
                     value={filterVisibility}
-                    onChange={(e) => setFilterVisibility(e.target.value as RoomVisibility | 'all')}
+                    onChange={e => setFilterVisibility(e.target.value as RoomVisibility | 'all')}
                     disabled={isLoading}
-                    className="px-3 py-2 text-sm border border-zinc-300 dark:border-zinc-600 rounded-lg bg-white dark:bg-zinc-800 text-zinc-900 dark:text-white focus:ring-2 focus:ring-blue-500 disabled:opacity-50"
+                    className="rounded-lg border border-zinc-300 bg-white px-3 py-2 text-sm text-zinc-900 focus:ring-2 focus:ring-blue-500 disabled:opacity-50 dark:border-zinc-600 dark:bg-zinc-800 dark:text-white"
                   >
                     <option value="all">{t('allVisibilities')}</option>
                     <option value="public">{t('public')}</option>
@@ -401,7 +404,7 @@ export const RoomJoinPanel: React.FC<RoomJoinPanelProps> = ({
                   </select>
 
                   {/* 显示统计 */}
-                  <div className="flex items-center gap-2 text-sm text-zinc-500 dark:text-zinc-400 ml-auto">
+                  <div className="ml-auto flex items-center gap-2 text-sm text-zinc-500 dark:text-zinc-400">
                     <span>{filteredRooms.length}</span>
                     <span>{t('rooms')}</span>
                   </div>
@@ -413,12 +416,12 @@ export const RoomJoinPanel: React.FC<RoomJoinPanelProps> = ({
           {/* 房间卡片列表 */}
           {filteredRooms.length === 0 ? (
             <div className="flex flex-col items-center justify-center py-12 text-center">
-              <Search className="w-12 h-12 text-zinc-300 dark:text-zinc-600 mb-3" />
+              <Search className="mb-3 h-12 w-12 text-zinc-300 dark:text-zinc-600" />
               <p className="text-zinc-500 dark:text-zinc-400">{t('noRoomsFound')}</p>
             </div>
           ) : (
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              {filteredRooms.map((room) => (
+            <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
+              {filteredRooms.map(room => (
                 <RoomCard
                   key={room.id}
                   room={room}
@@ -436,15 +439,13 @@ export const RoomJoinPanel: React.FC<RoomJoinPanelProps> = ({
       {/* 无可用房间 */}
       {availableRooms.length === 0 && !isLoading && (
         <div className="flex flex-col items-center justify-center py-12 text-center">
-          <Users className="w-12 h-12 text-zinc-300 dark:text-zinc-600 mb-3" />
+          <Users className="mb-3 h-12 w-12 text-zinc-300 dark:text-zinc-600" />
           <p className="text-zinc-500 dark:text-zinc-400">{t('noAvailableRooms')}</p>
-          <p className="text-sm text-zinc-400 dark:text-zinc-500 mt-1">
-            {t('createRoomOrInvite')}
-          </p>
+          <p className="mt-1 text-sm text-zinc-400 dark:text-zinc-500">{t('createRoomOrInvite')}</p>
         </div>
       )}
     </div>
-  );
-};
+  )
+}
 
-export default RoomJoinPanel;
+export default RoomJoinPanel

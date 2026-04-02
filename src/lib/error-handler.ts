@@ -3,39 +3,33 @@
  * @description Error handling and display utilities using Toast notifications
  */
 
-'use client';
+'use client'
 
-import React from 'react';
-import { toast } from '@/stores/uiStore';
+import React from 'react'
+import { toast } from '@/stores/uiStore'
 
 // ============================================================================
 // Types
 // ============================================================================
 
-export type ErrorSeverity = 'low' | 'medium' | 'high' | 'critical';
+export type ErrorSeverity = 'low' | 'medium' | 'high' | 'critical'
 
-export type ErrorCategory =
-  | 'network'
-  | 'validation'
-  | 'auth'
-  | 'server'
-  | 'client'
-  | 'unknown';
+export type ErrorCategory = 'network' | 'validation' | 'auth' | 'server' | 'client' | 'unknown'
 
 export interface AppError extends Error {
-  code?: string;
-  category?: ErrorCategory;
-  severity?: ErrorSeverity;
-  userMessage?: string;
-  retryable?: boolean;
-  context?: Record<string, unknown>;
+  code?: string
+  category?: ErrorCategory
+  severity?: ErrorSeverity
+  userMessage?: string
+  retryable?: boolean
+  context?: Record<string, unknown>
 }
 
 export interface ErrorHandlerConfig {
-  showNotification?: boolean;
-  logToConsole?: boolean;
-  logToServer?: boolean;
-  showToast?: boolean;
+  showNotification?: boolean
+  logToConsole?: boolean
+  logToServer?: boolean
+  showToast?: boolean
 }
 
 // ============================================================================
@@ -43,52 +37,60 @@ export interface ErrorHandlerConfig {
 // ============================================================================
 
 export function classifyError(error: Error | AppError): ErrorCategory {
-  const appError = error as AppError;
+  const appError = error as AppError
 
   if (appError.category) {
-    return appError.category;
+    return appError.category
   }
 
-  const message = error.message.toLowerCase();
+  const message = error.message.toLowerCase()
 
   if (message.includes('network') || message.includes('fetch') || message.includes('timeout')) {
-    return 'network';
+    return 'network'
   }
 
-  if (message.includes('unauthorized') || message.includes('forbidden') || message.includes('auth')) {
-    return 'auth';
+  if (
+    message.includes('unauthorized') ||
+    message.includes('forbidden') ||
+    message.includes('auth')
+  ) {
+    return 'auth'
   }
 
-  if (message.includes('validation') || message.includes('invalid') || message.includes('required')) {
-    return 'validation';
+  if (
+    message.includes('validation') ||
+    message.includes('invalid') ||
+    message.includes('required')
+  ) {
+    return 'validation'
   }
 
   if (message.includes('500') || message.includes('server error') || message.includes('internal')) {
-    return 'server';
+    return 'server'
   }
 
-  return 'client';
+  return 'client'
 }
 
 export function getErrorSeverity(error: Error | AppError): ErrorSeverity {
-  const appError = error as AppError;
+  const appError = error as AppError
 
   if (appError.severity) {
-    return appError.severity;
+    return appError.severity
   }
 
-  const category = classifyError(appError);
+  const category = classifyError(appError)
 
   switch (category) {
     case 'network':
     case 'server':
-      return 'high';
+      return 'high'
     case 'auth':
-      return 'critical';
+      return 'critical'
     case 'validation':
-      return 'low';
+      return 'low'
     default:
-      return 'medium';
+      return 'medium'
   }
 }
 
@@ -97,46 +99,46 @@ export function getErrorSeverity(error: Error | AppError): ErrorSeverity {
 // ============================================================================
 
 export function getUserFriendlyMessage(error: Error | AppError): string {
-  const appError = error as AppError;
+  const appError = error as AppError
 
   if (appError.userMessage) {
-    return appError.userMessage;
+    return appError.userMessage
   }
 
-  const category = classifyError(appError);
+  const category = classifyError(appError)
 
   switch (category) {
     case 'network':
-      return 'Network connection failed, please check your network connection';
+      return 'Network connection failed, please check your network connection'
     case 'auth':
-      return 'Authentication failed, please login again';
+      return 'Authentication failed, please login again'
     case 'validation':
-      return 'Invalid input, please check and try again';
+      return 'Invalid input, please check and try again'
     case 'server':
-      return 'Server error occurred, please try again later';
+      return 'Server error occurred, please try again later'
     case 'client':
-      return 'An unexpected error occurred, please refresh the page';
+      return 'An unexpected error occurred, please refresh the page'
     default:
-      return 'An unknown error occurred, please contact technical support';
+      return 'An unknown error occurred, please contact technical support'
   }
 }
 
 export function getErrorTitle(error: Error | AppError): string {
-  const category = classifyError(error);
+  const category = classifyError(error)
 
   switch (category) {
     case 'network':
-      return 'Network Error';
+      return 'Network Error'
     case 'auth':
-      return 'Authentication Error';
+      return 'Authentication Error'
     case 'validation':
-      return 'Validation Failed';
+      return 'Validation Failed'
     case 'server':
-      return 'Server Error';
+      return 'Server Error'
     case 'client':
-      return 'Client Error';
+      return 'Client Error'
     default:
-      return 'Error Occurred';
+      return 'Error Occurred'
   }
 }
 
@@ -145,28 +147,28 @@ export function getErrorTitle(error: Error | AppError): string {
 // ============================================================================
 
 function logToConsole(error: Error | AppError): void {
-  const category = classifyError(error);
-  const severity = getErrorSeverity(error);
+  const category = classifyError(error)
+  const severity = getErrorSeverity(error)
 
-  console.group(`[${severity.toUpperCase()}] ${category.toUpperCase()} Error`);
+  console.group(`[${severity.toUpperCase()}] ${category.toUpperCase()} Error`)
 
-  console.error('Error:', error);
-  console.error('Message:', error.message);
-  console.error('Stack:', error.stack);
+  console.error('Error:', error)
+  console.error('Message:', error.message)
+  console.error('Stack:', error.stack)
 
   if ('code' in error) {
-    console.error('Code:', (error as AppError).code);
+    console.error('Code:', (error as AppError).code)
   }
 
   if ('context' in error && (error as AppError).context) {
-    console.error('Context:', (error as AppError).context);
+    console.error('Context:', (error as AppError).context)
   }
 
-  console.groupEnd();
+  console.groupEnd()
 }
 
 async function logToServer(error: Error | AppError): Promise<void> {
-  if (typeof window === 'undefined') return;
+  if (typeof window === 'undefined') return
 
   try {
     const errorData = {
@@ -179,11 +181,11 @@ async function logToServer(error: Error | AppError): Promise<void> {
       url: window.location.href,
       timestamp: new Date().toISOString(),
       userAgent: navigator.userAgent,
-    };
+    }
 
-    console.log('[Error Logger]', 'Error data prepared for server:', errorData);
+    console.log('[Error Logger]', 'Error data prepared for server:', errorData)
   } catch (loggingError) {
-    console.error('[Error Logger] Failed to log error to server:', loggingError);
+    console.error('[Error Logger] Failed to log error to server:', loggingError)
   }
 }
 
@@ -192,15 +194,15 @@ async function logToServer(error: Error | AppError): Promise<void> {
 // ============================================================================
 
 function isRetryable(error: Error | AppError): boolean {
-  const appError = error as AppError;
+  const appError = error as AppError
 
   if (typeof appError.retryable === 'boolean') {
-    return appError.retryable;
+    return appError.retryable
   }
 
-  const category = classifyError(error);
+  const category = classifyError(error)
 
-  return category === 'network' || category === 'server';
+  return category === 'network' || category === 'server'
 }
 
 export function handleError(
@@ -213,22 +215,22 @@ export function handleError(
     logToConsole: doLogToConsole = true,
     logToServer: doLogToServer = true,
     showToast = true,
-  } = config;
+  } = config
 
   if (doLogToConsole) {
-    logToConsole(error);
+    logToConsole(error)
   }
 
   if (doLogToServer) {
-    logToServer(error).catch((err) => {
-      console.error('[Error Handler] Failed to log error:', err);
-    });
+    logToServer(error).catch(err => {
+      console.error('[Error Handler] Failed to log error:', err)
+    })
   }
 
   if (showNotification && showToast) {
-    const title = getErrorTitle(error);
-    const message = customMessage || getUserFriendlyMessage(error);
-    const severity = getErrorSeverity(error);
+    const title = getErrorTitle(error)
+    const message = customMessage || getUserFriendlyMessage(error)
+    const severity = getErrorSeverity(error)
 
     toast.error(message, title, {
       priority: severity === 'critical' || severity === 'high' ? 'high' : 'medium',
@@ -237,11 +239,11 @@ export function handleError(
         ? {
             label: 'Retry',
             onClick: () => {
-              console.log('[Error Handler] Retry requested');
+              console.log('[Error Handler] Retry requested')
             },
           }
         : undefined,
-    });
+    })
   }
 }
 
@@ -254,10 +256,10 @@ export async function withErrorHandling<T>(
   config: ErrorHandlerConfig = {}
 ): Promise<T | null> {
   try {
-    return await fn();
-  } catch (_error) {
-    handleError(error as Error, config);
-    return null;
+    return await fn()
+  } catch (error) {
+    handleError(error as Error, config)
+    return null
   }
 }
 
@@ -266,41 +268,52 @@ export async function withErrorHandling<T>(
 // ============================================================================
 
 interface ErrorBoundaryWrapperProps {
-  fallback?: React.ReactNode;
-  onError?: (error: Error) => void;
+  fallback?: React.ReactNode
+  onError?: (error: Error) => void
 }
 
 export function withErrorBoundary<P extends object>(
   Component: React.ComponentType<P>,
   options: ErrorBoundaryWrapperProps = {}
 ): React.FC<P> {
-  return (props) => {
-    const [error, setError] = React.useState<Error | null>(null);
+  return props => {
+    const [error, setError] = React.useState<Error | null>(null)
 
     React.useEffect(() => {
       const errorHandler = (event: ErrorEvent) => {
-        setError(event.error);
-        options.onError?.(event.error);
-        handleError(event.error);
-      };
+        setError(event.error)
+        options.onError?.(event.error)
+        handleError(event.error)
+      }
 
-      window.addEventListener('error', errorHandler);
-      return () => window.removeEventListener('error', errorHandler);
-    }, []);
+      window.addEventListener('error', errorHandler)
+      return () => window.removeEventListener('error', errorHandler)
+    }, [])
 
     if (error) {
-      return options.fallback || React.createElement('div', { className: 'p-6 text-center' }, [
-        React.createElement('p', { className: 'text-red-600 font-medium', key: 'msg' }, 'Component loading failed'),
-        React.createElement('button', {
-          key: 'btn',
-          onClick: () => window.location.reload(),
-          className: 'mt-4 px-4 py-2 bg-cyan-500 text-white rounded-lg hover:bg-cyan-600'
-        }, 'Refresh Page')
-      ]);
+      return (
+        options.fallback ||
+        React.createElement('div', { className: 'p-6 text-center' }, [
+          React.createElement(
+            'p',
+            { className: 'text-red-600 font-medium', key: 'msg' },
+            'Component loading failed'
+          ),
+          React.createElement(
+            'button',
+            {
+              key: 'btn',
+              onClick: () => window.location.reload(),
+              className: 'mt-4 px-4 py-2 bg-cyan-500 text-white rounded-lg hover:bg-cyan-600',
+            },
+            'Refresh Page'
+          ),
+        ])
+      )
     }
 
-    return React.createElement(Component, props);
-  };
+    return React.createElement(Component, props)
+  }
 }
 
 // ============================================================================
@@ -315,4 +328,4 @@ export default {
   getErrorSeverity,
   getUserFriendlyMessage,
   getErrorTitle,
-};
+}

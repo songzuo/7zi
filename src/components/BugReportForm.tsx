@@ -3,97 +3,108 @@
  * @description Quick-submit form for bug reports
  */
 
-'use client';
+'use client'
 
-import React, { useState, useCallback } from 'react';
+import React, { useState, useCallback } from 'react'
 
 interface BugReportProps {
-  onSubmit: (bug: BugReportData) => Promise<void> | void;
-  isLoading?: boolean;
-  showTitle?: boolean;
+  onSubmit: (bug: BugReportData) => Promise<void> | void
+  isLoading?: boolean
+  showTitle?: boolean
 }
 
 export interface BugReportData {
-  summary: string;
-  steps: string;
-  expected: string;
-  actual: string;
-  priority: 'low' | 'medium' | 'high' | 'critical';
-  browser?: string;
-  url?: string;
+  summary: string
+  steps: string
+  expected: string
+  actual: string
+  priority: 'low' | 'medium' | 'high' | 'critical'
+  browser?: string
+  url?: string
 }
 
 const PRIORITIES = [
-  { value: 'low', label: '低', color: 'bg-zinc-100 text-zinc-800 dark:bg-zinc-800 dark:text-zinc-300' },
-  { value: 'medium', label: '中', color: 'bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-300' },
-  { value: 'high', label: '高', color: 'bg-orange-100 text-orange-800 dark:bg-orange-900/30 dark:text-orange-300' },
-  { value: 'critical', label: '紧急', color: 'bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-300' },
-];
+  {
+    value: 'low',
+    label: '低',
+    color: 'bg-zinc-100 text-zinc-800 dark:bg-zinc-800 dark:text-zinc-300',
+  },
+  {
+    value: 'medium',
+    label: '中',
+    color: 'bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-300',
+  },
+  {
+    value: 'high',
+    label: '高',
+    color: 'bg-orange-100 text-orange-800 dark:bg-orange-900/30 dark:text-orange-300',
+  },
+  {
+    value: 'critical',
+    label: '紧急',
+    color: 'bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-300',
+  },
+]
 
-export function BugReportForm({
-  onSubmit,
-  isLoading = false,
-  showTitle = true,
-}: BugReportProps) {
-  const [summary, setSummary] = useState('');
-  const [steps, setSteps] = useState('');
-  const [expected, setExpected] = useState('');
-  const [actual, setActual] = useState('');
-  const [priority, setPriority] = useState<BugReportData['priority']>('medium');
-  const [url, setUrl] = useState('');
+export function BugReportForm({ onSubmit, isLoading = false, showTitle = true }: BugReportProps) {
+  const [summary, setSummary] = useState('')
+  const [steps, setSteps] = useState('')
+  const [expected, setExpected] = useState('')
+  const [actual, setActual] = useState('')
+  const [priority, setPriority] = useState<BugReportData['priority']>('medium')
+  const [url, setUrl] = useState('')
 
-  const handleSubmit = useCallback(async (e: React.FormEvent) => {
-    e.preventDefault();
+  const handleSubmit = useCallback(
+    async (e: React.FormEvent) => {
+      e.preventDefault()
 
-    if (!summary.trim() || !steps.trim()) {
-      return;
-    }
+      if (!summary.trim() || !steps.trim()) {
+        return
+      }
 
-    const bug: BugReportData = {
-      summary: summary.trim(),
-      steps: steps.trim(),
-      expected: expected.trim(),
-      actual: actual.trim(),
-      priority,
-      url: url.trim() || undefined,
-      browser: typeof navigator !== 'undefined' ? navigator.userAgent : undefined,
-    };
+      const bug: BugReportData = {
+        summary: summary.trim(),
+        steps: steps.trim(),
+        expected: expected.trim(),
+        actual: actual.trim(),
+        priority,
+        url: url.trim() || undefined,
+        browser: typeof navigator !== 'undefined' ? navigator.userAgent : undefined,
+      }
 
-    await onSubmit(bug);
+      await onSubmit(bug)
 
-    // Reset form
-    setSummary('');
-    setSteps('');
-    setExpected('');
-    setActual('');
-    setUrl('');
-    setPriority('medium');
-  }, [onSubmit, summary, steps, expected, actual, priority, url]);
+      // Reset form
+      setSummary('')
+      setSteps('')
+      setExpected('')
+      setActual('')
+      setUrl('')
+      setPriority('medium')
+    },
+    [onSubmit, summary, steps, expected, actual, priority, url]
+  )
 
   return (
-    <div className="bg-white dark:bg-zinc-900 rounded-lg shadow-sm border border-zinc-200 dark:border-zinc-700">
+    <div className="rounded-lg border border-zinc-200 bg-white shadow-sm dark:border-zinc-700 dark:bg-zinc-900">
       {showTitle && (
-        <div className="flex items-center gap-3 px-6 py-4 border-b border-zinc-200 dark:border-zinc-700">
-          <div className="flex items-center justify-center w-10 h-10 rounded-full bg-red-100 dark:bg-red-900/30">
+        <div className="flex items-center gap-3 border-b border-zinc-200 px-6 py-4 dark:border-zinc-700">
+          <div className="flex h-10 w-10 items-center justify-center rounded-full bg-red-100 dark:bg-red-900/30">
             <span className="text-xl">🐛</span>
           </div>
           <div>
-            <h3 className="text-lg font-semibold text-zinc-900 dark:text-white">
-              问题报告
-            </h3>
-            <p className="text-sm text-zinc-500 dark:text-zinc-400">
-              快速提交您遇到的问题
-            </p>
+            <h3 className="text-lg font-semibold text-zinc-900 dark:text-white">问题报告</h3>
+            <p className="text-sm text-zinc-500 dark:text-zinc-400">快速提交您遇到的问题</p>
           </div>
         </div>
       )}
 
-      <form onSubmit={handleSubmit} className="p-6 space-y-4">
+      <form onSubmit={handleSubmit} className="space-y-4 p-6">
         {/* Summary */}
         <div>
           <label
             htmlFor="bug-summary"
-            className="block text-sm font-medium text-zinc-700 dark:text-zinc-300 mb-2"
+            className="mb-2 block text-sm font-medium text-zinc-700 dark:text-zinc-300"
           >
             问题摘要 <span className="text-red-500">*</span>
           </label>
@@ -101,32 +112,27 @@ export function BugReportForm({
             type="text"
             id="bug-summary"
             value={summary}
-            onChange={(e) => setSummary(e.target.value)}
+            onChange={e => setSummary(e.target.value)}
             placeholder="简要描述问题，例如：登录后无法访问仪表盘"
-            className="w-full px-3 py-2 border border-zinc-300 dark:border-zinc-600 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-transparent dark:bg-zinc-800 dark:text-white"
+            className="w-full rounded-lg border border-zinc-300 px-3 py-2 focus:border-transparent focus:ring-2 focus:ring-red-500 dark:border-zinc-600 dark:bg-zinc-800 dark:text-white"
             required
             maxLength={200}
           />
-          <p className="mt-1 text-xs text-zinc-500 dark:text-zinc-400">
-            {summary.length}/200
-          </p>
+          <p className="mt-1 text-xs text-zinc-500 dark:text-zinc-400">{summary.length}/200</p>
         </div>
 
         {/* Priority */}
         <div>
-          <label className="block text-sm font-medium text-zinc-700 dark:text-zinc-300 mb-2">
+          <label className="mb-2 block text-sm font-medium text-zinc-700 dark:text-zinc-300">
             优先级
           </label>
           <div className="flex flex-wrap gap-2">
-            {PRIORITIES.map((p) => (
+            {PRIORITIES.map(p => (
               <button
                 key={p.value}
                 type="button"
                 onClick={() => setPriority(p.value as BugReportData['priority'])}
-                className={`
-                  px-4 py-2 rounded-lg text-sm font-medium transition-all
-                  ${priority === p.value ? p.color + ' ring-2 ring-offset-2 ring-' + p.value : 'bg-zinc-50 dark:bg-zinc-800 text-zinc-600 dark:text-zinc-400 hover:bg-zinc-100 dark:hover:bg-zinc-700'}
-                `}
+                className={`rounded-lg px-4 py-2 text-sm font-medium transition-all ${priority === p.value ? p.color + ' ring- ring-2 ring-offset-2' + p.value : 'bg-zinc-50 text-zinc-600 hover:bg-zinc-100 dark:bg-zinc-800 dark:text-zinc-400 dark:hover:bg-zinc-700'} `}
               >
                 {p.label}
               </button>
@@ -138,7 +144,7 @@ export function BugReportForm({
         <div>
           <label
             htmlFor="bug-url"
-            className="block text-sm font-medium text-zinc-700 dark:text-zinc-300 mb-2"
+            className="mb-2 block text-sm font-medium text-zinc-700 dark:text-zinc-300"
           >
             问题页面链接（可选）
           </label>
@@ -146,9 +152,9 @@ export function BugReportForm({
             type="url"
             id="bug-url"
             value={url}
-            onChange={(e) => setUrl(e.target.value)}
+            onChange={e => setUrl(e.target.value)}
             placeholder="https://example.com/page"
-            className="w-full px-3 py-2 border border-zinc-300 dark:border-zinc-600 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-transparent dark:bg-zinc-800 dark:text-white"
+            className="w-full rounded-lg border border-zinc-300 px-3 py-2 focus:border-transparent focus:ring-2 focus:ring-red-500 dark:border-zinc-600 dark:bg-zinc-800 dark:text-white"
           />
         </div>
 
@@ -156,67 +162,61 @@ export function BugReportForm({
         <div>
           <label
             htmlFor="bug-steps"
-            className="block text-sm font-medium text-zinc-700 dark:text-zinc-300 mb-2"
+            className="mb-2 block text-sm font-medium text-zinc-700 dark:text-zinc-300"
           >
             复现步骤 <span className="text-red-500">*</span>
           </label>
           <textarea
             id="bug-steps"
             value={steps}
-            onChange={(e) => setSteps(e.target.value)}
+            onChange={e => setSteps(e.target.value)}
             placeholder="1. 访问登录页面&#10;2. 输入用户名和密码&#10;3. 点击登录按钮&#10;4. 观察到错误..."
             rows={4}
-            className="w-full px-3 py-2 border border-zinc-300 dark:border-zinc-600 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-transparent dark:bg-zinc-800 dark:text-white resize-none font-mono text-sm"
+            className="w-full resize-none rounded-lg border border-zinc-300 px-3 py-2 font-mono text-sm focus:border-transparent focus:ring-2 focus:ring-red-500 dark:border-zinc-600 dark:bg-zinc-800 dark:text-white"
             required
             maxLength={1000}
           />
-          <p className="mt-1 text-xs text-zinc-500 dark:text-zinc-400">
-            {steps.length}/1000
-          </p>
+          <p className="mt-1 text-xs text-zinc-500 dark:text-zinc-400">{steps.length}/1000</p>
         </div>
 
         {/* Expected Behavior */}
         <div>
           <label
             htmlFor="bug-expected"
-            className="block text-sm font-medium text-zinc-700 dark:text-zinc-300 mb-2"
+            className="mb-2 block text-sm font-medium text-zinc-700 dark:text-zinc-300"
           >
             期望行为
           </label>
           <textarea
             id="bug-expected"
             value={expected}
-            onChange={(e) => setExpected(e.target.value)}
+            onChange={e => setExpected(e.target.value)}
             placeholder="您期望发生什么？"
             rows={2}
-            className="w-full px-3 py-2 border border-zinc-300 dark:border-zinc-600 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-transparent dark:bg-zinc-800 dark:text-white resize-none"
+            className="w-full resize-none rounded-lg border border-zinc-300 px-3 py-2 focus:border-transparent focus:ring-2 focus:ring-red-500 dark:border-zinc-600 dark:bg-zinc-800 dark:text-white"
             maxLength={500}
           />
-          <p className="mt-1 text-xs text-zinc-500 dark:text-zinc-400">
-            {expected.length}/500
-          </p>
+          <p className="mt-1 text-xs text-zinc-500 dark:text-zinc-400">{expected.length}/500</p>
         </div>
 
         {/* Actual Behavior */}
         <div>
           <label
             htmlFor="bug-actual"
-            className="block text-sm font-medium text-zinc-700 dark:text-zinc-300 mb-2"
+            className="mb-2 block text-sm font-medium text-zinc-700 dark:text-zinc-300"
           >
             实际行为
           </label>
           <textarea
             id="bug-actual"
             value={actual}
-            onChange={(e) => setActual(e.target.value)}
+            onChange={e => setActual(e.target.value)}
             placeholder="实际发生了什么？"
             rows={2}
-            className="w-full px-3 py-2 border border-zinc-300 dark:border-zinc-600 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-transparent dark:bg-zinc-800 dark:text-white resize-none"
+            className="w-full resize-none rounded-lg border border-zinc-300 px-3 py-2 focus:border-transparent focus:ring-2 focus:ring-red-500 dark:border-zinc-600 dark:bg-zinc-800 dark:text-white"
             maxLength={500}
           />
-          <p className="mt-1 text-xs text-zinc-500 dark:text-zinc-400">
-            {actual.length}/500
-          </p>
+          <p className="mt-1 text-xs text-zinc-500 dark:text-zinc-400">{actual.length}/500</p>
         </div>
 
         {/* Submit Button */}
@@ -224,15 +224,11 @@ export function BugReportForm({
           <button
             type="submit"
             disabled={isLoading || !summary.trim() || !steps.trim()}
-            className="px-6 py-2.5 text-sm font-medium text-white bg-red-600 rounded-lg hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
+            className="flex items-center gap-2 rounded-lg bg-red-600 px-6 py-2.5 text-sm font-medium text-white hover:bg-red-700 focus:ring-2 focus:ring-red-500 focus:ring-offset-2 focus:outline-none disabled:cursor-not-allowed disabled:opacity-50"
           >
             {isLoading ? (
               <>
-                <svg
-                  className="animate-spin h-4 w-4"
-                  fill="none"
-                  viewBox="0 0 24 24"
-                >
+                <svg className="h-4 w-4 animate-spin" fill="none" viewBox="0 0 24 24">
                   <circle
                     className="opacity-25"
                     cx="12"
@@ -259,7 +255,7 @@ export function BugReportForm({
         </div>
       </form>
     </div>
-  );
-};
+  )
+}
 
-export default BugReportForm;
+export default BugReportForm

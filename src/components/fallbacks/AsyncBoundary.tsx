@@ -5,61 +5,61 @@
  * Provides a consistent UI pattern for async operations
  */
 
-'use client';
+'use client'
 
-import React, { ReactNode, useCallback, useEffect, useState } from 'react';
-import { ComponentFallback, FallbackVariant } from './ComponentFallback';
+import React, { ReactNode, useCallback, useEffect, useState } from 'react'
+import { ComponentFallback, FallbackVariant } from './ComponentFallback'
 
-export type AsyncStatus = 'idle' | 'pending' | 'success' | 'error';
+export type AsyncStatus = 'idle' | 'pending' | 'success' | 'error'
 
 export interface AsyncBoundaryProps<T = unknown> {
   /** Async operation to execute */
-  children: AsyncChildren<T>;
+  children: AsyncChildren<T>
   /** Loading variant */
-  loadingVariant?: FallbackVariant;
+  loadingVariant?: FallbackVariant
   /** Error variant */
-  errorVariant?: FallbackVariant;
+  errorVariant?: FallbackVariant
   /** Custom loading UI */
-  loadingFallback?: ReactNode;
+  loadingFallback?: ReactNode
   /** Custom error UI */
-  errorFallback?: ReactNode;
+  errorFallback?: ReactNode
   /** Empty state UI */
-  emptyFallback?: ReactNode;
+  emptyFallback?: ReactNode
   /** Loading text */
-  loadingText?: string;
+  loadingText?: string
   /** Error message */
-  errorMessage?: string;
+  errorMessage?: string
   /** Show retry button */
-  showRetry?: boolean;
+  showRetry?: boolean
   /** Auto-retry on error */
-  autoRetry?: boolean;
+  autoRetry?: boolean
   /** Max auto-retry attempts */
-  maxAutoRetry?: number;
+  maxAutoRetry?: number
   /** Auto-retry delay (ms) */
-  autoRetryDelay?: number;
+  autoRetryDelay?: number
   /** Execute on mount */
-  executeOnMount?: boolean;
+  executeOnMount?: boolean
   /** Dependencies for re-execution */
-  dependencies?: unknown[];
+  dependencies?: unknown[]
   /** On success callback */
-  onSuccess?: (data: T) => void;
+  onSuccess?: (data: T) => void
   /** On error callback */
-  onError?: (error: Error) => void;
+  onError?: (error: Error) => void
   /** Custom className */
-  className?: string;
+  className?: string
 }
 
 export type AsyncChildren<T = unknown> = (
   data: T,
   utils: {
     /** Re-execute the async operation */
-    reload: () => void;
+    reload: () => void
     /** Update data manually */
-    setData: (data: T) => void;
+    setData: (data: T) => void
     /** Current status */
-    status: AsyncStatus;
+    status: AsyncStatus
   }
-) => ReactNode;
+) => ReactNode
 
 /**
  * Async Boundary Component
@@ -98,71 +98,71 @@ export function AsyncBoundary<T = unknown>({
   onError,
   className,
 }: AsyncBoundaryProps<T>) {
-  const [status, setStatus] = useState<AsyncStatus>('idle');
-  const [data, setData] = useState<T | null>(null);
-  const [error, setError] = useState<Error | null>(null);
-  const [retryCount, setRetryCount] = useState(0);
-  const [reloadKey, setReloadKey] = useState(0);
+  const [status, setStatus] = useState<AsyncStatus>('idle')
+  const [data, setData] = useState<T | null>(null)
+  const [error, setError] = useState<Error | null>(null)
+  const [retryCount, setRetryCount] = useState(0)
+  const [reloadKey, setReloadKey] = useState(0)
 
   // Execute async operation
   const execute = useCallback(async () => {
-    setStatus('pending');
-    setError(null);
+    setStatus('pending')
+    setError(null)
 
     try {
       // The async function is provided by children
       // This is a placeholder - actual implementation needs async function prop
-      setStatus('success');
-    } catch (_err) {
-      const errorObj = err instanceof Error ? err : new Error(String(err));
-      setError(errorObj);
-      setStatus('error');
+      setStatus('success')
+    } catch (err) {
+      const errorObj = err instanceof Error ? err : new Error(String(err))
+      setError(errorObj)
+      setStatus('error')
 
       if (onError) {
-        onError(errorObj);
+        onError(errorObj)
       }
 
       // Auto-retry if enabled
       if (autoRetry && retryCount < maxAutoRetry) {
         setTimeout(() => {
-          setRetryCount((prev) => prev + 1);
-          execute();
-        }, autoRetryDelay);
+          setRetryCount(prev => prev + 1)
+          execute()
+        }, autoRetryDelay)
       }
     }
-  }, [autoRetry, autoRetryDelay, maxAutoRetry, retryCount, onError]);
+  }, [autoRetry, autoRetryDelay, maxAutoRetry, retryCount, onError])
 
   // Reload function
   const reload = useCallback(() => {
-    setRetryCount(0);
-    setReloadKey((prev) => prev + 1);
-    execute();
-  }, [execute]);
+    setRetryCount(0)
+    setReloadKey(prev => prev + 1)
+    execute()
+  }, [execute])
 
   // Manual data update
   const setDataManual = useCallback((newData: T) => {
-    setData(newData);
-    setStatus('success');
-  }, []);
+    setData(newData)
+    setStatus('success')
+  }, [])
 
   // Execute on mount or when dependencies change
   useEffect(() => {
     if (executeOnMount) {
-      execute();
+      execute()
     }
-  }, [executeOnMount, reloadKey, ...dependencies]);
+  }, [executeOnMount, reloadKey, ...dependencies])
 
   // Call on success
   useEffect(() => {
     if (status === 'success' && data && onSuccess) {
-      onSuccess(data);
+      onSuccess(data)
     }
-  }, [status, data, onSuccess]);
+  }, [status, data, onSuccess])
 
   // Loading state
   if (status === 'pending') {
     if (loadingFallback) {
-      return <>{loadingFallback}</>;
+      return <>{loadingFallback}</>
     }
     return (
       <ComponentFallback
@@ -171,13 +171,13 @@ export function AsyncBoundary<T = unknown>({
         loadingText={loadingText}
         className={className}
       />
-    );
+    )
   }
 
   // Error state
   if (status === 'error' && error) {
     if (errorFallback) {
-      return <>{errorFallback}</>;
+      return <>{errorFallback}</>
     }
     return (
       <ComponentFallback
@@ -188,17 +188,17 @@ export function AsyncBoundary<T = unknown>({
         onRetry={reload}
         className={className}
       />
-    );
+    )
   }
 
   // Empty state
   if (status === 'success' && data === null && emptyFallback) {
-    return <>{emptyFallback}</>;
+    return <>{emptyFallback}</>
   }
 
   // Success state with children render
   if (status === 'success' && data !== null) {
-    return <>{children(data, { reload, setData: setDataManual, status })}</>;
+    return <>{children(data, { reload, setData: setDataManual, status })}</>
   }
 
   // Idle state - render nothing or loading
@@ -211,24 +211,23 @@ export function AsyncBoundary<T = unknown>({
           loadingText={loadingText}
           className={className}
         />
-      );
+      )
     }
-    return null;
+    return null
   }
 
-  return null;
+  return null
 }
 
 /**
  * Async Boundary with async function prop
  * This is the actual usable version
  */
-export interface AsyncBoundaryFnProps<T = unknown>
-  extends Omit<AsyncBoundaryProps<T>, 'children'> {
+export interface AsyncBoundaryFnProps<T = unknown> extends Omit<AsyncBoundaryProps<T>, 'children'> {
   /** Async function to execute */
-  fn: () => Promise<T>;
+  fn: () => Promise<T>
   /** Children render function */
-  children: AsyncChildren<T>;
+  children: AsyncChildren<T>
 }
 
 export function AsyncBoundaryFn<T = unknown>({
@@ -251,68 +250,68 @@ export function AsyncBoundaryFn<T = unknown>({
   onError,
   className,
 }: AsyncBoundaryFnProps<T>) {
-  const [status, setStatus] = useState<AsyncStatus>('idle');
-  const [data, setData] = useState<T | null>(null);
-  const [error, setError] = useState<Error | null>(null);
-  const [retryCount, setRetryCount] = useState(0);
-  const [reloadKey, setReloadKey] = useState(0);
+  const [status, setStatus] = useState<AsyncStatus>('idle')
+  const [data, setData] = useState<T | null>(null)
+  const [error, setError] = useState<Error | null>(null)
+  const [retryCount, setRetryCount] = useState(0)
+  const [reloadKey, setReloadKey] = useState(0)
 
   // Execute async operation
   const execute = useCallback(async () => {
-    setStatus('pending');
-    setError(null);
+    setStatus('pending')
+    setError(null)
 
     try {
-      const result = await fn();
-      setData(result);
-      setStatus('success');
+      const result = await fn()
+      setData(result)
+      setStatus('success')
 
       if (onSuccess) {
-        onSuccess(result);
+        onSuccess(result)
       }
-    } catch (_err) {
-      const errorObj = err instanceof Error ? err : new Error(String(err));
-      setError(errorObj);
-      setStatus('error');
+    } catch (err) {
+      const errorObj = err instanceof Error ? err : new Error(String(err))
+      setError(errorObj)
+      setStatus('error')
 
       if (onError) {
-        onError(errorObj);
+        onError(errorObj)
       }
 
       // Auto-retry if enabled
       if (autoRetry && retryCount < maxAutoRetry) {
         setTimeout(() => {
-          setRetryCount((prev) => prev + 1);
-          execute();
-        }, autoRetryDelay);
+          setRetryCount(prev => prev + 1)
+          execute()
+        }, autoRetryDelay)
       }
     }
-  }, [fn, autoRetry, autoRetryDelay, maxAutoRetry, retryCount, onSuccess, onError]);
+  }, [fn, autoRetry, autoRetryDelay, maxAutoRetry, retryCount, onSuccess, onError])
 
   // Reload function
   const reload = useCallback(() => {
-    setRetryCount(0);
-    setReloadKey((prev) => prev + 1);
-    execute();
-  }, [execute]);
+    setRetryCount(0)
+    setReloadKey(prev => prev + 1)
+    execute()
+  }, [execute])
 
   // Manual data update
   const setDataManual = useCallback((newData: T) => {
-    setData(newData);
-    setStatus('success');
-  }, []);
+    setData(newData)
+    setStatus('success')
+  }, [])
 
   // Execute on mount or when dependencies change
   useEffect(() => {
     if (executeOnMount) {
-      execute();
+      execute()
     }
-  }, [executeOnMount, reloadKey, fn, ...dependencies]);
+  }, [executeOnMount, reloadKey, fn, ...dependencies])
 
   // Loading state
   if (status === 'pending') {
     if (loadingFallback) {
-      return <>{loadingFallback}</>;
+      return <>{loadingFallback}</>
     }
     return (
       <ComponentFallback
@@ -321,13 +320,13 @@ export function AsyncBoundaryFn<T = unknown>({
         loadingText={loadingText}
         className={className}
       />
-    );
+    )
   }
 
   // Error state
   if (status === 'error' && error) {
     if (errorFallback) {
-      return <>{errorFallback}</>;
+      return <>{errorFallback}</>
     }
     return (
       <ComponentFallback
@@ -338,17 +337,17 @@ export function AsyncBoundaryFn<T = unknown>({
         onRetry={reload}
         className={className}
       />
-    );
+    )
   }
 
   // Empty state
   if (status === 'success' && data === null && emptyFallback) {
-    return <>{emptyFallback}</>;
+    return <>{emptyFallback}</>
   }
 
   // Success state with children render
   if (status === 'success' && data !== null) {
-    return <>{children(data, { reload, setData: setDataManual, status })}</>;
+    return <>{children(data, { reload, setData: setDataManual, status })}</>
   }
 
   // Idle state
@@ -360,10 +359,10 @@ export function AsyncBoundaryFn<T = unknown>({
         loadingText={loadingText}
         className={className}
       />
-    );
+    )
   }
 
-  return null;
+  return null
 }
 
-export default AsyncBoundaryFn;
+export default AsyncBoundaryFn

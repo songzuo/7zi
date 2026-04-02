@@ -4,5 +4,5 @@
  */
 
 export function sendNotification(message: string): void {
-  console.log('[NotificationService]', message);
+  console.log('[NotificationService]', message)
 }

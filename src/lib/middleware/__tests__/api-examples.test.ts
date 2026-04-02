@@ -5,15 +5,15 @@
  * This file demonstrates how to use the middleware together in API routes
  */
 
-import { NextRequest, NextResponse } from 'next/server';
+import { NextRequest, NextResponse } from 'next/server'
 import {
   withRateLimit,
   withCrawlerDetection,
   getUserIdentifier,
   checkUserRateLimit,
   clearUserRateLimit,
-} from '@/lib/middleware';
-import { logger } from '@/lib/logger';
+} from '@/lib/middleware'
+import { logger } from '@/lib/logger'
 
 // ============================================
 // Example API Route 1: Public Endpoint with IP-based Rate Limiting
@@ -27,15 +27,15 @@ export async function GET_publicEndpoint(request: NextRequest) {
         success: true,
         message: 'Public endpoint accessed',
         data: { timestamp: new Date().toISOString() },
-      });
+      })
     },
     {
       windowMs: 60 * 1000, // 1 minute
       maxRequests: 30, // 30 requests per minute
     }
-  );
+  )
 
-  return handler(request);
+  return handler(request)
 }
 
 // ============================================
@@ -44,7 +44,7 @@ export async function GET_publicEndpoint(request: NextRequest) {
 
 export async function GET_protectedEndpoint(request: NextRequest) {
   // Get user identifier from JWT or API key
-  const { userId, source } = await getUserIdentifier(request);
+  const { userId, source } = await getUserIdentifier(request)
 
   if (!userId) {
     return NextResponse.json(
@@ -56,14 +56,14 @@ export async function GET_protectedEndpoint(request: NextRequest) {
         },
       },
       { status: 401 }
-    );
+    )
   }
 
   // Check user-based rate limit
   const rateLimitCheck = checkUserRateLimit(userId, 'user', {
     windowMs: 60 * 1000,
     maxRequests: 100, // Higher limit for authenticated users
-  });
+  })
 
   if (!rateLimitCheck.allowed) {
     return NextResponse.json(
@@ -87,7 +87,7 @@ export async function GET_protectedEndpoint(request: NextRequest) {
           'Retry-After': Math.ceil((rateLimitCheck.resetTime - Date.now()) / 1000).toString(),
         },
       }
-    );
+    )
   }
 
   // Process the request
@@ -108,7 +108,7 @@ export async function GET_protectedEndpoint(request: NextRequest) {
         'X-RateLimit-Reset': new Date(rateLimitCheck.resetTime).toISOString(),
       },
     }
-  );
+  )
 }
 
 // ============================================
@@ -120,7 +120,7 @@ export async function POST_adminEndpoint(request: NextRequest) {
   const protectedHandler = withCrawlerDetection(
     async (req: NextRequest) => {
       // Get user identifier
-      const { userId, role } = await getUserIdentifier(req);
+      const { userId, role } = await getUserIdentifier(req)
 
       if (!userId) {
         return NextResponse.json(
@@ -132,7 +132,7 @@ export async function POST_adminEndpoint(request: NextRequest) {
             },
           },
           { status: 401 }
-        );
+        )
       }
 
       // Check admin role
@@ -146,14 +146,14 @@ export async function POST_adminEndpoint(request: NextRequest) {
             },
           },
           { status: 403 }
-        );
+        )
       }
 
       // Admin rate limit check
       const rateLimitCheck = checkUserRateLimit(userId, 'admin', {
         windowMs: 60 * 1000,
         maxRequests: 1000, // Very high limit for admins
-      });
+      })
 
       if (!rateLimitCheck.allowed) {
         return NextResponse.json(
@@ -165,12 +165,12 @@ export async function POST_adminEndpoint(request: NextRequest) {
             },
           },
           { status: 429 }
-        );
+        )
       }
 
       // Process the request
       try {
-        const body = await req.json();
+        const body = await req.json()
         // ... admin logic here ...
 
         return NextResponse.json({
@@ -180,8 +180,8 @@ export async function POST_adminEndpoint(request: NextRequest) {
             userId,
             timestamp: new Date().toISOString(),
           },
-        });
-      } catch (_error) {
+        })
+      } catch (error) {
         return NextResponse.json(
           {
             success: false,
@@ -191,7 +191,7 @@ export async function POST_adminEndpoint(request: NextRequest) {
             },
           },
           { status: 400 }
-        );
+        )
       }
     },
     {
@@ -202,9 +202,9 @@ export async function POST_adminEndpoint(request: NextRequest) {
       maxRequestsPerMinute: 100,
       maxRequestsPerSecond: 10,
     }
-  );
+  )
 
-  return protectedHandler(request);
+  return protectedHandler(request)
 }
 
 // ============================================
@@ -216,12 +216,12 @@ export async function GET_sensitiveData(request: NextRequest) {
   const withAllProtection = async (req: NextRequest) => {
     // Layer 1: Crawler detection
     const crawlerProtected = withCrawlerDetection(
-      async (req) => {
+      async req => {
         // Layer 2: IP-based rate limiting
         const rateLimited = withRateLimit(
-          async (req) => {
+          async req => {
             // Layer 3: User authentication and rate limiting
-            const { userId } = await getUserIdentifier(req);
+            const { userId } = await getUserIdentifier(req)
 
             if (!userId) {
               return NextResponse.json(
@@ -233,20 +233,20 @@ export async function GET_sensitiveData(request: NextRequest) {
                   },
                 },
                 { status: 401 }
-              );
+              )
             }
 
             // Strict user rate limit
             const userRateLimitCheck = checkUserRateLimit(userId, 'user', {
               windowMs: 60 * 1000,
               maxRequests: 10, // Very strict limit for sensitive data
-            });
+            })
 
             if (!userRateLimitCheck.allowed) {
               logger.warn(`Sensitive data rate limit exceeded for user ${userId}`, {
                 userId,
                 resetTime: userRateLimitCheck.resetTime,
-              });
+              })
 
               return NextResponse.json(
                 {
@@ -257,7 +257,7 @@ export async function GET_sensitiveData(request: NextRequest) {
                   },
                 },
                 { status: 429 }
-              );
+              )
             }
 
             // Return sensitive data
@@ -268,15 +268,15 @@ export async function GET_sensitiveData(request: NextRequest) {
                 sensitiveInfo: 'This is sensitive data',
                 timestamp: new Date().toISOString(),
               },
-            });
+            })
           },
           {
             windowMs: 60 * 1000,
             maxRequests: 20, // Additional IP-based limit
           }
-        );
+        )
 
-        return rateLimited(req);
+        return rateLimited(req)
       },
       {
         mode: 'block',
@@ -285,12 +285,12 @@ export async function GET_sensitiveData(request: NextRequest) {
         checkFrequency: true,
         maxRequestsPerMinute: 30,
       }
-    );
+    )
 
-    return crawlerProtected(req);
-  };
+    return crawlerProtected(req)
+  }
 
-  return withAllProtection(request);
+  return withAllProtection(request)
 }
 
 // ============================================
@@ -299,7 +299,7 @@ export async function GET_sensitiveData(request: NextRequest) {
 
 export async function POST_batchOperations(request: NextRequest) {
   // Batch operations might need different rate limiting strategy
-  const { userId } = await getUserIdentifier(request);
+  const { userId } = await getUserIdentifier(request)
 
   if (!userId) {
     return NextResponse.json(
@@ -311,12 +311,12 @@ export async function POST_batchOperations(request: NextRequest) {
         },
       },
       { status: 401 }
-    );
+    )
   }
 
   try {
-    const body = await request.json();
-    const { operations } = body;
+    const body = await request.json()
+    const { operations } = body
 
     if (!Array.isArray(operations) || operations.length === 0) {
       return NextResponse.json(
@@ -328,20 +328,20 @@ export async function POST_batchOperations(request: NextRequest) {
           },
         },
         { status: 400 }
-      );
+      )
     }
 
     // Rate limit based on number of operations, not requests
-    const operationsCount = operations.length;
+    const operationsCount = operations.length
 
     // Check if user has quota for this many operations
     const rateLimitCheck = checkUserRateLimit(userId, 'user', {
       windowMs: 60 * 1000,
       maxRequests: 1000, // Allow up to 1000 operations per minute
-    });
+    })
 
     // Calculate actual quota used
-    const remainingQuota = Math.max(0, rateLimitCheck.remaining - operationsCount);
+    const remainingQuota = Math.max(0, rateLimitCheck.remaining - operationsCount)
 
     if (remainingQuota < 0) {
       return NextResponse.json(
@@ -353,7 +353,7 @@ export async function POST_batchOperations(request: NextRequest) {
           },
         },
         { status: 429 }
-      );
+      )
     }
 
     // Deduct quota by updating the rate limit store
@@ -362,14 +362,14 @@ export async function POST_batchOperations(request: NextRequest) {
     const userRateLimitCheck = checkUserRateLimit(userId, 'user', {
       windowMs: 60 * 1000,
       maxRequests: rateLimitCheck.limit,
-    });
+    })
 
     // Process batch operations
     const results = operations.map((op: Record<string, unknown>, index: number) => ({
       index,
       status: 'processed',
       timestamp: new Date().toISOString(),
-    }));
+    }))
 
     return NextResponse.json({
       success: true,
@@ -381,8 +381,8 @@ export async function POST_batchOperations(request: NextRequest) {
       headers: {
         'X-RateLimit-Remaining': remainingQuota.toString(),
       },
-    });
-  } catch (_error) {
+    })
+  } catch (error) {
     return NextResponse.json(
       {
         success: false,
@@ -392,7 +392,7 @@ export async function POST_batchOperations(request: NextRequest) {
         },
       },
       { status: 500 }
-    );
+    )
   }
 }
 
@@ -401,7 +401,7 @@ export async function POST_batchOperations(request: NextRequest) {
 // ============================================
 
 export async function GET_rateLimitStatus(request: NextRequest) {
-  const { userId } = await getUserIdentifier(request);
+  const { userId } = await getUserIdentifier(request)
 
   if (!userId) {
     return NextResponse.json(
@@ -413,7 +413,7 @@ export async function GET_rateLimitStatus(request: NextRequest) {
         },
       },
       { status: 401 }
-    );
+    )
   }
 
   // Return rate limit status for the user
@@ -426,12 +426,12 @@ export async function GET_rateLimitStatus(request: NextRequest) {
       admin: { windowMs: 60 * 1000, maxRequests: 1000 },
       sensitive: { windowMs: 60 * 1000, maxRequests: 10 },
     },
-  };
+  }
 
   return NextResponse.json({
     success: true,
     data: status,
-  });
+  })
 }
 
 // ============================================
@@ -440,7 +440,7 @@ export async function GET_rateLimitStatus(request: NextRequest) {
 
 export async function POST_overrideRateLimit(request: NextRequest) {
   // This endpoint should only be accessible by admins
-  const { userId, role } = await getUserIdentifier(request);
+  const { userId, role } = await getUserIdentifier(request)
 
   if (!userId || role !== 'admin') {
     return NextResponse.json(
@@ -452,12 +452,12 @@ export async function POST_overrideRateLimit(request: NextRequest) {
         },
       },
       { status: 403 }
-    );
+    )
   }
 
   try {
-    const body = await request.json();
-    const { targetUserId, action } = body;
+    const body = await request.json()
+    const { targetUserId, action } = body
 
     if (!targetUserId || !action) {
       return NextResponse.json(
@@ -469,17 +469,17 @@ export async function POST_overrideRateLimit(request: NextRequest) {
           },
         },
         { status: 400 }
-      );
+      )
     }
 
     if (action === 'clear') {
-      clearUserRateLimit(targetUserId);
-      logger.info(`Rate limit cleared for user ${targetUserId} by admin ${userId}`);
+      clearUserRateLimit(targetUserId)
+      logger.info(`Rate limit cleared for user ${targetUserId} by admin ${userId}`)
 
       return NextResponse.json({
         success: true,
         message: `Rate limit cleared for user ${targetUserId}`,
-      });
+      })
     }
 
     return NextResponse.json(
@@ -491,8 +491,8 @@ export async function POST_overrideRateLimit(request: NextRequest) {
         },
       },
       { status: 400 }
-    );
-  } catch (_error) {
+    )
+  } catch (error) {
     return NextResponse.json(
       {
         success: false,
@@ -502,6 +502,6 @@ export async function POST_overrideRateLimit(request: NextRequest) {
         },
       },
       { status: 500 }
-    );
+    )
   }
 }

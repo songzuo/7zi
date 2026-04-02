@@ -51,9 +51,7 @@ export function generatePageMetadata(page: PageMetadata): Metadata {
       canonical: alternates?.canonical,
       languages: alternates?.languages,
     },
-    robots: noIndex
-      ? { index: false, follow: false }
-      : { index: true, follow: true },
+    robots: noIndex ? { index: false, follow: false } : { index: true, follow: true },
   }
 }
 
@@ -61,12 +59,14 @@ export function generatePageMetadata(page: PageMetadata): Metadata {
 export const pageMetadataConfig: Record<string, PageMetadata> = {
   home: {
     title: '首页',
-    description: '7zi Frontend - Next.js 最佳实践演示项目，包含图片优化、国际化、主题系统、WebSocket 等功能演示',
+    description:
+      '7zi Frontend - Next.js 最佳实践演示项目，包含图片优化、国际化、主题系统、WebSocket 等功能演示',
     keywords: ['Next.js', 'React', '图片优化', 'WebP', 'AVIF', 'TypeScript'],
   },
   imageOptimization: {
     title: '图片优化示例',
-    description: 'Next.js Image 组件最佳实践 - WebP/AVIF 自动转换、懒加载、响应式图片、LCP 性能优化',
+    description:
+      'Next.js Image 组件最佳实践 - WebP/AVIF 自动转换、懒加载、响应式图片、LCP 性能优化',
     keywords: ['Next.js Image', 'WebP', 'AVIF', '图片优化', '懒加载', '响应式图片'],
     image: '/images/og-image-optimization.jpg',
   },

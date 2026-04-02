@@ -747,7 +747,18 @@ jobs:
     name: CI/CD 总结
     runs-on: ubuntu-latest
     timeout-minutes: 3
-    needs: [lint, typecheck, test-unit, build, test-e2e, docker, pre-deploy, deploy-staging, deploy-production]
+    needs:
+      [
+        lint,
+        typecheck,
+        test-unit,
+        build,
+        test-e2e,
+        docker,
+        pre-deploy,
+        deploy-staging,
+        deploy-production,
+      ]
     if: always()
     steps:
       - name: 生成总结

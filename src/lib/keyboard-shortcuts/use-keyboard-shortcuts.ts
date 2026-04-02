@@ -4,30 +4,30 @@
  * Provides React integration for the ShortcutManager.
  */
 
-import { useEffect, useCallback, useState, useRef, useMemo } from 'react';
+import { useEffect, useCallback, useState, useRef, useMemo } from 'react'
 import {
   ShortcutManager,
   KeyboardShortcut,
   getShortcutManager,
   initShortcutManager,
-  destroyShortcutManager
-} from './shortcut-manager';
-import type { ShortcutContext } from './shortcut-config';
+  destroyShortcutManager,
+} from './shortcut-manager'
+import type { ShortcutContext } from './shortcut-config'
 
 /**
  * Props for the useKeyboardShortcuts hook
  */
 export interface UseKeyboardShortcutsOptions {
   /** Initial context */
-  context?: ShortcutContext;
+  context?: ShortcutContext
   /** Auto-attach the event listener */
-  autoAttach?: boolean;
+  autoAttach?: boolean
   /** Enable debug logging */
-  debug?: boolean;
+  debug?: boolean
   /** Called when a shortcut is triggered */
-  onShortcutTrigger?: (shortcut: KeyboardShortcut, event: KeyboardEvent) => void;
+  onShortcutTrigger?: (shortcut: KeyboardShortcut, event: KeyboardEvent) => void
   /** Called when context changes */
-  onContextChange?: (context: ShortcutContext) => void;
+  onContextChange?: (context: ShortcutContext) => void
 }
 
 /**
@@ -39,30 +39,30 @@ export function useKeyboardShortcuts(options: UseKeyboardShortcutsOptions = {}) 
     autoAttach = true,
     debug = false,
     onShortcutTrigger,
-    onContextChange
-  } = options;
+    onContextChange,
+  } = options
 
-  const managerRef = useRef<ShortcutManager | null>(null);
-  const [currentContext, setCurrentContext] = useState<ShortcutContext>(context);
-  const [activeShortcuts, setActiveShortcuts] = useState<KeyboardShortcut[]>([]);
-  const [isEnabled, setIsEnabled] = useState(true);
+  const managerRef = useRef<ShortcutManager | null>(null)
+  const [currentContext, setCurrentContext] = useState<ShortcutContext>(context)
+  const [activeShortcuts, setActiveShortcuts] = useState<KeyboardShortcut[]>([])
+  const [isEnabled, setIsEnabled] = useState(true)
 
   // Initialize manager
   useEffect(() => {
     if (typeof window === 'undefined') {
-      return;
+      return
     }
 
     // Get or create manager
-    managerRef.current = getShortcutManager({ debug });
+    managerRef.current = getShortcutManager({ debug })
 
     // Auto attach
     if (autoAttach) {
-      managerRef.current.attach();
+      managerRef.current.attach()
     }
 
     // Update active shortcuts
-    setActiveShortcuts(managerRef.current.getActiveShortcuts());
+    setActiveShortcuts(managerRef.current.getActiveShortcuts())
 
     // Cleanup
     return () => {
@@ -70,83 +70,83 @@ export function useKeyboardShortcuts(options: UseKeyboardShortcutsOptions = {}) 
         // Don't detach on unmount as other components might be using it
         // Only detach when explicitly calling destroyShortcutManager()
       }
-    };
-  }, [autoAttach, debug]);
+    }
+  }, [autoAttach, debug])
 
   // Update context
   useEffect(() => {
     if (managerRef.current && context !== currentContext) {
-      managerRef.current.setContext(context);
-      setCurrentContext(context);
-      setActiveShortcuts(managerRef.current.getActiveShortcuts());
+      managerRef.current.setContext(context)
+      setCurrentContext(context)
+      setActiveShortcuts(managerRef.current.getActiveShortcuts())
     }
-  }, [context, currentContext]);
+  }, [context, currentContext])
 
   // Register listeners
   useEffect(() => {
     if (!managerRef.current) {
-      return;
+      return
     }
 
-    const unsubscribers: (() => void)[] = [];
+    const unsubscribers: (() => void)[] = []
 
     if (onShortcutTrigger) {
-      unsubscribers.push(managerRef.current.onShortcutTrigger(onShortcutTrigger));
+      unsubscribers.push(managerRef.current.onShortcutTrigger(onShortcutTrigger))
     }
 
     if (onContextChange) {
-      unsubscribers.push(managerRef.current.onContextChange(onContextChange));
+      unsubscribers.push(managerRef.current.onContextChange(onContextChange))
     }
 
     return () => {
-      unsubscribers.forEach(unsub => unsub());
-    };
-  }, [onShortcutTrigger, onContextChange]);
+      unsubscribers.forEach(unsub => unsub())
+    }
+  }, [onShortcutTrigger, onContextChange])
 
   // Actions
   const setContext = useCallback((newContext: ShortcutContext) => {
     if (managerRef.current) {
-      managerRef.current.setContext(newContext);
-      setCurrentContext(newContext);
-      setActiveShortcuts(managerRef.current.getActiveShortcuts());
+      managerRef.current.setContext(newContext)
+      setCurrentContext(newContext)
+      setActiveShortcuts(managerRef.current.getActiveShortcuts())
     }
-  }, []);
+  }, [])
 
   const registerShortcut = useCallback((shortcut: KeyboardShortcut) => {
     if (managerRef.current) {
-      managerRef.current.register(shortcut);
-      setActiveShortcuts(managerRef.current.getActiveShortcuts());
+      managerRef.current.register(shortcut)
+      setActiveShortcuts(managerRef.current.getActiveShortcuts())
     }
-  }, []);
+  }, [])
 
   const unregisterShortcut = useCallback((id: string) => {
     if (managerRef.current) {
-      managerRef.current.unregister(id);
-      setActiveShortcuts(managerRef.current.getActiveShortcuts());
+      managerRef.current.unregister(id)
+      setActiveShortcuts(managerRef.current.getActiveShortcuts())
     }
-  }, []);
+  }, [])
 
   const enableShortcuts = useCallback(() => {
     if (managerRef.current) {
-      managerRef.current.enableAll();
-      setIsEnabled(true);
+      managerRef.current.enableAll()
+      setIsEnabled(true)
     }
-  }, []);
+  }, [])
 
   const disableShortcuts = useCallback(() => {
     if (managerRef.current) {
-      managerRef.current.disableAll();
-      setIsEnabled(false);
+      managerRef.current.disableAll()
+      setIsEnabled(false)
     }
-  }, []);
+  }, [])
 
   const toggleShortcuts = useCallback(() => {
     if (isEnabled) {
-      disableShortcuts();
+      disableShortcuts()
     } else {
-      enableShortcuts();
+      enableShortcuts()
     }
-  }, [isEnabled, enableShortcuts, disableShortcuts]);
+  }, [isEnabled, enableShortcuts, disableShortcuts])
 
   return {
     /** Current context */
@@ -168,8 +168,8 @@ export function useKeyboardShortcuts(options: UseKeyboardShortcutsOptions = {}) 
     /** Toggle shortcuts enabled state */
     toggleShortcuts,
     /** Get the underlying manager instance */
-    getManager: () => managerRef.current
-  };
+    getManager: () => managerRef.current,
+  }
 }
 
 /**
@@ -180,41 +180,44 @@ export function useShortcut(
   key: string,
   action: (event: KeyboardEvent) => void,
   options: {
-    context?: ShortcutContext;
-    ctrl?: boolean;
-    meta?: boolean;
-    alt?: boolean;
-    shift?: boolean;
-    description?: string;
-    enabled?: boolean;
+    context?: ShortcutContext
+    ctrl?: boolean
+    meta?: boolean
+    alt?: boolean
+    shift?: boolean
+    description?: string
+    enabled?: boolean
   } = {}
 ) {
-  const { context = 'global', ctrl, meta, alt, shift, description = '', enabled = true } = options;
+  const { context = 'global', ctrl, meta, alt, shift, description = '', enabled = true } = options
 
-  const shortcut: KeyboardShortcut = useMemo(() => ({
-    id,
-    key,
-    context,
-    ctrl,
-    meta,
-    alt,
-    shift,
-    description,
-    action,
-    enabled
-  }), [id, key, context, ctrl, meta, alt, shift, description, action, enabled]);
+  const shortcut: KeyboardShortcut = useMemo(
+    () => ({
+      id,
+      key,
+      context,
+      ctrl,
+      meta,
+      alt,
+      shift,
+      description,
+      action,
+      enabled,
+    }),
+    [id, key, context, ctrl, meta, alt, shift, description, action, enabled]
+  )
 
   useEffect(() => {
-    const manager = getShortcutManager();
+    const manager = getShortcutManager()
 
     if (enabled) {
-      manager.register(shortcut);
+      manager.register(shortcut)
     }
 
     return () => {
-      manager.unregister(id);
-    };
-  }, [shortcut, id, enabled]);
+      manager.unregister(id)
+    }
+  }, [shortcut, id, enabled])
 }
 
 /**
@@ -222,18 +225,18 @@ export function useShortcut(
  */
 export function useShortcuts(shortcuts: KeyboardShortcut[]) {
   useEffect(() => {
-    const manager = getShortcutManager();
+    const manager = getShortcutManager()
 
     shortcuts.forEach(shortcut => {
-      manager.register(shortcut);
-    });
+      manager.register(shortcut)
+    })
 
     return () => {
       shortcuts.forEach(shortcut => {
-        manager.unregister(shortcut.id);
-      });
-    };
-  }, [shortcuts]);
+        manager.unregister(shortcut.id)
+      })
+    }
+  }, [shortcuts])
 }
 
 /**
@@ -243,40 +246,40 @@ export function useContextualShortcuts(
   context: ShortcutContext,
   shortcuts: Omit<KeyboardShortcut, 'context'>[]
 ) {
-  const manager = getShortcutManager();
+  const manager = getShortcutManager()
 
   useEffect(() => {
     // Set context
-    manager.setContext(context);
+    manager.setContext(context)
 
     // Register shortcuts
-    const fullShortcuts = shortcuts.map(s => ({ ...s, context }));
+    const fullShortcuts = shortcuts.map(s => ({ ...s, context }))
     fullShortcuts.forEach(shortcut => {
-      manager.register(shortcut);
-    });
+      manager.register(shortcut)
+    })
 
     return () => {
       // Unregister shortcuts
       fullShortcuts.forEach(shortcut => {
-        manager.unregister(shortcut.id);
-      });
-    };
-  }, [context, shortcuts, manager]);
+        manager.unregister(shortcut.id)
+      })
+    }
+  }, [context, shortcuts, manager])
 }
 
 /**
  * Hook for getting shortcuts for display
  */
 export function useShortcutsDisplay(context?: ShortcutContext) {
-  const manager = getShortcutManager();
-  const [shortcuts, setShortcuts] = useState<KeyboardShortcut[]>([]);
+  const manager = getShortcutManager()
+  const [shortcuts, setShortcuts] = useState<KeyboardShortcut[]>([])
 
   useEffect(() => {
-    const targetContext = context || manager.getContext();
-    setShortcuts(manager.getShortcutsForContext(targetContext));
-  }, [context, manager]);
+    const targetContext = context || manager.getContext()
+    setShortcuts(manager.getShortcutsForContext(targetContext))
+  }, [context, manager])
 
-  return shortcuts;
+  return shortcuts
 }
 
 /**
@@ -284,14 +287,14 @@ export function useShortcutsDisplay(context?: ShortcutContext) {
  */
 export function useGlobalShortcuts(
   handlers: {
-    onCommandPalette?: () => void;
-    onSearch?: () => void;
-    onEscape?: () => void;
-    onHelp?: () => void;
+    onCommandPalette?: () => void
+    onSearch?: () => void
+    onEscape?: () => void
+    onHelp?: () => void
   } = {}
 ) {
   const shortcuts: KeyboardShortcut[] = useMemo(() => {
-    const result: KeyboardShortcut[] = [];
+    const result: KeyboardShortcut[] = []
 
     if (handlers.onCommandPalette) {
       result.push({
@@ -301,8 +304,8 @@ export function useGlobalShortcuts(
         ctrl: true,
         meta: true,
         description: 'Open command palette',
-        action: handlers.onCommandPalette
-      });
+        action: handlers.onCommandPalette,
+      })
     }
 
     if (handlers.onSearch) {
@@ -311,8 +314,8 @@ export function useGlobalShortcuts(
         key: '/',
         context: 'global',
         description: 'Open search',
-        action: handlers.onSearch
-      });
+        action: handlers.onSearch,
+      })
     }
 
     if (handlers.onEscape) {
@@ -321,8 +324,8 @@ export function useGlobalShortcuts(
         key: 'Escape',
         context: 'global',
         description: 'Close modal/dropdown',
-        action: handlers.onEscape
-      });
+        action: handlers.onEscape,
+      })
     }
 
     if (handlers.onHelp) {
@@ -332,91 +335,101 @@ export function useGlobalShortcuts(
         context: 'global',
         shift: true,
         description: 'Show keyboard shortcuts help',
-        action: handlers.onHelp
-      });
+        action: handlers.onHelp,
+      })
     }
 
-    return result;
-  }, [handlers.onCommandPalette, handlers.onSearch, handlers.onEscape, handlers.onHelp]);
+    return result
+  }, [handlers.onCommandPalette, handlers.onSearch, handlers.onEscape, handlers.onHelp])
 
-  useShortcuts(shortcuts);
+  useShortcuts(shortcuts)
 }
 
 /**
  * Hook for initialization
  */
-export function useInitShortcuts(options: {
-  debug?: boolean;
-  autoAttach?: boolean;
-} = {}) {
-  const [isReady, setIsReady] = useState(false);
+export function useInitShortcuts(
+  options: {
+    debug?: boolean
+    autoAttach?: boolean
+  } = {}
+) {
+  const [isReady, setIsReady] = useState(false)
 
   useEffect(() => {
     if (typeof window === 'undefined') {
-      return;
+      return
     }
 
-    initShortcutManager(options);
-    setIsReady(true);
+    initShortcutManager(options)
+    setIsReady(true)
 
     return () => {
-      destroyShortcutManager();
-    };
-  }, [options.debug, options.autoAttach]);
+      destroyShortcutManager()
+    }
+  }, [options.debug, options.autoAttach])
 
-  return isReady;
+  return isReady
 }
 
 /**
  * Hook for user customizations
  */
 export function useShortcutCustomization() {
-  const manager = getShortcutManager();
-  const [customizations, setCustomizations] = useState<Record<string, Partial<KeyboardShortcut>>>({});
+  const manager = getShortcutManager()
+  const [customizations, setCustomizations] = useState<Record<string, Partial<KeyboardShortcut>>>(
+    {}
+  )
 
   useEffect(() => {
-    setCustomizations(manager.getCustomizations());
-  }, [manager]);
+    setCustomizations(manager.getCustomizations())
+  }, [manager])
 
-  const customize = useCallback((id: string, customization: Partial<KeyboardShortcut>) => {
-    manager.setCustomization(id, customization);
-    setCustomizations(manager.getCustomizations());
-  }, [manager]);
+  const customize = useCallback(
+    (id: string, customization: Partial<KeyboardShortcut>) => {
+      manager.setCustomization(id, customization)
+      setCustomizations(manager.getCustomizations())
+    },
+    [manager]
+  )
 
-  const reset = useCallback((id: string) => {
-    manager.clearCustomization(id);
-    setCustomizations(manager.getCustomizations());
-  }, [manager]);
+  const reset = useCallback(
+    (id: string) => {
+      manager.clearCustomization(id)
+      setCustomizations(manager.getCustomizations())
+    },
+    [manager]
+  )
 
   const resetAll = useCallback(() => {
     Object.keys(customizations).forEach(id => {
-      manager.clearCustomization(id);
-    });
-    setCustomizations({});
-  }, [manager, customizations]);
+      manager.clearCustomization(id)
+    })
+    setCustomizations({})
+  }, [manager, customizations])
 
   return {
     customizations,
     customize,
     reset,
-    resetAll
-  };
+    resetAll,
+  }
 }
 
 /**
  * Provider component type
  */
 export interface ShortcutProviderProps {
-  children: React.ReactNode;
+  children: React.ReactNode
   /** Initial context */
-  initialContext?: ShortcutContext;
+  initialContext?: ShortcutContext
   /** Enable debug logging */
-  debug?: boolean;
+  debug?: boolean
 }
 
 /**
  * Hook to get shortcut manager from context
  */
 export function useShortcutManager() {
-  return getShortcutManager();
+  return getShortcutManager()
 }

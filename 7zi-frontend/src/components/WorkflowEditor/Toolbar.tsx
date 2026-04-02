@@ -1,18 +1,19 @@
 /**
  * Toolbar - 工具栏
  *
- * 顶部工具栏，包含保存、运行、验证等操作
+ * 顶部工具栏，包含保存、运行、验证、撤销、重做等操作
  */
 
-import React from 'react';
+import React from 'react'
+import { useUndoRedo } from './stores/workflow-editor-store'
 
 interface ToolbarProps {
-  onSave: () => void;
-  onRun: () => void;
-  onValidate: () => void;
-  isExecuting?: boolean;
-  readOnly?: boolean;
-  hasErrors?: boolean;
+  onSave: () => void
+  onRun: () => void
+  onValidate: () => void
+  isExecuting?: boolean
+  readOnly?: boolean
+  hasErrors?: boolean
 }
 
 export function Toolbar({
@@ -23,19 +24,41 @@ export function Toolbar({
   readOnly = false,
   hasErrors = false,
 }: ToolbarProps) {
+  const { undo, redo, canUndo, canRedo } = useUndoRedo()
+
   return (
     <div className="flex items-center justify-between border-b border-gray-200 bg-white px-4 py-2 dark:border-gray-700 dark:bg-gray-800">
       {/* 左侧：工作流信息 */}
       <div className="flex items-center gap-4">
-        <h1 className="text-lg font-semibold text-gray-900 dark:text-white">
-          工作流编辑器
-        </h1>
+        <h1 className="text-lg font-semibold text-gray-900 dark:text-white">工作流编辑器</h1>
         {hasErrors && (
           <span className="flex items-center gap-1 rounded-full bg-red-100 px-3 py-1 text-sm text-red-600 dark:bg-red-900/30 dark:text-red-400">
             <span>⚠️</span>
             <span>有验证错误</span>
           </span>
         )}
+      </div>
+
+      {/* 中间：撤销/重做 */}
+      <div className="flex items-center gap-1">
+        <button
+          onClick={undo}
+          disabled={readOnly || !canUndo}
+          className="flex items-center gap-1 rounded-lg border border-gray-300 px-2 py-1.5 text-sm font-medium text-gray-700 transition-colors hover:bg-gray-50 disabled:cursor-not-allowed disabled:opacity-40 dark:border-gray-600 dark:text-gray-300 dark:hover:bg-gray-700"
+          title="撤销 (Ctrl+Z)"
+        >
+          <span>↩️</span>
+          <span>撤销</span>
+        </button>
+        <button
+          onClick={redo}
+          disabled={readOnly || !canRedo}
+          className="flex items-center gap-1 rounded-lg border border-gray-300 px-2 py-1.5 text-sm font-medium text-gray-700 transition-colors hover:bg-gray-50 disabled:cursor-not-allowed disabled:opacity-40 dark:border-gray-600 dark:text-gray-300 dark:hover:bg-gray-700"
+          title="重做 (Ctrl+Y)"
+        >
+          <span>↪️</span>
+          <span>重做</span>
+        </button>
       </div>
 
       {/* 右侧：操作按钮 */}
@@ -74,5 +97,7 @@ export function Toolbar({
         </button>
       </div>
     </div>
-  );
+  )
 }
+
+export default Toolbar

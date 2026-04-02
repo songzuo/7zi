@@ -4,12 +4,12 @@
 
 根据你的需求选择合适的部署方案：
 
-| 方案 | 适合场景 | 难度 | 自动化 |
-|------|----------|------|--------|
-| **Nginx** | 静态网站、前端项目 | ⭐ | 手动 |
-| **Docker** | 容器化应用、多环境 | ⭐⭐ | 半自动 |
-| **rsync** | 快速同步、增量更新 | ⭐ | 手动 |
-| **Git Hook** | CI/CD、自动部署 | ⭐⭐⭐ | 全自动 |
+| 方案         | 适合场景           | 难度   | 自动化 |
+| ------------ | ------------------ | ------ | ------ |
+| **Nginx**    | 静态网站、前端项目 | ⭐     | 手动   |
+| **Docker**   | 容器化应用、多环境 | ⭐⭐   | 半自动 |
+| **rsync**    | 快速同步、增量更新 | ⭐     | 手动   |
+| **Git Hook** | CI/CD、自动部署    | ⭐⭐⭐ | 全自动 |
 
 ---
 
@@ -171,20 +171,23 @@ firewall-cmd --reload
 ### 常见问题
 
 1. **权限错误**
+
    ```bash
    ssh root@$DEPLOY_HOST "chown -R www-data:www-data /var/www/$APP_NAME"
    ```
 
 2. **连接失败**
+
    ```bash
    # 检查防火墙
    ssh root@$DEPLOY_HOST "ufw status"
-   
+
    # 检查端口
    ssh root@$DEPLOY_HOST "netstat -tlnp | grep :80"
    ```
 
 3. **Nginx 不工作**
+
    ```bash
    ssh root@$DEPLOY_HOST "nginx -t && systemctl reload nginx"
    ```
@@ -285,6 +288,7 @@ scp root@$DEPLOY_HOST:/backups/myapp-$DATE.tar.gz ./backups/
 ## 联系和支持
 
 如有问题，请检查：
+
 1. 日志文件
 2. 服务器资源
 3. 网络连接

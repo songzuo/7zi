@@ -15,12 +15,15 @@
 ## 1. 测试文件检查
 
 ### 现有测试文件
+
 - `src/lib/websocket/__tests__/rooms.test.ts` - 单元测试（已存在）
 - `src/lib/websocket/__tests__/rooms.e2e.test.ts` - E2E 测试（已存在）
 - `tests/e2e/websocket-rooms.spec.ts` - Playwright E2E 测试（已补充）
 
 ### 测试覆盖范围
+
 测试文件当前包含以下主要测试套件：
+
 - Room Creation（房间创建）
 - Room Join/Leave（加入/离开房间）
 - Room Invitation System（邀请系统）
@@ -139,6 +142,7 @@
 ## 3. 测试实现细节
 
 ### 辅助函数
+
 测试文件包含以下辅助函数：
 
 - `setupWebSocketPage(page, userId, userName)` - 设置 WebSocket 连接
@@ -148,17 +152,20 @@
 - `clearSocketMessages(page)` - 清空消息历史
 
 ### 测试数据
+
 ```typescript
 const testUsers = {
   owner: { id: 'user-owner', name: 'Room Owner', email: 'owner@7zi.com' },
   admin: { id: 'user-admin', name: 'Room Admin', email: 'admin@7zi.com' },
   member: { id: 'user-member', name: 'Room Member', email: 'member@7zi.com' },
   guest: { id: 'user-guest', name: 'Room Guest', email: 'guest@7zi.com' },
-};
+}
 ```
 
 ### WebSocket 事件类型
+
 测试覆盖以下事件类型：
+
 - `room:created` - 房间创建
 - `room:joined` - 加入房间
 - `room:left` - 离开房间
@@ -204,17 +211,20 @@ pnpm test:e2e:report
 ## 5. 测试覆盖分析
 
 ### 消息历史查询
+
 - ✅ limit 参数验证
 - ✅ before 参数分页
 - ✅ 空历史处理
 
 ### 用户列表管理
+
 - ✅ 用户列表获取
 - ✅ 用户加入通知
 - ✅ 用户离开通知
 - ✅ 用户状态更新（输入状态）
 
 ### 权限验证
+
 - ✅ 所有者权限
 - ✅ 管理员权限
 - ✅ 普通成员权限
@@ -222,6 +232,7 @@ pnpm test:e2e:report
 - ✅ 角色层级
 
 ### 消息广播
+
 - ✅ 多用户广播
 - ✅ 房间隔离（不跨房间）
 - ✅ 快速连续消息
@@ -232,15 +243,18 @@ pnpm test:e2e:report
 ## 6. 已知问题和限制
 
 ### 配置问题
+
 - 当前 Playwright 配置 (`playwright.config.ts`) 中的 `testDir` 设置为 `./e2e`
 - 实际测试文件位于 `./tests/e2e/`
 - 需要调整配置或移动测试文件
 
 ### 建议
+
 1. 更新 `playwright.config.ts` 中的 `testDir` 为 `./tests/e2e`，或
 2. 将测试文件移动到 `./e2e/` 目录
 
 ### WebSocket 服务器依赖
+
 - 测试依赖 WebSocket 服务器运行
 - 需要先启动开发服务器: `npm run dev`
 
@@ -249,10 +263,12 @@ pnpm test:e2e:report
 ## 7. 测试文件统计
 
 ### 代码行数
+
 - `tests/e2e/websocket-rooms.spec.ts`: **1764 行**（包含补充的测试）
 - 新增测试代码: **~570 行**
 
 ### 测试用例数量
+
 - 消息历史查询: **3 个测试**
 - 用户列表: **4 个测试**
 - 权限验证: **5 个测试**
@@ -260,6 +276,7 @@ pnpm test:e2e:report
 - **总计新增**: **16 个测试用例**
 
 ### 整体测试统计
+
 - **测试套件总数**: **11 个**
 - **测试用例总数**: **43 个**（原有 27 个 + 新增 16 个）
 - **文件总行数**: **1764 行**

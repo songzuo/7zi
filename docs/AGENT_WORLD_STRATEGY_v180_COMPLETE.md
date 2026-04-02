@@ -33,6 +33,7 @@ v1.8.0 将标志着 **7zi 智能体世界** 从"协作系统"向"自主生态系
 ```
 
 **特点**:
+
 - ✅ 完整的 11 位 AI 成员团队
 - ✅ 标准化的 A2A 协作协议
 - ✅ 任务自动分配和调度
@@ -57,6 +58,7 @@ v1.8.0 将标志着 **7zi 智能体世界** 从"协作系统"向"自主生态系
 ```
 
 **特点**:
+
 - ✅ **智能体自主决策** - 在授权范围内独立完成复杂任务
 - ✅ **动态协作网络** - 根据任务需求自适应组建团队
 - ✅ **持续学习机制** - 从每次执行中提取经验，优化决策
@@ -71,19 +73,20 @@ v1.8.0 将标志着 **7zi 智能体世界** 从"协作系统"向"自主生态系
 
 定义智能体从完全被动到完全自主的五个等级：
 
-| 等级 | 名称 | 决策权 | 学习能力 | 状态 |
-|------|------|--------|----------|------|
-| **Lv1** | 指令执行 | 0% - 严格遵循指令 | 无 | ✅ v1.0.0 已实现 |
-| **Lv2** | 策略选择 | 20% - 在预设策略中选择 | 基础反馈学习 | ✅ v1.5.0 已实现 |
-| **Lv3** | 上下文推理 | 40% - 基于上下文推理决策 | 模式识别学习 | ⚡ v1.8.0 目标 |
-| **Lv4** | 自主规划 | 60% - 自主分解和规划任务 | 深度强化学习 | 🎯 v1.9.0 规划 |
-| **Lv5** | 战略参与 | 80% - 参与战略决策 | 元学习（学习如何学习） | 🌟 v2.0.0 愿景 |
+| 等级    | 名称       | 决策权                   | 学习能力               | 状态             |
+| ------- | ---------- | ------------------------ | ---------------------- | ---------------- |
+| **Lv1** | 指令执行   | 0% - 严格遵循指令        | 无                     | ✅ v1.0.0 已实现 |
+| **Lv2** | 策略选择   | 20% - 在预设策略中选择   | 基础反馈学习           | ✅ v1.5.0 已实现 |
+| **Lv3** | 上下文推理 | 40% - 基于上下文推理决策 | 模式识别学习           | ⚡ v1.8.0 目标   |
+| **Lv4** | 自主规划   | 60% - 自主分解和规划任务 | 深度强化学习           | 🎯 v1.9.0 规划   |
+| **Lv5** | 战略参与   | 80% - 参与战略决策       | 元学习（学习如何学习） | 🌟 v2.0.0 愿景   |
 
 ### 1.2 v1.8.0 自治提升目标
 
 #### Lv3 - 上下文推理级 (40% 自治)
 
 **核心能力**:
+
 - ✅ **任务自主分解** - 接收高层目标，自动分解为可执行子任务
 - ✅ **策略动态选择** - 根据任务特征、历史成功率动态选择执行策略
 - ✅ **异常智能处理** - 遇到异常时，基于上下文推理选择最佳处理方案
@@ -94,6 +97,7 @@ v1.8.0 将标志着 **7zi 智能体世界** 从"协作系统"向"自主生态系
 ##### 1.2.1 任务自主分解引擎
 
 **架构**:
+
 ```
 高层目标输入
    ↓
@@ -117,6 +121,7 @@ Validator（验证器）
 ```
 
 **实现文件**:
+
 - `src/lib/agents/autonomy/task-decomposer.ts`
 - `src/lib/agents/autonomy/context-analyzer.ts`
 - `src/lib/agents/autonomy/task-templates.json`
@@ -125,32 +130,29 @@ Validator（验证器）
 
 ```typescript
 interface TaskDecomposer {
-  decompose(
-    highLevelGoal: string,
-    context?: TaskContext
-  ): Promise<TaskDecompositionResult>;
+  decompose(highLevelGoal: string, context?: TaskContext): Promise<TaskDecompositionResult>
 }
 
 interface TaskDecompositionResult {
-  subTasks: SubTask[];
-  confidence: number;  // 0-1 分解置信度
-  alternativeApproaches?: AlternativeDecomposition[];
+  subTasks: SubTask[]
+  confidence: number // 0-1 分解置信度
+  alternativeApproaches?: AlternativeDecomposition[]
   estimation: {
-    totalDuration: number;
-    resources: ResourceRequirement[];
-    risks: RiskAssessment[];
-  };
+    totalDuration: number
+    resources: ResourceRequirement[]
+    risks: RiskAssessment[]
+  }
 }
 
 interface SubTask {
-  id: string;
-  description: string;
-  type: TaskType;
-  dependencies: string[];
-  requiredCapabilities: string[];
-  suggestedAgents: string[];
-  priority: Priority;
-  estimatedDuration: number;
+  id: string
+  description: string
+  type: TaskType
+  dependencies: string[]
+  requiredCapabilities: string[]
+  suggestedAgents: string[]
+  priority: Priority
+  estimatedDuration: number
 }
 ```
 
@@ -158,28 +160,24 @@ interface SubTask {
 
 ```typescript
 interface StrategySelector {
-  selectStrategy(
-    task: Task,
-    context: ExecutionContext,
-    history: ExecutionHistory
-  ): StrategyDecision;
+  selectStrategy(task: Task, context: ExecutionContext, history: ExecutionHistory): StrategyDecision
 }
 
 interface StrategyDecision {
-  strategy: Strategy;
-  confidence: number;
-  reasoning: string;
-  expectedOutcome: OutcomePrediction;
+  strategy: Strategy
+  confidence: number
+  reasoning: string
+  expectedOutcome: OutcomePrediction
 }
 
 interface Strategy {
-  id: string;
-  name: string;
-  description: string;
-  applicableContexts: string[];
-  successRate: number;
-  avgDuration: number;
-  costEstimate: number;
+  id: string
+  name: string
+  description: string
+  applicableContexts: string[]
+  successRate: number
+  avgDuration: number
+  costEstimate: number
 }
 ```
 
@@ -194,29 +192,26 @@ enum ExceptionCategory {
   API_ERROR = 'api_error',
   TIMEOUT = 'timeout',
   CONFLICT = 'conflict',
-  UNKNOWN = 'unknown'
+  UNKNOWN = 'unknown',
 }
 
 enum ExceptionSeverity {
-  LOW = 'low',      // 可忽略或记录
+  LOW = 'low', // 可忽略或记录
   MEDIUM = 'medium', // 需要重试或降级
-  HIGH = 'high',     // 需要升级或人工介入
-  CRITICAL = 'critical' // 立即停止并告警
+  HIGH = 'high', // 需要升级或人工介入
+  CRITICAL = 'critical', // 立即停止并告警
 }
 
 interface ExceptionHandler {
-  handle(
-    exception: Exception,
-    context: ExceptionContext
-  ): Promise<ExceptionHandlingDecision>;
+  handle(exception: Exception, context: ExceptionContext): Promise<ExceptionHandlingDecision>
 }
 
 interface ExceptionHandlingDecision {
-  action: 'retry' | 'degrade' | 'escalate' | 'abort' | 'workaround';
-  retryConfig?: RetryConfig;
-  degradationStrategy?: DegradationStrategy;
-  reasoning: string;
-  estimatedSuccessRate: number;
+  action: 'retry' | 'degrade' | 'escalate' | 'abort' | 'workaround'
+  retryConfig?: RetryConfig
+  degradationStrategy?: DegradationStrategy
+  reasoning: string
+  estimatedSuccessRate: number
 }
 ```
 
@@ -253,64 +248,57 @@ interface PartnerSelector {
     task: Task,
     availableAgents: AgentInfo[],
     context: CollaborationContext
-  ): PartnerSelectionResult;
+  ): PartnerSelectionResult
 }
 
 interface PartnerSelectionResult {
-  selectedPartners: PartnerAssignment[];
-  alternativeCombinations: PartnerCombination[];
-  confidence: number;
-  reasoning: string;
+  selectedPartners: PartnerAssignment[]
+  alternativeCombinations: PartnerCombination[]
+  confidence: number
+  reasoning: string
 }
 
 interface PartnerAssignment {
-  agentId: string;
-  role: string;
-  responsibilities: string[];
-  expectedContribution: number;
+  agentId: string
+  role: string
+  responsibilities: string[]
+  expectedContribution: number
 }
 
 // 多因素评分算法
 class PartnerScoringAlgorithm {
-  calculateScore(
-    agent: AgentInfo,
-    task: Task,
-    context: CollaborationContext
-  ): number {
-    const capabilityMatch = this.calculateCapabilityMatch(agent, task); // 40%
-    const currentLoad = this.calculateLoadScore(agent); // 30%
-    const historicalPerformance = this.calculatePerformanceScore(agent, task); // 20%
-    const availability = this.calculateAvailabilityScore(agent); // 10%
+  calculateScore(agent: AgentInfo, task: Task, context: CollaborationContext): number {
+    const capabilityMatch = this.calculateCapabilityMatch(agent, task) // 40%
+    const currentLoad = this.calculateLoadScore(agent) // 30%
+    const historicalPerformance = this.calculatePerformanceScore(agent, task) // 20%
+    const availability = this.calculateAvailabilityScore(agent) // 10%
 
     return (
-      capabilityMatch * 0.4 +
-      currentLoad * 0.3 +
-      historicalPerformance * 0.2 +
-      availability * 0.1
-    );
+      capabilityMatch * 0.4 + currentLoad * 0.3 + historicalPerformance * 0.2 + availability * 0.1
+    )
   }
 }
 ```
 
 ### 1.3 实施路线图
 
-| 阶段 | 功能 | 完成度 | 里程碑 |
-|------|------|--------|--------|
-| **Phase 1** (Week 1-2) | 任务分解引擎 MVP | 0% | 能够处理 3 种基本任务类型 |
-| **Phase 2** (Week 3-4) | 策略选择器 + 策略库 | 0% | 10+ 预设策略，动态选择准确率 >80% |
-| **Phase 3** (Week 5-6) | 异常智能处理器 | 0% | 常见异常自动处理成功率 >90% |
-| **Phase 4** (Week 7-8) | 协作伙伴自适应选择 | 0% | 优化协作效率 30%+ |
-| **Phase 5** (Week 9-10) | 集成测试 + 性能优化 | 0% | 系统稳定性 >99% |
+| 阶段                    | 功能                | 完成度 | 里程碑                            |
+| ----------------------- | ------------------- | ------ | --------------------------------- |
+| **Phase 1** (Week 1-2)  | 任务分解引擎 MVP    | 0%     | 能够处理 3 种基本任务类型         |
+| **Phase 2** (Week 3-4)  | 策略选择器 + 策略库 | 0%     | 10+ 预设策略，动态选择准确率 >80% |
+| **Phase 3** (Week 5-6)  | 异常智能处理器      | 0%     | 常见异常自动处理成功率 >90%       |
+| **Phase 4** (Week 7-8)  | 协作伙伴自适应选择  | 0%     | 优化协作效率 30%+                 |
+| **Phase 5** (Week 9-10) | 集成测试 + 性能优化 | 0%     | 系统稳定性 >99%                   |
 
 ### 1.4 成功指标
 
-| 指标 | 当前 (v1.7.0) | 目标 (v1.8.0) | 提升 |
-|------|--------------|---------------|------|
-| 任务分解准确率 | N/A | >85% | 新功能 |
-| 异常自动处理率 | ~30% | >80% | +167% |
-| 策略选择成功率 | N/A | >80% | 新功能 |
-| 协作效率（任务/小时） | ~5 | ~6.5 | +30% |
-| 人工干预频率 | ~20% | <10% | -50% |
+| 指标                  | 当前 (v1.7.0) | 目标 (v1.8.0) | 提升   |
+| --------------------- | ------------- | ------------- | ------ |
+| 任务分解准确率        | N/A           | >85%          | 新功能 |
+| 异常自动处理率        | ~30%          | >80%          | +167%  |
+| 策略选择成功率        | N/A           | >80%          | 新功能 |
+| 协作效率（任务/小时） | ~5            | ~6.5          | +30%   |
+| 人工干预频率          | ~20%          | <10%          | -50%   |
 
 ---
 
@@ -326,6 +314,7 @@ class PartnerScoringAlgorithm {
 ```
 
 **局限性**:
+
 - ❌ 协作模式固定，无法适应复杂任务
 - ❌ 动态协作困难，团队成员无法动态加入/退出
 - ❌ 缺少协商和冲突解决机制
@@ -337,16 +326,16 @@ class PartnerScoringAlgorithm {
 
 **定义 8 种协作模式**:
 
-| 模式 | 适用场景 | 自治度 | 复杂度 | 状态 |
-|------|----------|--------|--------|------|
-| **串行协作 (Sequential)** | 严格依赖任务 | Low | Low | ✅ 已有 |
-| **并行协作 (Parallel)** | 独立并行任务 | Low | Low | ✅ 已有 |
-| **Map-Reduce** | 数据处理和分析 | Medium | Medium | ✅ 已有 |
-| **协商协作 (Negotiation)** | 多方案选择、冲突解决 | High | High | 🆕 v1.8.0 |
-| **共识协作 (Consensus)** | 决策制定、评审 | High | High | 🆕 v1.8.0 |
-| **层次协作 (Hierarchical)** | 复杂层级任务 | Medium | High | 🆕 v1.8.0 |
-| **动态团队 (Dynamic Team)** | 不确定性高的任务 | High | Very High | 🆕 v1.8.0 |
-| **混合协作 (Hybrid)** | 组合多种模式 | High | Very High | 🎯 v1.9.0 |
+| 模式                        | 适用场景             | 自治度 | 复杂度    | 状态      |
+| --------------------------- | -------------------- | ------ | --------- | --------- |
+| **串行协作 (Sequential)**   | 严格依赖任务         | Low    | Low       | ✅ 已有   |
+| **并行协作 (Parallel)**     | 独立并行任务         | Low    | Low       | ✅ 已有   |
+| **Map-Reduce**              | 数据处理和分析       | Medium | Medium    | ✅ 已有   |
+| **协商协作 (Negotiation)**  | 多方案选择、冲突解决 | High   | High      | 🆕 v1.8.0 |
+| **共识协作 (Consensus)**    | 决策制定、评审       | High   | High      | 🆕 v1.8.0 |
+| **层次协作 (Hierarchical)** | 复杂层级任务         | Medium | High      | 🆕 v1.8.0 |
+| **动态团队 (Dynamic Team)** | 不确定性高的任务     | High   | Very High | 🆕 v1.8.0 |
+| **混合协作 (Hybrid)**       | 组合多种模式         | High   | Very High | 🎯 v1.9.0 |
 
 #### 2.2.2 核心协作模式详解
 
@@ -355,6 +344,7 @@ class PartnerScoringAlgorithm {
 **场景**: 多个智能体提出不同方案，需要协商选择最优方案
 
 **流程**:
+
 ```
 发起协商
    ↓
@@ -383,37 +373,37 @@ class PartnerScoringAlgorithm {
 
 ```typescript
 interface NegotiationSession {
-  id: string;
-  topic: string;
-  participants: NegotiationParticipant[];
-  currentRound: number;
-  maxRounds: number;
-  proposals: Proposal[];
-  state: 'initializing' | 'negotiating' | 'consensus' | 'failed' | 'aborted';
-  votingMethod: 'majority' | 'weighted' | 'supermajority';
-  consensusThreshold: number; // 0-1
+  id: string
+  topic: string
+  participants: NegotiationParticipant[]
+  currentRound: number
+  maxRounds: number
+  proposals: Proposal[]
+  state: 'initializing' | 'negotiating' | 'consensus' | 'failed' | 'aborted'
+  votingMethod: 'majority' | 'weighted' | 'supermajority'
+  consensusThreshold: number // 0-1
 }
 
 interface Proposal {
-  id: string;
-  proposerId: string;
-  round: number;
-  content: unknown; // 方案具体内容
-  reasoning: string;
-  confidence: number;
-  pros: string[];
-  cons: string[];
-  estimatedOutcome: OutcomePrediction;
-  tags: string[];
+  id: string
+  proposerId: string
+  round: number
+  content: unknown // 方案具体内容
+  reasoning: string
+  confidence: number
+  pros: string[]
+  cons: string[]
+  estimatedOutcome: OutcomePrediction
+  tags: string[]
 }
 
 interface NegotiationResult {
-  consensusReached: boolean;
-  finalProposal?: Proposal;
-  votingResult?: VotingResult;
-  alternativeProposals: Proposal[];
-  negotiationDuration: number;
-  participantSatisfaction: Record<string, number>;
+  consensusReached: boolean
+  finalProposal?: Proposal
+  votingResult?: VotingResult
+  alternativeProposals: Proposal[]
+  negotiationDuration: number
+  participantSatisfaction: Record<string, number>
 }
 ```
 
@@ -426,34 +416,30 @@ class NegotiationEngine {
     participants: string[],
     context: NegotiationContext
   ): Promise<NegotiationResult> {
-    let currentRound = 0;
-    const maxRounds = context.maxRounds || 5;
-    const proposals: Proposal[] = [];
+    let currentRound = 0
+    const maxRounds = context.maxRounds || 5
+    const proposals: Proposal[] = []
 
     while (currentRound < maxRounds) {
       // 1. 收集提案
-      const roundProposals = await this.collectProposals(
-        participants,
-        proposals,
-        currentRound
-      );
-      proposals.push(...roundProposals);
+      const roundProposals = await this.collectProposals(participants, proposals, currentRound)
+      proposals.push(...roundProposals)
 
       // 2. 评估提案
-      const evaluated = await this.evaluateProposals(proposals, context);
+      const evaluated = await this.evaluateProposals(proposals, context)
 
       // 3. 检查是否达成共识
-      const consensus = await this.checkConsensus(evaluated, participants);
+      const consensus = await this.checkConsensus(evaluated, participants)
       if (consensus.reached) {
-        return this.buildResult(consensus, currentRound);
+        return this.buildResult(consensus, currentRound)
       }
 
       // 4. 准备下一轮协商
-      currentRound++;
+      currentRound++
     }
 
     // 达到最大轮次，投票决定
-    return await this.voteOnProposals(proposals, participants);
+    return await this.voteOnProposals(proposals, participants)
   }
 
   private async collectProposals(
@@ -461,21 +447,17 @@ class NegotiationEngine {
     previousProposals: Proposal[],
     currentRound: number
   ): Promise<Proposal[]> {
-    const proposals: Proposal[] = [];
+    const proposals: Proposal[] = []
 
     for (const participant of participants) {
-      const proposal = await this.requestProposal(
-        participant,
-        previousProposals,
-        currentRound
-      );
+      const proposal = await this.requestProposal(participant, previousProposals, currentRound)
 
       if (proposal) {
-        proposals.push(proposal);
+        proposals.push(proposal)
       }
     }
 
-    return proposals;
+    return proposals
   }
 }
 ```
@@ -485,6 +467,7 @@ class NegotiationEngine {
 **场景**: 需要多个智能体共同决策，如评审、审批
 
 **流程**:
+
 ```
 发起共识请求
    ↓
@@ -513,40 +496,40 @@ class NegotiationEngine {
 
 ```typescript
 interface ConsensusSession {
-  id: string;
-  proposal: unknown;
-  participants: ConsensusParticipant[];
-  votes: Vote[];
-  state: 'initializing' | 'voting' | 'reached' | 'failed' | 'aborted';
-  consensusRule: ConsensusRule;
-  maxAttempts: number;
-  currentAttempt: number;
-  startTime: number;
-  endTime?: number;
+  id: string
+  proposal: unknown
+  participants: ConsensusParticipant[]
+  votes: Vote[]
+  state: 'initializing' | 'voting' | 'reached' | 'failed' | 'aborted'
+  consensusRule: ConsensusRule
+  maxAttempts: number
+  currentAttempt: number
+  startTime: number
+  endTime?: number
 }
 
 interface Vote {
-  participantId: string;
-  position: 'support' | 'oppose' | 'abstain';
-  reasoning?: string;
-  suggestedChanges?: unknown;
-  confidence: number;
-  timestamp: number;
+  participantId: string
+  position: 'support' | 'oppose' | 'abstain'
+  reasoning?: string
+  suggestedChanges?: unknown
+  confidence: number
+  timestamp: number
 }
 
 interface ConsensusResult {
-  consensusReached: boolean;
-  finalProposal?: unknown;
+  consensusReached: boolean
+  finalProposal?: unknown
   votingSummary: {
-    support: number;
-    oppose: number;
-    abstain: number;
-    supportRate: number;
-  };
-  oppositionReasons: string[];
-  suggestedChanges: unknown[];
-  duration: number;
-  participantAlignment: Record<string, number>;
+    support: number
+    oppose: number
+    abstain: number
+    supportRate: number
+  }
+  oppositionReasons: string[]
+  suggestedChanges: unknown[]
+  duration: number
+  participantAlignment: Record<string, number>
 }
 
 type ConsensusRule =
@@ -554,7 +537,7 @@ type ConsensusRule =
   | 'supermajority_75' // 75%以上同意
   | 'supermajority_90' // 90%以上同意
   | 'simple_majority' // 简单多数
-  | 'qualified_majority'; // 加权多数（基于角色）
+  | 'qualified_majority' // 加权多数（基于角色）
 ```
 
 ##### 3️⃣ 层次协作模式 (Hierarchical)
@@ -562,6 +545,7 @@ type ConsensusRule =
 **场景**: 复杂任务需要多层次协作，如组织架构式的协作
 
 **结构**:
+
 ```
 总协调者 (Coordinator)
    ├─ 子任务1协调者
@@ -580,29 +564,29 @@ type ConsensusRule =
 
 ```typescript
 interface HierarchicalCollaboration {
-  root: CollaborationNode;
-  nodes: Map<string, CollaborationNode>;
-  edges: CollaborationEdge[];
-  depth: number;
-  state: 'initializing' | 'executing' | 'aggregating' | 'completed' | 'failed';
+  root: CollaborationNode
+  nodes: Map<string, CollaborationNode>
+  edges: CollaborationEdge[]
+  depth: number
+  state: 'initializing' | 'executing' | 'aggregating' | 'completed' | 'failed'
 }
 
 interface CollaborationNode {
-  id: string;
-  role: 'coordinator' | 'worker' | 'aggregator';
-  participants: string[];
-  children: string[];
-  parent?: string;
-  task: Task;
-  state: NodeState;
-  result?: unknown;
+  id: string
+  role: 'coordinator' | 'worker' | 'aggregator'
+  participants: string[]
+  children: string[]
+  parent?: string
+  task: Task
+  state: NodeState
+  result?: unknown
 }
 
 interface CollaborationEdge {
-  from: string;
-  to: string;
-  type: 'dependency' | 'delegation' | 'result';
-  dataFlow?: unknown;
+  from: string
+  to: string
+  type: 'dependency' | 'delegation' | 'result'
+  dataFlow?: unknown
 }
 ```
 
@@ -612,15 +596,15 @@ interface CollaborationEdge {
 class HierarchicalExecutor {
   async execute(collaboration: HierarchicalCollaboration): Promise<unknown> {
     // 1. 拓扑排序，确定执行顺序
-    const executionOrder = this.topologicalSort(collaboration);
+    const executionOrder = this.topologicalSort(collaboration)
 
     // 2. 按层执行
     for (const level of executionOrder) {
-      await this.executeLevel(level, collaboration);
+      await this.executeLevel(level, collaboration)
     }
 
     // 3. 聚合结果
-    return await this.aggregateResults(collaboration);
+    return await this.aggregateResults(collaboration)
   }
 
   private async executeLevel(
@@ -630,19 +614,19 @@ class HierarchicalExecutor {
     // 并行执行同一层的节点
     const results = await Promise.allSettled(
       nodes.map(node => this.executeNode(node, collaboration))
-    );
+    )
 
     // 更新节点状态
     results.forEach((result, index) => {
       if (result.status === 'fulfilled') {
-        collaboration.nodes.get(nodes[index].id)!.result = result.value;
-        collaboration.nodes.get(nodes[index].id)!.state = 'completed';
+        collaboration.nodes.get(nodes[index].id)!.result = result.value
+        collaboration.nodes.get(nodes[index].id)!.state = 'completed'
       } else {
-        collaboration.nodes.get(nodes[index].id)!.state = 'failed';
+        collaboration.nodes.get(nodes[index].id)!.state = 'failed'
         // 决定是否继续或终止
-        this.handleNodeFailure(nodes[index], result.reason, collaboration);
+        this.handleNodeFailure(nodes[index], result.reason, collaboration)
       }
-    });
+    })
   }
 }
 ```
@@ -652,6 +636,7 @@ class HierarchicalExecutor {
 **场景**: 任务复杂度高、不确定性高，需要动态调整团队
 
 **特性**:
+
 - 🔄 **动态招募** - 根据任务进展需要招募新成员
 - 🔄 **动态退出** - 成员完成任务后退出，释放资源
 - 🔄 **角色自适应** - 成员根据需要调整角色
@@ -659,6 +644,7 @@ class HierarchicalExecutor {
 - 🔄 **应急替换** - 成员失败时自动替换
 
 **流程**:
+
 ```
 初始团队组建
    ↓
@@ -683,32 +669,32 @@ class HierarchicalExecutor {
 
 ```typescript
 interface DynamicTeam {
-  sessionId: string;
-  initialTeam: TeamMember[];
-  currentTeam: TeamMember[];
-  task: Task;
-  state: 'initializing' | 'executing' | 'adjusting' | 'completed' | 'failed';
-  recruitmentStrategy: RecruitmentStrategy;
-  exitStrategy: ExitStrategy;
-  adjustmentRules: AdjustmentRule[];
-  performanceMetrics: PerformanceMetrics;
+  sessionId: string
+  initialTeam: TeamMember[]
+  currentTeam: TeamMember[]
+  task: Task
+  state: 'initializing' | 'executing' | 'adjusting' | 'completed' | 'failed'
+  recruitmentStrategy: RecruitmentStrategy
+  exitStrategy: ExitStrategy
+  adjustmentRules: AdjustmentRule[]
+  performanceMetrics: PerformanceMetrics
 }
 
 interface TeamMember {
-  agentId: string;
-  role: string;
-  responsibilities: string[];
-  joinedAt: number;
-  expectedDuration?: number;
-  performance: MemberPerformance;
+  agentId: string
+  role: string
+  responsibilities: string[]
+  joinedAt: number
+  expectedDuration?: number
+  performance: MemberPerformance
 }
 
 interface AdjustmentEvent {
-  type: 'recruit' | 'exit' | 'reassign' | 'replace' | 'role_change';
-  timestamp: number;
-  reason: string;
-  affectedAgents: string[];
-  impact: ImpactAssessment;
+  type: 'recruit' | 'exit' | 'reassign' | 'replace' | 'role_change'
+  timestamp: number
+  reason: string
+  affectedAgents: string[]
+  impact: ImpactAssessment
 }
 ```
 
@@ -722,42 +708,38 @@ interface CollaborationModeSelector {
     task: Task,
     context: CollaborationContext,
     history: CollaborationHistory
-  ): ModeSelectionResult;
+  ): ModeSelectionResult
 }
 
 interface ModeSelectionResult {
-  mode: CollaborationMode;
-  confidence: number;
-  reasoning: string;
-  expectedDuration: number;
-  alternativeModes: ModeOption[];
+  mode: CollaborationMode
+  confidence: number
+  reasoning: string
+  expectedDuration: number
+  alternativeModes: ModeOption[]
 }
 
 // 选择算法
 class ModeSelectionAlgorithm {
-  selectMode(
-    task: Task,
-    context: CollaborationContext
-  ): ModeSelectionResult {
+  selectMode(task: Task, context: CollaborationContext): ModeSelectionResult {
     // 1. 分析任务特征
-    const taskCharacteristics = this.analyzeTask(task);
+    const taskCharacteristics = this.analyzeTask(task)
 
     // 2. 评估每个协作模式
-    const modeScores: Record<string, number> = {};
+    const modeScores: Record<string, number> = {}
 
     for (const mode of ALL_COLLABORATION_MODES) {
-      modeScores[mode.id] = this.evaluateMode(mode, taskCharacteristics, context);
+      modeScores[mode.id] = this.evaluateMode(mode, taskCharacteristics, context)
     }
 
     // 3. 选择得分最高的模式
-    const bestMode = Object.entries(modeScores)
-      .sort((a, b) => b[1] - a[1])[0];
+    const bestMode = Object.entries(modeScores).sort((a, b) => b[1] - a[1])[0]
 
     return {
       mode: bestMode[0] as CollaborationMode,
       confidence: bestMode[1],
       reasoning: this.explainSelection(bestMode, taskCharacteristics),
-    };
+    }
   }
 
   private evaluateMode(
@@ -765,56 +747,56 @@ class ModeSelectionAlgorithm {
     task: TaskCharacteristics,
     context: CollaborationContext
   ): number {
-    let score = 0;
+    let score = 0
 
     // 任务类型匹配
     if (mode.applicableTaskTypes.includes(task.type)) {
-      score += 30;
+      score += 30
     }
 
     // 复杂度适配
     if (mode.complexityLevel === task.complexityLevel) {
-      score += 25;
+      score += 25
     }
 
     // 历史成功率
-    const historicalSuccess = context.history.getSuccessRate(mode.id, task.type);
-    score += historicalSuccess * 20;
+    const historicalSuccess = context.history.getSuccessRate(mode.id, task.type)
+    score += historicalSuccess * 20
 
     // 资源可用性
     if (context.availableAgents.length >= mode.minParticipants) {
-      score += 15;
+      score += 15
     }
 
     // 时间约束
     if (mode.estimatedDuration <= context.timeBudget) {
-      score += 10;
+      score += 10
     }
 
-    return score;
+    return score
   }
 }
 ```
 
 ### 2.3 实施路线图
 
-| 阶段 | 功能 | 完成度 | 里程碑 |
-|------|------|--------|--------|
-| **Phase 1** (Week 1-3) | 协商协作模式 | 0% | 支持3轮协商，共识率 >85% |
-| **Phase 2** (Week 4-6) | 共识协作模式 | 0% | 支持4种共识规则，准确率 >90% |
-| **Phase 3** (Week 7-9) | 层次协作模式 | 0% | 支持5层深度，成功率 >90% |
-| **Phase 4** (Week 10-12) | 动态团队协作模式 | 0% | 动态调整响应时间 <5分钟 |
-| **Phase 5** (Week 13-14) | 模式选择器 + Dashboard | 0% | 自动选择准确率 >85% |
+| 阶段                     | 功能                   | 完成度 | 里程碑                       |
+| ------------------------ | ---------------------- | ------ | ---------------------------- |
+| **Phase 1** (Week 1-3)   | 协商协作模式           | 0%     | 支持3轮协商，共识率 >85%     |
+| **Phase 2** (Week 4-6)   | 共识协作模式           | 0%     | 支持4种共识规则，准确率 >90% |
+| **Phase 3** (Week 7-9)   | 层次协作模式           | 0%     | 支持5层深度，成功率 >90%     |
+| **Phase 4** (Week 10-12) | 动态团队协作模式       | 0%     | 动态调整响应时间 <5分钟      |
+| **Phase 5** (Week 13-14) | 模式选择器 + Dashboard | 0%     | 自动选择准确率 >85%          |
 
 ### 2.4 成功指标
 
-| 指标 | 当前 (v1.7.0) | 目标 (v1.8.0) | 提升 |
-|------|--------------|---------------|------|
-| 协作模式数量 | 3 种 | 8 种 | +167% |
-| 复杂任务成功率 | ~70% | >90% | +29% |
-| 协作效率（任务/小时） | ~5 | ~7 | +40% |
-| 动态协作响应时间 | N/A | <5分钟 | 新功能 |
-| 协作冲突解决率 | ~50% | >85% | +70% |
+| 指标                  | 当前 (v1.7.0) | 目标 (v1.8.0) | 提升   |
+| --------------------- | ------------- | ------------- | ------ |
+| 协作模式数量          | 3 种          | 8 种          | +167%  |
+| 复杂任务成功率        | ~70%          | >90%          | +29%   |
+| 协作效率（任务/小时） | ~5            | ~7            | +40%   |
+| 动态协作响应时间      | N/A           | <5分钟        | 新功能 |
+| 协作冲突解决率        | ~50%          | >85%          | +70%   |
 
 ---
 
@@ -872,28 +854,28 @@ class ModeSelectionAlgorithm {
 
 ```typescript
 interface FeedbackRecord {
-  id: string;
-  agentId: string;
-  taskId: string;
-  type: FeedbackType;
-  source: FeedbackSource;
-  value: number; // -1 到 1，-1负面，0中立，1正面
-  content?: string;
-  context: FeedbackContext;
-  timestamp: number;
+  id: string
+  agentId: string
+  taskId: string
+  type: FeedbackType
+  source: FeedbackSource
+  value: number // -1 到 1，-1负面，0中立，1正面
+  content?: string
+  context: FeedbackContext
+  timestamp: number
 }
 
 interface LearnedPattern {
-  id: string;
-  agentId: string;
-  patternType: PatternType;
-  pattern: unknown; // 模式具体内容
-  confidence: number;
-  successCount: number;
-  failureCount: number;
-  lastUsed?: number;
-  createdAt: number;
-  updatedAt: number;
+  id: string
+  agentId: string
+  patternType: PatternType
+  pattern: unknown // 模式具体内容
+  confidence: number
+  successCount: number
+  failureCount: number
+  lastUsed?: number
+  createdAt: number
+  updatedAt: number
 }
 
 type FeedbackType =
@@ -902,7 +884,7 @@ type FeedbackType =
   | 'implicit_adoption'
   | 'implicit_rejection'
   | 'self_reflection'
-  | 'collaboration_feedback';
+  | 'collaboration_feedback'
 
 type PatternType =
   | 'successful_strategy'
@@ -910,56 +892,56 @@ type PatternType =
   | 'effective_collaboration'
   | 'ineffective_collaboration'
   | 'optimal_context'
-  | 'error_prone_context';
+  | 'error_prone_context'
 ```
 
 **学习算法**:
 
 ```typescript
 class FeedbackLearningEngine {
-  private patterns: Map<string, LearnedPattern> = new Map();
-  private threshold = 5; // 最小成功/失败次数
+  private patterns: Map<string, LearnedPattern> = new Map()
+  private threshold = 5 // 最小成功/失败次数
 
   async processFeedback(feedback: FeedbackRecord): Promise<void> {
     // 1. 提取上下文特征
-    const features = this.extractFeatures(feedback);
+    const features = this.extractFeatures(feedback)
 
     // 2. 匹配现有模式
-    const matchedPatterns = this.matchPatterns(features);
+    const matchedPatterns = this.matchPatterns(features)
 
     // 3. 更新模式统计
     for (const pattern of matchedPatterns) {
       if (feedback.value > 0) {
-        pattern.successCount++;
+        pattern.successCount++
       } else {
-        pattern.failureCount++;
+        pattern.failureCount++
       }
-      pattern.confidence = this.calculateConfidence(pattern);
-      pattern.updatedAt = Date.now();
+      pattern.confidence = this.calculateConfidence(pattern)
+      pattern.updatedAt = Date.now()
     }
 
     // 4. 如果足够证据，创建新模式
     if (matchedPatterns.length === 0 && Math.abs(feedback.value) > 0.5) {
-      const newPattern = await this.createPattern(features, feedback);
-      this.patterns.set(newPattern.id, newPattern);
+      const newPattern = await this.createPattern(features, feedback)
+      this.patterns.set(newPattern.id, newPattern)
     }
 
     // 5. 清理低置信度模式
-    this.pruneLowConfidencePatterns();
+    this.pruneLowConfidencePatterns()
   }
 
   private calculateConfidence(pattern: LearnedPattern): number {
-    const total = pattern.successCount + pattern.failureCount;
-    if (total < this.threshold) return 0;
+    const total = pattern.successCount + pattern.failureCount
+    if (total < this.threshold) return 0
 
     // 使用 Wilson 置信区间
-    const p = pattern.successCount / total;
-    const z = 1.96; // 95% 置信度
-    const denominator = 1 + (z * z) / total;
-    const center = (p + (z * z) / (2 * total)) / denominator;
-    const margin = z * Math.sqrt((p * (1 - p) + (z * z) / (4 * total)) / total) / denominator;
+    const p = pattern.successCount / total
+    const z = 1.96 // 95% 置信度
+    const denominator = 1 + (z * z) / total
+    const center = (p + (z * z) / (2 * total)) / denominator
+    const margin = (z * Math.sqrt((p * (1 - p) + (z * z) / (4 * total)) / total)) / denominator
 
-    return center - margin; // 保守估计
+    return center - margin // 保守估计
   }
 }
 ```
@@ -989,34 +971,34 @@ class FeedbackLearningEngine {
 interface PatternStorage {
   // 成功模式库
   successPatterns: {
-    strategies: StrategyPattern[];
-    collaborations: CollaborationPattern[];
-    decompositions: DecompositionPattern[];
-  };
+    strategies: StrategyPattern[]
+    collaborations: CollaborationPattern[]
+    decompositions: DecompositionPattern[]
+  }
 
   // 失败模式库
   failurePatterns: {
-    strategies: StrategyPattern[];
-    collaborations: CollaborationPattern[];
-    errors: ErrorPattern[];
-  };
+    strategies: StrategyPattern[]
+    collaborations: CollaborationPattern[]
+    errors: ErrorPattern[]
+  }
 
   // 上下文模式库
   contextPatterns: {
-    timePatterns: TimePattern[];
-    resourcePatterns: ResourcePattern[];
-    workloadPatterns: WorkloadPattern[];
-  };
+    timePatterns: TimePattern[]
+    resourcePatterns: ResourcePattern[]
+    workloadPatterns: WorkloadPattern[]
+  }
 }
 
 interface StrategyPattern {
-  id: string;
-  strategy: string;
-  successContext: ContextFeatures[];
-  failureContext: ContextFeatures[];
-  successRate: number;
-  avgDuration: number;
-  recommendedUse: Recommendation[];
+  id: string
+  strategy: string
+  successContext: ContextFeatures[]
+  failureContext: ContextFeatures[]
+  successRate: number
+  avgDuration: number
+  recommendedUse: Recommendation[]
 }
 ```
 
@@ -1024,36 +1006,32 @@ interface StrategyPattern {
 
 ```typescript
 class PatternRecognizer {
-  private successPatterns: StrategyPattern[] = [];
-  private failurePatterns: StrategyPattern[] = [];
+  private successPatterns: StrategyPattern[] = []
+  private failurePatterns: StrategyPattern[] = []
 
-  recognizePattern(
-    context: ContextFeatures
-  ): PatternRecognitionResult {
+  recognizePattern(context: ContextFeatures): PatternRecognitionResult {
     // 1. 查找匹配的成功模式
     const matchedSuccess = this.successPatterns.filter(pattern =>
       this.contextMatches(pattern.successContext, context)
-    );
+    )
 
     // 2. 查找匹配的失败模式
     const matchedFailure = this.failurePatterns.filter(pattern =>
       this.contextMatches(pattern.failureContext, context)
-    );
+    )
 
     // 3. 计算推荐
-    const recommendations: Recommendation[] = [];
+    const recommendations: Recommendation[] = []
 
     if (matchedSuccess.length > 0) {
-      const bestSuccess = matchedSuccess.sort((a, b) =>
-        b.successRate - a.successRate
-      )[0];
+      const bestSuccess = matchedSuccess.sort((a, b) => b.successRate - a.successRate)[0]
 
       recommendations.push({
         action: 'adopt_strategy',
         strategy: bestSuccess.strategy,
         confidence: bestSuccess.successRate,
         reasoning: `此策略在相似情境下成功率 ${bestSuccess.successRate}`,
-      });
+      })
     }
 
     if (matchedFailure.length > 0) {
@@ -1063,7 +1041,7 @@ class PatternRecognizer {
           strategy: pattern.strategy,
           confidence: 1 - pattern.successRate,
           reasoning: `此策略在相似情境下失败率 ${1 - pattern.successRate}`,
-        });
+        })
       }
     }
 
@@ -1073,7 +1051,7 @@ class PatternRecognizer {
         failure: matchedFailure,
       },
       recommendations,
-    };
+    }
   }
 
   private contextMatches(
@@ -1081,11 +1059,9 @@ class PatternRecognizer {
     actualContext: ContextFeatures
   ): boolean {
     // 简化版：检查关键特征是否匹配
-    const matched = patternContext.filter(feature =>
-      actualContext[feature.name] === feature.value
-    );
+    const matched = patternContext.filter(feature => actualContext[feature.name] === feature.value)
 
-    return matched.length >= patternContext.length * 0.7; // 70% 匹配
+    return matched.length >= patternContext.length * 0.7 // 70% 匹配
   }
 }
 ```
@@ -1102,7 +1078,7 @@ class PatternRecognizer {
    - 动态调整学习率
    - 迁移学习策略
 
-3. **学习目标调整**:
+2. **学习目标调整**:
    - 根据环境变化调整学习目标
    - 识别学习瓶颈
    - 优化学习效率
@@ -1111,44 +1087,41 @@ class PatternRecognizer {
 
 ```typescript
 class MetaLearningEngine {
-  private learningStrategies: LearningStrategy[] = [];
-  private performanceHistory: Map<string, number[]> = new Map();
+  private learningStrategies: LearningStrategy[] = []
+  private performanceHistory: Map<string, number[]> = new Map()
 
-  async optimizeLearning(
-    agentId: string,
-    recentPerformance: number[]
-  ): Promise<LearningStrategy> {
+  async optimizeLearning(agentId: string, recentPerformance: number[]): Promise<LearningStrategy> {
     // 1. 记录性能
-    this.recordPerformance(agentId, recentPerformance);
+    this.recordPerformance(agentId, recentPerformance)
 
     // 2. 分析学习效果
-    const learningEffectiveness = this.analyzeLearningEffectiveness(agentId);
+    const learningEffectiveness = this.analyzeLearningEffectiveness(agentId)
 
     // 3. 选择最优学习策略
-    const bestStrategy = this.selectBestStrategy(learningEffectiveness);
+    const bestStrategy = this.selectBestStrategy(learningEffectiveness)
 
     // 4. 调整学习参数
-    const adjustedParams = this.adjustParameters(bestStrategy);
+    const adjustedParams = this.adjustParameters(bestStrategy)
 
     return {
       strategy: bestStrategy,
       parameters: adjustedParams,
       reasoning: this.explainSelection(learningEffectiveness, bestStrategy),
-    };
+    }
   }
 
   private analyzeLearningEffectiveness(agentId: string): LearningMetrics {
-    const history = this.performanceHistory.get(agentId) || [];
-    const recent = history.slice(-50); // 最近50次
+    const history = this.performanceHistory.get(agentId) || []
+    const recent = history.slice(-50) // 最近50次
 
     // 计算改进率
-    const improvementRate = this.calculateImprovementRate(recent);
+    const improvementRate = this.calculateImprovementRate(recent)
 
     // 计算稳定性
-    const stability = this.calculateStability(recent);
+    const stability = this.calculateStability(recent)
 
     // 计算收敛速度
-    const convergence = this.calculateConvergenceSpeed(recent);
+    const convergence = this.calculateConvergenceSpeed(recent)
 
     return {
       improvementRate,
@@ -1156,27 +1129,27 @@ class MetaLearningEngine {
       convergence,
       plateauDetection: this.detectPlateau(recent),
       overfittingDetection: this.detectOverfitting(recent),
-    };
+    }
   }
 
   private selectBestStrategy(metrics: LearningMetrics): LearningStrategy {
     // 如果检测到平台期，增加探索
     if (metrics.plateauDetected) {
-      return LearningStrategy.EXPLORATIVE;
+      return LearningStrategy.EXPLORATIVE
     }
 
     // 如果检测到过拟合，降低学习率
     if (metrics.overfittingDetection) {
-      return LearningStrategy.CONSERVATIVE;
+      return LearningStrategy.CONSERVATIVE
     }
 
     // 如果改进率稳定，平衡探索和利用
     if (metrics.improvementRate > 0.05 && metrics.stability > 0.8) {
-      return LearningStrategy.BALANCED;
+      return LearningStrategy.BALANCED
     }
 
     // 默认策略
-    return LearningStrategy.DEFAULT;
+    return LearningStrategy.DEFAULT
   }
 }
 
@@ -1195,53 +1168,41 @@ enum LearningStrategy {
 
 ```typescript
 interface KnowledgeGraph {
-  nodes: KnowledgeNode[];
-  edges: KnowledgeEdge[];
-  version: string;
-  lastUpdated: number;
+  nodes: KnowledgeNode[]
+  edges: KnowledgeEdge[]
+  version: string
+  lastUpdated: number
 }
 
 interface KnowledgeNode {
-  id: string;
-  type: NodeType;
-  content: unknown;
-  confidence: number;
-  source: KnowledgeSource;
-  createdAt: number;
-  updatedAt: number;
-  tags: string[];
+  id: string
+  type: NodeType
+  content: unknown
+  confidence: number
+  source: KnowledgeSource
+  createdAt: number
+  updatedAt: number
+  tags: string[]
 }
 
 interface KnowledgeEdge {
-  id: string;
-  source: string;
-  target: string;
-  type: EdgeType;
-  weight: number;
-  confidence: number;
-  evidence: Evidence[];
+  id: string
+  source: string
+  target: string
+  type: EdgeType
+  weight: number
+  confidence: number
+  evidence: Evidence[]
 }
 
-type NodeType =
-  | 'strategy'
-  | 'pattern'
-  | 'context'
-  | 'feedback'
-  | 'recommendation'
-  | 'lesson';
+type NodeType = 'strategy' | 'pattern' | 'context' | 'feedback' | 'recommendation' | 'lesson'
 
-type EdgeType =
-  | 'causes'
-  | 'prevents'
-  | 'solves'
-  | 'related_to'
-  | 'contradicts'
-  | 'improves';
+type EdgeType = 'causes' | 'prevents' | 'solves' | 'related_to' | 'contradicts' | 'improves'
 
 interface Evidence {
-  source: string;
-  timestamp: number;
-  strength: number;
+  source: string
+  timestamp: number
+  strength: number
 }
 ```
 
@@ -1249,20 +1210,20 @@ interface Evidence {
 
 ```typescript
 class KnowledgeGraphManager {
-  private graph: KnowledgeGraph;
+  private graph: KnowledgeGraph
 
   async addKnowledge(
     node: Partial<KnowledgeNode>,
     edges: Partial<KnowledgeEdge>[]
   ): Promise<string> {
     // 1. 检查是否已存在相似节点
-    const existingNode = this.findSimilarNode(node);
-    let nodeId: string;
+    const existingNode = this.findSimilarNode(node)
+    let nodeId: string
 
     if (existingNode) {
       // 更新现有节点
-      nodeId = existingNode.id;
-      this.updateNodeConfidence(nodeId, node.confidence || 0.5);
+      nodeId = existingNode.id
+      this.updateNodeConfidence(nodeId, node.confidence || 0.5)
     } else {
       // 创建新节点
       const newNode: KnowledgeNode = {
@@ -1274,9 +1235,9 @@ class KnowledgeGraphManager {
         createdAt: Date.now(),
         updatedAt: Date.now(),
         tags: node.tags || [],
-      };
-      this.graph.nodes.push(newNode);
-      nodeId = newNode.id;
+      }
+      this.graph.nodes.push(newNode)
+      nodeId = newNode.id
     }
 
     // 2. 添加边
@@ -1287,52 +1248,46 @@ class KnowledgeGraphManager {
         id: this.generateId(),
         confidence: edge.confidence || 0.5,
         evidence: [],
-      });
+      })
     }
 
-    return nodeId;
+    return nodeId
   }
 
   async updateNodeConfidence(nodeId: string, delta: number): Promise<void> {
-    const node = this.graph.nodes.find(n => n.id === nodeId);
-    if (!node) return;
+    const node = this.graph.nodes.find(n => n.id === nodeId)
+    if (!node) return
 
     // 使用贝叶斯更新
-    const alpha = node.confidence * 10;
-    const beta = (1 - node.confidence) * 10;
-    const newAlpha = alpha + (delta > 0 ? 1 : 0);
-    const newBeta = beta + (delta < 0 ? 1 : 0);
+    const alpha = node.confidence * 10
+    const beta = (1 - node.confidence) * 10
+    const newAlpha = alpha + (delta > 0 ? 1 : 0)
+    const newBeta = beta + (delta < 0 ? 1 : 0)
 
-    node.confidence = newAlpha / (newAlpha + newBeta);
-    node.updatedAt = Date.now();
+    node.confidence = newAlpha / (newAlpha + newBeta)
+    node.updatedAt = Date.now()
 
     // 清理低置信度节点
     if (node.confidence < 0.3) {
-      this.pruneNode(nodeId);
+      this.pruneNode(nodeId)
     }
   }
 
-  queryKnowledge(
-    query: KnowledgeQuery
-  ): KnowledgeQueryResult {
+  queryKnowledge(query: KnowledgeQuery): KnowledgeQueryResult {
     // 基于图遍历和语义相似度查询
-    const matchedNodes = this.graph.nodes.filter(node =>
-      this.matchesQuery(node, query)
-    );
+    const matchedNodes = this.graph.nodes.filter(node => this.matchesQuery(node, query))
 
     // 按置信度排序
-    matchedNodes.sort((a, b) => b.confidence - a.confidence);
+    matchedNodes.sort((a, b) => b.confidence - a.confidence)
 
     // 获取相关节点（通过边连接）
-    const relatedNodes = this.getRelatedNodes(
-      matchedNodes.slice(0, 10).map(n => n.id)
-    );
+    const relatedNodes = this.getRelatedNodes(matchedNodes.slice(0, 10).map(n => n.id))
 
     return {
       directMatches: matchedNodes,
       relatedMatches: relatedNodes,
       confidence: this.calculateQueryConfidence(matchedNodes),
-    };
+    }
   }
 }
 ```
@@ -1341,59 +1296,59 @@ class KnowledgeGraphManager {
 
 **评估指标**:
 
-| 指标 | 说明 | 计算方式 |
-|------|------|----------|
-| **学习速度** | 性能提升速度 | Δ性能 / Δ时间 |
-| **学习稳定性** | 性能波动程度 | 1 - 标准差 / 平均值 |
-| **知识覆盖率** | 已学习模式 / 总模式 | 已识别模式数 / 估计总模式数 |
-| **知识准确率** | 应用学习知识的成功率 | 成功应用次数 / 总应用次数 |
-| **泛化能力** | 新情境下表现 | 新情境成功率 / 已知情境成功率 |
-| **遗忘率** | 知识遗忘速度 | 知识减少 / 时间 |
+| 指标           | 说明                 | 计算方式                      |
+| -------------- | -------------------- | ----------------------------- |
+| **学习速度**   | 性能提升速度         | Δ性能 / Δ时间                 |
+| **学习稳定性** | 性能波动程度         | 1 - 标准差 / 平均值           |
+| **知识覆盖率** | 已学习模式 / 总模式  | 已识别模式数 / 估计总模式数   |
+| **知识准确率** | 应用学习知识的成功率 | 成功应用次数 / 总应用次数     |
+| **泛化能力**   | 新情境下表现         | 新情境成功率 / 已知情境成功率 |
+| **遗忘率**     | 知识遗忘速度         | 知识减少 / 时间               |
 
 **评估报告**:
 
 ```typescript
 interface LearningAssessmentReport {
-  agentId: string;
+  agentId: string
   period: {
-    start: number;
-    end: number;
-  };
+    start: number
+    end: number
+  }
   metrics: {
-    learningSpeed: number;
-    stability: number;
-    knowledgeCoverage: number;
-    knowledgeAccuracy: number;
-    generalization: number;
-    forgettingRate: number;
-  };
-  topLearnedPatterns: LearnedPattern[];
-  areasForImprovement: string[];
-  recommendations: string[];
+    learningSpeed: number
+    stability: number
+    knowledgeCoverage: number
+    knowledgeAccuracy: number
+    generalization: number
+    forgettingRate: number
+  }
+  topLearnedPatterns: LearnedPattern[]
+  areasForImprovement: string[]
+  recommendations: string[]
 }
 ```
 
 ### 3.5 实施路线图
 
-| 阶段 | 功能 | 完成度 | 里程碑 |
-|------|------|--------|--------|
-| **Phase 1** (Week 1-2) | 反馈学习层 | 0% | 基础反馈收集和模式存储 |
-| **Phase 2** (Week 3-4) | 模式识别层 | 0% | 成功/失败模式识别准确率 >80% |
-| **Phase 3** (Week 5-6) | 知识图谱基础 | 0% | 知识节点 1000+，边 5000+ |
-| **Phase 4** (Week 7-8) | 元学习引擎 MVP | 0% | 学习策略自动选择准确率 >70% |
-| **Phase 5** (Week 9-10) | 学习效果评估 | 0% | 完整评估报告生成 |
-| **Phase 6** (Week 11-12) | 集成优化 | 0% | 系统级学习效果提升 >30% |
+| 阶段                     | 功能           | 完成度 | 里程碑                       |
+| ------------------------ | -------------- | ------ | ---------------------------- |
+| **Phase 1** (Week 1-2)   | 反馈学习层     | 0%     | 基础反馈收集和模式存储       |
+| **Phase 2** (Week 3-4)   | 模式识别层     | 0%     | 成功/失败模式识别准确率 >80% |
+| **Phase 3** (Week 5-6)   | 知识图谱基础   | 0%     | 知识节点 1000+，边 5000+     |
+| **Phase 4** (Week 7-8)   | 元学习引擎 MVP | 0%     | 学习策略自动选择准确率 >70%  |
+| **Phase 5** (Week 9-10)  | 学习效果评估   | 0%     | 完整评估报告生成             |
+| **Phase 6** (Week 11-12) | 集成优化       | 0%     | 系统级学习效果提升 >30%      |
 
 ### 3.6 成功指标
 
-| 指标 | 当前 (v1.7.0) | 目标 (v1.8.0) | 提升 |
-|------|--------------|---------------|------|
-| 学习速度（性能/月） | N/A | >15% | 新功能 |
-| 知识覆盖率 | N/A | >60% | 新功能 |
-| 知识应用准确率 | N/A | >75% | 新功能 |
-| 泛化能力（新情境/旧情境） | N/A | >80% | 新功能 |
-| 任务重复错误率 | ~15% | <5% | -67% |
-| 人工干预减少率 | N/A | >40% | 新功能 |
+| 指标                      | 当前 (v1.7.0) | 目标 (v1.8.0) | 提升   |
+| ------------------------- | ------------- | ------------- | ------ |
+| 学习速度（性能/月）       | N/A           | >15%          | 新功能 |
+| 知识覆盖率                | N/A           | >60%          | 新功能 |
+| 知识应用准确率            | N/A           | >75%          | 新功能 |
+| 泛化能力（新情境/旧情境） | N/A           | >80%          | 新功能 |
+| 任务重复错误率            | ~15%          | <5%           | -67%   |
+| 人工干预减少率            | N/A           | >40%          | 新功能 |
 
 ---
 
@@ -1402,11 +1357,13 @@ interface LearningAssessmentReport {
 ### 4.1 当前交互模式分析 (v1.7.0)
 
 **交互方式**:
+
 - 📝 **文本指令** - 通过聊天界面发送指令
 - 🖱️ **GUI 操作** - 通过 Dashboard 点击操作
 - 📊 **数据查看** - 查看状态、进度、结果
 
 **局限性**:
+
 - ❌ 需要明确指令，不支持模糊意图
 - ❌ 交互方式单一，缺乏自然对话体验
 - ❌ 决策过程不透明，难以建立信任
@@ -1437,57 +1394,59 @@ interface LearningAssessmentReport {
 **核心技术**:
 
 1. **意图理解**:
+
 ```typescript
 interface IntentUnderstandingEngine {
-  understand(userInput: string): Promise<Intent>;
+  understand(userInput: string): Promise<Intent>
 }
 
 interface Intent {
-  primaryAction: string;
-  entities: Entity[];
-  context: Context;
-  confidence: number;
-  clarificationsNeeded?: Clarification[];
+  primaryAction: string
+  entities: Entity[]
+  context: Context
+  confidence: number
+  clarificationsNeeded?: Clarification[]
 }
 
 interface Entity {
-  type: 'time' | 'data' | 'metric' | 'task' | 'role' | 'other';
-  value: unknown;
-  confidence: number;
+  type: 'time' | 'data' | 'metric' | 'task' | 'role' | 'other'
+  value: unknown
+  confidence: number
 }
 
 interface Clarification {
-  question: string;
-  options?: string[];
-  required: boolean;
+  question: string
+  options?: string[]
+  required: boolean
 }
 ```
 
 2. **对话管理**:
+
 ```typescript
 class ConversationManager {
-  private conversationState: ConversationState;
+  private conversationState: ConversationState
 
   async processMessage(
     message: UserMessage,
     context: ConversationContext
   ): Promise<SystemResponse> {
     // 1. 理解意图
-    const intent = await this.understandIntent(message, context);
+    const intent = await this.understandIntent(message, context)
 
     // 2. 检查是否需要澄清
     if (intent.clarificationsNeeded && intent.clarificationsNeeded.length > 0) {
-      return this.askClarifications(intent.clarificationsNeeded);
+      return this.askClarifications(intent.clarificationsNeeded)
     }
 
     // 3. 更新对话状态
-    this.conversationState = this.updateState(intent);
+    this.conversationState = this.updateState(intent)
 
     // 4. 执行任务
-    const result = await this.executeIntent(intent);
+    const result = await this.executeIntent(intent)
 
     // 5. 生成响应
-    return this.generateResponse(result, intent);
+    return this.generateResponse(result, intent)
   }
 
   private async understandIntent(
@@ -1495,10 +1454,10 @@ class ConversationManager {
     context: ConversationContext
   ): Promise<Intent> {
     // 使用 LLM 进行意图理解
-    const prompt = this.buildPrompt(message, context);
-    const response = await this.llm.complete(prompt);
+    const prompt = this.buildPrompt(message, context)
+    const response = await this.llm.complete(prompt)
 
-    return this.parseIntent(response);
+    return this.parseIntent(response)
   }
 }
 ```
@@ -1508,43 +1467,45 @@ class ConversationManager {
 **可解释性体系**:
 
 1. **决策日志**:
+
 ```typescript
 interface DecisionLog {
-  id: string;
-  taskId: string;
-  decisionType: DecisionType;
-  reasoning: string;
-  alternatives: Alternative[];
-  selectedAlternative: Alternative;
-  confidence: number;
-  timestamp: number;
+  id: string
+  taskId: string
+  decisionType: DecisionType
+  reasoning: string
+  alternatives: Alternative[]
+  selectedAlternative: Alternative
+  confidence: number
+  timestamp: number
 }
 
 interface Alternative {
-  id: string;
-  description: string;
-  pros: string[];
-  cons: string[];
-  estimatedOutcome: Outcome;
-  score: number;
+  id: string
+  description: string
+  pros: string[]
+  cons: string[]
+  estimatedOutcome: Outcome
+  score: number
 }
 
 interface DecisionExplanation {
-  decisionId: string;
-  summary: string;
-  detailedReasoning: string;
-  visualizations: DecisionVisualization[];
-  relatedContexts: string[];
+  decisionId: string
+  summary: string
+  detailedReasoning: string
+  visualizations: DecisionVisualization[]
+  relatedContexts: string[]
 }
 ```
 
 2. **决策可视化**:
+
 ```typescript
 interface DecisionVisualization {
-  type: 'timeline' | 'tree' | 'comparison' | 'flowchart';
-  data: unknown;
-  title: string;
-  description: string;
+  type: 'timeline' | 'tree' | 'comparison' | 'flowchart'
+  data: unknown
+  title: string
+  description: string
 }
 
 // 示例：决策树可视化
@@ -1555,7 +1516,7 @@ class DecisionTreeVisualizer {
       data: this.buildTree(decisionLog),
       title: '决策路径',
       description: '展示决策的推理过程',
-    };
+    }
   }
 
   private buildTree(decisionLog: DecisionLog): TreeNode {
@@ -1570,12 +1531,13 @@ class DecisionTreeVisualizer {
         selected: alt.id === decisionLog.selectedAlternative.id,
         children: [],
       })),
-    };
+    }
   }
 }
 ```
 
 3. **交互式解释界面**:
+
 ```
 [决策详情面板]
 ┌─────────────────────────────────────────┐
@@ -1605,43 +1567,41 @@ class DecisionTreeVisualizer {
 **能力**:
 
 1. **任务预测**:
+
 ```typescript
 interface TaskPrediction {
-  predictedTasks: PredictedTask[];
-  reasoning: string;
-  confidence: number;
+  predictedTasks: PredictedTask[]
+  reasoning: string
+  confidence: number
 }
 
 interface PredictedTask {
-  description: string;
-  priority: Priority;
-  estimatedStartTime: number;
-  likelihood: number;
-  dependencies: string[];
+  description: string
+  priority: Priority
+  estimatedStartTime: number
+  likelihood: number
+  dependencies: string[]
 }
 
 class TaskPredictor {
   predictNextTasks(context: PredictionContext): TaskPrediction {
     // 基于历史模式预测
-    const historicalPatterns = this.analyzeHistoricalPatterns(context);
+    const historicalPatterns = this.analyzeHistoricalPatterns(context)
 
     // 基于当前状态预测
-    const currentState = this.analyzeCurrentState(context);
+    const currentState = this.analyzeCurrentState(context)
 
     // 基于周期性预测
-    const periodicPatterns = this.analyzePeriodicPatterns(context);
+    const periodicPatterns = this.analyzePeriodicPatterns(context)
 
     // 综合预测
-    return this.combinePredictions(
-      historicalPatterns,
-      currentState,
-      periodicPatterns
-    );
+    return this.combinePredictions(historicalPatterns, currentState, periodicPatterns)
   }
 }
 ```
 
 2. **主动建议**:
+
 ```typescript
 interface SuggestionEngine {
   generateSuggestions(context: SuggestionContext): Suggestion[];
@@ -1691,6 +1651,7 @@ type SuggestionType =
 ```
 
 3. **风险预警**:
+
 ```typescript
 interface RiskPrediction {
   id: string;
@@ -1748,99 +1709,95 @@ type RiskType =
 **个性化维度**:
 
 1. **交互风格偏好**:
+
 ```typescript
 interface UserInteractionPreferences {
-  communicationStyle: 'concise' | 'detailed' | 'conversational';
-  responseLength: 'short' | 'medium' | 'long';
-  notificationFrequency: 'immediate' | 'batched' | 'digest';
-  decisionExplanationLevel: 'summary' | 'standard' | 'detailed';
-  proactiveSuggestions: boolean;
+  communicationStyle: 'concise' | 'detailed' | 'conversational'
+  responseLength: 'short' | 'medium' | 'long'
+  notificationFrequency: 'immediate' | 'batched' | 'digest'
+  decisionExplanationLevel: 'summary' | 'standard' | 'detailed'
+  proactiveSuggestions: boolean
   visualPreferences: {
-    theme: string;
-    dataVisualization: 'minimal' | 'standard' | 'comprehensive';
-    chartTypes: string[];
-  };
+    theme: string
+    dataVisualization: 'minimal' | 'standard' | 'comprehensive'
+    chartTypes: string[]
+  }
   languagePreferences: {
-    primary: string;
-    secondary?: string;
-    formality: 'formal' | 'casual';
-  };
+    primary: string
+    secondary?: string
+    formality: 'formal' | 'casual'
+  }
 }
 
 class InteractionPersonalizer {
-  adaptResponse(
-    content: string,
-    preferences: UserInteractionPreferences
-  ): string {
-    let adapted = content;
+  adaptResponse(content: string, preferences: UserInteractionPreferences): string {
+    let adapted = content
 
     // 1. 调整详细程度
     if (preferences.responseLength === 'short') {
-      adapted = this.summarize(adapted);
+      adapted = this.summarize(adapted)
     } else if (preferences.responseLength === 'long') {
-      adapted = this.expand(adapted);
+      adapted = this.expand(adapted)
     }
 
     // 2. 调整交流风格
     if (preferences.communicationStyle === 'concise') {
-      adapted = this.makeConcise(adapted);
+      adapted = this.makeConcise(adapted)
     } else if (preferences.communicationStyle === 'conversational') {
-      adapted = this.makeConversational(adapted);
+      adapted = this.makeConversational(adapted)
     }
 
     // 3. 调整语言风格
     if (preferences.languagePreferences.formality === 'casual') {
-      adapted = this.makeCasual(adapted);
+      adapted = this.makeCasual(adapted)
     }
 
-    return adapted;
+    return adapted
   }
 }
 ```
 
 2. **上下文感知交互**:
+
 ```typescript
 interface ContextAwareInteraction {
-  understandContext(): ContextInsights;
-  adaptToContext(context: ContextInsights): AdaptedContent;
+  understandContext(): ContextInsights
+  adaptToContext(context: ContextInsights): AdaptedContent
 }
 
 interface ContextInsights {
-  currentWorkload: WorkloadLevel;
-  timeOfDay: TimeOfDay;
-  userMood?: 'stressed' | 'relaxed' | 'focused' | 'tired';
-  recentFailures: number;
-  recentSuccesses: number;
-  upcomingDeadlines: Deadline[];
-  location?: 'office' | 'home' | 'mobile';
+  currentWorkload: WorkloadLevel
+  timeOfDay: TimeOfDay
+  userMood?: 'stressed' | 'relaxed' | 'focused' | 'tired'
+  recentFailures: number
+  recentSuccesses: number
+  upcomingDeadlines: Deadline[]
+  location?: 'office' | 'home' | 'mobile'
 }
 
 // 示例：根据上下文调整交互
 class ContextAdapter {
-  adapt(
-    content: string,
-    context: ContextInsights
-  ): AdaptedContent {
-    let adapted = content;
+  adapt(content: string, context: ContextInsights): AdaptedContent {
+    let adapted = content
 
     // 如果用户压力大，提供更多支持
     if (context.userMood === 'stressed') {
-      adapted = this.addSupportiveElements(adapted);
-      adapted = this.reduceComplexity(adapted);
-      adapted = this.offerHelp(adapted);
+      adapted = this.addSupportiveElements(adapted)
+      adapted = this.reduceComplexity(adapted)
+      adapted = this.offerHelp(adapted)
     }
 
     // 如果是深夜，减少通知频率
     if (context.timeOfDay === 'late_night') {
-      adapted = this.bundleNotifications(adapted);
+      adapted = this.bundleNotifications(adapted)
     }
 
     // 如果有临近截止日期，优先显示相关内容
     if (context.upcomingDeadlines.length > 0) {
-      adapted = this.highlightDeadlines(adapted, context.upcomingDeadlines);
+      adapted = this.highlightDeadlines(adapted, context.upcomingDeadlines)
     }
 
-    return adapted;
+    return adapted
   }
 }
 ```
@@ -1850,6 +1807,7 @@ class ContextAdapter {
 #### 4.3.1 智能对话界面
 
 **特性**:
+
 - 💬 自然语言对话
 - 🧠 上下文理解
 - 📝 意图确认
@@ -1859,6 +1817,7 @@ class ContextAdapter {
 - 🎯 快捷操作
 
 **界面布局**:
+
 ```
 ┌─────────────────────────────────────────────────────────┐
 │ 7zi AI 智能助手                           [设置] [历史] │
@@ -1884,6 +1843,7 @@ class ContextAdapter {
 #### 4.3.2 决策透明化仪表板
 
 **特性**:
+
 - 📊 决策流程可视化
 - 🔍 深入分析决策依据
 - 💾 决策历史追溯
@@ -1891,6 +1851,7 @@ class ContextAdapter {
 - 📝 决策反馈收集
 
 **界面布局**:
+
 ```
 ┌─────────────────────────────────────────────────────────┐
 │ 决策透明化仪表板                          [筛选] [导出] │
@@ -1924,6 +1885,7 @@ class ContextAdapter {
 #### 4.3.3 主动建议中心
 
 **特性**:
+
 - 💡 智能建议生成
 - 📊 建议效果预测
 - ✅ 一键采纳建议
@@ -1931,6 +1893,7 @@ class ContextAdapter {
 - 🎯 优先级排序
 
 **界面布局**:
+
 ```
 ┌─────────────────────────────────────────────────────────┐
 │ 💡 主动建议中心                             [全部] [未读] │
@@ -1956,24 +1919,24 @@ class ContextAdapter {
 
 ### 4.4 实施路线图
 
-| 阶段 | 功能 | 完成度 | 里程碑 |
-|------|------|--------|--------|
-| **Phase 1** (Week 1-3) | 自然语言交互增强 | 0% | 意图理解准确率 >85% |
-| **Phase 2** (Week 4-6) | 决策透明化 | 0% | 决策日志覆盖率 100% |
-| **Phase 3** (Week 7-9) | 主动建议系统 | 0% | 建议采纳率 >40% |
-| **Phase 4** (Week 10-11) | 个性化交互 | 0% | 用户满意度 >90% |
-| **Phase 5** (Week 12-13) | 新交互界面 | 0% | 界面可用性评分 >4.5/5 |
+| 阶段                     | 功能             | 完成度 | 里程碑                |
+| ------------------------ | ---------------- | ------ | --------------------- |
+| **Phase 1** (Week 1-3)   | 自然语言交互增强 | 0%     | 意图理解准确率 >85%   |
+| **Phase 2** (Week 4-6)   | 决策透明化       | 0%     | 决策日志覆盖率 100%   |
+| **Phase 3** (Week 7-9)   | 主动建议系统     | 0%     | 建议采纳率 >40%       |
+| **Phase 4** (Week 10-11) | 个性化交互       | 0%     | 用户满意度 >90%       |
+| **Phase 5** (Week 12-13) | 新交互界面       | 0%     | 界面可用性评分 >4.5/5 |
 
 ### 4.5 成功指标
 
-| 指标 | 当前 (v1.7.0) | 目标 (v1.8.0) | 提升 |
-|------|--------------|---------------|------|
-| 意图理解准确率 | N/A | >85% | 新功能 |
-| 交互轮次（完成任务） | ~3-5 轮 | <2 轮 | -50% |
-| 用户满意度 | N/A | >90% | 新功能 |
-| 决策透明度感知 | N/A | >80% | 新功能 |
-| 主动建议采纳率 | N/A | >40% | 新功能 |
-| 任务完成效率 | 基准 | +25% | 效率提升 |
+| 指标                 | 当前 (v1.7.0) | 目标 (v1.8.0) | 提升     |
+| -------------------- | ------------- | ------------- | -------- |
+| 意图理解准确率       | N/A           | >85%          | 新功能   |
+| 交互轮次（完成任务） | ~3-5 轮       | <2 轮         | -50%     |
+| 用户满意度           | N/A           | >90%          | 新功能   |
+| 决策透明度感知       | N/A           | >80%          | 新功能   |
+| 主动建议采纳率       | N/A           | >40%          | 新功能   |
+| 任务完成效率         | 基准          | +25%          | 效率提升 |
 
 ---
 
@@ -2050,38 +2013,38 @@ class ContextAdapter {
 
 ```typescript
 interface DecisionApprovalWorkflow {
-  decisionId: string;
-  decision: Decision;
-  riskLevel: RiskLevel;
-  requiredApproval: ApprovalRequirement;
-  approvals: Approval[];
-  state: 'pending' | 'approved' | 'rejected' | 'escalated';
-  timestamp: number;
+  decisionId: string
+  decision: Decision
+  riskLevel: RiskLevel
+  requiredApproval: ApprovalRequirement
+  approvals: Approval[]
+  state: 'pending' | 'approved' | 'rejected' | 'escalated'
+  timestamp: number
 }
 
-type RiskLevel = 'low' | 'medium' | 'high' | 'critical';
+type RiskLevel = 'low' | 'medium' | 'high' | 'critical'
 
 interface ApprovalRequirement {
-  autoApprove: boolean;  // 是否可以自动批准
-  requiredApprovers: string[];  // 需要哪些角色批准
-  requiredConsensus: boolean;  // 是否需要共识
-  escalationThreshold?: number;  // 超时时限
+  autoApprove: boolean // 是否可以自动批准
+  requiredApprovers: string[] // 需要哪些角色批准
+  requiredConsensus: boolean // 是否需要共识
+  escalationThreshold?: number // 超时时限
 }
 
 class DecisionApprovalManager {
   async requestApproval(decision: Decision): Promise<ApprovalResult> {
     // 1. 评估决策风险
-    const riskLevel = await this.assessRisk(decision);
+    const riskLevel = await this.assessRisk(decision)
 
     // 2. 确定审批要求
-    const requirement = this.determineApprovalRequirement(riskLevel);
+    const requirement = this.determineApprovalRequirement(riskLevel)
 
     // 3. 如果低风险，自动批准
     if (requirement.autoApprove) {
       return {
         approved: true,
         reason: 'Low risk, auto-approved',
-      };
+      }
     }
 
     // 4. 创建审批流程
@@ -2093,13 +2056,13 @@ class DecisionApprovalManager {
       approvals: [],
       state: 'pending',
       timestamp: Date.now(),
-    };
+    }
 
     // 5. 发送审批请求
-    await this.sendApprovalRequests(workflow);
+    await this.sendApprovalRequests(workflow)
 
     // 6. 等待审批（或超时升级）
-    return await this.waitForApproval(workflow);
+    return await this.waitForApproval(workflow)
   }
 
   private async assessRisk(decision: Decision): Promise<RiskLevel> {
@@ -2110,14 +2073,14 @@ class DecisionApprovalManager {
       complexity: decision.complexity,
       reversibility: decision.reversible ? 0 : 1,
       previousFailures: this.getFailureHistory(decision.type),
-    };
+    }
 
-    const riskScore = this.calculateRiskScore(factors);
+    const riskScore = this.calculateRiskScore(factors)
 
-    if (riskScore < 0.3) return 'low';
-    if (riskScore < 0.6) return 'medium';
-    if (riskScore < 0.8) return 'high';
-    return 'critical';
+    if (riskScore < 0.3) return 'low'
+    if (riskScore < 0.6) return 'medium'
+    if (riskScore < 0.8) return 'high'
+    return 'critical'
   }
 }
 ```
@@ -2128,20 +2091,20 @@ class DecisionApprovalManager {
 
 ```typescript
 interface AnomalyDetectionSystem {
-  detectAnomalies(context: DetectionContext): Promise<Anomaly[]>;
-  triggerIntervention(anomaly: Anomaly): Promise<void>;
-  monitorDecisionStream(): void;
+  detectAnomalies(context: DetectionContext): Promise<Anomaly[]>
+  triggerIntervention(anomaly: Anomaly): Promise<void>
+  monitorDecisionStream(): void
 }
 
 interface Anomaly {
-  id: string;
-  type: AnomalyType;
-  severity: 'low' | 'medium' | 'high' | 'critical';
-  description: string;
-  detectedAt: number;
-  source: string;
-  evidence: Evidence[];
-  recommendedAction: InterventionAction;
+  id: string
+  type: AnomalyType
+  severity: 'low' | 'medium' | 'high' | 'critical'
+  description: string
+  detectedAt: number
+  source: string
+  evidence: Evidence[]
+  recommendedAction: InterventionAction
 }
 
 type AnomalyType =
@@ -2149,37 +2112,29 @@ type AnomalyType =
   | 'behavior_deviation'
   | 'resource_anomaly'
   | 'security_breach'
-  | 'ethical_violation';
+  | 'ethical_violation'
 
-type InterventionAction =
-  | 'log_only'
-  | 'notify'
-  | 'suspend'
-  | 'rollback'
-  | 'escalate';
+type InterventionAction = 'log_only' | 'notify' | 'suspend' | 'rollback' | 'escalate'
 
 class AnomalyDetector {
-  private baseline: BaselineMetrics;
-  private thresholds: ThresholdConfig;
+  private baseline: BaselineMetrics
+  private thresholds: ThresholdConfig
 
-  async detect(
-    decision: Decision,
-    context: DetectionContext
-  ): Promise<Anomaly | null> {
+  async detect(decision: Decision, context: DetectionContext): Promise<Anomaly | null> {
     // 1. 检测决策异常（偏离基线）
-    const decisionAnomaly = this.detectDecisionAnomaly(decision);
+    const decisionAnomaly = this.detectDecisionAnomaly(decision)
 
     // 2. 检测行为异常（偏离正常模式）
-    const behaviorAnomaly = this.detectBehaviorAnomaly(context);
+    const behaviorAnomaly = this.detectBehaviorAnomaly(context)
 
     // 3. 检测资源异常（异常资源消耗）
-    const resourceAnomaly = this.detectResourceAnomaly(context);
+    const resourceAnomaly = this.detectResourceAnomaly(context)
 
     // 4. 检测安全问题
-    const securityAnomaly = this.detectSecurityAnomaly(decision, context);
+    const securityAnomaly = this.detectSecurityAnomaly(decision, context)
 
     // 5. 检测伦理问题
-    const ethicalAnomaly = this.detectEthicalViolation(decision, context);
+    const ethicalAnomaly = this.detectEthicalViolation(decision, context)
 
     // 6. 如果发现异常，选择最严重的
     const anomalies = [
@@ -2188,26 +2143,20 @@ class AnomalyDetector {
       resourceAnomaly,
       securityAnomaly,
       ethicalAnomaly,
-    ].filter(a => a !== null);
+    ].filter(a => a !== null)
 
-    if (anomalies.length === 0) return null;
+    if (anomalies.length === 0) return null
 
     // 返回最严重的异常
-    return anomalies.sort((a, b) =>
-      this.compareSeverity(b.severity, a.severity)
-    )[0];
+    return anomalies.sort((a, b) => this.compareSeverity(b.severity, a.severity))[0]
   }
 
-  private detectDecisionAnomaly(
-    decision: Decision
-  ): Anomaly | null {
+  private detectDecisionAnomaly(decision: Decision): Anomaly | null {
     // 统计检验：决策是否显著偏离基线
-    const zScore = this.calculateZScore(
-      decision.score,
-      this.baseline.decisionScores
-    );
+    const zScore = this.calculateZScore(decision.score, this.baseline.decisionScores)
 
-    if (Math.abs(zScore) > 3) { // 3个标准差
+    if (Math.abs(zScore) > 3) {
+      // 3个标准差
       return {
         id: generateId(),
         type: 'decision_outlier',
@@ -2222,11 +2171,11 @@ class AnomalyDetector {
             strength: Math.abs(zScore),
           },
         ],
-        recommendedAction:          Math.abs(zScore) > 5 ? 'escalate' : 'suspend',
-      };
+        recommendedAction: Math.abs(zScore) > 5 ? 'escalate' : 'suspend',
+      }
     }
 
-    return null;
+    return null
   }
 }
 ```
@@ -2264,60 +2213,53 @@ class AnomalyDetector {
 
 ```typescript
 interface EthicalPrinciple {
-  id: string;
-  name: string;
-  description: string;
-  weight: number; // 原则权重
-  implementation: PrincipleImplementation;
+  id: string
+  name: string
+  description: string
+  weight: number // 原则权重
+  implementation: PrincipleImplementation
 }
 
 interface PrincipleImplementation {
-  validators: EthicalValidator[];
-  metrics: EthicalMetric[];
-  thresholds: EthicalThreshold[];
-  remedies: Remedy[];
+  validators: EthicalValidator[]
+  metrics: EthicalMetric[]
+  thresholds: EthicalThreshold[]
+  remedies: Remedy[]
 }
 
 interface EthicalValidator {
-  id: string;
-  validate(decision: Decision, context: Context): Promise<ValidationResult>;
+  id: string
+  validate(decision: Decision, context: Context): Promise<ValidationResult>
 }
 
 interface ValidationResult {
-  compliant: boolean;
-  score: number; // 0-1 合规分数
-  violations: Violation[];
-  recommendations: string[];
+  compliant: boolean
+  score: number // 0-1 合规分数
+  violations: Violation[]
+  recommendations: string[]
 }
 
 // 伦理评估引擎
 class EthicalAssessmentEngine {
-  private principles: EthicalPrinciple[];
+  private principles: EthicalPrinciple[]
 
-  async assessDecision(
-    decision: Decision,
-    context: Context
-  ): Promise<EthicalAssessment> {
-    const assessments: PrincipleAssessment[] = [];
+  async assessDecision(decision: Decision, context: Context): Promise<EthicalAssessment> {
+    const assessments: PrincipleAssessment[] = []
 
     // 评估每个原则
     for (const principle of this.principles) {
-      const assessment = await this.assessPrinciple(
-        principle,
-        decision,
-        context
-      );
-      assessments.push(assessment);
+      const assessment = await this.assessPrinciple(principle, decision, context)
+      assessments.push(assessment)
     }
 
     // 计算总体合规分数（加权平均）
-    const overallScore = this.calculateOverallScore(assessments);
+    const overallScore = this.calculateOverallScore(assessments)
 
     // 识别违规
-    const violations = this.collectViolations(assessments);
+    const violations = this.collectViolations(assessments)
 
     // 生成补救措施
-    const remedies = this.generateRemedies(violations);
+    const remedies = this.generateRemedies(violations)
 
     return {
       decisionId: decision.id,
@@ -2327,7 +2269,7 @@ class EthicalAssessmentEngine {
       remedies,
       compliant: violations.length === 0,
       timestamp: Date.now(),
-    };
+    }
   }
 
   private async assessPrinciple(
@@ -2335,13 +2277,13 @@ class EthicalAssessmentEngine {
     decision: Decision,
     context: Context
   ): Promise<PrincipleAssessment> {
-    let totalScore = 0;
-    let validatorCount = principle.implementation.validators.length;
+    let totalScore = 0
+    let validatorCount = principle.implementation.validators.length
 
     // 运行所有验证器
     for (const validator of principle.implementation.validators) {
-      const result = await validator.validate(decision, context);
-      totalScore += result.score;
+      const result = await validator.validate(decision, context)
+      totalScore += result.score
 
       // 如果有严重违规，提前返回
       if (result.violations.some(v => v.severity === 'critical')) {
@@ -2351,7 +2293,7 @@ class EthicalAssessmentEngine {
           compliant: false,
           violations: result.violations,
           recommendations: result.recommendations,
-        };
+        }
       }
     }
 
@@ -2361,35 +2303,29 @@ class EthicalAssessmentEngine {
       compliant: true,
       violations: [],
       recommendations: [],
-    };
+    }
   }
 }
 
 // 示例：公平性验证器
 class FairnessValidator implements EthicalValidator {
-  id = 'fairness_resource_allocation';
+  id = 'fairness_resource_allocation'
 
-  async validate(
-    decision: Decision,
-    context: Context
-  ): Promise<ValidationResult> {
+  async validate(decision: Decision, context: Context): Promise<ValidationResult> {
     // 检查资源分配是否公平
-    const allocation = decision.resourceAllocation;
-    const historical = context.historicalAllocations;
+    const allocation = decision.resourceAllocation
+    const historical = context.historicalAllocations
 
     // 1. 检查是否存在歧视性模式
-    const discriminationRisk = this.checkDiscrimination(
-      allocation,
-      historical
-    );
+    const discriminationRisk = this.checkDiscrimination(allocation, historical)
 
     // 2. 检查是否公平分配
-    const fairnessScore = this.calculateFairnessScore(allocation, historical);
+    const fairnessScore = this.calculateFairnessScore(allocation, historical)
 
     // 3. 检查是否遵循机会均等原则
-    const equalityCheck = this.checkEquality(allocation, historical);
+    const equalityCheck = this.checkEquality(allocation, historical)
 
-    const violations: Violation[] = [];
+    const violations: Violation[] = []
 
     if (discriminationRisk > 0.7) {
       violations.push({
@@ -2397,7 +2333,7 @@ class FairnessValidator implements EthicalValidator {
         severity: 'high',
         description: 'Resource allocation may discriminate against certain groups',
         evidence: [discriminationRisk],
-      });
+      })
     }
 
     if (fairnessScore < 0.5) {
@@ -2406,17 +2342,18 @@ class FairnessValidator implements EthicalValidator {
         severity: 'medium',
         description: 'Resource distribution is significantly unequal',
         evidence: [fairnessScore],
-      });
+      })
     }
 
     return {
       compliant: violations.length === 0,
       score: 1 - (discriminationRisk + (1 - fairnessScore)) / 2,
       violations,
-      recommendations: violations.length > 0
-        ? ['Review allocation criteria', 'Adjust allocation to be more equitable']
-        : [],
-    };
+      recommendations:
+        violations.length > 0
+          ? ['Review allocation criteria', 'Adjust allocation to be more equitable']
+          : [],
+    }
   }
 
   private checkDiscrimination(
@@ -2426,18 +2363,18 @@ class FairnessValidator implements EthicalValidator {
     // 简化版：检查不同群体是否获得不同比例的资源
     // 实际实现应使用更复杂的统计方法
 
-    const groups = this.groupByDemographic(allocation);
+    const groups = this.groupByDemographic(allocation)
     const groupAllocations = groups.map(g => ({
       group: g.id,
       allocation: g.amount,
       historicalAvg: this.getHistoricalAverage(g.id, historical),
-    }));
+    }))
 
-    const deviations = groupAllocations.map(g =>
-      Math.abs(g.allocation - g.historicalAvg) / g.historicalAvg
-    );
+    const deviations = groupAllocations.map(
+      g => Math.abs(g.allocation - g.historicalAvg) / g.historicalAvg
+    )
 
-    return Math.max(...deviations);
+    return Math.max(...deviations)
   }
 
   private calculateFairnessScore(
@@ -2445,24 +2382,22 @@ class FairnessValidator implements EthicalValidator {
     historical: HistoricalAllocation[]
   ): number {
     // 使用基尼系数
-    const sortedAllocations = allocation
-      .map(a => a.amount)
-      .sort((a, b) => a - b);
+    const sortedAllocations = allocation.map(a => a.amount).sort((a, b) => a - b)
 
-    const n = sortedAllocations.length;
-    const total = sortedAllocations.reduce((sum, a) => sum + a, 0);
+    const n = sortedAllocations.length
+    const total = sortedAllocations.reduce((sum, a) => sum + a, 0)
 
-    let giniSum = 0;
+    let giniSum = 0
     for (let i = 0; i < n; i++) {
       for (let j = 0; j < n; j++) {
-        giniSum += Math.abs(sortedAllocations[i] - sortedAllocations[j]);
+        giniSum += Math.abs(sortedAllocations[i] - sortedAllocations[j])
       }
     }
 
-    const gini = giniSum / (2 * n * total);
+    const gini = giniSum / (2 * n * total)
 
     // 基尼系数转换为公平分数（0 = 不公平, 1 = 完全公平）
-    return 1 - gini;
+    return 1 - gini
   }
 
   private checkEquality(
@@ -2472,14 +2407,14 @@ class FairnessValidator implements EthicalValidator {
     // 检查相同条件下是否获得相同资源
     // 简化版：检查条件相似的实体是否获得相似资源
 
-    const similarGroups = this.findSimilarConditions(allocation, historical);
-    const allocations = similarGroups.map(g => g.amount);
+    const similarGroups = this.findSimilarConditions(allocation, historical)
+    const allocations = similarGroups.map(g => g.amount)
 
-    const mean = allocations.reduce((sum, a) => sum + a, 0) / allocations.length;
-    const variance = allocations.reduce((sum, a) => sum + (a - mean) ** 2, 0) / allocations.length;
+    const mean = allocations.reduce((sum, a) => sum + a, 0) / allocations.length
+    const variance = allocations.reduce((sum, a) => sum + (a - mean) ** 2, 0) / allocations.length
 
     // 如果方差太大，说明分配不均等
-    return variance < mean * 0.1; // 10% 的变异系数阈值
+    return variance < mean * 0.1 // 10% 的变异系数阈值
   }
 }
 ```
@@ -2490,42 +2425,39 @@ class FairnessValidator implements EthicalValidator {
 
 ```typescript
 interface AuditSystem {
-  logDecision(decision: Decision, outcome: Outcome): Promise<void>;
-  queryAudit(query: AuditQuery): Promise<AuditReport>;
-  generateComplianceReport(period: TimePeriod): Promise<ComplianceReport>;
+  logDecision(decision: Decision, outcome: Outcome): Promise<void>
+  queryAudit(query: AuditQuery): Promise<AuditReport>
+  generateComplianceReport(period: TimePeriod): Promise<ComplianceReport>
 }
 
 interface AuditRecord {
-  id: string;
-  timestamp: number;
-  decision: Decision;
-  outcome: Outcome;
-  approvals: Approval[];
-  ethicalAssessment: EthicalAssessment;
-  riskAssessment: RiskAssessment;
-  violations: Violation[];
-  correctiveActions: CorrectiveAction[];
+  id: string
+  timestamp: number
+  decision: Decision
+  outcome: Outcome
+  approvals: Approval[]
+  ethicalAssessment: EthicalAssessment
+  riskAssessment: RiskAssessment
+  violations: Violation[]
+  correctiveActions: CorrectiveAction[]
 }
 
 interface ComplianceReport {
-  period: TimePeriod;
-  totalDecisions: number;
-  compliantDecisions: number;
-  nonCompliantDecisions: number;
-  complianceRate: number;
-  violationsByType: Map<ViolationType, number>;
-  highRiskDecisions: number;
-  ethicalScores: EthicalScoreSummary;
-  recommendations: string[];
+  period: TimePeriod
+  totalDecisions: number
+  compliantDecisions: number
+  nonCompliantDecisions: number
+  complianceRate: number
+  violationsByType: Map<ViolationType, number>
+  highRiskDecisions: number
+  ethicalScores: EthicalScoreSummary
+  recommendations: string[]
 }
 
 class AuditManager {
-  private auditLog: AuditRecord[] = [];
+  private auditLog: AuditRecord[] = []
 
-  async logDecision(
-    decision: Decision,
-    outcome: Outcome
-  ): Promise<void> {
+  async logDecision(decision: Decision, outcome: Outcome): Promise<void> {
     const record: AuditRecord = {
       id: generateId(),
       timestamp: Date.now(),
@@ -2536,39 +2468,33 @@ class AuditManager {
       riskAssessment: decision.riskAssessment,
       violations: decision.violations || [],
       correctiveActions: [],
-    };
+    }
 
-    this.auditLog.push(record);
+    this.auditLog.push(record)
 
     // 异常检测：如果发现严重违规，触发警报
-    const criticalViolations = record.violations.filter(
-      v => v.severity === 'critical'
-    );
+    const criticalViolations = record.violations.filter(v => v.severity === 'critical')
 
     if (criticalViolations.length > 0) {
-      await this.triggerAlert(record, criticalViolations);
+      await this.triggerAlert(record, criticalViolations)
     }
   }
 
-  async generateComplianceReport(
-    period: TimePeriod
-  ): Promise<ComplianceReport> {
-    const records = this.queryPeriod(period);
+  async generateComplianceReport(period: TimePeriod): Promise<ComplianceReport> {
+    const records = this.queryPeriod(period)
 
-    const compliantDecisions = records.filter(r =>
-      r.violations.length === 0
-    );
+    const compliantDecisions = records.filter(r => r.violations.length === 0)
 
-    const violationsByType = new Map<ViolationType, number>();
+    const violationsByType = new Map<ViolationType, number>()
 
     for (const record of records) {
       for (const violation of record.violations) {
-        const count = violationsByType.get(violation.type) || 0;
-        violationsByType.set(violation.type, count + 1);
+        const count = violationsByType.get(violation.type) || 0
+        violationsByType.set(violation.type, count + 1)
       }
     }
 
-    const ethicalScores = this.calculateEthicalScoreSummary(records);
+    const ethicalScores = this.calculateEthicalScoreSummary(records)
 
     return {
       period,
@@ -2577,54 +2503,48 @@ class AuditManager {
       nonCompliantDecisions: records.length - compliantDecisions.length,
       complianceRate: compliantDecisions.length / records.length,
       violationsByType,
-      highRiskDecisions: records.filter(r =>
-        r.riskAssessment?.riskLevel === 'critical'
-      ).length,
+      highRiskDecisions: records.filter(r => r.riskAssessment?.riskLevel === 'critical').length,
       ethicalScores,
       recommendations: this.generateRecommendations(records),
-    };
+    }
   }
 
-  private calculateEthicalScoreSummary(
-    records: AuditRecord[]
-  ): EthicalScoreSummary {
-    const scores = records.map(r => r.ethicalAssessment?.overallScore || 1);
+  private calculateEthicalScoreSummary(records: AuditRecord[]): EthicalScoreSummary {
+    const scores = records.map(r => r.ethicalAssessment?.overallScore || 1)
 
     return {
       average: scores.reduce((sum, s) => sum + s, 0) / scores.length,
       minimum: Math.min(...scores),
       maximum: Math.max(...scores),
       trend: this.calculateTrend(scores),
-    };
+    }
   }
 
   private generateRecommendations(records: AuditRecord[]): string[] {
-    const recommendations: string[] = [];
+    const recommendations: string[] = []
 
     // 分析常见违规
-    const violationsByType = this.analyzeViolations(records);
+    const violationsByType = this.analyzeViolations(records)
     const commonViolations = Object.entries(violationsByType)
       .sort((a, b) => b[1] - a[1])
-      .slice(0, 3);
+      .slice(0, 3)
 
     for (const [type, count] of commonViolations) {
       recommendations.push(
         `High frequency of ${type} violations (${count} cases). Review related policies and provide additional training.`
-      );
+      )
     }
 
     // 分析高风险决策
-    const highRiskDecisions = records.filter(r =>
-      r.riskAssessment?.riskLevel === 'critical'
-    );
+    const highRiskDecisions = records.filter(r => r.riskAssessment?.riskLevel === 'critical')
 
     if (highRiskDecisions.length > 0) {
       recommendations.push(
         `${highRiskDecisions.length} critical-risk decisions detected. Consider implementing additional approval requirements for high-risk scenarios.`
-      );
+      )
     }
 
-    return recommendations;
+    return recommendations
   }
 }
 ```
@@ -2651,25 +2571,25 @@ class AuditManager {
 
 ### 5.4 实施路线图
 
-| 阶段 | 功能 | 完成度 | 里程碑 |
-|------|------|--------|--------|
-| **Phase 1** (Week 1-2) | 决策审批机制 | 0% | 多级审批流程上线 |
-| **Phase 2** (Week 3-4) | 异常检测系统 | 0% | 异常检测准确率 >85% |
-| **Phase 3** (Week 5-7) | 伦理评估框架 | 0% | 5大原则实现 |
-| **Phase 4** (Week 8-10) | 审计系统 | 0% | 完整审计追踪 |
-| **Phase 5** (Week 11-12) | 伦理委员会 | 0% | 治理流程建立 |
-| **Phase 6** (Week 13-14) | 安全培训 + 集成 | 0% | 全员培训完成 |
+| 阶段                     | 功能            | 完成度 | 里程碑              |
+| ------------------------ | --------------- | ------ | ------------------- |
+| **Phase 1** (Week 1-2)   | 决策审批机制    | 0%     | 多级审批流程上线    |
+| **Phase 2** (Week 3-4)   | 异常检测系统    | 0%     | 异常检测准确率 >85% |
+| **Phase 3** (Week 5-7)   | 伦理评估框架    | 0%     | 5大原则实现         |
+| **Phase 4** (Week 8-10)  | 审计系统        | 0%     | 完整审计追踪        |
+| **Phase 5** (Week 11-12) | 伦理委员会      | 0%     | 治理流程建立        |
+| **Phase 6** (Week 13-14) | 安全培训 + 集成 | 0%     | 全员培训完成        |
 
 ### 5.5 成功指标
 
-| 指标 | 当前 (v1.7.0) | 目标 (v1.8.0) | 提升 |
-|------|--------------|---------------|------|
-| 决策合规率 | N/A | >98% | 新功能 |
-| 异常检测准确率 | N/A | >85% | 新功能 |
-| 伦理违规事件 | N/A | <0.1% | 新功能 |
-| 审计覆盖率 | N/A | 100% | 新功能 |
-| 安全事件响应时间 | N/A | <1小时 | 新功能 |
-| 用户信任度 | N/A | >90% | 新功能 |
+| 指标             | 当前 (v1.7.0) | 目标 (v1.8.0) | 提升   |
+| ---------------- | ------------- | ------------- | ------ |
+| 决策合规率       | N/A           | >98%          | 新功能 |
+| 异常检测准确率   | N/A           | >85%          | 新功能 |
+| 伦理违规事件     | N/A           | <0.1%         | 新功能 |
+| 审计覆盖率       | N/A           | 100%          | 新功能 |
+| 安全事件响应时间 | N/A           | <1小时        | 新功能 |
+| 用户信任度       | N/A           | >90%          | 新功能 |
 
 ---
 
@@ -2691,51 +2611,51 @@ Week 13-14: [Phase 7] 集成测试 + 性能优化 + 发布准备
 
 ### 6.2 里程碑检查点
 
-| 里程碑 | 日期 | 交付物 | 验收标准 |
-|--------|------|--------|----------|
-| **M1** | Week 2 | 任务分解引擎 MVP | 3种任务类型，准确率 >80% |
-| **M2** | Week 4 | Lv3 自治能力基础 | 策略选择准确率 >75% |
-| **M3** | Week 6 | 协作模式升级完成 | 8种协作模式全部上线 |
-| **M4** | Week 8 | 学习系统 v1.0 | 模式识别准确率 >80% |
-| **M5** | Week 10 | 安全框架 v1.0 | 决策审批 + 异常检测 |
-| **M6** | Week 12 | 伦理框架 v1.0 | 5大原则评估上线 |
-| **M7** | Week 14 | v1.8.0 发布 | 所有功能通过验收 |
+| 里程碑 | 日期    | 交付物           | 验收标准                 |
+| ------ | ------- | ---------------- | ------------------------ |
+| **M1** | Week 2  | 任务分解引擎 MVP | 3种任务类型，准确率 >80% |
+| **M2** | Week 4  | Lv3 自治能力基础 | 策略选择准确率 >75%      |
+| **M3** | Week 6  | 协作模式升级完成 | 8种协作模式全部上线      |
+| **M4** | Week 8  | 学习系统 v1.0    | 模式识别准确率 >80%      |
+| **M5** | Week 10 | 安全框架 v1.0    | 决策审批 + 异常检测      |
+| **M6** | Week 12 | 伦理框架 v1.0    | 5大原则评估上线          |
+| **M7** | Week 14 | v1.8.0 发布      | 所有功能通过验收         |
 
 ### 6.3 资源分配
 
 **人力规划**:
 
-| 角色 | 投入度 | 主要职责 |
-|------|--------|----------|
-| 🌟 智能体世界专家 | 100% | 战略规划 + 自治设计 + 学习机制 |
-| 🏗️ 架构师 | 80% | 系统架构 + 协作模式 + 知识图谱 |
-| ⚡ Executor | 60% | 核心功能实现 + 性能优化 |
-| 🛡️ 系统管理员 | 40% | 安全框架 + 部署 + 监控 |
-| 🧪 测试员 | 100% | 测试策略 + 自动化测试 + 质量保证 |
-| 🎨 设计师 | 40% | 交互设计 + Dashboard + 可视化 |
+| 角色              | 投入度 | 主要职责                         |
+| ----------------- | ------ | -------------------------------- |
+| 🌟 智能体世界专家 | 100%   | 战略规划 + 自治设计 + 学习机制   |
+| 🏗️ 架构师         | 80%    | 系统架构 + 协作模式 + 知识图谱   |
+| ⚡ Executor       | 60%    | 核心功能实现 + 性能优化          |
+| 🛡️ 系统管理员     | 40%    | 安全框架 + 部署 + 监控           |
+| 🧪 测试员         | 100%   | 测试策略 + 自动化测试 + 质量保证 |
+| 🎨 设计师         | 40%    | 交互设计 + Dashboard + 可视化    |
 
 **技术资源**:
 
-| 资源 | 配置 | 用途 |
-|------|------|------|
-| 开发环境 | 4 核 16G RAM | 日常开发 |
-| 测试环境 | 8 核 32G RAM | 集成测试 |
-| 预发布环境 | 16 核 64G RAM | 压力测试 |
-| 知识图谱存储 | 专用 SSD 1TB | 知识数据持久化 |
-| 日志存储 | 专用 SSD 2TB | 审计日志 |
+| 资源         | 配置          | 用途           |
+| ------------ | ------------- | -------------- |
+| 开发环境     | 4 核 16G RAM  | 日常开发       |
+| 测试环境     | 8 核 32G RAM  | 集成测试       |
+| 预发布环境   | 16 核 64G RAM | 压力测试       |
+| 知识图谱存储 | 专用 SSD 1TB  | 知识数据持久化 |
+| 日志存储     | 专用 SSD 2TB  | 审计日志       |
 
 ### 6.4 风险管理
 
 **风险识别与应对**:
 
-| 风险 | 可能性 | 影响 | 应对策略 |
-|------|--------|------|----------|
-| 技术复杂度超预期 | 中 | 高 | 分阶段实施，降低单阶段复杂度 |
-| 学习效果不达标 | 中 | 高 | 建立备选方案，保留人工干预 |
-| 性能影响过大 | 中 | 中 | 提前性能测试，优化关键路径 |
-| 安全合规问题 | 低 | 高 | 引入外部审计，严格测试 |
-| 资源不足 | 低 | 中 | 优先级排序，削减非关键功能 |
-| 团队协作问题 | 中 | 中 | 定期沟通，明确责任 |
+| 风险             | 可能性 | 影响 | 应对策略                     |
+| ---------------- | ------ | ---- | ---------------------------- |
+| 技术复杂度超预期 | 中     | 高   | 分阶段实施，降低单阶段复杂度 |
+| 学习效果不达标   | 中     | 高   | 建立备选方案，保留人工干预   |
+| 性能影响过大     | 中     | 中   | 提前性能测试，优化关键路径   |
+| 安全合规问题     | 低     | 高   | 引入外部审计，严格测试       |
+| 资源不足         | 低     | 中   | 优先级排序，削减非关键功能   |
+| 团队协作问题     | 中     | 中   | 定期沟通，明确责任           |
 
 ### 6.5 质量保证
 
@@ -2771,15 +2691,15 @@ Week 13-14: [Phase 7] 集成测试 + 性能优化 + 发布准备
 
 ### 7.1 定量收益
 
-| 指标 | 当前 (v1.7.0) | 目标 (v1.8.0) | 提升 | 价值 |
-|------|--------------|---------------|------|------|
-| 任务完成效率 | ~5 任务/小时 | ~7 任务/小时 | +40% | 时间节省 |
-| 人工干预频率 | ~20% | <10% | -50% | 人力节省 |
-| 协作成功率 | ~70% | >90% | +29% | 质量提升 |
-| 决策准确性 | ~75% | >90% | +20% | 减少错误 |
-| 学习速度 | N/A | >15%/月 | 新功能 | 持续改进 |
-| 系统稳定性 | ~95% | >99% | +4% | 可靠性 |
-| 用户满意度 | ~75% | >90% | +20% | 用户价值 |
+| 指标         | 当前 (v1.7.0) | 目标 (v1.8.0) | 提升   | 价值     |
+| ------------ | ------------- | ------------- | ------ | -------- |
+| 任务完成效率 | ~5 任务/小时  | ~7 任务/小时  | +40%   | 时间节省 |
+| 人工干预频率 | ~20%          | <10%          | -50%   | 人力节省 |
+| 协作成功率   | ~70%          | >90%          | +29%   | 质量提升 |
+| 决策准确性   | ~75%          | >90%          | +20%   | 减少错误 |
+| 学习速度     | N/A           | >15%/月       | 新功能 | 持续改进 |
+| 系统稳定性   | ~95%          | >99%          | +4%    | 可靠性   |
+| 用户满意度   | ~75%          | >90%          | +20%   | 用户价值 |
 
 ### 7.2 定性收益
 
@@ -2812,23 +2732,23 @@ Week 13-14: [Phase 7] 集成测试 + 性能优化 + 发布准备
 
 **成本估算**:
 
-| 成本项目 | 估算 | 说明 |
-|---------|------|------|
-| 人力成本 | 14 人周 | 11位子代理团队 + 主管 |
-| 基础设施 | 适中 | 存储、计算资源 |
-| 测试验证 | 3 人周 | 测试员 + 集成测试 |
-| 培训支持 | 1 人周 | 培训和文档 |
-| **总计** | **19 人周** | 约 3.5 个月全职开发 |
+| 成本项目 | 估算        | 说明                  |
+| -------- | ----------- | --------------------- |
+| 人力成本 | 14 人周     | 11位子代理团队 + 主管 |
+| 基础设施 | 适中        | 存储、计算资源        |
+| 测试验证 | 3 人周      | 测试员 + 集成测试     |
+| 培训支持 | 1 人周      | 培训和文档            |
+| **总计** | **19 人周** | 约 3.5 个月全职开发   |
 
 **收益估算**:
 
-| 收益项目 | 年化价值 | 说明 |
-|---------|---------|------|
-| 效率提升 | +40% | 每年节省约 1460 小时 |
-| 人工减少 | -50% | 每年节省约 730 小时 |
-| 质量改善 | +20% | 减少返工和修复成本 |
-| 持续学习 | >15%/月 | 长期累积价值 |
-| 用户价值 | +20% | 提升用户满意度 |
+| 收益项目 | 年化价值 | 说明                 |
+| -------- | -------- | -------------------- |
+| 效率提升 | +40%     | 每年节省约 1460 小时 |
+| 人工减少 | -50%     | 每年节省约 730 小时  |
+| 质量改善 | +20%     | 减少返工和修复成本   |
+| 持续学习 | >15%/月  | 长期累积价值         |
+| 用户价值 | +20%     | 提升用户满意度       |
 
 **投资回报率 (ROI)**:
 
@@ -2850,37 +2770,37 @@ Week 13-14: [Phase 7] 集成测试 + 性能优化 + 发布准备
 
 ### 8.1 技术指标
 
-| 指标 | 目标值 | 测量方法 |
-|------|--------|----------|
-| 任务分解准确率 | >85% | 测试集验证 |
-| 异常自动处理率 | >80% | 运行监控统计 |
-| 协作模式数量 | 8 种 | 功能清单 |
-| 学习效果（性能/月） | >15% | 性能趋势分析 |
-| 决策透明度 | >80% | 用户调研 |
-| 系统稳定性 | >99% | 运行时间统计 |
-| 响应时间 | <1s (P90) | 性能监控 |
-| 代码覆盖率 | >90% | 测试覆盖率工具 |
+| 指标                | 目标值    | 测量方法       |
+| ------------------- | --------- | -------------- |
+| 任务分解准确率      | >85%      | 测试集验证     |
+| 异常自动处理率      | >80%      | 运行监控统计   |
+| 协作模式数量        | 8 种      | 功能清单       |
+| 学习效果（性能/月） | >15%      | 性能趋势分析   |
+| 决策透明度          | >80%      | 用户调研       |
+| 系统稳定性          | >99%      | 运行时间统计   |
+| 响应时间            | <1s (P90) | 性能监控       |
+| 代码覆盖率          | >90%      | 测试覆盖率工具 |
 
 ### 8.2 业务指标
 
-| 指标 | 目标值 | 测量方法 |
-|------|--------|----------|
-| 任务完成效率 | >7 任务/小时 | 任务日志分析 |
-| 人工干预频率 | <10% | 决策日志统计 |
-| 用户满意度 | >90% | 满意度调查 |
-| 决策合规率 | >98% | 审计报告 |
-| 异常检测准确率 | >85% | 测试验证 |
-| 主动建议采纳率 | >40% | 建议系统统计 |
+| 指标           | 目标值       | 测量方法     |
+| -------------- | ------------ | ------------ |
+| 任务完成效率   | >7 任务/小时 | 任务日志分析 |
+| 人工干预频率   | <10%         | 决策日志统计 |
+| 用户满意度     | >90%         | 满意度调查   |
+| 决策合规率     | >98%         | 审计报告     |
+| 异常检测准确率 | >85%         | 测试验证     |
+| 主动建议采纳率 | >40%         | 建议系统统计 |
 
 ### 8.3 用户采纳指标
 
-| 指标 | 目标值 | 测量方法 |
-|------|--------|----------|
-| 新功能使用率 | >70% | 使用日志分析 |
-| 交互模式切换率 | >50% | 交互日志统计 |
-| 主动建议查看率 | >80% | 建议系统统计 |
-| 决策透明度使用率 | >60% | 功能使用统计 |
-| 个性化配置率 | >40% | 设置分析 |
+| 指标             | 目标值 | 测量方法     |
+| ---------------- | ------ | ------------ |
+| 新功能使用率     | >70%   | 使用日志分析 |
+| 交互模式切换率   | >50%   | 交互日志统计 |
+| 主动建议查看率   | >80%   | 建议系统统计 |
+| 决策透明度使用率 | >60%   | 功能使用统计 |
+| 个性化配置率     | >40%   | 设置分析     |
 
 ---
 
@@ -2970,18 +2890,18 @@ v1.8.0 将是 7zi 智能体世界发展史上的一个 **关键里程碑**。通
 
 ### 附录 A: 术语表
 
-| 术语 | 定义 |
-|------|------|
+| 术语               | 定义                                   |
+| ------------------ | -------------------------------------- |
 | **智能体自治等级** | 智能体自主决策的能力水平，分为 Lv1-Lv5 |
-| **任务分解** | 将高层目标分解为可执行子任务的过程 |
-| **协作模式** | 智能体之间协作完成任务的方式和流程 |
-| **学习机制** | 智能体从经验中提取知识、优化决策的能力 |
-| **决策透明度** | 决策过程的可追溯性和可解释性 |
-| **伦理评估** | 评估决策是否符合伦理原则的过程 |
-| **元学习** | 学习如何学习的能力，优化学习策略 |
-| **异常检测** | 识别偏离正常模式的行为或决策 |
-| **知识图谱** | 以图结构表示知识的存储和检索系统 |
-| **主动建议** | 智能体主动提供的优化建议或预警 |
+| **任务分解**       | 将高层目标分解为可执行子任务的过程     |
+| **协作模式**       | 智能体之间协作完成任务的方式和流程     |
+| **学习机制**       | 智能体从经验中提取知识、优化决策的能力 |
+| **决策透明度**     | 决策过程的可追溯性和可解释性           |
+| **伦理评估**       | 评估决策是否符合伦理原则的过程         |
+| **元学习**         | 学习如何学习的能力，优化学习策略       |
+| **异常检测**       | 识别偏离正常模式的行为或决策           |
+| **知识图谱**       | 以图结构表示知识的存储和检索系统       |
+| **主动建议**       | 智能体主动提供的优化建议或预警         |
 
 ### 附录 B: 参考文档
 

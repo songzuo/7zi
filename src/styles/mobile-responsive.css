@@ -36,7 +36,7 @@
   /* Subtle scale animation on touch */
   button:active,
   a:active,
-  [role="button"]:active {
+  [role='button']:active {
     transform: scale(0.97);
   }
 }
@@ -423,7 +423,7 @@ select {
   }
 
   a[href]:after {
-    content: " (" attr(href) ")";
+    content: ' (' attr(href) ')';
     font-size: 0.8em;
   }
 }

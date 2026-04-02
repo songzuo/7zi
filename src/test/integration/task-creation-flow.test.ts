@@ -13,26 +13,26 @@ global.fetch = mockFetch
 
 // Task interface for testing
 interface Task {
-  id: number;
-  title: string;
-  state: string;
-  assignee?: { login: string };
-  created_at: string;
-  labels: Array<{ name: string }>;
+  id: number
+  title: string
+  state: string
+  assignee?: { login: string }
+  created_at: string
+  labels: Array<{ name: string }>
 }
 
 // Mock the TasksPage component
 vi.mock('@/app/[locale]/tasks/page', () => ({
   default: ({ onTaskCreate }: { onTaskCreate?: (task: Task) => void }) => ({
     __html: '<div data-testid="tasks-page"></div>',
-  })
+  }),
 }))
 
 // Mock TaskBoardSearch component
 vi.mock('@/components/TaskBoardSearch', () => ({
   TaskBoardSearch: ({ onSearch }: { onSearch?: (query: string) => void }) => ({
     __html: '<div data-testid="task-search"></div>',
-  })
+  }),
 }))
 
 describe('Task Creation Flow Integration Test', () => {
@@ -205,8 +205,8 @@ describe('Task Creation Flow Integration Test', () => {
       mockFetch.mockResolvedValueOnce({
         ok: true,
         json: async () => ({
-          issues: [...mockTasks].sort((a, b) =>
-            new Date(b.created_at).getTime() - new Date(a.created_at).getTime()
+          issues: [...mockTasks].sort(
+            (a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime()
           ),
         }),
       })
@@ -406,7 +406,11 @@ describe('Task Creation Flow Integration Test', () => {
 
       expect(response.ok).toBe(true)
       expect(data.updated).toBe(2)
-      expect(data.tasks.every((t: { labels: Array<{ name: string }> }) => t.labels[0]?.name === 'bulk-updated')).toBe(true)
+      expect(
+        data.tasks.every(
+          (t: { labels: Array<{ name: string }> }) => t.labels[0]?.name === 'bulk-updated'
+        )
+      ).toBe(true)
     })
 
     it('should bulk close tasks', async () => {
@@ -437,7 +441,7 @@ describe('Task Creation Flow Integration Test', () => {
       try {
         await fetch('/api/tasks')
         expect.fail('Should have thrown an error')
-      } catch (_error) {
+      } catch (error) {
         expect((error as Error).message).toBe('Network error')
       }
     })

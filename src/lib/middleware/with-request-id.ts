@@ -18,43 +18,43 @@
  * ```
  */
 
-import { NextRequest, NextResponse } from 'next/server';
-import { logger } from '@/lib/logger';
-import { setRequestIdContext, createRequestLogger } from '@/lib/api/api-logger';
+import { NextRequest, NextResponse } from 'next/server'
+import { logger } from '@/lib/logger'
+import { setRequestIdContext, createRequestLogger } from '@/lib/api/api-logger'
 
 /**
  * Request metadata tracking
  */
 interface RequestContext {
-  requestId: string;
-  startTime: number;
-  method: string;
-  path: string;
-  userAgent?: string;
-  ip?: string;
+  requestId: string
+  startTime: number
+  method: string
+  path: string
+  userAgent?: string
+  ip?: string
 }
 
 /**
  * Generate a unique request ID
  */
 export function generateRequestId(): string {
-  return crypto.randomUUID();
+  return crypto.randomUUID()
 }
 
 /**
  * Extract client IP from request headers
  */
 function getClientIp(request: NextRequest): string | undefined {
-  const forwardedFor = request.headers.get('x-forwarded-for');
-  const realIp = request.headers.get('x-real-ip');
-  const cfConnectingIp = request.headers.get('cf-connecting-ip');
+  const forwardedFor = request.headers.get('x-forwarded-for')
+  const realIp = request.headers.get('x-real-ip')
+  const cfConnectingIp = request.headers.get('cf-connecting-ip')
 
   if (forwardedFor) {
     // X-Forwarded-For can contain multiple IPs, take the first one
-    return forwardedFor.split(',')[0].trim();
+    return forwardedFor.split(',')[0].trim()
   }
 
-  return realIp || cfConnectingIp || undefined;
+  return realIp || cfConnectingIp || undefined
 }
 
 /**
@@ -62,10 +62,10 @@ function getClientIp(request: NextRequest): string | undefined {
  */
 function extractPath(request: NextRequest): string {
   try {
-    const url = new URL(request.url);
-    return url.pathname;
-  } catch {
-    return request.nextUrl.pathname;
+    const url = new URL(request.url)
+    return url.pathname
+  } catch (error) {
+    return request.nextUrl.pathname
   }
 }
 
@@ -73,7 +73,7 @@ function extractPath(request: NextRequest): string {
  * Create request context
  */
 function createContext(request: NextRequest): RequestContext {
-  const requestId = generateRequestId();
+  const requestId = generateRequestId()
 
   return {
     requestId,
@@ -82,7 +82,7 @@ function createContext(request: NextRequest): RequestContext {
     path: extractPath(request),
     userAgent: request.headers.get('user-agent') || undefined,
     ip: getClientIp(request),
-  };
+  }
 }
 
 /**
@@ -95,19 +95,15 @@ function logRequestStart(context: RequestContext): void {
     path: context.path,
     userAgent: context.userAgent,
     ip: context.ip,
-  });
+  })
 }
 
 /**
  * Log request completion
  */
-function logRequestComplete(
-  context: RequestContext,
-  response: NextResponse,
-  error?: Error
-): void {
-  const duration = Date.now() - context.startTime;
-  const statusCode = response.status;
+function logRequestComplete(context: RequestContext, response: NextResponse, error?: Error): void {
+  const duration = Date.now() - context.startTime
+  const statusCode = response.status
 
   const logData = {
     requestId: context.requestId,
@@ -117,26 +113,26 @@ function logRequestComplete(
     duration,
     durationMs: duration,
     success: !error && statusCode < 400,
-  };
+  }
 
   if (error) {
-    logger.error('Request failed', { ...logData, error: error.message });
+    logger.error('Request failed', { ...logData, error: error.message })
   } else if (statusCode >= 500) {
-    logger.error('Request returned server error', logData);
+    logger.error('Request returned server error', logData)
   } else if (statusCode >= 400) {
-    logger.warn('Request returned client error', logData);
+    logger.warn('Request returned client error', logData)
   } else {
-    logger.api('Request completed', logData);
+    logger.api('Request completed', logData)
   }
 
   // Log slow requests
   if (duration > 500) {
-    logger.warn('Slow request detected', logData);
+    logger.warn('Slow request detected', logData)
   }
 
   // Log critical slow requests
   if (duration > 2000) {
-    logger.error('Critical slow request detected', logData);
+    logger.error('Critical slow request detected', logData)
   }
 }
 
@@ -168,19 +164,19 @@ export function withRequestId<T = unknown>(
   handler: (request: NextRequest, context: RequestContext) => Promise<NextResponse<T>>,
   options?: {
     /** Skip logging (default: false) */
-    skipLogging?: boolean;
+    skipLogging?: boolean
     /** Custom log level (default: 'info') */
-    logLevel?: 'debug' | 'info' | 'warn' | 'error';
+    logLevel?: 'debug' | 'info' | 'warn' | 'error'
   }
 ): (request: NextRequest) => Promise<NextResponse<T>> {
-  const { skipLogging = false, logLevel = 'info' } = options || {};
+  const { skipLogging = false, logLevel = 'info' } = options || {}
 
   return async (request: NextRequest) => {
-    const context = createContext(request);
+    const context = createContext(request)
 
     // Clone request headers and add request ID
-    const requestHeaders = new Headers(request.headers);
-    requestHeaders.set('x-request-id', context.requestId);
+    const requestHeaders = new Headers(request.headers)
+    requestHeaders.set('x-request-id', context.requestId)
 
     // Create a modified request with the new headers
     const modifiedRequest = new NextRequest(request.url, {
@@ -196,27 +192,27 @@ export function withRequestId<T = unknown>(
       referrer: request.referrer,
       referrerPolicy: request.referrerPolicy,
       signal: request.signal,
-    });
+    })
 
     // Set request ID in logger context for downstream logging
-    setRequestIdContext(context.requestId);
+    setRequestIdContext(context.requestId)
 
     // Log request start
     if (!skipLogging) {
-      logRequestStart(context);
+      logRequestStart(context)
     }
 
-    let response: NextResponse<T>;
-    let error: Error | undefined;
+    let response: NextResponse<T>
+    let error: Error | undefined
 
     try {
       // Execute the handler with the modified request and context
-      response = await handler(modifiedRequest, context);
+      response = await handler(modifiedRequest, context)
 
       // Add request ID to response headers
-      response.headers.set('x-request-id', context.requestId);
-    } catch (_err) {
-      error = err instanceof Error ? err : new Error(String(err));
+      response.headers.set('x-request-id', context.requestId)
+    } catch (err) {
+      error = err instanceof Error ? err : new Error(String(err))
 
       // Create error response
       response = NextResponse.json(
@@ -227,18 +223,18 @@ export function withRequestId<T = unknown>(
           timestamp: new Date().toISOString(),
         },
         { status: 500 }
-      ) as NextResponse<T>;
+      ) as NextResponse<T>
 
-      response.headers.set('x-request-id', context.requestId);
+      response.headers.set('x-request-id', context.requestId)
     }
 
     // Log request completion
     if (!skipLogging) {
-      logRequestComplete(context, response, error);
+      logRequestComplete(context, response, error)
     }
 
-    return response;
-  };
+    return response
+  }
 }
 
 /**
@@ -256,7 +252,7 @@ export function withRequestId<T = unknown>(
  * ```
  */
 export function createRequestLoggerForHandler(context: RequestContext) {
-  return createRequestLogger(context.requestId);
+  return createRequestLogger(context.requestId)
 }
 
 /**
@@ -271,5 +267,5 @@ export function createRequestLoggerForHandler(context: RequestContext) {
  * ```
  */
 export function getRequestId(request: NextRequest): string {
-  return request.headers.get('x-request-id') || 'unknown';
+  return request.headers.get('x-request-id') || 'unknown'
 }

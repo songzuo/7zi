@@ -12,39 +12,39 @@
 
 ### 1. API 路由 (4 个端点)
 
-| 路径 | 文件 | 功能 | 状态 |
-|--------|------|------|------|
-| `/api/ws` | `src/app/api/ws/route.ts` | WebSocket 连接端点 | ✅ |
-| `/api/ws/stats` | `src/app/api/ws/stats/route.ts` | 服务器统计信息 | ✅ |
-| `/api/ws/rooms/:roomId` | `src/app/api/ws/rooms/[roomId]/route.ts` | 房间详细信息 | ✅ |
-| `/api/ws/broadcast` | `src/app/api/ws/broadcast/route.ts` | 系统公告广播 | ✅ |
+| 路径                    | 文件                                     | 功能               | 状态 |
+| ----------------------- | ---------------------------------------- | ------------------ | ---- |
+| `/api/ws`               | `src/app/api/ws/route.ts`                | WebSocket 连接端点 | ✅   |
+| `/api/ws/stats`         | `src/app/api/ws/stats/route.ts`          | 服务器统计信息     | ✅   |
+| `/api/ws/rooms/:roomId` | `src/app/api/ws/rooms/[roomId]/route.ts` | 房间详细信息       | ✅   |
+| `/api/ws/broadcast`     | `src/app/api/ws/broadcast/route.ts`      | 系统公告广播       | ✅   |
 
 ### 2. React Hooks (2 个新 hooks)
 
-| Hook | 文件 | 功能 | 状态 |
-|------|------|------|------|
-| `useRealtimeNotifications` | `src/lib/realtime/useRealtimeNotifications.ts` | 实时通知管理 | ✅ |
-| `useTaskRealtime` | `src/lib/realtime/useTaskRealtime.ts` | 任务实时更新订阅 | ✅ |
+| Hook                       | 文件                                           | 功能             | 状态 |
+| -------------------------- | ---------------------------------------------- | ---------------- | ---- |
+| `useRealtimeNotifications` | `src/lib/realtime/useRealtimeNotifications.ts` | 实时通知管理     | ✅   |
+| `useTaskRealtime`          | `src/lib/realtime/useTaskRealtime.ts`          | 任务实时更新订阅 | ✅   |
 
 ### 3. React 组件 (2 个新组件)
 
-| 组件 | 文件 | 功能 | 状态 |
-|------|------|------|------|
-| `NotificationPanel` | `src/components/realtime/NotificationPanel.tsx` | 通知面板 UI | ✅ |
-| `TaskUpdateFeed` | `src/components/realtime/TaskUpdateFeed.tsx` | 任务更新流 UI | ✅ |
+| 组件                | 文件                                            | 功能          | 状态 |
+| ------------------- | ----------------------------------------------- | ------------- | ---- |
+| `NotificationPanel` | `src/components/realtime/NotificationPanel.tsx` | 通知面板 UI   | ✅   |
+| `TaskUpdateFeed`    | `src/components/realtime/TaskUpdateFeed.tsx`    | 任务更新流 UI | ✅   |
 
 ### 4. 示例页面 (1 个页面)
 
-| 页面 | 路径 | 功能 | 状态 |
-|------|--------|------|------|
-| 实时仪表板 | `/examples/realtime-dashboard/page.tsx` | 完整功能演示 | ✅ |
+| 页面       | 路径                                    | 功能         | 状态 |
+| ---------- | --------------------------------------- | ------------ | ---- |
+| 实时仪表板 | `/examples/realtime-dashboard/page.tsx` | 完整功能演示 | ✅   |
 
 ### 5. 文档 (2 个文档)
 
-| 文档 | 路径 | 内容 | 状态 |
-|------|--------|------|------|
-| 集成指南 | `docs/websocket-integration.md` | 完整集成教程 | ✅ |
-| 实施总结 | `docs/websocket-implementation-summary.md` | 功能总结 | ✅ |
+| 文档     | 路径                                       | 内容         | 状态 |
+| -------- | ------------------------------------------ | ------------ | ---- |
+| 集成指南 | `docs/websocket-integration.md`            | 完整集成教程 | ✅   |
+| 实施总结 | `docs/websocket-implementation-summary.md` | 功能总结     | ✅   |
 
 ---
 
@@ -132,19 +132,19 @@
 
 ### 新创建文件
 
-| 类别 | 数量 | 总行数 | 说明 |
-|------|------|----------|------|
-| API 路由 | 4 | ~134 | Next.js API routes |
-| Hooks | 2 | ~560 | React hooks |
-| 组件 | 3 | ~406 | React components |
-| 页面 | 1 | ~248 | 示例页面 |
-| 文档 | 2 | ~600 | Markdown 文档 |
-| **总计** | **12** | **~1948** | - |
+| 类别     | 数量   | 总行数    | 说明               |
+| -------- | ------ | --------- | ------------------ |
+| API 路由 | 4      | ~134      | Next.js API routes |
+| Hooks    | 2      | ~560      | React hooks        |
+| 组件     | 3      | ~406      | React components   |
+| 页面     | 1      | ~248      | 示例页面           |
+| 文档     | 2      | ~600      | Markdown 文档      |
+| **总计** | **12** | **~1948** | -                  |
 
 ### 修改文件
 
-| 文件 | 变更 |
-|------|------|
+| 文件                        | 变更              |
+| --------------------------- | ----------------- |
 | `src/lib/realtime/index.ts` | 添加新 hooks 导出 |
 
 ---
@@ -160,9 +160,8 @@
 ### 2. 使用通知面板
 
 ```tsx
-import { NotificationPanel } from '@/components/realtime';
-
-<NotificationPanel
+import { NotificationPanel } from '@/components/realtime'
+;<NotificationPanel
   userId="user-123"
   enableSound={true}
   onClose={() => setShowNotifications(false)}
@@ -172,20 +171,20 @@ import { NotificationPanel } from '@/components/realtime';
 ### 3. 订阅任务更新
 
 ```tsx
-import { useTaskRealtime } from '@/lib/realtime/useTaskRealtime';
+import { useTaskRealtime } from '@/lib/realtime/useTaskRealtime'
 
-const { isConnected, recentUpdates, subscribeToTask } = useTaskRealtime();
+const { isConnected, recentUpdates, subscribeToTask } = useTaskRealtime()
 
 useEffect(() => {
-  const cleanup = subscribeToTask('task-123');
-  return cleanup;
-}, [taskId, subscribeToTask]);
+  const cleanup = subscribeToTask('task-123')
+  return cleanup
+}, [taskId, subscribeToTask])
 ```
 
 ### 4. 发送通知
 
 ```tsx
-import { notificationService } from '@/lib/realtime/notification-service';
+import { notificationService } from '@/lib/realtime/notification-service'
 
 await notificationService.notifyTaskStatusChange({
   taskId: 'task-123',
@@ -194,7 +193,7 @@ await notificationService.notifyTaskStatusChange({
   newStatus: 'completed',
   changedBy: { id: 'user-1', name: '张三' },
   projectId: 'project-456',
-});
+})
 ```
 
 ---
@@ -209,6 +208,7 @@ await notificationService.notifyTaskStatusChange({
 2. 部分类型定义需要完善
 
 **解决方案**:
+
 - 检查 `src/lib/realtime/notification-service.ts` 的导出
 - 确保所有类型都正确导出
 - 运行 `npm run type-check` 查看具体错误
@@ -218,6 +218,7 @@ await notificationService.notifyTaskStatusChange({
 在正式使用前，建议：
 
 1. **运行类型检查**
+
    ```bash
    npm run type-check
    ```
@@ -277,6 +278,7 @@ await notificationService.notifyTaskStatusChange({
 WebSocket 实时通信系统已成功实现并集成到 7zi 项目中。
 
 **主要成果**:
+
 - ✅ 4 个 API 路由端点
 - ✅ 2 个新的 React Hooks
 - ✅ 3 个 React 组件（包括导出文件）
@@ -284,6 +286,7 @@ WebSocket 实时通信系统已成功实现并集成到 7zi 项目中。
 - ✅ 2 个完整文档
 
 **功能覆盖**:
+
 - ✅ 实时通知（任务、成员、系统）
 - ✅ 任务实时更新（状态、分配、评论）
 - ✅ WebSocket 连接管理（重连、心跳、队列）

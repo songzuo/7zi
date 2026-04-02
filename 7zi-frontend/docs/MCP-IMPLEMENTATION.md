@@ -5,6 +5,7 @@
 MCP 是由 Anthropic 主导的开源标准，用于连接 AI 应用和工具。
 
 ### 官方规范
+
 - [MCP Specification](https://modelcontextprotocol.io/specification)
 - [MCP GitHub](https://github.com/modelcontextprotocol)
 
@@ -25,14 +26,14 @@ MCP 是由 Anthropic 主导的开源标准，用于连接 AI 应用和工具。
 
 #### 1. 内置工具
 
-| 工具名 | 描述 | 输入参数 |
-|--------|------|----------|
-| `read_file` | 读取文件内容 | `path`, `offset`, `limit` |
-| `write_file` | 写入文件 | `path`, `content` |
-| `exec_command` | 执行 Shell 命令 | `command`, `workdir` |
-| `web_search` | Web 搜索（Brave） | `query`, `count` |
-| `web_fetch` | 获取网页内容 | `url`, `extractMode` |
-| `browser_control` | 浏览器控制 | `action`, `url` |
+| 工具名            | 描述              | 输入参数                  |
+| ----------------- | ----------------- | ------------------------- |
+| `read_file`       | 读取文件内容      | `path`, `offset`, `limit` |
+| `write_file`      | 写入文件          | `path`, `content`         |
+| `exec_command`    | 执行 Shell 命令   | `command`, `workdir`      |
+| `web_search`      | Web 搜索（Brave） | `query`, `count`          |
+| `web_fetch`       | 获取网页内容      | `url`, `extractMode`      |
+| `browser_control` | 浏览器控制        | `action`, `url`           |
 
 #### 2. API 端点
 
@@ -48,6 +49,7 @@ GET  /api/mcp/rpc          # Server 信息
 ### 1. Claude Desktop 集成
 
 #### 安装 Claude Desktop
+
 ```bash
 # macOS
 brew install --cask claude
@@ -59,6 +61,7 @@ brew install --cask claude
 #### 配置 MCP Server
 
 编辑 `~/Library/Application Support/Claude/claude_desktop_config.json` (macOS):
+
 ```json
 {
   "mcpServers": {
@@ -74,6 +77,7 @@ brew install --cask claude
 ```
 
 或使用服务器 URL（需要 HTTPS）：
+
 ```json
 {
   "mcpServers": {
@@ -108,6 +112,7 @@ curl -X POST http://localhost:3000/api/mcp/rpc \
 ```
 
 响应：
+
 ```json
 {
   "jsonrpc": "2.0",
@@ -159,18 +164,18 @@ curl -X POST http://localhost:3000/api/mcp/rpc \
 #### TypeScript 示例
 
 ```typescript
-import { mcpServer } from '@/lib/mcp/server';
+import { mcpServer } from '@/lib/mcp/server'
 
 // 列出工具
-const tools = await mcpServer.listTools();
-console.log('Available tools:', tools.tools);
+const tools = await mcpServer.listTools()
+console.log('Available tools:', tools.tools)
 
 // 调用工具
 const result = await mcpServer.callTool('read_file', {
   path: '/path/to/file.txt',
-});
+})
 
-console.log('Result:', result.content[0].text);
+console.log('Result:', result.content[0].text)
 ```
 
 ---
@@ -191,6 +196,7 @@ console.log('Result:', result.content[0].text);
 ### 响应格式
 
 成功：
+
 ```json
 {
   "jsonrpc": "2.0",
@@ -200,6 +206,7 @@ console.log('Result:', result.content[0].text);
 ```
 
 错误：
+
 ```json
 {
   "jsonrpc": "2.0",
@@ -213,13 +220,13 @@ console.log('Result:', result.content[0].text);
 
 ### 错误代码
 
-| 代码 | 名称 | 描述 |
-|------|------|------|
-| -32700 | Parse error | 无效的 JSON |
-| -32600 | Invalid Request | 无效的请求 |
-| -32601 | Method not found | 方法不存在 |
-| -32602 | Invalid params | 无效的参数 |
-| -32603 | Internal error | 内部错误 |
+| 代码   | 名称             | 描述        |
+| ------ | ---------------- | ----------- |
+| -32700 | Parse error      | 无效的 JSON |
+| -32600 | Invalid Request  | 无效的请求  |
+| -32601 | Method not found | 方法不存在  |
+| -32602 | Invalid params   | 无效的参数  |
+| -32603 | Internal error   | 内部错误    |
 
 ---
 
@@ -229,40 +236,43 @@ console.log('Result:', result.content[0].text);
 
 ```typescript
 interface ToolDefinition {
-  name: string;
-  description: string;
+  name: string
+  description: string
   inputSchema: {
-    type: "object";
-    properties: Record<string, {
-      type: string;
-      description?: string;
-      enum?: string[];
-    }>;
-    required?: string[];
-  };
+    type: 'object'
+    properties: Record<
+      string,
+      {
+        type: string
+        description?: string
+        enum?: string[]
+      }
+    >
+    required?: string[]
+  }
 }
 ```
 
 ### 示例：自定义工具
 
 ```typescript
-import { mcpServer } from '@/lib/mcp/server';
+import { mcpServer } from '@/lib/mcp/server'
 
 // 注册自定义工具
 mcpServer.registerTool({
-  name: "get_weather",
-  description: "Get current weather for a location",
+  name: 'get_weather',
+  description: 'Get current weather for a location',
   inputSchema: {
-    type: "object",
+    type: 'object',
     properties: {
       location: {
-        type: "string",
-        description: "City name or coordinates",
+        type: 'string',
+        description: 'City name or coordinates',
       },
     },
-    required: ["location"],
+    required: ['location'],
   },
-});
+})
 ```
 
 ---
@@ -275,10 +285,10 @@ MCP Server 支持跨域请求，用于 Claude Desktop 等客户端：
 
 ```typescript
 const CORS_HEADERS = {
-  "Access-Control-Allow-Origin": "*",
-  "Access-Control-Allow-Methods": "POST, OPTIONS",
-  "Access-Control-Allow-Headers": "Content-Type, Authorization",
-};
+  'Access-Control-Allow-Origin': '*',
+  'Access-Control-Allow-Methods': 'POST, OPTIONS',
+  'Access-Control-Allow-Headers': 'Content-Type, Authorization',
+}
 ```
 
 ### 2. 请求验证
@@ -310,28 +320,26 @@ export class MCPServer {
 
     // 添加新工具
     this.registerTool({
-      name: "your_custom_tool",
-      description: "Description of your tool",
+      name: 'your_custom_tool',
+      description: 'Description of your tool',
       inputSchema: {
-        type: "object",
+        type: 'object',
         properties: {
-          param1: { type: "string" },
+          param1: { type: 'string' },
         },
-        required: ["param1"],
+        required: ['param1'],
       },
-    });
+    })
   }
 
   // 实现工具逻辑
   private async executeTool(name: string, args: any): Promise<ToolResult> {
     switch (name) {
-      case "your_custom_tool":
+      case 'your_custom_tool':
         // 实现工具逻辑
         return {
-          content: [
-            { type: "text", text: "Result from custom tool" },
-          ],
-        };
+          content: [{ type: 'text', text: 'Result from custom tool' }],
+        }
       // ...
     }
   }
@@ -362,6 +370,7 @@ private async executeTool(name: string, args: any): Promise<ToolResult> {
 ### 1. Claude Desktop 无法连接
 
 检查：
+
 - Server 是否运行（`localhost:3000`）
 - 配置文件路径是否正确
 - CORS 是否启用
@@ -369,6 +378,7 @@ private async executeTool(name: string, args: any): Promise<ToolResult> {
 ### 2. 工具调用失败
 
 检查：
+
 - 工具名称是否正确
 - 参数是否符合 Schema
 - Server 日志
@@ -376,6 +386,7 @@ private async executeTool(name: string, args: any): Promise<ToolResult> {
 ### 3. CORS 错误
 
 检查：
+
 - `Access-Control-Allow-Origin` 头
 - `OPTIONS` 方法支持
 

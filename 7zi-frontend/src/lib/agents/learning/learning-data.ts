@@ -6,19 +6,14 @@
  * @module learning-data
  */
 
-import type {
-  AgentId,
-  TaskType,
-  TaskHistoryRecord,
-  AgentLearningStats,
-} from './types';
-import { TaskTimePredictor } from './time-prediction';
-import { AgentCapabilityAssessor, CapabilityAssessmentResult } from './agent-capability';
+import type { AgentId, TaskType, TaskHistoryRecord, AgentLearningStats } from './types'
+import { TaskTimePredictor } from './time-prediction'
+import { AgentCapabilityAssessor, CapabilityAssessmentResult } from './agent-capability'
 
 /**
  * Learning data version for migration support
  */
-const CURRENT_VERSION = '1.0.0';
+const CURRENT_VERSION = '1.0.0'
 
 /**
  * Compressed task record for storage
@@ -27,54 +22,54 @@ interface CompressedTaskRecord {
   /**
    * Delta-encoded values for efficiency
    */
-  d: number[]; // [timestamp_delta, execution_time, input_size?]
+  d: number[] // [timestamp_delta, execution_time, input_size?]
   /**
    * Indexes into lookup tables
    */
-  i: number[]; // [agent_idx, task_type_idx, status_idx]
+  i: number[] // [agent_idx, task_type_idx, status_idx]
 }
 
 /**
  * Learning data state for persistence
  */
 export interface LearningState {
-  version: string;
-  timestamp: number;
+  version: string
+  timestamp: number
 
   // Task history (compressed)
-  compressedHistory: CompressedTaskRecord[];
+  compressedHistory: CompressedTaskRecord[]
 
   // Lookup tables for compression
   lookupTables: {
-    agents: AgentId[];
-    taskTypes: TaskType[];
-    statuses: ('completed' | 'failed' | 'cancelled')[];
-  };
+    agents: AgentId[]
+    taskTypes: TaskType[]
+    statuses: ('completed' | 'failed' | 'cancelled')[]
+  }
 
   // Time prediction model data
-  timePredictionData: any;
+  timePredictionData: any
 
   // Capability assessment data
-  capabilityData: any;
+  capabilityData: any
 
   // Statistics summary
   summary: {
-    totalTasks: number;
-    uniqueAgents: number;
-    uniqueTaskTypes: number;
-    dateRange: { start: number; end: number };
-  };
+    totalTasks: number
+    uniqueAgents: number
+    uniqueTaskTypes: number
+    dateRange: { start: number; end: number }
+  }
 }
 
 /**
  * Sync status for incremental sync
  */
 export interface SyncStatus {
-  lastSyncTime: number;
-  lastSyncedTaskId: string;
-  pendingChanges: number;
-  syncInProgress: boolean;
-  lastError?: string;
+  lastSyncTime: number
+  lastSyncedTaskId: string
+  pendingChanges: number
+  syncInProgress: boolean
+  lastError?: string
 }
 
 /**
@@ -84,32 +79,32 @@ interface PersistenceConfig {
   /**
    * Storage key for local storage
    */
-  storageKey: string;
+  storageKey: string
 
   /**
    * Maximum history size to keep
    */
-  maxHistorySize: number;
+  maxHistorySize: number
 
   /**
    * Enable compression
    */
-  enableCompression: boolean;
+  enableCompression: boolean
 
   /**
    * Auto-save interval (ms)
    */
-  autoSaveInterval: number;
+  autoSaveInterval: number
 
   /**
    * Server sync endpoint
    */
-  syncEndpoint?: string;
+  syncEndpoint?: string
 
   /**
    * Enable server sync
    */
-  enableServerSync: boolean;
+  enableServerSync: boolean
 }
 
 /**
@@ -122,20 +117,20 @@ interface PersistenceConfig {
  * - Data migration support
  */
 export class LearningPersistence {
-  private taskHistory: TaskHistoryRecord[] = [];
-  private timePredictor?: TaskTimePredictor;
-  private capabilityAssessor?: AgentCapabilityAssessor;
+  private taskHistory: TaskHistoryRecord[] = []
+  private timePredictor?: TaskTimePredictor
+  private capabilityAssessor?: AgentCapabilityAssessor
 
   private syncStatus: SyncStatus = {
     lastSyncTime: 0,
     lastSyncedTaskId: '',
     pendingChanges: 0,
     syncInProgress: false,
-  };
+  }
 
-  private config: PersistenceConfig;
-  private autoSaveTimer?: NodeJS.Timeout;
-  private hasUnsavedChanges = false;
+  private config: PersistenceConfig
+  private autoSaveTimer?: NodeJS.Timeout
+  private hasUnsavedChanges = false
 
   constructor(
     config?: Partial<PersistenceConfig>,
@@ -149,10 +144,10 @@ export class LearningPersistence {
       autoSaveInterval: 60000, // 1 minute
       enableServerSync: false,
       ...config,
-    };
+    }
 
-    this.timePredictor = timePredictor;
-    this.capabilityAssessor = capabilityAssessor;
+    this.timePredictor = timePredictor
+    this.capabilityAssessor = capabilityAssessor
   }
 
   /**
@@ -161,16 +156,16 @@ export class LearningPersistence {
   async initialize(): Promise<LearningState | null> {
     try {
       // Load from local storage
-      const stored = this.loadFromStorage();
+      const stored = this.loadFromStorage()
       if (stored) {
-        await this.restoreState(stored);
-        return stored;
+        await this.restoreState(stored)
+        return stored
       }
 
-      return null;
+      return null
     } catch (error) {
-      console.error('[LearningPersistence] Initialize failed:', error);
-      return null;
+      console.error('[LearningPersistence] Initialize failed:', error)
+      return null
     }
   }
 
@@ -179,17 +174,17 @@ export class LearningPersistence {
    */
   async save(): Promise<void> {
     try {
-      const state = await this.compressState();
-      this.saveToStorage(state);
-      this.hasUnsavedChanges = false;
+      const state = await this.compressState()
+      this.saveToStorage(state)
+      this.hasUnsavedChanges = false
 
       // Sync to server if enabled
       if (this.config.enableServerSync) {
-        await this.syncToServer(state);
+        await this.syncToServer(state)
       }
     } catch (error) {
-      console.error('[LearningPersistence] Save failed:', error);
-      throw error;
+      console.error('[LearningPersistence] Save failed:', error)
+      throw error
     }
   }
 
@@ -197,43 +192,43 @@ export class LearningPersistence {
    * Add task record
    */
   addTaskRecord(record: TaskHistoryRecord): void {
-    this.taskHistory.push(record);
+    this.taskHistory.push(record)
 
     // Trim if too large
     if (this.taskHistory.length > this.config.maxHistorySize) {
-      this.taskHistory = this.taskHistory.slice(-this.config.maxHistorySize);
+      this.taskHistory = this.taskHistory.slice(-this.config.maxHistorySize)
     }
 
-    this.hasUnsavedChanges = true;
+    this.hasUnsavedChanges = true
 
     // Update sync status
-    this.syncStatus.pendingChanges++;
+    this.syncStatus.pendingChanges++
   }
 
   /**
    * Get task history
    */
   getTaskHistory(agentId?: AgentId, taskType?: TaskType, limit?: number): TaskHistoryRecord[] {
-    let history = this.taskHistory;
+    let history = this.taskHistory
 
     if (agentId) {
-      history = history.filter(h => h.agentId === agentId);
+      history = history.filter(h => h.agentId === agentId)
     }
     if (taskType) {
-      history = history.filter(h => h.taskType === taskType);
+      history = history.filter(h => h.taskType === taskType)
     }
     if (limit) {
-      history = history.slice(-limit);
+      history = history.slice(-limit)
     }
 
-    return history;
+    return history
   }
 
   /**
    * Get sync status
    */
   getSyncStatus(): SyncStatus {
-    return { ...this.syncStatus };
+    return { ...this.syncStatus }
   }
 
   /**
@@ -241,24 +236,24 @@ export class LearningPersistence {
    */
   async forceSync(): Promise<boolean> {
     if (!this.config.enableServerSync || this.syncStatus.syncInProgress) {
-      return false;
+      return false
     }
 
-    this.syncStatus.syncInProgress = true;
+    this.syncStatus.syncInProgress = true
 
     try {
-      const state = await this.compressState();
-      await this.syncToServer(state);
+      const state = await this.compressState()
+      await this.syncToServer(state)
 
-      this.syncStatus.lastSyncTime = Date.now();
-      this.syncStatus.pendingChanges = 0;
-      this.syncStatus.syncInProgress = false;
+      this.syncStatus.lastSyncTime = Date.now()
+      this.syncStatus.pendingChanges = 0
+      this.syncStatus.syncInProgress = false
 
-      return true;
+      return true
     } catch (error) {
-      this.syncStatus.syncInProgress = false;
-      this.syncStatus.lastError = String(error);
-      return false;
+      this.syncStatus.syncInProgress = false
+      this.syncStatus.lastError = String(error)
+      return false
     }
   }
 
@@ -266,31 +261,31 @@ export class LearningPersistence {
    * Export all data as JSON string
    */
   async exportData(): Promise<string> {
-    const state = await this.compressState();
-    return JSON.stringify(state);
+    const state = await this.compressState()
+    return JSON.stringify(state)
   }
 
   /**
    * Import data from JSON string
    */
   async importData(data: string): Promise<void> {
-    const state = JSON.parse(data) as LearningState;
-    await this.restoreState(state);
-    await this.save();
+    const state = JSON.parse(data) as LearningState
+    await this.restoreState(state)
+    await this.save()
   }
 
   /**
    * Clear all data
    */
   async clear(): Promise<void> {
-    this.taskHistory = [];
-    this.timePredictor?.clear();
-    this.capabilityAssessor?.clear();
-    this.hasUnsavedChanges = false;
+    this.taskHistory = []
+    this.timePredictor?.clear()
+    this.capabilityAssessor?.clear()
+    this.hasUnsavedChanges = false
 
     // Clear storage
     if (typeof localStorage !== 'undefined') {
-      localStorage.removeItem(this.config.storageKey);
+      localStorage.removeItem(this.config.storageKey)
     }
   }
 
@@ -298,13 +293,13 @@ export class LearningPersistence {
    * Start auto-save
    */
   startAutoSave(): void {
-    if (this.autoSaveTimer) return;
+    if (this.autoSaveTimer) return
 
     this.autoSaveTimer = setInterval(() => {
       if (this.hasUnsavedChanges) {
-        this.save().catch(err => console.error('[LearningPersistence] Auto-save failed:', err));
+        this.save().catch(err => console.error('[LearningPersistence] Auto-save failed:', err))
       }
-    }, this.config.autoSaveInterval);
+    }, this.config.autoSaveInterval)
   }
 
   /**
@@ -312,8 +307,8 @@ export class LearningPersistence {
    */
   stopAutoSave(): void {
     if (this.autoSaveTimer) {
-      clearInterval(this.autoSaveTimer);
-      this.autoSaveTimer = undefined;
+      clearInterval(this.autoSaveTimer)
+      this.autoSaveTimer = undefined
     }
   }
 
@@ -322,48 +317,45 @@ export class LearningPersistence {
    */
   private async compressState(): Promise<LearningState> {
     // Build lookup tables
-    const agentSet = new Set<AgentId>();
-    const taskTypeSet = new Set<TaskType>();
-    const statusSet = new Set<'completed' | 'failed' | 'cancelled'>();
+    const agentSet = new Set<AgentId>()
+    const taskTypeSet = new Set<TaskType>()
+    const statusSet = new Set<'completed' | 'failed' | 'cancelled'>()
 
     for (const record of this.taskHistory) {
-      agentSet.add(record.agentId);
-      taskTypeSet.add(record.taskType);
-      statusSet.add(record.status);
+      agentSet.add(record.agentId)
+      taskTypeSet.add(record.taskType)
+      statusSet.add(record.status)
     }
 
     const lookupTables = {
       agents: Array.from(agentSet),
       taskTypes: Array.from(taskTypeSet),
       statuses: Array.from(statusSet),
-    };
+    }
 
     // Compress task records
-    const compressedHistory: CompressedTaskRecord[] = [];
-    let lastTimestamp = 0;
+    const compressedHistory: CompressedTaskRecord[] = []
+    let lastTimestamp = 0
 
     for (const record of this.taskHistory) {
-      const timestampDelta = record.completedAt - lastTimestamp;
-      lastTimestamp = record.completedAt;
+      const timestampDelta = record.completedAt - lastTimestamp
+      lastTimestamp = record.completedAt
 
       compressedHistory.push({
-        d: [
-          timestampDelta,
-          record.executionTime,
-          record.inputSize,
-          record.agentLoadAtStart,
-        ].filter(v => v !== undefined),
+        d: [timestampDelta, record.executionTime, record.inputSize, record.agentLoadAtStart].filter(
+          v => v !== undefined
+        ),
         i: [
           lookupTables.agents.indexOf(record.agentId),
           lookupTables.taskTypes.indexOf(record.taskType),
           lookupTables.statuses.indexOf(record.status),
         ],
-      });
+      })
     }
 
     // Get model data
-    const timePredictionData = this.timePredictor?.exportData();
-    const capabilityData = this.capabilityAssessor?.exportData();
+    const timePredictionData = this.timePredictor?.exportData()
+    const capabilityData = this.capabilityAssessor?.exportData()
 
     // Build summary
     const summary = {
@@ -374,7 +366,7 @@ export class LearningPersistence {
         start: this.taskHistory[0]?.createdAt || 0,
         end: this.taskHistory[this.taskHistory.length - 1]?.completedAt || 0,
       },
-    };
+    }
 
     return {
       version: CURRENT_VERSION,
@@ -384,7 +376,7 @@ export class LearningPersistence {
       timePredictionData,
       capabilityData,
       summary,
-    };
+    }
   }
 
   /**
@@ -394,18 +386,18 @@ export class LearningPersistence {
     // Version check
     if (state.version !== CURRENT_VERSION) {
       // Future: handle migration
-      console.warn(`[LearningPersistence] Version mismatch: ${state.version} vs ${CURRENT_VERSION}`);
+      console.warn(`[LearningPersistence] Version mismatch: ${state.version} vs ${CURRENT_VERSION}`)
     }
 
     // Restore task history
-    this.taskHistory = [];
-    let currentTimestamp = 0;
+    this.taskHistory = []
+    let currentTimestamp = 0
 
     for (const compressed of state.compressedHistory) {
-      const [timestampDelta, executionTime, inputSize, agentLoadAtStart] = compressed.d;
-      const [agentIdx, taskTypeIdx, statusIdx] = compressed.i;
+      const [timestampDelta, executionTime, inputSize, agentLoadAtStart] = compressed.d
+      const [agentIdx, taskTypeIdx, statusIdx] = compressed.i
 
-      currentTimestamp += timestampDelta;
+      currentTimestamp += timestampDelta
 
       const record: TaskHistoryRecord = {
         taskId: `task-${currentTimestamp}-${Math.random().toString(36).slice(2)}`,
@@ -422,17 +414,17 @@ export class LearningPersistence {
         priority: 'normal', // Not preserved
         inputSize: inputSize || 0,
         agentLoadAtStart: agentLoadAtStart || 0,
-      };
+      }
 
-      this.taskHistory.push(record);
+      this.taskHistory.push(record)
     }
 
     // Restore model data
     if (state.timePredictionData && this.timePredictor) {
-      this.timePredictor.importData(state.timePredictionData);
+      this.timePredictor.importData(state.timePredictionData)
     }
     if (state.capabilityData && this.capabilityAssessor) {
-      this.capabilityAssessor.importData(state.capabilityData);
+      this.capabilityAssessor.importData(state.capabilityData)
     }
   }
 
@@ -441,17 +433,17 @@ export class LearningPersistence {
    */
   private loadFromStorage(): LearningState | null {
     if (typeof localStorage === 'undefined') {
-      return null;
+      return null
     }
 
     try {
-      const stored = localStorage.getItem(this.config.storageKey);
-      if (!stored) return null;
+      const stored = localStorage.getItem(this.config.storageKey)
+      if (!stored) return null
 
-      return JSON.parse(stored) as LearningState;
+      return JSON.parse(stored) as LearningState
     } catch (error) {
-      console.error('[LearningPersistence] Load from storage failed:', error);
-      return null;
+      console.error('[LearningPersistence] Load from storage failed:', error)
+      return null
     }
   }
 
@@ -460,14 +452,14 @@ export class LearningPersistence {
    */
   private saveToStorage(state: LearningState): void {
     if (typeof localStorage === 'undefined') {
-      return;
+      return
     }
 
     try {
-      localStorage.setItem(this.config.storageKey, JSON.stringify(state));
+      localStorage.setItem(this.config.storageKey, JSON.stringify(state))
     } catch (error) {
-      console.error('[LearningPersistence] Save to storage failed:', error);
-      throw error;
+      console.error('[LearningPersistence] Save to storage failed:', error)
+      throw error
     }
   }
 
@@ -476,7 +468,7 @@ export class LearningPersistence {
    */
   private async syncToServer(state: LearningState): Promise<void> {
     if (!this.config.syncEndpoint) {
-      return;
+      return
     }
 
     try {
@@ -484,14 +476,14 @@ export class LearningPersistence {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(state),
-      });
+      })
 
       if (!response.ok) {
-        throw new Error(`Sync failed: ${response.status}`);
+        throw new Error(`Sync failed: ${response.status}`)
       }
     } catch (error) {
-      console.error('[LearningPersistence] Server sync failed:', error);
-      throw error;
+      console.error('[LearningPersistence] Server sync failed:', error)
+      throw error
     }
   }
 
@@ -499,42 +491,42 @@ export class LearningPersistence {
    * Get statistics
    */
   getStatistics(): {
-    totalRecords: number;
-    memoryUsage: number;
-    oldestRecord: number;
-    newestRecord: number;
+    totalRecords: number
+    memoryUsage: number
+    oldestRecord: number
+    newestRecord: number
   } {
-    const oldestRecord = this.taskHistory[0]?.createdAt || 0;
-    const newestRecord = this.taskHistory[this.taskHistory.length - 1]?.completedAt || 0;
+    const oldestRecord = this.taskHistory[0]?.createdAt || 0
+    const newestRecord = this.taskHistory[this.taskHistory.length - 1]?.completedAt || 0
 
     // Estimate memory usage
-    const avgRecordSize = 200; // bytes, approximate
-    const memoryUsage = this.taskHistory.length * avgRecordSize;
+    const avgRecordSize = 200 // bytes, approximate
+    const memoryUsage = this.taskHistory.length * avgRecordSize
 
     return {
       totalRecords: this.taskHistory.length,
       memoryUsage,
       oldestRecord,
       newestRecord,
-    };
+    }
   }
 }
 
 /**
  * Singleton instance
  */
-export const learningPersistence = new LearningPersistence();
+export const learningPersistence = new LearningPersistence()
 
 /**
  * Convenience function to initialize persistence
  */
 export async function initializeLearningPersistence(): Promise<LearningState | null> {
-  return learningPersistence.initialize();
+  return learningPersistence.initialize()
 }
 
 /**
  * Convenience function to save learning data
  */
 export async function saveLearningData(): Promise<void> {
-  return learningPersistence.save();
+  return learningPersistence.save()
 }

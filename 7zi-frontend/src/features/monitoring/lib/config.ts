@@ -3,7 +3,7 @@
  * 监控配置
  */
 
-import { MonitoringConfig } from './types';
+import { MonitoringConfig } from './types'
 
 export const DEFAULT_MONITORING_CONFIG: MonitoringConfig = {
   enabled: true,
@@ -30,7 +30,7 @@ export const DEFAULT_MONITORING_CONFIG: MonitoringConfig = {
     },
   },
   storageType: 'memory',
-};
+}
 
 // 环境特定配置
 export const ENV_SPECIFIC_CONFIG: Record<string, Partial<MonitoringConfig>> = {
@@ -42,7 +42,10 @@ export const ENV_SPECIFIC_CONFIG: Record<string, Partial<MonitoringConfig>> = {
     alarms: {
       errorRate: { ...DEFAULT_MONITORING_CONFIG.alarms.errorRate, threshold: 0.1 }, // 10%
       responseTime: { ...DEFAULT_MONITORING_CONFIG.alarms.responseTime, threshold: 5000 }, // 5 秒
-      operationDuration: { ...DEFAULT_MONITORING_CONFIG.alarms.operationDuration, threshold: 10000 }, // 10 秒
+      operationDuration: {
+        ...DEFAULT_MONITORING_CONFIG.alarms.operationDuration,
+        threshold: 10000,
+      }, // 10 秒
     },
   },
 
@@ -63,11 +66,11 @@ export const ENV_SPECIFIC_CONFIG: Record<string, Partial<MonitoringConfig>> = {
     enabled: false, // 测试时禁用监控
     sampleRate: 1.0,
   },
-};
+}
 
 export function getMonitoringConfig(): MonitoringConfig {
-  const env = process.env.NODE_ENV || 'development';
-  const envConfig = ENV_SPECIFIC_CONFIG[env as keyof typeof ENV_SPECIFIC_CONFIG] || {};
+  const env = process.env.NODE_ENV || 'development'
+  const envConfig = ENV_SPECIFIC_CONFIG[env as keyof typeof ENV_SPECIFIC_CONFIG] || {}
 
   return {
     ...DEFAULT_MONITORING_CONFIG,
@@ -77,5 +80,5 @@ export function getMonitoringConfig(): MonitoringConfig {
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       ...((envConfig as any).alarms || {}),
     },
-  };
+  }
 }

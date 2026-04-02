@@ -27,7 +27,7 @@ describe('Contact Form Integration Tests', () => {
       }
 
       const errors: Record<string, string> = {}
-      
+
       if (!formData.name.trim()) {
         errors.name = 'Name is required'
       }
@@ -237,7 +237,7 @@ describe('Contact Form Integration Tests', () => {
             message: 'Test message',
           }),
         })
-      } catch (_error) {
+      } catch (error) {
         expect(error).toBeInstanceOf(Error)
         expect((error as Error).message).toBe('Network error')
       }
@@ -377,7 +377,7 @@ describe('Contact Form Integration Tests', () => {
       const detectSpam = (content: string) => {
         const capsRatio = (content.match(/[A-Z]/g) || []).length / content.length
         const linkCount = (content.match(/https?:\/\//g) || []).length
-        
+
         return {
           hasExcessiveCaps: capsRatio > 0.5 && content.length > 20,
           hasManyLinks: linkCount > 3,
@@ -422,7 +422,7 @@ describe('Contact Form Integration Tests', () => {
 describe('Form Accessibility', () => {
   it('should have proper ARIA labels', () => {
     const requiredFields = ['name', 'email', 'message']
-    
+
     requiredFields.forEach(field => {
       // Each required field should have:
       // - An associated label
@@ -448,10 +448,10 @@ describe('Form Accessibility', () => {
 describe('Form Performance', () => {
   it('should debounce validation on input', async () => {
     vi.useFakeTimers()
-    
+
     let validationCount = 0
     const debounceDelay = 300
-    
+
     const debouncedValidate = vi.fn(() => {
       validationCount++
     })
@@ -462,16 +462,16 @@ describe('Form Performance', () => {
     debouncedValidate()
 
     vi.advanceTimersByTime(debounceDelay)
-    
+
     // Validation should be called (in real debounce, only once after delay)
     expect(validationCount).toBeGreaterThan(0)
-    
+
     vi.useRealTimers()
   })
 
   it('should handle multiple rapid submissions', async () => {
     let submissionCount = 0
-    
+
     mockFetch.mockImplementation(async () => {
       submissionCount++
       return {
@@ -481,17 +481,19 @@ describe('Form Performance', () => {
     })
 
     // Rapid submissions
-    const promises = Array(5).fill(null).map(() => 
-      fetch('/api/contact', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          name: 'Test',
-          email: 'test@example.com',
-          message: 'Test',
-        }),
-      })
-    )
+    const promises = Array(5)
+      .fill(null)
+      .map(() =>
+        fetch('/api/contact', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            name: 'Test',
+            email: 'test@example.com',
+            message: 'Test',
+          }),
+        })
+      )
 
     await Promise.all(promises)
 

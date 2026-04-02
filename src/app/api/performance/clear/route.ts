@@ -1,36 +1,34 @@
+import { NextRequest, NextResponse } from 'next/server'
 /**
  * Performance Metrics Management API
  * POST /api/performance/clear - Clear all performance metrics (requires admin privileges)
  */
 
-import { clearApiPerformanceData } from '@/lib/middleware/api-performance';
-import { clearQueryMetrics } from '@/lib/middleware/db-performance';
-import { logger } from '@/lib/logger';
-import { getCacheManager } from '@/lib/cache/CacheManager';
-import { withAdmin, RBACUserContext } from '@/lib/auth/middleware-rbac';
-import { createErrorResponse } from '@/lib/api/error-handler';
+import { clearApiPerformanceData } from '@/lib/middleware/api-performance'
+import { clearQueryMetrics } from '@/lib/middleware/db-performance'
+import { logger } from '@/lib/logger'
+import { getCacheManager } from '@/lib/cache/CacheManager'
+import { withAdmin, RBACUserContext } from '@/lib/auth/middleware-rbac'
+import { createErrorResponse } from '@/lib/api/error-handler'
 
-async function POSTHandler(
-  request: NextRequest,
-  context: RBACUserContext
-) {
+async function POSTHandler(request: NextRequest, context: RBACUserContext) {
   try {
     logger.info(`Performance metrics clear requested by admin: ${context.userId}`, {
       userId: context.userId,
-    });
+    })
 
     // Clear all metrics
-    clearApiPerformanceData();
-    clearQueryMetrics();
+    clearApiPerformanceData()
+    clearQueryMetrics()
 
     // Invalidate performance report cache
-    const cacheManager = getCacheManager();
-    cacheManager.delete('perf-report:detailed:5');
-    cacheManager.delete('perf-report:summary:5');
+    const cacheManager = getCacheManager()
+    cacheManager.delete('perf-report:detailed:5')
+    cacheManager.delete('perf-report:summary:5')
 
     logger.info('Performance metrics cleared successfully', {
       userId: context.userId,
-    });
+    })
 
     return NextResponse.json(
       {
@@ -39,9 +37,9 @@ async function POSTHandler(
         timestamp: new Date().toISOString(),
       },
       { status: 200 }
-    );
-  } catch (_error) {
-    logger.error('Error clearing performance metrics', error);
+    )
+  } catch (error) {
+    logger.error('Error clearing performance metrics', error)
 
     return NextResponse.json(
       {
@@ -53,13 +51,13 @@ async function POSTHandler(
         timestamp: new Date().toISOString(),
       },
       { status: 500 }
-    );
+    )
   }
 }
 
 export async function POST(request: NextRequest) {
-  return withAdmin(request, POSTHandler);
+  return withAdmin(request, POSTHandler)
 }
 
 // Disable caching
-export const dynamic = 'force-dynamic';
+export const dynamic = 'force-dynamic'

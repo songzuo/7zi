@@ -19,56 +19,68 @@
 ### 1. UI 基础组件 (`src/components/ui/`)
 
 #### Badge.tsx
+
 - **优化方式**: React.memo
 - **理由**: 纯展示组件，仅根据 props 渲染样式
 
 #### Checkbox.tsx
+
 - **优化方式**: React.memo
 - **理由**: 简单的表单输入组件
 
 #### Card.tsx
+
 - **优化方式**: React.memo（Card, CardContent, CardHeader, CardTitle）
 - **理由**: 纯容器组件，所有子组件都是纯展示
 
 #### Select.tsx
+
 - **优化方式**: React.memo + useMemo
 - **理由**: 优化了 options 数组的渲染，避免每次 render 都重新创建
 
 ### 2. 核心展示组件 (`src/components/`)
 
 #### LoadingSpinner.tsx
+
 - **优化方式**: React.memo（所有变体组件）
 - **理由**: 所有子组件都是纯展示，无副作用
 
 #### Footer.tsx
+
 - **优化方式**: React.memo + useMemo
 - **理由**: 纯展示组件，使用 useMemo 优化 currentYear 计算
 
 #### SocialLinks.tsx
+
 - **优化方式**: React.memo
 - **理由**: 纯列表渲染组件
 
 #### OptimizedImage.tsx
+
 - **优化方式**: React.memo（OptimizedImage, ResponsiveImage）
 - **理由**: 虽然有状态管理，但主要是展示功能
 
 #### StarRating.tsx
+
 - **优化方式**: React.memo
 - **理由**: 交互组件但主要是视觉反馈
 
 ### 3. Analytics 组件 (`src/components/analytics/`)
 
 #### Skeleton.tsx
+
 - **优化方式**: React.memo（所有骨架组件）
 - **理由**: 纯占位符组件
 
 ### 4. Team 组件 (`src/components/team/`)
 
 #### TeamMemberCard.tsx
+
 - **优化方式**: React.memo
 - **理由**: 纯展示卡片组件
 
 #### CollaborationItemCard.tsx
+
 - **优化方式**: React.memo
 - **理由**: 纯展示卡片组件
 
@@ -134,29 +146,32 @@
 当使用这些优化的组件时，需要注意：
 
 1. **传递回调函数时使用 useCallback**
+
    ```typescript
    const handleClick = useCallback(() => {
      // 处理逻辑
    }, [dependencies]);
-   
+
    <OptimizedComponent onClick={handleClick} />
    ```
 
 2. **传递对象/数组时使用 useMemo**
+
    ```typescript
    const options = useMemo(() => [
      { value: '1', label: 'Option 1' },
      { value: '2', label: 'Option 2' },
    ], []);
-   
+
    <Select options={options} />
    ```
 
 3. **避免在 JSX 中创建新的对象/函数**
+
    ```typescript
    // ❌ 不好的做法
    <OptimizedComponent onClick={() => {}} style={{ color: 'red' }} />
-   
+
    // ✅ 好的做法
    <OptimizedComponent onClick={handleClick} style={buttonStyle} />
    ```
@@ -176,5 +191,5 @@
 
 ---
 
-*报告生成者: OpenClaw Subagent*
-*任务 ID: 7ffea76b-d41a-4458-9184-73967e102155*
+_报告生成者: OpenClaw Subagent_
+_任务 ID: 7ffea76b-d41a-4458-9184-73967e102155_

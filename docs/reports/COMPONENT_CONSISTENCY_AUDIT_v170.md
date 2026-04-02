@@ -13,12 +13,12 @@
 
 ### 关键发现
 
-| 类别 | 严重程度 | 数量 | 状态 |
-|------|---------|------|------|
-| 命名规范不一致 | 🟡 中 | 6 | 需要改进 |
-| 样式使用不一致 | 🟠 高 | 15+ | 需要修复 |
-| Props 设计不一致 | 🟢 低 | 2 | 整体良好 |
-| 重复组件代码 | 🔴 严重 | 4 组 | 需要立即处理 |
+| 类别             | 严重程度 | 数量 | 状态         |
+| ---------------- | -------- | ---- | ------------ |
+| 命名规范不一致   | 🟡 中    | 6    | 需要改进     |
+| 样式使用不一致   | 🟠 高    | 15+  | 需要修复     |
+| Props 设计不一致 | 🟢 低    | 2    | 整体良好     |
+| 重复组件代码     | 🔴 严重  | 4 组 | 需要立即处理 |
 
 ### 优先修复项
 
@@ -52,7 +52,8 @@ RoomCreateModal.tsx     (v1.1.0 - 使用 API types)
 
 **问题描述**: 两个组件功能完全相同，都是创建房间的模态框，但实现方式不同。
 
-**影响**: 
+**影响**:
+
 - 维护困难：需要在两个地方同时更新
 - 代码冗余：约 250 行重复代码
 - 可能导致开发者混淆
@@ -62,6 +63,7 @@ RoomCreateModal.tsx     (v1.1.0 - 使用 API types)
 #### 🟡 问题 1.2: 命名前缀不一致
 
 **良好实践示例**:
+
 ```
 ✅ RoomCard.tsx
 ✅ RoomList.tsx
@@ -70,6 +72,7 @@ RoomCreateModal.tsx     (v1.1.0 - 使用 API types)
 ```
 
 **不一致示例**:
+
 ```
 ✅ ChatMessage.tsx (缺少 Room 前缀)
 ✅ InviteCodeModal.tsx (缺少 Room 前缀)
@@ -123,12 +126,12 @@ export const Modal (无子组件)
 
 ### 2.1 整体统计
 
-| 样式方式 | 出现次数 | 占比 |
-|---------|---------|------|
-| Tailwind className | 1460 | 96.5% |
-| 内联 style={{}} | 53 | 3.5% |
-| CSS Modules | 0 | 0% |
-| 传统 CSS 文件 | 1 | <1% |
+| 样式方式           | 出现次数 | 占比  |
+| ------------------ | -------- | ----- |
+| Tailwind className | 1460     | 96.5% |
+| 内联 style={{}}    | 53       | 3.5%  |
+| CSS Modules        | 0        | 0%    |
+| 传统 CSS 文件      | 1        | <1%   |
 
 ### 2.2 发现的问题
 
@@ -137,6 +140,7 @@ export const Modal (无子组件)
 **问题描述**: 项目中同时使用 `clsx` 和 `cn()` 两个工具函数。
 
 **使用统计**:
+
 ```bash
 clsx 使用次数: 150
 cn()  使用次数: 1460 (推测，因为 className 使用次数)
@@ -146,29 +150,27 @@ cn()  使用次数: 1460 (推测，因为 className 使用次数)
 
 ```tsx
 // src/components/ui/Button.tsx - 使用 clsx
-import clsx from "clsx";
+import clsx from 'clsx'
 const classes = clsx(
-  "relative overflow-hidden",
-  "inline-flex items-center",
+  'relative overflow-hidden',
+  'inline-flex items-center',
   variantStyles[variant],
-  className,
-);
+  className
+)
 
 // src/components/ui/Skeleton.tsx - 使用 cn
-import { cn } from "@/lib/utils";
-const className = cn(
-  "bg-gray-200 dark:bg-gray-800",
-  animate && "animate-pulse",
-  className,
-);
+import { cn } from '@/lib/utils'
+const className = cn('bg-gray-200 dark:bg-gray-800', animate && 'animate-pulse', className)
 ```
 
 **影响**:
+
 - 不一致的代码风格
 - 可能导致包体积增加
 - 团队协作时容易混淆
 
-**建议**: 
+**建议**:
+
 1. 统一使用 `clsx` 或 `cn()` 中的一个
 2. 如果两者功能相同，选择使用更广泛的那个
 3. 更新所有组件文件
@@ -200,6 +202,7 @@ style={{ objectFit }}  // CSS 属性无法用 Tailwind 表达
 ```
 
 **建议**:
+
 1. 动态值（如百分比）使用内联样式
 2. 动态颜色使用 Tailwind CSS 变量
 3. 静态样式全部使用 Tailwind utility classes
@@ -209,45 +212,39 @@ style={{ objectFit }}  // CSS 属性无法用 Tailwind 表达
 **问题描述**: 不同的模态框组件使用不同的样式实现方式。
 
 **示例 1: CreateRoomModal.tsx - 完全自定义**
+
 ```tsx
 return (
-  <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50">
-    <div className="bg-white dark:bg-gray-800 rounded-lg shadow-xl max-w-md w-full">
+  <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4">
+    <div className="w-full max-w-md rounded-lg bg-white shadow-xl dark:bg-gray-800">
       {/* 手动实现所有样式 */}
     </div>
   </div>
-);
+)
 ```
 
 **示例 2: RoomCreateModal.tsx - 使用 Modal 组件**
+
 ```tsx
 return (
-  <Modal
-    isOpen={isOpen}
-    onClose={handleClose}
-    title={t("create", "创建房间")}
-    size="md"
-  >
+  <Modal isOpen={isOpen} onClose={handleClose} title={t('create', '创建房间')} size="md">
     {/* 使用 Modal 组件 */}
   </Modal>
-);
+)
 ```
 
 **示例 3: InviteCodeModal.tsx - 使用 Modal 组件**
+
 ```tsx
 return (
-  <Modal
-    isOpen={isOpen}
-    onClose={onClose}
-    title={t("invite", "邀请")}
-    size="md"
-  >
+  <Modal isOpen={isOpen} onClose={onClose} title={t('invite', '邀请')} size="md">
     {/* 使用 Modal 组件 */}
   </Modal>
-);
+)
 ```
 
 **影响**:
+
 - 样式不一致
 - 功能重复
 - 维护困难
@@ -261,6 +258,7 @@ return (
 **问题描述**: 项目主要使用 Tailwind CSS，但存在一个传统的 CSS 文件。
 
 **建议**:
+
 1. 将 onboarding.css 转换为 Tailwind classes
 2. 如果样式过于复杂，考虑使用 CSS Modules
 3. 统一样式管理方式
@@ -299,12 +297,12 @@ const className = clsx(
 
 ### 3.1 整体情况
 
-| 指标 | 数值 | 状态 |
-|------|------|------|
-| 使用 interface 的组件 | 50 | 🟢 优秀 |
-| 使用 type 的组件 | 2 | 🟡 需要统一 |
-| Props 命名规范 | 96% | 🟢 优秀 |
-| TypeScript 类型覆盖 | 100% | 🟢 优秀 |
+| 指标                  | 数值 | 状态        |
+| --------------------- | ---- | ----------- |
+| 使用 interface 的组件 | 50   | 🟢 优秀     |
+| 使用 type 的组件      | 2    | 🟡 需要统一 |
+| Props 命名规范        | 96%  | 🟢 优秀     |
+| TypeScript 类型覆盖   | 100% | 🟢 优秀     |
 
 ### 3.2 Props 设计模式
 
@@ -313,17 +311,18 @@ const className = clsx(
 ```tsx
 // src/components/ui/Button.tsx
 export interface ButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
-  variant?: "primary" | "secondary" | "outline" | "ghost" | "danger" | "success";
-  size?: "xs" | "sm" | "md" | "lg" | "xl";
-  disabled?: boolean;
-  loading?: boolean;
-  fullWidth?: boolean;
-  ripple?: boolean;
-  children: React.ReactNode;
+  variant?: 'primary' | 'secondary' | 'outline' | 'ghost' | 'danger' | 'success'
+  size?: 'xs' | 'sm' | 'md' | 'lg' | 'xl'
+  disabled?: boolean
+  loading?: boolean
+  fullWidth?: boolean
+  ripple?: boolean
+  children: React.ReactNode
 }
 ```
 
 **优点**:
+
 - ✅ 使用 interface
 - ✅ 继承原生 HTML 属性
 - ✅ 清晰的类型定义
@@ -333,18 +332,19 @@ export interface ButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElemen
 
 ```tsx
 // src/components/ui/Card.tsx
-export interface CardProps extends Omit<React.HTMLAttributes<HTMLDivElement>, "onClick"> {
-  children: React.ReactNode;
-  shadow?: "none" | "sm" | "md" | "lg" | "xl";
-  clickable?: boolean;
-  className?: string;
-  onClick?: () => void;
-  hoverable?: boolean;
-  bordered?: boolean;
+export interface CardProps extends Omit<React.HTMLAttributes<HTMLDivElement>, 'onClick'> {
+  children: React.ReactNode
+  shadow?: 'none' | 'sm' | 'md' | 'lg' | 'xl'
+  clickable?: boolean
+  className?: string
+  onClick?: () => void
+  hoverable?: boolean
+  bordered?: boolean
 }
 ```
 
 **优点**:
+
 - ✅ JSDoc 注释完整
 - ✅ 类型说明清晰
 - ✅ 默认值文档化
@@ -356,14 +356,14 @@ export interface CardProps extends Omit<React.HTMLAttributes<HTMLDivElement>, "o
 ```tsx
 // 一些组件使用 isOpen
 interface ModalProps {
-  isOpen: boolean;
-  onClose: () => void;
+  isOpen: boolean
+  onClose: () => void
 }
 
 // 一些组件使用 open
 interface ToastProps {
-  open: boolean;
-  onOpenChange: () => void;
+  open: boolean
+  onOpenChange: () => void
 }
 ```
 
@@ -385,7 +385,8 @@ handleSubmit: () => void;
 onSubmit: () => void;
 ```
 
-**建议**: 
+**建议**:
+
 1. 统一使用 `on` 前缀
 2. 事件使用过去式（如 `onClosed`, `onSubmitted`）或现在式（如 `onClose`, `onSubmit`）
 3. 建立事件命名规范文档
@@ -395,18 +396,18 @@ onSubmit: () => void;
 ```tsx
 // Input.tsx - 良好的默认值设计
 export interface InputProps {
-  label?: string;
-  error?: string;
-  success?: string;
-  warning?: string;
-  helperText?: string;
-  prefix?: React.ReactNode;
-  suffix?: React.ReactNode;
-  size?: "sm" | "md" | "lg";
-  fullWidth?: boolean;
-  validationState?: "none" | "valid" | "invalid" | "warning";
-  showValidationIcon?: boolean;
-  animated?: boolean;
+  label?: string
+  error?: string
+  success?: string
+  warning?: string
+  helperText?: string
+  prefix?: React.ReactNode
+  suffix?: React.ReactNode
+  size?: 'sm' | 'md' | 'lg'
+  fullWidth?: boolean
+  validationState?: 'none' | 'valid' | 'invalid' | 'warning'
+  showValidationIcon?: boolean
+  animated?: boolean
 }
 ```
 
@@ -416,34 +417,34 @@ export interface InputProps {
 // ✅ 推荐：interface + 继承原生属性
 interface MyComponentProps extends React.HTMLAttributes<HTMLDivElement> {
   // 自定义 Props
-  variant?: "primary" | "secondary";
-  size?: "sm" | "md" | "lg";
+  variant?: 'primary' | 'secondary'
+  size?: 'sm' | 'md' | 'lg'
   // 事件处理器
-  onAction?: () => void;
-  onStateChange?: (state: boolean) => void;
+  onAction?: () => void
+  onStateChange?: (state: boolean) => void
 }
 
 // ✅ 推荐：清晰的类型定义
-type ButtonVariant = "primary" | "secondary" | "outline";
+type ButtonVariant = 'primary' | 'secondary' | 'outline'
 interface ButtonProps {
-  variant?: ButtonVariant;
-  size?: "sm" | "md" | "lg";
+  variant?: ButtonVariant
+  size?: 'sm' | 'md' | 'lg'
 }
 
 // ✅ 推荐：默认值通过参数解构
-function MyComponent({ variant = "primary", size = "md" }: ButtonProps) {
+function MyComponent({ variant = 'primary', size = 'md' }: ButtonProps) {
   // ...
 }
 
 // ❌ 不推荐：使用 type 而不是 interface
 type ButtonProps = {
-  variant?: "primary" | "secondary";
-};
+  variant?: 'primary' | 'secondary'
+}
 
 // ❌ 不推荐：缺少类型注解
 const MyComponent = ({ variant, size }) => {
   // ...
-};
+}
 ```
 
 ---
@@ -452,20 +453,21 @@ const MyComponent = ({ variant, size }) => {
 
 ### 4.1 重复组件汇总
 
-| # | 组件组 | 位置 | 代码行数 | 优先级 |
-|---|-------|------|---------|--------|
-| 1 | CreateRoomModal | components/rooms/ | ~250 行 | 🔴 紧急 |
-| 2 | Toast 系统 | components/ui/feedback/ + components/notifications/ | ~300 行 | 🔴 紧急 |
-| 3 | Loading/Skeleton | components/ui/Loading.tsx + components/ui/Skeleton.tsx | ~400 行 | 🟠 重要 |
-| 4 | 模态框实现 | 多个组件自定义 Modal | ~150 行 | 🟠 重要 |
+| #   | 组件组           | 位置                                                   | 代码行数 | 优先级  |
+| --- | ---------------- | ------------------------------------------------------ | -------- | ------- |
+| 1   | CreateRoomModal  | components/rooms/                                      | ~250 行  | 🔴 紧急 |
+| 2   | Toast 系统       | components/ui/feedback/ + components/notifications/    | ~300 行  | 🔴 紧急 |
+| 3   | Loading/Skeleton | components/ui/Loading.tsx + components/ui/Skeleton.tsx | ~400 行  | 🟠 重要 |
+| 4   | 模态框实现       | 多个组件自定义 Modal                                   | ~150 行  | 🟠 重要 |
 
 ### 4.2 详细分析
 
 #### 🔴 重复组件 4.1: CreateRoomModal vs RoomCreateModal
 
 **CreateRoomModal.tsx** (旧版本)
+
 - 路径: `src/components/rooms/CreateRoomModal.tsx`
-- 特点: 
+- 特点:
   - 使用 `roomsClient` API
   - 不使用 i18n
   - 自定义模态框样式
@@ -473,6 +475,7 @@ const MyComponent = ({ variant, size }) => {
 - 状态: ❌ 应删除
 
 **RoomCreateModal.tsx** (新版本)
+
 - 路径: `src/components/rooms/RoomCreateModal.tsx`
 - 特点:
   - 使用 API types
@@ -483,6 +486,7 @@ const MyComponent = ({ variant, size }) => {
 - 状态: ✅ 保留
 
 **整合建议**:
+
 ```bash
 1. 检查 CreateRoomModal 的引用位置
 2. 将所有引用迁移到 RoomCreateModal
@@ -491,6 +495,7 @@ const MyComponent = ({ variant, size }) => {
 ```
 
 **依赖检查**:
+
 ```bash
 # 查找 CreateRoomModal 的引用
 grep -r "CreateRoomModal" src/app src/components --include="*.tsx"
@@ -499,6 +504,7 @@ grep -r "CreateRoomModal" src/app src/components --include="*.tsx"
 #### 🔴 重复组件 4.2: Toast 系统
 
 **Toast.tsx** (UI Feedback Toast)
+
 - 路径: `src/components/ui/feedback/Toast.tsx`
 - 特点:
   - 简单的通知组件
@@ -508,6 +514,7 @@ grep -r "CreateRoomModal" src/app src/components --include="*.tsx"
 - 使用场景: 通用反馈通知
 
 **NotificationToast.tsx** (系统通知 Toast)
+
 - 路径: `src/components/notifications/NotificationToast.tsx`
 - 特点:
   - 与 NotificationService 集成
@@ -516,26 +523,27 @@ grep -r "CreateRoomModal" src/app src/components --include="*.tsx"
 - 使用场景: 系统级通知
 
 **整合建议**:
+
 ```tsx
 // 方案 1: 合并为统一组件
 export interface UnifiedToastProps {
   // 通用属性
-  message: string;
-  type: "success" | "error" | "warning" | "info";
-  
+  message: string
+  type: 'success' | 'error' | 'warning' | 'info'
+
   // UI 专用属性
-  autoClose?: boolean;
-  autoCloseDelay?: number;
-  showCloseButton?: boolean;
-  
+  autoClose?: boolean
+  autoCloseDelay?: number
+  showCloseButton?: boolean
+
   // 通知专用属性
-  notification?: Notification;
-  data?: Record<string, any>;
-  onMarkRead?: (id: string) => void;
+  notification?: Notification
+  data?: Record<string, any>
+  onMarkRead?: (id: string) => void
 }
 
 // 方案 2: 使用组合模式
-<Toast>
+;<Toast>
   {notification ? (
     <NotificationContent notification={notification} />
   ) : (
@@ -547,6 +555,7 @@ export interface UnifiedToastProps {
 #### 🟠 重复组件 4.3: Loading vs Skeleton
 
 **Loading.tsx**
+
 - 路径: `src/components/ui/Loading.tsx`
 - 功能:
   - Spinner 加载动画
@@ -556,6 +565,7 @@ export interface UnifiedToastProps {
 - 问题: 包含了 Skeleton 功能
 
 **Skeleton.tsx**
+
 - 路径: `src/components/ui/Skeleton.tsx`
 - 功能:
   - 基础骨架屏
@@ -568,6 +578,7 @@ export interface UnifiedToastProps {
   - 导航骨架屏
 
 **整合建议**:
+
 ```tsx
 // 方案 1: 分离职责
 Loading.tsx - 仅保留加载动画（Spinner, Dots, Pulse）
@@ -586,14 +597,17 @@ Skeleton.tsx → LoadingSkeleton.tsx
 #### 🟠 重复组件 4.4: 自定义 Modal 实现
 
 **问题组件**:
+
 1. `CreateRoomModal.tsx` - 自定义模态框
 2. `RoomJoinModal.tsx` - 自定义模态框
 
 **正确使用**:
+
 1. `RoomCreateModal.tsx` - 使用 Modal 组件 ✅
 2. `InviteCodeModal.tsx` - 使用 Modal 组件 ✅
 
 **整合建议**:
+
 ```tsx
 // 将所有自定义模态框迁移到使用 Modal 组件
 
@@ -620,6 +634,7 @@ Skeleton.tsx → LoadingSkeleton.tsx
 #### 第一阶段（紧急）- Week 1
 
 **任务 1.1: 合并 CreateRoomModal**
+
 - [ ] 检查所有引用
 - [ ] 迁移到 RoomCreateModal
 - [ ] 删除 CreateRoomModal.tsx
@@ -627,6 +642,7 @@ Skeleton.tsx → LoadingSkeleton.tsx
 - **预计时间**: 2 小时
 
 **任务 1.2: 统一 Toast 系统**
+
 - [ ] 分析两个组件的使用场景
 - [ ] 设计统一接口
 - [ ] 实现 UnifiedToast 组件
@@ -637,6 +653,7 @@ Skeleton.tsx → LoadingSkeleton.tsx
 #### 第二阶段（重要）- Week 2
 
 **任务 2.1: 分离 Loading 和 Skeleton**
+
 - [ ] 重构 Loading.tsx（移除 Skeleton 功能）
 - [ ] 增强 Skeleton.tsx
 - [ ] 迁移所有使用
@@ -644,6 +661,7 @@ Skeleton.tsx → LoadingSkeleton.tsx
 - **预计时间**: 4 小时
 
 **任务 2.2: 统一模态框实现**
+
 - [ ] 将 CreateRoomModal 迁移到 Modal 组件
 - [ ] 将 RoomJoinModal 迁移到 Modal 组件
 - [ ] 检查其他自定义模态框
@@ -653,12 +671,14 @@ Skeleton.tsx → LoadingSkeleton.tsx
 #### 第三阶段（优化）- Week 3
 
 **任务 3.1: 统一样式工具**
+
 - [ ] 选择 clsx 或 cn()
 - [ ] 全局替换
 - [ ] 更新文档
 - **预计时间**: 4 小时
 
 **任务 3.2: 建立组件规范**
+
 - [ ] 编写命名规范文档
 - [ ] 编写 Props 设计规范
 - [ ] 编写样式使用规范
@@ -693,20 +713,20 @@ Card.tsx   → export const Card, CardHeader, CardBody, CardFooter
 // 1. 使用 interface 而非 type
 interface ComponentProps extends React.HTMLAttributes<HTMLDivElement> {
   // 2. 自定义 Props 在前
-  variant?: "primary" | "secondary";
-  size?: "sm" | "md" | "lg";
-  
+  variant?: 'primary' | 'secondary'
+  size?: 'sm' | 'md' | 'lg'
+
   // 3. 事件处理器使用 on 前缀
-  onClick?: () => void;
-  onChange?: (value: string) => void;
-  
+  onClick?: () => void
+  onChange?: (value: string) => void
+
   // 4. 布尔属性使用 is/has/show 前缀（可选）
-  isLoading?: boolean;
-  hasError?: boolean;
-  showIcon?: boolean;
-  
+  isLoading?: boolean
+  hasError?: boolean
+  showIcon?: boolean
+
   // 5. 子元素放在最后
-  children?: React.ReactNode;
+  children?: React.ReactNode
 }
 ```
 
@@ -831,4 +851,3 @@ npm run type-check
 **报告生成时间**: 2026-04-01 20:23 GMT+2
 **下次审计建议时间**: 2026-05-01（1 个月后）
 **审计员**: 🎨 设计师（UI/UX 专家）
-

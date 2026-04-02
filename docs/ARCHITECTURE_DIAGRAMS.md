@@ -125,7 +125,7 @@ sequenceDiagram
 
     U->>C: 交互操作
     C->>H: 调用 Hook
-    
+
     alt 缓存命中
         H->>Cache: 检查缓存
         Cache-->>H: 返回数据
@@ -134,10 +134,10 @@ sequenceDiagram
         API-->>H: 返回数据
         H->>Cache: 存入缓存
     end
-    
+
     H-->>C: 返回数据
     C-->>U: 更新 UI
-    
+
     Note over H,LS: 持久化到 localStorage
     H->>LS: 异步存储
 ```
@@ -148,7 +148,7 @@ sequenceDiagram
 stateDiagram-v2
     [*] --> Light: 默认
     [*] --> Dark: localStorage
-    
+
     state "主题状态" as Theme {
         Light --> Dark: toggle
         Dark --> Light: toggle
@@ -207,7 +207,7 @@ graph TB
     TEST -->|pass| NGINX
     NGINX --> NEXT
     NEXT --> CDN & IMG
-    
+
     NEXT -->|errors| SENTRY
     NEXT -->|metrics| VITALS
 ```
@@ -232,7 +232,7 @@ graph TD
 
     APP --> LOCALE["[locale]/"]
     APP --> API[api/]
-    
+
     LOCALE --> PAGES[pages...]
     API --> HEALTH[health/]
     API --> GITHUB[github/]
@@ -282,21 +282,21 @@ graph LR
     REACT --> TS
     NEXT --> TW
     TW --> CSS
-    
+
     REACT --> CTX
     REACT --> ZUS
-    
+
     NEXT --> INTL
     INTL --> MSG
-    
+
     REACT --> TL
     TL --> VIT
     TL --> PW
-    
+
     NEXT --> SEN
     REACT --> WV
 ```
 
 ---
 
-*使用 Mermaid.js 渲染 - 可在支持 Mermaid 的 Markdown 查看器中查看*
+_使用 Mermaid.js 渲染 - 可在支持 Mermaid 的 Markdown 查看器中查看_

@@ -17,16 +17,19 @@
 ### 1. 加载状态改进
 
 #### 现状分析
+
 - 项目已有 `LoadingSpinner.tsx` 组件，支持多种变体（spin, pulse, bounce, dots, bars, wave）
 - 项目已有 `Skeleton.tsx` 组件，提供完整的骨架屏组件集
 - 项目已有 `PageLoadingTemplate.tsx`，提供多种加载模板
 
 #### 改进措施
+
 - ✅ 确认现有骨架屏组件功能完善
 - ✅ 验证加载动画系统覆盖多种场景
 - ✅ 创建动画 CSS 文件，提供平滑过渡效果
 
 **文件**: `/root/.openclaw/workspace/src/app/animations.css`
+
 - 15+ 种关键帧动画
 - 响应式动画延迟支持
 - 列表交错动画 (stagger animation)
@@ -35,15 +38,18 @@
 ### 2. 空状态设计
 
 #### 现状分析
+
 - 已有基础的 `EmptyState` 组件（在 `components/shared/ui.tsx` 中）
 - 功能较为简单，仅支持 emoji 图标和基本文本
 
 #### 改进措施
+
 - ✅ 创建全新的 `empty-state.tsx` 组件，功能更强大
 
 **文件**: `/root/.openclaw/workspace/src/components/ui/empty-state.tsx`
 
 **功能特性**:
+
 - 11 种预设场景变体
 - 自定义图标、标题、描述
 - 支持主操作和次要操作按钮
@@ -53,6 +59,7 @@
 - ARIA 无障碍支持
 
 **预设变体**:
+
 1. `EmptyTasks` - 任务列表空状态
 2. `EmptyProjects` - 项目列表空状态
 3. `EmptySearch` - 搜索结果空状态
@@ -65,10 +72,10 @@
 10. `ComingSoon` - 即将推出状态
 
 **使用示例**:
-```tsx
-import { EmptyTasks } from '@/components/ui/empty-state';
 
-<EmptyTasks
+```tsx
+import { EmptyTasks } from '@/components/ui/empty-state'
+;<EmptyTasks
   action={{
     label: '创建第一个任务',
     onClick: handleCreateTask,
@@ -79,16 +86,19 @@ import { EmptyTasks } from '@/components/ui/empty-state';
 ### 3. 错误状态改进
 
 #### 现状分析
+
 - 项目已有 `ErrorDisplay.tsx` 组件，功能完善
 - 使用 uiStore 的 Toast 系统
 - 仍有少量使用 `alert()` 的地方（主要用于示例代码）
 
 #### 改进措施
+
 - ✅ 创建统一的错误处理工具
 - ✅ 创建 Toast 通知容器组件
 - ✅ 将 alert() 替换为 Toast 通知
 
 **文件**: `/root/.openclaw/workspace/src/components/ui/toast.tsx`
+
 - Toast 通知容器组件
 - 支持 5 种类型（success, error, warning, info, loading）
 - 堆叠显示和动画效果
@@ -97,6 +107,7 @@ import { EmptyTasks } from '@/components/ui/empty-state';
 - 支持自定义位置
 
 **文件**: `/root/.openclaw/workspace/src/lib/error-handler.ts`
+
 - 统一的错误处理接口
 - 自动错误分类（network, auth, validation, server, client）
 - 用户友好的错误消息
@@ -105,19 +116,21 @@ import { EmptyTasks } from '@/components/ui/empty-state';
 - 高阶错误边界组件
 
 **使用示例**:
+
 ```tsx
-import { handleError } from '@/lib/error-handler';
+import { handleError } from '@/lib/error-handler'
 
 try {
-  await fetchData();
+  await fetchData()
 } catch (error) {
-  handleError(error, { showToast: true });
+  handleError(error, { showToast: true })
 }
 ```
 
 ### 4. 动画和过渡
 
 #### 改进措施
+
 - ✅ 创建完整的动画 CSS 文件
 - ✅ 添加多种过渡效果
 - ✅ 列表项交错动画
@@ -127,6 +140,7 @@ try {
 **动画类型** (共 20+ 种):
 
 **渐变动画**:
+
 - `animate-fade-in` - 淡入
 - `animate-fade-in-up` - 上浮淡入
 - `animate-fade-in-down` - 下浮淡入
@@ -134,36 +148,43 @@ try {
 - `animate-fade-in-right` - 右侧淡入
 
 **缩放动画**:
+
 - `animate-scale-in` - 缩放进入
 - `animate-bounce-in` - 弹跳进入
 
 **滑动动画**:
+
 - `animate-slide-in-right` - 右侧滑入
 - `animate-slide-in-left` - 左侧滑入
 
 **特殊动画**:
+
 - `animate-shake` - 抖动效果（用于错误提示）
 - `animate-float` - 浮动效果
 - `animate-glow-pulse` - 发光脉冲
 - `animate-skeleton` - 骨架屏加载效果
 
 **过渡效果**:
+
 - `transition-smooth` - 平滑过渡
 - `hover-lift` - 悬停上浮效果
 - `hover-glow` - 悬停发光效果
 - `focus-ring` - 焦点环效果
 
 **列表交错动画**:
+
 - `stagger-animation` - 列表项交错进入
 
 ### 5. 响应式优化
 
 #### 现状分析
+
 - 项目已有基本的响应式断点（通过 Tailwind）
 - 缺少触摸设备专用优化
 - 没有手势支持
 
 #### 改进措施
+
 - ✅ 创建响应式工具 Hooks
 - ✅ 添加触摸设备检测
 - ✅ 实现手势支持（滑动、长按）
@@ -183,11 +204,12 @@ try {
 3. **`useMediaQuery()`** - 媒体查询 Hook
 
 4. **`useSwipeGesture()`** - 滑动手势
+
    ```tsx
    const swipeHandlers = useSwipeGesture({
      onSwipeLeft: () => handleNext(),
      onSwipeRight: () => handlePrev(),
-   });
+   })
    ```
 
 5. **`useTouchTarget()`** - 触摸目标优化
@@ -204,7 +226,7 @@ try {
      xs: 1,
      md: 2,
      lg: 3,
-   });
+   })
    ```
 
 ---
@@ -300,14 +322,14 @@ try {
 
 ## 📊 代码统计
 
-| 指标 | 数值 |
-|------|------|
-| 新增文件 | 5 |
-| 修改文件 | 3 |
+| 指标         | 数值  |
+| ------------ | ----- |
+| 新增文件     | 5     |
+| 修改文件     | 3     |
 | 新增代码行数 | 1,835 |
-| 新增组件数 | 12 |
-| 新增 Hooks | 8 |
-| 新增动画类 | 20+ |
+| 新增组件数   | 12    |
+| 新增 Hooks   | 8     |
+| 新增动画类   | 20+   |
 
 ---
 
@@ -381,36 +403,33 @@ import { EmptyTasks, EmptySearch } from '@/components/ui/empty-state';
 ### 错误处理
 
 ```tsx
-import { handleError, withErrorHandling } from '@/lib/error-handler';
+import { handleError, withErrorHandling } from '@/lib/error-handler'
 
 // 方式 1: 直接处理错误
 try {
-  await saveData(data);
+  await saveData(data)
 } catch (error) {
-  handleError(error, { showToast: true });
+  handleError(error, { showToast: true })
 }
 
 // 方式 2: 包装异步函数
-const result = await withErrorHandling(
-  () => fetchUserData(),
-  { showToast: true }
-);
+const result = await withErrorHandling(() => fetchUserData(), { showToast: true })
 ```
 
 ### 响应式和手势
 
 ```tsx
-import { useSwipeGesture, useTouchTarget } from '@/hooks';
+import { useSwipeGesture, useTouchTarget } from '@/hooks'
 
 const swipeHandlers = useSwipeGesture({
   onSwipeLeft: handleNext,
   onSwipeRight: handlePrev,
   threshold: 80,
-});
+})
 
-const touchProps = useTouchTarget({ minSize: 48 });
+const touchProps = useTouchTarget({ minSize: 48 })
 
-<button {...swipeHandlers} {...touchProps}>
+;<button {...swipeHandlers} {...touchProps}>
   滑动切换
 </button>
 ```
@@ -456,6 +475,7 @@ const touchProps = useTouchTarget({ minSize: 48 });
 本次 UX 改进任务已全部完成，共创建 5 个新文件，修改 3 个文件，新增 1,835 行代码。
 
 **交付物**:
+
 1. **empty-state.tsx** (362 行) - 11 种预设空状态组件
 2. **toast.tsx** (273 行) - Toast 通知容器组件
 3. **animations.css** (488 行) - 20+ 种动画效果

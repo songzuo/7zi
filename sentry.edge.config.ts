@@ -3,7 +3,7 @@
 // Runs on the edge (middleware, edge functions)
 // ============================================
 
-import * as Sentry from '@sentry/nextjs';
+import * as Sentry from '@sentry/nextjs'
 
 Sentry.init({
   // DSN from environment
@@ -22,18 +22,15 @@ Sentry.init({
   debug: process.env.NODE_ENV === 'development',
 
   // Ignore errors
-  ignoreErrors: [
-    'ResizeObserver loop limit exceeded',
-    'Network request failed',
-  ],
+  ignoreErrors: ['ResizeObserver loop limit exceeded', 'Network request failed'],
 
   // Before send hook
   beforeSend(event) {
     // Don't send events in development unless explicitly enabled
     if (process.env.NODE_ENV === 'development' && process.env.NEXT_PUBLIC_SENTRY_DEBUG !== 'true') {
-      return null;
+      return null
     }
 
-    return event;
+    return event
   },
-});
+})

@@ -76,15 +76,15 @@
     - Prometheus (指标采集)
     - OpenTelemetry (追踪)
     - Loki (日志)
-    
+
   存储:
     - Prometheus TSDB (短期存储)
     - Thanos/Cortex (长期存储)
-    
+
   可视化:
     - Grafana (仪表盘)
     - Jaeger (追踪视图)
-    
+
   告警:
     - Alertmanager (告警路由)
     - PagerDuty (值班管理)
@@ -96,12 +96,12 @@
 
 ### 指标分类
 
-| 分类 | 说明 | 示例指标 |
-|------|------|----------|
-| **RED** | 请求率、错误率、延迟 | 请求QPS、错误率、P99延迟 |
-| **USE** | 使用率、饱和度、错误 | CPU使用率、内存饱和度、IO错误 |
-| **业务** | 业务相关指标 | 活跃用户、订单数、转化率 |
-| **基础设施** | 基础设施状态 | 容器状态、网络延迟、磁盘空间 |
+| 分类         | 说明                 | 示例指标                      |
+| ------------ | -------------------- | ----------------------------- |
+| **RED**      | 请求率、错误率、延迟 | 请求QPS、错误率、P99延迟      |
+| **USE**      | 使用率、饱和度、错误 | CPU使用率、内存饱和度、IO错误 |
+| **业务**     | 业务相关指标         | 活跃用户、订单数、转化率      |
+| **基础设施** | 基础设施状态         | 容器状态、网络延迟、磁盘空间  |
 
 ### 核心指标详解
 
@@ -115,12 +115,12 @@
   type: counter
   description: HTTP 请求总数
   labels:
-    - method      # GET, POST, PUT, DELETE
-    - path        # API 路径
-    - status      # HTTP 状态码
+    - method # GET, POST, PUT, DELETE
+    - path # API 路径
+    - status # HTTP 状态码
   query: |
     rate(http_requests_total[5m])
-    
+
 # 请求延迟 (Latency)
 - name: http_request_duration_seconds
   type: histogram
@@ -132,7 +132,7 @@
   buckets: [0.01, 0.05, 0.1, 0.25, 0.5, 1, 2.5, 5, 10]
   query: |
     histogram_quantile(0.99, rate(http_request_duration_seconds_bucket[5m]))
-    
+
 # 错误率 (Error Rate)
 - name: http_requests_errors_total
   type: counter
@@ -154,9 +154,9 @@
   type: gauge
   description: 当前活跃的 Agent 数量
   labels:
-    - type        # Agent 类型
-    - status      # active, idle, busy
-    
+    - type # Agent 类型
+    - status # active, idle, busy
+
 # Agent 任务执行
 - name: agent_tasks_total
   type: counter
@@ -164,10 +164,10 @@
   labels:
     - agent_id
     - task_type
-    - status      # success, failure
+    - status # success, failure
   query: |
     sum(rate(agent_tasks_total{status="success"}[5m])) by (task_type)
-    
+
 # Agent 响应时间
 - name: agent_response_time_seconds
   type: histogram
@@ -176,14 +176,14 @@
     - agent_id
     - task_type
   buckets: [0.1, 0.5, 1, 2, 5, 10, 30, 60]
-  
+
 # Agent 队列长度
 - name: agent_queue_length
   type: gauge
   description: Agent 任务队列长度
   labels:
     - agent_id
-    - priority    # critical, high, normal, low
+    - priority # critical, high, normal, low
 ```
 
 ##### WebSocket 指标
@@ -195,20 +195,20 @@
   description: 活跃 WebSocket 连接数
   labels:
     - server_id
-    
+
 # WebSocket 消息数
 - name: websocket_messages_total
   type: counter
   description: WebSocket 消息总数
   labels:
-    - type        # join, leave, message, action
-    - direction   # inbound, outbound
-    
+    - type # join, leave, message, action
+    - direction # inbound, outbound
+
 # WebSocket 房间数
 - name: websocket_rooms_active
   type: gauge
   description: 活跃房间数
-  
+
 # WebSocket 房间成员数
 - name: websocket_room_members
   type: gauge
@@ -226,7 +226,7 @@
 - name: process_cpu_seconds_total
   type: counter
   description: 进程 CPU 时间
-  
+
 # CPU 核心数
 - name: process_cpu_cores
   type: gauge
@@ -244,19 +244,19 @@ query: |
 - name: process_resident_memory_bytes
   type: gauge
   description: 进程常驻内存 (RSS)
-  
+
 - name: process_virtual_memory_bytes
   type: gauge
   description: 进程虚拟内存
-  
+
 - name: nodejs_heap_size_total_bytes
   type: gauge
   description: Node.js 堆总大小
-  
+
 - name: nodejs_heap_size_used_bytes
   type: gauge
   description: Node.js 堆已使用
-  
+
 - name: nodejs_external_memory_bytes
   type: gauge
   description: Node.js 外部内存
@@ -273,20 +273,20 @@ query: |
 - name: node_network_receive_bytes_total
   type: counter
   description: 网络接收字节数
-  
+
 - name: node_network_transmit_bytes_total
   type: counter
   description: 网络发送字节数
-  
+
 # 磁盘 I/O
 - name: node_disk_read_bytes_total
   type: counter
   description: 磁盘读取字节数
-  
+
 - name: node_disk_written_bytes_total
   type: counter
   description: 磁盘写入字节数
-  
+
 # 文件描述符
 - name: process_open_fds
   type: gauge
@@ -304,24 +304,24 @@ query: |
   description: 当前连接数
   labels:
     - database
-    - state       # active, idle, idle_in_transaction
-    
+    - state # active, idle, idle_in_transaction
+
 # 查询数
 - name: pg_stat_database_queries_total
   type: counter
   description: 执行的查询数
   labels:
     - database
-    - type        # select, insert, update, delete
-    
+    - type # select, insert, update, delete
+
 # 事务数
 - name: pg_stat_database_transactions_total
   type: counter
   description: 事务数
   labels:
     - database
-    - status      # committed, rolled_back
-    
+    - status # committed, rolled_back
+
 # 慢查询
 - name: pg_stat_statements_mean_exec_time_seconds
   type: gauge
@@ -337,29 +337,29 @@ query: |
 - name: redis_connected_clients
   type: gauge
   description: Redis 客户端连接数
-  
+
 # 内存使用
 - name: redis_memory_used_bytes
   type: gauge
   description: Redis 内存使用
-  
+
 - name: redis_memory_max_bytes
   type: gauge
   description: Redis 最大内存
-  
+
 # 键操作
 - name: redis_keyspace_keys_total
   type: gauge
   description: 键总数
   labels:
     - database
-    
+
 # 命令统计
 - name: redis_commands_total
   type: counter
   description: 执行的命令数
   labels:
-    - command     # get, set, hget, etc.
+    - command # get, set, hget, etc.
 ```
 
 #### 4. 前端指标 (Web Vitals)
@@ -374,7 +374,7 @@ query: |
     good: < 2.5s
     needs_improvement: 2.5s - 4s
     poor: > 4s
-    
+
 # First Input Delay (FID)
 - name: web_vital_fid_seconds
   type: histogram
@@ -384,7 +384,7 @@ query: |
     good: < 100ms
     needs_improvement: 100ms - 300ms
     poor: > 300ms
-    
+
 # Cumulative Layout Shift (CLS)
 - name: web_vital_cls
   type: histogram
@@ -394,13 +394,13 @@ query: |
     good: < 0.1
     needs_improvement: 0.1 - 0.25
     poor: > 0.25
-    
+
 # First Contentful Paint (FCP)
 - name: web_vital_fcp_seconds
   type: histogram
   description: 首次内容绘制时间
   buckets: [0.1, 0.25, 0.5, 0.75, 1, 1.5, 2, 3]
-  
+
 # Time to First Byte (TTFB)
 - name: web_vital_ttfb_seconds
   type: histogram
@@ -416,34 +416,34 @@ query: |
 global:
   scrape_interval: 15s
   evaluation_interval: 15s
-  
+
 scrape_configs:
   # 应用服务
   - job_name: '7zi-api'
     static_configs:
       - targets: ['api:9090']
     metrics_path: '/metrics'
-    
+
   # Agent 服务
   - job_name: '7zi-agents'
     static_configs:
       - targets: ['agent-code:9090', 'agent-chat:9090']
-    
+
   # WebSocket 服务
   - job_name: '7zi-websocket'
     static_configs:
       - targets: ['websocket:9090']
-    
+
   # PostgreSQL Exporter
   - job_name: 'postgres'
     static_configs:
       - targets: ['postgres-exporter:9187']
-    
+
   # Redis Exporter
   - job_name: 'redis'
     static_configs:
       - targets: ['redis-exporter:9121']
-    
+
   # Node Exporter (系统指标)
   - job_name: 'node'
     static_configs:
@@ -472,16 +472,16 @@ groups:
         labels:
           severity: warning
         annotations:
-          summary: "CPU 使用率过高"
-          description: "实例 {{ $labels.instance }} CPU 使用率 {{ $value }}%"
-          
+          summary: 'CPU 使用率过高'
+          description: '实例 {{ $labels.instance }} CPU 使用率 {{ $value }}%'
+
       # 内存使用率 > 85%
       - alert: HighMemoryUsage
         expr: 100 * nodejs_heap_size_used_bytes / nodejs_heap_size_total_bytes > 85
         for: 5m
         labels:
           severity: warning
-          
+
       # 错误率 > 5%
       - alert: HighErrorRate
         expr: 100 * sum(rate(http_requests_errors_total[5m])) / sum(rate(http_requests_total[5m])) > 5
@@ -511,9 +511,9 @@ groups:
         labels:
           severity: warning
         annotations:
-          summary: "请求量突降"
-          description: "请求量比 1 小时前下降了超过 50%"
-          
+          summary: '请求量突降'
+          description: '请求量比 1 小时前下降了超过 50%'
+
       # 响应时间持续增长
       - alert: LatencyTrendIncrease
         expr: |
@@ -544,9 +544,9 @@ groups:
         labels:
           severity: critical
         annotations:
-          summary: "磁盘空间即将耗尽"
-          description: "预测实例 {{ $labels.instance }} 的磁盘将在 24 小时内耗尽"
-          
+          summary: '磁盘空间即将耗尽'
+          description: '预测实例 {{ $labels.instance }} 的磁盘将在 24 小时内耗尽'
+
       # 基于标准差检测异常
       - alert: ResponseTimeAnomaly
         expr: |
@@ -569,38 +569,38 @@ groups:
 
 anomaly_detection:
   enabled: true
-  
+
   # 检测方法
   methods:
     - name: static_threshold
       enabled: true
       config_file: /config/alerts/static_thresholds.yaml
-      
+
     - name: trend_analysis
       enabled: true
-      sensitivity: medium  # low, medium, high
-      
+      sensitivity: medium # low, medium, high
+
     - name: statistical
       enabled: true
       algorithms:
         - z_score
         - iqr
       window: 7d
-      threshold: 3  # 标准差倍数
-      
+      threshold: 3 # 标准差倍数
+
   # 检测指标配置
   metrics:
     - name: http_request_duration_seconds
       methods: [static_threshold, trend_analysis, statistical]
       baseline_window: 7d
-      
+
     - name: error_rate
       methods: [static_threshold, trend_analysis]
       threshold: 0.05
-      
+
     - name: cpu_usage
       methods: [static_threshold, trend_analysis]
-      
+
     - name: memory_usage
       methods: [static_threshold, statistical]
 ```
@@ -629,16 +629,16 @@ groups:
           severity: warning
           category: system
         annotations:
-          summary: "CPU 使用率警告"
-          description: "实例 {{ $labels.instance }} CPU 使用率 {{ $value }}%"
-          
+          summary: 'CPU 使用率警告'
+          description: '实例 {{ $labels.instance }} CPU 使用率 {{ $value }}%'
+
       - alert: CPUUsageCritical
         expr: 100 - (avg by(instance) (rate(node_cpu_seconds_total{mode="idle"}[5m])) * 100) > 90
         for: 2m
         labels:
           severity: critical
           category: system
-          
+
       # 内存告警
       - alert: MemoryUsageWarning
         expr: 100 * (1 - node_memory_MemAvailable_bytes / node_memory_MemTotal_bytes) > 80
@@ -646,7 +646,7 @@ groups:
         labels:
           severity: warning
           category: system
-          
+
       # 磁盘告警
       - alert: DiskSpaceWarning
         expr: 100 * (1 - node_filesystem_avail_bytes / node_filesystem_size_bytes) > 80
@@ -654,14 +654,14 @@ groups:
         labels:
           severity: warning
           category: system
-          
+
       - alert: DiskSpaceCritical
         expr: 100 * (1 - node_filesystem_avail_bytes / node_filesystem_size_bytes) > 95
         for: 1m
         labels:
           severity: critical
           category: system
-          
+
   # ============ 应用层告警 ============
   - name: application_alerts
     interval: 30s
@@ -674,9 +674,9 @@ groups:
           severity: critical
           category: availability
         annotations:
-          summary: "服务不可用"
-          description: "服务 {{ $labels.job }} 实例 {{ $labels.instance }} 已宕机"
-          
+          summary: '服务不可用'
+          description: '服务 {{ $labels.job }} 实例 {{ $labels.instance }} 已宕机'
+
       # 请求错误率
       - alert: HighErrorRate
         expr: |
@@ -686,7 +686,7 @@ groups:
         labels:
           severity: critical
           category: application
-          
+
       # 请求延迟
       - alert: HighLatency
         expr: |
@@ -695,7 +695,7 @@ groups:
         labels:
           severity: warning
           category: performance
-          
+
       - alert: CriticalLatency
         expr: |
           histogram_quantile(0.99, sum(rate(http_request_duration_seconds_bucket[5m])) by (le, service)) > 5
@@ -703,7 +703,7 @@ groups:
         labels:
           severity: critical
           category: performance
-          
+
   # ============ Agent 告警 ============
   - name: agent_alerts
     interval: 30s
@@ -716,9 +716,9 @@ groups:
           severity: critical
           category: agent
         annotations:
-          summary: "Agent 离线"
-          description: "{{ $labels.type }} 类型 Agent 已全部离线"
-          
+          summary: 'Agent 离线'
+          description: '{{ $labels.type }} 类型 Agent 已全部离线'
+
       # Agent 任务失败率高
       - alert: AgentHighFailureRate
         expr: |
@@ -728,7 +728,7 @@ groups:
         labels:
           severity: warning
           category: agent
-          
+
       # Agent 队列积压
       - alert: AgentQueueBacklog
         expr: agent_queue_length > 100
@@ -736,7 +736,7 @@ groups:
         labels:
           severity: warning
           category: agent
-          
+
   # ============ 数据库告警 ============
   - name: database_alerts
     interval: 30s
@@ -748,7 +748,7 @@ groups:
         labels:
           severity: warning
           category: database
-          
+
       # PostgreSQL 慢查询
       - alert: PostgresSlowQueries
         expr: pg_stat_statements_mean_exec_time_seconds > 1
@@ -756,7 +756,7 @@ groups:
         labels:
           severity: warning
           category: database
-          
+
       # Redis 内存
       - alert: RedisHighMemory
         expr: 100 * redis_memory_used_bytes / redis_memory_max_bytes > 80
@@ -764,7 +764,7 @@ groups:
         labels:
           severity: warning
           category: database
-          
+
   # ============ WebSocket 告警 ============
   - name: websocket_alerts
     interval: 30s
@@ -776,7 +776,7 @@ groups:
         labels:
           severity: warning
           category: websocket
-          
+
       # WebSocket 消息延迟
       - alert: WebSocketMessageLatency
         expr: |
@@ -785,7 +785,7 @@ groups:
         labels:
           severity: warning
           category: websocket
-          
+
   # ============ 前端性能告警 ============
   - name: frontend_alerts
     interval: 1m
@@ -799,8 +799,8 @@ groups:
           severity: warning
           category: frontend
         annotations:
-          summary: "LCP 性能差"
-          description: "75% 的用户 LCP 超过 4 秒"
+          summary: 'LCP 性能差'
+          description: '75% 的用户 LCP 超过 4 秒'
 ```
 
 ### Alertmanager 配置
@@ -814,27 +814,27 @@ global:
   smtp_from: 'alerts@7zi.com'
   smtp_auth_username: 'alerts@7zi.com'
   smtp_auth_password: '<password>'
-  
+
   # Slack 配置
   slack_api_url: 'https://hooks.slack.com/services/xxx/yyy/zzz'
-  
+
 # 路由规则
 route:
   # 默认接收者
   receiver: 'default-receiver'
-  
+
   # 分组依据
   group_by: ['alertname', 'severity', 'service']
-  
+
   # 等待时间（合并同类告警）
   group_wait: 30s
-  
+
   # 同组告警间隔
   group_interval: 5m
-  
+
   # 重复告警间隔
   repeat_interval: 4h
-  
+
   # 子路由
   routes:
     # 关键告警 -> PagerDuty + Slack
@@ -842,59 +842,59 @@ route:
         severity: critical
       receiver: 'pagerduty-critical'
       continue: true
-      
+
     - match:
         severity: critical
       receiver: 'slack-critical'
-      
+
     # 警告级别 -> Slack
     - match:
         severity: warning
       receiver: 'slack-warning'
-      
+
     # 系统告警 -> 运维团队
     - match:
         category: system
       receiver: 'ops-team'
-      
+
     # Agent 告警 -> AI 团队
     - match:
         category: agent
       receiver: 'ai-team'
-      
+
 # 接收者配置
 receivers:
   - name: 'default-receiver'
     email_configs:
       - to: 'team@7zi.com'
-        
+
   - name: 'pagerduty-critical'
     pagerduty_configs:
       - service_key: '<pagerduty-key>'
         severity: critical
-        
+
   - name: 'slack-critical'
     slack_configs:
       - channel: '#alerts-critical'
         title: '🚨 {{ .GroupLabels.alertname }}'
         color: 'danger'
-        
+
   - name: 'slack-warning'
     slack_configs:
       - channel: '#alerts-warning'
         title: '⚠️ {{ .GroupLabels.alertname }}'
         color: 'warning'
-        
+
   - name: 'ops-team'
     email_configs:
       - to: 'ops@7zi.com'
     slack_configs:
       - channel: '#ops-alerts'
-        
+
   - name: 'ai-team'
     slack_configs:
       - channel: '#ai-alerts'
-        
+
 # 静默规则
 inhibit_rules:
   # 如果服务宕机，抑制相关的告警
@@ -903,7 +903,7 @@ inhibit_rules:
     target_match_re:
       alertname: '.*'
     equal: ['service']
-    
+
   # 如果有 critical 告警，抑制同类的 warning
   - source_match:
       severity: 'critical'
@@ -929,7 +929,7 @@ inhibit_rules:
       {
         "title": "请求速率",
         "type": "graph",
-        "gridPos": {"x": 0, "y": 0, "w": 12, "h": 8},
+        "gridPos": { "x": 0, "y": 0, "w": 12, "h": 8 },
         "targets": [
           {
             "expr": "sum(rate(http_requests_total[5m])) by (service)",
@@ -940,7 +940,7 @@ inhibit_rules:
       {
         "title": "错误率",
         "type": "stat",
-        "gridPos": {"x": 12, "y": 0, "w": 6, "h": 4},
+        "gridPos": { "x": 12, "y": 0, "w": 6, "h": 4 },
         "targets": [
           {
             "expr": "100 * sum(rate(http_requests_errors_total[5m])) / sum(rate(http_requests_total[5m]))",
@@ -951,7 +951,7 @@ inhibit_rules:
       {
         "title": "P99 延迟",
         "type": "stat",
-        "gridPos": {"x": 18, "y": 0, "w": 6, "h": 4},
+        "gridPos": { "x": 18, "y": 0, "w": 6, "h": 4 },
         "targets": [
           {
             "expr": "histogram_quantile(0.99, sum(rate(http_request_duration_seconds_bucket[5m])) by (le))",
@@ -971,7 +971,7 @@ inhibit_rules:
 sum(rate(http_requests_total[5m])) by (service)
 
 # 错误率
-100 * sum(rate(http_requests_errors_total[5m])) by (service) 
+100 * sum(rate(http_requests_errors_total[5m])) by (service)
   / sum(rate(http_requests_total[5m])) by (service)
 
 # P99 延迟
@@ -1039,14 +1039,14 @@ prometheus:
     retention: 15d
     tsdb:
       compaction: true
-      
+
   # 减少高基数标签
   metric_relabel_configs:
     - source_labels: [path]
       regex: '/api/.*'
       target_label: path
       replacement: '/api/:path'
-      
+
   # 远程写入（长期存储）
   remote_write:
     - url: http://thanos-receive:19291/api/v1/receive
@@ -1063,6 +1063,7 @@ prometheus:
 **症状**：Prometheus targets 显示 down
 
 **排查步骤**：
+
 ```bash
 # 检查 target 端点
 curl http://target-host:9090/metrics
@@ -1079,6 +1080,7 @@ kubectl logs -l app=prometheus -c prometheus
 **症状**：指标已超阈值但未收到告警
 
 **排查步骤**：
+
 ```bash
 # 检查告警规则
 curl http://prometheus:9090/api/v1/rules
@@ -1095,6 +1097,7 @@ curl http://alertmanager:9093/api/v2/silences
 **症状**：仪表盘显示 N/A
 
 **排查步骤**：
+
 ```bash
 # 测试查询
 curl 'http://prometheus:9090/api/v1/query?query=up'
@@ -1135,5 +1138,5 @@ curl http://alertmanager:9093/-/healthy
 
 ---
 
-*最后更新: 2026-03-31*
-*版本: 1.5.0*
+_最后更新: 2026-03-31_
+_版本: 1.5.0_

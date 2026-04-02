@@ -3,11 +3,11 @@
  * @description 显示可快速点击的常用问题按钮
  */
 
-'use client';
+'use client'
 
 interface QuickActionsProps {
-  actions: string[];
-  onAction: (action: string) => void;
+  actions: string[]
+  onAction: (action: string) => void
 }
 
 /**
@@ -17,18 +17,18 @@ interface QuickActionsProps {
  */
 export function QuickActions({ actions, onAction }: QuickActionsProps) {
   return (
-    <div className="px-4 py-2 bg-white dark:bg-zinc-900 border-t border-zinc-200 dark:border-zinc-800">
-      <div className="flex gap-2 overflow-x-auto pb-2 hide-scrollbar">
-        {actions.map((action) => (
+    <div className="border-t border-zinc-200 bg-white px-4 py-2 dark:border-zinc-800 dark:bg-zinc-900">
+      <div className="hide-scrollbar flex gap-2 overflow-x-auto pb-2">
+        {actions.map(action => (
           <button
             key={action}
             onClick={() => onAction(action)}
-            className="flex-shrink-0 px-3 py-1.5 bg-zinc-100 dark:bg-zinc-800 hover:bg-cyan-100 dark:hover:bg-cyan-900/30 text-zinc-700 dark:text-zinc-300 hover:text-cyan-600 dark:hover:text-cyan-400 rounded-full text-xs transition-colors"
+            className="flex-shrink-0 rounded-full bg-zinc-100 px-3 py-1.5 text-xs text-zinc-700 transition-colors hover:bg-cyan-100 hover:text-cyan-600 dark:bg-zinc-800 dark:text-zinc-300 dark:hover:bg-cyan-900/30 dark:hover:text-cyan-400"
           >
             {action}
           </button>
         ))}
       </div>
     </div>
-  );
+  )
 }

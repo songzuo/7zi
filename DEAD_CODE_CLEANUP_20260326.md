@@ -14,6 +14,7 @@
 ## 分析结果
 
 ### 1. 组件统计
+
 - 总组件文件数: ~215 个（不含测试）
 - 未被明确引用的组件: 93 个
 - 包含大量注释的文件: 19 个
@@ -23,15 +24,18 @@
 #### A. 已删除的文件 (15个)
 
 **优化组件目录** (3个文件)
+
 - ✅ `src/components/optimized/AIChat.optimized.tsx`
 - ✅ `src/components/optimized/LazyImage.optimized.tsx`
 - ✅ `src/components/optimized/MobileMenu.optimized.tsx`
 - ✅ `src/components/optimized/` (整个目录)
 
 **UI 示例文件** (1个文件)
+
 - ✅ `src/components/ui/examples.tsx` - UI组件使用示例文档
 
 **未使用的 UI 基础组件** (6个文件)
+
 - ✅ `src/components/ui/SearchInput.tsx` - 搜索输入框
 - ✅ `src/components/ui/Modal.tsx` - 模态框
 - ✅ `src/components/ui/Tabs.tsx` - 标签页
@@ -40,6 +44,7 @@
 - ✅ `src/components/ui/FilterDropdown.tsx` - 筛选下拉框
 
 **其他未使用组件** (5个文件)
+
 - ✅ `src/components/BottomNav.tsx` - 底部导航
 - ✅ `src/components/RatingForm.tsx` - 评分表单
 - ✅ `src/components/ResponsiveComponents.tsx` - 响应式组件集合
@@ -48,6 +53,7 @@
 #### B. 已恢复的文件 (1个)
 
 **误删恢复**
+
 - ✅ `src/components/RealtimeDashboard.tsx` - 从 git 历史恢复
 
 原因: 该组件虽然未直接引用，但通过 `LazyRealtimeDashboard` 在 `src/app/[locale]/dashboard/DashboardClient.tsx` 中使用。
@@ -55,11 +61,13 @@
 #### C. 待审查的组件（可能动态使用）
 
 这些组件没有直接引用，但可能：
+
 - 通过 LazyComponents 动态加载
 - 在运行时通过字符串引用
 - 为未来功能预留
 
 **NotificationCenter 组件** (6个文件)
+
 - `src/components/NotificationCenter/NotificationCenter.tsx`
 - `src/components/NotificationCenter/NotificationItem.tsx`
 - `src/components/NotificationCenter/NotificationBadge.tsx`
@@ -68,6 +76,7 @@
 - 测试文件 2 个
 
 **UserSettings 组件** (6个文件)
+
 - `src/components/UserSettings/UserSettingsPage.tsx`
 - `src/components/UserSettings/AvatarUpload.tsx`
 - `src/components/UserSettings/SectionCard.tsx`
@@ -76,6 +85,7 @@
 - `src/components/UserSettings/validation.ts`
 
 **其他可能动态使用的组件** (约50个文件)
+
 - `src/components/NetworkErrorBoundary.tsx`
 - `src/components/RetryBoundary.tsx`
 - `src/components/EnhancedFeedbackModal.tsx`
@@ -102,6 +112,7 @@
 - `src/components/websocket/*` (2个文件)
 
 **测试文件标记**
+
 - 所有 `.test.tsx` 和 `.test.ts` 文件（约20个）
 - 测试文件标记为待审查，可能需要更新或删除
 
@@ -166,6 +177,7 @@ git show 0245572a5da599478b0adca3f6153bd03e0453a3:src/components/RealtimeDashboa
 ### 第3步: 更新导出文件
 
 编辑 `src/components/index.ts`:
+
 - 移除了已删除组件的导出
 - 更新 LazyComponents 导出列表
 
@@ -185,11 +197,11 @@ pnpm build
 
 ## 文件大小优化
 
-| 指标 | 删除前 | 删除后 | 变化 |
-|------|--------|--------|------|
-| 组件文件数 | ~215 | ~200 | -15 (-7%) |
-| 删除代码行数 | - | ~1,500+ | - |
-| 恢复代码行数 | - | ~280 | + |
+| 指标         | 删除前 | 删除后  | 变化      |
+| ------------ | ------ | ------- | --------- |
+| 组件文件数   | ~215   | ~200    | -15 (-7%) |
+| 删除代码行数 | -      | ~1,500+ | -         |
+| 恢复代码行数 | -      | ~280    | +         |
 
 **净减少**: ~1,200 行代码
 
@@ -198,6 +210,7 @@ pnpm build
 ## 更新后的 components/index.ts
 
 移除了以下组件的导出：
+
 - Modal, ConfirmDialog
 - Tabs, TabsList, TabTrigger, TabContent, TabPanel, ResponsiveTabs
 - ToastProvider, ToastButton, useToast, useToastActions
@@ -205,6 +218,7 @@ pnpm build
 - FilterDropdown
 
 新增了以下 LazyComponents 的导出：
+
 - LazyRealtimeDashboard
 - LazyTeamActivityTracker
 - LazyAnalyticsDashboard
@@ -223,16 +237,19 @@ pnpm build
 ## 后续建议
 
 ### 高优先级
+
 1. **人工审查**: 手动检查93个待审查组件是否真的需要
 2. **测试更新**: 更新或删除过时的测试文件
 3. **注释清理**: 清理19个文件中的注释代码
 
 ### 中优先级
+
 4. **组件文档**: 为保留的组件添加使用文档
 5. **测试覆盖率**: 确保保留组件都有相应测试
 6. **导出优化**: 进一步检查 components/index.ts 的导出
 
 ### 低优先级
+
 7. **定期审查**: 建议每季度执行一次死代码分析
 8. **自动化**: 集成死代码检测到 CI/CD 流程
 

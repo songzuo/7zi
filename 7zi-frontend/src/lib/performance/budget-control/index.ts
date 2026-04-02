@@ -4,9 +4,13 @@
  */
 
 // Core functionality
-export { BudgetChecker, budgetChecker } from './budget-checker';
-export { BudgetConfigManager, budgetConfigManager } from './budget-config';
-export { BudgetAlertManager, budgetAlertManager, DEFAULT_BUDGET_ALERT_CONFIG } from './budget-alerts';
+export { BudgetChecker, budgetChecker } from './budget-checker'
+export { BudgetConfigManager, budgetConfigManager } from './budget-config'
+export {
+  BudgetAlertManager,
+  budgetAlertManager,
+  DEFAULT_BUDGET_ALERT_CONFIG,
+} from './budget-alerts'
 
 // Types
 export type {
@@ -15,13 +19,13 @@ export type {
   BudgetViolation,
   BudgetCheckResult,
   PerformanceBudgetConfig,
-} from './types';
+} from './types'
 
 export type {
   BudgetAlertConfig,
   BudgetConfigOptions,
   BudgetValidationResult,
-} from './budget-alerts';
+} from './budget-alerts'
 
 // Default configs
-export { DEFAULT_BUDGET_CONFIG } from './types';
+export { DEFAULT_BUDGET_CONFIG } from './types'

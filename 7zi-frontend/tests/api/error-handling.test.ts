@@ -7,6 +7,39 @@
  */
 
 import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest'
+
+// Mock error-logger - MUST be before imports
+vi.mock('@/lib/api/error-logger', () => ({
+  logApiError: vi.fn(),
+  createApiContext: vi.fn(() => ({})),
+  ErrorStatistics: {
+    getInstance: vi.fn(() => ({
+      record: vi.fn(),
+      getStats: vi.fn(() => ({})),
+    })),
+  },
+}))
+
+// Mock logger
+vi.mock('@/lib/logger', () => ({
+  logger: {
+    error: vi.fn(),
+    warn: vi.fn(),
+    info: vi.fn(),
+    debug: vi.fn(),
+  },
+}))
+
+vi.mock('../../src/lib/logger', () => ({
+  logger: {
+    error: vi.fn(),
+    warn: vi.fn(),
+    info: vi.fn(),
+    debug: vi.fn(),
+  },
+}))
+
+// Now import after mocks
 import {
   ApiError,
   createErrorResponse,
@@ -22,20 +55,6 @@ import {
 } from '@/lib/api/error-handler'
 import { logApiError, createApiContext, ErrorStatistics } from '@/lib/api/error-logger'
 import { withRetry, RetryPresets } from '@/lib/api/retry-decorator'
-
-// Mock logger
-vi.mock('@/lib/logger', () => ({
-  logger: {
-    error: vi.fn(),
-    warn: vi.fn(),
-    info: vi.fn(),
-    debug: vi.fn(),
-  },
-}))
-
-vi.mock('../../src/lib/logger', () => ({
-  logger: {
-    error: vi.fn(),
     warn: vi.fn(),
     info: vi.fn(),
     debug: vi.fn(),

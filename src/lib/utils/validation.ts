@@ -1,14 +1,15 @@
 /**
  * Validation utilities
- * 
+ *
  * @module lib/utils/validation
  */
 
 // Cache email regex to avoid recreating it on every call
-const EMAIL_REGEX = /^[a-zA-Z0-9.!#$%&'*+/=?^_`{|}~-]+@[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?(?:\.[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?)*$/;
+const EMAIL_REGEX =
+  /^[a-zA-Z0-9.!#$%&'*+/=?^_`{|}~-]+@[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?(?:\.[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?)*$/
 
 // Cache URL regex for faster validation (avoids try-catch overhead)
-const URL_REGEX = /^https?:\/\/.+/i;
+const URL_REGEX = /^https?:\/\/.+/i
 
 /**
  * Validate email address
@@ -20,9 +21,9 @@ const URL_REGEX = /^https?:\/\/.+/i;
  */
 export function isValidEmail(email: string): boolean {
   if (!email || typeof email !== 'string') {
-    return false;
+    return false
   }
-  return EMAIL_REGEX.test(email);
+  return EMAIL_REGEX.test(email)
 }
 
 /**
@@ -35,9 +36,9 @@ export function isValidEmail(email: string): boolean {
  */
 export function isValidUrl(url: string): boolean {
   if (!url || typeof url !== 'string') {
-    return false;
+    return false
   }
-  return URL_REGEX.test(url);
+  return URL_REGEX.test(url)
 }
 
 /**
@@ -52,9 +53,9 @@ export function isValidUrl(url: string): boolean {
  * isEmpty('hello') // false
  */
 export function isEmpty(value: unknown): boolean {
-  if (value === null || value === undefined) return true;
-  if (typeof value === 'string') return value.trim().length === 0;
-  if (Array.isArray(value)) return value.length === 0;
-  if (typeof value === 'object') return Object.keys(value).length === 0;
-  return false;
+  if (value === null || value === undefined) return true
+  if (typeof value === 'string') return value.trim().length === 0
+  if (Array.isArray(value)) return value.length === 0
+  if (typeof value === 'object') return Object.keys(value).length === 0
+  return false
 }

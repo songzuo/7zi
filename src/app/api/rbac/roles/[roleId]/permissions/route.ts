@@ -1,35 +1,33 @@
+import { NextRequest, NextResponse } from 'next/server'
 /**
  * RBAC API - Role Permissions Management
  * 管理角色的权限分配
  */
 
-import { withAdmin } from '@/lib/auth/middleware-rbac';
-import { Role, Permission } from '@/lib/permissions/types';
+import { withAdmin } from '@/lib/auth/middleware-rbac'
+import { Role, Permission } from '@/lib/permissions/types'
 import {
   getRoleById,
   getPermissionsByRole,
   assignPermissionsToRole,
   removePermissionsFromRole,
-} from '@/lib/permissions/repository';
-import { logger } from '@/lib/logger';
+} from '@/lib/permissions/repository'
+import { logger } from '@/lib/logger'
 
 interface RouteContext {
-  params: Promise<{ roleId: string }>;
+  params: Promise<{ roleId: string }>
 }
 
 /**
  * GET /api/rbac/roles/[roleId]/permissions - 获取角色的所有权限
  */
-export async function GET(
-  request: NextRequest,
-  { params }: RouteContext
-) {
+export async function GET(request: NextRequest, { params }: RouteContext) {
   return withAdmin(request, async (_req, context) => {
     try {
-      const { roleId } = await params;
+      const { roleId } = await params
 
       // 检查角色是否存在
-      const role = await getRoleById(roleId);
+      const role = await getRoleById(roleId)
       if (!role) {
         return NextResponse.json(
           {
@@ -40,10 +38,10 @@ export async function GET(
             },
           },
           { status: 404 }
-        );
+        )
       }
 
-      const permissions = await getPermissionsByRole(roleId as Role);
+      const permissions = await getPermissionsByRole(roleId as Role)
 
       return NextResponse.json({
         success: true,
@@ -52,9 +50,9 @@ export async function GET(
           permissions,
           count: permissions.length,
         },
-      });
-    } catch (_error) {
-      logger.error('Failed to fetch role permissions:', { error, userId: context.userId });
+      })
+    } catch (error) {
+      logger.error('Failed to fetch role permissions:', { error, userId: context.userId })
       return NextResponse.json(
         {
           success: false,
@@ -64,23 +62,20 @@ export async function GET(
           },
         },
         { status: 500 }
-      );
+      )
     }
-  });
+  })
 }
 
 /**
  * POST /api/rbac/roles/[roleId]/permissions - 为角色添加权限
  */
-export async function POST(
-  request: NextRequest,
-  { params }: RouteContext
-) {
+export async function POST(request: NextRequest, { params }: RouteContext) {
   return withAdmin(request, async (req, context) => {
     try {
-      const { roleId } = await params;
-      const body = await req.json();
-      const { permissions } = body;
+      const { roleId } = await params
+      const body = await req.json()
+      const { permissions } = body
 
       // 验证权限数组
       if (!Array.isArray(permissions) || permissions.length === 0) {
@@ -93,11 +88,11 @@ export async function POST(
             },
           },
           { status: 400 }
-        );
+        )
       }
 
       // 检查角色是否存在
-      const role = await getRoleById(roleId);
+      const role = await getRoleById(roleId)
       if (!role) {
         return NextResponse.json(
           {
@@ -108,7 +103,7 @@ export async function POST(
             },
           },
           { status: 404 }
-        );
+        )
       }
 
       // 系统角色不能修改权限
@@ -122,13 +117,13 @@ export async function POST(
             },
           },
           { status: 403 }
-        );
+        )
       }
 
       // 过滤有效的权限
       const validPermissions = permissions.filter((p): p is Permission =>
         Object.values(Permission).includes(p)
-      );
+      )
 
       if (validPermissions.length === 0) {
         return NextResponse.json(
@@ -140,17 +135,17 @@ export async function POST(
             },
           },
           { status: 400 }
-        );
+        )
       }
 
       // 分配权限
-      await assignPermissionsToRole(roleId as Role, validPermissions, context.userId);
+      await assignPermissionsToRole(roleId as Role, validPermissions, context.userId)
 
       logger.info('Permissions assigned to role', {
         roleId,
         permissions: validPermissions.length,
         assignedBy: context.userId,
-      });
+      })
 
       return NextResponse.json({
         success: true,
@@ -160,9 +155,9 @@ export async function POST(
           count: validPermissions.length,
         },
         message: 'Permissions assigned successfully',
-      });
-    } catch (_error) {
-      logger.error('Failed to assign permissions:', { error, userId: context.userId });
+      })
+    } catch (error) {
+      logger.error('Failed to assign permissions:', { error, userId: context.userId })
       return NextResponse.json(
         {
           success: false,
@@ -172,23 +167,20 @@ export async function POST(
           },
         },
         { status: 500 }
-      );
+      )
     }
-  });
+  })
 }
 
 /**
  * DELETE /api/rbac/roles/[roleId]/permissions - 从角色移除权限
  */
-export async function DELETE(
-  request: NextRequest,
-  { params }: RouteContext
-) {
+export async function DELETE(request: NextRequest, { params }: RouteContext) {
   return withAdmin(request, async (req, context) => {
     try {
-      const { roleId } = await params;
-      const body = await req.json();
-      const { permissions } = body;
+      const { roleId } = await params
+      const body = await req.json()
+      const { permissions } = body
 
       // 验证权限数组
       if (!Array.isArray(permissions) || permissions.length === 0) {
@@ -201,11 +193,11 @@ export async function DELETE(
             },
           },
           { status: 400 }
-        );
+        )
       }
 
       // 检查角色是否存在
-      const role = await getRoleById(roleId);
+      const role = await getRoleById(roleId)
       if (!role) {
         return NextResponse.json(
           {
@@ -216,7 +208,7 @@ export async function DELETE(
             },
           },
           { status: 404 }
-        );
+        )
       }
 
       // 系统角色不能修改权限
@@ -230,13 +222,13 @@ export async function DELETE(
             },
           },
           { status: 403 }
-        );
+        )
       }
 
       // 过滤有效的权限
       const validPermissions = permissions.filter((p): p is Permission =>
         Object.values(Permission).includes(p)
-      );
+      )
 
       if (validPermissions.length === 0) {
         return NextResponse.json(
@@ -248,17 +240,17 @@ export async function DELETE(
             },
           },
           { status: 400 }
-        );
+        )
       }
 
       // 移除权限
-      await removePermissionsFromRole(roleId as Role, validPermissions);
+      await removePermissionsFromRole(roleId as Role, validPermissions)
 
       logger.info('Permissions removed from role', {
         roleId,
         permissions: validPermissions.length,
         removedBy: context.userId,
-      });
+      })
 
       return NextResponse.json({
         success: true,
@@ -268,9 +260,9 @@ export async function DELETE(
           count: validPermissions.length,
         },
         message: 'Permissions removed successfully',
-      });
-    } catch (_error) {
-      logger.error('Failed to remove permissions:', { error, userId: context.userId });
+      })
+    } catch (error) {
+      logger.error('Failed to remove permissions:', { error, userId: context.userId })
       return NextResponse.json(
         {
           success: false,
@@ -280,7 +272,7 @@ export async function DELETE(
           },
         },
         { status: 500 }
-      );
+      )
     }
-  });
+  })
 }

@@ -1,4 +1,5 @@
 # French i18n Translation Progress Report
+
 **Date:** 2026-03-26
 **Project:** 7zi Studio Multi-language Support
 
@@ -8,11 +9,11 @@
 
 ### Current Status
 
-| Language | Progress | Keys Translated | Total Keys | Completion |
-|----------|----------|----------------|------------|------------|
-| 🇬🇧 English (Reference) | 100% | 457 | 457 | ✅ Complete |
-| 🇩🇪 German | 100% | 457 | 457 | ✅ Complete |
-| 🇫🇷 French | 100% | 457 | 457 | ✅ Complete |
+| Language               | Progress | Keys Translated | Total Keys | Completion  |
+| ---------------------- | -------- | --------------- | ---------- | ----------- |
+| 🇬🇧 English (Reference) | 100%     | 457             | 457        | ✅ Complete |
+| 🇩🇪 German              | 100%     | 457             | 457        | ✅ Complete |
+| 🇫🇷 French              | 100%     | 457             | 457        | ✅ Complete |
 
 ### Key Highlights
 

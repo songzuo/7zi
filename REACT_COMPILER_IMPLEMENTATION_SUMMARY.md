@@ -13,16 +13,17 @@
 
 已添加以下环境变量到 `.env.example`:
 
-| 环境变量 | 类型 | 默认值 | 说明 |
-|---------|------|--------|------|
-| `ENABLE_REACT_COMPILER` | 服务端 | `false` | 构建时控制编译器启用 |
-| `NEXT_PUBLIC_REACT_COMPILER_ENABLED` | 客户端 | `false` | 运行时检查和调试 |
-| `REACT_COMPILER_MODE` | 服务端 | `opt-out` | 编译模式（opt-in/opt-out/all） |
-| `REACT_COMPILER_EXCLUDE_PATTERNS` | 服务端 | 空 | 排除特定文件模式 |
+| 环境变量                             | 类型   | 默认值    | 说明                           |
+| ------------------------------------ | ------ | --------- | ------------------------------ |
+| `ENABLE_REACT_COMPILER`              | 服务端 | `false`   | 构建时控制编译器启用           |
+| `NEXT_PUBLIC_REACT_COMPILER_ENABLED` | 客户端 | `false`   | 运行时检查和调试               |
+| `REACT_COMPILER_MODE`                | 服务端 | `opt-out` | 编译模式（opt-in/opt-out/all） |
+| `REACT_COMPILER_EXCLUDE_PATTERNS`    | 服务端 | 空        | 排除特定文件模式               |
 
 ### 2. 配置更新 ✅
 
 已更新 `next.config.ts`，实现：
+
 - ✅ 只在环境变量启用时应用编译器
 - ✅ 智能过滤逻辑（支持三种模式）
 - ✅ 固定黑名单（node_modules, .next, build 等）
@@ -33,6 +34,7 @@
 创建了两个兼容性检测工具：
 
 **Bash 版本** (`scripts/check-react-compiler-compatibility.sh`):
+
 - 检测 Rules of React 违规
 - 检测手动优化代码
 - 检测第三方库兼容性
@@ -40,6 +42,7 @@
 - 生成 TXT 和 Markdown 报告
 
 **Node.js 版本** (`scripts/check-react-compiler-compatibility.js`):
+
 - 详细代码分析
 - JSON 格式报告
 - 智能建议生成
@@ -47,6 +50,7 @@
 ### 4. 回滚机制 ✅
 
 创建了回滚工具 (`scripts/rollback-react-compiler.sh`):
+
 - ✅ 一键禁用编译器（自动备份）
 - ✅ 一键恢复编译器（从备份）
 - ✅ 备份列表查询
@@ -67,15 +71,15 @@
 
 ## 📦 交付物清单
 
-| 类型 | 文件 | 说明 |
-|-----|------|------|
-| **配置文件** | `.env.example` | 环境变量配置 |
-| **配置文件** | `next.config.ts` | Next.js 配置更新 |
-| **检测工具** | `scripts/check-react-compiler-compatibility.sh` | Bash 版本兼容性检测 |
+| 类型         | 文件                                            | 说明                   |
+| ------------ | ----------------------------------------------- | ---------------------- |
+| **配置文件** | `.env.example`                                  | 环境变量配置           |
+| **配置文件** | `next.config.ts`                                | Next.js 配置更新       |
+| **检测工具** | `scripts/check-react-compiler-compatibility.sh` | Bash 版本兼容性检测    |
 | **检测工具** | `scripts/check-react-compiler-compatibility.js` | Node.js 版本兼容性检测 |
-| **回滚工具** | `scripts/rollback-react-compiler.sh` | 快速回滚工具 |
-| **文档** | `REACT_COMPILER_OPTIONAL_IMPLEMENTATION.md` | 完整实施报告 |
-| **文档** | `CHANGELOG.md` | 版本变更记录 |
+| **回滚工具** | `scripts/rollback-react-compiler.sh`            | 快速回滚工具           |
+| **文档**     | `REACT_COMPILER_OPTIONAL_IMPLEMENTATION.md`     | 完整实施报告           |
+| **文档**     | `CHANGELOG.md`                                  | 版本变更记录           |
 
 ---
 
@@ -121,32 +125,35 @@ NEXT_PUBLIC_REACT_COMPILER_ENABLED=false
 
 ## 📊 预期收益
 
-| 指标 | 预期提升 |
-|-----|---------|
+| 指标                 | 预期提升    |
+| -------------------- | ----------- |
 | **不必要的重新渲染** | -20% ~ -40% |
-| **UI 响应速度** | +15% ~ +25% |
-| **构建时间增加** | < 10% |
-| **包体积** | -3% ~ -5% |
-| **回滚时间** | < 5 分钟 |
-| **部署方式** | 零停机 |
+| **UI 响应速度**      | +15% ~ +25% |
+| **构建时间增加**     | < 10%       |
+| **包体积**           | -3% ~ -5%   |
+| **回滚时间**         | < 5 分钟    |
+| **部署方式**         | 零停机      |
 
 ---
 
 ## 🚀 下一步建议
 
 ### 短期（1-2 周）
+
 1. 在测试环境启用编译器
 2. 运行兼容性检测
 3. 监控性能指标
 4. 处理发现的问题
 
 ### 中期（3-4 周）
+
 1. 扩展到生产环境
 2. 持续监控性能
 3. 优化不兼容的组件
 4. 移除冗余的手动优化
 
 ### 长期（持续）
+
 1. 建立性能监控机制
 2. 定期审查和优化
 3. 跟进 React Compiler 版本更新

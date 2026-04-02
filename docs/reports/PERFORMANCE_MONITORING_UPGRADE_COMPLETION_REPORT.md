@@ -15,6 +15,7 @@ Successfully implemented a complete performance root cause analysis system for 7
 **Location:** `src/lib/monitoring/root-cause/performance-waterfall-enhanced.ts`
 
 **Features:**
+
 - ✅ Page load performance waterfall visualization
 - ✅ Network request timing breakdown (DNS, TCP, TLS, Request, Response)
 - ✅ Render blocking analysis
@@ -24,6 +25,7 @@ Successfully implemented a complete performance root cause analysis system for 7
 - ✅ Resource impact estimation
 
 **Key Methods:**
+
 - `startObserving()` - Start observing resource timing via Performance Observer
 - `analyzeWaterfall()` - Complete waterfall analysis
 - `estimateFCP()` - Calculate FCP from critical path
@@ -36,6 +38,7 @@ Successfully implemented a complete performance root cause analysis system for 7
 **Location:** `src/lib/monitoring/root-cause/performance-root-cause.ts`
 
 **Features:**
+
 - ✅ Slow page diagnosis (FCP > 1.8s, LCP > 2.5s, CLS > 0.1, INP > 200ms)
 - ✅ Memory leak detection (long-term heap growth > 50MB)
 - ✅ Network bottleneck identification (DNS/TCP/TLS connection times)
@@ -45,15 +48,16 @@ Successfully implemented a complete performance root cause analysis system for 7
 
 **Thresholds:**
 
-| Metric | Good | Needs Improvement | Poor |
-|--------|-------|------------------|-------|
-| FCP | ≤1.8s | 1.8s-3s | >3s |
-| LCP | ≤2.5s | 2.5s-4s | >4s |
-| CLS | ≤0.1 | 0.1-0.25 | >0.25 |
-| INP | ≤200ms | 200ms-500ms | >500ms |
-| TTFB | ≤800ms | 800ms-1.8s | >1.8s |
+| Metric | Good   | Needs Improvement | Poor   |
+| ------ | ------ | ----------------- | ------ |
+| FCP    | ≤1.8s  | 1.8s-3s           | >3s    |
+| LCP    | ≤2.5s  | 2.5s-4s           | >4s    |
+| CLS    | ≤0.1   | 0.1-0.25          | >0.25  |
+| INP    | ≤200ms | 200ms-500ms       | >500ms |
+| TTFB   | ≤800ms | 800ms-1.8s        | >1.8s  |
 
 **Key Methods:**
+
 - `diagnoseSlowPages()` - Diagnose Core Web Vitals issues
 - `detectMemoryLeak()` - Detect memory leaks from samples
 - `identifyNetworkBottlenecks()` - Find network timing issues
@@ -67,6 +71,7 @@ Successfully implemented a complete performance root cause analysis system for 7
 **Location:** `src/lib/monitoring/root-cause/performance-budget.ts`
 
 **Features:**
+
 - ✅ Performance budget thresholds for all key metrics
 - ✅ Budget violation detection (warnings and errors)
 - ✅ Budget compliance reporting
@@ -76,27 +81,28 @@ Successfully implemented a complete performance root cause analysis system for 7
 
 **Default Budget Thresholds:**
 
-| Metric | Threshold | Severity |
-|--------|-----------|-----------|
-| FCP | 1.8s | error |
-| LCP | 2.5s | error |
-| CLS | 0.1 | error |
-| FID | 100ms | error |
-| INP | 200ms | error |
-| TTFB | 800ms | error |
-| TBT | 200ms | warning |
-| TTI | 3.8s | warning |
-| Total Transfer Size | 1MB | error |
-| JavaScript Size | 300KB | error |
-| CSS Size | 100KB | warning |
-| Image Size | 500KB | error |
-| Request Count | 50 | warning |
-| Third-Party Requests | 20 | error |
-| DOM Node Count | 1500 | warning |
-| Memory Usage | 100MB | warning |
-| Memory Usage Ratio | 70% | error |
+| Metric               | Threshold | Severity |
+| -------------------- | --------- | -------- |
+| FCP                  | 1.8s      | error    |
+| LCP                  | 2.5s      | error    |
+| CLS                  | 0.1       | error    |
+| FID                  | 100ms     | error    |
+| INP                  | 200ms     | error    |
+| TTFB                 | 800ms     | error    |
+| TBT                  | 200ms     | warning  |
+| TTI                  | 3.8s      | warning  |
+| Total Transfer Size  | 1MB       | error    |
+| JavaScript Size      | 300KB     | error    |
+| CSS Size             | 100KB     | warning  |
+| Image Size           | 500KB     | error    |
+| Request Count        | 50        | warning  |
+| Third-Party Requests | 20        | error    |
+| DOM Node Count       | 1500      | warning  |
+| Memory Usage         | 100MB     | warning  |
+| Memory Usage Ratio   | 70%       | error    |
 
 **Key Methods:**
+
 - `checkBudgets()` - Check metrics against thresholds
 - `setThreshold()` / `setThresholds()` - Manage thresholds
 - `getAlerts()` - Get violation alerts
@@ -109,10 +115,12 @@ Successfully implemented a complete performance root cause analysis system for 7
 ### 4. Unit Tests
 
 **Files:**
+
 - `src/lib/monitoring/root-cause/performance-root-cause.test.ts` (517 lines)
 - `src/lib/monitoring/root-cause/performance-budget.test.ts` (726 lines)
 
 **Coverage:**
+
 - ✅ Performance Root Cause Analyzer: All major methods tested
 - ✅ Performance Budget Controller: All major methods tested
 - ✅ Mock utilities for testing
@@ -125,6 +133,7 @@ Successfully implemented a complete performance root cause analysis system for 7
 **File:** `src/lib/monitoring/README.md`
 
 **Contents:**
+
 - ✅ Overview of all monitoring modules
 - ✅ Detailed usage examples for each module
 - ✅ API reference with type definitions
@@ -199,14 +208,14 @@ console.log('Priority Actions:', analysis.priorityActions);
 ### Quick Start - Budget Checking
 
 ```typescript
-import { performanceBudgetController } from '@/lib/monitoring/root-cause';
+import { performanceBudgetController } from '@/lib/monitoring/root-cause'
 
 // Check budgets
-const report = performanceBudgetController.checkBudgets(metrics, url);
+const report = performanceBudgetController.checkBudgets(metrics, url)
 
 if (report.complianceStatus === 'violated') {
-  console.log('Violations:', report.violations);
-  console.log('Recommendations:', report.recommendations);
+  console.log('Violations:', report.violations)
+  console.log('Recommendations:', report.recommendations)
 }
 ```
 

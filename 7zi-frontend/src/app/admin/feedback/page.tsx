@@ -4,15 +4,15 @@
  * Provides an interface for admins to view and manage user feedbacks
  */
 
-'use client';
+'use client'
 
-import { useEffect, useState } from 'react';
-import FeedbackAdminPanel from '@/components/feedback/FeedbackAdminPanel';
-import { createMockUser, UserRole } from '@/lib/auth';
+import { useEffect, useState } from 'react'
+import FeedbackAdminPanel from '@/components/feedback/FeedbackAdminPanel'
+import { createMockUser, UserRole } from '@/lib/auth'
 
 export default function AdminFeedbackPage() {
-  const user = createMockUser({ role: UserRole.ADMIN });
-  const [currentUser, setCurrentUser] = useState<any>(null);
+  const user = createMockUser({ role: UserRole.ADMIN })
+  const [currentUser, setCurrentUser] = useState<any>(null)
 
   useEffect(() => {
     if (user) {
@@ -21,17 +21,17 @@ export default function AdminFeedbackPage() {
         name: user.username || 'Admin',
         email: user.email || 'admin@example.com',
         role: user.role,
-      });
+      })
     }
-  }, [user]);
+  }, [user])
 
   if (!user || user.role !== 'admin') {
     return (
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
-        <div className="text-center max-w-md mx-auto p-8">
-          <div className="w-16 h-16 bg-red-100 rounded-full flex items-center justify-center mx-auto mb-4">
+      <div className="flex min-h-screen items-center justify-center bg-gray-50">
+        <div className="mx-auto max-w-md p-8 text-center">
+          <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-red-100">
             <svg
-              className="w-8 h-8 text-red-600"
+              className="h-8 w-8 text-red-600"
               fill="none"
               viewBox="0 0 24 24"
               stroke="currentColor"
@@ -44,33 +44,31 @@ export default function AdminFeedbackPage() {
               />
             </svg>
           </div>
-          <h1 className="text-2xl font-bold text-gray-900 mb-2">
-            需要管理员权限
-          </h1>
-          <p className="text-gray-600 mb-6">
+          <h1 className="mb-2 text-2xl font-bold text-gray-900">需要管理员权限</h1>
+          <p className="mb-6 text-gray-600">
             您需要管理员权限才能访问此页面。如果您是管理员，请先登录。
           </p>
           <button
-            onClick={() => window.location.href = '/'}
-            className="px-6 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-colors"
+            onClick={() => (window.location.href = '/')}
+            className="rounded-lg bg-blue-500 px-6 py-2 text-white transition-colors hover:bg-blue-600"
           >
             返回首页
           </button>
         </div>
       </div>
-    );
+    )
   }
 
   if (!currentUser) {
     return (
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+      <div className="flex min-h-screen items-center justify-center bg-gray-50">
         <div className="text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-500 mx-auto mb-4" />
+          <div className="mx-auto mb-4 h-12 w-12 animate-spin rounded-full border-b-2 border-blue-500" />
           <p className="text-gray-600">加载中...</p>
         </div>
       </div>
-    );
+    )
   }
 
-  return <FeedbackAdminPanel currentUser={currentUser} />;
+  return <FeedbackAdminPanel currentUser={currentUser} />
 }

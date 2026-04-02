@@ -4,16 +4,13 @@
  * GET  /api/workflow/[id]/run - 获取工作流运行历史
  */
 
-import { NextRequest } from 'next/server';
-import { workflowEngine } from '@/lib/workflow/engine';
-import { WorkflowStatus, NodeType, EdgeType, InstanceStatus } from '@/types/workflow';
-import {
-  createSuccessResponse,
-  createErrorResponse,
-} from '@/lib/api/error-handler';
+import { NextRequest } from 'next/server'
+import { workflowEngine } from '@/lib/workflow/engine'
+import { WorkflowStatus, NodeType, EdgeType, InstanceStatus } from '@/types/workflow'
+import { createSuccessResponse, createErrorResponse } from '@/lib/api/error-handler'
 
 interface RouteParams {
-  params: Promise<{ id: string }>;
+  params: Promise<{ id: string }>
 }
 
 /**
@@ -22,8 +19,8 @@ interface RouteParams {
  */
 export async function POST(request: NextRequest, { params }: RouteParams) {
   try {
-    const { id } = await params;
-    const body = await request.json();
+    const { id } = await params
+    const body = await request.json()
 
     // 创建工作流定义（模拟 - 实际应该从数据库读取）
     const workflow = {
@@ -84,21 +81,21 @@ export async function POST(request: NextRequest, { params }: RouteParams) {
         createdBy: 'user_1',
         updatedBy: 'user_1',
       },
-    };
+    }
 
     // 注册工作流
-    workflowEngine.registerWorkflow(workflow);
+    workflowEngine.registerWorkflow(workflow)
 
     // 创建实例
     const instance = workflowEngine.createInstance(id, body.inputs, {
       triggeredBy: body.userId || 'system',
       triggerType: body.triggerType || 'manual',
-    });
+    })
 
     // 异步执行工作流（不等待完成）
-    workflowEngine.executeInstance(instance.id).catch((error) => {
-      console.error('工作流执行失败:', error);
-    });
+    workflowEngine.executeInstance(instance.id).catch(error => {
+      console.error('工作流执行失败:', error)
+    })
 
     return createSuccessResponse({
       instanceId: instance.id,
@@ -106,11 +103,9 @@ export async function POST(request: NextRequest, { params }: RouteParams) {
       status: instance.status,
       message: '工作流已开始运行',
       metadata: instance.metadata,
-    });
-  } catch (_error) {
-    return createErrorResponse(
-      error instanceof Error ? error : new Error(String(error))
-    );
+    })
+  } catch (error) {
+    return createErrorResponse(error instanceof Error ? error : new Error(String(error)))
   }
 }
 
@@ -120,11 +115,11 @@ export async function POST(request: NextRequest, { params }: RouteParams) {
  */
 export async function GET(request: NextRequest, { params }: RouteParams) {
   try {
-    const { id } = await params;
-    const { searchParams } = new URL(request.url);
-    const status = searchParams.get('status');
-    const limit = parseInt(searchParams.get('limit') || '50');
-    const offset = parseInt(searchParams.get('offset') || '0');
+    const { id } = await params
+    const { searchParams } = new URL(request.url)
+    const status = searchParams.get('status')
+    const limit = parseInt(searchParams.get('limit') || '50')
+    const offset = parseInt(searchParams.get('offset') || '0')
 
     // 模拟数据 - 实际实现应该从数据库读取
     const instances = [
@@ -217,24 +212,24 @@ export async function GET(request: NextRequest, { params }: RouteParams) {
           triggerType: 'api' as const,
         },
       },
-    ];
+    ]
 
     // 过滤
-    let filtered = instances;
+    let filtered = instances
     if (status) {
-      filtered = filtered.filter((i) => i.status === status);
+      filtered = filtered.filter(i => i.status === status)
     }
 
     // 分页
-    const paginated = filtered.slice(offset, offset + limit);
+    const paginated = filtered.slice(offset, offset + limit)
 
     // 统计信息
     const stats = {
       total: instances.length,
-      success: instances.filter((i) => i.status === InstanceStatus.COMPLETED).length,
-      failed: instances.filter((i) => i.status === InstanceStatus.FAILED).length,
-      running: instances.filter((i) => i.status === InstanceStatus.RUNNING).length,
-    };
+      success: instances.filter(i => i.status === InstanceStatus.COMPLETED).length,
+      failed: instances.filter(i => i.status === InstanceStatus.FAILED).length,
+      running: instances.filter(i => i.status === InstanceStatus.RUNNING).length,
+    }
 
     return createSuccessResponse({
       instances: paginated,
@@ -242,10 +237,8 @@ export async function GET(request: NextRequest, { params }: RouteParams) {
       total: filtered.length,
       limit,
       offset,
-    });
-  } catch (_error) {
-    return createErrorResponse(
-      error instanceof Error ? error : new Error(String(error))
-    );
+    })
+  } catch (error) {
+    return createErrorResponse(error instanceof Error ? error : new Error(String(error)))
   }
 }

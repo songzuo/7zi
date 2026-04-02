@@ -10,32 +10,28 @@ export function getSSEHeaders() {
   return {
     'Content-Type': 'text/event-stream',
     'Cache-Control': 'no-cache, no-transform',
-    'Connection': 'keep-alive',
+    Connection: 'keep-alive',
     'X-Accel-Buffering': 'no', // Disable Nginx buffering
-  };
+  }
 }
 
 /**
  * Format SSE event
  */
-export function formatSSEEvent(
-  data: unknown,
-  eventType?: string,
-  eventId?: string
-): string {
-  let event = '';
+export function formatSSEEvent(data: unknown, eventType?: string, eventId?: string): string {
+  let event = ''
 
   if (eventId) {
-    event += `id: ${eventId}\n`;
+    event += `id: ${eventId}\n`
   }
 
   if (eventType) {
-    event += `event: ${eventType}\n`;
+    event += `event: ${eventType}\n`
   }
 
-  event += `data: ${JSON.stringify(data)}\n\n`;
+  event += `data: ${JSON.stringify(data)}\n\n`
 
-  return event;
+  return event
 }
 
 /**
@@ -44,44 +40,44 @@ export function formatSSEEvent(
 export function parseSSEMessage(
   message: string
 ): { event?: string; id?: string; data: unknown } | null {
-  const lines = message.split('\n').filter((line) => line.trim());
+  const lines = message.split('\n').filter(line => line.trim())
   const result: { event?: string; id?: string; data: unknown } = {
     data: null,
-  };
+  }
 
   for (const line of lines) {
-    const [field, value] = line.split(': ', 2) as [string, string];
+    const [field, value] = line.split(': ', 2) as [string, string]
 
     switch (field) {
       case 'event':
-        result.event = value;
-        break;
+        result.event = value
+        break
       case 'id':
-        result.id = value;
-        break;
+        result.id = value
+        break
       case 'data':
         try {
-          result.data = JSON.parse(value);
-        } catch {
-          result.data = value;
+          result.data = JSON.parse(value)
+        } catch (error) {
+          result.data = value
         }
-        break;
+        break
     }
   }
 
   if (!result.data) {
-    return null;
+    return null
   }
 
-  return result;
+  return result
 }
 
 /**
  * Validate SSE connection
  */
 export function isValidSSEConnection(request: Request): boolean {
-  const accept = request.headers.get('accept');
-  return accept?.includes('text/event-stream') ?? false;
+  const accept = request.headers.get('accept')
+  return accept?.includes('text/event-stream') ?? false
 }
 
 /**
@@ -92,5 +88,5 @@ export function getClientIP(request: Request): string | null {
     request.headers.get('x-forwarded-for')?.split(',')[0].trim() ||
     request.headers.get('x-real-ip') ||
     null
-  );
+  )
 }

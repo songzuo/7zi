@@ -1,4 +1,4 @@
-'use client';
+'use client'
 
 /**
  * Lazy Loading Components - 代码分割和懒加载统一管理
@@ -10,18 +10,18 @@
  * - 优化首屏加载速度
  */
 
-import dynamic from 'next/dynamic';
-import { LoadingSpinner } from '@/components/LoadingSpinner';
-import React from 'react';
+import dynamic from 'next/dynamic'
+import { LoadingSpinner } from '@/components/LoadingSpinner'
+import React from 'react'
 
 // ============================================================================
 // 通用 Loading Fallback 组件
 // ============================================================================
 
 interface LoadingFallbackProps {
-  message?: string;
-  size?: 'sm' | 'md' | 'lg';
-  className?: string;
+  message?: string
+  size?: 'sm' | 'md' | 'lg'
+  className?: string
 }
 
 export function LoadingFallback({
@@ -30,13 +30,13 @@ export function LoadingFallback({
   className = '',
 }: LoadingFallbackProps) {
   return (
-    <div className={`p-8 flex items-center justify-center ${className}`}>
+    <div className={`flex items-center justify-center p-8 ${className}`}>
       <div className="text-center">
         <LoadingSpinner size={size} />
         <p className="mt-3 text-sm text-zinc-500 dark:text-zinc-400">{message}</p>
       </div>
     </div>
-  );
+  )
 }
 
 // ============================================================================
@@ -54,7 +54,7 @@ export const LazyAIChat = dynamic(
     loading: () => <LoadingFallback message="加载 AI 助手..." size="md" />,
     ssr: false,
   }
-);
+)
 
 /**
  * GitHub 活动组件
@@ -67,7 +67,7 @@ export const LazyGitHubActivity = dynamic(
     loading: () => <LoadingFallback message="加载 GitHub 活动..." size="md" />,
     ssr: false,
   }
-);
+)
 
 /**
  * 项目仪表盘组件
@@ -80,7 +80,7 @@ export const LazyProjectDashboard = dynamic(
     loading: () => <LoadingFallback message="加载项目仪表盘..." size="md" />,
     ssr: false,
   }
-);
+)
 
 /**
  * 任务看板组件
@@ -93,7 +93,7 @@ export const LazyTaskBoard = dynamic(
     loading: () => <LoadingFallback message="加载任务看板..." size="md" />,
     ssr: false,
   }
-);
+)
 
 /**
  * 活动日志组件
@@ -102,13 +102,10 @@ export const LazyTaskBoard = dynamic(
  */
 export const LazyActivityLog = dynamic<
   React.ComponentProps<typeof import('@/components/ActivityLog').ActivityLog>
->(
-  () => import('@/components/ActivityLog').then(mod => ({ default: mod.ActivityLog })),
-  {
-    loading: () => <LoadingFallback message="加载活动日志..." size="md" />,
-    ssr: false,
-  }
-);
+>(() => import('@/components/ActivityLog').then(mod => ({ default: mod.ActivityLog })), {
+  loading: () => <LoadingFallback message="加载活动日志..." size="md" />,
+  ssr: false,
+})
 
 /**
  * 实时仪表盘组件
@@ -119,15 +116,11 @@ export const LazyRealtimeDashboard = dynamic(
   () => import('@/components/RealtimeDashboard').then(mod => ({ default: mod.RealtimeDashboard })),
   {
     loading: () => (
-      <LoadingFallback
-        message="加载实时仪表盘..."
-        size="lg"
-        className="bg-zinc-900 rounded-xl"
-      />
+      <LoadingFallback message="加载实时仪表盘..." size="lg" className="rounded-xl bg-zinc-900" />
     ),
     ssr: false,
   }
-);
+)
 
 /**
  * 团队活动追踪组件
@@ -135,18 +128,19 @@ export const LazyRealtimeDashboard = dynamic(
  * - 用途: 团队成员活动追踪和统计
  */
 export const LazyTeamActivityTracker = dynamic(
-  () => import('@/components/TeamActivityTracker').then(mod => ({ default: mod.TeamActivityTracker })),
+  () =>
+    import('@/components/TeamActivityTracker').then(mod => ({ default: mod.TeamActivityTracker })),
   {
     loading: () => (
       <LoadingFallback
         message="加载团队活动追踪..."
         size="md"
-        className="bg-white dark:bg-zinc-800 rounded-xl"
+        className="rounded-xl bg-white dark:bg-zinc-800"
       />
     ),
     ssr: false,
   }
-);
+)
 
 // ============================================================================
 // 分析和监控组件动态导入
@@ -158,18 +152,21 @@ export const LazyTeamActivityTracker = dynamic(
  * - 用途: 详细的数据分析和图表
  */
 export const LazyAnalyticsDashboard = dynamic(
-  () => import('@/components/analytics/AnalyticsDashboard').then(mod => ({ default: mod.AnalyticsDashboard })),
+  () =>
+    import('@/components/analytics/AnalyticsDashboard').then(mod => ({
+      default: mod.AnalyticsDashboard,
+    })),
   {
     loading: () => (
       <LoadingFallback
         message="加载分析仪表盘..."
         size="lg"
-        className="bg-white dark:bg-zinc-800 rounded-xl"
+        className="rounded-xl bg-white dark:bg-zinc-800"
       />
     ),
     ssr: false,
   }
-);
+)
 
 /**
  * 监控仪表盘组件
@@ -177,18 +174,17 @@ export const LazyAnalyticsDashboard = dynamic(
  * - 用途: 系统监控指标展示
  */
 export const LazyMetricsDashboard = dynamic(
-  () => import('@/components/monitoring/MetricsDashboard').then(mod => ({ default: mod.MetricsDashboard })),
+  () =>
+    import('@/components/monitoring/MetricsDashboard').then(mod => ({
+      default: mod.MetricsDashboard,
+    })),
   {
     loading: () => (
-      <LoadingFallback
-        message="加载监控仪表盘..."
-        size="lg"
-        className="bg-zinc-900 rounded-xl"
-      />
+      <LoadingFallback message="加载监控仪表盘..." size="lg" className="rounded-xl bg-zinc-900" />
     ),
     ssr: false,
   }
-);
+)
 
 // ============================================================================
 // 协作和会议组件动态导入
@@ -203,15 +199,11 @@ export const LazyKnowledgeLatticeScene = dynamic(
   () => import('@/components/knowledge-lattice/KnowledgeLatticeScene'),
   {
     loading: () => (
-      <LoadingFallback
-        message="加载知识图谱..."
-        size="lg"
-        className="bg-zinc-900 rounded-lg"
-      />
+      <LoadingFallback message="加载知识图谱..." size="lg" className="rounded-lg bg-zinc-900" />
     ),
     ssr: false,
   }
-);
+)
 
 /**
  * 会议房间组件
@@ -225,12 +217,12 @@ export const LazyMeetingRoom = dynamic(
       <LoadingFallback
         message="加载会议房间..."
         size="lg"
-        className="bg-white dark:bg-zinc-800 rounded-xl"
+        className="rounded-xl bg-white dark:bg-zinc-800"
       />
     ),
     ssr: false,
   }
-);
+)
 
 /**
  * 协作组件
@@ -268,12 +260,12 @@ export const LazyDataExportImport = dynamic(
       <LoadingFallback
         message="加载数据管理..."
         size="md"
-        className="bg-white dark:bg-zinc-800 rounded-xl"
+        className="rounded-xl bg-white dark:bg-zinc-800"
       />
     ),
     ssr: false,
   }
-);
+)
 
 /**
  * 全局搜索组件
@@ -286,7 +278,7 @@ export const LazyGlobalSearch = dynamic(
     loading: () => <LoadingFallback message="加载搜索..." size="sm" />,
     ssr: false,
   }
-);
+)
 
 /**
  * 动画进度条组件
@@ -299,7 +291,7 @@ export const LazyAnimatedProgressBar = dynamic(
     loading: () => <LoadingFallback message="加载进度条..." size="sm" />,
     ssr: false,
   }
-);
+)
 
 /**
  * 用户设置页面组件
@@ -307,18 +299,19 @@ export const LazyAnimatedProgressBar = dynamic(
  * - 用途: 用户偏好设置
  */
 export const LazyUserSettings = dynamic(
-  () => import('@/components/UserSettings/UserSettingsPage').then(mod => ({ default: mod.default })),
+  () =>
+    import('@/components/UserSettings/UserSettingsPage').then(mod => ({ default: mod.default })),
   {
     loading: () => (
       <LoadingFallback
         message="加载设置..."
         size="md"
-        className="bg-white dark:bg-zinc-800 rounded-xl"
+        className="rounded-xl bg-white dark:bg-zinc-800"
       />
     ),
     ssr: false,
   }
-);
+)
 
 /**
  * 反馈管理面板组件
@@ -326,18 +319,21 @@ export const LazyUserSettings = dynamic(
  * - 用途: 管理用户反馈
  */
 export const LazyFeedbackManagement = dynamic(
-  () => import('@/components/admin/FeedbackManagementPanel').then(mod => ({ default: mod.FeedbackManagementPanel })),
+  () =>
+    import('@/components/admin/FeedbackManagementPanel').then(mod => ({
+      default: mod.FeedbackManagementPanel,
+    })),
   {
     loading: () => (
       <LoadingFallback
         message="加载反馈管理..."
         size="md"
-        className="bg-white dark:bg-zinc-800 rounded-xl"
+        className="rounded-xl bg-white dark:bg-zinc-800"
       />
     ),
     ssr: false,
   }
-);
+)
 
 /**
  * 增强反馈模态框组件
@@ -350,7 +346,7 @@ export const LazyEnhancedFeedbackModal = dynamic(
     loading: () => <LoadingFallback message="加载反馈表单..." size="sm" />,
     ssr: false,
   }
-);
+)
 
 // ============================================================================
 // 示例组件动态导入
@@ -365,11 +361,14 @@ export const LazyLazyLoadImage = dynamic(
   () => import('@/components/LazyLoadImage').then(mod => ({ default: mod.default })),
   {
     loading: () => (
-      <div className="bg-zinc-100 dark:bg-zinc-800 rounded-lg animate-pulse" style={{ minHeight: '200px' }} />
+      <div
+        className="animate-pulse rounded-lg bg-zinc-100 dark:bg-zinc-800"
+        style={{ minHeight: '200px' }}
+      />
     ),
     ssr: false,
   }
-);
+)
 
 // ============================================================================
 // 性能监控仪表盘（7zi-frontend 项目）
@@ -429,18 +428,22 @@ export const createLoadingFallback = (
   size: 'sm' | 'md' | 'lg' = 'md',
   className: string = ''
 ): React.FC => {
-  const FallbackComponent = () => <LoadingFallback message={message} size={size} className={className} />;
-  FallbackComponent.displayName = `LoadingFallback(${message})`;
-  return FallbackComponent;
-};
+  const FallbackComponent = () => (
+    <LoadingFallback message={message} size={size} className={className} />
+  )
+  FallbackComponent.displayName = `LoadingFallback(${message})`
+  return FallbackComponent
+}
 
 /**
  * 预加载组件（可选优化）
  * 注意：谨慎使用，不要预加载所有组件
  */
-export const preloadComponent = (componentLoader: () => Promise<{ default: React.ComponentType }>) => {
-  componentLoader();
-};
+export const preloadComponent = (
+  componentLoader: () => Promise<{ default: React.ComponentType }>
+) => {
+  componentLoader()
+}
 
 /**
  * 批量预加载（在路由变化时调用）
@@ -449,12 +452,12 @@ export const preloadComponents = (loaders: Array<() => void>) => {
   // 使用 requestIdleCallback 在浏览器空闲时预加载
   if (typeof requestIdleCallback !== 'undefined') {
     requestIdleCallback(() => {
-      loaders.forEach(loader => loader());
-    });
+      loaders.forEach(loader => loader())
+    })
   } else {
     // 降级方案
     setTimeout(() => {
-      loaders.forEach(loader => loader());
-    }, 1000);
+      loaders.forEach(loader => loader())
+    }, 1000)
   }
-};
+}

@@ -3,7 +3,7 @@
 **Generated:** 2026-03-29  
 **Test File:** `tests/performance/scheduler-performance.test.ts`  
 **Total Tests:** 35  
-**Status:** ✅ ALL PASSED  
+**Status:** ✅ ALL PASSED
 
 ---
 
@@ -13,13 +13,13 @@ The AgentScheduler demonstrates **excellent performance** across all benchmarks,
 
 ### Key Findings
 
-| Metric | Target | Actual | Margin |
-|--------|--------|--------|--------|
-| Initialization | 100ms | **0.04ms** | 2500x faster |
-| Add 1000 tasks | 500ms | **33.77ms** | 15x faster |
-| Find best candidate | 10ms | **0.03ms** | 333x faster |
-| Schedule batch | 200ms | **9.11ms** | 22x faster |
-| Load stats | 10ms | **0.04ms** | 250x faster |
+| Metric              | Target | Actual      | Margin       |
+| ------------------- | ------ | ----------- | ------------ |
+| Initialization      | 100ms  | **0.04ms**  | 2500x faster |
+| Add 1000 tasks      | 500ms  | **33.77ms** | 15x faster   |
+| Find best candidate | 10ms   | **0.03ms**  | 333x faster  |
+| Schedule batch      | 200ms  | **9.11ms**  | 22x faster   |
+| Load stats          | 10ms   | **0.04ms**  | 250x faster  |
 
 ---
 
@@ -27,11 +27,11 @@ The AgentScheduler demonstrates **excellent performance** across all benchmarks,
 
 ### 1. Initialization Performance ✅
 
-| Test | Target | Actual | Status |
-|------|--------|--------|--------|
-| Scheduler initialization | 100ms | 0.05ms | ✅ PASS |
-| Reinitialization after reset | 50ms | 0.01ms | ✅ PASS |
-| Agents map initialization | 50ms | 0.02ms | ✅ PASS |
+| Test                         | Target | Actual | Status  |
+| ---------------------------- | ------ | ------ | ------- |
+| Scheduler initialization     | 100ms  | 0.05ms | ✅ PASS |
+| Reinitialization after reset | 50ms   | 0.01ms | ✅ PASS |
+| Agents map initialization    | 50ms   | 0.02ms | ✅ PASS |
 
 **Observation:** Initialization is virtually instantaneous. The 11-agent configuration loads in sub-millisecond time.
 
@@ -39,13 +39,13 @@ The AgentScheduler demonstrates **excellent performance** across all benchmarks,
 
 ### 2. Task Addition Performance ✅
 
-| Test | Target | Actual | Avg/Task | Status |
-|------|--------|--------|----------|--------|
-| Single task add | 5ms | 0.06ms | 0.06ms | ✅ PASS |
-| Add 100 tasks | 50ms | 3.36ms | 0.034ms | ✅ PASS |
-| Add 500 tasks | 250ms | 17.59ms | 0.035ms | ✅ PASS |
-| Add 1000 tasks | 500ms | 64.27ms | 0.064ms | ✅ PASS |
-| Batch add (100 tasks) | - | 0.34ms | 0.003ms | ✅ PASS |
+| Test                  | Target | Actual  | Avg/Task | Status  |
+| --------------------- | ------ | ------- | -------- | ------- |
+| Single task add       | 5ms    | 0.06ms  | 0.06ms   | ✅ PASS |
+| Add 100 tasks         | 50ms   | 3.36ms  | 0.034ms  | ✅ PASS |
+| Add 500 tasks         | 250ms  | 17.59ms | 0.035ms  | ✅ PASS |
+| Add 1000 tasks        | 500ms  | 64.27ms | 0.064ms  | ✅ PASS |
+| Batch add (100 tasks) | -      | 0.34ms  | 0.003ms  | ✅ PASS |
 
 **Observation:** Task addition scales linearly with minimal overhead. Batch operations are slightly more efficient than individual adds.
 
@@ -65,14 +65,14 @@ Tasks    Time (ms)
 
 ### 3. Matching Algorithm Performance ✅
 
-| Test | Target | Actual | Status |
-|------|--------|--------|--------|
-| Find candidates (single task) | 10ms | 0.15ms | ✅ PASS |
-| Find candidates (100 tasks) | 10ms avg | 0.004ms avg | ✅ PASS |
-| Calculate match score | 1ms | 0.312ms | ✅ PASS |
-| Rank candidates | 50ms | 0.10ms | ✅ PASS |
-| Find best candidate | 15ms | 0.25ms | ✅ PASS |
-| Repeated matching (50x) P95 | 10ms | 0.061ms | ✅ PASS |
+| Test                          | Target   | Actual      | Status  |
+| ----------------------------- | -------- | ----------- | ------- |
+| Find candidates (single task) | 10ms     | 0.15ms      | ✅ PASS |
+| Find candidates (100 tasks)   | 10ms avg | 0.004ms avg | ✅ PASS |
+| Calculate match score         | 1ms      | 0.312ms     | ✅ PASS |
+| Rank candidates               | 50ms     | 0.10ms      | ✅ PASS |
+| Find best candidate           | 15ms     | 0.25ms      | ✅ PASS |
+| Repeated matching (50x) P95   | 10ms     | 0.061ms     | ✅ PASS |
 
 **Observation:** The matching algorithm is extremely efficient. For a task requiring architecture work, the matcher found "智能体世界专家" as the best candidate with 69.9% confidence in 0.25ms.
 
@@ -91,12 +91,12 @@ Response Time      10%       0-100
 
 ### 4. Load Balancing Performance ✅
 
-| Test | Target | Actual | Status |
-|------|--------|--------|--------|
-| Load balance calculation | 10ms | 0.26ms | ✅ PASS |
-| Get load stats | 5ms | 0.18ms | ✅ PASS |
-| Scaling suggestion | 5ms | 0.21ms | ✅ PASS |
-| Load updates (11 agents) | 5ms | 0.14ms | ✅ PASS |
+| Test                     | Target | Actual | Status  |
+| ------------------------ | ------ | ------ | ------- |
+| Load balance calculation | 10ms   | 0.26ms | ✅ PASS |
+| Get load stats           | 5ms    | 0.18ms | ✅ PASS |
+| Scaling suggestion       | 5ms    | 0.21ms | ✅ PASS |
+| Load updates (11 agents) | 5ms    | 0.14ms | ✅ PASS |
 
 **Observation:** Load balancing is very efficient. Initial state shows all 11 agents idle (0% load), with the system correctly suggesting potential scale-down.
 
@@ -104,11 +104,11 @@ Response Time      10%       0-100
 
 ### 5. Scheduling Decision Performance ✅
 
-| Test | Target | Actual | Status |
-|------|--------|--------|--------|
-| Single scheduling decision | 50ms | 0.50ms | ✅ PASS |
-| Batch schedule (100 tasks) | 400ms | 5.23ms | ✅ PASS |
-| Full scheduling cycle | 200ms | 5.76ms | ✅ PASS |
+| Test                       | Target | Actual | Status  |
+| -------------------------- | ------ | ------ | ------- |
+| Single scheduling decision | 50ms   | 0.50ms | ✅ PASS |
+| Batch schedule (100 tasks) | 400ms  | 5.23ms | ✅ PASS |
+| Full scheduling cycle      | 200ms  | 5.76ms | ✅ PASS |
 
 **Observation:** Scheduling decisions are made in sub-millisecond time. Batch scheduling shows consistent performance regardless of queue size.
 
@@ -122,18 +122,18 @@ Tasks    Scheduled    Failed    Time
   1000       21         79       3.15ms
 ```
 
-*Note: "Failed" indicates no suitable agent was available for those task types.*
+_Note: "Failed" indicates no suitable agent was available for those task types._
 
 ---
 
 ### 6. Task Ranking Performance ✅
 
-| Test | Target | Actual | Status |
-|------|--------|--------|--------|
-| Rank 100 tasks | 20ms | 0.08ms | ✅ PASS |
-| Rank 1000 tasks | 100ms | 3.46ms | ✅ PASS |
-| Get top 10 from 100 | 10ms | 0.12ms | ✅ PASS |
-| Get stats for 1000 tasks | 20ms | 0.37ms | ✅ PASS |
+| Test                     | Target | Actual | Status  |
+| ------------------------ | ------ | ------ | ------- |
+| Rank 100 tasks           | 20ms   | 0.08ms | ✅ PASS |
+| Rank 1000 tasks          | 100ms  | 3.46ms | ✅ PASS |
+| Get top 10 from 100      | 10ms   | 0.12ms | ✅ PASS |
+| Get stats for 1000 tasks | 20ms   | 0.37ms | ✅ PASS |
 
 **Observation:** Ranking algorithm is highly efficient. Even with 1000 tasks, ranking completes in ~3.5ms.
 
@@ -141,11 +141,11 @@ Tasks    Scheduled    Failed    Time
 
 ### 7. Concurrent Operations Performance ✅
 
-| Test | Target | Actual | Status |
-|------|--------|--------|--------|
-| Concurrent 5x100 task additions | 100ms | 25.81ms | ✅ PASS |
-| Concurrent scheduling (50 tasks) | 200ms | 0.44ms | ✅ PASS |
-| Sustained load (10 iterations) avg | 50ms | 1.90ms | ✅ PASS |
+| Test                               | Target | Actual  | Status  |
+| ---------------------------------- | ------ | ------- | ------- |
+| Concurrent 5x100 task additions    | 100ms  | 25.81ms | ✅ PASS |
+| Concurrent scheduling (50 tasks)   | 200ms  | 0.44ms  | ✅ PASS |
+| Sustained load (10 iterations) avg | 50ms   | 1.90ms  | ✅ PASS |
 
 **Observation:** The scheduler handles concurrent operations well with no performance degradation under sustained load.
 
@@ -167,11 +167,11 @@ Iteration    Time (ms)
 
 ### 8. Memory and Resource Performance ✅
 
-| Test | Target | Actual | Status |
-|------|--------|--------|--------|
+| Test                      | Target       | Actual | Status  |
+| ------------------------- | ------------ | ------ | ------- |
 | Memory churn (100 cycles) | <10MB growth | 1.29MB | ✅ PASS |
-| Export 1000 tasks | 100ms | 5.49ms | ✅ PASS |
-| Reset with 1000 tasks | 50ms | 0.18ms | ✅ PASS |
+| Export 1000 tasks         | 100ms        | 5.49ms | ✅ PASS |
+| Reset with 1000 tasks     | 50ms         | 0.18ms | ✅ PASS |
 
 **Observation:** No memory leaks detected. Memory usage is stable with only 1.29MB growth after 100 cycles of adding/removing tasks.
 
@@ -179,11 +179,11 @@ Iteration    Time (ms)
 
 ### 9. Stress Tests ✅
 
-| Test | Target | Actual | Status |
-|------|--------|--------|--------|
-| Handle 1000 concurrent tasks | 500ms | 3.15ms | ✅ PASS |
-| Rapid operations (500 ops) | 1000ms | 22.95ms | ✅ PASS |
-| Mixed workload (200 tasks) | 500ms | 5.84ms | ✅ PASS |
+| Test                         | Target | Actual  | Status  |
+| ---------------------------- | ------ | ------- | ------- |
+| Handle 1000 concurrent tasks | 500ms  | 3.15ms  | ✅ PASS |
+| Rapid operations (500 ops)   | 1000ms | 22.95ms | ✅ PASS |
+| Mixed workload (200 tasks)   | 500ms  | 5.84ms  | ✅ PASS |
 
 **Observation:** Even under extreme load, the scheduler maintains excellent performance.
 
@@ -229,12 +229,12 @@ Export 1000 tasks   100       5.49      18x
 
 ### Potential Bottlenecks (Future)
 
-| Scenario | Risk Level | Mitigation |
-|----------|------------|------------|
-| 100+ agents | Low | Agent sharding |
-| 10,000+ concurrent tasks | Medium | Task partitioning |
-| Real-time priority changes | Low | Debouncing |
-| Complex dependency graphs | Medium | Lazy evaluation |
+| Scenario                   | Risk Level | Mitigation        |
+| -------------------------- | ---------- | ----------------- |
+| 100+ agents                | Low        | Agent sharding    |
+| 10,000+ concurrent tasks   | Medium     | Task partitioning |
+| Real-time priority changes | Low        | Debouncing        |
+| Complex dependency graphs  | Medium     | Lazy evaluation   |
 
 ---
 
@@ -247,34 +247,42 @@ The scheduler is already well-optimized. All operations complete well under targ
 ### Future Optimizations (If Needed)
 
 1. **Agent Indexing**
+
    ```typescript
    // For 50+ agents, consider indexing by capability
    private capabilityIndex: Map<TaskType, Set<string>>;
    ```
+
    - Benefit: O(1) candidate lookup by task type
    - When to implement: When agent count exceeds 50
 
 2. **Task Batching Optimization**
+
    ```typescript
    // Use bulk operations for batch scheduling
    async scheduleBatch(tasks: Task[]): Promise<BatchResult>
    ```
+
    - Benefit: Reduced overhead for large batches
    - When to implement: When batch sizes exceed 500
 
 3. **Caching Layer**
+
    ```typescript
    // Cache recent match scores
    private matchScoreCache: LRUCache<string, MatchScore>;
    ```
+
    - Benefit: Skip recalculation for similar tasks
    - When to implement: When task patterns repeat frequently
 
 4. **Priority Queue Implementation**
+
    ```typescript
    // Replace array with heap for priority queue
    private pendingTasks: BinaryHeap<Task>;
    ```
+
    - Benefit: O(log n) insertion/removal
    - When to implement: When pending queue exceeds 5000 tasks
 
@@ -319,5 +327,5 @@ The AgentScheduler demonstrates **exceptional performance** across all benchmark
 
 ---
 
-*Report generated by AgentScheduler Performance Test Suite*
-*Run: `npm test -- tests/performance/scheduler-performance.test.ts`*
+_Report generated by AgentScheduler Performance Test Suite_
+_Run: `npm test -- tests/performance/scheduler-performance.test.ts`_

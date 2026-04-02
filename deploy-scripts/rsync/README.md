@@ -129,7 +129,7 @@ if [ -d "${APP_DIR}" ] && [ "\$(ls -A ${APP_DIR})" ]; then
     mkdir -p ${BACKUP_DIR}
     cp -r ${APP_DIR} ${BACKUP_DIR}/backup_${TIMESTAMP}
     echo "✅ 备份完成：${BACKUP_DIR}/backup_${TIMESTAMP}"
-    
+
     # 保留最近 5 个备份
     cd ${BACKUP_DIR}
     ls -dt backup_* 2>/dev/null | tail -n +6 | xargs -r rm -rf
@@ -280,9 +280,9 @@ for SERVER in "${SERVERS[@]}"; do
     echo "=========================================="
     echo "📍 部署到：${SERVER}"
     echo "=========================================="
-    
+
     export DEPLOY_HOST="${SERVER}"
-    
+
     if ./deploy-rsync.sh "${LOCAL_DIR}"; then
         echo "✅ ${SERVER} 部署成功"
     else
@@ -464,25 +464,28 @@ rsync -avz \
 ### 常见问题
 
 1. **权限拒绝**
+
    ```bash
    # 检查 SSH 密钥权限
    chmod 600 ~/.ssh/id_ed25519
-   
+
    # 检查服务器目录权限
    ssh root@server "chown -R www-data:www-data /var/www/myapp"
    ```
 
 2. **连接超时**
+
    ```bash
    # 增加超时时间
    rsync -e "ssh -o ConnectTimeout=30" ...
    ```
 
 3. **磁盘空间不足**
+
    ```bash
    # 检查磁盘空间
    ssh root@server "df -h"
-   
+
    # 清理旧备份
    ssh root@server "find /var/backups -name 'backup_*' -mtime +30 -delete"
    ```

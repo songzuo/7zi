@@ -9,33 +9,33 @@
  * - Preflight handling
  */
 
-import { NextRequest, NextResponse } from 'next/server';
-import { logger } from '@/lib/logger';
+import { NextRequest, NextResponse } from 'next/server'
+import { logger } from '@/lib/logger'
 
 /**
  * CORS configuration
  */
 export interface CORSConfig {
   // Allowed origins (use '*' for all, or array of specific origins)
-  allowedOrigins: string[];
+  allowedOrigins: string[]
 
   // Allowed HTTP methods
-  allowedMethods?: string[];
+  allowedMethods?: string[]
 
   // Allowed headers
-  allowedHeaders?: string[];
+  allowedHeaders?: string[]
 
   // Exposed headers (for browser access)
-  exposedHeaders?: string[];
+  exposedHeaders?: string[]
 
   // Allow credentials (cookies, authorization headers)
-  credentials?: boolean;
+  credentials?: boolean
 
   // Max age for preflight requests (seconds)
-  maxAge?: number;
+  maxAge?: number
 
   // Cache preflight responses
-  cachePreflight?: boolean;
+  cachePreflight?: boolean
 }
 
 /**
@@ -58,14 +58,14 @@ const DEFAULT_DEV_CONFIG: CORSConfig = {
   credentials: true,
   maxAge: 86400, // 24 hours
   cachePreflight: true,
-};
+}
 
 /**
  * Default CORS configuration for production
  */
 const DEFAULT_PROD_CONFIG: CORSConfig = {
   allowedOrigins: process.env.ALLOWED_ORIGINS
-    ? process.env.ALLOWED_ORIGINS.split(',').map((o) => o.trim())
+    ? process.env.ALLOWED_ORIGINS.split(',').map(o => o.trim())
     : [], // Empty means no origins allowed
   allowedMethods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'],
   allowedHeaders: [
@@ -82,50 +82,45 @@ const DEFAULT_PROD_CONFIG: CORSConfig = {
   credentials: true,
   maxAge: 86400, // 24 hours
   cachePreflight: true,
-};
+}
 
 /**
  * Get default CORS configuration based on environment
  */
 function getDefaultConfig(): CORSConfig {
-  return process.env.NODE_ENV === 'production'
-    ? DEFAULT_PROD_CONFIG
-    : DEFAULT_DEV_CONFIG;
+  return process.env.NODE_ENV === 'production' ? DEFAULT_PROD_CONFIG : DEFAULT_DEV_CONFIG
 }
 
 /**
  * Check if origin is allowed
  */
-function isOriginAllowed(
-  origin: string | null,
-  allowedOrigins: string[]
-): boolean {
+function isOriginAllowed(origin: string | null, allowedOrigins: string[]): boolean {
   if (!origin) {
-    return false;
+    return false
   }
 
   // Wildcard allows all origins
   if (allowedOrigins.includes('*')) {
-    return true;
+    return true
   }
 
   // Exact match
   if (allowedOrigins.includes(origin)) {
-    return true;
+    return true
   }
 
   // Check for wildcard subdomains (e.g., *.example.com)
   for (const allowedOrigin of allowedOrigins) {
     if (allowedOrigin.startsWith('*.')) {
-      const domain = allowedOrigin.slice(2);
-      const originDomain = origin.split('://').pop();
+      const domain = allowedOrigin.slice(2)
+      const originDomain = origin.split('://').pop()
       if (originDomain?.endsWith(domain)) {
-        return true;
+        return true
       }
     }
   }
 
-  return false;
+  return false
 }
 
 /**
@@ -136,78 +131,71 @@ export function setCORSHeaders(
   request: NextRequest,
   config: CORSConfig
 ): NextResponse {
-  const origin = request.headers.get('origin');
+  const origin = request.headers.get('origin')
 
   // Set Access-Control-Allow-Origin
   if (origin && isOriginAllowed(origin, config.allowedOrigins)) {
-    response.headers.set('Access-Control-Allow-Origin', origin);
+    response.headers.set('Access-Control-Allow-Origin', origin)
   } else if (config.allowedOrigins.includes('*')) {
-    response.headers.set('Access-Control-Allow-Origin', '*');
+    response.headers.set('Access-Control-Allow-Origin', '*')
   }
 
   // Set Access-Control-Allow-Credentials
   if (config.credentials) {
-    response.headers.set('Access-Control-Allow-Credentials', 'true');
+    response.headers.set('Access-Control-Allow-Credentials', 'true')
   }
 
   // Set Access-Control-Allow-Methods
   response.headers.set(
     'Access-Control-Allow-Methods',
     config.allowedMethods?.join(', ') || 'GET, POST, PUT, DELETE, PATCH, OPTIONS'
-  );
+  )
 
   // Set Access-Control-Allow-Headers
   response.headers.set(
     'Access-Control-Allow-Headers',
-    config.allowedHeaders?.join(', ') ||
-      'Content-Type, Authorization, X-Requested-With'
-  );
+    config.allowedHeaders?.join(', ') || 'Content-Type, Authorization, X-Requested-With'
+  )
 
   // Set Access-Control-Expose-Headers
   if (config.exposedHeaders && config.exposedHeaders.length > 0) {
-    response.headers.set(
-      'Access-Control-Expose-Headers',
-      config.exposedHeaders.join(', ')
-    );
+    response.headers.set('Access-Control-Expose-Headers', config.exposedHeaders.join(', '))
   }
 
   // Set Access-Control-Max-Age
   if (config.maxAge) {
-    response.headers.set('Access-Control-Max-Age', config.maxAge.toString());
+    response.headers.set('Access-Control-Max-Age', config.maxAge.toString())
   }
 
   // Set Vary header (important for caching)
-  response.headers.set('Vary', 'Origin');
+  response.headers.set('Vary', 'Origin')
 
-  return response;
+  return response
 }
 
 /**
  * Handle preflight OPTIONS request
  */
-export function handlePreflight(
-  request: NextRequest,
-  config: CORSConfig
-): NextResponse | null {
+export function handlePreflight(request: NextRequest, config: CORSConfig): NextResponse | null {
   // Only handle OPTIONS requests
   if (request.method !== 'OPTIONS') {
-    return null;
+    return null
   }
 
   // Create response
-  const response = new NextResponse(null, { status: 204 });
+  const response = new NextResponse(null, { status: 204 })
 
   // Set CORS headers
-  setCORSHeaders(response, request, config);
+  setCORSHeaders(response, request, config)
 
   // Log preflight request
   logger.debug('CORS preflight request handled', {
     method: request.method,
     origin: request.headers.get('origin'),
     path: request.nextUrl.pathname,
-  });
+  })
 
-  return response;
+  return response
 }
 
 /**
@@ -221,21 +209,21 @@ export function withCORS(
     const finalConfig: CORSConfig = {
       ...getDefaultConfig(),
       ...config,
-    };
+    }
 
     // Handle preflight request
-    const preflightResponse = handlePreflight(request, finalConfig);
+    const preflightResponse = handlePreflight(request, finalConfig)
     if (preflightResponse) {
-      return preflightResponse;
+      return preflightResponse
     }
 
     // Check origin for non-preflight requests
-    const origin = request.headers.get('origin');
+    const origin = request.headers.get('origin')
     if (origin && !isOriginAllowed(origin, finalConfig.allowedOrigins)) {
       logger.warn('CORS blocked: Origin not allowed', {
         origin,
         path: request.nextUrl.pathname,
-      });
+      })
 
       return NextResponse.json(
         {
@@ -246,14 +234,14 @@ export function withCORS(
           },
         },
         { status: 403 }
-      );
+      )
     }
 
     // Execute handler
-    let response: NextResponse;
+    let response: NextResponse
     try {
-      response = await handler(request);
-    } catch (_error) {
+      response = await handler(request)
+    } catch (error) {
       response = NextResponse.json(
         {
           success: false,
@@ -263,80 +251,74 @@ export function withCORS(
           },
         },
         { status: 500 }
-      );
+      )
     }
 
     // Set CORS headers on response
-    return setCORSHeaders(response, request, finalConfig);
-  };
+    return setCORSHeaders(response, request, finalConfig)
+  }
 }
 
 /**
  * Create CORS configuration for specific routes
  */
-export function createCORSConfig(
-  config: Partial<CORSConfig>
-): CORSConfig {
+export function createCORSConfig(config: Partial<CORSConfig>): CORSConfig {
   return {
     ...getDefaultConfig(),
     ...config,
-  };
+  }
 }
 
 /**
  * Validate CORS configuration
  */
-export function validateCORSConfig(
-  config: CORSConfig
-): { valid: boolean; errors: string[] } {
-  const errors: string[] = [];
+export function validateCORSConfig(config: CORSConfig): { valid: boolean; errors: string[] } {
+  const errors: string[] = []
 
   // Validate allowed origins
   if (!Array.isArray(config.allowedOrigins) || config.allowedOrigins.length === 0) {
-    errors.push('allowedOrigins must be a non-empty array');
+    errors.push('allowedOrigins must be a non-empty array')
   }
 
   for (const origin of config.allowedOrigins) {
     if (typeof origin !== 'string' || origin.trim() === '') {
-      errors.push(`Invalid origin: ${origin}`);
+      errors.push(`Invalid origin: ${origin}`)
     }
   }
 
   // Validate allowed methods
   if (config.allowedMethods) {
-    const validMethods = ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS', 'HEAD'];
+    const validMethods = ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS', 'HEAD']
     for (const method of config.allowedMethods) {
       if (!validMethods.includes(method.toUpperCase())) {
-        errors.push(`Invalid HTTP method: ${method}`);
+        errors.push(`Invalid HTTP method: ${method}`)
       }
     }
   }
 
   // Validate credentials
   if (config.credentials && config.allowedOrigins.includes('*')) {
-    errors.push('credentials cannot be true when allowedOrigins includes "*"');
+    errors.push('credentials cannot be true when allowedOrigins includes "*"')
   }
 
   return {
     valid: errors.length === 0,
     errors,
-  };
+  }
 }
 
 /**
  * Get current CORS configuration
  */
-export function getCORSConfig(
-  overrideConfig?: Partial<CORSConfig>
-): CORSConfig {
-  const defaultConfig = getDefaultConfig();
+export function getCORSConfig(overrideConfig?: Partial<CORSConfig>): CORSConfig {
+  const defaultConfig = getDefaultConfig()
 
   if (overrideConfig) {
     return {
       ...defaultConfig,
       ...overrideConfig,
-    };
+    }
   }
 
-  return defaultConfig;
+  return defaultConfig
 }

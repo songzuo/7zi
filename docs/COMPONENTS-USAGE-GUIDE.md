@@ -25,14 +25,14 @@
 
 7zi Platform 的组件分为以下几类：
 
-| 类别 | 说明 | 位置 |
-|------|------|------|
-| **布局组件** | 页面结构和导航 | `src/components/` |
-| **Dashboard 组件** | 数据展示和可视化 | `src/components/` |
-| **任务组件** | 任务管理和操作 | `src/components/` |
-| **表单组件** | 用户输入和提交 | `src/components/` |
-| **UI 基础组件** | 可复用的 UI 元素 | `src/components/ui/` |
-| **工具组件** | 特殊功能实现 | `src/components/` |
+| 类别               | 说明             | 位置                 |
+| ------------------ | ---------------- | -------------------- |
+| **布局组件**       | 页面结构和导航   | `src/components/`    |
+| **Dashboard 组件** | 数据展示和可视化 | `src/components/`    |
+| **任务组件**       | 任务管理和操作   | `src/components/`    |
+| **表单组件**       | 用户输入和提交   | `src/components/`    |
+| **UI 基础组件**    | 可复用的 UI 元素 | `src/components/ui/` |
+| **工具组件**       | 特殊功能实现     | `src/components/`    |
 
 ### 组件导入约定
 
@@ -43,10 +43,10 @@ import {
   ThemeToggle,
   TaskBoard,
   // ...
-} from '@/components';
+} from '@/components'
 
 // 或直接从文件导入
-import Navigation from '@/components/Navigation';
+import Navigation from '@/components/Navigation'
 ```
 
 ---
@@ -81,7 +81,7 @@ export default function Layout({ children }: { children: React.ReactNode }) {
 
 ```typescript
 interface NavigationProps {
-  className?: string;  // 自定义类名
+  className?: string // 自定义类名
 }
 ```
 
@@ -145,11 +145,11 @@ export function Providers({ children }: { children: React.ReactNode }) {
 
 ```typescript
 interface ThemeProviderProps {
-  children: React.ReactNode;
-  attribute?: string;          // 主题属性名，默认 "class"
-  defaultTheme?: string;       // 默认主题："light" | "dark" | "system"
-  enableSystem?: boolean;      // 是否启用系统主题
-  disableTransitionOnChange?: boolean;  // 禁用切换动画
+  children: React.ReactNode
+  attribute?: string // 主题属性名，默认 "class"
+  defaultTheme?: string // 默认主题："light" | "dark" | "system"
+  enableSystem?: boolean // 是否启用系统主题
+  disableTransitionOnChange?: boolean // 禁用切换动画
 }
 ```
 
@@ -245,8 +245,8 @@ export default function Header() {
 
 ```typescript
 interface MobileMenuProps {
-  isOpen: boolean;      // 是否打开
-  onClose: () => void;   // 关闭回调
+  isOpen: boolean // 是否打开
+  onClose: () => void // 关闭回调
 }
 ```
 
@@ -283,9 +283,9 @@ export default function DashboardPage() {
 
 ```typescript
 interface DashboardData {
-  members: TeamMember[];
-  tasks: Task[];
-  activities: Activity[];
+  members: TeamMember[]
+  tasks: Task[]
+  activities: Activity[]
 }
 ```
 
@@ -365,9 +365,9 @@ export default function ActivityPage() {
 
 ```typescript
 interface ActivityLogProps {
-  activities: Activity[];  // 活动列表
-  maxItems?: number;        // 最大显示条数
-  autoScroll?: boolean;     // 自动滚动
+  activities: Activity[] // 活动列表
+  maxItems?: number // 最大显示条数
+  autoScroll?: boolean // 自动滚动
 }
 ```
 
@@ -403,10 +403,10 @@ export default function ProfilePage() {
 
 ```typescript
 interface ContributionChartProps {
-  data: ContributionData[];   // 贡献数据
-  startDate: Date;            // 开始日期
-  endDate: Date;              // 结束日期
-  color?: string;            // 颜色主题
+  data: ContributionData[] // 贡献数据
+  startDate: Date // 开始日期
+  endDate: Date // 结束日期
+  color?: string // 颜色主题
 }
 ```
 
@@ -483,12 +483,12 @@ export default function TasksPage() {
 
 ```typescript
 interface TaskBoardProps {
-  tasks?: Task[];
-  filter?: TaskFilter;      // 过滤条件
-  sortBy?: string;          // 排序字段
-  view?: 'board' | 'list' | 'calendar';  // 视图模式
-  onTaskUpdate?: (task: Task) => void;
-  onTaskDelete?: (taskId: string) => void;
+  tasks?: Task[]
+  filter?: TaskFilter // 过滤条件
+  sortBy?: string // 排序字段
+  view?: 'board' | 'list' | 'calendar' // 视图模式
+  onTaskUpdate?: (task: Task) => void
+  onTaskDelete?: (taskId: string) => void
 }
 ```
 
@@ -556,11 +556,11 @@ export default function ContactPage() {
 
 ```typescript
 interface ContactFormProps {
-  serviceId?: string;       // EmailJS Service ID
-  templateId?: string;      // EmailJS Template ID
-  publicKey?: string;      // EmailJS Public Key
-  onSuccess?: () => void;   // 成功回调
-  onError?: (error: Error) => void;
+  serviceId?: string // EmailJS Service ID
+  templateId?: string // EmailJS Template ID
+  publicKey?: string // EmailJS Public Key
+  onSuccess?: () => void // 成功回调
+  onError?: (error: Error) => void
 }
 ```
 
@@ -623,10 +623,10 @@ export default function Example() {
 
 ```typescript
 interface ButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
-  variant?: 'default' | 'primary' | 'secondary' | 'outline' | 'ghost' | 'danger';
-  size?: 'sm' | 'md' | 'lg';
-  loading?: boolean;
-  children: React.ReactNode;
+  variant?: 'default' | 'primary' | 'secondary' | 'outline' | 'ghost' | 'danger'
+  size?: 'sm' | 'md' | 'lg'
+  loading?: boolean
+  children: React.ReactNode
 }
 ```
 
@@ -729,12 +729,12 @@ export default function Example() {
 
 ```typescript
 interface ModalProps {
-  isOpen: boolean;
-  onClose: () => void;
-  title?: string;
-  children: React.ReactNode;
-  size?: 'sm' | 'md' | 'lg' | 'xl';
-  showCloseButton?: boolean;
+  isOpen: boolean
+  onClose: () => void
+  title?: string
+  children: React.ReactNode
+  size?: 'sm' | 'md' | 'lg' | 'xl'
+  showCloseButton?: boolean
 }
 ```
 
@@ -1018,18 +1018,18 @@ export default function App() {
 ```typescript
 // ✅ 好
 interface ButtonProps {
-  variant?: 'primary' | 'secondary';
-  size?: 'sm' | 'md' | 'lg';
-  isLoading?: boolean;
-  onClick?: () => void;
+  variant?: 'primary' | 'secondary'
+  size?: 'sm' | 'md' | 'lg'
+  isLoading?: boolean
+  onClick?: () => void
 }
 
 // ❌ 不好
 interface ButtonProps {
-  v?: string;
-  s?: string;
-  l?: boolean;
-  o?: () => void;
+  v?: string
+  s?: string
+  l?: boolean
+  o?: () => void
 }
 ```
 
