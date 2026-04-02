@@ -33,11 +33,13 @@ npm audit --audit-level=moderate
 ```
 
 **风险分析**:
+
 - 原型污染可能导致对象属性被恶意篡改
 - ReDoS 攻击可能通过恶意构造的 Excel 文件导致服务拒绝
 - 如果攻击者能上传恶意 Excel 文件，可能触发漏洞
 
 **建议修复**:
+
 1. 升级 xlsx 到最新版本（如果有修复）
 2. 或考虑替换为更安全的替代方案（如 `exceljs`、`sheetjs-style`）
 3. 在数据导入端点添加文件大小限制和内容验证
@@ -104,6 +106,7 @@ npm audit --audit-level=moderate
    - 建议：添加适当的认证
 
 **受保护的端点示例**（良好实践）:
+
 - `/api/auth/*` - 认证相关
 - `/api/rbac/*` - 使用 `withAdmin`
 - `/api/tasks` - 使用 `withAuth`
@@ -122,6 +125,7 @@ db.prepare('INSERT INTO tasks (...) VALUES (?, ?, ?)').run(params)
 ```
 
 **受保护的端点**:
+
 - `/api/feedback` - 使用 `db.queryRows` 参数化查询
 - `/api/tasks` - 使用 `db.prepare` 参数化查询
 - `/api/ratings` - 使用 `db.queryRows` 参数化查询
@@ -129,11 +133,13 @@ db.prepare('INSERT INTO tasks (...) VALUES (?, ?, ?)').run(params)
 #### ⚠️ 需要检查的区域
 
 虽然大部分使用了参数化查询，但仍需检查：
+
 1. 搜索端点的模糊查询（LIKE 语句）
 2. 排序和分页参数（如果直接拼接 SQL）
 3. 动态构建的 WHERE 子句
 
 **示例风险代码** (`/api/search/route.ts`):
+
 ```typescript
 // 搜索功能使用内存搜索，SQL 风险较低
 // 但需要检查数据库查询部分
@@ -154,6 +160,7 @@ db.prepare('INSERT INTO tasks (...) VALUES (?, ?, ?)').run(params)
    - 这可能导致浏览器将响应作为 HTML 解析
 
 **建议措施**:
+
 1. 实施统一的响应转义机制
 2. 使用 DOMPurify 或类似库清理用户输入
 3. 确保所有 API 端点返回正确的 Content-Type
@@ -172,6 +179,7 @@ db.prepare('INSERT INTO tasks (...) VALUES (?, ?, ?)').run(params)
 ```
 
 **CSRF Token 机制**:
+
 - 使用 `randomBytes(32)` 生成安全的 CSRF token
 - Token 存储在 `httpOnly` cookie 中
 - 提供 GET 和 POST 端点用于生成和验证 token
@@ -180,6 +188,7 @@ db.prepare('INSERT INTO tasks (...) VALUES (?, ?, ?)').run(params)
 #### ⚠️ 需要验证的使用
 
 虽然 CSRF Token 机制已实现，但需要验证：
+
 1. 是否所有修改状态的端点都要求 CSRF token
 2. 前端是否正确实现了 CSRF token 提交
 3. 是否统一使用了 `setAuthCookies` 和相关的 cookie 设置
@@ -191,13 +200,15 @@ db.prepare('INSERT INTO tasks (...) VALUES (?, ?, ?)').run(params)
 项目实现了完善的限流系统：
 
 **特性**:
+
 - 支持滑动窗口和令牌桶两种算法
 - 支持基于 IP 和用户 ID 的限流
 - 可配置时间窗口和最大请求数
-- 提供详细的限流响应头（X-RateLimit-*）
+- 提供详细的限流响应头（X-RateLimit-\*）
 - 可以在中间件或路由级别使用
 
 **配置** (`.env.example`):
+
 ```bash
 RATE_LIMIT_WINDOW_MS=60000
 RATE_LIMIT_MAX_REQUESTS=100
@@ -226,8 +237,16 @@ RATE_LIMIT_FAIL_OPEN=true
 `/api/multimodal/image` 端点实现了：
 
 1. **文件类型验证**
+
    ```typescript
-   const allowedTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/webp', 'image/gif', 'image/svg+xml'];
+   const allowedTypes = [
+     'image/jpeg',
+     'image/jpg',
+     'image/png',
+     'image/webp',
+     'image/gif',
+     'image/svg+xml',
+   ]
    ```
 
 2. **文件大小限制**
@@ -266,12 +285,13 @@ RATE_LIMIT_FAIL_OPEN=true
 // 示例：可能泄露系统信息
 logger.error('Login failed', errorMessage, {
   category: 'auth',
-  error: errorStack,  // 可能泄露堆栈跟踪
+  error: errorStack, // 可能泄露堆栈跟踪
   requestEmail: request.email,
-});
+})
 ```
 
 **建议**:
+
 1. 生产环境禁用详细错误堆栈跟踪
 2. 实施统一的错误处理，返回通用错误消息
 3. 敏感操作使用不同的错误代码，避免枚举攻击
@@ -279,6 +299,7 @@ logger.error('Login failed', errorMessage, {
 #### ⚠️ 日志安全
 
 需要检查：
+
 1. 日志中是否包含敏感信息（密码、令牌、PII）
 2. 日志访问权限是否正确配置
 3. 是否实施了日志脱敏
@@ -290,6 +311,7 @@ logger.error('Login failed', errorMessage, {
 `/api/data/import` 和 `/api/data/export` 端点：
 
 **风险**:
+
 1. **导入端点**
    - 缺少认证（如前所述）
    - 允许批量数据插入
@@ -301,6 +323,7 @@ logger.error('Login failed', errorMessage, {
    - 应该严格限制访问权限
 
 **建议**:
+
 1. 添加严格的管理员认证
 2. 实施审计日志记录所有导入/导出操作
 3. 添加操作确认机制
@@ -332,6 +355,7 @@ logger.error('Login failed', errorMessage, {
 #### ⚠️ 潜在问题
 
 1. **错误处理**
+
    ```typescript
    // 错误响应可能过于详细
    return createErrorResponse(
@@ -339,7 +363,7 @@ logger.error('Login failed', errorMessage, {
      'INTERNAL_ERROR',
      500,
      requestId
-   );
+   )
    ```
 
 2. **Token 验证顺序**
@@ -380,6 +404,7 @@ DATABASE_PASSWORD=               # ⚠️ 如果使用外部数据库
 ```
 
 **建议**:
+
 1. 在 `.env.example` 中添加 `JWT_SECRET` 的占位符和说明
 2. 添加密钥强度要求说明
 3. 提供生成安全密钥的命令
@@ -389,6 +414,7 @@ DATABASE_PASSWORD=               # ⚠️ 如果使用外部数据库
 #### ⚠️ 环境变量暴露风险
 
 **发现的环境变量文件**:
+
 - `.env.example` - 模板文件
 - `.env.production` - 生产环境配置
 - `.env.production.example` - 生产环境模板
@@ -396,11 +422,13 @@ DATABASE_PASSWORD=               # ⚠️ 如果使用外部数据库
 - `.env.test` - 测试环境配置
 
 **风险评估**:
+
 1. **`.env.production` 可能包含敏感信息**
    - 如果提交到 Git，严重的安全风险
    - 需要确认是否在 `.gitignore` 中
 
 2. **`.gitignore` 检查**
+
    ```gitignore
    # .gitignore 包含：
    .env
@@ -410,9 +438,11 @@ DATABASE_PASSWORD=               # ⚠️ 如果使用外部数据库
    .env.test.local
    .env.production.local
    ```
+
    - ✅ `.env.production` 应该被忽略（但不明确）
 
 **建议**:
+
 1. 确保 `.gitignore` 包含所有实际的环境变量文件
 2. 定期检查是否有敏感文件被意外提交
 3. 使用 Git pre-commit hooks 防止提交环境变量
@@ -423,26 +453,30 @@ DATABASE_PASSWORD=               # ⚠️ 如果使用外部数据库
 #### ⚠️ JWT 密钥配置
 
 **当前实现** (`src/lib/auth/service.ts`):
+
 ```typescript
 function getJwtSecret(): string {
-  const secret = process.env.JWT_SECRET || process.env.AGENT_ENCRYPTION_SECRET;
+  const secret = process.env.JWT_SECRET || process.env.AGENT_ENCRYPTION_SECRET
   if (!secret) {
-    throw new Error('JWT_SECRET environment variable is required in production');
+    throw new Error('JWT_SECRET environment variable is required in production')
   }
-  return secret;
+  return secret
 }
 ```
 
 **优点**:
+
 - 生产环境要求 JWT_SECRET
 - 提供了备选（AGENT_ENCRYPTION_SECRET）
 
 **问题**:
+
 - 开发环境可能使用弱密钥或硬编码密钥
 - 缺少密钥轮换机制
 - 缺少密钥泄露检测
 
 **建议**:
+
 1. 实施密钥轮换策略
 2. 使用多个密钥支持平滑迁移
 3. 添加密钥泄露监控
@@ -457,11 +491,13 @@ function getJwtSecret(): string {
 #### ⚠️ CORS 配置需要验证
 
 从 `.env.example` 中看到：
+
 ```bash
 NEXT_PUBLIC_ALLOWED_ORIGINS=https://7zi.com,https://www.7zi.com
 ```
 
 **需要确认**:
+
 1. 是否在代码中正确实施 CORS 限制
 2. 是否允许所有来源（`*`）在生产环境
 3. 是否验证 Origin 头
@@ -471,6 +507,7 @@ NEXT_PUBLIC_ALLOWED_ORIGINS=https://7zi.com,https://www.7zi.com
 #### ⚠️ 需要验证的响应头
 
 **建议添加的安全响应头**:
+
 1. `Content-Security-Policy` (CSP)
 2. `X-Content-Type-Options: nosniff`
 3. `X-Frame-Options: DENY` 或 `SAMEORIGIN`
@@ -483,21 +520,23 @@ NEXT_PUBLIC_ALLOWED_ORIGINS=https://7zi.com,https://www.7zi.com
 #### ⚠️ 需要验证
 
 **应该实施**:
+
 1. 强制所有生产环境使用 HTTPS
 2. HSTS 头设置
 3. 拒绝 HTTP 请求
 4. Cookie 设置 `secure` 标志
 
 **当前实现**:
+
 ```typescript
 // CSRF Token Cookie 设置
 cookieStore.set('csrf_token', csrfToken, {
   httpOnly: true,
-  secure: process.env.NODE_ENV === 'production',  // ✅ 生产环境启用
+  secure: process.env.NODE_ENV === 'production', // ✅ 生产环境启用
   sameSite: 'strict',
   path: '/',
   maxAge: TOKEN_EXPIRY_SECONDS,
-});
+})
 ```
 
 ### 5.4 日志和监控
@@ -505,6 +544,7 @@ cookieStore.set('csrf_token', csrfToken, {
 #### ✅ 良好的日志实现
 
 项目实现了完善的日志系统：
+
 - 请求开始/完成/错误日志
 - 认证事件日志
 - 操作审计日志
@@ -529,10 +569,12 @@ cookieStore.set('csrf_token', csrfToken, {
 #### ⚠️ 安全测试不足
 
 **发现**:
+
 - 存在一些端点的测试文件（如 `route.test.ts`）
 - 但可能缺少专门的安全测试
 
 **建议**:
+
 1. 添加安全测试用例
    - SQL 注入测试
    - XSS 测试
@@ -674,6 +716,7 @@ cookieStore.set('csrf_token', csrfToken, {
 7zi-Frontend 项目在安全方面表现中等。项目已经实现了许多良好的安全实践，包括：
 
 ✅ **优点**:
+
 - 完善的 JWT 认证和 RBAC 授权系统
 - 参数化查询防止 SQL 注入
 - CSRF Token 机制
@@ -682,6 +725,7 @@ cookieStore.set('csrf_token', csrfToken, {
 - 基本的日志和审计
 
 ⚠️ **需要改进**:
+
 - 修复依赖包漏洞（xlsx）
 - 保护未认证的敏感端点
 - 加强 XSS 和内容安全防护

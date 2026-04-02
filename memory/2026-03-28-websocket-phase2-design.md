@@ -13,6 +13,7 @@
 ### 背景
 
 Phase 1 重连改进已完成，成功解决了以下问题：
+
 - ✅ 断线原因分类与差异化重连策略
 - ✅ Jitter 抖动避免惊群效应
 - ✅ 服务器心跳超时调整 (60s → 120s)
@@ -21,6 +22,7 @@ Phase 1 重连改进已完成，成功解决了以下问题：
 ### Phase 2 目标
 
 Phase 2 将在 Phase 1 的基础上，进一步优化：
+
 1. **可观测性增强** - 提供连接健康度评分和事件回调 API
 2. **状态恢复** - Collaboration 功能的重连后自动状态恢复
 3. **优雅关闭** - 支持有序关闭和资源清理
@@ -28,12 +30,12 @@ Phase 2 将在 Phase 1 的基础上，进一步优化：
 
 ### 预期收益
 
-| 指标 | Phase 1 后 | Phase 2 后 | 改进 |
-|------|-----------|-----------|-----|
-| 连接可观测性 | ⭐⭐⭐ | ⭐⭐⭐⭐⭐ | +67% |
-| 重连体验 | ⭐⭐⭐ | ⭐⭐⭐⭐⭐ | +67% |
-| 状态恢复 | ⭐⭐ | ⭐⭐⭐⭐⭐ | +150% |
-| 优雅性 | ⭐⭐⭐ | ⭐⭐⭐⭐⭐ | +67% |
+| 指标         | Phase 1 后 | Phase 2 后 | 改进  |
+| ------------ | ---------- | ---------- | ----- |
+| 连接可观测性 | ⭐⭐⭐     | ⭐⭐⭐⭐⭐ | +67%  |
+| 重连体验     | ⭐⭐⭐     | ⭐⭐⭐⭐⭐ | +67%  |
+| 状态恢复     | ⭐⭐       | ⭐⭐⭐⭐⭐ | +150% |
+| 优雅性       | ⭐⭐⭐     | ⭐⭐⭐⭐⭐ | +67%  |
 
 ---
 
@@ -100,13 +102,13 @@ server/
 
 ### 1.3 Phase 1 实现总结
 
-| 功能 | 文件 | 行数 | 状态 |
-|------|------|------|------|
-| 断线原因分类 | websocket-manager.ts (x2) | ~40 | ✅ |
-| Jitter 抖动 | websocket-manager.ts (x2) | ~20 | ✅ |
-| 网络监听 | websocket-manager.ts (x2) | ~30 | ✅ |
-| 服务器心跳调整 | websocket-server.js | 1 | ✅ |
-| **总计** | - | ~91 行 | ✅ |
+| 功能           | 文件                      | 行数   | 状态 |
+| -------------- | ------------------------- | ------ | ---- |
+| 断线原因分类   | websocket-manager.ts (x2) | ~40    | ✅   |
+| Jitter 抖动    | websocket-manager.ts (x2) | ~20    | ✅   |
+| 网络监听       | websocket-manager.ts (x2) | ~30    | ✅   |
+| 服务器心跳调整 | websocket-server.js       | 1      | ✅   |
+| **总计**       | -                         | ~91 行 | ✅   |
 
 ### 1.4 当前配置参数
 
@@ -135,48 +137,54 @@ server/
 #### 🔴 P2.1: 缺少事件回调 API
 
 **问题描述**:
+
 - 上层组件无法感知重连过程中的事件
 - 无法进行 Analytics 追踪
 - 无法在 UI 上显示重连进度
 
 **影响**:
+
 - 用户体验不够透明
 - 无法统计重连成功率
 - 调试困难
 
 **示例需求**:
+
 ```typescript
 // 需求: 监听重连事件用于 Analytics
 wsManager.onReconnect(({ type, attempt, duration }) => {
   if (type === 'success') {
-    analytics.track('websocket_reconnect_success', { attempt, duration });
+    analytics.track('websocket_reconnect_success', { attempt, duration })
   }
-});
+})
 
 // 需求: UI 显示重连状态
 wsManager.onReconnect(({ type, attempt }) => {
   if (type === 'attempt') {
-    toast.info(`正在重连... (${attempt}/${MAX_ATTEMPTS})`);
+    toast.info(`正在重连... (${attempt}/${MAX_ATTEMPTS})`)
   }
-});
+})
 ```
 
 #### 🔴 P2.2: 缺少连接健康度评分
 
 **问题描述**:
+
 - 没有统一的连接质量指标
 - UI 无法直观展示连接状态
 - 无法设置健康度阈值触发告警
 
 **影响**:
+
 - 用户不知道连接是否稳定
 - 无法提前预警连接问题
 - 缺少连接质量的历史对比
 
 **示例需求**:
+
 ```typescript
 // 需求: 健康度面板
-const health = wsManager.getHealth();
+const health = wsManager.getHealth()
 // {
 //   score: 85,
 //   status: 'good',
@@ -189,24 +197,27 @@ const health = wsManager.getHealth();
 // 需求: 健康度变化监听
 wsManager.onHealthChange((oldHealth, newHealth) => {
   if (newHealth.score < 50) {
-    toast.warning('连接质量下降');
+    toast.warning('连接质量下降')
   }
-});
+})
 ```
 
 #### 🔴 P2.3: Collaboration 功能状态丢失
 
 **问题描述**:
+
 - 重连后房间状态丢失
 - 用户列表丢失
 - 需要手动重新加入房间
 
 **影响**:
+
 - 实时协作体验中断
 - 用户需要手动操作恢复
 - 可能导致数据丢失
 
 **示例需求**:
+
 ```typescript
 // 需求: 自动恢复房间状态
 disconnect 时:
@@ -221,31 +232,34 @@ connect 时:
 #### 🟡 P2.4: 缺少优雅关闭机制
 
 **问题描述**:
+
 - 页面关闭/刷新时直接断开连接
 - 未发送的消息可能丢失
 - 没有给服务器发送关闭信号
 
 **影响**:
+
 - 可能导致数据丢失
 - 服务器无法清理资源
 - 缺少关闭确认
 
 **示例需求**:
+
 ```typescript
 // 需求: 页面关闭前优雅关闭
 window.addEventListener('beforeunload', async () => {
-  await wsManager.shutdown({ timeout: 2000 });
-});
+  await wsManager.shutdown({ timeout: 2000 })
+})
 ```
 
 ### 2.2 问题优先级
 
-| 问题 | 优先级 | 影响范围 | 实施难度 | 预计工作量 |
-|------|--------|---------|---------|-----------|
-| P2.1: 事件回调 API | P1 | 中 | 低 | 2-3小时 |
-| P2.2: 健康度评分 | P1 | 中 | 中 | 3-4小时 |
-| P2.3: Collaboration 状态恢复 | P0 | 高 | 中 | 2-3小时 |
-| P2.4: 优雅关闭 | P2 | 低 | 低 | 1-2小时 |
+| 问题                         | 优先级 | 影响范围 | 实施难度 | 预计工作量 |
+| ---------------------------- | ------ | -------- | -------- | ---------- |
+| P2.1: 事件回调 API           | P1     | 中       | 低       | 2-3小时    |
+| P2.2: 健康度评分             | P1     | 中       | 中       | 3-4小时    |
+| P2.3: Collaboration 状态恢复 | P0     | 高       | 中       | 2-3小时    |
+| P2.4: 优雅关闭               | P2     | 低       | 低       | 1-2小时    |
 
 ---
 
@@ -342,18 +356,18 @@ class WebSocketManager {
 
 ```typescript
 export interface ConnectionContext {
-  roomId?: string;
-  roomType?: 'task' | 'project' | 'chat' | 'document';
-  documentId?: string;
-  lastEventId?: string;
-  metadata?: Record<string, unknown>;
+  roomId?: string
+  roomType?: 'task' | 'project' | 'chat' | 'document'
+  documentId?: string
+  lastEventId?: string
+  metadata?: Record<string, unknown>
 }
 
 // API
 class WebSocketManager {
-  setConnectionContext(context: ConnectionContext): void;
-  getConnectionContext(): ConnectionContext | null;
-  clearConnectionContext(): void;
+  setConnectionContext(context: ConnectionContext): void
+  getConnectionContext(): ConnectionContext | null
+  clearConnectionContext(): void
 }
 ```
 
@@ -361,14 +375,14 @@ class WebSocketManager {
 
 ```typescript
 export interface ShutdownOptions {
-  timeout?: number;
-  clearQueue?: boolean;
-  notifyServer?: boolean;
+  timeout?: number
+  clearQueue?: boolean
+  notifyServer?: boolean
 }
 
 // API
 class WebSocketManager {
-  shutdown(options?: ShutdownOptions): Promise<void>;
+  shutdown(options?: ShutdownOptions): Promise<void>
 }
 ```
 
@@ -381,11 +395,13 @@ class WebSocketManager {
 #### 难点 1: 健康度评分算法的准确性
 
 **挑战**:
+
 - 如何平衡延迟、心跳丢失、重连频率等因素
 - 如何避免健康度分数频繁波动
 - 如何设置合理的阈值
 
 **解决方案**:
+
 1. 采用加权评分: 延迟 (40%) + 心跳 (30%) + 重连 (30%)
 2. 使用滑动窗口平滑健康度变化
 3. 根据历史数据动态调整阈值
@@ -395,11 +411,13 @@ class WebSocketManager {
 #### 难点 2: Collaboration 状态恢复的时序问题
 
 **挑战**:
+
 - 重连后如何同步断线期间的操作 (OT 同步)
 - 如何处理并发操作冲突
 - 如何确保状态恢复的完整性
 
 **解决方案**:
+
 1. 记录断线前的 lastEventId
 2. 服务器端提供增量同步 API
 3. 使用操作转换 (OT) 解决冲突
@@ -409,11 +427,13 @@ class WebSocketManager {
 #### 难点 3: 优雅关闭的超时处理
 
 **挑战**:
+
 - 如何在页面关闭时确保异步操作完成
 - 如何处理服务器无响应的情况
 - 如何避免阻塞页面关闭
 
 **解决方案**:
+
 1. 使用 Page Visibility API 而非 beforeunload
 2. 设置合理的超时 (2-3秒)
 3. 使用 navigator.sendBeacon() 发送关闭信号
@@ -422,24 +442,24 @@ class WebSocketManager {
 
 ### 4.2 时间估计
 
-| 任务 | 工作量 | 说明 |
-|------|--------|------|
-| P2.1: 事件回调 API | 2-3小时 | 实现事件系统 + 测试 |
-| P2.2: 健康度评分 | 3-4小时 | 实现算法 + 调优 + 测试 |
-| P2.3: 状态恢复 | 2-3小时 | 客户端 + 服务器端修改 |
-| P2.4: 优雅关闭 | 1-2小时 | 实现关闭逻辑 + 测试 |
-| 集成测试 | 2-3小时 | 端到端场景测试 |
-| 文档更新 | 1-2小时 | API 文档 + 使用指南 |
-| **总计** | **11-17小时** | 约 2-3个工作日 |
+| 任务               | 工作量        | 说明                   |
+| ------------------ | ------------- | ---------------------- |
+| P2.1: 事件回调 API | 2-3小时       | 实现事件系统 + 测试    |
+| P2.2: 健康度评分   | 3-4小时       | 实现算法 + 调优 + 测试 |
+| P2.3: 状态恢复     | 2-3小时       | 客户端 + 服务器端修改  |
+| P2.4: 优雅关闭     | 1-2小时       | 实现关闭逻辑 + 测试    |
+| 集成测试           | 2-3小时       | 端到端场景测试         |
+| 文档更新           | 1-2小时       | API 文档 + 使用指南    |
+| **总计**           | **11-17小时** | 约 2-3个工作日         |
 
 ### 4.3 风险评估
 
-| 风险 | 概率 | 影响 | 缓解措施 |
-|------|------|------|---------|
-| 健康度算法不准确 | 中 | 中 | 提供可配置参数，支持后期调优 |
-| OT 同步复杂 | 中 | 高 | 先实现基础版本，逐步完善 |
-| 页面关闭时异步无法保证 | 高 | 低 | 使用同步 API (sendBeacon) |
-| 服务器端修改影响其他功能 | 低 | 中 | 充分测试，保持向后兼容 |
+| 风险                     | 概率 | 影响 | 缓解措施                     |
+| ------------------------ | ---- | ---- | ---------------------------- |
+| 健康度算法不准确         | 中   | 中   | 提供可配置参数，支持后期调优 |
+| OT 同步复杂              | 中   | 高   | 先实现基础版本，逐步完善     |
+| 页面关闭时异步无法保证   | 高   | 低   | 使用同步 API (sendBeacon)    |
+| 服务器端修改影响其他功能 | 低   | 中   | 充分测试，保持向后兼容       |
 
 ---
 
@@ -450,16 +470,19 @@ class WebSocketManager {
 #### 第 1 步: 事件回调 API (2-3小时)
 
 **文件修改**:
+
 - `7zi-frontend/src/lib/websocket-manager.ts`
 - `7zi-frontend/src/features/websocket/lib/websocket-manager.ts`
 
 **具体任务**:
+
 1. 新增类型定义 (ReconnectEvent, HealthChangeEvent, LifecycleEvent)
 2. 实现 onReconnect() / onHealthChange() / onLifecycle() 方法
 3. 在 scheduleReconnection() 中触发 attempt/failed/success 事件
 4. 编写单元测试
 
 **验收标准**:
+
 - [ ] 可以注册和取消监听器
 - [ ] 重连尝试触发 attempt 事件
 - [ ] 重连成功触发 success 事件 (包含 duration)
@@ -472,10 +495,12 @@ class WebSocketManager {
 #### 第 2 步: 健康度评分系统 (3-4小时)
 
 **文件修改**:
+
 - `7zi-frontend/src/lib/websocket-manager.ts`
 - `7zi-frontend/src/features/websocket/lib/websocket-manager.ts`
 
 **具体任务**:
+
 1. 新增 HealthReport 类型定义
 2. 实现 calculateHealth() 方法
 3. 实现 getHealth() API
@@ -484,6 +509,7 @@ class WebSocketManager {
 6. 编写单元测试
 
 **验收标准**:
+
 - [ ] getHealth() 返回 0-100 的分数
 - [ ] 健康状态正确判定 (excellent/good/degraded/poor)
 - [ ] 健康度变化触发事件
@@ -496,13 +522,16 @@ class WebSocketManager {
 #### 第 3 步: Collaboration 状态恢复 (2-3小时)
 
 **客户端修改**:
+
 - `7zi-frontend/src/features/websocket/lib/websocket-manager.ts`
 - `7zi-frontend/src/features/websocket/hooks/useCollaboration.ts` (需创建或修改)
 
 **服务器端修改**:
+
 - `server/websocket-server.js` (RoomManager 类)
 
 **具体任务**:
+
 1. 客户端: 新增 ConnectionContext 类型
 2. 客户端: 实现 setConnectionContext() / getConnectionContext() / clearConnectionContext()
 3. 客户端: 在 disconnect 时自动保存上下文
@@ -512,6 +541,7 @@ class WebSocketManager {
 7. 编写集成测试
 
 **验收标准**:
+
 - [ ] 断线前保存房间状态
 - [ ] 重连后自动恢复房间状态
 - [ ] 重连后自动加入房间
@@ -523,13 +553,15 @@ class WebSocketManager {
 #### 第 4 步: 优雅关闭机制 (1-2小时)
 
 **文件修改**:
+
 - `7zi-frontend/src/lib/websocket-manager.ts`
 - `7zi-frontend/src/features/websocket/lib/websocket-manager.ts`
 
 **具体任务**:
+
 1. 新增 ShutdownOptions 类型定义
 2. 实现 shutdown() 方法 (异步)
-3. 停止接受新消息 (_acceptingMessages 标志)
+3. 停止接受新消息 (\_acceptingMessages 标志)
 4. 等待队列清空 (可选，可配置)
 5. 通知服务器即将关闭 (client:closing)
 6. 清空队列、停止定时器、断开连接
@@ -537,6 +569,7 @@ class WebSocketManager {
 8. 编写单元测试
 
 **验收标准**:
+
 - [ ] shutdown() 等待队列清空 (或超时)
 - [ ] 通知服务器关闭
 - [ ] 清理所有资源
@@ -547,9 +580,11 @@ class WebSocketManager {
 #### 第 5 步: 集成测试 (2-3小时)
 
 **创建文件**:
+
 - `7zi-frontend/src/lib/__tests__/websocket-manager-phase2.test.ts`
 
 **测试场景**:
+
 1. 事件回调测试
    - 监听重连事件
    - 验证事件数据完整性
@@ -571,6 +606,7 @@ class WebSocketManager {
    - 验证资源清理
 
 **验收标准**:
+
 - [ ] 所有测试通过
 - [ ] 测试覆盖率 >80%
 - [ ] 无内存泄漏
@@ -580,10 +616,12 @@ class WebSocketManager {
 #### 第 6 步: 文档更新 (1-2小时)
 
 **创建/更新文件**:
+
 - `docs/websocket-phase2-implementation.md` (创建)
 - `CHANGELOG.md` (更新)
 
 **内容**:
+
 1. Phase 2 功能概述
 2. API 文档 (新增方法)
 3. 使用示例 (React Hooks)
@@ -591,6 +629,7 @@ class WebSocketManager {
 5. 故障排查指南
 
 **验收标准**:
+
 - [ ] 文档完整准确
 - [ ] 包含代码示例
 - [ ] 包含故障排查
@@ -599,13 +638,13 @@ class WebSocketManager {
 
 ### 5.2 里程碑
 
-| 里程碑 | 日期 | 交付物 |
-|--------|------|--------|
-| M1: 事件 API 完成 | Day 1 | 事件回调 API + 单元测试 |
-| M2: 健康度完成 | Day 2 | 健康度评分 + 单元测试 |
-| M3: 状态恢复完成 | Day 3 | Collaboration 状态恢复 + 集成测试 |
-| M4: 功能完成 | Day 4 | 优雅关闭 + 所有测试通过 |
-| M5: 文档完成 | Day 5 | 完整文档 + CHANGELOG |
+| 里程碑            | 日期  | 交付物                            |
+| ----------------- | ----- | --------------------------------- |
+| M1: 事件 API 完成 | Day 1 | 事件回调 API + 单元测试           |
+| M2: 健康度完成    | Day 2 | 健康度评分 + 单元测试             |
+| M3: 状态恢复完成  | Day 3 | Collaboration 状态恢复 + 集成测试 |
+| M4: 功能完成      | Day 4 | 优雅关闭 + 所有测试通过           |
+| M5: 文档完成      | Day 5 | 完整文档 + CHANGELOG              |
 
 ---
 
@@ -618,12 +657,13 @@ class WebSocketManager {
 **目标**: 根据网络状况动态调整心跳间隔
 
 **实现**:
+
 ```typescript
 function calculateNextPingInterval(avgLatency: number): number {
-  const base = 25000;
-  const safetyMargin = 5000;
-  const calculated = Math.max(avgLatency * 10, base);
-  return Math.min(calculated + safetyMargin, 60000); // 最多60s
+  const base = 25000
+  const safetyMargin = 5000
+  const calculated = Math.max(avgLatency * 10, base)
+  return Math.min(calculated + safetyMargin, 60000) // 最多60s
 }
 ```
 
@@ -632,13 +672,14 @@ function calculateNextPingInterval(avgLatency: number): number {
 **目标**: 断线期间消息持久化到 IndexedDB，重连后恢复
 
 **实现**:
+
 ```typescript
 // 使用 IndexedDB 保存未发送消息
-await offlineQueue.save({ event, data, timestamp });
+await offlineQueue.save({ event, data, timestamp })
 
 // 重连后恢复
-const offlineMessages = await offlineQueue.load();
-offlineMessages.forEach(msg => socket.emit(msg.event, msg.data));
+const offlineMessages = await offlineQueue.load()
+offlineMessages.forEach(msg => socket.emit(msg.event, msg.data))
 ```
 
 #### P3.3: 连接质量历史分析
@@ -646,6 +687,7 @@ offlineMessages.forEach(msg => socket.emit(msg.event, msg.data));
 **目标**: 提供历史连接质量数据，用于网络诊断
 
 **实现**:
+
 ```typescript
 interface ConnectionHistory {
   date: string;
@@ -664,14 +706,14 @@ getConnectionHistory(days: number): ConnectionHistory[]
 
 ### 7.1 关键指标
 
-| 指标 | 阈值 | 告警级别 |
-|------|------|---------|
-| 健康度分数 | <50 | Warning |
-| 健康度分数 | <30 | Critical |
-| 重连成功率 | <90% | Warning |
-| 平均延迟 | >1000ms | Warning |
-| 平均延迟 | >2000ms | Critical |
-| 连续断开次数 | >5次/小时 | Warning |
+| 指标         | 阈值      | 告警级别 |
+| ------------ | --------- | -------- |
+| 健康度分数   | <50       | Warning  |
+| 健康度分数   | <30       | Critical |
+| 重连成功率   | <90%      | Warning  |
+| 平均延迟     | >1000ms   | Warning  |
+| 平均延迟     | >2000ms   | Critical |
+| 连续断开次数 | >5次/小时 | Warning  |
 
 ### 7.2 Analytics 追踪
 
@@ -681,14 +723,14 @@ analytics.track('websocket_reconnect_success', {
   attempt: event.attempt,
   duration: event.duration,
   reason: event.reason,
-});
+})
 
 // 健康度变化追踪
 analytics.track('websocket_health_change', {
   oldScore: oldHealth.score,
   newScore: newHealth.score,
   latency: newHealth.latency,
-});
+})
 ```
 
 ---
@@ -697,13 +739,13 @@ analytics.track('websocket_health_change', {
 
 ### 8.1 Phase 2 完成后架构优势
 
-| 维度 | Phase 1 | Phase 2 | 改进 |
-|------|---------|---------|------|
-| **可观测性** | ⭐⭐⭐ | ⭐⭐⭐⭐⭐ | +67% |
-| **稳定性** | ⭐⭐⭐⭐ | ⭐⭐⭐⭐⭐ | +25% |
-| **用户体验** | ⭐⭐⭐ | ⭐⭐⭐⭐⭐ | +67% |
-| **可维护性** | ⭐⭐⭐⭐ | ⭐⭐⭐⭐⭐ | +25% |
-| **监控友好** | ⭐⭐ | ⭐⭐⭐⭐⭐ | +150% |
+| 维度         | Phase 1  | Phase 2    | 改进  |
+| ------------ | -------- | ---------- | ----- |
+| **可观测性** | ⭐⭐⭐   | ⭐⭐⭐⭐⭐ | +67%  |
+| **稳定性**   | ⭐⭐⭐⭐ | ⭐⭐⭐⭐⭐ | +25%  |
+| **用户体验** | ⭐⭐⭐   | ⭐⭐⭐⭐⭐ | +67%  |
+| **可维护性** | ⭐⭐⭐⭐ | ⭐⭐⭐⭐⭐ | +25%  |
+| **监控友好** | ⭐⭐     | ⭐⭐⭐⭐⭐ | +150% |
 
 ### 8.2 关键成果
 

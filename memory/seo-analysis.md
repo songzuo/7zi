@@ -1,4 +1,5 @@
 # SEO 分析报告
+
 **日期**: 2026-03-27
 **分析范围**: 7zi.studio 网站 SEO 优化空间
 
@@ -8,13 +9,13 @@
 
 ### ✅ 优点
 
-| 项目 | 状态 | 说明 |
-|------|------|------|
-| robots.txt | ✅ 完善 | 包含多语言爬虫配置 (Google, Bing, Baidu)，合理的 Disallow 规则 |
-| sitemap.xml | ✅ 完善 | 包含 hreflang 标签、优先级设置、更改频率 |
-| manifest.json | ✅ 完善 | PWA 配置完整，包含 shortcuts |
-| 图标资源 | ✅ 完善 | 多尺寸 favicon 和 apple-touch-icon |
-| OG Image | ✅ 存在 | `/og-image.svg` 1200x630 |
+| 项目          | 状态    | 说明                                                           |
+| ------------- | ------- | -------------------------------------------------------------- |
+| robots.txt    | ✅ 完善 | 包含多语言爬虫配置 (Google, Bing, Baidu)，合理的 Disallow 规则 |
+| sitemap.xml   | ✅ 完善 | 包含 hreflang 标签、优先级设置、更改频率                       |
+| manifest.json | ✅ 完善 | PWA 配置完整，包含 shortcuts                                   |
+| 图标资源      | ✅ 完善 | 多尺寸 favicon 和 apple-touch-icon                             |
+| OG Image      | ✅ 存在 | `/og-image.svg` 1200x630                                       |
 
 ### ⚠️ 待改进
 
@@ -32,14 +33,14 @@
 
 ### ✅ 优点
 
-| 页面 | Title | Description | Keywords | OG | Twitter |
-|------|-------|-------------|----------|-----|---------|
-| 首页 | ✅ | ✅ | ✅ | ✅ | ✅ |
-| 关于 | ✅ | ✅ | ✅ | ✅ | ✅ |
-| 博客 | ✅ | ✅ | ✅ | ✅ | ✅ |
-| 团队 | ✅ | ✅ | ✅ | - | - |
-| 作品集 | ⚠️ 部分 | ⚠️ 部分 | - | ⚠️ 基础 | ⚠️ 基础 |
-| 联系方式 | ⚠️ 基础 | ⚠️ 基础 | - | - | - |
+| 页面     | Title   | Description | Keywords | OG      | Twitter |
+| -------- | ------- | ----------- | -------- | ------- | ------- |
+| 首页     | ✅      | ✅          | ✅       | ✅      | ✅      |
+| 关于     | ✅      | ✅          | ✅       | ✅      | ✅      |
+| 博客     | ✅      | ✅          | ✅       | ✅      | ✅      |
+| 团队     | ✅      | ✅          | ✅       | -       | -       |
+| 作品集   | ⚠️ 部分 | ⚠️ 部分     | -        | ⚠️ 基础 | ⚠️ 基础 |
+| 联系方式 | ⚠️ 基础 | ⚠️ 基础     | -        | -       | -       |
 
 ### ⚠️ 不足之处
 
@@ -110,6 +111,7 @@ Permissions-Policy: camera=(), microphone=(), geolocation=(), interest-cohort=()
 ### 🔴 高优先级
 
 1. **动态生成 sitemap.xml**
+
    ```
    建议: 使用 Next.js 的 generateSitemaps 或 API route 动态生成
    - 每篇文章/产品的实际 lastmod
@@ -117,6 +119,7 @@ Permissions-Policy: camera=(), microphone=(), geolocation=(), interest-cohort=()
    ```
 
 2. **博客文章结构化数据完善**
+
    ```tsx
    // 在 blog/[slug]/page.tsx 中添加
    <ArticleSchema
@@ -144,9 +147,9 @@ Permissions-Policy: camera=(), microphone=(), geolocation=(), interest-cohort=()
 ### 🟡 中优先级
 
 4. **添加 Geo meta 标签**（面向中国市场）
+
    ```html
-   <meta name="geo.region" content="CN" />
-   <meta name="geo.placename" content="Beijing" />
+   <meta name="geo.region" content="CN" /> <meta name="geo.placename" content="Beijing" />
    ```
 
 5. **为社交分享优化图片**
@@ -155,6 +158,7 @@ Permissions-Policy: camera=(), microphone=(), geolocation=(), interest-cohort=()
    - 产品/项目使用项目缩略图
 
 6. **联系方式页面添加结构化数据**
+
    ```tsx
    {
      "@type": "ContactPage",
@@ -186,18 +190,18 @@ Permissions-Policy: camera=(), microphone=(), geolocation=(), interest-cohort=()
 
 ## 六、技术 SEO 检查清单
 
-| 项目 | 状态 | 说明 |
-|------|------|------|
-| HTTPS | ✅ | 已配置 HSTS |
-| 规范 URL | ✅ | alternates.canonical 已配置 |
-| Hreflang | ✅ | 已在根布局和页面级别配置 |
-| 移动端友好 | ✅ | PWA + 响应式设计 |
-| 页面速度 | ✅ | standalone 输出, 图片优化, 代码分割 |
-| 结构化数据 | ✅ | Organization, WebSite, Article |
-| 站点地图 | ⚠️ | 静态，需改为动态 |
-| robots.txt | ✅ | 完善 |
-| AMP | ❌ | 未实施（如需要可添加） |
-| 日志文件分析 | ❌ | 建议配置爬虫日志 |
+| 项目         | 状态 | 说明                                |
+| ------------ | ---- | ----------------------------------- |
+| HTTPS        | ✅   | 已配置 HSTS                         |
+| 规范 URL     | ✅   | alternates.canonical 已配置         |
+| Hreflang     | ✅   | 已在根布局和页面级别配置            |
+| 移动端友好   | ✅   | PWA + 响应式设计                    |
+| 页面速度     | ✅   | standalone 输出, 图片优化, 代码分割 |
+| 结构化数据   | ✅   | Organization, WebSite, Article      |
+| 站点地图     | ⚠️   | 静态，需改为动态                    |
+| robots.txt   | ✅   | 完善                                |
+| AMP          | ❌   | 未实施（如需要可添加）              |
+| 日志文件分析 | ❌   | 建议配置爬虫日志                    |
 
 ---
 
@@ -206,12 +210,14 @@ Permissions-Policy: camera=(), microphone=(), geolocation=(), interest-cohort=()
 ### 整体评价：良好 (75/100)
 
 **优势**:
+
 - 多语言 SEO 配置完善
 - 结构化数据丰富
 - 安全头配置正确
 - 技术性能优化到位
 
 **主要改进空间**:
+
 1. sitemap.xml 动态化
 2. 博客文章结构化数据完善
 3. 部分页面 metadata 补充
@@ -226,5 +232,5 @@ Permissions-Policy: camera=(), microphone=(), geolocation=(), interest-cohort=()
 
 ---
 
-*报告生成时间: 2026-03-27 08:20 GMT+1*
-*分析工具: 手动代码审查*
+_报告生成时间: 2026-03-27 08:20 GMT+1_
+_分析工具: 手动代码审查_

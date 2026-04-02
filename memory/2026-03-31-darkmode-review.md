@@ -10,13 +10,13 @@
 
 前端项目已建立了基础的深色模式支持框架，但存在多处需要修复的问题。整体评分：**75/100**
 
-| 类别 | 状态 | 评分 |
-|------|------|------|
-| CSS 变量系统 | ✅ 已定义 | 90/100 |
-| Tailwind 暗色配置 | ✅ 已启用 | 100/100 |
-| 核心组件支持 | ⚠️ 部分支持 | 80/100 |
-| 页面深色适配 | ❌ 不完整 | 60/100 |
-| 对比度问题 | ⚠️ 存在问题 | 70/100 |
+| 类别              | 状态        | 评分    |
+| ----------------- | ----------- | ------- |
+| CSS 变量系统      | ✅ 已定义   | 90/100  |
+| Tailwind 暗色配置 | ✅ 已启用   | 100/100 |
+| 核心组件支持      | ⚠️ 部分支持 | 80/100  |
+| 页面深色适配      | ❌ 不完整   | 60/100  |
+| 对比度问题        | ⚠️ 存在问题 | 70/100  |
 
 ---
 
@@ -46,14 +46,14 @@
 ```css
 /* 浅色模式 */
 body {
-  color: var(--color-gray-900);  /* 深色文本 */
-  background-color: var(--color-gray-50);  /* 浅色背景 */
+  color: var(--color-gray-900); /* 深色文本 */
+  background-color: var(--color-gray-50); /* 浅色背景 */
 }
 
 /* 暗色模式 - 错误！使用相同的变量名但值不同 */
 .dark body {
-  color: var(--color-gray-900);  /* 这个值在暗色模式下是 #f8fafc (最亮文本) */
-  background-color: var(--color-gray-50);  /* 这个值在暗色模式下是 #0f172a (最深背景) */
+  color: var(--color-gray-900); /* 这个值在暗色模式下是 #f8fafc (最亮文本) */
+  background-color: var(--color-gray-50); /* 这个值在暗色模式下是 #0f172a (最深背景) */
 }
 ```
 
@@ -89,15 +89,15 @@ const variantStyles = {
     'border-2 border-blue-600 text-blue-600',
     'hover:bg-blue-50 hover:border-blue-700 hover:shadow-md',
     'focus:ring-blue-500',
-    'dark:hover:bg-blue-900/20'  // ✅ 有暗色模式
+    'dark:hover:bg-blue-900/20' // ✅ 有暗色模式
   ),
   ghost: clsx(
     'text-gray-700',
     'hover:bg-gray-100 hover:shadow-sm',
     'focus:ring-gray-500',
-    'dark:text-gray-300 dark:hover:bg-gray-800'  // ✅ 有暗色模式
+    'dark:text-gray-300 dark:hover:bg-gray-800' // ✅ 有暗色模式
   ),
-};
+}
 ```
 
 **评估**: Button 组件对 `outline` 和 `ghost` 变体提供了暗色模式支持，但 `primary`、`secondary`、`danger`、`success` 变体使用固定颜色，不需要额外暗色适配。
@@ -113,9 +113,9 @@ const classes = clsx(
   'bg-white rounded-lg',
   bordered
     ? 'border-2 border-gray-200 hover:border-blue-400 dark:border-gray-700 dark:hover:border-blue-500'
-    : 'border border-gray-200 dark:border-gray-700',
+    : 'border border-gray-200 dark:border-gray-700'
   // ...
-);
+)
 ```
 
 **问题**: `bg-white` 在暗色模式下可能需要 `dark:bg-gray-800`。
@@ -132,10 +132,10 @@ const validationStyles = {
     'border-gray-300 dark:border-gray-600',
     'hover:border-gray-400 dark:hover:border-gray-500',
     'focus:border-blue-500 focus:ring-blue-500',
-    'dark:bg-gray-800 dark:text-gray-100'  // ✅ 暗色背景和文本
+    'dark:bg-gray-800 dark:text-gray-100' // ✅ 暗色背景和文本
   ),
   // ... 其他状态也有暗色支持
-};
+}
 ```
 
 ### 2.4 Modal 组件 ❌ 缺少暗色支持
@@ -146,12 +146,14 @@ const validationStyles = {
 
 ```tsx
 // 问题代码
-<div className={clsx(
-  'relative w-full bg-white rounded-lg shadow-2xl',  // ❌ 无 dark:bg-gray-800
-  // ...
-)}>
+<div
+  className={clsx(
+    'relative w-full rounded-lg bg-white shadow-2xl' // ❌ 无 dark:bg-gray-800
+    // ...
+  )}
+>
   {/* 头部 */}
-  <div className="flex items-center justify-between px-6 py-4 border-b border-gray-200">
+  <div className="flex items-center justify-between border-b border-gray-200 px-6 py-4">
     {/* ❌ 无 dark:border-gray-700 */}
     {title && (
       <h2 className="text-xl font-semibold text-gray-900">{title}</h2>
@@ -159,7 +161,7 @@ const validationStyles = {
     )}
   </div>
   {/* 页脚 */}
-  <div className="flex items-center justify-end gap-3 px-6 py-4 border-t border-gray-200 bg-gray-50 rounded-b-lg">
+  <div className="flex items-center justify-end gap-3 rounded-b-lg border-t border-gray-200 bg-gray-50 px-6 py-4">
     {/* ❌ 无暗色模式样式 */}
   </div>
 </div>
@@ -219,6 +221,7 @@ const validationStyles = {
 **位置**: `/src/app/feedback/page.tsx`
 
 **问题代码**:
+
 ```tsx
 // 背景渐变 - 无暗色版本
 <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-50 py-12 px-4">
@@ -259,6 +262,7 @@ const validationStyles = {
 **位置**: `/src/app/design-system/*/page.tsx`
 
 多个设计系统展示页面缺少暗色模式支持：
+
 - `bg-gray-50` 无 `dark:bg-gray-900`
 - `bg-white` 无 `dark:bg-gray-800`
 - `text-gray-900` 无 `dark:text-gray-100`
@@ -279,8 +283,8 @@ const validationStyles = {
 一些组件的边框在暗色模式下对比度不足：
 
 ```tsx
-border-gray-200  // 需要添加 dark:border-gray-700
-border-gray-300  // 需要添加 dark:border-gray-600
+border - gray - 200 // 需要添加 dark:border-gray-700
+border - gray - 300 // 需要添加 dark:border-gray-600
 ```
 
 ---
@@ -289,12 +293,12 @@ border-gray-300  // 需要添加 dark:border-gray-600
 
 ### 问题区域
 
-| 元素 | 浅色模式 | 暗色模式 | WCAG 等级 |
-|------|---------|---------|----------|
-| 主文本 | `text-gray-900` on `bg-white` | `text-gray-100` on `bg-gray-800` | AA ✅ |
-| 次要文本 | `text-gray-600` on `bg-white` | `text-gray-400` on `bg-gray-800` | AA ✅ |
-| 占位符 | `text-gray-400` | `text-gray-500` | ⚠️ 可能不足 |
-| 禁用状态 | `text-gray-400` | `text-gray-600` | ⚠️ 可能不足 |
+| 元素     | 浅色模式                      | 暗色模式                         | WCAG 等级   |
+| -------- | ----------------------------- | -------------------------------- | ----------- |
+| 主文本   | `text-gray-900` on `bg-white` | `text-gray-100` on `bg-gray-800` | AA ✅       |
+| 次要文本 | `text-gray-600` on `bg-white` | `text-gray-400` on `bg-gray-800` | AA ✅       |
+| 占位符   | `text-gray-400`               | `text-gray-500`                  | ⚠️ 可能不足 |
+| 禁用状态 | `text-gray-400`               | `text-gray-600`                  | ⚠️ 可能不足 |
 
 ### 需要验证的对比度
 
@@ -308,28 +312,28 @@ border-gray-300  // 需要添加 dark:border-gray-600
 
 ### 🔴 P0 - 必须修复 (影响用户体验)
 
-| # | 问题 | 位置 | 工作量 |
-|---|------|------|--------|
-| 1 | Modal 组件添加暗色模式 | `Modal.tsx` | 30min |
-| 2 | feedback 页面添加暗色模式 | `feedback/page.tsx` | 45min |
-| 3 | WebSocketStatusPanel 添加暗色模式 | `WebSocketStatusPanel.tsx` | 20min |
-| 4 | Card 组件背景色 | `Card.tsx` | 10min |
+| #   | 问题                              | 位置                       | 工作量 |
+| --- | --------------------------------- | -------------------------- | ------ |
+| 1   | Modal 组件添加暗色模式            | `Modal.tsx`                | 30min  |
+| 2   | feedback 页面添加暗色模式         | `feedback/page.tsx`        | 45min  |
+| 3   | WebSocketStatusPanel 添加暗色模式 | `WebSocketStatusPanel.tsx` | 20min  |
+| 4   | Card 组件背景色                   | `Card.tsx`                 | 10min  |
 
 ### 🟡 P1 - 应该修复 (改进一致性)
 
-| # | 问题 | 位置 | 工作量 |
-|---|------|------|--------|
-| 5 | design-system 页面暗色适配 | `design-system/*/page.tsx` | 1h |
-| 6 | not-found 页面暗色适配 | `not-found.tsx` | 10min |
-| 7 | EnhancedFeedbackModal 暗色适配 | `EnhancedFeedbackModal.tsx` | 30min |
+| #   | 问题                           | 位置                        | 工作量 |
+| --- | ------------------------------ | --------------------------- | ------ |
+| 5   | design-system 页面暗色适配     | `design-system/*/page.tsx`  | 1h     |
+| 6   | not-found 页面暗色适配         | `not-found.tsx`             | 10min  |
+| 7   | EnhancedFeedbackModal 暗色适配 | `EnhancedFeedbackModal.tsx` | 30min  |
 
 ### 🟢 P2 - 可以修复 (优化细节)
 
-| # | 问题 | 位置 | 工作量 |
-|---|------|------|--------|
-| 8 | 统一边框颜色暗色变体 | 全局搜索替换 | 30min |
-| 9 | 对比度验证和微调 | 全局检查 | 1h |
-| 10 | 添加暗色模式视觉回归测试 | 测试配置 | 2h |
+| #   | 问题                     | 位置         | 工作量 |
+| --- | ------------------------ | ------------ | ------ |
+| 8   | 统一边框颜色暗色变体     | 全局搜索替换 | 30min  |
+| 9   | 对比度验证和微调         | 全局检查     | 1h     |
+| 10  | 添加暗色模式视觉回归测试 | 测试配置     | 2h     |
 
 ---
 
@@ -377,10 +381,10 @@ border-gray-300  // 需要添加 dark:border-gray-600
 ```typescript
 // 建议添加 Playwright 暗色模式测试
 test('dark mode visual regression', async ({ page }) => {
-  await page.emulateMedia({ colorScheme: 'dark' });
-  await page.goto('/');
-  await expect(page).toHaveScreenshot('dark-home.png');
-});
+  await page.emulateMedia({ colorScheme: 'dark' })
+  await page.goto('/')
+  await expect(page).toHaveScreenshot('dark-home.png')
+})
 ```
 
 ---

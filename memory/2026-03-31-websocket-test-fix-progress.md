@@ -15,8 +15,9 @@
 ### 1. RoomCard.tsx ✅
 
 **修复内容:**
+
 - ✅ 添加 `data-testid="room-card"` 到 CardLayout 主容器
-- ✅ 添加 `data-testid="room-card-list"` 到 ListLayout 主容器  
+- ✅ 添加 `data-testid="room-card-list"` 到 ListLayout 主容器
 - ✅ 添加 `data-testid="room-card-compact"` 到 CompactLayout 主容器
 - ✅ 添加 `aria-label="菜单"` 到菜单按钮
 - ✅ 添加 `aria-label="删除房间"` 到删除按钮
@@ -31,6 +32,7 @@
 ### 2. ParticipantList.tsx ✅
 
 **修复内容:**
+
 - ✅ 添加 `data-testid="participant-list"` 到列表容器
 - ✅ 添加 `data-testid="participant-grid"` 到 Grid 布局容器
 - ✅ 添加 `data-testid="participant-compact"` 到 Compact 布局容器
@@ -56,6 +58,7 @@
 ### 3. RoomSettings.tsx ✅
 
 **修复内容:**
+
 - ✅ 修改 Tab 标签从 "通用/权限/成员/危险" 改为 "通用设置/权限管理/成员管理/危险区域"
 - ✅ 添加 `data-testid="room-settings"` 到主容器
 - ✅ 添加 `data-testid="visibility-public"`, `data-testid="visibility-private"`, `data-testid="visibility-invite-only"` 到可见性按钮
@@ -71,6 +74,7 @@
 ### 4. RoomManager.tsx ✅
 
 **修复内容:**
+
 - ✅ 添加 `data-testid="room-manager"` 到主容器
 - ✅ 添加 `data-testid="room-manager-header"` 到顶部栏
 - ✅ 添加 `data-testid="connection-status"` 到连接状态指示器
@@ -89,6 +93,7 @@
 测试环境配置为 `environment: 'node'`，但 React 组件测试需要 `jsdom` 环境。
 
 **错误信息:**
+
 ```
 document is not defined
 Cannot read properties of undefined (reading 'navigator')
@@ -105,6 +110,7 @@ test: {
 ```
 
 **建议的修复方案:**
+
 1. 创建 `vitest.component.config.ts` 专门用于组件测试
 2. 或在 package.json 中添加 component 测试脚本使用 jsdom
 
@@ -117,18 +123,18 @@ test: {
 ### ParticipantList
 
 | 测试期望的 Props | 组件实际 Props | 状态 |
-|----------------|---------------|------|
-| `emptyMessage` | ✅ 已添加 | ✅ |
-| `bannedUsers` | ✅ 已添加 | ✅ |
-| `onUnbanUser` | ✅ 已添加 | ✅ |
+| ---------------- | -------------- | ---- |
+| `emptyMessage`   | ✅ 已添加      | ✅   |
+| `bannedUsers`    | ✅ 已添加      | ✅   |
+| `onUnbanUser`    | ✅ 已添加      | ✅   |
 
 ### RoomSettings
 
-| 测试期望的 API | 组件实际 API | 状态 |
-|--------------|-------------|------|
-| `onUpdateConfig(roomId, config)` | ✅ 支持 | ✅ |
-| `onChangeVisibility(roomId, visibility)` | ✅ 支持 | ✅ |
-| Tab labels "通用设置" 等 | ✅ 已修复 | ✅ |
+| 测试期望的 API                           | 组件实际 API | 状态 |
+| ---------------------------------------- | ------------ | ---- |
+| `onUpdateConfig(roomId, config)`         | ✅ 支持      | ✅   |
+| `onChangeVisibility(roomId, visibility)` | ✅ 支持      | ✅   |
+| Tab labels "通用设置" 等                 | ✅ 已修复    | ✅   |
 
 ---
 
@@ -153,14 +159,14 @@ test: {
 
 ## 修复统计
 
-| 组件 | 修复项数量 | 状态 |
-|------|----------|------|
-| RoomCard.tsx | 9 | ✅ 完成 |
-| ParticipantList.tsx | 16 | ✅ 完成 |
-| RoomSettings.tsx | 9 | ✅ 完成 |
-| RoomManager.tsx | 5 | ✅ 完成 |
-| **总计** | **39** | **✅** |
+| 组件                | 修复项数量 | 状态    |
+| ------------------- | ---------- | ------- |
+| RoomCard.tsx        | 9          | ✅ 完成 |
+| ParticipantList.tsx | 16         | ✅ 完成 |
+| RoomSettings.tsx    | 9          | ✅ 完成 |
+| RoomManager.tsx     | 5          | ✅ 完成 |
+| **总计**            | **39**     | **✅**  |
 
 ---
 
-*报告生成时间: 2026-03-31 04:10 GMT+2*
+_报告生成时间: 2026-03-31 04:10 GMT+2_

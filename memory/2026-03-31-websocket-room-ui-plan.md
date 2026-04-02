@@ -12,82 +12,82 @@
 
 **消息管理类**: `RoomManager` (`src/lib/websocket/rooms.ts`)
 
-| 消息类型 | 操作 | 描述 |
-|---------|------|------|
-| `room:create` | 创建房间 | `create(options: CreateRoomOptions): Room` |
-| `room:join` | 加入房间 | `join(roomId, options): { success, room, participant, offlineMessages }` |
-| `room:leave` | 离开房间 | `leave(roomId, userId): { success, participant, roomDestroyed }` |
-| `room:kick` | 踢出用户 | `kick(roomId, userId, kickedBy, reason?)` |
-| `room:ban` | 封禁用户 | `ban(roomId, userId, bannedBy, reason?)` |
-| `room:unban` | 解封用户 | `unban(roomId, userId, unbannedBy)` |
-| `room:invite` | 邀请用户 | `invite(roomId, userId, invitedBy)` |
-| `room:change-role` | 更改角色 | `changeRole(roomId, userId, newRole, changedBy)` |
+| 消息类型           | 操作     | 描述                                                                     |
+| ------------------ | -------- | ------------------------------------------------------------------------ |
+| `room:create`      | 创建房间 | `create(options: CreateRoomOptions): Room`                               |
+| `room:join`        | 加入房间 | `join(roomId, options): { success, room, participant, offlineMessages }` |
+| `room:leave`       | 离开房间 | `leave(roomId, userId): { success, participant, roomDestroyed }`         |
+| `room:kick`        | 踢出用户 | `kick(roomId, userId, kickedBy, reason?)`                                |
+| `room:ban`         | 封禁用户 | `ban(roomId, userId, bannedBy, reason?)`                                 |
+| `room:unban`       | 解封用户 | `unban(roomId, userId, unbannedBy)`                                      |
+| `room:invite`      | 邀请用户 | `invite(roomId, userId, invitedBy)`                                      |
+| `room:change-role` | 更改角色 | `changeRole(roomId, userId, newRole, changedBy)`                         |
 
 ### 1.2 事件回调 (EventCallbacks)
 
-| 事件 | 回调签名 |
-|------|---------|
-| `onUserJoined` | `(room: Room, participant: RoomParticipant) => void` |
-| `onUserLeft` | `(room: Room, participant: RoomParticipant) => void` |
-| `onRoomCreated` | `(room: Room) => void` |
-| `onRoomDestroyed` | `(room: Room) => void` |
+| 事件                | 回调签名                                                                |
+| ------------------- | ----------------------------------------------------------------------- |
+| `onUserJoined`      | `(room: Room, participant: RoomParticipant) => void`                    |
+| `onUserLeft`        | `(room: Room, participant: RoomParticipant) => void`                    |
+| `onRoomCreated`     | `(room: Room) => void`                                                  |
+| `onRoomDestroyed`   | `(room: Room) => void`                                                  |
 | `onUserRoleChanged` | `(room: Room, participant: RoomParticipant, oldRole: UserRole) => void` |
-| `onUserBanned` | `(roomId: string, userId: string, bannedBy: string) => void` |
+| `onUserBanned`      | `(roomId: string, userId: string, bannedBy: string) => void`            |
 
 ### 1.3 REST API 端点 (TODO 实现)
 
-| 端点 | 方法 | 描述 | 状态 |
-|------|------|------|------|
-| `/api/rooms` | POST | 创建房间 | ⚠️ TODO |
-| `/api/rooms/join` | POST | 加入房间 | ⚠️ TODO |
-| `/api/rooms/${roomId}/leave` | POST | 离开房间 | ⚠️ TODO |
-| `/api/rooms/${roomId}` | PATCH | 更新房间 | ⚠️ TODO |
-| `/api/rooms/${roomId}` | DELETE | 删除房间 | ⚠️ TODO |
-| `/api/rooms/${roomId}/transfer` | POST | 转移所有权 | ⚠️ TODO |
+| 端点                            | 方法   | 描述       | 状态    |
+| ------------------------------- | ------ | ---------- | ------- |
+| `/api/rooms`                    | POST   | 创建房间   | ⚠️ TODO |
+| `/api/rooms/join`               | POST   | 加入房间   | ⚠️ TODO |
+| `/api/rooms/${roomId}/leave`    | POST   | 离开房间   | ⚠️ TODO |
+| `/api/rooms/${roomId}`          | PATCH  | 更新房间   | ⚠️ TODO |
+| `/api/rooms/${roomId}`          | DELETE | 删除房间   | ⚠️ TODO |
+| `/api/rooms/${roomId}/transfer` | POST   | 转移所有权 | ⚠️ TODO |
 
 ### 1.4 核心数据类型
 
 ```typescript
 // 房间类型
-type RoomType = 'task' | 'project' | 'chat' | 'document' | 'voice' | 'video';
+type RoomType = 'task' | 'project' | 'chat' | 'document' | 'voice' | 'video'
 
 // 房间可见性
-type RoomVisibility = 'public' | 'private' | 'invite-only';
+type RoomVisibility = 'public' | 'private' | 'invite-only'
 
 // 用户角色
-type UserRole = 'owner' | 'admin' | 'member' | 'guest';
+type UserRole = 'owner' | 'admin' | 'member' | 'guest'
 
 // 房间参与者
 interface RoomParticipant {
-  id: string;
-  name: string;
-  email?: string;
-  avatar?: string;
-  color: string;
-  role: UserRole;
-  joinedAt: Date;
-  cursor?: { position: number; selection?: { start: number; end: number } };
-  isTyping: boolean;
-  lastActivity: Date;
-  isOnline: boolean;
+  id: string
+  name: string
+  email?: string
+  avatar?: string
+  color: string
+  role: UserRole
+  joinedAt: Date
+  cursor?: { position: number; selection?: { start: number; end: number } }
+  isTyping: boolean
+  lastActivity: Date
+  isOnline: boolean
 }
 
 // 房间
 interface Room {
-  id: string;
-  name: string;
-  type: RoomType;
-  documentId: string;
-  visibility: RoomVisibility;
-  ownerId: string;
-  participants: Map<string, RoomParticipant>;
-  data: RoomData;
-  config: RoomConfig;
-  createdAt: Date;
-  updatedAt: Date;
-  lastActivity: Date;
-  invites: Set<string>;
-  metadata?: Record<string, unknown>;
+  id: string
+  name: string
+  type: RoomType
+  documentId: string
+  visibility: RoomVisibility
+  ownerId: string
+  participants: Map<string, RoomParticipant>
+  data: RoomData
+  config: RoomConfig
+  createdAt: Date
+  updatedAt: Date
+  lastActivity: Date
+  invites: Set<string>
+  metadata?: Record<string, unknown>
 }
 ```
 
@@ -97,25 +97,25 @@ interface Room {
 
 ### 2.1 组件清单 ✅
 
-| 组件 | 文件 | 状态 | 说明 |
-|------|------|------|------|
-| **RoomList** | `src/components/rooms/RoomList.tsx` | ✅ 完成 | 房间列表（创建/加入/离开/过滤/搜索） |
-| **RoomDetail** | `src/components/rooms/RoomDetail.tsx` | ✅ 完成 | 房间详情（信息/成员/邀请/设置） |
-| **RoomInvite** | `src/components/rooms/RoomInvite.tsx` | ✅ 完成 | 邀请组件（链接/二维码） |
-| **RoomStatusIndicator** | `src/components/rooms/RoomStatusIndicator.tsx` | ✅ 完成 | 在线状态指示器 |
-| **index** | `src/components/rooms/index.ts` | ✅ 完成 | 导出 |
+| 组件                    | 文件                                           | 状态    | 说明                                 |
+| ----------------------- | ---------------------------------------------- | ------- | ------------------------------------ |
+| **RoomList**            | `src/components/rooms/RoomList.tsx`            | ✅ 完成 | 房间列表（创建/加入/离开/过滤/搜索） |
+| **RoomDetail**          | `src/components/rooms/RoomDetail.tsx`          | ✅ 完成 | 房间详情（信息/成员/邀请/设置）      |
+| **RoomInvite**          | `src/components/rooms/RoomInvite.tsx`          | ✅ 完成 | 邀请组件（链接/二维码）              |
+| **RoomStatusIndicator** | `src/components/rooms/RoomStatusIndicator.tsx` | ✅ 完成 | 在线状态指示器                       |
+| **index**               | `src/components/rooms/index.ts`                | ✅ 完成 | 导出                                 |
 
 ### 2.2 状态管理 ✅
 
-| Store | 文件 | 状态 |
-|-------|------|------|
-| **room-store** | `src/stores/room-store.ts` | ✅ Zustand store |
+| Store               | 文件                            | 状态              |
+| ------------------- | ------------------------------- | ----------------- |
+| **room-store**      | `src/stores/room-store.ts`      | ✅ Zustand store  |
 | **websocket-store** | `src/stores/websocket-store.ts` | ✅ Socket.IO 状态 |
 
 ### 2.3 WebSocket Hooks ✅
 
-| Hook | 文件 | 状态 |
-|------|------|------|
+| Hook                   | 文件                                                 | 状态            |
+| ---------------------- | ---------------------------------------------------- | --------------- |
 | **useWebSocketStatus** | `src/features/websocket/hooks/useWebSocketStatus.ts` | ✅ 连接状态追踪 |
 
 ### 2.4 现有功能覆盖
@@ -147,15 +147,15 @@ interface Room {
 
 ### 2.5 缺失部分 ⚠️
 
-| 缺失项 | 优先级 | 说明 |
-|--------|--------|------|
-| **WebSocket 事件绑定** | P0 | 组件未绑定 RoomManager 事件回调 |
-| **REST API 实现** | P0 | 组件中的 API 调用为 TODO |
-| **房间类型选择** | P1 | 创建房间时未选择房间类型 |
-| **权限管理 UI** | P1 | 管理员踢人/禁言 UI |
-| **实时消息** | P1 | 聊天消息显示组件 |
-| **光标共享** | P2 | 协作文档光标显示 |
-| **Typing 指示器** | P2 | 正在输入提示 |
+| 缺失项                 | 优先级 | 说明                            |
+| ---------------------- | ------ | ------------------------------- |
+| **WebSocket 事件绑定** | P0     | 组件未绑定 RoomManager 事件回调 |
+| **REST API 实现**      | P0     | 组件中的 API 调用为 TODO        |
+| **房间类型选择**       | P1     | 创建房间时未选择房间类型        |
+| **权限管理 UI**        | P1     | 管理员踢人/禁言 UI              |
+| **实时消息**           | P1     | 聊天消息显示组件                |
+| **光标共享**           | P2     | 协作文档光标显示                |
+| **Typing 指示器**      | P2     | 正在输入提示                    |
 
 ---
 
@@ -182,36 +182,38 @@ interface Room {
 
 ### 3.2 新增组件
 
-| 组件 | 路径 | 职责 |
-|------|------|------|
-| **RoomChat** | `components/rooms/RoomChat.tsx` | 实时消息显示和发送 |
-| **RoomTypingIndicator** | `components/rooms/RoomTypingIndicator.tsx` | 显示正在输入的用户 |
-| **RoomCursorOverlay** | `components/rooms/RoomCursorOverlay.tsx` | 协作者光标显示 |
-| **RoomConnectionStatus** | `components/rooms/RoomConnectionStatus.tsx` | WebSocket 连接状态 |
-| **useRoomEvents** | `hooks/useRoomEvents.ts` | WebSocket 事件绑定 Hook |
+| 组件                     | 路径                                        | 职责                    |
+| ------------------------ | ------------------------------------------- | ----------------------- |
+| **RoomChat**             | `components/rooms/RoomChat.tsx`             | 实时消息显示和发送      |
+| **RoomTypingIndicator**  | `components/rooms/RoomTypingIndicator.tsx`  | 显示正在输入的用户      |
+| **RoomCursorOverlay**    | `components/rooms/RoomCursorOverlay.tsx`    | 协作者光标显示          |
+| **RoomConnectionStatus** | `components/rooms/RoomConnectionStatus.tsx` | WebSocket 连接状态      |
+| **useRoomEvents**        | `hooks/useRoomEvents.ts`                    | WebSocket 事件绑定 Hook |
 
 ### 3.3 Hook 设计
 
 ```typescript
 // useRoomEvents.ts - WebSocket 房间事件绑定
 interface UseRoomEventsOptions {
-  roomId: string;
-  onUserJoined?: (participant: RoomParticipant) => void;
-  onUserLeft?: (participant: RoomParticipant) => void;
-  onTypingUpdate?: (userId: string, isTyping: boolean) => void;
-  onCursorUpdate?: (userId: string, cursor: CursorPosition) => void;
-  onMessageReceived?: (message: RoomMessage) => void;
+  roomId: string
+  onUserJoined?: (participant: RoomParticipant) => void
+  onUserLeft?: (participant: RoomParticipant) => void
+  onTypingUpdate?: (userId: string, isTyping: boolean) => void
+  onCursorUpdate?: (userId: string, cursor: CursorPosition) => void
+  onMessageReceived?: (message: RoomMessage) => void
 }
 
 // 用法
 function RoomChat() {
-  const [messages, setMessages] = useState<RoomMessage[]>([]);
-  
+  const [messages, setMessages] = useState<RoomMessage[]>([])
+
   useRoomEvents({
     roomId: currentRoom.id,
-    onMessageReceived: (msg) => setMessages(prev => [...prev, msg]),
-    onTypingUpdate: (userId, isTyping) => { /* ... */ },
-  });
+    onMessageReceived: msg => setMessages(prev => [...prev, msg]),
+    onTypingUpdate: (userId, isTyping) => {
+      /* ... */
+    },
+  })
 }
 ```
 
@@ -253,37 +255,37 @@ function RoomChat() {
 
 ### 4.1 P0 - 核心功能
 
-| 任务 | 复杂度 | 工作量 | 优先级 |
-|------|--------|--------|--------|
-| **实现 REST API 端点** | 中 | 4-6h | P0 |
-| **WebSocket 事件绑定 Hook** | 高 | 3-4h | P0 |
-| **RoomChat 组件** | 中 | 4-5h | P0 |
-| **组件集成 WebSocket** | 中 | 3-4h | P0 |
+| 任务                        | 复杂度 | 工作量 | 优先级 |
+| --------------------------- | ------ | ------ | ------ |
+| **实现 REST API 端点**      | 中     | 4-6h   | P0     |
+| **WebSocket 事件绑定 Hook** | 高     | 3-4h   | P0     |
+| **RoomChat 组件**           | 中     | 4-5h   | P0     |
+| **组件集成 WebSocket**      | 中     | 3-4h   | P0     |
 
 ### 4.2 P1 - 重要功能
 
-| 任务 | 复杂度 | 工作量 | 优先级 |
-|------|--------|--------|--------|
-| **房间类型选择 UI** | 低 | 1-2h | P1 |
-| **Typing 指示器** | 低 | 1-2h | P1 |
-| **成员管理 UI（踢出/禁言）** | 中 | 3-4h | P1 |
-| **权限检查集成** | 中 | 2-3h | P1 |
+| 任务                         | 复杂度 | 工作量 | 优先级 |
+| ---------------------------- | ------ | ------ | ------ |
+| **房间类型选择 UI**          | 低     | 1-2h   | P1     |
+| **Typing 指示器**            | 低     | 1-2h   | P1     |
+| **成员管理 UI（踢出/禁言）** | 中     | 3-4h   | P1     |
+| **权限检查集成**             | 中     | 2-3h   | P1     |
 
 ### 4.3 P2 - 增强功能
 
-| 任务 | 复杂度 | 工作量 | 优先级 |
-|------|--------|--------|--------|
-| **Cursor 共享** | 高 | 6-8h | P2 |
-| **消息历史加载** | 中 | 3-4h | P2 |
-| **通知集成** | 中 | 2-3h | P2 |
+| 任务             | 复杂度 | 工作量 | 优先级 |
+| ---------------- | ------ | ------ | ------ |
+| **Cursor 共享**  | 高     | 6-8h   | P2     |
+| **消息历史加载** | 中     | 3-4h   | P2     |
+| **通知集成**     | 中     | 2-3h   | P2     |
 
 ### 4.4 总工作量
 
-| 优先级 | 任务数 | 总工作量 |
-|--------|--------|---------|
-| P0 | 4 | 14-19h |
-| P1 | 4 | 9-13h |
-| P2 | 3 | 11-15h |
+| 优先级   | 任务数 | 总工作量   |
+| -------- | ------ | ---------- |
+| P0       | 4      | 14-19h     |
+| P1       | 4      | 9-13h      |
+| P2       | 3      | 11-15h     |
 | **总计** | **11** | **34-47h** |
 
 ---
@@ -363,17 +365,17 @@ function RoomChat() {
 ```typescript
 // 自动重连 + 状态同步
 useEffect(() => {
-  const wsManager = getWebSocketManager();
-  
+  const wsManager = getWebSocketManager()
+
   wsManager.on('reconnect', () => {
     // 重新加入房间
-    roomManager.join(currentRoom.id, currentUser);
-  });
-  
+    roomManager.join(currentRoom.id, currentUser)
+  })
+
   return () => {
-    wsManager.off('reconnect');
-  };
-}, []);
+    wsManager.off('reconnect')
+  }
+}, [])
 ```
 
 ### 6.2 乐观更新
@@ -381,23 +383,23 @@ useEffect(() => {
 ```typescript
 // 发送消息时乐观更新
 const sendMessage = async (content: string) => {
-  const tempId = `temp-${Date.now()}`;
-  const tempMessage = { id: tempId, content, sender: currentUser, timestamp: Date.now() };
-  
+  const tempId = `temp-${Date.now()}`
+  const tempMessage = { id: tempId, content, sender: currentUser, timestamp: Date.now() }
+
   // 乐观添加
-  addMessage(tempMessage);
-  
+  addMessage(tempMessage)
+
   try {
     // 发送
-    const realMessage = await api.sendMessage(roomId, content);
+    const realMessage = await api.sendMessage(roomId, content)
     // 替换临时消息
-    replaceMessage(tempId, realMessage);
+    replaceMessage(tempId, realMessage)
   } catch (error) {
     // 移除临时消息
-    removeMessage(tempId);
-    showError('Failed to send message');
+    removeMessage(tempId)
+    showError('Failed to send message')
   }
-};
+}
 ```
 
 ### 6.3 离线支持
@@ -405,28 +407,28 @@ const sendMessage = async (content: string) => {
 ```typescript
 // 离线时队列消息
 if (!navigator.onLine) {
-  queueMessage({ roomId, content, timestamp: Date.now() });
-  return;
+  queueMessage({ roomId, content, timestamp: Date.now() })
+  return
 }
 
 // 上线时发送队列
 window.addEventListener('online', () => {
-  const queued = getQueuedMessages();
-  queued.forEach(msg => sendMessage(msg));
-  clearQueue();
-});
+  const queued = getQueuedMessages()
+  queued.forEach(msg => sendMessage(msg))
+  clearQueue()
+})
 ```
 
 ---
 
 ## 7. 测试策略
 
-| 测试类型 | 覆盖内容 | 工具 |
-|---------|---------|------|
-| 单元测试 | Hooks, Store, 工具函数 | Vitest |
-| 组件测试 | UI 渲染, 用户交互 | React Testing Library |
-| E2E 测试 | 完整房间流程 | Playwright |
-| 集成测试 | WebSocket 事件 | Mock WebSocket |
+| 测试类型 | 覆盖内容               | 工具                  |
+| -------- | ---------------------- | --------------------- |
+| 单元测试 | Hooks, Store, 工具函数 | Vitest                |
+| 组件测试 | UI 渲染, 用户交互      | React Testing Library |
+| E2E 测试 | 完整房间流程           | Playwright            |
+| 集成测试 | WebSocket 事件         | Mock WebSocket        |
 
 ---
 

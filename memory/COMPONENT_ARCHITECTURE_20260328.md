@@ -11,6 +11,7 @@
 本报告对 7zi-frontend 项目的组件架构进行了全面分析，涵盖了组件数量、层级结构、依赖关系、耦合度、上帝组件识别以及复用性评估。
 
 **关键发现**:
+
 - **组件总数**: 201 个文件（TSX/TS）
 - **大型组件**: 23 个文件超过 400 行
 - **上帝组件**: AnimatedProgressBar (663行)、UserSettingsPage (648行)
@@ -50,24 +51,24 @@ src/components/
 
 ### 1.2 组件统计
 
-| 分类 | 数量 | 占比 |
-|------|------|------|
-| **顶级组件文件** | ~50 | ~25% |
-| **analytics 目录** | 20 | ~10% |
-| **ui 目录** | 9 | ~4.5% |
-| **测试文件** | ~30 | ~15% |
-| **其他功能目录** | ~92 | ~45.5% |
-| **总计** | **201** | **100%** |
+| 分类               | 数量    | 占比     |
+| ------------------ | ------- | -------- |
+| **顶级组件文件**   | ~50     | ~25%     |
+| **analytics 目录** | 20      | ~10%     |
+| **ui 目录**        | 9       | ~4.5%    |
+| **测试文件**       | ~30     | ~15%     |
+| **其他功能目录**   | ~92     | ~45.5%   |
+| **总计**           | **201** | **100%** |
 
 ### 1.3 代码行数分布
 
-| 行数范围 | 组件数量 | 占比 | 示例 |
-|----------|----------|------|------|
-| **> 600 行** | 3 | ~1.5% | AnimatedProgressBar, UserSettingsPage |
-| **500-600 行** | 7 | ~3.5% | AnalyticsDashboard, TeamActivityTracker |
-| **400-500 行** | 13 | ~6.5% | AnalyticsChart, LazyLoadImage |
-| **200-400 行** | ~40 | ~20% | 多数功能组件 |
-| **< 200 行** | ~138 | ~68.5% | 小型 UI 组件、辅助组件 |
+| 行数范围       | 组件数量 | 占比   | 示例                                    |
+| -------------- | -------- | ------ | --------------------------------------- |
+| **> 600 行**   | 3        | ~1.5%  | AnimatedProgressBar, UserSettingsPage   |
+| **500-600 行** | 7        | ~3.5%  | AnalyticsDashboard, TeamActivityTracker |
+| **400-500 行** | 13       | ~6.5%  | AnalyticsChart, LazyLoadImage           |
+| **200-400 行** | ~40      | ~20%   | 多数功能组件                            |
+| **< 200 行**   | ~138     | ~68.5% | 小型 UI 组件、辅助组件                  |
 
 ---
 
@@ -75,12 +76,12 @@ src/components/
 
 ### 2.1 依赖统计
 
-| 指标 | 数值 |
-|------|------|
-| **Props 接口定义** | 191 |
-| **事件回调函数** | 156 |
-| **Hooks 使用次数** | 555 |
-| **Context 使用** | 6 处 |
+| 指标               | 数值 |
+| ------------------ | ---- |
+| **Props 接口定义** | 191  |
+| **事件回调函数**   | 156  |
+| **Hooks 使用次数** | 555  |
+| **Context 使用**   | 6 处 |
 
 ### 2.2 依赖关系图谱
 
@@ -117,11 +118,13 @@ src/components/
 ### 3.1 AnimatedProgressBar (663 行) ⚠️
 
 **问题**:
+
 - 一个文件包含 5 个不同的进度条组件变体
 - 动画逻辑重复多次
 - 职责过多：进度条、波浪进度、分段进度、渐变进度、步骤进度
 
 **建议重构方案**:
+
 ```
 components/progress/
 ├── ProgressBar.tsx           # 基础进度条 (150行)
@@ -134,11 +137,13 @@ components/progress/
 ### 3.2 UserSettingsPage (648 行) ⚠️
 
 **问题**:
+
 - 包含 5 个独立功能模块
 - 状态管理复杂（25+ 个状态变量）
 - 表单验证逻辑散落
 
 **建议重构方案**:
+
 ```
 components/settings/
 ├── UserSettingsPage.tsx       # 主页面 (80行)
@@ -152,11 +157,13 @@ components/settings/
 ### 3.3 SearchFilter (487 行) ⚠️
 
 **问题**:
+
 - 包含搜索框、过滤下拉、排序下拉等多个子组件
 - Props 钻探严重
 - 逻辑集中
 
 **建议重构方案**:
+
 ```
 components/search-filter/
 ├── SearchFilter.tsx           # 主容器 (150行)
@@ -172,12 +179,12 @@ components/search-filter/
 
 ### 4.1 重复组件识别
 
-| 组件类型 | 重复实例 | 位置 | 建议统一 |
-|----------|----------|------|----------|
-| **Card** | 3 处 | `ui/Card.tsx`, `shared/ui.tsx`, `analytics/MetricCard.tsx` | 统一到 `ui/Card` |
-| **Button** | 2 处 | `ui/Button.tsx`, `shared/StatCard` 类似功能 | 统一到 `ui/Button` |
-| **ProgressBar** | 2 处 | `shared/ProgressBar`, `AnimatedProgressBar` | 合并或明确区分用途 |
-| **Loading** | 3 处 | `LoadingSpinner`, `Skeleton`, `LazyComponents` LoadingFallback | 统一 Loading 组件体系 |
+| 组件类型        | 重复实例 | 位置                                                           | 建议统一              |
+| --------------- | -------- | -------------------------------------------------------------- | --------------------- |
+| **Card**        | 3 处     | `ui/Card.tsx`, `shared/ui.tsx`, `analytics/MetricCard.tsx`     | 统一到 `ui/Card`      |
+| **Button**      | 2 处     | `ui/Button.tsx`, `shared/StatCard` 类似功能                    | 统一到 `ui/Button`    |
+| **ProgressBar** | 2 处     | `shared/ProgressBar`, `AnimatedProgressBar`                    | 合并或明确区分用途    |
+| **Loading**     | 3 处     | `LoadingSpinner`, `Skeleton`, `LazyComponents` LoadingFallback | 统一 Loading 组件体系 |
 
 ### 4.2 可复用组件推荐
 
@@ -200,17 +207,23 @@ components/search-filter/
 ### 4.3 违反 DRY 原则的代码模式
 
 **模式 1**: 重复的 Loading 状态处理
+
 ```tsx
 // 多处出现类似的模式
-{loading ? <LoadingSpinner /> : <Content />}
+{
+  loading ? <LoadingSpinner /> : <Content />
+}
 ```
 
 **建议**: 创建 `withLoading` HOC 或 `LoadingWrapper` 组件
 
 **模式 2**: 重复的 ErrorBoundary 包装
+
 ```tsx
 // 多处手动包装
-<ErrorBoundary><Component /></ErrorBoundary>
+<ErrorBoundary>
+  <Component />
+</ErrorBoundary>
 ```
 
 **建议**: 创建装饰器或路由级别的 ErrorBoundary
@@ -222,6 +235,7 @@ components/search-filter/
 ### 5.1 严重 Props 钻探场景
 
 **SearchFilter 组件**:
+
 ```
 SearchFilter
   ├── SearchBox
@@ -237,6 +251,7 @@ SearchFilter
 ```
 
 **问题**:
+
 - 5 层嵌套
 - 状态提升到顶层
 - 中间组件不使用这些 Props
@@ -244,23 +259,25 @@ SearchFilter
 ### 5.2 解决方案
 
 **方案 1**: 使用 Context API
+
 ```tsx
 // 创建 SearchFilterContext
-const SearchFilterContext = createContext<SearchFilterContextValue>();
+const SearchFilterContext = createContext<SearchFilterContextValue>()
 
 // 在顶层提供
-<SearchFilterProvider>
+;<SearchFilterProvider>
   <SearchFilter />
 </SearchFilterProvider>
 
 // 子组件直接消费
 const SearchBox = () => {
-  const { query, setQuery } = useSearchFilter();
+  const { query, setQuery } = useSearchFilter()
   // ...
-};
+}
 ```
 
 **方案 2**: 使用 Compound Component Pattern
+
 ```tsx
 <SearchFilter>
   <SearchFilter.Search />
@@ -271,19 +288,20 @@ const SearchBox = () => {
 ```
 
 **方案 3**: 状态管理到 Custom Hook
+
 ```tsx
-const useSearchFilter = (items) => {
-  const [query, setQuery] = useState('');
-  const [filters, setFilters] = useState({});
+const useSearchFilter = items => {
+  const [query, setQuery] = useState('')
+  const [filters, setFilters] = useState({})
   // ... 逻辑
 
   return {
     query,
     filters,
     results,
-    actions: { setQuery, setFilters }
-  };
-};
+    actions: { setQuery, setFilters },
+  }
+}
 ```
 
 ---
@@ -292,23 +310,25 @@ const useSearchFilter = (items) => {
 
 ### 6.1 状态管理现状
 
-| 状态类型 | 使用次数 | 主要组件 |
-|----------|----------|----------|
-| **useState** | 555 | 全局 |
-| **useEffect** | ~150 | 全局 |
-| **useCallback** | ~80 | 性能优化 |
-| **useMemo** | ~60 | 性能优化 |
-| **useContext** | 6 | Settings, Chat |
-| **useWebSocket** | ~5 | 实时组件 |
+| 状态类型         | 使用次数 | 主要组件       |
+| ---------------- | -------- | -------------- |
+| **useState**     | 555      | 全局           |
+| **useEffect**    | ~150     | 全局           |
+| **useCallback**  | ~80      | 性能优化       |
+| **useMemo**      | ~60      | 性能优化       |
+| **useContext**   | 6        | Settings, Chat |
+| **useWebSocket** | ~5       | 实时组件       |
 
 ### 6.2 状态逻辑集中度
 
 **状态逻辑分散**:
+
 - 大型组件自己管理状态
 - 缺少统一的状态管理方案
 - 多个组件重复实现相同逻辑
 
 **建议**:
+
 1. 考虑引入 Zustand 或 Redux Toolkit 复杂状态
 2. 对共享状态使用 Context API
 3. 对局部状态保持 useState
@@ -330,6 +350,7 @@ const useSearchFilter = (items) => {
 ### 7.1 层级过深
 
 **问题组件**:
+
 - **AnalyticsDashboard**: `Dashboard > FilterPanel > MetricsGrid > MetricCard` (4 层)
 - **UserSettingsPage**: `Page > SectionCard > FormField > Input` (4 层)
 - **LazyComponents**: 包装层增加 1-2 层
@@ -347,6 +368,7 @@ const useSearchFilter = (items) => {
 ### 8.1 大型组件加载
 
 **问题组件**:
+
 - LazyComponents 中动态导入 20+ 个组件
 - 部分组件未按需加载
 - 缺少预加载策略
@@ -354,11 +376,13 @@ const useSearchFilter = (items) => {
 ### 8.2 渲染优化
 
 **已使用优化**:
+
 - `memo` 包装部分组件
 - `useMemo` 和 `useCallback` 使用
 - 动态导入
 
 **缺失优化**:
+
 - 部分大型组件未使用 `memo`
 - 缺少虚拟化长列表
 - 缺少请求防抖节流
@@ -369,19 +393,21 @@ const useSearchFilter = (items) => {
 
 ### 9.1 测试文件统计
 
-| 类型 | 数量 |
-|------|------|
-| **测试文件** | ~30 |
-| **覆盖率** | 未分析 |
+| 类型         | 数量   |
+| ------------ | ------ |
+| **测试文件** | ~30    |
+| **覆盖率**   | 未分析 |
 
 ### 9.2 测试组件
 
 **已测试组件**:
+
 - UI 基础组件 (Button, Card, Tooltip)
 - ErrorBoundary
 - Analytics 组件
 
 **缺失测试**:
+
 - 大型功能组件
 - 自定义 Hooks
 - Context 组件
@@ -429,21 +455,25 @@ const useSearchFilter = (items) => {
 ## 11. 架构改进路线图
 
 ### Phase 1: 清理与统一（第 1-2 周）
+
 - [ ] 消除重复的 Card/Button 组件
 - [ ] 统一 Loading 组件体系
 - [ ] 移动共享组件到 ui/ 目录
 
 ### Phase 2: 拆分大型组件（第 3-4 周）
+
 - [ ] 拆分 AnimatedProgressBar
 - [ ] 拆分 UserSettingsPage
 - [ ] 拆分 AnalyticsDashboard
 
 ### Phase 3: 优化依赖关系（第 5-6 周）
+
 - [ ] 解决 Props 钻探问题
 - [ ] 提取可复用 Hooks
 - [ ] 建立 Context 层级
 
 ### Phase 4: 性能与测试（第 7-8 周）
+
 - [ ] 补充组件测试
 - [ ] 虚拟化长列表
 - [ ] 性能监控与优化

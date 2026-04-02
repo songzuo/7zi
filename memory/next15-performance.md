@@ -9,13 +9,13 @@
 
 ## 执行摘要
 
-| 指标 | 当前值 | 目标值 | 状态 |
-|------|--------|--------|------|
-| 总静态资源体积 | 4.7 MB | < 2 MB | 🔴 严重超限 |
-| chunks 目录 | 4.4 MB | < 1.5 MB | 🔴 严重超限 |
-| 最大单文件 | 1.3 MB | < 500 KB | 🔴 严重超限 |
-| 超限 entrypoint | 83 个 | 0 个 | 🔴 严重超限 |
-| 组件文件数 | 177 个 | - | ✅ 结构良好 |
+| 指标            | 当前值 | 目标值   | 状态        |
+| --------------- | ------ | -------- | ----------- |
+| 总静态资源体积  | 4.7 MB | < 2 MB   | 🔴 严重超限 |
+| chunks 目录     | 4.4 MB | < 1.5 MB | 🔴 严重超限 |
+| 最大单文件      | 1.3 MB | < 500 KB | 🔴 严重超限 |
+| 超限 entrypoint | 83 个  | 0 个     | 🔴 严重超限 |
+| 组件文件数      | 177 个 | -        | ✅ 结构良好 |
 
 **预估优化收益**: 减少 2.5-3 MB (53-64%)
 
@@ -35,21 +35,21 @@
 
 ### 1.2 最大 Chunk 文件 (Top 5)
 
-| 文件 | 大小 | 类型 | 问题 |
-|------|------|------|------|
-| `three-libs-*.js` | 365+345+142 KB | Three.js 3D库 | 多个chunk未合并 |
-| `framework-*.js` | 196+171+128+75 KB | React/Next.js | 框架代码分散 |
-| `polyfills-*.js` | 110 KB | Polyfills | 现代浏览器可能不需要 |
-| `chart-libs-*.js` | 82 KB | Recharts | 配置可能未生效 |
-| 页面 chunk (3283.js等) | 92-1000 KB | 应用代码 | 大型页面未充分分割 |
+| 文件                   | 大小              | 类型          | 问题                 |
+| ---------------------- | ----------------- | ------------- | -------------------- |
+| `three-libs-*.js`      | 365+345+142 KB    | Three.js 3D库 | 多个chunk未合并      |
+| `framework-*.js`       | 196+171+128+75 KB | React/Next.js | 框架代码分散         |
+| `polyfills-*.js`       | 110 KB            | Polyfills     | 现代浏览器可能不需要 |
+| `chart-libs-*.js`      | 82 KB             | Recharts      | 配置可能未生效       |
+| 页面 chunk (3283.js等) | 92-1000 KB        | 应用代码      | 大型页面未充分分割   |
 
 ### 1.3 加载时间估算
 
-| 连接类型 | 当前最大资源 (1.3MB) | 目标 (<500KB) |
-|----------|---------------------|---------------|
-| 4G (10 Mbps) | ~1.0s | ~0.4s |
-| 3G (1 Mbps) | ~10.4s | ~4.0s |
-| Slow 3G (400Kbps) | ~26s | ~10s |
+| 连接类型          | 当前最大资源 (1.3MB) | 目标 (<500KB) |
+| ----------------- | -------------------- | ------------- |
+| 4G (10 Mbps)      | ~1.0s                | ~0.4s         |
+| 3G (1 Mbps)       | ~10.4s               | ~4.0s         |
+| Slow 3G (400Kbps) | ~26s                 | ~10s          |
 
 ---
 
@@ -70,11 +70,13 @@ src/
 ### 2.2 已完成的优化
 
 ✅ **React.memo 优化**: 已在多个组件上实施
+
 - StatCard, MemberStatus, ActivityItemCard
 - MemberCard, TaskBoard, TaskCard
 - RealtimeDashboard, TeamActivityTracker
 
 ✅ **动态导入**: 已对以下组件使用
+
 - `CollaborationDemoContent` (collaboration-demo)
 - `PerformanceCharts` (performance 页面)
 - Three.js 组件 (knowledge-lattice)
@@ -84,10 +86,12 @@ src/
 ### 2.3 仍需关注的性能问题
 
 ⚠️ **useState/useEffect/useCallback/useMemo 总计**: 555 处使用
+
 - 存在过度使用可能性
 - 部分组件可能不需要复杂的记忆化
 
 ⚠️ **"use client" 指令**: 31 个 app 文件 + 124 个 components
+
 - 大量客户端组件可能影响首屏渲染
 - 应评估是否可改为服务端组件
 
@@ -109,7 +113,7 @@ config.optimization.splitChunks = { ... }  // ⚠️ Turbopack 忽略此配置
 ```typescript
 experimental: {
   // Turbopack 用此配置替代 webpack splitChunks
- turbo: {
+  turbo: {
     splitChunks: {
       // Turbopack 特定配置
     }
@@ -119,12 +123,12 @@ experimental: {
 
 ### 3.2 Next.js 15 可用优化
 
-| 特性 | 状态 | 说明 |
-|------|------|------|
+| 特性                            | 状态   | 说明                           |
+| ------------------------------- | ------ | ------------------------------ |
 | React Compiler (react-compiler) | 未启用 | 可自动优化 useMemo/useCallback |
-| Partial Prerendering (PPR) | 未启用 | 可加速首屏 |
-| fetchPriority | 未设置 | 可优化图片加载优先级 |
-| `next/font` subsetting | 已使用 | ✅ 字体优化良好 |
+| Partial Prerendering (PPR)      | 未启用 | 可加速首屏                     |
+| fetchPriority                   | 未设置 | 可优化图片加载优先级           |
+| `next/font` subsetting          | 已使用 | ✅ 字体优化良好                |
 
 ---
 
@@ -135,12 +139,14 @@ experimental: {
 **问题**: Three.js 852 KB 分布在 3 个 chunks，仅用于 1 个页面 (knowledge-lattice)
 
 **当前代码** (可能存在的问题):
+
 ```typescript
 // 可能在 layout 或全局导入
-import { Canvas } from '@react-three/fiber';
+import { Canvas } from '@react-three/fiber'
 ```
 
 **优化方案**:
+
 ```typescript
 // 在需要时动态导入
 const KnowledgeLatticeScene = dynamic(
@@ -160,6 +166,7 @@ const KnowledgeLatticeScene = dynamic(
 **问题**: polyfills-42372ed1.js = 110 KB
 
 **优化方案**:
+
 ```typescript
 // browserslist 检查:
 // 当前: last 2 Chrome versions, last 2 Firefox versions...
@@ -179,6 +186,7 @@ const KnowledgeLatticeScene = dynamic(
 **问题**: 555 处 useState/useEffect/useCallback/useMemo 需要手动优化
 
 **优化方案**:
+
 ```bash
 npm install @babel/plugin-react-compiler
 ```
@@ -192,6 +200,7 @@ experimental: {
 ```
 
 **预期收益**:
+
 - 自动优化 50-70% 的不必要重渲染
 - 减少手动优化工作量
 - 可能减少 bundle 体积 5-10%
@@ -203,6 +212,7 @@ experimental: {
 **问题**: 大型图片未设置 fetchPriority
 
 **优化方案**:
+
 ```typescript
 import Image from 'next/image';
 
@@ -234,6 +244,7 @@ import Image from 'next/image';
 **问题**: 83 个 entrypoint 超过 300KB 限制
 
 **优化方案**:
+
 ```typescript
 // 检查是否有页面在 layout.tsx 中导入了大型库
 // 例如 analytics/page.tsx 不应在 layout 中预加载 Recharts
@@ -255,13 +266,13 @@ export default function Loading() {
 
 ## 5. 优化优先级总结
 
-| 优先级 | 建议 | 预期收益 | 实施难度 |
-|--------|------|----------|----------|
-| 🔴 高 | Three.js 彻底懒加载 | -852 KB | 低 |
-| 🔴 高 | React Compiler 启用 | -200~400 KB | 中 |
-| 🟡 中 | polyfills 移除 | -110 KB | 低 |
-| 🟡 中 | 图片 fetchPriority | LCP +15% | 低 |
-| 🟡 中 | Route 分割验证 | -500 KB | 中 |
+| 优先级 | 建议                | 预期收益    | 实施难度 |
+| ------ | ------------------- | ----------- | -------- |
+| 🔴 高  | Three.js 彻底懒加载 | -852 KB     | 低       |
+| 🔴 高  | React Compiler 启用 | -200~400 KB | 中       |
+| 🟡 中  | polyfills 移除      | -110 KB     | 低       |
+| 🟡 中  | 图片 fetchPriority  | LCP +15%    | 低       |
+| 🟡 中  | Route 分割验证      | -500 KB     | 中       |
 
 **综合预期**: 减少 1.5-2 MB 首屏体积，LCP 改善 15-25%
 
@@ -285,4 +296,4 @@ npx lighthouse https://your-site.com --view
 
 ---
 
-*报告生成: 架构师子代理 | 2026-03-27*
+_报告生成: 架构师子代理 | 2026-03-27_

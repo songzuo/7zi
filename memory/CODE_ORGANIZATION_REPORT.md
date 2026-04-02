@@ -77,14 +77,14 @@ src/
 
 ### 1.2 代码规模统计
 
-| 模块 | 文件数 | 估算行数 | 说明 |
-|------|--------|----------|------|
-| src/lib | 97 | ~31,410 | 工具库（已统计） |
-| src/components | 40+ | ~8,000+ | 组件 |
-| src/stores | 6 | ~3,500 | 状态管理 |
-| src/features | 30+ | ~5,000+ | 功能模块 |
-| src/app/api | 30+ | ~4,000+ | API 路由 |
-| **总计** | **200+** | **~52,000+** | 不包括测试 |
+| 模块           | 文件数   | 估算行数     | 说明             |
+| -------------- | -------- | ------------ | ---------------- |
+| src/lib        | 97       | ~31,410      | 工具库（已统计） |
+| src/components | 40+      | ~8,000+      | 组件             |
+| src/stores     | 6        | ~3,500       | 状态管理         |
+| src/features   | 30+      | ~5,000+      | 功能模块         |
+| src/app/api    | 30+      | ~4,000+      | API 路由         |
+| **总计**       | **200+** | **~52,000+** | 不包括测试       |
 
 ---
 
@@ -95,16 +95,19 @@ src/
 #### 问题 1.1: 错误处理逻辑重复
 
 **位置**:
+
 - `src/lib/errors.ts` (470+ 行)
 - `src/lib/api/error-handler.ts` (370+ 行)
 
 **问题描述**:
+
 - 两个文件都定义了错误类型、错误工厂函数、错误响应格式
 - `AppError` 类和 `ApiError` 类功能完全重叠
 - `ErrorCode` 枚举和 `ErrorType` 枚举定义重复
 - 错误处理工厂函数在两处都有定义
 
 **影响**:
+
 - 代码冗余：维护两套相同的逻辑
 - 不一致风险：可能导致 API 响应格式不统一
 - 开发效率低：开发者需要知道应该使用哪个
@@ -129,7 +132,7 @@ export function createBadRequestError(
     code: ErrorCode.BAD_REQUEST,
     message,
     details,
-  });
+  })
 }
 
 // src/lib/api/error-handler.ts
@@ -145,8 +148,8 @@ export function createBadRequestError(
   message: string = 'Bad request',
   details?: Record<string, unknown>
 ): NextResponse<ErrorResponse> {
-  const error = new ApiError(ErrorType.BAD_REQUEST, message, 400, details);
-  return createErrorResponse(error);
+  const error = new ApiError(ErrorType.BAD_REQUEST, message, 400, details)
+  return createErrorResponse(error)
 }
 ```
 
@@ -155,16 +158,19 @@ export function createBadRequestError(
 #### 问题 1.2: 验证逻辑分散
 
 **位置**:
+
 - `src/lib/validation.ts` (200+ 行)
 - `src/lib/validation-schemas.ts` (400+ 行)
 
 **问题描述**:
+
 - `validation.ts` 提供通用验证函数（如 `isValidEmail`, `isValidUrl`）
 - `validation-schemas.ts` 使用 Zod 定义 schema 并提供 sanitize 函数
 - `sanitizeHtml` 函数在两个文件中都有定义
 - 验证和清理逻辑未统一
 
 **影响**:
+
 - 开发者困惑：不知道应该使用哪个验证方式
 - 不一致风险：sanitize 实现可能不同
 - 维护成本高：修改需要同步两处
@@ -174,9 +180,9 @@ export function createBadRequestError(
 ```typescript
 // src/lib/validation.ts
 export function sanitizeHtml(html: string): string {
-  const temp = document.createElement('div');
-  temp.textContent = html;
-  return temp.innerHTML;
+  const temp = document.createElement('div')
+  temp.textContent = html
+  return temp.innerHTML
 }
 
 // src/lib/validation-schemas.ts
@@ -186,7 +192,7 @@ export function sanitizeHtml(input: string): string {
     .replace(/<iframe\b[^<]*(?:(?!<\/iframe>)<[^<]*)*<\/iframe>/gi, '')
     .replace(/javascript:/gi, '')
     .replace(/on\w+\s*=/gi, '')
-    .trim();
+    .trim()
 }
 ```
 
@@ -195,20 +201,24 @@ export function sanitizeHtml(input: string): string {
 #### 问题 1.3: 组件组织混乱
 
 **位置**:
+
 - `src/components/` 根目录
 - 子目录: `ui/`, `feedback/`, `notifications/`, `performance/`, `rooms/`, `seo/`, `websocket/`, `knowledge-lattice/`
 
 **问题描述**:
+
 - 大型组件直接放在根目录：`EnhancedPerformanceDashboard.tsx`, `ErrorBoundary.tsx`, `PerformanceDashboard.tsx`
 - 缺少清晰的分类标准
 - 性能相关组件分散在 `components/performance/` 和 `components/` 根目录
 
 **影响**:
+
 - 可读性差：组件职责不清晰
 - 重用困难：难以找到需要的组件
 - 维护困难：大型组件在根目录难以管理
 
 **根目录组件列表**:
+
 ```
 src/components/
 ├── EnhancedPerformanceDashboard.tsx (21772 字节)
@@ -224,16 +234,19 @@ src/components/
 #### 问题 1.4: API 路由设计不一致
 
 **位置**:
+
 - `src/app/api/feedback/route.ts`
 - `src/app/api/users/route.ts`
 
 **问题描述**:
+
 - `/api/feedback/route.ts` 直接在文件中定义多个方法处理函数
 - `/api/users/route.ts` 使用类+装饰器模式
 - 错误处理方式不一致
 - 认证装饰器使用方式不同
 
 **影响**:
+
 - 开发体验差：开发者需要知道使用哪种模式
 - 维护困难：不同路由有不同的模式
 - 测试困难：需要针对不同模式编写测试
@@ -259,15 +272,18 @@ class UserController {
 #### 问题 1.5: 功能模块重复
 
 **位置**:
+
 - `src/lib/websocket-manager.ts` (18555 字节)
 - `src/features/websocket/` (15+ 文件)
 
 **问题描述**:
+
 - WebSocket 功能在两个位置重复实现
 - `src/lib/services/notification.ts` 和 `src/components/notifications/` 都有通知相关代码
 - 职责不清晰
 
 **影响**:
+
 - 代码冗余：相同功能在多处
 - 不一致风险：不同实现可能有不同行为
 - 维护困难：修改需要同步多处
@@ -279,14 +295,17 @@ class UserController {
 #### 问题 2.1: 服务层职责不清晰
 
 **位置**:
+
 - `src/lib/services/` (5 个服务文件)
 
 **问题描述**:
+
 - 服务定义的边界不清晰
 - 有些服务是数据访问层，有些是业务逻辑层
 - 缺少统一的服务接口定义
 
 **影响**:
+
 - 代码理解困难：不知道服务的职责
 - 测试困难：缺少清晰的依赖注入
 - 重构困难：服务耦合严重
@@ -296,14 +315,17 @@ class UserController {
 #### 问题 2.2: 中间件组织混乱
 
 **位置**:
+
 - `src/middleware.ts` (8378 字节)
 - `src/middleware.i18n.ts` (2362 字节)
 
 **问题描述**:
+
 - 两个中间件文件，职责不清
 - 可能存在功能重叠
 
 **影响**:
+
 - 维护困难：不知道应该修改哪个文件
 - 功能重叠风险
 
@@ -312,14 +334,17 @@ class UserController {
 #### 问题 2.3: 共享代码目录不规范
 
 **位置**:
+
 - `src/shared/` 目录
 
 **问题描述**:
+
 - `src/shared/` 目录存在但使用不规范
 - 一些通用工具放在 `src/lib/utils/`
 - 缺少清晰的共享代码组织规则
 
 **影响**:
+
 - 代码查找困难：不知道应该放在哪里
 - 重复风险：可能在不同位置定义相同的工具
 
@@ -328,14 +353,17 @@ class UserController {
 #### 问题 2.4: 测试文件分散
 
 **位置**:
+
 - `__tests__/` 目录分散在各模块中
 - 一些测试文件与代码文件并列
 
 **问题描述**:
+
 - 测试文件组织不统一
 - 缺少统一的测试配置
 
 **影响**:
+
 - 测试查找困难
 - 运行测试困难
 
@@ -344,14 +372,17 @@ class UserController {
 #### 问题 2.5: 性能监控代码重复
 
 **位置**:
+
 - `src/lib/performance/`
 - `src/lib/performance-monitoring/` (7 个子目录)
 
 **问题描述**:
+
 - 两个目录都包含性能监控相关代码
 - 职责不清晰
 
 **影响**:
+
 - 代码冗余
 - 维护困难
 
@@ -362,13 +393,16 @@ class UserController {
 #### 问题 3.1: 命名不一致
 
 **位置**:
+
 - `src/lib/logger.ts` (单数)
 - `src/lib/utils/` (复数)
 
 **问题描述**:
+
 - 命名风格不一致
 
 **影响**:
+
 - 轻微影响代码可读性
 
 ---
@@ -382,6 +416,7 @@ class UserController {
 **目标**: 消除错误处理重复，统一 API 错误响应
 
 **方案**:
+
 1. 保留 `src/lib/errors.ts` 作为核心错误定义
 2. 将 `src/lib/api/error-handler.ts` 迁移为使用 `src/lib/errors.ts`
 3. 删除重复定义
@@ -397,19 +432,19 @@ class UserController {
 
 // 添加 API 响应相关类型
 export interface ApiResponse<T = unknown> {
-  success: boolean;
-  data?: T;
+  success: boolean
+  data?: T
   error?: {
-    code: ErrorCode;
-    message: string;
-    details?: Record<string, unknown>;
-    timestamp: string;
-  };
-  timestamp: string;
+    code: ErrorCode
+    message: string
+    details?: Record<string, unknown>
+    timestamp: string
+  }
+  timestamp: string
 }
 
 // 添加 NextResponse 辅助函数
-import { NextResponse } from 'next/server';
+import { NextResponse } from 'next/server'
 
 export function createApiResponse<T = unknown>(
   data: T,
@@ -422,7 +457,7 @@ export function createApiResponse<T = unknown>(
       timestamp: new Date().toISOString(),
     },
     { status }
-  );
+  )
 }
 
 export function createApiErrorResponse(
@@ -441,7 +476,7 @@ export function createApiErrorResponse(
       timestamp: new Date().toISOString(),
     },
     { status: status || error.statusCode }
-  );
+  )
 }
 ```
 
@@ -450,7 +485,7 @@ export function createApiErrorResponse(
 ```typescript
 // src/lib/api/route-helpers.ts
 
-import { NextRequest, NextResponse } from 'next/server';
+import { NextRequest, NextResponse } from 'next/server'
 import {
   createBadRequestError,
   createUnauthorizedError,
@@ -459,8 +494,8 @@ import {
   createApiErrorResponse,
   createApiResponse,
   AppError,
-} from '../errors';
-import { logger } from '../logger';
+} from '../errors'
+import { logger } from '../logger'
 
 /**
  * 统一的 API 路由错误处理
@@ -469,60 +504,56 @@ export async function handleApiRoute(
   handler: (request: NextRequest) => Promise<NextResponse>
 ): Promise<NextResponse> {
   try {
-    return await handler();
+    return await handler()
   } catch (error) {
     if (error instanceof AppError) {
-      logger.error(`API Error [${error.code}]: ${error.message}`, error);
-      return createApiErrorResponse(error);
+      logger.error(`API Error [${error.code}]: ${error.message}`, error)
+      return createApiErrorResponse(error)
     }
 
-    logger.error('Unexpected API Error', error instanceof Error ? error : undefined);
+    logger.error('Unexpected API Error', error instanceof Error ? error : undefined)
 
     const appError = createInternalError(
       error instanceof Error ? error.message : 'Unknown error',
       error instanceof Error ? error : undefined
-    );
+    )
 
-    return createApiErrorResponse(appError);
+    return createApiErrorResponse(appError)
   }
 }
 
 /**
  * 认证装饰器
  */
-export function withAuth<T extends (...args: unknown[]) => Promise<NextResponse>>(
-  handler: T
-): T {
+export function withAuth<T extends (...args: unknown[]) => Promise<NextResponse>>(handler: T): T {
   return (async (request: NextRequest, ...args: unknown[]) => {
     // 从 request 中解析用户信息
-    const user = await getUserFromRequest(request);
+    const user = await getUserFromRequest(request)
 
     if (!user) {
-      return createApiErrorResponse(createUnauthorizedError());
+      return createApiErrorResponse(createUnauthorizedError())
     }
 
     // 将 user 信息附加到 request
-    (request as any).user = user;
+    ;(request as any).user = user
 
-    return await handler(request, ...args);
-  }) as unknown as T;
+    return await handler(request, ...args)
+  }) as unknown as T
 }
 
 /**
  * 管理员认证装饰器
  */
-export function withAdmin<T extends (...args: unknown[]) => Promise<NextResponse>>(
-  handler: T
-): T {
+export function withAdmin<T extends (...args: unknown[]) => Promise<NextResponse>>(handler: T): T {
   return (async (request: NextRequest, ...args: unknown[]) => {
-    const user = (request as any).user;
+    const user = (request as any).user
 
     if (!user || user.role !== 'admin') {
-      return createApiErrorResponse(createForbiddenError());
+      return createApiErrorResponse(createForbiddenError())
     }
 
-    return await handler(request, ...args);
-  }) as unknown as T;
+    return await handler(request, ...args)
+  }) as unknown as T
 }
 
 /**
@@ -530,15 +561,15 @@ export function withAdmin<T extends (...args: unknown[]) => Promise<NextResponse
  */
 async function getUserFromRequest(request: NextRequest): Promise<any> {
   // 实际实现应该从 JWT 或 session 中解析
-  const token = request.headers.get('authorization');
+  const token = request.headers.get('authorization')
 
   if (!token) {
-    return null;
+    return null
   }
 
   // 解析 token 并返回用户信息
   // ...
-  return null;
+  return null
 }
 ```
 
@@ -547,43 +578,49 @@ async function getUserFromRequest(request: NextRequest): Promise<any> {
 ```typescript
 // src/app/api/feedback/route.ts (更新后)
 
-import { NextRequest } from 'next/server';
-import { feedbackStorage } from '@/lib/db/feedback-storage';
-import { handleApiRoute, withAuth, withAdmin, createApiErrorResponse, createApiResponse } from '@/lib/api/route-helpers';
-import { validateAndSanitizeBody, sanitizeHtml } from '@/lib/validation-schemas';
-import { z } from 'zod';
-import { createValidationError } from '@/lib/errors';
+import { NextRequest } from 'next/server'
+import { feedbackStorage } from '@/lib/db/feedback-storage'
+import {
+  handleApiRoute,
+  withAuth,
+  withAdmin,
+  createApiErrorResponse,
+  createApiResponse,
+} from '@/lib/api/route-helpers'
+import { validateAndSanitizeBody, sanitizeHtml } from '@/lib/validation-schemas'
+import { z } from 'zod'
+import { createValidationError } from '@/lib/errors'
 
 /**
  * GET /api/feedback
  */
 export const GET = handleApiRoute(
   withAuth(async (request: NextRequest) => {
-    const { user } = request as any;
+    const { user } = request as any
 
     // 业务逻辑...
-    return createApiResponse(data);
+    return createApiResponse(data)
   })
-);
+)
 
 /**
  * POST /api/feedback
  */
 export const POST = handleApiRoute(
   withAuth(async (request: NextRequest) => {
-    const { user } = request as any;
-    const body = await request.json();
+    const { user } = request as any
+    const body = await request.json()
 
     // 验证
-    const result = await validateAndSanitizeBody(body, feedbackSubmissionSchema, 'html');
+    const result = await validateAndSanitizeBody(body, feedbackSubmissionSchema, 'html')
     if (!result.success) {
-      return createApiErrorResponse(createValidationError('Validation failed'));
+      return createApiErrorResponse(createValidationError('Validation failed'))
     }
 
     // 业务逻辑...
-    return createApiResponse(data, 201);
+    return createApiResponse(data, 201)
   })
-);
+)
 
 /**
  * PATCH /api/feedback
@@ -591,9 +628,9 @@ export const POST = handleApiRoute(
 export const PATCH = handleApiRoute(
   withAdmin(async (request: NextRequest) => {
     // 业务逻辑...
-    return createApiResponse(data);
+    return createApiResponse(data)
   })
-);
+)
 
 /**
  * DELETE /api/feedback
@@ -601,9 +638,9 @@ export const PATCH = handleApiRoute(
 export const DELETE = handleApiRoute(
   withAdmin(async (request: NextRequest) => {
     // 业务逻辑...
-    return createApiResponse(data);
+    return createApiResponse(data)
   })
-);
+)
 ```
 
 **步骤 4**: 删除 `src/lib/api/error-handler.ts`
@@ -613,6 +650,7 @@ rm src/lib/api/error-handler.ts
 ```
 
 **影响范围**:
+
 - 需要更新所有使用 `error-handler.ts` 的 API 路由
 - 预计影响 12+ 个 API 端点
 
@@ -623,6 +661,7 @@ rm src/lib/api/error-handler.ts
 **目标**: 统一验证和清理逻辑，消除重复
 
 **方案**:
+
 1. 保留 `src/lib/validation-schemas.ts` 作为主要验证库
 2. 将 `src/lib/validation.ts` 中的通用验证函数迁移到 `src/lib/validation-schemas.ts`
 3. 统一 sanitize 函数实现
@@ -635,7 +674,7 @@ rm src/lib/api/error-handler.ts
 ```typescript
 // src/lib/validation-schemas.ts (更新后)
 
-import { z } from 'zod';
+import { z } from 'zod'
 
 // ==================== Zod Schemas ====================
 
@@ -647,49 +686,49 @@ import { z } from 'zod';
  * 验证电子邮件地址
  */
 export function isValidEmail(email: string): boolean {
-  return emailString.safeParse(email).success;
+  return emailString.safeParse(email).success
 }
 
 /**
  * 验证 URL
  */
 export function isValidUrl(url: string): boolean {
-  return urlSchema.safeParse(url).success;
+  return urlSchema.safeParse(url).success
 }
 
 /**
  * 验证手机号码（中国大陆）
  */
 export function isValidPhoneNumber(phone: string): boolean {
-  return phoneNumberSchema.safeParse(phone).success;
+  return phoneNumberSchema.safeParse(phone).success
 }
 
 /**
  * 验证密码强度
  */
 export function isStrongPassword(password: string): boolean {
-  return passwordSchema.safeParse(password).success;
+  return passwordSchema.safeParse(password).success
 }
 
 /**
  * 验证用户名
  */
 export function isValidUsername(username: string): boolean {
-  return usernameSchema.safeParse(username).success;
+  return usernameSchema.safeParse(username).success
 }
 
 /**
  * 验证 UUID
  */
 export function isValidUuid(uuid: string): boolean {
-  return uuidSchema.safeParse(uuid).success;
+  return uuidSchema.safeParse(uuid).success
 }
 
 /**
  * 验证 IPv4 地址
  */
 export function isValidIPv4(ip: string): boolean {
-  return ipv4Schema.safeParse(ip).success;
+  return ipv4Schema.safeParse(ip).success
 }
 
 /**
@@ -697,10 +736,10 @@ export function isValidIPv4(ip: string): boolean {
  */
 export function isValidJson(json: string): boolean {
   try {
-    JSON.parse(json);
-    return true;
+    JSON.parse(json)
+    return true
   } catch {
-    return false;
+    return false
   }
 }
 
@@ -719,7 +758,7 @@ export function sanitizeHtml(input: string): string {
     .replace(/<embed\b[^<]*(?:(?!<\/embed>)<[^<]*)*<\/embed>/gi, '')
     .replace(/javascript:/gi, '')
     .replace(/on\w+\s*=/gi, '')
-    .trim();
+    .trim()
 }
 
 /**
@@ -731,7 +770,7 @@ export function sanitizeSqlString(input: string): string {
     .replace(/--/g, '')
     .replace(/\/\*/g, '')
     .replace(/\*\//g, '')
-    .trim();
+    .trim()
 }
 
 /**
@@ -741,7 +780,7 @@ export function sanitizeNoSqlString(input: string): string {
   return input
     .replace(/\$\w+/g, '')
     .replace(/['";\\]/g, '')
-    .trim();
+    .trim()
 }
 
 /**
@@ -753,7 +792,7 @@ export function sanitizeCommandString(input: string): string {
     .replace(/\$\([^)]*\)/g, '')
     .replace(/`[^`]*`/g, '')
     .replace(/\$\{[^}]*\}/g, '')
-    .trim();
+    .trim()
 }
 
 /**
@@ -764,21 +803,21 @@ export function sanitizeInput(
   type: 'sql' | 'nosql' | 'html' | 'command' | 'general' = 'general'
 ): unknown {
   if (typeof input !== 'string') {
-    return input;
+    return input
   }
 
   switch (type) {
     case 'sql':
-      return sanitizeSqlString(input);
+      return sanitizeSqlString(input)
     case 'nosql':
-      return sanitizeNoSqlString(input);
+      return sanitizeNoSqlString(input)
     case 'html':
-      return sanitizeHtml(input);
+      return sanitizeHtml(input)
     case 'command':
-      return sanitizeCommandString(input);
+      return sanitizeCommandString(input)
     case 'general':
     default:
-      return input.trim();
+      return input.trim()
   }
 }
 
@@ -789,15 +828,15 @@ export function sanitizeObject<T extends Record<string, unknown>>(
   obj: T,
   type: 'sql' | 'nosql' | 'html' | 'command' | 'general' = 'general'
 ): T {
-  const result = { ...obj };
+  const result = { ...obj }
 
   for (const key in result) {
     if (result[key] !== null && typeof result[key] === 'string') {
-      result[key] = sanitizeInput(result[key], type) as T[Extract<keyof T, string>];
+      result[key] = sanitizeInput(result[key], type) as T[Extract<keyof T, string>]
     }
   }
 
-  return result;
+  return result
 }
 ```
 
@@ -806,7 +845,7 @@ export function sanitizeObject<T extends Record<string, unknown>>(
 ```typescript
 // src/lib/validation/index.ts
 
-export * from '../validation-schemas';
+export * from '../validation-schemas'
 export {
   isValidEmail,
   isValidUrl,
@@ -822,7 +861,7 @@ export {
   sanitizeCommandString,
   sanitizeInput,
   sanitizeObject,
-} from '../validation-schemas';
+} from '../validation-schemas'
 ```
 
 **步骤 3**: 更新所有引用
@@ -846,6 +885,7 @@ rm src/lib/validation.ts
 ```
 
 **影响范围**:
+
 - 需要更新所有引用 validation.ts 的文件
 - 需要更新所有引用 validation-schemas.ts 的文件
 - 预计影响 20+ 个文件
@@ -857,6 +897,7 @@ rm src/lib/validation.ts
 **目标**: 清晰的组件分类，提高可维护性
 
 **方案**:
+
 1. 将大型复杂组件移到专门的目录
 2. 创建清晰的分类
 3. 统一导出方式
@@ -969,25 +1010,26 @@ find src -name "*.tsx" -o -name "*.ts" | xargs sed -i \
 // src/components/index.ts
 
 // UI 组件
-export * from './ui';
+export * from './ui'
 
 // 功能组件
-export * from './feedback';
-export * from './notifications';
-export * from './performance';
-export * from './websocket';
-export * from './rooms';
+export * from './feedback'
+export * from './notifications'
+export * from './performance'
+export * from './websocket'
+export * from './rooms'
 
 // SEO 组件
-export * from './seo';
+export * from './seo'
 
 // 其他
-export * from './error';
-export * from './image';
-export * from './knowledge-lattice';
+export * from './error'
+export * from './image'
+export * from './knowledge-lattice'
 ```
 
 **影响范围**:
+
 - 需要更新所有导入语句
 - 预计影响 50+ 个文件
 
@@ -998,6 +1040,7 @@ export * from './knowledge-lattice';
 **目标**: 统一 API 路由设计模式，提高开发体验
 
 **方案**:
+
 1. 选择函数模式作为主要模式（更简单，更适合 Next.js）
 2. 提供统一的路由辅助函数
 3. 更新现有路由使用统一模式
@@ -1009,9 +1052,15 @@ export * from './knowledge-lattice';
 ```typescript
 // src/lib/api/route-template.ts
 
-import { NextRequest, NextResponse } from 'next/server';
-import { handleApiRoute, withAuth, withAdmin, createApiErrorResponse, createApiResponse } from './route-helpers';
-import { createValidationError } from '../errors';
+import { NextRequest, NextResponse } from 'next/server'
+import {
+  handleApiRoute,
+  withAuth,
+  withAdmin,
+  createApiErrorResponse,
+  createApiResponse,
+} from './route-helpers'
+import { createValidationError } from '../errors'
 
 /**
  * API 路由模板
@@ -1025,55 +1074,55 @@ import { createValidationError } from '../errors';
 // 示例：POST 路由
 export const POST = handleApiRoute(
   withAuth(async (request: NextRequest) => {
-    const { user } = request as any;
+    const { user } = request as any
 
     // 解析请求体
-    const body = await request.json();
+    const body = await request.json()
 
     // 验证输入
-    const result = await validateAndSanitizeBody(body, yourSchema);
+    const result = await validateAndSanitizeBody(body, yourSchema)
     if (!result.success) {
-      return createApiErrorResponse(createValidationError('Validation failed'));
+      return createApiErrorResponse(createValidationError('Validation failed'))
     }
 
     // 业务逻辑
     try {
-      const data = await yourBusinessLogic(result.data, user);
-      return createApiResponse(data, 201);
+      const data = await yourBusinessLogic(result.data, user)
+      return createApiResponse(data, 201)
     } catch (error) {
-      throw error; // 由 handleApiRoute 处理
+      throw error // 由 handleApiRoute 处理
     }
   })
-);
+)
 
 // 示例：GET 路由
 export const GET = handleApiRoute(
   withAuth(async (request: NextRequest) => {
-    const { user } = request as any;
+    const { user } = request as any
 
     // 解析查询参数
-    const { searchParams } = new URL(request.url);
-    const page = parseInt(searchParams.get('page') || '1');
-    const limit = parseInt(searchParams.get('limit') || '20');
+    const { searchParams } = new URL(request.url)
+    const page = parseInt(searchParams.get('page') || '1')
+    const limit = parseInt(searchParams.get('limit') || '20')
 
     // 业务逻辑
-    const data = await yourGetDataLogic(page, limit, user);
-    return createApiResponse(data);
+    const data = await yourGetDataLogic(page, limit, user)
+    return createApiResponse(data)
   })
-);
+)
 
 // 示例：需要管理员权限的路由
 export const PATCH = handleApiRoute(
   withAdmin(async (request: NextRequest) => {
-    const { user } = request as any;
+    const { user } = request as any
 
-    const body = await request.json();
+    const body = await request.json()
 
     // 业务逻辑
-    const data = await yourUpdateLogic(body, user);
-    return createApiResponse(data);
+    const data = await yourUpdateLogic(body, user)
+    return createApiResponse(data)
   })
-);
+)
 ```
 
 **步骤 2**: 迁移 `/api/users/route.ts`
@@ -1162,17 +1211,18 @@ async listUsers(ctx: ApiContext): Promise<NextResponse> { ... }
 export const GET = handleApiRoute(
   withAuth(async (request: NextRequest) => {
     const { user } = request as any;
-    
+
     if (!hasPermission(user, 'user:list')) {
       throw createForbiddenError('需要 user:list 权限');
     }
-    
+
     // 业务逻辑...
   })
 );
 ```
 
 **影响范围**:
+
 - 需要迁移 `/api/users/route.ts`
 - 预计影响 2 个 API 端点
 
@@ -1183,6 +1233,7 @@ export const GET = handleApiRoute(
 **目标**: 消除功能模块重复，清晰划分职责
 
 **方案**:
+
 1. 将 `src/lib/websocket-manager.ts` 迁移到 `src/features/websocket/`
 2. 将 `src/lib/services/notification.ts` 迁移到 `src/features/notifications/`
 3. 清理 `src/lib/services/`
@@ -1223,21 +1274,21 @@ find src -name "*.ts" -o -name "*.tsx" | xargs sed -i \
 // src/features/websocket/index.ts
 
 // WebSocket Manager
-export { WebSocketManager } from './lib/websocket-manager';
-export type { WebSocketMessage, ConnectionStatus } from './lib/websocket-manager';
+export { WebSocketManager } from './lib/websocket-manager'
+export type { WebSocketMessage, ConnectionStatus } from './lib/websocket-manager'
 
 // Socket
-export { socket } from './lib/socket';
+export { socket } from './lib/socket'
 
 // Room Management
-export { RoomManager } from './room/room-manager';
-export { PermissionManager } from './room/permission-manager';
+export { RoomManager } from './room/room-manager'
+export { PermissionManager } from './room/permission-manager'
 
 // Components
-export { WebSocketStatusPanel } from './components/WebSocketStatusPanel';
+export { WebSocketStatusPanel } from './components/WebSocketStatusPanel'
 
 // Hooks
-export { useWebSocketStatus } from './hooks/useWebSocketStatus';
+export { useWebSocketStatus } from './hooks/useWebSocketStatus'
 ```
 
 **步骤 4**: 清理 `src/lib/services/`
@@ -1251,6 +1302,7 @@ rm -rf src/lib/services/
 ```
 
 **影响范围**:
+
 - 需要更新所有 WebSocket 相关导入
 - 需要更新所有通知服务相关导入
 - 预计影响 30+ 个文件
@@ -1264,6 +1316,7 @@ rm -rf src/lib/services/
 **目标**: 清晰定义服务层的职责和边界
 
 **方案**:
+
 1. 定义服务层接口规范
 2. 区分数据访问层和业务逻辑层
 3. 创建统一的服务基类
@@ -1294,35 +1347,32 @@ src/services/
 **目标**: 统一中间件组织
 
 **方案**:
+
 1. 合并 `src/middleware.ts` 和 `src/middleware.i18n.ts`
 2. 创建中间件链模式
 
 ```typescript
 // src/middleware.ts (整合后)
 
-import { NextRequest, NextResponse } from 'next/server';
-import { i18nMiddleware } from './middleware/i18n';
-import { authMiddleware } from './middleware/auth';
-import { rateLimitMiddleware } from './middleware/rate-limit';
+import { NextRequest, NextResponse } from 'next/server'
+import { i18nMiddleware } from './middleware/i18n'
+import { authMiddleware } from './middleware/auth'
+import { rateLimitMiddleware } from './middleware/rate-limit'
 
 export async function middleware(request: NextRequest) {
   // 中间件链
-  const middlewares = [
-    i18nMiddleware,
-    authMiddleware,
-    rateLimitMiddleware,
-  ];
+  const middlewares = [i18nMiddleware, authMiddleware, rateLimitMiddleware]
 
-  let response: NextResponse | null = null;
+  let response: NextResponse | null = null
 
   for (const mw of middlewares) {
-    response = await mw(request);
+    response = await mw(request)
     if (response) {
-      return response;
+      return response
     }
   }
 
-  return NextResponse.next();
+  return NextResponse.next()
 }
 
 export const config = {
@@ -1330,7 +1380,7 @@ export const config = {
     // 排除静态资源
     '/((?!api|_next/static|_next/image|favicon.ico).*)',
   ],
-};
+}
 ```
 
 ---
@@ -1340,6 +1390,7 @@ export const config = {
 **目标**: 清晰定义 `src/shared/` 的用途
 
 **方案**:
+
 1. 定义共享代码的类型
 2. 创建明确的目录结构
 
@@ -1367,6 +1418,7 @@ src/shared/
 **目标**: 统一测试文件组织
 
 **方案**:
+
 1. 选择一种测试文件组织方式
 2. 创建测试配置
 
@@ -1394,6 +1446,7 @@ src/
 **目标**: 消除性能监控重复
 
 **方案**:
+
 1. 合并 `src/lib/performance/` 和 `src/lib/performance-monitoring/`
 2. 创建清晰的功能划分
 
@@ -1425,10 +1478,12 @@ src/lib/performance/
 **目标**: 统一代码命名风格
 
 **方案**:
+
 1. 制定命名规范文档
 2. 使用 ESLint 规则强制执行
 
 建议的命名规范：
+
 - 文件名：kebab-case (例如：`error-handler.ts`)
 - 组件名：PascalCase (例如：`ErrorBoundary.tsx`)
 - 函数名：camelCase (例如：`createUser()`)
@@ -1441,33 +1496,33 @@ src/lib/performance/
 
 ### 4.1 阶段一：P0 高优先级（预计 2-3 天）
 
-| 任务 | 预计时间 | 风险 |
-|------|----------|------|
-| 统一错误处理 | 4 小时 | 中 - 需要更新多个 API |
-| 统一验证逻辑 | 4 小时 | 低 |
-| 重新组织组件 | 6 小时 | 中 - 需要更新导入 |
-| 统一 API 路由模式 | 4 小时 | 中 - 需要重构 |
-| 整合功能模块 | 4 小时 | 中 - 需要更新导入 |
+| 任务              | 预计时间 | 风险                  |
+| ----------------- | -------- | --------------------- |
+| 统一错误处理      | 4 小时   | 中 - 需要更新多个 API |
+| 统一验证逻辑      | 4 小时   | 低                    |
+| 重新组织组件      | 6 小时   | 中 - 需要更新导入     |
+| 统一 API 路由模式 | 4 小时   | 中 - 需要重构         |
+| 整合功能模块      | 4 小时   | 中 - 需要更新导入     |
 
 **总计**: 约 22 小时（3 个工作日）
 
 ### 4.2 阶段二：P1 中优先级（预计 2 天）
 
-| 任务 | 预计时间 | 风险 |
-|------|----------|------|
-| 清晰定义服务层 | 4 小时 | 低 |
-| 整合中间件 | 2 小时 | 低 |
-| 规范共享代码目录 | 2 小时 | 低 |
-| 统一测试文件组织 | 4 小时 | 低 |
-| 整合性能监控代码 | 4 小时 | 低 |
+| 任务             | 预计时间 | 风险 |
+| ---------------- | -------- | ---- |
+| 清晰定义服务层   | 4 小时   | 低   |
+| 整合中间件       | 2 小时   | 低   |
+| 规范共享代码目录 | 2 小时   | 低   |
+| 统一测试文件组织 | 4 小时   | 低   |
+| 整合性能监控代码 | 4 小时   | 低   |
 
 **总计**: 约 16 小时（2 个工作日）
 
 ### 4.3 阶段三：P2 低优先级（预计 0.5 天）
 
-| 任务 | 预计时间 | 风险 |
-|------|----------|------|
-| 统一命名风格 | 2 小时 | 低 |
+| 任务         | 预计时间 | 风险 |
+| ------------ | -------- | ---- |
+| 统一命名风格 | 2 小时   | 低   |
 
 **总计**: 约 2 小时（0.5 个工作日）
 
@@ -1475,11 +1530,11 @@ src/lib/performance/
 
 ## 五、风险评估
 
-| 风险 | 影响 | 缓解措施 |
-|------|------|----------|
-| API 路由重构可能破坏现有功能 | 高 | 编写完整的测试用例，逐步迁移 |
-| 导入更新可能遗漏 | 中 | 使用 IDE 重构工具，运行测试验证 |
-| 组件移动可能影响 Storybook | 低 | 更新 Storybook 配置 |
+| 风险                         | 影响 | 缓解措施                        |
+| ---------------------------- | ---- | ------------------------------- |
+| API 路由重构可能破坏现有功能 | 高   | 编写完整的测试用例，逐步迁移    |
+| 导入更新可能遗漏             | 中   | 使用 IDE 重构工具，运行测试验证 |
+| 组件移动可能影响 Storybook   | 低   | 更新 Storybook 配置             |
 
 ---
 

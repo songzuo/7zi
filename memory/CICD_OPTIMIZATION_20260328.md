@@ -9,6 +9,7 @@
 ## 📊 当前状态分析
 
 ### 项目规模
+
 - **代码量**: ~47,000 行 TypeScript/TSX
 - **依赖**: ~85个生产依赖 + ~30个开发依赖
 - **Node.js**: v22
@@ -88,6 +89,7 @@
 ```
 
 **影响**:
+
 - 7个 jobs 重复执行依赖检查
 - 即使缓存命中,仍需 10-30秒 恢复缓存
 - **总浪费时间**: ~3-5分钟
@@ -102,6 +104,7 @@ key: ${{ runner.os }}-node-modules-${{ hashFiles('**/package-lock.json') }}
 ```
 
 **缺陷**:
+
 - 未考虑 Node.js 版本变化
 - 未区分生产/开发依赖
 - 缓存粒度太粗,任何依赖变化都失效
@@ -109,6 +112,7 @@ key: ${{ runner.os }}-node-modules-${{ hashFiles('**/package-lock.json') }}
 ### 3. Docker 构建优化不足
 
 **当前 Dockerfile**:
+
 ```dockerfile
 # Stage 1: deps
 RUN npm ci --legacy-peer-deps && npm cache clean --force
@@ -118,6 +122,7 @@ COPY --from=deps /app/node_modules ./node_modules
 ```
 
 **问题**:
+
 - 使用 `--legacy-peer-deps` 可能隐藏依赖冲突
 - 未利用 BuildKit 内联缓存
 - 多阶段构建未最大化层缓存
@@ -127,7 +132,7 @@ COPY --from=deps /app/node_modules ./node_modules
 ```yaml
 strategy:
   matrix:
-    browser: [chromium]  # 仅一个浏览器
+    browser: [chromium] # 仅一个浏览器
 ```
 
 **问题**: 未充分利用矩阵并行,可同时测试多个浏览器
@@ -156,10 +161,11 @@ strategy:
   uses: actions/setup-node@v4
   with:
     node-version: ${{ env.NODE_VERSION }}
-    cache: 'npm'  # 自动缓存 ~/.npm
+    cache: 'npm' # 自动缓存 ~/.npm
 ```
 
 **优势**:
+
 - 官方维护,更稳定
 - 自动处理缓存失效
 - 减少配置复杂度
@@ -174,24 +180,24 @@ jobs:
       cache-hit: ${{ steps.cache.outputs.cache-hit }}
     steps:
       - uses: actions/checkout@v4
-      
+
       - name: 设置 Node.js
         uses: actions/setup-node@v4
         with:
           node-version: ${{ env.NODE_VERSION }}
           cache: 'npm'
-      
+
       - name: 缓存 node_modules
         id: cache
         uses: actions/cache@v4
         with:
           path: node_modules
           key: ${{ runner.os }}-node${{ env.NODE_VERSION }}-modules-${{ hashFiles('package-lock.json') }}
-      
+
       - name: 安装依赖
         if: steps.cache.outputs.cache-hit != 'true'
         run: npm ci --prefer-offline --no-audit
-      
+
       # ✅ 保存到 artifact,供其他 job 使用
       - name: 保存依赖快照
         uses: actions/upload-artifact@v4
@@ -204,24 +210,25 @@ jobs:
     needs: setup
     steps:
       - uses: actions/checkout@v4
-      
+
       # ✅ 从 artifact 恢复,无需重新安装
       - name: 恢复依赖
         uses: actions/download-artifact@v4
         with:
           name: node-modules
           path: node_modules
-      
+
       - name: 设置 Node.js
         uses: actions/setup-node@v4
         with:
           node-version: ${{ env.NODE_VERSION }}
-      
+
       - name: 运行 ESLint
         run: npm run lint
 ```
 
 **效果**:
+
 - 依赖只安装一次
 - 其他 job 直接使用,节省 30-60 秒/job
 - **总节省**: ~3-4 分钟
@@ -330,6 +337,7 @@ CMD ["node", "server.js"]
 ```
 
 **优化点**:
+
 - `RUN --mount=type=cache` - 持久化构建缓存
 - 分离依赖安装和源码复制
 - 最小化最终镜像层
@@ -342,7 +350,7 @@ test-e2e:
     fail-fast: false
     matrix:
       browser: [chromium, firefox, webkit]
-      shard: [1/2, 2/2]  # 分片 + 多浏览器
+      shard: [1/2, 2/2] # 分片 + 多浏览器
 ```
 
 **效果**: 3 浏览器 × 2 分片 = 6 并行任务
@@ -370,22 +378,22 @@ build:
 
 ### 时间节省对比
 
-| 阶段 | 当前耗时 | 优化后 | 节省 |
-|------|---------|--------|------|
-| 依赖安装 (setup) | 2-3 min | 2-3 min (仅一次) | - |
-| 依赖安装 (其他 jobs) | 30s × 6 = 3 min | 10s × 6 = 1 min | **2 min** |
-| 单元测试 | 4-6 min | 3-5 min (分片优化) | **1 min** |
-| 构建 | 3-5 min | 2-4 min (缓存优化) | **1 min** |
-| Docker 构建 | 5-8 min | 3-5 min (层缓存) | **2-3 min** |
-| **总计** | **17-25 min** | **11-18 min** | **6-7 min** |
+| 阶段                 | 当前耗时        | 优化后             | 节省        |
+| -------------------- | --------------- | ------------------ | ----------- |
+| 依赖安装 (setup)     | 2-3 min         | 2-3 min (仅一次)   | -           |
+| 依赖安装 (其他 jobs) | 30s × 6 = 3 min | 10s × 6 = 1 min    | **2 min**   |
+| 单元测试             | 4-6 min         | 3-5 min (分片优化) | **1 min**   |
+| 构建                 | 3-5 min         | 2-4 min (缓存优化) | **1 min**   |
+| Docker 构建          | 5-8 min         | 3-5 min (层缓存)   | **2-3 min** |
+| **总计**             | **17-25 min**   | **11-18 min**      | **6-7 min** |
 
 ### 缓存命中率预估
 
-| 缓存类型 | 当前命中率 | 优化后命中率 |
-|---------|-----------|-------------|
-| node_modules | 60% | 85% |
-| Next.js turbo | 70% | 90% |
-| Docker 层缓存 | 50% | 80% |
+| 缓存类型      | 当前命中率 | 优化后命中率 |
+| ------------- | ---------- | ------------ |
+| node_modules  | 60%        | 85%          |
+| Next.js turbo | 70%        | 90%          |
+| Docker 层缓存 | 50%        | 80%          |
 
 ---
 
@@ -506,17 +514,17 @@ jobs:
     needs: setup
     steps:
       - uses: actions/checkout@v4
-      
+
       - name: 恢复依赖
         uses: actions/download-artifact@v4
         with:
           name: dependencies
-      
+
       - name: 设置 Node.js
         uses: actions/setup-node@v4
         with:
           node-version: ${{ env.NODE_VERSION }}
-      
+
       - name: 运行 ESLint
         run: npm run lint
 
@@ -527,17 +535,17 @@ jobs:
     needs: setup
     steps:
       - uses: actions/checkout@v4
-      
+
       - name: 恢复依赖
         uses: actions/download-artifact@v4
         with:
           name: dependencies
-      
+
       - name: 设置 Node.js
         uses: actions/setup-node@v4
         with:
           node-version: ${{ env.NODE_VERSION }}
-      
+
       - name: TypeScript 检查
         run: npm run type-check
 
@@ -552,17 +560,17 @@ jobs:
         shard: [1, 2, 3, 4]
     steps:
       - uses: actions/checkout@v4
-      
+
       - name: 恢复依赖
         uses: actions/download-artifact@v4
         with:
           name: dependencies
-      
+
       - name: 设置 Node.js
         uses: actions/setup-node@v4
         with:
           node-version: ${{ env.NODE_VERSION }}
-      
+
       - name: 运行单元测试
         run: npm run test:run -- --shard=${{ matrix.shard }}/4
 
@@ -576,17 +584,17 @@ jobs:
     needs: [lint, typecheck, test-unit]
     steps:
       - uses: actions/checkout@v4
-      
+
       - name: 恢复依赖
         uses: actions/download-artifact@v4
         with:
           name: dependencies
-      
+
       - name: 设置 Node.js
         uses: actions/setup-node@v4
         with:
           node-version: ${{ env.NODE_VERSION }}
-      
+
       # ✅ 构建缓存
       - name: 缓存构建产物
         uses: actions/cache@v4
@@ -598,13 +606,13 @@ jobs:
           restore-keys: |
             build-${{ runner.os }}-${{ hashFiles('src/**/*.{ts,tsx}') }}-
             build-${{ runner.os }}-
-      
+
       - name: 构建应用
         run: npm run build
         env:
           NEXT_TELEMETRY_DISABLED: 1
           NODE_ENV: production
-      
+
       - name: 上传构建产物
         uses: actions/upload-artifact@v4
         with:
@@ -638,11 +646,13 @@ jobs:
 ## 📚 参考资料
 
 ### 官方文档
+
 - [GitHub Actions Caching](https://docs.github.com/en/actions/using-workflows/caching-dependencies-to-speed-up-workflows)
 - [npm ci 最佳实践](https://docs.npmjs.com/cli/v10/commands/npm-ci)
 - [Docker BuildKit 缓存](https://docs.docker.com/build/building/cache/)
 
 ### 最佳实践
+
 - 依赖缓存 key 应包含: OS + Node 版本 + package-lock hash
 - 使用 `--prefer-offline` 加速 npm install
 - 使用 artifact 共享大型依赖 (node_modules)
@@ -667,12 +677,12 @@ jobs:
 
 ### 风险评估
 
-| 优化项 | 风险等级 | 说明 |
-|--------|---------|------|
-| setup-node 缓存 | 🟢 低 | 官方支持,成熟稳定 |
-| artifact 共享 | 🟡 中 | 需要测试 artifact 大小和恢复时间 |
-| Docker BuildKit | 🟢 低 | 已广泛使用 |
-| E2E 并行化 | 🟡 中 | 需确保测试隔离性 |
+| 优化项          | 风险等级 | 说明                             |
+| --------------- | -------- | -------------------------------- |
+| setup-node 缓存 | 🟢 低    | 官方支持,成熟稳定                |
+| artifact 共享   | 🟡 中    | 需要测试 artifact 大小和恢复时间 |
+| Docker BuildKit | 🟢 低    | 已广泛使用                       |
+| E2E 并行化      | 🟡 中    | 需确保测试隔离性                 |
 
 ---
 
