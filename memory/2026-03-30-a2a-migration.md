@@ -9,6 +9,7 @@
 ## 任务背景
 
 架构师在 `memory/2026-03-30.md` 中分析指出：
+
 - `src/lib/a2a/` 和 `src/lib/agents/a2a/` 内容几乎相同
 - `src/lib/agents/a2a/` 多了 index.ts
 - `src/app/api/a2a/*` 路由仍使用旧路径 `@/lib/a2a/*`
@@ -27,11 +28,11 @@ src/lib/agents/     → ✅ 存在（只有 scheduler/ 子目录）
 
 ### 2. 检查 API 路由导入
 
-| 文件 | 当前导入路径 | 状态 |
-|------|-------------|------|
+| 文件                                | 当前导入路径                       | 状态    |
+| ----------------------------------- | ---------------------------------- | ------- |
 | `src/app/api/a2a/registry/route.ts` | `@/lib/agents/scheduler/scheduler` | ✅ 正确 |
-| `src/app/api/a2a/jsonrpc/route.ts` | `@/lib/agents/scheduler/scheduler` | ✅ 正确 |
-| `src/app/api/a2a/queue/route.ts` | `@/lib/agents/scheduler/scheduler` | ✅ 正确 |
+| `src/app/api/a2a/jsonrpc/route.ts`  | `@/lib/agents/scheduler/scheduler` | ✅ 正确 |
+| `src/app/api/a2a/queue/route.ts`    | `@/lib/agents/scheduler/scheduler` | ✅ 正确 |
 
 ### 3. 搜索旧路径使用
 

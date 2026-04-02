@@ -15,6 +15,7 @@
 ✅ **建议迁移到 Turbopack 生产环境**
 
 **关键理由**:
+
 1. **Next.js 16.2.1 的默认 bundler** - Turbopack 已成为 Next.js 16 的官方默认打包工具
 2. **生产可用性已验证** - 自 Next.js 15.5.0 进入 Beta，16.0.0 成为默认，目前稳定
 3. **项目已配置支持** - package.json 已有 `--turbopack` 构建脚本
@@ -24,6 +25,7 @@
 **风险等级**: 🟡 **中等**
 
 **主要风险**:
+
 - 代码分割策略从 webpack 的精细控制迁移到 Turbopack 的智能分包
 - 缺乏生产环境的实际运行数据
 - 大型依赖库（Three.js、Recharts）的 tree-shaking 行为需要验证
@@ -40,13 +42,14 @@
 
 **1. 不支持 Webpack 插件生态系统**
 
-| 限制 | 影响 | 当前项目受影响情况 |
-|------|------|------------------|
-| Webpack plugins 不工作 | 无法使用 webpack 生态插件 | ⚠️ Bundle Analyzer 已通过 Next.js 原生支持 |
-| 自定义 loaders 限制 | 仅支持输出 JS 的 loaders | ✅ 未使用自定义 loaders |
-| `webpack()` 配置函数无效 | 无法动态修改配置 | ⚠️ 复杂配置需迁移到 Turbopack 配置 |
+| 限制                     | 影响                      | 当前项目受影响情况                         |
+| ------------------------ | ------------------------- | ------------------------------------------ |
+| Webpack plugins 不工作   | 无法使用 webpack 生态插件 | ⚠️ Bundle Analyzer 已通过 Next.js 原生支持 |
+| 自定义 loaders 限制      | 仅支持输出 JS 的 loaders  | ✅ 未使用自定义 loaders                    |
+| `webpack()` 配置函数无效 | 无法动态修改配置          | ⚠️ 复杂配置需迁移到 Turbopack 配置         |
 
 **当前项目影响**:
+
 - ⚠️ 复杂的 `splitChunks` 配置（9 个 cacheGroups）无法直接迁移
 - ⚠️ 性能预算检查（`performance.hints`）不可用
 - ✅ 已通过 Next.js 原生功能替代的部分插件（如 Bundle Analyzer）
@@ -55,14 +58,15 @@
 
 Turbopack 使用智能自动分割策略，与 webpack 的手动精细控制截然不同：
 
-| 特性 | Webpack | Turbopack |
-|------|---------|-----------|
-| 配置方式 | 手动配置 `splitChunks.cacheGroups` | 智能自动分割 |
-| 控制精度 | 极高（可精确到每个 chunk） | 中等（基于实际使用） |
-| 可预测性 | 高 | 中等（依赖使用模式） |
-| 学习曲线 | 陡峭 | 平缓 |
+| 特性     | Webpack                            | Turbopack            |
+| -------- | ---------------------------------- | -------------------- |
+| 配置方式 | 手动配置 `splitChunks.cacheGroups` | 智能自动分割         |
+| 控制精度 | 极高（可精确到每个 chunk）         | 中等（基于实际使用） |
+| 可预测性 | 高                                 | 中等（依赖使用模式） |
+| 学习曲线 | 陡峭                               | 平缓                 |
 
 **当前项目挑战**:
+
 ```javascript
 // 当前 webpack 配置（无法直接迁移）
 splitChunks: {
@@ -78,6 +82,7 @@ splitChunks: {
 ```
 
 **潜在影响**:
+
 - 📦 Bundle 体积可能增大（缺少精确控制）
 - 🐌 首屏加载可能变慢（如果智能分割不如预期）
 - 🔀 缓存策略需重新评估（chunk 命名和内容变化）
@@ -91,24 +96,26 @@ Webpack 支持的构建时性能警告在 Turbopack 中不可用：
 ```javascript
 // Webpack 配置（Turbopack 不支持）
 config.performance = {
-  maxEntrypointSize: 300000,  // 300 KB
-  maxAssetSize: 250000,       // 250 KB
+  maxEntrypointSize: 300000, // 300 KB
+  maxAssetSize: 250000, // 250 KB
   hints: 'warning',
-};
+}
 ```
 
 **影响**:
+
 - 构建时无法获得即时性能警告
 - 需要依赖 CI/CD 或构建后脚本检查
 - 可能延迟发现性能回归
 
 **缓解方案**:
+
 ```javascript
 // 使用构建后脚本检查
 // scripts/check-bundle-size.mjs
-import fs from 'fs';
-const MAX_SIZE = 300000;
-const chunksDir = '.next/static/chunks';
+import fs from 'fs'
+const MAX_SIZE = 300000
+const chunksDir = '.next/static/chunks'
 // 检查所有 chunk 文件大小
 ```
 
@@ -116,24 +123,25 @@ const chunksDir = '.next/static/chunks';
 
 虽然 Turbopack 的 tree-shaking 更先进，但具体行为可能与 webpack 不同：
 
-| 场景 | Webpack | Turbopack | 风险 |
-|------|---------|-----------|------|
-| 副作用声明 | 依赖 `package.json` 的 `sideEffects` | 更智能的静态分析 | 🟡 中 |
-| 动态导入 | 保守策略 | 更激进的分割 | 🟢 低 |
-| 条件导出 | 基本支持 | 更完善 | 🟢 低 |
-| 副作用代码保留 | 有时保留过多 | 更精确的移除 | 🟢 低 |
+| 场景           | Webpack                              | Turbopack        | 风险  |
+| -------------- | ------------------------------------ | ---------------- | ----- |
+| 副作用声明     | 依赖 `package.json` 的 `sideEffects` | 更智能的静态分析 | 🟡 中 |
+| 动态导入       | 保守策略                             | 更激进的分割     | 🟢 低 |
+| 条件导出       | 基本支持                             | 更完善           | 🟢 低 |
+| 副作用代码保留 | 有时保留过多                         | 更精确的移除     | 🟢 低 |
 
 **当前项目风险**:
+
 - 🟡 Three.js 生态库可能被过度 tree-shaken（某些功能失效）
 - 🟡 Recharts 的某些导出可能被意外移除
 - ✅ 大多数工具库（zustand, zod, lucide-react）应该无问题
 
 **5. 不支持 Sass 自定义函数**
 
-| 功能 | 支持情况 | 当前项目使用 |
-|------|----------|-------------|
-| Sass 变量、mixins、functions | ✅ 支持 | ✅ 正常使用 |
-| `sassOptions.functions` 自定义函数 | ❌ 不支持 | ✅ 未使用 |
+| 功能                               | 支持情况  | 当前项目使用 |
+| ---------------------------------- | --------- | ------------ |
+| Sass 变量、mixins、functions       | ✅ 支持   | ✅ 正常使用  |
+| `sassOptions.functions` 自定义函数 | ❌ 不支持 | ✅ 未使用    |
 
 **影响**: ✅ 当前项目无影响（未使用）
 
@@ -144,21 +152,23 @@ const chunksDir = '.next/static/chunks';
 Turbopack 遵循 JavaScript import 顺序，与 webpack 的某些情况可能不同。
 
 **影响**:
+
 - 🟢 极少数情况可能出现样式冲突
 - 🟢 项目中使用了 Tailwind，全局样式影响小
 
 **缓解方案**:
+
 - 使用 `@import` 强制顺序
 - 调整 import 顺序
 - 使用 CSS-in-JS（如需要）
 
 **7. 不支持某些实验性功能**
 
-| 功能 | 支持情况 | 当前项目使用 |
-|------|----------|-------------|
-| `experimental.urlImports` | ❌ 不支持 | ✅ 未使用 |
-| Yarn PnP | ❌ 不支持 | ✅ 未使用 |
-| `experimental.modernizeServer` | ⚠️ 部分支持 | ✅ 未使用 |
+| 功能                           | 支持情况    | 当前项目使用 |
+| ------------------------------ | ----------- | ------------ |
+| `experimental.urlImports`      | ❌ 不支持   | ✅ 未使用    |
+| Yarn PnP                       | ❌ 不支持   | ✅ 未使用    |
+| `experimental.modernizeServer` | ⚠️ 部分支持 | ✅ 未使用    |
 
 **影响**: ✅ 当前项目无影响
 
@@ -166,37 +176,37 @@ Turbopack 遵循 JavaScript import 顺序，与 webpack 的某些情况可能不
 
 #### ✅ 完全支持的配置
 
-| 配置项 | 当前值 | 状态 |
-|--------|--------|------|
-| `output: 'standalone'` | ✅ 已配置 | 完全支持 |
-| `images` 优化 | ✅ 已配置 | 完全支持 |
-| `compiler.removeConsole` | ✅ 已配置 | 完全支持 |
-| `compress` | ✅ 已配置 | 完全支持 |
-| `reactStrictMode` | ✅ 已配置 | 完全支持 |
-| `poweredByHeader: false` | ✅ 已配置 | 完全支持 |
-| `serverExternalPackages` | ✅ 已配置 | 完全支持 |
+| 配置项                                | 当前值    | 状态     |
+| ------------------------------------- | --------- | -------- |
+| `output: 'standalone'`                | ✅ 已配置 | 完全支持 |
+| `images` 优化                         | ✅ 已配置 | 完全支持 |
+| `compiler.removeConsole`              | ✅ 已配置 | 完全支持 |
+| `compress`                            | ✅ 已配置 | 完全支持 |
+| `reactStrictMode`                     | ✅ 已配置 | 完全支持 |
+| `poweredByHeader: false`              | ✅ 已配置 | 完全支持 |
+| `serverExternalPackages`              | ✅ 已配置 | 完全支持 |
 | `experimental.optimizePackageImports` | ✅ 已配置 | 完全支持 |
-| `experimental.optimizeCss` | ✅ 已配置 | 完全支持 |
-| React Server Components | ✅ 支持 | 完全支持 |
-| SSR/SSG/ISR | ✅ 支持 | 完全支持 |
-| 国际化 (next-intl) | ✅ 支持 | 完全支持 |
+| `experimental.optimizeCss`            | ✅ 已配置 | 完全支持 |
+| React Server Components               | ✅ 支持   | 完全支持 |
+| SSR/SSG/ISR                           | ✅ 支持   | 完全支持 |
+| 国际化 (next-intl)                    | ✅ 支持   | 完全支持 |
 
 #### ⚠️ 需要迁移的配置
 
-| 配置项 | 当前值 | 迁移策略 |
-|--------|--------|----------|
-| `webpack.resolve.alias['@/']` | ✅ 已配置 | 迁移到 `turbopack.resolveAlias` |
-| `webpack.performance` | ✅ 已配置 | 使用外部脚本检查 |
-| `webpack.optimization.splitChunks` | 9 个 cacheGroups | 依赖 Turbopack 智能分割 |
-| `webpack.optimization.usedExports` | ✅ 已配置 | Turbopack 内置 |
-| `webpack.optimization.sideEffects` | ✅ 已配置 | Turbopack 内置 |
+| 配置项                             | 当前值           | 迁移策略                        |
+| ---------------------------------- | ---------------- | ------------------------------- |
+| `webpack.resolve.alias['@/']`      | ✅ 已配置        | 迁移到 `turbopack.resolveAlias` |
+| `webpack.performance`              | ✅ 已配置        | 使用外部脚本检查                |
+| `webpack.optimization.splitChunks` | 9 个 cacheGroups | 依赖 Turbopack 智能分割         |
+| `webpack.optimization.usedExports` | ✅ 已配置        | Turbopack 内置                  |
+| `webpack.optimization.sideEffects` | ✅ 已配置        | Turbopack 内置                  |
 
 #### ❌ 不支持的配置
 
-| 配置项 | 当前值 | 替代方案 |
-|--------|--------|----------|
-| Webpack plugins | 未使用 | N/A |
-| `sassOptions.functions` | 未使用 | N/A |
+| 配置项                  | 当前值 | 替代方案 |
+| ----------------------- | ------ | -------- |
+| Webpack plugins         | 未使用 | N/A      |
+| `sassOptions.functions` | 未使用 | N/A      |
 
 ---
 
@@ -204,26 +214,26 @@ Turbopack 遵循 JavaScript import 顺序，与 webpack 的某些情况可能不
 
 ### 2.1 架构对比
 
-| 维度 | Webpack | Turbopack | 优势 |
-|------|---------|-----------|------|
-| **实现语言** | JavaScript | Rust | Turbopack（内存安全、高性能） |
-| **构建图** | 分离的多环境 | 统一图 | Turbopack（更高效） |
-| **增量编译** | 基础支持 | **函数级缓存** | Turbopack（10-700x） |
-| **HMR 速度** | 中等 | **极快** | Turbopack（即时更新） |
-| **内存使用** | 较高（~2GB） | 更低（~1GB） | Turbopack（~50% 减少） |
-| **冷启动** | 较慢（~30s） | **快 10-100x**（~3s） | Turbopack |
-| **增量编译** | 较慢（~10s） | **快 700x**（~0.1s） | Turbopack |
+| 维度         | Webpack      | Turbopack             | 优势                          |
+| ------------ | ------------ | --------------------- | ----------------------------- |
+| **实现语言** | JavaScript   | Rust                  | Turbopack（内存安全、高性能） |
+| **构建图**   | 分离的多环境 | 统一图                | Turbopack（更高效）           |
+| **增量编译** | 基础支持     | **函数级缓存**        | Turbopack（10-700x）          |
+| **HMR 速度** | 中等         | **极快**              | Turbopack（即时更新）         |
+| **内存使用** | 较高（~2GB） | 更低（~1GB）          | Turbopack（~50% 减少）        |
+| **冷启动**   | 较慢（~30s） | **快 10-100x**（~3s） | Turbopack                     |
+| **增量编译** | 较慢（~10s） | **快 700x**（~0.1s）  | Turbopack                     |
 
 ### 2.2 构建性能数据（基于行业基准）
 
-| 场景 | Webpack | Turbopack | 提升 |
-|------|---------|-----------|------|
-| **冷启动**（大型项目） | 30-60s | 3-6s | **10x** |
-| **冷启动**（中小型项目） | 10-20s | 1-3s | **10x** |
-| **增量编译**（1 文件修改） | 5-10s | 0.05-0.5s | **100-700x** |
-| **HMR** | 0.5-2s | 0.05-0.2s | **10-40x** |
-| **生产构建** | 60-120s | 40-80s | **1.5-2x** |
-| **内存使用** | 1.5-3GB | 0.8-1.5GB | **2x** |
+| 场景                       | Webpack | Turbopack | 提升         |
+| -------------------------- | ------- | --------- | ------------ |
+| **冷启动**（大型项目）     | 30-60s  | 3-6s      | **10x**      |
+| **冷启动**（中小型项目）   | 10-20s  | 1-3s      | **10x**      |
+| **增量编译**（1 文件修改） | 5-10s   | 0.05-0.5s | **100-700x** |
+| **HMR**                    | 0.5-2s  | 0.05-0.2s | **10-40x**   |
+| **生产构建**               | 60-120s | 40-80s    | **1.5-2x**   |
+| **内存使用**               | 1.5-3GB | 0.8-1.5GB | **2x**       |
 
 **注**: 实际性能因项目规模和复杂度而异
 
@@ -231,88 +241,88 @@ Turbopack 遵循 JavaScript import 顺序，与 webpack 的某些情况可能不
 
 #### 核心打包功能
 
-| 功能 | Webpack | Turbopack | 说明 |
-|------|---------|-----------|------|
-| **代码分割** | ✅ 手动/自动 | ✅ 智能自动 | Turbopack 策略不同 |
-| **Tree-shaking** | ✅ 基础 | ✅ **高级** | Turbopack 更精确 |
-| **Scope Hoisting** | ✅ | ✅ | 两者都支持 |
-| **代码压缩** | ✅ Terser | ✅ SWC | Turbopack 更快 |
-| **Source Maps** | ✅ | ✅ | 两者都支持 |
-| **CSS Modules** | ✅ | ✅ | 两者都支持 |
-| **CSS-in-JS** | ✅ | ✅ | 两者都支持 |
-| **PostCSS** | ✅ | ✅ | 两者都支持 |
-| **Sass/SCSS** | ✅ | ✅ | 不支持 `sassOptions.functions` |
-| **TypeScript** | ✅ 需要 loader | ✅ **原生** | Turbopack 原生支持 |
-| **动态导入** | ✅ | ✅ | Turbopack 更智能 |
-| **HMR** | ✅ | ✅ **更快** | Turbopack 10-40x |
+| 功能               | Webpack        | Turbopack   | 说明                           |
+| ------------------ | -------------- | ----------- | ------------------------------ |
+| **代码分割**       | ✅ 手动/自动   | ✅ 智能自动 | Turbopack 策略不同             |
+| **Tree-shaking**   | ✅ 基础        | ✅ **高级** | Turbopack 更精确               |
+| **Scope Hoisting** | ✅             | ✅          | 两者都支持                     |
+| **代码压缩**       | ✅ Terser      | ✅ SWC      | Turbopack 更快                 |
+| **Source Maps**    | ✅             | ✅          | 两者都支持                     |
+| **CSS Modules**    | ✅             | ✅          | 两者都支持                     |
+| **CSS-in-JS**      | ✅             | ✅          | 两者都支持                     |
+| **PostCSS**        | ✅             | ✅          | 两者都支持                     |
+| **Sass/SCSS**      | ✅             | ✅          | 不支持 `sassOptions.functions` |
+| **TypeScript**     | ✅ 需要 loader | ✅ **原生** | Turbopack 原生支持             |
+| **动态导入**       | ✅             | ✅          | Turbopack 更智能               |
+| **HMR**            | ✅             | ✅ **更快** | Turbopack 10-40x               |
 
 #### 高级功能
 
-| 功能 | Webpack | Turbopack | 说明 |
-|------|---------|-----------|------|
-| **Webpack Plugins** | ✅ 生态丰富 | ❌ 不支持 | **关键差异** |
-| **Webpack Loaders** | ✅ 生态丰富 | ⚠️ 部分支持 | 仅 JS 输出 |
-| **性能预算** | ✅ 内置 | ❌ 不支持 | 需外部检查 |
-| **自定义配置** | ✅ `webpack()` 函数 | ⚠️ 有限支持 | Turbopack 配置 API |
-| **缓存策略** | ✅ 可配置 | ✅ **函数级** | Turbopack 更细粒度 |
-| **构建图分析** | ✅ webpack-bundle-analyzer | ✅ 内置分析 | Next.js 集成 |
+| 功能                | Webpack                    | Turbopack     | 说明               |
+| ------------------- | -------------------------- | ------------- | ------------------ |
+| **Webpack Plugins** | ✅ 生态丰富                | ❌ 不支持     | **关键差异**       |
+| **Webpack Loaders** | ✅ 生态丰富                | ⚠️ 部分支持   | 仅 JS 输出         |
+| **性能预算**        | ✅ 内置                    | ❌ 不支持     | 需外部检查         |
+| **自定义配置**      | ✅ `webpack()` 函数        | ⚠️ 有限支持   | Turbopack 配置 API |
+| **缓存策略**        | ✅ 可配置                  | ✅ **函数级** | Turbopack 更细粒度 |
+| **构建图分析**      | ✅ webpack-bundle-analyzer | ✅ 内置分析   | Next.js 集成       |
 
 #### Next.js 特定功能
 
-| 功能 | Webpack | Turbopack | 说明 |
-|------|---------|-----------|------|
-| **React Server Components** | ✅ | ✅ | 两者都支持 |
-| **SSR/SSG/ISR** | ✅ | ✅ | 两者都支持 |
-| **图片优化** | ✅ | ✅ | 两者都支持 |
-| **API Routes** | ✅ | ✅ | 两者都支持 |
-| **Middleware** | ✅ | ✅ | 两者都支持 |
-| **国际化** | ✅ | ✅ | 两者都支持 |
-| **App Router** | ✅ | ✅ | 两者都支持 |
-| **Server Actions** | ✅ | ✅ | 两者都支持 |
+| 功能                        | Webpack | Turbopack | 说明       |
+| --------------------------- | ------- | --------- | ---------- |
+| **React Server Components** | ✅      | ✅        | 两者都支持 |
+| **SSR/SSG/ISR**             | ✅      | ✅        | 两者都支持 |
+| **图片优化**                | ✅      | ✅        | 两者都支持 |
+| **API Routes**              | ✅      | ✅        | 两者都支持 |
+| **Middleware**              | ✅      | ✅        | 两者都支持 |
+| **国际化**                  | ✅      | ✅        | 两者都支持 |
+| **App Router**              | ✅      | ✅        | 两者都支持 |
+| **Server Actions**          | ✅      | ✅        | 两者都支持 |
 
 ### 2.4 生产构建质量对比
 
 #### Bundle 大小
 
-| 项目类型 | Webpack | Turbopack | 差异 |
-|----------|---------|-----------|------|
-| 小型项目（< 100 页面） | 500 KB - 1 MB | 480 KB - 950 KB | Turbopack **小 5%** |
-| 中型项目（100-500 页面） | 1-3 MB | 0.9-2.8 MB | Turbopack **小 5-10%** |
-| 大型项目（> 500 页面） | 3-10 MB | 2.8-9 MB | Turbopack **小 5-10%** |
+| 项目类型                 | Webpack       | Turbopack       | 差异                   |
+| ------------------------ | ------------- | --------------- | ---------------------- |
+| 小型项目（< 100 页面）   | 500 KB - 1 MB | 480 KB - 950 KB | Turbopack **小 5%**    |
+| 中型项目（100-500 页面） | 1-3 MB        | 0.9-2.8 MB      | Turbopack **小 5-10%** |
+| 大型项目（> 500 页面）   | 3-10 MB       | 2.8-9 MB        | Turbopack **小 5-10%** |
 
 **结论**: Turbopack 通常产生 **更小的 bundle**（5-10%）
 
 #### 运行时性能
 
-| 指标 | Webpack | Turbopack | 差异 |
-|------|---------|-----------|------|
-| **首屏加载 (FCP)** | 基准 | 相同或略快 | Turbopack **+5%** |
-| **最大内容绘制 (LCP)** | 基准 | 相同或略快 | Turbopack **+5%** |
-| **首次输入延迟 (FID)** | 基准 | 相同 | 无差异 |
-| **累积布局偏移 (CLS)** | 基准 | 相同 | 无差异 |
-| **Time to Interactive** | 基准 | 相同或略快 | Turbopack **+3%** |
+| 指标                    | Webpack | Turbopack  | 差异              |
+| ----------------------- | ------- | ---------- | ----------------- |
+| **首屏加载 (FCP)**      | 基准    | 相同或略快 | Turbopack **+5%** |
+| **最大内容绘制 (LCP)**  | 基准    | 相同或略快 | Turbopack **+5%** |
+| **首次输入延迟 (FID)**  | 基准    | 相同       | 无差异            |
+| **累积布局偏移 (CLS)**  | 基准    | 相同       | 无差异            |
+| **Time to Interactive** | 基准    | 相同或略快 | Turbopack **+3%** |
 
 **结论**: 运行时性能**基本相同**，Turbopack 可能略优（3-5%）
 
 #### 代码质量
 
-| 维度 | Webpack | Turbopack | 说明 |
-|------|---------|-----------|------|
-| **Tree-shaking 效果** | 良好 | **优秀** | Turbopack 更精确 |
-| **死代码消除** | 良好 | **优秀** | Turbopack 更激进 |
-| **重复代码合并** | 良好 | **优秀** | Turbopack scope hoisting 更好 |
-| **副作用代码保留** | 保守 | **精确** | Turbopack 更智能 |
+| 维度                  | Webpack | Turbopack | 说明                          |
+| --------------------- | ------- | --------- | ----------------------------- |
+| **Tree-shaking 效果** | 良好    | **优秀**  | Turbopack 更精确              |
+| **死代码消除**        | 良好    | **优秀**  | Turbopack 更激进              |
+| **重复代码合并**      | 良好    | **优秀**  | Turbopack scope hoisting 更好 |
+| **副作用代码保留**    | 保守    | **精确**  | Turbopack 更智能              |
 
 ### 2.5 开发体验对比
 
-| 维度 | Webpack | Turbopack | 优势 |
-|------|---------|-----------|------|
-| **HMR 速度** | 0.5-2s | 0.05-0.2s | Turbopack **10-40x** |
-| **类型检查速度** | 中等（tsc） | **快**（集成 SWC） | Turbopack |
-| **错误提示** | 良好 | **更好**（集成） | Turbopack |
-| **调试体验** | 良好 | **更好**（sourcemaps） | Turbopack |
-| **配置复杂度** | 高 | **低** | Turbopack |
-| **学习曲线** | 陡峭 | **平缓** | Turbopack |
+| 维度             | Webpack     | Turbopack              | 优势                 |
+| ---------------- | ----------- | ---------------------- | -------------------- |
+| **HMR 速度**     | 0.5-2s      | 0.05-0.2s              | Turbopack **10-40x** |
+| **类型检查速度** | 中等（tsc） | **快**（集成 SWC）     | Turbopack            |
+| **错误提示**     | 良好        | **更好**（集成）       | Turbopack            |
+| **调试体验**     | 良好        | **更好**（sourcemaps） | Turbopack            |
+| **配置复杂度**   | 高          | **低**                 | Turbopack            |
+| **学习曲线**     | 陡峭        | **平缓**               | Turbopack            |
 
 ---
 
@@ -323,6 +333,7 @@ Turbopack 遵循 JavaScript import 顺序，与 webpack 的某些情况可能不
 #### 推荐策略：渐进式迁移
 
 **核心理念**:
+
 1. **保留 webpack 作为回滚方案**
 2. **逐步验证 Turbopack 表现**
 3. **生产环境灰度发布**
@@ -357,6 +368,7 @@ cat benchmark.txt
 ```
 
 **预期产出**:
+
 - ✅ Webpack 构建基准数据
 - ✅ Bundle 分析基线报告
 - ✅ 配置备份
@@ -370,18 +382,18 @@ cat benchmark.txt
 #### 2.1 更新 next.config.ts
 
 ```typescript
-import createNextIntlPlugin from 'next-intl/plugin';
-import type { NextConfig } from "next";
-import bundleAnalyzer from '@next/bundle-analyzer';
-import path from 'path';
+import createNextIntlPlugin from 'next-intl/plugin'
+import type { NextConfig } from 'next'
+import bundleAnalyzer from '@next/bundle-analyzer'
+import path from 'path'
 
-const withNextIntl = createNextIntlPlugin('./src/i18n/request.ts');
+const withNextIntl = createNextIntlPlugin('./src/i18n/request.ts')
 
 const withBundleAnalyzer = bundleAnalyzer({
   enabled: process.env.ANALYZE === 'true',
   openAnalyzer: false,
   analyzerMode: 'static',
-});
+})
 
 const nextConfig: NextConfig = {
   // === 现有配置（完全兼容）===
@@ -406,25 +418,36 @@ const nextConfig: NextConfig = {
   poweredByHeader: false,
 
   compiler: {
-    removeConsole: process.env.NODE_ENV === 'production' ? {
-      exclude: ['error', 'warn'],
-    } : false,
+    removeConsole:
+      process.env.NODE_ENV === 'production'
+        ? {
+            exclude: ['error', 'warn'],
+          }
+        : false,
     swcMinify: true,
   },
 
   experimental: {
     optimizePackageImports: [
-      'next-intl', '@sentry/nextjs', 'zustand', 'web-vitals', 'lucide-react',
-      'three', '@react-three/fiber', '@react-three/drei', 'recharts', 'zod',
+      'next-intl',
+      '@sentry/nextjs',
+      'zustand',
+      'web-vitals',
+      'lucide-react',
+      'three',
+      '@react-three/fiber',
+      '@react-three/drei',
+      'recharts',
+      'zod',
     ],
     optimizeCss: true,
 
     // === Turbopack 优化选项 ===
-    turbopackFileSystemCacheForBuild: true,  // 构建缓存
-    turbopackTreeShaking: true,                // 高级 tree-shaking
-    turbopackScopeHoisting: true,              // Scope hoisting
-    turbopackRemoveUnusedImports: true,         // 移除未使用的导入
-    turbopackRemoveUnusedExports: true,         // 移除未使用的导出
+    turbopackFileSystemCacheForBuild: true, // 构建缓存
+    turbopackTreeShaking: true, // 高级 tree-shaking
+    turbopackScopeHoisting: true, // Scope hoisting
+    turbopackRemoveUnusedImports: true, // 移除未使用的导入
+    turbopackRemoveUnusedExports: true, // 移除未使用的导出
   },
 
   serverExternalPackages: ['sharp', 'better-sqlite3', 'jose', 'uuid', 'exceljs'],
@@ -435,23 +458,23 @@ const nextConfig: NextConfig = {
     resolveAlias: {
       '@': path.join(__dirname, 'src'),
     },
-    root: __dirname,  // 避免 lockfile 警告
+    root: __dirname, // 避免 lockfile 警告
   },
 
   // === Webpack 后备配置（条件化）===
   webpack: (config, { isServer, dev }) => {
     // 仅在明确使用 webpack 时应用复杂配置
     if (process.env.USE_WEBPACK === 'true') {
-      config.resolve.alias = config.resolve.alias || {};
-      config.resolve.alias['@'] = __dirname + '/src';
+      config.resolve.alias = config.resolve.alias || {}
+      config.resolve.alias['@'] = __dirname + '/src'
 
       if (!isServer && !dev) {
-        config.optimization = config.optimization || {};
+        config.optimization = config.optimization || {}
         config.performance = {
           maxEntrypointSize: 300000,
           maxAssetSize: 250000,
           hints: 'warning',
-        };
+        }
 
         config.optimization.splitChunks = {
           chunks: 'all',
@@ -490,7 +513,7 @@ const nextConfig: NextConfig = {
               enforce: true,
               minSize: 20000,
             },
-            'framework': {
+            framework: {
               test: /[\\/]node_modules[\\/](react|react-dom|scheduler|next)[\\/]/,
               name: 'framework',
               priority: 35,
@@ -541,16 +564,16 @@ const nextConfig: NextConfig = {
           maxSize: 200000,
           minChunks: 1,
           enforceSizeThreshold: 30000,
-        };
+        }
 
-        config.optimization.usedExports = true;
-        config.optimization.sideEffects = false;
-        config.optimization.providedExports = true;
-        config.optimization.concatenateModules = true;
+        config.optimization.usedExports = true
+        config.optimization.sideEffects = false
+        config.optimization.providedExports = true
+        config.optimization.concatenateModules = true
       }
     }
 
-    return config;
+    return config
   },
 
   headers: async () => {
@@ -559,91 +582,99 @@ const nextConfig: NextConfig = {
         source: '/:path*',
         headers: [
           { key: 'X-DNS-Prefetch-Control', value: 'on' },
-          { key: 'Strict-Transport-Security', value: 'max-age=63072000; includeSubDomains; preload' },
+          {
+            key: 'Strict-Transport-Security',
+            value: 'max-age=63072000; includeSubDomains; preload',
+          },
           { key: 'X-Frame-Options', value: 'SAMEORIGIN' },
           { key: 'X-Content-Type-Options', value: 'nosniff' },
           { key: 'X-XSS-Protection', value: '1; mode=block' },
           { key: 'Referrer-Policy', value: 'strict-origin-when-cross-origin' },
-          { key: 'Permissions-Policy', value: 'camera=(), microphone=(), geolocation=(), interest-cohort=()' },
+          {
+            key: 'Permissions-Policy',
+            value: 'camera=(), microphone=(), geolocation=(), interest-cohort=()',
+          },
         ],
       },
-    ];
+    ]
   },
-};
+}
 
-export default withBundleAnalyzer(withNextIntl(nextConfig));
+export default withBundleAnalyzer(withNextIntl(nextConfig))
 ```
 
 #### 2.2 创建 bundle size 检查脚本
 
 ```javascript
 // scripts/check-bundle-size.mjs
-import fs from 'fs';
-import path from 'path';
+import fs from 'fs'
+import path from 'path'
 
-const MAX_ENTRYPOINT_SIZE = 300000; // 300 KB
-const MAX_ASSET_SIZE = 250000;      // 250 KB
-const BUILD_DIR = '.next';
-const STATIC_DIR = path.join(BUILD_DIR, 'static');
+const MAX_ENTRYPOINT_SIZE = 300000 // 300 KB
+const MAX_ASSET_SIZE = 250000 // 250 KB
+const BUILD_DIR = '.next'
+const STATIC_DIR = path.join(BUILD_DIR, 'static')
 
 function formatSize(bytes) {
-  return (bytes / 1024).toFixed(2) + ' KB';
+  return (bytes / 1024).toFixed(2) + ' KB'
 }
 
 function checkFile(filePath, maxSize, type) {
   try {
-    const stats = fs.statSync(filePath);
+    const stats = fs.statSync(filePath)
 
     if (stats.size > maxSize) {
-      console.error(`❌ ${type} ${path.relative(BUILD_DIR, filePath)}: ${formatSize(stats.size)} exceeds ${formatSize(maxSize)}`);
-      return false;
+      console.error(
+        `❌ ${type} ${path.relative(BUILD_DIR, filePath)}: ${formatSize(stats.size)} exceeds ${formatSize(maxSize)}`
+      )
+      return false
     }
 
-    console.log(`✅ ${type} ${path.relative(BUILD_DIR, filePath)}: ${formatSize(stats.size)}`);
-    return true;
+    console.log(`✅ ${type} ${path.relative(BUILD_DIR, filePath)}: ${formatSize(stats.size)}`)
+    return true
   } catch (error) {
-    console.warn(`⚠️  Could not read ${filePath}: ${error.message}`);
-    return true;
+    console.warn(`⚠️  Could not read ${filePath}: ${error.message}`)
+    return true
   }
 }
 
 function walkDirectory(dir, callback) {
-  const entries = fs.readdirSync(dir, { withFileTypes: true });
+  const entries = fs.readdirSync(dir, { withFileTypes: true })
 
   for (const entry of entries) {
-    const fullPath = path.join(dir, entry.name);
+    const fullPath = path.join(dir, entry.name)
 
     if (entry.isDirectory()) {
-      walkDirectory(fullPath, callback);
+      walkDirectory(fullPath, callback)
     } else if (entry.isFile()) {
-      callback(fullPath);
+      callback(fullPath)
     }
   }
 }
 
-console.log('📊 Checking bundle sizes...\n');
+console.log('📊 Checking bundle sizes...\n')
 
-let allPassed = true;
+let allPassed = true
 
 // Check static chunks
-const chunksDir = path.join(STATIC_DIR, 'chunks');
+const chunksDir = path.join(STATIC_DIR, 'chunks')
 if (fs.existsSync(chunksDir)) {
-  console.log('📦 Checking chunks:');
-  walkDirectory(chunksDir, (filePath) => {
+  console.log('📦 Checking chunks:')
+  walkDirectory(chunksDir, filePath => {
     if (!checkFile(filePath, MAX_ASSET_SIZE, 'chunk')) {
-      allPassed = false;
+      allPassed = false
     }
-  });
-  console.log();
+  })
+  console.log()
 }
 
 // Summary
 if (allPassed) {
-  console.log('✅ All bundle size checks passed!');
-  process.exit(0);
+  console.log('✅ All bundle size checks passed!')
+  process.exit(0)
 } else {
-  console.error('❌ Some bundles exceed size limits!');
-  process.exit(1);
+  console.error('❌ Some bundles exceed size limits!')
+  process.exit(1)
 }
 ```
 
@@ -683,6 +714,7 @@ node scripts/check-bundle-size.mjs
 ```
 
 **预期产出**:
+
 - ✅ Turbopack 构建成功
 - ✅ Bundle 分析报告
 - ✅ Bundle size 检查通过
@@ -745,6 +777,7 @@ echo "Turbopack: $(du -sh .next | awk '{print $1}')" >> reports/comparison.txt
 ```
 
 **预期产出**:
+
 - ✅ 所有功能测试通过
 - ✅ 性能指标达标
 - ✅ Bundle 大小对比报告
@@ -755,11 +788,11 @@ echo "Turbopack: $(du -sh .next | awk '{print $1}')" >> reports/comparison.txt
 
 #### 灰度发布计划
 
-| 阶段 | 时间 | 流量占比 | 监控重点 |
-|------|------|----------|----------|
-| **Week 1** | 7 天 | 10% | 错误率、核心功能 |
-| **Week 2** | 7 天 | 50% | 性能指标、用户体验 |
-| **Week 3** | 持续 | 100% | 全面监控、优化 |
+| 阶段       | 时间 | 流量占比 | 监控重点           |
+| ---------- | ---- | -------- | ------------------ |
+| **Week 1** | 7 天 | 10%      | 错误率、核心功能   |
+| **Week 2** | 7 天 | 50%      | 性能指标、用户体验 |
+| **Week 3** | 持续 | 100%     | 全面监控、优化     |
 
 #### 监控指标
 
@@ -802,21 +835,22 @@ docker-compose -f docker-compose.prod.yml up -d --build --build-arg USE_WEBPACK=
 
 #### 风险矩阵
 
-| 风险 | 概率 | 影响 | 严重性 | 缓解措施 |
-|------|------|------|--------|----------|
-| 代码分割策略失效 | 高 | 高 | 🔴 **高** | 充分测试、对比报告、动态导入 |
-| 打包体积增大 | 中 | 中 | 🟡 **中** | Bundle Analyzer、优化导入 |
-| 首屏加载性能下降 | 低 | 高 | 🟡 **中** | 性能测试、监控指标、回滚 |
-| Tree-shaking 问题 | 低 | 中 | 🟢 **低** | 功能测试、代码审查 |
-| 大型依赖库功能失效 | 中 | 高 | 🟡 **中** | 专门测试 Three.js、Recharts |
-| 构建失败 | 低 | 高 | 🟡 **中** | 回滚方案、CI/CD 检查 |
-| 性能预算检查缺失 | 高 | 低 | 🟢 **低** | 外部脚本检查、CI/CD 集成 |
+| 风险               | 概率 | 影响 | 严重性    | 缓解措施                     |
+| ------------------ | ---- | ---- | --------- | ---------------------------- |
+| 代码分割策略失效   | 高   | 高   | 🔴 **高** | 充分测试、对比报告、动态导入 |
+| 打包体积增大       | 中   | 中   | 🟡 **中** | Bundle Analyzer、优化导入    |
+| 首屏加载性能下降   | 低   | 高   | 🟡 **中** | 性能测试、监控指标、回滚     |
+| Tree-shaking 问题  | 低   | 中   | 🟢 **低** | 功能测试、代码审查           |
+| 大型依赖库功能失效 | 中   | 高   | 🟡 **中** | 专门测试 Three.js、Recharts  |
+| 构建失败           | 低   | 高   | 🟡 **中** | 回滚方案、CI/CD 检查         |
+| 性能预算检查缺失   | 高   | 低   | 🟢 **低** | 外部脚本检查、CI/CD 集成     |
 
 #### 高风险项目详细分析
 
 **风险 1: 代码分割策略失效（🔴 高）**
 
 **问题描述**:
+
 - 当前项目使用 9 个精细配置的 cacheGroups
 - Turbopack 使用智能自动分割，无法完全复制 webpack 的策略
 - 可能导致：
@@ -827,6 +861,7 @@ docker-compose -f docker-compose.prod.yml up -d --build --build-arg USE_WEBPACK=
 **缓解措施**:
 
 1. **充分测试**:
+
    ```bash
    # 对比两种 bundler 的 chunk 分割
    npm run build:analyze:webpack
@@ -839,13 +874,15 @@ docker-compose -f docker-compose.prod.yml up -d --build --build-arg USE_WEBPACK=
    ```
 
 2. **动态导入优化**:
+
    ```typescript
    // 对大型库使用动态导入
-   const { ThreeCanvas } = await import('@react-three/fiber');
-   const { Recharts } = await import('recharts');
+   const { ThreeCanvas } = await import('@react-three/fiber')
+   const { Recharts } = await import('recharts')
    ```
 
 3. **按需调优**:
+
    ```typescript
    // 如果 Turbopack 智能分割不理想，使用实验性功能
    experimental: {
@@ -860,11 +897,13 @@ docker-compose -f docker-compose.prod.yml up -d --build --build-arg USE_WEBPACK=
 **风险 2: 大型依赖库功能失效（🟡 中）**
 
 **受影响的库**:
+
 - `three` (~600 KB)
 - `@react-three/drei` (~200 KB)
 - `recharts` (~500 KB)
 
 **验证方法**:
+
 ```bash
 # 专门测试这些库的功能
 npm run test:e2e -- --grep "3D"
@@ -872,6 +911,7 @@ npm run test:e2e -- --grep "chart"
 ```
 
 **缓解措施**:
+
 - 功能测试覆盖所有关键场景
 - 检查 bundle 分析报告中的 tree-shaking 效果
 - 必要时使用动态导入
@@ -886,16 +926,16 @@ npm run test:e2e -- --grep "chart"
 
 ### 决策矩阵
 
-| 评估维度 | 权重 | 评分 (1-5) | 加权分 |
-|----------|------|-----------|--------|
-| **构建性能** | 20% | 5 | 1.0 |
-| **运行时性能** | 15% | 4 | 0.6 |
-| **功能兼容性** | 25% | 4 | 1.0 |
-| **配置复杂度** | 10% | 4 | 0.4 |
-| **生态系统支持** | 10% | 4 | 0.4 |
-| **未来趋势** | 10% | 5 | 0.5 |
-| **风险控制** | 10% | 3 | 0.3 |
-| **总分** | 100% | - | **4.2/5** |
+| 评估维度         | 权重 | 评分 (1-5) | 加权分    |
+| ---------------- | ---- | ---------- | --------- |
+| **构建性能**     | 20%  | 5          | 1.0       |
+| **运行时性能**   | 15%  | 4          | 0.6       |
+| **功能兼容性**   | 25%  | 4          | 1.0       |
+| **配置复杂度**   | 10%  | 4          | 0.4       |
+| **生态系统支持** | 10%  | 4          | 0.4       |
+| **未来趋势**     | 10%  | 5          | 0.5       |
+| **风险控制**     | 10%  | 3          | 0.3       |
+| **总分**         | 100% | -          | **4.2/5** |
 
 ### 核心优势
 
@@ -935,6 +975,7 @@ npm run test:e2e -- --grep "chart"
 **结论: ✅ 建议迁移到 Turbopack 生产环境**
 
 **理由**:
+
 1. Turbopack 已是 Next.js 16 的默认 bundler，稳定可靠
 2. 构建性能提升显著，开发体验更好
 3. 内置优化更先进，bundle 质量更好
@@ -951,7 +992,7 @@ npm run test:e2e -- --grep "chart"
 
 1. ✅ **已确认**: package.json 已有 `--turbopack` 构建脚本
 2. ✅ **已确认**: Bundle Analyzer 已配置
-3. ⚠️ **需要操作**: 
+3. ⚠️ **需要操作**:
    - 验证当前 Turbopack 构建是否成功
    - 对比 Webpack 和 Turbopack 的 Bundle 分析报告
    - 测试关键功能
@@ -981,15 +1022,19 @@ npm run test:e2e -- --grep "chart"
 ### 4.4 不建议的做法
 
 ❌ **立即完全移除所有 webpack 配置**
+
 - 理由：保留回滚方案，降低风险
 
 ❌ **在未测试的情况下直接上线生产环境**
+
 - 理由：充分测试是降低风险的关键
 
 ❌ **尝试完全复制 webpack 的分包策略到 Turbopack**
+
 - 理由：Turbopack 使用不同的策略，应信任其智能分割
 
 ❌ **忽略大型依赖库的测试**
+
 - 理由：Three.js、Recharts 等库需要专门验证
 
 ### 4.5 最终建议
@@ -1007,6 +1052,7 @@ Week 3-4: 生产环境灰度发布（10% → 50% → 100%）
 ```
 
 **关键成功因素**:
+
 1. ✅ 保留 webpack 作为回滚方案
 2. ✅ 充分测试所有关键功能
 3. ✅ 监控生产环境性能指标
@@ -1021,14 +1067,14 @@ Week 3-4: 生产环境灰度发布（10% → 50% → 100%）
 
 ### 详细风险评估
 
-| 风险类别 | 风险等级 | 可控性 | 备注 |
-|----------|----------|--------|------|
-| **构建稳定性** | 🟢 低 | 高 | Turbopack 已稳定 |
-| **功能兼容性** | 🟡 中 | 高 | 通过测试验证 |
-| **性能表现** | 🟡 中 | 高 | 通过优化调整 |
-| **回滚难度** | 🟢 低 | 高 | webpack 后备已保留 |
-| **迁移成本** | 🟢 低 | 高 | 配置已完成大部分 |
-| **长期维护** | 🟢 低 | 高 | Turbopack 是未来趋势 |
+| 风险类别       | 风险等级 | 可控性 | 备注                 |
+| -------------- | -------- | ------ | -------------------- |
+| **构建稳定性** | 🟢 低    | 高     | Turbopack 已稳定     |
+| **功能兼容性** | 🟡 中    | 高     | 通过测试验证         |
+| **性能表现**   | 🟡 中    | 高     | 通过优化调整         |
+| **回滚难度**   | 🟢 低    | 高     | webpack 后备已保留   |
+| **迁移成本**   | 🟢 低    | 高     | 配置已完成大部分     |
+| **长期维护**   | 🟢 低    | 高     | Turbopack 是未来趋势 |
 
 ### 风险控制措施
 
@@ -1122,7 +1168,7 @@ CLS: < 0.1
 
 **报告完成**
 
-*调研日期: 2026-03-28*
-*调研人: 📚 咨询师 (Subagent)*
-*项目: 7zi-frontend*
+_调研日期: 2026-03-28_
+_调研人: 📚 咨询师 (Subagent)_
+_项目: 7zi-frontend_
 *Next.js 版本: 16.2.1*�

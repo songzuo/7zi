@@ -9,27 +9,30 @@ Vitest 运行测试，配置为单进程串行执行（`poolOptions.forks.single
 ## 测试结果
 
 ### 通过的测试文件
+
 - `tests/lib/retry-decorator.test.ts` - 大部分通过
 - `tests/components/__tests__/notifications.test.tsx` - 大部分通过
 - `src/hooks/useGitHubData.test.ts` - 部分通过
 
 ### 失败的测试 (6 个)
 
-| 测试名称 | 文件 | 原因 |
-|---------|------|------|
-| should stop retrying after maxRetries attempts | retry-decorator.test.ts | **超时** - 60秒内未完成 |
-| should add jitter to delays by default | retry-decorator.test.ts | **超时** - 60秒内未完成 |
-| 应该成功获取 Issues、Commits 和 Stats | useGitHubData.test.ts | **超时** - GitHub API 调用未完成 |
-| 应该构建正确的 API URL | useGitHubData.test.ts | **超时** - GitHub API 调用未完成 |
-| should auto-dismiss after timeout | notifications.test.tsx | **超时** - 自动关闭机制未触发 |
-| should add notification through context | notifications.test.tsx | **超时** - Context 更新未完成 |
+| 测试名称                                       | 文件                    | 原因                             |
+| ---------------------------------------------- | ----------------------- | -------------------------------- |
+| should stop retrying after maxRetries attempts | retry-decorator.test.ts | **超时** - 60秒内未完成          |
+| should add jitter to delays by default         | retry-decorator.test.ts | **超时** - 60秒内未完成          |
+| 应该成功获取 Issues、Commits 和 Stats          | useGitHubData.test.ts   | **超时** - GitHub API 调用未完成 |
+| 应该构建正确的 API URL                         | useGitHubData.test.ts   | **超时** - GitHub API 调用未完成 |
+| should auto-dismiss after timeout              | notifications.test.tsx  | **超时** - 自动关闭机制未触发    |
+| should add notification through context        | notifications.test.tsx  | **超时** - Context 更新未完成    |
 
 ### 警告
+
 `useGitHubData.test.ts` 存在 `act()` 警告 - React 状态更新未包装在 act() 中，需要修复测试文件。
 
 ## 问题分析
 
 ### 1. 超时问题
+
 - 测试配置了 60 秒超时（`testTimeout: 60000`）
 - 失败的测试在 120 秒（重试一次）后仍未完成
 - 可能原因：
@@ -38,6 +41,7 @@ Vitest 运行测试，配置为单进程串行执行（`poolOptions.forks.single
   - Notification 测试：定时器/异步状态更新未正确处理
 
 ### 2. React Testing Warning
+
 `useGitHubData.test.ts` 中多次出现 `act()` 警告，说明异步状态更新测试需要使用 `waitFor` 或 `act()` 包装。
 
 ## 建议

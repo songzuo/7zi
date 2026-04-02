@@ -8,22 +8,24 @@
 
 回归测试报告显示 2 个测试失败：
 
-| 失败测试 | 预期状态码 | 实际状态码 | 原因 |
-|---------|-----------|-----------|------|
-| 应该成功注册新用户 | 201 | 400 | 请求体缺少 `confirmPassword` 字段 |
-| 应该成功重置密码 | 200 | 400 | 请求体缺少 `confirmPassword` 字段 |
+| 失败测试           | 预期状态码 | 实际状态码 | 原因                              |
+| ------------------ | ---------- | ---------- | --------------------------------- |
+| 应该成功注册新用户 | 201        | 400        | 请求体缺少 `confirmPassword` 字段 |
+| 应该成功重置密码   | 200        | 400        | 请求体缺少 `confirmPassword` 字段 |
 
 ## 根本原因
 
 查看 `src/lib/validation-schemas.ts` 中的验证 schema：
 
 **registerSchema** 要求：
+
 - `username` - 用户名（3-20字符）
 - `email` - 邮箱（有效格式）
 - `password` - 密码（最少8字符，含字母和数字）
 - `confirmPassword` - 确认密码（必须与 password 匹配）
 
 **passwordResetSchema** 要求：
+
 - `token` - 重置令牌
 - `password` - 新密码
 - `confirmPassword` - 确认密码（必须与 password 匹配）
@@ -33,21 +35,23 @@
 ## 修复内容
 
 ### 1. 注册测试修复
+
 ```typescript
 body: JSON.stringify({
   username: 'newuser',
   email: 'newuser@example.com',
   password: 'Password123!',
-  confirmPassword: 'Password123!',  // 新增
+  confirmPassword: 'Password123!', // 新增
 })
 ```
 
 ### 2. 重置密码测试修复
+
 ```typescript
 body: JSON.stringify({
   token: 'valid-token',
   password: 'NewPassword123!',
-  confirmPassword: 'NewPassword123!',  // 新增
+  confirmPassword: 'NewPassword123!', // 新增
 })
 ```
 

@@ -12,12 +12,12 @@
 
 ### 关键发现
 
-| 指标 | 当前状态 | 优化目标 | 改进幅度 |
-|------|----------|----------|----------|
-| CI 配置复杂度 | 1295 行代码 | ~800 行 | -38% |
-| Docker 缓存命中率 | 混合策略 | 统一 GHA | +100% |
-| 测试并行度 | 4 分片 | 优化后更均衡 | 负载均衡 |
-| 构建时间 | 15-20 min | 8-12 min | -40% |
+| 指标              | 当前状态    | 优化目标     | 改进幅度 |
+| ----------------- | ----------- | ------------ | -------- |
+| CI 配置复杂度     | 1295 行代码 | ~800 行      | -38%     |
+| Docker 缓存命中率 | 混合策略    | 统一 GHA     | +100%    |
+| 测试并行度        | 4 分片      | 优化后更均衡 | 负载均衡 |
+| 构建时间          | 15-20 min   | 8-12 min     | -40%     |
 
 ---
 
@@ -44,6 +44,7 @@
    - 完整的 CI/CD 生命周期覆盖
 
 2. **良好的缓存策略**
+
    ```yaml
    # node_modules 缓存
    - name: 缓存 node_modules
@@ -53,7 +54,7 @@
          node_modules
          ~/.npm
        key: ${{ runner.os }}-node-modules-${{ hashFiles('**/package-lock.json') }}
-   
+
    # Next.js turbo 缓存
    - name: 缓存 Next.js turbo
      uses: actions/cache@v4
@@ -63,35 +64,42 @@
    ```
 
 3. **测试分片并行化**
+
    ```yaml
    strategy:
      fail-fast: false
      matrix:
        shard: [1, 2, 3, 4]
    ```
+
    - 4 个并行分片执行单元测试
    - `fail-fast: false` 确保所有分片完成
 
 4. **Docker GHA Cache**
+
    ```yaml
    cache-from: type=gha
    cache-to: type=gha,mode=max
    ```
+
    - 使用 GitHub Actions Cache 作为 Docker 构建缓存
    - 跨 workflow 共享缓存
 
 5. **完善的并发控制**
+
    ```yaml
    concurrency:
      group: ${{ github.workflow }}-${{ github.ref }}
      cancel-in-progress: true
    ```
+
    - 防止重复运行
    - 自动取消旧的工作流
 
 #### ⚠️ 瓶颈识别
 
 1. **重复的依赖安装**
+
    ```yaml
    # 每个 Job 都需要设置 Node.js 和安装依赖
    - name: 设置 Node.js
@@ -99,15 +107,16 @@
    - name: 安装依赖
      run: npm ci --prefer-offline
    ```
-   
+
    **问题**: 虽然 node_modules 有缓存，但每个 Job 都需要：
    - 初始化 setup-node
    - 检查缓存
    - 恢复缓存
-   
+
    **影响**: 每个 Job 增加 30-60 秒
 
 2. **变更检测未被充分利用**
+
    ```yaml
    changes:
      outputs:
@@ -115,32 +124,34 @@
        tests-changed: ${{ steps.changes.outputs.tests }}
        config-changed: ${{ steps.changes.outputs.config }}
    ```
-   
+
    **问题**: 检测了变更但后续 Job 没有使用这些输出来跳过不必要的任务
-   
+
    **影响**: 文档变更也会触发完整的 CI 流程
 
 3. **E2E 测试串行执行**
+
    ```yaml
    test-e2e:
      strategy:
        matrix:
-         browser: [chromium]  # 只有一个浏览器
+         browser: [chromium] # 只有一个浏览器
    ```
-   
+
    **问题**: E2E 测试只有一个浏览器配置，无法充分利用并行化
-   
+
    **影响**: E2E 测试时间较长（10-20 分钟）
 
 4. **缺少构建产物缓存共享**
+
    ```yaml
    build:
      outputs:
        build-hash: ${{ steps.build-info.outputs.hash }}
    ```
-   
+
    **问题**: 构建产物通过 artifact 传递，而不是缓存
-   
+
    **影响**: E2E 测试需要重新下载构建产物
 
 ### 1.3 tests.yml 分析
@@ -161,6 +172,7 @@ unit-tests:
 ```
 
 **问题**:
+
 - 与 ci.yml 中的 `test-unit` Job 高度重复
 - 单独运行时会重复完整的 CI 流程
 - 增加维护成本
@@ -173,11 +185,11 @@ unit-tests:
 
 ### 2.1 当前缓存策略
 
-| 缓存类型 | 路径 | Key 策略 | 有效性 |
-|---------|------|---------|--------|
-| node_modules | `node_modules`, `~/.npm` | `package-lock.json` hash | ✅ 高效 |
-| Next.js turbo | `.next/cache` | `package-lock.json` + 源码 hash | ✅ 高效 |
-| Docker GHA | 内置 | 自动管理 | ✅ 高效 |
+| 缓存类型      | 路径                     | Key 策略                        | 有效性  |
+| ------------- | ------------------------ | ------------------------------- | ------- |
+| node_modules  | `node_modules`, `~/.npm` | `package-lock.json` hash        | ✅ 高效 |
+| Next.js turbo | `.next/cache`            | `package-lock.json` + 源码 hash | ✅ 高效 |
+| Docker GHA    | 内置                     | 自动管理                        | ✅ 高效 |
 
 ### 2.2 缓存策略评估
 
@@ -189,29 +201,33 @@ unit-tests:
    - Docker GHA 缓存减少镜像构建时间
 
 2. **合理的缓存 Key 设计**
+
    ```yaml
    key: ${{ runner.os }}-node-modules-${{ hashFiles('**/package-lock.json') }}
    restore-keys: |
      ${{ runner.os }}-node-modules-
    ```
+
    - 主 Key 基于 package-lock.json hash
    - 降级 Key 提供回退选项
 
 #### ⚠️ 优化空间
 
 1. **缺少 Turbo 远程缓存**
+
    ```json
    // turbo.json
    {
      "pipeline": {
        "build": {
-         "cache": true  // 本地缓存
+         "cache": true // 本地缓存
        }
      }
    }
    ```
-   
+
    **建议**: 配置 Turborepo Remote Cache
+
    ```json
    {
      "remoteCache": {
@@ -221,10 +237,11 @@ unit-tests:
    ```
 
 2. **缓存 Key 可以更精细**
+
    ```yaml
    # 当前
    key: ${{ runner.os }}-nextjs-turbo-${{ hashFiles('**/package-lock.json') }}
-   
+
    # 建议：增加分支区分
    key: ${{ runner.os }}-nextjs-turbo-${{ github.ref_name }}-${{ hashFiles('**/package-lock.json') }}
    ```
@@ -232,7 +249,7 @@ unit-tests:
 3. **缺少依赖预安装镜像**
    - 使用标准 `ubuntu-latest` 镜像
    - 每次 Job 都需要安装 Node.js 和依赖
-   
+
    **建议**: 使用自定义 Runner 镜像或 GitHub-hosted larger runners
 
 ---
@@ -261,12 +278,12 @@ export default defineConfig({
 
 #### 评估
 
-| 配置项 | 当前值 | 评估 |
-|--------|--------|------|
-| pool | forks | ✅ 适合 jose 库 |
-| maxThreads | 6 | ✅ 合理 |
-| maxConcurrency | 6 | ✅ 与线程数匹配 |
-| isolate | true | ✅ 确保测试独立性 |
+| 配置项         | 当前值 | 评估              |
+| -------------- | ------ | ----------------- |
+| pool           | forks  | ✅ 适合 jose 库   |
+| maxThreads     | 6      | ✅ 合理           |
+| maxConcurrency | 6      | ✅ 与线程数匹配   |
+| isolate        | true   | ✅ 确保测试独立性 |
 
 ### 3.2 CI 中的测试分片
 
@@ -304,7 +321,7 @@ export default defineConfig({
     // 基于历史执行时间进行分片
     shard: {
       count: 4,
-      mode: 'time-based',  // 根据执行时间均衡分配
+      mode: 'time-based', // 根据执行时间均衡分配
     },
   },
 })
@@ -340,13 +357,13 @@ test-unit:
 
 项目有多个 Dockerfile 变体：
 
-| 文件 | 大小 | 用途 |
-|------|------|------|
-| Dockerfile | 2903 字节 | 主构建文件 |
-| Dockerfile.production | 2773 字节 | 生产环境 |
-| Dockerfile.optimized | 2730 字节 | 优化版本 |
-| Dockerfile.dev | 918 字节 | 开发环境 |
-| Dockerfile.static | 1288 字节 | 静态构建 |
+| 文件                  | 大小      | 用途       |
+| --------------------- | --------- | ---------- |
+| Dockerfile            | 2903 字节 | 主构建文件 |
+| Dockerfile.production | 2773 字节 | 生产环境   |
+| Dockerfile.optimized  | 2730 字节 | 优化版本   |
+| Dockerfile.dev        | 918 字节  | 开发环境   |
+| Dockerfile.static     | 1288 字节 | 静态构建   |
 
 ### 4.2 Dockerfile.optimized 分析
 
@@ -405,21 +422,24 @@ FROM gcr.io/distroless/nodejs22-debian12:latest AS runner-distroless
 #### ⚠️ 优化空间
 
 1. **缺少 BuildKit 优化**
+
    ```dockerfile
    # syntax=docker/dockerfile:1.4
    ```
-   
+
    **建议**: 使用 BuildKit 的缓存挂载
+
    ```dockerfile
    RUN --mount=type=cache,target=/root/.npm \
        npm ci --legacy-peer-deps
    ```
 
 2. **缺少依赖分层优化**
+
    ```dockerfile
    # 当前：一次性复制所有源代码
    COPY . .
-   
+
    # 建议：分层复制，利用缓存
    COPY tsconfig.json ./
    COPY next.config.* ./
@@ -428,12 +448,13 @@ FROM gcr.io/distroless/nodejs22-debian12:latest AS runner-distroless
    ```
 
 3. **多架构构建优化**
+
    ```yaml
    platforms: linux/amd64,linux/arm64
    ```
-   
+
    **问题**: 当前构建 amd64 和 arm64，但没有针对 arm64 的优化
-   
+
    **建议**: 使用 QEMU 模拟或原生 arm64 builder
 
 ### 4.3 CI 中的 Docker 构建
@@ -463,6 +484,7 @@ FROM gcr.io/distroless/nodejs22-debian12:latest AS runner-distroless
 #### ⚠️ 优化建议
 
 1. **添加构建参数优化**
+
    ```yaml
    build-args: |
      NEXT_TELEMETRY_DISABLED=1
@@ -470,6 +492,7 @@ FROM gcr.io/distroless/nodejs22-debian12:latest AS runner-distroless
    ```
 
 2. **使用 attestations**
+
    ```yaml
    outputs: type=registry,rewrite-timestamp=true
    attest: type=provenance,mode=max
@@ -491,19 +514,20 @@ FROM gcr.io/distroless/nodejs22-debian12:latest AS runner-distroless
 
 ### 5.1 瓶颈优先级排序
 
-| 优先级 | 瓶颈 | 影响 | 优化难度 | 预期收益 |
-|--------|------|------|----------|----------|
-| 🔴 高 | 变更检测未被利用 | 文档变更触发完整 CI | 低 | 高 |
-| 🔴 高 | 重复的依赖安装 | 每个 Job 增加 30-60s | 中 | 中 |
-| 🟡 中 | E2E 测试串行执行 | 测试时间长 | 中 | 中 |
-| 🟡 中 | tests.yml 与 ci.yml 冗余 | 维护成本高 | 低 | 低 |
-| 🟢 低 | 缺少 Turbo 远程缓存 | 增量构建优化有限 | 高 | 中 |
+| 优先级 | 瓶颈                     | 影响                 | 优化难度 | 预期收益 |
+| ------ | ------------------------ | -------------------- | -------- | -------- |
+| 🔴 高  | 变更检测未被利用         | 文档变更触发完整 CI  | 低       | 高       |
+| 🔴 高  | 重复的依赖安装           | 每个 Job 增加 30-60s | 中       | 中       |
+| 🟡 中  | E2E 测试串行执行         | 测试时间长           | 中       | 中       |
+| 🟡 中  | tests.yml 与 ci.yml 冗余 | 维护成本高           | 低       | 低       |
+| 🟢 低  | 缺少 Turbo 远程缓存      | 增量构建优化有限     | 高       | 中       |
 
 ### 5.2 性能瓶颈详解
 
 #### 瓶颈 1: 变更检测未被利用
 
 **现状**:
+
 ```yaml
 changes:
   outputs:
@@ -514,6 +538,7 @@ changes:
 **问题**: 后续 Job 没有使用这些输出
 
 **优化**:
+
 ```yaml
 lint:
   needs: [setup, changes]
@@ -531,6 +556,7 @@ test-unit:
 **现状**: 每个 Job 都需要安装依赖
 
 **优化方案 A: 使用 artifact 共享 node_modules**
+
 ```yaml
 setup:
   steps:
@@ -554,6 +580,7 @@ lint:
 ```
 
 **优化方案 B: 使用复合 Action**
+
 ```yaml
 # .github/actions/setup-node/action.yml
 name: 'Setup Node.js with Cache'
@@ -584,6 +611,7 @@ runs:
 **现状**: 只有 chromium 浏览器
 
 **优化**: 添加更多浏览器并行测试
+
 ```yaml
 test-e2e:
   strategy:
@@ -787,9 +815,8 @@ RUN npm run build
 
 ```yaml
 build:
-  runs-on: ubuntu-latest-8-cores  # 8 核 CPU
-  steps:
-    ...
+  runs-on: ubuntu-latest-8-cores # 8 核 CPU
+  steps: ...
 ```
 
 ---
@@ -798,27 +825,27 @@ build:
 
 ### 7.1 时间节省
 
-| 场景 | 当前时间 | 优化后时间 | 节省 |
-|------|----------|------------|------|
-| 仅文档变更 | ~13 分钟 | ~2 分钟 | 85% |
-| PR 检查 | ~13 分钟 | ~8 分钟 | 38% |
-| Main push | ~21 分钟 | ~15 分钟 | 29% |
-| Docker 增量构建 | 8-12 分钟 | 4-6 分钟 | 50% |
+| 场景            | 当前时间  | 优化后时间 | 节省 |
+| --------------- | --------- | ---------- | ---- |
+| 仅文档变更      | ~13 分钟  | ~2 分钟    | 85%  |
+| PR 检查         | ~13 分钟  | ~8 分钟    | 38%  |
+| Main push       | ~21 分钟  | ~15 分钟   | 29%  |
+| Docker 增量构建 | 8-12 分钟 | 4-6 分钟   | 50%  |
 
 ### 7.2 成本节省
 
-| 指标 | 当前 | 优化后 | 节省 |
-|------|------|--------|------|
-| GitHub Actions 分钟数/月 | ~1000 | ~600 | 40% |
-| 成本/月（$0.008/min） | ~$8 | ~$4.8 | 40% |
+| 指标                     | 当前  | 优化后 | 节省 |
+| ------------------------ | ----- | ------ | ---- |
+| GitHub Actions 分钟数/月 | ~1000 | ~600   | 40%  |
+| 成本/月（$0.008/min）    | ~$8   | ~$4.8  | 40%  |
 
 ### 7.3 维护改进
 
-| 指标 | 当前 | 优化后 |
-|------|------|--------|
-| Workflow 文件数 | 5 | 4 |
-| 配置代码行数 | 1295 | ~800 |
-| 重复代码 | 多处 | 消除 |
+| 指标            | 当前 | 优化后 |
+| --------------- | ---- | ------ |
+| Workflow 文件数 | 5    | 4      |
+| 配置代码行数    | 1295 | ~800   |
+| 重复代码        | 多处 | 消除   |
 
 ---
 
