@@ -85,6 +85,10 @@ tsconfig.tsbuildinfo
 # OpenClaw specific
 state/tasks.json
 botmem
+memory/claw-mesh-state.json
+
+# Browser test artifacts
+7zi-frontend/browser/
 
 # Daily reports (move to docs/reports/)
 TASK_*.md
@@ -93,6 +97,8 @@ TASK_*.md
 *_PLAN_*.md
 *_OPTIMIZATION_REPORT_*.md
 *_FOLLOWUP_*.md
+DEV_TASK_*.md
+REPORT_*.md
 
 # AI Agent exports (runtime generated)
 exports/
