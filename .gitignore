@@ -112,3 +112,10 @@ analyze-*.js
 
 *storybook.log
 storybook-static
+
+# Temporary fix scripts
+fix-*.sh
+
+# Backup directories
+*.backup/
+src/lib/agents.backup/
