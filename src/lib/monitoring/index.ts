@@ -1,7 +1,7 @@
 /**
  * Monitoring Module
  * 监控模块 - 统一导出
- * 
+ *
  * 包含：
  * - Core Web Vitals 监控
  * - 性能指标收集
@@ -15,11 +15,7 @@
 // ============================================
 // Core Web Vitals (保留向后兼容)
 // ============================================
-export {
-  initWebVitalsMonitoring,
-  observePerformance,
-  getCurrentVitals,
-} from './web-vitals';
+export { initWebVitalsMonitoring, observePerformance, getCurrentVitals } from './web-vitals'
 
 // ============================================
 // 性能监控配置
@@ -37,7 +33,7 @@ export {
   getConfig,
   type MetricRating,
   type Environment,
-} from './performance.config';
+} from './performance.config'
 
 // ============================================
 // 增强性能监控
@@ -54,7 +50,7 @@ export {
   type PerformanceMetric,
   type CustomMetric,
   type PerformanceAlert,
-} from './performance.monitor';
+} from './performance.monitor'
 
 // ============================================
 // 告警管理
@@ -64,7 +60,7 @@ export {
   defaultAlertRules,
   type AlertRecord,
   type AlertRule,
-} from './performance.alerts';
+} from './performance.alerts'
 
 // ============================================
 // 错误追踪
@@ -77,7 +73,7 @@ export {
   withErrorTracking,
   handleApiError,
   addBreadcrumb,
-} from './errors';
+} from './errors'
 
 // ============================================
 // 告警通知
@@ -93,7 +89,7 @@ export {
   type AlertSeverity,
   type AlertConfig,
   type AlertChannel,
-} from './alerts';
+} from './alerts'
 
 // ============================================
 // 健康检查
@@ -105,7 +101,7 @@ export {
   probes,
   type HealthStatus,
   type CheckResult,
-} from './health';
+} from './health'
 
 // ============================================
 // React Hooks
@@ -124,7 +120,7 @@ export {
   type Metric,
   type HistogramMetric,
   type MetricType,
-} from './prometheus';
+} from './prometheus'
 
 // ============================================
 // 根因分析 (Root Cause Analysis)
@@ -140,7 +136,7 @@ export {
   type MetricCorrelation,
   type DiagnosisReport,
   type ActionItem,
-} from './root-cause';
+} from './root-cause'
 
 // Re-export from root-cause subdirectory
 export {
@@ -150,7 +146,7 @@ export {
   type BottleneckAnalysis,
   type BottleneckRecommendation,
   type PerformanceProfile,
-} from './root-cause';
+} from './root-cause'
 
 export {
   SlowRequestTracker,
@@ -158,14 +154,14 @@ export {
   type RequestTiming,
   type SlowRequestAnalysis,
   type RequestBottleneck,
-} from './root-cause';
+} from './root-cause'
 
 export {
   PerformanceWaterfall,
   performanceWaterfall,
   type ResourceTiming,
   type WaterfallAnalysis,
-} from './root-cause';
+} from './root-cause'
 
 // ============================================
 // 预算控制器 (Budget Controller)
@@ -182,7 +178,7 @@ export {
   type BudgetSummary,
   type BudgetViolationAlert,
   type SuppressionRule,
-} from './budget-controller';
+} from './budget-controller'
 
 // ============================================
 // 告警管理器 (Alert Manager)
@@ -204,7 +200,7 @@ export {
   type AlertMatcher,
   type EscalationPolicy,
   type EscalationLevel,
-} from './alert-manager';
+} from './alert-manager'
 
 // ============================================
 // 性能预算 (Budget - Legacy)
@@ -220,4 +216,130 @@ export {
   type BudgetResult,
   type BudgetViolation,
   type BudgetReport as LegacyBudgetReport,
-} from './budget';
+} from './budget'
+
+// ============================================
+// Sentry Client (Legacy Shim)
+// ============================================
+// This provides backward compatibility for code importing from @/lib/monitoring
+import * as SentryModule from '@/lib/sentry'
+
+// ============================================
+// Optimized Metrics Aggregation
+// ============================================
+export {
+  getAggregatedMetrics,
+  getGroupedAggregation,
+  getMultiMetricAggregation,
+  analyzeTrend,
+  calculateMovingAverage,
+  getPercentiles,
+  type MetricDataPoint,
+  type AggregatedMetrics,
+  type TimeWindowOptions,
+  type GroupedAggregation,
+  type TrendAnalysis,
+} from './metrics-aggregation'
+
+// ============================================
+// Optimized Metrics Aggregator (v2.0)
+// ============================================
+export {
+  OptimizedMetricsAggregator,
+  createOptimizedAggregator,
+  type AggregatorMetric,
+  type TimeWindow,
+  type WorkerResult,
+  type SamplingConfig,
+  type AggregatorConfig,
+} from './optimized-metrics-aggregator'
+
+// ============================================
+// Memory Optimizer (v2.0)
+// ============================================
+export {
+  MemoryMonitor,
+  MapCacheCleaner,
+  ResourceTracker,
+  createMemoryMonitor,
+  createMapCacheCleaner,
+  createResourceTracker,
+  type MemoryStats,
+  type MemoryAlert,
+  type MemoryMonitorConfig,
+} from './memory-optimizer'
+
+// Simple span object with end() method
+interface SimpleSpan {
+  end: () => void
+  setAttribute: (key: string, value: string) => void
+}
+
+interface SentryStatus {
+  isInitialized: boolean
+  hasDsn: boolean
+  environment: string
+  release?: string
+  tracesSampleRate: number
+  profilesSampleRate: number
+  debug: boolean
+}
+
+interface AgentStats {
+  totalAgents: number
+  totalTasks: number
+  completedTasks: number
+  failedTasks: number
+  activeTasks: number
+  avgTaskDuration: number
+  totalTokens: number
+}
+
+export const sentryClient = {
+  // Support new-style options object calls (used in APM route)
+  startSpan: (options: {
+    op: string
+    description: string
+    data?: Record<string, unknown>
+  }): SimpleSpan | null => {
+    if (!SentryModule.isSentryInitialized()) return null
+    const attributes: Record<string, string> = {}
+    if (options.data) {
+      Object.entries(options.data).forEach(([key, value]) => {
+        attributes[key] = String(value)
+      })
+    }
+    return {
+      end: () => {
+        /* span ended */
+      },
+      setAttribute: (key: string, value: string) => {
+        attributes[key] = value
+      },
+    }
+  },
+  getStatus: (): SentryStatus => ({
+    isInitialized: SentryModule.isSentryInitialized(),
+    hasDsn: !!process.env.NEXT_PUBLIC_SENTRY_DSN,
+    environment: process.env.NODE_ENV || 'development',
+    release: process.env.NEXT_PUBLIC_APP_VERSION || undefined,
+    tracesSampleRate: 0.1,
+    profilesSampleRate: 0.1,
+    debug: process.env.NODE_ENV === 'development',
+  }),
+  captureException: SentryModule.captureException,
+  captureMessage: SentryModule.captureMessage,
+  addBreadcrumb: SentryModule.addBreadcrumb,
+}
+
+export const agentTracker = {
+  getGlobalStats: (): AgentStats => ({
+    totalAgents: 0,
+    totalTasks: 0,
+    completedTasks: 0,
+    failedTasks: 0,
+    activeTasks: 0,
+    avgTaskDuration: 0,
+    totalTokens: 0,
+  }),
+}
