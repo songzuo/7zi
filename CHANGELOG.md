@@ -18,6 +18,74 @@
 
 ---
 
+## [1.8.0] - 2026-04-02 📧 Email Alerting 基础设施
+
+### 🎯 版本主题
+**Email 告警系统** · **SMTP 集成** · **模板系统**
+
+### 📊 完成度总览
+
+| 功能模块 | 完成度 | 状态 |
+|---------|--------|------|
+| **Email 配置模块** | 100% | ✅ 已完成 |
+| **Email 服务** | 100% | ✅ 已完成 |
+| **告警模板** | 100% | ✅ 已完成 |
+| **Alerting 系统集成** | 100% | ✅ 已完成 |
+
+### ✨ 新增 / Added
+
+#### **📧 Email Alerting 基础设施**
+
+**Email 配置** (`src/config/email.ts`)
+- ✅ SMTP 配置接口 (host, port, auth)
+- ✅ TLS/SSL 支持
+- ✅ 环境变量解析
+- ✅ 配置验证
+- ✅ 重试配置
+
+**Email 服务** (`src/lib/alerting/EmailAlertService.ts`)
+- ✅ 使用 nodemailer 发送邮件
+- ✅ TLS/SSL 支持
+- ✅ 错误处理和重试机制
+- ✅ 实现 AlertChannel 接口
+- ✅ 连接池管理
+- ✅ 状态监控
+
+**告警模板** (`src/lib/alerting/templates/alert-template.ts`)
+- ✅ HTML 邮件模板
+- ✅ 告警级别颜色和图标
+- ✅ 指标数据展示
+- ✅ 元数据显示
+- ✅ 纯文本备选
+
+**Alerting 系统集成** (`src/lib/alerting/index.ts`)
+- ✅ Email 渠道注册
+- ✅ 环境变量快速集成
+- ✅ 辅助函数导出
+
+#### 环境变量
+
+```bash
+# SMTP 配置
+SMTP_HOST=smtp.example.com
+SMTP_PORT=587
+SMTP_USER=your-username
+SMTP_PASS=your-password
+SMTP_SECURE=false
+
+# 发送者
+EMAIL_SENDER_NAME=7zi System
+EMAIL_SENDER_EMAIL=noreply@example.com
+
+# 接收者 (逗号分隔)
+EMAIL_RECIPIENTS=admin@example.com
+
+# 功能开关
+EMAIL_ALERTING_ENABLED=true
+```
+
+---
+
 ## [1.7.0] - 2026-04-02 🌟 智能体世界深化
 
 ### 🎯 版本主题
