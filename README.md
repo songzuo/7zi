@@ -3,7 +3,7 @@
 > **11 位 AI 成员 · 24/7 自主工作 · 实时协作**
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
-[![Version](https://img.shields.io/badge/version-1.6.1-blue.svg)](https://github.com/songzuo/7zi)
+[![Version](https://img.shields.io/badge/version-1.8.0-blue.svg)](https://github.com/songzuo/7zi)
 [![CI Status](https://github.com/songzuo/7zi/workflows/CI%20-%20Pull%20Request%20Checks/badge.svg)](https://github.com/songzuo/7zi/actions/workflows/ci-pr.yml)
 [![Deploy Status](https://github.com/songzuo/7zi/workflows/Deploy%20-%20Main%20Branch/badge.svg)](https://github.com/songzuo/7zi/actions/workflows/deploy-main.yml)
 [![Next.js](https://img.shields.io/badge/Next.js-16.2.1-black?logo=next.js)](https://nextjs.org/)
@@ -28,9 +28,38 @@
 
 ---
 
-## 🔥 最新进展 (v1.7.0 - 开发中 | v1.6.0 - Released 2026-04-01 | v1.5.0 - Released 2026-03-31)
+## 🔥 最新进展 (v1.8.0 - Released 2026-04-02 | v1.7.0 - Released 2026-04-02)
 
-### 📊 v1.7.0 开发进度 (2026-04-02)
+### 📊 v1.8.0 核心亮点 (2026-04-02)
+
+| 功能 | 状态 | 说明 |
+|------|------|------|
+| 🎨 **Visual Workflow Orchestrator** | ✅ 已完成 | 可视化工作流设计和执行引擎，支持 6 种节点类型 |
+| 🖼️ **Workflow Canvas 组件** | ✅ 已完成 | React 组件，拖拽设计、Bezier 连接线、缩放控制 |
+| 📧 **Email Alerting 基础设施** | ✅ 已完成 | SMTP 集成、告警模板、连接池管理 |
+| 📊 **工作流生命周期管理** | ✅ 已完成 | create, execute, cancel, pause, resume |
+
+### 📊 v1.8.0 核心改进
+
+#### 🎨 Visual Workflow Orchestrator (100% 完成)
+
+- **工作流执行引擎** - async/await 支持，事件驱动架构
+- **6 种节点类型** - start, end, task, condition, parallel, wait
+- **状态管理** - pending, running, completed, failed, skipped
+- **自定义执行器 API** - 可注册自定义节点执行逻辑
+- **Workflow Canvas** - 拖拽设计、Bezier 连接线、网格对齐
+- **代码统计**: 1,614 行 (Orchestrator 798 + Canvas 766 + exports)
+
+#### 📧 Email Alerting 基础设施 (100% 完成)
+
+- **Email 配置** - SMTP 配置接口，TLS/SSL 支持
+- **Email 服务** - nodemailer 发送，连接池管理
+- **告警模板** - HTML 邮件模板，告警级别颜色图标
+- **代码统计**: 1,294 行 (config 314 + service 498 + templates 393 + index 89)
+
+---
+
+### 📊 v1.7.0 核心亮点 (2026-04-02)
 
 | 功能模块 | 完成度 | 状态 |
 |---------|--------|------|
@@ -408,6 +437,8 @@
 
 | 版本 | 日期 | 主要更新 |
 |------|------|----------|
+| **v1.8.0** | 2026-04-02 | 🎨 Visual Workflow Orchestrator、Workflow Canvas 组件、📧 Email Alerting 基础设施 |
+| **v1.7.0** | 2026-04-02 | 🌟 TypeScript 严格模式 P0-P2、Learning System 审计、UI Consistency Guide、Workflow Engine 优化 |
 | **v1.6.0** | 2026-04-01 | 🤖 Agent Registry 核心功能、🔗 A2A Protocol v2.1、⚡ 持久化构建缓存、🚀 API 性能优化、📊 分布式追踪系统 |
 | **v1.5.0** | 2026-03-31 | 🤖 AI Agent 调度 Dashboard UI、🏗️ lib/ 层重构、🔄 PermissionContext → Zustand、🧪 Agent Learning 测试系统 (96%)、🔌 WebSocket 房间系统 UI、🧹 技术债务清理 80% |
 | **v1.4.0** | 2026-03-29 | 🔄 WebSocket 高级功能(房间/权限/消息持久化)、🤖 AI Agent 智能调度、📊 性能监控升级、⚡ React Compiler 可选功能 |
