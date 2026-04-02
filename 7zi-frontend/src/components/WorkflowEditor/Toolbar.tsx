@@ -1,0 +1,78 @@
+/**
+ * Toolbar - 工具栏
+ *
+ * 顶部工具栏，包含保存、运行、验证等操作
+ */
+
+import React from 'react';
+
+interface ToolbarProps {
+  onSave: () => void;
+  onRun: () => void;
+  onValidate: () => void;
+  isExecuting?: boolean;
+  readOnly?: boolean;
+  hasErrors?: boolean;
+}
+
+export function Toolbar({
+  onSave,
+  onRun,
+  onValidate,
+  isExecuting = false,
+  readOnly = false,
+  hasErrors = false,
+}: ToolbarProps) {
+  return (
+    <div className="flex items-center justify-between border-b border-gray-200 bg-white px-4 py-2 dark:border-gray-700 dark:bg-gray-800">
+      {/* 左侧：工作流信息 */}
+      <div className="flex items-center gap-4">
+        <h1 className="text-lg font-semibold text-gray-900 dark:text-white">
+          工作流编辑器
+        </h1>
+        {hasErrors && (
+          <span className="flex items-center gap-1 rounded-full bg-red-100 px-3 py-1 text-sm text-red-600 dark:bg-red-900/30 dark:text-red-400">
+            <span>⚠️</span>
+            <span>有验证错误</span>
+          </span>
+        )}
+      </div>
+
+      {/* 右侧：操作按钮 */}
+      <div className="flex items-center gap-2">
+        {/* 验证按钮 */}
+        <button
+          onClick={onValidate}
+          disabled={readOnly}
+          className="flex items-center gap-2 rounded-lg border border-gray-300 px-3 py-1.5 text-sm font-medium text-gray-700 transition-colors hover:bg-gray-50 disabled:cursor-not-allowed disabled:opacity-50 dark:border-gray-600 dark:text-gray-300 dark:hover:bg-gray-700"
+          title="验证工作流 (Ctrl+Shift+V)"
+        >
+          <span>✅</span>
+          <span>验证</span>
+        </button>
+
+        {/* 保存按钮 */}
+        <button
+          onClick={onSave}
+          disabled={readOnly}
+          className="flex items-center gap-2 rounded-lg border border-gray-300 px-3 py-1.5 text-sm font-medium text-gray-700 transition-colors hover:bg-gray-50 disabled:cursor-not-allowed disabled:opacity-50 dark:border-gray-600 dark:text-gray-300 dark:hover:bg-gray-700"
+          title="保存工作流 (Ctrl+S)"
+        >
+          <span>💾</span>
+          <span>保存</span>
+        </button>
+
+        {/* 运行按钮 */}
+        <button
+          onClick={onRun}
+          disabled={readOnly || isExecuting || hasErrors}
+          className="flex items-center gap-2 rounded-lg bg-green-600 px-3 py-1.5 text-sm font-medium text-white transition-colors hover:bg-green-700 disabled:cursor-not-allowed disabled:opacity-50 dark:bg-green-700 dark:hover:bg-green-600"
+          title="运行工作流 (Ctrl+Enter)"
+        >
+          <span>{isExecuting ? '⏳' : '▶️'}</span>
+          <span>{isExecuting ? '运行中...' : '运行'}</span>
+        </button>
+      </div>
+    </div>
+  );
+}

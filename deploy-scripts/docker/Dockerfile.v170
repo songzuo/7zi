@@ -1,0 +1,125 @@
+# ============================================
+# v1.7.0 生产环境 Dockerfile
+# ============================================
+# 更新内容:
+# - Node.js 20.x 基础镜像
+# - Multi-Agent 协作依赖
+# - APM 监控集成
+# - 性能优化
+# ============================================
+
+# ============================================
+# 阶段 1: 依赖安装
+# ============================================
+FROM node:20-alpine AS deps
+
+# 安装构建依赖
+RUN apk add --no-cache \
+    libc6-compat \
+    python3 \
+    make \
+    g++
+
+WORKDIR /app
+
+# 复制依赖文件
+COPY package.json pnpm-lock.yaml ./
+
+# 安装 pnpm
+RUN npm install -g pnpm@8
+
+# 安装依赖
+RUN pnpm install --frozen-lockfile
+
+# ============================================
+# 阶段 2: 构建应用
+# ============================================
+FROM node:20-alpine AS builder
+
+WORKDIR /app
+
+# 复制 pnpm
+RUN npm install -g pnpm@8
+
+# 复制依赖层
+COPY --from=deps /app/node_modules ./node_modules
+COPY . .
+
+# 设置构建参数
+ARG NODE_ENV=production
+ARG VERSION=v1.7.0
+
+ENV NODE_ENV=${NODE_ENV}
+ENV NEXT_TELEMETRY_DISABLED=1
+
+# 设置版本信息
+RUN echo "export const VERSION = '${VERSION}'" > src/lib/version.ts
+
+# 构建应用
+RUN pnpm run build
+
+# ============================================
+# 阶段 3: 运行时镜像
+# ============================================
+FROM node:20-alpine AS runner
+
+WORKDIR /app
+
+# 安装运行时依赖
+RUN apk add --no-cache \
+    dumb-init \
+    curl \
+    ca-certificates
+
+# 创建非 root 用户
+RUN addgroup -g 1001 -S nodejs
+RUN adduser -S nextjs -u 1001
+
+# 复制必要文件
+COPY --from=builder /app/public ./public
+COPY --from=builder /app/.next/standalone ./
+COPY --from=builder /app/.next/static ./.next/static
+
+# 复制配置文件
+COPY --from=builder /app/next.config.ts ./
+COPY --from=builder /app/package.json ./
+
+# 设置权限
+RUN chown -R nextjs:nodejs /app
+
+# 切换用户
+USER nextjs
+
+# 环境变量
+ENV NODE_ENV=production
+ENV PORT=3000
+ENV HOSTNAME=0.0.0.0
+ENV NEXT_TELEMETRY_DISABLED=1
+
+# v1.7.0 Multi-Agent 配置
+ENV MULTI_AGENT_ENABLED=true
+ENV AGENT_HEARTBEAT_INTERVAL=30000
+ENV AGENT_TIMEOUT_MS=30000
+ENV AGENT_MAX_INSTANCES=50
+
+# APM 监控配置
+ENV SENTRY_TRACES_SAMPLE_RATE=0.1
+ENV SENTRY_PROFILES_SAMPLE_RATE=0.05
+
+# 健康检查
+HEALTHCHECK --interval=30s --timeout=10s --start-period=10s --retries=3 \
+    CMD curl -f http://localhost:3000/api/health || exit 1
+
+# 端口
+EXPOSE 3000
+
+# 启动命令
+ENTRYPOINT ["dumb-init", "--"]
+CMD ["node", "server.js"]
+
+# ============================================
+# 标签
+# ============================================
+LABEL maintainer="7zi Team"
+LABEL version="1.7.0"
+LABEL description="7zi AI Team Management Platform - v1.7.0"

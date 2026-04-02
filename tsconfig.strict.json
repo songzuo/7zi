@@ -1,0 +1,67 @@
+{
+  "$schema": "https://json.schemastore.org/tsconfig",
+  "extends": "./tsconfig.json",
+  "compilerOptions": {
+    "composite": true,
+    "incremental": true,
+    "tsBuildInfoFile": ".next/cache/tsconfig.strict.tsbuildinfo",
+    "outDir": "dist/strict",
+    "rootDir": ".",
+    "declaration": true,
+    "declarationMap": true,
+    "sourceMap": true,
+    "noEmit": false,
+    "emitDeclarationOnly": true,
+    "types": ["vitest/globals", "node"],
+
+    // === STRICT TYPE CHECKING OPTIONS ===
+    // All strict options enabled for maximum type safety
+
+    "strict": true,
+    "noImplicitAny": true,
+    "strictNullChecks": true,
+    "strictFunctionTypes": true,
+    "strictBindCallApply": true,
+    "strictPropertyInitialization": true,
+    "noImplicitThis": true,
+    "alwaysStrict": true,
+
+    // Additional strict-like options
+    "noUnusedLocals": true,
+    "noUnusedParameters": true,
+    "noImplicitReturns": true,
+    "noFallthroughCasesInSwitch": true,
+    "noUncheckedIndexedAccess": true,
+    "noImplicitOverride": true,
+    "noPropertyAccessFromIndexSignature": true,
+
+    // Extra strictness for null/undefined
+    "exactOptionalPropertyTypes": true,
+    "useUnknownInCatchVariables": true,
+
+    // Disable relaxations
+    "allowUnreachableCode": false,
+    "allowUnusedLabels": false
+  },
+  "include": [
+    "src/**/*.ts",
+    "src/**/*.tsx",
+    "tests/**/*.ts",
+    "tests/**/*.tsx",
+    "next-env.d.ts",
+    ".next/types/**/*.ts",
+    ".next/dev/types/**/*.ts",
+    "src/vitest.d.ts"
+  ],
+  "exclude": [
+    "node_modules",
+    "_nested-app-backup",
+    ".next",
+    "src/lib/tracing/example.ts",
+    "src/test/api/test-helpers.ts",
+    "src/test/vi-mocks.ts",
+    "tests/integration/alert-system-edge-cases.test.ts",
+    "tests/e2e/websocket-message-store.test.ts",
+    "tests/websocket/v150-regression.test.ts"
+  ]
+}
