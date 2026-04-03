@@ -1,6 +1,6 @@
 /**
  * Slack Alert Channel Tests
- * Slack 告警渠道测试
+ * Slack 告警渠道测试 - 增强版
  */
 
 import { SlackAlertChannel, createSlackChannelFromEnv } from '../channels/slack-alert'
@@ -63,7 +63,6 @@ describe('SlackAlertChannel', () => {
         ruleName: 'Service Down',
       })
 
-      // Mock successful webhook response
       mockFetch.mockResolvedValueOnce({
         ok: true,
         status: 200,
@@ -117,6 +116,25 @@ describe('SlackAlertChannel', () => {
       await expect(channel.send(alert)).resolves.not.toThrow()
     })
 
+    it('should handle all severity levels', async () => {
+      const severities: Array<'info' | 'warning' | 'error' | 'critical'> = [
+        'info',
+        'warning',
+        'error',
+        'critical',
+      ]
+
+      for (const severity of severities) {
+        const alert = createTestAlert({ severity })
+        mockFetch.mockResolvedValueOnce({
+          ok: true,
+          status: 200,
+        } as Response)
+
+        await expect(channel.send(alert)).resolves.not.toThrow()
+      }
+    })
+
     it('should include context in message', async () => {
       const alert = createTestAlert({
         context: {
@@ -134,7 +152,6 @@ describe('SlackAlertChannel', () => {
 
       await channel.send(alert)
 
-      // Should include context
       expect(mockFetch).toHaveBeenCalled()
     })
 
@@ -202,6 +219,180 @@ describe('SlackAlertChannel', () => {
       } as Response)
 
       await expect(channel.send(alert)).rejects.toThrow('Slack webhook failed')
+    })
+
+    it('should retry on transient errors', async () => {
+      const channelWithRetry = new SlackAlertChannel({
+        webhookUrl: 'https://hooks.slack.com/services/test',
+        channels: { default: '#alerts' },
+        retry: {
+          maxRetries: 2,
+          initialDelayMs: 10,
+          maxDelayMs: 100,
+          backoffMultiplier: 2,
+        },
+      })
+
+      const alert = createTestAlert()
+
+      // First two attempts fail, third succeeds
+      mockFetch
+        .mockResolvedValueOnce({
+          ok: false,
+          status: 503,
+          statusText: 'Service Unavailable',
+        } as Response)
+        .mockResolvedValueOnce({
+          ok: false,
+          status: 503,
+          statusText: 'Service Unavailable',
+        } as Response)
+        .mockResolvedValueOnce({
+          ok: true,
+          status: 200,
+        } as Response)
+
+      await expect(channelWithRetry.send(alert)).resolves.not.toThrow()
+      expect(mockFetch).toHaveBeenCalledTimes(3)
+    })
+  })
+
+  describe('deduplication', () => {
+    it('should deduplicate alerts within window', async () => {
+      const channelWithDedup = new SlackAlertChannel({
+        webhookUrl: 'https://hooks.slack.com/services/test',
+        channels: { default: '#alerts' },
+        dedup: {
+          enabled: true,
+          windowMs: 1000,
+          keys: ['ruleId', 'priority'],
+        },
+      })
+
+      const alert = createTestAlert()
+
+      mockFetch.mockResolvedValueOnce({
+        ok: true,
+        status: 200,
+      } as Response)
+
+      // First send
+      await channelWithDedup.send(alert)
+
+      // Second send (should be deduped)
+      await channelWithDedup.send(alert)
+
+      expect(mockFetch).toHaveBeenCalledTimes(1) // Only called once
+
+      const metrics = channelWithDedup.getMetrics()
+      expect(metrics.totalDeduped).toBe(1)
+    })
+  })
+
+  describe('severity filtering', () => {
+    it('should filter alerts by severity', async () => {
+      const filteredChannel = new SlackAlertChannel({
+        webhookUrl: 'https://hooks.slack.com/services/test',
+        channels: { default: '#alerts' },
+        severityFilter: ['critical'],
+      })
+
+      const criticalAlert = createTestAlert({ severity: 'critical' })
+      const infoAlert = createTestAlert({ severity: 'info' })
+
+      mockFetch.mockResolvedValue({
+        ok: true,
+        status: 200,
+      } as Response)
+
+      await filteredChannel.send(criticalAlert)
+      await filteredChannel.send(infoAlert)
+
+      const metrics = filteredChannel.getMetrics()
+      expect(metrics.totalSent).toBe(1) // Only critical sent
+    })
+  })
+
+  describe('rate limiting', () => {
+    it('should respect rate limits', async () => {
+      const limitedChannel = new SlackAlertChannel({
+        webhookUrl: 'https://hooks.slack.com/services/test',
+        channels: { default: '#alerts' },
+        rateLimit: {
+          maxAlertsPerMinute: 2,
+          maxAlertsPerHour: 100,
+        },
+      })
+
+      const alert = createTestAlert()
+
+      // First 2 should succeed
+      await limitedChannel.send(alert)
+      await limitedChannel.send(alert)
+
+      // Third should fail
+      await expect(limitedChannel.send(alert)).rejects.toThrow('Rate limit exceeded')
+    })
+  })
+
+  describe('metrics', () => {
+    it('should track metrics', async () => {
+      const alert = createTestAlert()
+
+      mockFetch.mockResolvedValueOnce({
+        ok: true,
+        status: 200,
+      } as Response)
+
+      await channel.send(alert)
+
+      const metrics = channel.getMetrics()
+      expect(metrics.totalSent).toBe(1)
+    })
+
+    it('should reset metrics', async () => {
+      const alert = createTestAlert()
+
+      mockFetch.mockResolvedValueOnce({
+        ok: true,
+        status: 200,
+      } as Response)
+
+      await channel.send(alert)
+
+      channel.resetMetrics()
+
+      const metrics = channel.getMetrics()
+      expect(metrics.totalSent).toBe(0)
+    })
+  })
+
+  describe('enable/disable', () => {
+    it('should not send when disabled', async () => {
+      channel.setEnabled(false)
+      const alert = createTestAlert()
+
+      await channel.send(alert)
+
+      const metrics = channel.getMetrics()
+      expect(metrics.totalSent).toBe(0)
+      expect(mockFetch).not.toHaveBeenCalled()
+    })
+
+    it('should send when re-enabled', async () => {
+      channel.setEnabled(false)
+      channel.setEnabled(true)
+      const alert = createTestAlert()
+
+      mockFetch.mockResolvedValueOnce({
+        ok: true,
+        status: 200,
+      } as Response)
+
+      await channel.send(alert)
+
+      const metrics = channel.getMetrics()
+      expect(metrics.totalSent).toBe(1)
     })
   })
 })
@@ -278,5 +469,23 @@ describe('SlackAlertChannel (Bot API)', () => {
 
     const alert = createTestAlert()
     await expect(channel.send(alert)).resolves.not.toThrow()
+  })
+
+  it('should handle bot API errors', async () => {
+    const channel = new SlackAlertChannel({
+      botToken: 'xoxb-test-token',
+      channels: {
+        default: '#general',
+      },
+    })
+
+    // Mock bot API error
+    mockFetch.mockResolvedValueOnce({
+      ok: true,
+      json: async () => ({ ok: false, error: 'channel_not_found' }),
+    } as Response)
+
+    const alert = createTestAlert()
+    await expect(channel.send(alert)).rejects.toThrow('Could not find or create channel')
   })
 })

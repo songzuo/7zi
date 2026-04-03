@@ -3,11 +3,27 @@
  * 邮件告警渠道
  *
  * Sends alerts via email using nodemailer or similar service.
+ * Features:
+ * - Retry mechanism with exponential backoff
+ * - Alert deduplication
+ * - Rate limiting
+ * - Severity-based filtering
+ *
+ * @version 2.0.0
  */
 
-import { Alert, AlertChannel } from '../alert-engine'
+import { Alert, AlertChannel, AlertSeverity, AlertPriority } from '../alert-engine'
+import {
+  BaseAlertChannel,
+  BaseChannelConfig,
+  RetryConfig,
+  DedupConfig,
+  RateLimitConfig,
+  AlertLevel,
+  priorityToLevel,
+} from './base-alert-channel'
 
-export interface EmailChannelConfig {
+export interface EmailChannelConfig extends BaseChannelConfig {
   // SMTP Configuration
   host: string
   port: number
@@ -40,14 +56,32 @@ interface EmailMessage {
 }
 
 /**
+ * Minimal nodemailer transporter interface
+ */
+interface NodemailerTransporter {
+  sendMail(options: EmailMessage): Promise<{ messageId: string }>
+}
+
+/**
  * Email Alert Channel
  */
-export class EmailAlertChannel implements AlertChannel {
-  private config: EmailChannelConfig
-  private transporter?: any // nodemailer transporter (initialized lazily)
+export class EmailAlertChannel extends BaseAlertChannel implements AlertChannel {
+  private emailConfig: EmailChannelConfig
+  private transporter?: NodemailerTransporter
 
   constructor(config: EmailChannelConfig) {
-    this.config = {
+    const baseConfig: BaseChannelConfig = {
+      enabled: true,
+      retry: config.retry,
+      dedup: config.dedup,
+      rateLimit: config.rateLimit,
+      severityFilter: config.severityFilter,
+      priorityFilter: config.priorityFilter,
+    }
+
+    super(baseConfig)
+
+    this.emailConfig = {
       includeContext: true,
       includeStackTrace: false,
       ...config,
@@ -55,9 +89,16 @@ export class EmailAlertChannel implements AlertChannel {
   }
 
   /**
-   * Send alert via email
+   * Get channel key for deduplication and rate limiting
    */
-  async send(alert: Alert): Promise<void> {
+  protected getChannelKey(): string {
+    return 'email'
+  }
+
+  /**
+   * Internal send method
+   */
+  protected async sendInternal(alert: Alert): Promise<void> {
     const message = this.buildEmailMessage(alert)
 
     // Try to send via nodemailer if available
@@ -68,10 +109,10 @@ export class EmailAlertChannel implements AlertChannel {
         const nodemailer = require('nodemailer')
 
         this.transporter = nodemailer.createTransport({
-          host: this.config.host,
-          port: this.config.port,
-          secure: this.config.secure,
-          auth: this.config.auth,
+          host: this.emailConfig.host,
+          port: this.emailConfig.port,
+          secure: this.emailConfig.secure,
+          auth: this.emailConfig.auth,
         })
       } catch {
         // nodemailer not available, will use console fallback
@@ -81,7 +122,7 @@ export class EmailAlertChannel implements AlertChannel {
     if (this.transporter) {
       try {
         await this.transporter.sendMail({
-          from: this.config.from,
+          from: this.emailConfig.from,
           to: message.to,
           subject: message.subject,
           text: message.text,
@@ -92,6 +133,7 @@ export class EmailAlertChannel implements AlertChannel {
         return
       } catch (error) {
         console.error(`[EmailAlert] Failed to send:`, error)
+        throw error
       }
     }
 
@@ -128,16 +170,16 @@ export class EmailAlertChannel implements AlertChannel {
    * Get recipients based on priority
    */
   private getRecipients(priority: string): string[] {
-    const configPriority = priority as keyof typeof this.config.recipients
-    const recipients = this.config.recipients[configPriority]
+    const configPriority = priority as keyof typeof this.emailConfig.recipients
+    const recipients = this.emailConfig.recipients[configPriority]
 
     if (!recipients) {
-      return this.config.recipients.P3 || []
+      return this.emailConfig.recipients.P3 || []
     }
 
-    if (this.config.recipients.all) {
+    if (this.emailConfig.recipients.all) {
       // Use Array.from instead of spread to avoid downlevelIteration issue
-      return Array.from(new Set([...recipients, ...this.config.recipients.all]))
+      return Array.from(new Set([...recipients, ...this.emailConfig.recipients.all]))
     }
 
     return recipients
@@ -172,7 +214,7 @@ export class EmailAlertChannel implements AlertChannel {
       ``,
     ]
 
-    if (this.config.includeContext && alert.context) {
+    if (this.emailConfig.includeContext && alert.context) {
       lines.push(`────────────────── CONTEXT ──────────────────`)
       lines.push(...this.formatContext(alert.context))
       lines.push(``)
@@ -252,7 +294,7 @@ export class EmailAlertChannel implements AlertChannel {
       <p>${alert.message}</p>
 
       ${
-        this.config.includeContext && alert.context
+        this.emailConfig.includeContext && alert.context
           ? `
         <h3>Context</h3>
         <pre>${JSON.stringify(alert.context, null, 2)}</pre>
@@ -356,10 +398,10 @@ export class EmailAlertChannel implements AlertChannel {
       const nodemailer = await import('nodemailer')
 
       const testTransport = nodemailer.createTransport({
-        host: this.config.host,
-        port: this.config.port,
-        secure: this.config.secure,
-        auth: this.config.auth,
+        host: this.emailConfig.host,
+        port: this.emailConfig.port,
+        secure: this.emailConfig.secure,
+        auth: this.emailConfig.auth,
       })
 
       await testTransport.verify()
@@ -375,14 +417,23 @@ export class EmailAlertChannel implements AlertChannel {
    * Update configuration
    */
   updateConfig(config: Partial<EmailChannelConfig>): void {
-    this.config = { ...this.config, ...config }
+    this.emailConfig = { ...this.emailConfig, ...config }
+
+    // Update base config
+    super.updateConfig({
+      retry: config.retry,
+      dedup: config.dedup,
+      rateLimit: config.rateLimit,
+      severityFilter: config.severityFilter,
+      priorityFilter: config.priorityFilter,
+    })
   }
 
   /**
    * Get configuration
    */
   getConfig(): EmailChannelConfig {
-    return { ...this.config }
+    return { ...this.emailConfig }
   }
 }
 
