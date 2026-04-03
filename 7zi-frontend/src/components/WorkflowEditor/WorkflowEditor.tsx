@@ -3,10 +3,18 @@
  *
  * 🎨 设计师: Designer
  * 创建日期: 2026-04-01
- * 版本: v1.9.0
+ * 版本: v1.9.1 (2026-04-03)
  *
  * 主编辑器组件，集成 React Flow 画布、节点面板、属性面板等
  * 支持撤销/重做、键盘快捷键、自动保存
+ * 
+ * v1.9.1 更新:
+ * - 新增循环节点 (Loop)
+ * - 新增子工作流节点 (Subworkflow)
+ * - 新增数据转换节点 (Transform)
+ * - 新增节点搜索功能
+ * - 新增导出/导入功能
+ * - 优化移动端支持
  */
 
 import React, { useCallback, useMemo, useState, useEffect } from 'react'
@@ -24,6 +32,8 @@ import ReactFlow, {
   MiniMap,
   Panel,
   BackgroundVariant,
+  useReactFlow,
+  ReactFlowProvider,
 } from 'reactflow'
 
 import 'reactflow/dist/style.css'
@@ -36,8 +46,7 @@ import { ExecutionPanel } from './ExecutionPanel'
 import { ValidationPanel } from './ValidationPanel'
 
 // 导入类型
-import type { NodeType, WorkflowNodeData, WorkflowEdgeData } from './types'
-import type { WorkflowDefinition } from './stores/workflow-editor-store'
+import type { NodeType, WorkflowNodeData, WorkflowEdgeData, WorkflowDefinition } from './types'
 
 // 导入带撤销/重做的 store
 import {
@@ -46,15 +55,7 @@ import {
 } from './stores/workflow-editor-store'
 
 // 导入节点类型
-import {
-  startNodeType,
-  endNodeType,
-  agentNodeType,
-  conditionNodeType,
-  parallelNodeType,
-  waitNodeType,
-  humanInputNodeType,
-} from './NodeTypes'
+import { nodeTypes } from './NodeTypes'
 
 // 导入边类型
 import { conditionalEdgeType, animatedEdgeType } from './EdgeTypes'
@@ -64,18 +65,7 @@ import { useWorkflowValidation } from './hooks/useWorkflowValidation'
 import { useWorkflowExecution } from './hooks/useWorkflowExecution'
 
 // 导入常量
-import { NODE_TEMPLATES } from './constants'
-
-// 节点类型注册
-const nodeTypes = {
-  start: startNodeType,
-  end: endNodeType,
-  agent: agentNodeType,
-  condition: conditionNodeType,
-  parallel: parallelNodeType,
-  wait: waitNodeType,
-  humanInput: humanInputNodeType,
-}
+import { NODE_TEMPLATES, CANVAS_CONFIG, EDITOR_VERSION } from './constants'
 
 // 边类型注册
 const edgeTypes = {
@@ -88,22 +78,27 @@ interface WorkflowEditorProps {
   initialNodes?: Node<WorkflowNodeData>[]
   initialEdges?: Edge<WorkflowEdgeData>[]
   onSave?: (workflow: WorkflowDefinition) => void
+  onExport?: (exportData: any) => void
+  onImport?: (workflow: WorkflowDefinition) => void
   readOnly?: boolean
 }
 
 /**
  * WorkflowEditor 主组件
  */
-export function WorkflowEditor({
+function WorkflowEditorInner({
   workflowId,
   initialNodes = [],
   initialEdges = [],
   onSave,
+  onExport,
+  onImport,
   readOnly = false,
 }: WorkflowEditorProps) {
   // 使用新的 store
   const store = useWorkflowEditorStore()
   const { undo, redo, canUndo, canRedo } = useUndoRedo()
+  const { fitView, zoomIn, zoomOut } = useReactFlow()
 
   // 本地状态
   const [nodes, setNodes] = useState<Node<WorkflowNodeData>[]>(initialNodes)
@@ -118,6 +113,19 @@ export function WorkflowEditor({
   const { executionState, isExecuting, startExecution, stopExecution, logs } = useWorkflowExecution(
     { workflowId, nodes, edges }
   )
+
+  // 当前工作流定义
+  const currentWorkflow: WorkflowDefinition = useMemo(() => ({
+    id: workflowId || `workflow-${Date.now()}`,
+    name: 'Untitled Workflow',
+    nodes: nodes.map(n => n.data),
+    edges: edges.map(e => ({
+      id: e.id,
+      source: e.source,
+      target: e.target,
+      conditionConfig: e.data?.conditionConfig,
+    })),
+  }), [workflowId, nodes, edges])
 
   // 处理节点变化
   const onNodesChange = useCallback(
@@ -218,8 +226,13 @@ export function WorkflowEditor({
     const workflow: WorkflowDefinition = {
       id: workflowId || `workflow-${Date.now()}`,
       name: 'Untitled Workflow',
-      nodes: nodes,
-      edges: edges,
+      nodes: nodes.map(n => n.data),
+      edges: edges.map(e => ({
+        id: e.id,
+        source: e.source,
+        target: e.target,
+        conditionConfig: e.data?.conditionConfig,
+      })),
     }
 
     if (onSave) {
@@ -239,6 +252,37 @@ export function WorkflowEditor({
     }
     startExecution()
   }, [validateWorkflow, startExecution])
+
+  // 导入工作流
+  const handleImport = useCallback(
+    (workflow: WorkflowDefinition) => {
+      // 将工作流转换为 React Flow 格式
+      const newNodes: Node<WorkflowNodeData>[] = workflow.nodes.map((nodeData, index) => ({
+        id: nodeData.id || `node-${index}`,
+        type: nodeData.type as NodeType,
+        position: { x: index * 250, y: 0 },
+        data: nodeData,
+      }))
+
+      const newEdges: Edge<WorkflowEdgeData>[] = workflow.edges.map(edge => ({
+        id: edge.id,
+        source: edge.source,
+        target: edge.target,
+        data: edge.conditionConfig ? { id: edge.id, source: edge.source, target: edge.target, conditionConfig: edge.conditionConfig } : undefined,
+      }))
+
+      setNodes(newNodes)
+      setEdges(newEdges)
+
+      if (onImport) {
+        onImport(workflow)
+      }
+
+      // 自动适配视图
+      setTimeout(() => fitView({ padding: 0.2 }), 100)
+    },
+    [onImport, fitView]
+  )
 
   // 键盘快捷键处理
   useEffect(() => {
@@ -292,11 +336,32 @@ export function WorkflowEditor({
         setSelectedEdge(null)
         return
       }
+
+      // Ctrl+= - 放大
+      if ((event.ctrlKey || event.metaKey) && (event.key === '=' || event.key === '+')) {
+        event.preventDefault()
+        zoomIn()
+        return
+      }
+
+      // Ctrl+- - 缩小
+      if ((event.ctrlKey || event.metaKey) && event.key === '-') {
+        event.preventDefault()
+        zoomOut()
+        return
+      }
+
+      // Ctrl+0 - 重置缩放
+      if ((event.ctrlKey || event.metaKey) && event.key === '0') {
+        event.preventDefault()
+        fitView()
+        return
+      }
     }
 
     window.addEventListener('keydown', handleKeyDown)
     return () => window.removeEventListener('keydown', handleKeyDown)
-  }, [readOnly, selectedNode, canUndo, canRedo, undo, redo, handleSave, handleRun])
+  }, [readOnly, selectedNode, canUndo, canRedo, undo, redo, handleSave, handleRun, zoomIn, zoomOut, fitView])
 
   // 节点颜色映射（用于 MiniMap）
   const nodeColor = useCallback((node: Node) => {
@@ -314,7 +379,13 @@ export function WorkflowEditor({
       case 'wait':
         return '#06B6D4'
       case 'humanInput':
-        return '#F97316' // Orange 500
+        return '#F97316'
+      case 'loop':
+        return '#EC4899' // v1.9.1: 循环节点颜色
+      case 'subworkflow':
+        return '#14B8A6' // v1.9.1: 子工作流节点颜色
+      case 'transform':
+        return '#84CC16' // v1.9.1: 数据转换节点颜色
       default:
         return '#94A3B8'
     }
@@ -327,6 +398,9 @@ export function WorkflowEditor({
         onSave={handleSave}
         onRun={handleRun}
         onValidate={validateWorkflow}
+        onExport={onExport}
+        onImport={handleImport}
+        workflow={currentWorkflow}
         isExecuting={isExecuting}
         readOnly={readOnly}
         hasErrors={validationErrors.length > 0}
@@ -368,9 +442,12 @@ export function WorkflowEditor({
             fitView
             deleteKeyCode={readOnly ? null : 'Delete'}
             snapToGrid
-            snapGrid={[20, 20]}
+            snapGrid={[CANVAS_CONFIG.GRID_SIZE, CANVAS_CONFIG.GRID_SIZE]}
+            minZoom={CANVAS_CONFIG.MIN_ZOOM}
+            maxZoom={CANVAS_CONFIG.MAX_ZOOM}
+            defaultViewport={{ x: 0, y: 0, zoom: CANVAS_CONFIG.DEFAULT_ZOOM }}
           >
-            <Background variant={BackgroundVariant.Dots} gap={20} size={1} />
+            <Background variant={BackgroundVariant.Dots} gap={CANVAS_CONFIG.GRID_SIZE} size={1} />
             <Controls showInteractive={false} />
             <MiniMap
               nodeColor={nodeColor}
@@ -386,16 +463,21 @@ export function WorkflowEditor({
               </Panel>
             )}
 
-            {/* 撤销/重做提示 */}
+            {/* 版本和快捷键提示 */}
             <Panel position="bottom-left" className="m-2">
-              <div className="flex items-center gap-2 rounded bg-white/90 px-2 py-1 text-xs text-gray-500 shadow dark:bg-gray-800/90 dark:text-gray-400">
-                <span className={canUndo ? 'text-gray-700 dark:text-gray-300' : 'opacity-50'}>
-                  ↩️ Ctrl+Z
-                </span>
-                <span>|</span>
-                <span className={canRedo ? 'text-gray-700 dark:text-gray-300' : 'opacity-50'}>
-                  ↪️ Ctrl+Y
-                </span>
+              <div className="flex flex-col gap-1 rounded bg-white/90 px-2 py-1 text-xs text-gray-500 shadow dark:bg-gray-800/90 dark:text-gray-400">
+                <div className="flex items-center gap-2">
+                  <span className={canUndo ? 'text-gray-700 dark:text-gray-300' : 'opacity-50'}>
+                    ↩️ Ctrl+Z
+                  </span>
+                  <span>|</span>
+                  <span className={canRedo ? 'text-gray-700 dark:text-gray-300' : 'opacity-50'}>
+                    ↪️ Ctrl+Y
+                  </span>
+                </div>
+                <div className="text-gray-400 dark:text-gray-500">
+                  v{EDITOR_VERSION}
+                </div>
               </div>
             </Panel>
           </ReactFlow>
@@ -440,6 +522,17 @@ export function WorkflowEditor({
         executionStatus={executionState?.instance?.status}
       />
     </div>
+  )
+}
+
+/**
+ * 导出包装组件（带 ReactFlowProvider）
+ */
+export function WorkflowEditor(props: WorkflowEditorProps) {
+  return (
+    <ReactFlowProvider>
+      <WorkflowEditorInner {...props} />
+    </ReactFlowProvider>
   )
 }
 

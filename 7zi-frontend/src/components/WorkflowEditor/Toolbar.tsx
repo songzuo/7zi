@@ -2,15 +2,21 @@
  * Toolbar - 工具栏
  *
  * 顶部工具栏，包含保存、运行、验证、撤销、重做等操作
+ * v1.9.1 更新: 新增导出/导入功能
  */
 
 import React from 'react'
 import { useUndoRedo } from './stores/workflow-editor-store'
+import { WorkflowExporter } from './WorkflowExporter'
+import type { WorkflowDefinition } from './types'
 
 interface ToolbarProps {
   onSave: () => void
   onRun: () => void
   onValidate: () => void
+  onExport?: (exportData: any) => void
+  onImport?: (workflow: WorkflowDefinition) => void
+  workflow?: WorkflowDefinition
   isExecuting?: boolean
   readOnly?: boolean
   hasErrors?: boolean
@@ -20,6 +26,9 @@ export function Toolbar({
   onSave,
   onRun,
   onValidate,
+  onExport,
+  onImport,
+  workflow,
   isExecuting = false,
   readOnly = false,
   hasErrors = false,
@@ -63,6 +72,15 @@ export function Toolbar({
 
       {/* 右侧：操作按钮 */}
       <div className="flex items-center gap-2">
+        {/* v1.9.1: 导出/导入 */}
+        {workflow && (
+          <WorkflowExporter
+            workflow={workflow}
+            onExport={onExport}
+            onImport={onImport}
+          />
+        )}
+
         {/* 验证按钮 */}
         <button
           onClick={onValidate}

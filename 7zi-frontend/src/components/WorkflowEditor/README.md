@@ -1,6 +1,22 @@
-# WorkflowEditor - 可视化工作流编辑器 v1.9.0
+# WorkflowEditor - 可视化工作流编辑器 v1.9.1
 
 基于 React Flow 的工作流可视化编辑器，支持拖拽节点创建工作流，包含完整的撤销/重做功能。
+
+## 🎉 v1.9.1 新功能
+
+### 新增节点类型
+
+- **Loop** - 循环节点，支持计数循环、条件循环、集合循环
+- **Subworkflow** - 子工作流节点，用于调用和执行子工作流
+- **Transform** - 数据转换节点，支持数据转换和处理
+
+### 新增功能
+
+- **节点搜索** - 在节点面板中快速搜索和过滤节点
+- **导出/导入** - 支持将工作流导出为 JSON 文件，或从 JSON 文件导入
+- **表达式编辑器** - 带语法高亮的表达式编辑器，支持变量自动完成
+- **自定义节点注册** - 支持动态注册自定义节点类型
+- **移动端优化** - 改进的响应式设计，更好的移动端支持
 
 ## 功能特性
 
@@ -12,7 +28,7 @@
 - ✅ 工作流验证
 - ✅ 执行监控（模拟实现）
 - ✅ 键盘快捷键
-- ✅ **撤销/重做功能**（新增）
+- ✅ 撤销/重做功能
 - ✅ 深色模式支持
 - ✅ 响应式设计
 
@@ -24,6 +40,10 @@
 - **Condition** - 条件分支
 - **Parallel** - 并行执行
 - **Wait** - 等待时间或事件
+- **Human Input** - 等待人工输入
+- **Loop** - 循环执行（v1.9.1 新增）
+- **Subworkflow** - 调用子工作流（v1.9.1 新增）
+- **Transform** - 数据转换（v1.9.1 新增）
 
 ## 安装
 
@@ -78,6 +98,63 @@ function App() {
 <WorkflowEditor workflowId="view-workflow" readOnly={true} />
 ```
 
+### 导出/导入工作流（v1.9.1）
+
+```tsx
+import { WorkflowEditor } from '@/components/WorkflowEditor'
+
+function App() {
+  const handleExport = (exportData) => {
+    console.log('Exported:', exportData)
+    // exportData 包含版本信息和完整工作流数据
+  }
+
+  const handleImport = (workflow) => {
+    console.log('Imported:', workflow)
+    // workflow 是导入的工作流定义
+  }
+
+  return (
+    <WorkflowEditor
+      onExport={handleExport}
+      onImport={handleImport}
+    />
+  )
+}
+```
+
+### 自定义节点注册（v1.9.1）
+
+```tsx
+import { useCustomNodes } from '@/components/WorkflowEditor'
+
+function MyCustomNode({ data, selected }) {
+  return (
+    <div className={`custom-node ${selected ? 'selected' : ''}`}>
+      <div>{data.label}</div>
+    </div>
+  )
+}
+
+function App() {
+  const { registerNode } = useCustomNodes()
+
+  useEffect(() => {
+    registerNode({
+      type: 'myCustom',
+      label: 'My Custom Node',
+      icon: '🎯',
+      description: '自定义节点',
+      category: 'custom',
+      defaultConfig: {},
+      render: MyCustomNode,
+    })
+  }, [registerNode])
+
+  return <WorkflowEditor />
+}
+```
+
 ## 键盘快捷键
 
 | 快捷键             | 功能         |
@@ -86,9 +163,12 @@ function App() {
 | Ctrl+Enter         | 运行工作流   |
 | Ctrl+Shift+V       | 验证工作流   |
 | Delete / Backspace | 删除选中节点 |
-| **Ctrl+Z**         | **撤销**     |
-| **Ctrl+Y**         | **重做**     |
+| Ctrl+Z             | 撤销         |
+| Ctrl+Y             | 重做         |
 | Escape             | 取消选择     |
+| Ctrl+=             | 放大         |
+| Ctrl+-             | 缩小         |
+| Ctrl+0             | 重置缩放     |
 
 ## 撤销/重做功能
 
@@ -126,24 +206,33 @@ function MyComponent() {
 }
 ```
 
-### Store API
+## 表达式编辑器（v1.9.1）
 
-```typescript
-import {
-  useWorkflowEditorStore,
-  useUndoRedo,
-} from '@/components/WorkflowEditor'
+### 功能说明
 
-// 使用主 store
-const store = useWorkflowEditorStore()
+表达式编辑器提供语法高亮和自动完成功能：
 
-// 使用撤销/重做 hook
-const { undo, redo, canUndo, canRedo } = useUndoRedo()
+- **语法高亮**: 支持 JavaScript 表达式语法
+- **变量自动完成**: 输入 `{{` 时自动显示可用变量
+- **多语言支持**: JavaScript、JSON、表达式模式
 
-// 操作示例
-store.addNode(newNode)
-undo() // 撤销添加节点
-redo() // 重做添加节点
+### 使用示例
+
+```tsx
+import { ExpressionEditor } from '@/components/WorkflowEditor'
+
+function MyForm() {
+  const [expression, setExpression] = useState('return data * 2')
+
+  return (
+    <ExpressionEditor
+      value={expression}
+      onChange={setExpression}
+      language="javascript"
+      variables={['data', 'index', 'count']}
+    />
+  )
+}
 ```
 
 ## 组件结构
@@ -152,17 +241,24 @@ redo() // 重做添加节点
 WorkflowEditor/
 ├── WorkflowEditor.tsx          # 主编辑器组件
 ├── Toolbar.tsx                 # 工具栏（含撤销/重做按钮）
-├── NodePalette.tsx             # 节点面板
+├── NodePalette.tsx             # 节点面板（含搜索功能）
 ├── StatusBar.tsx               # 状态栏
 ├── ExecutionPanel.tsx          # 执行面板
 ├── ValidationPanel.tsx        # 验证面板
+├── ExpressionEditor.tsx        # 表达式编辑器（v1.9.1）
+├── WorkflowExporter.tsx        # 导出/导入组件（v1.9.1）
 ├── NodeTypes/                  # 节点类型
 │   ├── StartNode.tsx
 │   ├── EndNode.tsx
 │   ├── AgentNode.tsx
 │   ├── ConditionNode.tsx
 │   ├── ParallelNode.tsx
-│   └── WaitNode.tsx
+│   ├── WaitNode.tsx
+│   ├── HumanInputNode.tsx
+│   ├── LoopNode.tsx            # v1.9.1
+│   ├── SubworkflowNode.tsx     # v1.9.1
+│   ├── TransformNode.tsx       # v1.9.1
+│   └── index.tsx
 ├── EdgeTypes/                  # 边类型
 │   └── index.ts
 ├── PropertiesPanel/            # 属性面板
@@ -170,7 +266,9 @@ WorkflowEditor/
 │   └── index.ts
 ├── hooks/                      # 自定义 Hooks
 │   ├── useWorkflowValidation.ts
-│   └── useWorkflowExecution.ts
+│   ├── useWorkflowExecution.ts
+│   ├── useCustomNodes.ts       # v1.9.1
+│   └── useWorkflowExport.ts    # v1.9.1
 ├── stores/                     # 状态管理
 │   ├── workflow-store.ts       # 基础 store
 │   └── workflow-editor-store.ts # 带撤销/重做的 store
@@ -179,7 +277,9 @@ WorkflowEditor/
 ├── index.ts                    # 导出
 └── __tests__/                  # 测试文件
     ├── workflow-editor-store.test.ts
-    └── ...
+    ├── LoopNode.test.tsx       # v1.9.1
+    ├── SubworkflowNode.test.tsx # v1.9.1
+    └── TransformNode.test.tsx  # v1.9.1
 ```
 
 ## 与后端集成
@@ -315,6 +415,8 @@ export const NODE_COLORS = {
 - Agent 节点必须配置 agentType
 - Condition 节点必须配置条件表达式
 - Wait 节点必须配置等待类型
+- Loop 节点必须配置循环类型（v1.9.1）
+- Subworkflow 节点必须配置子工作流 ID（v1.9.1）
 
 ## 测试
 
@@ -339,6 +441,9 @@ pnpm test --watch
 - ✅ 视图操作测试
 - ✅ 状态标记测试
 - ✅ 重置操作测试
+- ✅ Loop 节点测试（v1.9.1）
+- ✅ Subworkflow 节点测试（v1.9.1）
+- ✅ Transform 节点测试（v1.9.1）
 
 ## 开发计划
 
@@ -360,7 +465,7 @@ pnpm test --watch
 - [x] 节点拖放
 - [x] 边连接
 - [x] 快捷键
-- [x] **撤销/重做** ✨
+- [x] 撤销/重做 ✨
 
 ### Phase 4: 执行集成 🔄
 
@@ -369,7 +474,17 @@ pnpm test --watch
 - [ ] 集成 EnhancedWorkflowExecutor
 - [ ] WebSocket 实时更新
 
-### Phase 5: 优化 📋
+### Phase 5: v1.9.1 新功能 ✅
+
+- [x] 循环节点
+- [x] 子工作流节点
+- [x] 数据转换节点
+- [x] 节点搜索
+- [x] 导出/导入
+- [x] 表达式编辑器
+- [x] 自定义节点注册
+
+### Phase 6: 优化 📋
 
 - [ ] 性能优化
 - [ ] 响应式适配
@@ -377,6 +492,24 @@ pnpm test --watch
 - [ ] 单元测试
 
 ## 版本历史
+
+### v1.9.1 (2026-04-03)
+
+**新增功能**:
+- ✨ 新增循环节点（Loop）
+- ✨ 新增子工作流节点（Subworkflow）
+- ✨ 新增数据转换节点（Transform）
+- ✨ 节点面板新增搜索功能
+- ✨ 新增导出/导入功能
+- ✨ 新增表达式编辑器
+- ✨ 支持自定义节点注册
+- ✨ 优化移动端支持
+
+**改进**:
+- 📝 更新文档说明
+- 🧪 添加新节点测试用例
+- 🔧 优化类型定义
+- 🎨 改进 UI/UX
 
 ### v1.9.0 (2026-04-03)
 
@@ -408,5 +541,5 @@ MIT
 ---
 
 **创建者**: 🎨 设计师
-**版本**: v1.9.0
+**版本**: v1.9.1
 **日期**: 2026-04-03

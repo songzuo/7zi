@@ -15,10 +15,10 @@ export const test = base.extend<TestFixtures>({
   // Create authenticated page
   authenticatedPage: async ({ page }, use) => {
     // Perform login
-    await page.goto('/')
-    await page.getByLabel('用户名或邮箱').fill('test@example.com')
+    await page.goto('/login')
+    await page.getByLabel(/用户名|邮箱/).fill('test@example.com')
     await page.getByLabel('密码', { exact: true }).fill('Test123456!')
-    await page.getByRole('button', { name: '登录' }).click()
+    await page.getByRole('button', { name: /登录|Login/ }).click()
     await expect(page).toHaveURL(/dashboard|home/)
     await use(page)
   },

@@ -43,6 +43,8 @@ vi.mock('reactflow', () => {
           children
         )
     ),
+    ReactFlowProvider: ({ children }: { children: React.ReactNode }) =>
+      React.createElement('div', { 'data-testid': 'react-flow-provider' }, children),
     useNodesState: vi.fn(initial => [initial, vi.fn(), vi.fn()]),
     useEdgesState: vi.fn(initial => [initial, vi.fn(), vi.fn()]),
     addEdge: vi.fn((connection, edges) => [...edges, { ...connection, id: `e-${Date.now()}` }]),
@@ -51,6 +53,18 @@ vi.mock('reactflow', () => {
     MiniMap: () => React.createElement('div', { 'data-testid': 'minimap' }),
     Panel: ({ children }: { children: React.ReactNode }) =>
       React.createElement('div', { 'data-testid': 'panel' }, children),
+    useReactFlow: vi.fn(() => ({
+      zoomIn: vi.fn(),
+      zoomOut: vi.fn(),
+      fitView: vi.fn(),
+      getViewport: vi.fn(() => ({ x: 0, y: 0, zoom: 1 })),
+      setViewport: vi.fn(),
+    })),
+    BackgroundVariant: {
+      Dots: 'dots',
+      Lines: 'lines',
+      Cross: 'cross',
+    },
   }
 })
 

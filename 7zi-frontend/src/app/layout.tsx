@@ -30,7 +30,10 @@ const jsonLd = {
 
 export const metadata: Metadata = {
   metadataBase: new URL(process.env.NEXT_PUBLIC_SITE_URL || 'https://7zi.com'),
-  title: '7zi Frontend - 图片优化示例',
+  title: {
+    default: '7zi Frontend - 图片优化示例',
+    template: '%s | 7zi Frontend',
+  },
   description: 'Next.js 图片优化最佳实践展示',
   keywords: ['Next.js', 'Image Optimization', 'WebP', 'AVIF', 'Performance'],
   openGraph: {

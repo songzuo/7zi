@@ -46,10 +46,14 @@ export async function checkToast(page: Page, message: string) {
  * Clear local storage
  */
 export async function clearStorage(page: Page) {
-  await page.evaluate(() => {
-    localStorage.clear()
-    sessionStorage.clear()
-  })
+  try {
+    await page.evaluate(() => {
+      localStorage.clear()
+      sessionStorage.clear()
+    })
+  } catch {
+    // Ignore errors if localStorage is not accessible (e.g., on about:blank)
+  }
 }
 
 /**

@@ -1,10 +1,18 @@
 /**
  * WorkflowEditor 类型定义
- *
+ * 
+ * 版本: v1.9.1
+ * 更新日期: 2026-04-03
+ * 
  * 定义工作流编辑器中使用的所有 TypeScript 类型
  */
 
-// 定义本地类型替代 @/types/workflow
+import type { NodeProps } from 'reactflow'
+
+// ============================================
+// 后端类型定义
+// ============================================
+
 export interface BackendWorkflowNode {
   id: string
   type: string
@@ -59,20 +67,35 @@ export interface WorkflowVariable {
   type: string
 }
 
-import type { Edge, Node } from 'reactflow'
-// import type {
-//   WorkflowNode as BackendWorkflowNode,
-//   WorkflowEdge as BackendWorkflowEdge,
-//   WorkflowInstance,
-//   NodeStatus,
-//   NodeExecutionResult,
-//   WorkflowVariable,
-// } from '@/types/workflow';
+// ============================================
+// 节点类型定义 (v1.9.1 扩展)
+// ============================================
 
 /**
  * 节点类型枚举
+ * v1.9.1 新增: loop, subworkflow, transform
  */
-export type NodeType = 'start' | 'end' | 'agent' | 'condition' | 'parallel' | 'wait' | 'humanInput'
+export type NodeType =
+  | 'start'
+  | 'end'
+  | 'agent'
+  | 'condition'
+  | 'parallel'
+  | 'wait'
+  | 'humanInput'
+  | 'loop' // v1.9.1: 循环节点
+  | 'subworkflow' // v1.9.1: 子工作流节点
+  | 'transform' // v1.9.1: 数据转换节点
+
+/**
+ * 节点类别
+ * v1.9.1 新增: custom 类别
+ */
+export type NodeCategory = 'basic' | 'agent' | 'logic' | 'flow' | 'custom'
+
+// ============================================
+// 工作流数据类型
+// ============================================
 
 /**
  * 工作流节点数据（React Flow）
@@ -139,9 +162,28 @@ export interface NodeConfig {
   // 并行配置
   maxConcurrency?: number
 
+  // 循环配置 (v1.9.1)
+  loopType?: 'count' | 'condition' | 'collection'
+  loopCount?: number
+  loopCondition?: string
+  collectionPath?: string
+  iterationVariable?: string
+
+  // 子工作流配置 (v1.9.1)
+  subworkflowId?: string
+  subworkflowInputs?: Record<string, unknown>
+
+  // 数据转换配置 (v1.9.1)
+  transformExpression?: string
+  outputFormat?: 'json' | 'xml' | 'csv' | 'text'
+
   // 通用配置
   enabled?: boolean
 }
+
+// ============================================
+// 验证相关类型
+// ============================================
 
 /**
  * 验证错误
@@ -161,6 +203,10 @@ export interface ValidationResult {
   valid: boolean
   errors: ValidationError[]
 }
+
+// ============================================
+// 执行相关类型
+// ============================================
 
 /**
  * 执行状态
@@ -187,6 +233,10 @@ export interface ExecutionLog {
   data?: unknown
 }
 
+// ============================================
+// 节点模板和属性配置
+// ============================================
+
 /**
  * 节点模板
  */
@@ -195,7 +245,7 @@ export interface NodeTemplate {
   label: string
   icon: string
   description: string
-  category: 'basic' | 'agent' | 'logic' | 'flow'
+  category: NodeCategory
   defaultConfig: NodeConfig
 }
 
@@ -205,7 +255,7 @@ export interface NodeTemplate {
 export interface PropertyField {
   name: string
   label: string
-  type: 'text' | 'number' | 'select' | 'textarea' | 'boolean' | 'code' | 'json'
+  type: 'text' | 'number' | 'select' | 'textarea' | 'boolean' | 'code' | 'json' | 'expression'
   description?: string
   required?: boolean
   options?: Array<{ value: string; label: string }>
@@ -229,6 +279,61 @@ export interface NodePropertiesConfig {
   groups: PropertyGroup[]
   validation?: (data: WorkflowNodeData) => ValidationResult
 }
+
+// ============================================
+// v1.9.1 新增: 自定义节点注册
+// ============================================
+
+/**
+ * 自定义节点注册配置 (v1.9.1)
+ */
+export interface CustomNodeRegistration {
+  type: string
+  label: string
+  icon: string
+  description: string
+  category: NodeCategory
+  defaultConfig: NodeConfig
+  propertiesConfig?: NodePropertiesConfig
+  render?: React.ComponentType<NodeProps<WorkflowNodeData>>
+}
+
+// ============================================
+// v1.9.1 新增: 导出/导入类型
+// ============================================
+
+/**
+ * 工作流导出格式 (v1.9.1)
+ */
+export interface WorkflowExport {
+  version: '1.9.1'
+  exportedAt: string
+  workflow: WorkflowDefinition
+  metadata?: {
+    name?: string
+    description?: string
+    author?: string
+    tags?: string[]
+  }
+}
+
+/**
+ * 工作流定义
+ */
+export interface WorkflowDefinition {
+  id: string
+  name: string
+  description?: string
+  nodes: WorkflowNodeData[]
+  edges: WorkflowEdgeData[]
+  variables?: WorkflowVariable[]
+  createdAt?: string
+  updatedAt?: string
+}
+
+// ============================================
+// 统计类型
+// ============================================
 
 /**
  * 工作流统计
