@@ -565,7 +565,7 @@ function WorkflowEditorInner({
             <PropertiesPanel
               node={selectedNode}
               edge={selectedEdge}
-              onChange={data => {
+              onNodeChange={data => {
                 if (selectedNode) {
                   setNodes(nds =>
                     nds.map(n =>
@@ -587,13 +587,13 @@ function WorkflowEditorInner({
                   )
                 }
               }}
-              onDeleteNode={() => {
+              onNodeDelete={() => {
                 if (selectedNode && selectedNode.data.type !== 'start') {
                   setNodes(nds => nds.filter(n => n.id !== selectedNode.id))
                   setSelectedNode(null)
                 }
               }}
-              onDuplicateNode={() => {
+              onNodeDuplicate={() => {
                 handleDuplicateNode()
               }}
               validationErrors={validationErrors}

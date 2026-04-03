@@ -83,7 +83,7 @@ interface WorkflowEditorV110Props {
   initialNodes?: Node<WorkflowNodeData>[]
   initialEdges?: Edge<WorkflowEdgeData>[]
   onSave?: (workflow: WorkflowDefinition) => void
-  onExport?: (exportData: any) => void
+  onExport?: (exportData: WorkflowDefinition) => void
   onImport?: (workflow: WorkflowDefinition) => void
   readOnly?: boolean
   maxHistorySize?: number
@@ -838,7 +838,7 @@ function WorkflowEditorV110Inner({
           <div className="w-80 border-l border-gray-200 bg-white dark:border-gray-700 dark:bg-gray-800">
             <PropertiesPanel
               node={selectedNode}
-              onChange={(data) => {
+              onNodeChange={(data) => {
                 saveToHistory()
                 setLocalNodes((nds) =>
                   nds.map((n) =>
@@ -847,6 +847,28 @@ function WorkflowEditorV110Inner({
                       : n
                   )
                 )
+              }}
+              onNodeDelete={() => {
+                if (selectedNode && selectedNode.data.type !== 'start') {
+                  setLocalNodes(nds => nds.filter(n => n.id !== selectedNode.id))
+                }
+              }}
+              onNodeDuplicate={() => {
+                // 复制节点逻辑
+                const newNode = {
+                  ...selectedNode,
+                  id: `${selectedNode.type}-${Date.now()}`,
+                  position: {
+                    x: selectedNode.position.x + 50,
+                    y: selectedNode.position.y + 50,
+                  },
+                  data: {
+                    ...selectedNode.data,
+                    id: `${selectedNode.type}-${Date.now()}`,
+                    label: `${selectedNode.data.label} (copy)`,
+                  },
+                }
+                setLocalNodes(nds => [...nds, newNode as Node<WorkflowNodeData>])
               }}
             />
           </div>

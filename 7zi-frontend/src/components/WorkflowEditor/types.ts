@@ -122,15 +122,21 @@ export interface WorkflowNodeData {
 
 /**
  * 工作流边数据（React Flow）
+ * v1.10.0 更新: 新增样式配置支持
  */
 export interface WorkflowEdgeData {
   id: string
   source: string
   target: string
   conditionConfig?: {
+    edgeType?: 'default' | 'conditional' | 'animated'
     condition?: string | boolean
     label?: string
+    expression?: string
   }
+  // 样式配置
+  strokeColor?: string
+  strokeWidth?: number
 }
 
 /**
@@ -140,8 +146,9 @@ export interface NodeConfig {
   // Agent 配置
   agentType?: string
   agentId?: string
+  prompt?: string
   inputs?: Record<string, unknown>
-  outputMapping?: Record<string, string>
+  agentOutputMapping?: Record<string, string>
   timeout?: number
   retryConfig?: {
     maxRetries: number
@@ -163,22 +170,32 @@ export interface NodeConfig {
   maxConcurrency?: number
 
   // 循环配置 (v1.9.1)
-  loopType?: 'count' | 'condition' | 'collection'
+  loopType?: 'fixed' | 'while' | 'forEach' | 'count' | 'condition' | 'collection'
   loopCount?: number
   loopCondition?: string
+  loopArray?: string
   collectionPath?: string
   iterationVariable?: string
 
   // 子工作流配置 (v1.9.1)
   subworkflowId?: string
   subworkflowInputs?: Record<string, unknown>
+  subworkflowInputMapping?: string
+  subworkflowOutputMapping?: string
 
   // 数据转换配置 (v1.9.1)
+  transformType?: 'javascript' | 'jsonPath' | 'template'
+  transformScript?: string
+  jsonPath?: string
+  template?: string
   transformExpression?: string
   outputFormat?: 'json' | 'xml' | 'csv' | 'text'
 
   // 通用配置
   enabled?: boolean
+
+  // 参数管理
+  parameters?: Array<{ key: string; value: string }>
 }
 
 // ============================================
