@@ -75,6 +75,8 @@ vi.mock('reactflow', () => {
         ...connection,
       },
     ]),
+    applyNodeChanges: vi.fn((changes, nodes) => nodes),
+    applyEdgeChanges: vi.fn((changes, edges) => edges),
     useReactFlow: vi.fn(() => ({
       fitView: vi.fn(),
       zoomIn: vi.fn(),
@@ -91,8 +93,8 @@ vi.mock('reactflow', () => {
     Background: () => React.createElement('div', { 'data-testid': 'background' }),
     Controls: () => React.createElement('div', { 'data-testid': 'controls' }),
     MiniMap: () => React.createElement('div', { 'data-testid': 'minimap' }),
-    Handle: ({ type, position }: { type: string; position: string }) =>
-      React.createElement('div', { 'data-testid': `handle-${type}-${position}` }),
+    Handle: ({ type, position, id, className }: { type: string; position: string; id?: string; className?: string }) =>
+      React.createElement('div', { 'data-testid': `handle-${type}-${position}-${id || 'default'}`, className }),
     Position: {
       Top: 'top',
       Right: 'right',
@@ -104,6 +106,21 @@ vi.mock('reactflow', () => {
       Arrow: 'arrow',
       None: 'none',
     },
+    BackgroundVariant: {
+      Dots: 'dots',
+      Lines: 'lines',
+    },
+    SelectionMode: {
+      Partial: 'partial',
+      Full: 'full',
+    },
+    useSelection: vi.fn(() => ({
+      selectedNodes: [],
+      selectedEdges: [],
+    })),
+    Connection: vi.fn(),
+    Node: vi.fn(),
+    Edge: vi.fn(),
   }
 })
 

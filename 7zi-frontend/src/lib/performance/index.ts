@@ -142,7 +142,7 @@ export type {
 } from './budget-manager'
 
 // Advanced Types (from performance-monitoring)
-export type { MetricDataPoint } from './anomaly-detection/types'
+// Note: MetricDataPoint is already exported from metrics-types above
 
 export type {
   PerformanceContext,

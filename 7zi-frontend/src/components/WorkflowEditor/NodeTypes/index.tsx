@@ -2,10 +2,12 @@
  * NodeTypes - 节点类型注册
  *
  * 为 React Flow 定义自定义节点类型
+ * v1.9.1 新增: loop, subworkflow, transform 节点
  */
 
 import { memo } from 'react'
-import { Handle, Position, type NodeProps } from 'reactflow'
+import type { NodeProps } from 'reactflow'
+
 import { StartNode } from './StartNode'
 import { EndNode } from './EndNode'
 import { AgentNode } from './AgentNode'
@@ -13,6 +15,12 @@ import { ConditionNode } from './ConditionNode'
 import { ParallelNode } from './ParallelNode'
 import { WaitNode } from './WaitNode'
 import { HumanInputNode } from './HumanInputNode'
+
+// v1.9.1 新增节点
+import { LoopNode } from './LoopNode'
+import { SubworkflowNode } from './SubworkflowNode'
+import { TransformNode } from './TransformNode'
+
 import type { WorkflowNodeData } from '../types'
 
 /**
@@ -64,6 +72,28 @@ export const humanInputNodeType = memo((props: NodeProps<WorkflowNodeData>) => (
 humanInputNodeType.displayName = 'HumanInputNode'
 
 /**
+ * v1.9.1: Loop 节点类型
+ */
+export const loopNodeType = memo((props: NodeProps<WorkflowNodeData>) => <LoopNode {...props} />)
+loopNodeType.displayName = 'LoopNode'
+
+/**
+ * v1.9.1: Subworkflow 节点类型
+ */
+export const subworkflowNodeType = memo((props: NodeProps<WorkflowNodeData>) => (
+  <SubworkflowNode {...props} />
+))
+subworkflowNodeType.displayName = 'SubworkflowNode'
+
+/**
+ * v1.9.1: Transform 节点类型
+ */
+export const transformNodeType = memo((props: NodeProps<WorkflowNodeData>) => (
+  <TransformNode {...props} />
+))
+transformNodeType.displayName = 'TransformNode'
+
+/**
  * 导出所有节点类型
  */
 export const nodeTypes = {
@@ -74,4 +104,8 @@ export const nodeTypes = {
   parallel: parallelNodeType,
   wait: waitNodeType,
   humanInput: humanInputNodeType,
+  // v1.9.1 新增
+  loop: loopNodeType,
+  subworkflow: subworkflowNodeType,
+  transform: transformNodeType,
 }

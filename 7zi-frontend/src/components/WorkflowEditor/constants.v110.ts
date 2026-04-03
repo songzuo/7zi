@@ -1,9 +1,15 @@
 /**
- * 常量定义
+ * 常量定义 v1.10.0
  *
  * 🎨 设计师: Designer
- * 创建日期: 2026-04-01
- * 版本: v1.9.1 (2026-04-03)
+ * 创建日期: 2026-04-03
+ * 版本: v1.10.0
+ *
+ * v1.10.0 更新：
+ * - 新增更多快捷键
+ * - 新增布局类型
+ * - 新增网格类型
+ * - 增加历史记录限制
  */
 
 import type { NodeTemplate, NodeType, NodeCategory } from './types'
@@ -19,14 +25,13 @@ export const NODE_TYPES: NodeType[] = [
   'parallel',
   'wait',
   'humanInput',
-  'loop', // v1.9.1: 循环节点
-  'subworkflow', // v1.9.1: 子工作流节点
-  'transform', // v1.9.1: 数据转换节点
+  'loop',
+  'subworkflow',
+  'transform',
 ]
 
 /**
  * 节点模板
- * v1.9.1 新增: loop, subworkflow, transform 节点
  */
 export const NODE_TEMPLATES: Record<NodeType, NodeTemplate> = {
   // ========== 基础节点 ==========
@@ -110,7 +115,7 @@ export const NODE_TEMPLATES: Record<NodeType, NodeTemplate> = {
     category: 'flow',
     defaultConfig: {
       waitForEvent: 'user.input',
-      timeout: 3600000, // 1小时
+      timeout: 3600000,
     },
   },
 
@@ -168,80 +173,96 @@ export const NODE_CATEGORY_LABELS: Record<NodeCategory, string> = {
  */
 export const NODE_COLORS = {
   start: {
-    light: '#10B981', // Emerald 500
-    dark: '#34D399', // Emerald 400
-    bg: '#D1FAE5', // Emerald 100
+    light: '#10B981',
+    dark: '#34D399',
+    bg: '#D1FAE5',
   },
   end: {
-    light: '#EF4444', // Red 500
-    dark: '#F87171', // Red 400
-    bg: '#FEE2E2', // Red 100
+    light: '#EF4444',
+    dark: '#F87171',
+    bg: '#FEE2E2',
   },
   agent: {
-    light: '#6366F1', // Indigo 500
-    dark: '#818CF8', // Indigo 400
-    bg: '#E0E7FF', // Indigo 100
+    light: '#6366F1',
+    dark: '#818CF8',
+    bg: '#E0E7FF',
   },
   condition: {
-    light: '#F59E0B', // Amber 500
-    dark: '#FBBF24', // Amber 400
-    bg: '#FEF3C7', // Amber 100
+    light: '#F59E0B',
+    dark: '#FBBF24',
+    bg: '#FEF3C7',
   },
   parallel: {
-    light: '#8B5CF6', // Violet 500
-    dark: '#A78BFA', // Violet 400
-    bg: '#EDE9FE', // Violet 100
+    light: '#8B5CF6',
+    dark: '#A78BFA',
+    bg: '#EDE9FE',
   },
   wait: {
-    light: '#06B6D4', // Cyan 500
-    dark: '#22D3EE', // Cyan 400
-    bg: '#CFFAFE', // Cyan 100
+    light: '#06B6D4',
+    dark: '#22D3EE',
+    bg: '#CFFAFE',
   },
   humanInput: {
-    light: '#F97316', // Orange 500
-    dark: '#FB923C', // Orange 400
-    bg: '#FFEDD5', // Orange 100
+    light: '#F97316',
+    dark: '#FB923C',
+    bg: '#FFEDD5',
   },
-  // v1.9.1 新增节点颜色
   loop: {
-    light: '#EC4899', // Pink 500
-    dark: '#F472B6', // Pink 400
-    bg: '#FCE7F3', // Pink 100
+    light: '#EC4899',
+    dark: '#F472B6',
+    bg: '#FCE7F3',
   },
   subworkflow: {
-    light: '#14B8A6', // Teal 500
-    dark: '#2DD4BF', // Teal 400
-    bg: '#CCFBF1', // Teal 100
+    light: '#14B8A6',
+    dark: '#2DD4BF',
+    bg: '#CCFBF1',
   },
   transform: {
-    light: '#84CC16', // Lime 500
-    dark: '#A3E635', // Lime 400
-    bg: '#ECFCCB', // Lime 100
+    light: '#84CC16',
+    dark: '#A3E635',
+    bg: '#ECFCCB',
   },
 } as const
 
 /**
- * 键盘快捷键
+ * 键盘快捷键 v1.10.0
  */
 export const KEYBOARD_SHORTCUTS = {
+  // 基础操作
   SAVE: 'Ctrl+S',
   RUN: 'Ctrl+Enter',
   VALIDATE: 'Ctrl+Shift+V',
   UNDO: 'Ctrl+Z',
   REDO: 'Ctrl+Y',
+
+  // 编辑操作
   DELETE: 'Delete',
   COPY: 'Ctrl+C',
   PASTE: 'Ctrl+V',
+  CUT: 'Ctrl+X',
   SELECT_ALL: 'Ctrl+A',
   DUPLICATE: 'Ctrl+D',
-  AUTO_LAYOUT: 'Ctrl+L',
-  FIND: 'Ctrl+F',
+
+  // 视图操作
   ZOOM_IN: 'Ctrl+=',
   ZOOM_OUT: 'Ctrl+-',
   ZOOM_RESET: 'Ctrl+0',
   FIT_VIEW: 'Ctrl+Shift+F',
+  AUTO_LAYOUT: 'Ctrl+L',
+
+  // 文件操作
   EXPORT: 'Ctrl+E',
   IMPORT: 'Ctrl+I',
+  FIND: 'Ctrl+F',
+
+  // 辅助操作
+  SHORTCUTS: '?',
+  ESCAPE: 'Escape',
+
+  // 多选操作
+  MULTI_SELECT: 'Shift+Click',
+  ADD_TO_SELECTION: 'Ctrl+Click',
+  PAN_CANVAS: 'Space+Drag',
 } as const
 
 /**
@@ -256,7 +277,7 @@ export const BREAKPOINTS = {
 } as const
 
 /**
- * 画布配置
+ * 画布配置 v1.10.0
  */
 export const CANVAS_CONFIG = {
   MIN_ZOOM: 0.1,
@@ -266,6 +287,7 @@ export const CANVAS_CONFIG = {
   PAN_SPEED: 1,
   GRID_SIZE: 20,
   SNAP_TO_GRID: true,
+  GRID_TYPES: ['dots', 'lines', 'none'] as const,
 } as const
 
 /**
@@ -288,24 +310,63 @@ export const VALIDATION_RULES = {
   MAX_NODE_LABEL_LENGTH: 50,
   MAX_CONDITION_LENGTH: 500,
   MIN_DURATION: 100,
-  MAX_DURATION: 86400000, // 24小时
+  MAX_DURATION: 86400000,
   MIN_TIMEOUT: 1000,
-  MAX_TIMEOUT: 3600000, // 1小时
+  MAX_TIMEOUT: 3600000,
   MAX_RETRIES: 10,
   MAX_LOOP_COUNT: 1000,
 } as const
 
 /**
- * 版本信息
+ * 版本信息 v1.10.0
  */
-export const EDITOR_VERSION = '1.9.1' as const
+export const EDITOR_VERSION = '1.10.0' as const
 
 /**
  * 导出配置
  */
 export const EXPORT_CONFIG = {
-  version: '1.9.1',
-  supportedVersions: ['1.9.0', '1.9.1'],
+  version: '1.10.0',
+  supportedVersions: ['1.9.0', '1.9.1', '1.10.0'],
   fileExtension: '.json',
   mimeType: 'application/json',
+} as const
+
+/**
+ * 布局类型 v1.10.0
+ */
+export const LAYOUT_TYPES = {
+  HORIZONTAL: 'horizontal',
+  VERTICAL: 'vertical',
+  TREE: 'tree',
+  FORCE: 'force',
+} as const
+
+/**
+ * 性能配置 v1.10.0
+ */
+export const PERFORMANCE_CONFIG = {
+  MAX_NODES: 1000,
+  MAX_EDGES: 2000,
+  RENDER_THRESHOLD: 100,
+  VIRTUAL_SCROLL_THRESHOLD: 200,
+  DEBOUNCE_DELAY: 150,
+  THROTTLE_DELAY: 50,
+} as const
+
+/**
+ * 历史记录配置 v1.10.0
+ */
+export const HISTORY_CONFIG = {
+  DEFAULT_LIMIT: 100,
+  MAX_LIMIT: 500,
+  MIN_LIMIT: 10,
+} as const
+
+/**
+ * 主题配置 v1.10.0
+ */
+export const THEME_CONFIG = {
+  THEMES: ['light', 'dark', 'auto'] as const,
+  DEFAULT_THEME: 'auto',
 } as const

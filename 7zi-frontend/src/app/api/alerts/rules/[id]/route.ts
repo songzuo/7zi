@@ -22,7 +22,8 @@ import {
 const getAlertRulesStore = () => {
   // This is a workaround for module-level state sharing
   // In production, use a database
-  return globalThis.alertRulesStore || []
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  return (globalThis as any).alertRulesStore || []
 }
 
 // ============================================
