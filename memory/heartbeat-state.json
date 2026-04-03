@@ -1,11 +1,5 @@
 {
-  "lastChecks": {
-    "email": null,
-    "calendar": null,
-    "weather": null,
-    "project": 1743383980,
-    "xlsx_migration_verified": 1743383980
-  },
-  "lastHeartbeat": 1775142968,
-  "notes": "Heartbeat 2026-04-02 17:14 Berlin. Git push pending (256+ files modified in 7zi-frontend e2e/, .storybook/, next.config.ts, etc.). System message: RoomMessage type error in marine-c session. 7zi-frontend TypeScript ✅ per HEARTBEAT.md."
+  "lastHeartbeat": "2026-04-03T04:41:00Z",
+  "nextScheduled": null,
+  "pendingTasks": []
 }
