@@ -1,0 +1,12 @@
+{
+  "timestamp": "2026-04-03T00:18:56.614Z",
+  "summary": {
+    "totalFiles": 0,
+    "filesWithUnusedImports": 0,
+    "filesWithUnusedExports": 0,
+    "filesWithDeadCode": 0
+  },
+  "unusedImports": [],
+  "unusedExports": [],
+  "deadCode": []
+}
