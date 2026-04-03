@@ -17,8 +17,8 @@ interface PropertiesPanelProps {
   edge?: Edge<WorkflowEdgeData> | null
   onNodeChange?: (data: Partial<WorkflowNodeData>) => void
   onEdgeChange?: (data: Partial<WorkflowEdgeData>) => void
-  onDeleteNode?: () => void
-  onDuplicateNode?: () => void
+  onNodeDelete?: () => void
+  onNodeDuplicate?: () => void
   validationErrors?: ValidationError[]
 }
 
@@ -27,8 +27,8 @@ export function PropertiesPanel({
   edge, 
   onNodeChange, 
   onEdgeChange,
-  onDeleteNode,
-  onDuplicateNode,
+  onNodeDelete,
+  onNodeDuplicate,
   validationErrors = []
 }: PropertiesPanelProps) {
   if (edge) {
@@ -40,8 +40,8 @@ export function PropertiesPanel({
       <NodeProperties 
         node={node} 
         onChange={onNodeChange}
-        onDelete={onDeleteNode}
-        onDuplicate={onDuplicateNode}
+        onDelete={onNodeDelete}
+        onDuplicate={onNodeDuplicate}
         validationErrors={validationErrors}
       />
     )

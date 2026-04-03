@@ -525,8 +525,8 @@ export function NodeProperties({
                   输入映射
                 </label>
                 <textarea
-                  value={data.config.inputMapping || ''}
-                  onChange={e => handleConfigChange('inputMapping', e.target.value)}
+                  value={data.config.subworkflowInputMapping || ''}
+                  onChange={e => handleConfigChange('subworkflowInputMapping', e.target.value)}
                   rows={3}
                   className="w-full rounded-lg border border-gray-300 px-3 py-2 font-mono text-sm text-gray-900 focus:border-indigo-500 focus:ring-2 focus:ring-indigo-200 dark:border-gray-600 dark:bg-gray-700 dark:text-white dark:focus:border-indigo-500 dark:focus:ring-indigo-800"
                   placeholder='{"param1": "inputs.value"}'
@@ -541,8 +541,8 @@ export function NodeProperties({
                   输出映射
                 </label>
                 <textarea
-                  value={data.config.outputMapping || ''}
-                  onChange={e => handleConfigChange('outputMapping', e.target.value)}
+                  value={data.config.subworkflowOutputMapping || ''}
+                  onChange={e => handleConfigChange('subworkflowOutputMapping', e.target.value)}
                   rows={3}
                   className="w-full rounded-lg border border-gray-300 px-3 py-2 font-mono text-sm text-gray-900 focus:border-indigo-500 focus:ring-2 focus:ring-indigo-200 dark:border-gray-600 dark:bg-gray-700 dark:text-white dark:focus:border-indigo-500 dark:focus:ring-indigo-800"
                   placeholder='{"result": "outputs.data"}'
