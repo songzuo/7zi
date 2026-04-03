@@ -1,16 +1,18 @@
 /**
  * Email Alert Channel Tests
- * 邮件告警渠道测试
+ * 邮件告警渠道测试 - 增强版
  */
 
 import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest'
 
 // Mock nodemailer before importing
 vi.mock('nodemailer', () => ({
-  createTransport: vi.fn(() => ({
-    sendMail: vi.fn().mockResolvedValue({ messageId: 'test-id' }),
-    verify: vi.fn().mockResolvedValue(true),
-  })),
+  default: {
+    createTransport: vi.fn(() => ({
+      sendMail: vi.fn().mockResolvedValue({ messageId: 'test-id' }),
+      verify: vi.fn().mockResolvedValue(true),
+    })),
+  },
 }))
 
 import { EmailAlertChannel, createEmailChannelFromEnv } from '../channels/email-alert'
@@ -62,7 +64,6 @@ describe('EmailAlertChannel', () => {
     it('should format alert for P0 priority', async () => {
       const alert = createTestAlert({ priority: 'P0', severity: 'critical' })
 
-      // Should not throw (will log since nodemailer may not be available)
       await expect(channel.send(alert)).resolves.not.toThrow()
     })
 
@@ -88,6 +89,29 @@ describe('EmailAlertChannel', () => {
       })
 
       await expect(channelWithContext.send(alert)).resolves.not.toThrow()
+    })
+
+    it('should handle all severity levels', async () => {
+      const severities: Array<'info' | 'warning' | 'error' | 'critical'> = [
+        'info',
+        'warning',
+        'error',
+        'critical',
+      ]
+
+      for (const severity of severities) {
+        const alert = createTestAlert({ severity })
+        await expect(channel.send(alert)).resolves.not.toThrow()
+      }
+    })
+
+    it('should handle all priority levels', async () => {
+      const priorities: Array<'P0' | 'P1' | 'P2' | 'P3'> = ['P0', 'P1', 'P2', 'P3']
+
+      for (const priority of priorities) {
+        const alert = createTestAlert({ priority })
+        await expect(channel.send(alert)).resolves.not.toThrow()
+      }
     })
   })
 
@@ -117,7 +141,7 @@ describe('EmailAlertChannel', () => {
     })
   })
 
-  describe('getConfig', () => {
+  describe('configuration', () => {
     it('should return current configuration', () => {
       const config = channel.getConfig()
 
@@ -125,15 +149,156 @@ describe('EmailAlertChannel', () => {
       expect(config.port).toBe(587)
       expect(config.from).toBe('alerts@example.com')
     })
-  })
 
-  describe('updateConfig', () => {
     it('should update configuration', () => {
       channel.updateConfig({ port: 465, secure: true })
 
       const config = channel.getConfig()
       expect(config.port).toBe(465)
       expect(config.secure).toBe(true)
+    })
+  })
+
+  describe('retry mechanism', () => {
+    it('should retry on transient errors', async () => {
+      const channelWithRetry = new EmailAlertChannel({
+        host: 'smtp.example.com',
+        port: 587,
+        secure: false,
+        auth: { user: 'test', pass: 'pass' },
+        from: 'alerts@example.com',
+        recipients: { P0: [], P1: [], P2: [], P3: [] },
+        retry: {
+          maxRetries: 2,
+          initialDelayMs: 10,
+          maxDelayMs: 100,
+          backoffMultiplier: 2,
+        },
+      })
+
+      const alert = createTestAlert()
+      // Should succeed (logs only without nodemailer)
+      await expect(channelWithRetry.send(alert)).resolves.not.toThrow()
+    })
+  })
+
+  describe('deduplication', () => {
+    it('should deduplicate alerts within window', async () => {
+      const channelWithDedup = new EmailAlertChannel({
+        host: 'smtp.example.com',
+        port: 587,
+        secure: false,
+        auth: { user: 'test', pass: 'pass' },
+        from: 'alerts@example.com',
+        recipients: { P0: [], P1: [], P2: [], P3: [] },
+        dedup: {
+          enabled: true,
+          windowMs: 1000,
+          keys: ['ruleId', 'priority'],
+        },
+      })
+
+      const alert = createTestAlert()
+
+      // First send
+      await channelWithDedup.send(alert)
+
+      // Second send (should be deduped)
+      await channelWithDedup.send(alert)
+
+      const metrics = channelWithDedup.getMetrics()
+      expect(metrics.totalDeduped).toBe(1)
+    })
+  })
+
+  describe('severity filtering', () => {
+    it('should filter alerts by severity', async () => {
+      const filteredChannel = new EmailAlertChannel({
+        host: 'smtp.example.com',
+        port: 587,
+        secure: false,
+        auth: { user: 'test', pass: 'pass' },
+        from: 'alerts@example.com',
+        recipients: { P0: [], P1: [], P2: [], P3: [] },
+        severityFilter: ['critical'],
+      })
+
+      const criticalAlert = createTestAlert({ severity: 'critical' })
+      const infoAlert = createTestAlert({ severity: 'info' })
+
+      await filteredChannel.send(criticalAlert)
+      await filteredChannel.send(infoAlert)
+
+      const metrics = filteredChannel.getMetrics()
+      expect(metrics.totalSent).toBe(1) // Only critical sent
+    })
+  })
+
+  describe('rate limiting', () => {
+    it('should respect rate limits', async () => {
+      const limitedChannel = new EmailAlertChannel({
+        host: 'smtp.example.com',
+        port: 587,
+        secure: false,
+        auth: { user: 'test', pass: 'pass' },
+        from: 'alerts@example.com',
+        recipients: { P0: [], P1: [], P2: [], P3: [] },
+        rateLimit: {
+          maxAlertsPerMinute: 2,
+          maxAlertsPerHour: 100,
+        },
+      })
+
+      const alert = createTestAlert()
+
+      // First 2 should succeed
+      await limitedChannel.send(alert)
+      await limitedChannel.send(alert)
+
+      // Third should fail
+      await expect(limitedChannel.send(alert)).rejects.toThrow('Rate limit exceeded')
+    })
+  })
+
+  describe('metrics', () => {
+    it('should track metrics', async () => {
+      const alert = createTestAlert()
+      await channel.send(alert)
+
+      const metrics = channel.getMetrics()
+      expect(metrics.totalSent).toBe(1)
+    })
+
+    it('should reset metrics', async () => {
+      const alert = createTestAlert()
+      await channel.send(alert)
+
+      channel.resetMetrics()
+      const metrics = channel.getMetrics()
+      expect(metrics.totalSent).toBe(0)
+    })
+  })
+
+  describe('enable/disable', () => {
+    it('should not send when disabled', async () => {
+      channel.setEnabled(false)
+      const alert = createTestAlert()
+
+      await channel.send(alert)
+
+      const metrics = channel.getMetrics()
+      expect(metrics.totalSent).toBe(0)
+    })
+
+    it('should send when re-enabled', async () => {
+      channel.setEnabled(false)
+      channel.setEnabled(true)
+      const alert = createTestAlert()
+
+      await channel.send(alert)
+
+      const metrics = channel.getMetrics()
+      expect(metrics.totalSent).toBe(1)
     })
   })
 })

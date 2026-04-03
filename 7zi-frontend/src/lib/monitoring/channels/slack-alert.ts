@@ -3,11 +3,24 @@
  * Slack 告警渠道
  *
  * Sends alerts to Slack via Incoming Webhook or Bot API.
+ * Features:
+ * - Retry mechanism with exponential backoff
+ * - Alert deduplication
+ * - Rate limiting
+ * - Severity-based filtering
+ *
+ * @version 2.0.0
  */
 
-import { Alert, AlertChannel } from '../alert-engine'
+import { Alert, AlertChannel, AlertSeverity, AlertPriority } from '../alert-engine'
+import {
+  BaseAlertChannel,
+  BaseChannelConfig,
+  AlertLevel,
+  priorityToLevel,
+} from './base-alert-channel'
 
-export interface SlackChannelConfig {
+export interface SlackChannelConfig extends BaseChannelConfig {
   // Webhook URL (simpler, no additional config needed)
   webhookUrl?: string
 
@@ -30,15 +43,23 @@ export interface SlackChannelConfig {
   threadAlerts?: boolean // Thread replies instead of new messages
 }
 
+interface SlackTextElement {
+  type: string
+  text: string
+  emoji?: boolean
+}
+
 interface SlackBlock {
   type: string
-  text?: {
+  text?: SlackTextElement
+  elements?: SlackTextElement[]
+  accessory?: {
     type: string
-    text: string
-    emoji?: boolean
+    text: SlackTextElement
+    value?: string
+    url?: string
+    style?: string
   }
-  elements?: any[]
-  accessory?: any
   fields?: Array<{
     type: string
     text: string
@@ -58,16 +79,40 @@ interface SlackAttachment {
 }
 
 /**
+ * Slack webhook payload
+ */
+interface SlackWebhookPayload {
+  channel?: string
+  username?: string
+  icon_emoji?: string
+  unfurl_links?: boolean
+  blocks?: SlackBlock[]
+  attachments?: SlackAttachment[]
+  text?: string
+}
+
+/**
  * Slack Alert Channel
  */
-export class SlackAlertChannel implements AlertChannel {
-  private config: SlackChannelConfig
+export class SlackAlertChannel extends BaseAlertChannel implements AlertChannel {
+  private slackConfig: SlackChannelConfig
   private webhookUrl: string | null = null
   private botToken: string | null = null
 
   constructor(config: SlackChannelConfig) {
     const defaultChannels = { default: '#alerts' }
-    this.config = {
+    const baseConfig: BaseChannelConfig = {
+      enabled: true,
+      retry: config.retry,
+      dedup: config.dedup,
+      rateLimit: config.rateLimit,
+      severityFilter: config.severityFilter,
+      priorityFilter: config.priorityFilter,
+    }
+
+    super(baseConfig)
+
+    this.slackConfig = {
       username: 'Performance Alerts',
       iconEmoji: ':rotating_light:',
       unfurlLinks: false,
@@ -81,9 +126,16 @@ export class SlackAlertChannel implements AlertChannel {
   }
 
   /**
-   * Send alert to Slack
+   * Get channel key for deduplication and rate limiting
    */
-  async send(alert: Alert): Promise<void> {
+  protected getChannelKey(): string {
+    return 'slack'
+  }
+
+  /**
+   * Internal send method
+   */
+  protected async sendInternal(alert: Alert): Promise<void> {
     const payload = this.buildPayload(alert)
 
     // Try webhook first, then bot API
@@ -101,7 +153,7 @@ export class SlackAlertChannel implements AlertChannel {
   /**
    * Build Slack message payload
    */
-  private buildPayload(alert: Alert): any {
+  private buildPayload(alert: Alert): SlackWebhookPayload {
     const priority = alert.priority || 'P3'
     const channel = this.getChannel(priority)
     const color = this.getColorForSeverity(alert.severity)
@@ -120,9 +172,9 @@ export class SlackAlertChannel implements AlertChannel {
 
     return {
       channel,
-      username: this.config.username,
-      icon_emoji: this.config.iconEmoji,
-      unfurl_links: this.config.unfurlLinks,
+      username: this.slackConfig.username,
+      icon_emoji: this.slackConfig.iconEmoji,
+      unfurl_links: this.slackConfig.unfurlLinks,
       blocks: this.buildHeaderBlocks(alert, emoji),
       attachments,
     }
@@ -132,8 +184,6 @@ export class SlackAlertChannel implements AlertChannel {
    * Build header blocks
    */
   private buildHeaderBlocks(alert: Alert, emoji: string): SlackBlock[] {
-    const priorityColor = this.getPriorityEmoji(alert.priority)
-
     return [
       {
         type: 'header',
@@ -222,7 +272,6 @@ export class SlackAlertChannel implements AlertChannel {
             emoji: true,
           },
           url: this.buildDashboardUrl(alert),
-          style: 'primary',
         },
         {
           type: 'button',
@@ -231,7 +280,7 @@ export class SlackAlertChannel implements AlertChannel {
             text: 'Acknowledge',
             emoji: true,
           },
-          action_id: `acknowledge_${alert.id}`,
+          value: `acknowledge_${alert.id}`,
         },
       ],
     })
@@ -271,8 +320,8 @@ export class SlackAlertChannel implements AlertChannel {
    * Get channel for priority
    */
   private getChannel(priority: string): string {
-    const priorityKey = priority as keyof typeof this.config.channels
-    return this.config.channels[priorityKey] || this.config.channels.default
+    const priorityKey = priority as keyof typeof this.slackConfig.channels
+    return this.slackConfig.channels[priorityKey] || this.slackConfig.channels.default
   }
 
   /**
@@ -340,65 +389,55 @@ export class SlackAlertChannel implements AlertChannel {
   /**
    * Send via webhook
    */
-  private async sendViaWebhook(payload: any): Promise<void> {
+  private async sendViaWebhook(payload: SlackWebhookPayload): Promise<void> {
     if (!this.webhookUrl) return
 
-    try {
-      const response = await fetch(this.webhookUrl, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(payload),
-      })
+    const response = await fetch(this.webhookUrl, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(payload),
+    })
 
-      if (!response.ok) {
-        throw new Error(`Slack webhook failed: ${response.status} ${response.statusText}`)
-      }
-
-      console.log(`[SlackAlert] Sent to ${payload.channel}: ${payload.text}`)
-    } catch (error) {
-      console.error('[SlackAlert] Webhook error:', error)
-      throw error
+    if (!response.ok) {
+      throw new Error(`Slack webhook failed: ${response.status} ${response.statusText}`)
     }
+
+    console.log(`[SlackAlert] Sent to ${payload.channel}`)
   }
 
   /**
    * Send via Bot API
    */
-  private async sendViaBotAPI(alert: Alert, payload: any): Promise<void> {
+  private async sendViaBotAPI(alert: Alert, payload: SlackWebhookPayload): Promise<void> {
     if (!this.botToken) return
 
     const channel = this.getChannel(alert.priority || 'P3')
 
-    try {
-      // First, open or get conversation
-      const conversationId = await this.getOrCreateConversation(channel)
+    // First, open or get conversation
+    const conversationId = await this.getOrCreateConversation(channel)
 
-      // Then send message
-      const response = await fetch('https://slack.com/api/chat.postMessage', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          Authorization: `Bearer ${this.botToken}`,
-        },
-        body: JSON.stringify({
-          channel: conversationId,
-          ...payload,
-        }),
-      })
+    // Then send message
+    const response = await fetch('https://slack.com/api/chat.postMessage', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization: `Bearer ${this.botToken}`,
+      },
+      body: JSON.stringify({
+        channel: conversationId,
+        ...payload,
+      }),
+    })
 
-      const result = await response.json()
+    const result = await response.json()
 
-      if (!result.ok) {
-        throw new Error(`Slack API error: ${result.error}`)
-      }
-
-      console.log(`[SlackAlert] Sent via bot to ${channel}: ${alert.ruleName}`)
-    } catch (error) {
-      console.error('[SlackAlert] Bot API error:', error)
-      throw error
+    if (!result.ok) {
+      throw new Error(`Slack API error: ${result.error}`)
     }
+
+    console.log(`[SlackAlert] Sent via bot to ${channel}: ${alert.ruleName}`)
   }
 
   /**
@@ -406,7 +445,7 @@ export class SlackAlertChannel implements AlertChannel {
    */
   private async getOrCreateConversation(channelName: string): Promise<string> {
     // First try to look up existing channel
-    const response = await fetch('https://slack.com/api/conversations.lookupByName', {
+    const lookupResponse = await fetch('https://slack.com/api/conversations.lookupByName', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -415,10 +454,10 @@ export class SlackAlertChannel implements AlertChannel {
       body: JSON.stringify({ name: channelName.replace('#', '') }),
     })
 
-    const result = await response.json()
+    const lookupResult = await lookupResponse.json()
 
-    if (result.ok) {
-      return result.channel.id
+    if (lookupResult.ok) {
+      return lookupResult.channel.id
     }
 
     // If not found, try to create
@@ -479,7 +518,7 @@ export class SlackAlertChannel implements AlertChannel {
    * Update configuration
    */
   updateConfig(config: Partial<SlackChannelConfig>): void {
-    this.config = { ...this.config, ...config }
+    this.slackConfig = { ...this.slackConfig, ...config }
 
     if (config.webhookUrl) {
       this.webhookUrl = config.webhookUrl
@@ -487,13 +526,22 @@ export class SlackAlertChannel implements AlertChannel {
     if (config.botToken) {
       this.botToken = config.botToken
     }
+
+    // Update base config
+    super.updateConfig({
+      retry: config.retry,
+      dedup: config.dedup,
+      rateLimit: config.rateLimit,
+      severityFilter: config.severityFilter,
+      priorityFilter: config.priorityFilter,
+    })
   }
 
   /**
    * Get configuration
    */
   getConfig(): SlackChannelConfig {
-    return { ...this.config }
+    return { ...this.slackConfig }
   }
 }
 
