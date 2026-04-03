@@ -5,7 +5,10 @@
 
 'use client'
 
-import { WorkflowNode, WorkflowEdge, NodeType, EdgeType, WorkflowDefinition } from '@/types/workflow'
+import { WorkflowNode, WorkflowEdge, NodeType, EdgeType, WorkflowDefinition, WorkflowStatus } from '@/types/workflow'
+
+// Re-export for convenience
+export type { WorkflowDefinition }
 
 /**
  * 意图类型
@@ -625,7 +628,7 @@ export function parsedTaskToWorkflowDefinition(parsed: ParsedTask): WorkflowDefi
     name: parsed.workflowName,
     description: parsed.description,
     version: 1,
-    status: 'draft',
+    status: WorkflowStatus.DRAFT,
     nodes: newNodes,
     edges: newEdges,
     config: {

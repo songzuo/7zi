@@ -1,0 +1,362 @@
+/**
+ * Theme CSS Variables
+ * Defines CSS variables for light and dark themes
+ */
+
+/* Base variables - will be updated by theme system */
+:root {
+  --theme-mode: system;
+  --theme-transition: none;
+}
+
+/* Light theme colors */
+:root {
+  --color-background: #ffffff;
+  --color-surface: #f9fafb;
+  --color-surface-hover: #f3f4f6;
+  --color-surface-active: #e5e7eb;
+  
+  --color-text-primary: #111827;
+  --color-text-secondary: #4b5563;
+  --color-text-muted: #9ca3af;
+  --color-text-inverse: #ffffff;
+  
+  --color-primary: #3b82f6;
+  --color-primary-hover: #2563eb;
+  --color-primary-active: #1d4ed8;
+  --color-primary-light: #dbeafe;
+  
+  --color-secondary: #8b5cf6;
+  --color-secondary-hover: #7c3aed;
+  --color-secondary-light: #ede9fe;
+  
+  --color-success: #10b981;
+  --color-success-light: #d1fae5;
+  --color-success-bg: #ecfdf5;
+  
+  --color-warning: #f59e0b;
+  --color-warning-light: #fef3c7;
+  --color-warning-bg: #fffbeb;
+  
+  --color-error: #ef4444;
+  --color-error-light: #fee2e2;
+  --color-error-bg: #fef2f2;
+  
+  --color-info: #3b82f6;
+  --color-info-light: #dbeafe;
+  --color-info-bg: #eff6ff;
+  
+  --color-border: #e5e7eb;
+  --color-border-hover: #d1d5db;
+  --color-border-focus: #3b82f6;
+  --color-border-disabled: #f3f4f6;
+  
+  --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+  --shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px -1px rgba(0, 0, 0, 0.1);
+  --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -2px rgba(0, 0, 0, 0.1);
+  --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -4px rgba(0, 0, 0, 0.1);
+  --shadow-xl: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 8px 10px -6px rgba(0, 0, 0, 0.1);
+  
+  --color-code-background: #f3f4f6;
+  --color-code-text: #1f2937;
+  
+  --color-chart-1: #3b82f6;
+  --color-chart-2: #8b5cf6;
+  --color-chart-3: #10b981;
+  --color-chart-4: #f59e0b;
+  --color-chart-5: #ef4444;
+  --color-chart-6: #06b6d4;
+  --color-chart-7: #ec4899;
+  --color-chart-8: #84cc16;
+}
+
+/* Dark theme colors */
+.dark {
+  --color-background: #0f172a;
+  --color-surface: #1e293b;
+  --color-surface-hover: #334155;
+  --color-surface-active: #475569;
+  
+  --color-text-primary: #f1f5f9;
+  --color-text-secondary: #cbd5e1;
+  --color-text-muted: #64748b;
+  --color-text-inverse: #0f172a;
+  
+  --color-primary: #60a5fa;
+  --color-primary-hover: #3b82f6;
+  --color-primary-active: #2563eb;
+  --color-primary-light: #1e3a8a;
+  
+  --color-secondary: #a78bfa;
+  --color-secondary-hover: #8b5cf6;
+  --color-secondary-light: #4c1d95;
+  
+  --color-success: #34d399;
+  --color-success-light: #065f46;
+  --color-success-bg: #064e3b;
+  
+  --color-warning: #fbbf24;
+  --color-warning-light: #92400e;
+  --color-warning-bg: #78350f;
+  
+  --color-error: #f87171;
+  --color-error-light: #991b1b;
+  --color-error-bg: #7f1d1d;
+  
+  --color-info: #60a5fa;
+  --color-info-light: #1e40af;
+  --color-info-bg: #1e3a8a;
+  
+  --color-border: #334155;
+  --color-border-hover: #475569;
+  --color-border-focus: #60a5fa;
+  --color-border-disabled: #1e293b;
+  
+  --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.3);
+  --shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.3), 0 1px 2px -1px rgba(0, 0, 0, 0.3);
+  --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.4), 0 2px 4px -2px rgba(0, 0, 0, 0.4);
+  --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.5), 0 4px 6px -4px rgba(0, 0, 0, 0.5);
+  --shadow-xl: 0 20px 25px -5px rgba(0, 0, 0, 0.5), 0 8px 10px -6px rgba(0, 0, 0, 0.5);
+  
+  --color-code-background: #1e293b;
+  --color-code-text: #e2e8f0;
+  
+  --color-chart-1: #60a5fa;
+  --color-chart-2: #a78bfa;
+  --color-chart-3: #34d399;
+  --color-chart-4: #fbbf24;
+  --color-chart-5: #f87171;
+  --color-chart-6: #22d3ee;
+  --color-chart-7: #f472b6;
+  --color-chart-8: #a3e635;
+}
+
+/* Theme transition animation */
+.theme-transitioning *,
+.theme-transitioning *::before,
+.theme-transitioning *::after {
+  transition: 
+    background-color var(--theme-transition) ease-in-out,
+    border-color var(--theme-transition) ease-in-out,
+    color var(--theme-transition) ease-in-out,
+    box-shadow var(--theme-transition) ease-in-out,
+    fill var(--theme-transition) ease-in-out,
+    stroke var(--theme-transition) ease-in-out !important;
+}
+
+/* Image adjustments for dark theme */
+.dark img {
+  filter: brightness(0.95) contrast(1.05);
+}
+
+/* Code syntax highlighting - Light theme */
+:not(.dark) .token.comment,
+:not(.dark) .token.prolog,
+:not(.dark) .token.doctype,
+:not(.dark) .token.cdata {
+  color: #6a9955;
+}
+
+:not(.dark) .token.punctuation {
+  color: #569cd6;
+}
+
+:not(.dark) .token.property,
+:not(.dark) .token.tag,
+:not(.dark) .token.boolean,
+:not(.dark) .token.number,
+:not(.dark) .token.constant,
+:not(.dark) .token.symbol,
+:not(.dark) .token.deleted {
+  color: #b5cea8;
+}
+
+:not(.dark) .token.selector,
+:not(.dark) .token.attr-name,
+:not(.dark) .token.string,
+:not(.dark) .token.char,
+:not(.dark) .token.builtin,
+:not(.dark) .token.inserted {
+  color: #ce9178;
+}
+
+:not(.dark) .token.operator,
+:not(.dark) .token.entity,
+:not(.dark) .token.url,
+:not(.dark) .language-css .token.string,
+:not(.dark) .style .token.string {
+  color: #d4d4d4;
+}
+
+:not(.dark) .token.atrule,
+:not(.dark) .token.attr-value,
+:not(.dark) .token.keyword {
+  color: #c586c0;
+}
+
+:not(.dark) .token.function,
+:not(.dark) .token.class-name {
+  color: #dcdcaa;
+}
+
+:not(.dark) .token.regex,
+:not(.dark) .token.important,
+:not(.dark) .token.variable {
+  color: #d16969;
+}
+
+/* Code syntax highlighting - Dark theme */
+.dark .token.comment,
+.dark .token.prolog,
+.dark .token.doctype,
+.dark .token.cdata {
+  color: #6a9955;
+}
+
+.dark .token.punctuation {
+  color: #9cdcfe;
+}
+
+.dark .token.property,
+.dark .token.tag,
+.dark .token.boolean,
+.dark .token.number,
+.dark .token.constant,
+.dark .token.symbol,
+.dark .token.deleted {
+  color: #4fc1ff;
+}
+
+.dark .token.selector,
+.dark .token.attr-name,
+.dark .token.string,
+.dark .token.char,
+.dark .token.builtin,
+.dark .token.inserted {
+  color: #ce9178;
+}
+
+.dark .token.operator,
+.dark .token.entity,
+.dark .token.url,
+.dark .language-css .token.string,
+.dark .style .token.string {
+  color: #d4d4d4;
+}
+
+.dark .token.atrule,
+.dark .token.attr-value,
+.dark .token.keyword {
+  color: #c586c0;
+}
+
+.dark .token.function,
+.dark .token.class-name {
+  color: #dcdcaa;
+}
+
+.dark .token.regex,
+.dark .token.important,
+.dark .token.variable {
+  color: #d16969;
+}
+
+/* Scrollbar styling - Light theme */
+:not(.dark) ::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+:not(.dark) ::-webkit-scrollbar-track {
+  background: #f1f1f1;
+}
+
+:not(.dark) ::-webkit-scrollbar-thumb {
+  background: #c1c1c1;
+  border-radius: 4px;
+}
+
+:not(.dark) ::-webkit-scrollbar-thumb:hover {
+  background: #a1a1a1;
+}
+
+/* Scrollbar styling - Dark theme */
+.dark ::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+.dark ::-webkit-scrollbar-track {
+  background: #1e293b;
+}
+
+.dark ::-webkit-scrollbar-thumb {
+  background: #475569;
+  border-radius: 4px;
+}
+
+.dark ::-webkit-scrollbar-thumb:hover {
+  background: #64748b;
+}
+
+/* Form elements - Light theme */
+:not(.dark) input:not([type='checkbox']):not([type='radio']),
+:not(.dark) textarea,
+:not(.dark) select {
+  background-color: #ffffff;
+  border-color: #e5e7eb;
+  color: #111827;
+}
+
+:not(.dark) input::placeholder,
+:not(.dark) textarea::placeholder {
+  color: #9ca3af;
+}
+
+/* Form elements - Dark theme */
+.dark input:not([type='checkbox']):not([type='radio']),
+.dark textarea,
+.dark select {
+  background-color: #1e293b;
+  border-color: #334155;
+  color: #f1f5f9;
+}
+
+.dark input::placeholder,
+.dark textarea::placeholder {
+  color: #64748b;
+}
+
+/* Chart adjustments for dark theme */
+.dark canvas,
+.dark svg {
+  filter: brightness(1.1);
+}
+
+/* Table styling - Light theme */
+:not(.dark) table {
+  border-color: #e5e7eb;
+}
+
+:not(.dark) th {
+  background-color: #f9fafb;
+  color: #111827;
+}
+
+:not(.dark) tr:hover {
+  background-color: #f3f4f6;
+}
+
+/* Table styling - Dark theme */
+.dark table {
+  border-color: #334155;
+}
+
+.dark th {
+  background-color: #1e293b;
+  color: #f1f5f9;
+}
+
+.dark tr:hover {
+  background-color: #334155;
+}

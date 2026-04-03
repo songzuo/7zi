@@ -1,0 +1,45 @@
+{
+  "name": "websocket-connection-manager",
+  "version": "1.0.0",
+  "description": "Robust WebSocket connection manager with heartbeat, reconnection, message queuing, and metrics",
+  "main": "dist/WebSocketConnectionManager.js",
+  "types": "dist/WebSocketConnectionManager.d.ts",
+  "scripts": {
+    "build": "tsc",
+    "test": "jest",
+    "test:watch": "jest --watch",
+    "test:coverage": "jest --coverage",
+    "lint": "eslint src/**/*.ts",
+    "example": "ts-node examples.ts"
+  },
+  "keywords": [
+    "websocket",
+    "ws",
+    "connection-manager",
+    "reconnection",
+    "heartbeat",
+    "message-queue",
+    "nodejs"
+  ],
+  "author": "Executor Subagent",
+  "license": "MIT",
+  "dependencies": {
+    "ws": "^8.18.0"
+  },
+  "devDependencies": {
+    "@types/jest": "^29.5.14",
+    "@types/node": "^22.0.0",
+    "@types/ws": "^8.5.13",
+    "jest": "^29.7.0",
+    "ts-jest": "^29.2.5",
+    "ts-node": "^10.9.2",
+    "typescript": "^5.0.0"
+  },
+  "engines": {
+    "node": ">=16.0.0"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/example/websocket-connection-manager"
+  }
+}

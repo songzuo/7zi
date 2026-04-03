@@ -1,5 +1,6 @@
 # 7zi 项目文档中心
 
+**版本**: v1.10.1  
 **最后更新**: 2026-04-03
 
 ---
@@ -12,6 +13,7 @@
 |------|------|----------|
 | [Multi-Agent Orchestrator](./multi-agent-orchestrator.md) | 多智能体协作编排器 | 2026-04-03 |
 | [Performance Monitoring](./performance-monitoring.md) | 性能监控与异常检测 | 2026-04-03 |
+| [v1.11 Roadmap](./v111_ROADMAP.md) | v1.11 版本规划 | 2026-04-03 |
 
 ### 分析报告
 

@@ -364,6 +364,5 @@ export const usePermissionHelpers = () =>
       isMemberOrHigher: state.isMemberOrHigher,
       isGuest: state.isGuest,
       getContext: state.getContext,
-    }),
-    shallow
+    })
   )

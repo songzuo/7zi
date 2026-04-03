@@ -3,7 +3,7 @@
  */
 
 import { AgentRegistry, Agent } from '../agents/AgentRegistry';
-import { A2AProtocol, A2AMessage } from '../a2a/A2AProtocol';
+import { A2AProtocol } from '../a2a/A2AProtocol';
 
 export interface Task {
   id: string;
@@ -248,7 +248,7 @@ export class MultiAgentOrchestrator {
     switch (strategy) {
       case 'first':
         // 返回第一个成功的结果
-        const firstSuccess = results.find(r => !(r.result as any)?.error);
+        const firstSuccess = results.find(r => !this.isResultError(r.result));
         return firstSuccess?.result || null;
 
       case 'all':
@@ -257,7 +257,7 @@ export class MultiAgentOrchestrator {
 
       case 'best':
         // 返回最佳结果（这里简化为第一个成功的结果）
-        return results.find(r => !(r.result as any)?.error)?.result || null;
+        return results.find(r => !this.isResultError(r.result))?.result || null;
 
       case 'vote':
         // 投票策略（简化实现）
@@ -286,6 +286,13 @@ export class MultiAgentOrchestrator {
   }
 
   /**
+   * 检查结果是否是错误
+   */
+  private isResultError(result: unknown): boolean {
+    return typeof result === 'object' && result !== null && 'error' in result;
+  }
+
+  /**
    * 获取智能体注册表
    */
   getAgentRegistry(): AgentRegistry {
@@ -297,5 +304,12 @@ export class MultiAgentOrchestrator {
    */
   getA2AProtocol(): A2AProtocol {
     return this.a2aProtocol;
+  }
+
+  /**
+   * 检查结果是否是错误
+   */
+  private isResultError(result: unknown): boolean {
+    return typeof result === 'object' && result !== null && 'error' in result;
   }
 }

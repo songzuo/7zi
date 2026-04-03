@@ -26,6 +26,9 @@ import {
 
 import { migrate, optimizeDatabase, getDatabaseHealth } from './migrations'
 
+// Create a db object for convenience
+export const db = getDatabase()
+
 // Re-export for named exports
 export {
   getDatabase,

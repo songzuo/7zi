@@ -14,7 +14,7 @@ interface ToolbarProps {
   onSave: () => void
   onRun: () => void
   onValidate: () => void
-  onExport?: (exportData: any) => void
+  onExport?: (exportData: WorkflowDefinition) => void
   onImport?: (workflow: WorkflowDefinition) => void
   workflow?: WorkflowDefinition
   isExecuting?: boolean
@@ -37,13 +37,17 @@ export function Toolbar({
 
   return (
     <div className="flex items-center justify-between border-b border-gray-200 bg-white px-4 py-2 dark:border-gray-700 dark:bg-gray-800">
-      {/* 左侧：工作流信息 */}
       <div className="flex items-center gap-4">
         <h1 className="text-lg font-semibold text-gray-900 dark:text-white">工作流编辑器</h1>
-        {hasErrors && (
+        {hasErrors ? (
           <span className="flex items-center gap-1 rounded-full bg-red-100 px-3 py-1 text-sm text-red-600 dark:bg-red-900/30 dark:text-red-400">
             <span>⚠️</span>
             <span>有验证错误</span>
+          </span>
+        ) : (
+          <span className="flex items-center gap-1 rounded-full bg-green-100 px-3 py-1 text-sm text-green-600 dark:bg-green-900/30 dark:text-green-400">
+            <span>✅</span>
+            <span>已验证</span>
           </span>
         )}
       </div>

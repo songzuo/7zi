@@ -356,6 +356,9 @@ export class TaskDecomposer extends EventEmitter {
     } as TaskEvent)
 
     try {
+      // 验证无循环依赖
+      this.validateNoCircularDependencies(task.subTasks)
+
       // 按依赖顺序执行子任务
       const results = await this.executeSubTasks(task)
 
@@ -729,6 +732,43 @@ export class TaskDecomposer extends EventEmitter {
     })
 
     toRemove.forEach(id => this.activeTasks.delete(id))
+  }
+
+  /**
+   * 验证子任务无循环依赖
+   * 防止死锁：如果存在循环依赖，抛出错误
+   */
+  private validateNoCircularDependencies(subTasks: SubTask[]): void {
+    const visited = new Set<string>()
+    const recursionStack = new Set<string>()
+
+    const dfs = (taskId: string): boolean => {
+      visited.add(taskId)
+      recursionStack.add(taskId)
+
+      const task = subTasks.find(t => t.id === taskId)
+      if (task) {
+        for (const dep of task.dependencies) {
+          if (!visited.has(dep.taskId)) {
+            if (dfs(dep.taskId)) return true
+          } else if (recursionStack.has(dep.taskId)) {
+            throw new MultiAgentError(
+              MultiAgentErrorType.VALIDATION_ERROR,
+              `Circular dependency detected: ${taskId} -> ${dep.taskId}`
+            )
+          }
+        }
+      }
+
+      recursionStack.delete(taskId)
+      return false
+    }
+
+    for (const task of subTasks) {
+      if (!visited.has(task.id)) {
+        dfs(task.id)
+      }
+    }
   }
 
   /**

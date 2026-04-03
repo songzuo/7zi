@@ -282,20 +282,24 @@ export function TaskList({ tasks, onTaskClick, className = '' }: TaskListProps) 
                         截止时间: {new Date(task.deadline).toLocaleString('zh-CN')}
                       </div>
                     )}
-                    {task.metadata?.tags &&
-                      Array.isArray(task.metadata.tags) &&
-                      task.metadata.tags.length > 0 && (
-                        <div className="mt-2 flex flex-wrap gap-1">
-                          {task.metadata.tags.map((tag: string) => (
-                            <span
-                              key={tag}
-                              className={`rounded px-2 py-0.5 text-xs ${isDark ? 'bg-zinc-700 text-zinc-300' : 'bg-zinc-200 text-zinc-700'} `}
-                            >
-                              #{tag}
-                            </span>
-                          ))}
-                        </div>
-                      )}
+                    {(() => {
+                      const tags = task.metadata?.tags
+                      if (Array.isArray(tags) && tags.length > 0) {
+                        return (
+                          <div className="mt-2 flex flex-wrap gap-1">
+                            {(tags as string[]).map((tag: string) => (
+                              <span
+                                key={tag}
+                                className={`rounded px-2 py-0.5 text-xs ${isDark ? 'bg-zinc-700 text-zinc-300' : 'bg-zinc-200 text-zinc-700'} `}
+                              >
+                                #{tag}
+                              </span>
+                            ))}
+                          </div>
+                        )
+                      }
+                      return null
+                    })()}
                   </div>
                 )}
               </div>

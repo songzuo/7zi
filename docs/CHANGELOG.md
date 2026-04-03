@@ -7,6 +7,312 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
+## [Unreleased]
+
+### 🔄 进行中
+
+- 工作流模板库扩展
+- 性能监控告警渠道完善 (Slack 集成)
+- 根因分析自动化
+
+---
+
+## [v1.10.0] - 2026-04-03 🤖 智能代码生成增强
+
+### 🎯 版本主题
+
+**智能代码分析** · **代码审查** · **Bug检测** · **修复建议** · **代码解释**
+
+### 📊 完成度总览
+
+| 功能模块                         | 完成度 | 状态      |
+| -------------------------------- | ------ | --------- |
+| **代码分析器**                   | 100%   | ✅ 已完成 |
+| **代码补全器**                   | 100%   | ✅ 已完成 |
+| **代码审查器**                   | 100%   | ✅ 已完成 |
+| **Bug 检测器**                   | 100%   | ✅ 已完成 |
+| **修复建议生成器**               | 100%   | ✅ 已完成 |
+| **代码解释器**                   | 100%   | ✅ 已完成 |
+| **TaskParser 集成**              | 100%   | ✅ 已完成 |
+| **单元测试**                     | 100%   | ✅ 已完成 |
+
+### ✨ 新增 / Added
+
+#### **📊 代码分析器** (`src/lib/ai/code/code-analyzer.ts`)
+
+- ✅ 静态分析代码结构
+- ✅ 计算复杂度指标（圈复杂度、认知复杂度、可维护性指数）
+- ✅ 提取依赖、导入、导出
+- ✅ 统计代码行数、函数、类数量
+- ✅ 支持 TypeScript/JavaScript/Python/Go/Rust
+
+#### **⌨️ 代码补全器** (`src/lib/ai/code/code-completer.ts`)
+
+- ✅ 基于上下文的智能补全
+- ✅ 关键词补全
+- ✅ 代码片段补全（Snippet）
+- ✅ 变量和函数建议
+- ✅ 模式匹配补全
+- ✅ 多语言特定规则
+
+#### **🔍 代码审查器** (`src/lib/ai/code/code-reviewer.ts`)
+
+- ✅ 自动审查代码质量问题
+- ✅ 安全问题检测（eval、innerHTML、硬编码密钥）
+- ✅ 性能问题检测（DOM 操作、同步 XHR）
+- ✅ 代码质量问题检测（变量遮蔽、空 catch 块）
+- ✅ 最佳实践检测（any 类型、== vs ===）
+- ✅ 30+ 审查规则
+- ✅ 评分系统（总体、可读性、可维护性、安全性、性能）
+
+#### **🐛 Bug 检测器** (`src/lib/ai/code/bug-detector.ts`)
+
+- ✅ 识别常见代码错误模式
+- ✅ 空引用检测
+- ✅ 类型不匹配检测
+- ✅ 数组越界检测
+- ✅ 异步错误检测（缺失 await、未处理 Promise）
+- ✅ 内存泄漏检测（事件监听器、定时器）
+- ✅ 逻辑错误检测（无限循环、赋值与比较混淆）
+- ✅ 20+ Bug 模式
+
+#### **🔧 修复建议生成器** (`src/lib/ai/code/fix-suggester.ts`)
+
+- ✅ 生成修复代码
+- ✅ 解释修复原因
+- ✅ 评估风险等级
+- ✅ 预估成功率
+- ✅ 生成 Diff 格式
+- ✅ 12+ 修复模板
+
+#### **📖 代码解释器** (`src/lib/ai/code/code-explainer.ts`)
+
+- ✅ 用自然语言解释代码逻辑
+- ✅ 提取关键概念
+- ✅ 生成详细解释
+- ✅ 解释代码片段
+- ✅ 分析复杂度（时间、空间）
+
+#### **🔗 TaskParser 集成** (`src/lib/ai/code/task-parser-integration.ts`)
+
+- ✅ 与现有 TaskParser 集成
+- ✅ 为工作流节点生成代码
+- ✅ 智能任务解析（带代码生成）
+- ✅ 工作流代码生成器
+
+#### **🧪 单元测试** (`src/lib/ai/code/__tests__/code-enhancer.test.ts`)
+
+- ✅ 代码分析测试
+- ✅ 代码补全测试
+- ✅ 代码审查测试
+- ✅ Bug 检测测试
+- ✅ 修复建议测试
+- ✅ 代码解释测试
+- ✅ 完整分析测试
+- ✅ 多语言支持测试
+- ✅ 性能测试
+
+### 📁 文件结构
+
+```
+src/lib/ai/code/
+├── index.ts                      # 主类和导出
+├── types.ts                      # 类型定义
+├── code-analyzer.ts              # 代码分析器
+├── code-completer.ts             # 代码补全器
+├── code-reviewer.ts              # 代码审查器
+├── bug-detector.ts               # Bug 检测器
+├── fix-suggester.ts              # 修复建议生成器
+├── code-explainer.ts             # 代码解释器
+├── task-parser-integration.ts    # TaskParser 集成
+└── __tests__/
+    └── code-enhancer.test.ts     # 测试文件
+```
+
+### 🚀 使用示例
+
+```typescript
+import { codeEnhancer } from '@/lib/ai/code'
+
+// 一站式代码分析
+const analysis = await codeEnhancer.fullAnalysis(code, 'typescript')
+
+console.log(analysis.summary)
+// {
+//   totalIssues: 5,
+//   criticalIssues: 1,
+//   highIssues: 2,
+//   mediumIssues: 1,
+//   lowIssues: 1
+// }
+```
+
+### 📝 相关文档
+
+- [v1.10.0 实现报告](/root/.openclaw/workspace/V110_CODE_GENERATION_IMPLEMENTATION_REPORT.md)
+- [v1.10.0 AI 增强功能路线图](/root/.openclaw/workspace/v110_AI_ENHANCEMENT_ROADMAP.md)
+
+---
+
+## [v1.9.1] - 2026-04-03 🐛 Bug 修复与代码优化
+
+### 🔧 修复 / Fixed
+
+- ✅ 修复 AI 模块 export 冲突 (`lib/ai/index.ts` 和 `lib/ai/integration.ts` 重复导出)
+- ✅ 修复 feedback API 测试 mock 缺少 `get` 方法
+- ✅ 修复 `src/lib/workflow/engine.ts` nodeId 缺失问题
+- ✅ 修复测试文件中的 `error` 变量命名问题
+
+### 📝 文档 / Documentation
+
+- ✅ 更新 CHANGELOG v1.9.1
+
+### 🔨 代码优化 / Code Optimization
+
+- ✅ TypeScript `any` 类型清理 (agents 模块)
+- ✅ 移除未使用的 import 语句
+- ✅ 优化类型定义减少隐式 any
+
+---
+
+## [v1.9.0] - 2026-04-03 🎯 AI 对话式任务创建
+
+### 🎯 版本主题
+
+**AI 对话式任务创建** · **自然语言解析** · **实时预览** · **快速创建模态框**
+
+### 📊 完成度总览
+
+| 功能模块                         | 完成度 | 状态      |
+| -------------------------------- | ------ | --------- |
+| **AI 对话式任务创建**            | 100%   | ✅ 已完成 |
+| **自然语言解析器**              | 100%   | ✅ 已完成 |
+| **任务预览面板**                | 100%   | ✅ 已完成 |
+| **快速创建模态框**               | 100%   | ✅ 已完成 |
+| **TaskCreation Hook**            | 100%   | ✅ 已完成 |
+
+### ✨ 新增 / Added
+
+#### **🤖 AI 对话式任务创建** (`src/components/workflow/TaskCreationChat.tsx`)
+
+- ✅ 对话式任务创建界面
+- ✅ 自然语言输入实时解析
+- ✅ 多轮对话支持
+- ✅ 历史记录导航
+- ✅ 快捷提示按钮
+- ✅ 示例任务展示
+- ✅ 意图识别反馈
+
+**组件功能**：
+
+| 功能 | 说明 |
+|------|------|
+| 实时解析 | 输入即解析，实时显示意图 |
+| 置信度显示 | 显示解析结果可信度 |
+| 多轮对话 | 支持修改和重新输入 |
+| 快捷操作 | 一键创建/修改/取消 |
+
+#### **📝 自然语言解析器** (`src/lib/workflow/TaskParser.ts`)
+
+- ✅ 意图识别 (8种类型)
+  - automation: 自动化任务
+  - notification: 通知任务
+  - data_processing: 数据处理
+  - monitoring: 监控任务
+  - integration: 集成任务
+  - scheduled: 定时任务
+  - webhook: Webhook 触发
+  - human_approval: 人工审批
+- ✅ 实体提取
+  - 时间表达式
+  - 接收者
+  - 条件表达式
+  - 动作
+  - 目标
+  - Agent/工具
+- ✅ 自动生成节点和边
+- ✅ 改进建议生成
+- ✅ 工作流定义转换
+- ✅ 解析结果验证
+
+**解析算法**：
+
+| 算法 | 说明 |
+|------|------|
+| 关键词匹配 | 基于关键词权重识别意图 |
+| 正则提取 | 提取时间、接收者等实体 |
+| 节点生成 | 根据意图自动生成工作流节点 |
+| 边连接 | 自动生成节点间连接 |
+
+#### **👁️ 任务预览面板** (`src/components/workflow/TaskPreviewPanel.tsx`)
+
+- ✅ 节点结构可视化
+- ✅ 连接关系展示
+- ✅ 工作流概览
+- ✅ 改进建议展示
+- ✅ JSON 导出
+- ✅ 快速操作按钮
+
+**显示内容**：
+
+| 内容 | 说明 |
+|------|------|
+| 工作流名称 | 解析生成的任务名称 |
+| 意图标签 | 显示识别出的任务类型 |
+| 置信度 | 显示解析可信度百分比 |
+| 节点列表 | 显示所有节点结构 |
+| 边列表 | 显示连接关系 |
+
+#### **⚡ 快速创建模态框** (`src/components/workflow/QuickTaskModal.tsx`)
+
+- ✅ 集成到编辑器
+- ✅ 一键打开
+- ✅ 快速输入
+- ✅ 实时预览
+- ✅ 键盘支持 (Enter 提交, ESC 关闭)
+- ✅ 示例提示
+
+**交互设计**：
+
+| 交互 | 说明 |
+|------|------|
+| 输入步骤 | 输入任务描述 |
+| 预览步骤 | 确认工作流结构 |
+| 一键创建 | 确认后添加到画布 |
+
+#### **🎣 useTaskCreation Hook** (`src/components/workflow/hooks/useTaskCreation.ts`)
+
+- ✅ 任务创建状态管理
+- ✅ 解析文本方法
+- ✅ 确认创建方法
+- ✅ 历史记录导航
+- ✅ 错误处理
+
+### 导出组件
+
+```typescript
+// 导出
+import {
+  TaskCreationChat,
+  TaskPreviewPanel,
+  QuickTaskModal,
+  useTaskCreation,
+} from '@/components/workflow'
+```
+
+### 新增文件
+
+| 文件 | 功能 |
+|------|------|
+| `TaskCreationChat.tsx` | 对话式任务创建主组件 |
+| `TaskPreviewPanel.tsx` | 任务预览面板 |
+| `QuickTaskModal.tsx` | 快速创建模态框 |
+| `hooks/useTaskCreation.ts` | 任务创建 Hook |
+| `TaskParser.ts` | 自然语言解析器 |
+| `TaskParser.test.ts` | 解析器测试 |
+
+---
+
 ## [v1.8.0] - 2026-04-02 🎨 Visual Workflow Orchestrator
 
 ### 🎯 版本亮点
@@ -76,6 +382,159 @@ orchestrator.addEventListener(event => {
   console.log(`${event.type}: ${event.nodeId}`)
 })
 ```
+
+---
+
+## [v1.9.1] - 2026-04-03 📜 工作流版本历史管理
+
+### 🎯 版本主题
+
+**版本历史管理** · **版本对比** · **版本回滚** · **自动清理**
+
+### 📊 完成度总览
+
+| 功能模块                         | 完成度 | 状态      |
+| -------------------------------- | ------ | --------- |
+| **数据库迁移**                   | 100%   | ✅ 已完成 |
+| **版本服务**                     | 100%   | ✅ 已完成 |
+| **API 接口**                     | 100%   | ✅ 已完成 |
+| **前端组件**                     | 100%   | ✅ 已完成 |
+| **单元测试**                     | 100%   | ✅ 已完成 |
+
+### ✨ 新增 / Added
+
+#### **🗄️ 数据库迁移** (`src/lib/db/migrations/v191_workflow_versions.ts`)
+
+- ✅ `workflow_versions` 表 - 存储工作流版本快照
+- ✅ `workflow_version_diffs` 表 - 存储版本对比结果
+- ✅ `workflow_version_settings` 表 - 存储版本设置
+- ✅ 11 个索引优化查询性能
+- ✅ 外键约束保证数据完整性
+
+**表结构**：
+
+| 表名 | 用途 | 主要字段 |
+|------|------|----------|
+| workflow_versions | 版本快照 | id, workflow_id, version_number, nodes, edges, config |
+| workflow_version_diffs | 版本对比 | from_version_id, to_version_id, nodes_added, nodes_removed |
+| workflow_version_settings | 版本设置 | max_versions, auto_version_on_update, retention_days |
+
+#### **🔧 版本服务** (`src/lib/workflow/version-service.ts`)
+
+- ✅ `createVersion()` - 创建版本快照
+- ✅ `getVersions()` - 获取版本列表（支持分页）
+- ✅ `getVersion()` - 获取特定版本
+- ✅ `getLatestVersion()` - 获取最新版本
+- ✅ `compareVersions()` - 对比两个版本
+- ✅ `rollbackToVersion()` - 回滚到指定版本
+- ✅ `cleanupOldVersions()` - 清理过期版本
+- ✅ `getVersionSettings()` - 获取版本设置
+- ✅ `updateVersionSettings()` - 更新版本设置
+- ✅ `deleteAllVersions()` - 删除所有版本
+
+**核心功能**：
+
+| 功能 | 说明 |
+|------|------|
+| 版本快照 | 保存完整的工作流状态（节点、边、配置） |
+| 版本对比 | 计算节点、边、配置的差异 |
+| 版本回滚 | 创建新版本恢复到历史状态 |
+| 自动清理 | 根据设置自动删除旧版本 |
+
+#### **🌐 API 接口**
+
+**版本管理** (`src/app/api/workflow/[id]/versions/route.ts`)
+
+- ✅ `GET /api/workflow/[id]/versions` - 获取版本列表
+- ✅ `POST /api/workflow/[id]/versions` - 创建新版本
+
+**版本详情** (`src/app/api/workflow/[id]/versions/[versionId]/route.ts`)
+
+- ✅ `GET /api/workflow/[id]/versions/[versionId]` - 获取特定版本
+- ✅ `DELETE /api/workflow/[id]/versions/[versionId]` - 删除版本（受限）
+
+**版本对比** (`src/app/api/workflow/[id]/versions/compare/route.ts`)
+
+- ✅ `GET /api/workflow/[id]/versions/compare` - 对比两个版本
+
+**版本回滚** (`src/app/api/workflow/[id]/versions/[versionId]/rollback/route.ts`)
+
+- ✅ `POST /api/workflow/[id]/versions/[versionId]/rollback` - 回滚到指定版本
+
+**版本设置** (`src/app/api/workflow/[id]/versions/settings/route.ts`)
+
+- ✅ `GET /api/workflow/[id]/versions/settings` - 获取版本设置
+- ✅ `PUT /api/workflow/[id]/versions/settings` - 更新版本设置
+
+**API 集成** (`src/app/api/workflow/[id]/route.ts`)
+
+- ✅ 更新工作流时自动创建版本快照
+- ✅ 删除工作流时清理版本历史
+
+#### **🎨 前端组件** (`src/components/workflow/WorkflowVersionHistory.tsx`)
+
+- ✅ 版本列表展示
+- ✅ 版本详情查看
+- ✅ 版本选择（用于对比）
+- ✅ 版本对比视图
+- ✅ 版本回滚功能
+- ✅ 版本设置面板
+- ✅ 变更类型标签
+- ✅ 时间相对显示
+- ✅ 加载状态处理
+- ✅ 错误处理
+
+**组件功能**：
+
+| 功能 | 说明 |
+|------|------|
+| 版本列表 | 显示所有版本，按时间倒序 |
+| 版本对比 | 选择两个版本进行对比 |
+| 变更展示 | 显示节点、边、配置的变更 |
+| 版本回滚 | 一键回滚到历史版本 |
+| 版本设置 | 配置最大版本数、保留天数等 |
+
+#### **🧪 单元测试**
+
+**版本服务测试** (`src/lib/workflow/__tests__/version-service.test.ts`)
+
+- ✅ 创建版本测试
+- ✅ 版本列表测试
+- ✅ 版本对比测试
+- ✅ 版本回滚测试
+- ✅ 版本清理测试
+- ✅ 版本设置测试
+- ✅ 删除版本测试
+
+**API 测试** (`src/app/api/workflow/[id]/versions/__tests__/api.test.ts`)
+
+- ✅ GET /versions 测试
+- ✅ POST /versions 测试
+- ✅ GET /versions/[versionId] 测试
+- ✅ GET /versions/compare 测试
+- ✅ POST /versions/[versionId]/rollback 测试
+- ✅ GET/PUT /versions/settings 测试
+
+### 🔧 改进 / Changed
+
+#### **工作流更新集成**
+
+- ✅ 更新工作流时自动创建版本快照（可配置）
+- ✅ 删除工作流时自动清理版本历史
+- ✅ 版本创建失败不影响工作流更新
+
+### 📝 文档 / Documentation
+
+- ✅ 数据库迁移文档
+- ✅ API 接口文档
+- ✅ 组件使用文档
+- ✅ 测试覆盖文档
+
+### 🐛 修复 / Fixed
+
+- ✅ 版本对比缓存失效问题
+- ✅ 版本清理时索引未删除问题
+- ✅ 版本回滚时父版本引用问题
 
 ---
 

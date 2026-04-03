@@ -1,0 +1,318 @@
+# Prometheus Alerting Rules for 7zi Platform v1.9.1
+# Updated: 2026-04-03
+
+groups:
+  # ==================== 系统告警规则 ====================
+  - name: system_alerts
+    interval: 30s
+    rules:
+      # CPU 使用率告警
+      - alert: HighCPUUsage
+        expr: 100 - (avg by(instance) (irate(node_cpu_seconds_total{mode="idle"}[5m])) * 100) > 80
+        for: 5m
+        labels:
+          severity: warning
+          category: system
+        annotations:
+          summary: "CPU 使用率过高 - {{ $labels.instance }}"
+          description: "CPU 使用率 {{ $value | printf \"%.2f\" }}% 超过阈值 80%，持续时间 5 分钟"
+          runbook_url: "https://docs.7zi.com/runbook/cpu-high"
+
+      - alert: CriticalCPUUsage
+        expr: 100 - (avg by(instance) (irate(node_cpu_seconds_total{mode="idle"}[5m])) * 100) > 95
+        for: 2m
+        labels:
+          severity: critical
+          category: system
+        annotations:
+          summary: "CPU 使用率严重过高 - {{ $labels.instance }}"
+          description: "CPU 使用率 {{ $value | printf \"%.2f\" }}% 超过阈值 95%，持续时间 2 分钟"
+
+      # 内存使用率告警
+      - alert: HighMemoryUsage
+        expr: (1 - (node_memory_MemAvailable_bytes / node_memory_MemTotal_bytes)) * 100 > 80
+        for: 5m
+        labels:
+          severity: warning
+          category: system
+        annotations:
+          summary: "内存使用率过高 - {{ $labels.instance }}"
+          description: "内存使用率 {{ $value | printf \"%.2f\" }}% 超过阈值 80%，可用内存不足"
+
+      - alert: CriticalMemoryUsage
+        expr: (1 - (node_memory_MemAvailable_bytes / node_memory_MemTotal_bytes)) * 100 > 95
+        for: 2m
+        labels:
+          severity: critical
+          category: system
+        annotations:
+          summary: "内存使用率严重过高 - {{ $labels.instance }}"
+          description: "内存使用率 {{ $value | printf \"%.2f\" }}% 超过阈值 95%，系统可能 OOM"
+
+      # 磁盘使用率告警
+      - alert: HighDiskUsage
+        expr: (1 - (node_filesystem_avail_bytes{fstype!~"tmpfs|overlay"} / node_filesystem_size_bytes{fstype!~"tmpfs|overlay"})) * 100 > 80
+        for: 5m
+        labels:
+          severity: warning
+          category: system
+        annotations:
+          summary: "磁盘使用率过高 - {{ $labels.instance }}"
+          description: "磁盘 {{ $labels.mountpoint }} 使用率 {{ $value | printf \"%.2f\" }}% 超过阈值 80%"
+
+      - alert: CriticalDiskUsage
+        expr: (1 - (node_filesystem_avail_bytes{fstype!~"tmpfs|overlay"} / node_filesystem_size_bytes{fstype!~"tmpfs|overlay"})) * 100 > 95
+        for: 2m
+        labels:
+          severity: critical
+          category: system
+        annotations:
+          summary: "磁盘使用率严重过高 - {{ $labels.instance }}"
+          description: "磁盘 {{ $labels.mountpoint }} 使用率 {{ $value | printf \"%.2f\" }}% 超过阈值 95%"
+
+      # 磁盘 I/O 告警
+      - alert: HighDiskIO
+        expr: irate(node_disk_io_time_seconds_total[5m]) > 0.8
+        for: 5m
+        labels:
+          severity: warning
+          category: system
+        annotations:
+          summary: "磁盘 I/O 过高 - {{ $labels.instance }}"
+          description: "磁盘 {{ $labels.device }} I/O 等待时间 {{ $value | printf \"%.2f\" }}s 超过阈值"
+
+      # 网络流量告警
+      - alert: HighNetworkTraffic
+        expr: irate(node_network_receive_bytes_total{device!~"lo|veth.*"}[5m]) > 100 * 1024 * 1024
+        for: 5m
+        labels:
+          severity: warning
+          category: network
+        annotations:
+          summary: "网络入站流量过高 - {{ $labels.instance }}"
+          description: "网卡 {{ $labels.device }} 入站流量超过 100 MB/s"
+
+      - alert: HighNetworkErrors
+        expr: irate(node_network_receive_errs_total[5m]) > 10
+        for: 5m
+        labels:
+          severity: warning
+          category: network
+        annotations:
+          summary: "网络错误率过高 - {{ $labels.instance }}"
+          description: "网卡 {{ $labels.device }} 每秒超过 10 个错误"
+
+      # 系统负载告警
+      - alert: HighSystemLoad
+        expr: node_load15 / count(node_cpu_seconds_total{mode="idle"}) without(cpu) > 2
+        for: 5m
+        labels:
+          severity: warning
+          category: system
+        annotations:
+          summary: "系统负载过高 - {{ $labels.instance }}"
+          description: "15 分钟平均负载 {{ $value | printf \"%.2f\" }} 超过 CPU 核心数的 2 倍"
+
+  # ==================== 容器告警规则 ====================
+  - name: container_alerts
+    interval: 30s
+    rules:
+      # 容器 CPU 告警
+      - alert: ContainerHighCPU
+        expr: rate(container_cpu_usage_seconds_total{container!=""}[5m]) * 100 > 80
+        for: 5m
+        labels:
+          severity: warning
+          category: container
+        annotations:
+          summary: "容器 CPU 使用率过高"
+          description: "容器 {{ $labels.name }} CPU 使用率 {{ $value | printf \"%.2f\" }}% 超过阈值 80%"
+
+      # 容器内存告警
+      - alert: ContainerHighMemory
+        expr: (container_memory_usage_bytes{container!=""} / container_spec_memory_limit_bytes{container!=""}) * 100 > 80
+        for: 5m
+        labels:
+          severity: warning
+          category: container
+        annotations:
+          summary: "容器内存使用率过高"
+          description: "容器 {{ $labels.name }} 内存使用率 {{ $value | printf \"%.2f\" }}% 超过阈值 80%"
+
+      # 容器重启告警
+      - alert: ContainerRestarting
+        expr: increase(container_restart_count{container!=""}[1h]) > 3
+        for: 1m
+        labels:
+          severity: warning
+          category: container
+        annotations:
+          summary: "容器频繁重启"
+          description: "容器 {{ $labels.name }} 在过去 1 小时内重启 {{ $value }} 次"
+
+      # 容器状态告警
+      - alert: ContainerNotRunning
+        expr: container_last_seen{name=~"7zi.*"} > 60
+        for: 1m
+        labels:
+          severity: critical
+          category: container
+        annotations:
+          summary: "容器未运行"
+          description: "容器 {{ $labels.name }} 超过 60 秒未报告状态"
+
+  # ==================== 应用告警规则 ====================
+  - name: application_alerts
+    interval: 30s
+    rules:
+      # API 响应时间告警
+      - alert: APIHighLatency
+        expr: histogram_quantile(0.95, rate(http_request_duration_seconds_bucket{job="7zi-frontend"}[5m])) > 1
+        for: 5m
+        labels:
+          severity: warning
+          category: application
+        annotations:
+          summary: "API 响应时间过长"
+          description: "API P95 响应时间 {{ $value | printf \"%.2f\" }}s 超过阈值 1s"
+
+      - alert: APICriticalLatency
+        expr: histogram_quantile(0.95, rate(http_request_duration_seconds_bucket{job="7zi-frontend"}[5m])) > 3
+        for: 2m
+        labels:
+          severity: critical
+          category: application
+        annotations:
+          summary: "API 响应时间严重过长"
+          description: "API P95 响应时间 {{ $value | printf \"%.2f\" }}s 超过阈值 3s"
+
+      # API 错误率告警
+      - alert: APIHighErrorRate
+        expr: sum(rate(http_requests_total{job="7zi-frontend",status=~"5.."}[5m])) / sum(rate(http_requests_total{job="7zi-frontend"}[5m])) * 100 > 5
+        for: 5m
+        labels:
+          severity: warning
+          category: application
+        annotations:
+          summary: "API 错误率过高"
+          description: "API 5xx 错误率 {{ $value | printf \"%.2f\" }}% 超过阈值 5%"
+
+      - alert: APICriticalErrorRate
+        expr: sum(rate(http_requests_total{job="7zi-frontend",status=~"5.."}[5m])) / sum(rate(http_requests_total{job="7zi-frontend"}[5m])) * 100 > 10
+        for: 2m
+        labels:
+          severity: critical
+          category: application
+        annotations:
+          summary: "API 错误率严重过高"
+          description: "API 5xx 错误率 {{ $value | printf \"%.2f\" }}% 超过阈值 10%"
+
+      # API QPS 告警
+      - alert: LowQPS
+        expr: sum(rate(http_requests_total{job="7zi-frontend"}[5m])) < 1
+        for: 10m
+        labels:
+          severity: warning
+          category: application
+        annotations:
+          summary: "API 请求量过低"
+          description: "API QPS {{ $value | printf \"%.2f\" }} 低于阈值 1，可能服务异常"
+
+      - alert: HighQPS
+        expr: sum(rate(http_requests_total{job="7zi-frontend"}[5m])) > 1000
+        for: 5m
+        labels:
+          severity: warning
+          category: application
+        annotations:
+          summary: "API 请求量过高"
+          description: "API QPS {{ $value | printf \"%.2f\" }} 超过阈值 1000，可能需要扩容"
+
+  # ==================== 子代理告警规则 ====================
+  - name: subagent_alerts
+    interval: 30s
+    rules:
+      # 子代理执行时间告警
+      - alert: SubagentHighLatency
+        expr: histogram_quantile(0.95, rate(subagent_execution_duration_seconds_bucket[5m])) > 30
+        for: 5m
+        labels:
+          severity: warning
+          category: subagent
+        annotations:
+          summary: "子代理执行时间过长"
+          description: "子代理 {{ $labels.name }} P95 执行时间 {{ $value | printf \"%.2f\" }}s 超过阈值 30s"
+
+      # 子代理错误率告警
+      - alert: SubagentHighErrorRate
+        expr: sum(rate(subagent_executions_total{status="failed"}[5m])) / sum(rate(subagent_executions_total[5m])) * 100 > 5
+        for: 5m
+        labels:
+          severity: warning
+          category: subagent
+        annotations:
+          summary: "子代理错误率过高"
+          description: "子代理失败率 {{ $value | printf \"%.2f\" }}% 超过阈值 5%"
+
+      # 子代理队列积压告警
+      - alert: SubagentQueueBacklog
+        expr: subagent_queue_size > 100
+        for: 5m
+        labels:
+          severity: warning
+          category: subagent
+        annotations:
+          summary: "子代理队列积压"
+          description: "子代理队列大小 {{ $value }} 超过阈值 100"
+
+  # ==================== 服务可用性告警 ====================
+  - name: availability_alerts
+    interval: 30s
+    rules:
+      # 服务宕机告警
+      - alert: ServiceDown
+        expr: up == 0
+        for: 1m
+        labels:
+          severity: critical
+          category: availability
+        annotations:
+          summary: "服务不可用"
+          description: "服务 {{ $labels.job }} / {{ $labels.instance }} 已宕机超过 1 分钟"
+
+      # Prometheus 抓取失败告警
+      - alert: PrometheusScrapeFailure
+        expr: increase(prometheus_scrape_failures_total[5m]) > 10
+        for: 5m
+        labels:
+          severity: warning
+          category: availability
+        annotations:
+          summary: "Prometheus 抓取失败"
+          description: "过去 5 分钟内抓取失败 {{ $value }} 次"
+
+  # ==================== 数据库告警规则 ====================
+  - name: database_alerts
+    interval: 30s
+    rules:
+      # 数据库连接数告警
+      - alert: DatabaseHighConnections
+        expr: db_connection_pool_active / db_connection_pool_max > 0.8
+        for: 5m
+        labels:
+          severity: warning
+          category: database
+        annotations:
+          summary: "数据库连接池使用率过高"
+          description: "数据库连接池使用率 {{ $value | printf \"%.2f\" }}% 超过阈值 80%"
+
+      # 数据库慢查询告警
+      - alert: DatabaseSlowQueries
+        expr: increase(db_slow_queries_total[5m]) > 10
+        for: 5m
+        labels:
+          severity: warning
+          category: database
+        annotations:
+          summary: "数据库慢查询过多"
+          description: "过去 5 分钟内慢查询数量 {{ $value }} 超过阈值 10"

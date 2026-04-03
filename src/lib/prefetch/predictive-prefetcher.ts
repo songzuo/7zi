@@ -15,6 +15,14 @@ export interface UserBehaviorPattern {
   lastVisitTime: number
 }
 
+export interface SerializedUserBehaviorPattern {
+  path: string
+  visitCount: number
+  nextPages: [string, number][]
+  avgTimeSpent: number
+  lastVisitTime: number
+}
+
 export interface UserContext {
   currentPath: string
   previousPath?: string
@@ -394,21 +402,21 @@ export class PredictivePrefetcher {
   /**
    * 导出行为模式（用于持久化）
    */
-  exportPatterns(): UserBehaviorPattern[] {
+  exportPatterns(): SerializedUserBehaviorPattern[] {
     return Array.from(this.behaviorPatterns.values()).map(pattern => ({
       ...pattern,
       nextPages: Array.from(pattern.nextPages.entries()),
-    })) as UserBehaviorPattern[]
+    }))
   }
 
   /**
    * 导入行为模式
    */
-  importPatterns(patterns: UserBehaviorPattern[]): void {
+  importPatterns(patterns: SerializedUserBehaviorPattern[]): void {
     for (const pattern of patterns) {
       this.behaviorPatterns.set(pattern.path, {
         ...pattern,
-        nextPages: new Map(Object.entries(pattern.nextPages as Record<string, number>)),
+        nextPages: new Map(pattern.nextPages),
       })
     }
   }

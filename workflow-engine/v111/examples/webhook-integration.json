@@ -1,0 +1,204 @@
+{
+  "name": "Webhook Integration Workflow",
+  "description": "Receive webhook, process data, and trigger actions",
+  "version": "1.0.0",
+  "status": "published",
+  "triggers": [
+    {
+      "id": "webhook_trigger",
+      "type": "webhook",
+      "config": {
+        "webhook": {
+          "path": "/webhooks/incoming",
+          "method": "POST",
+          "authentication": {
+            "type": "bearer"
+          },
+          "rateLimit": {
+            "max": 100,
+            "window": 60000
+          }
+        }
+      },
+      "enabled": true
+    }
+  ],
+  "nodes": [
+    {
+      "id": "webhook_1",
+      "type": "trigger.webhook",
+      "name": "Receive Webhook",
+      "description": "Receive incoming webhook data",
+      "config": {
+        "webhook": {
+          "path": "/webhooks/incoming",
+          "method": "POST"
+        }
+      }
+    },
+    {
+      "id": "transform_1",
+      "type": "action.transform",
+      "name": "Parse Payload",
+      "description": "Parse and validate webhook payload",
+      "config": {
+        "transform": {
+          "type": "custom",
+          "expression": "{ event: webhook_1.body.event, data: webhook_1.body.data, timestamp: webhook_1.body.timestamp || Date.now() }"
+        }
+      }
+    },
+    {
+      "id": "switch_1",
+      "type": "logic.switch",
+      "name": "Route by Event",
+      "description": "Route to different branches based on event type",
+      "config": {
+        "switch": {
+          "expression": "transform_1.event",
+          "cases": [
+            {
+              "value": "user.created",
+              "branch": "user_created"
+            },
+            {
+              "value": "user.updated",
+              "branch": "user_updated"
+            },
+            {
+              "value": "user.deleted",
+              "branch": "user_deleted"
+            }
+          ],
+          "default": "unknown_event"
+        }
+      }
+    },
+    {
+      "id": "user_created",
+      "type": "action.http",
+      "name": "Handle User Created",
+      "description": "Process user creation event",
+      "config": {
+        "http": {
+          "url": "https://api.internal.com/users",
+          "method": "POST",
+          "headers": {
+            "Content-Type": "application/json"
+          },
+          "body": "${transform_1.data}"
+        }
+      }
+    },
+    {
+      "id": "user_updated",
+      "type": "action.http",
+      "name": "Handle User Updated",
+      "description": "Process user update event",
+      "config": {
+        "http": {
+          "url": "https://api.internal.com/users/${transform_1.data.id}",
+          "method": "PATCH",
+          "headers": {
+            "Content-Type": "application/json"
+          },
+          "body": "${transform_1.data}"
+        }
+      }
+    },
+    {
+      "id": "user_deleted",
+      "type": "action.http",
+      "name": "Handle User Deleted",
+      "description": "Process user deletion event",
+      "config": {
+        "http": {
+          "url": "https://api.internal.com/users/${transform_1.data.id}",
+          "method": "DELETE"
+        }
+      }
+    },
+    {
+      "id": "unknown_event",
+      "type": "action.slack",
+      "name": "Alert Unknown Event",
+      "description": "Send alert for unknown event types",
+      "config": {
+        "slack": {
+          "channel": "#alerts",
+          "message": "Unknown webhook event received: ${transform_1.event}"
+        }
+      }
+    },
+    {
+      "id": "end_1",
+      "type": "trigger.manual",
+      "name": "End"
+    }
+  ],
+  "edges": [
+    {
+      "id": "e1",
+      "source": "webhook_1",
+      "target": "transform_1"
+    },
+    {
+      "id": "e2",
+      "source": "transform_1",
+      "target": "switch_1"
+    },
+    {
+      "id": "e3",
+      "source": "switch_1",
+      "target": "user_created",
+      "label": "user.created"
+    },
+    {
+      "id": "e4",
+      "source": "switch_1",
+      "target": "user_updated",
+      "label": "user.updated"
+    },
+    {
+      "id": "e5",
+      "source": "switch_1",
+      "target": "user_deleted",
+      "label": "user.deleted"
+    },
+    {
+      "id": "e6",
+      "source": "switch_1",
+      "target": "unknown_event",
+      "label": "default"
+    },
+    {
+      "id": "e7",
+      "source": "user_created",
+      "target": "end_1"
+    },
+    {
+      "id": "e8",
+      "source": "user_updated",
+      "target": "end_1"
+    },
+    {
+      "id": "e9",
+      "source": "user_deleted",
+      "target": "end_1"
+    },
+    {
+      "id": "e10",
+      "source": "unknown_event",
+      "target": "end_1"
+    }
+  ],
+  "retryPolicy": {
+    "maxAttempts": 3,
+    "backoffStrategy": "exponential",
+    "initialDelay": 1000,
+    "maxDelay": 30000
+  },
+  "timeout": 60000,
+  "priority": 10,
+  "tags": ["webhook", "integration", "event-processing"]
+}

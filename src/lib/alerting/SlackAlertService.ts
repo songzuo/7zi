@@ -178,7 +178,6 @@ export class SlackAlertService implements AlertChannel {
     }
 
     this.config = {
-      enabled: true,
       minLevel: 'warning',
       ...config,
     }

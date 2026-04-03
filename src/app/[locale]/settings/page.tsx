@@ -11,8 +11,6 @@ import { useState, useEffect } from 'react'
 import {
   Skeleton,
   SkeletonText,
-  SkeletonCard,
-  SkeletonSettingsForm,
 } from '@/components/ui/Skeleton'
 
 export default function SettingsPage() {

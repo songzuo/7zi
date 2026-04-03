@@ -377,12 +377,8 @@ export class AgentCollaborationProtocol extends EventEmitter implements IProtoco
 
     await this.messageBus.send(message)
 
-    // 清理待处理任务
-    const pending = this.pendingTasks.get(validated.taskId)
-    if (pending) {
-      clearTimeout(pending.timeout)
-      this.pendingTasks.delete(validated.taskId)
-    }
+    // 清理待处理任务（统一清理方法）
+    this.clearPendingTask(validated.taskId, 'completed')
   }
 
   /**
@@ -411,9 +407,8 @@ export class AgentCollaborationProtocol extends EventEmitter implements IProtoco
 
     await this.messageBus.send(message)
 
-    // 清理待处理任务
-    clearTimeout(pending.timeout)
-    this.pendingTasks.delete(taskId)
+    // 清理待处理任务（统一清理方法）
+    this.clearPendingTask(taskId, reason)
 
     this.emit('task.cancelled', { taskId, reason })
   }
@@ -746,6 +741,23 @@ export class AgentCollaborationProtocol extends EventEmitter implements IProtoco
 
     // 移除所有监听器
     this.removeAllListeners()
+  }
+
+  /**
+   * 清理待处理任务（统一清理方法，防止资源泄漏）
+   */
+  private clearPendingTask(taskId: string, reason?: string): void {
+    const pending = this.pendingTasks.get(taskId)
+    if (pending) {
+      clearTimeout(pending.timeout)
+      this.pendingTasks.delete(taskId)
+
+      // 发出任务清理事件，便于监控
+      this.emit('task.pending.cleared', {
+        taskId,
+        reason: reason || 'unknown',
+      })
+    }
   }
 
   /**

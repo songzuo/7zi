@@ -12,7 +12,18 @@
  */
 
 import { v4 as uuidv4 } from 'uuid'
-import { AgentRegistration, AgentRegistry, Task, TaskState, Message, Artifact, AgentExecutor, RequestContext, SimpleEventBus } from './a2a'
+import {
+  IAgentRegistrationType as AgentRegistration,
+  IAgentRegistryType as AgentRegistry,
+  Task,
+  TaskState,
+  Message,
+  Artifact,
+  AgentExecutor,
+  RequestContext,
+  SimpleEventBus,
+  getAgentRegistry,
+} from './a2a'
 
 // ============================================================================
 // Type Definitions
@@ -901,7 +912,7 @@ export class MultiAgentOrchestrator {
       }
 
       if (step.dependsOn) {
-        for (const depId of step.dependsBy || []) {
+        for (const depId of step.dependsOn || []) {
           graph.get(step.id)!.add(depId)
         }
       }

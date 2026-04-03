@@ -76,6 +76,7 @@ vi.mock('@/lib/db/query-optimizations', () => ({
 }))
 
 const mockDb = {
+  get: vi.fn(),
   query: vi.fn(),
   queryRows: vi.fn(),
   exec: vi.fn(),

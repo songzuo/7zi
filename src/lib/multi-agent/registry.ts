@@ -84,29 +84,29 @@ export class AgentRegistry extends EventEmitter {
   }
 
   /**
-   * 注销 Agent
+   * 注销 Agent（幂等操作）
    */
   async unregister(agentId: string): Promise<void> {
     const agent = this.agents.get(agentId)
-    if (!agent) {
-      throw new MultiAgentError(MultiAgentErrorType.AGENT_NOT_FOUND, `Agent ${agentId} not found`)
+    
+    // 幂等操作：即使 agent 不存在也进行清理
+    if (agent) {
+      // 清除能力索引
+      this.removeCapabilityIndex(agentId, agent.capabilities)
+      
+      // 发出事件
+      this.emit('unregister', {
+        type: 'unregister',
+        agentId,
+        data: agent as unknown as Record<string, unknown>,
+      } as AgentRegistryEvent)
     }
-
-    // 清除能力索引
-    this.removeCapabilityIndex(agentId, agent.capabilities)
-
-    // 清除心跳定时器
+    
+    // 清除心跳定时器（无论 agent 是否存在都要清理）
     this.clearHeartbeat(agentId)
 
     // 移除 Agent
     this.agents.delete(agentId)
-
-    // 发出事件
-    this.emit('unregister', {
-      type: 'unregister',
-      agentId,
-      data: agent as unknown as Record<string, unknown>,
-    } as AgentRegistryEvent)
   }
 
   /**

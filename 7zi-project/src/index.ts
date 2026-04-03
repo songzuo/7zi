@@ -5,3 +5,4 @@
 export * from './lib/agents';
 export * from './lib/a2a';
 export * from './lib/multi-agent';
+export * from './lib/audit';

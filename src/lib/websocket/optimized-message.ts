@@ -11,6 +11,7 @@
  */
 
 import { createGzip, createUnzip, gzipSync, unzipSync } from 'zlib'
+import type { Server as SocketIOServer, Socket } from 'socket.io'
 
 // ============================================
 // Types
@@ -50,11 +51,37 @@ export interface CompressionConfig {
   batchTimeoutMs: number // Max time to wait for batching
 }
 
+/**
+ * Send callback type for WebSocket message delivery
+ */
+export type SendCallback = (message: WebSocketMessage | OptimizedMessage) => void
+
+/**
+ * Batch send callback type for batched WebSocket message delivery
+ */
+export type BatchSendCallback = (batch: MessageBatch) => void
+
+/**
+ * Configuration for the optimized message handler
+ */
+export interface OptimizedMessageHandlerConfig {
+  compression?: CompressionConfig
+  sendCallback?: SendCallback
+  batchSendCallback?: BatchSendCallback
+  roomId?: string
+  socket?: Socket
+  /**
+   * Socket.IO server instance for direct access
+   * Note: Use setServer() method to set this after initialization
+   */
+  server?: SocketIOServer
+}
+
 // ============================================
 // Message Compression
 // ============================================
 
-const defaultCompressionConfig: CompressionConfig = {
+export const defaultCompressionConfig: CompressionConfig = {
   enabled: true,
   thresholdBytes: 1024, // 1KB
   batchSize: 10,
@@ -274,10 +301,21 @@ export class OptimizedMessageHandler {
   private batcher: MessageBatcher
   private compressionConfig: CompressionConfig
   private useCompression: boolean = true
+  private sendCallback: SendCallback | null = null
+  private batchSendCallback: BatchSendCallback | null = null
+  private socket: Socket | null = null
+  private server: SocketIOServer | null = null
+  private roomId?: string
 
-  constructor(compressionConfig: CompressionConfig = defaultCompressionConfig) {
-    this.compressionConfig = compressionConfig
-    this.batcher = new MessageBatcher(compressionConfig)
+  constructor(config: OptimizedMessageHandlerConfig = {}) {
+    this.compressionConfig = config.compression ?? defaultCompressionConfig
+    this.sendCallback = config.sendCallback ?? null
+    this.batchSendCallback = config.batchSendCallback ?? null
+    this.socket = config.socket ?? null
+    this.server = config.server ?? null
+    this.roomId = config.roomId
+
+    this.batcher = new MessageBatcher(this.compressionConfig)
 
     this.batcher.onFlush((batch) => {
       this.processBatch(batch)
@@ -285,13 +323,47 @@ export class OptimizedMessageHandler {
   }
 
   /**
+   * Set the send callback for single message delivery
+   */
+  onSend(callback: SendCallback): void {
+    this.sendCallback = callback
+  }
+
+  /**
+   * Set the batch send callback for batched message delivery
+   */
+  onBatchSend(callback: BatchSendCallback): void {
+    this.batchSendCallback = callback
+  }
+
+  /**
+   * Set the socket instance for direct sending
+   */
+  setSocket(socket: Socket): void {
+    this.socket = socket
+  }
+
+  /**
+   * Set the Socket.IO server instance for broadcasting
+   */
+  setServer(server: SocketIOServer): void {
+    this.server = server
+  }
+
+  /**
+   * Set the room ID for room-scoped messages
+   */
+  setRoomId(roomId: string): void {
+    this.roomId = roomId
+    this.batcher.setRoom(roomId)
+  }
+
+  /**
    * Send a message (potentially compressed/batched)
    */
   send(message: WebSocketMessage): void {
-    // For now, just send directly
-    // In production, this would integrate with Socket.IO
     const optimized = this.compressMessage(message)
-    // TODO: Send to WebSocket
+    this.deliverMessage(optimized, message)
   }
 
   /**
@@ -299,7 +371,68 @@ export class OptimizedMessageHandler {
    */
   sendImmediate(message: WebSocketMessage): void {
     const optimized = this.compressMessage(message)
-    // TODO: Send to WebSocket
+    this.deliverImmediate(optimized, message)
+  }
+
+  /**
+   * Deliver a message through available channels
+   * Priority: callback > socket > server instance
+   */
+  private deliverMessage(optimized: OptimizedMessage, original: WebSocketMessage): void {
+    // Use custom send callback if provided
+    if (this.sendCallback) {
+      this.sendCallback(optimized)
+      return
+    }
+
+    // Use socket instance if available
+    if (this.socket) {
+      if (optimized.compressed) {
+        this.socket.emit('message:compressed', {
+          compressed: optimized.compressed.toString('base64'),
+          originalSize: optimized.originalSize,
+          roomId: this.roomId,
+        })
+      } else if (optimized.batch && optimized.batch.length > 0) {
+        this.socket.emit('message', {
+          ...optimized.batch[0],
+          roomId: this.roomId ?? optimized.batch[0].roomId,
+        })
+      }
+      return
+    }
+
+    // Use server instance if available
+    if (this.server) {
+      if (optimized.compressed) {
+        // Broadcast compressed message to room or globally
+        if (this.roomId) {
+          this.server.to(this.roomId).emit('message:compressed', {
+            compressed: optimized.compressed.toString('base64'),
+            originalSize: optimized.originalSize,
+          })
+        } else {
+          this.server.emit('message:compressed', {
+            compressed: optimized.compressed.toString('base64'),
+            originalSize: optimized.originalSize,
+          })
+        }
+      } else if (optimized.batch && optimized.batch.length > 0) {
+        const msg = optimized.batch[0]
+        if (this.roomId || msg.roomId) {
+          this.server.to(this.roomId ?? msg.roomId!).emit('message', msg)
+        } else {
+          this.server.emit('message', msg)
+        }
+      }
+    }
+  }
+
+  /**
+   * Deliver a message immediately (no batching, direct send)
+   */
+  private deliverImmediate(optimized: OptimizedMessage, original: WebSocketMessage): void {
+    this.deliverMessage(optimized, original)
   }
 
   /**
@@ -313,7 +446,99 @@ export class OptimizedMessageHandler {
    * Process a batch of messages
    */
   private processBatch(batch: MessageBatch): void {
-    // TODO: Send batch to WebSocket
+    // Use custom batch send callback if provided
+    if (this.batchSendCallback) {
+      this.batchSendCallback(batch)
+      return
+    }
+
+    // Compress the batch if beneficial
+    const serialized = JSON.stringify(batch.messages)
+    const originalSize = Buffer.byteLength(serialized, 'utf8')
+
+    // Try compression for large batches
+    if (originalSize > this.compressionConfig.thresholdBytes) {
+      try {
+        const compressed = gzipSync(serialized)
+        if (compressed.length < originalSize) {
+          this.deliverBatchCompressed(compressed, originalSize, batch)
+          return
+        }
+      } catch (error) {
+        console.warn('Batch compression failed:', error)
+      }
+    }
+
+    // Deliver uncompressed batch
+    this.deliverBatchUncompressed(batch)
+  }
+
+  /**
+   * Deliver a compressed batch
+   */
+  private deliverBatchCompressed(
+    compressed: Buffer,
+    originalSize: number,
+    batch: MessageBatch
+  ): void {
+    // Use socket instance if available
+    if (this.socket) {
+      this.socket.emit('message:batch:compressed', {
+        compressed: compressed.toString('base64'),
+        originalSize,
+        count: batch.messages.length,
+        roomId: batch.roomId ?? this.roomId,
+        timestamp: batch.timestamp,
+      })
+      return
+    }
+
+    // Use server instance if available
+    if (this.server) {
+      const targetRoom = batch.roomId ?? this.roomId
+      const payload = {
+        compressed: compressed.toString('base64'),
+        originalSize,
+        count: batch.messages.length,
+        timestamp: batch.timestamp,
+      }
+      if (targetRoom) {
+        this.server.to(targetRoom).emit('message:batch:compressed', payload)
+      } else {
+        this.server.emit('message:batch:compressed', payload)
+      }
+    }
+  }
+
+  /**
+   * Deliver an uncompressed batch
+   */
+  private deliverBatchUncompressed(batch: MessageBatch): void {
+    // Use socket instance if available
+    if (this.socket) {
+      this.socket.emit('message:batch', {
+        messages: batch.messages,
+        count: batch.messages.length,
+        roomId: batch.roomId ?? this.roomId,
+        timestamp: batch.timestamp,
+      })
+      return
+    }
+
+    // Use server instance if available
+    if (this.server) {
+      const targetRoom = batch.roomId ?? this.roomId
+      const payload = {
+        messages: batch.messages,
+        count: batch.messages.length,
+        timestamp: batch.timestamp,
+      }
+      if (targetRoom) {
+        this.server.to(targetRoom).emit('message:batch', payload)
+      } else {
+        this.server.emit('message:batch', payload)
+      }
+    }
   }
 
   /**
@@ -356,7 +581,7 @@ export function createMessageBatcher(
 }
 
 export function createOptimizedMessageHandler(
-  config?: CompressionConfig
+  config?: OptimizedMessageHandlerConfig
 ): OptimizedMessageHandler {
   return new OptimizedMessageHandler(config)
 }
@@ -375,4 +600,5 @@ export default {
   OptimizedMessageHandler,
   createMessageBatcher,
   createOptimizedMessageHandler,
+  defaultCompressionConfig,
 }

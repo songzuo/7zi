@@ -14,18 +14,25 @@ vi.mock('@/lib/logger', () => ({
   },
 }))
 
-// Mock ExcelJS
-vi.mock('exceljs', () => {
+// Mock XLSX Wrapper (replaces ExcelJS mock)
+vi.mock('@/lib/export/xlsx-wrapper', () => {
+  const mockWorksheet = {
+    addRow: vi.fn(() => ({
+      font: vi.fn(),
+      fill: vi.fn(),
+    })),
+    getColumn: vi.fn(() => ({
+      width: 15,
+    })),
+  }
   const mockWorkbook = {
-    addWorksheet: vi.fn(() => ({})),
+    addWorksheet: vi.fn(() => mockWorksheet),
     xlsx: {
       writeBuffer: vi.fn(() => Promise.resolve(Buffer.from('mock-excel-data'))),
     },
   }
   return {
-    default: {
-      Workbook: vi.fn(() => mockWorkbook),
-    },
+    Workbook: vi.fn(() => mockWorkbook),
   }
 })
 

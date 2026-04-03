@@ -229,13 +229,13 @@ export function NodeEditorPanel({
       } else {
         // 根据节点类型更新对应的配置
         if (prev.type === NodeType.AGENT) {
-          updates.agentConfig = { ...prev.agentConfig, [key]: value } as any
+          updates.agentConfig = { ...prev.agentConfig, [key]: value }
         } else if (prev.type === NodeType.CONDITION) {
-          updates.conditionConfig = { ...prev.conditionConfig, [key]: value } as any
+          updates.conditionConfig = { ...prev.conditionConfig, [key]: value }
         } else if (prev.type === NodeType.WAIT) {
-          updates.waitConfig = { ...prev.waitConfig, [key]: value } as any
+          updates.waitConfig = { ...prev.waitConfig, [key]: value }
         } else if (prev.type === NodeType.HUMAN_INPUT) {
-          updates.humanInputConfig = { ...prev.humanInputConfig, [key]: value } as any
+          updates.humanInputConfig = { ...prev.humanInputConfig, [key]: value }
         }
       }
 

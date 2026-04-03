@@ -1,670 +1,829 @@
-# 部署文档
+# v1.11.0 实时协作功能 - 部署与监控配置
 
-**版本**: v1.4.0
-**更新日期**: 2026-03-29
-**Next.js**: 16.2.1
-**React**: 19.2.4
-
----
-
-## 📋 概述
-
-本文档描述 7zi-frontend 项目的完整部署方案，支持本地部署和 CI/CD 自动部署。
-
-## 🏗️ 部署架构
-
-```
-┌─────────────────────────────────────────────────────────┐
-│                    7zi.com 服务器                        │
-│                                                         │
-│  ┌─────────────┐     ┌─────────────────────────────┐   │
-│  │   Nginx     │────▶│   7zi-frontend (Next.js)    │   │
-│  │   :80/443   │     │   Docker Container :3000    │   │
-│  └─────────────┘     └─────────────────────────────┘   │
-│        │                                                │
-│        ▼                                                │
-│   SSL 证书配置                                          │
-│   静态资源缓存                                          │
-│   Gzip 压缩                                             │
-└─────────────────────────────────────────────────────────┘
-```
-
-## 📁 部署文件结构
-
-```
-7zi-project/
-├── Dockerfile                 # Docker 镜像构建文件
-├── docker-compose.yml         # 开发环境 Docker Compose
-├── docker-compose.prod.yml    # 生产环境 Docker Compose
-├── deploy.sh                  # 本地部署脚本
-├── deploy-remote.sh           # 远程部署脚本 ⭐
-├── .env.example               # 环境变量示例
-├── .env.production            # 生产环境变量
-├── .env.production.example    # 生产环境变量示例
-├── nginx/
-│   └── nginx.conf             # Nginx 配置
-└── .github/workflows/
-    ├── ci.yml                 # CI 流水线
-    └── deploy.yml             # 自动部署流水线 ⭐
-```
+**生成日期**: 2026-04-03  
+**服务器**: 7zi.com (165.99.43.61)  
+**当前版本**: API Gateway v3.0
 
 ---
 
-## 🚀 部署方式
+## 一、当前部署状态
 
-### 方式一：远程部署脚本（推荐）
+### 1.1 服务器信息
 
-从本地机器直接部署到服务器：
+| 项目 | 状态 |
+|------|------|
+| 主机 | 7zi.com (165.99.43.61) |
+| 应用目录 | `/opt/api-gateway` |
+| 服务名称 | api-gateway.service |
+| 服务状态 | ✅ Active (running) |
+| 运行时间 | 16h+ |
+| 内存使用 | 170.4M |
+| 端口 | 2000 |
+
+### 1.2 应用结构
+
+```
+/opt/api-gateway/
+├── app/
+│   ├── main.py          # 主应用入口
+│   ├── crud.py          # 数据库操作
+│   ├── models.py        # 数据模型
+│   ├── schemas.py       # 数据模式
+│   ├── database.py      # 数据库配置
+│   ├── api/             # API 路由
+│   ├── core/            # 核心功能
+│   ├── services/        # 服务层
+│   └── static/          # 静态文件
+├── api-gateway.db       # SQLite 数据库
+├── .env                 # 环境配置
+├── run.py              # 启动脚本
+└── logs/               # 日志目录
+```
+
+### 1.3 当前配置
 
 ```bash
-# 进入项目目录
-cd ~/7zi-project
+# 应用配置
+APP_NAME=API Gateway v3.0
+VERSION=3.0.0
+HOST=0.0.0.0
+PORT=2000
 
-# 完整部署（首次部署）
-./deploy-remote.sh deploy
+# 数据库
+DATABASE_URL=sqlite:///./api-gateway.db
 
-# 快速部署（仅同步代码和重启）
-./deploy-remote.sh quick
-
-# 其他命令
-./deploy-remote.sh logs      # 查看日志
-./deploy-remote.sh status    # 查看状态
-./deploy-remote.sh restart   # 重启服务
-./deploy-remote.sh stop      # 停止服务
-./deploy-remote.sh rollback  # 回滚
-```
-
-### 方式二：CI/CD 自动部署
-
-推送到 main 分支自动触发部署：
-
-```bash
-git push origin main
-```
-
-手动触发：
-
-1. 进入 GitHub Actions
-2. 选择 "Deploy to Production" workflow
-3. 点击 "Run workflow"
-
-### 方式三：服务器本地部署
-
-SSH 登录服务器后执行：
-
-```bash
-cd /opt/7zi-frontend
-./deploy.sh deploy
+# JWT 配置
+SECRET_KEY=yFEAgUxiQG8ol8v0D5_Jupn1L0XRzZQpRexdn8axMiI
+ALGORITHM=HS256
+ACCESS_TOKEN_EXPIRE_MINUTES=43200
 ```
 
 ---
 
-## ⚙️ 服务器配置
+## 二、WebSocket 监控方案
 
-### 目标服务器
+### 2.1 监控指标设计
 
-| 项目     | 值                |
-| -------- | ----------------- |
-| 域名     | 7zi.com           |
-| IP       | 165.99.43.61      |
-| 用户     | root              |
-| 部署路径 | /opt/7zi-frontend |
+#### 2.1.1 连接指标
 
-### 前置要求
+| 指标名称 | 描述 | 类型 | 采集频率 |
+|---------|------|------|---------|
+| `ws_connections_total` | 当前活跃连接总数 | Gauge | 实时 |
+| `ws_connections_created` | 新建连接数 | Counter | 实时 |
+| `ws_connections_closed` | 关闭连接数 | Counter | 实时 |
+| `ws_connections_failed` | 连接失败数 | Counter | 实时 |
+| `ws_connection_duration` | 连接持续时间 | Histogram | 连接关闭时 |
 
-服务器需要安装：
+#### 2.1.2 消息指标
 
-- Docker 20.10+
-- Docker Compose 2.0+
-- Git（可选）
+| 指标名称 | 描述 | 类型 | 采集频率 |
+|---------|------|------|---------|
+| `ws_messages_sent` | 发送消息总数 | Counter | 实时 |
+| `ws_messages_received` | 接收消息总数 | Counter | 实时 |
+| `ws_message_size_bytes` | 消息大小（字节） | Histogram | 每条消息 |
+| `ws_message_errors` | 消息错误数 | Counter | 实时 |
 
-自动安装脚本会检查并安装缺失的依赖。
+#### 2.1.3 延迟指标
 
----
+| 指标名称 | 描述 | 类型 | 采集频率 |
+|---------|------|------|---------|
+| `ws_latency_ms` | 消息往返延迟 | Histogram | 每30秒 |
+| `ws_ping_latency_ms` | Ping/Pong 延迟 | Gauge | 每10秒 |
+| `ws_processing_time_ms` | 消息处理时间 | Histogram | 每条消息 |
 
-## 🔐 环境变量配置
+### 2.2 监控实现方案
 
-### 必需配置
+#### 2.2.1 WebSocket 连接管理器
 
-在服务器上创建 `/opt/7zi-frontend/.env.production`：
+```python
+# app/services/websocket_manager.py
 
-```bash
-# ============================================
-# 基础配置
-# ============================================
-NODE_ENV=production
-PORT=3000
-HOSTNAME=0.0.0.0
+from fastapi import WebSocket
+from typing import Dict, Set
+from datetime import datetime
+import asyncio
+import time
+from collections import defaultdict
+from prometheus_client import Counter, Gauge, Histogram
 
-# ============================================
-# 网站统计配置
-# ============================================
-# Google Analytics
-NEXT_PUBLIC_GA_ID=G-XXXXXXXXXX
+# Prometheus 指标定义
+WS_CONNECTIONS_TOTAL = Gauge('ws_connections_total', 'Active WebSocket connections')
+WS_CONNECTIONS_CREATED = Counter('ws_connections_created', 'WebSocket connections created')
+WS_CONNECTIONS_CLOSED = Counter('ws_connections_closed', 'WebSocket connections closed')
+WS_MESSAGES_SENT = Counter('ws_messages_sent', 'WebSocket messages sent')
+WS_MESSAGES_RECEIVED = Counter('ws_messages_received', 'WebSocket messages received')
+WS_LATENCY = Histogram('ws_latency_ms', 'WebSocket message latency in milliseconds')
+WS_MESSAGE_SIZE = Histogram('ws_message_size_bytes', 'WebSocket message size in bytes')
 
-# Umami Analytics
-NEXT_PUBLIC_UMAMI_ID=xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx
-NEXT_PUBLIC_UMAMI_URL=https://analytics.umami.is
+class ConnectionMetrics:
+    """单个连接的指标"""
+    def __init__(self, user_id: str, session_id: str):
+        self.user_id = user_id
+        self.session_id = session_id
+        self.connected_at = datetime.utcnow()
+        self.last_ping = time.time()
+        self.messages_sent = 0
+        self.messages_received = 0
+        self.bytes_sent = 0
+        self.bytes_received = 0
+        self.errors = 0
 
-# 百度统计（可选）
-NEXT_PUBLIC_BAIDU_ID=
+class WebSocketManager:
+    """WebSocket 连接管理器"""
+    
+    def __init__(self):
+        # 活跃连接：{websocket: ConnectionMetrics}
+        self.active_connections: Dict[WebSocket, ConnectionMetrics] = {}
+        
+        # 用户连接映射：{user_id: Set[WebSocket]}
+        self.user_connections: Dict[str, Set[WebSocket]] = defaultdict(set)
+        
+        # 会话连接映射：{session_id: Set[WebSocket]}
+        self.session_connections: Dict[str, Set[WebSocket]] = defaultdict(set)
+        
+        # 锁
+        self._lock = asyncio.Lock()
+    
+    async def connect(self, websocket: WebSocket, user_id: str, session_id: str):
+        """建立新连接"""
+        await websocket.accept()
+        
+        async with self._lock:
+            metrics = ConnectionMetrics(user_id, session_id)
+            self.active_connections[websocket] = metrics
+            self.user_connections[user_id].add(websocket)
+            self.session_connections[session_id].add(websocket)
+            
+            # 更新 Prometheus 指标
+            WS_CONNECTIONS_TOTAL.inc()
+            WS_CONNECTIONS_CREATED.inc()
+        
+        return metrics
+    
+    async def disconnect(self, websocket: WebSocket):
+        """断开连接"""
+        async with self._lock:
+            if websocket in self.active_connections:
+                metrics = self.active_connections[websocket]
+                
+                # 清理映射
+                self.user_connections[metrics.user_id].discard(websocket)
+                self.session_connections[metrics.session_id].discard(websocket)
+                
+                # 删除连接
+                del self.active_connections[websocket]
+                
+                # 更新 Prometheus 指标
+                WS_CONNECTIONS_TOTAL.dec()
+                WS_CONNECTIONS_CLOSED.inc()
+                
+                return metrics
+        return None
+    
+    async def record_message_sent(self, websocket: WebSocket, size: int):
+        """记录发送消息"""
+        if websocket in self.active_connections:
+            metrics = self.active_connections[websocket]
+            metrics.messages_sent += 1
+            metrics.bytes_sent += size
+            
+            WS_MESSAGES_SENT.inc()
+            WS_MESSAGE_SIZE.observe(size)
+    
+    async def record_message_received(self, websocket: WebSocket, size: int):
+        """记录接收消息"""
+        if websocket in self.active_connections:
+            metrics = self.active_connections[websocket]
+            metrics.messages_received += 1
+            metrics.bytes_received += size
+            
+            WS_MESSAGES_RECEIVED.inc()
+    
+    async def record_latency(self, latency_ms: float):
+        """记录延迟"""
+        WS_LATENCY.observe(latency_ms)
+    
+    def get_stats(self) -> dict:
+        """获取统计信息"""
+        total_connections = len(self.active_connections)
+        total_users = len(self.user_connections)
+        total_sessions = len(self.session_connections)
+        
+        total_messages_sent = sum(
+            m.messages_sent for m in self.active_connections.values()
+        )
+        total_messages_received = sum(
+            m.messages_received for m in self.active_connections.values()
+        )
+        
+        return {
+            "connections": total_connections,
+            "unique_users": total_users,
+            "active_sessions": total_sessions,
+            "messages_sent": total_messages_sent,
+            "messages_received": total_messages_received,
+            "uptime_seconds": time.time() - self._start_time if hasattr(self, '_start_time') else 0
+        }
 
-# ============================================
-# 邮件服务配置
-# ============================================
-# Resend API Key（用于发送邮件）
-RESEND_API_KEY=re_xxxxxxxxxxxxx
-
-# 联系邮箱
-CONTACT_EMAIL=business@7zi.studio
-
-# 发件人邮箱
-FROM_EMAIL=noreply@7zi.studio
-
-# ============================================
-# API 配置
-# ============================================
-# API 基础 URL（根据环境调整）
-NEXT_PUBLIC_API_URL=https://7zi.com/api
-
-# API 超时时间（毫秒）
-NEXT_PUBLIC_API_TIMEOUT=30000
-
-# ============================================
-# 性能优化配置
-# ============================================
-# 禁用 Next.js 遥测
-NEXT_TELEMETRY_DISABLED=1
-
-# 启用图片优化
-NEXT_PUBLIC_IMAGE_OPTIMIZATION=true
-
-# ============================================
-# CDN 配置（生产环境）
-# ============================================
-# CDN 基础 URL
-NEXT_PUBLIC_CDN_URL=https://cdn.7zi.com
-
-# 启用 CDN
-NEXT_PUBLIC_ENABLE_CDN=true
-
-# ============================================
-# 数据库配置
-# ============================================
-# SQLite 数据库路径（相对路径）
-DATABASE_URL=file:./data/7zi.db
-
-# ============================================
-# Redis 配置
-# ============================================
-# Redis 连接 URL（完整格式）
-# 格式: redis://[username:password@]host:port/db
-# 示例: redis://:password@localhost:6379/0
-REDIS_URL=
-
-# 或者使用以下单独配置（不使用 REDIS_URL 时生效）
-REDIS_HOST=localhost
-REDIS_PORT=6379
-REDIS_PASSWORD=
-REDIS_DB=0
-
-# Redis 限流配置
-# 启用 Redis 限流（如未设置将使用内存限流）
-ENABLE_REDIS_RATE_LIMIT=true
-
-# ============================================
-# 安全配置
-# ============================================
-# 允许的源（CORS）
-NEXT_PUBLIC_ALLOWED_ORIGINS=https://7zi.com,https://www.7zi.com
-
-# ============================================
-# 功能开关
-# ============================================
-# 启用分析
-NEXT_PUBLIC_ENABLE_ANALYTICS=true
-
-# 启用性能监控
-NEXT_PUBLIC_ENABLE_PERFORMANCE_MONITORING=true
-
-# 启用错误追踪
-NEXT_PUBLIC_ENABLE_ERROR_TRACKING=true
-
-# 启用日志
-NEXT_PUBLIC_ENABLE_LOGGING=true
-
-# ============================================
-# 开发/调试配置（仅开发环境）
-# ============================================
-# 启用 Source Maps（生产环境应禁用）
-NEXT_PUBLIC_SOURCE_MAPS=false
-
-# 启用调试模式（生产环境应禁用）
-NEXT_PUBLIC_DEBUG_MODE=false
-
-# ============================================
-# 第三方服务配置
-# ============================================
-# 腾讯云 COS（对象存储）
-# NEXT_PUBLIC_COS_BUCKET=
-# NEXT_PUBLIC_COS_REGION=
-# NEXT_PUBLIC_COS_CDN=
-
-# 阿里云 OSS（对象存储）
-# NEXT_PUBLIC_OSS_BUCKET=
-# NEXT_PUBLIC_OSS_REGION=
-# NEXT_PUBLIC_OSS_ENDPOINT=
-
-# ============================================
-# 社交媒体配置
-# ============================================
-# Twitter
-NEXT_PUBLIC_TWITTER_HANDLE=7zi_studio
-
-# GitHub
-NEXT_PUBLIC_GITHUB_REPO=7zi-project
-
-# ============================================
-# SEO 配置
-# ============================================
-# 默认标题
-NEXT_PUBLIC_DEFAULT_TITLE=7zi Studio
-
-# 默认描述
-NEXT_PUBLIC_DEFAULT_DESCRIPTION=专业的 3D Web 体验开发工作室
-
-# 默认关键词
-NEXT_PUBLIC_DEFAULT_KEYWORDS=3d,webgl,web,development,studio
-
-# ============================================
-# 国际化配置（i18n）
-# ============================================
-# 默认语言
-NEXT_PUBLIC_DEFAULT_LOCALE=zh-CN
-
-# 支持的语言
-NEXT_PUBLIC_SUPPORTED_LOCALES=zh-CN,en-US
-
-# ============================================
-# 其他配置
-# ============================================
-# 版本号（自动生成）
-NEXT_PUBLIC_APP_VERSION=3.0.0
-
-# 构建时间（自动生成）
-NEXT_PUBLIC_BUILD_TIME=
+# 全局实例
+ws_manager = WebSocketManager()
 ```
 
-### GitHub Secrets 配置
+#### 2.2.2 WebSocket 路由实现
 
-在 GitHub 仓库设置中添加：
+```python
+# app/api/websocket.py
 
-| Secret        | 说明                         |
-| ------------- | ---------------------------- |
-| `DEPLOY_HOST` | 服务器地址 (165.99.43.61)    |
-| `DEPLOY_USER` | SSH 用户 (root)              |
-| `DEPLOY_PASS` | SSH 密码                     |
-| `DEPLOY_PATH` | 部署路径 (/opt/7zi-frontend) |
+from fastapi import APIRouter, WebSocket, WebSocketDisconnect, Depends
+from app.services.websocket_manager import ws_manager
+import json
+import time
 
----
+router = APIRouter()
 
-## 📦 Docker 配置说明
+@router.websocket("/ws/collaboration/{session_id}")
+async def websocket_endpoint(
+    websocket: WebSocket,
+    session_id: str,
+    user_id: str = None
+):
+    """实时协作 WebSocket 端点"""
+    
+    # 连接
+    metrics = await ws_manager.connect(websocket, user_id or "anonymous", session_id)
+    
+    try:
+        # 发送欢迎消息
+        await websocket.send_json({
+            "type": "connected",
+            "session_id": session_id,
+            "timestamp": time.time()
+        })
+        
+        # 消息循环
+        while True:
+            # 接收消息
+            data = await websocket.receive_text()
+            receive_time = time.time()
+            
+            # 记录接收
+            await ws_manager.record_message_received(websocket, len(data))
+            
+            try:
+                message = json.loads(data)
+                
+                # 处理不同类型的消息
+                if message.get("type") == "ping":
+                    # Ping/Pong 用于延迟检测
+                    latency = (receive_time - message.get("timestamp", receive_time)) * 1000
+                    await ws_manager.record_latency(latency)
+                    
+                    await websocket.send_json({
+                        "type": "pong",
+                        "timestamp": time.time()
+                    })
+                
+                elif message.get("type") == "collaboration":
+                    # 协作消息，广播给同会话的其他用户
+                    await broadcast_to_session(session_id, message, exclude=websocket)
+                
+                else:
+                    # 其他消息处理
+                    await handle_message(websocket, message)
+                
+                # 记录发送
+                response_size = len(json.dumps(message))
+                await ws_manager.record_message_sent(websocket, response_size)
+                
+            except json.JSONDecodeError:
+                await websocket.send_json({
+                    "type": "error",
+                    "message": "Invalid JSON"
+                })
+    
+    except WebSocketDisconnect:
+        await ws_manager.disconnect(websocket)
+    except Exception as e:
+        await ws_manager.disconnect(websocket)
+        raise
 
-### Dockerfile 特点
-
-- **多阶段构建**：减小镜像体积
-- **Standalone 模式**：独立运行，无需 node_modules
-- **非 root 用户**：安全运行
-- **健康检查**：自动检测服务状态
-
-### docker-compose.prod.yml 特点
-
-- 资源限制（CPU/内存）
-- 自动重启策略
-- 日志轮转配置
-- 健康检查配置
-- 数据卷持久化
-
----
-
-## 🔄 CI/CD 流程
-
-### 部署流水线
-
+async def broadcast_to_session(session_id: str, message: dict, exclude=None):
+    """广播消息到会话中的所有连接"""
+    from app.services.websocket_manager import ws_manager
+    
+    for connection in ws_manager.session_connections[session_id]:
+        if connection != exclude:
+            await connection.send_json(message)
 ```
-┌─────────────┐  ┌─────────────┐  ┌─────────────┐  ┌─────────────┐
-│   Pull      │  │    Test     │  │    Build    │  │   Deploy    │
-│   Request   │──▶│   (Vitest)  │──▶│  (Next.js)  │──▶│  (SSH)     │
-│   Check     │  └─────────────┘  └─────────────┘  └─────────────┘
-└─────────────┘
-```
 
-### 流水线阶段
+### 2.3 Prometheus 配置
 
-1. **Lint** - ESLint 代码风格检查
-2. **Type Check** - TypeScript 类型检查
-3. **Test** - Vitest 单元测试
-4. **Build** - Next.js 构建
-5. **Deploy** - SSH 部署到服务器
-
-### GitHub Actions 配置
-
-文件位置：`.github/workflows/deploy.yml`
+#### 2.3.1 prometheus.yml 更新
 
 ```yaml
-name: Deploy to Production
+# /opt/api-gateway/prometheus.yml
 
-on:
-  push:
-    branches: [main]
-  workflow_dispatch:
+global:
+  scrape_interval: 15s
+  evaluation_interval: 15s
 
-jobs:
-  deploy:
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
+scrape_configs:
+  # API Gateway 主应用
+  - job_name: 'api-gateway'
+    static_configs:
+      - targets: ['localhost:2000']
+    metrics_path: '/metrics'
+    
+  # WebSocket 专用监控
+  - job_name: 'websocket-monitor'
+    static_configs:
+      - targets: ['localhost:2000']
+    metrics_path: '/metrics'
+    scrape_interval: 10s  # 更频繁采集
+    
+alerting:
+  alertmanagers:
+    - static_configs:
+        - targets: ['localhost:9093']
+```
 
-      - name: Setup Node.js
-        uses: actions/setup-node@v4
-        with:
-          node-version: '22'
+#### 2.3.2 告警规则
 
-      - name: Install dependencies
-        run: npm ci
+```yaml
+# /opt/api-gateway/alerts/websocket.yml
 
-      - name: Run tests
-        run: npm test
-
-      - name: Build
-        run: npm run build
-
-      - name: Deploy to server
-        uses: appleboy/ssh-action@master
-        with:
-          host: ${{ secrets.DEPLOY_HOST }}
-          username: ${{ secrets.DEPLOY_USER }}
-          password: ${{ secrets.DEPLOY_PASS }}
-          script: |
-            cd ${{ secrets.DEPLOY_PATH }}
-            ./deploy.sh quick
+groups:
+  - name: websocket_alerts
+    interval: 30s
+    rules:
+      # 连接数告警
+      - alert: WebSocketConnectionsHigh
+        expr: ws_connections_total > 1000
+        for: 5m
+        labels:
+          severity: warning
+        annotations:
+          summary: "WebSocket 连接数过高"
+          description: "当前连接数: {{ $value }}"
+      
+      # 连接失败率告警
+      - alert: WebSocketConnectionFailures
+        expr: rate(ws_connections_failed[5m]) > 10
+        for: 2m
+        labels:
+          severity: critical
+        annotations:
+          summary: "WebSocket 连接失败率过高"
+          description: "5分钟内失败率: {{ $value }}/s"
+      
+      # 延迟告警
+      - alert: WebSocketLatencyHigh
+        expr: histogram_quantile(0.95, rate(ws_latency_ms_bucket[5m])) > 100
+        for: 3m
+        labels:
+          severity: warning
+        annotations:
+          summary: "WebSocket 延迟过高"
+          description: "P95 延迟: {{ $value }}ms"
+      
+      # 消息错误告警
+      - alert: WebSocketMessageErrors
+        expr: rate(ws_message_errors[5m]) > 5
+        for: 2m
+        labels:
+          severity: critical
+        annotations:
+          summary: "WebSocket 消息错误过多"
+          description: "错误率: {{ $value }}/s"
 ```
 
 ---
 
-## 🛠️ 常用命令速查
+## 三、健康检查端点配置
 
-### 本地开发
+### 3.1 增强的健康检查端点
 
-```bash
-npm run dev          # 启动开发服务器
-npm run build        # 构建生产版本
-npm run start        # 启动生产服务器
-npm run lint         # 代码检查
-npm run lint:fix     # 自动修复问题
-npm run test         # 运行测试
-npm run test:coverage # 生成覆盖率报告
+```python
+# app/api/health.py
+
+from fastapi import APIRouter, Response
+from datetime import datetime
+import time
+import psutil
+import asyncio
+
+router = APIRouter()
+
+# 应用启动时间
+START_TIME = time.time()
+
+@router.get("/health")
+async def health_check():
+    """基础健康检查"""
+    return {
+        "status": "ok",
+        "service": "API Gateway v3.0",
+        "timestamp": datetime.utcnow().isoformat()
+    }
+
+@router.get("/api/health")
+async def detailed_health_check():
+    """详细健康检查 - 包含协作服务状态"""
+    
+    # 检查数据库
+    db_status = await check_database()
+    
+    # 检查 WebSocket 服务
+    ws_status = await check_websocket_service()
+    
+    # 检查内存
+    memory = psutil.virtual_memory()
+    
+    # 检查 CPU
+    cpu_percent = psutil.cpu_percent(interval=1)
+    
+    # 计算运行时间
+    uptime = time.time() - START_TIME
+    
+    # 整体状态
+    all_healthy = (
+        db_status["status"] == "healthy" and
+        ws_status["status"] == "healthy" and
+        memory.percent < 90
+    )
+    
+    status_code = 200 if all_healthy else 503
+    
+    response = {
+        "status": "healthy" if all_healthy else "degraded",
+        "service": "API Gateway v3.0",
+        "version": "3.0.0",
+        "timestamp": datetime.utcnow().isoformat(),
+        "uptime_seconds": round(uptime, 2),
+        "checks": {
+            "database": db_status,
+            "websocket": ws_status,
+            "memory": {
+                "status": "healthy" if memory.percent < 90 else "warning",
+                "used_percent": memory.percent,
+                "available_mb": memory.available / 1024 / 1024
+            },
+            "cpu": {
+                "status": "healthy" if cpu_percent < 80 else "warning",
+                "used_percent": cpu_percent
+            }
+        }
+    }
+    
+    # WebSocket 统计
+    from app.services.websocket_manager import ws_manager
+    response["websocket_stats"] = ws_manager.get_stats()
+    
+    return Response(
+        content=json.dumps(response),
+        status_code=status_code,
+        media_type="application/json"
+    )
+
+async def check_database() -> dict:
+    """检查数据库连接"""
+    try:
+        from app.database import engine
+        from sqlalchemy import text
+        
+        async with engine.connect() as conn:
+            await conn.execute(text("SELECT 1"))
+        
+        return {
+            "status": "healthy",
+            "type": "sqlite",
+            "latency_ms": 0  # 可以添加延迟测量
+        }
+    except Exception as e:
+        return {
+            "status": "unhealthy",
+            "error": str(e)
+        }
+
+async def check_websocket_service() -> dict:
+    """检查 WebSocket 服务状态"""
+    try:
+        from app.services.websocket_manager import ws_manager
+        
+        stats = ws_manager.get_stats()
+        
+        # 判断是否健康
+        status = "healthy"
+        if stats["connections"] > 1000:
+            status = "warning"
+        
+        return {
+            "status": status,
+            "active_connections": stats["connections"],
+            "unique_users": stats["unique_users"],
+            "active_sessions": stats["active_sessions"]
+        }
+    except Exception as e:
+        return {
+            "status": "unhealthy",
+            "error": str(e)
+        }
 ```
 
-### Docker 操作
+### 3.2 Kubernetes 探针配置
 
-```bash
-# 构建镜像
-docker-compose -f docker-compose.prod.yml build
+```yaml
+# kubernetes/deployment.yaml
 
-# 启动服务
-docker-compose -f docker-compose.prod.yml up -d
+livenessProbe:
+  httpGet:
+    path: /health
+    port: 2000
+  initialDelaySeconds: 30
+  periodSeconds: 10
+  timeoutSeconds: 5
+  failureThreshold: 3
 
-# 停止服务
-docker-compose -f docker-compose.prod.yml down
+readinessProbe:
+  httpGet:
+    path: /api/health
+    port: 2000
+  initialDelaySeconds: 10
+  periodSeconds: 5
+  timeoutSeconds: 3
+  failureThreshold: 2
 
-# 查看日志
-docker-compose -f docker-compose.prod.yml logs -f
-
-# 查看状态
-docker-compose -f docker-compose.prod.yml ps
-
-# 重启服务
-docker-compose -f docker-compose.prod.yml restart
-```
-
-### 远程部署
-
-```bash
-./deploy-remote.sh deploy    # 完整部署
-./deploy-remote.sh quick     # 快速部署
-./deploy-remote.sh logs      # 查看日志
-./deploy-remote.sh status    # 查看状态
-./deploy-remote.sh restart   # 重启服务
-./deploy-remote.sh stop      # 停止服务
-./deploy-remote.sh rollback  # 回滚
-```
-
-### 数据库操作
-
-```bash
-# 进入容器
-docker-compose -f docker-compose.prod.yml exec 7zi-frontend sh
-
-# 备份数据库
-cp data/7zi.db backups/7zi-backup-$(date +%Y%m%d-%H%M%S).db
-
-# 恢复数据库
-cp backups/7zi-backup-20240324-120000.db data/7zi.db
-```
-
----
-
-## 🔧 故障排查
-
-### 服务无法启动
-
-```bash
-# 查看容器日志
-docker-compose -f docker-compose.prod.yml logs
-
-# 检查容器状态
-docker-compose -f docker-compose.prod.yml ps
-
-# 检查端口占用
-netstat -tlnp | grep 3000
-
-# 查看详细日志
-docker-compose -f docker-compose.prod.yml logs --tail=100
-```
-
-### 健康检查失败
-
-```bash
-# 手动测试
-curl http://localhost:3000/
-
-# 检查容器内部
-docker-compose -f docker-compose.prod.yml exec 7zi-frontend sh
-
-# 检查环境变量
-docker-compose -f docker-compose.prod.yml exec 7zi-frontend env
-
-# 检查数据库连接
-docker-compose -f docker-compose.prod.yml exec 7zi-frontend ls -la data/
-```
-
-### 回滚操作
-
-```bash
-# 使用部署脚本回滚
-./deploy-remote.sh rollback
-
-# 或手动恢复备份
-ls -la /opt/backups/
-cp /opt/backups/7zi-backup-20240324-120000.db data/7zi.db
-
-# 重启服务
-docker-compose -f docker-compose.prod.yml restart
-```
-
-### 数据库问题
-
-```bash
-# 检查数据库文件
-ls -la data/7zi.db
-
-# 数据库优化
-curl http://localhost:3000/api/database/optimize
-
-# 数据库健康检查
-curl http://localhost:3000/api/database/health
-```
-
----
-
-## 📊 监控和日志
-
-### 日志位置
-
-- **应用日志**：`docker logs 7zi-frontend`
-- **Nginx 日志**：`/var/log/nginx/`
-- **备份数据**：`/opt/backups/`
-- **数据导出**：`./exports/`
-
-### 健康检查端点
-
-- **应用**：`http://localhost:3000/`
-- **系统健康**：`http://localhost:3000/api/health`
-- **数据库健康**：`http://localhost:3000/api/database/health`
-- **详细健康**：`http://localhost:3000/api/health/detailed`
-
-### 性能监控
-
-```bash
-# 获取性能指标
-curl http://localhost:3000/api/performance/metrics
-
-# 获取性能报告
-curl http://localhost:3000/api/performance/report
-
-# 查看 Web Vitals
-curl http://localhost:3000/api/vitals
-```
-
----
-
-## 🔒 安全建议
-
-### 基础安全
-
-1. **修改默认密码**：部署后修改服务器密码
-2. **配置 SSL**：使用 Let's Encrypt 配置 HTTPS
-3. **防火墙**：只开放必要端口 (80, 443, 22)
-4. **定期更新**：更新系统和 Docker 镜像
-5. **备份策略**：定期备份数据库和配置文件
-
-### 应用安全
-
-1. **环境变量**：不要将敏感信息提交到 Git
-2. **JWT Secret**：使用强随机密钥
-3. **CORS 配置**：限制允许的源
-4. **Rate Limiting**：启用 API 限流
-5. **输入验证**：所有输入都需要验证
-
-### 网络安全
-
-1. **HTTPS**：强制使用 HTTPS
-2. **CSP 策略**：配置内容安全策略
-3. **XSS 防护**：启用 XSS 保护
-4. **安全头部**：配置安全相关 HTTP 头
-
----
-
-## 🚀 性能优化
-
-### 前端优化
-
-1. **代码分割**：Next.js 自动代码分割
-2. **懒加载**：动态导入非关键组件
-3. **图片优化**：使用 Next.js Image 组件
-4. **字体优化**：使用 font-display: swap
-5. **缓存策略**：配置适当的缓存头
-
-### 后端优化
-
-1. **缓存机制**：Redis + 内存缓存
-2. **数据库索引**：SQLite 索引优化
-3. **连接池**：数据库连接管理
-4. **Gzip 压缩**：启用响应压缩
-5. **CDN**：使用 CDN 加速静态资源
-
-### Nginx 配置
-
-```nginx
-# Gzip 压缩
-gzip on;
-gzip_types text/plain text/css application/json application/javascript;
-
-# 缓存静态资源
-location ~* \.(jpg|jpeg|png|gif|ico|css|js)$ {
-  expires 1y;
-  add_header Cache-Control "public, immutable";
-}
-
-# 安全头部
-add_header X-Frame-Options "SAMEORIGIN";
-add_header X-Content-Type-Options "nosniff";
-add_header X-XSS-Protection "1; mode=block";
+startupProbe:
+  httpGet:
+    path: /health
+    port: 2000
+  initialDelaySeconds: 5
+  periodSeconds: 5
+  timeoutSeconds: 3
+  failureThreshold: 30
 ```
 
 ---
 
-## 📝 备份策略
+## 四、部署检查清单
 
-### 自动备份
+### 4.1 部署前检查
 
-- **数据库**：每日备份，保留 7 天
-- **配置文件**：每次部署前备份
-- **导出数据**：按需备份
+#### 环境准备
+- [ ] 检查 Python 版本 >= 3.9
+- [ ] 检查依赖包完整性 `pip install -r requirements.txt`
+- [ ] 检查环境变量配置 `.env`
+- [ ] 检查数据库备份
+- [ ] 检查磁盘空间 >= 5GB 可用
+- [ ] 检查内存 >= 2GB 可用
 
-### 手动备份
+#### 配置验证
+- [ ] 验证 JWT 密钥已配置
+- [ ] 验证数据库路径正确
+- [ ] 验证 CORS 配置
+- [ ] 验证日志路径存在且有写权限
 
+#### 监控准备
+- [ ] Prometheus 已配置并运行
+- [ ] Alertmanager 已配置告警规则
+- [ ] Grafana Dashboard 已准备
+- [ ] 日志收集已配置
+
+### 4.2 部署步骤
+
+#### 步骤 1：备份
 ```bash
 # 备份数据库
-cp data/7zi.db backups/7zi-backup-$(date +%Y%m%d-%H%M%S).db
+cp /opt/api-gateway/api-gateway.db /opt/api-gateway/backups/api-gateway-$(date +%Y%m%d-%H%M%S).db
 
 # 备份配置
-cp .env.production backups/env-production-$(date +%Y%m%d).bak
-
-# 导出数据
-curl -X POST http://localhost:3000/api/backup/export
+cp /opt/api-gateway/.env /opt/api-gateway/backups/.env-$(date +%Y%m%d-%H%M%S)
 ```
 
-### 恢复备份
+#### 步骤 2：拉取最新代码
+```bash
+cd /opt/api-gateway
+git fetch origin
+git checkout v1.11.0
+```
+
+#### 步骤 3：安装依赖
+```bash
+pip install -r requirements.txt
+```
+
+#### 步骤 4：数据库迁移（如有）
+```bash
+alembic upgrade head
+```
+
+#### 步骤 5：重启服务
+```bash
+systemctl restart api-gateway
+```
+
+#### 步骤 6：验证部署
+```bash
+# 检查服务状态
+systemctl status api-gateway
+
+# 检查健康端点
+curl http://localhost:2000/health
+curl http://localhost:2000/api/health
+
+# 检查日志
+tail -f /opt/api-gateway/logs/app.log
+```
+
+### 4.3 部署后验证
+
+#### 功能验证
+- [ ] 健康检查端点返回正常
+- [ ] API 文档可访问 `/docs`
+- [ ] 用户登录功能正常
+- [ ] WebSocket 连接可建立
+- [ ] 协作功能正常工作
+
+#### 监控验证
+- [ ] Prometheus 可抓取指标
+- [ ] Grafana 显示正常数据
+- [ ] 告警规则已激活
+- [ ] 日志正常收集
+
+#### 性能验证
+- [ ] 响应时间 < 200ms
+- [ ] WebSocket 连接延迟 < 100ms
+- [ ] 内存使用正常
+- [ ] CPU 使用正常
+
+### 4.4 回滚计划
+
+如果部署失败：
 
 ```bash
-# 恢复数据库
-cp backups/7zi-backup-20240324-120000.db data/7zi.db
+# 1. 停止服务
+systemctl stop api-gateway
 
-# 重启服务
-docker-compose -f docker-compose.prod.yml restart
+# 2. 切换到旧版本
+cd /opt/api-gateway
+git checkout <previous-version>
+
+# 3. 恢复数据库
+cp /opt/api-gateway/backups/api-gateway-YYYYMMDD-HHMMSS.db /opt/api-gateway/api-gateway.db
+
+# 4. 重启服务
+systemctl start api-gateway
+
+# 5. 验证
+curl http://localhost:2000/health
+```
+
+### 4.5 监控仪表板配置
+
+#### Grafana Dashboard JSON
+
+```json
+{
+  "dashboard": {
+    "title": "WebSocket Collaboration Metrics",
+    "panels": [
+      {
+        "title": "Active Connections",
+        "type": "gauge",
+        "targets": [
+          {
+            "expr": "ws_connections_total",
+            "legendFormat": "Active Connections"
+          }
+        ]
+      },
+      {
+        "title": "Message Rate",
+        "type": "graph",
+        "targets": [
+          {
+            "expr": "rate(ws_messages_sent[5m])",
+            "legendFormat": "Messages Sent/s"
+          },
+          {
+            "expr": "rate(ws_messages_received[5m])",
+            "legendFormat": "Messages Received/s"
+          }
+        ]
+      },
+      {
+        "title": "Latency (P95)",
+        "type": "graph",
+        "targets": [
+          {
+            "expr": "histogram_quantile(0.95, rate(ws_latency_ms_bucket[5m]))",
+            "legendFormat": "P95 Latency"
+          }
+        ]
+      }
+    ]
+  }
+}
 ```
 
 ---
 
-## 🔗 相关文档
+## 五、常见问题排查
 
-- [README.md](./README.md) - 项目介绍
-- [ARCHITECTURE.md](./ARCHITECTURE.md) - 系统架构
-- [API.md](./API.md) - API 文档
+### 5.1 WebSocket 连接失败
+
+**症状**: 客户端无法建立 WebSocket 连接
+
+**排查步骤**:
+1. 检查 Nginx 配置是否支持 WebSocket 升级
+2. 检查防火墙规则
+3. 检查服务日志
+4. 验证 WebSocket 端点路径
+
+**解决方案**:
+```nginx
+# Nginx WebSocket 配置
+location /ws/ {
+    proxy_pass http://localhost:2000;
+    proxy_http_version 1.1;
+    proxy_set_header Upgrade $http_upgrade;
+    proxy_set_header Connection "upgrade";
+    proxy_set_header Host $host;
+    proxy_read_timeout 3600s;
+}
+```
+
+### 5.2 连接频繁断开
+
+**症状**: WebSocket 连接不稳定，频繁断开重连
+
+**排查步骤**:
+1. 检查网络稳定性
+2. 检查超时配置
+3. 检查心跳机制
+4. 检查服务端日志
+
+**解决方案**:
+- 增加心跳频率
+- 调整超时时间
+- 实现自动重连机制
+
+### 5.3 性能下降
+
+**症状**: 响应延迟增加，连接处理变慢
+
+**排查步骤**:
+1. 检查服务器资源使用
+2. 检查数据库查询性能
+3. 检查 WebSocket 连接数
+4. 检查消息队列积压
+
+**解决方案**:
+- 增加服务器资源
+- 优化数据库查询
+- 实现连接池
+- 启用消息压缩
 
 ---
 
-## 📞 支持
+## 六、维护计划
 
-如有问题，请联系：
+### 6.1 日常维护
 
-- **GitHub Issues**: https://github.com/songzuo/7zi/issues
-- **Email**: business@7zi.studio
+- **每日**: 检查服务状态、监控告警
+- **每周**: 检查日志、性能趋势分析
+- **每月**: 数据库备份验证、安全审计
+
+### 6.2 升级计划
+
+- **版本升级**: 测试环境验证 → 灰度发布 → 全量发布
+- **依赖更新**: 定期检查安全更新
+- **配置更新**: 变更管理流程
+
+### 6.3 容量规划
+
+- **当前容量**: 支持 1000 并发连接
+- **扩展方案**: 
+  - 水平扩展：多实例部署 + 负载均衡
+  - 垂直扩展：增加服务器资源
+  - 架构优化：Redis 发布订阅、消息队列
 
 ---
 
-**文档维护**: 🛡️ 系统管理员 (AI 团队)
-**最后更新**: 2026-03-24
+## 七、联系信息
+
+### 技术支持
+
+- **运维团队**: ops@7zi.com
+- **开发团队**: dev@7zi.com
+- **紧急联系**: +86-xxx-xxxx-xxxx
+
+### 文档更新
+
+- **更新日期**: 2026-04-03
+- **更新人**: AI 系统管理员
+- **版本**: 1.0
+
+---
+
+**备注**: 本文档基于当前服务器状态自动生成，请根据实际情况调整配置参数。

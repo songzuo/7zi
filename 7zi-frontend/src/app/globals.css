@@ -4,6 +4,7 @@
  */
 
 @import '../styles/tokens.css';
+@import '../lib/theme/theme.css';
 
 /* ===== 全局样式 ===== */
 

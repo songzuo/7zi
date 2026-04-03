@@ -492,17 +492,20 @@ export class TaskTimePredictor {
   /**
    * Import model data
    */
-  importData(data: any): void {
-    if (data.historicalTimes) {
+  importData(data: unknown): void {
+    if (!data || typeof data !== 'object') return
+    
+    const typedData = data as { historicalTimes?: Record<string, TimeRecord[]>; priors?: Record<string, PriorKnowledge>; config?: Partial<TimePredictionConfig> }
+    if (typedData.historicalTimes) {
       this.historicalTimes = new Map(
-        Object.entries(data.historicalTimes).map(([k, v]) => [k, Array.from(v as TimeRecord[])])
+        Object.entries(typedData.historicalTimes).map(([k, v]) => [k, Array.from(v as TimeRecord[])])
       )
     }
-    if (data.priors) {
-      this.priors = new Map(Object.entries(data.priors) as [TaskType, PriorKnowledge][])
+    if (typedData.priors) {
+      this.priors = new Map(Object.entries(typedData.priors) as [TaskType, PriorKnowledge][])
     }
-    if (data.config) {
-      this.config = { ...this.config, ...data.config }
+    if (typedData.config) {
+      this.config = { ...this.config, ...typedData.config }
     }
   }
 }

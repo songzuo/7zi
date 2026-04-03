@@ -6,7 +6,7 @@
 import { describe, it, expect, beforeEach } from 'vitest'
 import { AdaptiveLearner } from '../adaptive-learner'
 import { ScheduleDecision } from '../../models/schedule-decision'
-import { AgentCapability } from '../../models/agent-capability'
+import { AgentCapability, TaskType } from '../../models/agent-capability'
 
 describe('Agent Scoring System', () => {
   let learner: AdaptiveLearner
@@ -14,7 +14,7 @@ describe('Agent Scoring System', () => {
   const createMockAgent = (
     agentId: string,
     successRate: number,
-    taskTypes: string[] = ['implementation']
+    taskTypes: TaskType[] = ['implementation']
   ): AgentCapability => ({
     agentId,
     name: `Agent ${agentId}`,
@@ -22,7 +22,7 @@ describe('Agent Scoring System', () => {
     role: 'Developer',
     capabilities: {
       techStack: ['typescript'],
-      taskTypes: taskTypes as any,
+      taskTypes: taskTypes,
       concurrency: 2,
       avgResponseTime: 10,
       successRate,

@@ -6,22 +6,21 @@
 
 'use client'
 
-import { useEffect, useState } from 'react'
+import { useMemo } from 'react'
 import FeedbackAdminPanel from '@/components/feedback/FeedbackAdminPanel'
 import { createMockUser, UserRole } from '@/lib/auth'
 
 export default function AdminFeedbackPage() {
   const user = createMockUser({ role: UserRole.ADMIN })
-  const [currentUser, setCurrentUser] = useState<any>(null)
 
-  useEffect(() => {
-    if (user) {
-      setCurrentUser({
-        id: user.id || 'unknown',
-        name: user.username || 'Admin',
-        email: user.email || 'admin@example.com',
-        role: user.role,
-      })
+  // Derive currentUser from user using useMemo instead of useEffect + setState
+  const currentUser = useMemo(() => {
+    if (!user) return null
+    return {
+      id: user.id || 'unknown',
+      name: user.username || 'Admin',
+      email: user.email || 'admin@example.com',
+      role: user.role,
     }
   }, [user])
 

@@ -280,11 +280,13 @@ describe('Navigation Integration Tests', () => {
         }
       }
 
-      // Simulate clicking outside
-      handleOutsideClick(
-        { contains: () => false } as unknown as Element,
-        { contains: () => true } as unknown as Element
-      )
+      // Simulate clicking outside - menuElement.contains(target) should return false
+      const mockTarget = {} as Element
+      const mockMenuElement = {
+        contains: (el: Element) => el === mockTarget ? false : true
+      } as unknown as Element
+
+      handleOutsideClick(mockTarget, mockMenuElement)
 
       expect(isMobileMenuOpen).toBe(false)
     })

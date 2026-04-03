@@ -25,7 +25,7 @@ class MemoryManager {
   private maps: Map<string, Map<string, any>> = new Map()
   private eventListeners: Map<string, Set<EventListener>> = new Map()
   private timers: Map<string, Set<Timer>> = new Map()
-  private intervals: Map<string, number> = new Map()
+  private intervals: Map<string, NodeJS.Timeout> = new Map()
 
   // Map 管理
   createMap(name: string): Map<string, any> {

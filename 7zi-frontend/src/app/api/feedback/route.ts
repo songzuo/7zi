@@ -22,6 +22,7 @@ import { validateAndSanitizeBody, sanitizeHtml } from '@/lib/validation-schemas'
 import { z } from 'zod'
 import { v4 as uuidv4 } from 'uuid'
 import { withAdmin, withAuth } from '@/lib/auth/api-auth'
+import type { APIRouteContext } from '@/lib/api-types'
 
 /**
  * Initialize feedback storage
@@ -68,7 +69,7 @@ const responseSubmissionSchema = z.object({
 /**
  * GET /api/feedback - List feedbacks
  */
-async function handleGET(request: NextRequest, context: { user: any }) {
+async function handleGET(request: NextRequest, context: APIRouteContext) {
   try {
     const { userId, role: userRole } = context.user
     const { searchParams } = new URL(request.url)
@@ -142,7 +143,7 @@ export const GET = withAuth(handleGET)
 /**
  * POST /api/feedback - Submit feedback
  */
-async function handlePOST(request: NextRequest, context: { user: any }) {
+async function handlePOST(request: NextRequest, context: APIRouteContext) {
   try {
     const { userId, username: userName } = context.user
 
@@ -217,7 +218,7 @@ export const POST = withAuth(handlePOST)
  * PATCH /api/feedback - Update feedback
  * Requires admin authentication
  */
-async function handlePATCH(request: NextRequest, context: { user: any }) {
+async function handlePATCH(request: NextRequest, context: APIRouteContext) {
   try {
     const { userId, userName, userEmail } = context.user
 
@@ -310,7 +311,7 @@ export const PATCH = withAdmin(handlePATCH)
  * DELETE /api/feedback - Delete feedback
  * Requires admin authentication
  */
-async function handleDELETE(request: NextRequest, context: { user: any }) {
+async function handleDELETE(request: NextRequest, context: APIRouteContext) {
   try {
     const { searchParams } = new URL(request.url)
     const feedbackId = searchParams.get('id')
@@ -363,7 +364,7 @@ export const DELETE = withAdmin(handleDELETE)
  * GET /api/feedback/stats - Get statistics
  * Requires admin authentication
  */
-async function handleGET_STATS(request: NextRequest, context: { user: any }) {
+async function handleGET_STATS(request: NextRequest, context: APIRouteContext) {
   try {
     // Get stats
     const stats = feedbackStorage.getStats()
@@ -391,7 +392,7 @@ export const GET_STATS = withAdmin(handleGET_STATS)
  * POST /api/feedback/response - Add admin response
  * Requires admin authentication
  */
-async function handlePOST_RESPONSE(request: NextRequest, context: { user: any }) {
+async function handlePOST_RESPONSE(request: NextRequest, context: APIRouteContext) {
   try {
     const { userId, userName, userEmail } = context.user
 
@@ -462,7 +463,7 @@ export const POST_RESPONSE = withAdmin(handlePOST_RESPONSE)
  * GET /api/feedback/export - Export feedbacks as CSV
  * Requires admin authentication
  */
-async function handleGET_EXPORT(request: NextRequest, context: { user: any }) {
+async function handleGET_EXPORT(request: NextRequest, context: APIRouteContext) {
   try {
     const { searchParams } = new URL(request.url)
     const type = searchParams.get('type') as Feedback['type'] | null

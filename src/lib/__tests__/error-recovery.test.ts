@@ -371,14 +371,14 @@ describe('Error Recovery', () => {
       system.disconnectDb()
 
       // 验证可以重试
-      expect(system.db.reconnectAttempts).toBe(0)
+      expect((system as any).db.reconnectAttempts).toBe(0)
     })
 
     it('should respect max reconnect attempts', async () => {
       system.disconnectDb()
 
       // 验证最大重连次数
-      expect(system.db.maxReconnectAttempts).toBe(5)
+      expect((system as any).db.maxReconnectAttempts).toBe(5)
     })
 
     it('should handle database connection pool exhaustion', async () => {

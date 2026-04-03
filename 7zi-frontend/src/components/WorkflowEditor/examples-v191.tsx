@@ -104,7 +104,7 @@ export function InitialDataExample() {
 // ============================================
 
 export function ExportImportExample() {
-  const handleExport = (exportData: any) => {
+  const handleExport = (exportData: WorkflowDefinition) => {
     console.log('导出数据:', exportData)
     // exportData = {
     //   version: '1.9.1',

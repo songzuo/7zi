@@ -5,8 +5,7 @@
  * Displays comprehensive performance metrics, charts, and alerts
  */
 
-import React, { useState, useEffect, Suspense, useCallback } from 'react'
-import { useTranslations } from 'next-intl'
+import { useState, useEffect, Suspense, useCallback } from 'react'
 import dynamic from 'next/dynamic'
 
 // 🚀 优化：将图表组件动态导入，减少初始 bundle 大小
@@ -253,7 +252,6 @@ function MetricChart({
 // ========================================
 
 export default function PerformanceDashboard() {
-  const _t = useTranslations('performance')
   const [loading, setLoading] = useState(true)
   const [report, setReport] = useState<Record<string, MetricReport> | null>(null)
   const [alerts, setAlerts] = useState<PerformanceAlert[]>([])

@@ -129,42 +129,46 @@ function isOriginAllowed(origin: string | null, allowedOrigins: string[]): boole
 export function setCORSHeaders(
   response: NextResponse,
   request: NextRequest,
-  config: CORSConfig
+  config: Partial<CORSConfig>
 ): NextResponse {
+  const finalConfig: CORSConfig = {
+    ...getDefaultConfig(),
+    ...config,
+  }
   const origin = request.headers.get('origin')
 
   // Set Access-Control-Allow-Origin
-  if (origin && isOriginAllowed(origin, config.allowedOrigins)) {
+  if (origin && isOriginAllowed(origin, finalConfig.allowedOrigins)) {
     response.headers.set('Access-Control-Allow-Origin', origin)
-  } else if (config.allowedOrigins.includes('*')) {
+  } else if (finalConfig.allowedOrigins.includes('*')) {
     response.headers.set('Access-Control-Allow-Origin', '*')
   }
 
   // Set Access-Control-Allow-Credentials
-  if (config.credentials) {
+  if (finalConfig.credentials) {
     response.headers.set('Access-Control-Allow-Credentials', 'true')
   }
 
   // Set Access-Control-Allow-Methods
   response.headers.set(
     'Access-Control-Allow-Methods',
-    config.allowedMethods?.join(', ') || 'GET, POST, PUT, DELETE, PATCH, OPTIONS'
+    finalConfig.allowedMethods?.join(', ') || 'GET, POST, PUT, DELETE, PATCH, OPTIONS'
   )
 
   // Set Access-Control-Allow-Headers
   response.headers.set(
     'Access-Control-Allow-Headers',
-    config.allowedHeaders?.join(', ') || 'Content-Type, Authorization, X-Requested-With'
+    finalConfig.allowedHeaders?.join(', ') || 'Content-Type, Authorization, X-Requested-With'
   )
 
   // Set Access-Control-Expose-Headers
-  if (config.exposedHeaders && config.exposedHeaders.length > 0) {
-    response.headers.set('Access-Control-Expose-Headers', config.exposedHeaders.join(', '))
+  if (finalConfig.exposedHeaders && finalConfig.exposedHeaders.length > 0) {
+    response.headers.set('Access-Control-Expose-Headers', finalConfig.exposedHeaders.join(', '))
   }
 
   // Set Access-Control-Max-Age
-  if (config.maxAge) {
-    response.headers.set('Access-Control-Max-Age', config.maxAge.toString())
+  if (finalConfig.maxAge) {
+    response.headers.set('Access-Control-Max-Age', finalConfig.maxAge.toString())
   }
 
   // Set Vary header (important for caching)

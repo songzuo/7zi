@@ -1,4 +1,3 @@
-// @ts-nocheck - Test file with complex type issues
 /**
  * Additional tests for jsonrpc-handler.ts - covering edge cases and error handling
  */
@@ -8,7 +7,8 @@ import { A2ARequestHandler, createRequestHandler } from '../jsonrpc-handler'
 import { InMemoryTaskStore } from '../task-store'
 import { SevenZiExecutor } from '../executor'
 import type { AgentCard } from '../agent-card'
-import type { JsonRpcRequest, SendMessageRequest, StreamEvent, JsonRpcError } from '../types'
+import type { JsonRpcRequest, SendMessageRequest, StreamEvent, JsonRpcError, TaskState, AgentCapabilities } from '../types'
+import type { AgentExecutor } from '../executor'
 
 describe('A2ARequestHandler - Additional Edge Cases', () => {
   let handler: A2ARequestHandler
@@ -479,7 +479,7 @@ describe('A2ARequestHandler - Additional Edge Cases', () => {
         id: '1',
         method: 'tasks/list',
         params: {
-          status: 'non-existent-status' as any,
+          status: 'non-existent-status' as unknown as TaskState,
         },
       }
 
@@ -604,7 +604,7 @@ describe('A2ARequestHandler - Additional Edge Cases', () => {
     })
 
     it('should handle extended card capability is undefined', async () => {
-      delete (agentCard.capabilities as any).extendedAgentCard
+      delete (agentCard.capabilities as AgentCapabilities).extendedAgentCard
 
       handler = createRequestHandler(agentCard, taskStore, executor)
 
@@ -695,7 +695,7 @@ describe('A2ARequestHandler - Additional Edge Cases', () => {
         cancelTask: vi.fn(),
       }
 
-      handler = createRequestHandler(agentCard, taskStore, mockExecutor as any)
+      handler = createRequestHandler(agentCard, taskStore, mockExecutor as AgentExecutor)
 
       const request: JsonRpcRequest = {
         jsonrpc: '2.0',
@@ -767,7 +767,7 @@ describe('A2ARequestHandler - Additional Edge Cases', () => {
         cancelTask: vi.fn(),
       }
 
-      handler = createRequestHandler(agentCard, taskStore, mockExecutor as any)
+      handler = createRequestHandler(agentCard, taskStore, mockExecutor as AgentExecutor)
 
       const request: JsonRpcRequest = {
         jsonrpc: '2.0',

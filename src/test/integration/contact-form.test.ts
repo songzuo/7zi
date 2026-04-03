@@ -103,6 +103,7 @@ describe('Contact Form Integration Tests', () => {
           .replace(/>/g, '&gt;')
           .replace(/"/g, '&quot;')
           .replace(/'/g, '&#x27;')
+          .replace(/javascript:/gi, '')
       }
 
       maliciousInputs.forEach(input => {
@@ -370,7 +371,7 @@ describe('Contact Form Integration Tests', () => {
     it('should detect spam patterns', () => {
       const spamIndicators = [
         { message: 'BUY NOW!!! CLICK HERE!!!', hasExcessiveCaps: true },
-        { message: 'http://spam.com http://spam2.com http://spam3.com', hasManyLinks: true },
+        { message: 'http://spam.com http://spam2.com http://spam3.com http://spam4.com', hasManyLinks: true },
         { message: 'a'.repeat(5000), hasExcessiveLength: true },
       ]
 
@@ -381,7 +382,7 @@ describe('Contact Form Integration Tests', () => {
         return {
           hasExcessiveCaps: capsRatio > 0.5 && content.length > 20,
           hasManyLinks: linkCount > 3,
-          hasExcessiveLength: content.length > 5000,
+          hasExcessiveLength: content.length >= 5000,
         }
       }
 

@@ -1,0 +1,16 @@
+# Grafana Dashboard Provisioning Configuration
+# Updated: 2026-04-03
+
+apiVersion: 1
+
+providers:
+  - name: '7zi Dashboards'
+    orgId: 1
+    folder: '7zi Platform'
+    folderUid: '7zi-platform'
+    type: file
+    disableDeletion: false
+    updateIntervalSeconds: 30
+    allowUiUpdates: true
+    options:
+      path: /var/lib/grafana/dashboards

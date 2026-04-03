@@ -47,10 +47,10 @@ export interface LearningState {
   }
 
   // Time prediction model data
-  timePredictionData: any
+  timePredictionData: unknown
 
   // Capability assessment data
-  capabilityData: any
+  capabilityData: unknown
 
   // Statistics summary
   summary: {

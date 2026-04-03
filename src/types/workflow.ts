@@ -14,6 +14,92 @@ export enum NodeType {
   PARALLEL = 'parallel', // 并行节点
   WAIT = 'wait', // 等待节点
   HUMAN_INPUT = 'human_input', // 人工输入节点
+  LOOP = 'loop', // 循环节点
+  SUBWORKFLOW = 'subworkflow', // 子工作流节点
+}
+
+/**
+ * 表单字段定义
+ */
+export interface FormField {
+  name: string
+  label: string
+  type: 'text' | 'textarea' | 'number' | 'select' | 'checkbox' | 'radio' | 'date' | 'file'
+  required?: boolean
+  options?: string[]
+  defaultValue?: unknown
+  placeholder?: string
+  validation?: {
+    min?: number
+    max?: number
+    pattern?: string
+  }
+}
+
+/**
+ * 表单 Schema
+ */
+export interface FormSchema {
+  fields: FormField[]
+  title?: string
+  description?: string
+}
+
+/**
+ * 循环节点配置
+ */
+export interface LoopConfig {
+  loopType: 'fixed' | 'conditional' | 'foreach'
+  iterations?: number // 固定次数循环
+  condition?: string // 条件循环的条件表达式
+  iterator?: string // foreach 循环的迭代变量
+  collection?: string // foreach 循环的数据源
+  maxIterations?: number // 最大迭代次数（防止无限循环）
+}
+
+/**
+ * 子工作流节点配置
+ */
+export interface SubWorkflowConfig {
+  subWorkflowId: string
+  inputs?: Record<string, unknown>
+  outputMapping?: Record<string, string> // 子工作流输出到当前工作流的映射
+  waitForCompletion?: boolean
+  timeout?: number
+}
+
+/**
+ * 高级条件配置
+ */
+export interface AdvancedCondition {
+  expression: string
+  variables?: Record<string, string>
+  timeout?: number
+}
+
+/**
+ * 并行执行配置
+ */
+export interface ParallelConfig {
+  maxConcurrency?: number // 最大并发数
+  failurePolicy: 'fail-fast' | 'continue' | 'wait-all' // 失败处理策略
+  dependencies?: Array<{
+    nodeId: string
+    dependsOn: string[]
+  }>
+}
+
+/**
+ * AI Agent 配置
+ */
+export interface AIAgentConfig {
+  agentId: string
+  model?: string
+  temperature?: number
+  maxTokens?: number
+  tools?: string[]
+  systemPrompt?: string
+  timeout?: number
 }
 
 /**
@@ -99,12 +185,17 @@ export interface WorkflowNode {
 
   // 人工输入节点配置
   humanInputConfig?: {
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    formSchema: any // 表单 schema
+    formSchema: FormSchema // 表单 schema
     requiredApprovals?: number // 需要的审批人数
   }
 
-  // 通用配置
+  // 循环节点配置 (from workflows/nodes/LoopNode.ts)
+  loopConfig?: LoopConfig
+
+  // 子工作流节点配置 (from workflows/nodes/SubWorkflowNode.ts)
+  subWorkflowConfig?: SubWorkflowConfig
+
+  // 通用配置（支持高级节点配置）
   config?: {
     timeout?: number // 超时时间（秒）
     retryPolicy?: {
@@ -112,10 +203,12 @@ export interface WorkflowNode {
       backoff: 'fixed' | 'exponential' // 退避策略
       interval: number // 重试间隔（秒）
     }
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    inputs?: Record<string, any> // 输入参数定义
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    outputs?: Record<string, any> // 输出参数定义
+    inputs?: Record<string, unknown> // 输入参数定义
+    outputs?: Record<string, unknown> // 输出参数定义
+    // 高级配置（可选，用于扩展）
+    advancedCondition?: AdvancedCondition
+    parallel?: ParallelConfig
+    aiAgent?: AIAgentConfig
   }
 }
 
@@ -164,8 +257,7 @@ export interface WorkflowDefinition {
       backoff: 'fixed' | 'exponential'
       interval: number
     }
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    variables?: Record<string, any> // 全局变量
+    variables?: Record<string, unknown> // 全局变量
   }
 
   // 元数据
@@ -188,10 +280,8 @@ export interface NodeExecutionResult {
   duration?: number // 执行时长（毫秒）
 
   // 执行数据
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  input?: Record<string, any> // 输入数据
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  output?: Record<string, any> // 输出数据
+  input?: Record<string, unknown> // 输入数据
+  output?: Record<string, unknown> // 输出数据
   error?: {
     code: string
     message: string
@@ -213,6 +303,10 @@ export interface NodeExecutionResult {
     timestamp: string
     error?: string
   }>
+
+  // 性能优化相关
+  cached?: boolean // 是否来自缓存
+  cacheKey?: string // 缓存键
 }
 
 /**
@@ -237,12 +331,9 @@ export interface WorkflowInstance {
 
   // 实例数据
   data: {
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    inputs?: Record<string, any> // 初始输入
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    outputs?: Record<string, any> // 最终输出
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    variables?: Record<string, any> // 运行时变量
+    inputs?: Record<string, unknown> // 初始输入
+    outputs?: Record<string, unknown> // 最终输出
+    variables?: Record<string, unknown> // 运行时变量
   }
 
   // 错误信息

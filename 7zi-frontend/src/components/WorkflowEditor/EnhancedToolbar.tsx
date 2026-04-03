@@ -30,13 +30,13 @@ import {
   MoreVertical,
 } from 'lucide-react'
 import type { WorkflowDefinition } from '../types'
-import { AutoLayoutPanel } from './AutoLayout'
+import { AutoLayoutPanel, type LayoutType } from './AutoLayout'
 
 interface EnhancedToolbarProps {
   onSave: () => void
   onRun: () => void
   onValidate: () => void
-  onExport?: (exportData: any) => void
+  onExport?: (exportData: WorkflowDefinition) => void
   onImport?: (workflow: WorkflowDefinition) => void
   workflow: WorkflowDefinition
   isExecuting: boolean
@@ -55,7 +55,7 @@ interface EnhancedToolbarProps {
   onToggleMiniMap?: () => void
   onShowShortcuts?: () => void
   onShowSearch?: () => void
-  onAutoLayout?: (type: any) => void
+  onAutoLayout?: (type: LayoutType) => void
 }
 
 export const EnhancedToolbar: React.FC<EnhancedToolbarProps> = ({
@@ -144,18 +144,24 @@ export const EnhancedToolbar: React.FC<EnhancedToolbarProps> = ({
             title="保存 (Ctrl+S)"
           >
             <Save className="h-4 w-4" />
-            <span>保存</span>
+            <span className="hidden sm:inline">保存</span>
           </button>
 
           {/* 运行 */}
           <button
             onClick={onRun}
             disabled={isExecuting || hasErrors || readOnly}
-            className="flex items-center gap-1.5 rounded-lg bg-blue-600 px-3 py-1.5 text-sm font-medium text-white transition-colors hover:bg-blue-700 disabled:cursor-not-allowed disabled:opacity-50"
+            className={`flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-sm font-medium transition-colors ${
+              hasErrors
+                ? 'bg-red-600 hover:bg-red-700 disabled:bg-red-900/30'
+                : isExecuting
+                  ? 'bg-yellow-600 hover:bg-yellow-700 disabled:bg-yellow-900/30'
+                  : 'bg-green-600 hover:bg-green-700 disabled:bg-green-900/30'
+            } text-white disabled:cursor-not-allowed disabled:opacity-50`}
             title="运行 (Ctrl+Enter)"
           >
             <Play className="h-4 w-4" />
-            <span>运行</span>
+            <span className="hidden sm:inline">{isExecuting ? '运行中...' : hasErrors ? '修复错误' : '运行'}</span>
           </button>
 
           {/* 验证 */}

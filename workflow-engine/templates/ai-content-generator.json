@@ -1,0 +1,74 @@
+{
+  "id": "tpl_ai_content",
+  "name": "AI Content Generator",
+  "description": "AI-powered content generation workflow using Minimax",
+  "category": "ai",
+  "author": "AI Team",
+  "tags": ["ai", "minimax", "content", "generation"],
+  "workflow": {
+    "id": "wf_ai_content",
+    "name": "AI Content Generator",
+    "version": "1.0.0",
+    "description": "Generate content using AI with customizable prompts",
+    "variables": {
+      "topic": "artificial intelligence",
+      "style": "professional",
+      "length": "medium"
+    },
+    "nodes": [
+      {
+        "id": "start_1",
+        "type": "start",
+        "name": "Start",
+        "position": { "x": 100, "y": 100 }
+      },
+      {
+        "id": "ai_1",
+        "type": "ai",
+        "name": "Generate Content",
+        "position": { "x": 300, "y": 100 },
+        "data": {
+          "model": "minimax-m2",
+          "prompt": "Write a {{style}} article about {{topic}}. Length: {{length}}.",
+          "temperature": 0.7,
+          "maxTokens": 2000
+        },
+        "timeout": 60
+      },
+      {
+        "id": "transform_1",
+        "type": "transform",
+        "name": "Format Output",
+        "position": { "x": 500, "y": 100 },
+        "data": {
+          "transformations": [
+            {
+              "type": "merge",
+              "config": {
+                "values": {
+                  "generatedAt": "{{timestamp}}",
+                  "model": "minimax-m2"
+                }
+              }
+            }
+          ]
+        }
+      },
+      {
+        "id": "end_1",
+        "type": "end",
+        "name": "Complete",
+        "position": { "x": 700, "y": 100 }
+      }
+    ],
+    "edges": [
+      { "id": "e1", "source": "start_1", "target": "ai_1" },
+      { "id": "e2", "source": "ai_1", "target": "transform_1" },
+      { "id": "e3", "source": "transform_1", "target": "end_1" }
+    ],
+    "settings": {
+      "timeout": 120,
+      "enableCheckpoint": true
+    }
+  }
+}

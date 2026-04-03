@@ -238,7 +238,7 @@ export class TraceManager {
       serviceName: this.options.serviceName,
       serviceVersion: this.options.serviceVersion ?? '1.0.0',
       environment: this.options.environment,
-      operationType: options?.metadata?.operationType ?? 'custom',
+      operationType: options?.metadata?.operationType ?? 'internal',
       timestamp: Date.now(),
     }
 

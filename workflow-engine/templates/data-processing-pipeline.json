@@ -1,0 +1,137 @@
+{
+  "id": "tpl_data_pipeline",
+  "name": "Data Processing Pipeline",
+  "description": "ETL pipeline for data transformation and validation",
+  "category": "data",
+  "author": "Data Team",
+  "tags": ["data", "etl", "transform", "validation"],
+  "workflow": {
+    "id": "wf_data_pipeline",
+    "name": "Data Processing Pipeline",
+    "version": "1.0.0",
+    "description": "Extract, Transform, Load pipeline with validation",
+    "variables": {
+      "sourceUrl": "https://api.example.com/data",
+      "batchSize": 100
+    },
+    "nodes": [
+      {
+        "id": "start_1",
+        "type": "start",
+        "name": "Start",
+        "position": { "x": 100, "y": 150 }
+      },
+      {
+        "id": "http_1",
+        "type": "http",
+        "name": "Extract Data",
+        "position": { "x": 300, "y": 150 },
+        "data": {
+          "method": "GET",
+          "url": "${variables.sourceUrl}"
+        },
+        "retry": {
+          "maxAttempts": 3,
+          "backoffStrategy": "exponential"
+        },
+        "timeout": 60
+      },
+      {
+        "id": "transform_1",
+        "type": "transform",
+        "name": "Transform",
+        "position": { "x": 500, "y": 150 },
+        "data": {
+          "transformations": [
+            {
+              "type": "map",
+              "config": {
+                "mapping": {
+                  "id": "id",
+                  "name": "name",
+                  "value": "value",
+                  "timestamp": "created_at"
+                }
+              }
+            },
+            {
+              "type": "filter",
+              "config": {
+                "field": "value",
+                "value": null
+              }
+            }
+          ]
+        }
+      },
+      {
+        "id": "condition_1",
+        "type": "condition",
+        "name": "Validate",
+        "position": { "x": 700, "y": 150 },
+        "data": {
+          "conditions": [
+            {
+              "expression": "output.length > 0",
+              "branch": "valid"
+            }
+          ],
+          "defaultBranch": "invalid"
+        }
+      },
+      {
+        "id": "loop_1",
+        "type": "loop",
+        "name": "Process Batch",
+        "position": { "x": 900, "y": 100 },
+        "data": {
+          "iterable": "output",
+          "maxIterations": 100
+        }
+      },
+      {
+        "id": "task_1",
+        "type": "task",
+        "name": "Save to DB",
+        "position": { "x": 1100, "y": 100 },
+        "data": {
+          "action": "database.insert",
+          "params": {
+            "table": "processed_data"
+          }
+        },
+        "retry": {
+          "maxAttempts": 2
+        }
+      },
+      {
+        "id": "end_success",
+        "type": "end",
+        "name": "Success",
+        "position": { "x": 1300, "y": 100 }
+      },
+      {
+        "id": "end_invalid",
+        "type": "end",
+        "name": "No Data",
+        "position": { "x": 900, "y": 250 }
+      }
+    ],
+    "edges": [
+      { "id": "e1", "source": "start_1", "target": "http_1" },
+      { "id": "e2", "source": "http_1", "target": "transform_1" },
+      { "id": "e3", "source": "transform_1", "target": "condition_1" },
+      { "id": "e4", "source": "condition_1", "target": "loop_1", "condition": "branch === 'valid'" },
+      { "id": "e5", "source": "loop_1", "target": "task_1" },
+      { "id": "e6", "source": "task_1", "target": "end_success" },
+      { "id": "e7", "source": "condition_1", "target": "end_invalid", "condition": "branch === 'invalid'" }
+    ],
+    "settings": {
+      "timeout": 600,
+      "maxRetries": 3,
+      "enableCheckpoint": true,
+      "enableParallel": true,
+      "maxParallelTasks": 5
+    }
+  }
+}

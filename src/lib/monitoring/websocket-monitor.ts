@@ -8,8 +8,14 @@
  * - Ping-pong 延迟测试
  * - 自动上报到性能监控系统
  *
+ * 性能优化 (v1.9.0):
+ * - 使用 Map 替代数组遍历
+ * - 添加防抖/节流机制
+ * - 批量处理替代单条处理
+ * - 优化消息序列化
+ *
  * @module websocket-monitor
- * @version 1.8.0
+ * @version 1.9.0
  */
 
 import type { Socket } from 'socket.io-client'
@@ -24,6 +30,128 @@ import {
 } from './types'
 import { recordCustomMetric } from './performance.monitor'
 
+// ============================================
+// 防抖/节流工具函数
+// ============================================
+
+function debounce<T extends (...args: unknown[]) => unknown>(
+  func: T,
+  wait: number
+): (...args: Parameters<T>) => void {
+  let timeout: NodeJS.Timeout | null = null
+  return function (this: unknown, ...args: Parameters<T>) {
+    if (timeout) clearTimeout(timeout)
+    timeout = setTimeout(() => func.apply(this, args), wait)
+  }
+}
+
+function throttle<T extends (...args: unknown[]) => unknown>(
+  func: T,
+  limit: number
+): (...args: Parameters<T>) => void {
+  let inThrottle: boolean
+  return function (this: unknown, ...args: Parameters<T>) {
+    if (!inThrottle) {
+      func.apply(this, args)
+      inThrottle = true
+      setTimeout(() => (inThrottle = false), limit)
+    }
+  }
+}
+
+// ============================================
+// 优化的延迟历史记录（使用环形缓冲区）
+// ============================================
+
+class CircularBuffer<T> {
+  private buffer: T[]
+  private head: number = 0
+  private size: number = 0
+
+  constructor(private capacity: number) {
+    this.buffer = new Array(capacity)
+  }
+
+  push(item: T): void {
+    this.buffer[this.head] = item
+    this.head = (this.head + 1) % this.capacity
+    if (this.size < this.capacity) this.size++
+  }
+
+  toArray(): T[] {
+    const result: T[] = []
+    for (let i = 0; i < this.size; i++) {
+      result.push(this.buffer[(this.head - this.size + i + this.capacity) % this.capacity])
+    }
+    return result
+  }
+
+  get length(): number {
+    return this.size
+  }
+
+  clear(): void {
+    this.head = 0
+    this.size = 0
+  }
+}
+
+// ============================================
+// 批量上报队列
+// ============================================
+
+interface BatchedMetric {
+  name: string
+  value: number
+  unit: string
+  timestamp: number
+}
+
+class MetricBatcher {
+  private queue: BatchedMetric[] = []
+  private flushTimer: NodeJS.Timeout | null = null
+  private maxBatchSize: number
+  private maxWaitTime: number
+
+  constructor(maxBatchSize: number = 50, maxWaitTime: number = 1000) {
+    this.maxBatchSize = maxBatchSize
+    this.maxWaitTime = maxWaitTime
+  }
+
+  add(metric: BatchedMetric): void {
+    this.queue.push(metric)
+
+    if (this.queue.length >= this.maxBatchSize) {
+      this.flush()
+    } else if (!this.flushTimer) {
+      this.flushTimer = setTimeout(() => this.flush(), this.maxWaitTime)
+    }
+  }
+
+  private flush(): void {
+    if (this.queue.length === 0) return
+
+    // 批量上报
+    for (const metric of this.queue) {
+      try {
+        recordCustomMetric(metric.name, metric.value, metric.unit as any)
+      } catch (error) {
+        console.error('[WebSocketMonitor] Failed to report metric:', error)
+      }
+    }
+
+    this.queue = []
+    if (this.flushTimer) {
+      clearTimeout(this.flushTimer)
+      this.flushTimer = null
+    }
+  }
+
+  destroy(): void {
+    this.flush()
+  }
+}
+
 /**
  * WebSocket Monitor Class
  * 监控 WebSocket (Socket.IO) 连接性能
@@ -37,11 +165,11 @@ export class WebSocketMonitor {
   /** Ping 间隔定时器 */
   private pingIntervals: Map<string, NodeJS.Timeout> = new Map()
 
-  /** 延迟历史记录 */
-  private latencyHistory: Map<string, LatencyRecord[]> = new Map()
+  /** 延迟历史记录 - 使用环形缓冲区优化 */
+  private latencyHistory: Map<string, CircularBuffer<LatencyRecord>> = new Map()
 
-  /** 事件历史 */
-  private eventHistory: WebSocketEvent[] = []
+  /** 事件历史 - 使用环形缓冲区优化 */
+  private eventHistory: CircularBuffer<WebSocketEvent>
 
   /** Socket 实例引用 */
   private sockets: Map<string, Socket | SocketIOServer> = new Map()
@@ -52,9 +180,41 @@ export class WebSocketMonitor {
   /** 是否已初始化 */
   private initialized: boolean = false
 
+  /** 批量上报器 */
+  private metricBatcher: MetricBatcher
+
+  /** 节流的延迟上报 */
+  private throttledLatencyReport: (namespace: string, latency: number) => void
+
+  /** 防抖的统计上报 */
+  private debouncedStatsReport: () => void
+
   /** 单例私有构造函数 */
   private constructor(config?: WebSocketMonitorConfig) {
     this.config = { ...DEFAULT_WEBSOCKET_MONITOR_CONFIG, ...config }
+
+    // 初始化环形缓冲区
+    this.eventHistory = new CircularBuffer<WebSocketEvent>(this.config.maxHistoryLength * 10)
+
+    // 初始化批量上报器
+    this.metricBatcher = new MetricBatcher(50, 1000)
+
+    // 初始化节流/防抖函数
+    this.throttledLatencyReport = throttle(
+      (ns: unknown, latency: unknown) => {
+        this.metricBatcher.add({
+          name: `ws_${ns as string}_latency`,
+          value: latency as number,
+          unit: 'ms',
+          timestamp: Date.now(),
+        })
+      },
+      500 // 最多每 500ms 上报一次
+    ) as (namespace: string, latency: number) => void
+
+    this.debouncedStatsReport = debounce(() => {
+      this.reportStats()
+    }, 2000) // 2秒内多次调用只执行一次
   }
 
   /**
@@ -102,7 +262,7 @@ export class WebSocketMonitor {
 
     this.metrics.set(ns, metrics)
     this.sockets.set(ns, socket)
-    this.latencyHistory.set(ns, [])
+    this.latencyHistory.set(ns, new CircularBuffer<LatencyRecord>(this.config.maxHistoryLength))
 
     const startTime = Date.now()
 
@@ -114,7 +274,12 @@ export class WebSocketMonitor {
       this.recordEvent('connect', ns, { connectTime: metrics.connectTime })
 
       if (this.config.autoReport) {
-        this.reportMetric(`ws_${ns}_connect_time`, metrics.connectTime)
+        this.metricBatcher.add({
+          name: `ws_${ns}_connect_time`,
+          value: metrics.connectTime,
+          unit: 'ms',
+          timestamp: Date.now(),
+        })
       }
 
       this.log(`[${ns}] Connected in ${metrics.connectTime}ms`)
@@ -127,7 +292,12 @@ export class WebSocketMonitor {
       this.recordEvent('disconnect', ns, { reason })
 
       if (this.config.autoReport) {
-        this.reportMetric(`ws_${ns}_disconnect`, 1, 'count')
+        this.metricBatcher.add({
+          name: `ws_${ns}_disconnect`,
+          value: 1,
+          unit: 'count',
+          timestamp: Date.now(),
+        })
       }
 
       this.log(`[${ns}] Disconnected: ${reason}`)
@@ -141,7 +311,12 @@ export class WebSocketMonitor {
       this.recordEvent('reconnect', ns, { attemptNumber })
 
       if (this.config.autoReport) {
-        this.reportMetric(`ws_${ns}_reconnect`, metrics.reconnectCount, 'count')
+        this.metricBatcher.add({
+          name: `ws_${ns}_reconnect`,
+          value: metrics.reconnectCount,
+          unit: 'count',
+          timestamp: Date.now(),
+        })
       }
 
       this.log(`[${ns}] Reconnected after ${attemptNumber} attempts`)
@@ -162,7 +337,12 @@ export class WebSocketMonitor {
       })
 
       if (this.config.autoReport) {
-        this.reportMetric(`ws_${ns}_error`, metrics.errorCount, 'count')
+        this.metricBatcher.add({
+          name: `ws_${ns}_error`,
+          value: metrics.errorCount,
+          unit: 'count',
+          timestamp: Date.now(),
+        })
       }
 
       this.log(`[${ns}] Connection error: ${error.message}`)
@@ -208,7 +388,7 @@ export class WebSocketMonitor {
 
     this.metrics.set(ns, metrics)
     this.sockets.set(ns, io)
-    this.latencyHistory.set(ns, [])
+    this.latencyHistory.set(ns, new CircularBuffer<LatencyRecord>(this.config.maxHistoryLength))
 
     // 监听新连接
     io.on('connection', socket => {
@@ -226,7 +406,8 @@ export class WebSocketMonitor {
         this.recordLatency(ns, latency)
 
         if (this.config.autoReport) {
-          this.reportMetric(`ws_${ns}_server_latency`, latency)
+          // 使用节流上报
+          this.throttledLatencyReport(ns, latency)
         }
       })
     })
@@ -262,7 +443,8 @@ export class WebSocketMonitor {
           this.updateLatencyStats(namespace, latency)
 
           if (this.config.autoReport) {
-            this.reportMetric(`ws_${namespace}_latency`, latency)
+            // 使用节流上报延迟
+            this.throttledLatencyReport(namespace, latency)
           }
 
           // 检查延迟阈值
@@ -278,20 +460,14 @@ export class WebSocketMonitor {
    * 记录延迟
    */
   private recordLatency(namespace: string, latency: number): void {
-    const history = this.latencyHistory.get(namespace) || []
-
-    history.push({
-      timestamp: Date.now(),
-      latency,
-      namespace,
-    })
-
-    // 限制历史记录长度
-    if (history.length > this.config.maxHistoryLength) {
-      history.shift()
+    const history = this.latencyHistory.get(namespace)
+    if (history) {
+      history.push({
+        timestamp: Date.now(),
+        latency,
+        namespace,
+      })
     }
-
-    this.latencyHistory.set(namespace, history)
   }
 
   /**
@@ -303,9 +479,9 @@ export class WebSocketMonitor {
 
     metrics.latency = latency
 
-    const history = this.latencyHistory.get(namespace) || []
-    if (history.length > 0) {
-      const latencies = history.map(r => r.latency)
+    const history = this.latencyHistory.get(namespace)
+    if (history && history.length > 0) {
+      const latencies = history.toArray().map(r => r.latency)
       metrics.avgLatency = latencies.reduce((a, b) => a + b, 0) / latencies.length
       metrics.maxLatency = Math.max(...latencies)
       metrics.minLatency = Math.min(...latencies)
@@ -352,23 +528,35 @@ export class WebSocketMonitor {
     }
 
     this.eventHistory.push(event)
-
-    // 限制事件历史长度
-    if (this.eventHistory.length > this.config.maxHistoryLength * 10) {
-      this.eventHistory = this.eventHistory.slice(-this.config.maxHistoryLength)
-    }
   }
 
   /**
-   * 上报指标到性能监控系统
+   * 上报统计信息（防抖）
    */
-  private reportMetric(name: string, value: number, unit: string = 'ms'): void {
-    try {
-      // 使用公共 API recordCustomMetric, WebSocket 指标归类为 "api"
-      recordCustomMetric(name, value, 'api', { unit, type: 'websocket' })
-    } catch (error) {
-      this.log(`Failed to report metric ${name}: ${error}`)
-    }
+  private reportStats(): void {
+    const stats = this.getStats()
+
+    // 批量上报统计指标
+    this.metricBatcher.add({
+      name: 'ws_total_connections',
+      value: stats.totalConnections,
+      unit: 'count',
+      timestamp: Date.now(),
+    })
+
+    this.metricBatcher.add({
+      name: 'ws_active_connections',
+      value: stats.activeConnections,
+      unit: 'count',
+      timestamp: Date.now(),
+    })
+
+    this.metricBatcher.add({
+      name: 'ws_avg_latency',
+      value: stats.avgLatency,
+      unit: 'ms',
+      timestamp: Date.now(),
+    })
   }
 
   /**
@@ -414,13 +602,14 @@ export class WebSocketMonitor {
    */
   getLatencyHistory(namespace?: string): LatencyRecord[] {
     if (namespace) {
-      return this.latencyHistory.get(namespace) || []
+      const history = this.latencyHistory.get(namespace)
+      return history ? history.toArray() : []
     }
 
     // 返回所有命名空间的历史
     const allHistory: LatencyRecord[] = []
     for (const history of this.latencyHistory.values()) {
-      allHistory.push(...history)
+      allHistory.push(...history.toArray())
     }
     return allHistory.sort((a, b) => a.timestamp - b.timestamp)
   }
@@ -429,7 +618,7 @@ export class WebSocketMonitor {
    * 获取事件历史
    */
   getEventHistory(): WebSocketEvent[] {
-    return [...this.eventHistory]
+    return this.eventHistory.toArray()
   }
 
   /**
@@ -493,7 +682,7 @@ export class WebSocketMonitor {
     this.metrics.clear()
     this.sockets.clear()
     this.latencyHistory.clear()
-    this.eventHistory = []
+    this.eventHistory.clear()
 
     this.log('All metrics reset')
   }
@@ -503,6 +692,7 @@ export class WebSocketMonitor {
    */
   destroy(): void {
     this.reset()
+    this.metricBatcher.destroy()
     WebSocketMonitor.instance = null
     this.initialized = false
     this.log('Monitor destroyed')

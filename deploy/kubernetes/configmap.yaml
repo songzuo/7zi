@@ -1,0 +1,185 @@
+# ============================================
+# OpenClaw v1.11.0 Kubernetes ConfigMap
+# ============================================
+
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: openclaw-config
+  namespace: openclaw
+  labels:
+    app: openclaw
+data:
+  # 应用配置
+  NODE_ENV: "production"
+  PORT: "3000"
+  HOSTNAME: "0.0.0.0"
+  
+  # 数据库配置
+  POSTGRES_HOST: "postgres.openclaw.svc.cluster.local"
+  POSTGRES_PORT: "5432"
+  POSTGRES_DB: "openclaw"
+  DATABASE_URL: "postgresql://openclaw:$(POSTGRES_PASSWORD)@postgres:5432/openclaw"
+  
+  # Redis 配置
+  REDIS_HOST: "redis.openclaw.svc.cluster.local"
+  REDIS_PORT: "6379"
+  REDIS_URL: "redis://:$(REDIS_PASSWORD)@redis:6379"
+  
+  # 日志配置
+  LOG_LEVEL: "info"
+  LOG_FORMAT: "json"
+  
+  # 功能开关
+  ENABLE_ANALYTICS: "true"
+  ENABLE_SENTRY: "true"
+  ENABLE_SWAGGER: "false"
+  ENABLE_METRICS: "true"
+  
+  # 监控配置
+  SENTRY_ENVIRONMENT: "production"
+  PROMETHEUS_ENABLED: "true"
+  
+  # 性能配置
+  MAX_CONNECTIONS: "100"
+  REQUEST_TIMEOUT: "30000"
+  BODY_LIMIT: "50mb"
+  
+  # 安全配置
+  CORS_ORIGIN: "*"
+  RATE_LIMIT_WINDOW: "60000"
+  RATE_LIMIT_MAX: "1000"
+  
+  # 上传配置
+  UPLOAD_DIR: "/app/uploads"
+  MAX_FILE_SIZE: "52428800"  # 50MB
+  
+  # WebSocket 配置
+  WS_HEARTBEAT_INTERVAL: "30000"
+  WS_MAX_CONNECTIONS: "1000"
+
+---
+# ============================================
+# OpenClaw v1.11.0 Kubernetes Secret
+# ============================================
+
+apiVersion: v1
+kind: Secret
+metadata:
+  name: openclaw-secrets
+  namespace: openclaw
+  labels:
+    app: openclaw
+type: Opaque
+stringData:
+  # 数据库密码（生产环境应使用 Sealed Secrets 或 External Secrets）
+  POSTGRES_USER: "openclaw"
+  POSTGRES_PASSWORD: "CHANGE_ME_IN_PRODUCTION"
+  
+  # Redis 密码
+  REDIS_PASSWORD: "CHANGE_ME_IN_PRODUCTION"
+  
+  # JWT 密钥
+  JWT_SECRET: "CHANGE_ME_IN_PRODUCTION_MIN_32_CHARS"
+  
+  # Session 密钥
+  SESSION_SECRET: "CHANGE_ME_IN_PRODUCTION_MIN_32_CHARS"
+  
+  # 加密密钥
+  ENCRYPTION_KEY: "CHANGE_ME_IN_PRODUCTION_32_CHARS"
+  
+  # Sentry DSN
+  SENTRY_DSN: ""
+  
+  # 其他 API 密钥
+  OPENAI_API_KEY: ""
+  ANTHROPIC_API_KEY: ""
+  
+  # OAuth 密钥
+  GOOGLE_CLIENT_ID: ""
+  GOOGLE_CLIENT_SECRET: ""
+  GITHUB_CLIENT_ID: ""
+  GITHUB_CLIENT_SECRET: ""
+
+---
+# ============================================
+# Namespace
+# ============================================
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: openclaw
+  labels:
+    name: openclaw
+    environment: production
+
+---
+# ============================================
+# NetworkPolicy
+# ============================================
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: openclaw-network-policy
+  namespace: openclaw
+spec:
+  podSelector:
+    matchLabels:
+      app: openclaw
+  policyTypes:
+    - Ingress
+    - Egress
+  ingress:
+    # 允许来自 Ingress Controller 的流量
+    - from:
+        - namespaceSelector:
+            matchLabels:
+              name: ingress-nginx
+      ports:
+        - protocol: TCP
+          port: 3000
+    # 允许来自 Prometheus 的监控流量
+    - from:
+        - namespaceSelector:
+            matchLabels:
+              name: monitoring
+      ports:
+        - protocol: TCP
+          port: 3000
+  egress:
+    # 允许访问 PostgreSQL
+    - to:
+        - podSelector:
+            matchLabels:
+              app: postgres
+      ports:
+        - protocol: TCP
+          port: 5432
+    # 允许访问 Redis
+    - to:
+        - podSelector:
+            matchLabels:
+              app: redis
+      ports:
+        - protocol: TCP
+          port: 6379
+    # 允许 DNS 解析
+    - to:
+        - namespaceSelector: {}
+          podSelector:
+            matchLabels:
+              k8s-app: kube-dns
+      ports:
+        - protocol: UDP
+          port: 53
+    # 允许访问外部 API
+    - to:
+        - ipBlock:
+            cidr: 0.0.0.0/0
+            except:
+              - 10.0.0.0/8
+              - 172.16.0.0/12
+              - 192.168.0.0/16
+      ports:
+        - protocol: TCP
+          port: 443

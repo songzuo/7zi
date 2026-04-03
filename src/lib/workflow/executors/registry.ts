@@ -11,6 +11,8 @@ import { AgentNodeExecutor } from './agent-executor'
 import { ConditionNodeExecutor } from './condition-executor'
 import { ParallelNodeExecutor } from './parallel-executor'
 import { WaitNodeExecutor } from './wait-executor'
+import { HumanInputNodeExecutor } from './human-input-executor'
+import { LoopNodeExecutor } from './loop-executor'
 
 export class NodeExecutorRegistry {
   private executors: Map<NodeType, NodeExecutor> = new Map()
@@ -23,6 +25,8 @@ export class NodeExecutorRegistry {
     this.register(new ConditionNodeExecutor())
     this.register(new ParallelNodeExecutor())
     this.register(new WaitNodeExecutor())
+    this.register(new HumanInputNodeExecutor())
+    this.register(new LoopNodeExecutor())
   }
 
   /**

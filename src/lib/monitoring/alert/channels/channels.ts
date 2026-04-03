@@ -425,7 +425,7 @@ export class AlertChannelManager {
         enabled: true,
         name: 'Default Webhook',
         url: process.env.WEBHOOK_URL || '',
-        method: (process.env.WEBHOOK_METHOD as 'GET' | 'POST' | 'PUT' | 'DELETE') || 'POST',
+        method: (process.env.WEBHOOK_METHOD as 'POST' | 'PUT' | 'PATCH') || 'POST',
         format: (process.env.WEBHOOK_FORMAT as 'json' | 'form' | 'text') || 'json',
         headers: process.env.WEBHOOK_HEADERS ? JSON.parse(process.env.WEBHOOK_HEADERS) : {},
         retryAttempts: 3,
@@ -823,7 +823,7 @@ export class AlertChannelSender {
     config: WebhookChannelConfig,
     payload: Record<string, unknown>
   ): Promise<void> {
-    let body: string | Record<string, unknown>
+    let body: string | Record<string, unknown> | FormData
 
     switch (config.format) {
       case 'json':
@@ -852,7 +852,7 @@ export class AlertChannelSender {
     const response = await fetch(config.url, {
       method: config.method,
       headers,
-      body: body as string,
+      body: body as BodyInit,
     })
 
     if (!response.ok) {

@@ -120,6 +120,43 @@ interface AssessmentConfig {
 }
 
 /**
+ * Export data type for persistence
+ */
+interface CapabilityAssessmentExportData {
+  capabilityScores?: Record<string, Record<TaskType, CapabilityScore>>
+  previousScores?: Record<string, Record<TaskType, number>>
+  config?: Partial<AssessmentConfig>
+}
+
+/**
+ * Dimension scores for recommendations
+ */
+interface DimensionScores {
+  technical: {
+    score: number
+    weakTaskTypes: TaskType[]
+  }
+  speed: {
+    score: number
+  }
+  reliability: {
+    score: number
+  }
+  quality: {
+    score: number
+  }
+}
+
+/**
+ * Changes for recommendations
+ */
+interface Changes {
+  improved: TaskType[]
+  declined: TaskType[]
+  stable: TaskType[]
+}
+
+/**
  * Agent Capability Assessor
  *
  * Evaluates agent capability across multiple dimensions:
@@ -562,7 +599,7 @@ export class AgentCapabilityAssessor {
   /**
    * Generate recommendations based on assessment
    */
-  private generateRecommendations(overallScore: number, dimensions: any, changes: any): string[] {
+  private generateRecommendations(overallScore: number, dimensions: DimensionScores, changes: Changes): string[] {
     const recommendations: string[] = []
 
     // Overall score
@@ -723,27 +760,30 @@ export class AgentCapabilityAssessor {
   /**
    * Import assessment data
    */
-  importData(data: any): void {
-    if (data.capabilityScores) {
-      this.capabilityScores = new Map(
-        Object.entries(data.capabilityScores).map(([agentId, scores]: [string, any]) => [
-          agentId,
-          new Map(Object.entries(scores) as [TaskType, CapabilityScore][]),
-        ])
-      )
-    }
-    if (data.previousScores) {
-      this.previousScores = new Map(
-        Object.entries(data.previousScores).map(([agentId, scores]: [string, any]) => [
-          agentId,
-          new Map(Object.entries(scores) as [TaskType, number][]),
-        ])
-      )
-    }
-    if (data.config) {
-      this.config = { ...this.config, ...data.config }
-    }
+  private importData(data: unknown): void {
+  if (!data || typeof data !== 'object') return
+  
+  const typedData = data as CapabilityAssessmentExportData
+  if (typedData.capabilityScores) {
+    this.capabilityScores = new Map(
+      Object.entries(typedData.capabilityScores).map(([agentId, scores]) => [
+        agentId,
+        new Map(Object.entries(scores) as [TaskType, CapabilityScore][]),
+      ])
+    )
   }
+  if (typedData.previousScores) {
+    this.previousScores = new Map(
+      Object.entries(typedData.previousScores).map(([agentId, scores]) => [
+        agentId,
+        new Map(Object.entries(scores) as [TaskType, number][]),
+      ])
+    )
+  }
+  if (typedData.config) {
+    this.config = { ...this.config, ...typedData.config }
+  }
+}
 
   /**
    * Clear all data

@@ -1,8 +1,8 @@
 # API 完整文档
 
-**最后更新**: 2026-04-02
-**版本**: v1.8.0
-**API 端点总数**: 60+
+**最后更新**: 2026-04-03
+**版本**: v1.10.0
+**API 端点总数**: 80+
 
 ---
 
@@ -26,8 +26,10 @@
 16. [健康检查 API](#健康检查-api)
 17. [工作流编排 API](#工作流编排-api)
 18. [告警系统 API](#告警系统-api)
-19. [数据模型](#数据模型)
-20. [错误处理](#错误处理)
+19. [工作流版本历史管理 API](#工作流版本历史管理-api-v191) *(v1.9.1 新增)*
+20. [RCA 根因分析 API](#rca-根因分析-api-v190) *(v1.9.0 新增)*
+21. [数据模型](#数据模型)
+22. [错误处理](#错误处理)
 
 ### 📚 专项 API 文档
 
@@ -38,6 +40,94 @@
 ---
 
 ## API 概览
+
+### v1.10.0 新增功能 (2026-04-03)
+
+v1.10.0 版本引入了 AI 代码智能系统：
+
+#### 🤖 AI 代码智能系统 (100% 完成)
+
+**核心功能** (`src/lib/ai/code/`)
+
+- **📊 代码分析器** - 静态分析代码结构、计算复杂度、提取依赖
+- **⌨️ 代码补全器** - 智能代码补全、关键词、代码片段、模式匹配
+- **🔍 代码审查器** - 自动代码审查、30+ 规则、评分系统
+- **🐛 Bug 检测器** - 识别 20+ Bug 模式、空引用、异步错误
+- **🔧 修复建议器** - 生成修复代码、解释原因、评估风险
+- **📖 代码解释器** - 自然语言解释、关键概念提取
+
+**支持的语言**: TypeScript, JavaScript, Python, Go, Rust
+
+**代码统计**: 2,500+ 行核心实现 + 800+ 行测试代码
+
+**文档**: [v1.10.0 实现报告](../V110_CODE_GENERATION_IMPLEMENTATION_REPORT.md)
+
+---
+
+### v1.9.1 新增功能 (2026-04-03)
+
+v1.9.1 版本引入了工作流版本历史管理功能：
+
+#### 📜 工作流版本历史管理 (100% 完成)
+
+**核心功能** (`src/lib/workflow/version-service.ts`)
+
+- 版本快照 - 保存完整的工作流状态（节点、边、配置）
+- 版本对比 - 计算节点、边、配置的差异
+- 版本回滚 - 创建新版本恢复到历史状态
+- 自动清理 - 根据设置自动删除旧版本
+
+**数据库表**:
+| 表名 | 用途 |
+|------|------|
+| `workflow_versions` | 存储工作流版本快照 |
+| `workflow_version_diffs` | 存储版本对比结果 |
+| `workflow_version_settings` | 存储版本设置 |
+
+**API 端点**:
+
+| 端点 | 说明 |
+|------|------|
+| `GET /api/workflow/:id/versions` | 获取版本列表 |
+| `POST /api/workflow/:id/versions` | 创建新版本 |
+| `GET /api/workflow/:id/versions/:versionId` | 获取特定版本 |
+| `DELETE /api/workflow/:id/versions/:versionId` | 删除版本（受限） |
+| `GET /api/workflow/:id/versions/compare` | 对比两个版本 |
+| `POST /api/workflow/:id/versions/:versionId/rollback` | 回滚到指定版本 |
+| `GET /api/workflow/:id/versions/settings` | 获取版本设置 |
+| `PUT /api/workflow/:id/versions/settings` | 更新版本设置 |
+
+---
+
+### v1.9.0 新增功能 (2026-04-03)
+
+v1.9.0 版本引入了 AI 对话式任务创建功能：
+
+#### 🤖 AI 对话式任务创建 (100% 完成)
+
+**核心组件** (`src/components/workflow/`)
+
+- TaskCreationChat - 对话式任务创建界面
+- TaskPreviewPanel - 任务预览面板
+- QuickTaskModal - 快速创建模态框
+
+**自然语言解析器** (`src/lib/workflow/TaskParser.ts`)
+
+- 意图识别 - 8 种任务类型（automation, notification, data_processing, monitoring, integration, scheduled, webhook, human_approval）
+- 实体提取 - 时间表达式、接收者、条件表达式、动作、目标
+- 自动生成节点和边
+- 改进建议生成
+
+**解析算法**:
+
+| 算法 | 说明 |
+|------|------|
+| 关键词匹配 | 基于关键词权重识别意图 |
+| 正则提取 | 提取时间、接收者等实体 |
+| 节点生成 | 根据意图自动生成工作流节点 |
+| 边连接 | 自动生成节点间连接 |
+
+---
 
 ### v1.8.0 新增功能 (2026-04-02)
 
@@ -272,6 +362,8 @@ v1.4.0 版本引入了三大核心功能：
 | **用户偏好**   | 3        | 用户设置管理                   | 见本文档                                       |
 | **GitHub**     | 2        | Issues、Commits                | 见本文档                                       |
 | **健康检查**   | 6        | 系统、数据库健康               | 见本文档                                       |
+| **工作流版本** | 8        | 版本管理、对比、回滚           | 见本文档 (v1.9.1 新增)                         |
+| **RCA 分析**   | 3        | 根因分析、知识库、传播链       | 见本文档 (v1.9.0 新增)                         |
 | **WebSocket**  | -        | 房间系统、权限控制、消息持久化 | [websocket.md](./api/websocket.md)             |
 | **其他**       | 5        | 跨域、状态、导出等             | 见本文档                                       |
 
@@ -2832,6 +2924,18 @@ interface PerformanceAlert {
 
 ### ℹ️ 注意
 
+v1.9.1 主要新增功能为工作流版本历史管理。完整实现细节请参考：
+
+- `src/lib/workflow/version-service.ts` - 版本服务
+- `src/lib/db/migrations/v191_workflow_versions.ts` - 数据库迁移
+
+v1.9.0 主要新增功能为 AI 对话式任务创建。完整实现细节请参考：
+
+- `src/lib/workflow/TaskParser.ts` - 自然语言解析器
+- `src/components/workflow/TaskCreationChat.tsx` - 对话式创建组件
+- `src/components/workflow/TaskPreviewPanel.tsx` - 预览面板
+- `src/components/workflow/QuickTaskModal.tsx` - 快速创建模态框
+
 v1.8.0 主要新增功能为可视化工作流编排和 Email 告警系统。完整实现细节请参考：
 
 - `src/lib/workflow/VisualWorkflowOrchestrator.ts` - 工作流引擎
@@ -2839,5 +2943,1165 @@ v1.8.0 主要新增功能为可视化工作流编排和 Email 告警系统。完
 - `src/config/email.ts` - Email 配置
 - `src/lib/alerting/templates/alert-template.ts` - 邮件模板
 
-**版本**: v1.8.0
-**更新日期**: 2026-04-02
+**版本**: v1.9.1
+**更新日期**: 2026-04-03
+
+---
+
+## 📜 工作流版本历史管理 API (v1.9.1)
+
+v1.9.1 引入了完整的工作流版本历史管理功能，支持版本快照、版本对比、版本回滚等操作。
+
+### 版本管理 API
+
+#### 获取版本列表
+
+```
+GET /api/workflow/:id/versions
+```
+
+获取指定工作流的所有版本列表。
+
+**路径参数**:
+| 参数 | 类型 | 说明 |
+|------|------|------|
+| `id` | string | 工作流 ID |
+
+**Query 参数**:
+| 参数 | 类型 | 默认值 | 说明 |
+|------|------|--------|------|
+| `limit` | number | 50 | 每页数量 |
+| `offset` | number | 0 | 偏移量 |
+
+**响应**:
+
+```json
+{
+  "success": true,
+  "data": {
+    "versions": [
+      {
+        "id": "version_1712345678901_abc123",
+        "workflowId": "workflow_1",
+        "versionNumber": 3,
+        "changeSummary": "添加新的条件分支",
+        "changeType": "update",
+        "nodes": [...],
+        "edges": [...],
+        "config": {...},
+        "createdBy": "user_1",
+        "createdAt": "2026-04-03T12:00:00.000Z",
+        "parentVersionId": "version_1712345678900_xyz789"
+      }
+    ],
+    "total": 10,
+    "limit": 50,
+    "offset": 0
+  }
+}
+```
+
+---
+
+#### 创建新版本
+
+```
+POST /api/workflow/:id/versions
+```
+
+创建工作流的版本快照。
+
+**请求体**:
+
+```json
+{
+  "name": "工作流名称",
+  "description": "工作流描述",
+  "version": 1,
+  "status": "active",
+  "nodes": [...],
+  "edges": [...],
+  "config": {...},
+  "changeSummary": "初始版本",
+  "changeType": "create",
+  "userId": "user_1"
+}
+```
+
+**参数说明**:
+| 参数 | 类型 | 必需 | 说明 |
+|------|------|------|------|
+| `name` | string | ✅ | 工作流名称 |
+| `nodes` | array | ✅ | 节点列表 |
+| `edges` | array | ✅ | 边列表 |
+| `changeSummary` | string | ❌ | 变更摘要 |
+| `changeType` | string | ❌ | 变更类型 (create, update, rollback) |
+| `parentVersionId` | string | ❌ | 父版本 ID |
+
+**响应**: `201 Created`
+
+```json
+{
+  "success": true,
+  "data": {
+    "id": "version_1712345678901_abc123",
+    "workflowId": "workflow_1",
+    "versionNumber": 1,
+    "changeSummary": "初始版本",
+    "changeType": "create",
+    "createdAt": "2026-04-03T12:00:00.000Z"
+  }
+}
+```
+
+---
+
+### 版本详情 API
+
+#### 获取特定版本
+
+```
+GET /api/workflow/:id/versions/:versionId
+```
+
+获取指定版本的详细信息。
+
+**路径参数**:
+| 参数 | 类型 | 说明 |
+|------|------|------|
+| `id` | string | 工作流 ID |
+| `versionId` | string | 版本 ID |
+
+**响应**:
+
+```json
+{
+  "success": true,
+  "data": {
+    "id": "version_1712345678901_abc123",
+    "workflowId": "workflow_1",
+    "versionNumber": 3,
+    "changeSummary": "添加新的条件分支",
+    "changeType": "update",
+    "nodes": [...],
+    "edges": [...],
+    "config": {...},
+    "createdBy": "user_1",
+    "createdAt": "2026-04-03T12:00:00.000Z",
+    "parentVersionId": "version_1712345678900_xyz789"
+  }
+}
+```
+
+---
+
+#### 删除版本（受限）
+
+```
+DELETE /api/workflow/:id/versions/:versionId
+```
+
+> **注意**: 直接删除版本不被推荐，建议使用回滚功能。此端点需要管理员权限。
+
+**响应**:
+
+```json
+{
+  "success": false,
+  "error": {
+    "message": "Direct version deletion is not allowed. Use rollback instead."
+  }
+}
+```
+
+---
+
+### 版本对比 API
+
+#### 对比两个版本
+
+```
+GET /api/workflow/:id/versions/compare
+```
+
+对比两个版本并返回差异。
+
+**Query 参数**:
+| 参数 | 类型 | 必需 | 说明 |
+|------|------|------|------|
+| `fromVersionId` | string | ✅ | 源版本 ID |
+| `toVersionId` | string | ✅ | 目标版本 ID |
+
+**响应**:
+
+```json
+{
+  "success": true,
+  "data": {
+    "workflowId": "workflow_1",
+    "fromVersion": {
+      "id": "version_1",
+      "versionNumber": 1
+    },
+    "toVersion": {
+      "id": "version_2",
+      "versionNumber": 2
+    },
+    "diff": {
+      "nodesAdded": [
+        {
+          "id": "node_3",
+          "type": "condition",
+          "name": "判断结果"
+        }
+      ],
+      "nodesRemoved": [],
+      "nodesModified": [
+        {
+          "id": "node_2",
+          "changes": {
+            "name": { "from": "执行任务", "to": "执行 Agent 任务" }
+          }
+        }
+      ],
+      "edgesAdded": [
+        { "id": "edge_3", "source": "node_2", "target": "node_3" }
+      ],
+      "edgesRemoved": [],
+      "configChanges": {
+        "timeout": { "from": 3600, "to": 7200 }
+      }
+    }
+  }
+}
+```
+
+---
+
+### 版本回滚 API
+
+#### 回滚到指定版本
+
+```
+POST /api/workflow/:id/versions/:versionId/rollback
+```
+
+将工作流回滚到指定版本。
+
+**请求体**:
+
+```json
+{
+  "userId": "user_1"
+}
+```
+
+**响应**:
+
+```json
+{
+  "success": true,
+  "data": {
+    "message": "Successfully rolled back to version 2",
+    "rollbackFromVersion": 5,
+    "newVersion": 6,
+    "newVersionId": "version_1712345678902_def456",
+    "restoredData": {
+      "nodes": [...],
+      "edges": [...],
+      "config": {...}
+    }
+  }
+}
+```
+
+---
+
+### 版本设置 API
+
+#### 获取版本设置
+
+```
+GET /api/workflow/:id/versions/settings
+```
+
+获取工作流的版本设置。
+
+**响应**:
+
+```json
+{
+  "success": true,
+  "data": {
+    "workflowId": "workflow_1",
+    "maxVersions": 50,
+    "autoVersionOnUpdate": true,
+    "retentionDays": 90,
+    "createdAt": "2026-04-03T10:00:00Z",
+    "updatedAt": "2026-04-03T12:00:00Z"
+  }
+}
+```
+
+---
+
+#### 更新版本设置
+
+```
+PUT /api/workflow/:id/versions/settings
+```
+
+更新工作流的版本设置。
+
+**请求体**:
+
+```json
+{
+  "maxVersions": 100,
+  "autoVersionOnUpdate": true,
+  "retentionDays": 180
+}
+```
+
+**参数说明**:
+| 参数 | 类型 | 范围 | 说明 |
+|------|------|------|------|
+| `maxVersions` | number | 1-1000 | 最大版本数 |
+| `autoVersionOnUpdate` | boolean | - | 更新时自动创建版本 |
+| `retentionDays` | number | 1-365 | 版本保留天数 |
+
+**响应**:
+
+```json
+{
+  "success": true,
+  "data": {
+    "workflowId": "workflow_1",
+    "maxVersions": 100,
+    "autoVersionOnUpdate": true,
+    "retentionDays": 180,
+    "updatedAt": "2026-04-03T12:30:00Z"
+  }
+}
+```
+
+---
+
+## 🔍 RCA 根因分析 API (v1.9.0)
+
+v1.9.0 引入了智能根因分析 (Root Cause Analysis) 功能，支持故障诊断、知识库管理和传播链分析。
+
+### 事件分析 API
+
+#### 分析事件
+
+```
+GET /api/rca/analyze/:incidentId
+```
+
+分析指定事件的根因。
+
+**路径参数**:
+| 参数 | 类型 | 说明 |
+|------|------|------|
+| `incidentId` | string | 事件 ID |
+
+**响应**:
+
+```json
+{
+  "success": true,
+  "report": {
+    "incidentId": "incident_1",
+    "title": "Database Performance Degradation",
+    "severity": "high",
+    "rootCauses": [
+      {
+        "id": "rc_1",
+        "type": "database",
+        "description": "Connection pool exhaustion due to slow queries",
+        "confidence": 0.92,
+        "evidence": [
+          "High DB query time: 1800ms (threshold: 200ms)",
+          "Connection pool usage: 92%"
+        ],
+        "suggestions": [
+          "Add database indexes for slow queries",
+          "Increase connection pool size",
+          "Implement query timeout"
+        ]
+      }
+    ],
+    "propagationChain": [
+      { "service": "database", "symptom": "high_latency" },
+      { "service": "api-gateway", "symptom": "slow_response" },
+      { "service": "user-service", "symptom": "error_spike" }
+    ],
+    "relatedIncidents": ["incident_2", "incident_3"],
+    "recommendations": [
+      "Add indexes for user-queries",
+      "Optimize slow queries",
+      "Monitor connection pool usage"
+    ]
+  }
+}
+```
+
+---
+
+#### 提交事件分析
+
+```
+POST /api/rca/analyze/:incidentId
+```
+
+提交自定义事件数据进行分析。
+
+**请求体**:
+
+```json
+{
+  "id": "incident_custom",
+  "title": "API 响应时间异常",
+  "description": "用户服务 API 响应时间超过阈值",
+  "severity": "high",
+  "timestamp": 1712345678901,
+  "affectedServices": ["api-gateway", "user-service", "database"],
+  "symptoms": [
+    {
+      "id": "symptom_1",
+      "type": "latency",
+      "name": "api_response_time",
+      "description": "API 响应时间过高",
+      "value": 2500,
+      "threshold": 500,
+      "unit": "ms",
+      "service": "api-gateway"
+    }
+  ],
+  "metrics": [
+    {
+      "id": "metric_1",
+      "name": "cpu_usage",
+      "value": 85,
+      "unit": "%",
+      "service": "database"
+    }
+  ]
+}
+```
+
+---
+
+### 知识库 API
+
+#### 查询知识库
+
+```
+GET /api/rca/knowledge
+```
+
+查询已知故障知识库。
+
+**Query 参数**:
+| 参数 | 类型 | 说明 |
+|------|------|------|
+| `q` | string | 搜索关键词 |
+| `tags` | string | 标签过滤（逗号分隔） |
+| `service` | string | 服务过滤 |
+
+**响应**:
+
+```json
+{
+  "success": true,
+  "count": 3,
+  "issues": [
+    {
+      "id": "known_1",
+      "title": "Database Connection Pool Exhaustion",
+      "description": "连接池耗尽，慢查询占用连接时间过长",
+      "rootCause": "缺少数据库索引导致全表扫描",
+      "symptoms": ["high_latency", "connection_timeout", "error_rate_spike"],
+      "resolution": "添加适当的索引并优化慢查询",
+      "occurrences": 5,
+      "lastOccurred": 1712345678901,
+      "tags": ["database", "performance", "connection"],
+      "affectedServices": ["database", "api-gateway"],
+      "fixVerified": true
+    }
+  ]
+}
+```
+
+---
+
+#### 添加知识
+
+```
+POST /api/rca/knowledge
+```
+
+向知识库添加新的已知问题。
+
+**请求体**:
+
+```json
+{
+  "title": "Memory Leak in Node.js Process",
+  "description": "Node.js 进程内存逐渐增加",
+  "rootCause": "事件监听器未正确移除",
+  "symptoms": ["memory_increase", "slow_response", "gc_pressure"],
+  "resolution": "在组件卸载时修复事件监听器清理",
+  "tags": ["memory", "nodejs", "performance"],
+  "affectedServices": ["api-gateway", "user-service"]
+}
+```
+
+---
+
+#### 从事件学习
+
+```
+PUT /api/rca/knowledge
+```
+
+从已解决的事件中学习，自动更新知识库。
+
+**请求体**:
+
+```json
+{
+  "incident": {
+    "id": "incident_1",
+    "title": "API Timeout",
+    "symptoms": [...]
+  },
+  "resolution": {
+    "solution": "增加数据库连接池大小",
+    "resolvedBy": "admin",
+    "verificationSteps": ["检查连接池使用率", "验证响应时间"],
+    "outcome": "success"
+  }
+}
+```
+
+---
+
+### 传播链分析 API
+
+#### 分析故障传播链
+
+```
+GET /api/rca/propagation/:incidentId
+```
+
+分析故障如何在不同服务间传播。
+
+**路径参数**:
+| 参数 | 类型 | 说明 |
+|------|------|------|
+| `incidentId` | string | 事件 ID |
+
+**响应**:
+
+```json
+{
+  "success": true,
+  "incidentId": "incident_1",
+  "propagationChain": {
+    "rootNode": {
+      "service": "database",
+      "symptom": "high_latency",
+      "timestamp": 1712345678901,
+      "metadata": {
+        "queryTime": "1800ms",
+        "threshold": "200ms"
+      }
+    },
+    "propagationPath": [
+      {
+        "from": "database",
+        "to": "api-gateway",
+        "type": "dependency",
+        "latency": 500
+      },
+      {
+        "from": "api-gateway",
+        "to": "user-service",
+        "type": "dependency",
+        "latency": 300
+      }
+    ],
+    "affectedNodes": [
+      {
+        "service": "database",
+        "impact": "critical",
+        "symptoms": ["high_latency", "connection_pool_exhaustion"]
+      },
+      {
+        "service": "api-gateway",
+        "impact": "high",
+        "symptoms": ["slow_response", "timeout_errors"]
+      },
+      {
+        "service": "user-service",
+        "impact": "medium",
+        "symptoms": ["error_spike"]
+      }
+    ],
+    "timeline": [
+      { "timestamp": 1712345678000, "event": "database_latency_spike" },
+      { "timestamp": 1712345678500, "event": "api_gateway_slow_response" },
+      { "timestamp": 1712345679000, "event": "user_service_error_spike" }
+    ]
+  }
+}
+```
+
+---
+
+#### 提交症状分析
+
+```
+POST /api/rca/propagation/:incidentId
+```
+
+提交症状数据进行传播链分析。
+
+**请求体**:
+
+```json
+{
+  "symptoms": [
+    {
+      "id": "symptom_1",
+      "type": "latency",
+      "name": "api_response_time",
+      "value": 2500,
+      "threshold": 500,
+      "unit": "ms",
+      "service": "api-gateway",
+      "timestamp": 1712345678901
+    },
+    {
+      "id": "symptom_2",
+      "type": "error",
+      "name": "error_rate",
+      "value": 15,
+      "threshold": 5,
+      "unit": "%",
+      "service": "user-service",
+      "timestamp": 1712345679401
+    }
+  ]
+}
+```
+
+---
+
+### RCA 数据类型
+
+#### Incident
+
+```typescript
+interface Incident {
+  id: string
+  title: string
+  description?: string
+  severity: 'low' | 'medium' | 'high' | 'critical'
+  timestamp: number
+  affectedServices: string[]
+  symptoms: Symptom[]
+  metrics: Metric[]
+  status: 'active' | 'investigating' | 'resolved'
+}
+```
+
+#### Symptom
+
+```typescript
+interface Symptom {
+  id: string
+  type: 'latency' | 'error' | 'resource' | 'availability' | 'custom'
+  name: string
+  description?: string
+  value: number
+  threshold: number
+  unit: string
+  service: string
+  component?: string
+  timestamp: number
+  metadata?: Record<string, unknown>
+}
+```
+
+#### KnownIssue
+
+```typescript
+interface KnownIssue {
+  id: string
+  title: string
+  description: string
+  rootCause: string
+  symptoms: string[]
+  resolution: string
+  occurrences: number
+  lastOccurred: number
+  firstOccurred: number
+  tags: string[]
+  affectedServices: string[]
+  fixVerified: boolean
+}
+```
+
+#### WorkflowVersion
+
+```typescript
+interface WorkflowVersion {
+  id: string
+  workflowId: string
+  versionNumber: number
+  changeSummary?: string
+  changeType: 'create' | 'update' | 'rollback'
+  nodes: WorkflowNode[]
+  edges: WorkflowEdge[]
+  config: Record<string, unknown>
+  createdBy: string
+  createdAt: string
+  parentVersionId?: string
+}
+```
+
+#### VersionSettings
+
+```typescript
+interface VersionSettings {
+  workflowId: string
+  maxVersions: number // 1-1000
+  autoVersionOnUpdate: boolean
+  retentionDays: number // 1-365
+  createdAt: string
+  updatedAt: string
+}
+```
+
+---
+
+## 🤖 AI 代码智能系统 API (v1.10.0)
+
+v1.10.0 引入了完整的 AI 代码智能系统，支持代码分析、补全、审查、Bug 检测、修复建议和代码解释。
+
+### 概览
+
+**核心组件** (`src/lib/ai/code/`):
+
+| 组件 | 文件 | 功能 |
+|------|------|------|
+| **📊 代码分析器** | `code-analyzer.ts` | 静态分析代码结构、复杂度计算、依赖提取 |
+| **⌨️ 代码补全器** | `code-completer.ts` | 智能代码补全、关键词、代码片段、模式匹配 |
+| **🔍 代码审查器** | `code-reviewer.ts` | 自动代码审查、安全检测、性能检测、30+ 规则 |
+| **🐛 Bug 检测器** | `bug-detector.ts` | 识别常见错误模式、20+ Bug 模式 |
+| **🔧 修复建议器** | `fix-suggester.ts` | 生成修复代码、解释原因、评估风险 |
+| **📖 代码解释器** | `code-explainer.ts` | 自然语言解释、关键概念提取 |
+
+### 使用方式
+
+```typescript
+import { codeEnhancer } from '@/lib/ai/code'
+
+// 一站式代码分析
+const analysis = await codeEnhancer.fullAnalysis(code, 'typescript')
+
+console.log(analysis.summary)
+// {
+//   totalIssues: 5,
+//   criticalIssues: 1,
+//   highIssues: 2,
+//   mediumIssues: 1,
+//   lowIssues: 1
+// }
+```
+
+### 代码分析 API
+
+#### 分析代码结构
+
+```typescript
+// 分析代码结构
+const result = await codeEnhancer.analyzeCode(code, 'typescript')
+
+// 返回结果
+{
+  language: 'typescript',
+  linesOfCode: 150,
+  functions: [
+    { name: 'getUserData', params: ['userId'], returnType: 'Promise<User>' }
+  ],
+  classes: [
+    { name: 'UserService', methods: ['getUser', 'updateUser'] }
+  ],
+  imports: ['react', 'lodash'],
+  exports: ['UserService', 'getUserData'],
+  complexity: {
+    cyclomatic: 12,
+    cognitive: 8,
+    maintainabilityIndex: 72
+  }
+}
+```
+
+**支持的语言**: TypeScript, JavaScript, Python, Go, Rust
+
+### 代码补全 API
+
+#### 获取补全建议
+
+```typescript
+// 获取代码补全建议
+const completions = await codeEnhancer.getCompletions(
+  'function getUser(id: string) {',
+  'typescript',
+  { line: 1, column: 30 }
+)
+
+// 返回结果
+{
+  completions: [
+    { text: 'return fetch(`/api/users/${id}`)', kind: 'snippet', score: 0.95 },
+    { text: 'const user = await db.users.find(id)', kind: 'snippet', score: 0.88 },
+    { text: 'console.log(id)', kind: 'text', score: 0.65 }
+  ]
+}
+```
+
+**补全类型**:
+- `keyword` - 关键字补全
+- `snippet` - 代码片段
+- `function` - 函数建议
+- `variable` - 变量建议
+- `pattern` - 模式匹配
+
+### 代码审查 API
+
+#### 审查代码质量
+
+```typescript
+// 审查代码
+const review = await codeEnhancer.reviewCode(code, 'typescript')
+
+// 返回结果
+{
+  score: {
+    overall: 78,
+    readability: 85,
+    maintainability: 72,
+    security: 65,
+    performance: 88
+  },
+  issues: [
+    {
+      ruleId: 'security/eval',
+      severity: 'critical',
+      message: 'Avoid using eval() - security risk',
+      line: 42,
+      column: 10,
+      suggestion: 'Use JSON.parse() instead'
+    },
+    {
+      ruleId: 'performance/dom-query',
+      severity: 'medium',
+      message: 'DOM query inside loop - performance issue',
+      line: 55,
+      column: 5,
+      suggestion: 'Cache DOM reference outside loop'
+    }
+  ],
+  summary: {
+    totalIssues: 5,
+    criticalIssues: 1,
+    highIssues: 2,
+    mediumIssues: 1,
+    lowIssues: 1
+  }
+}
+```
+
+**审查规则** (30+):
+
+| 类别 | 规则数 | 示例 |
+|------|--------|------|
+| **安全** | 8+ | eval, innerHTML, 硬编码密钥 |
+| **性能** | 6+ | DOM 循环查询, 同步 XHR |
+| **代码质量** | 10+ | 变量遮蔽, 空 catch 块 |
+| **最佳实践** | 6+ | any 类型, == vs === |
+
+### Bug 检测 API
+
+#### 检测代码 Bug
+
+```typescript
+// 检测 Bug
+const bugs = await codeEnhancer.detectBugs(code, 'typescript')
+
+// 返回结果
+{
+  bugs: [
+    {
+      type: 'null-reference',
+      severity: 'high',
+      message: 'Potential null reference: user.profile.name',
+      line: 28,
+      column: 15,
+      confidence: 0.92,
+      fix: 'Add null check: user?.profile?.name'
+    },
+    {
+      type: 'async-missing-await',
+      severity: 'medium',
+      message: 'Missing await for async function',
+      line: 35,
+      column: 10,
+      confidence: 0.88,
+      fix: 'Add await before the async call'
+    }
+  ],
+  summary: {
+    totalBugs: 3,
+    highSeverity: 1,
+    mediumSeverity: 1,
+    lowSeverity: 1
+  }
+}
+```
+
+**Bug 模式** (20+):
+
+| 类型 | 说明 |
+|------|------|
+| `null-reference` | 空引用检测 |
+| `type-mismatch` | 类型不匹配 |
+| `array-out-of-bounds` | 数组越界 |
+| `async-missing-await` | 缺失 await |
+| `unhandled-promise` | 未处理 Promise |
+| `memory-leak` | 内存泄漏 (事件监听器、定时器) |
+| `infinite-loop` | 无限循环风险 |
+| `assignment-comparison` | 赋值与比较混淆 |
+
+### 修复建议 API
+
+#### 生成修复建议
+
+```typescript
+// 生成修复建议
+const fixes = await codeEnhancer.suggestFixes(code, 'typescript', issues)
+
+// 返回结果
+{
+  fixes: [
+    {
+      issueId: 'bug-001',
+      title: 'Add null check for user.profile',
+      description: 'Prevent potential null reference error',
+      riskLevel: 'low',
+      successRate: 0.95,
+      code: `if (user?.profile) {
+  return user.profile.name
+}`,
+      diff: `@@ -28,7 +28,9 @@
+-  return user.profile.name
++  if (user?.profile) {
++    return user.profile.name
++  }`
+    }
+  ]
+}
+```
+
+### 代码解释 API
+
+#### 解释代码逻辑
+
+```typescript
+// 解释代码
+const explanation = await codeEnhancer.explainCode(code, 'typescript')
+
+// 返回结果
+{
+  summary: 'This function fetches user data from the API and handles caching',
+  concepts: [
+    { name: 'Async/Await', description: 'Handles asynchronous API calls' },
+    { name: 'Error Handling', description: 'Try-catch for API errors' },
+    { name: 'Caching', description: 'Uses localStorage for caching' }
+  ],
+  steps: [
+    'Check cache for existing data',
+    'If not cached, fetch from API',
+    'Parse and validate response',
+    'Store in cache',
+    'Return user data'
+  ],
+  complexity: {
+    time: 'O(1) for cache, O(n) for API call',
+    space: 'O(n) where n is user data size'
+  }
+}
+```
+
+### 一站式完整分析 API
+
+#### 完整代码分析
+
+```typescript
+// 一站式完整分析
+const analysis = await codeEnhancer.fullAnalysis(code, 'typescript')
+
+// 返回结果
+{
+  language: 'typescript',
+  analysis: { /* 代码结构分析 */ },
+  review: { /* 代码审查结果 */ },
+  bugs: { /* Bug 检测结果 */ },
+  fixes: { /* 修复建议 */ },
+  explanation: { /* 代码解释 */ },
+  summary: {
+    totalIssues: 5,
+    criticalIssues: 1,
+    highIssues: 2,
+    mediumIssues: 1,
+    lowIssues: 1,
+    score: 78
+  }
+}
+```
+
+### TaskParser 集成
+
+v1.10.0 新增 TaskParser 集成，支持工作流节点代码生成：
+
+```typescript
+import { TaskParserIntegration } from '@/lib/ai/code/task-parser-integration'
+
+// 解析任务并生成工作流
+const result = await TaskParserIntegration.parseAndGenerateCode(
+  '每天早上9点发送日报邮件给团队',
+  'zh'
+)
+
+// 返回结果
+{
+  intent: 'scheduled',
+  confidence: 0.92,
+  nodes: [
+    { id: 'start', type: 'start', name: '开始' },
+    { id: 'schedule', type: 'scheduled', config: { cron: '0 9 * * *' } },
+    { id: 'email', type: 'notification', config: { type: 'email', recipients: 'team' } },
+    { id: 'end', type: 'end', name: '结束' }
+  ],
+  edges: [ /* 连接关系 */ ]
+}
+```
+
+### 类型定义
+
+#### CodeAnalysis
+
+```typescript
+interface CodeAnalysis {
+  language: string
+  linesOfCode: number
+  functions: FunctionInfo[]
+  classes: ClassInfo[]
+  imports: string[]
+  exports: string[]
+  complexity: ComplexityMetrics
+}
+
+interface ComplexityMetrics {
+  cyclomatic: number       // 圈复杂度
+  cognitive: number        // 认知复杂度
+  maintainabilityIndex: number  // 可维护性指数 (0-100)
+}
+```
+
+#### CodeReview
+
+```typescript
+interface CodeReview {
+  score: {
+    overall: number        // 总体评分 (0-100)
+    readability: number    // 可读性
+    maintainability: number // 可维护性
+    security: number       // 安全性
+    performance: number    // 性能
+  }
+  issues: ReviewIssue[]
+  summary: IssueSummary
+}
+
+interface ReviewIssue {
+  ruleId: string
+  severity: 'critical' | 'high' | 'medium' | 'low'
+  message: string
+  line: number
+  column: number
+  suggestion?: string
+}
+```
+
+#### BugDetection
+
+```typescript
+interface BugDetection {
+  bugs: BugInfo[]
+  summary: {
+    totalBugs: number
+    highSeverity: number
+    mediumSeverity: number
+    lowSeverity: number
+  }
+}
+
+interface BugInfo {
+  type: string
+  severity: 'high' | 'medium' | 'low'
+  message: string
+  line: number
+  column: number
+  confidence: number    // 置信度 (0-1)
+  fix?: string          // 修复建议
+}
+```
+
+#### FixSuggestion
+
+```typescript
+interface FixSuggestion {
+  issueId: string
+  title: string
+  description: string
+  riskLevel: 'low' | 'medium' | 'high'
+  successRate: number   // 成功率预估 (0-1)
+  code: string          // 修复后代码
+  diff: string          // Diff 格式
+}
+```
+
+#### CodeExplanation
+
+```typescript
+interface CodeExplanation {
+  summary: string
+  concepts: Concept[]
+  steps: string[]
+  complexity: {
+    time: string
+    space: string
+  }
+}
+
+interface Concept {
+  name: string
+  description: string
+}
+```

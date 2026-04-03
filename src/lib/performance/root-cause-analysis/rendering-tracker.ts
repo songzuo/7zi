@@ -131,7 +131,11 @@ export class RenderingTracker {
           for (const entry of list.getEntries()) {
             const ls = entry as LayoutShiftEntry
             if (!ls.hadRecentInput) {
-              const sources = ls.sources || []
+              const sources = (ls.sources || []).map(s => ({
+                node: s.node?.nodeName || undefined,
+                previousRect: s.previousRect,
+                currentRect: s.currentRect,
+              })) as LayoutShiftSource[]
               this.trackLayoutShift(ls.value, sources)
             }
           }
