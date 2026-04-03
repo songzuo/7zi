@@ -1,0 +1,226 @@
+# ============================================
+# OpenClaw v1.11.0 Kubernetes Deployment
+# ============================================
+
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: openclaw
+  namespace: openclaw
+  labels:
+    app: openclaw
+    version: v1.11.0
+    tier: frontend
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      app: openclaw
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxSurge: 1
+      maxUnavailable: 0
+  template:
+    metadata:
+      labels:
+        app: openclaw
+        version: v1.11.0
+      annotations:
+        prometheus.io/scrape: "true"
+        prometheus.io/port: "3000"
+        prometheus.io/path: "/api/metrics"
+    spec:
+      # 服务账户
+      serviceAccountName: openclaw
+      
+      # 安全上下文
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: 1001
+        fsGroup: 1001
+      
+      # 优先级
+      priorityClassName: high-priority
+      
+      # 容器配置
+      containers:
+        - name: openclaw
+          image: openclaw/openclaw:v1.11.0
+          imagePullPolicy: Always
+          
+          # 端口配置
+          ports:
+            - name: http
+              containerPort: 3000
+              protocol: TCP
+          
+          # 环境变量
+          envFrom:
+            - configMapRef:
+                name: openclaw-config
+            - secretRef:
+                name: openclaw-secrets
+          env:
+            - name: POD_NAME
+              valueFrom:
+                fieldRef:
+                  fieldPath: metadata.name
+            - name: POD_NAMESPACE
+              valueFrom:
+                fieldRef:
+                  fieldPath: metadata.namespace
+            - name: NODE_NAME
+              valueFrom:
+                fieldRef:
+                  fieldPath: spec.nodeName
+          
+          # 资源限制
+          resources:
+            requests:
+              cpu: 250m
+              memory: 512Mi
+            limits:
+              cpu: 2000m
+              memory: 2Gi
+          
+          # 健康检查
+          livenessProbe:
+            httpGet:
+              path: /api/health
+              port: http
+            initialDelaySeconds: 30
+            periodSeconds: 10
+            timeoutSeconds: 5
+            successThreshold: 1
+            failureThreshold: 3
+          
+          readinessProbe:
+            httpGet:
+              path: /api/ready
+              port: http
+            initialDelaySeconds: 5
+            periodSeconds: 5
+            timeoutSeconds: 3
+            successThreshold: 1
+            failureThreshold: 3
+          
+          # 启动探针
+          startupProbe:
+            httpGet:
+              path: /api/health
+              port: http
+            initialDelaySeconds: 10
+            periodSeconds: 5
+            timeoutSeconds: 3
+            failureThreshold: 30
+          
+          # 卷挂载
+          volumeMounts:
+            - name: data
+              mountPath: /app/data
+            - name: logs
+              mountPath: /app/logs
+            - name: uploads
+              mountPath: /app/uploads
+            - name: tmp
+              mountPath: /tmp
+      
+      # 卷定义
+      volumes:
+        - name: data
+          persistentVolumeClaim:
+            claimName: openclaw-data-pvc
+        - name: logs
+          emptyDir: {}
+        - name: uploads
+          persistentVolumeClaim:
+            claimName: openclaw-uploads-pvc
+        - name: tmp
+          emptyDir: {}
+      
+      # 节点选择器
+      nodeSelector:
+        node-role.kubernetes.io/worker: "true"
+      
+      # 容忍度
+      tolerations:
+        - key: "dedicated"
+          operator: "Equal"
+          value: "openclaw"
+          effect: "NoSchedule"
+      
+      # 亲和性
+      affinity:
+        podAntiAffinity:
+          preferredDuringSchedulingIgnoredDuringExecution:
+            - weight: 100
+              podAffinityTerm:
+                labelSelector:
+                  matchLabels:
+                    app: openclaw
+                topologyKey: kubernetes.io/hostname
+        nodeAffinity:
+          preferredDuringSchedulingIgnoredDuringExecution:
+            - weight: 50
+              preference:
+                matchExpressions:
+                  - key: node-role.kubernetes.io/performance
+                    operator: Exists
+
+---
+# ============================================
+# PersistentVolumeClaim - Data
+# ============================================
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: openclaw-data-pvc
+  namespace: openclaw
+spec:
+  accessModes:
+    - ReadWriteOnce
+  storageClassName: standard
+  resources:
+    requests:
+      storage: 10Gi
+
+---
+# ============================================
+# PersistentVolumeClaim - Uploads
+# ============================================
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: openclaw-uploads-pvc
+  namespace: openclaw
+spec:
+  accessModes:
+    - ReadWriteMany
+  storageClassName: standard
+  resources:
+    requests:
+      storage: 50Gi
+
+---
+# ============================================
+# ServiceAccount
+# ============================================
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: openclaw
+  namespace: openclaw
+automountServiceAccountToken: false
+
+---
+# ============================================
+# PriorityClass
+# ============================================
+apiVersion: scheduling.k8s.io/v1
+kind: PriorityClass
+metadata:
+  name: high-priority
+value: 1000000
+globalDefault: false
+description: "High priority class for OpenClaw pods"

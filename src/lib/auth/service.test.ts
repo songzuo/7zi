@@ -3,7 +3,7 @@
  * @description Tests for authentication service functions
  */
 
-import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest'
+import { describe, it, expect, vi, beforeEach, afterEach, Mock } from 'vitest'
 import {
   loginUser,
   registerUser,
@@ -31,6 +31,8 @@ import {
   createPasswordResetToken,
   validatePasswordResetToken,
   deletePasswordResetToken,
+  getUserByRefreshToken,
+  verifyPassword,
 } from './repository'
 import { UserRole, UserStatus } from './types'
 import { logger } from '@/lib/logger'
@@ -39,7 +41,7 @@ import { logger } from '@/lib/logger'
 // Mock Setup
 // ============================================================================
 
-vi.mock('../repository', () => ({
+vi.mock('./repository', () => ({
   getUserByEmail: vi.fn(),
   getUserById: vi.fn(),
   createUser: vi.fn(),
@@ -53,6 +55,7 @@ vi.mock('../repository', () => ({
   createPasswordResetToken: vi.fn(),
   validatePasswordResetToken: vi.fn(),
   deletePasswordResetToken: vi.fn(),
+  getUserByRefreshToken: vi.fn(),
   verifyPassword: vi.fn((password: string, hash: string) => {
     return password === 'correctPassword'
   }),
@@ -83,7 +86,7 @@ const mockUser: import('./types').User = {
   updatedAt: new Date(),
 }
 
-const mockToken = {
+const mockToken: import('./types').UserToken = {
   id: 'token1',
   userId: 'user1',
   token: 'jwt-token',
@@ -376,15 +379,20 @@ describe('Auth Service - Refresh Token', () => {
   })
 
   it('should refresh token successfully', async () => {
-    const tempResult = {
+    const tempResult: { user: import('./types').User; token: import('./types').UserToken } = {
       user: mockUser,
       token: {
+        id: 'token1',
+        userId: 'user1',
+        token: 'old-jwt-token',
         refreshToken: 'old-refresh-token',
+        expiresAt: new Date(Date.now() + 3600000),
         refreshExpiresAt: new Date(Date.now() + 604800000),
+        createdAt: new Date(),
       },
     }
 
-    vi.mocked(require('../repository').getUserByRefreshToken).mockResolvedValue(tempResult)
+    vi.mocked(getUserByRefreshToken).mockResolvedValue(tempResult)
     vi.mocked(refreshUserToken).mockResolvedValue(mockToken)
 
     const result = await refreshToken({
@@ -408,7 +416,7 @@ describe('Auth Service - Refresh Token', () => {
   })
 
   it('should fail with invalid refresh token', async () => {
-    vi.mocked(require('../repository').getUserByRefreshToken).mockResolvedValue(null)
+    vi.mocked(getUserByRefreshToken).mockResolvedValue(null)
 
     const result = await refreshToken({
       refreshToken: 'invalid-token',
@@ -421,12 +429,20 @@ describe('Auth Service - Refresh Token', () => {
   })
 
   it('should fail with inactive user', async () => {
-    const tempResult = {
+    const tempResult: { user: import('./types').User; token: import('./types').UserToken } = {
       user: { ...mockUser, status: UserStatus.INACTIVE },
-      token: { refreshToken: 'valid-token', refreshExpiresAt: new Date(Date.now() + 604800000) },
+      token: {
+        id: 'token1',
+        userId: 'user1',
+        token: 'jwt-token',
+        refreshToken: 'valid-token',
+        expiresAt: new Date(Date.now() + 3600000),
+        refreshExpiresAt: new Date(Date.now() + 604800000),
+        createdAt: new Date(),
+      },
     }
 
-    vi.mocked(require('../repository').getUserByRefreshToken).mockResolvedValue(tempResult)
+    vi.mocked(getUserByRefreshToken).mockResolvedValue(tempResult)
 
     const result = await refreshToken({
       refreshToken: 'valid-token',
@@ -439,12 +455,20 @@ describe('Auth Service - Refresh Token', () => {
   })
 
   it('should fail with expired refresh token', async () => {
-    const tempResult = {
+    const tempResult: { user: import('./types').User; token: import('./types').UserToken } = {
       user: mockUser,
-      token: { refreshToken: 'valid-token', refreshExpiresAt: new Date(Date.now() - 1000) },
+      token: {
+        id: 'token1',
+        userId: 'user1',
+        token: 'jwt-token',
+        refreshToken: 'valid-token',
+        expiresAt: new Date(Date.now() + 3600000),
+        refreshExpiresAt: new Date(Date.now() - 1000),
+        createdAt: new Date(),
+      },
     }
 
-    vi.mocked(require('../repository').getUserByRefreshToken).mockResolvedValue(tempResult)
+    vi.mocked(getUserByRefreshToken).mockResolvedValue(tempResult)
 
     const result = await refreshToken({
       refreshToken: 'valid-token',

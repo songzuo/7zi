@@ -89,6 +89,7 @@ describe('SlackAlertService', () => {
     it('should use default values for optional config', () => {
       const service = new SlackAlertService({
         webhookUrl: mockWebhookUrl,
+        enabled: true,
       })
 
       expect(service.isEnabled()).toBe(true)

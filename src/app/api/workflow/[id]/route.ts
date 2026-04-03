@@ -7,6 +7,7 @@
 
 import { NextRequest } from 'next/server'
 import { WorkflowEngine, workflowEngine } from '@/lib/workflow/engine'
+import { workflowVersionService } from '@/lib/workflow/version-service'
 import {
   createSuccessResponse,
   createErrorResponse,
@@ -193,6 +194,21 @@ export async function PUT(request: NextRequest, { params }: RouteParams) {
       return createValidationError('工作流验证失败', { errors: validation.errors })
     }
 
+    // 自动创建版本快照（如果启用）
+    const settings = await workflowVersionService.getVersionSettings(id)
+    if (settings.autoVersionOnUpdate) {
+      try {
+        await workflowVersionService.createVersion(updatedWorkflow, {
+          changeSummary: body.changeSummary || '工作流更新',
+          changeType: 'update',
+          createdBy: body.userId || 'system',
+        })
+      } catch (versionError) {
+        // 版本创建失败不应阻止工作流更新
+        console.error('Failed to create version snapshot:', versionError)
+      }
+    }
+
     return createSuccessResponse(updatedWorkflow)
   } catch (error) {
     return createErrorResponse(error instanceof Error ? error : new Error(String(error)))
@@ -209,6 +225,13 @@ export async function DELETE(request: NextRequest, { params }: RouteParams) {
 
     // 模拟删除 - 实际实现应该从数据库删除
     // 同时应该删除相关的运行实例
+    
+    // 删除版本历史
+    try {
+      await workflowVersionService.deleteAllVersions(id)
+    } catch (versionError) {
+      console.error('Failed to delete version history:', versionError)
+    }
 
     return createSuccessResponse({
       id,

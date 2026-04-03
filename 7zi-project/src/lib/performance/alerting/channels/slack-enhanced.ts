@@ -38,6 +38,30 @@ export interface PerformanceAlert {
   tags?: string[]
 }
 
+/**
+ * Slack attachment interface
+ */
+interface SlackAttachment {
+  color: string
+  title: string
+  text: string
+  fields?: Array<{ title: string; value: string; short: boolean }>
+  footer?: string
+  ts: number
+}
+
+/**
+ * Slack message interface
+ */
+interface SlackMessage {
+  username?: string
+  icon_emoji?: string
+  icon_url?: string
+  channel?: string
+  text: string
+  attachments: SlackAttachment[]
+}
+
 // ========================================
 // Formatting utilities (inline - previously from @/lib/utils/formatting)
 // ========================================
@@ -73,17 +97,7 @@ function formatSlackAlert(
     includeMetadata?: boolean
     includeMetric?: boolean
   } = {}
-): {
-  text: string
-  attachments: Array<{
-    color: string
-    title: string
-    text: string
-    fields?: Array<{ title: string; value: string; short: boolean }>
-    footer?: string
-    ts: number
-  }>
-} {
+): { text: string; attachments: SlackAttachment[] } {
   const { mention, includeMetadata, includeMetric } = options
   const emoji = getSlackLevelEmoji(alert.level)
   const color = getLevelColor(alert.level)
@@ -603,9 +617,9 @@ export class EnhancedSlackChannel {
 
         // 更新页脚
         if (this.options.footer) {
-          const firstAttachment = message.attachments as any[]
-          if (firstAttachment && firstAttachment[0]) {
-            firstAttachment[0].footer = this.options.footer
+          const attachments = message.attachments as SlackAttachment[]
+          if (attachments && attachments[0]) {
+            attachments[0].footer = this.options.footer
           }
         }
 

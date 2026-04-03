@@ -1,0 +1,14 @@
+{
+  "title": "API Rate Limiting Admin",
+  "subtitle": "Manage and monitor API rate limiting configuration",
+  "refresh": "Refresh",
+  "errors": {
+    "statsLoadFailed": "Failed to load statistics"
+  },
+  "tabs": {
+    "dashboard": "Dashboard",
+    "apiKeys": "API Keys",
+    "whitelist": "Whitelist",
+    "logs": "Logs"
+  }
+}

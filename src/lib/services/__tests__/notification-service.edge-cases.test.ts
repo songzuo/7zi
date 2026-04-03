@@ -284,7 +284,11 @@ describe('NotificationService Edge Cases', () => {
     })
 
     it('should handle circular reference in data', async () => {
-      const circularData: any = { name: 'test' }
+      interface CircularData {
+        name: string;
+        self?: CircularData;
+      }
+      const circularData: CircularData = { name: 'test' }
       circularData.self = circularData
 
       const notificationId = await service.notify({

@@ -24,6 +24,7 @@ import {
   ActionType,
   RoleDefinition,
   PermissionCheckResult,
+  PermissionContext,
   SYSTEM_ROLES,
   permissionManager,
   UserWithRoles,
@@ -181,7 +182,7 @@ export interface PermissionState {
   checkAccess: (
     resourceType: ResourceType,
     action: ActionType,
-    context?: any
+    context?: PermissionContext
   ) => PermissionCheckResult
 
   /**
@@ -521,7 +522,7 @@ export const usePermissionStore = create<PermissionState>()(
       checkAccess: (
         resourceType: ResourceType,
         action: ActionType,
-        context?: any
+        context?: PermissionContext
       ): PermissionCheckResult => {
         const { userPermissions } = get()
         if (!userPermissions) {

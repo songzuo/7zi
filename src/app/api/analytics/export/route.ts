@@ -52,26 +52,26 @@ function convertToCSV(data: TimeSeriesDataPoint[], includeHeaders = true): strin
 
 /**
  * Convert data to Excel format
+ * @note 已迁移到 XLSX (SheetJS)，样式功能不可用
  */
 async function convertToExcel(
   data: TimeSeriesDataPoint[],
   sheetName = 'Analytics Data'
 ): Promise<Buffer> {
-  // Dynamic import of ExcelJS to reduce initial bundle size (~500KB)
-  const ExcelJS = (
-    await import(
-      /* webpackChunkName: "exceljs" */
-      'exceljs'
-    )
-  ).default
+  // ========== 新代码：使用 XLSX 包装器 ==========
+  const { Workbook } = await import(
+    /* webpackChunkName: "xlsx" */
+    '@/lib/export/xlsx-wrapper'
+  )
 
-  const workbook = new ExcelJS.Workbook()
+  const workbook = new Workbook()
   const worksheet = workbook.addWorksheet(sheetName)
 
   // Add header row
   if (data.length > 0) {
     const headers = Object.keys(data[0])
     const headerRow = worksheet.addRow(headers)
+    // 样式设置（XLSX 不支持，仅记录警告）
     headerRow.font = { bold: true }
     headerRow.fill = {
       type: 'pattern',
@@ -86,10 +86,11 @@ async function convertToExcel(
     })
 
     // Auto-fit columns
-    worksheet.columns.forEach((column, index) => {
+    headers.forEach((header, index) => {
+      const column = worksheet.getColumn(index + 1)
       const maxLength = Math.max(
-        headers[index].length,
-        ...data.map(row => String(row[headers[index]] ?? '').length)
+        header.length,
+        ...data.map(row => String(row[header] ?? '').length)
       )
       column.width = Math.min(Math.max(maxLength, 10), 50)
     })
@@ -97,6 +98,48 @@ async function convertToExcel(
 
   const buffer = await workbook.xlsx.writeBuffer()
   return Buffer.from(buffer)
+
+  // ========== 旧代码：使用 ExcelJS（已注释） ==========
+  // // Dynamic import of ExcelJS to reduce initial bundle size (~500KB)
+  // const ExcelJS = (
+  //   await import(
+  //     /* webpackChunkName: "exceljs" */
+  //     'exceljs'
+  //   )
+  // ).default
+
+  // const workbook = new ExcelJS.Workbook()
+  // const worksheet = workbook.addWorksheet(sheetName)
+
+  // // Add header row
+  // if (data.length > 0) {
+  //   const headers = Object.keys(data[0])
+  //   const headerRow = worksheet.addRow(headers)
+  //   headerRow.font = { bold: true }
+  //   headerRow.fill = {
+  //     type: 'pattern',
+  //     pattern: 'solid',
+  //     fgColor: { argb: 'FFE0E0E0' },
+  //   }
+
+  //   // Add data rows
+  //   data.forEach(row => {
+  //     const values = headers.map(header => row[header] ?? '')
+  //     worksheet.addRow(values)
+  //   })
+
+  //   // Auto-fit columns
+  //   worksheet.columns.forEach((column, index) => {
+  //     const maxLength = Math.max(
+  //       headers[index].length,
+  //       ...data.map(row => String(row[headers[index]] ?? '').length)
+  //     )
+  //     column.width = Math.min(Math.max(maxLength, 10), 50)
+  //   })
+  // }
+
+  // const buffer = await workbook.xlsx.writeBuffer()
+  // return Buffer.from(buffer)
 }
 
 /**

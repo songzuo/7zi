@@ -11,16 +11,27 @@
 import { IRateLimitStorage, RateLimitEntry } from './storage'
 
 /**
+ * Redis client interface (minimal subset needed for rate limiting)
+ */
+interface RedisClient {
+  incr(key: string): Promise<number>
+  pexpire(key: string, ms: number): Promise<number>
+  get(key: string): Promise<string | null>
+  pttl(key: string): Promise<number>
+  del(key: string): Promise<number>
+  keys(pattern: string): Promise<string[]>
+  quit(): Promise<'OK'>
+}
+
+/**
  * Redis 限流存储类
  */
 export class RedisRateLimitStorage implements IRateLimitStorage {
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  private redis: any = null
+  private redis: RedisClient | null = null
   private keyPrefix = 'rate-limit:'
   private initialized = false
 
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  constructor(redisClient?: any) {
+  constructor(redisClient?: RedisClient) {
     if (redisClient) {
       this.redis = redisClient
       this.initialized = true
@@ -167,8 +178,7 @@ export class RedisRateLimitStorage implements IRateLimitStorage {
   /**
    * 获取 Redis 客户端实例（用于高级操作）
    */
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  getRedisClient(): any {
+  getRedisClient(): RedisClient | null {
     return this.redis
   }
 }

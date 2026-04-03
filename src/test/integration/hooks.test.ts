@@ -117,7 +117,7 @@ describe('useFetch Hook Integration Tests', () => {
     it('should deduplicate concurrent requests', async () => {
       let requestCount = 0
 
-      mockFetch.mockImplementationOnce(async () => {
+      mockFetch.mockImplementation(async () => {
         requestCount++
         return { ok: true, json: async () => ({ count: requestCount }) }
       })

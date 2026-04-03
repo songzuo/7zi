@@ -9,7 +9,7 @@ import {
   getMessageQueue,
   resetMessageQueue,
 } from '../message-queue'
-import { QueueMessage, TaskPriority, QueueConfig } from '../types'
+import { QueueMessage, TaskPriority, QueueConfig, QueueEvent } from '../types'
 
 describe('PriorityMessageQueue', () => {
   let queue: PriorityMessageQueue
@@ -251,7 +251,7 @@ describe('PriorityMessageQueue', () => {
 
   describe('queue events', () => {
     it('should emit enqueued events', () => {
-      const events: any[] = []
+      const events: QueueEvent[] = []
 
       queue.subscribe(event => events.push(event))
 
@@ -271,7 +271,7 @@ describe('PriorityMessageQueue', () => {
     })
 
     it('should emit dequeued events', () => {
-      const events: any[] = []
+      const events: QueueEvent[] = []
 
       queue.subscribe(event => events.push(event))
 

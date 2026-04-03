@@ -207,6 +207,11 @@ class InMemoryPaymentRepository {
   private generateId(): string {
     return `order_${Date.now()}_${Math.random().toString(36).substring(2, 11)}`
   }
+
+  /** Get all orders (for internal/testing purposes) */
+  getOrders(): Map<string, PaymentOrder> {
+    return this.orders
+  }
 }
 
 // ==================== 支付服务 ====================
@@ -592,11 +597,7 @@ export class PaymentService {
   ): Promise<void> {
     // 由于交易是订单的一部分，需要遍历所有订单
     // 在实际实现中，应该有独立的交易存储
-    // 使用类型断言访问内部存储（仅在内存实现中使用）
-    const repo = this.paymentRepo as InMemoryPaymentRepository & {
-      orders: Map<string, PaymentOrder>
-    }
-    const orders = repo.orders
+    const orders = this.paymentRepo.getOrders()
     for (const order of Array.from(orders.values())) {
       const tx = order.transactions.find((t: PaymentTransaction) => t.id === transactionId)
       if (tx) {

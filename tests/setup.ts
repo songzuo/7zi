@@ -10,6 +10,10 @@
 import '@testing-library/jest-dom'
 import { vi } from 'vitest'
 
+// Set test environment variables first
+process.env.JWT_SECRET = process.env.JWT_SECRET || 'test-jwt-secret-key'
+process.env.AGENT_ENCRYPTION_SECRET = process.env.AGENT_ENCRYPTION_SECRET || 'test-jwt-secret-key'
+
 // Import global mocks (must be before any test code runs)
 import '@/test/vi-mocks'
 

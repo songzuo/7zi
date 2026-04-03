@@ -8,6 +8,8 @@ import './globals.css'
 import { I18nProvider } from './providers/I18nProvider'
 import { PermissionProvider } from './providers/PermissionProvider'
 import { MonitoringProvider } from './providers/MonitoringProvider'
+import { ThemeProvider } from '@/lib/theme'
+import { getThemeScript } from '@/lib/theme/theme-script'
 
 const inter = Inter({
   subsets: ['latin'],
@@ -59,13 +61,21 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         {/* 预连接到图片 CDN */}
         <link rel="preconnect" href="https://images.unsplash.com" />
         <link rel="dns-prefetch" href="https://images.unsplash.com" />
+        {/* Theme initialization script - must run before React to prevent FOUC */}
+        <script
+          dangerouslySetInnerHTML={{ __html: getThemeScript() }}
+          id="theme-init"
+          data-noparse="true"
+        />
       </head>
       <body className={inter.className}>
-        <MonitoringProvider>
-          <I18nProvider>
-            <PermissionProvider>{children}</PermissionProvider>
-          </I18nProvider>
-        </MonitoringProvider>
+        <ThemeProvider>
+          <MonitoringProvider>
+            <I18nProvider>
+              <PermissionProvider>{children}</PermissionProvider>
+            </I18nProvider>
+          </MonitoringProvider>
+        </ThemeProvider>
       </body>
     </html>
   )

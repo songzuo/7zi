@@ -314,7 +314,7 @@ function parseWhereConditions(sql: string): string[] {
 // STATEMENT EXECUTION
 // ============================================================================
 
-function executeAll(sql: string, params: unknown[]): DbRow[] {
+function executeAll(sql: string, params?: unknown[]): DbRow[] {
   const tableName = parseTableName(sql)
   if (!tableName) return []
 
@@ -328,7 +328,7 @@ function executeAll(sql: string, params: unknown[]): DbRow[] {
 
   for (let i = 0; i < conditions.length; i++) {
     const condition = conditions[i]
-    const value = params[i]
+    const value = params?.[i]
 
     if (condition === 'expires_at < ?') {
       results = results.filter(row => {
@@ -350,7 +350,47 @@ function executeAll(sql: string, params: unknown[]): DbRow[] {
   return results
 }
 
-function executeGet(sql: string, params: unknown[]): DbRow | null {
+function executeGet(sql: string, params?: unknown[]): DbRow | null {
+  const normalizedSql = normalizeSql(sql).toUpperCase()
+
+  // Handle COUNT queries
+  if (normalizedSql.includes('COUNT(*)')) {
+    const tableName = parseTableName(sql)
+    if (!tableName) return { count: 0 }
+
+    const table = getTable(tableName)
+    const conditions = parseWhereConditions(sql)
+
+    if (conditions.length === 0) {
+      return { count: table.length }
+    }
+
+    // Filter by conditions and count
+    let filtered = table
+    for (let i = 0; i < conditions.length; i++) {
+      const condition = conditions[i]
+      const value = params?.[i]
+
+      if (condition === 'expires_at > ?') {
+        filtered = filtered.filter(row => {
+          const expiresAt = row.expires_at as string | undefined
+          if (!expiresAt) return true
+          return new Date(expiresAt) > new Date(value as string)
+        })
+      } else if (condition === 'expires_at < ?') {
+        filtered = filtered.filter(row => {
+          const expiresAt = row.expires_at as string | undefined
+          if (!expiresAt) return false
+          return new Date(expiresAt) < new Date(value as string)
+        })
+      } else {
+        filtered = filtered.filter(row => row[condition] === value)
+      }
+    }
+
+    return { count: filtered.length }
+  }
+
   const results = executeAll(sql, params)
   return results.length > 0 ? results[0] : null
 }
@@ -459,6 +499,9 @@ function executeRun(sql: string, params: unknown[]): DatabaseResult {
 
 const mockDb: DatabaseConnection = {
   query: vi.fn(),
+  get: vi.fn((sql: string, params?: unknown[]) => {
+    return executeGet(sql, params) as Record<string, unknown> | null
+  }) as any,
 
   exec: vi.fn((sql: string) => {
     // Handle CREATE TABLE
@@ -483,7 +526,7 @@ const mockDb: DatabaseConnection = {
       }),
 
       get: vi.fn((...params: unknown[]) => {
-        return executeGet(sql, params)
+        return executeGet(sql, params) as Record<string, unknown> | null
       }),
 
       run: vi.fn((...params: unknown[]) => {
@@ -504,12 +547,12 @@ const mockDb: DatabaseConnection = {
     return Promise.resolve(results)
   }),
 
-  queryRows: vi.fn((sql: string, params?: unknown[]) => {
+  queryRows: function(sql: string, params?: unknown[]): Record<string, unknown>[] {
     if (params && params.length > 0) {
       return executeAll(sql, params)
     }
     return executeAll(sql, [])
-  }),
+  } as <T = Record<string, unknown>>(sql: string, params?: unknown[]) => T[],
 }
 
 // ============================================================================
@@ -624,44 +667,20 @@ vi.mock('../lib/db/index', () => ({
 // ============================================================================
 // MOCK AUTH MODULES
 // ============================================================================
-// Note: JWT module uses real implementation (not mocked) for auth testing
-// Only service layer functions are mocked where needed
+// Note: For auth module tests, we use real implementation
+// Only mock for non-auth tests that need auth bypass
 
-vi.mock('../lib/auth/service', () => ({
-  verifyJwtToken: vi.fn(),
-  getUserById: vi.fn(),
-  loginUser: vi.fn().mockResolvedValue({
-    success: true,
-    user: {
-      id: 'user-123',
-      email: 'test@example.com',
-      name: 'Test User',
-      role: 'admin',
-      status: 'active',
-    },
-    token: 'mock-access-token',
-    refreshToken: 'mock-refresh-token',
-    expiresAt: new Date(Date.now() + 3600000).toISOString(),
-  }),
-  authenticateToken: vi.fn().mockResolvedValue({
-    user: {
-      id: 'test-user-id',
-      email: 'test@example.com',
-      name: 'Test User',
-      role: 'admin',
-      status: 'active',
-    },
-    context: {
-      userId: 'test-user-id',
-      email: 'test@example.com',
-      name: 'Test User',
-      role: 'admin',
-      roles: ['admin'],
-      permissions: ['admin:all'],
-      requestId: 'test-request-id',
-    },
-  }),
-}))
+// Don't mock auth service - use real implementation for auth tests
+// This mock is only for non-auth tests that need to bypass auth
+vi.mock('../lib/auth/service', async (importOriginal) => {
+  const actual = await importOriginal<typeof import('../lib/auth/service')>()
+
+  return {
+    ...actual,
+    // Override specific functions for non-auth tests
+    // Auth tests will use the real implementation
+  }
+})
 
 // Mock middleware-rbac to bypass auth
 vi.mock('../lib/auth/middleware-rbac', () => ({

@@ -1,0 +1,182 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "Workflow Definition Schema",
+  "type": "object",
+  "required": ["id", "name", "version", "nodes", "edges"],
+  "properties": {
+    "id": {
+      "type": "string",
+      "description": "唯一工作流 ID"
+    },
+    "name": {
+      "type": "string",
+      "description": "工作流名称"
+    },
+    "description": {
+      "type": "string",
+      "description": "工作流描述"
+    },
+    "version": {
+      "type": "string",
+      "pattern": "^\\d+\\.\\d+\\.\\d+$",
+      "description": "版本号 (semver)"
+    },
+    "author": {
+      "type": "string",
+      "description": "作者"
+    },
+    "tags": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "description": "标签"
+    },
+    "variables": {
+      "type": "object",
+      "description": "全局变量",
+      "additionalProperties": {
+        "type": ["string", "number", "boolean", "object", "array"]
+      }
+    },
+    "nodes": {
+      "type": "array",
+      "description": "节点列表",
+      "items": {
+        "$ref": "#/definitions/node"
+      }
+    },
+    "edges": {
+      "type": "array",
+      "description": "连接边列表",
+      "items": {
+        "$ref": "#/definitions/edge"
+      }
+    },
+    "settings": {
+      "$ref": "#/definitions/workflowSettings"
+    }
+  },
+  "definitions": {
+    "node": {
+      "type": "object",
+      "required": ["id", "type", "position"],
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "节点唯一 ID"
+        },
+        "type": {
+          "type": "string",
+          "enum": ["start", "end", "task", "condition", "loop", "parallel", "subflow", "delay", "http", "ai", "transform"],
+          "description": "节点类型"
+        },
+        "name": {
+          "type": "string",
+          "description": "节点名称"
+        },
+        "position": {
+          "type": "object",
+          "required": ["x", "y"],
+          "properties": {
+            "x": {
+              "type": "number"
+            },
+            "y": {
+              "type": "number"
+            }
+          }
+        },
+        "data": {
+          "type": "object",
+          "description": "节点配置数据"
+        },
+        "retry": {
+          "$ref": "#/definitions/retryConfig"
+        },
+        "timeout": {
+          "type": "number",
+          "description": "超时时间（秒）"
+        }
+      }
+    },
+    "edge": {
+      "type": "object",
+      "required": ["id", "source", "target"],
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "边唯一 ID"
+        },
+        "source": {
+          "type": "string",
+          "description": "源节点 ID"
+        },
+        "target": {
+          "type": "string",
+          "description": "目标节点 ID"
+        },
+        "condition": {
+          "type": "string",
+          "description": "条件表达式（用于条件分支）"
+        },
+        "label": {
+          "type": "string",
+          "description": "边标签"
+        }
+      }
+    },
+    "retryConfig": {
+      "type": "object",
+      "properties": {
+        "maxAttempts": {
+          "type": "number",
+          "minimum": 0,
+          "default": 3
+        },
+        "backoffStrategy": {
+          "type": "string",
+          "enum": ["fixed", "exponential", "linear"],
+          "default": "exponential"
+        },
+        "initialDelay": {
+          "type": "number",
+          "minimum": 0,
+          "default": 1000
+        },
+        "maxDelay": {
+          "type": "number",
+          "minimum": 0,
+          "default": 30000
+        }
+      }
+    },
+    "workflowSettings": {
+      "type": "object",
+      "properties": {
+        "timeout": {
+          "type": "number",
+          "description": "工作流全局超时（秒）"
+        },
+        "maxRetries": {
+          "type": "number",
+          "default": 3
+        },
+        "enableCheckpoint": {
+          "type": "boolean",
+          "default": true,
+          "description": "启用断点续传"
+        },
+        "enableParallel": {
+          "type": "boolean",
+          "default": true,
+          "description": "启用并行执行"
+        },
+        "maxParallelTasks": {
+          "type": "number",
+          "default": 10
+        }
+      }
+    }
+  }
+}

@@ -1,7 +1,6 @@
 import { describe, it, expect, beforeEach, vi } from 'vitest'
 import { render, screen, within } from '@testing-library/react'
 import AboutPage from './page'
-import { notFound } from 'next/navigation'
 
 // Mock dependencies
 vi.mock('next/navigation', () => ({

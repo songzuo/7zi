@@ -74,10 +74,22 @@ export const LEGACY_TO_NEW_PERMISSIONS: Record<string, Permission> = {
 /**
  * New Permission enum mapping to legacy string format
  * Reverse mapping for backward compatibility
+ * When multiple legacy strings map to the same Permission, we prefer the action:resource format
  */
-export const NEW_TO_LEGACY_PERMISSIONS: Record<Permission, string> = Object.fromEntries(
-  Object.entries(LEGACY_TO_NEW_PERMISSIONS).map(([legacy, newPerm]) => [newPerm, legacy])
-) as Record<Permission, string>
+export const NEW_TO_LEGACY_PERMISSIONS: Record<Permission, string> = (() => {
+  const mapping = {} as Record<Permission, string>
+  const legacyToNew = LEGACY_TO_NEW_PERMISSIONS
+
+  // Build reverse mapping, preferring action:resource format
+  for (const [legacy, newPerm] of Object.entries(legacyToNew)) {
+    // If this legacy format is action:resource (preferred), use it
+    if (!mapping[newPerm] || (legacy.includes(':') && !legacy.startsWith('team:') && !legacy.startsWith('task:') && !legacy.startsWith('system:') && !legacy.startsWith('logs:') && !legacy.startsWith('reports:'))) {
+      mapping[newPerm] = legacy
+    }
+  }
+
+  return mapping
+})()
 
 /**
  * Convert legacy string permissions to new Permission enum array
@@ -129,9 +141,20 @@ export function normalizePermissions(permissions: (string | Permission)[]): Perm
 
 /**
  * Check if a permission string is in legacy format
+ * Legacy format: action:resource (e.g., read:tasks, manage:team)
+ * New format: resource:action (e.g., task:read, team:manage)
  */
 export function isLegacyPermissionFormat(permission: string): boolean {
-  return permission.includes(':')
+  if (!permission.includes(':')) {
+    return false
+  }
+
+  const [action, resource] = permission.split(':')
+
+  // Legacy format has action first (read, write, delete, manage, access, etc.)
+  const legacyActions = ['read', 'write', 'create', 'update', 'delete', 'manage', 'access', 'settings', 'approval', 'reports', 'system', 'logs', 'agent', 'wallet']
+
+  return legacyActions.includes(action)
 }
 
 /**

@@ -234,11 +234,13 @@ describe('Settings Integration Tests', () => {
         }
       }
 
-      // Simulate clicking outside
-      handleClickOutside(
-        { contains: () => false } as unknown as Element,
-        { contains: () => true } as unknown as Element
-      )
+      // Simulate clicking outside - container.contains(target) should return false
+      const mockTarget = {} as Element
+      const mockContainer = {
+        contains: (el: Element) => el === mockTarget ? false : true
+      } as unknown as Element
+
+      handleClickOutside(mockTarget, mockContainer)
 
       expect(isSettingsOpen).toBe(false)
     })

@@ -19,7 +19,6 @@ import { Card } from '@/components/ui/Card'
 import { DashboardStats } from '@/components/dashboard/DashboardStats'
 import { RecentActivity, createMockActivities } from '@/components/dashboard/RecentActivity'
 import { QuickActions, minimalActions } from '@/components/dashboard/QuickActions'
-import { LoadingSpinner } from '@/components/LoadingSpinner'
 import { useDashboardData } from '@/hooks/useDashboardData'
 import type { ActivityItem as GitHubActivityItem } from '@/hooks/useDashboardData'
 import { useMembers } from '@/stores/dashboardStore'
@@ -30,7 +29,6 @@ import { ManualOverride } from '@/components/dashboard/ManualOverride'
 import { ScheduleHistory } from '@/components/dashboard/ScheduleHistory'
 import {
   Skeleton,
-  SkeletonText,
   SkeletonCard,
   SkeletonStatCard,
   SkeletonList,

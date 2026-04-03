@@ -180,13 +180,13 @@ export function withPerformanceLogging(db: DatabaseConnection): DatabaseConnecti
       }
     },
 
-    queryRows: (sql: string, params?: unknown[]) => {
+    queryRows: <T = Record<string, unknown>>(sql: string, params?: unknown[]): T[] => {
       const startTime = performance.now()
       const sanitizedSql = sanitizeQuery(sql)
       const paramsCount = params?.length || 0
 
       try {
-        const result = db.queryRows(sql, params)
+        const result = db.queryRows<T>(sql, params)
         const duration = performance.now() - startTime
 
         // Record metric
@@ -223,6 +223,57 @@ export function withPerformanceLogging(db: DatabaseConnection): DatabaseConnecti
 
         logger.error(
           `queryRows failed (${duration.toFixed(0)}ms): ${sanitizedSql.substring(0, 100)}`,
+          error,
+          { category: 'db', duration, sql: sanitizedSql.substring(0, 100) }
+        )
+
+        throw error
+      }
+    },
+
+    get: <T = Record<string, unknown>>(sql: string, params?: unknown[]): T | null => {
+      const startTime = performance.now()
+      const sanitizedSql = sanitizeQuery(sql)
+      const paramsCount = params?.length || 0
+
+      try {
+        const result = db.get<T>(sql, params)
+        const duration = performance.now() - startTime
+
+        // Record metric
+        addQueryMetric({
+          query: sanitizedSql,
+          timestamp: Date.now(),
+          duration,
+          success: true,
+          rowCount: result ? 1 : 0,
+          paramsCount,
+        })
+
+        // Log slow queries
+        if (duration > 100) {
+          logger.warn(
+            `Slow get (${duration.toFixed(0)}ms): ${sanitizedSql.substring(0, 100)}`,
+            { category: 'db', duration, sql: sanitizedSql.substring(0, 100) }
+          )
+        }
+
+        return result
+      } catch (error) {
+        const duration = performance.now() - startTime
+
+        // Record error metric
+        addQueryMetric({
+          query: sanitizedSql,
+          timestamp: Date.now(),
+          duration,
+          success: false,
+          error: error instanceof Error ? error.message : 'Unknown error',
+          paramsCount,
+        })
+
+        logger.error(
+          `get failed (${duration.toFixed(0)}ms): ${sanitizedSql.substring(0, 100)}`,
           error,
           { category: 'db', duration, sql: sanitizedSql.substring(0, 100) }
         )

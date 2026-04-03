@@ -8,11 +8,12 @@ import { NextRequest, NextResponse } from 'next/server'
 import {
   DistributedRateLimiter,
   KeyGenerators,
-  createRateLimitMiddleware,
-  withRateLimit as withEnhancedRateLimit,
+  createEnhancedRateLimitMiddleware,
+  withEnhancedRateLimit,
   PresetConfigs,
   RedisAdapter,
   type RateLimitResult,
+  type RateLimitMiddlewareOptions,
 } from '@/lib/rate-limit'
 
 // ============================================================
@@ -65,7 +66,7 @@ export const POST_register = withEnhancedRateLimit(
     onLimitReached: (req: NextRequest, result: RateLimitResult) => {
       console.warn(`Rate limit exceeded for IP: ${KeyGenerators.byIP(req)}`)
     },
-  }
+  } as RateLimitMiddlewareOptions
 )
 
 // ============================================================

@@ -281,8 +281,8 @@ describe('DataExporter', () => {
 
 describe('便捷函数', () => {
   describe('exportData', () => {
-    it('应该快速导出数据', () => {
-      const result = exportData(testUsers, {
+    it('应该快速导出数据', async () => {
+      const result = await exportData(testUsers, {
         filename: 'quick-export',
         format: 'csv',
         fields: testFields,
@@ -670,13 +670,13 @@ describe('导出模板', () => {
       },
     })
 
-    const result = exportWithTemplate(testUsers, 'export-template')
+    const result = await exportWithTemplate(testUsers, 'export-template')
     expect(result.success).toBe(true)
     expect(result.filename).toBe('导出模板.xlsx')
   })
 
   it('应该处理不存在的模板', async () => {
-    const result = exportWithTemplate(testUsers, 'non-existent')
+    const result = await exportWithTemplate(testUsers, 'non-existent')
     expect(result.success).toBe(false)
     expect(result.error).toContain('不存在')
   })
@@ -688,7 +688,7 @@ describe('导出模板', () => {
 
 describe('多工作表导出', () => {
   it('应该导出多工作表 Excel', async () => {
-    const result = exportMultiSheet({
+    const result = await exportMultiSheet({
       filename: 'multi-sheet-test',
       sheets: [
         {
@@ -709,8 +709,8 @@ describe('多工作表导出', () => {
     expect(result.blob).toBeInstanceOf(Blob)
   })
 
-  it('应该处理空工作表', () => {
-    const result = exportMultiSheet({
+  it('应该处理空工作表', async () => {
+    const result = await exportMultiSheet({
       filename: 'empty-sheet',
       sheets: [
         {

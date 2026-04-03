@@ -281,7 +281,7 @@ export class A2ARequestHandler {
   /**
    * Create a success response
    */
-  private createSuccess(id: string | number | undefined, result: unknown): JsonRpcResponse {
+  private createSuccess(id: string | number | null | undefined, result: unknown): JsonRpcResponse {
     return {
       jsonrpc: '2.0',
       result,
@@ -293,7 +293,7 @@ export class A2ARequestHandler {
    * Create an error response
    */
   private createError(
-    id: string | number | undefined,
+    id: string | number | null | undefined,
     code: number,
     message: string,
     data?: unknown

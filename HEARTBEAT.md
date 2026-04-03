@@ -1,32 +1,23 @@
 # HEARTBEAT.md
 
-## Current Time
-- **System**: Friday April 3rd 2026 02:08 (Europe/Berlin)
-
 ## Projects
 
-| Workspace | TypeScript | Status |
-|---------|-----------|--------|
-| workspace | **5 errors** | TraceManager.ts |
-| 7zi-frontend | TypeScript ✅ | healthy |
+| Project | Status |
+|---------|--------|
+| workspace | Clean |
+| 7zi-frontend | Clean |
+| 7zi-project | Clean |
 
-## Today's Summary
-| Metric | Start | End | Improvement |
-|--------|-------|-----|-------------|
-| TypeScript | 1760 | 5 | 99.7% |
-| Workflow Tests | 0 | 231+ | - |
-| ESLint any | 122 | 0 | 100% |
+## v1.12.0
+- Multi-model routing: 201 tests passed ✅
+- Tests: cost-tracker (45), fallback (35), model-router (62), model-registry (59)
 
-## v1.9.0 Stability Tests - COMPLETED ✅
+## TypeScript
+- AI/Agents: 0 any ✅
+- Total any: 118 (15 high priority)
 
-### Test Files Created
-| Test File | Tests | Status |
-|-----------|-------|--------|
-| orchestrator-edge-cases.test.ts | 20 | ✅ |
-| websocket-stability.test.ts | 26 | ✅ |
-| metrics-boundary.test.ts | 41 | ✅ |
-| memory-leak.test.ts | 25 | ✅ |
-| error-recovery.test.ts | 29 | ✅ |
+## Health
+- picoclaw.service: ✅ Running
 
-## Server
-- 7zi.com: picoclaw.service ✅
+## Subagents
+- 30+ completed today

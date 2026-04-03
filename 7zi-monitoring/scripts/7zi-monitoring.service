@@ -1,0 +1,25 @@
+[Unit]
+Description=7zi Performance Monitoring System
+After=network.target
+
+[Service]
+Type=simple
+User=monitoring
+Group=monitoring
+WorkingDirectory=/opt/7zi-monitoring
+EnvironmentFile=/etc/7zi-monitoring/monitoring.env
+ExecStart=/usr/bin/python3 /opt/7zi-monitoring/start.py --config /opt/7zi-monitoring/config/monitoring.yaml
+Restart=on-failure
+RestartSec=5s
+StandardOutput=journal
+StandardError=journal
+
+# Security
+NoNewPrivileges=true
+PrivateTmp=true
+ProtectSystem=strict
+ProtectHome=true
+ReadWritePaths=/var/lib/7zi-monitoring /var/log/7zi-monitoring
+
+[Install]
+WantedBy=multi-user.target

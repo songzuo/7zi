@@ -109,7 +109,11 @@ vi.mock('../stores/scheduler-store', () => {
     }
     return mockState
   })
-  ;(mockStore as any).getState = () => mockState
+  // Use a more specific type assertion for the mock Zustand store
+  Object.defineProperty(mockStore, 'getState', {
+    value: () => mockState,
+    writable: true,
+  })
 
   return {
     useSchedulerStore: mockStore,

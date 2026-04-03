@@ -1,240 +1,207 @@
 /**
- * AES-256-GCM Encryption Module
- *
- * Provides authenticated encryption for sensitive data
- * Uses modern AEAD (Authenticated Encryption with Associated Data)
+ * Encryption Service
+ * 数据加密服务
  */
 
-import { createCipheriv, createDecipheriv, randomBytes, scrypt } from 'crypto'
-import { promisify } from 'util'
-
-const scryptAsync = promisify(scrypt)
+import crypto from 'crypto'
+import { db } from '../db'
+import { logger } from '../logger'
 
 /**
- * Encryption result interface
+ * 加密服务类
  */
-export interface EncryptedData {
-  data: string // base64 encoded encrypted data
-  iv: string // base64 encoded initialization vector
-  authTag: string // base64 encoded authentication tag
-  salt: string // base64 encoded salt for key derivation
-}
+export class EncryptionService {
+  private readonly algorithm = 'aes-256-gcm'
+  private readonly keyLength = 32
+  private readonly ivLength = 16
+  private readonly authTagLength = 16
+  private masterKey: string
 
-/**
- * Encryption options
- */
-export interface EncryptionOptions {
-  keySize?: number // default: 32 (256 bits)
-  ivSize?: number // default: 16 (128 bits)
-  saltSize?: number // default: 16 (128 bits)
-  authTagSize?: number // default: 16 (128 bits)
-}
-
-const DEFAULT_OPTIONS: EncryptionOptions = {
-  keySize: 32,
-  ivSize: 16,
-  saltSize: 16,
-  authTagSize: 16,
-}
-
-/**
- * Generate encryption key from password using scrypt
- */
-async function deriveKey(password: string, salt: Buffer, keySize: number = 32): Promise<Buffer> {
-  const key = await scryptAsync(password, salt, keySize)
-  return key as Buffer
-}
-
-/**
- * Encrypt data using AES-256-GCM
- *
- * @param data - Data to encrypt (will be converted to string)
- * @param password - Encryption password
- * @param options - Encryption options
- * @returns Encrypted data with IV and auth tag
- */
-export async function encryptGCM(
-  data: unknown,
-  password: string,
-  options: EncryptionOptions = {}
-): Promise<EncryptedData> {
-  const keySize = options.keySize ?? DEFAULT_OPTIONS.keySize!
-  const ivSize = options.ivSize ?? DEFAULT_OPTIONS.ivSize!
-  const saltSize = options.saltSize ?? DEFAULT_OPTIONS.saltSize!
-  const authTagSize = options.authTagSize ?? DEFAULT_OPTIONS.authTagSize!
-
-  // Generate random salt and IV
-  const salt = randomBytes(saltSize)
-  const iv = randomBytes(ivSize)
-
-  // Derive key from password
-  const key = await deriveKey(password, salt, keySize)
-
-  // Convert data to JSON string
-  const plaintext = JSON.stringify(data)
-  const plaintextBuffer = Buffer.from(plaintext, 'utf-8')
-
-  // Create cipher
-  const cipher = createCipheriv('aes-256-gcm', key, iv)
-
-  // Encrypt
-  const encrypted = Buffer.concat([cipher.update(plaintextBuffer), cipher.final()])
-
-  // Get authentication tag
-  const authTag = cipher.getAuthTag()
-
-  return {
-    data: encrypted.toString('base64'),
-    iv: iv.toString('base64'),
-    authTag: authTag.toString('base64'),
-    salt: salt.toString('base64'),
-  }
-}
-
-/**
- * Decrypt data using AES-256-GCM
- *
- * @param encrypted - Encrypted data object
- * @param password - Encryption password
- * @returns Decrypted data
- */
-export async function decryptGCM<T = unknown>(
-  encrypted: EncryptedData,
-  password: string,
-  options: EncryptionOptions = {}
-): Promise<T> {
-  const keySize = options.keySize ?? DEFAULT_OPTIONS.keySize!
-
-  // Decode base64 strings
-  const salt = Buffer.from(encrypted.salt, 'base64')
-  const iv = Buffer.from(encrypted.iv, 'base64')
-  const authTag = Buffer.from(encrypted.authTag, 'base64')
-  const encryptedData = Buffer.from(encrypted.data, 'base64')
-
-  // Derive key from password
-  const key = await deriveKey(password, salt, keySize)
-
-  // Create decipher
-  const decipher = createDecipheriv('aes-256-gcm', key, iv)
-
-  // Set authentication tag
-  decipher.setAuthTag(authTag)
-
-  // Decrypt
-  const decrypted = Buffer.concat([decipher.update(encryptedData), decipher.final()])
-
-  // Parse JSON
-  const plaintext = decrypted.toString('utf-8')
-  return JSON.parse(plaintext) as T
-}
-
-/**
- * Encrypt API key using AES-256-GCM
- *
- * @param apiKey - API key to encrypt
- * @param password - Encryption password
- * @returns Encrypted API key as a single string (format: salt:iv:authTag:data)
- */
-export async function encryptApiKeyGCM(apiKey: string, password: string): Promise<string> {
-  const encrypted = await encryptGCM(apiKey, password)
-  return `${encrypted.salt}:${encrypted.iv}:${encrypted.authTag}:${encrypted.data}`
-}
-
-/**
- * Decrypt API key using AES-256-GCM
- *
- * @param encryptedApiKey - Encrypted API key string
- * @param password - Encryption password
- * @returns Decrypted API key
- */
-export async function decryptApiKeyGCM(encryptedApiKey: string, password: string): Promise<string> {
-  const [salt, iv, authTag, data] = encryptedApiKey.split(':')
-
-  if (!salt || !iv || !authTag || !data) {
-    throw new Error('Invalid encrypted API key format')
+  constructor() {
+    // 从环境变量获取主密钥
+    this.masterKey = process.env.ENCRYPTION_MASTER_KEY || this.generateMasterKey()
   }
 
-  return await decryptGCM({ salt, iv, authTag, data }, password)
-}
+  /**
+   * 生成主密钥
+   */
+  private generateMasterKey(): string {
+    const key = crypto.randomBytes(this.keyLength).toString('hex')
+    logger.warn('Generated new master key. Please set ENCRYPTION_MASTER_KEY environment variable.')
+    return key
+  }
 
-/**
- * Encrypt sensitive data in object
- *
- * @param obj - Object containing sensitive fields
- * @param sensitiveFields - Array of field names to encrypt
- * @param password - Encryption password
- * @returns Object with encrypted fields (prefixed with '_encrypted_')
- */
-export async function encryptSensitiveFields<T extends Record<string, unknown>>(
-  obj: T,
-  sensitiveFields: (keyof T)[],
-  password: string
-): Promise<T> {
-  const result = { ...obj }
+  /**
+   * 加密数据
+   */
+  encrypt(plaintext: string, tenantKey?: string): string {
+    const key = tenantKey || this.masterKey
+    const iv = crypto.randomBytes(this.ivLength)
+    const cipher = crypto.createCipheriv(
+      this.algorithm,
+      Buffer.from(key, 'hex'),
+      iv
+    )
+    
+    let encrypted = cipher.update(plaintext, 'utf8', 'hex')
+    encrypted += cipher.final('hex')
+    
+    const authTag = cipher.getAuthTag()
+    
+    return `${iv.toString('hex')}:${authTag.toString('hex')}:${encrypted}`
+  }
 
-  for (const field of sensitiveFields) {
-    const value = result[field]
-    if (value !== undefined && value !== null) {
-      const encrypted = await encryptApiKeyGCM(String(value), password)
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      ;(result as any)[`_encrypted_${String(field)}`] = encrypted
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      delete (result as any)[field]
+  /**
+   * 解密数据
+   */
+  decrypt(ciphertext: string, tenantKey?: string): string {
+    const key = tenantKey || this.masterKey
+    const [ivHex, authTagHex, encrypted] = ciphertext.split(':')
+    
+    if (!ivHex || !authTagHex || !encrypted) {
+      throw new Error('Invalid ciphertext format')
     }
+    
+    const decipher = crypto.createDecipheriv(
+      this.algorithm,
+      Buffer.from(key, 'hex'),
+      Buffer.from(ivHex, 'hex')
+    )
+    
+    decipher.setAuthTag(Buffer.from(authTagHex, 'hex'))
+    
+    let decrypted = decipher.update(encrypted, 'hex', 'utf8')
+    decrypted += decipher.final('utf8')
+    
+    return decrypted
   }
 
-  return result
-}
+  /**
+   * 获取租户加密密钥
+   */
+  async getTenantEncryptionKey(tenantId: string): Promise<string> {
+    const keyRecord = await db.get<{ encrypted_key: string }>(
+      'SELECT encrypted_key FROM tenant_keys WHERE tenant_id = ?',
+      [tenantId]
+    )
+    
+    if (!keyRecord) {
+      // 生成新的租户密钥
+      const newKey = crypto.randomBytes(this.keyLength).toString('hex')
+      const encryptedKey = this.encrypt(newKey)
+      
+      await db.exec(`
+        INSERT INTO tenant_keys (id, tenant_id, encrypted_key)
+        VALUES (?, ?, ?)
+      `, [this.generateId('key'), tenantId, encryptedKey])
+      
+      logger.info('Tenant encryption key created', { tenantId })
+      
+      return newKey
+    }
+    
+    return this.decrypt(keyRecord.encrypted_key)
+  }
 
-/**
- * Decrypt sensitive fields in object
- *
- * @param obj - Object with encrypted fields (prefixed with '_encrypted_')
- * @param password - Encryption password
- * @returns Object with decrypted fields
- */
-export async function decryptSensitiveFields<T extends Record<string, unknown>>(
-  obj: T,
-  password: string
-): Promise<T> {
-  const result = { ...obj }
+  /**
+   * 旋转租户密钥
+   */
+  async rotateTenantKey(tenantId: string): Promise<void> {
+    const oldKey = await this.getTenantEncryptionKey(tenantId)
+    const newKey = crypto.randomBytes(this.keyLength).toString('hex')
+    const encryptedKey = this.encrypt(newKey)
+    
+    await db.exec(
+      'UPDATE tenant_keys SET encrypted_key = ?, updated_at = ? WHERE tenant_id = ?',
+      [encryptedKey, new Date().toISOString(), tenantId]
+    )
+    
+    logger.info('Tenant encryption key rotated', { tenantId })
+    
+    // TODO: 重新加密所有使用旧密钥的数据
+  }
 
-  for (const key in result) {
-    if (key.startsWith('_encrypted_')) {
-      const fieldName = key.replace('_encrypted_', '')
-      const encryptedValue = result[key] as string
-      try {
-        const decrypted = await decryptApiKeyGCM(encryptedValue, password)
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        ;(result as any)[fieldName] = decrypted
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        delete (result as any)[key]
-      } catch (error) {
-        // If decryption fails, keep the encrypted field
-        console.warn(`Failed to decrypt field ${fieldName}:`, error)
+  /**
+   * 加密敏感字段
+   */
+  async encryptField(
+    data: Record<string, unknown>,
+    fields: string[],
+    tenantId: string
+  ): Promise<Record<string, unknown>> {
+    const tenantKey = await this.getTenantEncryptionKey(tenantId)
+    const encrypted = { ...data }
+    
+    for (const field of fields) {
+      if (encrypted[field] && typeof encrypted[field] === 'string') {
+        encrypted[field] = this.encrypt(encrypted[field] as string, tenantKey)
+        encrypted[`${field}_encrypted`] = true
       }
     }
+    
+    return encrypted
   }
 
-  return result
+  /**
+   * 解密敏感字段
+   */
+  async decryptField(
+    data: Record<string, unknown>,
+    fields: string[],
+    tenantId: string
+  ): Promise<Record<string, unknown>> {
+    const tenantKey = await this.getTenantEncryptionKey(tenantId)
+    const decrypted = { ...data }
+    
+    for (const field of fields) {
+      if (decrypted[field] && typeof decrypted[field] === 'string' && decrypted[`${field}_encrypted`]) {
+        try {
+          decrypted[field] = this.decrypt(decrypted[field] as string, tenantKey)
+          delete decrypted[`${field}_encrypted`]
+        } catch (error) {
+          logger.error('Failed to decrypt field', { field, tenantId, error })
+        }
+      }
+    }
+    
+    return decrypted
+  }
+
+  /**
+   * 批量加密
+   */
+  async encryptBatch(
+    items: Record<string, unknown>[],
+    fields: string[],
+    tenantId: string
+  ): Promise<Record<string, unknown>[]> {
+    return Promise.all(
+      items.map(item => this.encryptField(item, fields, tenantId))
+    )
+  }
+
+  /**
+   * 批量解密
+   */
+  async decryptBatch(
+    items: Record<string, unknown>[],
+    fields: string[],
+    tenantId: string
+  ): Promise<Record<string, unknown>[]> {
+    return Promise.all(
+      items.map(item => this.decryptField(item, fields, tenantId))
+    )
+  }
+
+  /**
+   * 生成唯一ID
+   */
+  private generateId(prefix: string = ''): string {
+    const timestamp = Date.now().toString(36)
+    const random = Math.random().toString(36).substring(2, 15)
+    return prefix ? `${prefix}_${timestamp}${random}` : `${timestamp}${random}`
+  }
 }
 
-/**
- * Generate random encryption key
- *
- * @returns Random 256-bit key as hex string
- */
-export function generateEncryptionKey(): string {
-  return randomBytes(32).toString('hex')
-}
-
-/**
- * Validate encryption key format
- *
- * @param key - Key to validate
- * @returns True if valid
- */
-export function validateEncryptionKey(key: string): boolean {
-  // Key should be a hex string of at least 32 bytes (64 hex chars)
-  return /^[0-9a-f]{64}$/i.test(key)
-}
+// 导出单例
+export const encryptionService = new EncryptionService()

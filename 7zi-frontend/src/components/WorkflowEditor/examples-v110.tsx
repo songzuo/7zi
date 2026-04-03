@@ -102,7 +102,7 @@ export function AutoLayoutExample() {
 // ============================================
 
 export function ImportExportExample() {
-  const handleExport = (exportData: any) => {
+  const handleExport = (exportData: WorkflowDefinition) => {
     console.log('Exported:', exportData)
 
     // 下载文件
@@ -322,7 +322,7 @@ export function FullWorkflowApp() {
     }
   }
 
-  const handleExport = (exportData: any) => {
+  const handleExport = (exportData: WorkflowDefinition) => {
     const blob = new Blob([JSON.stringify(exportData, null, 2)], {
       type: 'application/json',
     })
@@ -339,7 +339,7 @@ export function FullWorkflowApp() {
     console.log('Workflow imported:', workflow)
   }
 
-  const handleAutoLayout = (type: any) => {
+  const handleAutoLayout = (type: LayoutType) => {
     console.log('Auto layout applied:', type)
   }
 
@@ -389,6 +389,7 @@ export function FullWorkflowApp() {
 
 import { applyLayout } from '@/components/WorkflowEditor'
 import type { Node, Edge } from 'reactflow'
+import type { LayoutType } from '@/components/WorkflowEditor/AutoLayout'
 
 export function LayoutAlgorithmExample() {
   const [nodes, setNodes] = useState<Node[]>([])

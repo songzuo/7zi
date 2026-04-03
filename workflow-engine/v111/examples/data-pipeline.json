@@ -1,0 +1,181 @@
+{
+  "name": "Data Processing Pipeline",
+  "description": "Fetch data from API, transform it, and send notification",
+  "version": "1.0.0",
+  "status": "published",
+  "nodes": [
+    {
+      "id": "trigger_1",
+      "type": "trigger.cron",
+      "name": "Daily Trigger",
+      "description": "Trigger every day at 6 AM UTC",
+      "config": {
+        "cron": {
+          "expression": "0 6 * * *",
+          "timezone": "UTC",
+          "enabled": true
+        }
+      }
+    },
+    {
+      "id": "http_1",
+      "type": "action.http",
+      "name": "Fetch Data",
+      "description": "Fetch data from external API",
+      "config": {
+        "http": {
+          "url": "https://api.example.com/data",
+          "method": "GET",
+          "headers": {
+            "Authorization": "Bearer ${API_TOKEN}",
+            "Content-Type": "application/json"
+          },
+          "timeout": 30000
+        }
+      },
+      "timeout": 60000,
+      "retryPolicy": {
+        "maxAttempts": 3,
+        "backoffStrategy": "exponential",
+        "initialDelay": 1000,
+        "maxDelay": 30000
+      }
+    },
+    {
+      "id": "transform_1",
+      "type": "action.transform",
+      "name": "Transform Data",
+      "description": "Transform and filter the data",
+      "config": {
+        "transform": {
+          "type": "custom",
+          "expression": "input.items.filter(i => i.active).map(i => ({ id: i.id, value: i.value * 2 }))",
+          "input": "http_1.data"
+        }
+      }
+    },
+    {
+      "id": "condition_1",
+      "type": "logic.condition",
+      "name": "Check Results",
+      "description": "Check if there are results to process",
+      "config": {
+        "condition": {
+          "expression": "transform_1.length > 0",
+          "trueBranch": "parallel_1",
+          "falseBranch": "end_1"
+        }
+      }
+    },
+    {
+      "id": "parallel_1",
+      "type": "logic.parallel",
+      "name": "Process in Parallel",
+      "description": "Process each item in parallel",
+      "config": {
+        "parallel": {
+          "branches": ["http_2", "slack_1"],
+          "failFast": false
+        }
+      }
+    },
+    {
+      "id": "http_2",
+      "type": "action.http",
+      "name": "Save to Database",
+      "description": "Save processed data to database API",
+      "config": {
+        "http": {
+          "url": "https://api.example.com/save",
+          "method": "POST",
+          "headers": {
+            "Authorization": "Bearer ${DB_TOKEN}"
+          },
+          "body": {
+            "data": "${transform_1}"
+          }
+        }
+      }
+    },
+    {
+      "id": "slack_1",
+      "type": "action.slack",
+      "name": "Send Notification",
+      "description": "Send Slack notification about processed data",
+      "config": {
+        "slack": {
+          "channel": "#data-processing",
+          "message": "Processed ${transform_1.length} items successfully"
+        }
+      }
+    },
+    {
+      "id": "end_1",
+      "type": "trigger.manual",
+      "name": "End",
+      "description": "Workflow end"
+    }
+  ],
+  "edges": [
+    {
+      "id": "e1",
+      "source": "trigger_1",
+      "target": "http_1"
+    },
+    {
+      "id": "e2",
+      "source": "http_1",
+      "target": "transform_1"
+    },
+    {
+      "id": "e3",
+      "source": "transform_1",
+      "target": "condition_1"
+    },
+    {
+      "id": "e4",
+      "source": "condition_1",
+      "target": "parallel_1",
+      "condition": "true"
+    },
+    {
+      "id": "e5",
+      "source": "condition_1",
+      "target": "end_1",
+      "condition": "false"
+    },
+    {
+      "id": "e6",
+      "source": "parallel_1",
+      "target": "http_2"
+    },
+    {
+      "id": "e7",
+      "source": "parallel_1",
+      "target": "slack_1"
+    },
+    {
+      "id": "e8",
+      "source": "http_2",
+      "target": "end_1"
+    },
+    {
+      "id": "e9",
+      "source": "slack_1",
+      "target": "end_1"
+    }
+  ],
+  "variables": {
+    "API_TOKEN": "your-api-token",
+    "DB_TOKEN": "your-db-token"
+  },
+  "metadata": {
+    "author": "OpenClaw Team",
+    "category": "data-processing",
+    "tags": ["api", "transform", "notification"],
+    "documentation": "https://docs.openclaw.ai/workflows/data-pipeline"
+  },
+  "timeout": 3600000,
+  "priority": 5,
+  "tags": ["automation", "data", "api"]
+}

@@ -1,0 +1,162 @@
+# ============================================
+# OpenClaw v1.11.0 Kubernetes Ingress
+# ============================================
+
+# Ingress 配置 - 主域名
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: openclaw-ingress
+  namespace: openclaw
+  labels:
+    app: openclaw
+    tier: frontend
+  annotations:
+    # Nginx Ingress Controller
+    kubernetes.io/ingress.class: nginx
+    nginx.ingress.kubernetes.io/rewrite-target: /
+    nginx.ingress.kubernetes.io/ssl-redirect: "true"
+    nginx.ingress.kubernetes.io/force-ssl-redirect: "true"
+    nginx.ingress.kubernetes.io/proxy-body-size: "50m"
+    nginx.ingress.kubernetes.io/proxy-connect-timeout: "60"
+    nginx.ingress.kubernetes.io/proxy-send-timeout: "60"
+    nginx.ingress.kubernetes.io/proxy-read-timeout: "60"
+    
+    # Rate limiting
+    nginx.ingress.kubernetes.io/limit-rps: "100"
+    nginx.ingress.kubernetes.io/limit-connections: "100"
+    
+    # CORS
+    nginx.ingress.kubernetes.io/enable-cors: "true"
+    nginx.ingress.kubernetes.io/cors-allow-origin: "*"
+    nginx.ingress.kubernetes.io/cors-allow-methods: "GET, POST, PUT, DELETE, OPTIONS"
+    nginx.ingress.kubernetes.io/cors-allow-headers: "Authorization, Content-Type, Accept, Origin, X-Requested-With"
+    
+    # Security
+    nginx.ingress.kubernetes.io/configuration-snippet: |
+      add_header X-Frame-Options "SAMEORIGIN" always;
+      add_header X-Content-Type-Options "nosniff" always;
+      add_header X-XSS-Protection "1; mode=block" always;
+      add_header Referrer-Policy "strict-origin-when-cross-origin" always;
+    
+    # Cert-Manager (Let's Encrypt)
+    cert-manager.io/cluster-issuer: letsencrypt-prod
+    cert-manager.io/acme-challenge-type: http01
+    
+    # Prometheus
+    prometheus.io/scrape: "true"
+    prometheus.io/port: "10254"
+spec:
+  ingressClassName: nginx
+  
+  # TLS 配置
+  tls:
+    - hosts:
+        - openclaw.example.com
+        - api.openclaw.example.com
+      secretName: openclaw-tls-secret
+  
+  # 路由规则
+  rules:
+    # 主域名
+    - host: openclaw.example.com
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: openclaw
+                port:
+                  number: 3000
+    
+    # API 子域名
+    - host: api.openclaw.example.com
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: openclaw
+                port:
+                  number: 3000
+
+---
+# Ingress 配置 - WebSocket
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: openclaw-websocket-ingress
+  namespace: openclaw
+  labels:
+    app: openclaw
+    tier: frontend
+  annotations:
+    kubernetes.io/ingress.class: nginx
+    nginx.ingress.kubernetes.io/rewrite-target: /
+    
+    # WebSocket 支持
+    nginx.ingress.kubernetes.io/proxy-http-version: "1.1"
+    nginx.ingress.kubernetes.io/proxy-set-headers: |
+      $proxy_upgrade_connection $connection_upgrade
+    nginx.ingress.kubernetes.io/configuration-snippet: |
+      map $http_upgrade $connection_upgrade {
+        default upgrade;
+        '' close;
+      }
+    
+    # WebSocket 超时配置
+    nginx.ingress.kubernetes.io/proxy-read-timeout: "3600"
+    nginx.ingress.kubernetes.io/proxy-send-timeout: "3600"
+    
+    # TLS
+    cert-manager.io/cluster-issuer: letsencrypt-prod
+spec:
+  ingressClassName: nginx
+  
+  tls:
+    - hosts:
+        - ws.openclaw.example.com
+      secretName: openclaw-ws-tls-secret
+  
+  rules:
+    - host: ws.openclaw.example.com
+      http:
+        paths:
+          - path: /ws
+            pathType: Prefix
+            backend:
+              service:
+                name: openclaw
+                port:
+                  number: 3000
+
+---
+# Ingress 配置 - 内部访问（可选）
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: openclaw-internal-ingress
+  namespace: openclaw
+  labels:
+    app: openclaw
+    tier: frontend
+  annotations:
+    kubernetes.io/ingress.class: nginx-internal
+    nginx.ingress.kubernetes.io/rewrite-target: /
+    nginx.ingress.kubernetes.io/whitelist-source-range: "10.0.0.0/8,172.16.0.0/12,192.168.0.0/16"
+spec:
+  ingressClassName: nginx-internal
+  
+  rules:
+    - host: openclaw.internal.example.com
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: openclaw
+                port:
+                  number: 3000

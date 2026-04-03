@@ -3,22 +3,10 @@
  */
 
 import { EventEmitter } from 'events';
+import { A2AMessage, A2ARequestOptions } from './A2ATypes';
 
-export interface A2AMessage {
-  id: string;
-  from: string;
-  to: string;
-  type: 'request' | 'response' | 'notification' | 'error';
-  timestamp: number;
-  payload: unknown;
-  correlationId?: string;
-}
-
-export interface A2ARequestOptions {
-  timeout?: number;
-  priority?: 'low' | 'normal' | 'high';
-  metadata?: Record<string, unknown>;
-}
+// Re-export types for backward compatibility
+export type { A2AMessage, A2ARequestOptions };
 
 export class A2AProtocol extends EventEmitter {
   private messageHandlers: Map<string, (msg: A2AMessage) => Promise<unknown>> = new Map();

@@ -1,0 +1,89 @@
+# ============================================
+# OpenClaw v1.11.0 Helm Chart
+# ============================================
+
+apiVersion: v2
+name: openclaw
+description: OpenClaw - Personal AI Assistant Platform
+
+# Chart 类型
+type: application
+
+# Chart 版本（SemVer 2）
+version: 1.11.0
+
+# 应用版本
+appVersion: "1.11.0"
+
+# Kubernetes 版本要求
+kubeVersion: ">=1.25.0-0"
+
+# 维护者
+maintainers:
+  - name: OpenClaw Team
+    email: support@openclaw.dev
+    url: https://openclaw.dev
+
+# 源代码
+sources:
+  - https://github.com/openclaw/openclaw
+
+# 关键词
+keywords:
+  - ai
+  - assistant
+  - llm
+  - chatgpt
+  - claude
+  - nextjs
+  - react
+
+# 主页
+home: https://openclaw.dev
+
+# 图标
+icon: https://openclaw.dev/logo.png
+
+# 依赖
+dependencies:
+  - name: postgresql
+    version: "15.x.x"
+    repository: https://charts.bitnami.com/bitnami
+    condition: postgresql.enabled
+    alias: postgresql
+  
+  - name: redis
+    version: "18.x.x"
+    repository: https://charts.bitnami.com/bitnami
+    condition: redis.enabled
+    alias: redis
+  
+  - name: prometheus
+    version: "25.x.x"
+    repository: https://prometheus-community.github.io/helm-charts
+    condition: prometheus.enabled
+    alias: prometheus
+  
+  - name: grafana
+    version: "8.x.x"
+    repository: https://grafana.github.io/helm-charts
+    condition: grafana.enabled
+    alias: grafana
+
+# 注解
+annotations:
+  artifacthub.io/category: ai-machine-learning
+  artifacthub.io/license: MIT
+  artifacthub.io/links: |
+    - name: Documentation
+      url: https://docs.openclaw.dev
+    - name: Support
+      url: https://github.com/openclaw/openclaw/issues
+  artifacthub.io/operator: "false"
+  artifacthub.io/prerelease: "false"
+  artifacthub.io/containsSecurityUpdates: "false"
+  artifacthub.io/changes: |
+    - Added Kubernetes deployment support
+    - Added Helm Chart
+    - Added multi-architecture Docker images
+    - Added Prometheus monitoring integration

@@ -151,12 +151,71 @@ export interface CPUMetrics {
 // Root Cause Analysis Types
 // ============================================
 
+/**
+ * Details specific to database-related root causes
+ */
+export interface DatabaseRootCauseDetails {
+  query: string
+  executionTime: number
+  table: string
+  slowQuery?: boolean
+}
+
+/**
+ * Details specific to API-related root causes
+ */
+export interface APIRootCauseDetails {
+  endpoint: string
+  method: string
+  responseTime: number
+  statusCode: number
+}
+
+/**
+ * Details specific to rendering-related root causes
+ */
+export interface RenderingRootCauseDetails {
+  component: string
+  renderTime: number
+  reRenderCount?: number
+}
+
+/**
+ * Details specific to memory-related root causes
+ */
+export interface MemoryRootCauseDetails {
+  heapUsed: number
+  heapTotal: number
+  external: number
+  memoryLeakSuspect?: boolean
+}
+
+/**
+ * Details specific to network-related root causes
+ */
+export interface NetworkRootCauseDetails {
+  url: string
+  requestSize: number
+  responseSize: number
+  latency: number
+}
+
+/**
+ * Union type for all root cause details
+ */
+export type RootCauseDetails = 
+  | DatabaseRootCauseDetails 
+  | APIRootCauseDetails 
+  | RenderingRootCauseDetails 
+  | MemoryRootCauseDetails 
+  | NetworkRootCauseDetails
+
 export interface RootCauseCandidate {
   type: 'database' | 'api' | 'rendering' | 'resource' | 'network' | 'memory' | 'cpu' | 'code'
   severity: 'low' | 'medium' | 'high' | 'critical'
   confidence: number // 0-1
   description: string
-  details: any
+  details: RootCauseDetails
   suggestedActions: string[]
   estimatedFixTime?: string
   relatedMetrics?: string[]

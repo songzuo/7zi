@@ -72,12 +72,13 @@ class MemoryTransport implements ITransport {
 
   send(message: Message): Promise<void> {
     // 内存传输直接调用订阅者回调
+    // 修复: 使用 Promise.resolve().then() 捕获异步回调中的错误
     this.subscribers.forEach(callback => {
-      try {
-        callback(message)
-      } catch (error) {
-        this.eventBus.emit('error', error)
-      }
+      Promise.resolve()
+        .then(() => callback(message))
+        .catch(error => {
+          this.eventBus.emit('error', error)
+        })
     })
     return Promise.resolve()
   }
@@ -250,6 +251,7 @@ export class MessageBus extends EventEmitter {
     }
   > = new Map()
   private messageHistory: Map<string, Message> = new Map()
+  private maxHistorySize: number = 1000 // 防止内存泄漏：限制历史记录大小
   private defaultTimeout: number
   private maxRetryCount: number
   private retryDelay: number
@@ -319,6 +321,9 @@ export class MessageBus extends EventEmitter {
 
     // 保存到历史记录
     this.messageHistory.set(message.headers.id, message)
+    
+    // 防止内存泄漏：清理过旧的历史记录
+    this.trimHistory()
 
     // 通过传输层发送
     await this.transport.send(message)
@@ -598,5 +603,17 @@ export class MessageBus extends EventEmitter {
    */
   private generateId(): string {
     return `${Date.now()}-${Math.random().toString(36).substr(2, 9)}`
+  }
+
+  /**
+   * 清理过旧的历史记录，防止内存泄漏
+   */
+  private trimHistory(): void {
+    if (this.messageHistory.size >= this.maxHistorySize) {
+      // 删除最旧的 20% 记录
+      const entries = Array.from(this.messageHistory.entries())
+      const toRemove = entries.slice(0, Math.floor(entries.length * 0.2))
+      toRemove.forEach(([key]) => this.messageHistory.delete(key))
+    }
   }
 }

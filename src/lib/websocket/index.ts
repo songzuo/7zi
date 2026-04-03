@@ -75,11 +75,15 @@ export {
   OptimizedMessageHandler,
   createMessageBatcher,
   createOptimizedMessageHandler,
+  defaultCompressionConfig,
 } from './optimized-message'
 export type {
   OptimizedMessage,
   MessageBatch,
   CompressionConfig,
+  SendCallback,
+  BatchSendCallback,
+  OptimizedMessageHandlerConfig,
 } from './optimized-message'
 
 // React hooks

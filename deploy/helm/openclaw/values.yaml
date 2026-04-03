@@ -1,0 +1,340 @@
+# ============================================
+# OpenClaw v1.11.0 Helm Values
+# ============================================
+
+# 全局配置
+global:
+  imageRegistry: ""
+  imagePullSecrets: []
+  storageClass: ""
+  namespace: openclaw
+
+# 镜像配置
+image:
+  repository: openclaw/openclaw
+  tag: v1.11.0
+  pullPolicy: Always
+  # pullSecrets:
+  #   - name: docker-registry-secret
+
+# 副本数
+replicaCount: 3
+
+# 环境配置
+environment: production
+
+# 镜像拉取策略
+imagePullPolicy: Always
+
+# 服务账户
+serviceAccount:
+  create: true
+  name: openclaw
+  automountServiceAccountToken: false
+
+# 安全上下文
+podSecurityContext:
+  runAsNonRoot: true
+  runAsUser: 1001
+  fsGroup: 1001
+
+containerSecurityContext:
+  allowPrivilegeEscalation: false
+  capabilities:
+    drop:
+      - ALL
+  readOnlyRootFilesystem: true
+  runAsNonRoot: true
+  runAsUser: 1001
+
+# 服务配置
+service:
+  type: ClusterIP
+  port: 3000
+  annotations: {}
+  labels: {}
+
+# Ingress 配置
+ingress:
+  enabled: true
+  className: nginx
+  annotations:
+    cert-manager.io/cluster-issuer: letsencrypt-prod
+    nginx.ingress.kubernetes.io/ssl-redirect: "true"
+    nginx.ingress.kubernetes.io/proxy-body-size: "50m"
+  hosts:
+    - host: openclaw.example.com
+      paths:
+        - path: /
+          pathType: Prefix
+  tls:
+    - secretName: openclaw-tls
+      hosts:
+        - openclaw.example.com
+
+# 资源限制
+resources:
+  requests:
+    cpu: 250m
+    memory: 512Mi
+  limits:
+    cpu: 2000m
+    memory: 2Gi
+
+# 健康检查
+livenessProbe:
+  enabled: true
+  httpGet:
+    path: /api/health
+    port: http
+  initialDelaySeconds: 30
+  periodSeconds: 10
+  timeoutSeconds: 5
+  failureThreshold: 3
+
+readinessProbe:
+  enabled: true
+  httpGet:
+    path: /api/ready
+    port: http
+  initialDelaySeconds: 5
+  periodSeconds: 5
+  timeoutSeconds: 3
+  failureThreshold: 3
+
+startupProbe:
+  enabled: true
+  httpGet:
+    path: /api/health
+    port: http
+  initialDelaySeconds: 10
+  periodSeconds: 5
+  timeoutSeconds: 3
+  failureThreshold: 30
+
+# 自动扩缩容
+autoscaling:
+  enabled: true
+  minReplicas: 3
+  maxReplicas: 10
+  targetCPUUtilizationPercentage: 70
+  targetMemoryUtilizationPercentage: 80
+  
+  # 自定义指标
+  customMetrics: []
+    # - name: http_requests_per_second
+    #   type: Pods
+    #   target:
+    #     type: AverageValue
+    #     averageValue: 1000
+
+# Pod 反亲和性
+podAntiAffinity:
+  enabled: true
+  type: soft  # soft 或 hard
+
+# 节点选择器
+nodeSelector: {}
+  # node-role.kubernetes.io/worker: "true"
+
+# 容忍度
+tolerations: []
+  # - key: "dedicated"
+  #   operator: "Equal"
+  #   value: "openclaw"
+  #   effect: "NoSchedule"
+
+# 亲和性
+affinity: {}
+
+# 优先级类
+priorityClassName: ""
+
+# Pod 中断预算
+podDisruptionBudget:
+  enabled: true
+  minAvailable: 2
+  # maxUnavailable: 1
+
+# 环境变量
+env:
+  NODE_ENV: production
+  PORT: "3000"
+  LOG_LEVEL: info
+  ENABLE_ANALYTICS: "true"
+  ENABLE_SENTRY: "true"
+  ENABLE_METRICS: "true"
+
+# 秘密环境变量（从 Secret 引用）
+envFromSecret: {}
+  # DATABASE_URL:
+  #   secretKeyRef:
+  #     name: openclaw-secrets
+  #     key: database-url
+
+# ConfigMap 引用
+configMaps:
+  - name: openclaw-config
+
+# Secrets 引用
+secrets:
+  - name: openclaw-secrets
+
+# 持久化存储
+persistence:
+  enabled: true
+  data:
+    enabled: true
+    size: 10Gi
+    accessMode: ReadWriteOnce
+    storageClass: ""
+    mountPath: /app/data
+  uploads:
+    enabled: true
+    size: 50Gi
+    accessMode: ReadWriteMany
+    storageClass: ""
+    mountPath: /app/uploads
+
+# 日志配置
+logs:
+  enabled: true
+  mountPath: /app/logs
+  size: 1Gi
+
+# 额外卷
+extraVolumes: []
+  # - name: custom-config
+  #   configMap:
+  #     name: custom-config
+
+extraVolumeMounts: []
+  # - name: custom-config
+  #   mountPath: /etc/custom
+
+# 初始化容器
+initContainers: []
+  # - name: init-migrations
+  #   image: openclaw/migrations:v1.11.0
+  #   command: ["npm", "run", "migrate"]
+
+# 侧车容器
+sidecars: []
+
+# 网络策略
+networkPolicy:
+  enabled: true
+  ingress:
+    - from:
+        - namespaceSelector:
+            matchLabels:
+              name: ingress-nginx
+      ports:
+        - protocol: TCP
+          port: 3000
+  egress:
+    - to:
+        - podSelector:
+            matchLabels:
+              app: postgresql
+      ports:
+        - protocol: TCP
+          port: 5432
+    - to:
+        - podSelector:
+            matchLabels:
+              app: redis
+      ports:
+        - protocol: TCP
+          port: 6379
+
+# Prometheus 监控
+monitoring:
+  enabled: true
+  serviceMonitor:
+    enabled: true
+    interval: 30s
+    path: /api/metrics
+    labels:
+      release: prometheus
+
+# Grafana Dashboard
+grafana:
+  enabled: true
+  dashboards:
+    enabled: true
+    labels:
+      grafana-dashboard: "true"
+
+# PostgreSQL 配置（Bitnami Chart）
+postgresql:
+  enabled: true
+  auth:
+    postgresPassword: "CHANGE_ME"
+    username: openclaw
+    password: "CHANGE_ME"
+    database: openclaw
+  primary:
+    persistence:
+      enabled: true
+      size: 20Gi
+    resources:
+      requests:
+        cpu: 250m
+        memory: 256Mi
+      limits:
+        cpu: 1000m
+        memory: 1Gi
+
+# Redis 配置（Bitnami Chart）
+redis:
+  enabled: true
+  auth:
+    enabled: true
+    password: "CHANGE_ME"
+  master:
+    persistence:
+      enabled: true
+      size: 5Gi
+    resources:
+      requests:
+        cpu: 100m
+        memory: 128Mi
+      limits:
+        cpu: 500m
+        memory: 512Mi
+
+# Prometheus 配置
+prometheus:
+  enabled: true
+  prometheus:
+    prometheusSpec:
+      retention: 30d
+      storageSpec:
+        volumeClaimTemplate:
+          spec:
+            accessModes: ["ReadWriteOnce"]
+            resources:
+              requests:
+                storage: 50Gi
+
+# Grafana 配置
+grafana:
+  enabled: true
+  adminPassword: "CHANGE_ME"
+  persistence:
+    enabled: true
+    size: 10Gi
+  datasources:
+    datasources.yaml:
+      apiVersion: 1
+      datasources:
+        - name: Prometheus
+          type: prometheus
+          url: http://prometheus-server:80
+          access: proxy
+          isDefault: true
+
+# 测试
+tests:
+  enabled: true

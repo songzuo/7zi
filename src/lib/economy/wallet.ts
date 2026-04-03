@@ -140,8 +140,8 @@ class InMemoryTransactionRepository implements ITransactionRepository {
     const orderBy = options?.orderBy || 'createdAt'
     const direction = options?.orderDirection || 'desc'
     transactions.sort((a, b) => {
-      const aVal = a[orderBy]
-      const bVal = b[orderBy]
+      const aVal = a[orderBy] ?? 0
+      const bVal = b[orderBy] ?? 0
       return direction === 'asc' ? (aVal > bVal ? 1 : -1) : aVal < bVal ? 1 : -1
     })
 

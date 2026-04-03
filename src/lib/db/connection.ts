@@ -27,7 +27,8 @@ export interface DatabaseStatement {
 
 export interface DatabaseConnection {
   query: (sql: string, params?: unknown[]) => unknown
-  queryRows: (sql: string, params?: unknown[]) => Record<string, unknown>[]
+  queryRows: <T = Record<string, unknown>>(sql: string, params?: unknown[]) => T[]
+  get: <T = Record<string, unknown>>(sql: string, params?: unknown[]) => T | null
   exec: (sql: string, params?: unknown[]) => DatabaseResult
   prepare: (sql: string) => DatabaseStatement
   pragma: (name: string, options?: { simple: boolean }) => unknown
@@ -118,14 +119,32 @@ export function getDatabase(): DatabaseConnection {
       }
     },
 
-    queryRows: (sql: string, params?: unknown[]) => {
+    queryRows: <T = Record<string, unknown>>(sql: string, params?: unknown[]): T[] => {
       try {
         const stmt = db.prepare(sql)
         const result = params && params.length > 0 ? stmt.all(...params) : stmt.all()
-        return Array.isArray(result) ? (result as Record<string, unknown>[]) : []
+        return Array.isArray(result) ? (result as T[]) : []
       } catch (error) {
         const errorMessage = error instanceof Error ? error.message : String(error)
         logger.error('[Database QueryRows Error]', error, {
+          category: 'db',
+          sql,
+          params,
+          error: errorMessage,
+          timestamp: new Date().toISOString(),
+        })
+        throw error
+      }
+    },
+
+    get: <T = Record<string, unknown>>(sql: string, params?: unknown[]): T | null => {
+      try {
+        const stmt = db.prepare(sql)
+        const result = params && params.length > 0 ? stmt.get(...params) : stmt.get()
+        return result as T | null
+      } catch (error) {
+        const errorMessage = error instanceof Error ? error.message : String(error)
+        logger.error('[Database Get Error]', error, {
           category: 'db',
           sql,
           params,

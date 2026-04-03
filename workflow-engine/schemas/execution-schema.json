@@ -1,0 +1,123 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "Workflow Execution Schema",
+  "type": "object",
+  "required": ["id", "workflowId", "status", "startTime"],
+  "properties": {
+    "id": {
+      "type": "string",
+      "description": "执行实例 ID"
+    },
+    "workflowId": {
+      "type": "string",
+      "description": "工作流 ID"
+    },
+    "status": {
+      "type": "string",
+      "enum": ["pending", "running", "paused", "completed", "failed", "cancelled"],
+      "description": "执行状态"
+    },
+    "startTime": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "endTime": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "nodeExecutions": {
+      "type": "array",
+      "items": {
+        "$ref": "#/definitions/nodeExecution"
+      }
+    },
+    "variables": {
+      "type": "object",
+      "description": "运行时变量"
+    },
+    "checkpoints": {
+      "type": "array",
+      "items": {
+        "$ref": "#/definitions/checkpoint"
+      }
+    },
+    "error": {
+      "$ref": "#/definitions/error"
+    }
+  },
+  "definitions": {
+    "nodeExecution": {
+      "type": "object",
+      "required": ["nodeId", "status", "startTime"],
+      "properties": {
+        "nodeId": {
+          "type": "string"
+        },
+        "status": {
+          "type": "string",
+          "enum": ["pending", "running", "completed", "failed", "skipped"]
+        },
+        "startTime": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "endTime": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "input": {
+          "type": "object"
+        },
+        "output": {
+          "type": "object"
+        },
+        "retryCount": {
+          "type": "number",
+          "default": 0
+        },
+        "error": {
+          "$ref": "#/definitions/error"
+        }
+      }
+    },
+    "checkpoint": {
+      "type": "object",
+      "required": ["id", "timestamp", "nodeId"],
+      "properties": {
+        "id": {
+          "type": "string"
+        },
+        "timestamp": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "nodeId": {
+          "type": "string",
+          "description": "检查点节点 ID"
+        },
+        "state": {
+          "type": "object",
+          "description": "快照状态"
+        }
+      }
+    },
+    "error": {
+      "type": "object",
+      "properties": {
+        "code": {
+          "type": "string"
+        },
+        "message": {
+          "type": "string"
+        },
+        "stack": {
+          "type": "string"
+        },
+        "timestamp": {
+          "type": "string",
+          "format": "date-time"
+        }
+      }
+    }
+  }
+}

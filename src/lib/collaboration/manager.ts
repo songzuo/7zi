@@ -60,6 +60,10 @@ export interface Presence {
 /**
  * Transform two operations that were applied concurrently
  * This ensures that concurrent edits don't conflict
+ * 
+ * Returns transformed versions:
+ * - result.op2 = op2' = op2 transformed as if op1 was applied first
+ * - result.op1 = op1' = op1 transformed as if op2 was applied first
  */
 export function transform(op1: Operation, op2: Operation): { op1: Operation; op2: Operation } {
   // If both are retain operations, no transformation needed
@@ -67,19 +71,24 @@ export function transform(op1: Operation, op2: Operation): { op1: Operation; op2
     return { op1, op2 }
   }
 
-  // If op1 is retain, op2 can be transformed directly
+  // If op1 is retain, adjust op2 based on op1 (retain doesn't change document)
+  // But we need to consider what op2 would look like after retain is applied
   if (op1.type === 'retain') {
     return {
       op1,
-      op2: transformOpByRetain(op2, op1.position),
+      op2: transformByRetain(op2, op1),
     }
   }
 
-  // If op2 is retain, op1 can be transformed directly
+  // If op2 is retain, adjust op2 based on op1 being applied first
+  // op2' = op2 transformed by op1 (op2 adjusted to account for op1 being applied first)
   if (op2.type === 'retain') {
+    // When op1 (insert/delete) is applied first, op2 (retain) needs adjustment
+    // - If op1 is delete: retain position shifts left by delete length (if after delete)
+    // - If op1 is insert: retain position shifts right by insert length (if at/before insert)
     return {
-      op1: transformOpByRetain(op1, op2.position),
-      op2,
+      op1,
+      op2: transformRetainByOp(op2, op1),
     }
   }
 
@@ -88,64 +97,268 @@ export function transform(op1: Operation, op2: Operation): { op1: Operation; op2
 }
 
 /**
- * Transform an operation by a retain operation
+ * Transform a retain operation by another operation
+ * Retain at position P means "keep P characters" or "skip to position P"
  */
-function transformOpByRetain(op: Operation, retainPos: number): Operation {
-  const shift = op.type === 'insert' ? op.content?.length || 0 : -(op.length || 0)
-
+function transformByRetain(op: Operation, retain: Operation): Operation {
+  const retainPos = retain.position
+  
+  // For delete: if position >= retainPos, shift left by delete's own length
+  // (because retain will have "skipped" over the deleted area)
   if (op.type === 'delete') {
-    // For delete operations, shift applies if position >= retainPos
     if (op.position >= retainPos) {
       return {
         ...op,
-        position: op.position + shift,
+        position: op.position - (op.length || 0),
       }
     }
     return op
   }
-
-  // For insert operations, shift applies if position >= retainPos
-  if (op.position >= retainPos) {
-    return {
-      ...op,
-      position: op.position + shift,
+  
+  // For insert: if position >= retainPos, shift right by insert's own length
+  // (because retain position needs to account for the inserted content)
+  if (op.type === 'insert') {
+    if (op.position >= retainPos) {
+      return {
+        ...op,
+        position: op.position + (op.content?.length || 0),
+      }
     }
+    return op
   }
-
+  
   return op
 }
 
 /**
+ * Transform a retain operation by an insert/delete operation
+ * This calculates what retain becomes after the insert/delete is applied
+ */
+function transformRetainByOp(retain: Operation, op: Operation): Operation {
+  const retainPos = retain.position
+
+  if (op.type === 'delete') {
+    const delPos = op.position
+    const delLen = op.length || 0
+
+    // Debug logging
+    console.log('[transformRetainByOp] delete:', { retainPos, delPos, delLen })
+
+    // If retain is at or after the deleted region, shift left
+    if (retainPos >= delPos + delLen) {
+      const result = { ...retain, position: retainPos - delLen }
+      console.log('[transformRetainByOp] shifting left to:', result.position)
+      return result
+    }
+    // If retain is within the deleted region, clamp to delete start
+    if (retainPos > delPos) {
+      const result = { ...retain, position: delPos }
+      console.log('[transformRetainByOp] clamping to delete start:', result.position)
+      return result
+    }
+    // If retain is before delete, no change
+    console.log('[transformRetainByOp] no change')
+    return retain
+  }
+
+  if (op.type === 'insert') {
+    const insPos = op.position
+    const insLen = op.content?.length || 0
+
+    // If retain is at or after insert position, shift right
+    if (retainPos >= insPos) {
+      return { ...retain, position: retainPos + insLen }
+    }
+    // If retain is before insert, no change
+    return retain
+  }
+
+  return retain
+}
+
+/**
  * Transform two concurrent insert/delete operations
+ * Returns:
+ * - op2' = op2 transformed by op1 (what op2 becomes after op1 is applied)
+ * - op1' = op1 transformed by op2 (what op1 becomes after op2 is applied)
  */
 function transformConcurrentOps(
   op1: Operation,
   op2: Operation
 ): { op1: Operation; op2: Operation } {
-  // If positions are the same, use operation order (op1 first)
-  if (op1.position === op2.position) {
-    return { op1, op2 }
+  // Handle delete vs delete (most complex case)
+  if (op1.type === 'delete' && op2.type === 'delete') {
+    return transformDeleteDelete(op1, op2)
   }
+  
+  // Handle delete vs insert
+  if (op1.type === 'delete' && op2.type === 'insert') {
+    return transformDeleteInsert(op1, op2)
+  }
+  
+  // Handle insert vs delete
+  if (op1.type === 'insert' && op2.type === 'delete') {
+    return transformInsertDelete(op1, op2)
+  }
+  
+  // Handle insert vs insert
+  return transformInsertInsert(op1, op2)
+}
 
-  // If op1 comes before op2
-  if (op1.position < op2.position) {
-    const op2Shift = op1.type === 'insert' ? op1.content?.length || 0 : -(op1.length || 0)
+/**
+ * Transform two concurrent delete operations
+ * Returns:
+ * - op2' = op2 transformed by op1 (op2 adjusted to account for op1 being applied first)
+ * - op1' = op1 transformed by op2 (op1 adjusted to account for op2 being applied first)
+ */
+function transformDeleteDelete(
+  op1: Operation,
+  op2: Operation
+): { op1: Operation; op2: Operation } {
+  const start1 = op1.position
+  const len1 = op1.length || 0
+  const start2 = op2.position
+  const len2 = op2.length || 0
+  
+  // Same start position: op2' shifts left by op1's length
+  if (start1 === start2) {
     return {
       op1,
-      op2: {
-        ...op2,
-        position: op2.position + op2Shift,
-      },
+      op2: { ...op2, position: start2 - len1 },
     }
   }
-
-  // If op2 comes before op1
-  const op1Shift = op2.type === 'insert' ? op2.content?.length || 0 : -(op2.length || 0)
+  
+  // op1 before op2: op2' shifts left by op1's length
+  if (start1 < start2) {
+    return {
+      op1,
+      op2: { ...op2, position: start2 - len1 },
+    }
+  }
+  
+  // op2 before op1: op1' shifts left by op2's length
   return {
-    op1: {
-      ...op1,
-      position: op1.position + op1Shift,
-    },
+    op1: { ...op1, position: start1 - len2 },
+    op2,
+  }
+}
+
+/**
+ * Transform concurrent delete (op1) and insert (op2) operations
+ * Returns:
+ * - op2' = insert transformed by delete (insert adjusted to account for delete being applied first)
+ * - op1' = delete transformed by insert (delete adjusted to account for insert being applied first)
+ */
+function transformDeleteInsert(
+  delOp: Operation,
+  insOp: Operation
+): { op1: Operation; op2: Operation } {
+  const delPos = delOp.position
+  const delLen = delOp.length || 0
+  const insPos = insOp.position
+  const insLen = insOp.content?.length || 0
+  
+  // If insert is at or after delete end, insert position shifts left
+  if (insPos >= delPos + delLen) {
+    return {
+      op1: delOp,
+      op2: { ...insOp, position: insPos - delLen },
+    }
+  }
+  
+  // If insert is before delete position, delete position shifts right
+  if (insPos <= delPos) {
+    return {
+      op1: { ...delOp, position: delPos + insLen },
+      op2: insOp,
+    }
+  }
+  
+  // Insert is within the deleted range
+  // After delete is applied, insert position shifts to delete start
+  return {
+    op1: delOp,
+    op2: { ...insOp, position: delPos },
+  }
+}
+
+/**
+ * Transform concurrent insert (op1) and delete (op2) operations
+ * Returns:
+ * - op2' = delete transformed by insert (delete adjusted to account for insert being applied first)
+ * - op1' = insert transformed by delete (insert adjusted to account for delete being applied first)
+ */
+function transformInsertDelete(
+  insOp: Operation,
+  delOp: Operation
+): { op1: Operation; op2: Operation } {
+  const insPos = insOp.position
+  const insLen = insOp.content?.length || 0
+  const delPos = delOp.position
+  const delLen = delOp.length || 0
+  
+  // If delete is at or after insert end, delete position shifts right
+  if (delPos >= insPos + insLen) {
+    return {
+      op1: insOp,
+      op2: { ...delOp, position: delPos + insLen },
+    }
+  }
+  
+  // If delete is before insert position, insert position shifts left
+  if (delPos + delLen <= insPos) {
+    return {
+      op1: { ...insOp, position: insPos - delLen },
+      op2: delOp,
+    }
+  }
+  
+  // Overlap case: delete at insert position
+  // Delete position shifts right by insert length
+  return {
+    op1: insOp,
+    op2: { ...delOp, position: delPos + insLen },
+  }
+}
+
+/**
+ * Transform two concurrent insert operations
+ * Returns:
+ * - op2' = insert2 transformed by insert1 (insert2 adjusted to account for insert1 being applied first)
+ * - op1' = insert1 transformed by insert2 (insert1 adjusted to account for insert2 being applied first)
+ */
+function transformInsertInsert(
+  op1: Operation,
+  op2: Operation
+): { op1: Operation; op2: Operation } {
+  const pos1 = op1.position
+  const pos2 = op2.position
+  const len1 = op1.content?.length || 0
+  const len2 = op2.content?.length || 0
+  
+  // If same position: op1 wins (goes first), op2 shifts right by op1's length
+  if (pos1 === pos2) {
+    return {
+      op1,
+      op2: { ...op2, position: pos2 + len1 },
+    }
+  }
+  
+  // If op1 is before op2: 
+  // - op2 (after op1) shifts right by op1's length
+  // - op1 (after op2) stays the same because op2 is after it
+  if (pos1 < pos2) {
+    return {
+      op1,
+      op2: { ...op2, position: pos2 + len1 },
+    }
+  }
+  
+  // If op2 is before op1:
+  // - op1 (after op2) shifts right by op2's length
+  // - op2 (after op1) stays the same because op1 is after it
+  return {
+    op1: { ...op1, position: pos1 + len2 },
     op2,
   }
 }
@@ -193,7 +406,7 @@ export function applyOperationToContent(content: string, operation: Operation): 
       return content
 
     case 'delete':
-      if (operation.length !== undefined) {
+      if (operation.length !== undefined && operation.length > 0) {
         return (
           content.slice(0, operation.position) +
           content.slice(operation.position + operation.length)

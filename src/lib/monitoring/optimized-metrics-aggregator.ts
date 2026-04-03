@@ -6,9 +6,11 @@
  * - Incremental update algorithm
  * - Data sampling strategy
  * - LRU cache for aggregated results
+ * - QuickSelect for percentile calculation (v2.1.0)
+ * - Optimized variance calculation with single-pass (v2.1.0)
  *
  * @module lib/monitoring/optimized-metrics-aggregator
- * @version 2.0.0
+ * @version 2.1.0
  */
 
 import { LRUCache } from '@/lib/cache/lru-cache'
@@ -79,6 +81,9 @@ interface IncrementalAccumulator {
   firstTimestamp: number | null
   lastTimestamp: number
   values: number[] // For percentile calculation
+  // Incremental variance tracking (Welford's algorithm)
+  mean: number
+  m2: number // Sum of squared differences from mean
 }
 
 function createAccumulator(): IncrementalAccumulator {
@@ -92,6 +97,8 @@ function createAccumulator(): IncrementalAccumulator {
     firstTimestamp: null,
     lastTimestamp: 0,
     values: [],
+    mean: 0,
+    m2: 0,
   }
 }
 
@@ -112,6 +119,12 @@ function updateAccumulator(acc: IncrementalAccumulator, metric: AggregatorMetric
     acc.last = metric.value
   }
 
+  // Incremental variance tracking using Welford's algorithm
+  const delta = metric.value - acc.mean
+  acc.mean += delta / acc.count
+  const delta2 = metric.value - acc.mean
+  acc.m2 += delta * delta2
+
   // Store values for percentile calculation (with sampling)
   if (acc.values.length < 10000) {
     acc.values.push(metric.value)
@@ -129,8 +142,8 @@ function accumulatorToMetrics(acc: IncrementalAccumulator): AggregatedMetrics {
   const change = acc.last - first
   const changePercent = first !== 0 ? (change / first) * 100 : acc.last !== 0 ? 100 : 0
 
-  // Calculate percentiles
-  const percentiles = calculatePercentiles(acc.values)
+  // Calculate percentiles using QuickSelect (O(n) average)
+  const percentiles = calculatePercentilesOptimized(acc.values)
 
   return {
     count: acc.count,
@@ -148,24 +161,75 @@ function accumulatorToMetrics(acc: IncrementalAccumulator): AggregatedMetrics {
   }
 }
 
-function calculatePercentiles(values: number[]): { p50?: number; p90?: number; p95?: number; p99?: number } {
+/**
+ * QuickSelect algorithm for finding k-th smallest element
+ * Average O(n) time complexity vs O(n log n) for full sort
+ */
+function quickSelect(arr: number[], k: number): number {
+  if (arr.length === 1) return arr[0]
+
+  const pivot = arr[Math.floor(arr.length / 2)]
+  const lows = arr.filter(x => x < pivot)
+  const highs = arr.filter(x => x > pivot)
+  const pivots = arr.filter(x => x === pivot)
+
+  if (k < lows.length) {
+    return quickSelect(lows, k)
+  } else if (k < lows.length + pivots.length) {
+    return pivot
+  } else {
+    return quickSelect(highs, k - lows.length - pivots.length)
+  }
+}
+
+/**
+ * Optimized percentile calculation using QuickSelect
+ * Avoids full array sort for better performance on large arrays
+ */
+function calculatePercentilesOptimized(values: number[]): { p50?: number; p90?: number; p95?: number; p99?: number } {
   if (values.length === 0) {
     return {}
   }
 
-  const sorted = [...values].sort((a, b) => a - b)
-
-  const getPercentile = (p: number): number => {
-    const index = Math.ceil((p / 100) * sorted.length) - 1
-    return sorted[Math.max(0, index)]
+  // For small arrays, sorting is actually faster
+  if (values.length < 100) {
+    const sorted = [...values].sort((a, b) => a - b)
+    const getPercentile = (p: number): number => {
+      const index = Math.ceil((p / 100) * sorted.length) - 1
+      return sorted[Math.max(0, index)]
+    }
+    return {
+      p50: getPercentile(50),
+      p90: getPercentile(90),
+      p95: getPercentile(95),
+      p99: getPercentile(99),
+    }
   }
 
+  // Use QuickSelect for larger arrays
+  const getPercentileIndex = (p: number): number => {
+    return Math.ceil((p / 100) * values.length) - 1
+  }
+
+  // Calculate all required percentiles
+  const p50Index = getPercentileIndex(50)
+  const p90Index = getPercentileIndex(90)
+  const p95Index = getPercentileIndex(95)
+  const p99Index = getPercentileIndex(99)
+
+  // For multiple percentiles, we can optimize by sorting once if they're close
+  // But QuickSelect is still O(n) on average per call
   return {
-    p50: getPercentile(50),
-    p90: getPercentile(90),
-    p95: getPercentile(95),
-    p99: getPercentile(99),
+    p50: quickSelect([...values], Math.max(0, p50Index)),
+    p90: quickSelect([...values], Math.max(0, p90Index)),
+    p95: quickSelect([...values], Math.max(0, p95Index)),
+    p99: quickSelect([...values], Math.max(0, p99Index)),
   }
+}
+
+// Keep original function for backward compatibility
+function calculatePercentiles(values: number[]): { p50?: number; p90?: number; p95?: number; p99?: number } {
+  return calculatePercentilesOptimized(values)
 }
 
 // ============================================
@@ -210,37 +274,58 @@ function timeBasedSample(metrics: AggregatorMetric[], maxSamples: number): Aggre
   return sampled
 }
 
+/**
+ * Adaptive sample using single-pass variance calculation
+ * Optimized to avoid multiple array traversals
+ */
 function adaptiveSample(metrics: AggregatorMetric[], maxSamples: number): AggregatorMetric[] {
   // Sort by timestamp
   const sorted = [...metrics].sort((a, b) => a.timestamp - b.timestamp)
 
-  // Calculate value variance to determine sampling density
-  const values = sorted.map(m => m.value)
-  const mean = values.reduce((a, b) => a + b, 0) / values.length
-  const variance = values.reduce((sum, v) => sum + Math.pow(v - mean, 2), 0) / values.length
+  // Single-pass mean and variance calculation (Welford's algorithm)
+  let mean = 0
+  let m2 = 0
+  let count = 0
+
+  for (const m of sorted) {
+    count++
+    const delta = m.value - mean
+    mean += delta / count
+    const delta2 = m.value - mean
+    m2 += delta * delta2
+  }
+
+  const variance = count > 1 ? m2 / count : 0
   const stdDev = Math.sqrt(variance)
 
   // Higher variance = more samples from outliers
   const sampled: AggregatorMetric[] = []
   const outlierThreshold = mean + 2 * stdDev
-  const outlierCount = values.filter(v => v > outlierThreshold).length
+
+  // Count outliers in single pass
+  let outlierCount = 0
+  for (const m of sorted) {
+    if (m.value > outlierThreshold) outlierCount++
+  }
 
   // Reserve slots for outliers
   const outlierSlots = Math.min(outlierCount, Math.floor(maxSamples * 0.3))
   const regularSlots = maxSamples - outlierSlots
 
   // Sample outliers
-  const outliers = sorted.filter(m => m.value > outlierThreshold)
-  for (let i = 0; i < outlierSlots && i < outliers.length; i++) {
-    sampled.push(outliers[i])
+  let outlierAdded = 0
+  for (const m of sorted) {
+    if (m.value > outlierThreshold && outlierAdded < outlierSlots) {
+      sampled.push(m)
+      outlierAdded++
+    }
   }
 
   // Sample regular data
   const regular = sorted.filter(m => m.value <= outlierThreshold)
   const step = Math.floor(regular.length / regularSlots)
-  for (let i = 0; i < regular.length; i += step) {
+  for (let i = 0; i < regular.length && sampled.length < maxSamples; i += step) {
     sampled.push(regular[i])
-    if (sampled.length >= maxSamples) break
   }
 
   return sampled

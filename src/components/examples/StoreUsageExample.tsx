@@ -66,7 +66,7 @@ export function StoreUsageExample() {
 
           <select
             value={language}
-            onChange={e => setLanguage(e.target.value as string)}
+            onChange={e => setLanguage(e.target.value as 'zh' | 'en' | 'ja' | 'ko' | 'fr' | 'de')}
             className="rounded border px-4 py-2"
           >
             <option value="zh">中文</option>

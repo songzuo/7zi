@@ -38,6 +38,7 @@ export function setupMockDatabase() {
   mockDb = {
     query: vi.fn(),
     queryRows: vi.fn().mockReturnValue([]),
+    get: vi.fn().mockReturnValue(null),
     exec: vi.fn().mockImplementation((sql: string, _params?: unknown[]) => {
       // Handle multi-statement SQL (like schema initialization)
       // Split by semicolons but ignore semicolons in string literals or comments

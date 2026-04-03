@@ -27,12 +27,59 @@ export { SettingsButton } from './SettingsButton'
 // AI & Chat
 export { default as AIChatComponent } from './AIChat'
 
+// AI Report Generator (v1.10.0)
+export { 
+  AIReportGenerator, 
+  AIRaportSimple,
+  parseQuery,
+  useQueryParser,
+  generateSuggestions,
+  generateSQL,
+  useSQLGenerator,
+  validateSQL,
+  formatSQL,
+  ChartRenderer,
+  recommendChartType,
+  generateChartConfig,
+  ReportExporter,
+  ExportPanel,
+  useReportExport,
+  useQueryState,
+  useReportConfig,
+  useDataFetch,
+  useChartConfig,
+} from './ai-report'
+export type {
+  QueryIntent,
+  ChartType,
+  ExportFormat,
+  QueryStatus,
+  TimeRange,
+  DataField,
+  ParsedQuery,
+  QueryFilter,
+  Aggregation,
+  GeneratedSQL,
+  ChartConfig,
+  ChartSeries,
+  QueryResult,
+  ReportConfig,
+  ReportTemplate,
+  ExportOptions,
+  AIReportGeneratorProps,
+  QueryInputProps,
+  ChartRendererProps,
+  ExportPanelProps,
+  HistoryItem,
+  APIResponse,
+} from './ai-report'
+
 // Data Display
 export { GitHubActivity } from './GitHubActivity'
 export { ProjectDashboard } from './ProjectDashboard'
 
 // UI Components
-export { Hero3D } from './Hero3D'
+// Note: Hero3D has been removed - unused component
 
 // New UI Components (Note: Modal, Tabs, Toast, ErrorBoundary, FilterDropdown, SearchInput have been removed)
 export {

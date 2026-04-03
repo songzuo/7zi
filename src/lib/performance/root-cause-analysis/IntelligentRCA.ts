@@ -16,7 +16,7 @@ import {
   SeverityLevel,
   AnalysisReport,
   CorrelationEngine,
-  Correlation,
+  Correlation as CorrelationType,
   CorrelationConfig,
   DEFAULT_CORRELATION_CONFIG,
   CausalityAnalyzer,
@@ -339,9 +339,9 @@ export class IntelligentRCA {
   constructor(config?: Partial<RCAConfig>) {
     this.config = { ...DEFAULT_RCA_CONFIG, ...config }
     this.knowledgeBase = new FaultKnowledgeBase()
-    this.correlationEngine = new CorrelationEngine(this.config.correlation)
-    this.causalityAnalyzer = new CausalityAnalyzer(this.config.causality)
-    this.callChainTracer = new CallChainTracer(this.config.callChain)
+    this.correlationEngine = new CorrelationEngine()
+    this.causalityAnalyzer = new CausalityAnalyzer()
+    this.callChainTracer = new CallChainTracer()
   }
 
   /**
@@ -699,7 +699,7 @@ export class IntelligentRCA {
     this.causalityAnalyzer.addDataPoints(timeSeriesPoints)
     
     // Analyze causal chains
-    const chains: CausalityChain[] = []
+    const chains: CausalChain[] = []
     const availableMetrics = this.causalityAnalyzer.getAvailableMetrics()
     for (const metric of availableMetrics.slice(0, 3)) {
       const metricTimeSeries = this.causalityAnalyzer.getTimeSeries(metric)
@@ -989,23 +989,4 @@ const DEFAULT_RCA_CONFIG: RCAConfig = {
  */
 export function createIntelligentRCA(config?: Partial<RCAConfig>): IntelligentRCA {
   return new IntelligentRCA(config)
-}
-
-// ============================================================================
-// Export all types
-// ============================================================================
-
-export type {
-  RCAConfig,
-  Incident,
-  Symptom,
-  Metric,
-  RootCauseReport,
-  PropagationChain,
-  PropagationNode,
-  PropagationEdge,
-  Correlation,
-  Recommendation,
-  KnownIssue,
-  Resolution
 }
