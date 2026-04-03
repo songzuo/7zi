@@ -78,7 +78,7 @@ interface WorkflowEditorProps {
   initialNodes?: Node<WorkflowNodeData>[]
   initialEdges?: Edge<WorkflowEdgeData>[]
   onSave?: (workflow: WorkflowDefinition) => void
-  onExport?: (exportData: any) => void
+  onExport?: (exportData: WorkflowDefinition) => void
   onImport?: (workflow: WorkflowDefinition) => void
   readOnly?: boolean
 }
@@ -105,6 +105,9 @@ function WorkflowEditorInner({
   const [edges, setEdges] = useState<Edge<WorkflowEdgeData>[]>(initialEdges)
   const [selectedNode, setSelectedNode] = useState<Node<WorkflowNodeData> | null>(null)
   const [selectedEdge, setSelectedEdge] = useState<Edge<WorkflowEdgeData> | null>(null)
+  
+  // 剪贴板状态（用于复制/粘贴）
+  const [clipboard, setClipboard] = useState<Node<WorkflowNodeData> | null>(null)
 
   // 验证 hook
   const { validationErrors, validateWorkflow } = useWorkflowValidation({ nodes, edges })
@@ -172,6 +175,53 @@ function WorkflowEditorInner({
     },
     [readOnly]
   )
+
+  // 复制节点
+  const handleCopyNode = useCallback(() => {
+    if (selectedNode) {
+      setClipboard(selectedNode)
+    }
+  }, [selectedNode])
+
+  // 粘贴节点
+  const handlePasteNode = useCallback(() => {
+    if (!clipboard || readOnly) return
+
+    const newNode: Node<WorkflowNodeData> = {
+      ...clipboard,
+      id: `${clipboard.type}-${Date.now()}`,
+      position: {
+        x: clipboard.position.x + 50,
+        y: clipboard.position.y + 50,
+      },
+      data: {
+        ...clipboard.data,
+        id: `${clipboard.type}-${Date.now()}`,
+      },
+    }
+
+    setNodes(nds => nds.concat(newNode))
+  }, [clipboard, readOnly])
+
+  // 复制选中的节点
+  const handleDuplicateNode = useCallback(() => {
+    if (!selectedNode || readOnly) return
+
+    const newNode: Node<WorkflowNodeData> = {
+      ...selectedNode,
+      id: `${selectedNode.type}-${Date.now()}`,
+      position: {
+        x: selectedNode.position.x + 50,
+        y: selectedNode.position.y + 50,
+      },
+      data: {
+        ...selectedNode.data,
+        id: `${selectedNode.type}-${Date.now()}`,
+      },
+    }
+
+    setNodes(nds => nds.concat(newNode))
+  }, [selectedNode, readOnly])
 
   // 处理画布点击（取消选择）
   const onPaneClick = useCallback(() => {
@@ -306,13 +356,39 @@ function WorkflowEditorInner({
         return
       }
 
-      // Delete / Backspace - 删除选中节点
-      if ((event.key === 'Delete' || event.key === 'Backspace') && selectedNode) {
-        setNodes(nds => nds.filter(n => n.id !== selectedNode.id))
-        setEdges(eds =>
-          eds.filter(e => e.source !== selectedNode.id && e.target !== selectedNode.id)
-        )
-        setSelectedNode(null)
+      // Delete / Backspace - 删除选中节点或边
+      if ((event.key === 'Delete' || event.key === 'Backspace') && (selectedNode || selectedEdge)) {
+        if (selectedNode) {
+          setNodes(nds => nds.filter(n => n.id !== selectedNode.id))
+          setEdges(eds =>
+            eds.filter(e => e.source !== selectedNode.id && e.target !== selectedNode.id)
+          )
+          setSelectedNode(null)
+        } else if (selectedEdge) {
+          setEdges(eds => eds.filter(e => e.id !== selectedEdge.id))
+          setSelectedEdge(null)
+        }
+        return
+      }
+
+      // Ctrl+C - 复制
+      if ((event.ctrlKey || event.metaKey) && event.key === 'c') {
+        if (selectedNode) {
+          handleCopyNode()
+        }
+        return
+      }
+
+      // Ctrl+V - 粘贴
+      if ((event.ctrlKey || event.metaKey) && event.key === 'v') {
+        handlePasteNode()
+        return
+      }
+
+      // Ctrl+D - 复制节点
+      if ((event.ctrlKey || event.metaKey) && event.key === 'd') {
+        event.preventDefault()
+        handleDuplicateNode()
         return
       }
 
@@ -361,7 +437,7 @@ function WorkflowEditorInner({
 
     window.addEventListener('keydown', handleKeyDown)
     return () => window.removeEventListener('keydown', handleKeyDown)
-  }, [readOnly, selectedNode, canUndo, canRedo, undo, redo, handleSave, handleRun, zoomIn, zoomOut, fitView])
+  }, [readOnly, selectedNode, selectedEdge, canUndo, canRedo, undo, redo, handleSave, handleRun, zoomIn, zoomOut, fitView, handleCopyNode, handlePasteNode, handleDuplicateNode])
 
   // 节点颜色映射（用于 MiniMap）
   const nodeColor = useCallback((node: Node) => {
@@ -484,19 +560,43 @@ function WorkflowEditorInner({
         </div>
 
         {/* 右侧属性面板 */}
-        {selectedNode && !readOnly && (
+        {(selectedNode || selectedEdge) && !readOnly && (
           <div className="w-80 border-l border-gray-200 bg-white dark:border-gray-700 dark:bg-gray-800">
             <PropertiesPanel
               node={selectedNode}
+              edge={selectedEdge}
               onChange={data => {
-                setNodes(nds =>
-                  nds.map(n =>
-                    n.id === selectedNode.id
-                      ? { ...n, data: { ...n.data, ...data } as WorkflowNodeData }
-                      : n
+                if (selectedNode) {
+                  setNodes(nds =>
+                    nds.map(n =>
+                      n.id === selectedNode.id
+                        ? { ...n, data: { ...n.data, ...data } as WorkflowNodeData }
+                        : n
+                    )
                   )
-                )
+                }
               }}
+              onEdgeChange={data => {
+                if (selectedEdge) {
+                  setEdges(eds =>
+                    eds.map(e =>
+                      e.id === selectedEdge.id
+                        ? { ...e, data: { ...e.data, ...data } as WorkflowEdgeData }
+                        : e
+                    )
+                  )
+                }
+              }}
+              onDeleteNode={() => {
+                if (selectedNode && selectedNode.data.type !== 'start') {
+                  setNodes(nds => nds.filter(n => n.id !== selectedNode.id))
+                  setSelectedNode(null)
+                }
+              }}
+              onDuplicateNode={() => {
+                handleDuplicateNode()
+              }}
+              validationErrors={validationErrors}
             />
           </div>
         )}
