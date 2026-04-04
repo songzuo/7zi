@@ -289,7 +289,7 @@ export class CacheMonitor {
     healthStatus: Record<CacheLevel, CacheHealthStatus>
   } {
     const levels: CacheLevel[] = ['L1', 'L2', 'L3']
-    const healthStatus: Record<CacheLevel, CacheHealthStatus> = {} as any
+    const healthStatus: Partial<Record<CacheLevel, CacheHealthStatus>> = {}
     
     for (const level of levels) {
       const stats = this.getAggregatedStats(level)
@@ -314,7 +314,7 @@ export class CacheMonitor {
       levels,
       totalAlerts: this.alerts.length,
       activeAlerts: this.getActiveAlerts().length,
-      healthStatus,
+      healthStatus: healthStatus as Record<CacheLevel, CacheHealthStatus>,
     }
   }
   

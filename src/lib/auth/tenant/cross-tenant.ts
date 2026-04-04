@@ -569,7 +569,7 @@ export class CrossTenantAccessControl {
         role: row.role as TenantMemberRole,
         invitedBy: row.invited_by,
         token: row.token,
-        status: row.status as any,
+        status: row.status as 'pending' | 'accepted' | 'expired' | 'cancelled',
         expiresAt: new Date(row.expires_at),
         createdAt: new Date(row.created_at),
         acceptedAt: row.accepted_at ? new Date(row.accepted_at) : undefined,

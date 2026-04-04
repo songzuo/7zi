@@ -24,21 +24,39 @@ export class DeadLetterQueue extends Queue {
    * 添加死信消息
    */
   public async addDeadLetter(
-    message: Message,
+    message: IMessage,
     originalQueue: string,
     reason: string
   ): Promise<void> {
+    // 创建 Message 实例
+    const messageInstance = new Message(message.data, {
+      priority: message.priority,
+      delay: message.delay,
+      ttl: message.expiresAt ? message.expiresAt - Date.now() : undefined,
+      maxRetries: message.maxRetries,
+      metadata: message.metadata
+    });
+    
+    // 复制消息属性
+    messageInstance.id = message.id;
+    messageInstance.queueName = message.queueName;
+    messageInstance.status = message.status;
+    messageInstance.createdAt = message.createdAt;
+    messageInstance.retryCount = message.retryCount;
+    messageInstance.consumerId = message.consumerId;
+    messageInstance.processingStartedAt = message.processingStartedAt;
+    
     // 标记为死信
-    message.markDeadLetter();
+    messageInstance.markDeadLetter();
     
     // 添加到队列
-    this.messages.set(message.id, message);
-    this.messageOrder.push(message.id);
+    this.messages.set(messageInstance.id, messageInstance);
+    this.messageOrder.push(messageInstance.id);
     
     // 记录元数据
-    this.originalQueues.set(message.id, originalQueue);
-    this.failureReasons.set(message.id, reason);
-    this.failureTimes.set(message.id, Date.now());
+    this.originalQueues.set(messageInstance.id, originalQueue);
+    this.failureReasons.set(messageInstance.id, reason);
+    this.failureTimes.set(messageInstance.id, Date.now());
     
     // 更新统计
     this.stats.deadLetterMessages++;

@@ -9,6 +9,74 @@
 
 ## [Unreleased]
 
+### 🤖 Workspace 自动化工作流系统 / Workspace Automation Engine
+
+- 新增 `src/lib/automation/` 模块 - 自动化规则引擎
+- 支持 4 种触发器类型：事件、定时调度、条件、手动触发
+- 支持 5 种动作类型：执行工作流、发送通知、调用 API、数据转换、自定义动作
+- 完整的规则验证系统（cron 表达式、URL、条件表达式）
+- IndexedDB 持久化存储（规则和执行历史）
+- 提供 8 个默认规则模板
+- React Hooks 集成（规则管理、执行、统计）
+- 完整的 TypeScript 类型定义
+- 完整的 API 文档和使用示例
+
+## [1.12.2] - 2026-04-04 🤖 Workspace Automation & Type Safety
+
+### 🎯 版本主题
+
+**自动化工作流系统** · **类型安全提升** · **错误处理统一** · **测试框架统一**
+
+### ✨ 新增功能 / Added
+
+#### 🤖 Workspace 自动化工作流系统
+
+**核心组件** (`src/lib/automation/`):
+- `automation-engine.ts` - 规则引擎核心 (30KB, 850+ 行)
+  - `AutomationEngine` - 规则管理、触发器设置、动作执行
+  - `RuleValidator` - 规则验证（cron、URL、条件表达式）
+  - 完整的类型定义：`AutomationRule`, `TriggerConfig`, `ActionConfig`
+- `default-templates.ts` - 默认规则模板 (11KB, 8 个模板)
+- `automation-hooks.ts` - React Hooks (8KB)
+  - `useAutomationRules` - 规则列表管理
+  - `useAutomationRule` - 单个规则管理
+  - `useRuleExecution` - 规则执行
+  - `useRuleTemplates` - 模板管理
+  - `useGlobalStats` - 全局统计
+- `automation-storage.ts` - IndexedDB 存储 (8KB)
+  - `AutomationDB` - 数据库封装
+  - `AutomationStorageAdapter` - 存储适配器
+- `README.md` - 完整文档 (9KB, API 文档 + 使用示例)
+- `__tests__/automation-engine.test.ts` - 单元测试 (8KB)
+
+**功能特性**:
+- 触发器类型：
+  - `event` - 事件触发器（支持过滤器）
+  - `schedule` - 定时调度（interval、cron、once）
+  - `condition` - 条件满足触发器
+  - `manual` - 手动触发器
+- 动作类型：
+  - `execute_workflow` - 执行工作流
+  - `send_notification` - 发送通知
+  - `call_api` - 调用 API
+  - `transform_data` - 数据转换
+  - `custom` - 自定义动作
+- 规则限制：最大执行次数、执行窗口、冷却时间
+- 执行追踪：成功/失败统计、执行历史
+- 安全特性：表达式验证、危险关键字过滤
+
+**默认规则模板** (8 个):
+| 模板 | 触发类型 | 用途 |
+|------|----------|------|
+| 文件清理自动化 | 定时 (每天 2:00) | 清理临时文件和缓存 |
+| 工作流失败告警 | 事件 | 失败时发送告警 |
+| 工作流完成通知 | 事件 | 完成后发送通知 |
+| 系统健康检查 | 定时 (每 5 分钟) | 健康状态检查 |
+| 数据备份自动化 | 定时 (每天 3:00) | 自动备份 |
+| 文件变更通知 | 事件 | 重要文件变更通知 |
+| 自动数据同步 | 定时 (每 6 小时) | 同步外部数据 |
+| 用户操作审计 | 事件 | 记录用户操作 |
+
 ### 🎯 错误处理系统统一 / Error Handling System Unification
 
 - 重构 `src/lib/errors.ts` 为统一错误处理入口

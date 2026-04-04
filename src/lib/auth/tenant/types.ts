@@ -9,7 +9,8 @@ import type { TenantContext, TenantMemberRole, TenantPlan, TenantStatus } from '
 /**
  * 扩展的用户上下文（包含租户信息）
  */
-export interface TenantUserContext extends UserContext {
+export interface TenantUserContext extends Omit<UserContext, 'role'> {
+  role: TenantMemberRole
   tenantId: string
   tenantSlug: string
   tenantPlan: TenantPlan
@@ -22,13 +23,19 @@ export interface TenantUserContext extends UserContext {
 /**
  * JWT Token Payload（扩展支持租户）
  */
-export interface TenantJwtPayload extends Omit<UserContext, 'role' | 'roles' | 'permissions'> {
+export interface TenantJwtPayload {
+  userId: string
+  email: string
+  role: TenantMemberRole
   tenantId: string
   tenantSlug: string
   tenantPlan: TenantPlan
+  tenantStatus: TenantStatus
   tenantRole: TenantMemberRole
   roles?: string[]
   permissions?: string[]
+  customPermissions?: string[]
+  requestId?: string
 }
 
 /**

@@ -531,7 +531,7 @@ export class DataImportService {
       successRows: task.successRows,
       failedRows: task.failedRows,
       skippedRows: task.skippedRows,
-      stage: stage as any,
+      stage: stage as ImportProgress['stage'],
       updatedAt: task.updatedAt,
     }
 

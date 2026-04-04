@@ -116,6 +116,8 @@ export interface StrategyConfig {
   defaultTTL: number
   /** Enable statistics */
   enableStats: boolean
+  /** Cleanup interval in ms (for TTL strategies) */
+  cleanupInterval?: number
 }
 
 /**

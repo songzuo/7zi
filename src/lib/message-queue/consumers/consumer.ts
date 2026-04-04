@@ -209,8 +209,24 @@ export class Consumer {
       
     } else {
       // 添加到死信队列
+      const messageData = {
+        id: message.id,
+        queueName: message.queueName,
+        data: message.data,
+        status: message.status,
+        priority: message.priority,
+        delay: message.delay,
+        createdAt: message.createdAt,
+        expiresAt: message.expiresAt,
+        retryCount: message.retryCount,
+        maxRetries: message.maxRetries,
+        consumerId: message.consumerId,
+        processingStartedAt: message.processingStartedAt,
+        metadata: message.metadata
+      };
+      
       await this.deadLetterQueue.addDeadLetter(
-        message as any,
+        messageData,
         this.queue.name,
         reason
       );
