@@ -59,3 +59,24 @@ export {
   type RoomWebSocketEvent,
   type RoomWebSocketEventData,
 } from './useRoomWebSocket'
+
+export {
+  useWebhooks,
+  useWebhookSubscription,
+  useWebhookLogs,
+  useWebhookEventTypes,
+  useWebhookTest,
+} from './useWebhooks'
+
+export {
+  useKeyboardShortcuts,
+  useKeyboardShortcut,
+  useRegisteredShortcuts,
+} from './useKeyboardShortcuts'
+
+export {
+  useKeyboardShortcutsEnhanced,
+  useKeyboardShortcutEnhanced,
+  useRegisteredShortcutsEnhanced,
+  useCustomBindings,
+} from './useKeyboardShortcutsEnhanced'
