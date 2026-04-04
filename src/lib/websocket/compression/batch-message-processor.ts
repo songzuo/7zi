@@ -125,9 +125,9 @@ export class BatchMessageProcessor extends EventEmitter {
   /**
    * Add message to batch queue
    */
-  public add(
+  public add<T = unknown>(
     event: string,
-    data: any,
+    data: T,
     priority: MessagePriority = MessagePriority.NORMAL,
     target?: string | string[]
   ): string {
@@ -229,9 +229,9 @@ export class BatchMessageProcessor extends EventEmitter {
    * Process a batch of messages
    * Returns the messages ready for transmission
    */
-  public createBatch(messages: QueuedMessage[]): {
+  public createBatch<T = unknown>(messages: QueuedMessage<T>[]): {
     batchId: string
-    events: Array<{ event: string; data: any; target?: string | string[] }>
+    events: Array<{ event: string; data: T; target?: string | string[] }>
     totalSize: number
   } {
     const batchId = `batch_${Date.now()}_${++this.batchCounter}`
@@ -373,7 +373,7 @@ export class BatchMessageProcessor extends EventEmitter {
     return result
   }
 
-  private calculateSize(data: any): number {
+  private calculateSize(data: unknown): number {
     try {
       if (Buffer.isBuffer(data)) {
         return data.length
@@ -409,9 +409,9 @@ export function resetBatchProcessor(): void {
 /**
  * Create a batched message payload
  */
-export function createBatchPayload(events: Array<{ event: string; data: any }>): {
+export function createBatchPayload<T = unknown>(events: Array<{ event: string; data: T }>): {
   type: 'batch'
-  events: Array<{ event: string; data: any }>
+  events: Array<{ event: string; data: T }>
   count: number
 } {
   return {
@@ -424,10 +424,10 @@ export function createBatchPayload(events: Array<{ event: string; data: any }>):
 /**
  * Parse batched message payload
  */
-export function parseBatchPayload(payload: any): Array<{ event: string; data: any }> | null {
-  if (!payload || payload.type !== 'batch' || !Array.isArray(payload.events)) {
+export function parseBatchPayload<T = unknown>(payload: unknown): Array<{ event: string; data: T }> | null {
+  if (!payload || typeof payload !== 'object' || (payload as Record<string, unknown>).type !== 'batch' || !Array.isArray((payload as Record<string, unknown>).events)) {
     return null
   }
   
-  return payload.events
+  return (payload as { events: Array<{ event: string; data: T }> }).events
 }
