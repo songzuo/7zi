@@ -288,7 +288,14 @@ export class ExportQueue {
     paused: number
   }> {
     const counts = await this.queue.getJobCounts()
-    return counts as any
+    return {
+      waiting: counts.waiting || 0,
+      active: counts.active || 0,
+      completed: counts.completed || 0,
+      failed: counts.failed || 0,
+      delayed: counts.delayed || 0,
+      paused: counts.paused || 0,
+    }
   }
 
   /**

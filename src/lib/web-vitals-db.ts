@@ -39,6 +39,12 @@ interface WebVitalRow {
   timestamp: number
 }
 
+// Route aggregation result row
+interface RouteAggregationRow {
+  route: string
+  count: number
+}
+
 export interface WebVitalStats {
   name: string
   rating: string
@@ -447,8 +453,7 @@ class WebVitalsDatabase {
       const routeParams: Array<number | string> = [startTime.getTime()]
       if (options.route) routeParams.push(options.route)
 
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      const routeResult = this.db!.prepare(routeSQL).all(...routeParams) as any[]
+      const routeResult = this.db!.prepare(routeSQL).all(...routeParams) as RouteAggregationRow[]
 
       const byRoute: AggregateStats['byRoute'] = {}
       for (const row of routeResult) {

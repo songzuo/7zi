@@ -242,7 +242,7 @@ export class TTLStrategy implements IEvictionStrategy {
   }
   
   private startCleanup(config: StrategyConfig): void {
-    const interval = (config as any).cleanupInterval || 60000
+    const interval = config.cleanupInterval || 60000
     
     if (this.cleanupInterval) {
       clearInterval(this.cleanupInterval)

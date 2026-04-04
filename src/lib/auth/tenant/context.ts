@@ -191,7 +191,7 @@ export class TenantContextManager {
     return {
       userId: baseContext.userId,
       email: email,
-      role: baseContext.userRole as any,
+      role: baseContext.userRole,
       roles: [],
       permissions,
       customPermissions: [],
@@ -215,7 +215,7 @@ export class TenantContextManager {
     return {
       userId: payload.userId,
       email: payload.email,
-      role: payload.role as any,
+      role: payload.tenantRole,
       roles: payload.roles || [],
       permissions: payload.permissions || [],
       customPermissions: payload.customPermissions || [],

@@ -8,7 +8,8 @@ import * as path from 'path';
 import {
   IMessage,
   IQueueStats,
-  IStorage
+  IStorage,
+  QueueType
 } from '../types';
 
 /**
@@ -242,7 +243,7 @@ export class FileStorage implements IStorage {
     
     return {
       name: queueName,
-      type: 'normal' as any,
+      type: QueueType.NORMAL,
       totalMessages: messages.length,
       pendingMessages: messages.filter(m => m.status === 'pending').length,
       processingMessages: messages.filter(m => m.status === 'processing').length,

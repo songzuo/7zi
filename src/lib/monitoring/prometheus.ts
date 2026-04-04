@@ -15,6 +15,85 @@ import { getQueryMetricsSummary } from '@/lib/middleware/db-performance'
 import { logger } from '@/lib/logger'
 
 // ============================================
+// 外部类型声明 (导入模块返回类型)
+// ============================================
+
+/** API 性能报告类型 */
+interface ApiPerformanceReport {
+  summary: {
+    totalRequests: number
+    successfulRequests: number
+    failedRequests: number
+    averageDuration: number
+    maxDuration: number
+    minDuration: number
+    slowRequests: number
+    errors: Record<number, number>
+  }
+  slowRequests: Array<{
+    requestId: string
+    method: string
+    path: string
+    statusCode: number
+    duration: number
+    timestamp: number
+    success: boolean
+    errorMessage?: string
+  }>
+  routes: Record<string, RoutePerformanceStats>
+}
+
+/** 路由性能统计 */
+interface RoutePerformanceStats {
+  count: number
+  avgDuration: number
+  maxDuration: number
+  minDuration: number
+  errors: number
+  errorRate: number
+  slowRequests: number
+  slowRequestRate: number
+}
+
+/** 数据库指标摘要 */
+interface DatabaseMetricsSummary {
+  total: number
+  avgDuration: number
+  minDuration: number
+  maxDuration: number
+  successRate: number
+  slowQueries: Array<{
+    query: string
+    duration: number
+    timestamp: number
+    operation: string
+    success: boolean
+  }>
+  errorQueries: Array<{
+    query: string
+    duration: number
+    timestamp: number
+    operation: string
+    success: boolean
+  }>
+  byOperation: Record<string, { count: number; avgDuration: number; errorRate: number }>
+  recentErrors: Array<{
+    query: string
+    duration: number
+    timestamp: number
+    operation: string
+    success: boolean
+  }>
+}
+
+/** 速率限制统计 */
+interface RateLimitStats {
+  totalEntries: number
+  trackedPaths: string[]
+  totalRequests: number
+}
+
+// ============================================
 // 类型定义
 // ============================================
 
@@ -125,7 +204,7 @@ export class PrometheusExporter {
    */
   private generateHttpMetrics(): string[] {
     const lines: string[] = []
-    const report = getApiPerformanceReport()
+    const report = getApiPerformanceReport() as ApiPerformanceReport
 
     // 请求总数
     lines.push(
@@ -271,7 +350,7 @@ export class PrometheusExporter {
    */
   private generateDatabaseMetrics(): string[] {
     const lines: string[] = []
-    const dbSummary = getQueryMetricsSummary()
+    const dbSummary = getQueryMetricsSummary() as DatabaseMetricsSummary
 
     // 查询总数
     lines.push(
@@ -348,7 +427,7 @@ export class PrometheusExporter {
    */
   private generateRateLimitMetrics(): string[] {
     const lines: string[] = []
-    const rateLimitStats = getRateLimitStats()
+    const rateLimitStats = getRateLimitStats() as RateLimitStats
 
     // 总条目数
     lines.push(

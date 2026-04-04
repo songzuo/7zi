@@ -221,7 +221,7 @@ export class Broker {
       const message = queue.getMessage(messageId);
       if (message) {
         await this.deadLetterQueue.addDeadLetter(
-          message as any,
+          message,
           queueName,
           'Message rejected'
         );

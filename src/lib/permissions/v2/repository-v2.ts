@@ -10,6 +10,8 @@ import {
   PermissionPolicy,
   PermissionCheckContext,
   PermissionChangeType,
+  ResourceType,
+  ActionType,
 } from './types'
 import { createAuditLogManager } from './audit'
 import { createInheritanceManager } from './inheritance'
@@ -718,8 +720,8 @@ function mapRowToPermission(row: Record<string, unknown>): FineGrainedPermission
     id: row.id as string,
     name: row.name as string,
     description: row.description as string | undefined,
-    resourceType: row.resource_type as any,
-    action: row.action as any,
+    resourceType: row.resource_type as ResourceType,
+    action: row.action as ActionType,
     conditions: row.conditions ? JSON.parse(row.conditions as string) : undefined,
     scope: row.scope ? JSON.parse(row.scope as string) : undefined,
     priority: row.priority as number,
