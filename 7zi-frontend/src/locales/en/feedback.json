@@ -1,0 +1,133 @@
+{
+  "title": "User Feedback",
+  "submit": "Submit Feedback",
+  "cancel": "Cancel",
+  "saveDraft": "Save Draft",
+  "saved": "Saved",
+  "submitting": "Submitting...",
+  "previous": "Previous",
+  "next": "Next",
+  "actions": {
+    "submit": "Submit Feedback",
+    "cancel": "Cancel",
+    "saveDraft": "Save Draft",
+    "saved": "Saved",
+    "submitting": "Submitting...",
+    "previous": "Previous",
+    "next": "Next",
+    "skip": "Skip"
+  },
+  "steps": {
+    "type": {
+      "title": "Feedback Type",
+      "subtitle": "Select feedback type and priority",
+      "priority": "Priority",
+      "emotion": "How do you feel?"
+    },
+    "description": {
+      "title": "Title",
+      "subtitle": "Detailed Description",
+      "description": "Description",
+      "titlePlaceholder": "Briefly describe the issue or suggestion...",
+      "descriptionPlaceholder": "Please describe the issue or suggestion in detail...",
+      "url": "Related Page URL",
+      "urlPlaceholder": "https://example.com/page",
+      "characters": "characters"
+    },
+    "attachments": {
+      "title": "Attachments",
+      "subtitle": "Upload screenshots or related files",
+      "list": "Uploaded Attachments",
+      "files": "files"
+    },
+    "contact": {
+      "title": "Contact Information",
+      "name": "Name",
+      "namePlaceholder": "Enter your name",
+      "email": "Email",
+      "emailPlaceholder": "Enter your email",
+      "phone": "Phone",
+      "phonePlaceholder": "Enter your phone (optional)",
+      "loginHint": "Login to auto-fill your contact information"
+    },
+    "review": {
+      "title": "Review",
+      "subtitle": "Confirm feedback information",
+      "summary": "Feedback Summary",
+      "type": "Type",
+      "priority": "Priority",
+      "emotion": "Emotion",
+      "title": "Title",
+      "description": "Description",
+      "url": "Related URL",
+      "attachments": "Attachments",
+      "files": "files",
+      "contact": "Contact"
+    }
+  },
+  "types": {
+    "bug": "Bug Report",
+    "feature": "Feature Request",
+    "improvement": "Improvement",
+    "complaint": "Complaint",
+    "praise": "Praise",
+    "other": "Other"
+  },
+  "priorities": {
+    "low": "Low",
+    "medium": "Medium",
+    "high": "High",
+    "urgent": "Urgent"
+  },
+  "emotions": {
+    "selectPrompt": "How do you feel about your experience?",
+    "selected": "Selected",
+    "veryDissatisfied": "Very Dissatisfied",
+    "dissatisfied": "Dissatisfied",
+    "neutral": "Neutral",
+    "satisfied": "Satisfied",
+    "verySatisfied": "Very Satisfied"
+  },
+  "rating": {
+    "selectPrompt": "Please rate our service",
+    "stars": "stars"
+  },
+  "status": {
+    "pending": "Submitted",
+    "inProgress": "In Progress",
+    "resolved": "Resolved",
+    "closed": "Closed",
+    "rejected": "Rejected",
+    "current": "Current Status",
+    "by": "By"
+  },
+  "satisfaction": {
+    "title": "Feedback Satisfaction",
+    "prompt": "Thank you for your feedback! Please tell us how satisfied you are with the resolution",
+    "commentLabel": "Additional Comments (Optional)",
+    "commentPlaceholder": "Is there anything else you'd like to tell us?",
+    "submit": "Submit Rating",
+    "submitting": "Submitting...",
+    "skip": "Skip",
+    "thankYou": "Thank you for your rating!",
+    "submitted": "Your rating has been submitted. We'll continue to improve."
+  },
+  "validation": {
+    "titleRequired": "Please enter a title",
+    "descriptionRequired": "Please enter a description",
+    "descriptionTooShort": "Description must be at least 10 characters",
+    "nameRequired": "Please enter your name",
+    "emailRequired": "Please enter your email",
+    "emailInvalid": "Please enter a valid email address"
+  },
+  "success": {
+    "submitted": "Feedback Submitted",
+    "message": "Thank you for your feedback! We'll process it as soon as possible."
+  },
+  "error": {
+    "submitFailed": "Submission failed, please try again later",
+    "uploadFailed": "Upload failed, please try again",
+    "fileTooLarge": "File size cannot exceed 5MB",
+    "invalidFileType": "Unsupported file type"
+  }
+}

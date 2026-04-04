@@ -52,7 +52,7 @@ export const i18nConfig: InitOptions = {
   },
 
   // 资源加载
-  ns: ['common', 'auth', 'navigation', 'errors', 'dashboard'],
+  ns: ['common', 'auth', 'navigation', 'errors', 'dashboard', 'feedback'],
   defaultNS: 'common',
 
   // 加载策略
