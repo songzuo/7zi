@@ -80,3 +80,10 @@ export {
   useRegisteredShortcutsEnhanced,
   useCustomBindings,
 } from './useKeyboardShortcutsEnhanced'
+
+export {
+  usePerformanceMonitor,
+  usePerformanceMetrics,
+  type UsePerformanceMonitorOptions,
+  type UsePerformanceMonitorReturn,
+} from './usePerformanceMonitor'
