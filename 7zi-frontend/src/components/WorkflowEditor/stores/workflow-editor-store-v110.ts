@@ -90,6 +90,15 @@ interface WorkflowEditorState {
   reset: () => void
 }
 
+/** zundo 中间件扩展的 Store 接口 */
+interface WorkflowEditorStoreWithUndo extends WorkflowEditorState {
+  undo?: () => void
+  redo?: () => void
+  canUndo?: () => boolean
+  canRedo?: () => boolean
+  historySize?: number
+}
+
 // ============================================
 // 创建 Store
 // ============================================
@@ -487,21 +496,21 @@ export const useWorkflowEditorStore = createWorkflowEditorStore()
 
 // 撤销/重做 Hook
 export const useUndoRedo = () => {
-  const store = useWorkflowEditorStore()
+  const store = useWorkflowEditorStore() as unknown as WorkflowEditorStoreWithUndo
 
   return {
     undo: () => {
       // zundo 会自动处理
       const temp = store.getState()
       // 触发撤销
-      ;(store as any).undo?.()
+      store.undo?.()
     },
     redo: () => {
       // zundo 会自动处理
-      ;(store as any).redo?.()
+      store.redo?.()
     },
-    canUndo: (store as any).canUndo?.() ?? false,
-    canRedo: (store as any).canRedo?.() ?? false,
-    historySize: (store as any).historySize ?? 0,
+    canUndo: store.canUndo?.() ?? false,
+    canRedo: store.canRedo?.() ?? false,
+    historySize: store.historySize ?? 0,
   }
 }

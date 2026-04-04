@@ -33,7 +33,7 @@ import {
   PermissionDefinition,
 } from '@/lib/permissions'
 import { User as AuthStoreUser } from './auth-store'
-import { User } from '@/lib/auth'
+import { User, UserRole } from '@/lib/auth'
 
 /**
  * 用户角色信息
@@ -124,7 +124,7 @@ export const usePermissionStore = create<PermissionState>()(
             id: user.id,
             username: user.name,
             email: user.email,
-            role: user.role as any, // 类型转换
+            role: user.role as UserRole,
             permissions: [], // 将从角色中获取
             createdAt: new Date(user.createdAt || new Date()),
             updatedAt: new Date(user.updatedAt || new Date()),

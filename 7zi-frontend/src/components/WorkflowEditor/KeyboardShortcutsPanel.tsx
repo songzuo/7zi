@@ -10,7 +10,7 @@
 
 import React, { useState } from 'react'
 import { X, Keyboard, Search } from 'lucide-react'
-import { KEYBOARD_SHORTCUTS } from '../constants'
+import { KEYBOARD_SHORTCUTS } from './constants'
 
 interface ShortcutCategory {
   name: string

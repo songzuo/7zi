@@ -172,12 +172,15 @@ export function RoomDetail({ room, isAdmin = false, className }: RoomDetailProps
     }
   }
 
+  // Tab type
+  type TabId = 'info' | 'members' | 'invite' | 'settings'
+
   // Tabs
-  const tabs = [
+  const tabs: Array<{ id: TabId; label: string }> = [
     { id: 'info', label: t('details') },
     { id: 'members', label: `${t('members')} (${room.memberCount})` },
     { id: 'invite', label: t('invite') },
-    ...(isAdmin ? [{ id: 'settings', label: t('settings') }] : []),
+    ...(isAdmin ? [{ id: 'settings' as const, label: t('settings') }] : []),
   ]
 
   return (
@@ -231,7 +234,7 @@ export function RoomDetail({ room, isAdmin = false, className }: RoomDetailProps
           {tabs.map(tab => (
             <button
               key={tab.id}
-              onClick={() => setActiveTab(tab.id as any)}
+              onClick={() => setActiveTab(tab.id)}
               className={clsx(
                 'border-b-2 px-4 py-3 text-sm font-medium whitespace-nowrap transition-colors',
                 activeTab === tab.id

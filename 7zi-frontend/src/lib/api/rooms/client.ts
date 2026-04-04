@@ -18,6 +18,7 @@ import type {
   RoomEvent,
   RoomEventType,
 } from './types'
+import { logger } from '../../logger'
 
 // ============================================
 // API 基础配置
@@ -183,16 +184,16 @@ export class RoomWebSocket {
         const message: RoomEvent = JSON.parse(event.data)
         this.emit(message.type, message)
       } catch (error) {
-        console.error('Failed to parse WebSocket message:', error)
+        logger.error('Failed to parse WebSocket message', error instanceof Error ? error : new Error(String(error)))
       }
     }
 
     this.ws.onerror = error => {
-      console.error('WebSocket error:', error)
+      logger.error('WebSocket error', new Error('WebSocket error occurred'), { error: String(error) })
     }
 
     this.ws.onclose = () => {
-      console.log('WebSocket disconnected')
+      logger.info('WebSocket disconnected')
       this.reconnect()
     }
   }
@@ -208,7 +209,7 @@ export class RoomWebSocket {
   // 重新连接
   private reconnect(): void {
     if (this.reconnectAttempts >= this.maxReconnectAttempts) {
-      console.error('Max reconnection attempts reached')
+      logger.error('Max reconnection attempts reached')
       return
     }
 
@@ -216,7 +217,7 @@ export class RoomWebSocket {
     const delay = this.reconnectDelay * Math.pow(2, this.reconnectAttempts - 1)
 
     setTimeout(() => {
-      console.log(`Reconnecting... (attempt ${this.reconnectAttempts})`)
+      logger.info(`Reconnecting... (attempt ${this.reconnectAttempts})`)
       this.connect()
     }, delay)
   }
@@ -224,7 +225,7 @@ export class RoomWebSocket {
   // 发送消息
   send(type: RoomEventType, payload: unknown): void {
     if (!this.ws || this.ws.readyState !== WebSocket.OPEN) {
-      console.error('WebSocket not connected')
+      logger.error('WebSocket not connected')
       return
     }
 

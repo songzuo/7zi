@@ -14,7 +14,7 @@
  * }
  */
 
-import { NextResponse } from 'next/server'
+import { NextResponse, NextRequest } from 'next/server'
 import { logger } from '../logger'
 
 /**
@@ -270,7 +270,7 @@ export function createMissingTokenError(
  * This provides automatic error handling for API route handlers
  *
  * @example
- * export const GET = withErrorHandling(async (request: Request) => {
+ * export const POST = withErrorHandling(async (request: NextRequest, { params }: RouteParams) => {
  *   // Your handler logic here
  *   return createSuccessResponse(data);
  * });

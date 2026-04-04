@@ -19,11 +19,11 @@ import {
 } from '@/types/alerts'
 
 // Import the shared store (in production, this would be a database)
-const getAlertRulesStore = () => {
+const getAlertRulesStore = (): AlertRule[] => {
   // This is a workaround for module-level state sharing
   // In production, use a database
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  return (globalThis as any).alertRulesStore || []
+  const globalStore = globalThis as typeof globalThis & { alertRulesStore?: AlertRule[] }
+  return globalStore.alertRulesStore || []
 }
 
 // ============================================

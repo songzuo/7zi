@@ -21,8 +21,7 @@ import {
 import { validateAndSanitizeBody, sanitizeHtml } from '@/lib/validation-schemas'
 import { z } from 'zod'
 import { v4 as uuidv4 } from 'uuid'
-import { withAdmin, withAuth } from '@/lib/auth/api-auth'
-import type { APIRouteContext } from '@/lib/api-types'
+import { withAdmin, withAuth, type AuthResult } from '@/lib/auth/api-auth'
 
 /**
  * Initialize feedback storage
@@ -69,7 +68,7 @@ const responseSubmissionSchema = z.object({
 /**
  * GET /api/feedback - List feedbacks
  */
-async function handleGET(request: NextRequest, context: APIRouteContext) {
+async function handleGET(request: NextRequest, context: { user: AuthResult }) {
   try {
     const { userId, role: userRole } = context.user
     const { searchParams } = new URL(request.url)
@@ -143,9 +142,10 @@ export const GET = withAuth(handleGET)
 /**
  * POST /api/feedback - Submit feedback
  */
-async function handlePOST(request: NextRequest, context: APIRouteContext) {
+async function handlePOST(request: NextRequest, context: { user: AuthResult }) {
   try {
-    const { userId, username: userName } = context.user
+    const userId = context.user.userId!
+    const username = context.user.username!
 
     const body = await request.json()
 
@@ -172,8 +172,8 @@ async function handlePOST(request: NextRequest, context: APIRouteContext) {
     // Create feedback
     const feedback = feedbackStorage.createFeedback({
       userId,
-      userName,
-      userEmail: context.user.email || `${userId}@example.com`,
+      userName: username,
+      userEmail: `${userId}@example.com`,
       type,
       priority,
       status: 'pending',
@@ -218,9 +218,9 @@ export const POST = withAuth(handlePOST)
  * PATCH /api/feedback - Update feedback
  * Requires admin authentication
  */
-async function handlePATCH(request: NextRequest, context: APIRouteContext) {
+async function handlePATCH(request: NextRequest, context: { user: AuthResult }) {
   try {
-    const { userId, userName, userEmail } = context.user
+    const { userId, username: userName } = context.user
 
     const body = await request.json()
 
@@ -284,7 +284,7 @@ async function handlePATCH(request: NextRequest, context: APIRouteContext) {
 
     // Add comment if admin response is provided
     if (adminResponse && adminId && adminName) {
-      feedbackStorage.addComment(feedbackId, adminId, adminName, userEmail, adminResponse, true)
+      feedbackStorage.addComment(feedbackId, adminId, adminName, `${adminId}@example.com`, adminResponse, true)
     }
 
     return NextResponse.json({
@@ -311,7 +311,7 @@ export const PATCH = withAdmin(handlePATCH)
  * DELETE /api/feedback - Delete feedback
  * Requires admin authentication
  */
-async function handleDELETE(request: NextRequest, context: APIRouteContext) {
+async function handleDELETE(request: NextRequest, context: { user: AuthResult }) {
   try {
     const { searchParams } = new URL(request.url)
     const feedbackId = searchParams.get('id')
@@ -364,7 +364,7 @@ export const DELETE = withAdmin(handleDELETE)
  * GET /api/feedback/stats - Get statistics
  * Requires admin authentication
  */
-async function handleGET_STATS(request: NextRequest, context: APIRouteContext) {
+async function handleGET_STATS(request: NextRequest, context: { user: AuthResult }) {
   try {
     // Get stats
     const stats = feedbackStorage.getStats()
@@ -392,9 +392,9 @@ export const GET_STATS = withAdmin(handleGET_STATS)
  * POST /api/feedback/response - Add admin response
  * Requires admin authentication
  */
-async function handlePOST_RESPONSE(request: NextRequest, context: APIRouteContext) {
+async function handlePOST_RESPONSE(request: NextRequest, context: { user: AuthResult }) {
   try {
-    const { userId, userName, userEmail } = context.user
+    const { userId, username: userName } = context.user
 
     const body = await request.json()
 
@@ -437,7 +437,7 @@ async function handlePOST_RESPONSE(request: NextRequest, context: APIRouteContex
     }
 
     // Add comment
-    feedbackStorage.addComment(feedbackId, adminId, adminName, userEmail, response, true)
+    feedbackStorage.addComment(feedbackId, adminId, adminName, `${adminId}@example.com`, response, true)
 
     return NextResponse.json({
       success: true,
@@ -463,7 +463,7 @@ export const POST_RESPONSE = withAdmin(handlePOST_RESPONSE)
  * GET /api/feedback/export - Export feedbacks as CSV
  * Requires admin authentication
  */
-async function handleGET_EXPORT(request: NextRequest, context: APIRouteContext) {
+async function handleGET_EXPORT(request: NextRequest, context: { user: AuthResult }) {
   try {
     const { searchParams } = new URL(request.url)
     const type = searchParams.get('type') as Feedback['type'] | null

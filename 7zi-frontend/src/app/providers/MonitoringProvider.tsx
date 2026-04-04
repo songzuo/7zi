@@ -17,6 +17,7 @@ import {
   initCustomMetricsTracking,
   customMetricsTracker,
 } from '@/lib/performance'
+import { logger } from '@/lib/logger'
 
 interface MonitoringContextValue {
   isInitialized: boolean
@@ -127,7 +128,7 @@ export function useMonitoringStatus() {
         ])
         setMetrics({ aggregated, custom })
       } catch (error) {
-        console.error('Failed to update metrics:', error)
+        logger.error('Failed to update metrics', error instanceof Error ? error : new Error(String(error)))
       }
     }
 

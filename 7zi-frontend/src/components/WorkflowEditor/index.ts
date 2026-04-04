@@ -72,3 +72,6 @@ export { useWorkflowExecution } from './hooks/useWorkflowExecution'
 // v1.9.1 新增 Hooks
 export { useCustomNodes } from './hooks/useCustomNodes'
 export { useWorkflowExport } from './hooks/useWorkflowExport'
+export { useClipboard } from './hooks/useClipboard'
+export { applyLayout } from './AutoLayout'
+export type { LayoutType } from './AutoLayout'

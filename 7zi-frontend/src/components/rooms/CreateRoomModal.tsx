@@ -9,6 +9,7 @@ import React, { useState } from 'react'
 import { Button } from '@/components/ui/Button'
 import { roomsClient } from '@/lib/api/rooms/client'
 import type { Room, RoomVisibility } from '@/lib/api/rooms/types'
+import type { ApiError } from '@/types/api'
 
 interface CreateRoomModalProps {
   isOpen: boolean
@@ -49,9 +50,10 @@ export const CreateRoomModal: React.FC<CreateRoomModalProps> = ({ isOpen, onClos
       setDescription('')
       setVisibility('public')
       setMaxParticipants(10)
-    } catch (err: any) {
+    } catch (err) {
+      const error = err as ApiError
       console.error('Failed to create room:', err)
-      setError(err.message || '创建房间失败')
+      setError(error.message || '创建房间失败')
     } finally {
       setLoading(false)
     }

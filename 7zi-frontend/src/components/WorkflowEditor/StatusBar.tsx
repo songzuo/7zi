@@ -11,6 +11,7 @@ interface StatusBarProps {
   edgesCount: number
   validationStatus: 'valid' | 'invalid' | 'unknown'
   executionStatus?: string
+  onShowShortcuts?: () => void
 }
 
 export function StatusBar({
@@ -18,6 +19,7 @@ export function StatusBar({
   edgesCount,
   validationStatus,
   executionStatus,
+  onShowShortcuts,
 }: StatusBarProps) {
   const getValidationIcon = () => {
     switch (validationStatus) {
@@ -61,7 +63,7 @@ export function StatusBar({
         </div>
       </div>
 
-      {/* 右侧：执行状态 */}
+      {/* 右侧：执行状态和快捷键帮助 */}
       <div className="flex items-center gap-4">
         {executionStatus && (
           <div className="flex items-center gap-1">
@@ -69,8 +71,16 @@ export function StatusBar({
             <span>状态: {executionStatus}</span>
           </div>
         )}
-        <div className="text-gray-400">按 ? 查看快捷键</div>
+        <button 
+          onClick={onShowShortcuts}
+          className="cursor-pointer rounded px-2 py-1 text-gray-400 hover:bg-gray-200 hover:text-gray-600 dark:hover:bg-gray-800 dark:hover:text-gray-200"
+          title="查看键盘快捷键"
+        >
+          ⌨️ 快捷键
+        </button>
       </div>
     </div>
   )
 }
+
+export default StatusBar

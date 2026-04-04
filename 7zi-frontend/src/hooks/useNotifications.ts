@@ -7,7 +7,7 @@
 'use client'
 
 import { useEffect, useState, useCallback, useRef } from 'react'
-import { io, Socket } from 'socket.io-client'
+import type { Socket } from 'socket.io-client'
 
 // Import from shared types
 import type {
@@ -78,110 +78,113 @@ export function useNotifications(options: UseNotificationsOptions = {}): UseNoti
 
     setStatus('connecting')
 
-    try {
-      const socket = io(socketUrl, {
-        transports: ['websocket', 'polling'],
-        reconnection: true,
-        reconnectionDelay: 1000,
-        reconnectionAttempts: 5,
-      })
-
-      socketRef.current = socket
-
-      socket.on('connect', () => {
-        console.log('[useNotifications] Connected to socket server')
-        setStatus('connected')
-
-        // Subscribe to channels
-        const subscriptionChannels = [
-          ...channels,
-          ...(userId ? [`user:${userId}`] : []),
-          ...(teamId ? [`team:${teamId}`] : []),
-        ]
-
-        socket.emit('subscribe', {
-          userId,
-          teamId,
-          channels: subscriptionChannels,
+    // 动态导入 socket.io-client 以减少初始 bundle 大小
+    import('socket.io-client')
+      .then(({ io }) => {
+        const socket = io(socketUrl, {
+          transports: ['websocket', 'polling'],
+          reconnection: true,
+          reconnectionDelay: 1000,
+          reconnectionAttempts: 5,
         })
-      })
 
-      socket.on('initial_notifications', (initialNotifs: Notification[]) => {
-        if (isMounted.current) {
-          setNotifications(initialNotifs)
-          setUnreadCount(initialNotifs.filter(n => !n.read).length)
-          console.log(`[useNotifications] Received ${initialNotifs.length} initial notifications`)
-        }
-      })
+        socketRef.current = socket
 
-      socket.on('notification', (notification: Notification) => {
-        if (isMounted.current) {
-          setNotifications(prev => [notification, ...prev])
-          if (!notification.read) {
-            setUnreadCount(prev => prev + 1)
+        socket.on('connect', () => {
+          console.log('[useNotifications] Connected to socket server')
+          setStatus('connected')
+
+          // Subscribe to channels
+          const subscriptionChannels = [
+            ...channels,
+            ...(userId ? [`user:${userId}`] : []),
+            ...(teamId ? [`team:${teamId}`] : []),
+          ]
+
+          socket.emit('subscribe', {
+            userId,
+            teamId,
+            channels: subscriptionChannels,
+          })
+        })
+
+        socket.on('initial_notifications', (initialNotifs: Notification[]) => {
+          if (isMounted.current) {
+            setNotifications(initialNotifs)
+            setUnreadCount(initialNotifs.filter(n => !n.read).length)
+            console.log(`[useNotifications] Received ${initialNotifs.length} initial notifications`)
           }
+        })
 
-          // Show browser notification if permitted
-          if (Notification.permission === 'granted') {
-            new Notification(notification.title, {
-              body: notification.message,
-              icon: '/favicon.ico',
+        socket.on('notification', (notification: Notification) => {
+          if (isMounted.current) {
+            setNotifications(prev => [notification, ...prev])
+            if (!notification.read) {
+              setUnreadCount(prev => prev + 1)
+            }
+
+            // Show browser notification if permitted
+            if (Notification.permission === 'granted') {
+              new Notification(notification.title, {
+                body: notification.message,
+                icon: '/favicon.ico',
+              })
+            }
+          }
+        })
+
+        socket.on('notification_read', (notificationId: string) => {
+          if (isMounted.current) {
+            setNotifications(prev =>
+              prev.map(n => (n.id === notificationId ? { ...n, read: true } : n))
+            )
+            setUnreadCount(prev => Math.max(0, prev - 1))
+          }
+        })
+
+        socket.on('notifications_cleared', () => {
+          if (isMounted.current) {
+            setNotifications(prev => prev.map(n => ({ ...n, read: true })))
+            setUnreadCount(0)
+          }
+        })
+
+        socket.on('notification_deleted', (notificationId: string) => {
+          if (isMounted.current) {
+            setNotifications(prev => {
+              const filtered = prev.filter(n => n.id !== notificationId)
+              if (!prev.find(n => n.id === notificationId)?.read) {
+                setUnreadCount(filtered.filter(n => !n.read).length)
+              }
+              return filtered
             })
           }
-        }
-      })
+        })
 
-      socket.on('notification_read', (notificationId: string) => {
-        if (isMounted.current) {
-          setNotifications(prev =>
-            prev.map(n => (n.id === notificationId ? { ...n, read: true } : n))
-          )
-          setUnreadCount(prev => Math.max(0, prev - 1))
-        }
-      })
+        socket.on('unread_count', (count: number) => {
+          if (isMounted.current) {
+            setUnreadCount(count)
+          }
+        })
 
-      socket.on('notifications_cleared', (filter: NotificationFilter) => {
-        if (isMounted.current) {
-          setNotifications(prev => prev.map(n => ({ ...n, read: true })))
-          setUnreadCount(0)
-        }
-      })
+        socket.on('disconnect', (reason: string) => {
+          console.log('[useNotifications] Disconnected:', reason)
+          setStatus('disconnected')
+        })
 
-      socket.on('notification_deleted', (notificationId: string) => {
-        if (isMounted.current) {
-          setNotifications(prev => {
-            const filtered = prev.filter(n => n.id !== notificationId)
-            if (!prev.find(n => n.id === notificationId)?.read) {
-              setUnreadCount(filtered.filter(n => !n.read).length)
-            }
-            return filtered
-          })
-        }
-      })
+        socket.on('connect_error', (error: Error) => {
+          console.error('[useNotifications] Connection error:', error)
+          setStatus('error')
+        })
 
-      socket.on('unread_count', (count: number) => {
-        if (isMounted.current) {
-          setUnreadCount(count)
-        }
+        socket.on('subscribed', ({ channels }: { channels: string[] }) => {
+          console.log('[useNotifications] Subscribed to channels:', channels)
+        })
       })
-
-      socket.on('disconnect', (reason: string) => {
-        console.log('[useNotifications] Disconnected:', reason)
-        setStatus('disconnected')
-      })
-
-      socket.on('connect_error', (error: Error) => {
-        console.error('[useNotifications] Connection error:', error)
+      .catch((error) => {
+        console.error('[useNotifications] Failed to import socket.io-client:', error)
         setStatus('error')
       })
-
-      socket.on('subscribed', ({ channels }: { channels: string[] }) => {
-        console.log('[useNotifications] Subscribed to channels:', channels)
-      })
-    } catch (error) {
-      console.error('[useNotifications] Failed to connect:', error)
-      setStatus('error')
-    }
   }, [socketUrl, userId, teamId, channels])
 
   /**

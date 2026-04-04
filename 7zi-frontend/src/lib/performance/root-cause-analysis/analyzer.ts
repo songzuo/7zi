@@ -16,6 +16,7 @@ import {
   SlowResource,
   ResourceMetrics,
   NetworkInfo,
+  CPUMetrics,
 } from './types'
 import { DatabaseTracker, QueryIssue } from './database-tracker'
 import { APITracker, APIIssue } from './api-tracker'
@@ -53,6 +54,17 @@ export class RootCauseAnalysisError extends Error {
  * RootCauseAnalyzer - 根因分析核心类
  * 集成数据库追踪器、API追踪器、缓存机制和高级分析规则
  */
+
+/**
+ * Resource type statistics
+ */
+interface ResourceTypeStats {
+  [key: string]: {
+    count: number
+    totalSize: number
+  }
+}
+
 export class RootCauseAnalyzer {
   private config: RootCauseAnalysisConfig
   private databaseTracker: DatabaseTracker
@@ -725,7 +737,7 @@ export class RootCauseAnalyzer {
    * Analyze CPU usage
    * 分析 CPU 使用
    */
-  private analyzeCPU(cpu: any): RootCauseCandidate | null {
+  private analyzeCPU(cpu: CPUMetrics): RootCauseCandidate | null {
     try {
       if (!cpu || !cpu.usage) return null
 
@@ -823,7 +835,7 @@ export class RootCauseAnalyzer {
    * Estimate resource fix time
    * 估算资源修复时间
    */
-  private estimateResourceFixTime(resourcesByType: Record<string, any>, totalSize: number): string {
+  private estimateResourceFixTime(resourcesByType: ResourceTypeStats, totalSize: number): string {
     const hasImages = !!resourcesByType.image
     const hasScripts = !!resourcesByType.script
 

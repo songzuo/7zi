@@ -42,16 +42,16 @@ export type { LayoutType } from './AutoLayout'
 // ============================================
 
 export { nodeTypes } from './NodeTypes'
-export { default as StartNode } from './NodeTypes/StartNode'
-export { default as EndNode } from './NodeTypes/EndNode'
-export { default as AgentNode } from './NodeTypes/AgentNode'
-export { default as ConditionNode } from './NodeTypes/ConditionNode'
-export { default as ParallelNode } from './NodeTypes/ParallelNode'
-export { default as WaitNode } from './NodeTypes/WaitNode'
-export { default as HumanInputNode } from './NodeTypes/HumanInputNode'
-export { default as LoopNode } from './NodeTypes/LoopNode'
-export { default as SubworkflowNode } from './NodeTypes/SubworkflowNode'
-export { default as TransformNode } from './NodeTypes/TransformNode'
+export { StartNode } from './NodeTypes/StartNode'
+export { EndNode } from './NodeTypes/EndNode'
+export { AgentNode } from './NodeTypes/AgentNode'
+export { ConditionNode } from './NodeTypes/ConditionNode'
+export { ParallelNode } from './NodeTypes/ParallelNode'
+export { WaitNode } from './NodeTypes/WaitNode'
+export { HumanInputNode } from './NodeTypes/HumanInputNode'
+export { LoopNode } from './NodeTypes/LoopNode'
+export { SubworkflowNode } from './NodeTypes/SubworkflowNode'
+export { TransformNode } from './NodeTypes/TransformNode'
 
 // ============================================
 // 边类型

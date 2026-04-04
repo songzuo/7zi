@@ -29,7 +29,6 @@ export { MemoryStorage, LocalStorageStorage } from './storage'
 export {
   AlertEngine,
   alertEngine,
-  AlertChannel,
   DEFAULT_ALERT_ENGINE_CONFIG,
   DEFAULT_ALERT_RULES,
   DEFAULT_ESCALATION_POLICIES,
@@ -44,25 +43,27 @@ export type {
   EscalationPolicy,
   AlertEngineConfig,
   AlertSummary,
+  AlertChannel,
 } from './alert-engine'
 
-// Alert Channels
+// Alert Channels (base only - server channels are in ./channels/server)
 export {
-  EmailAlertChannel,
-  SlackAlertChannel,
   BaseAlertChannel,
-  createEmailChannelFromEnv,
-  createSlackChannelFromEnv,
+  DEFAULT_DEDUP_CONFIG,
+  DEFAULT_RATE_LIMIT_CONFIG,
+  DEFAULT_RETRY_CONFIG,
+  getLevelPriority,
+  priorityToLevel,
+  severityToLevel,
 } from './channels'
 export type {
-  EmailChannelConfig,
-  SlackChannelConfig,
-  BaseChannelConfig,
   AlertLevel,
-  RetryConfig,
+  BaseChannelConfig,
+  ChannelMetrics,
   DedupConfig,
   RateLimitConfig,
-  ChannelMetrics,
+  RetryConfig,
+  SendResult,
 } from './channels'
 
 // Utilities
@@ -75,3 +76,17 @@ export {
   initBrowserTracking,
   usePerformanceTracker,
 } from './utils'
+
+// Metrics Aggregator
+export {
+  MetricsAggregator,
+  aggregateByTimeWindow,
+  aggregatePercentiles,
+  aggregateTrend,
+} from './aggregator'
+export type {
+  TimeWindowBucket,
+  PercentileResult,
+  TrendResult,
+  AggregationStats,
+} from './aggregator'

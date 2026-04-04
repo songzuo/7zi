@@ -1,9 +1,9 @@
 /**
- * WorkflowEditor v1.10.0 - 下一代工作流可视化编辑器
+ * WorkflowEditor v1.10.1 - 下一代工作流可视化编辑器
  *
  * 🎨 设计师: Designer
  * 创建日期: 2026-04-03
- * 版本: v1.10.0
+ * 版本: v1.10.1
  *
  * 新增功能：
  * - 增强的复制粘贴功能
@@ -13,6 +13,12 @@
  * - 快捷键面板
  * - 画布背景切换
  * - 性能优化
+ *
+ * v1.10.1 UX增强:
+ * - 节点选择高亮效果（发光边框、脉冲动画）
+ * - 拖拽时的视觉反馈（幽灵节点、放置目标高亮）
+ * - 连接线的动画效果（流动粒子、渐变边）
+ * - 工具栏按钮状态（加载动画、禁用状态）
  */
 
 import React, { useCallback, useMemo, useState, useEffect, useRef } from 'react'
@@ -63,8 +69,8 @@ import { useClipboard } from './hooks/useClipboard'
 // 导入节点类型
 import { nodeTypes } from './NodeTypes'
 
-// 导入边类型
-import { conditionalEdgeType, animatedEdgeType } from './EdgeTypes'
+// 导入边类型 (v1.10.1 UX增强版)
+import { edgeTypes } from './EdgeTypes'
 
 // 导入布局算法
 import { applyLayout, LayoutType } from './AutoLayout'
@@ -72,10 +78,10 @@ import { applyLayout, LayoutType } from './AutoLayout'
 // 导入常量
 import { NODE_TEMPLATES, CANVAS_CONFIG, EDITOR_VERSION } from './constants'
 
-// 边类型注册
-const edgeTypes = {
-  conditional: conditionalEdgeType,
-  animated: animatedEdgeType,
+// 边类型注册 (使用增强版)
+const edgeTypesMap = {
+  ...edgeTypes,
+  default: edgeTypes.enhanced,
 }
 
 interface WorkflowEditorV110Props {
@@ -228,10 +234,10 @@ function WorkflowEditorV110Inner({
       if (selectChanges.length > 0) {
         setSelectedNodeIds((prev) => {
           const newSet = new Set(prev)
-          selectChanges.forEach((change: any) => {
-            if (change.selected) {
+          selectChanges.forEach((change: NodeChange<Node<WorkflowNodeData>>) => {
+            if (change.type === 'select' && change.selected) {
               newSet.add(change.id)
-            } else {
+            } else if (change.type === 'select') {
               newSet.delete(change.id)
             }
           })
@@ -287,9 +293,9 @@ function WorkflowEditorV110Inner({
   }, [])
 
   const onSelectionChange = useCallback(
-    ({ nodes: selectedNodes, edges: selectedEdges }: any) => {
-      setSelectedNodeIds(selectedNodes?.map((n: Node) => n.id) || [])
-      setSelectedEdgeIds(selectedEdges?.map((e: Edge) => e.id) || [])
+    ({ nodes: selectedNodes, edges: selectedEdges }: { nodes?: Node<WorkflowNodeData>[]; edges?: Edge<WorkflowEdgeData>[] }) => {
+      setSelectedNodeIds(selectedNodes?.map((n) => n.id) || [])
+      setSelectedEdgeIds(selectedEdges?.map((e) => e.id) || [])
     },
     []
   )
@@ -753,7 +759,7 @@ function WorkflowEditorV110Inner({
             onPaneClick={onPaneClick}
             onSelectionChange={onSelectionChange}
             nodeTypes={nodeTypes}
-            edgeTypes={edgeTypes}
+            edgeTypes={edgeTypesMap}
             fitView
             deleteKeyCode={readOnly ? null : null} // 我们自己处理删除
             selectionMode={SelectionMode.Partial}

@@ -5,6 +5,7 @@
  */
 
 import { SignJWT, jwtVerify, type JWTPayload as JoseJWTPayload } from 'jose'
+import { logger } from '../logger'
 
 /**
  * 获取 JWT 密钥
@@ -29,10 +30,8 @@ function getJWTSecret(): Uint8Array {
     }
 
     // 开发环境使用临时密钥，但记录警告
-    console.warn(
-      '[JWT] WARNING: JWT_SECRET is not set. Using temporary development key. ' +
-        'This is NOT secure for production! Set JWT_SECRET environment variable.'
-    )
+    logger.warn('[JWT] WARNING: JWT_SECRET is not set. Using temporary development key. ' +
+        'This is NOT secure for production! Set JWT_SECRET environment variable.')
 
     // 开发环境使用固定的开发密钥（仅用于本地开发）
     return new TextEncoder().encode('dev-secret-key-not-for-production-use-' + 'x'.repeat(32))
@@ -40,7 +39,7 @@ function getJWTSecret(): Uint8Array {
 
   // 验证密钥长度（至少 64 字符）
   if (secret.length < 64) {
-    console.warn(
+    logger.warn(
       `[JWT] WARNING: JWT_SECRET is too short (${secret.length} chars). ` +
         'Recommended minimum length is 64 characters for HS256 algorithm.'
     )
@@ -104,7 +103,7 @@ export async function generateJWT(payload: Omit<JWTPayload, 'iat' | 'exp'>): Pro
 
     return token
   } catch (error) {
-    console.error('[JWT] Failed to generate token:', error)
+    logger.error('[JWT] Failed to generate token', error instanceof Error ? error : new Error(String(error)))
     throw new Error('Token generation failed')
   }
 }
@@ -117,7 +116,7 @@ export async function verifyJWT(token: string): Promise<JWTPayload> {
     const { payload } = await jwtVerify(token, JWT_SECRET)
     return payload as unknown as JWTPayload
   } catch (error) {
-    console.error('[JWT] Token verification failed:', error)
+    logger.error('[JWT] Token verification failed', error instanceof Error ? error : new Error(String(error)))
     throw new Error('Invalid or expired token')
   }
 }
@@ -136,7 +135,7 @@ export function decodeJWT(token: string): JWTPayload | null {
 
     return payload as JWTPayload
   } catch (error) {
-    console.error('[JWT] Failed to decode token:', error)
+    logger.error('[JWT] Failed to decode token', error instanceof Error ? error : new Error(String(error)))
     return null
   }
 }
@@ -156,7 +155,7 @@ export async function generateRefreshToken(
 
     return token
   } catch (error) {
-    console.error('[JWT] Failed to generate refresh token:', error)
+    logger.error('[JWT] Failed to generate refresh token', error instanceof Error ? error : new Error(String(error)))
     throw new Error('Refresh token generation failed')
   }
 }
@@ -169,7 +168,7 @@ export async function verifyRefreshToken(token: string): Promise<{ userId: strin
     const { payload } = await jwtVerify(token, JWT_SECRET)
     return payload as { userId: string }
   } catch (error) {
-    console.error('[JWT] Refresh token verification failed:', error)
+    logger.error('[JWT] Refresh token verification failed', error instanceof Error ? error : new Error(String(error)))
     throw new Error('Invalid or expired refresh token')
   }
 }

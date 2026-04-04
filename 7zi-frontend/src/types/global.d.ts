@@ -2,6 +2,8 @@
  * Global type declarations for browser APIs
  */
 
+import type { ErrorInfo } from 'react'
+
 declare global {
   interface Performance {
     getEntriesByType(type: string): PerformanceEntry[]
@@ -16,6 +18,8 @@ declare global {
     next?: {
       router?: unknown
     }
+    /** Error tracking function (e.g., Sentry, LogRocket) */
+    trackError?: (error: Error, errorInfo?: ErrorInfo) => void
   }
 }
 

@@ -9,6 +9,7 @@ import React, { useState } from 'react'
 import { Button } from '@/components/ui/Button'
 import { roomsClient } from '@/lib/api/rooms/client'
 import type { Room, RoomSettings as RoomSettingsType, RoomVisibility } from '@/lib/api/rooms/types'
+import type { ApiError } from '@/types/api'
 
 interface RoomSettingsProps {
   room: Room
@@ -60,9 +61,10 @@ export const RoomSettings: React.FC<RoomSettingsProps> = ({
 
       // 3秒后重置保存状态
       setTimeout(() => setSaved(false), 3000)
-    } catch (err: any) {
+    } catch (err) {
+      const error = err as ApiError
       console.error('Failed to update room:', err)
-      setError(err.message || '保存失败')
+      setError(error.message || '保存失败')
     } finally {
       setLoading(false)
     }

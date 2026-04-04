@@ -1,17 +1,19 @@
 /**
  * Rate Limit Admin Panel - Main Page
- * 
+ *
  * Admin panel for managing API rate limiting configuration
- * 
+ *
  * @version 1.12.0
  */
 
+"use client"
+
 import { useState, useEffect } from 'react'
-import { 
-  Shield, 
-  Activity, 
-  Key, 
-  Globe, 
+import {
+  Shield,
+  Activity,
+  Key,
+  Globe,
   FileText,
   RefreshCw,
   Settings,
@@ -33,16 +35,16 @@ export default function RateLimitAdminPage() {
   const t = useTranslations('admin.rateLimit')
   const [activeTab, setActiveTab] = useState<TabType>('dashboard')
   const [isRefreshing, setIsRefreshing] = useState(false)
-  
-  const { 
-    stats, 
-    loading: statsLoading, 
+
+  const {
+    stats,
+    loading: statsLoading,
     error: statsError,
-    refresh: refreshStats 
+    refresh: refreshStats
   } = useRateLimitStats()
-  
-  const { 
-    health, 
+
+  const {
+    health,
     loading: healthLoading,
     refresh: refreshHealth
   } = useRateLimitHealth()
@@ -91,14 +93,14 @@ export default function RateLimitAdminPage() {
                 </p>
               </div>
             </div>
-            
+
             <div className="flex items-center space-x-3">
               {/* Health Status Badge */}
-              <HealthStatus 
-                health={health?.data} 
-                loading={healthLoading} 
+              <HealthStatus
+                health={health?.data}
+                loading={healthLoading}
               />
-              
+
               {/* Refresh Button */}
               <button
                 onClick={handleRefresh}
@@ -126,8 +128,8 @@ export default function RateLimitAdminPage() {
                   onClick={() => setActiveTab(tab.id)}
                   className={`
                     flex items-center py-4 px-1 border-b-2 font-medium text-sm transition-colors
-                    ${isActive 
-                      ? 'border-blue-500 text-blue-600 dark:text-blue-400' 
+                    ${isActive
+                      ? 'border-blue-500 text-blue-600 dark:text-blue-400'
                       : 'border-transparent text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200'
                     }
                   `}
@@ -160,15 +162,15 @@ export default function RateLimitAdminPage() {
         {activeTab === 'dashboard' && (
           <RateLimitStats stats={stats?.data} loading={statsLoading} />
         )}
-        
+
         {activeTab === 'apikeys' && (
           <ApiKeyConfig />
         )}
-        
+
         {activeTab === 'whitelist' && (
           <WhitelistManager />
         )}
-        
+
         {activeTab === 'logs' && (
           <RequestLogs />
         )}
