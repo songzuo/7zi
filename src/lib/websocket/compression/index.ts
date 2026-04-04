@@ -64,13 +64,32 @@ export interface OptimizationConfig {
 }
 
 export interface OptimizationStats {
-  compression: any
-  batching: any
-  incremental: any
-  cache: any
+  compression: CompressionStats
+  batching: BatchStats
+  incremental: IncrementalUpdateStats
+  cache: CacheStats
   totalSavedBytes: number
   totalMessagesProcessed: number
   overallCompressionRatio: number
+}
+
+export interface ProcessOutgoingOptions {
+  priority?: MessagePriority
+  target?: string | string[]
+  skipCache?: boolean
+  skipCompression?: boolean
+  skipBatching?: boolean
+  skipIncremental?: boolean
+  clientCaps?: ClientCapabilities
+}
+
+export interface ProcessOutgoingResult {
+  processed: boolean
+  messageId?: string
+  batchId?: string
+  compressed?: CompressedMessage
+  incremental?: DiffResult
+  cached?: boolean
 }
 
 /**
@@ -98,29 +117,14 @@ export class WebSocketOptimizationManager {
    */
   public processOutgoing(
     event: string,
-    data: any,
-    options: {
-      priority?: MessagePriority
-      target?: string | string[]
-      skipCache?: boolean
-      skipCompression?: boolean
-      skipBatching?: boolean
-      skipIncremental?: boolean
-      clientCaps?: any
-    } = {}
-  ): {
-    processed: boolean
-    messageId?: string
-    batchId?: string
-    compressed?: any
-    incremental?: any
-    cached?: boolean
-  } {
+    data: unknown,
+    options: ProcessOutgoingOptions = {}
+  ): ProcessOutgoingResult {
     if (!this.enabled) {
       return { processed: false }
     }
 
-    const result: any = {}
+    const result: ProcessOutgoingResult = { processed: false }
 
     // 1. Check cache first
     if (!options.skipCache) {
@@ -180,13 +184,13 @@ export class WebSocketOptimizationManager {
    * Process incoming message
    */
   public processIncoming(
-    data: any,
+    data: unknown,
     options: {
       decompress?: boolean
       applyDiff?: boolean
       checkCache?: boolean
     } = {}
-  ): any {
+  ): unknown {
     if (!this.enabled) {
       return data
     }
@@ -234,7 +238,7 @@ export class WebSocketOptimizationManager {
   /**
    * Flush batched messages
    */
-  public flushBatch(): any {
+  public flushBatch(): BatchResult | null {
     return this.batching.flush()
   }
 

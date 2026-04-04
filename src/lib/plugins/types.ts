@@ -166,7 +166,7 @@ export interface PluginConfig {
   priority?: number;
   
   /** Plugin configuration data */
-  config?: Record<string, any>;
+  config?: Record<string, unknown>;
   
   /** Plugin environment variables */
   env?: Record<string, string>;
@@ -195,7 +195,7 @@ export interface PluginPermission {
   scope?: 'read' | 'write' | 'execute' | 'admin';
   
   /** Permission constraints */
-  constraints?: Record<string, any>;
+  constraints?: Record<string, unknown>;
 }
 
 export interface PluginResourceLimits {
@@ -316,10 +316,10 @@ export interface HookContext {
   error?: Error;
   
   /** Additional metadata */
-  metadata?: Record<string, any>;
+  metadata?: Record<string, unknown>;
 }
 
-export type HookHandler<TInput = any, TOutput = any> = (
+export type HookHandler<TInput = unknown, TOutput = unknown> = (
   context: HookContext,
   input: TInput
 ) => Promise<TOutput> | TOutput;
@@ -408,7 +408,7 @@ export interface Plugin extends PluginLifecycle {
   registerHooks?(registry: HookRegistry): void;
   
   /** Execute plugin action */
-  execute?<TInput = any, TOutput = any>(
+  execute?<TInput = unknown, TOutput = unknown>(
     action: string,
     input?: TInput
   ): Promise<TOutput>;
@@ -437,7 +437,7 @@ export type HealthStatus = 'healthy' | 'degraded' | 'unhealthy' | 'unknown';
 export interface PluginHealthStatus {
   status: HealthStatus;
   message?: string;
-  details?: Record<string, any>;
+  details?: Record<string, unknown>;
   timestamp: Date;
   checks?: Record<string, {
     status: HealthStatus;
@@ -540,14 +540,14 @@ export interface PluginManager {
   disablePlugin(id: string): Promise<void>;
   
   /** Execute plugin action */
-  execute<TInput = any, TOutput = any>(
+  execute<TInput = unknown, TOutput = unknown>(
     pluginId: string,
     action: string,
     input?: TInput
   ): Promise<TOutput>;
   
   /** Execute hook */
-  executeHook<TInput = any, TOutput = any>(
+  executeHook<TInput = unknown, TOutput = unknown>(
     hook: HookName,
     input?: TInput
   ): Promise<TOutput[]>;
@@ -598,7 +598,7 @@ export interface PluginSearchQuery {
 
 export interface HookRegistry {
   /** Register hook handler */
-  register<TInput = any, TOutput = any>(
+  register<TInput = unknown, TOutput = unknown>(
     hook: HookName,
     handler: HookHandler<TInput, TOutput>,
     config?: HookConfig
@@ -614,7 +614,7 @@ export interface HookRegistry {
   }>;
   
   /** Execute hook */
-  execute<TInput = any, TOutput = any>(
+  execute<TInput = unknown, TOutput = unknown>(
     hook: HookName,
     input?: TInput
   ): Promise<TOutput[]>;
@@ -635,10 +635,10 @@ export interface PluginSandbox {
   destroy(pluginId: string): Promise<void>;
   
   /** Execute code in sandbox */
-  execute<T = any>(
+  execute<T = unknown>(
     pluginId: string,
     code: string | Function,
-    context?: Record<string, any>
+    context?: Record<string, unknown>
   ): Promise<T>;
   
   /** Validate plugin code */
@@ -650,10 +650,10 @@ export interface PluginSandbox {
 
 export interface SandboxContext {
   /** Global scope */
-  global: Record<string, any>;
+  global: Record<string, unknown>;
   
   /** Module require */
-  require: (module: string) => any;
+  require: (module: string) => unknown;
   
   /** Console */
   console: Console;
@@ -752,8 +752,8 @@ export interface PluginTransaction {
 }
 
 export interface PluginCacheClient {
-  get<T = any>(key: string): Promise<T | undefined>;
-  set<T = any>(key: string, value: T, ttl?: number): Promise<void>;
+  get<T = unknown>(key: string): Promise<T | undefined>;
+  set<T = unknown>(key: string, value: T, ttl?: number): Promise<void>;
   delete(key: string): Promise<void>;
   clear(): Promise<void>;
   has(key: string): Promise<boolean>;

@@ -35,9 +35,9 @@ export interface CacheConfig {
   keyPrefix?: string
 }
 
-export interface CacheEntry {
+export interface CacheEntry<T = unknown> {
   key: string
-  data: any
+  data: T
   hash: string
   size: number
   timestamp: number
@@ -87,10 +87,10 @@ const DEFAULT_CONFIG: Required<Omit<CacheConfig, 'enableStats'>> = {
 // Message Cache
 // ============================================================================
 
-export class MessageCache {
+export class MessageCache<T = unknown> {
   private config: Required<Omit<CacheConfig, 'enableStats'>>
   private statsEnabled: boolean
-  private cache: Map<string, CacheEntry>
+  private cache: Map<string, CacheEntry<T>>
   private accessOrder: string[]
   private stats: CacheStats
 
@@ -116,7 +116,7 @@ export class MessageCache {
   /**
    * Get message from cache
    */
-  public get(key: string, options?: CacheOptions): CacheEntry | null {
+  public get(key: string, options?: CacheOptions): CacheEntry<T> | null {
     if (options?.skipCache) {
       return null
     }
@@ -161,9 +161,9 @@ export class MessageCache {
    */
   public set(
     key: string,
-    data: any,
+    data: T,
     options?: CacheOptions
-  ): CacheEntry {
+  ): CacheEntry<T> {
     if (options?.skipCache) {
       return this.createEntry(key, data, options?.ttl)
     }
@@ -210,9 +210,9 @@ export class MessageCache {
    */
   public getOrSet(
     key: string,
-    compute: () => any,
+    compute: () => T,
     options?: CacheOptions
-  ): { entry: CacheEntry; computed: boolean } {
+  ): { entry: CacheEntry<T>; computed: boolean } {
     const existing = this.get(key, options)
     
     if (existing && !options?.forceRefresh) {
@@ -389,10 +389,10 @@ export class MessageCache {
 
   private createEntry(
     key: string,
-    data: any,
+    data: T,
     ttl?: number,
     hash?: string
-  ): CacheEntry {
+  ): CacheEntry<T> {
     const now = Date.now()
     const effectiveTTL = ttl ?? this.config.defaultTTL
     const dataHash = hash ?? this.calculateHash(data)
@@ -411,7 +411,7 @@ export class MessageCache {
     }
   }
 
-  private calculateHash(data: any): string {
+  private calculateHash(data: T): string {
     try {
       return createHash('md5').update(JSON.stringify(data)).digest('hex')
     } catch {
@@ -419,7 +419,7 @@ export class MessageCache {
     }
   }
 
-  private calculateSize(data: any): number {
+  private calculateSize(data: T): number {
     try {
       if (Buffer.isBuffer(data)) {
         return data.length
@@ -529,9 +529,9 @@ export function parseCacheKey(key: string): string[] {
 /**
  * Generate cache key for WebSocket message
  */
-export function generateMessageCacheKey(
+export function generateMessageCacheKey<T = unknown>(
   event: string,
-  data: any,
+  data: T,
   namespace?: string
 ): string {
   const dataHash = createHash('md5').update(JSON.stringify(data)).digest('hex')
