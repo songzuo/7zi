@@ -9,6 +9,44 @@
 
 ## [Unreleased]
 
+### 🎯 错误处理系统统一 / Error Handling System Unification
+
+- 重构 `src/lib/errors.ts` 为统一错误处理入口
+- 导出 30+ 个统一错误处理接口（类型、类、函数）
+- 保持向后兼容性（所有旧函数和类型别名保留）
+- 新增统一错误类型枚举 (`UnifiedErrorType`) - 14 种错误类型
+- 新增统一错误类 (`UnifiedAppError`) - 支持工厂方法和自动状态码映射
+- 新增 14 个统一响应处理函数 (`createValidationErrorResponse`, `createNotFoundErrorResponse` 等)
+- 更新 API 路由 (`status/route.ts`, `tasks/route.ts`) 使用统一错误处理
+- 更新 ErrorBoundary 组件支持统一错误类型
+- 修复所有错误处理相关的 TypeScript 编译错误
+
+### 🧹 TypeScript 类型安全 / Type Safety Improvements
+
+- 清理 `src/lib/` 目录中 122 处 `any` 类型使用
+- WebSocket Compression 模块泛型化:
+  - `IncrementalUpdateManager<T>` - 增量更新系统泛型化
+  - `MessageCache<T>` - 消息缓存泛型化
+  - `BatchMessageProcessor` - 批处理类型优化
+- Plugin SDK 模块类型化:
+  - `PluginSDK` 所有客户端接口泛型化
+  - `PluginBuilder<T>` - 插件构建器泛型化
+  - 使用 `unknown` 替代 `any` 作为默认泛型参数
+- 类型安全得分: 92% → ~94% (+2%)
+- 保留 36 处合理使用 (事件系统、反射工具)
+
+### 🧪 测试框架统一 / Test Framework Unification
+
+- 统一测试框架为 Vitest（移除 Jest @jest/globals 依赖）
+- 迁移 3 个测试文件：audit-log, mcp/enhancement, debug
+- 保留 Vitest 作为主要测试框架（更快的测试执行、Vite 原生支持）
+- 验证所有测试通过（3 个预先存在的失败与迁移无关）
+
+### 📝 文档 / Documentation
+
+- 新增 `REPORT_ANY_CLEANUP_FINAL.md` - Any 类型清理报告
+- 新增 `REPORT_TEST_FRAMEWORK_UNIFICATION.md` - 测试框架统一报告
+
 ## [1.12.1] - 2026-04-04 🐛 Post-v1.12.0 Bug Fixes & UX Enhancements
 
 ### 🎯 版本主题

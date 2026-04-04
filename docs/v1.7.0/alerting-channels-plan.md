@@ -1433,6 +1433,1036 @@ alertManager.registerRule(customRule)
 
 ---
 
-**文档版本**: v1.0  
-**最后更新**: 2026-04-01  
+## 11. 待实现功能
+
+基于告警历史记录和统计功能分析报告（2026-04-04），以下功能需要在未来版本中实现：
+
+### 11.1 高优先级功能
+
+#### 11.1.1 持久化存储
+
+**当前状态**: ❌ 缺失
+
+**问题描述**:
+- 告警历史仅存储在内存中
+- 服务重启后数据丢失
+- 无法满足长期数据管理和合规要求
+
+**推荐方案**:
+
+**方案 A: SQLite（推荐用于中小规模）**
+
+```typescript
+// 数据库表定义
+CREATE TABLE alerts (
+  id TEXT PRIMARY KEY,
+  rule_id TEXT NOT NULL,
+  level TEXT NOT NULL,  -- 'p0' | 'p1' | 'p2' | 'p3'
+  message TEXT NOT NULL,
+  details TEXT,  -- JSON
+  timestamp INTEGER NOT NULL,
+  resolved_at INTEGER,
+  acknowledged_at INTEGER,
+  acknowledged_by TEXT,
+  count INTEGER DEFAULT 1,
+  suppressed INTEGER DEFAULT 0,
+  suppression_reason TEXT,
+  channels TEXT,  -- JSON array
+  send_results TEXT,  -- JSON object
+  created_at INTEGER NOT NULL,
+  updated_at INTEGER NOT NULL
+);
+
+CREATE INDEX idx_alerts_timestamp ON alerts(timestamp);
+CREATE INDEX idx_alerts_level ON alerts(level);
+CREATE INDEX idx_alerts_rule_id ON alerts(rule_id);
+CREATE INDEX idx_alerts_status ON alerts(resolved_at, acknowledged_at);
+```
+
+**方案 B: PostgreSQL（推荐用于大规模）**
+
+```sql
+-- 主表
+CREATE TABLE alerts (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  rule_id TEXT NOT NULL,
+  level alert_level NOT NULL,
+  message TEXT NOT NULL,
+  details JSONB,
+  timestamp TIMESTAMPTZ NOT NULL,
+  resolved_at TIMESTAMPTZ,
+  acknowledged_at TIMESTAMPTZ,
+  acknowledged_by TEXT,
+  count INTEGER DEFAULT 1,
+  suppressed BOOLEAN DEFAULT FALSE,
+  suppression_reason TEXT,
+  channels TEXT[],
+  send_results JSONB,
+  created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+  updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
+);
+
+-- 枚举类型
+CREATE TYPE alert_level AS ENUM ('p0', 'p1', 'p2', 'p3');
+
+-- 索引
+CREATE INDEX idx_alerts_timestamp ON alerts(timestamp DESC);
+CREATE INDEX idx_alerts_level ON alerts(level);
+CREATE INDEX idx_alerts_rule_id ON alerts(rule_id);
+CREATE INDEX idx_alerts_status ON alerts(resolved_at, acknowledged_at);
+
+-- 分区表（按月分区）
+CREATE TABLE alerts_2026_04 PARTITION OF alerts
+  FOR VALUES FROM ('2026-04-01') TO ('2026-05-01');
+```
+
+**实现要点**:
+
+```typescript
+// src/lib/monitoring/alert/storage.ts
+
+import Database from 'better-sqlite3'
+// 或
+import { Pool } from 'pg'
+
+interface AlertStorage {
+  saveAlert(alert: AlertRecord): Promise<void>
+  loadAlerts(query: AlertHistoryQuery): Promise<AlertRecord[]>
+  getStats(timeRange: TimeRange): Promise<AlertStats>
+  deleteOldAlerts(beforeDate: Date): Promise<number>
+}
+
+class SQLiteAlertStorage implements AlertStorage {
+  private db: Database.Database
+
+  constructor(dbPath: string) {
+    this.db = new Database(dbPath)
+    this.initTables()
+  }
+
+  private initTables() {
+    this.db.exec(`
+      CREATE TABLE IF NOT EXISTS alerts (
+        id TEXT PRIMARY KEY,
+        rule_id TEXT NOT NULL,
+        level TEXT NOT NULL,
+        message TEXT NOT NULL,
+        details TEXT,
+        timestamp INTEGER NOT NULL,
+        resolved_at INTEGER,
+        acknowledged_at INTEGER,
+        acknowledged_by TEXT,
+        count INTEGER DEFAULT 1,
+        suppressed INTEGER DEFAULT 0,
+        suppression_reason TEXT,
+        channels TEXT,
+        send_results TEXT,
+        created_at INTEGER NOT NULL,
+        updated_at INTEGER NOT NULL
+      );
+
+      CREATE INDEX IF NOT EXISTS idx_alerts_timestamp ON alerts(timestamp);
+      CREATE INDEX IF NOT EXISTS idx_alerts_level ON alerts(level);
+      CREATE INDEX IF NOT EXISTS idx_alerts_rule_id ON alerts(rule_id);
+    `)
+  }
+
+  async saveAlert(alert: AlertRecord): Promise<void> {
+    const stmt = this.db.prepare(`
+      INSERT INTO alerts (
+        id, rule_id, level, message, details, timestamp,
+        resolved_at, acknowledged_at, acknowledged_by, count,
+        suppressed, suppression_reason, channels, send_results,
+        created_at, updated_at
+      ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+      ON CONFLICT(id) DO UPDATE SET
+        resolved_at = excluded.resolved_at,
+        acknowledged_at = excluded.acknowledged_at,
+        acknowledged_by = excluded.acknowledged_by,
+        count = excluded.count,
+        suppressed = excluded.suppressed,
+        suppression_reason = excluded.suppression_reason,
+        send_results = excluded.send_results,
+        updated_at = excluded.updated_at
+    `)
+
+    stmt.run(
+      alert.id,
+      alert.ruleId,
+      alert.level,
+      alert.message,
+      JSON.stringify(alert.details),
+      alert.timestamp.getTime(),
+      alert.resolvedAt?.getTime(),
+      alert.acknowledgedAt?.getTime(),
+      alert.acknowledgedBy,
+      alert.count,
+      alert.suppressed ? 1 : 0,
+      alert.suppressionReason,
+      JSON.stringify(alert.channels),
+      JSON.stringify(alert.sendResults),
+      Date.now(),
+      Date.now()
+    )
+  }
+
+  async loadAlerts(query: AlertHistoryQuery): Promise<AlertRecord[]> {
+    const { timeRange, severity, status, ruleId, limit = 100 } = query
+
+    let sql = 'SELECT * FROM alerts WHERE timestamp >= ? AND timestamp <= ?'
+    const params: any[] = [timeRange.from.getTime(), timeRange.to.getTime()]
+
+    if (severity && severity.length > 0) {
+      sql += ` AND level IN (${severity.map(() => '?').join(',')})`
+      params.push(...severity)
+    }
+
+    if (ruleId) {
+      sql += ' AND rule_id = ?'
+      params.push(ruleId)
+    }
+
+    if (status) {
+      if (status.includes('active')) {
+        sql += ' AND resolved_at IS NULL'
+      }
+      if (status.includes('resolved')) {
+        sql += ' AND resolved_at IS NOT NULL'
+      }
+      if (status.includes('acknowledged')) {
+        sql += ' AND acknowledged_at IS NOT NULL'
+      }
+    }
+
+    sql += ' ORDER BY timestamp DESC LIMIT ?'
+    params.push(limit)
+
+    const stmt = this.db.prepare(sql)
+    const rows = stmt.all(...params)
+
+    return rows.map(this.rowToAlert)
+  }
+
+  private rowToAlert(row: any): AlertRecord {
+    return {
+      id: row.id,
+      ruleId: row.rule_id,
+      level: row.level,
+      message: row.message,
+      details: JSON.parse(row.details || '{}'),
+      timestamp: new Date(row.timestamp),
+      resolvedAt: row.resolved_at ? new Date(row.resolved_at) : undefined,
+      acknowledgedAt: row.acknowledged_at ? new Date(row.acknowledged_at) : undefined,
+      acknowledgedBy: row.acknowledged_by,
+      count: row.count,
+      suppressed: row.suppressed === 1,
+      suppressionReason: row.suppression_reason,
+      channels: JSON.parse(row.channels || '[]'),
+      sendResults: JSON.parse(row.send_results || '{}'),
+    }
+  }
+
+  async getStats(timeRange: TimeRange): Promise<AlertStats> {
+    const stmt = this.db.prepare(`
+      SELECT
+        COUNT(*) as total_alerts,
+        SUM(CASE WHEN resolved_at IS NULL THEN 1 ELSE 0 END) as active_alerts,
+        SUM(CASE WHEN resolved_at IS NOT NULL THEN 1 ELSE 0 END) as resolved_alerts,
+        SUM(CASE WHEN suppressed = 1 THEN 1 ELSE 0 END) as suppressed_alerts
+      FROM alerts
+      WHERE timestamp >= ? AND timestamp <= ?
+    `)
+
+    const row = stmt.get(timeRange.from.getTime(), timeRange.to.getTime()) as any
+
+    // 按级别统计
+    const levelStmt = this.db.prepare(`
+      SELECT level, COUNT(*) as count
+      FROM alerts
+      WHERE timestamp >= ? AND timestamp <= ?
+      GROUP BY level
+    `)
+
+    const levelRows = levelStmt.all(timeRange.from.getTime(), timeRange.to.getTime())
+    const byLevel: Record<string, number> = {}
+    levelRows.forEach((r: any) => {
+      byLevel[r.level] = r.count
+    })
+
+    return {
+      totalAlerts: row.total_alerts,
+      activeAlerts: row.active_alerts,
+      resolvedAlerts: row.resolved_alerts,
+      suppressedAlerts: row.suppressed_alerts,
+      byLevel,
+      byChannel: {},
+      avgResponseTime: 0,
+      topAlerts: [],
+    }
+  }
+
+  async deleteOldAlerts(beforeDate: Date): Promise<number> {
+    const stmt = this.db.prepare('DELETE FROM alerts WHERE timestamp < ?')
+    const result = stmt.run(beforeDate.getTime())
+    return result.changes
+  }
+}
+
+export { SQLiteAlertStorage }
+```
+
+**环境变量**:
+
+```env
+# SQLite 配置
+ALERT_STORAGE_TYPE=sqlite
+ALERT_STORAGE_PATH=/var/lib/7zi/alerts.db
+
+# PostgreSQL 配置（可选）
+# ALERT_STORAGE_TYPE=postgresql
+# ALERT_STORAGE_PG_HOST=localhost
+# ALERT_STORAGE_PG_PORT=5432
+# ALERT_STORAGE_PG_DATABASE=7zi
+# ALERT_STORAGE_PG_USER=7zi
+# ALERT_STORAGE_PG_PASSWORD=your_password
+```
+
+---
+
+#### 11.1.2 时间基础保留策略
+
+**当前状态**: ❌ 缺失
+
+**问题描述**:
+- 仅依赖内存数组大小限制（maxHistorySize）
+- 无法按时间自动清理过期数据
+- 无法满足合规要求（如保留 90 天）
+
+**推荐方案**:
+
+```typescript
+// src/lib/monitoring/alert/retention.ts
+
+export interface RetentionPolicy {
+  keepDays: number           // 保留天数（活跃数据）
+  archiveAfterDays: number   // 归档天数（超过此天数归档）
+  maxStorageSize: number     // 最大存储大小（MB）
+  archiveStorageSize: number // 归档存储大小（MB）
+}
+
+export const DEFAULT_RETENTION_POLICY: RetentionPolicy = {
+  keepDays: 90,              // 活跃数据保留 90 天
+  archiveAfterDays: 30,      // 30 天后归档
+  maxStorageSize: 1024,      // 最大 1GB
+  archiveStorageSize: 5120,  // 归档最大 5GB
+}
+
+export class RetentionManager {
+  private policy: RetentionPolicy
+  private storage: AlertStorage
+
+  constructor(policy: RetentionPolicy, storage: AlertStorage) {
+    this.policy = policy
+    this.storage = storage
+  }
+
+  async applyRetentionPolicy(): Promise<RetentionResult> {
+    const now = new Date()
+    const keepDate = new Date(now.getTime() - this.policy.keepDays * 24 * 60 * 60 * 1000)
+    const archiveDate = new Date(now.getTime() - this.policy.archiveAfterDays * 24 * 60 * 60 * 1000)
+
+    // 1. 归档过期数据
+    const archivedCount = await this.archiveOldAlerts(archiveDate)
+
+    // 2. 删除超期数据
+    const deletedCount = await this.storage.deleteOldAlerts(keepDate)
+
+    // 3. 检查存储大小
+    const storageSize = await this.getStorageSize()
+    if (storageSize > this.policy.maxStorageSize) {
+      // 如果超过最大存储，删除更早的数据
+      const extraDays = Math.ceil((storageSize - this.policy.maxStorageSize) / (storageSize / this.policy.keepDays))
+      const aggressiveKeepDate = new Date(keepDate.getTime() - extraDays * 24 * 60 * 60 * 1000)
+      const aggressiveDeletedCount = await this.storage.deleteOldAlerts(aggressiveKeepDate)
+      return {
+        archivedCount,
+        deletedCount: deletedCount + aggressiveDeletedCount,
+        storageSize,
+        aggressiveCleanup: true,
+      }
+    }
+
+    return {
+      archivedCount,
+      deletedCount,
+      storageSize,
+      aggressiveCleanup: false,
+    }
+  }
+
+  private async archiveOldAlerts(beforeDate: Date): Promise<number> {
+    // 实现归档逻辑（导出到文件或归档表）
+    const alerts = await this.storage.loadAlerts({
+      timeRange: { from: new Date(0), to: beforeDate },
+      limit: 10000,
+    })
+
+    // 导出为 JSON
+    const archivePath = `/var/lib/7zi/archives/alerts_${Date.now()}.json`
+    await fs.writeFile(archivePath, JSON.stringify(alerts, null, 2))
+
+    // 压缩
+    await exec(`gzip ${archivePath}`)
+
+    return alerts.length
+  }
+
+  private async getStorageSize(): Promise<number> {
+    // 获取数据库文件大小（MB）
+    const stats = await fs.stat('/var/lib/7zi/alerts.db')
+    return stats.size / (1024 * 1024)
+  }
+}
+
+interface RetentionResult {
+  archivedCount: number
+  deletedCount: number
+  storageSize: number
+  aggressiveCleanup: boolean
+}
+```
+
+**定时任务**:
+
+```typescript
+// src/lib/monitoring/alert/cron.ts
+
+import cron from 'node-cron'
+
+export function startRetentionCron(retentionManager: RetentionManager) {
+  // 每日凌晨 3 点执行保留策略
+  cron.schedule('0 3 * * *', async () => {
+    console.log('[Retention] Applying retention policy...')
+    const result = await retentionManager.applyRetentionPolicy()
+    console.log('[Retention] Result:', result)
+  })
+
+  // 每小时检查存储大小
+  cron.schedule('0 * * * *', async () => {
+    const storageSize = await retentionManager.getStorageSize()
+    if (storageSize > DEFAULT_RETENTION_POLICY.maxStorageSize * 0.9) {
+      console.warn(`[Retention] Storage size ${storageSize}MB approaching limit`)
+    }
+  })
+}
+```
+
+---
+
+#### 11.1.3 导出功能
+
+**当前状态**: ❌ 缺失
+
+**问题描述**:
+- 无法导出告警历史数据
+- 无法进行离线分析
+- 无法满足审计要求
+
+**推荐方案**:
+
+**API 端点**:
+
+```typescript
+// src/app/api/alerts/export/route.ts
+
+import { NextRequest, NextResponse } from 'next/server'
+import { alertStorage } from '@/lib/monitoring/alert/storage'
+
+export async function GET(request: NextRequest) {
+  const searchParams = request.nextUrl.searchParams
+  const format = searchParams.get('format') || 'json'
+  const from = searchParams.get('from')
+  const to = searchParams.get('to')
+  const level = searchParams.get('level')
+  const ruleId = searchParams.get('ruleId')
+
+  const timeRange = {
+    from: from ? new Date(from) : new Date(Date.now() - 7 * 24 * 60 * 60 * 1000),
+    to: to ? new Date(to) : new Date(),
+  }
+
+  const alerts = await alertStorage.loadAlerts({
+    timeRange,
+    severity: level ? [level] : undefined,
+    ruleId: ruleId || undefined,
+    limit: 10000,
+  })
+
+  const timestamp = new Date().toISOString().replace(/[:.]/g, '-')
+  const filename = `alerts_${timestamp}`
+
+  switch (format) {
+    case 'csv':
+      const csv = convertToCSV(alerts)
+      return new NextResponse(csv, {
+        headers: {
+          'Content-Type': 'text/csv',
+          'Content-Disposition': `attachment; filename="${filename}.csv"`,
+        },
+      })
+
+    case 'json':
+    default:
+      const json = JSON.stringify(alerts, null, 2)
+      return new NextResponse(json, {
+        headers: {
+          'Content-Type': 'application/json',
+          'Content-Disposition': `attachment; filename="${filename}.json"`,
+        },
+      })
+  }
+}
+
+function convertToCSV(alerts: AlertRecord[]): string {
+  const headers = [
+    'id',
+    'rule_id',
+    'level',
+    'message',
+    'timestamp',
+    'resolved_at',
+    'acknowledged_at',
+    'acknowledged_by',
+    'count',
+    'suppressed',
+    'channels',
+  ]
+
+  const rows = alerts.map((alert) => [
+    alert.id,
+    alert.ruleId,
+    alert.level,
+    `"${alert.message.replace(/"/g, '""')}"`,
+    alert.timestamp.toISOString(),
+    alert.resolvedAt?.toISOString() || '',
+    alert.acknowledgedAt?.toISOString() || '',
+    alert.acknowledgedBy || '',
+    alert.count,
+    alert.suppressed ? 'true' : 'false',
+    `"${alert.channels.join(',')}"`,
+  ])
+
+  return [headers.join(','), ...rows.map((r) => r.join(','))].join('\n')
+}
+```
+
+**使用示例**:
+
+```bash
+# 导出最近 7 天的告警（JSON）
+curl "https://7zi.com/api/alerts/export?format=json&from=2026-03-28&to=2026-04-04" -o alerts.json
+
+# 导出 P0 告警（CSV）
+curl "https://7zi.com/api/alerts/export?format=csv&level=p0" -o p0_alerts.csv
+
+# 导出特定规则的告警
+curl "https://7zi.com/api/alerts/export?ruleId=high-memory-usage" -o memory_alerts.json
+```
+
+---
+
+### 11.2 中优先级功能
+
+#### 11.2.1 增强统计 API
+
+**当前状态**: ⚠️ 基本完善
+
+**待增强功能**:
+
+```typescript
+// src/lib/monitoring/alert/stats.ts
+
+export interface EnhancedAlertStats extends AlertStats {
+  mttr: number                    // Mean Time To Resolve (平均解决时间)
+  mtta: number                    // Mean Time To Acknowledge (平均确认时间)
+  trend: AlertTrend               // 告警趋势
+  distribution: AlertDistribution // 告警分布
+  topRules: Array<{               // Top 告警规则
+    ruleId: string
+    count: number
+    avgResolutionTime: number
+  }>
+}
+
+export interface AlertTrend {
+  hourly: number[]      // 最近 24 小时
+  daily: number[]       // 最近 7 天
+  weekly: number[]      // 最近 4 周
+  direction: 'up' | 'down' | 'stable'
+  changePercent: number
+}
+
+export interface AlertDistribution {
+  byHour: number[]      // 按小时分布（0-23）
+  byDayOfWeek: number[] // 按星期分布（0-6）
+  byMonth: number[]     // 按月分布（1-12）
+}
+
+export class EnhancedStatsCalculator {
+  async calculateStats(timeRange: TimeRange): Promise<EnhancedAlertStats> {
+    const alerts = await this.storage.loadAlerts({ timeRange, limit: 10000 })
+
+    const baseStats = await this.storage.getStats(timeRange)
+
+    return {
+      ...baseStats,
+      mttr: this.calculateMTTR(alerts),
+      mtta: this.calculateMTTA(alerts),
+      trend: await this.calculateTrend(timeRange),
+      distribution: this.calculateDistribution(alerts),
+      topRules: this.calculateTopRules(alerts),
+    }
+  }
+
+  private calculateMTTR(alerts: AlertRecord[]): number {
+    const resolvedAlerts = alerts.filter((a) => a.resolvedAt && a.timestamp)
+    if (resolvedAlerts.length === 0) return 0
+
+    const totalResolutionTime = resolvedAlerts.reduce((sum, alert) => {
+      return sum + (alert.resolvedAt!.getTime() - alert.timestamp.getTime())
+    }, 0)
+
+    return totalResolutionTime / resolvedAlerts.length
+  }
+
+  private calculateMTTA(alerts: AlertRecord[]): number {
+    const acknowledgedAlerts = alerts.filter((a) => a.acknowledgedAt && a.timestamp)
+    if (acknowledgedAlerts.length === 0) return 0
+
+    const totalAckTime = acknowledgedAlerts.reduce((sum, alert) => {
+      return sum + (alert.acknowledgedAt!.getTime() - alert.timestamp.getTime())
+    }, 0)
+
+    return totalAckTime / acknowledgedAlerts.length
+  }
+
+  private async calculateTrend(timeRange: TimeRange): Promise<AlertTrend> {
+    const now = new Date()
+
+    // 最近 24 小时
+    const hourly: number[] = []
+    for (let i = 23; i >= 0; i--) {
+      const from = new Date(now.getTime() - (i + 1) * 60 * 60 * 1000)
+      const to = new Date(now.getTime() - i * 60 * 60 * 1000)
+      const stats = await this.storage.getStats({ from, to })
+      hourly.push(stats.totalAlerts)
+    }
+
+    // 最近 7 天
+    const daily: number[] = []
+    for (let i = 6; i >= 0; i--) {
+      const from = new Date(now.getTime() - (i + 1) * 24 * 60 * 60 * 1000)
+      const to = new Date(now.getTime() - i * 24 * 60 * 60 * 1000)
+      const stats = await this.storage.getStats({ from, to })
+      daily.push(stats.totalAlerts)
+    }
+
+    // 计算趋势方向
+    const recentAvg = daily.slice(-3).reduce((a, b) => a + b, 0) / 3
+    const previousAvg = daily.slice(0, 3).reduce((a, b) => a + b, 0) / 3
+    const changePercent = ((recentAvg - previousAvg) / previousAvg) * 100
+
+    let direction: 'up' | 'down' | 'stable' = 'stable'
+    if (changePercent > 10) direction = 'up'
+    if (changePercent < -10) direction = 'down'
+
+    return {
+      hourly,
+      daily,
+      weekly: [], // TODO
+      direction,
+      changePercent,
+    }
+  }
+
+  private calculateDistribution(alerts: AlertRecord[]): AlertDistribution {
+    const byHour = new Array(24).fill(0)
+    const byDayOfWeek = new Array(7).fill(0)
+    const byMonth = new Array(12).fill(0)
+
+    alerts.forEach((alert) => {
+      const date = alert.timestamp
+      byHour[date.getHours()]++
+      byDayOfWeek[date.getDay()]++
+      byMonth[date.getMonth()]++
+    })
+
+    return { byHour, byDayOfWeek, byMonth }
+  }
+
+  private calculateTopRules(alerts: AlertRecord[]): Array<{ ruleId: string; count: number; avgResolutionTime: number }> {
+    const ruleMap = new Map<string, { count: number; totalResolutionTime: number }>()
+
+    alerts.forEach((alert) => {
+      const existing = ruleMap.get(alert.ruleId) || { count: 0, totalResolutionTime: 0 }
+      existing.count++
+
+      if (alert.resolvedAt && alert.timestamp) {
+        existing.totalResolutionTime += alert.resolvedAt.getTime() - alert.timestamp.getTime()
+      }
+
+      ruleMap.set(alert.ruleId, existing)
+    })
+
+    return Array.from(ruleMap.entries())
+      .map(([ruleId, data]) => ({
+        ruleId,
+        count: data.count,
+        avgResolutionTime: data.count > 0 ? data.totalResolutionTime / data.count : 0,
+      }))
+      .sort((a, b) => b.count - a.count)
+      .slice(0, 10)
+  }
+}
+```
+
+---
+
+#### 11.2.2 归档 API
+
+**当前状态**: ❌ 缺失
+
+**推荐方案**:
+
+```typescript
+// src/app/api/alerts/archive/route.ts
+
+import { NextRequest, NextResponse } from 'next/server'
+import { retentionManager } from '@/lib/monitoring/alert/retention'
+
+// 手动触发归档
+export async function POST(request: NextRequest) {
+  const body = await request.json()
+  const beforeDate = body.beforeDate ? new Date(body.beforeDate) : undefined
+
+  const result = await retentionManager.applyRetentionPolicy()
+
+  return NextResponse.json({
+    success: true,
+    archivedCount: result.archivedCount,
+    deletedCount: result.deletedCount,
+    storageSize: result.storageSize,
+    aggressiveCleanup: result.aggressiveCleanup,
+  })
+}
+
+// 查询归档数据
+export async function GET(request: NextRequest) {
+  const searchParams = request.nextUrl.searchParams
+  const archiveFile = searchParams.get('file')
+
+  if (!archiveFile) {
+    // 列出所有归档文件
+    const archiveDir = '/var/lib/7zi/archives'
+    const files = await fs.readdir(archiveDir)
+    const archives = files.filter((f) => f.endsWith('.json.gz'))
+
+    return NextResponse.json({
+      archives: archives.map((f) => ({
+        filename: f,
+        size: (await fs.stat(`${archiveDir}/${f}`)).size,
+        createdAt: new Date(f.match(/alerts_(\d+)/)?.[1] || 0),
+      })),
+    })
+  }
+
+  // 读取特定归档文件
+  const archivePath = `/var/lib/7zi/archives/${archiveFile}`
+  const compressed = await fs.readFile(archivePath)
+  const decompressed = await gunzip(compressed)
+  const alerts = JSON.parse(decompressed.toString())
+
+  return NextResponse.json(alerts)
+}
+
+// 清理过期归档
+export async function DELETE(request: NextRequest) {
+  const searchParams = request.nextUrl.searchParams
+  const beforeDate = searchParams.get('beforeDate')
+
+  if (!beforeDate) {
+    return NextResponse.json({ error: 'Missing beforeDate parameter' }, { status: 400 })
+  }
+
+  const archiveDir = '/var/lib/7zi/archives'
+  const files = await fs.readdir(archiveDir)
+  const before = new Date(beforeDate)
+
+  let deletedCount = 0
+  for (const file of files) {
+    const match = file.match(/alerts_(\d+)/)
+    if (match) {
+      const fileDate = new Date(parseInt(match[1]))
+      if (fileDate < before) {
+        await fs.unlink(`${archiveDir}/${file}`)
+        deletedCount++
+      }
+    }
+  }
+
+  return NextResponse.json({
+    success: true,
+    deletedCount,
+  })
+}
+```
+
+---
+
+#### 11.2.3 自动归档任务
+
+**当前状态**: ❌ 缺失
+
+**推荐方案**:
+
+```typescript
+// src/lib/monitoring/alert/archive-cron.ts
+
+import cron from 'node-cron'
+import { retentionManager } from './retention'
+
+export function startArchiveCron() {
+  // 每日凌晨 3 点执行归档
+  cron.schedule('0 3 * * *', async () => {
+    console.log('[Archive] Starting archive job...')
+
+    try {
+      const result = await retentionManager.applyRetentionPolicy()
+
+      console.log('[Archive] Archive completed:', {
+        archived: result.archivedCount,
+        deleted: result.deletedCount,
+        storageSize: `${result.storageSize.toFixed(2)}MB`,
+        aggressiveCleanup: result.aggressiveCleanup,
+      })
+
+      // 发送归档报告
+      if (result.archivedCount > 0 || result.deletedCount > 0) {
+        await sendArchiveReport(result)
+      }
+    } catch (error) {
+      console.error('[Archive] Archive job failed:', error)
+      // 发送告警
+      await alertManager.sendAlert({
+        severity: 'p2',
+        title: 'Archive Job Failed',
+        message: `Alert archive job failed: ${error}`,
+        details: { error: String(error) },
+      })
+    }
+  })
+
+  // 每周日凌晨 4 点执行深度清理
+  cron.schedule('0 4 * * 0', async () => {
+    console.log('[Archive] Starting deep cleanup...')
+
+    try {
+      // 清理 6 个月前的归档文件
+      const beforeDate = new Date(Date.now() - 180 * 24 * 60 * 60 * 1000)
+      const archiveDir = '/var/lib/7zi/archives'
+      const files = await fs.readdir(archiveDir)
+
+      let deletedCount = 0
+      for (const file of files) {
+        const match = file.match(/alerts_(\d+)/)
+        if (match) {
+          const fileDate = new Date(parseInt(match[1]))
+          if (fileDate < beforeDate) {
+            await fs.unlink(`${archiveDir}/${file}`)
+            deletedCount++
+          }
+        }
+      }
+
+      console.log('[Archive] Deep cleanup completed:', { deletedCount })
+    } catch (error) {
+      console.error('[Archive] Deep cleanup failed:', error)
+    }
+  })
+}
+
+async function sendArchiveReport(result: RetentionResult) {
+  const message = `
+📦 Alert Archive Report
+
+Archived: ${result.archivedCount} alerts
+Deleted: ${result.deletedCount} alerts
+Storage Size: ${result.storageSize.toFixed(2)}MB
+Aggressive Cleanup: ${result.aggressiveCleanup ? 'Yes' : 'No'}
+
+Time: ${new Date().toISOString()}
+  `.trim()
+
+  // 发送到 Slack
+  await slackChannel.send({
+    text: '📦 Alert Archive Report',
+    attachments: [
+      {
+        color: '#22c55e',
+        title: 'Archive Completed',
+        text: message,
+        fields: [
+          { title: 'Archived', value: String(result.archivedCount), short: true },
+          { title: 'Deleted', value: String(result.deletedCount), short: true },
+          { title: 'Storage', value: `${result.storageSize.toFixed(2)}MB`, short: true },
+        ],
+        ts: Math.floor(Date.now() / 1000),
+      },
+    ],
+  })
+}
+```
+
+---
+
+### 11.3 低优先级功能
+
+#### 11.3.1 告警趋势预测
+
+**推荐方案**:
+
+```typescript
+// src/lib/monitoring/alert/prediction.ts
+
+export interface AlertPrediction {
+  predictedCount: number
+  confidence: number
+  trend: 'increasing' | 'decreasing' | 'stable'
+  recommendations: string[]
+}
+
+export class AlertPredictor {
+  async predictNextWeek(timeRange: TimeRange): Promise<AlertPrediction> {
+    const alerts = await this.storage.loadAlerts({ timeRange, limit: 10000 })
+
+    // 简单线性回归
+    const dailyCounts = this.groupByDay(alerts)
+    const trend = this.calculateLinearTrend(dailyCounts)
+
+    const predictedCount = Math.max(0, Math.round(trend.slope * 7 + trend.intercept))
+    const confidence = this.calculateConfidence(dailyCounts, trend)
+
+    let trendDirection: 'increasing' | 'decreasing' | 'stable' = 'stable'
+    if (trend.slope > 0.5) trendDirection = 'increasing'
+    if (trend.slope < -0.5) trendDirection = 'decreasing'
+
+    const recommendations = this.generateRecommendations(trendDirection, predictedCount)
+
+    return {
+      predictedCount,
+      confidence,
+      trend: trendDirection,
+      recommendations,
+    }
+  }
+
+  private groupByDay(alerts: AlertRecord[]): number[] {
+    const dayMap = new Map<number, number>()
+
+    alerts.forEach((alert) => {
+      const day = Math.floor(alert.timestamp.getTime() / (24 * 60 * 60 * 1000))
+      dayMap.set(day, (dayMap.get(day) || 0) + 1)
+    })
+
+    return Array.from(dayMap.values())
+  }
+
+  private calculateLinearTrend(data: number[]): { slope: number; intercept: number } {
+    const n = data.length
+    const x = Array.from({ length: n }, (_, i) => i)
+    const y = data
+
+    const sumX = x.reduce((a, b) => a + b, 0)
+    const sumY = y.reduce((a, b) => a + b, 0)
+    const sumXY = x.reduce((sum, xi, i) => sum + xi * y[i], 0)
+    const sumXX = x.reduce((sum, xi) => sum + xi * xi, 0)
+
+    const slope = (n * sumXY - sumX * sumY) / (n * sumXX - sumX * sumX)
+    const intercept = (sumY - slope * sumX) / n
+
+    return { slope, intercept }
+  }
+
+  private calculateConfidence(data: number[], trend: { slope: number; intercept: number }): number {
+    // 计算R²
+    const yMean = data.reduce((a, b) => a + b, 0) / data.length
+    const ssTotal = data.reduce((sum, y) => sum + Math.pow(y - yMean, 2), 0)
+
+    const ssResidual = data.reduce((sum, y, i) => {
+      const predicted = trend.slope * i + trend.intercept
+      return sum + Math.pow(y - predicted, 2)
+    }, 0)
+
+    const r2 = 1 - ssResidual / ssTotal
+    return Math.max(0, Math.min(1, r2))
+  }
+
+  private generateRecommendations(trend: string, predictedCount: number): string[] {
+    const recommendations: string[] = []
+
+    if (trend === 'increasing') {
+      recommendations.push('告警数量呈上升趋势，建议检查系统健康状况')
+      recommendations.push('考虑增加监控频率或调整告警阈值')
+    } else if (trend === 'decreasing') {
+      recommendations.push('告警数量呈下降趋势，系统稳定性改善')
+    }
+
+    if (predictedCount > 100) {
+      recommendations.push('预计下周告警数量较高，建议提前准备')
+    }
+
+    return recommendations
+  }
+}
+```
+
+---
+
+### 11.4 实施优先级和时间表
+
+| 功能                     | 优先级 | 预计工时 | 负责人      | 完成日期 |
+| ------------------------ | ------ | -------- | ----------- | -------- |
+| 持久化存储（SQLite）     | 高     | 3 天     | ⚡ Executor | Week 1-2 |
+| 时间基础保留策略         | 高     | 2 天     | ⚡ Executor | Week 2   |
+| 导出功能（CSV/JSON）     | 高     | 2 天     | ⚡ Executor | Week 2-3 |
+| 增强统计 API             | 中     | 3 天     | ⚡ Executor | Week 3-4 |
+| 归档 API                 | 中     | 2 天     | ⚡ Executor | Week 4   |
+| 自动归档任务             | 中     | 1 天     | ⚡ Executor | Week 4   |
+| 告警趋势预测             | 低     | 3 天     | 📚 咨询师   | Week 5-6 |
+
+---
+
+### 11.5 总结
+
+本章节列出了基于告警历史记录分析报告的待实现功能，主要包括：
+
+**高优先级**（必须实现）:
+1. ✅ 持久化存储（SQLite/PostgreSQL）
+2. ✅ 时间基础保留策略
+3. ✅ 导出功能（CSV/JSON）
+
+**中优先级**（建议实现）:
+4. ✅ 增强统计 API（MTTR、趋势分析）
+5. ✅ 归档 API
+6. ✅ 自动归档任务
+
+**低优先级**（可选实现）:
+7. ✅ 告警趋势预测
+
+这些功能将显著提升告警系统的数据管理能力，满足长期存储、合规要求和离线分析需求。
+
+---
+
+**文档版本**: v1.1  
+**最后更新**: 2026-04-04  
 **作者**: 📚 咨询师（研究分析师）
