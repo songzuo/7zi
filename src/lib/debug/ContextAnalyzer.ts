@@ -15,6 +15,16 @@ import type {
 import { stackAnalyzer, parseStackTrace } from './StackAnalyzer'
 
 // ============================================
+// 堆栈帧接口
+// ============================================
+interface StackFrame {
+  fileName?: string
+  lineNumber?: number
+  columnNumber?: number
+  functionName?: string
+}
+
+// ============================================
 // 可疑模式
 // ============================================
 
@@ -176,7 +186,7 @@ export class ContextAnalyzer {
   /**
    * 提取相关变量信息
    */
-  private extractVariables(error: Error, rootFrame: any): ContextVariable[] {
+  private extractVariables(error: Error, rootFrame: StackFrame | undefined): ContextVariable[] {
     const variables: ContextVariable[] = []
 
     // 从错误消息中提取变量名
@@ -243,7 +253,7 @@ export class ContextAnalyzer {
   private async findRelatedCode(
     error: Error,
     sourceCode: Map<string, string> | undefined,
-    rootFrame: any
+    rootFrame: StackFrame | undefined
   ): Promise<CodeReference[]> {
     const references: CodeReference[] = []
 
@@ -345,7 +355,7 @@ export class ContextAnalyzer {
   /**
    * 捕获状态
    */
-  private captureState(error: Error, rootFrame: any): Record<string, unknown> {
+  private captureState(error: Error, rootFrame: StackFrame | undefined): Record<string, unknown> {
     const snapshot: Record<string, unknown> = {
       timestamp: new Date().toISOString(),
       errorMessage: error.message,
