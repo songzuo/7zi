@@ -14,9 +14,12 @@
 
 'use client'
 
-import React, { memo } from 'react'
-import { AlertTriangle, RefreshCw, Home, Bug, FileText, Copy, Check } from 'lucide-react'
+import React, { memo, useState } from 'react'
+import { AlertTriangle, RefreshCw, Home, Bug, FileText, Copy, Check, RotateCcw, ArrowLeft } from 'lucide-react'
 import type { ErrorFallbackProps } from './ErrorBoundary'
+import { withRetry } from '@/lib/error-reporting/retry'
+import { logger } from '@/lib/logger'
+import { addErrorLog } from '@/lib/error-reporting/error-log-history'
 
 interface ErrorFallbackConfig {
   /**
@@ -65,6 +68,19 @@ interface ErrorFallbackConfig {
   }>
 
   /**
+   * Retry configuration
+   */
+  retryConfig?: {
+    maxAttempts?: number
+    initialDelay?: number
+  }
+
+  /**
+   * Retry callback
+   */
+  onRetry?: (attempt: number, lastError?: Error) => Promise<void>
+
+  /**
    * Custom styles
    */
   className?: string
@@ -99,10 +115,13 @@ export function FullErrorFallback({
   resetError,
   config = {},
 }: ErrorFallbackProps & { config?: ErrorFallbackConfig }) {
-  const [copied, setCopied] = React.useState(false)
-  const [showDetails, setShowDetails] = React.useState(
+  const [copied, setCopied] = useState(false)
+  const [showDetails, setShowDetails] = useState(
     config.showErrorDetails ?? process.env.NODE_ENV === 'development'
   )
+  const [isRetrying, setIsRetrying] = useState(false)
+  const [retryAttempt, setRetryAttempt] = useState(0)
+  const [retryError, setRetryError] = useState<Error | undefined>()
 
   const {
     title = 'Something went wrong',
@@ -112,6 +131,8 @@ export function FullErrorFallback({
     showSupportLink = true,
     supportContact = 'mailto:support@example.com',
     additionalActions = [],
+    retryConfig = { maxAttempts: 3, initialDelay: 1000 },
+    onRetry,
     className = '',
   } = config
 
@@ -127,6 +148,74 @@ ${errorInfo?.componentStack || 'N/A'}
     navigator.clipboard.writeText(errorText)
     setCopied(true)
     setTimeout(() => setCopied(false), 2000)
+  }
+
+  const handleRetry = async () => {
+    setIsRetrying(true)
+    setRetryError(undefined)
+
+    try {
+      const result = await withRetry(
+        async () => {
+          // 记录重试日志
+          await addErrorLog(
+            'ErrorBoundaryRetry',
+            `Attempting to recover from error: ${error?.message || 'Unknown error'}`,
+            'low',
+            'recovery',
+            {
+              attempt: retryAttempt + 1,
+              errorId: errorInfo?.digest || 'unknown',
+            }
+          )
+
+          // 调用自定义重试回调
+          if (onRetry) {
+            await onRetry(retryAttempt + 1, error || undefined)
+          }
+
+          // 重置错误边界
+          resetError()
+
+          // 等待一小段时间以确保渲染完成
+          await new Promise(resolve => setTimeout(resolve, 100))
+
+          throw new Error('Success') // 用于触发成功逻辑
+        },
+        {
+          maxAttempts: retryConfig.maxAttempts || 3,
+          initialDelay: retryConfig.initialDelay || 1000,
+          label: 'ErrorBoundaryRetry',
+        }
+      )
+
+      if (result.success) {
+        logger.info('Error boundary retry succeeded', { attempt: result.attempts })
+      } else {
+        setRetryError(result.error)
+        logger.warn('Error boundary retry failed', { attempts: result.attempts, error: result.error })
+      }
+    } catch (e) {
+      // 成功重置时会抛出 'Success' 错误，这是预期的
+      const err = e as Error
+      if (err.message !== 'Success') {
+        setRetryError(err)
+      }
+    } finally {
+      setIsRetrying(false)
+    }
+  }
+
+  const handleRefresh = () => {
+    window.location.reload()
+  }
+
+  const handleGoBack = () => {
+    if (typeof window !== 'undefined' && window.history.length > 1) {
+      window.history.back()
+    } else {
+      window.location.href = '/'
+    }
   }
 
   return (
@@ -145,6 +234,31 @@ ${errorInfo?.componentStack || 'N/A'}
         </h1>
 
         <p className="mb-8 text-center text-gray-600 dark:text-gray-400">{message}</p>
+
+        {/* Retry status */}
+        {isRetrying && (
+          <div className="mb-6 flex items-center justify-center rounded-lg bg-blue-50 p-4 dark:bg-blue-900/20">
+            <RefreshCw className="mr-3 h-5 w-5 animate-spin text-blue-600 dark:text-blue-400" />
+            <span className="text-sm font-medium text-blue-900 dark:text-blue-100">
+              Retrying... ({retryAttempt + 1}/{retryConfig.maxAttempts})
+            </span>
+          </div>
+        )}
+
+        {/* Retry error */}
+        {retryError && (
+          <div className="mb-6 flex items-start gap-3 rounded-lg bg-orange-50 p-4 dark:bg-orange-900/20">
+            <AlertTriangle className="mt-0.5 h-5 w-5 flex-shrink-0 text-orange-600 dark:text-orange-400" />
+            <div className="min-w-0 flex-1">
+              <p className="mb-1 text-sm font-medium text-orange-900 dark:text-orange-100">
+                Retry Failed
+              </p>
+              <p className="text-sm text-orange-700 dark:text-orange-300">
+                {retryError.message || 'An error occurred while attempting to recover.'}
+              </p>
+            </div>
+          </div>
+        )}
 
         {/* Error details toggle */}
         {(config.showErrorDetails ?? process.env.NODE_ENV === 'development') && (
@@ -211,16 +325,45 @@ ${errorInfo?.componentStack || 'N/A'}
         {showRecoveryOptions && (
           <div className="mb-8 space-y-3">
             <button
-              onClick={resetError}
-              className="flex w-full items-center justify-center rounded-lg bg-blue-600 px-6 py-3 font-medium text-white transition-colors hover:bg-blue-700 focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 focus:outline-none dark:focus:ring-offset-gray-800"
+              onClick={handleRetry}
+              disabled={isRetrying}
+              className="flex w-full items-center justify-center rounded-lg bg-blue-600 px-6 py-3 font-medium text-white transition-colors hover:bg-blue-700 focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 focus:outline-none disabled:opacity-50 disabled:cursor-not-allowed dark:focus:ring-offset-gray-800"
+            >
+              {isRetrying ? (
+                <>
+                  <RefreshCw className="mr-2 h-5 w-5 animate-spin" />
+                  Retrying...
+                </>
+              ) : (
+                <>
+                  <RotateCcw className="mr-2 h-5 w-5" />
+                  Try Again
+                </>
+              )}
+            </button>
+
+            <button
+              onClick={handleRefresh}
+              disabled={isRetrying}
+              className="flex w-full items-center justify-center rounded-lg bg-gray-200 px-6 py-3 font-medium text-gray-900 transition-colors hover:bg-gray-300 focus:ring-2 focus:ring-gray-500 focus:ring-offset-2 focus:outline-none disabled:opacity-50 disabled:cursor-not-allowed dark:bg-gray-700 dark:text-white dark:hover:bg-gray-600 dark:focus:ring-offset-gray-800"
             >
               <RefreshCw className="mr-2 h-5 w-5" />
-              Try Again
+              Refresh Page
+            </button>
+
+            <button
+              onClick={handleGoBack}
+              disabled={isRetrying}
+              className="flex w-full items-center justify-center rounded-lg border border-gray-300 bg-white px-6 py-3 font-medium text-gray-900 transition-colors hover:bg-gray-50 focus:ring-2 focus:ring-gray-500 focus:ring-offset-2 focus:outline-none disabled:opacity-50 disabled:cursor-not-allowed dark:border-gray-600 dark:bg-gray-800 dark:text-white dark:hover:bg-gray-700 dark:focus:ring-offset-gray-800"
+            >
+              <ArrowLeft className="mr-2 h-5 w-5" />
+              Go Back
             </button>
 
             <button
               onClick={() => (window.location.href = '/')}
-              className="flex w-full items-center justify-center rounded-lg bg-gray-200 px-6 py-3 font-medium text-gray-900 transition-colors hover:bg-gray-300 focus:ring-2 focus:ring-gray-500 focus:ring-offset-2 focus:outline-none dark:bg-gray-700 dark:text-white dark:hover:bg-gray-600 dark:focus:ring-offset-gray-800"
+              disabled={isRetrying}
+              className="flex w-full items-center justify-center rounded-lg border border-gray-300 bg-white px-6 py-3 font-medium text-gray-900 transition-colors hover:bg-gray-50 focus:ring-2 focus:ring-gray-500 focus:ring-offset-2 focus:outline-none disabled:opacity-50 disabled:cursor-not-allowed dark:border-gray-600 dark:bg-gray-800 dark:text-white dark:hover:bg-gray-700 dark:focus:ring-offset-gray-800"
             >
               <Home className="mr-2 h-5 w-5" />
               Go to Home
@@ -230,7 +373,8 @@ ${errorInfo?.componentStack || 'N/A'}
               <button
                 key={index}
                 onClick={action.onClick}
-                className="flex w-full items-center justify-center rounded-lg border border-gray-300 bg-white px-6 py-3 font-medium text-gray-900 transition-colors hover:bg-gray-50 focus:ring-2 focus:ring-gray-500 focus:ring-offset-2 focus:outline-none dark:border-gray-600 dark:bg-gray-800 dark:text-white dark:hover:bg-gray-700 dark:focus:ring-offset-gray-800"
+                disabled={isRetrying}
+                className="flex w-full items-center justify-center rounded-lg border border-gray-300 bg-white px-6 py-3 font-medium text-gray-900 transition-colors hover:bg-gray-50 focus:ring-2 focus:ring-gray-500 focus:ring-offset-2 focus:outline-none disabled:opacity-50 disabled:cursor-not-allowed dark:border-gray-600 dark:bg-gray-800 dark:text-white dark:hover:bg-gray-700 dark:focus:ring-offset-gray-800"
               >
                 {action.icon}
                 {action.label}
@@ -265,7 +409,7 @@ export function CardErrorFallback({
   resetError,
   config = {},
 }: ErrorFallbackProps & {
-  config?: Omit<ErrorFallbackConfig, 'showErrorDetails' | 'showSupportLink'>
+  config?: Omit<ErrorFallbackConfig, 'showErrorDetails' | 'showSupportLink' | 'retryConfig' | 'onRetry'>
 }) {
   const {
     title = 'Error',
