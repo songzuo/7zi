@@ -17,7 +17,7 @@ import {
   type WorkflowExport,
   type NodeType,
 } from '@/components/WorkflowEditor'
-import type { NodeProps } from 'reactflow'
+import type { NodeProps, Node } from 'reactflow'
 
 // ============================================
 // 示例 1: 基本使用
@@ -41,7 +41,7 @@ export function BasicExample() {
 // ============================================
 
 export function InitialDataExample() {
-  const initialNodes = [
+  const initialNodes: Node<WorkflowNodeData>[] = [
     {
       id: 'start-1',
       type: 'start',
@@ -96,7 +96,7 @@ export function InitialDataExample() {
   return (
     <WorkflowEditor
       workflowId="example-workflow-1"
-      initialNodes={initialNodes as any}
+      initialNodes={initialNodes}
       initialEdges={initialEdges}
       onSave={workflow => console.log('保存:', workflow)}
     />
@@ -307,7 +307,7 @@ export function UndoRedoHookExample() {
 // ============================================
 
 export function CompleteWorkflowExample() {
-  const initialNodes = [
+  const initialNodes: Node<WorkflowNodeData>[] = [
     // 开始节点
     {
       id: 'start',
@@ -414,7 +414,7 @@ export function CompleteWorkflowExample() {
   return (
     <WorkflowEditor
       workflowId="complete-workflow-example"
-      initialNodes={initialNodes as any}
+      initialNodes={initialNodes}
       initialEdges={initialEdges}
       onSave={workflow => console.log('保存:', workflow)}
     />

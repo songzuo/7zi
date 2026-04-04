@@ -201,6 +201,58 @@ export interface NetworkRootCauseDetails {
 }
 
 /**
+ * Details for database analysis with aggregated metrics
+ */
+export interface DatabaseAnalysisDetails {
+  totalSlowQueries: number
+  avgDuration: number
+  maxDuration: number
+  slowestQuery: {
+    query: string
+    duration: number
+    type: string
+    rowCount: number
+  }
+  issues: string[]
+}
+
+/**
+ * Details for API analysis with aggregated metrics
+ */
+export interface APIAnalysisDetails {
+  totalSlowApis: number
+  avgDuration: number
+  errorCount: number
+  errorRate: number
+  slowestApi: {
+    endpoint: string
+    method: string
+    duration: number
+    statusCode: number
+  }
+  issues: string[]
+}
+
+/**
+ * Details for resource analysis
+ */
+export interface ResourceAnalysisDetails {
+  totalSize: number
+  slowResourcesCount: number
+  resourcesByType: Record<string, { count: number; totalSize: number }>
+}
+
+/**
+ * Details for memory analysis
+ */
+export interface MemoryAnalysisDetails {
+  usedJSHeapSize: number
+  totalJSHeapSize: number
+  jsHeapSizeLimit: number
+  memoryUsage: number
+}
+
+/**
  * Union type for all root cause details
  */
 export type RootCauseDetails = 
@@ -209,6 +261,13 @@ export type RootCauseDetails =
   | RenderingRootCauseDetails 
   | MemoryRootCauseDetails 
   | NetworkRootCauseDetails
+  | DatabaseAnalysisDetails
+  | APIAnalysisDetails
+  | ResourceAnalysisDetails
+  | MemoryAnalysisDetails
+  | RenderingMetrics
+  | NetworkInfo
+  | CPUMetrics
 
 export interface RootCauseCandidate {
   type: 'database' | 'api' | 'rendering' | 'resource' | 'network' | 'memory' | 'cpu' | 'code'
