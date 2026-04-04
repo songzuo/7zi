@@ -256,6 +256,7 @@ export class MessageBus extends EventEmitter {
   private maxRetryCount: number
   private retryDelay: number
   private processing: boolean = false
+  private agentId: string // 当前 Agent 的唯一标识
 
   constructor(
     transportType: TransportType = TransportType.MEMORY,
@@ -265,6 +266,7 @@ export class MessageBus extends EventEmitter {
       maxRetryCount?: number
       retryDelay?: number
       bufferSize?: number
+      agentId?: string // Agent ID，用于标识消息发送者
     }
   ) {
     super()
@@ -272,6 +274,7 @@ export class MessageBus extends EventEmitter {
     this.defaultTimeout = options?.defaultTimeout || 30000 // 30秒
     this.maxRetryCount = options?.maxRetryCount || 3
     this.retryDelay = options?.retryDelay || 1000 // 1秒
+    this.agentId = options?.agentId || this.generateId() // 使用传入的 ID 或生成新的
 
     // 初始化传输层
     if (transportType === TransportType.WEBSOCKET && options?.transportUrl) {
@@ -296,6 +299,20 @@ export class MessageBus extends EventEmitter {
 
     // 启动消息处理循环
     this.startProcessing()
+  }
+
+  /**
+   * 获取当前 Agent ID
+   */
+  getAgentId(): string {
+    return this.agentId
+  }
+
+  /**
+   * 设置 Agent ID（用于动态更新）
+   */
+  setAgentId(agentId: string): void {
+    this.agentId = agentId
   }
 
   /**
@@ -347,7 +364,7 @@ export class MessageBus extends EventEmitter {
     const headers: MessageHeaders = {
       id: this.generateId(),
       type: MessageType.REQUEST,
-      from: this.generateId(), // TODO: 使用真实的 Agent ID
+      from: this.agentId,
       to,
       correlationId,
       priority: options?.priority || MessagePriority.NORMAL,
@@ -393,7 +410,7 @@ export class MessageBus extends EventEmitter {
   ): () => void {
     const subscription: Subscription = {
       id: this.generateId(),
-      subscriberId: this.generateId(), // TODO: 使用真实的 Agent ID
+      subscriberId: this.agentId,
       topic,
       filter,
       createdAt: Date.now(),
@@ -433,7 +450,7 @@ export class MessageBus extends EventEmitter {
     const headers: MessageHeaders = {
       id: this.generateId(),
       type: MessageType.BROADCAST,
-      from: this.generateId(), // TODO: 使用真实的 Agent ID
+      from: this.agentId,
       topic,
       priority: options?.priority || MessagePriority.NORMAL,
       timestamp: Date.now(),
