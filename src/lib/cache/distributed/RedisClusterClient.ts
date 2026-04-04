@@ -26,7 +26,7 @@ interface RedisClient {
   decr(key: string): Promise<number>
   ping(): Promise<'PONG'>
   quit(): Promise<'OK'>
-  on(event: string, listener: (...args: any[]) => void): this
+  on(event: string, listener: (...args: unknown[]) => void): this
   disconnect?: () => void
 }
 
@@ -165,7 +165,7 @@ class MockRedisClient implements RedisClient {
     return 'OK'
   }
   
-  on(_event: string, _listener: (...args: any[]) => void): this {
+  on(_event: string, _listener: (...args: unknown[]) => void): this {
     return this
   }
   
@@ -256,8 +256,9 @@ export class RedisClusterClient {
         }
         
         // Set up event handlers
-        this.client.on('error', (err: Error) => {
-          logger.error('[RedisCluster] Connection error', { category: 'cache', data: { error: err.message } })
+        this.client.on('error', (err: unknown) => {
+          const error = err instanceof Error ? err : new Error(String(err))
+          logger.error('[RedisCluster] Connection error', { category: 'cache', data: { error: error.message } })
           this.connected = false
           this.stats.errors++
         })

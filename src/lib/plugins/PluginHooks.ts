@@ -36,7 +36,7 @@ export class PluginHooks implements IHookRegistry {
 
     const hooks = this.hooks.get(hook)!;
     hooks.push({
-      handler,
+      handler: handler as HookHandler,
       config: {
         enabled: true,
         priority: 0,
@@ -167,8 +167,9 @@ export class PluginHooks implements IHookRegistry {
 
     const promises = handlers.map(async ({ handler, config }) => {
       try {
+        const result = handler(context, input)
         return await this.executeWithTimeout(
-          handler(context, input),
+          Promise.resolve(result) as Promise<TOutput>,
           config.timeout || 5000
         );
       } catch (error) {
@@ -180,7 +181,7 @@ export class PluginHooks implements IHookRegistry {
     });
 
     const results = await Promise.all(promises);
-    return results.filter((r): r is TOutput => r !== undefined);
+    return results.filter((r) => r !== undefined) as TOutput[];
   }
 
   /**
@@ -202,8 +203,9 @@ export class PluginHooks implements IHookRegistry {
       };
 
       try {
+        const result = handler(context, currentValue)
         currentValue = await this.executeWithTimeout(
-          handler(context, currentValue),
+          Promise.resolve(result) as Promise<T>,
           config.timeout || 5000
         );
       } catch (error) {
@@ -281,7 +283,7 @@ export class PluginHooks implements IHookRegistry {
   /**
    * Emit hook event
    */
-  emit(event: string, ...args: any[]): boolean {
+  emit(event: string, ...args: unknown[]): boolean {
     return this.events.emit(event, ...args);
   }
 }

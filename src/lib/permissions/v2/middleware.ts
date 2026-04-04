@@ -130,15 +130,15 @@ async function extractUserContext(request: NextRequest): Promise<{
 /**
  * 从请求中提取资源上下文
  */
-function extractResourceContext(
+async function extractResourceContext(
   request: NextRequest,
   resourceType: ResourceType,
   resourceIdParam: string = 'id'
-): {
+): Promise<{
   resourceType: ResourceType
   resourceId: string
   attributes: Record<string, unknown>
-} {
+}> {
   const url = new URL(request.url)
   const resourceId = url.pathname.split('/').pop() || url.searchParams.get(resourceIdParam) || ''
 
@@ -148,8 +148,7 @@ function extractResourceContext(
   try {
     if (request.method !== 'GET') {
       const body = request.clone()
-      const json = body.json()
-      attributes = (await json) as Record<string, unknown> || {}
+      attributes = await body.json() as Record<string, unknown> || {}
     }
 
     // 添加查询参数作为属性
@@ -181,7 +180,15 @@ export function withFineGrainedPermission(
 
   return async (
     request: NextRequest,
-    handler: (request: NextRequest, userContext: any) => Promise<NextResponse>
+    handler: (request: NextRequest, userContext: {
+      userId: string
+      roles: string[]
+      permissions: string[]
+      customPermissions?: string[]
+      tenantId?: string
+      teamIds?: string[]
+      permissionCheckResult?: PermissionCheckResultV2
+    }) => Promise<NextResponse>
   ): Promise<NextResponse> => {
     const startTime = performance.now()
 
@@ -193,7 +200,7 @@ export function withFineGrainedPermission(
       }
 
       // 2. 提取资源上下文
-      const resourceContext = extractResourceContext(request, resourceType)
+      const resourceContext = await extractResourceContext(request, resourceType)
 
       // 3. 获取所有权限
       const allPermissions = await getPermissions()
@@ -312,7 +319,14 @@ export function withBatchPermissions(
 
   return async (
     request: NextRequest,
-    handler: (request: NextRequest, userContext: any, results: PermissionCheckResultV2[]) => Promise<NextResponse>
+    handler: (request: NextRequest, userContext: {
+      userId: string
+      roles: string[]
+      permissions: string[]
+      customPermissions?: string[]
+      tenantId?: string
+      teamIds?: string[]
+    }, results: PermissionCheckResultV2[]) => Promise<NextResponse>
   ): Promise<NextResponse> => {
     const startTime = performance.now()
 
@@ -330,7 +344,7 @@ export function withBatchPermissions(
       const results: PermissionCheckResultV2[] = []
 
       for (const check of checks) {
-        const resourceContext = extractResourceContext(
+        const resourceContext = await extractResourceContext(
           request,
           check.resourceType,
           check.resourceIdParam
@@ -417,7 +431,14 @@ export function withOptionalPermission(
 
   return async (
     request: NextRequest,
-    handler: (request: NextRequest, userContext: any | null, checkResult: PermissionCheckResultV2 | null) => Promise<NextResponse>
+    handler: (request: NextRequest, userContext: {
+      userId: string
+      roles: string[]
+      permissions: string[]
+      customPermissions?: string[]
+      tenantId?: string
+      teamIds?: string[]
+    } | null, checkResult: PermissionCheckResultV2 | null) => Promise<NextResponse>
   ): Promise<NextResponse> => {
     try {
       // 提取用户上下文（可选）
@@ -431,7 +452,7 @@ export function withOptionalPermission(
       const allPermissions = await getPermissions()
 
       // 提取资源上下文
-      const resourceContext = extractResourceContext(request, resourceType)
+      const resourceContext = await extractResourceContext(request, resourceType)
 
       // 执行权限检查
       const checkRequest: PermissionCheckRequest = {

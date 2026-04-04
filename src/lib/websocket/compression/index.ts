@@ -49,10 +49,10 @@ export type {
 // Integrated Optimization Manager
 // ============================================================================
 
-import { CompressionManager, type CompressionConfig } from './compression-manager'
-import { BatchMessageProcessor, type BatchConfig, MessagePriority } from './batch-message-processor'
-import { IncrementalUpdateManager, type DiffConfig } from './incremental-update'
-import { MessageCache, type CacheConfig } from './message-cache'
+import { CompressionManager, type CompressionConfig, type CompressionStats, type CompressedMessage, type ClientCapabilities, getCompressionManager } from './compression-manager'
+import { BatchMessageProcessor, type BatchConfig, type BatchStats, type BatchResult, MessagePriority, getBatchProcessor } from './batch-message-processor'
+import { IncrementalUpdateManager, type DiffConfig, type IncrementalUpdateStats, type DiffResult, getIncrementalUpdateManager } from './incremental-update'
+import { MessageCache, type CacheConfig, type CacheStats, getMessageCache, generateMessageCacheKey } from './message-cache'
 
 export interface OptimizationConfig {
   compression?: CompressionConfig
@@ -173,7 +173,7 @@ export class WebSocketOptimizationManager {
 
     // Cache the result
     if (!options.skipCache && result.processed) {
-      const cacheKey = generateMessageCacheKey(event, data)
+      const cacheKey = generateMessageCacheKey(event, JSON.stringify(data))
       this.cache.set(cacheKey, data)
     }
 
@@ -199,7 +199,7 @@ export class WebSocketOptimizationManager {
 
     // 1. Check cache
     if (options.checkCache) {
-      const cacheKey = generateMessageCacheKey('incoming', data)
+      const cacheKey = generateMessageCacheKey('incoming', JSON.stringify(data))
       const cached = this.cache.get(cacheKey)
       
       if (cached) {
@@ -225,10 +225,11 @@ export class WebSocketOptimizationManager {
 
     // 3. Apply diff
     if (options.applyDiff && result && typeof result === 'object') {
-      if (result.type === 'incremental' && result.diff) {
+      const resultObj = result as Record<string, unknown>
+      if (resultObj.type === 'incremental' && resultObj.diff) {
         // Need previous state to apply diff
         // This would be handled by the application layer
-        result.diff = result.diff
+        resultObj.diff = resultObj.diff
       }
     }
 

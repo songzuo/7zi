@@ -56,14 +56,13 @@ export class PluginLoader implements IPluginLoader {
    */
   async load(id: string, source?: PluginSource): Promise<Plugin> {
     try {
-      let plugin: Plugin;
+      let plugin: Plugin | null = null;
 
       // Try to load from different sources
       if (source) {
         plugin = await this.loadFromSource(id, source);
       } else {
         // Try to find plugin in search paths
-        plugin = null as any;
         for (const pluginPath of this.pluginPaths) {
           const found = await this.tryLoadFromPath(id, pluginPath);
           if (found) {
@@ -137,7 +136,7 @@ export class PluginLoader implements IPluginLoader {
     }
 
     // Load plugin module
-    let pluginModule: any;
+    let pluginModule: unknown;
     const modulePath = fs.existsSync(indexPath) ? indexPath : tsIndexPath;
 
     if (fs.existsSync(modulePath)) {
@@ -152,7 +151,7 @@ export class PluginLoader implements IPluginLoader {
     }
 
     // Create plugin instance
-    const PluginClass = pluginModule.default || pluginModule;
+    const PluginClass = (pluginModule as any).default || pluginModule;
     const plugin: Plugin = new PluginClass();
 
     // Attach metadata
@@ -179,7 +178,7 @@ export class PluginLoader implements IPluginLoader {
 
     // Load module
     const pluginModule = require(modulePath);
-    const PluginClass = pluginModule.default || pluginModule;
+    const PluginClass = (pluginModule as any).default || pluginModule;
     const plugin: Plugin = new PluginClass();
 
     // Load metadata from package.json

@@ -9,7 +9,7 @@ import {
   PermissionCheckRequest,
   PermissionCheckResultV2,
 } from './types'
-import { getDatabaseAsync } from '../db'
+import { getDatabaseAsync, type DatabaseConnection } from '../db'
 
 /**
  * 审计日志配置
@@ -266,7 +266,7 @@ export class AuditLogManager {
   /**
    * 初始化审计表
    */
-  private async initializeAuditTable(db: any): Promise<void> {
+  private async initializeAuditTable(db: DatabaseConnection): Promise<void> {
     const stmt = db.prepare(`
       CREATE TABLE IF NOT EXISTS permission_audit_logs (
         id TEXT PRIMARY KEY,

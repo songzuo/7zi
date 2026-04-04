@@ -9,6 +9,7 @@ import { v4 as uuidv4 } from 'uuid'
 import { promises as fs } from 'fs'
 import path from 'path'
 import { logger } from '../../logger'
+import { ExportRequest } from '../service/export-service'
 
 // ============================================================================
 // 类型定义
@@ -37,7 +38,7 @@ export interface ExportJob {
   id: string
   requestId: string
   status: ExportJobStatus
-  request: any
+  request: ExportRequest<unknown>
   progress: ExportJobProgress
   result?: {
     filename: string
@@ -463,10 +464,10 @@ export class ExportQueue {
   /**
    * 获取任务优先级
    */
-  private getPriority(request: any): number {
+  private getPriority(request: ExportRequest<unknown>): number {
     // 根据请求类型返回优先级
     // 1-10, 10 为最高优先级
-    if (request.background) {
+    if ('background' in request && request.background) {
       return 1 // 后台任务最低优先级
     }
     return 5 // 默认优先级
@@ -477,6 +478,5 @@ export class ExportQueue {
 // 导出
 // ============================================================================
 
-export { ExportQueue, ExportQueueConfig }
-export type { ExportJob, ExportJobStatus, ExportJobProgress }
+// Types are already exported at their declarations above
 export default ExportQueue

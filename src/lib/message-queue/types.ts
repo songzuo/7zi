@@ -422,7 +422,7 @@ export interface IMonitorEvent {
   /** 时间戳 */
   timestamp: number;
   /** 事件数据 */
-  data: any;
+  data: unknown;
 }
 
 /**
@@ -437,7 +437,7 @@ export type MonitorEventHandler = (event: IMonitorEvent) => void;
 /**
  * REST API 响应
  */
-export interface IApiResponse<T = any> {
+export interface IApiResponse<T = unknown> {
   /** 是否成功 */
   success: boolean;
   /** 数据 */
@@ -455,7 +455,7 @@ export interface IWSMessage {
   /** 消息类型 */
   type: string;
   /** 数据 */
-  data: any;
+  data: unknown;
   /** 时间戳 */
   timestamp: number;
 }
@@ -511,7 +511,7 @@ export class MessageQueueError extends Error {
   constructor(
     message: string,
     public code: string,
-    public details?: any
+    public details?: unknown
   ) {
     super(message);
     this.name = 'MessageQueueError';
@@ -535,9 +535,9 @@ export class ConsumerError extends MessageQueueError {
   constructor(
     message: string,
     public consumerId: string,
-    details?: any
+    details?: unknown
   ) {
-    super(message, 'CONSUMER_ERROR', { consumerId, ...details });
+    super(message, 'CONSUMER_ERROR', { consumerId, ...(details as Record<string, unknown>) });
     this.name = 'ConsumerError';
   }
 }
@@ -549,9 +549,9 @@ export class TransactionError extends MessageQueueError {
   constructor(
     message: string,
     public transactionId: string,
-    details?: any
+    details?: unknown
   ) {
-    super(message, 'TRANSACTION_ERROR', { transactionId, ...details });
+    super(message, 'TRANSACTION_ERROR', { transactionId, ...details as Record<string, unknown> });
     this.name = 'TransactionError';
   }
 }

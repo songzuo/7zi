@@ -184,8 +184,7 @@ export const probes = {
       ready: health.status === 'ok',
       ...health,
     }
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    return healthResponse(result as any)
+    return healthResponse(result as HealthStatus & { ready: boolean })
   },
 
   /**
