@@ -7,26 +7,51 @@
 import { vi } from 'vitest'
 import React from 'react'
 
+// 定义基本的 Node 和 Edge 类型
+interface MockNode {
+  id: string
+  position: { x: number; y: number }
+  data?: unknown
+  type?: string
+}
+
+interface MockEdge {
+  id: string
+  source: string
+  target: string
+}
+
+interface MockNodeChange {
+  type: string
+  id?: string
+  position?: { x: number; y: number }
+}
+
+interface MockEdgeChange {
+  type: string
+  id?: string
+}
+
 // Mock nodes and edges state
-const createMockNodesState = (initialNodes: any[]) => {
+const createMockNodesState = (initialNodes: MockNode[]) => {
   let nodes = [...initialNodes]
 
   return [
     nodes,
-    vi.fn((updater: any) => {
+    vi.fn((updater: MockNode[] | ((nodes: MockNode[]) => MockNode[])) => {
       if (typeof updater === 'function') {
         nodes = updater(nodes)
       } else {
         nodes = updater
       }
     }),
-    vi.fn((changes: any) => {
+    vi.fn((changes: MockNodeChange[]) => {
       // Handle node changes
-      changes.forEach((change: any) => {
-        if (change.type === 'remove') {
-          nodes = nodes.filter((n: any) => n.id !== change.id)
-        } else if (change.type === 'position' && change.position) {
-          const node = nodes.find((n: any) => n.id === change.id)
+      changes.forEach((change) => {
+        if (change.type === 'remove' && change.id) {
+          nodes = nodes.filter((n) => n.id !== change.id)
+        } else if (change.type === 'position' && change.position && change.id) {
+          const node = nodes.find((n) => n.id === change.id)
           if (node) {
             node.position = change.position
           }
@@ -36,23 +61,23 @@ const createMockNodesState = (initialNodes: any[]) => {
   ]
 }
 
-const createMockEdgesState = (initialEdges: any[]) => {
+const createMockEdgesState = (initialEdges: MockEdge[]) => {
   let edges = [...initialEdges]
 
   return [
     edges,
-    vi.fn((updater: any) => {
+    vi.fn((updater: MockEdge[] | ((edges: MockEdge[]) => MockEdge[])) => {
       if (typeof updater === 'function') {
         edges = updater(edges)
       } else {
         edges = updater
       }
     }),
-    vi.fn((changes: any) => {
+    vi.fn((changes: MockEdgeChange[]) => {
       // Handle edge changes
-      changes.forEach((change: any) => {
-        if (change.type === 'remove') {
-          edges = edges.filter((e: any) => e.id !== change.id)
+      changes.forEach((change) => {
+        if (change.type === 'remove' && change.id) {
+          edges = edges.filter((e) => e.id !== change.id)
         }
       })
     }),

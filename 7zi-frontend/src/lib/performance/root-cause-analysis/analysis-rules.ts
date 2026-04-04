@@ -10,6 +10,7 @@ import {
   ResourceMetrics,
   RootCauseCandidate,
   Severity,
+  PerformanceContext,
 } from './types'
 
 /**
@@ -280,7 +281,7 @@ export class AnalysisRuleEngine {
     }
 
     // Rule 2: Layout Thrashing Detection
-    if (rendering.totalBlockingTime > 300 && rendering.cumulativeLayoutShift > 0.1) {
+    if (rendering.totalBlockingTime > 300 && (rendering.cumulativeLayoutShift ?? 0) > 0.1) {
       issues.push('Possible layout thrashing detected (high TBT + CLS)')
       patterns.push('layout-thrashing')
       suggestions.push('Batch DOM reads and writes together')
