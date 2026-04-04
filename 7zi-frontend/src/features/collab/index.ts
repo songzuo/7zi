@@ -36,6 +36,7 @@ export {
 
 export type {
   RemoteCursorProps,
-  CursorOverlayProps,
   CollabProviderProps,
 } from './types'
+
+export type { CursorOverlayProps } from './components'

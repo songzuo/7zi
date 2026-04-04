@@ -51,7 +51,7 @@ export function RoomChat({ room, currentUserId, sendMessage, className }: RoomCh
   const messagesEndRef = useRef<HTMLDivElement>(null)
   const scrollContainerRef = useRef<HTMLDivElement>(null)
   const isScrolledToBottomRef = useRef(true)
-  const typingTimeoutRef = useRef<NodeJS.Timeout>()
+  const typingTimeoutRef = useRef<NodeJS.Timeout | undefined>(undefined)
 
   /**
    * Scroll to bottom

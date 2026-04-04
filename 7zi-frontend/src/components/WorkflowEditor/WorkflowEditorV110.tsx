@@ -22,7 +22,36 @@
  */
 
 import React, { useCallback, useMemo, useState, useEffect, useRef } from 'react'
-import ReactFlow, {
+import dynamic from 'next/dynamic'
+
+// 动态导入 React Flow 核心组件
+const ReactFlow = dynamic(
+  () => import('reactflow').then(mod => ({ default: mod.default })),
+  { ssr: false, loading: () => <div className="w-full h-full flex items-center justify-center">Loading Workflow Editor...</div> }
+)
+const Background = dynamic(
+  () => import('reactflow').then(mod => ({ default: mod.Background })),
+  { ssr: false }
+)
+const Controls = dynamic(
+  () => import('reactflow').then(mod => ({ default: mod.Controls })),
+  { ssr: false }
+)
+const MiniMap = dynamic(
+  () => import('reactflow').then(mod => ({ default: mod.MiniMap })),
+  { ssr: false }
+)
+const Panel = dynamic(
+  () => import('reactflow').then(mod => ({ default: mod.Panel })),
+  { ssr: false }
+)
+const ReactFlowProvider = dynamic(
+  () => import('reactflow').then(mod => ({ default: mod.ReactFlowProvider })),
+  { ssr: false }
+)
+
+// 静态导入类型和工具函数（这些不会增加 bundle 大小）
+import {
   Node,
   Edge,
   addEdge,
@@ -31,15 +60,9 @@ import ReactFlow, {
   applyEdgeChanges,
   NodeChange,
   EdgeChange,
-  Background,
-  Controls,
-  MiniMap,
-  Panel,
   BackgroundVariant,
   useReactFlow,
-  ReactFlowProvider,
   SelectionMode,
-  useSelection,
 } from 'reactflow'
 
 import 'reactflow/dist/style.css'
@@ -86,14 +109,15 @@ const edgeTypesMap = {
 
 interface WorkflowEditorV110Props {
   workflowId?: string
-  initialNodes?: Node<WorkflowNodeData>[]
-  initialEdges?: Edge<WorkflowEdgeData>[]
+  initialNodes?: Node[]
+  initialEdges?: Edge[]
   onSave?: (workflow: WorkflowDefinition) => void
   onExport?: (exportData: WorkflowDefinition) => void
   onImport?: (workflow: WorkflowDefinition) => void
   readOnly?: boolean
   maxHistorySize?: number
   performanceMode?: boolean
+  onAutoLayout?: (type: 'horizontal' | 'vertical' | 'tree' | 'force') => void
 }
 
 /**
@@ -234,7 +258,7 @@ function WorkflowEditorV110Inner({
       if (selectChanges.length > 0) {
         setSelectedNodeIds((prev) => {
           const newSet = new Set(prev)
-          selectChanges.forEach((change: NodeChange<Node<WorkflowNodeData>>) => {
+          selectChanges.forEach((change) => {
             if (change.type === 'select' && change.selected) {
               newSet.add(change.id)
             } else if (change.type === 'select') {

@@ -125,9 +125,14 @@ export function useCollabWebSocket(
 
   // Debug logging helper
   const log = useCallback(
-    (level: 'info' | 'warn' | 'error', ...args: unknown[]) => {
+    (level: 'info' | 'warn' | 'error', message: string, data?: Record<string, unknown>) => {
       if (debug) {
-        logger[level]('[useCollabWebSocket]', ...args)
+        if (level === 'error') {
+          // For error, data is the error object
+          logger.error(`[useCollabWebSocket] ${message}`, data as unknown as Error)
+        } else {
+          logger[level](`[useCollabWebSocket] ${message}`, data)
+        }
       }
     },
     [debug]
@@ -164,12 +169,12 @@ export function useCollabWebSocket(
           state === ConnectionState.RECONNECTING ? prev.reconnectAttempts + 1 : prev.reconnectAttempts,
       }))
 
-      log('info', 'Connection state changed:', state)
+      log('info', 'Connection state changed:', { state })
     }
 
     // Message handler
     const handleMessage = (event: string, data: unknown) => {
-      log('info', 'Received message:', event, data)
+      log('info', 'Received message:', { event, data })
 
       try {
         const message = data as CollabMessage
@@ -206,7 +211,7 @@ export function useCollabWebSocket(
             break
         }
       } catch (err) {
-        logger.error('[useCollabWebSocket] Failed to parse message:', err)
+        logger.error('[useCollabWebSocket] Failed to parse message', err instanceof Error ? err : undefined)
       }
     }
 
@@ -265,7 +270,7 @@ export function useCollabWebSocket(
       sessionId: roomId,
     }
 
-    return managerRef.current.send('collab:message', message)
+    return managerRef.current.emit('collab:message', message)
   }, [userId, roomId, log])
 
   // Send cursor move (throttled)

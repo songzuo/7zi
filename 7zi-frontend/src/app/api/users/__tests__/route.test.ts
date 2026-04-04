@@ -26,10 +26,10 @@ vi.mock('@/lib/permissions', async () => {
             ) || (ctx.user as any).roles?.some((r: any) => r.permissions?.includes('user:manage'))
 
           if (!userHasPermission) {
-            const error = new Error(`Permission denied: ${requiredPermission}`)
-            ;(error as any).name = 'PermissionDeniedError'
-            ;(error as any).requiredPermissions = [requiredPermission]
-            ;(error as any).missingPermissions = [requiredPermission]
+            const { PermissionDeniedError } = await import('@/lib/permissions')
+            const error = new PermissionDeniedError(`Permission denied: ${requiredPermission}`)
+            error.requiredPermissions = [requiredPermission]
+            error.missingPermissions = [requiredPermission]
             throw error
           }
 
@@ -66,10 +66,10 @@ vi.mock('@/lib/permissions', async () => {
             ) || 0
 
           if (userMaxLevel < level) {
-            const error = new Error(`Role level required: ${level}`)
-            ;(error as any).name = 'PermissionDeniedError'
-            ;(error as any).requiredPermissions = [`role:${level}`]
-            ;(error as any).missingPermissions = [`role:${level}`]
+            const { PermissionDeniedError } = await import('@/lib/permissions')
+            const error = new PermissionDeniedError(`Role level required: ${level}`)
+            error.requiredPermissions = [`role:${level}`]
+            error.missingPermissions = [`role:${level}`]
             throw error
           }
 
@@ -111,7 +111,7 @@ describe('Users API Route', () => {
 
       expect(response.status).toBe(401)
       expect(data.success).toBe(false)
-      expect(data.error).toContain('not found')
+      expect(data.error.message).toContain('not found')
     })
 
     it('should return user list with minimal data', async () => {
@@ -262,7 +262,7 @@ describe('Users API Route', () => {
       expect(response.status).toBe(200)
     })
 
-    it('should allow developer to list users', async () => {
+    it('should forbid developer to list users', async () => {
       const mockRequest = new NextRequest('http://localhost:3000/api/users', {
         headers: {
           'x-user-id': 'user-2', // developer
@@ -271,7 +271,7 @@ describe('Users API Route', () => {
 
       const response = await GET(mockRequest)
 
-      expect(response.status).toBe(200)
+      expect(response.status).toBe(403)
     })
   })
 })

@@ -40,7 +40,7 @@ interface CollabContextValue {
   getCursorColor: (userId: string) => string
 
   // Y.js Document
-  docState: ReturnType<UseYjsDocReturn>['docState']
+  docState: UseYjsDocReturn['docState']
   isDocReady: boolean
   getDocContent: () => string
   setDocContent: (content: string) => void

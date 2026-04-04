@@ -26,7 +26,7 @@ export function useThemeSwitch(options: UseThemeSwitchOptions = {}) {
   } = options;
   
   const { mode, resolvedTheme, setMode, toggle, timeBasedEnabled, setTimeBasedEnabled } = useTheme();
-  const transitionTimeoutRef = useRef<NodeJS.Timeout>();
+  const transitionTimeoutRef = useRef<NodeJS.Timeout | undefined>(undefined);
   
   // Apply smooth transition
   const applyTransition = useCallback(() => {
