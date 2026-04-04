@@ -1,35 +1,38 @@
 # API 完整文档
 
-**最后更新**: 2026-04-03
-**版本**: v1.10.0
-**API 端点总数**: 80+
+**最后更新**: 2026-04-04
+**版本**: v1.12.1
+**API 端点总数**: 97+
 
 ---
 
 ## 📋 目录
 
 1. [API 概览](#api-概览)
-2. [认证与授权 API](#认证与授权-api)
-3. [任务管理 API](#任务管理-api)
-4. [项目管理 API](#项目管理-api)
-5. [性能监控 API](#性能监控-api)
-6. [分析 API](#分析-api)
-7. [搜索 API](#搜索-api)
-8. [RBAC 权限 API](#rbac-权限-api)
-9. [多模态 API](#多模态-api)
-10. [A2A 通信 API](#a2a-通信-api)
-11. [评分 API](#评分-api)
-12. [反馈 API](#反馈-api)
-13. [用户偏好设置 API](#用户偏好设置-api)
-14. [Web Vitals API](#web-vitals-api)
-15. [GitHub 集成 API](#github-集成-api)
-16. [健康检查 API](#健康检查-api)
-17. [工作流编排 API](#工作流编排-api)
-18. [告警系统 API](#告警系统-api)
-19. [工作流版本历史管理 API](#工作流版本历史管理-api-v191) *(v1.9.1 新增)*
-20. [RCA 根因分析 API](#rca-根因分析-api-v190) *(v1.9.0 新增)*
-21. [数据模型](#数据模型)
-22. [错误处理](#错误处理)
+2. [AI 代码智能 API](#ai-代码智能-api) *(v1.12.0 新增)*
+3. [多模型路由 API](#多模型路由-api) *(v1.12.0 新增)*
+4. [多租户 API](#多租户-api) *(v1.12.0 新增)*
+5. [认证与授权 API](#认证与授权-api)
+6. [任务管理 API](#任务管理-api)
+7. [项目管理 API](#项目管理-api)
+8. [性能监控 API](#性能监控-api)
+9. [分析 API](#分析-api)
+10. [搜索 API](#搜索-api)
+11. [RBAC 权限 API](#rbac-权限-api)
+12. [多模态 API](#多模态-api)
+13. [A2A 通信 API](#a2a-通信-api)
+14. [评分 API](#评分-api)
+15. [反馈 API](#反馈-api)
+16. [用户偏好设置 API](#用户偏好设置-api)
+17. [Web Vitals API](#web-vitals-api)
+18. [GitHub 集成 API](#github-集成-api)
+19. [健康检查 API](#健康检查-api)
+20. [工作流编排 API](#工作流编排-api)
+21. [告警系统 API](#告警系统-api)
+22. [工作流版本历史管理 API](#工作流版本历史管理-api-v191) *(v1.9.1 新增)*
+23. [RCA 根因分析 API](#rca-根因分析-api-v190) *(v1.9.0 新增)*
+24. [数据模型](#数据模型)
+25. [错误处理](#错误处理)
 
 ### 📚 专项 API 文档
 
@@ -40,6 +43,178 @@
 ---
 
 ## API 概览
+
+### v1.12.1 新增功能 (2026-04-04)
+
+v1.12.1 版本专注于错误处理增强和监控系统完善：
+
+#### 🎯 统一错误处理系统
+
+**位置**: `src/lib/errors.ts`
+
+**核心功能**:
+- 14 种统一错误类型 (VALIDATION, NOT_FOUND, UNAUTHORIZED, FORBIDDEN, RATE_LIMIT, INTERNAL, SERVICE_UNAVAILABLE, NETWORK, TIMEOUT, REGISTRATION_FAILED, WEAK_PASSWORD, MISSING_TOKEN, CONFLICT)
+- 统一错误类 `UnifiedAppError` - 支持工厂方法和自动状态码映射
+- 14 个统一响应处理函数 (`createValidationErrorResponse`, `createNotFoundErrorResponse` 等)
+- `withUnifiedErrorHandling` 错误处理包装器
+- 完整的向后兼容性支持
+
+**使用示例**:
+
+```typescript
+import { UnifiedAppError, createValidationErrorResponse } from '@/lib/errors'
+
+// 创建统一错误
+const error = UnifiedAppError.validation('Invalid email format')
+error.data = { field: 'email', provided: 'user@' }
+
+// 创建错误响应
+const response = createValidationErrorResponse(error)
+// HTTP 400, { success: false, error: { code: 'VALIDATION_ERROR', message: '...', details: {...} } }
+
+// 使用包装器
+export const POST = withUnifiedErrorHandling(async (request) => {
+  // 业务逻辑，错误自动捕获和转换
+})
+```
+
+---
+
+#### 📊 监控聚合器优化
+
+**位置**: `src/lib/monitoring/optimized-metrics-aggregator.ts`
+
+**核心优化**:
+- Web Worker 后台计算
+- 增量更新算法
+- 数据采样策略 (random/time-based/adaptive)
+- LRU 缓存聚合结果
+- QuickSelect 百分位计算 (p50, p90, p95, p99)
+- 单次扫描方差计算
+
+**API 端点**:
+
+| 端点 | 说明 |
+|------|------|
+| `GET /api/monitoring/apm` | APM 状态和指标 |
+
+---
+
+#### 🚨 告警通道增强
+
+**位置**: `src/lib/monitoring/alert/channels/`, `src/app/api/performance/alerts/`
+
+**新增功能**:
+- Slack 告警通道 (`slack.ts`)
+- Email 告警通道增强重试逻辑
+- 统一通道管理器 (`channels.ts`)
+
+**API 端点**:
+
+| 端点 | 方法 | 说明 |
+|------|------|------|
+| `/api/performance/alerts` | GET | 获取告警规则列表 |
+| `/api/performance/alerts` | POST | 创建告警规则 |
+| `/api/performance/alerts/[id]` | GET | 获取单个告警规则 |
+| `/api/performance/alerts/[id]` | PUT | 更新告警规则 |
+| `/api/performance/alerts/[id]` | DELETE | 删除告警规则 |
+
+---
+
+### v1.12.0 新增功能 (2026-04-03)
+
+v1.12.0 版本专注于 AI 代码智能、多模型路由和多租户架构：
+
+#### 🤖 AI 代码智能系统
+
+**位置**: `src/lib/ai/code/`
+
+**核心功能**:
+
+| 组件 | 功能 | 支持语言 |
+|------|------|----------|
+| 代码分析器 | 静态分析、复杂度计算、依赖提取 | TypeScript, JavaScript, Python, Go, Rust |
+| 代码补全器 | 智能补全、关键词、代码片段 | - |
+| 代码审查器 | 自动审查、30+ 规则、评分系统 | - |
+| Bug 检测器 | 识别 20+ Bug 模式、空引用、异步错误 | - |
+| 修复建议器 | 生成修复代码、解释原因、评估风险 | - |
+| 代码解释器 | 自然语言解释、关键概念提取 | - |
+
+**代码统计**: 2,500+ 行核心实现 + 800+ 行测试代码
+
+---
+
+#### 🔀 多模型智能路由系统
+
+**位置**: `src/lib/ai/router.ts`, `src/lib/ai/routing/`
+
+**核心功能**:
+- 智能路由 - 根据任务类型、复杂度、成本预算选择最优模型
+- 语义缓存 - 相似度阈值 0.95，减少重复调用
+- 速率限制 - 按模型的 RPM/TPM 限制
+- 成本追踪 - 实时成本监控和预算控制
+- 回退链 - 自动 fallback 到备选模型
+
+**支持模型**:
+- OpenAI: GPT-4o, GPT-4.5
+- Anthropic: Claude-4-Opus, Claude-4-Sonnet
+- Google: Gemini-2-Flash
+- DeepSeek: deepseek-chat
+
+**默认回退链**: GPT-4o → Claude-4-Sonnet → Gemini-2-Flash → deepseek-chat
+
+---
+
+#### 🏢 多租户架构
+
+**位置**: `src/app/api/v1/tenants/`, `src/lib/tenant/`
+
+**核心功能**:
+- 租户隔离模式: shared, isolated
+- 租户计划: free, starter, pro, enterprise
+- 完整的审计日志集成
+- 租户配额管理
+- 成员邀请和转让
+
+**API 端点**:
+
+| 端点 | 方法 | 功能 |
+|------|------|------|
+| `/api/v1/tenants` | GET | 列出租户（管理员） |
+| `/api/v1/tenants` | POST | 创建租户 |
+| `/api/v1/tenants/[id]` | GET | 获取租户信息 |
+| `/api/v1/tenants/[id]` | PUT | 更新租户 |
+| `/api/v1/tenants/[id]` | DELETE | 删除租户 |
+| `/api/v1/tenants/[id]/stats` | GET | 获取租户统计 |
+| `/api/v1/tenants/[id]/quota` | GET | 获取租户配额 |
+| `/api/v1/tenants/login` | POST | 租户登录 |
+| `/api/v1/tenants/switch` | POST | 切换租户 |
+| `/api/v1/tenants/invite` | POST | 邀请成员 |
+| `/api/v1/tenants/accept` | POST | 接受邀请 |
+| `/api/v1/tenants/transfer` | POST | 转让租户 |
+
+---
+
+#### 📦 WebSocket 压缩优化
+
+**位置**: `src/lib/websocket/compression/`
+
+**核心组件**:
+
+| 组件 | 功能 |
+|------|------|
+| 压缩管理器 | 消息压缩/解压缩 |
+| 增量更新 | 增量数据同步 |
+| 消息缓存 | LRU 消息缓存 |
+| 批处理 | 消息批处理优化 |
+| 集成层 | WebSocket 集成接口 |
+
+**优化效果**:
+- 带宽减少: 40-60%
+- 延迟降低: 30-50%
+- 内存优化: 25%
+
+---
 
 ### v1.10.0 新增功能 (2026-04-03)
 
@@ -348,10 +523,13 @@ v1.4.0 版本引入了三大核心功能：
 
 | 分类           | 端点数量 | 说明                           | 文档                                           |
 | -------------- | -------- | ------------------------------ | ---------------------------------------------- |
+| **AI 代码智能** | 6        | 代码分析、补全、审查、Bug检测   | 见本文档 (v1.12.0 新增)                        |
+| **多模型路由** | 3        | 智能路由、成本追踪、模型状态    | 见本文档 (v1.12.0 新增)                        |
+| **多租户**     | 12       | 租户管理、成员邀请、配额        | 见本文档 (v1.12.0 新增)                        |
 | **认证与授权** | 5        | 登录、注册、刷新 Token         | 见本文档                                       |
 | **任务管理**   | 1        | 任务增删改查、批量操作         | 见本文档                                       |
 | **项目管理**   | 1        | 项目管理                       | 见本文档                                       |
-| **性能监控**   | 6        | 性能指标、告警、Web Vitals     | 见本文档                                       |
+| **性能监控**   | 7        | 性能指标、告警、Web Vitals     | 见本文档                                       |
 | **分析**       | 2        | 数据分析、导出                 | 见本文档                                       |
 | **搜索**       | 3        | 搜索、自动完成、历史           | 见本文档                                       |
 | **RBAC**       | 8        | 角色、权限、用户权限管理       | 见本文档                                       |
@@ -367,6 +545,8 @@ v1.4.0 版本引入了三大核心功能：
 | **WebSocket**  | -        | 房间系统、权限控制、消息持久化 | [websocket.md](./api/websocket.md)             |
 | **其他**       | 5        | 跨域、状态、导出等             | 见本文档                                       |
 
+> **注意**: v1.12.x 新增了 21 个 API 端点，包括多租户、监控、告警等模块。
+
 ### 基础信息
 
 - **基础 URL**: `https://7zi.com/api` 或 `http://localhost:3000/api`
@@ -379,6 +559,623 @@ v1.4.0 版本引入了三大核心功能：
 ```bash
 # 在请求头中添加 Authorization
 Authorization: Bearer <your-jwt-token>
+```
+
+---
+
+## AI 代码智能 API (v1.12.0 新增)
+
+### 代码分析
+
+```
+POST /api/ai/code/analyze
+```
+
+**请求体:**
+
+```json
+{
+  "code": "function hello() { console.log('world'); }",
+  "language": "typescript",
+  "options": {
+    "calculateComplexity": true,
+    "extractDependencies": true
+  }
+}
+```
+
+**响应:**
+
+```json
+{
+  "success": true,
+  "data": {
+    "complexity": {
+      "cyclomatic": 1,
+      "cognitive": 1,
+      "maintainability": 85
+    },
+    "dependencies": [],
+    "imports": [],
+    "exports": []
+  }
+}
+```
+
+---
+
+### 代码补全
+
+```
+POST /api/ai/code/complete
+```
+
+**请求体:**
+
+```json
+{
+  "code": "const arr = [1, 2, 3];",
+  "cursor": 24,
+  "language": "typescript",
+  "context": {
+    "file": "index.ts",
+    "imports": ["fs", "path"]
+  }
+}
+```
+
+**响应:**
+
+```json
+{
+  "success": true,
+  "data": {
+    "suggestions": [
+      {
+        "text": "arr.map(x => x * 2)",
+        "type": "snippet",
+        "confidence": 0.95
+      }
+    ]
+  }
+}
+```
+
+---
+
+### 代码审查
+
+```
+POST /api/ai/code/review
+```
+
+**请求体:**
+
+```json
+{
+  "code": "function test() { var x = 1; }",
+  "language": "typescript",
+  "rules": ["security", "performance", "style"]
+}
+```
+
+**响应:**
+
+```json
+{
+  "success": true,
+  "data": {
+    "issues": [
+      {
+        "severity": "warning",
+        "category": "style",
+        "message": "Use 'const' or 'let' instead of 'var'",
+        "line": 1,
+        "suggestion": "let x = 1;"
+      }
+    ],
+    "score": 85
+  }
+}
+```
+
+---
+
+### Bug 检测
+
+```
+POST /api/ai/code/detect-bugs
+```
+
+**请求体:**
+
+```json
+{
+  "code": "const data = JSON.parse(undefined);",
+  "language": "typescript"
+}
+```
+
+**响应:**
+
+```json
+{
+  "success": true,
+  "data": {
+    "bugs": [
+      {
+        "type": "null_reference",
+        "severity": "error",
+        "line": 1,
+        "message": "Potential null reference error",
+        "fix": "const data = JSON.parse(input || '{}');"
+      }
+    ]
+  }
+}
+```
+
+---
+
+### 修复建议
+
+```
+POST /api/ai/code/suggest-fixes
+```
+
+**请求体:**
+
+```json
+{
+  "code": "function add(a, b) { return a + b; }",
+  "issues": [
+    {
+      "type": "typescript",
+      "message": "Parameter 'a' implicitly has an 'any' type"
+    }
+  ]
+}
+```
+
+**响应:**
+
+```json
+{
+  "success": true,
+  "data": {
+    "fixes": [
+      {
+        "original": "function add(a, b) { return a + b; }",
+        "fixed": "function add(a: number, b: number): number { return a + b; }",
+        "explanation": "Added type annotations for better type safety"
+      }
+    ]
+  }
+}
+```
+
+---
+
+### 代码解释
+
+```
+POST /api/ai/code/explain
+```
+
+**请求体:**
+
+```json
+{
+  "code": "const memoize = fn => { const cache = new Map(); return (...args) => { const key = JSON.stringify(args); if (!cache.has(key)) { cache.set(key, fn(...args)); } return cache.get(key); }; };",
+  "language": "javascript"
+}
+```
+
+**响应:**
+
+```json
+{
+  "success": true,
+  "data": {
+    "explanation": "This is a memoization function that caches function results based on their arguments. It uses a Map to store cached values and JSON.stringify to create unique keys.",
+    "concepts": ["memoization", "caching", "closure", "Map"],
+    "complexity": "medium"
+  }
+}
+```
+
+---
+
+## 多模型路由 API (v1.12.0 新增)
+
+### 智能路由
+
+```
+POST /api/ai/route
+```
+
+**请求体:**
+
+```json
+{
+  "task": {
+    "type": "code_review",
+    "prompt": "Review this code for security issues",
+    "complexity": "high"
+  },
+  "options": {
+    "budgetLimit": 10,
+    "enableCache": true
+  }
+}
+```
+
+**响应:**
+
+```json
+{
+  "success": true,
+  "data": {
+    "selectedModel": "gpt-4o",
+    "reason": "High complexity task requires most capable model",
+    "costEstimate": 0.05,
+    "cached": false
+  }
+}
+```
+
+---
+
+### 成本追踪
+
+```
+GET /api/ai/cost-tracking
+```
+
+**Query 参数:**
+
+- `startDate`: 开始日期 (ISO 8601)
+- `endDate`: 结束日期 (ISO 8601)
+
+**响应:**
+
+```json
+{
+  "success": true,
+  "data": {
+    "totalCost": 45.67,
+    "dailyBreakdown": [
+      {
+        "date": "2026-04-01",
+        "cost": 12.34,
+        "requests": 150
+      }
+    ],
+    "byModel": {
+      "gpt-4o": 30.50,
+      "claude-4-sonnet": 15.17
+    }
+  }
+}
+```
+
+---
+
+### 模型状态
+
+```
+GET /api/ai/models/status
+```
+
+**响应:**
+
+```json
+{
+  "success": true,
+  "data": {
+    "models": [
+      {
+        "id": "gpt-4o",
+        "provider": "openai",
+        "status": "available",
+        "rateLimit": {
+          "requestsPerMinute": 100,
+          "tokensPerMinute": 200000
+        },
+        "currentUsage": {
+          "requests": 45,
+          "tokens": 50000
+        }
+      }
+    ]
+  }
+}
+```
+
+---
+
+## 多租户 API (v1.12.0 新增)
+
+### 列出租户
+
+```
+GET /api/v1/tenants
+```
+
+**Query 参数:**
+
+- `userId`: 用户 ID (必须)
+
+**响应:**
+
+```json
+{
+  "success": true,
+  "data": [
+    {
+      "id": "tenant-001",
+      "name": "My Organization",
+      "slug": "my-org",
+      "plan": "pro",
+      "isolationMode": "shared",
+      "memberCount": 5,
+      "createdAt": "2026-04-01T00:00:00Z"
+    }
+  ]
+}
+```
+
+---
+
+### 创建租户
+
+```
+POST /api/v1/tenants
+```
+
+**请求体:**
+
+```json
+{
+  "name": "New Organization",
+  "slug": "new-org",
+  "plan": "starter",
+  "isolationMode": "shared",
+  "settings": {
+    "timezone": "UTC",
+    "language": "en"
+  }
+}
+```
+
+**响应:**
+
+```json
+{
+  "success": true,
+  "data": {
+    "id": "tenant-002",
+    "name": "New Organization",
+    "slug": "new-org",
+    "plan": "starter",
+    "isolationMode": "shared",
+    "createdAt": "2026-04-04T00:00:00Z"
+  }
+}
+```
+
+---
+
+### 获取租户信息
+
+```
+GET /api/v1/tenants/[id]
+```
+
+**响应:**
+
+```json
+{
+  "success": true,
+  "data": {
+    "id": "tenant-001",
+    "name": "My Organization",
+    "slug": "my-org",
+    "plan": "pro",
+    "isolationMode": "shared",
+    "settings": {
+      "timezone": "UTC",
+      "language": "en"
+    },
+    "quota": {
+      "users": 100,
+      "storageGB": 100,
+      "apiCalls": 100000
+    }
+  }
+}
+```
+
+---
+
+### 更新租户
+
+```
+PUT /api/v1/tenants/[id]
+```
+
+**请求体:**
+
+```json
+{
+  "name": "Updated Name",
+  "settings": {
+    "timezone": "America/New_York"
+  }
+}
+```
+
+---
+
+### 删除租户
+
+```
+DELETE /api/v1/tenants/[id]
+```
+
+**响应:**
+
+```json
+{
+  "success": true,
+  "data": {
+    "id": "tenant-001",
+    "deleted": true
+  }
+}
+```
+
+---
+
+### 租户统计
+
+```
+GET /api/v1/tenants/[id]/stats
+```
+
+**响应:**
+
+```json
+{
+  "success": true,
+  "data": {
+    "tenantId": "tenant-001",
+    "memberCount": 5,
+    "projectCount": 12,
+    "taskCount": 150,
+    "apiCalls": 45000,
+    "storageUsed": 23.5
+  }
+}
+```
+
+---
+
+### 租户配额
+
+```
+GET /api/v1/tenants/[id]/quota
+```
+
+**响应:**
+
+```json
+{
+  "success": true,
+  "data": {
+    "plan": "pro",
+    "limits": {
+      "users": 100,
+      "storageGB": 100,
+      "apiCalls": 100000
+    },
+    "usage": {
+      "users": 5,
+      "storageGB": 23.5,
+      "apiCalls": 45000
+    },
+    "remaining": {
+      "users": 95,
+      "storageGB": 76.5,
+      "apiCalls": 55000
+    }
+  }
+}
+```
+
+---
+
+### 租户登录
+
+```
+POST /api/v1/tenants/login
+```
+
+**请求体:**
+
+```json
+{
+  "tenantSlug": "my-org",
+  "email": "user@example.com",
+  "password": "secure-password"
+}
+```
+
+---
+
+### 切换租户
+
+```
+POST /api/v1/tenants/switch
+```
+
+**请求体:**
+
+```json
+{
+  "tenantId": "tenant-002"
+}
+```
+
+---
+
+### 邀请成员
+
+```
+POST /api/v1/tenants/invite
+```
+
+**请求体:**
+
+```json
+{
+  "tenantId": "tenant-001",
+  "email": "newuser@example.com",
+  "role": "member"
+}
+```
+
+---
+
+### 接受邀请
+
+```
+POST /api/v1/tenants/accept
+```
+
+**请求体:**
+
+```json
+{
+  "inviteToken": "abc123xyz"
+}
+```
+
+---
+
+### 转让租户
+
+```
+POST /api/v1/tenants/transfer
+```
+
+**请求体:**
+
+```json
+{
+  "tenantId": "tenant-001",
+  "newOwnerId": "user-002"
+}
 ```
 
 ---
@@ -1901,7 +2698,170 @@ interface WebVitalMetric {
 
 ## 错误处理
 
-### 错误响应格式
+### 统一错误处理系统 (v1.12.1 新增)
+
+v1.12.1 引入了完整的统一错误处理系统，提供标准化的错误类型、响应格式和处理工具。
+
+#### 统一错误类型
+
+```typescript
+enum UnifiedErrorType {
+  VALIDATION = 'VALIDATION',
+  NOT_FOUND = 'NOT_FOUND',
+  UNAUTHORIZED = 'UNAUTHORIZED',
+  FORBIDDEN = 'FORBIDDEN',
+  RATE_LIMIT = 'RATE_LIMIT',
+  INTERNAL = 'INTERNAL',
+  SERVICE_UNAVAILABLE = 'SERVICE_UNAVAILABLE',
+  NETWORK = 'NETWORK',
+  TIMEOUT = 'TIMEOUT',
+  REGISTRATION_FAILED = 'REGISTRATION_FAILED',
+  WEAK_PASSWORD = 'WEAK_PASSWORD',
+  MISSING_TOKEN = 'MISSING_TOKEN',
+  CONFLICT = 'CONFLICT',
+  BAD_REQUEST = 'BAD_REQUEST'
+}
+```
+
+#### 统一错误类
+
+```typescript
+import { UnifiedAppError } from '@/lib/errors'
+
+// 创建验证错误
+const error = UnifiedAppError.validation('Invalid email format', {
+  field: 'email',
+  provided: 'user@'
+})
+
+// 创建未授权错误
+const error = UnifiedAppError.unauthorized('Invalid token')
+
+// 创建资源未找到错误
+const error = UnifiedAppError.notFound('User not found', { userId: '123' })
+
+// 创建限流错误
+const error = UnifiedAppError.rateLimit('Too many requests', {
+  limit: 100,
+  window: '1 minute'
+})
+```
+
+#### 统一响应函数
+
+```typescript
+import {
+  createValidationErrorResponse,
+  createNotFoundErrorResponse,
+  createUnauthorizedErrorResponse,
+  createForbiddenErrorResponse,
+  createRateLimitErrorResponse,
+  createInternalErrorResponse
+} from '@/lib/errors'
+
+// 创建验证错误响应 (HTTP 400)
+const response = createValidationErrorResponse(error)
+// {
+//   success: false,
+//   error: {
+//     code: 'VALIDATION_ERROR',
+//     message: 'Invalid email format',
+//     details: { field: 'email', provided: 'user@' }
+//   }
+// }
+
+// 创建未找到错误响应 (HTTP 404)
+const response = createNotFoundErrorResponse(error)
+
+// 创建未授权错误响应 (HTTP 401)
+const response = createUnauthorizedErrorResponse(error)
+
+// 创建禁止访问错误响应 (HTTP 403)
+const response = createForbiddenErrorResponse(error)
+
+// 创建限流错误响应 (HTTP 429)
+const response = createRateLimitErrorResponse(error, {
+  limit: 100,
+  remaining: 0,
+  resetAt: Date.now() + 60000
+})
+
+// 创建内部错误响应 (HTTP 500)
+const response = createInternalErrorResponse(error)
+```
+
+#### 错误处理包装器
+
+```typescript
+import { withUnifiedErrorHandling } from '@/lib/errors'
+
+// 使用包装器自动处理错误
+export const POST = withUnifiedErrorHandling(async (request: NextRequest) => {
+  const body = await request.json()
+
+  // 业务逻辑，错误自动捕获和转换为统一响应
+  const user = await createUser(body)
+
+  return NextResponse.json({
+    success: true,
+    data: user
+  })
+})
+
+// 带参数的包装器
+export const GET = withUnifiedErrorHandling({
+  logErrors: true,
+  includeStackTrace: process.env.NODE_ENV === 'development'
+}, async (request: NextRequest) => {
+  // 业务逻辑
+})
+```
+
+#### 完整的错误响应格式
+
+```json
+{
+  "success": false,
+  "error": {
+    "code": "VALIDATION_ERROR",
+    "type": "VALIDATION",
+    "message": "Invalid email format",
+    "details": {
+      "field": "email",
+      "provided": "user@"
+    },
+    "stackTrace": "..."  // 仅在开发环境
+  },
+  "timestamp": "2026-04-04T12:00:00Z"
+}
+```
+
+#### 错误码映射
+
+| 错误类型 | HTTP 状态 | 错误码 | 说明 |
+|---------|---------|--------|------|
+| VALIDATION | 400 | VALIDATION_ERROR | 参数验证失败 |
+| BAD_REQUEST | 400 | BAD_REQUEST | 错误的请求 |
+| UNAUTHORIZED | 401 | UNAUTHORIZED | 未授权 |
+| FORBIDDEN | 403 | FORBIDDEN | 无权限 |
+| NOT_FOUND | 404 | NOT_FOUND | 资源不存在 |
+| CONFLICT | 409 | CONFLICT | 资源冲突 |
+| RATE_LIMIT | 429 | RATE_LIMIT_EXCEEDED | 请求超过限制 |
+| INTERNAL | 500 | INTERNAL_ERROR | 服务器内部错误 |
+| SERVICE_UNAVAILABLE | 503 | SERVICE_UNAVAILABLE | 服务不可用 |
+| NETWORK | 502 | NETWORK_ERROR | 网络错误 |
+| TIMEOUT | 504 | TIMEOUT_ERROR | 请求超时 |
+| WEAK_PASSWORD | 400 | WEAK_PASSWORD | 密码强度不足 |
+| MISSING_TOKEN | 401 | MISSING_TOKEN | 缺少认证令牌 |
+| REGISTRATION_FAILED | 400 | REGISTRATION_FAILED | 注册失败 |
+
+---
+
+### 传统错误处理 (向后兼容)
+
+以下错误码仍保持向后兼容：
+
+#### 错误响应格式
 
 ```json
 {
@@ -1914,7 +2874,7 @@ interface WebVitalMetric {
 }
 ```
 
-### 常见错误码
+#### 常见错误码（传统）
 
 | 错误码                | HTTP 状态 | 说明           |
 | --------------------- | --------- | -------------- |
