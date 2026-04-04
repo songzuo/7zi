@@ -4,13 +4,19 @@
  */
 
 import type { UserContext } from '../../auth/types'
-import type { TenantContext, TenantMemberRole, TenantPlan, TenantStatus } from '../tenant/types'
+import type { TenantContext } from '../../tenant/types'
+import type {
+  TenantMemberRole,
+  TenantPlan,
+  TenantStatus
+} from '../../tenant/types'
 
 /**
  * 扩展的用户上下文（包含租户信息）
  */
-export interface TenantUserContext extends Omit<UserContext, 'role'> {
+export interface TenantUserContext extends Omit<UserContext, 'role' | 'roles'> {
   role: TenantMemberRole
+  roles: string[]
   tenantId: string
   tenantSlug: string
   tenantPlan: TenantPlan

@@ -165,6 +165,10 @@ export interface FineGrainedPermission {
   effectiveUntil?: Date
   /** 元数据 */
   metadata?: Record<string, unknown>
+  /** 创建时间 */
+  createdAt?: Date
+  /** 更新时间 */
+  updatedAt?: Date
 }
 
 /**
