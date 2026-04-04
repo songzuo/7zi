@@ -4,7 +4,7 @@
  */
 
 import { NextRequest, NextResponse } from 'next/server'
-import { queryAuditLogs, getAuditStats, exportAuditLogs, AuditEventType, AuditSeverity } from '@/lib/auth/audit-logger'
+import { queryAuditLogs, getAuditStats, exportAuditLogs, AuditEventType, AuditSeverity, AuditLogEntry } from '@/lib/auth/audit-logger'
 import { verify } from '@/lib/auth/jwt'
 import { hasPermission } from '@/lib/auth/service'
 
@@ -12,9 +12,17 @@ import { hasPermission } from '@/lib/auth/service'
  * Response types
  */
 interface AuditLogsResponse {
-  logs: any[]
+  logs: AuditLogEntry[]
   total: number
-  stats?: any
+  stats?: AuditStats
+}
+
+interface AuditStats {
+  totalEvents: number
+  byType: Record<string, number>
+  bySeverity: Record<string, number>
+  successRate: number
+  topFailedEvents: { eventType: string; count: number }[]
 }
 
 interface AuditLogsErrorResponse {

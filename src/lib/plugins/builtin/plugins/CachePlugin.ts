@@ -108,7 +108,7 @@ export class CachePlugin implements Plugin {
   /**
    * Register hooks
    */
-  registerHooks(registry: any): void {
+  registerHooks(registry: HookRegistry): void {
     registry.register('onCacheHit', this.handleCacheHit.bind(this) as HookHandler);
     registry.register('onCacheMiss', this.handleCacheMiss.bind(this) as HookHandler);
   }
@@ -339,14 +339,14 @@ export class CachePlugin implements Plugin {
   /**
    * Handle cache hit hook
    */
-  private handleCacheHit(context: any, input: any): void {
+  private handleCacheHit(context: unknown, input: unknown): void {
     this.metrics.hits++;
   }
 
   /**
    * Handle cache miss hook
    */
-  private handleCacheMiss(context: any, input: any): void {
+  private handleCacheMiss(context: unknown, input: unknown): void {
     this.metrics.misses++;
   }
 

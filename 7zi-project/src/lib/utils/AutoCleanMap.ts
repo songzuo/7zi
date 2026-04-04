@@ -1,9 +1,14 @@
+import { createLogger, LogLevel, Logger } from './logger';
+
+// 创建日志实例
+const logger = createLogger('AutoCleanMap', LogLevel.WARN);
+
 /**
  * AutoCleanMap - 自动清理过期条目的 Map
  * 用于防止内存泄漏，自动移除长时间未访问的条目
  */
 
-interface AutoCleanMapOptions {
+export interface AutoCleanMapOptions {
   /** 条目最大存活时间 (毫秒)，默认 5 分钟 */
   maxAge?: number;
   /** 清理检查间隔 (毫秒)，默认 1 分钟 */
@@ -31,6 +36,7 @@ export class AutoCleanMap<K, V> extends Map<K, V> {
   private internalMap: Map<K, MapEntry<V>>;
   private cleanupTimer?: ReturnType<typeof setInterval>;
   private isCleaning: boolean = false;
+  private log: Logger;
 
   constructor(options: AutoCleanMapOptions = {}) {
     super();
@@ -38,6 +44,7 @@ export class AutoCleanMap<K, V> extends Map<K, V> {
     this.cleanupInterval = options.cleanupInterval ?? 60000; // 默认 1 分钟
     this.onExpire = options.onExpire as (key: K, value: V) => void;
     this.internalMap = new Map();
+    this.log = logger;
     this.startCleanupTimer();
   }
 
@@ -186,7 +193,7 @@ export class AutoCleanMap<K, V> extends Map<K, V> {
             try {
               this.onExpire(key, entry.value);
             } catch (error) {
-              console.error('[AutoCleanMap] onExpire callback error:', error);
+              this.log.error('onExpire callback error:', error);
             }
           }
         }

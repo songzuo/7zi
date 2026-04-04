@@ -166,11 +166,12 @@ alerting:
 
   # Alert rules
   rules:
+    # ===== CPU 告警 =====
     - name: "high_cpu"
       metric: "system.cpu.usage"
       condition: "greater_than"
-      threshold: 80
-      duration_seconds: 60
+      threshold: 85  # 从 80 调整到 85，减少误报
+      duration_seconds: 90  # 从 60 增加到 90，避免瞬时波动
       level: "warning"
       message: "CPU usage is high: {{value}}%"
       channels:
@@ -189,6 +190,7 @@ alerting:
         - "email"
         - "log"
         
+    # ===== 内存告警 =====
     - name: "high_memory"
       metric: "system.memory.usage"
       condition: "greater_than"
@@ -200,15 +202,147 @@ alerting:
         - "webhook"
         - "log"
         
-    - name: "slow_response"
-      metric: "application.response_time.p95"
+    - name: "critical_memory"
+      metric: "system.memory.usage"
       condition: "greater_than"
-      threshold: 2000
+      threshold: 95
       duration_seconds: 60
-      level: "warning"
-      message: "Response time is slow: {{value}}ms"
+      level: "critical"
+      message: "Memory usage is critical: {{value}}%"
       channels:
         - "webhook"
+        - "email"
+        - "log"
+        
+    # ===== 磁盘空间告警 (新增 - 高优先级) =====
+    - name: "disk_space_warning"
+      metric: "system.disk.usage"
+      condition: "greater_than"
+      threshold: 85
+      duration_seconds: 60
+      level: "warning"
+      message: "Disk usage is high: {{value}}%"
+      channels:
+        - "webhook"
+        - "log"
+        
+    - name: "disk_space_critical"
+      metric: "system.disk.usage"
+      condition: "greater_than"
+      threshold: 95
+      duration_seconds: 30
+      level: "critical"
+      message: "Disk space critical: {{value}}%. Service may become unavailable!"
+      channels:
+        - "webhook"
+        - "email"
+        - "log"
+        
+    # ===== 磁盘 I/O 等待告警 (新增) =====
+    - name: "disk_io_wait_high"
+      metric: "system.disk.io_wait"
+      condition: "greater_than"
+      threshold: 50
+      duration_seconds: 120
+      level: "warning"
+      message: "Disk I/O wait is high: {{value}}%"
+      channels:
+        - "webhook"
+        - "log"
+        
+    # ===== 网络告警 (新增) =====
+    - name: "network_packet_loss"
+      metric: "system.network.packet_loss"
+      condition: "greater_than"
+      threshold: 1
+      duration_seconds: 60
+      level: "warning"
+      message: "Network packet loss detected: {{value}}%"
+      channels:
+        - "webhook"
+        - "log"
+        
+    - name: "network_latency_high"
+      metric: "system.network.latency_ms"
+      condition: "greater_than"
+      threshold: 100
+      duration_seconds: 60
+      level: "warning"
+      message: "Network latency is high: {{value}}ms"
+      channels:
+        - "webhook"
+        - "log"
+        
+    # ===== 数据库告警 (新增) =====
+    - name: "db_connection_pool_high"
+      metric: "database.connection_pool.usage"
+      condition: "greater_than"
+      threshold: 80
+      duration_seconds: 60
+      level: "warning"
+      message: "Database connection pool usage is high: {{value}}%"
+      channels:
+        - "webhook"
+        - "log"
+        
+    - name: "db_connection_pool_critical"
+      metric: "database.connection_pool.usage"
+      condition: "greater_than"
+      threshold: 95
+      duration_seconds: 30
+      level: "critical"
+      message: "Database connection pool nearly exhausted: {{value}}%"
+      channels:
+        - "webhook"
+        - "email"
+        - "log"
+        
+    - name: "db_query_time_high"
+      metric: "database.query_time.p95"
+      condition: "greater_than"
+      threshold: 1000
+      duration_seconds: 60
+      level: "warning"
+      message: "Database query time is slow: {{value}}ms"
+      channels:
+        - "webhook"
+        - "log"
+        
+    # ===== 响应时间告警 (优化阈值，分级) =====
+    - name: "response_time_warning"
+      metric: "application.response_time.p95"
+      condition: "greater_than"
+      threshold: 1000  # 从 2000 降低到 1000，更早发现问题
+      duration_seconds: 60
+      level: "warning"
+      message: "Response time is elevated: {{value}}ms"
+      channels:
+        - "webhook"
+        - "log"
+        
+    - name: "response_time_critical"
+      metric: "application.response_time.p95"
+      condition: "greater_than"
+      threshold: 3000  # 新增 critical 级别
+      duration_seconds: 30
+      level: "critical"
+      message: "Response time is critical: {{value}}ms"
+      channels:
+        - "webhook"
+        - "email"
+        - "log"
+        
+    # ===== 错误率告警 =====
+    - name: "error_rate_warning"
+      metric: "application.error_rate"
+      condition: "greater_than"
+      threshold: 1  # 新增 warning 级别
+      duration_seconds: 60
+      level: "warning"
+      message: "Error rate is elevated: {{value}}%"
+      channels:
+        - "webhook"
+        - "log"
         
     - name: "high_error_rate"
       metric: "application.error_rate"
@@ -220,6 +354,19 @@ alerting:
       channels:
         - "webhook"
         - "email"
+        - "log"
+        
+    # ===== 业务指标告警 (新增) =====
+    - name: "request_rate_drop"
+      metric: "application.throughput"
+      condition: "less_than"
+      threshold: 10  # 每分钟请求数骤降
+      duration_seconds: 180
+      level: "warning"
+      message: "Request rate dropped significantly: {{value}} req/min"
+      channels:
+        - "webhook"
+        - "log"
 
   # Alert aggregation
   aggregation:

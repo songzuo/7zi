@@ -863,6 +863,9 @@ vi.mock('../lib/collaboration/rooms', () => ({
   updateRoomActivity: vi.fn(),
 }))
 
+// Singleton instance for collaboration manager mock
+let mockCollaborationManagerSingleton: ReturnType<typeof vi.fn> | null = null
+
 // Mock collaboration/manager
 vi.mock('../lib/collaboration/manager', () => ({
   applyOperation: vi.fn(
@@ -935,18 +938,26 @@ vi.mock('../lib/collaboration/manager', () => ({
     // Fallback: return the first operation
     return ops[0]
   }),
-  getCollaborationManager: vi.fn(() => ({
-    createDocument: vi.fn(),
-    getDocument: vi.fn(),
-    updateDocument: vi.fn(),
-    deleteDocument: vi.fn(),
-    getUserPresence: vi.fn(),
-    updateUserPresence: vi.fn(),
-    broadcastPresence: vi.fn(),
-    getCursor: vi.fn(),
-    updateCursor: vi.fn(),
-    broadcastCursor: vi.fn(),
-  })),
+  getCollaborationManager: vi.fn(() => {
+    if (!mockCollaborationManagerSingleton) {
+      mockCollaborationManagerSingleton = vi.fn(() => ({
+        createDocument: vi.fn(),
+        getDocument: vi.fn(),
+        updateDocument: vi.fn(),
+        deleteDocument: vi.fn(),
+        getUserPresence: vi.fn(),
+        updateUserPresence: vi.fn(),
+        broadcastPresence: vi.fn(),
+        getCursor: vi.fn(),
+        updateCursor: vi.fn(),
+        broadcastCursor: vi.fn(),
+      }))
+    }
+    return mockCollaborationManagerSingleton()
+  }),
+  resetCollaborationManager: vi.fn(() => {
+    mockCollaborationManagerSingleton = null
+  }),
 }))
 
 // Mock collaboration/server

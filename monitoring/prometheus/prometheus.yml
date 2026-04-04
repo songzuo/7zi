@@ -1,5 +1,5 @@
-# Prometheus Configuration for 7zi Platform v1.9.1
-# Updated: 2026-04-03
+# Prometheus Configuration for 7zi Platform v1.9.2
+# Updated: 2026-04-04
 
 global:
   scrape_interval: 15s
@@ -110,3 +110,14 @@ scrape_configs:
         labels:
           instance: 'bot5.szspd.cn'
           role: 'test'
+
+  # Health Service - 健康检查服务
+  - job_name: 'health-service'
+    static_configs:
+      - targets: ['health-service:8085']
+        labels:
+          service: 'health'
+          app: '7zi'
+    metrics_path: /metrics
+    scheme: http
+    scrape_interval: 15s

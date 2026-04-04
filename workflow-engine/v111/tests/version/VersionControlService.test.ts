@@ -7,8 +7,8 @@ import { describe, it, expect, beforeEach } from '@jest/globals';
 import { VersionControlService } from '../../src/version/VersionControlService';
 import { RedisStorage } from '../../src/storage/RedisStorage';
 import { ILogContext } from '../../src/logging/Logger';
-import { IWorkflow, WorkflowStatus, NodeType } from '../../src/types/workflow.types';
-import { ChangeType } from '../../src/types/version.types';
+import { IWorkflow, WorkflowStatus, NodeType, IWorkflowNode } from '../../src/types/workflow.types';
+import { ChangeType, IChange, IVersionBranch, IVersionTag } from '../../src/types/version.types';
 
 // Mock Logger
 class MockLogger {
@@ -261,7 +261,7 @@ describe('VersionControlService', () => {
       const version2 = await versionService.createVersion(workflow, 'Added email node');
 
       expect(version2.changes.length).toBeGreaterThan(0);
-      const nameChange = version2.changes.find((c: any) => c.path === 'name');
+      const nameChange = version2.changes.find((c: IChange) => c.path === 'name');
       expect(nameChange).toBeDefined();
       expect(nameChange?.oldValue).toBe('Test Workflow');
       expect(nameChange?.newValue).toBe('Updated Workflow');
@@ -389,7 +389,7 @@ describe('VersionControlService', () => {
 
       const version1 = await versionService.createVersion(workflow, 'Version 1');
 
-      workflow.nodes = workflow.nodes.filter((n: any) => n.id !== 'node-2');
+      workflow.nodes = workflow.nodes.filter((n: IWorkflowNode) => n.id !== 'node-2');
 
       const version2 = await versionService.createVersion(workflow, 'Version 2');
 
@@ -534,8 +534,8 @@ describe('VersionControlService', () => {
       const branches = await versionService.getBranches(workflow.id);
 
       expect(branches.length).toBeGreaterThanOrEqual(2);
-      expect(branches.map((b: any) => b.name)).toContain('feature-1');
-      expect(branches.map((b: any) => b.name)).toContain('feature-2');
+      expect(branches.map((b: IVersionBranch) => b.name)).toContain('feature-1');
+      expect(branches.map((b: IVersionBranch) => b.name)).toContain('feature-2');
     });
 
     it('should delete branch', async () => {
@@ -551,7 +551,7 @@ describe('VersionControlService', () => {
       expect(deleted).toBe(true);
 
       const branches = await versionService.getBranches(workflow.id);
-      expect(branches.map((b: any) => b.name)).not.toContain('feature-branch');
+      expect(branches.map((b: IVersionBranch) => b.name)).not.toContain('feature-branch');
     });
 
     it('should not allow deleting main branch', async () => {
@@ -611,8 +611,8 @@ describe('VersionControlService', () => {
       const tags = await versionService.getTags(workflow.id);
 
       expect(tags).toHaveLength(2);
-      expect(tags.map((t: any) => t.name)).toContain('v1.0.0');
-      expect(tags.map((t: any) => t.name)).toContain('v1.1.0');
+      expect(tags.map((t: IVersionTag) => t.name)).toContain('v1.0.0');
+      expect(tags.map((t: IVersionTag) => t.name)).toContain('v1.1.0');
     });
 
     it('should delete tag', async () => {
@@ -628,7 +628,7 @@ describe('VersionControlService', () => {
       expect(deleted).toBe(true);
 
       const tags = await versionService.getTags(workflow.id);
-      expect(tags.map((t: any) => t.name)).not.toContain('v1.0.0');
+      expect(tags.map((t: IVersionTag) => t.name)).not.toContain('v1.0.0');
     });
   });
 

@@ -3,7 +3,13 @@
 import { useEffect, useCallback, useState } from 'react'
 import * as Sentry from '@sentry/nextjs'
 import { ErrorDisplay, ErrorType } from './ErrorDisplay'
-import { getErrorCode, ErrorCodes, isNetworkError } from '@/lib/errors'
+import {
+  getErrorCode,
+  ErrorCodes,
+  isNetworkError,
+  toUnifiedError,
+  UnifiedErrorType,
+} from '@/lib/errors'
 
 export interface ErrorBoundaryProps {
   error: Error & { digest?: string }
@@ -30,14 +36,19 @@ function analyzeErrorType(error: Error): ErrorType {
 
   switch (code) {
     case ErrorCodes.NOT_FOUND:
+    case UnifiedErrorType.NOT_FOUND:
       return 'not-found'
     case ErrorCodes.UNAUTHORIZED:
+    case UnifiedErrorType.UNAUTHORIZED:
       return 'unauthorized'
     case ErrorCodes.FORBIDDEN:
+    case UnifiedErrorType.FORBIDDEN:
       return 'forbidden'
     case ErrorCodes.SERVER_ERROR:
+    case UnifiedErrorType.INTERNAL:
       return 'server'
     case ErrorCodes.NETWORK_ERROR:
+    case UnifiedErrorType.NETWORK_ERROR:
       return 'network'
     default:
       return 'generic'

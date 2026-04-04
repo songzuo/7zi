@@ -72,29 +72,21 @@ describe('Theme System', () => {
   
   describe('getTimeBasedTheme', () => {
     it('should return light during day hours', () => {
-      // Mock hour between 6 AM and 6 PM
-      const originalDate = global.Date;
-      global.Date = vi.fn(() => ({
-        ...originalDate.prototype,
-        getHours: () => 12, // Noon
-      })) as any;
+      // Mock getHours to return noon (12)
+      const getHoursSpy = vi.spyOn(Date.prototype, 'getHours').mockReturnValue(12);
       
       expect(getTimeBasedTheme()).toBe('light');
       
-      global.Date = originalDate;
+      getHoursSpy.mockRestore();
     });
     
     it('should return dark during night hours', () => {
-      // Mock hour between 6 PM and 6 AM
-      const originalDate = global.Date;
-      global.Date = vi.fn(() => ({
-        ...originalDate.prototype,
-        getHours: () => 20, // 8 PM
-      })) as any;
+      // Mock getHours to return 8 PM (20)
+      const getHoursSpy = vi.spyOn(Date.prototype, 'getHours').mockReturnValue(20);
       
       expect(getTimeBasedTheme()).toBe('dark');
       
-      global.Date = originalDate;
+      getHoursSpy.mockRestore();
     });
   });
   

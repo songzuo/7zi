@@ -47,7 +47,7 @@ import { ValidationPanel } from './ValidationPanel'
 import { KeyboardShortcutsPanel } from './KeyboardShortcutsPanel'
 
 // 导入类型
-import type { NodeType, WorkflowNodeData, WorkflowEdgeData, WorkflowDefinition } from './types'
+import type { NodeType, WorkflowNodeData, WorkflowEdgeData, WorkflowDefinition, WorkflowExport } from './types'
 
 // 导入带撤销/重做的 store
 import {
@@ -79,7 +79,7 @@ interface WorkflowEditorProps {
   initialNodes?: Node<WorkflowNodeData>[]
   initialEdges?: Edge<WorkflowEdgeData>[]
   onSave?: (workflow: WorkflowDefinition) => void
-  onExport?: (exportData: WorkflowDefinition) => void
+  onExport?: (exportData: WorkflowExport) => void
   onImport?: (workflow: WorkflowDefinition) => void
   readOnly?: boolean
 }

@@ -120,6 +120,9 @@ export interface WorkflowNodeData {
   // 执行状态（仅运行时）
   executionStatus?: NodeStatus
   executionResult?: NodeExecutionResult
+
+  // 分组（v1.10.0）
+  groupId?: string
 }
 
 /**
@@ -343,15 +346,21 @@ export interface WorkflowExport {
 /**
  * 工作流定义
  *
- * 注意：这里的 nodes 和 edges 使用 React Flow 的类型，以兼容编辑器的内部数据结构
+ * 注意：这里的 nodes 和 edges 使用简化的数据结构（仅包含数据）
+ * 如果需要完整的 ReactFlow 格式，请在编辑器内部使用
  * 如果需要导出/导入格式，请使用 WorkflowExport 接口
  */
 export interface WorkflowDefinition {
   id: string
   name: string
   description?: string
-  nodes: Node<WorkflowNodeData>[]
-  edges: Edge<WorkflowEdgeData>[]
+  nodes: WorkflowNodeData[]
+  edges: Array<{
+    id: string
+    source: string
+    target: string
+    conditionConfig?: WorkflowEdgeData['conditionConfig']
+  }>
   variables?: WorkflowVariable[]
   metadata?: {
     createdAt?: string

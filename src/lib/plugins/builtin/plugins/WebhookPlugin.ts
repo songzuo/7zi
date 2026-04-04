@@ -36,14 +36,14 @@ export interface WebhookDelivery {
   id: string;
   endpointId: string;
   event: string;
-  payload: any;
+  payload: unknown;
   status: 'pending' | 'success' | 'failed' | 'retrying';
   attempts: number;
   lastAttempt?: Date;
   nextRetry?: Date;
   response?: {
     status: number;
-    body: any;
+    body: unknown;
   };
   error?: string;
   createdAt: Date;
@@ -132,7 +132,7 @@ export class WebhookPlugin implements Plugin {
   /**
    * Register hooks
    */
-  registerHooks(registry: any): void {
+  registerHooks(registry: HookRegistry): void {
     registry.register('onWebhookReceived', this.handleWebhookReceived.bind(this) as HookHandler);
     registry.register('onEvent', this.handleEvent.bind(this) as HookHandler);
   }
@@ -257,7 +257,7 @@ export class WebhookPlugin implements Plugin {
    */
   private async trigger(data: {
     event: string;
-    payload: any;
+    payload: unknown;
   }): Promise<{ deliveries: string[] }> {
     const deliveries: string[] = [];
 
@@ -442,7 +442,7 @@ export class WebhookPlugin implements Plugin {
   /**
    * Sign payload
    */
-  private signPayload(payload: any, secret: string): string {
+  private signPayload(payload: unknown, secret: string): string {
     const crypto = require('crypto');
     const hmac = crypto.createHmac('sha256', secret);
     hmac.update(JSON.stringify(payload));
@@ -460,7 +460,7 @@ export class WebhookPlugin implements Plugin {
   /**
    * Handle webhook received hook
    */
-  private handleWebhookReceived(context: any, input: any): void {
+  private handleWebhookReceived(context: unknown, input: unknown): void {
     this.trigger({
       event: input.event || 'webhook.received',
       payload: input.payload,
@@ -470,7 +470,7 @@ export class WebhookPlugin implements Plugin {
   /**
    * Handle event hook
    */
-  private handleEvent(context: any, input: any): void {
+  private handleEvent(context: unknown, input: unknown): void {
     if (input.event) {
       this.trigger({
         event: input.event,

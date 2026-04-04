@@ -31,27 +31,27 @@ export class PluginLoggerImpl implements PluginLogger {
     this.prefix = `[${pluginId}]`;
   }
 
-  debug(message: string, meta?: any): void {
+  debug(message: string, meta?: Record<string, unknown>): void {
     this.log('debug', message, meta);
   }
 
-  info(message: string, meta?: any): void {
+  info(message: string, meta?: Record<string, unknown>): void {
     this.log('info', message, meta);
   }
 
-  warn(message: string, meta?: any): void {
+  warn(message: string, meta?: Record<string, unknown>): void {
     this.log('warn', message, meta);
   }
 
-  error(message: string, meta?: any): void {
+  error(message: string, meta?: Record<string, unknown>): void {
     this.log('error', message, meta);
   }
 
-  fatal(message: string, meta?: any): void {
+  fatal(message: string, meta?: Record<string, unknown>): void {
     this.log('fatal', message, meta);
   }
 
-  log(level: LogLevel, message: string, meta?: any): void {
+  log(level: LogLevel, message: string, meta?: Record<string, unknown>): void {
     const timestamp = new Date().toISOString();
     const metaStr = meta ? ` ${JSON.stringify(meta)}` : '';
     console.log(`${timestamp} [${level.toUpperCase()}] ${this.prefix} ${message}${metaStr}`);
@@ -389,17 +389,17 @@ export class PluginConfigHelperImpl implements PluginConfigHelper {
  * Plugin Utils Implementation
  */
 export class PluginUtilsImpl implements PluginUtils {
-  debounce<T extends (...args: any[]) => any>(fn: T, delay: number): T {
+  debounce<T extends (...args: unknown[]) => any>(fn: T, delay: number): T {
     let timeoutId: NodeJS.Timeout;
-    return ((...args: any[]) => {
+    return ((...args: unknown[]) => {
       clearTimeout(timeoutId);
       timeoutId = setTimeout(() => fn(...args), delay);
     }) as T;
   }
 
-  throttle<T extends (...args: any[]) => any>(fn: T, delay: number): T {
+  throttle<T extends (...args: unknown[]) => any>(fn: T, delay: number): T {
     let lastCall = 0;
-    return ((...args: any[]) => {
+    return ((...args: unknown[]) => {
       const now = Date.now();
       if (now - lastCall >= delay) {
         lastCall = now;

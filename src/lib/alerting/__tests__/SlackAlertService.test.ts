@@ -5,6 +5,7 @@
 import { describe, it, expect, beforeEach, vi } from 'vitest'
 import { SlackAlertService, parseSlackConfig, createSlackAlertService } from '../SlackAlertService'
 import type { PerformanceAlert } from '@/lib/performance/alerting/alerter'
+import type { SlackAttachmentField } from '../SlackAlertService'
 
 // ========================================
 // Mock fetch
@@ -173,7 +174,7 @@ describe('SlackAlertService', () => {
       const callArgs = mockFetch.mock.calls[0]
       const payload = JSON.parse(callArgs[1].body)
 
-      const detailsField = payload.attachments[0].fields.find((f: any) => f.title === 'Details')
+      const detailsField = payload.attachments[0].fields.find((f: SlackAttachmentField) => f.title === 'Details')
       expect(detailsField).toBeDefined()
       expect(detailsField.value).toContain('server')
       expect(detailsField.value).toContain('prod-01')
@@ -195,7 +196,7 @@ describe('SlackAlertService', () => {
       const callArgs = mockFetch.mock.calls[0]
       const payload = JSON.parse(callArgs[1].body)
 
-      const tagsField = payload.attachments[0].fields.find((f: any) => f.title === 'Tags')
+      const tagsField = payload.attachments[0].fields.find((f: SlackAttachmentField) => f.title === 'Tags')
       expect(tagsField).toBeDefined()
       expect(tagsField.value).toBe('production, critical')
     })
@@ -651,7 +652,7 @@ describe('Message Formatting', () => {
     const callArgs = mockFetch.mock.calls[0]
     const payload = JSON.parse(callArgs[1].body)
 
-    const metricField = payload.attachments[0].fields.find((f: any) => f.title === 'Metric')
+    const metricField = payload.attachments[0].fields.find((f: SlackAttachmentField) => f.title === 'Metric')
     expect(metricField).toBeDefined()
     expect(metricField.value).toContain('cpu_usage')
     expect(metricField.value).toContain('95')
@@ -679,7 +680,7 @@ describe('Message Formatting', () => {
     const callArgs = mockFetch.mock.calls[0]
     const payload = JSON.parse(callArgs[1].body)
 
-    const occurrencesField = payload.attachments[0].fields.find((f: any) => f.title === 'Occurrences')
+    const occurrencesField = payload.attachments[0].fields.find((f: SlackAttachmentField) => f.title === 'Occurrences')
     expect(occurrencesField).toBeDefined()
     expect(occurrencesField.value).toBe('5')
   })

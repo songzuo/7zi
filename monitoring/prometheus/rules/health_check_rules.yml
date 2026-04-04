@@ -1,0 +1,89 @@
+# Health Check Alerting Rules for 7zi Platform v1.9.2
+# Updated: 2026-04-04
+
+groups:
+  # ==================== 健康检查告警规则 ====================
+  - name: health_check_alerts
+    interval: 30s
+    rules:
+      # 健康检查失败告警
+      - alert: HealthCheckFailed
+        expr: health_check_status == 0
+        for: 1m
+        labels:
+          severity: warning
+          category: health
+        annotations:
+          summary: "健康检查失败 - {{ $labels.service }}"
+          description: "服务 {{ $labels.service }} 的 {{ $labels.check_type }} 检查失败"
+
+      # 健康检查耗时过长
+      - alert: HealthCheckSlow
+        expr: health_check_duration_seconds{quantile="0.99"} > 5
+        for: 5m
+        labels:
+          severity: warning
+          category: health
+        annotations:
+          summary: "健康检查响应缓慢 - {{ $labels.service }}"
+          description: "服务 {{ $labels.service }} 的健康检查耗时 {{ $value | printf \"%.2f\" }}s"
+
+      # 依赖服务不可用
+      - alert: DependencyServiceDown
+        expr: health_check_status{check_type="ready"} == 0
+        for: 2m
+        labels:
+          severity: critical
+          category: health
+        annotations:
+          summary: "依赖服务不可用 - {{ $labels.service }}"
+          description: "依赖服务 {{ $labels.service }} 就绪检查失败"
+
+      # 指标采集失败
+      - alert: MetricsCollectionFailed
+        expr: health_check_status{check_type="metrics"} == 0
+        for: 2m
+        labels:
+          severity: warning
+          category: health
+        annotations:
+          summary: "指标采集失败 - {{ $labels.service }}"
+          description: "服务 {{ $labels.service }} 的指标端点不可访问"
+
+      # 数据源连接失败
+      - alert: DataSourceConnectionFailed
+        expr: health_check_status{check_type="targets"} == 0 or health_check_status{check_type="alerts"} == 0
+        for: 2m
+        labels:
+          severity: warning
+          category: health
+        annotations:
+          summary: "数据源连接失败 - {{ $labels.service }}"
+          description: "服务 {{ $labels.service }} 的数据源连接失败"
+
+      # 健康服务整体状态告警
+      - alert: HealthServiceDegraded
+        expr: |
+          (
+            sum(health_check_status) by (service)
+            /
+            count(health_check_status) by (service)
+          ) < 0.8
+        for: 5m
+        labels:
+          severity: warning
+          category: health
+        annotations:
+          summary: "健康服务状态降级 - {{ $labels.service }}"
+          description: "服务 {{ $labels.service }} 的健康检查通过率低于 80%"
+
+      # 健康服务不可用
+      - alert: HealthServiceDown
+        expr: up{job="health-service"} == 0
+        for: 1m
+        labels:
+          severity: critical
+          category: health
+        annotations:
+          summary: "健康检查服务不可用"
+          description: "健康检查服务已宕机，无法监控其他服务状态"

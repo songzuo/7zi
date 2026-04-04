@@ -1,29 +1,14 @@
 import React, { useState } from 'react';
-import WorkflowDesigner from './WorkflowDesigner';
+import WorkflowDesigner, { Workflow } from './App';
 import ExecutionMonitor from './ExecutionMonitor';
-import TemplateMarket from './TemplateMarket';
+import TemplateMarket, { Template } from './TemplateMarket';
 import './WorkflowApp.css';
-
-// ============ 类型定义 ============
-
-interface Template {
-  id: string;
-  name: string;
-  description: string;
-  category: string;
-  author: string;
-  downloads: number;
-  rating: number;
-  tags: string[];
-  workflow: any;
-  createdAt: string;
-}
 
 // ============ 主应用组件 ============
 
 const WorkflowApp: React.FC = () => {
   const [view, setView] = useState<'market' | 'designer' | 'monitor'>('market');
-  const [currentWorkflow, setCurrentWorkflow] = useState<any>(null);
+  const [currentWorkflow, setCurrentWorkflow] = useState<Workflow | undefined>(undefined);
   const [executionId, setExecutionId] = useState<string | null>(null);
 
   // 从模板选择
@@ -34,12 +19,12 @@ const WorkflowApp: React.FC = () => {
 
   // 创建新工作流
   const handleCreateNew = () => {
-    setCurrentWorkflow(null);
+    setCurrentWorkflow(undefined);
     setView('designer');
   };
 
   // 保存工作流
-  const handleSaveWorkflow = async (workflow: any) => {
+  const handleSaveWorkflow = async (workflow: Workflow) => {
     try {
       const response = await fetch('/api/workflows', {
         method: 'POST',
@@ -59,7 +44,7 @@ const WorkflowApp: React.FC = () => {
   };
 
   // 执行工作流
-  const handleExecuteWorkflow = async (workflow: any) => {
+  const handleExecuteWorkflow = async (workflow: Workflow) => {
     try {
       const response = await fetch(`/api/workflows/${workflow.id}/execute`, {
         method: 'POST',
@@ -81,7 +66,7 @@ const WorkflowApp: React.FC = () => {
   // 返回市场
   const handleBackToMarket = () => {
     setView('market');
-    setCurrentWorkflow(null);
+    setCurrentWorkflow(undefined);
     setExecutionId(null);
   };
 

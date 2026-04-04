@@ -58,6 +58,9 @@ export class WorkflowEngine {
   private executions: Map<string, IExecution>;
   private readonly maxParallelTasks: number;
   private readonly checkpointInterval: number;
+  private readonly maxCheckpointsPerExecution: number;
+  private readonly executionCleanupDelay: number;
+  private cleanupTimer: NodeJS.Timeout | null = null;
 
   constructor(
     storage: RedisStorage,
@@ -66,6 +69,8 @@ export class WorkflowEngine {
     options?: {
       maxParallelTasks?: number;
       checkpointInterval?: number;
+      maxCheckpointsPerExecution?: number;
+      executionCleanupDelay?: number;
     }
   ) {
     this.storage = storage;
@@ -75,6 +80,74 @@ export class WorkflowEngine {
     this.executions = new Map();
     this.maxParallelTasks = options?.maxParallelTasks || 10;
     this.checkpointInterval = options?.checkpointInterval || 5000;
+    this.maxCheckpointsPerExecution = options?.maxCheckpointsPerExecution || 50;
+    this.executionCleanupDelay = options?.executionCleanupDelay || 300000; // 5 minutes
+  }
+
+  /**
+   * 启动定期清理任务
+   */
+  startCleanupTask(): void {
+    if (this.cleanupTimer) {
+      this.logger.warn('Cleanup task already running');
+      return;
+    }
+
+    // 每分钟检查一次需要清理的执行
+    this.cleanupTimer = setInterval(async () => {
+      await this.cleanupCompletedExecutions();
+    }, 60000);
+
+    this.logger.info('Execution cleanup task started');
+  }
+
+  /**
+   * 停止定期清理任务
+   */
+  stopCleanupTask(): void {
+    if (this.cleanupTimer) {
+      clearInterval(this.cleanupTimer);
+      this.cleanupTimer = null;
+      this.logger.info('Execution cleanup task stopped');
+    }
+  }
+
+  /**
+   * 清理已完成的执行（从内存中移除）
+   */
+  private async cleanupCompletedExecutions(): Promise<void> {
+    const now = Date.now();
+    const toRemove: string[] = [];
+
+    for (const [executionId, execution] of this.executions.entries()) {
+      // 检查执行是否已完成超过 cleanupDelay 时间
+      if (execution.status === ExecutionStatus.COMPLETED ||
+          execution.status === ExecutionStatus.FAILED ||
+          execution.status === ExecutionStatus.CANCELLED) {
+        
+        const endTime = execution.endTime?.getTime() || 0;
+        if (now - endTime > this.executionCleanupDelay) {
+          toRemove.push(executionId);
+        }
+      }
+    }
+
+    // 从内存中移除
+    for (const executionId of toRemove) {
+      this.executions.delete(executionId);
+    }
+
+    if (toRemove.length > 0) {
+      this.logger.debug('Cleaned up completed executions', { count: toRemove.length });
+    }
+  }
+
+  /**
+   * 手动清理单个执行（从内存中移除）
+   */
+  cleanupExecution(executionId: string): void {
+    this.executions.delete(executionId);
+    this.logger.debug('Execution removed from memory', { executionId });
   }
 
   /**
@@ -526,11 +599,25 @@ export class WorkflowEngine {
     };
 
     execution.checkoints.push(checkpoint);
+    
+    // LRU 缓存限制：移除旧的检查点
+    if (execution.checkoints.length > this.maxCheckpointsPerExecution) {
+      const removedCount = execution.checkoints.length - this.maxCheckpointsPerExecution;
+      execution.checkoints = execution.checkoints.slice(-this.maxCheckpointsPerExecution);
+      
+      this.logger.debug('Removed old checkpoints to maintain LRU limit', {
+        executionId: execution.id,
+        removedCount,
+        remainingCount: execution.checkoints.length
+      });
+    }
+    
     await this.storage.saveCheckpoint(checkpoint);
 
     this.logger.debug('Checkpoint created', { 
       executionId: execution.id, 
-      checkpointId: checkpoint.id 
+      checkpointId: checkpoint.id,
+      totalCheckpoints: execution.checkoints.length
     });
   }
 
@@ -613,6 +700,18 @@ export class WorkflowEngine {
    */
   async getAllExecutions(): Promise<IExecution[]> {
     return await this.storage.getAllExecutions();
+  }
+
+  /**
+   * 关闭引擎，清理资源
+   */
+  async shutdown(): Promise<void> {
+    this.stopCleanupTask();
+    
+    // 清空内存中的执行记录
+    this.executions.clear();
+    
+    this.logger.info('Workflow engine shutdown completed');
   }
 
   /**

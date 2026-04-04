@@ -12,6 +12,7 @@ import {
   PluginMetrics,
   LogLevel,
   HookHandler,
+  HookRegistry,
 } from '../../types';
 
 export interface LoggingPluginConfig {
@@ -33,7 +34,7 @@ export interface LogEntry {
   level: LogLevel;
   pluginId: string;
   message: string;
-  meta?: any;
+  meta?: Record<string, unknown>;
   context?: Record<string, any>;
 }
 
@@ -122,7 +123,7 @@ export class LoggingPlugin implements Plugin {
   /**
    * Register hooks
    */
-  registerHooks(registry: any): void {
+  registerHooks(registry: HookRegistry): void {
     registry.register('onLog', this.handleLog.bind(this) as HookHandler, {
       priority: 100,
     });
@@ -273,7 +274,7 @@ export class LoggingPlugin implements Plugin {
   /**
    * Handle log hook
    */
-  private handleLog(context: any, input: any): void {
+  private handleLog(context: unknown, input: unknown): void {
     this.log({
       level: input.level || 'info',
       pluginId: input.pluginId,
@@ -285,7 +286,7 @@ export class LoggingPlugin implements Plugin {
   /**
    * Handle error hook
    */
-  private handleError(context: any, input: any): void {
+  private handleError(context: unknown, input: unknown): void {
     this.log({
       level: 'error',
       pluginId: input.pluginId,

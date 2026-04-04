@@ -152,7 +152,7 @@ describe('State Management Consistency Tests', () => {
   describe('组件状态命名规范', () => {
     it('组件内部状态应该使用 useState hooks', () => {
       // 这是一个示例测试，验证状态管理模式
-      const useStatePattern = (initial: any) => {
+      function useStatePattern(initial: unknown) {
         return [initial, () => {}] as const
       }
 

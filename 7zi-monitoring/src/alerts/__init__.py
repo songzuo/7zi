@@ -106,8 +106,15 @@ class AlertManager:
             end_minutes = end_hour * 60 + end_min
             current_minutes = now.hour * 60 + now.minute
             
-            if start_minutes <= current_minutes <= end_minutes:
-                return True
+            # Handle cross-midnight windows (e.g., 23:00-02:00)
+            if start_minutes <= end_minutes:
+                # Normal case: window within same day (e.g., 02:00-04:00)
+                if start_minutes <= current_minutes <= end_minutes:
+                    return True
+            else:
+                # Cross-midnight case: window spans midnight (e.g., 23:00-02:00)
+                if current_minutes >= start_minutes or current_minutes <= end_minutes:
+                    return True
                 
         return False
         

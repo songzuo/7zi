@@ -1,7 +1,7 @@
 # 📚 7zi Studio 文档中心索引
 
-**最后更新**: 2026-04-03
-**版本**: v1.10.1 ✅ 已发布 | v1.11.0 📋 规划中
+**最后更新**: 2026-04-04
+**版本**: v1.12.0 ✅ 已发布 | v1.13.0 📋 规划中
 
 ---
 
@@ -13,10 +13,13 @@
 - **[QUICKSTART.md](./QUICKSTART.md)** - 5 分钟快速部署
 - **[DEPLOYMENT.md](./DEPLOYMENT.md)** - 部署文档（生产环境配置）
 - **[CHANGELOG.md](../CHANGELOG.md)** - 版本变更日志
+- **[v1.12.0 多模型路由指南](../src/lib/ai/MULTIMODEL_GUIDE.md)** - 多模型智能路由使用指南 ⭐ 新增
+- **[v1.12.0 实现总结](../src/lib/ai/MULTIMODEL_IMPLEMENTATION_SUMMARY.md)** - 多模型路由实现总结 ⭐ 新增
 - **[v1.10.0 实现报告](../V110_CODE_GENERATION_IMPLEMENTATION_REPORT.md)** - AI 代码智能系统实现报告 ⭐
 - **[v1.10.0 AI 增强路线图](../v110_AI_ENHANCEMENT_ROADMAP.md)** - AI 增强功能路线图 ⭐
-- **[v1.11.0 路线图](../v111_ROADMAP.md)** - 智能协作与体验升级规划 ⭐ 新增
-- **[多租户架构设计](./MULTI_TENANT_ARCHITECTURE_v110.md)** - 多租户系统架构文档 ⭐ 新增
+- **[v1.11.0 路线图](../v111_ROADMAP.md)** - 智能协作与体验升级规划 ⭐
+- **[v1.12.0 路线图](../v120_ROADMAP.md)** - 多模型智能路由路线图 ⭐ 新增
+- **[多租户架构设计](./MULTI_TENANT_ARCHITECTURE_v110.md)** - 多租户系统架构文档 ⭐
 - **[WHATS_NEW_v1.4.0.md](./WHATS_NEW_v1.4.0.md)** - v1.4.0 功能展示
 - **[PROMOTION_MATERIALS_v140.md](./PROMOTION_MATERIALS_v140.md)** - v1.4.0 推广素材
 - **[v1.3.0 规划文档](./v1.3.0-PLANNING.md)** - v1.3.0 详细规划 ✅ 已完成

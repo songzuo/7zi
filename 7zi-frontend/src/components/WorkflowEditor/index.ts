@@ -60,7 +60,6 @@ export {
   workflowEditorSelectors,
 } from './stores/workflow-editor-store'
 export type {
-  WorkflowDefinition,
   HistoryState,
   WorkflowEditorState,
 } from './stores/workflow-editor-store'

@@ -1,7 +1,8 @@
-/**
- * ResourceManager - 统一资源管理器
- * 用于自动清理注册的资源，防止内存泄漏
- */
+import { idGenerators } from './id-generator';
+import { createLogger, LogLevel, Logger } from './logger';
+
+// 创建日志实例
+const logger = createLogger('ResourceManager', LogLevel.WARN);
 
 /**
  * 可释放资源接口
@@ -56,9 +57,11 @@ export class ResourceManager {
   private name: string;
   private disposed: boolean = false;
   private exitHandler?: () => void;
+  private log: Logger;
 
   constructor(options: ResourceManagerOptions = {}) {
     this.name = options.name ?? 'ResourceManager';
+    this.log = logger.child(this.name);
     
     if (options.cleanupOnExit !== false) {
       this.setupExitHandler();
@@ -72,11 +75,11 @@ export class ResourceManager {
    */
   register<T extends Disposable>(resource: T): T {
     if (this.disposed) {
-      console.warn(`[${this.name}] ResourceManager 已 disposed，无法注册新资源`);
+      this.log.warn('已 disposed，无法注册新资源');
       return resource;
     }
 
-    const id = this.generateId();
+    const id = idGenerators.resource();
     this.resources.set(id, {
       id,
       cleanup: () => resource.dispose(),
@@ -94,11 +97,11 @@ export class ResourceManager {
    */
   registerCleanup(cleanup: CleanupFunction): () => void {
     if (this.disposed) {
-      console.warn(`[${this.name}] ResourceManager 已 disposed，无法注册清理函数`);
+      this.log.warn('已 disposed，无法注册清理函数');
       return () => {};
     }
 
-    const id = this.generateId();
+    const id = idGenerators.resource();
     this.resources.set(id, {
       id,
       cleanup,
@@ -125,7 +128,7 @@ export class ResourceManager {
    */
   async dispose(): Promise<void> {
     if (this.disposed) {
-      console.warn(`[${this.name}] 已经 disposed`);
+      this.log.warn('已经 disposed');
       return;
     }
 
@@ -145,13 +148,13 @@ export class ResourceManager {
           cleanupPromises.push(
             result.catch((error) => {
               errors.push(error);
-              console.error(`[${this.name}] 清理资源 ${id} 失败:`, error);
+              this.log.error(`清理资源 ${id} 失败:`, error);
             })
           );
         }
       } catch (error) {
         errors.push(error as Error);
-        console.error(`[${this.name}] 清理资源 ${id} 失败:`, error);
+        this.log.error(`清理资源 ${id} 失败:`, error);
       }
     }
 
@@ -161,7 +164,7 @@ export class ResourceManager {
     this.resources.clear();
 
     if (errors.length > 0) {
-      console.warn(`[${this.name}] 清理完成，但有 ${errors.length} 个错误`);
+      this.log.warn(`清理完成，但有 ${errors.length} 个错误`);
     }
   }
 
@@ -187,20 +190,13 @@ export class ResourceManager {
   }
 
   /**
-   * 生成唯一ID
-   */
-  private generateId(): string {
-    return `res_${Date.now()}_${Math.random().toString(36).substring(2, 9)}`;
-  }
-
-  /**
    * 设置进程退出处理器
    */
   private setupExitHandler(): void {
     this.exitHandler = () => {
       if (!this.disposed) {
         this.dispose().catch((error) => {
-          console.error(`[${this.name}] 自动清理失败:`, error);
+          this.log.error('自动清理失败:', error);
         });
       }
     };

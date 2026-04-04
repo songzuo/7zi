@@ -1,23 +1,27 @@
 # HEARTBEAT.md
 
+## Current Time
+- **System**: Saturday April 4th 2026 03:27 (Europe/Berlin)
+
 ## Projects
+| 7zi-frontend | workspace |
+|---|---|
+| ✅ | ✅ |
 
-| Project | Status |
-|---------|--------|
-| workspace | Clean |
-| 7zi-frontend | Clean |
-| 7zi-project | Clean |
+## v1.10.1 Released (2026-04-04)
+- Docs synced: CHANGELOG ✅
+- README ✅
+- package.json ✅
 
-## v1.12.0
-- Multi-model routing: 201 tests passed ✅
-- Tests: cost-tracker (45), fallback (35), model-router (62), model-registry (59)
+## v1.12.0 Routing Tests
+- 201 tests pass
 
-## TypeScript
-- AI/Agents: 0 any ✅
-- Total any: 118 (15 high priority)
+## Workflow Tests
+- 22 fixed (registerWorkflow calls)
+- 9 test files all pass
 
 ## Health
-- picoclaw.service: ✅ Running
+picoclaw.service ✅
 
 ## Subagents
-- 30+ completed today
+30+ completed overnight

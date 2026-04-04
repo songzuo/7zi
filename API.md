@@ -4,8 +4,8 @@ Complete API documentation for the 7zi AI Team Management Platform.
 
 ---
 
-**Last Updated:** 2026-04-02
-**Version:** v1.8.0
+**Last Updated:** 2026-04-04
+**Version:** v1.12.1
 **Reviewer:** AI Documentation Agent
 **Total Endpoints:** 64 REST endpoints + 30+ WebSocket message types
 
@@ -2756,7 +2756,7 @@ Get list of available audio transcription providers with health status.
 
 ---
 
-## 📊 Monitoring & Metrics APIs
+## 📊 Monitoring & Alerts APIs (v1.12.1 Enhanced)
 
 ### Performance Metrics
 
@@ -2813,6 +2813,278 @@ Get comprehensive performance metrics including API, rate limiting, and system h
     }
   },
   "timestamp": "2026-03-20T12:00:00.000Z"
+}
+```
+
+---
+
+### Metrics Aggregation (v1.12.1 New)
+
+**Endpoint:** `GET /api/metrics/aggregation`
+
+Get aggregated metrics with advanced analytics including time windows, percentiles, and trend analysis.
+
+**Query Parameters:**
+| Parameter | Type | Required | Default | Description |
+|-----------|------|----------|---------|-------------|
+| `metric` | string | Yes | - | Metric name (e.g., "api_latency", "memory_usage") |
+| `window` | string | No | 1h | Time window: "1m", "5m", "15m", "1h", "6h", "24h" |
+| `aggregation` | string | No | avg | Aggregation type: "avg", "sum", "min", "max", "count" |
+| `percentiles` | boolean | No | true | Include percentile calculations (p50, p90, p95, p99) |
+| `trend` | boolean | No | true | Include trend analysis |
+
+**Response (200 OK):**
+
+```json
+{
+  "success": true,
+  "data": {
+    "metric": "api_latency",
+    "window": "1h",
+    "buckets": [
+      {
+        "startTime": 1743616800000,
+        "endTime": 1743620400000,
+        "count": 120,
+        "sum": 10200,
+        "avg": 85,
+        "min": 12,
+        "max": 450
+      }
+    ],
+    "percentiles": {
+      "p50": 75,
+      "p90": 150,
+      "p95": 200,
+      "p99": 380,
+      "min": 12,
+      "max": 450,
+      "count": 1250
+    },
+    "trend": {
+      "direction": "decreasing",
+      "slope": -0.5,
+      "confidence": 0.85,
+      "changePercent": -15.2
+    },
+    "stats": {
+      "count": 1250,
+      "sum": 106250,
+      "avg": 85,
+      "min": 12,
+      "max": 450,
+      "stdDev": 45.2,
+      "median": 75
+    }
+  },
+  "timestamp": "2026-04-04T12:00:00.000Z"
+}
+```
+
+---
+
+### Alert Rules Management
+
+**Endpoint:** `GET /api/alerts/rules`
+
+Get all alert rules with optional filtering.
+
+**Query Parameters:**
+| Parameter | Type | Required | Default | Description |
+|-----------|------|----------|---------|-------------|
+| `enabled` | boolean | No | - | Filter by enabled status |
+| `severity` | string | No | - | Filter by severity: low, medium, high, critical |
+| `metric` | string | No | - | Filter by metric name |
+
+**Response (200 OK):**
+
+```json
+{
+  "success": true,
+  "data": {
+    "rules": [
+      {
+        "id": "rule_001",
+        "name": "High API Latency",
+        "metric": "api_latency",
+        "condition": "gt",
+        "threshold": 1000,
+        "severity": "high",
+        "enabled": true,
+        "notificationChannels": ["email", "webhook"],
+        "cooldown": 300,
+        "createdAt": "2026-04-04T10:00:00.000Z"
+      }
+    ],
+    "total": 1
+  }
+}
+```
+
+---
+
+**Endpoint:** `POST /api/alerts/rules`
+
+Create a new alert rule.
+
+**Request Body:**
+
+```json
+{
+  "name": "High Memory Usage",
+  "metric": "memory_usage",
+  "condition": "gt",
+  "threshold": 80,
+  "severity": "critical",
+  "enabled": true,
+  "notificationChannels": ["email", "sms", "webhook"],
+  "cooldown": 300
+}
+```
+
+**Response (201 Created):**
+
+```json
+{
+  "success": true,
+  "data": {
+    "id": "rule_002",
+    "name": "High Memory Usage",
+    "metric": "memory_usage",
+    "condition": "gt",
+    "threshold": 80,
+    "severity": "critical",
+    "enabled": true,
+    "notificationChannels": ["email", "sms", "webhook"],
+    "createdAt": "2026-04-04T12:00:00.000Z"
+  }
+}
+```
+
+---
+
+**Endpoint:** `PUT /api/alerts/rules/[id]`
+
+Update an existing alert rule.
+
+**Response (200 OK):**
+
+```json
+{
+  "success": true,
+  "data": {
+    "id": "rule_002",
+    "name": "Updated Rule Name",
+    "threshold": 90,
+    "enabled": false,
+    "updatedAt": "2026-04-04T13:00:00.000Z"
+  }
+}
+```
+
+---
+
+**Endpoint:** `DELETE /api/alerts/rules/[id]`
+
+Delete an alert rule.
+
+**Response (200 OK):**
+
+```json
+{
+  "success": true,
+  "message": "Alert rule deleted successfully"
+}
+```
+
+---
+
+### Alert History
+
+**Endpoint:** `GET /api/alerts/history`
+
+Get alert history with optional filtering.
+
+**Query Parameters:**
+| Parameter | Type | Required | Default | Description |
+|-----------|------|----------|---------|-------------|
+| `ruleId` | string | No | - | Filter by rule ID |
+| `severity` | string | No | - | Filter by severity |
+| `acknowledged` | boolean | No | - | Filter by acknowledgment status |
+| `limit` | number | No | 50 | Maximum results |
+
+**Response (200 OK):**
+
+```json
+{
+  "success": true,
+  "data": {
+    "alerts": [
+      {
+        "id": "alert_001",
+        "ruleId": "rule_001",
+        "ruleName": "High API Latency",
+        "metric": "api_latency",
+        "value": 1250,
+        "threshold": 1000,
+        "severity": "high",
+        "message": "API latency exceeded threshold",
+        "acknowledged": false,
+        "triggeredAt": "2026-04-04T12:00:00.000Z"
+      }
+    ],
+    "total": 1
+  }
+}
+```
+
+---
+
+### Alert Channels (v1.12.1 New)
+
+**Endpoint:** `GET /api/alerts/channels`
+
+Get available alert notification channels.
+
+**Response (200 OK):**
+
+```json
+{
+  "success": true,
+  "data": {
+    "channels": [
+      {
+        "id": "email",
+        "name": "Email",
+        "type": "email",
+        "enabled": true,
+        "config": {
+          "recipients": ["admin@example.com"]
+        }
+      },
+      {
+        "id": "sms",
+        "name": "SMS",
+        "type": "sms",
+        "enabled": true,
+        "config": {
+          "provider": "twilio",
+          "recipients": ["+1234567890"]
+        }
+      },
+      {
+        "id": "webhook",
+        "name": "Webhook",
+        "type": "webhook",
+        "enabled": true,
+        "config": {
+          "url": "https://hooks.example.com/alerts",
+          "method": "POST"
+        }
+      }
+    ],
+    "total": 3
+  }
 }
 ```
 
