@@ -226,6 +226,7 @@ export function createSMSChannelFromEnv(): SMSAlertChannel | null {
     console.warn('[SMSAlert] Gateway not configured, SMS alerts will be logged only')
     // Return a default channel with no gateway
     return new SMSAlertChannel({
+      enabled: true,
       recipients: {
         P0: [],
         P1: [],
@@ -236,6 +237,7 @@ export function createSMSChannelFromEnv(): SMSAlertChannel | null {
   }
 
   return new SMSAlertChannel({
+    enabled: true,
     gatewayUrl,
     apiKey,
     senderId,

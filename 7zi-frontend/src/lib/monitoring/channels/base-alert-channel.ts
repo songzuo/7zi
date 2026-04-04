@@ -288,8 +288,8 @@ export abstract class BaseAlertChannel implements AlertChannel {
 
   constructor(config: BaseChannelConfig) {
     this.config = {
-      enabled: true,
       ...config,
+      enabled: config.enabled ?? true,
     }
 
     this.retryConfig = {

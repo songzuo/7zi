@@ -8,88 +8,31 @@ import Database from 'better-sqlite3'
 import { join } from 'path'
 import { logger } from '@/lib/logger'
 
-/**
- * Feedback types
- */
-export type FeedbackType = 'bug' | 'feature' | 'improvement' | 'complaint' | 'praise' | 'other'
+// 从单独的类型文件导入并重新导出（避免客户端打包 better-sqlite3）
+export type {
+  FeedbackType,
+  FeedbackPriority,
+  FeedbackStatus,
+  FeedbackRating,
+  Feedback,
+  FeedbackFilter,
+  FeedbackSort,
+  PaginatedFeedbacks,
+  FeedbackStats,
+} from './feedback-types'
 
-/**
- * Feedback priority levels
- */
-export type FeedbackPriority = 'low' | 'medium' | 'high' | 'urgent'
-
-/**
- * Feedback status
- */
-export type FeedbackStatus = 'pending' | 'in_progress' | 'resolved' | 'closed' | 'rejected'
-
-/**
- * Feedback rating
- */
-export type FeedbackRating = 1 | 2 | 3 | 4 | 5
-
-/**
- * Feedback interface
- */
-export interface Feedback {
-  id: string
-  userId: string
-  userName: string
-  userEmail: string
-  type: FeedbackType
-  priority: FeedbackPriority
-  status: FeedbackStatus
-  title: string
-  description: string
-  rating?: FeedbackRating
-  url?: string
-  attachments: string[]
-  tags: string[]
-  adminResponse?: string
-  adminId?: string
-  adminName?: string
-  resolvedAt?: number
-  closedAt?: number
-  createdAt: number
-  updatedAt: number
-}
-
-/**
- * Feedback filter options
- */
-export interface FeedbackFilter {
-  type?: FeedbackType
-  priority?: FeedbackPriority
-  status?: FeedbackStatus
-  userId?: string
-  rating?: FeedbackRating
-  searchQuery?: string
-  dateFrom?: number
-  dateTo?: number
-  tags?: string[]
-}
-
-/**
- * Feedback sort options
- */
-export interface FeedbackSort {
-  field: 'createdAt' | 'updatedAt' | 'priority' | 'rating' | 'status'
-  order: 'asc' | 'desc'
-}
-
-/**
- * Feedback statistics
- */
-export interface FeedbackStats {
-  total: number
-  byType: Record<FeedbackType, number>
-  byPriority: Record<FeedbackPriority, number>
-  byStatus: Record<FeedbackStatus, number>
-  averageRating: number
-  resolvedPercentage: number
-  pendingCount: number
-  inProgressCount: number
-}
+// 重新导出类型（保持向后兼容）
+import type {
+  FeedbackType,
+  FeedbackPriority,
+  FeedbackStatus,
+  FeedbackRating,
+  Feedback,
+  FeedbackFilter,
+  FeedbackSort,
+  PaginatedFeedbacks,
+  FeedbackStats,
+} from './feedback-types'
 
 /**
  * Database row interface for feedback table

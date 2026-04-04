@@ -230,6 +230,7 @@ export function createWebhookChannelFromEnv(): WebhookAlertChannel | null {
   }
 
   return new WebhookAlertChannel({
+    enabled: true,
     url,
     method: (process.env.WEBHOOK_METHOD as 'GET' | 'POST' | 'PUT' | 'PATCH') || 'POST',
     headers,

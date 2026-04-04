@@ -36,10 +36,10 @@ export interface EmailChannelConfig extends BaseChannelConfig {
   // Email Options
   from: string
   recipients: {
-    P0: string[]
-    P1: string[]
-    P2: string[]
-    P3: string[]
+    P0?: string[]
+    P1?: string[]
+    P2?: string[]
+    P3?: string[]
     all?: string[]
   }
 
@@ -49,6 +49,7 @@ export interface EmailChannelConfig extends BaseChannelConfig {
 }
 
 interface EmailMessage {
+  from: string
   to: string
   subject: string
   text: string
@@ -71,7 +72,7 @@ export class EmailAlertChannel extends BaseAlertChannel implements AlertChannel 
 
   constructor(config: EmailChannelConfig) {
     const baseConfig: BaseChannelConfig = {
-      enabled: true,
+      enabled: config.enabled ?? true,
       retry: config.retry,
       dedup: config.dedup,
       rateLimit: config.rateLimit,
@@ -159,6 +160,7 @@ export class EmailAlertChannel extends BaseAlertChannel implements AlertChannel 
     const html = this.buildHtmlContent(alert)
 
     return {
+      from: this.emailConfig.from,
       to: recipients.join(', '),
       subject,
       text,
@@ -453,6 +455,7 @@ export function createEmailChannelFromEnv(): EmailAlertChannel | null {
   }
 
   return new EmailAlertChannel({
+    enabled: true,
     host,
     port,
     secure: port === 465,

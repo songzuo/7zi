@@ -1,6 +1,6 @@
 /**
  * Monitoring Storage
- * 监控数据存储
+ * 监控数据存储 - 优化版本
  */
 
 import { PerformanceMetric, AlarmEvent } from './types'
@@ -20,6 +20,36 @@ export interface MonitoringStorage {
   clearAlarms(): Promise<void>
 }
 
+// ==================== 辅助函数 ====================
+
+/** 按时间戳降序排序 */
+function sortByTimestampDesc<T extends { timestamp: number }>(items: T[]): T[] {
+  return items.sort((a, b) => b.timestamp - a.timestamp)
+}
+
+/** 过滤指标数据 */
+function filterMetrics(
+  metrics: PerformanceMetric[],
+  filter?: { type?: string; startTime?: number; endTime?: number }
+): PerformanceMetric[] {
+  if (!filter) return metrics
+
+  return metrics.filter(m => {
+    if (filter.type && m.type !== filter.type) return false
+    if (filter.startTime && m.timestamp < filter.startTime) return false
+    if (filter.endTime && m.timestamp > filter.endTime) return false
+    return true
+  })
+}
+
+/** 过滤告警数据 */
+function filterAlarms(alarms: AlarmEvent[], startTime?: number): AlarmEvent[] {
+  if (!startTime) return alarms
+  return alarms.filter(a => a.timestamp >= startTime)
+}
+
+// ==================== 内存存储 ====================
+
 export class MemoryStorage implements MonitoringStorage {
   private metrics: Map<string, PerformanceMetric> = new Map()
   private alarms: Map<string, AlarmEvent> = new Map()
@@ -30,9 +60,7 @@ export class MemoryStorage implements MonitoringStorage {
   }
 
   async saveMetric(metric: PerformanceMetric): Promise<void> {
-    // 清理过期数据
-    await this.cleanupExpired()
-
+    this.cleanupExpired()
     this.metrics.set(metric.id, metric)
   }
 
@@ -41,21 +69,8 @@ export class MemoryStorage implements MonitoringStorage {
     startTime?: number
     endTime?: number
   }): Promise<PerformanceMetric[]> {
-    let metrics = Array.from(this.metrics.values())
-
-    if (filter?.type) {
-      metrics = metrics.filter(m => m.type === filter.type)
-    }
-
-    if (filter?.startTime) {
-      metrics = metrics.filter(m => m.timestamp >= filter.startTime!)
-    }
-
-    if (filter?.endTime) {
-      metrics = metrics.filter(m => m.timestamp <= filter.endTime!)
-    }
-
-    return metrics.sort((a, b) => b.timestamp - a.timestamp)
+    const metrics = Array.from(this.metrics.values())
+    return sortByTimestampDesc(filterMetrics(metrics, filter))
   }
 
   async getMetricsByTimeRange(startTime: number, endTime: number): Promise<PerformanceMetric[]> {
@@ -75,23 +90,16 @@ export class MemoryStorage implements MonitoringStorage {
   }
 
   async getAlarms(startTime?: number): Promise<AlarmEvent[]> {
-    let alarms = Array.from(this.alarms.values())
-
-    if (startTime) {
-      alarms = alarms.filter(a => a.timestamp >= startTime)
-    }
-
-    return alarms.sort((a, b) => b.timestamp - a.timestamp)
+    const alarms = Array.from(this.alarms.values())
+    return sortByTimestampDesc(filterAlarms(alarms, startTime))
   }
 
   async clearAlarms(): Promise<void> {
     this.alarms.clear()
   }
 
-  private async cleanupExpired(): Promise<void> {
-    const now = Date.now()
-    const cutoffTime = now - this.retentionPeriodMs
-
+  private cleanupExpired(): void {
+    const cutoffTime = Date.now() - this.retentionPeriodMs
     for (const [id, metric] of this.metrics) {
       if (metric.timestamp < cutoffTime) {
         this.metrics.delete(id)
@@ -100,10 +108,12 @@ export class MemoryStorage implements MonitoringStorage {
   }
 }
 
+// ==================== 本地存储 ====================
+
 export class LocalStorageStorage implements MonitoringStorage {
   private retentionPeriodMs: number
-  private metricsKey = 'monitoring_metrics'
-  private alarmsKey = 'monitoring_alarms'
+  private readonly metricsKey = 'monitoring_metrics'
+  private readonly alarmsKey = 'monitoring_alarms'
 
   constructor(retentionPeriodMs: number = 24 * 60 * 60 * 1000) {
     this.retentionPeriodMs = retentionPeriodMs
@@ -113,24 +123,24 @@ export class LocalStorageStorage implements MonitoringStorage {
     return typeof window !== 'undefined'
   }
 
-  public getStoredMetrics(): PerformanceMetric[] {
+  private getStoredMetrics(): PerformanceMetric[] {
     if (!this.isClient()) return []
     const data = localStorage.getItem(this.metricsKey)
     return data ? JSON.parse(data) : []
   }
 
-  public setStoredMetrics(metrics: PerformanceMetric[]): void {
+  private setStoredMetrics(metrics: PerformanceMetric[]): void {
     if (!this.isClient()) return
     localStorage.setItem(this.metricsKey, JSON.stringify(metrics))
   }
 
-  public getStoredAlarms(): AlarmEvent[] {
+  private getStoredAlarms(): AlarmEvent[] {
     if (!this.isClient()) return []
     const data = localStorage.getItem(this.alarmsKey)
     return data ? JSON.parse(data) : []
   }
 
-  public setStoredAlarms(alarms: AlarmEvent[]): void {
+  private setStoredAlarms(alarms: AlarmEvent[]): void {
     if (!this.isClient()) return
     localStorage.setItem(this.alarmsKey, JSON.stringify(alarms))
   }
@@ -148,10 +158,8 @@ export class LocalStorageStorage implements MonitoringStorage {
     }
 
     // 清理过期数据
-    const now = Date.now()
-    const cutoffTime = now - this.retentionPeriodMs
+    const cutoffTime = Date.now() - this.retentionPeriodMs
     const filteredMetrics = metrics.filter(m => m.timestamp >= cutoffTime)
-
     this.setStoredMetrics(filteredMetrics)
   }
 
@@ -161,22 +169,8 @@ export class LocalStorageStorage implements MonitoringStorage {
     endTime?: number
   }): Promise<PerformanceMetric[]> {
     if (!this.isClient()) return []
-
-    let metrics = this.getStoredMetrics()
-
-    if (filter?.type) {
-      metrics = metrics.filter(m => m.type === filter.type)
-    }
-
-    if (filter?.startTime) {
-      metrics = metrics.filter(m => m.timestamp >= filter.startTime!)
-    }
-
-    if (filter?.endTime) {
-      metrics = metrics.filter(m => m.timestamp <= filter.endTime!)
-    }
-
-    return metrics.sort((a, b) => b.timestamp - a.timestamp)
+    const metrics = this.getStoredMetrics()
+    return sortByTimestampDesc(filterMetrics(metrics, filter))
   }
 
   async getMetricsByTimeRange(startTime: number, endTime: number): Promise<PerformanceMetric[]> {
@@ -190,8 +184,7 @@ export class LocalStorageStorage implements MonitoringStorage {
 
   async getMetricsCount(): Promise<number> {
     if (!this.isClient()) return 0
-    const metrics = await this.getMetrics()
-    return metrics.length
+    return this.getStoredMetrics().length
   }
 
   async saveAlarm(event: AlarmEvent): Promise<void> {
@@ -211,14 +204,8 @@ export class LocalStorageStorage implements MonitoringStorage {
 
   async getAlarms(startTime?: number): Promise<AlarmEvent[]> {
     if (!this.isClient()) return []
-
-    let alarms = this.getStoredAlarms()
-
-    if (startTime) {
-      alarms = alarms.filter(a => a.timestamp >= startTime)
-    }
-
-    return alarms.sort((a, b) => b.timestamp - a.timestamp)
+    const alarms = this.getStoredAlarms()
+    return sortByTimestampDesc(filterAlarms(alarms, startTime))
   }
 
   async clearAlarms(): Promise<void> {
