@@ -11,7 +11,13 @@ import { NextRequest, NextResponse } from 'next/server'
 import { withAuth, RATE_LIMIT_CONFIG } from '@/middleware/auth'
 import { getDatabase } from '@/lib/db'
 import logger from '@/lib/logger'
-import { createAppError, ErrorCodes, formatErrorMessage } from '@/lib/errors'
+import {
+  createAppError,
+  ErrorCodes,
+  createUnifiedErrorResponse,
+  createUnifiedSuccessResponse,
+  createValidationErrorResponse,
+} from '@/lib/errors'
 
 // ============================================================================
 // Types
@@ -447,28 +453,18 @@ export async function GET(request: NextRequest) {
       )
       const totalPages = Math.ceil(total / limit)
 
-      return NextResponse.json({
-        success: true,
-        data: {
-          items,
-          total,
-          page,
-          limit,
-          totalPages,
-          hasNextPage: page < totalPages,
-          hasPreviousPage: page > 1,
-        } as PaginatedResponse<Task>,
-      })
+      return createUnifiedSuccessResponse({
+        items,
+        total,
+        page,
+        limit,
+        totalPages,
+        hasNextPage: page < totalPages,
+        hasPreviousPage: page > 1,
+      } as PaginatedResponse<Task>)
     } catch (error) {
       logger.error('Failed to fetch tasks', error)
-      return NextResponse.json(
-        {
-          success: false,
-          error: formatErrorMessage(error),
-          code: getErrorCode(error),
-        },
-        { status: 500 }
-      )
+      return createUnifiedErrorResponse(error instanceof Error ? error : new Error(String(error)))
     }
   })
 }
@@ -486,14 +482,7 @@ export async function POST(request: NextRequest) {
       // 验证输入
       const validation = validateCreateTaskRequest(body)
       if (!validation.valid) {
-        return NextResponse.json(
-          {
-            success: false,
-            error: 'Validation failed',
-            errors: validation.errors,
-          },
-          { status: 400 }
-        )
+        return createValidationErrorResponse('Validation failed', { errors: validation.errors })
       }
 
       const db = getDatabase()
@@ -530,37 +519,17 @@ export async function POST(request: NextRequest) {
       const task = taskRow ? rowToTask(taskRow) : null
 
       if (!task) {
-        return NextResponse.json(
-          {
-            success: false,
-            error: {
-              type: ErrorCodes.NOT_FOUND,
-              message: 'Failed to retrieve created task',
-            },
-          },
-          { status: 500 }
+        return createUnifiedErrorResponse(
+          createAppError('Failed to retrieve created task', ErrorCodes.NOT_FOUND, 500)
         )
       }
 
       logger.info(`Task created: ${id}`, { taskId: id, userId })
 
-      return NextResponse.json(
-        {
-          success: true,
-          data: task,
-        },
-        { status: 201 }
-      )
+      return createUnifiedSuccessResponse(task, 201)
     } catch (error) {
       logger.error('Failed to create task', error)
-      return NextResponse.json(
-        {
-          success: false,
-          error: formatErrorMessage(error),
-          code: getErrorCode(error),
-        },
-        { status: 500 }
-      )
+      return createUnifiedErrorResponse(error instanceof Error ? error : new Error(String(error)))
     }
   })
 }
@@ -568,11 +537,3 @@ export async function POST(request: NextRequest) {
 // ============================================================================
 // Helper Functions
 // ============================================================================
-
-/**
- * 获取错误代码
- */
-function getErrorCode(error: unknown): string {
-  const appError = error as { code?: string }
-  return appError.code || ErrorCodes.SERVER_ERROR
-}

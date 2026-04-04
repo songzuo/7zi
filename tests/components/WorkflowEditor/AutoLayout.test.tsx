@@ -9,11 +9,12 @@ import {
   horizontalLayout,
   verticalLayout,
   treeLayout,
-  autoLayout,
+  forceLayout,
+  applyLayout,
   LayoutType
-} from '../../../../7zi-frontend/src/components/WorkflowEditor/AutoLayout'
+} from '../../../7zi-frontend/src/components/WorkflowEditor/AutoLayout'
 import type { Node, Edge } from 'reactflow'
-import type { WorkflowNodeData } from '../../../../7zi-frontend/src/components/WorkflowEditor/types'
+import type { WorkflowNodeData } from '../../../7zi-frontend/src/components/WorkflowEditor/types'
 
 // ============================================================================
 // 测试数据准备
@@ -174,18 +175,18 @@ describe('AutoLayout 组件测试', () => {
     })
   })
 
-  describe('autoLayout', () => {
+  describe('applyLayout', () => {
     it('应该根据类型选择正确的布局算法', () => {
       const nodes = [createMockNode('n1'), createMockNode('n2')]
       const edges = [createMockEdge('e1', 'n1', 'n2')]
       
-      const hResult = autoLayout(nodes, edges, 'horizontal')
+      const hResult = applyLayout(nodes, edges, 'horizontal')
       expect(hResult.nodes[0].position.x).toBe(0)
       
-      const vResult = autoLayout(nodes, edges, 'vertical')
+      const vResult = applyLayout(nodes, edges, 'vertical')
       expect(vResult.nodes[0].position.y).toBe(0)
       
-      const tResult = autoLayout(nodes, edges, 'tree')
+      const tResult = applyLayout(nodes, edges, 'tree')
       expect(tResult.nodes[0].position.x).toBe(0)
     })
 
@@ -193,7 +194,7 @@ describe('AutoLayout 组件测试', () => {
       const nodes = [createMockNode('n1'), createMockNode('n2')]
       const edges = [createMockEdge('e1', 'n1', 'n2')]
       
-      const result = autoLayout(nodes, edges, 'horizontal', {
+      const result = applyLayout(nodes, edges, 'horizontal', {
         nodeWidth: 200,
         nodeHeight: 100,
         gapX: 400,

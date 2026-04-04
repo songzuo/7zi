@@ -8,13 +8,13 @@
 import React from 'react'
 import { useUndoRedo } from './stores/workflow-editor-store'
 import { WorkflowExporter } from './WorkflowExporter'
-import type { WorkflowDefinition } from './types'
+import type { WorkflowDefinition, WorkflowExport } from './types'
 
 interface ToolbarProps {
   onSave: () => void
   onRun: () => void
   onValidate: () => void
-  onExport?: (exportData: WorkflowDefinition) => void
+  onExport?: (exportData: WorkflowExport) => void
   onImport?: (workflow: WorkflowDefinition) => void
   workflow?: WorkflowDefinition
   isExecuting?: boolean

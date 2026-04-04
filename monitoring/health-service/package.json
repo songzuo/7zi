@@ -1,0 +1,18 @@
+{
+  "name": "7zi-health-service",
+  "version": "1.0.0",
+  "description": "7zi Monitoring Health Check Service",
+  "main": "health-service.js",
+  "scripts": {
+    "start": "node health-service.js",
+    "dev": "nodemon health-service.js"
+  },
+  "dependencies": {
+    "express": "^4.18.2",
+    "prom-client": "^15.1.0",
+    "axios": "^1.6.2"
+  },
+  "devDependencies": {
+    "nodemon": "^3.0.2"
+  }
+}

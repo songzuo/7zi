@@ -9,7 +9,7 @@
 
 import { NextResponse } from 'next/server'
 import { statusQuerySchema, validateQuery, formatValidationErrors } from '@/lib/api/validation'
-import { createValidationError } from '@/lib/api/error-handler'
+import { createValidationError, createUnifiedErrorResponse, UnifiedAppError } from '@/lib/errors'
 import { logger } from '@/lib/logger'
 
 interface Service {

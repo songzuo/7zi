@@ -510,10 +510,13 @@ function findParallelizableNodes(workflow) {
   return parallelizable;
 }
 
-// 启动服务器
-app.listen(PORT, () => {
-  console.log(`Workflow Engine API running on port ${PORT}`);
-  console.log(`Health check: http://localhost:${PORT}/health`);
-});
+// 启动服务器 (仅在非测试环境)
+if (process.env.NODE_ENV !== 'test') {
+  app.listen(PORT, () => {
+    console.log(`Workflow Engine API running on port ${PORT}`);
+    console.log(`Health check: http://localhost:${PORT}/health`);
+  });
+}
 
-module.exports = app;
+// Export for testing
+module.exports = { app, engine };

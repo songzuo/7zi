@@ -19,6 +19,7 @@ import {
   InstanceStatus,
   EdgeType,
 } from '@/types/workflow'
+import type { WorkflowExecutionEvent } from '@/lib/workflow/VisualWorkflowOrchestrator'
 
 // Mock 数据生成器
 function createMockWorkflow(id: string = 'test-workflow'): WorkflowDefinition {
@@ -626,7 +627,7 @@ describe('VisualWorkflowOrchestrator - 事件监听测试', () => {
   })
 
   it('应该能够添加事件监听器', () => {
-    const listener = vi.fn((event: any) => {
+    const listener = vi.fn((event: WorkflowExecutionEvent) => {
       eventLog.push({ type: event.type, nodeId: event.nodeId })
     })
 

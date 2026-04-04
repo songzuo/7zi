@@ -219,6 +219,55 @@ export class RedisStorage {
   }
 
   /**
+   * 清理旧的检查点（保持最多 maxCheckpoints 个）
+   */
+  async cleanupOldCheckpoints(executionId: string, maxCheckpoints: number): Promise<number> {
+    const executionKey = `${this.prefix}:execution:${executionId}:checkpoints`;
+    const ids = await this.redis.smembers(executionKey);
+    
+    if (ids.length <= maxCheckpoints) {
+      return 0;
+    }
+
+    // 获取所有检查点并按时间排序
+    const checkpoints: { id: string; timestamp: number }[] = [];
+    for (const id of ids) {
+      const checkpoint = await this.getCheckpoint(id);
+      if (checkpoint) {
+        checkpoints.push({
+          id,
+          timestamp: checkpoint.timestamp.getTime()
+        });
+      }
+    }
+
+    // 按时间排序（最新的在前）
+    checkpoints.sort((a, b) => b.timestamp - a.timestamp);
+
+    // 移除超出限制的旧检查点
+    const toRemove = checkpoints.slice(maxCheckpoints);
+    let removedCount = 0;
+
+    for (const cp of toRemove) {
+      const key = `${this.prefix}:checkpoint:${cp.id}`;
+      await this.redis.del(key);
+      await this.redis.srem(executionKey, cp.id);
+      await this.redis.zrem(`${this.prefix}:checkpoints:timeline`, cp.id);
+      removedCount++;
+    }
+
+    if (removedCount > 0) {
+      this.logger.debug('Cleaned up old checkpoints', {
+        executionId,
+        removedCount,
+        remainingCount: checkpoints.length - removedCount
+      });
+    }
+
+    return removedCount;
+  }
+
+  /**
    * 获取检查点
    */
   async getCheckpoint(id: string): Promise<ICheckpoint | null> {

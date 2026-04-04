@@ -14,6 +14,8 @@ import {
   type WorkflowDefinition,
   type CustomNodeRegistration,
   type WorkflowNodeData,
+  type WorkflowExport,
+  type NodeType,
 } from '@/components/WorkflowEditor'
 import type { NodeProps } from 'reactflow'
 
@@ -94,7 +96,7 @@ export function InitialDataExample() {
   return (
     <WorkflowEditor
       workflowId="example-workflow-1"
-      initialNodes={initialNodes}
+      initialNodes={initialNodes as any}
       initialEdges={initialEdges}
       onSave={workflow => console.log('保存:', workflow)}
     />
@@ -106,7 +108,7 @@ export function InitialDataExample() {
 // ============================================
 
 export function ExportImportExample() {
-  const handleExport = (exportData: WorkflowDefinition) => {
+  const handleExport = (exportData: WorkflowExport) => {
     console.log('导出数据:', exportData)
     // exportData = {
     //   version: '1.9.1',
@@ -219,7 +221,7 @@ export function CustomNodeExample() {
       description: '这是一个自定义节点示例',
       category: 'custom',
       defaultConfig: {
-        customField: 'default value',
+        // customField: 'default value', // TODO: Add custom field support in NodeConfig
       },
       render: MyCustomNode,
     })
@@ -412,7 +414,7 @@ export function CompleteWorkflowExample() {
   return (
     <WorkflowEditor
       workflowId="complete-workflow-example"
-      initialNodes={initialNodes}
+      initialNodes={initialNodes as any}
       initialEdges={initialEdges}
       onSave={workflow => console.log('保存:', workflow)}
     />

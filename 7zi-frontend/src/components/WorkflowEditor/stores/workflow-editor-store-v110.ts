@@ -13,7 +13,8 @@ import { create } from 'zustand'
 import type { Draft } from 'immer'
 import { devtools, persist } from 'zustand/middleware'
 import { immer } from 'zustand/middleware/immer'
-import { undoMiddleware } from 'zundo'
+// TODO: Fix zundo v2.x integration - currently using manual undo/redo
+// import { undoMiddleware } from 'zundo'
 
 import type { Node, Edge } from 'reactflow'
 import type { WorkflowNodeData, WorkflowEdgeData, WorkflowDefinition } from '../types'
@@ -90,15 +91,6 @@ interface WorkflowEditorState {
   reset: () => void
 }
 
-/** zundo 中间件扩展的 Store 接口 */
-interface WorkflowEditorStoreWithUndo extends WorkflowEditorState {
-  undo?: () => void
-  redo?: () => void
-  canUndo?: () => boolean
-  canRedo?: () => boolean
-  historySize?: number
-}
-
 // ============================================
 // 创建 Store
 // ============================================
@@ -107,8 +99,7 @@ const createWorkflowEditorStore = () =>
   create<WorkflowEditorState>()(
     devtools(
       persist(
-        undoMiddleware(
-          immer((set, get) => ({
+        immer((set, get) => ({
             // 初始状态
             workflow: null,
             nodes: [],
@@ -246,6 +237,14 @@ const createWorkflowEditorStore = () =>
               set((state: Draft<WorkflowEditorState>) => {
                 const edge = state.edges.find((e) => e.id === edgeId)
                 if (edge) {
+                  // Initialize edge.data if undefined
+                  if (!edge.data) {
+                    edge.data = {
+                      id: edge.id,
+                      source: edge.source,
+                      target: edge.target,
+                    }
+                  }
                   edge.data = { ...edge.data, ...updates }
                 }
               }),
@@ -467,10 +466,6 @@ const createWorkflowEditorStore = () =>
                 state.viewport = { x: 0, y: 0, zoom: 1 }
               }),
           })),
-          {
-            limit: 100, // v1.10.0: 增加历史记录限制
-          }
-        ),
         {
           name: 'workflow-editor-storage',
           partialize: (state) => ({
@@ -494,23 +489,19 @@ const createWorkflowEditorStore = () =>
 
 export const useWorkflowEditorStore = createWorkflowEditorStore()
 
-// 撤销/重做 Hook
+// 撤销/重做 Hook (TODO: Implement proper undo/redo with zundo v2.x)
 export const useUndoRedo = () => {
-  const store = useWorkflowEditorStore() as unknown as WorkflowEditorStoreWithUndo
-
+  // TODO: Implement with zundo v2.x temporal store
+  // For now, return placeholder implementation
   return {
     undo: () => {
-      // zundo 会自动处理
-      const temp = store.getState()
-      // 触发撤销
-      store.undo?.()
+      console.warn('Undo not implemented yet')
     },
     redo: () => {
-      // zundo 会自动处理
-      store.redo?.()
+      console.warn('Redo not implemented yet')
     },
-    canUndo: store.canUndo?.() ?? false,
-    canRedo: store.canRedo?.() ?? false,
-    historySize: store.historySize ?? 0,
+    canUndo: false,
+    canRedo: false,
+    historySize: 0,
   }
 }

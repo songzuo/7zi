@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { Workflow } from './App';
 import './TemplateMarket.css';
 
 // ============ 类型定义 ============
@@ -12,9 +13,11 @@ interface Template {
   downloads: number;
   rating: number;
   tags: string[];
-  workflow: any;
+  workflow: Workflow;
   createdAt: string;
 }
+
+export type { Template };
 
 interface TemplateMarketProps {
   onSelect: (template: Template) => void;
@@ -50,80 +53,84 @@ const TemplateMarket: React.FC<TemplateMarketProps> = ({ onSelect, onCreateNew }
   };
 
   // 示例模板
-  const getExampleTemplates = (): Template[] => [
-    {
-      id: 'tpl_1',
-      name: 'API Integration Flow',
-      description: 'Generic API integration workflow with retry logic and error handling',
-      category: 'integration',
-      author: 'Workflow Team',
-      downloads: 1523,
-      rating: 4.8,
-      tags: ['api', 'http', 'integration'],
-      workflow: {},
-      createdAt: new Date().toISOString(),
-    },
-    {
-      id: 'tpl_2',
-      name: 'Data Processing Pipeline',
-      description: 'ETL pipeline for data transformation and validation',
-      category: 'data',
-      author: 'Data Team',
-      downloads: 2341,
-      rating: 4.6,
-      tags: ['data', 'etl', 'transform'],
-      workflow: {},
-      createdAt: new Date().toISOString(),
-    },
-    {
-      id: 'tpl_3',
-      name: 'AI Content Generator',
-      description: 'AI-powered content generation using Minimax',
-      category: 'ai',
-      author: 'AI Team',
-      downloads: 3456,
-      rating: 4.9,
-      tags: ['ai', 'minimax', 'content'],
-      workflow: {},
-      createdAt: new Date().toISOString(),
-    },
-    {
-      id: 'tpl_4',
-      name: 'Notification Dispatcher',
-      description: 'Multi-channel notification system with templates',
-      category: 'notification',
-      author: 'Communication Team',
-      downloads: 892,
-      rating: 4.5,
-      tags: ['notification', 'email', 'slack'],
-      workflow: {},
-      createdAt: new Date().toISOString(),
-    },
-    {
-      id: 'tpl_5',
-      name: 'Scheduled Report Generator',
-      description: 'Automated report generation and distribution',
-      category: 'automation',
-      author: 'Analytics Team',
-      downloads: 1567,
-      rating: 4.7,
-      tags: ['report', 'schedule', 'automation'],
-      workflow: {},
-      createdAt: new Date().toISOString(),
-    },
-    {
-      id: 'tpl_6',
-      name: 'Webhook Handler',
-      description: 'Generic webhook processing workflow',
-      category: 'integration',
-      author: 'Integration Team',
-      downloads: 2134,
-      rating: 4.4,
-      tags: ['webhook', 'http', 'api'],
-      workflow: {},
-      createdAt: new Date().toISOString(),
-    },
-  ];
+  const getExampleTemplates = (): Template[] => {
+    const baseWorkflow = { nodes: [] as Workflow['nodes'], edges: [] as Workflow['edges'] };
+    
+    return [
+      {
+        id: 'tpl_1',
+        name: 'API Integration Flow',
+        description: 'Generic API integration workflow with retry logic and error handling',
+        category: 'integration',
+        author: 'Workflow Team',
+        downloads: 1523,
+        rating: 4.8,
+        tags: ['api', 'http', 'integration'],
+        workflow: { ...baseWorkflow, name: 'API Integration Flow' },
+        createdAt: new Date().toISOString(),
+      },
+      {
+        id: 'tpl_2',
+        name: 'Data Processing Pipeline',
+        description: 'ETL pipeline for data transformation and validation',
+        category: 'data',
+        author: 'Data Team',
+        downloads: 2341,
+        rating: 4.6,
+        tags: ['data', 'etl', 'transform'],
+        workflow: { ...baseWorkflow, name: 'Data Processing Pipeline' },
+        createdAt: new Date().toISOString(),
+      },
+      {
+        id: 'tpl_3',
+        name: 'AI Content Generator',
+        description: 'AI-powered content generation using Minimax',
+        category: 'ai',
+        author: 'AI Team',
+        downloads: 3456,
+        rating: 4.9,
+        tags: ['ai', 'minimax', 'content'],
+        workflow: { ...baseWorkflow, name: 'AI Content Generator' },
+        createdAt: new Date().toISOString(),
+      },
+      {
+        id: 'tpl_4',
+        name: 'Notification Dispatcher',
+        description: 'Multi-channel notification system with templates',
+        category: 'notification',
+        author: 'Communication Team',
+        downloads: 892,
+        rating: 4.5,
+        tags: ['notification', 'email', 'slack'],
+        workflow: { ...baseWorkflow, name: 'Notification Dispatcher' },
+        createdAt: new Date().toISOString(),
+      },
+      {
+        id: 'tpl_5',
+        name: 'Scheduled Report Generator',
+        description: 'Automated report generation and distribution',
+        category: 'automation',
+        author: 'Analytics Team',
+        downloads: 1567,
+        rating: 4.7,
+        tags: ['report', 'schedule', 'automation'],
+        workflow: { ...baseWorkflow, name: 'Scheduled Report Generator' },
+        createdAt: new Date().toISOString(),
+      },
+      {
+        id: 'tpl_6',
+        name: 'Webhook Handler',
+        description: 'Generic webhook processing workflow',
+        category: 'integration',
+        author: 'Integration Team',
+        downloads: 2134,
+        rating: 4.4,
+        tags: ['webhook', 'http', 'api'],
+        workflow: { ...baseWorkflow, name: 'Webhook Handler' },
+        createdAt: new Date().toISOString(),
+      },
+    ];
+  };
 
   // 过滤和排序
   const filteredTemplates = templates
@@ -152,8 +159,9 @@ const TemplateMarket: React.FC<TemplateMarketProps> = ({ onSelect, onCreateNew }
     const input = document.createElement('input');
     input.type = 'file';
     input.accept = '.json';
-    input.onchange = async (e: any) => {
-      const file = e.target.files[0];
+    input.onchange = async (e: Event) => {
+      const target = e.target as HTMLInputElement;
+      const file = target.files?.[0];
       if (file) {
         const text = await file.text();
         try {

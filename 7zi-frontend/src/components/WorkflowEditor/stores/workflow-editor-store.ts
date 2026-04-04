@@ -126,10 +126,31 @@ export const useWorkflowEditorStore = create<WorkflowEditorState>()(
         // ========== 工作流操作 ==========
 
         setWorkflow: workflow => {
+          // Convert simplified WorkflowNodeData[] to full Node<WorkflowNodeData>[]
+          const convertedNodes: Node<WorkflowNodeData>[] = workflow.nodes.map((nodeData, index) => ({
+            id: nodeData.id || `node-${index}`,
+            type: nodeData.type,
+            position: { x: index * 250, y: 0 }, // Default position
+            data: nodeData,
+          }))
+          
+          // Convert simplified edges to full Edge<WorkflowEdgeData>[]
+          const convertedEdges: Edge<WorkflowEdgeData>[] = workflow.edges.map(edge => ({
+            id: edge.id,
+            source: edge.source,
+            target: edge.target,
+            data: edge.conditionConfig ? {
+              id: edge.id,
+              source: edge.source,
+              target: edge.target,
+              conditionConfig: edge.conditionConfig,
+            } : undefined,
+          }))
+          
           set({
             workflow,
-            nodes: workflow.nodes,
-            edges: workflow.edges,
+            nodes: convertedNodes,
+            edges: convertedEdges,
             isDirty: false,
             selectedNodeId: null,
             selectedEdgeId: null,
@@ -266,9 +287,29 @@ export const useWorkflowEditorStore = create<WorkflowEditorState>()(
         resetToInitial: () => {
           const { workflow } = get()
           if (workflow) {
+            // Convert simplified workflow to full ReactFlow format
+            const convertedNodes: Node<WorkflowNodeData>[] = workflow.nodes.map((nodeData, index) => ({
+              id: nodeData.id || `node-${index}`,
+              type: nodeData.type,
+              position: { x: index * 250, y: 0 },
+              data: nodeData,
+            }))
+            
+            const convertedEdges: Edge<WorkflowEdgeData>[] = workflow.edges.map(edge => ({
+              id: edge.id,
+              source: edge.source,
+              target: edge.target,
+              data: edge.conditionConfig ? {
+                id: edge.id,
+                source: edge.source,
+                target: edge.target,
+                conditionConfig: edge.conditionConfig,
+              } : undefined,
+            }))
+            
             set({
-              nodes: workflow.nodes,
-              edges: workflow.edges,
+              nodes: convertedNodes,
+              edges: convertedEdges,
               isDirty: false,
               selectedNodeId: null,
               selectedEdgeId: null,

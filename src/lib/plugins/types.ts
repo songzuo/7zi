@@ -307,10 +307,10 @@ export interface HookContext {
   timestamp: Date;
   
   /** Input data */
-  input?: any;
+  input?: unknown;
   
   /** Output data */
-  output?: any;
+  output?: unknown;
   
   /** Error (if any) */
   error?: Error;
@@ -774,8 +774,8 @@ export interface PluginConfigHelper {
 }
 
 export interface PluginUtils {
-  debounce<T extends (...args: any[]) => any>(fn: T, delay: number): T;
-  throttle<T extends (...args: any[]) => any>(fn: T, delay: number): T;
+  debounce<T extends (...args: unknown[]) => any>(fn: T, delay: number): T;
+  throttle<T extends (...args: unknown[]) => any>(fn: T, delay: number): T;
   retry<T>(fn: () => Promise<T>, attempts: number, delay: number): Promise<T>;
   timeout<T>(promise: Promise<T>, ms: number): Promise<T>;
   sleep(ms: number): Promise<void>;
@@ -886,21 +886,21 @@ export class PluginDependencyError extends PluginError {
 }
 
 export class PluginPermissionError extends PluginError {
-  constructor(pluginId: string, message: string, details?: any) {
+  constructor(pluginId: string, message: string, details?: unknown) {
     super(message, pluginId, 'PLUGIN_PERMISSION_ERROR', details);
     this.name = 'PluginPermissionError';
   }
 }
 
 export class PluginSandboxError extends PluginError {
-  constructor(pluginId: string, message: string, details?: any) {
+  constructor(pluginId: string, message: string, details?: unknown) {
     super(message, pluginId, 'PLUGIN_SANDBOX_ERROR', details);
     this.name = 'PluginSandboxError';
   }
 }
 
 export class PluginValidationError extends PluginError {
-  constructor(pluginId: string, message: string, details?: any) {
+  constructor(pluginId: string, message: string, details?: unknown) {
     super(message, pluginId, 'PLUGIN_VALIDATION_ERROR', details);
     this.name = 'PluginValidationError';
   }

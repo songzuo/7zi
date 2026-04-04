@@ -265,7 +265,7 @@ export class PluginHooks implements IHookRegistry {
   /**
    * Subscribe to hook events
    */
-  on(event: string, listener: (...args: any[]) => void): this {
+  on(event: string, listener: (...args: unknown[]) => void): this {
     this.events.on(event, listener);
     return this;
   }
@@ -273,7 +273,7 @@ export class PluginHooks implements IHookRegistry {
   /**
    * Unsubscribe from hook events
    */
-  off(event: string, listener: (...args: any[]) => void): this {
+  off(event: string, listener: (...args: unknown[]) => void): this {
     this.events.off(event, listener);
     return this;
   }

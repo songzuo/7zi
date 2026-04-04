@@ -171,7 +171,7 @@ export class PluginSandbox implements IPluginSandbox {
     // Try to parse code
     try {
       new vm.Script(code);
-    } catch (error: any) {
+    } catch (error: unknown) {
       const match = error.message.match(/:(\d+):(\d+)/);
       if (match) {
         errors.push({
@@ -262,13 +262,13 @@ export class PluginSandbox implements IPluginSandbox {
    */
   private createSecureConsole(pluginId: string): Console {
     const logger = {
-      log: (...args: any[]) => console.log(`[${pluginId}]`, ...args),
-      info: (...args: any[]) => console.info(`[${pluginId}]`, ...args),
-      warn: (...args: any[]) => console.warn(`[${pluginId}]`, ...args),
-      error: (...args: any[]) => console.error(`[${pluginId}]`, ...args),
-      debug: (...args: any[]) => console.debug(`[${pluginId}]`, ...args),
-      trace: (...args: any[]) => console.trace(`[${pluginId}]`, ...args),
-      dir: (obj: any) => console.dir(obj),
+      log: (...args: unknown[]) => console.log(`[${pluginId}]`, ...args),
+      info: (...args: unknown[]) => console.info(`[${pluginId}]`, ...args),
+      warn: (...args: unknown[]) => console.warn(`[${pluginId}]`, ...args),
+      error: (...args: unknown[]) => console.error(`[${pluginId}]`, ...args),
+      debug: (...args: unknown[]) => console.debug(`[${pluginId}]`, ...args),
+      trace: (...args: unknown[]) => console.trace(`[${pluginId}]`, ...args),
+      dir: (obj: unknown) => console.dir(obj),
       time: (label: string) => console.time(`${pluginId}:${label}`),
       timeEnd: (label: string) => console.timeEnd(`${pluginId}:${label}`),
     };

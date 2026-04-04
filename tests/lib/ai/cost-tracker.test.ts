@@ -677,7 +677,7 @@ describe('CostTracker - Exception Path', () => {
 
     it('should handle import with missing required fields', () => {
       // Import with records missing timestamp will use default
-      const invalidData: any = [{
+      const invalidData: Partial<CostRecord>[] = [{
         modelId: 'test-model',
         modelName: 'Test Model',
         provider: 'test',

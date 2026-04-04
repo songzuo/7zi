@@ -11,6 +11,12 @@ interface ExecutionStatus {
   endTime?: string;
   nodeExecutions: NodeExecution[];
   variables: Record<string, any>;
+  checkpoints?: Array<{
+    id: string;
+    nodeId: string;
+    timestamp: string;
+    data?: Record<string, any>;
+  }>;
   error?: {
     message: string;
     code?: string;
@@ -48,13 +54,21 @@ const ExecutionMonitor: React.FC<ExecutionMonitorProps> = ({ executionId, onClos
   // 轮询执行状态
   useEffect(() => {
     let intervalId: NodeJS.Timeout;
+    let isMounted = true;
+    const abortController = new AbortController();
 
     const fetchExecution = async () => {
       try {
-        const response = await fetch(`/api/executions/${executionId}`);
+        const response = await fetch(`/api/executions/${executionId}`, {
+          signal: abortController.signal
+        });
         if (!response.ok) throw new Error('Failed to fetch execution');
         
         const data = await response.json();
+        
+        // 检查组件是否仍然挂载
+        if (!isMounted) return;
+        
         setExecution(data.data);
         setLoading(false);
 
@@ -63,6 +77,11 @@ const ExecutionMonitor: React.FC<ExecutionMonitorProps> = ({ executionId, onClos
           clearInterval(intervalId);
         }
       } catch (err: any) {
+        // 忽略由于取消导致的错误
+        if (err.name === 'AbortError') return;
+        
+        if (!isMounted) return;
+        
         setError(err.message);
         setLoading(false);
       }
@@ -71,7 +90,11 @@ const ExecutionMonitor: React.FC<ExecutionMonitorProps> = ({ executionId, onClos
     fetchExecution();
     intervalId = setInterval(fetchExecution, 2000);
 
-    return () => clearInterval(intervalId);
+    return () => {
+      isMounted = false;
+      clearInterval(intervalId);
+      abortController.abort();
+    };
   }, [executionId]);
 
   // 控制执行
@@ -150,8 +173,8 @@ const ExecutionMonitor: React.FC<ExecutionMonitorProps> = ({ executionId, onClos
               </button>
             </>
           )}
-          {execution.status === 'paused' && (
-            <button className="btn btn-success" onClick={() => handleResume(execution.checkpoints[0]?.id)}>
+          {execution.status === 'paused' && execution.checkpoints?.[0]?.id && (
+            <button className="btn btn-success" onClick={() => handleResume(execution.checkpoints?.[0]?.id as string)}>
               ▶️ Resume
             </button>
           )}
@@ -202,7 +225,7 @@ const ExecutionMonitor: React.FC<ExecutionMonitorProps> = ({ executionId, onClos
       <div className="monitor-timeline">
         <h3>Execution Timeline</h3>
         <div className="timeline">
-          {execution.nodeExecutions.map((nodeExec, idx) => (
+          {execution.nodeExecutions.map((nodeExec) => (
             <div
               key={nodeExec.nodeId}
               className={`timeline-item ${nodeExec.status} ${selectedNode === nodeExec.nodeId ? 'selected' : ''}`}

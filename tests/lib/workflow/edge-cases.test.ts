@@ -241,7 +241,7 @@ describe('Workflow 边缘用例测试', () => {
       executor.registerWorkflow(workflow)
 
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      let deepObject: any = { value: 'deep' }
+      let deepObject: unknown = { value: 'deep' }
       for (let i = 0; i < 100; i++) {
         deepObject = { nested: deepObject }
       }

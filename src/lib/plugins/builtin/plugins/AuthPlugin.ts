@@ -11,6 +11,7 @@ import {
   PluginHealthStatus,
   PluginMetrics,
   HookHandler,
+  HookRegistry,
 } from '../../types';
 
 export interface AuthPluginConfig {
@@ -146,7 +147,7 @@ export class AuthPlugin implements Plugin {
   /**
    * Register hooks
    */
-  registerHooks(registry: any): void {
+  registerHooks(registry: HookRegistry): void {
     registry.register('onAuthAttempt', this.handleAuthAttempt.bind(this) as HookHandler);
     registry.register('onAuthSuccess', this.handleAuthSuccess.bind(this) as HookHandler);
     registry.register('onAuthFailure', this.handleAuthFailure.bind(this) as HookHandler);
@@ -557,21 +558,21 @@ export class AuthPlugin implements Plugin {
   /**
    * Handle auth attempt hook
    */
-  private handleAuthAttempt(context: any, input: any): void {
+  private handleAuthAttempt(context: unknown, input: unknown): void {
     // Log auth attempt
   }
 
   /**
    * Handle auth success hook
    */
-  private handleAuthSuccess(context: any, input: any): void {
+  private handleAuthSuccess(context: unknown, input: unknown): void {
     this.metrics.logins++;
   }
 
   /**
    * Handle auth failure hook
    */
-  private handleAuthFailure(context: any, input: any): void {
+  private handleAuthFailure(context: unknown, input: unknown): void {
     this.metrics.failedAttempts++;
   }
 

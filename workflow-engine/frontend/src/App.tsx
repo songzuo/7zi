@@ -1,4 +1,4 @@
-import React, { useState, useCallback, useMemo } from 'react';
+import React, { useState, useCallback } from 'react';
 import ReactFlow, {
   Node,
   Edge,
@@ -17,11 +17,38 @@ import ReactFlow, {
 import 'reactflow/dist/style.css';
 import './WorkflowDesigner.css';
 
+// ============ Workflow 类型定义 ============
+
+export interface WorkflowNode {
+  id: string;
+  type: string;
+  position: { x: number; y: number };
+  data: Record<string, unknown>;
+}
+
+export interface WorkflowEdge {
+  id: string;
+  source: string;
+  target: string;
+  [key: string]: unknown;
+}
+
+export interface Workflow {
+  id?: string;
+  name: string;
+  version?: string;
+  nodes: WorkflowNode[];
+  edges: WorkflowEdge[];
+  variables?: Record<string, unknown>;
+  createdAt?: string;
+  updatedAt?: string;
+}
+
 // ============ 节点类型定义 ============
 
 interface NodeData {
   label?: string;
-  [key: string]: any;
+  [key: string]: unknown;
 }
 
 interface StartNodeData extends NodeData {
@@ -35,7 +62,7 @@ interface EndNodeData extends NodeData {
 interface TaskNodeData extends NodeData {
   label: string;
   action: string;
-  params: Record<string, any>;
+  params: Record<string, unknown>;
 }
 
 interface ConditionNodeData extends NodeData {
@@ -188,9 +215,9 @@ const nodeTypes: NodeTypes = {
 // ============ 主设计器组件 ============
 
 interface WorkflowDesignerProps {
-  initialWorkflow?: any;
-  onSave?: (workflow: any) => void;
-  onExecute?: (workflow: any) => void;
+  initialWorkflow?: Workflow;
+  onSave?: (workflow: Workflow) => void;
+  onExecute?: (workflow: Workflow) => void;
 }
 
 const WorkflowDesigner: React.FC<WorkflowDesignerProps> = ({
@@ -207,7 +234,7 @@ const WorkflowDesigner: React.FC<WorkflowDesignerProps> = ({
   // 连接节点
   const onConnect = useCallback(
     (connection: Connection) => {
-      setEdges((eds) =>
+      setEdges((eds: Edge[]) =>
         addEdge(
           {
             ...connection,
@@ -221,7 +248,7 @@ const WorkflowDesigner: React.FC<WorkflowDesignerProps> = ({
   );
 
   // 节点点击
-  const onNodeClick = useCallback((event: React.MouseEvent, node: Node) => {
+  const onNodeClick = useCallback((_event: React.MouseEvent, node: Node) => {
     setSelectedNode(node);
   }, []);
 
@@ -253,7 +280,7 @@ const WorkflowDesigner: React.FC<WorkflowDesignerProps> = ({
         },
       };
 
-      setNodes((nds) => [...nds, newNode]);
+      setNodes((nds: Node[]) => [...nds, newNode]);
     },
     [setNodes]
   );
@@ -281,8 +308,8 @@ const WorkflowDesigner: React.FC<WorkflowDesignerProps> = ({
   };
 
   // 更新节点数据
-  const updateNodeData = (nodeId: string, data: any) => {
-    setNodes((nds) =>
+  const updateNodeData = (nodeId: string, data: Partial<NodeData>) => {
+    setNodes((nds: Node[]) =>
       nds.map((node) => {
         if (node.id === nodeId) {
           return { ...node, data: { ...node.data, ...data } };
@@ -294,8 +321,8 @@ const WorkflowDesigner: React.FC<WorkflowDesignerProps> = ({
 
   // 删除节点
   const deleteNode = (nodeId: string) => {
-    setNodes((nds) => nds.filter((n) => n.id !== nodeId));
-    setEdges((eds) => eds.filter((e) => e.source !== nodeId && e.target !== nodeId));
+    setNodes((nds: Node[]) => nds.filter((n: Node) => n.id !== nodeId));
+    setEdges((eds: Edge[]) => eds.filter((e: Edge) => e.source !== nodeId && e.target !== nodeId));
     setSelectedNode(null);
   };
 

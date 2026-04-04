@@ -15,6 +15,12 @@
  *   withUnifiedErrorHandling,
  * } from '@/lib/errors';
  * ```
+ *
+ * 向后兼容性:
+ * 此模块保留对旧错误处理系统的兼容导出，包括:
+ * - src/lib/errors.ts 中的函数
+ * - src/lib/api/error-handler.ts 中的函数
+ * 请使用统一的 @/lib/errors 导入路径。
  */
 
 // ============================================================
@@ -77,6 +83,9 @@ import {
 
 // 重新导出这些类型以在文件中使用
 import { UnifiedErrorType as UET, ErrorCodes as EC } from './unified-types'
+
+// 导入 Next.js 类型
+import { NextResponse } from 'next/server'
 
 // 在内部使用这些别名
 const UnifiedErrorType = UET
@@ -153,4 +162,124 @@ export function getUserFriendlyMessage(code: string): string {
   }
 
   return messages[code] || '发生未知错误,请稍后重试'
+}
+
+// ============================================================
+// API Error Handler Compatibility (向后兼容)
+// 这些函数提供对 src/lib/api/error-handler.ts 的兼容
+// ============================================================
+
+/**
+ * ErrorType 枚举 - 兼容 src/lib/api/error-handler.ts
+ * @deprecated Use UnifiedErrorType instead
+ */
+export { UnifiedErrorType as ErrorType } from './unified-types'
+
+/**
+ * ApiError 类型别名 - 兼容 src/lib/api/error-handler.ts
+ * @deprecated Use UnifiedAppError instead
+ */
+export type ApiError = UAppError
+
+/**
+ * @deprecated Use createValidationErrorResponse instead
+ */
+export function createValidationError(
+  message: string,
+  details?: Record<string, unknown>
+): NextResponse<unknown> {
+  return createValidationErrorResponse(message, details)
+}
+
+/**
+ * @deprecated Use createNotFoundErrorResponse instead
+ */
+export function createNotFoundError(
+  message: string,
+  details?: Record<string, unknown>
+): NextResponse<unknown> {
+  return createNotFoundErrorResponse(message, details)
+}
+
+/**
+ * @deprecated Use createUnauthorizedErrorResponse instead
+ */
+export function createUnauthorizedError(
+  message: string = 'Unauthorized access'
+): NextResponse<unknown> {
+  return createUnauthorizedErrorResponse(message)
+}
+
+/**
+ * @deprecated Use createForbiddenErrorResponse instead
+ */
+export function createForbiddenError(
+  message: string = 'Access forbidden'
+): NextResponse<unknown> {
+  return createForbiddenErrorResponse(message)
+}
+
+/**
+ * @deprecated Use createConflictErrorResponse instead
+ */
+export function createConflictError(
+  message: string = 'Resource conflict',
+  details?: Record<string, unknown>
+): NextResponse<unknown> {
+  return createConflictErrorResponse(message, details)
+}
+
+/**
+ * @deprecated Use createRateLimitErrorResponse instead
+ */
+export function createRateLimitError(
+  message: string = 'Rate limit exceeded'
+): NextResponse<unknown> {
+  return createRateLimitErrorResponse(message)
+}
+
+/**
+ * @deprecated Use createServiceUnavailableErrorResponse instead
+ */
+export function createServiceUnavailableError(
+  message: string = 'Service temporarily unavailable'
+): NextResponse<unknown> {
+  return createServiceUnavailableErrorResponse(message)
+}
+
+/**
+ * @deprecated Use createInternalErrorResponse instead
+ */
+export function createInternalError(
+  message: string = 'Internal server error',
+  details?: Record<string, unknown>
+): NextResponse<unknown> {
+  return createInternalErrorResponse(message, details)
+}
+
+/**
+ * @deprecated Use createUnifiedErrorResponse instead
+ * 此函数为 API 路由提供统一的错误响应
+ */
+export function createErrorResponse(
+  error: Error | UAppError | unknown,
+  statusCode?: number,
+  details?: Record<string, unknown>
+): NextResponse<unknown> {
+  if (error instanceof UAppError) {
+    return createUnifiedErrorResponse(error, statusCode, details)
+  }
+
+  const unifiedError = error instanceof Error ? error : new Error(String(error))
+  return createUnifiedErrorResponse(unifiedError, statusCode, details)
+}
+
+/**
+ * @deprecated Use createUnifiedSuccessResponse instead
+ */
+export function createSuccessResponse<T = unknown>(
+  data: T,
+  statusCode: number = 200
+): NextResponse<unknown> {
+  return createUnifiedSuccessResponse(data, statusCode)
 }

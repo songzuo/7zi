@@ -850,4 +850,11 @@ export function getCollaborationManager(): CollaborationManager {
   return collaborationManager
 }
 
+/**
+ * Reset the collaboration manager singleton (for testing purposes)
+ */
+export function resetCollaborationManager(): void {
+  collaborationManager = null
+}
+
 export default CollaborationManager
