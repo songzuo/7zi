@@ -5,23 +5,54 @@ import { LucideProps } from 'lucide-react'
 
 // 图标名称到导入路径的映射 - use named exports instead of internal paths
 const iconMap = {
+  // Notification icons
   Bell: () => import('lucide-react').then(m => ({ default: m.Bell })),
+  MessageSquare: () => import('lucide-react').then(m => ({ default: m.MessageSquare })),
+  // Form icons
   Send: () => import('lucide-react').then(m => ({ default: m.Send })),
   Trash2: () => import('lucide-react').then(m => ({ default: m.Trash2 })),
   Check: () => import('lucide-react').then(m => ({ default: m.Check })),
-  X: () => import('lucide-react').then(m => ({ default: m.X })),
-  Info: () => import('lucide-react').then(m => ({ default: m.Info })),
-  CheckCircle: () => import('lucide-react').then(m => ({ default: m.CheckCircle })),
-  AlertTriangle: () => import('lucide-react').then(m => ({ default: m.AlertTriangle })),
-  XCircle: () => import('lucide-react').then(m => ({ default: m.XCircle })),
-  MessageSquare: () => import('lucide-react').then(m => ({ default: m.MessageSquare })),
   Star: () => import('lucide-react').then(m => ({ default: m.Star })),
   Upload: () => import('lucide-react').then(m => ({ default: m.Upload })),
   Camera: () => import('lucide-react').then(m => ({ default: m.Camera })),
   Save: () => import('lucide-react').then(m => ({ default: m.Save })),
   Loader2: () => import('lucide-react').then(m => ({ default: m.Loader2 })),
-  Globe: () => import('lucide-react').then(m => ({ default: m.Globe })),
   Lightbulb: () => import('lucide-react').then(m => ({ default: m.Lightbulb })),
+  // UI icons
+  X: () => import('lucide-react').then(m => ({ default: m.X })),
+  Info: () => import('lucide-react').then(m => ({ default: m.Info })),
+  Globe: () => import('lucide-react').then(m => ({ default: m.Globe })),
+  Menu: () => import('lucide-react').then(m => ({ default: m.Menu })),
+  Search: () => import('lucide-react').then(m => ({ default: m.Search })),
+  ChevronDown: () => import('lucide-react').then(m => ({ default: m.ChevronDown })),
+  ChevronRight: () => import('lucide-react').then(m => ({ default: m.ChevronRight })),
+  // Status icons
+  CheckCircle: () => import('lucide-react').then(m => ({ default: m.CheckCircle })),
+  XCircle: () => import('lucide-react').then(m => ({ default: m.XCircle })),
+  AlertTriangle: () => import('lucide-react').then(m => ({ default: m.AlertTriangle })),
+  AlertCircle: () => import('lucide-react').then(m => ({ default: m.AlertCircle })),
+  // Monitoring icons
+  Activity: () => import('lucide-react').then(m => ({ default: m.Activity })),
+  Clock: () => import('lucide-react').then(m => ({ default: m.Clock })),
+  Zap: () => import('lucide-react').then(m => ({ default: m.Zap })),
+  RefreshCw: () => import('lucide-react').then(m => ({ default: m.RefreshCw })),
+  // Workflow icons
+  Layout: () => import('lucide-react').then(m => ({ default: m.Layout })),
+  ArrowRight: () => import('lucide-react').then(m => ({ default: m.ArrowRight })),
+  ArrowDown: () => import('lucide-react').then(m => ({ default: m.ArrowDown })),
+  ArrowLeft: () => import('lucide-react').then(m => ({ default: m.ArrowLeft })),
+  ArrowUp: () => import('lucide-react').then(m => ({ default: m.ArrowUp })),
+  Circle: () => import('lucide-react').then(m => ({ default: m.Circle })),
+  GitBranch: () => import('lucide-react').then(m => ({ default: m.GitBranch })),
+  MapPin: () => import('lucide-react').then(m => ({ default: m.MapPin })),
+  // Misc icons
+  Download: () => import('lucide-react').then(m => ({ default: m.Download })),
+  FileJson: () => import('lucide-react').then(m => ({ default: m.FileJson })),
+  Bug: () => import('lucide-react').then(m => ({ default: m.Bug })),
+  Home: () => import('lucide-react').then(m => ({ default: m.Home })),
+  FileText: () => import('lucide-react').then(m => ({ default: m.FileText })),
+  Copy: () => import('lucide-react').then(m => ({ default: m.Copy })),
+  Keyboard: () => import('lucide-react').then(m => ({ default: m.Keyboard })),
 } as const
 
 type IconName = keyof typeof iconMap

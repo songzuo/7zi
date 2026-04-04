@@ -7,6 +7,7 @@
 
 // 主组件
 export { WorkflowEditor } from './WorkflowEditor'
+export { WorkflowEditorV110 } from './WorkflowEditorV110'
 export { Toolbar } from './Toolbar'
 export { NodePalette } from './NodePalette'
 export { StatusBar } from './StatusBar'

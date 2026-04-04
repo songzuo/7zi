@@ -47,7 +47,7 @@ import type {
   FeedbackPriority,
   FeedbackStatus,
   Feedback,
-} from '@/lib/db/feedback-storage'
+} from '@/lib/db/feedback-types'
 
 interface FeedbackAdminPanelProps {
   currentUser: {

@@ -760,7 +760,7 @@ export class AgentCapabilityAssessor {
   /**
    * Import assessment data
    */
-  private importData(data: unknown): void {
+  public importData(data: unknown): void {
   if (!data || typeof data !== 'object') return
   
   const typedData = data as CapabilityAssessmentExportData
