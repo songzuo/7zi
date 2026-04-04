@@ -5,10 +5,10 @@
  */
 
 import { Readable } from 'stream'
-import { logger } from '../logger'
-import { DataExporter, ExportConfig, ExportResult, ExportField } from './core/exporter'
-import { ExportQueue, ExportJob, ExportJobStatus, ExportJobProgress } from './queue/export-queue'
-import { FilterParser, FilterCondition, PaginationOptions } from './utils/filter-parser'
+import { logger } from '@/lib/logger'
+import { DataExporter, ExportConfig, ExportResult, ExportField } from '../core/exporter'
+import { ExportQueue, ExportJob, ExportJobStatus, ExportJobProgress } from '../queue/export-queue'
+import { FilterParser, FilterCondition, PaginationOptions } from '../utils/filter-parser'
 
 // ============================================================================
 // 类型定义
@@ -552,13 +552,12 @@ export class ExportService<T extends Record<string, unknown> = Record<string, un
 
 export { ExportService, ExportServiceConfig, ExportRequest, ExportResponse }
 export type {
-  ExportJob,
   ExportJobStatus,
   ExportJobProgress,
   ExportJobQueryResult,
 }
-export { DataExporter, ExportConfig, ExportResult, ExportField } from './core/exporter'
-export { ExportQueue, ExportJob } from './queue/export-queue'
-export { FilterParser, FilterCondition, PaginationOptions } from './utils/filter-parser'
+export { DataExporter, ExportConfig, ExportResult, ExportField } from '../core/exporter'
+export { ExportQueue, ExportJob } from '../queue/export-queue'
+export { FilterParser, FilterCondition, PaginationOptions } from '../utils/filter-parser'
 
 export default ExportService

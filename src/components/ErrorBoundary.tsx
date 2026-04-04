@@ -3,15 +3,11 @@
 import { useEffect, useCallback, useState } from 'react'
 import * as Sentry from '@sentry/nextjs'
 import { ErrorDisplay, ErrorType } from './ErrorDisplay'
-import {
-  getErrorCode,
-  ErrorCodes,
-  isNetworkError,
-} from '@/lib/errors'
+import { getErrorCode, ErrorCodes, isNetworkError } from '@/lib/errors'
 
 // Direct imports from submodules
 import { UnifiedErrorType } from '@/lib/errors/unified-types'
-import { toUnifiedError } from '@/lib/errors/unified-error'
+import { analyzeErrorType, getErrorTitle, getErrorMessage } from './errors/error-utils'
 
 export interface ErrorBoundaryProps {
   error: Error & { digest?: string }
@@ -23,78 +19,6 @@ export interface ErrorBoundaryProps {
   showRefreshButton?: boolean
   showCopyError?: boolean
   variant?: 'default' | 'compact' | 'fullscreen'
-}
-
-/**
- * 分析错误类型
- */
-function analyzeErrorType(error: Error): ErrorType {
-  // 网络错误
-  if (isNetworkError(error)) {
-    return 'network'
-  }
-
-  const code = getErrorCode(error)
-
-  switch (code) {
-    case ErrorCodes.NOT_FOUND:
-    case UnifiedErrorType.NOT_FOUND:
-      return 'not-found'
-    case ErrorCodes.UNAUTHORIZED:
-    case UnifiedErrorType.UNAUTHORIZED:
-      return 'unauthorized'
-    case ErrorCodes.FORBIDDEN:
-    case UnifiedErrorType.FORBIDDEN:
-      return 'forbidden'
-    case ErrorCodes.SERVER_ERROR:
-    case UnifiedErrorType.INTERNAL:
-      return 'server'
-    case ErrorCodes.NETWORK_ERROR:
-    case UnifiedErrorType.NETWORK_ERROR:
-      return 'network'
-    default:
-      return 'generic'
-  }
-}
-
-/**
- * 根据错误类型获取友好的标题
- */
-function getErrorTitle(errorType: ErrorType, defaultTitle: string): string {
-  switch (errorType) {
-    case 'network':
-      return '网络连接失败'
-    case 'not-found':
-      return '页面不存在'
-    case 'unauthorized':
-      return '需要登录'
-    case 'forbidden':
-      return '没有权限'
-    case 'server':
-      return '服务器错误'
-    default:
-      return defaultTitle
-  }
-}
-
-/**
- * 根据错误类型获取友好的消息
- */
-function getErrorMessage(errorType: ErrorType, defaultMessage: string): string {
-  switch (errorType) {
-    case 'network':
-      return '请检查您的网络连接，然后重试'
-    case 'not-found':
-      return '您访问的页面不存在或已被移除'
-    case 'unauthorized':
-      return '请登录后继续访问此页面'
-    case 'forbidden':
-      return '您没有权限访问此页面'
-    case 'server':
-      return '服务器暂时无法处理请求，请稍后重试'
-    default:
-      return defaultMessage
-  }
 }
 
 /**

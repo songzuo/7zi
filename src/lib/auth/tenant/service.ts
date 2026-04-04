@@ -27,8 +27,8 @@ import type {
   CrossTenantTransferResponse,
 } from './types'
 import type { TenantMemberRole } from '../../tenant/types'
-import { verifyPassword, getUserByEmail, getUserById, createUserToken, updateLastLogin } from '../auth/repository'
-import { UserStatus } from '../auth/types'
+import { verifyPassword, getUserByEmail, getUserById, createUserToken, updateLastLogin } from '../repository'
+import { UserStatus } from '../types'
 
 /**
  * 租户认证服务
