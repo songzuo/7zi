@@ -116,8 +116,8 @@ export async function testSMTPConnection(
       details: {
         serverResponse: info.response,
         messageId: info.messageId,
-        acceptedRecipients: info.accepted,
-        rejectedRecipients: info.rejected,
+        acceptedRecipients: info.accepted.map(r => typeof r === 'string' ? r : r.address),
+        rejectedRecipients: info.rejected.map(r => typeof r === 'string' ? r : r.address),
       },
     }
   } catch (error) {

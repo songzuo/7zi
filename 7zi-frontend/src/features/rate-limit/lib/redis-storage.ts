@@ -89,15 +89,15 @@ export class RedisRateLimitStorage implements IRateLimitStorage {
     const count =
       typeof resultArray[0] === 'number'
         ? resultArray[0]
-        : parseInt((resultArray[0] as any)?.toString() || '0', 10)
+        : parseInt((resultArray[0] as Buffer | string)?.toString() || '0', 10)
     const reset =
       typeof resultArray[1] === 'number'
         ? resultArray[1]
-        : parseInt((resultArray[1] as any)?.toString() || '0', 10)
+        : parseInt((resultArray[1] as Buffer | string)?.toString() || '0', 10)
     const windowStart =
       typeof resultArray[2] === 'number'
         ? resultArray[2]
-        : parseInt((resultArray[2] as any)?.toString() || '0', 10)
+        : parseInt((resultArray[2] as Buffer | string)?.toString() || '0', 10)
 
     return {
       count,
@@ -124,18 +124,18 @@ export class RedisRateLimitStorage implements IRateLimitStorage {
       return null
     }
 
-    const count = parseInt((results[0][1] as any)?.toString() || '0', 10)
+    const count = parseInt(String(results[0][1] ?? '0'), 10)
 
     // 获取窗口开始时间
     let windowStart = Date.now()
     if (results[1] && results[1][1] !== null) {
-      const meta = JSON.parse((results[1][1] as any)?.toString() || '{}')
+      const meta = JSON.parse(String(results[1][1]) || '{}')
       windowStart = meta.windowStart || Date.now()
     }
 
     // 计算 resetTime
     const ttlVal = results[2] ? results[2][1] : null
-    const ttlSeconds = ttlVal && ttlVal !== -2 ? (ttlVal as any) || 60 : 60
+    const ttlSeconds = ttlVal && ttlVal !== -2 ? Number(ttlVal) || 60 : 60
     const resetTime = Date.now() + ttlSeconds * 1000
 
     return {

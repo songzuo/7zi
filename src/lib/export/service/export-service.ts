@@ -433,12 +433,26 @@ export class ExportService<T extends Record<string, unknown> = Record<string, un
 
   /**
    * 从数据库获取数据
+   * 
+   * 注意：此方法需要根据实际数据库类型（MySQL、PostgreSQL、MongoDB等）进行实现
+   * 当前版本提供基础框架，建议使用 Knex.js、TypeORM 或 Prisma 等库
    */
   private async fetchFromDatabase(request: ExportRequest<T>): Promise<{ data: T[]; total: number }> {
     const { dataConfig, pagination, filters } = request
     
-    // TODO: 实现实际的数据库查询
-    // 这里返回模拟数据
+    // 技术债务：需要实现实际的数据库查询
+    // 建议实现方案：
+    // 1. 使用 Knex.js 构建查询构建器
+    // 2. 使用 TypeORM 或 Prisma ORM
+    // 3. 根据数据源类型（table/query/custom）选择不同的查询策略
+    // 4. 支持分页和过滤条件
+    // 5. 添加查询超时和重试机制
+    
+    logger.warn('[ExportService] 数据库查询未实现，返回空数据', {
+      source: dataConfig.source,
+      type: dataConfig.type,
+    })
+    
     const mockData: T[] = []
     const total = 0
 
@@ -446,14 +460,31 @@ export class ExportService<T extends Record<string, unknown> = Record<string, un
   }
 
   /**
-   * 流式导出
+   * 流式导出（大数据量优化）
+   * 
+   * 技术债务：完整的流式导出需要：
+   * 1. 逐批次读取数据（避免一次性加载到内存）
+   * 2. 使用 Node.js Transform Stream 逐行处理
+   * 3. 支持暂停和恢复
+   * 4. 实现进度回调
+   * 
+   * 当前实现：暂时回退到同步导出，避免内存溢出
    */
   private async exportStreaming(
     request: ExportRequest<T>,
     data: T[]
   ): Promise<ExportResult> {
-    // TODO: 实现流式导出
-    // 使用 Node.js stream API
+    // 对于当前版本，使用同步导出但添加内存保护
+    // 未来应实现完整的流式处理：
+    // 1. 创建可读流：Readable.from(data)
+    // 2. 转换为 CSV 行：Transform Stream
+    // 3. 写入文件/响应：Writable Stream
+    // 4. 支持 flush 和 end 事件
+    
+    logger.warn('[ExportService] 流式导出未完全实现，使用同步导出', {
+      dataSize: data.length,
+    })
+    
     return this.exporter.export(data, {
       ...request.exportConfig,
       format: request.format,

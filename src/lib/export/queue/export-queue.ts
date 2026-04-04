@@ -379,6 +379,13 @@ export class ExportQueue {
 
   /**
    * 启动 Worker
+   * 
+   * 技术债务：当前实现使用模拟的导出流程
+   * 完整实现需要：
+   * 1. 集成 ExportService 实例
+   * 2. 支持真实的数据库查询
+   * 3. 支持流式导出和进度追踪
+   * 4. 支持导出文件的上传（S3、OSS等）
    */
   private startWorker(): void {
     this.queue.process(this.config.maxConcurrent, async (job: Job) => {
@@ -391,8 +398,8 @@ export class ExportQueue {
         job.updateProgress(exportJob.progress)
 
         // 执行导出
-        // TODO: 实现实际的导出逻辑
-        // 这里使用模拟实现
+        // 技术债务：应注入 ExportService 并调用实际导出方法
+        // 当前使用模拟实现以保持系统可用性
         await this.processExportJob(exportJob, job)
 
         return exportJob.result
