@@ -13,6 +13,7 @@ import {
   ISSUE_FILTER_CONFIGS,
   ISSUE_SORT_CONFIGS,
   type FilterConfig,
+  type SortConfig,
   type SearchFilterResult,
 } from '@/types/search-filter'
 import {
@@ -59,13 +60,12 @@ export const TaskBoardSearch: React.FC<TaskBoardSearchProps> = ({
         return { ...config, options: assigneeOptions }
       }
       return config
-    })
+    }) as FilterConfig<object>[]
   }, [labelOptions, assigneeOptions])
 
   // 处理搜索过滤结果变化
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const handleResultsChange = (results: any) => {
-    setFilteredIssues(results.items ?? [])
+  const handleResultsChange = (results: SearchFilterResult<object>) => {
+    setFilteredIssues((results.items ?? []) as GitHubIssue[])
     setSearchResults({
       total: results.totalResults ?? 0,
       filtered: results.filteredResults ?? 0,
@@ -111,13 +111,10 @@ export const TaskBoardSearch: React.FC<TaskBoardSearchProps> = ({
       {/* 搜索与过滤区域 */}
       <div className="border-b border-zinc-200 bg-white px-6 py-4 dark:border-zinc-700 dark:bg-zinc-800">
         <SearchFilter
-          items={issues}
-          // eslint-disable-next-line @typescript-eslint/no-explicit-any
-          filters={filterConfigs as any}
-          // eslint-disable-next-line @typescript-eslint/no-explicit-any
-          sorts={ISSUE_SORT_CONFIGS as any}
-          // eslint-disable-next-line @typescript-eslint/no-explicit-any
-          onResultsChange={handleResultsChange as any}
+          items={issues as object[]}
+          filters={filterConfigs}
+          sorts={ISSUE_SORT_CONFIGS as SortConfig<object>[]}
+          onResultsChange={handleResultsChange}
           searchPlaceholder="搜索任务标题、标签..."
           showFilterCount={true}
           collapsible={true}

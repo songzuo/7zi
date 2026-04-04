@@ -1,14 +1,14 @@
 /**
  * WebSocket Compression Integration
- * 
+ *
  * Integrates compression and optimization features with Socket.IO server
- * 
+ *
  * @author Executor Subagent
  * @date 2026-04-03
  */
 
 import { Server as SocketIOServer, Socket } from 'socket.io'
-import { getOptimizationManager, type OptimizationConfig } from './index'
+import { getOptimizationManager, type OptimizationConfig, type OptimizationStats } from './index'
 import { logger } from '@/lib/logger'
 
 // ============================================================================
@@ -91,7 +91,7 @@ export function initializeCompression(
 
   // Set up connection handler
   io.on('connection', (socket: OptimizedSocket) => {
-    logger.debug('[WebSocket Compression] Client connected:', socket.id)
+    logger.debug('[WebSocket Compression] Client connected:', { socketId: socket.id })
 
     // Handle optimization requests
     socket.on('ws:optimize', (data: { enabled?: boolean }) => {
@@ -115,15 +115,15 @@ export function initializeCompression(
     socket.on('ws:clear_cache', () => {
       optimizationManager.clearAllCaches()
       socket.emit('ws:cache_cleared')
-      logger.debug('[WebSocket Compression] Cache cleared by client:', socket.id)
+      logger.debug('[WebSocket Compression] Cache cleared by client:', { socketId: socket.id })
     })
 
     // Override emit to apply optimizations
     const originalEmit = socket.emit.bind(socket)
     
-    socket.emit = function(event: string, ...args: any[]) {
+    socket.emit = function(event: string, ...args: unknown[]): boolean {
       if (!socket.optimizationEnabled) {
-        return originalEmit(event, ...args)
+        return originalEmit(event, ...args) as boolean
       }
 
       try {
@@ -136,7 +136,7 @@ export function initializeCompression(
         // If batched, don't emit immediately
         if (result.messageId && !result.compressed && !result.incremental) {
           // Message was batched
-          return socket
+          return true
         }
 
         // If compressed, send compressed data
@@ -147,7 +147,7 @@ export function initializeCompression(
             data: result.compressed.compressed.toString('base64'),
             originalSize: result.compressed.originalSize,
             compressedSize: result.compressed.compressedSize
-          })
+          }) as boolean
         }
 
         // If incremental, send diff
@@ -157,20 +157,20 @@ export function initializeCompression(
             diff: result.incremental.diff,
             originalHash: result.incremental.originalHash,
             newHash: result.incremental.newHash
-          })
+          }) as boolean
         }
 
         // Otherwise, send as-is
-        return originalEmit(event, ...args)
+        return originalEmit(event, ...args) as boolean
       } catch (error) {
         logger.error('[WebSocket Compression] Error processing outgoing message:', error)
-        return originalEmit(event, ...args)
+        return originalEmit(event, ...args) as boolean
       }
     }
 
     // Handle disconnect
     socket.on('disconnect', () => {
-      logger.debug('[WebSocket Compression] Client disconnected:', socket.id)
+      logger.debug('[WebSocket Compression] Client disconnected:', { socketId: socket.id })
     })
   })
 
@@ -211,7 +211,7 @@ export function initializeCompression(
 export function createOptimizedEmit(
   io: SocketIOServer,
   event: string,
-  data: any,
+  data: unknown,
   options?: {
     room?: string
     namespace?: string
@@ -254,13 +254,14 @@ export function createOptimizedEmit(
  */
 export function createCompressionMiddleware() {
   return (socket: OptimizedSocket, next: (err?: Error) => void) => {
-    socket.on('message', (data: any) => {
+    socket.on('message', (data: unknown) => {
       const optimizationManager = getOptimizationManager()
 
       // Check if message is compressed
-      if (data && data.type === 'compressed') {
+      if (data && typeof data === 'object' && 'type' in data && data.type === 'compressed') {
         try {
-          const compressed = Buffer.from(data.data, 'base64')
+          const compressedData = data as { type: string; data: string; method: string }
+          const compressed = Buffer.from(compressedData.data, 'base64')
           const decompressed = optimizationManager.processIncoming(compressed, {
             decompress: true
           })
@@ -270,7 +271,7 @@ export function createCompressionMiddleware() {
         } catch (error) {
           logger.error('[WebSocket Compression] Error decompressing message:', error)
         }
-      } else if (data && data.type === 'incremental') {
+      } else if (data && typeof data === 'object' && 'type' in data && data.type === 'incremental') {
         // Handle incremental update
         // Application layer should handle this
         socket.emit('incremental_update', data)
@@ -287,7 +288,7 @@ export function createCompressionMiddleware() {
 /**
  * Get optimization statistics for monitoring
  */
-export function getCompressionStats(): any {
+export function getCompressionStats(): OptimizationStats {
   const optimizationManager = getOptimizationManager()
   return optimizationManager.getStats()
 }
@@ -338,6 +339,6 @@ export function clientSupportsMethod(
 /**
  * Get client capabilities
  */
-export function getClientCapabilities(socket: OptimizedSocket): any {
+export function getClientCapabilities(socket: OptimizedSocket): OptimizedSocket['clientCapabilities'] {
   return socket.clientCapabilities
 }

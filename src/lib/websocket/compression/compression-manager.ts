@@ -354,7 +354,7 @@ export class CompressionManager {
   /**
    * Parse client capabilities from headers
    */
-  public parseClientCapabilities(headers: any): ClientCapabilities {
+  public parseClientCapabilities(headers: Record<string, string | string[] | undefined>): ClientCapabilities {
     const acceptEncoding = headers['accept-encoding'] || headers['Accept-Encoding'] || ''
     
     return {

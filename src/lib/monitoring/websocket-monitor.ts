@@ -131,10 +131,11 @@ class MetricBatcher {
   private flush(): void {
     if (this.queue.length === 0) return
 
-    // 批量上报
+    // 批量上报 - WebSocket metrics belong to 'rendering' category
+    const category: 'resource' | 'api' | 'navigation' | 'rendering' | 'memory' = 'rendering'
     for (const metric of this.queue) {
       try {
-        recordCustomMetric(metric.name, metric.value, metric.unit as any)
+        recordCustomMetric(metric.name, metric.value, category)
       } catch (error) {
         console.error('[WebSocketMonitor] Failed to report metric:', error)
       }

@@ -138,7 +138,7 @@ export class Monitor extends EventEmitter {
   /**
    * 发送监控事件
    */
-  public emitEvent(type: MonitorEventType, data: any): void {
+  public emitEvent(type: MonitorEventType, data: unknown): void {
     const event: IMonitorEvent = {
       type,
       timestamp: Date.now(),

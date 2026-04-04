@@ -186,7 +186,7 @@ export class WebSocketAPI {
   /**
    * 处理订阅
    */
-  protected handleSubscribe(ws: WSWebSocket, data: any): void {
+  protected handleSubscribe(ws: WSWebSocket, data: unknown): void {
     // 注意: 实际实现需要为每个客户端维护订阅列表
     // 这里简化处理
 
@@ -200,7 +200,7 @@ export class WebSocketAPI {
   /**
    * 处理取消订阅
    */
-  protected handleUnsubscribe(ws: WSWebSocket, data: any): void {
+  protected handleUnsubscribe(ws: WSWebSocket, data: unknown): void {
     this.sendToClient(ws, {
       type: 'unsubscribed',
       data: data,

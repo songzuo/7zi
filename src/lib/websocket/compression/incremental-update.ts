@@ -402,13 +402,13 @@ export class IncrementalUpdateManager<T = unknown> {
     
     // Both are arrays
     if (oldType === 'array') {
-      this.diffArrays(oldData, newData, path, diff)
+      this.diffArrays(oldData as unknown[], newData as unknown[], path, diff)
       return
     }
     
     // Both are objects
     if (oldType === 'object') {
-      this.diffObjectsDeep(oldData, newData, path, diff)
+      this.diffObjectsDeep(oldData as Record<string, unknown>, newData as Record<string, unknown>, path, diff)
       return
     }
   }
@@ -440,7 +440,7 @@ export class IncrementalUpdateManager<T = unknown> {
         })
       } else {
         // Compare elements
-        this.diffObjects(oldArr[i], newArr[i], newPath, diff)
+        this.diffObjects(oldArr[i] as T, newArr[i] as T, newPath, diff)
       }
     }
   }
@@ -472,7 +472,7 @@ export class IncrementalUpdateManager<T = unknown> {
         })
       } else {
         // Compare values
-        this.diffObjects(oldObj[key], newObj[key], newPath, diff)
+        this.diffObjects(oldObj[key] as T, newObj[key] as T, newPath, diff)
       }
     }
   }
@@ -611,12 +611,12 @@ export class IncrementalUpdateManager<T = unknown> {
     
     if (rest.length === 0) {
       if (Array.isArray(data)) {
-        ;(data as unknown[]).splice(index, 1)
+        ;(data as unknown[]).splice(index as number, 1)
       } else {
-        delete (data as Record<string, unknown>)[index]
+        delete (data as Record<string, unknown>)[index as string]
       }
     } else {
-      this.removeAtPath((data as Record<string, unknown>)[index] as T, rest)
+      this.removeAtPath((data as Record<string, unknown>)[index as string] as T, rest)
     }
     
     return data
@@ -687,7 +687,7 @@ export class IncrementalUpdateManager<T = unknown> {
       }
     }
     
-    this.stateCache.set(key, snapshot)
+    this.stateCache.set(key, snapshot as StateSnapshot<T>)
   }
 }
 

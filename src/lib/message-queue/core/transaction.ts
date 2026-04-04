@@ -30,7 +30,7 @@ export class Transaction implements ITransaction {
   /** 待发布消息 */
   protected pendingMessages: Array<{
     queueName: string;
-    data: any;
+    data: unknown;
     options?: IMessageOptions;
   }> = [];
 

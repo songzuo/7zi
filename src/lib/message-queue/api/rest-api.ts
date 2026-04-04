@@ -120,7 +120,7 @@ export class RestAPI {
     method: string,
     path: string,
     req: http.IncomingMessage,
-    query: any
+    query: Record<string, string | string[] | undefined>
   ): Promise<IApiResponse> {
     // ============================================================================
     // 队列管理

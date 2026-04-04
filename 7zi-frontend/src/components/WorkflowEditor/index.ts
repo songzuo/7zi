@@ -2,7 +2,7 @@
  * WorkflowEditor 组件导出
  *
  * 统一导出所有组件
- * v1.9.1 更新
+ * v1.12.2 更新 - 新增模板系统导出
  */
 
 // 主组件
@@ -17,6 +17,10 @@ export { ValidationPanel } from './ValidationPanel'
 // v1.9.1 新增组件
 export { ExpressionEditor } from './ExpressionEditor'
 export { WorkflowExporter } from './WorkflowExporter'
+
+// v1.12.2 模板系统组件
+export { TemplateSelector, TemplateSelectorDialog } from './TemplateSelector'
+export type { TemplateSelectorProps } from './TemplateSelector'
 
 // 类型导出
 export type {
@@ -75,3 +79,35 @@ export { useWorkflowExport } from './hooks/useWorkflowExport'
 export { useClipboard } from './hooks/useClipboard'
 export { applyLayout } from './AutoLayout'
 export type { LayoutType } from './AutoLayout'
+
+// v1.12.2 模板系统 Hooks
+export {
+  useTemplateList,
+  useTemplateFilter,
+  useTemplate,
+  useCreateFromTemplate,
+  useTemplateSelector,
+  useWorkflowTemplates,
+} from './templateHooks'
+
+// v1.12.2 模板系统 API 和类型
+export {
+  listTemplates,
+  listTemplatesByCategory,
+  listTemplatesByDifficulty,
+  searchTemplatesByTag,
+  getTemplate,
+  createFromTemplate,
+  validateTemplate,
+  getTemplateStats,
+  PRESET_TEMPLATES,
+} from './templates'
+export type { WorkflowTemplate } from './templates'
+
+// v1.12.2 示例组件
+export {
+  BasicTemplateSelectorExample,
+  HookTemplateSelectorExample,
+  TemplateApiExample,
+  WorkflowEditorIntegrationExample,
+} from './examples-v112'
