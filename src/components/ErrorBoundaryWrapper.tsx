@@ -3,7 +3,7 @@
 import { Component, ReactNode, ReactElement } from 'react'
 import * as Sentry from '@sentry/nextjs'
 import { ErrorDisplay, ErrorType } from './ErrorDisplay'
-import { getErrorCode, ErrorCodes, isNetworkError } from '@/lib/errors'
+import { analyzeErrorType } from './errors/error-utils'
 
 interface Props {
   children: ReactNode
@@ -22,32 +22,6 @@ interface State {
   hasError: boolean
   error: Error | null
   errorInfo: React.ErrorInfo | null
-}
-
-/**
- * 分析错误类型
- */
-function analyzeErrorType(error: Error): ErrorType {
-  if (isNetworkError(error)) {
-    return 'network'
-  }
-
-  const code = getErrorCode(error)
-
-  switch (code) {
-    case ErrorCodes.NOT_FOUND:
-      return 'not-found'
-    case ErrorCodes.UNAUTHORIZED:
-      return 'unauthorized'
-    case ErrorCodes.FORBIDDEN:
-      return 'forbidden'
-    case ErrorCodes.SERVER_ERROR:
-      return 'server'
-    case ErrorCodes.NETWORK_ERROR:
-      return 'network'
-    default:
-      return 'generic'
-  }
 }
 
 /**
