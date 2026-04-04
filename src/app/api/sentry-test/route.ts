@@ -4,8 +4,9 @@
 // This endpoint is used to test Sentry integration in production.
 // Access: GET /api/sentry-test?type=error|message
 
-import { NextRequest, NextResponse } from 'next/server'
+import { NextRequest } from 'next/server'
 import * as Sentry from '@sentry/nextjs'
+import { createSuccessResponse, createErrorResponse, createServiceUnavailableError } from '@/lib/api/error-handler'
 
 export async function GET(request: NextRequest) {
   const { searchParams } = new URL(request.url)
@@ -15,14 +16,7 @@ export async function GET(request: NextRequest) {
   const sentryDsn = process.env.NEXT_PUBLIC_SENTRY_DSN
 
   if (!sentryDsn) {
-    return NextResponse.json(
-      {
-        success: false,
-        message: 'Sentry DSN not configured',
-        hint: 'Set NEXT_PUBLIC_SENTRY_DSN in your environment variables',
-      },
-      { status: 500 }
-    )
+    return createServiceUnavailableError('Sentry DSN not configured')
   }
 
   try {
@@ -43,8 +37,7 @@ export async function GET(request: NextRequest) {
         },
       })
 
-      return NextResponse.json({
-        success: true,
+      return createSuccessResponse({
         message: 'Test error sent to Sentry',
         details: {
           type: 'error',
@@ -68,8 +61,7 @@ export async function GET(request: NextRequest) {
         },
       })
 
-      return NextResponse.json({
-        success: true,
+      return createSuccessResponse({
         message: 'Test message sent to Sentry',
         details: {
           type: 'message',
@@ -79,13 +71,6 @@ export async function GET(request: NextRequest) {
       })
     }
   } catch (error) {
-    return NextResponse.json(
-      {
-        success: false,
-        message: 'Failed to send test to Sentry',
-        error: error instanceof Error ? error.message : String(error),
-      },
-      { status: 500 }
-    )
+    return createErrorResponse(error instanceof Error ? error : new Error('Failed to send test to Sentry'))
   }
 }

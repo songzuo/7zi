@@ -7,9 +7,11 @@ import {
   getErrorCode,
   ErrorCodes,
   isNetworkError,
-  toUnifiedError,
-  UnifiedErrorType,
 } from '@/lib/errors'
+
+// Direct imports from submodules
+import { UnifiedErrorType } from '@/lib/errors/unified-types'
+import { toUnifiedError } from '@/lib/errors/unified-error'
 
 export interface ErrorBoundaryProps {
   error: Error & { digest?: string }
