@@ -1,11 +1,12 @@
 /**
- * 增强的工具栏组件
+ * 增强的工具栏组件 (v1.10.1 UX增强版)
  *
  * 🎨 设计师: Designer
  * 创建日期: 2026-04-03
- * 版本: v1.10.0
+ * 版本: v1.10.1
  *
  * 增强的工具栏，支持更多操作和快捷键
+ * UX增强: 按钮状态指示器、悬停效果、加载动画、工具提示
  */
 
 import React, { useState } from 'react'
@@ -28,8 +29,10 @@ import {
   ZoomOut,
   Maximize,
   MoreVertical,
+  Loader2,
+  AlertCircle,
 } from 'lucide-react'
-import type { WorkflowDefinition } from '../types'
+import type { WorkflowDefinition } from './types'
 import { AutoLayoutPanel, type LayoutType } from './AutoLayout'
 
 interface EnhancedToolbarProps {
@@ -58,6 +61,95 @@ interface EnhancedToolbarProps {
   onAutoLayout?: (type: LayoutType) => void
 }
 
+/**
+ * 工具栏按钮组件 - 统一的按钮样式和状态
+ */
+const ToolbarButton = React.memo<{
+  onClick: () => void
+  disabled?: boolean
+  loading?: boolean
+  active?: boolean
+  variant?: 'default' | 'primary' | 'success' | 'danger' | 'warning'
+  icon: React.ReactNode
+  label?: string
+  title?: string
+  className?: string
+}>(({ 
+  onClick, 
+  disabled = false, 
+  loading = false, 
+  active = false,
+  variant = 'default',
+  icon, 
+  label, 
+  title,
+  className = ''
+}) => {
+  const baseStyles = 'flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-sm font-medium transition-all duration-200'
+  
+  const variantStyles = {
+    default: 'text-gray-700 hover:bg-gray-100 dark:text-gray-300 dark:hover:bg-gray-700',
+    primary: 'bg-indigo-600 text-white hover:bg-indigo-700 dark:bg-indigo-500 dark:hover:bg-indigo-600',
+    success: 'bg-green-600 text-white hover:bg-green-700 dark:bg-green-500 dark:hover:bg-green-600',
+    danger: 'bg-red-600 text-white hover:bg-red-700 dark:bg-red-500 dark:hover:bg-red-600',
+    warning: 'bg-yellow-600 text-white hover:bg-yellow-700 dark:bg-yellow-500 dark:hover:bg-yellow-600',
+  }
+
+  const disabledStyles = 'disabled:cursor-not-allowed disabled:opacity-50'
+  const activeStyles = active ? 'ring-2 ring-indigo-300 ring-offset-2 dark:ring-offset-gray-800' : ''
+  const loadingStyles = loading ? 'cursor-wait' : ''
+
+  return (
+    <button
+      onClick={onClick}
+      disabled={disabled || loading}
+      title={title}
+      className={`${baseStyles} ${variantStyles[variant]} ${disabledStyles} ${activeStyles} ${loadingStyles} ${className}`}
+    >
+      {loading ? (
+        <Loader2 className="h-4 w-4 animate-spin" />
+      ) : (
+        icon
+      )}
+      {label && <span className="hidden sm:inline">{label}</span>}
+    </button>
+  )
+})
+
+ToolbarButton.displayName = 'ToolbarButton'
+
+/**
+ * 图标按钮组件 - 仅显示图标
+ */
+const IconButton = React.memo<{
+  onClick?: () => void
+  disabled?: boolean
+  active?: boolean
+  icon: React.ReactNode
+  title?: string
+  className?: string
+}>(({ onClick = () => {}, disabled = false, active = false, icon, title, className = '' }) => (
+  <button
+    onClick={onClick}
+    disabled={disabled}
+    title={title}
+    className={`rounded-lg p-1.5 text-gray-700 transition-all duration-200 hover:bg-gray-100 disabled:cursor-not-allowed disabled:opacity-50 dark:text-gray-300 dark:hover:bg-gray-700 ${
+      active ? 'ring-2 ring-indigo-300 ring-offset-2 dark:ring-offset-gray-800' : ''
+    } ${className}`}
+  >
+    {icon}
+  </button>
+))
+
+IconButton.displayName = 'IconButton'
+
+/**
+ * 分隔线组件
+ */
+const Divider = () => (
+  <div className="mx-2 h-6 w-px bg-gray-300 dark:bg-gray-600" />
+)
+
 export const EnhancedToolbar: React.FC<EnhancedToolbarProps> = ({
   onSave,
   onRun,
@@ -85,10 +177,11 @@ export const EnhancedToolbar: React.FC<EnhancedToolbarProps> = ({
 }) => {
   const [showLayoutPanel, setShowLayoutPanel] = useState(false)
   const [showMoreMenu, setShowMoreMenu] = useState(false)
+  const [isSaving, setIsSaving] = useState(false)
 
   const handleExport = () => {
     const exportData = {
-      version: '1.10.0',
+      version: '1.10.1',
       exportedAt: new Date().toISOString(),
       workflow,
     }
@@ -103,7 +196,7 @@ export const EnhancedToolbar: React.FC<EnhancedToolbarProps> = ({
     a.click()
     URL.revokeObjectURL(url)
 
-    onExport?.(exportData)
+    onExport?.(workflow)
   }
 
   const handleImport = () => {
@@ -130,97 +223,86 @@ export const EnhancedToolbar: React.FC<EnhancedToolbarProps> = ({
     input.click()
   }
 
+  const handleSave = async () => {
+    setIsSaving(true)
+    try {
+      await onSave()
+    } finally {
+      setTimeout(() => setIsSaving(false), 500)
+    }
+  }
+
   return (
     <>
       {/* 主工具栏 */}
-      <div className="flex items-center justify-between border-b border-gray-200 bg-white px-4 py-2 dark:border-gray-700 dark:bg-gray-800">
+      <div className="flex items-center justify-between border-b border-gray-200 bg-white px-4 py-2 shadow-sm dark:border-gray-700 dark:bg-gray-800">
         {/* 左侧：主要操作 */}
         <div className="flex items-center gap-2">
           {/* 保存 */}
-          <button
-            onClick={onSave}
+          <ToolbarButton
+            onClick={handleSave}
             disabled={readOnly}
-            className="flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-sm font-medium text-gray-700 transition-colors hover:bg-gray-100 disabled:cursor-not-allowed disabled:opacity-50 dark:text-gray-300 dark:hover:bg-gray-700"
+            loading={isSaving}
+            icon={<Save className="h-4 w-4" />}
+            label="保存"
             title="保存 (Ctrl+S)"
-          >
-            <Save className="h-4 w-4" />
-            <span className="hidden sm:inline">保存</span>
-          </button>
+          />
 
           {/* 运行 */}
-          <button
+          <ToolbarButton
             onClick={onRun}
             disabled={isExecuting || hasErrors || readOnly}
-            className={`flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-sm font-medium transition-colors ${
-              hasErrors
-                ? 'bg-red-600 hover:bg-red-700 disabled:bg-red-900/30'
-                : isExecuting
-                  ? 'bg-yellow-600 hover:bg-yellow-700 disabled:bg-yellow-900/30'
-                  : 'bg-green-600 hover:bg-green-700 disabled:bg-green-900/30'
-            } text-white disabled:cursor-not-allowed disabled:opacity-50`}
+            loading={isExecuting}
+            variant={hasErrors ? 'danger' : isExecuting ? 'warning' : 'success'}
+            icon={isExecuting ? <Loader2 className="h-4 w-4 animate-spin" /> : <Play className="h-4 w-4" />}
+            label={isExecuting ? '运行中...' : hasErrors ? '修复错误' : '运行'}
             title="运行 (Ctrl+Enter)"
-          >
-            <Play className="h-4 w-4" />
-            <span className="hidden sm:inline">{isExecuting ? '运行中...' : hasErrors ? '修复错误' : '运行'}</span>
-          </button>
+          />
 
           {/* 验证 */}
-          <button
+          <ToolbarButton
             onClick={onValidate}
             disabled={readOnly}
-            className={`flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-sm font-medium transition-colors ${
-              hasErrors
-                ? 'bg-red-100 text-red-700 hover:bg-red-200 dark:bg-red-900/30 dark:text-red-400 dark:hover:bg-red-900/50'
-                : 'bg-green-100 text-green-700 hover:bg-green-200 dark:bg-green-900/30 dark:text-green-400 dark:hover:bg-green-900/50'
-            }`}
-            title="验证 (Ctrl+Shift+V)"
-          >
-            <CheckCircle className="h-4 w-4" />
-            <span>验证</span>
-          </button>
+            variant={hasErrors ? 'danger' : 'success'}
+            icon={hasErrors ? <AlertCircle className="h-4 w-4" /> : <CheckCircle className="h-4 w-4" />}
+            label={hasErrors ? '错误' : '验证'}
+            title="验证工作流"
+          />
 
-          <div className="mx-2 h-6 w-px bg-gray-300 dark:bg-gray-600" />
+          <Divider />
 
           {/* 撤销/重做 */}
           <div className="flex items-center gap-1">
-            <button
+            <IconButton
               onClick={onUndo}
               disabled={!canUndo || readOnly}
-              className="rounded-lg p-1.5 text-gray-700 transition-colors hover:bg-gray-100 disabled:cursor-not-allowed disabled:opacity-50 dark:text-gray-300 dark:hover:bg-gray-700"
-              title="撤销 (Ctrl+Z)"
-            >
-              <Undo className="h-4 w-4" />
-            </button>
-            <button
+              icon={<Undo className="h-4 w-4" />}
+              title={`撤销 (Ctrl+Z) ${canUndo ? '' : '(不可用)'}`}
+            />
+            <IconButton
               onClick={onRedo}
               disabled={!canRedo || readOnly}
-              className="rounded-lg p-1.5 text-gray-700 transition-colors hover:bg-gray-100 disabled:cursor-not-allowed disabled:opacity-50 dark:text-gray-300 dark:hover:bg-gray-700"
-              title="重做 (Ctrl+Y)"
-            >
-              <Redo className="h-4 w-4" />
-            </button>
+              icon={<Redo className="h-4 w-4" />}
+              title={`重做 (Ctrl+Y) ${canRedo ? '' : '(不可用)'}`}
+            />
           </div>
 
-          <div className="mx-2 h-6 w-px bg-gray-300 dark:bg-gray-600" />
+          <Divider />
 
           {/* 复制/删除 */}
           <div className="flex items-center gap-1">
-            <button
+            <IconButton
               onClick={onDuplicate}
               disabled={readOnly}
-              className="rounded-lg p-1.5 text-gray-700 transition-colors hover:bg-gray-100 disabled:cursor-not-allowed disabled:opacity-50 dark:text-gray-300 dark:hover:bg-gray-700"
+              icon={<Copy className="h-4 w-4" />}
               title="复制 (Ctrl+D)"
-            >
-              <Copy className="h-4 w-4" />
-            </button>
-            <button
+            />
+            <IconButton
               onClick={onDelete}
               disabled={readOnly}
-              className="rounded-lg p-1.5 text-gray-700 transition-colors hover:bg-gray-100 disabled:cursor-not-allowed disabled:opacity-50 dark:text-gray-300 dark:hover:bg-gray-700"
+              icon={<Trash2 className="h-4 w-4" />}
               title="删除 (Delete)"
-            >
-              <Trash2 className="h-4 w-4" />
-            </button>
+            />
           </div>
         </div>
 
@@ -228,15 +310,14 @@ export const EnhancedToolbar: React.FC<EnhancedToolbarProps> = ({
         <div className="flex items-center gap-2">
           {/* 自动布局 */}
           <div className="relative">
-            <button
+            <ToolbarButton
               onClick={() => setShowLayoutPanel(!showLayoutPanel)}
               disabled={readOnly}
-              className="flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-sm font-medium text-gray-700 transition-colors hover:bg-gray-100 disabled:cursor-not-allowed disabled:opacity-50 dark:text-gray-300 dark:hover:bg-gray-700"
+              active={showLayoutPanel}
+              icon={<Layout className="h-4 w-4" />}
+              label="布局"
               title="自动布局 (Ctrl+L)"
-            >
-              <Layout className="h-4 w-4" />
-              <span>布局</span>
-            </button>
+            />
 
             {showLayoutPanel && (
               <div className="absolute top-full left-0 z-50 mt-2">
@@ -253,102 +334,84 @@ export const EnhancedToolbar: React.FC<EnhancedToolbarProps> = ({
 
           {/* 缩放 */}
           <div className="flex items-center gap-1">
-            <button
+            <IconButton
               onClick={onZoomOut}
-              className="rounded-lg p-1.5 text-gray-700 transition-colors hover:bg-gray-100 dark:text-gray-300 dark:hover:bg-gray-700"
+              icon={<ZoomOut className="h-4 w-4" />}
               title="缩小 (Ctrl+-)"
-            >
-              <ZoomOut className="h-4 w-4" />
-            </button>
-            <button
+            />
+            <IconButton
               onClick={onFitView}
-              className="rounded-lg p-1.5 text-gray-700 transition-colors hover:bg-gray-100 dark:text-gray-300 dark:hover:bg-gray-700"
+              icon={<Maximize className="h-4 w-4" />}
               title="适应视图 (Ctrl+Shift+F)"
-            >
-              <Maximize className="h-4 w-4" />
-            </button>
-            <button
+            />
+            <IconButton
               onClick={onZoomIn}
-              className="rounded-lg p-1.5 text-gray-700 transition-colors hover:bg-gray-100 dark:text-gray-300 dark:hover:bg-gray-700"
+              icon={<ZoomIn className="h-4 w-4" />}
               title="放大 (Ctrl+=)"
-            >
-              <ZoomIn className="h-4 w-4" />
-            </button>
+            />
           </div>
 
-          <div className="mx-2 h-6 w-px bg-gray-300 dark:bg-gray-600" />
+          <Divider />
 
           {/* 视图选项 */}
           <div className="flex items-center gap-1">
-            <button
+            <IconButton
               onClick={onToggleGrid}
-              className="rounded-lg p-1.5 text-gray-700 transition-colors hover:bg-gray-100 dark:text-gray-300 dark:hover:bg-gray-700"
+              icon={<Grid className="h-4 w-4" />}
               title="切换网格"
-            >
-              <Grid className="h-4 w-4" />
-            </button>
-            <button
+            />
+            <IconButton
               onClick={onToggleMiniMap}
-              className="rounded-lg p-1.5 text-gray-700 transition-colors hover:bg-gray-100 dark:text-gray-300 dark:hover:bg-gray-700"
+              icon={<Layers className="h-4 w-4" />}
               title="切换小地图"
-            >
-              <Layers className="h-4 w-4" />
-            </button>
+            />
           </div>
         </div>
 
         {/* 右侧：辅助功能 */}
         <div className="flex items-center gap-2">
           {/* 搜索 */}
-          <button
+          <IconButton
             onClick={onShowSearch}
-            className="rounded-lg p-1.5 text-gray-700 transition-colors hover:bg-gray-100 dark:text-gray-300 dark:hover:bg-gray-700"
+            icon={<Search className="h-4 w-4" />}
             title="搜索节点 (Ctrl+F)"
-          >
-            <Search className="h-4 w-4" />
-          </button>
+          />
 
           {/* 快捷键 */}
-          <button
+          <IconButton
             onClick={onShowShortcuts}
-            className="rounded-lg p-1.5 text-gray-700 transition-colors hover:bg-gray-100 dark:text-gray-300 dark:hover:bg-gray-700"
+            icon={<Keyboard className="h-4 w-4" />}
             title="快捷键 (?)"
-          >
-            <Keyboard className="h-4 w-4" />
-          </button>
+          />
 
-          <div className="mx-2 h-6 w-px bg-gray-300 dark:bg-gray-600" />
+          <Divider />
 
           {/* 导入/导出 */}
           <div className="flex items-center gap-1">
-            <button
+            <IconButton
               onClick={handleImport}
               disabled={readOnly}
-              className="rounded-lg p-1.5 text-gray-700 transition-colors hover:bg-gray-100 disabled:cursor-not-allowed disabled:opacity-50 dark:text-gray-300 dark:hover:bg-gray-700"
+              icon={<Upload className="h-4 w-4" />}
               title="导入 (Ctrl+I)"
-            >
-              <Upload className="h-4 w-4" />
-            </button>
-            <button
+            />
+            <IconButton
               onClick={handleExport}
-              className="rounded-lg p-1.5 text-gray-700 transition-colors hover:bg-gray-100 dark:text-gray-300 dark:hover:bg-gray-700"
+              icon={<Download className="h-4 w-4" />}
               title="导出 (Ctrl+E)"
-            >
-              <Download className="h-4 w-4" />
-            </button>
+            />
           </div>
 
           {/* 更多菜单 */}
           <div className="relative">
-            <button
+            <IconButton
               onClick={() => setShowMoreMenu(!showMoreMenu)}
-              className="rounded-lg p-1.5 text-gray-700 transition-colors hover:bg-gray-100 dark:text-gray-300 dark:hover:bg-gray-700"
-            >
-              <MoreVertical className="h-4 w-4" />
-            </button>
+              active={showMoreMenu}
+              icon={<MoreVertical className="h-4 w-4" />}
+              title="更多选项"
+            />
 
             {showMoreMenu && (
-              <div className="absolute right-0 top-full z-50 mt-2 w-48 rounded-lg bg-white py-1 shadow-lg dark:bg-gray-800">
+              <div className="absolute right-0 top-full z-50 mt-2 w-48 rounded-lg bg-white py-1 shadow-lg ring-1 ring-gray-900/10 dark:bg-gray-800 dark:ring-gray-700">
                 <button
                   onClick={() => {
                     onToggleGrid?.()

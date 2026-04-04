@@ -72,13 +72,14 @@ export function getMonitoringConfig(): MonitoringConfig {
   const env = process.env.NODE_ENV || 'development'
   const envConfig = ENV_SPECIFIC_CONFIG[env as keyof typeof ENV_SPECIFIC_CONFIG] || {}
 
+  const alarmsConfig = envConfig.alarms || {}
+
   return {
     ...DEFAULT_MONITORING_CONFIG,
     ...envConfig,
     alarms: {
       ...DEFAULT_MONITORING_CONFIG.alarms,
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      ...((envConfig as any).alarms || {}),
+      ...alarmsConfig,
     },
   }
 }

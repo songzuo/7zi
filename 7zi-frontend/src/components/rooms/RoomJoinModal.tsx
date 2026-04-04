@@ -9,6 +9,7 @@ import React, { useState } from 'react'
 import { Button } from '@/components/ui/Button'
 import { roomsClient } from '@/lib/api/rooms/client'
 import type { Room } from '@/lib/api/rooms/types'
+import type { ApiError } from '@/types/api'
 
 interface RoomJoinModalProps {
   room: Room
@@ -40,13 +41,14 @@ export const RoomJoinModal: React.FC<RoomJoinModalProps> = ({
 
       onJoinSuccess(response.room)
       onClose()
-    } catch (err: any) {
+    } catch (err) {
+      const error = err as ApiError
       console.error('Failed to join room:', err)
-      if (err.status === 401) {
+      if (error.status === 401) {
         setRequirePassword(true)
         setError('需要密码才能加入此房间')
       } else {
-        setError(err.message || '加入房间失败')
+        setError(error.message || '加入房间失败')
       }
     } finally {
       setLoading(false)

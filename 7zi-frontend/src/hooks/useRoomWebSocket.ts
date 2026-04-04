@@ -18,6 +18,7 @@ import { useEffect, useCallback, useRef } from 'react'
 import { WebSocketManager, ConnectionState } from '@/lib/websocket-manager'
 import { useRoomStore } from '@/stores/room-store'
 import { logger } from '@/lib/logger'
+import type { RoomMember, RoomMessage, Room } from '@/types/rooms'
 
 /**
  * Room WebSocket events
@@ -149,9 +150,9 @@ export function useRoomWebSocket(
     manager.on('room:member:joined', (event, data) => {
       const eventData = data as RoomWebSocketEventData
       if (eventData.data && typeof eventData.data === 'object') {
-        const member = (eventData.data as { member: unknown }).member
+        const member = (eventData.data as { member: RoomMember }).member
         if (member && typeof member === 'object') {
-          addMember(eventData.roomId, member as any)
+          addMember(eventData.roomId, member)
           logger.info('[useRoomWebSocket] Member joined', { roomId: eventData.roomId })
         }
       }
@@ -182,7 +183,7 @@ export function useRoomWebSocket(
     manager.on('room:updated', (event, data) => {
       const eventData = data as RoomWebSocketEventData
       if (eventData.data && typeof eventData.data === 'object') {
-        updateRoom(eventData.roomId, eventData.data as any)
+        updateRoom(eventData.roomId, eventData.data as unknown as Partial<Room>)
         logger.info('[useRoomWebSocket] Room updated', { roomId: eventData.roomId })
       }
     })
@@ -198,7 +199,7 @@ export function useRoomWebSocket(
     manager.on('room:message', (event, data) => {
       const eventData = data as RoomWebSocketEventData
       if (eventData.data && typeof eventData.data === 'object') {
-        addMessage(eventData.roomId, eventData.data as any)
+        addMessage(eventData.roomId, eventData.data as unknown as RoomMessage)
         logger.info('[useRoomWebSocket] Message received', { roomId: eventData.roomId })
       }
     })

@@ -225,7 +225,7 @@ export class PermissionManager {
     const result: Record<
       PermissionAction,
       { context1: boolean; context2: boolean; difference: boolean }
-    > = {} as any
+    > = {} as Record<PermissionAction, { context1: boolean; context2: boolean; difference: boolean }>
 
     for (const action of actions) {
       const p1 = this.checkPermission(context1, action)

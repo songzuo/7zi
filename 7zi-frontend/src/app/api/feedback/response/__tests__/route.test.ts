@@ -31,6 +31,8 @@ describe('Feedback Response API - POST /api/feedback/response', () => {
       status: 'pending',
       title: 'Test Feedback',
       description: 'This is a test feedback for response',
+      attachments: [],
+      tags: [],
     })
 
     const request = new NextRequest('http://localhost:3000/api/feedback/response', {
@@ -69,6 +71,8 @@ describe('Feedback Response API - POST /api/feedback/response', () => {
       status: 'pending',
       title: 'Feature Request',
       description: 'Please add this feature',
+      attachments: [],
+      tags: [],
     })
 
     const request = new NextRequest('http://localhost:3000/api/feedback/response', {
@@ -107,6 +111,8 @@ describe('Feedback Response API - POST /api/feedback/response', () => {
       status: 'pending',
       title: 'Bug Report',
       description: 'There is a bug',
+      attachments: [],
+      tags: [],
     })
 
     const request = new NextRequest('http://localhost:3000/api/feedback/response', {
@@ -164,6 +170,8 @@ describe('Feedback Response API - POST /api/feedback/response', () => {
       status: 'pending',
       title: 'Bug Report',
       description: 'There is a bug',
+      attachments: [],
+      tags: [],
     })
 
     const request = new NextRequest('http://localhost:3000/api/feedback/response', {

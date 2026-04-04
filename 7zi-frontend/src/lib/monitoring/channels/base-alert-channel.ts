@@ -17,6 +17,13 @@ import { Alert, AlertChannel, AlertSeverity, AlertPriority } from '../alert-engi
 // ============================================================================
 
 /**
+ * Error with optional code property
+ */
+export interface ErrorWithCode extends Error {
+  code?: string
+}
+
+/**
  * Alert level (combines priority and severity)
  */
 export type AlertLevel = 'info' | 'warning' | 'error' | 'critical'
@@ -406,7 +413,7 @@ export abstract class BaseAlertChannel implements AlertChannel {
   protected isRetryable(error: Error): boolean {
     if (!this.retryConfig.retryableErrors) return true
 
-    const errorCode = (error as any).code
+    const errorCode = (error as ErrorWithCode).code
     const errorMessage = error.message
 
     return (

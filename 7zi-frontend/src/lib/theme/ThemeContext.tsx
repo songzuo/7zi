@@ -7,6 +7,7 @@
 
 import React, { createContext, useContext, useEffect, useState, useCallback, useMemo } from 'react';
 import { ThemeMode, getResolvedTheme, themeConfig } from './theme-config';
+import { logger } from '../logger';
 
 interface ThemeContextValue {
   /** Current theme mode (light/dark/system) */
@@ -80,9 +81,9 @@ export function ThemeProvider({
         setTimeBasedEnabledState(savedTimeBased);
       }
     } catch (error) {
-      console.error('Failed to load theme preference:', error);
+      logger.error('Failed to load theme preference', error instanceof Error ? error : new Error(String(error)));
     }
-    
+
     setIsLoaded(true);
   }, []);
   
@@ -147,28 +148,28 @@ export function ThemeProvider({
   // Set theme mode
   const setMode = useCallback((newMode: ThemeMode) => {
     setModeState(newMode);
-    
+
     try {
       localStorage.setItem(STORAGE_KEY, newMode);
     } catch (error) {
-      console.error('Failed to save theme preference:', error);
+      logger.error('Failed to save theme preference', error instanceof Error ? error : new Error(String(error)));
     }
   }, []);
-  
+
   // Toggle between light and dark
   const toggle = useCallback(() => {
     const newMode = resolvedTheme === 'light' ? 'dark' : 'light';
     setMode(newMode);
   }, [resolvedTheme, setMode]);
-  
+
   // Set time-based auto-switching
   const setTimeBasedEnabled = useCallback((enabled: boolean) => {
     setTimeBasedEnabledState(enabled);
-    
+
     try {
       localStorage.setItem(TIME_BASED_KEY, String(enabled));
     } catch (error) {
-      console.error('Failed to save time-based preference:', error);
+      logger.error('Failed to save time-based preference', error instanceof Error ? error : new Error(String(error)));
     }
   }, []);
   

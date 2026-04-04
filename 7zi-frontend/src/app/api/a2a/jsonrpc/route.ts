@@ -7,7 +7,7 @@
 
 import { NextRequest, NextResponse } from 'next/server'
 import { agentScheduler } from '@/lib/agents/scheduler/scheduler'
-import type { JSONRPCRequest, JSONRPCResponse } from '@/lib/agents/scheduler/types'
+import type { JSONRPCRequest, JSONRPCResponse, TaskStatus } from '@/lib/agents/scheduler/types'
 import { authenticateJWT } from '@/lib/auth/api-auth'
 
 export async function POST(request: NextRequest) {
@@ -262,7 +262,7 @@ async function handleJSONRPCMethod(
 
       const updated = agentScheduler.updateTask({
         taskId,
-        status: status as any,
+        status: status as TaskStatus,
         output,
         error,
       })

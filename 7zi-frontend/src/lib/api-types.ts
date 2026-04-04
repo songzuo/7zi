@@ -12,6 +12,7 @@ import type { User, UserRole } from '@/lib/auth'
 export interface APIUserContext {
   userId: string
   username: string
+  email?: string
   role: UserRole
   authMethod?: 'jwt' | 'api-key'
 }

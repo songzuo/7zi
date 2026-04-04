@@ -13,7 +13,9 @@ import {
   useUndoRedo,
   type WorkflowDefinition,
   type CustomNodeRegistration,
+  type WorkflowNodeData,
 } from '@/components/WorkflowEditor'
+import type { NodeProps } from 'reactflow'
 
 // ============================================
 // 示例 1: 基本使用
@@ -186,7 +188,7 @@ export function UseExportHookExample() {
 // ============================================
 
 // 自定义节点组件
-function MyCustomNode({ data, selected }: any) {
+function MyCustomNode({ data, selected }: NodeProps<WorkflowNodeData>) {
   return (
     <div
       className={`rounded-lg border-2 p-4 ${

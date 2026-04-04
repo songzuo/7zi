@@ -8,7 +8,7 @@
  * - Message queue for offline messages
  */
 
-import { io, Socket } from 'socket.io-client'
+import type { Socket } from 'socket.io-client'
 import { logger } from '@/lib/logger'
 
 /**
@@ -167,19 +167,21 @@ export class WebSocketManager {
         : ConnectionState.RECONNECTING
     )
 
-    try {
-      this.socket = io(this.options.url, {
-        transports: this.options.transports,
-        reconnection: false, // We handle reconnection ourselves
-        auth: this.options.auth,
+    // 动态导入 socket.io-client 以减少初始 bundle 大小
+    import('socket.io-client')
+      .then(({ io }) => {
+        this.socket = io(this.options.url, {
+          transports: this.options.transports,
+          reconnection: false, // We handle reconnection ourselves
+          auth: this.options.auth,
+        })
+        this.setupSocketListeners()
       })
-
-      this.setupSocketListeners()
-    } catch (error) {
-      logger.error('[WebSocketManager] Failed to create socket:', error as Error | undefined)
-      this.setState(ConnectionState.ERROR)
-      this.scheduleReconnection()
-    }
+      .catch((error) => {
+        logger.error('[WebSocketManager] Failed to import socket.io-client:', error as Error | undefined)
+        this.setState(ConnectionState.ERROR)
+        this.scheduleReconnection()
+      })
   }
 
   /**

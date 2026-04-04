@@ -13,7 +13,8 @@
  * 更新日期: 2026-04-02
  */
 
-import { io, Socket } from 'socket.io-client'
+// 动态导入 socket.io-client 以减少初始 bundle 大小
+import type { Socket } from 'socket.io-client'
 import { logger } from '@/lib/logger'
 import { monitor } from '@/lib/monitoring'
 import { customMetricsTracker } from '@/lib/performance'
@@ -195,40 +196,51 @@ export class WebSocketManager {
     const connectStartTime = Date.now()
 
     try {
-      this.socket = io(this.options.url, {
-        transports: this.options.transports,
-        reconnection: false, // We handle reconnection ourselves
-        auth: this.options.auth,
-      })
-
-      // 监听连接成功事件以追踪连接时间
-      this.socket.on('connect', () => {
-        const connectTime = Date.now() - connectStartTime
-
-        // 记录连接时间指标
-        monitor.trackCustomMetric('websocket_connect_time', connectTime, 'ms', {
-          url: this.options.url,
-          attempts: this.reconnectionAttempts + 1,
+      // 动态导入 socket.io-client 以减少初始 bundle 大小
+      import('socket.io-client').then(({ io }) => {
+        this.socket = io(this.options.url, {
+          transports: this.options.transports,
+          reconnection: false, // We handle reconnection ourselves
+          auth: this.options.auth,
         })
 
-        logger.info(`[WebSocketManager] Connected in ${connectTime}ms`)
-      })
+        // 监听连接成功事件以追踪连接时间
+        this.socket.on('connect', () => {
+          const connectTime = Date.now() - connectStartTime
 
-      this.setupSocketListeners()
+          // 记录连接时间指标
+          monitor.trackCustomMetric('websocket_connect_time', connectTime, 'ms', {
+            url: this.options.url,
+            attempts: this.reconnectionAttempts + 1,
+          })
+
+          logger.info(`[WebSocketManager] Connected in ${connectTime}ms`)
+        })
+
+        this.setupSocketListeners()
+      }).catch((error) => {
+        logger.error(
+          '[WebSocketManager] Failed to import socket.io-client:',
+          error instanceof Error ? error : undefined
+        )
+
+        // 记录连接错误
+        monitor.trackError(
+          'WebSocketImportError',
+          error instanceof Error ? error.message : String(error),
+          error instanceof Error ? error.stack : undefined,
+          { url: this.options.url }
+        )
+
+        this.setState(ConnectionState.ERROR)
+        this.scheduleReconnection()
+      })
     } catch (error) {
+      // This catch is for any synchronous errors during import setup
       logger.error(
-        '[WebSocketManager] Failed to create socket:',
+        '[WebSocketManager] Failed to setup connection:',
         error instanceof Error ? error : undefined
       )
-
-      // 记录连接错误
-      monitor.trackError(
-        'WebSocketConnectionError',
-        error instanceof Error ? error.message : String(error),
-        error instanceof Error ? error.stack : undefined,
-        { url: this.options.url }
-      )
-
       this.setState(ConnectionState.ERROR)
       this.scheduleReconnection()
     }

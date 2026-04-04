@@ -17,9 +17,17 @@ import { z } from 'zod'
 
 /**
  * 导入数据验证模式
+ * 数据字段可以是字符串、数字、布尔值、null 或嵌套对象/数组
  */
 const importDataSchema = z.object({
-  data: z.array(z.record(z.string(), z.any())),
+  data: z.array(z.record(z.string(), z.union([
+    z.string(),
+    z.number(),
+    z.boolean(),
+    z.null(),
+    z.record(z.string(), z.unknown()),
+    z.array(z.unknown()),
+  ]))),
   format: z.enum(['json', 'csv', 'xlsx']).default('json'),
   options: z
     .object({

@@ -3,6 +3,7 @@
  *
  * 为 React Flow 定义自定义节点类型
  * v1.9.1 新增: loop, subworkflow, transform 节点
+ * v1.10.1 新增: NodeWrapper 统一样式和选择高亮
  */
 
 import { memo } from 'react'
@@ -20,6 +21,9 @@ import { HumanInputNode } from './HumanInputNode'
 import { LoopNode } from './LoopNode'
 import { SubworkflowNode } from './SubworkflowNode'
 import { TransformNode } from './TransformNode'
+
+// v1.10.1 新增：节点包装组件
+export { NodeWrapper, InputHandle, OutputHandle, TopHandle, BottomHandle, NodeIcon, NodeTitle, NodeDescription } from './NodeWrapper'
 
 import type { WorkflowNodeData } from '../types'
 

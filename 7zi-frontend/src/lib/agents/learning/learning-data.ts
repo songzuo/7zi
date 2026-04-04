@@ -9,6 +9,7 @@
 import type { AgentId, TaskType, TaskHistoryRecord, AgentLearningStats } from './types'
 import { TaskTimePredictor } from './time-prediction'
 import { AgentCapabilityAssessor, CapabilityAssessmentResult } from './agent-capability'
+import { logger } from '../../logger'
 
 /**
  * Learning data version for migration support
@@ -164,7 +165,7 @@ export class LearningPersistence {
 
       return null
     } catch (error) {
-      console.error('[LearningPersistence] Initialize failed:', error)
+      logger.error('[LearningPersistence] Initialize failed', error instanceof Error ? error : new Error(String(error)))
       return null
     }
   }
@@ -183,7 +184,7 @@ export class LearningPersistence {
         await this.syncToServer(state)
       }
     } catch (error) {
-      console.error('[LearningPersistence] Save failed:', error)
+      logger.error('[LearningPersistence] Save failed', error instanceof Error ? error : new Error(String(error)))
       throw error
     }
   }
@@ -297,7 +298,7 @@ export class LearningPersistence {
 
     this.autoSaveTimer = setInterval(() => {
       if (this.hasUnsavedChanges) {
-        this.save().catch(err => console.error('[LearningPersistence] Auto-save failed:', err))
+        this.save().catch(err => logger.error('[LearningPersistence] Auto-save failed', err instanceof Error ? err : new Error(String(err))))
       }
     }, this.config.autoSaveInterval)
   }
@@ -442,7 +443,7 @@ export class LearningPersistence {
 
       return JSON.parse(stored) as LearningState
     } catch (error) {
-      console.error('[LearningPersistence] Load from storage failed:', error)
+      logger.error('[LearningPersistence] Load from storage failed', error instanceof Error ? error : new Error(String(error)))
       return null
     }
   }
@@ -458,7 +459,7 @@ export class LearningPersistence {
     try {
       localStorage.setItem(this.config.storageKey, JSON.stringify(state))
     } catch (error) {
-      console.error('[LearningPersistence] Save to storage failed:', error)
+      logger.error('[LearningPersistence] Save to storage failed', error instanceof Error ? error : new Error(String(error)))
       throw error
     }
   }
@@ -482,7 +483,7 @@ export class LearningPersistence {
         throw new Error(`Sync failed: ${response.status}`)
       }
     } catch (error) {
-      console.error('[LearningPersistence] Server sync failed:', error)
+      logger.error('[LearningPersistence] Server sync failed', error instanceof Error ? error : new Error(String(error)))
       throw error
     }
   }

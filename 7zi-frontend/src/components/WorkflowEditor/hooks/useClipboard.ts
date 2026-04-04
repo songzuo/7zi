@@ -12,10 +12,36 @@ import { useCallback, useState } from 'react'
 import type { Node, Edge } from 'reactflow'
 import type { WorkflowNodeData, WorkflowEdgeData } from '../types'
 
+// ============================================
+// 类型定义
+// ============================================
+
 interface ClipboardData {
   nodes: Node<WorkflowNodeData>[]
   edges: Edge<WorkflowEdgeData>[]
   timestamp: number
+}
+
+/** JSON 剪贴板节点数据（简化版） */
+interface JsonClipboardNode {
+  id: string
+  type?: string
+  position: { x: number; y: number }
+  data: WorkflowNodeData
+}
+
+/** JSON 剪贴板边数据（简化版） */
+interface JsonClipboardEdge {
+  id: string
+  source: string
+  target: string
+  data?: WorkflowEdgeData
+}
+
+/** JSON 剪贴板数据格式 */
+interface JsonClipboardData {
+  nodes: JsonClipboardNode[]
+  edges?: JsonClipboardEdge[]
 }
 
 const CLIPBOARD_KEY = 'workflow-clipboard'
@@ -204,7 +230,7 @@ export function useClipboard() {
     async (offset: { x: number; y: number } = { x: 50, y: 50 }) => {
       try {
         const text = await navigator.clipboard.readText()
-        const jsonData = JSON.parse(text)
+        const jsonData = JSON.parse(text) as JsonClipboardData
 
         if (!jsonData.nodes || !Array.isArray(jsonData.nodes)) {
           return null
@@ -214,8 +240,8 @@ export function useClipboard() {
         const idMap: Record<string, string> = {}
 
         // 创建新节点
-        const newNodes: Node<WorkflowNodeData>[] = jsonData.nodes.map((node: any) => {
-          const newId = `${node.type}-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`
+        const newNodes: Node<WorkflowNodeData>[] = jsonData.nodes.map((node: JsonClipboardNode) => {
+          const newId = `${node.type || 'node'}-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`
           idMap[node.id] = newId
 
           return {
@@ -234,7 +260,7 @@ export function useClipboard() {
         })
 
         // 创建新边
-        const newEdges: Edge<WorkflowEdgeData>[] = (jsonData.edges || []).map((edge: any) => {
+        const newEdges: Edge<WorkflowEdgeData>[] = (jsonData.edges || []).map((edge: JsonClipboardEdge) => {
           const newId = `edge-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`
           return {
             ...edge,

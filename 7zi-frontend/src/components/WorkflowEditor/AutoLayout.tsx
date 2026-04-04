@@ -11,7 +11,7 @@
 import React, { useState } from 'react'
 import { Layout, ArrowRight, ArrowDown, Circle, GitBranch } from 'lucide-react'
 import type { Node, Edge } from 'reactflow'
-import type { WorkflowNodeData } from '../types'
+import type { WorkflowNodeData, WorkflowEdgeData } from './types'
 
 // ============================================
 // 布局算法
@@ -21,7 +21,7 @@ export type LayoutType = 'horizontal' | 'vertical' | 'force' | 'tree'
 
 interface LayoutResult {
   nodes: Node<WorkflowNodeData>[]
-  edges: Edge<any>[]
+  edges: Edge<WorkflowEdgeData>[]
 }
 
 /**
@@ -29,7 +29,7 @@ interface LayoutResult {
  */
 export function horizontalLayout(
   nodes: Node<WorkflowNodeData>[],
-  edges: Edge<any>[]
+  edges: Edge<WorkflowEdgeData>[]
 ): LayoutResult {
   const levels: Record<string, number> = {}
   const visited = new Set<string>()
@@ -85,7 +85,7 @@ export function horizontalLayout(
  */
 export function verticalLayout(
   nodes: Node<WorkflowNodeData>[],
-  edges: Edge<any>[]
+  edges: Edge<WorkflowEdgeData>[]
 ): LayoutResult {
   const levels: Record<string, number> = {}
   const visited = new Set<string>()
@@ -141,7 +141,7 @@ export function verticalLayout(
  */
 export function forceLayout(
   nodes: Node<WorkflowNodeData>[],
-  edges: Edge<any>[],
+  edges: Edge<WorkflowEdgeData>[],
   iterations: number = 100
 ): LayoutResult {
   if (nodes.length === 0) return { nodes, edges }
@@ -231,7 +231,7 @@ export function forceLayout(
  */
 export function treeLayout(
   nodes: Node<WorkflowNodeData>[],
-  edges: Edge<any>[]
+  edges: Edge<WorkflowEdgeData>[]
 ): LayoutResult {
   const levels: Record<string, number> = {}
   const visited = new Set<string>()
@@ -381,7 +381,7 @@ export const AutoLayoutPanel: React.FC<AutoLayoutPanelProps> = ({
 
 export const applyLayout = (
   nodes: Node<WorkflowNodeData>[],
-  edges: Edge<any>[],
+  edges: Edge<WorkflowEdgeData>[],
   type: LayoutType
 ): LayoutResult => {
   switch (type) {

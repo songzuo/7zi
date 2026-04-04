@@ -44,6 +44,7 @@ import { PropertiesPanel } from './PropertiesPanel'
 import { StatusBar } from './StatusBar'
 import { ExecutionPanel } from './ExecutionPanel'
 import { ValidationPanel } from './ValidationPanel'
+import { KeyboardShortcutsPanel } from './KeyboardShortcutsPanel'
 
 // 导入类型
 import type { NodeType, WorkflowNodeData, WorkflowEdgeData, WorkflowDefinition } from './types'
@@ -105,6 +106,8 @@ function WorkflowEditorInner({
   const [edges, setEdges] = useState<Edge<WorkflowEdgeData>[]>(initialEdges)
   const [selectedNode, setSelectedNode] = useState<Node<WorkflowNodeData> | null>(null)
   const [selectedEdge, setSelectedEdge] = useState<Edge<WorkflowEdgeData> | null>(null)
+  const [hasFocus, setHasFocus] = useState(true) // 焦点状态
+  const [showShortcutsPanel, setShowShortcutsPanel] = useState(false) // 快捷键面板状态
   
   // 剪贴板状态（用于复制/粘贴）
   const [clipboard, setClipboard] = useState<Node<WorkflowNodeData> | null>(null)
@@ -337,7 +340,8 @@ function WorkflowEditorInner({
   // 键盘快捷键处理
   useEffect(() => {
     const handleKeyDown = (event: KeyboardEvent) => {
-      if (readOnly) return
+      // 只在编辑器有焦点时响应快捷键
+      if (!hasFocus || readOnly) return
 
       // Ctrl+Z - 撤销
       if ((event.ctrlKey || event.metaKey) && event.key === 'z' && !event.shiftKey) {
@@ -406,6 +410,15 @@ function WorkflowEditorInner({
         return
       }
 
+      // Ctrl+A - 全选所有节点
+      if ((event.ctrlKey || event.metaKey) && event.key === 'a') {
+        event.preventDefault()
+        // React Flow 使用 setNodes 更新选中状态
+        setNodes(nds => nds.map(n => ({ ...n, selected: true })))
+        setSelectedNode(null) // 清除单个选中状态
+        return
+      }
+
       // Escape - 取消选择
       if (event.key === 'Escape') {
         setSelectedNode(null)
@@ -433,11 +446,18 @@ function WorkflowEditorInner({
         fitView()
         return
       }
+
+      // ? - 显示快捷键面板
+      if (event.key === '?' && !event.ctrlKey && !event.metaKey && !event.altKey) {
+        event.preventDefault()
+        setShowShortcutsPanel(true)
+        return
+      }
     }
 
     window.addEventListener('keydown', handleKeyDown)
     return () => window.removeEventListener('keydown', handleKeyDown)
-  }, [readOnly, selectedNode, selectedEdge, canUndo, canRedo, undo, redo, handleSave, handleRun, zoomIn, zoomOut, fitView, handleCopyNode, handlePasteNode, handleDuplicateNode])
+  }, [hasFocus, readOnly, selectedNode, selectedEdge, canUndo, canRedo, undo, redo, handleSave, handleRun, zoomIn, zoomOut, fitView, handleCopyNode, handlePasteNode, handleDuplicateNode])
 
   // 节点颜色映射（用于 MiniMap）
   const nodeColor = useCallback((node: Node) => {
@@ -468,7 +488,12 @@ function WorkflowEditorInner({
   }, [])
 
   return (
-    <div className="flex h-screen w-screen flex-col bg-gray-50 dark:bg-gray-900">
+    <div 
+      className="flex h-screen w-screen flex-col bg-gray-50 dark:bg-gray-900"
+      tabIndex={0}
+      onFocus={() => setHasFocus(true)}
+      onBlur={() => setHasFocus(false)}
+    >
       {/* 工具栏 */}
       <Toolbar
         onSave={handleSave}
@@ -620,6 +645,13 @@ function WorkflowEditorInner({
         edgesCount={edges.length}
         validationStatus={validationErrors.length === 0 ? 'valid' : 'invalid'}
         executionStatus={executionState?.instance?.status}
+        onShowShortcuts={() => setShowShortcutsPanel(true)}
+      />
+
+      {/* 快捷键面板 */}
+      <KeyboardShortcutsPanel
+        isOpen={showShortcutsPanel}
+        onClose={() => setShowShortcutsPanel(false)}
       />
     </div>
   )

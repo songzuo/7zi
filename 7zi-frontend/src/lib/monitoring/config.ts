@@ -71,12 +71,14 @@ export function getMonitoringConfig(): MonitoringConfig {
   const env = process.env.NODE_ENV || 'development'
   const envConfig = ENV_SPECIFIC_CONFIG[env] || {}
 
+  const alarmsConfig = envConfig.alarms || {}
+
   return {
     ...DEFAULT_MONITORING_CONFIG,
     ...envConfig,
     alarms: {
       ...DEFAULT_MONITORING_CONFIG.alarms,
-      ...((envConfig as any).alarms || {}),
+      ...alarmsConfig,
     },
   }
 }

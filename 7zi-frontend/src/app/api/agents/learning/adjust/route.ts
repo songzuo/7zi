@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server'
 import { adaptiveLearner } from '@/lib/agents/learning/adaptive-learner'
 import { createSuccessResponse, createErrorResponse, ErrorType } from '@/lib/api/error-handler'
 import { authenticateJWT } from '@/lib/auth/api-auth'
+import type { AgentLearningStats, CapabilityScore } from '@/lib/agents/learning/types'
 
 interface WeightAdjustmentRequest {
   agentId: string
@@ -44,8 +45,8 @@ export async function POST(request: NextRequest) {
         { status: 400 }
       )
 
-    const prevStats = adaptiveLearner.getAgentLearningStats(body.agentId) as any
-    const prevScore = prevStats.capabilityScores.get(body.taskType)?.successRate || 0.5
+    const prevStats: AgentLearningStats | undefined = adaptiveLearner.getAgentLearningStats(body.agentId) as AgentLearningStats | undefined
+    const prevScore = prevStats?.capabilityScores.get(body.taskType)?.successRate || 0.5
 
     adaptiveLearner.adjustWeight({
       agentId: body.agentId,
@@ -54,8 +55,8 @@ export async function POST(request: NextRequest) {
       reason: body.reason || 'Manual adjustment',
     })
 
-    const newStats = adaptiveLearner.getAgentLearningStats(body.agentId) as any
-    const newScore = newStats.capabilityScores.get(body.taskType)?.successRate || 0.5
+    const newStats: AgentLearningStats | undefined = adaptiveLearner.getAgentLearningStats(body.agentId) as AgentLearningStats | undefined
+    const newScore = newStats?.capabilityScores.get(body.taskType)?.successRate || 0.5
 
     return createSuccessResponse({
       agentId: body.agentId,
@@ -84,15 +85,16 @@ export async function GET(request: NextRequest) {
   try {
     const { searchParams } = new URL(request.url)
     const agentId = searchParams.get('agentId')
-    const allStats: any[] = agentId
-      ? ([adaptiveLearner.getAgentLearningStats(agentId)] as any[])
-      : (adaptiveLearner.getAgentLearningStats() as any[])
+    const rawStats = adaptiveLearner.getAgentLearningStats()
+    const allStats: AgentLearningStats[] = agentId
+      ? [rawStats as AgentLearningStats]
+      : (rawStats as AgentLearningStats[])
 
-    const adjustmentInfo = allStats.map(s => ({
+    const adjustmentInfo = allStats.map((s: AgentLearningStats) => ({
       agentId: s.agentId,
       agentName: s.agentName,
-      taskTypes: Array.from(s.capabilityScores.entries() as Iterable<[string, any]>).map(
-        ([type, cap]) => ({
+      taskTypes: Array.from(s.capabilityScores.entries()).map(
+        ([type, cap]: [string, CapabilityScore]) => ({
           taskType: type,
           currentScore: Math.round(cap.successRate * 100) / 100,
           sampleCount: cap.sampleCount,

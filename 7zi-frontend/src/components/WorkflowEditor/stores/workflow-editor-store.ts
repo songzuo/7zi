@@ -9,29 +9,17 @@ import { persist, createJSONStorage } from 'zustand/middleware'
 import { temporal } from 'zundo'
 import { useCallback } from 'react'
 import type { Edge, Node } from 'reactflow'
-import type { WorkflowNodeData, WorkflowEdgeData, ValidationError, ExecutionState } from '../types'
+import type {
+  WorkflowNodeData,
+  WorkflowEdgeData,
+  ValidationError,
+  ExecutionState,
+  WorkflowDefinition,
+  WorkflowVariable,
+} from '../types'
 
-/**
- * 工作流定义
- */
-export interface WorkflowDefinition {
-  id: string
-  name: string
-  description?: string
-  nodes: Node<WorkflowNodeData>[]
-  edges: Edge<WorkflowEdgeData>[]
-  variables?: Array<{
-    name: string
-    type: string
-    defaultValue?: unknown
-  }>
-  metadata?: {
-    createdAt?: string
-    updatedAt?: string
-    createdBy?: string
-    version?: string
-  }
-}
+// Re-export WorkflowDefinition for backward compatibility
+export type { WorkflowDefinition } from '../types'
 
 /**
  * 历史记录状态

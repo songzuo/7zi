@@ -3,6 +3,8 @@ import { adaptiveLearner } from '@/lib/agents/learning/adaptive-learner'
 import { agentScheduler } from '@/lib/agents/scheduler/scheduler'
 import { createSuccessResponse, createErrorResponse } from '@/lib/api/error-handler'
 import { authenticateJWT } from '@/lib/auth/api-auth'
+import type { AgentLearningStats, CapabilityScore } from '@/lib/agents/learning/types'
+import type { TaskStatus } from '@/lib/agents/scheduler/types'
 
 interface RouteParams {
   params: Promise<{ agentId: string }>
@@ -17,7 +19,7 @@ export async function GET(request: NextRequest, { params }: RouteParams) {
 
   try {
     const sa = agentScheduler.getAgent(agentId)
-    const ls = adaptiveLearner.getAgentLearningStats(agentId)
+    const ls: AgentLearningStats | undefined = adaptiveLearner.getAgentLearningStats(agentId) as AgentLearningStats | undefined
 
     const rating = (sr: number, sc: number): string =>
       sc < 5
@@ -34,7 +36,7 @@ export async function GET(request: NextRequest, { params }: RouteParams) {
 
     return createSuccessResponse({
       agentId,
-      agentName: sa?.name || (ls as any).agentName,
+      agentName: sa?.name || ls?.agentName || agentId,
       status: sa?.status || 'unknown',
       registration: sa
         ? {
@@ -45,14 +47,14 @@ export async function GET(request: NextRequest, { params }: RouteParams) {
           }
         : null,
       scores: {
-        overall: Math.round((ls as any).overallScore * 100) / 100,
-        reliability: Math.round((ls as any).reliabilityScore * 100) / 100,
-        speed: Math.round((ls as any).speedScore * 100) / 100,
-        quality: Math.round((ls as any).qualityScore * 100) / 100,
+        overall: ls ? Math.round(ls.overallScore * 100) / 100 : 0,
+        reliability: ls ? Math.round(ls.reliabilityScore * 100) / 100 : 0,
+        speed: ls ? Math.round(ls.speedScore * 100) / 100 : 0,
+        quality: ls ? Math.round(ls.qualityScore * 100) / 100 : 0,
       },
-      capabilities: Object.fromEntries(
-        Array.from((ls as any).capabilityScores.entries() as Iterable<[string, any]>).map(
-          ([type, cap]) => [
+      capabilities: ls ? Object.fromEntries(
+        Array.from(ls.capabilityScores.entries()).map(
+          ([type, cap]: [string, CapabilityScore]) => [
             type,
             {
               avgCompletionTime: Math.round(cap.avgCompletionTime),
@@ -64,22 +66,22 @@ export async function GET(request: NextRequest, { params }: RouteParams) {
             },
           ]
         )
-      ),
+      ) : {},
       current: {
-        load: (ls as any).currentLoad,
-        avgResponseTime: Math.round((ls as any).avgResponseTime),
-        successRate: Math.round((ls as any).successRate * 100) / 100,
+        load: ls?.currentLoad ?? 0,
+        avgResponseTime: ls ? Math.round(ls.avgResponseTime) : 0,
+        successRate: ls ? Math.round(ls.successRate * 100) / 100 : 0,
       },
       tasks: {
-        completed: (ls as any).totalTasksCompleted,
-        failed: (ls as any).totalTasksFailed,
-        total: (ls as any).totalTasksCompleted + (ls as any).totalTasksFailed,
+        completed: ls?.totalTasksCompleted ?? 0,
+        failed: ls?.totalTasksFailed ?? 0,
+        total: ls ? ls.totalTasksCompleted + ls.totalTasksFailed : 0,
       },
       prediction: {
-        estimatedResponseTime: Math.round((ls as any).avgResponseTime),
-        confidence: (ls as any).totalTasksCompleted >= 10 ? 0.8 : 0.5,
+        estimatedResponseTime: ls ? Math.round(ls.avgResponseTime) : 0,
+        confidence: ls && ls.totalTasksCompleted >= 10 ? 0.8 : 0.5,
       },
-      lastUpdated: (ls as any).lastUpdated,
+      lastUpdated: ls?.lastUpdated ?? Date.now(),
     })
   } catch (error) {
     if (error instanceof Error && error.message.includes('not found'))

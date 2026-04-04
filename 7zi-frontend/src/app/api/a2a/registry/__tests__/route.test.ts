@@ -21,15 +21,14 @@ vi.mock('@/lib/agents/scheduler/registry', () => ({
 vi.mock('@/lib/agents/scheduler/scheduler', () => ({
   agentScheduler: {
     registerAgent: vi.fn(() => ({
-      success: true,
-      agentId: 'agent-1',
       id: 'agent-1',
       name: 'Test Agent',
       type: 'task',
       status: 'idle',
-      capabilities: [],
+      capabilities: ['search', 'analysis'],
       createdAt: Date.now(),
       updatedAt: Date.now(),
+      lastHeartbeat: Date.now(),
     })),
     unregisterAgent: vi.fn(() => ({ success: true })),
     getAgent: vi.fn(() => null),

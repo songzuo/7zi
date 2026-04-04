@@ -14,6 +14,17 @@ import type {
 } from './metrics-types'
 
 /**
+ * Extended Performance interface with memory API (Chrome-specific)
+ */
+export interface PerformanceWithMemory extends Performance {
+  memory?: {
+    usedJSHeapSize: number
+    totalJSHeapSize: number
+    jsHeapSizeLimit: number
+  }
+}
+
+/**
  * 默认采集器配置
  */
 const DEFAULT_COLLECTOR_CONFIG: MetricsCollectorConfig = {
@@ -101,7 +112,7 @@ export class MetricsCollector {
     let heapTotal = 0
 
     // Chrome 特有的 memory API
-    const performanceWithMemory = performance as any
+    const performanceWithMemory = performance as PerformanceWithMemory
     if (performanceWithMemory.memory) {
       const memory = performanceWithMemory.memory
       heapUsed = memory.usedJSHeapSize / 1024 / 1024

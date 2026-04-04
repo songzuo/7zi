@@ -1,7 +1,9 @@
 /**
  * Rate Limit Middleware
  *
- * Next.js 中间件，用于速率限制、安全头和认证
+ * Next.js 中间件，用于速率限制和安全头
+ *
+ * 注意: JWT 验证已移至 API 路由层面处理，以避免 Edge Runtime 兼容性问题
  */
 
 import { NextRequest, NextResponse } from 'next/server'
@@ -13,7 +15,6 @@ import {
 } from './lib/rate-limit/limiter'
 import { MemoryRateLimitStorage } from './lib/rate-limit/memory-storage'
 import { getRateLimitForPath, RateLimitConfig } from './lib/rate-limit/config'
-import { verifyJWT } from './lib/auth/jwt'
 
 /**
  * 存储实例缓存
@@ -60,19 +61,8 @@ function getLimiter(config: RateLimitConfig): RateLimiter {
 const RATE_LIMITED_PATHS = ['/api', '/auth']
 
 /**
- * 需要认证的路径模式
- */
-const AUTHENTICATED_PATHS = [
-  '/api/data/import',
-  '/api/feedback',
-  '/api/search',
-  '/api/users',
-  '/api/notifications',
-]
-
-/**
  * 公开路径（跳过认证）
- * Note: /api/mcp/rpc uses API Key authentication at route level
+ * Note: JWT 验证已移至 API 路由层面处理
  */
 const PUBLIC_PATHS = [
   '/api/auth/login',
@@ -106,52 +96,6 @@ function shouldRateLimit(pathname: string): boolean {
   }
 
   return false
-}
-
-/**
- * 检查路径是否需要认证
- */
-function requiresAuth(pathname: string): boolean {
-  return AUTHENTICATED_PATHS.some(path => pathname.startsWith(path))
-}
-
-/**
- * 检查路径是否公开
- */
-function isPublicPath(pathname: string): boolean {
-  return PUBLIC_PATHS.some(path => pathname.startsWith(path))
-}
-
-/**
- * 验证 JWT 令牌
- */
-async function verifyAuthToken(
-  request: NextRequest
-): Promise<{ userId: string; username: string; role: string } | null> {
-  // 从 Cookie 获取令牌
-  const token = request.cookies.get('auth-token')?.value
-
-  // 从 Authorization 头获取令牌
-  const authHeader = request.headers.get('authorization')
-  const bearerToken = authHeader?.startsWith('Bearer ') ? authHeader.substring(7) : null
-
-  const jwtToken = token || bearerToken
-
-  if (!jwtToken) {
-    return null
-  }
-
-  try {
-    const payload = await verifyJWT(jwtToken)
-    return {
-      userId: payload.userId,
-      username: payload.username,
-      role: payload.role,
-    }
-  } catch (error) {
-    console.error('[Middleware] Token verification failed:', error)
-    return null
-  }
 }
 
 /**
@@ -193,81 +137,11 @@ function addSecurityHeaders(response: NextResponse): NextResponse {
 export async function middleware(request: NextRequest): Promise<NextResponse> {
   const { pathname } = request.nextUrl
 
-  // 1. 检查认证（对于需要认证的路径）
-  if (requiresAuth(pathname) && !isPublicPath(pathname)) {
-    const user = await verifyAuthToken(request)
-
-    if (!user) {
-      return new NextResponse(
-        JSON.stringify({
-          success: false,
-          error: 'Unauthorized',
-          message: '请先登录',
-        }),
-        {
-          status: 401,
-          statusText: 'Unauthorized',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-        }
-      )
-    }
-
-    // 已认证：添加用户信息到请求头（供后续使用）
-    const response = NextResponse.next()
-    response.headers.set('x-user-id', user.userId)
-    response.headers.set('x-user-username', user.username)
-    response.headers.set('x-user-role', user.role)
-
-    // 添加安全头
-    addSecurityHeaders(response)
-
-    // 2. 速率限制（仅对 API 和认证路径）
-    if (shouldRateLimit(pathname)) {
-      const config = getRateLimitForPath(pathname)
-      const limiter = getLimiter(config)
-
-      // 生成限流键
-      const key = generateRateLimitKey(request, config.keyGenerator)
-
-      // 检查限流
-      const result = await limiter.check(key)
-
-      // 添加限流头
-      const rateLimitHeaders = formatRateLimitHeaders(result)
-      rateLimitHeaders.forEach((value, header) => {
-        response.headers.set(header, value)
-      })
-
-      // 如果超出限流，返回 429
-      if (!result.allowed) {
-        return new NextResponse(
-          JSON.stringify({
-            error: 'Too Many Requests',
-            message: 'Rate limit exceeded. Please try again later.',
-            retryAfter: result.resetAfter,
-          }),
-          {
-            status: 429,
-            statusText: 'Too Many Requests',
-            headers: {
-              'Content-Type': 'application/json',
-              ...Object.fromEntries(rateLimitHeaders),
-            },
-          }
-        )
-      }
-    }
-
-    return response
-  }
-
-  // 2. 添加安全头（对所有请求）
+  // 1. 添加安全头（对所有请求）
   const response = NextResponse.next()
   addSecurityHeaders(response)
 
-  // 3. 速率限制（仅对 API 和认证路径）
+  // 2. 速率限制（仅对 API 路径）
   if (shouldRateLimit(pathname)) {
     const config = getRateLimitForPath(pathname)
     const limiter = getLimiter(config)

@@ -7,7 +7,7 @@
  * 定义工作流编辑器中使用的所有 TypeScript 类型
  */
 
-import type { NodeProps } from 'reactflow'
+import type { Node, Edge, NodeProps } from 'reactflow'
 
 // ============================================
 // 后端类型定义
@@ -51,6 +51,7 @@ export type NodeStatus =
   | 'completed'
   | 'failed'
   | 'skipped'
+  | 'success'
   | 'SUCCESS'
   | 'FAILED'
 
@@ -63,8 +64,9 @@ export interface NodeExecutionResult {
 
 export interface WorkflowVariable {
   name: string
-  value: unknown
+  value?: unknown
   type: string
+  defaultValue?: unknown
 }
 
 // ============================================
@@ -137,6 +139,8 @@ export interface WorkflowEdgeData {
   // 样式配置
   strokeColor?: string
   strokeWidth?: number
+  // 执行状态（仅运行时）
+  executionStatus?: 'pending' | 'running' | 'completed' | 'failed'
 }
 
 /**
@@ -155,6 +159,8 @@ export interface NodeConfig {
     retryDelay: number
     backoffStrategy: 'fixed' | 'exponential'
   }
+  maxRetries?: number // 重试次数的简写形式
+  isActive?: boolean // 节点是否激活（仅用于UI显示）
 
   // 条件配置
   condition?: string
@@ -336,16 +342,23 @@ export interface WorkflowExport {
 
 /**
  * 工作流定义
+ *
+ * 注意：这里的 nodes 和 edges 使用 React Flow 的类型，以兼容编辑器的内部数据结构
+ * 如果需要导出/导入格式，请使用 WorkflowExport 接口
  */
 export interface WorkflowDefinition {
   id: string
   name: string
   description?: string
-  nodes: WorkflowNodeData[]
-  edges: WorkflowEdgeData[]
+  nodes: Node<WorkflowNodeData>[]
+  edges: Edge<WorkflowEdgeData>[]
   variables?: WorkflowVariable[]
-  createdAt?: string
-  updatedAt?: string
+  metadata?: {
+    createdAt?: string
+    updatedAt?: string
+    createdBy?: string
+    version?: string
+  }
 }
 
 // ============================================

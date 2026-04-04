@@ -10,7 +10,8 @@
 
 import React, { useState } from 'react'
 import { WorkflowEditorV110 } from '@/components/WorkflowEditor'
-import type { WorkflowDefinition } from '@/components/WorkflowEditor'
+import type { WorkflowDefinition, WorkflowNodeData, WorkflowEdgeData } from '@/components/WorkflowEditor'
+import type { NodeProps } from 'reactflow'
 
 // ============================================
 // 示例 1: 基本使用
@@ -182,13 +183,13 @@ export function ReadOnlyExample() {
   return (
     <WorkflowEditorV110
       workflowId={workflow.id}
-      initialNodes={workflow.nodes.map((node: any) => ({
+      initialNodes={workflow.nodes.map((node: WorkflowNodeData) => ({
         id: node.id,
         type: node.type,
         position: { x: 0, y: 0 },
         data: node,
       }))}
-      initialEdges={workflow.edges.map((edge: any) => ({
+      initialEdges={workflow.edges.map((edge: WorkflowEdgeData) => ({
         id: edge.id,
         source: edge.source,
         target: edge.target,
@@ -262,7 +263,7 @@ export function ClipboardExample() {
 
 import { useCustomNodes } from '@/components/WorkflowEditor'
 
-function MyCustomNode({ data, selected }: any) {
+function MyCustomNode({ data, selected }: NodeProps<WorkflowNodeData>) {
   return (
     <div
       className={`rounded-lg border-2 p-4 ${

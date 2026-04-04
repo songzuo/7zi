@@ -94,7 +94,7 @@ describe('SEO - Sitemap.xml 生成测试', () => {
       const homePage = sitemap.find(item => item.url === baseUrl || item.url === `${baseUrl}/`)
 
       expect(homePage).toBeDefined()
-      expect(homePage.priority).toBe(1)
+      expect(homePage?.priority).toBe(1)
     })
 
     it('主要页面应有合理优先级（0.7-1.0）', () => {
@@ -126,7 +126,7 @@ describe('SEO - Sitemap.xml 生成测试', () => {
     it('所有条目应有有效的 lastModified 日期', () => {
       sitemap.forEach(item => {
         expect(item.lastModified).toBeInstanceOf(Date)
-        expect(item.lastModified.getTime()).not.toBeNaN()
+        expect((item.lastModified as Date).getTime()).not.toBeNaN()
       })
     })
 
@@ -134,7 +134,11 @@ describe('SEO - Sitemap.xml 生成测试', () => {
       const now = new Date()
 
       sitemap.forEach(item => {
-        expect(item.lastModified.getTime()).toBeLessThanOrEqual(now.getTime())
+        const lastMod = item.lastModified
+        expect(lastMod).toBeDefined()
+        if (lastMod) {
+          expect(new Date(lastMod).getTime()).toBeLessThanOrEqual(now.getTime())
+        }
       })
     })
   })

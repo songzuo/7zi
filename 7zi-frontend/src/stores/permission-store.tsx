@@ -31,7 +31,7 @@ import {
   createUserWithRoles,
 } from '@/lib/permissions'
 import { User as AuthStoreUser } from './auth-store'
-import { User } from '@/lib/auth'
+import { User, UserRole } from '@/lib/auth'
 
 /**
  * ==================== PermissionContext 兼容类型 ====================
@@ -65,6 +65,37 @@ export enum ContextPermission {
   ADMIN = 'admin',
   SETTINGS = 'settings',
   AUDIT = 'audit',
+}
+
+/**
+ * 转换 ContextPermission 数组为 Permission 数组
+ * ContextPermission 是枚举，Permission 是 string 类型别名
+ */
+function convertContextPermissions(permissions: ContextPermission[]): Permission[] {
+  return permissions as unknown as Permission[]
+}
+
+/**
+ * 转换 Permission 数组为 ContextPermission 数组
+ */
+function convertPermissionsToContextPermissions(permissions: Permission[]): ContextPermission[] {
+  return permissions as unknown as ContextPermission[]
+}
+
+/**
+ * 转换 Role 为 UserRole
+ */
+function convertRoleToUserRole(role: string): UserRole {
+  switch (role) {
+    case Role.ADMIN:
+      return UserRole.ADMIN
+    case Role.USER:
+      return UserRole.USER
+    case Role.GUEST:
+      return UserRole.GUEST
+    default:
+      return UserRole.GUEST
+  }
 }
 
 /**
@@ -320,7 +351,7 @@ export const usePermissionStore = create<PermissionState>()(
             userId: user.id,
             roleIds: [user.role],
             roles: [], // 简化版不包含完整角色定义
-            permissions: user.permissions as any as Permission[],
+            permissions: convertContextPermissions(user.permissions),
             simpleUser: user,
           },
         })
@@ -439,7 +470,7 @@ export const usePermissionStore = create<PermissionState>()(
             id: user.id,
             username: user.name,
             email: user.email,
-            role: user.role as any,
+            role: convertRoleToUserRole(user.role),
             permissions: [],
             createdAt: new Date(user.createdAt || new Date()),
             updatedAt: new Date(user.updatedAt || new Date()),
@@ -450,10 +481,14 @@ export const usePermissionStore = create<PermissionState>()(
           // 获取角色权限
           const permissions = roleIds.flatMap(id => permissionManager.getPermissionsByRole(id))
 
-          // 创建简化用户对象
-          const simpleUser = createSimpleUser(user.id, user.name, user.role as Role, {
+          // 创建简化用户对象 - 将 string role 转换为 Role 枚举
+          const simpleUserRole = Object.values(Role).includes(user.role as Role) 
+            ? (user.role as Role)
+            : Role.USER
+
+          const simpleUser = createSimpleUser(user.id, user.name, simpleUserRole, {
             email: user.email,
-            permissions: permissions as any as ContextPermission[],
+            permissions: convertPermissionsToContextPermissions(permissions),
           })
 
           set({

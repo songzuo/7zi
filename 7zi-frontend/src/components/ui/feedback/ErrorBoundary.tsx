@@ -177,8 +177,8 @@ class ErrorBoundaryClass extends Component<ErrorBoundaryProps, ErrorBoundaryStat
     console.error('ErrorBoundary caught an error:', error, errorInfo)
 
     // Log error to service (if available)
-    if (typeof window !== 'undefined' && (window as any).trackError) {
-      ;(window as any).trackError(error, errorInfo)
+    if (typeof window !== 'undefined' && window.trackError) {
+      window.trackError(error, errorInfo)
     }
   }
 
