@@ -192,21 +192,8 @@ const nextConfig: NextConfig = {
     optimizeCss: true,
     optimizePackageImports: [
       'lucide-react',
-      '@radix-ui/react-icons',
-      // v1.8.0 性能优化: 扩展 tree-shaking 优化
-      '@radix-ui/react-dropdown-menu',
-      '@radix-ui/react-dialog',
-      '@radix-ui/react-select',
-      '@radix-ui/react-tabs',
-      '@radix-ui/react-tooltip',
-      '@radix-ui/react-popover',
-      '@radix-ui/react-accordion',
-      '@radix-ui/react-avatar',
-      '@radix-ui/react-checkbox',
-      '@radix-ui/react-switch',
-      '@radix-ui/react-slider',
       'recharts',
-      'framer-motion',
+      // v1.12.0: 移除了未使用的 @radix-ui 和 framer-motion 配置
     ],
   },
 
@@ -241,16 +228,9 @@ const nextConfig: NextConfig = {
             priority: 100,
             reuseExistingChunk: true,
           },
-          // UI 组件库 (Radix UI) 单独打包
-          radix: {
-            test: /[\\/]node_modules[\\/]@radix-ui[\\/]/,
-            name: 'radix-ui',
-            priority: 90,
-            reuseExistingChunk: true,
-          },
           // 图表库单独打包
           charts: {
-            test: /[\\/]node_modules[\\/](recharts|d3-.*|victory)[\\/]/,
+            test: /[\\/]node_modules[\\/](recharts)[\\/]/,
             name: 'chart-libs',
             priority: 80,
             reuseExistingChunk: true,
@@ -260,13 +240,6 @@ const nextConfig: NextConfig = {
             test: /[\\/]node_modules[\\/](three|@react-three)[\\/]/,
             name: 'three-libs',
             priority: 80,
-            reuseExistingChunk: true,
-          },
-          // 动画库单独打包
-          motion: {
-            test: /[\\/]node_modules[\\/](framer-motion|popmotion)[\\/]/,
-            name: 'motion-libs',
-            priority: 70,
             reuseExistingChunk: true,
           },
           // 工具库单独打包
