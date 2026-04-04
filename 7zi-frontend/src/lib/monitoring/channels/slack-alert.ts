@@ -44,15 +44,23 @@ export interface SlackChannelConfig extends BaseChannelConfig {
 }
 
 interface SlackTextElement {
-  type: string
+  type: 'plain_text' | 'mrkdwn'
   text: string
   emoji?: boolean
+}
+
+interface SlackButtonElement {
+  type: 'button'
+  text: SlackTextElement
+  url?: string
+  value?: string
+  style?: 'primary' | 'danger'
 }
 
 interface SlackBlock {
   type: string
   text?: SlackTextElement
-  elements?: SlackTextElement[]
+  elements?: (SlackTextElement | SlackButtonElement)[]
   accessory?: {
     type: string
     text: SlackTextElement
@@ -558,6 +566,7 @@ export function createSlackChannelFromEnv(): SlackAlertChannel | null {
   }
 
   return new SlackAlertChannel({
+    enabled: true,
     webhookUrl: webhookUrl || undefined,
     botToken: botToken || undefined,
     channels: {
