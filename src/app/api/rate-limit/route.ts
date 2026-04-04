@@ -1,13 +1,19 @@
 /**
  * Rate Limit Admin API Routes
- * 
+ *
  * Next.js API routes for the rate limit admin panel
- * 
+ *
  * @version 1.12.0
  */
 
-import { NextRequest, NextResponse } from 'next/server'
+import { NextRequest } from 'next/server'
 import { createRateLimitingGateway } from '@/lib/rate-limiting-gateway'
+import {
+  createSuccessResponse,
+  createErrorResponse,
+  createBadRequestError,
+  createNotFoundError,
+} from '@/lib/api/error-handler'
 
 // Get or create rate limiting gateway instance
 function getGateway() {
@@ -82,16 +88,13 @@ export async function GET(request: NextRequest) {
       const connected = await storage.isConnected()
       const type = storage.getType()
 
-      return NextResponse.json({
-        success: true,
-        data: {
-          status: connected ? 'healthy' : 'unhealthy',
-          storage: {
-            type,
-            connected,
-          },
-          timestamp: new Date().toISOString(),
+      return createSuccessResponse({
+        status: connected ? 'healthy' : 'unhealthy',
+        storage: {
+          type,
+          connected,
         },
+        timestamp: new Date().toISOString(),
       })
     }
 
@@ -103,14 +106,11 @@ export async function GET(request: NextRequest) {
       stats.rejectedRequests = stats.totalRequests - stats.allowedRequests
       stats.rejectionRate = stats.rejectedRequests / stats.totalRequests
 
-      return NextResponse.json({
-        success: true,
-        data: {
-          ...stats,
-          storage: {
-            type: storage.getType(),
-            connected: await storage.isConnected(),
-          },
+      return createSuccessResponse({
+        ...stats,
+        storage: {
+          type: storage.getType(),
+          connected: await storage.isConnected(),
         },
       })
     }
@@ -132,13 +132,10 @@ export async function GET(request: NextRequest) {
         'user:user_456',
       ]
 
-      return NextResponse.json({
-        success: true,
-        data: {
-          keys: mockKeys,
-          count: mockKeys.length,
-          cursor: mockKeys.length,
-        },
+      return createSuccessResponse({
+        keys: mockKeys,
+        count: mockKeys.length,
+        cursor: mockKeys.length,
       })
     }
 
@@ -147,38 +144,22 @@ export async function GET(request: NextRequest) {
     if (statusMatch) {
       const [, layer, identifier] = statusMatch
 
-      return NextResponse.json({
-        success: true,
-        data: {
-          key: `${layer}:${identifier}`,
-          layer,
-          currentCount: Math.floor(Math.random() * 50),
-          limit: 100,
-          remaining: Math.floor(Math.random() * 50) + 50,
-          resetTime: Date.now() + 60000,
-          algorithm: layer === 'api-key' ? 'token-bucket' : 'sliding-window',
-          storage: storage.getType(),
-        },
+      return createSuccessResponse({
+        key: `${layer}:${identifier}`,
+        layer,
+        currentCount: Math.floor(Math.random() * 50),
+        limit: 100,
+        remaining: Math.floor(Math.random() * 50) + 50,
+        resetTime: Date.now() + 60000,
+        algorithm: layer === 'api-key' ? 'token-bucket' : 'sliding-window',
+        storage: storage.getType(),
       })
     }
 
-    return NextResponse.json({
-      error: {
-        type: 'NOT_FOUND',
-        message: 'Endpoint not found',
-      },
-    })
+    return createNotFoundError('Endpoint not found')
   } catch (error) {
     console.error('Rate limit API error:', error)
-    return NextResponse.json(
-      {
-        error: {
-          type: 'INTERNAL_ERROR',
-          message: error instanceof Error ? error.message : 'Unknown error',
-        },
-      },
-      { status: 500 }
-    )
+    return createErrorResponse(error instanceof Error ? error : new Error('Rate limit API error'))
   }
 }
 
@@ -194,20 +175,11 @@ export async function POST(request: NextRequest) {
       const { key, layer, newLimit, resetCount, addTokens } = body
 
       if (!key || !layer) {
-        return NextResponse.json(
-          {
-            error: {
-              type: 'INVALID_REQUEST',
-              message: 'Key and layer are required',
-            },
-          },
-          { status: 400 }
-        )
+        return createBadRequestError('Key and layer are required')
       }
 
       // In a real implementation, we'd update the rate limit
-      return NextResponse.json({
-        success: true,
+      return createSuccessResponse({
         message: 'Rate limit adjusted successfully',
       })
     }
@@ -218,8 +190,7 @@ export async function POST(request: NextRequest) {
       const [, layer, identifier] = resetMatch
 
       // In a real implementation, we'd delete the key from Redis
-      return NextResponse.json({
-        success: true,
+      return createSuccessResponse({
         message: 'Rate limit reset successfully',
         data: {
           key: `${layer}:${identifier}`,
@@ -228,22 +199,9 @@ export async function POST(request: NextRequest) {
       })
     }
 
-    return NextResponse.json({
-      error: {
-        type: 'NOT_FOUND',
-        message: 'Endpoint not found',
-      },
-    })
+    return createNotFoundError('Endpoint not found')
   } catch (error) {
     console.error('Rate limit API error:', error)
-    return NextResponse.json(
-      {
-        error: {
-          type: 'INTERNAL_ERROR',
-          message: error instanceof Error ? error.message : 'Unknown error',
-        },
-      },
-      { status: 500 }
-    )
+    return createErrorResponse(error instanceof Error ? error : new Error('Rate limit API error'))
   }
 }

@@ -9,7 +9,7 @@
  * - Streaming Support
  */
 
-import { describe, it, expect, beforeEach } from '@jest/globals'
+import { describe, it, expect, beforeEach, vi } from 'vitest'
 import {
   mcpRegistry,
   mcpResourceManager,

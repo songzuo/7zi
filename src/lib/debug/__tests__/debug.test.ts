@@ -3,7 +3,7 @@
  * @version v1.10.0
  */
 
-import { describe, it, expect } from '@jest/globals'
+import { describe, it, expect } from 'vitest'
 
 import {
   ErrorClassifier,

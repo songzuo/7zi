@@ -9,7 +9,7 @@
 
 import { NextResponse } from 'next/server'
 import { statusQuerySchema, validateQuery, formatValidationErrors } from '@/lib/api/validation'
-import { createValidationError, createUnifiedErrorResponse, UnifiedAppError } from '@/lib/errors'
+import { createValidationErrorResponse } from '@/lib/errors'
 import { logger } from '@/lib/logger'
 
 interface Service {
@@ -90,7 +90,7 @@ export async function GET(request: Request) {
 
     if (!validation.success) {
       const errors = formatValidationErrors(validation.errors)
-      return createValidationError('Invalid query parameters', { fields: errors })
+      return createValidationErrorResponse('Invalid query parameters', { fields: errors })
     }
 
     const { format, include_metrics } = validation.data

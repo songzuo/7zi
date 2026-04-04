@@ -1,117 +1,147 @@
 /**
- * 错误处理工具函数
+ * 统一错误处理系统
+ * Unified Error Handling System
+ *
+ * 这是项目的统一错误处理入口。
+ * 所有模块都应该使用这里的类型、类和函数来处理错误。
+ *
+ * 使用方式:
+ * ```typescript
+ * import {
+ *   UnifiedAppError,
+ *   UnifiedErrorType,
+ *   createUnifiedErrorResponse,
+ *   createUnifiedSuccessResponse,
+ *   withUnifiedErrorHandling,
+ * } from '@/lib/errors';
+ * ```
+ *
+ * 向后兼容性:
+ * 此模块保留对旧错误处理系统的兼容导出。
  */
 
-export interface AppError extends Error {
-  code?: string
-  statusCode?: number
-  digest?: string
+// ============================================================
+// 统一接口导出 (来自子模块)
+// ============================================================
+
+export type { UnifiedErrorInfo } from './errors/unified-types'
+export {
+  UnifiedErrorType,
+  ErrorCodes,
+  STATUS_CODE_TO_ERROR_TYPE,
+  isRetryableErrorType,
+  getDefaultStatusCode,
+} from './errors/unified-types'
+
+export {
+  UnifiedAppError,
+  toUnifiedError,
+  isUnifiedError,
+  extractErrorInfo,
+} from './errors/unified-error'
+
+export type { UnifiedErrorResponse, UnifiedSuccessResponse } from './errors/unified-response'
+export {
+  createUnifiedErrorResponse,
+  createUnifiedSuccessResponse,
+  createValidationErrorResponse,
+  createNotFoundErrorResponse,
+  createUnauthorizedErrorResponse,
+  createForbiddenErrorResponse,
+  createRateLimitErrorResponse,
+  createInternalErrorResponse,
+  createServiceUnavailableErrorResponse,
+  createNetworkErrorResponse,
+  createTimeoutErrorResponse,
+  createRegistrationFailedErrorResponse,
+  createWeakPasswordErrorResponse,
+  createMissingTokenErrorResponse,
+  createConflictErrorResponse,
+  withUnifiedErrorHandling,
+  parseUnifiedResponse,
+} from './errors/unified-response'
+
+// ============================================================
+// 向后兼容类型别名
+// ============================================================
+
+export { UnifiedAppError as AppError } from './errors/unified-error'
+export { ErrorCodes as legacyErrorCodes } from './errors/unified-types'
+export { UnifiedErrorType as ErrorType } from './errors/unified-types'
+
+// ApiError 类型别名
+import type { UnifiedAppError } from './errors/unified-error'
+export type ApiError = UnifiedAppError
+
+// ============================================================
+// 向后兼容函数 (Legacy Functions)
+// ============================================================
+
+import { UnifiedErrorType as UET, ErrorCodes as EC } from './errors/unified-types'
+import { UnifiedAppError as UAppError, toUnifiedError as tUnifiedError } from './errors/unified-error'
+
+const UnifiedErrorType = UET
+const ErrorCodes = EC
+
+/**
+ * @deprecated Use UnifiedAppError.validation() instead
+ */
+export function createAppError(message: string, code?: string, statusCode?: number): UAppError {
+  let type = UnifiedErrorType.INTERNAL
+
+  if (code === ErrorCodes.NOT_FOUND) {
+    type = UnifiedErrorType.NOT_FOUND
+  } else if (code === ErrorCodes.UNAUTHORIZED) {
+    type = UnifiedErrorType.UNAUTHORIZED
+  } else if (code === ErrorCodes.FORBIDDEN) {
+    type = UnifiedErrorType.FORBIDDEN
+  } else if (code === ErrorCodes.VALIDATION_ERROR) {
+    type = UnifiedErrorType.VALIDATION
+  } else if (code === ErrorCodes.NETWORK_ERROR) {
+    type = UnifiedErrorType.NETWORK_ERROR
+  } else if (code === ErrorCodes.SERVER_ERROR) {
+    type = UnifiedErrorType.INTERNAL
+  }
+
+  return new UAppError(type, message, statusCode, undefined, false, undefined, code)
 }
 
 /**
- * 创建应用错误
- */
-export function createAppError(message: string, code?: string, statusCode?: number): AppError {
-  const error = new Error(message) as AppError
-  error.code = code
-  error.statusCode = statusCode
-  return error
-}
-
-/**
- * 格式化错误消息
+ * @deprecated Use toUnifiedError().message or toUnifiedError().toJSON() instead
  */
 export function formatErrorMessage(error: unknown): string {
-  if (error instanceof Error) {
-    return error.message
-  }
-  if (typeof error === 'string') {
-    return error
-  }
-  return '发生未知错误'
+  const unifiedError = tUnifiedError(error)
+  return unifiedError.message
 }
 
 /**
- * 判断是否为网络错误
+ * @deprecated Use toUnifiedError().type === UnifiedErrorType.NETWORK_ERROR instead
  */
 export function isNetworkError(error: unknown): boolean {
-  if (error instanceof Error) {
-    const message = error.message.toLowerCase()
-    return (
-      message.includes('network') ||
-      message.includes('fetch') ||
-      message.includes('timeout') ||
-      message.includes('abort')
-    )
-  }
-  return false
+  const unifiedError = tUnifiedError(error)
+  return unifiedError.type === UnifiedErrorType.NETWORK_ERROR
 }
 
 /**
- * 错误类型枚举
- */
-export const ErrorCodes = {
-  NOT_FOUND: 'NOT_FOUND',
-  UNAUTHORIZED: 'UNAUTHORIZED',
-  FORBIDDEN: 'FORBIDDEN',
-  VALIDATION_ERROR: 'VALIDATION_ERROR',
-  NETWORK_ERROR: 'NETWORK_ERROR',
-  SERVER_ERROR: 'SERVER_ERROR',
-  UNKNOWN: 'UNKNOWN',
-} as const
-
-/**
- * 获取错误类型
+ * @deprecated Use toUnifiedError().code instead
  */
 export function getErrorCode(error: unknown): string {
-  if (error instanceof Error) {
-    const appError = error as AppError
-    if (appError.code) {
-      return appError.code
-    }
-
-    if (isNetworkError(error)) {
-      return ErrorCodes.NETWORK_ERROR
-    }
-
-    if (appError.statusCode) {
-      switch (appError.statusCode) {
-        case 401:
-          return ErrorCodes.UNAUTHORIZED
-        case 403:
-          return ErrorCodes.FORBIDDEN
-        case 404:
-          return ErrorCodes.NOT_FOUND
-        case 500:
-        case 502:
-        case 503:
-        case 504:
-          return ErrorCodes.SERVER_ERROR
-      }
-    }
-  }
-
-  return ErrorCodes.UNKNOWN
+  const unifiedError = tUnifiedError(error)
+  return unifiedError.code || ErrorCodes.UNKNOWN
 }
 
 /**
- * 获取用户友好的错误消息
+ * @deprecated Use custom error messages or i18n system instead
  */
 export function getUserFriendlyMessage(code: string): string {
-  switch (code) {
-    case ErrorCodes.NOT_FOUND:
-      return '您请求的资源不存在'
-    case ErrorCodes.UNAUTHORIZED:
-      return '您需要登录才能访问此资源'
-    case ErrorCodes.FORBIDDEN:
-      return '您没有权限访问此资源'
-    case ErrorCodes.VALIDATION_ERROR:
-      return '您提交的数据格式不正确'
-    case ErrorCodes.NETWORK_ERROR:
-      return '网络连接失败，请检查您的网络设置'
-    case ErrorCodes.SERVER_ERROR:
-      return '服务器暂时无法处理您的请求，请稍后重试'
-    default:
-      return '发生未知错误，请稍后重试'
+  const messages: Record<string, string> = {
+    [ErrorCodes.NOT_FOUND]: '您请求的资源不存在',
+    [ErrorCodes.UNAUTHORIZED]: '您需要登录才能访问此资源',
+    [ErrorCodes.FORBIDDEN]: '您没有权限访问此资源',
+    [ErrorCodes.VALIDATION_ERROR]: '您提交的数据格式不正确',
+    [ErrorCodes.NETWORK_ERROR]: '网络连接失败,请检查您的网络设置',
+    [ErrorCodes.SERVER_ERROR]: '服务器暂时无法处理您的请求,请稍后重试',
   }
+
+  return messages[code] || '发生未知错误,请稍后重试'
 }

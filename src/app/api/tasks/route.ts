@@ -19,6 +19,9 @@ import {
   createValidationErrorResponse,
 } from '@/lib/errors'
 
+// Re-export for backward compatibility
+const createValidationError = createValidationErrorResponse
+
 // ============================================================================
 // Types
 // ============================================================================
