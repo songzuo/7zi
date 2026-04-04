@@ -63,13 +63,13 @@ export class PluginLoggerImpl implements PluginLogger {
  */
 export class PluginStorageImpl implements PluginStorage {
   private pluginId: string;
-  private storage: Map<string, { value: any; expires?: number }> = new Map();
+  private storage: Map<string, { value: unknown; expires?: number }> = new Map();
 
   constructor(pluginId: string) {
     this.pluginId = pluginId;
   }
 
-  async get<T = any>(key: string): Promise<T | undefined> {
+  async get<T = unknown>(key: string): Promise<T | undefined> {
     const item = this.storage.get(key);
     if (!item) {
       return undefined;
@@ -83,7 +83,7 @@ export class PluginStorageImpl implements PluginStorage {
     return item.value as T;
   }
 
-  async set<T = any>(key: string, value: T, ttl?: number): Promise<void> {
+  async set<T = unknown>(key: string, value: T, ttl?: number): Promise<void> {
     const expires = ttl ? Date.now() + ttl * 1000 : undefined;
     this.storage.set(key, { value, expires });
   }
@@ -148,7 +148,7 @@ export class PluginHTTPClientImpl implements PluginHTTPClient {
     return this.fetch(url, { ...options, method: 'GET' });
   }
 
-  async post(url: string, body?: any, options?: RequestInit): Promise<Response> {
+  async post(url: string, body?: unknown, options?: RequestInit): Promise<Response> {
     return this.fetch(url, {
       ...options,
       method: 'POST',
@@ -160,7 +160,7 @@ export class PluginHTTPClientImpl implements PluginHTTPClient {
     });
   }
 
-  async put(url: string, body?: any, options?: RequestInit): Promise<Response> {
+  async put(url: string, body?: unknown, options?: RequestInit): Promise<Response> {
     return this.fetch(url, {
       ...options,
       method: 'PUT',
@@ -182,56 +182,57 @@ export class PluginHTTPClientImpl implements PluginHTTPClient {
  */
 export class PluginDatabaseClientImpl implements PluginDatabaseClient {
   private pluginId: string;
-  private db: any;
+  private db: unknown;
 
-  constructor(pluginId: string, db: any) {
+  constructor(pluginId: string, db: unknown) {
     this.pluginId = pluginId;
     this.db = db;
   }
 
-  async query(sql: string, params?: any[]): Promise<any> {
-    return this.db.query(sql, params);
+  async query<T = unknown>(sql: string, params?: unknown[]): Promise<T> {
+    return (this.db as { query: (sql: string, params?: unknown[]) => Promise<T> }).query(sql, params);
   }
 
-  async transaction<T>(callback: (tx: any) => Promise<T>): Promise<T> {
-    return this.db.transaction(callback);
+  async transaction<T>(callback: (tx: PluginTransaction) => Promise<T>): Promise<T> {
+    return (this.db as { transaction: <U>(cb: (tx: PluginTransaction) => Promise<U>) => Promise<U> }).transaction(callback);
   }
 
-  async insert(table: string, data: Record<string, any>): Promise<any> {
+  async insert<T = unknown>(table: string, data: Record<string, unknown>): Promise<T> {
     const columns = Object.keys(data);
     const values = Object.values(data);
     const placeholders = values.map((_, i) => `$${i + 1}`).join(', ');
 
     const sql = `INSERT INTO ${table} (${columns.join(', ')}) VALUES (${placeholders})`;
-    return this.query(sql, values);
+    return this.query<T>(sql, values);
   }
 
-  async update(table: string, data: Record<string, any>, where: Record<string, any>): Promise<any> {
+  async update<T = unknown>(table: string, data: Record<string, unknown>, where: Record<string, unknown>): Promise<T> {
     const setClauses = Object.keys(data).map((key, i) => `${key} = $${i + 1}`);
     const whereClauses = Object.keys(where).map((key, i) => `${key} = $${setClauses.length + i + 1}`);
     
     const sql = `UPDATE ${table} SET ${setClauses.join(', ')} WHERE ${whereClauses.join(' AND ')}`;
     const params = [...Object.values(data), ...Object.values(where)];
     
-    return this.query(sql, params);
+    return this.query<T>(sql, params);
   }
 
-  async delete(table: string, where: Record<string, any>): Promise<any> {
+  async delete(table: string, where: Record<string, unknown>): Promise<number> {
     const whereClauses = Object.keys(where).map((key, i) => `${key} = $${i + 1}`);
     const sql = `DELETE FROM ${table} WHERE ${whereClauses.join(' AND ')}`;
     
-    return this.query(sql, Object.values(where));
+    const result = await this.query(sql, Object.values(where));
+    return (result as { rowCount: number })?.rowCount ?? 0;
   }
 
-  async find(table: string, where: Record<string, any>): Promise<any[]> {
+  async find<T = unknown>(table: string, where: Record<string, unknown>): Promise<T[]> {
     const whereClauses = Object.keys(where).map((key, i) => `${key} = $${i + 1}`);
     const sql = `SELECT * FROM ${table} WHERE ${whereClauses.join(' AND ')}`;
     
     const result = await this.query(sql, Object.values(where));
-    return result.rows || [];
+    return (result as { rows: T[] })?.rows ?? [];
   }
 
-  async findOne(table: string, where: Record<string, any>): Promise<any> {
+  async findOne<T = unknown>(table: string, where: Record<string, unknown>): Promise<T | null> {
     const results = await this.find(table, where);
     return results[0];
   }
@@ -242,13 +243,13 @@ export class PluginDatabaseClientImpl implements PluginDatabaseClient {
  */
 export class PluginCacheClientImpl implements PluginCacheClient {
   private pluginId: string;
-  private cache: Map<string, { value: any; expires?: number }> = new Map();
+  private cache: Map<string, { value: unknown; expires?: number }> = new Map();
 
   constructor(pluginId: string) {
     this.pluginId = pluginId;
   }
 
-  async get<T = any>(key: string): Promise<T | undefined> {
+  async get<T = unknown>(key: string): Promise<T | undefined> {
     const item = this.cache.get(key);
     if (!item) {
       return undefined;
@@ -262,7 +263,7 @@ export class PluginCacheClientImpl implements PluginCacheClient {
     return item.value as T;
   }
 
-  async set<T = any>(key: string, value: T, ttl?: number): Promise<void> {
+  async set<T = unknown>(key: string, value: T, ttl?: number): Promise<void> {
     const expires = ttl ? Date.now() + ttl * 1000 : undefined;
     this.cache.set(key, { value, expires });
   }
@@ -295,13 +296,13 @@ export class PluginCacheClientImpl implements PluginCacheClient {
  */
 export class PluginQueueClientImpl implements PluginQueueClient {
   private pluginId: string;
-  private queues: Map<string, Set<(message: any) => Promise<void>>> = new Map();
+  private queues: Map<string, Set<(message: unknown) => Promise<void>>> = new Map();
 
   constructor(pluginId: string) {
     this.pluginId = pluginId;
   }
 
-  async publish(queue: string, message: any): Promise<void> {
+  async publish(queue: string, message: unknown): Promise<void> {
     const handlers = this.queues.get(queue);
     if (handlers) {
       for (const handler of handlers) {
@@ -310,7 +311,7 @@ export class PluginQueueClientImpl implements PluginQueueClient {
     }
   }
 
-  async subscribe(queue: string, handler: (message: any) => Promise<void>): Promise<void> {
+  async subscribe(queue: string, handler: (message: unknown) => Promise<void>): Promise<void> {
     if (!this.queues.has(queue)) {
       this.queues.set(queue, new Set());
     }
@@ -326,36 +327,36 @@ export class PluginQueueClientImpl implements PluginQueueClient {
  * Plugin Config Helper Implementation
  */
 export class PluginConfigHelperImpl implements PluginConfigHelper {
-  private config: Record<string, any>;
+  private config: Record<string, unknown>;
 
-  constructor(config: Record<string, any>) {
+  constructor(config: Record<string, unknown>) {
     this.config = config;
   }
 
-  get<T = any>(key: string, defaultValue?: T): T {
+  get<T = unknown>(key: string, defaultValue?: T): T {
     const keys = key.split('.');
-    let value: any = this.config;
+    let value: unknown = this.config;
 
     for (const k of keys) {
       if (value === undefined || value === null) {
         return defaultValue !== undefined ? defaultValue : (undefined as T);
       }
-      value = value[k];
+      value = (value as Record<string, unknown>)[k];
     }
 
-    return value !== undefined ? value : (defaultValue !== undefined ? defaultValue : (undefined as T));
+    return value !== undefined ? (value as T) : (defaultValue !== undefined ? defaultValue : (undefined as T));
   }
 
-  set(key: string, value: any): void {
+  set(key: string, value: unknown): void {
     const keys = key.split('.');
-    let current: any = this.config;
+    let current: Record<string, unknown> = this.config;
 
     for (let i = 0; i < keys.length - 1; i++) {
       const k = keys[i];
       if (!current[k]) {
         current[k] = {};
       }
-      current = current[k];
+      current = current[k] as Record<string, unknown>;
     }
 
     current[keys[keys.length - 1]] = value;
@@ -363,19 +364,19 @@ export class PluginConfigHelperImpl implements PluginConfigHelper {
 
   has(key: string): boolean {
     const keys = key.split('.');
-    let value: any = this.config;
+    let value: unknown = this.config;
 
     for (const k of keys) {
       if (value === undefined || value === null) {
         return false;
       }
-      value = value[k];
+      value = (value as Record<string, unknown>)[k];
     }
 
     return value !== undefined;
   }
 
-  getAll(): Record<string, any> {
+  getAll(): Record<string, unknown> {
     return { ...this.config };
   }
 
@@ -468,7 +469,7 @@ export class PluginSDK implements IPluginSDK {
   config: PluginConfigHelper;
   utils: PluginUtils;
 
-  constructor(pluginId: string, pluginConfig: PluginConfig, db?: any) {
+  constructor(pluginId: string, pluginConfig: PluginConfig, db?: unknown) {
     this.logger = new PluginLoggerImpl(pluginId);
     this.storage = new PluginStorageImpl(pluginId);
     this.http = new PluginHTTPClientImpl(pluginId, pluginConfig.config?.apiBaseUrl);
@@ -484,12 +485,12 @@ export class PluginSDK implements IPluginSDK {
 /**
  * Plugin Builder for easier plugin creation
  */
-export class PluginBuilder {
+export class PluginBuilder<T extends Plugin = Plugin> {
   private id: string = '';
   private name: string = '';
   private version: string = '1.0.0';
   private description: string = '';
-  private pluginClass: any;
+  private pluginClass: new () => T;
   private config: Partial<PluginConfig> = {};
 
   setId(id: string): this {
@@ -512,7 +513,7 @@ export class PluginBuilder {
     return this;
   }
 
-  setPluginClass(pluginClass: any): this {
+  setPluginClass(pluginClass: new () => T): this {
     this.pluginClass = pluginClass;
     return this;
   }
@@ -522,7 +523,7 @@ export class PluginBuilder {
     return this;
   }
 
-  build(): any {
+  build(): T {
     return {
       metadata: {
         id: this.id,
@@ -536,6 +537,6 @@ export class PluginBuilder {
         ...this.config,
       },
       ...new this.pluginClass(),
-    };
+    } as T;
   }
 }

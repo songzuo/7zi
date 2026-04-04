@@ -34,10 +34,10 @@ export interface DiffConfig {
   trackFieldChanges?: boolean
 }
 
-export interface DiffResult {
+export interface DiffResult<T = unknown> {
   type: 'full' | 'incremental'
-  data?: any
-  diff?: DiffOperation[]
+  data?: T
+  diff?: DiffOperation<T>[]
   originalHash: string
   newHash: string
   changeRatio: number
@@ -45,16 +45,16 @@ export interface DiffResult {
   timestamp: number
 }
 
-export interface DiffOperation {
+export interface DiffOperation<T = unknown> {
   op: 'replace' | 'add' | 'remove' | 'move' | 'copy' | 'test'
   path: string
-  value?: any
-  oldValue?: any
+  value?: T
+  oldValue?: T
   from?: string
 }
 
-export interface StateSnapshot {
-  data: any
+export interface StateSnapshot<T = unknown> {
+  data: T
   hash: string
   timestamp: number
   version: number
@@ -89,9 +89,9 @@ const DEFAULT_CONFIG: Required<DiffConfig> = {
 // Incremental Update Manager
 // ============================================================================
 
-export class IncrementalUpdateManager {
+export class IncrementalUpdateManager<T = unknown> {
   private config: Required<DiffConfig>
-  private stateCache: Map<string, StateSnapshot>
+  private stateCache: Map<string, StateSnapshot<T>>
   private stats: IncrementalUpdateStats
   private versionCounter: number = 0
 
@@ -116,9 +116,9 @@ export class IncrementalUpdateManager {
    */
   public generateUpdate(
     key: string,
-    newData: any,
+    newData: T,
     forceFull: boolean = false
-  ): DiffResult {
+  ): DiffResult<T> {
     this.stats.totalUpdates++
     
     const now = Date.now()
@@ -131,7 +131,7 @@ export class IncrementalUpdateManager {
     if (!previousState || forceFull) {
       this.stats.fullUpdates++
       
-      const snapshot: StateSnapshot = {
+      const snapshot: StateSnapshot<T> = {
         data: newData,
         hash: newHash,
         timestamp: now,
@@ -250,7 +250,7 @@ export class IncrementalUpdateManager {
   /**
    * Apply diff to data
    */
-  public applyDiff(oldData: any, diff: DiffOperation[]): any {
+  public applyDiff(oldData: T, diff: DiffOperation<T>[]): T {
     let result = JSON.parse(JSON.stringify(oldData))
     
     for (const op of diff) {
@@ -264,9 +264,9 @@ export class IncrementalUpdateManager {
    * Validate and apply update
    */
   public validateAndApply(
-    currentData: any,
-    update: DiffResult
-  ): { success: boolean; data: any; error?: string } {
+    currentData: T,
+    update: DiffResult<T>
+  ): { success: boolean; data: T; error?: string } {
     // Verify original hash
     const currentHash = this.calculateHash(currentData)
     
@@ -321,7 +321,7 @@ export class IncrementalUpdateManager {
   /**
    * Get state for key
    */
-  public getState(key: string): StateSnapshot | undefined {
+  public getState(key: string): StateSnapshot<T> | undefined {
     return this.stateCache.get(key)
   }
 
@@ -370,8 +370,8 @@ export class IncrementalUpdateManager {
   // Private Methods
   // ============================================================================
 
-  private calculateDiff(oldData: any, newData: any): DiffOperation[] {
-    const diff: DiffOperation[] = []
+  private calculateDiff(oldData: T, newData: T): DiffOperation<T>[] {
+    const diff: DiffOperation<T>[] = []
     
     this.diffObjects(oldData, newData, [], diff)
     
@@ -379,10 +379,10 @@ export class IncrementalUpdateManager {
   }
 
   private diffObjects(
-    oldData: any,
-    newData: any,
+    oldData: T,
+    newData: T,
     path: string[],
-    diff: DiffOperation[]
+    diff: DiffOperation<T>[]
   ): void {
     const oldType = this.getValueType(oldData)
     const newType = this.getValueType(newData)
@@ -414,8 +414,8 @@ export class IncrementalUpdateManager {
   }
 
   private diffArrays(
-    oldArr: any[],
-    newArr: any[],
+    oldArr: unknown[],
+    newArr: unknown[],
     path: string[],
     diff: DiffOperation[]
   ): void {
@@ -446,8 +446,8 @@ export class IncrementalUpdateManager {
   }
 
   private diffObjectsDeep(
-    oldObj: Record<string, any>,
-    newObj: Record<string, any>,
+    oldObj: Record<string, unknown>,
+    newObj: Record<string, unknown>,
     path: string[],
     diff: DiffOperation[]
   ): void {
@@ -477,7 +477,7 @@ export class IncrementalUpdateManager {
     }
   }
 
-  private applyOperation(data: any, op: DiffOperation): any {
+  private applyOperation(data: T, op: DiffOperation<T>): T {
     const parts = this.parsePath(op.path)
     
     switch (op.op) {
@@ -508,7 +508,7 @@ export class IncrementalUpdateManager {
     }
   }
 
-  private getValueType(value: any): 'primitive' | 'array' | 'object' {
+  private getValueType(value: T): 'primitive' | 'array' | 'object' {
     if (value === null || value === undefined) {
       return 'primitive'
     }
@@ -534,7 +534,7 @@ export class IncrementalUpdateManager {
     return path === '' ? [] : path.split('/').slice(1)
   }
 
-  private getAtPath(data: any, parts: string[]): any {
+  private getAtPath(data: T, parts: string[]): unknown {
     let current = data
     
     for (const part of parts) {
@@ -543,36 +543,36 @@ export class IncrementalUpdateManager {
       }
       
       const index = /^\d+$/.test(part) ? parseInt(part, 10) : part
-      current = current[index]
+      current = (current as Record<string, unknown>)[index]
     }
     
     return current
   }
 
-  private setAtPath(data: any, parts: string[], value: any): any {
+  private setAtPath(data: T, parts: string[], value: unknown): T {
     if (parts.length === 0) {
-      return value
+      return value as T
     }
     
     const [first, ...rest] = parts
     const index = /^\d+$/.test(first) ? parseInt(first, 10) : first
     
-    const current = data[index]
+    const current = (data as Record<string, unknown>)[index]
     
     if (current === null || current === undefined) {
-      data[index] = rest.length === 0 ? value : {}
+      ;(data as Record<string, unknown>)[index] = rest.length === 0 ? value : {}
     }
     
     if (rest.length > 0) {
-      this.setAtPath(data[index], rest, value)
+      this.setAtPath((data as Record<string, unknown>)[index] as T, rest, value)
     } else {
-      data[index] = value
+      ;(data as Record<string, unknown>)[index] = value
     }
     
     return data
   }
 
-  private addAtPath(data: any, parts: string[], value: any): any {
+  private addAtPath(data: T, parts: string[], value: unknown): T {
     if (parts.length === 0) {
       // Can't add to root
       return data
@@ -583,25 +583,25 @@ export class IncrementalUpdateManager {
     if (first === '-') {
       // Add to end of array
       if (Array.isArray(data)) {
-        data.push(value)
+        ;(data as unknown[]).push(value)
       }
     } else {
       const index = /^\d+$/.test(first) ? parseInt(first, 10) : first
       
       if (rest.length === 0) {
-        data[index] = value
+        ;(data as Record<string, unknown>)[index] = value
       } else {
-        if (!data[index]) {
-          data[index] = {}
+        if (!(data as Record<string, unknown>)[index]) {
+          ;(data as Record<string, unknown>)[index] = {}
         }
-        this.setAtPath(data[index], rest, value)
+        this.setAtPath((data as Record<string, unknown>)[index] as T, rest, value)
       }
     }
     
     return data
   }
 
-  private removeAtPath(data: any, parts: string[]): any {
+  private removeAtPath(data: T, parts: string[]): T {
     if (parts.length === 0) {
       return data
     }
@@ -611,18 +611,18 @@ export class IncrementalUpdateManager {
     
     if (rest.length === 0) {
       if (Array.isArray(data)) {
-        data.splice(index, 1)
+        ;(data as unknown[]).splice(index, 1)
       } else {
-        delete data[index]
+        delete (data as Record<string, unknown>)[index]
       }
     } else {
-      this.removeAtPath(data[index], rest)
+      this.removeAtPath((data as Record<string, unknown>)[index] as T, rest)
     }
     
     return data
   }
 
-  private calculateChangeRatio(oldData: any, newData: any, diff: DiffOperation[]): number {
+  private calculateChangeRatio(oldData: T, newData: T, diff: DiffOperation<T>[]): number {
     if (diff.length === 0) {
       return 0
     }
@@ -636,7 +636,7 @@ export class IncrementalUpdateManager {
     return Math.max(0, 1 - diffSize / newSize)
   }
 
-  private calculateSavedBytes(oldData: any, diff: DiffOperation[]): number {
+  private calculateSavedBytes(oldData: T, diff: DiffOperation<T>[]): number {
     const oldSize = JSON.stringify(oldData).length
     const diffSize = JSON.stringify(diff).length
     
@@ -667,7 +667,7 @@ export class IncrementalUpdateManager {
     }
   }
 
-  private calculateHash(data: any): string {
+  private calculateHash(data: T): string {
     try {
       return createHash('sha256').update(JSON.stringify(data)).digest('hex')
     } catch {

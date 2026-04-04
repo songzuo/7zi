@@ -34,10 +34,10 @@ export interface BatchConfig {
   flushOnHighPriority?: boolean
 }
 
-export interface QueuedMessage {
+export interface QueuedMessage<T = unknown> {
   id: string
   event: string
-  data: any
+  data: T
   priority: MessagePriority
   timestamp: number
   size: number
