@@ -1,0 +1,253 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>You're Offline - 7zi</title>
+    <meta name="description" content="No internet connection available" />
+    <style>
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
+
+      body {
+        font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
+          'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue',
+          sans-serif;
+        -webkit-font-smoothing: antialiased;
+        -moz-osx-font-smoothing: grayscale;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        min-height: 100vh;
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        padding: 20px;
+      }
+
+      .container {
+        background: rgba(255, 255, 255, 0.95);
+        backdrop-filter: blur(10px);
+        border-radius: 16px;
+        padding: 40px;
+        max-width: 400px;
+        width: 100%;
+        text-align: center;
+        box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+      }
+
+      .icon {
+        font-size: 80px;
+        margin-bottom: 24px;
+        animation: float 3s ease-in-out infinite;
+      }
+
+      @keyframes float {
+        0%, 100% { transform: translateY(0); }
+        50% { transform: translateY(-10px); }
+      }
+
+      h1 {
+        font-size: 28px;
+        font-weight: 700;
+        color: #1a202c;
+        margin-bottom: 12px;
+      }
+
+      p {
+        font-size: 16px;
+        color: #4a5568;
+        line-height: 1.6;
+        margin-bottom: 32px;
+      }
+
+      .status {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        padding: 12px 20px;
+        background: #fef3c7;
+        color: #92400e;
+        border-radius: 8px;
+        margin-bottom: 24px;
+        font-weight: 500;
+        font-size: 14px;
+      }
+
+      .status-dot {
+        width: 8px;
+        height: 8px;
+        background: #f59e0b;
+        border-radius: 50%;
+        animation: pulse 2s infinite;
+      }
+
+      @keyframes pulse {
+        0%, 100% { opacity: 1; }
+        50% { opacity: 0.5; }
+      }
+
+      .retry-btn {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        border: none;
+        padding: 16px 32px;
+        border-radius: 8px;
+        font-size: 16px;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        width: 100%;
+        margin-bottom: 12px;
+      }
+
+      .retry-btn:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 8px 20px rgba(102, 126, 234, 0.4);
+      }
+
+      .retry-btn:active {
+        transform: translateY(0);
+      }
+
+      .cache-btn {
+        background: transparent;
+        color: #667eea;
+        border: 2px solid #667eea;
+        padding: 14px 32px;
+        border-radius: 8px;
+        font-size: 14px;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        width: 100%;
+      }
+
+      .cache-btn:hover {
+        background: #667eea;
+        color: white;
+      }
+
+      .tips {
+        margin-top: 32px;
+        padding-top: 24px;
+        border-top: 1px solid #e2e8f0;
+        text-align: left;
+      }
+
+      .tips h3 {
+        font-size: 14px;
+        font-weight: 600;
+        color: #1a202c;
+        margin-bottom: 12px;
+      }
+
+      .tips ul {
+        list-style: none;
+      }
+
+      .tips li {
+        font-size: 14px;
+        color: #4a5568;
+        padding: 8px 0;
+        display: flex;
+        align-items: flex-start;
+        gap: 8px;
+      }
+
+      .tips li::before {
+        content: '✓';
+        color: #48bb78;
+        font-weight: bold;
+      }
+
+      @media (max-width: 480px) {
+        .container {
+          padding: 24px;
+        }
+
+        h1 {
+          font-size: 24px;
+        }
+
+        p {
+          font-size: 14px;
+        }
+
+        .icon {
+          font-size: 64px;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <div class="container">
+      <div class="icon">📡</div>
+      <h1>You're Offline</h1>
+      <p>No internet connection detected. Some features may be unavailable.</p>
+
+      <div class="status">
+        <div class="status-dot"></div>
+        <span>Connection Lost</span>
+      </div>
+
+      <button class="retry-btn" onclick="window.location.reload()">
+        Retry Connection
+      </button>
+      <button class="cache-btn" onclick="viewCachedContent()">
+        View Cached Content
+      </button>
+
+      <div class="tips">
+        <h3>While You Wait:</h3>
+        <ul>
+          <li>Check your Wi-Fi or mobile data connection</li>
+          <li>Some pages may still be available from cache</li>
+          <li>Your data will sync when you're back online</li>
+        </ul>
+      </div>
+    </div>
+
+    <script>
+      // Check connection status periodically
+      function checkConnection() {
+        if (navigator.onLine) {
+          window.location.reload();
+        }
+      }
+
+      // Check every 3 seconds
+      setInterval(checkConnection, 3000);
+
+      // Listen for online events
+      window.addEventListener('online', () => {
+        window.location.reload();
+      });
+
+      // View cached content
+      function viewCachedContent() {
+        window.location.href = '/';
+      }
+
+      // Update UI when connection status changes
+      function updateConnectionStatus() {
+        const statusElement = document.querySelector('.status span');
+        const dotElement = document.querySelector('.status-dot');
+
+        if (navigator.onLine) {
+          statusElement.textContent = 'Reconnecting...';
+          dotElement.style.background = '#48bb78';
+          dotElement.style.animation = 'none';
+        } else {
+          statusElement.textContent = 'Connection Lost';
+          dotElement.style.background = '#f59e0b';
+          dotElement.style.animation = 'pulse 2s infinite';
+        }
+      }
+
+      window.addEventListener('offline', updateConnectionStatus);
+      window.addEventListener('online', updateConnectionStatus);
+    </script>
+  </body>
+</html>
