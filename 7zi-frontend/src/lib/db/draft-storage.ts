@@ -26,6 +26,26 @@ export interface Draft<T = unknown> {
 }
 
 /**
+ * 类型安全的 Draft 验证函数
+ */
+function isDraft<T>(value: unknown): value is Draft<T> {
+  if (!value || typeof value !== 'object') {
+    return false
+  }
+
+  const draft = value as Draft<T>
+
+  return (
+    typeof draft.id === 'string' &&
+    typeof draft.type === 'string' &&
+    typeof draft.createdAt === 'number' &&
+    typeof draft.updatedAt === 'number' &&
+    typeof draft.expiresAt === 'number' &&
+    'data' in draft
+  )
+}
+
+/**
  * 保存选项
  */
 export interface SaveDraftOptions {
@@ -130,8 +150,31 @@ class IndexedDBStorage {
       const request = store.get(id)
 
       request.onsuccess = () => {
-        const draft = request.result as Draft<T> | undefined
-        resolve(draft || null)
+        const result = request.result
+
+        // 使用类型守卫进行安全检查
+        if (!result) {
+          resolve(null)
+          return
+        }
+
+        // 验证是否为有效的 Draft 对象
+        if (!isDraft<T>(result)) {
+          console.warn('[IndexedDBStorage] Invalid draft structure in database', { id, result })
+          resolve(null)
+          return
+        }
+
+        // 检查是否过期
+        if (result.expiresAt && result.expiresAt < Date.now()) {
+          this.delete(id).catch(err => {
+            console.warn('[IndexedDBStorage] Failed to delete expired draft:', err)
+          })
+          resolve(null)
+          return
+        }
+
+        resolve(result)
       }
       request.onerror = () => reject(new Error(`Failed to load draft: ${request.error}`))
     })
@@ -167,10 +210,18 @@ class IndexedDBStorage {
       cursor.onsuccess = () => {
         const result = cursor.result
         if (result) {
-          // 过滤过期草稿
-          if (!result.value.expiresAt || result.value.expiresAt > Date.now()) {
-            drafts.push(result.value as Draft<T>)
+          const value = result.value
+
+          // 使用类型守卫验证数据结构
+          if (isDraft<T>(value)) {
+            // 过滤过期草稿
+            if (!value.expiresAt || value.expiresAt > Date.now()) {
+              drafts.push(value)
+            }
+          } else {
+            console.warn('[IndexedDBStorage] Invalid draft structure in list', { value })
           }
+
           result.continue()
         } else {
           resolve(drafts)
@@ -271,9 +322,9 @@ class LocalStorageStorage {
   private readonly STORAGE_KEY = '7zi-drafts'
 
   /**
-   * 获取所有草稿
+   * 获取所有草稿（原始数据）
    */
-  private getAll(): Record<string, Draft> {
+  private getRawAll(): unknown {
     if (typeof window === 'undefined' || !window.localStorage) {
       return {}
     }
@@ -284,6 +335,30 @@ class LocalStorageStorage {
     } catch {
       return {}
     }
+  }
+
+  /**
+   * 获取所有草稿（类型安全）
+   */
+  private getAll(): Record<string, Draft> {
+    const raw = this.getRawAll()
+
+    if (!raw || typeof raw !== 'object') {
+      return {}
+    }
+
+    const record = raw as Record<string, unknown>
+    const result: Record<string, Draft> = {}
+
+    for (const [key, value] of Object.entries(record)) {
+      if (isDraft(value)) {
+        result[key] = value
+      } else {
+        console.warn('[LocalStorageStorage] Invalid draft structure in storage', { key, value })
+      }
+    }
+
+    return result
   }
 
   /**
@@ -306,7 +381,18 @@ class LocalStorageStorage {
    */
   async save<T = unknown>(draft: Draft<T>): Promise<void> {
     const drafts = this.getAll()
-    drafts[draft.id] = draft as Draft
+
+    // 创建一个符合 Draft 接口的对象
+    const safeDraft: Draft = {
+      id: draft.id,
+      type: draft.type,
+      data: draft.data,
+      createdAt: draft.createdAt,
+      updatedAt: draft.updatedAt,
+      expiresAt: draft.expiresAt,
+    }
+
+    drafts[draft.id] = safeDraft
     this.saveAll(drafts)
   }
 
@@ -327,6 +413,7 @@ class LocalStorageStorage {
       return null
     }
 
+    // 返回类型安全的草稿（data 被视为 T 类型）
     return draft as Draft<T>
   }
 
@@ -350,8 +437,7 @@ class LocalStorageStorage {
         }
 
         return true
-      })
-      .map(draft => draft as Draft<T>)
+      }) as Draft<T>[]
   }
 
   /**
@@ -446,7 +532,7 @@ export class DraftStorageManager {
     data: T,
     options: SaveDraftOptions = {}
   ): Promise<string> {
-    const ttl = options.ttl || DEFAULT_TTL
+    const ttl = options.ttl !== undefined ? options.ttl : DEFAULT_TTL
     const now = Date.now()
 
     const draft: Draft<T> = {
@@ -500,11 +586,26 @@ export class DraftStorageManager {
     }
 
     let updatedData: T
-    if (typeof draft.data === 'object' && draft.data !== null && !Array.isArray(draft.data)) {
+
+    // 安全地合并数据
+    if (
+      typeof draft.data === 'object' &&
+      draft.data !== null &&
+      !Array.isArray(draft.data) &&
+      typeof data === 'object' &&
+      data !== null
+    ) {
+      // 对象类型：浅合并
       updatedData = { ...draft.data, ...data } as T
-    } else {
-      // 对于非对象类型，直接使用新数据（需要类型断言）
+    } else if (Object.keys(data).length > 0) {
+      // 非对象类型或 data 是对象但 draft.data 不是对象
+      // 这种情况下，我们只能假设 data 就是完整的 T 类型
+      // 这是一个合理的妥协，因为 updateDraft 的签名要求 Partial<T>
+      // 调用者需要确保传入的数据是正确的
       updatedData = data as T
+    } else {
+      // data 为空对象，保持原数据不变
+      updatedData = draft.data
     }
 
     const updatedDraft: Draft<T> = {

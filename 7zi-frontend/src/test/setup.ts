@@ -67,11 +67,17 @@ if (!fetchInitialized) {
   fetchInitialized = true
 }
 
-// Mock crypto.randomUUID - 只初始化一次
+// Mock crypto.randomUUID and getRandomValues - 只初始化一次
 if (!cryptoInitialized) {
   Object.defineProperty(global, 'crypto', {
     value: {
       randomUUID: vi.fn(() => 'mock-uuid-' + Math.random().toString(36).substr(2, 9)),
+      getRandomValues: (array: Uint8Array): Uint8Array => {
+        for (let i = 0; i < array.length; i++) {
+          array[i] = Math.floor(Math.random() * 256);
+        }
+        return array;
+      },
     },
     configurable: true, // 🚀 允许重新配置
   })

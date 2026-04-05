@@ -1147,7 +1147,7 @@ export class AutomationEngine {
     if (!limits) return true
 
     // 检查最大执行次数
-    if (limits.maxExecutions && rule.stats?.totalExecutions >= limits.maxExecutions) {
+    if (limits.maxExecutions && (rule.stats?.totalExecutions ?? 0) >= limits.maxExecutions) {
       return false
     }
 

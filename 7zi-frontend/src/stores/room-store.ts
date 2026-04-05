@@ -2,6 +2,14 @@
  * Room Store
  *
  * State management for WebSocket rooms
+ *
+ * 更新日期: 2026-04-04 - 优化嵌套更新和消息管理
+ *
+ * 优化说明:
+ * - 优化嵌套状态更新，减少不必要的状态创建
+ * - 优化消息数组的添加逻辑
+ * - 优化 unreadCounts 更新
+ * - 添加细粒度选择器
  */
 
 import { create } from 'zustand'
@@ -87,59 +95,101 @@ export const useRoomStore = create<RoomState>((set, get) => ({
   setFilter: filter => set({ filter }),
   setSearchQuery: query => set({ searchQuery: query }),
 
-  // Member actions
+  // Member actions (优化版本)
   addMember: (roomId, member) =>
-    set(state => ({
-      rooms: state.rooms.map(r =>
-        r.id === roomId
-          ? { ...r, members: [...r.members, member], memberCount: r.memberCount + 1 }
-          : r
-      ),
-    })),
-  removeMember: (roomId, memberId) =>
-    set(state => ({
-      rooms: state.rooms.map(r =>
-        r.id === roomId
-          ? {
-              ...r,
-              members: r.members.filter(m => m.id !== memberId),
-              memberCount: r.memberCount - 1,
-            }
-          : r
-      ),
-    })),
-  updateMember: (roomId, memberId, updates) =>
-    set(state => ({
-      rooms: state.rooms.map(r =>
-        r.id === roomId
-          ? {
-              ...r,
-              members: r.members.map(m => (m.id === memberId ? { ...m, ...updates } : m)),
-            }
-          : r
-      ),
-    })),
+    set(state => {
+      const roomIndex = state.rooms.findIndex(r => r.id === roomId)
+      if (roomIndex === -1) return state
 
-  // Message actions
+      const newRooms = [...state.rooms]
+      const room = { ...newRooms[roomIndex] }
+      room.members = [...room.members, member]
+      room.memberCount = room.memberCount + 1
+      newRooms[roomIndex] = room
+
+      return { rooms: newRooms }
+    }),
+  removeMember: (roomId, memberId) =>
+    set(state => {
+      const roomIndex = state.rooms.findIndex(r => r.id === roomId)
+      if (roomIndex === -1) return state
+
+      const room = state.rooms[roomIndex]
+      const newMembers = room.members.filter(m => m.id !== memberId)
+
+      const newRooms = [...state.rooms]
+      newRooms[roomIndex] = {
+        ...room,
+        members: newMembers,
+        memberCount: newMembers.length,
+      }
+
+      return { rooms: newRooms }
+    }),
+  updateMember: (roomId, memberId, updates) =>
+    set(state => {
+      const roomIndex = state.rooms.findIndex(r => r.id === roomId)
+      if (roomIndex === -1) return state
+
+      const room = state.rooms[roomIndex]
+      const memberIndex = room.members.findIndex(m => m.id === memberId)
+      if (memberIndex === -1) return state
+
+      const newRooms = [...state.rooms]
+      const newRoom = { ...newRooms[roomIndex] }
+      const newMembers = [...newRoom.members]
+      newMembers[memberIndex] = { ...newMembers[memberIndex], ...updates }
+      newRoom.members = newMembers
+      newRooms[roomIndex] = newRoom
+
+      return { rooms: newRooms }
+    }),
+
+  // Message actions (优化版本)
   addMessage: (roomId, message) =>
-    set(state => ({
-      messages: {
-        ...state.messages,
-        [roomId]: [...(state.messages[roomId] || []), message],
-      },
-      unreadCounts: {
-        ...state.unreadCounts,
-        [roomId]: (state.unreadCounts[roomId] || 0) + 1,
-      },
-    })),
+    set(state => {
+      const roomMessages = state.messages[roomId] || []
+      const newMessages = [...roomMessages, message]
+
+      return {
+        messages: {
+          ...state.messages,
+          [roomId]: newMessages,
+        },
+        unreadCounts: {
+          ...state.unreadCounts,
+          [roomId]: (state.unreadCounts[roomId] || 0) + 1,
+        },
+      }
+    }),
   clearMessages: roomId =>
-    set(state => ({
-      messages: { ...state.messages, [roomId]: [] },
-    })),
+    set(state => {
+      // 如果房间没有消息，不触发更新
+      if (!state.messages[roomId] || state.messages[roomId].length === 0) {
+        return state
+      }
+
+      return {
+        messages: {
+          ...state.messages,
+          [roomId]: [],
+        },
+      }
+    }),
   markAsRead: roomId =>
-    set(state => ({
-      unreadCounts: { ...state.unreadCounts, [roomId]: 0 },
-    })),
+    set(state => {
+      // 如果未读数为 0，不触发更新
+      if (state.unreadCounts[roomId] === 0) {
+        return state
+      }
+
+      return {
+        unreadCounts: {
+          ...state.unreadCounts,
+          [roomId]: 0,
+        },
+      }
+    }),
 
   // State
   setLoading: loading => set({ isLoading: loading }),
@@ -178,3 +228,47 @@ export const useRoomStore = create<RoomState>((set, get) => ({
     return room ? room.members.filter(m => m.isOnline) : []
   },
 }))
+
+/**
+ * 选择器 - 用于性能优化（细粒度选择）
+ */
+export const selectRooms = (state: RoomState) => state.rooms
+export const selectCurrentRoom = (state: RoomState) => state.currentRoom
+export const selectFilter = (state: RoomState) => state.filter
+export const selectSearchQuery = (state: RoomState) => state.searchQuery
+export const selectIsLoading = (state: RoomState) => state.isLoading
+export const selectError = (state: RoomState) => state.error
+
+/**
+ * 房间消息选择器
+ */
+export const selectRoomMessages = (roomId: string) => (state: RoomState) => state.messages[roomId] || []
+export const selectUnreadCount = (roomId: string) => (state: RoomState) => state.unreadCounts[roomId] || 0
+
+/**
+ * 复合选择器 - 房间操作方法
+ */
+export const selectRoomActions = (state: RoomState) => ({
+  setRooms: state.setRooms,
+  addRoom: state.addRoom,
+  updateRoom: state.updateRoom,
+  removeRoom: state.removeRoom,
+  setCurrentRoom: state.setCurrentRoom,
+  setFilter: state.setFilter,
+  setSearchQuery: state.setSearchQuery,
+  addMember: state.addMember,
+  removeMember: state.removeMember,
+  updateMember: state.updateMember,
+  addMessage: state.addMessage,
+  clearMessages: state.clearMessages,
+  markAsRead: state.markAsRead,
+})
+
+/**
+ * 复合选择器 - 房间查询方法
+ */
+export const selectRoomQueries = (state: RoomState) => ({
+  getFilteredRooms: state.getFilteredRooms,
+  getRoomById: state.getRoomById,
+  getOnlineMembers: state.getOnlineMembers,
+})

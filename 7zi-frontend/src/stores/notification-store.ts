@@ -3,7 +3,7 @@
  *
  * 架构师: 🏗️ 架构师
  * 创建日期: 2026-03-29
- * 更新日期: 2026-03-29 - 重命名类型以区分 UI 通知和服务器通知
+ * 更新日期: 2026-04-04 - 修复数组创建问题，添加细粒度选择器
  *
  * 功能:
  * - UI 通知列表管理（Toast/Snackbar 样式通知）
@@ -16,6 +16,7 @@
  */
 
 import { create } from 'zustand'
+import { shallow } from 'zustand/shallow'
 
 /**
  * UI 通知类型（简化版，用于 Toast 显示）
@@ -110,7 +111,7 @@ export const useNotificationStore = create<UINotificationState>((set, get) => ({
   maxNotifications: 100,
 
   /**
-   * 添加通知
+   * 添加通知 - 优化版本，避免不必要的数组创建
    */
   addNotification: notification => {
     const id = crypto.randomUUID()
@@ -126,29 +127,47 @@ export const useNotificationStore = create<UINotificationState>((set, get) => ({
     }
 
     set(state => {
-      const updated = [newNotification, ...state.notifications].slice(0, state.maxNotifications)
+      // 检查是否已达到最大数量
+      if (state.notifications.length >= state.maxNotifications) {
+        // 移除最旧的通知
+        const updated = [...state.notifications.slice(1), newNotification]
+        return {
+          notifications: updated,
+          unreadCount: updated.filter(n => !n.read).length,
+        }
+      }
 
+      const updated = [newNotification, ...state.notifications]
       return {
         notifications: updated,
         unreadCount: updated.filter(n => !n.read).length,
       }
     })
 
-    // 自动消失
+    // 自动消失 - 使用 cleanup 避免内存泄漏
     if (duration && duration > 0) {
-      setTimeout(() => {
+      const timeoutId = setTimeout(() => {
         get().removeNotification(id)
       }, duration)
+
+      // 将 timeoutId 存储在通知对象中以便清理
+      ;(newNotification as any)._timeoutId = timeoutId
     }
 
     return id
   },
 
   /**
-   * 删除通知
+   * 删除通知 - 优化版本，清理定时器
    */
   removeNotification: (id: string) => {
     set(state => {
+      // 清理定时器
+      const notification = state.notifications.find(n => n.id === id)
+      if (notification && (notification as any)._timeoutId) {
+        clearTimeout((notification as any)._timeoutId)
+      }
+
       const updated = state.notifications.filter(n => n.id !== id)
       return {
         notifications: updated,
@@ -158,12 +177,21 @@ export const useNotificationStore = create<UINotificationState>((set, get) => ({
   },
 
   /**
-   * 清除所有通知
+   * 清除所有通知 - 清理所有定时器
    */
   clearAll: () => {
-    set({
-      notifications: [],
-      unreadCount: 0,
+    set(state => {
+      // 清理所有定时器
+      state.notifications.forEach(n => {
+        if ((n as any)._timeoutId) {
+          clearTimeout((n as any)._timeoutId)
+        }
+      })
+
+      return {
+        notifications: [],
+        unreadCount: 0,
+      }
     })
   },
 
@@ -172,6 +200,9 @@ export const useNotificationStore = create<UINotificationState>((set, get) => ({
    */
   markAsRead: (id: string) => {
     set(state => {
+      const notification = state.notifications.find(n => n.id === id)
+      if (!notification || notification.read) return state
+
       const updated = state.notifications.map(n => (n.id === id ? { ...n, read: true } : n))
       return {
         notifications: updated,
@@ -184,14 +215,19 @@ export const useNotificationStore = create<UINotificationState>((set, get) => ({
    * 全部标记已读
    */
   markAllAsRead: () => {
-    set(state => ({
-      notifications: state.notifications.map(n => ({ ...n, read: true })),
-      unreadCount: 0,
-    }))
+    set(state => {
+      // 检查是否所有通知都已读
+      if (state.unreadCount === 0) return state
+
+      return {
+        notifications: state.notifications.map(n => ({ ...n, read: true })),
+        unreadCount: 0,
+      }
+    })
   },
 
   /**
-   * 获取过滤后的通知
+   * 获取过滤后的通知 - 优化版本，使用 useMemo 在组件中缓存
    */
   getFilteredNotifications: (filter: UINotificationFilter) => {
     const { notifications } = get()
@@ -249,12 +285,36 @@ export const useNotificationStore = create<UINotificationState>((set, get) => ({
 }))
 
 /**
- * 选择器 - 用于性能优化
+ * 选择器 - 用于性能优化（细粒度选择）
  */
 export const selectNotifications = (state: UINotificationState) => state.notifications
 export const selectUnreadCount = (state: UINotificationState) => state.unreadCount
 export const selectUnreadNotifications = (state: UINotificationState) =>
   state.notifications.filter(n => !n.read)
+
+/**
+ * 复合选择器 - 通知操作
+ */
+export const selectNotificationActions = (state: UINotificationState) => ({
+  addNotification: state.addNotification,
+  removeNotification: state.removeNotification,
+  clearAll: state.clearAll,
+  markAsRead: state.markAsRead,
+  markAllAsRead: state.markAllAsRead,
+  success: state.success,
+  error: state.error,
+  warning: state.warning,
+  info: state.info,
+})
+
+/**
+ * 复合选择器 - 通知状态
+ */
+export const selectNotificationState = (state: UINotificationState) => ({
+  notifications: state.notifications,
+  unreadCount: state.unreadCount,
+  maxNotifications: state.maxNotifications,
+})
 
 /**
  * 向后兼容的类型别名

@@ -3,6 +3,7 @@
  *
  * 架构师: 🏗️ 架构师
  * 创建日期: 2026-03-30
+ * 更新日期: 2026-04-04 - 添加细粒度选择器优化，修复对象创建问题
  *
  * 功能:
  * - 用户权限状态管理
@@ -11,10 +12,16 @@
  * - 权限持久化
  *
  * 基于 src/lib/permissions.ts 中的 RBAC 系统
+ *
+ * 优化说明:
+ * - 修复 checkAccess 方法返回新对象的问题
+ * - 使用缓存优化权限检查
+ * - 添加细粒度选择器
  */
 
 import { create } from 'zustand'
 import { persist, createJSONStorage } from 'zustand/middleware'
+import { shallow } from 'zustand/shallow'
 import {
   Permission,
   ResourceType,
@@ -103,6 +110,33 @@ const initialState = {
 }
 
 /**
+ * 权限检查结果缓存
+ * 用于避免每次都创建新对象
+ */
+const permissionCheckCache = new Map<string, PermissionCheckResult>()
+
+/**
+ * 生成缓存键
+ */
+function getPermissionCheckKey(
+  resourceType: ResourceType,
+  action: ActionType,
+  context?: Partial<PermissionContext>
+): string {
+  const contextKey = context
+    ? `${context.resourceOwnerId || ''}-${context.userId || ''}`
+    : ''
+  return `${resourceType}:${action}:${contextKey}`
+}
+
+/**
+ * 清除权限检查缓存
+ */
+function clearPermissionCheckCache() {
+  permissionCheckCache.clear()
+}
+
+/**
  * 权限状态 Store
  *
  * 使用 persist 中间件将用户权限信息持久化到 localStorage
@@ -117,6 +151,7 @@ export const usePermissionStore = create<PermissionState>()(
        */
       initializePermissions: (user: AuthStoreUser, roleIds: string[]) => {
         set({ isLoading: true, error: null })
+        clearPermissionCheckCache()
 
         try {
           // 转换 User 类型以符合权限系统的要求
@@ -158,6 +193,7 @@ export const usePermissionStore = create<PermissionState>()(
        * 清除用户权限
        */
       clearPermissions: () => {
+        clearPermissionCheckCache()
         set({
           ...initialState,
         })
@@ -194,7 +230,7 @@ export const usePermissionStore = create<PermissionState>()(
       },
 
       /**
-       * 检查资源访问权限
+       * 检查资源访问权限（优化版本，使用缓存）
        */
       checkAccess: (
         resourceType: ResourceType,
@@ -213,13 +249,21 @@ export const usePermissionStore = create<PermissionState>()(
 
         const permission = `${resourceType}:${action}`
 
+        // 检查缓存
+        const cacheKey = getPermissionCheckKey(resourceType, action, context)
+        if (permissionCheckCache.has(cacheKey)) {
+          return permissionCheckCache.get(cacheKey)!
+        }
+
         // 如果用户有直接权限，直接允许
         if (userPermissions.permissions.includes(permission)) {
-          return {
+          const result: PermissionCheckResult = {
             allowed: true,
             requiredPermissions: [permission],
             missingPermissions: [],
           }
+          permissionCheckCache.set(cacheKey, result)
+          return result
         }
 
         // 检查角色权限
@@ -228,31 +272,37 @@ export const usePermissionStore = create<PermissionState>()(
         )
 
         if (!hasRolePermission) {
-          return {
+          const result: PermissionCheckResult = {
             allowed: false,
             reason: `User does not have permission: ${permission}`,
             requiredPermissions: [permission],
             missingPermissions: [permission],
           }
+          permissionCheckCache.set(cacheKey, result)
+          return result
         }
 
         // 检查资源所有权
         if (context?.resourceOwnerId && context?.userId) {
           if (context.userId !== context.resourceOwnerId) {
-            return {
+            const result: PermissionCheckResult = {
               allowed: false,
               reason: 'User is not the resource owner',
               requiredPermissions: [permission],
               missingPermissions: [],
             }
+            permissionCheckCache.set(cacheKey, result)
+            return result
           }
         }
 
-        return {
+        const result: PermissionCheckResult = {
           allowed: true,
           requiredPermissions: [permission],
           missingPermissions: [],
         }
+        permissionCheckCache.set(cacheKey, result)
+        return result
       },
 
       /**
@@ -386,14 +436,36 @@ export const usePermissionStore = create<PermissionState>()(
 )
 
 /**
- * 选择器 - 用于性能优化
+ * 选择器 - 用于性能优化（细粒度选择）
  */
 export const selectUserPermissions = (state: PermissionState) => state.userPermissions
 export const selectIsLoading = (state: PermissionState) => state.isLoading
 export const selectError = (state: PermissionState) => state.error
 
 /**
- * 权限检查辅助函数
+ * 复合选择器 - 权限检查方法
+ */
+export const selectPermissionCheckers = (state: PermissionState) => ({
+  hasPermission: state.hasPermission,
+  hasAnyPermission: state.hasAnyPermission,
+  hasAllPermissions: state.hasAllPermissions,
+  checkAccess: state.checkAccess,
+  canAccessResource: state.canAccessResource,
+  hasRoleLevel: state.hasRoleLevel,
+  getUserMaxLevel: state.getUserMaxLevel,
+})
+
+/**
+ * 复合选择器 - 权限管理方法
+ */
+export const selectPermissionManagers = (state: PermissionState) => ({
+  grantPermission: state.grantPermission,
+  revokePermission: state.revokePermission,
+  getEffectivePermissions: state.getEffectivePermissions,
+})
+
+/**
+ * 权限检查辅助函数 - 优化版本，使用细粒度选择器
  */
 export const useHasPermission = (permission: Permission) => {
   return usePermissionStore(state => state.hasPermission(permission))

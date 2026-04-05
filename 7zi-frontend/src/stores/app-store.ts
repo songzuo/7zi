@@ -3,6 +3,7 @@
  *
  * 架构师: 🏗️ 架构师
  * 创建日期: 2026-03-29
+ * 更新日期: 2026-04-04 - 添加细粒度选择器优化
  *
  * 功能:
  * - UI 状态管理 (侧边栏、主题)
@@ -13,6 +14,7 @@
 
 import { create } from 'zustand'
 import { persist, createJSONStorage } from 'zustand/middleware'
+import { shallow } from 'zustand/shallow'
 
 /**
  * 应用设置接口
@@ -99,18 +101,32 @@ const defaultSettings: AppSettings = {
  */
 export const useAppStore = create<AppState>()(
   persist(
-    set => ({
+    (set, get) => ({
       settings: defaultSettings,
       isGlobalLoading: false,
       globalLoadingMessage: null,
 
       /**
-       * 更新设置
+       * 更新设置 - 优化版本，使用函数式更新避免不必要的对象创建
        */
       updateSettings: (newSettings: Partial<AppSettings>) => {
-        set(state => ({
-          settings: { ...state.settings, ...newSettings },
-        }))
+        set(state => {
+          // 只有在有实际变化时才更新
+          const updatedSettings = { ...state.settings }
+          let hasChanges = false
+          
+          for (const [key, value] of Object.entries(newSettings)) {
+            if (updatedSettings[key as keyof AppSettings] !== value) {
+              ;(updatedSettings as any)[key] = value
+              hasChanges = true
+            }
+          }
+          
+          // 如果没有变化，不触发更新
+          if (!hasChanges) return state
+          
+          return { settings: updatedSettings }
+        })
       },
 
       /**
@@ -121,7 +137,7 @@ export const useAppStore = create<AppState>()(
       },
 
       /**
-       * 切换侧边栏
+       * 切换侧边栏 - 优化版本，直接更新布尔值
        */
       toggleSidebar: () => {
         set(state => ({
@@ -220,10 +236,43 @@ export const useAppStore = create<AppState>()(
 )
 
 /**
- * 选择器 - 用于性能优化
+ * 选择器 - 用于性能优化（细粒度选择）
  */
 export const selectSettings = (state: AppState) => state.settings
 export const selectDarkMode = (state: AppState) => state.settings.darkMode
 export const selectLanguage = (state: AppState) => state.settings.language
 export const selectSidebarOpen = (state: AppState) => state.settings.sidebarOpen
 export const selectIsGlobalLoading = (state: AppState) => state.isGlobalLoading
+export const selectGlobalLoadingMessage = (state: AppState) => state.globalLoadingMessage
+
+/**
+ * 复合选择器 - UI 状态（一起订阅以避免多次渲染）
+ */
+export const selectUIState = (state: AppState) => ({
+  sidebarOpen: state.settings.sidebarOpen,
+  sidebarCollapsed: state.settings.sidebarCollapsed,
+  darkMode: state.settings.darkMode,
+  compactMode: state.settings.compactMode,
+  isGlobalLoading: state.isGlobalLoading,
+  globalLoadingMessage: state.globalLoadingMessage,
+})
+
+/**
+ * 复合选择器 - 用户偏好设置
+ */
+export const selectUserPreferences = (state: AppState) => ({
+  language: state.settings.language,
+  timezone: state.settings.timezone,
+  pageSize: state.settings.pageSize,
+  autoRefresh: state.settings.autoRefresh,
+  refreshInterval: state.settings.refreshInterval,
+})
+
+/**
+ * 复合选择器 - 通知设置
+ */
+export const selectNotificationSettings = (state: AppState) => ({
+  notificationsEnabled: state.settings.notificationsEnabled,
+  soundEnabled: state.settings.soundEnabled,
+  desktopNotifications: state.settings.desktopNotifications,
+})
