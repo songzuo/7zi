@@ -62,6 +62,17 @@ class TaskExecutor extends BaseExecutor {
 }
 
 /**
+ * Code 节点执行器（TaskExecutor 别名）
+ * 用于执行自定义代码
+ */
+class CodeExecutor extends TaskExecutor {
+  constructor() {
+    super();
+    this.type = 'code';
+  }
+}
+
+/**
  * Condition 节点执行器
  */
 class ConditionExecutor extends BaseExecutor {
@@ -140,6 +151,11 @@ class LoopExecutor extends BaseExecutor {
   resolveValue(path, execution, input) {
     const parts = path.split('.');
     let value = path.startsWith('variables.') ? execution.variables : input;
+    
+    // Skip the 'variables' prefix if present
+    if (parts[0] === 'variables') {
+      parts.shift();
+    }
     
     for (const part of parts) {
       if (value === null || value === undefined) return undefined;
@@ -399,6 +415,7 @@ module.exports = {
   StartExecutor,
   EndExecutor,
   TaskExecutor,
+  CodeExecutor,
   ConditionExecutor,
   LoopExecutor,
   ParallelExecutor,
