@@ -9,6 +9,7 @@
 
 import type { NextConfig } from 'next'
 import path from 'path'
+import withPWA from 'next-pwa'
 
 // ============================================
 // 环境配置
@@ -267,22 +268,22 @@ const nextConfig: NextConfig = {
             minSize: 20 * 1024,
             maxSize: 100 * 1024,
           },
-          // 框架核心 - 拆分为更小的部分
+          // 框架核心 - 合并为更大的chunks以减少请求
           'react-core': {
             test: /[\\/]node_modules[\\/](react|react-dom)[\\/]/,
             name: 'react-core',
             priority: 36,
             reuseExistingChunk: true,
-            minSize: 80 * 1024,
-            maxSize: 200 * 1024,
+            minChunks: 1,
+            maxSize: 250 * 1024, // 增加最大大小
           },
           'next-core': {
             test: /[\\/]node_modules[\\/]next[\\/]/,
             name: 'next-core',
             priority: 35,
             reuseExistingChunk: true,
-            minSize: 50 * 1024,
-            maxSize: 150 * 1024,
+            minChunks: 1,
+            maxSize: 300 * 1024, // 增加最大大小
           },
           // Zustand 状态管理
           zustand: {
@@ -319,6 +320,25 @@ const nextConfig: NextConfig = {
             reuseExistingChunk: true,
             minSize: CHUNK_LIMITS.minChunkSize,
             maxSize: 100 * 1024,
+          },
+          // Three.js 3D 库（独立分割）
+          'three': {
+            test: /[\\/]node_modules[\\/](three|@react-three)[\\/]/,
+            name: 'three',
+            priority: 45,
+            reuseExistingChunk: true,
+            enforce: true,
+            minSize: 50 * 1024,
+            maxSize: 400 * 1024,
+          },
+          // i18n 翻译资源（独立分割）
+          'i18n-resources': {
+            test: /[\\/]locales[\\/]/,
+            name: 'i18n-resources',
+            priority: 23,
+            reuseExistingChunk: true,
+            minSize: 10 * 1024,
+            maxSize: 150 * 1024,
           },
           // 二维码库
           qrcode: {
@@ -412,6 +432,90 @@ const nextConfig: NextConfig = {
 }
 
 // ============================================
-// 导出配置
+// PWA 配置 (使用 next-pwa)
 // ============================================
-export default nextConfig
+const pwaConfig = {
+  dest: 'public',
+  register: true,
+  skipWaiting: true,
+  disable: process.env.NODE_ENV === 'development',
+  runtimeCaching: [
+    {
+      urlPattern: /^https?.*/,
+      handler: 'NetworkFirst',
+      options: {
+        cacheName: 'offlineCache',
+        expiration: {
+          maxEntries: 200,
+          maxAgeSeconds: 24 * 60 * 60, // 24 hours
+        },
+        cacheableResponse: {
+          statuses: [0, 200],
+        },
+        networkTimeoutSeconds: 10,
+      },
+    },
+    {
+      urlPattern: /\.(?:js|css|html)$/,
+      handler: 'StaleWhileRevalidate',
+      options: {
+        cacheName: 'static-resources',
+        expiration: {
+          maxEntries: 500,
+          maxAgeSeconds: 7 * 24 * 60 * 60, // 7 days
+        },
+        cacheableResponse: {
+          statuses: [0, 200],
+        },
+      },
+    },
+    {
+      urlPattern: /\.(?:png|jpg|jpeg|svg|gif|webp|ico|avif)$/,
+      handler: 'CacheFirst',
+      options: {
+        cacheName: 'images',
+        expiration: {
+          maxEntries: 1000,
+          maxAgeSeconds: 30 * 24 * 60 * 60, // 30 days
+        },
+        cacheableResponse: {
+          statuses: [0, 200],
+        },
+      },
+    },
+    {
+      urlPattern: /\.(?:woff|woff2|ttf|otf|eot)$/,
+      handler: 'CacheFirst',
+      options: {
+        cacheName: 'fonts',
+        expiration: {
+          maxEntries: 100,
+          maxAgeSeconds: 365 * 24 * 60 * 60, // 1 year
+        },
+        cacheableResponse: {
+          statuses: [0, 200],
+        },
+      },
+    },
+    {
+      urlPattern: /\/api\/.*/,
+      handler: 'NetworkFirst',
+      options: {
+        cacheName: 'api-cache',
+        expiration: {
+          maxEntries: 100,
+          maxAgeSeconds: 5 * 60, // 5 minutes
+        },
+        cacheableResponse: {
+          statuses: [0, 200],
+        },
+        networkTimeoutSeconds: 5,
+      },
+    },
+  ],
+}
+
+// ============================================
+// 导出配置 (with PWA)
+// ============================================
+export default withPWA(pwaConfig)(nextConfig)
