@@ -123,7 +123,7 @@ export interface CardBodyProps {
   padding?: 'none' | 'sm' | 'md' | 'lg'
 }
 
-export const CardBody: React.FC<CardBodyProps> = ({ children, className, padding = 'md' }) => {
+export const CardBodyMain: React.FC<CardBodyProps> = ({ children, className, padding = 'md' }) => {
   const paddingStyles = {
     none: '',
     sm: 'px-6 py-2',
@@ -133,6 +133,13 @@ export const CardBody: React.FC<CardBodyProps> = ({ children, className, padding
 
   return <div className={clsx(paddingStyles[padding], className)}>{children}</div>
 }
+
+// CardBody 是 CardBodyMain 的别名
+export const CardBody = CardBodyMain
+
+// CardContent 是 CardBody 的别名（兼容 shadcn/ui）
+export const CardContent = CardBodyMain
+export type CardContentProps = CardBodyProps
 
 // ============================================
 // CardFooter 组件
@@ -267,6 +274,10 @@ export const CardText: React.FC<CardTextProps> = ({ children, className, color =
 
   return <p className={clsx(colorStyles[color], 'mt-2', className)}>{children}</p>
 }
+
+// CardDescription 是 CardText 的别名（兼容 shadcn/ui）
+export const CardDescription = CardText
+export type CardDescriptionProps = CardTextProps
 
 // ============================================
 // CardMeta 组件

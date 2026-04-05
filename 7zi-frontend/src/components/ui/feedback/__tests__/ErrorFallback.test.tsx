@@ -184,7 +184,7 @@ describe('ErrorFallback Components', () => {
       const { withRetry } = require('@/lib/error-reporting/retry')
       const resetError = jest.fn()
 
-      let resolveRetry: (value: any) => void
+      let resolveRetry: (value: unknown) => void
       const retryPromise = new Promise(resolve => {
         resolveRetry = resolve
       })
@@ -303,7 +303,7 @@ describe('ErrorFallback Components', () => {
     it('should disable buttons while retrying', async () => {
       const { withRetry } = require('@/lib/error-reporting/retry')
 
-      let resolveRetry: (value: any) => void
+      let resolveRetry: (value: unknown) => void
       const retryPromise = new Promise(resolve => {
         resolveRetry = resolve
       })

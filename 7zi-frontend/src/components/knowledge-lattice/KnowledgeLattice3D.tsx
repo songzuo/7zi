@@ -1,26 +1,38 @@
 'use client'
 
-import { useEffect, useRef } from 'react'
-import * as THREE from 'three'
+import { useEffect, useRef, useState, Suspense } from 'react'
+import type { Scene, WebGLRenderer, PerspectiveCamera, Vector3, Object3D, Material } from 'three'
 
-interface KnowledgeLattice3DProps {
-  nodes?: Array<{ id: string; label: string; connections: string[] }>
-}
-
-/**
- * Knowledge Lattice 3D Visualization
- * Uses Three.js to render an interactive knowledge graph
- */
-export function KnowledgeLattice3D({ nodes = [] }: KnowledgeLattice3DProps) {
-  'use memo'
-
+// 动态导入 Three.js 以减少初始 bundle 大小
+// Three.js 约 150KB，仅在需要时加载
+const ThreeScene = ({ nodes }: { nodes: Array<{ id: string; label: string; connections: string[] }> }) => {
+  const [three, setThree] = useState<typeof import('three') | null>(null)
   const containerRef = useRef<HTMLDivElement>(null)
-  const sceneRef = useRef<THREE.Scene | null>(null)
-  const rendererRef = useRef<THREE.WebGLRenderer | null>(null)
-  const cameraRef = useRef<THREE.PerspectiveCamera | null>(null)
+  const sceneRef = useRef<Scene | null>(null)
+  const rendererRef = useRef<WebGLRenderer | null>(null)
+  const cameraRef = useRef<PerspectiveCamera | null>(null)
   const frameIdRef = useRef<number | null>(null)
 
   useEffect(() => {
+    // 动态加载 Three.js
+    import('three').then((THREE) => {
+      setThree(THREE)
+      initScene(THREE)
+    })
+
+    return () => {
+      // Cleanup
+      if (frameIdRef.current) {
+        cancelAnimationFrame(frameIdRef.current)
+      }
+      if (rendererRef.current && containerRef.current) {
+        containerRef.current.removeChild(rendererRef.current.domElement)
+        rendererRef.current.dispose()
+      }
+    }
+  }, [])
+
+  const initScene = (THREE: typeof import('three')) => {
     if (!containerRef.current) return
 
     // Initialize Three.js scene
@@ -71,7 +83,7 @@ export function KnowledgeLattice3D({ nodes = [] }: KnowledgeLattice3DProps) {
       node.connections.forEach(connIndex => {
         const connIdx = typeof connIndex === 'number' ? connIndex : parseInt(connIndex, 10)
         if (connIdx < displayNodes.length) {
-          const points: THREE.Vector3[] = []
+          const points: Vector3[] = []
           points.push(new THREE.Vector3(((i % 5) - 2) * 10, Math.floor(i / 5) * 10 - 20, 0))
           points.push(
             new THREE.Vector3(((connIdx % 5) - 2) * 10, Math.floor(connIdx / 5) * 10 - 20, 0)
@@ -124,32 +136,23 @@ export function KnowledgeLattice3D({ nodes = [] }: KnowledgeLattice3DProps) {
 
     window.addEventListener('resize', handleResize)
 
-    // Cleanup
+    // Cleanup on unmount
     return () => {
       window.removeEventListener('resize', handleResize)
 
-      if (frameIdRef.current) {
-        cancelAnimationFrame(frameIdRef.current)
-      }
-
-      if (rendererRef.current && containerRef.current) {
-        containerRef.current.removeChild(rendererRef.current.domElement)
-        rendererRef.current.dispose()
-      }
-
       // Dispose geometries and materials
-      scene.traverse(object => {
+      scene.traverse((object: Object3D) => {
         if (object instanceof THREE.Mesh) {
           object.geometry.dispose()
           if (Array.isArray(object.material)) {
-            object.material.forEach(material => material.dispose())
+            object.material.forEach((material: Material) => material.dispose())
           } else {
             object.material.dispose()
           }
         }
       })
     }
-  }, [nodes])
+  }
 
   return (
     <div
@@ -157,6 +160,25 @@ export function KnowledgeLattice3D({ nodes = [] }: KnowledgeLattice3DProps) {
       className="h-full min-h-[600px] w-full"
       style={{ background: '#0a0a0a' }}
     />
+  )
+}
+
+interface KnowledgeLattice3DProps {
+  nodes?: Array<{ id: string; label: string; connections: string[] }>
+}
+
+/**
+ * Knowledge Lattice 3D Visualization
+ * Uses Three.js to render an interactive knowledge graph
+ * Three.js is dynamically imported to reduce initial bundle size
+ */
+export function KnowledgeLattice3D({ nodes = [] }: KnowledgeLattice3DProps) {
+  'use memo'
+
+  return (
+    <Suspense fallback={<div className="h-full min-h-[600px] w-full bg-gray-900 animate-pulse" />}>
+      <ThreeScene nodes={nodes} />
+    </Suspense>
   )
 }
 

@@ -8,9 +8,11 @@ import React from 'react'
 import { describe, it, expect, beforeEach, vi, afterEach } from 'vitest'
 import { render, screen, waitFor, act } from '@testing-library/react'
 import NotificationProvider, { useNotificationContext } from '../NotificationProvider'
+import type { UseNotificationsReturn, UseNotificationsOptions } from '@/hooks/useNotifications'
+import type { NotificationContextValue } from '../NotificationProvider'
 
 // Store the mock implementation so tests can modify it
-let mockNotificationsReturn: any = {
+let mockNotificationsReturn: UseNotificationsReturn = {
   notifications: [],
   unreadCount: 0,
   status: 'disconnected' as const,
@@ -23,11 +25,11 @@ let mockNotificationsReturn: any = {
   refreshNotifications: vi.fn(),
 }
 
-let capturedOptions: any = null
+let capturedOptions: UseNotificationsOptions | null = null
 
 // Mock the useNotifications hook
 vi.mock('@/hooks/useNotifications', () => ({
-  useNotifications: vi.fn((options?: any) => {
+  useNotifications: vi.fn((options?: UseNotificationsOptions) => {
     capturedOptions = options
     return mockNotificationsReturn
   }),
@@ -125,7 +127,7 @@ describe('NotificationProvider Component', () => {
     })
 
     it('should provide all context properties', () => {
-      let contextValue: any = null
+      let contextValue: NotificationContextValue | null = null
 
       const TestComponent = () => {
         const context = useNotificationContext()
@@ -222,8 +224,8 @@ describe('NotificationProvider Component', () => {
 
   describe('Context Consumption', () => {
     it('should allow multiple children to consume context', () => {
-      let context1: any = null
-      let context2: any = null
+      let context1: NotificationContextValue | null = null
+      let context2: NotificationContextValue | null = null
 
       const TestComponent1 = () => {
         context1 = useNotificationContext()
@@ -249,7 +251,7 @@ describe('NotificationProvider Component', () => {
     })
 
     it('should share same context instance across all consumers', () => {
-      const contexts: any[] = []
+      const contexts: Array<NotificationContextValue | null> = []
 
       const TestComponent = ({ id }: { id: number }) => {
         const context = useNotificationContext()
@@ -322,7 +324,7 @@ describe('NotificationProvider Component', () => {
 
   describe('Integration with useNotifications', () => {
     it('should expose connect function', () => {
-      let contextConnect: any = null
+      let contextConnect: NotificationContextValue | null = null
 
       const TestComponent = () => {
         const context = useNotificationContext()
@@ -340,7 +342,7 @@ describe('NotificationProvider Component', () => {
     })
 
     it('should expose disconnect function', () => {
-      let contextDisconnect: any = null
+      let contextDisconnect: NotificationContextValue | null = null
 
       const TestComponent = () => {
         const context = useNotificationContext()
@@ -358,7 +360,7 @@ describe('NotificationProvider Component', () => {
     })
 
     it('should expose markAsRead function', () => {
-      let contextMarkAsRead: any = null
+      let contextMarkAsRead: NotificationContextValue | null = null
 
       const TestComponent = () => {
         const context = useNotificationContext()

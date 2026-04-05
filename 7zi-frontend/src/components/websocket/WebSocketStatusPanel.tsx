@@ -7,6 +7,7 @@
  * - Reconnection attempts
  * - Last active time
  * - Message send/receive statistics
+ * - Connection quality metrics (latency score, stability, packet loss)
  *
  * Features:
  * - Responsive design (mobile-friendly)
@@ -127,6 +128,31 @@ export function WebSocketStatusPanel({
   }, [connectionState])
 
   /**
+   * Get connection quality indicator
+   */
+  const getQualityIndicator = useCallback((
+    quality?: ConnectionStats['connectionQuality']
+  ): { icon: string; color: string; label: string } => {
+    if (!quality) {
+      return { icon: '❓', color: 'text-gray-400', label: 'Unknown' }
+    }
+    switch (quality.qualityLevel) {
+      case 'excellent':
+        return { icon: '💎', color: 'text-green-600', label: 'Excellent' }
+      case 'good':
+        return { icon: '✨', color: 'text-green-500', label: 'Good' }
+      case 'fair':
+        return { icon: '👌', color: 'text-yellow-600', label: 'Fair' }
+      case 'poor':
+        return { icon: '⚠️', color: 'text-orange-600', label: 'Poor' }
+      case 'critical':
+        return { icon: '🔴', color: 'text-red-600', label: 'Critical' }
+      default:
+        return { icon: '❓', color: 'text-gray-400', label: 'Unknown' }
+    }
+  }, [])
+
+  /**
    * Get ping latency indicator
    */
   const getLatencyIndicator = useCallback((latency: number): { icon: string; color: string } => {
@@ -165,6 +191,7 @@ export function WebSocketStatusPanel({
   }, [stats.lastActiveTime])
 
   const latencyInfo = getLatencyIndicator(stats.currentPingLatency)
+  const qualityInfo = getQualityIndicator(stats.connectionQuality)
 
   return (
     <div
@@ -259,6 +286,81 @@ export function WebSocketStatusPanel({
               </div>
             </div>
           </div>
+
+          {/* Connection Quality */}
+          {stats.connectionQuality && (
+            <div className="rounded-lg border border-gray-200 bg-white p-3">
+              <p className="mb-2 text-xs font-medium text-gray-500">Connection Quality</p>
+              <div className="space-y-2">
+                {/* Quality Level */}
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-2">
+                    <span className="text-xl">{qualityInfo.icon}</span>
+                    <div>
+                      <p className="text-sm font-semibold text-gray-700">Quality</p>
+                      <p className={`text-xs font-medium ${qualityInfo.color}`}>
+                        {qualityInfo.label}
+                      </p>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Quality Scores */}
+                <div className="grid grid-cols-2 gap-2">
+                  <div>
+                    <p className="text-xs text-gray-500">Latency Score</p>
+                    <div className="flex items-center gap-2">
+                      <div className="h-2 flex-1 rounded-full bg-gray-200">
+                        <div
+                          className="h-2 rounded-full bg-blue-500 transition-all"
+                          style={{ width: `${stats.connectionQuality.latencyScore}%` }}
+                        />
+                      </div>
+                      <span className="text-xs font-medium text-gray-700">
+                        {stats.connectionQuality.latencyScore}
+                      </span>
+                    </div>
+                  </div>
+                  <div>
+                    <p className="text-xs text-gray-500">Stability Score</p>
+                    <div className="flex items-center gap-2">
+                      <div className="h-2 flex-1 rounded-full bg-gray-200">
+                        <div
+                          className="h-2 rounded-full bg-green-500 transition-all"
+                          style={{ width: `${stats.connectionQuality.stabilityScore}%` }}
+                        />
+                      </div>
+                      <span className="text-xs font-medium text-gray-700">
+                        {stats.connectionQuality.stabilityScore}
+                      </span>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Packet Loss */}
+                <div>
+                  <p className="text-xs text-gray-500">Packet Loss Estimate</p>
+                  <div className="flex items-center gap-2">
+                    <div className="h-2 flex-1 rounded-full bg-gray-200">
+                      <div
+                        className={`h-2 rounded-full transition-all ${
+                          stats.connectionQuality.packetLossEstimate < 0.05
+                            ? 'bg-green-500'
+                            : stats.connectionQuality.packetLossEstimate < 0.1
+                            ? 'bg-yellow-500'
+                            : 'bg-red-500'
+                        }`}
+                        style={{ width: `${stats.connectionQuality.packetLossEstimate * 100}%` }}
+                      />
+                    </div>
+                    <span className="text-xs font-medium text-gray-700">
+                      {(stats.connectionQuality.packetLossEstimate * 100).toFixed(1)}%
+                    </span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          )}
 
           {/* Reconnection Info */}
           <div className="grid grid-cols-2 gap-3">

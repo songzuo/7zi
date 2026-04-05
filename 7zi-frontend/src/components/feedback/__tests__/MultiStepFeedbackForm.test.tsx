@@ -7,6 +7,8 @@ import { render, screen, fireEvent, waitFor } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import MultiStepFeedbackForm from '../MultiStepFeedbackForm'
 import type { FeedbackData } from '@/lib/db/feedback-types'
+import type { ButtonProps } from '@/components/ui/Button'
+import type { InputProps } from '@/components/ui/Input'
 
 // Mock i18n
 vi.mock('@/lib/i18n/client', () => ({
@@ -17,11 +19,12 @@ vi.mock('@/lib/i18n/client', () => ({
 
 // Mock UI components
 vi.mock('@/components/ui/Button', () => ({
-  Button: ({ children, onClick, disabled, variant }: any) => (
+  Button: ({ children, onClick, disabled, variant, ...props }: ButtonProps) => (
     <button
       onClick={onClick}
       disabled={disabled}
       data-variant={variant}
+      {...props}
     >
       {children}
     </button>
@@ -29,7 +32,7 @@ vi.mock('@/components/ui/Button', () => ({
 }))
 
 vi.mock('@/components/ui/Input', () => ({
-  Input: (props: any) => <input {...props} />,
+  Input: (props: InputProps) => <input {...props} />,
 }))
 
 // Mock sub-components
@@ -38,7 +41,7 @@ vi.mock('../ScreenshotAnnotation', () => ({
 }))
 
 vi.mock('../EmotionSelector', () => ({
-  default: ({ value, onChange }: any) => (
+  default: ({ value, onChange }: { value: string; onChange: (val: string) => void }) => (
     <div data-testid="emotion-selector" data-value={value} onClick={() => onChange('satisfied')}>
       EmotionSelector
     </div>
