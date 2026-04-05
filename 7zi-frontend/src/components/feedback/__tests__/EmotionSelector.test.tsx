@@ -5,7 +5,7 @@
 import { describe, it, expect } from 'vitest'
 import { render, screen, fireEvent } from '@testing-library/react'
 import { EmotionSelector, SatisfactionRating, FeedbackSatisfactionModal } from '../EmotionSelector'
-import { Modal } from '@/components/ui/Modal'
+import { Modal, ModalProps } from '@/components/ui/Modal'
 
 // Mock i18n
 vi.mock('@/lib/i18n/client', () => ({
@@ -16,7 +16,7 @@ vi.mock('@/lib/i18n/client', () => ({
 
 // Mock Modal component
 vi.mock('@/components/ui/Modal', () => ({
-  Modal: ({ isOpen, onClose, children, title }: any) =>
+  Modal: ({ isOpen, onClose, children, title }: ModalProps) =>
     isOpen ? (
       <div data-testid="modal">
         <h2>{title}</h2>

@@ -7,15 +7,18 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest'
 import { render, screen, fireEvent, waitFor } from '@testing-library/react'
 import { AlertRuleForm } from '../AlertRuleForm'
+import type { ButtonProps } from '@/components/ui/Button'
+import type { InputProps } from '@/components/ui/Input'
 
 // Mock the Button component
 vi.mock('@/components/ui/Button', () => ({
-  Button: ({ children, onClick, type, loading, variant, disabled }: any) => (
-    <button 
-      type={type} 
-      onClick={onClick} 
+  Button: ({ children, onClick, type, loading, variant, disabled, ...props }: ButtonProps) => (
+    <button
+      type={type}
+      onClick={onClick}
       disabled={disabled || loading}
       data-variant={variant}
+      {...props}
     >
       {loading ? 'Loading...' : children}
     </button>
@@ -24,7 +27,7 @@ vi.mock('@/components/ui/Button', () => ({
 
 // Mock the Input component
 vi.mock('@/components/ui/Input', () => ({
-  Input: ({ label, error, ...props }: any) => (
+  Input: ({ label, error, ...props }: InputProps) => (
     <div>
       {label && <label>{label}</label>}
       <input {...props} />

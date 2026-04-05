@@ -8,7 +8,7 @@
 import React, { useState } from 'react';
 import { useKeyboardShortcutsEnhanced } from '@/hooks/useKeyboardShortcutsEnhanced';
 import { Shortcut } from '@/lib/keyboard/shortcut-registry';
-import { shortcutManager } from '@/lib/keyboard/shortcut-manager';
+import { shortcutManager, ShortcutConflict } from '@/lib/keyboard/shortcut-manager';
 import ShortcutSettingsEnhanced from './ShortcutSettingsEnhanced';
 import ShortcutSearch, { useShortcutSearch } from './ShortcutSearch';
 import ShortcutTutorial, { TutorialProgress, useShortcutTutorial } from './ShortcutTutorial';
@@ -18,7 +18,7 @@ export default function KeyboardShortcutsDemo() {
   const [showSettings, setShowSettings] = useState(false);
   const [showTutorial, setShowTutorial] = useState(false);
   const [lastAction, setLastAction] = useState<string>('');
-  const [conflicts, setConflicts] = useState<any[]>([]);
+  const [conflicts, setConflicts] = useState<ShortcutConflict[]>([]);
 
   const search = useShortcutSearch();
   const tutorial = useShortcutTutorial();
