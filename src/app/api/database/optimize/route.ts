@@ -130,7 +130,7 @@ export async function GET(request: NextRequest) {
  */
 async function POSTHandler(_request: NextRequest, context: RBACUserContext) {
   try {
-    const body = await request.json()
+    const body = await _request.json()
 
     // Validate request body
     const validation = dbOperationsSchema.safeParse(body)

@@ -111,3 +111,39 @@ export {
   type HistoryQueryFilter,
   type HistoryQueryResult,
 } from './history'
+
+// 工作流 DSL
+export {
+  WorkflowDSLParser,
+  workflowDSLParser,
+  type WorkflowDSL,
+  type DSLFormat,
+  type ParseResult,
+  createExampleWorkflowDSL,
+} from './dsl'
+
+// 工作流触发器
+export {
+  TriggerManager,
+  triggerManager,
+  TriggerType,
+  TriggerStatus,
+  TriggerEventType,
+  type TriggerDefinition,
+  type TriggerEventPayload,
+  type TriggerCallback,
+  type ITrigger,
+  type ScheduleTriggerConfig,
+  type EventTriggerConfig,
+  type WebhookTriggerConfig,
+  type CronTriggerConfig,
+} from './triggers'
+
+// 工作流调度器
+export {
+  WorkflowScheduler,
+  workflowScheduler,
+  ScheduleTaskStatus,
+  type ScheduleTask,
+  type SchedulerConfig,
+} from './scheduler'

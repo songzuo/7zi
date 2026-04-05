@@ -3,7 +3,7 @@
  * 记录和追踪 AI 模型的使用成本
  */
 
-import { ModelConfig } from '../routing/types'
+import { ModelConfig } from './routing/types'
 
 /**
  * 成本记录
