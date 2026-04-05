@@ -9,6 +9,8 @@
  * - DELETE /api/feedback - Delete feedback
  * - POST /api/feedback/response - Add admin response
  * - GET /api/feedback/export - Export feedbacks
+ *
+ * Rate limits applied to sensitive endpoints
  */
 
 import { NextRequest, NextResponse } from 'next/server'
@@ -22,6 +24,9 @@ import { validateAndSanitizeBody, sanitizeHtml } from '@/lib/validation-schemas'
 import { z } from 'zod'
 import { v4 as uuidv4 } from 'uuid'
 import { withAdmin, withAuth, type AuthResult } from '@/lib/auth/api-auth'
+import { withRateLimit, RATE_LIMIT_PRESETS } from '@/lib/api-rate-limit'
+import { createSuccessResponse, createBadRequestError, createNotFoundError, createForbiddenError, createErrorResponse } from '@/lib/api/error-handler'
+import { withCSRF } from '@/lib/middleware/csrf'
 
 /**
  * Initialize feedback storage
@@ -85,10 +90,7 @@ async function handleGET(request: NextRequest, context: { user: AuthResult }) {
 
     // Validate pagination
     if (page < 1 || limit < 1 || limit > 100) {
-      return NextResponse.json(
-        { success: false, error: 'Invalid pagination parameters' },
-        { status: 400 }
-      )
+      return createBadRequestError('Invalid pagination parameters')
     }
 
     // Build filter
@@ -120,20 +122,10 @@ async function handleGET(request: NextRequest, context: { user: AuthResult }) {
       limit
     )
 
-    return NextResponse.json({
-      success: true,
-      data: result,
-    })
+    return createSuccessResponse(result)
   } catch (error) {
     console.error('[Feedback API] GET error:', error)
-    return NextResponse.json(
-      {
-        success: false,
-        error: 'Failed to fetch feedbacks',
-        message: '获取反馈列表失败',
-      },
-      { status: 500 }
-    )
+    return createErrorResponse(error instanceof Error ? error : new Error(String(error)))
   }
 }
 
@@ -141,6 +133,8 @@ export const GET = withAuth(handleGET)
 
 /**
  * POST /api/feedback - Submit feedback
+ *
+ * Rate limit: 10 requests per minute
  */
 async function handlePOST(request: NextRequest, context: { user: AuthResult }) {
   try {
@@ -153,17 +147,12 @@ async function handlePOST(request: NextRequest, context: { user: AuthResult }) {
     const validationResult = await validateAndSanitizeBody(body, feedbackSubmissionSchema, 'html')
 
     if (!validationResult.success) {
-      return NextResponse.json(
-        {
-          success: false,
-          error: 'Validation Error',
-          errors: validationResult.errors.map(err => ({
-            field: err.path.join('.'),
-            message: err.message,
-          })),
-        },
-        { status: 400 }
-      )
+      return createBadRequestError('Validation Error', {
+        errors: validationResult.errors.map(err => ({
+          field: err.path.join('.'),
+          message: err.message,
+        })),
+      })
     }
 
     const { type, priority, title, description, url, attachments, tags, rating } =
@@ -185,34 +174,23 @@ async function handlePOST(request: NextRequest, context: { user: AuthResult }) {
       rating: rating as FeedbackRating,
     })
 
-    return NextResponse.json(
-      {
-        success: true,
-        message: '感谢您的反馈！我们会尽快处理。',
-        data: {
-          id: feedback.id,
-          type: feedback.type,
-          title: feedback.title,
-          status: feedback.status,
-          createdAt: feedback.createdAt,
-        },
-      },
-      { status: 201 }
-    )
+    return createSuccessResponse({
+      id: feedback.id,
+      type: feedback.type,
+      title: feedback.title,
+      status: feedback.status,
+      createdAt: feedback.createdAt,
+    }, 201)
   } catch (error) {
     console.error('[Feedback API] POST error:', error)
-    return NextResponse.json(
-      {
-        success: false,
-        error: 'Submission Failed',
-        message: '反馈提交失败，请稍后重试',
-      },
-      { status: 500 }
-    )
+    return createErrorResponse(error instanceof Error ? error : new Error(String(error)))
   }
 }
 
-export const POST = withAuth(handlePOST)
+// Apply both authentication and rate limiting to POST, with CSRF protection
+export const POST = withAuth(
+  withRateLimit(RATE_LIMIT_PRESETS.moderate, withCSRF(handlePOST))
+)
 
 /**
  * PATCH /api/feedback - Update feedback
@@ -228,17 +206,12 @@ async function handlePATCH(request: NextRequest, context: { user: AuthResult }) 
     const validationResult = await validateAndSanitizeBody(body, feedbackUpdateSchema)
 
     if (!validationResult.success) {
-      return NextResponse.json(
-        {
-          success: false,
-          error: 'Validation Error',
-          errors: validationResult.errors.map(err => ({
-            field: err.path.join('.'),
-            message: err.message,
-          })),
-        },
-        { status: 400 }
-      )
+      return createBadRequestError('Validation Error', {
+        errors: validationResult.errors.map(err => ({
+          field: err.path.join('.'),
+          message: err.message,
+        })),
+      })
     }
 
     const { feedbackId, status, adminResponse, adminId, adminName, priority } =
@@ -272,14 +245,7 @@ async function handlePATCH(request: NextRequest, context: { user: AuthResult }) 
     const updated = feedbackStorage.updateFeedback(feedbackId, updates)
 
     if (!updated) {
-      return NextResponse.json(
-        {
-          success: false,
-          error: 'Not Found',
-          message: '反馈不存在',
-        },
-        { status: 404 }
-      )
+      return createNotFoundError('反馈不存在')
     }
 
     // Add comment if admin response is provided
@@ -287,25 +253,17 @@ async function handlePATCH(request: NextRequest, context: { user: AuthResult }) 
       feedbackStorage.addComment(feedbackId, adminId, adminName, `${adminId}@example.com`, adminResponse, true)
     }
 
-    return NextResponse.json({
-      success: true,
+    return createSuccessResponse({
       message: '反馈已更新',
       data: updated,
     })
   } catch (error) {
     console.error('[Feedback API] PATCH error:', error)
-    return NextResponse.json(
-      {
-        success: false,
-        error: 'Update Failed',
-        message: '更新失败',
-      },
-      { status: 500 }
-    )
+    return createErrorResponse(error instanceof Error ? error : new Error(String(error)))
   }
 }
 
-export const PATCH = withAdmin(handlePATCH)
+export const PATCH = withAdmin(withCSRF(handlePATCH))
 
 /**
  * DELETE /api/feedback - Delete feedback
@@ -317,48 +275,24 @@ async function handleDELETE(request: NextRequest, context: { user: AuthResult })
     const feedbackId = searchParams.get('id')
 
     if (!feedbackId) {
-      return NextResponse.json(
-        {
-          success: false,
-          error: 'Bad Request',
-          message: '缺少反馈 ID',
-        },
-        { status: 400 }
-      )
+      return createBadRequestError('缺少反馈 ID')
     }
 
     // Delete feedback
     const deleted = feedbackStorage.deleteFeedback(feedbackId)
 
     if (!deleted) {
-      return NextResponse.json(
-        {
-          success: false,
-          error: 'Not Found',
-          message: '反馈不存在',
-        },
-        { status: 404 }
-      )
+      return createNotFoundError('反馈不存在')
     }
 
-    return NextResponse.json({
-      success: true,
-      message: '反馈已删除',
-    })
+    return createSuccessResponse({ message: '反馈已删除' })
   } catch (error) {
     console.error('[Feedback API] DELETE error:', error)
-    return NextResponse.json(
-      {
-        success: false,
-        error: 'Delete Failed',
-        message: '删除失败',
-      },
-      { status: 500 }
-    )
+    return createErrorResponse(error instanceof Error ? error : new Error(String(error)))
   }
 }
 
-export const DELETE = withAdmin(handleDELETE)
+export const DELETE = withAdmin(withCSRF(handleDELETE))
 
 /**
  * GET /api/feedback/stats - Get statistics
@@ -369,20 +303,10 @@ async function handleGET_STATS(request: NextRequest, context: { user: AuthResult
     // Get stats
     const stats = feedbackStorage.getStats()
 
-    return NextResponse.json({
-      success: true,
-      data: { stats },
-    })
+    return createSuccessResponse({ stats })
   } catch (error) {
     console.error('[Feedback API] GET_STATS error:', error)
-    return NextResponse.json(
-      {
-        success: false,
-        error: 'Failed to fetch statistics',
-        message: '获取统计信息失败',
-      },
-      { status: 500 }
-    )
+    return createErrorResponse(error instanceof Error ? error : new Error(String(error)))
   }
 }
 
@@ -402,17 +326,12 @@ async function handlePOST_RESPONSE(request: NextRequest, context: { user: AuthRe
     const validationResult = await validateAndSanitizeBody(body, responseSubmissionSchema)
 
     if (!validationResult.success) {
-      return NextResponse.json(
-        {
-          success: false,
-          error: 'Validation Error',
-          errors: validationResult.errors.map(err => ({
-            field: err.path.join('.'),
-            message: err.message,
-          })),
-        },
-        { status: 400 }
-      )
+      return createBadRequestError('Validation Error', {
+        errors: validationResult.errors.map(err => ({
+          field: err.path.join('.'),
+          message: err.message,
+        })),
+      })
     }
 
     const { feedbackId, response, adminId, adminName } = validationResult.data
@@ -426,38 +345,23 @@ async function handlePOST_RESPONSE(request: NextRequest, context: { user: AuthRe
     })
 
     if (!updated) {
-      return NextResponse.json(
-        {
-          success: false,
-          error: 'Not Found',
-          message: '反馈不存在',
-        },
-        { status: 404 }
-      )
+      return createNotFoundError('反馈不存在')
     }
 
     // Add comment
     feedbackStorage.addComment(feedbackId, adminId, adminName, `${adminId}@example.com`, response, true)
 
-    return NextResponse.json({
-      success: true,
+    return createSuccessResponse({
       message: '回复已发送',
       data: updated,
     })
   } catch (error) {
     console.error('[Feedback API] POST_RESPONSE error:', error)
-    return NextResponse.json(
-      {
-        success: false,
-        error: 'Failed to send response',
-        message: '发送回复失败',
-      },
-      { status: 500 }
-    )
+    return createErrorResponse(error instanceof Error ? error : new Error(String(error)))
   }
 }
 
-export const POST_RESPONSE = withAdmin(handlePOST_RESPONSE)
+export const POST_RESPONSE = withAdmin(withCSRF(handlePOST_RESPONSE))
 
 /**
  * GET /api/feedback/export - Export feedbacks as CSV
@@ -524,14 +428,7 @@ async function handleGET_EXPORT(request: NextRequest, context: { user: AuthResul
     })
   } catch (error) {
     console.error('[Feedback API] GET_EXPORT error:', error)
-    return NextResponse.json(
-      {
-        success: false,
-        error: 'Export Failed',
-        message: '导出失败',
-      },
-      { status: 500 }
-    )
+    return createErrorResponse(error instanceof Error ? error : new Error(String(error)))
   }
 }
 

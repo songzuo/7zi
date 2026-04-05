@@ -9,14 +9,15 @@
  */
 
 import { NextRequest, NextResponse } from 'next/server'
-import { 
-  AlertRule, 
+import {
+  AlertRule,
   UpdateAlertRuleDTO,
   MetricType,
   Condition,
   Severity,
   NotificationChannel
 } from '@/types/alerts'
+import { withCSRF } from '@/lib/middleware/csrf'
 
 // Import the shared store (in production, this would be a database)
 const getAlertRulesStore = (): AlertRule[] => {
@@ -139,14 +140,11 @@ export async function GET(
   }
 }
 
-// ============================================
-// PUT - Update an alert rule
-// ============================================
-
-export async function PUT(
-  request: NextRequest,
-  { params }: { params: Promise<{ id: string }> }
-) {
+/**
+ * PUT - Update an alert rule
+ * Requires CSRF protection
+ */
+export const PUT = withCSRF(async (request: NextRequest, { params }: { params: Promise<{ id: string }> }) => {
   try {
     const { id } = await params
     const body = await request.json()
@@ -197,16 +195,14 @@ export async function PUT(
       { status: 500 }
     )
   }
-}
+})
 
 // ============================================
 // DELETE - Delete an alert rule
+// Requires CSRF protection
 // ============================================
 
-export async function DELETE(
-  request: NextRequest,
-  { params }: { params: Promise<{ id: string }> }
-) {
+export const DELETE = withCSRF(async (request: NextRequest, { params }: { params: Promise<{ id: string }> }) => {
   try {
     const { id } = await params
     const rules = getAlertRulesStore()
@@ -233,4 +229,4 @@ export async function DELETE(
       { status: 500 }
     )
   }
-}
+})

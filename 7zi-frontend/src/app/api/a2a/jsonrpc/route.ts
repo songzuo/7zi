@@ -3,14 +3,17 @@
  *
  * JSON-RPC 2.0 endpoint for A2A protocol communication.
  * Supports task execution, agent discovery, and method invocation.
+ *
+ * Rate limit: 100 requests per minute
  */
 
 import { NextRequest, NextResponse } from 'next/server'
 import { agentScheduler } from '@/lib/agents/scheduler/scheduler'
 import type { JSONRPCRequest, JSONRPCResponse, TaskStatus } from '@/lib/agents/scheduler/types'
 import { authenticateJWT } from '@/lib/auth/api-auth'
+import { withRateLimit, RATE_LIMIT_PRESETS } from '@/lib/api-rate-limit'
 
-export async function POST(request: NextRequest) {
+export const POST = withRateLimit(RATE_LIMIT_PRESETS.relaxed, async (request: NextRequest) => {
   try {
     // Parse JSON-RPC request
     const body: JSONRPCRequest = await request.json()
@@ -59,6 +62,7 @@ export async function POST(request: NextRequest) {
           error: {
             code: -32001,
             message: 'Unauthorized: authentication required',
+            data: auth.error,
           },
           id: body.id,
         }
@@ -66,275 +70,108 @@ export async function POST(request: NextRequest) {
       }
     }
 
-    // Route to handler
-    const result = await handleJSONRPCMethod(body.method, body.params)
+    // Process the JSON-RPC request
+    let result: unknown
+    let error: { code: number; message: string; data?: unknown } | undefined
 
-    if (result.success) {
-      const successResponse: JSONRPCResponse = {
-        jsonrpc: '2.0',
-        result: result.data,
-        id: body.id,
-      }
-      return NextResponse.json(successResponse, { status: result.httpStatus || 200 })
-    } else {
-      const errorResponse: JSONRPCResponse = {
-        jsonrpc: '2.0',
-        error: {
-          code: result.error?.code || -32000,
-          message: result.error?.message || 'Internal error',
-          data: result.error?.data,
-        },
-        id: body.id,
-      }
-      return NextResponse.json(errorResponse, { status: result.httpStatus || 400 })
+    switch (body.method) {
+      case 'agent.list':
+        result = {
+          agents: agentScheduler.getAllAgents().map(a => ({
+            id: a.id,
+            name: a.name,
+            status: a.status,
+            capabilities: a.capabilities,
+          })),
+        }
+        break
+
+      case 'agent.get':
+        const agentId = body.params?.agentId as string | undefined
+        result = {
+          agent: agentId
+            ? agentScheduler.getAgent(agentId)
+            : null,
+        }
+        break
+
+      case 'agent.discover':
+        result = {
+          agents: body.params?.query
+            ? agentScheduler.getAgentsByCapability(body.params.query as string)
+            : agentScheduler.getAllAgents(),
+        }
+        break
+
+      case 'task.create':
+        const taskResult = agentScheduler.scheduleTask({
+          type: (body.params?.type as string) || 'default',
+          priority: (body.params?.priority as 'low' | 'normal' | 'high' | 'urgent') || 'medium',
+          input: (body.params?.payload as Record<string, unknown>) || {},
+          timeout: body.params?.timeout as number | undefined,
+        })
+        result = { taskId: taskResult.taskId, success: taskResult.success, error: taskResult.error }
+        break
+
+      case 'task.get':
+        const task = body.params?.taskId
+          ? agentScheduler.getTask(body.params.taskId as string)
+          : undefined
+        result = {
+          task: task ? {
+            id: task.id,
+            type: task.type,
+            status: task.status,
+            input: task.input,
+            output: task.output,
+            error: task.error,
+            createdAt: task.createdAt,
+            startedAt: task.startedAt,
+            completedAt: task.completedAt,
+          } : null,
+        }
+        break
+
+      case 'task.status':
+        const taskStatus = body.params?.taskId
+          ? agentScheduler.getTask(body.params.taskId as string)
+          : undefined
+        result = {
+          taskId: body.params?.taskId ?? undefined,
+          status: taskStatus?.status || 'unknown',
+        }
+        break
+
+      default:
+        error = {
+          code: -32601,
+          message: `Method not found: ${body.method}`,
+        }
     }
+
+    // Build JSON-RPC response
+    const response: JSONRPCResponse = {
+      jsonrpc: '2.0',
+      result,
+      error,
+      id: body.id ?? undefined,
+    }
+
+    return NextResponse.json(response)
   } catch (error) {
-    console.error('JSON-RPC error:', error)
+    console.error('[A2A JSON-RPC] Error:', error)
     const errorResponse: JSONRPCResponse = {
       jsonrpc: '2.0',
       error: {
-        code: -32700,
-        message: 'Parse error: invalid JSON',
-      },
-    }
-    return NextResponse.json(errorResponse, { status: 400 })
-  }
-}
-
-async function handleJSONRPCMethod(
-  method: string,
-  params?: Record<string, unknown>
-): Promise<{
-  success: boolean
-  data?: unknown
-  error?: { code: number; message: string; data?: unknown }
-  httpStatus?: number
-}> {
-  try {
-    // Agent methods
-    if (method === 'agent.list') {
-      const agents = agentScheduler.getAllAgents()
-      return { success: true, data: { agents, count: agents.length } }
-    }
-
-    if (method === 'agent.get') {
-      const agentId = params?.agentId as string
-      if (!agentId) {
-        return {
-          success: false,
-          error: { code: -32602, message: 'Invalid params: agentId required' },
-        }
-      }
-      const agent = agentScheduler.getAgent(agentId)
-      if (!agent) {
-        return {
-          success: false,
-          error: { code: -32002, message: 'Agent not found' },
-          httpStatus: 404,
-        }
-      }
-      return { success: true, data: { agent } }
-    }
-
-    if (method === 'agent.discover') {
-      const capability = params?.capability as string
-      const agents = capability
-        ? agentScheduler.getAgentsByCapability(capability)
-        : agentScheduler.getAllAgents()
-      return {
-        success: true,
-        data: { agents, count: agents.length },
-      }
-    }
-
-    if (method === 'agent.heartbeat') {
-      const agentId = params?.agentId as string
-      if (!agentId) {
-        return {
-          success: false,
-          error: { code: -32602, message: 'Invalid params: agentId required' },
-        }
-      }
-      const success = agentScheduler.heartbeat(agentId)
-      if (!success) {
-        return {
-          success: false,
-          error: { code: -32002, message: 'Agent not found' },
-          httpStatus: 404,
-        }
-      }
-      return { success: true, data: { message: 'Heartbeat received' } }
-    }
-
-    // Task methods
-    if (method === 'task.create') {
-      const type = params?.type as string
-      const input = params?.input as Record<string, unknown>
-
-      if (!type) {
-        return {
-          success: false,
-          error: { code: -32602, message: 'Invalid params: type required' },
-        }
-      }
-
-      if (!input) {
-        return {
-          success: false,
-          error: { code: -32602, message: 'Invalid params: input required' },
-        }
-      }
-
-      const response = agentScheduler.scheduleTask({
-        type,
-        input,
-        priority: (params?.priority ?? 'normal') as 'low' | 'normal' | 'high' | 'urgent',
-        agentId: params?.agentId as string,
-        metadata: params?.metadata as Record<string, unknown>,
-        maxRetries: params?.maxRetries as number,
-      })
-
-      if (!response.success) {
-        return {
-          success: false,
-          error: {
-            code: -32003,
-            message: response.error || 'Failed to create task',
-          },
-          httpStatus: 400,
-        }
-      }
-
-      const task = agentScheduler.getTask(response.taskId!)
-      return { success: true, data: { task, taskId: response.taskId }, httpStatus: 201 }
-    }
-
-    if (method === 'task.get') {
-      const taskId = params?.taskId as string
-      if (!taskId) {
-        return {
-          success: false,
-          error: { code: -32602, message: 'Invalid params: taskId required' },
-        }
-      }
-      const task = agentScheduler.getTask(taskId)
-      if (!task) {
-        return {
-          success: false,
-          error: { code: -32004, message: 'Task not found' },
-          httpStatus: 404,
-        }
-      }
-      return { success: true, data: { task } }
-    }
-
-    if (method === 'task.status') {
-      const taskId = params?.taskId as string
-      if (!taskId) {
-        return {
-          success: false,
-          error: { code: -32602, message: 'Invalid params: taskId required' },
-        }
-      }
-      const task = agentScheduler.getTask(taskId)
-      if (!task) {
-        return {
-          success: false,
-          error: { code: -32004, message: 'Task not found' },
-          httpStatus: 404,
-        }
-      }
-      return { success: true, data: { taskId, status: task.status } }
-    }
-
-    if (method === 'task.update') {
-      const taskId = params?.taskId as string
-      const status = params?.status as string
-      const output = params?.output as Record<string, unknown>
-      const error = params?.error as string
-
-      if (!taskId) {
-        return {
-          success: false,
-          error: { code: -32602, message: 'Invalid params: taskId required' },
-        }
-      }
-
-      const updated = agentScheduler.updateTask({
-        taskId,
-        status: status as TaskStatus,
-        output,
-        error,
-      })
-
-      if (!updated) {
-        return {
-          success: false,
-          error: { code: -32004, message: 'Task not found' },
-          httpStatus: 404,
-        }
-      }
-
-      const task = agentScheduler.getTask(taskId)
-      return { success: true, data: { task } }
-    }
-
-    if (method === 'task.cancel') {
-      const taskId = params?.taskId as string
-      if (!taskId) {
-        return {
-          success: false,
-          error: { code: -32602, message: 'Invalid params: taskId required' },
-        }
-      }
-
-      const cancelled = agentScheduler.cancelTask(taskId)
-      if (!cancelled) {
-        return {
-          success: false,
-          error: { code: -32004, message: 'Task not found' },
-          httpStatus: 404,
-        }
-      }
-
-      return { success: true, data: { message: 'Task cancelled' } }
-    }
-
-    // Queue methods
-    if (method === 'queue.stats') {
-      const stats = agentScheduler.getQueueStats()
-      return { success: true, data: { stats } }
-    }
-
-    // Unknown method
-    return {
-      success: false,
-      error: {
-        code: -32601,
-        message: 'Method not found',
-        data: { method },
-      },
-    }
-  } catch (error) {
-    console.error('JSON-RPC method handler error:', error)
-    return {
-      success: false,
-      error: {
-        code: -32000,
+        code: -32603,
         message: 'Internal error',
-        data: error instanceof Error ? error.message : 'Unknown error',
+        data: error instanceof Error ? error.message : String(error),
       },
+      id: null,
     }
+    return NextResponse.json(errorResponse, { status: 500 })
   }
-}
+})
 
-// OPTIONS for CORS support
-export async function OPTIONS(request: NextRequest) {
-  return new NextResponse(null, {
-    status: 204,
-    headers: {
-      'Access-Control-Allow-Methods': 'POST, OPTIONS',
-      'Access-Control-Allow-Headers': 'Content-Type, Authorization',
-    },
-  })
-}
+export const runtime = 'nodejs'
+export const dynamic = 'force-dynamic'

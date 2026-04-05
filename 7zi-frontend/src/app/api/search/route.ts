@@ -4,9 +4,10 @@
  * GET /api/search - 搜索功能（需要认证）
  */
 
-import { NextRequest, NextResponse } from 'next/server'
+import { NextRequest } from 'next/server'
 import { authMiddleware } from '@/middleware/auth.middleware'
 import { searchSchema, sanitizeHtml } from '@/shared/lib/validation-schemas'
+import { createSuccessResponse, createBadRequestError, createErrorResponse } from '@/lib/api/error-handler'
 
 /**
  * GET /api/search - 搜索功能（需要认证）
@@ -35,57 +36,31 @@ export async function GET(request: NextRequest) {
   })
 
   if (!validationResult.success) {
-    return NextResponse.json(
-      {
-        success: false,
-        error: 'Validation Error',
-        errors: validationResult.error.issues.map(err => ({
-          field: err.path.join('.'),
-          message: err.message,
-        })),
-      },
-      { status: 400 }
-    )
+    return createBadRequestError('Validation Error', {
+      errors: validationResult.error.issues.map(err => ({
+        field: err.path.join('.'),
+        message: err.message,
+      })),
+    })
   }
 
   // 防止搜索注入攻击
   const sanitizedQuery = validationResult.data.query.replace(/[^\w\s\u4e00-\u9fa5-]/g, '').trim()
 
   if (sanitizedQuery.length === 0) {
-    return NextResponse.json(
-      {
-        success: false,
-        error: 'Invalid Query',
-        message: '搜索关键词无效',
-      },
-      { status: 400 }
-    )
+    return createBadRequestError('Invalid Query', { message: '搜索关键词无效' })
   }
 
   // 验证类型参数
   const validTypes = ['all', 'projects', 'users', 'notifications']
   if (type && !validTypes.includes(type)) {
-    return NextResponse.json(
-      {
-        success: false,
-        error: 'Invalid Type',
-        message: '无效的搜索类型',
-      },
-      { status: 400 }
-    )
+    return createBadRequestError('Invalid Type', { message: '无效的搜索类型' })
   }
 
   // 验证排序参数
   const validSorts = ['relevance', 'date', 'name']
   if (sortBy && !validSorts.includes(sortBy)) {
-    return NextResponse.json(
-      {
-        success: false,
-        error: 'Invalid Sort',
-        message: '无效的排序方式',
-      },
-      { status: 400 }
-    )
+    return createBadRequestError('Invalid Sort', { message: '无效的排序方式' })
   }
 
   try {
@@ -124,32 +99,21 @@ export async function GET(request: NextRequest) {
       },
     ]
 
-    return NextResponse.json({
-      success: true,
-      data: {
-        query: sanitizedQuery,
-        results: mockResults,
-        total: mockResults.length,
-        page,
-        limit,
-        filters: {
-          type: type || 'all',
-          sortBy: sortBy || 'relevance',
-        },
-        searchTime: 0.05, // 搜索耗时（秒）
-        timestamp: new Date().toISOString(),
+    return createSuccessResponse({
+      query: sanitizedQuery,
+      results: mockResults,
+      total: mockResults.length,
+      page,
+      limit,
+      filters: {
+        type: type || 'all',
+        sortBy: sortBy || 'relevance',
       },
+      searchTime: 0.05, // 搜索耗时（秒）
     })
   } catch (error) {
     console.error('[Search API] Error:', error)
-    return NextResponse.json(
-      {
-        success: false,
-        error: 'Search Failed',
-        message: '搜索失败，请稍后重试',
-      },
-      { status: 500 }
-    )
+    return createErrorResponse(error instanceof Error ? error : new Error(String(error)))
   }
 }
 
@@ -169,12 +133,7 @@ export async function SUGGESTIONS(request: NextRequest) {
   const query = searchParams.get('q')
 
   if (!query || query.trim().length === 0) {
-    return NextResponse.json({
-      success: true,
-      data: {
-        suggestions: [],
-      },
-    })
+    return createSuccessResponse({ suggestions: [] })
   }
 
   // 清理查询
@@ -199,11 +158,8 @@ export async function SUGGESTIONS(request: NextRequest) {
     },
   ]
 
-  return NextResponse.json({
-    success: true,
-    data: {
-      query: sanitizedQuery,
-      suggestions: mockSuggestions,
-    },
+  return createSuccessResponse({
+    query: sanitizedQuery,
+    suggestions: mockSuggestions,
   })
 }

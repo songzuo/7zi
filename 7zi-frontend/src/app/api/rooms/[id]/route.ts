@@ -7,6 +7,7 @@
 
 import { NextRequest, NextResponse } from 'next/server'
 import { roomStore } from '@/lib/api/rooms/store'
+import { createSuccessResponse, createNotFoundError, createForbiddenError, createErrorResponse } from '@/lib/api/error-handler'
 
 interface RouteParams {
   params: Promise<{ id: string }>
@@ -21,7 +22,7 @@ export async function GET(request: NextRequest, { params }: RouteParams) {
     const room = roomStore.getRoomById(id)
 
     if (!room) {
-      return NextResponse.json({ success: false, error: 'Room not found' }, { status: 404 })
+      return createNotFoundError('Room not found')
     }
 
     // 获取当前用户
@@ -53,16 +54,13 @@ export async function GET(request: NextRequest, { params }: RouteParams) {
       joinedAt: member.joinedAt,
     }))
 
-    return NextResponse.json({
-      success: true,
-      data: {
-        room: publicRoom,
-        participants,
-      },
+    return createSuccessResponse({
+      room: publicRoom,
+      participants,
     })
   } catch (error) {
     console.error('Failed to get room:', error)
-    return NextResponse.json({ success: false, error: 'Failed to get room' }, { status: 500 })
+    return createErrorResponse(error instanceof Error ? error : new Error(String(error)))
   }
 }
 
@@ -75,7 +73,7 @@ export async function DELETE(request: NextRequest, { params }: RouteParams) {
     const room = roomStore.getRoomById(id)
 
     if (!room) {
-      return NextResponse.json({ success: false, error: 'Room not found' }, { status: 404 })
+      return createNotFoundError('Room not found')
     }
 
     // 获取当前用户
@@ -83,24 +81,18 @@ export async function DELETE(request: NextRequest, { params }: RouteParams) {
 
     // 检查是否是房主
     if (room.ownerId !== userId) {
-      return NextResponse.json(
-        { success: false, error: 'Only the room owner can delete the room' },
-        { status: 403 }
-      )
+      return createForbiddenError('Only the room owner can delete the room')
     }
 
     const deleted = roomStore.deleteRoom(id)
 
     if (!deleted) {
-      return NextResponse.json({ success: false, error: 'Failed to delete room' }, { status: 500 })
+      return createErrorResponse(new Error('Failed to delete room'), 500)
     }
 
-    return NextResponse.json({
-      success: true,
-      data: { message: 'Room deleted successfully' },
-    })
+    return createSuccessResponse({ message: 'Room deleted successfully' })
   } catch (error) {
     console.error('Failed to delete room:', error)
-    return NextResponse.json({ success: false, error: 'Failed to delete room' }, { status: 500 })
+    return createErrorResponse(error instanceof Error ? error : new Error(String(error)))
   }
 }

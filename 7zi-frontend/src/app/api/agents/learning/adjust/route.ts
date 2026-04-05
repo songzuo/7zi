@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server'
 import { adaptiveLearner } from '@/lib/agents/learning/adaptive-learner'
 import { createSuccessResponse, createErrorResponse, ErrorType } from '@/lib/api/error-handler'
 import { authenticateJWT } from '@/lib/auth/api-auth'
+import { withCSRF } from '@/lib/middleware/csrf'
 import type { AgentLearningStats, CapabilityScore } from '@/lib/agents/learning/types'
 
 interface WeightAdjustmentRequest {
@@ -11,7 +12,7 @@ interface WeightAdjustmentRequest {
   reason?: string
 }
 
-export async function POST(request: NextRequest) {
+export const POST = withCSRF(async (request: NextRequest) => {
   const auth = await authenticateJWT(request)
   if (!auth.authenticated)
     return NextResponse.json({ success: false, error: 'Unauthorized' }, { status: 401 })
@@ -75,7 +76,7 @@ export async function POST(request: NextRequest) {
       error instanceof Error ? error : new Error('Failed to adjust agent weight')
     )
   }
-}
+})
 
 export async function GET(request: NextRequest) {
   const auth = await authenticateJWT(request)

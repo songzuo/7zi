@@ -8,7 +8,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { notificationService } from '@/lib/services/notification'
 import { createServer } from 'http'
-import { createSuccessResponse, createErrorResponse } from '../../../../lib/api/error-handler'
+import { createSuccessResponse, createErrorResponse, createUnauthorizedError, createForbiddenError } from '../../../../lib/api/error-handler'
 import { authenticateJWT } from '@/lib/auth/api-auth'
 
 /**
@@ -22,26 +22,12 @@ export async function GET(request: NextRequest) {
   const authResult = await authenticateJWT(request)
 
   if (!authResult.authenticated) {
-    return NextResponse.json(
-      {
-        success: false,
-        error: 'Unauthorized',
-        message: authResult.error || 'Authentication required',
-      },
-      { status: 401 }
-    )
+    return createUnauthorizedError(authResult.error || 'Authentication required')
   }
 
   // Only admin can view socket status
   if (authResult.role !== 'admin') {
-    return NextResponse.json(
-      {
-        success: false,
-        error: 'Forbidden',
-        message: 'Admin role required to view socket status',
-      },
-      { status: 403 }
-    )
+    return createForbiddenError('Admin role required to view socket status')
   }
 
   const io = notificationService.getIO()
@@ -75,14 +61,7 @@ export async function POST(request: NextRequest) {
 
   // Only admin can initialize socket server
   if (authResult.role !== 'admin') {
-    return NextResponse.json(
-      {
-        success: false,
-        error: 'Forbidden',
-        message: 'Admin role required to initialize socket server',
-      },
-      { status: 403 }
-    )
+    return createForbiddenError('Admin role required to initialize socket server')
   }
 
   try {

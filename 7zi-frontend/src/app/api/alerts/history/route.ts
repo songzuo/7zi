@@ -6,7 +6,7 @@
  * @date 2026-04-03
  */
 
-import { NextRequest, NextResponse } from 'next/server'
+import { NextRequest } from 'next/server'
 import { v4 as uuidv4 } from 'uuid'
 import { 
   AlertHistory, 
@@ -16,6 +16,7 @@ import {
   MetricType,
   Condition
 } from '@/types/alerts'
+import { createSuccessResponse, createBadRequestError, createNotFoundError, createErrorResponse } from '@/lib/api/error-handler'
 
 // ============================================
 // In-Memory Store (Replace with database in production)
@@ -161,13 +162,10 @@ export async function GET(request: NextRequest) {
       pageSize
     }
 
-    return NextResponse.json(response)
+    return createSuccessResponse(response)
   } catch (error) {
     console.error('Error fetching alert history:', error)
-    return NextResponse.json(
-      { error: 'Failed to fetch alert history' },
-      { status: 500 }
-    )
+    return createErrorResponse(error instanceof Error ? error : new Error(String(error)))
   }
 }
 
@@ -181,18 +179,12 @@ export async function POST(request: NextRequest) {
     const { alertId, acknowledgedBy } = body
 
     if (!alertId || !acknowledgedBy) {
-      return NextResponse.json(
-        { error: 'alertId and acknowledgedBy are required' },
-        { status: 400 }
-      )
+      return createBadRequestError('alertId and acknowledgedBy are required')
     }
 
     const alertIndex = alertHistory.findIndex(a => a.id === alertId)
     if (alertIndex === -1) {
-      return NextResponse.json(
-        { error: 'Alert not found' },
-        { status: 404 }
-      )
+      return createNotFoundError('Alert not found')
     }
 
     const alert = alertHistory[alertIndex]
@@ -203,12 +195,9 @@ export async function POST(request: NextRequest) {
       acknowledgedAt: new Date().toISOString()
     }
 
-    return NextResponse.json(alertHistory[alertIndex])
+    return createSuccessResponse(alertHistory[alertIndex])
   } catch (error) {
     console.error('Error acknowledging alert:', error)
-    return NextResponse.json(
-      { error: 'Failed to acknowledge alert' },
-      { status: 500 }
-    )
+    return createErrorResponse(error instanceof Error ? error : new Error(String(error)))
   }
 }

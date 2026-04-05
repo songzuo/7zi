@@ -6,12 +6,14 @@
 
 'use client'
 
-import { useState } from 'react'
-import FeedbackModal from '@/components/feedback/FeedbackModal'
-import EnhancedFeedbackModal from '@/components/feedback/EnhancedFeedbackModal'
+import { useState, lazy, Suspense } from 'react'
 import { Button } from '@/components/ui/Button'
 import { MessageSquare, Lightbulb } from 'lucide-react'
 import type { FeedbackData } from '@/components/feedback/FeedbackModal'
+
+// 动态导入 Feedback 组件以减少初始 bundle 大小 (~100KB 节省)
+const FeedbackModal = lazy(() => import('@/components/feedback/FeedbackModal'))
+const EnhancedFeedbackModal = lazy(() => import('@/components/feedback/EnhancedFeedbackModal'))
 
 // Note: metadata cannot be exported from 'use client' components
 // Use layout.tsx or a separate metadata file for SEO metadata
@@ -301,19 +303,23 @@ export default function FeedbackPage() {
       </div>
 
       {/* Modal */}
-      {useEnhanced ? (
-        <EnhancedFeedbackModal
-          isOpen={isModalOpen}
-          onClose={() => setIsModalOpen(false)}
-          onSubmit={handleSubmit}
-          onCheckSimilar={checkSimilarFeedbacks}
-        />
-      ) : (
-        <FeedbackModal
-          isOpen={isModalOpen}
-          onClose={() => setIsModalOpen(false)}
-          onSubmit={handleSubmit}
-        />
+      {isModalOpen && (
+        <Suspense fallback={<div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50"><div className="animate-spin rounded-full h-8 w-8 border-b-2 border-white"></div></div>}>
+          {useEnhanced ? (
+            <EnhancedFeedbackModal
+              isOpen={isModalOpen}
+              onClose={() => setIsModalOpen(false)}
+              onSubmit={handleSubmit}
+              onCheckSimilar={checkSimilarFeedbacks}
+            />
+          ) : (
+            <FeedbackModal
+              isOpen={isModalOpen}
+              onClose={() => setIsModalOpen(false)}
+              onSubmit={handleSubmit}
+            />
+          )}
+        </Suspense>
       )}
     </div>
   )

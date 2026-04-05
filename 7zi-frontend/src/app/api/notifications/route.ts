@@ -5,7 +5,7 @@
  * Requires JWT authentication
  */
 
-import { NextRequest, NextResponse } from 'next/server'
+import { NextRequest } from 'next/server'
 import {
   notificationService,
   NotificationType,
@@ -16,8 +16,10 @@ import {
   createSuccessResponse,
   createValidationError,
   createErrorResponse,
+  createUnauthorizedError,
 } from '@/lib/api/error-handler'
 import { authenticateJWT, AuthResult } from '@/lib/auth/api-auth'
+import { withCSRF } from '@/lib/middleware/csrf'
 
 /**
  * GET /api/notifications
@@ -30,14 +32,7 @@ export async function GET(request: NextRequest) {
   const authResult = await authenticateJWT(request)
 
   if (!authResult.authenticated) {
-    return NextResponse.json(
-      {
-        success: false,
-        error: 'Unauthorized',
-        message: authResult.error || 'Authentication required',
-      },
-      { status: 401 }
-    )
+    return createUnauthorizedError(authResult.error || 'Authentication required')
   }
 
   try {
@@ -99,20 +94,14 @@ export async function GET(request: NextRequest) {
  *
  * Create a new notification
  * Requires JWT authentication
+ * Requires CSRF protection
  */
-export async function POST(request: NextRequest) {
+export const POST = withCSRF(async (request: NextRequest) => {
   // Authenticate user
   const authResult = await authenticateJWT(request)
 
   if (!authResult.authenticated) {
-    return NextResponse.json(
-      {
-        success: false,
-        error: 'Unauthorized',
-        message: authResult.error || 'Authentication required',
-      },
-      { status: 401 }
-    )
+    return createUnauthorizedError(authResult.error || 'Authentication required')
   }
 
   try {
@@ -146,4 +135,4 @@ export async function POST(request: NextRequest) {
   } catch (error) {
     return createErrorResponse(error instanceof Error ? error : new Error(String(error)))
   }
-}
+})

@@ -16,6 +16,7 @@ import { NextResponse } from 'next/server'
 import os from 'os'
 import { promises as fs } from 'fs'
 import path from 'path'
+import { createErrorResponse, createServiceUnavailableError } from '@/lib/api/error-handler'
 
 // ============================================
 // 健康检查配置
@@ -186,18 +187,8 @@ export async function GET(request: Request) {
     })
   } catch (error) {
     // 错误处理
-    return NextResponse.json(
-      {
-        status: 'unhealthy',
-        timestamp: new Date().toISOString(),
-        error: error instanceof Error ? error.message : 'Unknown error',
-      },
-      {
-        status: 503,
-        headers: {
-          'X-Health-Status': 'unhealthy',
-        },
-      }
+    return createServiceUnavailableError(
+      error instanceof Error ? error.message : 'Unknown error'
     )
   }
 }

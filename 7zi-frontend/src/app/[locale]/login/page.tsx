@@ -12,10 +12,17 @@ import { useRouter } from 'next/navigation'
 import { Button } from '@/components/ui/Button'
 import { Input } from '@/components/ui/Input'
 import { useAuthStore } from '@/stores/auth-store'
+import { shallow } from 'zustand/shallow'
 
 export default function LoginPage() {
   const router = useRouter()
-  const { login, isLoading, error, setError, clearError } = useAuthStore()
+  // 使用细粒度选择器，避免不必要的重渲染
+  const { login, logout: clearError } = useAuthStore(state => ({
+    login: state.login,
+    logout: state.logout,
+  }))
+  const isLoading = useAuthStore(state => state.isLoading)
+  const error = useAuthStore(state => state.error)
   
   // 设置页面标题
   useEffect(() => {
@@ -75,7 +82,8 @@ export default function LoginPage() {
   const handleSubmit = useCallback(async (e: React.FormEvent) => {
     e.preventDefault()
     
-    clearError()
+    // 调用 store 的 clearError
+    useAuthStore.getState().clearError()
     
     // 验证表单
     const isEmailValid = validateEmail(email)
@@ -94,7 +102,7 @@ export default function LoginPage() {
       // 错误已在 store 中处理
       console.error('Login failed:', err)
     }
-  }, [email, password, login, router, clearError, validateEmail, validatePassword])
+  }, [email, password, login, router, validateEmail, validatePassword])
 
   return (
     <main className="flex min-h-screen items-center justify-center bg-gradient-to-b from-gray-50 to-gray-100 dark:from-gray-900 dark:to-gray-800">
