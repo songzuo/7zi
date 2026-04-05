@@ -6,6 +6,24 @@
 // Core monitor
 export { PerformanceMonitor, monitor } from './monitor'
 
+// Client-side performance monitoring SDK
+export {
+  initClientMonitoring,
+  trackCustomEvent,
+  trackPageLoad,
+  getClientConfig,
+  isMonitoringInitialized,
+} from './client'
+
+export type {
+  ClientMonitoringConfig,
+  PerformanceEventData,
+  PerformanceReporter,
+  WebVitalsMetric,
+  WebVitalsThresholds,
+  PerformanceRating,
+} from './client'
+
 // Types
 export type {
   PerformanceMetric,

@@ -3,6 +3,7 @@
  *
  * 架构师: 🏗️ 架构师
  * 创建日期: 2026-03-29
+ * 更新日期: 2026-04-04 - 添加细粒度选择器优化
  *
  * 功能:
  * - 用户登录/登出
@@ -13,6 +14,7 @@
 
 import { create } from 'zustand'
 import { persist, createJSONStorage } from 'zustand/middleware'
+import { shallow } from 'zustand/shallow'
 
 /**
  * 用户信息接口
@@ -214,10 +216,38 @@ export const useAuthStore = create<AuthState>()(
 )
 
 /**
- * 选择器 - 用于性能优化
+ * 选择器 - 用于性能优化（使用 shallow 进行浅比较）
  */
 export const selectUser = (state: AuthState) => state.user
 export const selectIsAuthenticated = (state: AuthState) => state.isAuthenticated
 export const selectToken = (state: AuthState) => state.token
 export const selectIsLoading = (state: AuthState) => state.isLoading
 export const selectError = (state: AuthState) => state.error
+
+/**
+ * 复合选择器 - 用于同时订阅多个状态而不触发过度渲染
+ */
+export const selectAuthActions = (state: AuthState) => ({
+  login: state.login,
+  logout: state.logout,
+  updateProfile: state.updateProfile,
+  setAvatar: state.setAvatar,
+  clearError: state.clearError,
+  setLoading: state.setLoading,
+})
+
+export const selectLoginState = (state: AuthState) => ({
+  isLoading: state.isLoading,
+  error: state.error,
+})
+
+/**
+ * 用于组件中的优化选择器
+ * 示例: const { login, isLoading, error } = useAuthStore(useShallow(selectLoginAndError))
+ */
+export const selectLoginAndError = (state: AuthState) => ({
+  login: state.login,
+  isLoading: state.isLoading,
+  error: state.error,
+  clearError: state.clearError,
+})

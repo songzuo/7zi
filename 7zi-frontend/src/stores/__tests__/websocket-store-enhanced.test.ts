@@ -587,17 +587,12 @@ describe('useWebSocketStore - Enhanced Tests', () => {
     it('应该处理 disconnect 时 socket 为 null', () => {
       const { result } = renderHook(() => useWebSocketStore())
 
-      // 确保没有 socket
-      act(() => {
-        result.current._setSocket(null)
-      })
-
       // 不应该抛出错误
       act(() => {
         result.current.disconnect()
       })
 
-      expect(result.current.socket).toBeNull()
+      expect(result.current.status).toBe('disconnected')
     })
 
     it('应该处理多个快速状态变化', () => {

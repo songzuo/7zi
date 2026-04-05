@@ -31,7 +31,6 @@ describe('useWebSocketStore', () => {
       const { result } = renderHook(() => useWebSocketStore())
 
       expect(result.current.status).toBe('disconnected')
-      expect(result.current.socket).toBeNull()
       expect(result.current.url).toBeNull()
       expect(result.current.messages).toEqual([])
       expect(result.current.latency).toBe(0)

@@ -3,12 +3,18 @@
  *
  * 架构师: 🏗️ 架构师
  * 创建日期: 2026-03-29
+ * 更新日期: 2026-04-04 - 优化性能，移除 socket 实例存储
  *
  * 功能:
  * - WebSocket 连接状态管理
  * - 消息队列
  * - 连接统计
  * - 重连策略
+ *
+ * 优化说明:
+ * - Socket.IO 实例不再存储在 Zustand 状态中（避免序列化问题）
+ * - 使用外部引用管理 socket 实例
+ * - 优化消息数组更新，减少不必要的重渲染
  */
 
 import { create } from 'zustand'
@@ -50,11 +56,12 @@ export interface ConnectionStats {
 
 /**
  * WebSocket 状态接口
+ *
+ * 注意: socket 实例不再存储在状态中，使用外部引用管理
  */
 export interface WebSocketState {
   // 连接状态
   status: ConnectionStatus
-  socket: Socket | null
   url: string | null
 
   // 延迟
@@ -83,12 +90,16 @@ export interface WebSocketState {
   clearMessages: () => void
 
   // 内部方法
-  _setSocket: (socket: Socket | null) => void
   _setStatus: (status: ConnectionStatus) => void
   _addMessage: (message: WebSocketMessage) => void
   _updateStats: (stats: Partial<ConnectionStats>) => void
   _reset: () => void
 }
+
+/**
+ * 外部 Socket 实例引用（不存储在 Zustand 状态中）
+ */
+let externalSocket: Socket | null = null
 
 /**
  * 初始统计
@@ -106,12 +117,13 @@ const initialStats: ConnectionStats = {
 /**
  * WebSocket 状态 Store
  *
- * 注意: 实际的 Socket.IO 连接应该在客户端动态创建，
- * 这里只管理状态，不直接操作 Socket
+ * 优化说明:
+ * - Socket.IO 实例存储在外部变量中，不存储在 Zustand 状态中
+ * - 避免了序列化问题和不必要的重渲染
+ * - 优化了消息添加逻辑，减少数组操作
  */
 export const useWebSocketStore = create<WebSocketState>((set, get) => ({
   status: 'disconnected',
-  socket: null,
   url: null,
   lastPing: 0,
   latency: 0,
@@ -143,7 +155,6 @@ export const useWebSocketStore = create<WebSocketState>((set, get) => ({
       socket.on('connect', () => {
         set({
           status: 'connected',
-          socket,
           reconnectAttempts: 0,
         })
         get()._updateStats({
@@ -197,7 +208,8 @@ export const useWebSocketStore = create<WebSocketState>((set, get) => ({
         })
       })
 
-      set({ socket })
+      // 存储到外部引用（不存储在 Zustand 状态中）
+      externalSocket = socket
     } catch (error) {
       set({ status: 'error' })
       console.error('[WebSocket] Failed to connect:', error)
@@ -209,11 +221,10 @@ export const useWebSocketStore = create<WebSocketState>((set, get) => ({
    * 断开连接
    */
   disconnect: () => {
-    const { socket } = get()
-    if (socket) {
-      socket.disconnect()
+    if (externalSocket) {
+      externalSocket.disconnect()
+      externalSocket = null
       set({
-        socket: null,
         status: 'disconnected',
         url: null,
       })
@@ -244,10 +255,10 @@ export const useWebSocketStore = create<WebSocketState>((set, get) => ({
    * 发送消息
    */
   sendMessage: (type: string, payload: unknown) => {
-    const { socket, status } = get()
+    const { status } = get()
 
-    if (socket && status === 'connected') {
-      socket.emit('message', { type, payload })
+    if (externalSocket && status === 'connected') {
+      externalSocket.emit('message', { type, payload })
 
       // 记录发出的消息
       get()._addMessage({
@@ -274,13 +285,6 @@ export const useWebSocketStore = create<WebSocketState>((set, get) => ({
   },
 
   /**
-   * 内部: 设置 Socket 实例
-   */
-  _setSocket: (socket: Socket | null) => {
-    set({ socket })
-  },
-
-  /**
    * 内部: 设置状态
    */
   _setStatus: (status: ConnectionStatus) => {
@@ -288,21 +292,47 @@ export const useWebSocketStore = create<WebSocketState>((set, get) => ({
   },
 
   /**
-   * 内部: 添加消息
+   * 内部: 添加消息（优化版本）
    */
   _addMessage: (message: WebSocketMessage) => {
-    set(state => ({
-      messages: [message, ...state.messages].slice(0, state.maxMessages),
-    }))
+    set(state => {
+      // 检查是否已达到最大数量
+      if (state.messages.length >= state.maxMessages) {
+        // 移除最旧的消息
+        return {
+          messages: [...state.messages.slice(1), message],
+        }
+      }
+
+      return {
+        messages: [message, ...state.messages],
+      }
+    })
   },
 
   /**
-   * 内部: 更新统计
+   * 内部: 更新统计（优化版本，只在有变化时更新）
    */
   _updateStats: (stats: Partial<ConnectionStats>) => {
-    set(state => ({
-      stats: { ...state.stats, ...stats },
-    }))
+    set(state => {
+      const currentStats = state.stats
+      let hasChanges = false
+
+      // 检查每个字段是否有变化
+      for (const [key, value] of Object.entries(stats)) {
+        if (currentStats[key as keyof ConnectionStats] !== value) {
+          hasChanges = true
+          break
+        }
+      }
+
+      // 如果没有变化，不触发更新
+      if (!hasChanges) return state
+
+      return {
+        stats: { ...currentStats, ...stats },
+      }
+    })
   },
 
   /**
@@ -311,7 +341,6 @@ export const useWebSocketStore = create<WebSocketState>((set, get) => ({
   _reset: () => {
     set({
       status: 'disconnected',
-      socket: null,
       url: null,
       lastPing: 0,
       latency: 0,
@@ -324,6 +353,12 @@ export const useWebSocketStore = create<WebSocketState>((set, get) => ({
     })
   },
 }))
+
+/**
+ * 获取外部 Socket 实例（用于直接访问）
+ * 注意: 这不是 Zustand 状态的一部分
+ */
+export const getExternalSocket = (): Socket | null => externalSocket
 
 /**
  * 选择器 - 用于性能优化
