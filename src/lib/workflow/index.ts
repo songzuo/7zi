@@ -92,3 +92,22 @@ export {
   AlertLevel,
   AlertType,
 } from './monitoring/types'
+
+// 版本控制
+export {
+  WorkflowVersionService,
+  workflowVersionService,
+  type WorkflowVersion,
+  type VersionDiff,
+  type VersionSettings,
+} from './version-service'
+
+// 历史记录/审计
+export {
+  WorkflowHistoryService,
+  workflowHistoryService,
+  type WorkflowHistoryEntry,
+  type OperationType,
+  type HistoryQueryFilter,
+  type HistoryQueryResult,
+} from './history'

@@ -26,7 +26,7 @@ export interface LoggingPluginConfig {
 export interface LogTransport {
   type: 'console' | 'file' | 'http' | 'syslog';
   enabled: boolean;
-  config?: Record<string, any>;
+  config?: Record<string, unknown>;
 }
 
 export interface LogEntry {
@@ -35,7 +35,15 @@ export interface LogEntry {
   pluginId: string;
   message: string;
   meta?: Record<string, unknown>;
-  context?: Record<string, any>;
+  context?: Record<string, unknown>;
+}
+
+export interface LogFilterInput {
+  level?: LogLevel;
+  pluginId?: string;
+  startDate?: Date;
+  endDate?: Date;
+  limit?: number;
 }
 
 export class LoggingPlugin implements Plugin {
@@ -136,16 +144,16 @@ export class LoggingPlugin implements Plugin {
   /**
    * Execute plugin action
    */
-  async execute<TInput = any, TOutput = any>(
+  async execute<TInput = unknown, TOutput = unknown>(
     action: string,
     input?: TInput
   ): Promise<TOutput> {
     switch (action) {
       case 'log':
-        return this.log(input as any) as TOutput;
+        return this.log(input as Partial<LogEntry>) as TOutput;
 
       case 'getLogs':
-        return this.getLogs(input as any) as TOutput;
+        return this.getLogs(input as LogFilterInput) as TOutput;
 
       case 'clearLogs':
         return this.clearLogs() as TOutput;
@@ -154,7 +162,7 @@ export class LoggingPlugin implements Plugin {
         return this.getStats() as TOutput;
 
       case 'setLevel':
-        return this.setLevel(input as any) as TOutput;
+        return this.setLevel(input as LogLevel) as TOutput;
 
       default:
         throw new Error(`Unknown action: ${action}`);
@@ -214,13 +222,7 @@ export class LoggingPlugin implements Plugin {
   /**
    * Get logs
    */
-  private getLogs(filter: {
-    level?: LogLevel;
-    pluginId?: string;
-    startDate?: Date;
-    endDate?: Date;
-    limit?: number;
-  }): LogEntry[] {
+  private getLogs(filter: LogFilterInput): LogEntry[] {
     let logs = [...this.logBuffer];
 
     if (filter.level) {
@@ -422,7 +424,7 @@ export class LoggingPlugin implements Plugin {
       successCount: this.metrics.totalLogs,
       failureCount: 0,
       memoryUsage: process.memoryUsage().heapUsed,
-      custom: this.metrics as any,
+      custom: { ...this.metrics } as Record<string, number>,
       timestamp: new Date(),
     };
   }

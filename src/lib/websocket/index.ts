@@ -98,3 +98,44 @@ export type {
 
 // Export comprehensive type system
 export * from './types'
+
+// CRDT Sync (NEW v1.12.0)
+export {
+  CRDTDocumentManager,
+  ConflictResolver,
+  SyncProtocol,
+} from './crdt-sync'
+export type {
+  CRDTOperation,
+  CRDTOperationType,
+  CRDTDocumentState,
+  SyncMessage,
+  SyncMessageType,
+  ConflictType,
+  ConflictInfo,
+  ConflictResolution,
+  ConflictResolutionStrategy,
+} from './crdt-sync'
+
+// Collaboration Manager (NEW v1.12.0)
+export {
+  CollaborationManager,
+  getCollaborationManager,
+  resetCollaborationManager,
+} from './collaboration-manager'
+export type {
+  CollaborationSession,
+  CollaborationParticipant,
+  EditLock,
+  CollaborationEvent,
+  CollaborationEventType,
+  CollaborationConfig,
+} from './collaboration-manager'
+
+// Collaboration Handlers (NEW v1.12.0)
+export {
+  setupCollaborationHandlers,
+  handleCollaborationDisconnect,
+  setupCollaborationCleanup,
+  getCollaborationStats,
+} from './collaboration-handlers'

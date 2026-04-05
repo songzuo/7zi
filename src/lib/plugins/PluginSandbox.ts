@@ -84,10 +84,10 @@ export class PluginSandbox implements IPluginSandbox {
   /**
    * Execute code in sandbox
    */
-  async execute<T = any>(
+  async execute<T = unknown>(
     pluginId: string,
     code: string | Function,
-    context?: Record<string, any>
+    context?: Record<string, unknown>
   ): Promise<T> {
     const sandbox = this.sandboxes.get(pluginId);
     if (!sandbox) {
@@ -217,8 +217,8 @@ export class PluginSandbox implements IPluginSandbox {
   /**
    * Create secure require function
    */
-  private createSecureRequire(pluginId: string, permissions: Set<string>): (module: string) => any {
-    const allowedModules = new Map<string, any>([
+  private createSecureRequire(pluginId: string, permissions: Set<string>): (module: string) => unknown {
+    const allowedModules = new Map<string, unknown>([
       // Safe built-in modules
       ['crypto', require('crypto')],
       ['url', require('url')],

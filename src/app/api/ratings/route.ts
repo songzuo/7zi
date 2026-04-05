@@ -341,12 +341,12 @@ export async function POST(request: NextRequest) {
  * GET /api/ratings/[id]
  * Get single rating
  */
-export async function GET_RATING(request: NextRequest, { params }: { params: { id: string } }) {
+export async function GET_RATING(request: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   const startTime = Date.now()
   const metadata = logRequestStart(request)
 
   try {
-    const { id } = params
+    const { id } = await params
 
     const db = await getDatabaseAsync()
 
@@ -435,12 +435,12 @@ export async function DELETE_RATING(request: NextRequest, { params }: { params: 
  * POST /api/ratings/[id]/helpful
  * Mark rating as helpful or not helpful
  */
-export async function POST_HELPFUL(request: NextRequest, { params }: { params: { id: string } }) {
+export async function POST_HELPFUL(request: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   const startTime = Date.now()
   const metadata = logRequestStart(request)
 
   try {
-    const { id } = params
+    const { id } = await params
     const body = await request.json()
 
     const { is_helpful } = body as { is_helpful: boolean }

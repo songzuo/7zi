@@ -110,10 +110,14 @@ export async function readFromClipboard(): Promise<string | null> {
 
 /**
  * Download a file from URL
+ * 
+ * 注意：此函数用于从 URL 下载文件（如图片、PDF等外部资源）
+ * 如需将内容保存为文件，请使用 @/lib/utils/download 中的 downloadFile
+ *
  * @param {string} url - File URL
  * @param {string} filename - Optional filename
  * @example
- * downloadFile('https://example.com/file.pdf', 'document.pdf');
+ * downloadFile('https://example.com/document.pdf', 'document.pdf');
  */
 export function downloadFile(url: string, filename?: string): void {
   const link = document.createElement('a')

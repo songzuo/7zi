@@ -12,6 +12,7 @@ import {
   NodeStatus,
   InstanceStatus,
   EdgeType,
+  NodeType,
 } from '@/types/workflow'
 import {
   NodeExecutor,
@@ -224,7 +225,7 @@ export class EnhancedWorkflowExecutor {
       }
 
       // 执行工作流
-      await this.executeNode(instance, workflow, startNode.id, {}, instance.data.variables || {})
+      await this.executeNode(instance, workflow, startNode.id, instance.data.inputs || {}, instance.data.variables || {})
 
       // 检查是否有失败的节点
       const failedNodes = Array.from(
@@ -354,10 +355,10 @@ export class EnhancedWorkflowExecutor {
       }
 
       // 判断节点类型以决定执行方式
-      if (node.type === 'condition') {
+      if (node.type === NodeType.CONDITION) {
         // 条件节点，根据结果选择分支
         await this.executeConditionBranch(instance, workflow, node, finalResult, inputs, variables)
-      } else if (node.type === 'parallel') {
+      } else if (node.type === NodeType.PARALLEL) {
         // 并行节点，并行执行所有下一个节点
         await Promise.all(
           nextNodeIds.map(nextNodeId =>
@@ -418,13 +419,14 @@ export class EnhancedWorkflowExecutor {
     inputs: Record<string, unknown>,
     variables: Record<string, unknown>
   ): Promise<void> {
-    const conditionValue = result.output?.condition
+    // 条件节点执行器返回的 output 中包含 label 字段
+    const conditionValue = result.output?.label
 
-    // 查找匹配的边
+    // 查找匹配的边 - 使用分支标签匹配
     const matchingEdge = workflow.edges.find(
       e =>
         e.source === node.id &&
-        e.conditionConfig?.condition?.toLowerCase() === String(conditionValue).toLowerCase()
+        e.conditionConfig?.label?.toLowerCase() === String(conditionValue).toLowerCase()
     )
 
     if (matchingEdge) {
@@ -435,21 +437,43 @@ export class EnhancedWorkflowExecutor {
         { ...inputs, ...result.output },
         { ...variables }
       )
-    } else {
-      // 没有匹配的边，尝试默认分支
-      const defaultEdge = workflow.edges.find(
-        e => e.source === node.id && e.type === EdgeType.DEFAULT
-      )
+      return
+    }
 
-      if (defaultEdge) {
-        await this.executeNode(
-          instance,
-          workflow,
-          defaultEdge.target,
-          { ...inputs, ...result.output },
-          { ...variables }
-        )
-      }
+    // 尝试使用 condition 字段匹配（向后兼容）
+    const conditionMatchingEdge = workflow.edges.find(
+      e =>
+        e.source === node.id &&
+        e.conditionConfig?.condition?.toLowerCase() === String(conditionValue).toLowerCase()
+    )
+
+    if (conditionMatchingEdge) {
+      await this.executeNode(
+        instance,
+        workflow,
+        conditionMatchingEdge.target,
+        { ...inputs, ...result.output },
+        { ...variables }
+      )
+      return
+    }
+
+    // 没有匹配的边，尝试默认分支
+    const defaultEdge = workflow.edges.find(
+      e => e.source === node.id && e.type === EdgeType.DEFAULT
+    )
+
+    if (defaultEdge) {
+      await this.executeNode(
+        instance,
+        workflow,
+        defaultEdge.target,
+        { ...inputs, ...result.output },
+        { ...variables }
+      )
+    } else {
+      // 记录警告但没有可执行的分支
+      console.warn(`条件节点 ${node.id} 没有找到匹配的分支: ${conditionValue}`)
     }
   }
 

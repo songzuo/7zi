@@ -49,6 +49,50 @@ export interface WebhookDelivery {
   createdAt: Date;
 }
 
+// Input types for execute actions
+export interface CreateEndpointInput {
+  url: string;
+  events: string[];
+  headers?: Record<string, string>;
+}
+
+export interface UpdateEndpointInput {
+  id: string;
+  url?: string;
+  events?: string[];
+  headers?: Record<string, string>;
+  enabled?: boolean;
+}
+
+export interface DeleteEndpointInput {
+  id: string;
+}
+
+export interface GetEndpointInput {
+  id: string;
+}
+
+export interface TriggerInput {
+  event: string;
+  payload: unknown;
+  endpointId?: string;
+}
+
+export interface GetDeliveryInput {
+  id: string;
+}
+
+export interface ListDeliveriesInput {
+  endpointId?: string;
+  event?: string;
+  status?: WebhookDelivery['status'];
+  limit?: number;
+}
+
+export interface RetryDeliveryInput {
+  id: string;
+}
+
 export class WebhookPlugin implements Plugin {
   metadata: PluginMetadata = {
     id: '@openclaw/plugin-webhook',
@@ -140,37 +184,37 @@ export class WebhookPlugin implements Plugin {
   /**
    * Execute plugin action
    */
-  async execute<TInput = any, TOutput = any>(
+  async execute<TInput = unknown, TOutput = unknown>(
     action: string,
     input?: TInput
   ): Promise<TOutput> {
     switch (action) {
       case 'createEndpoint':
-        return (await this.createEndpoint(input as any)) as TOutput;
+        return (await this.createEndpoint(input as CreateEndpointInput)) as TOutput;
 
       case 'updateEndpoint':
-        return (await this.updateEndpoint(input as any)) as TOutput;
+        return (await this.updateEndpoint(input as UpdateEndpointInput)) as TOutput;
 
       case 'deleteEndpoint':
-        return (await this.deleteEndpoint(input as any)) as TOutput;
+        return (await this.deleteEndpoint(input as DeleteEndpointInput)) as TOutput;
 
       case 'getEndpoint':
-        return (await this.getEndpoint(input as any)) as TOutput;
+        return (await this.getEndpoint(input as GetEndpointInput)) as TOutput;
 
       case 'listEndpoints':
         return (await this.listEndpoints()) as TOutput;
 
       case 'trigger':
-        return (await this.trigger(input as any)) as TOutput;
+        return (await this.trigger(input as TriggerInput)) as TOutput;
 
       case 'getDelivery':
-        return (await this.getDelivery(input as any)) as TOutput;
+        return (await this.getDelivery(input as GetDeliveryInput)) as TOutput;
 
       case 'listDeliveries':
-        return (await this.listDeliversies(input as any)) as TOutput;
+        return (await this.listDeliversies(input as ListDeliveriesInput)) as TOutput;
 
       case 'retryDelivery':
-        return (await this.retryDelivery(input as any)) as TOutput;
+        return (await this.retryDelivery(input as RetryDeliveryInput)) as TOutput;
 
       case 'stats':
         return (await this.stats()) as TOutput;
@@ -511,7 +555,7 @@ export class WebhookPlugin implements Plugin {
       successCount: this.metrics.sent,
       failureCount: this.metrics.failed,
       memoryUsage: process.memoryUsage().heapUsed,
-      custom: this.metrics as any,
+      custom: { ...this.metrics } as Record<string, number>,
       timestamp: new Date(),
     };
   }

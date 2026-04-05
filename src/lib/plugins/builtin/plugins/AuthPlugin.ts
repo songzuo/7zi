@@ -25,7 +25,7 @@ export interface AuthPluginConfig {
 export interface AuthProvider {
   type: 'local' | 'oauth' | 'jwt' | 'ldap' | 'saml';
   enabled: boolean;
-  config?: Record<string, any>;
+  config?: Record<string, unknown>;
 }
 
 export interface PasswordPolicy {
@@ -53,7 +53,74 @@ export interface Session {
   token: string;
   createdAt: Date;
   expiresAt: Date;
-  metadata?: Record<string, any>;
+  metadata?: Record<string, unknown>;
+}
+
+// Input types for auth operations
+export interface RegisterInput {
+  username: string;
+  email: string;
+  password: string;
+  roles?: string[];
+}
+
+export interface LoginInput {
+  username?: string;
+  email?: string;
+  password: string;
+}
+
+export interface LogoutInput {
+  token: string;
+}
+
+export interface VerifyInput {
+  token: string;
+}
+
+export interface RefreshInput {
+  refreshToken: string;
+}
+
+export interface GetUserInput {
+  userId?: string;
+  token?: string;
+}
+
+export interface UpdateUserInput {
+  userId: string;
+  username?: string;
+  email?: string;
+  password?: string;
+  roles?: string[];
+}
+
+export interface DeleteUserInput {
+  userId: string;
+}
+
+export interface ChangePasswordInput {
+  userId: string;
+  oldPassword: string;
+  newPassword: string;
+}
+
+export interface CheckPermissionInput {
+  userId: string;
+  permission: string;
+}
+
+export interface CheckRoleInput {
+  userId: string;
+  role: string;
+}
+
+export interface AuthPluginMetrics {
+  logins: number;
+  logouts: number;
+  failedAttempts: number;
+  sessionsCreated: number;
+  sessionsExpired: number;
 }
 
 export class AuthPlugin implements Plugin {
@@ -156,43 +223,43 @@ export class AuthPlugin implements Plugin {
   /**
    * Execute plugin action
    */
-  async execute<TInput = any, TOutput = any>(
+  async execute<TInput = unknown, TOutput = unknown>(
     action: string,
     input?: TInput
   ): Promise<TOutput> {
     switch (action) {
       case 'register':
-        return (await this.register(input as any)) as TOutput;
+        return (await this.register(input as RegisterInput)) as TOutput;
 
       case 'login':
-        return (await this.login(input as any)) as TOutput;
+        return (await this.login(input as LoginInput)) as TOutput;
 
       case 'logout':
-        return (await this.logout(input as any)) as TOutput;
+        return (await this.logout(input as LogoutInput)) as TOutput;
 
       case 'verify':
-        return (await this.verify(input as any)) as TOutput;
+        return (await this.verify(input as VerifyInput)) as TOutput;
 
       case 'refresh':
-        return (await this.refresh(input as any)) as TOutput;
+        return (await this.refresh(input as RefreshInput)) as TOutput;
 
       case 'getUser':
-        return (await this.getUser(input as any)) as TOutput;
+        return (await this.getUser(input as GetUserInput)) as TOutput;
 
       case 'updateUser':
-        return (await this.updateUser(input as any)) as TOutput;
+        return (await this.updateUser(input as UpdateUserInput)) as TOutput;
 
       case 'deleteUser':
-        return (await this.deleteUser(input as any)) as TOutput;
+        return (await this.deleteUser(input as DeleteUserInput)) as TOutput;
 
       case 'changePassword':
-        return (await this.changePassword(input as any)) as TOutput;
+        return (await this.changePassword(input as ChangePasswordInput)) as TOutput;
 
       case 'checkPermission':
-        return (await this.checkPermission(input as any)) as TOutput;
+        return (await this.checkPermission(input as CheckPermissionInput)) as TOutput;
 
       case 'checkRole':
-        return (await this.checkRole(input as any)) as TOutput;
+        return (await this.checkRole(input as CheckRoleInput)) as TOutput;
 
       case 'stats':
         return (await this.stats()) as TOutput;
@@ -606,7 +673,7 @@ export class AuthPlugin implements Plugin {
       successCount: this.metrics.logins,
       failureCount: this.metrics.failedAttempts,
       memoryUsage: process.memoryUsage().heapUsed,
-      custom: this.metrics as any,
+      custom: this.metrics as AuthPluginMetrics,
       timestamp: new Date(),
     };
   }

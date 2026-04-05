@@ -54,124 +54,131 @@ interface RedisOptions {
 class MockRedisClient implements RedisClient {
   private store: Map<string, { value: string; expiresAt?: number }> = new Map()
   private keyPrefix: string
-  
+
   constructor(options: RedisOptions = {}) {
     this.keyPrefix = options.keyPrefix || ''
   }
-  
+
   async get(key: string): Promise<string | null> {
     const fullKey = this.keyPrefix + key
     const entry = this.store.get(fullKey)
-    
+
     if (!entry) return null
     if (entry.expiresAt && Date.now() > entry.expiresAt) {
       this.store.delete(fullKey)
       return null
     }
-    
+
     return entry.value
   }
-  
+
   async set(key: string, value: string, mode?: string, duration?: number): Promise<'OK'> {
     const fullKey = this.keyPrefix + key
     const entry: { value: string; expiresAt?: number } = { value }
-    
+
     if (mode === 'EX' && duration) {
       entry.expiresAt = Date.now() + duration * 1000
     } else if (mode === 'PX' && duration) {
       entry.expiresAt = Date.now() + duration
     }
-    
+
     this.store.set(fullKey, entry)
     return 'OK'
   }
-  
+
   async del(key: string): Promise<number> {
     const fullKey = this.keyPrefix + key
     return this.store.delete(fullKey) ? 1 : 0
   }
-  
+
   async exists(key: string): Promise<number> {
     const fullKey = this.keyPrefix + key
     const entry = this.store.get(fullKey)
-    
+
     if (!entry) return 0
     if (entry.expiresAt && Date.now() > entry.expiresAt) {
       this.store.delete(fullKey)
       return 0
     }
-    
+
     return 1
   }
-  
+
   async expire(key: string, seconds: number): Promise<number> {
     const fullKey = this.keyPrefix + key
     const entry = this.store.get(fullKey)
-    
+
     if (!entry) return 0
     
     entry.expiresAt = Date.now() + seconds * 1000
     return 1
   }
-  
+
   async ttl(key: string): Promise<number> {
     const fullKey = this.keyPrefix + key
     const entry = this.store.get(fullKey)
-    
+
     if (!entry) return -2
     if (!entry.expiresAt) return -1
-    
+
     const ttl = Math.floor((entry.expiresAt - Date.now()) / 1000)
     return ttl > 0 ? ttl : -2
   }
-  
+
   async keys(pattern: string): Promise<string[]> {
     const fullPattern = this.keyPrefix + pattern
     const regex = new RegExp('^' + fullPattern.replace(/\*/g, '.*') + '$')
-    
+
     return Array.from(this.store.keys()).filter(k => regex.test(k))
   }
-  
+
   async mget(keys: string[]): Promise<(string | null)[]> {
     return Promise.all(keys.map(k => this.get(k)))
   }
-  
+
   async mset(values: Record<string, string>): Promise<'OK'> {
     for (const [key, value] of Object.entries(values)) {
       await this.set(key, value)
     }
     return 'OK'
   }
-  
+
   async incr(key: string): Promise<number> {
     const value = await this.get(key)
     const newValue = (parseInt(value || '0', 10) + 1).toString()
     await this.set(key, newValue)
     return parseInt(newValue, 10)
   }
-  
+
   async decr(key: string): Promise<number> {
     const value = await this.get(key)
     const newValue = (parseInt(value || '0', 10) - 1).toString()
     await this.set(key, newValue)
     return parseInt(newValue, 10)
   }
-  
+
   async ping(): Promise<'PONG'> {
     return 'PONG'
   }
-  
+
   async quit(): Promise<'OK'> {
     return 'OK'
   }
-  
+
   on(_event: string, _listener: (...args: unknown[]) => void): this {
     return this
   }
-  
+
   disconnect(): void {
     this.store.clear()
   }
+}
+
+/**
+ * Redis Cluster client interface (for type checking)
+ */
+interface RedisClusterClientInterface {
+  new(nodes: Array<{ host: string; port: number }>, options: { redisOptions: RedisOptions }): RedisClient
 }
 
 /**
@@ -196,11 +203,11 @@ export class RedisClusterClient {
     errors: 0,
     lastReset: Date.now(),
   }
-  
+
   constructor(config: L3Config) {
     this.config = config
   }
-  
+
   /**
    * Connect to Redis cluster
    */
@@ -208,12 +215,13 @@ export class RedisClusterClient {
     try {
       // Try to use ioredis if available
       const Redis = await this.loadIORedis()
-      
+
       if (Redis) {
         const RedisClass = Redis.default || Redis
         if (this.config.nodes && this.config.nodes.length > 0) {
           // Cluster mode
-          const RedisCluster = (Redis as any).Cluster
+          // Type assertion for ioredis Cluster class
+          const RedisCluster = (Redis as unknown as { Cluster?: RedisClusterClient }).Cluster
           if (RedisCluster) {
             this.client = new RedisCluster(
               this.config.nodes.map(n => ({ host: n.host, port: n.port })),

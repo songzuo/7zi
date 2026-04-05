@@ -11,8 +11,23 @@ export { WorkflowEdgeComponent, EdgeTypeSelector } from './designer/edge'
 export { DesignerToolbar, NodeToolbar, PropertyPanel } from './designer/toolbar'
 export { InstanceViewer, InstanceList } from './designer/instance-viewer'
 
-// 新的可视化工作流画布组件
-export { WorkflowCanvas, type WorkflowCanvasRef } from './WorkflowCanvas'
+// v1.12.3 增强组件 - Workflow Editor 拖拽增强
+export { WorkflowCanvas } from './WorkflowCanvas.enhanced'
+export type { WorkflowCanvasRef } from './WorkflowCanvas.enhanced'
+
+// 节点面板
+export { NodePalette, getDefaultNodeConfig } from './NodePalette'
+export type { PaletteNodeType, NodePaletteProps } from './NodePalette'
+
+// 节点右键菜单
+export { NodeContextMenu, useNodeContextMenu } from './NodeContextMenu'
+export type { NodeContextMenuProps, ContextMenuItem, DEFAULT_MENU_ITEMS } from './NodeContextMenu'
+
+// 增强工具栏
+export { WorkflowToolbar, KeyboardShortcuts } from './WorkflowToolbar'
+export type { WorkflowToolbarProps, WorkflowTemplate, WORKFLOW_TEMPLATES } from './WorkflowToolbar'
+
+// 旧版可视化工作流画布组件（保留向后兼容）
 export type {
   WorkflowNodeType,
   NodeState,
@@ -43,3 +58,7 @@ export { TaskCreationChat } from './TaskCreationChat'
 export { TaskPreviewPanel } from './TaskPreviewPanel'
 export { QuickTaskModal } from './QuickTaskModal'
 export { useTaskCreation } from './hooks/useTaskCreation'
+
+// v1.12.3 增强版工作流编辑器（集成示例）
+export { WorkflowEditorEnhanced } from './WorkflowEditorEnhanced'
+export type { WorkflowEditorEnhancedProps } from './WorkflowEditorEnhanced'

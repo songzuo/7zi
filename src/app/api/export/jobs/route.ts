@@ -33,14 +33,19 @@ function getExportService(): ExportService {
  */
 export async function GET(request: NextRequest) {
   // 认证检查
-  const authResponse = authMiddleware(request)
+  const authResponse = await authMiddleware(request)
   if (authResponse.status !== 200) {
     return authResponse
   }
 
   try {
     const searchParams = request.nextUrl.searchParams
-    const status = searchParams.get('status') as any
+    const statusParam = searchParams.get('status')
+    const status: 'pending' | 'processing' | 'completed' | 'failed' | 'cancelled' | undefined =
+      statusParam === 'pending' || statusParam === 'processing' || statusParam === 'completed' ||
+      statusParam === 'failed' || statusParam === 'cancelled'
+        ? statusParam
+        : undefined
     const page = parseInt(searchParams.get('page') || '1')
     const pageSize = parseInt(searchParams.get('pageSize') || '20')
 

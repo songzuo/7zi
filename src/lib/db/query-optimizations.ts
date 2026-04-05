@@ -275,29 +275,44 @@ export async function paginate<T>(
   params: unknown[] = [],
   orderBy: string = 'created_at DESC'
 ): Promise<PaginatedResult<T>> {
-  const offset = (page - 1) * perPage
+  try {
+    const offset = (page - 1) * perPage
 
-  // Use window function to get count in same query
-  const result = db.queryRows(
-    `
-    SELECT t.*, COUNT(*) OVER() as total_count
-    FROM ${tableName} t
-    ${whereClause ? `WHERE ${whereClause}` : ''}
-    ORDER BY ${orderBy}
-    LIMIT ? OFFSET ?
-    `,
-    [...params, perPage, offset]
-  ) as Array<T & { total_count: number }>
+    // Validate pagination parameters
+    if (page < 1) {
+      throw new Error('Page number must be >= 1')
+    }
+    if (perPage < 1 || perPage > 1000) {
+      throw new Error('PerPage must be between 1 and 1000')
+    }
 
-  const items = result.map(({ total_count, ...item }) => item) as T[]
-  const total = result[0]?.total_count || 0
+    // Use window function to get count in same query
+    const result = db.queryRows(
+      `
+      SELECT t.*, COUNT(*) OVER() as total_count
+      FROM ${tableName} t
+      ${whereClause ? `WHERE ${whereClause}` : ''}
+      ORDER BY ${orderBy}
+      LIMIT ? OFFSET ?
+      `,
+      [...params, perPage, offset]
+    ) as Array<T & { total_count: number }>
 
-  return {
-    items,
-    total,
-    page,
-    per_page: perPage,
-    total_pages: Math.ceil(total / perPage),
+    const items = result.map(({ total_count, ...item }) => item) as T[]
+    const total = result[0]?.total_count || 0
+
+    return {
+      items,
+      total,
+      page,
+      per_page: perPage,
+      total_pages: Math.ceil(total / perPage),
+    }
+  } catch (error) {
+    // Import logger dynamically to avoid circular dependency
+    const { logger } = await import('@/lib/logger')
+    logger.error('Pagination error', error, { tableName, page, perPage })
+    throw error
   }
 }
 

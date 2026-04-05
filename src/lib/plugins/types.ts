@@ -492,10 +492,10 @@ export interface PluginLogger {
 
 export interface PluginStorage {
   /** Get value */
-  get<T = any>(key: string): Promise<T | undefined>;
+  get<T = unknown>(key: string): Promise<T | undefined>;
   
   /** Set value */
-  set<T = any>(key: string, value: T, ttl?: number): Promise<void>;
+  set<T = unknown>(key: string, value: T, ttl?: number): Promise<void>;
   
   /** Delete value */
   delete(key: string): Promise<void>;
@@ -774,8 +774,8 @@ export interface PluginConfigHelper {
 }
 
 export interface PluginUtils {
-  debounce<T extends (...args: unknown[]) => any>(fn: T, delay: number): T;
-  throttle<T extends (...args: unknown[]) => any>(fn: T, delay: number): T;
+  debounce<T extends (...args: unknown[]) => unknown>(fn: T, delay: number): T;
+  throttle<T extends (...args: unknown[]) => unknown>(fn: T, delay: number): T;
   retry<T>(fn: () => Promise<T>, attempts: number, delay: number): Promise<T>;
   timeout<T>(promise: Promise<T>, ms: number): Promise<T>;
   sleep(ms: number): Promise<void>;

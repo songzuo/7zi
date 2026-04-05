@@ -166,7 +166,7 @@ export class SmartRoutingAIService {
 
     try {
       if ('generateStreamAsync' in provider) {
-        const stream = await (provider as any).generateStreamAsync(request)
+        const stream = await (provider as { generateStreamAsync: (req: unknown) => AsyncIterable<{ content: string }> }).generateStreamAsync(request)
         for await (const chunk of stream) {
           yield chunk.content
           totalTokens += chunk.content.length / 4 // 粗略估计

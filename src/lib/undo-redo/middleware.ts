@@ -231,8 +231,8 @@ export const undoRedoImpl: UndoRedoImpl = (f, config = {}) => {
     }
 
     // Create wrapped set function - type workaround for Zustand v5
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const wrappedSet: any = (...args: unknown[]) => {
+    // Zustand's set function accepts multiple argument types that are hard to express in TypeScript
+    const wrappedSet: (...args: unknown[]) => void = (...args: unknown[]) => {
       const currentState = { ...get() }
 
       // Skip if we're in the middle of undo/redo

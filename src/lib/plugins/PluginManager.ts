@@ -218,7 +218,7 @@ export class PluginManager extends EventEmitter implements IPluginManager {
   /**
    * Execute a plugin action
    */
-  async execute<TInput = any, TOutput = any>(
+  async execute<TInput = unknown, TOutput = unknown>(
     pluginId: string,
     action: string,
     input?: TInput
@@ -271,7 +271,7 @@ export class PluginManager extends EventEmitter implements IPluginManager {
   /**
    * Execute a hook
    */
-  async executeHook<TInput = any, TOutput = any>(
+  async executeHook<TInput = unknown, TOutput = unknown>(
     hook: HookName,
     input?: TInput
   ): Promise<TOutput[]> {

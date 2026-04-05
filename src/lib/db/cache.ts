@@ -12,6 +12,7 @@
 
 import { getDatabaseAsync } from './index'
 import { logger } from '../logger'
+import { generateCacheKey as fastGenerateCacheKey } from './cache-key-generator'
 
 export interface CacheEntry<T = unknown> {
   key: string
@@ -500,11 +501,11 @@ export class MemoizationCache {
       const stats = this.stats.get(keyPrefix)!
       stats.totalCalls++
 
-      // 生成缓存键
+      // 生成缓存键 - 使用快速键生成器
       const argsKey = keyGenerator
         ? keyGenerator(...args)
         : useArgsAsKey
-          ? `${keyPrefix}:${JSON.stringify(args)}`
+          ? fastGenerateCacheKey(keyPrefix, args)
           : keyPrefix
 
       // 检查缓存
@@ -594,7 +595,7 @@ export class MemoizationCache {
       const argsKey = keyGenerator
         ? keyGenerator(...args)
         : useArgsAsKey
-          ? `${keyPrefix}:${JSON.stringify(args)}`
+          ? fastGenerateCacheKey(keyPrefix, args)
           : keyPrefix
 
       const cached = this.cache.get(argsKey)
@@ -792,7 +793,7 @@ export function cached<T extends (...args: unknown[]) => Promise<unknown>>(
     const method = descriptor.value!
 
     descriptor.value = async function (this: unknown, ...args: unknown[]) {
-      const key = `${keyPrefix}:${JSON.stringify(args)}`
+      const key = fastGenerateCacheKey(keyPrefix, args)
 
       // 尝试从缓存获取
       const cachedValue = globalCache.get<unknown>(key)
@@ -827,7 +828,7 @@ export function cachedWithInvalidation<T extends (...args: unknown[]) => Promise
     const method = descriptor.value!
 
     descriptor.value = async function (this: unknown, ...args: unknown[]) {
-      const key = `${keyPrefix}:${JSON.stringify(args)}`
+      const key = fastGenerateCacheKey(keyPrefix, args)
 
       // 尝试从缓存获取
       const cachedValue = globalCache.get<unknown>(key)

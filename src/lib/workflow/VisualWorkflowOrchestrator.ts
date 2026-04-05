@@ -18,6 +18,7 @@ import {
   InstanceStatus,
   WorkflowInstance,
   NodeExecutionResult,
+  EdgeType,
 } from '@/types/workflow'
 
 /**
@@ -659,14 +660,35 @@ export class VisualWorkflowOrchestrator {
       // 根据节点类型执行下一个节点
       if (node.type === NodeType.CONDITION) {
         // 条件节点：执行条件分支
-        const branch = result.output?.branch as string
-        const nextNode = nextNodes.find(n => {
+        // 条件执行器返回 output.label 作为分支标签
+        const branch = result.output?.label as string
+
+        // 首先尝试使用 label 匹配
+        let nextNode = nextNodes.find(n => {
           const edge = workflow.edges.find(e => e.source === node.id && e.target === n.id)
-          return edge?.conditionConfig?.label === branch
+          return edge?.conditionConfig?.label?.toLowerCase() === branch?.toLowerCase()
         })
+
+        // 如果没有找到，尝试使用 condition 字段匹配（向后兼容）
+        if (!nextNode) {
+          nextNode = nextNodes.find(n => {
+            const edge = workflow.edges.find(e => e.source === node.id && e.target === n.id)
+            return edge?.conditionConfig?.condition?.toLowerCase() === branch?.toLowerCase()
+          })
+        }
+
+        // 如果还是没有找到，尝试默认分支
+        if (!nextNode) {
+          nextNode = nextNodes.find(n => {
+            const edge = workflow.edges.find(e => e.source === node.id && e.target === n.id)
+            return edge?.type === EdgeType.DEFAULT
+          })
+        }
 
         if (nextNode) {
           await this.executeNode(workflow, nextNode, instance)
+        } else {
+          console.warn(`条件节点 ${node.id} 没有找到匹配的分支: ${branch}`)
         }
       } else if (node.type === NodeType.PARALLEL) {
         // 并行节点：并行执行所有分支

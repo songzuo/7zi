@@ -81,6 +81,13 @@ export interface FormDraft {
   updatedAt: number
 }
 
+/**
+ * 可序列化的 UI 存储状态（用于 localStorage）
+ */
+interface SerializableUIState {
+  formDrafts: Array<[string, FormDraft]>
+}
+
 interface UIState {
   // 侧边栏
   sidebar: SidebarState
@@ -533,8 +540,8 @@ export const useUIStore = create<UIState>()(
             // 将 Map 转为数组存储
             const data = { ...value }
             if (data.state?.formDrafts instanceof Map) {
-              // eslint-disable-next-line @typescript-eslint/no-explicit-any
-              data.state.formDrafts = Array.from(data.state.formDrafts.entries()) as any
+              const serializableState = data.state as Partial<SerializableUIState>
+              serializableState.formDrafts = Array.from(data.state.formDrafts.entries())
             }
             try {
               localStorage.setItem(name, JSON.stringify(data))

@@ -6,7 +6,7 @@
 import { NextRequest } from 'next/server'
 import { GET_RATING } from '../route'
 
-export async function GET(request: NextRequest, { params }: { params: { id: string } }) {
+export async function GET(request: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   return GET_RATING(request, { params })
 }
 
@@ -17,6 +17,6 @@ export async function GET(request: NextRequest, { params }: { params: { id: stri
 
 import { DELETE_RATING } from '../route'
 
-export async function DELETE(request: NextRequest, { params }: { params: { id: string } }) {
+export async function DELETE(request: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   return DELETE_RATING(request, { params })
 }

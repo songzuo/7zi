@@ -109,7 +109,7 @@ export class PluginLoader implements IPluginLoader {
       case 'git':
         return await this.loadFromGit(id, source.location);
       default:
-        throw new PluginLoadError(id, `Unknown source type: ${(source as any).type}`);
+        throw new PluginLoadError(id, `Unknown source type: ${(source as PluginSource & { type: string }).type}`);
     }
   }
 
@@ -151,7 +151,7 @@ export class PluginLoader implements IPluginLoader {
     }
 
     // Create plugin instance
-    const PluginClass = (pluginModule as any).default || pluginModule;
+    const PluginClass = (pluginModule as { default?: typeof Plugin } & typeof Plugin).default || pluginModule;
     const plugin: Plugin = new PluginClass();
 
     // Attach metadata
@@ -178,7 +178,7 @@ export class PluginLoader implements IPluginLoader {
 
     // Load module
     const pluginModule = require(modulePath);
-    const PluginClass = (pluginModule as any).default || pluginModule;
+    const PluginClass = (pluginModule as { default?: typeof Plugin } & typeof Plugin).default || pluginModule;
     const plugin: Plugin = new PluginClass();
 
     // Load metadata from package.json
@@ -298,7 +298,7 @@ export class PluginLoader implements IPluginLoader {
   /**
    * Execute plugin code
    */
-  private async executePluginCode(id: string, code: string): Promise<any> {
+  private async executePluginCode(id: string, code: string): Promise<unknown> {
     // Use VM module for sandboxed execution
     const vm = require('vm');
     const context = vm.createContext({

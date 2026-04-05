@@ -22,13 +22,36 @@ export interface CachePluginConfig {
   serialization: 'json' | 'msgpack';
 }
 
-export interface CacheEntry<T = any> {
+export interface CacheEntry<T = unknown> {
   key: string;
   value: T;
   ttl: number;
   createdAt: number;
   accessedAt: number;
   hits: number;
+}
+
+// Input types for cache operations
+export interface CacheGetInput {
+  key: string;
+}
+
+export interface CacheSetInput {
+  key: string;
+  value: unknown;
+  ttl?: number;
+}
+
+export interface CacheDeleteInput {
+  key: string;
+}
+
+export interface CacheHasInput {
+  key: string;
+}
+
+export interface CacheInvalidateInput {
+  pattern: string;
 }
 
 export class CachePlugin implements Plugin {
@@ -116,25 +139,25 @@ export class CachePlugin implements Plugin {
   /**
    * Execute plugin action
    */
-  async execute<TInput = any, TOutput = any>(
+  async execute<TInput = unknown, TOutput = unknown>(
     action: string,
     input?: TInput
   ): Promise<TOutput> {
     switch (action) {
       case 'get':
-        return (await this.get((input as any).key)) as TOutput;
+        return (await this.get((input as CacheGetInput).key)) as TOutput;
 
       case 'set':
-        return (await this.set((input as any).key, (input as any).value, (input as any).ttl)) as TOutput;
+        return (await this.set((input as CacheSetInput).key, (input as CacheSetInput).value, (input as CacheSetInput).ttl)) as TOutput;
 
       case 'delete':
-        return (await this.delete((input as any).key)) as TOutput;
+        return (await this.delete((input as CacheDeleteInput).key)) as TOutput;
 
       case 'clear':
         return (await this.clear()) as TOutput;
 
       case 'has':
-        return (await this.has((input as any).key)) as TOutput;
+        return (await this.has((input as CacheHasInput).key)) as TOutput;
 
       case 'keys':
         return (await this.keys()) as TOutput;
@@ -143,7 +166,7 @@ export class CachePlugin implements Plugin {
         return (await this.stats()) as TOutput;
 
       case 'invalidate':
-        return (await this.invalidate((input as any).pattern)) as TOutput;
+        return (await this.invalidate((input as CacheInvalidateInput).pattern)) as TOutput;
 
       default:
         throw new Error(`Unknown action: ${action}`);
@@ -153,7 +176,7 @@ export class CachePlugin implements Plugin {
   /**
    * Get value from cache
    */
-  private async get<T = any>(key: string): Promise<T | undefined> {
+  private async get<T = unknown>(key: string): Promise<T | undefined> {
     const entry = this.cache.get(key);
 
     if (!entry) {
@@ -175,13 +198,13 @@ export class CachePlugin implements Plugin {
 
     this.metrics.hits++;
 
-    return entry.value;
+    return entry.value as T;
   }
 
   /**
    * Set value in cache
    */
-  private async set<T = any>(key: string, value: T, ttl?: number): Promise<{ success: boolean }> {
+  private async set<T = unknown>(key: string, value: T, ttl?: number): Promise<{ success: boolean }> {
     const config = this.config.config as CachePluginConfig;
 
     // Check if we need to evict
@@ -382,7 +405,7 @@ export class CachePlugin implements Plugin {
       successCount: this.metrics.hits,
       failureCount: this.metrics.misses,
       memoryUsage: process.memoryUsage().heapUsed,
-      custom: stats as any,
+      custom: stats as Record<string, number>,
       timestamp: new Date(),
     };
   }

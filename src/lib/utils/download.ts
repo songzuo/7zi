@@ -1,12 +1,22 @@
 /**
  * File Download Utilities
  * Helper functions for downloading files in the browser
+ * 
+ * 注意：此模块的 downloadFile 用于将内容保存为文件
+ * 如需从 URL 下载文件，请使用 @/lib/utils/browser 中的 downloadFile
  */
 
 import { logger } from '../logger'
 
 /**
  * Download a file with the given content and filename
+ * 用于将文本内容保存为文件下载
+ * 
+ * @param content - File content to save
+ * @param filename - Name of the downloaded file
+ * @param mimeType - MIME type of the file (default: 'text/plain')
+ * @example
+ * downloadFile('Hello, world!', 'hello.txt');
  */
 export function downloadFile(
   content: string,

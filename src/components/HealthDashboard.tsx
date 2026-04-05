@@ -65,18 +65,27 @@ export function HealthDashboard({ className = '', refreshInterval = 5000 }: Heal
       setLastActive(new Date().toISOString())
       setLastUpdate(new Date())
 
-      // Fetch memory usage
-      if (typeof performance !== 'undefined' && 'memory' in performance) {
-        const memory = (
-          performance as Performance & {
-            memory?: { usedJSHeapSize: number; totalJSHeapSize: number }
-          }
-        ).memory
-
-        if (memory) {
-          const usedMB = memory.usedJSHeapSize / (1024 * 1024)
-          setMemoryUsage(usedMB)
+      // Fetch memory usage with enhanced safety checks
+      try {
+        if (typeof performance === 'undefined') {
+          setMemoryUsage(0)
+          return
         }
+
+        const perf = performance as Performance & {
+          memory?: { usedJSHeapSize: number; totalJSHeapSize: number }
+        }
+
+        if (!perf.memory || typeof perf.memory.usedJSHeapSize !== 'number') {
+          setMemoryUsage(0)
+          return
+        }
+
+        const usedMB = perf.memory.usedJSHeapSize / (1024 * 1024)
+        setMemoryUsage(usedMB)
+      } catch (error) {
+        // Silently fail on memory access errors
+        setMemoryUsage(0)
       }
     }
 
