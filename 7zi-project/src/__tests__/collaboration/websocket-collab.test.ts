@@ -11,7 +11,7 @@ import { describe, it, expect, beforeEach, afterEach, jest } from '@jest/globals
 
 interface CollabMessage {
   type: string;
-  payload: any;
+  payload: unknown;
   senderId: string;
   timestamp: number;
   messageId: string;
@@ -33,9 +33,9 @@ class MockCollabWebSocket {
   url: string;
   
   onopen: ((event: Event) => void) | null = null;
-  onclose: ((event: any) => void) | null = null;
+  onclose: ((event: CloseEvent) => void) | null = null;
   onerror: ((event: Event) => void) | null = null;
-  onmessage: ((event: any) => void) | null = null;
+  onmessage: ((event: MessageEvent) => void) | null = null;
 
   private sentMessages: CollabMessage[] = [];
   private messageQueue: CollabMessage[] = [];
@@ -149,7 +149,7 @@ class CollaborationMessageHandler {
     };
   }
 
-  send(type: string, payload: any): boolean {
+  send(type: string, payload: unknown): boolean {
     if (!this.ws || this.ws.readyState !== MockCollabWebSocket.OPEN) {
       return false;
     }
@@ -212,7 +212,7 @@ class CollaborationMessageHandler {
     this.send('user:leave', {});
   }
 
-  broadcastEdit(nodeId: string, changes: any): void {
+  broadcastEdit(nodeId: string, changes: unknown): void {
     this.send('node:edit', { nodeId, changes });
   }
 
@@ -498,6 +498,7 @@ describe('WebSocket Collaboration Integration', () => {
     }
 
     expect(lockReceived).toHaveBeenCalled();
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     expect((lockReceived.mock.calls[0][0] as any).payload.nodeId).toBe('node-456');
 
     handler1.disconnect();

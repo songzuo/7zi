@@ -173,7 +173,7 @@ class CollaborationStateManager {
     };
   }
 
-  private notifyListeners(event: string, data: any): void {
+  private notifyListeners(event: string, data: unknown): void {
     const listeners = this.listeners.get(event);
     if (listeners) {
       listeners.forEach(listener => listener(data));

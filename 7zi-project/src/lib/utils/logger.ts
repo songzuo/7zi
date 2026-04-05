@@ -26,13 +26,13 @@ export interface LoggerOptions {
   /** 是否启用时间戳 */
   timestamp?: boolean;
   /** 自定义输出函数 */
-  output?: (level: LogLevel, name: string, args: any[]) => void;
+  output?: (level: LogLevel, name: string, args: unknown[]) => void;
 }
 
 /**
  * 默认输出函数
  */
-function defaultOutput(level: LogLevel, name: string, args: any[]): void {
+function defaultOutput(level: LogLevel, name: string, args: unknown[]): void {
   const levelNames = ['DEBUG', 'INFO', 'WARN', 'ERROR'];
   const levelName = levelNames[level];
   const prefix = `[${name}]`;
@@ -60,7 +60,7 @@ export class Logger {
   private name: string;
   private level: LogLevel;
   private timestamp: boolean;
-  private output: (level: LogLevel, name: string, args: any[]) => void;
+  private output: (level: LogLevel, name: string, args: unknown[]) => void;
 
   constructor(options: LoggerOptions) {
     this.name = options.name;
@@ -86,7 +86,7 @@ export class Logger {
   /**
    * 输出 DEBUG 级别日志
    */
-  debug(...args: any[]): void {
+  debug(...args: unknown[]): void {
     if (this.level <= LogLevel.DEBUG) {
       const outputArgs = this.timestamp ? [new Date().toISOString(), ...args] : args;
       this.output(LogLevel.DEBUG, this.name, outputArgs);
@@ -96,7 +96,7 @@ export class Logger {
   /**
    * 输出 INFO 级别日志
    */
-  info(...args: any[]): void {
+  info(...args: unknown[]): void {
     if (this.level <= LogLevel.INFO) {
       const outputArgs = this.timestamp ? [new Date().toISOString(), ...args] : args;
       this.output(LogLevel.INFO, this.name, outputArgs);
@@ -106,7 +106,7 @@ export class Logger {
   /**
    * 输出 WARN 级别日志
    */
-  warn(...args: any[]): void {
+  warn(...args: unknown[]): void {
     if (this.level <= LogLevel.WARN) {
       const outputArgs = this.timestamp ? [new Date().toISOString(), ...args] : args;
       this.output(LogLevel.WARN, this.name, outputArgs);
@@ -116,7 +116,7 @@ export class Logger {
   /**
    * 输出 ERROR 级别日志
    */
-  error(...args: any[]): void {
+  error(...args: unknown[]): void {
     if (this.level <= LogLevel.ERROR) {
       const outputArgs = this.timestamp ? [new Date().toISOString(), ...args] : args;
       this.output(LogLevel.ERROR, this.name, outputArgs);

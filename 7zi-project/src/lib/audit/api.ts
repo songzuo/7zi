@@ -78,7 +78,13 @@ export function createAuditAPIHandlers(manager: AuditLogManager) {
      */
     async createExport(req: APIRequest): Promise<APIResponse> {
       try {
-        const { format, filters, includeHeaders, maxRecords } = req.body || {};
+        const body = req.body as {
+          format?: string;
+          filters?: Record<string, unknown>;
+          includeHeaders?: boolean;
+          maxRecords?: number;
+        } || {};
+        const { format, filters, includeHeaders, maxRecords } = body;
 
         if (!format || !['csv', 'json', 'excel'].includes(format)) {
           return {

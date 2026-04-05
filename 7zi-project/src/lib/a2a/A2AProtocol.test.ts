@@ -321,6 +321,7 @@ describe('A2A Protocol', () => {
       
       expect(errorMsg.type).toBe('error');
       expect(errorMsg.correlationId).toBe('req-456');
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       expect((errorMsg.payload as any).message).toBe('Test error');
     });
   });

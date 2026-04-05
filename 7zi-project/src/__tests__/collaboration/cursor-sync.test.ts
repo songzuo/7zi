@@ -38,11 +38,11 @@ class MockWebSocket {
   url: string;
   
   onopen: ((event: Event) => void) | null = null;
-  onclose: ((event: any) => void) | null = null;
+  onclose: ((event: CloseEvent) => void) | null = null;
   onerror: ((event: Event) => void) | null = null;
-  onmessage: ((event: any) => void) | null = null;
+  onmessage: ((event: MessageEvent) => void) | null = null;
 
-  private sentMessages: any[] = [];
+  private sentMessages: unknown[] = [];
 
   constructor(url: string) {
     this.url = url;
@@ -65,11 +65,11 @@ class MockWebSocket {
     }
   }
 
-  getSentMessages(): any[] {
+  getSentMessages(): unknown[] {
     return this.sentMessages;
   }
 
-  simulateMessage(data: any): void {
+  simulateMessage(data: unknown): void {
     if (this.onmessage) {
       this.onmessage({ data: JSON.stringify(data) });
     }
