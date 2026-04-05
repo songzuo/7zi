@@ -56,24 +56,3 @@ export function getCurrentBreakpoint(): BreakpointKey {
   return 'sm'
 }
 
-/**
- * Hook: 使用断点检测
- * @param breakpoint 断点名称
- * @returns 当前是否小于该断点
- */
-export function useBreakpoint(breakpoint: BreakpointKey): boolean {
-  const [isBelow, setIsBelow] = useState(() => isBelowBreakpoint(breakpoint))
-
-  useEffect(() => {
-    const handleResize = () => {
-      setIsBelow(isBelowBreakpoint(breakpoint))
-    }
-
-    window.addEventListener('resize', handleResize)
-    return () => window.removeEventListener('resize', handleResize)
-  }, [breakpoint])
-
-  return isBelow
-}
-
-import { useState, useEffect } from 'react'

@@ -18,7 +18,7 @@ export async function GET(
   { params }: { params: { jobId: string } }
 ) {
   // 认证检查
-  const authResponse = authMiddleware(request)
+  const authResponse = await authMiddleware(request)
   if (authResponse.status !== 200) {
     return authResponse
   }

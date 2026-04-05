@@ -339,6 +339,14 @@ export function sleep(ms: number): Promise<void> {
 
 /**
  * Retry a function with exponential backoff - 优化版本
+ * 
+ * ⚠️ DEPRECATED: 请使用 @/lib/utils/retry 中的完整实现
+ * 
+ * 简化版仅保留基础功能，如需更多特性请使用 retry.ts:
+ * - 指数退避（Exponential Backoff）
+ * - 抖动（Jitter）避免惊群效应
+ * - 条件重试（基于错误类型或响应状态）
+ * - 进度回调和超时控制
  *
  * 优化点:
  * 1. 使用位运算优化指数计算（2^i => 1 << i）
@@ -358,6 +366,7 @@ export function sleep(ms: number): Promise<void> {
  *   3,
  *   1000
  * );
+ * @deprecated 请使用 @/lib/utils/retry
  */
 export async function retry<T>(
   fn: () => Promise<T>,

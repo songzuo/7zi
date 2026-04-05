@@ -26,6 +26,7 @@ import {
 } from '@/lib/api/error-handler'
 import { logRequestStart, logRequestComplete, logRequestError } from '@/lib/api/api-logger'
 import { getOptimizedFeedbackStats } from '@/lib/db/query-optimizations'
+import { verify } from '@/lib/auth/jwt'
 
 /**
  * GET /api/feedback
@@ -298,12 +299,16 @@ export async function POST(request: NextRequest) {
  * GET /api/feedback/[id]
  * Get single feedback
  */
-export async function GET_FEEDBACK(request: NextRequest, { params }: { params: { id: string } }) {
+export async function GET_FEEDBACK(
+  request: NextRequest,
+  { params }: { params: Promise<{ id: string }> }
+) {
   const startTime = Date.now()
   const metadata = logRequestStart(request)
 
   try {
-    const { id } = params
+    const resolvedParams = await params
+    const { id } = resolvedParams
 
     const db = await getDatabaseAsync()
 
@@ -343,8 +348,26 @@ export async function PATCH(request: NextRequest, { params }: { params: Promise<
     const { id } = resolvedParams
     const body = await request.json()
 
-    // Check admin permissions (simplified - in production, verify JWT token)
-    const isAdmin = body.admin_id === 'admin' // Placeholder
+    // Verify JWT token
+    const authHeader = request.headers.get('authorization')
+    if (!authHeader || !authHeader.startsWith('Bearer ')) {
+      const response = await createUnauthorizedError('Missing or invalid authorization header')
+      logRequestComplete(metadata, response, startTime)
+      return response
+    }
+
+    const token = authHeader.substring(7)
+    const verifyResult = await verify(token)
+
+    if (!verifyResult.valid || !verifyResult.payload) {
+      const response = await createUnauthorizedError('Invalid or expired token')
+      logRequestComplete(metadata, response, startTime)
+      return response
+    }
+
+    // Check admin permissions
+    const payload = verifyResult.payload
+    const isAdmin = payload.roles?.includes('admin') || payload.role === 'admin'
 
     if (!isAdmin) {
       const response = await createForbiddenError('Admin access required')
@@ -423,7 +446,7 @@ export async function PATCH(request: NextRequest, { params }: { params: Promise<
     logger.info('Feedback updated', {
       category: 'feedback',
       feedbackId: id,
-      adminId: body.admin_id,
+      adminId: payload.sub,
       updates,
     })
 
@@ -441,13 +464,14 @@ export async function PATCH(request: NextRequest, { params }: { params: Promise<
  */
 export async function DELETE_FEEDBACK(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   const startTime = Date.now()
   const metadata = logRequestStart(request)
 
   try {
-    const { id } = params
+    const resolvedParams = await params
+    const { id } = resolvedParams
 
     // Check admin permissions (simplified - in production, verify JWT token)
     const _authHeader = request.headers.get('authorization')

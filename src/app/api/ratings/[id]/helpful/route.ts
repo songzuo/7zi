@@ -13,12 +13,12 @@ import {
 } from '@/lib/api/error-handler'
 import { logRequestStart, logRequestComplete, logRequestError } from '@/lib/api/api-logger'
 
-export async function POST(request: NextRequest, { params }: { params: { id: string } }) {
+export async function POST(request: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   const startTime = Date.now()
   const metadata = logRequestStart(request)
 
   try {
-    const { id } = params
+    const { id } = await params
     const body = await request.json()
     const { helpful } = body
 

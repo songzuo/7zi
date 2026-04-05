@@ -27,7 +27,7 @@ const exportRequestSchema = z.object({
       z.object({
         table: z.string(),
         where: z.string().optional(),
-        params: z.array(z.any()).optional(),
+        params: z.array(z.unknown()).optional(),
         limit: z.number().optional(),
       })
     )

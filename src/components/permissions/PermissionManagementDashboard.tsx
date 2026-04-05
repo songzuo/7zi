@@ -10,7 +10,10 @@ import {
   EnhancedRoleDefinition,
   FineGrainedPermission,
   PermissionChangeType,
-} from '../v2/types'
+  PermissionAuditLog,
+  ResourceType,
+  ActionType,
+} from '../../lib/permissions/v2/types'
 
 /**
  * 权限管理主组件
@@ -480,7 +483,7 @@ function PermissionManagement() {
           value={filter.action || ''}
           onChange={(e) => setFilter({ ...filter, action: e.target.value })}
         />
-        <button className="btn-primary" onClick={() => setSelectedPermission({} as any)}>
+        <button className="btn-primary" onClick={() => setSelectedPermission(null)}>
           创建权限
         </button>
       </div>
@@ -499,7 +502,7 @@ function PermissionManagement() {
                 <span className="badge">{permission.resourceType}</span>
                 <span className="badge">{permission.action}</span>
                 {permission.isDeny && <span className="badge deny">拒绝</span>}
-                {permission.priority > 0 && <span className="badge priority">优先级: {permission.priority}</span>}
+                {(permission.priority ?? 0) > 0 && <span className="badge priority">优先级: {permission.priority ?? 0}</span>}
               </div>
             </div>
             <div className="permission-actions">
@@ -542,20 +545,25 @@ function PermissionDetailPanel({
   onUpdate: (updates: Partial<FineGrainedPermission>) => void
   onCreate: (permission: Partial<FineGrainedPermission>) => void
 }) {
-  const isNew = !permission.id
+  const isNew = !permission.id || permission.id === ''
   const [name, setName] = useState(permission.name || '')
   const [description, setDescription] = useState(permission.description || '')
-  const [resourceType, setResourceType] = useState(permission.resourceType || '')
-  const [action, setAction] = useState(permission.action || '')
+  const [resourceType, setResourceType] = useState<ResourceType | ''>(permission.resourceType || '')
+  const [action, setAction] = useState<ActionType | ''>(permission.action || '')
   const [priority, setPriority] = useState(permission.priority || 0)
   const [isDeny, setIsDeny] = useState(permission.isDeny || false)
 
   const handleSave = () => {
+    if (!resourceType || !action) {
+      alert('资源类型和操作不能为空')
+      return
+    }
+
     const data = {
       name,
       description,
-      resourceType,
-      action,
+      resourceType: resourceType as ResourceType,
+      action: action as ActionType,
       priority,
       isDeny,
     }
@@ -583,12 +591,12 @@ function PermissionDetailPanel({
 
       <div className="form-group">
         <label>资源类型 *</label>
-        <input type="text" value={resourceType} onChange={(e) => setResourceType(e.target.value)} required />
+        <input type="text" value={resourceType} onChange={(e) => setResourceType(e.target.value as ResourceType)} required />
       </div>
 
       <div className="form-group">
         <label>操作 *</label>
-        <input type="text" value={action} onChange={(e) => setAction(e.target.value)} required />
+        <input type="text" value={action} onChange={(e) => setAction(e.target.value as ActionType)} required />
       </div>
 
       <div className="form-group">
@@ -624,7 +632,7 @@ function PermissionDetailPanel({
  * 审计日志查看器
  */
 function AuditLogViewer() {
-  const [logs, setLogs] = useState<any[]>([])
+  const [logs, setLogs] = useState<PermissionAuditLog[]>([])
   const [loading, setLoading] = useState(true)
   const [filter, setFilter] = useState<{
     changeType?: PermissionChangeType
@@ -688,7 +696,7 @@ function AuditLogViewer() {
       <div className="audit-filters">
         <select
           value={filter.changeType || ''}
-          onChange={(e) => setFilter({ ...filter, changeType: e.target.value as any })}
+          onChange={(e) => setFilter({ ...filter, changeType: e.target.value as PermissionChangeType })}
         >
           <option value="">所有变更类型</option>
           <option value="role_created">角色创建</option>

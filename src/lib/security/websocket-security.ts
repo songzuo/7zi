@@ -91,6 +91,13 @@ class WSSecurityManager {
   }
 
   /**
+   * Update security configuration
+   */
+  updateConfig(config: Partial<WSSecurityConfig>): void {
+    this.config = { ...this.config, ...config }
+  }
+
+  /**
    * Get security metrics for an IP
    */
   private getMetrics(ip: string): WSSecurityMetrics {
@@ -413,9 +420,8 @@ export function getWSSecurityManager(config?: WSSecurityConfig): WSSecurityManag
   if (!instance) {
     instance = new WSSecurityManager(config)
   } else if (config) {
-    // Update config if provided - eslint-disable for internal property access
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    ;(instance as any).config = { ...DEFAULT_CONFIG, ...config }
+    // Update config if provided using the public method
+    instance.updateConfig(config)
   }
 
   return instance

@@ -10,6 +10,9 @@
  * - 健康检查
  * - 根因分析
  * - 预算控制
+ * - 实时性能仪表板
+ * - 增强指标收集器
+ * - 性能告警管理器
  */
 
 // ============================================
@@ -343,3 +346,38 @@ export const agentTracker = {
     totalTokens: 0,
   }),
 }
+
+// ============================================
+// Real-Time Performance Dashboard (v1.12.2)
+// ============================================
+export {
+  RealTimeDashboardService,
+  realTimeDashboard,
+  type RealTimeMetrics,
+  type PerformanceTrend,
+  type DashboardClient,
+} from './realtime-dashboard'
+
+// ============================================
+// Enhanced Metrics Collector (v1.12.2)
+// ============================================
+export {
+  EnhancedMetricsCollector,
+  enhancedMetricsCollector,
+  type AggregatedMetric,
+  type MetricSnapshot,
+  type PerformanceAlert as EnhancedPerformanceAlert,
+  type MetricCallback,
+} from './enhanced-metrics-collector'
+
+// ============================================
+// Performance Alert Manager (v1.12.2)
+// ============================================
+export {
+  PerformanceAlertManager,
+  alertManager,
+  type AlertRule,
+  type ActiveAlert,
+  type AlertNotification,
+  type AlertCallback as AlertManagerCallback,
+} from './alert-manager-enhanced'

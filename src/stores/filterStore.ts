@@ -85,6 +85,17 @@ export interface FilterConfig {
   pagination: PaginationState
 }
 
+/**
+ * 可序列化的存储状态（用于 localStorage）
+ * 使用 Record 而不是数组，因为 Map.entries() 的类型推断问题
+ */
+interface SerializableFilterStoreState {
+  activeFilters: Record<string, FiltersState>
+  activeSorts: Record<string, SortCondition | null>
+  activePagination: Record<string, PaginationState>
+  isLoaded: boolean
+}
+
 interface FilterStoreState {
   // 数据
   activeFilters: Map<string, FiltersState> // 按组件/页面分离的过滤状态
@@ -149,6 +160,20 @@ function createDefaultPagination(pageSize?: number): PaginationState {
     pageSize: pageSize || 20,
     total: 0,
   }
+}
+
+/**
+ * 将 Map 转换为可序列化的对象
+ */
+function mapToObject<K extends string, V>(map: Map<K, V>): Record<K, V> {
+  return Object.fromEntries(map.entries()) as Record<K, V>
+}
+
+/**
+ * 将对象转换为 Map
+ */
+function objectToMap<K extends string, V>(obj: Record<K, V>): Map<K, V> {
+  return new Map(Object.entries(obj) as [K, V][])
 }
 
 // ============================================================================
@@ -433,23 +458,23 @@ export const useFilterStore = create<FilterStoreState>()(
             const str = localStorage.getItem(name)
             if (!str) return null
             try {
-              const data = JSON.parse(str)
-              // 将数组转回 Map
-              if (data.state?.activeFilters) {
-                data.state.activeFilters = new Map(
-                  data.state.activeFilters as [string, FiltersState][]
-                )
+              const data = JSON.parse(str) as unknown
+              if (!data || typeof data !== 'object' || !('state' in data)) return null
+              const state = data.state as unknown
+              if (!state || typeof state !== 'object') return data
+              
+              // 将 Record 转回 Map
+              const stateData = state as Record<string, unknown>
+              if ('activeFilters' in stateData && stateData.activeFilters && typeof stateData.activeFilters === 'object') {
+                stateData.activeFilters = objectToMap(stateData.activeFilters as Record<string, FiltersState>)
               }
-              if (data.state?.activeSorts) {
-                data.state.activeSorts = new Map(
-                  data.state.activeSorts as [string, SortCondition | null][]
-                )
+              if ('activeSorts' in stateData && stateData.activeSorts && typeof stateData.activeSorts === 'object') {
+                stateData.activeSorts = objectToMap(stateData.activeSorts as Record<string, SortCondition | null>)
               }
-              if (data.state?.activePagination) {
-                data.state.activePagination = new Map(
-                  data.state.activePagination as [string, PaginationState][]
-                )
+              if ('activePagination' in stateData && stateData.activePagination && typeof stateData.activePagination === 'object') {
+                stateData.activePagination = objectToMap(stateData.activePagination as Record<string, PaginationState>)
               }
+              
               return data
             } catch (error) {
               return null
@@ -457,22 +482,24 @@ export const useFilterStore = create<FilterStoreState>()(
           },
           setItem: (name, value) => {
             if (typeof window === 'undefined') return
-            // 将 Map 转为数组存储
-            const data = { ...value }
-            if (data.state?.activeFilters instanceof Map) {
-              // eslint-disable-next-line @typescript-eslint/no-explicit-any
-              ;(data.state as any).activeFilters = Array.from(data.state.activeFilters.entries())
+            // 将 Map 转为 Record 存储
+            const data = JSON.parse(JSON.stringify(value)) as unknown
+            if (!data || typeof data !== 'object' || !('state' in data)) return
+            const state = data.state as unknown
+            
+            const stateObj = state as Record<string, unknown>
+            if (stateObj && typeof stateObj === 'object') {
+              if ('activeFilters' in stateObj && stateObj.activeFilters instanceof Map) {
+                stateObj.activeFilters = mapToObject(stateObj.activeFilters as Map<string, FiltersState>)
+              }
+              if ('activeSorts' in stateObj && stateObj.activeSorts instanceof Map) {
+                stateObj.activeSorts = mapToObject(stateObj.activeSorts as Map<string, SortCondition | null>)
+              }
+              if ('activePagination' in stateObj && stateObj.activePagination instanceof Map) {
+                stateObj.activePagination = mapToObject(stateObj.activePagination as Map<string, PaginationState>)
+              }
             }
-            if (data.state?.activeSorts instanceof Map) {
-              // eslint-disable-next-line @typescript-eslint/no-explicit-any
-              ;(data.state as any).activeSorts = Array.from(data.state.activeSorts.entries())
-            }
-            if (data.state?.activePagination instanceof Map) {
-              // eslint-disable-next-line @typescript-eslint/no-explicit-any
-              ;(data.state as any).activePagination = Array.from(
-                data.state.activePagination.entries()
-              )
-            }
+            
             try {
               localStorage.setItem(name, JSON.stringify(data))
             } catch (error) {

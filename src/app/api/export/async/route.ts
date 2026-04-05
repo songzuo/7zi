@@ -7,6 +7,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { ExportService, ExportRequest } from '@/lib/export/service/export-service'
 import { ExportField } from '@/lib/export/core/exporter'
+import { FilterOperator } from '@/lib/export/utils/filter-parser'
 import { authMiddleware } from '@/middleware/auth.middleware'
 import { logger } from '@/lib/logger'
 
@@ -15,9 +16,9 @@ import { logger } from '@/lib/logger'
 // ============================================================================
 
 /**
- * 任务实体
+ * 任务实体 - 满足 Record<string, unknown> 约束
  */
-interface TaskEntity {
+interface TaskEntity extends Record<string, unknown> {
   id: string
   title: string
   description?: string
@@ -130,7 +131,7 @@ async function getTasks(): Promise<TaskEntity[]> {
  */
 export async function POST(request: NextRequest) {
   // 认证检查
-  const authResponse = authMiddleware(request)
+  const authResponse = await authMiddleware(request)
   if (authResponse.status !== 200) {
     return authResponse
   }
@@ -172,7 +173,7 @@ export async function POST(request: NextRequest) {
       } : undefined,
       filters: body.filters?.map(f => ({
         field: f.field,
-        operator: f.operator as any,
+        operator: f.operator as FilterOperator,
         value: f.value,
       })),
       background: true,

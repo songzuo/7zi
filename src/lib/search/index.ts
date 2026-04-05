@@ -83,6 +83,43 @@ export {
 } from './history-manager'
 
 // ============================================================================
+// New enhanced features (v1.12+)
+// ============================================================================
+
+export {
+  // SQLite FTS (Full-Text Search) manager
+  SQLiteFTSManager,
+  getGlobalFTSManager,
+  resetGlobalFTSManager,
+} from './sqlite-fts'
+
+export {
+  // Enhanced sort and filter
+  sortResults,
+  applyAdvancedFilters,
+  createFiltersFromSearchFilters,
+  parseSortOption,
+  extractFieldValues,
+  groupResultsByField,
+  executeSearch,
+  type SortOption,
+  type SortConfig,
+  type FilterMode,
+  type AdvancedFilter,
+  type SearchContext,
+} from './sort-filter'
+
+export {
+  // Unified search manager
+  UnifiedSearchManager,
+  getGlobalUnifiedSearchManager,
+  resetGlobalUnifiedSearchManager,
+  type UnifiedSearchOptions,
+  type SearchEngineType,
+  type SearchStatistics,
+} from './unified-search'
+
+// ============================================================================
 // Types
 // ============================================================================
 

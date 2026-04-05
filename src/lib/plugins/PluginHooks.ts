@@ -25,7 +25,7 @@ export class PluginHooks implements IHookRegistry {
   /**
    * Register a hook handler
    */
-  register<TInput = any, TOutput = any>(
+  register<TInput = unknown, TOutput = unknown>(
     hook: HookName,
     handler: HookHandler<TInput, TOutput>,
     config: HookConfig = {}
@@ -81,7 +81,7 @@ export class PluginHooks implements IHookRegistry {
   /**
    * Execute a hook
    */
-  async execute<TInput = any, TOutput = any>(
+  async execute<TInput = unknown, TOutput = unknown>(
     hook: HookName,
     input?: TInput
   ): Promise<TOutput[]> {
@@ -153,7 +153,7 @@ export class PluginHooks implements IHookRegistry {
   /**
    * Execute hook in parallel
    */
-  async executeParallel<TInput = any, TOutput = any>(
+  async executeParallel<TInput = unknown, TOutput = unknown>(
     hook: HookName,
     input?: TInput
   ): Promise<TOutput[]> {
@@ -187,7 +187,7 @@ export class PluginHooks implements IHookRegistry {
   /**
    * Execute hook with waterfall pattern
    */
-  async executeWaterfall<T = any>(
+  async executeWaterfall<T = unknown>(
     hook: HookName,
     initialInput: T
   ): Promise<T> {
@@ -368,7 +368,7 @@ export class HookBuilder {
   /**
    * Register the hook
    */
-  handler<TInput = any, TOutput = any>(
+  handler<TInput = unknown, TOutput = unknown>(
     fn: HookHandler<TInput, TOutput>
   ): void {
     this.hooks.register(this.hookName, fn, this.config);

@@ -390,7 +390,7 @@ export class PluginConfigHelperImpl implements PluginConfigHelper {
  * Plugin Utils Implementation
  */
 export class PluginUtilsImpl implements PluginUtils {
-  debounce<T extends (...args: unknown[]) => any>(fn: T, delay: number): T {
+  debounce<T extends (...args: unknown[]) => unknown>(fn: T, delay: number): T {
     let timeoutId: NodeJS.Timeout;
     return ((...args: unknown[]) => {
       clearTimeout(timeoutId);
@@ -398,7 +398,7 @@ export class PluginUtilsImpl implements PluginUtils {
     }) as T;
   }
 
-  throttle<T extends (...args: unknown[]) => any>(fn: T, delay: number): T {
+  throttle<T extends (...args: unknown[]) => unknown>(fn: T, delay: number): T {
     let lastCall = 0;
     return ((...args: unknown[]) => {
       const now = Date.now();

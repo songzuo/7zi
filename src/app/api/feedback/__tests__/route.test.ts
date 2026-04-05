@@ -514,7 +514,7 @@ describe('DELETE_FEEDBACK /api/feedback/[id]', () => {
       method: 'DELETE',
     })
 
-    const response = await DELETE_FEEDBACK(request, { params: { id: '1' } })
+    const response = await DELETE_FEEDBACK(request, { params: Promise.resolve({ id: '1' }) })
 
     expect(response.status).toBe(200)
     expect(mockDb.exec).toHaveBeenCalledWith('DELETE FROM feedbacks WHERE id = ?', ['1'])
@@ -527,7 +527,7 @@ describe('DELETE_FEEDBACK /api/feedback/[id]', () => {
       method: 'DELETE',
     })
 
-    const response = await DELETE_FEEDBACK(request, { params: { id: '1' } })
+    const response = await DELETE_FEEDBACK(request, { params: Promise.resolve({ id: '1' }) })
 
     expect(response.status).toBe(404)
   })
@@ -542,7 +542,7 @@ describe('DELETE_FEEDBACK /api/feedback/[id]', () => {
       method: 'DELETE',
     })
 
-    const response = await DELETE_FEEDBACK(request, { params: { id: '1' } })
+    const response = await DELETE_FEEDBACK(request, { params: Promise.resolve({ id: '1' }) })
 
     expect(response.status).toBe(500)
   })

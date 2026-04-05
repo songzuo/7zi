@@ -46,7 +46,7 @@ class MockPlugin implements Plugin {
     this.started = false;
   }
 
-  async execute<TInput = any, TOutput = any>(
+  async execute<TInput = unknown, TOutput = unknown>(
     action: string,
     input?: TInput
   ): Promise<TOutput> {

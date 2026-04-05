@@ -9,6 +9,7 @@ import {
   WorkflowEdge,
   NodeType,
   WorkflowStatus,
+  EdgeType,
 } from '@/types/workflow'
 
 /**
@@ -238,11 +239,26 @@ export class DSLParser {
    * 转换边定义
    */
   private convertEdge(edge: DSLEdgeDefinition): WorkflowEdge {
+    // Convert string type to EdgeType enum, default to SEQUENCE
+    let edgeType: EdgeType
+    if (edge.type && Object.values(EdgeType).includes(edge.type as EdgeType)) {
+      edgeType = edge.type as EdgeType
+    } else if (edge.type) {
+      // Try to find matching enum value by string comparison
+      const upperType = edge.type.toUpperCase()
+      const matchedType = Object.values(EdgeType).find(
+        (et) => et.toString() === upperType
+      )
+      edgeType = matchedType || EdgeType.SEQUENCE
+    } else {
+      edgeType = EdgeType.SEQUENCE
+    }
+
     return {
       id: edge.id || `edge_${edge.from}_${edge.to}`,
       source: edge.from,
       target: edge.to,
-      type: edge.type as any || 'sequence',
+      type: edgeType,
       conditionConfig: edge.condition
         ? {
             condition: edge.condition,
@@ -264,11 +280,25 @@ export class DSLParser {
       // 解析连线语法
       const parsed = this.parseConnectionSyntax(conn)
       for (const edge of parsed) {
+        // Convert string type to EdgeType enum, default to SEQUENCE
+        let edgeType: EdgeType
+        if (edge.type && Object.values(EdgeType).includes(edge.type as EdgeType)) {
+          edgeType = edge.type as EdgeType
+        } else if (edge.type) {
+          const upperType = edge.type.toUpperCase()
+          const matchedType = Object.values(EdgeType).find(
+            (et) => et.toString() === upperType
+          )
+          edgeType = matchedType || EdgeType.SEQUENCE
+        } else {
+          edgeType = EdgeType.SEQUENCE
+        }
+
         edges.push({
           id: `edge_${edgeIndex++}`,
           source: edge.from,
           target: edge.to,
-          type: edge.type as any || 'sequence',
+          type: edgeType,
           conditionConfig: edge.condition
             ? {
                 condition: edge.condition,
@@ -538,13 +568,15 @@ export class DSLParser {
           const nodeDef = trimmed.slice(1).trim()
           if (nodeDef.includes(':')) {
             const [key, value] = nodeDef.split(':').map(s => s.trim())
-            ;(currentNode as any)[key] = value
+            // Dynamic property assignment for DSL parsing
+            (currentNode as Record<string, unknown>)[key] = value
           }
         } else if (currentNode && currentIndent >= 4) {
           // 节点属性
           const [key, ...valueParts] = trimmed.split(':')
           const value = valueParts.join(':').trim()
-          ;(currentNode as any)[key.trim()] = this.parseYAMLValue(value)
+          // Dynamic property assignment for DSL parsing
+          (currentNode as Record<string, unknown>)[key.trim()] = this.parseYAMLValue(value)
         }
       }
 

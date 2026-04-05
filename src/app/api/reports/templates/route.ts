@@ -8,6 +8,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { logger } from '@/lib/logger'
 import { reportGenerator } from '@/lib/ai/reports'
+import { ReportLanguage } from '@/lib/ai/reports/types'
 import {
   createErrorResponse,
   createSuccessResponse,
@@ -33,7 +34,7 @@ export async function GET(request: NextRequest) {
 
     // 按语言过滤
     if (language) {
-      templates = templates.filter(t => t.supportedLanguages.includes(language as any))
+      templates = templates.filter(t => t.supportedLanguages.includes(language as ReportLanguage))
     }
 
     // 返回模板信息（不包含完整的模板内容）
