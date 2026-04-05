@@ -443,6 +443,7 @@ describe('FileMessageQueue', () => {
       agentId: 'agent-1',
       priority: 'normal',
       payload: { data: 'test' },
+      maxAttempts: 3,
     })
 
     queue.flush()
@@ -464,6 +465,7 @@ describe('FileMessageQueue', () => {
       agentId: 'agent-1',
       priority: 'critical',
       payload: {},
+      maxAttempts: 3,
     })
 
     queue1.flush()

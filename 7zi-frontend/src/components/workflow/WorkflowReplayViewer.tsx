@@ -11,8 +11,24 @@
 'use client'
 
 import React, { useState, useEffect, useCallback } from 'react'
-import { ReactFlow, Background, Controls, useNodesState, useEdgesState } from 'reactflow'
+import dynamic from 'next/dynamic'
 import type { Node, Edge } from 'reactflow'
+import { useNodesState, useEdgesState } from 'reactflow'
+
+// 动态导入 React Flow 核心组件
+const ReactFlow = dynamic(
+  () => import('reactflow').then(mod => ({ default: mod.default })),
+  { ssr: false, loading: () => <div className="w-full h-full flex items-center justify-center">Loading...</div> }
+)
+const Background = dynamic(
+  () => import('reactflow').then(mod => ({ default: mod.Background })),
+  { ssr: false }
+)
+const Controls = dynamic(
+  () => import('reactflow').then(mod => ({ default: mod.Controls })),
+  { ssr: false }
+)
+
 import 'reactflow/dist/style.css'
 
 import type { ExecutionHistory } from '@/lib/workflow/execution-history-store'

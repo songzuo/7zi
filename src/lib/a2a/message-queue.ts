@@ -44,7 +44,7 @@ export class PriorityMessageQueue implements MessageQueue {
   /**
    * 将消息加入队列
    */
-  enqueue(message: Omit<QueueMessage, 'id' | 'createdAt' | 'attempts'>): string {
+  enqueue(message: Omit<QueueMessage, 'id' | 'createdAt' | 'attempts' | 'maxAttempts'> & { maxAttempts?: number }): string {
     // 检查队列大小限制
     if (this.size() >= this.config.maxQueueSize) {
       throw new A2AError(A2AErrorType.QUEUE_FULL, 'Queue has reached maximum size', {
@@ -65,7 +65,7 @@ export class PriorityMessageQueue implements MessageQueue {
       priority: message.priority,
       payload: message.payload,
       createdAt: new Date().toISOString(),
-      attempts: message.attempts ?? 0,
+      attempts: 0,
       maxAttempts: message.maxAttempts ?? this.config.maxRetries,
     }
 

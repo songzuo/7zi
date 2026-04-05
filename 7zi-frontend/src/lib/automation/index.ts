@@ -47,6 +47,9 @@ export {
 // ============================================================================
 // React Hooks
 // ============================================================================
+// NOTE: The following hooks are exported but not used in the current codebase.
+// They are kept for potential future use.
+// If you need these hooks, please use them directly from automation-hooks.ts
 export {
   // Rule Management
   useAutomationRules,
@@ -75,3 +78,7 @@ export {
 // Storage
 // ============================================================================
 export { AutomationDB, AutomationStorageAdapter, automationDB, automationStorage } from './automation-storage'
+
+// REMOVED: None of the above hooks are currently used in the application.
+// They are kept for backward compatibility and potential future use.
+// Bundle size could be reduced by removing these exports if not needed.

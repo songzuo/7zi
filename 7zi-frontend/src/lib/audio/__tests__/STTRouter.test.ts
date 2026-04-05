@@ -6,23 +6,24 @@ import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest'
 import { STTRouter, createSTTRouter, sttRouter } from '../STTRouter'
 import { WhisperClient } from '../WhisperClient'
 
-// Mock WhisperClient
-const mockWhisperClient = {
-  transcribe: vi.fn(),
-  transcribeWithDiarization: vi.fn(),
-  isAvailable: vi.fn().mockResolvedValue(true),
-  destroy: vi.fn(),
-}
+vi.mock('../WhisperClient', () => {
+  class MockWhisperClient {
+    transcribe = vi.fn()
+    transcribeWithDiarization = vi.fn()
+    isAvailable = vi.fn().mockResolvedValue(true)
+    destroy = vi.fn()
+  }
 
-vi.mock('../WhisperClient', () => ({
-  WhisperClient: vi.fn().mockImplementation(() => mockWhisperClient),
-  WhisperError: class extends Error {
-    constructor(message: string, public code: string, public details?: unknown) {
-      super(message)
-      this.name = 'WhisperError'
-    }
-  },
-}))
+  return {
+    WhisperClient: MockWhisperClient,
+    WhisperError: class extends Error {
+      constructor(message: string, public code: string, public details?: unknown) {
+        super(message)
+        this.name = 'WhisperError'
+      }
+    },
+  }
+})
 
 // Mock browser speech recognition
 const mockSpeechRecognition = vi.fn()

@@ -140,14 +140,12 @@ export type { HealthMetric, HealthDashboardProps } from './HealthDashboard'
 // Skeleton Loading Components (Designer Patch v4)
 export {
   SkeletonText,
-  SkeletonAvatar,
   SkeletonCard,
   SkeletonList,
   SkeletonTable,
   SkeletonStatCard,
-  SkeletonNav,
-  SkeletonPage,
-} from './Skeleton'
+  Skeleton,
+} from './ui/Skeleton'
 
 // Error Handling
 export { ErrorBoundary } from './ErrorBoundary'

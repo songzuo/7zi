@@ -330,7 +330,7 @@ export class DSLParser {
     const parts = conn.split(/\s*->\s*/)
     for (let i = 0; i < parts.length - 1; i++) {
       let from = parts[i].trim()
-      let to = parts[i + 1].trim()
+      const to = parts[i + 1].trim()
       let condition: string | undefined
       let label: string | undefined
 
@@ -519,7 +519,7 @@ export class DSLParser {
 
     let currentSection = ''
     let currentNode: DSLNodeDefinition | null = null
-    let indent = 0
+    const indent = 0
 
     for (const line of lines) {
       const trimmed = line.trim()

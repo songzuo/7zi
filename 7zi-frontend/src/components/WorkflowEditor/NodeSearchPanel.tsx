@@ -95,6 +95,7 @@ export const NodeSearchPanel: React.FC<NodeSearchPanelProps> = ({
       loop: '🔄',
       subworkflow: '📦',
       transform: '🔀',
+      notification: '📢',
     }
     return icons[type] || '📦'
   }

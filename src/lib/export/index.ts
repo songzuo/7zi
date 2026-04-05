@@ -15,7 +15,7 @@ export type {
 } from './service/export-service'
 
 // 导出核心
-export { DataExporter } from './core/exporter'
+export { DataExporter, downloadExport } from './core/exporter'
 export type {
   ExportFormat,
   ExcelOptions,

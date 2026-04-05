@@ -127,7 +127,7 @@ class ConflictDetector {
         type: 'update',
         userId: 'system',
         nodeId: ops[0].nodeId,
-        payload: ops.reduce((acc, op) => ({ ...acc, ...op.payload }), {}),
+        payload: ops.reduce((acc, op) => ({ ...acc, ...(op.payload as object) }), {}),
         timestamp: Date.now(),
         version: this.version++,
       };
@@ -145,8 +145,8 @@ class ConflictDetector {
       const transformed: Operation = {
         ...op2,
         payload: {
-          ...op2.payload,
-          position: (op2.payload.position || 0) + (op1.payload.length || 0),
+          ...(op2.payload as object),
+          position: ((op2.payload as { position?: number }).position || 0) + ((op1.payload as { length?: number }).length || 0),
         },
         version: this.version++,
       };

@@ -10,7 +10,7 @@ import type {
   AuditLogQueryResult,
   AuditLogStats,
   IAuditLogStorage,
-} from '../types.js';
+} from '../types';
 
 /**
  * 内存存储实现

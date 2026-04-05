@@ -135,7 +135,7 @@ describe('AudioProcessor', () => {
       const mockAnalyser = {
         frequencyBinCount: 1024,
         getFloatFrequencyData: vi.fn(),
-      }
+      } as unknown as AnalyserNode
 
       processor['analyserNode'] = mockAnalyser
 

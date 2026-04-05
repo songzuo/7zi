@@ -3,9 +3,10 @@
 /**
  * Card 组件 - 卡片组件
  * 用于展示内容、图片、信息等，包含增强的交互反馈
+ * v1.13.0: 增强移动端响应式支持
  *
- * @version 1.1.0
- * @date 2026-03-29
+ * @version 1.13.0
+ * @date 2026-04-05
  */
 
 import React from 'react'
@@ -30,6 +31,10 @@ export interface CardProps extends Omit<React.HTMLAttributes<HTMLDivElement>, 'o
   hoverable?: boolean
   /** 是否启用边框高亮 */
   bordered?: boolean
+  /** 是否在移动端全宽显示 */
+  fullWidthMobile?: boolean
+  /** 移动端内边距 */
+  mobilePadding?: 'none' | 'sm' | 'md' | 'lg'
 }
 
 export const Card = React.forwardRef<HTMLDivElement, CardProps>(
@@ -40,6 +45,8 @@ export const Card = React.forwardRef<HTMLDivElement, CardProps>(
       clickable = false,
       hoverable = true,
       bordered = false,
+      fullWidthMobile = false,
+      mobilePadding = 'md',
       className,
       onClick,
       ...props
@@ -54,23 +61,38 @@ export const Card = React.forwardRef<HTMLDivElement, CardProps>(
       xl: 'shadow-xl',
     }
 
+    const mobilePaddingStyles = {
+      none: '',
+      sm: 'px-4 py-3 sm:px-6 sm:py-4',
+      md: 'px-4 py-4 sm:px-6 sm:py-6',
+      lg: 'px-4 py-6 sm:px-6 sm:py-8',
+    }
+
     const classes = clsx(
       'bg-white rounded-lg',
+      // 移动端响应式宽度
+      fullWidthMobile ? 'w-full' : 'w-full sm:w-auto',
+      // 移动端内边距
+      mobilePaddingStyles[mobilePadding] || mobilePaddingStyles.md,
       // 边框样式
       bordered
         ? 'border-2 border-gray-200 hover:border-blue-400 dark:border-gray-700 dark:hover:border-blue-500'
         : 'border border-gray-200 dark:border-gray-700',
       // 阴影样式
       shadowStyles[shadow],
-      // 悬停效果
-      hoverable && 'transition-all duration-300 ease-out',
+      // 悬停效果（移动端禁用以提升性能）
+      hoverable && 'transition-all duration-300 ease-out sm:hover:shadow-lg sm:hover:-translate-y-0.5',
       // 可点击状态
       clickable &&
         clsx(
           'cursor-pointer',
-          'hover:shadow-xl hover:-translate-y-0.5',
           'active:scale-[0.98]',
-          'transform-gpu'
+          'sm:hover:shadow-xl sm:hover:-translate-y-0.5',
+          'transform-gpu',
+          // 移动端触摸反馈
+          'active:opacity-90',
+          // 最小触控区域
+          'min-h-[44px] min-w-[44px]'
         ),
       // 焦点状态
       'focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2',

@@ -108,23 +108,26 @@ export const useAppStore = create<AppState>()(
 
       /**
        * 更新设置 - 优化版本，使用函数式更新避免不必要的对象创建
+       * 类型安全实现，避免使用 as any
        */
       updateSettings: (newSettings: Partial<AppSettings>) => {
         set(state => {
           // 只有在有实际变化时才更新
-          const updatedSettings = { ...state.settings }
+          const updatedSettings: AppSettings = { ...state.settings }
           let hasChanges = false
-          
-          for (const [key, value] of Object.entries(newSettings)) {
-            if (updatedSettings[key as keyof AppSettings] !== value) {
-              ;(updatedSettings as any)[key] = value
+
+          // 使用类型安全的键遍历
+          for (const key of Object.keys(newSettings) as Array<keyof AppSettings>) {
+            const value = newSettings[key]
+            if (value !== undefined && updatedSettings[key] !== value) {
+              updatedSettings[key] = value
               hasChanges = true
             }
           }
-          
+
           // 如果没有变化，不触发更新
           if (!hasChanges) return state
-          
+
           return { settings: updatedSettings }
         })
       },

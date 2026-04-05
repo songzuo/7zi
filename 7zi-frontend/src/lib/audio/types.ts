@@ -221,3 +221,23 @@ export interface AudioStatusEvent {
   /** 时间戳 */
   timestamp: number
 }
+
+/**
+ * 音频比特率
+ */
+export type AudioBitrate = 128000 | 192000 | 256000 | 320000
+
+/**
+ * 采样率
+ */
+export type SampleRate = 8000 | 16000 | 22050 | 44100 | 48000
+
+/**
+ * 波形类型
+ */
+export type WaveformType = 'sine' | 'square' | 'sawtooth' | 'triangle'
+
+/**
+ * 噪声抑制模式
+ */
+export type NoiseSuppressionMode = 'low' | 'medium' | 'high' | 'auto'

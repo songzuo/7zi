@@ -27,7 +27,7 @@ export async function GET(request: NextRequest) {
       }
 
       // Remove password from response
-      const { password, ...userWithoutPassword } = user
+      const { password: _password, ...userWithoutPassword } = user
 
       return createSuccessResponse({ user: userWithoutPassword })
     } catch (error) {

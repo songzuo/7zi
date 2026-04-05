@@ -361,7 +361,7 @@ export class MemorySlidingWindow {
     const now = Date.now()
     const windowStart = now - windowSeconds * 1000
 
-    let timestamps = this.windows.get(key) ?? []
+    const timestamps = this.windows.get(key) ?? []
     return timestamps.filter(ts => ts > windowStart)
   }
 

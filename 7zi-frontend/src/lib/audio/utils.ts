@@ -301,11 +301,23 @@ export function preEmphasisFilter(
  * 归一化音频
  */
 export function normalizeAudio(audioData: Float32Array): Float32Array {
-  const max = Math.max(...audioData.map(Math.abs))
+  let max = 0
+  const len = audioData.length
+  for (let i = 0; i < len; i++) {
+    const abs = Math.abs(audioData[i])
+    if (abs > max) {
+      max = abs
+    }
+  }
 
   if (max === 0) {
     return audioData
   }
 
-  return audioData.map((sample) => sample / max)
+  const normalized = new Float32Array(len)
+  for (let i = 0; i < len; i++) {
+    normalized[i] = audioData[i] / max
+  }
+
+  return normalized
 }

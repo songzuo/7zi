@@ -161,8 +161,8 @@ export class SmartRoutingAIService {
 
     // 4. 流式生成
     let totalTokens = 0
-    let totalCost = 0
-    let startTime = Date.now()
+    const totalCost = 0
+    const startTime = Date.now()
 
     try {
       if ('generateStreamAsync' in provider) {

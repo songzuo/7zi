@@ -196,7 +196,7 @@ function WorkflowEditorInner({
           id: n.id,
           type: n.type || 'default',
           position: n.position,
-          data: n.data as Record<string, unknown>,
+          data: n.data as unknown as Record<string, unknown>,
         })),
         edges: edges.map(e => ({
           id: e.id,
@@ -204,7 +204,7 @@ function WorkflowEditorInner({
           target: e.target,
           sourceHandle: e.sourceHandle || undefined,
           targetHandle: e.targetHandle || undefined,
-          data: e.data as Record<string, unknown> | undefined,
+          data: e.data as unknown as Record<string, unknown> | undefined,
         })),
         metadata: {
           description: currentWorkflow.description,

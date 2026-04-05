@@ -14,8 +14,8 @@ import type {
   AuditLogExportOptions,
   AuditLogStats,
   IAuditLogStorage,
-} from './types.js';
-import { MemoryAuditStorage } from './storage/memory-storage.js';
+} from './types';
+import { MemoryAuditStorage } from './storage/memory-storage';
 
 // ============================================================================
 // 审计日志服务

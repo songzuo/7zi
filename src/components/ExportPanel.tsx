@@ -103,14 +103,15 @@ export function ExportPanel<T extends Record<string, unknown>>({
     setError(null)
 
     try {
-      const exporter = new DataExporter<T>({
+      const exporter = new DataExporter<T>()
+      const config = {
         filename,
         format,
         fields,
         selectedFields: selectedFieldKeys,
-      })
+      }
 
-      const result = await exporter.export(data)
+      const result = await exporter.export(data, config)
 
       if (result.success) {
         downloadExport(result)
@@ -361,12 +362,13 @@ export function QuickExportButton<T extends Record<string, unknown>>({
   const handleExport = useCallback(async () => {
     setIsExporting(true)
     try {
-      const exporter = new DataExporter<T>({
+      const exporter = new DataExporter<T>()
+      const config = {
         filename,
         format,
         fields,
-      })
-      const result = await exporter.export(data)
+      }
+      const result = await exporter.export(data, config)
       if (result.success) {
         downloadExport(result)
         onExport?.(result)

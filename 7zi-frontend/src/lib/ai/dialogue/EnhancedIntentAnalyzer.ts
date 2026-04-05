@@ -104,8 +104,22 @@ export class EnhancedIntentAnalyzer {
       confidence: 0,
     }
 
+    // 先进行精确匹配（高优先级）
     for (const pattern of this.intentPatterns) {
-      // 检查模式匹配
+      // 检查精确模式匹配
+      for (const patternStr of pattern.patterns) {
+        if (normalizedContent === patternStr.toLowerCase()) {
+          bestMatch = {
+            category: pattern.category,
+            confidence: 0.9,
+          }
+          return bestMatch // 精确匹配直接返回
+        }
+      }
+    }
+
+    // 然后进行模糊匹配
+    for (const pattern of this.intentPatterns) {
       let patternScore = 0
       for (const patternStr of pattern.patterns) {
         if (normalizedContent.includes(patternStr.toLowerCase())) {
@@ -117,7 +131,7 @@ export class EnhancedIntentAnalyzer {
       let keywordScore = 0
       for (const keyword of pattern.keywords) {
         if (normalizedContent.includes(keyword.toLowerCase())) {
-          keywordScore += 0.3
+          keywordScore += 0.4
         }
       }
 
@@ -227,51 +241,42 @@ export class EnhancedIntentAnalyzer {
   private detectSubIntent(content: string, category: IntentCategory): string | undefined {
     const normalized = content.toLowerCase()
 
-    switch (category) {
-      case 'question':
-        if (normalized.includes('how') || normalized.includes('如何')) {
-          return 'how_to'
-        }
-        if (normalized.includes('what') || normalized.includes('什么') || normalized.includes('啥')) {
-          return 'what'
-        }
-        if (normalized.includes('why') || normalized.includes('为什么')) {
-          return 'why'
-        }
-        if (normalized.includes('where') || normalized.includes('哪里')) {
-          return 'where'
-        }
-        if (normalized.includes('when') || normalized.includes('什么时候')) {
-          return 'when'
-        }
-        break
-
-      case 'request':
-        if (normalized.includes('help') || normalized.includes('帮助')) {
-          return 'help'
-        }
-        if (normalized.includes('create') || normalized.includes('创建')) {
-          return 'create'
-        }
-        if (normalized.includes('delete') || normalized.includes('删除')) {
-          return 'delete'
-        }
-        if (normalized.includes('update') || normalized.includes('更新') || normalized.includes('修改')) {
-          return 'update'
-        }
-        break
-
-      case 'command':
-        if (normalized.includes('stop') || normalized.includes('停止')) {
-          return 'stop'
-        }
-        if (normalized.includes('start') || normalized.includes('开始')) {
-          return 'start'
-        }
-        if (normalized.includes('pause') || normalized.includes('暂停')) {
-          return 'pause'
-        }
-        break
+    // 先检测子意图，不依赖 category
+    if (normalized.includes('how') || normalized.includes('如何')) {
+      return 'how_to'
+    }
+    if (normalized.includes('what') || normalized.includes('什么') || normalized.includes('啥')) {
+      return 'what'
+    }
+    if (normalized.includes('why') || normalized.includes('为什么')) {
+      return 'why'
+    }
+    if (normalized.includes('where') || normalized.includes('哪里')) {
+      return 'where'
+    }
+    if (normalized.includes('when') || normalized.includes('什么时候')) {
+      return 'when'
+    }
+    if (normalized.includes('help') || normalized.includes('帮助') || normalized.includes('帮')) {
+      return 'help'
+    }
+    if (normalized.includes('create') || normalized.includes('创建')) {
+      return 'create'
+    }
+    if (normalized.includes('delete') || normalized.includes('删除')) {
+      return 'delete'
+    }
+    if (normalized.includes('update') || normalized.includes('更新') || normalized.includes('修改')) {
+      return 'update'
+    }
+    if (normalized.includes('stop') || normalized.includes('停止')) {
+      return 'stop'
+    }
+    if (normalized.includes('start') || normalized.includes('开始')) {
+      return 'start'
+    }
+    if (normalized.includes('pause') || normalized.includes('暂停')) {
+      return 'pause'
     }
 
     return undefined
@@ -329,8 +334,8 @@ export class EnhancedIntentAnalyzer {
       },
       {
         category: 'question',
-        patterns: ['what', 'how', 'why', 'where', 'when', 'who', 'which', 'can you', 'could you'],
-        keywords: ['什么', '怎么', '为什么', '哪里', '什么时候', '谁', '哪个', '能', '可以', '吗'],
+        patterns: ['what', 'how', 'why', 'where', 'when', 'who', 'which', 'can you', 'could you', '?', '？'],
+        keywords: ['什么', '怎么', '为什么', '哪里', '什么时候', '谁', '哪个', '能', '可以', '吗', '如何', '怎样', '怎么做', '怎'],
         priority: 2,
       },
       {

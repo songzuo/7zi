@@ -345,7 +345,7 @@ ${styles}
     const { colors } = theme
     const customCSS = options.customCSS
 
-    let styles = `<style>
+    const styles = `<style>
   /* Base Styles */
   * {
     margin: 0;

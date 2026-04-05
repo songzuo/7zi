@@ -100,7 +100,7 @@ function parseTimeRange(query: string): TimeRange | undefined {
   for (const [keyword, preset] of Object.entries(TIME_KEYWORDS)) {
     if (query.includes(keyword)) {
       let start: Date
-      let end: Date = now
+      const end: Date = now
       
       switch (preset) {
         case 'today':

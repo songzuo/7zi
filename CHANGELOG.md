@@ -65,7 +65,63 @@
 
 ### ✨ 新增功能 / Added
 
-#### 🔍 Advanced Search 功能
+#### 🤖 Workspace 自动化工作流系统
+
+**核心组件** (`src/lib/automation/`):
+- `automation-engine.ts` - 规则引擎核心 (30KB, 850+ 行)
+  - `AutomationEngine` - 规则管理、触发器设置、动作执行
+  - `RuleValidator` - 规则验证（cron、URL、条件表达式）
+  - 完整的类型定义：`AutomationRule`, `TriggerConfig`, `ActionConfig`
+- `default-templates.ts` - 默认规则模板 (11KB, 8 个模板)
+- `automation-hooks.ts` - React Hooks (8KB)
+  - `useAutomationRules` - 规则列表管理
+  - `useAutomationRule` - 单个规则管理
+  - `useRuleExecution` - 规则执行
+  - `useRuleTemplates` - 模板管理
+  - `useGlobalStats` - 全局统计
+- `automation-storage.ts` - IndexedDB 存储 (8KB)
+  - `AutomationDB` - 数据库封装
+  - `AutomationStorageAdapter` - 存储适配器
+- `README.md` - 完整文档 (9KB, API 文档 + 使用示例)
+- `__tests__/automation-engine.test.ts` - 单元测试 (8KB, 43 个测试用例全部通过)
+
+**测试覆盖**:
+- 43 个单元测试全部通过
+- 测试执行时间: 1.21 秒
+- 覆盖所有触发器类型（event, schedule, condition, manual）
+- 覆盖所有动作类型（execute_workflow, send_notification, call_api, transform_data, custom）
+- 规则验证和限制执行测试
+- 错误处理和重试逻辑测试
+
+**功能特性**:
+- 触发器类型：
+  - `event` - 事件触发器（支持过滤器）
+  - `schedule` - 定时调度（interval、cron、once）
+  - `condition` - 条件满足触发器
+  - `manual` - 手动触发器
+- 动作类型：
+  - `execute_workflow` - 执行工作流
+  - `send_notification` - 发送通知
+  - `call_api` - 调用 API
+  - `transform_data` - 数据转换
+  - `custom` - 自定义动作
+- 规则限制：最大执行次数、执行窗口、冷却时间
+- 执行追踪：成功/失败统计、执行历史
+- 安全特性：表达式验证、危险关键字过滤
+
+**默认规则模板** (8 个):
+| 模板 | 触发类型 | 用途 |
+|------|----------|------|
+| 文件清理自动化 | 定时 (每天 2:00) | 清理临时文件和缓存 |
+| 工作流失败告警 | 事件 | 失败时发送告警 |
+| 工作流完成通知 | 事件 | 完成后发送通知 |
+| 系统健康检查 | 定时 (每 5 分钟) | 健康状态检查 |
+| 数据备份自动化 | 定时 (每天 3:00) | 自动备份 |
+| 文件变更通知 | 事件 | 重要文件变更通知 |
+| 自动数据同步 | 定时 (每 6 小时) | 同步外部数据 |
+| 用户操作审计 | 事件 | 记录用户操作 |
+
+#### 🔍 Advanced Search 高级搜索
 
 - 新增高级搜索模块 (`src/lib/search/advanced-search.ts`)
 - 支持多字段组合搜索（标题、内容、标签、作者、日期范围）
@@ -76,7 +132,7 @@
 - 支持搜索结果导出（CSV、JSON）
 - 性能优化：搜索响应时间 < 200ms
 
-#### 🤝 Realtime Collaboration Sync 优化
+#### 🤝 Realtime Collaboration Sync 实时协作同步优化
 
 - 优化 WebSocket 实时协作同步机制
 - 新增增量更新算法，减少数据传输量 60%
@@ -86,7 +142,7 @@
 - 优化并发控制，支持 100+ 用户同时协作
 - 新增协作权限细粒度控制（查看、编辑、评论、管理）
 
-#### 📜 Workflow Versioning 实现
+#### 📜 Workflow Versioning 工作流版本管理
 
 - 新增工作流版本管理系统 (`src/lib/workflow/versioning.ts`)
 - 支持工作流版本快照和回滚
@@ -97,7 +153,7 @@
 - 支持自动版本控制（基于时间或事件触发）
 - 支持版本权限控制（查看、恢复、删除）
 
-#### 📊 Audit Logging 增强
+#### 📊 Audit Logging 审计日志增强
 
 - 新增审计日志系统 (`src/lib/audit/audit-logger.ts`)
 - 支持操作类型记录（创建、更新、删除、查看、导出）
@@ -108,7 +164,7 @@
 - 支持审计日志归档和清理策略
 - 新增审计日志 Dashboard 可视化
 
-#### 🚦 Rate Limit Middleware 完善
+#### 🚦 Rate Limit Middleware 速率限制中间件
 
 - 新增速率限制中间件 (`src/middleware/rate-limit.ts`)
 - 支持多种限流策略（固定窗口、滑动窗口、令牌桶）
@@ -119,7 +175,7 @@
 - 支持白名单和黑名单机制
 - 性能优化：限流检查延迟 < 1ms
 
-#### 💾 Draft Storage 修复
+#### 💾 Draft Storage 草稿存储修复
 
 - 修复草稿存储系统的数据丢失问题
 - 新增草稿自动保存机制（每 30 秒自动保存）
@@ -129,7 +185,7 @@
 - 支持草稿过期清理策略
 - 优化草稿存储性能（IndexedDB 批量操作）
 
-#### 🔌 Webhook Event System
+#### 🔌 Webhook Event System Webhook 事件系统
 
 **核心组件** (`src/lib/webhook/`):
 - `types.ts` - 完整的 Webhook 类型定义 (7,710 bytes)
@@ -192,62 +248,6 @@
 - 日志记录和查询
 - 批量操作
 - 错误处理
-
-#### 🤖 Workspace 自动化工作流系统
-
-**核心组件** (`src/lib/automation/`):
-- `automation-engine.ts` - 规则引擎核心 (30KB, 850+ 行)
-  - `AutomationEngine` - 规则管理、触发器设置、动作执行
-  - `RuleValidator` - 规则验证（cron、URL、条件表达式）
-  - 完整的类型定义：`AutomationRule`, `TriggerConfig`, `ActionConfig`
-- `default-templates.ts` - 默认规则模板 (11KB, 8 个模板)
-- `automation-hooks.ts` - React Hooks (8KB)
-  - `useAutomationRules` - 规则列表管理
-  - `useAutomationRule` - 单个规则管理
-  - `useRuleExecution` - 规则执行
-  - `useRuleTemplates` - 模板管理
-  - `useGlobalStats` - 全局统计
-- `automation-storage.ts` - IndexedDB 存储 (8KB)
-  - `AutomationDB` - 数据库封装
-  - `AutomationStorageAdapter` - 存储适配器
-- `README.md` - 完整文档 (9KB, API 文档 + 使用示例)
-- `__tests__/automation-engine.test.ts` - 单元测试 (8KB, 43 个测试用例全部通过)
-
-**测试覆盖**:
-- 43 个单元测试全部通过
-- 测试执行时间: 1.21 秒
-- 覆盖所有触发器类型（event, schedule, condition, manual）
-- 覆盖所有动作类型（execute_workflow, send_notification, call_api, transform_data, custom）
-- 规则验证和限制执行测试
-- 错误处理和重试逻辑测试
-
-**功能特性**:
-- 触发器类型：
-  - `event` - 事件触发器（支持过滤器）
-  - `schedule` - 定时调度（interval、cron、once）
-  - `condition` - 条件满足触发器
-  - `manual` - 手动触发器
-- 动作类型：
-  - `execute_workflow` - 执行工作流
-  - `send_notification` - 发送通知
-  - `call_api` - 调用 API
-  - `transform_data` - 数据转换
-  - `custom` - 自定义动作
-- 规则限制：最大执行次数、执行窗口、冷却时间
-- 执行追踪：成功/失败统计、执行历史
-- 安全特性：表达式验证、危险关键字过滤
-
-**默认规则模板** (8 个):
-| 模板 | 触发类型 | 用途 |
-|------|----------|------|
-| 文件清理自动化 | 定时 (每天 2:00) | 清理临时文件和缓存 |
-| 工作流失败告警 | 事件 | 失败时发送告警 |
-| 工作流完成通知 | 事件 | 完成后发送通知 |
-| 系统健康检查 | 定时 (每 5 分钟) | 健康状态检查 |
-| 数据备份自动化 | 定时 (每天 3:00) | 自动备份 |
-| 文件变更通知 | 事件 | 重要文件变更通知 |
-| 自动数据同步 | 定时 (每 6 小时) | 同步外部数据 |
-| 用户操作审计 | 事件 | 记录用户操作 |
 
 ### 🎯 错误处理系统统一 / Error Handling System Unification
 
@@ -2653,7 +2653,7 @@ v1.4.0 专注于 **WebSocket 高级协作功能**、**AI Agent 智能调度** �
 
 ---
 
-**最后更新**: 2026-04-04 (v1.13.0 in development, 智能体验全面升级)
+**最后更新**: 2026-04-05 (v1.13.0 released, v1.14.0 in development, 智能体验全面升级)
 
 ---
 

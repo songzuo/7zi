@@ -94,7 +94,7 @@ export default function AnalyticsDashboardDemo() {
         <WorkflowStatsCard
           totalExecutions={stats?.totalExecutions ?? 0}
           successRate={stats?.successRate ?? 0}
-          avgDuration={stats?.avgDuration ?? 0}
+          avgDuration={stats?.avgExecutionTime ?? 0}
           timeRange={timeRange}
           loading={loading}
         />

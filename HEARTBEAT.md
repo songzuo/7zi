@@ -1,26 +1,42 @@
 # HEARTBEAT.md
 
 ## Current Time
-- Sunday April 5th 2026 01:37 (Europe/Berlin)
+- Sunday April 5th 2026 10:06 (Europe/Berlin)
 
 ## Projects
 | 7zi-frontend | workspace |
 |---|---|
-| ⚠️ Pending commits | ⚠️ Pending commits |
+| ✅ Build OK | ✅ Build OK |
 
-## Testing (Day 3)
-- Webhook: 53/53 pass (92.59% coverage)
-- API types: 21/21 pass
-- Automation: 69/75 pass
-- Workflow edge: 23/23 pass
+## Build Errors
+⚠️ **Circular imports** - ts/errors/index.ts, src/components/errors/index.ts
+
+## API Audit (48 routes)
+| Metric | Coverage |
+|---|---|
+| Error handling | 88% |
+| Documented | 0% |
+| Response types | 0% |
+| Request validation | 8% |
+
+## Testing Summary
+| Suite | Count | Status |
+|---|---|---|
+| Integration | 61 | ✅ Pass |
+| Automation | 150 | ✅ Pass |
+| Webhook | 53 | ✅ Pass |
+
+## v1.13.0 Roadmap (v1.2)
+- Audio (P0): ✅ Implemented (2026-04-05)
+- Mobile (P0): ✅ Implemented
+- RAG (P1): ✅ Tech design
+- AI Dialogue (P1): ✅ Implemented (Executor: 2026-04-05, 82.7% tests pass)
 
 ## Health
-picoclaw.service ✅ (51h+ uptime)
+picoclaw.service ✅
 
 ## Subagents
-80+ completed (Apr 3-5)
+100+ completed (Apr 3-5)
 
 ## Pending
-- git commit all changes
-- xlsx security vulnerability
-- 565 TypeScript errors (remaining)
+- git commit all changes (AI Dialogue v1.13.0 implemented)

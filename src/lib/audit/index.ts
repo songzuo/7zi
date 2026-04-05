@@ -5,10 +5,10 @@
  */
 
 // 核心
-export { AuditLogger, getAuditLogger, resetAuditLogger } from './audit-logger.js';
+export { AuditLogger, getAuditLogger, resetAuditLogger } from './audit-logger';
 
 // 存储实现
-export { MemoryAuditStorage } from './storage/memory-storage.js';
+export { MemoryAuditStorage } from './storage/memory-storage';
 
 // 中间件
 export {
@@ -18,7 +18,7 @@ export {
   extractUsernameFromToken,
   auditMiddleware,
   defaultAuditMiddlewareOptions,
-} from './middleware.js';
+} from './middleware';
 
 // WebSocket
 export {
@@ -26,7 +26,7 @@ export {
   getAuditWebSocketService,
   shutdownAuditWebSocketService,
   resetAuditWebSocketService,
-} from './websocket.js';
+} from './websocket';
 
 // 类型
 export type {
@@ -44,4 +44,4 @@ export type {
   AuditWsMessage,
   AuditWsStats,
   AuditWsError,
-} from './types.js';
+} from './types';

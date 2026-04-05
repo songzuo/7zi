@@ -35,6 +35,7 @@ export type UINotificationPriority = 'low' | 'normal' | 'high' | 'urgent'
  * - 没有 userId/teamId/taskId（不需要关联用户）
  * - 有 duration（自动消失时间）
  * - 有 action（可点击的操作按钮）
+ * - 有 _timeoutId（内部使用的定时器 ID，用于清理）
  */
 export interface UINotification {
   id: string
@@ -50,6 +51,7 @@ export interface UINotification {
     handler: () => void
   }
   metadata?: Record<string, unknown>
+  _timeoutId?: ReturnType<typeof setTimeout> // 内部使用的定时器 ID
 }
 
 /**
@@ -151,7 +153,7 @@ export const useNotificationStore = create<UINotificationState>((set, get) => ({
       }, duration)
 
       // 将 timeoutId 存储在通知对象中以便清理
-      ;(newNotification as any)._timeoutId = timeoutId
+      newNotification._timeoutId = timeoutId
     }
 
     return id
@@ -164,8 +166,8 @@ export const useNotificationStore = create<UINotificationState>((set, get) => ({
     set(state => {
       // 清理定时器
       const notification = state.notifications.find(n => n.id === id)
-      if (notification && (notification as any)._timeoutId) {
-        clearTimeout((notification as any)._timeoutId)
+      if (notification && notification._timeoutId) {
+        clearTimeout(notification._timeoutId)
       }
 
       const updated = state.notifications.filter(n => n.id !== id)
@@ -183,8 +185,8 @@ export const useNotificationStore = create<UINotificationState>((set, get) => ({
     set(state => {
       // 清理所有定时器
       state.notifications.forEach(n => {
-        if ((n as any)._timeoutId) {
-          clearTimeout((n as any)._timeoutId)
+        if (n._timeoutId) {
+          clearTimeout(n._timeoutId)
         }
       })
 

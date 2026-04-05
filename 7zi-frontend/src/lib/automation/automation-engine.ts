@@ -436,7 +436,7 @@ export class RuleValidator {
       // 简单的语法检查
       const sanitized = this.sanitizeExpression(expression)
       // 尝试解析为函数
-      // eslint-disable-next-line no-new-func
+       
       new Function('ctx', `return ${sanitized}`)
       return null
     } catch (error) {
@@ -1061,7 +1061,7 @@ export class AutomationEngine {
       const sourceData = this.resolveDataPath(transformConfig.source, context)
 
       // 执行转换
-      // eslint-disable-next-line no-new-func
+       
       const transformFn = new Function('data', 'ctx', transformConfig.transform)
       const transformed = transformFn(sourceData, context)
 
@@ -1130,7 +1130,7 @@ export class AutomationEngine {
    */
   private async evaluateCondition(expression: string, context?: { triggerData?: unknown; variables?: Record<string, unknown> }): Promise<boolean> {
     try {
-      // eslint-disable-next-line no-new-func
+       
       const fn = new Function('ctx', `return ${expression}`)
       return Boolean(fn(context))
     } catch (error) {

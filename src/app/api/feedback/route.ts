@@ -1,4 +1,4 @@
-import { NextRequest, NextResponse } from 'next/server'
+import { NextRequest } from 'next/server'
 /**
  * Feedback API endpoints
  */
@@ -126,10 +126,17 @@ export async function GET(request: NextRequest) {
       [...params, filters.per_page, offset]
     ) as unknown as Feedback[]
 
-    // Parse metadata JSON
+    // Get feedback IDs in a single query for batch loading attachments
+    const feedbackIds = feedbacks.map(f => f.id)
+    
+    // Batch load all attachments in a single query (N+1 optimization)
+    const attachmentsMap = await getOptimizedAttachments(db, feedbackIds)
+
+    // Parse metadata JSON and attach attachments in a single pass
     const feedbacksWithParsedMetadata = feedbacks.map(f => ({
       ...f,
       metadata: f.metadata ? JSON.parse(f.metadata as unknown as string) : undefined,
+      attachments: attachmentsMap.get(f.id) || [],
     }))
 
     // Get statistics
@@ -474,7 +481,6 @@ export async function DELETE_FEEDBACK(
     const { id } = resolvedParams
 
     // Check admin permissions (simplified - in production, verify JWT token)
-    const _authHeader = request.headers.get('authorization')
     // In production, verify JWT token here
 
     const db = await getDatabaseAsync()
@@ -517,4 +523,41 @@ export async function DELETE_FEEDBACK(
 async function getFeedbackStats(db: DatabaseConnection) {
   // Use optimized query that combines all GROUP BY operations into single query
   return getOptimizedFeedbackStats(db)
+}
+
+/**
+ * Optimized batch loading of feedback attachments
+ * Avoids N+1 queries by fetching all attachments in a single query
+ */
+async function getOptimizedAttachments(
+  db: DatabaseConnection,
+  feedbackIds: string[]
+): Promise<Map<string, Array<{ id: string; feedback_id: string; filename: string; url: string; size: number; mimetype: string; uploaded_at: string }>>> {
+  if (feedbackIds.length === 0) {
+    return new Map()
+  }
+
+  // Split into batches to avoid SQL query length limits
+  const batchSize = 100
+  const attachmentsMap = new Map<string, Array<{ id: string; feedback_id: string; filename: string; url: string; size: number; mimetype: string; uploaded_at: string }>>()
+
+  for (let i = 0; i < feedbackIds.length; i += batchSize) {
+    const batchIds = feedbackIds.slice(i, i + batchSize)
+    const placeholders = batchIds.map(() => '?').join(',')
+
+    const attachments = db.queryRows(
+      `SELECT * FROM feedback_attachments WHERE feedback_id IN (${placeholders}) ORDER BY uploaded_at`,
+      batchIds
+    ) as unknown as Array<{ id: string; feedback_id: string; filename: string; url: string; size: number; mimetype: string; uploaded_at: string }>
+
+    // Group attachments by feedback_id
+    for (const attachment of attachments) {
+      if (!attachmentsMap.has(attachment.feedback_id)) {
+        attachmentsMap.set(attachment.feedback_id, [])
+      }
+      attachmentsMap.get(attachment.feedback_id)!.push(attachment)
+    }
+  }
+
+  return attachmentsMap
 }

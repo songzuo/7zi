@@ -9,6 +9,21 @@ import { describe, it, expect, beforeEach, afterEach, jest } from '@jest/globals
 // 类型定义
 // =====================
 
+// Mock DOM types
+interface MockEvent {
+  type: string;
+}
+
+interface MockMessageEvent extends MockEvent {
+  data: string;
+}
+
+interface MockCloseEvent extends MockEvent {
+  code?: number;
+  reason?: string;
+  wasClean?: boolean;
+}
+
 interface CursorPosition {
   userId: string;
   userName: string;
@@ -37,10 +52,10 @@ class MockWebSocket {
   readyState: number = MockWebSocket.OPEN;
   url: string;
   
-  onopen: ((event: Event) => void) | null = null;
-  onclose: ((event: CloseEvent) => void) | null = null;
-  onerror: ((event: Event) => void) | null = null;
-  onmessage: ((event: MessageEvent) => void) | null = null;
+  onopen: ((event: MockEvent) => void) | null = null;
+  onclose: ((event: MockCloseEvent) => void) | null = null;
+  onerror: ((event: MockEvent) => void) | null = null;
+  onmessage: ((event: MockMessageEvent) => void) | null = null;
 
   private sentMessages: unknown[] = [];
 
@@ -71,7 +86,7 @@ class MockWebSocket {
 
   simulateMessage(data: unknown): void {
     if (this.onmessage) {
-      this.onmessage({ data: JSON.stringify(data) });
+      this.onmessage({ type: 'message', data: JSON.stringify(data) } as MockMessageEvent);
     }
   }
 }

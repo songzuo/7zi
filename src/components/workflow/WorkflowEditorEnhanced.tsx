@@ -110,6 +110,8 @@ export function WorkflowEditorEnhanced({
   const [canvasState, setCanvasState] = useState({
     zoom: 1,
     snapToGrid: true,
+    panX: 0,
+    panY: 0,
   })
 
   // 历史记录
@@ -444,12 +446,11 @@ export function WorkflowEditorEnhanced({
             disabled={readOnly}
             onNodeClick={type => {
               // 点击节点类型，在画布中心添加
-              const container = canvasRef.current?.['containerRef']?.current
-              const rect = container?.getBoundingClientRect()
+              const rect = (canvasRef.current as unknown as { getBoundingClientRect?: () => DOMRect })?.getBoundingClientRect?.()
               if (rect) {
                 handleNodeAdd(type, {
-                  x: (rect.width / 2) / canvasState.zoom - canvasState.panX - 90,
-                  y: (rect.height / 2) / canvasState.zoom - canvasState.panY - 40,
+                  x: (rect.width / 2) / canvasState.zoom - (canvasState.panX || 0) - 90,
+                  y: (rect.height / 2) / canvasState.zoom - (canvasState.panY || 0) - 40,
                 })
               }
             }}

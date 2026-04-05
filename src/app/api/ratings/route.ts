@@ -378,12 +378,12 @@ export async function GET_RATING(request: NextRequest, { params }: { params: Pro
  * DELETE /api/ratings/[id]
  * Delete rating
  */
-export async function DELETE_RATING(request: NextRequest, { params }: { params: { id: string } }) {
+export async function DELETE_RATING(request: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   const startTime = Date.now()
   const metadata = logRequestStart(request)
 
   try {
-    const { id } = params
+    const { id } = await params
 
     // Get user ID from session (for now, use a placeholder)
     // In production, this would come from auth token

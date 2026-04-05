@@ -87,8 +87,6 @@ function collectHealthMetrics(): HealthCheckData {
  * Basic health check endpoint
  */
 export async function GET(_request: NextRequest) {
-  const _startTime = Date.now()
-
   try {
     const cacheManager = getCacheManager()
 

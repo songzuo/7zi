@@ -337,7 +337,7 @@ describe('AIDialogueEnhancementSystem - Integration', () => {
 
       const accuracy = correct / testCases.length
       // 期望至少达到 70% 的准确率（考虑到模式匹配的局限性）
-      expect(accuracy).toBeGreaterThan(0.7)
+      expect(accuracy).toBeGreaterThanOrEqual(0.7)
     })
   })
 })

@@ -96,8 +96,8 @@ export class WhisperClient {
 
     try {
       // 动态导入 Whisper WASM 模块
-      const { Whisper } = await import('@xenova/transformers')
-      this.wasmModel = await Whisper.from_pretrained('openai/whisper-tiny', {
+      const { pipeline } = await import('@xenova/transformers')
+      this.wasmModel = await pipeline('automatic-speech-recognition', 'Xenova/whisper-tiny', {
         quantized: true,
         progress_callback: (progress: any) => {
           // 可以在这里显示加载进度

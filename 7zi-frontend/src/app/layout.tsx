@@ -1,6 +1,6 @@
 /**
  * 根布局文件 - 包含图片优化配置、主题管理和 i18n
- * 集成移动端导航增强：Safe Area 支持、汉堡菜单、底部导航栏
+ * v1.13.0: 集成移动端导航增强、Safe Area 支持、PWA 优化
  */
 
 import type { Metadata } from 'next'
@@ -34,26 +34,42 @@ const jsonLd = {
 export const metadata: Metadata = {
   metadataBase: new URL(process.env.NEXT_PUBLIC_SITE_URL || 'https://7zi.com'),
   title: {
-    default: '7zi Frontend - 图片优化示例',
+    default: '7zi Frontend - 智能体协作平台',
     template: '%s | 7zi Frontend',
   },
-  description: 'Next.js 图片优化最佳实践展示',
+  description: 'Next.js 最佳实践演示项目 - 智能体协作平台',
   keywords: ['Next.js', 'Image Optimization', 'WebP', 'AVIF', 'Performance'],
-  openGraph: {
-    title: '7zi Frontend - 图片优化示例',
-    description: 'Next.js 图片优化最佳实践展示',
-    images: ['/images/og-image.jpg'],
+  // PWA 相关
+  manifest: '/manifest.json',
+  // 移动端优化 - 使用其它元标签方式
+  // 注意: apple-mobile-web-app-* 标签需要通过 other meta 方式添加
+  formatDetection: {
+    telephone: false,
   },
+  // 主题颜色
+  themeColor: '#667eea',
+  // Open Graph
+  openGraph: {
+    title: '7zi Frontend - 智能体协作平台',
+    description: 'Next.js 最佳实践演示项目 - 智能体协作平台',
+    images: ['/images/og-image.jpg'],
+    type: 'website',
+    locale: 'zh_CN',
+  },
+  // Twitter
   twitter: {
     card: 'summary_large_image',
     images: ['/images/twitter-image.jpg'],
   },
+  // 视图端口（移动端关键）
   viewport: {
     width: 'device-width',
     initialScale: 1,
     maximumScale: 5,
     // 支持 Safe Area - 适配刘海屏
     viewportFit: 'cover',
+    // 用户缩放（可访问性）
+    userScalable: true,
   },
 }
 
@@ -61,14 +77,37 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
   return (
     <html lang="zh-CN" suppressHydrationWarning>
       <head>
+        {/* PWA 图标 */}
+        <link rel="apple-touch-icon" href="/icons/icon-192x192.png" />
+        {/* 预连接到图片 CDN */}
+        <link rel="preconnect" href="https://images.unsplash.com" />
+        <link rel="dns-prefetch" href="https://images.unsplash.com" />
+        {/* 启动画面（iOS） */}
+        <link
+          rel="apple-touch-startup-image"
+          media="screen and (device-width: 1024px) and (device-height: 1366px) and (-webkit-device-pixel-ratio: 2) and (orientation: portrait)"
+          href="/splash/ipad-pro-2.png"
+        />
+        <link
+          rel="apple-touch-startup-image"
+          media="screen and (device-width: 834px) and (device-height: 1194px) and (-webkit-device-pixel-ratio: 2) and (orientation: portrait)"
+          href="/splash/ipad-pro-1.png"
+        />
+        <link
+          rel="apple-touch-startup-image"
+          media="screen and (device-width: 390px) and (device-height: 844px) and (-webkit-device-pixel-ratio: 3) and (orientation: portrait)"
+          href="/splash/iphone-14.png"
+        />
+        <link
+          rel="apple-touch-startup-image"
+          media="screen and (device-width: 375px) and (device-height: 667px) and (-webkit-device-pixel-ratio: 2) and (orientation: portrait)"
+          href="/splash/iphone-8.png"
+        />
         {/* JSON-LD 结构化数据 */}
         <script
           type="application/ld+json"
           dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
         />
-        {/* 预连接到图片 CDN */}
-        <link rel="preconnect" href="https://images.unsplash.com" />
-        <link rel="dns-prefetch" href="https://images.unsplash.com" />
         {/* Theme initialization script - must run before React to prevent FOUC */}
         <script
           dangerouslySetInnerHTML={{ __html: getThemeScript() }}
@@ -76,7 +115,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
           data-noparse="true"
         />
         {/* Safe Area 支持 - 适配 iOS 刘海屏 */}
-        <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=5, viewport-fit=cover" />
+        <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=5, viewport-fit=cover, user-scalable=yes" />
       </head>
       <body className={inter.className}>
         <ThemeProvider>
@@ -84,7 +123,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
             <I18nProvider>
               <PermissionProvider>
                 {/* Safe Area 适配 - 顶部安全区域 */}
-                <div className="safe-area-top">
+                <div className="safe-area-top min-h-screen">
                   {children}
                 </div>
               </PermissionProvider>

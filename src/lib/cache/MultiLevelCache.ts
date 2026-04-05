@@ -253,7 +253,7 @@ export class MultiLevelCache implements ICache {
     const startTime = Date.now()
     
     // Try L1 first
-    let value = await this.l1.get<T>(key, options)
+    const value = await this.l1.get<T>(key, options)
     if (value !== null) {
       this.emit({ type: 'hit', key, level: 'L1', timestamp: startTime })
       return value

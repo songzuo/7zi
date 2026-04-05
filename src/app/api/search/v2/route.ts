@@ -6,7 +6,7 @@
 import { NextRequest } from 'next/server'
 import { getGlobalUnifiedSearchManager } from '@/lib/search/unified-search'
 import type { UnifiedSearchOptions, SearchEngineType } from '@/lib/search/unified-search'
-import type { SearchFilters } from '@/lib/search/types'
+import type { SearchFilters, UnifiedEntity } from '@/lib/search/types'
 import { createErrorResponse, createSuccessResponse } from '@/lib/api/error-handler'
 import { logger } from '@/lib/logger'
 

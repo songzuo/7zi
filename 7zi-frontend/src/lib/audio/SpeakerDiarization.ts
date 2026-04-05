@@ -259,7 +259,8 @@ export class SpeakerDiarization {
     let bestSpeaker = 'speaker_1'
     let bestSimilarity = -Infinity
 
-    for (const [speakerId, history] of this.embeddingHistory) {
+    const embeddingEntries = Array.from(this.embeddingHistory.entries())
+    for (const [speakerId, history] of embeddingEntries) {
       const similarity = this.cosineSimilarity(embedding, history)
       if (similarity > bestSimilarity) {
         bestSimilarity = similarity

@@ -5,6 +5,7 @@
 
 import { NextRequest } from 'next/server'
 import { workflowHistoryService } from '@/lib/workflow/history'
+import type { OperationType } from '@/lib/workflow/history'
 import {
   createSuccessResponse,
   createErrorResponse,
@@ -27,11 +28,11 @@ export async function GET(request: NextRequest, { params }: RouteParams) {
     const { searchParams } = new URL(request.url)
 
     // Build filter from query params
-    const filter: { workflowId?: string; operation?: string; userId?: string; success?: boolean; startTime?: string; endTime?: string; relatedVersionId?: string; relatedInstanceId?: string; relatedNodeId?: string } = {
+    const filter: { workflowId?: string; operation?: OperationType; userId?: string; success?: boolean; startTime?: string; endTime?: string; relatedVersionId?: string; relatedInstanceId?: string; relatedNodeId?: string } = {
       workflowId,
     }
 
-    const operation = searchParams.get('operation')
+    const operation = searchParams.get('operation') as OperationType | null
     if (operation) {
       filter.operation = operation
     }

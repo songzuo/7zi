@@ -1,8 +1,8 @@
 # API 完整文档
 
 **最后更新**: 2026-04-05
-**版本**: v1.12.2
-**API 端点总数**: 130+
+**版本**: v1.13.1
+**API 端点总数**: 170+
 
 ---
 
@@ -31,8 +31,12 @@
 21. [告警系统 API](#告警系统-api)
 22. [工作流版本历史管理 API](#工作流版本历史管理-api-v191) *(v1.9.1 新增)*
 23. [RCA 根因分析 API](#rca-根因分析-api-v190) *(v1.9.0 新增)*
-24. [数据模型](#数据模型)
-25. [错误处理](#错误处理)
+24. [Workspace Automation API](#workspace-automation-api-v112x-新增) *(v1.12.x 新增)*
+25. [高级搜索 API](#高级搜索-api-v112x-新增) *(v1.12.x 新增)*
+26. [审计日志 API](#审计日志-api-v112x-新增) *(v1.12.x 新增)*
+27. [Webhook 系统 API](#webhook-系统-api-v112x-新增) *(v1.12.x 新增)*
+28. [数据模型](#数据模型)
+29. [错误处理](#错误处理)
 
 ### 📚 专项 API 文档
 
@@ -526,6 +530,10 @@ v1.4.0 版本引入了三大核心功能：
 | **AI 代码智能** | 6        | 代码分析、补全、审查、Bug检测   | 见本文档 (v1.12.0 新增)                        |
 | **多模型路由** | 3        | 智能路由、成本追踪、模型状态    | 见本文档 (v1.12.0 新增)                        |
 | **多租户**     | 12       | 租户管理、成员邀请、配额        | 见本文档 (v1.12.0 新增)                        |
+| **Workspace Automation** | 5 | 自动化工作流系统 | 见本文档 (v1.12.x 新增) |
+| **高级搜索**   | 1        | 高级搜索端点                   | 见本文档 (v1.12.x 新增)                        |
+| **审计日志**   | 3        | 审计日志查询、详情、导出        | 见本文档 (v1.12.x 新增)                        |
+| **Webhook 系统** | 5        | Webhook 创建、管理、测试        | 见本文档 (v1.12.x 新增)                        |
 | **认证与授权** | 5        | 登录、注册、刷新 Token         | 见本文档                                       |
 | **任务管理**   | 1        | 任务增删改查、批量操作         | 见本文档                                       |
 | **项目管理**   | 1        | 项目管理                       | 见本文档                                       |
@@ -545,7 +553,7 @@ v1.4.0 版本引入了三大核心功能：
 | **WebSocket**  | -        | 房间系统、权限控制、消息持久化 | [websocket.md](./api/websocket.md)             |
 | **其他**       | 5        | 跨域、状态、导出等             | 见本文档                                       |
 
-> **注意**: v1.12.x 新增了 21 个 API 端点，包括多租户、监控、告警等模块。
+> **注意**: v1.12.x 新增了 17 个 API 端点，包括 Workspace Automation、高级搜索、审计日志和 Webhook 系统。
 
 ### 基础信息
 
@@ -2609,6 +2617,1240 @@ POST /api/csp-violation
 
 ```
 POST /api/revalidate
+```
+
+---
+
+## Workspace Automation API (v1.12.x 新增)
+
+v1.12.x 引入了完整的 Workspace Automation API，支持自动化工作流系统的创建、管理、触发等功能。
+
+### 核心功能
+
+**位置**: `src/lib/automation/`
+
+**特性**:
+- ✅ 创建自动化规则
+- ✅ 获取规则列表
+- ✅ 更新规则
+- ✅ 删除规则
+- ✅ 手动触发规则
+- ✅ 支持多种触发类型（定时、事件、手动）
+- ✅ 条件表达式支持
+- ✅ 动作执行引擎
+
+### API 端点
+
+#### 创建自动化规则
+
+```
+POST /api/automations
+```
+
+创建新的自动化规则。
+
+**请求体**:
+
+```json
+{
+  "name": "每日数据备份",
+  "description": "每天凌晨2点自动备份数据",
+  "enabled": true,
+  "trigger": {
+    "type": "schedule",
+    "config": {
+      "cron": "0 2 * * *",
+      "timezone": "Asia/Shanghai"
+    }
+  },
+  "conditions": [
+    {
+      "type": "expression",
+      "expression": "data.size > 0"
+    }
+  ],
+  "actions": [
+    {
+      "type": "http",
+      "config": {
+        "url": "https://api.example.com/backup",
+        "method": "POST",
+        "headers": {
+          "Authorization": "Bearer {{token}}"
+        },
+        "body": {
+          "data": "{{data}}"
+        }
+      }
+    }
+  ],
+  "variables": {
+    "token": "secret-token-123"
+  }
+}
+```
+
+**参数说明**:
+| 参数 | 类型 | 必需 | 说明 |
+|------|------|------|------|
+| `name` | string | ✅ | 规则名称 |
+| `description` | string | ❌ | 规则描述 |
+| `enabled` | boolean | ❌ | 是否启用，默认 true |
+| `trigger.type` | string | ✅ | 触发类型 (schedule, event, manual) |
+| `trigger.config` | object | ✅ | 触发配置 |
+| `conditions` | array | ❌ | 条件列表 |
+| `actions` | array | ✅ | 动作列表 |
+| `variables` | object | ❌ | 变量定义 |
+
+**触发类型**:
+| 类型 | 说明 | 配置示例 |
+|------|------|----------|
+| `schedule` | 定时触发 | `{ "cron": "0 2 * * *", "timezone": "Asia/Shanghai" }` |
+| `event` | 事件触发 | `{ "eventType": "user.created", "filters": {} }` |
+| `manual` | 手动触发 | `{}` |
+
+**动作类型**:
+| 类型 | 说明 |
+|------|------|
+| `http` | HTTP 请求 |
+| `email` | 发送邮件 |
+| `webhook` | 调用 Webhook |
+| `script` | 执行脚本 |
+| `notification` | 发送通知 |
+
+**响应**: `201 Created`
+
+```json
+{
+  "success": true,
+  "data": {
+    "id": "automation-001",
+    "name": "每日数据备份",
+    "description": "每天凌晨2点自动备份数据",
+    "enabled": true,
+    "trigger": {
+      "type": "schedule",
+      "config": {
+        "cron": "0 2 * * *",
+        "timezone": "Asia/Shanghai"
+      }
+    },
+    "conditions": [...],
+    "actions": [...],
+    "variables": {
+      "token": "secret-token-123"
+    },
+    "metadata": {
+      "createdAt": "2026-04-05T00:00:00.000Z",
+      "updatedAt": "2026-04-05T00:00:00.000Z",
+      "createdBy": "user-001",
+      "lastTriggeredAt": null,
+      "triggerCount": 0,
+      "successCount": 0,
+      "failureCount": 0
+    }
+  }
+}
+```
+
+---
+
+#### 获取规则列表
+
+```
+GET /api/automations
+```
+
+获取所有自动化规则列表。
+
+**Query 参数**:
+| 参数 | 类型 | 默认值 | 说明 |
+|------|------|--------|------|
+| `enabled` | boolean | - | 过滤启用状态 |
+| `triggerType` | string | - | 过滤触发类型 (schedule, event, manual) |
+| `search` | string | - | 搜索关键词（名称或描述） |
+| `sortBy` | string | createdAt | 排序字段 (createdAt, name, lastTriggeredAt) |
+| `sortOrder` | string | desc | 排序方向 (asc, desc) |
+| `offset` | number | 0 | 偏移量 |
+| `limit` | number | 50 | 每页数量 |
+
+**响应**:
+
+```json
+{
+  "success": true,
+  "data": {
+    "automations": [
+      {
+        "id": "automation-001",
+        "name": "每日数据备份",
+        "description": "每天凌晨2点自动备份数据",
+        "enabled": true,
+        "trigger": {
+          "type": "schedule",
+          "config": {
+            "cron": "0 2 * * *",
+            "timezone": "Asia/Shanghai"
+          }
+        },
+        "metadata": {
+          "createdAt": "2026-04-05T00:00:00.000Z",
+          "lastTriggeredAt": "2026-04-05T02:00:00.000Z",
+          "triggerCount": 5,
+          "successCount": 5,
+          "failureCount": 0
+        }
+      }
+    ],
+    "total": 10,
+    "offset": 0,
+    "limit": 50
+  }
+}
+```
+
+---
+
+#### 更新规则
+
+```
+PUT /api/automations/[id]
+```
+
+更新指定的自动化规则。
+
+**路径参数**:
+- `id`: 规则 ID
+
+**请求体**: 所有字段可选
+
+```json
+{
+  "name": "更新后的名称",
+  "description": "更新后的描述",
+  "enabled": false,
+  "trigger": {
+    "type": "schedule",
+    "config": {
+      "cron": "0 3 * * *",
+      "timezone": "Asia/Shanghai"
+    }
+  },
+  "conditions": [...],
+  "actions": [...],
+  "variables": {
+    "token": "new-secret-token"
+  }
+}
+```
+
+**响应**:
+
+```json
+{
+  "success": true,
+  "data": {
+    "id": "automation-001",
+    "name": "更新后的名称",
+    "description": "更新后的描述",
+    "enabled": false,
+    "updatedAt": "2026-04-05T12:00:00.000Z",
+    ...
+  }
+}
+```
+
+---
+
+#### 删除规则
+
+```
+DELETE /api/automations/[id]
+```
+
+删除指定的自动化规则。
+
+**路径参数**:
+- `id`: 规则 ID
+
+**响应**:
+
+```json
+{
+  "success": true,
+  "data": {
+    "id": "automation-001",
+    "message": "自动化规则已删除"
+  }
+}
+```
+
+---
+
+#### 触发规则
+
+```
+POST /api/automations/[id]/trigger
+```
+
+手动触发指定的自动化规则。
+
+**路径参数**:
+- `id`: 规则 ID
+
+**请求体**:
+
+```json
+{
+  "context": {
+    "data": {
+      "key": "value"
+    }
+  },
+  "dryRun": false
+}
+```
+
+**参数说明**:
+| 参数 | 类型 | 必需 | 说明 |
+|------|------|------|------|
+| `context` | object | ❌ | 触发上下文数据 |
+| `dryRun` | boolean | ❌ | 是否为试运行（不实际执行），默认 false |
+
+**响应**:
+
+```json
+{
+  "success": true,
+  "data": {
+    "automationId": "automation-001",
+    "executionId": "exec-001",
+    "status": "running",
+    "message": "自动化规则已触发",
+    "startedAt": "2026-04-05T12:00:00.000Z"
+  }
+}
+```
+
+---
+
+### 类型定义
+
+```typescript
+interface AutomationRule {
+  id: string
+  name: string
+  description?: string
+  enabled: boolean
+  trigger: AutomationTrigger
+  conditions?: AutomationCondition[]
+  actions: AutomationAction[]
+  variables?: Record<string, unknown>
+  metadata: AutomationMetadata
+}
+
+interface AutomationTrigger {
+  type: 'schedule' | 'event' | 'manual'
+  config: Record<string, unknown>
+}
+
+interface AutomationCondition {
+  type: 'expression' | 'comparison' | 'custom'
+  expression?: string
+  config?: Record<string, unknown>
+}
+
+interface AutomationAction {
+  type: 'http' | 'email' | 'webhook' | 'script' | 'notification'
+  config: Record<string, unknown>
+}
+
+interface AutomationMetadata {
+  createdAt: string
+  updatedAt: string
+  createdBy: string
+  lastTriggeredAt?: string
+  triggerCount: number
+  successCount: number
+  failureCount: number
+}
+
+interface AutomationExecution {
+  id: string
+  automationId: string
+  status: 'pending' | 'running' | 'completed' | 'failed'
+  context?: Record<string, unknown>
+  results?: Record<string, unknown>
+  startedAt: string
+  completedAt?: string
+  error?: string
+}
+```
+
+---
+
+## 高级搜索 API (v1.12.x 新增)
+
+v1.12.x 引入了高级搜索 API，支持复杂查询、多字段过滤、全文搜索等功能。
+
+### 核心功能
+
+**位置**: `src/lib/search/advanced-search.ts`
+
+**特性**:
+- ✅ 多字段组合查询
+- ✅ 全文搜索支持
+- ✅ 范围查询
+- ✅ 排序和分页
+- ✅ 聚合统计
+- ✅ 搜索建议
+
+### API 端点
+
+#### 高级搜索
+
+```
+POST /api/search/advanced
+```
+
+执行高级搜索查询。
+
+**请求体**:
+
+```json
+{
+  "query": "工作流",
+  "filters": [
+    {
+      "field": "status",
+      "operator": "eq",
+      "value": "active"
+    },
+    {
+      "field": "createdAt",
+      "operator": "gte",
+      "value": "2026-04-01T00:00:00.000Z"
+    }
+  ],
+  "searchFields": ["name", "description", "tags"],
+  "sort": [
+    {
+      "field": "createdAt",
+      "order": "desc"
+    }
+  ],
+  "pagination": {
+    "page": 1,
+    "pageSize": 20
+  },
+  "aggregations": [
+    {
+      "field": "status",
+      "type": "terms"
+    },
+    {
+      "field": "createdAt",
+      "type": "date_histogram",
+      "interval": "day"
+    }
+  ]
+}
+```
+
+**参数说明**:
+| 参数 | 类型 | 必需 | 说明 |
+|------|------|------|------|
+| `query` | string | ❌ | 搜索关键词（全文搜索） |
+| `filters` | array | ❌ | 过滤条件列表 |
+| `searchFields` | array | ❌ | 搜索字段列表 |
+| `sort` | array | ❌ | 排序规则 |
+| `pagination` | object | ❌ | 分页配置 |
+| `aggregations` | array | ❌ | 聚合配置 |
+
+**过滤操作符**:
+| 操作符 | 说明 | 示例 |
+|--------|------|------|
+| `eq` | 等于 | `{ "field": "status", "operator": "eq", "value": "active" }` |
+| `ne` | 不等于 | `{ "field": "status", "operator": "ne", "value": "deleted" }` |
+| `gt` | 大于 | `{ "field": "count", "operator": "gt", "value": 10 }` |
+| `gte` | 大于等于 | `{ "field": "createdAt", "operator": "gte", "value": "2026-04-01" }` |
+| `lt` | 小于 | `{ "field": "count", "operator": "lt", "value": 100 }` |
+| `lte` | 小于等于 | `{ "field": "createdAt", "operator": "lte", "value": "2026-04-30" }` |
+| `in` | 在列表中 | `{ "field": "status", "operator": "in", "value": ["active", "paused"] }` |
+| `nin` | 不在列表中 | `{ "field": "status", "operator": "nin", "value": ["deleted"] }` |
+| `contains` | 包含 | `{ "field": "name", "operator": "contains", "value": "test" }` |
+| `startsWith` | 以...开头 | `{ "field": "name", "operator": "startsWith", "value": "workflow" }` |
+| `endsWith` | 以...结尾 | `{ "field": "name", "operator": "endsWith", "value": "v1" }` |
+| `regex` | 正则匹配 | `{ "field": "name", "operator": "regex", "value": "^workflow.*" }` |
+
+**聚合类型**:
+| 类型 | 说明 | 配置 |
+|------|------|------|
+| `terms` | 词项聚合 | `{ "field": "status", "type": "terms", "size": 10 }` |
+| `date_histogram` | 日期直方图 | `{ "field": "createdAt", "type": "date_histogram", "interval": "day" }` |
+| `range` | 范围聚合 | `{ "field": "count", "type": "range", "ranges": [...] }` |
+| `stats` | 统计聚合 | `{ "field": "count", "type": "stats" }` |
+
+**响应**:
+
+```json
+{
+  "success": true,
+  "data": {
+    "results": [
+      {
+        "id": "workflow-001",
+        "name": "工作流示例",
+        "description": "这是一个示例工作流",
+        "status": "active",
+        "createdAt": "2026-04-05T10:00:00.000Z",
+        "score": 0.95,
+        "highlight": {
+          "name": ["<em>工作流</em>示例"],
+          "description": ["这是一个示例<em>工作流</em>"]
+        }
+      }
+    ],
+    "pagination": {
+      "page": 1,
+      "pageSize": 20,
+      "total": 100,
+      "totalPages": 5
+    },
+    "aggregations": {
+      "status": {
+        "buckets": [
+          { "key": "active", "docCount": 50 },
+          { "key": "paused", "docCount": 30 },
+          { "key": "archived", "docCount": 20 }
+        ]
+      },
+      "createdAt": {
+        "buckets": [
+          { "key": "2026-04-01", "docCount": 20 },
+          { "key": "2026-04-02", "docCount": 25 },
+          { "key": "2026-04-03", "docCount": 30 },
+          { "key": "2026-04-04", "docCount": 15 },
+          { "key": "2026-04-05", "docCount": 10 }
+        ]
+      }
+    },
+    "took": 15
+  }
+}
+```
+
+---
+
+### 类型定义
+
+```typescript
+interface AdvancedSearchRequest {
+  query?: string
+  filters?: SearchFilter[]
+  searchFields?: string[]
+  sort?: SortRule[]
+  pagination?: PaginationConfig
+  aggregations?: AggregationConfig[]
+}
+
+interface SearchFilter {
+  field: string
+  operator: 'eq' | 'ne' | 'gt' | 'gte' | 'lt' | 'lte' | 'in' | 'nin' | 'contains' | 'startsWith' | 'endsWith' | 'regex'
+  value: unknown
+}
+
+interface SortRule {
+  field: string
+  order: 'asc' | 'desc'
+}
+
+interface PaginationConfig {
+  page: number
+  pageSize: number
+}
+
+interface AggregationConfig {
+  field: string
+  type: 'terms' | 'date_histogram' | 'range' | 'stats'
+  size?: number
+  interval?: string
+  ranges?: Array<{ from?: number; to?: number }>
+}
+
+interface AdvancedSearchResponse {
+  results: SearchResult[]
+  pagination: {
+    page: number
+    pageSize: number
+    total: number
+    totalPages: number
+  }
+  aggregations: Record<string, AggregationResult>
+  took: number
+}
+
+interface SearchResult {
+  id: string
+  [key: string]: unknown
+  score: number
+  highlight?: Record<string, string[]>
+}
+
+interface AggregationResult {
+  buckets?: Array<{ key: string; docCount: number }>
+  count?: number
+  min?: number
+  max?: number
+  avg?: number
+  sum?: number
+}
+```
+
+---
+
+## 审计日志 API (v1.12.x 新增)
+
+v1.12.x 引入了完整的审计日志系统 API，支持审计日志的查询、导出等功能。
+
+### 核心功能
+
+**位置**: `src/lib/audit/audit-logger.ts`
+
+**特性**:
+- ✅ 记录所有关键操作
+- ✅ 支持多种过滤条件
+- ✅ 时间范围查询
+- ✅ 导出功能（JSON、CSV）
+- ✅ 审计日志详情查看
+
+### API 端点
+
+#### 获取审计日志
+
+```
+GET /api/audit/logs
+```
+
+查询审计日志列表。
+
+**Query 参数**:
+| 参数 | 类型 | 默认值 | 说明 |
+|------|------|--------|------|
+| `userId` | string | - | 用户 ID |
+| `username` | string | - | 用户名 |
+| `action` | string | - | 操作类型 (CREATE, READ, UPDATE, DELETE, LOGIN, LOGOUT, EXPORT, ADMIN) |
+| `resource` | string | - | 资源类型 |
+| `resourceId` | string | - | 资源 ID |
+| `status` | string | - | 状态 (success, failure) |
+| `startTime` | string | - | 开始时间 (ISO 格式) |
+| `endTime` | string | - | 结束时间 (ISO 格式) |
+| `ipAddress` | string | - | IP 地址 |
+| `search` | string | - | 搜索关键词 |
+| `sortBy` | string | timestamp | 排序字段 (timestamp, userId, action) |
+| `sortOrder` | string | desc | 排序方向 (asc, desc) |
+| `offset` | number | 0 | 偏移量 |
+| `limit` | number | 100 | 每页数量 (最大 1000) |
+
+**响应**:
+
+```json
+{
+  "success": true,
+  "data": {
+    "logs": [
+      {
+        "id": "audit-001",
+        "userId": "user-001",
+        "username": "john",
+        "action": "CREATE",
+        "resource": "automation",
+        "resourceId": "automation-001",
+        "status": "success",
+        "ipAddress": "192.168.1.1",
+        "userAgent": "Mozilla/5.0...",
+        "timestamp": "2026-04-05T12:00:00.000Z",
+        "details": {
+          "automationName": "每日数据备份",
+          "triggerType": "schedule"
+        }
+      }
+    ],
+    "total": 100,
+    "offset": 0,
+    "limit": 100
+  }
+}
+```
+
+---
+
+#### 获取审计日志详情
+
+```
+GET /api/audit/logs/:id
+```
+
+获取指定审计日志的详细信息。
+
+**路径参数**:
+- `id`: 日志 ID
+
+**响应**:
+
+```json
+{
+  "success": true,
+  "data": {
+    "id": "audit-001",
+    "userId": "user-001",
+    "username": "john",
+    "action": "UPDATE",
+    "resource": "automation",
+    "resourceId": "automation-001",
+    "status": "success",
+    "ipAddress": "192.168.1.1",
+    "userAgent": "Mozilla/5.0...",
+    "timestamp": "2026-04-05T11:30:00.000Z",
+    "details": {
+      "changes": {
+        "before": {
+          "enabled": true,
+          "trigger": {
+            "cron": "0 2 * * *"
+          }
+        },
+        "after": {
+          "enabled": false,
+          "trigger": {
+            "cron": "0 3 * * *"
+          }
+        },
+        "changedFields": ["enabled", "trigger.cron"]
+      }
+    }
+  }
+}
+```
+
+---
+
+#### 导出审计日志
+
+```
+GET /api/audit/export
+```
+
+导出审计日志为 JSON 或 CSV 格式。
+
+**Query 参数**:
+| 参数 | 类型 | 必需 | 说明 |
+|------|------|------|------|
+| `format` | string | ✅ | 导出格式 (json, csv) |
+| `startTime` | string | ✅ | 开始时间 (ISO 格式) |
+| `endTime` | string | ✅ | 结束时间 (ISO 格式) |
+| `userId` | string | ❌ | 用户 ID |
+| `action` | string | ❌ | 操作类型 |
+| `resource` | string | ❌ | 资源类型 |
+| `resourceId` | string | ❌ | 资源 ID |
+| `status` | string | ❌ | 状态 |
+| `ipAddress` | string | ❌ | IP 地址 |
+| `maxRecords` | number | ❌ | 最大记录数 (默认 10000, 最大 100000) |
+
+**限制**:
+- 时间范围不能超过 90 天
+- maxRecords 不能超过 100000
+
+**响应**:
+- Content-Type: `application/json` 或 `text/csv`
+- Content-Disposition: `attachment; filename="audit-logs-YYYY-MM-DD.{format}"`
+
+---
+
+### 类型定义
+
+```typescript
+interface AuditLogEntry {
+  id: string
+  userId?: string
+  username?: string
+  action: AuditAction
+  resource?: string
+  resourceId?: string
+  status: AuditStatus
+  ipAddress: string
+  userAgent?: string
+  timestamp: string
+  details?: Record<string, unknown>
+}
+
+type AuditAction = 'CREATE' | 'READ' | 'UPDATE' | 'DELETE' | 'LOGIN' | 'LOGOUT' | 'EXPORT' | 'ADMIN'
+type AuditStatus = 'success' | 'failure'
+
+interface AuditLogQueryOptions {
+  userId?: string
+  username?: string
+  action?: AuditAction
+  resource?: string
+  resourceId?: string
+  status?: AuditStatus
+  startTime?: Date
+  endTime?: Date
+  ipAddress?: string
+  search?: string
+  sortBy?: 'timestamp' | 'userId' | 'action'
+  sortOrder?: 'asc' | 'desc'
+  offset?: number
+  limit?: number
+}
+
+interface AuditLogExportOptions {
+  format: 'json' | 'csv'
+  startTime: Date
+  endTime: Date
+  userId?: string
+  action?: AuditAction
+  resource?: string
+  resourceId?: string
+  status?: AuditStatus
+  ipAddress?: string
+  maxRecords?: number
+}
+```
+
+---
+
+## Webhook 系统 API (v1.12.x 新增)
+
+v1.12.x 引入了完整的 Webhook 事件系统 API，支持 Webhook 的创建、管理、测试等功能。
+
+### 核心功能
+
+**位置**: `src/lib/webhook/`
+
+**特性**:
+- ✅ 创建 Webhook
+- ✅ 获取 Webhook 列表
+- ✅ 更新 Webhook
+- ✅ 删除 Webhook
+- ✅ 测试 Webhook
+- ✅ 支持多种事件类型
+- ✅ 签名验证
+- ✅ 重试机制
+
+### API 端点
+
+#### 创建 Webhook
+
+```
+POST /api/webhooks
+```
+
+创建新的 Webhook。
+
+**请求体**:
+
+```json
+{
+  "name": "工作流完成通知",
+  "description": "当工作流完成时发送通知",
+  "url": "https://example.com/webhooks/workflow",
+  "events": [
+    "workflow.completed",
+    "workflow.failed"
+  ],
+  "secret": "webhook-secret-key",
+  "enabled": true,
+  "headers": {
+    "X-Custom-Header": "custom-value"
+  },
+  "retryConfig": {
+    "maxRetries": 3,
+    "retryDelay": 1000,
+    "backoffMultiplier": 2
+  }
+}
+```
+
+**参数说明**:
+| 参数 | 类型 | 必需 | 说明 |
+|------|------|------|------|
+| `name` | string | ✅ | Webhook 名称 |
+| `description` | string | ❌ | Webhook 描述 |
+| `url` | string | ✅ | Webhook URL |
+| `events` | array | ✅ | 事件类型列表 |
+| `secret` | string | ❌ | 签名密钥 |
+| `enabled` | boolean | ❌ | 是否启用，默认 true |
+| `headers` | object | ❌ | 自定义请求头 |
+| `retryConfig.maxRetries` | number | ❌ | 最大重试次数，默认 3 |
+| `retryConfig.retryDelay` | number | ❌ | 重试延迟（毫秒），默认 1000 |
+| `retryConfig.backoffMultiplier` | number | ❌ | 退避乘数，默认 2 |
+
+**支持的事件类型**:
+| 事件类型 | 说明 |
+|----------|------|
+| `workflow.created` | 工作流创建 |
+| `workflow.updated` | 工作流更新 |
+| `workflow.deleted` | 工作流删除 |
+| `workflow.started` | 工作流开始执行 |
+| `workflow.completed` | 工作流完成 |
+| `workflow.failed` | 工作流失败 |
+| `automation.created` | 自动化规则创建 |
+| `automation.updated` | 自动化规则更新 |
+| `automation.deleted` | 自动化规则删除 |
+| `automation.triggered` | 自动化规则触发 |
+| `user.created` | 用户创建 |
+| `user.updated` | 用户更新 |
+| `user.deleted` | 用户删除 |
+
+**响应**: `201 Created`
+
+```json
+{
+  "success": true,
+  "data": {
+    "id": "webhook-001",
+    "name": "工作流完成通知",
+    "description": "当工作流完成时发送通知",
+    "url": "https://example.com/webhooks/workflow",
+    "events": [
+      "workflow.completed",
+      "workflow.failed"
+    ],
+    "secret": "webhook-secret-key",
+    "enabled": true,
+    "headers": {
+      "X-Custom-Header": "custom-value"
+    },
+    "retryConfig": {
+      "maxRetries": 3,
+      "retryDelay": 1000,
+      "backoffMultiplier": 2
+    },
+    "metadata": {
+      "createdAt": "2026-04-05T00:00:00.000Z",
+      "updatedAt": "2026-04-05T00:00:00.000Z",
+      "createdBy": "user-001",
+      "lastTriggeredAt": null,
+      "triggerCount": 0,
+      "successCount": 0,
+      "failureCount": 0
+    }
+  }
+}
+```
+
+---
+
+#### 获取 Webhook 列表
+
+```
+GET /api/webhooks
+```
+
+获取所有 Webhook 列表。
+
+**Query 参数**:
+| 参数 | 类型 | 默认值 | 说明 |
+|------|------|--------|------|
+| `enabled` | boolean | - | 过滤启用状态 |
+| `event` | string | - | 过滤事件类型 |
+| `search` | string | - | 搜索关键词（名称或 URL） |
+| `sortBy` | string | createdAt | 排序字段 (createdAt, name, lastTriggeredAt) |
+| `sortOrder` | string | desc | 排序方向 (asc, desc) |
+| `offset` | number | 0 | 偏移量 |
+| `limit` | number | 50 | 每页数量 |
+
+**响应**:
+
+```json
+{
+  "success": true,
+  "data": {
+    "webhooks": [
+      {
+        "id": "webhook-001",
+        "name": "工作流完成通知",
+        "url": "https://example.com/webhooks/workflow",
+        "events": [
+          "workflow.completed",
+          "workflow.failed"
+        ],
+        "enabled": true,
+        "metadata": {
+          "createdAt": "2026-04-05T00:00:00.000Z",
+          "lastTriggeredAt": "2026-04-05T12:00:00.000Z",
+          "triggerCount": 10,
+          "successCount": 9,
+          "failureCount": 1
+        }
+      }
+    ],
+    "total": 5,
+    "offset": 0,
+    "limit": 50
+  }
+}
+```
+
+---
+
+#### 更新 Webhook
+
+```
+PUT /api/webhooks/[id]
+```
+
+更新指定的 Webhook。
+
+**路径参数**:
+- `id`: Webhook ID
+
+**请求体**: 所有字段可选
+
+```json
+{
+  "name": "更新后的名称",
+  "description": "更新后的描述",
+  "url": "https://example.com/webhooks/new-url",
+  "events": [
+    "workflow.completed",
+    "workflow.failed",
+    "automation.triggered"
+  ],
+  "enabled": false,
+  "headers": {
+    "X-New-Header": "new-value"
+  },
+  "retryConfig": {
+    "maxRetries": 5,
+    "retryDelay": 2000,
+    "backoffMultiplier": 3
+  }
+}
+```
+
+**响应**:
+
+```json
+{
+  "success": true,
+  "data": {
+    "id": "webhook-001",
+    "name": "更新后的名称",
+    "description": "更新后的描述",
+    "url": "https://example.com/webhooks/new-url",
+    "events": [
+      "workflow.completed",
+      "workflow.failed",
+      "automation.triggered"
+    ],
+    "enabled": false,
+    "updatedAt": "2026-04-05T12:00:00.000Z",
+    ...
+  }
+}
+```
+
+---
+
+#### 删除 Webhook
+
+```
+DELETE /api/webhooks/[id]
+```
+
+删除指定的 Webhook。
+
+**路径参数**:
+- `id`: Webhook ID
+
+**响应**:
+
+```json
+{
+  "success": true,
+  "data": {
+    "id": "webhook-001",
+    "message": "Webhook 已删除"
+  }
+}
+```
+
+---
+
+#### 测试 Webhook
+
+```
+POST /api/webhooks/test
+```
+
+测试 Webhook 配置是否正确。
+
+**请求体**:
+
+```json
+{
+  "url": "https://example.com/webhooks/test",
+  "method": "POST",
+  "headers": {
+    "Content-Type": "application/json",
+    "X-Webhook-Secret": "test-secret"
+  },
+  "payload": {
+    "event": "test",
+    "timestamp": "2026-04-05T12:00:00.000Z",
+    "data": {
+      "message": "This is a test webhook"
+    }
+  },
+  "timeout": 5000
+}
+```
+
+**参数说明**:
+| 参数 | 类型 | 必需 | 说明 |
+|------|------|------|------|
+| `url` | string | ✅ | Webhook URL |
+| `method` | string | ❌ | HTTP 方法，默认 POST |
+| `headers` | object | ❌ | 请求头 |
+| `payload` | object | ❌ | 请求体 |
+| `timeout` | number | ❌ | 超时时间（毫秒），默认 5000 |
+
+**响应**:
+
+```json
+{
+  "success": true,
+  "data": {
+    "status": "success",
+    "statusCode": 200,
+    "responseTime": 150,
+    "response": {
+      "message": "Webhook received successfully"
+    },
+    "timestamp": "2026-04-05T12:00:00.000Z"
+  }
+}
+```
+
+**失败响应**:
+
+```json
+{
+  "success": false,
+  "error": {
+    "message": "Webhook test failed",
+    "statusCode": 404,
+    "responseTime": 120,
+    "error": "Not Found"
+  }
+}
+```
+
+---
+
+### Webhook 签名验证
+
+Webhook 请求包含签名头，用于验证请求的真实性。
+
+**签名头**:
+- `X-Webhook-Signature`: HMAC-SHA256 签名
+- `X-Webhook-Timestamp`: 请求时间戳
+- `X-Webhook-Id`: Webhook ID
+
+**验证示例**:
+
+```typescript
+import crypto from 'crypto'
+
+function verifyWebhookSignature(
+  payload: string,
+  signature: string,
+  secret: string
+): boolean {
+  const expectedSignature = crypto
+    .createHmac('sha256', secret)
+    .update(payload)
+    .digest('hex')
+
+  return crypto.timingSafeEqual(
+    Buffer.from(signature),
+    Buffer.from(expectedSignature)
+  )
+}
+
+// 使用示例
+const isValid = verifyWebhookSignature(
+  JSON.stringify(requestBody),
+  request.headers['x-webhook-signature'],
+  webhookSecret
+)
+```
+
+---
+
+### 类型定义
+
+```typescript
+interface Webhook {
+  id: string
+  name: string
+  description?: string
+  url: string
+  events: string[]
+  secret?: string
+  enabled: boolean
+  headers?: Record<string, string>
+  retryConfig: RetryConfig
+  metadata: WebhookMetadata
+}
+
+interface RetryConfig {
+  maxRetries: number
+  retryDelay: number
+  backoffMultiplier: number
+}
+
+interface WebhookMetadata {
+  createdAt: string
+  updatedAt: string
+  createdBy: string
+  lastTriggeredAt?: string
+  triggerCount: number
+  successCount: number
+  failureCount: number
+}
+
+interface WebhookEvent {
+  id: string
+  webhookId: string
+  eventType: string
+  payload: Record<string, unknown>
+  status: 'pending' | 'success' | 'failed'
+  statusCode?: number
+  responseTime?: number
+  attempt: number
+  error?: string
+  timestamp: string
+}
+
+interface WebhookTestRequest {
+  url: string
+  method?: string
+  headers?: Record<string, string>
+  payload?: Record<string, unknown>
+  timeout?: number
+}
+
+interface WebhookTestResponse {
+  status: 'success' | 'failed'
+  statusCode?: number
+  responseTime: number
+  response?: unknown
+  error?: string
+  timestamp: string
+}
 ```
 
 ---

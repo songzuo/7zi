@@ -301,7 +301,7 @@ export class DataImportService {
 
     let success = 0
     let failed = 0
-    let skipped = 0
+    const skipped = 0
     let errorCount = 0
 
     const table = task.options.targetTable

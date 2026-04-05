@@ -28,6 +28,8 @@ const NODE_STYLES: Record<NodeType, { bg: string; border: string; icon: string }
   [NodeType.PARALLEL]: { bg: 'bg-purple-50', border: 'border-purple-300', icon: '⚡' },
   [NodeType.WAIT]: { bg: 'bg-gray-50', border: 'border-gray-300', icon: '⏱' },
   [NodeType.HUMAN_INPUT]: { bg: 'bg-orange-50', border: 'border-orange-300', icon: '👤' },
+  [NodeType.LOOP]: { bg: 'bg-cyan-50', border: 'border-cyan-300', icon: '🔄' },
+  [NodeType.SUBWORKFLOW]: { bg: 'bg-indigo-50', border: 'border-indigo-300', icon: '📋' },
 }
 
 /**

@@ -27,6 +27,8 @@ const NODE_TYPE_STYLES: Record<NodeType, { icon: string; color: string; bg: stri
   [NodeType.PARALLEL]: { icon: '⚡', color: 'text-purple-600', bg: 'bg-purple-100 dark:bg-purple-900' },
   [NodeType.WAIT]: { icon: '⏱️', color: 'text-gray-600', bg: 'bg-gray-100 dark:bg-gray-700' },
   [NodeType.HUMAN_INPUT]: { icon: '👤', color: 'text-orange-600', bg: 'bg-orange-100 dark:bg-orange-900' },
+  [NodeType.LOOP]: { icon: '🔄', color: 'text-cyan-600', bg: 'bg-cyan-100 dark:bg-cyan-900' },
+  [NodeType.SUBWORKFLOW]: { icon: '📋', color: 'text-indigo-600', bg: 'bg-indigo-100 dark:bg-indigo-900' },
 }
 
 /**

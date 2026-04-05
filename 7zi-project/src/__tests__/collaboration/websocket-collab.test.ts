@@ -9,6 +9,21 @@ import { describe, it, expect, beforeEach, afterEach, jest } from '@jest/globals
 // 类型定义
 // =====================
 
+// Mock DOM types
+interface MockEvent {
+  type: string;
+}
+
+interface MockMessageEvent extends MockEvent {
+  data: string;
+}
+
+interface MockCloseEvent extends MockEvent {
+  code?: number;
+  reason?: string;
+  wasClean?: boolean;
+}
+
 interface CollabMessage {
   type: string;
   payload: unknown;
@@ -32,10 +47,10 @@ class MockCollabWebSocket {
   readyState: number = MockCollabWebSocket.OPEN;
   url: string;
   
-  onopen: ((event: Event) => void) | null = null;
-  onclose: ((event: CloseEvent) => void) | null = null;
-  onerror: ((event: Event) => void) | null = null;
-  onmessage: ((event: MessageEvent) => void) | null = null;
+  onopen: ((event: MockEvent) => void) | null = null;
+  onclose: ((event: MockCloseEvent) => void) | null = null;
+  onerror: ((event: MockEvent) => void) | null = null;
+  onmessage: ((event: MockMessageEvent) => void) | null = null;
 
   private sentMessages: CollabMessage[] = [];
   private messageQueue: CollabMessage[] = [];
@@ -71,7 +86,7 @@ class MockCollabWebSocket {
 
   simulateMessage(message: CollabMessage): void {
     if (this.onmessage) {
-      this.onmessage({ data: JSON.stringify(message) });
+      this.onmessage({ type: "message", data: JSON.stringify(message) } as MockMessageEvent);
     }
   }
 
@@ -269,8 +284,8 @@ describe('CollaborationMessageHandler - 协作消息处理器', () => {
       const messages = handler.getSentMessages();
       expect(messages).toHaveLength(1);
       expect(messages[0].type).toBe('cursor:move');
-      expect(messages[0].payload.x).toBe(100);
-      expect(messages[0].payload.y).toBe(200);
+      expect((messages[0].payload as { x: number; y: number }).x).toBe(100);
+      expect((messages[0].payload as { x: number; y: number }).y).toBe(200);
       expect(messages[0].senderId).toBe(testUserId);
     });
 
@@ -280,7 +295,7 @@ describe('CollaborationMessageHandler - 协作消息处理器', () => {
       const messages = handler.getSentMessages();
       expect(messages).toHaveLength(1);
       expect(messages[0].type).toBe('lock:acquire');
-      expect(messages[0].payload.nodeId).toBe('node-001');
+      expect((messages[0].payload as { nodeId: string }).nodeId).toBe('node-001');
     });
 
     it('应该能够发送锁释放消息', () => {
@@ -297,7 +312,7 @@ describe('CollaborationMessageHandler - 协作消息处理器', () => {
       const messages = handler.getSentMessages();
       expect(messages).toHaveLength(1);
       expect(messages[0].type).toBe('user:join');
-      expect(messages[0].payload.userName).toBe('Test User');
+      expect((messages[0].payload as { userName: string }).userName).toBe('Test User');
     });
 
     it('应该能够发送用户离开消息', () => {
@@ -314,8 +329,8 @@ describe('CollaborationMessageHandler - 协作消息处理器', () => {
       const messages = handler.getSentMessages();
       expect(messages).toHaveLength(1);
       expect(messages[0].type).toBe('node:edit');
-      expect(messages[0].payload.nodeId).toBe('node-001');
-      expect(messages[0].payload.changes.content).toBe('Updated content');
+      expect((messages[0].payload as { nodeId: string }).nodeId).toBe('node-001');
+      expect((messages[0].payload as { changes: { content: string } }).changes.content).toBe('Updated content');
     });
 
     it('发送的消息应该包含唯一消息ID', () => {
@@ -471,8 +486,8 @@ describe('WebSocket Collaboration Integration', () => {
 
     expect(cursorReceived).toHaveBeenCalled();
     const receivedPayload = (cursorReceived.mock.calls[0][0] as CollabMessage).payload;
-    expect(receivedPayload.x).toBe(150);
-    expect(receivedPayload.y).toBe(250);
+    expect((receivedPayload as { x: number }).x).toBe(150);
+    expect((receivedPayload as { y: number }).y).toBe(250);
 
     handler1.disconnect();
     handler2.disconnect();

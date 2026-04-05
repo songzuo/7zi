@@ -2,7 +2,7 @@
 
 import type { Project } from '../data'
 import ProjectCard from './ProjectCard'
-import { memo, useTransition, useDeferredValue } from 'react'
+import { memo, useDeferredValue } from 'react'
 
 interface PortfolioGridProps {
   projects: Project[]
@@ -32,17 +32,12 @@ function PortfolioGrid({ projects, locale, labels, emptyMessage }: PortfolioGrid
   // 使用 useDeferredValue 优化大数据集的渲染（React 19 优化）
   const deferredProjects = useDeferredValue(projects)
 
-  // 使用 useTransition 优化更新交互（React 19 优化）
-  const [isPending, startTransition] = useTransition()
-
   if (deferredProjects.length === 0 && emptyMessage) {
     return <EmptyState title={emptyMessage.title} description={emptyMessage.description} />
   }
 
   return (
-    <div
-      className={`grid grid-cols-1 gap-6 sm:grid-cols-2 sm:gap-8 lg:grid-cols-3 ${isPending ? 'opacity-50' : ''}`}
-    >
+    <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 sm:gap-8 lg:grid-cols-3">
       {deferredProjects.map(project => (
         <ProjectCard key={project.id} project={project} locale={locale} labels={labels} />
       ))}

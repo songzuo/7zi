@@ -36,6 +36,40 @@ export { SpeakerDiarization, DiarizationError } from './SpeakerDiarization'
 export { TranscriptionStream, TranscriptionStreamError } from './TranscriptionStream'
 export { STTRouter, createSTTRouter, sttRouter } from './STTRouter'
 
+// v1.13.0 新增模块
+export {
+  SpeechToText,
+  createSTT,
+  type STTOptions,
+  type RealtimeTranscriptionConfig,
+  type BatchTranscriptionConfig,
+} from './speech-to-text'
+
+export {
+  AudioRecorder,
+  createAudioRecorder,
+  type RecordingOptions,
+  type RecordingState,
+  type RecordingEvent,
+  type RecordingEventListener,
+  type FormatConversionOptions,
+} from './audio-recorder'
+
+export {
+  AudioUtils,
+  reduceNoise,
+  applyGain,
+  generateWaveform,
+  extractWaveformData,
+  extractSpectrumData,
+  type NoiseReductionOptions,
+  type GainControlOptions,
+  type WaveformOptions,
+  type WaveformData,
+  type SpectrumData,
+  type AudioMetadata,
+} from './audio-utils'
+
 // 常量
 export const DEFAULT_SAMPLE_RATE = 16000
 export const DEFAULT_CHANNELS = 1
