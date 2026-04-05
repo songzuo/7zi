@@ -1,24 +1,21 @@
 # HEARTBEAT.md
 
 ## Current Time
-- Sunday April 5th 2026 17:22 (Europe/Berlin)
+- Sunday April 5th 2026 17:25 (Europe/Berlin)
 
 ## Projects
 
 | 7zi-frontend | workspace |
 |---|---|
-| ✅ Build OK | ✅ Build OK |
+| ✅ Committed (local) | ✅ Committed (local) |
 
 ## Build Status
-- **workspace**: ✅ Build passed (Turbopack + webpack both work)
-- **7zi-frontend**: ✅ Build OK
+- **workspace**: ✅ Build passed
+- **7zi-frontend**: ✅ Build passed
 
-## Fixes Applied
-1. ✅ bull stub created (for Turbopack)
-2. ✅ createNotFoundResponse → createNotFoundError
-3. ✅ Zod errorMap fixes (rate-limit, security)
-4. ✅ _request.json() fixes (database/optimize)
-5. ✅ RemoteCursorComponent export rename
+## Git Status
+- Both projects committed locally (no remote configured)
+- Git push not possible (no remote)
 
 ## Model Providers
 - coze: 502/504 (down)
@@ -31,5 +28,5 @@ picoclaw.service ✅
 100+ completed (Apr 3-5)
 
 ## Pending
-- git commit all changes (150+ files modified)
-- xlsx security vulnerability
+- Configure git remote (if needed)
+- xlsx security vulnerability fix
