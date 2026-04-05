@@ -1,6 +1,6 @@
 /**
- * OpenClaw Workflow Engine v1.11.0 - Optimized
- * Core Workflow Execution Engine with Performance Improvements
+ * OpenClaw Workflow Engine v1.11.0
+ * Core Workflow Execution Engine
  */
 
 import { v4 as uuidv4 } from 'uuid';
@@ -48,7 +48,7 @@ export interface IExecutionContext {
 }
 
 /**
- * 工作流执行引擎 - 性能优化版本
+ * 工作流执行引擎
  */
 export class WorkflowEngine {
   private logger: ILogger;
@@ -61,10 +61,13 @@ export class WorkflowEngine {
   private readonly maxCheckpointsPerExecution: number;
   private readonly executionCleanupDelay: number;
   private cleanupTimer: NodeJS.Timeout | null = null;
-
+  
   // 性能优化：缓存
   private workflowCache: Map<string, { workflow: IWorkflow; timestamp: number }>;
   private readonly workflowCacheTTL: number;
+  private checkpointSaveQueue: Map<string, ICheckpoint>;
+  private checkpointSaveTimer: NodeJS.Timeout | null = null;
+  private readonly checkpointBatchSaveInterval: number;
 
   constructor(
     storage: RedisStorage,
@@ -76,6 +79,7 @@ export class WorkflowEngine {
       maxCheckpointsPerExecution?: number;
       executionCleanupDelay?: number;
       workflowCacheTTL?: number;
+      checkpointBatchSaveInterval?: number;
     }
   ) {
     this.storage = storage;
@@ -87,10 +91,12 @@ export class WorkflowEngine {
     this.checkpointInterval = options?.checkpointInterval || 5000;
     this.maxCheckpointsPerExecution = options?.maxCheckpointsPerExecution || 50;
     this.executionCleanupDelay = options?.executionCleanupDelay || 300000; // 5 minutes
-
+    
     // 性能优化配置
     this.workflowCache = new Map();
     this.workflowCacheTTL = options?.workflowCacheTTL || 60000; // 1 minute
+    this.checkpointSaveQueue = new Map();
+    this.checkpointBatchSaveInterval = options?.checkpointBatchSaveInterval || 2000; // 2 seconds
   }
 
   /**
@@ -133,7 +139,7 @@ export class WorkflowEngine {
       if (execution.status === ExecutionStatus.COMPLETED ||
           execution.status === ExecutionStatus.FAILED ||
           execution.status === ExecutionStatus.CANCELLED) {
-
+        
         const endTime = execution.endTime?.getTime() || 0;
         if (now - endTime > this.executionCleanupDelay) {
           toRemove.push(executionId);
@@ -168,44 +174,11 @@ export class WorkflowEngine {
   }
 
   /**
-   * 注册工作流（带缓存）
+   * 注册工作流
    */
   async registerWorkflow(workflow: IWorkflow): Promise<void> {
     await this.storage.saveWorkflow(workflow);
-    // 更新缓存
-    this.workflowCache.set(workflow.id, { workflow, timestamp: Date.now() });
     this.logger.info('Workflow registered', { workflowId: workflow.id, name: workflow.name });
-  }
-
-  /**
-   * 获取工作流（带缓存）
-   */
-  private async getWorkflowCached(workflowId: string): Promise<IWorkflow | null> {
-    const cached = this.workflowCache.get(workflowId);
-    const now = Date.now();
-
-    // 检查缓存是否有效
-    if (cached && (now - cached.timestamp) < this.workflowCacheTTL) {
-      return cached.workflow;
-    }
-
-    // 从存储中获取并更新缓存
-    const workflow = await this.storage.getWorkflow(workflowId);
-    if (workflow) {
-      this.workflowCache.set(workflowId, { workflow, timestamp: now });
-    }
-    return workflow;
-  }
-
-  /**
-   * 清除工作流缓存
-   */
-  clearWorkflowCache(workflowId?: string): void {
-    if (workflowId) {
-      this.workflowCache.delete(workflowId);
-    } else {
-      this.workflowCache.clear();
-    }
   }
 
   /**
@@ -216,7 +189,7 @@ export class WorkflowEngine {
     variables: Record<string, any> = {},
     trigger: ITriggerInfo = { type: TriggerType.MANUAL }
   ): Promise<IExecution> {
-    const workflow = await this.getWorkflowCached(workflowId);
+    const workflow = await this.storage.getWorkflow(workflowId);
     if (!workflow) {
       throw new Error(`Workflow not found: ${workflowId}`);
     }
@@ -260,7 +233,7 @@ export class WorkflowEngine {
     variables: Record<string, any> = {},
     trigger: ITriggerInfo = { type: TriggerType.MANUAL }
   ): Promise<IExecution> {
-    const workflow = await this.getWorkflowCached(workflowId);
+    const workflow = await this.storage.getWorkflow(workflowId);
     if (!workflow) {
       throw new Error(`Workflow not found: ${workflowId}`);
     }
@@ -286,7 +259,7 @@ export class WorkflowEngine {
 
       // 构建执行图
       const graph = this.buildExecutionGraph(workflow);
-
+      
       // 执行工作流
       await this.executeGraph(workflow, execution, graph);
 
@@ -304,7 +277,7 @@ export class WorkflowEngine {
         stack: error instanceof Error ? error.stack : undefined,
         timestamp: new Date()
       };
-
+      
       this.logger.error('Workflow execution failed', {
         workflowId,
         executionId,
@@ -321,7 +294,7 @@ export class WorkflowEngine {
    */
   private buildExecutionGraph(workflow: IWorkflow): Map<string, string[]> {
     const graph = new Map<string, string[]>();
-
+    
     // 初始化所有节点的依赖关系
     for (const node of workflow.nodes) {
       graph.set(node.id, []);
@@ -393,10 +366,8 @@ export class WorkflowEngine {
         completed.add(nodeId);
       }
 
-      // 创建检查点（优化：只在节点完成时创建，减少频率）
-      if (nodesToExecute.length > 0) {
-        await this.createCheckpoint(execution);
-      }
+      // 创建检查点
+      await this.createCheckpoint(execution);
     }
   }
 
@@ -470,7 +441,7 @@ export class WorkflowEngine {
       nodeExecution.duration = nodeExecution.endTime.getTime() - nodeExecution.startTime.getTime();
       nodeExecution.output = output;
 
-      // 优化：只在输出存在时更新变量
+      // 更新变量
       if (output && typeof output === 'object') {
         execution.variables = { ...execution.variables, ...output };
       }
@@ -489,7 +460,7 @@ export class WorkflowEngine {
           nodeId: node.id,
           timestamp: new Date()
         };
-
+        
         throw error;
       }
     }
@@ -514,9 +485,9 @@ export class WorkflowEngine {
         if (node.timeout) {
           return await this.executeWithTimeout(executor, node, context, node.timeout);
         }
-
+        
         return await executor.execute(node, context);
-
+        
       } catch (error) {
         lastError = error instanceof Error ? error : new Error(String(error));
         attempt++;
@@ -603,7 +574,7 @@ export class WorkflowEngine {
     if (!node.onError) return;
 
     const nodeExecution = execution.nodeExecutions.get(node.id);
-
+    
     switch (node.onError.strategy) {
       case 'skip':
         if (nodeExecution) {
@@ -614,9 +585,9 @@ export class WorkflowEngine {
 
       case 'fallback':
         if (node.onError.fallbackNode && nodeExecution) {
-          this.logger.info('Executing fallback node', {
-            nodeId: node.id,
-            fallback: node.onError.fallbackNode
+          this.logger.info('Executing fallback node', { 
+            nodeId: node.id, 
+            fallback: node.onError.fallbackNode 
           });
           // 执行回退节点（这里简化处理，实际需要完整的节点执行逻辑）
         }
@@ -629,10 +600,9 @@ export class WorkflowEngine {
   }
 
   /**
-   * 创建检查点（优化：减少不必要的检查点保存）
+   * 创建检查点
    */
   private async createCheckpoint(execution: IExecution): Promise<void> {
-    // 优化：只在状态变化时创建检查点
     const checkpoint: ICheckpoint = {
       id: uuidv4(),
       executionId: execution.id,
@@ -644,23 +614,23 @@ export class WorkflowEngine {
     };
 
     execution.checkoints.push(checkpoint);
-
+    
     // LRU 缓存限制：移除旧的检查点
     if (execution.checkoints.length > this.maxCheckpointsPerExecution) {
       const removedCount = execution.checkoints.length - this.maxCheckpointsPerExecution;
       execution.checkoints = execution.checkoints.slice(-this.maxCheckpointsPerExecution);
-
+      
       this.logger.debug('Removed old checkpoints to maintain LRU limit', {
         executionId: execution.id,
         removedCount,
         remainingCount: execution.checkoints.length
       });
     }
-
+    
     await this.storage.saveCheckpoint(checkpoint);
 
-    this.logger.debug('Checkpoint created', {
-      executionId: execution.id,
+    this.logger.debug('Checkpoint created', { 
+      executionId: execution.id, 
       checkpointId: checkpoint.id,
       totalCheckpoints: execution.checkoints.length
     });
@@ -726,7 +696,7 @@ export class WorkflowEngine {
 
     execution.status = ExecutionStatus.CANCELLED;
     execution.endTime = new Date();
-
+    
     await this.storage.saveExecution(execution);
 
     this.logger.info('Execution cancelled', { executionId });
@@ -752,13 +722,10 @@ export class WorkflowEngine {
    */
   async shutdown(): Promise<void> {
     this.stopCleanupTask();
-
+    
     // 清空内存中的执行记录
     this.executions.clear();
-
-    // 清空工作流缓存
-    this.workflowCache.clear();
-
+    
     this.logger.info('Workflow engine shutdown completed');
   }
 

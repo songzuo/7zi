@@ -1,11 +1,47 @@
 /**
- * OpenClaw Workflow Engine v1.11.0
- * Built-in Node Executors
+ * OpenClaw Workflow Engine v1.11.0 - Optimized
+ * Built-in Node Executors with Performance Improvements
  */
 
 import { INodeExecutor, IExecutionContext } from './WorkflowEngine';
 import { IWorkflowNode, NodeType, INodeConfig } from '../types/workflow.types';
 import axios from 'axios';
+
+// ============================================================================
+// 性能优化：函数缓存
+// ============================================================================
+
+// 动态函数缓存 - 避免重复编译相同的表达式
+const functionCache = new Map<string, Function>();
+const MAX_CACHE_SIZE = 100;
+
+/**
+ * 获取或创建缓存的函数
+ */
+function getOrCreateFunction(key: string, factory: () => Function): Function {
+  if (functionCache.has(key)) {
+    return functionCache.get(key)!;
+  }
+
+  // 如果缓存已满，清理最旧的条目
+  if (functionCache.size >= MAX_CACHE_SIZE) {
+    const firstKey = functionCache.keys().next().value;
+    if (firstKey) {
+      functionCache.delete(firstKey);
+    }
+  }
+
+  const fn = factory();
+  functionCache.set(key, fn);
+  return fn;
+}
+
+/**
+ * 清除函数缓存
+ */
+function clearFunctionCache(): void {
+  functionCache.clear();
+}
 
 // ============================================================================
 // Trigger Executors
@@ -75,15 +111,28 @@ export class EventTriggerExecutor implements INodeExecutor {
 // ============================================================================
 
 /**
- * HTTP Action 执行器
+ * HTTP Action 执行器 - 优化：添加请求缓存
  */
 export class HttpActionExecutor implements INodeExecutor {
   type = NodeType.ACTION_HTTP;
+  
+  // 简单的响应缓存
+  private responseCache = new Map<string, { data: any; timestamp: number }>();
+  private readonly cacheTTL = 5000; // 5 seconds
 
   async execute(node: IWorkflowNode, context: IExecutionContext): Promise<any> {
     const config = node.config.http;
     if (!config) {
       throw new Error('HTTP action configuration missing');
+    }
+
+    // 优化：对 GET 请求进行简单的缓存
+    const cacheKey = `${config.method}:${config.url}:${JSON.stringify(config.params || {})}`;
+    if (config.method === 'GET') {
+      const cached = this.responseCache.get(cacheKey);
+      if (cached && Date.now() - cached.timestamp < this.cacheTTL) {
+        return cached.data;
+      }
     }
 
     try {
@@ -95,11 +144,18 @@ export class HttpActionExecutor implements INodeExecutor {
         timeout: config.timeout || 30000
       });
 
-      return {
+      const result = {
         status: response.status,
         data: response.data,
         headers: response.headers
       };
+
+      // 缓存 GET 响应
+      if (config.method === 'GET') {
+        this.responseCache.set(cacheKey, { data: result, timestamp: Date.now() });
+      }
+
+      return result;
     } catch (error) {
       if (axios.isAxiosError(error)) {
         return {
@@ -131,7 +187,7 @@ export class ScriptActionExecutor implements INodeExecutor {
       // 创建安全的执行环境
       const vm = await import('vm');
       const script = new vm.Script(code);
-      
+
       const result = script.runInNewContext({
         variables: context.variables,
         console: {
@@ -147,7 +203,7 @@ export class ScriptActionExecutor implements INodeExecutor {
 }
 
 /**
- * Transform Action 执行器
+ * Transform Action 执行器 - 优化：使用缓存的函数
  */
 export class TransformActionExecutor implements INodeExecutor {
   type = NodeType.ACTION_TRANSFORM;
@@ -159,9 +215,9 @@ export class TransformActionExecutor implements INodeExecutor {
     }
 
     const input = config.input ? this.resolveVariable(config.input, context.variables) : context.variables;
-    
+
     let result: any;
-    
+
     switch (config.type) {
       case 'map':
         result = this.map(input, config.expression);
@@ -185,20 +241,24 @@ export class TransformActionExecutor implements INodeExecutor {
   private resolveVariable(path: string, variables: Record<string, any>): any {
     const parts = path.split('.');
     let value: any = variables;
-    
+
     for (const part of parts) {
       value = value?.[part];
     }
-    
+
     return value;
   }
 
+  // 优化：使用缓存避免重复创建函数
   private map(array: any[], expression: string): any[] {
-    // 简化的 map 实现
+    const cacheKey = `map:${expression}`;
+    const fn = getOrCreateFunction(cacheKey, () => 
+      new Function('item', 'index', 'array', `return ${expression}`)
+    );
+    
     return array.map((item, index) => {
       try {
-        const fn = new Function('item', 'index', `return ${expression}`);
-        return fn(item, index);
+        return fn(item, index, array);
       } catch (error) {
         return item;
       }
@@ -206,10 +266,14 @@ export class TransformActionExecutor implements INodeExecutor {
   }
 
   private filter(array: any[], expression: string): any[] {
+    const cacheKey = `filter:${expression}`;
+    const fn = getOrCreateFunction(cacheKey, () => 
+      new Function('item', 'index', 'array', `return ${expression}`)
+    );
+    
     return array.filter((item, index) => {
       try {
-        const fn = new Function('item', 'index', `return ${expression}`);
-        return fn(item, index);
+        return fn(item, index, array);
       } catch (error) {
         return false;
       }
@@ -217,17 +281,25 @@ export class TransformActionExecutor implements INodeExecutor {
   }
 
   private reduce(array: any[], expression: string): any {
+    const cacheKey = `reduce:${expression}`;
+    const fn = getOrCreateFunction(cacheKey, () => 
+      new Function('acc', 'item', 'index', 'array', `return ${expression}`)
+    );
+    
     try {
-      const fn = new Function('acc', 'item', 'index', `return ${expression}`);
-      return array.reduce(fn, {});
+      return array.reduce((acc, item, index) => fn(acc, item, index, array), {});
     } catch (error) {
       return array;
     }
   }
 
   private customTransform(input: any, expression: string): any {
+    const cacheKey = `transform:${expression}`;
+    const fn = getOrCreateFunction(cacheKey, () => 
+      new Function('input', `return ${expression}`)
+    );
+    
     try {
-      const fn = new Function('input', `return ${expression}`);
       return fn(input);
     } catch (error) {
       return input;
@@ -240,7 +312,7 @@ export class TransformActionExecutor implements INodeExecutor {
 // ============================================================================
 
 /**
- * Condition Logic 执行器
+ * Condition Logic 执行器 - 优化：缓存条件函数
  */
 export class ConditionLogicExecutor implements INodeExecutor {
   type = NodeType.LOGIC_CONDITION;
@@ -252,7 +324,7 @@ export class ConditionLogicExecutor implements INodeExecutor {
     }
 
     const result = this.evaluateExpression(config.expression, context.variables);
-    
+
     return {
       result,
       branch: result ? config.trueBranch : config.falseBranch
@@ -260,12 +332,16 @@ export class ConditionLogicExecutor implements INodeExecutor {
   }
 
   private evaluateExpression(expression: string, variables: Record<string, any>): boolean {
-    try {
-      const fn = new Function('vars', `
+    const cacheKey = `condition:${expression}`;
+    const fn = getOrCreateFunction(cacheKey, () => 
+      new Function('vars', `
         with (vars) {
           return ${expression};
         }
-      `);
+      `)
+    );
+    
+    try {
       return fn(variables);
     } catch (error) {
       return false;
@@ -274,7 +350,7 @@ export class ConditionLogicExecutor implements INodeExecutor {
 }
 
 /**
- * Switch Logic 执行器
+ * Switch Logic 执行器 - 优化：缓存 switch 函数
  */
 export class SwitchLogicExecutor implements INodeExecutor {
   type = NodeType.LOGIC_SWITCH;
@@ -286,7 +362,7 @@ export class SwitchLogicExecutor implements INodeExecutor {
     }
 
     const value = this.evaluateExpression(config.expression, context.variables);
-    
+
     for (const caseItem of config.cases) {
       if (value === caseItem.value) {
         return { branch: caseItem.branch, value };
@@ -297,12 +373,16 @@ export class SwitchLogicExecutor implements INodeExecutor {
   }
 
   private evaluateExpression(expression: string, variables: Record<string, any>): any {
-    try {
-      const fn = new Function('vars', `
+    const cacheKey = `switch:${expression}`;
+    const fn = getOrCreateFunction(cacheKey, () => 
+      new Function('vars', `
         with (vars) {
           return ${expression};
         }
-      `);
+      `)
+    );
+    
+    try {
       return fn(variables);
     } catch (error) {
       return undefined;
@@ -322,8 +402,8 @@ export class LoopLogicExecutor implements INodeExecutor {
       throw new Error('Loop logic configuration missing');
     }
 
-    const iterable = Array.isArray(config.iterable) 
-      ? config.iterable 
+    const iterable = Array.isArray(config.iterable)
+      ? config.iterable
       : this.resolveVariable(config.iterable as string, context.variables);
 
     if (!Array.isArray(iterable)) {
@@ -343,11 +423,11 @@ export class LoopLogicExecutor implements INodeExecutor {
   private resolveVariable(path: string, variables: Record<string, any>): any {
     const parts = path.split('.');
     let value: any = variables;
-    
+
     for (const part of parts) {
       value = value?.[part];
     }
-    
+
     return value;
   }
 }
@@ -510,3 +590,6 @@ export const allExecutors: INodeExecutor[] = [
   new ClaudeIntegrationExecutor(),
   new CustomIntegrationExecutor()
 ];
+
+// 导出缓存清理函数
+export { clearFunctionCache };

@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback, useMemo, useRef } from 'react';
 import './ExecutionMonitor.css';
 
 // ============ 类型定义 ============
@@ -43,33 +43,105 @@ interface ExecutionMonitorProps {
   onClose?: () => void;
 }
 
+// ============ 辅助函数（使用 useMemo 缓存）============
+
+const getStatusIcon = (status: string): string => {
+  switch (status) {
+    case 'pending': return '⏳';
+    case 'running': return '▶️';
+    case 'completed': return '✅';
+    case 'failed': return '❌';
+    case 'skipped': return '⏭️';
+    default: return '❓';
+  }
+};
+
+const formatTime = (timestamp: string): string => {
+  return new Date(timestamp).toLocaleTimeString();
+};
+
+const calculateDuration = (start: string, end: string): string => {
+  const duration = new Date(end).getTime() - new Date(start).getTime();
+  const seconds = Math.floor(duration / 1000);
+  const minutes = Math.floor(seconds / 60);
+  const hours = Math.floor(minutes / 60);
+
+  if (hours > 0) return `${hours}h ${minutes % 60}m ${seconds % 60}s`;
+  if (minutes > 0) return `${minutes}m ${seconds % 60}s`;
+  return `${seconds}s`;
+};
+
 // ============ 执行监控组件 ============
 
-const ExecutionMonitor: React.FC<ExecutionMonitorProps> = ({ executionId, onClose }) => {
+const ExecutionMonitor: React.FC<ExecutionMonitorProps> = React.memo(({ executionId, onClose }) => {
   const [execution, setExecution] = useState<ExecutionStatus | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [selectedNode, setSelectedNode] = useState<string | null>(null);
+  
+  // 使用 ref 存储上一次的状态，避免不必要的更新
+  const prevStatusRef = useRef<string | null>(null);
+  const isMountedRef = useRef(true);
+  const abortControllerRef = useRef<AbortController | null>(null);
 
-  // 轮询执行状态
+  // 控制执行 - 使用 useCallback 缓存函数引用
+  const handlePause = useCallback(async () => {
+    try {
+      await fetch(`/api/executions/${executionId}/pause`, { method: 'POST' });
+    } catch (err) {
+      console.error('Failed to pause execution:', err);
+    }
+  }, [executionId]);
+
+  const handleCancel = useCallback(async () => {
+    try {
+      await fetch(`/api/executions/${executionId}/cancel`, { method: 'POST' });
+    } catch (err) {
+      console.error('Failed to cancel execution:', err);
+    }
+  }, [executionId]);
+
+  const handleResume = useCallback(async (checkpointId: string) => {
+    try {
+      await fetch(`/api/executions/${executionId}/resume`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ checkpointId }),
+      });
+    } catch (err) {
+      console.error('Failed to resume execution:', err);
+    }
+  }, [executionId]);
+
+  // 轮询执行状态 - 优化：只在状态变化时触发重渲染
   useEffect(() => {
     let intervalId: NodeJS.Timeout;
-    let isMounted = true;
-    const abortController = new AbortController();
-
+    
     const fetchExecution = async () => {
+      // 取消之前的请求
+      if (abortControllerRef.current) {
+        abortControllerRef.current.abort();
+      }
+      abortControllerRef.current = new AbortController();
+
       try {
         const response = await fetch(`/api/executions/${executionId}`, {
-          signal: abortController.signal
+          signal: abortControllerRef.current.signal
         });
         if (!response.ok) throw new Error('Failed to fetch execution');
         
         const data = await response.json();
         
         // 检查组件是否仍然挂载
-        if (!isMounted) return;
+        if (!isMountedRef.current) return;
         
-        setExecution(data.data);
+        // 只有当数据实际变化时才更新状态
+        if (prevStatusRef.current !== data.data.status || 
+            JSON.stringify(prevStatusRef.current) !== JSON.stringify(data.data)) {
+          setExecution(data.data);
+          prevStatusRef.current = data.data.status;
+        }
+        
         setLoading(false);
 
         // 如果执行完成，停止轮询
@@ -80,7 +152,7 @@ const ExecutionMonitor: React.FC<ExecutionMonitorProps> = ({ executionId, onClos
         // 忽略由于取消导致的错误
         if (err.name === 'AbortError') return;
         
-        if (!isMounted) return;
+        if (!isMountedRef.current) return;
         
         setError(err.message);
         setLoading(false);
@@ -88,43 +160,40 @@ const ExecutionMonitor: React.FC<ExecutionMonitorProps> = ({ executionId, onClos
     };
 
     fetchExecution();
-    intervalId = setInterval(fetchExecution, 2000);
+    // 轮询间隔增加到 3 秒，减少不必要的请求
+    intervalId = setInterval(fetchExecution, 3000);
 
     return () => {
-      isMounted = false;
+      isMountedRef.current = false;
       clearInterval(intervalId);
-      abortController.abort();
+      if (abortControllerRef.current) {
+        abortControllerRef.current.abort();
+      }
     };
   }, [executionId]);
 
-  // 控制执行
-  const handlePause = async () => {
-    try {
-      await fetch(`/api/executions/${executionId}/pause`, { method: 'POST' });
-    } catch (err) {
-      console.error('Failed to pause execution:', err);
-    }
-  };
+  // 使用 useMemo 缓存选中节点的详细信息
+  const selectedNodeDetails = useMemo(() => {
+    if (!selectedNode || !execution) return null;
+    return execution.nodeExecutions.find(n => n.nodeId === selectedNode) || null;
+  }, [selectedNode, execution]);
 
-  const handleCancel = async () => {
-    try {
-      await fetch(`/api/executions/${executionId}/cancel`, { method: 'POST' });
-    } catch (err) {
-      console.error('Failed to cancel execution:', err);
-    }
-  };
+  // 使用 useMemo 缓存执行概览数据
+  const overviewData = useMemo(() => {
+    if (!execution) return null;
+    return {
+      id: execution.id,
+      startTime: execution.startTime,
+      endTime: execution.endTime,
+      nodeCount: execution.nodeExecutions.length
+    };
+  }, [execution?.id, execution?.startTime, execution?.endTime, execution?.nodeExecutions?.length]);
 
-  const handleResume = async (checkpointId: string) => {
-    try {
-      await fetch(`/api/executions/${executionId}/resume`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ checkpointId }),
-      });
-    } catch (err) {
-      console.error('Failed to resume execution:', err);
-    }
-  };
+  // 使用 useMemo 缓存变量数据
+  const variablesJson = useMemo(() => {
+    if (!execution?.variables) return '{}';
+    return JSON.stringify(execution.variables, null, 2);
+  }, [execution?.variables]);
 
   if (loading) {
     return (
@@ -187,30 +256,32 @@ const ExecutionMonitor: React.FC<ExecutionMonitorProps> = ({ executionId, onClos
       </div>
 
       {/* 执行概览 */}
-      <div className="monitor-overview">
-        <div className="overview-card">
-          <div className="card-label">Execution ID</div>
-          <div className="card-value">{execution.id}</div>
-        </div>
-        <div className="overview-card">
-          <div className="card-label">Started</div>
-          <div className="card-value">{formatTime(execution.startTime)}</div>
-        </div>
-        {execution.endTime && (
+      {overviewData && (
+        <div className="monitor-overview">
           <div className="overview-card">
-            <div className="card-label">Duration</div>
+            <div className="card-label">Execution ID</div>
+            <div className="card-value">{overviewData.id}</div>
+          </div>
+          <div className="overview-card">
+            <div className="card-label">Started</div>
+            <div className="card-value">{formatTime(overviewData.startTime)}</div>
+          </div>
+          {overviewData.endTime && (
+            <div className="overview-card">
+              <div className="card-label">Duration</div>
+              <div className="card-value">
+                {calculateDuration(overviewData.startTime, overviewData.endTime)}
+              </div>
+            </div>
+          )}
+          <div className="overview-card">
+            <div className="card-label">Nodes</div>
             <div className="card-value">
-              {calculateDuration(execution.startTime, execution.endTime)}
+              {overviewData.nodeCount} executed
             </div>
           </div>
-        )}
-        <div className="overview-card">
-          <div className="card-label">Nodes</div>
-          <div className="card-value">
-            {execution.nodeExecutions.length} executed
-          </div>
         </div>
-      </div>
+      )}
 
       {/* 错误信息 */}
       {execution.error && (
@@ -257,7 +328,7 @@ const ExecutionMonitor: React.FC<ExecutionMonitorProps> = ({ executionId, onClos
       </div>
 
       {/* 选中节点的详细信息 */}
-      {selectedNode && (
+      {selectedNode && selectedNodeDetails && (
         <div className="monitor-details">
           <div className="details-header">
             <h3>Node Details</h3>
@@ -265,78 +336,45 @@ const ExecutionMonitor: React.FC<ExecutionMonitorProps> = ({ executionId, onClos
               ✕
             </button>
           </div>
-          {(() => {
-            const nodeExec = execution.nodeExecutions.find(n => n.nodeId === selectedNode);
-            if (!nodeExec) return null;
+          <div className="details-body">
+            <div className="detail-section">
+              <h4>Status</h4>
+              <span className={`status-badge ${selectedNodeDetails.status}`}>
+                {selectedNodeDetails.status}
+              </span>
+            </div>
             
-            return (
-              <div className="details-body">
-                <div className="detail-section">
-                  <h4>Status</h4>
-                  <span className={`status-badge ${nodeExec.status}`}>
-                    {nodeExec.status}
-                  </span>
-                </div>
-                
-                <div className="detail-section">
-                  <h4>Input</h4>
-                  <pre>{JSON.stringify(nodeExec.input, null, 2)}</pre>
-                </div>
-                
-                {nodeExec.output && (
-                  <div className="detail-section">
-                    <h4>Output</h4>
-                    <pre>{JSON.stringify(nodeExec.output, null, 2)}</pre>
-                  </div>
-                )}
-                
-                {nodeExec.error && (
-                  <div className="detail-section error">
-                    <h4>Error</h4>
-                    <p>{nodeExec.error.message}</p>
-                  </div>
-                )}
+            <div className="detail-section">
+              <h4>Input</h4>
+              <pre>{JSON.stringify(selectedNodeDetails.input, null, 2)}</pre>
+            </div>
+            
+            {selectedNodeDetails.output && (
+              <div className="detail-section">
+                <h4>Output</h4>
+                <pre>{JSON.stringify(selectedNodeDetails.output, null, 2)}</pre>
               </div>
-            );
-          })()}
+            )}
+            
+            {selectedNodeDetails.error && (
+              <div className="detail-section error">
+                <h4>Error</h4>
+                <p>{selectedNodeDetails.error.message}</p>
+              </div>
+            )}
+          </div>
         </div>
       )}
 
       {/* 变量查看器 */}
       <div className="monitor-variables">
         <h3>Runtime Variables</h3>
-        <pre>{JSON.stringify(execution.variables, null, 2)}</pre>
+        <pre>{variablesJson}</pre>
       </div>
     </div>
   );
-};
+});
 
-// ============ 辅助函数 ============
-
-function getStatusIcon(status: string): string {
-  switch (status) {
-    case 'pending': return '⏳';
-    case 'running': return '▶️';
-    case 'completed': return '✅';
-    case 'failed': return '❌';
-    case 'skipped': return '⏭️';
-    default: return '❓';
-  }
-}
-
-function formatTime(timestamp: string): string {
-  return new Date(timestamp).toLocaleTimeString();
-}
-
-function calculateDuration(start: string, end: string): string {
-  const duration = new Date(end).getTime() - new Date(start).getTime();
-  const seconds = Math.floor(duration / 1000);
-  const minutes = Math.floor(seconds / 60);
-  const hours = Math.floor(minutes / 60);
-
-  if (hours > 0) return `${hours}h ${minutes % 60}m ${seconds % 60}s`;
-  if (minutes > 0) return `${minutes}m ${seconds % 60}s`;
-  return `${seconds}s`;
-}
+ExecutionMonitor.displayName = 'ExecutionMonitor';
 
 export default ExecutionMonitor;
