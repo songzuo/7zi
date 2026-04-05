@@ -19,13 +19,53 @@
 // } from './templates'
 
 // ============================================
+// 类型定义
+// ============================================
+
+interface TemplateNode {
+  id: string
+  type: string
+  label: string
+  config: Record<string, unknown>
+}
+
+interface TemplateEdge {
+  id: string
+  source: string
+  target: string
+  label?: string
+}
+
+interface TemplateWorkflow {
+  nodes: TemplateNode[]
+  edges: TemplateEdge[]
+}
+
+interface WorkflowTemplate {
+  id: string
+  name: string
+  description: string
+  category: string
+  icon: string
+  tags: string[]
+  difficulty: 'beginner' | 'intermediate' | 'advanced'
+  estimatedNodes: number
+  workflow: TemplateWorkflow
+}
+
+interface TestTemplate {
+  name: string
+  workflow: { nodes: TemplateNode[]; edges: TemplateEdge[] }
+}
+
+// ============================================
 // 验证函数
 // ============================================
 
 /**
  * 验证模板列表
  */
-function validateTemplateList(templates: any[]): boolean {
+function validateTemplateList(templates: WorkflowTemplate[]): boolean {
   console.log('✓ 验证模板列表...')
 
   if (!Array.isArray(templates)) {
@@ -45,7 +85,7 @@ function validateTemplateList(templates: any[]): boolean {
 /**
  * 验证模板结构
  */
-function validateTemplateStructure(template: any): boolean {
+function validateTemplateStructure(template: WorkflowTemplate): boolean {
   const requiredFields = ['id', 'name', 'description', 'category', 'icon', 'tags', 'difficulty', 'estimatedNodes', 'workflow']
 
   for (const field of requiredFields) {
@@ -72,7 +112,7 @@ function validateTemplateStructure(template: any): boolean {
 /**
  * 验证节点结构
  */
-function validateNodeStructure(node: any): boolean {
+function validateNodeStructure(node: TemplateNode): boolean {
   const requiredFields = ['id', 'type', 'label', 'config']
 
   for (const field of requiredFields) {
@@ -88,7 +128,7 @@ function validateNodeStructure(node: any): boolean {
 /**
  * 验证边结构
  */
-function validateEdgeStructure(edge: any, nodeIds: Set<string>): boolean {
+function validateEdgeStructure(edge: TemplateEdge, nodeIds: Set<string>): boolean {
   const requiredFields = ['id', 'source', 'target']
 
   for (const field of requiredFields) {
@@ -115,13 +155,13 @@ function validateEdgeStructure(edge: any, nodeIds: Set<string>): boolean {
 /**
  * 验证工作流创建
  */
-function validateWorkflowCreation(workflow: any): boolean {
+function validateWorkflowCreation(workflow: TemplateWorkflow): boolean {
   if (!workflow) {
     console.error('✗ 工作流创建失败')
     return false
   }
 
-  const requiredFields = ['id', 'name', 'nodes', 'edges']
+  const requiredFields = ['nodes', 'edges']
 
   for (const field of requiredFields) {
     if (!(field in workflow)) {
@@ -140,7 +180,7 @@ function validateWorkflowCreation(workflow: any): boolean {
 /**
  * 运行所有验证
  */
-export function runTemplateValidation(templates: any[]): {
+export function runTemplateValidation(templates: WorkflowTemplate[]): {
   success: boolean
   errors: string[]
   warnings: string[]
@@ -213,14 +253,12 @@ export function runTemplateValidation(templates: any[]): {
   const testTemplate = templates[0]
   if (testTemplate) {
     // 模拟创建工作流
-    const workflow = {
-      id: `test-${Date.now()}`,
-      name: '测试工作流',
-      nodes: testTemplate.workflow.nodes.map((node: any) => ({
+    const workflow: TemplateWorkflow = {
+      nodes: testTemplate.workflow.nodes.map((node) => ({
         ...node,
         id: `test-${node.id}`,
       })),
-      edges: testTemplate.workflow.edges.map((edge: any) => ({
+      edges: testTemplate.workflow.edges.map((edge) => ({
         ...edge,
         id: `test-${edge.id}`,
         source: `test-${edge.source}`,
@@ -229,7 +267,7 @@ export function runTemplateValidation(templates: any[]): {
     }
 
     if (validateWorkflowCreation(workflow)) {
-      console.log(`  ✓ 工作流创建成功: ${workflow.id}`)
+      console.log(`  ✓ 工作流创建成功: test-workflow`)
     } else {
       errors.push('工作流创建验证失败')
     }

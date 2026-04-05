@@ -9,6 +9,7 @@
 import React, { useState, useCallback } from 'react'
 import type { Node } from 'reactflow'
 import type { WorkflowNodeData, ValidationError } from '../types'
+import { RichTextEditor } from '@/components/editor'
 import { 
   ChevronDown, 
   ChevronRight, 
@@ -48,6 +49,7 @@ const NODE_TYPE_LABELS: Record<string, string> = {
   loop: '循环节点',
   subworkflow: '子工作流',
   transform: '数据转换',
+  notification: '发送通知',
 }
 
 // 节点类型颜色映射
@@ -62,6 +64,7 @@ const NODE_TYPE_COLORS: Record<string, string> = {
   loop: 'text-teal-600 bg-teal-100 dark:text-teal-400 dark:bg-teal-900/30',
   subworkflow: 'text-orange-600 bg-orange-100 dark:text-orange-400 dark:bg-orange-900/30',
   transform: 'text-cyan-600 bg-cyan-100 dark:text-cyan-400 dark:bg-cyan-900/30',
+  notification: 'text-violet-600 bg-violet-100 dark:text-violet-400 dark:bg-violet-900/30',
 }
 
 export function NodeProperties({ 
@@ -668,6 +671,119 @@ export function NodeProperties({
                 <Plus className="h-4 w-4" />
                 添加参数
               </button>
+            </div>
+          </Section>
+        )}
+
+        {/* 通知配置 (v1.12.2) */}
+        {data.type === 'notification' && (
+          <Section
+            title="通知配置"
+            sectionKey="notification"
+            expanded={expandedSections.has('notification')}
+            onToggle={toggleSection}
+            icon={<Settings className="h-4 w-4" />}
+          >
+            <div className="space-y-4">
+              <div>
+                <label className="mb-1.5 block text-sm font-medium text-gray-700 dark:text-gray-300">
+                  通知类型 <span className="text-red-500">*</span>
+                </label>
+                <select
+                  value={data.config.notificationType || 'email'}
+                  onChange={e => handleConfigChange('notificationType', e.target.value)}
+                  className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm text-gray-900 focus:border-indigo-500 focus:ring-2 focus:ring-indigo-200 dark:border-gray-600 dark:bg-gray-700 dark:text-white dark:focus:border-indigo-500 dark:focus:ring-indigo-800"
+                >
+                  <option value="email">邮件</option>
+                  <option value="sms">短信</option>
+                  <option value="webhook">Webhook</option>
+                  <option value="push">推送通知</option>
+                </select>
+              </div>
+
+              <div>
+                <label className="mb-1.5 block text-sm font-medium text-gray-700 dark:text-gray-300">
+                  标题 <span className="text-red-500">*</span>
+                </label>
+                <input
+                  type="text"
+                  value={data.config.notificationTitle || ''}
+                  onChange={e => handleConfigChange('notificationTitle', e.target.value)}
+                  className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm text-gray-900 focus:border-indigo-500 focus:ring-2 focus:ring-indigo-200 dark:border-gray-600 dark:bg-gray-700 dark:text-white dark:focus:border-indigo-500 dark:focus:ring-indigo-800"
+                  placeholder="输入通知标题"
+                />
+              </div>
+
+              <div>
+                <label className="mb-1.5 block text-sm font-medium text-gray-700 dark:text-gray-300">
+                  内容 <span className="text-red-500">*</span>
+                </label>
+                <RichTextEditor
+                  content={data.config.notificationContent || ''}
+                  onChange={html => handleConfigChange('notificationContent', html)}
+                  placeholder="输入通知内容，支持富文本格式..."
+                  minHeight={200}
+                  maxHeight={400}
+                  showToolbar
+                />
+                <p className="mt-1.5 text-xs text-gray-500 dark:text-gray-400">
+                  支持 Markdown 和富文本格式
+                </p>
+              </div>
+
+              <div>
+                <label className="mb-1.5 block text-sm font-medium text-gray-700 dark:text-gray-300">
+                  优先级
+                </label>
+                <select
+                  value={data.config.notificationPriority || 'normal'}
+                  onChange={e => handleConfigChange('notificationPriority', e.target.value)}
+                  className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm text-gray-900 focus:border-indigo-500 focus:ring-2 focus:ring-indigo-200 dark:border-gray-600 dark:bg-gray-700 dark:text-white dark:focus:border-indigo-500 dark:focus:ring-indigo-800"
+                >
+                  <option value="low">低</option>
+                  <option value="normal">普通</option>
+                  <option value="high">高</option>
+                  <option value="urgent">紧急</option>
+                </select>
+              </div>
+
+              {/* Webhook URL 配置 */}
+              {data.config.notificationType === 'webhook' && (
+                <div>
+                  <label className="mb-1.5 block text-sm font-medium text-gray-700 dark:text-gray-300">
+                    Webhook URL <span className="text-red-500">*</span>
+                  </label>
+                  <input
+                    type="url"
+                    value={data.config.webhookUrl || ''}
+                    onChange={e => handleConfigChange('webhookUrl', e.target.value)}
+                    className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm text-gray-900 focus:border-indigo-500 focus:ring-2 focus:ring-indigo-200 dark:border-gray-600 dark:bg-gray-700 dark:text-white dark:focus:border-indigo-500 dark:focus:ring-indigo-800"
+                    placeholder="https://example.com/webhook"
+                  />
+                </div>
+              )}
+
+              {/* 收件人配置 */}
+              {(data.config.notificationType === 'email' || data.config.notificationType === 'sms') && (
+                <div>
+                  <label className="mb-1.5 block text-sm font-medium text-gray-700 dark:text-gray-300">
+                    收件人 <span className="text-red-500">*</span>
+                  </label>
+                  <textarea
+                    value={(data.config.notificationRecipients || []).join('\n')}
+                    onChange={e => handleConfigChange(
+                      'notificationRecipients',
+                      e.target.value.split('\n').filter(r => r.trim())
+                    )}
+                    rows={4}
+                    className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm text-gray-900 placeholder:text-gray-400 focus:border-indigo-500 focus:ring-2 focus:ring-indigo-200 dark:border-gray-600 dark:bg-gray-700 dark:text-white dark:placeholder:text-gray-500 dark:focus:border-indigo-500 dark:focus:ring-indigo-800"
+                    placeholder="每行一个邮箱或手机号&#10;user@example.com&#10;+8613800138000"
+                  />
+                  <p className="mt-1.5 text-xs text-gray-500 dark:text-gray-400">
+                    每行一个收件人
+                  </p>
+                </div>
+              )}
             </div>
           </Section>
         )}

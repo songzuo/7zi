@@ -14,6 +14,24 @@ import type { Node, Edge } from 'reactflow'
 import type { WorkflowNodeData } from '../types'
 
 // ============================================
+// 类型定义
+// ============================================
+
+interface PasteResult {
+  nodes: Node<WorkflowNodeData>[]
+  edges: Edge[]
+}
+
+interface CutResult {
+  clipboardData: {
+    nodes: Node<WorkflowNodeData>[]
+    edges: Edge[]
+  }
+  nodesToDelete: string[]
+  edgesToDelete: string[]
+}
+
+// ============================================
 // 剪贴板测试
 // ============================================
 
@@ -79,7 +97,7 @@ describe('useClipboard', () => {
       result.current.copyNodes(mockNodes, mockEdges, ['node-1'])
     })
 
-    let pastedResult: any
+    let pastedResult: PasteResult
     act(() => {
       pastedResult = result.current.pasteNodes({ x: 50, y: 50 })
     })
@@ -97,7 +115,7 @@ describe('useClipboard', () => {
       result.current.copyNodes(mockNodes, mockEdges, ['node-1'])
     })
 
-    let pastedResult: any
+    let pastedResult: PasteResult
     act(() => {
       pastedResult = result.current.pasteNodes()
     })
@@ -109,7 +127,7 @@ describe('useClipboard', () => {
   it('should cut nodes', () => {
     const { result } = renderHook(() => useClipboard())
 
-    let cutResult: any
+    let cutResult: CutResult
     act(() => {
       cutResult = result.current.cutNodes(mockNodes, mockEdges, ['node-1'])
     })
@@ -150,7 +168,7 @@ describe('useClipboard', () => {
   it('should return null when pasting empty clipboard', () => {
     const { result } = renderHook(() => useClipboard())
 
-    let pastedResult: any
+    let pastedResult: PasteResult
     act(() => {
       pastedResult = result.current.pasteNodes({ x: 50, y: 50 })
     })

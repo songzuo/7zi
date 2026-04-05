@@ -16,20 +16,21 @@ import { describe, it, expect, vi, beforeEach } from 'vitest'
 import { render, screen } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import React from 'react'
+import type { WorkflowDefinition, WorkflowExport } from '../types'
 
 // Mock WorkflowExporter
 vi.mock('../WorkflowExporter', () => ({
-  WorkflowExporter: ({ workflow, onExport, onImport }: any) =>
+  WorkflowExporter: ({ workflow, onExport, onImport }: { workflow: WorkflowDefinition; onExport?: (data: WorkflowExport) => void; onImport?: (data: WorkflowDefinition) => void }) =>
     React.createElement(
       'div',
       { 'data-testid': 'workflow-exporter' },
       React.createElement('button', {
         'data-testid': 'export-btn',
-        onClick: () => onExport?.({ format: 'json', data: workflow }),
+        onClick: () => onExport?.({ version: '1.9.1', exportedAt: new Date().toISOString(), workflow }),
       }),
       React.createElement('button', {
         'data-testid': 'import-btn',
-        onClick: () => onImport?.({ nodes: [], edges: [] }),
+        onClick: () => onImport?.({ nodes: [], edges: [] } as WorkflowDefinition),
       })
     ),
 }))

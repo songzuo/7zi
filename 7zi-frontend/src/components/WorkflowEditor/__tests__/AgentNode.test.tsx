@@ -9,9 +9,10 @@ import { render, screen } from '@testing-library/react'
 import { ReactFlowProvider } from 'reactflow'
 import { AgentNode } from '../NodeTypes/AgentNode'
 import type { WorkflowNodeData } from '../types'
+import type { NodeProps } from 'reactflow'
 
 describe('AgentNode', () => {
-  const renderWithProvider = (node: any) => {
+  const renderWithProvider = (node: NodeProps<WorkflowNodeData>) => {
     return render(
       <ReactFlowProvider>
         <AgentNode {...node} />

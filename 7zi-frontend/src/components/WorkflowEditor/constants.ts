@@ -150,6 +150,22 @@ export const NODE_TEMPLATES: Record<NodeType, NodeTemplate> = {
       outputFormat: 'json',
     },
   },
+
+  // ========== v1.12.2 新增节点 ==========
+  notification: {
+    type: 'notification',
+    label: 'Notification',
+    icon: '🔔',
+    description: '发送通知',
+    category: 'custom',
+    defaultConfig: {
+      notificationType: 'email',
+      notificationTitle: 'Workflow Notification',
+      notificationContent: 'Workflow completed successfully',
+      notificationRecipients: [],
+      notificationPriority: 'normal',
+    },
+  },
 }
 
 /**
@@ -217,6 +233,11 @@ export const NODE_COLORS = {
     light: '#84CC16', // Lime 500
     dark: '#A3E635', // Lime 400
     bg: '#ECFCCB', // Lime 100
+  },
+  notification: {
+    light: '#EF4444', // Red 500
+    dark: '#F87171', // Red 400
+    bg: '#FEE2E2', // Red 100
   },
 } as const
 

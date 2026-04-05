@@ -18,14 +18,49 @@ import type { Node, Edge } from 'reactflow'
 // 注意：我们直接测试 store 的逻辑，不使用 mock zustand
 // 因为 zustand 的实现细节对于测试来说不是必要的
 
+// ============================================
+// 类型定义
+// ============================================
+
+interface WorkflowState {
+  workflow: { nodes: Node[]; edges: Edge[] } | null
+  nodes: Node[]
+  edges: Edge[]
+  selectedNodeId: string | null
+  selectedEdgeId: string | null
+  validationErrors: Array<{ id: string; message: string }>
+  executionState: { status: string; result?: unknown } | null
+  isExecuting: boolean
+  isDirty: boolean
+  isSaving: boolean
+  autoSaveEnabled: boolean
+}
+
+interface WorkflowStore extends WorkflowState {
+  setWorkflow: (workflow: { nodes: Node[]; edges: Edge[] }) => void
+  setNodes: (nodes: Node[]) => void
+  setEdges: (edges: Edge[]) => void
+  addNode: (node: Node) => void
+  updateNode: (id: string, data: Record<string, unknown>) => void
+  removeNode: (id: string) => void
+  addEdge: (edge: Edge) => void
+  removeEdge: (id: string) => void
+  selectNode: (id: string | null) => void
+  selectEdge: (id: string | null) => void
+  setValidationErrors: (errors: Array<{ id: string; message: string }>) => void
+  setExecutionState: (state: { status: string; result?: unknown }) => void
+  clearExecutionState: () => void
+  reset: () => void
+}
+
 describe('WorkflowStore', () => {
   // 简化的状态管理器用于测试
-  let state: any
-  let setState: (update: any) => void
-  let getState: () => any
+  let state: WorkflowState
+  let setState: (update: Partial<WorkflowState> | ((state: WorkflowState) => Partial<WorkflowState>)) => void
+  let getState: () => WorkflowState
 
   const createStore = () => {
-    const initialState = {
+    const initialState: WorkflowState = {
       workflow: null,
       nodes: [],
       edges: [],
@@ -41,7 +76,7 @@ describe('WorkflowStore', () => {
 
     state = { ...initialState }
     getState = () => state
-    setState = (update: any) => {
+    setState = (update: Partial<WorkflowState> | ((state: WorkflowState) => Partial<WorkflowState>)) => {
       if (typeof update === 'function') {
         state = { ...state, ...update(state) }
       } else {
@@ -50,7 +85,7 @@ describe('WorkflowStore', () => {
     }
 
     // 添加操作方法
-    state.setWorkflow = (workflow: any) => {
+    state.setWorkflow = (workflow: { nodes: Node[]; edges: Edge[] }) => {
       state.workflow = workflow
       state.nodes = workflow.nodes
       state.edges = workflow.edges
@@ -72,7 +107,7 @@ describe('WorkflowStore', () => {
       state.isDirty = true
     }
 
-    state.updateNode = (id: string, data: any) => {
+    state.updateNode = (id: string, data: Record<string, unknown>) => {
       state.nodes = state.nodes.map((n: Node) =>
         n.id === id ? { ...n, data: { ...n.data, ...data } } : n
       )
@@ -111,11 +146,11 @@ describe('WorkflowStore', () => {
       state.selectedNodeId = null
     }
 
-    state.setValidationErrors = (errors: any[]) => {
+    state.setValidationErrors = (errors: Array<{ id: string; message: string }>) => {
       state.validationErrors = errors
     }
 
-    state.setExecutionState = (executionState: any) => {
+    state.setExecutionState = (executionState: { status: string; result?: unknown }) => {
       state.executionState = executionState
     }
 
