@@ -432,7 +432,7 @@ export class MemoryLogStorage extends EventEmitter implements ILogStorage {
     this._totalSize = 0;
 
     let entries = 0;
-    let errors = 0;
+    const errors = 0;
 
     for (const partitionData of data.partitions) {
       const partition: TimePartition = {

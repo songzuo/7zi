@@ -2,9 +2,40 @@
 
 import { useEffect, useRef, useState, Suspense } from 'react'
 import type { Scene, WebGLRenderer, PerspectiveCamera, Vector3, Object3D, Material } from 'three'
+import { KnowledgeLatticeSimple, KnowledgeLatticeSkeleton } from './KnowledgeLatticeSimple'
+import { use3DEnabled } from '@/hooks/useDeviceType'
 
-// 动态导入 Three.js 以减少初始 bundle 大小
-// Three.js 约 150KB，仅在需要时加载
+interface KnowledgeLattice3DProps {
+  nodes?: Array<{ id: string; label: string; connections: string[] }>
+}
+
+/**
+ * Knowledge Lattice 3D Visualization
+ * Uses Three.js to render an interactive knowledge graph
+ * Three.js is dynamically imported to reduce initial bundle size
+ * Automatically falls back to simple view on mobile devices
+ */
+export function KnowledgeLattice3D({ nodes = [] }: KnowledgeLattice3DProps) {
+  'use memo'
+
+  const is3DEnabled = use3DEnabled()
+
+  // Use simple view on mobile/tablet or low-end devices
+  if (!is3DEnabled) {
+    return <KnowledgeLatticeSimple nodes={nodes} />
+  }
+
+  return (
+    <Suspense fallback={<KnowledgeLatticeSkeleton />}>
+      <ThreeScene nodes={nodes} />
+    </Suspense>
+  )
+}
+
+/**
+ * Three.js Scene Component
+ * Dynamically imports Three.js and renders the 3D scene
+ */
 const ThreeScene = ({ nodes }: { nodes: Array<{ id: string; label: string; connections: string[] }> }) => {
   const [three, setThree] = useState<typeof import('three') | null>(null)
   const containerRef = useRef<HTMLDivElement>(null)
@@ -14,7 +45,7 @@ const ThreeScene = ({ nodes }: { nodes: Array<{ id: string; label: string; conne
   const frameIdRef = useRef<number | null>(null)
 
   useEffect(() => {
-    // 动态加载 Three.js
+    // Dynamically load Three.js
     import('three').then((THREE) => {
       setThree(THREE)
       initScene(THREE)
@@ -160,25 +191,6 @@ const ThreeScene = ({ nodes }: { nodes: Array<{ id: string; label: string; conne
       className="h-full min-h-[600px] w-full"
       style={{ background: '#0a0a0a' }}
     />
-  )
-}
-
-interface KnowledgeLattice3DProps {
-  nodes?: Array<{ id: string; label: string; connections: string[] }>
-}
-
-/**
- * Knowledge Lattice 3D Visualization
- * Uses Three.js to render an interactive knowledge graph
- * Three.js is dynamically imported to reduce initial bundle size
- */
-export function KnowledgeLattice3D({ nodes = [] }: KnowledgeLattice3DProps) {
-  'use memo'
-
-  return (
-    <Suspense fallback={<div className="h-full min-h-[600px] w-full bg-gray-900 animate-pulse" />}>
-      <ThreeScene nodes={nodes} />
-    </Suspense>
   )
 }
 

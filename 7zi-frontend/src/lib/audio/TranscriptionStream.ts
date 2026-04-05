@@ -258,7 +258,12 @@ export class TranscriptionStream {
     }
 
     // 将 Int16Array 转换为 Base64
-    const base64 = this.arrayBufferToBase64(audioData.buffer)
+    // 确保 buffer 是 ArrayBuffer 而不是 SharedArrayBuffer
+    const rawBuffer = audioData.buffer.slice(
+      audioData.byteOffset,
+      audioData.byteOffset + audioData.byteLength
+    )
+    const base64 = this.arrayBufferToBase64(rawBuffer as ArrayBuffer)
 
     this.ws.send(
       JSON.stringify({

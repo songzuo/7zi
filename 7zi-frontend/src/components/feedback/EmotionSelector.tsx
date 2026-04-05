@@ -12,7 +12,7 @@
 'use client'
 
 import React from 'react'
-import { useTranslation } from '@/lib/i18n/client'
+import { useTranslation } from 'react-i18next'
 
 type EmotionLevel = 'very-dissatisfied' | 'dissatisfied' | 'neutral' | 'satisfied' | 'very-satisfied'
 
@@ -267,7 +267,7 @@ export function SatisfactionRating({
 import React, { useState } from 'react'
 import { Modal } from '@/components/ui/Modal'
 import { Button } from '@/components/ui/Button'
-import { useTranslation } from '@/lib/i18n/client'
+import { useTranslation } from 'react-i18next'
 import { EmotionSelector, SatisfactionRating } from './EmotionSelector'
 import { Send, Loader2 } from 'lucide-react'
 

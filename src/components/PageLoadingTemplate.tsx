@@ -92,7 +92,8 @@ export function MinimalPageLoading() {
         variant="spin"
         size="xl"
         color="primary"
-        message="Loading..."
+        label="Loading..."
+        labelPosition="bottom"
       />
     </div>
   )

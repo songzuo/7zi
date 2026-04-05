@@ -334,5 +334,24 @@ export class DataExporter<T extends Record<string, unknown> = Record<string, unk
 // 导出
 // ============================================================================
 
-export { DataExporter, ExportConfig, ExportResult, ExportField }
+/**
+ * 触发浏览器下载
+ * @param result 导出结果
+ */
+export function downloadExport(result: ExportResult): void {
+  if (!result.success || !result.blob || !result.filename) {
+    return
+  }
+
+  const url = URL.createObjectURL(result.blob)
+  const link = document.createElement('a')
+  link.href = url
+  link.download = result.filename
+  document.body.appendChild(link)
+  link.click()
+  document.body.removeChild(link)
+  URL.revokeObjectURL(url)
+}
+
+export type { ExportConfig, ExportResult, ExportField }
 export default DataExporter

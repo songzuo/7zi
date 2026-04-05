@@ -403,7 +403,7 @@ export class CodeExplainer {
       },
     ]
 
-    let lineNumber = 1
+    const lineNumber = 1
     const lines = code.split('\n')
 
     for (const { pattern, explanation } of snippetPatterns) {

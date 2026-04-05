@@ -13,7 +13,7 @@ import { cn } from '@/lib/utils'
  */
 export interface ContextMenuItem {
   id: string
-  label: string
+  label?: string
   icon?: string
   danger?: boolean
   disabled?: boolean

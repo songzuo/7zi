@@ -14,7 +14,7 @@ import {
   type TriggerType,
   type ActionType,
   type EventType,
-} from '@/lib/automation/automation-engine'
+} from '../../7zi-frontend/src/lib/automation/automation-engine'
 
 describe('AutomationEngine - 规则引擎核心测试', () => {
   let engine: AutomationEngine

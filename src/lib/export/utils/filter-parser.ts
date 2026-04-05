@@ -470,5 +470,5 @@ export class FilterParser {
 // 导出
 // ============================================================================
 
-export { FilterParser, FilterCondition, FilterOperator, SortOptions, PaginationOptions, QueryOptions }
+export type { FilterCondition, FilterOperator, SortOptions, PaginationOptions, QueryOptions }
 export default FilterParser

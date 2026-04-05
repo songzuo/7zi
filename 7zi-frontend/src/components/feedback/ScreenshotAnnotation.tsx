@@ -319,7 +319,7 @@ export default function ScreenshotAnnotation({
       const x = (e.clientX - rect.left) / zoom
       const y = (e.clientY - rect.top) / zoom
 
-      let newAnnotation: Annotation | null = null
+      const newAnnotation: Annotation | null = null
 
       if (currentTool === 'rect') {
         const width = x - startPoint.x

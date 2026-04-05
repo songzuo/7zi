@@ -440,6 +440,7 @@ const pwaConfig = {
   skipWaiting: true,
   disable: process.env.NODE_ENV === 'development',
   runtimeCaching: [
+    // HTML pages - NetworkFirst with fallback
     {
       urlPattern: /^https?.*/,
       handler: 'NetworkFirst',
@@ -455,6 +456,7 @@ const pwaConfig = {
         networkTimeoutSeconds: 10,
       },
     },
+    // Static resources (JS, CSS, HTML) - StaleWhileRevalidate
     {
       urlPattern: /\.(?:js|css|html)$/,
       handler: 'StaleWhileRevalidate',
@@ -469,6 +471,7 @@ const pwaConfig = {
         },
       },
     },
+    // Images - CacheFirst with long expiration
     {
       urlPattern: /\.(?:png|jpg|jpeg|svg|gif|webp|ico|avif)$/,
       handler: 'CacheFirst',
@@ -483,6 +486,7 @@ const pwaConfig = {
         },
       },
     },
+    // Fonts - CacheFirst with very long expiration
     {
       urlPattern: /\.(?:woff|woff2|ttf|otf|eot)$/,
       handler: 'CacheFirst',
@@ -497,6 +501,7 @@ const pwaConfig = {
         },
       },
     },
+    // API endpoints - NetworkFirst with short cache
     {
       urlPattern: /\/api\/.*/,
       handler: 'NetworkFirst',
@@ -510,6 +515,36 @@ const pwaConfig = {
           statuses: [0, 200],
         },
         networkTimeoutSeconds: 5,
+      },
+    },
+    // Next.js static assets - CacheFirst
+    {
+      urlPattern: /\/_next\/static\/.*/,
+      handler: 'CacheFirst',
+      options: {
+        cacheName: 'next-static',
+        expiration: {
+          maxEntries: 500,
+          maxAgeSeconds: 365 * 24 * 60 * 60, // 1 year
+        },
+        cacheableResponse: {
+          statuses: [0, 200],
+        },
+      },
+    },
+    // External CDN resources - StaleWhileRevalidate
+    {
+      urlPattern: /^https:\/\/cdn\..*/,
+      handler: 'StaleWhileRevalidate',
+      options: {
+        cacheName: 'cdn-resources',
+        expiration: {
+          maxEntries: 200,
+          maxAgeSeconds: 7 * 24 * 60 * 60, // 7 days
+        },
+        cacheableResponse: {
+          statuses: [0, 200],
+        },
       },
     },
   ],

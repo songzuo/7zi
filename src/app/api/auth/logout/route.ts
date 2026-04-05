@@ -1,4 +1,4 @@
-import { NextRequest, NextResponse } from 'next/server'
+import { NextRequest } from 'next/server'
 /**
  * Logout API endpoint
  * POST /api/auth/logout

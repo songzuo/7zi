@@ -1,6 +1,7 @@
 /**
  * PWA Manifest 生成器
  * Next.js 15+ Metadata API
+ * v1.13.0: 增强移动端支持
  */
 
 import { MetadataRoute } from 'next'
@@ -9,15 +10,18 @@ export default function manifest(): MetadataRoute.Manifest {
   const baseUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://7zi.com'
 
   return {
-    name: '7zi Frontend',
+    name: '7zi Frontend - 智能体协作平台',
     short_name: '7zi',
-    description: 'Next.js 最佳实践演示项目',
+    description: 'Next.js 最佳实践演示项目 - 智能体协作平台',
     start_url: '/',
     display: 'standalone',
+    display_override: ['fullscreen', 'standalone'],
     background_color: '#ffffff',
     theme_color: '#667eea',
     orientation: 'portrait-primary',
     scope: '/',
+    prefer_related_applications: false,
+    // iOS 相关配置
     icons: [
       {
         src: '/icons/icon-72x72.png',
@@ -80,36 +84,62 @@ export default function manifest(): MetadataRoute.Manifest {
         purpose: 'maskable',
       },
     ],
-    categories: ['developer', 'productivity'],
+    // 触摸图标（iOS）
+    icons: [
+      {
+        src: '/icons/icon-192x192.png',
+        sizes: '192x192',
+        type: 'image/png',
+        purpose: 'any maskable',
+      },
+    ],
+    categories: ['developer', 'productivity', 'business'],
+    // 快捷方式
     shortcuts: [
       {
-        name: 'Dashboard',
-        short_name: 'Dashboard',
-        description: 'Go to dashboard',
+        name: '控制台',
+        short_name: '控制台',
+        description: '打开仪表盘',
         url: '/dashboard',
         icons: [{ src: '/icons/icon-96x96.png', sizes: '96x96', type: 'image/png' }],
       },
       {
-        name: 'Settings',
-        short_name: 'Settings',
-        description: 'Open settings',
+        name: '房间',
+        short_name: '房间',
+        description: '查看房间列表',
+        url: '/rooms',
+        icons: [{ src: '/icons/icon-96x96.png', sizes: '96x96', type: 'image/png' }],
+      },
+      {
+        name: '设置',
+        short_name: '设置',
+        description: '打开设置',
         url: '/settings',
         icons: [{ src: '/icons/icon-96x96.png', sizes: '96x96', type: 'image/png' }],
       },
     ],
+    // 截图
     screenshots: [
       {
         src: '/screenshots/desktop-1.png',
         sizes: '1280x720',
         type: 'image/png',
-        label: 'Desktop view',
+        label: '桌面端视图',
+        form_factor: 'wide',
       },
       {
         src: '/screenshots/mobile-1.png',
         sizes: '750x1334',
         type: 'image/png',
-        label: 'Mobile view',
+        label: '移动端视图',
+        form_factor: 'narrow',
       },
     ],
+    // 关联的 Web 应用
+    related_applications: [],
+    // 协议处理（如深度链接）
+    protocols: [],
+    // 离线支持 - 预加载关键资源
+    prefer_related_applications: false,
   }
 }

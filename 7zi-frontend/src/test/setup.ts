@@ -6,6 +6,7 @@
 
 import '@testing-library/jest-dom'
 import { vi } from 'vitest'
+import 'fake-indexeddb/auto' // 🚀 添加 IndexedDB mock
 
 // 🚀 全局缓存标志，避免重复初始化
 let localStorageInitialized = false

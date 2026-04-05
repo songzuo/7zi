@@ -33,7 +33,7 @@ export const QueueMessageSchema = z.object({
   payload: z.record(z.unknown()),
   createdAt: z.string(),
   attempts: z.number().min(0),
-  maxAttempts: z.number().min(0),
+  maxAttempts: z.number().min(0).default(3),
   nextRetryAt: z.string().optional(),
 })
 

@@ -95,6 +95,7 @@ function ToolbarButton({
   active,
   danger,
   className,
+  title,
 }: {
   icon: React.ReactNode
   label?: string
@@ -103,6 +104,7 @@ function ToolbarButton({
   active?: boolean
   danger?: boolean
   className?: string
+  title?: string
 }) {
   return (
     <button
@@ -115,7 +117,7 @@ function ToolbarButton({
         danger && 'text-red-600 hover:bg-red-50',
         className
       )}
-      title={label || icon}
+      title={title ?? (typeof label === 'string' ? label : typeof icon === 'string' ? icon : undefined)}
     >
       {icon}
       {label && <span className="hidden sm:inline">{label}</span>}
@@ -252,7 +254,7 @@ export function WorkflowToolbar({
         <ToolbarButton
           icon={<span>➖</span>}
           onClick={onZoomOut}
-          title="缩小 (Ctrl + 滚轮)"
+          title="缩小"
         />
         <span className="min-w-[50px] px-2 text-center text-sm text-gray-700">
           {Math.round(zoom * 100)}%
@@ -260,7 +262,7 @@ export function WorkflowToolbar({
         <ToolbarButton
           icon={<span>➕</span>}
           onClick={onZoomIn}
-          title="放大 (Ctrl + 滚轮)"
+          title="放大"
         />
         <ToolbarButton
           icon={<span>⛶</span>}
@@ -276,7 +278,7 @@ export function WorkflowToolbar({
           <ToolbarButton
             icon={<span>⛶</span>}
             onClick={onFullscreen}
-            title="全屏编辑"
+            title="全屏"
           />
         )}
       </div>

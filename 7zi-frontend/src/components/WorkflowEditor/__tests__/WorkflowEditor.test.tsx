@@ -16,40 +16,44 @@ import { render, screen, fireEvent, waitFor } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import React from 'react'
 
-// Mock React Flow
+// Mock React Flow - 必须在导入 WorkflowEditor 之前
 vi.mock('reactflow', () => {
   const React = require('react')
 
+  const MockReactFlow = vi.fn(
+    ({
+      nodes,
+      edges,
+      onNodesChange,
+      onEdgesChange,
+      onConnect,
+      onNodeClick,
+      onEdgeClick,
+      onPaneClick,
+      children,
+    }) =>
+      React.createElement(
+        'div',
+        {
+          'data-testid': 'react-flow',
+          'data-nodes-count': nodes?.length || 0,
+          'data-edges-count': edges?.length || 0,
+        },
+        children
+      )
+  )
+
+  const MockControls = vi.fn(() => React.createElement('div', { 'data-testid': 'controls' }))
+
   return {
-    default: vi.fn(
-      ({
-        nodes,
-        edges,
-        onNodesChange,
-        onEdgesChange,
-        onConnect,
-        onNodeClick,
-        onEdgeClick,
-        onPaneClick,
-        children,
-      }) =>
-        React.createElement(
-          'div',
-          {
-            'data-testid': 'react-flow',
-            'data-nodes-count': nodes?.length || 0,
-            'data-edges-count': edges?.length || 0,
-          },
-          children
-        )
-    ),
+    default: MockReactFlow,
     ReactFlowProvider: ({ children }: { children: React.ReactNode }) =>
       React.createElement('div', { 'data-testid': 'react-flow-provider' }, children),
     useNodesState: vi.fn(initial => [initial, vi.fn(), vi.fn()]),
     useEdgesState: vi.fn(initial => [initial, vi.fn(), vi.fn()]),
     addEdge: vi.fn((connection, edges) => [...edges, { ...connection, id: `e-${Date.now()}` }]),
     Background: () => React.createElement('div', { 'data-testid': 'background' }),
-    Controls: () => React.createElement('div', { 'data-testid': 'controls' }),
+    Controls: MockControls,
     MiniMap: () => React.createElement('div', { 'data-testid': 'minimap' }),
     Panel: ({ children }: { children: React.ReactNode }) =>
       React.createElement('div', { 'data-testid': 'panel' }, children),
@@ -67,6 +71,19 @@ vi.mock('reactflow', () => {
     },
   }
 })
+
+// Mock Next.js dynamic imports
+vi.mock('next/dynamic', () => ({
+  default: (loader: () => Promise<{ default: React.ComponentType<any> }>) => {
+    const Component = React.lazy(loader)
+    return (props: any) =>
+      React.createElement(
+        React.Suspense,
+        { fallback: React.createElement('div', {}, 'Loading...') },
+        React.createElement(Component, props)
+      )
+  },
+}))
 
 // Mock 子组件
 vi.mock('../Toolbar', () => ({
@@ -152,8 +169,27 @@ vi.mock('../hooks/useWorkflowExecution', () => ({
   })),
 }))
 
-// 导入组件（在 mock 之后）
+// 导入组件（必须在所有 mock 之后）
 import { WorkflowEditor } from '../WorkflowEditor'
+
+// Mock zustand store
+vi.mock('../store/useWorkflowEditorStore', () => ({
+  useWorkflowEditorStore: vi.fn(() => ({
+    nodes: [],
+    edges: [],
+    selectedNode: null,
+    selectedEdge: null,
+    canUndo: false,
+    canRedo: false,
+    setNodes: vi.fn(),
+    setEdges: vi.fn(),
+    setSelectedNode: vi.fn(),
+    setSelectedEdge: vi.fn(),
+    undo: vi.fn(),
+    redo: vi.fn(),
+    reset: vi.fn(),
+  })),
+}))
 
 describe('WorkflowEditor', () => {
   const defaultProps = {

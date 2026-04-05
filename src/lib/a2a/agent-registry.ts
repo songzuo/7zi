@@ -17,9 +17,9 @@ import {
  * 内存 Agent 注册表
  */
 export class InMemoryAgentRegistry implements AgentRegistry {
-  private agents: Map<string, AgentRegistration> = new Map()
-  private capabilities: Map<string, Set<string>> = new Map() // capability -> agent IDs
-  private skills: Map<string, Set<string>> = new Map() // skill -> agent IDs
+  protected agents: Map<string, AgentRegistration> = new Map()
+  protected capabilities: Map<string, Set<string>> = new Map() // capability -> agent IDs
+  protected skills: Map<string, Set<string>> = new Map() // skill -> agent IDs
   private eventEmitter = new EventEmitter()
   private cleanupTimer: NodeJS.Timeout | null = null
 

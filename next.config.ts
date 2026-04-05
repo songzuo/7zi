@@ -215,6 +215,27 @@ const nextConfig: NextConfig = {
       bufferutil: 'commonjs bufferutil',
     })
 
+    // 优化 3: 模块解析优化
+    config.resolve = config.resolve || {}
+    config.resolve.alias = {
+      ...config.resolve.alias,
+      // 优化 lodash 导入 - 使用 lodash-es
+      'lodash': require.resolve('lodash-es'),
+      'lodash/': 'lodash-es/',
+    }
+
+    // bull 库需要特定的 Node.js 模块处理
+    if (!isServer) {
+      config.resolve.fallback = {
+        ...config.resolve.fallback,
+        fs: false,
+        net: false,
+        tls: false,
+        child_process: false,
+        lodash: require.resolve('lodash-es'),
+      }
+    }
+
     // 优化 1: 代码分割策略 - 将大型依赖分离到独立 chunk
     if (!isServer) {
       config.optimization = config.optimization || {}
@@ -268,14 +289,6 @@ const nextConfig: NextConfig = {
     config.optimization = config.optimization || {}
     config.optimization.usedExports = true
     config.optimization.sideEffects = true
-
-    // 优化 3: 模块解析优化
-    config.resolve = config.resolve || {}
-    config.resolve.alias = {
-      ...config.resolve.alias,
-      // 优化 lodash 导入
-      'lodash': 'lodash-es',
-    }
 
     return config
   },

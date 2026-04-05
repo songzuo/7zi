@@ -5,6 +5,21 @@
 import { WebSocketManager, WebSocketConfig, ConnectionState } from './websocket-manager';
 
 // Mock WebSocket
+// Mock DOM types
+interface MockEvent {
+  type: string;
+}
+
+interface MockMessageEvent extends MockEvent {
+  data: string;
+}
+
+interface MockCloseEvent extends MockEvent {
+  code?: number;
+  reason?: string;
+  wasClean?: boolean;
+}
+
 class MockWebSocket {
   static CONNECTING = 0;
   static OPEN = 1;
@@ -15,10 +30,10 @@ class MockWebSocket {
   url: string;
   protocols?: string | string[];
 
-  onopen: ((event: Event) => void) | null = null;
-  onclose: ((event: CloseEvent) => void) | null = null;
-  onerror: ((event: Event) => void) | null = null;
-  onmessage: ((event: MessageEvent) => void) | null = null;
+  onopen: ((event: MockEvent) => void) | null = null;
+  onclose: ((event: MockCloseEvent) => void) | null = null;
+  onerror: ((event: MockEvent) => void) | null = null;
+  onmessage: ((event: MockMessageEvent) => void) | null = null;
 
   constructor(url: string, protocols?: string | string[]) {
     this.url = url;

@@ -7,18 +7,6 @@
 import { describe, it, expect, vi } from 'vitest'
 
 // Mock IndexedDB for testing environment
-const mockIndexedDB = {
-  open: vi.fn(),
-  deleteDatabase: vi.fn(),
-}
-
-const mockIDBDatabase = {
-  createObjectStore: vi.fn(),
-  objectStoreNames: {
-    contains: vi.fn().mockReturnValue(false),
-  },
-}
-
 const mockObjectStore = {
   put: vi.fn(),
   get: vi.fn(),
@@ -30,6 +18,18 @@ const mockObjectStore = {
 
 const mockTransaction = {
   objectStore: vi.fn().mockReturnValue(mockObjectStore),
+}
+
+const mockIndexedDB = {
+  open: vi.fn(),
+  deleteDatabase: vi.fn(),
+}
+
+const mockIDBDatabase = {
+  createObjectStore: vi.fn().mockReturnValue(mockObjectStore),
+  objectStoreNames: {
+    contains: vi.fn().mockReturnValue(false),
+  },
 }
 
 // Setup mocks

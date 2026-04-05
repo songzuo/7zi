@@ -42,8 +42,8 @@ export interface WorkflowDraft {
   }>
   /** 元数据 */
   metadata?: {
-    createdAt: string
-    updatedAt: string
+    createdAt?: string
+    updatedAt?: string
     createdBy?: string
     description?: string
   }

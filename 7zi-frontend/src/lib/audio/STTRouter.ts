@@ -249,7 +249,7 @@ export class STTRouter {
     await this.initialize()
 
     const provider = preferredProvider || this.currentProvider
-    let usedFallback = false
+    const usedFallback = false
 
     try {
       const client = this.providers.get('whisper')
@@ -372,7 +372,8 @@ export class STTRouter {
    * 销毁资源
    */
   async destroy(): Promise<void> {
-    for (const [provider, client] of this.providers) {
+    const providerEntries = Array.from(this.providers.entries())
+    for (const [provider, client] of providerEntries) {
       if (client && typeof client.destroy === 'function') {
         await client.destroy()
       }

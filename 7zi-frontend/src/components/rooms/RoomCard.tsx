@@ -3,6 +3,7 @@
  *
  * Individual room card for room list display
  * Shows room info, member count, online status, etc.
+ * v1.13.0: Enhanced mobile responsive support
  *
  * Features:
  * - Room name and description
@@ -11,6 +12,7 @@
  * - Last activity time
  * - Click to join/view room
  * - Dark/light mode support
+ * - Mobile-first responsive design
  */
 
 'use client'
@@ -79,45 +81,59 @@ export function RoomCard({
     <button
       onClick={() => onClick?.(room)}
       className={clsx(
-        'w-full rounded-lg border p-4 text-left transition-all hover:shadow-md',
+        'w-full rounded-lg border p-3 sm:p-4 text-left transition-all',
+        // 移动端阴影优化（禁用以提升性能）
+        'sm:hover:shadow-md',
+        // 激活状态
         isActive
           ? 'border-blue-500 bg-blue-50 ring-2 ring-blue-500 dark:bg-blue-900/20'
-          : 'border-gray-200 bg-white hover:border-gray-300 dark:border-gray-700 dark:bg-gray-800 dark:hover:border-gray-600',
+          : 'border-gray-200 bg-white dark:border-gray-700 dark:bg-gray-800',
+        // 最小触控区域
+        'min-h-[60px] sm:min-h-[80px]',
+        // 触摸反馈
+        'active:scale-[0.99] active:opacity-95',
+        // 移动端优化
         className
       )}
       type="button"
     >
       {/* Header */}
-      <div className="mb-2 flex items-start justify-between">
+      <div className="mb-2 flex items-start justify-between gap-2">
         <div className="min-w-0 flex-1">
           {/* Room Name */}
           <div className="mb-1 flex items-center gap-2">
-            <span className="text-lg">{roomTypeIcon}</span>
-            <h3 className="truncate font-semibold text-gray-900 dark:text-gray-100">{room.name}</h3>
+            <span className="text-base sm:text-lg">{roomTypeIcon}</span>
+            <h3 className="truncate text-sm font-semibold text-gray-900 dark:text-gray-100 sm:text-base">
+              {room.name}
+            </h3>
           </div>
 
-          {/* Description */}
+          {/* Description - 移动端简化显示 */}
           {room.description && (
-            <p className="truncate text-sm text-gray-600 dark:text-gray-400">{room.description}</p>
+            <p className="line-clamp-2 text-xs text-gray-600 dark:text-gray-400 sm:text-sm">
+              {room.description}
+            </p>
           )}
         </div>
 
-        {/* Status Indicator */}
-        <RoomStatusIndicator
-          status="connected"
-          onlineCount={room.onlineCount}
-          totalCount={room.memberCount}
-          size="sm"
-          showDetails={showDetails}
-        />
+        {/* Status Indicator - 移动端缩小 */}
+        <div className="flex-shrink-0">
+          <RoomStatusIndicator
+            status="connected"
+            onlineCount={room.onlineCount}
+            totalCount={room.memberCount}
+            size="xs"
+            showDetails={false}
+          />
+        </div>
       </div>
 
-      {/* Details Row */}
-      {showDetails && (
-        <div className="flex items-center justify-between border-t border-gray-100 pt-2 text-xs text-gray-500 dark:border-gray-700 dark:text-gray-400">
+      {/* Details Row - 移动端精简 */}
+      {showDetails ? (
+        <div className="flex flex-col gap-2 border-t border-gray-100 pt-2 text-xs text-gray-500 dark:border-gray-700 dark:text-gray-400 sm:flex-row sm:items-center sm:justify-between">
           {/* Online Percentage Bar */}
           <div className="flex flex-1 items-center gap-2">
-            <div className="h-1.5 w-full max-w-[100px] rounded-full bg-gray-200 dark:bg-gray-700">
+            <div className="h-1.5 w-full max-w-[80px] sm:max-w-[100px] rounded-full bg-gray-200 dark:bg-gray-700">
               <div
                 className="h-1.5 rounded-full bg-green-500 transition-all"
                 style={{ width: `${onlinePercentage}%` }}
@@ -129,11 +145,9 @@ export function RoomCard({
           {/* Last Activity */}
           <div className="whitespace-nowrap">{formatLastActivity}</div>
         </div>
-      )}
-
-      {/* Compact View (when showDetails is false) */}
-      {!showDetails && (
-        <div className="flex items-center gap-3 pt-2 text-xs text-gray-500 dark:text-gray-400">
+      ) : (
+        /* Compact View (mobile optimized) */
+        <div className="flex flex-wrap items-center gap-3 pt-2 text-xs text-gray-500 dark:text-gray-400">
           <div className="flex items-center gap-1">
             <span className="text-green-500">●</span>
             <span>{room.onlineCount} 在线</span>

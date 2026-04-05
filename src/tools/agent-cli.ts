@@ -153,7 +153,7 @@ function formatAgent(agent: AgentCapability): Record<string, unknown> {
 /**
  * Format scheduling result
  */
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
+ 
 function formatSchedulingResult(result: SchedulingResult): string | Record<string, unknown> {
   if (jsonOutput) return result as unknown as Record<string, unknown>
 

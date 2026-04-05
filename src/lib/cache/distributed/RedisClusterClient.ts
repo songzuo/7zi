@@ -221,7 +221,7 @@ export class RedisClusterClient {
         if (this.config.nodes && this.config.nodes.length > 0) {
           // Cluster mode
           // Type assertion for ioredis Cluster class
-          const RedisCluster = (Redis as unknown as { Cluster?: RedisClusterClient }).Cluster
+          const RedisCluster = (Redis as unknown as { Cluster?: new (...args: unknown[]) => RedisClient }).Cluster
           if (RedisCluster) {
             this.client = new RedisCluster(
               this.config.nodes.map(n => ({ host: n.host, port: n.port })),
@@ -508,6 +508,7 @@ export class RedisClusterClient {
   /**
    * Load ioredis module
    */
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   private async loadIORedis(): Promise<any> {
     try {
       const Redis = await import('ioredis')

@@ -128,7 +128,7 @@ export async function GET(request: NextRequest) {
  * POST /api/database/optimize
  * Run database optimization operations (requires admin privileges)
  */
-async function POSTHandler(request: NextRequest, context: RBACUserContext) {
+async function POSTHandler(_request: NextRequest, context: RBACUserContext) {
   try {
     const body = await request.json()
 

@@ -163,7 +163,7 @@ export async function example6_PauseAndResume(executionId: string) {
   await pauseExecution(executionId)
 
   // 加载并检查
-  let state = await loadExecutionState(executionId)
+  const state = await loadExecutionState(executionId)
   console.log('Paused status:', state?.status)
 
   // 恢复执行

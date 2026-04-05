@@ -407,6 +407,82 @@ export const authHandlers = [
 
 // Health endpoints handlers
 export const healthHandlers = [
+  // Database health check
+  http.get('http://localhost:3000/api/database/health', () => {
+    const memoryUsage = process.memoryUsage()
+    const now = new Date()
+    
+    // Simulate cache stats
+    const cacheHits = Math.floor(Math.random() * 1000)
+    const cacheMisses = Math.floor(Math.random() * 200)
+    const hitRate = cacheHits / (cacheHits + cacheMisses)
+
+    return HttpResponse.json(
+      {
+        success: true,
+        data: {
+          health: 'healthy',
+          healthScore: 85 + Math.floor(Math.random() * 10),
+          connection: {
+            connected: true,
+            isOpen: true,
+            isMemoryDatabase: false,
+            connectionCount: 1,
+          },
+          database: {
+            size: {
+              pageCount: 100,
+              freePages: 5,
+            },
+            migrations: {
+              current: 10,
+              latest: 10,
+              needsMigration: false,
+            },
+          },
+          performance: {
+            slowQueries: Math.floor(Math.random() * 3),
+            missingIndexes: Math.floor(Math.random() * 2),
+            databaseSize: {
+              sizeInMB: Math.round(memoryUsage.heapUsed / 1024 / 1024),
+            },
+          },
+          cache: {
+            hits: cacheHits,
+            misses: cacheMisses,
+            hitRate,
+            entries: Math.floor(Math.random() * 100),
+            totalSize: Math.floor(Math.random() * 1024 * 1024),
+            evictions: Math.floor(Math.random() * 10),
+            hitRatePercent: Number((hitRate * 100).toFixed(2)),
+            totalSizeMB: Number((cacheMisses * 1024 / 1024 / 1024).toFixed(2)),
+            status: hitRate > 0.7 ? 'good' : hitRate > 0.5 ? 'fair' : 'poor',
+          },
+          recommendations: hitRate < 0.7 
+            ? ['缓存命中率较低，建议调整缓存策略或TTL']
+            : [],
+          details: {
+            tables: [
+              {
+                name: 'users',
+                rowCount: 10,
+                indexCount: 3,
+                hasSuggestions: false,
+              },
+              {
+                name: 'tasks',
+                rowCount: 25,
+                indexCount: 4,
+                hasSuggestions: false,
+              },
+            ],
+          },
+        },
+      },
+      { status: 200 }
+    )
+  }),
+
   // Health check
   http.get('http://localhost:3000/api/health', () => {
     const memoryUsage = process.memoryUsage()
@@ -1932,6 +2008,117 @@ export const ratingsHandlers = [
   ),
 ]
 
+// Export endpoints handlers
+export const exportHandlers = [
+  // GET /api/export/sync - Synchronous export
+  http.get('http://localhost:3000/api/export/sync', async ({ request }: { request: Request }) => {
+    const authHeader = request.headers.get('authorization')
+
+    if (!authHeader || !authHeader.startsWith('Bearer ')) {
+      return HttpResponse.json(
+        {
+          success: false,
+          error: {
+            type: 'UNAUTHORIZED',
+            message: 'Unauthorized',
+          },
+        },
+        { status: 401 }
+      )
+    }
+
+    const url = new URL(request.url)
+    const format = url.searchParams.get('format') || 'csv'
+    const filename = url.searchParams.get('filename') || 'export'
+
+    // Generate sample CSV data
+    const headers = '任务ID,任务标题,任务描述,状态,优先级,负责人,创建时间\n'
+    const rows = Array.from({ length: 10 }, (_, i) => 
+      `TASK-${String(i + 1).padStart(4, '0')},任务 ${i + 1},这是任务 ${i + 1} 的描述,pending,medium,张三,2024-01-${String(i + 1).padStart(2, '0')}T10:00:00Z`
+    ).join('\n')
+
+    const csvContent = headers + rows
+
+    const headers_response = new Headers()
+    headers_response.set('Content-Type', format === 'json' ? 'application/json' : 'text/csv')
+    headers_response.set('Content-Disposition', `attachment; filename="${filename}.${format === 'json' ? 'json' : 'csv'}"`)
+    headers_response.set('Content-Length', String(csvContent.length))
+
+    return new Response(csvContent, {
+      status: 200,
+      headers: headers_response,
+    })
+  }),
+
+  // POST /api/export/sync - Synchronous export with filters
+  http.post('http://localhost:3000/api/export/sync', async ({ request }: { request: Request }) => {
+    const authHeader = request.headers.get('authorization')
+
+    if (!authHeader || !authHeader.startsWith('Bearer ')) {
+      return HttpResponse.json(
+        {
+          success: false,
+          error: {
+            type: 'UNAUTHORIZED',
+            message: 'Unauthorized',
+          },
+        },
+        { status: 401 }
+      )
+    }
+
+    let body: any = {}
+    try {
+      body = await request.json()
+    } catch {
+      return HttpResponse.json(
+        {
+          success: false,
+          error: {
+            type: 'VALIDATION_ERROR',
+            message: 'Invalid JSON body',
+          },
+        },
+        { status: 400 }
+      )
+    }
+
+    const { format = 'csv', filename = 'export' } = body
+
+    // Validate required fields
+    if (!format || !filename) {
+      return HttpResponse.json(
+        {
+          success: false,
+          error: {
+            type: 'VALIDATION_ERROR',
+            message: '缺少必填字段: format, filename',
+          },
+        },
+        { status: 400 }
+      )
+    }
+
+    // Generate sample CSV data
+    const headers = '任务ID,任务标题,状态,优先级\n'
+    const rows = Array.from({ length: 10 }, (_, i) => 
+      `TASK-${String(i + 1).padStart(4, '0')},任务 ${i + 1},pending,high`
+    ).join('\n')
+
+    const csvContent = headers + rows
+
+    const headers_response = new Headers()
+    headers_response.set('Content-Type', format === 'json' ? 'application/json' : 'text/csv')
+    headers_response.set('Content-Disposition', `attachment; filename="${filename}.${format === 'json' ? 'json' : 'csv'}"`)
+    headers_response.set('Content-Length', String(csvContent.length))
+
+    return new Response(csvContent, {
+      status: 200,
+      headers: headers_response,
+    })
+  }),
+]
+
 // Search endpoints handlers
 export const searchHandlers = [
   // GET /api/search - Global search
@@ -2068,6 +2255,7 @@ export const handlers = [
   ...performanceHandlers,
   ...ratingsHandlers,
   ...searchHandlers,
+  ...exportHandlers,
 ]
 
 // Create MSW server

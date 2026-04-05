@@ -4,7 +4,7 @@
  */
 
 import { WebhookManager, InMemoryWebhookStorage } from './webhook-manager';
-import { WebhookError } from './types';
+import { WebhookError, type WebhookEventType } from './types';
 import type { WebhookEndpoint, CreateWebhookRequest } from './types';
 
 describe('WebhookManager', () => {
@@ -17,7 +17,7 @@ describe('WebhookManager', () => {
   const createValidRequest = (overrides: Partial<CreateWebhookRequest> = {}): CreateWebhookRequest => ({
     url: 'https://example.com/webhook',
     secret: 'test-secret-12345',
-    events: ['agent.created', 'task.completed'],
+    events: ['agent.created', 'task.completed'] as WebhookEventType[],
     ...overrides,
   });
 
@@ -114,7 +114,7 @@ describe('WebhookManager', () => {
     });
 
     it('should update webhook events', async () => {
-      const newEvents = ['workflow.started', 'workflow.completed'];
+      const newEvents: WebhookEventType[] = ['workflow.started', 'workflow.completed'];
       const updated = await manager.updateWebhook(existingWebhook.id, {
         events: newEvents,
       });

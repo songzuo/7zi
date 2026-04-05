@@ -9,6 +9,7 @@ const mockInit = vi.fn().mockResolvedValue(undefined)
 const mockUse = vi.fn().mockReturnThis()
 const mockChangeLanguage = vi.fn().mockResolvedValue(undefined)
 const mockOn = vi.fn()
+const mockAddResourceBundle = vi.fn()
 
 vi.mock('i18next', () => ({
   default: {
@@ -18,6 +19,7 @@ vi.mock('i18next', () => ({
     language: 'zh',
     changeLanguage: mockChangeLanguage,
     on: mockOn,
+    addResourceBundle: mockAddResourceBundle,
   },
 }))
 

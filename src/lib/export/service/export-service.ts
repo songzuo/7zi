@@ -550,14 +550,17 @@ export class ExportService<T extends Record<string, unknown> = Record<string, un
 // 导出
 // ============================================================================
 
-export { ExportService, ExportServiceConfig, ExportRequest, ExportResponse }
+export { ExportServiceConfig, ExportRequest, ExportResponse }
 export type {
   ExportJobStatus,
   ExportJobProgress,
   ExportJobQueryResult,
 }
-export { DataExporter, ExportConfig, ExportResult, ExportField } from '../core/exporter'
-export { ExportQueue, ExportJob } from '../queue/export-queue'
-export { FilterParser, FilterCondition, PaginationOptions } from '../utils/filter-parser'
+export { default as DataExporter } from '../core/exporter'
+export type { ExportConfig, ExportResult, ExportField } from '../core/exporter'
+export { default as ExportQueue } from '../queue/export-queue'
+export type { ExportJob } from '../queue/export-queue'
+export { default as FilterParser } from '../utils/filter-parser'
+export type { FilterCondition, PaginationOptions } from '../utils/filter-parser'
 
 export default ExportService

@@ -218,7 +218,7 @@ function highlightSyntax(code: string, language: string): React.ReactNode {
 
   // 简单的语法高亮实现
   const parts: React.ReactNode[] = []
-  let key = 0
+  const key = 0
 
   // 高亮变量 {{...}}
   const variableRegex = /{{([^}]+)}}/g
@@ -229,7 +229,7 @@ function highlightSyntax(code: string, language: string): React.ReactNode {
   // 高亮数字
   const numberRegex = /\b(\d+\.?\d*)\b/g
 
-  let lastIndex = 0
+  const lastIndex = 0
   let result = code
 
   // 高亮变量

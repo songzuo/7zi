@@ -492,7 +492,7 @@ export class IncrementalUpdateManager<T = unknown> {
       
       case 'move':
         const movedValue = this.getAtPath(data, this.parsePath(op.from!))
-        let result = this.removeAtPath(data, this.parsePath(op.from!))
+        const result = this.removeAtPath(data, this.parsePath(op.from!))
         return this.addAtPath(result, parts, movedValue)
       
       case 'copy':

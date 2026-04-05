@@ -139,11 +139,15 @@ export class RestAPI {
     if (method === 'POST' && path === '/api/queues') {
       const body = await this.parseBody(req);
       const config: IQueueConfig = {
-        name: body.name,
-        type: body.type || QueueType.NORMAL,
-        maxSize: body.maxSize,
-        messageTTL: body.messageTTL,
-        deadLetterQueue: body.deadLetterQueue
+        name: typeof body.name === 'string' ? body.name : '',
+        type: (typeof body.type === 'string' && Object.values(QueueType).includes(body.type as QueueType))
+          ? body.type as QueueType
+          : QueueType.NORMAL,
+        maxSize: typeof body.maxSize === 'number' ? body.maxSize : undefined,
+        messageTTL: typeof body.messageTTL === 'number' ? body.messageTTL : undefined,
+        deadLetterQueue: typeof body.deadLetterQueue === 'object' && body.deadLetterQueue !== null
+          ? body.deadLetterQueue as IQueueConfig['deadLetterQueue']
+          : undefined
       };
 
       await this.broker.createQueue(config);
@@ -193,11 +197,13 @@ export class RestAPI {
       const queueName = publishMatch[1];
       const body = await this.parseBody(req);
       const options: IMessageOptions = {
-        priority: body.priority,
-        delay: body.delay,
-        ttl: body.ttl,
-        maxRetries: body.maxRetries,
-        metadata: body.metadata
+        priority: typeof body.priority === 'number' ? body.priority : undefined,
+        delay: typeof body.delay === 'number' ? body.delay : undefined,
+        ttl: typeof body.ttl === 'number' ? body.ttl : undefined,
+        maxRetries: typeof body.maxRetries === 'number' ? body.maxRetries : undefined,
+        metadata: typeof body.metadata === 'object' && body.metadata !== null
+          ? body.metadata as Record<string, unknown>
+          : undefined
       };
 
       const message = await this.broker.publish(queueName, body.data, options);
@@ -333,7 +339,7 @@ export class RestAPI {
   /**
    * 解析请求体
    */
-  protected parseBody(req: http.IncomingMessage): Promise<any> {
+  protected parseBody(req: http.IncomingMessage): Promise<Record<string, unknown>> {
     return new Promise((resolve, reject) => {
       let body = '';
 

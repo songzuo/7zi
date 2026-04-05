@@ -37,7 +37,7 @@ interface SentimentRule {
  */
 const POSITIVE_LEXICON: Record<string, number> = {
   // 正面词
-  '好': 0.8, '棒': 0.9, '优秀': 0.9, '赞': 0.9, '不错': 0.7,
+  '好': 0.8, '很好': 0.9, '棒': 0.9, '优秀': 0.9, '赞': 0.9, '不错': 0.7,
   '喜欢': 0.8, '爱': 0.9, '开心': 0.8, '高兴': 0.8, '快乐': 0.8,
   '满意': 0.7, '感谢': 0.6, '谢谢': 0.6, '感激': 0.7,
   '完美': 1.0, '出色': 0.9, '卓越': 0.9, '精彩': 0.8,
@@ -188,16 +188,26 @@ export class SentimentAnalyzer {
     // 简单的中英文分词
     const tokens: string[] = []
 
-    // 按空格和标点分词
-    const words = content.toLowerCase().split(/[\s,.!?;:'"()\[\]{}]+/)
+    // 1. 首先按标点符号分割
+    const segments = content.toLowerCase().split(/[\s,.!?;:'"()\[\]{}]+/)
 
-    for (const word of words) {
-      if (word.trim()) {
-        tokens.push(word.trim())
+    // 2. 对每个片段进行处理
+    for (const segment of segments) {
+      if (!segment.trim()) continue
+
+      // 3. 对中文进行细粒度处理（按字符）
+      if (/[\u4e00-\u9fa5]/.test(segment)) {
+        // 中文：提取连续的中文字符
+        const chineseChars = segment.match(/[\u4e00-\u9fa5]+/g) || []
+        tokens.push(...chineseChars)
+      } else {
+        // 英文：按空格分割
+        const words = segment.split(/\s+/)
+        tokens.push(...words.filter(w => w.trim()))
       }
     }
 
-    return tokens
+    return tokens.filter(t => t.length > 0)
   }
 
   /**

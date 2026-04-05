@@ -92,7 +92,7 @@ export class AuditLogStorage {
     }
 
     // Get entries and apply remaining filters
-    let entries = Array.from(candidateIds)
+    const entries = Array.from(candidateIds)
       .map(id => this.entries.get(id)!)
       .filter(entry => {
         // Time range filter

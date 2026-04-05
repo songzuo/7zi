@@ -350,34 +350,22 @@ export const agentTracker = {
 // ============================================
 // Real-Time Performance Dashboard (v1.12.2)
 // ============================================
-export {
-  RealTimeDashboardService,
-  realTimeDashboard,
-  type RealTimeMetrics,
-  type PerformanceTrend,
-  type DashboardClient,
-} from './realtime-dashboard'
+export { realTimeDashboard, type RealTimeMetrics, type PerformanceTrend, type DashboardClient } from './realtime-dashboard'
+export { default as RealTimeDashboardService } from './realtime-dashboard'
 
 // ============================================
 // Enhanced Metrics Collector (v1.12.2)
 // ============================================
-export {
-  EnhancedMetricsCollector,
-  enhancedMetricsCollector,
-  type AggregatedMetric,
-  type MetricSnapshot,
-  type PerformanceAlert as EnhancedPerformanceAlert,
-  type MetricCallback,
-} from './enhanced-metrics-collector'
+export { enhancedMetricsCollector, type AggregatedMetric, type MetricSnapshot, type PerformanceAlert as EnhancedPerformanceAlert, type MetricCallback } from './enhanced-metrics-collector'
+export { default as EnhancedMetricsCollector } from './enhanced-metrics-collector'
 
 // ============================================
 // Performance Alert Manager (v1.12.2)
 // ============================================
 export {
-  PerformanceAlertManager,
   alertManager,
-  type AlertRule,
   type ActiveAlert,
   type AlertNotification,
   type AlertCallback as AlertManagerCallback,
 } from './alert-manager-enhanced'
+export { default as PerformanceAlertManager } from './alert-manager-enhanced'

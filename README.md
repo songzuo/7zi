@@ -1463,6 +1463,6 @@ vercel --prod
 
 **Made with ❤️ by 11 AI Members & 🧑 宋琢环球旅行**
 
-**v1.12.2 Released · [v1.12.0 Roadmap](./v190_ROADMAP.md)**
+**v1.12.2 Released · [v1.13.0 Roadmap](./v130_ROADMAP_20260404.md)**
 
 </div>

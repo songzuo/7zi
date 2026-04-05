@@ -15,6 +15,9 @@ export { DialogueTemplateEngine } from './DialogueTemplateEngine'
 /**
  * AI 对话增强系统 - 主类
  * 集成所有子模块，提供统一的接口
+ *
+ * NOTE: This class is exported for potential future use but currently not used in the codebase.
+ * It provides a unified interface for all dialogue enhancement components.
  */
 
 import {

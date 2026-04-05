@@ -19,8 +19,8 @@ import {
  * 内存任务存储
  */
 export class InMemoryTaskStore implements TaskStore {
-  private tasks: Map<string, TaskWithPriority> = new Map()
-  private asyncStatus: Map<string, AsyncTaskStatus> = new Map()
+  protected tasks: Map<string, TaskWithPriority> = new Map()
+  protected asyncStatus: Map<string, AsyncTaskStatus> = new Map()
   private eventEmitter = new EventEmitter()
 
   /**

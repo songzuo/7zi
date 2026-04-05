@@ -103,7 +103,7 @@ const generateSampleHistory = (): AlertHistory[] => {
   return histories
 }
 
-let alertHistory: AlertHistory[] = generateSampleHistory()
+const alertHistory: AlertHistory[] = generateSampleHistory()
 
 // ============================================
 // GET - Fetch alert history

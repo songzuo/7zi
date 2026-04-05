@@ -14,7 +14,8 @@
 import React, { useState, useEffect, useCallback } from 'react'
 import { WorkflowDefinition, WorkflowStatus } from '@/types/workflow'
 import { WorkflowEditor } from './WorkflowEditor'
-import { useWorkflowDraft, WorkflowDraft, DraftMetadata } from '@/hooks/useWorkflowDraft'
+import { useWorkflowDraft } from '@/hooks/useWorkflowDraft'
+import { WorkflowDraft, DraftMetadata } from '@/lib/storage/draft-storage'
 import { cn } from '@/lib/utils'
 
 interface WorkflowEditorWithDraftProps {

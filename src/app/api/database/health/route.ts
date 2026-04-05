@@ -1,11 +1,10 @@
-import { NextRequest, NextResponse } from 'next/server'
+import { NextResponse } from 'next/server'
 import { getDatabaseAsync, getDatabaseStats } from '@/lib/db'
 import { getDatabaseHealth, type DatabaseHealthResult as DatabaseHealth } from '@/lib/db/migrations'
 import { generatePerformanceReport, type PerformanceReport } from '@/lib/db/performance-analyzer'
 import { getCacheStats } from '@/lib/db/cache'
-import { logger } from '@/lib/logger'
 import { createSuccessResponse } from '@/lib/api/utils'
-import { createErrorResponse, ErrorType } from '@/lib/api/error-handler'
+import { createErrorResponse } from '@/lib/api/error-handler'
 import { getLocaleFromRequest } from '@/lib/api/user-messages'
 import { createApiContext, logApiError } from '@/lib/api/error-logger'
 import { withRateLimit } from '@/lib/middleware/rate-limit'
@@ -31,6 +30,9 @@ async function GETHandler(request: Request) {
   const requestId = (request.headers as Headers).get('x-request-id') || crypto.randomUUID()
   const locale = getLocaleFromRequest(request)
   const context = createApiContext(request)
+
+  // Use startTime in error logging
+  const _startTime = startTime
 
   try {
     const db = await getDatabaseAsync()

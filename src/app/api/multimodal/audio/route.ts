@@ -1,4 +1,4 @@
-import { NextRequest, NextResponse } from 'next/server'
+import { NextRequest } from 'next/server'
 /**
  * Multimodal API - Audio Transcription Endpoint
  * POST /api/multimodal/audio
@@ -92,7 +92,7 @@ import { NextRequest, NextResponse } from 'next/server'
  */
 
 import { getMultimodalService } from '@/lib/multimodal/multimodal-service'
-import { audioToBuffer, validateAudio, formatDuration } from '@/lib/multimodal/audio-utils'
+import { validateAudio, formatDuration } from '@/lib/multimodal/audio-utils'
 import type {
   AudioTranscriptionOptions,
   AudioTranscriptionResult,

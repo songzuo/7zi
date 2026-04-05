@@ -167,7 +167,7 @@ export const POST = withRateLimit(RATE_LIMIT_PRESETS.relaxed, async (request: Ne
         message: 'Internal error',
         data: error instanceof Error ? error.message : String(error),
       },
-      id: null,
+      id: undefined,
     }
     return NextResponse.json(errorResponse, { status: 500 })
   }

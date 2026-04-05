@@ -52,7 +52,7 @@ export interface UseWorkflowDraftState {
  */
 export interface UseWorkflowDraftActions {
   /** 保存草稿 */
-  saveDraft: (data: Omit<WorkflowDraft, 'id' | 'workflowId' | 'metadata'>) => Promise<void>
+  saveDraft: (data: Omit<WorkflowDraft, 'id' | 'workflowId'> & { metadata?: Partial<WorkflowDraft['metadata']> }) => Promise<void>
   /** 加载草稿 */
   loadDraft: () => Promise<void>
   /** 删除草稿 */

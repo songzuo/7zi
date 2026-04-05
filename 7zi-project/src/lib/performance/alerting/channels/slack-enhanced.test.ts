@@ -268,11 +268,11 @@ describe('EnhancedSlackChannel', () => {
       channel = new EnhancedSlackChannel(defaultConfig);
       const alert = createAlert();
 
-      // 模拟网络错误
-      mockFetch.mockRejectedValueOnce(new Error('Network error'));
+      // 模拟网络错误 - 每次都失败
+      mockFetch.mockRejectedValue(new Error('Network error'));
 
       const result = await channel.send(alert);
-      
+
       expect(result.success).toBe(false);
       expect(result.error).toBeDefined();
     });

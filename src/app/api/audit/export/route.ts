@@ -4,8 +4,8 @@
  */
 
 import { NextRequest, NextResponse } from 'next/server';
-import { getAuditLogger } from '@/lib/audit/audit-logger.js';
-import type { AuditLogExportOptions, AuditAction, AuditStatus } from '@/lib/audit/types.js';
+import { getAuditLogger } from '@/lib/audit/audit-logger';
+import type { AuditLogExportOptions, AuditAction, AuditStatus } from '@/lib/audit/types';
 
 /**
  * GET /api/audit/export
@@ -87,7 +87,7 @@ export async function GET(request: NextRequest) {
     };
 
     // 验证maxRecords
-    if (options.maxRecords > 100000) {
+    if (options.maxRecords && options.maxRecords > 100000) {
       return NextResponse.json(
         { error: 'maxRecords cannot exceed 100000' },
         { status: 400 }

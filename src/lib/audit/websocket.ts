@@ -4,7 +4,7 @@
  * @version 1.12.0
  */
 
-import type { AuditLogEntry, AuditAction, AuditStatus } from './types.js';
+import type { AuditLogEntry, AuditAction, AuditStatus } from './types';
 
 // ============================================================================
 // WebSocket 消息类型

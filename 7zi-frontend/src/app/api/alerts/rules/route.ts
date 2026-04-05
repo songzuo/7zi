@@ -71,7 +71,7 @@ const initialRules: AlertRule[] = [
   }
 ]
 
-let alertRules: AlertRule[] = [...initialRules]
+const alertRules: AlertRule[] = [...initialRules]
 
 // ============================================
 // Validation Helpers

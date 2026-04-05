@@ -106,7 +106,7 @@ export class EmailAlertChannel extends BaseAlertChannel implements AlertChannel 
     if (!this.transporter) {
       try {
         // Use require to avoid static analysis
-        // eslint-disable-next-line @typescript-eslint/no-var-requires
+         
         const nodemailer = require('nodemailer')
 
         this.transporter = nodemailer.createTransport({

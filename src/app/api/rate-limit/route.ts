@@ -54,7 +54,7 @@ function getGateway() {
 }
 
 // In-memory stats storage for demo
-let stats = {
+const stats = {
   totalRequests: 0,
   allowedRequests: 0,
   rejectedRequests: 0,

@@ -35,6 +35,11 @@ export interface DatabaseConnection {
   getConnection?: () => unknown
   batch: (statements: Array<{ sql: string; params?: unknown[] }>) => Promise<DatabaseResult[]>
   paginate?: (sql: string, pagination: unknown, params?: unknown[]) => Promise<unknown>
+  // Transaction support
+  beginTransaction: () => void
+  commit: () => void
+  rollback: () => void
+  isInTransaction: () => boolean
 }
 
 /**
@@ -85,10 +90,13 @@ export async function getDatabaseAsync(): Promise<DatabaseConnection> {
 }
 
 /**
- * Get database connection with connection pooling
+ * Get database connection with connection pooling and transaction support
  */
 export function getDatabase(): DatabaseConnection {
   const db = initializeDatabase()
+
+  // Transaction state tracking
+  let transactionDepth = 0
 
   const baseConnection = {
     query: (sql: string, params?: unknown[]) => {
@@ -276,6 +284,72 @@ export function getDatabase(): DatabaseConnection {
         enhancedError.name = 'DatabaseBatchError'
         throw enhancedError
       }
+    },
+
+    // Transaction support methods
+    beginTransaction: () => {
+      try {
+        if (transactionDepth === 0) {
+          db.exec('BEGIN TRANSACTION')
+          logger.debug('[Database] Transaction started', { category: 'db' })
+        }
+        transactionDepth++
+      } catch (error) {
+        const errorMessage = error instanceof Error ? error.message : String(error)
+        logger.error('[Database BeginTransaction Error]', error, {
+          category: 'db',
+          error: errorMessage,
+          timestamp: new Date().toISOString(),
+        })
+        throw new Error(`Failed to begin transaction: ${errorMessage}`)
+      }
+    },
+
+    commit: () => {
+      try {
+        if (transactionDepth === 0) {
+          logger.warn('[Database] Attempted to commit with no active transaction', { category: 'db' })
+          return
+        }
+        transactionDepth--
+        if (transactionDepth === 0) {
+          db.exec('COMMIT')
+          logger.debug('[Database] Transaction committed', { category: 'db' })
+        }
+      } catch (error) {
+        const errorMessage = error instanceof Error ? error.message : String(error)
+        logger.error('[Database Commit Error]', error, {
+          category: 'db',
+          error: errorMessage,
+          timestamp: new Date().toISOString(),
+        })
+        transactionDepth = 0 // Reset depth on error
+        throw new Error(`Failed to commit transaction: ${errorMessage}`)
+      }
+    },
+
+    rollback: () => {
+      try {
+        if (transactionDepth === 0) {
+          logger.warn('[Database] Attempted to rollback with no active transaction', { category: 'db' })
+          return
+        }
+        transactionDepth = 0 // Reset depth immediately
+        db.exec('ROLLBACK')
+        logger.debug('[Database] Transaction rolled back', { category: 'db' })
+      } catch (error) {
+        const errorMessage = error instanceof Error ? error.message : String(error)
+        logger.error('[Database Rollback Error]', error, {
+          category: 'db',
+          error: errorMessage,
+          timestamp: new Date().toISOString(),
+        })
+        throw new Error(`Failed to rollback transaction: ${errorMessage}`)
+      }
+    },
+
+    isInTransaction: () => {
+      return transactionDepth > 0
     },
   }
 

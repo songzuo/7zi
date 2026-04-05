@@ -5,8 +5,8 @@
  */
 
 import { NextRequest, NextResponse } from 'next/server';
-import { getAuditLogger } from './audit-logger.js';
-import type { AuditAction } from './types.js';
+import { getAuditLogger } from './audit-logger';
+import type { AuditAction } from './types';
 
 // ============================================================================
 // 中间件配置

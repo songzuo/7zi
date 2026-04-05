@@ -56,6 +56,7 @@ export interface ScheduleTaskRequest {
   agentId?: string
   metadata?: Record<string, unknown>
   maxRetries?: number
+  timeout?: number
 }
 
 export interface ScheduleTaskResponse {

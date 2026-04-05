@@ -49,8 +49,11 @@ describe('Audio Utils', () => {
         numberOfChannels: 1,
         length: 16000,
         sampleRate: 16000,
+        duration: 1,
         getChannelData: () => new Float32Array(16000),
-      } as AudioBuffer
+        copyFromChannel: () => {},
+        copyToChannel: () => {},
+      } as unknown as AudioBuffer
 
       const blob = await audioBufferToBlob(mockBuffer, 'webm')
 
@@ -264,7 +267,8 @@ describe('Audio Utils', () => {
       })
 
       // Check that maximum is 1
-      const max = Math.max(...normalized.map(Math.abs))
+      const absArray = Array.from(normalized).map(Math.abs)
+      const max = Math.max(...absArray)
       expect(max).toBeCloseTo(1, 4)
     })
 

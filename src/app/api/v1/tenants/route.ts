@@ -144,34 +144,33 @@ export async function GET_TENANT(
  */
 export async function PUT_TENANT(
   request: NextRequest,
-  { params }: { params: Promise<{ id: string }> }
+  { params }: { params: { id: string } }
 ) {
   try {
     const permissionCheck = await requirePermission('tenant', 'write')(request)
     if (permissionCheck) return permissionCheck
-
-    const resolvedParams = await params
+    
     const userId = request.headers.get('x-user-id') || ''
     const body = await request.json()
-
+    
     // 获取旧值
-    const oldTenant = await tenantService.getTenant(resolvedParams.id)
-
+    const oldTenant = await tenantService.getTenant(params.id)
+    
     // 更新租户
-    const updated = await tenantService.updateTenant(resolvedParams.id, body)
-
+    const updated = await tenantService.updateTenant(params.id, body)
+    
     // 记录审计日志
     await auditService.logDataChange(
-      resolvedParams.id,
+      params.id,
       userId,
       'tenant',
-      resolvedParams.id,
+      params.id,
       'update',
       oldTenant,
       updated,
       request.headers.get('x-forwarded-for') || undefined
     )
-
+    
     return NextResponse.json({
       success: true,
       data: updated,
@@ -219,7 +218,7 @@ export async function DELETE_TENANT(
     
     return NextResponse.json({
       success: true,
-      data: { id: resolvedParams.id, deleted: true },
+      data: { id: params.id, deleted: true },
     })
   } catch (error) {
     console.error('Error deleting tenant:', error)
@@ -279,10 +278,6 @@ export async function GET_TENANT_QUOTA(
     console.error('Error getting tenant quota:', error)
     return NextResponse.json(
       { success: false, error: { code: 'INTERNAL_ERROR', message: 'Internal server error' } },
-      { status: 500 }
-    )
-  }
-}rnal server error' } },
       { status: 500 }
     )
   }
