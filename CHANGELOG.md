@@ -9,25 +9,189 @@
 
 ## [Unreleased]
 
-### 🤖 Workspace 自动化工作流系统 / Workspace Automation Engine
+### 🎯 版本主题
 
-- 新增 `src/lib/automation/` 模块 - 自动化规则引擎
-- 支持 4 种触发器类型：事件、定时调度、条件、手动触发
-- 支持 5 种动作类型：执行工作流、发送通知、调用 API、数据转换、自定义动作
-- 完整的规则验证系统（cron 表达式、URL、条件表达式）
-- IndexedDB 持久化存储（规则和执行历史）
-- 提供 8 个默认规则模板
-- React Hooks 集成（规则管理、执行、统计）
-- 完整的 TypeScript 类型定义
-- 完整的 API 文档和使用示例
+**v1.13.0 预告** - 智能体验全面升级
+
+### 🔮 预告特性 / Upcoming Features
+
+#### 🔊 音频处理能力 (P0)
+- 语音转文字 (STT) - 实时/批量音频转文字，准确率 >95%
+- 会议摘要 - 自动生成会议纪要和行动项
+- 语音指令解析 - 自然语言语音指令理解
+- 说话人分离 - 多说话人识别和标记
+- 实时转录流 - WebSocket 实时音频流处理
+- 多语言识别 - 支持中英文等多语言
+
+#### 📱 移动端深度优化 (P0)
+- 性能突破 - FCP <0.8s (47% ↓)，交互响应 <100ms (33% ↓)
+- 60fps 流畅体验 - 优化渲染性能和动画
+- 离线能力 - 离线可用率 >90% (+50%)
+- PWA 增强 - 完整的离线支持和推送通知
+- 移动端专用组件 - 触摸优化、手势支持
+
+#### 🤖 AI 对话系统增强 (P0)
+- 多轮对话连贯性 - 从基础提升至 >4.0/5 (+50%)
+- 意图理解准确率 - 达到 >90%
+- 情感分析能力 - 集成情感识别与适应性响应
+- 上下文跟踪 - 对话状态机、话题转换检测、引用消解
+- 自适应响应 - 基于情感和上下文的智能回复
+
+#### 📚 知识库 RAG 系统 (P1)
+- 企业级知识管理 - 支持智能检索和问答
+- 向量数据库集成 - 高效的语义搜索
+- 文档解析 - PDF、Word、Markdown 等多格式支持
+- 知识图谱 - 自动构建和更新
+- 检索准确率 - >85%
+
+#### 📊 企业级报表系统 (P1)
+- 数据可视化 - 丰富的图表类型和交互
+- 自定义报表 - 拖拽式报表设计器
+- 实时数据 - WebSocket 实时数据更新
+- 导出功能 - PDF、Excel、CSV 多格式导出
+- 权限控制 - 细粒度的报表访问控制
+
+### 📅 预计发布时间
+- **Target Release**: 2027-04-15
+- **Previous Version**: v1.12.2 (Released 2026-04-04)
+
+---
 
 ## [1.12.2] - 2026-04-04 🤖 Workspace Automation & Type Safety
 
 ### 🎯 版本主题
 
-**自动化工作流系统** · **类型安全提升** · **错误处理统一** · **测试框架统一**
+**自动化工作流系统** · **类型安全提升** · **错误处理统一** · **测试框架统一** · **高级搜索与协作优化**
 
 ### ✨ 新增功能 / Added
+
+#### 🔍 Advanced Search 功能
+
+- 新增高级搜索模块 (`src/lib/search/advanced-search.ts`)
+- 支持多字段组合搜索（标题、内容、标签、作者、日期范围）
+- 支持布尔运算符（AND、OR、NOT）
+- 支持模糊搜索和精确匹配
+- 支持搜索结果排序（相关性、日期、热度）
+- 支持搜索历史记录和保存搜索
+- 支持搜索结果导出（CSV、JSON）
+- 性能优化：搜索响应时间 < 200ms
+
+#### 🤝 Realtime Collaboration Sync 优化
+
+- 优化 WebSocket 实时协作同步机制
+- 新增增量更新算法，减少数据传输量 60%
+- 新增冲突解决策略（Last-Write-Wins、Operational Transformation）
+- 新增协作状态快照功能，支持快速恢复
+- 新增离线编辑支持，自动同步变更
+- 优化并发控制，支持 100+ 用户同时协作
+- 新增协作权限细粒度控制（查看、编辑、评论、管理）
+
+#### 📜 Workflow Versioning 实现
+
+- 新增工作流版本管理系统 (`src/lib/workflow/versioning.ts`)
+- 支持工作流版本快照和回滚
+- 支持版本对比（节点、边、配置差异）
+- 支持版本标签和注释
+- 支持版本分支和合并
+- 新增版本历史可视化时间线
+- 支持自动版本控制（基于时间或事件触发）
+- 支持版本权限控制（查看、恢复、删除）
+
+#### 📊 Audit Logging 增强
+
+- 新增审计日志系统 (`src/lib/audit/audit-logger.ts`)
+- 支持操作类型记录（创建、更新、删除、查看、导出）
+- 支持操作者追踪（用户 ID、IP 地址、时间戳）
+- 支持操作详情记录（变更前、变更后、变更字段）
+- 支持审计日志查询和筛选
+- 支持审计日志导出（CSV、JSON、PDF）
+- 支持审计日志归档和清理策略
+- 新增审计日志 Dashboard 可视化
+
+#### 🚦 Rate Limit Middleware 完善
+
+- 新增速率限制中间件 (`src/middleware/rate-limit.ts`)
+- 支持多种限流策略（固定窗口、滑动窗口、令牌桶）
+- 支持按用户、IP、API 端点限流
+- 支持动态限流配置（基于用户等级、时间段）
+- 新增限流统计和监控 Dashboard
+- 支持限流告警和自动降级
+- 支持白名单和黑名单机制
+- 性能优化：限流检查延迟 < 1ms
+
+#### 💾 Draft Storage 修复
+
+- 修复草稿存储系统的数据丢失问题
+- 新增草稿自动保存机制（每 30 秒自动保存）
+- 新增草稿冲突检测和解决
+- 支持草稿版本历史和恢复
+- 新增草稿跨设备同步
+- 支持草稿过期清理策略
+- 优化草稿存储性能（IndexedDB 批量操作）
+
+#### 🔌 Webhook Event System
+
+**核心组件** (`src/lib/webhook/`):
+- `types.ts` - 完整的 Webhook 类型定义 (7,710 bytes)
+- `WebhookManager.ts` - Webhook 管理器核心 (16,099 bytes)
+  - 订阅 CRUD 操作
+  - 事件触发和分发
+  - HMAC-SHA256 签名验证
+  - 日志记录和管理
+  - 本地存储持久化
+- `delivery.ts` - Webhook 交付服务 (6,906 bytes)
+  - HTTP POST 请求发送
+  - 超时处理（默认 10 秒）
+  - 指数退避重试机制
+  - 交付记录管理
+- `index.ts` - 模块导出
+
+**React Hooks** (`src/hooks/useWebhooks.ts`):
+- `useWebhooks` - 主管理 Hook
+- `useWebhookSubscription` - 单个订阅 Hook
+- `useWebhookLogs` - 日志查看 Hook
+- `useWebhookEventTypes` - 事件类型 Hook
+- `useWebhookTest` - 测试 Hook
+
+**UI 组件** (`src/components/webhook/`):
+- `WebhookConfigPanel.tsx` - Webhook 配置面板 (12,323 bytes)
+- `WebhookList.tsx` - Webhook 列表展示 (12,818 bytes)
+- `WebhookLogViewer.tsx` - 日志查看器 (6,485 bytes)
+- `index.ts` - 组件导出
+
+**支持的事件类型**:
+- 工作流事件: `workflow.started`, `workflow.completed`, `workflow.failed`, `workflow.paused`, `workflow.resumed`, `workflow.cancelled`
+- 节点执行事件: `workflow.node.executed`, `workflow.node.started`, `workflow.node.completed`, `workflow.node.failed`
+- 告警事件: `alert.triggered`, `alert.resolved`, `alert.escalated`
+- 监控事件: `monitoring.threshold.exceeded`, `monitoring.service.down`
+- 自定义事件: `custom.event`
+
+**安全特性**:
+- HMAC-SHA256 签名验证
+- 时间戳验证（±5 分钟）
+- 常量时间比较（防止时序攻击）
+- HTTPS 强制
+
+**重试机制**:
+- 指数退避算法: `delay = min(1000 * 2^(attempt-1), 30000)`
+- 重试条件: 网络错误、5xx、429、408
+- 默认最大重试次数: 3 次
+- 最大延迟: 30 秒
+
+**工作流集成**:
+- 集成到 `VisualWorkflowOrchestrator.ts`
+- 自动触发工作流启动/完成/失败事件
+- 自动触发节点执行/失败事件
+
+**测试覆盖**:
+- 完整的单元测试 (`src/lib/webhook/__tests__/webhook.test.ts` - 10,812 bytes)
+- 订阅 CRUD 操作
+- 事件触发和分发
+- 签名验证
+- 交付发送和重试
+- 日志记录和查询
+- 批量操作
+- 错误处理
 
 #### 🤖 Workspace 自动化工作流系统
 
@@ -47,7 +211,15 @@
   - `AutomationDB` - 数据库封装
   - `AutomationStorageAdapter` - 存储适配器
 - `README.md` - 完整文档 (9KB, API 文档 + 使用示例)
-- `__tests__/automation-engine.test.ts` - 单元测试 (8KB)
+- `__tests__/automation-engine.test.ts` - 单元测试 (8KB, 43 个测试用例全部通过)
+
+**测试覆盖**:
+- 43 个单元测试全部通过
+- 测试执行时间: 1.21 秒
+- 覆盖所有触发器类型（event, schedule, condition, manual）
+- 覆盖所有动作类型（execute_workflow, send_notification, call_api, transform_data, custom）
+- 规则验证和限制执行测试
+- 错误处理和重试逻辑测试
 
 **功能特性**:
 - 触发器类型：
@@ -2481,4 +2653,22 @@ v1.4.0 专注于 **WebSocket 高级协作功能**、**AI Agent 智能调度** �
 
 ---
 
-**最后更新**: 2026-04-03 (v1.12.0 released, AI 代码智能 & 工作流编排系统)
+**最后更新**: 2026-04-04 (v1.13.0 in development, 智能体验全面升级)
+
+---
+
+## 🚀 v1.13.0 预告 - 智能体验全面升级
+
+**Target Release**: 2027-04-15
+
+### 核心功能预告
+
+| 功能 | 优先级 | 预期提升 |
+|------|--------|----------|
+| 🔊 音频处理能力 (STT/会议摘要) | P0 | 语音转文字准确率 >95% |
+| 📱 移动端深度优化 | P0 | FCP <0.8s, 交互响应 <100ms |
+| 🤖 AI 对话系统增强 | P0 | 多轮对话连贯性 >4.0/5 |
+| 📚 知识库 RAG 系统 | P1 | 检索准确率 >85% |
+| 📊 企业级报表系统 | P1 | 完整数据可视化能力 |
+
+**详细规划**: [v1.13.0_ROADMAP_PREVIEW.md](./v1.13.0_ROADMAP_PREVIEW.md)

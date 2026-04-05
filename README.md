@@ -3,7 +3,7 @@
 > **11 位 AI 成员 · 24/7 自主工作 · 实时协作**
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
-[![Version](https://img.shields.io/badge/version-1.12.1-blue.svg)](https://github.com/songzuo/7zi)
+[![Version](https://img.shields.io/badge/version-1.13.0--in--development-orange.svg)](https://github.com/songzuo/7zi)
 [![CI Status](https://github.com/songzuo/7zi/workflows/CI%20-%20Pull%20Request%20Checks/badge.svg)](https://github.com/songzuo/7zi/actions/workflows/ci-pr.yml)
 [![Deploy Status](https://github.com/songzuo/7zi/workflows/Deploy%20-%20Main%20Branch/badge.svg)](https://github.com/songzuo/7zi/actions/workflows/deploy-main.yml)
 [![Next.js](https://img.shields.io/badge/Next.js-16.2.1-black?logo=next.js)](https://nextjs.org/)
@@ -28,29 +28,65 @@
 
 ---
 
-## 🔥 最新进展 (v1.12.1 - Released 2026-04-04 | v1.12.0 - Released 2026-04-03 | v1.11.0 - Released 2026-04-03 | v1.10.1 - Released 2026-04-04 | v1.10.0 - Released 2026-04-03)
+## 🔥 最新进展 (v1.13.0 - In Development | v1.12.2 - Released 2026-04-04 | v1.12.1 - Released 2026-04-04 | v1.12.0 - Released 2026-04-03 | v1.11.0 - Released 2026-04-03 | v1.10.1 - Released 2026-04-04)
 
-### 📊 v1.12.1 核心亮点 (2026-04-04) 🐛 Post-v1.12.0 Bug Fixes & UX Enhancements
+### 🚀 v1.13.0 预告特性 (Target: 2027-04-15) 🎯
+
+| 功能                          | 优先级 | 预期提升                          |
+| ----------------------------- | ------ | --------------------------------- |
+| 🔊 **音频处理能力**           | P0     | 语音转文字准确率 >95%             |
+| 📱 **移动端深度优化**         | P0     | FCP <0.8s (47% ↓)，交互响应 <100ms |
+| 🤖 **AI 对话系统增强**        | P0     | 多轮对话连贯性 >4.0/5 (+50%)      |
+| 📚 **知识库 RAG 系统**        | P1     | 检索准确率 >85%                   |
+| 📊 **企业级报表系统**         | P1     | 丰富的数据可视化和自定义报表      |
+
+**核心亮点**:
+- 🔊 **多模态能力补齐** - 语音转文字、会议摘要、语音指令解析
+- 📱 **移动端体验突破** - 60fps 流畅体验、离线能力 >90%
+- 🤖 **智能对话升级** - 意图理解准确率 >90%、情感分析能力
+- 📚 **企业知识管理** - 向量数据库、知识图谱、智能检索
+- 📊 **数据可视化** - 拖拽式报表设计器、实时数据更新
+
+**详细规划**: [v1.13.0 Roadmap](./v130_ROADMAP_20260404.md)
+
+---
+
+### 📊 v1.12.2 核心亮点 (2026-04-04) 🤖 Workspace Automation & Type Safety
+
+### 📊 v1.12.2 核心亮点 (2026-04-04) 🤖 Workspace Automation & Type Safety
 
 | 功能                                | 状态      | 说明                                          |
 | ----------------------------------- | --------- | --------------------------------------------- |
-| 🐛 **Bug 修复**                     | ✅ 已完成 | WebSocket bundle 优化、ErrorBoundary 修复、TypeScript 类型修复 |
-| 🎨 **Workflow Editor UX 增强**      | ✅ 已完成 | DragFeedback 组件、NodeWrapper 组件、EnhancedToolbar 优化 |
-| 📊 **监控聚合器**                   | ✅ 已完成 | 新增监控数据聚合模块，支持多维度数据聚合        |
-| 📧 **告警通道增强**                 | ✅ 已完成 | SMS 告警通道、Webhook 告警通道、邮件告警增强   |
-| 🔧 **Next.js 错误处理**             | ✅ 已完成 | 新增 error.tsx 和 global-error.tsx             |
+| 🤖 **Workspace 自动化工作流系统**    | ✅ 已完成 | 规则引擎、4种触发器、5种动作、8个默认模板    |
+| 🔍 **Advanced Search 高级搜索**     | ✅ 已完成 | 多字段组合搜索、布尔运算、模糊搜索、搜索历史  |
+| 🤝 **Realtime Collaboration Sync**  | ✅ 已完成 | 增量更新、冲突解决、离线编辑、100+用户并发    |
+| 📜 **Workflow Versioning**         | ✅ 已完成 | 版本快照、回滚、对比、标签、分支、合并         |
+| 📊 **Audit Logging 增强**           | ✅ 已完成 | 操作追踪、详情记录、导出、Dashboard 可视化   |
+| 🚦 **Rate Limit Middleware 完善**   | ✅ 已完成 | 多策略限流、动态配置、监控告警、白名单        |
+| 💾 **Draft Storage 修复**           | ✅ 已完成 | 自动保存、冲突检测、跨设备同步、版本历史     |
+| 🔌 **Webhook Event System**        | ✅ 已完成 | 事件订阅、触发、交付、日志、测试             |
+| 🧹 **TypeScript 类型安全**          | ✅ 已完成 | 清理122处any、泛型化优化、类型安全得分94%    |
+| 🎯 **错误处理系统统一**            | ✅ 已完成 | 30+统一接口、14种错误类型、向后兼容          |
+| 🧪 **测试框架统一**                | ✅ 已完成 | 统一为Vitest、3个测试文件迁移                |
 
-### 📊 v1.12.1 新增文件
+### 📊 v1.12.2 新增文件
 
 ```
-src/app/error.tsx                          # Next.js 错误页面
-src/app/global-error.tsx                   # 全局错误边界
-src/components/WorkflowEditor/DragFeedback.tsx
-src/components/WorkflowEditor/NodeTypes/NodeWrapper.tsx
-src/lib/monitoring/aggregator.ts           # 监控聚合器
-src/lib/monitoring/channels/sms-alert.ts   # SMS 告警通道
-src/lib/monitoring/channels/webhook-alert.ts
-src/types/api.ts                           # API 类型定义
+src/lib/search/advanced-search.ts           # 高级搜索模块
+src/lib/workflow/versioning.ts              # 工作流版本管理
+src/lib/audit/audit-logger.ts              # 审计日志系统
+src/middleware/rate-limit.ts                # 速率限制中间件
+src/lib/automation/                        # 自动化工作流引擎
+src/lib/automation/automation-engine.ts    # 规则引擎核心
+src/lib/automation/default-templates.ts    # 默认规则模板
+src/lib/automation/automation-hooks.ts     # React Hooks
+src/lib/automation/automation-storage.ts   # IndexedDB 存储
+src/lib/webhook/                          # Webhook 事件系统
+src/lib/webhook/types.ts                  # Webhook 类型定义
+src/lib/webhook/WebhookManager.ts          # Webhook 管理器核心
+src/lib/webhook/delivery.ts               # Webhook 交付服务
+src/hooks/useWebhooks.ts                  # React Hooks
+src/components/webhook/                    # UI 组件
 ```
 
 ### 📊 v1.12.0 核心亮点 (2026-04-03)
@@ -737,6 +773,8 @@ EMAIL_ALERTING_ENABLED=true
 
 | 版本       | 日期       | 主要更新                                                                                                                                                                |
 | ---------- | ---------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| **v1.13.0** | 2027-04-15 | 🚀 音频处理能力 (STT/会议摘要)、📱 移动端深度优化 (60fps/离线能力)、🤖 AI 对话系统增强 (多轮对话/意图理解/情感分析)、📚 知识库 RAG 系统、📊 企业级报表系统 |
+| **v1.12.2** | 2026-04-04 | 🤖 Workspace 自动化工作流系统、🔍 Advanced Search 高级搜索、🤝 Realtime Collaboration Sync 优化、📜 Workflow Versioning 实现、📊 Audit Logging 增强、🚦 Rate Limit Middleware 完善、💾 Draft Storage 修复、🔌 Webhook Event System、🧹 TypeScript 类型安全提升 |
 | **v1.12.1** | 2026-04-04 | 🐛 Post-v1.12.0 Bug Fixes & UX Enhancements - WebSocket bundle 优化、ErrorBoundary 修复、Workflow Editor UX 增强、监控聚合器、告警通道增强 (SMS/Webhook) |
 | **v1.12.0** | 2026-04-03 | 🚀 AI 代码智能系统、🎨 Visual Workflow Orchestrator、📧 Email Alerting、🧠 多模型智能路由（10+ AI 模型）、🏢 多租户架构、💾 数据库查询缓存、🌐 WebSocket 压缩优化       |
 | **v1.11.0** | 2026-04-03 | 🏢 多租户架构实现、🔐 精细化权限控制（Fine-Grained RBAC）、📊 数据导入导出系统、🤝 协作基础设施、📈 工作流监控仪表板                                                   |
@@ -1425,6 +1463,6 @@ vercel --prod
 
 **Made with ❤️ by 11 AI Members & 🧑 宋琢环球旅行**
 
-**v1.12.1 Released · [v1.12.0 Roadmap](./v190_ROADMAP.md)**
+**v1.12.2 Released · [v1.12.0 Roadmap](./v190_ROADMAP.md)**
 
 </div>

@@ -5,9 +5,9 @@ Complete API documentation for the 7zi AI Team Management Platform.
 ---
 
 **Last Updated:** 2026-04-04
-**Version:** v1.12.1
+**Version:** v1.12.2
 **Reviewer:** AI Documentation Agent
-**Total Endpoints:** 64 REST endpoints + 30+ WebSocket message types
+**Total Endpoints:** 72 REST endpoints + 30+ WebSocket message types
 
 > **注意**: 本文档已与代码同步验证。所有 API 端点均来自 `src/app/api/` 目录下的实际实现。
 
@@ -4525,6 +4525,651 @@ Get search history for a user.
   }
 }
 ```
+
+---
+
+## 🔍 Advanced Search APIs (v1.12.2)
+
+> **Version:** v1.12.2 | **Last Updated:** 2026-04-04
+
+v1.12.2 引入了高级搜索功能，支持多字段组合搜索、布尔运算符、模糊搜索、搜索历史记录和结果导出。
+
+### Advanced Search
+
+**Endpoint:** `GET /api/search/v2`
+
+Perform advanced search with filtering, sorting, and multiple search engines.
+
+**Query Parameters:**
+
+| Parameter | Type | Required | Default | Description |
+|-----------|------|----------|---------|-------------|
+| `q` | string | Yes | - | Search query |
+| `targets` | string | No | all | Comma-separated target types (task, project, member, agent) |
+| `limit` | number | No | 50 | Maximum results |
+| `offset` | number | No | 0 | Pagination offset |
+| `engine` | string | No | fuse | Search engine (fuse, simple, regex) |
+| `sort` | string | No | relevance | Sort by (relevance, date, popularity) |
+| `highlights` | boolean | No | true | Include search highlights |
+| `fuzzy` | boolean | No | true | Enable fuzzy search |
+| `fuzzyThreshold` | number | No | 0.3 | Fuzzy match threshold (0-1) |
+| `status` | string | No | - | Filter by status (comma-separated) |
+| `priority` | string | No | - | Filter by priority (comma-separated) |
+| `labels` | string | No | - | Filter by labels (comma-separated) |
+| `assignees` | string | No | - | Filter by assignees (comma-separated) |
+| `createdAfter` | string | No | - | ISO date filter |
+| `createdBefore` | string | No | - | ISO date filter |
+| `updatedAfter` | string | No | - | ISO date filter |
+| `updatedBefore` | string | No | - | ISO date filter |
+
+**Example:**
+
+```
+GET /api/search/v2?q=analyze&targets=task,project&priority=high&sort=date&limit=20
+```
+
+**Response (200 OK):**
+
+```json
+{
+  "success": true,
+  "data": {
+    "results": [
+      {
+        "id": "task_123",
+        "type": "task",
+        "title": "Analyze user behavior",
+        "description": "Analyze user behavior patterns",
+        "highlight": "<em>Analyze</em> user behavior",
+        "score": 0.95,
+        "metadata": {
+          "status": "in_progress",
+          "priority": "high",
+          "labels": ["analysis", "research"],
+          "assignees": ["user_123"],
+          "createdAt": "2026-03-15T10:00:00.000Z",
+          "updatedAt": "2026-04-01T14:30:00.000Z"
+        }
+      }
+    ],
+    "pagination": {
+      "total": 100,
+      "limit": 50,
+      "offset": 0,
+      "hasMore": true
+    },
+    "statistics": {
+      "searchTimeMs": 45,
+      "indexedDocuments": 5000,
+      "engineUsed": "fuse"
+    }
+  }
+}
+```
+
+### Autocomplete Suggestions
+
+**Endpoint:** `GET /api/search/v2/autocomplete`
+
+Get autocomplete suggestions for advanced search.
+
+**Query Parameters:**
+
+| Parameter | Type | Required | Description |
+|-----------|------|----------|-------------|
+| `q` | string | Yes | Partial query |
+| `targets` | string | No | Target types |
+| `limit` | number | No | Max suggestions (default: 10) |
+
+**Response (200 OK):**
+
+```json
+{
+  "success": true,
+  "data": {
+    "suggestions": [
+      {
+        "text": "analyze user behavior",
+        "type": "history",
+        "score": 0.95
+      },
+      {
+        "text": "analyze",
+        "type": "suggestion",
+        "score": 0.85
+      }
+    ],
+    "query": "analyze"
+  }
+}
+```
+
+---
+
+## 📊 Audit Logging APIs (v1.12.2)
+
+> **Version:** v1.12.2 | **Last Updated:** 2026-04-04
+
+v1.12.2 引入了完整的审计日志系统，支持操作记录、查询筛选和导出功能。
+
+### Query Audit Logs
+
+**Endpoint:** `GET /api/audit/logs`
+
+Query audit logs with filtering and pagination.
+
+**Query Parameters:**
+
+| Parameter | Type | Required | Description |
+|-----------|------|----------|-------------|
+| `userId` | string | No | Filter by user ID |
+| `username` | string | No | Filter by username |
+| `action` | string | No | Filter by action (CREATE, READ, UPDATE, DELETE, LOGIN, LOGOUT, EXPORT, ADMIN) |
+| `resource` | string | No | Filter by resource type |
+| `resourceId` | string | No | Filter by resource ID |
+| `status` | string | No | Filter by status (success, failure) |
+| `startTime` | string | No | Start date (ISO 8601) |
+| `endTime` | string | No | End date (ISO 8601) |
+| `ipAddress` | string | No | Filter by IP address |
+| `search` | string | No | Search keyword |
+| `sortBy` | string | No | Sort field (timestamp, userId, action) |
+| `sortOrder` | string | No | Sort order (asc, desc) |
+| `offset` | number | No | Pagination offset (default: 0) |
+| `limit` | number | No | Page size (default: 100, max: 1000) |
+
+**Example:**
+
+```
+GET /api/audit/logs?action=UPDATE&startTime=2026-04-01T00:00:00Z&endTime=2026-04-04T00:00:00Z&limit=50
+```
+
+**Response (200 OK):**
+
+```json
+{
+  "success": true,
+  "data": {
+    "logs": [
+      {
+        "id": "audit_123",
+        "timestamp": "2026-04-04T10:30:00.000Z",
+        "userId": "user_123",
+        "username": "john.doe",
+        "action": "UPDATE",
+        "resource": "task",
+        "resourceId": "task_456",
+        "status": "success",
+        "ipAddress": "192.168.1.100",
+        "details": {
+          "fieldsChanged": ["title", "status"],
+          "oldValues": { "title": "Old Title", "status": "pending" },
+          "newValues": { "title": "New Title", "status": "completed" }
+        }
+      }
+    ],
+    "pagination": {
+      "total": 1000,
+      "offset": 0,
+      "limit": 100
+    }
+  }
+}
+```
+
+### Export Audit Logs
+
+**Endpoint:** `GET /api/audit/export`
+
+Export audit logs in specified format.
+
+**Query Parameters:**
+
+| Parameter | Type | Required | Description |
+|-----------|------|----------|-------------|
+| `format` | string | Yes | Export format (json, csv) |
+| `startTime` | string | Yes | Start date (ISO 8601) |
+| `endTime` | string | Yes | End date (ISO 8601) |
+| `userId` | string | No | Filter by user ID |
+| `action` | string | No | Filter by action |
+| `resource` | string | No | Filter by resource type |
+| `resourceId` | string | No | Filter by resource ID |
+| `status` | string | No | Filter by status |
+| `ipAddress` | string | No | Filter by IP address |
+| `maxRecords` | number | No | Max records (default: 10000) |
+
+**Example:**
+
+```
+GET /api/audit/export?format=csv&startTime=2026-04-01T00:00:00Z&endTime=2026-04-04T00:00:00Z
+```
+
+**Response (200 OK):**
+
+```json
+{
+  "success": true,
+  "data": {
+    "exportId": "export_audit_123",
+    "format": "csv",
+    "recordCount": 500,
+    "downloadUrl": "/api/audit/export/download/export_audit_123",
+    "expiresAt": "2026-04-05T12:00:00.000Z"
+  }
+}
+```
+
+---
+
+## 🚦 Rate Limit Management APIs (v1.12.2)
+
+> **Version:** v1.12.2 | **Last Updated:** 2026-04-04
+
+v1.12.2 完善了速率限制中间件，支持多种限流策略和管理接口。
+
+### Get Rate Limit Status
+
+**Endpoint:** `GET /api/rate-limit`
+
+Get current rate limit configuration and statistics.
+
+**Response (200 OK):**
+
+```json
+{
+  "success": true,
+  "data": {
+    "config": {
+      "ip": {
+        "enabled": true,
+        "algorithm": "sliding-window",
+        "windowMs": 60000,
+        "maxRequests": 100
+      },
+      "user": {
+        "enabled": true,
+        "algorithm": "sliding-window",
+        "windowMs": 60000,
+        "maxRequests": 200
+      },
+      "apiKey": {
+        "enabled": true,
+        "algorithm": "token-bucket",
+        "defaultTier": "free",
+        "tiers": {
+          "free": { "name": "free", "rate": 2, "burst": 10, "dailyLimit": 1000 },
+          "basic": { "name": "basic", "rate": 10, "burst": 30, "dailyLimit": 10000 },
+          "pro": { "name": "pro", "rate": 50, "burst": 150, "dailyLimit": 100000 },
+          "enterprise": { "name": "enterprise", "rate": 200, "burst": 500, "dailyLimit": 1000000 }
+        }
+      },
+      "global": {
+        "enabled": true,
+        "algorithm": "token-bucket",
+        "rate": 1000,
+        "burst": 2000
+      }
+    },
+    "stats": {
+      "totalRequests": 50000,
+      "allowedRequests": 48500,
+      "rejectedRequests": 1500,
+      "rejectionRate": 0.03,
+      "avgLatencyMs": 2.5,
+      "p99LatencyMs": 15
+    }
+  }
+}
+```
+
+### Update Rate Limit Config
+
+**Endpoint:** `PUT /api/rate-limit`
+
+Update rate limit configuration.
+
+**Request Body:**
+
+```json
+{
+  "layer": "user",
+  "algorithm": "sliding-window",
+  "windowMs": 60000,
+  "maxRequests": 300
+}
+```
+
+**Response (200 OK):**
+
+```json
+{
+  "success": true,
+  "data": {
+    "message": "Rate limit config updated successfully",
+    "config": {
+      "user": {
+        "enabled": true,
+        "algorithm": "sliding-window",
+        "windowMs": 60000,
+        "maxRequests": 300
+      }
+    }
+  }
+}
+```
+
+### Get Rate Limit Stats
+
+**Endpoint:** `GET /api/rate-limit/stats`
+
+Get detailed rate limit statistics.
+
+**Response (200 OK):**
+
+```json
+{
+  "success": true,
+  "data": {
+    "totalRequests": 50000,
+    "allowedRequests": 48500,
+    "rejectedRequests": 1500,
+    "rejectionRate": 0.03,
+    "byLayer": {
+      "global": { "allowed": 10000, "rejected": 100 },
+      "ip": { "allowed": 15000, "rejected": 500 },
+      "user": { "allowed": 20000, "rejected": 800 },
+      "api-key": { "allowed": 3500, "rejected": 100 }
+    },
+    "byAlgorithm": {
+      "token-bucket": { "allowed": 13500, "rejected": 200 },
+      "sliding-window": { "allowed": 35000, "rejected": 1300 }
+    }
+  }
+}
+```
+
+---
+
+## 📜 Workflow Versioning APIs (v1.12.2)
+
+> **Version:** v1.12.2 | **Last Updated:** 2026-04-04
+
+v1.12.2 引入了完整的工作流版本管理系统，支持版本快照、回滚和对比功能。
+
+### Get Workflow Versions
+
+**Endpoint:** `GET /api/workflow/[id]/versions`
+
+Get all versions of a workflow.
+
+**Response (200 OK):**
+
+```json
+{
+  "success": true,
+  "data": {
+    "versions": [
+      {
+        "id": "ver_123",
+        "workflowId": "workflow_456",
+        "versionNumber": 3,
+        "createdAt": "2026-04-04T10:00:00.000Z",
+        "createdBy": "user_123",
+        "message": "Update task assignment logic",
+        "tags": ["production", "stable"],
+        "nodes": [...],
+        "edges": [...],
+        "config": {...}
+      }
+    ],
+    "pagination": {
+      "total": 10,
+      "page": 1,
+      "limit": 20
+    }
+  }
+}
+```
+
+### Create Workflow Version
+
+**Endpoint:** `POST /api/workflow/[id]/versions`
+
+Create a new version snapshot.
+
+**Request Body:**
+
+```json
+{
+  "message": "Update task assignment logic",
+  "tags": ["production", "stable"],
+  "autoCreate": false
+}
+```
+
+**Response (200 OK):**
+
+```json
+{
+  "success": true,
+  "data": {
+    "id": "ver_124",
+    "workflowId": "workflow_456",
+    "versionNumber": 4,
+    "createdAt": "2026-04-04T12:00:00.000Z",
+    "createdBy": "user_123",
+    "message": "Update task assignment logic"
+  }
+}
+```
+
+### Get Version Details
+
+**Endpoint:** `GET /api/workflow/[id]/versions/[versionId]`
+
+Get details of a specific version.
+
+**Response (200 OK):**
+
+```json
+{
+  "success": true,
+  "data": {
+    "id": "ver_123",
+    "workflowId": "workflow_456",
+    "versionNumber": 3,
+    "createdAt": "2026-04-04T10:00:00.000Z",
+    "createdBy": "user_123",
+    "message": "Update task assignment logic",
+    "tags": ["production", "stable"],
+    "nodes": [...],
+    "edges": [...],
+    "config": {...}
+  }
+}
+```
+
+### Compare Versions
+
+**Endpoint:** `GET /api/workflow/[id]/versions/compare`
+
+Compare two workflow versions.
+
+**Query Parameters:**
+
+| Parameter | Type | Required | Description |
+|-----------|------|----------|-------------|
+| `fromVersion` | string | Yes | Source version ID |
+| `toVersion` | string | Yes | Target version ID |
+
+**Response (200 OK):**
+
+```json
+{
+  "success": true,
+  "data": {
+    "fromVersion": "ver_122",
+    "toVersion": "ver_123",
+    "comparison": {
+      "nodes": {
+        "added": [],
+        "removed": [],
+        "modified": [
+          { "id": "node_1", "changes": { "position": {...}, "data": {...} } }
+        ]
+      },
+      "edges": {
+        "added": [],
+        "removed": [],
+        "modified": []
+      },
+      "config": {
+        "modified": ["timeout", "retryCount"]
+      }
+    }
+  }
+}
+```
+
+### Rollback Version
+
+**Endpoint:** `POST /api/workflow/[id]/versions/[versionId]/rollback`
+
+Rollback workflow to a specific version.
+
+**Response (200 OK):**
+
+```json
+{
+  "success": true,
+  "data": {
+    "message": "Workflow rolled back to version 3",
+    "newVersion": {
+      "id": "ver_125",
+      "workflowId": "workflow_456",
+      "versionNumber": 5,
+      "message": "Rollback to version 3",
+      "createdAt": "2026-04-04T14:00:00.000Z"
+    }
+  }
+}
+```
+
+### Get Version Settings
+
+**Endpoint:** `GET /api/workflow/[id]/versions/settings`
+
+Get workflow version settings.
+
+**Response (200 OK):**
+
+```json
+{
+  "success": true,
+  "data": {
+    "maxVersions": 50,
+    "autoVersionOnUpdate": true,
+    "retentionDays": 90,
+    "createdAt": "2026-03-01T00:00:00.000Z",
+    "updatedAt": "2026-04-01T00:00:00.000Z"
+  }
+}
+```
+
+### Update Version Settings
+
+**Endpoint:** `PUT /api/workflow/[id]/versions/settings`
+
+Update workflow version settings.
+
+**Request Body:**
+
+```json
+{
+  "maxVersions": 100,
+  "autoVersionOnUpdate": true,
+  "retentionDays": 180
+}
+```
+
+**Response (200 OK):**
+
+```json
+{
+  "success": true,
+  "data": {
+    "message": "Version settings updated",
+    "settings": {
+      "maxVersions": 100,
+      "autoVersionOnUpdate": true,
+      "retentionDays": 180
+    }
+  }
+}
+```
+
+---
+
+## 🤖 Workspace Automation APIs (v1.12.2)
+
+> **Version:** v1.12.2 | **Last Updated:** 2026-04-04
+
+v1.12.2 引入了工作流自动化系统，支持规则引擎、触发器和自动化动作。
+
+> **Note:** Automation APIs are primarily client-side (React Hooks) with server actions for persistence. See `src/lib/automation/` for details.
+
+### Automation Rule Structure
+
+**Automation rules are defined with:**
+
+```typescript
+interface AutomationRule {
+  id: string
+  name: string
+  description: string
+  enabled: boolean
+  trigger: TriggerConfig
+  actions: ActionConfig[]
+  constraints?: RuleConstraint[]
+  execution?: ExecutionConfig
+  stats?: RuleStats
+  createdAt: Date
+  updatedAt: Date
+}
+```
+
+### Trigger Types
+
+| Type | Description | Configuration |
+|------|-------------|---------------|
+| `event` | Event-based trigger | `eventType`, `filters` |
+| `schedule` | Time-based trigger | `type` (interval, cron, once), `expression` |
+| `condition` | Condition trigger | `condition`, `checkInterval` |
+| `manual` | Manual trigger | - |
+
+### Action Types
+
+| Type | Description | Configuration |
+|------|-------------|---------------|
+| `execute_workflow` | Execute a workflow | `workflowId`, `inputs` |
+| `send_notification` | Send notification | `channel`, `template`, `recipients` |
+| `call_api` | Call external API | `url`, `method`, `headers`, `body` |
+| `transform_data` | Transform data | `transform`, `output` |
+| `custom` | Custom action | `handler`, `config` |
+
+### Default Templates
+
+v1.12.2 includes 8 default automation templates:
+
+| Template | Trigger | Purpose |
+|----------|---------|---------|
+| File Cleanup | Schedule (daily 2:00) | Clean temp files and cache |
+| Workflow Failure Alert | Event | Send alert on failure |
+| Workflow Complete Notification | Event | Send notification on complete |
+| System Health Check | Schedule (every 5 min) | Health status check |
+| Data Backup | Schedule (daily 3:00) | Automatic backup |
+| File Change Notification | Event | Notify on file changes |
+| Auto Data Sync | Schedule (every 6 hours) | Sync external data |
+| User Action Audit | Event | Log user operations |
 
 ---
 
