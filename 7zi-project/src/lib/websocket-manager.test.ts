@@ -14,11 +14,11 @@ class MockWebSocket {
   readyState: number = MockWebSocket.OPEN;
   url: string;
   protocols?: string | string[];
-  
+
   onopen: ((event: Event) => void) | null = null;
-  onclose: ((event: any) => void) | null = null;
+  onclose: ((event: CloseEvent) => void) | null = null;
   onerror: ((event: Event) => void) | null = null;
-  onmessage: ((event: any) => void) | null = null;
+  onmessage: ((event: MessageEvent) => void) | null = null;
 
   constructor(url: string, protocols?: string | string[]) {
     this.url = url;
@@ -45,6 +45,7 @@ class MockWebSocket {
 }
 
 // Replace global WebSocket
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 (global as any).WebSocket = MockWebSocket;
 
 describe('WebSocketManager', () => {

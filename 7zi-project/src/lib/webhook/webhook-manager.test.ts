@@ -77,6 +77,7 @@ describe('WebhookManager', () => {
     });
 
     it('should reject invalid event types', async () => {
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       const request = createValidRequest({ events: ['invalid.event' as any] });
 
       await expect(manager.createWebhook(request)).rejects.toThrow('Invalid event types');
@@ -113,7 +114,7 @@ describe('WebhookManager', () => {
     });
 
     it('should update webhook events', async () => {
-      const newEvents = ['workflow.started', 'workflow.completed'] as any;
+      const newEvents = ['workflow.started', 'workflow.completed'];
       const updated = await manager.updateWebhook(existingWebhook.id, {
         events: newEvents,
       });

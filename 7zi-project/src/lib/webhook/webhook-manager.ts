@@ -9,6 +9,7 @@ import type {
   UpdateWebhookRequest,
   WebhookConfig,
   DEFAULT_WEBHOOK_CONFIG,
+  WebhookEventType,
 } from './types';
 import { WebhookError } from './types';
 

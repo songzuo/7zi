@@ -305,11 +305,4 @@ export class MultiAgentOrchestrator {
   getA2AProtocol(): A2AProtocol {
     return this.a2aProtocol;
   }
-
-  /**
-   * 检查结果是否是错误
-   */
-  private isResultError(result: unknown): boolean {
-    return typeof result === 'object' && result !== null && 'error' in result;
-  }
 }

@@ -14,7 +14,7 @@ interface Operation {
   type: 'insert' | 'delete' | 'update' | 'move';
   userId: string;
   nodeId: string;
-  payload: any;
+  payload: unknown;
   timestamp: number;
   version: number;
 }
@@ -464,6 +464,7 @@ describe('ConflictDetector - 冲突检测器', () => {
         },
       ];
 
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       const resolution = detector.resolveConflict(ops, 'invalid-strategy' as any);
       expect(resolution.strategy).toBe('last-write-wins');
     });

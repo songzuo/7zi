@@ -1,6 +1,6 @@
 # 7zi Multi-Agent System
 
-[![Version](https://img.shields.io/badge/version-1.10.1-blue.svg)](https://github.com/7zi/7zi-multi-agent)
+[![Version](https://img.shields.io/badge/version-1.12.2-blue.svg)](https://github.com/7zi/7zi-multi-agent)
 [![Node.js](https://img.shields.io/badge/node-%3E%3D18.0.0-green.svg)](https://nodejs.org)
 [![TypeScript](https://img.shields.io/badge/typescript-5.9.3-blue.svg)](https://www.typescriptlang.org)
 [![License](https://img.shields.io/badge/license-MIT-yellow.svg)](LICENSE)
@@ -34,6 +34,22 @@ A powerful multi-agent orchestration system for building intelligent, collaborat
 - **Tenant-Aware Caching** - Cache keys with tenant prefixes
 - **Enhanced Permissions** - Role-based access control with tenant scoping
 - **Audit Logging** - Complete audit trail for all operations
+
+### ⚡ Workflow Engine v1.12
+- **Visual Workflow Editor** - Drag-and-drop workflow design with enhanced node types
+- **LoopNode** - Repetitive task execution with configurable iteration
+- **SubworkflowNode** - Nested workflow calls for modular design
+- **TransformNode** - Data mapping and transformation between nodes
+- **NodeSearchPanel** - Quick node location and navigation
+- **WorkflowExporter** - Import/export workflow definitions
+- **AutoLayout Algorithm** - Automatic node arrangement
+- **ExpressionEditor** - Dynamic expression support for workflows
+
+### 📧 Email Alerting
+- **SMTP Integration** - Send alerts via email with customizable templates
+- **Alert Filtering** - Configure alert thresholds and conditions
+- **Multiple Recipients** - Support for multiple notification recipients
+- **Alert History** - Track and review sent alerts
 
 ### 🛠️ Developer Tools
 - **TypeScript** - Full type safety and IntelliSense support
@@ -102,6 +118,8 @@ console.log(result)
 | **A2A Protocol** | Agent-to-agent communication protocol | [src/lib/a2a/README.md](src/lib/a2a/README.md) |
 | **Performance Monitoring** | Performance tracking and anomaly detection | [docs/performance-monitoring.md](docs/performance-monitoring.md) |
 | **Agent Registry** | Agent registration and management | [src/lib/agents/README.md](src/lib/agents/README.md) |
+| **Workflow Engine v1.12** | Visual workflow editor and automation | [docs/workflow-engine.md](docs/workflow-engine.md) |
+| **Email Alerting** | SMTP-based alert notifications | [src/lib/alerting/README.md](src/lib/alerting/README.md) |
 
 ### Architecture
 
@@ -268,4 +286,4 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 
 ---
 
-**Version**: 1.10.1 | **Last Updated**: 2026-04-03
+**Version**: 1.12.2 | **Last Updated**: 2026-04-04

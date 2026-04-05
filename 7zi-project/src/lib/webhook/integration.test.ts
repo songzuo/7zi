@@ -241,7 +241,7 @@ describe('Webhook System Integration', () => {
       };
 
       const filter: EventFilter = {
-        eventTypes: ['task.completed', 'task.failed'] as any,
+        eventTypes: ['task.completed', 'task.failed'],
       };
 
       const matches = webhookSystem.dispatcher.matchesFilter(event, filter);
@@ -257,7 +257,7 @@ describe('Webhook System Integration', () => {
       };
 
       const filter: EventFilter = {
-        eventCategories: ['agent'] as any,
+        eventCategories: ['agent'],
       };
 
       const matches = webhookSystem.dispatcher.matchesFilter(event, filter);

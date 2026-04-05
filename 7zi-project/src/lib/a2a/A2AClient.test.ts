@@ -109,6 +109,7 @@ describe('A2AClient', () => {
 
       // 模拟响应
       setTimeout(() => {
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
         const pending = (client as any).pendingRequests;
         const requestId = pending.keys().next().value;
         if (requestId) {
@@ -162,6 +163,7 @@ describe('A2AClient', () => {
       const responsePayload = { result: 'ok' };
 
       // 设置一个待处理的请求
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       (client as any).pendingRequests.set(requestId, {
         resolve: jest.fn(),
         reject: jest.fn(),
@@ -179,6 +181,7 @@ describe('A2AClient', () => {
       });
 
       // 验证请求已被移除
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       expect((client as any).pendingRequests.has(requestId)).toBe(false);
     });
 
@@ -186,6 +189,7 @@ describe('A2AClient', () => {
       const requestId = 'request-123';
 
       const rejectFn = jest.fn();
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       (client as any).pendingRequests.set(requestId, {
         resolve: jest.fn(),
         reject: rejectFn,

@@ -299,7 +299,7 @@ export class EventDispatcher {
   /**
    * Get nested value from object
    */
-  private getNestedValue(obj: Record<string, unknown>, path: string): unknown {
+  private getNestedValue(obj: WebhookEventPayload | Record<string, unknown>, path: string): unknown {
     const parts = path.split('.');
     let current: unknown = obj;
 

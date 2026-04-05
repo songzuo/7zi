@@ -16,6 +16,7 @@ import {
 
 // Mock fetch for webhook calls
 const mockFetch = jest.fn();
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 (global as any).fetch = mockFetch;
 
 describe('LevelRouter', () => {
