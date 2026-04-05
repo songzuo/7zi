@@ -1,13 +1,13 @@
-import { NextRequest, NextResponse } from 'next/server'
+import { NextRequest } from 'next/server'
 import { adaptiveLearner } from '@/lib/agents/learning/adaptive-learner'
 import { agentScheduler } from '@/lib/agents/scheduler/scheduler'
-import { createSuccessResponse, createErrorResponse } from '@/lib/api/error-handler'
+import { createSuccessResponse, createErrorResponse, createUnauthorizedError } from '@/lib/api/error-handler'
 import { authenticateJWT } from '@/lib/auth/api-auth'
 
 export async function GET(request: NextRequest) {
   const auth = await authenticateJWT(request)
   if (!auth.authenticated)
-    return NextResponse.json({ success: false, error: 'Unauthorized' }, { status: 401 })
+    return createUnauthorizedError('Authentication required')
 
   try {
     const { searchParams } = new URL(request.url)

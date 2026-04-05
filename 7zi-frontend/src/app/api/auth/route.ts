@@ -1,7 +1,7 @@
 /**
  * Auth API Route
  *
- * 认证相关 API 端点，包含安全验证和审计日志
+ * 认证相关 API 端点，包含安全验证、审计日志和速率限制
  */
 
 import { NextRequest, NextResponse } from 'next/server'
@@ -16,11 +16,17 @@ import {
 import { AuditLogger } from '@/lib/audit/logger'
 import { AuditEventType } from '@/lib/audit/types'
 import { getClientIP } from '@/lib/rate-limit/limiter'
+import { withRateLimit, RATE_LIMIT_PRESETS } from '@/lib/api-rate-limit'
+import { createSuccessResponse, createUnauthorizedError, createErrorResponse, createBadRequestError } from '@/lib/api/error-handler'
+import { withCSRF } from '@/lib/middleware/csrf'
 
 /**
  * POST /api/auth/login - 用户登录
+ *
+ * 速率限制：5 请求/分钟
+ * 注意：登录端点不需要 CSRF 保护（因为还没有会话）
  */
-export async function POST(request: NextRequest) {
+export const POST = withRateLimit(RATE_LIMIT_PRESETS.strict, async (request: NextRequest) => {
   const ipAddress = getClientIP(request)
   const userAgent = request.headers.get('user-agent') || undefined
 
@@ -52,14 +58,10 @@ export async function POST(request: NextRequest) {
       })
 
       // TODO: 生成并返回 JWT token
-      return NextResponse.json({
-        success: true,
-        message: '登录成功',
-        user: {
-          id: 'user-123',
-          username,
-          email: 'admin@example.com',
-        },
+      return createSuccessResponse({
+        id: 'user-123',
+        username,
+        email: 'admin@example.com',
       })
     } else {
       // 记录失败的登录
@@ -71,13 +73,7 @@ export async function POST(request: NextRequest) {
         error: 'Invalid credentials',
       })
 
-      return NextResponse.json(
-        {
-          success: false,
-          message: '用户名或密码错误',
-        },
-        { status: 401 }
-      )
+      return createUnauthorizedError('用户名或密码错误')
     }
   } catch (error) {
     // 记录 API 错误
@@ -89,20 +85,17 @@ export async function POST(request: NextRequest) {
       error: error instanceof Error ? error.message : String(error),
     })
 
-    return NextResponse.json(
-      {
-        success: false,
-        message: '服务器错误',
-      },
-      { status: 500 }
-    )
+    return createErrorResponse(error instanceof Error ? error : new Error(String(error)))
   }
-}
+})
 
 /**
  * POST /api/auth/register - 用户注册
+ *
+ * 速率限制：5 请求/分钟
+ * 需要 CSRF 保护
  */
-export async function PUT(request: NextRequest) {
+export const PUT = withRateLimit(RATE_LIMIT_PRESETS.strict, withCSRF(async (request: NextRequest) => {
   const ipAddress = getClientIP(request)
   const userAgent = request.headers.get('user-agent') || undefined
 
@@ -131,13 +124,7 @@ export async function PUT(request: NextRequest) {
       email,
     })
 
-    return NextResponse.json(
-      {
-        success: true,
-        message: '注册成功',
-      },
-      { status: 201 }
-    )
+    return createSuccessResponse({ message: '注册成功' }, 201)
   } catch (error) {
     await AuditLogger.logApiAccess({
       ipAddress,
@@ -147,20 +134,16 @@ export async function PUT(request: NextRequest) {
       error: error instanceof Error ? error.message : String(error),
     })
 
-    return NextResponse.json(
-      {
-        success: false,
-        message: '注册失败',
-      },
-      { status: 500 }
-    )
+    return createErrorResponse(error instanceof Error ? error : new Error(String(error)))
   }
-}
+}))
 
 /**
  * POST /api/auth/reset-password - 重置密码
+ *
+ * 速率限制：5 请求/分钟
  */
-export async function PATCH(request: NextRequest) {
+export const PATCH = withRateLimit(RATE_LIMIT_PRESETS.strict, async (request: NextRequest) => {
   const ipAddress = getClientIP(request)
 
   try {
@@ -181,10 +164,7 @@ export async function PATCH(request: NextRequest) {
       success: true,
     })
 
-    return NextResponse.json({
-      success: true,
-      message: '密码重置成功',
-    })
+    return createSuccessResponse({ message: '密码重置成功' })
   } catch (error) {
     await AuditLogger.logApiAccess({
       ipAddress,
@@ -194,12 +174,6 @@ export async function PATCH(request: NextRequest) {
       error: error instanceof Error ? error.message : String(error),
     })
 
-    return NextResponse.json(
-      {
-        success: false,
-        message: '密码重置失败',
-      },
-      { status: 500 }
-    )
+    return createErrorResponse(error instanceof Error ? error : new Error(String(error)))
   }
-}
+})

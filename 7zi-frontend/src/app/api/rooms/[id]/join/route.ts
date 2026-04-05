@@ -8,6 +8,7 @@ import { NextRequest, NextResponse } from 'next/server'
 import { roomStore } from '@/lib/api/rooms/store'
 import { withErrorHandling, createSuccessResponse, createNotFoundError, createBadRequestError, createUnauthorizedError } from '@/lib/api/error-handler'
 import { logger } from '@/lib/logger'
+import { withCSRF } from '@/lib/middleware/csrf'
 
 interface RouteParams {
   params: Promise<{ id: string }>
@@ -15,9 +16,10 @@ interface RouteParams {
 
 /**
  * POST /api/rooms/[id]/join - 加入房间
+ * Requires CSRF protection
  */
 // @ts-expect-error - TypeScript generic limitation with withErrorHandling
-export const POST = withErrorHandling(async (request: NextRequest, ...args: unknown[]) => {
+export const POST = withErrorHandling(withCSRF(async (request: NextRequest, ...args: unknown[]) => {
   const { params } = args[0] as { params: Promise<{ id: string }> }
   const { id } = await params
   const room = roomStore.getRoomById(id)
@@ -68,4 +70,4 @@ export const POST = withErrorHandling(async (request: NextRequest, ...args: unkn
     }
     throw error
   }
-})
+}))

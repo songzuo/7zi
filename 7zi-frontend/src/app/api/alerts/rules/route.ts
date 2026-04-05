@@ -7,17 +7,19 @@
  * @date 2026-04-03
  */
 
-import { NextRequest, NextResponse } from 'next/server'
+import { NextRequest } from 'next/server'
 import { v4 as uuidv4 } from 'uuid'
-import { 
-  AlertRule, 
-  CreateAlertRuleDTO, 
+import {
+  AlertRule,
+  CreateAlertRuleDTO,
   AlertRulesResponse,
   MetricType,
   Condition,
   Severity,
   NotificationChannel
 } from '@/types/alerts'
+import { createSuccessResponse, createBadRequestError, createErrorResponse } from '@/lib/api/error-handler'
+import { withCSRF } from '@/lib/middleware/csrf'
 
 // ============================================
 // In-Memory Store (Replace with database in production)
@@ -180,31 +182,26 @@ export async function GET(request: NextRequest) {
       pageSize
     }
 
-    return NextResponse.json(response)
+    return createSuccessResponse(response)
   } catch (error) {
     console.error('Error fetching alert rules:', error)
-    return NextResponse.json(
-      { error: 'Failed to fetch alert rules' },
-      { status: 500 }
-    )
+    return createErrorResponse(error instanceof Error ? error : new Error(String(error)))
   }
 }
 
 // ============================================
 // POST - Create a new alert rule
+// Requires CSRF protection
 // ============================================
 
-export async function POST(request: NextRequest) {
+export const POST = withCSRF(async (request: NextRequest) => {
   try {
     const body = await request.json()
 
     // Validate the request body
     const validation = validateAlertRule(body)
     if (!validation.valid) {
-      return NextResponse.json(
-        { error: 'Validation failed', details: validation.errors },
-        { status: 400 }
-      )
+      return createBadRequestError('Validation failed', { details: validation.errors })
     }
 
     const now = new Date().toISOString()
@@ -225,12 +222,9 @@ export async function POST(request: NextRequest) {
 
     alertRules.push(newRule)
 
-    return NextResponse.json(newRule, { status: 201 })
+    return createSuccessResponse(newRule, 201)
   } catch (error) {
     console.error('Error creating alert rule:', error)
-    return NextResponse.json(
-      { error: 'Failed to create alert rule' },
-      { status: 500 }
-    )
+    return createErrorResponse(error instanceof Error ? error : new Error(String(error)))
   }
-}
+})

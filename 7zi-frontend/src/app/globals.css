@@ -247,3 +247,95 @@ pre {
 .theme-switcher-icon:hover {
   transform: rotate(15deg);
 }
+
+/* ===== Safe Area 适配 ===== */
+/* 刘海屏、全面屏设备的边缘安全区域 */
+
+:root {
+  --safe-area-inset-top: 0px;
+  --safe-area-inset-right: 0px;
+  --safe-area-inset-bottom: 0px;
+  --safe-area-inset-left: 0px;
+}
+
+/* iOS 11+ Safari 和 WebKit */
+@supports (padding: max(0px)) {
+  :root {
+    --safe-area-inset-top: max(0px, env(safe-area-inset-top));
+    --safe-area-inset-right: max(0px, env(safe-area-inset-right));
+    --safe-area-inset-bottom: max(0px, env(safe-area-inset-bottom));
+    --safe-area-inset-left: max(0px, env(safe-area-inset-left));
+  }
+}
+
+/* Safe Area 实用工具类 */
+.safe-area-top {
+  padding-top: var(--safe-area-inset-top);
+}
+
+.safe-area-bottom {
+  padding-bottom: var(--safe-area-inset-bottom);
+}
+
+.safe-area-left {
+  padding-left: var(--safe-area-inset-left);
+}
+
+.safe-area-right {
+  padding-right: var(--safe-area-inset-right);
+}
+
+.safe-area-all {
+  padding-top: var(--safe-area-inset-top);
+  padding-right: var(--safe-area-inset-right);
+  padding-bottom: var(--safe-area-inset-bottom);
+  padding-left: var(--safe-area-inset-left);
+}
+
+/* 固定元素 Safe Area 适配 */
+.fixed-safe-bottom {
+  bottom: var(--safe-area-inset-bottom);
+}
+
+.fixed-safe-top {
+  top: var(--safe-area-inset-top);
+}
+
+/* 移动端安全区域 */
+@media (max-width: 768px) {
+  .mobile-safe-bottom {
+    padding-bottom: max(16px, env(safe-area-inset-bottom));
+  }
+
+  .mobile-safe-top {
+    padding-top: max(16px, env(safe-area-inset-top));
+  }
+}
+
+/* ===== 触控优化 ===== */
+/* 确保移动端触控区域足够大 */
+
+@media (pointer: coarse) {
+  /* 移动端触控优化 */
+  button,
+  a,
+  input,
+  select,
+  textarea {
+    min-height: 44px;
+    min-width: 44px;
+  }
+
+  /* 增大链接的触控区域 */
+  a {
+    padding: 8px 12px;
+    margin: -8px -12px;
+  }
+
+  /* 增大按钮的触控区域 */
+  button {
+    padding: 12px 16px;
+    margin: -12px -16px;
+  }
+}
+

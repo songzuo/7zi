@@ -1,5 +1,6 @@
 /**
  * 根布局文件 - 包含图片优化配置、主题管理和 i18n
+ * 集成移动端导航增强：Safe Area 支持、汉堡菜单、底部导航栏
  */
 
 import type { Metadata } from 'next'
@@ -47,6 +48,13 @@ export const metadata: Metadata = {
     card: 'summary_large_image',
     images: ['/images/twitter-image.jpg'],
   },
+  viewport: {
+    width: 'device-width',
+    initialScale: 1,
+    maximumScale: 5,
+    // 支持 Safe Area - 适配刘海屏
+    viewportFit: 'cover',
+  },
 }
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
@@ -67,12 +75,19 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
           id="theme-init"
           data-noparse="true"
         />
+        {/* Safe Area 支持 - 适配 iOS 刘海屏 */}
+        <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=5, viewport-fit=cover" />
       </head>
       <body className={inter.className}>
         <ThemeProvider>
           <MonitoringProvider>
             <I18nProvider>
-              <PermissionProvider>{children}</PermissionProvider>
+              <PermissionProvider>
+                {/* Safe Area 适配 - 顶部安全区域 */}
+                <div className="safe-area-top">
+                  {children}
+                </div>
+              </PermissionProvider>
             </I18nProvider>
           </MonitoringProvider>
         </ThemeProvider>

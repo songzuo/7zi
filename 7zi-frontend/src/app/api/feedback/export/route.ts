@@ -6,6 +6,7 @@
 
 import { NextRequest, NextResponse } from 'next/server'
 import { feedbackStorage, type Feedback, type FeedbackFilter } from '@/lib/db/feedback-storage'
+import { createForbiddenError, createErrorResponse } from '@/lib/api/error-handler'
 
 /**
  * Initialize feedback storage
@@ -33,14 +34,7 @@ export async function GET(request: NextRequest) {
 
     // Check admin permission
     if (userRole !== 'admin') {
-      return NextResponse.json(
-        {
-          success: false,
-          error: 'Forbidden',
-          message: '需要管理员权限',
-        },
-        { status: 403 }
-      )
+      return createForbiddenError('需要管理员权限')
     }
 
     const { searchParams } = new URL(request.url)
@@ -106,13 +100,6 @@ export async function GET(request: NextRequest) {
     })
   } catch (error) {
     console.error('[Feedback Export API] GET error:', error)
-    return NextResponse.json(
-      {
-        success: false,
-        error: 'Export Failed',
-        message: '导出失败',
-      },
-      { status: 500 }
-    )
+    return createErrorResponse(error instanceof Error ? error : new Error(String(error)))
   }
 }

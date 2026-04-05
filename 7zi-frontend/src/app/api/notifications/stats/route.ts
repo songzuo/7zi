@@ -5,9 +5,9 @@
  * Requires JWT authentication with admin role
  */
 
-import { NextRequest, NextResponse } from 'next/server'
+import { NextRequest } from 'next/server'
 import { enhancedNotificationService } from '@/lib/services/notification-enhanced'
-import { createSuccessResponse, createErrorResponse } from '../../../../lib/api/error-handler'
+import { createSuccessResponse, createErrorResponse, createUnauthorizedError, createForbiddenError } from '../../../../lib/api/error-handler'
 import { authenticateJWT } from '@/lib/auth/api-auth'
 
 /**
@@ -21,26 +21,12 @@ export async function GET(request: NextRequest) {
   const authResult = await authenticateJWT(request)
 
   if (!authResult.authenticated) {
-    return NextResponse.json(
-      {
-        success: false,
-        error: 'Unauthorized',
-        message: authResult.error || 'Authentication required',
-      },
-      { status: 401 }
-    )
+    return createUnauthorizedError(authResult.error || 'Authentication required')
   }
 
   // Only admin can view system-wide statistics
   if (authResult.role !== 'admin') {
-    return NextResponse.json(
-      {
-        success: false,
-        error: 'Forbidden',
-        message: 'Admin role required to view system statistics',
-      },
-      { status: 403 }
-    )
+    return createForbiddenError('Admin role required to view system statistics')
   }
 
   try {

@@ -1,7 +1,7 @@
 /**
  * Project Management API Route
  *
- * 演示资源级别权限控制
+ * 演示资源级别权限控制和速率限制
  */
 
 import { NextRequest, NextResponse } from 'next/server'
@@ -26,6 +26,8 @@ import {
   createErrorResponse,
   ErrorType,
 } from '@/lib/api/error-handler'
+import { withRateLimit, RATE_LIMIT_PRESETS } from '@/lib/api-rate-limit'
+import { withCSRF } from '@/lib/middleware/csrf'
 
 /**
  * API 上下文
@@ -146,8 +148,10 @@ export async function GET(request: NextRequest) {
 /**
  * POST /api/projects - 创建新项目
  * 需要 project:create 权限
+ * 速率限制：100 请求/分钟
+ * Requires CSRF protection
  */
-export async function POST(request: NextRequest) {
+export const POST = withRateLimit(RATE_LIMIT_PRESETS.relaxed, withCSRF(async (request: NextRequest) => {
   try {
     const userId = request.headers.get('x-user-id') || 'user-3'
     const user = users[userId]
@@ -188,7 +192,7 @@ export async function POST(request: NextRequest) {
 
     return createErrorResponse(error instanceof Error ? error : new Error(String(error)))
   }
-}
+}))
 
 /**
  * 项目控制器类

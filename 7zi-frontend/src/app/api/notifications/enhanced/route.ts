@@ -5,7 +5,7 @@
  * Requires JWT authentication
  */
 
-import { NextRequest, NextResponse } from 'next/server'
+import { NextRequest } from 'next/server'
 import { enhancedNotificationService } from '@/lib/services/notification-enhanced'
 import { NotificationType, NotificationPriority } from '@/lib/services/notification-types'
 import type { Notification } from '@/lib/services/notification-types'
@@ -14,6 +14,7 @@ import {
   createSuccessResponse,
   createValidationError,
   createErrorResponse,
+  createUnauthorizedError,
 } from '../../../../lib/api/error-handler'
 import { authenticateJWT } from '@/lib/auth/api-auth'
 
@@ -28,14 +29,7 @@ export async function GET(request: NextRequest) {
   const authResult = await authenticateJWT(request)
 
   if (!authResult.authenticated) {
-    return NextResponse.json(
-      {
-        success: false,
-        error: 'Unauthorized',
-        message: authResult.error || 'Authentication required',
-      },
-      { status: 401 }
-    )
+    return createUnauthorizedError(authResult.error || 'Authentication required')
   }
 
   try {
@@ -94,14 +88,7 @@ export async function POST(request: NextRequest) {
   const authResult = await authenticateJWT(request)
 
   if (!authResult.authenticated) {
-    return NextResponse.json(
-      {
-        success: false,
-        error: 'Unauthorized',
-        message: authResult.error || 'Authentication required',
-      },
-      { status: 401 }
-    )
+    return createUnauthorizedError(authResult.error || 'Authentication required')
   }
 
   try {

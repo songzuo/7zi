@@ -4,10 +4,12 @@
  * POST /api/feedback/response - Add admin response to feedback
  */
 
-import { NextRequest, NextResponse } from 'next/server'
+import { NextRequest } from 'next/server'
 import { feedbackStorage } from '@/lib/db/feedback-storage'
 import { validateAndSanitizeBody, sanitizeHtml } from '@/lib/validation-schemas'
 import { z } from 'zod'
+import { createSuccessResponse, createForbiddenError, createBadRequestError, createNotFoundError, createErrorResponse } from '@/lib/api/error-handler'
+import { withCSRF } from '@/lib/middleware/csrf'
 
 /**
  * Initialize feedback storage
@@ -39,20 +41,13 @@ function getUserInfo(request: NextRequest) {
 /**
  * POST /api/feedback/response - Add admin response
  */
-export async function POST(request: NextRequest) {
+export const POST = withCSRF(async (request: NextRequest) => {
   try {
     const { userId, userName, userEmail, userRole } = getUserInfo(request)
 
     // Check admin permission
     if (userRole !== 'admin') {
-      return NextResponse.json(
-        {
-          success: false,
-          error: 'Forbidden',
-          message: '需要管理员权限',
-        },
-        { status: 403 }
-      )
+      return createForbiddenError('需要管理员权限')
     }
 
     const body = await request.json()
@@ -61,17 +56,12 @@ export async function POST(request: NextRequest) {
     const validationResult = await validateAndSanitizeBody(body, responseSubmissionSchema)
 
     if (!validationResult.success) {
-      return NextResponse.json(
-        {
-          success: false,
-          error: 'Validation Error',
-          errors: validationResult.errors.map((err: z.ZodIssue) => ({
-            field: err.path.join('.'),
-            message: err.message,
-          })),
-        },
-        { status: 400 }
-      )
+      return createBadRequestError('Validation Error', {
+        errors: validationResult.errors.map((err: z.ZodIssue) => ({
+          field: err.path.join('.'),
+          message: err.message,
+        })),
+      })
     }
 
     const { feedbackId, response, adminId, adminName } = validationResult.data
@@ -85,33 +75,18 @@ export async function POST(request: NextRequest) {
     })
 
     if (!updated) {
-      return NextResponse.json(
-        {
-          success: false,
-          error: 'Not Found',
-          message: '反馈不存在',
-        },
-        { status: 404 }
-      )
+      return createNotFoundError('反馈不存在')
     }
 
     // Add comment
     feedbackStorage.addComment(feedbackId, adminId, adminName, userEmail, response, true)
 
-    return NextResponse.json({
-      success: true,
+    return createSuccessResponse({
       message: '回复已发送',
       data: updated,
     })
   } catch (error) {
     console.error('[Feedback Response API] POST error:', error)
-    return NextResponse.json(
-      {
-        success: false,
-        error: 'Failed to send response',
-        message: '发送回复失败',
-      },
-      { status: 500 }
-    )
+    return createErrorResponse(error instanceof Error ? error : new Error(String(error)))
   }
-}
+})

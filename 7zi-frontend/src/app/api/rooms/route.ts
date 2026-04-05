@@ -3,22 +3,101 @@
  *
  * POST /api/rooms - 创建房间
  * GET /api/rooms - 获取房间列表
+ * 
+ * @openapi
+ *   /api/rooms:
+ *     post:
+ *       summary: Create a new room
+ *       description: Creates a new room with the given parameters
+ *       tags:
+ *         - rooms
+ *       requestBody:
+ *         required: true
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 name:
+ *                   type: string
+ *                   description: Room name
+ *                 description:
+ *                   type: string
+ *                   description: Room description (optional)
+ *                 password:
+ *                   type: string
+ *                   description: Room password (optional)
+ *                 isPrivate:
+ *                   type: boolean
+ *                   description: Whether room is private (optional)
+ *       responses:
+ *         201:
+ *           description: Room created successfully
+ *           content:
+ *             application/json:
+ *               schema:
+ *                 $ref: '#/components/schemas/CreateRoomResponse'
+ *         400:
+ *           description: Invalid request
+ *         401:
+ *           description: Unauthorized
+ *     get:
+ *       summary: List all rooms
+ *       description: Returns a list of all rooms with optional filtering
+ *       tags:
+ *         - rooms
+ *       parameters:
+ *         - name: search
+ *           in: query
+ *           schema:
+ *             type: string
+ *           description: Search query
+ *         - name: page
+ *           in: query
+ *           schema:
+ *             type: integer
+ *           description: Page number
+ *         - name: limit
+ *           in: query
+ *           schema:
+ *             type: integer
+ *           description: Items per page
+ *       responses:
+ *         200:
+ *           description: Rooms retrieved successfully
+ *           content:
+ *             application/json:
+ *               schema:
+ *                 $ref: '#/components/schemas/GetRoomsResponse'
  */
 
-import { NextRequest, NextResponse } from 'next/server'
+import { NextRequest } from 'next/server'
 import { roomStore } from '@/lib/api/rooms/store'
-import { createSuccessResponse, createErrorResponse } from '@/lib/api/error-handler'
+import {
+  createSuccessResponse,
+  createErrorResponse,
+  createUnauthorizedError,
+  createBadRequestError
+} from '@/lib/api/error-handler'
+import type {
+  CreateRoomRequest,
+  CreateRoomResponse,
+  GetRoomsRequest,
+  GetRoomsResponse,
+  RoomPublicInfo
+} from './types'
+import { withCSRF } from '@/lib/middleware/csrf'
 
 /**
- * 获取当前用户信息（从请求头）
- * 在实际应用中应该从 session/JWT 获取
+ * Get current user information (from request headers)
+ * In production, this should be from session/JWT
  */
 function getCurrentUser(request: NextRequest): { id: string; name: string } | null {
   const userId = request.headers.get('x-user-id')
   const userName = request.headers.get('x-user-name')
 
   if (!userId || !userName) {
-    // 使用默认用户（开发模式）
+    // Use default user (development mode)
     return {
       id: 'dev-user',
       name: 'Developer',
@@ -29,23 +108,24 @@ function getCurrentUser(request: NextRequest): { id: string; name: string } | nu
 }
 
 /**
- * POST /api/rooms - 创建房间
+ * POST /api/rooms - Create room
+ * Requires CSRF protection
  */
-export async function POST(request: NextRequest) {
+export const POST = withCSRF(async (request: NextRequest) => {
   try {
     const user = getCurrentUser(request)
     if (!user) {
-      return NextResponse.json({ success: false, error: 'Unauthorized' }, { status: 401 })
+      return createUnauthorizedError('Authentication required')
     }
 
-    const body = await request.json()
+    const body: CreateRoomRequest = await request.json()
 
-    // 验证必填字段
+    // Validate required fields
     if (!body.name || typeof body.name !== 'string') {
-      return NextResponse.json({ success: false, error: 'Room name is required' }, { status: 400 })
+      return createBadRequestError('Room name is required')
     }
 
-    // 创建房间
+    // Create room
     const room = roomStore.createRoom({
       ownerId: user.id,
       ownerName: user.name,
@@ -55,35 +135,40 @@ export async function POST(request: NextRequest) {
       isPrivate: body.isPrivate,
     })
 
-    return NextResponse.json(
-      {
-        success: true,
-        data: {
-          id: room.id,
-          name: room.name,
-          inviteCode: room.inviteCode,
-          createdAt: room.createdAt,
-        },
-      },
-      { status: 201 }
-    )
+    const response: CreateRoomResponse = {
+      id: room.id,
+      name: room.name,
+      inviteCode: room.inviteCode,
+      createdAt: room.createdAt,
+    }
+
+    return createSuccessResponse(response, 201)
   } catch (error) {
     console.error('Failed to create room:', error)
-    return NextResponse.json({ success: false, error: 'Failed to create room' }, { status: 500 })
+    return createErrorResponse(error instanceof Error ? error : new Error(String(error)))
   }
-}
+})
 
 /**
- * GET /api/rooms - 获取房间列表
+ * GET /api/rooms - Get rooms list
  */
 export async function GET(request: NextRequest) {
   try {
     const user = getCurrentUser(request)
+    const { searchParams } = new URL(request.url)
+    
+    const queryParams: GetRoomsRequest = {
+      search: searchParams.get('search') || undefined,
+      page: searchParams.get('page') ? parseInt(searchParams.get('page')!, 10) : 1,
+      limit: searchParams.get('limit') ? parseInt(searchParams.get('limit')!, 10) : 20,
+      sortBy: (searchParams.get('sortBy') as any) || 'createdAt',
+      sortOrder: (searchParams.get('sortOrder') as any) || 'desc',
+    }
 
     const rooms = roomStore.getAllRooms()
 
-    // 过滤敏感信息（密码等）
-    const publicRooms = rooms.map(room => ({
+    // Filter sensitive information (password, etc.)
+    const publicRooms: RoomPublicInfo[] = rooms.map(room => ({
       id: room.id,
       name: room.name,
       description: room.description,
@@ -97,12 +182,46 @@ export async function GET(request: NextRequest) {
       isOwner: user?.id === room.ownerId,
     }))
 
-    return NextResponse.json({
-      success: true,
-      data: { rooms: publicRooms },
+    // Apply search filter if provided
+    let filteredRooms = publicRooms
+    if (queryParams.search) {
+      const searchLower = queryParams.search.toLowerCase()
+      filteredRooms = publicRooms.filter(room =>
+        room.name.toLowerCase().includes(searchLower) ||
+        (room.description && room.description.toLowerCase().includes(searchLower))
+      )
+    }
+
+    // Apply sorting
+    filteredRooms.sort((a, b) => {
+      const aVal = a[queryParams.sortBy as keyof RoomPublicInfo]
+      const bVal = b[queryParams.sortBy as keyof RoomPublicInfo]
+      
+      if (typeof aVal === 'string' && typeof bVal === 'string') {
+        return queryParams.sortOrder === 'asc' 
+          ? aVal.localeCompare(bVal)
+          : bVal.localeCompare(aVal)
+      }
+      
+      if (typeof aVal === 'number' && typeof bVal === 'number') {
+        return queryParams.sortOrder === 'asc' ? aVal - bVal : bVal - aVal
+      }
+      
+      return 0
     })
+
+    // Apply pagination
+    const startIndex = (queryParams.page! - 1) * queryParams.limit!
+    const endIndex = startIndex + queryParams.limit!
+    const paginatedRooms = filteredRooms.slice(startIndex, endIndex)
+
+    const response: GetRoomsResponse = {
+      rooms: paginatedRooms,
+    }
+
+    return createSuccessResponse(response)
   } catch (error) {
     console.error('Failed to get rooms:', error)
-    return NextResponse.json({ success: false, error: 'Failed to get rooms' }, { status: 500 })
+    return createErrorResponse(error instanceof Error ? error : new Error(String(error)))
   }
 }

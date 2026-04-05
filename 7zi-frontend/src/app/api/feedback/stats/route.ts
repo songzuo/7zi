@@ -4,8 +4,9 @@
  * GET /api/feedback/stats - Get feedback statistics
  */
 
-import { NextRequest, NextResponse } from 'next/server'
+import { NextRequest } from 'next/server'
 import { feedbackStorage } from '@/lib/db/feedback-storage'
+import { createSuccessResponse, createForbiddenError, createErrorResponse } from '@/lib/api/error-handler'
 
 /**
  * Initialize feedback storage
@@ -33,32 +34,15 @@ export async function GET(request: NextRequest) {
 
     // Check admin permission
     if (userRole !== 'admin') {
-      return NextResponse.json(
-        {
-          success: false,
-          error: 'Forbidden',
-          message: '需要管理员权限',
-        },
-        { status: 403 }
-      )
+      return createForbiddenError('需要管理员权限')
     }
 
     // Get stats
     const stats = feedbackStorage.getStats()
 
-    return NextResponse.json({
-      success: true,
-      data: { stats },
-    })
+    return createSuccessResponse({ stats })
   } catch (error) {
     console.error('[Feedback Stats API] GET error:', error)
-    return NextResponse.json(
-      {
-        success: false,
-        error: 'Failed to fetch statistics',
-        message: '获取统计信息失败',
-      },
-      { status: 500 }
-    )
+    return createErrorResponse(error instanceof Error ? error : new Error(String(error)))
   }
 }

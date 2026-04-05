@@ -24,6 +24,7 @@ import {
   createForbiddenError,
   createErrorResponse,
 } from '@/lib/api/error-handler'
+import { withCSRF } from '@/lib/middleware/csrf'
 
 /**
  * 模拟的 API 上下文（实际应用中从 session 或 JWT 解析）
@@ -110,8 +111,9 @@ export async function GET(request: NextRequest) {
 /**
  * POST /api/users - 创建新用户
  * 需要权限: user:create
+ * Requires CSRF protection
  */
-export async function POST(request: NextRequest) {
+export const POST = withCSRF(async (request: NextRequest) => {
   try {
     const userId = request.headers.get('x-user-id') || 'user-2'
     const user = users[userId]
@@ -136,7 +138,7 @@ export async function POST(request: NextRequest) {
 
     return createErrorResponse(error instanceof Error ? error : new Error(String(error)))
   }
-}
+})
 
 /**
  * 用户控制器类

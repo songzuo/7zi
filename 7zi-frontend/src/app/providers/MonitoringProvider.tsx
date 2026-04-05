@@ -8,16 +8,16 @@
  * 2. 初始化 Web Vitals 监控
  * 3. 初始化自定义指标追踪
  * 4. 连接告警系统
+ *
+ * 优化：延迟初始化监控，优先渲染 UI
  */
 
 import { useEffect, useState, createContext, useContext, ReactNode } from 'react'
-import { monitor, initBrowserTracking } from '@/lib/monitoring'
-import {
-  initWebVitalsMonitoring,
-  initCustomMetricsTracking,
-  customMetricsTracker,
-} from '@/lib/performance'
 import { logger } from '@/lib/logger'
+import type { AggregatedMetrics } from '@/lib/monitoring/types'
+import type { CustomMetrics } from '@/lib/performance'
+import { monitor } from '@/lib/monitoring'
+import { customMetricsTracker } from '@/lib/performance'
 
 interface MonitoringContextValue {
   isInitialized: boolean
@@ -49,57 +49,75 @@ export function MonitoringProvider({
   const [isInitialized, setIsInitialized] = useState(false)
 
   useEffect(() => {
-    if (!enabled) {
-      setIsInitialized(true)
-      return
-    }
+    // 延迟初始化监控，优先渲染 UI
+    const initTimer = setTimeout(() => {
+      if (!enabled) {
+        setIsInitialized(true)
+        return
+      }
 
-    // 初始化基础浏览器追踪
-    initBrowserTracking()
+      // 动态导入监控模块（延迟加载）
+      Promise.all([
+        import('@/lib/monitoring').then(m => m.initBrowserTracking()),
+        import('@/lib/performance').then(m => {
+          m.initWebVitalsMonitoring({})
+          m.initCustomMetricsTracking({
+            trackMemory: true,
+            memoryCheckInterval: 10000,
+            trackNetwork: true,
+            trackResources: true,
+          })
+        }),
+      ]).then(() => {
+        // 设置全局错误处理
+        const handleError = (event: ErrorEvent) => {
+          // 动态导入 trackError
+          import('@/lib/monitoring').then(({ monitor }) => {
+            monitor.trackError('GlobalError', event.message, event.error?.stack, {
+              filename: event.filename,
+              lineno: event.lineno,
+              colno: event.colno,
+            })
+          })
+        }
 
-    // 初始化 Web Vitals 监控
-    initWebVitalsMonitoring({})
+        const handleUnhandledRejection = (event: PromiseRejectionEvent) => {
+          // 动态导入 trackError
+          import('@/lib/monitoring').then(({ monitor }) => {
+            monitor.trackError(
+              'UnhandledRejection',
+              event.reason?.message || String(event.reason),
+              event.reason?.stack,
+              { type: 'unhandledrejection' }
+            )
+          })
+        }
 
-    // 初始化自定义指标追踪
-    initCustomMetricsTracking({
-      trackMemory: true,
-      memoryCheckInterval: 10000, // 10 秒检查一次内存
-      trackNetwork: true,
-      trackResources: true,
-    })
+        window.addEventListener('error', handleError)
+        window.addEventListener('unhandledrejection', handleUnhandledRejection)
 
-    // 更新监控配置
-    if (sampleRate !== undefined) {
-      monitor.updateConfig({ sampleRate })
-    }
+        // 更新采样率
+        if (sampleRate !== undefined) {
+          import('@/lib/monitoring').then(({ monitor }) => {
+            monitor.updateConfig({ sampleRate })
+          })
+        }
 
-    // 设置全局错误处理
-    const handleError = (event: ErrorEvent) => {
-      monitor.trackError('GlobalError', event.message, event.error?.stack, {
-        filename: event.filename,
-        lineno: event.lineno,
-        colno: event.colno,
+        setIsInitialized(true)
+
+        // 清理函数
+        return () => {
+          window.removeEventListener('error', handleError)
+          window.removeEventListener('unhandledrejection', handleUnhandledRejection)
+        }
+      }).catch((error) => {
+        console.error('[MonitoringProvider] Failed to initialize monitoring:', error)
+        setIsInitialized(true) // 即使失败也标记为已初始化
       })
-    }
+    }, 1000) // 延迟 1 秒初始化
 
-    const handleUnhandledRejection = (event: PromiseRejectionEvent) => {
-      monitor.trackError(
-        'UnhandledRejection',
-        event.reason?.message || String(event.reason),
-        event.reason?.stack,
-        { type: 'unhandledrejection' }
-      )
-    }
-
-    window.addEventListener('error', handleError)
-    window.addEventListener('unhandledrejection', handleUnhandledRejection)
-
-    setIsInitialized(true)
-
-    // 清理函数
     return () => {
-      window.removeEventListener('error', handleError)
-      window.removeEventListener('unhandledrejection', handleUnhandledRejection)
+      clearTimeout(initTimer)
     }
   }, [enabled, sampleRate])
 
@@ -115,7 +133,10 @@ export function MonitoringProvider({
  */
 export function useMonitoringStatus() {
   const { isInitialized, monitor, customMetricsTracker } = useMonitoring()
-  const [metrics, setMetrics] = useState<any>(null)
+  const [metrics, setMetrics] = useState<{
+    aggregated: AggregatedMetrics
+    custom: CustomMetrics
+  } | null>(null)
 
   useEffect(() => {
     if (!isInitialized) return

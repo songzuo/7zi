@@ -10,10 +10,11 @@
  * - 参考：https://github.com/SebastienAhkrin/exceljs
  */
 
-import { NextRequest, NextResponse } from 'next/server'
+import { NextRequest } from 'next/server'
 import { authMiddleware } from '@/middleware/auth.middleware'
 import { validateAndSanitizeBody } from '@/shared/lib/validation-schemas'
 import { z } from 'zod'
+import { createSuccessResponse, createBadRequestError, createErrorResponse } from '@/lib/api/error-handler'
 
 /**
  * 导入数据验证模式
@@ -55,31 +56,19 @@ export async function POST(request: NextRequest) {
     const validationResult = await validateAndSanitizeBody(body, importDataSchema, 'nosql')
 
     if (!validationResult.success) {
-      return NextResponse.json(
-        {
-          success: false,
-          error: 'Validation Error',
-          errors: validationResult.errors.map((err: z.ZodIssue) => ({
-            field: err.path.join('.'),
-            message: err.message,
-          })),
-        },
-        { status: 400 }
-      )
+      return createBadRequestError('Validation Error', {
+        errors: validationResult.errors.map((err: z.ZodIssue) => ({
+          field: err.path.join('.'),
+          message: err.message,
+        })),
+      })
     }
 
     const { data, format, options } = validationResult.data
 
     // 验证数据格式
     if (!data || data.length === 0) {
-      return NextResponse.json(
-        {
-          success: false,
-          error: 'Invalid Data',
-          message: '导入数据不能为空',
-        },
-        { status: 400 }
-      )
+      return createBadRequestError('导入数据不能为空')
     }
 
     // TODO: 实际的数据导入逻辑
@@ -94,27 +83,16 @@ export async function POST(request: NextRequest) {
     await new Promise(resolve => setTimeout(resolve, 500))
 
     // 返回成功结果
-    return NextResponse.json({
-      success: true,
-      message: `成功导入 ${data.length} 条数据`,
-      data: {
-        imported: data.length,
-        failed: 0,
-        format,
-        userId,
-        timestamp: new Date().toISOString(),
-      },
+    return createSuccessResponse({
+      imported: data.length,
+      failed: 0,
+      format,
+      userId,
+      timestamp: new Date().toISOString(),
     })
   } catch (error) {
     console.error('[Import API] Error:', error)
-    return NextResponse.json(
-      {
-        success: false,
-        error: 'Import Failed',
-        message: '数据导入失败，请稍后重试',
-      },
-      { status: 500 }
-    )
+    return createErrorResponse(error instanceof Error ? error : new Error(String(error)))
   }
 }
 
@@ -136,25 +114,15 @@ export async function GET(request: NextRequest) {
 
   // 验证分页参数
   if (page < 1 || limit < 1 || limit > 100) {
-    return NextResponse.json(
-      {
-        success: false,
-        error: 'Invalid Parameters',
-        message: '分页参数无效',
-      },
-      { status: 400 }
-    )
+    return createBadRequestError('分页参数无效')
   }
 
   // TODO: 查询用户的导入历史
 
-  return NextResponse.json({
-    success: true,
-    data: {
-      imports: [],
-      total: 0,
-      page,
-      limit,
-    },
+  return createSuccessResponse({
+    imports: [],
+    total: 0,
+    page,
+    limit,
   })
 }
