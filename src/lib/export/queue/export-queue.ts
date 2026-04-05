@@ -4,7 +4,7 @@
  * @version 1.0.0
  */
 
-import { Queue, Job, JobOptions } from 'bull'
+import { Queue, Job, JobOptions } from './bull-stub'
 import { v4 as uuidv4 } from 'uuid'
 import { promises as fs } from 'fs'
 import path from 'path'

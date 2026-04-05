@@ -1,0 +1,68 @@
+{
+  "name": "health-check-cron",
+  "description": "7zi.com 生产环境健康检查定时任务",
+  "version": "v1.140",
+  "created": "2026-04-05",
+  "schedule": "*/5 * * * *",
+  "enabled": true,
+  "script": "scripts/health-check.sh",
+  "workingDirectory": "/root/.openclaw/workspace",
+  "environment": {
+    "NODE_ENV": "production"
+  },
+  "alert": {
+    "onFailure": true,
+    "onWarning": false,
+    "channels": ["telegram"]
+  },
+  "settings": {
+    "timeout": 300,
+    "retryOnFailure": 2,
+    "retryDelay": 60,
+    "alertCooldown": 300,
+    "alertAfterConsecutiveFailures": 2
+  },
+  "checks": [
+    {
+      "name": "website",
+      "enabled": true,
+      "critical": true,
+      "threshold": 5
+    },
+    {
+      "name": "nginx",
+      "enabled": true,
+      "critical": true,
+      "threshold": 0
+    },
+    {
+      "name": "pm2",
+      "enabled": true,
+      "critical": true,
+      "threshold": 0
+    },
+    {
+      "name": "docker",
+      "enabled": true,
+      "critical": false
+    },
+    {
+      "name": "disk",
+      "enabled": true,
+      "critical": true,
+      "threshold": 90
+    },
+    {
+      "name": "memory",
+      "enabled": true,
+      "critical": true,
+      "threshold": 90
+    },
+    {
+      "name": "load",
+      "enabled": true,
+      "critical": false
+    }
+  ],
+  "history": []
+}

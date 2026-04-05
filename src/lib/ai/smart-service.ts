@@ -28,7 +28,7 @@ export interface SmartAIServiceConfig {
     persistencePath?: string
     dailyBudgetLimit?: number
   }
-  routerConfig?: Parameters<typeof ModelRouter>[0]
+  routerConfig?: Partial<import('./routing/types').RouterConfig>
 }
 
 /**
@@ -194,10 +194,7 @@ export class SmartRoutingAIService {
         promptTokens: request.prompt.length / 4,
         completionTokens: totalTokens,
         totalTokens: totalTokens + request.prompt.length / 4,
-        cost: totalCost || this.costTracker.calculateCost(
-          request.prompt.length / 4,
-          totalTokens
-        ),
+        cost: totalCost || 0,
         latency,
         taskType: request.taskType,
       })
@@ -334,7 +331,7 @@ export class SmartRoutingAIService {
     const costTrackerHealthy = true
 
     // 模型健康检查
-    const models = []
+    const models: Array<{ id: string; healthy: boolean }> = []
     // TODO: 实现模型健康检查
 
     return {
