@@ -9,9 +9,10 @@ import { render, screen } from '@testing-library/react'
 import { ReactFlowProvider } from 'reactflow'
 import { LoopNode } from '../NodeTypes/LoopNode'
 import type { WorkflowNodeData } from '../types'
+import type { NodeProps } from 'reactflow'
 
 describe('LoopNode', () => {
-  const renderWithProvider = (node: any) => {
+  const renderWithProvider = (node: NodeProps<WorkflowNodeData>) => {
     return render(
       <ReactFlowProvider>
         <LoopNode {...node} />

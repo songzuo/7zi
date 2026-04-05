@@ -69,6 +69,8 @@ import { StatusBar } from './StatusBar'
 import { ExecutionPanel } from './ExecutionPanel'
 import { ValidationPanel } from './ValidationPanel'
 import { KeyboardShortcutsPanel } from './KeyboardShortcutsPanel'
+import { DraftListPanel } from './DraftListPanel'
+import { WorkflowTemplateSelectorDialog } from './WorkflowTemplateSelector'
 
 // 导入类型
 import type { NodeType, WorkflowNodeData, WorkflowEdgeData, WorkflowDefinition, WorkflowExport } from './types'
@@ -88,6 +90,12 @@ import { conditionalEdgeType, animatedEdgeType } from './EdgeTypes'
 // 导入 hooks
 import { useWorkflowValidation } from './hooks/useWorkflowValidation'
 import { useWorkflowExecution } from './hooks/useWorkflowExecution'
+
+// 导入草稿管理 hook
+import { useWorkflowDraft } from '../../hooks/useWorkflowDraft'
+
+// 导入模板 hook
+import { useWorkflowTemplate } from '../../hooks/useWorkflowTemplate'
 
 // 导入常量
 import { NODE_TEMPLATES, CANVAS_CONFIG, EDITOR_VERSION } from './constants'
@@ -132,6 +140,11 @@ function WorkflowEditorInner({
   const [selectedEdge, setSelectedEdge] = useState<Edge<WorkflowEdgeData> | null>(null)
   const [hasFocus, setHasFocus] = useState(true) // 焦点状态
   const [showShortcutsPanel, setShowShortcutsPanel] = useState(false) // 快捷键面板状态
+  const [showTemplateSelector, setShowTemplateSelector] = useState(false) // 模板选择器状态
+  const [showDraftList, setShowDraftList] = useState(false) // 草稿列表面板状态
+
+  // 模板 Hook
+  const { createWorkflowFromTemplate } = useWorkflowTemplate({ autoLoad: false })
   
   // 剪贴板状态（用于复制/粘贴）
   const [clipboard, setClipboard] = useState<Node<WorkflowNodeData> | null>(null)
@@ -143,6 +156,62 @@ function WorkflowEditorInner({
   const { executionState, isExecuting, startExecution, stopExecution, logs } = useWorkflowExecution(
     { workflowId, nodes, edges }
   )
+
+  // 草稿管理 hook - 自动保存和恢复
+  const {
+    draft,
+    isLoading: isDraftLoading,
+    isSaving: isDraftSaving,
+    hasUnsavedChanges,
+    lastSavedAt,
+    saveDraft,
+    loadDraft,
+    deleteDraft,
+    triggerSave,
+    clearError,
+  } = useWorkflowDraft({
+    workflowId: workflowId || '',
+    autoSaveDelay: 3000, // 3秒自动保存
+    autoSaveEnabled: !readOnly,
+    onDraftLoaded: (loadedDraft) => {
+      // 恢复草稿数据
+      if (loadedDraft && loadedDraft.nodes.length > 0) {
+        setNodes(loadedDraft.nodes as Node<WorkflowNodeData>[])
+      }
+      if (loadedDraft && loadedDraft.edges.length > 0) {
+        setEdges(loadedDraft.edges as Edge<WorkflowEdgeData>[])
+      }
+    },
+    onError: (error) => {
+      console.error('[WorkflowEditor] 草稿保存失败:', error)
+    },
+  })
+
+  // 监听节点和边的变化，自动保存草稿
+  useEffect(() => {
+    if (workflowId && !readOnly && nodes.length > 0) {
+      saveDraft({
+        name: currentWorkflow.name,
+        nodes: nodes.map(n => ({
+          id: n.id,
+          type: n.type || 'default',
+          position: n.position,
+          data: n.data as Record<string, unknown>,
+        })),
+        edges: edges.map(e => ({
+          id: e.id,
+          source: e.source,
+          target: e.target,
+          sourceHandle: e.sourceHandle || undefined,
+          targetHandle: e.targetHandle || undefined,
+          data: e.data as Record<string, unknown> | undefined,
+        })),
+        metadata: {
+          description: currentWorkflow.description,
+        },
+      })
+    }
+  }, [nodes, edges, workflowId, readOnly]) // eslint-disable-line react-hooks/exhaustive-deps
 
   // 当前工作流定义
   const currentWorkflow: WorkflowDefinition = useMemo(() => ({
@@ -361,6 +430,20 @@ function WorkflowEditorInner({
     [onImport, fitView]
   )
 
+  // 从模板创建工作流
+  const handleCreateFromTemplate = useCallback(
+    (templateId: string) => {
+      const workflow = createWorkflowFromTemplate(templateId)
+      if (workflow) {
+        setNodes(workflow.nodes as Node<WorkflowNodeData>[])
+        setEdges(workflow.edges as Edge<WorkflowEdgeData>[])
+        // 自动适配视图
+        setTimeout(() => fitView({ padding: 0.2 }), 100)
+      }
+    },
+    [createWorkflowFromTemplate, fitView]
+  )
+
   // 键盘快捷键处理
   useEffect(() => {
     const handleKeyDown = (event: KeyboardEvent) => {
@@ -525,6 +608,8 @@ function WorkflowEditorInner({
         onValidate={validateWorkflow}
         onExport={onExport}
         onImport={handleImport}
+        onNewFromTemplate={() => setShowTemplateSelector(true)}
+        onShowDrafts={() => setShowDraftList(true)}
         workflow={currentWorkflow}
         isExecuting={isExecuting}
         readOnly={readOnly}
@@ -670,12 +755,38 @@ function WorkflowEditorInner({
         validationStatus={validationErrors.length === 0 ? 'valid' : 'invalid'}
         executionStatus={executionState?.instance?.status}
         onShowShortcuts={() => setShowShortcutsPanel(true)}
+        draftStatus={{
+          isSaving: isDraftSaving,
+          hasUnsavedChanges,
+          lastSavedAt,
+        }}
       />
 
       {/* 快捷键面板 */}
       <KeyboardShortcutsPanel
         isOpen={showShortcutsPanel}
         onClose={() => setShowShortcutsPanel(false)}
+      />
+
+      {/* 模板选择对话框 */}
+      <WorkflowTemplateSelectorDialog
+        isOpen={showTemplateSelector}
+        onSelectTemplate={handleCreateFromTemplate}
+        onClose={() => setShowTemplateSelector(false)}
+      />
+
+      {/* 草稿列表面板 */}
+      <DraftListPanel
+        isOpen={showDraftList}
+        onClose={() => setShowDraftList(false)}
+        onLoadDraft={(draft) => {
+          // 加载草稿数据
+          setNodes(draft.nodes as Node<WorkflowNodeData>[])
+          setEdges(draft.edges as Edge<WorkflowEdgeData>[])
+          // 清除错误状态
+          clearError()
+        }}
+        currentWorkflowId={workflowId}
       />
     </div>
   )

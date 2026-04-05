@@ -16,6 +16,8 @@ interface ToolbarProps {
   onValidate: () => void
   onExport?: (exportData: WorkflowExport) => void
   onImport?: (workflow: WorkflowDefinition) => void
+  onNewFromTemplate?: () => void
+  onShowDrafts?: () => void
   workflow?: WorkflowDefinition
   isExecuting?: boolean
   readOnly?: boolean
@@ -28,6 +30,8 @@ export function Toolbar({
   onValidate,
   onExport,
   onImport,
+  onNewFromTemplate,
+  onShowDrafts,
   workflow,
   isExecuting = false,
   readOnly = false,
@@ -76,6 +80,31 @@ export function Toolbar({
 
       {/* 右侧：操作按钮 */}
       <div className="flex items-center gap-2">
+        {/* v1.12.2: 草稿列表 */}
+        {onShowDrafts && (
+          <button
+            onClick={onShowDrafts}
+            className="flex items-center gap-2 rounded-lg border border-gray-300 px-3 py-1.5 text-sm font-medium text-gray-700 transition-colors hover:bg-gray-50 dark:border-gray-600 dark:text-gray-300 dark:hover:bg-gray-700"
+            title="查看草稿列表"
+          >
+            <span>📝</span>
+            <span>草稿</span>
+          </button>
+        )}
+
+        {/* v1.12.2: 从模板新建 */}
+        {onNewFromTemplate && (
+          <button
+            onClick={onNewFromTemplate}
+            disabled={readOnly}
+            className="flex items-center gap-2 rounded-lg border border-gray-300 px-3 py-1.5 text-sm font-medium text-gray-700 transition-colors hover:bg-gray-50 disabled:cursor-not-allowed disabled:opacity-50 dark:border-gray-600 dark:text-gray-300 dark:hover:bg-gray-700"
+            title="从模板新建工作流"
+          >
+            <span>📋</span>
+            <span>从模板</span>
+          </button>
+        )}
+
         {/* v1.9.1: 导出/导入 */}
         {workflow && (
           <WorkflowExporter

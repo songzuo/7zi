@@ -70,7 +70,7 @@ vi.mock('reactflow', () => {
 
 // Mock 子组件
 vi.mock('../Toolbar', () => ({
-  Toolbar: ({ onSave, onRun, readOnly }: any) =>
+  Toolbar: ({ onSave, onRun, readOnly }: { onSave?: () => void; onRun?: () => void; readOnly?: boolean }) =>
     React.createElement(
       'div',
       { 'data-testid': 'toolbar' },
@@ -96,7 +96,7 @@ vi.mock('../Toolbar', () => ({
 }))
 
 vi.mock('../NodePalette', () => ({
-  NodePalette: ({ disabled }: any) =>
+  NodePalette: ({ disabled }: { disabled?: boolean }) =>
     React.createElement('div', {
       'data-testid': 'node-palette',
       'data-disabled': disabled,
@@ -104,7 +104,7 @@ vi.mock('../NodePalette', () => ({
 }))
 
 vi.mock('../StatusBar', () => ({
-  StatusBar: ({ nodesCount, edgesCount }: any) =>
+  StatusBar: ({ nodesCount, edgesCount }: { nodesCount?: number; edgesCount?: number }) =>
     React.createElement(
       'div',
       { 'data-testid': 'status-bar' },
@@ -117,16 +117,16 @@ vi.mock('../ExecutionPanel', () => ({
 }))
 
 vi.mock('../ValidationPanel', () => ({
-  ValidationPanel: ({ errors }: any) =>
+  ValidationPanel: ({ errors }: { errors?: Array<{ message: string }> }) =>
     React.createElement(
       'div',
       { 'data-testid': 'validation-panel' },
-      errors?.map((e: any) => e.message).join(', ')
+      errors?.map((e: { message: string }) => e.message).join(', ')
     ),
 }))
 
 vi.mock('../PropertiesPanel', () => ({
-  PropertiesPanel: ({ node }: any) =>
+  PropertiesPanel: ({ node }: { node?: { data: Record<string, unknown> } }) =>
     React.createElement(
       'div',
       { 'data-testid': 'properties-panel' },

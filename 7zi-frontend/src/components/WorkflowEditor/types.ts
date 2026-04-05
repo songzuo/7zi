@@ -76,6 +76,7 @@ export interface WorkflowVariable {
 /**
  * 节点类型枚举
  * v1.9.1 新增: loop, subworkflow, transform
+ * v1.12.2 新增: notification - 发送通知节点
  */
 export type NodeType =
   | 'start'
@@ -88,6 +89,7 @@ export type NodeType =
   | 'loop' // v1.9.1: 循环节点
   | 'subworkflow' // v1.9.1: 子工作流节点
   | 'transform' // v1.9.1: 数据转换节点
+  | 'notification' // v1.12.2: 发送通知节点
 
 /**
  * 节点类别
@@ -199,6 +201,15 @@ export interface NodeConfig {
   template?: string
   transformExpression?: string
   outputFormat?: 'json' | 'xml' | 'csv' | 'text'
+
+  // 通知配置 (v1.12.2)
+  notificationType?: 'email' | 'sms' | 'webhook' | 'push'
+  notificationTitle?: string
+  notificationContent?: string
+  notificationRecipients?: string[]
+  notificationPriority?: 'low' | 'normal' | 'high' | 'urgent'
+  webhookUrl?: string
+  smsTemplateId?: string
 
   // 通用配置
   enabled?: boolean

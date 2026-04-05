@@ -9,9 +9,10 @@ import { render, screen } from '@testing-library/react'
 import { ReactFlowProvider } from 'reactflow'
 import { SubworkflowNode } from '../NodeTypes/SubworkflowNode'
 import type { WorkflowNodeData } from '../types'
+import type { NodeProps } from 'reactflow'
 
 describe('SubworkflowNode', () => {
-  const renderWithProvider = (node: any) => {
+  const renderWithProvider = (node: NodeProps<WorkflowNodeData>) => {
     return render(
       <ReactFlowProvider>
         <SubworkflowNode {...node} />

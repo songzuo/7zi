@@ -2,12 +2,14 @@
  * WorkflowEditor Store
  *
  * 使用 Zustand 进行工作流状态管理
+ * v1.12.2: 集成执行状态持久化
  */
 
 import { create } from 'zustand'
 import { persist, createJSONStorage } from 'zustand/middleware'
 import type { Edge, Node, Connection } from 'reactflow'
 import type { WorkflowNodeData, WorkflowEdgeData, ValidationError, ExecutionState } from '../types'
+import { executionStateStorage } from '@/lib/storage/execution-state-storage'
 
 /**
  * 工作流定义
@@ -101,6 +103,12 @@ export interface WorkflowState {
   markDirty: () => void
   markClean: () => void
   reset: () => void
+
+  // v1.12.2: 执行状态持久化
+  restoreExecutionState: () => Promise<boolean>
+  clearExecutionState: () => Promise<void>
+  pauseExecution: () => Promise<void>
+  resumeExecution: () => Promise<void>
 }
 
 /**
@@ -263,6 +271,111 @@ export const useWorkflowStore = create<WorkflowState>()(
        */
       reset: () => {
         set(initialState)
+      },
+
+      // ==================== v1.12.2: 执行状态持久化 ====================
+
+      /**
+       * 恢复执行状态
+       * 从 sessionStorage 恢复之前保存的执行进度
+       */
+      restoreExecutionState: async () => {
+        try {
+          const savedState = await executionStateStorage.loadExecutionState()
+          if (!savedState) {
+            console.log('[WorkflowStore] 没有可恢复的执行状态')
+            return false
+          }
+
+          // 检查工作流 ID 是否匹配
+          const currentWorkflow = get().workflow
+          if (!currentWorkflow || currentWorkflow.id !== savedState.workflowId) {
+            console.log('[WorkflowStore] 工作流 ID 不匹配，无法恢复')
+            await executionStateStorage.clearExecutionState()
+            return false
+          }
+
+          // 重建执行状态
+          const executionState: ExecutionState = {
+            instance: {
+              id: savedState.executionId,
+              workflowId: savedState.workflowId,
+              status: savedState.pausedAt ? 'running' : 'running',
+              startTime: savedState.startedAt,
+              progress: {
+                total: Object.keys(savedState.nodeStates).length,
+                completed: Object.values(savedState.nodeStates).filter(
+                  n => n.status === 'completed' || n.status === 'success'
+                ).length,
+                failed: Object.values(savedState.nodeStates).filter(n => n.status === 'failed').length,
+              },
+              inputs: {},
+              outputs: {},
+              variables: Object.entries(savedState.variables).map(([name, value]) => ({
+                name,
+                value,
+                type: typeof value,
+              })),
+            },
+            nodeStates: savedState.nodeStates,
+          }
+
+          set({
+            executionState,
+            isExecuting: true,
+          })
+
+          console.log('[WorkflowStore] 执行状态已恢复:', savedState.executionId)
+          return true
+        } catch (error) {
+          console.error('[WorkflowStore] 恢复执行状态失败:', error)
+          return false
+        }
+      },
+
+      /**
+       * 清除执行状态
+       * 清除 sessionStorage 中的执行状态
+       */
+      clearExecutionState: async () => {
+        try {
+          await executionStateStorage.clearExecutionState()
+          set({
+            executionState: null,
+            isExecuting: false,
+          })
+          console.log('[WorkflowStore] 执行状态已清除')
+        } catch (error) {
+          console.error('[WorkflowStore] 清除执行状态失败:', error)
+        }
+      },
+
+      /**
+       * 暂停执行
+       * 暂停当前执行并保存状态
+       */
+      pauseExecution: async () => {
+        try {
+          await executionStateStorage.pauseExecution()
+          set({ isExecuting: false })
+          console.log('[WorkflowStore] 执行已暂停')
+        } catch (error) {
+          console.error('[WorkflowStore] 暂停执行失败:', error)
+        }
+      },
+
+      /**
+       * 恢复执行
+       * 从暂停状态恢复执行
+       */
+      resumeExecution: async () => {
+        try {
+          await executionStateStorage.resumeExecution()
+          set({ isExecuting: true })
+          console.log('[WorkflowStore] 执行已恢复')
+        } catch (error) {
+          console.error('[WorkflowStore] 恢复执行失败:', error)
+        }
       },
     }),
     {

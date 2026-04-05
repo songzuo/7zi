@@ -9,9 +9,10 @@ import { render, screen } from '@testing-library/react'
 import { ReactFlowProvider } from 'reactflow'
 import { TransformNode } from '../NodeTypes/TransformNode'
 import type { WorkflowNodeData } from '../types'
+import type { NodeProps } from 'reactflow'
 
 describe('TransformNode', () => {
-  const renderWithProvider = (node: any) => {
+  const renderWithProvider = (node: NodeProps<WorkflowNodeData>) => {
     return render(
       <ReactFlowProvider>
         <TransformNode {...node} />
