@@ -8,6 +8,7 @@ import { render, screen, fireEvent, waitFor } from '@testing-library/react'
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest'
 import '@testing-library/jest-dom/vitest'
 import { ErrorBoundary, DefaultErrorFallback } from '../ErrorBoundary'
+import type { ErrorInfo } from 'react'
 
 // Mock monitor
 vi.mock('@/lib/monitoring', () => ({
@@ -221,7 +222,7 @@ describe('ErrorBoundary', () => {
 describe('DefaultErrorFallback', () => {
   it('should render error UI', () => {
     const error = new Error('Test error')
-    const errorInfo: any = {
+    const errorInfo: Partial<ErrorInfo> = {
       componentStack: 'Test stack',
     }
 
