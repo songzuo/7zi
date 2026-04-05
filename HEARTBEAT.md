@@ -1,27 +1,26 @@
 # HEARTBEAT.md
 
 ## Current Time
-- **System**: Saturday April 4th 2026 03:27 (Europe/Berlin)
+- Sunday April 5th 2026 01:37 (Europe/Berlin)
 
 ## Projects
 | 7zi-frontend | workspace |
 |---|---|
-| ✅ | ✅ |
+| ⚠️ Pending commits | ⚠️ Pending commits |
 
-## v1.10.1 Released (2026-04-04)
-- Docs synced: CHANGELOG ✅
-- README ✅
-- package.json ✅
-
-## v1.12.0 Routing Tests
-- 201 tests pass
-
-## Workflow Tests
-- 22 fixed (registerWorkflow calls)
-- 9 test files all pass
+## Testing (Day 3)
+- Webhook: 53/53 pass (92.59% coverage)
+- API types: 21/21 pass
+- Automation: 69/75 pass
+- Workflow edge: 23/23 pass
 
 ## Health
-picoclaw.service ✅
+picoclaw.service ✅ (51h+ uptime)
 
 ## Subagents
-30+ completed overnight
+80+ completed (Apr 3-5)
+
+## Pending
+- git commit all changes
+- xlsx security vulnerability
+- 565 TypeScript errors (remaining)

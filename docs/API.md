@@ -1,8 +1,8 @@
 # API 完整文档
 
-**最后更新**: 2026-04-04
-**版本**: v1.12.1
-**API 端点总数**: 97+
+**最后更新**: 2026-04-05
+**版本**: v1.12.2
+**API 端点总数**: 130+
 
 ---
 
@@ -1435,6 +1435,64 @@ POST /api/vitals
 ```
 GET /api/vitals
 ```
+
+---
+
+### APM 监控状态 (v1.12.2 新增)
+
+```
+GET /api/monitoring/apm
+```
+
+获取 APM 状态和指标，包括 Sentry 配置、分布式追踪、性能指标和 Agent 任务统计。
+
+**响应**:
+
+```json
+{
+  "success": true,
+  "data": {
+    "apm": {
+      "status": "enabled",
+      "sentry": {
+        "initialized": true,
+        "dsn": true,
+        "environment": "production",
+        "release": "v1.12.2",
+        "tracesSampleRate": 0.1,
+        "profilesSampleRate": 0.05,
+        "debug": false
+      },
+      "tracing": {
+        "traceId": "abc123",
+        "spanId": "def456",
+        "activeSpans": 2
+      }
+    },
+    "performance": {
+      "memory": { "used": 128, "limit": 512, "percentage": 25 },
+      "uptime": 3600,
+      "responseTime": 15
+    },
+    "agentTasks": {
+      "totalAgents": 5,
+      "totalTasks": 150,
+      "completedTasks": 145,
+      "failedTasks": 3,
+      "activeTasks": 2,
+      "avgTaskDuration": 2500,
+      "totalTokens": 50000
+    }
+  },
+  "timestamp": "2026-04-05T12:00:00.000Z"
+}
+```
+
+**响应头**:
+- `X-Response-Time`: 响应时间 (毫秒)
+- `sentry-trace`: Sentry 追踪头
+
+**版本**: v1.12.2
 
 ---
 
@@ -5065,3 +5123,715 @@ interface Concept {
   description: string
 }
 ```
+
+---
+
+## APM 监控 API (v1.12.2 新增)
+
+v1.12.2 引入了 APM (Application Performance Monitoring) 监控 API，提供全面的系统状态监控和性能追踪。
+
+### 核心功能
+
+**位置**: `src/app/api/monitoring/apm/route.ts`
+
+**特性**:
+- ✅ Sentry 配置和状态检查
+- ✅ 分布式追踪 (W3C Trace Context)
+- ✅ 性能指标 (内存、正常运行时间、响应时间)
+- ✅ Agent 任务统计
+- ✅ 主动追踪传播
+
+### API 端点
+
+#### 获取 APM 状态
+
+```
+GET /api/monitoring/apm
+```
+
+获取 APM 状态和指标。
+
+**响应**:
+
+```json
+{
+  "success": true,
+  "data": {
+    "apm": {
+      "status": "enabled",
+      "sentry": {
+        "initialized": true,
+        "dsn": true,
+        "environment": "production",
+        "release": "v1.12.2",
+        "tracesSampleRate": 0.1,
+        "profilesSampleRate": 0.05,
+        "debug": false
+      },
+      "tracing": {
+        "traceId": "abc123",
+        "spanId": "def456",
+        "activeSpans": 2
+      }
+    },
+    "performance": {
+      "memory": {
+        "used": 128,
+        "limit": 512,
+        "percentage": 25
+      },
+      "uptime": 3600,
+      "responseTime": 15
+    },
+    "agentTasks": {
+      "totalAgents": 5,
+      "totalTasks": 150,
+      "completedTasks": 145,
+      "failedTasks": 3,
+      "activeTasks": 2,
+      "avgTaskDuration": 2500,
+      "totalTokens": 50000
+    }
+  },
+  "timestamp": "2026-04-05T12:00:00.000Z"
+}
+```
+
+**响应头**:
+- `X-Response-Time`: 响应时间 (毫秒)
+- `sentry-trace`: Sentry 追踪头 (格式: `{traceId}-{spanId}-{sampled}`)
+- `traceparent`: W3C Trace Context (格式: `00-{traceId}-{spanId}-{sampled}`)
+
+---
+
+#### APM 健康检查
+
+```
+HEAD /api/monitoring/apm
+```
+
+轻量级检查 APM 端点可用性。
+
+**响应**: `200 OK`
+
+---
+
+### 类型定义
+
+```typescript
+interface APMStatusResponse {
+  apm: {
+    status: 'enabled' | 'disabled'
+    sentry: {
+      initialized: boolean
+      dsn: boolean
+      environment: string
+      release?: string
+      tracesSampleRate: number
+      profilesSampleRate: number
+      debug: boolean
+    }
+    tracing: {
+      traceId?: string
+      spanId?: string
+      activeSpans?: number
+    }
+  }
+  performance: {
+    memory: {
+      used: number        // MB
+      limit: number        // MB
+      percentage: number   // 0-100
+    }
+    uptime: number         // seconds
+    responseTime?: number  // milliseconds
+  }
+  agentTasks: {
+    totalAgents: number
+    totalTasks: number
+    completedTasks: number
+    failedTasks: number
+    activeTasks: number
+    avgTaskDuration: number  // milliseconds
+    totalTokens: number
+  }
+}
+```
+
+---
+
+## 速率限制管理 API (v1.12.2 新增)
+
+v1.12.2 引入了速率限制管理 API，提供全面的速率限制监控和控制功能。
+
+### 核心功能
+
+**位置**: `src/app/api/rate-limit/route.ts`
+
+**特性**:
+- ✅ 速率限制健康检查
+- ✅ 速率限制统计信息
+- ✅ 速率限制 keys 查询
+- ✅ 特定 key 状态查询
+- ✅ 速率限制调整
+- ✅ 速率限制重置
+
+### API 端点
+
+#### 获取速率限制健康状态
+
+```
+GET /api/rate-limit/health
+```
+
+检查速率限制系统的健康状态。
+
+**响应**:
+
+```json
+{
+  "success": true,
+  "data": {
+    "status": "healthy",
+    "storage": {
+      "type": "redis",
+      "connected": true
+    },
+    "timestamp": "2026-04-05T12:00:00.000Z"
+  }
+}
+```
+
+---
+
+#### 获取速率限制统计
+
+```
+GET /api/rate-limit/stats
+```
+
+获取速率限制统计信息。
+
+**响应**:
+
+```json
+{
+  "success": true,
+  "data": {
+    "totalRequests": 50000,
+    "allowedRequests": 48500,
+    "rejectedRequests": 1500,
+    "rejectionRate": 0.03,
+    "byLayer": {
+      "global": { "allowed": 50000, "rejected": 0 },
+      "ip": { "allowed": 30000, "rejected": 500 },
+      "api-key": { "allowed": 15000, "rejected": 800 },
+      "user": { "allowed": 3500, "rejected": 200 }
+    },
+    "byAlgorithm": {
+      "token-bucket": { "allowed": 40000, "rejected": 1200 },
+      "sliding-window": { "allowed": 8500, "rejected": 300 }
+    },
+    "avgLatencyMs": 0.5,
+    "p99LatencyMs": 2.1,
+    "storage": {
+      "type": "redis",
+      "connected": true
+    }
+  }
+}
+```
+
+---
+
+#### 获取速率限制 keys
+
+```
+GET /api/rate-limit/keys
+```
+
+获取速率限制存储中的 keys 列表。
+
+**Query 参数**:
+- `pattern`: 搜索模式 (默认: `*`)
+- `count`: 返回数量 (默认: 100)
+
+**响应**:
+
+```json
+{
+  "success": true,
+  "data": {
+    "keys": [
+      "ip:192.168.1.100",
+      "ip:10.0.0.50",
+      "api-key:sk_test_123",
+      "api-key:sk_live_456",
+      "user:user_123",
+      "user:user_456"
+    ],
+    "count": 6,
+    "cursor": 6
+  }
+}
+```
+
+---
+
+#### 获取特定 key 状态
+
+```
+GET /api/rate-limit/status/:layer/:identifier
+```
+
+获取特定 key 的当前速率限制状态。
+
+**路径参数**:
+- `layer`: 限流层 (`ip`, `user`, `api-key`, `global`)
+- `identifier`: 标识符 (IP 地址、用户 ID、API Key 等)
+
+**响应**:
+
+```json
+{
+  "success": true,
+  "data": {
+    "key": "ip:192.168.1.100",
+    "layer": "ip",
+    "currentCount": 45,
+    "limit": 100,
+    "remaining": 55,
+    "resetTime": 1712345660000,
+    "algorithm": "sliding-window",
+    "storage": "redis"
+  }
+}
+```
+
+---
+
+#### 调整速率限制
+
+```
+POST /api/rate-limit/adjust
+```
+
+调整特定 key 的速率限制（需要管理员权限）。
+
+**请求体**:
+
+```json
+{
+  "key": "api-key:sk_test_123",
+  "layer": "api-key",
+  "newLimit": 200,
+  "resetCount": false,
+  "addTokens": 50
+}
+```
+
+**响应**:
+
+```json
+{
+  "success": true,
+  "data": {
+    "message": "Rate limit adjusted successfully"
+  }
+}
+```
+
+---
+
+#### 重置速率限制
+
+```
+POST /api/rate-limit/reset/:layer/:identifier
+```
+
+重置特定 key 的速率限制（需要管理员权限）。
+
+**路径参数**:
+- `layer`: 限流层 (`ip`, `user`, `api-key`, `global`)
+- `identifier`: 标识符
+
+**响应**:
+
+```json
+{
+  "success": true,
+  "data": {
+    "message": "Rate limit reset successfully",
+    "data": {
+      "key": "ip:192.168.1.100",
+      "deleted": true
+    }
+  }
+}
+```
+
+---
+
+### 类型定义
+
+```typescript
+interface RateLimitStats {
+  totalRequests: number
+  allowedRequests: number
+  rejectedRequests: number
+  rejectionRate: number
+  byLayer: {
+    global: { allowed: number; rejected: number }
+    ip: { allowed: number; rejected: number }
+    'api-key': { allowed: number; rejected: number }
+    user: { allowed: number; rejected: number }
+  }
+  byAlgorithm: {
+    'token-bucket': { allowed: number; rejected: number }
+    'sliding-window': { allowed: number; rejected: number }
+    'fixed-window': { allowed: number; rejected: number }
+    'leaky-bucket': { allowed: number; rejected: number }
+  }
+  avgLatencyMs: number
+  p99LatencyMs: number
+}
+
+interface RateLimitKeyStatus {
+  key: string
+  layer: string
+  currentCount: number
+  limit: number
+  remaining: number
+  resetTime: number    // Unix timestamp
+  algorithm: string
+  storage: string
+}
+
+interface HealthStatus {
+  status: 'healthy' | 'unhealthy'
+  storage: {
+    type: string
+    connected: boolean
+  }
+  timestamp: string
+}
+```
+
+---
+
+## 审计日志 API (v1.12.2 新增)
+
+v1.12.2 引入了完整的审计日志系统 API。
+
+### 核心功能
+
+**位置**: `src/app/api/audit/`
+
+**特性**:
+- ✅ 查询审计日志（支持多种过滤条件）
+- ✅ 获取审计日志详情
+- ✅ 导出审计日志（JSON、CSV）
+- ✅ 时间范围限制（最多 90 天）
+
+### API 端点
+
+#### 查询审计日志
+
+```
+GET /api/audit/logs
+```
+
+查询审计日志列表。
+
+**Query 参数**:
+| 参数 | 类型 | 默认值 | 说明 |
+|------|------|--------|------|
+| `userId` | string | - | 用户 ID |
+| `username` | string | - | 用户名 |
+| `action` | string | - | 操作类型 (CREATE, READ, UPDATE, DELETE, LOGIN, LOGOUT, EXPORT, ADMIN) |
+| `resource` | string | - | 资源类型 |
+| `resourceId` | string | - | 资源 ID |
+| `status` | string | - | 状态 (success, failure) |
+| `startTime` | string | - | 开始时间 (ISO 格式) |
+| `endTime` | string | - | 结束时间 (ISO 格式) |
+| `ipAddress` | string | - | IP 地址 |
+| `search` | string | - | 搜索关键词 |
+| `sortBy` | string | timestamp | 排序字段 (timestamp, userId, action) |
+| `sortOrder` | string | desc | 排序方向 (asc, desc) |
+| `offset` | number | 0 | 偏移量 |
+| `limit` | number | 100 | 每页数量 (最大 1000) |
+
+**响应**:
+
+```json
+{
+  "logs": [
+    {
+      "id": "audit-001",
+      "userId": "user-001",
+      "username": "john",
+      "action": "LOGIN",
+      "resource": "auth",
+      "resourceId": null,
+      "status": "success",
+      "ipAddress": "192.168.1.1",
+      "userAgent": "Mozilla/5.0...",
+      "timestamp": "2026-04-05T12:00:00.000Z",
+      "details": {
+        "loginMethod": "password",
+        "mfaEnabled": true
+      }
+    }
+  ],
+  "total": 100,
+  "offset": 0,
+  "limit": 100
+}
+```
+
+---
+
+#### 获取审计日志详情
+
+```
+GET /api/audit/logs/:id
+```
+
+获取指定审计日志的详细信息。
+
+**路径参数**:
+- `id`: 日志 ID
+
+**响应**:
+
+```json
+{
+  "id": "audit-001",
+  "userId": "user-001",
+  "username": "john",
+  "action": "UPDATE",
+  "resource": "workflow",
+  "resourceId": "workflow-001",
+  "status": "success",
+  "ipAddress": "192.168.1.1",
+  "userAgent": "Mozilla/5.0...",
+  "timestamp": "2026-04-05T11:30:00.000Z",
+  "details": {
+    "changes": {
+      "before": {
+        "timeout": 3600,
+        "retryPolicy": {
+          "maxRetries": 3
+        }
+      },
+      "after": {
+        "timeout": 7200,
+        "retryPolicy": {
+          "maxRetries": 5
+        }
+      },
+      "changedFields": ["timeout", "retryPolicy.maxRetries"]
+    }
+  }
+}
+```
+
+---
+
+#### 导出审计日志
+
+```
+GET /api/audit/export
+```
+
+导出审计日志为 JSON 或 CSV 格式。
+
+**Query 参数**:
+| 参数 | 类型 | 必需 | 说明 |
+|------|------|------|------|
+| `format` | string | ✅ | 导出格式 (json, csv) |
+| `startTime` | string | ✅ | 开始时间 (ISO 格式) |
+| `endTime` | string | ✅ | 结束时间 (ISO 格式) |
+| `userId` | string | ❌ | 用户 ID |
+| `action` | string | ❌ | 操作类型 |
+| `resource` | string | ❌ | 资源类型 |
+| `resourceId` | string | ❌ | 资源 ID |
+| `status` | string | ❌ | 状态 |
+| `ipAddress` | string | ❌ | IP 地址 |
+| `maxRecords` | number | ❌ | 最大记录数 (默认 10000, 最大 100000) |
+
+**限制**:
+- 时间范围不能超过 90 天
+- maxRecords 不能超过 100000
+
+**响应**:
+- Content-Type: `application/json` 或 `text/csv`
+- Content-Disposition: `attachment; filename="audit-logs-YYYY-MM-DD.{format}"`
+
+---
+
+### 类型定义
+
+```typescript
+interface AuditLogEntry {
+  id: string
+  userId?: string
+  username?: string
+  action: AuditAction
+  resource?: string
+  resourceId?: string
+  status: AuditStatus
+  ipAddress: string
+  userAgent?: string
+  timestamp: string
+  details?: Record<string, unknown>
+}
+
+type AuditAction = 'CREATE' | 'READ' | 'UPDATE' | 'DELETE' | 'LOGIN' | 'LOGOUT' | 'EXPORT' | 'ADMIN'
+type AuditStatus = 'success' | 'failure'
+
+interface AuditLogQueryOptions {
+  userId?: string
+  username?: string
+  action?: AuditAction
+  resource?: string
+  resourceId?: string
+  status?: AuditStatus
+  startTime?: Date
+  endTime?: Date
+  ipAddress?: string
+  search?: string
+  sortBy?: 'timestamp' | 'userId' | 'action'
+  sortOrder?: 'asc' | 'desc'
+  offset?: number
+  limit?: number
+}
+
+interface AuditLogExportOptions {
+  format: 'json' | 'csv'
+  startTime: Date
+  endTime: Date
+  userId?: string
+  action?: AuditAction
+  resource?: string
+  resourceId?: string
+  status?: AuditStatus
+  ipAddress?: string
+  maxRecords?: number
+}
+```
+
+---
+
+## 实时监控 API (v1.12.2 新增)
+
+### 核心功能
+
+**位置**: `src/app/api/monitoring/realtime/route.ts`
+
+**特性**:
+- ✅ 实时性能指标流
+- ✅ 系统健康检查
+- ✅ 资源使用情况监控
+
+### API 端点
+
+#### 实时性能流
+
+```
+GET /api/monitoring/realtime/stream
+```
+
+获取实时性能指标流 (Server-Sent Events)。
+
+**响应**: `text/event-stream`
+
+**事件类型**:
+- `metric`: 性能指标
+- `alert`: 性能告警
+- `status`: 状态更新
+
+**示例**:
+
+```
+event: metric
+data: {"type":"cpu","value":45.2,"timestamp":"2026-04-05T12:00:00.000Z"}
+
+event: metric
+data: {"type":"memory","value":67.8,"timestamp":"2026-04-05T12:00:01.000Z"}
+
+event: alert
+data: {"level":"warning","message":"High CPU usage","threshold":80,"current":85.2}
+```
+
+---
+
+#### 系统健康检查
+
+```
+GET /api/monitoring/realtime/health
+```
+
+检查系统整体健康状态。
+
+**响应**:
+
+```json
+{
+  "status": "healthy",
+  "checks": {
+    "cpu": { "status": "healthy", "value": 45.2, "unit": "%" },
+    "memory": { "status": "healthy", "value": 67.8, "unit": "%" },
+    "disk": { "status": "healthy", "value": 45.5, "unit": "%" },
+    "network": { "status": "healthy", "latency": 5, "unit": "ms" }
+  },
+  "uptime": 3600,
+  "timestamp": "2026-04-05T12:00:00.000Z"
+}
+```
+
+---
+
+### 类型定义
+
+```typescript
+interface RealtimeMetric {
+  type: 'cpu' | 'memory' | 'disk' | 'network' | 'requests'
+  value: number
+  unit: string
+  timestamp: string
+}
+
+interface HealthCheck {
+  status: 'healthy' | 'warning' | 'critical'
+  checks: {
+    cpu: HealthCheckItem
+    memory: HealthCheckItem
+    disk: HealthCheckItem
+    network: HealthCheckItem
+  }
+  uptime: number
+  timestamp: string
+}
+
+interface HealthCheckItem {
+  status: 'healthy' | 'warning' | 'critical'
+  value: number
+  unit: string
+  threshold?: number
+}
+
+interface PerformanceAlert {
+  level: 'info' | 'warning' | 'critical'
+  message: string
+  threshold?: number
+  current: number
+  timestamp: string
+}
+```
+
+---
+
+**文档维护**: 📚 咨询师 (AI 团队)
+**最后更新**: 2026-04-05
+**版本**: v1.12.2
