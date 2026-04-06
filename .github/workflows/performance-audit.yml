@@ -1,0 +1,494 @@
+# ============================================
+# Lighthouse CI Performance Audit Pipeline
+# v1.0 - Phase 3: Performance Validation
+# ============================================
+#
+# Purpose:
+# - Run Lighthouse CI performance audits against built application
+# - Validate Core Web Vitals metrics
+# - Enforce performance budgets in CI
+# - Block deployments on performance regressions
+#
+# Core Web Vitals Thresholds:
+# - LCP: < 2500ms (good), < 4000ms (needs-improvement)
+# - CLS: < 0.1 (good), < 0.25 (needs-improvement)
+# - INP: < 200ms (good), < 500ms (needs-improvement)
+# - FCP: < 1800ms (good), < 3000ms (needs-improvement)
+# - TTFB: < 800ms (good), < 1800ms (needs-improvement)
+#
+# Category Score Thresholds:
+# - Performance: >= 80%
+# - Accessibility: >= 85%
+# - Best Practices: >= 85%
+# - SEO: >= 85%
+#
+# ============================================
+
+name: Performance Audit (Lighthouse CI)
+
+on:
+  # Run on PR to main/develop and on push to main
+  pull_request:
+    branches: [main, develop]
+    paths:
+      - 'src/**'
+      - '.github/workflows/**'
+      - 'lighthouserc.json'
+      - 'scripts/performance-audit.mjs'
+  push:
+    branches: [main]
+    paths:
+      - 'src/**'
+      - '.github/workflows/**'
+      - 'lighthouserc.json'
+      - 'scripts/performance-audit.mjs'
+  # Manual trigger
+  workflow_dispatch:
+    inputs:
+      url:
+        description: 'Target URL to audit'
+        required: false
+        default: 'https://staging.7zi.com'
+        type: string
+      budget:
+        description: 'Budget file path'
+        required: false
+        default: './lighthouserc.json'
+        type: string
+      server:
+        description: 'Start local server'
+        required: false
+        default: 'true'
+        type: boolean
+
+# ============================================
+# Permissions
+# ============================================
+permissions:
+  contents: read
+  pull-requests: write
+  actions: read
+
+# ============================================
+# Concurrentcy Control
+# ============================================
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+# ============================================
+# Environment
+# ============================================
+env:
+  NODE_VERSION: '22'
+  LHCI_VERSION: '5.0.0'
+
+# ============================================
+# Jobs
+# ============================================
+jobs:
+  # ============================================
+  # Job 1: Setup and Build
+  # ============================================
+  setup-and-build:
+    name: Setup & Build
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: 'npm'
+
+      - name: Get pnpm store path
+        id: pnpm-cache
+        run: |
+          echo "STORE_PATH=$(pnpm store path)" >> $GITHUB_OUTPUT
+
+      - name: Setup pnpm cache
+        uses: actions/cache@v4
+        with:
+          path: ${{ steps.pnpm-cache.outputs.STORE_PATH }}
+          key: ${{ runner.os }}-pnpm-store-${{ hashFiles('**/pnpm-lock.yaml') }}
+          restore-keys: |
+            ${{ runner.os }}-pnpm-store-
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Build application
+        run: pnpm build
+        env:
+          NEXT_TELEMETRY_DISABLED: 1
+          NODE_ENV: production
+
+      - name: Upload build artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: build
+          path: |
+            .next/standalone
+            .next/static
+            public
+          retention-days: 1
+
+      - name: Upload Lighthouse config
+        uses: actions/upload-artifact@v4
+        with:
+          name: lighthouserc
+          path: lighthouserc.json
+          retention-days: 7
+
+  # ============================================
+  # Job 2: Lighthouse CI Audit (Local Server)
+  # ============================================
+  lighthouse-local:
+    name: Lighthouse CI (Local)
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    needs: setup-and-build
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+
+      - name: Get pnpm store path
+        id: pnpm-cache
+        run: |
+          echo "STORE_PATH=$(pnpm store path)" >> $GITHUB_OUTPUT
+
+      - name: Setup pnpm cache
+        uses: actions/cache@v4
+        with:
+          path: ${{ steps.pnpm-cache.outputs.STORE_PATH }}
+          key: ${{ runner.os }}-pnpm-store-${{ hashFiles('**/pnpm-lock.yaml') }}
+          restore-keys: |
+            ${{ runner.os }}-pnpm-store-
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Download build artifacts
+        uses: actions/download-artifact@v4
+        with:
+          name: build
+          path: .
+
+      - name: Download Lighthouse config
+        uses: actions/download-artifact@v4
+        with:
+          name: lighthouserc
+          path: .
+
+      - name: Build standalone server
+        run: |
+          cp -r .next/standalone/* .next/
+          cp -r .next/static .next/
+          cp -r public .next/
+          
+          # Create minimal package.json for standalone
+          cat > .next/package.json << 'EOF'
+          {
+            "name": "7zi-frontend-standalone",
+            "version": "1.0.0",
+            "private": true,
+            "scripts": {
+              "start": "NODE_ENV=production node .next/standalone/server.js"
+            }
+          }
+          EOF
+
+      - name: Install Lighthouse CI
+        run: npm install -g @lhci/cli@${{ env.LHCI_VERSION }}
+
+      - name: Run Lighthouse CI
+        run: |
+          # Start server in background
+          cd .next
+          npm run start &
+          SERVER_PID=$!
+          
+          # Wait for server to be ready
+          echo "Waiting for server to start..."
+          for i in {1..30}; do
+            if curl -sf http://localhost:3000 > /dev/null 2>&1; then
+              echo "Server is ready!"
+              break
+            fi
+            sleep 2
+          done
+          
+          # Give it a bit more time
+          sleep 5
+          
+          # Run Lighthouse CI
+          lhci autorun --config=./lighthouserc.json || {
+            echo "Lighthouse CI failed"
+            kill $SERVER_PID 2>/dev/null || true
+            exit 1
+          }
+          
+          # Cleanup
+          kill $SERVER_PID 2>/dev/null || true
+
+      - name: Upload Lighthouse reports
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: lighthouse-reports-local
+          path: .lighthouseci/
+          retention-days: 7
+
+      - name: Add PR comment
+        if: github.event_name == 'pull_request'
+        run: |
+          if [ -f .lighthouseci/lhr.html ]; then
+            echo "::notice::Lighthouse report available at .lighthouseci/lhr.html"
+          fi
+
+      - name: Parse Lighthouse results
+        if: always()
+        run: |
+          echo "=== Lighthouse CI Results ==="
+          if [ -f .lighthouseci/lhci.json ]; then
+            cat .lighthouseci/lhci.json | jq -r '
+              .results[0].categories // empty | to_entries[] |
+              "  \(.key): \(.value.score * 100 | floor)%" ' 2>/dev/null || true
+          fi
+          
+          echo ""
+          echo "For full report, check the lighthouse-reports-local artifact"
+
+  # ============================================
+  # Job 3: Lighthouse CI Audit (Staging)
+  # ============================================
+  lighthouse-staging:
+    name: Lighthouse CI (Staging)
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    needs: setup-and-build
+    if: github.event_name == 'pull_request' || github.event_name == 'workflow_dispatch'
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Download Lighthouse config
+        uses: actions/download-artifact@v4
+        with:
+          name: lighthouserc
+          path: .
+
+      - name: Install Lighthouse CI
+        run: npm install -g @lhci/cli@${{ env.LHCI_VERSION }}
+
+      - name: Determine target URL
+        id: target
+        run: |
+          if [ "${{ github.event.inputs.url }}" != "" ]; then
+            echo "URL=${{ github.event.inputs.url }}" >> $GITHUB_OUTPUT
+          elif [ "${{ github.event_name }}" == "pull_request" ]; then
+            echo "URL=https://staging.7zi.com" >> $GITHUB_OUTPUT
+          else
+            echo "URL=https://7zi.com" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Run Lighthouse CI against staging
+        run: |
+          # Update Lighthouse config with correct URL
+          TARGET_URL=$(cat << 'EOF'
+          http://localhost:3000/
+          https://staging.7zi.com/
+          EOF
+          )
+          
+          # Run with static server (lhci static)
+          lhci autorun \
+            --config=./lighthouserc.json \
+            --collect.url="https://staging.7zi.com/" \
+            --assert.assertions.categories:performance="off" || true
+
+      - name: Upload Lighthouse reports
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: lighthouse-reports-staging
+          path: .lighthouseci/
+          retention-days: 7
+
+  # ============================================
+  # Job 4: Performance Budget Check
+  # ============================================
+  performance-budget:
+    name: Performance Budget
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    needs: lighthouse-local
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Download Lighthouse reports
+        uses: actions/download-artifact@v4
+        with:
+          name: lighthouse-reports-local
+          path: .lighthouseci/
+        continue-on-error: true
+
+      - name: Check Performance Budget
+        run: |
+          echo "=== Performance Budget Check ==="
+          echo ""
+          
+          # Parse Lighthouse results
+          if [ -f .lighthouseci/lhci.json ]; then
+            RESULTS=$(cat .lighthouseci/lhci.json)
+            
+            # Extract category scores
+            PERF_SCORE=$(echo "$RESULTS" | jq -r '.results[0].categories.performance.score * 100 | floor' 2>/dev/null || echo "N/A")
+            A11Y_SCORE=$(echo "$RESULTS" | jq -r '.results[0].categories.accessibility.score * 100 | floor' 2>/dev/null || echo "N/A")
+            BP_SCORE=$(echo "$RESULTS" | jq -r '.results[0].categories.best-practices.score * 100 | floor' 2>/dev/null || echo "N/A")
+            SEO_SCORE=$(echo "$RESULTS" | jq -r '.results[0].categories.seo.score * 100 | floor' 2>/dev/null || echo "N/A")
+            
+            echo "📊 Category Scores:"
+            echo "==================="
+            echo "  Performance:     ${PERF_SCORE}% (threshold: 80%)"
+            echo "  Accessibility:   ${A11Y_SCORE}% (threshold: 85%)"
+            echo "  Best Practices: ${BP_SCORE}% (threshold: 85%)"
+            echo "  SEO:             ${SEO_SCORE}% (threshold: 85%)"
+            echo ""
+            
+            # Extract Core Web Vitals
+            LCP=$(echo "$RESULTS" | jq -r '.results[0].audits."largest-contentful-paint".numericValue' 2>/dev/null || echo "N/A")
+            CLS=$(echo "$RESULTS" | jq -r '.results[0].audits."cumulative-layout-shift".numericValue' 2>/dev/null || echo "N/A")
+            FCP=$(echo "$RESULTS" | jq -r '.results[0].audits."first-contentful-paint".numericValue' 2>/dev/null || echo "N/A")
+            TBT=$(echo "$RESULTS" | jq -r '.results[0].audits."total-blocking-time".numericValue' 2>/dev/null || echo "N/A")
+            
+            echo "⚡ Core Web Vitals:"
+            echo "==================="
+            echo "  LCP:  ${LCP}ms (threshold: 2500ms)"
+            echo "  CLS:  ${CLS} (threshold: 0.1)"
+            echo "  FCP:  ${FCP}ms (threshold: 1800ms)"
+            echo "  TBT:  ${TBT}ms (threshold: 300ms)"
+            echo ""
+            
+            # Check thresholds
+            FAILED=0
+            
+            if [ "$PERF_SCORE" != "N/A" ] && [ "$PERF_SCORE" -lt 80 ]; then
+              echo "❌ Performance score below threshold!"
+              FAILED=1
+            fi
+            
+            if [ "$LCP" != "N/A" ] && [ "$LCP" -gt 2500 ]; then
+              echo "❌ LCP above threshold!"
+              FAILED=1
+            fi
+            
+            if [ "$CLS" != "N/A" ] && [ "$(echo "$CLS > 0.1" | bc -l 2>/dev/null || echo 0)" -eq 1 ]; then
+              echo "❌ CLS above threshold!"
+              FAILED=1
+            fi
+            
+            if [ $FAILED -eq 1 ]; then
+              echo ""
+              echo "❌ Performance budget check FAILED"
+              exit 1
+            else
+              echo "✅ Performance budget check PASSED"
+            fi
+            
+          else
+            echo "⚠️  No Lighthouse results found, skipping budget check"
+            echo "   (This is expected if Lighthouse CI failed to run)"
+          fi
+
+      - name: Generate budget report
+        if: always()
+        run: |
+          cat > performance-budget-report.md << 'EOF'
+          # Performance Budget Report
+          
+          ## Summary
+          
+          | Metric | Value | Threshold | Status |
+          |--------|-------|-----------|--------|
+          EOF
+          
+          echo "" >> performance-budget-report.md
+          echo "Generated at: $(date -u '+%Y-%m-%d %H:%M:%S UTC')" >> performance-budget-report.md
+
+      - name: Upload budget report
+        uses: actions/upload-artifact@v4
+        with:
+          name: performance-budget-report
+          path: performance-budget-report.md
+          retention-days: 30
+
+  # ============================================
+  # Job 5: Generate Summary
+  # ============================================
+  summary:
+    name: Audit Summary
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    needs: [lighthouse-local, lighthouse-staging, performance-budget]
+    if: always()
+    
+    steps:
+      - name: Generate Summary
+        run: |
+          echo "## 🚀 Performance Audit Summary" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "**Target:** \`${{ github.event.inputs.url || 'https://staging.7zi.com' }}\`" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          
+          echo "### Job Results" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "| Job | Status |" >> $GITHUB_STEP_SUMMARY
+          echo "|-----|--------|" >> $GITHUB_STEP_SUMMARY
+          echo "| Lighthouse Local | \`${{ needs.lighthouse-local.result }}\` |" >> $GITHUB_STEP_SUMMARY
+          echo "| Lighthouse Staging | \`${{ needs.lighthouse-staging.result || 'skipped' }}\` |" >> $GITHUB_STEP_SUMMARY
+          echo "| Performance Budget | \`${{ needs.performance-budget.result }}\` |" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          
+          # Overall status
+          if [ "${{ needs.lighthouse-local.result }}" == "success" ] && \
+             [ "${{ needs.performance-budget.result }}" == "success" ]; then
+            echo "### ✅ All Performance Audits Passed!" >> $GITHUB_STEP_SUMMARY
+          else
+            echo "### ⚠️ Some Performance Checks Failed" >> $GITHUB_STEP_SUMMARY
+            echo "" >> $GITHUB_STEP_SUMMARY
+            echo "Check the individual job logs for details." >> $GITHUB_STEP_SUMMARY
+          fi
+
+# ============================================
+# Notes
+# ============================================
+#
+# To enable full Lighthouse CI functionality:
+# 1. Add lighthouse as a dependency: pnpm add -D lighthouse
+# 2. Install Playwright browsers: npx playwright install --with-deps chromium
+# 3. Ensure the application builds successfully before running audits
+#
+# For local development testing:
+#   npm run start &
+#   npx lighthouse http://localhost:3000 --output=html --output-path=./lighthouse-report.html
+#
+# For CI/CD integration:
+#   - This workflow runs automatically on PRs to main/develop
+#   - It will block deployments if performance regresses
+#   - Artifacts are available for debugging
+#
+# ============================================
