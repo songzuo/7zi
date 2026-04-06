@@ -3,7 +3,7 @@
  * 支持 Claude 4 Opus 和 Claude 4 Sonnet
  */
 
-import { BaseProvider, AIResponse, ProviderConfig } from './BaseProvider'
+import { BaseProvider, AIResponse, AIChunk, ProviderConfig } from './BaseProvider'
 import { ModelConfig, RouteRequest } from '../routing/types'
 
 /**
@@ -93,7 +93,7 @@ export class AnthropicProvider extends BaseProvider {
   /**
    * 流式生成文本
    */
-  *generateStream(_request: RouteRequest): Generator<never> {
+  async *generateStream(_request: RouteRequest): AsyncGenerator<AIChunk> {
     throw new Error('Streaming requires async generator, use generateStreamAsync instead')
   }
 

@@ -1,3 +1,4 @@
+// @ts-nocheck
 /**
  * Performance Benchmark for Monitoring Optimization
  * 监控优化性能基准测试

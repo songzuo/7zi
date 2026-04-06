@@ -8,7 +8,7 @@ import { WebSocketManager } from '@/lib/websocket-manager'
 /**
  * RemoteCursorContainer 组件属性
  */
-interface RemoteCursorContainerFunctionProps {
+export interface RemoteCursorContainerProps {
   /**
    * WebSocketManager 实例
    */
@@ -58,7 +58,7 @@ export function RemoteCursorContainerComponent({
   contentRef,
   trackLocalCursor = true,
   className = '',
-}: RemoteCursorContainerFunctionProps) {
+}: RemoteCursorContainerProps) {
   const { cursors, updateLocalCursor, leaveCursor } = useRemoteCursors(wsManager)
   const isTrackingRef = useRef(false)
   const isVisibleRef = useRef(true)

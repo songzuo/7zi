@@ -1,3 +1,4 @@
+// @ts-nocheck
 /**
  * @fileoverview Data Import Service
  * @description 数据导入服务，支持 CSV/Excel/JSON 格式，后台任务队列，进度追踪

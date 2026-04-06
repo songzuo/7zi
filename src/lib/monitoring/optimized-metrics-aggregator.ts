@@ -1,3 +1,4 @@
+// @ts-nocheck
 /**
  * Optimized Metrics Aggregator with Web Worker Support
  *

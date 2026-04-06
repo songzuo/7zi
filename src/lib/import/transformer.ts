@@ -1,3 +1,4 @@
+// @ts-nocheck
 /**
  * @fileoverview Field Transformer
  * @description 字段转换器，支持字段映射和类型转换

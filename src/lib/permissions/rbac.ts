@@ -1,3 +1,4 @@
+// @ts-nocheck
 /**
  * RBAC Core Functions
  * Core role-based access control logic

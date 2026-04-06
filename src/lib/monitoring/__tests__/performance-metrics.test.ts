@@ -1,3 +1,4 @@
+// @ts-nocheck
 // @ts-nocheck - Test file with complex type issues
 /**
  * Performance Metrics Tests

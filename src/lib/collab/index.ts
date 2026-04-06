@@ -5,6 +5,9 @@
  * and real-time presence.
  */
 
+import type { Operation } from './core/crdt';
+import type { CollabSession } from './server/server';
+
 // ============================================================================
 // Core CRDT Implementation
 // ============================================================================

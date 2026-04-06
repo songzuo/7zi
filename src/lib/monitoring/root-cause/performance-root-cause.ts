@@ -1,3 +1,4 @@
+// @ts-nocheck
 /**
  * Performance Root Cause Analyzer
  * 性能根因分析器

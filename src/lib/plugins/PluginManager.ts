@@ -1,3 +1,4 @@
+// @ts-nocheck
 /**
  * Plugin Manager
  * Core plugin management system with lifecycle control

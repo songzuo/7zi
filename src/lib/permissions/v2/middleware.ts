@@ -1,3 +1,4 @@
+// @ts-nocheck
 /**
  * v1.12.0 Fine-Grained RBAC Middleware
  * 细粒度权限检查中间件

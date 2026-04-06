@@ -193,6 +193,16 @@ class L1QueryCache {
     return Array.from(this.cache.keys())
   }
 
+  getEntry<T>(key: string): QueryCacheEntry<T> | null {
+    const entry = this.cache.get(key)
+    if (!entry) return null
+    if (Date.now() > entry.timestamp + entry.ttl) {
+      this.delete(key)
+      return null
+    }
+    return entry as QueryCacheEntry<T>
+  }
+
   cleanExpired(): number {
     const now = Date.now()
     let cleaned = 0

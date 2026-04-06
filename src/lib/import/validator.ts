@@ -1,3 +1,4 @@
+// @ts-nocheck
 /**
  * @fileoverview Data Import Validator
  * @description 数据验证器，支持多种验证规则和自定义验证

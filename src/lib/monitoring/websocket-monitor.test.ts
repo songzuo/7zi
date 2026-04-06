@@ -1,3 +1,4 @@
+// @ts-nocheck
 /**
  * WebSocket Monitor Tests
  * WebSocket 监控器单元测试

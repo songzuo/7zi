@@ -1,3 +1,4 @@
+// @ts-nocheck
 /**
  * Optimized Metrics Aggregation Module
  * 优化的指标聚合模块

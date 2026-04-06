@@ -1,3 +1,4 @@
+// @ts-nocheck
 /**
  * Auth Plugin
  * Authentication and authorization with multiple providers

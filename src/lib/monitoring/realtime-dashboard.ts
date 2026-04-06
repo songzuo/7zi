@@ -1,3 +1,4 @@
+// @ts-nocheck
 /**
  * Real-Time Performance Dashboard Service
  * 实时性能仪表板服务

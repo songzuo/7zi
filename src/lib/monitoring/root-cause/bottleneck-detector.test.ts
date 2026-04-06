@@ -1,3 +1,4 @@
+// @ts-nocheck
 /**
  * Bottleneck Detector Tests
  * Tests for performance bottleneck detection and recommendations

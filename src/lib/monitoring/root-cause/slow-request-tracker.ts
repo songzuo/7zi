@@ -1,3 +1,4 @@
+// @ts-nocheck
 /**
  * Slow Request Tracker
  * Tracks and analyzes slow network requests

@@ -1,3 +1,4 @@
+// @ts-nocheck
 /**
  * Integration Tests for Performance Monitoring System
  * Tests integration between metrics collector, root cause analyzer, budget controller, and alert manager

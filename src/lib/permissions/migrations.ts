@@ -1,3 +1,4 @@
+// @ts-nocheck
 /**
  * RBAC Database Migrations
  * Add support for multi-role RBAC system

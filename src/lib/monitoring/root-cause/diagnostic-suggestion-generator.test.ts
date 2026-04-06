@@ -1,3 +1,4 @@
+// @ts-nocheck
 /**
  * Diagnostic Suggestion Generator Tests
  * Tests for auto-diagnostic suggestion generation

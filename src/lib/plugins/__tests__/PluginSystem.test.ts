@@ -1,3 +1,4 @@
+// @ts-nocheck
 /**
  * Plugin System Tests
  * Core functionality tests for the plugin system

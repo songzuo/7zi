@@ -5,8 +5,8 @@
  */
 
 import Handlebars from 'handlebars'
-import { PDFExporter, PDFOptions, PDFTableOptions } from './pdf-exporter'
-import { HTMLExporter, HTMLOptions, HTMLTableOptions } from './html-exporter'
+import { PDFExporter, PDFOptions, PDFTableOptions } from '../formats/pdf-exporter'
+import { HTMLExporter, HTMLOptions, HTMLTableOptions } from '../formats/html-exporter'
 
 // ============================================================================
 // 类型定义

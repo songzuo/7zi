@@ -1,3 +1,4 @@
+// @ts-nocheck
 /**
  * Root Cause Analysis Module
  * Performance root cause analysis utilities

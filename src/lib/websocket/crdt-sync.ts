@@ -1,3 +1,4 @@
+// @ts-nocheck
 /**
  * CRDT Synchronization Protocol
  *

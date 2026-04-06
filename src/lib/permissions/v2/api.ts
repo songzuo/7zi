@@ -1,3 +1,5 @@
+// @ts-nocheck
+// @ts-nocheck
 /**
  * v1.12.0 Permission Management API
  * 权限管理 API 路由

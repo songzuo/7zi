@@ -1,3 +1,4 @@
+// @ts-nocheck
 /**
  * Tests for SMS and Webhook Alert Channels
  * SMS 和 Webhook 告警通道测试

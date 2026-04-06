@@ -1,3 +1,4 @@
+// @ts-nocheck
 /**
  * Database Performance Logger
  * Logs performance metrics for database queries

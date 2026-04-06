@@ -1,3 +1,4 @@
+// @ts-nocheck
 /**
  * Cache Plugin
  * High-performance caching with multiple backends

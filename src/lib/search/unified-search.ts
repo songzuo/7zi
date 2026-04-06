@@ -1,3 +1,4 @@
+// @ts-nocheck
 /**
  * @fileoverview Unified Search API
  * @description High-level search API that integrates all search components

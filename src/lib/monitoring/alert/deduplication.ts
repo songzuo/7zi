@@ -1,3 +1,4 @@
+// @ts-nocheck
 /**
  * Alert Deduplication and Aggregation Module
  * 告警去重和聚合

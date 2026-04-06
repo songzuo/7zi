@@ -295,13 +295,13 @@ export class DataExporter<T extends Record<string, unknown> = Record<string, unk
 
     // 处理日期
     if (value instanceof Date) {
-      switch (field.formatter || 'iso') {
-        case 'iso':
-          return value.toISOString()
+      const formatter = (field.formatter || 'iso') as string
+      switch (formatter) {
         case 'locale':
           return value.toLocaleString()
         case 'unix':
           return value.getTime()
+        case 'iso':
         default:
           return value.toISOString()
       }
@@ -353,5 +353,4 @@ export function downloadExport(result: ExportResult): void {
   URL.revokeObjectURL(url)
 }
 
-export type { ExportConfig, ExportResult, ExportField }
 export default DataExporter

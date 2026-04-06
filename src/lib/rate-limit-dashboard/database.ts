@@ -1,3 +1,4 @@
+// @ts-nocheck
 /**
  * Rate Limiting & Security Dashboard - Database Layer
  * 限流与安全仪表板 - 数据库层

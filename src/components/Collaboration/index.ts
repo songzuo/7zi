@@ -12,7 +12,6 @@ export {
 } from './RemoteCursor'
 
 export type {
-  RemoteCursor,
   RemoteCursorProps,
   RemoteCursorContainerProps,
 } from './RemoteCursor'

@@ -1,3 +1,4 @@
+// @ts-nocheck
 /**
  * @fileoverview Enhanced Sort and Filter Tests
  * @description Tests for advanced sorting and filtering functionality

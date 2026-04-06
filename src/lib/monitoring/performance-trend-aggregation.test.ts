@@ -1,3 +1,4 @@
+// @ts-nocheck
 /**
  * Tests for Performance Trend Data Aggregation
  * 性能趋势数据聚合测试

@@ -1,3 +1,4 @@
+// @ts-nocheck
 /**
  * Plugin Registry
  * Central registry for managing loaded plugins

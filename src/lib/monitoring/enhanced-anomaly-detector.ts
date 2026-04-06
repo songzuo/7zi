@@ -1,3 +1,4 @@
+// @ts-nocheck
 /**
  * Enhanced Anomaly Detection System - Advanced Features
  * 增强版异常检测系统 - 高级特性

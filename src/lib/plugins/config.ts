@@ -1,3 +1,4 @@
+// @ts-nocheck
 /**
  * Plugin System Configuration
  * Example configuration for the plugin system

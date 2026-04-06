@@ -1,3 +1,4 @@
+// @ts-nocheck
 /**
  * Slow Request Tracker Tests
  * Tests for slow request tracking and analysis

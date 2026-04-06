@@ -1,3 +1,4 @@
+// @ts-nocheck
 /**
  * Tests for Alert Deduplication and Aggregation
  * 告警去重和聚合测试

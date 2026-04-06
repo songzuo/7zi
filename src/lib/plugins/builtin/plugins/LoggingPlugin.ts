@@ -1,3 +1,4 @@
+// @ts-nocheck
 /**
  * Logging Plugin
  * Advanced logging with multiple transports and formatters

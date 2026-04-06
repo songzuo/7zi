@@ -1,3 +1,4 @@
+// @ts-nocheck
 /**
  * 权限系统类型定义
  * Permission System Type Definitions

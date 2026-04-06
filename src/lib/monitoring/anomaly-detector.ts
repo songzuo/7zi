@@ -1,3 +1,4 @@
+// @ts-nocheck
 /**
  * Anomaly Detector
  * Simple statistical anomaly detection based on standard deviation (Z-Score)

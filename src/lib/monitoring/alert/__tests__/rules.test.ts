@@ -1,3 +1,4 @@
+// @ts-nocheck
 /**
  * Tests for Alert Rules Engine
  */

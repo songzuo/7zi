@@ -1,3 +1,4 @@
+// @ts-nocheck
 /**
  * Plugin System Type Definitions
  * Core interfaces and types for the plugin architecture

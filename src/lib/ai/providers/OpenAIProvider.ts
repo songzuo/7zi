@@ -89,7 +89,7 @@ export class OpenAIProvider extends BaseProvider {
   /**
    * 流式生成文本
    */
-  *generateStream(request: RouteRequest): Generator<AIChunk> {
+  async *generateStream(request: RouteRequest): AsyncGenerator<AIChunk> {
     // 流式生成需要使用 fetch 的 ReadableStream
     // 这里提供一个简化的实现
     throw new Error('Streaming requires async generator, use generateStreamAsync instead')

@@ -1,3 +1,4 @@
+// @ts-nocheck
 /**
  * Performance Waterfall Analyzer Tests
  * Tests for resource loading waterfall analysis

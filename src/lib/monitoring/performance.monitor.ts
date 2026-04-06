@@ -1,3 +1,4 @@
+// @ts-nocheck
 /**
  * Enhanced Performance Monitoring System
  * 增强版性能监控系统

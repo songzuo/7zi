@@ -42,6 +42,7 @@ export interface TenantJwtPayload {
   permissions?: string[]
   customPermissions?: string[]
   requestId?: string
+  [key: string]: unknown
 }
 
 /**

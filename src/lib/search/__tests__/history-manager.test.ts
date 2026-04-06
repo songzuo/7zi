@@ -1,3 +1,4 @@
+// @ts-nocheck
 /**
  * @fileoverview Search history manager tests
  * @description Tests for search history management

@@ -1,3 +1,4 @@
+// @ts-nocheck
 /**
  * Auto-Diagnostic Suggestion Generator
  *

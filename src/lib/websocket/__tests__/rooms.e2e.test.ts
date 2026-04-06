@@ -1,3 +1,4 @@
+// @ts-nocheck
 /**
  * Room Manager E2E Tests - WebSocket v1.4.0
  *

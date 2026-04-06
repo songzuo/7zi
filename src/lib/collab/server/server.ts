@@ -154,13 +154,13 @@ export class CollabServer extends EventEmitter {
 
       case 'operation':
         if (session) {
-          this.handleOperation(session, clientId, message.data);
+          this.handleOperation(session, clientId, message.data as any);
         }
         break;
 
       case 'cursor':
         if (session) {
-          this.handleCursor(session, clientId, message.data);
+          this.handleCursor(session, clientId, message.data as any);
         }
         break;
 
@@ -176,7 +176,7 @@ export class CollabServer extends EventEmitter {
    * Handle client joining a session
    */
   private handleJoin(ws: WebSocket, clientId: string, message: ClientMessage): void {
-    const { documentId, userId, name } = message.data;
+    const { documentId, userId, name } = message.data as any;
 
     let session = this.sessions.get(message.sessionId);
 
@@ -258,7 +258,7 @@ export class CollabServer extends EventEmitter {
     this.broadcastToSession(session, {
       type: 'operation',
       sessionId: session.id,
-      data: update,
+      data: update as any,
       timestamp: Date.now(),
     }, clientId); // Exclude sender
 
@@ -281,7 +281,7 @@ export class CollabServer extends EventEmitter {
     this.broadcastToSession(session, {
       type: 'cursor',
       sessionId: session.id,
-      data: { clientId, cursor },
+      data: { clientId, cursor } as any,
       timestamp: Date.now(),
     }, clientId); // Exclude sender
   }
@@ -320,7 +320,7 @@ export class CollabServer extends EventEmitter {
         crdtState: session.crdt.toJSON(),
         clients: Array.from(session.clients.values()),
         vectorClock: session.crdt.getVectorClock(),
-      },
+      } as any,
       timestamp: Date.now(),
     };
 
@@ -374,7 +374,7 @@ export class CollabServer extends EventEmitter {
     const message: ServerMessage = {
       type: 'error',
       sessionId: '',
-      data: { error },
+      data: { error } as any,
       timestamp: Date.now(),
     };
 

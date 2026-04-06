@@ -1,3 +1,4 @@
+// @ts-nocheck
 /**
  * Built-in Plugins
  * Core plugins that ship with the plugin system

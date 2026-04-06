@@ -105,7 +105,7 @@ export class CostTracker {
 
     // 限制记录数量
     if (this.records.length > (this.config.maxRecords || 10000)) {
-      this.records = this.records.slice(-this.config.maxRecords)
+      this.records = this.records.slice(-(this.config.maxRecords || 10000))
     }
 
     // 持久化

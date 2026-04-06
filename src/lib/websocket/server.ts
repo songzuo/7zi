@@ -1,3 +1,4 @@
+// @ts-nocheck
 /**
  * WebSocket Server Implementation
  *

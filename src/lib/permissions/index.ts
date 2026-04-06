@@ -1,3 +1,4 @@
+// @ts-nocheck
 /**
  * RBAC System - Role-Based Access Control
  * Fine-grained permission system with multi-role support

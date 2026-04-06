@@ -60,6 +60,10 @@ export function setupMockDatabase() {
     }),
     pragma: vi.fn().mockReturnValue(undefined),
     batch: vi.fn().mockReturnValue([{ changes: 1 }]),
+    beginTransaction: vi.fn(),
+    commit: vi.fn(),
+    rollback: vi.fn(),
+    isInTransaction: vi.fn().mockReturnValue(false),
   }
 
   // Mock the database module

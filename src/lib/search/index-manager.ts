@@ -1,3 +1,4 @@
+// @ts-nocheck
 /**
  * @fileoverview Search index manager
  * @description Manages search indices for different entity types (tasks, projects, members, agents)

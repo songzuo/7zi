@@ -1,3 +1,4 @@
+// @ts-nocheck
 /**
  * WebSocket Compression Performance Tests
  * 

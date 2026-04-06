@@ -71,7 +71,7 @@ export abstract class BaseProvider {
   /**
    * 流式生成文本
    */
-  abstract *generateStream(request: RouteRequest): Generator<AIChunk>
+  abstract generateStream(request: RouteRequest): AsyncGenerator<AIChunk>
 
   /**
    * 检查能力

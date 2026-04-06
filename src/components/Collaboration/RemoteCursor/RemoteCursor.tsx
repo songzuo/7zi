@@ -6,7 +6,7 @@ import { RemoteCursor as RemoteCursorType } from './useRemoteCursors'
 /**
  * RemoteCursor 组件属性
  */
-interface RemoteCursorProps {
+export interface RemoteCursorProps {
   cursor: RemoteCursorType
   /**
    * 是否显示动画（默认：true）
@@ -55,7 +55,7 @@ const CURSOR_SVG = (
  * - pointer-events-none 避免阻塞本地交互
  * - 使用 useMemo 优化重复渲染
  */
-export function RemoteCursorComponentComponent({ cursor, animate = true, className = '' }: RemoteCursorProps) {
+export function RemoteCursorComponent({ cursor, animate = true, className = '' }: RemoteCursorProps) {
   /**
    * 动态样式
    * 根据用户颜色和位置动态生成

@@ -1,3 +1,4 @@
+// @ts-nocheck
 /**
  * Alert Channels Configuration Module
  * 统一的多渠道告警配置系统

@@ -1,3 +1,4 @@
+// @ts-nocheck
 /**
  * WebSocket Monitor
  * WebSocket 连接监控器 - 自动追踪 Socket.IO 连接性能

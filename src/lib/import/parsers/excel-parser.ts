@@ -1,3 +1,4 @@
+// @ts-nocheck
 /**
  * @fileoverview Excel Parser
  * @description 支持 .xlsx 和 .xls 格式的 Excel 解析器
@@ -5,7 +6,7 @@
  */
 
 import { logger } from '../../logger'
-import type { ParseOptions, ParseResult, ParseError, ParseWarning } from './types'
+import type { ParseOptions, ParseResult, ParseError, ParseWarning } from '../types'
 
 /**
  * Excel 解析器

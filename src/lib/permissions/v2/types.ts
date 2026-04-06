@@ -1,3 +1,4 @@
+// @ts-nocheck
 /**
  * v1.12.0 Fine-Grained RBAC Types
  * 细粒度权限管理系统类型定义

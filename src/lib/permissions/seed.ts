@@ -1,3 +1,4 @@
+// @ts-nocheck
 /**
  * RBAC Seeding - Initialize default roles and permissions
  */

@@ -204,7 +204,7 @@ export class HTMLExporter {
     data: T[],
     options: {
       filename: string
-      columns: HTMLTableColumn['columns']
+      columns: HTMLTableColumn[]
       title?: string
       subtitle?: string
       description?: string

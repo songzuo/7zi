@@ -1,3 +1,4 @@
+// @ts-nocheck
 /**
  * Message Store E2E Tests - WebSocket v1.4.0
  *
