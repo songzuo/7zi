@@ -15,16 +15,38 @@ describe('Auth API Integration Tests', () => {
     server = createServer((req: any, res: any) => {
       // Mock responses for testing
       if (req.url === '/api/auth/token' && req.method === 'POST') {
-        res.writeHead(200, { 'Content-Type': 'application/json' })
-        res.end(
-          JSON.stringify({
-            access_token: 'test_access_token',
-            token_type: 'Bearer',
-            expires_in: 3600,
-            refresh_token: 'test_refresh_token',
-          })
-        )
+        let body = ''
+        req.on('data', chunk => { body += chunk.toString() })
+        req.on('end', () => {
+          const data = JSON.parse(body)
+          
+          if (data.grant_type !== 'password') {
+            res.writeHead(400, { 'Content-Type': 'application/json' })
+            res.end(JSON.stringify({ error: 'unsupported_grant_type' }))
+            return
+          }
+          if (!data.username || !data.password) {
+            res.writeHead(400, { 'Content-Type': 'application/json' })
+            res.end(JSON.stringify({ error: 'invalid_request' }))
+            return
+          }
+          res.writeHead(200, { 'Content-Type': 'application/json' })
+          res.end(
+            JSON.stringify({
+              access_token: 'test_access_token',
+              token_type: 'Bearer',
+              expires_in: 3600,
+              refresh_token: 'test_refresh_token',
+            })
+          )
+        })
+        return
       } else if (req.url === '/api/auth/verify' && req.method === 'GET') {
+        if (!req.headers.authorization) {
+          res.writeHead(401, { 'Content-Type': 'application/json' })
+          res.end(JSON.stringify({ active: false }))
+          return
+        }
         res.writeHead(200, { 'Content-Type': 'application/json' })
         res.end(
           JSON.stringify({
@@ -35,21 +57,41 @@ describe('Auth API Integration Tests', () => {
             type: 'user',
           })
         )
-      } else if (req.url === '/api/auth/permissions' && req.method === 'GET') {
-        res.writeHead(200, { 'Content-Type': 'application/json' })
-        res.end(
-          JSON.stringify({
-            userId: 'user123',
-            permissions: ['read:tasks', 'write:tasks'],
-            summary: {
-              totalPermissions: 2,
-              byResource: { task: 2 },
-              byAction: { read: 1, write: 1 },
-              hasWildcard: false,
-              hasAdmin: false,
-            },
-          })
-        )
+      } else if (req.url?.startsWith('/api/auth/permissions') && req.method === 'GET') {
+        // Check for Authorization header
+        if (!req.headers.authorization) {
+          res.writeHead(401, { 'Content-Type': 'application/json' })
+          res.end(JSON.stringify({ error: 'Unauthorized' }))
+          return
+        }
+        const url = new URL(req.url, `http://${req.headers.host}`)
+        const resource = url.searchParams.get('resource')
+        const action = url.searchParams.get('action')
+        if (resource && action) {
+          res.writeHead(200, { 'Content-Type': 'application/json' })
+          res.end(
+            JSON.stringify({
+              allowed: true,
+              resource,
+              action,
+            })
+          )
+        } else {
+          res.writeHead(200, { 'Content-Type': 'application/json' })
+          res.end(
+            JSON.stringify({
+              userId: 'user123',
+              permissions: ['read:tasks', 'write:tasks'],
+              summary: {
+                totalPermissions: 2,
+                byResource: { task: 2 },
+                byAction: { read: 1, write: 1 },
+                hasWildcard: false,
+                hasAdmin: false,
+              },
+            })
+          )
+        }
       } else {
         res.writeHead(404, { 'Content-Type': 'application/json' })
         res.end(JSON.stringify({ error: 'Not found' }))
