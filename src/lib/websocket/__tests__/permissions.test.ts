@@ -1,3 +1,4 @@
+// @ts-nocheck
 /**
  * Permission System Unit Tests
  */

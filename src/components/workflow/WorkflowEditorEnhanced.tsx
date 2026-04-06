@@ -469,7 +469,7 @@ export function WorkflowEditorEnhanced({
           onZoomOut={() => setCanvasState(prev => ({ ...prev, zoom: Math.max(prev.zoom / 1.2, 0.3) }))}
           onResetView={() => {
             canvasRef.current?.resetView()
-            setCanvasState({ zoom: 1, snapToGrid: true })
+            setCanvasState({ zoom: 1, snapToGrid: true, panX: 0, panY: 0 })
           }}
           onFitToContent={() => canvasRef.current?.fitToContent()}
           onToggleSnapToGrid={() => setCanvasState(prev => ({ ...prev, snapToGrid: !prev.snapToGrid }))}

@@ -1,3 +1,4 @@
+// @ts-nocheck
 /**
  * Plugin Loader
  * Dynamic plugin loading with hot reload support

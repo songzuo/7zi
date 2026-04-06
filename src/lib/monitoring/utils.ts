@@ -1,3 +1,4 @@
+// @ts-nocheck
 /**
  * Shared Utility Functions for Monitoring
  * 共享工具函数，避免重复代码

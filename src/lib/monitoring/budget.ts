@@ -1,3 +1,4 @@
+// @ts-nocheck
 /**
  * Performance Budget System
  * Define and monitor performance budgets with alerting

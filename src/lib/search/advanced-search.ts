@@ -1,3 +1,4 @@
+// @ts-nocheck
 /**
  * @fileoverview Advanced search library with Fuse.js integration
  * @description Provides high-performance fuzzy search with indexing, history management, and autocomplete

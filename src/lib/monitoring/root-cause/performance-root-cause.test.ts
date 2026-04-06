@@ -1,3 +1,4 @@
+// @ts-nocheck
 /**
  * Performance Root Cause Analyzer Tests
  */

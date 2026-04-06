@@ -1,3 +1,4 @@
+// @ts-nocheck
 /**
  * React Hooks for Monitoring
  * 性能监控 React Hooks

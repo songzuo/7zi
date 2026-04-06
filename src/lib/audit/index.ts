@@ -39,9 +39,4 @@ export type {
   AuditLogExportOptions,
   AuditLogStats,
   IAuditLogStorage,
-  AuditMiddlewareOptions,
-  AuditWsMessageType,
-  AuditWsMessage,
-  AuditWsStats,
-  AuditWsError,
 } from './types';

@@ -134,7 +134,7 @@ export function useRemoteCursors(wsManager: WebSocketManager) {
    * 监听 WebSocket 事件
    */
   useEffect(() => {
-    if (!wsManager.isConnected()) {
+    if (wsManager.getState() !== 'disconnected') {
       return
     }
 
@@ -232,7 +232,7 @@ export function useRemoteCursors(wsManager: WebSocketManager) {
    */
   const updateLocalCursor = useCallback(
     throttle((x: number, y: number, selection?: RemoteCursor['selection']) => {
-      if (!wsManager.isConnected()) {
+      if (wsManager.getState() !== 'disconnected') {
         return
       }
 
@@ -249,7 +249,7 @@ export function useRemoteCursors(wsManager: WebSocketManager) {
    * 当用户离开编辑区域时调用
    */
   const leaveCursor = useCallback(() => {
-    if (!wsManager.isConnected()) {
+    if (wsManager.getState() !== 'disconnected') {
       return
     }
 

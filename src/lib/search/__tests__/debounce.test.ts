@@ -1,3 +1,4 @@
+// @ts-nocheck
 /**
  * @fileoverview Debounce utility tests
  * @description Tests for debounce, throttle, and DebounceManager

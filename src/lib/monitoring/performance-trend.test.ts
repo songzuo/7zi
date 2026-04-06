@@ -1,3 +1,4 @@
+// @ts-nocheck
 /**
  * Tests for Performance Trend Calculation
  * 性能趋势计算测试

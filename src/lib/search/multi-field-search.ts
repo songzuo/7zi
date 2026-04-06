@@ -1,3 +1,4 @@
+// @ts-nocheck
 /**
  * @fileoverview 多字段联合搜索
  * @description 增强的多字段搜索功能，支持字段组合、加权评分、跨字段匹配

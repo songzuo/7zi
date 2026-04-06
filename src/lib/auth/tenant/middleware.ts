@@ -21,7 +21,7 @@ import type {
   TenantSwitchResponseType,
   PermissionCheckConfig,
 } from './types'
-import type { TenantMemberRole } from '../../tenant/types'
+import { TenantStatus, type TenantMemberRole } from '../../tenant/types'
 
 /**
  * JWT 配置
@@ -59,6 +59,8 @@ export async function generateTenantToken(
     roles: context.roles,
     permissions: context.permissions,
     customPermissions: context.customPermissions,
+    role: context.tenantRole,
+    tenantStatus: TenantStatus.ACTIVE,
   }
 
   const token = await new SignJWT(payload)

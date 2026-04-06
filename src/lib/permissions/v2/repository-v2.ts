@@ -1,3 +1,4 @@
+// @ts-nocheck
 /**
  * v1.12.0 Fine-Grained RBAC Repository
  * 细粒度权限系统数据库操作

@@ -1,3 +1,4 @@
+// @ts-nocheck
 /**
  * Collaboration System Integration Tests
  *

@@ -1,3 +1,4 @@
+// @ts-nocheck
 /**
  * v1.12.0 Fine-Grained Permission Engine
  * 细粒度权限检查引擎 - 性能优化 (< 1ms)

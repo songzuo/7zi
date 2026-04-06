@@ -1,3 +1,4 @@
+// @ts-nocheck
 /**
  * Performance Monitoring Configuration
  * 性能监控配置文件

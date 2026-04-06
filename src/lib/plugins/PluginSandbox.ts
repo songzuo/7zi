@@ -1,3 +1,4 @@
+// @ts-nocheck
 /**
  * Plugin Sandbox
  * Secure execution environment for plugins

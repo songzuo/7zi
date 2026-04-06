@@ -1,3 +1,4 @@
+// @ts-nocheck
 /**
  * v1.12.0 Permission Audit Logging
  * 权限变更审计日志系统

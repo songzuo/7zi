@@ -267,11 +267,12 @@ export class PDFExporter {
     options: PDFTableOptions
   ): void {
     if (!this.doc || !data.length) return
+    const doc = this.doc
 
     const { columns, rowHeight = 7, headerStyle, rowStyle, zebra, zebraRows = 1, zebraStyle, border, borderStyle } = options
 
-    const pageWidth = this.doc.internal.pageSize.getWidth()
-    const pageHeight = this.doc.internal.pageSize.getHeight()
+    const pageWidth = doc.internal.pageSize.getWidth()
+    const pageHeight = doc.internal.pageSize.getHeight()
     const availableWidth = pageWidth - this.options.margin.left - this.options.margin.right
     const startX = this.options.margin.left
     const startY = this.currentY || this.options.margin.top + 20
@@ -286,35 +287,36 @@ export class PDFExporter {
 
     // 表头
     let currentY = startY
-    this.doc.setFontSize(this.options.fontSize)
-    this.doc.setFont(this.options.fontFamily, 'bold')
+    doc.setFontSize(this.options.fontSize)
+    doc.setFont(this.options.fontFamily, 'bold')
 
     if (headerStyle?.fillColor) {
-      this.doc.setFillColor(...headerStyle.fillColor)
+      doc.setFillColor(...headerStyle.fillColor)
     }
     if (headerStyle?.textColor) {
-      this.doc.setTextColor(...headerStyle.textColor)
+      doc.setTextColor(...headerStyle.textColor)
     }
 
     // 绘制表头背景
     if (headerStyle?.fillColor) {
-      this.doc.rect(startX, currentY, availableWidth, rowHeight, 'F')
+      doc.rect(startX, currentY, availableWidth, rowHeight, 'F')
     }
 
     // 绘制表头文本
     columns.forEach((col, index) => {
       const cellX = startX + columnWidths.slice(0, index).reduce((a, b) => a + b, 0)
       const align = col.align || headerStyle?.align || 'left'
-      const textX = this.getAlignedX(cellX, columnWidths[index], align, this.doc.getTextWidth(col.label))
+      const labelWidth = this.doc?.getTextWidth(col.label) ?? 0
+      const textX = this.getAlignedX(cellX, columnWidths[index], align, labelWidth)
 
-      this.doc.text(col.label, textX, currentY + rowHeight / 2 + this.options.fontSize / 3)
+      this.doc?.text(col.label, textX, currentY + rowHeight / 2 + this.options.fontSize / 3)
     })
 
     currentY += rowHeight
 
     // 数据行
-    this.doc.setFontSize(this.options.fontSize)
-    this.doc.setFont(this.options.fontFamily, 'normal')
+    doc.setFontSize(this.options.fontSize)
+    doc.setFont(this.options.fontFamily, 'normal')
 
     data.forEach((row, rowIndex) => {
       // 检查是否需要新页面
@@ -329,8 +331,8 @@ export class PDFExporter {
           fillColor: [240, 240, 240],
         }
         if (style.fillColor) {
-          this.doc.setFillColor(...style.fillColor)
-          this.doc.rect(startX, currentY, availableWidth, rowHeight * zebraRows, 'F')
+          doc.setFillColor(...style.fillColor)
+          doc.rect(startX, currentY, availableWidth, rowHeight * zebraRows, 'F')
         }
       }
 
@@ -339,12 +341,12 @@ export class PDFExporter {
         const cellX = startX + columnWidths.slice(0, colIndex).reduce((a, b) => a + b, 0)
         const value = String(row[col.key] || '')
         const align = col.align || rowStyle?.align || 'left'
-        const textX = this.getAlignedX(cellX, columnWidths[colIndex], align, this.doc.getTextWidth(value))
+        const textX = this.getAlignedX(cellX, columnWidths[colIndex], align, doc.getTextWidth(value))
 
         if (rowStyle?.textColor) {
-          this.doc.setTextColor(...rowStyle.textColor)
+          doc.setTextColor(...rowStyle.textColor)
         } else {
-          this.doc.setTextColor(
+          doc.setTextColor(
             this.options.theme === 'dark' ? 240 : 40,
             this.options.theme === 'dark' ? 240 : 40,
             this.options.theme === 'dark' ? 240 : 40
@@ -354,11 +356,11 @@ export class PDFExporter {
         // 截断过长的文本
         const maxTextWidth = columnWidths[colIndex] - 2
         let displayValue = value
-        if (this.doc.getTextWidth(value) > maxTextWidth) {
+        if (doc.getTextWidth(value) > maxTextWidth) {
           const chars = value.split('')
           let truncated = ''
           for (const char of chars) {
-            if (this.doc.getTextWidth(truncated + char + '...') <= maxTextWidth) {
+            if (doc.getTextWidth(truncated + char + '...') <= maxTextWidth) {
               truncated += char
             } else {
               break
@@ -367,18 +369,18 @@ export class PDFExporter {
           displayValue = truncated + '...'
         }
 
-        this.doc.text(displayValue, textX, currentY + rowHeight / 2 + this.options.fontSize / 3)
+        doc.text(displayValue, textX, currentY + rowHeight / 2 + this.options.fontSize / 3)
       })
 
       // 边框
       if (border) {
-        this.doc.setDrawColor(
+        doc.setDrawColor(
           borderStyle?.color?.[0] || 0,
           borderStyle?.color?.[1] || 0,
           borderStyle?.color?.[2] || 0
         )
-        this.doc.setLineWidth(borderStyle?.lineWidth || 0.1)
-        this.doc.rect(startX, currentY, availableWidth, rowHeight)
+        doc.setLineWidth(borderStyle?.lineWidth || 0.1)
+        doc.rect(startX, currentY, availableWidth, rowHeight)
       }
 
       currentY += rowHeight

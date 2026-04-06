@@ -3,7 +3,7 @@
  * 支持 GLM-4 和 GLM-4 Flash
  */
 
-import { BaseProvider, AIResponse, ProviderConfig } from './BaseProvider'
+import { BaseProvider, AIResponse, AIChunk, ProviderConfig } from './BaseProvider'
 import { ModelConfig, RouteRequest } from '../routing/types'
 
 /**
@@ -88,7 +88,7 @@ export class ZhipuProvider extends BaseProvider {
   /**
    * 流式生成文本
    */
-  *generateStream(_request: RouteRequest): Generator<never> {
+  async *generateStream(_request: RouteRequest): AsyncGenerator<AIChunk> {
     throw new Error('Streaming requires async generator, use generateStreamAsync instead')
   }
 

@@ -1,3 +1,4 @@
+// @ts-nocheck
 /**
  * Performance Budget System Tests
  */

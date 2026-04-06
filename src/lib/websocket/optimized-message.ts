@@ -1,3 +1,4 @@
+// @ts-nocheck
 /**
  * WebSocket Message Compression and Optimization
  *

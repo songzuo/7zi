@@ -397,7 +397,7 @@ export class BatchExporter {
    */
   private generateSummary(
     items: BatchExportItem[],
-    results: Array<{ id: string; name: string; success: boolean; size: number; error?: string }>,
+    results: Array<{ id: string; name: string; success: boolean; size: number; filename?: string; error?: string }>,
     config?: PackagingOptions['summaryConfig']
   ): string {
     const lines: string[] = []

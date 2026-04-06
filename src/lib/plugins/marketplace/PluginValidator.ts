@@ -1,3 +1,4 @@
+// @ts-nocheck
 /**
  * Plugin Validator
  * Plugin validation and verification

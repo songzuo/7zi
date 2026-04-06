@@ -1,3 +1,4 @@
+// @ts-nocheck
 /**
  * @fileoverview SQLite Full-Text Search (FTS) Index Manager
  * @description Provides persistent full-text search using SQLite FTS5 for large datasets

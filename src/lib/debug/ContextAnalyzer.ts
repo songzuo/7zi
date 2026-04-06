@@ -263,13 +263,14 @@ export class ContextAnalyzer {
     const lineNumber = rootFrame.lineNumber
 
     // 如果有源文件内容
-    if (sourceCode && sourceCode.has(fileName)) {
+    if (sourceCode && fileName && sourceCode.has(fileName)) {
       const content = sourceCode.get(fileName)!
       const lines = content.split('\n')
+      const ln = lineNumber ?? 1
 
       // 获取周围代码
-      const startLine = Math.max(0, lineNumber - 10)
-      const endLine = Math.min(lines.length, lineNumber + 10)
+      const startLine = Math.max(0, ln - 10)
+      const endLine = Math.min(lines.length, ln + 10)
 
       for (let i = startLine; i < endLine; i++) {
         references.push({
@@ -277,8 +278,8 @@ export class ContextAnalyzer {
           startLine: i + 1,
           endLine: i + 1,
           content: lines[i],
-          relevance: Math.max(0, 1 - Math.abs(i + 1 - lineNumber) / 10),
-          reason: i + 1 === lineNumber ? 'error line' : 'nearby line',
+          relevance: Math.max(0, 1 - Math.abs(i + 1 - ln) / 10),
+          reason: i + 1 === ln ? 'error line' : 'nearby line',
         })
       }
     }

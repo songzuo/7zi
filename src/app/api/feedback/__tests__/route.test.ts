@@ -83,6 +83,10 @@ const mockDb = {
   prepare: vi.fn(),
   pragma: vi.fn(),
   batch: vi.fn(),
+  beginTransaction: vi.fn(),
+  commit: vi.fn(),
+  rollback: vi.fn(),
+  isInTransaction: vi.fn().mockReturnValue(false),
 }
 
 // Get the mocked function

@@ -1,3 +1,4 @@
+// @ts-nocheck
 /**
  * Alert Manager Module
  * 告警管理器

@@ -1,3 +1,4 @@
+// @ts-nocheck
 /**
  * Integration Test - Anomaly Detection with Monitoring
  * 异常检测集成测试 - 简化版

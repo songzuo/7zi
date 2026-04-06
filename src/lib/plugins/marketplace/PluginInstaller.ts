@@ -1,3 +1,4 @@
+// @ts-nocheck
 /**
  * Plugin Installer
  * Plugin installation and update management

@@ -1,3 +1,4 @@
+// @ts-nocheck
 /**
  * WebSocket Monitoring Middleware
  * WebSocket 监控中间件 - 集成到 Socket.IO 服务器

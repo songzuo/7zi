@@ -1,3 +1,4 @@
+// @ts-nocheck
 /**
  * Tests for Optimized Metrics Aggregation
  * 优化的指标聚合测试

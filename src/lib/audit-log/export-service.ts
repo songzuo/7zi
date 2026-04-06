@@ -376,58 +376,58 @@ export class AuditExportService {
           event.timestamp = new Date(value);
           break;
         case 'level':
-          event.level = value;
+          event.level = value as any;
           break;
         case 'category':
-          event.category = value;
+          event.category = value as any;
           break;
         case 'action':
-          event.action = value;
+          event.action = value as any;
           break;
         case 'status':
-          event.status = value;
+          event.status = value as any;
           break;
         case 'severity':
-          event.severity = value;
+          event.severity = value as any;
           break;
         case 'message':
-          event.message = value;
+          event.message = value as any;
           break;
         case 'user_id':
-          if (!event.user) event.user = {};
-          event.user.userId = value;
+          if (!event.user) event.user = {} as any;
+          event.user!.userId = value;
           break;
         case 'username':
-          if (!event.user) event.user = {};
-          event.user.username = value;
+          if (!event.user) event.user = {} as any;
+          event.user!.username = value;
           break;
         case 'email':
-          if (!event.user) event.user = {};
-          event.user.email = value;
+          if (!event.user) event.user = {} as any;
+          event.user!.email = value;
           break;
         case 'session_id':
-          if (!event.user) event.user = {};
-          event.user.sessionId = value;
+          if (!event.user) event.user = {} as any;
+          event.user!.sessionId = value;
           break;
         case 'client_ip':
-          if (!event.request) event.request = {};
-          event.request.clientIp = value;
+          if (!event.request) event.request = {} as any;
+          event.request!.clientIp = value;
           break;
         case 'request_path':
-          if (!event.request) event.request = {};
-          event.request.path = value;
+          if (!event.request) event.request = {} as any;
+          event.request!.path = value;
           break;
         case 'resource_type':
-          if (!event.resource) event.resource = {};
-          event.resource.type = value;
+          if (!event.resource) event.resource = {} as any;
+          event.resource!.type = value;
           break;
         case 'resource_id':
-          if (!event.resource) event.resource = {};
-          event.resource.id = value;
+          if (!event.resource) event.resource = {} as any;
+          event.resource!.id = value;
           break;
         case 'resource_name':
-          if (!event.resource) event.resource = {};
-          event.resource.name = value;
+          if (!event.resource) event.resource = {} as any;
+          event.resource!.name = value;
           break;
         case 'correlation_id':
           event.correlationId = value;

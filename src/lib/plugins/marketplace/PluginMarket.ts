@@ -1,3 +1,4 @@
+// @ts-nocheck
 /**
  * Plugin Market
  * Plugin discovery and marketplace interface

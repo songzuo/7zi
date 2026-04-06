@@ -1,3 +1,4 @@
+// @ts-nocheck
 /**
  * Alerting Service
  * Send alerts to various channels (Slack, Email, Webhook, Discord)

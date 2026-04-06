@@ -146,6 +146,25 @@ const NODE_TYPE_CONFIG: Record<NodeType, {
       { key: 'requiredApprovals', label: '需要审批人数', type: 'number', default: 1 },
     ],
   },
+  [NodeType.LOOP]: {
+    label: '循环节点',
+    icon: '🔄',
+    color: 'bg-cyan-100 border-cyan-500 text-cyan-700',
+    fields: [
+      { key: 'maxIterations', label: '最大迭代次数', type: 'number', default: 10 },
+      { key: 'loopCondition', label: '循环条件', type: 'textarea', placeholder: '{{iteration}} < {{maxIterations}}' },
+    ],
+  },
+  [NodeType.SUBWORKFLOW]: {
+    label: '子工作流节点',
+    icon: '📦',
+    color: 'bg-indigo-100 border-indigo-500 text-indigo-700',
+    fields: [
+      { key: 'subworkflowId', label: '子工作流 ID', type: 'text', required: true },
+      { key: 'inputMapping', label: '输入映射 (JSON)', type: 'textarea', placeholder: '{"key": "{{parent.value}}"}' },
+      { key: 'outputMapping', label: '输出映射 (JSON)', type: 'textarea', placeholder: '{"result": "{{child.result}}"}' },
+    ],
+  },
 }
 
 /**
@@ -229,13 +248,13 @@ export function NodeEditorPanel({
       } else {
         // 根据节点类型更新对应的配置
         if (prev.type === NodeType.AGENT) {
-          updates.agentConfig = { ...prev.agentConfig, [key]: value }
+          updates.agentConfig = { ...prev.agentConfig, [key]: value } as any
         } else if (prev.type === NodeType.CONDITION) {
-          updates.conditionConfig = { ...prev.conditionConfig, [key]: value }
+          updates.conditionConfig = { ...prev.conditionConfig, [key]: value } as any
         } else if (prev.type === NodeType.WAIT) {
-          updates.waitConfig = { ...prev.waitConfig, [key]: value }
+          updates.waitConfig = { ...prev.waitConfig, [key]: value } as any
         } else if (prev.type === NodeType.HUMAN_INPUT) {
-          updates.humanInputConfig = { ...prev.humanInputConfig, [key]: value }
+          updates.humanInputConfig = { ...prev.humanInputConfig, [key]: value } as any
         }
       }
 

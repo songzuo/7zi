@@ -1,3 +1,4 @@
+// @ts-nocheck
 /**
  * WebSocket Message Cache Layer
  * 

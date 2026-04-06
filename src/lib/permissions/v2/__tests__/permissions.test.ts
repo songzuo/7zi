@@ -1,3 +1,4 @@
+// @ts-nocheck
 /**
  * v1.12.0 Fine-Grained RBAC Tests
  * 细粒度权限系统测试

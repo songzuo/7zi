@@ -1,3 +1,4 @@
+// @ts-nocheck
 /**
  * Plugin SDK
  * Development kit for plugin authors

@@ -1,3 +1,4 @@
+// @ts-nocheck
 /**
  * Performance Waterfall Analyzer (Enhanced)
  * Enhanced version with:

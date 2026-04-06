@@ -331,7 +331,7 @@ export class SmartRoutingAIService {
     const costTrackerHealthy = true
 
     // 模型健康检查
-    const models: Array<{ id: string; healthy: boolean }> = []
+    const models: Array<{ id: string; name: string; healthy: boolean }> = []
     // TODO: 实现模型健康检查
 
     return {

@@ -7,7 +7,7 @@
 export * from './types'
 
 // ===== 新版路由系统 (v1.12.0) =====
-export * from './routing/types'
+// Note: routing/types conflicts with types.ts on MessageContext, so we only export specific items
 export { ModelRegistry, modelRegistry, initializeDefaultModels } from './routing/model-registry'
 export { ModelRouter, modelRouter, routeRequest, initFromEnv } from './routing/model-router'
 
@@ -29,7 +29,8 @@ export * from './cost-tracker'
 export * from './providers/index'
 
 // ===== 智能服务 (v1.12.0 新增) =====
-export * from './smart-service'
+// Note: smart-service re-exports getCostStats which conflicts with cost-tracker
+export { SmartRoutingAIService, smartAIService, generateText, generateTextStream, getRoutingStats } from './smart-service'
 
 // ===== 集成层 =====
 export * from './integration'

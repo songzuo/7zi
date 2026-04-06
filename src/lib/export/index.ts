@@ -66,7 +66,7 @@ export type {
 } from './formats/html-exporter'
 
 // 模板管理
-export { TemplateManager, PRESET_TEMPLATES } from './templates/template-manager'
+export { TemplateManager } from './templates/template-manager'
 export type {
   TemplateType,
   TemplateVariables,

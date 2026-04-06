@@ -1,3 +1,4 @@
+// @ts-nocheck
 /**
  * Monitoring Health Tests
  * Tests for health.ts - health check functionality

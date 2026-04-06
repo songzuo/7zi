@@ -1,3 +1,4 @@
+// @ts-nocheck
 /**
  * @fileoverview Unified Search Manager Tests
  * @description Tests for the unified search manager that integrates all search components

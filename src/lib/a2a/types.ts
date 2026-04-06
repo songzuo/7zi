@@ -30,7 +30,7 @@ export const QueueMessageSchema = z.object({
   taskId: z.string(),
   agentId: z.string(),
   priority: TaskPrioritySchema,
-  payload: z.record(z.unknown()),
+  payload: z.record(z.string(), z.unknown()),
   createdAt: z.string(),
   attempts: z.number().min(0),
   maxAttempts: z.number().min(0).default(3),
@@ -101,7 +101,7 @@ export const AgentRegistrationSchema = z.object({
   status: z.enum(['online', 'offline', 'busy']),
   lastHeartbeat: z.string(),
   load: z.number().min(0).max(1).optional(),
-  metadata: z.record(z.unknown()).optional(),
+  metadata: z.record(z.string(), z.unknown()).optional(),
 })
 
 export interface AgentRegistry {
@@ -164,10 +164,10 @@ export const TaskWithPrioritySchema = z.object({
   startedAt: z.string().optional(),
   completedAt: z.string().optional(),
   retryCount: z.number().min(0).optional(),
-  input: z.record(z.unknown()),
-  output: z.record(z.unknown()).optional(),
+  input: z.record(z.string(), z.unknown()),
+  output: z.record(z.string(), z.unknown()).optional(),
   error: z.string().optional(),
-  metadata: z.record(z.unknown()).optional(),
+  metadata: z.record(z.string(), z.unknown()).optional(),
 })
 
 export interface AsyncTaskStatus {

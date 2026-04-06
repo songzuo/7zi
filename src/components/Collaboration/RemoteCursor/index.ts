@@ -21,7 +21,7 @@
  * ```
  */
 
-export { RemoteCursorComponent } from './RemoteCursor'
+export { RemoteCursorComponent as RemoteCursor } from './RemoteCursor'
 export type { RemoteCursorProps } from './RemoteCursor'
 
 export { RemoteCursorContainerComponent as RemoteCursorContainer } from './RemoteCursorContainer'

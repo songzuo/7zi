@@ -35,7 +35,7 @@ export const DEFAULT_QUERY_CACHE_CONFIG: QueryCacheConfig = {
 // ============================================
 
 export function getQueryCacheConfig(): QueryCacheConfig {
-  const env = process.env.NODE_ENV || 'development'
+  const env = (process.env.NODE_ENV || 'development') as 'development' | 'production' | 'test' | 'staging'
 
   const baseConfig = { ...DEFAULT_QUERY_CACHE_CONFIG }
 
@@ -143,7 +143,7 @@ export const DEFAULT_WARMUP_CONFIG: WarmupConfig = {
 }
 
 export async function getWarmupConfig(): Promise<WarmupConfig> {
-  const db = await import('./index').then(m => m.getDatabaseAsync())
+  const { getDatabaseAsync } = await import('./connection')
 
   return {
     queries: [
@@ -151,7 +151,7 @@ export async function getWarmupConfig(): Promise<WarmupConfig> {
       {
         key: 'stats:agents',
         query: async () => {
-          const database = await db()
+          const database = await getDatabaseAsync()
           const stmt = database.prepare(`
             SELECT status, COUNT(*) as count
             FROM agents
@@ -164,7 +164,7 @@ export async function getWarmupConfig(): Promise<WarmupConfig> {
       {
         key: 'stats:users',
         query: async () => {
-          const database = await db()
+          const database = await getDatabaseAsync()
           const stmt = database.prepare(`
             SELECT role, COUNT(*) as count
             FROM users
@@ -177,7 +177,7 @@ export async function getWarmupConfig(): Promise<WarmupConfig> {
       {
         key: 'stats:workflows',
         query: async () => {
-          const database = await db()
+          const database = await getDatabaseAsync()
           const stmt = database.prepare(`
             SELECT status, COUNT(*) as count
             FROM workflows
@@ -192,7 +192,7 @@ export async function getWarmupConfig(): Promise<WarmupConfig> {
       {
         key: 'agents:list:active',
         query: async () => {
-          const database = await db()
+          const database = await getDatabaseAsync()
           const stmt = database.prepare(`
             SELECT * FROM agents
             WHERE status = 'active'
@@ -206,7 +206,7 @@ export async function getWarmupConfig(): Promise<WarmupConfig> {
       {
         key: 'workflows:list:active',
         query: async () => {
-          const database = await db()
+          const database = await getDatabaseAsync()
           const stmt = database.prepare(`
             SELECT * FROM workflows
             WHERE status = 'active'
@@ -222,7 +222,7 @@ export async function getWarmupConfig(): Promise<WarmupConfig> {
       {
         key: 'agents:list:all-statuses',
         query: async () => {
-          const database = await db()
+          const database = await getDatabaseAsync()
           const stmt = database.prepare(`
             SELECT DISTINCT status FROM agents
           `)

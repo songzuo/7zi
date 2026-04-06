@@ -149,7 +149,8 @@ export class CollabClient extends EventEmitter {
             sessionId,
             data: {
               userId: this.options.userId,
-              name: this.options.userName,
+              name: this.options.userName || 'Anonymous',
+              color: '#7C3AED', // Default color
             },
           });
 
@@ -200,7 +201,7 @@ export class CollabClient extends EventEmitter {
       this.send({
         type: 'leave',
         sessionId: this.sessionId,
-        data: {},
+        data: { userId: '', name: '', color: '' },
       });
 
       this.sessionId = null;
@@ -233,7 +234,7 @@ export class CollabClient extends EventEmitter {
     this.send({
       type: 'operation',
       sessionId: this.sessionId,
-      data: operation,
+      data: operation as any,
     });
 
     this.emit('operation-sent', operation);
@@ -248,7 +249,7 @@ export class CollabClient extends EventEmitter {
     this.send({
       type: 'cursor',
       sessionId: this.sessionId,
-      data: cursor,
+      data: cursor as any,
     });
   }
 
@@ -261,7 +262,7 @@ export class CollabClient extends EventEmitter {
     this.send({
       type: 'sync',
       sessionId: this.sessionId,
-      data: {},
+      data: {} as any,
     });
   }
 
@@ -322,19 +323,19 @@ export class CollabClient extends EventEmitter {
   private handleServerMessage(message: ServerMessage): void {
     switch (message.type) {
       case 'sync':
-        this.handleSync(message.data);
+        this.handleSync(message.data as SyncResponseData);
         break;
 
       case 'operation':
-        this.handleRemoteOperation(message.data);
+        this.handleRemoteOperation(message.data as unknown as CRDTUpdate);
         break;
 
       case 'cursor':
-        this.handleCursorUpdate(message.data);
+        this.handleCursorUpdate(message.data as any);
         break;
 
       case 'presence':
-        this.handlePresenceUpdate(message.data);
+        this.handlePresenceUpdate(message.data as any);
         break;
 
       case 'error':
@@ -351,7 +352,7 @@ export class CollabClient extends EventEmitter {
 
     // Initialize or update CRDT
     if (crdtState) {
-      this.crdt = CRDTTextImpl.fromJSON(crdtState, this.options.userId);
+      this.crdt = CRDTTextImpl.fromJSON(crdtState as Record<string, unknown>, this.options.userId);
     } else {
       this.crdt = new CRDTTextImpl(this.options.userId, content);
     }

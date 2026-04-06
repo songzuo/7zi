@@ -20,7 +20,7 @@ import type {
   TenantLoginSuccessResponse,
   TenantLoginFailureResponse,
   TenantUserContext,
-  TenantSwitchResponse,
+  TenantSwitchResponseType,
   CrossTenantInviteRequest,
   CrossTenantInviteResponse,
   CrossTenantTransferRequest,
@@ -190,7 +190,7 @@ export class TenantAuthService {
   async switchTenant(
     userId: string,
     targetTenantId: string
-  ): Promise<TenantSwitchResponse> {
+  ): Promise<TenantSwitchResponseType> {
     return crossTenantAccessControl.switchTenant(userId, { targetTenantId })
   }
 

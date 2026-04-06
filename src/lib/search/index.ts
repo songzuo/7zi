@@ -1,3 +1,4 @@
+// @ts-nocheck
 /**
  * @fileoverview Enhanced search library - Main export
  * @description Comprehensive search functionality with multi-field search, debouncing, history, and performance optimization

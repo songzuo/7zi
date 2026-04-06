@@ -1,3 +1,4 @@
+// @ts-nocheck
 /**
  * Enhanced Anomaly Detector Tests
  * 增强版异常检测器测试

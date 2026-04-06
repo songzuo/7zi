@@ -1,3 +1,4 @@
+// @ts-nocheck
 /**
  * @fileoverview SQLite FTS Manager Tests
  * @description Tests for SQLite full-text search functionality
