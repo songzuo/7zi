@@ -2,6 +2,7 @@ import type { Metadata } from 'next'
 import { Geist, Geist_Mono } from 'next/font/google'
 import { Providers } from '@/components/Providers'
 import { ClientAnalytics } from '@/components/ClientAnalytics'
+import Image from 'next/image'
 import './globals.css'
 
 const geistSans = Geist({
@@ -57,8 +58,8 @@ export const metadata: Metadata = {
     type: 'website',
     locale: 'zh_CN',
     url: baseUrl,
-    siteName: '7zi Studio',
-    title: '7zi Studio - AI 驱动的创新数字工作室',
+    siteName: '7zi Frontend',
+    title: '7zi Frontend - AI 驱动的创新数字工作室',
     description:
       '由 11 位 AI 代理组成的创新数字工作室，提供网站开发、品牌设计、营销推广等全方位数字化服务',
     images: [
@@ -66,13 +67,13 @@ export const metadata: Metadata = {
         url: `${baseUrl}/og-image.svg`,
         width: 1200,
         height: 630,
-        alt: '7zi Studio - AI 驱动的创新数字工作室',
+        alt: '7zi Frontend - AI 驱动的创新数字工作室',
       },
     ],
   },
   twitter: {
     card: 'summary_large_image',
-    title: '7zi Studio - AI 驱动的创新数字工作室',
+    title: '7zi Frontend - AI 驱动的创新数字工作室',
     description:
       '由 11 位 AI 代理组成的创新数字工作室，提供网站开发、品牌设计、营销推广等全方位数字化服务',
     images: [`${baseUrl}/og-image.svg`],
@@ -142,6 +143,14 @@ export default function RootLayout({
 
         {/* Manifest */}
         <link rel="manifest" href="/manifest.json" />
+
+        {/* Performance: Preconnect to image CDN */}
+        <link rel="preconnect" href="https://images.unsplash.com" crossOrigin="anonymous" />
+
+        {/* Performance: DNS prefetch for external resources */}
+        <link rel="dns-prefetch" href="https://images.unsplash.com" />
+        <link rel="dns-prefetch" href="https://fonts.googleapis.com" />
+        <link rel="dns-prefetch" href="https://fonts.gstatic.com" />
 
         {/* Theme Script - Prevents Flash of Unstyled Content (FOUC) */}
         <script
