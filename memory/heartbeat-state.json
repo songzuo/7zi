@@ -1,5 +1,10 @@
 {
-  "lastHeartbeat": "2026-04-07T08:08:00Z",
+  "lastHeartbeat": "2026-04-07T19:16:00Z",
   "nextScheduled": null,
-  "pendingTasks": []
+  "pendingTasks": [],
+  "lastChecks": {
+    "email": null,
+    "calendar": null,
+    "weather": null
+  }
 }
