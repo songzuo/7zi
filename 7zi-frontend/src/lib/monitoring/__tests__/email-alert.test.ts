@@ -5,15 +5,25 @@
 
 import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest'
 
-// Mock nodemailer before importing
-vi.mock('nodemailer', () => ({
-  default: {
+// Mock nodemailer before importing - use synchronous mock for require() compatibility
+vi.mock('nodemailer', () => {
+  const mockSendMail = vi.fn().mockResolvedValue({ messageId: 'test-id' })
+  const mockVerify = vi.fn().mockResolvedValue(true)
+  
+  return {
+    __esModule: true,
+    default: {
+      createTransport: vi.fn(() => ({
+        sendMail: mockSendMail,
+        verify: mockVerify,
+      })),
+    },
     createTransport: vi.fn(() => ({
-      sendMail: vi.fn().mockResolvedValue({ messageId: 'test-id' }),
-      verify: vi.fn().mockResolvedValue(true),
+      sendMail: mockSendMail,
+      verify: mockVerify,
     })),
-  },
-}))
+  }
+})
 
 import { EmailAlertChannel, createEmailChannelFromEnv } from '../channels/email-alert'
 import { Alert } from '../alert-engine'

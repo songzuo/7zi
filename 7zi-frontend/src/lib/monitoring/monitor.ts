@@ -207,33 +207,50 @@ export class PerformanceMonitor {
 
     const allMetrics = await this.storage.getMetricsByTimeRange(startTime, endTime)
 
+    // Single-pass O(n) categorization - optimized from O(4n)
+    const categorized = {
+      api: [] as APIMetric[],
+      operation: [] as OperationMetric[],
+      error: [] as ErrorMetric[],
+    }
+    let apiSuccessCount = 0
+    let operationSuccessCount = 0
+    const errorsByType: Record<string, number> = {}
+
+    for (const m of allMetrics) {
+      if (m.type === 'api') {
+        const api = m as APIMetric
+        categorized.api.push(api)
+        if (api.success) apiSuccessCount++
+      } else if (m.type === 'operation') {
+        const op = m as OperationMetric
+        categorized.operation.push(op)
+        if (op.success) operationSuccessCount++
+      } else if (m.type === 'error') {
+        const err = m as ErrorMetric
+        categorized.error.push(err)
+        errorsByType[err.errorType] = (errorsByType[err.errorType] || 0) + 1
+      }
+    }
+
     // API Metrics
-    const apiMetrics = allMetrics.filter(m => m.type === 'api') as APIMetric[]
-    const totalRequests = apiMetrics.length
+    const totalRequests = categorized.api.length
     const averageResponseTime =
-      totalRequests > 0 ? apiMetrics.reduce((sum, m) => sum + m.responseTime, 0) / totalRequests : 0
-    const successCount = apiMetrics.filter(m => m.success).length
-    const successRate = totalRequests > 0 ? successCount / totalRequests : 0
-    const errorCount = totalRequests - successCount
+      totalRequests > 0 ? categorized.api.reduce((sum, m) => sum + m.responseTime, 0) / totalRequests : 0
+    const successRate = totalRequests > 0 ? apiSuccessCount / totalRequests : 0
+    const errorCount = totalRequests - apiSuccessCount
     const errorRate = totalRequests > 0 ? errorCount / totalRequests : 0
 
     // Operation Metrics
-    const operationMetrics = allMetrics.filter(m => m.type === 'operation') as OperationMetric[]
-    const totalOperations = operationMetrics.length
+    const totalOperations = categorized.operation.length
     const averageDuration =
       totalOperations > 0
-        ? operationMetrics.reduce((sum, m) => sum + m.duration, 0) / totalOperations
+        ? categorized.operation.reduce((sum, m) => sum + m.duration, 0) / totalOperations
         : 0
-    const operationSuccessCount = operationMetrics.filter(m => m.success).length
     const operationSuccessRate = totalOperations > 0 ? operationSuccessCount / totalOperations : 0
 
     // Error Metrics
-    const errorMetrics = allMetrics.filter(m => m.type === 'error') as ErrorMetric[]
-    const totalErrors = errorMetrics.length
-    const errorsByType: Record<string, number> = {}
-    errorMetrics.forEach(e => {
-      errorsByType[e.errorType] = (errorsByType[e.errorType] || 0) + 1
-    })
+    const totalErrors = categorized.error.length
 
     return {
       apiMetrics: {

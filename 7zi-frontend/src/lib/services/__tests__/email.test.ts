@@ -10,6 +10,7 @@ import { logger } from '@/lib/logger'
 vi.mock('@/lib/logger', () => ({
   logger: {
     log: vi.fn(),
+    info: vi.fn(),
     warn: vi.fn(),
     error: vi.fn(),
   },
@@ -41,7 +42,7 @@ describe('EmailService', () => {
       service.initialize(config)
 
       expect(service.isEnabled()).toBe(true)
-      expect(logger.log).toHaveBeenCalledWith('[EmailService] Email service initialized')
+      expect(logger.info).toHaveBeenCalledWith('[EmailService] Email service initialized')
     })
 
     it('should be disabled when API key is missing', () => {
@@ -111,7 +112,7 @@ describe('EmailService', () => {
         })
       )
 
-      expect(logger.log).toHaveBeenCalledWith('[EmailService] Email sent successfully:', 'msg-123')
+      expect(logger.info).toHaveBeenCalledWith('[EmailService] Email sent successfully', { messageId: 'msg-123' })
     })
 
     it('should handle single recipient', async () => {

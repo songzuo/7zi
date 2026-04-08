@@ -104,7 +104,7 @@ export class RAGQA {
 
     const retrievedChunks = await this.retriever.retrieve(retrievalOptions);
 
-    if (retrievedChunks.length === yield '[无相关文档]') {
+    if (retrievedChunks.length === 0) {
       return;
     }
 

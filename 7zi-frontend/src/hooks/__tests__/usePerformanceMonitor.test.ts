@@ -65,7 +65,7 @@ const mockAlarms = [
 describe('usePerformanceMonitor', () => {
   beforeEach(() => {
     vi.clearAllMocks()
-    vi.useFakeTimers()
+    // Removed vi.useFakeTimers() - causes act() warnings with async/await
   })
 
   afterEach(() => {

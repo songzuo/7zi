@@ -77,7 +77,7 @@ describe('Agent Learning API', () => {
 
       expect(stats).toBeDefined()
       expect(Array.isArray(stats)).toBe(true)
-      expect(stats.length).toBeGreaterThanOrEqual(0)
+      expect(Array.isArray(stats) ? stats.length : 1).toBeGreaterThanOrEqual(0)
     })
 
     it('should filter by agent ID when specified', () => {
@@ -126,6 +126,7 @@ describe('Agent Learning API', () => {
           agentId: 'non_existent_agent',
           taskType: 'image_processing',
           adjustment: 0.1,
+          reason: 'Test',
         })
       }).toThrow('not found')
     })
