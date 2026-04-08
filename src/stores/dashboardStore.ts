@@ -17,6 +17,7 @@
 
 import { create } from 'zustand'
 import { devtools } from 'zustand/middleware'
+import { useShallow } from 'zustand/react/shallow'
 import type { UnifiedTeamMember } from '@/types/members'
 import type { GitHubIssue, GitHubCommit } from '@/types/common'
 
@@ -420,7 +421,7 @@ export const useLastUpdated = () => useDashboardStore(s => s.lastUpdated)
  * 获取统计数据（派生数据）
  */
 export const useDashboardStats = (): DashboardStats =>
-  useDashboardStore(s => ({
+  useDashboardStore(useShallow(s => ({
     totalMembers: s.members.length,
     working: s.members.filter(m => m.status === 'working').length,
     busy: s.members.filter(m => m.status === 'busy').length,
@@ -428,18 +429,18 @@ export const useDashboardStats = (): DashboardStats =>
     offline: s.members.filter(m => m.status === 'offline').length,
     openIssues: s.issues.filter(i => i.state === 'open').length,
     closedIssues: s.issues.filter(i => i.state === 'closed').length,
-  }))
+  })))
 
 /**
  * 获取按状态分组的成员
  */
 export const useMembersByStatus = () =>
-  useDashboardStore(s => ({
+  useDashboardStore(useShallow(s => ({
     working: s.members.filter(m => m.status === 'working'),
     busy: s.members.filter(m => m.status === 'busy'),
     idle: s.members.filter(m => m.status === 'idle'),
     offline: s.members.filter(m => m.status === 'offline'),
-  }))
+  })))
 
 /**
  * 获取单个成员

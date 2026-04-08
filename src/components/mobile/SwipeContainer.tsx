@@ -21,7 +21,7 @@ interface SwipeContainerProps {
   swipeThreshold?: number
 }
 
-export const SwipeContainer: React.FC<SwipeContainerProps> = ({
+export const SwipeContainer: React.FC<SwipeContainerProps> = React.memo(({
   children,
   onSwipeLeft,
   onSwipeRight,
@@ -110,7 +110,7 @@ export const SwipeContainer: React.FC<SwipeContainerProps> = ({
       {children}
     </div>
   )
-}
+})
 
 /**
  * 水平滚动容器
@@ -126,7 +126,7 @@ interface HorizontalScrollProps {
   showScrollbar?: boolean
 }
 
-export const HorizontalScroll: React.FC<HorizontalScrollProps> = ({
+export const HorizontalScroll: React.FC<HorizontalScrollProps> = React.memo(({
   children,
   className = '',
   showScrollbar = false,
@@ -154,7 +154,7 @@ export const HorizontalScroll: React.FC<HorizontalScrollProps> = ({
       {children}
     </div>
   )
-}
+})
 
 /**
  * 下拉刷新容器
@@ -171,7 +171,7 @@ interface PullToRefreshProps {
   refreshThreshold?: number
 }
 
-export const PullToRefresh: React.FC<PullToRefreshProps> = ({
+export const PullToRefresh: React.FC<PullToRefreshProps> = React.memo(({
   children,
   onRefresh,
   isRefreshing = false,
@@ -272,4 +272,4 @@ export const PullToRefresh: React.FC<PullToRefreshProps> = ({
       </div>
     </div>
   )
-}
+})

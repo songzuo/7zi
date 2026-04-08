@@ -1202,4 +1202,6 @@ describe('useTouchGestures - Edge Cases', () => {
     })
 
     // Try to force scale beyond max
-    expect(result.current.gestureState.scale).
+    expect(result.current.gestureState.scale).toBeLessThanOrEqual(3);
+  });
+});

@@ -235,22 +235,21 @@ describe('SlackAlertChannel', () => {
 
       const alert = createTestAlert()
 
-      // First two attempts fail, third succeeds
-      mockFetch
-        .mockResolvedValueOnce({
-          ok: false,
-          status: 503,
-          statusText: 'Service Unavailable',
-        } as Response)
-        .mockResolvedValueOnce({
-          ok: false,
-          status: 503,
-          statusText: 'Service Unavailable',
-        } as Response)
-        .mockResolvedValueOnce({
+      // First two attempts fail with retryable error, third succeeds
+      let callCount = 0
+      mockFetch.mockImplementation(() => {
+        callCount++
+        if (callCount <= 2) {
+          // Use a retryable error message (ECONNREFUSED)
+          const error = new Error('ECONNREFUSED: Connection refused')
+          error.code = 'ECONNREFUSED'
+          return Promise.reject(error)
+        }
+        return Promise.resolve({
           ok: true,
           status: 200,
         } as Response)
+      })
 
       await expect(channelWithRetry.send(alert)).resolves.not.toThrow()
       expect(mockFetch).toHaveBeenCalledTimes(3)
@@ -326,11 +325,17 @@ describe('SlackAlertChannel', () => {
 
       const alert = createTestAlert()
 
+      // Mock successful responses for first 2 sends
+      mockFetch.mockResolvedValue({
+        ok: true,
+        status: 200,
+      } as Response)
+
       // First 2 should succeed
       await limitedChannel.send(alert)
       await limitedChannel.send(alert)
 
-      // Third should fail
+      // Third should fail due to rate limiting
       await expect(limitedChannel.send(alert)).rejects.toThrow('Rate limit exceeded')
     })
   })
@@ -479,11 +484,20 @@ describe('SlackAlertChannel (Bot API)', () => {
       },
     })
 
-    // Mock bot API error
-    mockFetch.mockResolvedValueOnce({
-      ok: true,
-      json: async () => ({ ok: false, error: 'channel_not_found' }),
-    } as Response)
+    // Mock bot API error - needs 3 calls: lookup, create, postMessage
+    mockFetch
+      .mockResolvedValueOnce({
+        ok: true,
+        json: async () => ({ ok: false, error: 'channel_not_found' }),
+      } as Response)
+      .mockResolvedValueOnce({
+        ok: true,
+        json: async () => ({ ok: false, error: 'channel_not_found' }),
+      } as Response)
+      .mockResolvedValueOnce({
+        ok: true,
+        json: async () => ({ ok: false, error: 'channel_not_found' }),
+      } as Response)
 
     const alert = createTestAlert()
     await expect(channel.send(alert)).rejects.toThrow('Could not find or create channel')

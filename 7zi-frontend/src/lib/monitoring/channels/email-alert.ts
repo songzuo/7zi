@@ -105,9 +105,7 @@ export class EmailAlertChannel extends BaseAlertChannel implements AlertChannel 
     // Try to send via nodemailer if available
     if (!this.transporter) {
       try {
-        // Use require to avoid static analysis
-         
-        const nodemailer = require('nodemailer')
+        const nodemailer = await import('nodemailer')
 
         this.transporter = nodemailer.createTransport({
           host: this.emailConfig.host,

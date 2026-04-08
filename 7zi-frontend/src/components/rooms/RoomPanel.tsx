@@ -83,7 +83,10 @@ export function RoomPanel({
   onClose,
 }: RoomPanelProps) {
   const { t } = useTranslation('rooms')
-  const { updateRoom, removeMember, updateMember } = useRoomStore()
+  // 性能优化：使用细粒度选择器，避免不必要的重新渲染
+  const updateRoom = useRoomStore(state => state.updateRoom)
+  const removeMember = useRoomStore(state => state.removeMember)
+  const updateMember = useRoomStore(state => state.updateMember)
 
   const [activeTab, setActiveTab] = useState<'participants' | 'settings' | 'invite'>('participants')
   const [showSettingsModal, setShowSettingsModal] = useState(false)

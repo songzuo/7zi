@@ -21,8 +21,32 @@ vi.mock('@/lib/audit/logger', () => ({
   },
 }))
 
-vi.mock('@/lib/rate-limit/limiter', () => ({
-  getClientIP: vi.fn(() => '127.0.0.1'),
+// Mock rate-limit/limiter with proper class constructor
+vi.mock('@/lib/rate-limit/limiter', () => {
+  return {
+    getClientIP: vi.fn(() => '127.0.0.1'),
+    RateLimiter: vi.fn().mockImplementation(() => ({
+      checkLimit: vi.fn().mockResolvedValue({ allowed: true, remaining: 5, resetTime: Date.now() + 60000 }),
+    })),
+    formatRateLimitHeaders: vi.fn().mockReturnValue(new Headers()),
+  }
+})
+
+// Mock CSRF middleware to bypass token validation in tests
+vi.mock('@/lib/middleware/csrf', () => ({
+  withCSRF: (handler: Function) => handler, // Bypass CSRF validation
+  generateCSRFToken: vi.fn(),
+  getCSRFToken: vi.fn(),
+  requiresCSRFProtection: vi.fn(() => false),
+  extractCSRFToken: vi.fn(() => ({})),
+}))
+
+// Mock api-rate-limit to bypass rate limiting
+vi.mock('@/lib/api-rate-limit', () => ({
+  withRateLimit: (config: unknown, handler: Function) => handler, // Bypass rate limiting
+  RATE_LIMIT_PRESETS: {
+    strict: { windowMs: 60000, maxRequests: 5 },
+  },
 }))
 
 // Import mocked modules after vi.mock
@@ -43,8 +67,7 @@ describe('Auth API - POST /api/auth (登录)', () => {
 
     expect(response.status).toBe(200)
     expect(data.success).toBe(true)
-    expect(data.message).toBe('登录成功')
-    expect(data.user).toEqual({
+    expect(data.data).toEqual({
       id: 'user-123',
       username: 'admin',
       email: 'admin@example.com',
@@ -62,7 +85,7 @@ describe('Auth API - POST /api/auth (登录)', () => {
 
     expect(response.status).toBe(401)
     expect(data.success).toBe(false)
-    expect(data.message).toBe('用户名或密码错误')
+    expect(data.error.message).toBe('用户名或密码错误')
   })
 
   it('应该拒绝缺少用户名的请求', async () => {
@@ -124,7 +147,7 @@ describe('Auth API - PUT /api/auth (注册)', () => {
 
     expect(response.status).toBe(201)
     expect(data.success).toBe(true)
-    expect(data.message).toBe('注册成功')
+    expect(data.data.message).toBe('注册成功')
   })
 
   it('应该拒绝无效的邮箱格式', async () => {
@@ -194,7 +217,7 @@ describe('Auth API - PATCH /api/auth (重置密码)', () => {
 
     expect(response.status).toBe(200)
     expect(data.success).toBe(true)
-    expect(data.message).toBe('密码重置成功')
+    expect(data.data.message).toBe('密码重置成功')
   })
 
   it('应该拒绝缺少 token', async () => {
