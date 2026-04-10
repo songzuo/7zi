@@ -1,8 +1,8 @@
 {
   "machine": "bot6",
   "step": 0,
-  "status": "idle",
-  "lastUpdate": 1775829640,
+  "status": "degraded",
+  "lastUpdate": 1775844501,
   "errorCount": ,
-  "lastSync": "2026-04-10 16:00:40"
+  "lastSync": "2026-04-10 20:08:21"
 }
