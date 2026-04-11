@@ -5,11 +5,11 @@ import createNextIntlPlugin from 'next-intl/plugin'
 const withNextIntl = createNextIntlPlugin('./src/i18n/request.ts')
 
 // ============================================================================
-// React Compiler 配置
+// React Compiler 配置 (v1.0 - 已启用)
 // ============================================================================
-// 服务端环境变量，用于构建时控制
-const reactCompilerEnabled = process.env.ENABLE_REACT_COMPILER === 'true'
-const reactCompilerMode = process.env.REACT_COMPILER_MODE || 'opt-out'
+// React Compiler 默认启用，可通过环境变量控制
+const reactCompilerEnabled = process.env.DISABLE_REACT_COMPILER === 'true' ? false : true
+const reactCompilerMode = process.env.REACT_COMPILER_MODE || 'opt-in'
 const reactCompilerExcludePatterns = process.env.REACT_COMPILER_EXCLUDE_PATTERNS || ''
 
 // 解析排除模式
@@ -208,6 +208,13 @@ const nextConfig: NextConfig = {
             exclude: ['error', 'warn'],
           }
         : false,
+    // React Compiler v1.0 配置
+    ...(reactCompilerEnabled && {
+      reactCompiler: {
+        mode: reactCompilerMode,
+        excludePatterns: excludePatterns.length > 0 ? excludePatterns : undefined,
+      },
+    }),
   },
 
   // v1.8.0 性能优化: 增强的 Webpack 配置
