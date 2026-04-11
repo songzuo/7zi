@@ -84,15 +84,6 @@ export default function manifest(): MetadataRoute.Manifest {
         purpose: 'maskable',
       },
     ],
-    // 触摸图标（iOS）
-    icons: [
-      {
-        src: '/icons/icon-192x192.png',
-        sizes: '192x192',
-        type: 'image/png',
-        purpose: 'any maskable',
-      },
-    ],
     categories: ['developer', 'productivity', 'business'],
     // 快捷方式
     shortcuts: [

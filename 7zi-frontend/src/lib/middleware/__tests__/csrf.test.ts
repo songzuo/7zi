@@ -9,16 +9,26 @@ import { describe, it, expect, beforeEach, vi } from 'vitest'
 import { NextRequest, NextResponse } from 'next/server'
 import { withCSRF, generateCSRFToken, verifyToken, requiresCSRFProtection } from '../csrf'
 
-// Mock crypto.getRandomValues
-const mockRandomValues = vi.fn()
-global.crypto = {
-  getRandomValues: mockRandomValues,
-} as any
+// Mock crypto.getRandomValues using Object.defineProperty to bypass read-only restriction
+const mockRandomValues = vi.fn().mockImplementation((array: Uint8Array) => {
+  for (let i = 0; i < array.length; i++) {
+    array[i] = i % 256
+  }
+})
+
+// Use Object.defineProperty to assign to read-only global.crypto
+Object.defineProperty(global, 'crypto', {
+  value: {
+    getRandomValues: mockRandomValues,
+  },
+  writable: true,
+  configurable: true,
+})
 
 describe('CSRF Middleware', () => {
   beforeEach(() => {
     vi.clearAllMocks()
-    // Mock random values for predictable tokens
+    // Reset mock implementation
     mockRandomValues.mockImplementation((array: Uint8Array) => {
       for (let i = 0; i < array.length; i++) {
         array[i] = i % 256
@@ -165,6 +175,7 @@ describe('CSRF Middleware', () => {
         method: 'POST',
         headers: {
           'X-CSRF-Token': 'some-token',
+          Origin: 'http://localhost:3000',
         },
       })
 
@@ -172,7 +183,7 @@ describe('CSRF Middleware', () => {
 
       expect(response.status).toBe(400)
       const data = await response.json()
-      expect(data.error).toContain('CSRF token cookie missing')
+      expect(data.error.message).toContain('CSRF token cookie missing')
       expect(mockHandler).not.toHaveBeenCalled()
     })
 
@@ -188,6 +199,7 @@ describe('CSRF Middleware', () => {
         method: 'POST',
         headers: {
           Cookie: `csrf_token=${signedToken}`,
+          Origin: 'http://localhost:3000',
         },
       })
 
@@ -195,7 +207,7 @@ describe('CSRF Middleware', () => {
 
       expect(response.status).toBe(400)
       const data = await response.json()
-      expect(data.error).toContain("CSRF token header 'X-CSRF-Token' missing")
+      expect(data.error.message).toContain("CSRF token header 'X-CSRF-Token' missing")
       expect(mockHandler).not.toHaveBeenCalled()
     })
 
@@ -212,6 +224,7 @@ describe('CSRF Middleware', () => {
         headers: {
           Cookie: `csrf_token=${cookieToken}`,
           'X-CSRF-Token': headerToken,
+          Origin: 'http://localhost:3000',
         },
       })
 
@@ -219,7 +232,7 @@ describe('CSRF Middleware', () => {
 
       expect(response.status).toBe(403)
       const data = await response.json()
-      expect(data.error).toContain('CSRF token mismatch')
+      expect(data.error.message).toContain('CSRF token mismatch')
       expect(mockHandler).not.toHaveBeenCalled()
     })
 
@@ -236,6 +249,7 @@ describe('CSRF Middleware', () => {
         headers: {
           Cookie: `csrf_token=${signedToken}`,
           'X-CSRF-Token': signedToken,
+          Origin: 'http://localhost:3000',
         },
       })
 
@@ -266,7 +280,7 @@ describe('CSRF Middleware', () => {
 
       expect(response.status).toBe(403)
       const data = await response.json()
-      expect(data.error).toContain('Invalid origin')
+      expect(data.error.message).toContain('Invalid origin')
       expect(mockHandler).not.toHaveBeenCalled()
     })
 

@@ -163,6 +163,34 @@ describe('Feedback API - GET /api/feedback', () => {
   })
 })
 
+// Mock CSRF middleware to bypass token validation in tests
+vi.mock('@/lib/middleware/csrf', () => ({
+  withCSRF: (handler: Function) => handler, // Bypass CSRF validation
+  generateCSRFToken: vi.fn(),
+  getCSRFToken: vi.fn(),
+  requiresCSRFProtection: vi.fn(() => false),
+  extractCSRFToken: vi.fn(() => ({})),
+}))
+
+// Mock rate-limit/limiter with proper class constructor
+vi.mock('@/lib/rate-limit/limiter', () => {
+  return {
+    getClientIP: vi.fn(() => '127.0.0.1'),
+    RateLimiter: vi.fn().mockImplementation(() => ({
+      checkLimit: vi.fn().mockResolvedValue({ allowed: true, remaining: 5, resetTime: Date.now() + 60000 }),
+    })),
+    formatRateLimitHeaders: vi.fn().mockReturnValue(new Headers()),
+  }
+})
+
+// Mock api-rate-limit to bypass rate limiting
+vi.mock('@/lib/api-rate-limit', () => ({
+  withRateLimit: (config: unknown, handler: Function) => handler, // Bypass rate limiting
+  RATE_LIMIT_PRESETS: {
+    strict: { windowMs: 60000, maxRequests: 5 },
+  },
+}))
+
 describe('Feedback API - POST /api/feedback', () => {
   it('应该成功提交反馈', async () => {
     const request = new NextRequest('http://localhost:3000/api/feedback', {

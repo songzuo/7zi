@@ -17,9 +17,20 @@ import { useWebRTCMeeting } from './useWebRTCMeeting'
 import { io } from 'socket.io-client'
 
 // Mock socket.io-client
-vi.mock('socket.io-client', () => ({
-  io: vi.fn(),
-}))
+vi.mock('socket.io-client', () => {
+  const mockSocket = {
+    connected: false,
+    on: vi.fn(),
+    off: vi.fn(),
+    emit: vi.fn(),
+    connect: vi.fn(),
+    disconnect: vi.fn(),
+  }
+  return {
+    default: vi.fn(() => mockSocket),
+    io: vi.fn(() => mockSocket),
+  }
+})
 
 // Mock logger
 vi.mock('@/lib/logger', () => ({

@@ -14,6 +14,7 @@ interface TestData {
   id: number
   name: string
   email: string
+  [key: string]: unknown
 }
 
 const testData1: TestData[] = [

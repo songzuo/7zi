@@ -87,6 +87,10 @@ import type {
   RoomPublicInfo
 } from './types'
 import { withCSRF } from '@/lib/middleware/csrf'
+import { createHotDataCache, CachePresets } from '@/lib/cache'
+
+// Cache for rooms list (short TTL due to frequent updates)
+const roomsCache = createHotDataCache<unknown>(CachePresets.SHORT)
 
 /**
  * Get current user information (from request headers)
@@ -135,6 +139,9 @@ export const POST = withCSRF(async (request: NextRequest) => {
       isPrivate: body.isPrivate,
     })
 
+    // Invalidate rooms list cache since a new room was added
+    roomsCache.deleteByEndpoint('rooms-list')
+
     const response: CreateRoomResponse = {
       id: room.id,
       name: room.name,
@@ -163,6 +170,21 @@ export async function GET(request: NextRequest) {
       limit: searchParams.get('limit') ? parseInt(searchParams.get('limit')!, 10) : 20,
       sortBy: (searchParams.get('sortBy') as any) || 'createdAt',
       sortOrder: (searchParams.get('sortOrder') as any) || 'desc',
+    }
+
+    // Generate cache key based on query params
+    const cacheKey = {
+      endpoint: 'rooms-list',
+      params: queryParams as Record<string, unknown>,
+      version: '1',
+    }
+
+    // Check cache (only for non-search queries to keep cache manageable)
+    if (!queryParams.search) {
+      const cachedResult = roomsCache.get(cacheKey)
+      if (cachedResult) {
+        return createSuccessResponse(cachedResult)
+      }
     }
 
     const rooms = roomStore.getAllRooms()
@@ -217,6 +239,11 @@ export async function GET(request: NextRequest) {
 
     const response: GetRoomsResponse = {
       rooms: paginatedRooms,
+    }
+
+    // Cache the response (only non-search queries)
+    if (!queryParams.search) {
+      roomsCache.set(cacheKey, response)
     }
 
     return createSuccessResponse(response)

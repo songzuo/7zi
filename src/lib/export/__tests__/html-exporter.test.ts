@@ -17,6 +17,7 @@ interface TestData {
   status: string
   amount: number
   createdAt: string
+  [key: string]: unknown
 }
 
 const testData: TestData[] = [
