@@ -46,8 +46,6 @@ export const metadata: Metadata = {
   formatDetection: {
     telephone: false,
   },
-  // 主题颜色
-  themeColor: '#667eea',
   // Open Graph
   openGraph: {
     title: '7zi Frontend - 智能体协作平台',
@@ -61,16 +59,18 @@ export const metadata: Metadata = {
     card: 'summary_large_image',
     images: ['/images/twitter-image.jpg'],
   },
-  // 视图端口（移动端关键）
-  viewport: {
-    width: 'device-width',
-    initialScale: 1,
-    maximumScale: 5,
-    // 支持 Safe Area - 适配刘海屏
-    viewportFit: 'cover',
-    // 用户缩放（可访问性）
-    userScalable: true,
-  },
+}
+
+// Next.js 16 规范：viewport 需要独立 export
+export const viewport = {
+  themeColor: '#667eea',
+  width: 'device-width',
+  initialScale: 1,
+  maximumScale: 5,
+  // 支持 Safe Area - 适配刘海屏
+  viewportFit: 'cover',
+  // 用户缩放（可访问性）
+  userScalable: true,
 }
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {

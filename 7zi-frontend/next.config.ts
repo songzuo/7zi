@@ -3,13 +3,14 @@
  *
  * Bundle 性能优化版本
  *
- * @version 1.4.0
- * @date 2026-03-29
+ * @version 1.5.0
+ * @date 2026-04-09
+ * @note PWA 已迁移到 @ducanh2912/next-pwa (next-pwa 5.6.0 与 Next.js 16 不兼容)
  */
 
 import type { NextConfig } from 'next'
 import path from 'path'
-import withPWA from 'next-pwa'
+import withPWA from '@ducanh2912/next-pwa'
 
 // ============================================
 // 环境配置
@@ -432,13 +433,21 @@ const nextConfig: NextConfig = {
 }
 
 // ============================================
-// PWA 配置 (使用 next-pwa)
+// PWA 配置 (使用 @ducanh2912/next-pwa)
 // ============================================
 const pwaConfig = {
   dest: 'public',
+  disable: process.env.NODE_ENV === 'development',
   register: true,
   skipWaiting: true,
-  disable: process.env.NODE_ENV === 'development',
+  buildExcludes: [
+    /middleware-manifest\.json$/,
+    /next-rest-fetcher\.json$/,
+    /pages-manifest\.json$/,
+    /server\/pages-manifest\.json$/,
+    /react-loadable-manifest\.json$/,
+    /__next\/server\/pages-manifest\.json$/,
+  ],
   runtimeCaching: [
     // HTML pages - NetworkFirst with fallback
     {

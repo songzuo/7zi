@@ -20,6 +20,10 @@ import {
 } from '@/lib/api/error-handler'
 import { authenticateJWT, AuthResult } from '@/lib/auth/api-auth'
 import { withCSRF } from '@/lib/middleware/csrf'
+import { createHotDataCache, CachePresets } from '@/lib/cache'
+
+// Cache for notifications (short TTL due to frequent updates)
+const notificationsCache = createHotDataCache<unknown>(CachePresets.SHORT)
 
 /**
  * GET /api/notifications
@@ -71,19 +75,42 @@ export async function GET(request: NextRequest) {
 
     const limit = searchParams.get('limit') ? parseInt(searchParams.get('limit')!, 10) : 50
 
+    // Generate cache key (user-specific)
+    const cacheKey = {
+      userId: authResult.userId!,
+      endpoint: 'notifications',
+      params: { ...filter, limit },
+      version: '1',
+    }
+
+    // Check cache first (only for non-filtered queries to keep cache manageable)
+    if (!filter.type && !filter.priority && !filter.read && !filter.since) {
+      const cachedResult = notificationsCache.get(cacheKey)
+      if (cachedResult) {
+        return createSuccessResponse(cachedResult)
+      }
+    }
+
     // Get notifications
     const notifications = notificationService.getNotifications(filter).slice(0, limit)
 
     // Get unread count
     const unreadCount = notificationService.getUnreadCount(filter)
 
-    return createSuccessResponse({
+    const response = {
       notifications,
       meta: {
         count: notifications.length,
         unreadCount,
       },
-    })
+    }
+
+    // Cache the response (only for non-filtered queries)
+    if (!filter.type && !filter.priority && !filter.read && !filter.since) {
+      notificationsCache.set(cacheKey, response)
+    }
+
+    return createSuccessResponse(response)
   } catch (error) {
     return createErrorResponse(error instanceof Error ? error : new Error(String(error)))
   }
@@ -124,6 +151,11 @@ export const POST = withCSRF(async (request: NextRequest) => {
       taskId: body.taskId,
       expiresAt: body.expiresAt,
     })
+
+    // Invalidate user's notification cache since a new notification was added
+    if (authResult.userId) {
+      notificationsCache.deleteByUser(authResult.userId)
+    }
 
     return createSuccessResponse(
       {

@@ -61,7 +61,8 @@ function createSignedToken(): string {
 /**
  * Verify and decode a signed token
  */
-function verifyToken(signedToken: string): { valid: boolean; token?: string; error?: string } {
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+export function verifyToken(signedToken: string): { valid: boolean; token?: string; error?: string } {
   try {
     const decoded = Buffer.from(signedToken, 'base64').toString('utf-8')
     const [token, timestampStr] = decoded.split(':')

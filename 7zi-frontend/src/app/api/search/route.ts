@@ -8,6 +8,10 @@ import { NextRequest } from 'next/server'
 import { authMiddleware } from '@/middleware/auth.middleware'
 import { searchSchema, sanitizeHtml } from '@/shared/lib/validation-schemas'
 import { createSuccessResponse, createBadRequestError, createErrorResponse } from '@/lib/api/error-handler'
+import { createHotDataCache, CachePresets } from '@/lib/cache'
+
+// Cache for search results (short TTL due to dynamic content)
+const searchCache = createHotDataCache<unknown>(CachePresets.SHORT)
 
 /**
  * GET /api/search - 搜索功能（需要认证）
@@ -64,6 +68,19 @@ export async function GET(request: NextRequest) {
   }
 
   try {
+    // Generate cache key
+    const cacheKey = {
+      endpoint: 'search',
+      params: { q: sanitizedQuery, page, limit, type, sortBy },
+      version: '1',
+    }
+
+    // Check cache first
+    const cachedResult = searchCache.get(cacheKey)
+    if (cachedResult) {
+      return createSuccessResponse(cachedResult)
+    }
+
     // TODO: 执行搜索
     // 1. 根据类型搜索不同资源
     // 2. 使用全文搜索引擎 (如 Elasticsearch)
@@ -99,7 +116,7 @@ export async function GET(request: NextRequest) {
       },
     ]
 
-    return createSuccessResponse({
+    const response = {
       query: sanitizedQuery,
       results: mockResults,
       total: mockResults.length,
@@ -110,7 +127,12 @@ export async function GET(request: NextRequest) {
         sortBy: sortBy || 'relevance',
       },
       searchTime: 0.05, // 搜索耗时（秒）
-    })
+    }
+
+    // Cache the response
+    searchCache.set(cacheKey, response)
+
+    return createSuccessResponse(response)
   } catch (error) {
     console.error('[Search API] Error:', error)
     return createErrorResponse(error instanceof Error ? error : new Error(String(error)))

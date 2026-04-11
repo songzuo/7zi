@@ -32,7 +32,7 @@ const MAX_CACHE_SIZE = 50 * 1024; // 50MB per cache type
 const MAX_AGE = 7 * 24 * 60 * 60 * 1000; // 7 days
 
 // Install event - pre-cache critical assets
-self.addEventListener('install', (event: ExtendableEvent) => {
+self.addEventListener('install', (event) => {
   console.log('[SW] Installing Service Worker version:', CACHE_VERSION);
 
   event.waitUntil(
@@ -388,17 +388,4 @@ self.addEventListener('notificationclick', (event: any) => {
   );
 });
 
-// Type definitions for better TypeScript support
-interface ExtendableEvent extends Event {
-  waitUntil(promise: Promise<any>): void;
-}
-
-interface FetchEvent extends Event {
-  request: Request;
-  respondWith(promise: Response | Promise<Response>): void;
-}
-
-interface ExtendableMessageEvent extends MessageEvent {
-  waitUntil(promise: Promise<any>): void;
-  ports: MessagePort[];
-}
+/* NOTE: Type definitions removed for browser compatibility */

@@ -8,6 +8,10 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { roomStore } from '@/lib/api/rooms/store'
 import { createSuccessResponse, createNotFoundError, createForbiddenError, createErrorResponse } from '@/lib/api/error-handler'
+import { createHotDataCache, CachePresets } from '@/lib/cache'
+
+// Cache for room details (short TTL due to frequent updates)
+const roomDetailCache = createHotDataCache<unknown>(CachePresets.SHORT)
 
 interface RouteParams {
   params: Promise<{ id: string }>
@@ -19,6 +23,18 @@ interface RouteParams {
 export async function GET(request: NextRequest, { params }: RouteParams) {
   try {
     const { id } = await params
+
+    // Check cache first
+    const cacheKey = {
+      endpoint: 'room-detail',
+      params: { roomId: id },
+      version: '1',
+    }
+    const cachedResult = roomDetailCache.get(cacheKey)
+    if (cachedResult) {
+      return createSuccessResponse(cachedResult)
+    }
+
     const room = roomStore.getRoomById(id)
 
     if (!room) {
@@ -54,10 +70,12 @@ export async function GET(request: NextRequest, { params }: RouteParams) {
       joinedAt: member.joinedAt,
     }))
 
-    return createSuccessResponse({
-      room: publicRoom,
-      participants,
-    })
+    const response = { room: publicRoom, participants }
+
+    // Cache the response
+    roomDetailCache.set(cacheKey, response)
+
+    return createSuccessResponse(response)
   } catch (error) {
     console.error('Failed to get room:', error)
     return createErrorResponse(error instanceof Error ? error : new Error(String(error)))
@@ -89,6 +107,10 @@ export async function DELETE(request: NextRequest, { params }: RouteParams) {
     if (!deleted) {
       return createErrorResponse(new Error('Failed to delete room'), 500)
     }
+
+    // Invalidate caches
+    roomDetailCache.delete({ endpoint: 'room-detail', params: { roomId: id } })
+    roomsCache.deleteByEndpoint('rooms-list')
 
     return createSuccessResponse({ message: 'Room deleted successfully' })
   } catch (error) {
