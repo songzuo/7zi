@@ -6,8 +6,9 @@ import { Locale } from '@/i18n/config'
 /**
  * 重新验证博客相关页面
  *
- * 使用 Next.js revalidateTag API:
- * revalidateTag(tag) - 重新验证指定 tag 的缓存
+ * Next.js 16 revalidateTag API:
+ * revalidateTag(tag: string, profile: string | CacheLifeConfig)
+ * profile 可选值: 'max' | 'reload' | 'force-cache' | { expire?: number }
  */
 export async function revalidateBlogPost(slug?: string) {
   // 重新验证博客列表页（所有语言）
@@ -20,8 +21,8 @@ export async function revalidateBlogPost(slug?: string) {
     revalidatePath(`/en/blog/${slug}`)
   }
 
-  // 重新验证标签（Next.js 16: revalidateTag 仅接受单个 tag 参数）
-  revalidateTag('posts')
+  // 重新验证标签（Next.js 16: revalidateTag 需要第二个参数 profile）
+  revalidateTag('posts', 'max')
 }
 
 /**
@@ -39,7 +40,7 @@ export async function revalidateProject(slug?: string) {
   }
 
   // 重新验证标签
-  revalidateTag('projects')
+  revalidateTag('projects', 'max')
 }
 
 /**
@@ -67,6 +68,6 @@ export async function revalidateAll() {
   }
 
   // 重新验证标签
-  revalidateTag('posts')
-  revalidateTag('projects')
+  revalidateTag('posts', 'max')
+  revalidateTag('projects', 'max')
 }
