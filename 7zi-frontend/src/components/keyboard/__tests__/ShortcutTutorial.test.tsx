@@ -6,21 +6,21 @@ import { render, screen, fireEvent, waitFor, act, renderHook } from '@testing-li
 import ShortcutTutorial, { TutorialProgress, useShortcutTutorial } from '../ShortcutTutorial';
 
 // Mock shortcutManager
-jest.mock('@/lib/keyboard/shortcut-manager', () => ({
+vi.mock('@/lib/keyboard/shortcut-manager', () => ({
   shortcutManager: {
-    getAll: jest.fn().mockReturnValue([
+    getAll: vi.fn().mockReturnValue([
       {
         key: 'cmd+k',
         description: 'Open global search',
         category: 'navigation',
-        action: jest.fn(),
+        action: vi.fn(),
         enabled: true,
       },
       {
         key: 'cmd+s',
         description: 'Save',
         category: 'system',
-        action: jest.fn(),
+        action: vi.fn(),
         enabled: true,
       },
     ]),
@@ -49,7 +49,7 @@ describe('ShortcutTutorial', () => {
   });
 
   it('calls onClose when close button is clicked', () => {
-    const onClose = jest.fn();
+    const onClose = vi.fn();
     render(<ShortcutTutorial isOpen={true} onClose={onClose} />);
 
     const closeButton = screen.getByRole('button', { name: 'Close' });
@@ -59,7 +59,7 @@ describe('ShortcutTutorial', () => {
   });
 
   it('calls onComplete when tutorial finishes', async () => {
-    const onComplete = jest.fn();
+    const onComplete = vi.fn();
     
     // We need to mock the keyboard event to trigger completion
     render(
@@ -71,7 +71,7 @@ describe('ShortcutTutorial', () => {
             key: 'cmd+k',
             description: 'Test',
             category: 'navigation',
-            action: jest.fn(),
+            action: vi.fn(),
             enabled: true,
           },
         ]}
@@ -99,7 +99,7 @@ describe('TutorialProgress', () => {
   });
 
   it('calls onClick when clicked', () => {
-    const onClick = jest.fn();
+    const onClick = vi.fn();
     render(<TutorialProgress completed={2} total={5} onClick={onClick} />);
 
     fireEvent.click(screen.getByRole('button'));
