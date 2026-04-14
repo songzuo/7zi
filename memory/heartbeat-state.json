@@ -1,19 +1,24 @@
 {
   "lastChecks": {
+    "调度器运行": "2026-04-14 06:24 UTC",
     "email": 1744471140,
     "calendar": null,
     "weather": null,
     "memory-maintenance": 1715346900
   },
   "activeTasks": {
-    "调度时间": "2026-04-08 15:58 UTC",
+    "调度时间": "2026-04-14 06:24 UTC",
     "任务列表": [
-      "git-changes-review-20260408",
-      "ts-strict-final-cleanup-20260408",
-      "pwa-config-audit-20260408",
-      "build-final-status-20260408"
+      "nextjs16-migration-fix (subagent:54c26865)",
+      "architecture-v2-detailed (subagent:9a6aa1b0)"
     ],
-    "总数": 4
+    "总数": 2,
+    "启动失败": [
+      "test-health-deep (gateway timeout)",
+      "prod-health-check (gateway timeout)",
+      "code-quality-audit (gateway timeout)"
+    ]
   },
-  "备注": "模型宕机持续，4月10日15:35 UTC完成内存维护（Apr 8-9日志审查）。SEO问题（og-default.jpg缺失等）已记录，待模型恢复后处理。"
+  "gateway状态": "部分超时，但任务仍被接受",
+  "备注": "Gateway有超时问题，但部分任务已成功启动。继续监控。"
 }
