@@ -7,9 +7,9 @@ import ShortcutSearch, { useShortcutSearch } from '../ShortcutSearch';
 import { shortcutManager } from '@/lib/keyboard/shortcut-manager';
 
 // Mock shortcutManager
-jest.mock('@/lib/keyboard/shortcut-manager', () => ({
+vi.mock('@/lib/keyboard/shortcut-manager', () => ({
   shortcutManager: {
-    search: jest.fn(),
+    search: vi.fn(),
   },
 }));
 
@@ -19,20 +19,20 @@ describe('ShortcutSearch', () => {
       key: 'cmd+k',
       description: 'Open global search',
       category: 'navigation',
-      action: jest.fn(),
+      action: vi.fn(),
       enabled: true,
     },
     {
       key: 'cmd+s',
       description: 'Save',
       category: 'system',
-      action: jest.fn(),
+      action: vi.fn(),
       enabled: true,
     },
   ];
 
   beforeEach(() => {
-    (shortcutManager.search as jest.Mock).mockReturnValue(mockShortcuts);
+    (shortcutManager.search as ReturnType<typeof vi.fn>).mockReturnValue(mockShortcuts);
   });
 
   it('does not render when isOpen is false', () => {
@@ -52,7 +52,7 @@ describe('ShortcutSearch', () => {
   });
 
   it('filters shortcuts based on search query', () => {
-    (shortcutManager.search as jest.Mock).mockReturnValue([mockShortcuts[0]]);
+    (shortcutManager.search as ReturnType<typeof vi.fn>).mockReturnValue([mockShortcuts[0]]);
 
     render(<ShortcutSearch isOpen={true} />);
     const input = screen.getByPlaceholderText('Search shortcuts...');
@@ -63,7 +63,7 @@ describe('ShortcutSearch', () => {
   });
 
   it('calls onClose when Escape is pressed', () => {
-    const onClose = jest.fn();
+    const onClose = vi.fn();
     render(<ShortcutSearch isOpen={true} onClose={onClose} />);
 
     fireEvent.keyDown(document, { key: 'Escape' });
