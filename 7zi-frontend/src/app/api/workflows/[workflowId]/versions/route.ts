@@ -238,10 +238,10 @@ versionHistoryStore.set('workflow-2', generateSampleVersions('workflow-2'))
 
 export async function GET(
   request: NextRequest,
-  { params }: { params: { workflowId: string } }
+  { params }: { params: Promise<{ workflowId: string }> }
 ) {
   try {
-    const { workflowId } = params
+    const { workflowId } = await params
     const { searchParams } = new URL(request.url)
 
     const page = parseInt(searchParams.get('page') || '1')

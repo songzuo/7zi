@@ -201,10 +201,10 @@ function getNextVersion(baseVersion: string): string {
 
 export async function POST(
   request: NextRequest,
-  { params }: { params: { workflowId: string } }
+  { params }: { params: Promise<{ workflowId: string }> }
 ) {
   try {
-    const { workflowId } = params
+    const { workflowId } = await params
     const body: RollbackWorkflowDTO = await request.json()
 
     const { versionId, rollbackBy, rollbackReason } = body
