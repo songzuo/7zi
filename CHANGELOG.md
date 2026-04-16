@@ -7,6 +7,19 @@
 
 ---
 
+## [Unreleased] - 2026-04-17
+
+### 🛡️ 安全修复
+- serialize-javascript RCE 漏洞修复 (>=7.0.5)
+- 添加 pnpm overrides 防护
+
+### 🔧 技术改进
+- Next.js 15 async params 迁移 (workflow rollback/versions API)
+- SentimentAnalyzer FMM 分词算法优化
+- Jest→Vitest 测试框架迁移继续
+
+---
+
 ## [1.14.0] - 2026-04-11 🚀 Next.js 16 全面兼容 & React 19 优化
 
 ### 🎯 版本主题
