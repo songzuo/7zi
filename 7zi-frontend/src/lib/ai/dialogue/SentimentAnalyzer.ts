@@ -182,28 +182,55 @@ export class SentimentAnalyzer {
   }
 
   /**
-   * 分词
+   * 分词 - 支持中英文多字符词匹配
    */
   private tokenize(content: string): string[] {
-    // 简单的中英文分词
     const tokens: string[] = []
+    const segment = content.toLowerCase()
 
-    // 1. 首先按标点符号分割
-    const segments = content.toLowerCase().split(/[\s,.!?;:'"()\[\]{}]+/)
+    // 匹配中文字符串或英文单词
+    const matches = segment.match(/[\u4e00-\u9fa5]+|[a-z]+/g) || []
 
-    // 2. 对每个片段进行处理
-    for (const segment of segments) {
-      if (!segment.trim()) continue
-
-      // 3. 对中文进行细粒度处理（按字符）
-      if (/[\u4e00-\u9fa5]/.test(segment)) {
-        // 中文：提取连续的中文字符
-        const chineseChars = segment.match(/[\u4e00-\u9fa5]+/g) || []
-        tokens.push(...chineseChars)
+    for (const match of matches) {
+      if (/[\u4e00-\u9fa5]/.test(match)) {
+        // 中文：先尝试正向最大匹配 (2-4字词)
+        const chinese = match
+        // 尝试匹配词典中的多字符词
+        let remaining = chinese
+        while (remaining.length > 0) {
+          let matched = false
+          // 从最长开始匹配 (4->3->2->1)
+          for (let len = Math.min(4, remaining.length); len >= 1; len--) {
+            const substr = remaining.substring(0, len)
+            if (this.positiveLexicon.has(substr) ||
+                this.negativeLexicon.has(substr) ||
+                this.intensifiers.has(substr) ||
+                this.negators.has(substr)) {
+              tokens.push(substr)
+              remaining = remaining.substring(len)
+              matched = true
+              break
+            }
+          }
+          if (!matched) {
+            // 没匹配到词典词，取1-2字符尝试
+            const substr = remaining.substring(0, 2)
+            if (this.positiveLexicon.has(substr) ||
+                this.negativeLexicon.has(substr) ||
+                this.intensifiers.has(substr) ||
+                this.negators.has(substr)) {
+              tokens.push(substr)
+              remaining = remaining.substring(2)
+            } else {
+              // 单字符
+              tokens.push(remaining.substring(0, 1))
+              remaining = remaining.substring(1)
+            }
+          }
+        }
       } else {
         // 英文：按空格分割
-        const words = segment.split(/\s+/)
-        tokens.push(...words.filter(w => w.trim()))
+        tokens.push(match)
       }
     }
 
