@@ -42,7 +42,7 @@ describe('Workflow Rollback API', () => {
         }),
       } as any
 
-      const response = await POST(request, { params: { workflowId: mockWorkflowId } })
+      const response = await POST(request, { params: Promise.resolve({ workflowId: mockWorkflowId }) })
       const data = await (response as any).json()
 
       expect(data).toHaveProperty('currentVersion')
@@ -65,7 +65,7 @@ describe('Workflow Rollback API', () => {
         }),
       } as any
 
-      const response = await POST(request, { params: { workflowId: mockWorkflowId } })
+      const response = await POST(request, { params: Promise.resolve({ workflowId: mockWorkflowId }) })
       const data = await (response as any).json()
 
       expect(data.currentVersion.version).toBe('1.0.1')
@@ -83,7 +83,7 @@ describe('Workflow Rollback API', () => {
         }),
       } as any
 
-      const response = await POST(request, { params: { workflowId: mockWorkflowId } })
+      const response = await POST(request, { params: Promise.resolve({ workflowId: mockWorkflowId }) })
       const data = await (response as any).json()
 
       expect(response.status).toBe(400)
@@ -102,7 +102,7 @@ describe('Workflow Rollback API', () => {
         }),
       } as any
 
-      const response = await POST(request, { params: { workflowId: mockWorkflowId } })
+      const response = await POST(request, { params: Promise.resolve({ workflowId: mockWorkflowId }) })
       const data = await (response as any).json()
 
       expect(response.status).toBe(400)
@@ -122,7 +122,7 @@ describe('Workflow Rollback API', () => {
         }),
       } as any
 
-      const response = await POST(request, { params: { workflowId: mockWorkflowId } })
+      const response = await POST(request, { params: Promise.resolve({ workflowId: mockWorkflowId }) })
       const data = await (response as any).json()
 
       expect(response.status).toBe(404)
@@ -142,7 +142,7 @@ describe('Workflow Rollback API', () => {
         }),
       } as any
 
-      const response = await POST(request, { params: { workflowId: 'non-existent-workflow' } })
+      const response = await POST(request, { params: Promise.resolve({ workflowId: 'non-existent-workflow' }) })
       const data = await (response as any).json()
 
       expect(response.status).toBe(404)
@@ -163,7 +163,7 @@ describe('Workflow Rollback API', () => {
         }),
       } as any
 
-      const response = await POST(request, { params: { workflowId: 'workflow-2' } })
+      const response = await POST(request, { params: Promise.resolve({ workflowId: 'workflow-2' }) })
       const data = await (response as any).json()
 
       expect(response.status).toBe(404)

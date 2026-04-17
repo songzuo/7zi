@@ -275,7 +275,7 @@ describe('验证函数', () => {
     it('应该拒绝无效的正则表达式', () => {
       expect(isValidRegex('')).toBe(false)
       expect(isValidRegex('[unclosed')).toBe(false)
-      expect(isValidRegex('unclosed]')).toBe(false)
+      expect(isValidRegex('(unclosed')).toBe(false)
       expect(isValidRegex('*invalid')).toBe(false)
     })
   })

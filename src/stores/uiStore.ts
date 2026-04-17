@@ -541,6 +541,7 @@ export const useUIStore = create<UIState>()(
             const data = { ...value }
             if (data.state?.formDrafts instanceof Map) {
               const serializableState = data.state as Partial<SerializableUIState>
+              // @ts-ignore - Map.entries() type doesn't perfectly match Array<[string, FormDraft]>
               serializableState.formDrafts = Array.from(data.state.formDrafts.entries())
             }
             try {

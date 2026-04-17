@@ -263,6 +263,7 @@ export class AIAgentNodeExecutor implements NodeExecutor {
 
     if (aiConfig) {
       return {
+        ...aiConfig,
         provider: aiConfig.provider || AIProvider.OPENAI,
         model: aiConfig.model,
         temperature: aiConfig.temperature ?? 0.7,
@@ -270,7 +271,6 @@ export class AIAgentNodeExecutor implements NodeExecutor {
         timeout: aiConfig.timeout || 30,
         retryCount: aiConfig.retryCount || 0,
         outputFormat: aiConfig.outputFormat || 'text',
-        ...aiConfig,
       }
     }
 

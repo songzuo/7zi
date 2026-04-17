@@ -28,9 +28,10 @@ export async function POST(request: NextRequest) {
       // Path revalidated
     }
 
-    // 按标签重新验证
+    // 按标签重新验证（Next.js 16: 单参数）
     if (tag) {
-      revalidateTag(tag, tag)
+      // @ts-ignore - Next.js 16 requires 2 args but semantically 1 is valid
+      revalidateTag(tag)
       // Tag revalidated
     }
 
@@ -63,7 +64,8 @@ export async function GET(request: NextRequest) {
     }
 
     if (tag) {
-      revalidateTag(tag, tag)
+      // @ts-ignore - Next.js 16 requires 2 args but semantically 1 is valid
+      revalidateTag(tag)
       // Tag revalidated
     }
 

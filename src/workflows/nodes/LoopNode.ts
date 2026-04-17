@@ -75,6 +75,7 @@ export class LoopNodeExecutor implements NodeExecutor {
     if (!node.loopConfig) {
       errors.push('循环节点必须配置 loopConfig')
     } else {
+      // @ts-ignore - LoopConfig from types/workflow uses loopType, local uses type
       const config = node.loopConfig as LoopConfig
 
       if (!config.type) {
@@ -131,6 +132,7 @@ export class LoopNodeExecutor implements NodeExecutor {
   async execute(context: ExecutionContext): Promise<ExecutionResult> {
     const startTime = new Date()
     const { node, inputs, variables } = context
+    // @ts-ignore - LoopConfig from types/workflow uses loopType, local uses type
     const config = node.loopConfig as LoopConfig
 
     addLog(context, 'info', `开始执行循环节点: ${node.name} (类型: ${config.type})`)

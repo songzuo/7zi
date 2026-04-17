@@ -399,7 +399,7 @@ function generateNodesFromText(
         humanInputConfig: {
           formSchema: {
             fields: [
-              { name: 'approved', type: 'boolean', label: '是否批准' },
+              { name: 'approved', type: 'checkbox', label: '是否批准' },
               { name: 'comment', type: 'text', label: '审批意见' },
             ],
           },

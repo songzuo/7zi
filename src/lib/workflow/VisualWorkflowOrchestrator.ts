@@ -7,6 +7,8 @@
  * - 状态管理: pending, running, completed, failed
  * - 异步执行引擎
  * - 完整的生命周期管理
+ *
+ * @deprecated 请使用 WorkflowExecutor，它使用真实的节点执行器
  */
 
 import {
@@ -20,6 +22,14 @@ import {
   NodeExecutionResult,
   EdgeType,
 } from '@/types/workflow'
+import {
+  ExecutionContext,
+  createExecutionContext,
+  addLog,
+  calculateDuration,
+  ExecutionResult,
+} from './types'
+import { nodeExecutorRegistry } from './executors/registry'
 
 /**
  * 节点状态
@@ -52,7 +62,7 @@ export interface OrchestratorExecutionResult {
 }
 
 /**
- * 节点执行器接口
+ * 节点执行器接口（兼容旧接口）
  */
 export interface NodeExecutorHandler {
   /**
@@ -64,23 +74,6 @@ export interface NodeExecutorHandler {
    * 验证节点配置
    */
   validate(node: WorkflowNode): { valid: boolean; errors: string[] }
-}
-
-/**
- * 执行上下文
- */
-export interface ExecutionContext {
-  instanceId: string
-  workflowId: string
-  variables: Record<string, unknown>
-  inputs: Record<string, unknown>
-  outputs: Record<string, unknown>
-  parentResult?: unknown
-  logs: Array<{
-    level: 'info' | 'warn' | 'error'
-    message: string
-    timestamp: string
-  }>
 }
 
 /**
@@ -149,147 +142,69 @@ export class VisualWorkflowOrchestrator {
 
   /**
    * 注册默认执行器
+   * 现在使用真实的节点执行器注册表
    */
   private registerDefaultExecutors(): void {
-    // Start 节点执行器
-    this.registerExecutor(NodeType.START, {
-      execute: async (node, context) => {
-        const startTime = Date.now()
-        this.addLog(context, 'info', `Starting workflow: ${node.name}`)
+    // 使用 nodeExecutorRegistry 中的真实执行器进行注册
+    // 所有节点类型都通过注册表获取真实执行器
 
-        return {
-          success: true,
-          nodeId: node.id,
-          output: { message: 'Workflow started' },
-          duration: Date.now() - startTime,
-          logs: context.logs,
-        }
-      },
-      validate: () => ({
-        valid: true,
-        errors: [],
-      }),
-    })
+    // 注册一个通用的包装执行器，委托给 nodeExecutorRegistry
+    const registerAllFromRegistry = (nodeType: NodeType) => {
+      const executor = nodeExecutorRegistry.get(nodeType)
+      if (executor) {
+        this.registerExecutor(nodeType, {
+          execute: async (node, context) => {
+            const startTime = Date.now()
+            try {
+              // 创建执行上下文
+              const execContext = createExecutionContext(
+                context.instanceId,
+                context.workflowId,
+                node,
+                context.variables,
+                context.inputs,
+                context.outputs
+              )
 
-    // End 节点执行器
-    this.registerExecutor(NodeType.END, {
-      execute: async (node, context) => {
-        const startTime = Date.now()
-        this.addLog(context, 'info', `Ending workflow: ${node.name}`)
+              // 使用真实执行器
+              const result = await executor.execute(execContext)
 
-        return {
-          success: true,
-          nodeId: node.id,
-          output: { message: 'Workflow completed' },
-          duration: Date.now() - startTime,
-          logs: context.logs,
-        }
-      },
-      validate: () => ({
-        valid: true,
-        errors: [],
-      }),
-    })
-
-    // Task 节点执行器
-    this.registerExecutor(NodeType.AGENT, {
-      execute: async (node, context) => {
-        const startTime = Date.now()
-        this.addLog(context, 'info', `Executing task node: ${node.name}`)
-
-        // 模拟任务执行
-        await this.delay(100)
-
-        return {
-          success: true,
-          nodeId: node.id,
-          output: {
-            result: 'Task completed',
-            data: context.inputs,
+              return {
+                success: result.status === NodeStatus.SUCCESS,
+                nodeId: node.id,
+                output: result.output,
+                error: result.error,
+                duration: Date.now() - startTime,
+                logs: execContext.logs.map(log => ({
+                  level: log.level,
+                  message: log.message,
+                  timestamp: log.timestamp,
+                })),
+              }
+            } catch (error) {
+              return {
+                success: false,
+                nodeId: node.id,
+                error: {
+                  code: 'EXECUTION_FAILED',
+                  message: error instanceof Error ? error.message : 'Unknown error',
+                  stack: error instanceof Error ? error.stack : undefined,
+                },
+                duration: Date.now() - startTime,
+                logs: context.logs,
+              }
+            }
           },
-          duration: Date.now() - startTime,
-          logs: context.logs,
-        }
-      },
-      validate: node => ({
-        valid: true,
-        errors: [],
-      }),
-    })
+          validate: (node) => executor.validate(node),
+        })
+      }
+    }
 
-    // Condition 节点执行器
-    this.registerExecutor(NodeType.CONDITION, {
-      execute: async (node, context) => {
-        const startTime = Date.now()
-        this.addLog(context, 'info', `Evaluating condition: ${node.name}`)
-
-        const condition = node.conditionConfig?.expression || 'true'
-        const result = this.evaluateCondition(condition, context)
-
-        return {
-          success: true,
-          nodeId: node.id,
-          output: {
-            condition: result,
-            branch: result
-              ? node.conditionConfig?.trueLabel || 'true'
-              : node.conditionConfig?.falseLabel || 'false',
-          },
-          duration: Date.now() - startTime,
-          logs: context.logs,
-        }
-      },
-      validate: node => ({
-        valid: !!node.conditionConfig?.expression,
-        errors: node.conditionConfig?.expression ? [] : ['Condition expression is required'],
-      }),
-    })
-
-    // Parallel 节点执行器
-    this.registerExecutor(NodeType.PARALLEL, {
-      execute: async (node, context) => {
-        const startTime = Date.now()
-        this.addLog(context, 'info', `Starting parallel execution: ${node.name}`)
-
-        // 模拟并行执行
-        await this.delay(50)
-
-        return {
-          success: true,
-          nodeId: node.id,
-          output: { parallel: true },
-          duration: Date.now() - startTime,
-          logs: context.logs,
-        }
-      },
-      validate: node => ({
-        valid: true,
-        errors: [],
-      }),
-    })
-
-    // Wait 节点执行器
-    this.registerExecutor(NodeType.WAIT, {
-      execute: async (node, context) => {
-        const startTime = Date.now()
-        const duration = (node.waitConfig?.duration || 1) * 1000
-
-        this.addLog(context, 'info', `Waiting for ${node.waitConfig?.duration} seconds`)
-        await this.delay(duration)
-
-        return {
-          success: true,
-          nodeId: node.id,
-          output: { waited: duration },
-          duration: Date.now() - startTime,
-          logs: context.logs,
-        }
-      },
-      validate: node => ({
-        valid: !!node.waitConfig?.duration,
-        errors: node.waitConfig?.duration ? [] : ['Wait duration is required'],
-      }),
-    })
+    // 为所有已注册的节点类型注册执行器
+    const registeredTypes = nodeExecutorRegistry.getRegisteredTypes()
+    for (const nodeType of registeredTypes) {
+      registerAllFromRegistry(nodeType)
+    }
   }
 
   /**
@@ -609,6 +524,7 @@ export class VisualWorkflowOrchestrator {
     const context: ExecutionContext = {
       instanceId: instance.id,
       workflowId: workflow.id,
+      node,
       variables: instance.data.variables || {},
       inputs: instance.data.inputs || {},
       outputs: {},
@@ -811,3 +727,4 @@ export const visualWorkflowOrchestrator = new VisualWorkflowOrchestrator()
 
 // 导出类型
 export type { WorkflowNode, WorkflowEdge, WorkflowDefinition }
+export type { ExecutionContext } from './types'

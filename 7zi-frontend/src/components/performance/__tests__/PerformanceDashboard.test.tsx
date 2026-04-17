@@ -12,22 +12,22 @@ import { webVitalsMonitor, customMetricsTracker, budgetManager } from '@/lib/per
 // Mock performance modules
 jest.mock('@/lib/performance/web-vitals', () => ({
   webVitalsMonitor: {
-    getMetrics: jest.fn(),
-    isMetricGood: jest.fn(),
+    getMetrics: vi.fn(),
+    isMetricGood: vi.fn(),
   },
-  calculateWebVitalsScore: jest.fn(),
+  calculateWebVitalsScore: vi.fn(),
 }))
 
 jest.mock('@/lib/performance/custom-metrics', () => ({
   customMetricsTracker: {
-    getMetrics: jest.fn(),
+    getMetrics: vi.fn(),
   },
 }))
 
 jest.mock('@/lib/performance/budget-manager', () => ({
   budgetManager: {
-    calculateBudgetReport: jest.fn(),
-    getActiveNotifications: jest.fn(),
+    calculateBudgetReport: vi.fn(),
+    getActiveNotifications: vi.fn(),
   },
 }))
 
@@ -72,7 +72,7 @@ jest.mock('lucide-react', () => ({
 
 describe('PerformanceDashboard', () => {
   beforeEach(() => {
-    jest.clearAllMocks()
+    vi.clearAllMocks()
   })
 
   describe('Rendering', () => {

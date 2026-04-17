@@ -10,6 +10,8 @@ import {
   NodeType,
   WorkflowStatus,
   EdgeType,
+  LoopConfig,
+  SubWorkflowConfig,
 } from '@/types/workflow'
 
 /**
@@ -196,12 +198,10 @@ export class DSLParser {
       case NodeType.CONDITION:
         workflowNode.conditionConfig = this.extractConditionConfig(node, warnings)
         if (node.branches) {
-          workflowNode.config = {
-            ...workflowNode.config,
-            advancedCondition: {
-              branches: node.branches,
-              defaultBranch: node.defaultBranch,
-            },
+          // Cast to avoid type mismatch with AdvancedCondition which doesn't have branches
+          ;(workflowNode.config as Record<string, unknown>).advancedCondition = {
+            branches: node.branches,
+            defaultBranch: node.defaultBranch,
           }
         }
         break
@@ -211,22 +211,20 @@ export class DSLParser {
         break
 
       case NodeType.LOOP:
-        workflowNode.loopConfig = this.extractLoopConfig(node, warnings)
+        workflowNode.loopConfig = this.extractLoopConfig(node, warnings) as unknown as LoopConfig
         break
 
       case NodeType.SUBWORKFLOW:
-        workflowNode.subWorkflowConfig = this.extractSubWorkflowConfig(node, warnings)
+        workflowNode.subWorkflowConfig = this.extractSubWorkflowConfig(node, warnings) as unknown as SubWorkflowConfig
         break
 
       case NodeType.PARALLEL:
         if (node.branches) {
-          workflowNode.config = {
-            ...workflowNode.config,
-            parallel: {
-              branches: node.branches,
-              failureStrategy: node.failureStrategy || 'continue_on_error',
-              aggregationStrategy: node.aggregationStrategy || 'all',
-            },
+          // Cast to avoid type mismatch with ParallelConfig which doesn't have branches
+          ;(workflowNode.config as Record<string, unknown>).parallel = {
+            branches: node.branches,
+            failureStrategy: node.failureStrategy || 'continue_on_error',
+            aggregationStrategy: node.aggregationStrategy || 'all',
           }
         }
         break
@@ -567,24 +565,29 @@ export class DSLParser {
           }
           const nodeDef = trimmed.slice(1).trim()
           if (nodeDef.includes(':')) {
-            const [key, value] = nodeDef.split(':').map(s => s.trim())
             // Dynamic property assignment for DSL parsing
-            (currentNode as Record<string, unknown>)[key] = value
+            const colonIdx = nodeDef.indexOf(':')
+            const propKey = nodeDef.substring(0, colonIdx).trim()
+            const propVal = nodeDef.substring(colonIdx + 1).trim()
+            ;(currentNode as Record<string, unknown>)[propKey] = propVal
           }
         } else if (currentNode && currentIndent >= 4) {
           // 节点属性
-          const [key, ...valueParts] = trimmed.split(':')
-          const value = valueParts.join(':').trim()
+          const colonIdx = trimmed.indexOf(':')
+          const propKey = trimmed.substring(0, colonIdx).trim()
+          const propVal = this.parseYAMLValue(trimmed.substring(colonIdx + 1).trim())
           // Dynamic property assignment for DSL parsing
-          (currentNode as Record<string, unknown>)[key.trim()] = this.parseYAMLValue(value)
+          ;(currentNode as Record<string, unknown>)[propKey] = propVal
         }
       }
 
       // 变量部分
       if (currentSection === 'variables') {
         if (!result.variables) result.variables = {}
-        const [key, value] = trimmed.split(':').map(s => s.trim())
-        result.variables[key] = this.parseYAMLValue(value)
+        const colonIdx = trimmed.indexOf(':')
+        const varKey = trimmed.substring(0, colonIdx).trim()
+        const varVal = this.parseYAMLValue(trimmed.substring(colonIdx + 1).trim())
+        result.variables[varKey] = varVal
       }
     }
 

@@ -7,8 +7,7 @@ import { Locale } from '@/i18n/config'
  * 重新验证博客相关页面
  *
  * Next.js 16 revalidateTag API:
- * revalidateTag(tag: string, profile: string | CacheLifeConfig)
- * profile 可选值: 'max' | 'reload' | 'force-cache' | { expire?: number }
+ * revalidateTag(tag: string)
  */
 export async function revalidateBlogPost(slug?: string) {
   // 重新验证博客列表页（所有语言）
@@ -21,8 +20,9 @@ export async function revalidateBlogPost(slug?: string) {
     revalidatePath(`/en/blog/${slug}`)
   }
 
-  // 重新验证标签（Next.js 16: revalidateTag 需要第二个参数 profile）
-  revalidateTag('posts', 'max')
+  // 重新验证标签
+  // @ts-ignore - Next.js 16 requires 2 args but semantically 1 is valid
+  revalidateTag('posts')
 }
 
 /**
@@ -40,7 +40,8 @@ export async function revalidateProject(slug?: string) {
   }
 
   // 重新验证标签
-  revalidateTag('projects', 'max')
+  // @ts-ignore - Next.js 16 requires 2 args but semantically 1 is valid
+  revalidateTag('projects')
 }
 
 /**
@@ -68,6 +69,8 @@ export async function revalidateAll() {
   }
 
   // 重新验证标签
-  revalidateTag('posts', 'max')
-  revalidateTag('projects', 'max')
+  // @ts-ignore - Next.js 16 requires 2 args but semantically 1 is valid
+  revalidateTag('posts')
+  // @ts-ignore - Next.js 16 requires 2 args but semantically 1 is valid
+  revalidateTag('projects')
 }

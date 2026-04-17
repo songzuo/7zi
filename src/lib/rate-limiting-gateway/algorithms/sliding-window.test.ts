@@ -143,7 +143,9 @@ describe('SlidingWindow', () => {
       const status = await slidingWindow.getStatus(config.key, 60)
       expect(status).toBeDefined()
       expect(status.count).toBe(2)
-      expect(status.limit).toBe(10)
+      // SlidingWindowState doesn't have limit - that's in config, not state
+      expect(status.windowStart).toBeDefined()
+      expect(status.windowEnd).toBeDefined()
     })
 
     it('should reset window', async () => {
@@ -284,13 +286,15 @@ describe('MemorySlidingWindow', () => {
 
 describe('calculateOptimalPrecision', () => {
   it('should return appropriate precision for small windows', () => {
-    const precision = SlidingWindow['calculateOptimalPrecision'](60, 10)
+    const { calculateOptimalPrecision } = require('../algorithms/sliding-window')
+    const precision = calculateOptimalPrecision(60, 10)
     expect(precision).toBeGreaterThan(0)
     expect(precision).toBeLessThanOrEqual(10)
   })
 
   it('should return appropriate precision for large windows', () => {
-    const precision = SlidingWindow['calculateOptimalPrecision'](3600, 1000)
+    const { calculateOptimalPrecision } = require('../algorithms/sliding-window')
+    const precision = calculateOptimalPrecision(3600, 1000)
     expect(precision).toBeGreaterThan(0)
   })
 })

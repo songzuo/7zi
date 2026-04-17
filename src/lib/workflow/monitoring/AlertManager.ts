@@ -10,7 +10,7 @@ import {
   AlertType,
   WorkflowExecutionStatus,
 } from './types'
-import { NodeExecution } from './StepRecorder'
+import { NodeExecution } from './types'
 
 /**
  * 告警管理器

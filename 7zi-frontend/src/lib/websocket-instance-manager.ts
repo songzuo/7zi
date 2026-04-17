@@ -324,7 +324,7 @@ export class WebSocketInstanceManager {
       try {
         listener(event)
       } catch (error) {
-        logger.error('[WebSocketInstanceManager] Error in event listener:', error)
+        logger.error('[WebSocketInstanceManager] Error in event listener:', error as Error)
       }
     })
   }

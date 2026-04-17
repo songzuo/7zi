@@ -3,43 +3,43 @@
  * 全局错误处理器测试
  */
 
-import { describe, it, expect, jest, beforeEach, afterEach } from '@jest/globals'
+import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest'
 
 // Mock logger
-jest.mock('../../logger', () => ({
+vi.fn('../../logger', () => ({
   logger: {
-    info: jest.fn(),
-    warn: jest.fn(),
-    error: jest.fn(),
-    debug: jest.fn(),
+    info: vi.fn(),
+    warn: vi.fn(),
+    error: vi.fn(),
+    debug: vi.fn(),
   },
 }))
 
 // Mock modules
-jest.mock('../error-reporting', () => ({
+vi.fn('../error-reporting', () => ({
   errorReporting: {
-    init: jest.fn(),
-    updateConfig: jest.fn(),
-    reportJavaScriptError: jest.fn(),
-    reportError: jest.fn(),
+    init: vi.fn(),
+    updateConfig: vi.fn(),
+    reportJavaScriptError: vi.fn(),
+    reportError: vi.fn(),
   },
-  initErrorReporting: jest.fn(() => ({
-    init: jest.fn(),
-    updateConfig: jest.fn(),
+  initErrorReporting: vi.fn(() => ({
+    init: vi.fn(),
+    updateConfig: vi.fn(),
   })),
-  reportError: jest.fn(),
+  reportError: vi.fn(),
 }))
 
-jest.mock('../error-log-history', () => ({
+vi.fn('../error-log-history', () => ({
   errorLogHistory: {
-    init: jest.fn(),
-    add: jest.fn(),
+    init: vi.fn(),
+    add: vi.fn(),
   },
-  initErrorLogHistory: jest.fn(() => ({
-    init: jest.fn(),
-    add: jest.fn(),
+  initErrorLogHistory: vi.fn(() => ({
+    init: vi.fn(),
+    add: vi.fn(),
   })),
-  addErrorLog: jest.fn(),
+  addErrorLog: vi.fn(),
 }))
 
 describe('GlobalErrorHandler', () => {
@@ -47,7 +47,7 @@ describe('GlobalErrorHandler', () => {
   let globalErrorHandler: InstanceType<typeof GlobalErrorHandler>
 
   beforeEach(async () => {
-    jest.clearAllMocks()
+    vi.clearAllMocks()
 
     // Reset window event listeners
     if (typeof window !== 'undefined') {

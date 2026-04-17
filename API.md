@@ -4,8 +4,8 @@ Complete API documentation for the 7zi AI Team Management Platform.
 
 ---
 
-**Last Updated:** 2026-04-04
-**Version:** v1.12.2
+**Last Updated:** 2026-04-16
+**Version:** v1.14.0
 **Reviewer:** AI Documentation Agent
 **Total Endpoints:** 72 REST endpoints + 30+ WebSocket message types
 

@@ -453,16 +453,16 @@ export class TriggerManager extends EventEmitter {
   private createTriggerInstance(trigger: TriggerDefinition): ITrigger {
     switch (trigger.type) {
       case TriggerType.SCHEDULE:
-        return new ScheduleTrigger(trigger as TriggerDefinition<ScheduleTriggerConfig>)
+        return new ScheduleTrigger(trigger as TriggerDefinition)
 
       case TriggerType.EVENT:
-        return new EventTrigger(trigger as TriggerDefinition<EventTriggerConfig>)
+        return new EventTrigger(trigger as TriggerDefinition)
 
       case TriggerType.WEBHOOK:
-        return new WebhookTrigger(trigger as TriggerDefinition<WebhookTriggerConfig>)
+        return new WebhookTrigger(trigger as TriggerDefinition)
 
       case TriggerType.CRON:
-        return new CronTrigger(trigger as TriggerDefinition<CronTriggerConfig>)
+        return new CronTrigger(trigger as TriggerDefinition)
 
       default:
         throw new Error(`不支持的触发器类型: ${trigger.type}`)
@@ -506,13 +506,13 @@ export const triggerManager = new TriggerManager()
  * 定时触发器实现
  */
 class ScheduleTrigger implements ITrigger {
-  private trigger: TriggerDefinition<ScheduleTriggerConfig>
+  private trigger: TriggerDefinition
   private callback?: TriggerCallback
   private timer?: NodeJS.Timeout
   private isRunningFlag = false
   private isPausedFlag = false
 
-  constructor(trigger: TriggerDefinition<ScheduleTriggerConfig>) {
+  constructor(trigger: TriggerDefinition) {
     this.trigger = trigger
   }
 
@@ -572,13 +572,13 @@ class ScheduleTrigger implements ITrigger {
  * 事件触发器实现
  */
 class EventTrigger implements ITrigger {
-  private trigger: TriggerDefinition<EventTriggerConfig>
+  private trigger: TriggerDefinition
   private callback?: TriggerCallback
   private isRunningFlag = false
   private isPausedFlag = false
   private debounceTimer?: NodeJS.Timeout
 
-  constructor(trigger: TriggerDefinition<EventTriggerConfig>) {
+  constructor(trigger: TriggerDefinition) {
     this.trigger = trigger
   }
 
@@ -647,12 +647,12 @@ class EventTrigger implements ITrigger {
  * Webhook 触发器实现
  */
 class WebhookTrigger implements ITrigger {
-  private trigger: TriggerDefinition<WebhookTriggerConfig>
+  private trigger: TriggerDefinition
   private callback?: TriggerCallback
   private isRunningFlag = false
   private isPausedFlag = false
 
-  constructor(trigger: TriggerDefinition<WebhookTriggerConfig>) {
+  constructor(trigger: TriggerDefinition) {
     this.trigger = trigger
   }
 
@@ -726,13 +726,13 @@ class WebhookTrigger implements ITrigger {
  * Cron 触发器实现
  */
 class CronTrigger implements ITrigger {
-  private trigger: TriggerDefinition<CronTriggerConfig>
+  private trigger: TriggerDefinition
   private callback?: TriggerCallback
   private timer?: NodeJS.Timeout
   private isRunningFlag = false
   private isPausedFlag = false
 
-  constructor(trigger: TriggerDefinition<CronTriggerConfig>) {
+  constructor(trigger: TriggerDefinition) {
     this.trigger = trigger
   }
 
@@ -833,6 +833,4 @@ class CronTrigger implements ITrigger {
 /**
  * 泛型触发器定义类型
  */
-export type TriggerDefinition<T> = Omit<TriggerDefinition, 'config'> & {
-  config: T
-}
+// Generic type removed - was causing duplicate identifier error

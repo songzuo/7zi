@@ -10,7 +10,7 @@ import {
 } from '../context'
 import { generateTenantToken, verifyTenantToken } from '../middleware'
 import type { TenantUserContext } from '../types'
-import type { TenantMemberRole, TenantPlan, TenantStatus } from '../../../tenant/types'
+import { TenantMemberRole, TenantPlan, TenantStatus } from '../../../tenant/types'
 
 // Mock dependencies
 vi.mock('../../../db', () => ({
@@ -53,15 +53,15 @@ describe('TenantContextManager', () => {
   const mockContext: TenantUserContext = {
     userId: 'user_123',
     email: 'test@example.com',
-    role: 'member',
+    role: TenantMemberRole.MEMBER,
     roles: [],
     permissions: ['perm_users_read', 'perm_users_write'],
     customPermissions: [],
     tenantId: 'tenant_123',
     tenantSlug: 'test-tenant',
-    tenantPlan: 'professional' as TenantPlan,
-    tenantStatus: 'active' as TenantStatus,
-    tenantRole: 'member' as TenantMemberRole,
+    tenantPlan: TenantPlan.PROFESSIONAL,
+    tenantStatus: TenantStatus.ACTIVE,
+    tenantRole: TenantMemberRole.MEMBER,
     isOwner: false,
     isAdmin: false,
   }
@@ -262,10 +262,10 @@ describe('TenantContextManager', () => {
       const baseContext = {
         tenantId: 'tenant_123',
         tenantSlug: 'test-tenant',
-        tenantPlan: 'professional' as TenantPlan,
-        tenantStatus: 'active' as TenantStatus,
+        tenantPlan: TenantPlan.PROFESSIONAL,
+        tenantStatus: TenantStatus.ACTIVE,
         userId: 'user_123',
-        userRole: 'admin' as TenantMemberRole,
+        userRole: TenantMemberRole.ADMIN,
         permissions: ['perm_users_read'],
       }
 
@@ -286,10 +286,10 @@ describe('TenantContextManager', () => {
       const baseContext = {
         tenantId: 'tenant_123',
         tenantSlug: 'test-tenant',
-        tenantPlan: 'professional' as TenantPlan,
-        tenantStatus: 'active' as TenantStatus,
+        tenantPlan: TenantPlan.PROFESSIONAL,
+        tenantStatus: TenantStatus.ACTIVE,
         userId: 'user_123',
-        userRole: 'owner' as TenantMemberRole,
+        userRole: TenantMemberRole.OWNER,
         permissions: [],
       }
 
@@ -311,8 +311,8 @@ describe('TenantContextManager', () => {
         email: 'payload@example.com',
         tenantId: 'tenant_456',
         tenantSlug: 'payload-tenant',
-        tenantPlan: 'enterprise' as TenantPlan,
-        tenantRole: 'owner' as TenantMemberRole,
+        tenantPlan: TenantPlan.ENTERPRISE,
+        tenantRole: TenantMemberRole.OWNER,
         permissions: ['perm_agents_read'],
         roles: [],
         customPermissions: [],
@@ -332,15 +332,15 @@ describe('Token Generation and Verification', () => {
   const mockContext: TenantUserContext = {
     userId: 'user_123',
     email: 'test@example.com',
-    role: 'member',
+    role: TenantMemberRole.MEMBER,
     roles: [],
     permissions: ['perm_users_read'],
     customPermissions: [],
     tenantId: 'tenant_123',
     tenantSlug: 'test-tenant',
-    tenantPlan: 'professional' as TenantPlan,
-    tenantStatus: 'active' as TenantStatus,
-    tenantRole: 'member' as TenantMemberRole,
+    tenantPlan: TenantPlan.PROFESSIONAL,
+    tenantStatus: TenantStatus.ACTIVE,
+    tenantRole: TenantMemberRole.MEMBER,
     isOwner: false,
     isAdmin: false,
   }
@@ -395,15 +395,15 @@ describe('Type exports', () => {
     const context: TenantUserContext = {
       userId: 'test',
       email: 'test@example.com',
-      role: 'member',
+      role: TenantMemberRole.MEMBER,
       roles: [],
       permissions: [],
       customPermissions: [],
       tenantId: 'tenant',
       tenantSlug: 'test',
-      tenantPlan: 'professional',
-      tenantStatus: 'active',
-      tenantRole: 'member',
+      tenantPlan: TenantPlan.PROFESSIONAL,
+      tenantStatus: TenantStatus.ACTIVE,
+      tenantRole: TenantMemberRole.MEMBER,
       isOwner: false,
       isAdmin: false,
     }

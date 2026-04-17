@@ -28,6 +28,10 @@ vi.mock('@/lib/auth/api-auth', () => ({
   })),
 }))
 
+vi.mock('@/lib/middleware/csrf', () => ({
+  withCSRF: (handler: Function) => handler,
+}))
+
 // Import mocked modules after vi.mock calls
 import { notificationService } from '@/lib/services/notification'
 import { authenticateJWT } from '@/lib/auth/api-auth'
@@ -51,7 +55,7 @@ describe('Notification Detail API - GET /api/notifications/[id]', () => {
       method: 'GET',
     })
 
-    const response = await GET(request, { params: { id: 'notif-1' } })
+    const response = await GET(request, { params: Promise.resolve({ id: 'notif-1' }) })
     const data = await response.json()
 
     expect(response.status).toBe(200)
@@ -66,7 +70,7 @@ describe('Notification Detail API - GET /api/notifications/[id]', () => {
       method: 'GET',
     })
 
-    const response = await GET(request, { params: { id: 'notif-1' } })
+    const response = await GET(request, { params: Promise.resolve({ id: 'notif-1' }) })
     const data = await response.json()
 
     expect(response.status).toBe(401)
@@ -82,7 +86,7 @@ describe('Notification Detail API - GET /api/notifications/[id]', () => {
       method: 'GET',
     })
 
-    const response = await GET(request, { params: { id: 'notif-1' } })
+    const response = await GET(request, { params: Promise.resolve({ id: 'notif-1' }) })
     const data = await response.json()
 
     expect(response.status).toBe(403)
@@ -104,7 +108,7 @@ describe('Notification Detail API - GET /api/notifications/[id]', () => {
       method: 'GET',
     })
 
-    const response = await GET(request, { params: { id: 'notif-1' } })
+    const response = await GET(request, { params: Promise.resolve({ id: 'notif-1' }) })
     const data = await response.json()
 
     expect(response.status).toBe(200)
@@ -118,7 +122,7 @@ describe('Notification Detail API - GET /api/notifications/[id]', () => {
       method: 'GET',
     })
 
-    const response = await GET(request, { params: { id: 'notif-1' } })
+    const response = await GET(request, { params: Promise.resolve({ id: 'notif-1' }) })
     const data = await response.json()
 
     expect(response.status).toBe(404)
@@ -146,7 +150,7 @@ describe('Notification Detail API - PATCH /api/notifications/[id]', () => {
       body: JSON.stringify({ read: true }),
     })
 
-    const response = await PATCH(request, { params: { id: 'notif-1' } })
+    const response = await PATCH(request, { params: Promise.resolve({ id: 'notif-1' }) })
     const data = await response.json()
 
     expect(response.status).toBe(200)
@@ -162,7 +166,7 @@ describe('Notification Detail API - PATCH /api/notifications/[id]', () => {
       body: JSON.stringify({ read: true }),
     })
 
-    const response = await PATCH(request, { params: { id: 'notif-1' } })
+    const response = await PATCH(request, { params: Promise.resolve({ id: 'notif-1' }) })
     const data = await response.json()
 
     expect(response.status).toBe(401)
@@ -178,7 +182,7 @@ describe('Notification Detail API - PATCH /api/notifications/[id]', () => {
       body: JSON.stringify({ read: true }),
     })
 
-    const response = await PATCH(request, { params: { id: 'notif-1' } })
+    const response = await PATCH(request, { params: Promise.resolve({ id: 'notif-1' }) })
     const data = await response.json()
 
     expect(response.status).toBe(403)
@@ -205,7 +209,7 @@ describe('Notification Detail API - DELETE /api/notifications/[id]', () => {
       method: 'DELETE',
     })
 
-    const response = await DELETE(request, { params: { id: 'notif-1' } })
+    const response = await DELETE(request, { params: Promise.resolve({ id: 'notif-1' }) })
     const data = await response.json()
 
     expect(response.status).toBe(200)
@@ -220,7 +224,7 @@ describe('Notification Detail API - DELETE /api/notifications/[id]', () => {
       method: 'DELETE',
     })
 
-    const response = await DELETE(request, { params: { id: 'notif-1' } })
+    const response = await DELETE(request, { params: Promise.resolve({ id: 'notif-1' }) })
     const data = await response.json()
 
     expect(response.status).toBe(401)
@@ -235,7 +239,7 @@ describe('Notification Detail API - DELETE /api/notifications/[id]', () => {
       method: 'DELETE',
     })
 
-    const response = await DELETE(request, { params: { id: 'notif-1' } })
+    const response = await DELETE(request, { params: Promise.resolve({ id: 'notif-1' }) })
     const data = await response.json()
 
     expect(response.status).toBe(403)

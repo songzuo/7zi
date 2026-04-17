@@ -33,7 +33,7 @@ describe('/api/ratings/[id]/helpful', () => {
         }
       )
 
-      const response = await POST(request, { params: { id: 'rating-123' } })
+      const response = await POST(request, { params: Promise.resolve({ id: 'rating-123' }) })
 
       // May fail due to database not being available in test environment
       expect([200, 404, 500]).toContain(response.status)
@@ -58,7 +58,7 @@ describe('/api/ratings/[id]/helpful', () => {
         }
       )
 
-      const response = await POST(request, { params: { id: 'rating-456' } })
+      const response = await POST(request, { params: Promise.resolve({ id: 'rating-456' }) })
 
       expect([200, 404, 500]).toContain(response.status)
       if (response.status === 200) {
@@ -80,7 +80,7 @@ describe('/api/ratings/[id]/helpful', () => {
         }
       )
 
-      const response = await POST(request, { params: { id: 'rating-789' } })
+      const response = await POST(request, { params: Promise.resolve({ id: 'rating-789' }) })
       const data = await response.json()
 
       expect(response.status).toBe(400)
@@ -101,7 +101,7 @@ describe('/api/ratings/[id]/helpful', () => {
         }
       )
 
-      const response = await POST(request, { params: { id: 'rating-abc' } })
+      const response = await POST(request, { params: Promise.resolve({ id: 'rating-abc' }) })
       const data = await response.json()
 
       expect(response.status).toBe(400)
@@ -122,7 +122,7 @@ describe('/api/ratings/[id]/helpful', () => {
         }
       )
 
-      const response = await POST(request, { params: { id: 'rating-xyz' } })
+      const response = await POST(request, { params: Promise.resolve({ id: 'rating-xyz' }) })
       const data = await response.json()
 
       expect(response.status).toBe(400)
@@ -145,7 +145,7 @@ describe('/api/ratings/[id]/helpful', () => {
         }
       )
 
-      const response = await POST(request, { params: { id: 'non-existent' } })
+      const response = await POST(request, { params: Promise.resolve({ id: 'non-existent' }) })
       const data = await response.json()
 
       expect([404, 500]).toContain(response.status)
@@ -166,7 +166,7 @@ describe('/api/ratings/[id]/helpful', () => {
         }
       )
 
-      const response = await POST(request, { params: { id: 'rating-123' } })
+      const response = await POST(request, { params: Promise.resolve({ id: 'rating-123' }) })
       const data = await response.json()
 
       expect(response.status).toBe(400)
@@ -183,7 +183,7 @@ describe('/api/ratings/[id]/helpful', () => {
         }
       )
 
-      const response = await POST(request, { params: { id: 'rating-123' } })
+      const response = await POST(request, { params: Promise.resolve({ id: 'rating-123' }) })
       const data = await response.json()
 
       expect([400, 500]).toContain(response.status)
@@ -204,7 +204,7 @@ describe('/api/ratings/[id]/helpful', () => {
         }
       )
 
-      const response = await POST(request, { params: { id: 'rating-123' } })
+      const response = await POST(request, { params: Promise.resolve({ id: 'rating-123' }) })
 
       expect([200, 400, 404, 500]).toContain(response.status)
     })
@@ -223,7 +223,7 @@ describe('/api/ratings/[id]/helpful', () => {
         }
       )
 
-      const response = await POST(request, { params: { id: 'rating-123' } })
+      const response = await POST(request, { params: Promise.resolve({ id: 'rating-123' }) })
 
       expect([200, 400, 404, 500]).toContain(response.status)
     })
@@ -242,7 +242,7 @@ describe('/api/ratings/[id]/helpful', () => {
         }
       )
 
-      const response = await POST(request, { params: { id: 'rating-123' } })
+      const response = await POST(request, { params: Promise.resolve({ id: 'rating-123' }) })
 
       expect(response.headers.get('content-type')).toContain('application/json')
     })
@@ -263,7 +263,7 @@ describe('/api/ratings/[id]/helpful', () => {
         }
       )
 
-      const response = await POST(request, { params: { id: 'rating-123' } })
+      const response = await POST(request, { params: Promise.resolve({ id: 'rating-123' }) })
 
       if (response.status === 200) {
         const data = await response.json()
@@ -286,7 +286,7 @@ describe('/api/ratings/[id]/helpful', () => {
         body: requestBody,
       })
 
-      const response = await POST(request, { params: { id: '' } })
+      const response = await POST(request, { params: Promise.resolve({ id: '' }) })
 
       expect([200, 404, 500]).toContain(response.status)
     })
@@ -305,7 +305,7 @@ describe('/api/ratings/[id]/helpful', () => {
         }
       )
 
-      const response = await POST(request, { params: { id: 'rating-123_abc@xyz' } })
+      const response = await POST(request, { params: Promise.resolve({ id: 'rating-123_abc@xyz' }) })
 
       expect([200, 404, 500]).toContain(response.status)
     })
@@ -323,7 +323,7 @@ describe('/api/ratings/[id]/helpful', () => {
         body: requestBody,
       })
 
-      const response = await POST(request, { params: { id: longId } })
+      const response = await POST(request, { params: Promise.resolve({ id: longId }) })
 
       expect([200, 404, 500]).toContain(response.status)
     })

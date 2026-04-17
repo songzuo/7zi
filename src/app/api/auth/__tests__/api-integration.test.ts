@@ -16,7 +16,7 @@ describe('Auth API Integration Tests', () => {
       // Mock responses for testing
       if (req.url === '/api/auth/token' && req.method === 'POST') {
         let body = ''
-        req.on('data', chunk => { body += chunk.toString() })
+        req.on('data', (chunk: Buffer) => { body += chunk.toString() })
         req.on('end', () => {
           const data = JSON.parse(body)
           

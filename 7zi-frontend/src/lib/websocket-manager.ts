@@ -16,8 +16,7 @@
  * 更新日期: 2026-04-04 (v1.12.2 增强版)
  */
 
-// 动态导入 socket.io-client 以减少初始 bundle 大小
-import type { Socket } from 'socket.io-client'
+import { io, Socket } from 'socket.io-client'
 import { logger } from '@/lib/logger'
 import { monitor } from '@/lib/monitoring'
 import { customMetricsTracker } from '@/lib/performance'
@@ -220,6 +219,8 @@ export class WebSocketManager {
       stabilityScore: 100,
       packetLossEstimate: 0,
       qualityLevel: 'excellent',
+      overallScore: 100,
+      lastUpdated: Date.now(),
     },
   }
 
@@ -324,45 +325,26 @@ export class WebSocketManager {
     const connectStartTime = Date.now()
 
     try {
-      // 动态导入 socket.io-client 以减少初始 bundle 大小
-      import('socket.io-client').then(({ io }) => {
-        this.socket = io(this.options.url, {
-          transports: this.options.transports,
-          reconnection: false, // We handle reconnection ourselves
-          auth: this.options.auth,
-        })
-
-        // 监听连接成功事件以追踪连接时间
-        this.socket.on('connect', () => {
-          const connectTime = Date.now() - connectStartTime
-
-          // 记录连接时间指标
-          monitor.trackCustomMetric('websocket_connect_time', connectTime, 'ms', {
-            url: this.options.url,
-            attempts: this.reconnectionAttempts + 1,
-          })
-
-          logger.info(`[WebSocketManager] Connected in ${connectTime}ms`)
-        })
-
-        this.setupSocketListeners()
-      }).catch((error) => {
-        logger.error(
-          '[WebSocketManager] Failed to import socket.io-client:',
-          error instanceof Error ? error : undefined
-        )
-
-        // 记录连接错误
-        monitor.trackError(
-          'WebSocketImportError',
-          error instanceof Error ? error.message : String(error),
-          error instanceof Error ? error.stack : undefined,
-          { url: this.options.url }
-        )
-
-        this.setState(ConnectionState.ERROR)
-        this.scheduleReconnection()
+      this.socket = io(this.options.url, {
+        transports: this.options.transports,
+        reconnection: false, // We handle reconnection ourselves
+        auth: this.options.auth,
       })
+
+      // 监听连接成功事件以追踪连接时间
+      this.socket.on('connect', () => {
+        const connectTime = Date.now() - connectStartTime
+
+        // 记录连接时间指标
+        monitor.trackCustomMetric('websocket_connect_time', connectTime, 'ms', {
+          url: this.options.url,
+          attempts: this.reconnectionAttempts + 1,
+        })
+
+        logger.info(`[WebSocketManager] Connected in ${connectTime}ms`)
+      })
+
+      this.setupSocketListeners()
     } catch (error) {
       // This catch is for any synchronous errors during import setup
       logger.error(
@@ -766,13 +748,13 @@ export class WebSocketManager {
     })
 
     this.socket.on('connect_error', error => {
-      logger.error('[WebSocketManager] Connection error:', error)
+      logger.error('[WebSocketManager] Connection error:', error as Error)
       this.setState(ConnectionState.ERROR)
       this.scheduleReconnection()
     })
 
     this.socket.on('error', error => {
-      logger.error('[WebSocketManager] Socket error:', error)
+      logger.error('[WebSocketManager] Socket error:', error as Error)
     })
 
     // Handle pong response
@@ -1350,7 +1332,7 @@ export class WebSocketManager {
             triggerLevel: config.triggerLevel,
           })
         } catch (error) {
-          logger.error('[WebSocketManager] Error in quality alert callback:', error)
+          logger.error('[WebSocketManager] Error in quality alert callback:', error as Error)
         }
       }
     } else if (config.onRecovered) {
@@ -1366,7 +1348,7 @@ export class WebSocketManager {
             overallScore: quality.overallScore,
           })
         } catch (error) {
-          logger.error('[WebSocketManager] Error in quality recovered callback:', error)
+          logger.error('[WebSocketManager] Error in quality recovered callback:', error as Error)
         }
       }
     }
@@ -1427,7 +1409,7 @@ export class WebSocketManager {
         JSON.stringify(state)
       )
     } catch (error) {
-      logger.error('[WebSocketManager] Failed to persist state:', error)
+      logger.error('[WebSocketManager] Failed to persist state:', error as Error)
     }
   }
 
@@ -1467,7 +1449,7 @@ export class WebSocketManager {
         url: this.options.url,
       })
     } catch (error) {
-      logger.error('[WebSocketManager] Failed to load persisted state:', error)
+      logger.error('[WebSocketManager] Failed to load persisted state:', error as Error)
     }
   }
 }

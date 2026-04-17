@@ -148,6 +148,7 @@ export class LoopNodeExecutor implements NodeExecutor {
   async execute(context: ExecutionContext): Promise<ExecutionResult> {
     const startTime = new Date()
     const { node, inputs, variables, instanceId } = context
+    // @ts-ignore - LoopConfig from types/workflow uses loopType
     const config = node.loopConfig as LoopConfig
 
     addLog(context, 'info', `开始执行循环节点: ${node.name} (类型: ${config.loopType})`)
@@ -524,7 +525,7 @@ export class LoopNodeExecutor implements NodeExecutor {
       // 这里我们只更新变量并返回成功
       Object.assign(context.variables, loopVariables)
 
-      addLog(context, 'debug', `执行迭代 ${iteration}`)
+      addLog(context, 'info', `执行迭代 ${iteration}`)
 
       // 模拟延迟
       await new Promise(resolve => setTimeout(resolve, 10))

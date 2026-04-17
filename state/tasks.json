@@ -1,45 +1,45 @@
 {
   "tasks": [
     {
-      "id": "system-monitoring-1775908801",
+      "id": "system-monitoring-1776362402",
       "description": "系统资源监控和健康检查",
       "type": "monitoring",
       "priority": 3,
       "status": "completed",
-      "created_at": "2026-04-11T14:00:01.305662",
-      "started_at": "2026-04-11T14:00:01.338784",
-      "completed_at": "2026-04-11T14:00:09.161119",
+      "created_at": "2026-04-16T20:00:02.301242",
+      "started_at": "2026-04-16T20:00:02.503725",
+      "completed_at": "2026-04-16T20:00:08.640852",
       "progress": 100,
       "steps": [
         {
           "name": "系统资源收集",
           "status": "completed",
-          "updated_at": "2026-04-11T14:00:02.377792"
+          "updated_at": "2026-04-16T20:00:03.539649"
         },
         {
           "name": "进程监控",
           "status": "completed",
-          "updated_at": "2026-04-11T14:00:04.424433"
+          "updated_at": "2026-04-16T20:00:04.546449"
         },
         {
           "name": "磁盘空间分析",
           "status": "completed",
-          "updated_at": "2026-04-11T14:00:05.876962"
+          "updated_at": "2026-04-16T20:00:05.559606"
         },
         {
           "name": "内存使用分析",
           "status": "completed",
-          "updated_at": "2026-04-11T14:00:07.019361"
+          "updated_at": "2026-04-16T20:00:06.565127"
         },
         {
           "name": "网络连接检查",
           "status": "completed",
-          "updated_at": "2026-04-11T14:00:08.053995"
+          "updated_at": "2026-04-16T20:00:07.615495"
         },
         {
           "name": "生成报告",
           "status": "completed",
-          "updated_at": "2026-04-11T14:00:09.100192"
+          "updated_at": "2026-04-16T20:00:08.637466"
         }
       ],
       "resume_info": "",
@@ -48,5 +48,5 @@
     }
   ],
   "checkpoint": null,
-  "last_update": "2026-04-11T14:00:09.161137"
+  "last_update": "2026-04-16T20:00:08.640857"
 }

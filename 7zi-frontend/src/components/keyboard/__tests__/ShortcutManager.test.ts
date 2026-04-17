@@ -18,7 +18,7 @@ describe('ShortcutManager', () => {
         key: 'cmd+k',
         description: 'Test shortcut',
         category: 'navigation',
-        action: jest.fn(),
+        action: vi.fn(),
         enabled: true,
       };
 
@@ -34,7 +34,7 @@ describe('ShortcutManager', () => {
         key: 'cmd+k',
         description: 'First shortcut',
         category: 'navigation',
-        action: jest.fn(),
+        action: vi.fn(),
         enabled: true,
       };
 
@@ -42,7 +42,7 @@ describe('ShortcutManager', () => {
         key: 'cmd+k',
         description: 'Second shortcut',
         category: 'system',
-        action: jest.fn(),
+        action: vi.fn(),
         enabled: true,
       };
 
@@ -63,14 +63,14 @@ describe('ShortcutManager', () => {
           key: 'cmd+k',
           description: 'Search',
           category: 'navigation',
-          action: jest.fn(),
+          action: vi.fn(),
           enabled: true,
         },
         {
           key: 'cmd+s',
           description: 'Save',
           category: 'system',
-          action: jest.fn(),
+          action: vi.fn(),
           enabled: true,
         },
       ];
@@ -88,14 +88,14 @@ describe('ShortcutManager', () => {
           key: 'cmd+k',
           description: 'First',
           category: 'navigation',
-          action: jest.fn(),
+          action: vi.fn(),
           enabled: true,
         },
         {
           key: 'cmd+k',
           description: 'Second',
           category: 'system',
-          action: jest.fn(),
+          action: vi.fn(),
           enabled: true,
         },
       ];
@@ -113,7 +113,7 @@ describe('ShortcutManager', () => {
         key: 'cmd+k',
         description: 'Original',
         category: 'navigation',
-        action: jest.fn(),
+        action: vi.fn(),
         enabled: true,
       };
 
@@ -129,7 +129,7 @@ describe('ShortcutManager', () => {
         key: 'cmd+k',
         description: 'First',
         category: 'navigation',
-        action: jest.fn(),
+        action: vi.fn(),
         enabled: true,
       };
 
@@ -137,7 +137,7 @@ describe('ShortcutManager', () => {
         key: 'cmd+s',
         description: 'Second',
         category: 'system',
-        action: jest.fn(),
+        action: vi.fn(),
         enabled: true,
       };
 
@@ -157,7 +157,7 @@ describe('ShortcutManager', () => {
         key: 'cmd+k',
         description: 'Search',
         category: 'navigation',
-        action: jest.fn(),
+        action: vi.fn(),
         enabled: true,
       };
 
@@ -173,7 +173,7 @@ describe('ShortcutManager', () => {
         key: 'cmd+k',
         description: 'Search',
         category: 'navigation',
-        action: jest.fn(),
+        action: vi.fn(),
         enabled: true,
       };
 
@@ -181,7 +181,7 @@ describe('ShortcutManager', () => {
         key: 'cmd+s',
         description: 'Save',
         category: 'system',
-        action: jest.fn(),
+        action: vi.fn(),
         enabled: true,
       };
 
@@ -201,7 +201,7 @@ describe('ShortcutManager', () => {
         key: 'cmd+k',
         description: 'Open global search',
         category: 'navigation',
-        action: jest.fn(),
+        action: vi.fn(),
         enabled: true,
       });
 
@@ -209,7 +209,7 @@ describe('ShortcutManager', () => {
         key: 'cmd+s',
         description: 'Save document',
         category: 'system',
-        action: jest.fn(),
+        action: vi.fn(),
         enabled: true,
       });
     });
@@ -248,7 +248,7 @@ describe('ShortcutManager', () => {
         key: 'cmd+k',
         description: 'Search',
         category: 'navigation',
-        action: jest.fn(),
+        action: vi.fn(),
         enabled: true,
       };
 
@@ -273,7 +273,7 @@ describe('ShortcutManager', () => {
         key: 'cmd+k',
         description: 'Search',
         category: 'navigation',
-        action: jest.fn(),
+        action: vi.fn(),
         enabled: true,
       });
 
@@ -281,7 +281,7 @@ describe('ShortcutManager', () => {
         key: 'cmd+s',
         description: 'Save',
         category: 'system',
-        action: jest.fn(),
+        action: vi.fn(),
         enabled: true,
       });
 
@@ -289,7 +289,7 @@ describe('ShortcutManager', () => {
         key: 'cmd+n',
         description: 'New',
         category: 'navigation',
-        action: jest.fn(),
+        action: vi.fn(),
         enabled: true,
       });
     });
@@ -314,7 +314,7 @@ describe('ShortcutManager', () => {
         key: 'cmd+k',
         description: 'Search',
         category: 'navigation',
-        action: jest.fn(),
+        action: vi.fn(),
         enabled: false,
       };
 
@@ -329,7 +329,7 @@ describe('ShortcutManager', () => {
         key: 'cmd+k',
         description: 'Search',
         category: 'navigation',
-        action: jest.fn(),
+        action: vi.fn(),
         enabled: true,
       };
 
@@ -346,7 +346,7 @@ describe('ShortcutManager', () => {
         key: 'cmd+k',
         description: 'Search',
         category: 'navigation',
-        action: jest.fn(),
+        action: vi.fn(),
         enabled: true,
       });
 

@@ -14,7 +14,7 @@ const mockCache = {
 };
 
 const mockCaches = {
-  open: vi.fn().mockResolvedValue(mockCache),
+  open: vi.fn(),
   keys: vi.fn().mockResolvedValue([]),
   delete: vi.fn().mockResolvedValue(true),
 };
@@ -26,11 +26,15 @@ describe('CacheStrategyManager', () => {
 
   beforeEach(() => {
     vi.clearAllMocks();
+    // Reset global fetch mock
+    globalThis.fetch = vi.fn();
+    // Re-setup open to return mockCache for each test
+    mockCaches.open.mockResolvedValue(mockCache);
+    mockCache.match.mockResolvedValue(undefined);
+    mockCache.put.mockResolvedValue(undefined);
+    mockCache.delete.mockResolvedValue(undefined);
+    mockCache.keys.mockResolvedValue([]);
     manager = new CacheStrategyManager();
-  });
-
-  afterEach(() => {
-    vi.resetAllMocks();
   });
 
   describe('initializeDefaultConfigs', () => {
@@ -60,9 +64,10 @@ describe('CacheStrategyManager', () => {
     });
 
     it('returns default config for unknown URLs', () => {
+      // /unknown/path matches '/' pattern which is stale-while-revalidate
       const config = manager.getConfig('/unknown/path');
-      expect(config.strategy).toBe('network-first');
-      expect(config.maxAge).toBe(300);
+      expect(config.strategy).toBe('stale-while-revalidate');
+      expect(config.maxAge).toBe(600);
     });
   });
 
@@ -94,6 +99,19 @@ describe('CacheStrategyManager', () => {
 
       expect(response).toBe(networkResponse);
       expect(mockCache.put).toHaveBeenCalled();
+    });
+
+    it('returns null when cache returns null and network fails with null value', async () => {
+      mockCache.match.mockResolvedValue(undefined);
+      global.fetch = vi.fn().mockResolvedValue(new Response(null, { status: 500 }));
+
+      const request = new Request('https://example.com/static/test.js');
+      const config = manager.getConfig('/static/test.js');
+
+      const response = await manager.cacheFirst(request, config);
+
+      // Should still return the network response even if status is not ok
+      expect(response.status).toBe(500);
     });
   });
 
@@ -132,6 +150,17 @@ describe('CacheStrategyManager', () => {
       const config = manager.getConfig('/api/test');
 
       await expect(manager.networkFirst(request, config)).rejects.toThrow();
+    });
+
+    it('returns non-ok network response when cache miss', async () => {
+      mockCache.match.mockResolvedValue(undefined);
+      global.fetch = vi.fn().mockResolvedValue(new Response('error', { status: 500 }));
+
+      const request = new Request('https://example.com/api/test');
+      const config = manager.getConfig('/api/test');
+
+      const response = await manager.networkFirst(request, config);
+      expect(response.status).toBe(500);
     });
   });
 
@@ -179,6 +208,73 @@ describe('CacheStrategyManager', () => {
 
       expect(response).toBe(networkResponse);
     });
+
+    it('handles null cached response without throwing', async () => {
+      mockCache.match.mockResolvedValue(null);
+      const networkResponse = new Response('network data', { status: 200 });
+      global.fetch = vi.fn().mockResolvedValue(networkResponse);
+
+      const request = new Request('https://example.com/test');
+      const config = manager.getConfig('/test');
+
+      const response = await manager.staleWhileRevalidate(request, config);
+
+      expect(response).toBe(networkResponse);
+    });
+  });
+
+  describe('cacheOnly', () => {
+    it('returns cached response if available', async () => {
+      const cachedResponse = new Response('cached data', { status: 200 });
+      mockCache.match.mockResolvedValue(cachedResponse);
+
+      const request = new Request('https://example.com/test');
+      const config = manager.getConfig('/test');
+
+      const response = await manager.cacheOnly(request, config);
+
+      expect(response).toBe(cachedResponse);
+    });
+
+    it('throws error when no cache available', async () => {
+      mockCache.match.mockResolvedValue(undefined);
+
+      const request = new Request('https://example.com/test');
+      const config = manager.getConfig('/test');
+
+      await expect(manager.cacheOnly(request, config)).rejects.toThrow('No cached response available');
+    });
+
+    it('handles null cache response as cache miss', async () => {
+      mockCache.match.mockResolvedValue(null);
+
+      const request = new Request('https://example.com/test');
+      const config = manager.getConfig('/test');
+
+      await expect(manager.cacheOnly(request, config)).rejects.toThrow('No cached response available');
+    });
+  });
+
+  describe('networkOnly', () => {
+    it('fetches from network without caching', async () => {
+      const networkResponse = new Response('network data', { status: 200 });
+      global.fetch = vi.fn().mockResolvedValue(networkResponse);
+
+      const request = new Request('https://example.com/test');
+
+      const response = await manager.networkOnly(request);
+
+      expect(response).toBe(networkResponse);
+      expect(mockCache.put).not.toHaveBeenCalled();
+    });
+
+    it('throws error on network failure', async () => {
+      global.fetch = vi.fn().mockRejectedValue(new Error('Network error'));
+
+      const request = new Request('https://example.com/test');
+
+      await expect(manager.networkOnly(request)).rejects.toThrow('Network error');
+    });
   });
 
   describe('clearAllCaches', () => {
@@ -195,6 +291,14 @@ describe('CacheStrategyManager', () => {
       expect(mockCaches.delete).toHaveBeenCalledWith('7zi-dynamic-v1');
       expect(mockCaches.delete).not.toHaveBeenCalledWith('other-cache');
     });
+
+    it('handles empty cache list gracefully', async () => {
+      mockCaches.keys.mockResolvedValue([]);
+
+      await manager.clearAllCaches();
+
+      expect(mockCaches.delete).not.toHaveBeenCalled();
+    });
   });
 
   describe('preloadAssets', () => {
@@ -208,6 +312,64 @@ describe('CacheStrategyManager', () => {
       expect(mockCaches.open).toHaveBeenCalledWith('test-cache');
       expect(global.fetch).toHaveBeenCalledTimes(urls.length);
       expect(mockCache.put).toHaveBeenCalledTimes(urls.length);
+    });
+
+    it('handles preload with empty url list', async () => {
+      await manager.preloadAssets([], 'test-cache');
+
+      expect(mockCaches.open).toHaveBeenCalledWith('test-cache');
+      expect(global.fetch).not.toHaveBeenCalled();
+    });
+
+    it('handles preload when network fails for some assets', async () => {
+      const urls = ['/static/1.js', '/static/2.js'];
+      const successResponse = new Response('data', { status: 200 });
+      const failResponse = new Response('error', { status: 500 });
+      global.fetch = vi.fn()
+        .mockResolvedValueOnce(successResponse)
+        .mockResolvedValueOnce(failResponse);
+
+      await manager.preloadAssets(urls, 'test-cache');
+
+      expect(mockCaches.open).toHaveBeenCalledWith('test-cache');
+      // Only successful responses are cached
+      expect(mockCache.put).toHaveBeenCalledTimes(1);
+    });
+  });
+
+  describe('handleRequest', () => {
+    it('routes to cache-first for static assets', async () => {
+      // For cache-first, we need a valid cached response that is not expired
+      const now = Date.now();
+      const cachedResponse = new Response('cached data', {
+        headers: { 'sw-cached-at': now.toString() },
+      });
+      mockCache.match.mockResolvedValue(cachedResponse);
+
+      const request = new Request('https://example.com/static/test.js');
+      const response = await manager.handleRequest(request);
+
+      expect(response).toBe(cachedResponse);
+    });
+
+    it('routes to network-first for API calls', async () => {
+      const networkResponse = new Response('network data', { status: 200 });
+      globalThis.fetch = vi.fn().mockResolvedValue(networkResponse);
+
+      const request = new Request('https://example.com/api/test');
+      const response = await manager.handleRequest(request);
+
+      expect(response).toBe(networkResponse);
+    });
+
+    it('routes to stale-while-revalidate for root path', async () => {
+      const networkResponse = new Response('network data', { status: 200 });
+      globalThis.fetch = vi.fn().mockResolvedValue(networkResponse);
+
+      const request = new Request('https://example.com/');
+      const response = await manager.handleRequest(request);
+
+      expect(response).toBe(networkResponse);
     });
   });
 });

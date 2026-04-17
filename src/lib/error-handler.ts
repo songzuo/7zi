@@ -1,12 +1,12 @@
 /**
- * @fileoverview Error Handling Utilities
- * @description Error handling and display utilities using Toast notifications
+ * @fileoverview Server-Side Error Handling Utilities
+ * @description Error handling utilities for server-side code (API routes, server components).
+ *              For client-side error handling with toast notifications, use @/lib/error/client/error-handler
  */
 
-'use client'
+'use server'
 
 import React from 'react'
-import { toast } from '@/stores/uiStore'
 
 // ============================================================================
 // Types
@@ -143,7 +143,7 @@ export function getErrorTitle(error: Error | AppError): string {
 }
 
 // ============================================================================
-// Error Logging
+// Error Logging (Server-Safe)
 // ============================================================================
 
 function logToConsole(error: Error | AppError): void {
@@ -168,7 +168,7 @@ function logToConsole(error: Error | AppError): void {
 }
 
 async function logToServer(error: Error | AppError): Promise<void> {
-  if (typeof window === 'undefined') return
+  if (typeof window !== 'undefined') return
 
   try {
     const errorData = {
@@ -178,9 +178,7 @@ async function logToServer(error: Error | AppError): Promise<void> {
       severity: getErrorSeverity(error),
       code: (error as AppError).code,
       context: (error as AppError).context,
-      url: window.location.href,
       timestamp: new Date().toISOString(),
-      userAgent: navigator.userAgent,
     }
 
     console.log('[Error Logger]', 'Error data prepared for server:', errorData)
@@ -190,7 +188,7 @@ async function logToServer(error: Error | AppError): Promise<void> {
 }
 
 // ============================================================================
-// Error Handler
+// Error Handler (Server-Safe - No Toast)
 // ============================================================================
 
 function isRetryable(error: Error | AppError): boolean {
@@ -205,16 +203,20 @@ function isRetryable(error: Error | AppError): boolean {
   return category === 'network' || category === 'server'
 }
 
+/**
+ * Server-side error handler - logs errors but does NOT show toast
+ * For client-side with toast, use @/lib/error/client/error-handler
+ */
 export function handleError(
   error: Error | AppError,
   config: ErrorHandlerConfig = {},
   customMessage?: string
 ): void {
   const {
-    showNotification = true,
+    showNotification = false,  // Default to false for server
     logToConsole: doLogToConsole = true,
     logToServer: doLogToServer = true,
-    showToast = true,
+    showToast = false,  // Always false for server
   } = config
 
   if (doLogToConsole) {
@@ -227,23 +229,9 @@ export function handleError(
     })
   }
 
-  if (showNotification && showToast) {
-    const title = getErrorTitle(error)
-    const message = customMessage || getUserFriendlyMessage(error)
-    const severity = getErrorSeverity(error)
-
-    toast.error(message, title, {
-      priority: severity === 'critical' || severity === 'high' ? 'high' : 'medium',
-      duration: severity === 'critical' ? 0 : 5000,
-      action: isRetryable(error)
-        ? {
-            label: 'Retry',
-            onClick: () => {
-              console.log('[Error Handler] Retry requested')
-            },
-          }
-        : undefined,
-    })
+  // Server-side: no toast notifications
+  if (process.env.NODE_ENV === 'development') {
+    console.log('[Error Handler] Error handled (server mode, no toast):', customMessage || getUserFriendlyMessage(error))
   }
 }
 
@@ -264,7 +252,7 @@ export async function withErrorHandling<T>(
 }
 
 // ============================================================================
-// Error Boundary Component (HOC)
+// Error Boundary Component (Client-Side Only)
 // ============================================================================
 
 interface ErrorBoundaryWrapperProps {
@@ -272,10 +260,17 @@ interface ErrorBoundaryWrapperProps {
   onError?: (error: Error) => void
 }
 
+/**
+ * Error Boundary HOC - FOR CLIENT USE ONLY
+ * For server components, use error.tsx files instead
+ */
 export function withErrorBoundary<P extends object>(
   Component: React.ComponentType<P>,
   options: ErrorBoundaryWrapperProps = {}
 ): React.FC<P> {
+  // This is a client-side only component - imported dynamically
+  console.warn('[Error Handler] withErrorBoundary is client-side only')
+  
   return props => {
     const [error, setError] = React.useState<Error | null>(null)
 
