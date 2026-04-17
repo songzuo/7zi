@@ -28,7 +28,7 @@ describe('Workflow Version History API', () => {
       const mockUrl = `http://localhost:3000/api/workflows/${mockWorkflowId}/versions`
       const request = { url: mockUrl } as any
 
-      const response = await GET(request, { params: { workflowId: mockWorkflowId } })
+      const response = await GET(request, { params: Promise.resolve({ workflowId: mockWorkflowId }) })
       const data = await (response as any).json()
 
       expect(data).toHaveProperty('versions')
@@ -44,7 +44,7 @@ describe('Workflow Version History API', () => {
       const mockUrl = `http://localhost:3000/api/workflows/${mockWorkflowId}/versions?page=1&pageSize=2`
       const request = { url: mockUrl } as any
 
-      const response = await GET(request, { params: { workflowId: mockWorkflowId } })
+      const response = await GET(request, { params: Promise.resolve({ workflowId: mockWorkflowId }) })
       const data = await (response as any).json()
 
       expect(data.page).toBe(1)
@@ -57,7 +57,7 @@ describe('Workflow Version History API', () => {
       const mockUrl = `http://localhost:3000/api/workflows/${mockWorkflowId}/versions`
       const request = { url: mockUrl } as any
 
-      const response = await GET(request, { params: { workflowId: mockWorkflowId } })
+      const response = await GET(request, { params: Promise.resolve({ workflowId: mockWorkflowId }) })
       const data = await (response as any).json()
 
       const versions = data.versions as any[]
@@ -74,7 +74,7 @@ describe('Workflow Version History API', () => {
       const mockUrl = `http://localhost:3000/api/workflows/${mockWorkflowId}/versions?changeType=rollback`
       const request = { url: mockUrl } as any
 
-      const response = await GET(request, { params: { workflowId: mockWorkflowId } })
+      const response = await GET(request, { params: Promise.resolve({ workflowId: mockWorkflowId }) })
       const data = await (response as any).json()
 
       data.versions.forEach((version: any) => {

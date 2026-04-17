@@ -9,47 +9,47 @@ import { usePerformanceMonitoring, useCustomMetrics, usePerformanceMetrics } fro
 // Mock performance modules
 jest.mock('@/lib/performance/web-vitals', () => ({
   webVitalsMonitor: {
-    getMetrics: jest.fn().mockReturnValue({ LCP: 2500, CLS: 0.1, INP: 200 }),
-    isMetricGood: jest.fn().mockReturnValue(true),
+    getMetrics: vi.fn().mockReturnValue({ LCP: 2500, CLS: 0.1, INP: 200 }),
+    isMetricGood: vi.fn().mockReturnValue(true),
   },
-  initWebVitalsMonitoring: jest.fn(),
+  initWebVitalsMonitoring: vi.fn(),
   WebVitalsConfig: {},
 }))
 
 jest.mock('@/lib/performance/custom-metrics', () => ({
   customMetricsTracker: {
-    getMetrics: jest.fn().mockReturnValue({ pageLoadTime: 3000 }),
-    recordResponseTime: jest.fn(),
-    recordError: jest.fn(),
-    trackWebSocketLatency: jest.fn(),
-    init: jest.fn(),
-    stop: jest.fn(),
+    getMetrics: vi.fn().mockReturnValue({ pageLoadTime: 3000 }),
+    recordResponseTime: vi.fn(),
+    recordError: vi.fn(),
+    trackWebSocketLatency: vi.fn(),
+    init: vi.fn(),
+    stop: vi.fn(),
   },
-  initCustomMetricsTracking: jest.fn(),
+  initCustomMetricsTracking: vi.fn(),
 }))
 
 jest.mock('@/lib/performance/budget-manager', () => ({
   budgetManager: {
-    getMetrics: jest.fn().mockReturnValue({}),
-    calculateBudgetReport: jest.fn().mockReturnValue({}),
-    getActiveNotifications: jest.fn().mockReturnValue([]),
-    startPeriodicCheck: jest.fn(),
-    stopPeriodicCheck: jest.fn(),
+    getMetrics: vi.fn().mockReturnValue({}),
+    calculateBudgetReport: vi.fn().mockReturnValue({}),
+    getActiveNotifications: vi.fn().mockReturnValue([]),
+    startPeriodicCheck: vi.fn(),
+    stopPeriodicCheck: vi.fn(),
   },
-  initPerformanceBudget: jest.fn(),
+  initPerformanceBudget: vi.fn(),
 }))
 
 jest.mock('@/lib/monitoring', () => ({
   monitor: {
-    trackAPIRequest: jest.fn().mockResolvedValue(undefined),
-    trackError: jest.fn().mockResolvedValue(undefined),
-    trackCustomMetric: jest.fn().mockResolvedValue(undefined),
+    trackAPIRequest: vi.fn().mockResolvedValue(undefined),
+    trackError: vi.fn().mockResolvedValue(undefined),
+    trackCustomMetric: vi.fn().mockResolvedValue(undefined),
   },
 }))
 
 describe('usePerformanceMonitoring', () => {
   beforeEach(() => {
-    jest.clearAllMocks()
+    vi.clearAllMocks()
   })
 
   it('should initialize performance monitoring', async () => {
@@ -126,7 +126,7 @@ describe('usePerformanceMonitoring', () => {
 
 describe('useCustomMetrics', () => {
   beforeEach(() => {
-    jest.clearAllMocks()
+    vi.clearAllMocks()
   })
 
   it('should provide recordApiMetric function', () => {
@@ -203,7 +203,7 @@ describe('useCustomMetrics', () => {
 
 describe('usePerformanceMetrics', () => {
   beforeEach(() => {
-    jest.clearAllMocks()
+    vi.clearAllMocks()
   })
 
   it('should return webVitals and customMetrics', async () => {

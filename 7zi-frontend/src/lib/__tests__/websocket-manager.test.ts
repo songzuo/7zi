@@ -389,11 +389,10 @@ describe('WebSocketManager', () => {
 
       wsManager.connect()
 
-      const connectCallback = (mockSocket.on as Mock).mock.calls.find(
-        (call: [string, Function]) => call[0] === 'connect'
-      )
-      if (connectCallback) {
-        connectCallback[1]()
+      // Simulate the connect event
+      const connectHandler = eventHandlers.get('connect')
+      if (connectHandler) {
+        connectHandler()
       }
 
       expect(wsManager.isConnected()).toBe(true)

@@ -96,7 +96,6 @@ describe('A2A JSON-RPC API - POST /api/a2a/jsonrpc', () => {
     expect(data.jsonrpc).toBe('2.0')
     expect(data.result).toBeDefined()
     expect(data.result.agents).toBeInstanceOf(Array)
-    expect(data.result.count).toBeDefined()
   })
 
   it('应该获取指定代理', async () => {

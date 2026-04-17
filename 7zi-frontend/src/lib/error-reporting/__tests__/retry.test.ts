@@ -4,31 +4,31 @@
  */
 
 import { withRetry, withRetrySync, createRetryableFunction, retry, isRetryableError, DEFAULT_RETRYABLE_ERRORS } from './retry'
-import { describe, it, expect, jest, beforeEach, afterEach } from '@jest/globals'
+import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest'
 
 // Mock logger
-jest.mock('../logger', () => ({
+vi.mock('../logger', () => ({
   logger: {
-    debug: jest.fn(),
-    info: jest.fn(),
-    warn: jest.fn(),
-    error: jest.fn(),
+    debug: vi.fn(),
+    info: vi.fn(),
+    warn: vi.fn(),
+    error: vi.fn(),
   },
 }))
 
 describe('Retry Utility', () => {
   beforeEach(() => {
-    jest.clearAllMocks()
-    jest.useFakeTimers()
+    vi.clearAllMocks()
+    vi.useFakeTimers()
   })
 
   afterEach(() => {
-    jest.useRealTimers()
+    vi.useRealTimers()
   })
 
   describe('withRetry', () => {
     it('should succeed on first attempt', async () => {
-      const operation = jest.fn().mockResolvedValue('success')
+      const operation = vi.fn().mockResolvedValue('success')
 
       const result = await withRetry(operation)
 
@@ -39,7 +39,7 @@ describe('Retry Utility', () => {
     })
 
     it('should retry on failure and succeed', async () => {
-      const operation = jest.fn()
+      const operation = vi.fn()
         .mockRejectedValueOnce(new Error('Error 1'))
         .mockRejectedValueOnce(new Error('Error 2'))
         .mockResolvedValue('success')
@@ -53,7 +53,7 @@ describe('Retry Utility', () => {
     })
 
     it('should fail after max attempts', async () => {
-      const operation = jest.fn().mockRejectedValue(new Error('Always fails'))
+      const operation = vi.fn().mockRejectedValue(new Error('Always fails'))
 
       const result = await withRetry(operation, { maxAttempts: 3, initialDelay: 100 })
 
@@ -64,12 +64,12 @@ describe('Retry Utility', () => {
     })
 
     it('should use exponential backoff', async () => {
-      const operation = jest.fn()
+      const operation = vi.fn()
         .mockRejectedValueOnce(new Error('Error 1'))
         .mockRejectedValueOnce(new Error('Error 2'))
         .mockResolvedValue('success')
 
-      const onRetry = jest.fn()
+      const onRetry = vi.fn()
       const result = await withRetry(operation, {
         maxAttempts: 3,
         initialDelay: 100,
@@ -84,11 +84,11 @@ describe('Retry Utility', () => {
     })
 
     it('should add jitter to delay', async () => {
-      const operation = jest.fn()
+      const operation = vi.fn()
         .mockRejectedValueOnce(new Error('Error'))
         .mockResolvedValue('success')
 
-      const onRetry = jest.fn()
+      const onRetry = vi.fn()
       const result = await withRetry(operation, {
         maxAttempts: 2,
         initialDelay: 1000,
@@ -104,11 +104,11 @@ describe('Retry Utility', () => {
     })
 
     it('should call onRetry callback', async () => {
-      const operation = jest.fn()
+      const operation = vi.fn()
         .mockRejectedValueOnce(new Error('Error'))
         .mockResolvedValue('success')
 
-      const onRetry = jest.fn()
+      const onRetry = vi.fn()
       await withRetry(operation, { maxAttempts: 2, onRetry })
 
       expect(onRetry).toHaveBeenCalledTimes(1)
@@ -116,8 +116,8 @@ describe('Retry Utility', () => {
     })
 
     it('should call onComplete callback', async () => {
-      const operation = jest.fn()
-      const onComplete = jest.fn()
+      const operation = vi.fn()
+      const onComplete = vi.fn()
 
       // Success case
       operation.mockResolvedValue('success')
@@ -134,7 +134,7 @@ describe('Retry Utility', () => {
     })
 
     it('should respect custom shouldRetry', async () => {
-      const operation = jest.fn()
+      const operation = vi.fn()
         .mockRejectedValueOnce(new Error('Retryable error'))
         .mockRejectedValueOnce(new Error('Non-retryable error'))
 
@@ -149,7 +149,7 @@ describe('Retry Utility', () => {
     })
 
     it('should abort when signal is aborted', async () => {
-      const operation = jest.fn().mockImplementation(() => new Promise(() => {}))
+      const operation = vi.fn().mockImplementation(() => new Promise(() => {}))
       const controller = new AbortController()
 
       const promise = withRetry(operation, { signal: controller.signal })
@@ -159,7 +159,7 @@ describe('Retry Utility', () => {
     })
 
     it('should handle network errors correctly', async () => {
-      const operation = jest.fn()
+      const operation = vi.fn()
         .mockRejectedValueOnce(new Error('ECONNRESET'))
         .mockResolvedValue('success')
 
@@ -172,7 +172,7 @@ describe('Retry Utility', () => {
 
   describe('withRetrySync', () => {
     it('should succeed on first attempt', () => {
-      const operation = jest.fn().mockReturnValue('success')
+      const operation = vi.fn().mockReturnValue('success')
 
       const result = withRetrySync(operation)
 
@@ -182,7 +182,7 @@ describe('Retry Utility', () => {
     })
 
     it('should retry on failure and succeed', () => {
-      const operation = jest.fn()
+      const operation = vi.fn()
         .mockImplementationOnce(() => { throw new Error('Error 1') })
         .mockImplementationOnce(() => { throw new Error('Error 2') })
         .mockReturnValue('success')
@@ -195,7 +195,7 @@ describe('Retry Utility', () => {
     })
 
     it('should fail after max attempts', () => {
-      const operation = jest.fn().mockImplementation(() => { throw new Error('Always fails') })
+      const operation = vi.fn().mockImplementation(() => { throw new Error('Always fails') })
 
       const result = withRetrySync(operation, { maxAttempts: 3 })
 
@@ -207,7 +207,7 @@ describe('Retry Utility', () => {
 
   describe('createRetryableFunction', () => {
     it('should create a function that retries', async () => {
-      const fn = jest.fn()
+      const fn = vi.fn()
         .mockRejectedValueOnce(new Error('Error'))
         .mockResolvedValue('success')
 

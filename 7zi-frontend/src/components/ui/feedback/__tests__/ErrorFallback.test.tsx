@@ -16,21 +16,21 @@ import {
 // Mock logger
 jest.mock('@/lib/logger', () => ({
   logger: {
-    info: jest.fn(),
-    warn: jest.fn(),
-    error: jest.fn(),
-    debug: jest.fn(),
+    info: vi.fn(),
+    warn: vi.fn(),
+    error: vi.fn(),
+    debug: vi.fn(),
   },
 }))
 
 // Mock addErrorLog
 jest.mock('@/lib/error-reporting/error-log-history', () => ({
-  addErrorLog: jest.fn().mockResolvedValue(undefined),
+  addErrorLog: vi.fn().mockResolvedValue(undefined),
 }))
 
 // Mock withRetry
 jest.mock('@/lib/error-reporting/retry', () => ({
-  withRetry: jest.fn(),
+  withRetry: vi.fn(),
 }))
 
 describe('ErrorFallback Components', () => {
@@ -41,13 +41,13 @@ describe('ErrorFallback Components', () => {
 
   describe('SimpleErrorFallback', () => {
     it('should render error message', () => {
-      render(<SimpleErrorFallback error={mockError} errorInfo={mockErrorInfo} resetError={jest.fn()} />)
+      render(<SimpleErrorFallback error={mockError} errorInfo={mockErrorInfo} resetError={vi.fn()} />)
 
       expect(screen.getByText('Something went wrong')).toBeInTheDocument()
     })
 
     it('should call resetError when Try Again is clicked', () => {
-      const resetError = jest.fn()
+      const resetError = vi.fn()
       render(<SimpleErrorFallback error={mockError} errorInfo={mockErrorInfo} resetError={resetError} />)
 
       const tryAgainButton = screen.getByText('Try Again')
@@ -63,7 +63,7 @@ describe('ErrorFallback Components', () => {
         <FullErrorFallback
           error={mockError}
           errorInfo={mockErrorInfo}
-          resetError={jest.fn()}
+          resetError={vi.fn()}
           config={{ title: 'Custom Title', message: 'Custom message' }}
         />
       )
@@ -77,7 +77,7 @@ describe('ErrorFallback Components', () => {
         <FullErrorFallback
           error={mockError}
           errorInfo={mockErrorInfo}
-          resetError={jest.fn()}
+          resetError={vi.fn()}
           config={{ showErrorDetails: true }}
         />
       )
@@ -90,14 +90,14 @@ describe('ErrorFallback Components', () => {
     })
 
     it('should copy error when Copy button is clicked', async () => {
-      const mockWriteText = jest.fn().mockResolvedValue(undefined)
+      const mockWriteText = vi.fn().mockResolvedValue(undefined)
       Object.assign(navigator, { clipboard: { writeText: mockWriteText } })
 
       render(
         <FullErrorFallback
           error={mockError}
           errorInfo={mockErrorInfo}
-          resetError={jest.fn()}
+          resetError={vi.fn()}
           config={{ showErrorDetails: true }}
         />
       )
@@ -119,8 +119,8 @@ describe('ErrorFallback Components', () => {
 
     it('should call onRetry and resetError when retry button is clicked', async () => {
       const { withRetry } = require('@/lib/error-reporting/retry')
-      const resetError = jest.fn()
-      const onRetry = jest.fn().mockResolvedValue(undefined)
+      const resetError = vi.fn()
+      const onRetry = vi.fn().mockResolvedValue(undefined)
 
       withRetry.mockImplementation(async (fn: () => Promise<void>) => {
         return fn()
@@ -150,7 +150,7 @@ describe('ErrorFallback Components', () => {
 
     it('should show retry status and error', async () => {
       const { withRetry } = require('@/lib/error-reporting/retry')
-      const resetError = jest.fn()
+      const resetError = vi.fn()
 
       withRetry.mockResolvedValue({
         success: false,
@@ -182,7 +182,7 @@ describe('ErrorFallback Components', () => {
 
     it('should show retrying state while retrying', async () => {
       const { withRetry } = require('@/lib/error-reporting/retry')
-      const resetError = jest.fn()
+      const resetError = vi.fn()
 
       let resolveRetry: (value: unknown) => void
       const retryPromise = new Promise(resolve => {
@@ -216,7 +216,7 @@ describe('ErrorFallback Components', () => {
     })
 
     it('should refresh page when Refresh Page is clicked', () => {
-      const reloadMock = jest.fn()
+      const reloadMock = vi.fn()
       Object.defineProperty(window, 'location', {
         value: { reload: reloadMock, href: '/' },
         writable: true,
@@ -226,7 +226,7 @@ describe('ErrorFallback Components', () => {
         <FullErrorFallback
           error={mockError}
           errorInfo={mockErrorInfo}
-          resetError={jest.fn()}
+          resetError={vi.fn()}
         />
       )
 
@@ -237,7 +237,7 @@ describe('ErrorFallback Components', () => {
     })
 
     it('should go back when Go Back is clicked', () => {
-      const mockHistory = { back: jest.fn(), length: 2 }
+      const mockHistory = { back: vi.fn(), length: 2 }
       Object.defineProperty(window, 'history', { value: mockHistory, writable: true })
       Object.defineProperty(window, 'location', { value: { href: '/test' }, writable: true })
 
@@ -245,7 +245,7 @@ describe('ErrorFallback Components', () => {
         <FullErrorFallback
           error={mockError}
           errorInfo={mockErrorInfo}
-          resetError={jest.fn()}
+          resetError={vi.fn()}
         />
       )
 
@@ -266,7 +266,7 @@ describe('ErrorFallback Components', () => {
         <FullErrorFallback
           error={mockError}
           errorInfo={mockErrorInfo}
-          resetError={jest.fn()}
+          resetError={vi.fn()}
         />
       )
 
@@ -277,13 +277,13 @@ describe('ErrorFallback Components', () => {
     })
 
     it('should render additional actions', () => {
-      const customAction = jest.fn()
+      const customAction = vi.fn()
 
       render(
         <FullErrorFallback
           error={mockError}
           errorInfo={mockErrorInfo}
-          resetError={jest.fn()}
+          resetError={vi.fn()}
           config={{
             additionalActions: [
               { label: 'Custom Action', onClick: customAction, icon: '🎯' },
@@ -314,7 +314,7 @@ describe('ErrorFallback Components', () => {
         <FullErrorFallback
           error={mockError}
           errorInfo={mockErrorInfo}
-          resetError={jest.fn()}
+          resetError={vi.fn()}
         />
       )
 
@@ -344,7 +344,7 @@ describe('ErrorFallback Components', () => {
         <CardErrorFallback
           error={mockError}
           errorInfo={mockErrorInfo}
-          resetError={jest.fn()}
+          resetError={vi.fn()}
           config={{ title: 'Card Error', message: 'Card message' }}
         />
       )
@@ -354,7 +354,7 @@ describe('ErrorFallback Components', () => {
     })
 
     it('should call resetError when Retry is clicked', () => {
-      const resetError = jest.fn()
+      const resetError = vi.fn()
       render(
         <CardErrorFallback
           error={mockError}
@@ -376,7 +376,7 @@ describe('ErrorFallback Components', () => {
         <ErrorFallback
           error={mockError}
           errorInfo={mockErrorInfo}
-          resetError={jest.fn()}
+          resetError={vi.fn()}
         />
       )
 

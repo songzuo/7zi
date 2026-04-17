@@ -55,6 +55,42 @@ vi.mock('@/lib/api/error-handler', () => ({
       { status: 400, headers: { 'Content-Type': 'application/json' } }
     )
   }),
+  createUnauthorizedError: vi.fn((message: string = 'Unauthorized') => {
+    return new Response(
+      JSON.stringify({
+        success: false,
+        error: { type: 'UNAUTHORIZED', message },
+      }),
+      { status: 401, headers: { 'Content-Type': 'application/json' } }
+    )
+  }),
+  createForbiddenError: vi.fn((message: string = 'Forbidden') => {
+    return new Response(
+      JSON.stringify({
+        success: false,
+        error: { type: 'FORBIDDEN', message },
+      }),
+      { status: 403, headers: { 'Content-Type': 'application/json' } }
+    )
+  }),
+  createBadRequestError: vi.fn((message: string, details?: unknown) => {
+    return new Response(
+      JSON.stringify({
+        success: false,
+        error: { type: 'BAD_REQUEST', message, details },
+      }),
+      { status: 400, headers: { 'Content-Type': 'application/json' } }
+    )
+  }),
+  createNotFoundError: vi.fn((message: string = 'Not found') => {
+    return new Response(
+      JSON.stringify({
+        success: false,
+        error: { type: 'NOT_FOUND', message },
+      }),
+      { status: 404, headers: { 'Content-Type': 'application/json' } }
+    )
+  }),
   createErrorResponse: vi.fn((error: Error) => {
     return new Response(
       JSON.stringify({
@@ -70,8 +106,9 @@ vi.mock('@/lib/api/error-handler', () => ({
     FORBIDDEN: 'FORBIDDEN',
     NOT_FOUND: 'NOT_FOUND',
     INTERNAL: 'INTERNAL',
+    BAD_REQUEST: 'BAD_REQUEST',
   },
-}))
+})))
 
 // Import after mocking
 import { GET, POST } from '@/app/api/notifications/route'

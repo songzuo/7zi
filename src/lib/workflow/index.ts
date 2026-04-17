@@ -5,6 +5,12 @@
 // 原有引擎
 export { WorkflowEngine, workflowEngine } from './engine'
 
+// 真实工作流执行器（使用节点执行器注册表）
+export {
+  WorkflowExecutor,
+  workflowExecutor,
+} from './WorkflowExecutor'
+
 // 可视化工作流编排器
 export {
   VisualWorkflowOrchestrator,

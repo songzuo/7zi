@@ -10,7 +10,8 @@ import {
 } from './types'
 import { NodeStatus } from '@/types/workflow'
 import { ExecutionTracker } from './ExecutionTracker'
-import { StepRecorder, NodeExecution } from './StepRecorder'
+import { StepRecorder } from './StepRecorder'
+import { NodeExecution } from './types'
 
 /**
  * 性能指标收集器

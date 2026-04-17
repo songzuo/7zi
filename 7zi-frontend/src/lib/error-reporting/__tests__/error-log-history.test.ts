@@ -3,26 +3,26 @@
  * 错误日志历史记录测试
  */
 
-import { describe, it, expect, jest, beforeEach, afterEach } from '@jest/globals'
+import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest'
 
 // Mock localStorage
 const localStorageMock = {
-  getItem: jest.fn(),
-  setItem: jest.fn(),
-  removeItem: jest.fn(),
-  clear: jest.fn(),
+  getItem: vi.fn(),
+  setItem: vi.fn(),
+  removeItem: vi.fn(),
+  clear: vi.fn(),
 }
 Object.defineProperty(globalThis, 'localStorage', {
   value: localStorageMock,
 })
 
 // Mock logger
-jest.mock('../logger', () => ({
+vi.fn('../logger', () => ({
   logger: {
-    info: jest.fn(),
-    warn: jest.fn(),
-    error: jest.fn(),
-    debug: jest.fn(),
+    info: vi.fn(),
+    warn: vi.fn(),
+    error: vi.fn(),
+    debug: vi.fn(),
   },
 }))
 
@@ -31,7 +31,7 @@ describe('ErrorLogHistoryService', () => {
   let service: InstanceType<typeof ErrorLogHistoryService>
 
   beforeEach(async () => {
-    jest.clearAllMocks()
+    vi.clearAllMocks()
     localStorageMock.getItem.mockReturnValue(null)
     localStorageMock.setItem.mockImplementation(() => {})
 

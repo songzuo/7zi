@@ -1,16 +1,16 @@
-# Prometheus Configuration for 7zi Platform v1.9.2
-# Updated: 2026-04-04
+# Prometheus Configuration for 7zi Platform v1.9.4
+# Updated: 2026-04-13
+# Changes: Removed broken 7zi-frontend (no prom metrics), use nginx health instead
 
 global:
   scrape_interval: 15s
   scrape_timeout: 10s
   evaluation_interval: 15s
   external_labels:
-    environment: 'production'
-    service: '7zi-platform'
-    version: '1.9.1'
+    environment: production
+    service: 7zi-platform
+    version: 1.9.4
 
-# AlertManager 配置
 alerting:
   alertmanagers:
     - static_configs:
@@ -20,104 +20,46 @@ alerting:
       timeout: 10s
       api_version: v2
 
-# 规则文件
 rule_files:
-  - '/etc/prometheus/rules/*.yml'
+  - /etc/prometheus/rules/*.yml
 
-# 抓取配置
 scrape_configs:
-  # Prometheus 自身监控
-  - job_name: 'prometheus'
+  - job_name: prometheus
     static_configs:
-      - targets: ['localhost:9090']
-    metrics_path: /metrics
-    scheme: http
+      - targets: [localhost:9090]
 
-  # Node Exporter - 系统指标
-  - job_name: 'node-exporter'
+  - job_name: docker-stack
     static_configs:
-      - targets: ['node-exporter:9100']
+      - targets: [node-exporter:9100, cadvisor:8080, pushgateway:9091]
         labels:
-          instance: 'bot6'
-          role: 'server'
-    relabel_configs:
-      - source_labels: [__address__]
-        target_label: __address__
-        replacement: '${1}'
-
-  # cAdvisor - Docker 容器监控
-  - job_name: 'cadvisor'
-    static_configs:
-      - targets: ['cadvisor:8080']
+          group: docker
+      - targets: [health-service:8085]
         labels:
-          instance: 'bot6'
-    metrics_path: /metrics
-    scheme: http
-
-  # 7zi Frontend 应用监控
-  - job_name: '7zi-frontend'
-    static_configs:
-      - targets: ['host.docker.internal:3000']
-        labels:
-          service: 'frontend'
-          app: '7zi'
-    metrics_path: /api/metrics
-    scheme: http
+          group: health
     scrape_interval: 30s
 
-  # Pushgateway - 短时任务指标
-  - job_name: 'pushgateway'
-    honor_labels: true
+  - job_name: loki
     static_configs:
-      - targets: ['pushgateway:9091']
+      - targets: [loki:3100]
+
+  - job_name: servers
+    scrape_interval: 30s
+    static_configs:
+      - targets:
+          - 8.215.23.144:9101
+          - 47.81.39.226:9101
+          - 43.159.49.231:9101
+          - 182.43.36.134:9101
+          - 165.99.43.61:9101
         labels:
-          pushgateway_instance: '7zi-pushgateway'
+          group: servers
 
-  # Loki 日志指标
-  - job_name: 'loki'
+  - job_name: 7zi-health
+    scrape_interval: 60s
     static_configs:
-      - targets: ['loki:3100']
-    metrics_path: /metrics
-
-  # AlertManager 指标
-  - job_name: 'alertmanager'
-    static_configs:
-      - targets: ['alertmanager:9093']
-    metrics_path: /metrics
-
-  # Grafana 指标
-  - job_name: 'grafana'
-    static_configs:
-      - targets: ['grafana:3000']
-    metrics_path: /metrics
-
-  # 远程服务器监控（通过 SSH 隧道或代理）
-  - job_name: '7zi-production-server'
-    static_configs:
-      - targets: ['165.99.43.61:9100']
+      - targets: [165.99.43.61:3000]
         labels:
-          instance: '7zi.com'
-          role: 'production'
-    relabel_configs:
-      - source_labels: [__address__]
-        regex: '(.*)'
-        replacement: '${1}'
-        target_label: __address__
+          service: frontend
+          app: 7zi
+    metrics_path: /api/health
 
-  - job_name: 'bot5-test-server'
-    static_configs:
-      - targets: ['182.43.36.134:9100']
-        labels:
-          instance: 'bot5.szspd.cn'
-          role: 'test'
-
-  # Health Service - 健康检查服务
-  - job_name: 'health-service'
-    static_configs:
-      - targets: ['health-service:8085']
-        labels:
-          service: 'health'
-          app: '7zi'
-    metrics_path: /metrics
-    scheme: http
-    scrape_interval: 15s

@@ -14,10 +14,23 @@ import { authenticateJWT } from '@/lib/auth/api-auth'
 import { withRateLimit, RATE_LIMIT_PRESETS } from '@/lib/api-rate-limit'
 
 export const POST = withRateLimit(RATE_LIMIT_PRESETS.relaxed, async (request: NextRequest) => {
+  let body: JSONRPCRequest
   try {
-    // Parse JSON-RPC request
-    const body: JSONRPCRequest = await request.json()
+    body = await request.json()
+  } catch (parseError) {
+    // Invalid JSON - return 400 with JSON-RPC parse error
+    const errorResponse: JSONRPCResponse = {
+      jsonrpc: '2.0',
+      error: {
+        code: -32700,
+        message: 'Parse error: invalid JSON',
+      },
+      id: undefined,
+    }
+    return NextResponse.json(errorResponse, { status: 400 })
+  }
 
+  try {
     // Validate JSON-RPC 2.0 format
     if (body.jsonrpc !== '2.0') {
       const errorResponse: JSONRPCResponse = {
@@ -87,11 +100,12 @@ export const POST = withRateLimit(RATE_LIMIT_PRESETS.relaxed, async (request: Ne
         break
 
       case 'agent.get':
-        const agentId = body.params?.agentId as string | undefined
-        result = {
-          agent: agentId
-            ? agentScheduler.getAgent(agentId)
-            : null,
+        if (!body.params?.agentId) {
+          error = { code: -32602, message: 'Missing required parameter: agentId' }
+        } else {
+          result = {
+            agent: agentScheduler.getAgent(body.params.agentId as string),
+          }
         }
         break
 
@@ -104,41 +118,50 @@ export const POST = withRateLimit(RATE_LIMIT_PRESETS.relaxed, async (request: Ne
         break
 
       case 'task.create':
-        const taskResult = agentScheduler.scheduleTask({
-          type: (body.params?.type as string) || 'default',
-          priority: (body.params?.priority as 'low' | 'normal' | 'high' | 'urgent') || 'medium',
-          input: (body.params?.payload as Record<string, unknown>) || {},
-          timeout: body.params?.timeout as number | undefined,
-        })
-        result = { taskId: taskResult.taskId, success: taskResult.success, error: taskResult.error }
+        // type is required for task.create
+        if (!body.params?.type) {
+          error = { code: -32602, message: 'Missing required parameter: type' }
+        } else {
+          const taskResult = agentScheduler.scheduleTask({
+            type: body.params.type as string,
+            priority: (body.params?.priority as 'low' | 'normal' | 'high' | 'urgent') || 'medium',
+            input: (body.params?.payload as Record<string, unknown>) || {},
+            timeout: body.params?.timeout as number | undefined,
+          })
+          result = { taskId: taskResult.taskId, success: taskResult.success, error: taskResult.error }
+        }
         break
 
       case 'task.get':
-        const task = body.params?.taskId
-          ? agentScheduler.getTask(body.params.taskId as string)
-          : undefined
-        result = {
-          task: task ? {
-            id: task.id,
-            type: task.type,
-            status: task.status,
-            input: task.input,
-            output: task.output,
-            error: task.error,
-            createdAt: task.createdAt,
-            startedAt: task.startedAt,
-            completedAt: task.completedAt,
-          } : null,
+        if (!body.params?.taskId) {
+          error = { code: -32602, message: 'Missing required parameter: taskId' }
+        } else {
+          const task = agentScheduler.getTask(body.params.taskId as string)
+          result = {
+            task: task ? {
+              id: task.id,
+              type: task.type,
+              status: task.status,
+              input: task.input,
+              output: task.output,
+              error: task.error,
+              createdAt: task.createdAt,
+              startedAt: task.startedAt,
+              completedAt: task.completedAt,
+            } : null,
+          }
         }
         break
 
       case 'task.status':
-        const taskStatus = body.params?.taskId
-          ? agentScheduler.getTask(body.params.taskId as string)
-          : undefined
-        result = {
-          taskId: body.params?.taskId ?? undefined,
-          status: taskStatus?.status || 'unknown',
+        if (!body.params?.taskId) {
+          error = { code: -32602, message: 'Missing required parameter: taskId' }
+        } else {
+          const taskStatus = agentScheduler.getTask(body.params.taskId as string)
+          result = {
+            taskId: body.params.taskId as string,
+            status: taskStatus?.status || 'unknown',
+          }
         }
         break
 
@@ -149,12 +172,41 @@ export const POST = withRateLimit(RATE_LIMIT_PRESETS.relaxed, async (request: Ne
         }
     }
 
-    // Build JSON-RPC response
+    // Build JSON-RPC response for known methods with validation errors
+    if (error) {
+      const response: JSONRPCResponse = {
+        jsonrpc: '2.0',
+        error,
+        id: body.id ?? undefined,
+      }
+      // Missing required params returns 400
+      return NextResponse.json(response, { status: 400 })
+    }
+
+    // Unknown method - method not found in switch
+    if (result === undefined && !error) {
+      const errorResponse: JSONRPCResponse = {
+        jsonrpc: '2.0',
+        error: {
+          code: -32601,
+          message: `Method not found: ${body.method}`,
+        },
+        id: body.id ?? undefined,
+      }
+      return NextResponse.json(errorResponse, { status: 404 })
+    }
+
+    // Build success response
     const response: JSONRPCResponse = {
       jsonrpc: '2.0',
       result,
-      error,
+      error: undefined,
       id: body.id ?? undefined,
+    }
+
+    // task.create returns 201 Created
+    if (body.method === 'task.create') {
+      return NextResponse.json(response, { status: 201 })
     }
 
     return NextResponse.json(response)
@@ -172,6 +224,17 @@ export const POST = withRateLimit(RATE_LIMIT_PRESETS.relaxed, async (request: Ne
     return NextResponse.json(errorResponse, { status: 500 })
   }
 })
+
+export const OPTIONS = async () => {
+  return new NextResponse(null, {
+    status: 204,
+    headers: {
+      'Access-Control-Allow-Methods': 'POST, OPTIONS',
+      'Access-Control-Allow-Headers': 'Content-Type, Authorization',
+      'Access-Control-Max-Age': '86400',
+    },
+  })
+}
 
 export const runtime = 'nodejs'
 export const dynamic = 'force-dynamic'

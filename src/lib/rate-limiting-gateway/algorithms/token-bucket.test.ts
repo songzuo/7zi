@@ -149,10 +149,10 @@ describe('TokenBucket', () => {
       await tokenBucket.check(config)
       await tokenBucket.check(config)
 
-      const status = await tokenBucket.getStatus(config.key)
+      const status = await tokenBucket.getState(config.key)
       expect(status).toBeDefined()
-      expect(status.tokens).toBeLessThan(10)
-      expect(status.capacity).toBe(10)
+      expect(status!.tokens).toBeLessThan(10)
+      expect(status!.capacity).toBe(10)
     })
 
     it('should reset bucket', async () => {
@@ -168,7 +168,7 @@ describe('TokenBucket', () => {
       }
 
       // Reset
-      await tokenBucket.reset(config.key)
+      await tokenBucket.reset(config.key, config.capacity)
 
       // Should allow requests again
       const result = await tokenBucket.check(config)
@@ -251,7 +251,7 @@ describe('MemoryTokenBucket', () => {
     }
 
     // Reset
-    await tokenBucket.reset(config.key)
+    await tokenBucket.reset(config.key, config.capacity)
 
     // Should allow requests again
     const result = await tokenBucket.check(config)

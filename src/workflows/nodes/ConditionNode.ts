@@ -51,13 +51,13 @@ export class AdvancedConditionNodeExecutor implements NodeExecutor {
 
     // 验证高级配置
     if (hasNewConfig) {
-      const advancedConfig = node.config.advancedCondition as AdvancedConditionConfig
+      const advancedConfig = node.config?.advancedCondition as AdvancedConditionConfig | undefined
 
-      if (!advancedConfig.branches || advancedConfig.branches.length === 0) {
+      if (!advancedConfig || !advancedConfig.branches || advancedConfig.branches.length === 0) {
         errors.push('高级条件节点必须包含至少一个分支')
       }
 
-      advancedConfig.branches.forEach((branch, index) => {
+      advancedConfig?.branches?.forEach((branch, index) => {
         if (!branch.expression) {
           errors.push(`分支 ${index + 1} 缺少表达式`)
         }
@@ -186,7 +186,10 @@ export class AdvancedConditionNodeExecutor implements NodeExecutor {
     expression: string
     branches: ConditionBranch[]
   }> {
-    const advancedConfig = node.config.advancedCondition as AdvancedConditionConfig
+    const advancedConfig = node.config?.advancedCondition as AdvancedConditionConfig | undefined
+    if (!advancedConfig) {
+      throw new Error('高级条件配置缺失')
+    }
     const { branches, defaultBranch } = advancedConfig
 
     addLog(context, 'info', `评估 ${branches.length} 个条件分支`)
@@ -242,7 +245,7 @@ export class AdvancedConditionNodeExecutor implements NodeExecutor {
         lte: (a: number, b: number) => a <= b,
         contains: (arr: unknown[], item: unknown) => Array.isArray(arr) && arr.includes(item),
         isEmpty: (val: unknown) => val === null || val === undefined || val === '' || (Array.isArray(val) && val.length === 0),
-        isNotEmpty: (val: unknown) => !this.isEmpty(val),
+        isNotEmpty: (val: unknown) => val !== null && val !== undefined && val !== '' && !(Array.isArray(val) && val.length === 0),
         matches: (str: string, pattern: string) => {
           try {
             const regex = new RegExp(pattern)

@@ -355,7 +355,7 @@ export function validateWithZod<T = unknown>(
     return { success: true, data: result.data }
   }
 
-  const errors = result.error.errors.map(err => {
+  const errors = result.error.issues.map((err: z.ZodIssue) => {
     const path = err.path.join('.')
     return path ? `${path}: ${err.message}` : err.message
   })

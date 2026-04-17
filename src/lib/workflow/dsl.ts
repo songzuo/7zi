@@ -3,6 +3,7 @@
  * 支持 JSON 和 YAML 格式的工作流定义
  */
 
+// @ts-ignore - js-yaml doesn't have types
 import yaml from 'js-yaml'
 import { WorkflowDefinition, WorkflowNode, WorkflowEdge, NodeType, EdgeType, WorkflowStatus } from '@/types/workflow'
 
@@ -367,7 +368,7 @@ export class WorkflowDSLParser {
       source: edge.source,
       target: edge.target,
       type: edge.type || EdgeType.SEQUENCE,
-      conditionConfig: edge.conditionConfig,
+      conditionConfig: edge.conditionConfig as WorkflowEdge['conditionConfig'],
       style: edge.style,
     }))
 
@@ -535,7 +536,7 @@ export class WorkflowDSLParser {
       }
     }
 
-    return Object.keys(loopConfig).length > 0 ? (loopConfig as WorkflowNode['loopConfig']) : undefined
+    return Object.keys(loopConfig).length > 0 ? (loopConfig as unknown as WorkflowNode['loopConfig']) : undefined
   }
 
   /**
@@ -554,7 +555,7 @@ export class WorkflowDSLParser {
     }
 
     return Object.keys(subWorkflowConfig).length > 0
-      ? (subWorkflowConfig as WorkflowNode['subWorkflowConfig'])
+      ? (subWorkflowConfig as unknown as WorkflowNode['subWorkflowConfig'])
       : undefined
   }
 

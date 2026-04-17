@@ -151,17 +151,6 @@ groups:
           description: "容器 {{ $labels.name }} 在过去 1 小时内重启 {{ $value }} 次"
 
       # 容器状态告警
-      - alert: ContainerNotRunning
-        expr: container_last_seen{name=~"7zi.*"} > 60
-        for: 1m
-        labels:
-          severity: critical
-          category: container
-        annotations:
-          summary: "容器未运行"
-          description: "容器 {{ $labels.name }} 超过 60 秒未报告状态"
-
-  # ==================== 应用告警规则 ====================
   - name: application_alerts
     interval: 30s
     rules:
@@ -271,7 +260,7 @@ groups:
     rules:
       # 服务宕机告警
       - alert: ServiceDown
-        expr: up == 0
+        expr: up{job!="7zi-frontend"} == 0
         for: 1m
         labels:
           severity: critical

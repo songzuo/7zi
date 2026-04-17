@@ -346,7 +346,7 @@ describe('GET_FEEDBACK /api/feedback/[id]', () => {
     })
 
     const request = new NextRequest('http://localhost/api/feedback/1')
-    const response = await GET_FEEDBACK(request, { params: { id: '1' } })
+    const response = await GET_FEEDBACK(request, { params: Promise.resolve({ id: '1' }) })
 
     expect(response.status).toBe(200)
   })
@@ -355,7 +355,7 @@ describe('GET_FEEDBACK /api/feedback/[id]', () => {
     mockDb.queryRows.mockReturnValueOnce(undefined)
 
     const request = new NextRequest('http://localhost/api/feedback/999')
-    const response = await GET_FEEDBACK(request, { params: { id: '999' } })
+    const response = await GET_FEEDBACK(request, { params: Promise.resolve({ id: '999' }) })
 
     expect(response.status).toBe(404)
   })

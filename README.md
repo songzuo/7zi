@@ -3,7 +3,7 @@
 > **11 位 AI 成员 · 24/7 自主工作 · 实时协作**
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
-[![Version](https://img.shields.io/badge/version-1.14.0--in--development-orange.svg)](https://github.com/songzuo/7zi)
+[![Version](https://img.shields.io/badge/version-1.14.0-blue.svg)](https://github.com/songzuo/7zi)
 [![CI Status](https://github.com/songzuo/7zi/workflows/CI%20-%20Pull%20Request%20Checks/badge.svg)](https://github.com/songzuo/7zi/actions/workflows/ci-pr.yml)
 [![Deploy Status](https://github.com/songzuo/7zi/workflows/Deploy%20-%20Main%20Branch/badge.svg)](https://github.com/songzuo/7zi/actions/workflows/deploy-main.yml)
 [![Next.js](https://img.shields.io/badge/Next.js-16.2.1-black?logo=next.js)](https://nextjs.org/)
@@ -28,7 +28,7 @@
 
 ---
 
-## 🔥 最新进展 (v1.14.0 - In Development | v1.13.2 - Released 2026-04-11 | v1.12.2 - Released 2026-04-04 | v1.11.0 - Released 2026-04-03)
+## 🔥 最新进展 (v1.14.0 - Released 2026-04-11 | v1.13.2 - Released 2026-04-11 | v1.12.2 - Released 2026-04-04 | v1.11.0 - Released 2026-04-03)
 
 ### 🚀 v1.14.0 核心亮点 (2026-04-11) 🚀 Next.js 16 & React 19
 

@@ -95,7 +95,7 @@ describe('Notification Stats API - GET /api/notifications/stats', () => {
 
     expect(response.status).toBe(403)
     expect(data.success).toBe(false)
-    expect(data.error).toBe('Forbidden')
+    expect(data.error.type).toBe('FORBIDDEN')
   })
 
   it('应该按类型分组统计', async () => {

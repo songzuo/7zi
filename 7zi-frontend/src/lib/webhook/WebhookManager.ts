@@ -287,7 +287,7 @@ export class WebhookManager {
     // 生成签名
     const payload = JSON.stringify(event);
     const timestamp = Date.now();
-    const signature = await this.generateSignature(payload, timestamp, subscription.secret);
+    const signature = await this.generateSignature(payload, timestamp, subscription.secret ?? '');
 
     // 构建请求头
     const headers: Record<string, string> = {

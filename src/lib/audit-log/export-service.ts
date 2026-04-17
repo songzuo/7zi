@@ -8,8 +8,13 @@ import type {
   AuditEvent,
   AuditExportOptions,
   AuditImportResult,
+  AuditLogLevel,
+  AuditEventCategory,
+  AuditActionType,
+  AuditResultStatus,
+  AuditSeverity,
+  AuditLogStorage,
 } from './types.js';
-import type { AuditLogStorage } from './types.js';
 import fs from 'fs/promises';
 import path from 'path';
 import zlib from 'zlib';
@@ -376,58 +381,58 @@ export class AuditExportService {
           event.timestamp = new Date(value);
           break;
         case 'level':
-          event.level = value as any;
+          event.level = String(value) as AuditLogLevel;
           break;
         case 'category':
-          event.category = value as any;
+          event.category = String(value) as AuditEventCategory;
           break;
         case 'action':
-          event.action = value as any;
+          event.action = String(value) as AuditActionType;
           break;
         case 'status':
-          event.status = value as any;
+          event.status = String(value) as AuditResultStatus;
           break;
         case 'severity':
-          event.severity = value as any;
+          event.severity = String(value) as AuditSeverity;
           break;
         case 'message':
-          event.message = value as any;
+          event.message = String(value);
           break;
         case 'user_id':
-          if (!event.user) event.user = {} as any;
-          event.user!.userId = value;
+          if (!event.user) event.user = { userId: '', username: '', email: '', sessionId: '' };
+          event.user!.userId = String(value);
           break;
         case 'username':
-          if (!event.user) event.user = {} as any;
-          event.user!.username = value;
+          if (!event.user) event.user = { userId: '', username: '', email: '', sessionId: '' };
+          event.user!.username = String(value);
           break;
         case 'email':
-          if (!event.user) event.user = {} as any;
-          event.user!.email = value;
+          if (!event.user) event.user = { userId: '', username: '', email: '', sessionId: '' };
+          event.user!.email = String(value);
           break;
         case 'session_id':
-          if (!event.user) event.user = {} as any;
-          event.user!.sessionId = value;
+          if (!event.user) event.user = { userId: '', username: '', email: '', sessionId: '' };
+          event.user!.sessionId = String(value);
           break;
         case 'client_ip':
-          if (!event.request) event.request = {} as any;
-          event.request!.clientIp = value;
+          if (!event.request) event.request = { clientIp: '', path: '' };
+          event.request!.clientIp = String(value);
           break;
         case 'request_path':
-          if (!event.request) event.request = {} as any;
-          event.request!.path = value;
+          if (!event.request) event.request = { clientIp: '', path: '' };
+          event.request!.path = String(value);
           break;
         case 'resource_type':
-          if (!event.resource) event.resource = {} as any;
-          event.resource!.type = value;
+          if (!event.resource) event.resource = { type: '', id: '', name: '' };
+          event.resource!.type = String(value);
           break;
         case 'resource_id':
-          if (!event.resource) event.resource = {} as any;
-          event.resource!.id = value;
+          if (!event.resource) event.resource = { type: '', id: '', name: '' };
+          event.resource!.id = String(value);
           break;
         case 'resource_name':
-          if (!event.resource) event.resource = {} as any;
-          event.resource!.name = value;
+          if (!event.resource) event.resource = { type: '', id: '', name: '' };
+          event.resource!.name = String(value);
           break;
         case 'correlation_id':
           event.correlationId = value;

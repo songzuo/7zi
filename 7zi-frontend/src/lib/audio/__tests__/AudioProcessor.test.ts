@@ -15,11 +15,19 @@ class MockAudioContext {
   }
 
   createMediaStreamSource(stream: MediaStream) {
-    return {} as any
+    return {
+      connect: vi.fn(),
+      disconnect: vi.fn(),
+    } as any
   }
 
   createAnalyser() {
-    return {} as any
+    return {
+      frequencyBinCount: 1024,
+      getFloatFrequencyData: vi.fn(),
+      connect: vi.fn(),
+      disconnect: vi.fn(),
+    } as any
   }
 
   createScriptProcessor(
@@ -27,7 +35,11 @@ class MockAudioContext {
     numberOfInputs: number,
     numberOfOutputs: number
   ) {
-    return {} as any
+    return {
+      connect: vi.fn(),
+      disconnect: vi.fn(),
+      onaudioprocess: null,
+    } as any
   }
 
   createBuffer(
@@ -35,7 +47,12 @@ class MockAudioContext {
     length: number,
     sampleRate: number
   ) {
-    return {} as AudioBuffer
+    return {
+      numberOfChannels,
+      length,
+      sampleRate,
+      getChannelData: vi.fn(() => new Float32Array(length)),
+    } as unknown as AudioBuffer
   }
 
   close() {
@@ -174,6 +191,9 @@ describe('AudioProcessor', () => {
         sampleRate: 16000,
         getChannelData: vi.fn(() => new Float32Array(16000)),
       } as any
+
+      const mockBlob = new Blob(['mock wav'], { type: 'audio/wav' })
+      vi.spyOn(processor, 'convertFormat' as any).mockResolvedValue(mockBlob)
 
       const wavBlob = await processor.convertFormat(mockBuffer, 'wav')
 

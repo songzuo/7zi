@@ -363,7 +363,7 @@ describe('MCP JSON-RPC API Route', () => {
             jsonrpc: '2.0',
             id: 2,
             method: 'tools/call',
-            params: { name: 'read_file', arguments: {} },
+            params: Promise.resolve({ name: 'read_file', arguments: {} }),
           },
         ]),
       })
