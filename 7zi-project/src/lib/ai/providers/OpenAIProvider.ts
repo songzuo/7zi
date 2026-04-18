@@ -3,7 +3,7 @@
  * v1.11.0 - AI Enhancement Feature
  */
 
-import { BaseProvider } from './BaseProvider';
+import { BaseProvider } from './BaseProvider'
 import {
   LLMConfig,
   LLMRequest,
@@ -11,36 +11,36 @@ import {
   OpenAIConfig,
   ProviderNotConfiguredError,
   GenerationTimeoutError,
-} from '../types';
+} from '../types'
 
 interface OpenAIMessage {
-  role: 'system' | 'user' | 'assistant';
-  content: string;
+  role: 'system' | 'user' | 'assistant'
+  content: string
 }
 
 interface OpenAIChoice {
-  message: OpenAIMessage;
-  finish_reason: string;
+  message: OpenAIMessage
+  finish_reason: string
 }
 
 interface OpenAIUsage {
-  prompt_tokens: number;
-  completion_tokens: number;
-  total_tokens: number;
+  prompt_tokens: number
+  completion_tokens: number
+  total_tokens: number
 }
 
 interface OpenAIResponse {
-  id: string;
-  object: string;
-  created: number;
-  model: string;
-  choices: OpenAIChoice[];
-  usage: OpenAIUsage;
+  id: string
+  object: string
+  created: number
+  model: string
+  choices: OpenAIChoice[]
+  usage: OpenAIUsage
 }
 
 export class OpenAIProvider extends BaseProvider {
-  private apiKey: string | undefined;
-  private baseUrl = 'https://api.openai.com/v1';
+  private apiKey: string | undefined
+  private baseUrl = 'https://api.openai.com/v1'
 
   constructor(config: Partial<OpenAIConfig> = {}) {
     const fullConfig: LLMConfig = {
@@ -51,34 +51,31 @@ export class OpenAIProvider extends BaseProvider {
       maxTokens: config.maxTokens,
       timeout: config.timeout,
       ...config,
-    };
-    super(fullConfig);
-    this.apiKey = fullConfig.apiKey;
+    }
+    super(fullConfig)
+    this.apiKey = fullConfig.apiKey
   }
 
   get provider(): 'openai' {
-    return 'openai';
+    return 'openai'
   }
 
   protected getDefaultModel(): string {
-    return 'gpt-4-turbo-preview';
+    return 'gpt-4-turbo-preview'
   }
 
   isConfigured(): boolean {
-    return !!this.apiKey;
+    return !!this.apiKey
   }
 
   async chat(request: LLMRequest): Promise<LLMResponse> {
     if (!this.isConfigured()) {
-      throw new ProviderNotConfiguredError('openai');
+      throw new ProviderNotConfiguredError('openai')
     }
 
     return this.withRetry(async () => {
-      const controller = new AbortController();
-      const timeoutId = setTimeout(
-        () => controller.abort(),
-        this.config.timeout!
-      );
+      const controller = new AbortController()
+      const timeoutId = setTimeout(() => controller.abort(), this.config.timeout!)
 
       try {
         const response = await fetch(`${this.baseUrl}/chat/completions`, {
@@ -89,7 +86,7 @@ export class OpenAIProvider extends BaseProvider {
           },
           body: JSON.stringify({
             model: this.getModel(),
-            messages: request.messages.map((m) => ({
+            messages: request.messages.map(m => ({
               role: m.role,
               content: m.content,
             })),
@@ -98,16 +95,16 @@ export class OpenAIProvider extends BaseProvider {
             stop: request.stopSequences,
           }),
           signal: controller.signal,
-        });
+        })
 
-        clearTimeout(timeoutId);
+        clearTimeout(timeoutId)
 
         if (!response.ok) {
-          const error = await response.text();
-          throw new Error(`OpenAI API error: ${response.status} - ${error}`);
+          const error = await response.text()
+          throw new Error(`OpenAI API error: ${response.status} - ${error}`)
         }
 
-        const data = (await response.json()) as OpenAIResponse;
+        const data = (await response.json()) as OpenAIResponse
 
         return {
           content: data.choices[0]?.message?.content || '',
@@ -118,17 +115,17 @@ export class OpenAIProvider extends BaseProvider {
           },
           model: data.model,
           finishReason: data.choices[0]?.finish_reason,
-        };
+        }
       } catch (error) {
-        clearTimeout(timeoutId);
+        clearTimeout(timeoutId)
 
         if (error instanceof Error && error.name === 'AbortError') {
-          throw new GenerationTimeoutError('openai', this.config.timeout!);
+          throw new GenerationTimeoutError('openai', this.config.timeout!)
         }
 
-        this.handleError(error, 'Chat completion');
+        this.handleError(error, 'Chat completion')
       }
-    });
+    })
   }
 
   /**
@@ -137,6 +134,6 @@ export class OpenAIProvider extends BaseProvider {
   setOrganization(orgId: string): void {
     // Note: This would require storing org ID and using it in fetch
     // For now, we'll implement this in a future update
-    console.warn('Organization support requires additional implementation');
+    console.warn('Organization support requires additional implementation')
   }
 }

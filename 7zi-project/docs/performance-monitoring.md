@@ -49,11 +49,13 @@ Performance 模块提供实时性能监控和智能异常检测能力，包括�
 ### 1. 增量式 Z-Score (Welford's Algorithm)
 
 **优势**:
+
 - 时间复杂度: O(1) 每次 update
 - 空间复杂度: O(1)
 - 无需存储历史数据
 
 **原理**:
+
 ```
 均值更新: μ_n = μ_{n-1} + (x_n - μ_{n-1}) / n
 方差更新: M2_n = M2_{n-1} + (x_n - μ_{n-1}) * (x_n - μ_n)
@@ -62,14 +64,17 @@ Performance 模块提供实时性能监控和智能异常检测能力，包括�
 ### 2. 流式 Isolation Forest
 
 **特点**:
+
 - 每 256 个点增量训练一棵树
 - 保持最多 100 棵树
 - 自动淘汰旧树
 
 **异常分数**:
+
 ```
 score(x) = 2^(-E[h(x)] / c(n))
 ```
+
 - h(x) = 路径长度
 - c(n) = 归一化因子
 - 分数越高越异常
@@ -77,11 +82,13 @@ score(x) = 2^(-E[h(x)] / c(n))
 ### 3. 组合检测器
 
 **融合策略**:
+
 ```
 confidence = zscoreConfidence × 0.6 + iforestScore × 0.4
 ```
 
 **判断逻辑**:
+
 1. Z-Score 和 Isolation Forest 都异常 → 高置信度异常
 2. 仅 Z-Score 异常 → 中置信度异常
 3. Isolation Forest 高分 → 低置信度异常
@@ -92,14 +99,15 @@ confidence = zscoreConfidence × 0.6 + iforestScore × 0.4
 
 **功能特性**:
 
-| 特性 | 描述 |
-|------|------|
+| 特性     | 描述                       |
+| -------- | -------------------------- |
 | 级别路由 | 不同级别告警发送到不同频道 |
-| 节流控制 | 防止告警风暴 |
-| 自动重试 | 指数退避重试 |
-| 统计追踪 | 成功/失败/节流计数 |
+| 节流控制 | 防止告警风暴               |
+| 自动重试 | 指数退避重试               |
+| 统计追踪 | 成功/失败/节流计数         |
 
 **配置示例**:
+
 ```typescript
 const channel = new EnhancedSlackChannel(
   {
@@ -107,12 +115,12 @@ const channel = new EnhancedSlackChannel(
     levelChannels: {
       critical: '#incidents',
       error: '#alerts-error',
-      warning: '#alerts-warning'
-    }
+      warning: '#alerts-warning',
+    },
   },
   {
     throttle: { windowMs: 60000, maxPerWindow: 5 },
-    retry: { maxAttempts: 3, baseDelayMs: 1000 }
+    retry: { maxAttempts: 3, baseDelayMs: 1000 },
   }
 )
 ```
@@ -121,19 +129,19 @@ const channel = new EnhancedSlackChannel(
 
 ### 检测性能
 
-| 指标 | 目标值 | 实际值 |
-|------|--------|--------|
-| 单次检测延迟 | < 10ms | ~2ms |
-| 内存占用 | 常量级 | O(1) |
-| 吞吐量 | > 10K/s | ~50K/s |
+| 指标         | 目标值  | 实际值 |
+| ------------ | ------- | ------ |
+| 单次检测延迟 | < 10ms  | ~2ms   |
+| 内存占用     | 常量级  | O(1)   |
+| 吞吐量       | > 10K/s | ~50K/s |
 
 ### 告警性能
 
-| 指标 | 目标值 |
-|------|--------|
-| 发送延迟 | < 500ms |
-| 重试成功率 | > 95% |
-| 节流准确率 | 100% |
+| 指标       | 目标值  |
+| ---------- | ------- |
+| 发送延迟   | < 500ms |
+| 重试成功率 | > 95%   |
+| 节流准确率 | 100%    |
 
 ## 使用示例
 
@@ -147,12 +155,12 @@ app.use((req, res, next) => {
   res.on('finish', () => {
     const latency = Date.now() - start
     const result = latencyDetector.detect(latency)
-    
+
     if (result.isAnomaly && result.confidence > 0.8) {
       alertChannel.send({
         level: 'warning',
         message: `异常延迟: ${latency}ms`,
-        confidence: result.confidence
+        confidence: result.confidence,
       })
     }
   })
@@ -164,13 +172,13 @@ app.use((req, res, next) => {
 
 ```typescript
 const cpuDetector = new StreamingAnomalyDetector({
-  zscore: { threshold: 2.5 }
+  zscore: { threshold: 2.5 },
 })
 
 setInterval(() => {
   const cpu = process.cpuUsage()
   const result = cpuDetector.detect(cpu.user / 1000)
-  
+
   if (result.isAnomaly) {
     console.log(`CPU 异常: ${result.method} 方法检测`)
   }
@@ -230,4 +238,4 @@ setInterval(() => {
 
 ---
 
-*最后更新: 2026-04-03*
+_最后更新: 2026-04-03_

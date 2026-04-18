@@ -2,7 +2,7 @@
  * Agents Module Exports
  */
 
-export { AgentRegistry, Agent, AgentFilter } from './AgentRegistry';
+export { AgentRegistry, Agent, AgentFilter } from './AgentRegistry'
 
 // Memory System
 export {
@@ -27,4 +27,4 @@ export {
   type IAgentMemory,
   type MemoryStats,
   DEFAULT_MEMORY_CONFIG,
-} from './memory';
+} from './memory'

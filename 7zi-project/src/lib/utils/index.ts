@@ -8,7 +8,7 @@ export {
   idGenerators,
   generateShortId,
   createNamespacedIdGenerator,
-} from './id-generator';
+} from './id-generator'
 
 // Logger
 export {
@@ -18,21 +18,13 @@ export {
   setGlobalLogLevel,
   getGlobalLogLevel,
   LogLevel,
-} from './logger';
+} from './logger'
 
 // 资源管理器
-export {
-  ResourceManager,
-  Disposable,
-  type ResourceManagerOptions,
-} from './ResourceManager';
+export { ResourceManager, Disposable, type ResourceManagerOptions } from './ResourceManager'
 
 // 自动清理 Map
-export {
-  AutoCleanMap,
-} from './AutoCleanMap';
+export { AutoCleanMap } from './AutoCleanMap'
 
 // 类型
-export type {
-  AutoCleanMapOptions,
-} from './AutoCleanMap';
+export type { AutoCleanMapOptions } from './AutoCleanMap'

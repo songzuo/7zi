@@ -4,18 +4,18 @@
 
 ## 📊 摘要
 
-| 指标 | 数量 |
-|------|------|
-| 总文件数 | 75 |
-| 包含未使用导入的文件 | 0 |
-| 包含未使用导出的文件 | 27 |
-| 可能包含死代码的文件 | 11 |
+| 指标                 | 数量 |
+| -------------------- | ---- |
+| 总文件数             | 75   |
+| 包含未使用导入的文件 | 0    |
+| 包含未使用导出的文件 | 27   |
+| 可能包含死代码的文件 | 11   |
 
 ## 📤 未使用的导出
 
 以下文件包含导出但未被其他文件引用：
 
-*注意：已排除 Next.js 路由文件（page.tsx, layout.tsx 等）*
+_注意：已排除 Next.js 路由文件（page.tsx, layout.tsx 等）_
 
 ### src/lib/a2a/examples/A2AExamples.ts
 
@@ -32,9 +32,9 @@
 ### src/lib/agents/memory/index.ts
 
 - 命名导出: `// Enums
-  MemoryType`, `// Interfaces
-  type MemoryEntry`, `type MemoryMetadata`, `type CreateMemoryInput`, `type UpdateMemoryInput`, `type MemorySearchQuery`, `type SemanticSearchOptions`, `type MemorySearchResult`, `type CleanupOptions`, `type CleanupResult`, `type MemorySystemConfig`, `type IAgentMemory`, `type MemoryStats`, `// Constants
-  DEFAULT_MEMORY_CONFIG`
+MemoryType`, `// Interfaces
+type MemoryEntry`, `type MemoryMetadata`, `type CreateMemoryInput`, `type UpdateMemoryInput`, `type MemorySearchQuery`, `type SemanticSearchOptions`, `type MemorySearchResult`, `type CleanupOptions`, `type CleanupResult`, `type MemorySystemConfig`, `type IAgentMemory`, `type MemoryStats`, `// Constants
+DEFAULT_MEMORY_CONFIG`
 
 ### src/lib/ai/CodeGenerator.ts
 
@@ -137,7 +137,6 @@
 - 默认导出: `WebSocketManager`
 - 命名导出: `WebSocketManager`
 
-
 ## 💀 潜在的死代码
 
 以下文件可能包含未使用的函数或常量：
@@ -186,7 +185,6 @@
 
 - 未使用的函数: `generateSignatureHeaders`, `verifySignatureFromHeaders`, `hasValidSignatureHeaders`, `extractSignatureHeaders`, `normalizeHeaders`
 
-
 ## ⚠️ 注意事项
 
 1. 此报告基于静态分析，可能存在误报
@@ -204,4 +202,3 @@
 5. 清理死代码
 6. 再次运行测试确保一切正常
 7. 提交更改
-

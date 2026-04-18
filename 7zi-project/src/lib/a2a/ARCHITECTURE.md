@@ -80,19 +80,19 @@ class A2AClient {
   // 连接管理
   async connect(): Promise<void>
   async disconnect(): Promise<void>
-  
+
   // 消息发送
   async send(to, payload, type, options): Promise<A2AMessage>
   async request(to, payload, options): Promise<unknown>
   async respond(to, correlationId, payload): Promise<A2AMessage>
   async notify(to, payload): Promise<A2AMessage>
   async sendError(to, correlationId, error): Promise<A2AMessage>
-  
+
   // 消息处理
   async handleMessage(message): Promise<void>
-  
+
   // 状态查询
-  getConnectionStatus(): { connected, connectionId }
+  getConnectionStatus(): { connected; connectionId }
   getPendingRequestCount(): number
 }
 ```
@@ -114,24 +114,24 @@ class A2AServer {
   // 生命周期
   async start(): Promise<void>
   async stop(): Promise<void>
-  
+
   // 连接管理
   async registerAgent(agentId, metadata?): Promise<string>
   async disconnectAgent(agentId): Promise<void>
-  
+
   // 消息处理
   async handleMessage(message): Promise<void>
   async send(to, payload, type, correlationId?): Promise<A2AMessage>
   async sendResponse(to, correlationId, payload): Promise<A2AMessage>
   async sendError(to, correlationId, error): Promise<A2AMessage>
-  
+
   // 查询方法
   getConnections(): A2AConnection[]
   getConnectionCount(): number
   getMessageHistory(limit?): A2AMessage[]
   isAgentOnline(agentId): boolean
   getStatus(): ServerStatus
-  
+
   // 处理器注册
   onMessage(messageType, handler): void
 }
@@ -214,6 +214,7 @@ Agent A                  Server
 已实现 **28 个测试用例**，全部通过：
 
 ### A2AClient 测试 (9个)
+
 - ✅ 创建客户端
 - ✅ 连接/断开连接
 - ✅ 发送通知消息
@@ -224,6 +225,7 @@ Agent A                  Server
 - ✅ 响应请求
 
 ### A2AServer 测试 (12个)
+
 - ✅ 创建服务器
 - ✅ 启动/停止服务器
 - ✅ 注册代理
@@ -237,12 +239,14 @@ Agent A                  Server
 - ✅ 获取连接列表
 
 ### 消息流程测试 (4个)
+
 - ✅ 消息格式验证
 - ✅ 通知流程
 - ✅ 响应流程（带 correlationId）
 - ✅ 错误消息流程
 
 ### 连接管理测试 (3个)
+
 - ✅ 多连接追踪
 - ✅ 连接元数据
 - ✅ 重复注册处理
@@ -250,23 +254,27 @@ Agent A                  Server
 ## 🎯 核心特性
 
 ### 1. 可靠性
+
 - ✅ 请求超时机制
 - ✅ 自动重试
 - ✅ 错误处理
 - ✅ 心跳检测
 
 ### 2. 灵活性
+
 - ✅ 多种消息类型
 - ✅ 消息优先级
 - ✅ 自定义元数据
 - ✅ 事件驱动
 
 ### 3. 可扩展性
+
 - ✅ 自定义消息处理器
 - ✅ 事件监听器
 - ✅ 中间件支持（未来）
 
 ### 4. 易用性
+
 - ✅ 简洁的 API
 - ✅ 完整的类型定义
 - ✅ 丰富的示例代码
@@ -285,39 +293,39 @@ Agent A                  Server
 ### 基本使用
 
 ```typescript
-import { A2AClient, A2AServer } from './a2a';
+import { A2AClient, A2AServer } from './a2a'
 
 // 创建服务器
-const server = new A2AServer();
-await server.start();
+const server = new A2AServer()
+await server.start()
 
 // 创建客户端
-const client1 = new A2AClient('agent-1');
-const client2 = new A2AClient('agent-2');
+const client1 = new A2AClient('agent-1')
+const client2 = new A2AClient('agent-2')
 
-await client1.connect();
-await client2.connect();
+await client1.connect()
+await client2.connect()
 
-await server.registerAgent('agent-1');
-await server.registerAgent('agent-2');
+await server.registerAgent('agent-1')
+await server.registerAgent('agent-2')
 
 // 发送通知
-await client1.notify('agent-2', { text: 'Hello!' });
+await client1.notify('agent-2', { text: 'Hello!' })
 
 // 请求-响应
-const response = await client1.request('agent-2', { action: 'test' });
+const response = await client1.request('agent-2', { action: 'test' })
 ```
 
 ### 事件监听
 
 ```typescript
-client.on('message', (message) => {
-  console.log('Received:', message);
-});
+client.on('message', message => {
+  console.log('Received:', message)
+})
 
-server.on('message:received', (message) => {
-  console.log('Server received:', message);
-});
+server.on('message:received', message => {
+  console.log('Server received:', message)
+})
 ```
 
 ## 🔮 未来扩展

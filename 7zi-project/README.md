@@ -12,30 +12,35 @@ A powerful multi-agent orchestration system for building intelligent, collaborat
 ## ✨ Features
 
 ### 🤖 Multi-Agent Orchestration
+
 - **Parallel Execution** - Run multiple agents simultaneously for faster results
 - **Sequential Workflows** - Chain agents with dependency management
 - **Dynamic Allocation** - Automatically assign tasks based on agent capabilities and load
 - **Multiple Aggregation Strategies** - first, all, best, vote, or custom aggregation
 
 ### 📡 Agent-to-Agent Communication
+
 - **A2A Protocol** - Robust message passing with request/response/notification/error types
 - **Correlation Tracking** - Automatic request-response matching
 - **Heartbeat & Timeout** - Built-in health monitoring
 - **Transport Abstraction** - Support for in-memory, WebSocket, and future transports
 
 ### 🎯 Performance Monitoring
+
 - **Incremental Anomaly Detection** - Welford's algorithm for O(1) updates
 - **Streaming Isolation Forest** - Robust anomaly detection in real-time
 - **Performance Metrics** - Success rate, latency, percentiles
 - **Smart Alerting** - Slack-enhanced notifications
 
 ### 🔐 Multi-Tenant Architecture
+
 - **Tenant Isolation** - Complete data and permission isolation per tenant
 - **Tenant-Aware Caching** - Cache keys with tenant prefixes
 - **Enhanced Permissions** - Role-based access control with tenant scoping
 - **Audit Logging** - Complete audit trail for all operations
 
 ### ⚡ Workflow Engine v1.12
+
 - **Visual Workflow Editor** - Drag-and-drop workflow design with enhanced node types
 - **LoopNode** - Repetitive task execution with configurable iteration
 - **SubworkflowNode** - Nested workflow calls for modular design
@@ -46,12 +51,14 @@ A powerful multi-agent orchestration system for building intelligent, collaborat
 - **ExpressionEditor** - Dynamic expression support for workflows
 
 ### 📧 Email Alerting
+
 - **SMTP Integration** - Send alerts via email with customizable templates
 - **Alert Filtering** - Configure alert thresholds and conditions
 - **Multiple Recipients** - Support for multiple notification recipients
 - **Alert History** - Track and review sent alerts
 
 ### 🛠️ Developer Tools
+
 - **TypeScript** - Full type safety and IntelliSense support
 - **Comprehensive Testing** - 340+ test cases with 66%+ coverage
 - **Resource Management** - Automatic cleanup and memory leak prevention
@@ -91,7 +98,7 @@ registry.register({
   id: 'agent-1',
   name: 'Code Reviewer',
   capabilities: ['code-review', 'static-analysis'],
-  status: 'active'
+  status: 'active',
 })
 
 // Execute a task
@@ -100,7 +107,7 @@ const result = await orchestrator.executeParallel(
   {
     id: 'task-1',
     type: 'code-review',
-    payload: { code: 'function example() {}' }
+    payload: { code: 'function example() {}' },
   },
   { aggregationStrategy: 'first' }
 )
@@ -112,14 +119,14 @@ console.log(result)
 
 ### Core Modules
 
-| Module | Description | Documentation |
-|--------|-------------|---------------|
-| **Multi-Agent Orchestrator** | Task orchestration and agent coordination | [docs/multi-agent-orchestrator.md](docs/multi-agent-orchestrator.md) |
-| **A2A Protocol** | Agent-to-agent communication protocol | [src/lib/a2a/README.md](src/lib/a2a/README.md) |
-| **Performance Monitoring** | Performance tracking and anomaly detection | [docs/performance-monitoring.md](docs/performance-monitoring.md) |
-| **Agent Registry** | Agent registration and management | [src/lib/agents/README.md](src/lib/agents/README.md) |
-| **Workflow Engine v1.12** | Visual workflow editor and automation | [docs/workflow-engine.md](docs/workflow-engine.md) |
-| **Email Alerting** | SMTP-based alert notifications | [src/lib/alerting/README.md](src/lib/alerting/README.md) |
+| Module                       | Description                                | Documentation                                                        |
+| ---------------------------- | ------------------------------------------ | -------------------------------------------------------------------- |
+| **Multi-Agent Orchestrator** | Task orchestration and agent coordination  | [docs/multi-agent-orchestrator.md](docs/multi-agent-orchestrator.md) |
+| **A2A Protocol**             | Agent-to-agent communication protocol      | [src/lib/a2a/README.md](src/lib/a2a/README.md)                       |
+| **Performance Monitoring**   | Performance tracking and anomaly detection | [docs/performance-monitoring.md](docs/performance-monitoring.md)     |
+| **Agent Registry**           | Agent registration and management          | [src/lib/agents/README.md](src/lib/agents/README.md)                 |
+| **Workflow Engine v1.12**    | Visual workflow editor and automation      | [docs/workflow-engine.md](docs/workflow-engine.md)                   |
+| **Email Alerting**           | SMTP-based alert notifications             | [src/lib/alerting/README.md](src/lib/alerting/README.md)             |
 
 ### Architecture
 
@@ -215,12 +222,12 @@ JEST_ENVIRONMENT=node
 
 ### Benchmarks
 
-| Metric | Target | Current |
-|--------|--------|---------|
-| Anomaly Detection Latency | <10ms | ~50ms (optimizing) |
-| Agent Registration | <1ms | <1ms ✅ |
-| Task Allocation | <5ms | <5ms ✅ |
-| Cache Hit Rate | >90% | >90% ✅ |
+| Metric                    | Target | Current            |
+| ------------------------- | ------ | ------------------ |
+| Anomaly Detection Latency | <10ms  | ~50ms (optimizing) |
+| Agent Registration        | <1ms   | <1ms ✅            |
+| Task Allocation           | <5ms   | <5ms ✅            |
+| Cache Hit Rate            | >90%   | >90% ✅            |
 
 ### Optimization Goals
 

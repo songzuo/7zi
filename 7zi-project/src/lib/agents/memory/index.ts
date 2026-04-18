@@ -5,16 +5,21 @@
  */
 
 // Main exports
-export { AgentMemory, createAgentMemory, getMemoryInstance, resetMemoryInstance } from './agent-memory';
-export { ShortTermMemory } from './short-term-memory';
-export { LongTermMemory } from './long-term-memory';
+export {
+  AgentMemory,
+  createAgentMemory,
+  getMemoryInstance,
+  resetMemoryInstance,
+} from './agent-memory'
+export { ShortTermMemory } from './short-term-memory'
+export { LongTermMemory } from './long-term-memory'
 
 // Type exports
 export {
   // Enums
   MemoryType,
   MemoryScope,
-  
+
   // Interfaces
   type MemoryEntry,
   type MemoryMetadata,
@@ -28,7 +33,7 @@ export {
   type MemorySystemConfig,
   type IAgentMemory,
   type MemoryStats,
-  
+
   // Constants
   DEFAULT_MEMORY_CONFIG,
-} from './types';
+} from './types'

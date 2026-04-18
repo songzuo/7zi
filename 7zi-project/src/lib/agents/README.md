@@ -25,13 +25,13 @@ registry.register({
   name: '分析智能体',
   capabilities: ['analysis', 'nlp', 'ml'],
   status: 'online',
-  currentLoad: 0.2
+  currentLoad: 0.2,
 })
 
 // 查找具备特定能力的智能体
 const agents = registry.filter({
   capabilities: ['nlp'],
-  status: 'online'
+  status: 'online',
 })
 
 // 更新状态
@@ -85,11 +85,12 @@ filter(filter: AgentFilter): Agent[]
 ```
 
 **筛选条件**:
+
 ```typescript
 interface AgentFilter {
-  capabilities?: string[]      // 所需能力列表
+  capabilities?: string[] // 所需能力列表
   status?: 'online' | 'offline' | 'busy'
-  maxLoad?: number             // 最大负载阈值
+  maxLoad?: number // 最大负载阈值
 }
 ```
 
@@ -115,11 +116,11 @@ updateLoad(agentId: string, load: number): boolean
 
 ```typescript
 interface Agent {
-  id: string                    // 唯一标识
-  name: string                  // 显示名称
-  capabilities: string[]        // 能力列表
+  id: string // 唯一标识
+  name: string // 显示名称
+  capabilities: string[] // 能力列表
   status: 'online' | 'offline' | 'busy'
-  currentLoad: number           // 当前负载 (0-1)
+  currentLoad: number // 当前负载 (0-1)
   metadata?: Record<string, unknown>
 }
 ```
@@ -143,7 +144,7 @@ interface AgentFilter {
 const analysts = registry.filter({
   capabilities: ['analysis'],
   status: 'online',
-  maxLoad: 0.8  // 负载不超过 80%
+  maxLoad: 0.8, // 负载不超过 80%
 })
 
 console.log(`找到 ${analysts.length} 个可用智能体`)
@@ -155,7 +156,7 @@ console.log(`找到 ${analysts.length} 个可用智能体`)
 // 找到负载最低的智能体
 const availableAgents = registry.filter({
   capabilities: ['processing'],
-  status: 'online'
+  status: 'online',
 })
 
 const bestAgent = availableAgents.reduce((best, current) =>
@@ -169,7 +170,7 @@ registry.updateLoad(bestAgent.id, bestAgent.currentLoad + 0.3)
 ### 监听智能体事件
 
 ```typescript
-registry.on('agent:registered', (agent) => {
+registry.on('agent:registered', agent => {
   console.log(`新智能体注册: ${agent.name}`)
 })
 
@@ -180,12 +181,12 @@ registry.on('agent:status:changed', (agent, oldStatus) => {
 
 ## 📊 事件 / Events
 
-| 事件名 | 参数 | 描述 |
-|--------|------|------|
-| `agent:registered` | `Agent` | 新智能体注册 |
-| `agent:unregistered` | `Agent` | 智能体注销 |
-| `agent:status:changed` | `Agent, oldStatus` | 状态变更 |
-| `agent:load:changed` | `Agent, oldLoad` | 负载变更 |
+| 事件名                 | 参数               | 描述         |
+| ---------------------- | ------------------ | ------------ |
+| `agent:registered`     | `Agent`            | 新智能体注册 |
+| `agent:unregistered`   | `Agent`            | 智能体注销   |
+| `agent:status:changed` | `Agent, oldStatus` | 状态变更     |
+| `agent:load:changed`   | `Agent, oldLoad`   | 负载变更     |
 
 ## 📁 目录结构 / Directory Structure
 

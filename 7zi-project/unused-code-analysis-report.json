@@ -27,9 +27,7 @@
       "file": "src/lib/a2a/index.ts",
       "default": null,
       "named": [],
-      "typeNamed": [
-        "A2AHandler"
-      ]
+      "typeNamed": ["A2AHandler"]
     },
     {
       "file": "src/lib/agents/index.ts",
@@ -74,104 +72,73 @@
     {
       "file": "src/lib/ai/CodeGenerator.ts",
       "default": "CodeGenerator",
-      "named": [
-        "CodeGenerator"
-      ],
+      "named": ["CodeGenerator"],
       "typeNamed": []
     },
     {
       "file": "src/lib/ai/types.ts",
       "default": null,
-      "named": [
-        "InvalidResponseError"
-      ],
+      "named": ["InvalidResponseError"],
       "typeNamed": []
     },
     {
       "file": "src/lib/audit/api.ts",
       "default": null,
-      "named": [
-        "createAuditAPIHandlers"
-      ],
+      "named": ["createAuditAPIHandlers"],
       "typeNamed": []
     },
     {
       "file": "src/lib/audit/index.ts",
       "default": null,
-      "named": [
-        "createAuditLogManager",
-        "auditLogManager"
-      ],
+      "named": ["createAuditLogManager", "auditLogManager"],
       "typeNamed": []
     },
     {
       "file": "src/lib/collaboration/cursor-manager.ts",
       "default": "CursorManager",
-      "named": [
-        "CursorManager"
-      ],
+      "named": ["CursorManager"],
       "typeNamed": []
     },
     {
       "file": "src/lib/collaboration/presence-service.ts",
       "default": "PresenceService",
-      "named": [
-        "PresenceService"
-      ],
+      "named": ["PresenceService"],
       "typeNamed": []
     },
     {
       "file": "src/lib/collaboration/types.ts",
       "default": null,
-      "named": [
-        "DEFAULT_LOCK_CONFIG"
-      ],
+      "named": ["DEFAULT_LOCK_CONFIG"],
       "typeNamed": []
     },
     {
       "file": "src/lib/economy/pricing.ts",
       "default": "pricingService",
-      "named": [
-        "PricingService",
-        "pricingService"
-      ],
+      "named": ["PricingService", "pricingService"],
       "typeNamed": []
     },
     {
       "file": "src/lib/monitoring/monitor.ts",
       "default": "PerformanceMonitor",
-      "named": [
-        "PerformanceMonitor",
-        "getDefaultMonitor",
-        "resetDefaultMonitor"
-      ],
+      "named": ["PerformanceMonitor", "getDefaultMonitor", "resetDefaultMonitor"],
       "typeNamed": []
     },
     {
       "file": "src/lib/multi-agent/MultiAgentOrchestrator.ts",
       "default": null,
-      "named": [
-        "MultiAgentOrchestrator"
-      ],
+      "named": ["MultiAgentOrchestrator"],
       "typeNamed": []
     },
     {
       "file": "src/lib/multi-agent/index.ts",
       "default": null,
-      "named": [
-        "MultiAgentOrchestrator"
-      ],
+      "named": ["MultiAgentOrchestrator"],
       "typeNamed": []
     },
     {
       "file": "src/lib/performance/alerting/channels/slack-enhanced.ts",
       "default": "EnhancedSlackChannel",
-      "named": [
-        "LevelRouter",
-        "Throttler",
-        "Retryer",
-        "EnhancedSlackChannel"
-      ],
+      "named": ["LevelRouter", "Throttler", "Retryer", "EnhancedSlackChannel"],
       "typeNamed": []
     },
     {
@@ -190,29 +157,19 @@
     {
       "file": "src/lib/security/encryption.ts",
       "default": "encryptionService",
-      "named": [
-        "KeyManager",
-        "EncryptionService",
-        "encryptionService"
-      ],
+      "named": ["KeyManager", "EncryptionService", "encryptionService"],
       "typeNamed": []
     },
     {
       "file": "src/lib/tenant/service.ts",
       "default": "tenantService",
-      "named": [
-        "TenantService",
-        "tenantService"
-      ],
+      "named": ["TenantService", "tenantService"],
       "typeNamed": []
     },
     {
       "file": "src/lib/utils/id-generator.ts",
       "default": null,
-      "named": [
-        "generateShortId",
-        "createNamespacedIdGenerator"
-      ],
+      "named": ["generateShortId", "createNamespacedIdGenerator"],
       "typeNamed": []
     },
     {
@@ -231,19 +188,13 @@
     {
       "file": "src/lib/utils/logger.ts",
       "default": null,
-      "named": [
-        "setGlobalLogLevel",
-        "getGlobalLogLevel",
-        "createLoggerWithGlobalLevel"
-      ],
+      "named": ["setGlobalLogLevel", "getGlobalLogLevel", "createLoggerWithGlobalLevel"],
       "typeNamed": []
     },
     {
       "file": "src/lib/webhook/event-delivery.ts",
       "default": null,
-      "named": [
-        "InMemoryDeliveryStorage"
-      ],
+      "named": ["InMemoryDeliveryStorage"],
       "typeNamed": []
     },
     {
@@ -274,45 +225,32 @@
     {
       "file": "src/lib/webhook/webhook-manager.ts",
       "default": null,
-      "named": [
-        "InMemoryWebhookStorage"
-      ],
+      "named": ["InMemoryWebhookStorage"],
       "typeNamed": []
     },
     {
       "file": "src/lib/websocket-manager.ts",
       "default": "WebSocketManager",
-      "named": [
-        "WebSocketManager"
-      ],
+      "named": ["WebSocketManager"],
       "typeNamed": []
     }
   ],
   "deadCode": [
     {
       "file": "src/lib/agents/memory/agent-memory.ts",
-      "functions": [
-        "to",
-        "createAgentMemory",
-        "getMemoryInstance",
-        "resetMemoryInstance"
-      ],
+      "functions": ["to", "createAgentMemory", "getMemoryInstance", "resetMemoryInstance"],
       "constants": [],
       "variables": []
     },
     {
       "file": "src/lib/ai/CodeGenerator.ts",
-      "functions": [
-        "code"
-      ],
+      "functions": ["code"],
       "constants": [],
       "variables": []
     },
     {
       "file": "src/lib/audit/api.ts",
-      "functions": [
-        "createAuditAPIHandlers"
-      ],
+      "functions": ["createAuditAPIHandlers"],
       "constants": [],
       "variables": []
     },
@@ -330,36 +268,25 @@
     },
     {
       "file": "src/lib/monitoring/monitor.ts",
-      "functions": [
-        "getDefaultMonitor",
-        "resetDefaultMonitor"
-      ],
+      "functions": ["getDefaultMonitor", "resetDefaultMonitor"],
       "constants": [],
       "variables": []
     },
     {
       "file": "src/lib/performance/alerting/channels/slack-enhanced.ts",
-      "functions": [
-        "formatTimestamp"
-      ],
+      "functions": ["formatTimestamp"],
       "constants": [],
       "variables": []
     },
     {
       "file": "src/lib/performance/incremental-anomaly-detector.ts",
-      "functions": [
-        "createStreamingAnomalyDetector",
-        "isAnomalyQuick"
-      ],
+      "functions": ["createStreamingAnomalyDetector", "isAnomalyQuick"],
       "constants": [],
       "variables": []
     },
     {
       "file": "src/lib/utils/id-generator.ts",
-      "functions": [
-        "generateShortId",
-        "createNamespacedIdGenerator"
-      ],
+      "functions": ["generateShortId", "createNamespacedIdGenerator"],
       "constants": [],
       "variables": []
     },
@@ -376,9 +303,7 @@
     },
     {
       "file": "src/lib/webhook/index.ts",
-      "functions": [
-        "createWebhookSystem"
-      ],
+      "functions": ["createWebhookSystem"],
       "constants": [],
       "variables": []
     },

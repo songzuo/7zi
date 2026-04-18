@@ -1,6 +1,6 @@
 /**
  * 定价服务 - 会员等级和计费
- * 
+ *
  * 功能：
  * - 会员等级管理
  * - 价格计算
@@ -15,41 +15,41 @@ export enum MembershipTier {
   FREE = 'free',
   BASIC = 'basic',
   PRO = 'pro',
-  ENTERPRISE = 'enterprise'
+  ENTERPRISE = 'enterprise',
 }
 
 export interface MembershipPlan {
-  tier: MembershipTier;
-  name: string;
-  description: string;
-  monthlyPrice: number;
-  yearlyPrice: number;
-  currency: string;
-  features: string[];
+  tier: MembershipTier
+  name: string
+  description: string
+  monthlyPrice: number
+  yearlyPrice: number
+  currency: string
+  features: string[]
   limits: {
-    maxAgents: number;
-    maxWorkflows: number;
-    maxStorageGB: number;
-    maxApiCallsPerMonth: number;
-    maxCollaborators: number;
-  };
+    maxAgents: number
+    maxWorkflows: number
+    maxStorageGB: number
+    maxApiCallsPerMonth: number
+    maxCollaborators: number
+  }
 }
 
 export interface UserMembership {
-  userId: string;
-  tier: MembershipTier;
-  startDate: number;
-  endDate?: number;
-  isYearly: boolean;
-  autoRenew: boolean;
+  userId: string
+  tier: MembershipTier
+  startDate: number
+  endDate?: number
+  isYearly: boolean
+  autoRenew: boolean
 }
 
 export interface UsageStats {
-  agentsUsed: number;
-  workflowsUsed: number;
-  storageUsedGB: number;
-  apiCallsUsed: number;
-  collaboratorsUsed: number;
+  agentsUsed: number
+  workflowsUsed: number
+  storageUsedGB: number
+  apiCallsUsed: number
+  collaboratorsUsed: number
 }
 
 // ============================================================================
@@ -70,15 +70,15 @@ const MEMBERSHIP_PLANS: Record<MembershipTier, MembershipPlan> = {
       '1GB 存储空间',
       '每月 1000 次 API 调用',
       '最多 2 个协作者',
-      '基础支持'
+      '基础支持',
     ],
     limits: {
       maxAgents: 3,
       maxWorkflows: 5,
       maxStorageGB: 1,
       maxApiCallsPerMonth: 1000,
-      maxCollaborators: 2
-    }
+      maxCollaborators: 2,
+    },
   },
   [MembershipTier.BASIC]: {
     tier: MembershipTier.BASIC,
@@ -94,15 +94,15 @@ const MEMBERSHIP_PLANS: Record<MembershipTier, MembershipPlan> = {
       '每月 10000 次 API 调用',
       '最多 10 个协作者',
       '邮件支持',
-      '基础分析'
+      '基础分析',
     ],
     limits: {
       maxAgents: 10,
       maxWorkflows: 20,
       maxStorageGB: 10,
       maxApiCallsPerMonth: 10000,
-      maxCollaborators: 10
-    }
+      maxCollaborators: 10,
+    },
   },
   [MembershipTier.PRO]: {
     tier: MembershipTier.PRO,
@@ -119,15 +119,15 @@ const MEMBERSHIP_PLANS: Record<MembershipTier, MembershipPlan> = {
       '最多 50 个协作者',
       '优先支持',
       '高级分析',
-      '自定义集成'
+      '自定义集成',
     ],
     limits: {
       maxAgents: Infinity,
       maxWorkflows: Infinity,
       maxStorageGB: 100,
       maxApiCallsPerMonth: 100000,
-      maxCollaborators: 50
-    }
+      maxCollaborators: 50,
+    },
   },
   [MembershipTier.ENTERPRISE]: {
     tier: MembershipTier.ENTERPRISE,
@@ -146,17 +146,17 @@ const MEMBERSHIP_PLANS: Record<MembershipTier, MembershipPlan> = {
       '企业级安全',
       'SLA 保证',
       '专属客户经理',
-      '自定义部署'
+      '自定义部署',
     ],
     limits: {
       maxAgents: Infinity,
       maxWorkflows: Infinity,
       maxStorageGB: Infinity,
       maxApiCallsPerMonth: Infinity,
-      maxCollaborators: Infinity
-    }
-  }
-};
+      maxCollaborators: Infinity,
+    },
+  },
+}
 
 // ============================================================================
 // 定价服务
@@ -167,14 +167,14 @@ export class PricingService {
    * 获取所有会员计划
    */
   getAllPlans(): MembershipPlan[] {
-    return Object.values(MEMBERSHIP_PLANS);
+    return Object.values(MEMBERSHIP_PLANS)
   }
 
   /**
    * 根据等级获取会员计划
    */
   getPlanByTier(tier: MembershipTier): MembershipPlan | null {
-    return MEMBERSHIP_PLANS[tier] || null;
+    return MEMBERSHIP_PLANS[tier] || null
   }
 
   /**
@@ -183,7 +183,7 @@ export class PricingService {
   getUserMembershipTier(userId: string): MembershipTier {
     // TODO: 从数据库或缓存中获取用户的实际会员等级
     // 这里返回默认的免费版
-    return MembershipTier.FREE;
+    return MembershipTier.FREE
   }
 
   /**
@@ -197,162 +197,167 @@ export class PricingService {
       tier: MembershipTier.FREE,
       startDate: Date.now(),
       isYearly: false,
-      autoRenew: false
-    };
+      autoRenew: false,
+    }
   }
 
   /**
    * 检查用户是否可以升级到指定等级
    */
   canUpgrade(userId: string, targetTier: MembershipTier): boolean {
-    const currentTier = this.getUserMembershipTier(userId);
+    const currentTier = this.getUserMembershipTier(userId)
     const tierOrder = [
       MembershipTier.FREE,
       MembershipTier.BASIC,
       MembershipTier.PRO,
-      MembershipTier.ENTERPRISE
-    ];
+      MembershipTier.ENTERPRISE,
+    ]
 
-    const currentIndex = tierOrder.indexOf(currentTier);
-    const targetIndex = tierOrder.indexOf(targetTier);
+    const currentIndex = tierOrder.indexOf(currentTier)
+    const targetIndex = tierOrder.indexOf(targetTier)
 
-    return targetIndex > currentIndex;
+    return targetIndex > currentIndex
   }
 
   /**
    * 检查用户是否可以降级到指定等级
    */
   canDowngrade(userId: string, targetTier: MembershipTier): boolean {
-    const currentTier = this.getUserMembershipTier(userId);
+    const currentTier = this.getUserMembershipTier(userId)
     const tierOrder = [
       MembershipTier.FREE,
       MembershipTier.BASIC,
       MembershipTier.PRO,
-      MembershipTier.ENTERPRISE
-    ];
+      MembershipTier.ENTERPRISE,
+    ]
 
-    const currentIndex = tierOrder.indexOf(currentTier);
-    const targetIndex = tierOrder.indexOf(targetTier);
+    const currentIndex = tierOrder.indexOf(currentTier)
+    const targetIndex = tierOrder.indexOf(targetTier)
 
-    return targetIndex < currentIndex;
+    return targetIndex < currentIndex
   }
 
   /**
    * 计算价格
    */
   calculatePrice(tier: MembershipTier, isYearly: boolean): number {
-    const plan = this.getPlanByTier(tier);
+    const plan = this.getPlanByTier(tier)
     if (!plan) {
-      throw new Error(`Invalid membership tier: ${tier}`);
+      throw new Error(`Invalid membership tier: ${tier}`)
     }
 
-    return isYearly ? plan.yearlyPrice : plan.monthlyPrice;
+    return isYearly ? plan.yearlyPrice : plan.monthlyPrice
   }
 
   /**
    * 检查使用量是否超出限制
    */
-  checkUsageLimits(userId: string, usage: UsageStats): {
-    withinLimits: boolean;
-    exceededLimits: string[];
+  checkUsageLimits(
+    userId: string,
+    usage: UsageStats
+  ): {
+    withinLimits: boolean
+    exceededLimits: string[]
   } {
-    const membership = this.getUserMembership(userId);
+    const membership = this.getUserMembership(userId)
     if (!membership) {
       return {
         withinLimits: false,
-        exceededLimits: ['No membership found']
-      };
+        exceededLimits: ['No membership found'],
+      }
     }
 
-    const plan = this.getPlanByTier(membership.tier);
+    const plan = this.getPlanByTier(membership.tier)
     if (!plan) {
       return {
         withinLimits: false,
-        exceededLimits: ['Invalid membership tier']
-      };
+        exceededLimits: ['Invalid membership tier'],
+      }
     }
 
-    const exceededLimits: string[] = [];
+    const exceededLimits: string[] = []
 
     if (usage.agentsUsed > plan.limits.maxAgents) {
-      exceededLimits.push(`Agents: ${usage.agentsUsed}/${plan.limits.maxAgents}`);
+      exceededLimits.push(`Agents: ${usage.agentsUsed}/${plan.limits.maxAgents}`)
     }
 
     if (usage.workflowsUsed > plan.limits.maxWorkflows) {
-      exceededLimits.push(`Workflows: ${usage.workflowsUsed}/${plan.limits.maxWorkflows}`);
+      exceededLimits.push(`Workflows: ${usage.workflowsUsed}/${plan.limits.maxWorkflows}`)
     }
 
     if (usage.storageUsedGB > plan.limits.maxStorageGB) {
-      exceededLimits.push(`Storage: ${usage.storageUsedGB}GB/${plan.limits.maxStorageGB}GB`);
+      exceededLimits.push(`Storage: ${usage.storageUsedGB}GB/${plan.limits.maxStorageGB}GB`)
     }
 
     if (usage.apiCallsUsed > plan.limits.maxApiCallsPerMonth) {
-      exceededLimits.push(`API calls: ${usage.apiCallsUsed}/${plan.limits.maxApiCallsPerMonth}`);
+      exceededLimits.push(`API calls: ${usage.apiCallsUsed}/${plan.limits.maxApiCallsPerMonth}`)
     }
 
     if (usage.collaboratorsUsed > plan.limits.maxCollaborators) {
-      exceededLimits.push(`Collaborators: ${usage.collaboratorsUsed}/${plan.limits.maxCollaborators}`);
+      exceededLimits.push(
+        `Collaborators: ${usage.collaboratorsUsed}/${plan.limits.maxCollaborators}`
+      )
     }
 
     return {
       withinLimits: exceededLimits.length === 0,
-      exceededLimits
-    };
+      exceededLimits,
+    }
   }
 
   /**
    * 获取下一个可升级的等级
    */
   getNextUpgradeTier(userId: string): MembershipTier | null {
-    const currentTier = this.getUserMembershipTier(userId);
+    const currentTier = this.getUserMembershipTier(userId)
     const tierOrder = [
       MembershipTier.FREE,
       MembershipTier.BASIC,
       MembershipTier.PRO,
-      MembershipTier.ENTERPRISE
-    ];
+      MembershipTier.ENTERPRISE,
+    ]
 
-    const currentIndex = tierOrder.indexOf(currentTier);
+    const currentIndex = tierOrder.indexOf(currentTier)
     if (currentIndex === -1 || currentIndex === tierOrder.length - 1) {
-      return null;
+      return null
     }
 
-    return tierOrder[currentIndex + 1];
+    return tierOrder[currentIndex + 1]
   }
 
   /**
    * 获取下一个可降级的等级
    */
   getNextDowngradeTier(userId: string): MembershipTier | null {
-    const currentTier = this.getUserMembershipTier(userId);
+    const currentTier = this.getUserMembershipTier(userId)
     const tierOrder = [
       MembershipTier.FREE,
       MembershipTier.BASIC,
       MembershipTier.PRO,
-      MembershipTier.ENTERPRISE
-    ];
+      MembershipTier.ENTERPRISE,
+    ]
 
-    const currentIndex = tierOrder.indexOf(currentTier);
+    const currentIndex = tierOrder.indexOf(currentTier)
     if (currentIndex <= 0) {
-      return null;
+      return null
     }
 
-    return tierOrder[currentIndex - 1];
+    return tierOrder[currentIndex - 1]
   }
 
   /**
    * 计算年度折扣
    */
   calculateYearlyDiscount(tier: MembershipTier): number {
-    const plan = this.getPlanByTier(tier);
+    const plan = this.getPlanByTier(tier)
     if (!plan) {
-      return 0;
+      return 0
     }
 
-    const yearlyMonthlyPrice = plan.yearlyPrice / 12;
-    const discount = ((plan.monthlyPrice - yearlyMonthlyPrice) / plan.monthlyPrice) * 100;
+    const yearlyMonthlyPrice = plan.yearlyPrice / 12
+    const discount = ((plan.monthlyPrice - yearlyMonthlyPrice) / plan.monthlyPrice) * 100
 
-    return Math.round(discount);
+    return Math.round(discount)
   }
 }
 
@@ -360,10 +365,10 @@ export class PricingService {
 // 单例实例
 // ============================================================================
 
-export const pricingService = new PricingService();
+export const pricingService = new PricingService()
 
 // ============================================================================
 // 导出
 // ============================================================================
 
-export default pricingService;
+export default pricingService

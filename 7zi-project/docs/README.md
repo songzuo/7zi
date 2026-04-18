@@ -9,19 +9,19 @@
 
 ### 核心模块文档
 
-| 文档 | 描述 | 更新日期 |
-|------|------|----------|
+| 文档                                                      | 描述               | 更新日期   |
+| --------------------------------------------------------- | ------------------ | ---------- |
 | [Multi-Agent Orchestrator](./multi-agent-orchestrator.md) | 多智能体协作编排器 | 2026-04-03 |
-| [Performance Monitoring](./performance-monitoring.md) | 性能监控与异常检测 | 2026-04-03 |
-| [v1.11 Roadmap](./v111_ROADMAP.md) | v1.11 版本规划 | 2026-04-03 |
+| [Performance Monitoring](./performance-monitoring.md)     | 性能监控与异常检测 | 2026-04-03 |
+| [v1.11 Roadmap](./v111_ROADMAP.md)                        | v1.11 版本规划     | 2026-04-03 |
 
 ### 分析报告
 
-| 文档 | 描述 | 更新日期 |
-|------|------|----------|
-| [UI/UX 分析报告](./ui-ux-analysis.md) | 前端界面设计分析 | 2026-03-30 |
+| 文档                                     | 描述             | 更新日期   |
+| ---------------------------------------- | ---------------- | ---------- |
+| [UI/UX 分析报告](./ui-ux-analysis.md)    | 前端界面设计分析 | 2026-03-30 |
 | [竞品分析报告](./competitor-analysis.md) | 7-Zip 等竞品分析 | 2026-03-30 |
-| [SSL 检查报告](./ssl-check-report.md) | SSL 证书状态检查 | 2026-03-30 |
+| [SSL 检查报告](./ssl-check-report.md)    | SSL 证书状态检查 | 2026-03-30 |
 
 ---
 
@@ -122,4 +122,4 @@ const result = detector.detect(value)
 
 ---
 
-*维护者: 🎨 设计师 + 📺 媒体*
+_维护者: 🎨 设计师 + 📺 媒体_

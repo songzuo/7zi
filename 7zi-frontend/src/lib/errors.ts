@@ -271,94 +271,10 @@ export function handleError(
 }
 
 // ============================================
-// API 错误响应格式
-// ============================================
-export interface ApiErrorResponse {
-  success: false
-  error: {
-    code: ErrorCode
-    message: string
-    details?: Record<string, unknown>
-    timestamp: string
-    requestId?: string
-  }
-}
-
-export function formatErrorResponse(error: AppError, requestId?: string): ApiErrorResponse {
-  return {
-    success: false,
-    error: {
-      code: error.code,
-      message: error.message,
-      details: error.details,
-      timestamp: error.timestamp,
-      requestId,
-    },
-  }
-}
-
-// ============================================
-// 错误聚合器 (用于批量报告)
-// ============================================
-interface ErrorAggregatorConfig {
-  maxBatchSize: number
-  flushIntervalMs: number
-  onErrorBatch?: (errors: AppError[]) => void | Promise<void>
-}
-
-export class ErrorAggregator {
-  private errors: AppError[] = []
-  private flushTimer?: NodeJS.Timeout
-  private config: ErrorAggregatorConfig
-
-  constructor(config: Partial<ErrorAggregatorConfig> = {}) {
-    this.config = {
-      maxBatchSize: 10,
-      flushIntervalMs: 30000,
-      ...config,
-    }
-  }
-
-  add(error: AppError): void {
-    this.errors.push(error)
-
-    if (this.errors.length >= this.config.maxBatchSize) {
-      this.flush()
-    } else if (!this.flushTimer) {
-      this.flushTimer = setTimeout(() => this.flush(), this.config.flushIntervalMs)
-    }
-  }
-
-  async flush(): Promise<void> {
-    if (this.flushTimer) {
-      clearTimeout(this.flushTimer)
-      this.flushTimer = undefined
-    }
-
-    if (this.errors.length === 0) {
-      return
-    }
-
-    const errorsToFlush = [...this.errors]
-    this.errors = []
-
-    if (this.config.onErrorBatch) {
-      try {
-        await this.config.onErrorBatch(errorsToFlush)
-      } catch (err) {
-        logger.error('Failed to flush error batch', err instanceof Error ? err : undefined)
-      }
-    }
-  }
-}
-
-// ============================================
 // 导出
 // ============================================
 export default {
   AppError,
   ErrorCode,
   handleError,
-  formatErrorResponse,
-  ErrorAggregator,
 }

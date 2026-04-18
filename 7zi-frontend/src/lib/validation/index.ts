@@ -109,8 +109,6 @@ export {
   createCachedAsyncValidator,
 } from './async-validators'
 
-export type { AsyncValidator } from './async-validators'
-
 // ============================================================================
 // Zod Integration
 // ============================================================================

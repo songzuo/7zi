@@ -2,19 +2,19 @@
  * Audit Log API Handlers
  * HTTP request handlers for audit log endpoints
  */
-import { AuditLogManager } from './manager';
-import { AuditLogEntry, AuditSearchFilters, AuditSearchOptions, ExportFormat } from './types';
+import { AuditLogManager } from './manager'
+import { AuditLogEntry, AuditSearchFilters, AuditSearchOptions, ExportFormat } from './types'
 
 export interface APIRequest {
-  query?: Record<string, string | string[] | undefined>;
-  body?: unknown;
-  params?: Record<string, string>;
+  query?: Record<string, string | string[] | undefined>
+  body?: unknown
+  params?: Record<string, string>
 }
 
 export interface APIResponse {
-  status: number;
-  body: unknown;
-  headers?: Record<string, string>;
+  status: number
+  body: unknown
+  headers?: Record<string, string>
 }
 
 /**
@@ -28,47 +28,47 @@ export function createAuditAPIHandlers(manager: AuditLogManager) {
      */
     async search(req: APIRequest): Promise<APIResponse> {
       try {
-        const query = req.query || {};
+        const query = req.query || {}
 
         // Parse filters
-        const filters: AuditSearchFilters = {};
-        if (query.startDate) filters.startDate = new Date(query.startDate as string);
-        if (query.endDate) filters.endDate = new Date(query.endDate as string);
-        if (query.userId) filters.userId = query.userId as string;
-        if (query.username) filters.username = query.username as string;
-        if (query.action) filters.action = query.action as string;
-        if (query.resourceType) filters.resourceType = query.resourceType as string;
-        if (query.resourceId) filters.resourceId = query.resourceId as string;
-        if (query.tenantId) filters.tenantId = query.tenantId as string;
-        if (query.status) filters.status = query.status as 'success' | 'failure' | 'pending';
-        if (query.searchText) filters.searchText = query.searchText as string;
-        if (query.ipAddress) filters.ipAddress = query.ipAddress as string;
+        const filters: AuditSearchFilters = {}
+        if (query.startDate) filters.startDate = new Date(query.startDate as string)
+        if (query.endDate) filters.endDate = new Date(query.endDate as string)
+        if (query.userId) filters.userId = query.userId as string
+        if (query.username) filters.username = query.username as string
+        if (query.action) filters.action = query.action as string
+        if (query.resourceType) filters.resourceType = query.resourceType as string
+        if (query.resourceId) filters.resourceId = query.resourceId as string
+        if (query.tenantId) filters.tenantId = query.tenantId as string
+        if (query.status) filters.status = query.status as 'success' | 'failure' | 'pending'
+        if (query.searchText) filters.searchText = query.searchText as string
+        if (query.ipAddress) filters.ipAddress = query.ipAddress as string
 
         // Parse options
         const options: AuditSearchOptions = {
           page: query.page ? parseInt(query.page as string, 10) : 1,
           pageSize: query.pageSize ? parseInt(query.pageSize as string, 10) : 50,
-          sortBy: (query.sortBy as string) as keyof AuditLogEntry,
-          sortOrder: query.sortOrder as 'asc' | 'desc'
-        };
+          sortBy: query.sortBy as string as keyof AuditLogEntry,
+          sortOrder: query.sortOrder as 'asc' | 'desc',
+        }
 
-        const result = manager.search(filters, options);
+        const result = manager.search(filters, options)
 
         return {
           status: 200,
           body: {
             success: true,
-            data: result
-          }
-        };
+            data: result,
+          },
+        }
       } catch (error) {
         return {
           status: 400,
           body: {
             success: false,
-            error: error instanceof Error ? error.message : 'Search failed'
-          }
-        };
+            error: error instanceof Error ? error.message : 'Search failed',
+          },
+        }
       }
     },
 
@@ -78,30 +78,31 @@ export function createAuditAPIHandlers(manager: AuditLogManager) {
      */
     async createExport(req: APIRequest): Promise<APIResponse> {
       try {
-        const body = req.body as {
-          format?: string;
-          filters?: Record<string, unknown>;
-          includeHeaders?: boolean;
-          maxRecords?: number;
-        } || {};
-        const { format, filters, includeHeaders, maxRecords } = body;
+        const body =
+          (req.body as {
+            format?: string
+            filters?: Record<string, unknown>
+            includeHeaders?: boolean
+            maxRecords?: number
+          }) || {}
+        const { format, filters, includeHeaders, maxRecords } = body
 
         if (!format || !['csv', 'json', 'excel'].includes(format)) {
           return {
             status: 400,
             body: {
               success: false,
-              error: 'Invalid format. Must be csv, json, or excel'
-            }
-          };
+              error: 'Invalid format. Must be csv, json, or excel',
+            },
+          }
         }
 
         const job = await manager.createExport({
           format: format as ExportFormat,
           filters: filters || {},
           includeHeaders: includeHeaders !== false,
-          maxRecords: maxRecords || 100000
-        });
+          maxRecords: maxRecords || 100000,
+        })
 
         return {
           status: 202,
@@ -109,18 +110,18 @@ export function createAuditAPIHandlers(manager: AuditLogManager) {
             success: true,
             data: {
               jobId: job.id,
-              status: job.status
-            }
-          }
-        };
+              status: job.status,
+            },
+          },
+        }
       } catch (error) {
         return {
           status: 500,
           body: {
             success: false,
-            error: error instanceof Error ? error.message : 'Export creation failed'
-          }
-        };
+            error: error instanceof Error ? error.message : 'Export creation failed',
+          },
+        }
       }
     },
 
@@ -130,28 +131,28 @@ export function createAuditAPIHandlers(manager: AuditLogManager) {
      */
     async getExportStatus(req: APIRequest): Promise<APIResponse> {
       try {
-        const { jobId } = req.params || {};
+        const { jobId } = req.params || {}
 
         if (!jobId) {
           return {
             status: 400,
             body: {
               success: false,
-              error: 'Job ID is required'
-            }
-          };
+              error: 'Job ID is required',
+            },
+          }
         }
 
-        const job = manager.getExportStatus(jobId);
+        const job = manager.getExportStatus(jobId)
 
         if (!job) {
           return {
             status: 404,
             body: {
               success: false,
-              error: 'Export job not found'
-            }
-          };
+              error: 'Export job not found',
+            },
+          }
         }
 
         return {
@@ -166,18 +167,18 @@ export function createAuditAPIHandlers(manager: AuditLogManager) {
               fileSize: job.fileSize,
               createdAt: job.createdAt,
               completedAt: job.completedAt,
-              errorMessage: job.errorMessage
-            }
-          }
-        };
+              errorMessage: job.errorMessage,
+            },
+          },
+        }
       } catch (error) {
         return {
           status: 500,
           body: {
             success: false,
-            error: error instanceof Error ? error.message : 'Failed to get export status'
-          }
-        };
+            error: error instanceof Error ? error.message : 'Failed to get export status',
+          },
+        }
       }
     },
 
@@ -187,28 +188,28 @@ export function createAuditAPIHandlers(manager: AuditLogManager) {
      */
     async downloadExport(req: APIRequest): Promise<APIResponse> {
       try {
-        const { jobId } = req.params || {};
+        const { jobId } = req.params || {}
 
         if (!jobId) {
           return {
             status: 400,
             body: {
               success: false,
-              error: 'Job ID is required'
-            }
-          };
+              error: 'Job ID is required',
+            },
+          }
         }
 
-        const job = manager.getExportStatus(jobId);
+        const job = manager.getExportStatus(jobId)
 
         if (!job) {
           return {
             status: 404,
             body: {
               success: false,
-              error: 'Export job not found'
-            }
-          };
+              error: 'Export job not found',
+            },
+          }
         }
 
         if (job.status !== 'completed') {
@@ -217,30 +218,30 @@ export function createAuditAPIHandlers(manager: AuditLogManager) {
             body: {
               success: false,
               error: `Export is not ready. Current status: ${job.status}`,
-              progress: job.progress
-            }
-          };
+              progress: job.progress,
+            },
+          }
         }
 
-        const content = manager.getExportContent(jobId);
-        const contentType = getContentType(job.format);
+        const content = manager.getExportContent(jobId)
+        const contentType = getContentType(job.format)
 
         return {
           status: 200,
           body: content,
           headers: {
             'Content-Type': contentType,
-            'Content-Disposition': `attachment; filename="audit-export-${jobId}.${job.format}"`
-          }
-        };
+            'Content-Disposition': `attachment; filename="audit-export-${jobId}.${job.format}"`,
+          },
+        }
       } catch (error) {
         return {
           status: 500,
           body: {
             success: false,
-            error: error instanceof Error ? error.message : 'Download failed'
-          }
-        };
+            error: error instanceof Error ? error.message : 'Download failed',
+          },
+        }
       }
     },
 
@@ -250,44 +251,44 @@ export function createAuditAPIHandlers(manager: AuditLogManager) {
      */
     async getStats(req: APIRequest): Promise<APIResponse> {
       try {
-        const query = req.query || {};
-        const filters: AuditSearchFilters = {};
+        const query = req.query || {}
+        const filters: AuditSearchFilters = {}
 
-        if (query.startDate) filters.startDate = new Date(query.startDate as string);
-        if (query.endDate) filters.endDate = new Date(query.endDate as string);
-        if (query.tenantId) filters.tenantId = query.tenantId as string;
+        if (query.startDate) filters.startDate = new Date(query.startDate as string)
+        if (query.endDate) filters.endDate = new Date(query.endDate as string)
+        if (query.tenantId) filters.tenantId = query.tenantId as string
 
-        const stats = manager.getStats(Object.keys(filters).length > 0 ? filters : undefined);
+        const stats = manager.getStats(Object.keys(filters).length > 0 ? filters : undefined)
 
         return {
           status: 200,
           body: {
             success: true,
-            data: stats
-          }
-        };
+            data: stats,
+          },
+        }
       } catch (error) {
         return {
           status: 500,
           body: {
             success: false,
-            error: error instanceof Error ? error.message : 'Failed to get stats'
-          }
-        };
+            error: error instanceof Error ? error.message : 'Failed to get stats',
+          },
+        }
       }
-    }
-  };
+    },
+  }
 
   function getContentType(format: ExportFormat): string {
     switch (format) {
       case 'csv':
-        return 'text/csv';
+        return 'text/csv'
       case 'json':
-        return 'application/json';
+        return 'application/json'
       case 'excel':
-        return 'application/vnd.ms-excel';
+        return 'application/vnd.ms-excel'
       default:
-        return 'application/octet-stream';
+        return 'application/octet-stream'
     }
   }
 }
