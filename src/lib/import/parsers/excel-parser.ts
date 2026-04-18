@@ -2,7 +2,7 @@
 /**
  * @fileoverview Excel Parser
  * @description 支持 .xlsx 和 .xls 格式的 Excel 解析器
- * @version 1.12.0
+ * @version 2.0.0 - 使用 exceljs 替代 xlsx
  */
 
 import { logger } from '../../logger'
@@ -18,14 +18,13 @@ export class ExcelParser {
    */
   async parse(buffer: ArrayBuffer, options: ParseOptions = { format: 'xlsx' }): Promise<ParseResult> {
     try {
-      // 动态导入 xlsx 库
-      const XLSX = await import('xlsx')
+      const ExcelJS = await import('exceljs')
 
-      const workbook = XLSX.read(buffer, { type: 'array' })
+      const workbook = new ExcelJS.Workbook()
+      await workbook.xlsx.load(buffer)
 
       // 获取工作表
-      const sheetName = options.sheetName || workbook.SheetNames[options.sheetIndex || 0]
-      const worksheet = workbook.Sheets[sheetName]
+      const worksheet = workbook.getWorksheet(options.sheetName || workbook.worksheets[options.sheetIndex || 0]?.name)
 
       if (!worksheet) {
         return {
@@ -35,7 +34,7 @@ export class ExcelParser {
           totalRows: 0,
           errors: [
             {
-              message: `工作表 "${sheetName}" 不存在`,
+              message: `工作表不存在`,
             },
           ],
           warnings: [],
@@ -43,13 +42,12 @@ export class ExcelParser {
       }
 
       // 解析数据
-      const jsonData = XLSX.utils.sheet_to_json(worksheet, {
-        header: 1, // 返回数组数组
-        defval: null, // 空单元格返回 null
-        blankrows: false, // 跳过空行
+      const jsonData: unknown[][] = []
+      worksheet.eachRow((row, rowIndex) => {
+        jsonData.push(row.values as unknown[])
       })
 
-      if (!Array.isArray(jsonData) || jsonData.length === 0) {
+      if (jsonData.length === 0) {
         return {
           success: true,
           data: [],
@@ -61,7 +59,7 @@ export class ExcelParser {
       }
 
       // 解析标题行
-      const headers = jsonData[0] as string[]
+      const headers = (jsonData[0] as string[]).slice(1) // 第一列是空的位置
       const startIndex = options.skipHeader ? 1 : 0
 
       // 解析数据行
@@ -80,8 +78,9 @@ export class ExcelParser {
         try {
           const record: Record<string, unknown> = {}
 
+          // 从索引1开始，跳过第一列（行号）
           headers.forEach((header, index) => {
-            const value = row[index]
+            const value = row[index + 1]
             record[header] = this.parseValue(value)
           })
 
@@ -129,23 +128,23 @@ export class ExcelParser {
     const batchSize = options.batchSize || 100
 
     try {
-      const XLSX = await import('xlsx')
-      const workbook = XLSX.read(buffer, { type: 'array' })
+      const ExcelJS = await import('exceljs')
 
-      const sheetName = options.sheetName || workbook.SheetNames[options.sheetIndex || 0]
-      const worksheet = workbook.Sheets[sheetName]
+      const workbook = new ExcelJS.Workbook()
+      await workbook.xlsx.load(buffer)
+
+      const worksheet = workbook.getWorksheet(options.sheetName || workbook.worksheets[options.sheetIndex || 0]?.name)
 
       if (!worksheet) return
 
-      const jsonData = XLSX.utils.sheet_to_json(worksheet, {
-        header: 1,
-        defval: null,
-        blankrows: false,
+      const jsonData: unknown[][] = []
+      worksheet.eachRow((row) => {
+        jsonData.push(row.values as unknown[])
       })
 
-      if (!Array.isArray(jsonData) || jsonData.length === 0) return
+      if (jsonData.length === 0) return
 
-      const headers = jsonData[0] as string[]
+      const headers = (jsonData[0] as string[]).slice(1)
       const startIndex = options.skipHeader ? 1 : 0
 
       let batch: Record<string, unknown>[] = []
@@ -159,7 +158,7 @@ export class ExcelParser {
           const record: Record<string, unknown> = {}
 
           headers.forEach((header, index) => {
-            const value = row[index]
+            const value = row[index + 1]
             record[header] = this.parseValue(value)
           })
 
@@ -192,8 +191,10 @@ export class ExcelParser {
     sheets: string[]
   }> {
     try {
-      const XLSX = await import('xlsx')
-      const workbook = XLSX.read(buffer, { type: 'array' })
+      const ExcelJS = await import('exceljs')
+
+      const workbook = new ExcelJS.Workbook()
+      await workbook.xlsx.load(buffer)
 
       const result = await this.parse(buffer, { format: 'xlsx', maxRows, skipHeader: true })
 
@@ -201,7 +202,7 @@ export class ExcelParser {
         fields: result.fields,
         data: result.data.slice(0, maxRows),
         totalRows: result.totalRows,
-        sheets: workbook.SheetNames,
+        sheets: workbook.worksheets.map(ws => ws.name),
       }
     } catch (error) {
       logger.error('Excel 预览失败', error, { category: 'import-parser' })
@@ -219,9 +220,12 @@ export class ExcelParser {
    */
   async getSheetNames(buffer: ArrayBuffer): Promise<string[]> {
     try {
-      const XLSX = await import('xlsx')
-      const workbook = XLSX.read(buffer, { type: 'array' })
-      return workbook.SheetNames
+      const ExcelJS = await import('exceljs')
+
+      const workbook = new ExcelJS.Workbook()
+      await workbook.xlsx.load(buffer)
+
+      return workbook.worksheets.map(ws => ws.name)
     } catch (error) {
       logger.error('获取工作表列表失败', error, { category: 'import-parser' })
       return []

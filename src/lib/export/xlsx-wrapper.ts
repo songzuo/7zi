@@ -1,308 +1,146 @@
 /**
- * @fileoverview XLSX (SheetJS) 包装器 - ExcelJS 的兼容层
- * @description 提供与 ExcelJS 兼容的 API，但使用 XLSX (SheetJS) 作为底层实现
- * @note 由于 XLSX 不支持样式，以下功能将无法实现：
- *       - 单元格样式（字体、背景、边框）
- *       - 冻结行/列
- *       - 自动筛选
- *       - 合并单元格
- * @version 1.0.0
+ * @fileoverview Excel Workbook 包装器 - 基于 exceljs 实现
+ * @description 提供 Workbook/Worksheet API 供遗留代码使用
+ * @version 2.0.0 - 基于 exceljs
  */
 
-import * as XLSX from 'xlsx'
+import ExcelJS from 'exceljs'
 
 // ============================================================================
-// 类型定义（兼容 ExcelJS）
+// 类型定义（兼容遗留 API）
 // ============================================================================
 
 /**
- * 工作簿类（兼容 ExcelJS.Workbook）
+ * 工作簿类（兼容遗留 Workbook API）
  */
 export class Workbook {
-  private _worksheets: Worksheet[] = []
-  private _properties: WorkbookProperties = {}
+  private _workbook: ExcelJS.Workbook
 
-  /**
-   * 工作簿属性
-   */
-  get properties(): WorkbookProperties {
-    return this._properties
+  constructor() {
+    this._workbook = new ExcelJS.Workbook()
   }
 
-  set properties(value: WorkbookProperties) {
-    this._properties = value
+  get properties(): ExcelJS.Properties {
+    return this._workbook.properties
   }
 
-  /**
-   * 添加工作表
-   */
-  addWorksheet(name: string, options?: WorksheetOptions): Worksheet {
-    const worksheet = new Worksheet(name, options)
-    this._worksheets.push(worksheet)
-    return worksheet
+  set properties(value: ExcelJS.Properties) {
+    this._workbook.properties = value
   }
 
-  /**
-   * 获取所有工作表
-   */
+  addWorksheet(name: string, options?: ExcelJS.AddWorksheetOptions): Worksheet {
+    const exceljsWorksheet = this._workbook.addWorksheet(name, options)
+    return new Worksheet(exceljsWorksheet)
+  }
+
   get worksheets(): Worksheet[] {
-    return this._worksheets
+    return this._workbook.worksheets.map(ws => new Worksheet(ws))
   }
 
-  /**
-   * 写入 XLSX 缓冲区
-   */
   xlsx = {
-    writeBuffer: async (options: { type?: 'buffer' } = {}): Promise<Buffer> => {
-      // 创建 XLSX 工作簿
-      const workbook = XLSX.utils.book_new()
-
-      // 添加所有工作表
-      this._worksheets.forEach(ws => {
-        const worksheet = ws.toXLSXWorksheet()
-        XLSX.utils.book_append_sheet(workbook, worksheet, ws.name)
-      })
-
-      // 写入缓冲区
-      const buffer = XLSX.write(workbook, {
-        type: 'buffer',
-        bookType: 'xlsx',
-      })
-
+    writeBuffer: async (): Promise<Buffer> => {
+      const buffer = await this._workbook.xlsx.writeBuffer()
       return buffer as Buffer
     },
   }
 }
 
 /**
- * 工作表类（兼容 ExcelJS.Worksheet）
+ * 工作表类（兼容遗留 Worksheet API）
  */
 export class Worksheet {
-  name: string
-  private _rows: Row[] = []
-  private _columns: Column[] = []
-  private _views: WorksheetView[] = []
-  private _autoFilter: AutoFilter | null = null
+  private _worksheet: ExcelJS.Worksheet
 
-  constructor(name: string, options?: WorksheetOptions) {
-    this.name = name
+  constructor(worksheet: ExcelJS.Worksheet) {
+    this._worksheet = worksheet
   }
 
-  /**
-   * 添加行
-   */
+  get name(): string {
+    return this._worksheet.name
+  }
+
   addRow(values: unknown[]): Row {
-    const row = new Row(values, this._rows.length + 1)
-    this._rows.push(row)
-    return row
+    const row = this._worksheet.addRow(values)
+    return new Row(row)
   }
 
-  /**
-   * 获取列
-   */
   getColumn(index: number): Column {
-    if (!this._columns[index - 1]) {
-      this._columns[index - 1] = new Column(index)
-    }
-    return this._columns[index - 1]
+    return new Column(this._worksheet.getColumn(index))
   }
 
-  /**
-   * 获取所有列
-   */
   get columns(): Column[] {
-    return this._columns
+    return this._worksheet.columns.map(col => new Column(col))
   }
 
-  /**
-   * 工作表视图（冻结行等）
-   * @note XLSX 不支持冻结行，此属性会被忽略
-   */
-  get views(): WorksheetView[] {
-    return this._views
+  get views(): ExcelJS.WorksheetView[] {
+    return this._worksheet.views
   }
 
-  set views(value: WorksheetView[]) {
-    this._views = value
-    // XLSX 不支持冻结行，记录警告
-    if (value.some(v => v.state === 'frozen')) {
-      console.warn('[XLSX Wrapper] 冻结行功能在 XLSX 中不支持，将被忽略')
-    }
+  set views(value: ExcelJS.WorksheetView[]) {
+    this._worksheet.views = value
   }
 
-  /**
-   * 自动筛选
-   * @note XLSX 不支持自动筛选，此属性会被忽略
-   */
-  get autoFilter(): AutoFilter | null {
-    return this._autoFilter
+  get autoFilter(): ExcelJS.AutoFilter | undefined {
+    return this._worksheet.autoFilter
   }
 
-  set autoFilter(value: AutoFilter | null) {
-    this._autoFilter = value
-    // XLSX 不支持自动筛选，记录警告
-    if (value) {
-      console.warn('[XLSX Wrapper] 自动筛选功能在 XLSX 中不支持，将被忽略')
-    }
-  }
-
-  /**
-   * 转换为 XLSX 工作表
-   */
-  toXLSXWorksheet(): XLSX.WorkSheet {
-    // 将行数据转换为二维数组
-    const data: unknown[][] = this._rows.map(row => row.values)
-
-    // 转换为 XLSX 工作表
-    const worksheet = XLSX.utils.aoa_to_sheet(data)
-
-    // 设置列宽（有限支持）
-    if (this._columns.length > 0) {
-      worksheet['!cols'] = this._columns.map(col => ({
-        wch: col.width || 15,
-      }))
-    }
-
-    return worksheet
+  set autoFilter(value: ExcelJS.AutoFilter | undefined) {
+    this._worksheet.autoFilter = value
   }
 }
 
 /**
- * 行类（兼容 ExcelJS.Row）
+ * 行类
  */
 export class Row {
-  values: unknown[]
-  number: number
-  private _font: Font | null = null
-  private _fill: Fill | null = null
+  private _row: ExcelJS.Row
 
-  constructor(values: unknown[], number: number) {
-    this.values = values
-    this.number = number
+  constructor(row: ExcelJS.Row) {
+    this._row = row
   }
 
-  /**
-   * 字体样式
-   * @note XLSX 不支持样式，此属性会被忽略
-   */
-  get font(): Font | null {
-    return this._font
+  get values(): unknown[] {
+    return this._row.values as unknown[]
   }
 
-  set font(value: Font | null) {
-    this._font = value
-    if (value) {
-      console.warn('[XLSX Wrapper] 字体样式在 XLSX 中不支持，将被忽略')
-    }
+  get font(): ExcelJS.Font {
+    return this._row.font as ExcelJS.Font
   }
 
-  /**
-   * 填充样式
-   * @note XLSX 不支持样式，此属性会被忽略
-   */
-  get fill(): Fill | null {
-    return this._fill
+  set font(value: ExcelJS.Font) {
+    this._row.font = value
   }
 
-  set fill(value: Fill | null) {
-    this._fill = value
-    if (value) {
-      console.warn('[XLSX Wrapper] 填充样式在 XLSX 中不支持，将被忽略')
-    }
+  get fill(): ExcelJS.Fill {
+    return this._row.fill as ExcelJS.Fill
+  }
+
+  set fill(value: ExcelJS.Fill) {
+    this._row.fill = value
   }
 }
 
 /**
- * 列类（兼容 ExcelJS.Column）
+ * 列类
  */
 export class Column {
-  number: number
-  private _width: number = 15
+  private _column: ExcelJS.Column
 
-  constructor(number: number) {
-    this.number = number
+  constructor(column: ExcelJS.Column) {
+    this._column = column
   }
 
-  /**
-   * 列宽
-   */
   get width(): number {
-    return this._width
+    return this._column.width || 15
   }
 
   set width(value: number) {
-    this._width = value
+    this._column.width = value
   }
-}
-
-// ============================================================================
-// 类型定义
-// ============================================================================
-
-/**
- * 工作簿属性
- */
-export interface WorkbookProperties {
-  title?: string
-  subject?: string
-  creator?: string
-  keywords?: string
-  description?: string
-  lastModifiedBy?: string
-}
-
-/**
- * 工作表选项
- */
-export interface WorksheetOptions {
-  pageSetup?: {
-    horizontalCentered?: boolean
-    verticalCentered?: boolean
-  }
-}
-
-/**
- * 工作表视图
- */
-export interface WorksheetView {
-  state?: 'normal' | 'frozen' | 'split'
-  xSplit?: number
-  ySplit?: number
-}
-
-/**
- * 自动筛选
- */
-export interface AutoFilter {
-  from: { row: number; column: number }
-  to: { row: number; column: number }
-}
-
-/**
- * 字体样式
- */
-export interface Font {
-  bold?: boolean
-  color?: { argb: string }
-  size?: number
-  name?: string
-  family?: number
-}
-
-/**
- * 填充样式
- */
-export interface Fill {
-  type: 'pattern'
-  pattern: 'solid' | 'none'
-  fgColor?: { argb: string }
-  bgColor?: { argb: string }
 }
 
 // ============================================================================
 // 导出
 // ============================================================================
 
-export default {
-  Workbook,
-}
+export default { Workbook }
