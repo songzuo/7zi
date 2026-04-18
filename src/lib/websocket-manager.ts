@@ -1,7 +1,7 @@
 // WebSocket Manager stub for workspace compatibility
 export type ConnectionState = 'connecting' | 'connected' | 'disconnected' | 'reconnecting';
 
-type EventHandler = (...args: any[]) => void;
+export type EventHandler = (...args: unknown[]) => void;
 
 export interface WebSocketManager {
   connect(): void;

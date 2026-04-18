@@ -198,7 +198,8 @@ export class WebSocketInstanceManager {
       try {
         manager.connect()
       } catch (error) {
-        logger.error(`[WebSocketInstanceManager] Failed to connect instance '${name}':`, error)
+        const err = error instanceof Error ? error : new Error(String(error))
+        logger.error(`[WebSocketInstanceManager] Failed to connect instance '${name}':`, err)
       }
     })
   }
@@ -211,7 +212,8 @@ export class WebSocketInstanceManager {
       try {
         manager.disconnect()
       } catch (error) {
-        logger.error(`[WebSocketInstanceManager] Failed to disconnect instance '${name}':`, error)
+        const err = error instanceof Error ? error : new Error(String(error))
+        logger.error(`[WebSocketInstanceManager] Failed to disconnect instance '${name}':`, err)
       }
     })
   }

@@ -33,7 +33,7 @@ describe('LoopNodeExecutor', () => {
           type: NodeType.LOOP,
           name: '循环节点',
           position: { x: 100, y: 100 },
-          loopConfig: { loopType: 'while', condition: 'true' },
+          loopConfig: { loopType: 'conditional', condition: 'true' },
         }
 
         const result = executor.validate(node)
@@ -48,7 +48,7 @@ describe('LoopNodeExecutor', () => {
           type: NodeType.LOOP,
           name: '',
           position: { x: 100, y: 100 },
-          loopConfig: { loopType: 'while', condition: 'true' },
+          loopConfig: { loopType: 'conditional', condition: 'true' },
         }
 
         const result = executor.validate(node)
@@ -95,7 +95,7 @@ describe('LoopNodeExecutor', () => {
           name: '循环节点',
           position: { x: 100, y: 100 },
           loopConfig: {
-            loopType: 'while',
+            loopType: 'conditional',
             condition: 'true',
             maxIterations: 0,
           },
@@ -114,7 +114,7 @@ describe('LoopNodeExecutor', () => {
           name: '循环节点',
           position: { x: 100, y: 100 },
           loopConfig: {
-            loopType: 'while',
+            loopType: 'conditional',
             condition: 'true',
             timeout: -1,
           },
@@ -135,7 +135,7 @@ describe('LoopNodeExecutor', () => {
           name: 'While 循环',
           position: { x: 100, y: 100 },
           loopConfig: {
-            loopType: 'while',
+            loopType: 'conditional',
             condition: 'data.counter < 10',
           },
         }
@@ -153,7 +153,7 @@ describe('LoopNodeExecutor', () => {
           name: 'While 循环',
           position: { x: 100, y: 100 },
           loopConfig: {
-            loopType: 'while',
+            loopType: 'conditional',
           },
         }
 
@@ -170,7 +170,7 @@ describe('LoopNodeExecutor', () => {
           name: 'While 循环',
           position: { x: 100, y: 100 },
           loopConfig: {
-            loopType: 'while',
+            loopType: 'conditional',
             condition: 'eval("process.exit()")',
           },
         }
@@ -190,7 +190,7 @@ describe('LoopNodeExecutor', () => {
           name: 'Do-While 循环',
           position: { x: 100, y: 100 },
           loopConfig: {
-            loopType: 'doWhile',
+            loopType: 'conditional',
             condition: 'data.counter < 10',
           },
         }
@@ -207,7 +207,7 @@ describe('LoopNodeExecutor', () => {
           name: 'Do-While 循环',
           position: { x: 100, y: 100 },
           loopConfig: {
-            loopType: 'doWhile',
+            loopType: 'conditional',
           },
         }
 
@@ -226,7 +226,7 @@ describe('LoopNodeExecutor', () => {
           name: 'For 循环',
           position: { x: 100, y: 100 },
           loopConfig: {
-            loopType: 'for',
+            loopType: 'fixed',
             forConfig: {
               start: 0,
               end: 10,
@@ -248,7 +248,7 @@ describe('LoopNodeExecutor', () => {
           name: 'For 循环',
           position: { x: 100, y: 100 },
           loopConfig: {
-            loopType: 'for',
+            loopType: 'fixed',
           },
         }
 
@@ -265,7 +265,7 @@ describe('LoopNodeExecutor', () => {
           name: 'For 循环',
           position: { x: 100, y: 100 },
           loopConfig: {
-            loopType: 'for',
+            loopType: 'fixed',
             forConfig: {
               start: 0,
               end: 10,
@@ -289,7 +289,7 @@ describe('LoopNodeExecutor', () => {
           name: 'ForEach 循环',
           position: { x: 100, y: 100 },
           loopConfig: {
-            loopType: 'forEach',
+            loopType: 'foreach',
             forEachConfig: {
               array: 'data.items',
               variableName: 'item',
@@ -310,7 +310,7 @@ describe('LoopNodeExecutor', () => {
           name: 'ForEach 循环',
           position: { x: 100, y: 100 },
           loopConfig: {
-            loopType: 'forEach',
+            loopType: 'foreach',
           },
         }
 
@@ -327,7 +327,7 @@ describe('LoopNodeExecutor', () => {
           name: 'ForEach 循环',
           position: { x: 100, y: 100 },
           loopConfig: {
-            loopType: 'forEach',
+            loopType: 'foreach',
             forEachConfig: {
               array: '',
               variableName: 'item',
@@ -348,7 +348,7 @@ describe('LoopNodeExecutor', () => {
           name: 'ForEach 循环',
           position: { x: 100, y: 100 },
           loopConfig: {
-            loopType: 'forEach',
+            loopType: 'foreach',
             forEachConfig: {
               array: 'items',
               variableName: '',
@@ -384,7 +384,7 @@ describe('LoopNodeExecutor', () => {
           name: 'While 循环',
           position: { x: 100, y: 100 },
           loopConfig: {
-            loopType: 'while',
+            loopType: 'conditional',
             condition: 'variables.counter < 3',
             maxIterations: 10,
           },
@@ -410,7 +410,7 @@ describe('LoopNodeExecutor', () => {
           name: 'While 循环',
           position: { x: 100, y: 100 },
           loopConfig: {
-            loopType: 'while',
+            loopType: 'conditional',
             condition: 'true',
             maxIterations: 5,
           },
@@ -434,7 +434,7 @@ describe('LoopNodeExecutor', () => {
           name: 'Do-While 循环',
           position: { x: 100, y: 100 },
           loopConfig: {
-            loopType: 'doWhile',
+            loopType: 'conditional',
             condition: 'false',
             maxIterations: 10,
           },
@@ -456,7 +456,7 @@ describe('LoopNodeExecutor', () => {
           name: 'For 循环',
           position: { x: 100, y: 100 },
           loopConfig: {
-            loopType: 'for',
+            loopType: 'fixed',
             forConfig: {
               start: 0,
               end: 5,
@@ -479,7 +479,7 @@ describe('LoopNodeExecutor', () => {
           name: 'For 循环',
           position: { x: 100, y: 100 },
           loopConfig: {
-            loopType: 'for',
+            loopType: 'fixed',
             forConfig: {
               start: 5,
               end: 0,
@@ -504,7 +504,7 @@ describe('LoopNodeExecutor', () => {
           name: 'ForEach 循环',
           position: { x: 100, y: 100 },
           loopConfig: {
-            loopType: 'forEach',
+            loopType: 'foreach',
             forEachConfig: {
               array: 'variables.items',
               variableName: 'item',
@@ -527,7 +527,7 @@ describe('LoopNodeExecutor', () => {
           name: 'ForEach 循环',
           position: { x: 100, y: 100 },
           loopConfig: {
-            loopType: 'forEach',
+            loopType: 'foreach',
             forEachConfig: {
               array: 'variables.items',
               variableName: 'item',
@@ -551,7 +551,7 @@ describe('LoopNodeExecutor', () => {
           name: 'For 循环',
           position: { x: 100, y: 100 },
           loopConfig: {
-            loopType: 'for',
+            loopType: 'fixed',
             forConfig: {
               start: 0,
               end: 3,
@@ -575,7 +575,7 @@ describe('LoopNodeExecutor', () => {
           name: 'For 循环',
           position: { x: 100, y: 100 },
           loopConfig: {
-            loopType: 'for',
+            loopType: 'fixed',
             forConfig: {
               start: 0,
               end: 3,
@@ -599,7 +599,7 @@ describe('LoopNodeExecutor', () => {
           name: 'For 循环',
           position: { x: 100, y: 100 },
           loopConfig: {
-            loopType: 'for',
+            loopType: 'fixed',
             forConfig: {
               start: 0,
               end: 3,
@@ -625,7 +625,7 @@ describe('LoopNodeExecutor', () => {
         name: 'For 循环',
         position: { x: 100, y: 100 },
         loopConfig: {
-          loopType: 'for',
+          loopType: 'fixed',
           forConfig: {
             start: 0,
             end: 10,

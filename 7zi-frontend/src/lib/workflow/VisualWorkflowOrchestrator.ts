@@ -13,6 +13,7 @@ import type {
   WorkflowNodeData,
   WorkflowEdgeData,
   WorkflowInstance,
+  WorkflowVariable,
   NodeStatus,
   NodeExecutionResult,
   ExecutionState,
@@ -166,7 +167,9 @@ export class VisualWorkflowOrchestrator {
       },
       inputs,
       outputs: {},
-      variables: this.workflow.variables || [],
+      variables: this.workflow.variables
+        ? Object.fromEntries(this.workflow.variables.map((v: WorkflowVariable) => [v.name, v]))
+        : {},
     }
 
     this.executionState = {
@@ -252,11 +255,12 @@ export class VisualWorkflowOrchestrator {
       },
       inputs: {},
       outputs: {},
-      variables: Object.entries(savedState.variables).map(([key, value]) => ({
-        name: key,
-        value,
-        type: typeof value as string,
-      })),
+      variables: Object.fromEntries(
+        Object.entries(savedState.variables).map(([key, value]) => [
+          key,
+          { name: key, value, type: typeof value as string }
+        ])
+      ),
     }
 
     this.executionState = {
@@ -391,7 +395,7 @@ export class VisualWorkflowOrchestrator {
     return {
       success,
       instance,
-      outputs: instance.outputs,
+      outputs: instance.outputs ?? {},
     }
   }
 
@@ -419,7 +423,7 @@ export class VisualWorkflowOrchestrator {
 
     try {
       // 执行节点逻辑（这里需要根据节点类型实现具体的执行逻辑）
-      const result = await this.executeNodeLogic(node)
+      const result = (await this.executeNodeLogic(node)) as NodeExecutionResult | undefined
 
       // 更新节点状态为完成
       this.executionState!.nodeStates[nodeId] = {
@@ -428,8 +432,9 @@ export class VisualWorkflowOrchestrator {
       }
 
       // 更新输出
-      if (result && typeof result === 'object') {
-        this.executionState!.instance.outputs[nodeId] = result
+      if (result && typeof result === 'object' && this.executionState?.instance) {
+        this.executionState.instance.outputs ??= {}
+        this.executionState.instance.outputs[nodeId] = result
       }
 
       this.emitEvent({
@@ -443,8 +448,8 @@ export class VisualWorkflowOrchestrator {
       const nodeExecutionResult = result as NodeExecutionResult
       this.triggerWebhook(this.createNodeExecutedEvent(nodeId, node, {
         success: true,
-        outputs: nodeExecutionResult as Record<string, unknown>,
-        duration: 100,
+        data: nodeExecutionResult.data ?? nodeExecutionResult,
+        duration: nodeExecutionResult.duration ?? 100,
       }))
 
       // 保存状态
@@ -614,6 +619,10 @@ export class VisualWorkflowOrchestrator {
 
     const { instance, nodeStates } = this.executionState
 
+    if (!instance) {
+      return
+    }
+
     // 找到当前运行的节点
     const currentNodeId = Object.entries(nodeStates).find(
       ([, state]) => state.status === 'running'
@@ -712,7 +721,7 @@ export class VisualWorkflowOrchestrator {
       data: {
         workflowId: instance.workflowId,
         workflowName: this.workflow?.name || 'Unknown',
-        workflowVersion: this.workflow?.version,
+        workflowVersion: this.workflow?.metadata?.version ? Number(this.workflow.metadata.version) : undefined,
         executionId: instance.id,
         metadata: {
           inputs: instance.inputs,
@@ -734,9 +743,9 @@ export class VisualWorkflowOrchestrator {
       data: {
         workflowId: instance.workflowId,
         workflowName: this.workflow?.name || 'Unknown',
-        workflowVersion: this.workflow?.version,
+        workflowVersion: this.workflow?.metadata?.version ? Number(this.workflow.metadata.version) : undefined,
         executionId: instance.id,
-        duration: instance.endTime ? instance.endTime - instance.startTime : undefined,
+        duration: instance.endTime ? Number(instance.endTime) - Number(instance.startTime) : undefined,
         metadata: {
           outputs: instance.outputs,
           progress: instance.progress,
@@ -758,10 +767,10 @@ export class VisualWorkflowOrchestrator {
       data: {
         workflowId: instance.workflowId,
         workflowName: this.workflow?.name || 'Unknown',
-        workflowVersion: this.workflow?.version,
+        workflowVersion: this.workflow?.metadata?.version ? Number(this.workflow.metadata.version) : undefined,
         executionId: instance.id,
         error,
-        duration: instance.endTime ? instance.endTime - instance.startTime : undefined,
+        duration: instance.endTime ? Number(instance.endTime) - Number(instance.startTime) : undefined,
         metadata: {
           progress: instance.progress,
           endTime: instance.endTime,
@@ -786,13 +795,13 @@ export class VisualWorkflowOrchestrator {
       data: {
         workflowId: this.workflow?.id || 'Unknown',
         workflowName: this.workflow?.name || 'Unknown',
-        executionId: this.executionState?.instance.id || 'Unknown',
+        executionId: this.executionState?.instance?.id || 'Unknown',
         nodeId,
-        nodeName: node.data?.label || node.id,
+        nodeName: node.label || node.id,
         nodeType: node.type,
         duration: result.duration,
         metadata: {
-          outputs: result.outputs,
+          data: result.data,
           status: result.success ? 'success' : 'failed',
         },
       },
@@ -815,13 +824,13 @@ export class VisualWorkflowOrchestrator {
       data: {
         workflowId: this.workflow?.id || 'Unknown',
         workflowName: this.workflow?.name || 'Unknown',
-        executionId: this.executionState?.instance.id || 'Unknown',
+        executionId: this.executionState?.instance?.id || 'Unknown',
         nodeId,
-        nodeName: node.data?.label || node.id,
+        nodeName: node.label || node.id,
         nodeType: node.type,
         error,
         metadata: {
-          nodeData: node.data,
+          nodeConfig: node.config,
         },
       },
     }

@@ -275,12 +275,14 @@ export function createMissingTokenError(
  *   return createSuccessResponse(data);
  * });
  */
-export function withErrorHandling<T extends (...args: unknown[]) => Promise<NextResponse<unknown>>>(
+export function withErrorHandling<
+  T extends (request: NextRequest, ...args: unknown[]) => Promise<NextResponse<unknown>>
+>(
   handler: T
 ): T {
-  return (async (...args: unknown[]) => {
+  return (async (request: NextRequest, ...args: unknown[]) => {
     try {
-      return await handler(...(args as Parameters<T>))
+      return await handler(request, ...args)
     } catch (error) {
       return createErrorResponse(error instanceof Error ? error : new Error(String(error)))
     }

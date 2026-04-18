@@ -33,6 +33,7 @@ export interface CollabSession {
   crdt: CRDTTextImpl;
   createdAt: number;
   lastActivity: number;
+  version: number;
 }
 
 /**
@@ -65,6 +66,34 @@ export interface SyncData {
   content: string;
   version: number;
   clients: ClientInfo[];
+}
+
+/**
+ * Sync request data (client -> server)
+ */
+export interface SyncRequestData {
+  documentId?: string;
+}
+
+/**
+ * Sync response data (server -> client)
+ */
+export interface SyncResponseData {
+  documentId: string;
+  content: string;
+  crdtState?: unknown;
+  clients: ClientInfo[];
+  vectorClock?: Record<string, number>;
+}
+
+/**
+ * Join request data
+ */
+export interface JoinRequestData {
+  documentId: string;
+  userId: string;
+  name: string;
+  color?: string;
 }
 
 /**
@@ -154,13 +183,19 @@ export class CollabServer extends EventEmitter {
 
       case 'operation':
         if (session) {
-          this.handleOperation(session, clientId, message.data as any);
+          // Extract the first operation from OperationData
+          const opData = message.data as OperationData;
+          if (opData.operations && opData.operations.length > 0) {
+            this.handleOperation(session, clientId, opData.operations[0]);
+          }
         }
         break;
 
       case 'cursor':
         if (session) {
-          this.handleCursor(session, clientId, message.data as any);
+          // Extract position from CursorData
+          const cursorData = message.data as CursorData;
+          this.handleCursor(session, clientId, cursorData.position);
         }
         break;
 
@@ -176,7 +211,7 @@ export class CollabServer extends EventEmitter {
    * Handle client joining a session
    */
   private handleJoin(ws: WebSocket, clientId: string, message: ClientMessage): void {
-    const { documentId, userId, name } = message.data as any;
+    const { documentId, userId, name } = message.data as JoinRequestData;
 
     let session = this.sessions.get(message.sessionId);
 
@@ -246,19 +281,16 @@ export class CollabServer extends EventEmitter {
     // Apply operation to CRDT
     session.crdt.applyOperation(operation);
 
-    // Broadcast to other clients
-    const update: CRDTUpdate = {
-      documentId: session.documentId,
+    // Broadcast to other clients (convert Operation to OperationData)
+    const operationData: OperationData = {
       operations: [operation],
-      timestamp: Date.now(),
-      clientId,
-      vectorClock: session.crdt.getVectorClock(),
+      version: session.version,
     };
 
     this.broadcastToSession(session, {
       type: 'operation',
       sessionId: session.id,
-      data: update as any,
+      data: operationData,
       timestamp: Date.now(),
     }, clientId); // Exclude sender
 
@@ -281,7 +313,7 @@ export class CollabServer extends EventEmitter {
     this.broadcastToSession(session, {
       type: 'cursor',
       sessionId: session.id,
-      data: { clientId, cursor } as any,
+      data: { userId: clientId, position: cursor } as CursorData,
       timestamp: Date.now(),
     }, clientId); // Exclude sender
   }
@@ -304,6 +336,7 @@ export class CollabServer extends EventEmitter {
       crdt: new CRDTTextImpl(sessionId),
       createdAt: Date.now(),
       lastActivity: Date.now(),
+      version: 0,
     };
   }
 
@@ -311,6 +344,12 @@ export class CollabServer extends EventEmitter {
    * Send sync data to client
    */
   private sendSync(ws: WebSocket, session: CollabSession): void {
+    // Convert Map to Record for vectorClock
+    const vectorClockRecord: Record<string, number> = {};
+    session.crdt.getVectorClock().forEach((v, k) => {
+      vectorClockRecord[k] = v;
+    });
+
     const message: ServerMessage = {
       type: 'sync',
       sessionId: session.id,
@@ -319,8 +358,8 @@ export class CollabServer extends EventEmitter {
         content: session.crdt.getText(),
         crdtState: session.crdt.toJSON(),
         clients: Array.from(session.clients.values()),
-        vectorClock: session.crdt.getVectorClock(),
-      } as any,
+        vectorClock: vectorClockRecord,
+      } as SyncResponseData,
       timestamp: Date.now(),
     };
 
@@ -374,7 +413,7 @@ export class CollabServer extends EventEmitter {
     const message: ServerMessage = {
       type: 'error',
       sessionId: '',
-      data: { error } as any,
+      data: { code: 'INTERNAL_ERROR', message: error } as ErrorData,
       timestamp: Date.now(),
     };
 
@@ -459,6 +498,7 @@ export function createSession(documentId: string): CollabSession {
     crdt: new CRDTTextImpl(sessionId),
     createdAt: Date.now(),
     lastActivity: Date.now(),
+    version: 0,
   };
 }
 

@@ -128,9 +128,5 @@ export default function manifest(): MetadataRoute.Manifest {
     ],
     // 关联的 Web 应用
     related_applications: [],
-    // 协议处理（如深度链接）
-    protocols: [],
-    // 离线支持 - 预加载关键资源
-    prefer_related_applications: false,
   }
 }

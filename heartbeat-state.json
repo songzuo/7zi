@@ -2,8 +2,13 @@
   "lastChecks": {
     "email": null,
     "calendar": null,
-    "weather": null,
-    "memoryMaintenance": 1744300800
+    "weather": null
   },
-  "lastHeartbeat": 1744300800
+  "lastDirectorCheck": 1744937040,
+  "activeTasks": {
+    "prod-fix-0418": { "status": "running", "started": "2026-04-18T00:04:00Z" },
+    "test-fix-0418": { "status": "running", "started": "2026-04-18T00:04:00Z" },
+    "ui-fix-0418": { "status": "running", "started": "2026-04-18T00:04:00Z" },
+    "perf-opt-0418": { "status": "running", "started": "2026-04-18T00:04:00Z" }
+  }
 }

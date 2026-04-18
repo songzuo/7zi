@@ -171,7 +171,7 @@ describe('RedisAdapter (Mock)', () => {
     it('should handle connection errors gracefully', () => {
       const storage = new RedisAdapter({
         url: 'redis://invalid-host:6379',
-        retryAttempts: 1,
+        maxRetries: 1,
       })
 
       // Should not throw on initial connection (lazy connection)
@@ -201,10 +201,9 @@ describe('RedisAdapter (Mock)', () => {
     it('should support custom connection options', () => {
       const storage = new RedisAdapter({
         url: 'redis://localhost:6379',
-        maxRetriesPerRequest: 3,
+        maxRetries: 3,
         enableReadyCheck: true,
-        lazyConnect: true,
-      })
+              })
 
       expect(() => storage).not.toThrow()
     })

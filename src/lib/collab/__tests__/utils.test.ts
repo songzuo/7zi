@@ -75,7 +75,7 @@ describe('debounce', () => {
   it('should pass arguments', async () => {
     let result = '';
     const fn = (arg: string) => result = arg;
-    const debounced = debounce(fn, 50);
+    const debounced = debounce(fn as (...args: unknown[]) => unknown, 50);
 
     debounced('test');
 
