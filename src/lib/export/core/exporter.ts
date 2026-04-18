@@ -200,42 +200,70 @@ export class DataExporter<T extends Record<string, unknown> = Record<string, unk
   /**
    * 导出 Excel
    */
-  private exportExcel(data: T[], config: ExportConfig<T>): ExportResult {
+  private async exportExcel(data: T[], config: ExportConfig<T>): Promise<ExportResult> {
     try {
+      const ExcelJS = await import('exceljs')
       const fields = this.getSelectedFields(config)
       const rows = this.processData(data, fields, config)
 
-      // 使用 XLSX 库
-      // @ts-ignore - 动态导入
-      import('xlsx').then(XLSX => {
-        // 创建工作表数据
-        const worksheetData: unknown[][] = []
+      // 创建工作簿
+      const workbook = new ExcelJS.Workbook()
+      const worksheet = workbook.addWorksheet(config.sheetName || 'Sheet1')
 
-        // 表头
-        if (config.includeHeader !== false) {
-          worksheetData.push(fields.map(f => f.label))
+      // 表头行
+      if (config.includeHeader !== false) {
+        const headerRow = worksheet.addRow(fields.map(f => f.label))
+        headerRow.font = { bold: true }
+        headerRow.fill = {
+          type: 'pattern',
+          pattern: 'solid',
+          fgColor: { argb: 'FFE0E0E0' },
         }
+      }
 
-        // 数据行
-        rows.forEach(row => {
-          worksheetData.push(fields.map(f => this.formatValue(row[f.key], f, row)))
-        })
-
-        // 创建工作表
-        const worksheet = XLSX.utils.aoa_to_sheet(worksheetData)
-
-        // 创建工作簿
-        const workbook = XLSX.utils.book_new()
-        XLSX.utils.book_append_sheet(workbook, worksheet, config.sheetName || 'Sheet1')
-
-        // 写入文件
-        XLSX.writeFile(workbook, `${config.filename}.xlsx`)
+      // 数据行
+      rows.forEach(row => {
+        worksheet.addRow(fields.map(f => this.formatValue(row[f.key], f, row)))
       })
 
-      // 由于 XLSX 库是同步的，我们返回一个模拟结果
-      // 实际使用时，应该使用回调或 Promise
+      // 列宽设置
+      if (config.excelOptions?.columnStyles) {
+        fields.forEach((f, i) => {
+          const col = worksheet.getColumn(i + 1)
+          const style = config.excelOptions?.columnStyles?.[String(f.key)]
+          if (style?.width) {
+            col.width = style.width
+          } else if (style?.autoWidth) {
+            col.width = 15
+          }
+        })
+      }
+
+      // 冻结行
+      if (config.excelOptions?.freezeRows) {
+        worksheet.views = [{
+          state: 'frozen',
+          ySplit: config.excelOptions.freezeRows,
+        }]
+      }
+
+      // 自动筛选
+      if (config.excelOptions?.autoFilter) {
+        worksheet.autoFilter = {
+          from: { row: 1, column: 1 },
+          to: { row: rows.length + 1, column: fields.length },
+        }
+      }
+
+      // 写入缓冲区
+      const excelBuffer = await workbook.xlsx.writeBuffer()
+      const blob = new Blob([excelBuffer], {
+        type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+      })
+
       return {
         success: true,
+        blob,
         filename: `${config.filename}.xlsx`,
         rowCount: rows.length,
         columnCount: fields.length,
