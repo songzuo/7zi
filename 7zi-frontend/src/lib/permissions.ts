@@ -98,12 +98,9 @@ export interface RoleDefinition {
 /**
  * 资源访问规则
  */
-export interface ResourceAccessRule {
-  resourceType: ResourceType
-  requiredPermissions: Permission[]
-  ownerAccessRule?: 'full' | 'read-only' | 'custom'
-  publicAccess?: boolean // 是否允许公开访问
-}
+// ResourceAccessRule - reserved for future resource-level access control
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
+type ResourceAccessRule = { resourceType: ResourceType; requiredPermissions: Permission[] }
 
 /**
  * 权限检查结果
@@ -130,175 +127,28 @@ export interface PermissionContext {
  * ==================== 系统权限定义 ====================
  */
 
-/**
- * 所有系统权限列表
- */
-export const SYSTEM_PERMISSIONS: PermissionDefinition[] = [
-  // 用户管理
-  {
-    id: 'user:read',
-    name: '查看用户',
-    description: '查看用户信息',
-    resourceType: ResourceType.USER,
-    actionType: ActionType.READ,
-    isSystem: true,
-  },
-  {
-    id: 'user:create',
-    name: '创建用户',
-    description: '创建新用户',
-    resourceType: ResourceType.USER,
-    actionType: ActionType.CREATE,
-    isSystem: true,
-  },
-  {
-    id: 'user:update',
-    name: '更新用户',
-    description: '更新用户信息',
-    resourceType: ResourceType.USER,
-    actionType: ActionType.UPDATE,
-    isSystem: true,
-  },
-  {
-    id: 'user:delete',
-    name: '删除用户',
-    description: '删除用户',
-    resourceType: ResourceType.USER,
-    actionType: ActionType.DELETE,
-    isSystem: true,
-  },
-  {
-    id: 'user:list',
-    name: '列出用户',
-    description: '列出所有用户',
-    resourceType: ResourceType.USER,
-    actionType: ActionType.LIST,
-    isSystem: true,
-  },
-
-  // 团队管理
-  {
-    id: 'team:create',
-    name: '创建团队',
-    description: '创建新团队',
-    resourceType: ResourceType.TEAM,
-    actionType: ActionType.CREATE,
-    isSystem: true,
-  },
-  {
-    id: 'team:update',
-    name: '更新团队',
-    description: '更新团队信息',
-    resourceType: ResourceType.TEAM,
-    actionType: ActionType.UPDATE,
-    isSystem: true,
-  },
-  {
-    id: 'team:delete',
-    name: '删除团队',
-    description: '删除团队',
-    resourceType: ResourceType.TEAM,
-    actionType: ActionType.DELETE,
-    isSystem: true,
-  },
-  {
-    id: 'team:manage',
-    name: '管理团队',
-    description: '完全管理团队（包括成员管理）',
-    resourceType: ResourceType.TEAM,
-    actionType: ActionType.MANAGE,
-    isSystem: true,
-  },
-
-  // 项目管理
-  {
-    id: 'project:create',
-    name: '创建项目',
-    description: '创建新项目',
-    resourceType: ResourceType.PROJECT,
-    actionType: ActionType.CREATE,
-    isSystem: true,
-  },
-  {
-    id: 'project:read',
-    name: '读取项目',
-    description: '读取项目信息',
-    resourceType: ResourceType.PROJECT,
-    actionType: ActionType.READ,
-    isSystem: true,
-  },
-  {
-    id: 'project:update',
-    name: '更新项目',
-    description: '更新项目信息',
-    resourceType: ResourceType.PROJECT,
-    actionType: ActionType.UPDATE,
-    isSystem: true,
-  },
-  {
-    id: 'project:delete',
-    name: '删除项目',
-    description: '删除项目',
-    resourceType: ResourceType.PROJECT,
-    actionType: ActionType.DELETE,
-    isSystem: true,
-  },
-
-  // 团队
-  {
-    id: 'team:read',
-    name: '读取团队',
-    description: '读取团队信息',
-    resourceType: ResourceType.TEAM,
-    actionType: ActionType.READ,
-    isSystem: true,
-  },
-
-  // 数据管理
-  {
-    id: 'data:export',
-    name: '导出数据',
-    description: '导出数据',
-    resourceType: ResourceType.DATA,
-    actionType: ActionType.EXPORT,
-    isSystem: true,
-  },
-  {
-    id: 'data:import',
-    name: '导入数据',
-    description: '导入数据',
-    resourceType: ResourceType.DATA,
-    actionType: ActionType.IMPORT,
-    isSystem: true,
-  },
-
-  // 系统管理
-  {
-    id: 'system:config',
-    name: '系统配置',
-    description: '修改系统配置',
-    resourceType: ResourceType.SYSTEM_CONFIG,
-    actionType: ActionType.MANAGE,
-    isSystem: true,
-  },
-  {
-    id: 'system:log',
-    name: '系统日志',
-    description: '查看系统日志',
-    resourceType: ResourceType.SYSTEM_LOG,
-    actionType: ActionType.READ,
-    isSystem: true,
-  },
-
-  // MCP 管理
-  {
-    id: 'mcp:execute',
-    name: '执行 MCP 工具',
-    description: '执行 MCP 服务器工具',
-    resourceType: ResourceType.MCP_TOOL,
-    actionType: ActionType.EXECUTE,
-    isSystem: true,
-  },
+// System permissions used internally
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
+const _SYSTEM_PERMISSIONS: PermissionDefinition[] = [
+  { id: 'user:read', name: '查看用户', description: '查看用户信息', resourceType: ResourceType.USER, actionType: ActionType.READ, isSystem: true },
+  { id: 'user:create', name: '创建用户', description: '创建新用户', resourceType: ResourceType.USER, actionType: ActionType.CREATE, isSystem: true },
+  { id: 'user:update', name: '更新用户', description: '更新用户信息', resourceType: ResourceType.USER, actionType: ActionType.UPDATE, isSystem: true },
+  { id: 'user:delete', name: '删除用户', description: '删除用户', resourceType: ResourceType.USER, actionType: ActionType.DELETE, isSystem: true },
+  { id: 'user:list', name: '列出用户', description: '列出所有用户', resourceType: ResourceType.USER, actionType: ActionType.LIST, isSystem: true },
+  { id: 'team:create', name: '创建团队', description: '创建新团队', resourceType: ResourceType.TEAM, actionType: ActionType.CREATE, isSystem: true },
+  { id: 'team:update', name: '更新团队', description: '更新团队信息', resourceType: ResourceType.TEAM, actionType: ActionType.UPDATE, isSystem: true },
+  { id: 'team:delete', name: '删除团队', description: '删除团队', resourceType: ResourceType.TEAM, actionType: ActionType.DELETE, isSystem: true },
+  { id: 'team:manage', name: '管理团队', description: '完全管理团队', resourceType: ResourceType.TEAM, actionType: ActionType.MANAGE, isSystem: true },
+  { id: 'project:create', name: '创建项目', description: '创建新项目', resourceType: ResourceType.PROJECT, actionType: ActionType.CREATE, isSystem: true },
+  { id: 'project:read', name: '读取项目', description: '读取项目信息', resourceType: ResourceType.PROJECT, actionType: ActionType.READ, isSystem: true },
+  { id: 'project:update', name: '更新项目', description: '更新项目信息', resourceType: ResourceType.PROJECT, actionType: ActionType.UPDATE, isSystem: true },
+  { id: 'project:delete', name: '删除项目', description: '删除项目', resourceType: ResourceType.PROJECT, actionType: ActionType.DELETE, isSystem: true },
+  { id: 'team:read', name: '读取团队', description: '读取团队信息', resourceType: ResourceType.TEAM, actionType: ActionType.READ, isSystem: true },
+  { id: 'data:export', name: '导出数据', description: '导出数据', resourceType: ResourceType.DATA, actionType: ActionType.EXPORT, isSystem: true },
+  { id: 'data:import', name: '导入数据', description: '导入数据', resourceType: ResourceType.DATA, actionType: ActionType.IMPORT, isSystem: true },
+  { id: 'system:config', name: '系统配置', description: '修改系统配置', resourceType: ResourceType.SYSTEM_CONFIG, actionType: ActionType.MANAGE, isSystem: true },
+  { id: 'system:log', name: '系统日志', description: '查看系统日志', resourceType: ResourceType.SYSTEM_LOG, actionType: ActionType.READ, isSystem: true },
+  { id: 'mcp:execute', name: '执行 MCP 工具', description: '执行 MCP 服务器工具', resourceType: ResourceType.MCP_TOOL, actionType: ActionType.EXECUTE, isSystem: true },
 ]
 
 /**
@@ -312,7 +162,14 @@ export const SUPER_ADMIN_ROLE: RoleDefinition = {
   id: 'super_admin',
   name: '超级管理员',
   description: '拥有系统的所有权限',
-  permissions: SYSTEM_PERMISSIONS.map(p => p.id as Permission),
+  permissions: [
+    'user:read', 'user:create', 'user:update', 'user:delete', 'user:list',
+    'team:read', 'team:create', 'team:update', 'team:delete', 'team:manage',
+    'project:create', 'project:read', 'project:update', 'project:delete',
+    'data:export', 'data:import',
+    'system:config', 'system:log',
+    'mcp:execute',
+  ] as Permission[],
   isSystem: true,
   level: 100,
 }

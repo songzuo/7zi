@@ -502,9 +502,7 @@ export class EnhancedSlackChannel {
     this.levelRouter = new LevelRouter(config.levelChannels || {})
 
     // 主节流器
-    this.throttler = new Throttler(
-      options?.throttle || { windowMs: 60000, maxPerWindow: 1 }
-    )
+    this.throttler = new Throttler(options?.throttle || { windowMs: 60000, maxPerWindow: 1 })
 
     // 级别特定的节流器
     if (options?.throttleByLevel) {
@@ -698,11 +696,7 @@ export class EnhancedSlackChannel {
    * 生成节流键
    */
   private generateThrottleKey(alert: PerformanceAlert): string {
-    const parts = [
-      alert.level,
-      alert.source,
-      alert.metric || 'default',
-    ]
+    const parts = [alert.level, alert.source, alert.metric || 'default']
     return parts.join(':')
   }
 

@@ -10,44 +10,44 @@ import {
   LLMResponse,
   LLMProvider,
   AIGenerationError,
-} from '../types';
+} from '../types'
 
 export abstract class BaseProvider {
-  protected config: LLMConfig;
-  protected defaultMaxTokens = 2048;
-  protected defaultTemperature = 0.7;
-  protected defaultTimeout = 60000;
+  protected config: LLMConfig
+  protected defaultMaxTokens = 2048
+  protected defaultTemperature = 0.7
+  protected defaultTimeout = 60000
 
   constructor(config: LLMConfig) {
-    this.config = this.validateConfig(config);
+    this.config = this.validateConfig(config)
   }
 
   /**
    * Get the provider type
    */
-  abstract get provider(): LLMProvider;
+  abstract get provider(): LLMProvider
 
   /**
    * Check if the provider is properly configured
    */
-  abstract isConfigured(): boolean;
+  abstract isConfigured(): boolean
 
   /**
    * Send a chat completion request
    */
-  abstract chat(request: LLMRequest): Promise<LLMResponse>;
+  abstract chat(request: LLMRequest): Promise<LLMResponse>
 
   /**
    * Get the model name to use
    */
   protected getModel(): string {
-    return this.config.model || this.getDefaultModel();
+    return this.config.model || this.getDefaultModel()
   }
 
   /**
    * Get the default model for this provider
    */
-  protected abstract getDefaultModel(): string;
+  protected abstract getDefaultModel(): string
 
   /**
    * Validate and normalize config
@@ -58,7 +58,7 @@ export abstract class BaseProvider {
       temperature: config.temperature ?? this.defaultTemperature,
       maxTokens: config.maxTokens ?? this.defaultMaxTokens,
       timeout: config.timeout ?? this.defaultTimeout,
-    };
+    }
   }
 
   /**
@@ -69,35 +69,31 @@ export abstract class BaseProvider {
 Generate clean, efficient, and well-documented code.
 Follow best practices and modern design patterns.
 Include type annotations where appropriate.
-Add helpful comments for complex logic.`;
+Add helpful comments for complex logic.`
 
     if (context) {
-      prompt += `\n\nContext:\n${context}`;
+      prompt += `\n\nContext:\n${context}`
     }
 
-    return prompt;
+    return prompt
   }
 
   /**
    * Build user prompt for code generation
    */
-  public buildCodePrompt(
-    prompt: string,
-    language: string,
-    requirements?: string[]
-  ): string {
-    let userPrompt = `Generate ${language} code for the following:\n\n${prompt}`;
+  public buildCodePrompt(prompt: string, language: string, requirements?: string[]): string {
+    let userPrompt = `Generate ${language} code for the following:\n\n${prompt}`
 
     if (requirements && requirements.length > 0) {
-      userPrompt += '\n\nRequirements:\n';
+      userPrompt += '\n\nRequirements:\n'
       requirements.forEach((req, i) => {
-        userPrompt += `${i + 1}. ${req}\n`;
-      });
+        userPrompt += `${i + 1}. ${req}\n`
+      })
     }
 
-    userPrompt += '\n\nProvide only the code, no explanations unless critical.';
+    userPrompt += '\n\nProvide only the code, no explanations unless critical.'
 
-    return userPrompt;
+    return userPrompt
   }
 
   /**
@@ -105,16 +101,16 @@ Add helpful comments for complex logic.`;
    */
   protected handleError(error: unknown, operation: string): never {
     if (error instanceof AIGenerationError) {
-      throw error;
+      throw error
     }
 
-    const message = error instanceof Error ? error.message : String(error);
+    const message = error instanceof Error ? error.message : String(error)
     throw new AIGenerationError(
       `${operation} failed: ${message}`,
       'PROVIDER_ERROR',
       this.provider,
       error instanceof Error ? error : undefined
-    );
+    )
   }
 
   /**
@@ -125,38 +121,35 @@ Add helpful comments for complex logic.`;
     maxRetries = 3,
     delayMs = 1000
   ): Promise<T> {
-    let lastError: Error | undefined;
+    let lastError: Error | undefined
 
     for (let attempt = 1; attempt <= maxRetries; attempt++) {
       try {
-        return await operation();
+        return await operation()
       } catch (error) {
-        lastError = error instanceof Error ? error : new Error(String(error));
+        lastError = error instanceof Error ? error : new Error(String(error))
 
         // Don't retry on certain errors
         if (error instanceof AIGenerationError) {
-          if (
-            error.code === 'PROVIDER_NOT_CONFIGURED' ||
-            error.code === 'INVALID_RESPONSE'
-          ) {
-            throw error;
+          if (error.code === 'PROVIDER_NOT_CONFIGURED' || error.code === 'INVALID_RESPONSE') {
+            throw error
           }
         }
 
         if (attempt < maxRetries) {
-          await this.delay(delayMs * attempt);
+          await this.delay(delayMs * attempt)
         }
       }
     }
 
-    throw lastError;
+    throw lastError
   }
 
   /**
    * Delay utility
    */
   protected delay(ms: number): Promise<void> {
-    return new Promise((resolve) => setTimeout(resolve, ms));
+    return new Promise(resolve => setTimeout(resolve, ms))
   }
 
   /**
@@ -164,14 +157,14 @@ Add helpful comments for complex logic.`;
    */
   public extractCode(response: string): string {
     // Try to extract code from markdown code blocks
-    const codeBlockRegex = /```(?:\w+)?\n([\s\S]*?)```/g;
-    const matches = [...response.matchAll(codeBlockRegex)];
+    const codeBlockRegex = /```(?:\w+)?\n([\s\S]*?)```/g
+    const matches = [...response.matchAll(codeBlockRegex)]
 
     if (matches.length > 0) {
-      return matches.map((m) => m[1].trim()).join('\n\n');
+      return matches.map(m => m[1].trim()).join('\n\n')
     }
 
     // Return as-is if no code blocks found
-    return response.trim();
+    return response.trim()
   }
 }

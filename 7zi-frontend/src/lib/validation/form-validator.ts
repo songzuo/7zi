@@ -296,6 +296,11 @@ export class FormValidator {
     return result
   }
 
+  /** Get form-level errors */
+  getFormErrors(): string[] {
+    return this.formErrors
+  }
+
   /** Check if form is valid */
   isValid(): boolean {
     for (const state of this.fieldStates.values()) {

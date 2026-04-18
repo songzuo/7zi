@@ -2,37 +2,40 @@
  * A2A Client - Agent-to-Agent Client Implementation
  */
 
-import { EventEmitter } from 'events';
+import { EventEmitter } from 'events'
 import {
   A2AMessage,
   A2ARequestOptions,
   A2AClientConfig,
   A2AEvent,
-  A2AEventHandler
-} from './A2ATypes';
+  A2AEventHandler,
+} from './A2ATypes'
 
 export class A2AClient extends EventEmitter {
-  private agentId: string;
-  private config: Required<A2AClientConfig>;
-  private messageQueue: A2AMessage[] = [];
-  private pendingRequests: Map<string, {
-    resolve: (value: unknown) => void;
-    reject: (error: Error) => void;
-    timeout: ReturnType<typeof setTimeout>;
-  }> = new Map();
-  private isConnected: boolean = false;
-  private connectionId: string | null = null;
-  private heartbeatTimer: ReturnType<typeof setInterval> | null = null;
+  private agentId: string
+  private config: Required<A2AClientConfig>
+  private messageQueue: A2AMessage[] = []
+  private pendingRequests: Map<
+    string,
+    {
+      resolve: (value: unknown) => void
+      reject: (error: Error) => void
+      timeout: ReturnType<typeof setTimeout>
+    }
+  > = new Map()
+  private isConnected: boolean = false
+  private connectionId: string | null = null
+  private heartbeatTimer: ReturnType<typeof setInterval> | null = null
 
   constructor(agentId: string, config?: A2AClientConfig) {
-    super();
-    this.agentId = agentId;
+    super()
+    this.agentId = agentId
     this.config = {
       serverUrl: config?.serverUrl || 'localhost:8080',
       reconnectInterval: config?.reconnectInterval || 5000,
       heartbeatInterval: config?.heartbeatInterval || 30000,
-      autoReconnect: config?.autoReconnect ?? true
-    };
+      autoReconnect: config?.autoReconnect ?? true,
+    }
   }
 
   /**
@@ -40,20 +43,20 @@ export class A2AClient extends EventEmitter {
    */
   async connect(): Promise<void> {
     if (this.isConnected) {
-      return;
+      return
     }
 
-    this.connectionId = this.generateId();
-    this.isConnected = true;
+    this.connectionId = this.generateId()
+    this.isConnected = true
 
     // 发送连接事件
-    this.emitEvent('connected', { agentId: this.agentId, connectionId: this.connectionId });
+    this.emitEvent('connected', { agentId: this.agentId, connectionId: this.connectionId })
 
     // 启动心跳
-    this.startHeartbeat();
+    this.startHeartbeat()
 
     // 处理队列中的消息
-    await this.flushMessageQueue();
+    await this.flushMessageQueue()
   }
 
   /**
@@ -61,19 +64,19 @@ export class A2AClient extends EventEmitter {
    */
   async disconnect(): Promise<void> {
     if (!this.isConnected) {
-      return;
+      return
     }
 
     // 停止心跳
-    this.stopHeartbeat();
+    this.stopHeartbeat()
 
     // 清理待处理的请求
-    this.cleanupPendingRequests();
+    this.cleanupPendingRequests()
 
-    this.isConnected = false;
-    this.connectionId = null;
+    this.isConnected = false
+    this.connectionId = null
 
-    this.emitEvent('disconnected', { agentId: this.agentId });
+    this.emitEvent('disconnected', { agentId: this.agentId })
   }
 
   /**
@@ -94,44 +97,42 @@ export class A2AClient extends EventEmitter {
       payload,
       correlationId: options?.metadata?.correlationId as string,
       priority: options?.priority || 'normal',
-      metadata: options?.metadata
-    };
-
-    if (!this.isConnected) {
-      this.messageQueue.push(message);
-      return message;
+      metadata: options?.metadata,
     }
 
-    this.emitEvent('message', message);
-    return message;
+    if (!this.isConnected) {
+      this.messageQueue.push(message)
+      return message
+    }
+
+    this.emitEvent('message', message)
+    return message
   }
 
   /**
    * 发送请求并等待响应
    */
-  async request(
-    to: string,
-    payload: unknown,
-    options?: A2ARequestOptions
-  ): Promise<unknown> {
-    const message = await this.send(to, payload, 'request', options);
+  async request(to: string, payload: unknown, options?: A2ARequestOptions): Promise<unknown> {
+    const message = await this.send(to, payload, 'request', options)
 
     return new Promise((resolve, reject) => {
-      const timeoutMs = options?.timeout || 30000;
-      const retries = options?.retries || 0;
+      const timeoutMs = options?.timeout || 30000
+      const retries = options?.retries || 0
 
       const timer = setTimeout(() => {
-        this.pendingRequests.delete(message.id);
+        this.pendingRequests.delete(message.id)
         if (retries > 0) {
           // 重试逻辑
-          this.retryRequest(message, retries - 1).then(resolve).catch(reject);
+          this.retryRequest(message, retries - 1)
+            .then(resolve)
+            .catch(reject)
         } else {
-          reject(new Error(`Request timeout: ${message.id}`));
+          reject(new Error(`Request timeout: ${message.id}`))
         }
-      }, timeoutMs);
+      }, timeoutMs)
 
-      this.pendingRequests.set(message.id, { resolve, reject, timeout: timer });
-    });
+      this.pendingRequests.set(message.id, { resolve, reject, timeout: timer })
+    })
   }
 
   /**
@@ -142,103 +143,100 @@ export class A2AClient extends EventEmitter {
       ...originalMessage.metadata,
       retries: retriesLeft,
       timeout: 30000,
-      priority: originalMessage.priority
-    });
+      priority: originalMessage.priority,
+    })
   }
 
   /**
    * 发送响应
    */
-  async respond(
-    to: string,
-    correlationId: string,
-    payload: unknown
-  ): Promise<A2AMessage> {
+  async respond(to: string, correlationId: string, payload: unknown): Promise<A2AMessage> {
     const message = await this.send(to, payload, 'response', {
-      metadata: { correlationId }
-    });
+      metadata: { correlationId },
+    })
 
     // 通知等待的请求
-    const pending = this.pendingRequests.get(correlationId);
+    const pending = this.pendingRequests.get(correlationId)
     if (pending) {
-      clearTimeout(pending.timeout);
-      this.pendingRequests.delete(correlationId);
-      pending.resolve(payload);
+      clearTimeout(pending.timeout)
+      this.pendingRequests.delete(correlationId)
+      pending.resolve(payload)
     }
 
-    return message;
+    return message
   }
 
   /**
    * 发送通知
    */
   async notify(to: string, payload: unknown): Promise<A2AMessage> {
-    return this.send(to, payload, 'notification');
+    return this.send(to, payload, 'notification')
   }
 
   /**
    * 发送错误
    */
-  async sendError(
-    to: string,
-    correlationId: string,
-    error: Error
-  ): Promise<A2AMessage> {
-    const message = await this.send(to, {
-      message: error.message,
-      stack: error.stack
-    }, 'error', {
-      metadata: { correlationId }
-    });
+  async sendError(to: string, correlationId: string, error: Error): Promise<A2AMessage> {
+    const message = await this.send(
+      to,
+      {
+        message: error.message,
+        stack: error.stack,
+      },
+      'error',
+      {
+        metadata: { correlationId },
+      }
+    )
 
     // 通知等待的请求
-    const pending = this.pendingRequests.get(correlationId);
+    const pending = this.pendingRequests.get(correlationId)
     if (pending) {
-      clearTimeout(pending.timeout);
-      this.pendingRequests.delete(correlationId);
-      pending.reject(error);
+      clearTimeout(pending.timeout)
+      this.pendingRequests.delete(correlationId)
+      pending.reject(error)
     }
 
-    return message;
+    return message
   }
 
   /**
    * 处理接收到的消息
    */
   async handleMessage(message: A2AMessage): Promise<void> {
-    this.emit('message:received', message);
+    this.emit('message:received', message)
 
     // 处理心跳响应
     if (message.type === 'heartbeat') {
-      this.emitEvent('heartbeat', message);
-      return;
+      this.emitEvent('heartbeat', message)
+      return
     }
 
     // 处理响应消息
     if (message.type === 'response' && message.correlationId) {
-      const pending = this.pendingRequests.get(message.correlationId);
+      const pending = this.pendingRequests.get(message.correlationId)
       if (pending) {
-        clearTimeout(pending.timeout);
-        this.pendingRequests.delete(message.correlationId);
-        pending.resolve(message.payload);
+        clearTimeout(pending.timeout)
+        this.pendingRequests.delete(message.correlationId)
+        pending.resolve(message.payload)
       }
-      return;
+      return
     }
 
     // 处理错误消息
     if (message.type === 'error' && message.correlationId) {
-      const pending = this.pendingRequests.get(message.correlationId);
+      const pending = this.pendingRequests.get(message.correlationId)
       if (pending) {
-        clearTimeout(pending.timeout);
-        this.pendingRequests.delete(message.correlationId);
-        const error = new Error((message.payload as Error).message || 'Unknown error');
-        pending.reject(error);
+        clearTimeout(pending.timeout)
+        this.pendingRequests.delete(message.correlationId)
+        const error = new Error((message.payload as Error).message || 'Unknown error')
+        pending.reject(error)
       }
-      return;
+      return
     }
 
     // 触发消息事件
-    this.emit('message', message);
+    this.emit('message', message)
   }
 
   /**
@@ -247,9 +245,9 @@ export class A2AClient extends EventEmitter {
   private startHeartbeat(): void {
     this.heartbeatTimer = setInterval(() => {
       if (this.isConnected) {
-        this.send('__server__', { timestamp: Date.now() }, 'heartbeat');
+        this.send('__server__', { timestamp: Date.now() }, 'heartbeat')
       }
-    }, this.config.heartbeatInterval);
+    }, this.config.heartbeatInterval)
   }
 
   /**
@@ -257,8 +255,8 @@ export class A2AClient extends EventEmitter {
    */
   private stopHeartbeat(): void {
     if (this.heartbeatTimer) {
-      clearInterval(this.heartbeatTimer);
-      this.heartbeatTimer = null;
+      clearInterval(this.heartbeatTimer)
+      this.heartbeatTimer = null
     }
   }
 
@@ -267,9 +265,9 @@ export class A2AClient extends EventEmitter {
    */
   private async flushMessageQueue(): Promise<void> {
     while (this.messageQueue.length > 0) {
-      const message = this.messageQueue.shift();
+      const message = this.messageQueue.shift()
       if (message) {
-        await this.send(message.to, message.payload, message.type);
+        await this.send(message.to, message.payload, message.type)
       }
     }
   }
@@ -278,8 +276,8 @@ export class A2AClient extends EventEmitter {
    * 清理待处理的请求
    */
   private cleanupPendingRequests(): void {
-    this.pendingRequests.forEach(({ timeout }) => clearTimeout(timeout));
-    this.pendingRequests.clear();
+    this.pendingRequests.forEach(({ timeout }) => clearTimeout(timeout))
+    this.pendingRequests.clear()
   }
 
   /**
@@ -289,17 +287,17 @@ export class A2AClient extends EventEmitter {
     const event: A2AEvent = {
       type,
       data,
-      timestamp: Date.now()
-    };
-    this.emit('event', event);
-    this.emit(type, event);
+      timestamp: Date.now(),
+    }
+    this.emit('event', event)
+    this.emit(type, event)
   }
 
   /**
    * 生成唯一ID
    */
   private generateId(): string {
-    return `msg_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
+    return `msg_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`
   }
 
   /**
@@ -308,14 +306,14 @@ export class A2AClient extends EventEmitter {
   getConnectionStatus(): { connected: boolean; connectionId: string | null } {
     return {
       connected: this.isConnected,
-      connectionId: this.connectionId
-    };
+      connectionId: this.connectionId,
+    }
   }
 
   /**
    * 获取待处理请求数量
    */
   getPendingRequestCount(): number {
-    return this.pendingRequests.size;
+    return this.pendingRequests.size
   }
 }

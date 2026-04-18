@@ -3,7 +3,7 @@
  * v1.11.0 - AI Enhancement Feature
  */
 
-import { BaseProvider } from './BaseProvider';
+import { BaseProvider } from './BaseProvider'
 import {
   LLMConfig,
   LLMMessage,
@@ -12,35 +12,35 @@ import {
   ClaudeConfig,
   ProviderNotConfiguredError,
   GenerationTimeoutError,
-} from '../types';
+} from '../types'
 
 interface ClaudeMessage {
-  role: 'user' | 'assistant';
-  content: string;
+  role: 'user' | 'assistant'
+  content: string
 }
 
 interface ClaudeContent {
-  type: 'text';
-  text: string;
+  type: 'text'
+  text: string
 }
 
 interface ClaudeResponse {
-  id: string;
-  type: string;
-  role: 'assistant';
-  content: ClaudeContent[];
-  model: string;
-  stop_reason: string;
+  id: string
+  type: string
+  role: 'assistant'
+  content: ClaudeContent[]
+  model: string
+  stop_reason: string
   usage: {
-    input_tokens: number;
-    output_tokens: number;
-  };
+    input_tokens: number
+    output_tokens: number
+  }
 }
 
 export class ClaudeProvider extends BaseProvider {
-  private apiKey: string | undefined;
-  private baseUrl = 'https://api.anthropic.com/v1';
-  private apiVersion = '2023-06-01';
+  private apiKey: string | undefined
+  private baseUrl = 'https://api.anthropic.com/v1'
+  private apiVersion = '2023-06-01'
 
   constructor(config: Partial<ClaudeConfig> = {}) {
     const fullConfig: LLMConfig = {
@@ -51,44 +51,41 @@ export class ClaudeProvider extends BaseProvider {
       maxTokens: config.maxTokens,
       timeout: config.timeout,
       ...config,
-    };
-    super(fullConfig);
-    this.apiKey = fullConfig.apiKey;
+    }
+    super(fullConfig)
+    this.apiKey = fullConfig.apiKey
   }
 
   get provider(): 'claude' {
-    return 'claude';
+    return 'claude'
   }
 
   protected getDefaultModel(): string {
-    return 'claude-3-sonnet-20240229';
+    return 'claude-3-sonnet-20240229'
   }
 
   isConfigured(): boolean {
-    return !!this.apiKey;
+    return !!this.apiKey
   }
 
   async chat(request: LLMRequest): Promise<LLMResponse> {
     if (!this.isConfigured()) {
-      throw new ProviderNotConfiguredError('claude');
+      throw new ProviderNotConfiguredError('claude')
     }
 
     return this.withRetry(async () => {
-      const controller = new AbortController();
-      const timeoutId = setTimeout(
-        () => controller.abort(),
-        this.config.timeout!
-      );
+      const controller = new AbortController()
+      const timeoutId = setTimeout(() => controller.abort(), this.config.timeout!)
 
       try {
         // Claude API requires separating system message from messages array
-        const systemMessage = request.messages.find((m) => m.role === 'system');
+        const systemMessage = request.messages.find(m => m.role === 'system')
         const conversationMessages = request.messages
-          .filter((m) => m.role !== 'system')
-          .map((m) => ({
+          .filter(m => m.role !== 'system')
+          .map(m => ({
             role: m.role as 'user' | 'assistant',
             content: m.content,
-          }));
+          }))
 
         const response = await fetch(`${this.baseUrl}/messages`, {
           method: 'POST',
@@ -104,51 +101,49 @@ export class ClaudeProvider extends BaseProvider {
             messages: conversationMessages,
           }),
           signal: controller.signal,
-        });
+        })
 
-        clearTimeout(timeoutId);
+        clearTimeout(timeoutId)
 
         if (!response.ok) {
-          const error = await response.text();
-          throw new Error(`Claude API error: ${response.status} - ${error}`);
+          const error = await response.text()
+          throw new Error(`Claude API error: ${response.status} - ${error}`)
         }
 
-        const data = (await response.json()) as ClaudeResponse;
+        const data = (await response.json()) as ClaudeResponse
 
         // Extract text from content blocks
         const content = data.content
-          .filter((block) => block.type === 'text')
-          .map((block) => block.text)
-          .join('\n');
+          .filter(block => block.type === 'text')
+          .map(block => block.text)
+          .join('\n')
 
         return {
           content,
           usage: {
             promptTokens: data.usage?.input_tokens || 0,
             completionTokens: data.usage?.output_tokens || 0,
-            totalTokens:
-              (data.usage?.input_tokens || 0) +
-              (data.usage?.output_tokens || 0),
+            totalTokens: (data.usage?.input_tokens || 0) + (data.usage?.output_tokens || 0),
           },
           model: data.model,
           finishReason: data.stop_reason,
-        };
+        }
       } catch (error) {
-        clearTimeout(timeoutId);
+        clearTimeout(timeoutId)
 
         if (error instanceof Error && error.name === 'AbortError') {
-          throw new GenerationTimeoutError('claude', this.config.timeout!);
+          throw new GenerationTimeoutError('claude', this.config.timeout!)
         }
 
-        this.handleError(error, 'Chat completion');
+        this.handleError(error, 'Chat completion')
       }
-    });
+    })
   }
 
   /**
    * Set API version
    */
   setApiVersion(version: string): void {
-    this.apiVersion = version;
+    this.apiVersion = version
   }
 }

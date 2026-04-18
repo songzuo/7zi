@@ -47,6 +47,7 @@ Multi-Agent Orchestrator 是 7zi 项目的核心模块之一，提供多智能�
 ### 1. MultiAgentOrchestrator
 
 主编排器类，负责：
+
 - 任务分发和调度
 - 智能体选择和负载均衡
 - 结果收集和聚合
@@ -54,6 +55,7 @@ Multi-Agent Orchestrator 是 7zi 项目的核心模块之一，提供多智能�
 ### 2. AgentRegistry
 
 智能体注册表，提供：
+
 - 智能体注册和发现
 - 能力匹配查询
 - 状态和负载管理
@@ -61,6 +63,7 @@ Multi-Agent Orchestrator 是 7zi 项目的核心模块之一，提供多智能�
 ### 3. A2AProtocol
 
 智能体间通信协议，支持：
+
 - 消息传递
 - 请求/响应模式
 - 超时和重试机制
@@ -76,6 +79,7 @@ const result = await orchestrator.executeParallel(agents, task)
 ```
 
 特点：
+
 - 高吞吐量
 - 结果聚合
 - 容错能力强
@@ -89,6 +93,7 @@ const results = await orchestrator.executeSequential(workflow)
 ```
 
 特点：
+
 - 严格顺序保证
 - 依赖检查
 - 失败传播
@@ -102,19 +107,20 @@ const result = await orchestrator.assignDynamically(task)
 ```
 
 特点：
+
 - 自动负载均衡
 - 能力匹配
 - 最优分配
 
 ## 聚合策略
 
-| 策略 | 描述 | 适用场景 |
-|------|------|---------|
-| `first` | 返回第一个成功结果 | 快速响应 |
-| `all` | 返回所有结果 | 数据收集 |
-| `best` | 返回最佳结果 | 质量优先 |
-| `vote` | 投票决定结果 | 共识决策 |
-| `custom` | 自定义聚合 | 特殊需求 |
+| 策略     | 描述               | 适用场景 |
+| -------- | ------------------ | -------- |
+| `first`  | 返回第一个成功结果 | 快速响应 |
+| `all`    | 返回所有结果       | 数据收集 |
+| `best`   | 返回最佳结果       | 质量优先 |
+| `vote`   | 投票决定结果       | 共识决策 |
+| `custom` | 自定义聚合         | 特殊需求 |
 
 ## 性能指标
 
@@ -126,10 +132,10 @@ const result = await orchestrator.assignDynamically(task)
 
 ```typescript
 interface ExecutionOptions {
-  timeout?: number        // 超时时间（毫秒）
-  maxAgents?: number      // 最大智能体数量
+  timeout?: number // 超时时间（毫秒）
+  maxAgents?: number // 最大智能体数量
   retryOnFailure?: boolean // 失败时重试
-  maxRetries?: number     // 最大重试次数
+  maxRetries?: number // 最大重试次数
 }
 ```
 
@@ -148,4 +154,4 @@ interface ExecutionOptions {
 
 ---
 
-*最后更新: 2026-04-03*
+_最后更新: 2026-04-03_

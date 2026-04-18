@@ -25,12 +25,12 @@ export type WebhookEventType =
   | 'workflow.failed'
   // System events
   | 'system.alert'
-  | 'system.error';
+  | 'system.error'
 
 /**
  * Event categories
  */
-export type EventCategory = 'agent' | 'task' | 'workflow' | 'system';
+export type EventCategory = 'agent' | 'task' | 'workflow' | 'system'
 
 // ============================================================
 // Webhook Endpoint
@@ -40,44 +40,44 @@ export type EventCategory = 'agent' | 'task' | 'workflow' | 'system';
  * Webhook endpoint configuration
  */
 export interface WebhookEndpoint {
-  id: string;
-  url: string;
-  secret: string;
-  events: WebhookEventType[];
-  enabled: boolean;
-  createdAt: number;
-  updatedAt: number;
-  description?: string;
-  ipWhitelist?: string[];
-  headers?: Record<string, string>;
-  metadata?: Record<string, unknown>;
+  id: string
+  url: string
+  secret: string
+  events: WebhookEventType[]
+  enabled: boolean
+  createdAt: number
+  updatedAt: number
+  description?: string
+  ipWhitelist?: string[]
+  headers?: Record<string, string>
+  metadata?: Record<string, unknown>
 }
 
 /**
  * Create webhook endpoint request
  */
 export interface CreateWebhookRequest {
-  url: string;
-  secret: string;
-  events: WebhookEventType[];
-  description?: string;
-  ipWhitelist?: string[];
-  headers?: Record<string, string>;
-  metadata?: Record<string, unknown>;
+  url: string
+  secret: string
+  events: WebhookEventType[]
+  description?: string
+  ipWhitelist?: string[]
+  headers?: Record<string, string>
+  metadata?: Record<string, unknown>
 }
 
 /**
  * Update webhook endpoint request
  */
 export interface UpdateWebhookRequest {
-  url?: string;
-  secret?: string;
-  events?: WebhookEventType[];
-  enabled?: boolean;
-  description?: string;
-  ipWhitelist?: string[];
-  headers?: Record<string, string>;
-  metadata?: Record<string, unknown>;
+  url?: string
+  secret?: string
+  events?: WebhookEventType[]
+  enabled?: boolean
+  description?: string
+  ipWhitelist?: string[]
+  headers?: Record<string, string>
+  metadata?: Record<string, unknown>
 }
 
 // ============================================================
@@ -88,55 +88,55 @@ export interface UpdateWebhookRequest {
  * Base event payload
  */
 export interface WebhookEventPayload {
-  id: string;
-  type: WebhookEventType;
-  timestamp: number;
-  data: unknown;
-  metadata?: Record<string, unknown>;
+  id: string
+  type: WebhookEventType
+  timestamp: number
+  data: unknown
+  metadata?: Record<string, unknown>
 }
 
 /**
  * Agent event data
  */
 export interface AgentEventData {
-  agentId: string;
-  name?: string;
-  status?: string;
-  capabilities?: string[];
-  config?: Record<string, unknown>;
+  agentId: string
+  name?: string
+  status?: string
+  capabilities?: string[]
+  config?: Record<string, unknown>
 }
 
 /**
  * Task event data
  */
 export interface TaskEventData {
-  taskId: string;
-  agentId?: string;
-  status: string;
-  progress?: number;
-  result?: unknown;
-  error?: string;
+  taskId: string
+  agentId?: string
+  status: string
+  progress?: number
+  result?: unknown
+  error?: string
 }
 
 /**
  * Workflow event data
  */
 export interface WorkflowEventData {
-  workflowId: string;
-  status: string;
-  steps?: number;
-  completedSteps?: number;
-  error?: string;
+  workflowId: string
+  status: string
+  steps?: number
+  completedSteps?: number
+  error?: string
 }
 
 /**
  * System event data
  */
 export interface SystemEventData {
-  level: 'info' | 'warning' | 'error' | 'critical';
-  message: string;
-  component?: string;
-  details?: Record<string, unknown>;
+  level: 'info' | 'warning' | 'error' | 'critical'
+  message: string
+  component?: string
+  details?: Record<string, unknown>
 }
 
 // ============================================================
@@ -146,43 +146,38 @@ export interface SystemEventData {
 /**
  * Delivery status
  */
-export type DeliveryStatus = 
-  | 'pending'
-  | 'success'
-  | 'failed'
-  | 'retrying'
-  | 'expired';
+export type DeliveryStatus = 'pending' | 'success' | 'failed' | 'retrying' | 'expired'
 
 /**
  * Event delivery record
  */
 export interface EventDelivery {
-  id: string;
-  eventId: string;
-  webhookId: string;
-  status: DeliveryStatus;
-  attempts: number;
-  maxAttempts: number;
-  lastAttempt?: number;
-  nextRetry?: number;
-  error?: string;
-  responseCode?: number;
-  createdAt: number;
-  updatedAt: number;
+  id: string
+  eventId: string
+  webhookId: string
+  status: DeliveryStatus
+  attempts: number
+  maxAttempts: number
+  lastAttempt?: number
+  nextRetry?: number
+  error?: string
+  responseCode?: number
+  createdAt: number
+  updatedAt: number
 }
 
 /**
  * Delivery attempt log
  */
 export interface DeliveryAttempt {
-  id: string;
-  deliveryId: string;
-  attemptNumber: number;
-  timestamp: number;
-  success: boolean;
-  responseCode?: number;
-  responseTime: number;
-  error?: string;
+  id: string
+  deliveryId: string
+  attemptNumber: number
+  timestamp: number
+  success: boolean
+  responseCode?: number
+  responseTime: number
+  error?: string
 }
 
 // ============================================================
@@ -193,18 +188,18 @@ export interface DeliveryAttempt {
  * Event filter configuration
  */
 export interface EventFilter {
-  eventTypes?: WebhookEventType[];
-  eventCategories?: EventCategory[];
-  conditions?: EventFilterCondition[];
+  eventTypes?: WebhookEventType[]
+  eventCategories?: EventCategory[]
+  conditions?: EventFilterCondition[]
 }
 
 /**
  * Filter condition
  */
 export interface EventFilterCondition {
-  field: string;
-  operator: 'eq' | 'ne' | 'gt' | 'gte' | 'lt' | 'lte' | 'in' | 'nin' | 'exists';
-  value: unknown;
+  field: string
+  operator: 'eq' | 'ne' | 'gt' | 'gte' | 'lt' | 'lte' | 'in' | 'nin' | 'exists'
+  value: unknown
 }
 
 // ============================================================
@@ -215,14 +210,14 @@ export interface EventFilterCondition {
  * Webhook manager configuration
  */
 export interface WebhookConfig {
-  maxRetries: number;
-  initialRetryDelay: number;
-  maxRetryDelay: number;
-  retryMultiplier: number;
-  requestTimeout: number;
-  maxConcurrentDeliveries: number;
-  enableEventQueue: boolean;
-  queueMaxSize: number;
+  maxRetries: number
+  initialRetryDelay: number
+  maxRetryDelay: number
+  retryMultiplier: number
+  requestTimeout: number
+  maxConcurrentDeliveries: number
+  enableEventQueue: boolean
+  queueMaxSize: number
 }
 
 /**
@@ -237,7 +232,7 @@ export const DEFAULT_WEBHOOK_CONFIG: WebhookConfig = {
   maxConcurrentDeliveries: 10,
   enableEventQueue: true,
   queueMaxSize: 10000,
-};
+}
 
 // ============================================================
 // Signature
@@ -247,17 +242,17 @@ export const DEFAULT_WEBHOOK_CONFIG: WebhookConfig = {
  * Signature verification result
  */
 export interface SignatureVerificationResult {
-  valid: boolean;
-  error?: string;
+  valid: boolean
+  error?: string
 }
 
 /**
  * Webhook signature headers
  */
 export interface WebhookSignatureHeaders {
-  signature: string;
-  timestamp: string;
-  nonce?: string;
+  signature: string
+  timestamp: string
+  nonce?: string
 }
 
 // ============================================================
@@ -268,13 +263,13 @@ export interface WebhookSignatureHeaders {
  * Webhook statistics
  */
 export interface WebhookStatistics {
-  totalEvents: number;
-  successfulDeliveries: number;
-  failedDeliveries: number;
-  pendingDeliveries: number;
-  averageResponseTime: number;
-  lastDelivery?: number;
-  eventsByType: Record<WebhookEventType, number>;
+  totalEvents: number
+  successfulDeliveries: number
+  failedDeliveries: number
+  pendingDeliveries: number
+  averageResponseTime: number
+  lastDelivery?: number
+  eventsByType: Record<WebhookEventType, number>
 }
 
 // ============================================================
@@ -294,7 +289,7 @@ export type WebhookErrorType =
   | 'timeout'
   | 'signature_invalid'
   | 'ip_not_whitelisted'
-  | 'queue_full';
+  | 'queue_full'
 
 /**
  * Webhook error
@@ -305,7 +300,7 @@ export class WebhookError extends Error {
     message: string,
     public details?: unknown
   ) {
-    super(message);
-    this.name = 'WebhookError';
+    super(message)
+    this.name = 'WebhookError'
   }
 }

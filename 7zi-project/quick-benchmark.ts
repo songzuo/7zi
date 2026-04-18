@@ -7,86 +7,86 @@ import {
   IncrementalZScore,
   StreamingIsolationForest,
   StreamingAnomalyDetector,
-  BatchZScoreDetector
-} from './src/lib/performance/incremental-anomaly-detector';
+  BatchZScoreDetector,
+} from './src/lib/performance/incremental-anomaly-detector'
 
 // 简单的伪随机数生成器
 function createRandom(seed: number) {
   return () => {
-    seed = (seed * 1103515245 + 12345) & 0x7fffffff;
-    return seed / 0x7fffffff;
-  };
+    seed = (seed * 1103515245 + 12345) & 0x7fffffff
+    return seed / 0x7fffffff
+  }
 }
 
 // 高精度计时
 function measureTime<T>(fn: () => T): { result: T; timeMs: number } {
-  const start = process.hrtime.bigint();
-  const result = fn();
-  const end = process.hrtime.bigint();
-  const timeNs = Number(end - start);
-  return { result, timeMs: timeNs / 1_000_000 };
+  const start = process.hrtime.bigint()
+  const result = fn()
+  const end = process.hrtime.bigint()
+  const timeNs = Number(end - start)
+  return { result, timeMs: timeNs / 1_000_000 }
 }
 
 async function main() {
-  console.log('='.repeat(80));
-  console.log('增量式异常检测算法 - 快速性能基准测试');
-  console.log('目标: 从 ~50ms 降低到 <10ms');
-  console.log('='.repeat(80));
-  console.log();
+  console.log('='.repeat(80))
+  console.log('增量式异常检测算法 - 快速性能基准测试')
+  console.log('目标: 从 ~50ms 降低到 <10ms')
+  console.log('='.repeat(80))
+  console.log()
 
-  const now = new Date().toISOString();
-  
+  const now = new Date().toISOString()
+
   // 测试配置
-  const testSizes = [1000, 10000, 50000];
-  const results: any[] = [];
+  const testSizes = [1000, 10000, 50000]
+  const results: any[] = []
 
   for (const size of testSizes) {
-    console.log(`\n测试数据量: ${size.toLocaleString()}`);
-    console.log('-'.repeat(60));
+    console.log(`\n测试数据量: ${size.toLocaleString()}`)
+    console.log('-'.repeat(60))
 
     // 生成测试数据
-    const random = createRandom(42);
-    const data: number[] = [];
+    const random = createRandom(42)
+    const data: number[] = []
     for (let i = 0; i < size; i++) {
       // 正态分布模拟
-      const u1 = random();
-      const u2 = random();
-      const z = Math.sqrt(-2 * Math.log(u1)) * Math.cos(2 * Math.PI * u2);
-      data.push(100 + z * 15 + (random() < 0.03 ? (random() - 0.5) * 100 : 0));
+      const u1 = random()
+      const u2 = random()
+      const z = Math.sqrt(-2 * Math.log(u1)) * Math.cos(2 * Math.PI * u2)
+      data.push(100 + z * 15 + (random() < 0.03 ? (random() - 0.5) * 100 : 0))
     }
 
     // 1. 增量式 Z-Score
-    const zscore = new IncrementalZScore({ threshold: 3, minSamples: 10 });
+    const zscore = new IncrementalZScore({ threshold: 3, minSamples: 10 })
     const { timeMs: zscoreTime } = measureTime(() => {
-      for (const v of data) zscore.update(v);
-    });
+      for (const v of data) zscore.update(v)
+    })
 
     // 2. 流式 Isolation Forest
-    const iforest = new StreamingIsolationForest({ treeSize: 256, maxTrees: 100 });
+    const iforest = new StreamingIsolationForest({ treeSize: 256, maxTrees: 100 })
     const { timeMs: iforestTime } = measureTime(() => {
       for (const v of data) {
-        iforest.addPoint(v);
-        iforest.anomalyScore(v);
+        iforest.addPoint(v)
+        iforest.anomalyScore(v)
       }
-    });
+    })
 
     // 3. 组合检测器
     const streamingDetector = new StreamingAnomalyDetector({
       zscore: { threshold: 3 },
-      isolationForest: { treeSize: 256, maxTrees: 100 }
-    });
+      isolationForest: { treeSize: 256, maxTrees: 100 },
+    })
     const { timeMs: streamingTime } = measureTime(() => {
-      for (const v of data) streamingDetector.detect(v);
-    });
+      for (const v of data) streamingDetector.detect(v)
+    })
 
     // 4. 批处理 Z-Score (只对小数据集)
-    let batchTime = 0;
+    let batchTime = 0
     if (size <= 10000) {
-      const batchDetector = new BatchZScoreDetector({ threshold: 3, minSamples: 10 });
+      const batchDetector = new BatchZScoreDetector({ threshold: 3, minSamples: 10 })
       const result = measureTime(() => {
-        for (const v of data) batchDetector.detect(v);
-      });
-      batchTime = result.timeMs;
+        for (const v of data) batchDetector.detect(v)
+      })
+      batchTime = result.timeMs
     }
 
     const result = {
@@ -98,31 +98,39 @@ async function main() {
       streamingTime,
       streamingAvg: streamingTime / size,
       batchTime,
-      batchAvg: batchTime > 0 ? batchTime / size : null
-    };
+      batchAvg: batchTime > 0 ? batchTime / size : null,
+    }
 
-    results.push(result);
+    results.push(result)
 
-    console.log(`  增量式 Z-Score:    ${result.zscoreAvg.toFixed(3)} ms/point (${result.zscoreTime.toFixed(1)}ms total)`);
-    console.log(`  流式 Isolation Forest: ${result.iforestAvg.toFixed(3)} ms/point (${result.iforestTime.toFixed(1)}ms total)`);
-    console.log(`  组合检测器:        ${result.streamingAvg.toFixed(3)} ms/point (${result.streamingTime.toFixed(1)}ms total)`);
+    console.log(
+      `  增量式 Z-Score:    ${result.zscoreAvg.toFixed(3)} ms/point (${result.zscoreTime.toFixed(1)}ms total)`
+    )
+    console.log(
+      `  流式 Isolation Forest: ${result.iforestAvg.toFixed(3)} ms/point (${result.iforestTime.toFixed(1)}ms total)`
+    )
+    console.log(
+      `  组合检测器:        ${result.streamingAvg.toFixed(3)} ms/point (${result.streamingTime.toFixed(1)}ms total)`
+    )
     if (batchTime > 0) {
-      console.log(`  批处理 Z-Score:    ${result.batchAvg!.toFixed(3)} ms/point (${batchTime.toFixed(1)}ms total)`);
-      console.log(`  性能提升:          ${(result.batchAvg! / result.zscoreAvg).toFixed(1)}x`);
+      console.log(
+        `  批处理 Z-Score:    ${result.batchAvg!.toFixed(3)} ms/point (${batchTime.toFixed(1)}ms total)`
+      )
+      console.log(`  性能提升:          ${(result.batchAvg! / result.zscoreAvg).toFixed(1)}x`)
     }
   }
 
   // 目标检查
-  const lastResult = results[results.length - 1];
-  const targetMet = lastResult.streamingAvg < 10;
+  const lastResult = results[results.length - 1]
+  const targetMet = lastResult.streamingAvg < 10
 
-  console.log('\n' + '='.repeat(80));
-  console.log('性能目标检查');
-  console.log('='.repeat(80));
-  console.log(`\n  目标延迟: <10 ms/point`);
-  console.log(`  实际延迟 (组合检测器): ${lastResult.streamingAvg.toFixed(3)} ms/point`);
-  console.log(`  增量式 Z-Score: ${lastResult.zscoreAvg.toFixed(3)} ms/point`);
-  console.log(`  状态: ${targetMet ? '✅ 目标达成!' : '❌ 未达成目标'}`);
+  console.log('\n' + '='.repeat(80))
+  console.log('性能目标检查')
+  console.log('='.repeat(80))
+  console.log(`\n  目标延迟: <10 ms/point`)
+  console.log(`  实际延迟 (组合检测器): ${lastResult.streamingAvg.toFixed(3)} ms/point`)
+  console.log(`  增量式 Z-Score: ${lastResult.zscoreAvg.toFixed(3)} ms/point`)
+  console.log(`  状态: ${targetMet ? '✅ 目标达成!' : '❌ 未达成目标'}`)
 
   // 生成报告
   const report = `# 异常检测算法性能优化报告
@@ -184,12 +192,17 @@ ${results.map(r => `| ${r.size.toLocaleString()} | ${r.zscoreAvg.toFixed(3)} | $
 
 ## 性能提升分析
 
-${results.filter(r => r.batchAvg).map(r => `
+${results
+  .filter(r => r.batchAvg)
+  .map(
+    r => `
 ### ${r.size.toLocaleString()} 数据点
 
 - 增量式 Z-Score vs 批处理: **${(r.batchAvg / r.zscoreAvg).toFixed(1)}x 更快**
 - 组合检测器 vs 批处理: **${(r.batchAvg / r.streamingAvg).toFixed(1)}x 更快**
-`).join('\n')}
+`
+  )
+  .join('\n')}
 
 ## 目标达成情况
 
@@ -232,23 +245,25 @@ for (const value of dataStream) {
 
 ## 结论
 
-${targetMet 
-  ? `**目标已达成!** 组合检测器平均延迟 ${lastResult.streamingAvg.toFixed(3)}ms，远低于 10ms 目标。
+${
+  targetMet
+    ? `**目标已达成!** 组合检测器平均延迟 ${lastResult.streamingAvg.toFixed(3)}ms，远低于 10ms 目标。
 
 增量式 Z-Score 单独使用时性能极佳 (${lastResult.zscoreAvg.toFixed(3)}ms/point)，适合对实时性要求极高的场景。`
-  : `当前组合检测器平均延迟 ${lastResult.streamingAvg.toFixed(3)}ms，建议:
+    : `当前组合检测器平均延迟 ${lastResult.streamingAvg.toFixed(3)}ms，建议:
 1. 简化 Isolation Forest 树深度
 2. 减少树的数量
-3. 或仅使用增量式 Z-Score`}
+3. 或仅使用增量式 Z-Score`
+}
 
 ---
 
 *报告生成时间: ${now}*
-`;
+`
 
-  const fs = require('fs');
-  fs.writeFileSync('/root/.openclaw/workspace/REPORT_ANOMALY_DETECTOR_20260403.md', report);
-  console.log('\n报告已生成: /root/.openclaw/workspace/REPORT_ANOMALY_DETECTOR_20260403.md');
+  const fs = require('fs')
+  fs.writeFileSync('/root/.openclaw/workspace/REPORT_ANOMALY_DETECTOR_20260403.md', report)
+  console.log('\n报告已生成: /root/.openclaw/workspace/REPORT_ANOMALY_DETECTOR_20260403.md')
 }
 
-main().catch(console.error);
+main().catch(console.error)

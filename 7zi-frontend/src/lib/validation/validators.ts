@@ -20,7 +20,7 @@ import type {
 // ============================================================================
 
 /** Create a validation result */
-function createResult(valid: boolean, message?: string, rule?: string): ValidationResult {
+export function createResult(valid: boolean, message?: string, rule?: string): ValidationResult {
   return { valid, message, rule }
 }
 

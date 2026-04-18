@@ -5,7 +5,7 @@
  * Provides short-term, long-term, and semantic search capabilities
  */
 
-import type { AgentId } from './types';
+import type { AgentId } from './types'
 import {
   IAgentMemory,
   MemoryEntry,
@@ -18,38 +18,38 @@ import {
   MemorySystemConfig,
   DEFAULT_MEMORY_CONFIG,
   UpdateMemoryInput,
-} from './types';
-import { ShortTermMemory } from './short-term-memory';
-import { LongTermMemory } from './long-term-memory';
+} from './types'
+import { ShortTermMemory } from './short-term-memory'
+import { LongTermMemory } from './long-term-memory'
 
 /**
  * Agent Memory System
- * 
+ *
  * Main interface for all memory operations
- * 
+ *
  * @example
  * ```typescript
  * const memory = new AgentMemory();
- * 
+ *
  * // Add short-term memory
  * const shortMemory = await memory.shortTerm.add('agent-1', 'User asked about weather');
- * 
+ *
  * // Store long-term memory
  * const longMemory = await memory.longTerm.store('agent-1', 'User prefers Celsius units');
- * 
+ *
  * // Recall memories
  * const memories = await memory.recall('agent-1', 'weather preferences');
  * ```
  */
 export class AgentMemory implements IAgentMemory {
-  private shortTermMemory: ShortTermMemory;
-  private longTermMemory: LongTermMemory;
-  private config: MemorySystemConfig;
+  private shortTermMemory: ShortTermMemory
+  private longTermMemory: LongTermMemory
+  private config: MemorySystemConfig
 
   constructor(config: Partial<MemorySystemConfig> = {}) {
-    this.config = { ...DEFAULT_MEMORY_CONFIG, ...config };
-    this.shortTermMemory = new ShortTermMemory(this.config);
-    this.longTermMemory = new LongTermMemory(this.config);
+    this.config = { ...DEFAULT_MEMORY_CONFIG, ...config }
+    this.shortTermMemory = new ShortTermMemory(this.config)
+    this.longTermMemory = new LongTermMemory(this.config)
   }
 
   /**
@@ -69,7 +69,7 @@ export class AgentMemory implements IAgentMemory {
         content: string,
         metadata?: Partial<MemoryMetadata>
       ): Promise<MemoryEntry> => {
-        return this.shortTermMemory.add(agentId, content, metadata);
+        return this.shortTermMemory.add(agentId, content, metadata)
       },
 
       /**
@@ -78,11 +78,8 @@ export class AgentMemory implements IAgentMemory {
        * @param limit - Maximum number to return
        * @returns Array of memory entries
        */
-      get: async (
-        agentId: AgentId,
-        limit?: number
-      ): Promise<MemoryEntry[]> => {
-        return this.shortTermMemory.get(agentId, limit);
+      get: async (agentId: AgentId, limit?: number): Promise<MemoryEntry[]> => {
+        return this.shortTermMemory.get(agentId, limit)
       },
 
       /**
@@ -90,9 +87,9 @@ export class AgentMemory implements IAgentMemory {
        * @param agentId - The agent ID
        */
       clear: async (agentId: AgentId): Promise<void> => {
-        return this.shortTermMemory.clear(agentId);
+        return this.shortTermMemory.clear(agentId)
       },
-    };
+    }
   }
 
   /**
@@ -112,7 +109,7 @@ export class AgentMemory implements IAgentMemory {
         content: string,
         metadata?: Partial<MemoryMetadata>
       ): Promise<MemoryEntry> => {
-        return this.longTermMemory.store(agentId, content, metadata);
+        return this.longTermMemory.store(agentId, content, metadata)
       },
 
       /**
@@ -121,11 +118,8 @@ export class AgentMemory implements IAgentMemory {
        * @param limit - Maximum number to return
        * @returns Array of memory entries
        */
-      get: async (
-        agentId: AgentId,
-        limit?: number
-      ): Promise<MemoryEntry[]> => {
-        return this.longTermMemory.get(agentId, limit);
+      get: async (agentId: AgentId, limit?: number): Promise<MemoryEntry[]> => {
+        return this.longTermMemory.get(agentId, limit)
       },
 
       /**
@@ -134,11 +128,8 @@ export class AgentMemory implements IAgentMemory {
        * @param updates - Update input
        * @returns Updated memory entry
        */
-      update: async (
-        memoryId: string,
-        updates: UpdateMemoryInput
-      ): Promise<MemoryEntry> => {
-        return this.longTermMemory.update(memoryId, updates);
+      update: async (memoryId: string, updates: UpdateMemoryInput): Promise<MemoryEntry> => {
+        return this.longTermMemory.update(memoryId, updates)
       },
 
       /**
@@ -146,9 +137,9 @@ export class AgentMemory implements IAgentMemory {
        * @param memoryId - The memory ID
        */
       delete: async (memoryId: string): Promise<void> => {
-        return this.longTermMemory.delete(memoryId);
+        return this.longTermMemory.delete(memoryId)
       },
-    };
+    }
   }
 
   /**
@@ -165,26 +156,26 @@ export class AgentMemory implements IAgentMemory {
     options?: SemanticSearchOptions
   ): Promise<MemoryEntry[]> {
     // Get recent short-term memories
-    const shortTermResults = await this.shortTermMemory.get(agentId, 20);
-    
+    const shortTermResults = await this.shortTermMemory.get(agentId, 20)
+
     // Search long-term memories
     const longTermResults = await this.longTermMemory.semanticSearch(query, {
       ...options,
       limit: options?.limit ?? 10,
-    });
+    })
 
     // Combine results
-    const results: { memory: MemoryEntry; source: 'short' | 'long'; score: number }[] = [];
+    const results: { memory: MemoryEntry; source: 'short' | 'long'; score: number }[] = []
 
     // Add short-term memories that match
     for (const memory of shortTermResults) {
-      const relevanceScore = this.calculateRelevanceScore(memory, query);
+      const relevanceScore = this.calculateRelevanceScore(memory, query)
       if (relevanceScore > 0) {
         results.push({
           memory,
           source: 'short',
           score: relevanceScore,
-        });
+        })
       }
     }
 
@@ -194,58 +185,58 @@ export class AgentMemory implements IAgentMemory {
         memory,
         source: 'long',
         score: similarity * 10,
-      });
+      })
     }
 
     // Sort by score
-    results.sort((a, b) => b.score - a.score);
+    results.sort((a, b) => b.score - a.score)
 
     // Return unique memories
-    const seen = new Set<string>();
-    const uniqueResults: MemoryEntry[] = [];
+    const seen = new Set<string>()
+    const uniqueResults: MemoryEntry[] = []
 
     for (const result of results) {
       if (!seen.has(result.memory.id)) {
-        seen.add(result.memory.id);
-        uniqueResults.push(result.memory);
+        seen.add(result.memory.id)
+        uniqueResults.push(result.memory)
       }
     }
 
-    return uniqueResults.slice(0, options?.limit ?? 20);
+    return uniqueResults.slice(0, options?.limit ?? 20)
   }
 
   /**
    * Calculate relevance score for a memory
    */
   private calculateRelevanceScore(memory: MemoryEntry, query: string): number {
-    const queryLower = query.toLowerCase();
-    const contentLower = memory.content.toLowerCase();
+    const queryLower = query.toLowerCase()
+    const contentLower = memory.content.toLowerCase()
 
     // Check for keyword matches
-    const keywords = queryLower.split(/\s+/);
-    let matchCount = 0;
+    const keywords = queryLower.split(/\s+/)
+    let matchCount = 0
 
     for (const keyword of keywords) {
-      if (keyword.length < 3) continue;
+      if (keyword.length < 3) continue
       if (contentLower.includes(keyword)) {
-        matchCount++;
+        matchCount++
       }
     }
 
-    if (matchCount === 0) return 0;
+    if (matchCount === 0) return 0
 
     // Calculate score
-    let score = matchCount * 2;
-    score += memory.metadata.importance;
-    score += Math.log10(memory.accessCount + 1);
-    score += memory.metadata.confidence * 2;
+    let score = matchCount * 2
+    score += memory.metadata.importance
+    score += Math.log10(memory.accessCount + 1)
+    score += memory.metadata.confidence * 2
 
     // Boost recent memories
-    const hoursSinceAccess = (Date.now() - memory.lastAccessedAt.getTime()) / (1000 * 60 * 60);
-    if (hoursSinceAccess < 1) score *= 2;
-    else if (hoursSinceAccess < 24) score *= 1.5;
+    const hoursSinceAccess = (Date.now() - memory.lastAccessedAt.getTime()) / (1000 * 60 * 60)
+    if (hoursSinceAccess < 1) score *= 2
+    else if (hoursSinceAccess < 24) score *= 1.5
 
-    return score;
+    return score
   }
 
   /**
@@ -258,19 +249,19 @@ export class AgentMemory implements IAgentMemory {
       deletedCount: 0,
       expiredCount: 0,
       lowImportanceCount: 0,
-    };
+    }
 
     // Clean short-term expired memories
     if (options?.deleteExpired !== false) {
-      result.expiredCount = this.shortTermMemory.cleanup();
+      result.expiredCount = this.shortTermMemory.cleanup()
     }
 
     // Note: Long-term memories are not automatically deleted
     // They need to be explicitly managed
 
-    result.deletedCount = result.expiredCount + result.lowImportanceCount;
+    result.deletedCount = result.expiredCount + result.lowImportanceCount
 
-    return result;
+    return result
   }
 
   /**
@@ -279,8 +270,8 @@ export class AgentMemory implements IAgentMemory {
    * @returns Memory statistics
    */
   async getStats(agentId: AgentId): Promise<MemoryStats> {
-    const shortTermStats = this.shortTermMemory.getStats(agentId);
-    const longTermStats = this.longTermMemory.getStats(agentId);
+    const shortTermStats = this.shortTermMemory.getStats(agentId)
+    const longTermStats = this.longTermMemory.getStats(agentId)
 
     return {
       agentId,
@@ -290,7 +281,7 @@ export class AgentMemory implements IAgentMemory {
       workingCount: 0, // Working memory is not implemented yet
       avgImportance: (shortTermStats.avgImportance + longTermStats.avgImportance) / 2,
       totalAccessCount: longTermStats.totalAccessCount,
-    };
+    }
   }
 
   /**
@@ -302,9 +293,9 @@ export class AgentMemory implements IAgentMemory {
     const [shortTerm, longTerm] = await Promise.all([
       this.shortTermMemory.get(agentId),
       this.longTermMemory.get(agentId),
-    ]);
+    ])
 
-    return [...shortTerm, ...longTerm];
+    return [...shortTerm, ...longTerm]
   }
 
   /**
@@ -320,11 +311,19 @@ export class AgentMemory implements IAgentMemory {
     options?: MemorySearchQuery
   ): Promise<MemoryEntry[]> {
     return this.recall(agentId, query, {
-      types: options?.type ? (Array.isArray(options.type) ? options.type : [options.type]) : undefined,
-      scopes: options?.scope ? (Array.isArray(options.scope) ? options.scope : [options.scope]) : undefined,
+      types: options?.type
+        ? Array.isArray(options.type)
+          ? options.type
+          : [options.type]
+        : undefined,
+      scopes: options?.scope
+        ? Array.isArray(options.scope)
+          ? options.scope
+          : [options.scope]
+        : undefined,
       minSimilarity: options?.minConfidence,
       limit: options?.limit,
-    });
+    })
   }
 
   /**
@@ -332,10 +331,7 @@ export class AgentMemory implements IAgentMemory {
    * @returns All memory entries
    */
   export(): MemoryEntry[] {
-    return [
-      ...this.shortTermMemory.export(),
-      ...this.longTermMemory.export(),
-    ];
+    return [...this.shortTermMemory.export(), ...this.longTermMemory.export()]
   }
 
   /**
@@ -343,15 +339,15 @@ export class AgentMemory implements IAgentMemory {
    * @param memories - Memory entries to import
    */
   import(memories: MemoryEntry[]): void {
-    this.shortTermMemory.import(memories);
-    this.longTermMemory.import(memories);
+    this.shortTermMemory.import(memories)
+    this.longTermMemory.import(memories)
   }
 
   /**
    * Get memory configuration
    */
   getConfig(): MemorySystemConfig {
-    return { ...this.config };
+    return { ...this.config }
   }
 }
 
@@ -359,19 +355,19 @@ export class AgentMemory implements IAgentMemory {
  * Factory function to create AgentMemory instance
  */
 export function createAgentMemory(config?: Partial<MemorySystemConfig>): AgentMemory {
-  return new AgentMemory(config);
+  return new AgentMemory(config)
 }
 
 // Export singleton instance for convenience
-let memoryInstance: AgentMemory | null = null;
+let memoryInstance: AgentMemory | null = null
 
 export function getMemoryInstance(config?: Partial<MemorySystemConfig>): AgentMemory {
   if (!memoryInstance) {
-    memoryInstance = new AgentMemory(config);
+    memoryInstance = new AgentMemory(config)
   }
-  return memoryInstance;
+  return memoryInstance
 }
 
 export function resetMemoryInstance(): void {
-  memoryInstance = null;
+  memoryInstance = null
 }

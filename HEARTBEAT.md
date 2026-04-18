@@ -1,17 +1,25 @@
 # HEARTBEAT.md
 
 ## Current Time
-- Saturday April 18th 2026 08:54 UTC / 10:54 (Europe/Berlin)
+- Saturday April 18th 2026 14:51 UTC / 16:51 (Europe/Berlin)
 
 ## Today's Completed Reports
 - 04:23 UTC - Sent Telegram alert about 7zi.com production crisis (wrong content served)
 - 04:53 UTC - Still monitoring, no resolution yet
-- 07:23 UTC - Saturday morning,主人 likely sleeping, crisis still active
+- 07:23 UTC - Saturday morning, 主人 likely sleeping, crisis still active
 - 08:00 UTC - 主人应该醒了，危机仍在持续，再次提醒
 - 08:54 UTC - 再次提醒主人检查 GitHub/Vercel 部署状态
+- 14:51 UTC - 主人已醒数小时，危机仍在持续，紧急提醒
 
 ## Active Alerts
-- 🔴 7zi.com showing wrong content (上海尔虎信息技术有限公司 instead of 7zi Studio)
+- 🔴 7zi.com still showing WRONG content — "上海尔虎信息技术有限公司" (should be 7zi Studio)
+- ✅ ai.7zi.com seems down or returning empty (no title found)
+- ⚠️ 7zi.com Git is at 8c62c582 (newer than the known-good 0ebb1d63)
+
+## Current Status at 12:25 UTC
+- 7zi.com: 🔴 WRONG CONTENT (old company site)
+- ai.7zi.com: ⚠️ No response
+- Git: main at 8c62c582 (v1.14.0), ahead of known-good 0ebb1d63
 
 ## Version Decisions (2026-04-16)
 - **7zi.com** 和 **ai.7zi.com** 为主人开发的新版重写，main 分支 commit 0ebb1d63

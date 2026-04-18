@@ -22,7 +22,7 @@ import { StreamingAnomalyDetector } from '@/lib/performance/incremental-anomaly-
 const detector = new StreamingAnomalyDetector({
   zscore: { threshold: 3, minSamples: 10 },
   isolationForest: { treeSize: 256, maxTrees: 100 },
-  windowSize: 1000
+  windowSize: 1000,
 })
 
 // 检测数据点
@@ -41,13 +41,13 @@ const channel = new EnhancedSlackChannel(
     levelChannels: {
       critical: '#incidents',
       error: '#alerts-error',
-      warning: '#alerts-warning'
-    }
+      warning: '#alerts-warning',
+    },
   },
   {
     mention: '@oncall',
     throttle: { windowMs: 60000, maxPerWindow: 1 },
-    retry: { maxAttempts: 3, baseDelayMs: 1000, maxDelayMs: 10000 }
+    retry: { maxAttempts: 3, baseDelayMs: 1000, maxDelayMs: 10000 },
   }
 )
 
@@ -72,19 +72,20 @@ constructor(config?: StreamingAnomalyDetectorConfig)
 ```
 
 **配置选项**:
+
 ```typescript
 interface StreamingAnomalyDetectorConfig {
   zscore?: {
-    threshold?: number      // Z-Score 阈值，默认 3
-    minSamples?: number     // 最小样本数，默认 10
+    threshold?: number // Z-Score 阈值，默认 3
+    minSamples?: number // 最小样本数，默认 10
   }
   isolationForest?: {
-    treeSize?: number       // 每棵树样本数，默认 256
-    maxTrees?: number       // 最大树数，默认 100
+    treeSize?: number // 每棵树样本数，默认 256
+    maxTrees?: number // 最大树数，默认 100
   }
-  windowSize?: number       // 滑动窗口大小，默认 1000
-  zscoreWeight?: number     // Z-Score 权重，默认 0.6
-  iforestWeight?: number    // Isolation Forest 权重，默认 0.4
+  windowSize?: number // 滑动窗口大小，默认 1000
+  zscoreWeight?: number // Z-Score 权重，默认 0.6
+  iforestWeight?: number // Isolation Forest 权重，默认 0.4
 }
 ```
 
@@ -99,18 +100,20 @@ detect(value: number): AnomalyResult
 ```
 
 **返回**:
+
 ```typescript
 interface AnomalyResult {
-  value: number              // 原始值
-  zScore: number             // Z-Score 值
-  isAnomaly: boolean         // 是否异常
-  anomalyScore: number       // Isolation Forest 分数 (0-1)
-  confidence: number         // 综合置信度 (0-1)
+  value: number // 原始值
+  zScore: number // Z-Score 值
+  isAnomaly: boolean // 是否异常
+  anomalyScore: number // Isolation Forest 分数 (0-1)
+  confidence: number // 综合置信度 (0-1)
   method: 'zscore' | 'isolation_forest' | 'combined'
 }
 ```
 
 **示例**:
+
 ```typescript
 const detector = new StreamingAnomalyDetector()
 
@@ -183,6 +186,7 @@ console.log(`均值: ${stats.mean}, 标准差: ${stats.stdDev}`)
 流式 Isolation Forest 实现。
 
 **特点**:
+
 - 每 256 个点增量训练一棵树
 - 保持最多 100 棵树
 - 无需存储全部历史数据
@@ -192,14 +196,14 @@ import { StreamingIsolationForest } from '@/lib/performance/incremental-anomaly-
 
 const forest = new StreamingIsolationForest({
   treeSize: 256,
-  maxTrees: 100
+  maxTrees: 100,
 })
 
 // 添加数据点
 forest.addPoint(42.5)
 
 // 计算异常分数
-const score = forest.anomalyScore(42.5)  // 0-1, 越高越异常
+const score = forest.anomalyScore(42.5) // 0-1, 越高越异常
 ```
 
 ---
@@ -237,36 +241,41 @@ constructor(config: SlackConfig, options?: SlackAlertOptions)
 ```
 
 **配置**:
+
 ```typescript
 interface SlackConfig {
-  webhookUrl: string         // Slack webhook URL
-  levelChannels?: {          // 级别到频道的映射
+  webhookUrl: string // Slack webhook URL
+  levelChannels?: {
+    // 级别到频道的映射
     info?: string
     warning?: string
     error?: string
     critical?: string
   }
-  channel?: string           // 默认频道
-  username?: string          // 机器人用户名
-  iconEmoji?: string         // 图标 emoji
-  enabled?: boolean          // 是否启用
+  channel?: string // 默认频道
+  username?: string // 机器人用户名
+  iconEmoji?: string // 图标 emoji
+  enabled?: boolean // 是否启用
 }
 
 interface SlackAlertOptions {
-  channel?: string           // 覆盖频道
-  mention?: string           // 提及用户/组
-  includeFields?: boolean    // 包含详细字段
-  includeMetadata?: boolean  // 包含元数据
-  throttle?: {               // 节流配置
+  channel?: string // 覆盖频道
+  mention?: string // 提及用户/组
+  includeFields?: boolean // 包含详细字段
+  includeMetadata?: boolean // 包含元数据
+  throttle?: {
+    // 节流配置
     windowMs: number
     maxPerWindow: number
   }
-  retry?: {                  // 重试配置
+  retry?: {
+    // 重试配置
     maxAttempts: number
     baseDelayMs: number
     maxDelayMs: number
   }
-  throttleByLevel?: {        // 按级别节流
+  throttleByLevel?: {
+    // 按级别节流
     [level: string]: { windowMs: number; maxPerWindow: number }
   }
 }
@@ -283,6 +292,7 @@ async send(alert: PerformanceAlert): Promise<SendResult>
 ```
 
 **返回**:
+
 ```typescript
 interface SendResult {
   success: boolean
@@ -337,10 +347,10 @@ const router = new LevelRouter({
   critical: '#incidents',
   error: '#alerts-error',
   warning: '#alerts-warning',
-  info: '#alerts-info'
+  info: '#alerts-info',
 })
 
-const channel = router.getChannel('critical')  // '#incidents'
+const channel = router.getChannel('critical') // '#incidents'
 ```
 
 ---
@@ -353,8 +363,8 @@ const channel = router.getChannel('critical')  // '#incidents'
 import { Throttler } from '@/lib/performance/alerting/channels/slack-enhanced'
 
 const throttler = new Throttler({
-  windowMs: 60000,      // 1 分钟窗口
-  maxPerWindow: 5       // 最多 5 条
+  windowMs: 60000, // 1 分钟窗口
+  maxPerWindow: 5, // 最多 5 条
 })
 
 // 检查是否应该节流
@@ -375,7 +385,7 @@ import { Retryer } from '@/lib/performance/alerting/channels/slack-enhanced'
 const retryer = new Retryer({
   maxAttempts: 3,
   baseDelayMs: 1000,
-  maxDelayMs: 10000
+  maxDelayMs: 10000,
 })
 
 const result = await retryer.execute(async () => {
@@ -394,7 +404,7 @@ const result = await retryer.execute(async () => {
 // 创建检测器
 const latencyDetector = new StreamingAnomalyDetector({
   zscore: { threshold: 2.5 },
-  windowSize: 500
+  windowSize: 500,
 })
 
 // 监控 API 延迟
@@ -403,13 +413,13 @@ app.use((req, res, next) => {
   res.on('finish', () => {
     const latency = Date.now() - start
     const result = latencyDetector.detect(latency)
-    
+
     if (result.isAnomaly && result.confidence > 0.8) {
       // 发送高置信度异常告警
       sendAlert({
         level: 'warning',
         message: `异常延迟检测: ${latency}ms`,
-        confidence: result.confidence
+        confidence: result.confidence,
       })
     }
   })
@@ -424,21 +434,21 @@ const channel = new EnhancedSlackChannel(
   {
     webhookUrl: process.env.SLACK_WEBHOOK_URL!,
     levelChannels: {
-      critical: '#incidents',      // 严重告警 -> 事故频道
-      error: '#alerts-error',      // 错误 -> 错误频道
-      warning: '#alerts-warning',  // 警告 -> 警告频道
-      info: '#alerts-info'         // 信息 -> 信息频道
-    }
+      critical: '#incidents', // 严重告警 -> 事故频道
+      error: '#alerts-error', // 错误 -> 错误频道
+      warning: '#alerts-warning', // 警告 -> 警告频道
+      info: '#alerts-info', // 信息 -> 信息频道
+    },
   },
   {
     // 严重告警不节流
     throttleByLevel: {
       critical: { windowMs: 0, maxPerWindow: Infinity },
       error: { windowMs: 60000, maxPerWindow: 5 },
-      warning: { windowMs: 300000, maxPerWindow: 3 }
+      warning: { windowMs: 300000, maxPerWindow: 3 },
     },
     // 严重告警提及值班人员
-    mention: '@oncall'
+    mention: '@oncall',
   }
 )
 ```
@@ -447,14 +457,16 @@ const channel = new EnhancedSlackChannel(
 
 ```typescript
 // 批量检测历史数据
-const historicalData = [/* ... 大量数据点 ... */]
+const historicalData = [
+  /* ... 大量数据点 ... */
+]
 const detector = new StreamingAnomalyDetector()
 
 const results = detector.detectBatch(historicalData)
 const anomalies = results.filter(r => r.isAnomaly)
 
 console.log(`检测到 ${anomalies.length} 个异常`)
-console.log(`异常率: ${anomalies.length / results.length * 100}%`)
+console.log(`异常率: ${(anomalies.length / results.length) * 100}%`)
 ```
 
 ---
@@ -463,11 +475,11 @@ console.log(`异常率: ${anomalies.length / results.length * 100}%`)
 
 ### 增量算法优势
 
-| 算法 | 时间复杂度 | 空间复杂度 | 适用场景 |
-|------|-----------|-----------|---------|
-| Batch Z-Score | O(n) 每次 | O(n) | 离线分析 |
-| **Incremental Z-Score** | **O(1) 每次** | **O(1)** | 实时流式 |
-| Streaming Isolation Forest | O(log n) | O(treeSize × maxTrees) | 实时流式 |
+| 算法                       | 时间复杂度    | 空间复杂度             | 适用场景 |
+| -------------------------- | ------------- | ---------------------- | -------- |
+| Batch Z-Score              | O(n) 每次     | O(n)                   | 离线分析 |
+| **Incremental Z-Score**    | **O(1) 每次** | **O(1)**               | 实时流式 |
+| Streaming Isolation Forest | O(log n)      | O(treeSize × maxTrees) | 实时流式 |
 
 ### 性能目标
 
@@ -480,17 +492,20 @@ console.log(`异常率: ${anomalies.length / results.length * 100}%`)
 ## 🧪 测试 / Testing
 
 ```typescript
-import { StreamingAnomalyDetector, IncrementalZScore } from '@/lib/performance/incremental-anomaly-detector'
+import {
+  StreamingAnomalyDetector,
+  IncrementalZScore,
+} from '@/lib/performance/incremental-anomaly-detector'
 
 describe('Anomaly Detection', () => {
   it('should detect anomalies correctly', () => {
     const detector = new StreamingAnomalyDetector()
-    
+
     // 正常数据
     for (let i = 0; i < 20; i++) {
       detector.detect(100 + Math.random() * 10)
     }
-    
+
     // 异常数据
     const result = detector.detect(1000)
     expect(result.isAnomaly).toBe(true)
@@ -499,12 +514,12 @@ describe('Anomaly Detection', () => {
 
   it('should maintain constant memory', () => {
     const zscore = new IncrementalZScore()
-    
+
     // 大量数据点
     for (let i = 0; i < 100000; i++) {
       zscore.update(Math.random() * 100)
     }
-    
+
     const stats = zscore.getStats()
     expect(stats.count).toBe(100000)
   })

@@ -2,7 +2,7 @@
 
 **作者**: 架构师  
 **日期**: 2026-04-03  
-**版本**: 2.0  
+**版本**: 2.0
 
 ---
 
@@ -10,16 +10,16 @@
 
 ### 1.1 已实现模块概览
 
-| 模块 | 路径 | 状态 | 备注 |
-|------|------|------|------|
-| 租户服务 | `src/lib/tenant/service.ts` | ✅ 核心完成 | 约 500 行 |
-| 租户中间件 | `src/lib/tenant/middleware.ts` | ✅ 核心完成 | 约 300 行 |
-| 计费服务 | `src/lib/billing/service.ts` | ✅ 核心完成 | 约 500 行 |
-| 增强权限 | `src/lib/auth/enhanced-permissions.ts` | ⚠️ 需要改造 | 无租户隔离 |
-| 分布式缓存 | `src/lib/cache/distributed/` | ⚠️ 需要改造 | 无租户隔离 |
-| 数据库迁移 | `src/lib/db/migrations/001_multi_tenant.sql` | ✅ 完成 | 完整 schema |
-| 审计服务 | `src/lib/security/audit.ts` | ✅ 完成 | 有租户隔离 |
-| 加密服务 | `src/lib/security/encryption.ts` | ✅ 完成 | 支持租户密钥 |
+| 模块       | 路径                                         | 状态        | 备注         |
+| ---------- | -------------------------------------------- | ----------- | ------------ |
+| 租户服务   | `src/lib/tenant/service.ts`                  | ✅ 核心完成 | 约 500 行    |
+| 租户中间件 | `src/lib/tenant/middleware.ts`               | ✅ 核心完成 | 约 300 行    |
+| 计费服务   | `src/lib/billing/service.ts`                 | ✅ 核心完成 | 约 500 行    |
+| 增强权限   | `src/lib/auth/enhanced-permissions.ts`       | ⚠️ 需要改造 | 无租户隔离   |
+| 分布式缓存 | `src/lib/cache/distributed/`                 | ⚠️ 需要改造 | 无租户隔离   |
+| 数据库迁移 | `src/lib/db/migrations/001_multi_tenant.sql` | ✅ 完成     | 完整 schema  |
+| 审计服务   | `src/lib/security/audit.ts`                  | ✅ 完成     | 有租户隔离   |
+| 加密服务   | `src/lib/security/encryption.ts`             | ✅ 完成     | 支持租户密钥 |
 
 ### 1.2 架构图
 
@@ -59,6 +59,7 @@
 ### 2.1 🔴 严重问题
 
 #### 问题 1: 权限系统缺少租户隔离
+
 **位置**: `src/lib/auth/enhanced-permissions.ts`
 
 ```typescript
@@ -75,17 +76,20 @@ db.exec(`
 `)
 ```
 
-**影响**: 
+**影响**:
+
 - 用户 A 在租户 1 的权限会影响到租户 2
 - 角色继承是全局的，无法实现"租户内继承"
 
 **修复建议**:
+
 ```sql
 ALTER TABLE resource_permissions ADD COLUMN tenant_id TEXT;
 CREATE INDEX idx_permissions_tenant ON resource_permissions(tenant_id);
 ```
 
 #### 问题 2: 分布式缓存缺少租户隔离
+
 **位置**: `src/lib/cache/distributed/DistributedCacheManager.ts`
 
 ```typescript
@@ -97,10 +101,12 @@ const l3Config: L3Config = {
 ```
 
 **影响**:
+
 - 租户 A 的缓存数据可能被租户 B 访问
 - 缓存穿透一个租户会影响所有租户
 
 **修复建议**:
+
 ```typescript
 // 缓存 key 格式应为
 `cache:${tenantId}:${resource}:${id}`
@@ -112,12 +118,13 @@ async get<T>(key: string, tenantId: string): Promise<T | null> {
 ```
 
 #### 问题 3: 计费服务无内部租户验证
+
 **位置**: `src/lib/billing/service.ts`
 
 ```typescript
 // 当前：完全信任调用者传入的 tenantId
 async getSubscription(tenantId: string): Promise<Subscription | null> {
-  const row = await db.get(... 
+  const row = await db.get(...
     'SELECT * FROM subscriptions WHERE tenant_id = ?',  // 直接使用，未验证
     [tenantId]
   )
@@ -125,6 +132,7 @@ async getSubscription(tenantId: string): Promise<Subscription | null> {
 ```
 
 **影响**:
+
 - 如果中间件漏检，可能出现跨租户访问
 - 建议增加防御性验证
 
@@ -149,6 +157,7 @@ export interface TenantRequest extends NextRequest {
 **修复建议**: 将 `TenantRequest` 移到独立类型文件
 
 #### 问题 5: 动态 import 在热路径
+
 **位置**: `src/lib/tenant/middleware.ts`
 
 ```typescript
@@ -161,6 +170,7 @@ const { auditService } = await import('../security/audit')
 **修复建议**: 使用静态 import 或在模块初始化时缓存
 
 #### 问题 6: 权限表初始化频繁调用
+
 **位置**: `src/lib/auth/enhanced-permissions.ts`
 
 ```typescript
@@ -176,6 +186,7 @@ async function checkPermission(params) {
 **修复建议**: 使用 `once` pattern 或在模块加载时初始化
 
 #### 问题 7: 数据库索引不完整
+
 **位置**: `001_multi_tenant.sql`
 
 ```sql
@@ -191,6 +202,7 @@ CREATE INDEX idx_usage_tenant ON usage_records(tenant_id);
 ### 2.3 🟢 轻微问题
 
 #### 问题 8: 审计日志 oldValue/newValue 序列化风险
+
 **位置**: `src/lib/security/audit.ts`
 
 ```typescript
@@ -202,6 +214,7 @@ oldValue: params.oldValue ? JSON.stringify(params.oldValue) : null
 **建议**: 对大对象使用压缩或引用
 
 #### 问题 9: 加密服务密钥轮换未完成
+
 **位置**: `src/lib/security/encryption.ts`
 
 ```typescript
@@ -350,6 +363,7 @@ interface CrossTenantReport {
 ## 五、迁移指南
 
 ### Phase 1: 数据库迁移
+
 ```sql
 -- 1. 备份数据
 -- 2. 添加 tenant_id 到 resource_permissions
@@ -363,11 +377,13 @@ SELECT COUNT(*) FROM resource_permissions WHERE tenant_id IS NULL;
 ```
 
 ### Phase 2: 代码部署
+
 1. 部署带租户隔离的新权限代码
 2. 部署缓存 key 改造代码
 3. 验证所有 API 调用正确传递 tenantId
 
 ### Phase 3: 监控
+
 - 监控异常跨租户访问
 - 监控缓存命中率变化
 - 监控权限检查延迟
@@ -377,6 +393,7 @@ SELECT COUNT(*) FROM resource_permissions WHERE tenant_id IS NULL;
 ## 六、总结
 
 ### 当前状态
+
 - ✅ 核心租户管理已完成
 - ✅ 计费系统已完成
 - ✅ 审计日志已完成
@@ -384,6 +401,7 @@ SELECT COUNT(*) FROM resource_permissions WHERE tenant_id IS NULL;
 - ⚠️ 缓存系统需要租户隔离改造
 
 ### 下一步行动
+
 1. **P0**: 为 `resource_permissions` 表添加 `tenant_id` 列
 2. **P0**: 修改缓存 key 格式支持租户隔离
 3. **P1**: 优化权限表初始化逻辑
@@ -391,5 +409,6 @@ SELECT COUNT(*) FROM resource_permissions WHERE tenant_id IS NULL;
 5. **P2**: 类型文件分离
 
 ---
+
 **报告生成时间**: 2026-04-03 13:30 GMT+2  
-**架构师**: subagent:multi-tenant-review  
+**架构师**: subagent:multi-tenant-review

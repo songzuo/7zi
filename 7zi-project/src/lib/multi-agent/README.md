@@ -25,7 +25,7 @@ const task = {
   title: '分析用户行为',
   requiredCapabilities: ['analysis', 'nlp'],
   aggregationStrategy: 'vote',
-  payload: { userId: '12345' }
+  payload: { userId: '12345' },
 }
 
 // 并行执行
@@ -60,6 +60,7 @@ async executeParallel(
 ```
 
 **参数**:
+
 - `agents` - 智能体数组
 - `task` - 任务定义
 - `options` - 执行选项（可选）
@@ -67,6 +68,7 @@ async executeParallel(
 **返回**: `AggregatedResult` - 聚合结果
 
 **示例**:
+
 ```typescript
 const result = await orchestrator.executeParallel(
   [agent1, agent2, agent3],
@@ -75,13 +77,13 @@ const result = await orchestrator.executeParallel(
     title: '文本分析',
     requiredCapabilities: ['nlp'],
     aggregationStrategy: 'vote',
-    payload: { text: 'Hello World' }
+    payload: { text: 'Hello World' },
   },
   {
     timeout: 30000,
     maxAgents: 2,
     retryOnFailure: true,
-    maxRetries: 3
+    maxRetries: 3,
   }
 )
 ```
@@ -98,12 +100,14 @@ async executeSequential(
 ```
 
 **参数**:
+
 - `workflow` - 工作流步骤数组
 - `options` - 执行选项（可选）
 
 **返回**: `AggregatedResult[]` - 每个步骤的结果
 
 **示例**:
+
 ```typescript
 const workflow = [
   {
@@ -111,18 +115,18 @@ const workflow = [
     task: {
       id: 'extract-001',
       title: '提取数据',
-      requiredCapabilities: ['extraction']
-    }
+      requiredCapabilities: ['extraction'],
+    },
   },
   {
     taskId: 'step-2',
     task: {
       id: 'analyze-001',
       title: '分析数据',
-      requiredCapabilities: ['analysis']
+      requiredCapabilities: ['analysis'],
     },
-    dependsOn: ['step-1']  // 依赖 step-1
-  }
+    dependsOn: ['step-1'], // 依赖 step-1
+  },
 ]
 
 const results = await orchestrator.executeSequential(workflow)
@@ -140,18 +144,20 @@ async assignDynamically(
 ```
 
 **参数**:
+
 - `task` - 任务定义
 - `options` - 执行选项（可选）
 
 **返回**: `AggregatedResult` - 执行结果
 
 **示例**:
+
 ```typescript
 const result = await orchestrator.assignDynamically({
   id: 'task-001',
   title: '处理请求',
   requiredCapabilities: ['processing', 'fast'],
-  payload: { data: '...' }
+  payload: { data: '...' },
 })
 ```
 
@@ -163,12 +169,12 @@ const result = await orchestrator.assignDynamically({
 
 ```typescript
 interface Task {
-  id: string                    // 任务唯一标识
-  title: string                 // 任务标题
+  id: string // 任务唯一标识
+  title: string // 任务标题
   requiredCapabilities: string[] // 所需能力列表
   aggregationStrategy?: 'first' | 'all' | 'best' | 'vote' | 'custom'
-  payload?: unknown             // 任务负载数据
-  timeout?: number              // 超时时间（毫秒）
+  payload?: unknown // 任务负载数据
+  timeout?: number // 超时时间（毫秒）
 }
 ```
 
@@ -178,9 +184,9 @@ interface Task {
 
 ```typescript
 interface WorkflowStep {
-  taskId: string                // 步骤ID
-  task: Task                    // 任务定义
-  dependsOn?: string[]          // 依赖的任务ID列表
+  taskId: string // 步骤ID
+  task: Task // 任务定义
+  dependsOn?: string[] // 依赖的任务ID列表
 }
 ```
 
@@ -190,17 +196,19 @@ interface WorkflowStep {
 
 ```typescript
 interface AggregatedResult {
-  taskId: string                // 任务ID
-  results: Array<{              // 各智能体的结果
+  taskId: string // 任务ID
+  results: Array<{
+    // 各智能体的结果
     agentId: string
     result: unknown
   }>
-  aggregated: unknown           // 聚合后的结果
-  metadata: {                   // 元数据
-    duration: number            // 执行时长（毫秒）
-    agentsUsed: number          // 使用的智能体数量
-    successCount: number        // 成功数量
-    failureCount: number        // 失败数量
+  aggregated: unknown // 聚合后的结果
+  metadata: {
+    // 元数据
+    duration: number // 执行时长（毫秒）
+    agentsUsed: number // 使用的智能体数量
+    successCount: number // 成功数量
+    failureCount: number // 失败数量
   }
 }
 ```
@@ -211,10 +219,10 @@ interface AggregatedResult {
 
 ```typescript
 interface ExecutionOptions {
-  timeout?: number              // 超时时间（毫秒）
-  maxAgents?: number            // 最大智能体数量
-  retryOnFailure?: boolean      // 失败时是否重试
-  maxRetries?: number           // 最大重试次数
+  timeout?: number // 超时时间（毫秒）
+  maxAgents?: number // 最大智能体数量
+  retryOnFailure?: boolean // 失败时是否重试
+  maxRetries?: number // 最大重试次数
 }
 ```
 
@@ -286,13 +294,10 @@ const analysisTask = {
   title: '文本情感分析',
   requiredCapabilities: ['sentiment-analysis'],
   aggregationStrategy: 'vote',
-  payload: { text: 'This product is amazing!' }
+  payload: { text: 'This product is amazing!' },
 }
 
-const result = await orchestrator.executeParallel(
-  sentimentAgents,
-  analysisTask
-)
+const result = await orchestrator.executeParallel(sentimentAgents, analysisTask)
 console.log('综合情感:', result.aggregated)
 ```
 
@@ -306,27 +311,27 @@ const pipeline = [
     task: {
       id: 'extract-001',
       title: '提取数据',
-      requiredCapabilities: ['data-extraction']
-    }
+      requiredCapabilities: ['data-extraction'],
+    },
   },
   {
     taskId: 'transform',
     task: {
       id: 'transform-001',
       title: '转换数据',
-      requiredCapabilities: ['data-transformation']
+      requiredCapabilities: ['data-transformation'],
     },
-    dependsOn: ['extract']
+    dependsOn: ['extract'],
   },
   {
     taskId: 'load',
     task: {
       id: 'load-001',
       title: '加载数据',
-      requiredCapabilities: ['data-loading']
+      requiredCapabilities: ['data-loading'],
     },
-    dependsOn: ['transform']
-  }
+    dependsOn: ['transform'],
+  },
 ]
 
 const results = await orchestrator.executeSequential(pipeline)
@@ -340,7 +345,7 @@ const task = {
   id: 'process-request',
   title: '处理用户请求',
   requiredCapabilities: ['request-processing'],
-  payload: { userId: '123', action: 'create' }
+  payload: { userId: '123', action: 'create' },
 }
 
 const result = await orchestrator.assignDynamically(task)
@@ -362,7 +367,7 @@ registry.register({
   name: '分析智能体',
   capabilities: ['analysis', 'nlp'],
   status: 'online',
-  currentLoad: 0.2
+  currentLoad: 0.2,
 })
 
 // 使用自定义注册表
@@ -376,7 +381,7 @@ import { A2AProtocol } from '@/lib/a2a/A2AProtocol'
 
 const protocol = new A2AProtocol({
   timeout: 60000,
-  retryAttempts: 5
+  retryAttempts: 5,
 })
 
 const orchestrator = new MultiAgentOrchestrator(undefined, protocol)

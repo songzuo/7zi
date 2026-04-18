@@ -60,17 +60,17 @@ src/
 
 ### 1.2 核心模块说明
 
-| 模块 | 职责 | 依赖关系 |
-|------|------|---------|
-| **MultiAgentOrchestrator** | 多智能体任务编排（并行/串行动态分配） | AgentRegistry, A2AProtocol |
-| **A2AProtocol** | 智能体间消息传递（request/response/notify/error） | EventEmitter |
-| **AgentRegistry** | 智能体注册、状态管理、负载追踪 | EventEmitter |
-| **CodeGenerator** | AI 代码/测试生成 | BaseProvider (OpenAI/Claude) |
-| **PerformanceMonitor** | 操作性能跟踪、指标收集 | AutoCleanMap, ResourceManager |
-| **IncrementalAnomalyDetector** | Welford's 算法增量式异常检测 | - |
-| **WebSocketManager** | WebSocket 连接管理 | ResourceManager |
-| **AutoCleanMap** | TTL Map，防止内存泄漏 | - |
-| **ResourceManager** | 统一资源生命周期管理 | - |
+| 模块                           | 职责                                              | 依赖关系                      |
+| ------------------------------ | ------------------------------------------------- | ----------------------------- |
+| **MultiAgentOrchestrator**     | 多智能体任务编排（并行/串行动态分配）             | AgentRegistry, A2AProtocol    |
+| **A2AProtocol**                | 智能体间消息传递（request/response/notify/error） | EventEmitter                  |
+| **AgentRegistry**              | 智能体注册、状态管理、负载追踪                    | EventEmitter                  |
+| **CodeGenerator**              | AI 代码/测试生成                                  | BaseProvider (OpenAI/Claude)  |
+| **PerformanceMonitor**         | 操作性能跟踪、指标收集                            | AutoCleanMap, ResourceManager |
+| **IncrementalAnomalyDetector** | Welford's 算法增量式异常检测                      | -                             |
+| **WebSocketManager**           | WebSocket 连接管理                                | ResourceManager               |
+| **AutoCleanMap**               | TTL Map，防止内存泄漏                             | -                             |
+| **ResourceManager**            | 统一资源生命周期管理                              | -                             |
 
 ### 1.3 数据流架构
 
@@ -183,28 +183,30 @@ MultiAgentOrchestrator
 **目标:** 解耦组件依赖，支持测试和扩展
 
 **实现方案:**
+
 ```typescript
 // 引入一个轻量级 DI 容器（如 TypeDI 或 Inversify）
 // 或自己实现一个简单的 ServiceLocator
 
 interface ServiceContainer {
-  register<T>(token: string, factory: () => T, scope: 'singleton' | 'transient'): void;
-  resolve<T>(token: string): T;
+  register<T>(token: string, factory: () => T, scope: 'singleton' | 'transient'): void
+  resolve<T>(token: string): T
 }
 
 // MultiAgentOrchestrator 改为接收容器
 class MultiAgentOrchestrator {
   constructor(private container: ServiceContainer) {}
-  
+
   async assignDynamically(task: Task) {
-    const registry = this.container.resolve<AgentRegistry>('AgentRegistry');
-    const protocol = this.container.resolve<A2AProtocol>('A2AProtocol');
+    const registry = this.container.resolve<AgentRegistry>('AgentRegistry')
+    const protocol = this.container.resolve<A2AProtocol>('A2AProtocol')
     // ...
   }
 }
 ```
 
 **收益:**
+
 - 便于单元测试时注入 mock
 - 支持不同实现的切换（如内存/Redis Registry）
 - 符合 SOLID 原则
@@ -216,6 +218,7 @@ class MultiAgentOrchestrator {
 **目标:** 支持日志、监控、追踪、过滤、转换等横切关注点
 
 **实现方案:**
+
 ```typescript
 interface A2AMiddleware {
   name: string;
@@ -234,19 +237,19 @@ interface MessageContext {
 
 class A2AProtocol {
   private middlewares: A2AMiddleware[] = [];
-  
+
   use(middleware: A2AMiddleware) {
     this.middlewares.push(middleware);
   }
-  
+
   async request(from: string, to: string, payload: unknown, options?: A2ARequestOptions) {
     const ctx: MessageContext = { message: {...}, from, to, metadata: {} };
-    
+
     const pipeline = this.middlewares.reduce(
       (next, mw) => () => mw.process(ctx, next),
       () => this.doRequest(ctx)
     );
-    
+
     return pipeline();
   }
 }
@@ -270,6 +273,7 @@ const tracingMiddleware: A2AMiddleware = {
 ```
 
 **收益:**
+
 - 无需修改核心协议代码即可添加功能
 - 支持追踪、限流、认证等横切关注点
 - 便于第三方扩展
@@ -281,30 +285,31 @@ const tracingMiddleware: A2AMiddleware = {
 **目标:** 支持动态注册新 Agent 类型和能力，无需修改核心代码
 
 **实现方案:**
+
 ```typescript
 interface AgentPlugin {
-  name: string;
-  version: string;
-  capabilities: string[];  // 声明提供的 capabilities
-  createAgent(config: unknown): AgentInstance;
+  name: string
+  version: string
+  capabilities: string[] // 声明提供的 capabilities
+  createAgent(config: unknown): AgentInstance
 }
 
 interface AgentInstance {
-  id: string;
-  execute(task: Task): Promise<unknown>;
-  healthCheck(): Promise<boolean>;
-  shutdown(): Promise<void>;
+  id: string
+  execute(task: Task): Promise<unknown>
+  healthCheck(): Promise<boolean>
+  shutdown(): Promise<void>
 }
 
 // Registry 支持插件注册
 class AgentRegistry {
-  private plugins: Map<string, AgentPlugin> = new Map();
-  
+  private plugins: Map<string, AgentPlugin> = new Map()
+
   registerPlugin(plugin: AgentPlugin) {
-    this.plugins.set(plugin.name, plugin);
+    this.plugins.set(plugin.name, plugin)
     // 自动注册 plugin 提供的 capabilities
   }
-  
+
   // AgentFilter 支持插件特定过滤
   filter(filter: AgentFilter): Agent[] {
     // 现有逻辑 + 支持插件提供的虚拟 Agent
@@ -316,11 +321,12 @@ registry.registerPlugin({
   name: 'code-review',
   version: '1.0.0',
   capabilities: ['code-review', 'static-analysis'],
-  createAgent: (config) => new CodeReviewAgent(config)
-});
+  createAgent: config => new CodeReviewAgent(config),
+})
 ```
 
 **收益:**
+
 - 业务逻辑插件化，热插拔
 - 支持第三方 Agent 实现
 - 扩展 `requiredCapabilities` 无需修改 AgentRegistry 源码
@@ -332,38 +338,45 @@ registry.registerPlugin({
 **目标:** 解耦 A2A 协议与具体传输方式，支持 WebSocket、HTTP long-polling、gRPC 等
 
 **实现方案:**
+
 ```typescript
 interface A2ATransport {
-  send(message: A2AMessage): Promise<void>;
-  onMessage(handler: (msg: A2AMessage) => void): void;
-  connect(): Promise<void>;
-  disconnect(): Promise<void>;
+  send(message: A2AMessage): Promise<void>
+  onMessage(handler: (msg: A2AMessage) => void): void
+  connect(): Promise<void>
+  disconnect(): Promise<void>
 }
 
 // 内存传输（当前实现）
 class InMemoryTransport implements A2ATransport {
-  private handlers: Set<(msg: A2AMessage) => void> = new Set();
-  
+  private handlers: Set<(msg: A2AMessage) => void> = new Set()
+
   send(message: A2AMessage) {
-    this.handlers.forEach(h => h(message));
-    return Promise.resolve();
+    this.handlers.forEach(h => h(message))
+    return Promise.resolve()
   }
-  
-  onMessage(handler) { this.handlers.add(handler); }
-  connect() { return Promise.resolve(); }
-  disconnect() { return Promise.resolve(); }
+
+  onMessage(handler) {
+    this.handlers.add(handler)
+  }
+  connect() {
+    return Promise.resolve()
+  }
+  disconnect() {
+    return Promise.resolve()
+  }
 }
 
 // WebSocket 传输（待实现）
 class WebSocketTransport implements A2ATransport {
   constructor(private ws: WebSocketManager) {}
-  
+
   async send(message: A2AMessage) {
-    this.ws.send(JSON.stringify(message));
+    this.ws.send(JSON.stringify(message))
   }
-  
+
   onMessage(handler) {
-    this.ws.onMessage(data => handler(JSON.parse(data)));
+    this.ws.onMessage(data => handler(JSON.parse(data)))
   }
 }
 
@@ -374,6 +387,7 @@ class A2AProtocol {
 ```
 
 **收益:**
+
 - 同一协议支持多种传输方式
 - 便于从进程内通信迁移到分布式部署
 - WebSocketManager 可以真正被使用起来
@@ -385,57 +399,59 @@ class A2AProtocol {
 **目标:** 提升任务执行的可靠性，处理暂时性故障
 
 **实现方案:**
+
 ```typescript
 interface RetryPolicy {
-  maxAttempts: number;
-  initialDelayMs: number;
-  maxDelayMs: number;
-  backoffMultiplier: number;
-  retryableErrors?: (error: Error) => boolean;
+  maxAttempts: number
+  initialDelayMs: number
+  maxDelayMs: number
+  backoffMultiplier: number
+  retryableErrors?: (error: Error) => boolean
 }
 
 interface DeadLetterQueue {
-  enqueue(taskId: string, error: Error, attempts: number): Promise<void>;
-  getFailedTasks(): Promise<FailedTask[]>;
-  retry(taskId: string): Promise<void>;
+  enqueue(taskId: string, error: Error, attempts: number): Promise<void>
+  getFailedTasks(): Promise<FailedTask[]>
+  retry(taskId: string): Promise<void>
 }
 
 class MultiAgentOrchestrator {
-  private dlq: DeadLetterQueue;
-  
+  private dlq: DeadLetterQueue
+
   async executeWithRetry(
     agents: Agent[],
     task: Task,
     options: ExecutionOptions
   ): Promise<AggregatedResult> {
-    const retryPolicy = options.retryPolicy || defaultRetryPolicy;
-    let lastError: Error;
-    
+    const retryPolicy = options.retryPolicy || defaultRetryPolicy
+    let lastError: Error
+
     for (let attempt = 1; attempt <= retryPolicy.maxAttempts; attempt++) {
       try {
-        return await this.executeParallel(agents, task, options);
+        return await this.executeParallel(agents, task, options)
       } catch (error) {
-        lastError = error as Error;
-        
+        lastError = error as Error
+
         if (!retryPolicy.retryableErrors(lastError)) {
-          throw error; // 非可重试错误直接抛出
+          throw error // 非可重试错误直接抛出
         }
-        
+
         if (attempt < retryPolicy.maxAttempts) {
-          const delay = this.calculateBackoff(retryPolicy, attempt);
-          await this.sleep(delay);
+          const delay = this.calculateBackoff(retryPolicy, attempt)
+          await this.sleep(delay)
         }
       }
     }
-    
+
     // 达到最大重试次数，进入 DLQ
-    await this.dlq.enqueue(task.id, lastError!, retryPolicy.maxAttempts);
-    throw lastError!;
+    await this.dlq.enqueue(task.id, lastError!, retryPolicy.maxAttempts)
+    throw lastError!
   }
 }
 ```
 
 **收益:**
+
 - 提升任务成功率（网络抖动、临时故障可自动恢复）
 - 失败任务有据可查（DLQ 可审计）
 - `retryOnFailure` 选项从空实现变为真正可用
@@ -444,13 +460,13 @@ class MultiAgentOrchestrator {
 
 ## 4. 实施优先级建议
 
-| 优先级 | 改进项 | 复杂度 | 影响力 | 建议版本 |
-|--------|--------|--------|--------|----------|
-| P0 | 依赖注入容器 | 中 | 高 | v1.10.0 |
-| P0 | 任务重试 + DLQ | 中 | 高 | v1.10.0 |
-| P1 | 消息中间件管道 | 中 | 高 | v1.11.0 |
-| P1 | 传输层抽象 | 高 | 高 | v1.11.0 |
-| P2 | 插件化 Registry | 高 | 中 | v1.12.0 |
+| 优先级 | 改进项          | 复杂度 | 影响力 | 建议版本 |
+| ------ | --------------- | ------ | ------ | -------- |
+| P0     | 依赖注入容器    | 中     | 高     | v1.10.0  |
+| P0     | 任务重试 + DLQ  | 中     | 高     | v1.10.0  |
+| P1     | 消息中间件管道  | 中     | 高     | v1.11.0  |
+| P1     | 传输层抽象      | 高     | 高     | v1.11.0  |
+| P2     | 插件化 Registry | 高     | 中     | v1.12.0  |
 
 ---
 
@@ -467,4 +483,4 @@ class MultiAgentOrchestrator {
 
 ---
 
-*Report generated by 架构师 on 2026-04-03*
+_Report generated by 架构师 on 2026-04-03_

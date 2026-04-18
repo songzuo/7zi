@@ -1,6 +1,7 @@
 # Webhook Event Notification System - Execution Report
 
 ## 版本信息
+
 - **Version:** v1.12.0
 - **Implementation Date:** 2025-01-03
 - **Executor:** Subagent (Executor 子代理)
@@ -17,9 +18,11 @@
 ## 实现的功能模块
 
 ### 1. 核心类型定义 (`types.ts`)
+
 **位置:** `src/lib/webhook/types.ts`
 
 实现内容：
+
 - ✅ 所有支持的 12 种事件类型
   - Agent events: `agent.created`, `agent.updated`, `agent.deleted`
   - Task events: `task.created`, `task.completed`, `task.failed`
@@ -37,9 +40,11 @@
 ---
 
 ### 2. 签名验证系统 (`signature.ts`)
+
 **位置:** `src/lib/webhook/signature.ts`
 
 实现内容：
+
 - ✅ HMAC-SHA256 签名生成
 - ✅ 完整的签名头生成（signature, timestamp, nonce）
 - ✅ 签名验证（支持时间戳验证）
@@ -48,6 +53,7 @@
 - ✅ 重放攻击防护（5分钟时间窗口）
 
 **特性:**
+
 - 使用 constant-time 比较防止时序攻击
 - 支持时间戳容忍度配置
 - Nonce 支持增加安全性
@@ -57,9 +63,11 @@
 ---
 
 ### 3. Webhook 管理器 (`webhook-manager.ts`)
+
 **位置:** `src/lib/webhook/webhook-manager.ts`
 
 实现内容：
+
 - ✅ 创建 Webhook 端点
 - ✅ 更新 Webhook 端点
 - ✅ 删除 Webhook 端点
@@ -73,6 +81,7 @@
   - 重复 URL 检测
 
 **安全特性:**
+
 - 警告内部 URL（localhost 等）
 - 防止重复注册
 - 支持自定义 headers 和 metadata
@@ -82,9 +91,11 @@
 ---
 
 ### 4. 事件投递服务 (`event-delivery.ts`)
+
 **位置:** `src/lib/webhook/event-delivery.ts`
 
 实现内容：
+
 - ✅ 异步事件投递
 - ✅ 指数退避重试机制（最多5次）
 - ✅ 可配置的初始延迟和最大延迟
@@ -95,6 +106,7 @@
 - ✅ 投递状态跟踪（pending, success, failed, retrying, expired）
 
 **重试逻辑:**
+
 ```
 Attempt 1: 1000ms  (初始延迟)
 Attempt 2: 2000ms  (×2)
@@ -108,9 +120,11 @@ Attempt 5: 16000ms (×2, 可配置)
 ---
 
 ### 5. 事件分发器 (`event-dispatcher.ts`)
+
 **位置:** `src/lib/webhook/event-dispatcher.ts`
 
 实现内容：
+
 - ✅ 统一事件发射 API
 - ✅ 分类事件发射方法
   - `emitAgentEvent()`
@@ -131,9 +145,11 @@ Attempt 5: 16000ms (×2, 可配置)
 ---
 
 ### 6. 主入口 (`index.ts`)
+
 **位置:** `src/lib/webhook/index.ts`
 
 实现内容：
+
 - ✅ 统一导出所有公共 API
 - ✅ 类型导出
 - ✅ 工厂函数 `createWebhookSystem()`
@@ -148,9 +164,11 @@ Attempt 5: 16000ms (×2, 可配置)
 ### 单元测试
 
 #### 1. 签名测试 (`signature.test.ts`)
+
 **测试用例:** 13 个
 
 覆盖内容：
+
 - ✅ 签名生成
 - ✅ 签名头生成
 - ✅ 签名验证（有效/无效）
@@ -160,9 +178,11 @@ Attempt 5: 16000ms (×2, 可配置)
 - ✅ 头部提取和规范化
 
 #### 2. Webhook 管理器测试 (`webhook-manager.test.ts`)
+
 **测试用例:** 23 个
 
 覆盖内容：
+
 - ✅ 创建 Webhook（有效数据、可选字段）
 - ✅ 验证（URL、secret、events、IP 白名单）
 - ✅ 更新 Webhook
@@ -172,9 +192,11 @@ Attempt 5: 16000ms (×2, 可配置)
 - ✅ 错误处理
 
 #### 3. 事件分发器测试 (`event-dispatcher.test.ts`)
+
 **测试用例:** 30 个
 
 覆盖内容：
+
 - ✅ 事件发射（基础、带 metadata）
 - ✅ 分类事件发射
 - ✅ 批量事件发射
@@ -183,9 +205,11 @@ Attempt 5: 16000ms (×2, 可配置)
 - ✅ 队列管理
 
 #### 4. 集成测试 (`integration.test.ts`)
+
 **测试用例:** 19 个
 
 覆盖内容：
+
 - ✅ 端到端流程
 - ✅ 多 Webhook 投递
 - ✅ 事件订阅过滤
@@ -204,27 +228,32 @@ Attempt 5: 16000ms (×2, 可配置)
 ## 安全特性实现
 
 ### 1. 签名验证 ✅
+
 - HMAC-SHA256 算法
 - 时间戳验证（5分钟容忍度）
 - Nonce 支持增加随机性
 - Constant-time 比较防止时序攻击
 
 ### 2. IP 白名单 ✅
+
 - 支持单个 IP
 - 支持 CIDR 表示法（如 `192.168.1.0/24`）
 - IPv4 和 IPv6 支持
 
 ### 3. 请求超时 ✅
+
 - 默认 10 秒超时
 - 可配置
 - 使用 AbortController
 
 ### 4. URL 验证 ✅
+
 - 仅允许 HTTP/HTTPS
 - 内部 URL 警告
 - 重复 URL 检测
 
 ### 5. Secret 验证 ✅
+
 - 最少 8 字符
 - 存储时加密（应用层）
 
@@ -233,6 +262,7 @@ Attempt 5: 16000ms (×2, 可配置)
 ## 配置选项
 
 ### Webhook 配置
+
 ```typescript
 {
   maxRetries: 5,              // 最大重试次数
@@ -247,6 +277,7 @@ Attempt 5: 16000ms (×2, 可配置)
 ```
 
 ### 分发器配置
+
 ```typescript
 {
   enableQueue: true,           // 启用队列
@@ -283,31 +314,33 @@ src/lib/webhook/
 ## 使用示例
 
 ### 基本用法
-```typescript
-import { createWebhookSystem } from './lib/webhook';
 
-const { webhookManager, dispatcher } = createWebhookSystem();
+```typescript
+import { createWebhookSystem } from './lib/webhook'
+
+const { webhookManager, dispatcher } = createWebhookSystem()
 
 // 创建 Webhook
 const webhook = await webhookManager.createWebhook({
   url: 'https://example.com/webhook',
   secret: 'my-secret-key',
   events: ['agent.created', 'task.completed'],
-});
+})
 
 // 发射事件
 await dispatcher.emitAgentEvent('agent.created', {
   agentId: 'agent-123',
   name: 'Test Agent',
-});
+})
 ```
 
 ### 验证传入的 Webhook
-```typescript
-import { verifySignatureFromHeaders, normalizeHeaders } from './lib/webhook';
 
-const headers = normalizeHeaders(req.headers);
-const result = verifySignatureFromHeaders(headers, req.body, webhook.secret);
+```typescript
+import { verifySignatureFromHeaders, normalizeHeaders } from './lib/webhook'
+
+const headers = normalizeHeaders(req.headers)
+const result = verifySignatureFromHeaders(headers, req.body, webhook.secret)
 
 if (!result.valid) {
   return { status: 401, body: 'Invalid signature' }
@@ -319,19 +352,23 @@ if (!result.valid) {
 ## 性能特性
 
 ### 1. 异步投递 ✅
+
 - 不阻塞主流程
 - 独立的投递队列
 - 可配置的并发数
 
 ### 2. 批量处理 ✅
+
 - 批次大小可配置
 - 减少上下文切换
 
 ### 3. 内存高效 ✅
+
 - 流式处理大型队列
 - 自动清理过期记录
 
 ### 4. 可扩展性 ✅
+
 - 支持自定义存储
 - 可替换的传输层
 - 插件化架构
@@ -341,21 +378,25 @@ if (!result.valid) {
 ## 技术亮点
 
 ### 1. TypeScript 类型安全
+
 - 完整的类型定义
 - 泛型支持
 - 严格的类型检查
 
 ### 2. 模块化设计
+
 - 清晰的职责分离
 - 易于测试和维护
 - 可替换的组件
 
 ### 3. 错误处理
+
 - 自定义错误类型
 - 详细的错误信息
 - 错误传播机制
 
 ### 4. 可观测性
+
 - 详细的日志
 - 统计数据
 - 投递记录
@@ -369,6 +410,7 @@ npm test -- src/lib/webhook
 ```
 
 **结果:**
+
 ```
 PASS src/lib/webhook/signature.test.ts (14.372 s)
 PASS src/lib/webhook/webhook-manager.test.ts (12.698 s)
@@ -388,6 +430,7 @@ Time:        17.819 s
 ## 符合需求检查清单
 
 ### 功能需求
+
 - [x] **Webhook 管理 API**
   - [x] 创建/更新/删除 Webhook 端点
   - [x] 验证 Webhook 签名（HMAC-SHA256）
@@ -410,6 +453,7 @@ Time:        17.819 s
   - [x] 请求超时控制（10 秒）
 
 ### 技术要求
+
 - [x] 在 `/root/.openclaw/workspace/7zi-project/src/lib/webhook/` 目录下实现
 - [x] 使用 TypeScript
 - [x] 编写单元测试
@@ -422,23 +466,27 @@ Time:        17.819 s
 ## 后续建议
 
 ### 1. 生产部署前
+
 - [ ] 实现持久化存储（数据库）
 - [ ] 添加 Prometheus 指标导出
 - [ ] 实现健康检查端点
 - [ ] 添加速率限制
 
 ### 2. 性能优化
+
 - [ ] 添加 Redis 作为队列后端
 - [ ] 实现批量 HTTP 请求
 - [ ] 添加请求缓存
 
 ### 3. 功能增强
+
 - [ ] Webhook 重放检测
 - [ ] 事件去重
 - [ ] 事件转换和映射
 - [ ] Webhook 模板
 
 ### 4. 监控和告警
+
 - [ ] 失败投递告警
 - [ ] 性能监控
 - [ ] 审计日志

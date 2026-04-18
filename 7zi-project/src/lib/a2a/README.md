@@ -29,7 +29,7 @@ const response = await protocol.request(
 
 // 发送通知（无需响应）
 await protocol.send('agent-a', 'agent-b', 'notification', {
-  event: 'task_completed'
+  event: 'task_completed',
 })
 ```
 
@@ -109,7 +109,7 @@ interface A2AMessage {
 
 ```typescript
 interface A2ARequestOptions {
-  timeout?: number              // 超时时间（毫秒）
+  timeout?: number // 超时时间（毫秒）
   priority?: 'low' | 'normal' | 'high'
   metadata?: Record<string, unknown>
 }
@@ -133,12 +133,7 @@ const result = await protocol.request(
 
 ```typescript
 // 发送任务完成通知
-await protocol.send(
-  'worker',
-  'monitor',
-  'notification',
-  { event: 'task_completed', taskId: '123' }
-)
+await protocol.send('worker', 'monitor', 'notification', { event: 'task_completed', taskId: '123' })
 ```
 
 ## 📁 目录结构 / Directory Structure
