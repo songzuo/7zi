@@ -25,6 +25,7 @@ const mockPut = vi.fn();
 const mockDelete = vi.fn();
 const mockClear = vi.fn();
 const mockClose = vi.fn();
+const mockCount = vi.fn();
 
 const mockObjectStoreNames = {
   contains: vi.fn().mockReturnValue(true),
@@ -37,6 +38,7 @@ const mockStore = {
   delete: mockDelete,
   clear: mockClear,
   add: vi.fn(),
+  count: mockCount,
   index: vi.fn().mockReturnValue({
     getAll: mockGetAll,
   }),
@@ -53,7 +55,7 @@ const mockDB = {
   put: mockPut,
   delete: mockDelete,
   clear: mockClear,
-  count: vi.fn(),
+  count: mockCount,
   transaction: mockTransaction,
   objectStoreNames: mockObjectStoreNames,
   close: mockClose,
@@ -65,7 +67,6 @@ describe('OfflineStorage', () => {
 
   beforeEach(async () => {
     vi.clearAllMocks();
-    vi.useFakeTimers();
     
     mockObjectStoreNames.contains.mockReturnValue(true);
     mockTransaction.mockReturnValue({
@@ -73,12 +74,14 @@ describe('OfflineStorage', () => {
       done: Promise.resolve(),
     });
     
-    mockGet.mockReset();
-    mockGetAll.mockReset();
-    mockPut.mockReset();
-    mockDelete.mockReset();
-    mockClear.mockReset();
-    mockClose.mockReset();
+    // Default mock implementations that return safe values
+    mockGet.mockResolvedValue(undefined);
+    mockGetAll.mockResolvedValue([]);
+    mockPut.mockResolvedValue('key');
+    mockDelete.mockResolvedValue(undefined);
+    mockClear.mockResolvedValue(undefined);
+    mockClose.mockResolvedValue(undefined);
+    mockCount.mockResolvedValue(0);
     mockStore.index.mockReturnValue({ getAll: mockGetAll });
 
     (openDB as any).mockResolvedValue(mockDB);
@@ -86,10 +89,6 @@ describe('OfflineStorage', () => {
     vi.resetModules();
     const module = await import('../offline-storage');
     OfflineStorage = module.default;
-  });
-
-  afterEach(() => {
-    vi.useRealTimers();
   });
 
   describe('constructor', () => {

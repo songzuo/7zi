@@ -147,12 +147,16 @@ async function handlePOST(request: NextRequest, context: { user: AuthResult }) {
     const validationResult = await validateAndSanitizeBody(body, feedbackSubmissionSchema, 'html')
 
     if (!validationResult.success) {
-      return createBadRequestError('Validation Error', {
-        errors: validationResult.errors.map(err => ({
-          field: err.path.join('.'),
-          message: err.message,
-        })),
-      })
+      return NextResponse.json(
+        {
+          success: false,
+          errors: validationResult.errors.map(err => ({
+            field: err.path.join('.'),
+            message: err.message,
+          })),
+        },
+        { status: 400 }
+      )
     }
 
     const { type, priority, title, description, url, attachments, tags, rating } =
@@ -174,13 +178,20 @@ async function handlePOST(request: NextRequest, context: { user: AuthResult }) {
       rating: rating as FeedbackRating,
     })
 
-    return createSuccessResponse({
-      id: feedback.id,
-      type: feedback.type,
-      title: feedback.title,
-      status: feedback.status,
-      createdAt: feedback.createdAt,
-    }, 201)
+    return NextResponse.json(
+      {
+        success: true,
+        message: `感谢您提交反馈！我们会尽快处理您的${type === 'bug' ? '问题报告' : type === 'feature' ? '功能建议' : '反馈'}。`,
+        data: {
+          id: feedback.id,
+          type: feedback.type,
+          title: feedback.title,
+          status: feedback.status,
+          createdAt: feedback.createdAt,
+        },
+      },
+      { status: 201 }
+    )
   } catch (error) {
     console.error('[Feedback API] POST error:', error)
     return createErrorResponse(error instanceof Error ? error : new Error(String(error)))

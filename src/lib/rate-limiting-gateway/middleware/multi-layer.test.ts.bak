@@ -82,7 +82,11 @@ describe('MultiLayerMiddleware', () => {
 
       const mw = new MultiLayerMiddleware({ storage, config })
 
-      const context: RateLimitContext = { ip: '192.168.1.1', apiKey: 'test-key', userId: 'user-123', path: '/', method: 'GET', headers: {}, timestamp: Date.now() }
+      const context: RateLimitContext = {
+        ip: '192.168.1.1',
+        apiKey: 'test-key',
+        userId: 'user-123',
+      }
 
       const result = await mw.check(context)
 
@@ -100,7 +104,9 @@ describe('MultiLayerMiddleware', () => {
 
       const mw = new MultiLayerMiddleware({ storage, config })
 
-      const context: RateLimitContext = { ip: '192.168.1.1', path: '/', method: 'GET', headers: {}, timestamp: Date.now() }
+      const context: RateLimitContext = {
+        ip: '192.168.1.1',
+      }
 
       const result = await mw.check(context)
 
@@ -112,17 +118,17 @@ describe('MultiLayerMiddleware', () => {
   describe('Rate Limiting', () => {
     it('should block requests when IP limit exceeded', async () => {
       const config: MultiLayerRateLimitConfig = {
-        global: { enabled: false, algorithm: 'token-bucket', rate: 1000, burst: 2000 },
+        global: { enabled: false },
         ip: { enabled: true, algorithm: 'sliding-window', windowMs: 60000, maxRequests: 5 },
-        apiKey: { enabled: false, algorithm: 'token-bucket', defaultTier: 'free', tiers: {} },
-
-        user: { enabled: false, algorithm: 'sliding-window', windowMs: 60000, maxRequests: 200 },
-
+        apiKey: { enabled: false },
+        user: { enabled: false },
       }
 
       const mw = new MultiLayerMiddleware({ storage, config })
 
-      const context: RateLimitContext = { ip: '192.168.1.1', path: '/', method: 'GET', headers: {}, timestamp: Date.now() }
+      const context: RateLimitContext = {
+        ip: '192.168.1.1',
+      }
 
       // Make 5 requests
       for (let i = 0; i < 5; i++) {
@@ -133,22 +139,22 @@ describe('MultiLayerMiddleware', () => {
       // 6th request should be blocked
       const result = await mw.check(context)
       expect(result.allowed).toBe(false)
-      expect(result.limitedBy?.layer).toBe('ip')
+      expect(result.blockedBy).toBe('ip')
     })
 
     it('should block requests when user limit exceeded', async () => {
       const config: MultiLayerRateLimitConfig = {
-        global: { enabled: false, algorithm: 'token-bucket', rate: 1000, burst: 2000 },
-        ip: { enabled: false, algorithm: 'sliding-window', windowMs: 60000, maxRequests: 100 },
-
-        apiKey: { enabled: false, algorithm: 'token-bucket', defaultTier: 'free', tiers: {} },
-
+        global: { enabled: false },
+        ip: { enabled: false },
+        apiKey: { enabled: false },
         user: { enabled: true, algorithm: 'sliding-window', windowMs: 60000, maxRequests: 5 },
       }
 
       const mw = new MultiLayerMiddleware({ storage, config })
 
-      const context: RateLimitContext = { ip: '127.0.0.1', userId: 'user-123', path: '/', method: 'GET', headers: {}, timestamp: Date.now() }
+      const context: RateLimitContext = {
+        userId: 'user-123',
+      }
 
       // Make 5 requests
       for (let i = 0; i < 5; i++) {
@@ -159,14 +165,13 @@ describe('MultiLayerMiddleware', () => {
       // 6th request should be blocked
       const result = await mw.check(context)
       expect(result.allowed).toBe(false)
-      expect(result.limitedBy?.layer).toBe('user')
+      expect(result.blockedBy).toBe('user')
     })
 
     it('should block requests when API key limit exceeded', async () => {
       const config: MultiLayerRateLimitConfig = {
-        global: { enabled: false, algorithm: 'token-bucket', rate: 1000, burst: 2000 },
-        ip: { enabled: false, algorithm: 'sliding-window', windowMs: 60000, maxRequests: 100 },
-
+        global: { enabled: false },
+        ip: { enabled: false },
         apiKey: {
           enabled: true,
           algorithm: 'token-bucket',
@@ -175,13 +180,14 @@ describe('MultiLayerMiddleware', () => {
             free: { name: 'free', rate: 2, burst: 10, dailyLimit: 1000 },
           },
         },
-        user: { enabled: false, algorithm: 'sliding-window', windowMs: 60000, maxRequests: 200 },
-
+        user: { enabled: false },
       }
 
       const mw = new MultiLayerMiddleware({ storage, config })
 
-      const context: RateLimitContext = { ip: '127.0.0.1', apiKey: 'test-key', path: '/', method: 'GET', headers: {}, timestamp: Date.now() }
+      const context: RateLimitContext = {
+        apiKey: 'test-key',
+      }
 
       // Make 10 requests (burst capacity)
       for (let i = 0; i < 10; i++) {
@@ -192,14 +198,14 @@ describe('MultiLayerMiddleware', () => {
       // 11th request should be blocked
       const result = await mw.check(context)
       expect(result.allowed).toBe(false)
-      expect(result.limitedBy?.layer).toBe('api-key')
+      expect(result.blockedBy).toBe('api-key')
     })
   })
 
   describe('Whitelist and Blacklist', () => {
     it('should allow whitelisted IPs', async () => {
       const config: MultiLayerRateLimitConfig = {
-        global: { enabled: false, algorithm: 'token-bucket', rate: 1000, burst: 2000 },
+        global: { enabled: false },
         ip: {
           enabled: true,
           algorithm: 'sliding-window',
@@ -207,15 +213,15 @@ describe('MultiLayerMiddleware', () => {
           maxRequests: 5,
           whitelist: ['192.168.1.1'],
         },
-        apiKey: { enabled: false, algorithm: 'token-bucket', defaultTier: 'free', tiers: {} },
-
-        user: { enabled: false, algorithm: 'sliding-window', windowMs: 60000, maxRequests: 200 },
-
+        apiKey: { enabled: false },
+        user: { enabled: false },
       }
 
       const mw = new MultiLayerMiddleware({ storage, config })
 
-      const context: RateLimitContext = { ip: '192.168.1.1', path: '/', method: 'GET', headers: {}, timestamp: Date.now() }
+      const context: RateLimitContext = {
+        ip: '192.168.1.1',
+      }
 
       // Make more than 5 requests
       for (let i = 0; i < 10; i++) {
@@ -226,7 +232,7 @@ describe('MultiLayerMiddleware', () => {
 
     it('should block blacklisted IPs', async () => {
       const config: MultiLayerRateLimitConfig = {
-        global: { enabled: false, algorithm: 'token-bucket', rate: 1000, burst: 2000 },
+        global: { enabled: false },
         ip: {
           enabled: true,
           algorithm: 'sliding-window',
@@ -234,19 +240,19 @@ describe('MultiLayerMiddleware', () => {
           maxRequests: 100,
           blacklist: ['192.168.1.1'],
         },
-        apiKey: { enabled: false, algorithm: 'token-bucket', defaultTier: 'free', tiers: {} },
-
-        user: { enabled: false, algorithm: 'sliding-window', windowMs: 60000, maxRequests: 200 },
-
+        apiKey: { enabled: false },
+        user: { enabled: false },
       }
 
       const mw = new MultiLayerMiddleware({ storage, config })
 
-      const context: RateLimitContext = { ip: '192.168.1.1', path: '/', method: 'GET', headers: {}, timestamp: Date.now() }
+      const context: RateLimitContext = {
+        ip: '192.168.1.1',
+      }
 
       const result = await mw.check(context)
       expect(result.allowed).toBe(false)
-      expect(result.limitedBy?.layer).toBe('ip')
+      expect(result.blockedBy).toBe('ip')
     })
   })
 
@@ -257,10 +263,15 @@ describe('MultiLayerMiddleware', () => {
         recordError: vi.fn(),
       }
 
-      const mw = new MultiLayerMiddleware(storage, DEFAULT_CONFIG, metricsCollector,
-      )
+      const mw = new MultiLayerMiddleware({
+        storage,
+        config: DEFAULT_CONFIG,
+        metrics: metricsCollector,
+      })
 
-      const context: RateLimitContext = { ip: '192.168.1.1', path: '/', method: 'GET', headers: {}, timestamp: Date.now() }
+      const context: RateLimitContext = {
+        ip: '192.168.1.1',
+      }
 
       await mw.check(context)
 
@@ -273,10 +284,15 @@ describe('MultiLayerMiddleware', () => {
         recordError: vi.fn(),
       }
 
-      const mw = new MultiLayerMiddleware(storage, DEFAULT_CONFIG, metricsCollector,
-      )
+      const mw = new MultiLayerMiddleware({
+        storage,
+        config: DEFAULT_CONFIG,
+        metrics: metricsCollector,
+      })
 
-      const context: RateLimitContext = { ip: '192.168.1.1', path: '/', method: 'GET', headers: {}, timestamp: Date.now() }
+      const context: RateLimitContext = {
+        ip: '192.168.1.1',
+      }
 
       // Force an error by using invalid config
       const invalidConfig = {
@@ -284,8 +300,11 @@ describe('MultiLayerMiddleware', () => {
         ip: { ...DEFAULT_CONFIG.ip, algorithm: 'invalid' as any },
       }
 
-      const invalidMw = new MultiLayerMiddleware(storage, invalidConfig, metricsCollector,
-      )
+      const invalidMw = new MultiLayerMiddleware({
+        storage,
+        config: invalidConfig,
+        metrics: metricsCollector,
+      })
 
       await invalidMw.check(context)
 
@@ -295,7 +314,9 @@ describe('MultiLayerMiddleware', () => {
 
   describe('Headers Generation', () => {
     it('should generate standard rate limit headers', async () => {
-      const context: RateLimitContext = { ip: '192.168.1.1', path: '/', method: 'GET', headers: {}, timestamp: Date.now() }
+      const context: RateLimitContext = {
+        ip: '192.168.1.1',
+      }
 
       const result = await middleware.check(context)
 
@@ -307,17 +328,17 @@ describe('MultiLayerMiddleware', () => {
 
     it('should include Retry-After header when blocked', async () => {
       const config: MultiLayerRateLimitConfig = {
-        global: { enabled: false, algorithm: 'token-bucket', rate: 1000, burst: 2000 },
+        global: { enabled: false },
         ip: { enabled: true, algorithm: 'sliding-window', windowMs: 60000, maxRequests: 5 },
-        apiKey: { enabled: false, algorithm: 'token-bucket', defaultTier: 'free', tiers: {} },
-
-        user: { enabled: false, algorithm: 'sliding-window', windowMs: 60000, maxRequests: 200 },
-
+        apiKey: { enabled: false },
+        user: { enabled: false },
       }
 
       const mw = new MultiLayerMiddleware({ storage, config })
 
-      const context: RateLimitContext = { ip: '192.168.1.1', path: '/', method: 'GET', headers: {}, timestamp: Date.now() }
+      const context: RateLimitContext = {
+        ip: '192.168.1.1',
+      }
 
       // Fill up the limit
       for (let i = 0; i < 5; i++) {

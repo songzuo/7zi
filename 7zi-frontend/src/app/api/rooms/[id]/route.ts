@@ -110,7 +110,7 @@ export async function DELETE(request: NextRequest, { params }: RouteParams) {
 
     // Invalidate caches
     roomDetailCache.delete({ endpoint: 'room-detail', params: { roomId: id } })
-    roomsCache.deleteByEndpoint('rooms-list')
+    roomDetailCache.delete({ endpoint: 'rooms-list', params: {} })
 
     return createSuccessResponse({ message: 'Room deleted successfully' })
   } catch (error) {

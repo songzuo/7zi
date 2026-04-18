@@ -18,7 +18,6 @@ interface RouteParams {
  * POST /api/rooms/[id]/join - 加入房间
  * Requires CSRF protection
  */
-// @ts-expect-error - TypeScript generic limitation with withErrorHandling
 export const POST = withErrorHandling(withCSRF(async (request: NextRequest, ...args: unknown[]) => {
   const { params } = args[0] as { params: Promise<{ id: string }> }
   const { id } = await params

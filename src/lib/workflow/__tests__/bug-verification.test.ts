@@ -189,7 +189,7 @@ describe('Workflow Engine Edge Case Bugs', () => {
             name: '循环',
             position: { x: 100, y: 0 },
             loopConfig: {
-              loopType: 'while',
+              loopType: 'conditional',
               condition: 'true',
               maxIterations: 10,
             },
@@ -254,7 +254,7 @@ describe('Workflow Engine Edge Case Bugs', () => {
             name: '循环',
             position: { x: 100, y: 0 },
             loopConfig: {
-              loopType: 'for',
+              loopType: 'fixed',
               forConfig: { start: 0, end: 5, step: 1 },
               maxIterations: 10,
             },

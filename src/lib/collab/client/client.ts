@@ -121,6 +121,7 @@ export class CollabClient extends EventEmitter {
   private reconnectAttempts: number = 0;
   private status: ConnectionStatus = { connected: false, reconnectAttempts: 0 };
   private users: Map<string, User> = new Map();
+  private version: number = 0;
 
   constructor(options: ConnectionOptions) {
     super();
@@ -231,10 +232,16 @@ export class CollabClient extends EventEmitter {
     // Add to pending and send
     this.pendingOperations.push(operation);
 
+    // Wrap single Operation in OperationData format
+    const operationData: OperationData = {
+      operations: [operation],
+      version: this.version,
+    };
+
     this.send({
       type: 'operation',
       sessionId: this.sessionId,
-      data: operation as any,
+      data: operationData,
     });
 
     this.emit('operation-sent', operation);
@@ -249,7 +256,7 @@ export class CollabClient extends EventEmitter {
     this.send({
       type: 'cursor',
       sessionId: this.sessionId,
-      data: cursor as any,
+      data: { userId: this.options.userId, position: cursor },
     });
   }
 
@@ -262,7 +269,7 @@ export class CollabClient extends EventEmitter {
     this.send({
       type: 'sync',
       sessionId: this.sessionId,
-      data: {} as any,
+      data: {} as SyncData,
     });
   }
 
@@ -331,11 +338,11 @@ export class CollabClient extends EventEmitter {
         break;
 
       case 'cursor':
-        this.handleCursorUpdate(message.data as any);
+        this.handleCursorUpdate(message.data as { clientId: string; cursor: CursorPosition });
         break;
 
       case 'presence':
-        this.handlePresenceUpdate(message.data as any);
+        this.handlePresenceUpdate(message.data as PresenceData);
         break;
 
       case 'error':
@@ -571,7 +578,7 @@ export class CollabConnection {
     };
   }
 
-  /**
+    /**
    * Leave session and disconnect
    */
   leave(): void {

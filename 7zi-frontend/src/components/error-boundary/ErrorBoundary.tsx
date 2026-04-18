@@ -197,7 +197,7 @@ interface DefaultErrorFallbackProps {
   resetErrorBoundary: () => void
 }
 
-function DefaultErrorFallback({
+export function DefaultErrorFallback({
   error,
   errorInfo,
   errorId,

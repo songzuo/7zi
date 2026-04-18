@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback, useRef } from 'react'
-import { WebSocketManager } from '@/lib/websocket-manager'
+import { WebSocketManager, EventHandler } from '@/lib/websocket-manager'
 
 /**
  * 远程光标数据结构
@@ -52,12 +52,12 @@ function getUserColor(userId: string): string {
  * @param func 要节流的函数
  * @param limit 时间间隔（毫秒）
  */
-function throttle<T extends (...args: any[]) => any>(
+function throttle<T extends (...args: unknown[]) => unknown>(
   func: T,
   limit: number
 ): (...args: Parameters<T>) => void {
   let inThrottle: boolean
-  return function (this: any, ...args: Parameters<T>) {
+  return function (this: unknown, ...args: Parameters<T>) {
     if (!inThrottle) {
       func.apply(this, args)
       inThrottle = true
@@ -190,14 +190,14 @@ export function useRemoteCursors(wsManager: WebSocketManager) {
     }
 
     // 注册事件监听器
-    wsManager.on('collab:cursor-update', handleCursorUpdate)
-    wsManager.on('collab:user-left', handleUserLeft)
-    wsManager.on('collab:cursor-leave', handleCursorLeave)
+    wsManager.on('collab:cursor-update', handleCursorUpdate as EventHandler)
+    wsManager.on('collab:user-left', handleUserLeft as EventHandler)
+    wsManager.on('collab:cursor-leave', handleCursorLeave as EventHandler)
 
     return () => {
-      wsManager.off('collab:cursor-update', handleCursorUpdate)
-      wsManager.off('collab:user-left', handleUserLeft)
-      wsManager.off('collab:cursor-leave', handleCursorLeave)
+      wsManager.off('collab:cursor-update', handleCursorUpdate as EventHandler)
+      wsManager.off('collab:user-left', handleUserLeft as EventHandler)
+      wsManager.off('collab:cursor-leave', handleCursorLeave as EventHandler)
     }
   }, [wsManager, processBatch])
 

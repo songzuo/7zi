@@ -376,7 +376,7 @@ export function zodRule<T = unknown>(
         ? createResult(true)
         : createResult(
             false,
-            message || result.error.errors[0]?.message || 'Validation failed',
+            message || result.error.issues[0]?.message || 'Validation failed',
             'zod'
           )
     },
