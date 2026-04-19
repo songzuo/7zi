@@ -1,24 +1,28 @@
 {
   "lastChecks": {
-    "调度器运行": "2026-04-14 06:24 UTC",
-    "email": 1744471140,
+    "调度器运行": "2026-04-19 00:47 UTC",
+    "email": null,
     "calendar": null,
     "weather": null,
-    "memory-maintenance": 1715346900
+    "memory-maintenance": null
   },
   "activeTasks": {
-    "调度时间": "2026-04-14 06:24 UTC",
+    "调度时间": "2026-04-19 00:47 UTC",
     "任务列表": [
-      "nextjs16-migration-fix (subagent:54c26865)",
-      "architecture-v2-detailed (subagent:9a6aa1b0)"
+      "next16-continue-0419 (volcengine, subagent:d736f70f)",
+      "server-health-0419 (bailian, subagent:69c993d1)",
+      "test-health-0419 (volcengine, subagent:5901f29d)",
+      "cost-opt-0419 (minimax, subagent:d27d2aad)"
     ],
-    "总数": 2,
+    "总数": 4,
     "启动失败": [
-      "test-health-deep (gateway timeout)",
-      "prod-health-check (gateway timeout)",
-      "code-quality-audit (gateway timeout)"
-    ]
+      "disk-cleanup-plan-0419 (失败)",
+      "prettier-continue-0419 (失败)",
+      "infra-cost-review-0419 (失败)",
+      "next163-strategy-0419 (失败)"
+    ],
+    "失败原因": "所有失败任务都在1分钟内结束，可能是minimax模型超时。改用不同模型(volcengine/bailian)启动新任务。"
   },
-  "gateway状态": "部分超时，但任务仍被接受",
-  "备注": "Gateway有超时问题，但部分任务已成功启动。继续监控。"
+  "gateway状态": "正常 - 4个任务成功启动",
+  "备注": "改用混合模型策略避免超时问题。目标：3-5个任务同时运行，当前4个。"
 }
