@@ -7,7 +7,67 @@
 
 ---
 
-## [Unreleased] - 2026-04-17
+## [Unreleased] - 2026-04-20
+
+### 🔧 TypeScript 类型修复
+- websocket-store-enhanced.test.ts: 修复 mock.calls 类型断言问题
+- app-store.ts: 修复 settings 更新类型不兼容问题
+
+### 🧪 测试状态
+- 54 个测试文件失败 / 182 通过
+- 主要问题: AudioProcessor (copyToChannel), AlertChannel (send failed)
+- 总计 217 个测试失败 / 4701 通过
+
+### 🔄 持续改进
+- 代码质量优化
+- 生产环境健康监控
+
+---
+
+## [Unreleased] - 2026-04-19
+
+### 🔧 依赖更新
+- `@ducanh2912/next-pwa` 10.2.6 → 10.2.9
+- `next` 16.2.3 → 16.2.4
+- ESLint 配置重构（`.eslintrc.json` → `eslint.config.mjs`）
+
+### 🛡️ 安全修复
+- ScreenshotAnnotation CSRF 安全加固
+
+### 🧪 测试改进
+- WorkflowEditor 组件测试统一更新
+- error-handling API 测试增强
+
+### ⚠️ 生产环境问题
+- 7zi-main PM2 重启次数过多 (16次)
+- visa.7zi.com 上游连接失败 (端口3003无服务)
+- SSL handshake 错误 (Cloudflare 兼容性问题)
+
+### 🌟 Evomap 集成进展
+- Evomap Gateway 节点注册完成
+- GEP-A2A 协议 Heartbeat 验证通过
+
+---
+
+## [Unreleased] - 2026-04-18
+
+### 🔧 技术改进
+- TypeScript P0 错误修复 (VisualWorkflowOrchestrator, websocket-instance-manager, zod-adapter)
+- Next.js 16.2 升级计划制定
+- 未使用代码分析完成 (490 个孤立文件审计)
+- WorkflowEditor 组件测试优化 (90 tests passing)
+
+### 🧪 测试改进
+- Vitest 测试框架完善
+- 路由级别测试增强
+
+### 📚 文档更新
+- Next.js 16.2 升级实施计划
+- README v1.14.0 版本同步
+
+---
+
+## [1.14.1] - 2026-04-17
 
 ### 🛡️ 安全修复
 - serialize-javascript RCE 漏洞修复 (>=7.0.5)
