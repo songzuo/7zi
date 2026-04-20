@@ -385,3 +385,104 @@ git push --force        # 使用 --force-with-lease 替代
 - **ai.7zi.com** (https://ai.7zi.com/) — 新版重写版本，主人开发
 - 以前所有旧版本（visa.7zi.com 等）全部废弃
 - 未来所有升级基于这两个位置的程序
+
+---
+
+## 📅 2026-04-19 状态更新
+
+### 模型提供商故障 ⚠️
+- **coze/glm-4.7**: 令牌过期，需要续期
+- **volcengine**: Rate limit 限制
+
+### 待处理事项
+| 优先级 | 事项 | 状态 |
+|--------|------|------|
+| 🔴 高 | 7zi.com 内容问题修复 | 待处理 |
+| 🔴 高 | Next.js 16.x 升级 | 待执行 |
+| 🔴 高 | XLSX 迁移 | 待执行 |
+
+---
+
+## 📅 2026-04 月度记忆
+
+### 🔴 持续性危机：API提供商故障（4月全月）
+
+| 提供商 | 问题 | 影响 |
+|--------|------|------|
+| **coze** | 令牌过期 30+ 小时 | 所有AI子代理阻塞 |
+| **glm-4.7** | 401 expired | 所有AI子代理阻塞 |
+| **volcengine** | Rate limit 限制 | API调用受限 |
+
+**应对措施**：所有子代理任务强制使用 `minimax` 模型
+
+---
+
+### ✅ 完成的主要工作
+
+#### v1.13.0 实现
+- Audio STT 实现（159 tests, 80.2% pass）
+- AI Dialogue 增强（133 tests, 77% pass）
+- Mobile 优化（FCP <0.8s target）
+- WebSocket multi-instance manager（33 tests）
+- Form validation 升级（327 tests, 100% pass）
+- Error handling 增强
+- Performance monitoring SDK（13 tests）
+
+#### WebSocket 监控
+- `WebSocketMonitor` 类完整实现
+- 类型定义、中间件、集成测试
+- 26 个单元测试全部通过
+
+#### SEO 优化
+- robots.txt/sitemap.xml 通过 Next.js Metadata API 生成
+- OpenGraph/Twitter Card 配置完整
+- JSON-LD 结构化数据（Organization, WebSite, BreadcrumbList）
+- 发现问题：og-default.jpg 缺失、sitemap/metadata 不一致
+
+#### TypeScript 修复
+- `GitHubActivityItem` 类型映射修复
+- `revalidateTag` API 错误修复（不支持第二个参数）
+- `useLayoutEffect` → `useEffect` 迁移（deprecated warning）
+- README.md 版本号同步
+
+#### 测试覆盖
+- VisualWorkflowOrchestrator 测试
+- edge-cases-enhanced 测试（66 tests）
+- 条件分支逻辑测试
+
+#### 生产部署
+- 7zi.com: 部署成功（BUILD: hjVJyh1nfK2qgdsq38vrv, Next.js 16.2.2, v1.13.0）
+- bot5.szspd.cn: 部署成功（同BUILD）
+
+---
+
+### ⚠️ 未解决的遗留问题
+
+| 优先级 | 问题 | 状态 |
+|--------|------|------|
+| 🔴 高 | TypeScript 300+ 错误（bypassed with ignoreBuildErrors） | 待系统性清理 |
+| 🔴 高 | xlsx 安全漏洞 | 待迁移 |
+| 🟡 中 | PWA 配置问题（sw.js, IndexedDB schema） | 待修复 |
+| 🟡 中 | 7zi.com 内容异常 | 待检查修复 |
+| 🟡 中 | 32 个 API 文档缺失（67% coverage） | 待补充 |
+
+---
+
+### 🔑 关键决策记录
+
+1. **2026-04-07**: 强制所有子代理使用 minimax 模型（Coze/Grok-3-mini 令牌持续过期）
+2. **2026-04-12**: Next.js 15 `params` 迁移已完成（11处修改）
+3. **2026-04-19**: 确认 7zi.com 新版重写完成（commit 0ebb1d63）
+
+---
+
+### 📊 项目版本状态
+
+| 版本 | 状态 | 说明 |
+|------|------|------|
+| v1.13.0 | ✅ 已部署 | 当前生产版本 |
+| v1.14.0 | 🔄 规划中 | 待实现（RAG、Enterprise Reporting） |
+| Next.js 16.x | ⏳ 待升级 | revalidateTag API 需修复 |
+
+### 记忆文件
+- ✅ 已创建 `memory/2026-04-19.md` 日志

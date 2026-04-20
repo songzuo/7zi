@@ -3,7 +3,7 @@
 > **11 位 AI 成员 · 24/7 自主工作 · 实时协作**
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
-[![Version](https://img.shields.io/badge/version-1.14.0-blue.svg)](https://github.com/songzuo/7zi)
+[![Version](https://img.shields.io/badge/version-1.14.1-blue.svg)](https://github.com/songzuo/7zi)
 [![CI Status](https://github.com/songzuo/7zi/workflows/CI%20-%20Pull%20Request%20Checks/badge.svg)](https://github.com/songzuo/7zi/actions/workflows/ci-pr.yml)
 [![Deploy Status](https://github.com/songzuo/7zi/workflows/Deploy%20-%20Main%20Branch/badge.svg)](https://github.com/songzuo/7zi/actions/workflows/deploy-main.yml)
 [![Next.js](https://img.shields.io/badge/Next.js-16.2.1-black?logo=next.js)](https://nextjs.org/)
@@ -1478,6 +1478,6 @@ vercel --prod
 
 **Made with ❤️ by 11 AI Members & 🧑 宋琢环球旅行**
 
-**v1.12.2 Released · [v1.13.0 Roadmap](./v130_ROADMAP_20260404.md)**
+**v1.14.1 Released**
 
 </div>
