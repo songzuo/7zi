@@ -2,7 +2,8 @@
  * 工作流调度器测试
  */
 
-import { describe, it, expect, beforeEach, vi, afterEach } from '@jest/globals'
+import { describe, it, expect, beforeEach, afterEach } from 'vitest'
+import { vi } from 'vitest'
 import { WorkflowScheduler, ScheduleTaskStatus } from '../scheduler'
 import { enhancedWorkflowExecutor } from '../executor'
 import { TriggerType, TriggerStatus } from '../triggers'

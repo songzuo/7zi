@@ -2,7 +2,8 @@
  * 工作流触发器系统测试
  */
 
-import { describe, it, expect, beforeEach, vi, afterEach } from '@jest/globals'
+import { describe, it, expect, beforeEach, afterEach } from 'vitest'
+import { vi } from 'vitest'
 import {
   TriggerManager,
   TriggerType,
