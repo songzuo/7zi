@@ -70,7 +70,7 @@ export async function GET(request: NextRequest) {
     const indices = target === 'all' ? undefined : [`${target}s`];
 
     // Perform search
-    const results = searchManager.search(query, {
+    const results = await searchManager.search(query, {
       indices,
       limit,
       config: searchConfig,
@@ -93,7 +93,7 @@ export async function GET(request: NextRequest) {
 
     // Add to history if query is not empty
     if (query.trim() && paginatedResults.total > 0) {
-      historyManager.add({
+      await historyManager.add({
         query,
         resultCount: paginatedResults.total,
         target,
@@ -104,7 +104,7 @@ export async function GET(request: NextRequest) {
     if (includeHistory) {
       const responseWithHistory = {
         ...response,
-        history: historyManager.getRecent(5).map(h => ({
+        history: (await historyManager.getRecent(5)).map(h => ({
           query: h.query,
           timestamp: h.timestamp,
         })),

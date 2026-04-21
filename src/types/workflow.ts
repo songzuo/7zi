@@ -55,6 +55,20 @@ export interface LoopConfig {
   iterator?: string // foreach 循环的迭代变量
   collection?: string // foreach 循环的数据源
   maxIterations?: number // 最大迭代次数（防止无限循环）
+  // for 循环配置
+  forConfig?: {
+    start: number
+    end: number
+    step?: number
+    variableName?: string
+  }
+  // foreach 配置
+  forEachConfig?: {
+    array: string
+    variableName: string
+    indexVariableName?: string
+  }
+  timeout?: number
 }
 
 /**

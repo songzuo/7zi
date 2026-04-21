@@ -5,9 +5,18 @@
  * - POST /api/feedback/response
  */
 
-import { POST } from '../route'
 import { NextRequest } from 'next/server'
 import { feedbackStorage } from '@/lib/db/feedback-storage'
+
+// Mock auth middleware
+vi.mock('@/middleware/auth.middleware', () => ({
+  authMiddleware: vi.fn(() => new Response(null, { status: 200 })),
+}))
+
+// Mock CSRF middleware to bypass CSRF checks in tests
+vi.mock('@/lib/middleware/csrf', () => ({
+  withCSRF: vi.fn((handler) => handler),
+}))
 
 describe('Feedback Response API - POST /api/feedback/response', () => {
   // Initialize storage before all tests
@@ -21,6 +30,8 @@ describe('Feedback Response API - POST /api/feedback/response', () => {
   })
 
   it('应该为管理员成功添加回复', async () => {
+    const { POST } = await import('../route')
+    
     // First create a feedback to respond to
     const feedback = feedbackStorage.createFeedback({
       userId: 'user-1',
@@ -61,6 +72,8 @@ describe('Feedback Response API - POST /api/feedback/response', () => {
   })
 
   it('应该拒绝普通用户的回复请求', async () => {
+    const { POST } = await import('../route')
+    
     // Create a feedback first
     const feedback = feedbackStorage.createFeedback({
       userId: 'user-1',
@@ -97,10 +110,12 @@ describe('Feedback Response API - POST /api/feedback/response', () => {
 
     expect(response.status).toBe(403)
     expect(data.success).toBe(false)
-    expect(data.error).toBe('Forbidden')
+    expect(data.error.type).toBe('FORBIDDEN')
   })
 
   it('应该验证回复内容', async () => {
+    const { POST } = await import('../route')
+    
     // Create a feedback first
     const feedback = feedbackStorage.createFeedback({
       userId: 'user-1',
@@ -135,10 +150,12 @@ describe('Feedback Response API - POST /api/feedback/response', () => {
 
     expect(response.status).toBe(400)
     expect(data.success).toBe(false)
-    expect(data.errors).toBeDefined()
+    expect(data.error.details).toBeDefined()
   })
 
   it('应该验证必填字段', async () => {
+    const { POST } = await import('../route')
+    
     const request = new NextRequest('http://localhost:3000/api/feedback/response', {
       method: 'POST',
       headers: {
@@ -156,10 +173,12 @@ describe('Feedback Response API - POST /api/feedback/response', () => {
 
     expect(response.status).toBe(400)
     expect(data.success).toBe(false)
-    expect(data.errors).toBeDefined()
+    expect(data.error.details).toBeDefined()
   })
 
   it('应该清理回复内容（XSS防护）', async () => {
+    const { POST } = await import('../route')
+    
     // Create a feedback first
     const feedback = feedbackStorage.createFeedback({
       userId: 'user-1',
@@ -198,6 +217,8 @@ describe('Feedback Response API - POST /api/feedback/response', () => {
   })
 
   it('应该返回404如果反馈不存在', async () => {
+    const { POST } = await import('../route')
+    
     const request = new NextRequest('http://localhost:3000/api/feedback/response', {
       method: 'POST',
       headers: {
@@ -218,6 +239,6 @@ describe('Feedback Response API - POST /api/feedback/response', () => {
 
     expect(response.status).toBe(404)
     expect(data.success).toBe(false)
-    expect(data.error).toBe('Not Found')
+    expect(data.error.type).toBe('NOT_FOUND')
   })
 })

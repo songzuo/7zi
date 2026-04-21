@@ -25,9 +25,9 @@ export async function GET(request: NextRequest) {
 
     switch (type) {
       case 'popular': {
-        const popular = historyManager.getPopular(limit);
+        const popular = await historyManager.getPopular(limit);
         // Map popular queries back to history entries
-        const allHistory = historyManager.getAll();
+        const allHistory = await historyManager.getAll();
         entries = popular
           .map(p => allHistory.find(h => h.query.toLowerCase() === p.query))
           .filter((h): h is NonNullable<typeof h> => h !== undefined);
@@ -35,9 +35,9 @@ export async function GET(request: NextRequest) {
       }
 
       case 'trending': {
-        const trending = historyManager.getTrending(limit);
+        const trending = await historyManager.getTrending(limit);
         // Map trending queries back to history entries
-        const allHistory = historyManager.getAll();
+        const allHistory = await historyManager.getAll();
         entries = trending
           .map(t => allHistory.find(h => h.query.toLowerCase() === t.query))
           .filter((h): h is NonNullable<typeof h> => h !== undefined);
@@ -47,9 +47,9 @@ export async function GET(request: NextRequest) {
       case 'recent':
       default: {
         if (target) {
-          entries = historyManager.getByTarget(target).slice(0, limit);
+          entries = (await historyManager.getByTarget(target)).slice(0, limit);
         } else {
-          entries = historyManager.getRecent(limit);
+          entries = await historyManager.getRecent(limit);
         }
         break;
       }
@@ -115,14 +115,14 @@ export async function DELETE(request: NextRequest) {
 
     if (query) {
       // Remove specific entry
-      historyManager.remove(query);
+      await historyManager.remove(query);
 
       return createSuccessResponse({
         message: `Search "${query}" removed from history`,
       });
     } else {
       // Clear all history
-      historyManager.clear();
+      await historyManager.clear();
 
       return createSuccessResponse({
         message: 'Search history cleared',

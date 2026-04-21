@@ -535,7 +535,7 @@ describe('AI Chat Integration', () => {
 
     it('respects history limit', () => {
       const MAX_HISTORY = 50
-      let history: AIMessage[] = []
+      const history: AIMessage[] = []
 
       for (let i = 0; i < 60; i++) {
         history.push(createMessage({ content: `Message ${i}` }))

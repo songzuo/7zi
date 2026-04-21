@@ -286,7 +286,7 @@ export async function processBatch<T, R>(
 /**
  * 节流函数
  */
-export function throttle<T extends (...args: unknown[]) => unknown>(
+export function throttle<T extends (...args: any[]) => any>(
   fn: T,
   limit: number
 ): T {

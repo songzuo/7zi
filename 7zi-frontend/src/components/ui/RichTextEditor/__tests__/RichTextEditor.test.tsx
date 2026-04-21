@@ -24,7 +24,7 @@ vi.mock('@/shared/context/ThemeContext', () => ({
 const mockExecCommand = vi.fn()
 beforeEach(() => {
   mockExecCommand.mockClear()
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+   
   document.execCommand = mockExecCommand
 })
 

@@ -9,12 +9,9 @@ import { NextRequest, NextResponse } from 'next/server'
 import { DistributedRateLimiter, RateLimitResult } from './distributed-rate-limiter'
 
 // Express.js types for compatibility
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-type ExpressRequest = any
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-type ExpressResponse = any
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-type ExpressNextFunction = any
+type ExpressRequest = unknown
+type ExpressResponse = unknown
+type ExpressNextFunction = unknown
 
 export interface RateLimitMiddlewareOptions {
   limiter: DistributedRateLimiter
@@ -191,28 +188,29 @@ export function withRateLimit<T = unknown>(
  */
 export function expressRateLimitMiddleware(options: RateLimitMiddlewareOptions) {
   return async function (req: ExpressRequest, res: ExpressResponse, next: ExpressNextFunction) {
+    const resObj = res as { setHeader: (k: string, v: string | number) => void; status: (code: number) => { json: (d: unknown) => void }; json: (d: unknown) => void }
     // 检查是否跳过
-    if (options.skip && options.skip(req)) {
-      return next()
+    if (options.skip && options.skip(req as NextRequest)) {
+      return (next as () => void)()
     }
 
     // 检查速率限制
-    const result = await options.limiter.check(req)
+    const result = await options.limiter.check(req as NextRequest)
 
     // 设置 Rate Limit headers
-    res.setHeader('X-RateLimit-Limit', result.limit)
-    res.setHeader('X-RateLimit-Remaining', result.remaining)
-    res.setHeader('X-RateLimit-Reset', new Date(result.resetTime).toISOString())
+    resObj.setHeader('X-RateLimit-Limit', result.limit)
+    resObj.setHeader('X-RateLimit-Remaining', result.remaining)
+    resObj.setHeader('X-RateLimit-Reset', new Date(result.resetTime).toISOString())
 
     if (!result.allowed) {
       // 触发回调
       if (options.onLimitReached) {
-        await options.onLimitReached(req, result)
+        await options.onLimitReached(req as NextRequest, result)
       }
 
       // 设置 Retry-After header
       if (result.retryAfter) {
-        res.setHeader('Retry-After', result.retryAfter)
+        resObj.setHeader('Retry-After', result.retryAfter)
       }
 
       // 返回 429 错误
@@ -223,10 +221,10 @@ export function expressRateLimitMiddleware(options: RateLimitMiddlewareOptions) 
         resetTime: new Date(result.resetTime).toISOString(),
       }
 
-      return res.status(429).json(data)
+      return resObj.status(429).json(data)
     }
 
-    next()
+    ;(next as () => void)()
   }
 }
 

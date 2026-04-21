@@ -501,7 +501,7 @@ export class OfflineStorage {
       const request = store.getAll();
 
       request.onsuccess = () => {
-        let items = request.result as SyncQueueItem[];
+        const items = request.result as SyncQueueItem[];
         // Sort by priority (desc) then timestamp (asc)
         items.sort((a, b) => {
           if (b.priority !== a.priority) return b.priority - a.priority;

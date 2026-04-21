@@ -12,7 +12,7 @@ import type { WorkflowNodeData } from '../types'
 import type { NodeProps } from 'reactflow'
 
 describe('LoopNode', () => {
-  const renderWithProvider = (node: NodeProps<WorkflowNodeData>) => {
+  const renderWithProvider = (node: any) => {
     return render(
       <ReactFlowProvider>
         <LoopNode {...node} />

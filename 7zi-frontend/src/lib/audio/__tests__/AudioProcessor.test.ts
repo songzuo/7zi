@@ -52,6 +52,7 @@ class MockAudioContext {
       length,
       sampleRate,
       getChannelData: vi.fn(() => new Float32Array(length)),
+      copyToChannel: vi.fn(),
     } as unknown as AudioBuffer
   }
 

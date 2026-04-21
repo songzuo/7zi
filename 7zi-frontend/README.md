@@ -4,9 +4,10 @@
 
 **下一代智能前端应用框架**
 
-[![Version](https://img.shields.io/badge/version-1.4.0-blue.svg)](https://github.com/7zi/7zi-frontend)
-[![Next.js](https://img.shields.io/badge/Next.js-16.2.1-black.svg)](https://nextjs.org/)
-[![TypeScript](https://img.shields.io/badge/TypeScript-5.3-blue.svg)](https://www.typescriptlang.org/)
+[![Version](https://img.shields.io/badge/version-1.14.0-blue.svg)](https://github.com/7zi/7zi-frontend)
+[![Next.js](https://img.shields.io/badge/Next.js-16.2.4-black.svg)](https://nextjs.org/)
+[![TypeScript](https://img.shields.io/badge/TypeScript-5.9.3-blue.svg)](https://www.typescriptlang.org/)
+[![React](https://img.shields.io/badge/React-19.2.5-blue.svg)](https://react.dev/)
 [![Test Coverage](https://img.shields.io/badge/coverage-98%25-green.svg)](#测试)
 
 </div>
@@ -41,6 +42,10 @@
 - 📊 **性能监控** - Web Vitals 监控、异常检测、智能告警
 - 🎨 **设计系统** - 完整的组件库和主题系统
 - 🔒 **安全加固** - JWT 认证、权限控制、输入验证
+- 📱 **PWA 支持** - 离线访问、推送通知、安装到主屏
+- 🌙 **暗色模式** - 主题切换、系统偏好检测
+- 🤝 **协作系统 v2** - A2A V2 协议支持，Multi-Agent 协作
+- ⚡ **WebSocket 压缩** - permessage-deflate 压缩，减少带宽
 
 ---
 
@@ -52,13 +57,17 @@
 | ------------------- | ------- | -------------------------------- |
 | WebSocket 高级功能  | ✅ 完成 | 房间系统、权限控制、消息持久化   |
 | AI Agent 智能调度   | ✅ 完成 | 任务匹配、负载均衡、Dashboard UI |
-| 性能监控升级        | 🟢 60%  | 异常检测完成，告警待实现         |
+| 协作系统 v2 (A2A V2) | ✅ 完成 | Agent-to-Agent V2 协议支持       |
+| WebSocket 压缩      | ✅ 完成 | permessage-deflate 压缩           |
+| 监控告警系统        | ✅ 完成 | Web Vitals、异常检测、告警       |
+| 性能监控升级        | ✅ 完成 | 实时监控 Dashboard               |
 | React Compiler 可选 | ✅ 完成 | 环境变量控制，兼容性检测         |
 | 国际化 (i18n)       | ✅ 完成 | 中英文支持，500+ 翻译键          |
 | 图片优化            | ✅ 完成 | AVIF/WebP，6 种预设尺寸          |
 | 安全加固            | ✅ 完成 | JWT 认证、权限控制、速率限制     |
 | E2E 测试            | ✅ 完成 | Playwright 框架，完整覆盖        |
 | 深色模式            | ✅ 完成 | 主题切换、系统偏好检测           |
+| PWA 支持            | ✅ 完成 | 离线存储、Service Worker         |
 
 ---
 
@@ -66,7 +75,7 @@
 
 ### 环境要求
 
-- Node.js >= 18.0.0
+- Node.js >= 20.9.0
 - npm >= 9.0.0 或 pnpm >= 8.0.0
 - Git
 
@@ -94,7 +103,7 @@ npm run dev
 1. **启动信息**
 
    ```
-   ▲ Next.js 16.2.1
+   ▲ Next.js 16.2.4
    - Local:        http://localhost:3000
    - Turbopack:    enabled
    ```
@@ -219,9 +228,9 @@ npm run storybook        # 启动组件文档
 
 ### 核心框架
 
-- **Next.js 16.2.1** - React 全栈框架
-- **React 19.2.4** - UI 库
-- **TypeScript 5.3** - 类型安全
+- **Next.js 16.2.4** - React 全栈框架
+- **React 19.2.5** - UI 库
+- **TypeScript 5.9.3** - 类型安全（严格模式已启用）
 
 ### 状态管理
 
@@ -371,7 +380,7 @@ const adminOnly = checkPermissions(['admin', 'superadmin'])
 | `/api/search`        | GET  | ✅   | 搜索接口            |
 | `/api/data/import`   | POST | ✅   | 数据导入            |
 | `/api/data/export`   | GET  | ✅   | 数据导出            |
-| `/api/a2a/*`         | \*   | ❌   | Agent-to-Agent 协议 |
+| `/api/a2a/*`         | \*   | ❌   | Agent-to-Agent V2 协议 |
 
 ---
 

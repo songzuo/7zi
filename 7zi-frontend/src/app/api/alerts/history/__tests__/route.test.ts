@@ -21,9 +21,10 @@ describe('Alert History API', () => {
       const data = await response.json()
 
       expect(response.status).toBe(200)
-      expect(data).toHaveProperty('alerts')
-      expect(data).toHaveProperty('total')
-      expect(Array.isArray(data.alerts)).toBe(true)
+      expect(data.success).toBe(true)
+      expect(data.data).toHaveProperty('alerts')
+      expect(data.data).toHaveProperty('total')
+      expect(Array.isArray(data.data.alerts)).toBe(true)
     })
 
     it('should support pagination', async () => {
@@ -34,8 +35,8 @@ describe('Alert History API', () => {
       const data = await response.json()
 
       expect(response.status).toBe(200)
-      expect(data.page).toBe(1)
-      expect(data.pageSize).toBe(5)
+      expect(data.data.page).toBe(1)
+      expect(data.data.pageSize).toBe(5)
     })
 
     it('should filter by status', async () => {
@@ -46,7 +47,7 @@ describe('Alert History API', () => {
       const data = await response.json()
 
       expect(response.status).toBe(200)
-      data.alerts.forEach((alert: any) => {
+      data.data.alerts.forEach((alert: any) => {
         expect(alert.status).toBe('active')
       })
     })
@@ -59,7 +60,7 @@ describe('Alert History API', () => {
       const data = await response.json()
 
       expect(response.status).toBe(200)
-      data.alerts.forEach((alert: any) => {
+      data.data.alerts.forEach((alert: any) => {
         expect(alert.severity).toBe('critical')
       })
     })
@@ -72,15 +73,15 @@ describe('Alert History API', () => {
       const allResponse = await GET(allRequest)
       const allData = await allResponse.json()
 
-      if (allData.alerts.length > 0) {
-        const ruleId = allData.alerts[0].ruleId
+      if (allData.data.alerts.length > 0) {
+        const ruleId = allData.data.alerts[0].ruleId
         
         const request = new NextRequest(`http://localhost:3000/api/alerts/history?ruleId=${ruleId}`)
         const response = await GET(request)
         const data = await response.json()
 
         expect(response.status).toBe(200)
-        data.alerts.forEach((alert: any) => {
+        data.data.alerts.forEach((alert: any) => {
           expect(alert.ruleId).toBe(ruleId)
         })
       }
@@ -96,7 +97,7 @@ describe('Alert History API', () => {
 
       expect(response.status).toBe(200)
       // Alerts from today should be included
-      data.alerts.forEach((alert: any) => {
+      data.data.alerts.forEach((alert: any) => {
         expect(new Date(alert.triggeredAt).toISOString().split('T')[0]).toBe(today)
       })
     })
@@ -111,8 +112,8 @@ describe('Alert History API', () => {
       const getResponse = await import('../route').then(m => m.GET(getRequest))
       const getData = await getResponse.json()
 
-      if (getData.alerts.length > 0) {
-        const alertId = getData.alerts[0].id
+      if (getData.data.alerts.length > 0) {
+        const alertId = getData.data.alerts[0].id
         
         const acknowledgeRequest = new NextRequest('http://localhost:3000/api/alerts/history', {
           method: 'POST',
@@ -126,8 +127,9 @@ describe('Alert History API', () => {
         const data = await response.json()
 
         expect(response.status).toBe(200)
-        expect(data.status).toBe('acknowledged')
-        expect(data.acknowledgedBy).toBe('test@example.com')
+        expect(data.success).toBe(true)
+        expect(data.data.status).toBe('acknowledged')
+        expect(data.data.acknowledgedBy).toBe('test@example.com')
       }
     })
 
@@ -145,7 +147,8 @@ describe('Alert History API', () => {
       const data = await response.json()
 
       expect(response.status).toBe(400)
-      expect(data.error).toContain('alertId')
+      expect(data.success).toBe(false)
+      expect(data.error.message).toContain('alertId')
     })
 
     it('should reject acknowledge without acknowledgedBy', async () => {
@@ -162,7 +165,8 @@ describe('Alert History API', () => {
       const data = await response.json()
 
       expect(response.status).toBe(400)
-      expect(data.error).toContain('acknowledgedBy')
+      expect(data.success).toBe(false)
+      expect(data.error.message).toContain('acknowledgedBy')
     })
 
     it('should reject acknowledge for non-existent alert', async () => {
@@ -180,7 +184,8 @@ describe('Alert History API', () => {
       const data = await response.json()
 
       expect(response.status).toBe(404)
-      expect(data.error).toContain('not found')
+      expect(data.success).toBe(false)
+      expect(data.error.message).toContain('not found')
     })
   })
 })

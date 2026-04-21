@@ -6,7 +6,7 @@
 import { NodeExecutor, ExecutionContext, ExecutionResult, addLog } from '../types'
 import { NodeType, NodeStatus, WorkflowNode } from '@/types/workflow'
 
-export type LoopType = 'while' | 'doWhile' | 'for' | 'forEach'
+export type LoopType = 'while' | 'doWhile' | 'for' | 'foreach'
 
 export interface LoopConfig {
   loopType: LoopType
@@ -84,7 +84,7 @@ export class LoopNodeExecutor implements NodeExecutor {
     }
 
     // 验证循环类型
-    const validLoopTypes: LoopType[] = ['while', 'doWhile', 'for', 'forEach']
+    const validLoopTypes: LoopType[] = ['while', 'doWhile', 'for', 'foreach']
     if (!validLoopTypes.includes(config.loopType)) {
       errors.push(`loopType 必须是 ${validLoopTypes.join(', ')} 之一`)
     }
@@ -116,7 +116,7 @@ export class LoopNodeExecutor implements NodeExecutor {
         }
         break
 
-      case 'forEach':
+      case 'foreach':
         if (!config.forEachConfig) {
           errors.push('forEach 循环必须配置 forEachConfig')
         } else {
@@ -249,7 +249,7 @@ export class LoopNodeExecutor implements NodeExecutor {
         await this.executeForLoop(context, config, maxIterations, timeoutMs, startTime, result)
         break
 
-      case 'forEach':
+      case 'foreach':
         await this.executeForEachLoop(context, config, maxIterations, timeoutMs, startTime, result)
         break
     }

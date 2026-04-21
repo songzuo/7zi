@@ -338,7 +338,7 @@ export class CollabClient extends EventEmitter {
         break;
 
       case 'cursor':
-        this.handleCursorUpdate(message.data as { clientId: string; cursor: CursorPosition });
+        this.handleCursorUpdate(message.data as unknown as { clientId: string; cursor: CursorPosition });
         break;
 
       case 'presence':

@@ -48,7 +48,7 @@ export function debounce<T extends (...args: unknown[]) => unknown>(
 /**
  * Throttle function
  */
-export function throttle<T extends (...args: unknown[]) => unknown>(
+export function throttle<T extends (...args: any[]) => any>(
   func: T,
   limit: number
 ): (...args: Parameters<T>) => void {

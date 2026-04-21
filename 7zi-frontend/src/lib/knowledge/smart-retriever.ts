@@ -86,7 +86,7 @@ export class SmartRetriever {
     for (const chunk of allChunks) {
       const content = chunk.content.toLowerCase();
       let matchCount = 0;
-      let positions: number[] = [];
+      const positions: number[] = [];
 
       for (const term of queryTerms) {
         const regex = new RegExp(term, 'gi');

@@ -11,7 +11,7 @@
 import { test, expect, Page } from '@playwright/test'
 
 test.describe('PWA Offline Capability Tests', () => {
-  let serviceWorkerRegistration: ServiceWorkerRegistration | null = null
+  const serviceWorkerRegistration: ServiceWorkerRegistration | null = null
   const TEST_DATA_KEY = 'pwa_test_data'
 
   test.beforeEach(async ({ page }) => {

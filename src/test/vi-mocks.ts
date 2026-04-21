@@ -503,6 +503,11 @@ const mockDb: DatabaseConnection = {
     return executeGet(sql, params) as Record<string, unknown> | null
   }) as any,
 
+  beginTransaction: vi.fn(),
+  commit: vi.fn(),
+  rollback: vi.fn(),
+  isInTransaction: vi.fn().mockReturnValue(false),
+
   exec: vi.fn((sql: string) => {
     // Handle CREATE TABLE
     if (sql.toUpperCase().includes('CREATE TABLE')) {
@@ -864,7 +869,7 @@ vi.mock('../lib/collaboration/rooms', () => ({
 }))
 
 // Singleton instance for collaboration manager mock
-let mockCollaborationManagerSingleton: ReturnType<typeof vi.fn> | null = null
+let mockCollaborationManagerSingleton: ReturnType<typeof vi.fn> | ((...args: unknown[]) => unknown) | null = null
 
 // Mock collaboration/manager
 vi.mock('../lib/collaboration/manager', () => ({
@@ -953,7 +958,7 @@ vi.mock('../lib/collaboration/manager', () => ({
         broadcastCursor: vi.fn(),
       }))
     }
-    return mockCollaborationManagerSingleton()
+    return (mockCollaborationManagerSingleton as any)()
   }),
   resetCollaborationManager: vi.fn(() => {
     mockCollaborationManagerSingleton = null

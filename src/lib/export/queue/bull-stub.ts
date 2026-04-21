@@ -127,7 +127,10 @@ class BullQueue<T = unknown> {
 export const Queue: {
   new <T = unknown>(name: string, opts?: object): Queue<T>
   <T = unknown>(name: string, opts?: object): Queue<T>
-} = BullQueue as any
+} = BullQueue as unknown as {
+  new <T = unknown>(name: string, opts?: object): Queue<T>
+  <T = unknown>(name: string, opts?: object): Queue<T>
+}
 
 export { BullQueue };
 export default { createQueue };

@@ -23,8 +23,7 @@ const excludePatterns = reactCompilerExcludePatterns
 const isProduction = process.env.NODE_ENV === 'production'
 
 const nextConfig: NextConfig = {
-  // @ts-ignore
-  typescript: { ignoreBuildErrors: true },
+  typescript: { ignoreBuildErrors: false },
   reactStrictMode: true,
 
   // 输出配置

@@ -52,7 +52,7 @@ function getUserColor(userId: string): string {
  * @param func 要节流的函数
  * @param limit 时间间隔（毫秒）
  */
-function throttle<T extends (...args: unknown[]) => unknown>(
+function throttle<T extends (...args: any[]) => any>(
   func: T,
   limit: number
 ): (...args: Parameters<T>) => void {

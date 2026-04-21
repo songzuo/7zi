@@ -24,22 +24,14 @@ describe('BatchRequestManager', () => {
       retryDelay: 1000,
     });
 
-    // Add unhandled rejection handler to prevent test failures
-    vi.stubGlobal('onunhandledrejection', (event: Event) => {
-      event.preventDefault();
-    });
   });
 
   afterEach(() => {
     vi.restoreAllMocks();
-    // Clear pending timers to prevent unhandled rejections
     vi.clearAllTimers();
-    // Cancel any pending requests - suppress errors
-    try {
-      manager.cancelAll();
-    } catch (e) {
-      // Suppress errors during cleanup
-    }
+    // Don't call cancelAll here - it would reject pending promises
+    // causing unhandled rejection errors. The manager instance is
+    // recreated in beforeEach anyway.
   });
 
   describe('addRequest', () => {
@@ -170,12 +162,20 @@ describe('BatchRequestManager', () => {
   describe('cancelAll', () => {
     it('cancels all pending requests', async () => {
       // First add some requests
-      manager.addRequest('/api/test1', 'GET');
-      manager.addRequest('/api/test2', 'GET');
+      const req1 = manager.addRequest('/api/test1', 'GET');
+      const req2 = manager.addRequest('/api/test2', 'GET');
+
+      // Handle rejections to prevent unhandled rejection errors
+      req1.catch(() => {});
+      req2.catch(() => {});
 
       // Then cancel them
       // This should not throw unhandled rejection errors
       expect(() => manager.cancelAll()).not.toThrow();
+
+      // Verify promises were rejected
+      await expect(req1).rejects.toThrow('Request cancelled');
+      await expect(req2).rejects.toThrow('Request cancelled');
     });
   });
 
