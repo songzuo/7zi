@@ -34,13 +34,11 @@
 - 01:56 UTC - 危机超47小时，仍显示"上海尔虎"，主人休息中
 
 ## Active Alerts
-- 🔴 7zi.com still showing WRONG content — "上海尔虎信息技术有限公司" (should be 7zi Studio) — 40+ hours
-- ⚠️ 7zi.com SSH (port 22) DOWN - cannot rsync deploy! Server unreachable.
-- ✅ Build succeeded locally (.next/ 571MB ready)
-- ⚠️ 本地代码落后 origin/main 71 commits！
+- ✅ 7zi.com RECOVERED - now serving "7zi Studio" (correct content, no longer "上海尔虎")
+- ⚠️ 7zi.com SSH (port 22) STILL DOWN - server unreachable, cannot rsync deploy!
+- ⚠️ 本地代码落后 origin/main 71 commits
 - ⚠️ npm audit: 5 high severity vulnerabilities (serialize-javascript RCE)
 - ⚠️ Tests: 217 failed, 182 passed
-- 🔴 Subagents: 80+ tasks failed (model provider outage for 20+ hours)
 
 ## Model Providers (at 00:22 UTC)
 | Provider | Status |
@@ -84,7 +82,12 @@
 - My (主管) current minimax session works normally — I can execute tasks directly
 - 7zi.com server may need someone physical or KVM to check SSH service
 
-## 03:55 UTC - 2026-04-21
-- 危机超51小时，仍显示"上海尔虎"
-- ai.7zi.com 返回 307 (redirect)
-- 子代理继续全部失败
+## 06:16 UTC - 2026-04-21
+- 🎉 好消息！7zi.com 已恢复正常！现在显示 "7zi Studio"
+- ⚠️ 7zi.com SSH 仍然 DOWN（端口22超时），无法 rsync 部署
+- 📊 咨询师子代理已完成优先级分析报告
+
+## 05:10 UTC - 2026-04-21
+- ✅ 7zi.com 确认恢复正常 - curl 测试显示 "7zi Studio" 标题
+- 🟡 SSH 仍 DOWN，但生产已恢复，部署问题暂无需处理
+- 💤 主人休息中，如无新问题下次心跳再报告
