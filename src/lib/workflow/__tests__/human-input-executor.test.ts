@@ -63,6 +63,7 @@ describe('HumanInputNodeExecutor', () => {
 
     it('should reject node without id', () => {
       const node: WorkflowNode = {
+        id: 'human-input-1',
         type: NodeType.HUMAN_INPUT,
         name: '审批节点',
         position: { x: 100, y: 100 },
@@ -202,7 +203,7 @@ describe('HumanInputNodeExecutor', () => {
         humanInputConfig: {
           formSchema: { fields: [{ name: 'f1', type: 'text' as const, label: 'F1' }] },
           timeout: -1,
-        },
+        } as any,
       }
 
       const result = executor.validate(node)
@@ -242,7 +243,7 @@ describe('HumanInputNodeExecutor', () => {
             ],
           },
           timeout: 1,
-        },
+        } as any,
       }
 
       const context = createMockContext(node)

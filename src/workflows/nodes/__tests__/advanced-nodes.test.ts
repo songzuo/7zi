@@ -3,11 +3,11 @@
  */
 
 import { describe, it, expect, beforeEach, vi } from 'vitest'
-import { AdvancedConditionNodeExecutor } from '../ConditionNode'
-import { LoopNodeExecutor, LoopType } from '../LoopNode'
-import { ParallelNodeExecutor, FailureStrategy, AggregationStrategy } from '../ParallelNode'
+import { AdvancedConditionNodeExecutor, AdvancedConditionConfig } from '../ConditionNode'
+import { LoopNodeExecutor, LoopType, LoopConfig as LoopConfigLocal } from '../LoopNode'
+import { ParallelNodeExecutor, FailureStrategy, AggregationStrategy, ParallelConfig, ParallelBranch } from '../ParallelNode'
 import { SubWorkflowNodeExecutor } from '../SubWorkflowNode'
-import { AIAgentNodeExecutor, AIProvider } from '../AIAgentNode'
+import { AIAgentNodeExecutor, AIProvider, AIAgentConfig as AIAgentConfigLocal } from '../AIAgentNode'
 import { AdvancedNodeRegistry, advancedNodeRegistry } from '../NodeRegistry'
 import { DSLParser, dslParser } from '../../DSLParser'
 import { NodeType, WorkflowNode } from '@/types/workflow'
@@ -56,7 +56,7 @@ describe('AdvancedConditionNodeExecutor', () => {
             { expression: 'value > 50', label: '中' },
           ],
           defaultBranch: '低',
-        },
+        } as unknown as import('@/types/workflow').AdvancedCondition,
       },
     }
 
@@ -123,7 +123,7 @@ describe('AdvancedConditionNodeExecutor', () => {
             { expression: 'score >= 60', label: '及格' },
           ],
           defaultBranch: '不及格',
-        },
+        } as unknown as import('@/types/workflow').AdvancedCondition,
       },
     }
 
@@ -163,7 +163,7 @@ describe('LoopNodeExecutor', () => {
       loopConfig: {
         type: LoopType.FIXED,
         iterations: 5,
-      },
+      } as unknown as import('@/types/workflow').LoopConfig,
     }
 
     const result = executor.validate(node)
@@ -179,7 +179,7 @@ describe('LoopNodeExecutor', () => {
       loopConfig: {
         type: LoopType.FIXED,
         iterations: -1,
-      },
+      } as unknown as import('@/types/workflow').LoopConfig,
     }
 
     const result = executor.validate(node)
@@ -196,7 +196,7 @@ describe('LoopNodeExecutor', () => {
         type: LoopType.WHILE,
         condition: 'count < 10',
         maxIterations: 100,
-      },
+      } as unknown as import('@/types/workflow').LoopConfig,
     }
 
     const result = executor.validate(node)
@@ -213,7 +213,7 @@ describe('LoopNodeExecutor', () => {
         type: LoopType.FOR_EACH,
         collection: 'items',
         itemVariable: 'item',
-      },
+      } as unknown as import('@/types/workflow').LoopConfig,
     }
 
     const result = executor.validate(node)
@@ -229,7 +229,7 @@ describe('LoopNodeExecutor', () => {
       loopConfig: {
         type: LoopType.FIXED,
         iterations: 3,
-      },
+      } as unknown as import('@/types/workflow').LoopConfig,
     }
 
     const context = createExecutionContext(
@@ -257,7 +257,7 @@ describe('LoopNodeExecutor', () => {
         type: LoopType.WHILE,
         condition: 'index < 3',
         maxIterations: 10,
-      },
+      } as unknown as import('@/types/workflow').LoopConfig,
     }
 
     const context = createExecutionContext(
@@ -284,7 +284,7 @@ describe('LoopNodeExecutor', () => {
         type: LoopType.FIXED,
         iterations: 10,
         breakCondition: 'index >= 3',
-      },
+      } as unknown as import('@/types/workflow').LoopConfig,
     }
 
     const context = createExecutionContext(
@@ -341,7 +341,7 @@ describe('ParallelNodeExecutor', () => {
           failureStrategy: FailureStrategy.CONTINUE_ON_ERROR,
           aggregationStrategy: AggregationStrategy.ALL,
         },
-      },
+      } as unknown as ParallelConfig,
     }
 
     const result = executor.validate(node)
@@ -364,7 +364,7 @@ describe('ParallelNodeExecutor', () => {
           failureStrategy: FailureStrategy.CONTINUE_ON_ERROR,
           aggregationStrategy: AggregationStrategy.ALL,
         },
-      },
+      } as unknown as ParallelConfig,
     }
 
     const context = createExecutionContext(
@@ -401,7 +401,7 @@ describe('ParallelNodeExecutor', () => {
           failureStrategy: FailureStrategy.CONTINUE_ON_ERROR,
           aggregationStrategy: AggregationStrategy.ALL,
         },
-      },
+      } as unknown as ParallelConfig,
     }
 
     const context = createExecutionContext(
@@ -437,7 +437,7 @@ describe('SubWorkflowNodeExecutor', () => {
       name: '子工作流',
       position: { x: 100, y: 100 },
       subWorkflowConfig: {
-        workflowId: 'child_workflow_1',
+        subWorkflowId: 'child_workflow_1',
         timeout: 30,
       },
     }
@@ -453,8 +453,8 @@ describe('SubWorkflowNodeExecutor', () => {
       name: '带映射子工作流',
       position: { x: 100, y: 100 },
       subWorkflowConfig: {
-        workflowId: 'child_workflow_2',
-        inputMapping: {
+        subWorkflowId: 'child_workflow_2',
+        inputs: {
           targetParam: 'sourceVar',
         },
         outputMapping: {
@@ -474,8 +474,8 @@ describe('SubWorkflowNodeExecutor', () => {
       name: '测试子工作流',
       position: { x: 100, y: 100 },
       subWorkflowConfig: {
-        workflowId: 'child_workflow_test',
-        inputMapping: {
+        subWorkflowId: 'child_workflow_test',
+        inputs: {
           data: 'inputs.data',
         },
       },
@@ -537,7 +537,7 @@ describe('AIAgentNodeExecutor', () => {
           model: 'gpt-4',
           temperature: 0.8,
           maxTokens: 1000,
-        },
+        } as unknown as import('@/types/workflow').AIAgentConfig,
       },
     }
 
@@ -556,7 +556,7 @@ describe('AIAgentNodeExecutor', () => {
           provider: AIProvider.OPENAI,
           model: 'gpt-4',
           temperature: 5.0, // 无效：超出范围
-        },
+        } as unknown as import('@/types/workflow').AIAgentConfig,
       },
     }
 
@@ -577,7 +577,7 @@ describe('AIAgentNodeExecutor', () => {
           temperature: 0.7,
           maxTokens: 500,
           timeout: 10,
-        },
+        } as unknown as import('@/types/workflow').AIAgentConfig,
       },
     }
 
@@ -608,7 +608,7 @@ describe('AIAgentNodeExecutor', () => {
           provider: AIProvider.OPENAI,
           model: 'gpt-4',
           promptTemplate: '请处理用户 {{user.name}} 的请求: {{user.request}}',
-        },
+        } as unknown as import('@/types/workflow').AIAgentConfig,
       },
     }
 

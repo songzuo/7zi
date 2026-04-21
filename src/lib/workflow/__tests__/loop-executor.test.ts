@@ -30,6 +30,7 @@ describe('LoopNodeExecutor', () => {
     describe('common validation', () => {
       it('should reject node without id', () => {
         const node: WorkflowNode = {
+          id: 'loop-1',
           type: NodeType.LOOP,
           name: '循环节点',
           position: { x: 100, y: 100 },
@@ -79,7 +80,7 @@ describe('LoopNodeExecutor', () => {
           position: { x: 100, y: 100 },
           loopConfig: {
             loopType: 'invalid' as LoopType,
-          },
+          } as unknown as import('@/types/workflow').LoopConfig,
         }
 
         const result = executor.validate(node)
@@ -557,7 +558,7 @@ describe('LoopNodeExecutor', () => {
               end: 3,
             },
             continueOnError: true,
-          },
+          } as unknown as import('@/types/workflow').LoopConfig,
         }
 
         const context = createMockContext(node)
@@ -581,7 +582,7 @@ describe('LoopNodeExecutor', () => {
               end: 3,
             },
             collectResults: true,
-          },
+          } as unknown as import('@/types/workflow').LoopConfig,
         }
 
         const context = createMockContext(node)
@@ -605,7 +606,7 @@ describe('LoopNodeExecutor', () => {
               end: 3,
             },
             collectResults: false,
-          },
+          } as unknown as import('@/types/workflow').LoopConfig,
         }
 
         const context = createMockContext(node)
