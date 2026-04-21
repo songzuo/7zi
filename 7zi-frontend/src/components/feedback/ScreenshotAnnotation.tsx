@@ -326,8 +326,8 @@ export default function ScreenshotAnnotation({
         const height = y - startPoint.y
 
         if (Math.abs(width) > 5 && Math.abs(height) > 5) {
-          newAnnotation: RectAnnotation = {
-            type: 'rect',
+          newAnnotation = {
+            type: 'rect' as const,
             x: width > 0 ? startPoint.x : x,
             y: height > 0 ? startPoint.y : y,
             width: Math.abs(width),
@@ -337,8 +337,8 @@ export default function ScreenshotAnnotation({
           }
         }
       } else if (currentTool === 'pen' && penPoints.length > 1) {
-        newAnnotation: PenAnnotation = {
-          type: 'pen',
+        newAnnotation = {
+          type: 'pen' as const,
           points: penPoints,
           color: currentColor,
           lineWidth: currentLineWidth,

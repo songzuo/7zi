@@ -1,0 +1,6 @@
+.storybook
+__mocks__
+node_modules
+.next
+typescript-any-fixes.ts
+verify-websocket-stability.ts

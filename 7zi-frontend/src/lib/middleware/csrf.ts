@@ -61,7 +61,7 @@ function createSignedToken(): string {
 /**
  * Verify and decode a signed token
  */
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
+ 
 export function verifyToken(signedToken: string): { valid: boolean; token?: string; error?: string } {
   try {
     const decoded = Buffer.from(signedToken, 'base64').toString('utf-8')
@@ -137,9 +137,9 @@ function validateOrigin(request: NextRequest): boolean {
  * @param request - Next.js request object
  * @returns NextResponse or null (if validation passes)
  */
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
+ 
 export function withCSRF(handler: (request: NextRequest, ...args: any[]) => any) {
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+   
   return async (request: NextRequest, ...args: any[]): Promise<any> => {
     const method = request.method.toUpperCase()
 

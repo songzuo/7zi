@@ -77,7 +77,7 @@ describe('useWebSocketStore - Enhanced Tests', () => {
 
       // 模拟连接成功
       const connectCallback = mockSocket.on.mock.calls.find(
-        (call: [string, Function]) => call[0] === 'connect'
+        (call: unknown[]) => (call as [string, Function])[0] === 'connect'
       )
       if (connectCallback) {
         act(() => {
@@ -97,7 +97,7 @@ describe('useWebSocketStore - Enhanced Tests', () => {
 
       // 模拟连接成功
       const connectCallback = mockSocket.on.mock.calls.find(
-        (call: [string, Function]) => call[0] === 'connect'
+        (call: unknown[]) => (call as [string, Function])[0] === 'connect'
       )
       if (connectCallback) {
         act(() => connectCallback[1]())
@@ -126,7 +126,7 @@ describe('useWebSocketStore - Enhanced Tests', () => {
 
       // 模拟连接错误
       const errorCallback = mockSocket.on.mock.calls.find(
-        (call: [string, Function]) => call[0] === 'connect_error'
+        (call: unknown[]) => (call as [string, Function])[0] === 'connect_error'
       )
 
       if (errorCallback) {
@@ -152,7 +152,7 @@ describe('useWebSocketStore - Enhanced Tests', () => {
       })
 
       const errorCallback = mockSocket.on.mock.calls.find(
-        (call: [string, Function]) => call[0] === 'connect_error'
+        (call: unknown[]) => (call as [string, Function])[0] === 'connect_error'
       )
 
       if (errorCallback) {
@@ -171,10 +171,10 @@ describe('useWebSocketStore - Enhanced Tests', () => {
       })
 
       const connectCallback = mockSocket.on.mock.calls.find(
-        (call: [string, Function]) => call[0] === 'connect'
+        (call: unknown[]) => (call as [string, Function])[0] === 'connect'
       )
       const errorCallback = mockSocket.on.mock.calls.find(
-        (call: [string, Function]) => call[0] === 'connect_error'
+        (call: unknown[]) => (call as [string, Function])[0] === 'connect_error'
       )
 
       // 模拟几次失败
@@ -203,7 +203,7 @@ describe('useWebSocketStore - Enhanced Tests', () => {
 
       // 记录当前 socket 的 connect 回调
       const connectCallbacks = mockSocket.on.mock.calls.filter(
-        (call: [string, Function]) => call[0] === 'connect'
+        (call: unknown[]) => (call as [string, Function])[0] === 'connect'
       )
       const lastConnectCallback = connectCallbacks[connectCallbacks.length - 1]?.[1]
 
@@ -283,7 +283,7 @@ describe('useWebSocketStore - Enhanced Tests', () => {
       })
 
       const connectCallback = mockSocket.on.mock.calls.find(
-        (call: [string, Function]) => call[0] === 'connect'
+        (call: unknown[]) => (call as [string, Function])[0] === 'connect'
       )
       if (connectCallback) {
         act(() => connectCallback[1]())
@@ -311,10 +311,10 @@ describe('useWebSocketStore - Enhanced Tests', () => {
       })
 
       const connectCallback = mockSocket.on.mock.calls.find(
-        (call: [string, Function]) => call[0] === 'connect'
+        (call: unknown[]) => (call as [string, Function])[0] === 'connect'
       )
       const messageCallback = mockSocket.on.mock.calls.find(
-        (call: [string, Function]) => call[0] === 'message'
+        (call: unknown[]) => (call as [string, Function])[0] === 'message'
       )
 
       if (connectCallback) {
@@ -373,10 +373,10 @@ describe('useWebSocketStore - Enhanced Tests', () => {
       })
 
       const connectCallback = mockSocket.on.mock.calls.find(
-        (call: [string, Function]) => call[0] === 'connect'
+        (call: unknown[]) => (call as [string, Function])[0] === 'connect'
       )
       const pongCallback = mockSocket.on.mock.calls.find(
-        (call: [string, Function]) => call[0] === 'pong'
+        (call: unknown[]) => (call as [string, Function])[0] === 'pong'
       )
 
       if (connectCallback) {
@@ -404,10 +404,10 @@ describe('useWebSocketStore - Enhanced Tests', () => {
       })
 
       const connectCallback = mockSocket.on.mock.calls.find(
-        (call: [string, Function]) => call[0] === 'connect'
+        (call: unknown[]) => (call as [string, Function])[0] === 'connect'
       )
       const pongCallback = mockSocket.on.mock.calls.find(
-        (call: [string, Function]) => call[0] === 'pong'
+        (call: unknown[]) => (call as [string, Function])[0] === 'pong'
       )
 
       if (connectCallback) {
@@ -448,10 +448,10 @@ describe('useWebSocketStore - Enhanced Tests', () => {
       })
 
       const connectCallback = mockSocket.on.mock.calls.find(
-        (call: [string, Function]) => call[0] === 'connect'
+        (call: unknown[]) => (call as [string, Function])[0] === 'connect'
       )
       const messageCallback = mockSocket.on.mock.calls.find(
-        (call: [string, Function]) => call[0] === 'message'
+        (call: unknown[]) => (call as [string, Function])[0] === 'message'
       )
 
       if (connectCallback) {

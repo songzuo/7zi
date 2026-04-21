@@ -86,8 +86,13 @@ describe('A2A Registry API - POST /api/a2a/registry', () => {
 
   it('应该注册新代理', async () => {
     vi.mocked(agentScheduler.registerAgent).mockReturnValue({
-      success: true,
-      agentId: 'agent-1',
+      id: 'agent-1',
+      name: 'Test Agent',
+      type: 'task',
+      status: 'idle' as const,
+      capabilities: ['search', 'analysis'],
+      createdAt: Date.now(),
+      updatedAt: Date.now(),
     })
 
     const request = new NextRequest('http://localhost:3000/api/a2a/registry', {

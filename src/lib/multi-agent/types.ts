@@ -157,7 +157,7 @@ export const A2AMessageSchema = z.object({
   target: z.string(), // 目标 Agent ID
   type: z.string(),
   timestamp: z.number(),
-  payload: z.any(),
+  payload: z.unknown(),
   id: z.string(),
   correlationId: z.string().optional(),
   expiresAt: z.number().optional(),

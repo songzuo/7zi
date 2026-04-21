@@ -20,11 +20,11 @@ export class Workbook {
     this._workbook = new ExcelJS.Workbook()
   }
 
-  get properties(): ExcelJS.Properties {
+  get properties(): ExcelJS.WorkbookProperties {
     return this._workbook.properties
   }
 
-  set properties(value: ExcelJS.Properties) {
+  set properties(value: ExcelJS.WorkbookProperties) {
     this._workbook.properties = value
   }
 
@@ -40,7 +40,7 @@ export class Workbook {
   xlsx = {
     writeBuffer: async (): Promise<Buffer> => {
       const buffer = await this._workbook.xlsx.writeBuffer()
-      return buffer as Buffer
+      return buffer as unknown as Buffer
     },
   }
 }
@@ -69,15 +69,15 @@ export class Worksheet {
   }
 
   get columns(): Column[] {
-    return this._worksheet.columns.map(col => new Column(col))
+    return (this._worksheet.columns as ExcelJS.Column[]).map(col => new Column(col))
   }
 
   get views(): ExcelJS.WorksheetView[] {
-    return this._worksheet.views
+    return this._worksheet.views as unknown as ExcelJS.WorksheetView[]
   }
 
   set views(value: ExcelJS.WorksheetView[]) {
-    this._worksheet.views = value
+    this._worksheet.views = value as unknown as typeof this._worksheet.views
   }
 
   get autoFilter(): ExcelJS.AutoFilter | undefined {

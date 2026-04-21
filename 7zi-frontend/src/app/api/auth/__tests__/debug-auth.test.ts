@@ -12,7 +12,7 @@ vi.mock('@/lib/audit/logger', () => ({
 }))
 
 vi.mock('@/lib/rate-limit/limiter', async (importOriginal) => {
-  const actual = await importOriginal()
+  const actual = await importOriginal<typeof import('@/lib/rate-limit/limiter')>()
   return {
     ...actual,
     getClientIP: vi.fn(() => '127.0.0.1'),

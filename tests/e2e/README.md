@@ -19,11 +19,14 @@ tests/e2e/
 ├── helpers/                  # Helper functions
 │   └── test-helpers.ts     # Common test utilities
 ├── snapshots/               # Visual regression snapshots
-├── auth-flow.spec.ts        # Authentication tests
-├── dashboard-flow.spec.ts   # Dashboard tests
+├── auth-flow.spec.ts           # Authentication tests
+├── dashboard-flow.spec.ts      # Dashboard tests
 ├── task-management-flow.spec.ts  # Task management tests
-├── user-workflow.spec.ts    # Complete user workflow tests
-└── playwright-report/       # HTML test reports
+├── user-workflow.spec.ts       # Complete user workflow tests
+├── homepage.spec.ts            # Landing/homepage tests (NEW)
+├── navigation.spec.ts         # Navigation flow tests (NEW)
+├── api-calls.spec.ts          # API endpoint tests (NEW)
+└── playwright-report/         # HTML test reports
 ```
 
 ## 🚀 Quick Start
@@ -76,6 +79,14 @@ npx playwright test --config=playwright.tests.config.ts --slowMo=1000
 | Dashboard       | Dashboard loading, navigation, stats | 15+ tests  | ✅ Complete |
 | Task Management | Create, edit, delete, complete tasks | 20+ tests  | ✅ Complete |
 | User Workflow   | Complete user journey                | 6 tests    | ✅ Complete |
+
+### New Test Files (2026-04-21)
+
+| Test Suite | File | Description | Test Cases |
+|------------|------|-------------|-----------|
+| Homepage | `homepage.spec.ts` | Landing page load, assets, nav links | 6 tests |
+| Navigation | `navigation.spec.ts` | Sidebar nav, protected routes, auth nav | 10 tests |
+| API Calls | `api-calls.spec.ts` | Auth API, direct endpoints, data loading | 9 tests |
 
 ### Browser Coverage
 

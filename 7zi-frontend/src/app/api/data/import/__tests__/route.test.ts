@@ -82,7 +82,7 @@ describe('Data Import API - POST /api/data/import', () => {
 
     expect(response.status).toBe(400)
     expect(data.success).toBe(false)
-    expect(data.error).toBe('Invalid Data')
+    expect(data.error.type).toBe('BAD_REQUEST')
   })
 
   it('应该支持 CSV 格式', async () => {

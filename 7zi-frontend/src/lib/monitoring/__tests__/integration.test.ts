@@ -1032,7 +1032,7 @@ describe('Alerting System Integration Tests', () => {
       const acknowledged = engine.acknowledge(alertId, 'oncall-admin')
       expect(acknowledged).toBe(true)
 
-      let alert = engine.getAlert(alertId)
+      const alert = engine.getAlert(alertId)
       expect(alert?.status).toBe('acknowledged')
       expect(alert?.acknowledgedBy).toBe('oncall-admin')
       expect(alert?.acknowledgedAt).toBeDefined()

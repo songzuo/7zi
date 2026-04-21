@@ -23,10 +23,10 @@ export async function GET(request: NextRequest) {
 
     const indices = target === 'all' ? undefined : [`${target}s`];
 
-    const suggestions = searchManager.getAutocompleteSuggestions(query, {
+    const suggestions = (await searchManager.getAutocompleteSuggestions(query, {
       indices,
       includeHistory,
-    }).slice(0, limit);
+    })).slice(0, limit);
 
     return NextResponse.json({
       suggestions,

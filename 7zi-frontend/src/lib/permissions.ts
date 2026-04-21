@@ -129,7 +129,7 @@ export interface PermissionContext {
 
 // System permissions used internally
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
-const _SYSTEM_PERMISSIONS: PermissionDefinition[] = [
+const SYSTEM_PERMISSIONS: PermissionDefinition[] = [
   { id: 'user:read', name: '查看用户', description: '查看用户信息', resourceType: ResourceType.USER, actionType: ActionType.READ, isSystem: true },
   { id: 'user:create', name: '创建用户', description: '创建新用户', resourceType: ResourceType.USER, actionType: ActionType.CREATE, isSystem: true },
   { id: 'user:update', name: '更新用户', description: '更新用户信息', resourceType: ResourceType.USER, actionType: ActionType.UPDATE, isSystem: true },

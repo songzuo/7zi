@@ -207,7 +207,7 @@ test.describe('WebSocket 连接', () => {
 
 test.describe('WebSocket 自动重连', () => {
   test('应该在连接断开后自动重连', async ({ page }) => {
-    let reconnectCount = 0
+    const reconnectCount = 0
 
     await page.addInitScript(() => {
       class MockWebSocket {
@@ -420,7 +420,7 @@ test.describe('WebSocket 自动重连', () => {
 
 test.describe('WebSocket 心跳机制', () => {
   test('应该定期发送心跳', async ({ page }) => {
-    let heartbeats = 0
+    const heartbeats = 0
 
     await page.addInitScript(() => {
       class MockWebSocket {

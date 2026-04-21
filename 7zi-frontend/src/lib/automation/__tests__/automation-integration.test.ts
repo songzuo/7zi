@@ -972,7 +972,7 @@ describe('AutomationEngine Integration Tests', () => {
       // 2. Activate rule
       await engine.updateRuleStatus('rule_1', 'active')
 
-      let result = await engine.triggerRule('rule_1')
+      const result = await engine.triggerRule('rule_1')
       expect(result.success).toBe(true)
 
       // 3. Pause rule

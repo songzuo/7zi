@@ -1,0 +1,7 @@
+src/lib/collab/utils/id.ts:51:export function throttle<T extends (...args: any[]) => any>(
+src/lib/plugins/types.ts:778:  debounce<T extends (...args: any[]) => any>(fn: T, delay: number): T;
+src/lib/plugins/types.ts:779:  throttle<T extends (...args: any[]) => any>(fn: T, delay: number): T;
+src/lib/plugins/PluginSDK.ts:402:  throttle<T extends (...args: any[]) => any>(fn: T, delay: number): T {
+src/lib/log-aggregator/utils/helpers.ts:289:export function throttle<T extends (...args: any[]) => any>(
+src/lib/export/queue/bull-stub.ts:38:  on(event: string, handler: (...args: any[]) => void): void;
+src/lib/export/queue/bull-stub.ts:117:  on(event: string, handler: (...args: any[]) => void) {
