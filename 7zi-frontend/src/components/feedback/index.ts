@@ -13,7 +13,7 @@ export { default as FeedbackAdminPanel } from './FeedbackAdminPanel'
 export { default as MultiStepFeedbackForm } from './MultiStepFeedbackForm'
 export { default as ScreenshotAnnotation } from './ScreenshotAnnotation'
 export {
-  default as EmotionSelector,
+  EmotionSelector,
   SatisfactionRating,
   FeedbackSatisfactionModal,
 } from './EmotionSelector'

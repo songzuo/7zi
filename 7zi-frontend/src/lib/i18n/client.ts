@@ -9,6 +9,9 @@ import LanguageDetector from 'i18next-browser-languagedetector'
 
 import { i18nConfig } from './config'
 
+export { useTranslation } from 'react-i18next'
+export type { UseTranslationOptions, UseTranslationResponse } from 'react-i18next'
+
 // 动态加载翻译资源的函数
 const getTranslations = async (language: string) => {
   // 默认语言使用静态导入以提高首屏性能
@@ -80,10 +83,6 @@ i18n
     resources,
     // 延迟加载资源
     partialBundledLanguages: true,
-    // 自定义资源加载器
-    backend: {
-      loadPath: '/locales/{{lng}}/{{ns}}.json',
-    },
   })
 
 // 初始化后加载默认语言

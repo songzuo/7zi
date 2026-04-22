@@ -16,8 +16,9 @@ import { Button } from '@/components/ui/Button'
 import { Input } from '@/components/ui/Input'
 import { ChevronLeft, ChevronRight, Save, Loader2 } from 'lucide-react'
 import { useTranslation } from '@/lib/i18n/client'
-import type { FeedbackType, FeedbackPriority, FeedbackData } from '@/lib/db/feedback-types'
-import { ScreenshotAnnotation } from './ScreenshotAnnotation'
+import type { FeedbackType, FeedbackPriority } from '@/lib/db/feedback-types'
+import type { FeedbackData } from './FeedbackModal'
+import ScreenshotAnnotation from './ScreenshotAnnotation'
 import { EmotionSelector } from './EmotionSelector'
 
 interface MultiStepFeedbackFormProps {
