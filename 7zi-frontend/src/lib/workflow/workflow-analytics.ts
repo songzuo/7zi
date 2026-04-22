@@ -308,7 +308,7 @@ export class WorkflowAnalytics {
           metrics.maxDuration = Math.max(metrics.maxDuration, duration)
         }
 
-        if (execution.status === 'completed' || execution.status === 'success') {
+        if (execution.status === 'completed') {
           metrics.successCount++
         } else if (execution.status === 'failed') {
           metrics.failureCount++

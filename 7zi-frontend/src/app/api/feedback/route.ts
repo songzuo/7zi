@@ -199,8 +199,9 @@ async function handlePOST(request: NextRequest, context: { user: AuthResult }) {
 }
 
 // Apply both authentication and rate limiting to POST, with CSRF protection
+// TODO: Fix middleware chain type compatibility - withAuth expects context but withRateLimit doesn't pass it
 export const POST = withAuth(
-  withRateLimit(RATE_LIMIT_PRESETS.moderate, withCSRF(handlePOST))
+  withRateLimit(RATE_LIMIT_PRESETS.moderate, withCSRF(handlePOST)) as any
 )
 
 /**

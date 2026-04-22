@@ -140,7 +140,7 @@ function validateOrigin(request: NextRequest): boolean {
  
 export function withCSRF(handler: (request: NextRequest, ...args: any[]) => any) {
    
-  return async (request: NextRequest, ...args: any[]): Promise<any> => {
+  return async (request: NextRequest, ...args: any[]): Promise<NextResponse> => {
     const method = request.method.toUpperCase()
 
     // Skip CSRF validation for safe methods

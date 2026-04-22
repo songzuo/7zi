@@ -331,7 +331,7 @@ class WorkflowVersionLocalStorage {
 // ============================================
 
 export class WorkflowVersionStorageManager {
-  private backend: WorkflowVersionIndexedDBStorage | WorkflowVersionLocalStorage
+  private backend!: WorkflowVersionIndexedDBStorage | WorkflowVersionLocalStorage
   private useIndexedDB = false
   private initialized = false
 

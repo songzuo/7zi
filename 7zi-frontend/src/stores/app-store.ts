@@ -120,7 +120,7 @@ export const useAppStore = create<AppState>()(
           for (const key of Object.keys(newSettings) as Array<keyof AppSettings>) {
             const value = newSettings[key]
             if (value !== undefined && updatedSettings[key] !== value) {
-              (updatedSettings as Record<string, string | number | boolean>)[key] = value
+              (updatedSettings as unknown as Record<string, string | number | boolean>)[key] = value
               hasChanges = true
             }
           }
