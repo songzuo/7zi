@@ -4,9 +4,6 @@
 
 import { describe, it, expect, beforeEach, vi } from 'vitest'
 import { NextRequest } from 'next/server'
-import { GET, POST } from '../route'
-import { notificationService } from '@/lib/services/notification'
-import { authenticateJWT } from '@/lib/auth/api-auth'
 
 // Mock notification service
 vi.mock('@/lib/services/notification', () => ({
@@ -29,12 +26,40 @@ vi.mock('@/lib/services/notification', () => ({
   },
 }))
 
-// Mock auth
+// Mock CSRF middleware to bypass token validation in tests
+vi.mock('@/lib/middleware/csrf', () => ({
+  withCSRF: (handler: Function) => handler, // Bypass CSRF validation
+  generateCSRFToken: vi.fn(),
+  getCSRFToken: vi.fn(),
+  requiresCSRFProtection: vi.fn(() => false),
+  extractCSRFToken: vi.fn(() => ({})),
+}))
+
+// Mock auth - must be done before importing route
 vi.mock('@/lib/auth/api-auth', () => ({
   authenticateJWT: vi.fn(),
 }))
 
+// Mock the hot data cache to avoid cross-test pollution
+vi.mock('@/lib/cache', () => ({
+  createHotDataCache: vi.fn(() => ({
+    get: vi.fn(() => null), // Always return null (cache miss) in tests
+    set: vi.fn(),
+    delete: vi.fn(),
+    deleteByUser: vi.fn(),
+    clear: vi.fn(),
+  })),
+  CachePresets: {
+    SHORT: { ttl: 5000, maxSize: 100 },
+    MEDIUM: { ttl: 30000, maxSize: 500 },
+    LONG: { ttl: 300000, maxSize: 1000 },
+  },
+}))
+
 // Import mocked modules after vi.mock calls
+import { GET, POST } from '../route'
+import { notificationService } from '@/lib/services/notification'
+import { authenticateJWT } from '@/lib/auth/api-auth'
 import { NotificationType, NotificationPriority } from '@/lib/services/notification'
 
 describe('Notifications API Route', () => {
@@ -448,7 +473,7 @@ describe('Notifications API Route', () => {
 
       expect(response.status).toBe(401)
       expect(data.success).toBe(false)
-      expect(data.error).toBe('Unauthorized')
+      expect(data.error.type).toBe('UNAUTHORIZED')
     })
 
     it('should return validation error for empty title and message strings', async () => {
@@ -510,7 +535,7 @@ describe('Notifications API Route', () => {
 
       expect(response.status).toBe(401)
       expect(data.success).toBe(false)
-      expect(data.error).toBe('Unauthorized')
+      expect(data.error.type).toBe('UNAUTHORIZED')
     })
 
     it('non-admin user should only see their own notifications regardless of userId filter', async () => {
@@ -530,6 +555,7 @@ describe('Notifications API Route', () => {
     })
 
     it('should return empty notifications list gracefully', async () => {
+      // Reset mock to return empty array
       vi.mocked(notificationService.getNotifications).mockReturnValue([])
       vi.mocked(notificationService.getUnreadCount).mockReturnValue(0)
 
