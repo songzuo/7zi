@@ -105,8 +105,8 @@ export class ResponseCompressionMiddleware {
       enableStreaming: config.enableStreaming ?? true,
       enableDynamicLevel: config.enableDynamicLevel ?? true,
       responseTimeThreshold: config.responseTimeThreshold || 100,
-      dictionary: config.dictionary,
-    }
+      dictionary: config.dictionary ?? undefined,
+    } as Required<CompressionConfig>
 
     this.currentLevel = this.config.level
   }
@@ -421,8 +421,16 @@ export class ResponseCompressionMiddleware {
     algorithm: CompressionAlgorithm
   ): AsyncGenerator<Uint8Array> {
     if (!this.config.enableStreaming) {
-      for await (const chunk of stream) {
-        yield chunk
+      // Manually iterate to avoid async iterator issue
+      const reader = stream.getReader()
+      try {
+        while (true) {
+          const { done, value } = await reader.read()
+          if (done) break
+          yield value
+        }
+      } finally {
+        reader.releaseLock()
       }
       return
     }
@@ -443,8 +451,16 @@ export class ResponseCompressionMiddleware {
           level: this.currentLevel,
         })
       } else {
-        for await (const chunk of stream) {
-          yield chunk
+        // Pass through uncompressed
+        const reader = stream.getReader()
+        try {
+          while (true) {
+            const { done, value } = await reader.read()
+            if (done) break
+            yield value
+          }
+        } finally {
+          reader.releaseLock()
         }
         return
       }
@@ -484,9 +500,16 @@ export class ResponseCompressionMiddleware {
       }
     } catch (error) {
       console.error('Stream compression failed:', error)
-      // 降级到不压缩
-      for await (const chunk of stream) {
-        yield chunk
+      // 降级到不压缩 - manually iterate to avoid async iterator issue
+      const reader = stream.getReader()
+      try {
+        while (true) {
+          const { done, value } = await reader.read()
+          if (done) break
+          yield value
+        }
+      } finally {
+        reader.releaseLock()
       }
     }
   }

@@ -573,7 +573,7 @@ export class SnapshotPolicyManager {
    * Get configuration for a workflow
    */
   getConfig(workflowId: string): SnapshotConfig | null {
-    return this.configs.get(workflowId || null)
+    return workflowId ? this.configs.get(workflowId) ?? null : null
   }
 
   private loadFromStorage(): void {
