@@ -11,8 +11,11 @@
 
 'use client'
 
-import React from 'react'
+import React, { useState } from 'react'
 import { useTranslation } from 'react-i18next'
+import { Modal } from '@/components/ui/Modal'
+import { Button } from '@/components/ui/Button'
+import { Send, Loader2 } from 'lucide-react'
 
 type EmotionLevel = 'very-dissatisfied' | 'dissatisfied' | 'neutral' | 'satisfied' | 'very-satisfied'
 
@@ -88,7 +91,7 @@ const SIZE_CLASSES = {
   },
 }
 
-export default function EmotionSelector({
+export function EmotionSelector({
   value,
   onChange,
   disabled = false,
@@ -262,14 +265,6 @@ export function SatisfactionRating({
  * 在反馈处理完成后弹出，收集用户满意度
  */
 
-'use client'
-
-import React, { useState } from 'react'
-import { Modal } from '@/components/ui/Modal'
-import { Button } from '@/components/ui/Button'
-import { useTranslation } from 'react-i18next'
-import { EmotionSelector, SatisfactionRating } from './EmotionSelector'
-import { Send, Loader2 } from 'lucide-react'
 
 interface FeedbackSatisfactionModalProps {
   isOpen: boolean
@@ -282,7 +277,7 @@ interface FeedbackSatisfactionModalProps {
   onClose: () => void
 }
 
-export default function FeedbackSatisfactionModal({
+export function FeedbackSatisfactionModal({
   isOpen,
   feedbackId,
   onSubmit,

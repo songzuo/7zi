@@ -29,6 +29,8 @@ export type {
   AudioStatusEvent,
 } from './types'
 
+import type { SupportedLanguage, WhisperModelSize } from './types'
+
 // 核心类
 export { AudioProcessor } from './AudioProcessor'
 export { WhisperClient, WhisperError } from './WhisperClient'
