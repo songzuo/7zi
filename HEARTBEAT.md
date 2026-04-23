@@ -1,60 +1,59 @@
 # HEARTBEAT.md
 
 ## Current Time
-- Wednesday April 22nd 2026 01:34 UTC / 03:34 (Europe/Berlin)
+- Thursday April 23rd 2026 22:23 UTC / 00:23 (Europe/Berlin)
 
-## 01:34 UTC - 2026-04-22
-- ✅ 7zi.com 稳定：显示 "7zi Studio"
-- 🌙 深夜监控中，主人休息
+## 21:46 UTC - 2026-04-22
+
+### ✅ Production Status - ALL SYSTEMS OPERATIONAL
+
+| Service | Status | Notes |
+|---------|--------|-------|
+| 7zi.com | ✅ Working | "7zi Studio" content correct |
+| ai.7zi.com | ✅ Working | 307 redirect |
+| visa.7zi.com | ✅ Working | Visa Openness Index 200 OK |
+| 7zi-main PM2 | ✅ Stable | 32h uptime, 0 restarts |
+| ai-site PM2 | ⚠️ 230 restarts | Running but frequent restarts |
+
+### ✅ Server Ports Status
+```
+0.0.0.0:3000 - 7zi-main (PM2) ✅
+0.0.0.0:3001 - ai-site (Next.js) ✅
+0.0.0.0:3002 - next-server (PID 1010115) ✅
+0.0.0.0:3003 - next-server (PID 2983734) ✅ visa.7zi.com
+```
+
+### Nginx SSL Configuration (Checked 21:46 UTC)
+- ssl_protocols: TLSv1.2 TLSv1.3 ✅
+- ssl_ciphers: HIGH:!aNULL:!MD5 ✅
+- Cloudflare proxy compatible ✅
 
 ## 模型提供商状态
 | Provider | Status |
 |---|---|
-| minimax | ⚠️ unreliable (subagents failing with "unknown model 'minimax'") |
+| minimax | ⚠️ subagent 不可靠 |
 | coze | 🔴 failing (HTTP 404) |
 | glm-4.7 | 🔴 failing (401 token expired) |
+| volcengine | ⚠️ rate limit |
 
 ## 子代理状态
-- ALL subagent tasks FAILED for 48+ hours
+- **全部失败** - 持续 60+ 小时
 - 只有直接会话（minimax/MiniMax-M2.7）正常工作
-- 模型提供商全面中断
 
-## 子代理状态
-- 今日有多个任务成功完成任务（scheduler cron jobs）
-- 大部分任务仍失败（模型提供商问题）
-- 只有直接会话（minimax）正常工作
+## 今日完成的工作
+- ✅ 7zi.com 危机修复（nginx 配置问题）
+- ✅ ai-site 修复（端口 3001 代理）
+- ✅ visa.7zi.com 正常运行
+- ✅ 服务器端口全部正常监听
+- ✅ PM2 7zi-main 稳定运行 32h
 
-## 7zi.com 危机状态
-- ✅ 7zi.com 已修复 - 显示 "7zi Studio" 超过 12 小时稳定
-- ✅ ai.7zi.com 稳定运行
-- ✅ Nginx 重复配置已清理
-- ✅ npm audit 0 漏洞
-- ✅ 依赖安全（serialize-javascript, xlsx → exceljs）
+## 待处理任务
+- ai-site 重启次数过多（230次）- 需调查
+- 本地代码落后 origin/main 71 commits
+- 子代理团队恢复（等待 coze/glm-4.7 修复）
 
-## 今日完成摘要
-- ✅ 7zi.com 危机解除（nginx 端口 3000 配置修复）
-- ✅ npm audit 0 vulnerabilities
-- ✅ Next.js 16.2.4 构建成功
-- ✅ Nginx 重复配置清理（0 警告）
-- ✅ 文档完整（250+ 文档，5/5 评分）
-- ✅ 依赖安全复查干净
-- ✅ 架构审查（Module Federation 方案已完成）
-- ✅ 测试文件 TypeScript 类型错误修复（5个文件待提交）
-
-## 待处理
-1. ⚠️ 5个测试文件待提交（`git commit -m "fix(tests): resolve TypeScript type errors in workflow test files"`）
-2. ⚠️ state/tasks.json 变化 124KB 需验证
-3. ⚠️ 20个旧 stash 建议清理
-4. ⚠️ vi-mocks.ts 导入问题（测试卡住）
-5. ⚠️ 540个测试文件分散多位置需清理
-6. ⚠️ protobufjs 漏洞（添加 overrides >=7.5.5）
-
-## 05:42 UTC - 2026-04-22
-- ✅ 7zi.com 稳定：显示 "7zi Studio"
-- SSH 临时超时（05:03 UTC）已恢复
-- 🌅 早晨监控中
-
-## Notes
-- 我的直接会话使用 minimax/MiniMax-M2.7，正常工作
-- 子代理部分任务成功（scheduler cron jobs）
-- 7zi.com 已恢复（SSH超时为临时网络问题）
+## 架构状态
+- Next.js 16.2.4 ✅
+- React 19.2.4 ✅
+- PWA 离线能力 ✅
+- Evomap Gateway 集成 ✅
