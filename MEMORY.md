@@ -460,10 +460,12 @@ git push --force        # 使用 --force-with-lease 替代
 
 | 优先级 | 问题 | 状态 |
 |--------|------|------|
-| 🔴 高 | TypeScript 300+ 错误（bypassed with ignoreBuildErrors） | 待系统性清理 |
+| 🔴 高 | TypeScript 300+ 错误（311→307，逐步清理中） | 待系统性清理 |
+| 🔴 高 | 7zi.com 磁盘 99%（紧急！） | 需立即清理 |
 | 🔴 高 | xlsx 安全漏洞 | 待迁移 |
+| 🟡 中 | ai-site 中间件错误（next-intl locale） | 待修复 |
 | 🟡 中 | PWA 配置问题（sw.js, IndexedDB schema） | 待修复 |
-| 🟡 中 | 7zi.com 内容异常 | 待检查修复 |
+| 🟡 中 | permissions.ts 拆分（945行→5模块） | 已制定计划 |
 | 🟡 中 | 32 个 API 文档缺失（67% coverage） | 待补充 |
 
 ---
@@ -473,16 +475,62 @@ git push --force        # 使用 --force-with-lease 替代
 1. **2026-04-07**: 强制所有子代理使用 minimax 模型（Coze/Grok-3-mini 令牌持续过期）
 2. **2026-04-12**: Next.js 15 `params` 迁移已完成（11处修改）
 3. **2026-04-19**: 确认 7zi.com 新版重写完成（commit 0ebb1d63）
+4. **2026-04-21**: 修复 Nginx 配置错误（proxy_pass 3000→3001），解决 ai-site 227次重启问题
 
 ---
+
+## 📅 2026-04-22 状态更新
+
+### ✅ 完成的工作
+
+#### v1.14.x 开发进展
+- **架构状态审查**: 项目评级 6.5/10，核心模块完善但存在架构债务
+- **permissions.ts 拆分计划**: 已制定 5 模块拆分方案（P0优先级）
+  - models.ts, constants.ts, manager.ts, checker.ts, decorators.ts
+  - 预计影响 40+ 个文件
+- **Next.js 16.2.x 研究**: 完成迁移指南草案（Node.js 20.9+ 要求）
+- **TypeScript P0 修复**: 修复 4 个生产代码错误（311→307）
+
+#### 生产环境
+- **7zi.com**: ✅ 正常运行（7zi-main, 17h 无重启）
+- **ai-site**: ⚠️ 227 次重启后稳定，但中间件错误持续
+- **磁盘空间**: 🔴 7zi.com 磁盘 99%（仅剩1.1GB）- 严重危机
+
+#### Evomap Gateway
+- 节点注册正常 (`node_909148eee8a881a`)
+- GEP-A2A 协议合规
+- Heartbeat 正常，但 `claimed: false`，积分余额 0
+
+### ⚠️ 待处理的技术债务
+
+| 优先级 | 问题 | 状态 | 说明 |
+|--------|------|------|------|
+| 🔴 P0 | permissions.ts 拆分 | 计划已制定 | 945行→5模块，预计5小时 |
+| 🔴 P0 | 7zi.com 磁盘清理 | 紧急 | 99%使用率，可能导致服务中断 |
+| 🔴 P0 | TypeScript 错误清理 | 311个错误 | 已修复4个，剩余307个 |
+| 🟡 P1 | ai-site 中间件错误 | 持续 | `Unable to find next-intl locale` |
+| 🟡 P1 | permission-store.ts | 14830行过大 | 需拆分优化 |
+| 🟡 P1 | API 层不统一 | 需标准化 | `lib/api/` vs `lib/api-clients.ts` |
+| 🟡 P1 | 错误处理分散 | 需统一 | errors.ts vs api/error-handler.ts |
+| 🟡 P2 | 组件目录扁平化 | 需整理 | 新成员难以定位 |
+| 🟡 P2 | Context 与 Store 混合 | 需规范 | 状态管理混乱 |
+
+### 🔴 持续性危机
+
+| 项目 | 问题 | 影响 | 状态 |
+|------|------|------|------|
+| **API提供商** | coze/glm-4.7 令牌过期 | 子代理团队停摆 | 持续 |
+| **磁盘空间** | 7zi.com 99% 使用 | 可能导致服务中断 | 紧急 |
 
 ### 📊 项目版本状态
 
 | 版本 | 状态 | 说明 |
 |------|------|------|
 | v1.13.0 | ✅ 已部署 | 当前生产版本 |
-| v1.14.0 | 🔄 规划中 | 待实现（RAG、Enterprise Reporting） |
-| Next.js 16.x | ⏳ 待升级 | revalidateTag API 需修复 |
+| v1.14.0 | 🔄 开发中 | 权限系统重构、Next.js 16.2 升级 |
+| Next.js 16.2.4 | ⏳ 待升级 | 需修复 revalidateTag API |
 
 ### 记忆文件
 - ✅ 已创建 `memory/2026-04-19.md` 日志
+- ✅ 已创建 `memory/2026-04-21.md` 日志
+- ✅ 已创建 `memory/2026-04-22.md` 日志

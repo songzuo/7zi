@@ -14,6 +14,18 @@
 
 ---
 
+## 📚 文档导航
+
+| 文档 | 说明 |
+|------|------|
+| **[ARCHITECTURE_QUICK_REF.md](./ARCHITECTURE_QUICK_REF.md)** | 架构速查（2-3分钟了解全貌）⭐ |
+| **[docs/INDEX.md](./docs/INDEX.md)** | 完整文档索引 |
+| **[docs/DEPLOYMENT.md](./docs/DEPLOYMENT.md)** | 部署指南 |
+| **[docs/DEVELOPER_GUIDE.md](./docs/DEVELOPER_GUIDE.md)** | 开发指南 |
+| **[CHANGELOG.md](./CHANGELOG.md)** | 版本变更日志 |
+
+---
+
 ## 📖 项目介绍
 
 **7zi** 是一个革命性的 AI 驱动团队管理平台，由 **11 位专业 AI 成员** 组成完整的组织架构。我们重新定义了团队协作的可能性 —— 不再是人类管理工具，而是 **AI 团队自主工作**，人类只需制定战略方向。
