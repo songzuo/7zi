@@ -48,7 +48,7 @@ jobs:
 
       - name: Upload coverage (first shard only)
         if: matrix.shard == 1
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: coverage-report
           path: coverage/
@@ -96,7 +96,7 @@ jobs:
           CI: true
 
       - name: Upload test results
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         if: always()
         with:
           name: playwright-report-${{ matrix.browser }}
