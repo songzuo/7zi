@@ -8,7 +8,7 @@
 import { create } from 'zustand'
 import { persist, createJSONStorage } from 'zustand/middleware'
 import type { Edge, Node, Connection } from 'reactflow'
-import type { WorkflowNodeData, WorkflowEdgeData, ValidationError, ExecutionState } from '../types'
+import type { WorkflowNodeData, WorkflowEdgeData, ValidationError, ExecutionState, WorkflowVariable } from '../types'
 import { executionStateStorage } from '@/lib/storage/execution-state-storage'
 
 /**
@@ -311,11 +311,10 @@ export const useWorkflowStore = create<WorkflowState>()(
               },
               inputs: {},
               outputs: {},
-              variables: Object.entries(savedState.variables).map(([name, value]) => ({
-                name,
-                value,
-                type: typeof value,
-              })),
+              variables: Object.entries(savedState.variables).reduce((acc, [name, value]) => {
+                acc[name] = { name, value, type: typeof value }
+                return acc
+              }, {} as Record<string, WorkflowVariable>),
             },
             nodeStates: savedState.nodeStates,
           }

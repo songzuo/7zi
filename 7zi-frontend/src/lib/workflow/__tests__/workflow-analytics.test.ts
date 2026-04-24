@@ -11,9 +11,8 @@ import {
   type NodeExecution,
   type ExecutionHistoryQuery,
   type ExecutionReport,
-  NodeExecutionStatus,
-  TriggerType,
 } from '../workflow-analytics'
+import { NodeExecutionStatus, TriggerType } from '../execution-history-store'
 
 describe('WorkflowAnalytics', () => {
   describe('constructor', () => {
@@ -45,6 +44,8 @@ describe('WorkflowAnalytics', () => {
       const partial = new WorkflowAnalytics({
         bottleneckThresholds: {
           slowNodeThreshold: 8000,
+          highFailureRateThreshold: 0.25,
+          inconsistencyThreshold: 0.5,
         },
       })
       expect(partial).toBeDefined()
@@ -59,24 +60,24 @@ describe('WorkflowAnalytics', () => {
           workflowId: 'wf-1',
           workflowName: 'Test',
           generatedAt: Date.now(),
-          executionCount: 0,
-          successCount: 0,
-          failureCount: 0,
-          averageDuration: 0,
           timeRange: { from: 0, to: 0 },
           statistics: {
             totalExecutions: 0,
-            successfulExecutions: 0,
-            failedExecutions: 0,
-            averageDuration: 0,
+            successCount: 0,
+            failureCount: 0,
+            cancelledCount: 0,
+            runningCount: 0,
             successRate: 0,
+            averageDuration: 0,
+            minDuration: 0,
+            maxDuration: 0,
           },
           nodePerformance: [],
           trends: [],
           bottlenecks: [],
         }
         expect(report.reportId).toBe('report-1')
-        expect(report.executionCount).toBe(0)
+        expect(report.statistics.totalExecutions).toBe(0)
       })
 
       it('should have optional fields', () => {
@@ -85,24 +86,24 @@ describe('WorkflowAnalytics', () => {
           workflowId: 'wf-1',
           workflowName: 'Test',
           generatedAt: Date.now(),
-          executionCount: 5,
-          successCount: 4,
-          failureCount: 1,
-          averageDuration: 5000,
           timeRange: { from: Date.now() - 86400000, to: Date.now() },
           statistics: {
             totalExecutions: 5,
-            successfulExecutions: 4,
-            failedExecutions: 1,
+            successCount: 4,
+            failureCount: 1,
+            cancelledCount: 0,
+            runningCount: 0,
             averageDuration: 5000,
-            successRate: 0.8,
+            successRate: 80,
+            minDuration: 1000,
+            maxDuration: 10000,
           },
           nodePerformance: [],
           trends: [],
           bottlenecks: [],
         }
-        expect(report.successCount).toBe(4)
-        expect(report.statistics.successRate).toBe(0.8)
+        expect(report.statistics.successCount).toBe(4)
+        expect(report.statistics.successRate).toBe(80)
       })
     })
 
@@ -111,9 +112,8 @@ describe('WorkflowAnalytics', () => {
         const query: ExecutionHistoryQuery = {
           workflowId: 'wf-1',
           status: 'completed',
-          triggerType: 'manual',
-          startTime: Date.now() - 86400000,
-          endTime: Date.now(),
+          trigger: 'manual',
+          startTimeRange: { from: Date.now() - 86400000, to: Date.now() },
           limit: 100,
           offset: 0,
         }
@@ -225,9 +225,9 @@ describe('WorkflowAnalytics', () => {
           status: 'completed',
           startTime: Date.now() - 60000,
           endTime: Date.now(),
-          triggerType: 'manual',
-          triggerConfig: {},
-          userId: 'user-1',
+          trigger: 'manual',
+          triggerConfig: { type: 'manual' },
+          workflowSnapshot: { nodes: [], edges: [] },
           nodeExecutions: {
             'node-1': {
               nodeId: 'node-1',
@@ -239,9 +239,7 @@ describe('WorkflowAnalytics', () => {
               status: 'completed',
             },
           },
-          context: {},
           createdAt: Date.now() - 60000,
-          updatedAt: Date.now() - 60000,
         }
         expect(history.executionId).toBe('exec-1')
         expect(history.status).toBe('completed')
@@ -256,13 +254,11 @@ describe('WorkflowAnalytics', () => {
           status: 'running',
           startTime: Date.now() - 60000,
           endTime: undefined,
-          triggerType: 'manual',
-          triggerConfig: {},
-          userId: 'user-1',
+          trigger: 'manual',
+          triggerConfig: { type: 'manual' },
+          workflowSnapshot: { nodes: [], edges: [] },
           nodeExecutions: {},
-          context: {},
           createdAt: Date.now() - 60000,
-          updatedAt: Date.now(),
         }
         expect(history.status).toBe('running')
         expect(history.endTime).toBeUndefined()

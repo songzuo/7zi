@@ -50,7 +50,7 @@ function MetricCard({
   trend,
   icon,
   description,
-}: MetricCardProps): JSX.Element {
+}: MetricCardProps): React.ReactElement {
   const statusColors = {
     good: 'text-green-600 dark:text-green-400',
     warning: 'text-yellow-600 dark:text-yellow-400',
@@ -101,7 +101,7 @@ function MetricCard({
 /**
  * 实时监控仪表板
  */
-function RealtimeDashboard(): JSX.Element {
+function RealtimeDashboard(): React.ReactElement {
   const [aggregatedData, setAggregatedData] = useState<AggregatedMetrics | null>(null)
   const [recentAlarms, setRecentAlarms] = useState<AlarmEvent[]>([])
   const [isRefreshing, setIsRefreshing] = useState(false)
@@ -320,7 +320,7 @@ function RealtimeDashboard(): JSX.Element {
 /**
  * 增强版监控仪表板主组件
  */
-export function EnhancedMonitoringDashboard(): JSX.Element {
+export function EnhancedMonitoringDashboard(): React.ReactElement {
   return (
     <div className="container mx-auto space-y-6 p-6">
       <div>

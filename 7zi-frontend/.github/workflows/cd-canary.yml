@@ -25,6 +25,13 @@ on:
         default: '30'
         type: string
 
+permissions:
+  contents: read
+  packages: write
+  statuses: read
+  actions: read
+  security-events: write
+
 env:
   NODE_VERSION: '20.x'
   REGISTRY: ghcr.io
@@ -140,16 +147,15 @@ jobs:
     environment:
       name: production
       url: https://7zi.com
+      prevent_multi_deployment: true
     steps:
       - name: Checkout
         uses: actions/checkout@v4
 
       - name: Install SSH key
-        run: |
-          mkdir -p ~/.ssh
-          echo "${{ secrets.SSH_PRIVATE_KEY }}" > ~/.ssh/id_rsa
-          chmod 600 ~/.ssh/id_rsa
-          ssh-keyscan -H ${{ secrets.PRODUCTION_HOST }} >> ~/.ssh/known_hosts
+        uses: webfactory/ssh-agent@v0.8.0
+        with:
+          ssh-private-key: ${{ secrets.SSH_PRIVATE_KEY }}
 
       - name: Determine deployment strategy
         id: strategy
@@ -160,8 +166,10 @@ jobs:
       # Canary 部署
       - name: Canary Deployment
         if: steps.strategy.outputs.type == 'canary'
+        env:
+          PRODUCTION_HOST: ${{ secrets.PRODUCTION_HOST }}
         run: |
-          ssh root@${{ secrets.PRODUCTION_HOST }} << 'ENDSSH'
+          ssh root@${{ env.PRODUCTION_HOST }} << 'ENDSSH'
             IMAGE_TAG="${{ needs.build-and-push.outputs.image-tag }}"
             CANARY_PCT="${{ github.event.inputs.canary_percentage || '10' }}"
             CANARY_DURATION="${{ github.event.inputs.canary_duration || '30' }}"
@@ -176,8 +184,10 @@ jobs:
       # Blue-Green 部署
       - name: Blue-Green Deployment
         if: steps.strategy.outputs.type == 'blue-green'
+        env:
+          PRODUCTION_HOST: ${{ secrets.PRODUCTION_HOST }}
         run: |
-          ssh root@${{ secrets.PRODUCTION_HOST }} << 'ENDSSH'
+          ssh root@${{ env.PRODUCTION_HOST }} << 'ENDSSH'
             IMAGE_TAG="${{ needs.build-and-push.outputs.image-tag }}"
 
             # 执行 Blue-Green 部署
@@ -187,8 +197,10 @@ jobs:
       # Rolling 部署
       - name: Rolling Deployment
         if: steps.strategy.outputs.type == 'rolling'
+        env:
+          PRODUCTION_HOST: ${{ secrets.PRODUCTION_HOST }}
         run: |
-          ssh root@${{ secrets.PRODUCTION_HOST }} << 'ENDSSH'
+          ssh root@${{ env.PRODUCTION_HOST }} << 'ENDSSH'
             IMAGE_TAG="${{ needs.build-and-push.outputs.image-tag }}"
 
             # 执行 Rolling 部署
@@ -228,15 +240,15 @@ jobs:
         uses: actions/checkout@v4
 
       - name: Install SSH key
-        run: |
-          mkdir -p ~/.ssh
-          echo "${{ secrets.SSH_PRIVATE_KEY }}" > ~/.ssh/id_rsa
-          chmod 600 ~/.ssh/id_rsa
-          ssh-keyscan -H ${{ secrets.PRODUCTION_HOST }} >> ~/.ssh/known_hosts
+        uses: webfactory/ssh-agent@v0.8.0
+        with:
+          ssh-private-key: ${{ secrets.SSH_PRIVATE_KEY }}
 
       - name: Collect deployment metrics
+        env:
+          PRODUCTION_HOST: ${{ secrets.PRODUCTION_HOST }}
         run: |
-          ssh root@${{ secrets.PRODUCTION_HOST }} << 'ENDSSH'
+          ssh root@${{ env.PRODUCTION_HOST }} << 'ENDSSH'
             # 收集监控指标
             /root/7zi-frontend/scripts/deploy/collect-metrics.sh
           ENDSSH
@@ -311,15 +323,15 @@ jobs:
         uses: actions/checkout@v4
 
       - name: Install SSH key
-        run: |
-          mkdir -p ~/.ssh
-          echo "${{ secrets.SSH_PRIVATE_KEY }}" > ~/.ssh/id_rsa
-          chmod 600 ~/.ssh/id_rsa
-          ssh-keyscan -H ${{ secrets.PRODUCTION_HOST }} >> ~/.ssh/known_hosts
+        uses: webfactory/ssh-agent@v0.8.0
+        with:
+          ssh-private-key: ${{ secrets.SSH_PRIVATE_KEY }}
 
       - name: Execute automatic rollback
+        env:
+          PRODUCTION_HOST: ${{ secrets.PRODUCTION_HOST }}
         run: |
-          ssh root@${{ secrets.PRODUCTION_HOST }} << 'ENDSSH'
+          ssh root@${{ env.PRODUCTION_HOST }} << 'ENDSSH'
             # 执行自动回滚
             /root/7zi-frontend/scripts/deploy/rollback.sh --force
           ENDSSH

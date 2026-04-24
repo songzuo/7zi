@@ -64,7 +64,7 @@ function MobileNavProvider({ children }: { children: React.ReactNode }) {
     }
   }, [isSidebarOpen])
 
-  const toggleSidebar = () => setIsOpen(!isOpen)
+  const toggleSidebar = () => setIsSidebarOpen(!isSidebarOpen)
   const closeSidebar = () => setIsSidebarOpen(false)
 
   return (
@@ -72,10 +72,6 @@ function MobileNavProvider({ children }: { children: React.ReactNode }) {
       {children}
     </MobileNavContext.Provider>
   )
-
-  function setIsOpen(value: boolean) {
-    setIsSidebarOpen(value)
-  }
 }
 
 // 移动端布局组件

@@ -49,7 +49,7 @@ export default function AnalyticsDashboardDemo() {
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
             <div className="space-y-2">
               <label className="text-sm font-medium">工作流 ID</label>
-              <Select value={workflowId} onChange={(e) => setWorkflowId(e.target.value)}>
+              <Select value={workflowId} onValueChange={(value) => setWorkflowId(value)}>
                 <option value="demo-workflow-1">Demo Workflow 1</option>
                 <option value="demo-workflow-2">Demo Workflow 2</option>
                 <option value="demo-workflow-3">Demo Workflow 3</option>
@@ -58,7 +58,7 @@ export default function AnalyticsDashboardDemo() {
 
             <div className="space-y-2">
               <label className="text-sm font-medium">时间范围</label>
-              <Select value={timeRange} onChange={(e) => setTimeRange(e.target.value as TimeRange)}>
+              <Select value={timeRange} onValueChange={(value) => setTimeRange(value as TimeRange)}>
                 <option value="1h">最近 1 小时</option>
                 <option value="24h">最近 24 小时</option>
                 <option value="7d">最近 7 天</option>
@@ -69,7 +69,7 @@ export default function AnalyticsDashboardDemo() {
 
             <div className="space-y-2">
               <label className="text-sm font-medium">趋势天数</label>
-              <Select value={trendDays.toString()} onChange={(e) => setTrendDays(Number(e.target.value))}>
+              <Select value={trendDays.toString()} onValueChange={(value) => setTrendDays(Number(value))}>
                 <option value="7">7 天</option>
                 <option value="14">14 天</option>
                 <option value="30">30 天</option>

@@ -41,7 +41,7 @@ export function PerformanceChart({
   threshold,
   thresholdColor = '#ef4444',
   thresholdLabel,
-}: PerformanceChartProps): JSX.Element {
+}: PerformanceChartProps): React.ReactElement {
   const svgRef = useRef<SVGSVGElement>(null)
 
   useEffect(() => {

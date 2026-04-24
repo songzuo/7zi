@@ -19,6 +19,13 @@ on:
         default: 'false'
         type: boolean
 
+permissions:
+  contents: read
+  packages: write
+  statuses: read
+  actions: read
+  security-events: write
+
 env:
   NODE_VERSION: '20.x'
   REGISTRY: ghcr.io
@@ -131,22 +138,23 @@ jobs:
     environment:
       name: production
       url: https://7zi.com
+      prevent_multi_deployment: true
     steps:
       - name: Checkout
         uses: actions/checkout@v4
 
       - name: Install SSH key
-        run: |
-          mkdir -p ~/.ssh
-          echo "${{ secrets.SSH_PRIVATE_KEY }}" > ~/.ssh/id_rsa
-          chmod 600 ~/.ssh/id_rsa
-          ssh-keyscan -H ${{ secrets.PRODUCTION_HOST }} >> ~/.ssh/known_hosts
+        uses: webfactory/ssh-agent@v0.8.0
+        with:
+          ssh-private-key: ${{ secrets.SSH_PRIVATE_KEY }}
 
       # 使用蓝绿部署脚本
       - name: Execute Blue-Green Deployment
         id: deploy
+        env:
+          PRODUCTION_HOST: ${{ secrets.PRODUCTION_HOST }}
         run: |
-          ssh root@${{ secrets.PRODUCTION_HOST }} << 'ENDSSH'
+          ssh root@${{ env.PRODUCTION_HOST }} << 'ENDSSH'
             # 蓝绿部署脚本路径
             DEPLOY_SCRIPT="/root/7zi-frontend/scripts/deploy/blue-green-deploy.sh"
             IMAGE_TAG="${{ needs.build-and-push.outputs.image-tag }}"
@@ -185,8 +193,10 @@ jobs:
           exit 1
 
       - name: Run deployment verification
+        env:
+          PRODUCTION_HOST: ${{ secrets.PRODUCTION_HOST }}
         run: |
-          ssh root@${{ secrets.PRODUCTION_HOST }} << 'ENDSSH'
+          ssh root@${{ env.PRODUCTION_HOST }} << 'ENDSSH'
             /root/7zi-frontend/scripts/deploy/verify-deploy.sh production
           ENDSSH
 
@@ -199,9 +209,11 @@ jobs:
 
       - name: Notify deployment failure
         if: failure()
+        env:
+          PRODUCTION_HOST: ${{ secrets.PRODUCTION_HOST }}
         run: |
           echo "❌ Deployment failed! Initiating rollback..."
-          ssh root@${{ secrets.PRODUCTION_HOST }} << 'ENDSSH'
+          ssh root@${{ env.PRODUCTION_HOST }} << 'ENDSSH'
             /root/7zi-frontend/scripts/deploy/rollback.sh --force
           ENDSSH
 

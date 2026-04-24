@@ -17,6 +17,7 @@ export interface AnomalyChartProps {
   data: AnomalyData[]
   title?: string
   maxItems?: number
+  height?: number
   className?: string
 }
 

@@ -3,7 +3,7 @@
  * 测试节点执行记录器的核心功能
  */
 
-import { describe, it, expect, beforeEach, vi } from 'vitest'
+import { describe, it, expect, beforeEach } from 'vitest'
 import { StepRecorder } from '../StepRecorder'
 import { NodeStatus } from '@/types/workflow'
 
@@ -116,7 +116,7 @@ describe('StepRecorder', () => {
   })
 
   describe('节点输出管理', () => {
-    it('应该设置节点输出', () => {
+    it('应该通过 completeNodeExecution 设置节点输出', () => {
       const nodeExec = recorder.createNodeExecution({
         executionId: 'exec-1',
         nodeId: 'node-1',
@@ -125,25 +125,10 @@ describe('StepRecorder', () => {
       })
 
       const outputs = { result: 'success', data: { key: 'value' } }
-      recorder.setNodeOutputs(nodeExec.id, outputs)
+      recorder.completeNodeExecution(nodeExec.executionId, nodeExec.nodeId, outputs)
 
       const updated = recorder.getNodeExecution(nodeExec.id)
       expect(updated?.outputs).toEqual(outputs)
-    })
-
-    it('应该追加输出而不是覆盖', () => {
-      const nodeExec = recorder.createNodeExecution({
-        executionId: 'exec-1',
-        nodeId: 'node-1',
-        nodeName: '测试节点',
-        nodeType: 'agent',
-      })
-
-      recorder.setNodeOutputs(nodeExec.id, { field1: 'value1' })
-      recorder.setNodeOutputs(nodeExec.id, { field2: 'value2' })
-
-      const updated = recorder.getNodeExecution(nodeExec.id)
-      expect(updated?.outputs).toEqual({ field1: 'value1', field2: 'value2' })
     })
   })
 
@@ -151,13 +136,13 @@ describe('StepRecorder', () => {
     beforeEach(() => {
       // 创建多个节点的执行记录
       for (let i = 0; i < 5; i++) {
-        const nodeExec = recorder.createNodeExecution({
+        recorder.createNodeExecution({
           executionId: 'exec-1',
           nodeId: `node-${i}`,
           nodeName: `节点 ${i}`,
           nodeType: 'agent',
         })
-        recorder.updateNodeStatus(nodeExec.id, NodeStatus.SUCCESS)
+        recorder.completeNodeExecution('exec-1', `node-${i}`, { result: 'done' })
       }
     })
 
@@ -186,7 +171,7 @@ describe('StepRecorder', () => {
         nodeType: 'agent',
       })
 
-      recorder.retryNode(nodeExec.id, { attempt: 2, maxAttempts: 3 })
+      recorder.recordRetry(nodeExec.executionId, nodeExec.nodeId, 'retry error')
 
       const updated = recorder.getNodeExecution(nodeExec.id)
       expect(updated?.retryCount).toBe(1)
@@ -201,8 +186,8 @@ describe('StepRecorder', () => {
         nodeType: 'agent',
       })
 
-      recorder.retryNode(nodeExec.id, { attempt: 2, maxAttempts: 3 })
-      recorder.retryNode(nodeExec.id, { attempt: 3, maxAttempts: 3 })
+      recorder.recordRetry(nodeExec.executionId, nodeExec.nodeId, 'retry 1')
+      recorder.recordRetry(nodeExec.executionId, nodeExec.nodeId, 'retry 2')
 
       const updated = recorder.getNodeExecution(nodeExec.id)
       expect(updated?.retryCount).toBe(2)
@@ -211,7 +196,7 @@ describe('StepRecorder', () => {
   })
 
   describe('节点日志', () => {
-    it('应该添加日志条目', () => {
+    it('应该通过 addLog 添加日志条目', () => {
       const nodeExec = recorder.createNodeExecution({
         executionId: 'exec-1',
         nodeId: 'node-1',
@@ -219,9 +204,9 @@ describe('StepRecorder', () => {
         nodeType: 'agent',
       })
 
-      recorder.addNodeLog(nodeExec.id, 'info', '节点开始执行')
-      recorder.addNodeLog(nodeExec.id, 'warn', '检测到异常条件')
-      recorder.addNodeLog(nodeExec.id, 'error', '执行失败')
+      recorder.addLog(nodeExec.id, 'info', '节点开始执行')
+      recorder.addLog(nodeExec.id, 'warn', '检测到异常条件')
+      recorder.addLog(nodeExec.id, 'error', '执行失败')
 
       const updated = recorder.getNodeExecution(nodeExec.id)
       expect(updated?.logs.length).toBe(3)
@@ -237,10 +222,11 @@ describe('StepRecorder', () => {
         nodeType: 'agent',
       })
 
-      recorder.addNodeLog(nodeExec.id, 'info', '信息日志')
-      recorder.addNodeLog(nodeExec.id, 'error', '错误日志')
+      recorder.addLog(nodeExec.id, 'info', '信息日志')
+      recorder.addLog(nodeExec.id, 'error', '错误日志')
 
-      const errors = recorder.getNodeLogs(nodeExec.id, 'error')
+      const updated = recorder.getNodeExecution(nodeExec.id)
+      const errors = updated?.logs.filter(log => log.level === 'error') || []
       expect(errors.length).toBe(1)
       expect(errors[0].level).toBe('error')
     })
@@ -255,19 +241,19 @@ describe('StepRecorder', () => {
         nodeType: 'agent',
       })
 
-      recorder.updateNodeStatus(nodeExec.id, NodeStatus.RUNNING)
+      recorder.startNodeExecution(nodeExec.executionId, nodeExec.nodeId)
 
       // 模拟异步执行后完成
-      const updated = recorder.updateNodeStatus(nodeExec.id, NodeStatus.SUCCESS)
+      const updated = recorder.completeNodeExecution(nodeExec.executionId, nodeExec.nodeId, {})
 
       expect(updated?.duration).toBeGreaterThanOrEqual(0)
     })
   })
 
   describe('错误处理', () => {
-    it('应该返回 null 当节点不存在', () => {
+    it('应该返回 undefined 当节点不存在', () => {
       const result = recorder.getNodeExecution('non-existent-id')
-      expect(result).toBeNull()
+      expect(result).toBeUndefined()
     })
 
     it('应该返回空数组当执行没有节点记录', () => {

@@ -319,7 +319,7 @@ export default function ScreenshotAnnotation({
       const x = (e.clientX - rect.left) / zoom
       const y = (e.clientY - rect.top) / zoom
 
-      const newAnnotation: Annotation | null = null
+      let newAnnotation: Annotation | null = null
 
       if (currentTool === 'rect') {
         const width = x - startPoint.x
@@ -438,21 +438,21 @@ export default function ScreenshotAnnotation({
         {/* Drawing tools */}
         <div className="flex items-center space-x-1 border-r border-gray-200 pr-2">
           <Button
-            variant={currentTool === 'rect' ? 'default' : 'outline'}
+            variant={currentTool === 'rect' ? 'primary' : 'outline'}
             size="sm"
             onClick={() => setCurrentTool('rect')}
           >
             <Square className="h-4 w-4" />
           </Button>
           <Button
-            variant={currentTool === 'pen' ? 'default' : 'outline'}
+            variant={currentTool === 'pen' ? 'primary' : 'outline'}
             size="sm"
             onClick={() => setCurrentTool('pen')}
           >
             <PenTool className="h-4 w-4" />
           </Button>
           <Button
-            variant={currentTool === 'text' ? 'default' : 'outline'}
+            variant={currentTool === 'text' ? 'primary' : 'outline'}
             size="sm"
             onClick={() => setCurrentTool('text')}
           >
@@ -543,7 +543,7 @@ export default function ScreenshotAnnotation({
             <Trash2 className="h-4 w-4" />
           </Button>
           <Button
-            variant="default"
+            variant="primary"
             size="sm"
             onClick={handleExport}
             disabled={!selectedImage || annotations.length === 0}

@@ -51,15 +51,18 @@ interface WorkflowStore extends WorkflowState {
   setExecutionState: (state: { status: string; result?: unknown }) => void
   clearExecutionState: () => void
   reset: () => void
+  markDirty: () => void
+  markClean: () => void
+  setIsExecuting: (executing: boolean) => void
 }
 
 describe('WorkflowStore', () => {
   // 简化的状态管理器用于测试
-  let state: WorkflowState
+  let state: WorkflowStore
   let setState: (update: Partial<WorkflowState> | ((state: WorkflowState) => Partial<WorkflowState>)) => void
-  let getState: () => WorkflowState
+  let getState: () => WorkflowStore
 
-  const createStore = () => {
+  const createStore = (): WorkflowStore => {
     const initialState: WorkflowState = {
       workflow: null,
       nodes: [],
@@ -74,7 +77,29 @@ describe('WorkflowStore', () => {
       autoSaveEnabled: true,
     }
 
-    state = { ...initialState }
+    // Create store with methods
+    const storeWithMethods: WorkflowStore = {
+      ...initialState,
+      setWorkflow: () => {},
+      setNodes: () => {},
+      setEdges: () => {},
+      addNode: () => {},
+      updateNode: () => {},
+      removeNode: () => {},
+      addEdge: () => {},
+      removeEdge: () => {},
+      selectNode: () => {},
+      selectEdge: () => {},
+      setValidationErrors: () => {},
+      setExecutionState: () => {},
+      clearExecutionState: () => {},
+      reset: () => {},
+      markDirty: () => {},
+      markClean: () => {},
+      setIsExecuting: () => {},
+    }
+
+    state = storeWithMethods
     getState = () => state
     setState = (update: Partial<WorkflowState> | ((state: WorkflowState) => Partial<WorkflowState>)) => {
       if (typeof update === 'function') {
@@ -232,11 +257,9 @@ describe('WorkflowStore', () => {
 
     it('应该能够重置状态', () => {
       getState().setWorkflow({
-        id: 'test',
-        name: 'Test',
         nodes: [],
         edges: [],
-      })
+      } as any)
       getState().markDirty()
 
       getState().reset()

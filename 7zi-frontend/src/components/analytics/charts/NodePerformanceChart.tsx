@@ -187,7 +187,7 @@ export function NodeSuccessRateChart({
                         {payload[0].payload.nodeType}
                       </p>
                       <p className="text-sm text-green-600">
-                        成功率: {payload[0].value.toFixed(1)}%
+                        成功率: {typeof payload[0].value === 'number' ? payload[0].value.toFixed(1) : '0'}%
                       </p>
                     </div>
                   )

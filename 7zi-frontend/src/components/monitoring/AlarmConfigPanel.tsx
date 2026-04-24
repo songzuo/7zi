@@ -40,7 +40,7 @@ export interface AlarmRule {
   description?: string
 }
 
-export function AlarmConfigPanel(): JSX.Element {
+export function AlarmConfigPanel(): React.ReactElement {
   const [rules, setRules] = useState<AlarmRule[]>([])
   const [recentAlarms, setRecentAlarms] = useState<AlarmEvent[]>([])
   const [isSaving, setIsSaving] = useState(false)

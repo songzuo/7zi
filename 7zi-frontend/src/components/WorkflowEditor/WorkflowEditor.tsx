@@ -176,10 +176,10 @@ function WorkflowEditorInner({
     onDraftLoaded: (loadedDraft) => {
       // 恢复草稿数据
       if (loadedDraft && loadedDraft.nodes.length > 0) {
-        setNodes(loadedDraft.nodes as Node<WorkflowNodeData>[])
+        setNodes(loadedDraft.nodes as unknown as Node<WorkflowNodeData>[])
       }
       if (loadedDraft && loadedDraft.edges.length > 0) {
-        setEdges(loadedDraft.edges as Edge<WorkflowEdgeData>[])
+        setEdges(loadedDraft.edges as unknown as Edge<WorkflowEdgeData>[])
       }
     },
     onError: (error) => {
@@ -781,8 +781,8 @@ function WorkflowEditorInner({
         onClose={() => setShowDraftList(false)}
         onLoadDraft={(draft) => {
           // 加载草稿数据
-          setNodes(draft.nodes as Node<WorkflowNodeData>[])
-          setEdges(draft.edges as Edge<WorkflowEdgeData>[])
+          setNodes(draft.nodes as unknown as Node<WorkflowNodeData>[])
+          setEdges(draft.edges as unknown as Edge<WorkflowEdgeData>[])
           // 清除错误状态
           clearError()
         }}

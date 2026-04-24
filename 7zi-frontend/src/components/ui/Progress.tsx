@@ -11,7 +11,7 @@ export interface ProgressProps extends React.HTMLAttributes<HTMLDivElement> {
   max?: number
 }
 
-export function Progress({ className, value = 0, max = 100, ...props }: ProgressProps): JSX.Element {
+export function Progress({ className, value = 0, max = 100, ...props }: ProgressProps): React.ReactElement {
   const percentage = Math.min(Math.max((value / max) * 100, 0), 100)
 
   return (

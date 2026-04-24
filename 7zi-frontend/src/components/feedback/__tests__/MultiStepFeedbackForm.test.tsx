@@ -6,7 +6,7 @@ import { describe, it, expect, beforeEach, vi } from 'vitest'
 import { render, screen, fireEvent, waitFor, cleanup } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import MultiStepFeedbackForm from '../MultiStepFeedbackForm'
-import type { FeedbackData } from '@/lib/db/feedback-types'
+import type { Feedback } from '@/lib/db/feedback-types'
 import type { ButtonProps } from '@/components/ui/Button'
 import type { InputProps } from '@/components/ui/Input'
 
@@ -234,7 +234,7 @@ describe('MultiStepFeedbackForm', () => {
         expect(mockOnSubmit).toHaveBeenCalled()
       })
 
-      const submittedData = mockOnSubmit.mock.calls[0][0] as FeedbackData
+      const submittedData = mockOnSubmit.mock.calls[0][0] as Feedback
       expect(submittedData.title).toBe('Bug Report Title')
       expect(submittedData.description).toContain('detailed bug report')
     })

@@ -17,6 +17,8 @@ interface NotificationContextValue extends UseNotificationsReturn {
   // Extend with any additional context values
 }
 
+export type { NotificationContextValue }
+
 const NotificationContext = createContext<NotificationContextValue | null>(null)
 
 interface NotificationProviderProps extends UseNotificationsOptions {

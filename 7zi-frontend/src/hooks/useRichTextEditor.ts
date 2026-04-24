@@ -78,7 +78,7 @@ export interface RichTextEditorReturn {
   canRedo: () => boolean
   isEmpty: () => boolean
   // 快捷键
-  handleKeyDown: (event: KeyboardEvent) => void
+  handleKeyDown: (event: KeyboardEvent | React.KeyboardEvent) => void
 }
 
 /**

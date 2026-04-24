@@ -16,7 +16,7 @@ export default function HomePage() {
           <div className="space-y-4">
             <Link
               href="/image-optimization-demo"
-              className="block w-full rounded-lg bg-blue-600 px-6 py-4 text-white transition hover:bg-blue-700"
+              className="block w-full rounded-lg bg-blue-600 px-6 py-4 sm:py-3 min-h-[52px] text-white transition hover:bg-blue-700"
             >
               图片优化示例
             </Link>

@@ -388,17 +388,12 @@ describe('Workflow Types - 边界情况测试', () => {
         version: '1.0.0',
         description: 'A test workflow with complex metadata',
         tags: ['test', 'complex', 'metadata'],
-        settings: {
-          timeout: 30000,
-          retries: 3,
-          priority: 'high'
-        },
         environment: 'production',
         createdAt: new Date().toISOString()
       }
     }
 
-    expect(definition.metadata?.settings?.priority).toBe('high')
+    expect(definition.metadata?.author).toBe('Test Author')
     expect(definition.metadata?.tags).toContain('complex')
   })
 })

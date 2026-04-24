@@ -91,7 +91,7 @@ function PerformanceMetricCard({
   icon,
   description,
   thresholds,
-}: PerformanceMetricCardData): JSX.Element {
+}: PerformanceMetricCardData): React.ReactElement {
   const statusColors = {
     good: 'text-green-600 dark:text-green-400',
     warning: 'text-yellow-600 dark:text-yellow-400',
@@ -172,7 +172,7 @@ function RealtimeMetricsSection({
 }: {
   aggregatedData: AggregatedMetrics | null
   recentAlarms: AlarmEvent[]
-}): JSX.Element {
+}): React.ReactElement {
   if (!aggregatedData) {
     return <DashboardSkeleton />
   }
@@ -379,7 +379,7 @@ export function PerformanceMonitorDashboard({
   autoRefresh = true,
   refreshInterval = 30000, // 30 seconds
   className,
-}: PerformanceMonitorDashboardProps): JSX.Element {
+}: PerformanceMonitorDashboardProps): React.ReactElement {
   const [activeTab, setActiveTab] = useState('realtime')
   const [selectedTimeRange, setSelectedTimeRange] = useState('30m')
   const [aggregatedData, setAggregatedData] = useState<AggregatedMetrics | null>(null)

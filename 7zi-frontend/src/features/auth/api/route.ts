@@ -2,6 +2,9 @@
  * Auth API Route
  *
  * 认证相关 API 端点，包含安全验证和审计日志
+ * 
+ * 🔒 SECURITY FIX (2026-04-23):
+ * Authentication logic disabled - return 501 until properly implemented
  */
 
 import { NextRequest, NextResponse } from 'next/server'
@@ -13,9 +16,9 @@ import {
   createValidationErrorResponse,
   validateAndSanitizeBody,
 } from '../../../lib/validation-schemas'
-import { AuditLogger } from '../../../lib/audit/logger'
-import { AuditEventType } from '@/features/audit/lib/types'
+import { AuditLogger } from '@/features/audit/lib/types'
 import { getClientIP } from '../../../lib/rate-limit/limiter'
+import { AuditEventType } from '@/features/audit/lib/types'
 
 /**
  * POST /api/auth/login - 用户登录
@@ -37,48 +40,28 @@ export async function POST(request: NextRequest) {
 
     const { username, password } = validationResult.data
 
-    // TODO: 实际的认证逻辑
-    // 这里只是演示，实际应用中应该查询数据库验证密码
-    const isAuthenticated = username === 'admin' && password === 'password123'
+    // 🔒 SECURITY FIX (2026-04-23): 
+    // Authentication not yet implemented - return 501
+    // In production, implement proper authentication:
+    // 1. Query database for user by username/email
+    // 2. Use bcrypt.compare() to verify password hash
+    console.error('[Auth] Login attempted but authentication not configured')
+    
+    await AuditLogger.logAuthEvent(AuditEventType.LOGIN_FAILED, {
+      username,
+      ipAddress,
+      userAgent,
+      success: false,
+      error: 'Authentication not configured',
+    })
 
-    if (isAuthenticated) {
-      // 记录成功的登录
-      await AuditLogger.logAuthEvent(AuditEventType.LOGIN_SUCCESS, {
-        userId: 'user-123', // 实际应用中从数据库获取
-        username,
-        ipAddress,
-        userAgent,
-        success: true,
-      })
-
-      // TODO: 生成并返回 JWT token
-      return NextResponse.json({
-        success: true,
-        message: '登录成功',
-        user: {
-          id: 'user-123',
-          username,
-          email: 'admin@example.com',
-        },
-      })
-    } else {
-      // 记录失败的登录
-      await AuditLogger.logAuthEvent(AuditEventType.LOGIN_FAILED, {
-        username,
-        ipAddress,
-        userAgent,
+    return NextResponse.json(
+      {
         success: false,
-        error: 'Invalid credentials',
-      })
-
-      return NextResponse.json(
-        {
-          success: false,
-          message: '用户名或密码错误',
-        },
-        { status: 401 }
-      )
-    }
+        message: 'Authentication system not yet configured',
+      },
+      { status: 501 }
+    )
   } catch (error) {
     // 记录 API 错误
     await AuditLogger.logApiAccess({
@@ -118,25 +101,24 @@ export async function PUT(request: NextRequest) {
 
     const { username, email, password } = validationResult.data
 
-    // TODO: 检查用户名和邮箱是否已存在
-
-    // TODO: 创建用户（哈希密码等）
-
-    // 记录注册事件
-    await AuditLogger.logRegistration({
-      userId: `user-${Date.now()}`,
-      username,
+    // 🔒 SECURITY FIX (2026-04-23):
+    // Registration not yet implemented
+    console.error('[Auth] Registration attempted but system not configured')
+    
+    await AuditLogger.logApiAccess({
       ipAddress,
-      userAgent,
-      email,
+      path: '/api/auth/register',
+      method: 'PUT',
+      success: false,
+      error: 'Registration not configured',
     })
 
     return NextResponse.json(
       {
-        success: true,
-        message: '注册成功',
+        success: false,
+        message: 'Registration system not yet configured',
       },
-      { status: 201 }
+      { status: 501 }
     )
   } catch (error) {
     await AuditLogger.logApiAccess({
@@ -174,17 +156,23 @@ export async function PATCH(request: NextRequest) {
 
     const { token, password } = validationResult.data
 
-    // TODO: 验证 token 并更新密码
+    // 🔒 SECURITY FIX (2026-04-23):
+    // Password reset not yet implemented
+    console.error('[Auth] Password reset attempted but system not configured')
 
-    await AuditLogger.logPasswordReset(AuditEventType.PASSWORD_RESET_SUCCESS, {
+    await AuditLogger.logPasswordReset(AuditEventType.PASSWORD_RESET_FAILED, {
       ipAddress,
-      success: true,
+      success: false,
+      error: 'Password reset not configured',
     })
 
-    return NextResponse.json({
-      success: true,
-      message: '密码重置成功',
-    })
+    return NextResponse.json(
+      {
+        success: false,
+        message: 'Password reset system not yet configured',
+      },
+      { status: 501 }
+    )
   } catch (error) {
     await AuditLogger.logApiAccess({
       ipAddress,

@@ -14,6 +14,10 @@ import type {
 } from './execution-history-store'
 import { executionHistoryStore } from './execution-history-store'
 
+// Re-export types from execution-history-store
+export type { ExecutionHistoryQuery, NodeExecutionStatus, TriggerType } from './execution-history-store'
+export type { ExecutionHistory, NodeExecution } from './execution-history-store'
+
 /**
  * 节点性能指标
  */

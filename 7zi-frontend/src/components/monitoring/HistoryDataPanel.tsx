@@ -53,7 +53,7 @@ const TIME_RANGES: TimeRange[] = [
   { label: 'Last 7 days', value: 7 * 24 * 60 * 60 * 1000 },
 ]
 
-export function HistoryDataPanel(): JSX.Element {
+export function HistoryDataPanel(): React.ReactElement {
   const [timeRange, setTimeRange] = useState<number>(TIME_RANGES[2].value)
   const [metricType, setMetricType] = useState<string>('all')
   const [metrics, setMetrics] = useState<PerformanceMetric[]>([])

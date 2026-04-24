@@ -30,7 +30,7 @@ let capturedOptions: UseNotificationsOptions | null = null
 // Mock the useNotifications hook
 vi.mock('@/hooks/useNotifications', () => ({
   useNotifications: vi.fn((options?: UseNotificationsOptions) => {
-    capturedOptions = options
+    capturedOptions = options ?? null
     return mockNotificationsReturn
   }),
 }))
@@ -324,7 +324,7 @@ describe('NotificationProvider Component', () => {
 
   describe('Integration with useNotifications', () => {
     it('should expose connect function', () => {
-      let contextConnect: NotificationContextValue | null = null
+      let contextConnect: Function | null = null
 
       const TestComponent = () => {
         const context = useNotificationContext()
@@ -342,7 +342,7 @@ describe('NotificationProvider Component', () => {
     })
 
     it('should expose disconnect function', () => {
-      let contextDisconnect: NotificationContextValue | null = null
+      let contextDisconnect: Function | null = null
 
       const TestComponent = () => {
         const context = useNotificationContext()
@@ -360,7 +360,7 @@ describe('NotificationProvider Component', () => {
     })
 
     it('should expose markAsRead function', () => {
-      let contextMarkAsRead: NotificationContextValue | null = null
+      let contextMarkAsRead: Function | null = null
 
       const TestComponent = () => {
         const context = useNotificationContext()

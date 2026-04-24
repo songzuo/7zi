@@ -44,7 +44,7 @@ export function StatCard({
               <div className="h-8 w-24 bg-gray-200 dark:bg-gray-700 rounded animate-pulse" />
             ) : (
               <>
-                <span className="text-3xl font-bold text-gray-900 dark:text-white">
+                <span className="text-2xl sm:text-3xl font-bold text-gray-900 dark:text-white">
                   {formatNumber(value)}
                 </span>
                 {unit && (

@@ -70,7 +70,7 @@ export function HookTemplateSelectorExample(): React.ReactElement {
     createdWorkflow,
     createWorkflow,
     isCreating,
-    error,
+    createError,
   } = useWorkflowTemplates()
 
   const [workflowName, setWorkflowName] = useState('')
@@ -154,9 +154,9 @@ export function HookTemplateSelectorExample(): React.ReactElement {
       )}
 
       {/* 错误提示 */}
-      {error && (
+      {createError && (
         <div style={{ marginTop: '20px', color: '#dc3545' }}>
-          错误: {error}
+          错误: {createError}
         </div>
       )}
 
