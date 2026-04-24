@@ -14,7 +14,7 @@ import type { ErrorInfo } from 'react'
 // Mock monitor
 vi.mock('@/lib/monitoring', () => ({
   monitor: {
-    trackError: vi.fn().mockResolvedValue(undefined),
+    trackError: vi.fn().mockResolvedValue(undefined) as any,
   },
 }))
 
@@ -164,7 +164,8 @@ describe('ErrorBoundary', () => {
       expect(monitor.trackError).toHaveBeenCalled()
     }, { timeout: 3000 })
 
-    const callArgs = monitor.trackError.mock.calls[0]
+    const mockFn = monitor.trackError as any
+    const callArgs = mockFn.mock.calls[0]
     expect(callArgs[0]).toBe('Error') // error name
     expect(callArgs[1]).toBe('Test error') // error message
     expect(callArgs[3]).toMatchObject({
@@ -185,6 +186,7 @@ describe('ErrorBoundary', () => {
   })
 
   it('should show error details in development mode', () => {
+    // Save original and set development mode via vitest
     const originalEnv = process.env.NODE_ENV
     process.env.NODE_ENV = 'development'
 
@@ -198,10 +200,12 @@ describe('ErrorBoundary', () => {
     expect(screen.getByText('Error: Test error')).toBeInTheDocument()
     expect(screen.getByText('Component Stack:')).toBeInTheDocument()
 
+    // Restore original
     process.env.NODE_ENV = originalEnv
   })
 
   it('should not show error details in production mode', () => {
+    // Save original and set production mode
     const originalEnv = process.env.NODE_ENV
     process.env.NODE_ENV = 'production'
 
@@ -213,6 +217,7 @@ describe('ErrorBoundary', () => {
 
     expect(screen.queryByText('Error Details')).not.toBeInTheDocument()
 
+    // Restore original
     process.env.NODE_ENV = originalEnv
   })
 })

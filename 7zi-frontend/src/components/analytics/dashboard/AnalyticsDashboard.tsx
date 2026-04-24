@@ -139,7 +139,7 @@ export function AnalyticsDashboard({
       {/* Top Row: Workflow Trends & Node Performance */}
       <section className="grid gap-6 lg:grid-cols-2">
         <ExecutionTrendChart
-          data={metrics.workflowTrends.map(d => ({ date: d.date, value: d.total }))}
+          data={metrics.workflowTrends.map(d => ({ timestamp: d.date, value: d.total }))}
           title="工作流执行趋势"
           chartType="area"
           height={320}
@@ -169,8 +169,8 @@ export function AnalyticsDashboard({
       <section>
         <ExecutionTrendChart
           data={metrics.workflowTrends.map(d => ({
-            date: d.date,
-            value: d.successRate,
+            timestamp: d.date,
+            value: d.total > 0 ? (d.success / d.total) * 100 : 0,
           }))}
           title="成功率趋势"
           chartType="line"

@@ -83,7 +83,7 @@ function generateMockData(days: number): TrendData[] {
     const date = new Date(now)
     date.setDate(date.getDate() - i)
     data.push({
-      date: date.toISOString().split('T')[0],
+      timestamp: date.toISOString().split('T')[0],
       value: Math.floor(Math.random() * 50) + 10
     })
   }
@@ -305,13 +305,13 @@ export function ComparisonTrendChart({
     
     const dateSet = new Set<string>()
     data.forEach(series => {
-      series.data.forEach(item => dateSet.add(item.date))
+      series.data.forEach(item => dateSet.add(item.timestamp))
     })
     
-    return Array.from(dateSet).sort().map(date => {
-      const point: Record<string, string | number> = { date }
+    return Array.from(dateSet).sort().map(ts => {
+      const point: Record<string, string | number> = { date: ts }
       data.forEach(series => {
-        const item = series.data.find(d => d.date === date)
+        const item = series.data.find(d => d.timestamp === ts)
         point[series.name] = item?.value ?? 0
       })
       return point

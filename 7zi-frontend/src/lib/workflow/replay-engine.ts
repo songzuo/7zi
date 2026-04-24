@@ -10,7 +10,13 @@
 import type {
   ExecutionHistory,
   NodeExecution,
+  NodeExecutionStatus,
+  TriggerType,
 } from './execution-history-store'
+
+// Re-export types for external consumers (e.g., tests)
+export type { ExecutionHistory, NodeExecution }
+export { NodeExecutionStatus, TriggerType }
 
 /**
  * 回放步骤类型

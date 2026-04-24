@@ -11,6 +11,7 @@ export enum AIModelProvider {
   VOLCENGINE = 'volcengine',
   BAILIAN = 'bailian',
   SELF_CLAUDE = 'self-claude',
+  SILICONFLOW = 'siliconflow', // 硅基流动
 }
 
 /**

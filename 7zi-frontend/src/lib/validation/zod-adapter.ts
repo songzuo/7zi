@@ -322,8 +322,9 @@ function createCustomRule(
     name: 'custom',
     validate: (value: unknown, context?: ValidationContext) => {
       try {
-        const mockCtx = {
+        const mockCtx: z.RefinementCtx = {
           addIssue: () => {},
+          path: [],
         }
         refinement(value, mockCtx)
         return createResult(true)

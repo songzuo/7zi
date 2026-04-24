@@ -1,4 +1,0 @@
-
-> 7zi-frontend@1.10.1 test:run
-> NODE_OPTIONS='--max-old-space-size=4096' vitest run --reporter=json
-

@@ -11,6 +11,7 @@ export { AnthropicProvider } from './AnthropicProvider'
 export { GeminiProvider } from './GeminiProvider'
 export { DeepSeekProvider } from './DeepSeekProvider'
 export { ZhipuProvider } from './ZhipuProvider'
+export { SiliconFlowProvider } from './SiliconFlowProvider'
 
 import { ModelConfig, ModelCapability } from '../routing/types'
 import { BaseProvider, ProviderConfig } from './BaseProvider'
@@ -19,6 +20,7 @@ import { AnthropicProvider } from './AnthropicProvider'
 import { GeminiProvider } from './GeminiProvider'
 import { DeepSeekProvider } from './DeepSeekProvider'
 import { ZhipuProvider } from './ZhipuProvider'
+import { SiliconFlowProvider } from './SiliconFlowProvider'
 
 /**
  * Provider 工厂
@@ -58,6 +60,9 @@ export class ProviderFactory {
         break
       case 'zhipu':
         provider = new ZhipuProvider(model, config)
+        break
+      case 'siliconflow':
+        provider = new SiliconFlowProvider(model, config)
         break
       default:
         throw new Error(`Unknown provider: ${model.provider}`)

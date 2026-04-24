@@ -296,7 +296,7 @@ describe('NotificationService Edge Cases', () => {
         priority: NotificationPriority.MEDIUM,
         title: 'Test',
         message: 'Message',
-        data: circularData,
+        data: circularData as unknown as Record<string, unknown>,
       })
 
       // Should either handle gracefully or throw

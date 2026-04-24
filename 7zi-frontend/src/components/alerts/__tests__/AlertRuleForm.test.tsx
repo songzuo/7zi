@@ -7,6 +7,7 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest'
 import { render, screen, fireEvent, waitFor, act } from '@testing-library/react'
 import { AlertRuleForm } from '../AlertRuleForm'
+import type { AlertRule, NotificationChannel } from '@/types/alerts'
 import type { ButtonProps } from '@/components/ui/Button'
 import type { InputProps } from '@/components/ui/Input'
 
@@ -27,7 +28,7 @@ vi.mock('@/components/ui/Button', () => ({
 
 // Mock the Input component
 vi.mock('@/components/ui/Input', () => ({
-  Input: ({ label, error, ...props }: InputProps) => (
+  Input: ({ label, error, size, prefix, suffix, helperText, success, warning, fullWidth, validationState, showValidationIcon, animated, ...props }: InputProps) => (
     <div>
       {label && <label>{label}</label>}
       <input {...props} />
@@ -174,7 +175,7 @@ describe('AlertRuleForm', () => {
       threshold: 90,
       duration: 300,
       severity: 'critical' as const,
-      channels: ['email', 'slack'] as const,
+      channels: ['email', 'slack'] as NotificationChannel[],
       enabled: true,
       createdAt: new Date().toISOString(),
       updatedAt: new Date().toISOString(),

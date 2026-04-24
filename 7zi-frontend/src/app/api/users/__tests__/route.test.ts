@@ -27,9 +27,7 @@ vi.mock('@/lib/permissions', async () => {
 
           if (!userHasPermission) {
             const { PermissionDeniedError } = await import('@/lib/permissions')
-            const error = new PermissionDeniedError(`Permission denied: ${requiredPermission}`)
-            error.requiredPermissions = [requiredPermission]
-            error.missingPermissions = [requiredPermission]
+            const error = new PermissionDeniedError([requiredPermission], [requiredPermission], `Permission denied: ${requiredPermission}`)
             throw error
           }
 
@@ -67,9 +65,7 @@ vi.mock('@/lib/permissions', async () => {
 
           if (userMaxLevel < level) {
             const { PermissionDeniedError } = await import('@/lib/permissions')
-            const error = new PermissionDeniedError(`Role level required: ${level}`)
-            error.requiredPermissions = [`role:${level}`]
-            error.missingPermissions = [`role:${level}`]
+            const error = new PermissionDeniedError([`role:${level}`], [`role:${level}`], `Role level required: ${level}`)
             throw error
           }
 

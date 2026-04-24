@@ -110,7 +110,7 @@ export function KPIDashboard({ metrics, className }: KPIDashboardProps) {
         value: formatPercentage(metrics.successRate),
         subtitle: '过去 7 天',
         icon: CheckCircle2,
-        variant: metrics.successRate >= 90 ? 'success' : metrics.successRate >= 70 ? 'warning' : 'danger',
+        variant: (metrics.successRate >= 90 ? 'success' : metrics.successRate >= 70 ? 'warning' : 'danger') as 'success' | 'warning' | 'danger',
         trend: { value: 2.3, positive: true },
       },
       {
@@ -118,7 +118,7 @@ export function KPIDashboard({ metrics, className }: KPIDashboardProps) {
         value: formatDuration(metrics.avgExecutionTime),
         subtitle: '毫秒',
         icon: Clock,
-        variant: metrics.avgExecutionTime < 5000 ? 'success' : metrics.avgExecutionTime < 10000 ? 'warning' : 'danger',
+        variant: (metrics.avgExecutionTime < 5000 ? 'success' : metrics.avgExecutionTime < 10000 ? 'warning' : 'danger') as 'success' | 'warning' | 'danger',
         trend: { value: -5.2, positive: true }, // Negative is good for duration
       },
       {
@@ -126,7 +126,7 @@ export function KPIDashboard({ metrics, className }: KPIDashboardProps) {
         value: formatNumber(metrics.failedCount),
         subtitle: '需要关注',
         icon: AlertCircle,
-        variant: metrics.failedCount < 10 ? 'success' : metrics.failedCount < 30 ? 'warning' : 'danger',
+        variant: (metrics.failedCount < 10 ? 'success' : metrics.failedCount < 30 ? 'warning' : 'danger') as 'success' | 'warning' | 'danger',
         trend: { value: -8.1, positive: true },
       },
       {

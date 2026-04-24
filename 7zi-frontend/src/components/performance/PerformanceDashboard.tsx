@@ -25,7 +25,7 @@ import {
 import { webVitalsMonitor, calculateWebVitalsScore } from '@/lib/performance/web-vitals'
 import { customMetricsTracker } from '@/lib/performance/custom-metrics'
 import { budgetManager } from '@/lib/performance/budget-manager'
-import type { WebVitalsMetrics, CustomMetrics, BudgetViolation, AlarmNotification } from '@/lib/performance'
+import type { WebVitalsMetrics, CustomMetrics, BudgetViolation, AlarmNotification, PerformanceBudgetReport } from '@/lib/performance'
 
 /**
  * 性能指标卡片
@@ -48,7 +48,7 @@ function MetricCard({
   trend,
   icon,
   description,
-}: MetricCardProps): JSX.Element {
+}: MetricCardProps): React.ReactElement {
   const statusColors = {
     good: 'text-green-600 dark:text-green-400',
     warning: 'text-yellow-600 dark:text-yellow-400',
@@ -99,7 +99,7 @@ function MetricCard({
 /**
  * Web Vitals 仪表板
  */
-function WebVitalsDashboard(): JSX.Element {
+function WebVitalsDashboard(): React.ReactElement {
   const [metrics, setMetrics] = useState<WebVitalsMetrics>({})
   const [score, setScore] = useState(0)
 
@@ -203,7 +203,7 @@ function WebVitalsDashboard(): JSX.Element {
 /**
  * 自定义指标仪表板
  */
-function CustomMetricsDashboard(): JSX.Element {
+function CustomMetricsDashboard(): React.ReactElement {
   const [metrics, setMetrics] = useState<CustomMetrics>({})
 
   useEffect(() => {
@@ -301,7 +301,7 @@ function CustomMetricsDashboard(): JSX.Element {
 /**
  * 性能预算仪表板
  */
-function PerformanceBudgetDashboard(): JSX.Element {
+function PerformanceBudgetDashboard(): React.ReactElement {
   const [report, setReport] = useState<PerformanceBudgetReport | null>(null)
   const [notifications, setNotifications] = useState<AlarmNotification[]>([])
 
@@ -495,7 +495,7 @@ function PerformanceBudgetDashboard(): JSX.Element {
 /**
  * 性能仪表板主组件
  */
-export function PerformanceDashboard(): JSX.Element {
+export function PerformanceDashboard(): React.ReactElement {
   return (
     <div className="container mx-auto space-y-6 p-6">
       <div>

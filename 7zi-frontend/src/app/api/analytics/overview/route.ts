@@ -24,12 +24,19 @@
 import { NextRequest } from 'next/server'
 import { analyticsService } from '@/lib/analytics/service'
 import type { OverviewMetrics } from '@/lib/analytics/types'
-import { createSuccessResponse, createErrorResponse } from '@/lib/api/error-handler'
+import { createSuccessResponse, createErrorResponse, createUnauthorizedError } from '@/lib/api/error-handler'
+import { authenticateJWT } from '@/lib/auth/api-auth'
 
 /**
  * GET /api/analytics/overview - Get analytics overview metrics
  */
 export async function GET(request: NextRequest) {
+  // 🔒 SECURITY FIX (2026-04-23): Add authentication
+  const authResult = await authenticateJWT(request)
+  if (!authResult.authenticated) {
+    return createUnauthorizedError('Authentication required')
+  }
+  
   try {
     const metrics = await analyticsService.getOverviewMetrics()
 

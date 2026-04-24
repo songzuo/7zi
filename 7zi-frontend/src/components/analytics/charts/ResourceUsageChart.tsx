@@ -12,6 +12,7 @@ import {
   Line,
   Area,
   Bar,
+  AreaChart,
   XAxis,
   YAxis,
   CartesianGrid,
@@ -184,8 +185,9 @@ export function MiniResourceChart({
   }
 
   const chartData = useMemo(() => {
+    const key = dataKeyMap[type as keyof typeof dataKeyMap]
     return data.map(item => ({
-      value: item[dataKeyMap[type]],
+      value: (item as unknown as Record<string, unknown>)[key],
     }))
   }, [data, type])
 

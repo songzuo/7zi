@@ -16,16 +16,28 @@ interface TabsContextValue {
 const TabsContext = createContext<TabsContextValue | undefined>(undefined)
 
 export interface TabsProps {
-  defaultValue: string
+  defaultValue?: string
+  value?: string
+  onValueChange?: (value: string) => void
   children: ReactNode
   className?: string
 }
 
-export function Tabs({ defaultValue, children, className }: TabsProps): JSX.Element {
-  const [value, setValue] = useState(defaultValue)
+export function Tabs({ defaultValue, value, onValueChange, children, className }: TabsProps): React.ReactElement {
+  // Support both controlled (value/onValueChange) and uncontrolled (defaultValue) modes
+  const [internalValue, setInternalValue] = useState(defaultValue || '')
+  const isControlled = value !== undefined
+  const currentValue = isControlled ? value : internalValue
+
+  const handleValueChange = (newValue: string) => {
+    if (!isControlled) {
+      setInternalValue(newValue)
+    }
+    onValueChange?.(newValue)
+  }
 
   return (
-    <TabsContext.Provider value={{ value, onValueChange: setValue }}>
+    <TabsContext.Provider value={{ value: currentValue, onValueChange: handleValueChange }}>
       <div className={cn('w-full', className)}>{children}</div>
     </TabsContext.Provider>
   )
@@ -36,7 +48,7 @@ export interface TabsListProps {
   className?: string
 }
 
-export function TabsList({ children, className }: TabsListProps): JSX.Element {
+export function TabsList({ children, className }: TabsListProps): React.ReactElement {
   return (
     <div
       className={cn(
@@ -55,7 +67,7 @@ export interface TabsTriggerProps {
   className?: string
 }
 
-export function TabsTrigger({ value, children, className }: TabsTriggerProps): JSX.Element {
+export function TabsTrigger({ value, children, className }: TabsTriggerProps): React.ReactElement {
   const context = useContext(TabsContext)
   if (!context) throw new Error('TabsTrigger must be used within Tabs')
 
@@ -85,7 +97,7 @@ export interface TabsContentProps {
   className?: string
 }
 
-export function TabsContent({ value, children, className }: TabsContentProps): JSX.Element {
+export function TabsContent({ value, children, className }: TabsContentProps): React.ReactElement {
   const context = useContext(TabsContext)
   if (!context) throw new Error('TabsContent must be used within Tabs')
 

@@ -25,3 +25,5 @@ export * from './RichTextEditor'
 
 // Feedback Components
 export * from './feedback'
+export * from './Label'
+export * from './Switch'

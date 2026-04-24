@@ -82,7 +82,7 @@
     "web-push": "^3.6.7",
     "web-vitals": "^5.2.0",
     "workbox-window": "^7.4.0",
-    "zod": "^4.3.6",
+    "zod": "^3.25.76",
     "zundo": "^2.3.0",
     "zustand": "^5.0.12"
   },

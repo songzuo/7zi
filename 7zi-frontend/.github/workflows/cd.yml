@@ -5,6 +5,13 @@ on:
     branches: [main]
   workflow_dispatch:
 
+permissions:
+  contents: read
+  packages: write
+  statuses: read
+  actions: read
+  security-events: write
+
 env:
   NODE_VERSION: '20.x'
   REGISTRY: ghcr.io
@@ -87,6 +94,7 @@ jobs:
     environment:
       name: production
       url: https://7zi.com
+      prevent_multi_deployment: true
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -98,15 +106,15 @@ jobs:
           cache: 'npm'
 
       - name: Install SSH key
-        run: |
-          mkdir -p ~/.ssh
-          echo "${{ secrets.SSH_PRIVATE_KEY }}" > ~/.ssh/id_rsa
-          chmod 600 ~/.ssh/id_rsa
-          ssh-keyscan -H ${{ secrets.PRODUCTION_HOST }} >> ~/.ssh/known_hosts
+        uses: webfactory/ssh-agent@v0.8.0
+        with:
+          ssh-private-key: ${{ secrets.SSH_PRIVATE_KEY }}
 
       - name: Pull and restart application
+        env:
+          PRODUCTION_HOST: ${{ secrets.PRODUCTION_HOST }}
         run: |
-          ssh root@${{ secrets.PRODUCTION_HOST }} << 'ENDSSH'
+          ssh root@${{ env.PRODUCTION_HOST }} << 'ENDSSH'
             # Pull latest image
             docker pull ${{ needs.build-and-push.outputs.image-tag }}
 
@@ -198,20 +206,40 @@ jobs:
   # 回滚 (失败时)
   # ============================================
   rollback:
-    name: ↩️ Rollback
+    name: ↩️ Auto Rollback
     runs-on: ubuntu-latest
     needs: [deploy-production, post-deploy-tests]
     if: failure()
     environment:
       name: production
     steps:
-      - name: Notify rollback
-        run: |
-          echo "⚠️ Deployment failed or post-deploy tests failed!"
-          echo "Please investigate and manually rollback if necessary."
+      - name: Install SSH key
+        uses: webfactory/ssh-agent@v0.8.0
+        with:
+          ssh-private-key: ${{ secrets.SSH_PRIVATE_KEY }}
 
-      - name: Manual rollback step
+      - name: Execute automatic rollback
+        env:
+          PRODUCTION_HOST: ${{ secrets.PRODUCTION_HOST }}
         run: |
-          echo "To rollback manually, SSH into the server and run:"
-          echo "docker stop 7zi-frontend && docker rm 7zi-frontend"
-          echo "Then start the previous version."
+          echo "⚠️ Deployment failed! Initiating automatic rollback..."
+          ssh root@${{ env.PRODUCTION_HOST }} << 'ENDSSH'
+            # Get previous image tag (from docker images list)
+            PREV_IMAGE=$(docker images --format '{{.Repository}}:{{.Tag}}' | grep -v latest | head -1)
+            
+            if [ -z "$PREV_IMAGE" ]; then
+              echo "No previous image found. Using current container if exists."
+              docker start 7zi-frontend || true
+            else
+              echo "Rolling back to: $PREV_IMAGE"
+              docker stop 7zi-frontend || true
+              docker rm 7zi-frontend || true
+              docker run -d \
+                --name 7zi-frontend \
+                --restart unless-stopped \
+                -p 3000:3000 \
+                --env-file /root/.env.production \
+                $PREV_IMAGE
+            fi
+          ENDSSH
+          echo "✅ Rollback completed"

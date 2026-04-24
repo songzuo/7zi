@@ -27,10 +27,12 @@ import {
 import type {
   WorkflowVersion,
   WorkflowDefinition,
+} from '@/types/workflow-version'
+import type {
   VersionBranch,
   SnapshotPolicy,
   CompressionRule,
-} from '@/types/workflow-version'
+} from '@/lib/workflow/versioning'
 
 // ============================================
 // Fixtures
