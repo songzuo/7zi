@@ -14,10 +14,7 @@ describe('MultiLayerMiddleware', () => {
 
   beforeEach(() => {
     storage = new MemoryAdapter()
-    middleware = new MultiLayerMiddleware({
-      storage,
-      config: DEFAULT_CONFIG,
-    })
+    middleware = new MultiLayerMiddleware(storage, DEFAULT_CONFIG)
   })
 
   afterEach(async () => {
@@ -80,7 +77,7 @@ describe('MultiLayerMiddleware', () => {
         user: { enabled: true, algorithm: 'sliding-window', windowMs: 60000, maxRequests: 200 },
       }
 
-      const mw = new MultiLayerMiddleware({ storage, config })
+      const mw = new MultiLayerMiddleware(storage, config)
 
       const context: RateLimitContext = { ip: '192.168.1.1', apiKey: 'test-key', userId: 'user-123', path: '/', method: 'GET', headers: {}, timestamp: Date.now() }
 
@@ -98,7 +95,7 @@ describe('MultiLayerMiddleware', () => {
         user: { enabled: false, algorithm: 'sliding-window', windowMs: 60000, maxRequests: 200 },
       }
 
-      const mw = new MultiLayerMiddleware({ storage, config })
+      const mw = new MultiLayerMiddleware(storage, config)
 
       const context: RateLimitContext = { ip: '192.168.1.1', path: '/', method: 'GET', headers: {}, timestamp: Date.now() }
 
@@ -120,7 +117,7 @@ describe('MultiLayerMiddleware', () => {
 
       }
 
-      const mw = new MultiLayerMiddleware({ storage, config })
+      const mw = new MultiLayerMiddleware(storage, config)
 
       const context: RateLimitContext = { ip: '192.168.1.1', path: '/', method: 'GET', headers: {}, timestamp: Date.now() }
 
@@ -146,7 +143,7 @@ describe('MultiLayerMiddleware', () => {
         user: { enabled: true, algorithm: 'sliding-window', windowMs: 60000, maxRequests: 5 },
       }
 
-      const mw = new MultiLayerMiddleware({ storage, config })
+      const mw = new MultiLayerMiddleware(storage, config)
 
       const context: RateLimitContext = { ip: '127.0.0.1', userId: 'user-123', path: '/', method: 'GET', headers: {}, timestamp: Date.now() }
 
@@ -179,7 +176,7 @@ describe('MultiLayerMiddleware', () => {
 
       }
 
-      const mw = new MultiLayerMiddleware({ storage, config })
+      const mw = new MultiLayerMiddleware(storage, config)
 
       const context: RateLimitContext = { ip: '127.0.0.1', apiKey: 'test-key', path: '/', method: 'GET', headers: {}, timestamp: Date.now() }
 
@@ -213,7 +210,7 @@ describe('MultiLayerMiddleware', () => {
 
       }
 
-      const mw = new MultiLayerMiddleware({ storage, config })
+      const mw = new MultiLayerMiddleware(storage, config)
 
       const context: RateLimitContext = { ip: '192.168.1.1', path: '/', method: 'GET', headers: {}, timestamp: Date.now() }
 
@@ -240,7 +237,7 @@ describe('MultiLayerMiddleware', () => {
 
       }
 
-      const mw = new MultiLayerMiddleware({ storage, config })
+      const mw = new MultiLayerMiddleware(storage, config)
 
       const context: RateLimitContext = { ip: '192.168.1.1', path: '/', method: 'GET', headers: {}, timestamp: Date.now() }
 
@@ -315,7 +312,7 @@ describe('MultiLayerMiddleware', () => {
 
       }
 
-      const mw = new MultiLayerMiddleware({ storage, config })
+      const mw = new MultiLayerMiddleware(storage, config)
 
       const context: RateLimitContext = { ip: '192.168.1.1', path: '/', method: 'GET', headers: {}, timestamp: Date.now() }
 
