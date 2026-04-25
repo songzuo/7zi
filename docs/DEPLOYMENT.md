@@ -1,8 +1,8 @@
-# v1.11.0 实时协作功能 - 部署与监控配置
+# v1.14.1 Next.js 16 全面兼容 & Evomap Gateway 部署指南
 
-**生成日期**: 2026-04-03  
-**服务器**: 7zi.com (165.99.43.61)  
-**当前版本**: API Gateway v3.0
+**生成日期**: 2026-04-25
+**服务器**: 7zi.com (172.67.184.212 / 104.21.59.229)
+**当前版本**: 7zi-frontend v1.14.1
 
 ---
 
@@ -12,818 +12,538 @@
 
 | 项目 | 状态 |
 |------|------|
-| 主机 | 7zi.com (165.99.43.61) |
-| 应用目录 | `/opt/api-gateway` |
-| 服务名称 | api-gateway.service |
-| 服务状态 | ✅ Active (running) |
-| 运行时间 | 16h+ |
-| 内存使用 | 170.4M |
-| 端口 | 2000 |
+| 主机 | 7zi.com (CDN: 172.67.184.212 / 104.21.59.229) |
+| 应用目录 | `/opt/7zi-frontend` |
+| 前端服务 | Next.js 16.2 (Port 3000) |
+| API Gateway | API Gateway v3.0 (Port 2000) |
+| Evomap Gateway | GEP-A2A 协议服务 (Port 8080) |
+| 服务管理 | PM2 |
+| SSL | Cloudflare CDN |
 
 ### 1.2 应用结构
 
 ```
-/opt/api-gateway/
-├── app/
-│   ├── main.py          # 主应用入口
-│   ├── crud.py          # 数据库操作
-│   ├── models.py        # 数据模型
-│   ├── schemas.py       # 数据模式
-│   ├── database.py      # 数据库配置
-│   ├── api/             # API 路由
-│   ├── core/            # 核心功能
-│   ├── services/        # 服务层
-│   └── static/          # 静态文件
-├── api-gateway.db       # SQLite 数据库
-├── .env                 # 环境配置
-├── run.py              # 启动脚本
-└── logs/               # 日志目录
+/opt/7zi-frontend/
+├── app/                    # Next.js App Router
+│   ├── api/               # API 路由
+│   ├── page.tsx           # 首页
+│   └── layout.tsx         # 根布局
+├── src/
+│   ├── components/        # React 组件
+│   ├── lib/              # 核心库
+│   │   ├── agents/       # AI Agent 系统
+│   │   ├── ai/           # AI 模型路由
+│   │   ├── workflow/      # 工作流引擎
+│   │   └── evomap/       # Evomap Gateway 集成
+│   └── hooks/            # React Hooks
+├── public/               # 静态资源
+├── next.config.ts        # Next.js 配置
+├── package.json          # 依赖管理
+└── ecosystem.config.js   # PM2 配置
 ```
 
-### 1.3 当前配置
+---
+
+## 二、技术栈版本
+
+### 2.1 核心依赖版本
+
+| 组件 | 版本 | 说明 |
+|------|------|------|
+| **Next.js** | 16.2.4 | App Router, Turbopack 支持 |
+| **React** | 19.2 | 最新 React 稳定版 |
+| **React Compiler** | 配置完成 | Babel 模式，可选启用 |
+| **TypeScript** | 5.9.x | 严格模式 |
+| **PM2** | Latest | 进程管理 |
+| **Node.js** | 22.x | 运行时 |
+
+### 2.2 关键依赖
+
+| 依赖 | 版本 | 用途 |
+|------|------|------|
+| `@ducanh2912/next-pwa` | 10.2.9 | PWA 离线能力 |
+| `next-themes` | Latest | Dark Mode |
+| `zustand` | Latest | 状态管理 |
+| `jose` | Latest | JWT 认证 |
+| `nodemailer` | Latest | 邮件告警 |
+
+---
+
+## 三、部署前检查
+
+### 3.1 环境准备
 
 ```bash
-# 应用配置
-APP_NAME=API Gateway v3.0
-VERSION=3.0.0
-HOST=0.0.0.0
-PORT=2000
+# 检查 Node.js 版本
+node --version  # >= 22.x required
 
-# 数据库
-DATABASE_URL=sqlite:///./api-gateway.db
+# 检查 npm/pnpm 版本
+pnpm --version  # >= 9.x recommended
+
+# 检查磁盘空间
+df -h /opt
+
+# 检查内存
+free -h
+```
+
+### 3.2 依赖检查
+
+```bash
+cd /opt/7zi-frontend
+
+# 安装依赖
+pnpm install
+
+# 检查依赖健康
+pnpm audit
+```
+
+### 3.3 环境变量配置
+
+```bash
+# .env.production
+NODE_ENV=production
+NEXT_PUBLIC_API_URL=https://7zi.com/api
+NEXT_PUBLIC_WS_URL=wss://7zi.com/ws
+
+# AI 模型配置
+OPENAI_API_KEY=your-key
+ANTHROPIC_API_KEY=your-key
+GOOGLE_API_KEY=your-key
+DEEPSEEK_API_KEY=your-key
 
 # JWT 配置
-SECRET_KEY=yFEAgUxiQG8ol8v0D5_Jupn1L0XRzZQpRexdn8axMiI
-ALGORITHM=HS256
-ACCESS_TOKEN_EXPIRE_MINUTES=43200
+JWT_SECRET=your-secret-key
+
+# Evomap Gateway
+EVOMAP_GATEWAY_URL=http://localhost:8080
+EVOMAP_NODE_ID=7zi-frontend-node
 ```
 
 ---
 
-## 二、WebSocket 监控方案
+## 四、Next.js 16.x 部署
 
-### 2.1 监控指标设计
+### 4.1 构建命令
 
-#### 2.1.1 连接指标
-
-| 指标名称 | 描述 | 类型 | 采集频率 |
-|---------|------|------|---------|
-| `ws_connections_total` | 当前活跃连接总数 | Gauge | 实时 |
-| `ws_connections_created` | 新建连接数 | Counter | 实时 |
-| `ws_connections_closed` | 关闭连接数 | Counter | 实时 |
-| `ws_connections_failed` | 连接失败数 | Counter | 实时 |
-| `ws_connection_duration` | 连接持续时间 | Histogram | 连接关闭时 |
-
-#### 2.1.2 消息指标
-
-| 指标名称 | 描述 | 类型 | 采集频率 |
-|---------|------|------|---------|
-| `ws_messages_sent` | 发送消息总数 | Counter | 实时 |
-| `ws_messages_received` | 接收消息总数 | Counter | 实时 |
-| `ws_message_size_bytes` | 消息大小（字节） | Histogram | 每条消息 |
-| `ws_message_errors` | 消息错误数 | Counter | 实时 |
-
-#### 2.1.3 延迟指标
-
-| 指标名称 | 描述 | 类型 | 采集频率 |
-|---------|------|------|---------|
-| `ws_latency_ms` | 消息往返延迟 | Histogram | 每30秒 |
-| `ws_ping_latency_ms` | Ping/Pong 延迟 | Gauge | 每10秒 |
-| `ws_processing_time_ms` | 消息处理时间 | Histogram | 每条消息 |
-
-### 2.2 监控实现方案
-
-#### 2.2.1 WebSocket 连接管理器
-
-```python
-# app/services/websocket_manager.py
-
-from fastapi import WebSocket
-from typing import Dict, Set
-from datetime import datetime
-import asyncio
-import time
-from collections import defaultdict
-from prometheus_client import Counter, Gauge, Histogram
-
-# Prometheus 指标定义
-WS_CONNECTIONS_TOTAL = Gauge('ws_connections_total', 'Active WebSocket connections')
-WS_CONNECTIONS_CREATED = Counter('ws_connections_created', 'WebSocket connections created')
-WS_CONNECTIONS_CLOSED = Counter('ws_connections_closed', 'WebSocket connections closed')
-WS_MESSAGES_SENT = Counter('ws_messages_sent', 'WebSocket messages sent')
-WS_MESSAGES_RECEIVED = Counter('ws_messages_received', 'WebSocket messages received')
-WS_LATENCY = Histogram('ws_latency_ms', 'WebSocket message latency in milliseconds')
-WS_MESSAGE_SIZE = Histogram('ws_message_size_bytes', 'WebSocket message size in bytes')
-
-class ConnectionMetrics:
-    """单个连接的指标"""
-    def __init__(self, user_id: str, session_id: str):
-        self.user_id = user_id
-        self.session_id = session_id
-        self.connected_at = datetime.utcnow()
-        self.last_ping = time.time()
-        self.messages_sent = 0
-        self.messages_received = 0
-        self.bytes_sent = 0
-        self.bytes_received = 0
-        self.errors = 0
-
-class WebSocketManager:
-    """WebSocket 连接管理器"""
-    
-    def __init__(self):
-        # 活跃连接：{websocket: ConnectionMetrics}
-        self.active_connections: Dict[WebSocket, ConnectionMetrics] = {}
-        
-        # 用户连接映射：{user_id: Set[WebSocket]}
-        self.user_connections: Dict[str, Set[WebSocket]] = defaultdict(set)
-        
-        # 会话连接映射：{session_id: Set[WebSocket]}
-        self.session_connections: Dict[str, Set[WebSocket]] = defaultdict(set)
-        
-        # 锁
-        self._lock = asyncio.Lock()
-    
-    async def connect(self, websocket: WebSocket, user_id: str, session_id: str):
-        """建立新连接"""
-        await websocket.accept()
-        
-        async with self._lock:
-            metrics = ConnectionMetrics(user_id, session_id)
-            self.active_connections[websocket] = metrics
-            self.user_connections[user_id].add(websocket)
-            self.session_connections[session_id].add(websocket)
-            
-            # 更新 Prometheus 指标
-            WS_CONNECTIONS_TOTAL.inc()
-            WS_CONNECTIONS_CREATED.inc()
-        
-        return metrics
-    
-    async def disconnect(self, websocket: WebSocket):
-        """断开连接"""
-        async with self._lock:
-            if websocket in self.active_connections:
-                metrics = self.active_connections[websocket]
-                
-                # 清理映射
-                self.user_connections[metrics.user_id].discard(websocket)
-                self.session_connections[metrics.session_id].discard(websocket)
-                
-                # 删除连接
-                del self.active_connections[websocket]
-                
-                # 更新 Prometheus 指标
-                WS_CONNECTIONS_TOTAL.dec()
-                WS_CONNECTIONS_CLOSED.inc()
-                
-                return metrics
-        return None
-    
-    async def record_message_sent(self, websocket: WebSocket, size: int):
-        """记录发送消息"""
-        if websocket in self.active_connections:
-            metrics = self.active_connections[websocket]
-            metrics.messages_sent += 1
-            metrics.bytes_sent += size
-            
-            WS_MESSAGES_SENT.inc()
-            WS_MESSAGE_SIZE.observe(size)
-    
-    async def record_message_received(self, websocket: WebSocket, size: int):
-        """记录接收消息"""
-        if websocket in self.active_connections:
-            metrics = self.active_connections[websocket]
-            metrics.messages_received += 1
-            metrics.bytes_received += size
-            
-            WS_MESSAGES_RECEIVED.inc()
-    
-    async def record_latency(self, latency_ms: float):
-        """记录延迟"""
-        WS_LATENCY.observe(latency_ms)
-    
-    def get_stats(self) -> dict:
-        """获取统计信息"""
-        total_connections = len(self.active_connections)
-        total_users = len(self.user_connections)
-        total_sessions = len(self.session_connections)
-        
-        total_messages_sent = sum(
-            m.messages_sent for m in self.active_connections.values()
-        )
-        total_messages_received = sum(
-            m.messages_received for m in self.active_connections.values()
-        )
-        
-        return {
-            "connections": total_connections,
-            "unique_users": total_users,
-            "active_sessions": total_sessions,
-            "messages_sent": total_messages_sent,
-            "messages_received": total_messages_received,
-            "uptime_seconds": time.time() - self._start_time if hasattr(self, '_start_time') else 0
-        }
-
-# 全局实例
-ws_manager = WebSocketManager()
-```
-
-#### 2.2.2 WebSocket 路由实现
-
-```python
-# app/api/websocket.py
-
-from fastapi import APIRouter, WebSocket, WebSocketDisconnect, Depends
-from app.services.websocket_manager import ws_manager
-import json
-import time
-
-router = APIRouter()
-
-@router.websocket("/ws/collaboration/{session_id}")
-async def websocket_endpoint(
-    websocket: WebSocket,
-    session_id: str,
-    user_id: str = None
-):
-    """实时协作 WebSocket 端点"""
-    
-    # 连接
-    metrics = await ws_manager.connect(websocket, user_id or "anonymous", session_id)
-    
-    try:
-        # 发送欢迎消息
-        await websocket.send_json({
-            "type": "connected",
-            "session_id": session_id,
-            "timestamp": time.time()
-        })
-        
-        # 消息循环
-        while True:
-            # 接收消息
-            data = await websocket.receive_text()
-            receive_time = time.time()
-            
-            # 记录接收
-            await ws_manager.record_message_received(websocket, len(data))
-            
-            try:
-                message = json.loads(data)
-                
-                # 处理不同类型的消息
-                if message.get("type") == "ping":
-                    # Ping/Pong 用于延迟检测
-                    latency = (receive_time - message.get("timestamp", receive_time)) * 1000
-                    await ws_manager.record_latency(latency)
-                    
-                    await websocket.send_json({
-                        "type": "pong",
-                        "timestamp": time.time()
-                    })
-                
-                elif message.get("type") == "collaboration":
-                    # 协作消息，广播给同会话的其他用户
-                    await broadcast_to_session(session_id, message, exclude=websocket)
-                
-                else:
-                    # 其他消息处理
-                    await handle_message(websocket, message)
-                
-                # 记录发送
-                response_size = len(json.dumps(message))
-                await ws_manager.record_message_sent(websocket, response_size)
-                
-            except json.JSONDecodeError:
-                await websocket.send_json({
-                    "type": "error",
-                    "message": "Invalid JSON"
-                })
-    
-    except WebSocketDisconnect:
-        await ws_manager.disconnect(websocket)
-    except Exception as e:
-        await ws_manager.disconnect(websocket)
-        raise
-
-async def broadcast_to_session(session_id: str, message: dict, exclude=None):
-    """广播消息到会话中的所有连接"""
-    from app.services.websocket_manager import ws_manager
-    
-    for connection in ws_manager.session_connections[session_id]:
-        if connection != exclude:
-            await connection.send_json(message)
-```
-
-### 2.3 Prometheus 配置
-
-#### 2.3.1 prometheus.yml 更新
-
-```yaml
-# /opt/api-gateway/prometheus.yml
-
-global:
-  scrape_interval: 15s
-  evaluation_interval: 15s
-
-scrape_configs:
-  # API Gateway 主应用
-  - job_name: 'api-gateway'
-    static_configs:
-      - targets: ['localhost:2000']
-    metrics_path: '/metrics'
-    
-  # WebSocket 专用监控
-  - job_name: 'websocket-monitor'
-    static_configs:
-      - targets: ['localhost:2000']
-    metrics_path: '/metrics'
-    scrape_interval: 10s  # 更频繁采集
-    
-alerting:
-  alertmanagers:
-    - static_configs:
-        - targets: ['localhost:9093']
-```
-
-#### 2.3.2 告警规则
-
-```yaml
-# /opt/api-gateway/alerts/websocket.yml
-
-groups:
-  - name: websocket_alerts
-    interval: 30s
-    rules:
-      # 连接数告警
-      - alert: WebSocketConnectionsHigh
-        expr: ws_connections_total > 1000
-        for: 5m
-        labels:
-          severity: warning
-        annotations:
-          summary: "WebSocket 连接数过高"
-          description: "当前连接数: {{ $value }}"
-      
-      # 连接失败率告警
-      - alert: WebSocketConnectionFailures
-        expr: rate(ws_connections_failed[5m]) > 10
-        for: 2m
-        labels:
-          severity: critical
-        annotations:
-          summary: "WebSocket 连接失败率过高"
-          description: "5分钟内失败率: {{ $value }}/s"
-      
-      # 延迟告警
-      - alert: WebSocketLatencyHigh
-        expr: histogram_quantile(0.95, rate(ws_latency_ms_bucket[5m])) > 100
-        for: 3m
-        labels:
-          severity: warning
-        annotations:
-          summary: "WebSocket 延迟过高"
-          description: "P95 延迟: {{ $value }}ms"
-      
-      # 消息错误告警
-      - alert: WebSocketMessageErrors
-        expr: rate(ws_message_errors[5m]) > 5
-        for: 2m
-        labels:
-          severity: critical
-        annotations:
-          summary: "WebSocket 消息错误过多"
-          description: "错误率: {{ $value }}/s"
-```
-
----
-
-## 三、健康检查端点配置
-
-### 3.1 增强的健康检查端点
-
-```python
-# app/api/health.py
-
-from fastapi import APIRouter, Response
-from datetime import datetime
-import time
-import psutil
-import asyncio
-
-router = APIRouter()
-
-# 应用启动时间
-START_TIME = time.time()
-
-@router.get("/health")
-async def health_check():
-    """基础健康检查"""
-    return {
-        "status": "ok",
-        "service": "API Gateway v3.0",
-        "timestamp": datetime.utcnow().isoformat()
-    }
-
-@router.get("/api/health")
-async def detailed_health_check():
-    """详细健康检查 - 包含协作服务状态"""
-    
-    # 检查数据库
-    db_status = await check_database()
-    
-    # 检查 WebSocket 服务
-    ws_status = await check_websocket_service()
-    
-    # 检查内存
-    memory = psutil.virtual_memory()
-    
-    # 检查 CPU
-    cpu_percent = psutil.cpu_percent(interval=1)
-    
-    # 计算运行时间
-    uptime = time.time() - START_TIME
-    
-    # 整体状态
-    all_healthy = (
-        db_status["status"] == "healthy" and
-        ws_status["status"] == "healthy" and
-        memory.percent < 90
-    )
-    
-    status_code = 200 if all_healthy else 503
-    
-    response = {
-        "status": "healthy" if all_healthy else "degraded",
-        "service": "API Gateway v3.0",
-        "version": "3.0.0",
-        "timestamp": datetime.utcnow().isoformat(),
-        "uptime_seconds": round(uptime, 2),
-        "checks": {
-            "database": db_status,
-            "websocket": ws_status,
-            "memory": {
-                "status": "healthy" if memory.percent < 90 else "warning",
-                "used_percent": memory.percent,
-                "available_mb": memory.available / 1024 / 1024
-            },
-            "cpu": {
-                "status": "healthy" if cpu_percent < 80 else "warning",
-                "used_percent": cpu_percent
-            }
-        }
-    }
-    
-    # WebSocket 统计
-    from app.services.websocket_manager import ws_manager
-    response["websocket_stats"] = ws_manager.get_stats()
-    
-    return Response(
-        content=json.dumps(response),
-        status_code=status_code,
-        media_type="application/json"
-    )
-
-async def check_database() -> dict:
-    """检查数据库连接"""
-    try:
-        from app.database import engine
-        from sqlalchemy import text
-        
-        async with engine.connect() as conn:
-            await conn.execute(text("SELECT 1"))
-        
-        return {
-            "status": "healthy",
-            "type": "sqlite",
-            "latency_ms": 0  # 可以添加延迟测量
-        }
-    except Exception as e:
-        return {
-            "status": "unhealthy",
-            "error": str(e)
-        }
-
-async def check_websocket_service() -> dict:
-    """检查 WebSocket 服务状态"""
-    try:
-        from app.services.websocket_manager import ws_manager
-        
-        stats = ws_manager.get_stats()
-        
-        # 判断是否健康
-        status = "healthy"
-        if stats["connections"] > 1000:
-            status = "warning"
-        
-        return {
-            "status": status,
-            "active_connections": stats["connections"],
-            "unique_users": stats["unique_users"],
-            "active_sessions": stats["active_sessions"]
-        }
-    except Exception as e:
-        return {
-            "status": "unhealthy",
-            "error": str(e)
-        }
-```
-
-### 3.2 Kubernetes 探针配置
-
-```yaml
-# kubernetes/deployment.yaml
-
-livenessProbe:
-  httpGet:
-    path: /health
-    port: 2000
-  initialDelaySeconds: 30
-  periodSeconds: 10
-  timeoutSeconds: 5
-  failureThreshold: 3
-
-readinessProbe:
-  httpGet:
-    path: /api/health
-    port: 2000
-  initialDelaySeconds: 10
-  periodSeconds: 5
-  timeoutSeconds: 3
-  failureThreshold: 2
-
-startupProbe:
-  httpGet:
-    path: /health
-    port: 2000
-  initialDelaySeconds: 5
-  periodSeconds: 5
-  timeoutSeconds: 3
-  failureThreshold: 30
-```
-
----
-
-## 四、部署检查清单
-
-### 4.1 部署前检查
-
-#### 环境准备
-- [ ] 检查 Python 版本 >= 3.9
-- [ ] 检查依赖包完整性 `pip install -r requirements.txt`
-- [ ] 检查环境变量配置 `.env`
-- [ ] 检查数据库备份
-- [ ] 检查磁盘空间 >= 5GB 可用
-- [ ] 检查内存 >= 2GB 可用
-
-#### 配置验证
-- [ ] 验证 JWT 密钥已配置
-- [ ] 验证数据库路径正确
-- [ ] 验证 CORS 配置
-- [ ] 验证日志路径存在且有写权限
-
-#### 监控准备
-- [ ] Prometheus 已配置并运行
-- [ ] Alertmanager 已配置告警规则
-- [ ] Grafana Dashboard 已准备
-- [ ] 日志收集已配置
-
-### 4.2 部署步骤
-
-#### 步骤 1：备份
 ```bash
-# 备份数据库
-cp /opt/api-gateway/api-gateway.db /opt/api-gateway/backups/api-gateway-$(date +%Y%m%d-%H%M%S).db
+# 生产构建 (使用 Turbopack)
+pnpm build
 
-# 备份配置
-cp /opt/api-gateway/.env /opt/api-gateway/backups/.env-$(date +%Y%m%d-%H%M%S)
+# 构建输出在 .next 目录
 ```
 
-#### 步骤 2：拉取最新代码
+### 4.2 Next.js 16 特定配置
+
+```typescript
+// next.config.ts
+import type { NextConfig } from 'next'
+
+const nextConfig: NextConfig = {
+  // React 19 支持
+  reactStrictMode: true,
+  
+  // Turbopack 生产构建
+  experimental: {
+    // Turbopack 已内置，无需额外配置
+  },
+  
+  // PWA 配置
+  ...(process.env.NODE_ENV === 'production' ? {
+    headers: async () => [
+      {
+        source: '/:path*',
+        headers: [
+          { key: 'X-Content-Type-Options', value: 'nosniff' },
+          { key: 'X-Frame-Options', value: 'DENY' },
+        ],
+      },
+    ],
+  } : {}),
+  
+  // 图片优化
+  images: {
+    formats: ['image/avif', 'image/webp'],
+    deviceSizes: [640, 750, 828, 1080, 1200, 1920],
+  },
+  
+  // 国际化
+  i18n: {
+    locales: ['en', 'zh'],
+    defaultLocale: 'zh',
+  },
+}
+
+export default nextConfig
+```
+
+### 4.3 React 19.x 注意事项
+
+**已完成的 React 19 优化**:
+- React Compiler (Babel) 已配置完成
+- `useMemo`/`useCallback` 优化已应用
+- Suspense 边界已优化
+- SWC 插件已集成
+
+**兼容性说明**:
+- 大部分组件已兼容 React 19
+- 如遇兼容性问题，可通过 `ENABLE_REACT_COMPILER=false` 禁用 React Compiler
+- 详见 `scripts/check-react-compiler-compatibility.sh`
+
+---
+
+## 五、PM2 部署配置
+
+### 5.1 PM2 配置文件
+
+```javascript
+// ecosystem.config.js
+module.exports = {
+  apps: [
+    {
+      name: '7zi-frontend',
+      script: 'node_modules/next/dist/bin/next',
+      args: 'start -p 3000',
+      cwd: '/opt/7zi-frontend',
+      instances: 2,
+      exec_mode: 'cluster',
+      env: {
+        NODE_ENV: 'production',
+        PORT: 3000,
+      },
+      max_memory_restart: '1G',
+      error_file: '/opt/7zi-frontend/logs/error.log',
+      out_file: '/opt/7zi-frontend/logs/out.log',
+      time: true,
+      // 重启策略
+      autorestart: true,
+      max_restarts: 10,
+      min_uptime: '10s',
+    },
+    {
+      name: 'evomap-gateway',
+      script: 'node_modules/@evomap/gateway/dist/index.js',
+      args: '--port 8080 --node-id 7zi-frontend-node',
+      cwd: '/opt/7zi-frontend',
+      instances: 1,
+      exec_mode: 'fork',
+      env: {
+        NODE_ENV: 'production',
+        EVOMAP_GATEWAY_URL: 'http://localhost:8080',
+      },
+      error_file: '/opt/7zi-frontend/logs/evomap-error.log',
+      out_file: '/opt/7zi-frontend/logs/evomap-out.log',
+    },
+  ],
+}
+```
+
+### 5.2 PM2 常用命令
+
 ```bash
-cd /opt/api-gateway
+# 启动所有应用
+pm2 start ecosystem.config.js
+
+# 查看状态
+pm2 status
+
+# 查看日志
+pm2 logs 7zi-frontend
+pm2 logs evomap-gateway
+
+# 重启应用
+pm2 restart 7zi-frontend
+pm2 restart evomap-gateway
+
+# 重启所有
+pm2 restart all
+
+# 停止应用
+pm2 stop 7zi-frontend
+
+# 删除应用
+pm2 delete 7zi-frontend
+
+# 集群模式扩容
+pm2 scale 7zi-frontend 4
+
+# 保存进程列表
+pm2 save
+
+# 开机自启配置
+pm2 startup
+pm2 save
+```
+
+### 5.3 PM2 监控
+
+```bash
+# 查看实时监控
+pm2 monit
+
+# 查看详细状态
+pm2 show 7zi-frontend
+
+# 查看进程信息
+pm2 list
+```
+
+---
+
+## 六、Evomap Gateway 部署
+
+### 6.1 概述
+
+Evomap Gateway 是连接智能体世界和 Evomap 系统的核心服务，支持 GEP-A2A 协议。
+
+### 6.2 功能特性
+
+- **节点注册**: 自动注册到 Evomap Hub
+- **心跳检测**: GEP-A2A 协议心跳验证
+- **Gene/Capsule 发布**: 支持发布 AI 资产
+- **任务领取**: 从 Hub 领取任务
+- **资产获取**: 获取 Hub 上的资产
+
+### 6.3 部署步骤
+
+#### 步骤 1: 安装依赖
+
+```bash
+cd /opt/7zi-frontend
+pnpm add @evomap/gateway
+```
+
+#### 步骤 2: 配置环境变量
+
+```bash
+# .env
+EVOMAP_HUB_URL=https://hub.evomap.com
+EVOMAP_NODE_ID=7zi-frontend-node
+EVOMAP_NODE_NAME=7zi Frontend Gateway
+EVOMAP_HEARTBEAT_INTERVAL=30000
+```
+
+#### 步骤 3: 启动服务
+
+```bash
+# 使用 PM2 启动
+pm2 start ecosystem.config.js --only evomap-gateway
+
+# 或直接启动
+node node_modules/@evomap/gateway/dist/index.js --port 8080
+```
+
+#### 步骤 4: 验证部署
+
+```bash
+# 检查健康状态
+curl http://localhost:8080/health
+
+# 检查节点注册状态
+curl http://localhost:8080/api/node/status
+```
+
+### 6.4 GEP-A2A 协议说明
+
+**心跳端点**: `POST /api/heartbeat`
+**节点注册**: `POST /api/node/register`
+**任务发布**: `POST /api/gene/publish`
+**Capsule 获取**: `GET /api/capsule/:id`
+
+---
+
+## 七、部署步骤
+
+### 7.1 部署前备份
+
+```bash
+# 备份当前应用
+cp -r /opt/7zi-frontend /opt/7zi-frontend.backup-$(date +%Y%m%d-%H%M%S)
+
+# 备份数据库（如有）
+cp /opt/7zi-frontend/api-gateway.db /opt/7zi-frontend/backups/
+```
+
+### 7.2 拉取最新代码
+
+```bash
+cd /opt/7zi-frontend
 git fetch origin
-git checkout v1.11.0
+git checkout v1.14.1
 ```
 
-#### 步骤 3：安装依赖
+### 7.3 安装依赖
+
 ```bash
-pip install -r requirements.txt
+pnpm install
 ```
 
-#### 步骤 4：数据库迁移（如有）
+### 7.4 数据库迁移（如有）
+
 ```bash
+# 运行数据库迁移
+pnpm db:migrate
+
+# 或
 alembic upgrade head
 ```
 
-#### 步骤 5：重启服务
+### 7.5 构建
+
 ```bash
-systemctl restart api-gateway
+pnpm build
 ```
 
-#### 步骤 6：验证部署
+### 7.6 启动服务
+
+```bash
+# 停止旧进程
+pm2 stop all
+
+# 启动新进程
+pm2 start ecosystem.config.js
+```
+
+### 7.7 验证部署
+
 ```bash
 # 检查服务状态
-systemctl status api-gateway
+pm2 status
 
 # 检查健康端点
-curl http://localhost:2000/health
-curl http://localhost:2000/api/health
+curl http://localhost:3000/health
+curl http://localhost:8080/health
 
-# 检查日志
-tail -f /opt/api-gateway/logs/app.log
+# 检查 API 文档
+curl http://localhost:3000/api/health
 ```
 
-### 4.3 部署后验证
+---
 
-#### 功能验证
-- [ ] 健康检查端点返回正常
-- [ ] API 文档可访问 `/docs`
+## 八、部署后验证
+
+### 8.1 功能验证清单
+
+- [ ] 首页可访问 `/`
+- [ ] API 文档可访问 `/api/docs`
 - [ ] 用户登录功能正常
-- [ ] WebSocket 连接可建立
-- [ ] 协作功能正常工作
+- [ ] WebSocket 连接正常
+- [ ] Evomap Gateway 已注册
+- [ ] Dark Mode 切换正常
+- [ ] PWA 离线功能正常
 
-#### 监控验证
-- [ ] Prometheus 可抓取指标
-- [ ] Grafana 显示正常数据
-- [ ] 告警规则已激活
-- [ ] 日志正常收集
+### 8.2 性能验证
 
-#### 性能验证
-- [ ] 响应时间 < 200ms
-- [ ] WebSocket 连接延迟 < 100ms
-- [ ] 内存使用正常
-- [ ] CPU 使用正常
+```bash
+# 检查响应时间
+curl -o /dev/null -s -w '%{time_total}s\n' http://localhost:3000/
 
-### 4.4 回滚计划
+# 预期: < 200ms
+```
 
-如果部署失败：
+### 8.3 监控验证
+
+- [ ] PM2 监控显示正常
+- [ ] 日志无错误
+- [ ] 内存使用正常 (< 1GB per instance)
+
+---
+
+## 九、回滚计划
+
+### 9.1 自动回滚
+
+```bash
+# 回滚到上一个版本
+git checkout <previous-version>
+pnpm build
+pm2 restart all
+```
+
+### 9.2 手动回滚
 
 ```bash
 # 1. 停止服务
-systemctl stop api-gateway
+pm2 stop all
 
-# 2. 切换到旧版本
-cd /opt/api-gateway
-git checkout <previous-version>
+# 2. 恢复备份
+rm -rf /opt/7zi-frontend
+mv /opt/7zi-frontend.backup-YYYYMMDD-HHMMSS /opt/7zi-frontend
 
-# 3. 恢复数据库
-cp /opt/api-gateway/backups/api-gateway-YYYYMMDD-HHMMSS.db /opt/api-gateway/api-gateway.db
-
-# 4. 重启服务
-systemctl start api-gateway
-
-# 5. 验证
-curl http://localhost:2000/health
-```
-
-### 4.5 监控仪表板配置
-
-#### Grafana Dashboard JSON
-
-```json
-{
-  "dashboard": {
-    "title": "WebSocket Collaboration Metrics",
-    "panels": [
-      {
-        "title": "Active Connections",
-        "type": "gauge",
-        "targets": [
-          {
-            "expr": "ws_connections_total",
-            "legendFormat": "Active Connections"
-          }
-        ]
-      },
-      {
-        "title": "Message Rate",
-        "type": "graph",
-        "targets": [
-          {
-            "expr": "rate(ws_messages_sent[5m])",
-            "legendFormat": "Messages Sent/s"
-          },
-          {
-            "expr": "rate(ws_messages_received[5m])",
-            "legendFormat": "Messages Received/s"
-          }
-        ]
-      },
-      {
-        "title": "Latency (P95)",
-        "type": "graph",
-        "targets": [
-          {
-            "expr": "histogram_quantile(0.95, rate(ws_latency_ms_bucket[5m]))",
-            "legendFormat": "P95 Latency"
-          }
-        ]
-      }
-    ]
-  }
-}
+# 3. 重启
+pm2 start ecosystem.config.js
 ```
 
 ---
 
-## 五、常见问题排查
+## 十、常见问题排查
 
-### 5.1 WebSocket 连接失败
+### 10.1 PM2 重启次数过多
 
-**症状**: 客户端无法建立 WebSocket 连接
+**症状**: `pm2 restarts > 10`
 
-**排查步骤**:
-1. 检查 Nginx 配置是否支持 WebSocket 升级
-2. 检查防火墙规则
-3. 检查服务日志
-4. 验证 WebSocket 端点路径
-
-**解决方案**:
-```nginx
-# Nginx WebSocket 配置
-location /ws/ {
-    proxy_pass http://localhost:2000;
-    proxy_http_version 1.1;
-    proxy_set_header Upgrade $http_upgrade;
-    proxy_set_header Connection "upgrade";
-    proxy_set_header Host $host;
-    proxy_read_timeout 3600s;
-}
+**排查**:
+```bash
+pm2 logs 7zi-frontend --lines 100
 ```
 
-### 5.2 连接频繁断开
+**常见原因**:
+- 内存不足 → 增加 `max_memory_restart`
+- 端口被占用 → 检查 `lsof -i :3000`
+- 代码错误 → 检查错误日志
 
-**症状**: WebSocket 连接不稳定，频繁断开重连
+### 10.2 构建失败
 
-**排查步骤**:
-1. 检查网络稳定性
-2. 检查超时配置
-3. 检查心跳机制
-4. 检查服务端日志
+**排查**:
+```bash
+# 清理构建缓存
+rm -rf .next node_modules/.cache
+pnpm build
+```
 
-**解决方案**:
-- 增加心跳频率
-- 调整超时时间
-- 实现自动重连机制
+### 10.3 Evomap Gateway 连接失败
 
-### 5.3 性能下降
+**排查**:
+```bash
+# 检查 Hub 连接
+curl -v http://localhost:8080/health
 
-**症状**: 响应延迟增加，连接处理变慢
-
-**排查步骤**:
-1. 检查服务器资源使用
-2. 检查数据库查询性能
-3. 检查 WebSocket 连接数
-4. 检查消息队列积压
-
-**解决方案**:
-- 增加服务器资源
-- 优化数据库查询
-- 实现连接池
-- 启用消息压缩
+# 检查环境变量
+grep EVOMAP .env
+```
 
 ---
 
-## 六、维护计划
+## 十一、维护计划
 
-### 6.1 日常维护
+### 11.1 日常维护
 
-- **每日**: 检查服务状态、监控告警
-- **每周**: 检查日志、性能趋势分析
-- **每月**: 数据库备份验证、安全审计
+- **每日**: 检查 PM2 状态、日志
+- **每周**: 检查磁盘空间、内存趋势
+- **每月**: 数据库备份、安全审计
 
-### 6.2 升级计划
+### 11.2 升级计划
 
-- **版本升级**: 测试环境验证 → 灰度发布 → 全量发布
-- **依赖更新**: 定期检查安全更新
-- **配置更新**: 变更管理流程
-
-### 6.3 容量规划
-
-- **当前容量**: 支持 1000 并发连接
-- **扩展方案**: 
-  - 水平扩展：多实例部署 + 负载均衡
-  - 垂直扩展：增加服务器资源
-  - 架构优化：Redis 发布订阅、消息队列
+- 使用 Git flow 管理版本
+- 灰度发布: 先更新 1/4 实例，确认后全量
+- Evomap Gateway 与主应用独立升级
 
 ---
 
-## 七、联系信息
+## 十二、联系信息
 
 ### 技术支持
 
 - **运维团队**: ops@7zi.com
 - **开发团队**: dev@7zi.com
-- **紧急联系**: +86-xxx-xxxx-xxxx
 
 ### 文档更新
 
-- **更新日期**: 2026-04-03
+- **更新日期**: 2026-04-25
 - **更新人**: AI 系统管理员
-- **版本**: 1.0
+- **版本**: 1.4
 
 ---
 
-**备注**: 本文档基于当前服务器状态自动生成，请根据实际情况调整配置参数。
+**备注**: 本文档基于 v1.14.1 版本编写，涵盖 Next.js 16.2 和 React 19.2 部署要求。

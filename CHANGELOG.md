@@ -7,6 +7,27 @@
 
 ---
 
+## [Unreleased] - 2026-04-25
+
+### 🔧 WebSocket 重构 (v1.4.1)
+- `src/lib/websocket/server.ts`: 从 1455 行拆分为模块化架构
+- 新增 `src/lib/websocket/auth.ts`: JWT 认证中间件
+- 新增 `src/lib/websocket/broadcast.ts`: 消息广播工具函数
+- 新增 `src/lib/websocket/task-status.ts`: 任务状态广播功能
+- 新增 `src/lib/websocket/handlers/room-handlers.ts`: 房间事件处理
+- 新增 `src/lib/websocket/handlers/message-handlers.ts`: 消息事件处理
+- 新增 `src/lib/websocket/handlers/doc-handlers.ts`: 文档/光标事件处理
+- 核心模块 RoomManager, PermissionManager, MessageStore 保持稳定
+
+### 🔧 TypeScript 类型修复
+- plugins/types.ts: 移除 @ts-nocheck，修复 debounce/throttle 泛型 any 类型
+- workflow/triggers.ts: 规范化 TODO 注释格式 (P2/P3 优先级标记)
+
+### 📚 文档更新
+- CHANGELOG 同步 v1.14.1 最新状态
+
+---
+
 ## [Unreleased] - 2026-04-20
 
 ### 🔧 TypeScript 类型修复
@@ -3068,3 +3089,23 @@ v1.4.0 专注于 **WebSocket 高级协作功能**、**AI Agent 智能调度** �
 | 📊 企业级报表系统 | P1 | 完整数据可视化能力 |
 
 **详细规划**: [v1.13.0_ROADMAP_PREVIEW.md](./v1.13.0_ROADMAP_PREVIEW.md)
+
+---
+
+## [Unreleased] - 2026-04-24 (Evening)
+
+### 📝 文档更新
+- 记忆文件更新 (git sync)
+- OpenClaw 健康检查完成
+- 架构审查报告完成
+
+### ⚠️ 系统状态
+- 系统负载高 (17+)
+- Swap 使用率 99%
+- 54 个测试文件待修复
+
+### 🔧 持续工作
+- TypeScript 类型审计进行中
+- 工作流边缘用例测试
+- 自动化引擎测试稳定
+
