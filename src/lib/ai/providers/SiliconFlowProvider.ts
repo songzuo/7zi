@@ -236,7 +236,7 @@ export class SiliconFlowProvider extends BaseProvider {
   /**
    * 计算成本
    */
-  protected calculateCost(promptTokens: number, completionTokens: number): number {
+  calculateCost(promptTokens: number, completionTokens: number): number {
     // SiliconFlow 定价 (每百万 tokens)
     // 基础价格，实际按模型收费
     const inputPricePerM = 1.0 // ¥1/1M

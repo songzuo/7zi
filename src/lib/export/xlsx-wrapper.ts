@@ -65,7 +65,7 @@ export class Worksheet {
   }
 
   getColumn(index: number): Column {
-    return new Column(this._worksheet.getColumn(index))
+    return new Column(this._worksheet.getColumn(index) as ExcelJS.Column)
   }
 
   get columns(): Column[] {
