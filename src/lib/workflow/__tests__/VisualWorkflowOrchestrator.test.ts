@@ -622,9 +622,10 @@ describe('VisualWorkflowOrchestrator - 工作流执行', () => {
 
       const startResult = instance.nodeResults.get('start')
       expect(startResult).toBeDefined()
-      expect(startResult!.status).toBe(NodeStatus.SUCCESS)
-      expect(startResult!.output.message).toBe('工作流开始执行')
-      expect(startResult!.output.startedAt).toBeDefined()
+      if (!startResult) throw new Error('startResult is undefined')
+      expect(startResult.status).toBe(NodeStatus.SUCCESS)
+      expect(startResult.output?.message).toBe('工作流开始执行')
+      expect(startResult.output?.startedAt).toBeDefined()
     })
 
     it('START 节点应该记录执行时长', async () => {
@@ -644,9 +645,10 @@ describe('VisualWorkflowOrchestrator - 工作流执行', () => {
 
       const endResult = instance.nodeResults.get('end')
       expect(endResult).toBeDefined()
-      expect(endResult!.status).toBe(NodeStatus.SUCCESS)
-      expect(endResult!.output.message).toBe('工作流执行完成')
-      expect(endResult!.output.endedAt).toBeDefined()
+      if (!endResult) throw new Error('endResult is undefined')
+      expect(endResult.status).toBe(NodeStatus.SUCCESS)
+      expect(endResult.output?.message).toBe('工作流执行完成')
+      expect(endResult.output?.endedAt).toBeDefined()
     })
 
     it('END 节点应该标记工作流完成', async () => {

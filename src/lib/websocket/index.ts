@@ -119,7 +119,7 @@ export type {
   ConflictResolutionStrategy,
 } from './crdt-sync'
 
-// Collaboration Manager (NEW v1.12.0)
+// Collaboration Manager (NEW v1.12.0, refactored v1.14.0)
 export {
   CollaborationManager,
   getCollaborationManager,
@@ -132,7 +132,40 @@ export type {
   CollaborationEvent,
   CollaborationEventType,
   CollaborationConfig,
-} from './collaboration-manager'
+  CollaborationStats,
+} from './collab-types'
+
+// Collaboration sub-modules (v1.14.0)
+export {
+  createCollaborationSession,
+  addParticipantToSession,
+  removeParticipantFromSession,
+  getRoomParticipantInfo,
+  createCollaborationEvent,
+} from './collab-session'
+
+export {
+  acquireLock,
+  releaseLock,
+  renewLock,
+  getLockInfo,
+  getAllLocksInfo,
+  isNodeLocked,
+  isNodeLockedByUser,
+  cleanupExpiredLocks,
+  releaseAllUserLocks,
+} from './collab-lock'
+
+export {
+  updateNode,
+  deleteNode,
+  moveNode,
+  updateCursor,
+  updateSelection,
+  getDocumentState,
+  getSyncUpdate,
+  applySyncUpdate,
+} from './collab-doc-sync'
 
 // Collaboration Handlers (NEW v1.12.0)
 export {

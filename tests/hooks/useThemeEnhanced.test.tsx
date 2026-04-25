@@ -23,7 +23,6 @@ const mockSettingsContext = {
 vi.mock('@/contexts/SettingsContext', () => ({
   SettingsProvider: ({ children }: { children: React.ReactNode }) => <>{children}</>,
   useSettings: () => mockSettingsContext,
-  type Theme: 'light' | 'dark' | 'system',
 }));
 
 function createWrapper() {
