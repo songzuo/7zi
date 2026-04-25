@@ -2,17 +2,43 @@
  * EmotionSelector - 单元测试
  */
 
-import { describe, it, expect, vi } from 'vitest'
+import { describe, it, expect, vi, beforeEach } from 'vitest'
 import { render, screen, fireEvent, waitFor } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { EmotionSelector, SatisfactionRating, FeedbackSatisfactionModal } from '../EmotionSelector'
 import { Modal, ModalProps } from '@/components/ui/Modal'
+import i18n from 'i18next'
+import { initReactI18next } from 'react-i18next'
 
-// Mock i18n
+// Initialize i18next for tests
+i18n.use(initReactI18next).init({
+  resources: {
+    en: {
+      translation: {
+        'feedback.emotions.selectPrompt': 'How are you feeling?',
+        'feedback.satisfaction.title': 'Feedback',
+        'feedback.satisfaction.prompt': 'Please rate your experience',
+        'feedback.satisfaction.submit': 'Submit',
+        'feedback.satisfaction.skip': 'Skip',
+        'feedback.satisfaction.commentPlaceholder': 'Add a comment...',
+        'feedback.satisfaction.thankYou': 'Thank you!',
+      },
+    },
+  },
+  lng: 'en',
+  fallbackLng: 'en',
+  interpolation: {
+    escapeValue: false,
+  },
+})
+
+// Mock i18n - must include initReactI18next
 vi.mock('@/lib/i18n/client', () => ({
   useTranslation: () => ({
     t: (key: string) => key,
   }),
+  initReactI18next,
+  default: i18n,
 }))
 
 // Mock Modal component
