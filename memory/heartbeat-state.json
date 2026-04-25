@@ -1,28 +1,22 @@
 {
   "lastChecks": {
-    "调度器运行": "2026-04-19 00:47 UTC",
+    "调度器运行": "2026-04-25 10:07 UTC",
     "email": null,
     "calendar": null,
     "weather": null,
     "memory-maintenance": null
   },
   "activeTasks": {
-    "调度时间": "2026-04-19 00:47 UTC",
+    "调度时间": "2026-04-25 10:07 UTC",
     "任务列表": [
-      "next16-continue-0419 (volcengine, subagent:d736f70f)",
-      "server-health-0419 (bailian, subagent:69c993d1)",
-      "test-health-0419 (volcengine, subagent:5901f29d)",
-      "cost-opt-0419 (minimax, subagent:d27d2aad)"
+      "pwa-utils-refactor-0425 (minimax, subagent:1207822a)",
+      "deployment-doc-update-0425 (minimax, subagent:86da8c95)",
+      "hooks-audit-0425 (minimax, subagent:24763ca0)",
+      "task-state-review-0425 (minimax, subagent:9db38153)"
     ],
     "总数": 4,
-    "启动失败": [
-      "disk-cleanup-plan-0419 (失败)",
-      "prettier-continue-0419 (失败)",
-      "infra-cost-review-0419 (失败)",
-      "next163-strategy-0419 (失败)"
-    ],
-    "失败原因": "所有失败任务都在1分钟内结束，可能是minimax模型超时。改用不同模型(volcengine/bailian)启动新任务。"
+    "启动失败": []
   },
-  "gateway状态": "正常 - 4个任务成功启动",
-  "备注": "改用混合模型策略避免超时问题。目标：3-5个任务同时运行，当前4个。"
+  "gateway状态": "正常 - 4个任务启动",
+  "备注": "调度器启动，所有任务使用minimax模型，目标3-5个同时运行，当前4个。"
 }
