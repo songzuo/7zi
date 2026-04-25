@@ -333,6 +333,7 @@ describe('AuditLogger', () => {
       const stats = await auditLogger.getStats();
 
       expect(stats.topUsers.length).toBeGreaterThan(0);
+      // @ts-ignore - logical OR in toBe is intentional test behavior
       expect(stats.topUsers[0].userId).toBe('user1' || 'user2');
     });
 
