@@ -805,8 +805,7 @@ class CronTrigger implements ITrigger {
    * 计算下一次运行时间（简化版 Cron 解析）
    */
   private calculateNextRun(expression: string, timezone?: string): Date | null {
-    // TODO: 实现完整的 Cron 表达式解析
-    // 这里使用简化的实现，只支持 "*/N" 格式（每 N 分钟）
+    // TODO(P2): 实现完整的 Cron 表达式解析 (支持标准 5 字段格式)
 
     const match = expression.match(/^\*\/(\d+)\s+?\*\s+?\*\s+?\*\s+?\*$/)
     if (!match) {
@@ -825,7 +824,7 @@ class CronTrigger implements ITrigger {
    * 获取指定时区的日期
    */
   private getDateInTimezone(timezone: string): Date {
-    // TODO: 实现时区转换
+    // TODO(P3): 实现时区转换 (使用 Intl.DateTimeFormat)
     return new Date()
   }
 }

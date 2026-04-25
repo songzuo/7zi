@@ -1,4 +1,3 @@
-// @ts-nocheck
 /**
  * Plugin System Type Definitions
  * Core interfaces and types for the plugin architecture
@@ -775,8 +774,8 @@ export interface PluginConfigHelper {
 }
 
 export interface PluginUtils {
-  debounce<T extends (...args: any[]) => any>(fn: T, delay: number): T;
-  throttle<T extends (...args: any[]) => any>(fn: T, delay: number): T;
+  debounce<T extends (...args: unknown[]) => unknown>(fn: T, delay: number): T;
+  throttle<T extends (...args: unknown[]) => unknown>(fn: T, delay: number): T;
   retry<T>(fn: () => Promise<T>, attempts: number, delay: number): Promise<T>;
   timeout<T>(promise: Promise<T>, ms: number): Promise<T>;
   sleep(ms: number): Promise<void>;
