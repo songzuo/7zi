@@ -30,7 +30,7 @@ export function useMobileTouchOptimization() {
     document.body.style.touchAction = 'manipulation'
 
     // Improve scroll performance
-    document.body.style.webkitOverflowScrolling = 'touch'
+    ;(document.body.style as any).webkitOverflowScrolling = 'touch'
 
     // Prevent double-tap zoom on buttons
     const buttons = document.querySelectorAll('button, a, [role="button"]')
@@ -41,7 +41,7 @@ export function useMobileTouchOptimization() {
     return () => {
       // Cleanup
       document.body.style.touchAction = ''
-      document.body.style.webkitOverflowScrolling = ''
+      ;(document.body.style as any).webkitOverflowScrolling = ''
     }
   }, [isMobile])
 

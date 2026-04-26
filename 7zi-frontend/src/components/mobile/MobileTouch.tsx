@@ -52,7 +52,7 @@ export function Touchable({
   style,
 }: TouchableProps) {
   const elementRef = useRef<HTMLDivElement>(null)
-  const timeoutRef = useRef<NodeJS.Timeout>()
+  const timeoutRef = useRef<NodeJS.Timeout | undefined>(undefined)
   const isPressedRef = useRef(false)
 
   // 处理触摸开始

@@ -7,6 +7,29 @@
 
 ---
 
+## [1.14.1]
+
+### 🎯 版本亮点
+
+v1.14.1 包含 **WebSocket 协作基础设施完善**、**反馈系统集成**、**测试覆盖率提升**等优化。
+
+### ✨ 新增
+
+- WebSocket 协作基础设施 (collab-doc-sync, collab-lock, collab-session)
+- 反馈系统数据库集成
+- PM2 部署优化
+
+### 🔧 优化
+
+- WebSocket server 模块化重构
+- 依赖版本更新 (protobufjs, uuid, postcss)
+
+### 🐛 修复
+
+- 安全漏洞修复 (protobufjs, uuid, postcss)
+
+---
+
 ## [1.14.0] - 2026-04-19
 
 ### 🎯 版本亮点

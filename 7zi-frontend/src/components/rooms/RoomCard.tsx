@@ -122,7 +122,7 @@ export function RoomCard({
             status="connected"
             onlineCount={room.onlineCount}
             totalCount={room.memberCount}
-            size="xs"
+            size="sm"
             showDetails={false}
           />
         </div>

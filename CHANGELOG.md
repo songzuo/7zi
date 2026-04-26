@@ -9,8 +9,17 @@
 
 ## [Unreleased] - 2026-04-25
 
-### 🔧 WebSocket 重构 (v1.4.1)
-- `src/lib/websocket/server.ts`: 从 1455 行拆分为模块化架构
+### 🛡️ Security
+- 升级 protobufjs 到最新版本 (修复 GHSA-xq3m-2v4x-88gg 任意代码执行漏洞)
+- 升级 uuid 到 ≥14.0.0 (修复 GHSA-w5hq-g745-h8pq 缓冲区边界漏洞)
+- 升级 postcss 到 ≥8.5.10 (修复 GHSA-qq2v-qp2m-jg93 XSS 漏洞)
+
+### 🛡️ PM2 部署优化
+- ecosystem.config.production.js: 生产环境配置文件完善
+- PM2 内存限制、重启策略优化
+
+### 🔧 WebSocket 重构 (v1.14.1)
+- `src/lib/websocket/server.ts`: 从 1455 行拆分为模块化架构（重构后 394 行）
 - 新增 `src/lib/websocket/auth.ts`: JWT 认证中间件
 - 新增 `src/lib/websocket/broadcast.ts`: 消息广播工具函数
 - 新增 `src/lib/websocket/task-status.ts`: 任务状态广播功能
@@ -21,7 +30,12 @@
 
 ### 🔧 TypeScript 类型修复
 - plugins/types.ts: 移除 @ts-nocheck，修复 debounce/throttle 泛型 any 类型
-- workflow/triggers.ts: 规范化 TODO 注释格式 (P2/P3 优先级标记)
+- SiliconFlowProvider.ts: 修复 calculateCost 访问修饰符不一致
+- xlsx-wrapper.ts: 添加类型断言修复 Column 类型不匹配
+- VisualWorkflowOrchestrator.test.ts: 修复 19 个失败测试
+
+### 🔄 持续改进
+- 代码质量优化
 
 ### 📚 文档更新
 - CHANGELOG 同步 v1.14.1 最新状态

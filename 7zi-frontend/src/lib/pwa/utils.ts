@@ -172,3 +172,10 @@ export const safeStorage = {
     }
   },
 }
+
+
+// Service Worker message type (re-exported from service-worker-manager for convenience)
+export interface SWMessage {
+  type: string
+  payload?: unknown
+}

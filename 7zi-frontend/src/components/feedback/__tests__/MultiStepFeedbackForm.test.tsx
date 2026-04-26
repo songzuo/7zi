@@ -32,10 +32,10 @@ vi.mock('@/components/ui/Button', () => ({
 }))
 
 vi.mock('@/components/ui/Input', () => ({
-  Input: ({ label, id, ...props }: InputProps) => (
+  Input: ({ label, id, error, success, warning, helperText, prefix, suffix, size, fullWidth, validationState, showValidationIcon, animated, ...inputProps }: InputProps) => (
     <div>
       {label && <label htmlFor={id}>{label}</label>}
-      <input id={id} {...props} />
+      <input id={id} {...inputProps as React.InputHTMLAttributes<HTMLInputElement>} />
     </div>
   ),
 }))

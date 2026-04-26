@@ -1358,6 +1358,7 @@ npm run test:e2e
 项目支持多种部署方式：
 
 - **🐳 Docker** - 使用 Dockerfile 和 docker-compose.yml 容器化部署
+- **⚙️ PM2** - 使用 ecosystem.config.production.js 进程管理（推荐生产环境）
 - **☁️ Vercel** - Next.js 原生支持，配置 `vercel.json` 即可
 - **🐙 GitHub Actions** - 自动化 CI/CD 流程
 
@@ -1369,6 +1370,22 @@ docker-compose up -d
 
 # 生产环境
 docker-compose -f docker-compose.prod.yml up -d
+```
+
+### PM2 部署（推荐生产环境）
+
+```bash
+# 安装 PM2
+npm install -g pm2
+
+# 启动应用
+pm2 start ecosystem.config.production.js
+
+# 常用命令
+pm2 list          # 查看进程状态
+pm2 logs 7zi-frontend  # 查看日志
+pm2 restart all   # 重启所有进程
+pm2 save          # 保存当前进程列表
 ```
 
 ### Vercel 部署

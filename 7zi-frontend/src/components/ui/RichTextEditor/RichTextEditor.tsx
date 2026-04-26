@@ -266,18 +266,18 @@ class MarkdownConverter {
     // 转换块引用
     markdown = markdown.replace(/<blockquote[^>]*>(.*?)<\/blockquote>/gis, (match, content) => {
       const lines = content.trim().split('\n')
-      return lines.map(line => `> ${line.trim()}`).join('\n') + '\n\n'
+      return lines.map((line: string) => `> ${line.trim()}`).join('\n') + '\n\n'
     })
 
     // 转换列表
     markdown = markdown.replace(/<ul[^>]*>([\s\S]*?)<\/ul>/gi, (match, content) => {
       const items = content.match(/<li[^>]*>(.*?)<\/li>/gi) || []
-      return items.map(item => `- ${item.replace(/<[^>]*>/g, '').trim()}`).join('\n') + '\n\n'
+      return items.map((item: string) => `- ${item.replace(/<[^>]*>/g, '').trim()}`).join('\n') + '\n\n'
     })
 
     markdown = markdown.replace(/<ol[^>]*>([\s\S]*?)<\/ol>/gi, (match, content) => {
       const items = content.match(/<li[^>]*>(.*?)<\/li>/gi) || []
-      return items.map((item, index) => `${index + 1}. ${item.replace(/<[^>]*>/g, '').trim()}`).join('\n') + '\n\n'
+      return items.map((item: string, index: number) => `${index + 1}. ${item.replace(/<[^>]*>/g, '').trim()}`).join('\n') + '\n\n'
     })
 
     // 转换换行

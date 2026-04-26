@@ -399,7 +399,7 @@ export class PluginUtilsImpl implements PluginUtils {
     }) as T;
   }
 
-  throttle<T extends (...args: any[]) => any>(fn: T, delay: number): T {
+  throttle<T extends (...args: unknown[]) => unknown>(fn: T, delay: number): T {
     let lastCall = 0;
     return ((...args: unknown[]) => {
       const now = Date.now();

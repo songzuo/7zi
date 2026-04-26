@@ -4,7 +4,7 @@
 
 **下一代智能前端应用框架**
 
-[![Version](https://img.shields.io/badge/version-1.14.0-blue.svg)](https://github.com/7zi/7zi-frontend)
+[![Version](https://img.shields.io/badge/version-1.14.1-blue.svg)](https://github.com/7zi/7zi-frontend)
 [![Next.js](https://img.shields.io/badge/Next.js-16.2.4-black.svg)](https://nextjs.org/)
 [![TypeScript](https://img.shields.io/badge/TypeScript-5.9.3-blue.svg)](https://www.typescriptlang.org/)
 [![React](https://img.shields.io/badge/React-19.2.5-blue.svg)](https://react.dev/)

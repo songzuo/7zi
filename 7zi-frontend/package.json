@@ -1,6 +1,6 @@
 {
   "name": "7zi-frontend",
-  "version": "1.14.0",
+  "version": "1.14.1",
   "private": true,
   "sideEffects": [
     "**/*.css",
@@ -68,6 +68,7 @@
     "next": "^16.2.4",
     "next-i18next": "^16.0.5",
     "nodemailer": "^8.0.5",
+    "postcss": "^8.5.10",
     "qrcode": "^1.5.4",
     "react": "^19.2.5",
     "react-dom": "^19.2.5",
@@ -78,7 +79,7 @@
     "tailwind-merge": "^3.5.0",
     "three": "^0.183.2",
     "undici": "^7.24.7",
-    "uuid": "^13.0.0",
+    "uuid": "^14.0.0",
     "web-push": "^3.6.7",
     "web-vitals": "^5.2.0",
     "workbox-window": "^7.4.0",

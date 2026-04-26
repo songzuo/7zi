@@ -54,7 +54,7 @@ export function AlarmConfigPanel(): React.ReactElement {
 
   const loadRules = () => {
     // Access config - use type assertion for private property access
-    const config = (monitor as { config: MonitoringConfig }).config
+    const config = (monitor as unknown as { config: MonitoringConfig }).config
     const defaultRules: AlarmRule[] = [
       {
         id: 'error-rate-default',
@@ -99,19 +99,22 @@ export function AlarmConfigPanel(): React.ReactElement {
     setIsSaving(true)
     try {
       // 更新监控配置
-      const newConfig = {
+      const newConfig: Partial<MonitoringConfig> = {
         alarms: {
           errorRate: {
+            metric: 'errorRate',
             enabled: rules.find(r => r.metric === 'errorRate')?.enabled ?? true,
             threshold: rules.find(r => r.metric === 'errorRate')?.threshold ?? 0.1,
             windowMs: rules.find(r => r.metric === 'errorRate')?.windowMs ?? 5 * 60 * 1000,
           },
           responseTime: {
+            metric: 'responseTime',
             enabled: rules.find(r => r.metric === 'responseTime')?.enabled ?? true,
             threshold: rules.find(r => r.metric === 'responseTime')?.threshold ?? 5000,
             windowMs: rules.find(r => r.metric === 'responseTime')?.windowMs ?? 5 * 60 * 1000,
           },
           operationDuration: {
+            metric: 'operationDuration',
             enabled: rules.find(r => r.metric === 'operationDuration')?.enabled ?? true,
             threshold: rules.find(r => r.metric === 'operationDuration')?.threshold ?? 10000,
             windowMs: rules.find(r => r.metric === 'operationDuration')?.windowMs ?? 5 * 60 * 1000,
@@ -263,7 +266,7 @@ export function AlarmConfigPanel(): React.ReactElement {
                         <Label className="text-xs text-gray-500">Metric</Label>
                         <Select
                           value={rule.metric}
-                          onValueChange={(value: string) => handleUpdateRule(rule.id, { metric: value })}
+                          onValueChange={(value: string) => handleUpdateRule(rule.id, { metric: value as 'errorRate' | 'responseTime' | 'operationDuration' })}
                         >
                           <SelectTrigger>
                             <SelectValue />
@@ -313,7 +316,7 @@ export function AlarmConfigPanel(): React.ReactElement {
                       <Label className="text-xs text-gray-500">Severity</Label>
                       <Select
                         value={rule.severity}
-                        onValueChange={(value: string) => handleUpdateRule(rule.id, { severity: value })}
+                        onValueChange={(value: string) => handleUpdateRule(rule.id, { severity: value as 'low' | 'medium' | 'high' | 'critical' })}
                       >
                         <SelectTrigger className="w-48">
                           <SelectValue />

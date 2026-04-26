@@ -4,6 +4,14 @@ import { useState, useEffect } from 'react'
 
 export type DeviceType = 'mobile' | 'tablet' | 'desktop'
 
+// Extend Navigator interface for non-standard properties
+interface NavigatorWithDeviceMemory extends Navigator {
+  deviceMemory?: number
+  connection?: {
+    effectiveType?: string
+  }
+}
+
 interface UseDeviceTypeResult {
   deviceType: DeviceType
   isMobile: boolean
@@ -33,7 +41,7 @@ export function useDeviceType(): UseDeviceTypeResult {
     // Check device type
     const checkDevice = () => {
       const width = window.innerWidth
-      const navigator = window.navigator
+      const navigator = window.navigator as NavigatorWithDeviceMemory
 
       // Check for mobile or tablet
       const isMobile = width < 768

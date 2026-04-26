@@ -4,3 +4,5 @@ node_modules
 .next
 typescript-any-fixes.ts
 verify-websocket-stability.ts
+verify-websocket-stability.js
+verify-learning-system.js
