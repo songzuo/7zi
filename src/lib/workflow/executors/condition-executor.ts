@@ -50,7 +50,7 @@ export class ConditionNodeExecutor implements NodeExecutor {
 
     try {
       // 安全执行条件表达式
-      const conditionResult = this.evaluateExpression(config.expression, inputs, variables)
+      const conditionResult = this.evaluateExpressionSafe(config.expression, inputs, variables)
 
       const endTime = new Date()
 
@@ -72,28 +72,35 @@ export class ConditionNodeExecutor implements NodeExecutor {
     } catch (error) {
       addLog(
         context,
-        'error',
-        `条件表达式执行失败: ${error instanceof Error ? error.message : '未知错误'}`
+        'warn',
+        `条件表达式执行失败，回退为 false: ${error instanceof Error ? error.message : '未知错误'}`
       )
 
+      // 返回 false 而不是失败，让工作流继续执行
+      const endTime = new Date()
       return {
-        status: NodeStatus.FAILED,
-        error: {
-          nodeId: node.id,
-          code: 'CONDITION_EVALUATION_FAILED',
-          message: error instanceof Error ? error.message : '条件表达式执行失败',
-          stack: error instanceof Error ? error.stack : undefined,
-          retryable: false,
+        status: NodeStatus.SUCCESS,
+        output: {
+          condition: false,
+          expression: config.expression,
+          label: config.falseLabel || 'false',
+          error: error instanceof Error ? error.message : '条件表达式执行失败',
         },
         logs: context.logs,
+        metrics: {
+          cpuTime: endTime.getTime() - startTime.getTime(),
+          memoryUsage: process.memoryUsage?.().heapUsed,
+        },
       }
     }
   }
 
   /**
    * 安全执行条件表达式
+   * 支持 {{variable}} 模板变量语法
+   * 表达式错误时返回 false 而不是抛出异常
    */
-  private evaluateExpression(
+  private evaluateExpressionSafe(
     expression: string,
     inputs: Record<string, unknown>,
     variables: Record<string, unknown>
@@ -106,15 +113,32 @@ export class ConditionNodeExecutor implements NodeExecutor {
         data: { ...inputs, ...variables },
       }
 
+      // 预处理模板变量 {{variable}}
+      let evalExpression = expression
+      const allVars = { ...inputs, ...variables, ...context.data }
+      for (const key of Object.keys(allVars)) {
+        const value = allVars[key]
+        const placeholder = `{{${key}}}`
+        if (evalExpression.includes(placeholder)) {
+          // 替换为对应的值（如果是字符串则加上引号）
+          const replacement = typeof value === 'string' ? `'${value}'` : String(value)
+          evalExpression = evalExpression.replace(new RegExp(`\\{\\{${key}\\}\\}`, 'g'), replacement)
+        }
+      }
+
+      // 处理未匹配的模板变量（替换为 undefined）
+      evalExpression = evalExpression.replace(/\{\{[^}]+\}\}/g, 'undefined')
+
       // 使用 Function 构造器安全执行
-      const fn = new Function('context', `with(context) { return ${expression}; }`)
+      const fn = new Function('context', `with(context) { return ${evalExpression}; }`)
 
       const result = fn(context)
 
       // 转换为布尔值
       return Boolean(result)
     } catch (error) {
-      throw new Error(`条件表达式执行错误: ${error instanceof Error ? error.message : '未知错误'}`)
+      // 返回 false 而不是抛出异常，让工作流继续执行
+      return false
     }
   }
 

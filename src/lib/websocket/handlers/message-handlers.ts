@@ -1,4 +1,3 @@
-// @ts-nocheck
 /**
  * Message Event Handlers
  *
@@ -7,28 +6,30 @@
  */
 
 import type { AuthenticatedSocket } from '../types'
+import type { StoredMessage, MessageHistoryOptions } from '../message-store'
+import type { RoomParticipant } from '../rooms'
 import { broadcastToRoom } from '../broadcast'
 import { logger } from '@/lib/logger'
 import { Server as SocketIOServer } from 'socket.io'
 
 interface MessageStoreInterface {
-  store: (msg: any) => any
-  edit: (messageId: string, content: string, userId: string) => any
+  store: (msg: Omit<StoredMessage, 'timestamp'> & { timestamp?: Date }) => StoredMessage
+  edit: (messageId: string, content: string, userId: string) => StoredMessage | undefined
   delete: (messageId: string, userId: string) => boolean
   addReaction: (messageId: string, emoji: string, userId: string, userName: string) => boolean
-  pin: (messageId: string, userId: string) => any
-  getInRoom: (roomId: string, messageId: string) => any
-  getHistory: (options: any) => any[]
-  getPinnedMessages: (roomId: string) => any[]
-  queueOfflineMessage: (userId: string, message: any) => void
-  getOfflineMessages: (userId: string) => any[]
+  pin: (messageId: string, userId: string) => boolean
+  getInRoom: (roomId: string, messageId: string) => StoredMessage | undefined
+  getHistory: (options: MessageHistoryOptions) => StoredMessage[]
+  getPinnedMessages: (roomId: string) => StoredMessage[]
+  queueOfflineMessage: (userId: string, message: StoredMessage) => void
+  getOfflineMessages: (userId: string) => StoredMessage[]
   clearOfflineMessages: (userId: string) => void
 }
 
 interface RoomManagerInterface {
-  get: (roomId: string) => any
-  getParticipants: (roomId: string) => any[]
-  updateData: (roomId: string, data: any) => boolean
+  get: (roomId: string) => { data: unknown; participants: Map<string, RoomParticipant> } | undefined
+  getParticipants: (roomId: string) => RoomParticipant[]
+  updateData: (roomId: string, data: Record<string, unknown>) => boolean
 }
 
 interface PermissionManagerInterface {
@@ -101,10 +102,10 @@ export function setupMessageHandlers(socket: AuthenticatedSocket): void {
 
         // Queue messages for offline participants
         const participants = roomManager.getParticipants(roomId)
-        const onlineUserIds = new Set(
+        const onlineUserIds = new Set<string>(
           Array.from(io?.sockets.sockets.values() || [])
-            .filter((s: any) => s.data.rooms?.has(roomId))
-            .map((s: any) => s.data.user?.id)
+            .filter(s => s.data.rooms?.has(roomId))
+            .map(s => s.data.user?.id as string)
         )
 
         for (const participant of participants) {
@@ -288,7 +289,7 @@ export function setupMessageHandlers(socket: AuthenticatedSocket): void {
   // --------------------------------------------------------------------
   // Get Message History
   // --------------------------------------------------------------------
-  socket.on('message:get_history', (data: any) => {
+  socket.on('message:get_history', (data: { roomId: string; before?: Date; after?: Date; limit?: number; offset?: number }) => {
     try {
       const { roomId } = data
 
@@ -305,7 +306,15 @@ export function setupMessageHandlers(socket: AuthenticatedSocket): void {
         return
       }
 
-      const messages = messageStore.getHistory(data)
+      const historyOptions: MessageHistoryOptions = {
+        roomId,
+        before: data.before,
+        after: data.after,
+        limit: data.limit,
+        offset: data.offset,
+        includeDeleted: false,
+      }
+      const messages = messageStore.getHistory(historyOptions)
       socket.emit('message:history', { roomId, messages })
     } catch (error) {
       logger.error('Error getting history', { socketId: socket.id, error })

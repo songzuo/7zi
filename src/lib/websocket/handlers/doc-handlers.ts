@@ -1,4 +1,3 @@
-// @ts-nocheck
 /**
  * Document & Cursor Event Handlers
  *
@@ -7,14 +6,20 @@
  */
 
 import type { AuthenticatedSocket } from '../types'
+import type { RoomParticipant } from '../rooms'
 import { broadcastToRoom } from '../broadcast'
 import { logger } from '@/lib/logger'
 
+interface CursorData {
+  position: number
+  selection?: { start: number; end: number }
+}
+
 interface RoomManagerInterface {
-  get: (roomId: string) => any
-  getParticipant: (roomId: string, userId: string) => any
-  updateData: (roomId: string, data: any) => boolean
-  updateCursor: (roomId: string, userId: string, cursor: any) => boolean
+  get: (roomId: string) => { data: { content: string; revision: number }; participants: Map<string, RoomParticipant> } | undefined
+  getParticipant: (roomId: string, userId: string) => RoomParticipant | undefined
+  updateData: (roomId: string, data: Record<string, unknown>) => boolean
+  updateCursor: (roomId: string, userId: string, cursor: CursorData) => boolean
   updateTyping: (roomId: string, userId: string, isTyping: boolean) => boolean
 }
 
@@ -116,7 +121,7 @@ export function setupDocumentHandlers(socket: AuthenticatedSocket): void {
         }
 
         // Apply operation to document content
-        let { content, revision } = room.data
+        let { content, revision } = room.data as { content: string; revision: number }
 
         if (operation.type === 'insert' && operation.content) {
           content =
@@ -245,7 +250,7 @@ export function setupDocumentHandlers(socket: AuthenticatedSocket): void {
         const participant = roomManager.getParticipant(roomId, user.id)
         if (participant) {
           roomManager.updateCursor(roomId, user.id, {
-            position: participant.cursor?.position || 0,
+            position: (participant as unknown as { cursor?: CursorData }).cursor?.position || 0,
             selection,
           })
 

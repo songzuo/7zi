@@ -1,4 +1,3 @@
-// @ts-nocheck
 /**
  * Room Event Handlers
  *
@@ -7,24 +6,31 @@
  */
 
 import type { AuthenticatedSocket } from '../types'
-import type { RoomType, RoomVisibility, RoomConfig, UserRole } from '../rooms'
-import type { CreateRoomOptions, JoinRoomOptions } from '../rooms'
+import type { RoomType, RoomVisibility, RoomConfig, UserRole, RoomParticipant, CreateRoomOptions, JoinRoomOptions } from '../rooms'
 import { broadcastToRoom, broadcastToUser } from '../broadcast'
 import { logger } from '@/lib/logger'
 
+interface RoomOperationResult {
+  success: boolean
+  error?: string
+  participant?: RoomParticipant
+  oldRole?: UserRole
+  offlineMessages?: unknown[]
+}
+
 interface RoomManagerInterface {
   exists: (roomId: string) => boolean
-  get: (roomId: string) => any
-  create: (options: CreateRoomOptions) => any
-  join: (roomId: string, options: JoinRoomOptions) => any
-  leave: (roomId: string, userId: string) => any
+  get: (roomId: string) => { id: string; name?: string; type: RoomType; visibility: RoomVisibility; ownerId: string; documentId: string; createdAt: Date; data: unknown; participants: Map<string, RoomParticipant> } | undefined
+  create: (options: CreateRoomOptions) => { id: string; name?: string; type: RoomType; visibility: RoomVisibility; ownerId: string; documentId: string; createdAt: Date }
+  join: (roomId: string, options: JoinRoomOptions) => RoomOperationResult
+  leave: (roomId: string, userId: string) => void
   destroy: (roomId: string, userId: string) => boolean
-  getParticipants: (roomId: string) => any[]
-  changeRole: (roomId: string, userId: string, role: UserRole, changedBy: string) => any
-  kick: (roomId: string, userId: string, kickedBy: string, reason?: string) => any
-  ban: (roomId: string, userId: string, bannedBy: string, reason?: string) => any
-  unban: (roomId: string, userId: string, unbannedBy: string) => any
-  invite: (roomId: string, userId: string, invitedBy: string) => any
+  getParticipants: (roomId: string) => RoomParticipant[]
+  changeRole: (roomId: string, userId: string, role: UserRole, changedBy: string) => RoomOperationResult
+  kick: (roomId: string, userId: string, kickedBy: string, reason?: string) => RoomOperationResult
+  ban: (roomId: string, userId: string, bannedBy: string, reason?: string) => RoomOperationResult
+  unban: (roomId: string, userId: string, unbannedBy: string) => RoomOperationResult
+  invite: (roomId: string, userId: string, invitedBy: string) => RoomOperationResult
 }
 
 interface PermissionManagerInterface {
@@ -181,7 +187,18 @@ export function setupRoomHandlers(socket: AuthenticatedSocket): void {
             name,
             visibility: visibility ?? 'public',
           }
-          room = roomManager.create(createOptions)
+          const created = roomManager.create(createOptions)
+          room = {
+            id: created.id,
+            name: created.name,
+            type: created.type,
+            visibility: created.visibility,
+            ownerId: created.ownerId,
+            documentId: created.documentId,
+            createdAt: created.createdAt,
+            data: {},
+            participants: new Map(),
+          }
         }
 
         if (permissionManager.isUserBanned(user.id, roomId)) {

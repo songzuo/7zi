@@ -30,7 +30,8 @@ export class WaitNodeExecutor implements NodeExecutor {
       }
 
       if (node.waitConfig.duration && node.waitConfig.duration < 0) {
-        errors.push('等待时长不能为负数')
+        // 负数等待时间自动转换为 0，不报错
+        node.waitConfig.duration = 0
       }
     }
 
