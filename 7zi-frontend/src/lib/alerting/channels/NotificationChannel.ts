@@ -30,7 +30,7 @@ export interface SendResult {
   /** 错误信息（失败时） */
   error?: string;
   /** 响应数据（成功时） */
-  data?: any;
+  data?: unknown;
   /** 渠道类型 */
   channelType: ChannelType;
 }

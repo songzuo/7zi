@@ -54,10 +54,10 @@ export class BatchRequestManager {
   /**
    * Add request to batch
    */
-  async addRequest<T = any>(
+  async addRequest<T = unknown>(
     url: string,
     method: 'GET' | 'POST' | 'PUT' | 'DELETE' | 'PATCH' = 'GET',
-    body?: any,
+    body?: unknown,
     headers?: Record<string, string>
   ): Promise<T> {
     return new Promise((resolve, reject) => {
@@ -255,7 +255,7 @@ export class DeduplicatedRequestCache {
   /**
    * Execute request with deduplication and caching
    */
-  async request<T = any>(
+  async request<T = unknown>(
     key: string,
     requestFn: () => Promise<T>,
     bypassCache = false
@@ -337,3 +337,4 @@ export const batchManager = new BatchRequestManager('/api/batch');
 export const requestCache = new DeduplicatedRequestCache();
 
 export default BatchRequestManager;
+er;
