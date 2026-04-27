@@ -7,22 +7,39 @@
 
 ---
 
-## [1.14.1]
+## [1.14.1] - 2026-04-26
 
 ### 🎯 版本亮点
 
-v1.14.1 包含 **WebSocket 协作基础设施完善**、**反馈系统集成**、**测试覆盖率提升**等优化。
+v1.14.1 包含 **WebSocket 协作基础设施完善**、**反馈系统集成**、**权限系统重构**、**安全漏洞修复**等重要更新。
 
 ### ✨ 新增
 
 - WebSocket 协作基础设施 (collab-doc-sync, collab-lock, collab-session)
 - 反馈系统数据库集成
 - PM2 部署优化
+- **权限系统重构** - permissions.ts 从 945 行拆分为 5 个独立模块
 
 ### 🔧 优化
 
 - WebSocket server 模块化重构
 - 依赖版本更新 (protobufjs, uuid, postcss)
+- **TypeScript 错误修复** - 从 311 个错误减少至 300 个
+- **Zod v4→v3 降级兼容性修复** - 解决类型验证兼容性问题
+- **Three.js 懒加载优化** - 减少首屏加载体积
+
+### 🛡️ 安全
+
+- **serialize-javascript RCE 漏洞修复** - 修复远程代码执行风险
+- 安全漏洞修复 (protobufjs, uuid, postcss)
+
+### 🔨 CI/CD
+
+- **GitHub Actions workflow 安全加固** - 提升 CI/CD 安全性
+
+### 🏗️ 架构
+
+- **lib 层代码审查完成** - 完成 src/lib/ 目录架构审查和质量提升
 
 ### 🐛 修复
 

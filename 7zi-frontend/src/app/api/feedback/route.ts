@@ -168,7 +168,7 @@ async function handlePOST(request: NextRequest, context: { user: AuthResult }) {
       userName: username,
       userEmail: `${userId}@example.com`,
       type,
-      priority,
+      priority: priority ?? 'medium',
       status: 'pending',
       title: sanitizeHtml(title),
       description: sanitizeHtml(description),

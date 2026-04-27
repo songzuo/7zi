@@ -24,5 +24,14 @@ export default [
       "@typescript-eslint/no-explicit-any": "off",
       "@typescript-eslint/no-require-imports": "off",
     },
+    languageOptions: {
+      globals: {
+        console: "readonly",
+        setTimeout: "readonly",
+        setInterval: "readonly",
+        process: "readonly",
+        global: "readonly",
+      },
+    },
   },
 ];
