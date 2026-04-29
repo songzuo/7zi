@@ -4,11 +4,12 @@
     "calendar": null,
     "weather": null
   },
-  "lastDirectorCheck": 1744937040,
-  "activeTasks": {
-    "prod-fix-0418": { "status": "running", "started": "2026-04-18T00:04:00Z" },
-    "test-fix-0418": { "status": "running", "started": "2026-04-18T00:04:00Z" },
-    "ui-fix-0418": { "status": "running", "started": "2026-04-18T00:04:00Z" },
-    "perf-opt-0418": { "status": "running", "started": "2026-04-18T00:04:00Z" }
-  }
+  "activeSubagents": 4,
+  "lastSchedulerRun": 1777401480,
+  "spawnedTasks": [
+    "agentworld-trends-analysis",
+    "consultant-architecture-review",
+    "sysadmin-log-analysis",
+    "tester-code-quality-check"
+  ]
 }

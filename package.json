@@ -59,6 +59,7 @@
     "not dead"
   ],
   "dependencies": {
+    "@ducanh2912/next-pwa": "^10.2.9",
     "@hono/node-server": "^1.19.14",
     "@jest/globals": "^30.3.0",
     "@modelcontextprotocol/sdk": "^1.27.1",
