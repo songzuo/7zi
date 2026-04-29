@@ -112,8 +112,22 @@ const initialState = {
 /**
  * 权限检查结果缓存
  * 用于避免每次都创建新对象
+ * 限制大小防止内存泄漏
  */
 const permissionCheckCache = new Map<string, PermissionCheckResult>()
+const MAX_CACHE_SIZE = 500
+
+/**
+ * 添加缓存条目，带大小限制
+ */
+function addToCache(key: string, value: PermissionCheckResult) {
+  // 如果缓存已满，删除最老的 25% 条目
+  if (permissionCheckCache.size >= MAX_CACHE_SIZE) {
+    const keysToDelete = Array.from(permissionCheckCache.keys()).slice(0, Math.floor(MAX_CACHE_SIZE * 0.25))
+    keysToDelete.forEach(k => permissionCheckCache.delete(k))
+  }
+  permissionCheckCache.set(key, value)
+}
 
 /**
  * 生成缓存键
@@ -365,6 +379,8 @@ export const usePermissionStore = create<PermissionState>()(
           },
         })
 
+        // 清除缓存，确保下次检查返回最新数据
+        clearPermissionCheckCache()
         return true
       },
 
@@ -387,6 +403,8 @@ export const usePermissionStore = create<PermissionState>()(
           },
         })
 
+        // 清除缓存，确保下次检查返回最新数据
+        clearPermissionCheckCache()
         return true
       },
 

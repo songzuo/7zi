@@ -85,6 +85,32 @@ if (!cryptoInitialized) {
   cryptoInitialized = true
 }
 
+// 🚀 Mock HTMLMediaElement (Audio/Video) - jsdom 24.x 未实现 play() 方法
+if (typeof HTMLMediaElement !== 'undefined') {
+  HTMLMediaElement.prototype.play = vi.fn().mockResolvedValue(undefined)
+  HTMLMediaElement.prototype.pause = vi.fn()
+  HTMLMediaElement.prototype.load = vi.fn()
+  HTMLMediaElement.prototype.pause = vi.fn()
+  Object.defineProperty(HTMLMediaElement.prototype, 'src', {
+    set: vi.fn(),
+    get: vi.fn(() => ''),
+  })
+  Object.defineProperty(HTMLMediaElement.prototype, 'currentTime', {
+    set: vi.fn(),
+    get: vi.fn(() => 0),
+  })
+  Object.defineProperty(HTMLMediaElement.prototype, 'duration', {
+    get: vi.fn(() => 0),
+  })
+  Object.defineProperty(HTMLMediaElement.prototype, 'paused', {
+    get: vi.fn(() => true),
+  })
+  Object.defineProperty(HTMLMediaElement.prototype, 'volume', {
+    set: vi.fn(),
+    get: vi.fn(() => 1),
+  })
+}
+
 // Mock socket.io-client - 支持 named export 'io'
 
 const createMockSocket = (): Record<string, any> => {

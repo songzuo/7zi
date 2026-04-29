@@ -6,19 +6,20 @@ import { describe, it, expect, beforeEach, vi } from 'vitest'
 import { renderHook, act } from '@testing-library/react'
 import { useRoomWebSocket } from '../useRoomWebSocket'
 
-// Mock dependencies
-vi.mock('@/lib/websocket-manager', () => ({
-  WebSocketManager: vi.fn().mockImplementation(() => ({
-    connect: vi.fn(),
-    disconnect: vi.fn(),
-    emit: vi.fn(() => true),
-    getState: vi.fn(() => 'disconnected'),
-    isConnected: vi.fn(() => false),
-    onStateChange: vi.fn(),
-    offStateChange: vi.fn(),
-    on: vi.fn(),
-    off: vi.fn(),
-    getStats: vi.fn(() => ({
+// Mock dependencies - use class constructor pattern
+vi.mock('@/lib/websocket-manager', () => {
+  // Use a real class mock so 'new' works
+  class MockWebSocketManager {
+    connect = vi.fn()
+    disconnect = vi.fn()
+    emit = vi.fn(() => true)
+    getState = vi.fn(() => 'disconnected')
+    isConnected = vi.fn(() => false)
+    onStateChange = vi.fn()
+    offStateChange = vi.fn()
+    on = vi.fn()
+    off = vi.fn()
+    getStats = vi.fn(() => ({
       messagesSent: 0,
       messagesReceived: 0,
       totalReconnections: 0,
@@ -26,17 +27,22 @@ vi.mock('@/lib/websocket-manager', () => ({
       lastPingTime: 0,
       currentPingLatency: 0,
       averagePingLatency: 0,
-    })),
-    getQueueSize: vi.fn(() => 0),
-  })),
-  ConnectionState: {
-    DISCONNECTED: 'disconnected',
-    CONNECTING: 'connecting',
-    CONNECTED: 'connected',
-    RECONNECTING: 'reconnecting',
-    ERROR: 'error',
-  },
-}))
+    }))
+    getQueueSize = vi.fn(() => 0)
+  }
+
+  return {
+    WebSocketManager: MockWebSocketManager,
+    WebSocketClient: MockWebSocketManager,
+    ConnectionState: {
+      DISCONNECTED: 'disconnected',
+      CONNECTING: 'connecting',
+      CONNECTED: 'connected',
+      RECONNECTING: 'reconnecting',
+      ERROR: 'error',
+    },
+  }
+})
 
 vi.mock('@/stores/room-store', () => ({
   useRoomStore: vi.fn(selector => {

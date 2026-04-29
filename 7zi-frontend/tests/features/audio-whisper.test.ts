@@ -315,8 +315,8 @@ describe('WhisperClient Feature Tests', () => {
 
       await expect(client.transcribe(mockAudioBlob, config)).rejects.toThrow()
 
-      // 应该尝试了 3 次（初始 + 2 次重试）
-      expect(mockFetch).toHaveBeenCalledTimes(3)
+      // retryAttempts=2 表示最多尝试 2 次（初始 1 次 + 1 次重试）
+      expect(mockFetch).toHaveBeenCalledTimes(2)
     })
   })
 

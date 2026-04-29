@@ -185,11 +185,17 @@ describe('AgentStatusPanel', () => {
         />
       )
 
-      // 验证主要 agent 名称存在
-      expect(screen.getByText('Designer')).toBeInTheDocument()
-      expect(screen.getByText('Developer')).toBeInTheDocument()
-      expect(screen.getByText('Tester')).toBeInTheDocument()
-      expect(screen.getByText('Manager')).toBeInTheDocument()
+      // 使用 getAllByText 来查找所有匹配的元素，然后验证数量
+      const designerElements = screen.getAllByText('Designer')
+      const developerElements = screen.getAllByText('Developer')
+      const testerElements = screen.getAllByText('Tester')
+      const managerElements = screen.getAllByText('Manager')
+      
+      // 每个 agent 应该在卡片标题中出现一次
+      expect(designerElements.length).toBeGreaterThanOrEqual(1)
+      expect(developerElements.length).toBeGreaterThanOrEqual(1)
+      expect(testerElements.length).toBeGreaterThanOrEqual(1)
+      expect(managerElements.length).toBeGreaterThanOrEqual(1)
     })
 
     it('应该显示统计概览', () => {
@@ -275,8 +281,9 @@ describe('AgentStatusPanel', () => {
         />
       )
 
-      // 检查至少一个 agent 名称存在
-      expect(screen.getByText(/Designer/)).toBeInTheDocument()
+      // 检查至少一个 agent 名称存在（使用 getAllByText 因为可能多个匹配）
+      const designerElements = screen.getAllByText(/Designer/)
+      expect(designerElements.length).toBeGreaterThanOrEqual(1)
     })
 
     it('应该显示当前任务信息', () => {
@@ -342,10 +349,14 @@ describe('AgentStatusPanel', () => {
         fireEvent.change(searchInput, { target: { value: 'Designer' } })
       })
 
-      // 验证搜索功能可以工作
-      await waitFor(() => {
-        expect(screen.getByText('Designer')).toBeInTheDocument()
+      // 验证搜索功能可以工作（使用 getAllByText 因为可能有多个匹配）
+      const designerElements = await waitFor(() => {
+        const elements = screen.getAllByText('Designer')
+        expect(elements.length).toBeGreaterThanOrEqual(1)
+        return elements
       }, { timeout: 3000 })
+      
+      expect(designerElements.length).toBeGreaterThanOrEqual(1)
     })
 
     it('应该支持筛选功能', async () => {

@@ -14,6 +14,7 @@ export const metadata = {
     title: '设计系统文档 - 7zi Studio',
     description: '7zi Studio 设计系统文档，包含组件、设计 Token 和最佳实践。',
     type: 'website',
+    siteName: '7zi Studio',
     url: 'https://7zi.studio/design-system',
     images: [
       {

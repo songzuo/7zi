@@ -22,6 +22,7 @@ export const metadata: Metadata = {
     title: '定价方案 - 7zi | Pricing Plans',
     description: '灵活的定价方案，满足个人和团队的各种需求。30 天退款保证。',
     type: 'website',
+    siteName: '7zi',
     url: 'https://7zi.studio/pricing',
     images: [
       {

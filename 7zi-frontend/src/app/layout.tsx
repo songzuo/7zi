@@ -53,6 +53,7 @@ export const metadata: Metadata = {
     images: ['/images/og-image.jpg'],
     type: 'website',
     locale: 'zh_CN',
+    siteName: '7zi Frontend',
   },
   // Twitter
   twitter: {

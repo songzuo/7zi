@@ -7,6 +7,7 @@ export const metadata = {
     title: '用户反馈 - 7zi Studio',
     description: '欢迎提供您的反馈意见。无论是问题报告、功能建议还是其他反馈，我们都欢迎您的声音。',
     type: 'website',
+    siteName: '7zi Studio',
     url: 'https://7zi.studio/feedback',
     images: [
       {
