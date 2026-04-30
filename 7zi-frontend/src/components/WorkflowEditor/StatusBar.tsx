@@ -6,6 +6,9 @@
 
 import React from 'react'
 
+/** 节点数量警告阈值 */
+const NODE_COUNT_WARNING_THRESHOLD = 500
+
 interface StatusBarProps {
   nodesCount: number
   edgesCount: number
@@ -67,13 +70,23 @@ export function StatusBar({
     return null
   }
 
+  // 节点数量警告
+  const showNodeCountWarning = nodesCount > NODE_COUNT_WARNING_THRESHOLD
+
   return (
     <div className="flex items-center justify-between border-t border-gray-200 bg-gray-50 px-4 py-2 text-xs text-gray-600 dark:border-gray-700 dark:bg-gray-900 dark:text-gray-400">
       {/* 左侧：状态信息 */}
       <div className="flex items-center gap-4">
         <div className="flex items-center gap-1">
           <span>📦</span>
-          <span>节点: {nodesCount}</span>
+          <span className={showNodeCountWarning ? 'text-orange-600 dark:text-orange-400 font-medium' : ''}>
+            节点: {nodesCount}
+            {showNodeCountWarning && (
+              <span title={`节点数量超过 ${NODE_COUNT_WARNING_THRESHOLD}，大型工作流可能影响性能`}>
+                ⚠️
+              </span>
+            )}
+          </span>
         </div>
         <div className="flex items-center gap-1">
           <span>🔗</span>

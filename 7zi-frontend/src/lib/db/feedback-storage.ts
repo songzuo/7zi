@@ -685,3 +685,13 @@ export class FeedbackStorage {
 
 // Create singleton instance
 export const feedbackStorage = new FeedbackStorage()
+
+/**
+ * Create a fresh isolated feedback storage instance for testing
+ * Each call returns a new instance with an in-memory database
+ */
+export function createIsolatedFeedbackStorage(): FeedbackStorage {
+  const storage = new FeedbackStorage(':memory:')
+  storage.initialize()
+  return storage
+}

@@ -1,50 +1,60 @@
 # HEARTBEAT.md
 
 ## Current Time
-- Wednesday April 29th 2026 02:11 AM GMT+2
+- Thursday April 30th 2026 07:42 AM GMT+2 (Berlin, morning)
 
 ## 模型提供商状态
 | Provider | 状态 |
 |----------|------|
-| minimax (直接会话) | ✅ 当前会话可用 |
-| volcengine | 🔴 Rate Limit + 未知模型 |
-| glm-4.7 | 🔴 令牌过期 |
+| minimax | ✅ 可用 |
+| volcengine | 🔴 Rate Limit |
+| glm-4.7 | 🔴 Rate Limit |
 
 ## 生产环境 (7zi.com)
 | 服务 | 状态 | 运行时间 | 重启 |
 |------|------|----------|------|
-| 7zi-main | ✅ online | 10h | 0 |
-| ai-site | ✅ online | 4D | 249 |
-| 磁盘 (7zi) | ⚠️ 97% (3.3G可用) | - | - |
+| 7zi-main | ✅ online | ~3.3h (uptime 11696s) | 3 (正常) |
+| 磁盘 (/) | ✅ 50% (72G/145G) | - | - |
 
-## 子代理系统
-- 全部失败（volcengine rate limit + 模型名称错误 + glm-4.7 过期）
-- 仅直接会话（我）正常
+## 🔴 紧急待处理
 
-## 紧急事项
-- 🚨 custom1 API Key 过期
-- 🚨 7zi.com 磁盘 97%
-- 🚨 所有子代理失败
+| 优先级 | 问题 | 行动 |
+|--------|------|------|
+| ⚠️ 注意 | 本机磁盘正常 (50%)，7zi.com 磁盘需检查 | 见生产环境状态行 |
+| 🔴 紧急 | Credits 耗尽 (Evomap) | 完成 https://evomap.ai/claim/T9QM-TJLH 认领 |
 
-## 今日完成的重要任务
-- ✅ 7zi-main 修复上线 (PM2路径错误)
-- ✅ Git Push 成功 (16 commits, 大文件已清理)
-- ✅ .env.production 创建
-- ✅ better-sqlite3 重建成功
-- ✅ pnpm build 成功
-- ✅ Storybook 清理完成
-- ✅ Zustand store 重渲染修复
-- ✅ API docs 100% 覆盖 (48/48)
-- ✅ agents/learning JSDoc 补充
-- ✅ Evomap 心跳恢复
-- ✅ PWA 包 @ducanh2912/next-pwa 安装
-- ✅ SSL 证书正常 (~32天)
-- ✅ /zh HTTP 200 (siteName 问题已修复)
-- ✅ Next.js 构建验证成功
-- ✅ 测试套件 ~520 测试 (~50 失败)
-- ✅ UI 问题优先级评估完成
-- ✅ WebSocket 修复方案完成
-- ✅ React act() 测试修复方案完成
-- ✅ 部署准备完成</parameter>
-</content>
-</minimax:tool_call>
+## 最近完成 (关键摘要)
+
+- ✅ **部署成功**: 7zi.com v1.14.1 部署完成，PM2 online
+- ✅ **Git 已推送**: `origin/main` (commit 3ec1cc1b3)
+- ✅ **siteName undefined 修复**: 5个 layout 文件
+- ✅ **nav.theme 翻译修复**: 已添加 zh/en 翻译
+- ⚠️ **测试套件健康**: 176/5159 failed (初步结果) - 见下方详情
+
+## ⚠️ 测试套件状态 (初步结果)
+
+完整测试运行被超时中断 (4分钟后 SIGTERM)，但收集到足够的失败数据:
+
+**失败数最多的模块**:
+- `useTouchGestures.test.ts` — 25/52 failed (act() 警告、触摸事件 mock 不完整)
+- `useSwipe.test.ts` — 16/25 failed (act() 警告、滑动方向检测)
+- `WorkflowEditor.test.tsx` — 14/17 failed (节点状态初始化、拖放逻辑)
+- `AlarmConfigPanel.test.tsx` — 6/12 failed (UI 组件渲染)
+- `auth/route.test.ts` — 4/12 failed (SQLite 数据库损坏)
+- `feedback/route.test.ts` — 2/17 failed (SQLite `database disk image is malformed`)
+
+**主要错误模式**:
+1. React act() 警告 - 异步状态更新未包装
+2. SQLite 数据库共享损坏 - 测试间文件冲突
+3. Unhandled Promise Rejection - 异步清理缺失
+4. 条件评估空指针 - 动态上下文注入失败
+
+**需要修复**: P0 为 SQLite 隔离和 act() 包装
+
+## 待继续处理
+
+- TypeScript 还有 463 个错误（主要在 lib/）
+- 磁盘清理未执行（未获授权）
+- Credits 认领未完成（需主人操作）
+- console.log 清理未执行（1063处）
+- 测试套件修复（176 failed → 需分析修复）

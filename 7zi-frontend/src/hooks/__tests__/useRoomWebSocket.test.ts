@@ -3,32 +3,45 @@
  */
 
 import { describe, it, expect, beforeEach, vi } from 'vitest'
-import { renderHook, act } from '@testing-library/react'
+import { renderHook, act, waitFor } from '@testing-library/react'
 import { useRoomWebSocket } from '../useRoomWebSocket'
 
 // Mock dependencies - use class constructor pattern
 vi.mock('@/lib/websocket-manager', () => {
+  // Create mock functions using vi.fn() properly
+  const mockConnect = vi.fn()
+  const mockDisconnect = vi.fn()
+  const mockEmit = vi.fn(() => true)
+  const mockGetState = vi.fn(() => 'disconnected')
+  const mockIsConnected = vi.fn(() => false)
+  const mockOnStateChange = vi.fn()
+  const mockOffStateChange = vi.fn()
+  const mockOn = vi.fn()
+  const mockOff = vi.fn()
+  const mockGetStats = vi.fn(() => ({
+    messagesSent: 0,
+    messagesReceived: 0,
+    totalReconnections: 0,
+    lastActiveTime: Date.now(),
+    lastPingTime: 0,
+    currentPingLatency: 0,
+    averagePingLatency: 0,
+  }))
+  const mockGetQueueSize = vi.fn(() => 0)
+
   // Use a real class mock so 'new' works
   class MockWebSocketManager {
-    connect = vi.fn()
-    disconnect = vi.fn()
-    emit = vi.fn(() => true)
-    getState = vi.fn(() => 'disconnected')
-    isConnected = vi.fn(() => false)
-    onStateChange = vi.fn()
-    offStateChange = vi.fn()
-    on = vi.fn()
-    off = vi.fn()
-    getStats = vi.fn(() => ({
-      messagesSent: 0,
-      messagesReceived: 0,
-      totalReconnections: 0,
-      lastActiveTime: Date.now(),
-      lastPingTime: 0,
-      currentPingLatency: 0,
-      averagePingLatency: 0,
-    }))
-    getQueueSize = vi.fn(() => 0)
+    connect = mockConnect
+    disconnect = mockDisconnect
+    emit = mockEmit
+    getState = mockGetState
+    isConnected = mockIsConnected
+    onStateChange = mockOnStateChange
+    offStateChange = mockOffStateChange
+    on = mockOn
+    off = mockOff
+    getStats = mockGetStats
+    getQueueSize = mockGetQueueSize
   }
 
   return {
@@ -75,84 +88,100 @@ describe('useRoomWebSocket', () => {
   })
 
   describe('Initialization', () => {
-    it('should initialize WebSocket manager on mount', () => {
+    it('should initialize WebSocket manager on mount', async () => {
       const { result } = renderHook(() =>
         useRoomWebSocket('ws://localhost:8080', { autoConnect: false })
       )
 
-      expect(result.current.manager).toBeDefined()
+      await waitFor(() => {
+        expect(result.current.manager).toBeDefined()
+      })
       expect(result.current.isConnected).toBe(false)
     })
 
-    it('should return correct initial state', () => {
+    it('should return correct initial state', async () => {
       const { result } = renderHook(() =>
         useRoomWebSocket('ws://localhost:8080', { autoConnect: false })
       )
 
-      expect(result.current.isConnected).toBe(false)
+      await waitFor(() => {
+        expect(result.current.isConnected).toBe(false)
+      })
       expect(result.current.isConnecting).toBe(false)
       expect(result.current.isReconnecting).toBe(false)
     })
   })
 
   describe('Connection Actions', () => {
-    it('should provide connect action', () => {
+    it('should provide connect action', async () => {
       const { result } = renderHook(() =>
         useRoomWebSocket('ws://localhost:8080', { autoConnect: false })
       )
 
-      expect(result.current.connect).toBeDefined()
+      await waitFor(() => {
+        expect(result.current.connect).toBeDefined()
+      })
       expect(typeof result.current.connect).toBe('function')
     })
 
-    it('should provide disconnect action', () => {
+    it('should provide disconnect action', async () => {
       const { result } = renderHook(() =>
         useRoomWebSocket('ws://localhost:8080', { autoConnect: false })
       )
 
-      expect(result.current.disconnect).toBeDefined()
+      await waitFor(() => {
+        expect(result.current.disconnect).toBeDefined()
+      })
       expect(typeof result.current.disconnect).toBe('function')
     })
   })
 
   describe('Message Actions', () => {
-    it('should provide sendMessage action', () => {
+    it('should provide sendMessage action', async () => {
       const { result } = renderHook(() =>
         useRoomWebSocket('ws://localhost:8080', { autoConnect: false })
       )
 
-      expect(result.current.sendMessage).toBeDefined()
+      await waitFor(() => {
+        expect(result.current.sendMessage).toBeDefined()
+      })
       expect(typeof result.current.sendMessage).toBe('function')
     })
 
-    it('should provide joinRoom action', () => {
+    it('should provide joinRoom action', async () => {
       const { result } = renderHook(() =>
         useRoomWebSocket('ws://localhost:8080', { autoConnect: false })
       )
 
-      expect(result.current.joinRoom).toBeDefined()
+      await waitFor(() => {
+        expect(result.current.joinRoom).toBeDefined()
+      })
       expect(typeof result.current.joinRoom).toBe('function')
     })
 
-    it('should provide leaveRoom action', () => {
+    it('should provide leaveRoom action', async () => {
       const { result } = renderHook(() =>
         useRoomWebSocket('ws://localhost:8080', { autoConnect: false })
       )
 
-      expect(result.current.leaveRoom).toBeDefined()
+      await waitFor(() => {
+        expect(result.current.leaveRoom).toBeDefined()
+      })
       expect(typeof result.current.leaveRoom).toBe('function')
     })
   })
 
   describe('sendMessage', () => {
-    it('should return false when manager is null', () => {
+    it('should return false when manager is null', async () => {
       const { result } = renderHook(() =>
         useRoomWebSocket('ws://localhost:8080', { autoConnect: false })
       )
 
       // Manager might be initialized in useEffect
       // So we just test the function exists
-      expect(result.current.sendMessage).toBeDefined()
+      await waitFor(() => {
+        expect(result.current.sendMessage).toBeDefined()
+      })
     })
   })
 })

@@ -237,7 +237,7 @@ export class SpeechToText {
       const audioBuffer = await audioContext.decodeAudioData(arrayBuffer)
 
       // 转换为 16kHz 单声道
-      const convertedBuffer = this.convertTo16kHzMono(audioBuffer)
+      const convertedBuffer = await this.convertTo16kHzMono(audioBuffer)
 
       // 如果文件较大，分片处理
       if (convertedBuffer.duration > this.batchConfig.segmentSize) {
@@ -263,7 +263,7 @@ export class SpeechToText {
     audioBuffer: AudioBuffer
   ): Promise<TranscriptionResult> {
     try {
-      const convertedBuffer = this.convertTo16kHzMono(audioBuffer)
+      const convertedBuffer = await this.convertTo16kHzMono(audioBuffer)
       return await this.transcribeSingleChunk(convertedBuffer)
     } catch (error) {
       throw new Error(`Failed to transcribe audio buffer: ${error}`)
@@ -321,6 +321,13 @@ export class SpeechToText {
             confidence: message.confidence || 0.9,
             timestamp: Date.now(),
             isFinal: false,
+            speaker: message.speaker
+              ? {
+                  speakerId: String(message.speaker.id || 'unknown'),
+                  label: String(message.speaker.name || 'Unknown Speaker'),
+                  color: String(message.speaker.color || '#888888'),
+                }
+              : undefined,
           },
           timestamp: Date.now(),
         })
@@ -336,9 +343,9 @@ export class SpeechToText {
           isFinal: true,
           speaker: message.speaker
             ? {
-                speakerId: message.speaker.id,
-                label: message.speaker.name,
-                color: message.speaker.color,
+                speakerId: String(message.speaker.id || 'unknown'),
+                label: String(message.speaker.name || 'Unknown Speaker'),
+                color: String(message.speaker.color || '#888888'),
               }
             : undefined,
         }
@@ -359,9 +366,9 @@ export class SpeechToText {
             timestamp: Date.now(),
             isFinal: false,
             speaker: {
-              speakerId: message.speaker.id,
-              label: message.speaker.name,
-              color: message.speaker.color,
+              speakerId: String(message.speaker.id || 'unknown'),
+              label: String(message.speaker.name || 'Unknown Speaker'),
+              color: String(message.speaker.color || '#888888'),
             },
           },
           timestamp: Date.now(),
@@ -397,7 +404,7 @@ export class SpeechToText {
 
       const now = Date.now()
       if (now - lastChunkTime >= this.realtimeConfig.chunkSize) {
-        const audioData = this.processor.getAudioData()
+        const audioData = this.processor?.getAudioData()
         if (audioData && this.websocket?.readyState === WebSocket.OPEN) {
           // 转换为 Int16
           const int16Data = float32ToInt16(audioData)
@@ -413,7 +420,7 @@ export class SpeechToText {
   /**
    * 转换为 16kHz 单声道
    */
-  private convertTo16kHzMono(audioBuffer: AudioBuffer): AudioBuffer {
+  private convertTo16kHzMono(audioBuffer: AudioBuffer): Promise<AudioBuffer> {
     const offlineContext = new OfflineAudioContext(
       1, // 单声道
       Math.floor(audioBuffer.duration * 16000), // 16kHz 采样率
@@ -544,12 +551,13 @@ export class SpeechToText {
 
     // 并发处理多个片段
     const batchSize = this.batchConfig.maxConcurrent
+    const tempContext = new AudioContext()
     for (let i = 0; i < segments.length; i += batchSize) {
       const batch = segments.slice(i, i + batchSize)
       const batchPromises = batch.map(async ({ start, end }) => {
         const startSample = Math.floor(start * audioBuffer.sampleRate)
         const endSample = Math.floor(end * audioBuffer.sampleRate)
-        const segmentBuffer = audioBuffer.context.createBuffer(
+        const segmentBuffer = tempContext.createBuffer(
           1,
           endSample - startSample,
           audioBuffer.sampleRate

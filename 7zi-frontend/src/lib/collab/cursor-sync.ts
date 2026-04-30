@@ -152,7 +152,7 @@ export class CollaborationCursorSync {
     try {
       const success = this.sendCallback(position)
       if (success) {
-        this.log('debug', 'Cursor position sent', { position })
+        this.log('info', 'Cursor position sent', { position })
       }
     } catch (error) {
       this.log('error', 'Failed to send cursor position', { error })
@@ -203,7 +203,7 @@ export class CollaborationCursorSync {
       timestamp: Date.now(),
     })
 
-    this.log('debug', 'Remote cursor updated', { userId, position })
+    this.log('info', 'Remote cursor updated', { userId, position })
   }
 
   /**
@@ -225,7 +225,7 @@ export class CollaborationCursorSync {
       timestamp: Date.now(),
     })
 
-    this.log('debug', 'Remote cursor removed', { userId })
+    this.log('info', 'Remote cursor removed', { userId })
   }
 
   /**
@@ -349,4 +349,3 @@ export class CollaborationCursorSync {
   }
 }
 
-export type { CursorSyncOptions, CursorSyncEvent, CursorSyncEventType, CursorSyncState }

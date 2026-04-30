@@ -97,7 +97,7 @@ export interface TabsContentProps {
   className?: string
 }
 
-export function TabsContent({ value, children, className }: TabsContentProps): React.ReactElement {
+export function TabsContent({ value, children, className }: TabsContentProps): React.ReactElement | null {
   const context = useContext(TabsContext)
   if (!context) throw new Error('TabsContent must be used within Tabs')
 

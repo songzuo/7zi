@@ -18,47 +18,23 @@
  */
 
 import React, { useCallback, useMemo, useState, useEffect } from 'react'
-import dynamic from 'next/dynamic'
 
 // 动态导入 React Flow 核心组件
-const ReactFlow = dynamic(
-  () => import('reactflow').then(mod => ({ default: mod.default })),
-  { ssr: false, loading: () => <div className="w-full h-full flex items-center justify-center">Loading Workflow Editor...</div> }
-)
-const Background = dynamic(
-  () => import('reactflow').then(mod => ({ default: mod.Background })),
-  { ssr: false }
-)
-const Controls = dynamic(
-  () => import('reactflow').then(mod => ({ default: mod.Controls })),
-  { ssr: false }
-)
-const MiniMap = dynamic(
-  () => import('reactflow').then(mod => ({ default: mod.MiniMap })),
-  { ssr: false }
-)
-const Panel = dynamic(
-  () => import('reactflow').then(mod => ({ default: mod.Panel })),
-  { ssr: false }
-)
-const ReactFlowProvider = dynamic(
-  () => import('reactflow').then(mod => ({ default: mod.ReactFlowProvider })),
-  { ssr: false }
-)
+import { ReactFlowProvider, ReactFlow, Background, Controls, MiniMap, Panel } from './reactflow-imports'
 
-// 静态导入类型和工具函数（这些不会增加 bundle 大小）
-import {
+// 静态导入 hooks 和工具函数 (Next.js 会正确代码分割)
+// 注意: useReactFlow 必须在 ReactFlowProvider 内部使用
+import { useReactFlow, addEdge, applyNodeChanges, applyEdgeChanges } from 'reactflow'
+
+// 静态导入类型和枚举值（类型会被编译时擦除，枚举值需要保留）
+import type {
   Node,
   Edge,
-  addEdge,
   Connection,
-  applyNodeChanges,
-  applyEdgeChanges,
   NodeChange,
   EdgeChange,
-  BackgroundVariant,
-  useReactFlow,
 } from 'reactflow'
+import { BackgroundVariant, Position } from 'reactflow'
 
 import 'reactflow/dist/style.css'
 

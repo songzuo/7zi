@@ -91,7 +91,7 @@ export interface SelectContentProps {
   className?: string
 }
 
-export function SelectContent({ children, className }: SelectContentProps): React.ReactElement {
+export function SelectContent({ children, className }: SelectContentProps): React.ReactElement | null {
   const context = useContext(SelectContext)
   if (!context) throw new Error('SelectContent must be used within Select')
 

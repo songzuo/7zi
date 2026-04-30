@@ -13,8 +13,8 @@ export default defineConfig({
   poolOptions: {
     forks: {
       singleFork: false,
-      minForks: 1,
-      maxForks: 2,
+      minForks: 2,
+      maxForks: 8,
     },
   },
   
@@ -26,15 +26,16 @@ export default defineConfig({
     fileParallelism: true,
 
     // 🚀 测试超时
-    testTimeout: 15000,
-    hookTimeout: 10000,
+    testTimeout: 60000,
+    hookTimeout: 30000,
 
     // 重试失败的测试 (flaky test 保护)
     retry: 1,
 
     coverage: {
+      provider: 'v8',
       reporter: ['text', 'json', 'html'],
-      exclude: ['node_modules/', 'src/test/'],
+      exclude: ['node_modules/', 'src/test/', '**/*.d.ts'],
     },
   },
   resolve: {

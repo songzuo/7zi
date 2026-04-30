@@ -11,6 +11,63 @@
 import { NextRequest } from 'next/server'
 import { vi, beforeEach, describe, it, expect } from 'vitest'
 
+// Mock feedback storage to avoid SQLite corruption in parallel tests
+vi.mock('@/lib/db/feedback-storage', () => {
+  const mockStorage = {
+    initialize: vi.fn(),
+    createFeedback: vi.fn().mockReturnValue({
+      id: 'test-fb-id',
+      userId: 'user-1',
+      userName: 'Test User',
+      userEmail: 'test@example.com',
+      type: 'bug',
+      priority: 'high',
+      status: 'pending',
+      title: 'Test Bug',
+      description: 'This is a test bug report with enough characters',
+      rating: undefined,
+      url: undefined,
+      attachments: [],
+      tags: [],
+      adminResponse: undefined,
+      adminId: undefined,
+      adminName: undefined,
+      resolvedAt: undefined,
+      closedAt: undefined,
+      createdAt: Date.now(),
+      updatedAt: Date.now(),
+    }),
+    // Smart mock that reflects the passed filter/page/limit params
+    getFeedbacks: vi.fn().mockImplementation((filter, sort, page, limit) => ({
+      feedbacks: [],
+      total: 0,
+      page: page || 1,
+      limit: limit || 20,
+    })),
+    getStats: vi.fn().mockReturnValue({
+      total: 0,
+      byType: { bug: 0, feature: 0, improvement: 0, complaint: 0, praise: 0, other: 0 },
+      byPriority: { low: 0, medium: 0, high: 0, urgent: 0 },
+      byStatus: { pending: 0, in_progress: 0, resolved: 0, closed: 0, rejected: 0 },
+      averageRating: 0,
+      resolvedPercentage: 0,
+      pendingCount: 0,
+      inProgressCount: 0,
+    }),
+    updateFeedback: vi.fn().mockReturnValue({
+      id: 'test-id',
+      status: 'in_progress',
+    }),
+    deleteFeedback: vi.fn().mockReturnValue(true),
+    addComment: vi.fn(),
+  }
+  return {
+    FeedbackStorage: vi.fn().mockImplementation(() => mockStorage),
+    feedbackStorage: mockStorage,
+    createIsolatedFeedbackStorage: vi.fn().mockReturnValue(mockStorage),
+  }
+})
+
 // Mock api-auth 模块
 vi.mock('@/lib/auth/api-auth', () => ({
   withAuth: vi.fn(handler => {

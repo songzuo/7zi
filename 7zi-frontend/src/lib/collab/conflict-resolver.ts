@@ -464,4 +464,3 @@ export class ConflictResolver {
   }
 }
 
-export type { ConflictResolverOptions, ResolutionResult, OTOperation, OTOperationType, TransformResult }

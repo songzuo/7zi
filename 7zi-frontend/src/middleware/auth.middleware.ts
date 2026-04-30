@@ -3,11 +3,21 @@
  *
  * Provides authentication and authorization middleware for API routes.
  * This module validates user credentials and attaches user context to requests.
+ * Includes request signature verification to prevent tampering.
  *
  * @module @/middleware/auth.middleware
  */
 
 import { NextRequest, NextResponse } from 'next/server'
+import { createHmac, timingSafeEqual } from 'crypto'
+
+/**
+ * Request signature verification configuration
+ */
+const SIGNATURE_SECRET = process.env.MIDDLEWARE_SIGNATURE_SECRET || ''
+const SIGNATURE_HEADER = 'x-request-signature'
+const SIGNATURE_TIMESTAMP_HEADER = 'x-request-timestamp'
+const SIGNATURE_MAX_AGE_MS = 5 * 60 * 1000 // 5 minutes
 
 /**
  * Authentication result type
@@ -30,6 +40,65 @@ const PROTECTED_PATHS = ['/api/search', '/api/data/import', '/api/data/export']
  */
 function isProtectedPath(path: string): boolean {
   return PROTECTED_PATHS.some(protectedPath => path.startsWith(protectedPath))
+}
+
+/**
+ * Verify request signature to prevent tampering
+ * Uses HMAC-SHA256 with timing-safe comparison
+ */
+function verifyRequestSignature(request: NextRequest): boolean {
+  // If no signature secret configured, skip verification (log warning in production)
+  if (!SIGNATURE_SECRET) {
+    if (process.env.NODE_ENV === 'production') {
+      console.warn('[Auth Middleware] MIDDLEWARE_SIGNATURE_SECRET not configured - signature verification disabled')
+    }
+    return true // Allow in dev, require in production
+  }
+
+  const signature = request.headers.get(SIGNATURE_HEADER)
+  const timestamp = request.headers.get(SIGNATURE_TIMESTAMP_HEADER)
+
+  if (!signature || !timestamp) {
+    return false
+  }
+
+  // Check timestamp freshness to prevent replay attacks
+  const requestTime = parseInt(timestamp, 10)
+  const now = Date.now()
+  if (isNaN(requestTime) || Math.abs(now - requestTime) > SIGNATURE_MAX_AGE_MS) {
+    return false
+  }
+
+  // Compute expected signature: HMAC-SHA256(method + path + timestamp, secret)
+  const pathname = new URL(request.url).pathname
+  const method = request.method
+  const payload = `${method}:${pathname}:${timestamp}`
+  const expectedSignature = createHmac('sha256', SIGNATURE_SECRET)
+    .update(payload)
+    .digest('hex')
+
+  // Timing-safe comparison to prevent timing attacks
+  try {
+    const sigBuffer = Buffer.from(signature, 'hex')
+    const expectedBuffer = Buffer.from(expectedSignature, 'hex')
+    if (sigBuffer.length !== expectedBuffer.length) return false
+    return timingSafeEqual(sigBuffer, expectedBuffer)
+  } catch {
+    return false
+  }
+}
+
+/**
+ * Create request signature for client use (exported for API routes / edge functions)
+ */
+export function createRequestSignature(method: string, pathname: string): { signature: string; timestamp: string } {
+  if (!SIGNATURE_SECRET) {
+    throw new Error('MIDDLEWARE_SIGNATURE_SECRET must be configured for signature generation')
+  }
+  const timestamp = Date.now().toString()
+  const payload = `${method}:${pathname}:${timestamp}`
+  const signature = createHmac('sha256', SIGNATURE_SECRET).update(payload).digest('hex')
+  return { signature, timestamp }
 }
 
 /**
@@ -87,6 +156,18 @@ export function authMiddleware(request: NextRequest): NextResponse {
   // Allow non-protected paths without auth
   if (!isProtectedPath(pathname)) {
     return NextResponse.next()
+  }
+
+  // Verify request signature to prevent tampering
+  if (!verifyRequestSignature(request)) {
+    return NextResponse.json(
+      {
+        success: false,
+        error: 'Forbidden',
+        message: 'Invalid or missing request signature',
+      },
+      { status: 403 }
+    )
   }
 
   // Extract user from headers

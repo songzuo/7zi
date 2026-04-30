@@ -121,7 +121,7 @@ export class CollaborationStateManager {
   private changeQueue: Change[] = []
 
   // Conflicts
-  private conflicts: Conflict[] = new Map()
+  private conflicts: Map<string, Conflict> = new Map()
 
   // Current user
   private currentUser: CollabUser
@@ -179,7 +179,7 @@ export class CollaborationStateManager {
       userId: user.id,
     })
 
-    this.log('debug', 'User added', { userId: user.id, name: user.name })
+    this.log('info', 'User added', { userId: user.id, name: user.name })
   }
 
   /**
@@ -207,7 +207,7 @@ export class CollaborationStateManager {
       userId,
     })
 
-    this.log('debug', 'User removed', { userId })
+    this.log('info', 'User removed', { userId })
   }
 
   /**
@@ -229,7 +229,7 @@ export class CollaborationStateManager {
       userId,
     })
 
-    this.log('debug', 'User updated', { userId, updates })
+    this.log('info', 'User updated', { userId, updates })
   }
 
   /**
@@ -286,7 +286,7 @@ export class CollaborationStateManager {
       userId: this.currentUser.id,
     })
 
-    this.log('debug', 'Lock acquired', { nodeId, priority })
+    this.log('info', 'Lock acquired', { nodeId, priority })
     return true
   }
 
@@ -319,7 +319,7 @@ export class CollaborationStateManager {
       userId: lock.userId,
     })
 
-    this.log('debug', 'Lock released', { nodeId })
+    this.log('info', 'Lock released', { nodeId })
     return true
   }
 
@@ -390,7 +390,7 @@ export class CollaborationStateManager {
       userId: change.userId,
     })
 
-    this.log('debug', 'Change queued', { changeId, nodeId: change.nodeId, type: change.type })
+    this.log('info', 'Change queued', { changeId, nodeId: change.nodeId, type: change.type })
     return changeId
   }
 
@@ -414,7 +414,7 @@ export class CollaborationStateManager {
       userId: change.userId,
     })
 
-    this.log('debug', 'Change applied', { changeId, nodeId: change.nodeId })
+    this.log('info', 'Change applied', { changeId, nodeId: change.nodeId })
     return true
   }
 
@@ -528,7 +528,7 @@ export class CollaborationStateManager {
           userId: lock.userId,
         })
 
-        this.log('debug', 'Lock expired', { nodeId, userId: lock.userId })
+        this.log('info', 'Lock expired', { nodeId, userId: lock.userId })
       })
     }, 5000) // Check every 5 seconds
   }
@@ -608,14 +608,4 @@ export class CollaborationStateManager {
       logger[level](`[StateManager] ${message}`, data as Error | undefined)
     }
   }
-}
-
-export type {
-  StateManagerOptions,
-  StateManagerEvent,
-  StateManagerEventType,
-  CollabSessionState,
-  NodeLock,
-  Change,
-  Conflict,
 }

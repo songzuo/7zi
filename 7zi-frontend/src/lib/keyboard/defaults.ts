@@ -22,7 +22,7 @@ export interface DefaultShortcut {
 
 // Placeholder actions - these should be connected to actual functionality
 const noop = () => {
-  console.log('Shortcut triggered');
+  logger.debug('Shortcut triggered');
 };
 
 // Default shortcuts configuration

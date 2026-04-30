@@ -342,7 +342,7 @@ export class AudioRecorder {
         this.cleanup()
 
         // 调用原有的 onstop 处理器
-        if (originalOnStop) {
+        if (originalOnStop && this.mediaRecorder) {
           originalOnStop.call(this.mediaRecorder, new Event('stop'))
         }
 

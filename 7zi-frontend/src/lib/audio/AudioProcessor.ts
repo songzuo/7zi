@@ -86,12 +86,17 @@ export class AudioProcessor implements IAudioProcessor {
       })
 
       // 创建音频源
+      if (!this.audioContext) {
+        throw new Error('AudioContext not initialized')
+      }
       this.sourceNode = this.audioContext.createMediaStreamSource(this.mediaStream)
 
       // 创建分析器节点（用于音量检测）
       this.analyserNode = this.audioContext.createAnalyser()
       this.analyserNode.fftSize = 2048
-      this.sourceNode.connect(this.analyserNode)
+      if (this.sourceNode) {
+        this.sourceNode.connect(this.analyserNode)
+      }
 
       // 创建处理器节点
       const bufferSize = 4096
@@ -131,15 +136,19 @@ export class AudioProcessor implements IAudioProcessor {
         }
 
         // 将音频数据写入缓冲区
-        if (bufferOffset + inputData.length <= this.audioBuffer.length) {
+        if (this.audioBuffer && bufferOffset + inputData.length <= this.audioBuffer.length) {
           this.audioBuffer.set(inputData, bufferOffset)
           bufferOffset += inputData.length
         }
       }
 
       // 连接节点
-      this.sourceNode.connect(this.processorNode)
-      this.processorNode.connect(this.audioContext.destination)
+      if (this.sourceNode && this.processorNode) {
+        this.sourceNode.connect(this.processorNode)
+      }
+      if (this.processorNode && this.audioContext) {
+        this.processorNode.connect(this.audioContext.destination)
+      }
 
       this.isRecordingFlag = true
       this.recordingStartTime = Date.now()

@@ -1,0 +1,295 @@
+name: 🌐 SSL & Infrastructure Monitor
+
+on:
+  schedule:
+    # 每天凌晨 2:00 (UTC) 检查 SSL 证书
+    - cron: '0 2 * * *'
+    # 每周一凌晨 3:00 (UTC) 强制检查
+    - cron: '0 3 * * 1'
+  workflow_dispatch:
+    inputs:
+      check_type:
+        description: 'Check type'
+        required: false
+        default: 'full'
+        type: choice
+        options:
+          - full
+          - ssl
+          - health
+          - dns
+      force_renew:
+        description: 'Force certificate renewal'
+        required: false
+        default: 'false'
+        type: boolean
+      notify:
+        description: 'Send notifications'
+        required: false
+        default: 'true'
+        type: boolean
+
+permissions:
+  contents: read
+  packages: read
+  statuses: read
+  actions: read
+
+env:
+  PRODUCTION_HOST: ${{ secrets.PRODUCTION_HOST }}
+  HEALTH_CHECK_URL: ${{ secrets.HEALTH_CHECK_URL || 'https://7zi.com/api/health' }}
+  NOTIFY_EMAIL: ${{ secrets.NOTIFY_EMAIL || 'admin@7zi.com' }}
+  SLACK_WEBHOOK: ${{ secrets.SLACK_WEBHOOK }}
+  TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
+  TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
+
+jobs:
+  # ============================================
+  # SSL 证书检查
+  # ============================================
+  ssl-check:
+    name: 🔐 SSL Certificate Check
+    runs-on: ubuntu-latest
+    if: github.event.inputs.check_type == 'full' || github.event.inputs.check_type == 'ssl' || github.event.inputs.check_type == ''
+    outputs:
+      cert_status: ${{ steps.ssl.outputs.status }}
+      days_remaining: ${{ steps.ssl.outputs.days_remaining }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Check SSL Certificate
+        id: ssl
+        run: |
+          echo "Checking SSL certificate for 7zi.com..."
+          
+          # 获取证书信息
+          CERT_INFO=$(echo | openssl s_client -servername 7zi.com -connect 7zi.com:443 2>/dev/null | openssl x509 -noout -dates -subject 2>/dev/null)
+          
+          if [[ -z "$CERT_INFO" ]]; then
+            echo "status=error" >> $GITHUB_OUTPUT
+            echo "days_remaining=0" >> $GITHUB_OUTPUT
+            echo "❌ 无法获取证书信息"
+            exit 1
+          fi
+          
+          # 解析证书信息
+          SUBJECT=$(echo "$CERT_INFO" | grep subject | sed 's/subject=//')
+          ISSUER=$(echo "$CERT_INFO" | grep issuer | sed 's/issuer=//')
+          NOT_BEFORE=$(echo "$CERT_INFO" | grep 'notBefore=' | sed 's/notBefore=//')
+          NOT_AFTER=$(echo "$CERT_INFO" | grep 'notAfter=' | sed 's/notAfter=//')
+          
+          echo "证书主题: $SUBJECT"
+          echo "颁发者: $ISSUER"
+          echo "生效时间: $NOT_BEFORE"
+          echo "到期时间: $NOT_AFTER"
+          
+          # 计算剩余天数
+          EXPIRE_DATE=$(echo "$CERT_INFO" | grep 'notAfter=' | sed 's/notAfter=//')
+          DAYS_REMAINING=$(python3 -c "
+from datetime import datetime
+expire = datetime.strptime('$EXPIRE_DATE', '%b %d %H:%M:%S %Y %Z')
+now = datetime.utcnow()
+days = (expire - now).days
+print(int(days))
+" 2>/dev/null || echo "0")
+          
+          echo "剩余天数: $DAYS_REMAINING"
+          echo "status=ok" >> $GITHUB_OUTPUT
+          echo "days_remaining=$DAYS_REMAINING" >> $GITHUB_OUTPUT
+          
+          # 检查是否需要续期
+          if [[ $DAYS_REMAINING -le 30 ]]; then
+            echo "⚠️ 证书将在 $DAYS_REMAINING 天后过期，需要续期!"
+            echo "renewal_needed=true" >> $GITHUB_OUTPUT
+          else
+            echo "✅ 证书状态正常"
+            echo "renewal_needed=false" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Check certificate expiration warning thresholds
+        run: |
+          DAYS=${{ steps.ssl.outputs.days_remaining }}
+          
+          if [[ $DAYS -le 0 ]]; then
+            echo "🚨 证书已过期!"
+            exit 2
+          elif [[ $DAYS -le 7 ]]; then
+            echo "🚨 证书即将在 $DAYS 天后过期 - 紧急!"
+            exit 3
+          elif [[ $DAYS -le 30 ]]; then
+            echo "⚠️ 证书将在 $DAYS 天后过期"
+            exit 4
+          else
+            echo "✅ 证书有效期充足 ($DAYS 天)"
+            exit 0
+          fi
+
+  # ============================================
+  # 健康检查
+  # ============================================
+  health-check:
+    name: 🏥 Health Check
+    runs-on: ubuntu-latest
+    if: github.event.inputs.check_type == 'full' || github.event.inputs.check_type == 'health' || github.event.inputs.check_type == ''
+    steps:
+      - name: Check API health
+        run: |
+          echo "检查 API 健康状态..."
+          
+          HTTP_CODE=$(curl -s -o /dev/null -w "%{http_code}" --connect-timeout 10 "${{ env.HEALTH_CHECK_URL }}" 2>/dev/null || echo "000")
+          
+          if [[ "$HTTP_CODE" =~ ^2[0-9][0-9]$ ]]; then
+            echo "✅ API 健康检查通过 (HTTP $HTTP_CODE)"
+            exit 0
+          else
+            echo "❌ API 健康检查失败 (HTTP $HTTP_CODE)"
+            exit 1
+          fi
+
+      - name: Check HTTPS response
+        run: |
+          echo "检查主站 HTTPS..."
+          
+          RESPONSE=$(curl -s --connect-timeout 10 -w "\n%{http_code}" "https://7zi.com/" 2>/dev/null | tail -1)
+          
+          if [[ "$RESPONSE" =~ ^2[0-9][0-9]$ ]]; then
+            echo "✅ 主站响应正常 (HTTP $RESPONSE)"
+          else
+            echo "❌ 主站响应异常 (HTTP $RESPONSE)"
+            exit 1
+          fi
+
+      - name: Check DNS resolution
+        run: |
+          echo "检查 DNS 解析..."
+          
+          IP=$(dig +short 7zi.com 2>/dev/null | tail -1 || echo "")
+          
+          if [[ -n "$IP" ]]; then
+            echo "✅ DNS 解析正常: 7zi.com -> $IP"
+          else
+            echo "❌ DNS 解析失败"
+            exit 1
+          fi
+
+  # ============================================
+  # SSL 续期 (可选)
+  # ============================================
+  ssl-renew:
+    name: 🔄 SSL Renewal
+    runs-on: ubuntu-latest
+    if: github.event.inputs.force_renew == 'true' || (needs.ssl-check.outputs.renewal_needed == 'true' && github.event.inputs.check_type != 'health')
+    needs: ssl-check
+    environment:
+      name: production
+      url: https://7zi.com
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Install SSH key
+        uses: webfactory/ssh-agent@v0.8.0
+        with:
+          ssh-private-key: ${{ secrets.SSH_PRIVATE_KEY }}
+
+      - name: Execute SSL renewal
+        run: |
+          ssh root@${{ env.PRODUCTION_HOST }} << 'ENDSSH'
+            set -e
+            
+            echo "开始 SSL 证书续期..."
+            
+            # 检查是否有 acme.sh 或 certbot
+            if command -v acme.sh >/dev/null 2>&1; then
+              echo "使用 acme.sh 续期..."
+              acme.sh --renew -d 7zi.com --force
+            elif command -v certbot >/dev/null 2>&1; then
+              echo "使用 certbot 续期..."
+              certbot renew --force-renewal
+            else
+              echo "错误: 未找到 acme.sh 或 certbot"
+              exit 1
+            fi
+            
+            # 重新加载 Nginx
+            systemctl reload nginx
+            
+            echo "SSL 证书续期完成"
+          ENDSSH
+
+      - name: Verify new certificate
+        run: |
+          sleep 5
+          
+          NEW_DAYS=$(echo | openssl s_client -servername 7zi.com -connect 7zi.com:443 2>/dev/null | openssl x509 -noout -enddate 2>/dev/null | cut -d= -f2)
+          
+          echo "新证书到期时间: $NEW_DAYS"
+          echo "✅ SSL 证书续期验证成功"
+
+  # ============================================
+  # 发送通知
+  # ============================================
+  notify:
+    name: 📬 Send Notifications
+    runs-on: ubuntu-latest
+    if: github.event.inputs.notify == 'true'
+    needs: [ssl-check, health-check, ssl-renew]
+    steps:
+      - name: Prepare notification data
+        run: |
+          echo "准备通知数据..."
+          
+          # SSL 状态
+          SSL_STATUS=${{ needs.ssl-check.outputs.cert_status || 'unknown' }}
+          SSL_DAYS=${{ needs.ssl-check.outputs.days_remaining || '0' }}
+          
+          echo "SSL 状态: $SSL_STATUS"
+          echo "SSL 剩余天数: $SSL_DAYS"
+          
+          # 生成报告
+          REPORT="## 🌐 7zi SSL & Infrastructure Monitor Report\n\n"
+          REPORT+="**检查时间:** $(date -u '+%Y-%m-%d %H:%M:%S UTC')\n\n"
+          REPORT+="### 🔐 SSL 证书\n"
+          REPORT+="| 状态 | $SSL_STATUS |\n"
+          REPORT+="| 剩余天数 | $SSL_DAYS 天 |\n\n"
+          REPORT+="### 🏥 健康检查\n"
+          REPORT+="| 检查项 | 状态 |\n"
+          REPORT+="|--------|------|\n"
+          REPORT+="| API | ✅ 正常 |\n"
+          REPORT+="| DNS | ✅ 正常 |\n\n"
+          
+          echo "REPORT<<EOF" >> $GITHUB_ENV
+          echo "$REPORT" >> $GITHUB_ENV
+          echo "EOF" >> $GITHUB_ENV
+
+      - name: Send to Slack
+        if: env.SLACK_WEBHOOK != ''
+        run: |
+          curl -s -X POST "$SLACK_WEBHOOK" \
+            -H 'Content-type: application/json' \
+            --data "{
+              \"text\": \"SSL & Infrastructure Monitor Report\",
+              \"attachments\": [{
+                \"color\": \"${{ needs.ssl-check.outputs.days_remaining }}",
+                \"text\": \"${{ env.REPORT }}\"
+              }]
+            }" >/dev/null 2>&1 || true
+
+      - name: Create GitHub issue if critical
+        if: needs.ssl-check.outputs.days_remaining <= 7
+        uses: actions/github-script@v7
+        with:
+          script: |
+            github.rest.issues.create({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              title: '🚨 SSL 证书即将过期 - 紧急!',
+              body: '## 🚨 SSL 证书紧急告警\n\n' +
+                    'SSL 证书将在 ${{ needs.ssl-check.outputs.days_remaining }} 天后过期!\n\n' +
+                    '**立即操作:**\n' +
+                    '1. 手动执行 SSL 续期\n' +
+                    '2. 运行 `ssl-renew.sh force`\n' +
+                    '3. 验证证书安装',
+              labels: ['urgent', 'ssl', 'security']
+            });

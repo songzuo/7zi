@@ -52,9 +52,10 @@ export function Navigation({ language = 'zh', onLanguageChange }: NavigationProp
             {/* Language Toggle */}
             <button
               onClick={toggleLanguage}
+              aria-label={language === 'zh' ? '切换到英文' : 'Switch to Chinese'}
               className="flex items-center gap-2 rounded-lg bg-gray-100 px-3 py-1.5 transition-colors hover:bg-gray-200 dark:bg-gray-700 dark:hover:bg-gray-600"
             >
-              <Globe className="h-4 w-4" />
+              <Globe className="h-4 w-4" aria-hidden="true" />
               <span className="text-sm font-medium">{language === 'zh' ? 'EN' : '中文'}</span>
             </button>
           </div>

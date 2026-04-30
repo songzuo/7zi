@@ -4,6 +4,8 @@
  * 自动化规则引擎，支持规则定义、触发器评估和动作执行
  */
 
+import { VM } from 'vm'
+
 // ============================================================================
 // Types & Interfaces
 // ============================================================================
@@ -433,11 +435,14 @@ export class RuleValidator {
    */
   static validateCondition(expression: string, path: string): ValidationError | null {
     try {
-      // 简单的语法检查
+      // Sanitize first to remove dangerous keywords
       const sanitized = this.sanitizeExpression(expression)
-      // 尝试解析为函数
-       
-      new Function('ctx', `return ${sanitized}`)
+      // Use vm.compileFunction for safe syntax validation (no execution)
+      VM.compileFunction(
+        `return ${sanitized}`,
+        ['ctx'],
+        { parsingContext: VM.createContext({ ctx: undefined }) }
+      )
       return null
     } catch (error) {
       return {
@@ -1060,10 +1065,14 @@ export class AutomationEngine {
       // 获取源数据（简化实现）
       const sourceData = this.resolveDataPath(transformConfig.source, context)
 
-      // 执行转换
-       
-      const transformFn = new Function('data', 'ctx', transformConfig.transform)
-      const transformed = transformFn(sourceData, context)
+      // Execute transform using sandboxed vm instead of unsafe new Function
+      // The sanitized expression is wrapped in an async IIFE and executed with timeout
+      const wrappedTransform = `
+        (async (data, ctx) => {
+          ${transformConfig.transform}
+        })(sourceData, context)
+      `
+      const transformed = VM.runInNewContext(wrappedTransform, { sourceData, context }, { timeout: 1000 })
 
       // 设置目标数据（简化实现）
       this.setDataPath(transformConfig.target, transformed)
@@ -1130,9 +1139,15 @@ export class AutomationEngine {
    */
   private async evaluateCondition(expression: string, context?: { triggerData?: unknown; variables?: Record<string, unknown> }): Promise<boolean> {
     try {
-       
-      const fn = new Function('ctx', `return ${expression}`)
-      return Boolean(fn(context))
+      // Use Node.js vm module for safe sandboxed evaluation
+      // This replaces unsafe new Function() which can access the global scope
+      const sanitized = this.sanitizeExpression(expression)
+      const result = VM.runInNewContext(
+        `(() => { try { return !!( ${sanitized} ) } catch(e) { return false } })()`,
+        { ctx: context },
+        { timeout: 1000 }
+      )
+      return Boolean(result)
     } catch (error) {
       console.error('条件评估失败:', error)
       return false

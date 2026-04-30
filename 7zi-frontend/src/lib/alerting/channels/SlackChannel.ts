@@ -227,11 +227,11 @@ export class SlackChannel implements NotificationChannel {
       elements: [
         {
           type: 'mrkdwn',
-          text: `⏰ ${timestamp.toISOString()}`,
+          text: { type: 'mrkdwn', text: `⏰ ${timestamp.toISOString()}` },
         },
         {
           type: 'mrkdwn',
-          text: `🔔 Severity: ${payload.severity || 'info'}`,
+          text: { type: 'mrkdwn', text: `🔔 Severity: ${payload.severity || 'info'}` },
         },
       ],
     });

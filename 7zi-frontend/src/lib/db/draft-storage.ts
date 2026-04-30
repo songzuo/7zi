@@ -512,7 +512,7 @@ export class DraftStorageManager {
         .then(() => {
           this.useIndexedDB = true
           this.backend = indexedDBStorage
-          console.log('[DraftStorageManager] Using IndexedDB')
+          
         })
         .catch((error) => {
           console.warn('[DraftStorageManager] IndexedDB not available, falling back to localStorage:', error)

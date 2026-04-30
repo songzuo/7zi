@@ -1,0 +1,14 @@
+# https://www.robotstxt.org/robotstxt.html
+User-agent: *
+Allow: /
+Disallow: /admin/
+Disallow: /api/
+Disallow: /dashboard/alerts
+Disallow: /settings
+Disallow: /admin/rate-limit
+
+# Sitemap
+Sitemap: https://7zi.com/sitemap.xml
+
+# Crawl-delay
+Crawl-delay: 1

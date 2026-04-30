@@ -10,11 +10,17 @@
  * - 用户信息管理
  * - Token 管理
  * - 认证状态持久化
+ *
+ * 安全说明:
+ * - Token 优先存储在 httpOnly Cookie 中（由服务端设置）
+ * - 如果 Cookie 不可用，回退到加密的 localStorage（encrypted-storage.ts）
+ * - 不再存储明文 Token
  */
 
 import { create } from 'zustand'
-import { persist, createJSONStorage } from 'zustand/middleware'
+import { persist } from 'zustand/middleware'
 import { shallow } from 'zustand/shallow'
+import { encryptedStorage } from '@/lib/auth/encrypted-storage'
 
 /**
  * 用户信息接口
@@ -204,7 +210,17 @@ export const useAuthStore = create<AuthState>()(
     }),
     {
       name: '7zi-auth-storage', // localStorage key
-      storage: createJSONStorage(() => localStorage),
+      storage: {
+        getItem: async (name: string): Promise<string | null> => {
+          return await encryptedStorage.getItem(name)
+        },
+        setItem: async (name: string, value: string): Promise<void> => {
+          await encryptedStorage.setItem(name, value)
+        },
+        removeItem: async (name: string): Promise<void> => {
+          await encryptedStorage.removeItem(name)
+        },
+      },
       partialize: state => ({
         // 只持久化必要的状态
         user: state.user,

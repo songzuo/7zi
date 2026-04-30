@@ -64,7 +64,7 @@ export interface SpeakerInfo {
  */
 export interface TranscriptionWithSpeaker extends TranscriptionResult {
   /** 说话人信息 */
-  speaker: SpeakerInfo
+  speaker?: SpeakerInfo
 }
 
 /**

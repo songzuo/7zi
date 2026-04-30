@@ -39,11 +39,13 @@ describe('Dashboard Component', () => {
     expect(screen.getByText('默认仪表板')).toBeInTheDocument();
   });
 
-  it('should render stat cards', () => {
+  it('should render stat cards', async () => {
     render(<Dashboard />);
 
-    // Check for stat card titles
-    expect(screen.getByText(/工作流执行总数/i)).toBeInTheDocument();
+    // Check for stat card titles - need to wait for async data loading
+    await waitFor(() => {
+      expect(screen.getByText(/工作流执行总数/i)).toBeInTheDocument();
+    })
     expect(screen.getByText(/成功执行数/i)).toBeInTheDocument();
     expect(screen.getByText(/失败执行数/i)).toBeInTheDocument();
     expect(screen.getByText(/活跃用户数/i)).toBeInTheDocument();

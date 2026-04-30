@@ -149,7 +149,11 @@ export const useRoomStore = create<RoomState>((set, get) => ({
   addMessage: (roomId, message) =>
     set(state => {
       const roomMessages = state.messages[roomId] || []
-      const newMessages = [...roomMessages, message]
+      // 限制每个房间最多保留 1000 条消息，防止内存无限增长
+      const MAX_MESSAGES_PER_ROOM = 1000
+      const newMessages = roomMessages.length >= MAX_MESSAGES_PER_ROOM
+        ? [...roomMessages.slice(-MAX_MESSAGES_PER_ROOM + 1), message]
+        : [...roomMessages, message]
 
       return {
         messages: {

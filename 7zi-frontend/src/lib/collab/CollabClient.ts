@@ -171,6 +171,8 @@ export class CollabClient {
     this.user = options.user
     this.options = {
       wsUrl: options.wsUrl,
+      roomId: options.roomId,
+      user: options.user,
       autoConnect: options.autoConnect ?? true,
       heartbeatInterval: options.heartbeatInterval ?? 25000,
       lockTimeout: options.lockTimeout ?? 30000,
@@ -211,7 +213,7 @@ export class CollabClient {
       }
 
       this.connectionInfo = {
-        state: stateMap[state],
+        state: stateMap[state as ConnectionState] as CollabConnectionInfo['state'],
         connectedAt: state === ConnectionState.CONNECTED ? Date.now() : this.connectionInfo.connectedAt,
         reconnectAttempts:
           state === ConnectionState.RECONNECTING
@@ -251,7 +253,7 @@ export class CollabClient {
    * Handle incoming message
    */
   private handleMessage(message: CollabMessage): void {
-    this.log('debug', 'Received message', { type: message.type })
+    this.log('info', 'Received message', { type: message.type })
 
     switch (message.type) {
       case 'cursor:move':
@@ -811,9 +813,8 @@ export class CollabClient {
    */
   private log(level: 'info' | 'warn' | 'error', message: string, data?: Record<string, unknown>): void {
     if (this.options.debug || level === 'error') {
-      logger[level](`[CollabClient] ${message}`, data as Error | undefined)
+      const errorData = data ? new Error(JSON.stringify(data)) : undefined
+      logger[level](`[CollabClient] ${message}`, errorData)
     }
   }
 }
-
-export type { CollabClientOptions, CollabClientEvent, CollabClientEventType, NodeData, EditLock, LockRequestOptions }

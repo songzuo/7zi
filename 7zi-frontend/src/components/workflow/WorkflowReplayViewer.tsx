@@ -11,27 +11,13 @@
 'use client'
 
 import React, { useState, useEffect, useCallback } from 'react'
-import dynamic from 'next/dynamic'
-import type { Node, Edge } from 'reactflow'
-import { useNodesState, useEdgesState } from 'reactflow'
 
 // 动态导入 React Flow 核心组件
-const ReactFlow = dynamic(
-  () => import('reactflow').then(mod => ({ default: mod.default })),
-  { ssr: false, loading: () => <div className="w-full h-full flex items-center justify-center">Loading...</div> }
-)
-const Background = dynamic(
-  () => import('reactflow').then(mod => ({ default: mod.Background })),
-  { ssr: false }
-)
-const Controls = dynamic(
-  () => import('reactflow').then(mod => ({ default: mod.Controls })),
-  { ssr: false }
-)
+import { ReactFlow, Background, Controls } from '../WorkflowEditor/reactflow-imports'
 
-import 'reactflow/dist/style.css'
-
-import type { ExecutionHistory } from '@/lib/workflow/execution-history-store'
+// Hooks 直接从 reactflow 导入 (Next.js 会正确代码分割)
+import { useNodesState, useEdgesState } from 'reactflow'
+import type { Node, Edge } from 'reactflow'
 import type { ReplayStep, ReplayEvent } from '@/lib/workflow/replay-engine'
 import { WorkflowReplayEngine } from '@/lib/workflow/replay-engine'
 import { WorkflowExecutionTimeline } from './WorkflowExecutionTimeline'

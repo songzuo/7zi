@@ -1,0 +1,451 @@
+name: CI
+
+on:
+  push:
+    branches: [main, develop, 'release/**']
+  pull_request:
+    branches: [main, develop]
+
+permissions:
+  contents: read
+  packages: read
+  statuses: read
+  pull-requests: write
+  actions: read
+  security-events: write
+  pages: write
+
+env:
+  NODE_VERSION: '20.x'
+
+# 全局并发控制：同一分支的 push/pr 取消旧 workflow
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
+
+jobs:
+  # ============================================
+  # PREPARE: 统一生成缓存 key（所有 job 共享）
+  # ============================================
+  prepare:
+    name: 🔧 Prepare
+    runs-on: ubuntu-latest
+    outputs:
+      node-cache-key: node-${{ hashFiles('package-lock.json') }}
+      nextjs-cache-key: nextjs-${{ hashFiles('package-lock.json') }}
+      playwright-cache-key: playwright-${{ hashFiles('package-lock.json') }}
+    steps:
+      - name: Generate cache keys
+        id: cache-keys
+        run: |
+          echo "node-cache-key=node-${{ hashFiles('package-lock.json') }}" >> $GITHUB_OUTPUT
+          echo "nextjs-cache-key=nextjs-${{ hashFiles('package-lock.json') }}" >> $GITHUB_OUTPUT
+          echo "playwright-cache-key=playwright-${{ hashFiles('package-lock.json') }}" >> $GITHUB_OUTPUT
+
+  # ============================================
+  # LINT & TYPE CHECK
+  # ============================================
+  lint:
+    name: 🔍 Lint & Type Check
+    runs-on: ubuntu-latest
+    timeout-minutes: 3
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 1
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: 'npm'
+
+      - name: Cache node_modules + npm cache
+        uses: actions/cache@v4
+        id: cache-node-modules
+        with:
+          path: |
+            node_modules
+            ~/.npm
+          key: ${{ runner.os }}-${{ needs.prepare.outputs.node-cache-key }}
+          restore-keys: |
+            ${{ runner.os }}-node-
+
+      - name: Install dependencies
+        if: steps.cache-node-modules.outputs.cache-hit != 'true'
+        run: npm ci --prefer-offline --no-audit --no-fund
+
+      - name: Run ESLint
+        run: npm run lint
+
+      - name: Run TypeScript check
+        run: npx tsc --noEmit
+
+  # ============================================
+  # UNIT TESTS
+  # ============================================
+  test-unit:
+    name: 🧪 Unit Tests
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: 'npm'
+
+      - name: Cache node_modules
+        uses: actions/cache@v4
+        id: cache-node-modules
+        with:
+          path: |
+            node_modules
+            ~/.npm
+          key: ${{ runner.os }}-${{ needs.prepare.outputs.node-cache-key }}
+          restore-keys: |
+            ${{ runner.os }}-node-
+
+      - name: Install dependencies
+        if: steps.cache-node-modules.outputs.cache-hit != 'true'
+        run: npm ci --prefer-offline --no-audit --no-fund
+
+      - name: Run unit tests with coverage
+        run: npm run test:ci
+
+      - name: Upload coverage reports
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: coverage-report
+          path: coverage/
+          retention-days: 7
+          compression-level: 6
+
+      - name: Comment coverage on PR
+        if: github.event_name == 'pull_request'
+        uses: codecov/codecov-action@v4
+        with:
+          files: ./coverage/coverage-final.json
+          flags: unittests
+          name: codecov-unit-tests
+
+  # ============================================
+  # BUILD (PR 只跑标准构建，main/release 跑 Turbopack)
+  # ============================================
+  build:
+    name: 🏗️ Build
+    runs-on: ubuntu-latest
+    needs: [prepare, lint, test-unit]
+    timeout-minutes: 10
+    outputs:
+      build-size: ${{ steps.measure.outputs.size }}
+      build-time: ${{ steps.build-step.outputs.build-time }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: 'npm'
+
+      - name: Cache node_modules
+        uses: actions/cache@v4
+        id: cache-node-modules
+        with:
+          path: |
+            node_modules
+            ~/.npm
+          key: ${{ runner.os }}-${{ needs.prepare.outputs.node-cache-key }}
+          restore-keys: |
+            ${{ runner.os }}-node-
+
+      # 🔑 优化 Next.js build cache key:
+      # 使用 git SHA 而不是依赖 hash，允许增量构建
+      # 同一 commit 重跑时命中缓存
+      - name: Cache Next.js build
+        uses: actions/cache@v4
+        id: cache-nextjs
+        with:
+          path: |
+            .next
+            .next/cache
+          # SHA-based key: 同一代码重跑命中缓存
+          key: ${{ runner.os }}-${{ needs.prepare.outputs.nextjs-cache-key }}
+          # fallback: 即使 SHA 变了也尝试找最近的缓存
+          restore-keys: |
+            ${{ runner.os }}-nextjs-
+
+      - name: Install dependencies
+        if: steps.cache-node-modules.outputs.cache-hit != 'true'
+        run: npm ci --prefer-offline --no-audit --no-fund
+
+      # 🔑 Turbopack 仅在 main/release 分支启用
+      - name: Build with Turbopack
+        if: github.ref == 'refs/heads/main' || startsWith(github.ref, 'refs/heads/release/')
+        run: |
+          START_TIME=$(date +%s)
+          npm run build
+          END_TIME=$(date +%s)
+          echo "build-time=$((END_TIME - START_TIME))" >> $GITHUB_OUTPUT
+        env:
+          NODE_ENV: production
+          NEXT_TELEMETRY_DISABLED: 1
+          TURBOPACK_ENABLED: 1
+        id: build-step
+
+      # 标准构建用于 PR（更稳定）
+      - name: Build (Standard mode for PRs)
+        if: github.event_name == 'pull_request'
+        run: |
+          START_TIME=$(date +%s)
+          npm run build
+          END_TIME=$(date +%s)
+          echo "build-time=$((END_TIME - START_TIME))" >> $GITHUB_OUTPUT
+        env:
+          NODE_ENV: production
+          NEXT_TELEMETRY_DISABLED: 1
+        id: build-step
+
+      - name: Measure build size
+        run: |
+          SIZE=$(du -sh .next | cut -f1)
+          echo "size=$SIZE" >> $GITHUB_OUTPUT
+        id: measure
+
+      - name: Upload build artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: build-output
+          path: |
+            .next/
+            public/
+          retention-days: 7
+          compression-level: 6
+
+  # ============================================
+  # E2E TEST TIERING (分级测试)
+  # ============================================
+  # 🔑 PR 只跑 Chromium（快速反馈 ~70% faster）
+  # 🔑 push to main 跑完整矩阵（chromium/firefox/webkit/mobile）
+  # 🔑 可通过 workflow_dispatch 手动指定浏览器
+  test-e2e:
+    name: 🎭 E2E (${{ matrix.browser || 'chromium' }})
+    runs-on: ubuntu-latest
+    needs: [prepare, build]
+    # PR 只跑 chromium，push to main 跑完整矩阵
+    if: |
+      github.event_name == 'pull_request' ||
+      (github.event_name == 'push' && github.ref == 'refs/heads/main') ||
+      github.event_name == 'workflow_dispatch'
+    timeout-minutes: 10
+    strategy:
+      # PR: 只跑 Chromium（快速反馈）
+      # push to main: 跑完整矩阵
+      matrix:
+        include:
+          # PR 默认只跑 Chromium
+          - browser: chromium
+            run-on-pr: true
+            should-run: ${{ github.event_name == 'pull_request' }}
+          # main push 跑完整矩阵
+          - browser: firefox
+            run-on-pr: false
+            should-run: ${{ github.event_name == 'push' && github.ref == 'refs/heads/main' }}
+          - browser: webkit
+            run-on-pr: false
+            should-run: ${{ github.event_name == 'push' && github.ref == 'refs/heads/main' }}
+          - browser: mobile
+            run-on-pr: false
+            should-run: ${{ github.event_name == 'push' && github.ref == 'refs/heads/main' }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      # 条件跳过：如果 matrix.should-run 为 false
+      - name: Check if should run
+        if: ${{ !matrix.should-run }}
+        run: |
+          echo "Skipping ${{ matrix.browser }} - not in scope for this event"
+          exit 78  # Special exit code to skip job without failure
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: 'npm'
+
+      - name: Cache node_modules
+        uses: actions/cache@v4
+        id: cache-node-modules
+        with:
+          path: |
+            node_modules
+            ~/.npm
+          key: ${{ runner.os }}-${{ needs.prepare.outputs.node-cache-key }}
+          restore-keys: |
+            ${{ runner.os }}-node-
+
+      # Playwright browser 缓存（复用 prepare 的 key）
+      - name: Cache Playwright browsers
+        uses: actions/cache@v4
+        id: playwright-cache
+        with:
+          path: ~/.cache/ms-playwright
+          key: ${{ runner.os }}-${{ needs.prepare.outputs.playwright-cache-key }}-${{ matrix.browser }}
+          restore-keys: |
+            ${{ runner.os }}-playwright-
+
+      - name: Install dependencies
+        if: steps.cache-node-modules.outputs.cache-hit != 'true'
+        run: npm ci --prefer-offline --no-audit --no-fund
+
+      - name: Install Playwright browsers
+        if: steps.playwright-cache.outputs.cache-hit != 'true'
+        run: npx playwright install --with-deps ${{ matrix.browser }}
+
+      - name: Install browser system deps
+        if: steps.playwright-cache.outputs.cache-hit == 'true'
+        run: npx playwright install-deps ${{ matrix.browser }}
+
+      - name: Run E2E tests
+        run: |
+          if [[ '${{ matrix.browser }}' == 'mobile' ]]; then
+            npm run test:e2e -- --project="Mobile Chrome"
+            npm run test:e2e -- --project="Mobile Safari"
+          else
+            npm run test:e2e -- --project=${{ matrix.browser }}
+          fi
+        env:
+          BASE_URL: http://localhost:3000
+
+      - name: Upload test results
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: playwright-results-${{ matrix.browser }}
+          path: |
+            playwright-report/
+            test-results/
+          retention-days: 7
+          compression-level: 6
+
+  # ============================================
+  # PARALLEL CHECKS (安全扫描 + 依赖检查)
+  # ============================================
+  parallel-checks:
+    name: 📋 ${{ matrix.name }}
+    runs-on: ubuntu-latest
+    needs: [prepare]
+    strategy:
+      matrix:
+        include:
+          - name: Security Audit
+            command: npm audit --audit-level=moderate
+            continue-on-error: true
+          - name: Dependency Check
+            command: npx npm-check-updates --checkVersion
+            continue-on-error: true
+          - name: License Check
+            command: npx license-checker --production --onlyAllow "MIT;Apache-2.0;BSD-3-Clause;ISC"
+            continue-on-error: true
+    timeout-minutes: 3
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: 'npm'
+
+      - name: Cache node_modules
+        uses: actions/cache@v4
+        with:
+          path: |
+            node_modules
+            ~/.npm
+          key: ${{ runner.os }}-${{ needs.prepare.outputs.node-cache-key }}
+          restore-keys: |
+            ${{ runner.os }}-node-
+
+      - name: Install dependencies
+        run: npm ci --prefer-offline --no-audit --no-fund
+
+      - name: Run ${{ matrix.name }}
+        run: ${{ matrix.command }}
+        continue-on-error: ${{ matrix.continue-on-error }}
+
+  # ============================================
+  # BENCHMARK (仅 main push 时运行)
+  # ============================================
+  benchmark:
+    name: 📊 Performance Benchmark
+    runs-on: ubuntu-latest
+    needs: [prepare, build]
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+    timeout-minutes: 5
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: 'npm'
+
+      - name: Cache node_modules
+        uses: actions/cache@v4
+        with:
+          path: |
+            node_modules
+            ~/.npm
+          key: ${{ runner.os }}-${{ needs.prepare.outputs.node-cache-key }}
+          restore-keys: |
+            ${{ runner.os }}-node-
+
+      - name: Install dependencies
+        run: npm ci --prefer-offline --no-audit --no-fund
+
+      - name: Run Lighthouse CI
+        uses: treosh/lighthouse-ci-action@v10
+        with:
+          urls: |
+            http://localhost:3000
+          uploadArtifacts: true
+          temporaryPublicStorage: true
+
+  # ============================================
+  # SUMMARY
+  # ============================================
+  summary:
+    name: 📋 CI Summary
+    runs-on: ubuntu-latest
+    needs: [lint, test-unit, build, parallel-checks, test-e2e, benchmark]
+    if: always()
+    timeout-minutes: 2
+    steps:
+      - name: Generate Summary
+        run: |
+          echo "## 🎯 CI Pipeline Summary" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "| Job | Status | Duration |" >> $GITHUB_STEP_SUMMARY
+          echo "|-----|--------|----------|" >> $GITHUB_STEP_SUMMARY
+          echo "| Lint | ${{ needs.lint.result == 'success' && '✅' || '❌' }} | - |" >> $GITHUB_STEP_SUMMARY
+          echo "| Unit Tests | ${{ needs.test-unit.result == 'success' && '✅' || '❌' }} | - |" >> $GITHUB_STEP_SUMMARY
+          echo "| Build | ${{ needs.build.result == 'success' && '✅' || '❌' }} | ${{ needs.build.outputs.build-time }}s |" >> $GITHUB_STEP_SUMMARY
+          echo "| Build Size | ${{ needs.build.outputs.build-size }} |" >> $GITHUB_STEP_SUMMARY
+          echo "| Parallel Checks | ${{ needs.parallel-checks.result == 'success' && '✅' || '⚠️' }} | - |" >> $GITHUB_STEP_SUMMARY
+          echo "| E2E Tests | ${{ needs.test-e2e.result == 'success' && '✅' || '⏭️' }} | - |" >> $GITHUB_STEP_SUMMARY
+          echo "| Benchmark | ${{ needs.benchmark.result == 'success' && '✅' || '⏭️' }} | - |" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "**Trigger:** ${{ github.event_name }} (${{ github.ref }})" >> $GITHUB_STEP_SUMMARY
+          echo "**Overall:** ${{ needs.summary.result == 'success' && '✅ All checks passed!' || '⚠️ Some checks failed' }}" >> $GITHUB_STEP_SUMMARY

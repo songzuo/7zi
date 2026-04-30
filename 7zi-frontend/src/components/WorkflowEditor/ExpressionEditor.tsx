@@ -211,48 +211,96 @@ export function ExpressionEditor({
 }
 
 /**
- * 语法高亮函数
+ * 语法高亮函数 - XSS 安全版本
+ * 使用 React 组件替代 dangerouslySetInnerHTML，防止 XSS 攻击
  */
 function highlightSyntax(code: string, language: string): React.ReactNode {
   if (!code) return null
 
-  // 简单的语法高亮实现
-  const parts: React.ReactNode[] = []
-  const key = 0
+  // Tokenize code into segments with types
+  type Segment = { type: 'text' | 'variable' | 'string' | 'keyword' | 'number'; value: string }
+  const segments: Segment[] = []
+  let remaining = code
 
-  // 高亮变量 {{...}}
-  const variableRegex = /{{([^}]+)}}/g
-  // 高亮字符串
-  const stringRegex = /(["'`])(?:(?!\1)[^\\]|\\.)*?\1/g
-  // 高亮关键字
-  const keywordRegex = /\b(return|if|else|for|while|function|const|let|var|true|false|null|undefined)\b/g
-  // 高亮数字
-  const numberRegex = /\b(\d+\.?\d*)\b/g
+  // Tokenize in order of precedence: variables > strings > keywords > numbers > text
+  while (remaining.length > 0) {
+    // Variables {{...}}
+    const varMatch = remaining.match(/^{{([^}]+)}}/)
+    if (varMatch) {
+      segments.push({ type: 'variable', value: varMatch[0] })
+      remaining = remaining.slice(varMatch[0].length)
+      continue
+    }
 
-  const lastIndex = 0
-  let result = code
+    // Strings
+    const strMatch = remaining.match(/^(["'`])(?:(?!\1)[^\\]|\\.)*?\1/)
+    if (strMatch) {
+      segments.push({ type: 'string', value: strMatch[0] })
+      remaining = remaining.slice(strMatch[0].length)
+      continue
+    }
 
-  // 高亮变量
-  result = result.replace(variableRegex, (_, variable) => {
-    return `<span class="text-purple-600 dark:text-purple-400 font-semibold">{{${variable}}}</span>`
-  })
+    // Keywords
+    const kwMatch = remaining.match(/^(return|if|else|for|while|function|const|let|var|true|false|null|undefined)\b/)
+    if (kwMatch) {
+      segments.push({ type: 'keyword', value: kwMatch[0] })
+      remaining = remaining.slice(kwMatch[0].length)
+      continue
+    }
 
-  // 高亮字符串
-  result = result.replace(stringRegex, match => {
-    return `<span class="text-green-600 dark:text-green-400">${match}</span>`
-  })
+    // Numbers
+    const numMatch = remaining.match(/^\d+\.?\d*/)
+    if (numMatch) {
+      segments.push({ type: 'number', value: numMatch[0] })
+      remaining = remaining.slice(numMatch[0].length)
+      continue
+    }
 
-  // 高亮关键字
-  result = result.replace(keywordRegex, match => {
-    return `<span class="text-blue-600 dark:text-blue-400 font-semibold">${match}</span>`
-  })
+    // Plain text (one character at a time to avoid consuming special chars)
+    segments.push({ type: 'text', value: remaining[0] })
+    remaining = remaining.slice(1)
+  }
 
-  // 高亮数字
-  result = result.replace(numberRegex, match => {
-    return `<span class="text-orange-600 dark:text-orange-400">${match}</span>`
-  })
+  // Render segments as React elements with safe escaping
+  return (
+    <>
+      {segments.map((seg, i) => {
+        const escaped = seg.value
+          .replace(/&/g, '&amp;')
+          .replace(/</g, '&lt;')
+          .replace(/>/g, '&gt;')
 
-  return <span dangerouslySetInnerHTML={{ __html: result }} />
+        switch (seg.type) {
+          case 'variable':
+            return (
+              <span key={i} className="text-purple-600 dark:text-purple-400 font-semibold">
+                {escaped}
+              </span>
+            )
+          case 'string':
+            return (
+              <span key={i} className="text-green-600 dark:text-green-400">
+                {escaped}
+              </span>
+            )
+          case 'keyword':
+            return (
+              <span key={i} className="text-blue-600 dark:text-blue-400 font-semibold">
+                {escaped}
+              </span>
+            )
+          case 'number':
+            return (
+              <span key={i} className="text-orange-600 dark:text-orange-400">
+                {escaped}
+              </span>
+            )
+          default:
+            return <span key={i}>{escaped}</span>
+        }
+      })}
+    </>
+  )
 }
 
 export default ExpressionEditor

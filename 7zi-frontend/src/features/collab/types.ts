@@ -81,6 +81,7 @@ export type CollabMessageType =
   | 'presence:update'
   | 'doc:sync'
   | 'doc:update'
+  | 'doc:delete'
   | 'lock:acquire'
   | 'lock:release'
   | 'lock:renew'

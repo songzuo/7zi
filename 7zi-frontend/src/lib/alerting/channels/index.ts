@@ -107,14 +107,8 @@ export function createWebhookChannel(config: WebhookChannelConfig): WebhookChann
 }
 
 // 重新导出类型和类
-export {
-  NotificationChannel,
-  SlackChannel,
-  DiscordChannel,
-  WebhookChannel,
-};
-
 export type {
+  NotificationChannel,
   ChannelType,
   ChannelConfig,
   NotificationPayload,
@@ -123,6 +117,12 @@ export type {
   SlackChannelConfig,
   DiscordChannelConfig,
   WebhookChannelConfig,
+};
+
+export {
+  SlackChannel,
+  DiscordChannel,
+  WebhookChannel,
 };
 
 // 导出 Discord Mention 工具

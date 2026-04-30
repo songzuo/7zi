@@ -41,21 +41,30 @@ function createTouchEvent(type: string, touches: Touch[]): TouchEvent {
 }
 
 describe('useSwipe - Basic Swipe Detection', () => {
-  it('should call onRight when swiping right', () => {
+  it('should call onRight when swiping right', async () => {
     const handlers: SwipeHandlers = {
       onRight: vi.fn(),
     }
-    const { result } = renderHook(() => useSwipe(handlers, 50))
-
+    
     const element = document.createElement('div')
+    
+    const { result } = renderHook(() => useSwipe(handlers, 50))
+    
+    // Set element ref - this needs to happen before dispatching events
+    // so that the useEffect can attach event listeners
     result.current.current = element
+    
+    // Wait for the effect to set up event listeners
+    await act(async () => {
+      await new Promise(resolve => setTimeout(resolve, 10))
+    })
 
-    act(() => {
+    await act(async () => {
       const touchEvent = createTouchEvent('touchstart', [createTouch(100, 100)])
       element.dispatchEvent(touchEvent)
     })
 
-    act(() => {
+    await act(async () => {
       const touchEvent = createTouchEvent('touchend', [createTouch(200, 100)])
       element.dispatchEvent(touchEvent)
     })

@@ -1,6 +1,8 @@
 'use client'
 
+import type { Metadata } from 'next'
 import { useState } from 'react'
+import { useRouter } from 'next/navigation'
 import {
   Check,
   X,
@@ -295,6 +297,22 @@ export default function PricingPage() {
     }
   }
 
+  const router = useRouter()
+
+  const handleCtaClick = (tier: PricingTier) => {
+    switch (tier) {
+      case 'free':
+        router.push('/register')
+        break
+      case 'pro':
+        router.push('/register?plan=pro')
+        break
+      case 'enterprise':
+        router.push('/contact')
+        break
+    }
+  }
+
   const PricingCard = ({ tier, isYearly, isPopular }: PricingCardProps) => {
     const tierData = t.tiers[tier]
     const isFree = tier === 'free'
@@ -337,6 +355,7 @@ export default function PricingPage() {
         </div>
 
         <button
+          onClick={() => handleCtaClick(tier)}
           className={`w-full rounded-lg px-6 py-3 font-semibold transition-all duration-200 ${
             isPopular
               ? 'bg-white text-blue-600 hover:bg-blue-50'
@@ -400,11 +419,17 @@ export default function PricingPage() {
             {t.billing.monthly}
           </span>
           <button
+            role="switch"
+            aria-checked={isYearly}
+            aria-label={language === 'zh' ? '切换到年付/月付' : 'Switch to yearly/monthly billing'}
             onClick={() => setIsYearly(!isYearly)}
             className={`relative h-8 w-16 rounded-full transition-colors ${
               isYearly ? 'bg-blue-600' : 'bg-gray-300 dark:bg-gray-600'
             }`}
           >
+            <span className="sr-only">
+              {isYearly ? (language === 'zh' ? '年付模式' : 'Yearly billing') : (language === 'zh' ? '月付模式' : 'Monthly billing')}
+            </span>
             <div
               className={`absolute top-1 h-6 w-6 rounded-full bg-white transition-all ${
                 isYearly ? 'left-9' : 'left-1'
@@ -506,16 +531,24 @@ export default function PricingPage() {
             <p className="text-blue-100">{t.form.subtitle}</p>
           </div>
 
-          <form onSubmit={handleSubmit} className="space-y-4">
+          <form onSubmit={handleSubmit} className="space-y-4" aria-label={t.form.title}>
             <div>
+              <label htmlFor="enterprise-email" className="sr-only">
+                {t.form.email}
+              </label>
               <input
+                id="enterprise-email"
                 type="email"
                 value={email}
                 onChange={e => setEmail(e.target.value)}
                 placeholder={t.form.email}
                 className="w-full rounded-lg px-4 py-3 text-gray-900 placeholder-gray-500 focus:ring-2 focus:ring-white focus:outline-none"
                 required
+                aria-describedby="enterprise-email-privacy"
               />
+              <p id="enterprise-email-privacy" className="mt-2 text-center text-sm text-blue-100">
+                {t.form.privacy}
+              </p>
             </div>
 
             <button
@@ -526,16 +559,14 @@ export default function PricingPage() {
             </button>
 
             {submitStatus === 'success' && (
-              <div className="rounded-lg bg-green-500 p-3 text-center text-white">
+              <div role="alert" className="rounded-lg bg-green-500 p-3 text-center text-white">
                 {t.form.success}
               </div>
             )}
 
             {submitStatus === 'error' && (
-              <div className="rounded-lg bg-red-500 p-3 text-center text-white">{t.form.error}</div>
+              <div role="alert" className="rounded-lg bg-red-500 p-3 text-center text-white">{t.form.error}</div>
             )}
-
-            <p className="text-center text-sm text-blue-100">{t.form.privacy}</p>
           </form>
         </div>
       </section>
@@ -554,6 +585,8 @@ export default function PricingPage() {
                 className="overflow-hidden rounded-lg bg-white shadow-md dark:bg-gray-800"
               >
                 <button
+                  aria-expanded={expandedFaq === index}
+                  aria-controls={`faq-answer-${index}`}
                   onClick={() => setExpandedFaq(expandedFaq === index ? null : index)}
                   className="flex w-full items-center justify-between px-6 py-4 text-left transition-colors hover:bg-gray-50 dark:hover:bg-gray-700"
                 >
@@ -564,11 +597,12 @@ export default function PricingPage() {
                     className={`h-5 w-5 text-gray-500 transition-transform ${
                       expandedFaq === index ? 'rotate-180' : ''
                     }`}
+                    aria-hidden="true"
                   />
                 </button>
 
                 {expandedFaq === index && (
-                  <div className="px-6 pb-4 text-gray-600 dark:text-gray-400">{item.answer}</div>
+                  <div id={`faq-answer-${index}`} className="px-6 pb-4 text-gray-600 dark:text-gray-400">{item.answer}</div>
                 )}
               </div>
             ))}
@@ -588,7 +622,10 @@ export default function PricingPage() {
               ? '加入数千名用户，体验 7zi 的强大功能'
               : 'Join thousands of users and experience the power of 7zi'}
           </p>
-          <button className="inline-flex items-center gap-2 rounded-lg bg-white px-8 py-4 text-lg font-semibold text-blue-600 transition-colors hover:bg-blue-50">
+          <button
+            onClick={() => router.push('/register')}
+            className="inline-flex items-center gap-2 rounded-lg bg-white px-8 py-4 text-lg font-semibold text-blue-600 transition-colors hover:bg-blue-50"
+          >
             {t.tiers.free.cta}
             <ArrowRight className="h-5 w-5" />
           </button>

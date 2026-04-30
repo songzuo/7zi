@@ -48,6 +48,7 @@ import type {
   FeedbackStatus,
   Feedback,
 } from '@/lib/db/feedback-types'
+import { useAuthStore } from '@/stores/auth-store'
 
 interface FeedbackAdminPanelProps {
   currentUser: {
@@ -157,7 +158,7 @@ export default function FeedbackAdminPanel({ currentUser }: FeedbackAdminPanelPr
 
       const response = await fetch(`/api/feedback?${params}`, {
         headers: {
-          Authorization: `Bearer ${localStorage.getItem('token')}`,
+          Authorization: `Bearer ${useAuthStore.getState().token}`,
         },
       })
 
@@ -179,7 +180,7 @@ export default function FeedbackAdminPanel({ currentUser }: FeedbackAdminPanelPr
     try {
       const response = await fetch('/api/feedback/stats', {
         headers: {
-          Authorization: `Bearer ${localStorage.getItem('token')}`,
+          Authorization: `Bearer ${useAuthStore.getState().token}`,
         },
       })
 
@@ -206,7 +207,7 @@ export default function FeedbackAdminPanel({ currentUser }: FeedbackAdminPanelPr
         method: 'PATCH',
         headers: {
           'Content-Type': 'application/json',
-          Authorization: `Bearer ${localStorage.getItem('token')}`,
+          Authorization: `Bearer ${useAuthStore.getState().token}`,
         },
         body: JSON.stringify({
           feedbackId,
@@ -244,7 +245,7 @@ export default function FeedbackAdminPanel({ currentUser }: FeedbackAdminPanelPr
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          Authorization: `Bearer ${localStorage.getItem('token')}`,
+          Authorization: `Bearer ${useAuthStore.getState().token}`,
         },
         body: JSON.stringify({
           feedbackId: selectedFeedback.id,
@@ -285,7 +286,7 @@ export default function FeedbackAdminPanel({ currentUser }: FeedbackAdminPanelPr
 
       const response = await fetch(`/api/feedback/export?${params}`, {
         headers: {
-          Authorization: `Bearer ${localStorage.getItem('token')}`,
+          Authorization: `Bearer ${useAuthStore.getState().token}`,
         },
       })
 
@@ -313,7 +314,7 @@ export default function FeedbackAdminPanel({ currentUser }: FeedbackAdminPanelPr
       const response = await fetch(`/api/feedback?id=${feedbackId}`, {
         method: 'DELETE',
         headers: {
-          Authorization: `Bearer ${localStorage.getItem('token')}`,
+          Authorization: `Bearer ${useAuthStore.getState().token}`,
         },
       })
 
