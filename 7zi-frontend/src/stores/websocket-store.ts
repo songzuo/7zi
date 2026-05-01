@@ -19,6 +19,7 @@
 
 import { create } from 'zustand'
 import type { Socket } from 'socket.io-client'
+import { logger } from '@/lib/logger'
 
 /**
  * 连接状态

@@ -5,19 +5,6 @@ import createNextIntlPlugin from 'next-intl/plugin'
 const withNextIntl = createNextIntlPlugin('./src/i18n/request.ts')
 
 // ============================================================================
-// React Compiler 配置 (v1.0 - 已启用)
-// ============================================================================
-// React Compiler 默认启用，可通过环境变量控制
-const reactCompilerEnabled = process.env.DISABLE_REACT_COMPILER === 'true' ? false : true
-const reactCompilerMode = process.env.REACT_COMPILER_MODE || 'opt-in'
-const reactCompilerExcludePatterns = process.env.REACT_COMPILER_EXCLUDE_PATTERNS || ''
-
-// 解析排除模式
-const excludePatterns = reactCompilerExcludePatterns
-  ? reactCompilerExcludePatterns.split(',').map(p => p.trim())
-  : []
-
-// ============================================================================
 // Security Configuration (P1 Security Enhancements)
 // ============================================================================
 const isProduction = process.env.NODE_ENV === 'production'
@@ -132,61 +119,8 @@ const nextConfig: NextConfig = {
     minimumCacheTTL: 60,
   },
 
-  // React Compiler 配置 (Next.js 16+: 顶级配置)
-  ...(reactCompilerEnabled && {
-    reactCompiler: {
-      // 源文件过滤函数
-      sources: (filename: string) => {
-        const normalizedPath = filename.replace(/\\/g, '/')
-
-        // 检查排除模式
-        for (const pattern of excludePatterns) {
-          if (
-            normalizedPath.includes(pattern) ||
-            normalizedPath.match(pattern.replace(/\*\*/g, '.*'))
-          ) {
-            return false
-          }
-        }
-
-        // 固定黑名单 (始终排除)
-        const alwaysExclude = [
-          'node_modules',
-          '.next',
-          'build',
-          'dist',
-          'src/lib/third-party',
-          'src/components/legacy',
-          'src/app/standalone', // Next.js standalone 输出
-        ]
-
-        for (const pattern of alwaysExclude) {
-          if (normalizedPath.includes(pattern)) {
-            return false
-          }
-        }
-
-        // opt-in 模式：只编译指定目录
-        if (reactCompilerMode === 'opt-in') {
-          const includePatterns = [
-            'src/components/features',
-            'src/components/dashboard',
-            'src/components/tasks',
-            'src/app/[locale]/dashboard',
-          ]
-          for (const pattern of includePatterns) {
-            if (normalizedPath.includes(pattern)) {
-              return true
-            }
-          }
-          return false
-        }
-
-        // opt-out 模式或 all 模式：编译除黑名单外的所有文件
-        return true
-      },
-    },
-  }),
+  // React Compiler 配置已移除 (Next.js 16.2.4 不识别此选项)
+  // React 19 内置支持，无需额外配置
 
   // 实验性功能
   experimental: {
@@ -207,13 +141,6 @@ const nextConfig: NextConfig = {
             exclude: ['error', 'warn'],
           }
         : false,
-    // React Compiler v1.0 配置
-    ...(reactCompilerEnabled && {
-      reactCompiler: {
-        mode: reactCompilerMode,
-        excludePatterns: excludePatterns.length > 0 ? excludePatterns : undefined,
-      },
-    }),
   },
 
   // v1.8.0 性能优化: 增强的 Webpack 配置
