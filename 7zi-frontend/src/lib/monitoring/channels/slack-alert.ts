@@ -153,8 +153,8 @@ export class SlackAlertChannel extends BaseAlertChannel implements AlertChannel 
       await this.sendViaBotAPI(alert, payload)
     } else {
       // Fallback to console log
-      console.log('[SlackAlert] No webhook URL or bot token configured')
-      console.log('[SlackAlert] Would send:', JSON.stringify(payload, null, 2))
+      logger.debug('[SlackAlert] No webhook URL or bot token configured')
+      logger.debug('[SlackAlert] Would send:', JSON.stringify(payload, null, 2))
     }
   }
 
@@ -412,7 +412,7 @@ export class SlackAlertChannel extends BaseAlertChannel implements AlertChannel 
       throw new Error(`Slack webhook failed: ${response.status} ${response.statusText}`)
     }
 
-    console.log(`[SlackAlert] Sent to ${payload.channel}`)
+    logger.info(`[SlackAlert] Sent to ${payload.channel}`)
   }
 
   /**
@@ -445,7 +445,7 @@ export class SlackAlertChannel extends BaseAlertChannel implements AlertChannel 
       throw new Error(`Slack API error: ${result.error}`)
     }
 
-    console.log(`[SlackAlert] Sent via bot to ${channel}: ${alert.ruleName}`)
+    logger.debug(`[SlackAlert] Sent via bot to ${channel}: ${alert.ruleName}`)
   }
 
   /**
@@ -505,20 +505,20 @@ export class SlackAlertChannel extends BaseAlertChannel implements AlertChannel 
         const result = await response.json()
 
         if (result.ok) {
-          console.log(`[SlackAlert] Connected as: ${result.user}`)
+          logger.debug(`[SlackAlert] Connected as: ${result.user}`)
           return true
         }
 
-        console.error('[SlackAlert] Auth test failed:', result.error)
+        logger.error('[SlackAlert] Auth test failed:', result.error)
         return false
       } catch (error) {
-        console.error('[SlackAlert] Connection test failed:', error)
+        logger.error('[SlackAlert] Connection test failed:', error)
         return false
       }
     }
 
     // For webhook, just log
-    console.log('[SlackAlert] Using webhook mode, connection test skipped')
+    logger.debug('[SlackAlert] Using webhook mode, connection test skipped')
     return true
   }
 
@@ -581,4 +581,4 @@ export function createSlackChannelFromEnv(): SlackAlertChannel | null {
   })
 }
 
-export default SlackAlertChannel
+export default SlackAlertChannel;
