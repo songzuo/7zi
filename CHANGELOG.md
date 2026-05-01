@@ -7,7 +7,7 @@
 
 ---
 
-## [Unreleased] - 2026-04-25
+## [Unreleased] - 2026-05-01
 
 ### 🛡️ Security
 - 升级 protobufjs 到最新版本 (修复 GHSA-xq3m-2v4x-88gg 任意代码执行漏洞)

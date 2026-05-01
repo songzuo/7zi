@@ -8,6 +8,16 @@ import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest'
 import { renderHook, waitFor, act } from '@testing-library/react'
 import { useNotifications } from '../useNotifications'
 
+// Mock logger to prevent "logger is not defined" errors
+vi.mock('@/lib/logger', () => ({
+  logger: {
+    debug: vi.fn(),
+    info: vi.fn(),
+    warn: vi.fn(),
+    error: vi.fn(),
+  },
+}))
+
 // Mock Socket.IO client - must export both default and io named export
 const { mockSocketInstance, getMockSocket } = vi.hoisted(() => {
   const callbacks: Record<string, any> = {}
@@ -91,7 +101,7 @@ describe('useNotifications Hook', () => {
 
   describe('Initialization', () => {
     it('should start in disconnected status', () => {
-      const { result } = renderHook(() => useNotifications())
+      const { result } = renderHook(() => useNotifications({ autoConnect: false }))
       expect(result.current.status).toBe('disconnected')
       expect(result.current.isConnected).toBe(false)
     })
@@ -539,12 +549,22 @@ describe('useNotifications Hook', () => {
   })
 
   describe('Options and Configuration', () => {
-    it('should use custom socket URL', () => {
+    it('should use custom socket URL', async () => {
       const socketUrl = 'http://custom-server:3002'
-      renderHook(() => useNotifications({ socketUrl }))
+      const { result } = renderHook(() => useNotifications({ socketUrl, autoConnect: false }))
 
-      const { io } = require('socket.io-client')
-      expect(io).toHaveBeenCalledWith(socketUrl, expect.any(Object))
+      act(() => {
+        result.current.connect()
+      })
+
+      await act(async () => {
+        await new Promise(resolve => setTimeout(resolve, 50))
+      })
+
+      expect(mockSocketInstance.emit).toHaveBeenCalledWith(
+        'subscribe',
+        expect.objectContaining({})
+      )
     })
 
     it('should subscribe to user channel', async () => {

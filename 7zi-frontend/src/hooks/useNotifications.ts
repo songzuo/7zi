@@ -16,6 +16,7 @@ import type {
   NotificationPriority,
   NotificationFilter,
 } from '@/lib/services/notification'
+import { logger } from '@/lib/logger'
 
 /**
  * Socket connection status

@@ -161,7 +161,7 @@ export const useWebSocketStore = create<WebSocketState>((set, get) => ({
         get()._updateStats({
           lastConnected: Date.now(),
         })
-        logger.debug('[WebSocket] Connected to', url)
+        logger.debug('[WebSocket] Connected to', { url })
       })
 
       // 连接断开
@@ -170,7 +170,7 @@ export const useWebSocketStore = create<WebSocketState>((set, get) => ({
         get()._updateStats({
           lastDisconnected: Date.now(),
         })
-        logger.debug('[WebSocket] Disconnected:', reason)
+        logger.debug('[WebSocket] Disconnected:', { reason })
       })
 
       // 连接错误
@@ -183,7 +183,7 @@ export const useWebSocketStore = create<WebSocketState>((set, get) => ({
         get()._updateStats({
           reconnectAttempts: attempts,
         })
-        logger.error('[WebSocket] Connection error:', error)
+        logger.error('[WebSocket] Connection error:', error instanceof Error ? error : new Error(String(error)))
       })
 
       // 接收消息
@@ -213,7 +213,7 @@ export const useWebSocketStore = create<WebSocketState>((set, get) => ({
       externalSocket = socket
     } catch (error) {
       set({ status: 'error' })
-      logger.error('[WebSocket] Failed to connect:', error)
+      logger.error('[WebSocket] Failed to connect:', error instanceof Error ? error : new Error(String(error)))
       throw error
     }
   },
