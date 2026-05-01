@@ -4,6 +4,7 @@
  */
 
 import { openDB, DBSchema, IDBPDatabase } from 'idb';
+import { logger } from '@/lib/logger'
 
 export interface OfflineStorageConfig {
   dbName: string;
@@ -315,7 +316,7 @@ class OfflineStorage {
             await this.clearSyncQueueItem(item.id);
           }
 
-          console.error('Sync failed for item:', item, error);
+          logger.error('Sync failed for item:', item, error);
         }
       }
     } finally {
@@ -329,7 +330,7 @@ class OfflineStorage {
   private async syncItem(item: SyncQueueItem): Promise<void> {
     // Implement your sync logic here
     // This is a placeholder - integrate with your API
-    console.log('Syncing item:', item);
+    logger.debug('Syncing item:', item);
 
     switch (item.action) {
       case 'create':

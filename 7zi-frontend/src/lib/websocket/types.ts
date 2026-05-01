@@ -6,6 +6,7 @@
  */
 
 import type { CompressionConfig, CompressionStats } from '../websocket-compression'
+import { ConnectionState } from './constants'
 
 /**
  * Message queue item

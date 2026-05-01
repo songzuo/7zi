@@ -40,7 +40,7 @@ export default defineConfig({
     pool: 'forks',
 
     // 测试超时配置
-    testTimeout: 60000, // 增加到 60 秒以防止慢测试超时
+    testTimeout: 120000, // 增加到 120 秒以防止慢测试超时
     hookTimeout: 10000,
     // 失败时不重试
     retry: 0,

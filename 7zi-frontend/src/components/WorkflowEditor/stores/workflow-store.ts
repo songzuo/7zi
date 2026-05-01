@@ -283,14 +283,14 @@ export const useWorkflowStore = create<WorkflowState>()(
         try {
           const savedState = await executionStateStorage.loadExecutionState()
           if (!savedState) {
-            console.log('[WorkflowStore] 没有可恢复的执行状态')
+            logger.debug('[WorkflowStore] 没有可恢复的执行状态')
             return false
           }
 
           // 检查工作流 ID 是否匹配
           const currentWorkflow = get().workflow
           if (!currentWorkflow || currentWorkflow.id !== savedState.workflowId) {
-            console.log('[WorkflowStore] 工作流 ID 不匹配，无法恢复')
+            logger.debug('[WorkflowStore] 工作流 ID 不匹配，无法恢复')
             await executionStateStorage.clearExecutionState()
             return false
           }
@@ -324,10 +324,10 @@ export const useWorkflowStore = create<WorkflowState>()(
             isExecuting: true,
           })
 
-          console.log('[WorkflowStore] 执行状态已恢复:', savedState.executionId)
+          logger.debug('[WorkflowStore] 执行状态已恢复:', savedState.executionId)
           return true
         } catch (error) {
-          console.error('[WorkflowStore] 恢复执行状态失败:', error)
+          logger.error('[WorkflowStore] 恢复执行状态失败:', error)
           return false
         }
       },
@@ -343,9 +343,9 @@ export const useWorkflowStore = create<WorkflowState>()(
             executionState: null,
             isExecuting: false,
           })
-          console.log('[WorkflowStore] 执行状态已清除')
+          logger.debug('[WorkflowStore] 执行状态已清除')
         } catch (error) {
-          console.error('[WorkflowStore] 清除执行状态失败:', error)
+          logger.error('[WorkflowStore] 清除执行状态失败:', error)
         }
       },
 
@@ -357,9 +357,9 @@ export const useWorkflowStore = create<WorkflowState>()(
         try {
           await executionStateStorage.pauseExecution()
           set({ isExecuting: false })
-          console.log('[WorkflowStore] 执行已暂停')
+          logger.debug('[WorkflowStore] 执行已暂停')
         } catch (error) {
-          console.error('[WorkflowStore] 暂停执行失败:', error)
+          logger.error('[WorkflowStore] 暂停执行失败:', error)
         }
       },
 
@@ -371,9 +371,9 @@ export const useWorkflowStore = create<WorkflowState>()(
         try {
           await executionStateStorage.resumeExecution()
           set({ isExecuting: true })
-          console.log('[WorkflowStore] 执行已恢复')
+          logger.debug('[WorkflowStore] 执行已恢复')
         } catch (error) {
-          console.error('[WorkflowStore] 恢复执行失败:', error)
+          logger.error('[WorkflowStore] 恢复执行失败:', error)
         }
       },
     }),

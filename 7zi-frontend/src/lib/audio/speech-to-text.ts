@@ -24,6 +24,7 @@ import {
   float32ToInt16,
   audioBufferToBlob,
 } from './utils'
+import { logger } from '@/lib/logger'
 
 /**
  * STT 配置选项
@@ -284,7 +285,7 @@ export class SpeechToText {
       )
 
       this.websocket.onopen = () => {
-        console.log('[STT] WebSocket connected')
+        logger.debug('[STT] WebSocket connected')
         resolve()
       }
 
@@ -293,12 +294,12 @@ export class SpeechToText {
       }
 
       this.websocket.onerror = (error) => {
-        console.error('[STT] WebSocket error:', error)
+        logger.error('[STT] WebSocket error:', error)
         reject(new Error('WebSocket connection failed'))
       }
 
       this.websocket.onclose = () => {
-        console.log('[STT] WebSocket closed')
+        logger.debug('[STT] WebSocket closed')
       }
     })
   }
@@ -381,7 +382,7 @@ export class SpeechToText {
         })
       }
     } catch (error) {
-      console.error('[STT] Failed to parse WebSocket message:', error)
+      logger.error('[STT] Failed to parse WebSocket message:', error)
     }
   }
 

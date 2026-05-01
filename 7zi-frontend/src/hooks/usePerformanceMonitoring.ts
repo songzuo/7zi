@@ -87,7 +87,7 @@ export function usePerformanceMonitoring(
 
         setState(prev => ({ ...prev, isInitialized: true }))
       } catch (error) {
-        console.error('[PerformanceMonitoring] Initialization failed:', error)
+        logger.error('[PerformanceMonitoring] Initialization failed:', error)
 
         // 上报初始化错误
         await monitor.trackError(
@@ -191,7 +191,7 @@ export function useWebSocketPerformance(ws: WebSocket | null) {
     customMetricsTracker.trackWebSocketLatency(ws)
 
     ws.addEventListener('open', () => {
-      console.log('[WebSocket] Connected for performance monitoring')
+      logger.debug('[WebSocket] Connected for performance monitoring')
     })
 
     ws.addEventListener('error', error => {

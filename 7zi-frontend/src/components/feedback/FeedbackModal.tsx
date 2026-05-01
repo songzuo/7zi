@@ -366,7 +366,7 @@ export default function FeedbackModal({
             minLength={10}
             maxLength={1000}
             rows={6}
-            className="w-full resize-none rounded-lg border border-gray-300 px-3 py-2 focus:border-transparent focus:ring-2 focus:ring-blue-500 focus:outline-none"
+            className="w-full resize-none rounded-lg border border-gray-300 px-3 py-2 focus-visible:border-transparent focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:outline-none"
           />
           <p className="mt-1 text-xs text-gray-500">{feedback.description.length} / 1000 字符</p>
         </div>

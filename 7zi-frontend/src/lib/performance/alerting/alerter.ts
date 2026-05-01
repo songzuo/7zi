@@ -27,6 +27,7 @@ import {
   WebhookChannel,
   TelegramChannel,
 } from './channels'
+import { logger } from '@/lib/logger'
 
 export const DEFAULT_ALERTING_CONFIG: AlertingConfig = {
   enabled: true,
@@ -185,7 +186,7 @@ export class PerformanceAlerter {
       alert.suppressed = true
       alert.suppressionReason = 'Alert suppressed due to suppression rules'
       this.alerts.push(alert)
-      console.log(`[ALERTER] Alert suppressed: ${alert.metric} (${alert.severity})`)
+      logger.debug(`[ALERTER] Alert suppressed: ${alert.metric} (${alert.severity})`)
       return
     }
 

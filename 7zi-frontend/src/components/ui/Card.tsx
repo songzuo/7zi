@@ -95,7 +95,7 @@ export const Card = React.forwardRef<HTMLDivElement, CardProps>(
           'min-h-[44px] min-w-[44px]'
         ),
       // 焦点状态
-      'focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2',
+      'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2',
       className
     )
 

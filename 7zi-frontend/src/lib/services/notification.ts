@@ -15,6 +15,7 @@ export {
 } from './notification-types'
 
 // Import types for use in this file
+import { logger } from '@/lib/logger'
 import type { Notification, NotificationFilter } from './notification-types'
 
 /**
@@ -51,7 +52,7 @@ export class NotificationService {
     if (this.io) return
 
     if (typeof window !== 'undefined') {
-      console.warn('[NotificationService] Cannot initialize server in browser')
+      logger.warn('[NotificationService] Cannot initialize server in browser')
       return
     }
 
@@ -64,9 +65,9 @@ export class NotificationService {
         cors: { origin: '*', methods: ['GET', 'POST'] },
         transports: ['websocket', 'polling'],
       })
-      console.log('[NotificationService] Socket.IO initialized')
+      logger.debug('[NotificationService] Socket.IO initialized')
     } catch (e) {
-      console.warn('[NotificationService] Socket.IO not available')
+      logger.warn('[NotificationService] Socket.IO not available')
     }
   }
 

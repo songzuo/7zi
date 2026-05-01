@@ -131,7 +131,7 @@ export default function KeyboardShortcutsExample() {
                 <input
                   type="text"
                   placeholder="Search..."
-                  className="w-full px-4 py-2 bg-gray-100 dark:bg-gray-900 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  className="w-full px-4 py-2 bg-gray-100 dark:bg-gray-900 rounded-lg focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500"
                   autoFocus
                 />
               </div>

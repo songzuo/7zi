@@ -204,7 +204,7 @@ const InputBase = forwardRef<HTMLInputElement, InputProps>(
     const baseStyles = clsx(
       'block w-full rounded-lg border-2',
       'transition-all duration-200 ease-out',
-      'focus:outline-none focus:ring-2 focus:ring-offset-2',
+      'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2',
       'disabled:bg-gray-100 disabled:cursor-not-allowed disabled:opacity-60',
       animated && 'animate-in fade-in duration-150'
     )
@@ -464,7 +464,7 @@ const TextareaBase = forwardRef<HTMLTextAreaElement, TextareaProps>(
           className={clsx(
             'block w-full rounded-lg border-2',
             'transition-all duration-200',
-            'focus:ring-2 focus:ring-offset-2 focus:outline-none',
+            'focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:outline-none',
             error || isOverLimit
               ? 'border-red-300 bg-red-50 focus:border-red-500 focus:ring-red-500'
               : 'border-gray-300 focus:border-blue-500 focus:ring-blue-500',

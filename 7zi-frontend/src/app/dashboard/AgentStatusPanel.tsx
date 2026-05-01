@@ -464,7 +464,7 @@ const FilterBar = memo(function FilterBar({
           value={searchQuery}
           onChange={e => onSearchChange(e.target.value)}
           placeholder={t('agent.searchPlaceholder')}
-          className="w-full rounded-lg border border-gray-200 bg-white py-2 pr-4 pl-10 text-sm text-gray-900 focus:ring-2 focus:ring-blue-500 focus:outline-none dark:border-gray-700 dark:bg-gray-800 dark:text-gray-100"
+          className="w-full rounded-lg border border-gray-200 bg-white py-2 pr-4 pl-10 text-sm text-gray-900 focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:outline-none dark:border-gray-700 dark:bg-gray-800 dark:text-gray-100"
         />
       </div>
 
@@ -480,7 +480,7 @@ const FilterBar = memo(function FilterBar({
               onClick={() => onStatusChange(status)}
               className={clsx(
                 'rounded-md px-3 py-1.5 text-sm font-medium transition-all duration-200',
-                'focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 focus:outline-none',
+                'focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2 focus-visible:outline-none',
                 isActive
                   ? 'bg-white text-gray-900 shadow-sm dark:bg-gray-700 dark:text-gray-100'
                   : 'text-gray-600 hover:text-gray-900 dark:text-gray-400 dark:hover:text-gray-100'

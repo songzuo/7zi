@@ -428,6 +428,48 @@ e2e/                    # E2E 测试
 
 ---
 
+## 环境变量
+
+复制 `.env.example` 为 `.env.local` 并配置所需的环境变量：
+
+```bash
+cp .env.example .env.local
+```
+
+### 必需变量
+
+| 变量 | 描述 |
+|------|------|
+| `JWT_SECRET` | JWT 签名密钥（生产环境必须设置，至少64字符） |
+
+### 可选变量
+
+| 变量 | 描述 |
+|------|------|
+| `NEXT_PUBLIC_GA_ID` | Google Analytics 4 Measurement ID（格式：`G-XXXXXXXXXX`） |
+| `NEXT_PUBLIC_SITE_URL` | 网站 URL（用于 Open Graph 和 SEO） |
+| `SENTRY_DSN` | Sentry 错误追踪 DSN |
+| `DATABASE_URL` | 数据库连接 URL |
+
+### Google Analytics 4 配置
+
+项目已集成 GA4，支持以下事件自动追踪：
+
+| 事件 | 触发条件 |
+|------|----------|
+| `page_view` | 所有页面浏览（自动） |
+| `sign_up` | 用户注册成功 |
+| `login` | 用户登录成功 |
+| `room_create` | 创建协作房间 |
+
+配置步骤：
+1. 在 [Google Analytics](https://analytics.google.com) 创建 Web 数据流
+2. 获取 Measurement ID（格式：`G-XXXXXXXXXX`）
+3. 设置环境变量：`NEXT_PUBLIC_GA_ID=G-XXXXXXXXXX`
+4. 重新构建部署
+
+---
+
 ## 部署
 
 ### Docker 部署

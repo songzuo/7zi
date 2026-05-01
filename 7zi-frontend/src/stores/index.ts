@@ -43,9 +43,11 @@ export type { WebSocketState, ConnectionStatus, WebSocketMessage } from './webso
 export { useAppStore } from './app-store'
 export type { AppState, AppSettings } from './app-store'
 
+import { logger } from '@/lib/logger'
+
 /**
  * 开发工具集成 (仅在开发环境启用)
  */
 if (process.env.NODE_ENV === 'development') {
-  console.log('[Stores] Zustand stores initialized')
+  logger.debug('[Stores] Zustand stores initialized')
 }

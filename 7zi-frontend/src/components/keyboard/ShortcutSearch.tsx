@@ -121,7 +121,7 @@ export default function ShortcutSearch({
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
               placeholder="Search shortcuts..."
-              className="w-full pl-10 pr-4 py-3 bg-gray-100 dark:bg-gray-900 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-gray-900 dark:text-white placeholder-gray-500"
+              className="w-full pl-10 pr-4 py-3 bg-gray-100 dark:bg-gray-900 rounded-lg focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 text-gray-900 dark:text-white placeholder-gray-500"
               autoFocus
             />
           </div>

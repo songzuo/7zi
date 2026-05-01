@@ -13,6 +13,7 @@
  */
 
 import { Alert, AlertChannel, AlertSeverity, AlertPriority } from '../alert-engine'
+import { logger } from '@/lib/logger'
 import {
   BaseAlertChannel,
   BaseChannelConfig,
@@ -128,18 +129,18 @@ export class EmailAlertChannel extends BaseAlertChannel implements AlertChannel 
           html: message.html,
         })
 
-        console.log(`[EmailAlert] Sent: ${message.subject} to ${message.to}`)
+        logger.debug(`[EmailAlert] Sent: ${message.subject} to ${message.to}`)
         return
       } catch (error) {
-        console.error(`[EmailAlert] Failed to send:`, error)
+        logger.error(`[EmailAlert] Failed to send:`, error)
         throw error
       }
     }
 
     // Fallback to console log if nodemailer not available
-    console.log(`[EmailAlert] Would send: ${message.subject}`)
-    console.log(`[EmailAlert] To: ${message.to}`)
-    console.log(`[EmailAlert] Body:\n${message.text}`)
+    logger.debug(`[EmailAlert] Would send: ${message.subject}`)
+    logger.debug(`[EmailAlert] To: ${message.to}`)
+    logger.debug(`[EmailAlert] Body:\n${message.text}`)
   }
 
   /**
@@ -405,10 +406,10 @@ export class EmailAlertChannel extends BaseAlertChannel implements AlertChannel 
       })
 
       await testTransport.verify()
-      console.log('[EmailAlert] Connection verified')
+      logger.debug('[EmailAlert] Connection verified')
       return true
     } catch (error) {
-      console.error('[EmailAlert] Connection test failed:', error)
+      logger.error('[EmailAlert] Connection test failed:', error)
       return false
     }
   }
@@ -448,7 +449,7 @@ export function createEmailChannelFromEnv(): EmailAlertChannel | null {
   const from = process.env.EMAIL_FROM || 'alerts@7zi.com'
 
   if (!host || !user || !pass) {
-    console.warn('[EmailAlert] SMTP not configured, email alerts will be logged only')
+    logger.warn('[EmailAlert] SMTP not configured, email alerts will be logged only')
     return null
   }
 

@@ -64,7 +64,7 @@ export async function POST(request: NextRequest) {
         createdAt: Date.now(),
       })
 
-      console.log('New subscription:', subscriptionId)
+      logger.debug('New subscription:', subscriptionId)
 
       return createSuccessResponse({ subscriptionId })
     }
@@ -80,7 +80,7 @@ export async function POST(request: NextRequest) {
       const subscriptionId = subscription.endpoint
       subscriptions.delete(subscriptionId)
 
-      console.log('Unsubscribed:', subscriptionId)
+      logger.debug('Unsubscribed:', subscriptionId)
 
       return createSuccessResponse({})
     }
@@ -106,7 +106,7 @@ export async function POST(request: NextRequest) {
       const results = await Promise.allSettled(
         Array.from(subscriptions.values()).map((subscription) =>
           webpush.sendNotification(subscription, payload).catch((error: any) => {
-            console.error('Failed to send notification:', error)
+            logger.error('Failed to send notification:', error)
             // Remove invalid subscriptions
             if (error.statusCode === 410) {
               subscriptions.delete(subscription.endpoint)
@@ -128,7 +128,7 @@ export async function POST(request: NextRequest) {
 
     return createBadRequestError('Invalid action')
   } catch (error) {
-    console.error('PWA API error:', error)
+    logger.error('PWA API error:', error)
     return createErrorResponse(error instanceof Error ? error : new Error(String(error)))
   }
 }

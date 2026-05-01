@@ -11,6 +11,7 @@
  */
 
 import { Alert, AlertChannel, AlertSeverity, AlertPriority } from '../alert-engine'
+import { logger } from '@/lib/logger'
 
 // ============================================================================
 // Types
@@ -323,26 +324,26 @@ export abstract class BaseAlertChannel implements AlertChannel {
   async send(alert: Alert): Promise<void> {
     // Check if enabled
     if (!this.config.enabled) {
-      console.log(`[BaseAlertChannel] Channel disabled, skipping alert: ${alert.id}`)
+      logger.debug(`[BaseAlertChannel] Channel disabled, skipping alert: ${alert.id}`)
       return
     }
 
     // Check severity filter
     if (this.config.severityFilter?.length && !this.config.severityFilter.includes(alert.severity)) {
-      console.log(`[BaseAlertChannel] Severity ${alert.severity} not in filter, skipping`)
+      logger.debug(`[BaseAlertChannel] Severity ${alert.severity} not in filter, skipping`)
       return
     }
 
     // Check priority filter
     if (this.config.priorityFilter?.length && !this.config.priorityFilter.includes(alert.priority)) {
-      console.log(`[BaseAlertChannel] Priority ${alert.priority} not in filter, skipping`)
+      logger.debug(`[BaseAlertChannel] Priority ${alert.priority} not in filter, skipping`)
       return
     }
 
     // Check rate limit
     const rateCheck = this.rateLimiter.check(this.getChannelKey(), this.rateLimitConfig)
     if (!rateCheck.allowed) {
-      console.warn(`[BaseAlertChannel] Rate limit exceeded for ${this.getChannelKey()}`)
+      logger.warn(`[BaseAlertChannel] Rate limit exceeded for ${this.getChannelKey()}`)
       throw new Error('Rate limit exceeded')
     }
 
@@ -351,7 +352,7 @@ export abstract class BaseAlertChannel implements AlertChannel {
       const dedupKey = this.generateDedupKey(alert)
       if (this.dedupStore.shouldDedup(dedupKey, this.dedupConfig.windowMs)) {
         this.metrics.totalDeduped++
-        console.log(`[BaseAlertChannel] Deduplicated alert: ${alert.id}`)
+        logger.debug(`[BaseAlertChannel] Deduplicated alert: ${alert.id}`)
         return
       }
       this.dedupStore.record(dedupKey, alert.id)
@@ -388,7 +389,7 @@ export abstract class BaseAlertChannel implements AlertChannel {
         if (i < this.retryConfig.maxRetries) {
           this.metrics.totalRetried++
           const delay = this.calculateDelay(i)
-          console.log(`[BaseAlertChannel] Retry ${i + 1}/${this.retryConfig.maxRetries} after ${delay}ms`)
+          logger.debug(`[BaseAlertChannel] Retry ${i + 1}/${this.retryConfig.maxRetries} after ${delay}ms`)
           await this.sleep(delay)
         }
       }

@@ -6,6 +6,8 @@
  * @version 1.12.0
  */
 
+import { logger } from '@/lib/logger'
+
 export interface SWMessage {
   type: string
   payload?: unknown
@@ -48,7 +50,7 @@ export class ServiceWorkerManager {
   async initialize(): Promise<boolean> {
     try {
       if (!('serviceWorker' in navigator)) {
-        console.warn('Service Worker not supported')
+        logger.warn('Service Worker not supported')
         return false
       }
 
@@ -57,7 +59,7 @@ export class ServiceWorkerManager {
         updateViaCache: 'none',
       })
 
-      console.log('Service Worker registered:', this.registration)
+      logger.debug('Service Worker registered:', this.registration)
 
       // Listen for updates
       this.registration.addEventListener('updatefound', () => {
@@ -82,7 +84,7 @@ export class ServiceWorkerManager {
 
       return true
     } catch (error) {
-      console.error('Failed to register Service Worker:', error)
+      logger.error('Failed to register Service Worker:', error)
       return false
     }
   }
@@ -125,7 +127,7 @@ export class ServiceWorkerManager {
       await this.registration.update()
       return true
     } catch (error) {
-      console.error('Failed to check for updates:', error)
+      logger.error('Failed to check for updates:', error)
       return false
     }
   }
@@ -145,7 +147,7 @@ export class ServiceWorkerManager {
       // Reload page
       window.location.reload()
     } catch (error) {
-      console.error('Failed to skip waiting:', error)
+      logger.error('Failed to skip waiting:', error)
     }
   }
 
@@ -160,7 +162,7 @@ export class ServiceWorkerManager {
 
       this.registration.active.postMessage(message)
     } catch (error) {
-      console.error('Failed to send message to Service Worker:', error)
+      logger.error('Failed to send message to Service Worker:', error)
     }
   }
 
@@ -187,7 +189,7 @@ export class ServiceWorkerManager {
     try {
       await this.sendMessage({ type: 'CLEAR_CACHES' })
     } catch (error) {
-      console.error('Failed to clear caches:', error)
+      logger.error('Failed to clear caches:', error)
     }
   }
 
@@ -198,7 +200,7 @@ export class ServiceWorkerManager {
     try {
       await this.sendMessage({ type: 'PRELOAD_URLS', payload: urls })
     } catch (error) {
-      console.error('Failed to preload URLs:', error)
+      logger.error('Failed to preload URLs:', error)
     }
   }
 
@@ -213,7 +215,7 @@ export class ServiceWorkerManager {
         return data.size || 0
       }
     } catch (error) {
-      console.error('Failed to get cache size:', error)
+      logger.error('Failed to get cache size:', error)
     }
     return 0
   }

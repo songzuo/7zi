@@ -100,7 +100,7 @@ export const RoomList: React.FC<RoomListProps> = ({ onRoomSelect, onCreateRoom, 
           <input
             type="text"
             placeholder="搜索房间..."
-            className="w-full rounded-lg border border-gray-300 px-4 py-2 pl-10 focus:ring-2 focus:ring-blue-500 focus:outline-none dark:border-gray-700 dark:bg-gray-800 dark:text-white"
+            className="w-full rounded-lg border border-gray-300 px-4 py-2 pl-10 focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:outline-none dark:border-gray-700 dark:bg-gray-800 dark:text-white"
             onChange={e => handleSearch(e.target.value)}
           />
           <svg

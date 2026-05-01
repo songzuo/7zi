@@ -8,6 +8,8 @@
  * - 多种类型: workflow, template, execution
  */
 
+import { logger } from '@/lib/logger'
+
 /**
  * 草稿类型
  */
@@ -160,7 +162,7 @@ class IndexedDBStorage {
 
         // 验证是否为有效的 Draft 对象
         if (!isDraft<T>(result)) {
-          console.warn('[IndexedDBStorage] Invalid draft structure in database', { id, result })
+          logger.warn('[IndexedDBStorage] Invalid draft structure in database', { id, result })
           resolve(null)
           return
         }
@@ -168,7 +170,7 @@ class IndexedDBStorage {
         // 检查是否过期
         if (result.expiresAt && result.expiresAt < Date.now()) {
           this.delete(id).catch(err => {
-            console.warn('[IndexedDBStorage] Failed to delete expired draft:', err)
+            logger.warn('[IndexedDBStorage] Failed to delete expired draft:', err)
           })
           resolve(null)
           return
@@ -219,7 +221,7 @@ class IndexedDBStorage {
               drafts.push(value)
             }
           } else {
-            console.warn('[IndexedDBStorage] Invalid draft structure in list', { value })
+            logger.warn('[IndexedDBStorage] Invalid draft structure in list', { value })
           }
 
           result.continue()
@@ -354,7 +356,7 @@ class LocalStorageStorage {
       if (isDraft(value)) {
         result[key] = value
       } else {
-        console.warn('[LocalStorageStorage] Invalid draft structure in storage', { key, value })
+        logger.warn('[LocalStorageStorage] Invalid draft structure in storage', { key, value })
       }
     }
 
@@ -372,7 +374,7 @@ class LocalStorageStorage {
     try {
       localStorage.setItem(this.STORAGE_KEY, JSON.stringify(drafts))
     } catch (error) {
-      console.warn('[LocalStorageStorage] Failed to save drafts:', error)
+      logger.warn('[LocalStorageStorage] Failed to save drafts:', error)
     }
   }
 
@@ -479,7 +481,7 @@ class LocalStorageStorage {
     try {
       localStorage.removeItem(this.STORAGE_KEY)
     } catch (error) {
-      console.warn('[LocalStorageStorage] Failed to clear drafts:', error)
+      logger.warn('[LocalStorageStorage] Failed to clear drafts:', error)
     }
   }
 }
@@ -500,7 +502,7 @@ interface DraftStorageBackend {
  * 草稿存储管理器（自动选择存储后端）
  */
 export class DraftStorageManager {
-  private backend: DraftStorageBackend
+  private backend!: DraftStorageBackend
   private useIndexedDB = false
 
   constructor() {
@@ -515,12 +517,12 @@ export class DraftStorageManager {
           
         })
         .catch((error) => {
-          console.warn('[DraftStorageManager] IndexedDB not available, falling back to localStorage:', error)
+          logger.warn('[DraftStorageManager] IndexedDB not available, falling back to localStorage:', error)
           this.backend = new LocalStorageStorage()
         })
     } else {
       this.backend = new LocalStorageStorage()
-      console.warn('[DraftStorageManager] IndexedDB not available, using localStorage')
+      logger.warn('[DraftStorageManager] IndexedDB not available, using localStorage')
     }
   }
 
@@ -718,6 +720,6 @@ export async function initializeDraftStorage(): Promise<void> {
   const cleared = await manager.clearExpiredDrafts()
 
   if (cleared > 0) {
-    console.log(`[DraftStorage] Cleaned up ${cleared} expired draft(s)`)
+    logger.debug(`[DraftStorage] Cleaned up ${cleared} expired draft(s)`)
   }
 }

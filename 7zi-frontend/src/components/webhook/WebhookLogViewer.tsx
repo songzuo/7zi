@@ -99,7 +99,7 @@ export function WebhookLogViewer({
           <select
             value={filterLevel}
             onChange={(e) => setFilterLevel(e.target.value as WebhookLogLevel | 'all')}
-            className="px-3 py-1 text-sm border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+            className="px-3 py-1 text-sm border border-gray-300 rounded-md focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500"
           >
             <option value="all">全部级别</option>
             <option value="debug">调试</option>

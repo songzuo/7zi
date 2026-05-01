@@ -9,6 +9,7 @@ import { NextRequest, NextResponse } from 'next/server'
 import { RateLimiter, RateLimitResult, getClientIP, generateRateLimitKey, formatRateLimitHeaders } from '../rate-limit/limiter'
 import { MemoryRateLimitStorage } from '../rate-limit/memory-storage'
 import { RateLimitConfig } from '../rate-limit/config'
+import { logger } from '@/lib/logger'
 
 /**
  * 限流算法类型
@@ -383,7 +384,7 @@ export function createRateLimitMiddleware(config: RateLimitMiddlewareConfig = {}
 
     // 记录日志
     if (finalConfig.enableLogging) {
-      console.log(`[Rate Limit] ${key}: ${result.count}/${result.limit} (remaining: ${result.remaining})`)
+      logger.debug(`[Rate Limit] ${key}: ${result.count}/${result.limit} (remaining: ${result.remaining})`)
     }
 
     // 检查是否超出限制

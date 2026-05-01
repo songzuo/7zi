@@ -222,7 +222,7 @@ export function WebhookConfigPanel({
             value={name}
             onChange={(e) => setName(e.target.value)}
             placeholder="例如：工作流完成通知"
-            className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+            className="w-full px-3 py-2 border border-gray-300 rounded-md focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500"
           />
         </div>
 
@@ -236,7 +236,7 @@ export function WebhookConfigPanel({
             onChange={(e) => setDescription(e.target.value)}
             placeholder="简要描述此 Webhook 的用途"
             rows={2}
-            className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+            className="w-full px-3 py-2 border border-gray-300 rounded-md focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500"
           />
         </div>
 
@@ -250,7 +250,7 @@ export function WebhookConfigPanel({
             value={url}
             onChange={(e) => setUrl(e.target.value)}
             placeholder="https://example.com/webhook"
-            className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+            className="w-full px-3 py-2 border border-gray-300 rounded-md focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500"
           />
           <p className="mt-1 text-xs text-gray-500">
             接收 Webhook 请求的 HTTPS 端点
@@ -268,7 +268,7 @@ export function WebhookConfigPanel({
               value={secret}
               onChange={(e) => setSecret(e.target.value)}
               placeholder="留空自动生成"
-              className="flex-1 px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 font-mono text-sm"
+              className="flex-1 px-3 py-2 border border-gray-300 rounded-md focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 font-mono text-sm"
             />
             <button
               type="button"

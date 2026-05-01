@@ -4,6 +4,7 @@
  */
 
 import { PerformanceAlert, AlertChannel, AlertChannelConfig, AlertSeverity } from './types'
+import { logger } from '@/lib/logger'
 
 /**
  * Email Channel - Email notifications
@@ -19,16 +20,16 @@ export class EmailChannel implements AlertChannel {
   }
 
   async send(alert: PerformanceAlert): Promise<void> {
-    console.log(`[EMAIL] To: ${this.config.recipients.join(', ')}`)
-    console.log(
+    logger.debug(`[EMAIL] To: ${this.config.recipients.join(', ')}`)
+    logger.debug(
       `[EMAIL] Subject: [${alert.severity.toUpperCase()}] ${this.config.subject} - ${alert.metric}`
     )
-    console.log(`[EMAIL] Message: ${alert.message}`)
-    console.log(`[EMAIL] Value: ${alert.value}, Threshold: ${alert.threshold}`)
-    console.log(`[EMAIL] Timestamp: ${new Date(alert.timestamp).toISOString()}`)
+    logger.debug(`[EMAIL] Message: ${alert.message}`)
+    logger.debug(`[EMAIL] Value: ${alert.value}, Threshold: ${alert.threshold}`)
+    logger.debug(`[EMAIL] Timestamp: ${new Date(alert.timestamp).toISOString()}`)
 
     if (alert.context) {
-      console.log(`[EMAIL] Context:`, JSON.stringify(alert.context, null, 2))
+      logger.debug(`[EMAIL] Context:`, JSON.stringify(alert.context, null, 2))
     }
 
     // TODO: Integrate with actual email service
@@ -105,9 +106,9 @@ export class SlackChannel implements AlertChannel {
       ],
     }
 
-    console.log(`[SLACK] Webhook: ${this.config.webhookUrl}`)
-    console.log(`[SLACK] Channel: ${this.config.channel}`)
-    console.log(`[SLACK] Payload:`, JSON.stringify(payload, null, 2))
+    logger.debug(`[SLACK] Webhook: ${this.config.webhookUrl}`)
+    logger.debug(`[SLACK] Channel: ${this.config.channel}`)
+    logger.debug(`[SLACK] Payload:`, JSON.stringify(payload, null, 2))
 
     // TODO: Send actual webhook
     // await fetch(this.config.webhookUrl, {
@@ -147,12 +148,12 @@ export class DashboardChannel implements AlertChannel {
   }
 
   async send(alert: PerformanceAlert): Promise<void> {
-    console.log(`[DASHBOARD] Severity: ${alert.severity.toUpperCase()}`)
-    console.log(`[DASHBOARD] Metric: ${alert.metric}`)
-    console.log(`[DASHBOARD] Message: ${alert.message}`)
-    console.log(`[DASHBOARD] Value: ${alert.value}, Threshold: ${alert.threshold}`)
-    console.log(`[DASHBOARD] Show Toast: ${this.config.showToast}`)
-    console.log(`[DASHBOARD] Play Sound: ${this.config.playSound}`)
+    logger.debug(`[DASHBOARD] Severity: ${alert.severity.toUpperCase()}`)
+    logger.debug(`[DASHBOARD] Metric: ${alert.metric}`)
+    logger.debug(`[DASHBOARD] Message: ${alert.message}`)
+    logger.debug(`[DASHBOARD] Value: ${alert.value}, Threshold: ${alert.threshold}`)
+    logger.debug(`[DASHBOARD] Show Toast: ${this.config.showToast}`)
+    logger.debug(`[DASHBOARD] Play Sound: ${this.config.playSound}`)
 
     if (this.config.showToast) {
       // TODO: Integrate with toast notification system
@@ -214,10 +215,10 @@ export class WebhookChannel implements AlertChannel {
       context: alert.context,
     }
 
-    console.log(`[WEBHOOK] URL: ${this.config.url}`)
-    console.log(`[WEBHOOK] Method: ${this.config.method}`)
-    console.log(`[WEBHOOK] Headers:`, this.config.headers)
-    console.log(`[WEBHOOK] Payload:`, JSON.stringify(payload, null, 2))
+    logger.debug(`[WEBHOOK] URL: ${this.config.url}`)
+    logger.debug(`[WEBHOOK] Method: ${this.config.method}`)
+    logger.debug(`[WEBHOOK] Headers:`, this.config.headers)
+    logger.debug(`[WEBHOOK] Payload:`, JSON.stringify(payload, null, 2))
 
     // TODO: Send actual webhook
     // await fetch(this.config.url, {
@@ -256,9 +257,9 @@ ${alert.message}
 <i>${new Date(alert.timestamp).toISOString()}</i>
     `.trim()
 
-    console.log(`[TELEGRAM] Bot Token: ${this.config.botToken}`)
-    console.log(`[TELEGRAM] Chat ID: ${this.config.chatId}`)
-    console.log(`[TELEGRAM] Message:`, message)
+    logger.debug(`[TELEGRAM] Bot Token: ${this.config.botToken}`)
+    logger.debug(`[TELEGRAM] Chat ID: ${this.config.chatId}`)
+    logger.debug(`[TELEGRAM] Message:`, message)
 
     // TODO: Send actual Telegram message
     // await fetch(`https://api.telegram.org/bot${this.config.botToken}/sendMessage`, {

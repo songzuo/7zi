@@ -105,7 +105,7 @@ export function useNotificationsStable(
         if (isMounted.current && Array.isArray(data)) {
           setNotifications(data)
           setUnreadCount(data.filter((n: Notification) => !n.read).length)
-          console.log(`[useNotificationsStable] Received ${data.length} initial notifications`)
+          logger.debug(`[useNotificationsStable] Received ${data.length} initial notifications`)
         }
       })
 
@@ -166,7 +166,7 @@ export function useNotificationsStable(
 
       wsManagerRef.current.on('subscribed', (event, data) => {
         if (isMounted.current) {
-          console.log('[useNotificationsStable] Subscribed:', data)
+          logger.debug('[useNotificationsStable] Subscribed:', data)
         }
       })
 
@@ -288,7 +288,7 @@ export function useNotificationsStable(
           setUnreadCount(result.meta?.unreadCount || 0)
         }
       } catch (error) {
-        console.error('[useNotificationsStable] Failed to refresh notifications:', error)
+        logger.error('[useNotificationsStable] Failed to refresh notifications:', error)
       }
     },
     [userId, teamId]

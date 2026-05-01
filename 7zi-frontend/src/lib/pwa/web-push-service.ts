@@ -6,6 +6,8 @@
  * @version 1.12.0
  */
 
+import { logger } from '@/lib/logger'
+
 export interface PushSubscription {
   endpoint: string
   keys: {
@@ -83,12 +85,12 @@ export class WebPushService {
       this.subscription = await this.swRegistration.pushManager.getSubscription()
 
       if (this.subscription) {
-        console.log('Found existing push subscription')
+        logger.debug('Found existing push subscription')
       }
 
       return true
     } catch (error) {
-      console.error('Failed to initialize Web Push service:', error)
+      logger.error('Failed to initialize Web Push service:', error)
       return false
     }
   }
@@ -117,10 +119,10 @@ export class WebPushService {
   async requestPermission(): Promise<NotificationPermission> {
     try {
       const permission = await Notification.requestPermission()
-      console.log('Notification permission:', permission)
+      logger.debug('Notification permission:', permission)
       return permission
     } catch (error) {
-      console.error('Failed to request notification permission:', error)
+      logger.error('Failed to request notification permission:', error)
       return 'denied'
     }
   }
@@ -136,7 +138,7 @@ export class WebPushService {
 
       // Check if already subscribed
       if (this.subscription) {
-        console.log('Already subscribed to push notifications')
+        logger.debug('Already subscribed to push notifications')
         return this.subscription.toJSON() as PushSubscription
       }
 
@@ -149,10 +151,10 @@ export class WebPushService {
         applicationServerKey: convertedVapidKey,
       })
 
-      console.log('Successfully subscribed to push notifications')
+      logger.debug('Successfully subscribed to push notifications')
       return this.subscription.toJSON() as PushSubscription
     } catch (error) {
-      console.error('Failed to subscribe to push notifications:', error)
+      logger.error('Failed to subscribe to push notifications:', error)
       return null
     }
   }
@@ -163,20 +165,20 @@ export class WebPushService {
   async unsubscribe(): Promise<boolean> {
     try {
       if (!this.subscription) {
-        console.log('No active subscription to unsubscribe')
+        logger.debug('No active subscription to unsubscribe')
         return true
       }
 
       const success = await this.subscription.unsubscribe()
 
       if (success) {
-        console.log('Successfully unsubscribed from push notifications')
+        logger.debug('Successfully unsubscribed from push notifications')
         this.subscription = null
       }
 
       return success
     } catch (error) {
-      console.error('Failed to unsubscribe from push notifications:', error)
+      logger.error('Failed to unsubscribe from push notifications:', error)
       return false
     }
   }
@@ -218,7 +220,7 @@ export class WebPushService {
         timestamp: payload.timestamp || Date.now(),
       })
     } catch (error) {
-      console.error('Failed to show local notification:', error)
+      logger.error('Failed to show local notification:', error)
     }
   }
 
@@ -255,7 +257,7 @@ export class WebPushService {
 
       return response.ok
     } catch (error) {
-      console.error('Failed to send subscription to server:', error)
+      logger.error('Failed to send subscription to server:', error)
       return false
     }
   }
@@ -275,7 +277,7 @@ export class WebPushService {
 
       return response.ok
     } catch (error) {
-      console.error('Failed to remove subscription from server:', error)
+      logger.error('Failed to remove subscription from server:', error)
       return false
     }
   }

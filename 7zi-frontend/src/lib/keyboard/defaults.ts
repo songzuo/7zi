@@ -3,6 +3,7 @@
  */
 
 import { Shortcut, ShortcutCategory } from './shortcut-registry';
+import { logger } from '@/lib/logger';
 
 export type DefaultShortcutKey = 
   | 'global-search' 

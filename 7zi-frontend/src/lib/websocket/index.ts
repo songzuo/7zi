@@ -9,7 +9,8 @@
  * import { ConnectionState, ConnectionStats } from '@/lib/websocket/types'
  */
 
-export { WebSocketManager, WebSocketClient } from './manager'
+export { WebSocketManager } from './manager'
+export { WebSocketClient } from './core'
 
 // Re-export types
 export type {

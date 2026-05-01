@@ -7,6 +7,7 @@
  */
 
 import { openDB, DBSchema, IDBPDatabase } from 'idb'
+import { logger } from '@/lib/logger'
 
 /**
  * 工作流草稿数据类型
@@ -146,7 +147,7 @@ export const draftStorage = {
       // 自动清理最旧的草稿
       await this.cleanupOldDrafts(workflowId)
       
-      console.log(`[DraftStorage] 草稿已保存: ${draft.id}`)
+      logger.debug(`[DraftStorage] 草稿已保存: ${draft.id}`)
       return draft
     } catch (error) {
       console.error('[DraftStorage] 保存草稿失败:', error)
@@ -170,7 +171,7 @@ export const draftStorage = {
       const cursor = await index.openCursor(IDBKeyRange.only(workflowId))
       
       if (cursor) {
-        console.log(`[DraftStorage] 草稿已加载: ${cursor.value.id}`)
+        logger.debug(`[DraftStorage] 草稿已加载: ${cursor.value.id}`)
         return cursor.value
       }
       
@@ -198,7 +199,7 @@ export const draftStorage = {
       
       if (cursor) {
         await cursor.delete()
-        console.log(`[DraftStorage] 草稿已删除: ${cursor.value.id}`)
+        logger.debug(`[DraftStorage] 草稿已删除: ${cursor.value.id}`)
         return true
       }
       
@@ -262,7 +263,7 @@ export const draftStorage = {
       }
       
       await tx.done
-      console.log(`[DraftStorage] 已清空所有草稿，共 ${drafts.length} 个`)
+      logger.debug(`[DraftStorage] 已清空所有草稿，共 ${drafts.length} 个`)
       return drafts.length
     } catch (error) {
       console.error('[DraftStorage] 清空草稿失败:', error)
@@ -312,7 +313,7 @@ export const draftStorage = {
       await tx.done
       
       if (deletedCount > 0) {
-        console.log(`[DraftStorage] 已清理 ${deletedCount} 个最旧的草稿`)
+        logger.debug(`[DraftStorage] 已清理 ${deletedCount} 个最旧的草稿`)
       }
       
       return deletedCount

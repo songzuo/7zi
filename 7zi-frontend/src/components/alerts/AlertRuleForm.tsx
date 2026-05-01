@@ -208,7 +208,7 @@ export const AlertRuleForm: React.FC<AlertRuleFormProps> = ({
             placeholder="e.g., High CPU Usage Alert"
             className={clsx(
               'w-full px-4 py-2 border-2 rounded-lg',
-              'focus:outline-none focus:ring-2 focus:ring-blue-500',
+              'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500',
               'dark:bg-gray-700 dark:border-gray-600 dark:text-gray-100',
               errors.name ? 'border-red-300' : 'border-gray-300'
             )}
@@ -249,7 +249,7 @@ export const AlertRuleForm: React.FC<AlertRuleFormProps> = ({
               onChange={(e) => setCondition(e.target.value as Condition)}
               className={clsx(
                 'w-full px-4 py-2 border-2 rounded-lg',
-                'focus:outline-none focus:ring-2 focus:ring-blue-500',
+                'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500',
                 'dark:bg-gray-700 dark:border-gray-600 dark:text-gray-100'
               )}
             >
@@ -270,7 +270,7 @@ export const AlertRuleForm: React.FC<AlertRuleFormProps> = ({
               min="0"
               className={clsx(
                 'w-full px-4 py-2 border-2 rounded-lg',
-                'focus:outline-none focus:ring-2 focus:ring-blue-500',
+                'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500',
                 'dark:bg-gray-700 dark:border-gray-600 dark:text-gray-100',
                 errors.threshold ? 'border-red-300' : 'border-gray-300'
               )}
@@ -288,7 +288,7 @@ export const AlertRuleForm: React.FC<AlertRuleFormProps> = ({
             min="0"
             className={clsx(
               'w-full px-4 py-2 border-2 rounded-lg',
-              'focus:outline-none focus:ring-2 focus:ring-blue-500',
+              'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500',
               'dark:bg-gray-700 dark:border-gray-600 dark:text-gray-100',
               errors.duration ? 'border-red-300' : 'border-gray-300'
             )}
@@ -351,7 +351,7 @@ export const AlertRuleForm: React.FC<AlertRuleFormProps> = ({
             rows={2}
             className={clsx(
               'w-full px-4 py-2 border-2 rounded-lg resize-none',
-              'focus:outline-none focus:ring-2 focus:ring-blue-500',
+              'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500',
               'dark:bg-gray-700 dark:border-gray-600 dark:text-gray-100'
             )}
           />

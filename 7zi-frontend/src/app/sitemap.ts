@@ -6,117 +6,146 @@
 import { MetadataRoute } from 'next'
 
 export default function sitemap(): MetadataRoute.Sitemap {
-  const baseUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://7zi.studio'
+  const baseUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://7zi.com'
+  const today = new Date()
 
-  // 主要页面
-  const mainPages = [
+  // 主要公开页面
+  const mainPages: MetadataRoute.Sitemap = [
     {
-      path: '',
-      priority: 1,
-      changeFreq: 'weekly' as const,
+      url: baseUrl,
+      lastModified: today,
+      changeFrequency: 'weekly',
+      priority: 1.0,
     },
     {
-      path: '/pricing',
+      url: `${baseUrl}/pricing`,
+      lastModified: today,
+      changeFrequency: 'weekly',
       priority: 0.9,
-      changeFreq: 'weekly' as const,
     },
     {
-      path: '/design-system',
-      priority: 0.8,
-      changeFreq: 'weekly' as const,
-    },
-    {
-      path: '/feedback',
+      url: `${baseUrl}/feedback`,
+      lastModified: today,
+      changeFrequency: 'monthly',
       priority: 0.7,
-      changeFreq: 'monthly' as const,
     },
     {
-      path: '/monitoring-example',
+      url: `${baseUrl}/design-system`,
+      lastModified: today,
+      changeFrequency: 'weekly',
+      priority: 0.8,
+    },
+    {
+      url: `${baseUrl}/register`,
+      lastModified: today,
+      changeFrequency: 'monthly',
       priority: 0.6,
-      changeFreq: 'monthly' as const,
     },
   ]
 
-  // Demo 页面
-  const demoPages = [
+  // Demo / 示例页面 (确认存在的)
+  const demoPages: MetadataRoute.Sitemap = [
     {
-      path: '/image-optimization-demo',
+      url: `${baseUrl}/image-optimization-demo`,
+      lastModified: today,
+      changeFrequency: 'weekly',
       priority: 0.8,
-      changeFreq: 'weekly' as const,
     },
     {
-      path: '/notification-demo',
+      url: `${baseUrl}/notification-demo`,
+      lastModified: today,
+      changeFrequency: 'monthly',
       priority: 0.7,
-      changeFreq: 'monthly' as const,
     },
     {
-      path: '/websocket-status-demo',
-      priority: 0.7,
-      changeFreq: 'monthly' as const,
-    },
-    {
-      path: '/dark-mode-demo',
+      url: `${baseUrl}/mobile-optimization-demo`,
+      lastModified: today,
+      changeFrequency: 'monthly',
       priority: 0.6,
-      changeFreq: 'monthly' as const,
     },
     {
-      path: '/ui-components-demo',
+      url: `${baseUrl}/mobile-optimization-v1130`,
+      lastModified: today,
+      changeFrequency: 'monthly',
       priority: 0.6,
-      changeFreq: 'monthly' as const,
     },
     {
-      path: '/i18n-demo',
+      url: `${baseUrl}/rich-text-editor-demo`,
+      lastModified: today,
+      changeFrequency: 'monthly',
       priority: 0.6,
-      changeFreq: 'monthly' as const,
     },
     {
-      path: '/mobile-optimization-demo',
+      url: `${baseUrl}/demo`,
+      lastModified: today,
+      changeFrequency: 'monthly',
+      priority: 0.5,
+    },
+    {
+      url: `${baseUrl}/collaboration-cursor-demo`,
+      lastModified: today,
+      changeFrequency: 'monthly',
       priority: 0.6,
-      changeFreq: 'monthly' as const,
     },
   ]
 
-  // 多语言页面
-  const locales = ['zh', 'en']
-  const localePages = [
+  // 设计系统子页面
+  const designSystemPages: MetadataRoute.Sitemap = [
     {
-      path: '/knowledge-lattice',
-      priority: 0.8,
-      changeFreq: 'weekly' as const,
+      url: `${baseUrl}/design-system/components`,
+      lastModified: today,
+      changeFrequency: 'weekly',
+      priority: 0.7,
+    },
+    {
+      url: `${baseUrl}/design-system/tokens`,
+      lastModified: today,
+      changeFrequency: 'monthly',
+      priority: 0.6,
+    },
+    {
+      url: `${baseUrl}/design-system/guidelines`,
+      lastModified: today,
+      changeFrequency: 'monthly',
+      priority: 0.6,
+    },
+    {
+      url: `${baseUrl}/design-system/responsive`,
+      lastModified: today,
+      changeFrequency: 'monthly',
+      priority: 0.6,
+    },
+    {
+      url: `${baseUrl}/design-system/changelog`,
+      lastModified: today,
+      changeFrequency: 'weekly',
+      priority: 0.7,
     },
   ]
 
-  const routes: MetadataRoute.Sitemap = [
-    // 主要页面
-    ...mainPages.map(page => ({
-      url: `${baseUrl}${page.path}`,
-      lastModified: new Date('2026-03-29'),
-      changeFrequency: page.changeFreq,
-      priority: page.priority,
-    })),
-    // Demo 页面
-    ...demoPages.map(page => ({
-      url: `${baseUrl}${page.path}`,
-      lastModified: new Date('2026-03-29'),
-      changeFrequency: page.changeFreq,
-      priority: page.priority,
-    })),
-    // 多语言页面
-    ...locales.flatMap(locale =>
-      localePages.map(page => ({
-        url: `${baseUrl}/${locale}${page.path}`,
-        lastModified: new Date('2026-03-29'),
-        changeFrequency: page.changeFreq,
-        priority: page.priority,
-        alternates: {
-          languages: {
-            'zh-CN': `${baseUrl}/zh${page.path}`,
-            en: `${baseUrl}/en${page.path}`,
-          },
+  // 多语言 (i18n) 页面
+  const locales = ['zh', 'en'] as const
+  const i18nPages = ['/knowledge-lattice', '/login']
+
+  const i18nRoutes: MetadataRoute.Sitemap = locales.flatMap(locale =>
+    i18nPages.map(path => ({
+      url: `${baseUrl}/${locale}${path}`,
+      lastModified: today,
+      changeFrequency: 'weekly' as const,
+      priority: 0.8,
+      alternates: {
+        languages: {
+          'zh-CN': `${baseUrl}/zh${path}`,
+          en: `${baseUrl}/en${path}`,
         },
-      }))
-    ),
-  ]
+      },
+    }))
+  )
 
-  return routes
+  return [
+    ...mainPages,
+    ...demoPages,
+    ...designSystemPages,
+    ...i18nRoutes,
+  ]
 }

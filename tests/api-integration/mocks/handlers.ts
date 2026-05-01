@@ -2245,6 +2245,28 @@ export const searchHandlers = [
   }),
 ]
 
+// Analytics endpoints handlers
+export const analyticsHandlers = [
+  // GET /api/analytics/metrics
+  http.get('http://localhost:3000/api/analytics/metrics', () => {
+    return HttpResponse.json({
+      success: true,
+      data: {
+        metrics: {
+          agents: { total: 10, active: 5, idle: 3, offline: 2, byProvider: {} },
+          users: { total: 100, activeToday: 50, activeWeek: 80, newUsers: 10 },
+          tasks: { total: 500, completed: 300, inProgress: 150, pending: 50 },
+        },
+        timeSeries: [],
+        pagination: { page: 1, perPage: 20, total: 0 },
+        filters: {},
+        cacheStats: { hits: 100, misses: 10 },
+      },
+      timestamp: Date.now(),
+    })
+  }),
+]
+
 // Combine all handlers
 export const handlers = [
   ...authHandlers,
@@ -2256,6 +2278,7 @@ export const handlers = [
   ...ratingsHandlers,
   ...searchHandlers,
   ...exportHandlers,
+  ...analyticsHandlers,
 ]
 
 // Create MSW server

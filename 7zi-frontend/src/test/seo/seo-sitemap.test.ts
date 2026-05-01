@@ -39,7 +39,7 @@ describe('SEO - Sitemap.xml 生成测试', () => {
 
   describe('URL 完整性', () => {
     it('应包含首页', () => {
-      const baseUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://7zi.studio'
+      const baseUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://7zi.com'
       const hasHome = sitemap.some(item => item.url === baseUrl || item.url === `${baseUrl}/`)
       expect(hasHome).toBe(true)
     })
@@ -50,7 +50,6 @@ describe('SEO - Sitemap.xml 生成测试', () => {
         '/feedback',
         '/image-optimization-demo',
         '/notification-demo',
-        '/i18n-demo',
       ]
 
       expectedPages.forEach(page => {
@@ -90,7 +89,7 @@ describe('SEO - Sitemap.xml 生成测试', () => {
 
   describe('优先级和更新频率', () => {
     it('首页应有最高优先级', () => {
-      const baseUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://7zi.studio'
+      const baseUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://7zi.com'
       const homePage = sitemap.find(item => item.url === baseUrl || item.url === `${baseUrl}/`)
 
       expect(homePage).toBeDefined()
@@ -145,7 +144,7 @@ describe('SEO - Sitemap.xml 生成测试', () => {
 
   describe('URL 格式和标准化', () => {
     it('所有 URL 应使用相同的域名', () => {
-      const baseUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://7zi.studio'
+      const baseUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://7zi.com'
 
       sitemap.forEach(item => {
         expect(item.url).toContain(baseUrl)

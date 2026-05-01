@@ -72,7 +72,7 @@ export function useNotifications(options: UseNotificationsOptions = {}): UseNoti
    */
   const connect = useCallback(() => {
     if (socketRef.current?.connected) {
-      console.log('[useNotifications] Already connected')
+      logger.debug('[useNotifications] Already connected')
       return
     }
 
@@ -91,7 +91,7 @@ export function useNotifications(options: UseNotificationsOptions = {}): UseNoti
         socketRef.current = socket
 
         socket.on('connect', () => {
-          console.log('[useNotifications] Connected to socket server')
+          logger.debug('[useNotifications] Connected to socket server')
           setStatus('connected')
 
           // Subscribe to channels
@@ -112,7 +112,7 @@ export function useNotifications(options: UseNotificationsOptions = {}): UseNoti
           if (isMounted.current) {
             setNotifications(initialNotifs)
             setUnreadCount(initialNotifs.filter(n => !n.read).length)
-            console.log(`[useNotifications] Received ${initialNotifs.length} initial notifications`)
+            logger.debug(`[useNotifications] Received ${initialNotifs.length} initial notifications`)
           }
         })
 
@@ -168,21 +168,21 @@ export function useNotifications(options: UseNotificationsOptions = {}): UseNoti
         })
 
         socket.on('disconnect', (reason: string) => {
-          console.log('[useNotifications] Disconnected:', reason)
+          logger.debug('[useNotifications] Disconnected:', reason)
           setStatus('disconnected')
         })
 
         socket.on('connect_error', (error: Error) => {
-          console.error('[useNotifications] Connection error:', error)
+          logger.error('[useNotifications] Connection error:', error)
           setStatus('error')
         })
 
         socket.on('subscribed', ({ channels }: { channels: string[] }) => {
-          console.log('[useNotifications] Subscribed to channels:', channels)
+          logger.debug('[useNotifications] Subscribed to channels:', channels)
         })
       })
       .catch((error) => {
-        console.error('[useNotifications] Failed to import socket.io-client:', error)
+        logger.error('[useNotifications] Failed to import socket.io-client:', error)
         setStatus('error')
       })
   }, [socketUrl, userId, teamId, channels])
@@ -195,7 +195,7 @@ export function useNotifications(options: UseNotificationsOptions = {}): UseNoti
       socketRef.current.disconnect()
       socketRef.current = null
       setStatus('disconnected')
-      console.log('[useNotifications] Disconnected')
+      logger.debug('[useNotifications] Disconnected')
     }
   }, [])
 
@@ -265,7 +265,7 @@ export function useNotifications(options: UseNotificationsOptions = {}): UseNoti
           setUnreadCount(result.meta?.unreadCount || 0)
         }
       } catch (error) {
-        console.error('[useNotifications] Failed to refresh notifications:', error)
+        logger.error('[useNotifications] Failed to refresh notifications:', error)
       }
     },
     [userId, teamId]

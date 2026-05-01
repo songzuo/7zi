@@ -6,6 +6,7 @@
  */
 
 import { enhancedNotificationService } from '@/lib/services/notification-enhanced'
+import { logger } from '@/lib/logger'
 
 export let _initialized = false
 let _initPromise: Promise<void> | null = null
@@ -25,13 +26,13 @@ export function _resetNotificationSystem(): void {
 export async function initializeNotificationSystem(): Promise<void> {
   // If already initialized, return immediately
   if (_initialized) {
-    console.log('[NotificationSystem] Already initialized')
+    logger.debug('[NotificationSystem] Already initialized')
     return
   }
 
   // If initialization is in progress, wait for it
   if (_initPromise) {
-    console.log('[NotificationSystem] Initialization in progress, waiting...')
+    logger.debug('[NotificationSystem] Initialization in progress, waiting...')
     await _initPromise
     return
   }
@@ -41,9 +42,9 @@ export async function initializeNotificationSystem(): Promise<void> {
     try {
       await enhancedNotificationService.initialize()
       _initialized = true
-      console.log('[NotificationSystem] Successfully initialized')
+      logger.debug('[NotificationSystem] Successfully initialized')
     } catch (error) {
-      console.error('[NotificationSystem] Failed to initialize:', error)
+      logger.error('[NotificationSystem] Failed to initialize:', error)
       _initPromise = null
       throw error
     }

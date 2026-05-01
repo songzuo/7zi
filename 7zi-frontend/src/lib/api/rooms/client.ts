@@ -163,7 +163,7 @@ export class RoomWebSocket {
   // 连接 WebSocket
   connect(token?: string): void {
     if (this.ws?.readyState === WebSocket.OPEN) {
-      console.warn('WebSocket already connected')
+      logger.warn('WebSocket already connected')
       return
     }
 
@@ -175,7 +175,7 @@ export class RoomWebSocket {
     this.ws = new WebSocket(url.toString())
 
     this.ws.onopen = () => {
-      console.log('WebSocket connected')
+      logger.debug('WebSocket connected')
       this.reconnectAttempts = 0
     }
 

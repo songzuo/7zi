@@ -41,6 +41,17 @@ body {
   background-color: var(--color-gray-900);
 }
 
+/* ===== Focus Visible 样式 ===== */
+/* 仅在键盘导航时显示 focus 环，鼠标点击时不显示 */
+:focus:not(:focus-visible) {
+  outline: none;
+}
+
+:focus-visible {
+  outline: 2px solid var(--color-primary-500);
+  outline-offset: 2px;
+}
+
 /* ===== 实用工具类 ===== */
 
 /* 文本颜色 */
@@ -224,6 +235,21 @@ pre {
 
 .animate-fadeIn {
   animation: fadeIn var(--transition-slow);
+}
+
+.animate-scaleIn {
+  animation: scaleIn var(--transition-slow);
+}
+
+@keyframes scaleIn {
+  from {
+    transform: scale(0.95);
+    opacity: 0;
+  }
+  to {
+    transform: scale(1);
+    opacity: 1;
+  }
 }
 
 .animate-slideIn {

@@ -10,6 +10,7 @@ import { Button } from '@/components/ui/Button'
 import { roomsClient } from '@/lib/api/rooms/client'
 import type { Room, RoomVisibility } from '@/lib/api/rooms/types'
 import type { ApiError } from '@/types/api'
+import { trackRoomCreate } from '@/lib/analytics/ga4'
 
 interface CreateRoomModalProps {
   isOpen: boolean
@@ -43,6 +44,10 @@ export const CreateRoomModal: React.FC<CreateRoomModalProps> = ({ isOpen, onClos
       })
 
       onCreated(response.room)
+      
+      // Track room creation event
+      trackRoomCreate(response.room.id, visibility)
+
       onClose()
 
       // 重置表单
@@ -81,7 +86,7 @@ export const CreateRoomModal: React.FC<CreateRoomModalProps> = ({ isOpen, onClos
               value={name}
               onChange={e => setName(e.target.value)}
               placeholder="输入房间名称"
-              className="w-full rounded-lg border border-gray-300 px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:outline-none dark:border-gray-700 dark:bg-gray-700 dark:text-white"
+              className="w-full rounded-lg border border-gray-300 px-3 py-2 focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:outline-none dark:border-gray-700 dark:bg-gray-700 dark:text-white"
             />
           </div>
 
@@ -95,7 +100,7 @@ export const CreateRoomModal: React.FC<CreateRoomModalProps> = ({ isOpen, onClos
               onChange={e => setDescription(e.target.value)}
               placeholder="简单描述一下这个房间"
               rows={3}
-              className="w-full rounded-lg border border-gray-300 px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:outline-none dark:border-gray-700 dark:bg-gray-700 dark:text-white"
+              className="w-full rounded-lg border border-gray-300 px-3 py-2 focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:outline-none dark:border-gray-700 dark:bg-gray-700 dark:text-white"
             />
           </div>
 
@@ -138,7 +143,7 @@ export const CreateRoomModal: React.FC<CreateRoomModalProps> = ({ isOpen, onClos
               onChange={e => setMaxParticipants(parseInt(e.target.value) || 10)}
               min={2}
               max={100}
-              className="w-full rounded-lg border border-gray-300 px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:outline-none dark:border-gray-700 dark:bg-gray-700 dark:text-white"
+              className="w-full rounded-lg border border-gray-300 px-3 py-2 focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:outline-none dark:border-gray-700 dark:bg-gray-700 dark:text-white"
             />
           </div>
 

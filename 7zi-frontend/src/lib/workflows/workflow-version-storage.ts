@@ -8,6 +8,7 @@
  */
 
 import { v4 as uuidv4 } from 'uuid'
+import { logger } from '@/lib/logger'
 
 export type {
   WorkflowVersion,
@@ -286,7 +287,7 @@ class WorkflowVersionLocalStorage {
     try {
       localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify(versions))
     } catch (error) {
-      console.warn('[WorkflowVersionStorage] Failed to save versions:', error)
+      logger.warn('[WorkflowVersionStorage] Failed to save versions:', error)
     }
   }
 
@@ -344,12 +345,12 @@ export class WorkflowVersionStorageManager {
           this.useIndexedDB = true
           this.backend = indexedDBStorage
           this.initialized = true
-          console.log('[WorkflowVersionStorage] Using IndexedDB')
+          logger.debug('[WorkflowVersionStorage] Using IndexedDB')
         })
         .catch(() => {
           this.backend = new WorkflowVersionLocalStorage()
           this.initialized = true
-          console.log('[WorkflowVersionStorage] Using localStorage')
+          logger.debug('[WorkflowVersionStorage] Using localStorage')
         })
     } else {
       this.backend = new WorkflowVersionLocalStorage()

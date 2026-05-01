@@ -80,7 +80,7 @@ export async function POST(request: NextRequest) {
     // Start the server on a different port
     const SOCKET_PORT = process.env.NOTIFICATION_SOCKET_PORT || 3001
     httpServer.listen(SOCKET_PORT, () => {
-      console.log(`[Socket.IO] Server listening on port ${SOCKET_PORT}`)
+      logger.debug(`[Socket.IO] Server listening on port ${SOCKET_PORT}`)
     })
 
     // Set up periodic cleanup

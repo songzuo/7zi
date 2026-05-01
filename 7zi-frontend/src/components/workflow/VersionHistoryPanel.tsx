@@ -504,7 +504,7 @@ function BranchesTab({ branches, workflowId, onRefresh }: BranchesTabProps) {
                   type="text"
                   value={newBranchName}
                   onChange={(e) => setNewBranchName(e.target.value)}
-                  className="w-full px-3 py-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  className="w-full px-3 py-2 border border-gray-300 rounded focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500"
                   placeholder="feature/new-feature"
                 />
               </div>
@@ -515,7 +515,7 @@ function BranchesTab({ branches, workflowId, onRefresh }: BranchesTabProps) {
                 <textarea
                   value={newBranchDescription}
                   onChange={(e) => setNewBranchDescription(e.target.value)}
-                  className="w-full px-3 py-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  className="w-full px-3 py-2 border border-gray-300 rounded focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500"
                   rows={3}
                   placeholder="Describe this branch..."
                 />
@@ -607,7 +607,7 @@ function SettingsTab({ workflowId }: SettingsTabProps) {
                       },
                     })
                   }
-                  className="w-full px-3 py-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  className="w-full px-3 py-2 border border-gray-300 rounded focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500"
                 />
               </div>
 
@@ -627,7 +627,7 @@ function SettingsTab({ workflowId }: SettingsTabProps) {
                       },
                     })
                   }
-                  className="w-full px-3 py-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  className="w-full px-3 py-2 border border-gray-300 rounded focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500"
                 />
               </div>
 
@@ -647,7 +647,7 @@ function SettingsTab({ workflowId }: SettingsTabProps) {
                       },
                     })
                   }
-                  className="w-full px-3 py-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  className="w-full px-3 py-2 border border-gray-300 rounded focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500"
                 />
               </div>
             </>

@@ -7,6 +7,7 @@ import {
   VectorStoreConfig,
   VectorSearchResult,
 } from './types';
+import { logger } from '@/lib/logger';
 
 /**
  * 向量存储抽象接口
@@ -93,10 +94,10 @@ export class WeaviateVectorStore implements IVectorStore {
       //   apiKey: this.config.apiKey ? new weaviate.ApiKey(this.config.apiKey) : undefined,
       // });
 
-      console.log('Weaviate vector store initialized:', this.config);
+      logger.debug('Weaviate vector store initialized:', this.config);
       this.initialized = true;
     } catch (error) {
-      console.error('Failed to initialize Weaviate:', error);
+      logger.error('Failed to initialize Weaviate:', error);
       throw new Error('Weaviate initialization failed');
     }
   }
@@ -129,10 +130,10 @@ export class WeaviateVectorStore implements IVectorStore {
         //   .withObjects(objects)
         //   .do();
 
-        console.log(`Added ${objects.length} chunks to Weaviate`);
+        logger.debug(`Added ${objects.length} chunks to Weaviate`);
       }
     } catch (error) {
-      console.error('Failed to add chunks:', error);
+      logger.error('Failed to add chunks:', error);
       throw error;
     }
   }
@@ -152,9 +153,9 @@ export class WeaviateVectorStore implements IVectorStore {
       //   })
       //   .do();
 
-      console.log(`Deleted document ${documentId} from Weaviate`);
+      logger.debug(`Deleted document ${documentId} from Weaviate`);
     } catch (error) {
-      console.error('Failed to delete document:', error);
+      logger.error('Failed to delete document:', error);
       throw error;
     }
   }
@@ -198,7 +199,7 @@ export class WeaviateVectorStore implements IVectorStore {
 
       return mockResults;
     } catch (error) {
-      console.error('Search failed:', error);
+      logger.error('Search failed:', error);
       throw error;
     }
   }
@@ -242,7 +243,7 @@ export class WeaviateVectorStore implements IVectorStore {
       // 模拟返回
       return null;
     } catch (error) {
-      console.error('Failed to get chunk:', error);
+      logger.error('Failed to get chunk:', error);
       return null;
     }
   }
@@ -272,7 +273,7 @@ export class WeaviateVectorStore implements IVectorStore {
       // 模拟返回
       return [];
     } catch (error) {
-      console.error('Failed to get document chunks:', error);
+      logger.error('Failed to get document chunks:', error);
       return [];
     }
   }
@@ -287,9 +288,9 @@ export class WeaviateVectorStore implements IVectorStore {
       //   .withClassName(this.config.collection)
       //   .do();
 
-      console.log(`Dropped collection ${this.config.collection}`);
+      logger.debug(`Dropped collection ${this.config.collection}`);
     } catch (error) {
-      console.error('Failed to drop collection:', error);
+      logger.error('Failed to drop collection:', error);
       throw error;
     }
   }
@@ -337,7 +338,7 @@ export class LocalVectorStore implements IVectorStore {
   private documentIndex: Map<string, Set<string>> = new Map();
 
   async initialize(): Promise<void> {
-    console.log('Local vector store initialized');
+    logger.debug('Local vector store initialized');
   }
 
   async addChunks(chunks: DocumentChunk[]): Promise<void> {

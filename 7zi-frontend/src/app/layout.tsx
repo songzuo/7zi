@@ -11,23 +11,35 @@ import { PermissionProvider } from './providers/PermissionProvider'
 import { MonitoringProvider } from './providers/MonitoringProvider'
 import { ThemeProvider } from '@/lib/theme'
 import { getThemeScript } from '@/lib/theme/theme-script'
+import CookieConsentBanner from '@/components/cookie-consent/CookieConsentBanner'
+import { GA4Init } from '@/components/analytics/GA4Init'
 
 const inter = Inter({
   subsets: ['latin'],
   display: 'swap',
 })
 
+const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://7zi.com'
+
 // JSON-LD 结构化数据
 const jsonLd = {
   '@context': 'https://schema.org',
   '@type': 'WebSite',
   name: '7zi Frontend',
-  url: 'https://7zi.studio',
-  description: 'Next.js 图片优化最佳实践展示',
+  url: siteUrl,
+  description: 'Next.js 图片优化最佳实践演示项目 - 智能体协作平台',
   inLanguage: 'zh-CN',
   author: {
     '@type': 'Organization',
     name: '7zi',
+  },
+  potentialAction: {
+    '@type': 'SearchAction',
+    target: {
+      '@type': 'EntryPoint',
+      urlTemplate: `${siteUrl}/search?q={search_term_string}`,
+    },
+    'query-input': 'required name=search_term_string',
   },
 }
 
@@ -41,6 +53,12 @@ export const metadata: Metadata = {
   keywords: ['Next.js', 'Image Optimization', 'WebP', 'AVIF', 'Performance'],
   // PWA 相关
   manifest: '/manifest.json',
+  // Apple iOS Smart App Banner
+  appleWebApp: {
+    capable: true,
+    title: '7zi',
+    statusBarStyle: 'default',
+  },
   // 移动端优化 - 使用其它元标签方式
   // 注意: apple-mobile-web-app-* 标签需要通过 other meta 方式添加
   formatDetection: {
@@ -128,6 +146,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         </a>
 
         <ThemeProvider>
+          <CookieConsentBanner />
           <MonitoringProvider>
             <I18nProvider>
               <PermissionProvider>
@@ -139,6 +158,9 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
             </I18nProvider>
           </MonitoringProvider>
         </ThemeProvider>
+
+        {/* Google Analytics 4 - must be inside body, after children */}
+        <GA4Init />
       </body>
     </html>
   )

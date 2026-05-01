@@ -9,6 +9,7 @@
  */
 
 import type { ExecutionState, WorkflowInstance, NodeStatus, NodeExecutionResult } from '@/components/WorkflowEditor/types'
+import { logger } from '@/lib/logger'
 
 /**
  * 执行状态存储接口
@@ -81,10 +82,10 @@ export const executionStateStorage = {
         updatedAt: new Date().toISOString(),
       }
       sessionStorage.setItem(STORAGE_KEY, JSON.stringify(data))
-      console.log(`[ExecutionStateStorage] 执行状态已保存: ${state.executionId}`)
+      logger.debug(`[ExecutionStateStorage] 执行状态已保存: ${state.executionId}`)
       return true
     } catch (error) {
-      console.error('[ExecutionStateStorage] 保存执行状态失败:', error)
+      logger.error('[ExecutionStateStorage] 保存执行状态失败:', error)
       return false
     }
   },
@@ -151,7 +152,7 @@ export const executionStateStorage = {
     try {
       const data = sessionStorage.getItem(STORAGE_KEY)
       if (!data) {
-        console.log('[ExecutionStateStorage] 未找到执行状态')
+        logger.debug('[ExecutionStateStorage] 未找到执行状态')
         return null
       }
 
@@ -164,10 +165,10 @@ export const executionStateStorage = {
         return null
       }
 
-      console.log(`[ExecutionStateStorage] 执行状态已加载: ${state.executionId}`)
+      logger.debug(`[ExecutionStateStorage] 执行状态已加载: ${state.executionId}`)
       return state
     } catch (error) {
-      console.error('[ExecutionStateStorage] 加载执行状态失败:', error)
+      logger.error('[ExecutionStateStorage] 加载执行状态失败:', error)
       return null
     }
   },
@@ -264,10 +265,10 @@ export const executionStateStorage = {
 
     try {
       sessionStorage.removeItem(STORAGE_KEY)
-      console.log('[ExecutionStateStorage] 执行状态已清除')
+      logger.debug('[ExecutionStateStorage] 执行状态已清除')
       return true
     } catch (error) {
-      console.error('[ExecutionStateStorage] 清除执行状态失败:', error)
+      logger.error('[ExecutionStateStorage] 清除执行状态失败:', error)
       return false
     }
   },

@@ -485,6 +485,7 @@ export function NotificationPopup({ userId }: { userId?: string }) {
       <button
         className="popup-trigger"
         onClick={() => setIsOpen(!isOpen)}
+        aria-label="打开通知面板"
       >
         🔔
         {unreadCount > 0 && (
@@ -496,7 +497,7 @@ export function NotificationPopup({ userId }: { userId?: string }) {
         <div className="popup-content">
           <div className="popup-header">
             <h3>通知</h3>
-            <button onClick={() => setIsOpen(false)}>✕</button>
+            <button onClick={() => setIsOpen(false)} aria-label="关闭通知面板">✕</button>
           </div>
 
           <div className="popup-notifications">

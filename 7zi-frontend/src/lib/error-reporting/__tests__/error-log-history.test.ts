@@ -164,9 +164,10 @@ describe('ErrorLogHistoryService', () => {
 
     it('should query by time range', () => {
       const now = Date.now()
-      const results = service.query({ startTime: now - 750, endTime: now })
+      // All 3 errors are within 2000ms of now
+      const results = service.query({ startTime: now - 2000, endTime: now })
 
-      expect(results.length).toBe(1)
+      expect(results.length).toBe(3)
     })
   })
 

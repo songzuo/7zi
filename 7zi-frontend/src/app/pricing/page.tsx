@@ -542,7 +542,7 @@ export default function PricingPage() {
                 value={email}
                 onChange={e => setEmail(e.target.value)}
                 placeholder={t.form.email}
-                className="w-full rounded-lg px-4 py-3 text-gray-900 placeholder-gray-500 focus:ring-2 focus:ring-white focus:outline-none"
+                className="w-full rounded-lg px-4 py-3 text-gray-900 placeholder-gray-500 focus-visible:ring-2 focus-visible:ring-white focus-visible:outline-none"
                 required
                 aria-describedby="enterprise-email-privacy"
               />

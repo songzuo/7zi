@@ -6,7 +6,7 @@
 import { MetadataRoute } from 'next'
 
 export default function robots(): MetadataRoute.Robots {
-  const baseUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://7zi.studio'
+  const baseUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://7zi.com'
 
   return {
     rules: [
@@ -21,8 +21,8 @@ export default function robots(): MetadataRoute.Robots {
           '/dashboard/',
           '/settings/',
           '/_next/',
-          '/_test-*',
-          '/_demo-*',
+          '/_test-',
+          '/_demo-',
           '/node_modules/',
           '/.git/',
           '/performance/',
@@ -32,6 +32,5 @@ export default function robots(): MetadataRoute.Robots {
       },
     ],
     sitemap: `${baseUrl}/sitemap.xml`,
-    // host is not part of MetadataRoute.Robots in Next.js 15
   }
 }

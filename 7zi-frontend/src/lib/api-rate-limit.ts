@@ -8,6 +8,7 @@ import { NextRequest, NextResponse } from 'next/server'
 import { RateLimiter, RateLimitResult, getClientIP, formatRateLimitHeaders } from './rate-limit/limiter'
 import { MemoryRateLimitStorage } from './rate-limit/memory-storage'
 import { RateLimitConfig as BaseRateLimitConfig } from './rate-limit/config'
+import { logger } from '@/lib/logger'
 
 /**
  * 速率限制配置
@@ -123,7 +124,7 @@ export async function checkRateLimit(
 
   // 记录日志
   if (config.enableLogging !== false) {
-    console.log(
+    logger.debug(
       `[Rate Limit] ${pathname} - ${ip}: ${result.count}/${result.limit} (remaining: ${result.remaining})`
     )
   }

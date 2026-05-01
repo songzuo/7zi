@@ -128,13 +128,13 @@ export function ErrorFallback({ error, errorInfo, resetError }: ErrorFallbackPro
         <div className="flex flex-col justify-center gap-3 sm:flex-row">
           <button
             onClick={resetError}
-            className="rounded-lg bg-blue-600 px-6 py-2.5 font-medium text-white transition-colors hover:bg-blue-700 focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 focus:outline-none dark:focus:ring-offset-gray-800"
+            className="rounded-lg bg-blue-600 px-6 py-2.5 font-medium text-white transition-colors hover:bg-blue-700 focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2 focus-visible:outline-none dark:focus:ring-offset-gray-800"
           >
             Try Again
           </button>
           <button
             onClick={() => (window.location.href = '/')}
-            className="rounded-lg bg-gray-200 px-6 py-2.5 font-medium text-gray-900 transition-colors hover:bg-gray-300 focus:ring-2 focus:ring-gray-500 focus:ring-offset-2 focus:outline-none dark:bg-gray-700 dark:text-white dark:hover:bg-gray-600 dark:focus:ring-offset-gray-800"
+            className="rounded-lg bg-gray-200 px-6 py-2.5 font-medium text-gray-900 transition-colors hover:bg-gray-300 focus-visible:ring-2 focus-visible:ring-gray-500 focus-visible:ring-offset-2 focus-visible:outline-none dark:bg-gray-700 dark:text-white dark:hover:bg-gray-600 dark:focus:ring-offset-gray-800"
           >
             Go Home
           </button>

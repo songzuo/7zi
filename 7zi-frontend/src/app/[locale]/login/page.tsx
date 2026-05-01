@@ -2,7 +2,7 @@
 
 /**
  * 登录页面
- * 
+ *
  * 提供用户登录功能，支持邮箱/用户名和密码登录
  * @version 1.0.0
  */
@@ -13,6 +13,7 @@ import { Button } from '@/components/ui/Button'
 import { Input } from '@/components/ui/Input'
 import { useAuthStore } from '@/stores/auth-store'
 import { shallow } from 'zustand/shallow'
+import { trackLogin } from '@/lib/analytics/ga4'
 
 export default function LoginPage() {
   const router = useRouter()
@@ -23,16 +24,16 @@ export default function LoginPage() {
   }))
   const isLoading = useAuthStore(state => state.isLoading)
   const error = useAuthStore(state => state.error)
-  
+
   // 设置页面标题
   useEffect(() => {
     document.title = '登录 - 7zi Frontend'
   }, [])
-  
+
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const [rememberMe, setRememberMe] = useState(false)
-  
+
   // 表单验证状态
   const [emailError, setEmailError] = useState('')
   const [passwordError, setPasswordError] = useState('')
@@ -81,21 +82,29 @@ export default function LoginPage() {
   // 处理登录提交
   const handleSubmit = useCallback(async (e: React.FormEvent) => {
     e.preventDefault()
-    
+
     // 调用 store 的 clearError
     useAuthStore.getState().clearError()
-    
+
     // 验证表单
     const isEmailValid = validateEmail(email)
     const isPasswordValid = validatePassword(password)
-    
+
     if (!isEmailValid || !isPasswordValid) {
       return
     }
-    
+
     try {
       await login(email, password)
-      
+
+      // Track login event
+      trackLogin('email')
+      // Identify user in GA4 after successful login
+      const user = useAuthStore.getState().user
+      if (user?.id) {
+        identifyUser(user.id, { login_method: 'email' })
+      }
+
       // 登录成功，跳转到仪表盘
       router.push('/dashboard')
     } catch (err) {
@@ -120,7 +129,7 @@ export default function LoginPage() {
 
           {/* 错误提示 */}
           {error && (
-            <div 
+            <div
               className="mb-4 rounded-lg border border-red-200 bg-red-50 p-3 text-sm text-red-600 dark:border-red-800 dark:bg-red-900/20 dark:text-red-400"
               role="alert"
             >
@@ -168,8 +177,8 @@ export default function LoginPage() {
                 onChange={(e) => setRememberMe(e.target.checked)}
                 className="h-4 w-4 rounded border-gray-300 text-blue-600 focus:ring-blue-500"
               />
-              <label 
-                htmlFor="remember-me" 
+              <label
+                htmlFor="remember-me"
                 className="ml-2 block text-sm text-gray-700 dark:text-gray-300"
               >
                 记住我
@@ -192,16 +201,16 @@ export default function LoginPage() {
 
           {/* 其他链接 */}
           <div className="mt-6 space-y-2 text-center text-sm">
-            <a 
-              href="/forgot-password" 
+            <a
+              href="/forgot-password"
               className="text-blue-600 hover:text-blue-700 dark:text-blue-400 dark:hover:text-blue-300"
             >
               忘记密码？
             </a>
             <p className="text-gray-600 dark:text-gray-400">
               还没有账户？{' '}
-              <a 
-                href="/register" 
+              <a
+                href="/register"
                 className="text-blue-600 hover:text-blue-700 dark:text-blue-400 dark:hover:text-blue-300"
               >
                 立即注册

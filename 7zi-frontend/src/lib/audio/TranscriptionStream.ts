@@ -14,6 +14,7 @@ import type {
   SupportedLanguage,
   AudioEventListener,
 } from './types'
+import { logger } from '@/lib/logger'
 
 /**
  * WebSocket 消息类型
@@ -123,7 +124,7 @@ export class TranscriptionStream {
         }
 
         this.ws.onerror = (error) => {
-          console.error('WebSocket error:', error)
+          logger.error('WebSocket error:', error)
           this.isConnecting = false
 
           if (!this.isConnected) {
@@ -188,10 +189,10 @@ export class TranscriptionStream {
           break
 
         default:
-          console.log('Unknown message type:', message.type)
+          logger.debug('Unknown message type:', message.type)
       }
     } catch (error) {
-      console.error('Failed to parse WebSocket message:', error)
+      logger.error('Failed to parse WebSocket message:', error)
     }
   }
 
@@ -376,11 +377,11 @@ export class TranscriptionStream {
       this.reconnectTimer = null
 
       if (this.isStreaming && !this.isConnected) {
-        console.log(
+        logger.debug(
           `Attempting to reconnect (${this.reconnectAttempts}/${this.config.retryAttempts})`
         )
         this.connect().catch((error) => {
-          console.error('Reconnection failed:', error)
+          logger.error('Reconnection failed:', error)
         })
       }
     }, this.config.retryInterval * this.reconnectAttempts)
@@ -409,7 +410,7 @@ export class TranscriptionStream {
       try {
         listener(event)
       } catch (error) {
-        console.error('Listener error:', error)
+        logger.error('Listener error:', error)
       }
     })
   }

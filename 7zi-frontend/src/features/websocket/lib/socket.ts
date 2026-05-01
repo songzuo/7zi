@@ -36,7 +36,7 @@ export function initializeSocketIO(httpServer: HTTPServer): SocketIOServer {
     5 * 60 * 1000
   )
 
-  console.log('[Socket.IO] Server initialized and ready')
+  logger.debug('[Socket.IO] Server initialized and ready')
 
   return io
 }

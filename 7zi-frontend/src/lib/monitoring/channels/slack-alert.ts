@@ -13,6 +13,7 @@
  */
 
 import { Alert, AlertChannel, AlertSeverity, AlertPriority } from '../alert-engine'
+import { logger } from '@/lib/logger'
 import {
   BaseAlertChannel,
   BaseChannelConfig,

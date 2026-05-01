@@ -4,6 +4,7 @@
  */
 
 import type { ToolResult } from '@/features/mcp/lib/server'
+import { logger } from '@/lib/logger'
 
 export class ToolExecutor {
   private static instance: ToolExecutor
@@ -19,7 +20,7 @@ export class ToolExecutor {
 
   static async execute(toolName: string, args: Record<string, unknown>): Promise<ToolResult> {
     // Placeholder implementation
-    console.log(`[ToolExecutor] Executing tool: ${toolName}`, args)
+    logger.debug(`[ToolExecutor] Executing tool: ${toolName}`, args)
     return {
       content: [
         {

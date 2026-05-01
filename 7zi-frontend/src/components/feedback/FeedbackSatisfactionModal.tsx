@@ -101,7 +101,7 @@ export default function FeedbackSatisfactionModal({
               onChange={e => setComment(e.target.value)}
               placeholder={t('feedback.satisfaction.commentPlaceholder')}
               rows={3}
-              className="w-full resize-none rounded-lg border border-gray-300 px-3 py-2 focus:border-transparent focus:ring-2 focus:ring-blue-500 focus:outline-none"
+              className="w-full resize-none rounded-lg border border-gray-300 px-3 py-2 focus-visible:border-transparent focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:outline-none"
             />
           </div>
 

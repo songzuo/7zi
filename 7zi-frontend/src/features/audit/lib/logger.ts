@@ -33,7 +33,7 @@ export class AuditLogger {
 
     // 输出到控制台（开发环境）
     if (process.env.NODE_ENV !== 'production') {
-      console.log('[AUDIT]', auditEntry)
+      logger.debug('[AUDIT]', auditEntry)
     }
 
     return auditEntry

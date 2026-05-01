@@ -4,6 +4,8 @@
  * 防止 JavaScript 原型污染攻击
  */
 
+import { logger } from '@/lib/logger'
+
 /**
  * 冻结 Object.prototype
  */
@@ -11,9 +13,9 @@ export function protectPrototype() {
   if (typeof Object.freeze === 'function') {
     try {
       Object.freeze(Object.prototype)
-      console.log('[Security] Object.prototype has been frozen')
+      logger.debug('[Security] Object.prototype has been frozen')
     } catch (error) {
-      console.warn('[Security] Failed to freeze Object.prototype:', error)
+      logger.warn('[Security] Failed to freeze Object.prototype:', error)
     }
   }
 }
@@ -41,7 +43,7 @@ export function sanitizeObjectFromPrototypePollution<T extends Record<string, un
 
   for (const key of maliciousKeys) {
     if (key in result) {
-      console.warn(`[Security] Removed malicious key: ${key}`)
+      logger.warn(`[Security] Removed malicious key: ${key}`)
       delete result[key]
     }
   }
@@ -95,7 +97,7 @@ export function safeParseJSON<T>(json: string): T | null {
 
     return parsed as T
   } catch (error) {
-    console.error('[Security] JSON parse error:', error)
+    logger.error('[Security] JSON parse error:', error)
     return null
   }
 }
@@ -134,7 +136,7 @@ export function safeMerge<T extends object>(target: T, source: Partial<T>): T {
     if (Object.prototype.hasOwnProperty.call(source, key)) {
       // 跳过危险键
       if (['__proto__', 'constructor', 'prototype'].includes(key)) {
-        console.warn(`[Security] Skipped malicious key during merge: ${key}`)
+        logger.warn(`[Security] Skipped malicious key during merge: ${key}`)
         continue
       }
 

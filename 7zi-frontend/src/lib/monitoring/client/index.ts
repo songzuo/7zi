@@ -4,6 +4,7 @@
  */
 
 import { onCLS, onFCP, onINP, onLCP, onTTFB, Metric } from 'web-vitals'
+import { logger } from '@/lib/logger'
 
 // Export types from types.ts
 export * from './types'
@@ -116,7 +117,7 @@ function report(data: import('./types').PerformanceEventData): void {
 
   // 调试模式输出
   if (config.debug) {
-    console.log('[Performance]', data)
+    logger.debug('[Performance]', data)
   }
 }
 
@@ -160,7 +161,7 @@ export function initWebVitalsMonitoring(): void {
   isInitialized = true
 
   if (config.debug) {
-    console.log('[Performance] Web Vitals monitoring initialized')
+    logger.debug('[Performance] Web Vitals monitoring initialized')
   }
 }
 

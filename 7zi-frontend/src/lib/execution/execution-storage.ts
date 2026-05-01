@@ -13,6 +13,7 @@
 
 import { getDraftStorageManager } from '@/lib/db/draft-storage'
 import type { Draft } from '@/lib/db/draft-storage'
+import { logger } from '@/lib/logger'
 
 // ============================================
 // 类型定义
@@ -201,7 +202,7 @@ export class ExecutionStorageManager {
     }
 
     await manager.save(draft)
-    console.log(`[ExecutionStorage] Saved execution state: ${draftId}`)
+    logger.debug(`[ExecutionStorage] Saved execution state: ${draftId}`)
     return draftId
   }
 
@@ -217,7 +218,7 @@ export class ExecutionStorageManager {
       return null
     }
 
-    console.log(`[ExecutionStorage] Loaded execution state: ${id}`)
+    logger.debug(`[ExecutionStorage] Loaded execution state: ${id}`)
     return draft.data
   }
 
@@ -301,7 +302,7 @@ export class ExecutionStorageManager {
     }
 
     await this.saveExecutionState(completedState)
-    console.log(`[ExecutionStorage] Execution completed: ${id}`)
+    logger.debug(`[ExecutionStorage] Execution completed: ${id}`)
   }
 
   /**
@@ -321,7 +322,7 @@ export class ExecutionStorageManager {
     }
 
     await this.saveExecutionState(failedState)
-    console.log(`[ExecutionStorage] Execution failed: ${id}`)
+    logger.debug(`[ExecutionStorage] Execution failed: ${id}`)
   }
 
   /**
@@ -339,7 +340,7 @@ export class ExecutionStorageManager {
     }
 
     await this.saveExecutionState(pausedState)
-    console.log(`[ExecutionStorage] Execution paused: ${id}`)
+    logger.info(`[ExecutionStorage] Execution paused: ${id}`)
   }
 
   /**
@@ -409,7 +410,7 @@ export class ExecutionStorageManager {
     }
 
     await this.saveExecutionState(cancelledState)
-    console.log(`[ExecutionStorage] Execution cancelled: ${id}`)
+    logger.debug(`[ExecutionStorage] Execution cancelled: ${id}`)
   }
 
   /**
@@ -485,7 +486,7 @@ export class ExecutionStorageManager {
   async deleteExecution(id: string): Promise<void> {
     const manager = getDraftStorageManager()
     await manager.deleteDraft(id)
-    console.log(`[ExecutionStorage] Deleted execution state: ${id}`)
+    logger.debug(`[ExecutionStorage] Deleted execution state: ${id}`)
   }
 
   /**
@@ -616,3 +617,4 @@ export async function deleteExecution(id: string): Promise<void> {
 export async function clearExpiredExecutions(): Promise<number> {
   return getExecutionStorage().clearExpiredExecutions()
 }
+

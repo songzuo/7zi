@@ -282,7 +282,7 @@ export const TaskStatusToggle = memo(function TaskStatusToggle({
             disabled={disabled}
             className={clsx(
               'rounded-md px-3 py-1.5 text-sm font-medium transition-all duration-200',
-              'focus:ring-2 focus:ring-offset-2 focus:outline-none',
+              'focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:outline-none',
               'disabled:cursor-not-allowed disabled:opacity-50',
               isActive
                 ? 'bg-white text-gray-900 shadow-sm dark:bg-gray-700 dark:text-gray-100'

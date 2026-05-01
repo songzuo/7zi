@@ -21,6 +21,7 @@ import { create } from 'zustand'
 import { persist } from 'zustand/middleware'
 import { shallow } from 'zustand/shallow'
 import { encryptedStorage } from '@/lib/auth/encrypted-storage'
+import { clearUser } from '@/lib/analytics/ga4'
 
 /**
  * 用户信息接口
@@ -150,6 +151,9 @@ export const useAuthStore = create<AuthState>()(
         fetch('/api/auth/logout', { method: 'POST' }).catch(() => {
           // 忽略错误，本地清除即可
         })
+
+        // Clear GA4 user identification
+        clearUser()
 
         set({
           ...initialState,

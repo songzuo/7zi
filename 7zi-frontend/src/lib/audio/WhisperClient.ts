@@ -15,6 +15,7 @@ import type {
   TranscriptionWithSpeaker,
   SupportedLanguage,
 } from './types'
+import { logger } from '@/lib/logger'
 
 /**
  * Whisper 响应
@@ -101,7 +102,7 @@ export class WhisperClient {
         quantized: true,
         progress_callback: (progress: any) => {
           // 可以在这里显示加载进度
-          console.log('Whisper WASM loading:', progress)
+          logger.debug('Whisper WASM loading:', progress)
         },
       })
     } catch (error) {
@@ -451,7 +452,7 @@ export class WhisperClient {
         await this.wasmModel.dispose()
         this.wasmModel = null
       } catch (error) {
-        console.error('Failed to dispose Whisper WASM model:', error)
+        logger.error('Failed to dispose Whisper WASM model:', error)
       }
     }
   }

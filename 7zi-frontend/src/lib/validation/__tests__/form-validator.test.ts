@@ -46,7 +46,7 @@ describe('FormValidator', () => {
     it('should validate a field with all rules', () => {
       const result = validator.validateField('username', 'john_doe')
       expect(result.valid).toBe(true)
-      expect(result.errors.username).toBeUndefined()
+      expect(result.errors.username).toHaveLength(0)
     })
 
     it('should fail validation for invalid values', () => {

@@ -5,6 +5,7 @@ import { useRouter, useSearchParams } from 'next/navigation'
 import Link from 'next/link'
 import { Eye, EyeOff, ArrowRight, Check, X, Mail, Lock, User } from 'lucide-react'
 import { getPasswordStrength } from '@/lib/auth'
+import { trackSignUp } from '@/lib/analytics/ga4'
 
 type Language = 'zh' | 'en'
 
@@ -176,6 +177,10 @@ export default function RegisterPage() {
       console.log('Register submitted:', { email, username, password, plan })
       // Simulate API call
       await new Promise(resolve => setTimeout(resolve, 1000))
+      
+      // Track sign_up event
+      trackSignUp('email')
+      
       router.push('/dashboard')
     } catch (error) {
       console.error('Registration error:', error)

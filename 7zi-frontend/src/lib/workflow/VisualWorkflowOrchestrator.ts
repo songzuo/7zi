@@ -21,6 +21,7 @@ import type {
 import { executionStateStorage, type PersistentExecutionState } from '@/lib/storage/execution-state-storage'
 import { webhookManager } from '@/lib/webhook'
 import type { WebhookEvent } from '@/lib/webhook'
+import { logger } from '@/lib/logger'
 
 /**
  * 执行事件类型
@@ -127,7 +128,7 @@ export class VisualWorkflowOrchestrator {
       try {
         listener(event)
       } catch (error) {
-        console.error('[VisualWorkflowOrchestrator] 事件监听器错误:', error)
+        logger.error('[VisualWorkflowOrchestrator] 事件监听器错误:', error)
       }
     })
   }
@@ -149,7 +150,7 @@ export class VisualWorkflowOrchestrator {
     // 检查是否有可恢复的执行状态
     const savedState = await executionStateStorage.loadExecutionState()
     if (savedState && savedState.workflowId === this.workflow.id) {
-      console.log('[VisualWorkflowOrchestrator] 检测到可恢复的执行状态')
+      logger.debug('[VisualWorkflowOrchestrator] 检测到可恢复的执行状态')
       return this.resumeExecution(savedState)
     }
 
@@ -238,7 +239,7 @@ export class VisualWorkflowOrchestrator {
   private async resumeExecution(
     savedState: PersistentExecutionState
   ): Promise<ExecutionResult> {
-    console.log('[VisualWorkflowOrchestrator] 恢复执行:', savedState.executionId)
+    logger.debug('[VisualWorkflowOrchestrator] 恢复执行:', savedState.executionId)
 
     // 重建执行实例
     const instance: WorkflowInstance = {
@@ -350,7 +351,7 @@ export class VisualWorkflowOrchestrator {
       // 检查是否已执行
       const existingState = this.executionState?.nodeStates[nodeId]
       if (existingState && (existingState.status === 'completed' || existingState.status === 'success')) {
-        console.log(`[VisualWorkflowOrchestrator] 节点 ${nodeId} 已完成，跳过`)
+        logger.debug(`[VisualWorkflowOrchestrator] 节点 ${nodeId} 已完成，跳过`)
         continue
       }
 
@@ -364,7 +365,7 @@ export class VisualWorkflowOrchestrator {
       )
 
       if (!allDepsCompleted) {
-        console.log(`[VisualWorkflowOrchestrator] 节点 ${nodeId} 的依赖未完成，跳过`)
+        logger.debug(`[VisualWorkflowOrchestrator] 节点 ${nodeId} 的依赖未完成，跳过`)
         continue
       }
 
@@ -403,7 +404,7 @@ export class VisualWorkflowOrchestrator {
    * 执行单个节点
    */
   private async executeNode(nodeId: string, node: WorkflowNodeData): Promise<void> {
-    console.log(`[VisualWorkflowOrchestrator] 执行节点: ${nodeId}`)
+    logger.debug(`[VisualWorkflowOrchestrator] 执行节点: ${nodeId}`)
 
     // 更新节点状态为运行中
     this.executionState!.nodeStates[nodeId] = {
@@ -494,7 +495,7 @@ export class VisualWorkflowOrchestrator {
     // 这里需要根据节点类型实现具体的执行逻辑
     // 例如：agent 节点调用 AI，condition 节点评估条件等
 
-    console.log(`[VisualWorkflowOrchestrator] 执行节点逻辑: ${node.type}`)
+    logger.debug(`[VisualWorkflowOrchestrator] 执行节点逻辑: ${node.type}`)
 
     // 模拟执行延迟
     await new Promise(resolve => setTimeout(resolve, 100))
@@ -704,7 +705,7 @@ export class VisualWorkflowOrchestrator {
     try {
       await webhookManager.triggerEvent(event)
     } catch (error) {
-      console.error('[VisualWorkflowOrchestrator] Webhook 触发失败:', error)
+      logger.error('[VisualWorkflowOrchestrator] Webhook 触发失败:', error)
       // 不阻塞工作流执行
     }
   }

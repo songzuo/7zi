@@ -4,7 +4,8 @@
  * 自动化规则引擎，支持规则定义、触发器评估和动作执行
  */
 
-import { VM } from 'vm'
+import * as vm from 'vm'
+import { logger } from '@/lib/logger'
 
 // ============================================================================
 // Types & Interfaces
@@ -438,10 +439,10 @@ export class RuleValidator {
       // Sanitize first to remove dangerous keywords
       const sanitized = this.sanitizeExpression(expression)
       // Use vm.compileFunction for safe syntax validation (no execution)
-      VM.compileFunction(
+      vm.compileFunction(
         `return ${sanitized}`,
         ['ctx'],
-        { parsingContext: VM.createContext({ ctx: undefined }) }
+        { parsingContext: vm.createContext({ ctx: undefined }) }
       )
       return null
     } catch (error) {
@@ -730,7 +731,7 @@ export class AutomationEngine {
           await this.executeRule(ruleId, { type: 'condition', config: { condition: config } })
         }
       } catch (error) {
-        console.error(`条件评估失败 [${ruleId}]:`, error)
+        logger.error(`条件评估失败 [${ruleId}]:`, error)
       }
     }, interval)
 
@@ -836,7 +837,7 @@ export class AutomationEngine {
 
     // 检查限制
     if (!this.checkLimits(rule)) {
-      console.log(`规则执行次数受限: ${ruleId}`)
+      logger.debug(`规则执行次数受限: ${ruleId}`)
       return {
         success: false,
         executionId,
@@ -979,7 +980,7 @@ export class AutomationEngine {
     }
 
     // TODO: 集成到工作流执行系统
-    console.log(`执行工作流: ${workflowConfig.workflowId}`, {
+    logger.debug(`执行工作流: ${workflowConfig.workflowId}`, {
       input: { ...workflowConfig.input, triggerData: context.triggerData },
       executionContext: context,
     })
@@ -1000,7 +1001,7 @@ export class AutomationEngine {
       return { success: false, error: '通知配置缺失' }
     }
 
-    console.log(`发送通知: ${notificationConfig.channels.join(', ')}`, {
+    logger.debug(`发送通知: ${notificationConfig.channels.join(', ')}`, {
       template: notificationConfig.template,
       data: { ...notificationConfig.data, triggerData: context.triggerData },
       priority: notificationConfig.priority,
@@ -1072,7 +1073,7 @@ export class AutomationEngine {
           ${transformConfig.transform}
         })(sourceData, context)
       `
-      const transformed = VM.runInNewContext(wrappedTransform, { sourceData, context }, { timeout: 1000 })
+      const transformed = vm.runInNewContext(wrappedTransform, { sourceData, context }, { timeout: 1000 })
 
       // 设置目标数据（简化实现）
       this.setDataPath(transformConfig.target, transformed)
@@ -1096,7 +1097,7 @@ export class AutomationEngine {
     }
 
     // TODO: 集成到自定义处理器注册表
-    console.log(`执行自定义动作: ${customConfig.handler}`, {
+    logger.debug(`执行自定义动作: ${customConfig.handler}`, {
       params: customConfig.params,
       context,
     })
@@ -1131,7 +1132,7 @@ export class AutomationEngine {
    */
   private setDataPath(path: string, value: unknown): void {
     // 简化实现
-    console.log(`设置数据路径: ${path} =`, value)
+    logger.debug(`设置数据路径: ${path} =`, value)
   }
 
   /**
@@ -1142,14 +1143,14 @@ export class AutomationEngine {
       // Use Node.js vm module for safe sandboxed evaluation
       // This replaces unsafe new Function() which can access the global scope
       const sanitized = this.sanitizeExpression(expression)
-      const result = VM.runInNewContext(
+      const result = vm.runInNewContext(
         `(() => { try { return !!( ${sanitized} ) } catch(e) { return false } })()`,
         { ctx: context },
         { timeout: 1000 }
       )
       return Boolean(result)
     } catch (error) {
-      console.error('条件评估失败:', error)
+      logger.error('条件评估失败:', error)
       return false
     }
   }

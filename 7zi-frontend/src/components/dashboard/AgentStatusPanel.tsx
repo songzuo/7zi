@@ -535,7 +535,7 @@ const FilterBar = memo(function FilterBar({
           value={searchQuery}
           onChange={e => onSearchChange(e.target.value)}
           placeholder="搜索 Agent 名称或描述..."
-          className="w-full rounded-lg border border-gray-200 bg-white py-2 pr-4 pl-10 text-sm text-gray-900 focus:ring-2 focus:ring-blue-500 focus:outline-none dark:border-gray-700 dark:bg-gray-800 dark:text-gray-100"
+          className="w-full rounded-lg border border-gray-200 bg-white py-2 pr-4 pl-10 text-sm text-gray-900 focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:outline-none dark:border-gray-700 dark:bg-gray-800 dark:text-gray-100"
         />
       </div>
 

@@ -21,6 +21,7 @@ import {
   DedupConfig,
   RateLimitConfig,
 } from './base-alert-channel'
+import { logger } from '@/lib/logger'
 
 export interface WebhookChannelConfig extends BaseChannelConfig {
   // Webhook configuration
@@ -110,7 +111,7 @@ export class WebhookAlertChannel extends BaseAlertChannel implements AlertChanne
       throw new Error(`Webhook returned ${response.status}: ${response.statusText}`)
     }
 
-    console.log(`[WebhookAlert] Sent webhook to ${this.webhookConfig.url}`)
+    logger.debug(`[WebhookAlert] Sent webhook to ${this.webhookConfig.url}`)
   }
 
   /**
@@ -177,14 +178,14 @@ export class WebhookAlertChannel extends BaseAlertChannel implements AlertChanne
       })
 
       if (response.ok) {
-        console.log('[WebhookAlert] Connection verified')
+        logger.debug('[WebhookAlert] Connection verified')
         return true
       }
 
-      console.warn(`[WebhookAlert] Test failed: ${response.status}`)
+      logger.warn(`[WebhookAlert] Test failed: ${response.status}`)
       return false
     } catch (error) {
-      console.error('[WebhookAlert] Connection test failed:', error)
+      logger.error('[WebhookAlert] Connection test failed:', error)
       return false
     }
   }
@@ -219,7 +220,7 @@ export function createWebhookChannelFromEnv(): WebhookAlertChannel | null {
   const url = process.env.WEBHOOK_URL
 
   if (!url) {
-    console.warn('[WebhookAlert] Webhook URL not configured')
+    logger.warn('[WebhookAlert] Webhook URL not configured')
     return null
   }
 

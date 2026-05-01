@@ -8,6 +8,7 @@
 import { Server as HTTPServer } from 'http'
 import { Server as SocketIOServer } from 'socket.io'
 import { notificationService } from './services/notification'
+import { logger } from '@/lib/logger'
 
 /**
  * Initialize Socket.IO with Next.js HTTP server
@@ -29,7 +30,7 @@ export async function initializeSocketIO(httpServer: HTTPServer): Promise<Socket
     5 * 60 * 1000
   )
 
-  console.log('[Socket.IO] Server initialized and ready')
+  logger.debug('[Socket.IO] Server initialized and ready')
 
   // Cast to SocketIOServer since we know the actual implementation is a full Socket.IO server
   return io as unknown as SocketIOServer

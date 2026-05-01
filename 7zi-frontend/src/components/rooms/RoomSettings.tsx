@@ -109,7 +109,7 @@ export const RoomSettings: React.FC<RoomSettingsProps> = ({
                 setName(e.target.value)
                 setSaved(false)
               }}
-              className="w-full rounded-lg border border-gray-300 px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:outline-none dark:border-gray-700 dark:bg-gray-700 dark:text-white"
+              className="w-full rounded-lg border border-gray-300 px-3 py-2 focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:outline-none dark:border-gray-700 dark:bg-gray-700 dark:text-white"
             />
           </div>
 
@@ -125,7 +125,7 @@ export const RoomSettings: React.FC<RoomSettingsProps> = ({
                 setSaved(false)
               }}
               rows={3}
-              className="w-full rounded-lg border border-gray-300 px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:outline-none dark:border-gray-700 dark:bg-gray-700 dark:text-white"
+              className="w-full rounded-lg border border-gray-300 px-3 py-2 focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:outline-none dark:border-gray-700 dark:bg-gray-700 dark:text-white"
               placeholder="简单描述一下这个房间..."
             />
           </div>
@@ -174,7 +174,7 @@ export const RoomSettings: React.FC<RoomSettingsProps> = ({
               }}
               min={2}
               max={100}
-              className="w-full rounded-lg border border-gray-300 px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:outline-none dark:border-gray-700 dark:bg-gray-700 dark:text-white"
+              className="w-full rounded-lg border border-gray-300 px-3 py-2 focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:outline-none dark:border-gray-700 dark:bg-gray-700 dark:text-white"
             />
           </div>
         </div>
@@ -282,7 +282,7 @@ export const RoomSettings: React.FC<RoomSettingsProps> = ({
                   }
                   min={5}
                   max={1440}
-                  className="w-32 rounded-lg border border-gray-300 px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:outline-none dark:border-gray-700 dark:bg-gray-700 dark:text-white"
+                  className="w-32 rounded-lg border border-gray-300 px-3 py-2 focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:outline-none dark:border-gray-700 dark:bg-gray-700 dark:text-white"
                 />
               </div>
             )}
@@ -298,7 +298,7 @@ export const RoomSettings: React.FC<RoomSettingsProps> = ({
             value={settings.welcomeMessage || ''}
             onChange={e => handleUpdateSetting('welcomeMessage', e.target.value)}
             rows={3}
-            className="w-full rounded-lg border border-gray-300 px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:outline-none dark:border-gray-700 dark:bg-gray-700 dark:text-white"
+            className="w-full rounded-lg border border-gray-300 px-3 py-2 focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:outline-none dark:border-gray-700 dark:bg-gray-700 dark:text-white"
             placeholder="新成员加入时显示的消息..."
           />
         </div>

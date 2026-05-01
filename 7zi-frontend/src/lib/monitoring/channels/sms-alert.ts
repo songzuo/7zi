@@ -13,6 +13,7 @@
  */
 
 import { Alert, AlertChannel } from '../alert-engine'
+import { logger } from '@/lib/logger'
 import {
   BaseAlertChannel,
   BaseChannelConfig,
@@ -112,16 +113,16 @@ export class SMSAlertChannel extends BaseAlertChannel implements AlertChannel {
           throw new Error(`SMS gateway returned ${response.status}: ${response.statusText}`)
         }
 
-        console.log(`[SMSAlert] Sent SMS to ${to}`)
+        logger.debug(`[SMSAlert] Sent SMS to ${to}`)
         return
       } catch (error) {
-        console.error(`[SMSAlert] Failed to send SMS:`, error)
+        logger.error(`[SMSAlert] Failed to send SMS:`, error)
         throw error
       }
     }
 
     // Fallback to console log if gateway not configured
-    console.log(`[SMSAlert] Would send SMS to ${to}: ${message}`)
+    logger.debug(`[SMSAlert] Would send SMS to ${to}: ${message}`)
   }
 
   /**
@@ -167,7 +168,7 @@ export class SMSAlertChannel extends BaseAlertChannel implements AlertChannel {
    */
   async testConnection(): Promise<boolean> {
     if (!this.smsConfig.gatewayUrl || !this.smsConfig.apiKey) {
-      console.warn('[SMSAlert] Gateway not configured, SMS will be logged only')
+      logger.warn('[SMSAlert] Gateway not configured, SMS will be logged only')
       return false
     }
 
@@ -180,13 +181,13 @@ export class SMSAlertChannel extends BaseAlertChannel implements AlertChannel {
       })
 
       if (response.ok) {
-        console.log('[SMSAlert] Connection verified')
+        logger.debug('[SMSAlert] Connection verified')
         return true
       }
 
       return false
     } catch (error) {
-      console.error('[SMSAlert] Connection test failed:', error)
+      logger.error('[SMSAlert] Connection test failed:', error)
       return false
     }
   }
@@ -223,7 +224,7 @@ export function createSMSChannelFromEnv(): SMSAlertChannel | null {
   const senderId = process.env.SMS_SENDER_ID
 
   if (!gatewayUrl || !apiKey) {
-    console.warn('[SMSAlert] Gateway not configured, SMS alerts will be logged only')
+    logger.warn('[SMSAlert] Gateway not configured, SMS alerts will be logged only')
     // Return a default channel with no gateway
     return new SMSAlertChannel({
       enabled: true,

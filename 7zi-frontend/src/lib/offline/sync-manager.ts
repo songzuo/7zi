@@ -4,6 +4,7 @@
  */
 
 import { OfflineStorage, SyncQueueItem, DataEntry, STORES } from './storage';
+import { logger } from '@/lib/logger'
 import { ConflictResolver, ResolutionStrategy, ConflictMeta } from './conflict-resolver';
 
 // Sync state
@@ -171,7 +172,7 @@ export class SyncManager {
     // Throttle syncs
     const now = Date.now();
     if (now - this.lastSyncTime < this.config.throttlePeriod) {
-      console.log(`[SyncManager] Sync throttled, last sync ${now - this.lastSyncTime}ms ago`);
+      logger.debug(`[SyncManager] Sync throttled, last sync ${now - this.lastSyncTime}ms ago`);
       return {
         success: false,
         synced: 0,
@@ -237,11 +238,11 @@ export class SyncManager {
     let lastError: string | undefined;
 
     try {
-      console.log(`[SyncManager] Starting sync (trigger: ${trigger})`);
+      logger.debug(`[SyncManager] Starting sync (trigger: ${trigger})`);
 
       // Get pending sync items
       const items = await this.storage.getPendingSyncItems(this.config.batchSize);
-      console.log(`[SyncManager] Found ${items.length} pending items`);
+      logger.debug(`[SyncManager] Found ${items.length} pending items`);
 
       // Process each batch
       for (let i = 0; i < items.length; i++) {
@@ -250,7 +251,7 @@ export class SyncManager {
         try {
           // Check retry limit
           if (item.retryCount >= this.config.maxRetries) {
-            console.warn(`[SyncManager] Item ${item.id} exceeded retry limit, skipping`);
+            logger.warn(`[SyncManager] Item ${item.id} exceeded retry limit, skipping`);
             await this.storage.removeFromSyncQueue(item.id);
             failed++;
             continue;
@@ -287,7 +288,7 @@ export class SyncManager {
       await this.fetchServerUpdates();
 
       const duration = Date.now() - startTime;
-      console.log(`[SyncManager] Sync complete: ${synced} synced, ${failed} failed, ${conflicts} conflicts, ${duration}ms`);
+      logger.debug(`[SyncManager] Sync complete: ${synced} synced, ${failed} failed, ${conflicts} conflicts, ${duration}ms`);
 
       return {
         success: failed === 0,
@@ -299,7 +300,7 @@ export class SyncManager {
       };
     } catch (error) {
       const errorMsg = error instanceof Error ? error.message : String(error);
-      console.error(`[SyncManager] Sync failed:`, error);
+      logger.error(`[SyncManager] Sync failed:`, error);
       
       this.setState('error');
       
@@ -426,7 +427,7 @@ export class SyncManager {
       const response = await fetch(`/api/sync/updates?since=${lastSyncTimestamp}`);
       
       if (!response.ok) {
-        console.warn('[SyncManager] Failed to fetch server updates');
+        logger.warn('[SyncManager] Failed to fetch server updates');
         return;
       }
 
@@ -445,14 +446,14 @@ export class SyncManager {
             }
           );
         } catch (error) {
-          console.error('[SyncManager] Failed to store update:', error);
+          logger.error('[SyncManager] Failed to store update:', error);
         }
       }
 
       // Update last sync timestamp
       await this.storage.setMeta('lastServerSync', Date.now());
     } catch (error) {
-      console.error('[SyncManager] Failed to fetch server updates:', error);
+      logger.error('[SyncManager] Failed to fetch server updates:', error);
     }
   }
 

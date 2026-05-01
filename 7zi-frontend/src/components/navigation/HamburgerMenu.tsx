@@ -42,7 +42,7 @@ export function HamburgerMenu({ isOpen, onToggle, ariaLabel = '菜单' }: Hambur
         rounded-xl transition-all duration-300
         bg-gray-100 hover:bg-gray-200
         dark:bg-gray-800 dark:hover:bg-gray-700
-        focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2
+        focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus:ring-offset-2
         dark:focus:ring-offset-gray-900
         ${isAnimating ? 'scale-95' : 'scale-100'}
       `}

@@ -5,6 +5,7 @@
 
 import { onCLS, onFCP, onLCP, onTTFB, onINP, Metric } from 'web-vitals'
 import { monitor } from '../monitoring'
+import { logger } from '@/lib/logger'
 
 /**
  * Web Vitals 指标类型
@@ -155,7 +156,7 @@ export class WebVitalsMonitor {
 
     // 控制台输出 (仅开发环境)
     if (process.env.NODE_ENV === 'development') {
-      console.log(`[Web Vitals] ${name}:`, {
+      logger.debug(`[Web Vitals] ${name}:`, {
         value: metric.value.toFixed(name === 'CLS' ? 3 : 0),
         rating: metric.rating,
         delta: metric.delta.toFixed(0),

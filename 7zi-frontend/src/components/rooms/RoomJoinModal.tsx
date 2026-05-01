@@ -92,7 +92,7 @@ export const RoomJoinModal: React.FC<RoomJoinModalProps> = ({
                 value={password}
                 onChange={e => setPassword(e.target.value)}
                 placeholder="输入房间密码"
-                className="w-full rounded-lg border border-gray-300 px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:outline-none dark:border-gray-700 dark:bg-gray-700 dark:text-white"
+                className="w-full rounded-lg border border-gray-300 px-3 py-2 focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:outline-none dark:border-gray-700 dark:bg-gray-700 dark:text-white"
               />
             </div>
           )}

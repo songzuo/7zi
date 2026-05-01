@@ -175,7 +175,7 @@ export const ParticipantList: React.FC<ParticipantListProps> = ({
                   onChange={e =>
                     handleRoleChange(participant.id, e.target.value as RoomParticipantRole)
                   }
-                  className="rounded border border-gray-300 px-2 py-1 text-xs focus:ring-2 focus:ring-blue-500 focus:outline-none dark:border-gray-700 dark:bg-gray-700 dark:text-white"
+                  className="rounded border border-gray-300 px-2 py-1 text-xs focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:outline-none dark:border-gray-700 dark:bg-gray-700 dark:text-white"
                 >
                   <option value="admin">管理员</option>
                   <option value="member">成员</option>
