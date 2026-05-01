@@ -274,7 +274,7 @@ export const useWebSocketStore = create<WebSocketState>((set, get) => ({
         messagesSent: get().stats.messagesSent + 1,
       })
     } else {
-      console.warn('[WebSocket] Cannot send message: not connected')
+      logger.warn('[WebSocket] Cannot send message: not connected')
     }
   },
 
