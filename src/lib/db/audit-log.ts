@@ -528,7 +528,14 @@ function mapRowToAuditLog(row: AuditLogRow): AuditLog {
     entity_id: row.entity_id,
     resource_type: row.resource_type,
     resource_id: row.resource_id,
-    details: JSON.parse(row.details || '{}'),
+    details: (() => {
+      try {
+        return JSON.parse(row.details || '{}');
+      } catch (error) {
+        logger.error('Failed to parse JSON', { error, entityId: row.entity_id });
+        return {};
+      }
+    })(),
     ip_address: row.ip_address,
     user_agent: row.user_agent,
     status: row.status as AuditStatus,

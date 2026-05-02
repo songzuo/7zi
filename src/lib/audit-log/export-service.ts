@@ -283,7 +283,8 @@ export class AuditExportService {
         }
       });
     } catch (error) {
-      throw new Error(`Failed to parse JSON: ${error}`);
+      logger.error('Failed to parse JSON', { error });
+      return [];
     }
   }
 
