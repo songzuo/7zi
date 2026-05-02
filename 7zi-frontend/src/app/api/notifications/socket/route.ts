@@ -7,6 +7,7 @@
 
 import { NextRequest, NextResponse } from 'next/server'
 import { notificationService } from '@/lib/services/notification'
+import { logger } from '@/lib/logger'
 import { createServer } from 'http'
 import { createSuccessResponse, createErrorResponse, createUnauthorizedError, createForbiddenError } from '../../../../lib/api/error-handler'
 import { authenticateJWT } from '@/lib/auth/api-auth'

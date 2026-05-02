@@ -6,6 +6,7 @@
 
 import { NextRequest } from 'next/server'
 import webpush from 'web-push'
+import { logger } from '@/lib/logger'
 import { createSuccessResponse, createBadRequestError, createErrorResponse } from '@/lib/api/error-handler'
 
 // VAPID keys (should be in environment variables in production)
@@ -19,7 +20,12 @@ if (VAPID_PUBLIC_KEY && VAPID_PRIVATE_KEY) {
 }
 
 // In-memory storage for subscriptions (use a database in production)
-const subscriptions = new Map<string, any>()
+interface PushSubscriptionData {
+  endpoint: string
+  keys: { p256dh: string; auth: string }
+  createdAt: number
+}
+const subscriptions = new Map<string, PushSubscriptionData>()
 
 /**
  * GET /api/pwa/vapid-public-key
@@ -105,7 +111,7 @@ export async function POST(request: NextRequest) {
 
       const results = await Promise.allSettled(
         Array.from(subscriptions.values()).map((subscription) =>
-          webpush.sendNotification(subscription, payload).catch((error: any) => {
+          webpush.sendNotification(subscription, payload).catch((error: unknown) => {
             logger.error('Failed to send notification:', error)
             // Remove invalid subscriptions
             if (error.statusCode === 410) {

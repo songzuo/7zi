@@ -7,7 +7,7 @@ import { renderHook, act, waitFor } from '@testing-library/react'
 import { usePerformanceMonitoring, useCustomMetrics, usePerformanceMetrics } from '../usePerformanceMonitoring'
 
 // Mock performance modules
-jest.mock('@/lib/performance/web-vitals', () => ({
+vi.mock('@/lib/performance/web-vitals', () => ({
   webVitalsMonitor: {
     getMetrics: vi.fn().mockReturnValue({ LCP: 2500, CLS: 0.1, INP: 200 }),
     isMetricGood: vi.fn().mockReturnValue(true),
@@ -16,7 +16,7 @@ jest.mock('@/lib/performance/web-vitals', () => ({
   WebVitalsConfig: {},
 }))
 
-jest.mock('@/lib/performance/custom-metrics', () => ({
+vi.mock('@/lib/performance/custom-metrics', () => ({
   customMetricsTracker: {
     getMetrics: vi.fn().mockReturnValue({ pageLoadTime: 3000 }),
     recordResponseTime: vi.fn(),
@@ -28,7 +28,7 @@ jest.mock('@/lib/performance/custom-metrics', () => ({
   initCustomMetricsTracking: vi.fn(),
 }))
 
-jest.mock('@/lib/performance/budget-manager', () => ({
+vi.mock('@/lib/performance/budget-manager', () => ({
   budgetManager: {
     getMetrics: vi.fn().mockReturnValue({}),
     calculateBudgetReport: vi.fn().mockReturnValue({}),
@@ -39,7 +39,7 @@ jest.mock('@/lib/performance/budget-manager', () => ({
   initPerformanceBudget: vi.fn(),
 }))
 
-jest.mock('@/lib/monitoring', () => ({
+vi.mock('@/lib/monitoring', () => ({
   monitor: {
     trackAPIRequest: vi.fn().mockResolvedValue(undefined),
     trackError: vi.fn().mockResolvedValue(undefined),
