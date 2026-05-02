@@ -415,7 +415,8 @@ export class MessageCache<T = unknown> {
   private calculateHash(data: T): string {
     try {
       return createHash('md5').update(JSON.stringify(data)).digest('hex')
-    } catch {
+    } catch (error) {
+      logger.warn('Failed to calculate hash with JSON, falling back to String', { error })
       return createHash('md5').update(String(data)).digest('hex')
     }
   }
@@ -426,7 +427,8 @@ export class MessageCache<T = unknown> {
         return data.length
       }
       return Buffer.byteLength(JSON.stringify(data), 'utf8')
-    } catch {
+    } catch (error) {
+      logger.warn('Failed to calculate size, using default estimate', { error })
       return 1024 // Default estimate
     }
   }

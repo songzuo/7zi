@@ -7,6 +7,22 @@
 
 ---
 
+## [Unreleased] - 2026-05-02
+
+### 🔧 Bug Fixes
+- 修复 PWA route PushSubscriptionData 接口类型（替换 any）
+- websocket-store.ts logger 统一替换 console
+- 添加 logger 导入到 notifications/socket/route.ts
+- **NEW** audit-log/export-service.ts 添加 logger 导入 (from ../logger/index.js)
+
+### 🔄 Code Cleanup
+- 完成 Jest → Vitest 测试框架迁移（4处 jest.mock → vi.mock）
+
+### Git
+- commit 26758aa31: add logger imports and migrate last Jest test to Vitest
+
+---
+
 ## [Unreleased] - 2026-05-01
 
 ### 🛡️ Security

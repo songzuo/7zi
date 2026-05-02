@@ -671,7 +671,8 @@ export class IncrementalUpdateManager<T = unknown> {
   private calculateHash(data: T): string {
     try {
       return createHash('sha256').update(JSON.stringify(data)).digest('hex')
-    } catch {
+    } catch (error) {
+      logger.warn('Failed to calculate hash', { error })
       return ''
     }
   }

@@ -19,6 +19,7 @@ import fs from 'fs/promises';
 import path from 'path';
 import zlib from 'zlib';
 import { promisify } from 'util';
+import { logger } from '../logger/index.js';
 
 const gzip = promisify(zlib.gzip);
 const gunzip = promisify(zlib.gunzip);

@@ -334,7 +334,11 @@ export async function deleteBackup(backupId: string, userId?: string): Promise<b
     const metadataPath = path.join(BACKUP_DIR, `${backupId}.metadata.json`)
 
     await fs.unlink(filePath)
-    await fs.unlink(metadataPath).catch(() => {}) // Ignore if metadata file doesn't exist
+    await fs.unlink(metadataPath).catch((error) => {
+      if (!error.message?.includes('ENOENT')) {
+        logger.error('Failed to delete metadata file', { error, backupId })
+      }
+    }) // Ignore if metadata file doesn't exist
 
     await recordEvent({
       type: BackupEventType.BACKUP_DELETED,

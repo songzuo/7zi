@@ -380,7 +380,8 @@ export class BatchMessageProcessor extends EventEmitter {
         return data.length
       }
       return Buffer.byteLength(JSON.stringify(data), 'utf8')
-    } catch {
+    } catch (error) {
+      logger.warn('Failed to calculate buffer size, using default estimate', { error })
       return 1024 // Default size estimate
     }
   }

@@ -1,35 +1,27 @@
 # HEARTBEAT.md - 心跳任务清单
 
-## 当前任务 (2026-05-01 17:55 UTC)
+## 当前任务 (2026-05-02 04:40 UTC)
 
 **状态更新：**
-- ✅ 7zi.com 正常运行（HTTP 200）
-- ✅ Git 变更稳定（10个文件）
-- ✅ 构建成功
+- ⚠️ 测试套件存在失败 (58 failed / ~479 tests, 约88%通过率)
+- ✅ Git 状态正常
 
-## 快速检查项
+## 测试运行状态 (2026-05-02)
 
-- [x] npm run build - ✅ 成功
-- [x] Git commits - 10个变更文件
-- [x] 部署状态 - ✅ 7zi.com HTTP 200
+| 指标 | 数值 |
+|------|------|
+| 总测试数 | ~479 |
+| 失败 | 58 |
+| 通过 | 421 |
+| 通过率 | ~88% |
 
-## Git 变更文件（10个）
-
-**Modified (9):**
-- 7zi-frontend/public/sw.js
-- 7zi-frontend/src/hooks/__tests__/useNotifications.test.ts
-- 7zi-frontend/src/hooks/useNotifications.ts
-- 7zi-frontend/src/stores/websocket-store.ts
-- CHANGELOG.md
-- DAILY-DEVELOPMENT-REPORT.md
-- HEARTBEAT.md
-- memory/2026-05-01.md
-- memory/claw-mesh-state.json
-- state/tasks.json
-
-**Untracked (1):**
-- agent-results/scheduler-status-0501-1216.md
+**主要失败 (15 个测试文件):**
+- Mock 导出问题 (~17 tests)
+- 异步时序问题 (~7 tests)  
+- consoleSpy 未被调用 (~10 tests)
+- 其他 (auth 501, intent匹配等)
 
 ## 待处理
 
-- 无紧急任务
+- P0: 修复 Vitest 测试失败 (P0.1-0.4)
+- 可延后: 优化测试超时配置

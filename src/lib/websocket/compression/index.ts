@@ -213,11 +213,13 @@ export class WebSocketOptimizationManager {
       try {
         // Try gzip first
         result = this.compression.decompress(data, 'gzip')
-      } catch {
+      } catch (error) {
+        logger.warn('Failed to decompress with gzip, trying brotli', { error })
         try {
           // Try brotli
           result = this.compression.decompress(data, 'brotli')
-        } catch {
+        } catch (error2) {
+          logger.warn('Failed to decompress with brotli, using data as-is', { error: error2 })
           // Not compressed, use as-is
           result = data
         }
