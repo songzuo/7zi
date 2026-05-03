@@ -12,14 +12,31 @@
 ### 🔧 Bug Fixes
 - 修复 PWA route PushSubscriptionData 接口类型（替换 any）
 - websocket-store.ts logger 统一替换 console
-- 添加 logger 导入到 notifications/socket/route.ts
-- **NEW** audit-log/export-service.ts 添加 logger 导入 (from ../logger/index.js)
+- websocket-store.ts logger 导入修复 (commit 4880ed0a3)
+- audit-log/export-service.ts 添加 logger import (commit 78b39525d)
+- audit-log 模块 JSON.parse 添加 try-catch (commit f729af644)
+- 移除重复 export default 和尾部垃圾代码 (commit 18c5dde12)
 
 ### 🔄 Code Cleanup
 - 完成 Jest → Vitest 测试框架迁移（4处 jest.mock → vi.mock）
+- Service Worker sw.js 添加到 .gitignore (commit a587be625)
+
+### 📝 Documentation
+- 记忆文件更新（多次 commit）
+- CHANGELOG 同步更新
 
 ### Git
 - commit 26758aa31: add logger imports and migrate last Jest test to Vitest
+- commit 4880ed0a3: replace console with logger in websocket-store.ts
+- commit 78b39525d: add logger import to audit-log/export-service.ts
+- commit f729af644: add try-catch for JSON.parse in audit-log modules
+- commit 18c5dde12: remove duplicate export default and trailing garbage
+
+### ✅ 开发任务自检 (2026-05-02 上午)
+- ✅ TypeScript 编译检查通过 (tsc --noEmit)
+- ✅ Vitest 4.1.4 配置兼容性验证通过
+- ✅ WebSocket 模块导出检查完成 (server.ts 正确导出 16 个函数/类型)
+- ✅ CHANGELOG.md 更新同步
 
 ---
 
@@ -3126,7 +3143,7 @@ v1.4.0 专注于 **WebSocket 高级协作功能**、**AI Agent 智能调度** �
 
 ---
 
-**最后更新**: 2026-04-05 (v1.13.0 released, v1.14.0 in development, 智能体验全面升级)
+**最后更新**: 2026-04-25 (v1.14.1 released)
 
 ---
 
