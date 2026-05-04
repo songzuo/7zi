@@ -17,8 +17,7 @@ export async function POST(request: NextRequest) {
     const report = await request.json()
 
     // 记录 CSP 违规（生产环境应发送到日志服务或 Sentry）
-    // Use logger instead of console.error for production
-    logger.warn('[CSP Violation]', { report })
+    console.error('[CSP Violation]', JSON.stringify(report, null, 2))
 
     // 如果配置了 Sentry，可以发送错误报告
     if (process.env.SENTRY_DSN) {

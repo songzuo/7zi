@@ -18,7 +18,7 @@
  */
 
 import { create } from 'zustand'
-import { persist } from 'zustand/middleware'
+import { persist, createJSONStorage } from 'zustand/middleware'
 import { shallow } from 'zustand/shallow'
 import { encryptedStorage } from '@/lib/auth/encrypted-storage'
 import { clearUser } from '@/lib/analytics/ga4'
@@ -214,7 +214,7 @@ export const useAuthStore = create<AuthState>()(
     }),
     {
       name: '7zi-auth-storage', // localStorage key
-      storage: {
+      storage: createJSONStorage(() => ({
         getItem: async (name: string): Promise<string | null> => {
           return await encryptedStorage.getItem(name)
         },
@@ -224,7 +224,7 @@ export const useAuthStore = create<AuthState>()(
         removeItem: async (name: string): Promise<void> => {
           await encryptedStorage.removeItem(name)
         },
-      },
+      })),
       partialize: state => ({
         // 只持久化必要的状态
         user: state.user,

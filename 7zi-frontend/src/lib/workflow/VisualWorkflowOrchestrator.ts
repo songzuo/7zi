@@ -128,7 +128,7 @@ export class VisualWorkflowOrchestrator {
       try {
         listener(event)
       } catch (error) {
-        logger.error('[VisualWorkflowOrchestrator] 事件监听器错误:', error)
+        logger.error('[VisualWorkflowOrchestrator] 事件监听器错误:', error instanceof Error ? error : undefined)
       }
     })
   }
@@ -239,7 +239,7 @@ export class VisualWorkflowOrchestrator {
   private async resumeExecution(
     savedState: PersistentExecutionState
   ): Promise<ExecutionResult> {
-    logger.debug('[VisualWorkflowOrchestrator] 恢复执行:', savedState.executionId)
+    logger.debug('[VisualWorkflowOrchestrator] 恢复执行:', { executionId: savedState.executionId })
 
     // 重建执行实例
     const instance: WorkflowInstance = {
@@ -705,7 +705,7 @@ export class VisualWorkflowOrchestrator {
     try {
       await webhookManager.triggerEvent(event)
     } catch (error) {
-      logger.error('[VisualWorkflowOrchestrator] Webhook 触发失败:', error)
+      logger.error('[VisualWorkflowOrchestrator] Webhook 触发失败:', error instanceof Error ? error : undefined)
       // 不阻塞工作流执行
     }
   }

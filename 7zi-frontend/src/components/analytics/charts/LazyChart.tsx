@@ -34,7 +34,7 @@ export const LazyMetricChart = dynamic(
 )
 
 export const LazyExecutionTrendChart = dynamic(
-  () => import('./ExecutionTrendChart').then(mod => ({
+  () => import('../ExecutionTrendChart').then(mod => ({
     default: mod.ExecutionTrendChart
   })),
   {

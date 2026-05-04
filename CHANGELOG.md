@@ -7,117 +7,7 @@
 
 ---
 
-## [Unreleased] - 2026-05-02
-
-### 🔧 Bug Fixes
-- 修复 PWA route PushSubscriptionData 接口类型（替换 any）
-- websocket-store.ts logger 统一替换 console
-- websocket-store.ts logger 导入修复 (commit 4880ed0a3)
-- audit-log/export-service.ts 添加 logger import (commit 78b39525d)
-- audit-log 模块 JSON.parse 添加 try-catch (commit f729af644)
-- 移除重复 export default 和尾部垃圾代码 (commit 18c5dde12)
-
-### 🔄 Code Cleanup
-- 完成 Jest → Vitest 测试框架迁移（4处 jest.mock → vi.mock）
-- Service Worker sw.js 添加到 .gitignore (commit a587be625)
-
-### 📝 Documentation
-- 记忆文件更新（多次 commit）
-- CHANGELOG 同步更新
-
-### Git
-- commit 26758aa31: add logger imports and migrate last Jest test to Vitest
-- commit 4880ed0a3: replace console with logger in websocket-store.ts
-- commit 78b39525d: add logger import to audit-log/export-service.ts
-- commit f729af644: add try-catch for JSON.parse in audit-log modules
-- commit 18c5dde12: remove duplicate export default and trailing garbage
-
-### ✅ 开发任务自检 (2026-05-02 上午)
-- ✅ TypeScript 编译检查通过 (tsc --noEmit)
-- ✅ Vitest 4.1.4 配置兼容性验证通过
-- ✅ WebSocket 模块导出检查完成 (server.ts 正确导出 16 个函数/类型)
-- ✅ CHANGELOG.md 更新同步
-
----
-
-## [Unreleased] - 2026-05-01
-
-### 🛡️ Security
-- 升级 protobufjs 到最新版本 (修复 GHSA-xq3m-2v4x-88gg 任意代码执行漏洞)
-- 升级 uuid 到 ≥14.0.0 (修复 GHSA-w5hq-g745-h8pq 缓冲区边界漏洞)
-- 升级 postcss 到 ≥8.5.10 (修复 GHSA-qq2v-qp2m-jg93 XSS 漏洞)
-
-### 🛡️ PM2 部署优化
-- ecosystem.config.production.js: 生产环境配置文件完善
-- PM2 内存限制、重启策略优化
-
-### 🔧 WebSocket 重构 (v1.14.1)
-- `src/lib/websocket/server.ts`: 从 1455 行拆分为模块化架构（重构后 394 行）
-- 新增 `src/lib/websocket/auth.ts`: JWT 认证中间件
-- 新增 `src/lib/websocket/broadcast.ts`: 消息广播工具函数
-- 新增 `src/lib/websocket/task-status.ts`: 任务状态广播功能
-- 新增 `src/lib/websocket/handlers/room-handlers.ts`: 房间事件处理
-- 新增 `src/lib/websocket/handlers/message-handlers.ts`: 消息事件处理
-- 新增 `src/lib/websocket/handlers/doc-handlers.ts`: 文档/光标事件处理
-- 核心模块 RoomManager, PermissionManager, MessageStore 保持稳定
-
-### 🔧 TypeScript 类型修复
-- plugins/types.ts: 移除 @ts-nocheck，修复 debounce/throttle 泛型 any 类型
-- SiliconFlowProvider.ts: 修复 calculateCost 访问修饰符不一致
-- xlsx-wrapper.ts: 添加类型断言修复 Column 类型不匹配
-- VisualWorkflowOrchestrator.test.ts: 修复 19 个失败测试
-
-### 🔄 持续改进
-- 代码质量优化
-
-### 📚 文档更新
-- CHANGELOG 同步 v1.14.1 最新状态
-
----
-
-## [Unreleased] - 2026-04-20
-
-### 🔧 TypeScript 类型修复
-- websocket-store-enhanced.test.ts: 修复 mock.calls 类型断言问题
-- app-store.ts: 修复 settings 更新类型不兼容问题
-
-### 🧪 测试状态
-- 54 个测试文件失败 / 182 通过
-- 主要问题: AudioProcessor (copyToChannel), AlertChannel (send failed)
-- 总计 217 个测试失败 / 4701 通过
-
-### 🔄 持续改进
-- 代码质量优化
-- 生产环境健康监控
-
----
-
-## [Unreleased] - 2026-04-19
-
-### 🔧 依赖更新
-- `@ducanh2912/next-pwa` 10.2.6 → 10.2.9
-- `next` 16.2.3 → 16.2.4
-- ESLint 配置重构（`.eslintrc.json` → `eslint.config.mjs`）
-
-### 🛡️ 安全修复
-- ScreenshotAnnotation CSRF 安全加固
-
-### 🧪 测试改进
-- WorkflowEditor 组件测试统一更新
-- error-handling API 测试增强
-
-### ⚠️ 生产环境问题
-- 7zi-main PM2 重启次数过多 (16次)
-- visa.7zi.com 上游连接失败 (端口3003无服务)
-- SSL handshake 错误 (Cloudflare 兼容性问题)
-
-### 🌟 Evomap 集成进展
-- Evomap Gateway 节点注册完成
-- GEP-A2A 协议 Heartbeat 验证通过
-
----
-
-## [Unreleased] - 2026-04-18
+## [Unreleased] - 2026-05-04
 
 ### 🔧 技术改进
 - TypeScript P0 错误修复 (VisualWorkflowOrchestrator, websocket-instance-manager, zod-adapter)
@@ -147,6 +37,7 @@
 
 ### 🔍 搜索优化
 - 搜索 API 端点改进
+
 
 ## [1.14.1] - 2026-04-17
 
@@ -497,7 +388,7 @@
 
 ---
 
-## [Unreleased]
+## [Unreleased] - 2026-05-04
 
 ### 🎯 版本主题
 
@@ -546,6 +437,7 @@
 - **Previous Version**: v1.12.2 (Released 2026-04-04)
 
 ---
+
 
 ## [1.12.2] - 2026-04-04 🤖 Workspace Automation & Type Safety
 
@@ -3165,7 +3057,7 @@ v1.4.0 专注于 **WebSocket 高级协作功能**、**AI Agent 智能调度** �
 
 ---
 
-## [Unreleased] - 2026-04-24 (Evening)
+## [Unreleased] - 2026-05-04
 
 ### 📝 文档更新
 - 记忆文件更新 (git sync)

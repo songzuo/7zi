@@ -10,6 +10,7 @@ import { persist, createJSONStorage } from 'zustand/middleware'
 import type { Edge, Node, Connection } from 'reactflow'
 import type { WorkflowNodeData, WorkflowEdgeData, ValidationError, ExecutionState, WorkflowVariable } from '../types'
 import { executionStateStorage } from '@/lib/storage/execution-state-storage'
+import logger from '@/lib/logger'
 
 /**
  * 工作流定义
