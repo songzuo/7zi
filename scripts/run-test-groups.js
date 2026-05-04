@@ -14,28 +14,35 @@ const analysis = JSON.parse(fs.readFileSync(analysisPath, 'utf-8'))
 
 const groups = analysis.groups
 
-// 定义测试分组
+// 定义测试分组（精简为 2 个配置）
 const testGroups = [
   {
     name: 'fast',
     description: '快速测试（低复杂度）',
     files: groups.low.map(f => f.file).join(' '),
-    config: 'vitest.config.fast.ts',
+    config: 'vitest.config.ts', // 使用主配置
     timeout: '5m',
   },
   {
     name: 'normal',
     description: '常规测试（中等复杂度）',
     files: groups.medium.map(f => f.file).join(' '),
-    config: 'vitest.config.normal.ts',
+    config: 'vitest.config.ts', // 使用主配置
     timeout: '15m',
   },
   {
     name: 'slow',
     description: '慢速测试（高复杂度）',
     files: groups.high.map(f => f.file).join(' '),
-    config: 'vitest.config.slow.ts',
+    config: 'vitest.config.ts', // 使用主配置
     timeout: '30m',
+  },
+  {
+    name: 'optimized',
+    description: '优化配置（并行执行）',
+    files: groups.all.map(f => f.file).join(' '),
+    config: 'vitest.config.optimized.ts',
+    timeout: '20m',
   },
 ]
 

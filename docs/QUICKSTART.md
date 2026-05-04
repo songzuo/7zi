@@ -1,6 +1,6 @@
 # 5 分钟快速开始
 
-**最后更新**: 2026-03-06  
+**最后更新**: 2026-05-04  
 **难度**: ⭐ 简单  
 **时间**: 5-10 分钟
 
@@ -198,6 +198,71 @@ NEXT_PUBLIC_GITHUB_TOKEN=ghp_xxxxxxxxxxxxxxxxxxxx
 ├── deploy-scripts/       # 部署脚本
 ├── .github/              # GitHub Actions 配置
 └── README.md             # 项目主文档
+```
+
+---
+
+## 🐳 Docker 快速启动（推荐）
+
+如果你不想安装 Node.js，可以使用 Docker 一键启动：
+
+### 步骤 1: 确保 Docker 已安装
+
+```bash
+# 检查 Docker 版本
+docker --version
+docker-compose --version
+```
+
+### 步骤 2: 克隆并启动 (2 分钟)
+
+```bash
+git clone https://github.com/songzuo/7zi.git
+cd 7zi
+```
+
+### 步骤 3: 配置环境变量
+
+```bash
+cp .env.example .env.local
+# 编辑 .env.local 添加必要的配置
+nano .env.local
+```
+
+### 步骤 4: 使用 Docker Compose 启动
+
+```bash
+# 启动所有服务
+docker-compose up -d
+
+# 查看运行状态
+docker-compose ps
+
+# 查看日志
+docker-compose logs -f 7zi-frontend
+```
+
+### 步骤 5: 访问应用
+
+打开浏览器访问：
+
+- **主页**: http://localhost:3000
+- **Dashboard**: http://localhost:3000/dashboard
+
+### Docker 常用命令
+
+```bash
+# 停止服务
+docker-compose down
+
+# 重建并启动
+docker-compose up -d --build
+
+# 进入容器调试
+docker-compose exec 7zi-frontend sh
+
+# 查看实时日志
+docker-compose logs -f
 ```
 
 ---

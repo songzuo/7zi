@@ -99,14 +99,14 @@ console.log('📊 测试性能基准测试\n')
 console.log('='.repeat(50))
 
 // 运行基准测试
-console.log('\n1️⃣ 基准测试：当前配置（单进程）')
+console.log('\n1️⃣ 基准测试：当前配置')
 const baseline = measureRun('当前配置', 'vitest.config.ts')
 
 console.log('\n2️⃣ 优化测试：并行配置')
 const optimized = measureRun('并行优化', 'vitest.config.optimized.ts')
 
-console.log('\n3️⃣ 快速配置：fast模式')
-const fast = measureRun('快速模式', 'vitest.config.fast.ts')
+console.log('\n3️⃣ 集成测试配置')
+const integration = measureRun('集成测试', 'vitest.config.integration.ts')
 
 // 计算性能提升
 console.log('\n📈 性能对比\n')

@@ -8,9 +8,9 @@
 import { NextRequest } from 'next/server'
 import {
   createSuccessResponse,
-  createErrorResponse,
   createBadRequestError,
 } from '@/lib/api/error-handler'
+import { logger } from '@/lib/logger'
 
 export async function POST(request: NextRequest) {
   try {
