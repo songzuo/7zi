@@ -72,7 +72,7 @@ if (!fetchInitialized) {
 if (!cryptoInitialized) {
   Object.defineProperty(global, 'crypto', {
     value: {
-      randomUUID: vi.fn(() => 'mock-uuid-' + Math.random().toString(36).substr(2, 9)),
+      randomUUID: vi.fn(() => 'mock-uuid-' + Math.random().toString(36).substring(2, 11)),
       getRandomValues: (array: Uint8Array): Uint8Array => {
         for (let i = 0; i < array.length; i++) {
           array[i] = Math.floor(Math.random() * 256);

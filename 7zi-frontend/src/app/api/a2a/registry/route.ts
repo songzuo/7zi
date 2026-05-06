@@ -5,6 +5,7 @@
  */
 
 import { NextRequest, NextResponse } from 'next/server'
+import { generateSecureId } from '@/lib/utils'
 import { agentScheduler } from '@/lib/agents/scheduler/scheduler'
 import type { RegisterAgentRequest } from '@/lib/agents/scheduler/types'
 import { createSuccessResponse, createErrorResponse, ErrorType } from '@/lib/api/error-handler'
@@ -74,7 +75,7 @@ export async function POST(request: NextRequest) {
       )
     }
 
-    const agentId = `agent_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`
+    const agentId = generateSecureId('agent')
     const agent = agentScheduler.registerAgent(
       agentId,
       body.name,

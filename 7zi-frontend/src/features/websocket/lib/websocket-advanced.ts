@@ -4,6 +4,7 @@
  */
 
 import { RoomManager } from '../room/room-manager'
+import { generateSecureId } from '@/lib/utils'
 import { PermissionManager } from '../room/permission-manager'
 import { MessagePersistence } from '../message/persistence'
 import { Room, RoomConfig, MemberRole, PermissionAction } from '../room/room-model'
@@ -117,7 +118,7 @@ export class WebSocketAdvancedService {
 
     // 创建消息
     const message: Message = {
-      id: `msg_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
+      id: generateSecureId('msg'),
       roomId,
       senderId,
       senderName,

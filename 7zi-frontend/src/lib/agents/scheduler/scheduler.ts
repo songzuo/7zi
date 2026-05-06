@@ -5,6 +5,7 @@
  * Handles task queue management, agent registration, and task assignment.
  */
 
+import { generateSecureId } from '@/lib/utils'
 import type {
   Agent,
   AgentStatus,
@@ -358,7 +359,7 @@ class AgentScheduler {
   // ===== Utilities =====
 
   private generateId(prefix: string): string {
-    return `${prefix}_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`
+    return generateSecureId(prefix)
   }
 
   clear(): void {

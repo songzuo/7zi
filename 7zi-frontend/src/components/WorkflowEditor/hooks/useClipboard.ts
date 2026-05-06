@@ -21,6 +21,7 @@ interface ClipboardData {
   edges: Edge<WorkflowEdgeData>[]
   timestamp: number
 }
+import { generateSecureId } from '@/lib/utils'
 
 /** JSON 剪贴板节点数据（简化版） */
 interface JsonClipboardNode {
@@ -118,7 +119,7 @@ export function useClipboard() {
 
       // 创建新节点
       const newNodes: Node<WorkflowNodeData>[] = data.nodes.map((node) => {
-        const newId = `${node.type}-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`
+        const newId = generateSecureId(node.type)
         idMap[node.id] = newId
 
         return {
@@ -139,7 +140,7 @@ export function useClipboard() {
 
       // 创建新边
       const newEdges: Edge<WorkflowEdgeData>[] = data.edges.map((edge) => {
-        const newId = `edge-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`
+        const newId = generateSecureId('edge')
         return {
           ...edge,
           id: newId,
@@ -241,7 +242,7 @@ export function useClipboard() {
 
         // 创建新节点
         const newNodes: Node<WorkflowNodeData>[] = jsonData.nodes.map((node: JsonClipboardNode) => {
-          const newId = `${node.type || 'node'}-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`
+          const newId = generateSecureId(node.type || 'node')
           idMap[node.id] = newId
 
           return {
@@ -261,7 +262,7 @@ export function useClipboard() {
 
         // 创建新边
         const newEdges: Edge<WorkflowEdgeData>[] = (jsonData.edges || []).map((edge: JsonClipboardEdge) => {
-          const newId = `edge-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`
+          const newId = generateSecureId('edge')
           return {
             ...edge,
             id: newId,

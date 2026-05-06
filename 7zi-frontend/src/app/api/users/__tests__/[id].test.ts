@@ -269,7 +269,7 @@ describe('PATCH /api/users/[id]', () => {
     })
 
     try {
-      const route = await import('../route').then(m => m.PATCH)
+      const route = await import('../route').then(m => (m as any).PATCH)
       const response = await route(mockRequest)
       const data = await response.json()
 
@@ -296,7 +296,7 @@ describe('PATCH /api/users/[id]', () => {
     })
 
     try {
-      const route = await import('../route').then(m => m.PATCH)
+      const route = await import('../route').then(m => (m as any).PATCH)
       const response = await route(mockRequest)
 
       expect([400, 422, 405]).toContain(response.status)
@@ -318,7 +318,7 @@ describe('PATCH /api/users/[id]', () => {
     })
 
     try {
-      const route = await import('../route').then(m => m.PATCH)
+      const route = await import('../route').then(m => (m as any).PATCH)
       const response = await route(mockRequest)
 
       expect([403, 405]).toContain(response.status)
@@ -340,7 +340,7 @@ describe('PATCH /api/users/[id]', () => {
     })
 
     try {
-      const route = await import('../route').then(m => m.PATCH)
+      const route = await import('../route').then(m => (m as any).PATCH)
       const response = await route(mockRequest)
 
       expect([200, 400, 405]).toContain(response.status)
@@ -362,7 +362,7 @@ describe('PATCH /api/users/[id]', () => {
     })
 
     try {
-      const route = await import('../route').then(m => m.PATCH)
+      const route = await import('../route').then(m => (m as any).PATCH)
       const response = await route(mockRequest)
 
       expect([404, 405]).toContain(response.status)
@@ -383,7 +383,7 @@ describe('DELETE /api/users/[id]', () => {
     })
 
     try {
-      const route = await import('../route').then(m => m.DELETE)
+      const route = await import('../route').then(m => (m as any).DELETE)
       const response = await route(mockRequest)
 
       expect([200, 204, 405]).toContain(response.status)
@@ -402,7 +402,7 @@ describe('DELETE /api/users/[id]', () => {
     })
 
     try {
-      const route = await import('../route').then(m => m.DELETE)
+      const route = await import('../route').then(m => (m as any).DELETE)
       const response = await route(mockRequest)
 
       expect([403, 405]).toContain(response.status)
@@ -420,7 +420,7 @@ describe('DELETE /api/users/[id]', () => {
     })
 
     try {
-      const route = await import('../route').then(m => m.DELETE)
+      const route = await import('../route').then(m => (m as any).DELETE)
       const response = await route(mockRequest)
 
       expect([404, 405]).toContain(response.status)
@@ -438,7 +438,7 @@ describe('DELETE /api/users/[id]', () => {
     })
 
     try {
-      const route = await import('../route').then(m => m.DELETE)
+      const route = await import('../route').then(m => (m as any).DELETE)
       const response = await route(mockRequest)
 
       // Should either block self-deletion or return 403/400
@@ -494,7 +494,7 @@ describe('Edge Cases', () => {
     })
 
     try {
-      const route = await import('../route').then(m => m.PATCH)
+      const route = await import('../route').then(m => (m as any).PATCH)
       const response = await route(mockRequest)
 
       // Should sanitize XSS content
@@ -515,7 +515,7 @@ describe('Edge Cases', () => {
     })
 
     try {
-      const route = await import('../route').then(m => m.PATCH)
+      const route = await import('../route').then(m => (m as any).PATCH)
       const response = await route(mockRequest)
 
       expect([200, 400, 405]).toContain(response.status)
@@ -538,7 +538,7 @@ describe('Edge Cases', () => {
     })
 
     try {
-      const route = await import('../route').then(m => m.PATCH)
+      const route = await import('../route').then(m => (m as any).PATCH)
       const response = await route(mockRequest)
 
       expect([400, 422, 405]).toContain(response.status)

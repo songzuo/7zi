@@ -4,6 +4,7 @@
  * v1.13.0
  */
 
+import { generateSecureId } from '@/lib/utils'
 import type {
   DialogueTurn,
   DialogueContext,
@@ -398,7 +399,7 @@ export class MultiTurnDialogueManager {
    * 生成轮次ID
    */
   private generateTurnId(): string {
-    return `turn_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`
+    return generateSecureId('turn')
   }
 
   /**

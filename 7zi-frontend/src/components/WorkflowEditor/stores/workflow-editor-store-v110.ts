@@ -10,6 +10,7 @@
  */
 
 import { create } from 'zustand'
+import { generateSecureId } from '@/lib/utils'
 import type { Draft } from 'immer'
 import { devtools, persist } from 'zustand/middleware'
 import { immer } from 'zustand/middleware/immer'
@@ -325,7 +326,7 @@ const createWorkflowEditorStore = () =>
 
                 // 创建新节点
                 nodesToDuplicate.forEach((node) => {
-                  const newId = `${node.type}-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`
+                  const newId = generateSecureId(node.type)
                   idMap[node.id] = newId
 
                   duplicatedNodes.push({
@@ -348,7 +349,7 @@ const createWorkflowEditorStore = () =>
                   .filter((e) => nodeIds.includes(e.source) || nodeIds.includes(e.target))
                   .map((edge) => ({
                     ...edge,
-                    id: `edge-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
+                    id: generateSecureId('edge'),
                     source: idMap[edge.source] || edge.source,
                     target: idMap[edge.target] || edge.target,
                   }))

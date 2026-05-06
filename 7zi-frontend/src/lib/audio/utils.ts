@@ -6,6 +6,7 @@
  */
 
 import type { SupportedLanguage, AudioFormat } from './types'
+import { generateSecureId } from '@/lib/utils'
 
 /**
  * 检测浏览器支持的音频格式
@@ -199,7 +200,7 @@ export function formatTimestamp(ms: number): string {
  * 生成唯一 ID
  */
 export function generateId(): string {
-  return `audio_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`
+  return generateSecureId('audio')
 }
 
 /**

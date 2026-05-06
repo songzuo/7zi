@@ -13,6 +13,7 @@
 
 import type { CollabUser, CursorPosition } from '@/features/collab/types'
 import { logger } from '@/lib/logger'
+import { generateSecureId } from '@/lib/utils'
 
 /**
  * Node lock information
@@ -363,7 +364,7 @@ export class CollaborationStateManager {
    * Queue a change
    */
   queueChange(change: Omit<Change, 'id' | 'timestamp'>): string {
-    const changeId = `change_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`
+    const changeId = generateSecureId('change')
     const fullChange: Change = {
       ...change,
       id: changeId,
@@ -446,7 +447,7 @@ export class CollaborationStateManager {
 
     // Create conflict
     const conflict: Conflict = {
-      id: `conflict_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
+      id: generateSecureId('conflict'),
       nodeId: newChange.nodeId,
       type: versionConflict ? 'version_mismatch' : 'concurrent_edit',
       changes: [newChange, ...concurrentChanges],

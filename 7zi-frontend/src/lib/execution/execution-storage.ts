@@ -12,6 +12,7 @@
  */
 
 import { getDraftStorageManager } from '@/lib/db/draft-storage'
+import { generateSecureId } from '@/lib/utils'
 import type { Draft } from '@/lib/db/draft-storage'
 import { logger } from '@/lib/logger'
 
@@ -168,7 +169,7 @@ export class ExecutionStorageManager {
    */
   private generateExecutionId(workflowId: string): string {
     const timestamp = Date.now().toString(36)
-    const random = Math.random().toString(36).substring(2, 9)
+    const random = generateSecureId()
     return `EXEC-${workflowId}-${timestamp}-${random}`
   }
 

@@ -9,6 +9,7 @@
  */
 
 import type { Socket } from 'socket.io-client'
+import { generateSecureId } from '@/lib/utils'
 import { logger } from '@/lib/logger'
 
 /**
@@ -501,7 +502,7 @@ export class WebSocketManager {
     }
 
     const message: QueuedMessage = {
-      id: `msg_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
+      id: generateSecureId('msg'),
       event,
       data,
       timestamp: Date.now(),

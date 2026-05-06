@@ -10,6 +10,7 @@ import type { Notification, NotificationFilter } from './notification-types'
 import { emailService, EmailRecipient } from './email'
 import { notificationStorage } from './notification-storage'
 import { logger } from '@/lib/logger'
+import { generateSecureId } from '@/lib/utils'
 
 // Re-export values from notification-types
 export { NotificationType, NotificationPriority } from './notification-types'
@@ -101,7 +102,7 @@ export class EnhancedNotificationService {
   ): Promise<{ success: boolean; notificationId: string; emailSent: boolean; error?: string }> {
     try {
       // Generate ID
-      const id = `notif_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`
+      const id = generateSecureId('notif')
       const fullNotification: Notification = {
         ...notification,
         id,

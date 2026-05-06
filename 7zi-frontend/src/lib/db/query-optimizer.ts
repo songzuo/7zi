@@ -5,6 +5,8 @@
  */
 
 import { InMemoryStorage } from '../db/storage'
+import { generateSecureId } from '@/lib/utils'
+import { generateSecureId } from '../utils'
 
 /**
  * 查询类型
@@ -399,7 +401,7 @@ export class QueryOptimizer {
    * 生成查询 ID
    */
   private generateQueryId(): string {
-    return `q_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`
+    return generateSecureId('q')
   }
 
   /**

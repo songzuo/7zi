@@ -4,6 +4,7 @@
  */
 
 import { logger } from '../logger'
+import { generateSecureId } from '@/lib/utils'
 
 /**
  * 错误日志条目
@@ -167,7 +168,7 @@ export class ErrorLogHistoryService {
   add(entry: Omit<ErrorLogEntry, 'id' | 'timestamp' | 'resolved'>): ErrorLogEntry {
     const logEntry: ErrorLogEntry = {
       ...entry,
-      id: `log-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
+      id: generateSecureId('log'),
       timestamp: Date.now(),
       resolved: false,
     }

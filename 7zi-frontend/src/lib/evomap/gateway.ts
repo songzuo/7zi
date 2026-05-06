@@ -24,6 +24,7 @@ import {
   DEFAULT_RETRY_CONFIG,
   DEFAULT_CONFIG,
 } from './types'
+import { generateSecureId } from '@/lib/utils'
 
 // 简单的 localStorage 封装（用于 SSR/客户端兼容）
 const isClient = typeof window !== 'undefined'
@@ -40,9 +41,7 @@ function safeParseJSON<T>(text: string, fallback: T): T {
  * 生成随机 ID (浏览器兼容)
  */
 function generateId(prefix: string): string {
-  const timestamp = Date.now().toString(36)
-  const random = Math.random().toString(36).substring(2, 10)
-  return `${prefix}_${timestamp}_${random}`
+  return generateSecureId(prefix)
 }
 
 /**

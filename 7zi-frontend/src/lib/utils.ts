@@ -6,6 +6,39 @@ import { type ClassValue, clsx } from 'clsx'
 import { twMerge } from 'tailwind-merge'
 
 /**
+ * Generate a cryptographically secure random ID
+ * Uses crypto API when available, falls back to Math.random for older environments
+ *
+ * @param prefix - Optional prefix for the ID
+ * @param length - Length of random part (default: 9)
+ * @returns Secure random ID string
+ *
+ * @example
+ * generateSecureId('user')
+ * // => 'user_a1b2c3d4e'
+ */
+export function generateSecureId(prefix?: string, length = 9): string {
+  const randomPart = generateSecureRandomString(length)
+  return prefix ? `${prefix}_${randomPart}` : randomPart
+}
+
+/**
+ * Generate a cryptographically secure random string
+ *
+ * @param length - Length of the string to generate
+ * @returns Random string
+ */
+function generateSecureRandomString(length: number): string {
+  if (typeof crypto !== 'undefined' && crypto.getRandomValues) {
+    const array = new Uint8Array(length)
+    crypto.getRandomValues(array)
+    return Array.from(array, byte => byte.toString(36).padStart(2, '0')).join('').slice(0, length)
+  }
+  // Fallback for older environments
+  return Math.random().toString(36).substring(2, 2 + length)
+}
+
+/**
  * Merge Tailwind CSS classes
  *
  * @param inputs - Class names to merge

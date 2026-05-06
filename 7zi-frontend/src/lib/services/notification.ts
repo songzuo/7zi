@@ -16,7 +16,9 @@ export {
 
 // Import types for use in this file
 import { logger } from '@/lib/logger'
+import { generateSecureId } from '@/lib/utils'
 import type { Notification, NotificationFilter } from './notification-types'
+import { generateSecureId } from '@/lib/utils'
 
 /**
  * Type for Socket.IO server (dynamically imported)
@@ -77,7 +79,7 @@ export class NotificationService {
   private create(data: Omit<Notification, 'id' | 'read' | 'createdAt'>): Notification {
     return {
       ...data,
-      id: `notif_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
+      id: generateSecureId('notif'),
       read: false,
       createdAt: Date.now(),
     }

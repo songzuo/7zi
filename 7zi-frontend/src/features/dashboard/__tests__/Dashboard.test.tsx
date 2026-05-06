@@ -40,6 +40,39 @@ describe('Dashboard Component', () => {
   });
 
   it('should render stat cards', async () => {
+    // Mock at least one API call so the test doesn't timeout
+    vi.mocked(dashboardApi.dashboardApi.getWorkflowStats).mockResolvedValue({
+      total: 100,
+      success: 90,
+      failed: 10,
+      avgDuration: 5,
+      successRate: 90,
+    });
+
+    vi.mocked(dashboardApi.dashboardApi.getUserActivityStats).mockResolvedValue({
+      activeUsers: 50,
+      newUsers: 10,
+      sessions: 200,
+      peakActiveUsers: 80,
+    });
+
+    vi.mocked(dashboardApi.dashboardApi.getPerformanceStats).mockResolvedValue({
+      responseTime: 100,
+      throughput: 80,
+      errorRate: 1.5,
+      p50: 80,
+      p90: 150,
+      p99: 300,
+    });
+
+    vi.mocked(dashboardApi.dashboardApi.getSystemStats).mockResolvedValue({
+      cpu: 45,
+      memory: 60,
+      disk: 70,
+      networkIn: 1000000,
+      networkOut: 800000,
+    });
+
     render(<Dashboard />);
 
     // Check for stat card titles - need to wait for async data loading

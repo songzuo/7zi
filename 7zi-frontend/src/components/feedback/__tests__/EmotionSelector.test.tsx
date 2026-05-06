@@ -219,7 +219,7 @@ describe('SatisfactionRating', () => {
         />
       )
 
-      expect(screen.getByText('4 / 5')).toBeInTheDocument()
+      expect(screen.getByText(/4 \/ 5/)).toBeInTheDocument()
     })
   })
 

@@ -9,6 +9,7 @@
 
 import { io, Socket } from 'socket.io-client'
 import { logger } from '@/lib/logger'
+import { generateSecureId } from '@/lib/utils'
 import { monitor } from '@/lib/monitoring'
 import { MessageCompressor } from '../websocket-compression'
 import {
@@ -132,7 +133,7 @@ export class WebSocketClient {
     this.lastPongTime = Date.now()
 
     // Generate session ID and load persisted state
-    this.sessionId = `ws_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`
+    this.sessionId = generateSecureId('ws')
     this.loadPersistedState()
 
     // Initialize compressor with config
@@ -530,7 +531,7 @@ export class WebSocketClient {
           : undefined
 
         this.recordReconnection({
-          id: `reconn_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
+          id: generateSecureId('reconn'),
           timestamp: Date.now(),
           attempt: this.reconnectionAttempts,
           reason: 'reconnect_success',
@@ -556,7 +557,7 @@ export class WebSocketClient {
 
       if (this.reconnectionAttempts > 0 || this.state === ConnectionState.RECONNECTING) {
         this.recordReconnection({
-          id: `reconn_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
+          id: generateSecureId('reconn'),
           timestamp: Date.now(),
           attempt: this.reconnectionAttempts,
           reason: reason,
@@ -693,7 +694,7 @@ export class WebSocketClient {
       logger.error('[WebSocketClient] Max reconnection attempts reached')
 
       this.recordReconnection({
-        id: `reconn_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
+        id: generateSecureId('reconn'),
         timestamp: Date.now(),
         attempt: this.reconnectionAttempts,
         reason: 'max_attempts_reached',
@@ -759,7 +760,7 @@ export class WebSocketClient {
     }
 
     const message: QueuedMessage = {
-      id: `msg_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
+      id: generateSecureId('msg'),
       event,
       data,
       timestamp: Date.now(),

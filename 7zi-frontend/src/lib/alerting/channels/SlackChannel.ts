@@ -3,6 +3,7 @@
  * 使用 Slack Incoming Webhook 发送消息
  */
 
+import { generateSecureId } from '@/lib/utils'
 import {
   NotificationChannel,
   NotificationPayload,
@@ -247,7 +248,7 @@ export class SlackChannel implements NotificationChannel {
         type: 'button' as const,
         text: { type: 'plain_text' as const, text: action.text, emoji: true },
         url: action.url,
-        action_id: `action_${Math.random().toString(36).substr(2, 9)}`,
+        action_id: generateSecureId('action'),
       }));
 
       blocks.push({

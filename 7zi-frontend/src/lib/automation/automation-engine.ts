@@ -6,6 +6,7 @@
 
 import * as vm from 'vm'
 import { logger } from '@/lib/logger'
+import { generateSecureId } from '@/lib/utils'
 
 // ============================================================================
 // Types & Interfaces
@@ -819,7 +820,7 @@ export class AutomationEngine {
     triggerData?: unknown
   ): Promise<ExecutionResult> {
     const startTime = Date.now()
-    const executionId = `exec_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`
+    const executionId = generateSecureId('exec')
     const rule = this.rules.get(ruleId)
 
     if (!rule || rule.status !== 'active') {

@@ -16,12 +16,9 @@ export default defineConfig({
     forks: {
       singleFork: false, // 允许并行执行以提高测试速度
       isolate: true, // 确保 fork 之间的隔离
+      maxForks: 12, // 允许并行 fork 数量（4核×3=12）
     },
   },
-
-  // Vitest 4: 并发工作线程配置
-  maxThreads: 6, // 允许最多 6 个并行线程
-  minThreads: 1,
 
   // 内存限制配置（防止 worker 崩溃）
   maxMemoryUsage: 2048, // 限制每个 worker 的内存使用为 2GB

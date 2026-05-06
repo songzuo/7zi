@@ -9,6 +9,7 @@
  */
 
 import type { Node, Edge } from 'reactflow'
+import { generateSecureId } from '@/lib/utils'
 
 /**
  * 模板分类
@@ -602,7 +603,7 @@ export class TemplateManager {
   createTemplate(template: Omit<Template, 'id' | 'createdAt' | 'usageCount'>): Template {
     const newTemplate: Template = {
       ...template,
-      id: `custom-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
+      id: generateSecureId('custom'),
       createdAt: Date.now(),
       usageCount: 0,
       isPreset: false,

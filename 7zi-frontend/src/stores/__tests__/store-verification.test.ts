@@ -45,7 +45,7 @@ global.fetch = () => Promise.resolve() as any
 // 模拟 crypto
 Object.defineProperty(global, 'crypto', {
   value: {
-    randomUUID: () => 'test-uuid-' + Math.random().toString(36).substr(2, 9),
+    randomUUID: () => 'test-uuid-' + Math.random().toString(36).substring(2, 11),
   },
 })
 

@@ -12,6 +12,7 @@ import {
   RoomPermission,
 } from './room-model'
 import { logger } from '@/lib/logger'
+import { generateSecureId } from '@/lib/utils'
 
 export class RoomManager {
   private rooms: Map<string, Room> = new Map()
@@ -21,7 +22,7 @@ export class RoomManager {
    * 生成房间 ID
    */
   private generateRoomId(): string {
-    return `room_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`
+    return generateSecureId('room')
   }
 
   /**

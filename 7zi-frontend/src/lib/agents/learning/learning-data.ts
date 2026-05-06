@@ -7,9 +7,13 @@
  */
 
 import type { AgentId, TaskType, TaskHistoryRecord, AgentLearningStats } from './types'
+import { generateSecureId } from '@/lib/utils'
 import { TaskTimePredictor } from './time-prediction'
+import { generateSecureId } from '@/lib/utils'
 import { AgentCapabilityAssessor, CapabilityAssessmentResult } from './agent-capability'
+import { generateSecureId } from '@/lib/utils'
 import { logger } from '../../logger'
+import { generateSecureId } from '@/lib/utils'
 
 /**
  * Learning data version for migration support
@@ -401,7 +405,7 @@ export class LearningPersistence {
       currentTimestamp += timestampDelta
 
       const record: TaskHistoryRecord = {
-        taskId: `task-${currentTimestamp}-${Math.random().toString(36).slice(2)}`,
+        taskId: generateSecureId('task'),
         taskType: state.lookupTables.taskTypes[taskTypeIdx],
         agentId: state.lookupTables.agents[agentIdx],
         createdAt: currentTimestamp - executionTime, // Approximate

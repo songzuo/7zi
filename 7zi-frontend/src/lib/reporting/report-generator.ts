@@ -6,6 +6,7 @@
  */
 
 import type { AggregatedData } from './data-aggregator'
+import { generateSecureId } from '@/lib/utils'
 
 /**
  * 报表类型
@@ -606,7 +607,7 @@ export class ReportGenerator {
    * 生成唯一ID
    */
   private generateId(): string {
-    return `report_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`
+    return generateSecureId('report')
   }
 
   /**

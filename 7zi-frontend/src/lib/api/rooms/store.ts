@@ -5,6 +5,7 @@
  */
 
 import type { Room, RoomMember, RoomMessage } from '@/types/rooms'
+import { generateSecureId } from '@/lib/utils'
 
 export interface RoomData {
   room: Room
@@ -21,7 +22,7 @@ class RoomDataStore {
    * 生成随机 ID
    */
   private generateId(prefix: string): string {
-    return `${prefix}_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`
+    return generateSecureId(prefix)
   }
 
   /**

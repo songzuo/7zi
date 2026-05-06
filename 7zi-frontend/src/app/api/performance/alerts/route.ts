@@ -5,6 +5,7 @@
  */
 
 import { NextRequest, NextResponse } from 'next/server'
+import { generateSecureId } from '@/lib/utils'
 import { QueryOptimizer } from '@/lib/db/query-optimizer'
 
 /**
@@ -117,7 +118,7 @@ function checkAlertRules(): Alert[] {
 
       if (!existingAlert) {
         newAlerts.push({
-          id: `alert_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
+          id: generateSecureId('alert'),
           ruleId: rule.id,
           type: rule.type,
           severity: rule.severity,
@@ -147,7 +148,7 @@ function checkAlertRules(): Alert[] {
 
       if (!existingAlert) {
         newAlerts.push({
-          id: `alert_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
+          id: generateSecureId('alert'),
           ruleId: rule.id,
           type: rule.type,
           severity: rule.severity,
@@ -175,7 +176,7 @@ function checkAlertRules(): Alert[] {
 
       if (!existingAlert) {
         newAlerts.push({
-          id: `alert_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
+          id: generateSecureId('alert'),
           ruleId: rule.id,
           type: rule.type,
           severity: rule.severity,
@@ -280,7 +281,7 @@ export async function POST(request: NextRequest) {
 
     if (action === 'create') {
       const newRule: AlertRule = {
-        id: `rule_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
+        id: generateSecureId('rule'),
         name: rule.name,
         type: rule.type,
         enabled: rule.enabled ?? true,

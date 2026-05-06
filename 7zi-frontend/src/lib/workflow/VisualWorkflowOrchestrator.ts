@@ -22,6 +22,7 @@ import { executionStateStorage, type PersistentExecutionState } from '@/lib/stor
 import { webhookManager } from '@/lib/webhook'
 import type { WebhookEvent } from '@/lib/webhook'
 import { logger } from '@/lib/logger'
+import { generateSecureId } from '@/lib/utils'
 
 /**
  * 执行事件类型
@@ -715,7 +716,7 @@ export class VisualWorkflowOrchestrator {
    */
   private createWorkflowStartedEvent(instance: WorkflowInstance): WebhookEvent {
     return {
-      id: `evt_${Date.now()}_${Math.random().toString(36).substring(2, 11)}`,
+      id: generateSecureId('evt'),
       type: 'workflow.started',
       timestamp: new Date().toISOString(),
       source: 'workflow-orchestrator',
@@ -737,7 +738,7 @@ export class VisualWorkflowOrchestrator {
    */
   private createWorkflowCompletedEvent(instance: WorkflowInstance): WebhookEvent {
     return {
-      id: `evt_${Date.now()}_${Math.random().toString(36).substring(2, 11)}`,
+      id: generateSecureId('evt'),
       type: 'workflow.completed',
       timestamp: new Date().toISOString(),
       source: 'workflow-orchestrator',
@@ -761,7 +762,7 @@ export class VisualWorkflowOrchestrator {
    */
   private createWorkflowFailedEvent(instance: WorkflowInstance, error: string): WebhookEvent {
     return {
-      id: `evt_${Date.now()}_${Math.random().toString(36).substring(2, 11)}`,
+      id: generateSecureId('evt'),
       type: 'workflow.failed',
       timestamp: new Date().toISOString(),
       source: 'workflow-orchestrator',
@@ -789,7 +790,7 @@ export class VisualWorkflowOrchestrator {
     result: NodeExecutionResult
   ): WebhookEvent {
     return {
-      id: `evt_${Date.now()}_${Math.random().toString(36).substring(2, 11)}`,
+      id: generateSecureId('evt'),
       type: 'workflow.node.executed',
       timestamp: new Date().toISOString(),
       source: 'workflow-orchestrator',
@@ -818,7 +819,7 @@ export class VisualWorkflowOrchestrator {
     error: string
   ): WebhookEvent {
     return {
-      id: `evt_${Date.now()}_${Math.random().toString(36).substring(2, 11)}`,
+      id: generateSecureId('evt'),
       type: 'workflow.node.failed',
       timestamp: new Date().toISOString(),
       source: 'workflow-orchestrator',

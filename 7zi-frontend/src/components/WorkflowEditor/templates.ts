@@ -7,6 +7,7 @@
  * 提供预设工作流模板，让用户快速创建工作流
  */
 
+import { generateSecureId } from '@/lib/utils'
 import type {
   WorkflowDefinition,
   WorkflowNodeData,
@@ -471,7 +472,7 @@ export function createFromTemplate(
   }
 
   // 生成唯一的工作流 ID
-  const workflowId = `workflow-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`
+  const workflowId = generateSecureId('workflow')
 
   // 深度复制节点和边，确保每个节点有唯一 ID
   const nodes: WorkflowNodeData[] = template.workflow.nodes.map((node) => ({

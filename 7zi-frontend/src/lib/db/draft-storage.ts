@@ -9,6 +9,7 @@
  */
 
 import { logger } from '@/lib/logger'
+import { generateSecureId } from '@/lib/utils'
 
 /**
  * 草稿类型
@@ -637,10 +638,8 @@ export class DraftStorageManager {
    * 生成唯一 ID
    */
   private generateId(type: DraftType): string {
-    const timestamp = Date.now().toString(36)
-    const random = Math.random().toString(36).substring(2, 9)
     const typePrefix = type.substring(0, 2).toUpperCase()
-    return `DRAFT-${typePrefix}-${timestamp}-${random}`
+    return `DRAFT-${typePrefix}-${generateSecureId()}`
   }
 }
 

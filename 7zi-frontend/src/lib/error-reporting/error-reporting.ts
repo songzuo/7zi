@@ -4,6 +4,7 @@
  */
 
 import { monitor } from '../monitoring'
+import { generateSecureId } from '@/lib/utils'
 
 /**
  * 错误严重级别
@@ -79,7 +80,7 @@ export class ErrorReportingService {
    * 生成会话 ID
    */
   private generateSessionId(): string {
-    return `session-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`
+    return generateSecureId('session')
   }
 
   /**
@@ -168,7 +169,7 @@ export class ErrorReportingService {
     if (Math.random() > this.config.sampleRate) return
 
     const report: ErrorReport = {
-      id: `error-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
+      id: generateSecureId('error'),
       timestamp: Date.now(),
       type,
       message,

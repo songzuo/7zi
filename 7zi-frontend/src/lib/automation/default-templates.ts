@@ -3,6 +3,7 @@
  */
 
 import type { AutomationRule } from './automation-engine'
+import { generateSecureId } from '@/lib/utils'
 
 /**
  * 默认规则模板
@@ -496,7 +497,7 @@ export function getRuleTemplatesByType(triggerType: string): AutomationRule[] {
 export function createRuleFromTemplate(template: AutomationRule, overrides?: Partial<AutomationRule>): AutomationRule {
   const newRule: AutomationRule = {
     ...template,
-    id: `rule_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
+    id: generateSecureId('rule'),
     status: 'paused', // 默认暂停，需要手动激活
     metadata: {
       ...template.metadata,

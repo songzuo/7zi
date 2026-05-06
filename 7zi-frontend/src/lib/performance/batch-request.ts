@@ -203,7 +203,7 @@ export class BatchRequestManager {
    * Generate unique request ID
    */
   private generateRequestId(): string {
-    return `req-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
+    return generateSecureId('req');
   }
 
   /**

@@ -9,6 +9,7 @@
  */
 
 import { useState, useEffect, useCallback } from 'react'
+import { generateSecureId } from '@/lib/utils'
 import { templateManager } from '../lib/workflow/template-system'
 import type { Template, TemplateCategory } from '../lib/workflow/template-system'
 import type { Node, Edge } from 'reactflow'
@@ -208,7 +209,7 @@ export function useWorkflowTemplate(
         // 为每个节点生成新的 ID（避免冲突）
         const idMap = new Map<string, string>()
         nodes.forEach((node: Node) => {
-          const newId = `${node.type}-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`
+          const newId = generateSecureId(node.type)
           idMap.set(node.id, newId)
           node.id = newId
         })
@@ -349,7 +350,7 @@ export function useCreateWorkflowFromTemplate(templateId: string) {
       // 生成新 ID
       const idMap = new Map<string, string>()
       nodes.forEach((node: Node) => {
-        const newId = `${node.type}-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`
+        const newId = generateSecureId(node.type)
         idMap.set(node.id, newId)
         node.id = newId
       })

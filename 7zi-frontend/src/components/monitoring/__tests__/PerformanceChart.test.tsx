@@ -99,6 +99,10 @@ describe('PerformanceChart', () => {
     const svg = container.querySelector('svg')
 
     if (svg) {
+      // Mock SVG dimensions for testing
+      Object.defineProperty(svg, 'clientWidth', { value: 400, configurable: true })
+      Object.defineProperty(svg, 'clientHeight', { value: 200, configurable: true })
+
       fireEvent.mouseMove(svg, {
         clientX: 100,
         clientY: 100,
@@ -116,6 +120,10 @@ describe('PerformanceChart', () => {
     const svg = container.querySelector('svg')
 
     if (svg) {
+      // Mock SVG dimensions for testing
+      Object.defineProperty(svg, 'clientWidth', { value: 400, configurable: true })
+      Object.defineProperty(svg, 'clientHeight', { value: 200, configurable: true })
+
       fireEvent.mouseMove(svg, {
         clientX: 100,
         clientY: 100,

@@ -15,6 +15,7 @@ import type { Notification, NotificationType, NotificationPriority } from './not
 import { notificationIndexedDB } from './notification-indexeddb'
 import { logger } from '@/lib/logger'
 import { websocketManager, ConnectionState } from '@/lib/websocket-manager'
+import { generateSecureId } from '@/lib/utils'
 
 /**
  * 通知分组
@@ -183,7 +184,7 @@ export class ClientNotificationManager {
   ): Promise<Notification> {
     const fullNotification: Notification = {
       ...notification,
-      id: `client_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
+      id: generateSecureId('client'),
       read: false,
       createdAt: Date.now(),
     }

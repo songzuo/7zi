@@ -6,6 +6,7 @@
 'use client'
 
 import React, { Component, ErrorInfo, ReactNode } from 'react'
+import { generateSecureId } from '@/lib/utils'
 import { monitor } from '@/lib/monitoring'
 
 interface ErrorBoundaryProps {
@@ -59,7 +60,7 @@ export class ErrorBoundary extends Component<ErrorBoundaryProps, ErrorBoundarySt
   }
 
   componentDidCatch(error: Error, errorInfo: ErrorInfo): void {
-    const errorId = `error-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`
+    const errorId = generateSecureId('error')
 
     this.setState({
       errorInfo,

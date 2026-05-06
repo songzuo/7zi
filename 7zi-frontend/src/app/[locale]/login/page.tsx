@@ -13,7 +13,7 @@ import { Button } from '@/components/ui/Button'
 import { Input } from '@/components/ui/Input'
 import { useAuthStore } from '@/stores/auth-store'
 import { shallow } from 'zustand/shallow'
-import { trackLogin } from '@/lib/analytics/ga4'
+import { trackLogin, identifyUser } from '@/lib/analytics/ga4'
 
 export default function LoginPage() {
   const router = useRouter()

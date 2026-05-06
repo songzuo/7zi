@@ -437,7 +437,7 @@ export class CRDTOperations {
    */
   static generateElementId(prefix?: string): string {
     const timestamp = Date.now().toString(36)
-    const random = Math.random().toString(36).substring(2, 10)
+    const random = generateSecureId()
     return prefix ? `${prefix}_${timestamp}_${random}` : `elem_${timestamp}_${random}`
   }
 

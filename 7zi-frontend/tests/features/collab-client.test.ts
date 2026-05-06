@@ -5,46 +5,90 @@
  */
 
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest'
-import { CollabClient } from '@/lib/collab/CollabClient'
 import type { CollabUser, CursorPosition } from '@/features/collab/types'
 
-// Mock WebSocketManager
-class MockWebSocketManager {
-  private listeners: Map<string, Set<Function>> = new Map()
-  private state = 'disconnected'
+// Mock the websocket-manager module BEFORE importing CollabClient
+// Mock WebSocketManager class and types
+vi.mock('@/lib/websocket-manager', () => {
+  class MockWebSocketManager {
+    private listeners: Map<string, Set<Function>> = new Map()
+    private state: string = 'disconnected'
+    private pendingOperations: Array<{ type: string; data: any }> = []
 
-  constructor(private config: any) {}
-
-  connect() {
-    this.state = 'connected'
-    this.emit('stateChange', 'connected')
-  }
-
-  disconnect() {
-    this.state = 'disconnected'
-    this.emit('stateChange', 'disconnected')
-  }
-
-  on(event: string, handler: Function): () => void {
-    if (!this.listeners.has(event)) {
-      this.listeners.set(event, new Set())
+    constructor(private config: any) {
+      // Auto-connect if configured
+      if (config?.autoConnect !== false) {
+        // Defer connection to match real behavior
+        setTimeout(() => this.connect(), 0)
+      }
     }
-    this.listeners.get(event)!.add(handler)
-    return () => this.listeners.get(event)?.delete(handler)
-  }
 
-  onStateChange(callback: Function) {
-    return this.on('stateChange', callback)
-  }
-
-  emit(event: string, payload?: any): boolean {
-    const callbacks = this.listeners.get(event)
-    if (callbacks) {
-      callbacks.forEach((cb) => cb(payload))
+    connect() {
+      this.state = 'connected'
+      this.emit('stateChange', { state: 'connected' })
+      // Process pending operations
+      this.pendingOperations.forEach(op => {
+        this.emit('collab:message', { type: op.type, data: op.data })
+      })
+      this.pendingOperations = []
     }
-    return true
+
+    disconnect() {
+      this.state = 'disconnected'
+      this.emit('stateChange', { state: 'disconnected' })
+    }
+
+    on(event: string, handler: Function): () => void {
+      if (!this.listeners.has(event)) {
+        this.listeners.set(event, new Set())
+      }
+      this.listeners.get(event)!.add(handler)
+      return () => this.listeners.get(event)?.delete(handler)
+    }
+
+    onStateChange(callback: Function) {
+      return this.on('stateChange', callback)
+    }
+
+    emit(event: string, payload?: any): boolean {
+      const callbacks = this.listeners.get(event)
+      if (callbacks) {
+        callbacks.forEach((cb) => cb(payload))
+      }
+      return true
+    }
+
+    send(type: string, data: any): boolean {
+      if (this.state !== 'connected') {
+        this.pendingOperations.push({ type, data })
+        return false
+      }
+      return true
+    }
+
+    getState() {
+      return this.state
+    }
+
+    destroy() {
+      this.listeners.clear()
+      this.state = 'disconnected'
+    }
   }
-}
+
+  return {
+    WebSocketManager: MockWebSocketManager,
+    ConnectionState: {
+      CONNECTING: 'connecting',
+      CONNECTED: 'connected',
+      DISCONNECTED: 'disconnected',
+      RECONNECTING: 'reconnecting',
+    },
+  }
+})
+
+// Now import CollabClient AFTER the mock is defined
+import { CollabClient } from '@/lib/collab/CollabClient'
 
 describe('CollabClient Feature Tests', () => {
   let client: CollabClient

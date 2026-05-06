@@ -13,6 +13,7 @@
 import { NotificationType, NotificationPriority } from './notification-types'
 import type { Notification, NotificationFilter } from './notification-types'
 import { enhancedNotificationService } from './notification-enhanced'
+import { generateSecureId } from '@/lib/utils'
 import { logger } from '@/lib/logger'
 
 // Re-export types for convenience
@@ -136,7 +137,7 @@ export class NotificationManager {
     // Create full notification
     const fullNotification: Notification = {
       ...notification,
-      id: `notif_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
+      id: generateSecureId('notif'),
       read: false,
       createdAt: Date.now(),
     }

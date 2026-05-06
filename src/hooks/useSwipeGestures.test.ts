@@ -8,7 +8,39 @@ import { createRef, RefObject } from 'react'
 import { useSwipeGestures } from './useSwipeGestures'
 
 // Use fake timers to control time-based swipe detection
-vi.useFakeTimers()
+// shouldAdvanceTime: true makes Date.now() also advance with fake timers
+vi.useFakeTimers({ shouldAdvanceTime: true })
+
+// Helper to create proper Touch objects for TouchEvent
+function createTouch(options: { clientX: number; clientY: number }): Touch {
+  const touch = {
+    identifier: 0,
+    clientX: options.clientX,
+    clientY: options.clientY,
+    pageX: options.clientX,
+    pageY: options.clientY,
+    screenX: options.clientX,
+    screenY: options.clientY,
+    target: document.body,
+    force: 1,
+    radiusX: 1,
+    radiusY: 1,
+    rotationAngle: 0,
+  } as Touch
+  return touch
+}
+
+// Helper to create TouchEvent with proper touches array
+function createTouchEvent(type: string, touchOptions: { clientX: number; clientY: number }[]): TouchEvent {
+  const touches = touchOptions.map(createTouch)
+  return new TouchEvent(type, {
+    bubbles: true,
+    cancelable: true,
+    touches,
+    changedTouches: touches,
+    targetTouches: touches,
+  })
+}
 
 describe('useSwipeGestures', () => {
   let container: HTMLDivElement
@@ -82,7 +114,17 @@ describe('useSwipeGestures', () => {
 
     // Need to wait for allowed time (default 300ms)
     act(() => {
-      vi.advanceTimersByTime(350)
+      vi.advanceTimersByTime(301)
+    })
+
+    // Trigger check again after time has passed
+    act(() => {
+      const moveEvent = new MouseEvent('mousemove', {
+        bubbles: true,
+        clientX: 160,
+        clientY: 100,
+      })
+      container.dispatchEvent(moveEvent)
     })
 
     expect(onSwipeRight).toHaveBeenCalledTimes(1)
@@ -116,7 +158,16 @@ describe('useSwipeGestures', () => {
     })
 
     act(() => {
-      vi.advanceTimersByTime(350)
+      vi.advanceTimersByTime(301)
+    })
+
+    act(() => {
+      const moveEvent = new MouseEvent('mousemove', {
+        bubbles: true,
+        clientX: 40,
+        clientY: 100,
+      })
+      container.dispatchEvent(moveEvent)
     })
 
     expect(onSwipeLeft).toHaveBeenCalledTimes(1)
@@ -150,7 +201,16 @@ describe('useSwipeGestures', () => {
     })
 
     act(() => {
-      vi.advanceTimersByTime(350)
+      vi.advanceTimersByTime(301)
+    })
+
+    act(() => {
+      const moveEvent = new MouseEvent('mousemove', {
+        bubbles: true,
+        clientX: 100,
+        clientY: 40,
+      })
+      container.dispatchEvent(moveEvent)
     })
 
     expect(onSwipeUp).toHaveBeenCalledTimes(1)
@@ -184,7 +244,16 @@ describe('useSwipeGestures', () => {
     })
 
     act(() => {
-      vi.advanceTimersByTime(350)
+      vi.advanceTimersByTime(301)
+    })
+
+    act(() => {
+      const moveEvent = new MouseEvent('mousemove', {
+        bubbles: true,
+        clientX: 100,
+        clientY: 160,
+      })
+      container.dispatchEvent(moveEvent)
     })
 
     expect(onSwipeDown).toHaveBeenCalledTimes(1)
@@ -295,23 +364,20 @@ describe('useSwipeGestures', () => {
     )
 
     act(() => {
-      const touchStart = new TouchEvent('touchstart', {
-        bubbles: true,
-        cancelable: true,
-        touches: [{ clientX: 100, clientY: 100 } as any],
-      })
+      const touchStart = createTouchEvent('touchstart', [{ clientX: 100, clientY: 100 }])
       container.dispatchEvent(touchStart)
 
-      const touchMove = new TouchEvent('touchmove', {
-        bubbles: true,
-        cancelable: true,
-        touches: [{ clientX: 160, clientY: 100 } as any],
-      })
+      const touchMove = createTouchEvent('touchmove', [{ clientX: 160, clientY: 100 }])
       container.dispatchEvent(touchMove)
     })
 
     act(() => {
-      vi.advanceTimersByTime(350)
+      vi.advanceTimersByTime(301)
+    })
+
+    act(() => {
+      const touchMove2 = createTouchEvent('touchmove', [{ clientX: 160, clientY: 100 }])
+      container.dispatchEvent(touchMove2)
     })
 
     expect(onSwipeRight).toHaveBeenCalledTimes(1)
@@ -345,7 +411,7 @@ describe('useSwipeGestures', () => {
     })
 
     act(() => {
-      vi.advanceTimersByTime(350)
+      vi.advanceTimersByTime(301)
     })
 
     expect(onSwipeRight).not.toHaveBeenCalled()
@@ -381,7 +447,7 @@ describe('useSwipeGestures', () => {
     })
 
     act(() => {
-      vi.advanceTimersByTime(350)
+      vi.advanceTimersByTime(301)
     })
 
     expect(onSwipeRight).not.toHaveBeenCalled()
@@ -415,7 +481,16 @@ describe('useSwipeGestures', () => {
     })
 
     act(() => {
-      vi.advanceTimersByTime(350)
+      vi.advanceTimersByTime(301)
+    })
+
+    act(() => {
+      const moveEvent2 = new MouseEvent('mousemove', {
+        bubbles: true,
+        clientX: 135,
+        clientY: 100,
+      })
+      container.dispatchEvent(moveEvent2)
     })
 
     expect(onSwipeRight).toHaveBeenCalledTimes(1)

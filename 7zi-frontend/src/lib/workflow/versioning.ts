@@ -12,6 +12,7 @@
  * @date 2026-04-04
  */
 
+import { generateSecureId } from '@/lib/utils'
 import type {
   WorkflowVersion,
   WorkflowDefinition,
@@ -359,7 +360,7 @@ export class WorkflowBranchManager {
    */
   async createBranch(dto: CreateBranchDTO, createdBy: string): Promise<VersionBranch> {
     const branch: VersionBranch = {
-      id: `branch-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
+      id: generateSecureId('branch'),
       name: dto.name,
       workflowId: dto.workflowId,
       baseVersionId: dto.baseVersionId,
