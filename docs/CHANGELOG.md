@@ -17,6 +17,58 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
+## [v1.14.2] - 2026-05-07
+
+### 🔧 技术改进
+- TypeScript P0 错误修复 (VisualWorkflowOrchestrator, websocket-instance-manager, zod-adapter)
+- Next.js 16.2 升级计划制定
+- 未使用代码分析完成 (490 个孤立文件审计)
+- WorkflowEditor 组件测试优化 (90 tests passing)
+
+### 🧪 测试改进
+- Vitest 测试框架完善
+- 路由级别测试增强
+
+### 📚 文档更新
+- Next.js 16.2 升级实施计划
+- README v1.14.0 版本同步
+
+---
+
+## [v1.14.1] - 2026-04-17
+
+### 🛡️ 安全修复
+- serialize-javascript RCE 漏洞修复 (>=7.0.5)
+- 添加 pnpm overrides 防护
+
+### 🔧 技术改进
+- Next.js 15 async params 迁移 (workflow rollback/versions API)
+- SentimentAnalyzer FMM 分词算法优化
+- Jest→Vitest 测试框架迁移继续
+
+### 🐛 Bug 修复
+- WebSocket manager 模块化重构和 feedback API 修复
+- 管理员权限检查修复 (返回 403 状态码)
+- xlsx 高危漏洞修复 (ReDoS + Prototype Pollution)
+- Service Worker 版本更新
+
+### 🧪 测试改进
+- Jest→Vitest 测试框架迁移完成
+- Workflow 测试文件 TypeScript 类型错误修复
+
+### 🔍 搜索优化
+- 搜索 API 端点改进
+
+---
+
+## [v1.14.0] - 2026-04-11 🚀 Next.js 16 全面兼容 & React 19 优化
+
+### 🎯 版本主题
+
+**Next.js 16.2 升级** · **React 19.2 优化** · **React Compiler 配置** · **PWA 离线能力增强** · **Dark Mode 完善** · **API 安全仪表盘**
+
+---
+
 ## [v1.10.0] - 2026-04-03 🤖 智能代码生成增强
 
 ### 🎯 版本主题

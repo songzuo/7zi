@@ -23,21 +23,6 @@
 - Next.js 16.2 升级实施计划
 - README v1.14.0 版本同步
 
----
-
-### 🐛 Bug 修复
-- WebSocket manager 模块化重构和 feedback API 修复
-- 管理员权限检查修复 (返回 403 状态码)
-- xlsx 高危漏洞修复 (ReDoS + Prototype Pollution)
-- Service Worker 版本更新
-
-### 🧪 测试改进
-- Jest→Vitest 测试框架迁移完成
-- Workflow 测试文件 TypeScript 类型错误修复
-
-### 🔍 搜索优化
-- 搜索 API 端点改进
-
 
 ## [1.14.1] - 2026-04-17
 
