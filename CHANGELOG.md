@@ -7,7 +7,7 @@
 
 ---
 
-## [Unreleased] - 2026-05-04
+## [1.14.2] - 2026-05-07
 
 ### 🔧 技术改进
 - TypeScript P0 错误修复 (VisualWorkflowOrchestrator, websocket-instance-manager, zod-adapter)

@@ -306,6 +306,16 @@ function parseWhereConditions(sql: string): string[] {
   if (sql.includes('WHERE token = ?')) conditions.push('token')
   if (sql.includes('WHERE refresh_token = ?')) conditions.push('refresh_token')
   if (sql.includes('WHERE user_id = ?')) conditions.push('user_id')
+  if (sql.includes('WHERE workflow_id = ?')) conditions.push('workflow_id')
+  if (sql.includes('WHERE version_number = ?')) conditions.push('version_number')
+  if (sql.includes('WHERE version_number > ?')) conditions.push('version_number > ?')
+  if (sql.includes('WHERE workflow_id = ? AND version_number')) conditions.push('workflow_id', 'version_number')
+  if (sql.includes('WHERE workflow_id = ? AND status')) conditions.push('workflow_id', 'status')
+  if (sql.includes('WHERE from_version_id = ?')) conditions.push('from_version_id')
+  if (sql.includes('WHERE to_version_id = ?')) conditions.push('to_version_id')
+  if (sql.includes('ORDER BY version_number DESC')) conditions.push('ORDER_DESC')
+  if (sql.includes('ORDER BY version_number ASC')) conditions.push('ORDER_ASC')
+  if (sql.includes('LIMIT')) conditions.push('LIMIT')
 
   return conditions
 }
@@ -318,32 +328,63 @@ function executeAll(sql: string, params?: unknown[]): DbRow[] {
   const tableName = parseTableName(sql)
   if (!tableName) return []
 
-  const table = getTable(tableName)
-  const conditions = parseWhereConditions(sql)
-
-  if (conditions.length === 0) return table
-
-  // Filter by conditions
-  let results = table
-
-  for (let i = 0; i < conditions.length; i++) {
-    const condition = conditions[i]
-    const value = params?.[i]
-
-    if (condition === 'expires_at < ?') {
-      results = results.filter(row => {
-        const expiresAt = row.expires_at as string | undefined
-        if (!expiresAt) return false
-        return new Date(expiresAt) < new Date(value as string)
+  const normalizedSql = normalizeSql(sql).toUpperCase()
+  let results = [...getTable(tableName)]
+  
+  // Extract parameters based on query structure
+  let paramIndex = 0
+  
+  // Handle WHERE workflow_id = ?
+  const whereWorkflowMatch = sql.match(/WHERE\s+workflow_id\s+=\s+\?/i)
+  if (whereWorkflowMatch) {
+    const workflowId = params?.[paramIndex++] as string
+    results = results.filter(row => row.workflow_id === workflowId)
+  }
+  
+  // Handle ORDER BY
+  if (normalizedSql.includes('ORDER BY')) {
+    if (normalizedSql.includes('VERSION_NUMBER DESC')) {
+      results.sort((a, b) => {
+        const aVer = (a.version_number as number) || 0
+        const bVer = (b.version_number as number) || 0
+        return bVer - aVer
       })
-    } else if (condition === 'expires_at > ?') {
-      results = results.filter(row => {
-        const expiresAt = row.expires_at as string | undefined
-        if (!expiresAt) return true
-        return new Date(expiresAt) > new Date(value as string)
+    } else if (normalizedSql.includes('VERSION_NUMBER ASC')) {
+      results.sort((a, b) => {
+        const aVer = (a.version_number as number) || 0
+        const bVer = (b.version_number as number) || 0
+        return aVer - bVer
       })
-    } else {
-      results = results.filter(row => row[condition] === value)
+    } else if (normalizedSql.includes('CREATED_AT DESC')) {
+      results.sort((a, b) => {
+        const aDate = new Date((a.created_at as string) || '').getTime()
+        const bDate = new Date((b.created_at as string) || '').getTime()
+        return bDate - aDate
+      })
+    }
+  }
+  
+  // Handle LIMIT and OFFSET
+  const limitMatch = sql.match(/LIMIT\s+\?/i)
+  const offsetMatch = sql.match(/OFFSET\s+\?/i)
+  
+  if (limitMatch) {
+    const limit = params?.[paramIndex++] as number
+    let offset = 0
+    if (offsetMatch) {
+      offset = params?.[paramIndex++] as number
+    }
+    results = results.slice(offset, offset + limit)
+  } else {
+    // Also check for literal LIMIT
+    const literalLimitMatch = sql.match(/LIMIT\s+(\d+)/i)
+    if (literalLimitMatch) {
+      const limit = parseInt(literalLimitMatch[1])
+      let offset = 0
+      if (offsetMatch) {
+        offset = params?.[paramIndex++] as number || 0
+      }
+      results = results.slice(offset, offset + limit)
     }
   }
 
@@ -358,34 +399,13 @@ function executeGet(sql: string, params?: unknown[]): DbRow | null {
     const tableName = parseTableName(sql)
     if (!tableName) return { count: 0 }
 
-    const table = getTable(tableName)
-    const conditions = parseWhereConditions(sql)
-
-    if (conditions.length === 0) {
-      return { count: table.length }
-    }
-
-    // Filter by conditions and count
-    let filtered = table
-    for (let i = 0; i < conditions.length; i++) {
-      const condition = conditions[i]
-      const value = params?.[i]
-
-      if (condition === 'expires_at > ?') {
-        filtered = filtered.filter(row => {
-          const expiresAt = row.expires_at as string | undefined
-          if (!expiresAt) return true
-          return new Date(expiresAt) > new Date(value as string)
-        })
-      } else if (condition === 'expires_at < ?') {
-        filtered = filtered.filter(row => {
-          const expiresAt = row.expires_at as string | undefined
-          if (!expiresAt) return false
-          return new Date(expiresAt) < new Date(value as string)
-        })
-      } else {
-        filtered = filtered.filter(row => row[condition] === value)
-      }
+    let filtered = [...getTable(tableName)]
+    
+    // Handle WHERE workflow_id = ? for COUNT
+    const whereWorkflowMatch = sql.match(/WHERE\s+workflow_id\s+=\s+\?/i)
+    if (whereWorkflowMatch) {
+      const workflowId = params?.[0] as string
+      filtered = filtered.filter(row => row.workflow_id === workflowId)
     }
 
     return { count: filtered.length }
@@ -666,6 +686,28 @@ vi.mock('../lib/db/index', () => ({
   getDatabaseHealth: vi.fn().mockResolvedValue({
     ok: true,
     message: 'Database is healthy',
+  }),
+}))
+
+// Mock the direct connection module (used by version-service.test.ts)
+vi.mock('../lib/db/connection', () => ({
+  getDatabaseAsync: vi.fn().mockResolvedValue(mockDb),
+  getDatabase: vi.fn().mockReturnValue(mockDb),
+  initializeDatabase: vi.fn().mockReturnValue(mockDb),
+  closeDatabase: vi.fn(),
+  getDatabaseStats: vi.fn().mockReturnValue({
+    connectionCount: 1,
+    isOpen: true,
+    isMemoryDatabase: false,
+  }),
+  vacuumDatabase: vi.fn(),
+  analyzeDatabase: vi.fn(),
+  getDatabaseSize: vi.fn().mockReturnValue({
+    pageSize: 4096,
+    pageCount: 100,
+    freePages: 10,
+    sizeInBytes: 409600,
+    sizeInMB: 0.39,
   }),
 }))
 
