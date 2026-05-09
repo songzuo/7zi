@@ -66,7 +66,7 @@ function createQueue<T = unknown>(_name: string, _opts?: object): QueueImpl<T> {
     getJobCounts: async () => ({ waiting: 0, active: 0, completed: 0, failed: 0, paused: 0, delayed: 0 }),
     pause: async () => { /* noop */ },
     resume: async () => { /* noop */ },
-    on: () => { /* noop */ },
+    on: (_event: string, _handler: BullEventHandler) => { /* noop */ },
     process: () => { /* noop */ },
   }
   return queue
@@ -114,7 +114,7 @@ class BullQueue<T = unknown> {
   resume() {
     return this.impl.resume()
   }
-  on(event: string, handler: (...args: any[]) => void) {
+  on(event: string, handler: BullEventHandler) {
     return this.impl.on(event, handler)
   }
   process(concurrency: number, handler: (job: Job<T>) => Promise<unknown>) {

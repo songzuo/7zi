@@ -1,4 +1,3 @@
-// @ts-nocheck
 /**
  * Monitoring Types
  * 监控模块类型定义

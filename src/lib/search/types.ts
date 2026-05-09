@@ -1,4 +1,3 @@
-// @ts-nocheck
 /**
  * @fileoverview Advanced search types
  * @description Type definitions for the advanced search system

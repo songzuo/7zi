@@ -5,6 +5,10 @@
  * Server-side Socket.IO initialization happens lazily
  */
 
+import { logger } from '@/lib/logger'
+import { generateSecureId } from '@/lib/utils'
+import type { Notification, NotificationFilter } from './notification-types'
+
 // Re-export everything from notification-types (both values and types)
 export {
   NotificationType,
@@ -13,12 +17,6 @@ export {
   type NotificationFilter,
   type NotificationSubscription,
 } from './notification-types'
-
-// Import types for use in this file
-import { logger } from '@/lib/logger'
-import { generateSecureId } from '@/lib/utils'
-import type { Notification, NotificationFilter } from './notification-types'
-import { generateSecureId } from '@/lib/utils'
 
 /**
  * Type for Socket.IO server (dynamically imported)

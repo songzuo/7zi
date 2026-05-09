@@ -259,7 +259,7 @@ describe('Auth Service', () => {
 
     it('should reject invalid email', async () => {
       const result = await loginUser({
-        email: 'wrong@example.com',
+        email: 'not-an-email',
         password: 'LoginPass123!',
       })
 

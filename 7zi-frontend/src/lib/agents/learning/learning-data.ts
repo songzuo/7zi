@@ -9,11 +9,8 @@
 import type { AgentId, TaskType, TaskHistoryRecord, AgentLearningStats } from './types'
 import { generateSecureId } from '@/lib/utils'
 import { TaskTimePredictor } from './time-prediction'
-import { generateSecureId } from '@/lib/utils'
 import { AgentCapabilityAssessor, CapabilityAssessmentResult } from './agent-capability'
-import { generateSecureId } from '@/lib/utils'
 import { logger } from '../../logger'
-import { generateSecureId } from '@/lib/utils'
 
 /**
  * Learning data version for migration support

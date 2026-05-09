@@ -408,7 +408,7 @@ async function example4_Scheduler() {
     id: 'simple-workflow',
     name: '简单工作流',
     version: 1,
-    status: 'active' as any,
+    status: WorkflowStatus.ACTIVE,
     nodes: [
       {
         id: 'start',

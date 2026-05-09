@@ -5,8 +5,7 @@
  */
 
 import { InMemoryStorage } from '../db/storage'
-import { generateSecureId } from '@/lib/utils'
-import { generateSecureId } from '../utils'
+import { generateSecureId } from '@/core/utils'
 
 /**
  * 查询类型

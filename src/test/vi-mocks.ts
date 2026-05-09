@@ -298,26 +298,68 @@ function parseUpdateSets(sql: string): string[] | null {
   return match[1].split(',').map(part => part.trim())
 }
 
-function parseWhereConditions(sql: string): string[] {
-  const conditions: string[] = []
+/**
+ * Parse WHERE clause and extract column names and operators
+ * Handles patterns like: WHERE col1 = ? AND col2 > ? OR col3 <= ?
+ */
+function parseWhereClause(sql: string): Array<{column: string, operator: string, paramIndex: number}> {
+  const whereClauses: Array<{column: string, operator: string, paramIndex: number}> = []
+  const whereMatch = sql.match(/WHERE\s+(.+?)(?:\s+ORDER|\s+GROUP|\s+LIMIT|\s*$)/i)
+  if (!whereMatch) return whereClauses
 
-  if (sql.includes('WHERE id = ?')) conditions.push('id')
-  if (sql.includes('WHERE email = ?')) conditions.push('email')
-  if (sql.includes('WHERE token = ?')) conditions.push('token')
-  if (sql.includes('WHERE refresh_token = ?')) conditions.push('refresh_token')
-  if (sql.includes('WHERE user_id = ?')) conditions.push('user_id')
-  if (sql.includes('WHERE workflow_id = ?')) conditions.push('workflow_id')
-  if (sql.includes('WHERE version_number = ?')) conditions.push('version_number')
-  if (sql.includes('WHERE version_number > ?')) conditions.push('version_number > ?')
-  if (sql.includes('WHERE workflow_id = ? AND version_number')) conditions.push('workflow_id', 'version_number')
-  if (sql.includes('WHERE workflow_id = ? AND status')) conditions.push('workflow_id', 'status')
-  if (sql.includes('WHERE from_version_id = ?')) conditions.push('from_version_id')
-  if (sql.includes('WHERE to_version_id = ?')) conditions.push('to_version_id')
-  if (sql.includes('ORDER BY version_number DESC')) conditions.push('ORDER_DESC')
-  if (sql.includes('ORDER BY version_number ASC')) conditions.push('ORDER_ASC')
-  if (sql.includes('LIMIT')) conditions.push('LIMIT')
+  const wherePart = whereMatch[1]
+  // Match patterns like: column_name = ? or column_name > ? etc.
+  const conditionRegex = /(\w+)\s*(=|>=|<=|>|<|LIKE|IN)\s*\?/gi
+  let match
+  let paramIndex = 0
 
-  return conditions
+  while ((match = conditionRegex.exec(wherePart)) !== null) {
+    whereClauses.push({
+      column: match[1].toLowerCase(),
+      operator: match[2].toUpperCase(),
+      paramIndex: paramIndex++
+    })
+  }
+
+  return whereClauses
+}
+
+/**
+ * Check if a row matches the WHERE conditions
+ */
+function rowMatchesConditions(row: DbRow, conditions: Array<{column: string, operator: string, paramIndex: number}>, params: unknown[]): boolean {
+  for (const cond of conditions) {
+    const rowValue = row[cond.column]
+    const paramValue = params[cond.paramIndex]
+
+    switch (cond.operator) {
+      case '=':
+        if (rowValue != paramValue) return false
+        break
+      case '>':
+        if (rowValue <= paramValue) return false
+        break
+      case '>=':
+        if (rowValue < paramValue) return false
+        break
+      case '<':
+        if (rowValue >= paramValue) return false
+        break
+      case '<=':
+        if (rowValue > paramValue) return false
+        break
+      case 'LIKE':
+        // Simple LIKE support
+        const pattern = String(paramValue).replace(/%/g, '.*')
+        if (!new RegExp(`^${pattern}$`, 'i').test(String(rowValue))) return false
+        break
+      case 'IN':
+        const inArray = Array.isArray(paramValue) ? paramValue : [paramValue]
+        if (!inArray.includes(rowValue)) return false
+        break
+    }
+  }
+  return true
 }
 
 // ============================================================================
@@ -364,28 +406,27 @@ function executeAll(sql: string, params?: unknown[]): DbRow[] {
     }
   }
   
-  // Handle LIMIT and OFFSET
+  // Handle LIMIT and OFFSET - params start after WHERE conditions
+  const literalLimitMatch = sql.match(/LIMIT\s+(\d+)/i)
   const limitMatch = sql.match(/LIMIT\s+\?/i)
   const offsetMatch = sql.match(/OFFSET\s+\?/i)
-  
-  if (limitMatch) {
-    const limit = params?.[paramIndex++] as number
+
+  if (literalLimitMatch) {
+    // Literal LIMIT like LIMIT 2
+    const limit = parseInt(literalLimitMatch[1])
     let offset = 0
     if (offsetMatch) {
-      offset = params?.[paramIndex++] as number
+      offset = (params?.[whereConditions.length] as number) || 0
     }
     results = results.slice(offset, offset + limit)
-  } else {
-    // Also check for literal LIMIT
-    const literalLimitMatch = sql.match(/LIMIT\s+(\d+)/i)
-    if (literalLimitMatch) {
-      const limit = parseInt(literalLimitMatch[1])
-      let offset = 0
-      if (offsetMatch) {
-        offset = params?.[paramIndex++] as number || 0
-      }
-      results = results.slice(offset, offset + limit)
+  } else if (limitMatch) {
+    // Parameterized LIMIT like LIMIT ?
+    const limit = params?.[whereConditions.length] as number
+    let offset = 0
+    if (offsetMatch) {
+      offset = (params?.[whereConditions.length + 1] as number) || 0
     }
+    results = results.slice(offset, offset + limit)
   }
 
   return results
@@ -401,11 +442,11 @@ function executeGet(sql: string, params?: unknown[]): DbRow | null {
 
     let filtered = [...getTable(tableName)]
     
-    // Handle WHERE workflow_id = ? for COUNT
-    const whereWorkflowMatch = sql.match(/WHERE\s+workflow_id\s+=\s+\?/i)
-    if (whereWorkflowMatch) {
-      const workflowId = params?.[0] as string
-      filtered = filtered.filter(row => row.workflow_id === workflowId)
+    
+    // Handle WHERE conditions for COUNT using generalized parser
+    const whereConditions = parseWhereClause(sql)
+    if (whereConditions.length > 0 && params && params.length > 0) {
+      filtered = filtered.filter(row => rowMatchesConditions(row, whereConditions, params))
     }
 
     return { count: filtered.length }
@@ -462,21 +503,13 @@ function executeRun(sql: string, params: unknown[]): DatabaseResult {
       }
     }
 
+    // WHERE params start after SET params
     const whereParams = params.slice(paramIndex)
-    const conditions = parseWhereConditions(sql)
+    const whereConditions = parseWhereClause(sql)
 
     let changes = 0
     for (const row of table) {
-      let matches = true
-
-      for (let i = 0; i < conditions.length; i++) {
-        if (row[conditions[i]] !== whereParams[i]) {
-          matches = false
-          break
-        }
-      }
-
-      if (matches) {
+      if (rowMatchesConditions(row, whereConditions, whereParams)) {
         Object.assign(row, updates)
         changes++
       }
@@ -487,22 +520,13 @@ function executeRun(sql: string, params: unknown[]): DatabaseResult {
 
   // DELETE
   if (normalizedSql.startsWith('DELETE')) {
-    const conditions = parseWhereConditions(sql)
+    const whereConditions = parseWhereClause(sql)
 
     const initialLength = table.length
 
     for (let i = table.length - 1; i >= 0; i--) {
       const row = table[i]
-      let matches = true
-
-      for (let j = 0; j < conditions.length; j++) {
-        if (row[conditions[j]] !== params[j]) {
-          matches = false
-          break
-        }
-      }
-
-      if (matches) {
+      if (rowMatchesConditions(row, whereConditions, params)) {
         table.splice(i, 1)
       }
     }
@@ -1086,4 +1110,7 @@ beforeEach(() => {
   dbTables.set('password_reset_tokens', [])
   dbTables.set('feedbacks', [])
   dbTables.set('spam_detection_logs', [])
+  // Auth test tables
+  dbTables.set('token_blacklist', [])
+  dbTables.set('audit_logs', [])
 })

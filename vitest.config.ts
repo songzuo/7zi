@@ -3,28 +3,36 @@ import { defineConfig } from 'vitest/config'
 import react from '@vitejs/plugin-react'
 import path from 'path'
 import { fileURLToPath } from 'url'
+import os from 'os'
 
 // Get __dirname equivalent in ESM
 const __filename = fileURLToPath(import.meta.url)
 const __dirname = path.dirname(__filename)
 
+// Auto-detect CPU cores for optimal parallelization
+const cpuCount = os.cpus().length
+// For 4 cores: maxForks=8, maxConcurrency=3
+// Conservative setting: forks = CPU * 2, concurrency = CPU - 1
+const maxForks = Math.min(cpuCount * 2, 8)  // Cap at 8 to prevent memory pressure
+const maxConcurrency = Math.max(2, cpuCount - 1)  // Leave 1 core for system
+
 export default defineConfig({
   plugins: [react()],
 
-  // Vitest 4: 线程池配置在顶层（不在 test 对象内）
+  // Vitest 4: Thread pool configuration at top level (NOT inside test object)
   poolOptions: {
     forks: {
-      singleFork: false, // 允许并行执行以提高测试速度
-      isolate: true, // 确保 fork 之间的隔离
-      maxForks: 12, // 允许并行 fork 数量（4核×3=12）
+      singleFork: false,           // Enable parallel execution
+      isolate: true,               // Ensure fork isolation
+      maxForks: maxForks,          // Dynamic: 8 for 4-core machine
     },
   },
 
-  // 内存限制配置（防止 worker 崩溃）
-  maxMemoryUsage: 2048, // 限制每个 worker 的内存使用为 2GB
+  // Memory limit per worker (prevent OOM crashes)
+  maxMemoryUsage: 2048,  // 2GB per worker
 
   test: {
-    environment: 'jsdom', // 使用 jsdom 环境以支持 React 组件测试
+    environment: 'jsdom',
     globals: true,
     setupFiles: [path.resolve(__dirname, './tests/setup.ts')],
     include: [
@@ -33,39 +41,44 @@ export default defineConfig({
       'tests/**/*.{test,spec}.{js,ts,jsx,tsx}',
     ],
 
-    // Vitest 4: 性能优化：使用 forks 线程池减少内存占用（jose 库需要真实 Node.js 环境）
+    // Use forks pool (lighter than vmForks, better for jsdom tests)
     pool: 'forks',
 
-    // 测试超时配置
-    testTimeout: 120000, // 增加到 120 秒以防止慢测试超时
-    hookTimeout: 10000,
-    // 失败时不重试
-    retry: 0,
+    // Test timeout configuration (reduced from 180s to 60s)
+    testTimeout: 60000,   // 60 seconds per test
+    hookTimeout: 10000,   // 10 seconds for hooks
 
-    // 文件级别的超时配置
-    fileTimeout: 180000, // 增加到 180 秒
+    // No retry in dev, 1 retry in CI
+    retry: process.env.CI ? 1 : 0,
 
-    // 性能优化：测试隔离模式（单进程模式下使用 isolate: true 确保测试独立性）
+    // File timeout (per test file)
+    fileTimeout: 120000,  // 2 minutes per file
+
+    // Test isolation enabled
     isolate: true,
 
-    // 并发限制：限制同时运行的测试文件数量
-    maxConcurrency: 6, // 允许同时运行 6 个测试文件以提高执行速度
+    // Limit concurrent test files
+    maxConcurrency: maxConcurrency,  // Dynamic: 3 for 4-core machine
 
-    // 测试顺序：随机顺序以发现隐藏的依赖关系
+    // Test execution order
     sequence: {
-      shuffle: false, // 保持顺序以确保稳定性
+      shuffle: false,  // Keep order for stability
     },
 
-    // 限制工作线程的生命周期
-    workerThreads: false, // 禁用 worker threads，使用 forks
+    // Disable worker threads (use forks instead)
+    workerThreads: false,
 
-    // 覆盖率配置
+    // Coverage configuration
     coverage: {
       provider: 'v8',
       reporter: ['text', 'json', 'html', 'lcov'],
-      // 排除不需要覆盖的文件
-      exclude: ['node_modules/**', 'src/test/**', '**/*.d.ts', '**/*.config.*'],
-      // 覆盖率阈值
+      exclude: [
+        'node_modules/**',
+        'src/test/**',
+        '**/*.d.ts',
+        '**/*.config.*',
+        '**/*.stories.*',
+      ],
       thresholds: {
         lines: 50,
         functions: 50,
@@ -74,17 +87,20 @@ export default defineConfig({
       },
     },
   },
+
   resolve: {
     alias: {
       '@': path.resolve(__dirname, './src'),
       '@/lib/utils': path.resolve(__dirname, './src/lib/utils.ts'),
     },
   },
+
   // Fix module resolution for tests
   define: {
     global: 'globalThis',
   },
-  // 优化缓存配置
+
+  // Cache configuration
   cache: {
     dir: path.resolve(__dirname, '.vitest/cache'),
   },

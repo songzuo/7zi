@@ -166,6 +166,15 @@ export async function loginUser(
   request: LoginRequest
 ): Promise<LoginSuccessResponse | LoginFailureResponse> {
   try {
+    // Validate email format
+    if (!isValidEmail(request.email)) {
+      logger.info('Login failed: invalid email format', { email: request.email })
+      return {
+        success: false,
+        error: 'Invalid email or password',
+      }
+    }
+
     // Find user by email
     const user = await getUserByEmail(request.email)
     if (!user) {
@@ -477,6 +486,14 @@ export async function resetPassword(
       error: 'Password reset failed',
     }
   }
+}
+
+/**
+ * Validate email format
+ */
+function isValidEmail(email: string): boolean {
+  const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
+  return emailRegex.test(email)
 }
 
 /**

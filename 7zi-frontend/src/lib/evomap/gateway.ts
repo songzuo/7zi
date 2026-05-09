@@ -24,7 +24,7 @@ import {
   DEFAULT_RETRY_CONFIG,
   DEFAULT_CONFIG,
 } from './types'
-import { generateSecureId } from '@/lib/utils'
+import { generateSecureId } from '@/core/utils/utils'
 
 // 简单的 localStorage 封装（用于 SSR/客户端兼容）
 const isClient = typeof window !== 'undefined'

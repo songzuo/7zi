@@ -115,8 +115,8 @@ const nextConfig: NextConfig = {
     imageSizes: [16, 32, 48, 64, 96, 128, 256, 384],
     dangerouslyAllowSVG: false,
     unoptimized: false,
-    // v1.8.0: 启用图片压缩
-    minimumCacheTTL: 60,
+    // v1.8.0: 启用图片压缩, v1.14.3: 缓存时间从60秒提升到1年
+    minimumCacheTTL: 31536000,
   },
 
   // React Compiler 配置已移除 (Next.js 16.2.4 不识别此选项)
