@@ -11,7 +11,7 @@
   "scripts": {
     "dev": "next dev --turbopack",
     "dev:webpack": "next dev",
-    "build": "NODE_ENV=production next build --webpack",
+    "build": "NODE_ENV=production next build",
     "build:turbopack": "NODE_ENV=production next build",
     "build:analyze": "NODE_ENV=production ANALYZE=true next build --turbopack",
     "build:analyze:webpack": "NODE_ENV=production ANALYZE=true USE_WEBPACK=true next build",

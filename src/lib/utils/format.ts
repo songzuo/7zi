@@ -18,14 +18,18 @@ export function formatFileSize(bytes: number, decimals: number = 1): string {
   if (!isFinite(bytes)) return 'Infinity B'
   if (bytes === 0) return `${(0).toFixed(decimals)} B`
 
+  // Handle negative values - format the absolute value and prepend minus sign
+  const isNegative = bytes < 0
+  const absBytes = Math.abs(bytes)
+
   const units = ['B', 'KB', 'MB', 'GB', 'TB', 'PB']
   const k = 1024
-  const i = Math.floor(Math.log(bytes) / Math.log(k))
+  const i = Math.floor(Math.log(absBytes) / Math.log(k))
 
-  const value = bytes / Math.pow(k, i)
+  const value = absBytes / Math.pow(k, i)
   const formattedValue = value.toFixed(decimals)
 
-  return `${formattedValue} ${units[i]}`
+  return `${isNegative ? '-' : ''}${formattedValue} ${units[i]}`
 }
 
 /**
@@ -38,5 +42,20 @@ export function formatFileSize(bytes: number, decimals: number = 1): string {
  * formatNumber(1000000, ".") // "1.000.000"
  */
 export function formatNumber(num: number, separator: string = ','): string {
-  return num.toString().replace(/\B(?=(\d{3})+(?!\d))/g, separator)
+  // Handle negative numbers
+  const isNegative = num < 0
+  let absNum = Math.abs(num)
+  
+  // Split into integer and decimal parts
+  const parts = absNum.toString().split('.')
+  const integerPart = parts[0]
+  const decimalPart = parts[1]
+  
+  // Format integer part with thousands separator
+  const formattedInteger = integerPart.replace(/\B(?=(\d{3})+(?!\d))/g, separator)
+  
+  // Recombine with decimal part if exists
+  const result = decimalPart ? `${formattedInteger}.${decimalPart}` : formattedInteger
+  
+  return isNegative ? `-${result}` : result
 }

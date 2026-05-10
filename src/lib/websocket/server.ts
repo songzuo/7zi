@@ -125,12 +125,13 @@ function initializeCoreModules(): void {
   }
 
   // Wire up the handler modules with manager instances
-  setRoomManager(roomManager as any)
-  setMessageStore(messageStore as any)
-  setRoomPermissionManager(permissionManager as any)
-  setMessagePermissionManager(permissionManager as any)
-  setDocPermissionManager(permissionManager as any)
-  setDocRoomManager(roomManager as any)
+  // Define proper type for handler module interfaces
+  setRoomManager(roomManager)
+  setMessageStore(messageStore)
+  setRoomPermissionManager(permissionManager)
+  setMessagePermissionManager(permissionManager)
+  setDocPermissionManager(permissionManager)
+  setDocRoomManager(roomManager)
 }
 
 // ============================================================================

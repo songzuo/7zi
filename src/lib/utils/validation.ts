@@ -86,7 +86,7 @@ export interface BatchValidationResult {
   /** 是否全部通过 */
   valid: boolean
   /** 各字段验证结果 */
-  fields: Record<string, ValidationResult>
+  fields: Record<string, ValidationResult<unknown>>
   /** 所有错误信息 */
   errors: Array<{ field: string; message: string; code?: ValidationErrorCode }>
 }
@@ -154,14 +154,21 @@ export function isEmpty(value: unknown): boolean {
 }
 
 /**
- * 创建验证结果
+ * 创建验证结果（带泛型）
  */
-function createResult(
+function createResult<T>(
   valid: boolean,
   message?: string,
   code?: ValidationErrorCode
-): ValidationResult {
-  return valid ? { valid } : { valid, message, code }
+): ValidationResult<T> {
+  return valid ? { valid } as ValidationResult<T> : { valid, message, code } as ValidationResult<T>
+}
+
+/**
+ * 创建成功验证结果（带泛型）
+ */
+function createSuccessResult<T>(): ValidationResult<T> {
+  return { valid: true } as ValidationResult<T>
 }
 
 // ============================================================================
@@ -928,10 +935,7 @@ export function validatePassword(
     )
   }
 
-  return {
-    valid: true,
-    formatted: { strength }
-  }
+  return createSuccessResult<{ strength: 'weak' | 'medium' | 'strong' }>()
 }
 
 // ============================================================================
@@ -956,7 +960,7 @@ export function validateBatch<T extends Record<string, unknown>>(
   data: T,
   rules: Record<keyof T, ValidationRule<unknown>>
 ): BatchValidationResult {
-  const fields: Record<string, ValidationResult> = {}
+  const fields: Record<string, ValidationResult<unknown>> = {}
   const errors: BatchValidationResult['errors'] = []
 
   for (const [key, rule] of Object.entries(rules)) {
@@ -994,14 +998,5 @@ export function createValidationRule(
 }
 
 // ============================================================================
-// Re-exports for convenience
+// Re-exports for convenience (already exported at declaration above)
 // ============================================================================
-
-export type {
-  ValidationResult,
-  ValidationErrorCode,
-  ValidationRule,
-  ValidationRuleConfig,
-  ChineseValidationConfig,
-  BatchValidationResult
-}
