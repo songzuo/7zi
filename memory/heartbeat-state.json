@@ -1,35 +1,41 @@
 {
   "lastChecks": {
-    "调度器运行": "2026-05-09 21:38 UTC",
+    "调度器运行": "2026-05-10 17:36 UTC",
     "email": null,
     "calendar": null,
     "weather": null,
-    "memory-maintenance": null
+    "memory-maintenance": null,
+    "api-status-check": "2026-05-10 17:36 UTC"
   },
   "activeTasks": {
     "调度时间": "2026-05-09 21:38 UTC",
-    "任务列表": [
-      "🛡️ 系统管理员-资源清理 (PID 416313 vitest)",
-      "⚡ Executor-Next16+Turbopack兼容性检查",
-      "🏗️ 架构师-系统架构瓶颈评估",
-      "🧪 测试员-API覆盖率补充"
-    ],
-    "总数": 4,
-    "启动失败": []
+    "任务列表": [],
+    "总数": 0,
+    "启动失败": [],
+    "状态": "全部暂停 - API token问题"
+  },
+  "api状态": {
+    "阻塞开始": "约2026-05-02",
+    "持续时间": "200+ 小时",
+    "错误类型": "Invalid token (HTTP 401)",
+    "提供商": {
+      "MiniMax": "❌ 需确认状态",
+      "volcengine": "❌ rate limit/401",
+      "glm-4.7": "❌ token过期"
+    },
+    "子代理": "已暂停"
   },
   "gateway状态": "正常",
   "生产环境": {
-    "7zi.com": "✅ HTTP 200 正常 (5分钟前)",
-    "PM2 nextjs": "✅ online 2D",
-    "bot6磁盘": "✅ 50% (72G/145G)",
-    "bot6内存": "✅ 4GB可用"
+    "7zi.com": "✅ 正常",
+    "PM2 nextjs": "✅ online",
+    "bot6磁盘": "✅ 50%",
+    "bot6内存": "✅ 可用"
   },
   "系统健康": {
-    "load": "1.64 (中等)",
-    "内存": "3.7GB/7.8GB使用中, 4GB可用",
-    "Swap": "2.8GB/4GB (75% 使用 - 需关注)",
-    "vitest进程": "⚠️ PID 416313 仍100% CPU",
-    "zombie进程": "需清理"
+    "load": "中等",
+    "内存": "正常",
+    "Swap": "75% 使用 - 需关注"
   },
-  "备注": "已启动4个子代理任务，系统负载中等 (2026-05-09 21:38 UTC)"
+  "备注": "主人长时间未响应。等待主人消息或token更新。已多次提醒API阻塞问题。"
 }
