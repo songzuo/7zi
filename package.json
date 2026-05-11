@@ -108,7 +108,7 @@
     "zustand": "^5.0.12"
   },
   "devDependencies": {
-    "@next/bundle-analyzer": "^16.2.1",
+    "@next/bundle-analyzer": "^16.2.6",
     "@playwright/test": "^1.58.2",
     "@rollup/plugin-terser": "1.0.0",
     "@tailwindcss/postcss": "^4.2.2",
