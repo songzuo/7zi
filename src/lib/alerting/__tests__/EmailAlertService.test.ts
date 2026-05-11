@@ -514,7 +514,7 @@ describe('EmailAlertService', () => {
       const config = service.getConfig()
 
       // SMTP auth should be excluded
-      expect(config.smtp.auth).toBeUndefined()
+      expect('auth' in config.smtp).toBe(false)
       expect(config.smtp.host).toBe('smtp.example.com')
       expect(config.smtp.port).toBe(587)
     })

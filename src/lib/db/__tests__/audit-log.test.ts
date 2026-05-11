@@ -49,6 +49,10 @@ interface MockDatabase {
   get: ReturnType<typeof vi.fn>
   pragma: ReturnType<typeof vi.fn>
   batch: ReturnType<typeof vi.fn>
+  beginTransaction: () => void
+  commit: () => void
+  rollback: () => void
+  isInTransaction: () => boolean
 }
 describe('audit-log', () => {
   let mockDb: MockDatabase
@@ -64,6 +68,10 @@ describe('audit-log', () => {
       get: vi.fn(),
       pragma: vi.fn(),
       batch: vi.fn(),
+      beginTransaction: vi.fn(),
+      commit: vi.fn(),
+      rollback: vi.fn(),
+      isInTransaction: vi.fn().mockReturnValue(false),
     }
     // Setup prepare to return prepared statements
     const mockStmt = {
