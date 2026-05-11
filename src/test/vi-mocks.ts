@@ -329,24 +329,24 @@ function parseWhereClause(sql: string): Array<{column: string, operator: string,
  */
 function rowMatchesConditions(row: DbRow, conditions: Array<{column: string, operator: string, paramIndex: number}>, params: unknown[]): boolean {
   for (const cond of conditions) {
-    const rowValue = row[cond.column]
-    const paramValue = params[cond.paramIndex]
+    const rowValue: unknown = row[cond.column]
+    const paramValue: unknown = params[cond.paramIndex]
 
     switch (cond.operator) {
       case '=':
         if (rowValue != paramValue) return false
         break
       case '>':
-        if (rowValue <= paramValue) return false
+        if (!((rowValue as number) > (paramValue as number))) return false
         break
       case '>=':
-        if (rowValue < paramValue) return false
+        if (!((rowValue as number) >= (paramValue as number))) return false
         break
       case '<':
-        if (rowValue >= paramValue) return false
+        if (!((rowValue as number) < (paramValue as number))) return false
         break
       case '<=':
-        if (rowValue > paramValue) return false
+        if (!((rowValue as number) <= (paramValue as number))) return false
         break
       case 'LIKE':
         // Simple LIKE support
@@ -416,15 +416,17 @@ function executeAll(sql: string, params?: unknown[]): DbRow[] {
     const limit = parseInt(literalLimitMatch[1])
     let offset = 0
     if (offsetMatch) {
-      offset = (params?.[whereConditions.length] as number) || 0
+      const localWhereConditions = parseWhereClause(sql)
+      offset = (params?.[localWhereConditions.length] as number) || 0
     }
     results = results.slice(offset, offset + limit)
   } else if (limitMatch) {
     // Parameterized LIMIT like LIMIT ?
-    const limit = params?.[whereConditions.length] as number
+    const localWhereConditions = parseWhereClause(sql)
+    const limit = params?.[localWhereConditions.length] as number
     let offset = 0
     if (offsetMatch) {
-      offset = (params?.[whereConditions.length + 1] as number) || 0
+      offset = (params?.[localWhereConditions.length + 1] as number) || 0
     }
     results = results.slice(offset, offset + limit)
   }

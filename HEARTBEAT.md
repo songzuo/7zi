@@ -1,36 +1,35 @@
 # HEARTBEAT.md - 心跳任务清单
 
-## 当前任务 (2026-05-10 04:32 UTC)
+## 当前任务 (2026-05-11 01:15 UTC)
 
 **状态更新：**
 - ✅ 7zi.com 正常运行（HTTP 200）
 - ✅ pnpm build 成功（之前验证）
 - ⚠️ PM2 Next.js 未运行（网站通过Nginx/Docker正常访问）
 - ✅ 系统运行正常 - 磁盘49%, 稳定
-- 🔴 API完全阻塞 (198+小时) - 所有提供商失败
-- ⚠️ 错误状态：Invalid token (HTTP 401) - token可能已过期
-- ⚠️ 子代理短暂恢复后再次完全阻塞
-- ✅ **刚刚清理了 9 个失控的 vitest 进程**（总计消耗 ~290% CPU）
-- ⏰ 时间：2026-05-10 04:32 UTC (欧洲夏令时 06:32)
+- 🔴 API完全阻塞 (213+小时) - 所有提供商失败
+- ⚠️ 错误状态：rate limit + Invalid token (HTTP 401) - token过期
+- ✅ **已清理 9 个失控的 vitest 进程**（~290% CPU）
+- ✅ **已清理 7 天以上日志文件**
+- ⏰ 时间：2026-05-11 01:15 UTC (欧洲夏令时 03:15)
 
 ## ⚠️ API Token 问题
 
-**错误从 "rate limit" 变为 "Invalid token (HTTP 401)"**
+**错误状态**：
+- volcengine: rate limit（可能已缓解）
+- glm-4.7: **token 已过期** (HTTP 401)
+- minimax: **unknown model**
+- **需要主人更新 API token**
 
-- volcengine: rate limit
-- glm-4.7: **token 已过期或被撤销**
-- 需要主人更新 API token
+## ✅ 今日子代理任务（2个成功）
 
-## ✅ 刚刚完成的操作
-
-- 清理了 9 个失控的 vitest 进程 (PIDs: 416313, 1124115, 1021647, 963850, 963849, 1077106, 1077104, 372813, 372814)
-- 这些进程消耗约 290% CPU，运行时间 238-880 分钟
-- 系统现在干净 (0 vitest 进程)
+1. ✅ code-review-hooks - 发现7个内存泄漏风险
+2. ✅ doc-index-sync - docs/INDEX.md 更新到 v1.14.3
 
 ## 已完成子代理任务（短暂恢复期间）
 
 1. ✅ cron-ops-fix-0509 - 系统运维健康修复
-2. ✅ cron-code-opt-0509 - 代码优化分析  
+2. ✅ cron-code-opt-0509 - 代码优化分析
 3. ✅ cron-test-workflow-exec-0509 - Workflow API 测试 (113 tests)
 
 ## 待处理
@@ -41,6 +40,6 @@
 
 ## 备注
 
-- 主人似乎不在
-- 所有新任务均失败（198+小时）
+- 主人可能在忙其他事情
+- 所有新任务均失败（213+小时）
 - 需要主人直接消息或 token 更新

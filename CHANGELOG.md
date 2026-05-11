@@ -7,6 +7,48 @@
 
 ---
 
+## [1.14.3] - 2026-05-10
+
+### 🔍 代码质量分析
+
+- **540 个 TypeScript 错误** 发现（主要分布在测试文件）
+  - ~50 处 Mock 类型不匹配
+  - ~25 处隐式 any 类型
+  - ~10 处导入路径错误
+- WebSocket server 5 处 `as any` 强制类型转换需修复
+- 5 个组件复杂度超标 (>600 行)
+
+### ⚡ 性能分析
+
+- 深度代码质量审查完成（REPORT_CODE_QUALITY_DEEP_0509.md）
+- 性能分析发现以下安全漏洞：
+  - `serialize-javascript` RCE 漏洞已修复
+  - `xlsx` ReDoS + Prototype Pollution 漏洞已修复
+- 系统负载高 (17+), Swap 使用率 99%
+
+### 🧪 测试覆盖率评估
+
+- 测试策略文档更新 (docs/TEST_STRATEGY.md)
+- 新增测试用例：
+  - `data-converter.test.ts` - 70 测试用例
+  - `helpers.test.ts` - 40 测试用例
+- TypeScript 问题追踪文档创建 (docs/TYPE_SCRIPT_ISSUES.md)
+- 测试框架: Vitest v4.1.0 + Playwright (E2E)
+
+### 📚 文档更新
+
+- TypeScript 问题追踪与修复优先级文档创建
+- 测试策略文档创建
+- 架构审查报告完成
+
+### 🔧 技术债务
+
+- `lib/db/index.ts` 与 `index-unified.ts` 重复待合并
+- `filterStore.ts` 跨 Store 直接调用需重构
+- 50+ TODO/FIXME 遗留待处理
+
+---
+
 ## [1.14.2] - 2026-05-07
 
 ### 🔧 技术改进
@@ -23,6 +65,14 @@
 - Next.js 16.2 升级实施计划
 - README v1.14.0 版本同步
 
+### 🔧 技术改进 (2026-05-09/10 补充)
+- Turbopack 生产构建配置启用 (默认使用 --turbopack)
+- auth 路由重复文件清理 (删除 route-unified.ts, route_new_api.ts)
+- TypeScript 检查通过 (预存 27 个非阻塞错误)
+
+### 📚 文档更新 (2026-05-10 补充)
+- 项目分析报告创建 (PROJECT_ANALYSIS_REPORT_0510.md)
+- docs/INDEX.md 版本同步 (v1.14.1 → v1.14.2)
 
 ## [1.14.1] - 2026-04-17
 

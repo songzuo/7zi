@@ -13,6 +13,11 @@ import {
 import { getDatabaseAsync } from '../index'
 import { getSlowQueryLogger } from '../slow-query-logger'
 import type { DatabaseConnection, DatabaseStatement, DatabaseResult } from '../types'
+
+// Global test utilities
+declare global {
+  var testDb: TestDatabaseConnection | undefined
+}
 // Helper type for test database connection with performance tracking
 type TestDatabaseConnection = DatabaseConnection & {
   query: (sql: string, params?: unknown[]) => Promise<unknown>
@@ -87,7 +92,7 @@ describe('Performance Logger', () => {
       },
       getSlowQueries: () => {
         return slowQueryLoggerInstance.getSlowQueries().map(log => ({
-          sql: log.query,
+          sql: log.sql,
           executionTime: log.executionTime,
           timestamp: log.timestamp,
         }))
@@ -148,7 +153,7 @@ describe('Performance Logger', () => {
     // Wrap database for performance tracking
     const wrappedDb = wrapDatabaseWithLogging(db as any)
     // Make the wrapped database available for tests
-    global.testDb = wrappedDb as TestDatabaseConnection
+    global.testDb = wrappedDb as unknown as TestDatabaseConnection
     vi.clearAllMocks()
   })
   describe('initialization', () => {

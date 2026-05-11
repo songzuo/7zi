@@ -7,6 +7,7 @@
 
 import { Server as HTTPServer } from 'http'
 import { Server as SocketIOServer } from 'socket.io'
+import { logger } from '@/lib/logger'
 import { sendNotification } from './services/notification'
 
 // Simple stub for notificationService

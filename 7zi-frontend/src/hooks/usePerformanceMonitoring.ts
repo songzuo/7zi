@@ -10,6 +10,7 @@ import { webVitalsMonitor, initWebVitalsMonitoring, WebVitalsConfig } from '@/li
 import { customMetricsTracker, initCustomMetricsTracking } from '@/lib/performance/custom-metrics'
 import { budgetManager, initPerformanceBudget, PerformanceBudget, PerformanceBudgetReport } from '@/lib/performance/budget-manager'
 import { monitor } from '@/lib/monitoring'
+import { logger } from '@/lib/logger'
 import type { WebVitalsMetrics, CustomMetrics } from '@/lib/performance'
 
 /**

@@ -2245,6 +2245,348 @@ export const searchHandlers = [
   }),
 ]
 
+// Workflow endpoints handlers
+export const workflowHandlers = [
+  // POST /api/workflow - Create workflow
+  http.post('http://localhost:3000/api/workflow', async ({ request }: { request: Request }) => {
+    const body = (await request.json()) as any
+    const authHeader = request.headers.get('Authorization')
+
+    // Check authentication
+    if (!authHeader || !authHeader.startsWith('Bearer ')) {
+      return HttpResponse.json(
+        {
+          success: false,
+          error: {
+            type: 'UNAUTHORIZED',
+            message: 'Authentication required',
+          },
+        },
+        { status: 401 }
+      )
+    }
+
+    // Validation - name required
+    if (!body.name) {
+      return HttpResponse.json(
+        {
+          success: false,
+          error: {
+            type: 'VALIDATION_ERROR',
+            message: '工作流名称不能为空',
+          },
+        },
+        { status: 400 }
+      )
+    }
+
+    // Validate nodes structure (each node must have type)
+    if (body.nodes && Array.isArray(body.nodes)) {
+      for (const node of body.nodes) {
+        if (!node.type) {
+          return HttpResponse.json(
+            {
+              success: false,
+              error: {
+                type: 'VALIDATION_ERROR',
+                message: '工作流节点必须包含type字段',
+              },
+            },
+            { status: 400 }
+          )
+        }
+      }
+    }
+
+    // Check name length
+    if (body.name && body.name.length > 500) {
+      return HttpResponse.json(
+        {
+          success: false,
+          error: {
+            type: 'VALIDATION_ERROR',
+            message: '工作流名称过长',
+          },
+        },
+        { status: 400 }
+      )
+    }
+
+    // Create workflow
+    const workflow = {
+      id: `workflow_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
+      name: body.name,
+      description: body.description || '',
+      version: 1,
+      status: 'draft' as const,
+      nodes: body.nodes || [],
+      edges: body.edges || [],
+      config: {
+        timeout: body.config?.timeout || 3600,
+        retryPolicy: body.config?.retryPolicy || {
+          maxRetries: 3,
+          backoff: 'exponential' as const,
+          interval: 5,
+        },
+        variables: body.config?.variables || {},
+      },
+      metadata: {
+        createdAt: new Date().toISOString(),
+        updatedAt: new Date().toISOString(),
+        createdBy: body.userId || 'system',
+        updatedBy: body.userId || 'system',
+      },
+    }
+
+    return HttpResponse.json(
+      {
+        success: true,
+        data: workflow,
+        timestamp: new Date().toISOString(),
+      },
+      { status: 201 }
+    )
+  }),
+
+  // GET /api/workflow - List workflows
+  http.get('http://localhost:3000/api/workflow', ({ request }: { request: Request }) => {
+    const authHeader = request.headers.get('Authorization')
+
+    // Check authentication
+    if (!authHeader || !authHeader.startsWith('Bearer ')) {
+      return HttpResponse.json(
+        {
+          success: false,
+          error: {
+            type: 'UNAUTHORIZED',
+            message: 'Authentication required',
+          },
+        },
+        { status: 401 }
+      )
+    }
+
+    const url = new URL(request.url)
+    const status = url.searchParams.get('status')
+    let limit = parseInt(url.searchParams.get('limit') || '50')
+    const offset = parseInt(url.searchParams.get('offset') || '0')
+
+    // Handle negative parameters (use defaults)
+    if (limit < 0) limit = 50
+    // Cap extremely large limits
+    if (limit > 1000) limit = 1000
+
+    const workflows = [
+      {
+        id: 'workflow_1',
+        name: '示例工作流',
+        description: '一个简单的示例工作流',
+        version: 1,
+        status: 'active' as const,
+        nodes: [
+          { id: 'node_1', type: 'start' as const, name: '开始', position: { x: 100, y: 100 } },
+          { id: 'node_2', type: 'agent' as const, name: '执行 Agent', position: { x: 350, y: 100 }, agentConfig: { agentId: 'agent_1', agentType: 'assistant' } },
+          { id: 'node_3', type: 'end' as const, name: '结束', position: { x: 600, y: 100 } },
+        ],
+        edges: [
+          { id: 'edge_1', source: 'node_1', target: 'node_2', type: 'sequence' as const },
+          { id: 'edge_2', source: 'node_2', target: 'node_3', type: 'sequence' as const },
+        ],
+        config: { timeout: 3600 },
+        metadata: {
+          createdAt: new Date().toISOString(),
+          updatedAt: new Date().toISOString(),
+          createdBy: 'user_1',
+          updatedBy: 'user_1',
+        },
+      },
+    ]
+
+    let filtered = workflows
+    if (status) {
+      filtered = filtered.filter(w => w.status === status)
+    }
+
+    const paginated = filtered.slice(offset, offset + limit)
+
+    return HttpResponse.json({
+      success: true,
+      data: {
+        workflows: paginated,
+        total: filtered.length,
+        limit,
+        offset,
+      },
+      timestamp: new Date().toISOString(),
+    })
+  }),
+
+  // POST /api/workflow/[id]/run - Execute workflow
+  http.post('http://localhost:3000/api/workflow/:id/run', async ({ request, params }: { request: Request; params: { id: string } }) => {
+    const authHeader = request.headers.get('Authorization')
+
+    // Check authentication
+    if (!authHeader || !authHeader.startsWith('Bearer ')) {
+      return HttpResponse.json(
+        {
+          success: false,
+          error: {
+            type: 'UNAUTHORIZED',
+            message: 'Authentication required',
+          },
+        },
+        { status: 401 }
+      )
+    }
+
+    const body = (await request.json()) as any
+    const instanceId = `instance_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`
+
+    return HttpResponse.json({
+      success: true,
+      data: {
+        instanceId,
+        workflowId: params.id,
+        status: 'running',
+        message: '工作流已开始运行',
+        metadata: {
+          triggeredBy: body.userId || 'system',
+          triggerType: body.triggerType || 'manual',
+          startedAt: new Date().toISOString(),
+        },
+      },
+      timestamp: new Date().toISOString(),
+    })
+  }),
+
+  // GET /api/workflow/[id]/run - Get run history
+  http.get('http://localhost:3000/api/workflow/:id/run', ({ request }: { request: Request }) => {
+    const authHeader = request.headers.get('Authorization')
+
+    // Check authentication
+    if (!authHeader || !authHeader.startsWith('Bearer ')) {
+      return HttpResponse.json(
+        {
+          success: false,
+          error: {
+            type: 'UNAUTHORIZED',
+            message: 'Authentication required',
+          },
+        },
+        { status: 401 }
+      )
+    }
+
+    const url = new URL(request.url)
+    const statusFilter = url.searchParams.get('status')
+
+    const allInstances = [
+      {
+        id: 'instance_1',
+        workflowId: 'workflow_1',
+        workflowVersion: 1,
+        status: 'completed' as const,
+        progress: { total: 3, completed: 3, failed: 0, percentage: 100 },
+        nodeResults: {},
+        data: { inputs: { query: 'Hello' }, outputs: { result: 'Done' } },
+        metadata: {
+          startedAt: new Date(Date.now() - 5000).toISOString(),
+          endedAt: new Date().toISOString(),
+          duration: 3010,
+          triggeredBy: 'user_1',
+          triggerType: 'manual' as const,
+        },
+      },
+      {
+        id: 'instance_2',
+        workflowId: 'workflow_1',
+        workflowVersion: 1,
+        status: 'running' as const,
+        progress: { total: 3, completed: 1, failed: 0, percentage: 33 },
+        nodeResults: {},
+        data: { inputs: { query: 'Test' } },
+        metadata: {
+          startedAt: new Date(Date.now() - 1000).toISOString(),
+          triggeredBy: 'user_2',
+          triggerType: 'api' as const,
+        },
+      },
+    ]
+
+    // Filter by status if provided
+    const filteredInstances = statusFilter
+      ? allInstances.filter(inst => inst.status === statusFilter)
+      : allInstances
+
+    return HttpResponse.json({
+      success: true,
+      data: {
+        instances: filteredInstances,
+        stats: {
+          total: filteredInstances.length,
+          success: filteredInstances.filter(i => i.status === 'completed').length,
+          failed: filteredInstances.filter(i => i.status === 'failed').length,
+          running: filteredInstances.filter(i => i.status === 'running').length,
+        },
+        total: filteredInstances.length,
+        limit: 50,
+        offset: 0,
+      },
+      timestamp: new Date().toISOString(),
+    })
+  }),
+
+  // POST /api/workflow/[id]/executions/[execId]/cancel - Cancel execution
+  http.post('http://localhost:3000/api/workflow/:id/executions/:execId/cancel', ({ request, params }: { request: Request; params: { id: string; execId: string } }) => {
+    const authHeader = request.headers.get('Authorization')
+
+    // Check authentication
+    if (!authHeader || !authHeader.startsWith('Bearer ')) {
+      return HttpResponse.json(
+        {
+          success: false,
+          error: {
+            type: 'UNAUTHORIZED',
+            message: 'Authentication required',
+          },
+        },
+        { status: 401 }
+      )
+    }
+
+    const { execId } = params
+
+    // Check if execution exists (mock check)
+    if (execId === 'non_existent_id') {
+      return HttpResponse.json(
+        { error: 'Execution not found' },
+        { status: 404 }
+      )
+    }
+
+    // Check for completed status (instance_1 is completed)
+    if (execId === 'instance_1') {
+      return HttpResponse.json(
+        { error: 'Cannot cancel execution with status: completed' },
+        { status: 400 }
+      )
+    }
+
+    // Mock workflow ID mismatch - for workflow_999 vs actual execution
+    // For simplicity in mock, we'll skip this check and let test handle it
+
+    return HttpResponse.json({
+      success: true,
+      execution: {
+        id: execId,
+        workflowId: params.id,
+        status: 'cancelled',
+        cancelledAt: new Date().toISOString(),
+      },
+    })
+  }),
+]
+
 // Analytics endpoints handlers
 export const analyticsHandlers = [
   // GET /api/analytics/metrics
@@ -2279,6 +2621,7 @@ export const handlers = [
   ...searchHandlers,
   ...exportHandlers,
   ...analyticsHandlers,
+  ...workflowHandlers,
 ]
 
 // Create MSW server

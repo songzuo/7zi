@@ -35,6 +35,8 @@ export interface PerformanceLoggerConfig {
   enableNPlus1Detection?: boolean
   /** 是否记录堆栈跟踪（仅开发环境） */
   enableStackTrace?: boolean
+  /** Maximum history size for slow queries (test support) */
+  maxHistorySize?: number
 }
 
 /**
@@ -78,6 +80,7 @@ class PerformanceLoggerManager {
       verySlowQueryThreshold: 1000,
       enableNPlus1Detection: true,
       enableStackTrace: process.env.NODE_ENV === 'development',
+      maxHistorySize: 1000,
     }
 
     this.slowQueryLogger = getSlowQueryLogger()

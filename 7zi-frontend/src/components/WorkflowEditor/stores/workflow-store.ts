@@ -325,10 +325,10 @@ export const useWorkflowStore = create<WorkflowState>()(
             isExecuting: true,
           })
 
-          logger.debug('[WorkflowStore] 执行状态已恢复:', savedState.executionId)
+          logger.debug('[WorkflowStore] 执行状态已恢复', { executionId: savedState.executionId })
           return true
         } catch (error) {
-          logger.error('[WorkflowStore] 恢复执行状态失败:', error)
+          logger.error('[WorkflowStore] 恢复执行状态失败', error instanceof Error ? error : undefined)
           return false
         }
       },
@@ -346,7 +346,7 @@ export const useWorkflowStore = create<WorkflowState>()(
           })
           logger.debug('[WorkflowStore] 执行状态已清除')
         } catch (error) {
-          logger.error('[WorkflowStore] 清除执行状态失败:', error)
+          logger.error('[WorkflowStore] 清除执行状态失败', error instanceof Error ? error : undefined)
         }
       },
 
@@ -360,7 +360,7 @@ export const useWorkflowStore = create<WorkflowState>()(
           set({ isExecuting: false })
           logger.debug('[WorkflowStore] 执行已暂停')
         } catch (error) {
-          logger.error('[WorkflowStore] 暂停执行失败:', error)
+          logger.error('[WorkflowStore] 暂停执行失败', error instanceof Error ? error : undefined)
         }
       },
 
@@ -374,7 +374,7 @@ export const useWorkflowStore = create<WorkflowState>()(
           set({ isExecuting: true })
           logger.debug('[WorkflowStore] 执行已恢复')
         } catch (error) {
-          logger.error('[WorkflowStore] 恢复执行失败:', error)
+          logger.error('[WorkflowStore] 恢复执行失败', error instanceof Error ? error : undefined)
         }
       },
     }),

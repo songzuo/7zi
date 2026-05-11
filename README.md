@@ -26,6 +26,26 @@
 
 ---
 
+## 🚀 快速开始 (5 分钟)
+
+```bash
+# 1. 克隆并安装
+git clone https://github.com/songzuo/7zi.git && cd 7zi
+pnpm install
+
+# 2. 配置环境变量
+cp .env.example .env.local
+# 编辑 .env.local 设置 NEXT_PUBLIC_GITHUB_OWNER=songzuo
+
+# 3. 启动开发服务器
+pnpm dev
+# 访问 http://localhost:3000
+```
+
+**验证命令**: `pnpm type-check && pnpm test:run`
+
+---
+
 ## 📖 项目介绍
 
 **7zi** 是一个革命性的 AI 驱动团队管理平台，由 **11 位专业 AI 成员** 组成完整的组织架构。我们重新定义了团队协作的可能性 —— 不再是人类管理工具，而是 **AI 团队自主工作**，人类只需制定战略方向。
@@ -1443,6 +1463,68 @@ vercel --prod
 - **CHANGELOG.md** - v1.3.0 完整变更日志
 
 详细文档索引：**[docs/INDEX.md](./docs/INDEX.md)**
+
+---
+
+## 📡 API 简要说明
+
+**版本**: v1.14.2 | **端点总数**: 170+
+
+### 🔐 认证
+
+```bash
+# 登录获取 Token
+POST /api/auth/login
+Body: { "email": "user@example.com", "password": "xxx" }
+
+# 使用 Token
+Authorization: Bearer <token>
+```
+
+### 📋 核心 API
+
+| 分类 | 端点数 | 说明 |
+|------|--------|------|
+| **认证** | 6 | login, register, logout, refresh, me |
+| **任务** | 12 | CRUD, 状态管理, 分配 |
+| **Agent** | 8 | 注册, 心跳, 发现, 调度 |
+| **WebSocket** | 30+ | 房间, 消息, 协作 |
+| **分析** | 15 | 统计, 报表, 导出 |
+
+### 📁 API 文档
+
+- **[docs/API.md](./docs/API.md)** - 完整 API 参考 (170+ 端点)
+- **[docs/api/ratings.md](./docs/api/ratings.md)** - 评分 API
+- **[docs/api/search.md](./docs/api/search.md)** - 搜索 API
+- **[docs/api/websocket.md](./docs/api/websocket.md)** - WebSocket API
+
+---
+
+## 🛤️ 开发路线
+
+### 📍 v1.15.0 (规划中 - 2026-Q2)
+
+| 功能 | 优先级 | 说明 |
+|------|--------|------|
+| 🔊 **音频处理** | P0 | 语音转文字, 会议摘要 |
+| 📱 **移动端优化** | P0 | FCP <0.8s, 60fps |
+| 🤖 **AI 对话增强** | P0 | 多轮对话, 意图理解 |
+
+### 📍 v1.16.0 - v1.20.0 (中期 - 2026-Q3-Q4)
+
+| 功能 | 优先级 | 说明 |
+|------|--------|------|
+| 📚 **知识库 RAG** | P1 | 向量检索, 知识图谱 |
+| 📊 **企业报表** | P1 | 拖拽式报表, 自定义可视化 |
+| 🏢 **企业级功能** | P1 | SSO, 审计, 合规 |
+
+### 🎯 长期愿景 (2027+)
+
+- 🌐 **全球化扩展** - 多语言, 多区域部署
+- 🤝 **生态整合** - 第三方服务, API 市场
+- 🚀 **性能突破** - 边缘计算, 实时协作
+
+**详细路线**: [docs/INDEX.md](./docs/INDEX.md) → ROADMAP
 
 ---
 

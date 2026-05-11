@@ -45,6 +45,10 @@ interface MockDatabase {
   exec: ReturnType<typeof vi.fn>
   prepare: ReturnType<typeof vi.fn>
   query: ReturnType<typeof vi.fn>
+  queryRows: ReturnType<typeof vi.fn>
+  get: ReturnType<typeof vi.fn>
+  pragma: ReturnType<typeof vi.fn>
+  batch: ReturnType<typeof vi.fn>
 }
 describe('audit-log', () => {
   let mockDb: MockDatabase
@@ -56,6 +60,10 @@ describe('audit-log', () => {
       exec: vi.fn(),
       prepare: vi.fn(),
       query: vi.fn(),
+      queryRows: vi.fn(),
+      get: vi.fn(),
+      pragma: vi.fn(),
+      batch: vi.fn(),
     }
     // Setup prepare to return prepared statements
     const mockStmt = {
@@ -119,6 +127,11 @@ describe('audit-log', () => {
         entity_id: 'user123',
         details: { username: 'testuser' },
         status: AuditStatus.SUCCESS,
+        resource_type: null,
+        resource_id: null,
+        ip_address: null,
+        user_agent: null,
+        error_message: null,
       }
       const mockStmt = {
         run: vi.fn(),
@@ -140,6 +153,11 @@ describe('audit-log', () => {
         entity_id: null,
         details: { ip: '192.168.1.1' },
         status: AuditStatus.FAILED,
+        resource_type: null,
+        resource_id: null,
+        ip_address: '192.168.1.1',
+        user_agent: null,
+        error_message: null,
       }
       const mockStmt = {
         run: vi.fn(),
@@ -171,6 +189,11 @@ describe('audit-log', () => {
         entity_id: 'doc123',
         details: { title: 'Test Document', count: 5, nested: { value: 'test' } },
         status: AuditStatus.SUCCESS,
+        resource_type: null,
+        resource_id: null,
+        ip_address: null,
+        user_agent: null,
+        error_message: null,
       }
       const mockStmt = {
         run: vi.fn(),
@@ -188,6 +211,11 @@ describe('audit-log', () => {
         entity_id: null,
         details: {},
         status: AuditStatus.SUCCESS,
+        resource_type: null,
+        resource_id: null,
+        ip_address: null,
+        user_agent: null,
+        error_message: null,
       }
       const mockStmt = {
         run: vi.fn(),
@@ -210,6 +238,11 @@ describe('audit-log', () => {
         entity_id: null,
         details: {},
         status: AuditStatus.SUCCESS,
+        resource_type: null,
+        resource_id: null,
+        ip_address: null,
+        user_agent: null,
+        error_message: null,
       }
       const error = new Error('Insert failed')
       const mockStmt = {

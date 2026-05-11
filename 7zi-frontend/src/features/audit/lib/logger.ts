@@ -5,6 +5,7 @@
  */
 
 import { v4 as uuidv4 } from 'uuid'
+import { logger } from '@/lib/logger'
 import { AuditLogEntry, AuditEventType, AuditLogLevel, AuditLogQuery, AuditLogStats } from './types'
 import { InMemoryStorage } from '@/lib/db/storage'
 

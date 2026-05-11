@@ -11,6 +11,7 @@
 import type { NextConfig } from 'next'
 import path from 'path'
 import withPWA from '@ducanh2912/next-pwa'
+import withBundleAnalyzer from '@next/bundle-analyzer'
 
 // ============================================
 // 环境配置
@@ -576,6 +577,14 @@ const pwaConfig = {
 }
 
 // ============================================
-// 导出配置 (with PWA)
+// 导出配置 (with PWA + Bundle Analyzer)
 // ============================================
-export default withPWA(pwaConfig)(nextConfig)
+let exportedConfig: NextConfig = nextConfig
+
+// 在 ANALYZE=true 时启用 bundle 分析
+if (isAnalyze) {
+  exportedConfig = withBundleAnalyzer({ enabled: isAnalyze })(exportedConfig)
+}
+
+// 应用 PWA 配置
+export default withPWA(pwaConfig)(exportedConfig)
