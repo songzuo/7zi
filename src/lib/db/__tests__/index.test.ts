@@ -157,9 +157,9 @@ describe('Database Module', () => {
       db.exec('CREATE TABLE IF NOT EXISTS get_test (id INTEGER PRIMARY KEY, value INTEGER)')
       db.exec('INSERT INTO get_test (value) VALUES (42)')
       const stmt = db.prepare('SELECT value FROM get_test WHERE id = ?')
-      const result = stmt.get(1)
+      const result = stmt.get(1) as { value: number } | null
       expect(result).toBeDefined()
-      expect(result.value).toBe(42)
+      expect(result!.value).toBe(42)
     })
     it('should execute prepared statement with all', () => {
       const db = getDatabase()
@@ -175,8 +175,8 @@ describe('Database Module', () => {
     })
     it('should return null for non-existent row with get', () => {
       const db = getDatabase()
-      const stmt = db.prepare('SELECT * FROM sqlite_master WHERE name = ?', ['non_existent_table'])
-      const result = stmt.get()
+      const stmt = db.prepare('SELECT * FROM sqlite_master WHERE name = ?')
+      const result: Record<string, unknown> | null = stmt.get(['non_existent_table'])
       expect(result).toBeNull()
     })
     it('should return empty array for no results with all', () => {
@@ -188,7 +188,7 @@ describe('Database Module', () => {
     })
   })
   describe('batch operations', () => {
-    it('should execute batch of statements', () => {
+    it('should execute batch of statements', async () => {
       const db = getDatabase()
       db.exec('CREATE TABLE IF NOT EXISTS batch_test (id INTEGER, value TEXT)')
       const statements = [
@@ -197,9 +197,9 @@ describe('Database Module', () => {
         { sql: 'INSERT INTO batch_test (value) VALUES (?)', params: ['test3'] },
       ]
       if (db.batch) {
-        const results = db.batch(statements)
+        const results = await db.batch(statements)
         expect(results).toHaveLength(3)
-        expect(results.every((r: Database.RunResult) => r.changes === 1)).toBe(true)
+        expect(results.every((r) => r.changes === 1)).toBe(true)
       }
     })
     it('should handle empty batch', () => {
@@ -245,7 +245,8 @@ describe('Database Module', () => {
     })
     it('should report connected status', async () => {
       const health = await getDatabaseHealth()
-      expect(health.connected).toBe(true)
+      // TODO: [DatabaseHealthResult type mismatch - test expects 'connected' property that doesn't exist in actual type]
+      expect((health as Record<string, unknown>).connected).toBe(true)
     })
   })
   describe('optimization', () => {
@@ -283,14 +284,14 @@ describe('Database Module', () => {
   describe('null safety', () => {
     it('should handle null results safely', () => {
       const db = getDatabase()
-      const stmt = db.prepare('SELECT * FROM sqlite_master WHERE name = ?', ['non_existent'])
-      const result = stmt.get()
+      const stmt = db.prepare('SELECT * FROM sqlite_master WHERE name = ?')
+      const result: Record<string, unknown> | null = stmt.get(['non_existent'])
       expect(result).toBeNull()
     })
     it('should handle undefined results safely', () => {
       const db = getDatabase()
-      const stmt = db.prepare('SELECT * FROM sqlite_master WHERE name = ?', ['non_existent'])
-      const result = stmt.all()
+      const stmt = db.prepare('SELECT * FROM sqlite_master WHERE name = ?')
+      const result = stmt.all(['non_existent'])
       expect(result).toEqual([])
     })
     it('should handle missing result properties', () => {

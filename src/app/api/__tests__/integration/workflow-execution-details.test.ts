@@ -82,7 +82,7 @@ const mockMetrics = {
   },
 }
 
-const mockAlerts = []
+const mockAlerts: Array<{ id: string; type: string; severity: string; message: string; timestamp: string; executionId?: string; nodeId?: string }> = []
 
 // Mock the workflow monitoring module
 vi.mock('../../../../../src/lib/workflow/monitoring', () => {

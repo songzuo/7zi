@@ -39,16 +39,16 @@ interface MockStatement {
   all: ReturnType<typeof vi.fn>
 }
 /**
- * Mock database interface
+ * Mock database interface - properly typed to match DatabaseConnection
  */
 interface MockDatabase {
   exec: ReturnType<typeof vi.fn>
   prepare: ReturnType<typeof vi.fn>
   query: ReturnType<typeof vi.fn>
   queryRows: ReturnType<typeof vi.fn>
-  get: ReturnType<typeof vi.fn>
-  pragma: ReturnType<typeof vi.fn>
-  batch: ReturnType<typeof vi.fn>
+  get: <T = Record<string, unknown>>(sql: string, params?: unknown[]) => T | null
+  pragma: (name: string, options?: { simple: boolean }) => unknown
+  batch: (statements: Array<{ sql: string; params?: unknown[] }>) => Promise<{ changes: number; lastInsertRowid: number }[]>
   beginTransaction: () => void
   commit: () => void
   rollback: () => void
@@ -81,7 +81,7 @@ describe('audit-log', () => {
     }
     mockDb.prepare.mockReturnValue(mockStmt)
     // Mock getDatabaseAsync
-    vi.mocked(getDatabaseAsync).mockResolvedValue(mockDb)
+    vi.mocked(getDatabaseAsync).mockResolvedValue(mockDb as any)
   })
   afterEach(() => {
     vi.restoreAllMocks()
@@ -672,7 +672,8 @@ describe('audit-log', () => {
       await cleanupOldAuditLogs(90)
       const { logger } = await import('../../logger')
       // Logger.info is called by initializeAuditLogsTable, but not by cleanup
-      const cleanupLogCalls = logger.info.mock.calls.filter(
+      const loggerInfoMock = logger.info as ReturnType<typeof vi.fn>
+      const cleanupLogCalls = loggerInfoMock.mock.calls.filter(
         (call: unknown[]) => call[0] === 'Old audit logs cleaned up'
       )
       expect(cleanupLogCalls).toHaveLength(0)

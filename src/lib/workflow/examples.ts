@@ -17,7 +17,7 @@ import {
 } from '@/lib/workflow/triggers'
 import { WorkflowScheduler } from '@/lib/workflow/scheduler'
 import { enhancedWorkflowExecutor } from '@/lib/workflow/executor'
-import { WorkflowDefinition, NodeType, EdgeType } from '@/types/workflow'
+import { WorkflowDefinition, NodeType, EdgeType, WorkflowStatus } from '@/types/workflow'
 
 // ============================================================================
 // 示例 1: 使用 DSL 解析器

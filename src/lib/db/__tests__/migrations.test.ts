@@ -15,6 +15,7 @@ describe('Database Migrations', () => {
   beforeEach(async () => {
     // Use file database for tests
     process.env.DATABASE_PATH = '/tmp/test-migrations-db.sqlite'
+    // @ts-expect-error - NODE_ENV is technically readonly but we need to set it for tests
     process.env.NODE_ENV = 'test'
     process.env.ENABLE_DB_PERFORMANCE_LOGGING = 'false'
     closeDatabase()

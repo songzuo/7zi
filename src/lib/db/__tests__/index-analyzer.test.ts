@@ -14,6 +14,7 @@ import { getDatabaseAsync } from '../index'
 // Mock functions that don't exist in the actual implementation
 const findUnusedIndexes = async (): Promise<IndexInfo[]> => []
 const findDuplicateIndexes = async (): Promise<IndexInfo[]> => []
+// TODO: [findDuplicateIndexes mock doesn't match IndexInfo - missing 'reason' property that tests expect]
 const suggestIndexes = async (): Promise<IndexUsageReport['missingIndexes']> => []
 describe('Index Analyzer', () => {
   beforeEach(async () => {

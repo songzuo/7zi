@@ -5,15 +5,16 @@
 
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest'
 import { NextRequest } from 'next/server'
+import type { WorkflowExecution, WorkflowExecutionStatus } from '@/lib/workflow/monitoring/types'
 import { POST } from '../../../../../src/app/api/workflow/[id]/executions/[execId]/cancel/route'
 
 // Mock execution data for different states
-const mockRunningExecution = {
+const mockRunningExecution: WorkflowExecution = {
   id: 'exec_running',
   workflowId: 'workflow_001',
   workflowName: 'Test Workflow',
   workflowVersion: 1,
-  status: 'running' as const,
+  status: 'running' as WorkflowExecutionStatus,
   startTime: '2026-05-09T08:00:00.000Z',
   nodeCount: 3,
   completedNodes: 1,
@@ -29,12 +30,12 @@ const mockRunningExecution = {
   variables: {},
 }
 
-const mockPendingExecution = {
+const mockPendingExecution: WorkflowExecution = {
   id: 'exec_pending',
   workflowId: 'workflow_001',
   workflowName: 'Test Workflow',
   workflowVersion: 1,
-  status: 'pending' as const,
+  status: 'pending' as WorkflowExecutionStatus,
   startTime: '2026-05-09T08:00:00.000Z',
   nodeCount: 3,
   completedNodes: 0,
@@ -50,12 +51,12 @@ const mockPendingExecution = {
   variables: {},
 }
 
-const mockCompletedExecution = {
+const mockCompletedExecution: WorkflowExecution = {
   id: 'exec_completed',
   workflowId: 'workflow_001',
   workflowName: 'Test Workflow',
   workflowVersion: 1,
-  status: 'completed' as const,
+  status: 'completed' as WorkflowExecutionStatus,
   startTime: '2026-05-09T08:00:00.000Z',
   endTime: '2026-05-09T08:05:00.000Z',
   duration: 300000,
@@ -74,12 +75,12 @@ const mockCompletedExecution = {
   variables: {},
 }
 
-const mockCancelledExecution = {
+const mockCancelledExecution: WorkflowExecution = {
   id: 'exec_cancelled',
   workflowId: 'workflow_001',
   workflowName: 'Test Workflow',
   workflowVersion: 1,
-  status: 'cancelled' as const,
+  status: 'cancelled' as WorkflowExecutionStatus,
   startTime: '2026-05-09T08:00:00.000Z',
   endTime: '2026-05-09T08:02:00.000Z',
   duration: 120000,
@@ -116,7 +117,7 @@ vi.mock('../../../../../src/lib/workflow/monitoring', () => {
           return {
             ...mockRunningExecution,
             id: execId,
-            status: 'cancelled' as const,
+            status: 'cancelled' as WorkflowExecutionStatus,
             endTime: new Date().toISOString(),
           }
         }

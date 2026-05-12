@@ -39,6 +39,14 @@ interface MockDatabase {
   exec: ReturnType<typeof vi.fn>
   query: ReturnType<typeof vi.fn>
   prepare: ReturnType<typeof vi.fn>
+  queryRows: ReturnType<typeof vi.fn>
+  get: ReturnType<typeof vi.fn>
+  pragma: ReturnType<typeof vi.fn>
+  batch: ReturnType<typeof vi.fn>
+  beginTransaction: () => void
+  commit: () => void
+  rollback: () => void
+  isInTransaction: () => boolean
 }
 describe('user-preferences', () => {
   let mockDb: MockDatabase
@@ -50,6 +58,14 @@ describe('user-preferences', () => {
       exec: vi.fn(),
       query: vi.fn(),
       prepare: vi.fn(),
+      queryRows: vi.fn(),
+      get: vi.fn(),
+      pragma: vi.fn(),
+      batch: vi.fn(),
+      beginTransaction: vi.fn(),
+      commit: vi.fn(),
+      rollback: vi.fn(),
+      isInTransaction: vi.fn().mockReturnValue(false),
     }
     // Setup prepare to return prepared statements
     const mockStmt = {
