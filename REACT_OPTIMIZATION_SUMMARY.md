@@ -282,3 +282,39 @@ const RealtimeDashboard = dynamic(
 
 **优化完成**: 2026-03-22
 **下一步**: 运行性能测试，验证优化效果
+
+---
+
+## TypeScript 错误修复 (v2)
+
+**修复日期**: 2026-05-12
+**初始错误数**: 34
+**修复后错误数**: 20
+
+### 已修复的错误
+
+| 文件 | 错误类型 | 修复方式 |
+|------|----------|----------|
+| `optimization.test.ts` | 导入 getDatabase 失败 | 从 @/lib/db 正确导入 getDatabase 和 getDatabaseAsync |
+| `optimization.test.ts` | getDatabaseAsync 未导出 | 同上 |
+| `migrations.test.ts` | 期望 ok, version, tables, indexes 属性 | 更新测试以匹配实际的 DatabaseHealthResult 类型结构 |
+| `migrations.test.ts` | rollback() 需要参数 | 修改为 rollback(version - 1) 或 rollback(0) |
+| `graceful-degradation.test.ts` | 访问私有属性 instance | 移除直接访问私有属性的测试代码 |
+
+### 剩余错误 (20 个)
+
+这些错误主要在测试文件中，需要更复杂的修复:
+
+1. **enhanced-db.test.ts** (10 errors): EnhancedDatabase 类型不匹配，需要实现完整的 DatabaseConnection 接口
+2. **index-analyzer.test.ts** (1 error): IndexInfo 缺少 reason 属性
+3. **optimization-init.test.ts** (4 errors): mockRejectedValueOnce 类型问题和 delete 操作符问题
+4. **user-preferences.test.ts** (1 error): MockDatabase 类型与 DatabaseConnection 不兼容
+5. **graceful-degradation.test.ts** (1 error): 仍有私有属性访问
+6. **migrations.test.ts** (3 errors): indexesOptimized 属性不存在等问题
+
+### 编译状态
+
+- `pnpm build`: ✅ 成功
+- `pnpm tsc --noEmit`: 20 errors (仅测试文件)
+
+**结论**: 主要的生产代码编译错误已修复，剩余 20 个错误全部在测试文件中，不影响构建和运行。

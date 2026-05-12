@@ -10,6 +10,8 @@ import { describe, it, expect, beforeAll, afterAll } from 'vitest'
 import {
   getDatabase,
   getDatabaseAsync,
+} from '@/lib/db'
+import {
   initializeAgentTables,
   getAgentStats,
   createAgent,

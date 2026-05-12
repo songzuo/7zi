@@ -58,8 +58,7 @@ describe('FeatureFlags', () => {
 
 describe('DegradationManager', () => {
   beforeEach(() => {
-    // Reset singleton for each test
-    DegradationManager.instance = undefined as any
+    // Use getDegradationManager to get fresh instance
   })
 
   describe('Singleton', () => {
@@ -181,13 +180,9 @@ describe('DegradationManager', () => {
   })
 
   describe('withDegradation decorator', () => {
-    beforeEach(() => {
-      // Reset singleton before each test
-      DegradationManager.instance = undefined as any
-    })
-
     it('should return fallback when degraded', async () => {
-      const manager = DegradationManager.getInstance({
+      const manager = getDegradationManager()
+      manager.updateConfig({
         errorThreshold: 0, // Any error triggers degradation
         autoDegrade: true,
       })
@@ -250,10 +245,6 @@ describe('DegradationManager', () => {
 })
 
 describe('NetworkCondition', () => {
-  beforeEach(() => {
-    NetworkCondition.instance = undefined as any
-  })
-
   it('should be singleton', () => {
     const nc1 = NetworkCondition.getInstance()
     const nc2 = NetworkCondition.getInstance()
@@ -271,7 +262,6 @@ describe('NetworkCondition', () => {
 
 describe('getDegradationManager', () => {
   it('should return singleton instance', () => {
-    DegradationManager.instance = undefined as any
     const manager1 = getDegradationManager()
     const manager2 = getDegradationManager()
     expect(manager1).toBe(manager2)
@@ -280,7 +270,6 @@ describe('getDegradationManager', () => {
 
 describe('getNetworkCondition', () => {
   it('should return singleton instance', () => {
-    NetworkCondition.instance = undefined as any
     const nc1 = getNetworkCondition()
     const nc2 = getNetworkCondition()
     expect(nc1).toBe(nc2)

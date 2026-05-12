@@ -44521,8 +44521,376 @@
       "resume_info": "",
       "source": "bot6",
       "context": {}
+    },
+    {
+      "id": "system-monitoring-1778595301",
+      "description": "系统资源监控和健康检查",
+      "type": "monitoring",
+      "priority": 3,
+      "status": "completed",
+      "created_at": "2026-05-12T16:15:01.666080",
+      "started_at": null,
+      "completed_at": "2026-05-12T16:15:09.308189",
+      "progress": 100,
+      "steps": [
+        {
+          "name": "系统资源收集",
+          "status": "completed",
+          "updated_at": "2026-05-12T16:15:03.290496"
+        },
+        {
+          "name": "进程监控",
+          "status": "completed",
+          "updated_at": "2026-05-12T16:15:04.488256"
+        },
+        {
+          "name": "磁盘空间分析",
+          "status": "completed",
+          "updated_at": "2026-05-12T16:15:05.695602"
+        },
+        {
+          "name": "内存使用分析",
+          "status": "completed",
+          "updated_at": "2026-05-12T16:15:06.860655"
+        },
+        {
+          "name": "网络连接检查",
+          "status": "completed",
+          "updated_at": "2026-05-12T16:15:08.016359"
+        },
+        {
+          "name": "生成报告",
+          "status": "completed",
+          "updated_at": "2026-05-12T16:15:09.186177"
+        }
+      ],
+      "resume_info": "",
+      "source": "bot6",
+      "context": {}
+    },
+    {
+      "id": "system-monitoring-1778595309",
+      "description": "系统资源监控和健康检查",
+      "type": "monitoring",
+      "priority": 3,
+      "status": "completed",
+      "created_at": "2026-05-12T16:15:09.521408",
+      "started_at": null,
+      "completed_at": "2026-05-12T16:15:17.131048",
+      "progress": 100,
+      "steps": [
+        {
+          "name": "系统资源收集",
+          "status": "completed",
+          "updated_at": "2026-05-12T16:15:11.068369"
+        },
+        {
+          "name": "进程监控",
+          "status": "completed",
+          "updated_at": "2026-05-12T16:15:12.253597"
+        },
+        {
+          "name": "磁盘空间分析",
+          "status": "completed",
+          "updated_at": "2026-05-12T16:15:13.422920"
+        },
+        {
+          "name": "内存使用分析",
+          "status": "completed",
+          "updated_at": "2026-05-12T16:15:14.594611"
+        },
+        {
+          "name": "网络连接检查",
+          "status": "completed",
+          "updated_at": "2026-05-12T16:15:15.825696"
+        },
+        {
+          "name": "生成报告",
+          "status": "completed",
+          "updated_at": "2026-05-12T16:15:17.016637"
+        }
+      ],
+      "resume_info": "",
+      "source": "bot6",
+      "context": {}
+    },
+    {
+      "id": "system-monitoring-1778596202",
+      "description": "系统资源监控和健康检查",
+      "type": "monitoring",
+      "priority": 3,
+      "status": "completed",
+      "created_at": "2026-05-12T16:30:02.275695",
+      "started_at": null,
+      "completed_at": "2026-05-12T16:30:10.070836",
+      "progress": 100,
+      "steps": [
+        {
+          "name": "系统资源收集",
+          "status": "completed",
+          "updated_at": "2026-05-12T16:30:04.038969"
+        },
+        {
+          "name": "进程监控",
+          "status": "completed",
+          "updated_at": "2026-05-12T16:30:05.223253"
+        },
+        {
+          "name": "磁盘空间分析",
+          "status": "completed",
+          "updated_at": "2026-05-12T16:30:06.420361"
+        },
+        {
+          "name": "内存使用分析",
+          "status": "completed",
+          "updated_at": "2026-05-12T16:30:07.593720"
+        },
+        {
+          "name": "网络连接检查",
+          "status": "completed",
+          "updated_at": "2026-05-12T16:30:08.772914"
+        },
+        {
+          "name": "生成报告",
+          "status": "completed",
+          "updated_at": "2026-05-12T16:30:09.949583"
+        }
+      ],
+      "resume_info": "",
+      "source": "bot6",
+      "context": {}
+    },
+    {
+      "id": "system-monitoring-1778596210",
+      "description": "系统资源监控和健康检查",
+      "type": "monitoring",
+      "priority": 3,
+      "status": "completed",
+      "created_at": "2026-05-12T16:30:10.275458",
+      "started_at": null,
+      "completed_at": "2026-05-12T16:30:17.737499",
+      "progress": 100,
+      "steps": [
+        {
+          "name": "系统资源收集",
+          "status": "completed",
+          "updated_at": "2026-05-12T16:30:11.793347"
+        },
+        {
+          "name": "进程监控",
+          "status": "completed",
+          "updated_at": "2026-05-12T16:30:12.953629"
+        },
+        {
+          "name": "磁盘空间分析",
+          "status": "completed",
+          "updated_at": "2026-05-12T16:30:14.126271"
+        },
+        {
+          "name": "内存使用分析",
+          "status": "completed",
+          "updated_at": "2026-05-12T16:30:15.296578"
+        },
+        {
+          "name": "网络连接检查",
+          "status": "completed",
+          "updated_at": "2026-05-12T16:30:16.462484"
+        },
+        {
+          "name": "生成报告",
+          "status": "completed",
+          "updated_at": "2026-05-12T16:30:17.629592"
+        }
+      ],
+      "resume_info": "",
+      "source": "bot6",
+      "context": {}
+    },
+    {
+      "id": "system-monitoring-1778597102",
+      "description": "系统资源监控和健康检查",
+      "type": "monitoring",
+      "priority": 3,
+      "status": "completed",
+      "created_at": "2026-05-12T16:45:02.086387",
+      "started_at": null,
+      "completed_at": "2026-05-12T16:45:09.918628",
+      "progress": 100,
+      "steps": [
+        {
+          "name": "系统资源收集",
+          "status": "completed",
+          "updated_at": "2026-05-12T16:45:03.892244"
+        },
+        {
+          "name": "进程监控",
+          "status": "completed",
+          "updated_at": "2026-05-12T16:45:05.074051"
+        },
+        {
+          "name": "磁盘空间分析",
+          "status": "completed",
+          "updated_at": "2026-05-12T16:45:06.257901"
+        },
+        {
+          "name": "内存使用分析",
+          "status": "completed",
+          "updated_at": "2026-05-12T16:45:07.428856"
+        },
+        {
+          "name": "网络连接检查",
+          "status": "completed",
+          "updated_at": "2026-05-12T16:45:08.630802"
+        },
+        {
+          "name": "生成报告",
+          "status": "completed",
+          "updated_at": "2026-05-12T16:45:09.803275"
+        }
+      ],
+      "resume_info": "",
+      "source": "bot6",
+      "context": {}
+    },
+    {
+      "id": "system-monitoring-1778597110",
+      "description": "系统资源监控和健康检查",
+      "type": "monitoring",
+      "priority": 3,
+      "status": "completed",
+      "created_at": "2026-05-12T16:45:10.127366",
+      "started_at": null,
+      "completed_at": "2026-05-12T16:45:17.656488",
+      "progress": 100,
+      "steps": [
+        {
+          "name": "系统资源收集",
+          "status": "completed",
+          "updated_at": "2026-05-12T16:45:11.634857"
+        },
+        {
+          "name": "进程监控",
+          "status": "completed",
+          "updated_at": "2026-05-12T16:45:12.793017"
+        },
+        {
+          "name": "磁盘空间分析",
+          "status": "completed",
+          "updated_at": "2026-05-12T16:45:14.001824"
+        },
+        {
+          "name": "内存使用分析",
+          "status": "completed",
+          "updated_at": "2026-05-12T16:45:15.180825"
+        },
+        {
+          "name": "网络连接检查",
+          "status": "completed",
+          "updated_at": "2026-05-12T16:45:16.341989"
+        },
+        {
+          "name": "生成报告",
+          "status": "completed",
+          "updated_at": "2026-05-12T16:45:17.533880"
+        }
+      ],
+      "resume_info": "",
+      "source": "bot6",
+      "context": {}
+    },
+    {
+      "id": "system-monitoring-1778598001",
+      "description": "系统资源监控和健康检查",
+      "type": "monitoring",
+      "priority": 3,
+      "status": "completed",
+      "created_at": "2026-05-12T17:00:01.791565",
+      "started_at": null,
+      "completed_at": "2026-05-12T17:00:10.112753",
+      "progress": 100,
+      "steps": [
+        {
+          "name": "系统资源收集",
+          "status": "completed",
+          "updated_at": "2026-05-12T17:00:03.971383"
+        },
+        {
+          "name": "进程监控",
+          "status": "completed",
+          "updated_at": "2026-05-12T17:00:05.266215"
+        },
+        {
+          "name": "磁盘空间分析",
+          "status": "completed",
+          "updated_at": "2026-05-12T17:00:06.466311"
+        },
+        {
+          "name": "内存使用分析",
+          "status": "completed",
+          "updated_at": "2026-05-12T17:00:07.640981"
+        },
+        {
+          "name": "网络连接检查",
+          "status": "completed",
+          "updated_at": "2026-05-12T17:00:08.821501"
+        },
+        {
+          "name": "生成报告",
+          "status": "completed",
+          "updated_at": "2026-05-12T17:00:09.993280"
+        }
+      ],
+      "resume_info": "",
+      "source": "bot6",
+      "context": {}
+    },
+    {
+      "id": "system-monitoring-1778598010",
+      "description": "系统资源监控和健康检查",
+      "type": "monitoring",
+      "priority": 3,
+      "status": "completed",
+      "created_at": "2026-05-12T17:00:10.343284",
+      "started_at": null,
+      "completed_at": "2026-05-12T17:00:17.920029",
+      "progress": 100,
+      "steps": [
+        {
+          "name": "系统资源收集",
+          "status": "completed",
+          "updated_at": "2026-05-12T17:00:11.846082"
+        },
+        {
+          "name": "进程监控",
+          "status": "completed",
+          "updated_at": "2026-05-12T17:00:13.023565"
+        },
+        {
+          "name": "磁盘空间分析",
+          "status": "completed",
+          "updated_at": "2026-05-12T17:00:14.205525"
+        },
+        {
+          "name": "内存使用分析",
+          "status": "completed",
+          "updated_at": "2026-05-12T17:00:15.402657"
+        },
+        {
+          "name": "网络连接检查",
+          "status": "completed",
+          "updated_at": "2026-05-12T17:00:16.590113"
+        },
+        {
+          "name": "生成报告",
+          "status": "completed",
+          "updated_at": "2026-05-12T17:00:17.788820"
+        }
+      ],
+      "resume_info": "",
+      "source": "bot6",
+      "context": {}
     }
   ],
   "checkpoint": null,
-  "last_update": "2026-05-12T16:00:18.168924"
+  "last_update": "2026-05-12T17:00:17.920051"
 }
