@@ -83,15 +83,10 @@ export const LazyRichTextEditorReadOnly = dynamic(
   }
 )
 
-// ============================================
 // Lazy Hook for direct TipTap access (advanced usage)
-// ============================================
-
+// EditorToolbar is in a separate file, so we only export the editor
 export const LazyRichTextEditorWithHook = dynamic(
-  () => import('./RichTextEditor').then(mod => ({
-    default: mod.RichTextEditor,
-    EditorToolbar: mod.EditorToolbar,
-  })),
+  () => import('./RichTextEditor').then(mod => mod.RichTextEditor),
   {
     ssr: false,
     loading: () => <EditorSkeleton className="w-full" />
