@@ -108,6 +108,31 @@ export interface MockSearchHistory {
   timestamp: string
 }
 
+export interface MockAgent {
+  id: string
+  ownerId: string
+  name: string
+  type: 'assistant' | 'scheduler' | 'executor' | 'custom'
+  status: 'online' | 'offline' | 'busy'
+  capabilities: string[]
+  endpoint?: string
+  metadata?: Record<string, unknown>
+  registeredAt: string
+  lastHeartbeat?: string
+}
+
+export interface MockCapsule {
+  id: string
+  ownerId: string
+  name: string
+  description: string
+  type: 'workflow' | 'agent' | 'template'
+  genes: string[]
+  status: 'draft' | 'published' | 'archived'
+  createdAt: string
+  updatedAt: string
+}
+
 export class MockDataGenerator {
   private users: Map<string, MockUser> = new Map()
   private tasks: Map<string, MockTask> = new Map()
@@ -119,6 +144,8 @@ export class MockDataGenerator {
   private ratings: Map<string, MockRating> = new Map()
   private members: Map<string, MockMember> = new Map()
   private searchHistory: MockSearchHistory[] = []
+  private agents: Map<string, MockAgent> = new Map()
+  private capsules: Map<string, MockCapsule> = new Map()
 
   constructor() {
     // Initialize with some test data
@@ -821,5 +848,110 @@ export class MockDataGenerator {
 
   resetSearchHistory() {
     this.searchHistory = []
+  }
+
+  // Agent methods
+  createAgent(data: {
+    ownerId: string
+    name: string
+    type: MockAgent['type']
+    capabilities?: string[]
+    endpoint?: string
+    metadata?: Record<string, unknown>
+  }): MockAgent {
+    const agent: MockAgent = {
+      id: `agent-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
+      ownerId: data.ownerId,
+      name: data.name,
+      type: data.type,
+      status: 'online',
+      capabilities: data.capabilities || [],
+      endpoint: data.endpoint,
+      metadata: data.metadata,
+      registeredAt: new Date().toISOString(),
+    }
+    this.agents.set(agent.id, agent)
+    return agent
+  }
+
+  getAgentById(id: string): MockAgent | null {
+    return this.agents.get(id) || null
+  }
+
+  findAgentByName(name: string): MockAgent | null {
+    for (const agent of this.agents.values()) {
+      if (agent.name === name) return agent
+    }
+    return null
+  }
+
+  getAgentsByOwner(ownerId: string): MockAgent[] {
+    return Array.from(this.agents.values()).filter(a => a.ownerId === ownerId)
+  }
+
+  getAllAgents(): MockAgent[] {
+    return Array.from(this.agents.values())
+  }
+
+  updateAgentHeartbeat(id: string): boolean {
+    const agent = this.agents.get(id)
+    if (!agent) return false
+    agent.lastHeartbeat = new Date().toISOString()
+    return true
+  }
+
+  unregisterAgent(id: string): boolean {
+    return this.agents.delete(id)
+  }
+
+  // Capsule methods
+  createCapsule(data: {
+    ownerId: string
+    name: string
+    description: string
+    type: MockCapsule['type']
+    genes?: string[]
+  }): MockCapsule {
+    const capsule: MockCapsule = {
+      id: `capsule-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
+      ownerId: data.ownerId,
+      name: data.name,
+      description: data.description,
+      type: data.type,
+      genes: data.genes || [],
+      status: 'draft',
+      createdAt: new Date().toISOString(),
+      updatedAt: new Date().toISOString(),
+    }
+    this.capsules.set(capsule.id, capsule)
+    return capsule
+  }
+
+  getCapsuleById(id: string): MockCapsule | null {
+    return this.capsules.get(id) || null
+  }
+
+  getCapsulesByOwner(ownerId: string): MockCapsule[] {
+    return Array.from(this.capsules.values()).filter(c => c.ownerId === ownerId)
+  }
+
+  getAllCapsules(): MockCapsule[] {
+    return Array.from(this.capsules.values())
+  }
+
+  publishCapsule(id: string): MockCapsule | null {
+    const capsule = this.capsules.get(id)
+    if (!capsule) return null
+    capsule.status = 'published'
+    capsule.updatedAt = new Date().toISOString()
+    return capsule
+  }
+
+  archiveCapsule(id: string): MockCapsule | null {
+    const capsule = this.capsules.get(id)
+    if (!capsule) return null
+    capsule.status = 'archived'
+    capsule.updatedAt = new Date().toISOString()
+    return capsule
   }
 }

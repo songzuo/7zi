@@ -9,6 +9,8 @@ export interface JobOptions {
   backoff?: { type: 'exponential' | 'fixed'; delay: number };
 }
 
+export type BullEventHandler = (event: string, job: Job<unknown>) => void;
+
 export interface Job<T = unknown> {
   id: string;
   data: T;
@@ -35,7 +37,7 @@ export interface Queue<T = unknown> {
   getJobCounts(): Promise<{ waiting: number; active: number; completed: number; failed: number; paused: number; delayed: number }>;
   pause(): Promise<void>;
   resume(): Promise<void>;
-  on(event: string, handler: (...args: any[]) => void): void;
+  on(event: string, handler: BullEventHandler): void;
   process(concurrency: number, handler: (job: Job<T>) => Promise<unknown>): void;
 }
 

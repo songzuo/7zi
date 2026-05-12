@@ -366,7 +366,7 @@ describe('Auth Token API Route', () => {
   describe('POST request - validation', () => {
     it('should reject request with invalid JSON', async () => {
       const urlObj = new URL('http://localhost:3000/api/auth/token')
-      const request = new Request(urlObj, {
+      const request = new NextRequest(urlObj, {
         method: 'POST',
         headers: { 'content-type': 'application/json' },
         body: 'invalid json',

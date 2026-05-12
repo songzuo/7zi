@@ -405,6 +405,237 @@ export const authHandlers = [
   }),
 ]
 
+// Agent endpoints handlers
+export const agentHandlers = [
+  // POST /api/agents/register - Register a new agent
+  http.post('http://localhost:3000/api/agents/register', async ({ request }: { request: Request }) => {
+    const authHeader = request.headers.get('Authorization')
+    if (!authHeader || !authHeader.startsWith('Bearer ')) {
+      return HttpResponse.json(
+        { success: false, error: { type: 'UNAUTHORIZED', message: 'Authentication required' } },
+        { status: 401 }
+      )
+    }
+
+    const body = (await request.json()) as any
+
+    // Validation
+    if (!body.name) {
+      return HttpResponse.json(
+        { success: false, error: { type: 'VALIDATION_ERROR', message: 'Agent name is required' } },
+        { status: 400 }
+      )
+    }
+
+    if (!body.type) {
+      return HttpResponse.json(
+        { success: false, error: { type: 'VALIDATION_ERROR', message: 'Agent type is required' } },
+        { status: 400 }
+      )
+    }
+
+    const validTypes = ['assistant', 'scheduler', 'executor', 'custom']
+    if (!validTypes.includes(body.type)) {
+      return HttpResponse.json(
+        { success: false, error: { type: 'VALIDATION_ERROR', message: 'Invalid agent type' } },
+        { status: 400 }
+      )
+    }
+
+    // Check for duplicate name
+    const existing = mockData.findAgentByName(body.name)
+    if (existing) {
+      return HttpResponse.json(
+        { success: false, error: { type: 'DUPLICATE_AGENT', message: 'Agent with this name already exists' } },
+        { status: 400 }
+      )
+    }
+
+    const token = authHeader.substring(7)
+    const userId = mockData.getUserIdFromToken(token)
+    if (!userId) {
+      return HttpResponse.json(
+        { success: false, error: { type: 'UNAUTHORIZED', message: 'Invalid token' } },
+        { status: 401 }
+      )
+    }
+
+    const agent = mockData.createAgent({
+      ownerId: userId,
+      name: body.name,
+      type: body.type,
+      capabilities: body.capabilities || [],
+      endpoint: body.endpoint,
+      metadata: body.metadata,
+    })
+
+    return HttpResponse.json(
+      {
+        success: true,
+        data: { agent },
+      },
+      { status: 201 }
+    )
+  }),
+
+  // GET /api/agents/:id - Get agent info
+  http.get('http://localhost:3000/api/agents/:id', ({ params }) => {
+    return HttpResponse.json({
+      success: true,
+      data: {
+        agent: {
+          id: params.id,
+          name: 'Mock Agent',
+          type: 'assistant',
+          status: 'online',
+          capabilities: ['chat', 'task-execution'],
+          registeredAt: new Date().toISOString(),
+        },
+      },
+    })
+  }),
+
+  // DELETE /api/agents/:id - Unregister agent
+  http.delete('http://localhost:3000/api/agents/:id', ({ params }) => {
+    return HttpResponse.json({
+      success: true,
+      data: { unregistered: true },
+    })
+  }),
+
+  // GET /api/agents/discover - Discover agents
+  http.get('http://localhost:3000/api/agents/discover', () => {
+    return HttpResponse.json({
+      success: true,
+      data: {
+        agents: [
+          {
+            id: 'agent-1',
+            name: 'Assistant Agent',
+            type: 'assistant',
+            status: 'online',
+            capabilities: ['chat', 'task-execution'],
+          },
+          {
+            id: 'agent-2',
+            name: 'Scheduler Agent',
+            type: 'scheduler',
+            status: 'online',
+            capabilities: ['scheduling', 'task-management'],
+          },
+        ],
+      },
+    })
+  }),
+
+  // POST /api/agents/heartbeat - Send heartbeat
+  http.post('http://localhost:3000/api/agents/heartbeat', async ({ request }: { request: Request }) => {
+    const authHeader = request.headers.get('Authorization')
+    if (!authHeader || !authHeader.startsWith('Bearer ')) {
+      return HttpResponse.json(
+        { success: false, error: { type: 'UNAUTHORIZED', message: 'Authentication required' } },
+        { status: 401 }
+      )
+    }
+
+    const body = (await request.json()) as any
+
+    if (!body.agentId) {
+      return HttpResponse.json(
+        { success: false, error: { type: 'VALIDATION_ERROR', message: 'agentId is required' } },
+        { status: 400 }
+      )
+    }
+
+    return HttpResponse.json({
+      success: true,
+      data: { received: true, timestamp: new Date().toISOString() },
+    })
+  }),
+]
+
+// Capsule endpoints handlers
+export const capsuleHandlers = [
+  // POST /api/capsules - Create capsule
+  http.post('http://localhost:3000/api/capsules', async ({ request }: { request: Request }) => {
+    const authHeader = request.headers.get('Authorization')
+    if (!authHeader || !authHeader.startsWith('Bearer ')) {
+      return HttpResponse.json(
+        { success: false, error: { type: 'UNAUTHORIZED', message: 'Authentication required' } },
+        { status: 401 }
+      )
+    }
+
+    const body = (await request.json()) as any
+
+    if (!body.name) {
+      return HttpResponse.json(
+        { success: false, error: { type: 'VALIDATION_ERROR', message: 'Capsule name is required' } },
+        { status: 400 }
+      )
+    }
+
+    const token = authHeader.substring(7)
+    const userId = mockData.getUserIdFromToken(token)
+    if (!userId) {
+      return HttpResponse.json(
+        { success: false, error: { type: 'UNAUTHORIZED', message: 'Invalid token' } },
+        { status: 401 }
+      )
+    }
+
+    const capsule = mockData.createCapsule({
+      ownerId: userId,
+      name: body.name,
+      description: body.description || '',
+      type: body.type || 'workflow',
+      genes: body.genes || [],
+    })
+
+    return HttpResponse.json(
+      {
+        success: true,
+        data: { capsule },
+      },
+      { status: 201 }
+    )
+  }),
+
+  // GET /api/capsules - List capsules
+  http.get('http://localhost:3000/api/capsules', ({ request }) => {
+    const url = new URL(request.url)
+    const status = url.searchParams.get('status')
+
+    let capsules = mockData.getAllCapsules()
+    if (status) {
+      capsules = capsules.filter(c => c.status === status)
+    }
+
+    return HttpResponse.json({
+      success: true,
+      data: { capsules },
+    })
+  }),
+
+  // GET /api/capsules/:id - Get capsule
+  http.get('http://localhost:3000/api/capsules/:id', ({ params }) => {
+    return HttpResponse.json({
+      success: true,
+      data: {
+        capsule: {
+          id: params.id,
+          name: 'Mock Capsule',
+          description: 'Mock capsule description',
+          type: 'workflow',
+          genes: ['gene-1', 'gene-2'],
+          status: 'published',
+          createdAt: new Date().toISOString(),
+        },
+      },
+    })
+  }),
+]
+
 // Health endpoints handlers
 export const healthHandlers = [
   // Database health check
@@ -2590,7 +2821,12 @@ export const workflowHandlers = [
 // Analytics endpoints handlers
 export const analyticsHandlers = [
   // GET /api/analytics/metrics
-  http.get('http://localhost:3000/api/analytics/metrics', () => {
+  http.get('http://localhost:3000/api/analytics/metrics', ({ request }) => {
+    const url = new URL(request.url)
+    const timeRange = url.searchParams.get('timeRange')
+    const page = parseInt(url.searchParams.get('page') || '1')
+    const limit = parseInt(url.searchParams.get('limit') || '20')
+
     return HttpResponse.json({
       success: true,
       data: {
@@ -2598,13 +2834,69 @@ export const analyticsHandlers = [
           agents: { total: 10, active: 5, idle: 3, offline: 2, byProvider: {} },
           users: { total: 100, activeToday: 50, activeWeek: 80, newUsers: 10 },
           tasks: { total: 500, completed: 300, inProgress: 150, pending: 50 },
+          revenue: { total: 15000, currency: 'USD', change: 12.5, byAgent: {}, monthly: 5000, weekly: 1200, daily: 170 },
+          performance: { cpuUsage: 45, memoryUsage: 65, responseTime: 120, uptime: 99.9 },
         },
         timeSeries: [],
-        pagination: { page: 1, perPage: 20, total: 0 },
-        filters: {},
-        cacheStats: { hits: 100, misses: 10 },
+        pagination: { page, limit, total: 100, totalPages: Math.ceil(100 / limit) },
+        filters: { timeRange: timeRange || 'week' },
+        cacheStats: { hits: 100, misses: 10, hitRate: 0.91 },
       },
       timestamp: Date.now(),
+    })
+  }),
+
+  // POST /api/analytics/metrics
+  http.post('http://localhost:3000/api/analytics/metrics', async ({ request }) => {
+    const body = await request.json().catch(() => ({}))
+    const page = body.page || 1
+    const limit = body.limit || 20
+
+    return HttpResponse.json({
+      success: true,
+      data: {
+        metrics: {
+          agents: { total: 10, active: 5, idle: 3, offline: 2, byProvider: {} },
+          users: { total: 100, activeToday: 50, activeWeek: 80, newUsers: 10 },
+          tasks: { total: 500, completed: 300, inProgress: 150, pending: 50 },
+          revenue: { total: 15000, currency: 'USD', change: 12.5, byAgent: {}, monthly: 5000, weekly: 1200, daily: 170 },
+          performance: { cpuUsage: 45, memoryUsage: 65, responseTime: 120, uptime: 99.9 },
+        },
+        timeSeries: [],
+        pagination: { page, limit, total: 100, totalPages: Math.ceil(100 / limit) },
+        filters: body,
+        cacheStats: { hits: 100, misses: 10, hitRate: 0.91 },
+      },
+      timestamp: Date.now(),
+    })
+  }),
+
+  // POST /api/analytics/export
+  http.post('http://localhost:3000/api/analytics/export', async ({ request }) => {
+    return HttpResponse.json({
+      success: true,
+      data: {
+        downloadUrl: '/downloads/analytics-export.json',
+        filename: 'analytics-export.json',
+        format: 'json',
+        recordCount: 100,
+      },
+      timestamp: Date.now(),
+    })
+  }),
+
+  // GET /api/analytics/export - return export options
+  http.get('http://localhost:3000/api/analytics/export', () => {
+    return HttpResponse.json({
+      success: true,
+      data: {
+        formats: ['csv', 'xlsx', 'json'],
+        maxRecords: 10000,
+        options: {
+          includeHeaders: true,
+          timeRange: ['today', 'week', 'month', 'quarter', 'year', 'custom'],
+        },
+      },
     })
   }),
 ]
@@ -2622,6 +2914,8 @@ export const handlers = [
   ...exportHandlers,
   ...analyticsHandlers,
   ...workflowHandlers,
+  ...agentHandlers,
+  ...capsuleHandlers,
 ]
 
 // Create MSW server
