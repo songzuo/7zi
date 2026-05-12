@@ -23,3 +23,6 @@ export { cn } from './utils/ui'
 
 // Re-export ID utilities
 export { generateId, generateUUID } from './utils/id'
+
+// Re-export clone utilities
+export { deepClone } from './utils/clone'

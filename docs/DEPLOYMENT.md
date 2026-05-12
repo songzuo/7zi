@@ -1,8 +1,8 @@
-# v1.14.2 Next.js 16 全面兼容 & Evomap Gateway 部署指南
+# v1.14.3 Next.js 16 全面兼容 & Evomap Gateway 部署指南
 
-**生成日期**: 2026-05-07
+**生成日期**: 2026-05-10
 **服务器**: 7zi.com (172.67.184.212 / 104.21.59.229)
-**当前版本**: 7zi-frontend v1.14.2
+**当前版本**: 7zi-frontend v1.14.3
 
 ---
 
@@ -370,7 +370,7 @@ cp /opt/7zi-frontend/api-gateway.db /opt/7zi-frontend/backups/
 ```bash
 cd /opt/7zi-frontend
 git fetch origin
-git checkout v1.14.1
+git checkout v1.14.3
 ```
 
 ### 7.3 安装依赖

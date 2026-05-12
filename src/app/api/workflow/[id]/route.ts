@@ -14,6 +14,35 @@ import {
   createValidationError,
   createNotFoundError,
 } from '@/lib/api/error-handler'
+import { LRUCache } from '@/lib/cache/lru-cache'
+
+// Cache instance for workflows - 5 minute TTL
+const workflowCache = new LRUCache<unknown>(500)
+const WORKFLOW_CACHE_TTL = 5 * 60 * 1000 // 5 minutes
+
+// Tag-based invalidation registry
+const cacheTags = new Map<string, Set<string>>()
+
+function registerTag(tag: string, cacheKey: string): void {
+  if (!cacheTags.has(tag)) {
+    cacheTags.set(tag, new Set())
+  }
+  cacheTags.get(tag)!.add(cacheKey)
+}
+
+function invalidateTag(tag: string): void {
+  const keys = cacheTags.get(tag)
+  if (keys) {
+    for (const key of keys) {
+      workflowCache.delete(key)
+    }
+    cacheTags.delete(tag)
+  }
+}
+
+function getWorkflowCacheKey(id: string): string {
+  return `workflow:${id}`
+}
 
 interface RouteParams {
   params: Promise<{ id: string }>
@@ -21,12 +50,19 @@ interface RouteParams {
 
 /**
  * GET /api/workflow/[id]
- * 获取工作流详情
+ * 获取工作流详情 (with 5-min cache)
  */
 export async function GET(request: NextRequest, { params }: RouteParams) {
   try {
     const { id } = await params
-    
+    const cacheKey = getWorkflowCacheKey(id)
+
+    // Try cache first
+    const cached = workflowCache.get(cacheKey)
+    if (cached !== null) {
+      return createSuccessResponse(cached)
+    }
+
     const { getDatabase } = await import('@/lib/db/connection')
     const db = getDatabase()
 
@@ -70,6 +106,10 @@ export async function GET(request: NextRequest, { params }: RouteParams) {
       },
     }
 
+    // Cache the result
+    workflowCache.set(cacheKey, parsedWorkflow, WORKFLOW_CACHE_TTL)
+    registerTag('workflow', cacheKey)
+
     return createSuccessResponse(parsedWorkflow)
   } catch (error) {
     return createErrorResponse(error instanceof Error ? error : new Error(String(error)))
@@ -78,13 +118,13 @@ export async function GET(request: NextRequest, { params }: RouteParams) {
 
 /**
  * PUT /api/workflow/[id]
- * 更新工作流
+ * 更新工作流 (invalidates cache)
  */
 export async function PUT(request: NextRequest, { params }: RouteParams) {
   try {
     const { id } = await params
     const body = await request.json()
-    
+
     const { getDatabase } = await import('@/lib/db/connection')
     const db = getDatabase()
 
@@ -95,7 +135,7 @@ export async function PUT(request: NextRequest, { params }: RouteParams) {
     }
 
     const now = new Date().toISOString()
-    
+
     // Update workflow in database
     db.exec(`
       UPDATE workflows SET
@@ -120,6 +160,10 @@ export async function PUT(request: NextRequest, { params }: RouteParams) {
       body.userId || 'system',
       id,
     ])
+
+    // Invalidate cache
+    workflowCache.delete(getWorkflowCacheKey(id))
+    invalidateTag('workflow')
 
     // Get updated workflow
     const updatedWorkflow = db.get(`
@@ -158,12 +202,12 @@ export async function PUT(request: NextRequest, { params }: RouteParams) {
 
 /**
  * DELETE /api/workflow/[id]
- * 删除工作流
+ * 删除工作流 (invalidates cache)
  */
 export async function DELETE(request: NextRequest, { params }: RouteParams) {
   try {
     const { id } = await params
-    
+
     const { getDatabase } = await import('@/lib/db/connection')
     const db = getDatabase()
 
@@ -175,7 +219,7 @@ export async function DELETE(request: NextRequest, { params }: RouteParams) {
 
     // Delete workflow from database
     db.exec('DELETE FROM workflows WHERE id = ?', [id])
-    
+
     // Delete related workflow instances
     db.exec('DELETE FROM workflow_instances WHERE workflow_id = ?', [id])
 
@@ -185,6 +229,10 @@ export async function DELETE(request: NextRequest, { params }: RouteParams) {
     } catch (versionError) {
       console.error('Failed to delete version history:', versionError)
     }
+
+    // Invalidate cache
+    workflowCache.delete(getWorkflowCacheKey(id))
+    invalidateTag('workflow')
 
     return createSuccessResponse({
       id,

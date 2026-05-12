@@ -23,10 +23,39 @@ import {
 } from '@/lib/api/error-handler'
 import { logRequestStart, logRequestComplete, logRequestError } from '@/lib/api/api-logger'
 import { getOptimizedRatingStats } from '@/lib/db/query-optimizations'
+import { LRUCache } from '@/lib/cache/lru-cache'
+
+// Cache for ratings list - 2 minute TTL
+const ratingsCache = new LRUCache<unknown>(200)
+const RATINGS_CACHE_TTL = 2 * 60 * 1000 // 2 minutes
+
+// Tag-based invalidation registry
+const cacheTags = new Map<string, Set<string>>()
+
+function registerTag(tag: string, cacheKey: string): void {
+  if (!cacheTags.has(tag)) {
+    cacheTags.set(tag, new Set())
+  }
+  cacheTags.get(tag)!.add(cacheKey)
+}
+
+function invalidateTag(tag: string): void {
+  const keys = cacheTags.get(tag)
+  if (keys) {
+    for (const key of keys) {
+      ratingsCache.delete(key)
+    }
+    cacheTags.delete(tag)
+  }
+}
+
+function getRatingsCacheKey(filters: RatingFilters): string {
+  return `ratings:list:${JSON.stringify(filters)}`
+}
 
 /**
  * GET /api/ratings
- * Get ratings list with filters
+ * Get ratings list with filters (with 2-min cache)
  */
 export async function GET(request: NextRequest) {
   const startTime = Date.now()
@@ -55,6 +84,16 @@ export async function GET(request: NextRequest) {
       per_page: searchParams.get('per_page')
         ? Math.min(parseInt(searchParams.get('per_page')!), 100)
         : 20,
+    }
+
+    const cacheKey = getRatingsCacheKey(filters)
+
+    // Try cache first (only for page 1 without specific filters for better hit rate)
+    const cached = ratingsCache.get(cacheKey)
+    if (cached !== null) {
+      const response = createSuccessResponse(cached)
+      logRequestComplete(metadata, response, startTime)
+      return response
     }
 
     const db = await getDatabaseAsync()
@@ -127,7 +166,7 @@ export async function GET(request: NextRequest) {
     // Get statistics
     const stats = await getRatingStats(db, filters)
 
-    const response = createSuccessResponse<RatingListResponse>({
+    const responseData: RatingListResponse = {
       ratings: ratingsWithParsedMetadata,
       meta: {
         total,
@@ -136,7 +175,13 @@ export async function GET(request: NextRequest) {
         total_pages: Math.ceil(total / filters.per_page!),
       },
       stats,
-    })
+    }
+
+    // Cache the result
+    ratingsCache.set(cacheKey, responseData, RATINGS_CACHE_TTL)
+    registerTag('ratings', cacheKey)
+
+    const response = createSuccessResponse<RatingListResponse>(responseData)
 
     logRequestComplete(metadata, response, startTime)
     return response
@@ -259,6 +304,9 @@ export async function POST(request: NextRequest) {
         ]
       )
 
+      // Invalidate ratings cache
+      invalidateTag('ratings')
+
       const updatedRating = db.queryRows(
         'SELECT * FROM ratings WHERE user_id = ? AND target_type = ? AND target_id = ?',
         [userId, target_type, target_id]
@@ -306,6 +354,9 @@ export async function POST(request: NextRequest) {
         ratingMetadata ? JSON.stringify(ratingMetadata) : null,
       ]
     )
+
+    // Invalidate ratings cache
+    invalidateTag('ratings')
 
     // Get created rating
     const newRating = db.queryRows('SELECT * FROM ratings WHERE id = ?', [
@@ -411,6 +462,9 @@ export async function DELETE_RATING(request: NextRequest, { params }: { params: 
 
     // Delete rating
     db.exec('DELETE FROM ratings WHERE id = ?', [id])
+
+    // Invalidate ratings cache
+    invalidateTag('ratings')
 
     const response = createSuccessResponse({
       id,

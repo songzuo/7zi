@@ -77,7 +77,7 @@
     "fuse.js": "^7.3.0",
     "glob": "^13.0.6",
     "handlebars": "^4.7.9",
-    "hono": "^4.12.14",
+    "hono": "^4.12.18",
     "html2canvas": "^1.4.1",
     "ioredis": "^5.10.1",
     "isomorphic-dompurify": "^3.12.0",
