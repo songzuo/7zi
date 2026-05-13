@@ -82,7 +82,7 @@ jobs:
       config-changed: ${{ steps.changes.outputs.config }}
       has-changes: ${{ steps.changes.outputs.any_changed }}
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
 
       - name: 获取变更文件
         id: changes
@@ -106,11 +106,11 @@ jobs:
     outputs:
       cache-key: ${{ steps.cache-keys.outputs.key }}
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
 
       # ✅ 使用 GitHub Actions cache 缓存 node_modules
       - name: 缓存 node_modules
-        uses: actions/cache@v4
+        uses: actions/cache@v5
         id: node-modules-cache
         with:
           path: |
@@ -121,7 +121,7 @@ jobs:
             ${{ runner.os }}-node-modules-
 
       - name: 设置 Node.js
-        uses: actions/setup-node@v4
+        uses: actions/setup-node@v6
         with:
           node-version: ${{ env.NODE_VERSION }}
           cache: 'npm'
@@ -140,10 +140,10 @@ jobs:
     needs: [setup]
     if: github.event_name == 'push' || github.event_name == 'workflow_dispatch'
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
 
       - name: 设置 Node.js
-        uses: actions/setup-node@v4
+        uses: actions/setup-node@v6
         with:
           node-version: ${{ env.NODE_VERSION }}
           cache: 'npm'
@@ -172,11 +172,11 @@ jobs:
     timeout-minutes: 5
     needs: [setup]
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
 
       # ✅ 共享 node_modules 缓存
       - name: 缓存 node_modules
-        uses: actions/cache@v4
+        uses: actions/cache@v5
         id: node-modules-cache
         with:
           path: |
@@ -187,7 +187,7 @@ jobs:
             ${{ runner.os }}-node-modules-
 
       - name: 设置 Node.js
-        uses: actions/setup-node@v4
+        uses: actions/setup-node@v6
         with:
           node-version: ${{ env.NODE_VERSION }}
           cache: 'npm'
@@ -212,11 +212,11 @@ jobs:
     timeout-minutes: 5
     needs: [setup]
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
 
       # ✅ 共享 node_modules 缓存
       - name: 缓存 node_modules
-        uses: actions/cache@v4
+        uses: actions/cache@v5
         id: node-modules-cache
         with:
           path: |
@@ -227,7 +227,7 @@ jobs:
             ${{ runner.os }}-node-modules-
 
       - name: 设置 Node.js
-        uses: actions/setup-node@v4
+        uses: actions/setup-node@v6
         with:
           node-version: ${{ env.NODE_VERSION }}
           cache: 'npm'
@@ -253,11 +253,11 @@ jobs:
       matrix:
         shard: [1, 2, 3, 4]
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
 
       # ✅ 共享 node_modules 缓存
       - name: 缓存 node_modules
-        uses: actions/cache@v4
+        uses: actions/cache@v5
         id: node-modules-cache
         with:
           path: |
@@ -268,7 +268,7 @@ jobs:
             ${{ runner.os }}-node-modules-
 
       - name: 设置 Node.js
-        uses: actions/setup-node@v4
+        uses: actions/setup-node@v6
         with:
           node-version: ${{ env.NODE_VERSION }}
           cache: 'npm'
@@ -300,11 +300,11 @@ jobs:
       build-hash: ${{ steps.build-info.outputs.hash }}
       build-size: ${{ steps.build-info.outputs.size }}
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
 
       # ✅ 共享 node_modules 缓存
       - name: 缓存 node_modules
-        uses: actions/cache@v4
+        uses: actions/cache@v5
         id: node-modules-cache
         with:
           path: |
@@ -315,14 +315,14 @@ jobs:
             ${{ runner.os }}-node-modules-
 
       - name: 设置 Node.js
-        uses: actions/setup-node@v4
+        uses: actions/setup-node@v6
         with:
           node-version: ${{ env.NODE_VERSION }}
           cache: 'npm'
 
       # ✅ Next.js Turbo Cache（增量构建）
       - name: 缓存 Next.js turbo
-        uses: actions/cache@v4
+        uses: actions/cache@v5
         with:
           path: .next/cache
           key: ${{ runner.os }}-nextjs-turbo-${{ hashFiles('**/package-lock.json') }}-${{ hashFiles('src/**/*.{ts,tsx,js,jsx}') }}
@@ -381,11 +381,11 @@ jobs:
       matrix:
         browser: [chromium]
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
 
       # ✅ 共享 node_modules 缓存
       - name: 缓存 node_modules
-        uses: actions/cache@v4
+        uses: actions/cache@v5
         id: node-modules-cache
         with:
           path: |
@@ -396,7 +396,7 @@ jobs:
             ${{ runner.os }}-node-modules-
 
       - name: 设置 Node.js
-        uses: actions/setup-node@v4
+        uses: actions/setup-node@v6
         with:
           node-version: ${{ env.NODE_VERSION }}
           cache: 'npm'
@@ -442,7 +442,7 @@ jobs:
       image-tag: ${{ steps.meta.outputs.version }}
       image-digest: ${{ steps.build.outputs.digest }}
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
 
       - name: 设置 Docker Buildx
         uses: docker/setup-buildx-action@v3
@@ -498,7 +498,7 @@ jobs:
     needs: [build]
     if: github.ref == 'refs/heads/main'
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
 
       - name: 下载构建产物
         uses: actions/download-artifact@v4
@@ -558,7 +558,7 @@ jobs:
       name: staging
       url: https://staging.7zi.com
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
 
       # ✅ 使用 SSH 密钥认证（替代密码）
       - name: 设置 SSH 密钥
@@ -621,7 +621,7 @@ jobs:
       name: production
       url: https://7zi.com
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
 
       # ✅ 使用 SSH 密钥认证（替代密码）
       - name: 设置 SSH 密钥
